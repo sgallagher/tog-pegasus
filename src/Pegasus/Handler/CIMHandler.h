@@ -23,7 +23,7 @@
 //
 // Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
-// Modified By:
+// Modified By: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,6 +34,7 @@
 #include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/ContentLanguages.h>  
 #include <Pegasus/Repository/CIMRepository.h>
+#include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Handler/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -53,6 +54,7 @@ public:
     // method implemented in handler.
 // l10n 
      virtual void handleIndication(
+	const OperationContext& context,
         CIMInstance& indicationHandlerInstance,
         CIMInstance& indicationInstance,
 	String nameSpace,

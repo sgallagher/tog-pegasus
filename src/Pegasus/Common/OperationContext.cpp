@@ -26,6 +26,7 @@
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+// 		Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -790,4 +791,83 @@ ContentLanguages ContentLanguageListContainer::getLanguages(void) const
 
 // l10n end
 
+//
+// SnmpTrapOidContainer
+//
+
+class SnmpTrapOidContainerRep
+{
+public:
+    String snmpTrapOid;
+};
+
+const String SnmpTrapOidContainer::NAME =
+    "SnmpTrapOidContainer";
+
+SnmpTrapOidContainer::SnmpTrapOidContainer
+    (const OperationContext::Container & container)
+{
+    const SnmpTrapOidContainer * p =
+        dynamic_cast<const SnmpTrapOidContainer *>(&container);
+
+    if(p == 0)
+    {
+        throw DynamicCastFailedException();
+    }
+
+    _rep = new SnmpTrapOidContainerRep();
+    _rep->snmpTrapOid = p->_rep->snmpTrapOid;
+}
+
+SnmpTrapOidContainer::SnmpTrapOidContainer
+    (const SnmpTrapOidContainer & container)
+{
+    _rep = new SnmpTrapOidContainerRep();
+    _rep->snmpTrapOid = container._rep->snmpTrapOid;
+}
+
+SnmpTrapOidContainer::SnmpTrapOidContainer
+    (const String & snmpTrapOid)
+{
+    _rep = new SnmpTrapOidContainerRep();
+    _rep->snmpTrapOid = snmpTrapOid;
+}
+
+SnmpTrapOidContainer::~SnmpTrapOidContainer(void)
+{
+    delete _rep;
+}
+
+SnmpTrapOidContainer & SnmpTrapOidContainer::operator=(
+    const SnmpTrapOidContainer & container)
+{
+    if (this == &container)
+    {
+        return (*this);
+    }
+
+    _rep->snmpTrapOid = container._rep->snmpTrapOid;
+
+    return (*this);
+}
+
+String SnmpTrapOidContainer::getName(void) const
+{
+    return(NAME);
+}
+
+OperationContext::Container * SnmpTrapOidContainer::clone(void) const
+{
+    return(new SnmpTrapOidContainer(_rep->snmpTrapOid));
+}
+
+void SnmpTrapOidContainer::destroy(void)
+{
+    delete this;
+}
+
+String SnmpTrapOidContainer::getSnmpTrapOid(void) const
+{
+    return(_rep->snmpTrapOid);
+}
 PEGASUS_NAMESPACE_END

@@ -30,6 +30,8 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMDateTime.h>
+#include <Pegasus/Common/OperationContext.h>
+
 
 #include "RT_IndicationProvider.h"
 
@@ -101,7 +103,16 @@ void _generateIndication (
         
         CIMIndication cimIndication (indicationInstance);
 
+	// deliver an indication without trapOid 
         handler->deliver (indicationInstance);
+
+	// deliver another indication with a trapOid which contains in the
+	// operationContext container  
+	OperationContext context;
+
+ 	// add trap OID to the context
+	context.insert(SnmpTrapOidContainer("1.3.6.1.4.1.900.2.3.9002.9600"));
+        handler->deliver (context, indicationInstance);
     }
 }
 

@@ -2001,6 +2001,8 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
                         String::EMPTY,
                         request->contentLanguages);
                
+		handler_request->operationContext = request->operationContext;
+
                 AsyncOpNode* op = this->get_op();
 
                 AsyncLegacyOperationStart *async_req = 

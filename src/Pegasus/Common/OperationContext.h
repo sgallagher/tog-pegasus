@@ -27,6 +27,7 @@
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -416,6 +417,34 @@ protected:
 
 };
 
+class SnmpTrapOidContainerRep;
+
+class PEGASUS_COMMON_LINKAGE SnmpTrapOidContainer
+    : virtual public OperationContext::Container
+{
+public:
+    static const String NAME;
+
+    SnmpTrapOidContainer
+        (const OperationContext::Container & container);
+    SnmpTrapOidContainer
+        (const SnmpTrapOidContainer & container);
+    SnmpTrapOidContainer(const String & snmpTrapOid);
+    virtual ~SnmpTrapOidContainer(void);
+
+    SnmpTrapOidContainer & operator=
+        (const SnmpTrapOidContainer & container);
+
+    virtual String getName(void) const;
+    virtual OperationContext::Container * clone(void) const;
+    virtual void destroy(void);
+
+    String getSnmpTrapOid(void) const;
+
+protected:
+    SnmpTrapOidContainerRep* _rep;
+
+};
 
 
 PEGASUS_NAMESPACE_END

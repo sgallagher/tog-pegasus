@@ -58,6 +58,7 @@ public:
     }
 
     void handleIndication(
+	const OperationContext& context,
 	CIMInstance& handler, 
 	CIMInstance& indication, 
 	String nameSpace,

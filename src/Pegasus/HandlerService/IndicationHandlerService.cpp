@@ -255,6 +255,7 @@ void IndicationHandlerService::_handleIndication(const Message* message)
 	      try
 	      {
 	     	   handlerLib->handleIndication(
+			request->operationContext,
 	        	handler,
 	        	indication,
 	        	nameSpace.getString(),

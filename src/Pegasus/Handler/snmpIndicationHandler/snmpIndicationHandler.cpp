@@ -57,7 +57,9 @@ void snmpIndicationHandler::initialize(CIMRepository* repository)
 }
 
 // l10n - note: ignoring indication language
-void snmpIndicationHandler::handleIndication(CIMInstance& handler, 
+void snmpIndicationHandler::handleIndication(
+    const OperationContext& context,
+    CIMInstance& handler, 
     CIMInstance& indication, String nameSpace,
     ContentLanguages & contentLanguages)
 {
@@ -159,28 +161,46 @@ void snmpIndicationHandler::handleIndication(CIMInstance& handler,
 	Uint16 targetHostFormat, snmpVersion;
 	Uint32 portNumber;
 
-	// trapOid from indication Class
-
-	String trapOid = indicationClass.getQualifier(
-            indicationClass.findQualifier
-                (CIMName ("MappingStrings"))).getValue().toString();
-
-	Uint32 index = trapOid.find("SNMP.");
-
-	if (index != PEG_NOT_FOUND)
+	String trapOid;
+	//
+        //  Get snmpTrapOid from context
+        //
+	try
 	{
-	    trapOid = trapOid.subString(index+5);
-	    trapOid = trapOid.subString(0, (trapOid.size()-1));
+            SnmpTrapOidContainer trapContainer = context.get
+                (SnmpTrapOidContainer::NAME);
+
+            trapOid = trapContainer.getSnmpTrapOid();
 	}
-	else
-	{
-	  // l10n
+	catch (Exception& e)
+        {
+	    // get trapOid from indication Class
 
-	  // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Invalid MappingStrings Value");
+	    Uint32 pos = indicationClass.findQualifier(CIMName ("MappingStrings"));
+	    if (pos != PEG_NOT_FOUND)
+	    {
+	        trapOid = indicationClass.getQualifier(pos).getValue().toString();
 
-	  throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED, 
-					 MessageLoaderParms("Handler.snmpIndicationHandler.snmpIndicationHandler.INVALID_VALUE", 
-							    "Invalid $0 Value", "MappingStrings"));
+		trapOid = trapOid.subString(11, PEG_NOT_FOUND);
+
+                if ((String::compare(trapOid, "SNMP.", 5)) == 0)
+                {
+                    trapOid = trapOid.subString(5, (trapOid.size()-6));
+                }
+	        else
+	        {
+		    // l10n
+	            // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Invalid MappingStrings Value");
+		    throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+						   MessageLoaderParms("Handler.snmpIndicationHandler.snmpIndicationHandler.INVALID_VALUE",
+								       "Invalid $0 Value", "MappingStrings")); 
+	        }
+	    }
+	    else
+	    {
+		//L10N_TODO
+	        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Qualifier MappingStrings can not be found");
+	    }
 	}
 
 	handler.getProperty(targetHostPos).getValue().get(targetHost);
@@ -207,7 +227,6 @@ void snmpIndicationHandler::handleIndication(CIMInstance& handler,
     }
     else
     {
-
       // l10n
 
       // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 

@@ -85,6 +85,7 @@ public:
 
 // l10n
     void handleIndication(
+	const OperationContext& context,
 	CIMInstance& indicationHandlerInstance, 
 	CIMInstance& indicationInstance, 
 	String nameSpace,

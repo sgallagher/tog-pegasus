@@ -25,6 +25,7 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//		Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -76,6 +77,7 @@ public:
 
 // l10n
     void handleIndication(
+	const OperationContext& context,
 	CIMInstance& indicationHandlerInstance, 
 	CIMInstance& indicationInstance, 
 	String nameSpace,
@@ -84,6 +86,7 @@ public:
 
 // l10n - note: ignoring the indication language
 void sendmailIndicationHandler::handleIndication(
+    const OperationContext& context,
     CIMInstance& indicationHandlerInstance,
     CIMInstance& indicationInstance,
     String nameSpace,

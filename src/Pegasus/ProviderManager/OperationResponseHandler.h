@@ -26,6 +26,7 @@
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
 //              Dave Rosckes (rosckes@us.ibm.com)
+//		Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -460,14 +461,22 @@ public:
         // ATTN: temporarily convert indication to instance
         CIMInstance cimInstance(cimIndication);
 
-        //
+	//
         //  Get list of subscription instance names from context
         //
-        SubscriptionInstanceNamesContainer container = context.get
-            (SubscriptionInstanceNamesContainer::NAME);
+        Array<CIMObjectPath> subscriptionInstanceNames;
+        try
+        {
+            SubscriptionInstanceNamesContainer container = context.get
+                 (SubscriptionInstanceNamesContainer::NAME);
 
-        Array<CIMObjectPath> subscriptionInstanceNames =
-            container.getInstanceNames();
+            subscriptionInstanceNames =
+                container.getInstanceNames();
+        }
+        catch (Exception& e)
+        {
+            subscriptionInstanceNames.clear();
+        }
 
 // l10n
 		ContentLanguages contentLangs;
@@ -494,9 +503,10 @@ public:
 	     _request_copy.messageId,
             cimInstance.getPath().getNameSpace(),
             cimInstance,
-            subscriptionInstanceNames,
+	    subscriptionInstanceNames,
             QueueIdStack(_target->getQueueId(), _source->getQueueId()),
             contentLangs);
+        request->operationContext = context;
 
         // send message
         // <<< Wed Apr 10 21:04:00 2002 mdd >>>

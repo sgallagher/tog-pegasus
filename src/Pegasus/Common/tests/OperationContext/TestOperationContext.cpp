@@ -25,6 +25,7 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//		Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -650,4 +651,87 @@ int main(void)
     cout << "+++++ passed all tests." << endl;
 
     exit(0);
+
+    //
+    //  SnmpTrapOidContainer
+    //
+    try
+    {
+        String snmpTrapOid ("1.3.6.1.4.1.992.2.3.9210.8400");
+
+        context.insert(SnmpTrapOidContainer(snmpTrapOid));
+
+        SnmpTrapOidContainer container = context.get
+            (SnmpTrapOidContainer::NAME);
+
+        if(snmpTrapOid != container.getSnmpTrapOid())
+        {
+            throw 0;
+        }
+    }
+    catch(...)
+    {
+        cout << "----- Snmp Trap Oid Container failed" << endl;
+
+        exit(1);
+    }
+
+    try
+    {
+        context.clear();
+        String snmpTrapOid ("1.3.6.1.4.1.992.2.3.9210.8400");
+
+        context.insert(SnmpTrapOidContainer(snmpTrapOid));
+
+        //
+        //  This test exercises the SnmpTrapOidContainer copy 
+        //  constructor
+        //
+        SnmpTrapOidContainer container = 
+            (SnmpTrapOidContainer)context.get
+            (SnmpTrapOidContainer::NAME);
+
+        if(snmpTrapOid != container.getSnmpTrapOid())
+        {
+            throw 0;
+        }
+    }
+    catch(...)
+    {
+        cout << 
+          "----- SnmpTrapOid Container copy constructor failed" 
+             << endl;
+
+        exit(1);
+    }
+
+    try
+    {
+        context.clear();
+        String snmpTrapOid ("1.3.6.1.4.1.992.2.3.9210.8400");
+
+        context.insert(SnmpTrapOidContainer(snmpTrapOid));
+
+        //
+        //  This test exercises the SnmpTrapOidContainer 
+        //  assignment operator
+        //
+        SnmpTrapOidContainer container = 
+            SnmpTrapOidContainer(" ");
+        container =
+            (SnmpTrapOidContainer)context.get
+            (SnmpTrapOidContainer::NAME);
+
+        if(snmpTrapOid != container.getSnmpTrapOid())
+        {
+            throw 0;
+        }
+    }
+    catch(...)
+    {
+        cout << 
+        "----- SnmpTrapOid Container assignment operator failed" << endl;
+
+        exit(1);
+    }
 }

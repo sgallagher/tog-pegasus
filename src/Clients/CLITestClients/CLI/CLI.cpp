@@ -178,7 +178,7 @@ int main(int argc, char** argv)
         GetOptions(om, argc, argv, testHome);
 
         // Initialize all of the function input parameters.
-        opts.location =   "localhost:5988";
+        opts.location =  String::EMPTY;
         opts.nameSpace = "root/cimv2";
         opts.cimCmd = "unknown";
         opts.className = CIMName();
@@ -301,13 +301,6 @@ int main(int argc, char** argv)
     {
         if (CommandTable[cmdIndex].ID_Command != ID_ShowOptions)
         {
-            if (opts.verboseTest)
-            {
-                cout << "Connecting to " << opts.location
-                     << " for User = " << opts.user
-                     << " password = " << opts.password
-                     << endl;
-            }
             // Take off port number if it is on host name
             Uint32 index = opts.location.find (':');
             String host = opts.location.subString (0, index);
@@ -321,12 +314,25 @@ int main(int argc, char** argv)
             }
 
             //check whether we should use connect() or connectLocal()
-            if (String::equal(host, "localhost") || String::equal(host, "127.0.0.1"))
+            //an empty location option indicates to use connectLocal()
+            if (String::equal(host, String::EMPTY))
             {
+                if (opts.verboseTest)
+                {
+                    cout << "Connecting to localhost" << endl;
+                }
                 client.connectLocal();
 
             } else
             {
+                if (opts.verboseTest)
+                {
+                    cout << "Connecting to " << opts.location
+                         << " for User = " << opts.user
+                         << " password = " << opts.password
+                         << endl;
+                }
+
                 client.connect(host, portNumber, opts.user, opts.password);
             }
         }

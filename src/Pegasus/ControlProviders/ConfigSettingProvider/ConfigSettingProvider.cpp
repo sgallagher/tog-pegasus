@@ -95,74 +95,71 @@ void ConfigSettingProvider::getInstance(
         String            keyName;
         String            keyValue;
 
+        //
+        // check if the class name requested is PG_ConfigSetting
+        //
+        if (!String::equalNoCase(PG_CONFIG_SETTING, instanceName.getClassName()))
+        {
+            PEG_METHOD_EXIT();
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
+                                        instanceName.getClassName());
+        }
 
-        Array<KeyBinding> kbArray = instanceName.getKeyBindings();
-
+        //
         // validate key bindings
-        if ( kbArray.size() != 1)
+        //
+        Array<KeyBinding> kbArray = instanceName.getKeyBindings();
+        if ( (kbArray.size() != 1) ||
+             (!String::equalNoCase(kbArray[0].getName(), PROPERTY_NAME)) )
         {
             PEG_METHOD_EXIT();
             throw PEGASUS_CIM_EXCEPTION(
-                CIM_ERR_NOT_SUPPORTED,
-                "No key was specified");
+                CIM_ERR_INVALID_PARAMETER,
+                "Invalid instance name");
         }
+
+        keyValue.assign(kbArray[0].getValue());
 
         // begin processing the request
         handler.processing();
 
-        keyName.assign(kbArray[0].getName());
-        keyValue.assign(kbArray[0].getValue());
-
-        if(String::equal(keyName, PROPERTY_NAME))
+        //
+        // Get values for the property
+        //
+        try
         {
-            //
-            // Get values for the property
-            //
-            try
-            {
-                _configManager->getPropertyInfo(keyValue, propertyInfo);
-
-            }
-            catch (UnrecognizedConfigProperty& ucp)
-            {
-                PEG_METHOD_EXIT();
-                throw PEGASUS_CIM_EXCEPTION(
-                    CIM_ERR_NOT_FOUND,
-                    String("Configuration property \"") + keyValue + "\"");
-            }
-
-            if (propertyInfo.size() >= 5)
-            {
-                CIMInstance instance(PG_CONFIG_SETTING);
-
-                //
-                // construct the instance
-                //
-                instance.addProperty(CIMProperty(PROPERTY_NAME, propertyInfo[0]));
-                instance.addProperty(CIMProperty(DEFAULT_VALUE, propertyInfo[1]));
-                instance.addProperty(CIMProperty(CURRENT_VALUE, propertyInfo[2]));
-                instance.addProperty(CIMProperty(PLANNED_VALUE, propertyInfo[3]));
-                instance.addProperty(CIMProperty(DYNAMIC_PROPERTY,
-                    Boolean(propertyInfo[4]=="true"?true:false)));
-
-                handler.deliver(instance);
-
-		// complete processing the request
-		handler.complete();
-
-                PEG_METHOD_EXIT();
-		return ;
-            }
+            _configManager->getPropertyInfo(keyValue, propertyInfo);
+        }
+        catch (UnrecognizedConfigProperty& ucp)
+        {
+            PEG_METHOD_EXIT();
+            throw PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_NOT_FOUND,
+                String("Configuration property \"") + keyValue + "\"");
         }
 
-        //
-        // failed to get the instance
-        //
-        PEG_METHOD_EXIT();
-        throw PEGASUS_CIM_EXCEPTION(
-            CIM_ERR_FAILED,
-            "Invalid key name was specified");
+        if (propertyInfo.size() >= 5)
+        {
+            CIMInstance instance(PG_CONFIG_SETTING);
 
+            //
+            // construct the instance
+            //
+            instance.addProperty(CIMProperty(PROPERTY_NAME, propertyInfo[0]));
+            instance.addProperty(CIMProperty(DEFAULT_VALUE, propertyInfo[1]));
+            instance.addProperty(CIMProperty(CURRENT_VALUE, propertyInfo[2]));
+            instance.addProperty(CIMProperty(PLANNED_VALUE, propertyInfo[3]));
+            instance.addProperty(CIMProperty(DYNAMIC_PROPERTY,
+                Boolean(propertyInfo[4]=="true"?true:false)));
+
+            handler.deliver(instance);
+
+            // complete processing the request
+            handler.complete();
+
+            PEG_METHOD_EXIT();
+            return ;
+        }
     }
 
 void ConfigSettingProvider::modifyInstance(
@@ -175,145 +172,128 @@ void ConfigSettingProvider::modifyInstance(
     {
         PEG_METHOD_ENTER(TRC_CONFIG, "ConfigSettingProvider::modifyInstance()");
 
-        // ATTN: Partial modification is not yet supported by this provider
-        // Qualifiers are not processed anyway, so the IncludeQualifiers
-        // flag is ignored
-        if (!propertyList.isNull())
+        // NOTE: Qualifiers are not processed by this provider, so the
+        // IncludeQualifiers flag is ignored.
+
+        //
+        // check if the class name requested is PG_ConfigSetting
+        //
+        if (!String::equalNoCase(PG_CONFIG_SETTING,
+                                 instanceReference.getClassName()))
         {
             PEG_METHOD_EXIT();
-            throw CIMException(CIM_ERR_NOT_SUPPORTED);
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
+                                        instanceReference.getClassName());
         }
 
-        String propertyName = String::EMPTY;
-        String defaultValue = String::EMPTY;
-        String currentValue = String::EMPTY;
-        String plannedValue = String::EMPTY;
-        Boolean dynamicProperty;
+        //
+        // validate key bindings
+        //
+        Array<KeyBinding> kbArray = instanceReference.getKeyBindings();
+        if ( (kbArray.size() != 1) ||
+             (!String::equalNoCase(kbArray[0].getName(), PROPERTY_NAME)) )
+        {
+            PEG_METHOD_EXIT();
+            throw PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_INVALID_PARAMETER,
+                "Invalid instance name");
+        }
 
-        String myCurrentValue = String::EMPTY;
-        String myPlannedValue = String::EMPTY;
+        String configPropertyName = kbArray[0].getValue();
+
+        // Modification of the entire instance is not supported by this provider
+        if (propertyList.isNull())
+        {
+            PEG_METHOD_EXIT();
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
+                                        "Modification of entire instance");
+        }
+
         Boolean currentValueModified = false;
         Boolean plannedValueModified = false;
 
-        CIMInstance modifiedInstance = modifiedIns;
+        for (Uint32 i=0; i<propertyList.getNumProperties(); i++)
+        {
+            String propertyName = propertyList.getPropertyName(i);
+            if (String::equalNoCase(propertyName, CURRENT_VALUE))
+            {
+                currentValueModified = true;
+            }
+            else if (String::equalNoCase(propertyName, PLANNED_VALUE))
+            {
+                plannedValueModified = true;
+            }
+            else
+            {
+                PEG_METHOD_EXIT();
+                throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
+                    String("Modification of property \"") + propertyName + "\"");
+            }
+        }
+
+        String currentValue = String::EMPTY;
+        String plannedValue = String::EMPTY;
+        Boolean currentValueIsNull = false;
+        Boolean plannedValueIsNull = false;
 
 	// begin processing the request
 	handler.processing();
 
-        // ATTN: Add error handling to check if the properties exist
-        // ATTN: Check for TypeMismatch exceptions from CIMValue.get()
-        Uint32 pos = modifiedInstance.findProperty(PROPERTY_NAME);
-        CIMProperty prop = (CIMProperty)modifiedInstance.getProperty(pos);
-        prop.getValue().get(propertyName);
+        //
+        // Get the current value from the instance
+        //
+        Uint32 pos = modifiedIns.findProperty(CURRENT_VALUE);
+        if (pos == PEG_NOT_FOUND)
+        {
+            currentValueIsNull = true;
+        }
+        else
+        {
+            CIMConstProperty prop = modifiedIns.getProperty(pos);
+            try
+            {
+                prop.getValue().get(currentValue);
+            }
+            catch (Exception& e)
+            {
+                PEG_METHOD_EXIT();
+                throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
+            }
+        }
 
-        pos = modifiedInstance.findProperty(DEFAULT_VALUE);
-        prop = (CIMProperty)modifiedInstance.getProperty(pos);
-        prop.getValue().get(defaultValue);
-
-        pos = modifiedInstance.findProperty(CURRENT_VALUE);
-        prop = (CIMProperty)modifiedInstance.getProperty(pos);
-        prop.getValue().get(currentValue);
-
-        pos = modifiedInstance.findProperty(PLANNED_VALUE);
-        prop = (CIMProperty)modifiedInstance.getProperty(pos);
-        prop.getValue().get(plannedValue);
-
-        pos = modifiedInstance.findProperty(DYNAMIC_PROPERTY);
-        prop = (CIMProperty)modifiedInstance.getProperty(pos);
-        prop.getValue().get(dynamicProperty);
+        //
+        // Get the planned value from the instance
+        //
+        pos = modifiedIns.findProperty(PLANNED_VALUE);
+        if (pos == PEG_NOT_FOUND)
+        {
+            plannedValueIsNull = true;
+        }
+        else
+        {
+            CIMConstProperty prop = modifiedIns.getProperty(pos);
+            try
+            {
+                prop.getValue().get(plannedValue);
+            }
+            catch (Exception& e)
+            {
+                PEG_METHOD_EXIT();
+                throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
+            }
+        }
 
         try
         {
             //
-            // check what properties are modified, validate the new values
-            // and then update the new values with the Config Manager.
+            // Update the current value, if requested
             //
-            myCurrentValue = _configManager->getCurrentValue(propertyName);
-            myPlannedValue = _configManager->getPlannedValue(propertyName);
-
-            //
-            // check whether current value is modified or not
-            //
-         //   if ( !String::equal(currentValue, myCurrentValue) )
-            {
-                currentValueModified = true;
-
-                //
-                // If the current value is empty, then it must be an unset
-                // request, so get the default value.
-                //
-                if ( String::equal(currentValue, String::EMPTY) )
-                {
-                    currentValue = _configManager->getDefaultValue(propertyName);
-                }
-                //
-                // Otherwise validate the new current value.
-                //
-                else if ( !_configManager->validatePropertyValue(
-                    propertyName, currentValue) )
-                {
-                    //
-                    // Invalid current value
-                    //
-                    PEG_METHOD_EXIT();
-                    throw PEGASUS_CIM_EXCEPTION(
-                        CIM_ERR_TYPE_MISMATCH,
-                        "Specified current value is not valid");
-                }
-            }
-            //
-            // check whether planned value is modified or not
-            //
-          //  if ( !String::equal(plannedValue, myPlannedValue) )
-            {
-                plannedValueModified = true;
-
-                //
-                // If the planned value is empty, then it must be an unset
-                // request, so do nothing.
-                //
-                if ( String::equal(plannedValue, String::EMPTY) )
-                {
-		    ;
-                }
-                //
-                // Otherwise validate the new planned value.
-                //
-                else if ( !_configManager->validatePropertyValue(
-                    propertyName, plannedValue) )
-                {
-                    //
-                    // Invalid planned value
-                    //
-                    PEG_METHOD_EXIT();
-                    throw PEGASUS_CIM_EXCEPTION(
-                        CIM_ERR_TYPE_MISMATCH,
-                        "Specified planned value is not valid");
-                }
-            }
-        }
-        catch (UnrecognizedConfigProperty& ucp)
-        {
-            //
-            // Invalid property name was specified
-            //
-            PEG_METHOD_EXIT();
-            throw PEGASUS_CIM_EXCEPTION(
-                CIM_ERR_NOT_FOUND,
-                String("Configuration property \"") + propertyName + "\"");
-        }
-
-        try
-        {
-            Boolean retValue = false;
-
             if (currentValueModified)
             {
-                retValue = _configManager->updateCurrentValue(
-                    propertyName, currentValue);
-
-                if (retValue == false)
+                if ( !_configManager->updateCurrentValue(
+                    configPropertyName, currentValue, currentValueIsNull) )
                 {
+                    handler.complete();
                     PEG_METHOD_EXIT();
                     throw PEGASUS_CIM_EXCEPTION(
                         CIM_ERR_FAILED,
@@ -321,28 +301,20 @@ void ConfigSettingProvider::modifyInstance(
                 }
             }
 
+            //
+            // Update the planned value, if requested
+            //
             if (plannedValueModified)
             {
-                retValue = _configManager->updatePlannedValue(
-                    propertyName, plannedValue);
-
-                if (retValue == false)
+                if ( !_configManager->updatePlannedValue(
+                    configPropertyName, plannedValue, plannedValueIsNull) )
                 {
+		    handler.complete();
                     PEG_METHOD_EXIT();
                     throw PEGASUS_CIM_EXCEPTION(
                         CIM_ERR_FAILED,
                         "Failed to update the planned value.");
                 }
-            }
-
-            //
-            // Modifications done, so return.
-            //
-            if (currentValueModified || plannedValueModified)
-            {
-		handler.complete();
-                PEG_METHOD_EXIT();
-                return;
             }
         }
         catch (NonDynamicConfigProperty& ndcp)
@@ -355,26 +327,20 @@ void ConfigSettingProvider::modifyInstance(
         {
             PEG_METHOD_EXIT();
             throw PEGASUS_CIM_EXCEPTION(
-                CIM_ERR_TYPE_MISMATCH, ipv.getMessage());
+                CIM_ERR_FAILED, ipv.getMessage());
         }
         catch (UnrecognizedConfigProperty& ucp)
         {
             PEG_METHOD_EXIT();
             throw PEGASUS_CIM_EXCEPTION(
                 CIM_ERR_NOT_FOUND,
-                String("Configuration property \"") + propertyName + "\"");
+                String("Configuration property \"") +
+                    configPropertyName + "\"");
         }
 
-
-        //
-        // Should not get here if the modifications were done.
-        // This must be an attempt to modifiy the property by
-        // spcecifying its existing value.
-        //
+        handler.complete();
         PEG_METHOD_EXIT();
-        throw PEGASUS_CIM_EXCEPTION(
-            CIM_ERR_ALREADY_EXISTS,
-            "Specified property is not modified.");
+        return;
     }
 
 void ConfigSettingProvider::enumerateInstances(
@@ -392,10 +358,11 @@ void ConfigSettingProvider::enumerateInstances(
         //
         // check if the class name requested is PG_ConfigSetting
         //
-        if (!String::equal(PG_CONFIG_SETTING, ref.getClassName()))
+        if (!String::equalNoCase(PG_CONFIG_SETTING, ref.getClassName()))
         {
             PEG_METHOD_EXIT();
-            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, ref.getClassName());
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
+                                        ref.getClassName());
         }
 
 	// begin processing the request
@@ -467,10 +434,10 @@ void ConfigSettingProvider::enumerateInstanceNames(
 	const String& className = classReference.getClassName();
 	const String& nameSpace = classReference.getNameSpace();
 
-        if (!String::equal(PG_CONFIG_SETTING, className))
+        if (!String::equalNoCase(PG_CONFIG_SETTING, className))
         {
             PEG_METHOD_EXIT();
-            throw PEGASUS_CIM_EXCEPTION( CIM_ERR_NOT_FOUND, className );
+            throw PEGASUS_CIM_EXCEPTION( CIM_ERR_NOT_SUPPORTED, className );
         }
 
 	// begin processing the request

@@ -114,7 +114,7 @@ static const char DYNAMIC_PROPERTY []          = "DynamicProperty";
     The constants representing the messages.
 */
 static const char CIMOM_NOT_RUNNING []         = 
-                        "CIMOM may not be running.";
+                        "CIM server may not be running.";
 
 static const char FILE_NOT_EXIST []            = 
                         "Configuration files does not exist";
@@ -158,7 +158,7 @@ static const char UPDATED_IN_FILE []           =
                         "' updated in configuration file.";
 
 static const char CONFIG_SCHEMA_NOT_LOADED []  =
-    "Please make sure that the config schema is loaded on the CIMOM.";
+    "Please make sure that the config schema is loaded in the CIM server.";
 
 static const char PROPERTY_NOT_FOUND []        =
                         "Specified property name was not found.";
@@ -568,6 +568,8 @@ Uint32 CIMConfigCommand::execute (
     String    currentValue  = String::EMPTY;
     String    plannedValue  = String::EMPTY;
     String    pegasusHome   = String::EMPTY;
+    Boolean   gotCurrentValue = false;
+    Boolean   gotPlannedValue = false;
 
 
     if ( _operationType == OPERATION_TYPE_UNINITIALIZED )
@@ -670,7 +672,9 @@ Uint32 CIMConfigCommand::execute (
 
                     defaultValue = propertyValues[1];
                     currentValue = propertyValues[2];
+                    gotCurrentValue = true;
                     plannedValue = propertyValues[3];
+                    gotPlannedValue = true;
                 }
                 else
                 {
@@ -678,15 +682,15 @@ Uint32 CIMConfigCommand::execute (
                     {
                         errPrintWriter << "Option -" << OPTION_DEFAULT_VALUE <<
                            " is not valid for this command when" <<
-                           " CIMOM is not running." << endl;
+                           " CIM server is not running." << endl;
                         return ( RC_ERROR );
                     }
                     else 
                     {
-                        currentValue = _configFileHandler->getCurrentValue ( 
-                            _propertyName );
-                        plannedValue = _configFileHandler->getPlannedValue ( 
-                            _propertyName );
+                        gotCurrentValue = _configFileHandler->getCurrentValue ( 
+                            _propertyName, currentValue );
+                        gotPlannedValue = _configFileHandler->getPlannedValue ( 
+                            _propertyName, plannedValue );
                     }
                 }
             }
@@ -722,12 +726,28 @@ Uint32 CIMConfigCommand::execute (
 
             if( _currentValueSet || ( !_plannedValueSet && !_defaultValueSet ) )
             {
-                outPrintWriter << "Current value: " << currentValue << endl;
+                if (gotCurrentValue)
+                {
+                    outPrintWriter << "Current value: " << currentValue << endl;
+                }
+                else
+                {
+                    outPrintWriter << "Current value can not be determined "
+                        "because the CIM server is not running." << endl;
+                }
             }
 
             if( _plannedValueSet )
             {
-                outPrintWriter << "Planned value: " << plannedValue << endl;
+                if (gotPlannedValue)
+                {
+                    outPrintWriter << "Planned value: " << plannedValue << endl;
+                }
+                else
+                {
+                    outPrintWriter << "Planned value can not be determined "
+                        "because the CIM server is not running." << endl;
+                }
             }
 
             if( _defaultValueSet )
@@ -744,18 +764,8 @@ Uint32 CIMConfigCommand::execute (
             {
                 if (connected)
                 {
-		   // If _propertyValue is null, set it to be set_empty
-		   if (_propertyValue == String::EMPTY)
-		   {
-			 _propertyValue = EMPTY_VALUE;
-		   }
                     _updatePropertyInCIMServer( outPrintWriter, 
-                        errPrintWriter, _propertyName, _propertyValue);
-
-		    if (String::equal(_propertyValue, EMPTY_VALUE))
-		    {
-			_propertyValue = "";	
-		    }
+                        errPrintWriter, _propertyName, _propertyValue, false);
 
                     if ( _currentValueSet )
                     {
@@ -783,7 +793,7 @@ Uint32 CIMConfigCommand::execute (
                     else if (_plannedValueSet)
                     {
                         if ( !_configFileHandler->updatePlannedValue( 
-                            _propertyName, _propertyValue ) )
+                            _propertyName, _propertyValue, false ) )
                         {
                             errPrintWriter << "Failed to update the planned" 
                                 << " value of the Property '" << _propertyName 
@@ -858,10 +868,10 @@ Uint32 CIMConfigCommand::execute (
             {
                 if (connected)
                 {
-                    _propertyValue = "";
+                    _propertyValue = String::EMPTY;
 
                     _updatePropertyInCIMServer( outPrintWriter, 
-                        errPrintWriter, _propertyName, _propertyValue);
+                        errPrintWriter, _propertyName, _propertyValue, true);
 
                     if ( _currentValueSet )
                     {
@@ -888,7 +898,7 @@ Uint32 CIMConfigCommand::execute (
                     }
 
                     if ( !_configFileHandler->updatePlannedValue( 
-                        _propertyName, _propertyValue ) )
+                        _propertyName, _propertyValue, true ) )
                     {
                         return ( RC_ERROR );
                     }
@@ -1110,7 +1120,8 @@ void CIMConfigCommand::_updatePropertyInCIMServer
     ostream&    outPrintWriter, 
     ostream&    errPrintWriter,
     const String&   propName,
-    const String&   propValue
+    const String&   propValue,
+    Boolean     isUnsetOperation
     ) 
 {
 
@@ -1128,38 +1139,37 @@ void CIMConfigCommand::_updatePropertyInCIMServer
         CIMReference reference(
             _hostName, INTERNAL_NAMESPACE, PG_CONFIG_CLASS, kbArray);
 
-        CIMInstance modifiedInst =
-            _client->getInstance(INTERNAL_NAMESPACE, reference);
+        CIMInstance modifiedInst = CIMInstance(PG_CONFIG_CLASS);
+        Array<String> propertyList;
 
         if ( _currentValueSet )
         {
-            Uint32 pos = modifiedInst.findProperty(CURRENT_VALUE);
-            CIMProperty prop = (CIMProperty)modifiedInst.getProperty(pos);
-            modifiedInst.removeProperty(pos);
- 
-            prop.setValue(CIMValue(propValue));
-
-            modifiedInst.addProperty(prop);
+            if (!isUnsetOperation)
+            {
+                CIMProperty prop =
+                    CIMProperty(CURRENT_VALUE, CIMValue(propValue));
+                modifiedInst.addProperty(prop);
+            }
+            propertyList.append(CURRENT_VALUE);
         }
 
         if ( _plannedValueSet )
         {
-            Uint32 pos = modifiedInst.findProperty(PLANNED_VALUE);
-            CIMProperty prop = (CIMProperty)modifiedInst.getProperty(pos);
-
-            modifiedInst.removeProperty(pos);
- 
-            prop.setValue(CIMValue(propValue));
-
-            modifiedInst.addProperty(prop);
-
-            //modifiedInst.addProperty(
-            //    CIMProperty(PLANNED_VALUE, propValue));
+            if (!isUnsetOperation)
+            {
+                CIMProperty prop =
+                    CIMProperty(PLANNED_VALUE, CIMValue(propValue));
+                modifiedInst.addProperty(prop);
+            }
+            propertyList.append(PLANNED_VALUE);
         }
 
         CIMNamedInstance namedInstance(reference, modifiedInst);
-        _client->modifyInstance(INTERNAL_NAMESPACE, namedInstance);
-
+        _client->modifyInstance(
+            INTERNAL_NAMESPACE,
+            namedInstance,
+            false,
+            CIMPropertyList(propertyList));
     }
     catch (CIMClientException& e)
     {

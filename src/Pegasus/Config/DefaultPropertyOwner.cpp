@@ -239,11 +239,6 @@ void DefaultPropertyOwner::updateCurrentValue(
     const String& name, 
     const String& value)
 {
-    if (String::equal(value, EMPTY_VALUE))
-    {
-            throw InvalidPropertyValue(name,value);
-    }
-
     //
     // make sure the property is dynamic before updating the value.
     //
@@ -268,10 +263,6 @@ void DefaultPropertyOwner::updatePlannedValue(
     const String& name, 
     const String& value)
 {
-    if (String::equal(value, EMPTY_VALUE))
-    {
-            throw InvalidPropertyValue(name,value);
-    }
     //
     // Since the validations done in initPlannedValue are sufficient and 
     // no additional validations required for update, we shall call 

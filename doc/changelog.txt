@@ -166,6 +166,12 @@ TAG: Version_1_09.
    the Linux-specific OS provider and added properties to the HP-UX and
    Windows OS providers.
 
+28. (Roger Kumpf - HP) 24 Apr 2002 - Overhauled the configuration property
+    "unset" functionality.  cimconfig now uses modifyInstance with a
+    property list to specify whether the current or planned value (or both)
+    are to be updated.  It uses a "null" value to indicate that the value
+    should be unset (reset to default).
+
 ========================================================================
 
 Version 1.08 working towards 1.1 - Started 27 March 2002

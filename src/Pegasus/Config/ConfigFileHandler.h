@@ -31,8 +31,6 @@
 #ifndef Pegasus_ConfigFileHandler_h
 #define Pegasus_ConfigFileHandler_h
 
-#define EMPTY_VALUE "set_empty"
-
 #include <cctype>
 #include <Pegasus/Config/Linkage.h>
 #include <Pegasus/Config/ConfigExceptions.h>
@@ -133,9 +131,13 @@ public:
 
     @param  name   name of the property to be updated.
     @param  value  value of the property to be updated.
+    @param  unset  specifies whether the property should be updated or unset.
     @return true   if the property updated successfully, else false.
     */
-    Boolean updateCurrentValue (const String& name, const String& value);
+    Boolean updateCurrentValue(
+        const String& name,
+        const String& value,
+        Boolean unset);
 
 
     /** 
@@ -144,27 +146,33 @@ public:
 
     @param  name   name of the property to be updated.
     @param  value  value of the property to be updated.
+    @param  unset  specifies whether the property should be updated or unset.
     @return true   if the property updated successfully, else false.
     */
-    Boolean updatePlannedValue (const String& name, const String& value);
+    Boolean updatePlannedValue(
+        const String& name,
+        const String& value,
+        Boolean unset);
 
 
     /** 
     Get the current property value for the specified property name. 
 
     @param  name   name of the property.
-    @return string containing the value for the specified property.
+    @param  value  value of the property (output parameter).
+    @return true if the property is found and returned, false otherwise.
     */
-    String getCurrentValue (const String& name);
+    Boolean getCurrentValue (const String& name, String& value);
 
 
     /** 
     Get the planned property value for the specified property name. 
 
     @param  name   name of the property.
-    @return string containing the value for the specified property.
+    @param  value  value of the property (output parameter).
+    @return true if the property is found and returned, false otherwise.
     */
-    String getPlannedValue (const String& name);
+    Boolean getPlannedValue (const String& name, String& value);
 
 
     /** 

@@ -175,11 +175,6 @@ void RepositoryPropertyOwner::initCurrentValue(
     const String& value)
 {
 
-    if (String::equal(value, EMPTY_VALUE))
-    {
-            throw InvalidPropertyValue(name,value);
-    }
-
     if (String::equalNoCase(_repositoryIsDefaultInstanceProvider->propertyName, name))
     {
         _repositoryIsDefaultInstanceProvider->currentValue = value;
@@ -198,11 +193,6 @@ void RepositoryPropertyOwner::initPlannedValue(
     const String& name, 
     const String& value)
 {
-    if (String::equal(value, EMPTY_VALUE))
-    {
-            throw InvalidPropertyValue(name,value);
-    }
-
     if (String::equalNoCase(_repositoryIsDefaultInstanceProvider->propertyName, name))
     {
         _repositoryIsDefaultInstanceProvider->plannedValue= value;

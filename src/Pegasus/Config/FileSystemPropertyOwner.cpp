@@ -272,12 +272,6 @@ void FileSystemPropertyOwner::initCurrentValue(
     const String& name, 
     const String& value)
 {
-    // Perform validation
-    if (String::equal(value, EMPTY_VALUE))
-    {
-            throw InvalidPropertyValue(name,value);
-    }
-    
     if (String::equalNoCase(_repositoryDir->propertyName, name))
     {
         _repositoryDir->currentValue = value;
@@ -304,12 +298,6 @@ void FileSystemPropertyOwner::initPlannedValue(
     const String& name, 
     const String& value)
 {
-    // Perform validation
-    if (String::equal(value, EMPTY_VALUE))
-    {
-        throw InvalidPropertyValue(name,value);
-    }
-
     if (String::equalNoCase(_repositoryDir->propertyName, name))
     {
         _repositoryDir->plannedValue = value;
@@ -336,14 +324,6 @@ void FileSystemPropertyOwner::updateCurrentValue(
     const String& value) 
 {
     //
-    // Validate the specified value
-    //
-    if (!isValid(name, value))
-    {
-        throw InvalidPropertyValue(name, value);
-    }
-
-    //
     // make sure the property is dynamic before updating the value.
     //
     if (!isDynamic(name))
@@ -360,14 +340,6 @@ void FileSystemPropertyOwner::updatePlannedValue(
     const String& name, 
     const String& value)
 {
-    //
-    // Validate the specified value
-    //
-    if (!isValid(name, value))
-    {
-        throw InvalidPropertyValue(name, value);
-    }
-
     if (String::equalNoCase(_repositoryDir->propertyName, name))
     {
         _repositoryDir->plannedValue = value;
@@ -391,13 +363,6 @@ Checks to see if the given value is valid or not.
 */
 Boolean FileSystemPropertyOwner::isValid(const String& name, const String& value)
 {
-    Boolean retVal = false;
-
-    if (String::equal(value, EMPTY_VALUE))
-    {
-        throw InvalidPropertyValue(name, value);
-    }
-
     if (!isDirValid( value ))
     {
         throw InvalidPropertyValue(name, value);

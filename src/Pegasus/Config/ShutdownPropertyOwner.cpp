@@ -225,32 +225,14 @@ void ShutdownPropertyOwner::initCurrentValue(
     const String& name, 
     const String& value)
 {
-    if (String::equal(value, EMPTY_VALUE))
-    {
-            throw InvalidPropertyValue(name,value);
-    }
-
     // Perform validation
     if (String::equalNoCase(_operationTimeout->propertyName, name))
     {
-	//
-	// validate the timeout value
-	//
-	if ( isValid( name, value ) )
-	{
-            _operationTimeout->currentValue = value;
-        }
+        _operationTimeout->currentValue = value;
     }
     else if (String::equalNoCase(_shutdownTimeout->propertyName, name))
     {
-	//
-	// validate the timeout value
-	//
-        _shutdownTimeout->currentValue = _shutdownTimeout->defaultValue;
-        if ( isValid( name, value ) )
-        {
-            _shutdownTimeout->currentValue = value;
-        }
+        _shutdownTimeout->currentValue = value;
     }
     else
     {
@@ -266,11 +248,6 @@ void ShutdownPropertyOwner::initPlannedValue(
     const String& name, 
     const String& value)
 {
-    if (String::equal(value, EMPTY_VALUE))
-    {
-            throw InvalidPropertyValue(name,value);
-    }
-
     if (String::equalNoCase(_operationTimeout->propertyName, name))
     {
 	if ( isValid ( name, value ) )

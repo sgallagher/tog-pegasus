@@ -226,7 +226,8 @@ void ConfigFileHandler::loadPlannedConfigProperties ()
 */
 Boolean ConfigFileHandler::updateCurrentValue (
     const String& name, 
-    const String& value)
+    const String& value,
+    Boolean unset)
 {
     // Remove the old property name and value from the table
     if (_currentConfig->table.contains(name))
@@ -237,14 +238,10 @@ Boolean ConfigFileHandler::updateCurrentValue (
         }
     }
 
-    String newVal = value;
-    if (String::equal(value, EMPTY_VALUE))
-        newVal = "";
-
-    if (!String::equal(value, ""))
+    if (!unset)
     {
         // Store the new property name and value in to the table
-        if (!_currentConfig->table.insert(name, newVal))
+        if (!_currentConfig->table.insert(name, value))
         {
             return false;
         }
@@ -282,7 +279,8 @@ Boolean ConfigFileHandler::updateCurrentValue (
 */
 Boolean ConfigFileHandler::updatePlannedValue (
     const String& name, 
-    const String& value)
+    const String& value,
+    Boolean unset)
 {
     //
     // Remove the old property name and value from the table
@@ -295,16 +293,12 @@ Boolean ConfigFileHandler::updatePlannedValue (
         }
     }
 
-    String newVal = value;
-    if (String::equal(value, EMPTY_VALUE))
-        newVal = "";
-
-    if (!String::equal(value, "")) 
+    if (!unset)
     {
         //
         // Store the new property name and value in to the table
         //
-        if (!_plannedConfig->table.insert(name, newVal))
+        if (!_plannedConfig->table.insert(name, value))
         {
             return false;
         }
@@ -359,32 +353,28 @@ Boolean ConfigFileHandler::updatePlannedValue (
 /** 
     Get the current property value for the specified property name. 
 */
-String ConfigFileHandler::getCurrentValue (const String& name)
+Boolean ConfigFileHandler::getCurrentValue (const String& name, String& value)
 {
-    String value = String::EMPTY;
-
     if (_currentFileExist)
     {
-        _currentConfig->table.lookup(name, value);
+        return _currentConfig->table.lookup(name, value);
     }
 
-    return (value);
+    return false;
 }
 
 
 /** 
     Get the planned property value for the specified property name. 
 */
-String ConfigFileHandler::getPlannedValue (const String& name)
+Boolean ConfigFileHandler::getPlannedValue (const String& name, String& value)
 {
-    String value = String::EMPTY;
-
     if (_plannedFileExist)
     {
-        _plannedConfig->table.lookup(name, value);
+        return _plannedConfig->table.lookup(name, value);
     }
 
-    return (value);
+    return false;
 }
 
 

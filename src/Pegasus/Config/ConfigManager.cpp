@@ -240,7 +240,8 @@ Update current value of a property.
 */
 Boolean ConfigManager::updateCurrentValue(
     const String& name, 
-    const String& value) 
+    const String& value,
+    Boolean unset)
 {
     String prevValue = String::EMPTY;
 
@@ -262,14 +263,29 @@ Boolean ConfigManager::updateCurrentValue(
         prevValue = propertyOwner->getCurrentValue(name);
 
         //
-        // ask owner to update the current value to new value
+        // ask owner to update the current value
         //
-        propertyOwner->updateCurrentValue(name, value);
+        if (unset)
+        {
+            propertyOwner->updateCurrentValue(name,
+                propertyOwner->getDefaultValue(name));
+        }
+        else
+        {
+            if (propertyOwner->isValid(name, value))
+            {
+                propertyOwner->updateCurrentValue(name, value);
+            }
+            else
+            {
+                throw InvalidPropertyValue(name, value);
+            }
+        }
 
         //
         // update the new value in the current config file
         //
-        if (!_configFileHandler->updateCurrentValue(name, value))
+        if (!_configFileHandler->updateCurrentValue(name, value, unset))
         {
             // Failed to update the current value, so roll back.
             propertyOwner->updateCurrentValue(name, prevValue);
@@ -297,7 +313,8 @@ Update planned value of a property.
 */
 Boolean ConfigManager::updatePlannedValue(
     const String& name, 
-    const String& value)
+    const String& value,
+    Boolean unset)
 {
     String prevValue = String::EMPTY;
 
@@ -321,12 +338,27 @@ Boolean ConfigManager::updatePlannedValue(
         //
         // ask owner to update the planned value to new value
         //
-        propertyOwner->updatePlannedValue(name, value);
+        if (unset)
+        {
+            propertyOwner->updatePlannedValue(name,
+                propertyOwner->getDefaultValue(name));
+        }
+        else
+        {
+            if (propertyOwner->isValid(name, value))
+            {
+                propertyOwner->updatePlannedValue(name, value);
+            }
+            else
+            {
+                throw InvalidPropertyValue(name, value);
+            }
+        }
 
         //
         // update the new value in the planned config file
         //
-        if (!_configFileHandler->updatePlannedValue(name, value))
+        if (!_configFileHandler->updatePlannedValue(name, value, unset))
         {
             // Failed to update the planned value, so roll back.
             propertyOwner->updatePlannedValue(name, prevValue);
@@ -644,17 +676,13 @@ void ConfigManager::_loadConfigProperties()
     {
         String value = String::EMPTY;
 
-        value.assign(_configFileHandler->getCurrentValue(
-            properties[i].propertyName));
-
-        //
-        // initialize the current value of the property owner
-        // with the value from the config file handler
-        //
-        // ATTN-RK-P2-20020417: This check is insufficient.  The configuration
-        // file may specifically set the property value to "".
-        if (value != String::EMPTY)
+        if (_configFileHandler->getCurrentValue(
+                properties[i].propertyName, value))
         {
+            //
+            // initialize the current value of the property owner
+            // with the value from the config file handler
+            //
             try
             {
                 //
@@ -665,11 +693,20 @@ void ConfigManager::_loadConfigProperties()
                 if (_propertyTable->ownerTable.lookup(
                     properties[i].propertyName, propertyOwner))
                 {
-                    propertyOwner->initCurrentValue(
-                        properties[i].propertyName, value);
+                    if (propertyOwner->isValid(
+                        properties[i].propertyName, value))
+                    {
+                        propertyOwner->initCurrentValue(
+                            properties[i].propertyName, value);
 
-                    propertyOwner->initPlannedValue(
-                        properties[i].propertyName, value);
+                        propertyOwner->initPlannedValue(
+                            properties[i].propertyName, value);
+                    }
+                    else
+                    {
+                        throw InvalidPropertyValue(properties[i].propertyName,
+                                                   value);
+                    }
                 }
             }
             catch(UnrecognizedConfigProperty& ucp)
@@ -686,7 +723,6 @@ void ConfigManager::_loadConfigProperties()
             }
         }
     }
-
 }
 
 
@@ -738,7 +774,7 @@ Boolean ConfigManager::_initPropertyWithCommandLineOption(
         // update the value in the current config file
         //
         return (_configFileHandler->updateCurrentValue(
-            propertyName, propertyValue));
+            propertyName, propertyValue, false));
     }
     else
     {

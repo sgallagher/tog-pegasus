@@ -109,6 +109,8 @@ private:
     @param ostream          The stream to which command errors are written.
     @param propertyName   The name of the property to update.
     @param propertyValue  The new value of the property.
+    @param isUnsetOperation Specifies whether the property should be updated
+                            or unset.
 
     @exception CIMException  if failed to get the properties from CIMOM.
     */
@@ -117,7 +119,8 @@ private:
         PEGASUS_STD(ostream)&    outPrintWriter, 
         PEGASUS_STD(ostream)&    errPrintWriter,
         const String&            propertyName,
-        const String&            propertyValue
+        const String&            propertyValue,
+        Boolean                  isUnsetOperation
         ); //throw (CIMException);
 
     /**

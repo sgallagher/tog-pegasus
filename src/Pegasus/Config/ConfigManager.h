@@ -193,13 +193,18 @@ public:
     @param  propertyValue The new value of the property.  If the value is
                           null, the property should be reset to its default
                           value.
+    @param  unset         Specifies whether the property should be updated
+                          or unset.
     @return true if the property found and updated, else false.
 
     @exception NonDynamicConfigProperty  if property is not dynamic.
     @exception UnrecognizedConfigProperty  if property is not defined.
     @exception InvalidPropertyValue  if property value is not valid.
     */
-    Boolean updateCurrentValue(const String& name, const String& value);
+    Boolean updateCurrentValue(
+        const String& name,
+        const String& value,
+        Boolean unset);
         //throw (NonDynamicConfigProperty, InvalidPropertyValue, 
         //    UnrecognizedConfigProperty);
 
@@ -210,13 +215,18 @@ public:
     @param  propertyValue The new value of the property.  If the value is
                           null, the property should be reset to its default
                           value.
+    @param  unset         Specifies whether the property should be updated
+                          or unset.
     @return Boolean       True if the property found and updated.
 
     @exception NonDynamicConfigProperty  if property is not dynamic.
     @exception UnrecognizedConfigProperty  if property is not defined.
     @exception InvalidPropertyValue  if property value is not valid.
     */
-    Boolean updatePlannedValue(const String& name, const String& value);
+    Boolean updatePlannedValue(
+        const String& name,
+        const String& value,
+        Boolean unset);
         //throw (NonDynamicConfigProperty, InvalidPropertyValue, 
         //    UnrecognizedConfigProperty);
 

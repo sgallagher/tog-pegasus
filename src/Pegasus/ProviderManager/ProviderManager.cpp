@@ -72,9 +72,7 @@ Provider ProviderManager::getProvider(
         }
     }
 
-    loadProvider(fileName, providerName);
-
-    return(getProvider(fileName, providerName));
+    return(_loadProvider(fileName, providerName));
 }
 
 void ProviderManager::loadProvider(
@@ -83,6 +81,16 @@ void ProviderManager::loadProvider(
 {
     MutexLock lock(_mutex);
 
+    _loadProvider(fileName, providerName);
+}
+
+
+Provider ProviderManager::_loadProvider(
+    const String & fileName,
+    const String & providerName)
+{
+    // NOTE: _loadProvider SHOULD ONLY BE CALLED AFTER OBTAINING THE LOCK
+    //
     // create provider module
     Provider provider(providerName, fileName);
 
@@ -104,6 +112,8 @@ void ProviderManager::loadProvider(
 
     // add provider to list
     _providers.append(provider);
+
+    return(provider);
 }
 
 void ProviderManager::unloadProvider(

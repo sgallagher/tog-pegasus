@@ -50,6 +50,9 @@ public:
     void loadProvider(const String & fileName, const String & providerName);
     void unloadProvider(const String & fileName, const String & providerName);
 
+private:
+    Provider _loadProvider(const String & fileName, const String & providerName);
+
 protected:
     Mutex _mutex;
     Array<Provider> _providers;

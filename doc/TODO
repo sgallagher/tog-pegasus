@@ -2,6 +2,9 @@
 				TO-DO List
 				==========
 
+    -   Fix the trace function so that it prints out the messages going
+	both ways.
+
     - 	The TCPChannel::writeN() method blocks when the client and server
 	are in the same process. That is because the client cannot read
 	anything as long as writeN() is blocked on a synchronous write.

@@ -97,7 +97,7 @@ void test01()
 	}
 
     CIMInstance instance0("MyClass");
-    assert(instance0.getClassName() == CIMName("MyClass"));
+    assert(instance0.getClassName().equal("MyClass"));
     instance0.setPath(CIMObjectPath("//localhost/root/cimv2:MyClass.Foo=1"));
     assert(instance0.getPath() == CIMObjectPath("//localhost/root/cimv2:MyClass.Foo=1"));
 

@@ -42,7 +42,7 @@ const String CLASSNAME = "PG_ProviderModule";
 const String CLASSNAME2 = "PG_Provider";
 const String CLASSNAME3 = "PG_ProviderCapabilities";
 
-void TestLookupIndicationProvider(ProviderRegistrationManager prmanager)
+Boolean TestLookupIndicationProvider(ProviderRegistrationManager prmanager)
 {
 
     //
@@ -219,25 +219,20 @@ void TestLookupIndicationProvider(ProviderRegistrationManager prmanager)
     Array <String> requiredProperties;
 
     Array <CIMInstance> providerIns;
-    CIMInstance providerModuleIns;
+    Array <CIMInstance> providerModuleIns;
 
     requiredProperties.append("p1");
     requiredProperties.append("p3");
     requiredProperties.append("p4");
 
-    providerIns = prmanager.getIndicationProviders("test_namespace1", 
-	"test_class1", requiredProperties);
-
-    PEGASUS_STD (cout) << "+++++ Indication providers are +++++"
-                           << PEGASUS_STD (endl);
-
-    for (Uint32 i=0; i < providerIns.size(); i++)
+    if (prmanager.getIndicationProviders("test_namespace1", 
+	"test_class1", requiredProperties, providerIns, providerModuleIns))
     {
-    	providerIns[i].getProperty(providerIns[i].findProperty
-	    ("Name")).getValue().get(_providerName);
-
-    	PEGASUS_STD (cout) << _providerName
-                           << PEGASUS_STD (endl);
+	return (true);
+    }
+    else
+    {
+	return (false);
     }
 }
 
@@ -248,7 +243,12 @@ int main(int argc, char** argv)
 
     try
     {
-	TestLookupIndicationProvider(prmanager);
+	if (!TestLookupIndicationProvider(prmanager))
+	{
+	    PEGASUS_STD(cerr) << "Error: lookupIndicationProvider Failed" << PEGASUS_STD(
+endl);
+            exit (-1);
+	}
     }
 
     catch(Exception& e)

@@ -427,17 +427,22 @@ Boolean ProviderRegistrationManager::lookupAssociationProvider(
     return(1);
 }
 
-Array <CIMInstance> ProviderRegistrationManager::getIndicationProviders(
+Boolean ProviderRegistrationManager::getIndicationProviders(
     const String & nameSpace, 
     const String & className,
-    const Array<String>& requiredProperties)
+    const Array<String>& requiredProperties,
+    Array<CIMInstance> & provider,
+    Array<CIMInstance> & providerModule)
 {
-    Array <CIMInstance> findedInstances;
     Array <CIMInstance> _providerInstances;
+    Array <CIMInstance> _providerModuleInstances;
+
     String providerName;
+    String providerModuleName;
 
     ProviderRegistrationTable* providerCapability = 0;
     ProviderRegistrationTable* _provider = 0;
+    ProviderRegistrationTable* _providerModule = 0;
     
   try 
   {
@@ -480,6 +485,16 @@ Array <CIMInstance> ProviderRegistrationManager::getIndicationProviders(
     	}
 	instances[i].getProperty(pos2).getValue().get(providerName);
 
+	//
+	// get provider module name
+	//
+	Uint32 pos3 = instances[i].findProperty(_PROPERTY_PROVIDERMODULENAME);
+    	if (pos3 == PEG_NOT_FOUND)
+    	{
+	    throw CIMException(CIM_ERR_INVALID_PARAMETER);
+    	}
+	instances[i].getProperty(pos3).getValue().get(providerModuleName);
+
 	if (_supportedProperties == EmptyStringArray())
 	{
 	    //
@@ -493,8 +508,31 @@ Array <CIMInstance> ProviderRegistrationManager::getIndicationProviders(
 	    
 	    _providerInstances = _provider->getInstances();
 
-	    // Add provider to the list
-	    findedInstances.append(_providerInstances[0]);
+	    //
+	    // if the instance of the PG_Provider was not in the list, add the
+	    // instance to the list
+	    if (!Contains (provider, _providerInstances[0]))
+	    {
+		provider.append(_providerInstances[0]);
+	    }
+
+	    //
+	    // get provider module instance from the table by using providerModule 
+	    // Name to be key
+	    //
+	    if (!_registrationTable->table.lookup(providerModuleName, _providerModule))
+    	    {
+        	throw CIMException(CIM_ERR_FAILED, "can not find the provider module");
+    	    }
+	    
+	    _providerModuleInstances = _providerModule->getInstances();
+
+	    // if the instance of the provider module was not in the list, add the
+	    // instance to the list
+	    if (!Contains (providerModule, _providerModuleInstances[0]))
+	    {
+		providerModule.append(_providerModuleInstances[0]);
+	    }
 	}
 	else
 	{
@@ -532,8 +570,34 @@ Array <CIMInstance> ProviderRegistrationManager::getIndicationProviders(
 	    
 	    	     _providerInstances = _provider->getInstances();
 
-	    	     // Add provider to the list
-	    	     findedInstances.append(_providerInstances[0]);
+		     //    
+	    	     // if the instance of the PG_Provider was not in the list, add 
+		     // the instance to the list 
+		     //
+		     if (!Contains (provider, _providerInstances[0]))
+            	     {
+                	provider.append(_providerInstances[0]);
+            	     }
+
+		     //
+                     // get provider module instance from the table by using 
+		     // providerModule Name to be key
+            	     //
+            	     if (!_registrationTable->table.lookup(providerModuleName, _providerModule))
+            	     {
+                         throw CIMException(CIM_ERR_FAILED, "can not find the provider module");
+            	     }
+
+            	     _providerModuleInstances = _providerModule->getInstances();
+
+		     //
+            	     // if the instance of the provider module was not in the list, 
+		     // add the instance to the list
+		     //
+            	     if (!Contains (providerModule, _providerModuleInstances[0]))
+            	     {
+                     	providerModule.append(_providerModuleInstances[0]);
+            	     }
 		}
 	    }
 	}
@@ -542,9 +606,10 @@ Array <CIMInstance> ProviderRegistrationManager::getIndicationProviders(
   }
   catch (CIMException & exception)
   {
+	return (false);
   }
     
-    return (findedInstances);
+    return (true);
 }
 
 // get registered provider
@@ -980,6 +1045,10 @@ void ProviderRegistrationManager::deleteInstance(
 	instanceReference.getClassName(),
 	instanceReference.getKeyBindings());
 
+    CIMInstance instance = _repository->getInstance(
+	nameSpace, newInstancereference);
+	    
+
     try
     {
 	//
@@ -987,10 +1056,6 @@ void ProviderRegistrationManager::deleteInstance(
 	//
         if(String::equalNoCase(className, _CLASS_PROVIDER_CAPABILITIES))
         {
-	    //CIMInstance instance = _cimom.getRepository()->getInstance(
-	    CIMInstance instance = _repository->getInstance(
-		nameSpace, newInstancereference);
-	    
 	    String deletedCapabilityID;
 	    Array<CIMInstance> instances;
 	    Uint32 instancesCount;
@@ -1053,6 +1118,8 @@ void ProviderRegistrationManager::deleteInstance(
 	    {
 		if (providerType[i] == _INDICATION_PROVIDER)
 		{
+		// ATTN-YZ-P1-20020308: Implement 
+		// ATTN-YZ-P1-20020308: Implment 
 /*
 		// ATTN: This notification message need to rebuild
 		// based on current design
@@ -1078,14 +1145,269 @@ void ProviderRegistrationManager::deleteInstance(
         }
 
 	//
-	// ATTN-YZ-P1-20020301:implement unregister PG_Provider and
-	// PG_ProviderModule classes
-	// unregister PG_Provider class
-	// This class only can be deleted when all capability instances 
-	// in the class be deleted 
+	// Unregister PG_Provider class
+	// Note: Deleteting an instance of PG_Provider will cause the 
+	// associated instances of PG_ProviderCapability to be deleted 
 	//
-        if(String::equalNoCase(className, _CLASS_PROVIDER_CAPABILITIES))
+        if(String::equalNoCase(className, _CLASS_PG_PROVIDER))
         {
+	    String deletedProviderName;
+
+	    //
+	    // get the key provider name
+	    //
+	    instance.getProperty(instance.findProperty(
+		_PROPERTY_PROVIDER_NAME)).getValue().get(deletedProviderName);
+
+	    //
+	    // delete instance of PG_Provider from repository
+	    //
+	    _repository->deleteInstance(nameSpace, newInstancereference);
+
+	    //
+	    // delete associated instances of PG_ProviderCapability
+	    //
+	    Array<CIMNamedInstance> enumCapInstances;
+	
+	    enumCapInstances = _repository->enumerateInstances(
+				nameSpace, _CLASS_PROVIDER_CAPABILITIES); 	
+
+	    for (Uint32 i = 0, n = enumCapInstances.size(); i < n; i++)
+	    {
+		CIMInstance capInstance;
+		CIMReference capReference;
+		String _providerName;
+
+		capInstance = enumCapInstances[i].getInstance();
+
+		// 
+		// get provider name in the instance of provider capability
+		//
+		capInstance.getProperty(capInstance.findProperty(
+		    _PROPERTY_PROVIDERNAME)).getValue().get(_providerName);
+
+		if (String::equalNoCase(deletedProviderName, _providerName))
+		{
+		    //
+		    // if provider name of instance of provider capability is
+		    // same as deleted provider name, delete the instance of
+		    // provider capability from repository
+		    //
+		    capReference = enumCapInstances[i].getInstanceName(); 
+
+    		    CIMReference newCapReference("", "",
+			capReference.getClassName(),
+			capReference.getKeyBindings());
+
+	    	    _repository->deleteInstance(nameSpace, newCapReference);
+		    
+		}
+
+	    }
+
+	    //
+	    // remove all entries which have same provider name from the 
+	    // table; if the entry only has one instance, remove the entry;
+   	    // otherwise, remove the instance. 
+	    //
+	    for (Table::Iterator i=_registrationTable->table.start(); i; i++)
+	    {
+		Array<CIMInstance> instances;
+		Uint32 instancesCount;
+
+		// 
+		// remove all entries which their key's value is same as provider name 
+		// from the table
+		//
+		if (String::equal(deletedProviderName, i.key()))
+		{
+		    _registrationTable->table.remove(i.key());
+		}
+
+		instances = i.value()->getInstances();
+		instancesCount = instances.size();
+
+		for (Uint32 j = 0; j < instancesCount; j++)
+		{
+	    	    String _providerName;
+		    
+		    Uint32 pos = instances[j].findProperty(_PROPERTY_PROVIDERNAME);
+		    if ( pos != PEG_NOT_FOUND)
+		    {
+	    	    	instances[j].getProperty(pos).getValue().get(_providerName);
+			if (String::equal(deletedProviderName, _providerName))
+		    	{
+			    if (instancesCount == 1)
+			    {
+			        _registrationTable->table.remove(i.key());
+			    }
+			    else
+			    {
+			        instances.remove(j);
+			    }
+		        }
+		    }
+
+		}
+	    }
+	
+	}
+
+	//
+	// unregister PG_ProviderModule class
+	// Note: Deleteting an instance of PG_ProviderModule will cause the 
+	// associated instances of PG_Provider, instances of PG_ProviderCapability 
+	// to be deleted 
+	//
+        if(String::equalNoCase(className, _CLASS_PROVIDER_MODULE))
+        {
+	    String deletedProviderModuleName;
+
+	    //
+	    // get the key provider module name
+	    //
+	    instance.getProperty(instance.findProperty(
+		 _PROPERTY_PROVIDERMODULE_NAME)).getValue().get(deletedProviderModuleName);
+
+	    //
+	    // delete instance of PG_ProviderModule from repository
+	    //
+	    _repository->deleteInstance(nameSpace, newInstancereference);
+
+	    //
+	    // delete associated instances of PG_Provider
+	    //
+	    Array<CIMNamedInstance> enumProviderInstances;
+	
+	    enumProviderInstances = _repository->enumerateInstances(
+				nameSpace, _CLASS_PG_PROVIDER); 	
+
+	    for (Uint32 i = 0, n = enumProviderInstances.size(); i < n; i++)
+	    {
+		CIMInstance providerInstance;
+		CIMReference providerReference;
+		String _providerModuleName;
+
+		providerInstance = enumProviderInstances[i].getInstance();
+
+		// 
+		// get provider module name in the instance of PG_Provider 
+		//
+		providerInstance.getProperty(providerInstance.findProperty(
+		    _PROPERTY_PROVIDERMODULENAME)).getValue().get(_providerModuleName);
+
+		if (String::equalNoCase(deletedProviderModuleName, _providerModuleName))
+		{
+		    //
+		    // if provider module name of instance of PG_Provider is
+		    // same as deleted provider module name, delete the instance of
+		    // PG_Provider from repository
+		    //
+		    providerReference = enumProviderInstances[i].getInstanceName(); 
+
+    		    CIMReference newProviderReference("", "",
+			providerReference.getClassName(),
+			providerReference.getKeyBindings());
+
+	    	    _repository->deleteInstance(nameSpace, newProviderReference);
+		    
+		}
+
+	    }
+
+	    //
+	    // delete associated instances of PG_ProviderCapability
+	    //
+	    Array<CIMNamedInstance> enumCapInstances;
+	
+	    enumCapInstances = _repository->enumerateInstances(
+				nameSpace, _CLASS_PROVIDER_CAPABILITIES); 	
+
+	    for (Uint32 i = 0, n = enumCapInstances.size(); i < n; i++)
+	    {
+		CIMInstance capInstance;
+		CIMReference capReference;
+		String _providerModuleName;
+
+		capInstance = enumCapInstances[i].getInstance();
+
+		// 
+		// get provider module name in the instance of provider capability
+		//
+		capInstance.getProperty(capInstance.findProperty(
+		    _PROPERTY_PROVIDERMODULENAME)).getValue().get(_providerModuleName);
+
+		if (String::equal(deletedProviderModuleName, _providerModuleName))
+		{
+		    //
+		    // if provider module name of instance of provider capability is
+		    // same as deleted provider module name, delete the instance of
+		    // provider capability from repository
+		    //
+		    capReference = enumCapInstances[i].getInstanceName(); 
+
+    		    CIMReference newCapReference("", "",
+			capReference.getClassName(),
+			capReference.getKeyBindings());
+
+	    	    _repository->deleteInstance(nameSpace, newCapReference);
+		    
+		}
+
+	    }
+
+	    //
+	    // remove all entries which have same provider module name from the 
+	    // table; if the entry only has one instance, remove the entry;
+   	    // otherwise, remove the instance. 
+	    //
+	    for (Table::Iterator i=_registrationTable->table.start(); i; i++)
+	    {
+		Array<CIMInstance> instances;
+		Uint32 instancesCount;
+
+		// 
+		// remove all entries which key's value is same as deleted provider 
+		// module name from the table
+		//
+		if (String::equal(deletedProviderModuleName, i.key()))
+		{
+		    _registrationTable->table.remove(i.key());
+		}
+
+		//
+		// if the entry only has one instance and provider module name of 
+		// the instance is same as deleted provider module name, remove the
+		// entry; 
+		// if the entry has more than one instance and provider module name
+		// of the instance is same as deleted provider module name, remove
+		// the instance;
+		//
+		instances = i.value()->getInstances();
+		instancesCount = instances.size();
+
+		for (Uint32 j = 0; j < instancesCount; j++)
+		{
+	    	    String _providerModuleName;
+		    
+		    Uint32 pos = instances[j].findProperty(_PROPERTY_PROVIDERMODULENAME);
+		    if ( pos != PEG_NOT_FOUND)
+		    {
+	    	    	instances[j].getProperty(pos).getValue().get(_providerModuleName);
+			if (String::equal(deletedProviderModuleName, _providerModuleName))
+		    	{
+			    if (instancesCount == 1)
+			    {
+			        _registrationTable->table.remove(i.key());
+			    }
+			    else
+			    {
+			        instances.remove(j);
+			    }
+		        }
+		    }
+		}
+	    }
 	}
      }
 
@@ -1368,7 +1690,6 @@ void ProviderRegistrationManager::_addInstancesToTable(
 	delete elementInfo;
         throw e;
     } 
-
 
     if (!_registrationTable->table.insert(key,elementInfo))
     {

@@ -31,7 +31,6 @@
 
 #include <iostream>
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/ExportClient/CIMExportClient.h>
 #include <Pegasus/Handler/CIMHandler.h>
 #include <Pegasus/Repository/CIMRepository.h>
 

@@ -37,6 +37,7 @@
 #include <iostream>
 #include <Pegasus/Handler/CIMHandler.h>
 #include <Pegasus/Repository/CIMRepository.h>
+#include <Pegasus/Common/Tracer.h>
 
 #include "snmpIndicationHandler.h"
 

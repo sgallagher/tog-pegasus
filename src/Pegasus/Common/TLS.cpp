@@ -269,21 +269,52 @@ redo_accept:
             }
 
             // create the certificate object
-            // ATTN: enable when we need certificate
-            /*
+            // this should be sent in the operation context so the consumer may use it
+            // to further determine to accept or reject the request
+            // ATTN: Need to either add to IdentityContainer, create a new Container, or create 
+            // a super IdentityContainer which holds multiple forms of ID
             char buf[256];
 
+            //subject name
             X509_NAME_oneline(X509_get_subject_name(client_cert), buf, 256);
             String subjectName = String(buf);
 
+            //issuer name
             X509_NAME_oneline(X509_get_issuer_name(client_cert), buf, 256);
             String issuerName = String(buf);
 
-            _SSLCertificate = new SSLCertificateInfo(subjectName, issuerName, 0, verifyResult, X509_V_OK);
+            //version number
+            //long version = X509_get_version(client_cert);
 
-            PEGASUS_STD(cout) << "Subject " << subjectName << "\n";
-            PEGASUS_STD(cout) << "Issuer " << issuerName << "\n";
-            */
+            //serial number
+            //long serialNumber = ASN1_INTEGER_get(X509_get_serialNumber(client_cert));
+
+            //notBefore
+            //CIMDateTime notBefore(); // = getDateTime(X509_get_notBefore(client_cert));
+
+            //notAfter
+            //CIMDateTime notAfter(); // = getDateTime(X509_get_notAfter(client_cert));
+
+            //depth
+            //int depth = 1;  // how do we get depth from certificate??
+
+            //errorCode
+            int errorCode = verifyResult; //this should contain the verification error still, since it did not get reset in callback
+
+            //errorString
+            String errorStr = String(X509_verify_cert_error_string(errorCode));
+
+            //respCode
+            int respCode = (_certificateStatus == CERT_SUCCESS ? 1 : 0);  //this holds the eventual result from the verification process
+
+
+
+            //ATTN: Expand to use private constructor once we figure out the best way to get the remaining parameters
+            _SSLCertificate = new SSLCertificateInfo(subjectName, 
+                                                     issuerName, 
+                                                     1, 
+                                                     errorCode,
+                                                     respCode);   
 
             X509_free(client_cert);
     }
@@ -516,10 +547,14 @@ Boolean SSLSocket::addTrustedClient()
         int i = PEM_write_bio_X509(outFile, client_cert);
         BIO_free_all(outFile);
 
-        X509_free(client_cert);
+        char subject[256];
+        X509_NAME_oneline(X509_get_subject_name(client_cert), subject, 256);
+        String subjectName = String(subject);
 
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
-			    "SSLSocket - Client certificate added to truststore.");
+            "Client certificate added to truststore: subjectName $0", subjectName);
+
+        X509_free(client_cert);
     }
 
     PEG_METHOD_EXIT();

@@ -223,10 +223,10 @@ private:
     SSLCertificateInfoRep* _rep;
 
 #if defined(PEGASUS_USE_232_CLIENT_VERIFICATION) && defined(PEGASUS_USE_EXPERIMENTAL_INTERFACES)
-    // SSLContext needs to use the private constructor to create
+    // SSLSocket needs to use the private constructor to create
     // a certificate object to pass to the AuthenticationInfo and
     // OperationContext classes
-    friend class SSLContext;
+    friend class SSLSocket;
 #endif
 
     friend int prepareForCallback(int, X509_STORE_CTX*);

@@ -1239,8 +1239,8 @@ SSLCertificateInfo::SSLCertificateInfo(
     _rep->issuerName = issuerName;
     _rep->versionNumber = 0;
     _rep->serialNumber = 0;
-    _rep->notBefore = CIMDateTime(String::EMPTY);
-    _rep->notAfter = CIMDateTime(String::EMPTY);
+    _rep->notBefore = CIMDateTime();
+    _rep->notAfter = CIMDateTime();
     _rep->depth = errorDepth;
     _rep->errorCode = errorCode;
     _rep->errorString = String::EMPTY;

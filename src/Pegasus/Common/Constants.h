@@ -98,6 +98,9 @@ PEGASUS_NAMESPACE_BEGIN
     PEGASUS_QUEUENAME_CONTROLSERVICE "::Monitor"
 #define PEGASUS_MODULENAME_INTEROPPROVIDER \
     PEGASUS_QUEUENAME_CONTROLSERVICE "::InteropProvider"
+ #define PEGASUS_MODULENAME_CIMOMSTATDATAPROVIDER \
+     PEGASUS_QUEUENAME_CONTROLSERVICE "::CIMOMStatDataProvider"
+
 
 //
 // CIM Class Names
@@ -135,6 +138,9 @@ static const CIMName PEGASUS_CLASSNAME_SHUTDOWN             =
     CIMName ("PG_ShutdownService");
 static const CIMName PEGASUS_CLASSNAME___NAMESPACE          = 
     CIMName ("__Namespace");
+static const CIMName PEGASUS_CLASSNAME_CIMOMSTATDATA      =
+    CIMName ("CIM_CIMOMSatisticalData");
+
 
 #ifdef PEGASUS_ENABLE_SLP
 // Interop Classes Accessed through Interop Control Provider
@@ -195,6 +201,8 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_SHUTDOWN      =
     PEGASUS_NAMESPACENAME_INTERNAL;
 static const CIMNamespaceName PEGASUS_NAMESPACENAME_USER          = 
     PEGASUS_NAMESPACENAME_INTERNAL;
+static const CIMNamespaceName PEGASUS_NAMESPACENAME_CIMOMSTATDATA =
+    PEGASUS_NAMESPACENAME_CIMV2;
 
 
 //

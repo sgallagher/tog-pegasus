@@ -34,11 +34,11 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-CIMOMStatDataProvider::CIMOMStatDataProvider(void)
+CIMOMStatDataProvider::CIMOMStatDataProvider()
 {
 }
 
-CIMOMStatDataProvider::~CIMOMStatDataProvider(void)
+CIMOMStatDataProvider::~CIMOMStatDataProvider()
 {
 }
 

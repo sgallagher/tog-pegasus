@@ -35,6 +35,7 @@
 #include <Pegasus/Common/CIMDateTime.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Common/StatisticalData.h>
+#include <Pegasus/ControlProviders/Statistic/Linkage.h>
 #include <math.h>
 #include <iostream>
 
@@ -45,8 +46,8 @@ class CIMOMStatDataProvider :
 	public CIMInstanceProvider
 {
 public:
-	CIMOMStatDataProvider(void);
-	virtual ~CIMOMStatDataProvider(void);
+	CIMOMStatDataProvider();
+	virtual ~CIMOMStatDataProvider();
 
 	// CIMProvider interface
 	virtual void initialize(CIMOMHandle & cimom);

@@ -17,8 +17,13 @@ LIBRARIES = \
 	pegclient
 
 SOURCES = \
-	CIMOMStatDataProvider.cpp \
-	CIMOMStatDataProviderMain.cpp
+	CIMOMStatDataProvider.cpp 
+
+ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
+ NEEDS_LIBRARIES = -L$(LIB_DIR) -lpegcommon -lpeguser -lpegprovider
+endif
+
+
 
 include $(ROOT)/mak/library.mak
 include $(ROOT)/mak/install.mak

@@ -36,7 +36,7 @@ ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
 	@ ./change_hostname
 endif
 	
-poststarttests: $(LOGRESPONSES)
+poststarttests: $(XMLRESPONSES) $(LOGRESPONSES)
 
 general:
 

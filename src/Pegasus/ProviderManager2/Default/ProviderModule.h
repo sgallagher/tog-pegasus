@@ -32,6 +32,7 @@
 // Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
 //              Mike Day, IBM (mdday@us.ibm.com)
 //              Adrian Schuur, IBM (schuur@de.ibm.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -45,86 +46,38 @@
 
 #include <Pegasus/Provider/CIMProvider.h>
 
-#include <Pegasus/Config/ConfigManager.h>
-
 #include <Pegasus/ProviderManager2/Default/Linkage.h>
+
 
 PEGASUS_NAMESPACE_BEGIN
 
-// The ProviderModule class represents the physical module, as defined by the
-// operating, that contains a provider. This class effectively encapsulates the
-// "physical" portion of a provider.
+/** The ProviderModule class represents the physical module, as defined by the
+    operating system, that contains one or more providers.
+ */
 class PEGASUS_DEFPM_LINKAGE ProviderModule
 {
 public:
-    ProviderModule(const String & fileName);
-    virtual ~ProviderModule(void);
+    ProviderModule(const String& fileName);
+    virtual ~ProviderModule();
 
-    const String & getFileName(void) const;
+    const String& getFileName() const;
 
-    CIMProvider *load(const String & providerName);
-    void unloadModule(void);
+    CIMProvider* load(const String& providerName);
+    void unloadModule();
 
-    Boolean operator == (const void *key) const;
-    Boolean operator == (const ProviderModule & pmod) const;
+private:
+    ProviderModule();    // Unimplemented
+    ProviderModule(const ProviderModule& pm);    // Unimplemented
+    Boolean operator==(const ProviderModule& pm) const;    // Unimplemented
 
-protected:
     String _fileName;
-    AtomicInt _ref_count;
+    AtomicInt _refCount;
     DynamicLibraryHandle _library;
-
-private:
-    ProviderModule(const String & fileName, const Uint32 & refCount);
-    ProviderModule(const String & fileName, const String & providerName);
-    ProviderModule(const String & fileName, const String & providerName,
-        const String & interfaceName, const Uint32 & refCount);
-    // do not use !! not safe !! << Wed Apr  9 12:07:02 2003 mdd >>
-    ProviderModule(const ProviderModule & pm);
-
-    const String & getProviderName(void) const;
-    const String & getInterfaceName(void) const ;
-
-    const Uint32 & getRefCount(void) const;
-
-    virtual CIMProvider * getProvider(void) const;
-
-private:
-    friend class LocalProviderManager;
-    friend class Provider;
-
-    String _providerName;
-    String _interfaceName;
-    String _interfaceFileName; // for later use with interface registration
-
-    CIMProvider * _provider;
-
-    Uint32 _refCount;
-
 };
 
-inline const String & ProviderModule::getFileName(void) const
+inline const String& ProviderModule::getFileName() const
 {
    return(_fileName);
-}
-
-inline const String & ProviderModule::getInterfaceName(void) const
-{
-   return(_interfaceName);
-}
-
-inline const String & ProviderModule::getProviderName(void) const
-{
-   return(_providerName);
-}
-
-inline CIMProvider * ProviderModule::getProvider(void) const
-{
-   return(_provider);
-}
-
-inline const Uint32 & ProviderModule::getRefCount(void) const
-{
-   return(_refCount);
 }
 
 PEGASUS_NAMESPACE_END

@@ -95,7 +95,6 @@ Sint32 LocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
 
             String providerName = *(parms->providerName);
             String moduleFileName = *(parms->fileName);
-            String interfaceName = *(parms->interfaceName);
             Provider *pr =0;
             
             OpProviderHolder* ph = reinterpret_cast< OpProviderHolder* >( ret );
@@ -103,7 +102,7 @@ Sint32 LocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
 
             if (pr->getStatus() != Provider::INITIALIZED)
             {
-                _initProvider(pr, moduleFileName, interfaceName);
+                _initProvider(pr, moduleFileName);
 
                 if (pr->getStatus() != Provider::INITIALIZED)
                 {
@@ -360,9 +359,8 @@ Sint32 LocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
 }
 
 OpProviderHolder LocalProviderManager::getProvider(
-    const String & fileName,
-    const String & providerName,
-    const String & interfaceName)
+    const String& fileName,
+    const String& providerName)
 {
 
     OpProviderHolder ph;
@@ -371,7 +369,6 @@ OpProviderHolder LocalProviderManager::getProvider(
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManager::getProvider");
     strings.fileName = &fileName;
     strings.providerName = &providerName;
-    strings.interfaceName = &interfaceName;
     try
     {
         ccode = _provider_ctrl( GET_PROVIDER, &strings, &ph );
@@ -593,9 +590,8 @@ Array <Provider *> LocalProviderManager::getIndicationProvidersToEnable ()
 }
 
 Provider* LocalProviderManager::_initProvider(
-    Provider * provider,
-    const String & moduleFileName,
-    const String & interfaceName)
+    Provider* provider,
+    const String& moduleFileName)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "_initProvider");
 
@@ -607,7 +603,7 @@ Provider* LocalProviderManager::_initProvider(
         AutoMutex lock(_providerTableMutex);
 
         // lookup provider module
-        module = _lookupModule(moduleFileName, interfaceName);
+        module = _lookupModule(moduleFileName);
     }   // unlock the providerTable mutex
 
     {
@@ -770,8 +766,7 @@ Provider * LocalProviderManager::_lookupProvider(
 
 
 ProviderModule * LocalProviderManager::_lookupModule(
-    const String & moduleFileName,
-    const String & interfaceName)
+    const String& moduleFileName)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "_lookupModule");
 
@@ -792,7 +787,7 @@ ProviderModule * LocalProviderManager::_lookupModule(
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                          "Creating Provider Module " + moduleFileName);
 
-        module = new ProviderModule(moduleFileName, interfaceName);
+        module = new ProviderModule(moduleFileName);
 
 	// insert provider module in module table
         _modules.insert(moduleFileName, module);

@@ -45,7 +45,6 @@
 #include <Pegasus/Provider/CIMInstanceQueryProvider.h>
 #include <Pegasus/Provider/CIMAssociationProvider.h>
 #include <Pegasus/Provider/CIMMethodProvider.h>
-//#include <Pegasus/Provider/CIMQueryProvider.h>
 #include <Pegasus/Provider/CIMIndicationProvider.h>
 #include <Pegasus/Provider/CIMIndicationConsumerProvider.h>
 
@@ -55,15 +54,15 @@
 PEGASUS_NAMESPACE_BEGIN
 
 
-// The ProviderModule class wraps a provider pointer extracted from a provider
-// module to ensure it is complete and well behaved. So, regardless of the
-// method supported by a "real" provider, it can be placed inside a reliable
-// facade with a known interface.
+/**
+    The ProviderFacade class wraps a CIMProvider object to ensure it is
+    complete and well behaved.  Regardless of the methods supported by a
+    CIMProvider object, the ProviderFacade gives it a predictable interface.
+ */
 class PEGASUS_DEFPM_LINKAGE ProviderFacade :
     public CIMInstanceQueryProvider,
     public CIMAssociationProvider,
     public CIMMethodProvider,
-//    public CIMQueryProvider,
     public CIMIndicationProvider,
     public CIMIndicationConsumerProvider
 {

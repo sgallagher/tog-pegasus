@@ -63,8 +63,9 @@ public:
     virtual ~LocalProviderManager(void);
 
 public:
-    OpProviderHolder getProvider(const String & fileName, const String & providerName,
-        const String & interfaceName = String::EMPTY) ;
+    OpProviderHolder getProvider(
+        const String& fileName,
+        const String& providerName);
 
     void unloadProvider(const String & fileName, const String & providerName) ;
 
@@ -109,27 +110,23 @@ private:
     {
         const String *providerName;
         const String *fileName;
-        const String *interfaceName;
     } CTRL_STRINGS;
 
-    friend class ProviderManagerService;
-    friend class ProviderModule;
     ProviderTable _providers;
     ModuleTable _modules;
     Uint32 _idle_timeout;
 
     Sint32 _provider_ctrl(CTRL code, void *parm, void *ret);
 
-    Provider* _initProvider(Provider * provider,
-                            const String & moduleFileName,
-                            const String & interfaceName);
+    Provider* _initProvider(
+        Provider* provider,
+        const String& moduleFileName);
 
     void _unloadProvider(Provider * provider);
 
     Provider * _lookupProvider(const String & providerName);
 
-    ProviderModule * _lookupModule(const String & moduleFileName,
-                                  const String & interfaceName);
+    ProviderModule* _lookupModule(const String& moduleFileName);
 
     Mutex _providerTableMutex;
 

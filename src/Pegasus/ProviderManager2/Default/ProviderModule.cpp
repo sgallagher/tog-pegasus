@@ -30,148 +30,71 @@
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
 // Modified By:
-//      Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
-//		Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
-//     Mike Day, IBM (mdday@us.ibm.com)
-//     Adrian Schuur, IBM (schuur@de.ibm.com)
+//              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+//              Mike Day, IBM (mdday@us.ibm.com)
+//              Adrian Schuur, IBM (schuur@de.ibm.com)
 //              Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
-//         Sean Keenan, Hewlett-Packard Company <sean.keenan@hp.com>
+//              Sean Keenan, Hewlett-Packard Company <sean.keenan@hp.com>
+//              Roger Kumpf, Hewlett-Packard Company <roger_kumpf@hp.com>
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "ProviderModule.h"
 
 #include <Pegasus/Common/FileSystem.h>
-#include <Pegasus/Common/MessageLoader.h> //l10n
+#include <Pegasus/Common/MessageLoader.h>
 
 #ifdef PEGASUS_OS_OS400
-#include "CreateProviderOS400SystemState.h"
+# include "CreateProviderOS400SystemState.h"
 #endif
+
 
 PEGASUS_NAMESPACE_BEGIN
 
-ProviderModule::ProviderModule(const String & fileName, const String & interfaceName)
+ProviderModule::ProviderModule(const String& fileName)
     : _fileName(fileName),
-      _ref_count(0),
-      _library(0),
-      _interfaceName(interfaceName)
-{
-    _interfaceFileName=String::EMPTY;
-    if(_interfaceName.size()>0)
-    {
-        #ifdef PEGASUS_OS_TYPE_WINDOWS
-        _interfaceFileName=_interfaceName+String("Adapter.dll");
-        #elif defined(PEGASUS_OS_HPUX)
-	_interfaceFileName = 
-            String("lib")+interfaceName+String("Adapter.sl");
-        #elif defined(PEGASUS_OS_OS400)
-        _interfaceFileName=interfaceName+String("Adapter");
-        #elif defined(PEGASUS_OS_DARWIN)
-        _interfaceFileName= String("lib")+interfaceName+String("Adapter.dylib");           
-        #elif defined(PEGASUS_OS_VMS)
-        _interfaceFileName= String("lib")+interfaceName+String("Adapter.exe");
-        #else
-        _interfaceFileName= String("lib")+interfaceName+String("Adapter.so");
-        #endif
-
-	 _interfaceFileName = FileSystem::getAbsoluteFileName(
-                ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir")), _interfaceFileName);
-
-    }
-}
-
-ProviderModule::ProviderModule(const String & fileName,
-    const String & providerName,
-    const String & interfaceName,
-    const Uint32 & refCount)
-    : _fileName(fileName),
-    _library(0),
-    _providerName(providerName),
-    _interfaceName(interfaceName),
-    _provider(0),
-    _refCount(refCount)
-
-{
-    // currently without interface registration
-    _interfaceFileName = String::EMPTY;
-
-    if(_interfaceName.size() > 0)
-        if(!( String::equalNoCase(_interfaceName, "C++Standard") ||
-            String::equalNoCase(_interfaceName, "C++Default") ||
-            String::equalNoCase(_interfaceName, "PG_DefaultC++") ))
-        {
-            #ifdef PEGASUS_OS_TYPE_WINDOWS
-            _interfaceFileName = _interfaceName + String(".dll");
-            #elif defined(PEGASUS_OS_HPUX)
-            _interfaceFileName = String("lib") + _interfaceName + String(".sl");
-            #elif defined(PEGASUS_OS_OS400)
-            _interfaceFileName = _interfaceName;
-            #elif defined(PEGASUS_OS_DARWIN)
-            _interfaceFileName = String("lib") + _interfaceName + String(".dylib");
-            #elif defined(PEGASUS_OS_VMS)
-            _interfaceFileName = String("lib") + _interfaceName + String(".exe");
-            #else
-            _interfaceFileName = String("lib") + _interfaceName + String(".so");
-            #endif
-
-	     _interfaceFileName = FileSystem::getAbsoluteFileName(
-                ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir")), _interfaceFileName);
-
-        }
-}
-
-ProviderModule::ProviderModule(const ProviderModule & pm)
-    : _fileName(pm._fileName),
-    _library(pm._library),
-    _providerName(pm._providerName),
-    _interfaceName(pm._interfaceName),
-    _interfaceFileName(pm._interfaceFileName),
-    _provider(pm._provider),
-    _refCount(pm._refCount)
+      _refCount(0),
+      _library(0)
 {
 }
 
-ProviderModule::~ProviderModule(void)
+ProviderModule::~ProviderModule()
 {
 }
 
-CIMProvider *ProviderModule::load(const String & providerName)
+CIMProvider* ProviderModule::load(const String& providerName)
 {
-    CIMProvider *provider = 0;
+    CIMProvider* provider = 0;
 
     // dynamically load the provider library
-    if(_library == 0)
+    if (_library == 0)
     {
-        _library = System::loadDynamicLibrary((const char *)_fileName.getCString());
+        _library =
+            System::loadDynamicLibrary((const char *)_fileName.getCString());
+
+        if (_library == 0)
+        {
+            // ATTN: does unload() need to be called?
+            throw Exception(MessageLoaderParms(
+                "ProviderManager.ProviderModule.CANNOT_LOAD_LIBRARY",
+                "ProviderLoadFailure ($0:$1):Cannot load library, error: $2",
+                _fileName,
+                providerName,
+                System::dynamicLoadError()));
+        }
     }
 
-    if(_library == 0)
-    {
-
-        // ATTN: does unload() need to be called?
-        //l10n
-        //String errorString = "Cannot load library, error: " + System::dynamicLoadError();
-        //throw Exception("ProviderLoadFailure (" + _fileName + ":" + providerName + "):" + errorString);
-        throw Exception(MessageLoaderParms("ProviderManager.ProviderModule.CANNOT_LOAD_LIBRARY",
-            "ProviderLoadFailure ($0:$1):Cannot load library, error: $2",
-            _fileName,
-            providerName,
-            System::dynamicLoadError()));
-    }
-
-    // find libray entry point
+    // find library entry point
     CIMProvider * (*createProvider)(const String &) = 0;
 
-    createProvider = (CIMProvider * (*)(const String &))System::loadDynamicSymbol(
+    createProvider = (CIMProvider* (*)(const String&))System::loadDynamicSymbol(
         _library, "PegasusCreateProvider");
 
-    if(createProvider == 0)
+    if (createProvider == 0)
     {
-        //l10n
-        //String errorString = "entry point not found.";
-        //throw Exception("ProviderLoadFailure (" + _fileName + ":" + providerName + "):" + errorString);
-
-        throw Exception(MessageLoaderParms("ProviderManager.ProviderModule.ENTRY_POINT_NOT_FOUND",
+        throw Exception(MessageLoaderParms(
+            "ProviderManager.ProviderModule.ENTRY_POINT_NOT_FOUND",
             "ProviderLoadFailure ($0:$1):entry point not found.",
             _fileName,
             providerName));
@@ -183,50 +106,33 @@ CIMProvider *ProviderModule::load(const String & providerName)
 #else
     // On OS/400, need to call a layer of code that does platform-specific
     // checks before calling the provider
-    provider = OS400_CreateProvider(providerName.getCString(), createProvider, _fileName);
+    provider = OS400_CreateProvider(
+        providerName.getCString(), createProvider, _fileName);
 #endif
-
 
     // test for the appropriate interface
     if(dynamic_cast<CIMProvider *>(provider) == 0)
     {
-        //l10n
-        //String errorString = "provider is not a CIMProvider.";
-        //throw Exception("ProviderLoadFailure (" + _fileName + ":" + providerName + "):" + errorString);
-        throw Exception(MessageLoaderParms("ProviderManager.ProviderModule.PROVIDER_IS_NOT_A",
+        throw Exception(MessageLoaderParms(
+            "ProviderManager.ProviderModule.PROVIDER_IS_NOT_A",
             "ProviderLoadFailure ($0:$1):provider is not a CIMProvider.",
             _fileName,
             providerName));
     }
-    _ref_count++;
+    _refCount++;
     return(provider);
 }
 
-void ProviderModule::unloadModule(void)
+void ProviderModule::unloadModule()
 {
-    if (_ref_count.DecAndTestIfZero())
+    if (_refCount.DecAndTestIfZero())
     {
-        if(_library != 0)
+        if (_library != 0)
         {
             System::unloadDynamicLibrary(_library);
             _library = 0;
         }
     }
-}
-
-Boolean ProviderModule::operator == (const void *key) const
-{
-    String *prov = reinterpret_cast<String *>(const_cast<void *>(key));
-    if(String::equalNoCase(_fileName, *prov))
-        return(true);
-    return(false);
-}
-
-Boolean ProviderModule::operator == (const ProviderModule &pm) const
-{
-    if(String::equalNoCase(_fileName, pm._fileName))
-        return(true);
-    return(false);
 }
 
 PEGASUS_NAMESPACE_END

@@ -23,12 +23,16 @@
 // Author:
 //
 // $Log: String.cpp,v $
-// Revision 1.1  2001/01/14 19:53:14  mike
-// Initial revision
+// Revision 1.2  2001/02/11 05:42:33  mike
+// new
+//
+// Revision 1.1.1.1  2001/01/14 19:53:14  mike
+// Pegasus import
 //
 //
 //END_HISTORY
 
+#include <cctype>
 #include "String.h"
 #include "Exception.h"
 #include "String.h"
@@ -37,15 +41,18 @@ PEGASUS_NAMESPACE_BEGIN
 
 const String String::EMPTY;
 
-void ThrowNullPointer()
-{
-    throw NullPointer();
-}
-
-Uint32 StrLen(const Char16* str)
+inline Uint32 StrLen(const char* str)
 {
     if (!str)
-	ThrowNullPointer();
+	throw NullPointer();
+
+    return strlen(str);
+}
+
+inline Uint32 StrLen(const Char16* str)
+{
+    if (!str)
+	throw NullPointer();
 
     Uint32 n = 0;
 
@@ -56,7 +63,7 @@ Uint32 StrLen(const Char16* str)
 }
 
 String::String() 
-{ 
+{
     _rep.append('\0'); 
 }
 
@@ -322,6 +329,27 @@ Boolean operator==(const String& x, const char* y)
 Boolean operator==(const char* x, const String& y)
 {
     return operator==(String(x), y);
+}
+
+void String::toLower(char* str)
+{
+    while (*str)
+	tolower(*str++);
+}
+
+String ToLower(const String& str)
+{
+    String tmp(str);
+
+    for (Uint32 i = 0, n = tmp.getLength(); i < n; i++)
+    {
+	Char16 c = tmp[i];
+
+	if (c <= 127)
+	    tmp[i] = tolower(c);
+    }
+
+    return tmp;
 }
 
 PEGASUS_NAMESPACE_END

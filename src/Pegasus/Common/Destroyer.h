@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: Destroyer.h,v $
-// Revision 1.1  2001/01/14 19:51:32  mike
-// Initial revision
+// Revision 1.2  2001/02/11 05:42:33  mike
+// new
+//
+// Revision 1.1.1.1  2001/01/14 19:51:32  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -92,11 +95,11 @@ public:
 
     T* getPointer() { return _ptr; }
 
-private:
-
     ArrayDestroyer(const ArrayDestroyer&) { }
 
     ArrayDestroyer& operator=(const ArrayDestroyer&) { return *this; }
+
+private:
 
     T* _ptr;
 };

@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: FileSystem.cpp,v $
-// Revision 1.1  2001/01/14 19:51:35  mike
-// Initial revision
+// Revision 1.2  2001/02/11 05:42:33  mike
+// new
+//
+// Revision 1.1.1.1  2001/01/14 19:51:35  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -44,6 +47,7 @@
 #include <cstdio>
 #include "Destroyer.h"
 #include "FileSystem.h"
+#include "Dir.h"
 
 // ATTN-B: porting!
 
@@ -82,6 +86,53 @@ Boolean FileSystem::exists(const String& path)
 #else
     return access(p.getPointer(), F_OK) == 0;
 #endif
+}
+
+Boolean FileSystem::existsIgnoreCase(const String& path, String& realPath)
+{
+    realPath.clear();
+    Destroyer<char> destroyer(_clonePath(path));
+    char* p = destroyer.getPointer();
+
+    char* dirPath;
+    char* fileName;
+    char* slash = strrchr(p, '/');
+
+    if (slash)
+    {
+	*slash = '\0';
+	fileName = slash + 1;
+	dirPath = p;
+	if (*fileName == '\0')
+	    return false;
+    }
+    else
+    {
+	fileName = p;
+	dirPath = ".";
+    }
+
+    for (Dir dir(dirPath); dir.more(); dir.next())
+    {
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+	if (stricmp(fileName, dir.getName()) == 0)
+#else
+	if (strcasecmp(fileName, dir.getName()) == 0)
+#endif
+	{
+	    if (strcmp(dirPath, ".") == 0)
+		realPath = dir.getName();
+	    else
+	    {
+		realPath = dirPath;
+		realPath += '/';
+		realPath += dir.getName();
+	    }
+	    return true;
+	}
+    }
+
+    return false;
 }
 
 Boolean FileSystem::canRead(const String& path)
@@ -265,53 +316,15 @@ Boolean FileSystem::getDirectoryContents(
 {
     paths.clear();
 
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-
-    String tmp = path;
-    tmp += "/*";
-    Destroyer<char> p(tmp.allocateCString());
-
-    long file;
-    struct _finddata_t findData;
-
-    if ((file = _findfirst(p.getPointer(), &findData)) == -1L)
-	return false;
-
-    do
+    for (Dir dir(path); dir.more(); dir.next())
     {
-	const char* name = findData.name;
+	String name = dir.getName();
 
-	if (strcmp(name, ".") == 0 || strcmp(name, "..") == 0)
-	    continue;
-
-	paths.append(name);
-
-    } while (_findnext(file, &findData) == 0);
-
-    _findclose(file);
-
-#else
-
-    Destroyer<char> p(_clonePath(path));
-    DIR* dir = opendir(p.getPointer());
-
-    if (!dir)
-	return false;
-
-    struct dirent* entry;
-
-    while ((entry = readdir(dir)) != NULL)
-    {
-	const char* name = entry->d_name;
-
-	if (strcmp(name, ".") == 0 || strcmp(name, "..") == 0)
+	if (name == "." || name ==  "..")
 	    continue;
 
 	paths.append(name);
     }
-
-    closedir(dir);
-#endif
 
     return true;
 }

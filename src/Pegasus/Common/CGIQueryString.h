@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CGIQueryString.h,v $
+// Revision 1.3  2001/02/11 05:42:33  mike
+// new
+//
 // Revision 1.2  2001/02/05 03:40:28  mike
 // new documentation
 //
@@ -78,7 +81,7 @@ private:
 
     Array<Entry> _entries;
 
-    friend static void _ParseCGIQueryString(
+    static void _ParseCGIQueryString(
 	char* queryString, 
 	Array<Entry>& entries);
 };

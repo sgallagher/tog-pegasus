@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: FileSystem.h,v $
-// Revision 1.1  2001/01/14 19:51:36  mike
-// Initial revision
+// Revision 1.2  2001/02/11 05:42:33  mike
+// new
+//
+// Revision 1.1.1.1  2001/01/14 19:51:36  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -51,9 +54,13 @@ class PEGASUS_COMMON_LINKAGE FileSystem
 {
 public:
 
-    // Return true if the file exists (and false otherwise).
-
+    /// Return true if the file exists (and false otherwise).
     static Boolean exists(const String& path);
+
+    /** Return true if the file exists (and false otherwise). Ignore the
+	case of the file and return the real name of the file.
+    */
+    static Boolean existsIgnoreCase(const String& path, String& realPath);
 
     // Returns true if the file exists and can be read:
 

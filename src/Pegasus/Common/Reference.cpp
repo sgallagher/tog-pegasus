@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Reference.cpp,v $
+// Revision 1.4  2001/02/11 05:42:33  mike
+// new
+//
 // Revision 1.3  2001/01/28 07:05:18  mike
 // added instance name/reference converters
 //
@@ -363,7 +366,7 @@ void Reference::instanceNameToReference(
 	{
 	    q++;
 
-	    type = KeyBinding::Type::STRING;
+	    type = KeyBinding::STRING;
 
 	    while (*q && *q != '"')
 	    {
@@ -383,7 +386,7 @@ void Reference::instanceNameToReference(
 	}
 	else if (toupper(*q) == 'T' || toupper(*q) == 'F')
 	{
-	    type = KeyBinding::Type::BOOLEAN;
+	    type = KeyBinding::BOOLEAN;
 
 	    char* r = q;
 
@@ -400,7 +403,7 @@ void Reference::instanceNameToReference(
 	}
 	else
 	{
-	    type = KeyBinding::Type::NUMERIC;
+	    type = KeyBinding::NUMERIC;
 
 	    Sint64 x;
 
@@ -443,12 +446,12 @@ void Reference::referenceToInstanceName(
 
 	KeyBinding::Type type = keyBindings[i].getType();
 	
-	if (type == KeyBinding::Type::STRING)
+	if (type == KeyBinding::STRING)
 	    instanceName.append('"');
 
 	instanceName.append(value);
 
-	if (type == KeyBinding::Type::STRING)
+	if (type == KeyBinding::STRING)
 	    instanceName.append('"');
 
 	if (i + 1 != n)

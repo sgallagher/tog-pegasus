@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: String.h,v $
+// Revision 1.6  2001/02/11 05:42:33  mike
+// new
+//
 // Revision 1.5  2001/01/30 08:00:43  karl
 // DOC++ Documentation update for header files
 //
@@ -41,18 +44,6 @@
 //
 //END_HISTORY
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// String.h
-//
-//	Simple String type.
-//
-////////////////////////////////////////////////////////////////////////////////
-
-/*
-String Header File - Defines the CIM String Class.
-*/
-
 #ifndef Pegasus_String_h
 #define Pegasus_String_h
 
@@ -64,150 +55,171 @@ String Header File - Defines the CIM String Class.
 
 PEGASUS_NAMESPACE_BEGIN
 
-PEGASUS_COMMON_LINKAGE void ThrowNullPointer();
-
-PEGASUS_COMMON_LINKAGE Uint32 StrLen(const Char16* str);
-
-inline Uint32 StrLen(const char* str)
-{
-    if (!str)
-	ThrowNullPointer();
-
-    return strlen(str);
-}
 /**
-The Pegasus String C++ Class implements the CIM string type
+    The Pegasus String C++ Class implements the CIM string type
 */
 class PEGASUS_COMMON_LINKAGE String
 {
 public:
 
-    /**
-    String with no parameters
-    */
+    /// Default constructor.
     String();
-    /**
-	String something class definitions
-    */
+
+    /// Copy constructor.
     String(const String& x);
-    /// Create a CIM string
+
+    /// Initialize with first n characters from x.
     String(const String& x, Uint32 n);
-    /// Create a CIM String
+
+    /// Initialize with x.
     String(const Char16* x);
-    /// Create a CIM String
+
+    /// Initialize with first n characters of x.
     String(const Char16* x, Uint32 n);
-    /** Create a CIM String
-    */
+
+    /// Initialize from a plain old C-String:
     String(const char* x);
-    /// Method
+
+    /// Initialize from the first n characters of a plain old C-String:
     String(const char* x, Uint32 n);
 
-    ~String() { }
-    /** Operator ATTN:
-    */
+    /// Release all resources.
+    ~String() 
+    {
+    }
+
+    /// Assign this string with x.
     String& operator=(const String& x) { _rep = x._rep; return *this; }
-    /// Operator
+
+    /// Assign this string with x.
     String& operator=(const Char16* x) { assign(x); return *this; }
-    /** method assign - ATTN:
-    */
+
+    /// Assing this string with x.
     String& assign(const String& x) { _rep = x._rep; return *this; }
-    /** method assign - ATTN:
-    */
+
+    /// Assign this string with x.
     String& assign(const Char16* x);
-    /** method assign - ATTN:
-    */
+
+    /// Assign this string with first n characters of x.
     String& assign(const Char16* x, Uint32 n);
-    /** method assign - ATTN:
-    */
+
+    /// Assign this string with the plain old C-String x.
     String& assign(const char* x);
-    /** method assign - ATTN:
-    */
+
+    /// Assign this string with first n characters of the plain old C-String x.
     String& assign(const char* x, Uint32 n);
-    /** Method clear -- ATTN:
-    */
+
+    /// Clear this string. After calling clear(), getLength() will return 0.
     void clear() { _rep.clear(); _rep.append('\0'); }
 
-    /**
-	Method reserve - ATTN:
+    /** Reserves memory for capacity characters. Notice that this does not
+	change the size of the string (getSize() returns what it did before).
+	If the capacity of the string is already greater or equal to the
+	capacity argument, this method has no effect. After calling reserve(),
+	getCapicty() returns a value which is greater or equal to the 
+	capacity argument.
     */
     void reserve(Uint32 capacity) { _rep.reserve(capacity + 1); }
 
-    /**
-	Method getLength - ATTN:
-    */
+    /// Returns the length of the string.
     Uint32 getLength() const { return _rep.getSize() - 1; }
 
-    /**
-	Method getData - ATT
-    */
+    /// Returns a pointer to the first character in the string string.
     const Char16* getData() const { return _rep.getData(); }
 
-    /** Method allocateCString -  Allocates an 8 bit representation of this
-    string. The user is responsible for freeing the result. If any characters
-    are truncated, a TruncatedCharacter exception is thrown. This exception may
-    be suppressed by passing true as the noThrow argument. */
-
+    /** Allocates an 8 bit representation of this string. The user is 
+	responsible for freeing the result. If any characters are truncated, 
+	a TruncatedCharacter exception is thrown. This exception may
+	be suppressed by passing true as the noThrow argument. Extra
+	characters may be allocated at the end of the new string by
+	passing a non-zero value to the extraBytes argument.
+    */
     char* allocateCString(Uint32 extraBytes = 0, Boolean noThrow = false) const;
 
-    /** Method appendToCString - Append the given string to a C-string. If the
-    length is not Uint32(-1), then the lesser of the the length argument and the
-    length of this string is truncated. Otherwise, the entire string is
-    trunctated. The TruncatedCharacter exception is thrown if any characters are
-    truncated.
+    /** Append the given string to a C-string. If the length is not Uint32(-1),
+	then the lesser of the the length argument and the length of this 
+	string is truncated. Otherwise, the entire string is trunctated. The 
+	TruncatedCharacter exception is thrown if any characters are truncated.
     */
     void appendToCString(
 	char* str,
 	Uint32 length = Uint32(-1),
 	Boolean noThrow = false) const;
 
+    /// Returns the Ith character of the string.
     Char16& operator[](Uint32 i);
 
+    /// Returns the Ith character of the string (const version).
     const Char16 operator[](Uint32 i) const;
-    /// method Append
+
+    /// Append the given character to the string.
     String& append(const Char16& c)
     {
 	_rep.insert(_rep.getSize() - 1, c);
 	return *this;
     }
-    /// method append
+
+    /// Append n characters from str to this string.
     String& append(const Char16* str, Uint32 n);
-    /// method append
+
+    /// Append the characters of str to this string.
     String& append(const String& str)
     {
 	return append(str.getData(), str.getLength());
     }
-    /// ATTN
+
+    /// Append the characters of str to this string.
     String& operator+=(const String& x)
     {
 	return append(x);
     }
-    /// ATTN
+
+    /// Append the character given by c to this string.
     String& operator+=(Char16 c)
     {
 	return append(c);
     }
-    /// ATTN
+
+    /// Append the character given by c to this string.
     String& operator+=(char c)
     {
 	return append(Char16(c));
     }
 
-    /// remove a string
+    /** Remove size characters from the string starting at the given
+	position. If size is -1, then all characters after pos are removed.
+    */
     void remove(Uint32 pos, Uint32 size = Uint32(-1));
 
-    /// method subString ATTN:
+    /** Return a new string which is initialzed with length characters from
+        this string starting at pos. If length is -1, then all characters
+	after pos are added to the new string.
+    */
     String subString(Uint32 pos, Uint32 length = Uint32(-1)) const;
 
-    /// Method find - ATTN:
+    /** Find the position of the first occurence of the character given by
+	c. If the character is not found, -1 is returned.
+    */
     Uint32 find(Char16 c) const;
 
-    /// Method compare - Compare two CIM strings - ATTN:
+    /** Compare the first n characters of the two strings. Return -1 if s1
+	is lexographically less than s2. If they are equavalent return 0.
+	Otherwise return 1.
+    */
     static int compare(const Char16* s1, const Char16* s2, Uint32 n);
 
-    /// Method compare -- Compare two CIM strings
+    /** Compare the two null-terminated strings. If s1 is less than s2,
+	return -1; if equal return 0; otherwise, return 1.
+    */
     static int compare(const Char16* s1, const Char16* s2);
 
-    /// ATTN
+    /// Convert the plain old C-string to lower case:
+    static void toLower(char* str);
+
+    /**
+	This member is used to represent empty strings. Using this member
+	avoid an expensive construction of an empty string (e.g., String()).
+    */
     static const String EMPTY;
 
 private:
@@ -228,8 +240,9 @@ inline Boolean operator!=(const String& x, const String& y)
     return !operator==(x, y);
 }
 
-PEGASUS_COMMON_LINKAGE std::ostream& operator<<(std::ostream& os, const String&
-x);
+PEGASUS_COMMON_LINKAGE std::ostream& operator<<(
+    std::ostream& os, 
+    const String& x);
 
 inline String operator+(const String& x, const String& y)
 {
@@ -255,6 +268,12 @@ inline Boolean operator>=(const String& x, const String& y)
 {
     return String::compare(x.getData(), y.getData()) >= 0;
 }
+
+/** Return a version of this string whose characters have been shifted
+    to lower case.
+*/
+PEGASUS_COMMON_LINKAGE String ToLower(const String& str);
+
 
 PEGASUS_NAMESPACE_END
 

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CGIQueryString.cpp,v $
+// Revision 1.3  2001/02/11 05:42:33  mike
+// new
+//
 // Revision 1.2  2001/02/05 03:40:28  mike
 // new documentation
 //
@@ -70,7 +73,7 @@ static void _ExpandCGIQueryValue(char* value)
     }
 }
 
-static void _ParseCGIQueryString(
+void CGIQueryString::_ParseCGIQueryString(
     char* queryString, 
     Array<CGIQueryString::Entry>& entries)
 {

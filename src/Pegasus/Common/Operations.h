@@ -20,9 +20,12 @@
 //END_LICENSE
 //BEGIN_HISTORY
 //
-// Author:
+// Author: Mike Brasher
 //
 // $Log: Operations.h,v $
+// Revision 1.10  2001/02/11 05:42:33  mike
+// new
+//
 // Revision 1.9  2001/02/08 00:31:51  mike
 // Clean up on Operations class.
 // Reformmatted documentation.
@@ -52,17 +55,7 @@
 // Revision 1.1.1.1  2001/01/14 19:53:00  mike
 // Pegasus import
 //
-//
 //END_HISTORY
-
-/* @name Client Operations Header file (Operations.h) - Header File for Pegasus
-External Client API.
- This library (operations.h) defines the external APIs for the Pegasus MSB.
- These are synchronous calls and match the operations defined by the DMTF
- in the document "Specification for CIM Operations over HTTP" Version 1.0 with
- errata.
- @author Michael Brasher
-*/
 
 #ifndef Pegasus_Operations_h
 #define Pegasus_Operations_h
@@ -89,7 +82,6 @@ PEGASUS_NAMESPACE_BEGIN
 
     The Operations class is used by other classes such as the client, provider,
     and repository classes to instantiate the operations interfaces.
-
 */
 class PEGASUS_COMMON_LINKAGE Operations
 {
@@ -98,73 +90,73 @@ public:
     virtual ~Operations();
 
     /** The <TT>GetClass</TT> method returns a single CIM Class from the
-    target Namespace where the ClassName input parameter defines the name of
-    the class to be retrieved.
+	target Namespace where the ClassName input parameter defines the name of
+	the class to be retrieved.
 
-    @param NameSpace The NameSpace parameter is a string that defines the
-    target namespace \Ref{NAMESPACE}
+	@param NameSpace The NameSpace parameter is a string that defines the
+	target namespace \Ref{NAMESPACE}
 
-    @param ClassName The ClassName input parameter defines the name of the
-    Class to be retrieved.
+	@param ClassName The ClassName input parameter defines the name of the
+	Class to be retrieved.
 
-    @param LocalOnly If the <TT>LocalOnly</TT> input parameter is true, this
-    specifies that only CIM Elements (properties, methods and qualifiers)
-    overriden within the definition of the Class are returned.  If false,
-    all elements are returned.  This parameter therefore effects a CIM
-    Server-side mechanism to filter certain elements of the returned object
-    based on whether or not they have been propagated from the parent Class
-    (as defined by the PROPAGATED attribute).
+	@param LocalOnly If the <TT>LocalOnly</TT> input parameter is true, this
+	specifies that only CIM Elements (properties, methods and qualifiers)
+	overriden within the definition of the Class are returned.  If false,
+	all elements are returned.  This parameter therefore effects a CIM
+	Server-side mechanism to filter certain elements of the returned object
+	based on whether or not they have been propagated from the parent Class
+	(as defined by the PROPAGATED attribute).
 
-    @param IncludeQualifiers If the <TT>IncludeQualifiers</TT> input
-    parameter is true, this specifies that all Qualifiers for that Class
-    (including Qualifiers on the Class and on any returned Properties,
-    Methods or Method Parameters) MUST be included as <QUALIFIER> elements
-    in the response.  If false no <QUALIFIER> elements are present in the
-    returned Class.
+	@param IncludeQualifiers If the <TT>IncludeQualifiers</TT> input
+	parameter is true, this specifies that all Qualifiers for that Class
+	(including Qualifiers on the Class and on any returned Properties,
+	Methods or Method Parameters) MUST be included as <QUALIFIER> elements
+	in the response.  If false no <QUALIFIER> elements are present in the
+	returned Class.
 
-    @param IncludeClassOrigin If the <TT>IncludeClassOrigin</TT> input
-    parameter is true, this specifies that the CLASSORIGIN attribute MUST be
-    present on all appropriate elements in the returned Class. If false, no
-    CLASSORIGIN attributes are present in the returned Class.
+	@param IncludeClassOrigin If the <TT>IncludeClassOrigin</TT> input
+	parameter is true, this specifies that the CLASSORIGIN attribute MUST be
+	present on all appropriate elements in the returned Class. If false, no
+	CLASSORIGIN attributes are present in the returned Class.
 
-    @param PropertyList If the <TT>PropertyList</TT> input parameter is not
-    NULL, the members of the array define one or more Property names.  The
-    returned Class MUST NOT include elements for any Properties missing from
-    this list. Note that if LocalOnly is specified as true this acts as an
-    additional filter on the set of Properties returned (for example, if
-    Property A is included in the PropertyList but LocalOnly is set to true
-    and A is not local to the requested Class, then it will not be included
-    in the response). If the PropertyList input parameter is an empty array
-    this signifies that no Properties are included in the response. If the
-    PropertyList input parameter is NULL this specifies that all Properties
-    (subject to the conditions expressed by the other parameters) are
-    included in the response.
+	@param PropertyList If the <TT>PropertyList</TT> input parameter is not
+	NULL, the members of the array define one or more Property names.  The
+	returned Class MUST NOT include elements for any Properties missing from
+	this list. Note that if LocalOnly is specified as true this acts as an
+	additional filter on the set of Properties returned (for example, if
+	Property A is included in the PropertyList but LocalOnly is set to true
+	and A is not local to the requested Class, then it will not be included
+	in the response). If the PropertyList input parameter is an empty array
+	this signifies that no Properties are included in the response. If the
+	PropertyList input parameter is NULL this specifies that all Properties
+	(subject to the conditions expressed by the other parameters) are
+	included in the response.
 
-    If the <TT>PropertyList</TT> contains duplicate elements, the Server
-    MUST ignore the duplicates but otherwise process the request normally.
-    If the PropertyList contains elements which are invalid Property names
-    for the target Class, the Server MUST ignore such entries but otherwise
-    process the request normally.
+	If the <TT>PropertyList</TT> contains duplicate elements, the Server
+	MUST ignore the duplicates but otherwise process the request normally.
+	If the PropertyList contains elements which are invalid Property names
+	for the target Class, the Server MUST ignore such entries but otherwise
+	process the request normally.
 
-    @return If successful, the return value is a single CIM Class.
+	@return If successful, the return value is a single CIM Class.
 
-    If unsuccessful, one of the following status codes MUST be returned by
-    this method, where the first applicable error in the list (starting with
-    the first element of the list, and working down) is the error returned.
-    Any additional method-specific interpretation of the error in is given
-    in parentheses.
-    <UL>
-	    <LI>CIM_ERR_ACCESS_DENIED
-	    <LI>CIM_ERR_INVALID_NAMESPACE
-	    <LI>CIM_ERR_INVALID_PARAMETER (including missing,
-	    duplicate,unrecognized or otherwise
-		    incorrect parameters)
-	    <LI>CIM_ERR_NOT_FOUND (the request CIM Class does not exist in
-	    the
-	    specified
-		    namespace)
-	    <LI>CIM_ERR_FAILED (some other unspecified error occurred)</LI>
-    </UL>
+	If unsuccessful, one of the following status codes MUST be returned by
+	this method, where the first applicable error in the list (starting with
+	the first element of the list, and working down) is the error returned.
+	Any additional method-specific interpretation of the error in is given
+	in parentheses.
+	<UL>
+		<LI>CIM_ERR_ACCESS_DENIED
+		<LI>CIM_ERR_INVALID_NAMESPACE
+		<LI>CIM_ERR_INVALID_PARAMETER (including missing,
+		duplicate,unrecognized or otherwise
+			incorrect parameters)
+		<LI>CIM_ERR_NOT_FOUND (the request CIM Class does not exist in
+		the
+		specified
+			namespace)
+		<LI>CIM_ERR_FAILED (some other unspecified error occurred)</LI>
+	</UL>
     */
     virtual ClassDecl getClass(
 	    const String& nameSpace,
@@ -175,73 +167,72 @@ public:
 	    const Array<String>& propertyList = _getStringArray()) = 0;
 
     /** The <<TT>GetInstance</TT> method returns a single CIM Instance from
-    the target Namespace based on the InstanceName parameter provided.
+	the target Namespace based on the InstanceName parameter provided.
 
-    @param NameSpace The NameSpace parameter is a string that defines the
-    target namespace \Ref{NAMESPACE}
+	@param NameSpace The NameSpace parameter is a string that defines the
+	target namespace \Ref{NAMESPACE}
 
-    @param InstanceName The InstanceName input parameter defines the name of
-    the Instance to be retrieved.
+	@param InstanceName The InstanceName input parameter defines the name of
+	the Instance to be retrieved.
 
-    @param LocalOnly If the <TT>LocalOnly</TT> input parameter is true, this
-    specifies that only elements (properties and qualifiers) overriden
-    within the definition of the Instance are returned.  If false, all
-    elements are returned.  This parameter therefore effects a CIM
-    Server-side mechanism to filter certain elements of the returned object
-    based on whether or not they have been propagated from the parent Class
-    (as defined by the PROPAGATED attribute).
+	@param LocalOnly If the <TT>LocalOnly</TT> input parameter is true, this
+	specifies that only elements (properties and qualifiers) overriden
+	within the definition of the Instance are returned.  If false, all
+	elements are returned.  This parameter therefore effects a CIM
+	Server-side mechanism to filter certain elements of the returned object
+	based on whether or not they have been propagated from the parent Class
+	(as defined by the PROPAGATED attribute).
 
-    @param IncludeQualifiersIf the <TT>IncludeQualifiers</TT> input
-    parameter is true, this specifies that all Qualifiers for that Instance
-    (including Qualifiers on the Instance and on any returned Properties)
-    MUST be included as <QUALIFIER> elements in the response.  If false no
-    <QUALIFIER> elements are present in the returned Instance.
+	@param IncludeQualifiersIf the <TT>IncludeQualifiers</TT> input
+	parameter is true, this specifies that all Qualifiers for that Instance
+	(including Qualifiers on the Instance and on any returned Properties)
+	MUST be included as <QUALIFIER> elements in the response.  If false no
+	<QUALIFIER> elements are present in the returned Instance.
 
-    @param IncludeClassOrigin If the <TT>IncludeClassOrigin</TT> input
-    parameter is true, this specifies that the CLASSORIGIN attribute MUST
-    be present on all appropriate elements in the returned Instance. If
-    false, no CLASSORIGIN attributes are present in the returned instance.
+	@param IncludeClassOrigin If the <TT>IncludeClassOrigin</TT> input
+	parameter is true, this specifies that the CLASSORIGIN attribute MUST
+	be present on all appropriate elements in the returned Instance. If
+	false, no CLASSORIGIN attributes are present in the returned instance.
 
-    @param PropertyList If the <TT>PropertyList</TT> input parameter is not
-    NULL, the members of the array define one or more Property names.  The
-    returned Instance MUST NOT include elements for any Properties missing
-    from this list. Note that if LocalOnly is specified as true this acts
-    as an additional filter on the set of Properties returned (for example,
-    if Property A is included in the PropertyList but LocalOnly is set to
-    true and A is not local to the requested Instance, then it will not be
-    included in the response). If the PropertyList input parameter is an
-    empty array this signifies that no Properties are included in the
-    response. If the PropertyList input parameter is NULL this specifies
-    that all Properties (subject to the conditions expressed by the other
-    parameters) are included in the response.
+	@param PropertyList If the <TT>PropertyList</TT> input parameter is not
+	NULL, the members of the array define one or more Property names.  The
+	returned Instance MUST NOT include elements for any Properties missing
+	from this list. Note that if LocalOnly is specified as true this acts
+	as an additional filter on the set of Properties returned (for example,
+	if Property A is included in the PropertyList but LocalOnly is set to
+	true and A is not local to the requested Instance, then it will not be
+	included in the response). If the PropertyList input parameter is an
+	empty array this signifies that no Properties are included in the
+	response. If the PropertyList input parameter is NULL this specifies
+	that all Properties (subject to the conditions expressed by the other
+	parameters) are included in the response.
 
-    If the <TT>PropertyList</TT> contains duplicate elements, the Server
-    MUST ignore the duplicates but otherwise process the request normally.
-    If the PropertyList contains elements which are invalid Property names
-    for the target Instance, the Server MUST ignore such entries but
-    otherwise process the request normally.
+	If the <TT>PropertyList</TT> contains duplicate elements, the Server
+	MUST ignore the duplicates but otherwise process the request normally.
+	If the PropertyList contains elements which are invalid Property names
+	for the target Instance, the Server MUST ignore such entries but
+	otherwise process the request normally.
 
-    @return If successful, the return value is a single CIM Instance.
+	@return If successful, the return value is a single CIM Instance.
 
-    If unsuccessful, one of the following status codes MUST be returned by
-    this method, where the first applicable error in the list (starting
-    with the first element of the list, and working down) is the error
-    returned. Any additional method-specific interpretation of the error in
-    is given in parentheses.
+	If unsuccessful, one of the following status codes MUST be returned by
+	this method, where the first applicable error in the list (starting
+	with the first element of the list, and working down) is the error
+	returned. Any additional method-specific interpretation of the error in
+	is given in parentheses.
 
-    <UL>
-	<LI>CIM_ERR_ACCESS_DENIED
-	<LI>CIM_ERR_INVALID_NAMESPACE
-	<LI>CIM_ERR_INVALID_PARAMETER (including missing, duplicate,
-	    unrecognized or otherwise incorrect parameters)
-	<LI>CIM_ERR_INVALID_CLASS (the CIM Class does not exist in the
-	    specified namespace)
-	<LI>CIM_ERR_NOT_FOUND (the CIM Class does exist, but the
-	requested
-	CIM Instance does not exist in the specified namespace)
-	<LI>CIM_ERR_FAILED (some other unspecified error occurred)
-	</LI>
-    </UL>
+	<UL>
+	    <LI>CIM_ERR_ACCESS_DENIED
+	    <LI>CIM_ERR_INVALID_NAMESPACE
+	    <LI>CIM_ERR_INVALID_PARAMETER (including missing, duplicate,
+		unrecognized or otherwise incorrect parameters)
+	    <LI>CIM_ERR_INVALID_CLASS (the CIM Class does not exist in the
+		specified namespace)
+	    <LI>CIM_ERR_NOT_FOUND (the CIM Class does exist, but the requested 
+		CIM Instance does not exist in the specified namespace)
+	    <LI>CIM_ERR_FAILED (some other unspecified error occurred)
+	    </LI>
+	</UL>
     */
     virtual InstanceDecl getInstance(
 	    const String& nameSpace,
@@ -253,81 +244,78 @@ public:
 
 
     /** The <TT>DeleteClass</TT> method deletes a single CIM Class from the
-    target Namespace.
+	target Namespace.
 
-    @param NameSpace The NameSpace parameter is a string that defines the
-    target
-    namespace \Ref{NAMESPACE}
+	@param NameSpace The NameSpace parameter is a string that defines the
+	target namespace \Ref{NAMESPACE}
 
-    @param ClassName The ClassName input parameter defines the name of the
-    Class
-    to be deleted.
+	@param ClassName The ClassName input parameter defines the name of the
+	Class to be deleted.
 
-    @return If successful, the specified Class (including any subclasses and any
-    instances) MUST have been removed by the CIM Server.  The operation MUST
-    fail if any one of these objects cannot be deleted.
+	@return If successful, the specified Class (including any subclasses 
+	and any instances) MUST have been removed by the CIM Server.  The 
+	operation MUST fail if any one of these objects cannot be deleted.
 
-    If unsuccessful, one of the following status codes MUST be returned by this
-    method, where the first applicable error in the list (starting with the
-    first element of the list, and working down) is the error returned. Any
-    additional method-specific interpretation of the error in is given in
-    parentheses.
-    <UL>
-	<LI>CIM_ERR_ACCESS_DENIED
-	<LI>CIM_ERR_NOT_SUPPORTED
-	<LI>CIM_ERR_INVALID_NAMESPACE
-	<LI>CIM_ERR_INVALID_PARAMETER (including missing, duplicate,
-	    unrecognized or otherwise incorrect parameters)
-	<LI>CIM_ERR_NOT_FOUND (the CIM Class to be deleted does not
-	exist)
-	<LI>CIM_ERR_CLASS_HAS_CHILDREN (the CIM Class has one or more
-	subclasses
-	    which cannot be deleted)
-	<LI>CIM_ERR_CLASS_HAS_INSTANCES (the CIM Class has one or more
-	instances
-	    which cannot be deleted)
-	<LI>CIM_ERR_FAILED (some other unspecified error occurred)
-    </UL>
+	If unsuccessful, one of the following status codes MUST be returned by 
+	this method, where the first applicable error in the list (starting 
+	with the first element of the list, and working down) is the error 
+	returned. Any additional method-specific interpretation of the error 
+	in is given in parentheses.
+
+	<UL>
+	    <LI>CIM_ERR_ACCESS_DENIED
+	    <LI>CIM_ERR_NOT_SUPPORTED
+	    <LI>CIM_ERR_INVALID_NAMESPACE
+	    <LI>CIM_ERR_INVALID_PARAMETER (including missing, duplicate,
+		unrecognized or otherwise incorrect parameters)
+	    <LI>CIM_ERR_NOT_FOUND (the CIM Class to be deleted does not exist)
+	    <LI>CIM_ERR_CLASS_HAS_CHILDREN (the CIM Class has one or more
+		subclasses which cannot be deleted)
+	    <LI>CIM_ERR_CLASS_HAS_INSTANCES (the CIM Class has one or more
+		instances which cannot be deleted)
+	    <LI>CIM_ERR_FAILED (some other unspecified error occurred)
+	</UL>
     */
     virtual void deleteClass(
         const String& nameSpace,
         const String& className) = 0;
 
-    /** The <TT>DeleteInstance</TT> operation deletes a single CIM Instance from
-    the target Namespace.
+    /** The <TT>DeleteInstance</TT> operation deletes a single CIM Instance 
+	from the target Namespace.
 
-    @param NameSpace The NameSpace parameter is a string that defines the target
-	namespace \Ref{NAMESPACE}
+	@param NameSpace The NameSpace parameter is a string that defines the 
+	target namespace \Ref{NAMESPACE}
 
-    @param InstanceName The InstanceName input parameter defines the name (model
-    path) of the Instance to be deleted.
+	@param InstanceName The InstanceName input parameter defines the name 
+	(model path) of the Instance to be deleted.
 
-    @return If successful, the specified Instance MUST have been removed by the
-    CIM Server.
+	@return If successful, the specified Instance MUST have been removed 
+	by the CIM Server.
 
-    If unsuccessful, one of the following status codes MUST be returned by this
-    method, where the first applicable error in the list (starting with the
-    first element of the list, and working down) is the error returned. Any
-    additional method-specific interpretation of the error in is given in
-    parentheses.
+	If unsuccessful, one of the following status codes MUST be returned by 
+	this method, where the first applicable error in the list (starting 
+	with the first element of the list, and working down) is the error 
+	returned. Any additional method-specific interpretation of the error in
+	is given in parentheses.
 
-    <UL>
-         <LI>CIM_ERR_ACCESS_DENIED
-         <LI>CIM_ERR_NOT_SUPPORTED
-         <LI>CIM_ERR_INVALID_NAMESPACE
-         <LI>CIM_ERR_INVALID_PARAMETER (including missing, duplicate,
-         	unrecognized or otherwise incorrect parameters)
-         <LI>CIM_ERR_INVALID_CLASS (the CIM Class does not exist in the
-         	specified namespace)
-         <LI>CIM_ERR_NOT_FOUND (the CIM Class does exist, but the requested CIM
-         	Instance does not exist in the specified namespace)
-         <LI>CIM_ERR_FAILED (some other unspecified error occurred)</LI>
-    </UL>
+	<UL>
+	    <LI>CIM_ERR_ACCESS_DENIED
+	    <LI>CIM_ERR_NOT_SUPPORTED
+	    <LI>CIM_ERR_INVALID_NAMESPACE
+	    <LI>CIM_ERR_INVALID_PARAMETER (including missing, duplicate,
+		unrecognized or otherwise incorrect parameters)
+	    <LI>CIM_ERR_INVALID_CLASS (the CIM Class does not exist in the
+		specified namespace)
+	    <LI>CIM_ERR_NOT_FOUND (the CIM Class does exist, but the requested 
+		CIM Instance does not exist in the specified namespace)
+	    <LI>CIM_ERR_FAILED (some other unspecified error occurred)</LI>
+	</UL>
     */
     virtual void deleteInstance(
-
         const String& nameSpace,
         const Reference& instanceName) = 0;
+
+    //BOOKMARK
 
     /** The <TT>createClass</TT> method creates a single CIM Class in
     the target Namespace. The Class MUST NOT already exist. The NewClass input

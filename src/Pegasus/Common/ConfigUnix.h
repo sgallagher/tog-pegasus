@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: ConfigUnix.h,v $
-// Revision 1.1  2001/01/14 19:50:40  mike
-// Initial revision
+// Revision 1.2  2001/02/11 05:42:33  mike
+// new
+//
+// Revision 1.1.1.1  2001/01/14 19:50:40  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -59,6 +62,7 @@ PEGASUS_NAMESPACE_BEGIN
 #define PEGASUS_PROTOCOL_LINKAGE /* empty */
 #define PEGASUS_SERVER_LINKAGE /* empty */
 #define PEGASUS_CLIENT_LINKAGE /* empty */
+#define PEGASUS_PROVIDER_LINKAGE /* empty */
 
 // Not a big-endian machine:
 
@@ -83,6 +87,8 @@ typedef long long Sint64;
 // #define _POSIX_THREAD_SAFE_FUNCTIONS
 // #define _REENTRANT
 // #define ACE_HAS_AIO_CALLS
+
+#define PEGASUS_EXPORT /* empty */
 
 #define PEGASUS_IOS_BINARY /* empty */
 

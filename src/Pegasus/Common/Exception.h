@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Exception.h,v $
+// Revision 1.6  2001/02/11 05:42:33  mike
+// new
+//
 // Revision 1.5  2001/01/29 02:23:44  mike
 // Added support for GetInstance operation
 //
@@ -587,6 +590,15 @@ public:
 
     DynamicLookupFailed(const String& symbolName) 
 	: Exception(MSG + symbolName) { }
+};
+
+class PEGASUS_COMMON_LINKAGE CannotOpenDirectory : public Exception
+{
+public:
+
+    static const char MSG[];
+
+    CannotOpenDirectory(const String& path) : Exception(MSG + path) { }
 };
 
 PEGASUS_NAMESPACE_END

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Array.h,v $
+// Revision 1.7  2001/02/11 05:42:33  mike
+// new
+//
 // Revision 1.6  2001/02/08 00:31:51  mike
 // Clean up on Operations class.
 // Reformmatted documentation.
@@ -187,12 +190,6 @@ ArrayRep<T>* ArrayRep<T>::getNullRep()
     return nullRep;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// Array<T>
-//
-////////////////////////////////////////////////////////////////////////////////
-
 class Value;
 
 PEGASUS_COMMON_LINKAGE void ThrowOutOfBounds();
@@ -248,7 +245,11 @@ public:
     void clear();
 
     /** Reserves memory for capacity elements. Notice that this does not
-	change the size of the array (getSize() will return what it did before.
+	change the size of the array (getSize() returns what it did before).
+	If the capacity of the array is already greater or equal to the
+	capacity argument, this method has no effect. After calling reserve(),
+	getCapicty() returns a value which is greater or equal to the capacity 
+	argument.
     */
     void reserve(Uint32 capacity)
     {
@@ -267,6 +268,9 @@ public:
 
     /// Returns the number of elements in the array.
     Uint32 getSize() const { return _rep->size; }
+
+    /// Returns the capacity of the array.
+    Uint32 getCapacity() const { return _rep->capacity; }
 
     /// Returns a pointer to the first element of the array.
     const T* getData() const 

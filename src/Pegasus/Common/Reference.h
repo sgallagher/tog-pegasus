@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Reference.h,v $
+// Revision 1.9  2001/02/11 05:42:33  mike
+// new
+//
 // Revision 1.8  2001/01/30 08:00:43  karl
 // DOC++ Documentation update for header files
 //
@@ -73,6 +76,7 @@ class PEGASUS_COMMON_LINKAGE KeyBinding
 public:
 
     enum Type { BOOLEAN, STRING, NUMERIC };
+
     // Method KeyBinding - TBD 1
     KeyBinding();
     // Method KeyBinding - TBD 2
@@ -168,6 +172,12 @@ CreationClassName=CIM_ComputerSystem */
 class PEGASUS_COMMON_LINKAGE Reference 
 {
 public:
+
+    static Array<KeyBinding> _ArrayKeyBinding()
+    {
+	return Array<KeyBinding>();
+    }
+
     /** Constructs a default CIM Object Path with empty namespace, 
     objectName and keys
     */
@@ -179,7 +189,7 @@ public:
 	const String& host,
 	const String& nameSpace,
 	const String& className, 
-	const Array<KeyBinding>& keyBindings = Array<KeyBinding>());
+	const Array<KeyBinding>& keyBindings = _ArrayKeyBinding());
 
     virtual ~Reference();
     /// Operator Overload =

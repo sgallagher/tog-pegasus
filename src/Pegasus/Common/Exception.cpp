@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Exception.cpp,v $
+// Revision 1.6  2001/02/11 05:42:33  mike
+// new
+//
 // Revision 1.5  2001/01/29 02:23:44  mike
 // Added support for GetInstance operation
 //
@@ -169,6 +172,8 @@ const char DynamicLoadFailed::MSG[] = "load of dynamic library failed: ";
 
 const char DynamicLookupFailed::MSG[] = 
     "lookup of symbol in dynamic library failed: ";
+
+const char CannotOpenDirectory::MSG[] = "cannot open directory: ";
 
 ////////////////////////////////////////////////////////////////////////////////
 //

@@ -1,5 +1,5 @@
 ROOT=../..
 
-DIRS = client server
+DIRS = client server dl
 
 include $(ROOT)/mak/recurse.mak

@@ -14,6 +14,7 @@ LIBRARIES = \
 DYNAMIC_LIBRARIES += -lpegcommon 
 
 SOURCES = \
+	ConfigExceptions.cpp \
 	ConfigFile.cpp \
 	ConfigFileHandler.cpp \
 	ConfigManager.cpp \

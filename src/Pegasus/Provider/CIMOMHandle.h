@@ -240,6 +240,18 @@ class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
        */
       void allowProviderUnload();
 
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+      /**
+	 Returns the context of the response to the last request.
+	 Currently, the context only contains the ContentLanguageListContainer
+	 from the response.
+	 Note: this method should be called directly after the call to the
+	 CIM request method (getClass, etc), and can only be called once
+	 per request.
+       */
+      OperationContext getResponseContext(void);
+#endif
+
    private:      
       class _cimom_handle_rep;
       _cimom_handle_rep *_rep;

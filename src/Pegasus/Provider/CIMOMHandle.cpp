@@ -62,7 +62,17 @@
 #include  "CIMOMHandle.h"
 PEGASUS_NAMESPACE_BEGIN
 
-
+// chuck 2.4
+// l10n start
+void deleteContentLanguage(void * data)
+{
+   if( data != NULL)
+   {
+      ContentLanguages * cl = static_cast<ContentLanguages *>(data);
+      delete cl;
+   }
+}
+// l10n end
 
 class CIMOMHandle;
 class cimom_handle_op_semaphore;
@@ -559,28 +569,49 @@ Message *CIMOMHandle::_cimom_handle_rep::do_request(Message *request,
       throw;
    }
 
-// l10n start
-    // Set an AcceptLanguage into the request from the current
-    // Thread.  This will allow exceptions thrown by the server
-    // to be localized.
-    // l10n TODO - need to design the CIMOMHandle interface
-    // so that the caller can specify AcceptLanguages and
-    // and ContentLanguages on the request (through OperationContext)
-    // and get the ContentLanguages from the response (new API).
+    // Set an AcceptLanguages and ContentLanguages into the request based
+    // on the languages in the OperationContext from the caller, 
+    // or the caller's thread.
     CIMMessage * cimmsg = dynamic_cast<CIMMessage *>(request);
     if (cimmsg != NULL)
     {
-      AcceptLanguages * pal = Thread::getLanguages();
-      if (pal != NULL)
+      // chuck 2.4
+      // If the caller specified an Accept-Language or Content-Language
+      // in the OperationContext, then use those on the request msg.
+      try 
       {
-        cimmsg->acceptLanguages = *pal;
+	AcceptLanguageListContainer al_cntr  = 
+	  (AcceptLanguageListContainer)context.get(AcceptLanguageListContainer::NAME);
+	cimmsg->acceptLanguages = al_cntr.getLanguages();
       }
+      catch(Exception & )
+      {
+	// If the container is not found then try to use the AcceptLanguages from 
+	// the current thread
+	AcceptLanguages * pal = Thread::getLanguages();
+	if (pal != NULL)
+        {  
+	  cimmsg->acceptLanguages = *pal;
+	}
+      }
+
+      try 
+      {
+	ContentLanguageListContainer cl_cntr  = 
+	  (ContentLanguageListContainer)context.get(ContentLanguageListContainer::NAME);
+	cimmsg->contentLanguages = cl_cntr.getLanguages();
+      }
+      catch(Exception & )
+      {
+	// ignore the container not found error
+      }
+
+      // end chuck 2.4
     }
     else
     {
       ;  // ignore if not a CIMMessage
     }    
-// l10n end
 
    cimom_handle_dispatch *dp = 
       new cimom_handle_dispatch(request, get_qid(), get_output_qid());
@@ -665,6 +696,21 @@ Message *CIMOMHandle::_cimom_handle_rep::do_request(Message *request,
        delete response;
        _recursion.unlock();      
        throw ex;
+    }
+
+    // chuck 2.4
+    // If the response has a Content-Language then save it into thread-specific storage
+    if (response->contentLanguages.size() > 0)
+    {
+      Thread * curThrd = Thread::getCurrent();
+      if (curThrd != NULL)
+      {
+	// deletes the old tsd and creates a new one
+	curThrd->put_tsd("cimomHandleContentLanguages",
+			 deleteContentLanguage, 
+			 sizeof(ContentLanguages *),
+			 new ContentLanguages(response->contentLanguages));        
+      }
     }
     
     PEG_METHOD_EXIT();
@@ -2436,5 +2482,37 @@ Boolean CIMOMHandle::unload_ok(void)
 {
    return _rep->unload_ok();
 }
+
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+OperationContext CIMOMHandle::getResponseContext(void)
+{
+  OperationContext ctx;
+
+  Thread * curThrd = Thread::getCurrent();
+  if (curThrd == NULL)
+  {
+    ctx.insert(ContentLanguageListContainer(ContentLanguages::EMPTY));
+  }
+  else
+  {
+    ContentLanguages * contentLangs =
+      (ContentLanguages *)curThrd->reference_tsd("cimomHandleContentLanguages");
+    curThrd->dereference_tsd();
+ 	
+    if (contentLangs == NULL)
+    {
+      ctx.insert(ContentLanguageListContainer(ContentLanguages::EMPTY));
+    }
+    else
+    {
+      ctx.insert(ContentLanguageListContainer(*contentLangs));
+      // delete the old tsd to free the memory
+      curThrd->delete_tsd("cimomHandleContentLanguages");  
+    }
+  }
+    
+  return ctx;
+}
+#endif
 
 PEGASUS_NAMESPACE_END

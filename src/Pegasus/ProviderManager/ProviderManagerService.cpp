@@ -1352,7 +1352,7 @@ void ProviderManagerService::handleEnableIndications(const Message * message) th
     // preserve message key
     response->setKey(request->getKey());
 
-    static EnableIndicationsResponseHandler handler(request, response);
+    static EnableIndicationsResponseHandler handler(request, response, this);
 
     try
     {

@@ -31,7 +31,13 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMMessage.h>
+#include <Pegasus/Common/MessageQueueService.h>
+#include <Pegasus/Common/Constants.h>
+
+#include <Pegasus/Common/CIMClass.h>
+#include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/CIMIndication.h>
+#include <Pegasus/Common/CIMValue.h>
 
 #include <Pegasus/Provider/ResponseHandler.h>
 #include <Pegasus/Provider/SimpleResponseHandler.h>
@@ -320,9 +326,29 @@ class EnableIndicationsResponseHandler : public OperationResponseHandler<CIMIndi
 public:
     EnableIndicationsResponseHandler(
 	CIMEnableIndicationsRequestMessage * request,
-	CIMEnableIndicationsResponseMessage * response)
-    : OperationResponseHandler<CIMIndication>(request, response)
+	CIMEnableIndicationsResponseMessage * response,
+	MessageQueueService * source,
+	MessageQueueService * target = 0)
+    :
+    OperationResponseHandler<CIMIndication>(request, response),
+    _source(source),
+    _target(target)
     {
+	PEGASUS_ASSERT(_source != 0);
+	
+	// get indication service
+	if(_target == 0)
+	{
+	    Array<Uint32> serviceIds;
+
+	    _source->find_services(PEGASUS_SERVICENAME_INDICATIONSERVICE, 0, 0, &serviceIds);
+
+	    PEGASUS_ASSERT(serviceIds.size() != 0);
+
+	    _target = dynamic_cast<MessageQueueService *>(MessageQueue::lookup(serviceIds[0]));
+
+	    PEGASUS_ASSERT(_target != 0);
+	}
     }
 
     virtual void deliver(const CIMIndication & cimIndication)
@@ -334,11 +360,36 @@ public:
 
     virtual void deliver(const OperationContext & context, const CIMIndication & cimIndication)
     {
-	// get indication service
-
+	// ATTN: temporarily convert indication to instance
+	CIMInstance cimInstance(cimIndication);
+	
 	// create message
+	CIMProcessIndicationRequestMessage * request =
+	    new CIMProcessIndicationRequestMessage(
+		request->messageId,
+		request->nameSpace,
+		cimInstance,
+		QueueIdStack(_target->getQueueId(), _source->getQueueId()));
 
 	// send message
+        AsyncOpNode * op = _source->get_op();
+
+        AsyncLegacyOperationStart * asyncRequest =
+            new AsyncLegacyOperationStart(
+		_source->get_next_xid(),
+                op,
+                _target->getQueueId(),
+                request,
+                _source->getQueueId());
+
+	PEGASUS_ASSERT(asyncRequest != 0);
+	
+	AsyncReply * asyncReply = _source->SendWait(asyncRequest);
+
+	PEGASUS_ASSERT(asyncReply != 0);
+	
+	delete asyncRequest;
+	delete asyncReply;
     }
 
     virtual void deliver(const Array<CIMIndication> & cimIndications)
@@ -355,6 +406,10 @@ public:
 	    deliver(context, cimIndications[i]);
 	}
     }
+
+protected:
+    MessageQueueService * _source;
+    MessageQueueService * _target;
 
 };
 

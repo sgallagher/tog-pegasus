@@ -1,5 +1,6 @@
 #include <Pegasus/CQL/CQLFunction.h>
 #include <Pegasus/CQL/CQLExpression.h>
+#include <Pegasus/CQL/CQLFactory.h>
 PEGASUS_NAMESPACE_BEGIN
 
 //##ModelId=40FD653E0390

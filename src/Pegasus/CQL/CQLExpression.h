@@ -10,6 +10,7 @@
 #define MAXFACTORS 50
 PEGASUS_NAMESPACE_BEGIN
 
+class PEGASUS_CQL_LINKAGE CQLFactory;
 
 /**  The enum is private, but the definition is public.
       */
@@ -64,6 +65,7 @@ class PEGASUS_CQL_LINKAGE CQLExpression
    Array<CQLTerm> getTerms();
    Array<TermOpType> getOperators();
    void applyScopes(Array<CQLScope> inScopes);
+   friend class CQLFactory;
 
   private:
    

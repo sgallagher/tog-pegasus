@@ -10,7 +10,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-//class CQLExpression;
+class PEGASUS_CQL_LINKAGE CQLFactory;
 
  /** The Enum is private, the definition is public.
       */
@@ -72,6 +72,7 @@ class PEGASUS_CQL_LINKAGE CQLFunction
    FunctionOpType getFunctionType();
    String toString();
    void applyScopes(Array<CQLScope> inScopes);
+   friend class CQLFactory;
 
   private:
 

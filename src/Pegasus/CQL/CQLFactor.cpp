@@ -1,6 +1,7 @@
 #include "CQLFactor.h"
 #include <Pegasus/CQL/CQLExpression.h>
 #include <Pegasus/CQL/CQLFunction.h>
+#include <Pegasus/CQL/CQLFactory.h>
 PEGASUS_NAMESPACE_BEGIN
 
 #define PEGASUS_ARRAY_T CQLFactor

@@ -1,4 +1,5 @@
 #include "CQLPredicate.h"
+#include <Pegasus/CQL/CQLFactory.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

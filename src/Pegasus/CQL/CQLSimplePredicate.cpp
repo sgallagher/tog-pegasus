@@ -1,6 +1,6 @@
 #include "CQLSimplePredicate.h"
 #include <Pegasus/CQL/CQLExpression.h>
-
+#include <Pegasus/CQL/CQLFactory.h>
 PEGASUS_NAMESPACE_BEGIN
 
 CQLSimplePredicate::CQLSimplePredicate(const CQLExpression& inExpression)

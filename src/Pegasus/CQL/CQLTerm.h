@@ -9,7 +9,7 @@
 #define MAXFACTORS 50
 PEGASUS_NAMESPACE_BEGIN
 
-
+class PEGASUS_CQL_LINKAGE CQLFactory;
 
 /** enum of multiply, divide and concatenation operators
     
@@ -72,6 +72,7 @@ class PEGASUS_CQL_LINKAGE CQLTerm
    Array<CQLFactor> getFactors();
    Array<FactorOpType> getOperators();
    void applyScopes(Array<CQLScope> inScope); 
+   friend class CQLFactory;
 
   private:
     

@@ -35,7 +35,7 @@
 #include <Pegasus/CQL/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
-
+class PEGASUS_CQL_LINKAGE CQLFactory;
 class PEGASUS_CQL_LINKAGE CQLExpression;
 class PEGASUS_CQL_LINKAGE CQLFunction;
 
@@ -83,6 +83,7 @@ class PEGASUS_CQL_LINKAGE CQLFactor
    String toString();
    void applyScopes(Array<CQLScope> inScopes);
 
+   friend class CQLFactory;
   private:
 
     CQLExpression* _CQLExp;

@@ -25,6 +25,8 @@ class CQLPredicate;
 #undef PEGASUS_ARRAY_T
 #endif
 
+class PEGASUS_CQL_LINKAGE CQLFactory;
+
 /** 
    This object is populated by Bison.
 
@@ -135,7 +137,7 @@ class PEGASUS_CQL_LINKAGE CQLPredicate
     Boolean isSimple();
 
     String toString();
-
+    friend class CQLFactory;
   private:
     
     

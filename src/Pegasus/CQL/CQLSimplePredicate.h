@@ -8,8 +8,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class CQLExpression;
-
+class PEGASUS_CQL_LINKAGE CQLExpression;
+class PEGASUS_CQL_LINKAGE CQLFactory;
 	enum ExpressionOpType { LT, GT, EQ, LE, GE, NE, IS_NULL, IS_NOT_NULL, ISA, LIKE };
 
 /** 
@@ -67,6 +67,7 @@ class CQLSimplePredicate
 
     String toString();
 
+    friend class CQLFactory;
   private:
     CQLExpression *_leftSide;
 

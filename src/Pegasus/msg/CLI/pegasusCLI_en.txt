@@ -611,6 +611,76 @@ en:table {
 
 
         // ==========================================================
+        // Messages for repupgrade
+        //  Please use message prefix "PGC01000"
+        // ==========================================================
+
+        /**
+        * @note Clients.repupgrade.RepositoryUpgrade.MENU.STANDARD:
+        *    Do not translate the repupgrade command or options, translate the text
+        *    that explains the options.
+        */
+        Clients.repupgrade.RepositoryUpgrade.MENU.STANDARD:string {
+        "Usage: repupgrade -o oldrepository -n newrepository\n"
+        "repupgrade -o oldrepository -n newrepository\n"
+        "repupgrade -v | --version\n"
+        "repupgrade -h | --help\n"
+        "Options :\n"
+        "    -o              - Specifies the fully qualified path of the old Repository\n"
+        "    -n              - Specifies the fully qualified path of the new Repository\n"
+        "    -h, --help      - Display this help message\n"
+        "    -v, --version   - Display CIM Server version number\n"
+        "\n"
+        }
+
+        Clients.repupgrade.RepositoryUpgradeRelease.MENU.STANDARD:string {
+        "Usage: repupgrade\n"
+        "repupgrade -v | --version\n"
+        "repupgrade -h | --help\n"
+        "Options :\n"
+        "    -h, --help      - Display this help message\n"
+        "    -v, --version   - Display CIM Server version number\n"
+        "\n"
+        }
+
+        /*
+         * @note PGC01000:
+         *     "repupgrade" should not be translated since it is the name of the command
+*/
+
+        Clients.repupgrade.RepositoryUpgrade.REQUIRED_ARGS_MISSING:string {"PGC01000: Required arguments missing."}
+
+        Clients.repupgrade.RepositoryUpgrade.REPOSITORY_UPGRADE_FAILURE:string {"PGC01001: Failed to upgrade Repository. "}
+
+        Clients.repupgrade.RepositoryUpgrade.REPOSITORY_UPGRADE_UNKNOWN_ERROR:string {"PGC01002: Unknown error encountered during upgrade. "}
+
+        Clients.repupgrade.RepositoryUpgrade.REPOSITORY_DOES_NOT_EXIST:string {"PGC01003: The specified location {0} does not exist. "}
+
+        Clients.repupgrade.RepositoryUpgrade.NAMESPACE_CREATION_ERROR:string {"PGC01004: Error creating namespace {0}. "}
+
+        Clients.repupgrade.RepositoryUpgrade.CLASS_CREATION_ERROR:string {"PGC01005: Error creating class {0} in namespace {1}."}
+
+        Clients.repupgrade.RepositoryUpgrade.INSTANCE_CREATION_ERROR:string {"PGC01006: Error creating instance in namespace {0}."}
+
+        Clients.repupgrade.RepositoryUpgrade.QUALIFIER_CREATION_ERROR:string {"PGC01007: Error creating qualifier {0} in namespace {1}."}
+
+        Clients.repupgrade.RepositoryUpgrade.OLD_CLASS_RETRIEVAL_ERROR:string {"PGC01008: Error reading old repository class {0} in namespace {1}."}
+
+        Clients.repupgrade.RepositoryUpgrade.NEW_CLASS_RETRIEVAL_ERROR:string {"PGC01009: Error reading new repository class {0} in namespace {1}."}
+
+        Clients.repupgrade.RepositoryUpgrade.LIBRARY_LOAD_ERROR:string {"PGC01010: Error loading special handling library $0."}
+
+        Clients.repupgrade.RepositoryUpgrade.LIBRARY_ENTRY_POINT_ERROR:string {"PGC01012: Error trying to get entry point symbol in library $0."}
+
+        Clients.repupgrade.RepositoryUpgrade.CLASS_XML_OUTPUT_FILE:string {"PGC01011: CIM/XML request for this class has been logged to file $0."}
+
+        Clients.repupgrade.RepositoryUpgrade.INSTANCE_XML_OUTPUT_FILE:string {"PGC01013: CIMXML request for this instance has been logged to file $0."}
+
+        Clients.repupgrade.RepositoryUpgrade.QUALIFIER_XML_OUTPUT_FILE:string {"PGC01014: CIMXML request for this qualifier has been logged to file $0."}
+
+        Clients.repupgrade.RepositoryUpgrade.HIGHER_VERSION_OLD_CLASS:string {"PGC01015: "Warning: The old repository contains a class {0} in namespace {1} that has a higher version number than the new repository class. This class may have to be manually imported."}
+
+        // ==========================================================
         // Start of messages from platform-specific files
         // ==========================================================
                         

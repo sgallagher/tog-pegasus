@@ -75,14 +75,17 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Config/ConfigManager.h>
-
-
 #include <Pegasus/Common/XmlWriter.h>
 
 #include <sstream>
 #include <string>
-//#include <iomanip>
-//#include <windows.h>
+
+#include <stdlib.h>
+
+//The following include is needed for UUID Generator
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
+#include <objbase.h>
+#endif
 
 PEGASUS_USING_STD;
 
@@ -181,7 +184,7 @@ enum targetClass{
 
 /** Builds the UUID string for this CIMOM.
 **/
-String buildUUIDString()
+String getUUIDString()
 {
     
    //UUID Generation code starts 
@@ -207,7 +210,68 @@ String buildUUIDString()
    */
    //UUID Generation code ends
 
-    String strUUID = "6B29FC40-CA47-1067-B31D-00DD010662DA";
+   //uuid_t outUUID;
+   /*
+    int j;
+   char strUUID[37], tempstrUUID[3];
+   
+   //uuid_generate_random(outUUID);
+   strcpy(strUUID, "");
+   
+   for(j=0; j < 16; j++)
+   {
+       sprintf(tempstrUUID, "%2.2x", outUUID[j]);
+       tempstrUUID[2]='\0';
+       strcat(strUUID,tempstrUUID);
+       if(j==3 || j==7 || j==11)
+           strcat(strUUID,"-");
+   }
+   */
+    //char strUUID[37], tempstrUUID[3];
+
+  String strUUID;
+
+// ------------------------------------------
+// GUID string for Windows
+// ------------------------------------------
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
+  GUID guid;
+  HRESULT hres = CoCreateGuid(&guid);
+  if (hres == S_OK)
+    {
+      WCHAR guid_strW[38] = { L"" };
+      char guid_str[100];
+      ::memset(&guid_str, 0, sizeof(guid_str));
+      if (StringFromGUID2(guid, guid_strW, sizeof(guid_strW)) > 0)
+        {
+          Uint32 numBytes =  sizeof(guid_strW)/sizeof(guid_strW[0]);
+          WideCharToMultiByte(CP_ACP, 0, guid_strW, numBytes, guid_str, sizeof(guid_str), NULL, NULL);
+          // exclude the first and last chars (i.e., { and })
+          for (Uint32 i=1; i<sizeof(guid_str); i++)
+            {
+              if (guid_str[i] != '}')
+                {
+                  strUUID.append(Char16(guid_str[i]));
+                }
+              else
+                break;
+            }
+        }
+    }
+  
+// ------------------------------------------
+// GUID string for Unix and other transients
+// ------------------------------------------
+#elif defined(PEGASUS_OS_TYPE_UNIX)
+#elif defined(PEGASUS_OS_TYPE_NSK)
+#else
+# error "Unsupported platform"
+#endif
+
+    if (strUUID == String::EMPTY)
+      {
+        strUUID = "6B29FC40-CA47-1067-B31D-00DD010662DA";
+      }
     //strUUID[36]='\0';
     return (String(strUUID));
 }
@@ -666,21 +730,11 @@ CIMInstance _buildInstancCIMXMLCommunicationMechanism()
    2. It must be unique. We cannot create duplicate CIMOM names
    3. It is based on the DMTF description of how unique InstanceIds
    are defined (Trademark/etc followed by unique identification.
-   Temporarily we simply get
-   1. Prefix which is in Constants
-   2. Host Name
-   3. Current time
 
 */
 String buildObjectManagerName()
 {
-    String objectManagerName = PegasusInstanceIDGlobalPrefix;
-    objectManagerName.append("_");
-    objectManagerName.append(System::getHostName());
-    objectManagerName.append(System::getCurrentASCIITime());
-
-    String strUUID = "6B29FC40-CA47-1067-B31D-00DD010662DA";
-    return (objectManagerName);
+    return(getUUIDString());
 }
 
 CIMInstance InteropProvider::_buildInstanceCIMObjectManager()
@@ -737,19 +791,24 @@ CIMInstance InteropProvider::_buildInstanceCIMObjectManager()
         (CIMProperty(CIM_NAMESPACE_PROPERTY_NAME,
                      buildObjectManagerName() )));
 
+    //ElementName this object manager
+    instanceOfCIMObjectManager.addProperty(
+        (CIMProperty(CIMName("ElementName"),
+                     String("Pegasus") )));
+
     // Gets the object manager class for some info
     CIMClass objMgrClass = _getClass(_operationNamespace, "CIM_ObjectManager");
     Uint32 pos;
-    String description;
-    if (pos = objMgrClass.findQualifier(CIMName("description")) != PEG_NOT_FOUND)
+
+    String description = "Pegasus CIMOM Version 2.3.2";
+    char * envDescription;
+    envDescription = getenv("PEGASUS_CIMOM_DESCRIPTION");
+    if (envDescription)
     {
-        CIMQualifier q = objMgrClass.getQualifier(pos);
-        // ATTN: We should be able to clone the qualifier over.Easier.
-        CIMValue v = q.getValue();
-        description = v.toString();
-        instanceOfCIMObjectManager.addQualifier(
-            (CIMQualifier("Description", description)));
+        description = envDescription;
     }
+    instanceOfCIMObjectManager.addQualifier(
+        (CIMQualifier("Description", description)));
 
 
     //Property GatherStatisticalData. Note that today we do not

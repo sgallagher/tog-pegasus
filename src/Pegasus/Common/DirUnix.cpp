@@ -31,9 +31,9 @@
 #include "Dir.h"
 #include "InternalException.h"
 
-PEGASUS_NAMESPACE_BEGIN
-
 #include <dirent.h>
+
+PEGASUS_NAMESPACE_BEGIN
 
 // Clone the string to a plain old C-String and null out
 // trailing slash (if any).
@@ -48,28 +48,34 @@ static CString _clonePath(const String& path)
     return clone.getCString();
 }
 
+// ATTN-RK-20021111: Perhaps this should be enabled for all Unix platforms?
+#if defined(PEGASUS_OS_OS400) || defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
+#define PEGASUS_HAS_READDIR_R
+#endif
+
 struct DirRep
 {
     DIR* dir;
     struct dirent* entry;
-#ifdef PEGASUS_OS_OS400
-    struct dirent os400Entry;
+#ifdef PEGASUS_HAS_READDIR_R
+    struct dirent buffer;
 #endif
 };
 
 Dir::Dir(const String& path)
+    : _path(path)
 {
     _rep = new DirRep;
-    _rep->dir = opendir(_clonePath(path));
+    _rep->dir = opendir(_clonePath(_path));
 
     if (_rep->dir)
     {
-#ifdef PEGASUS_OS_OS400
+#ifdef PEGASUS_HAS_READDIR_R
 	// Need to use readdir_r since we are multithreaded
-	if (readdir_r(_rep->dir, &_rep->os400Entry, &_rep->entry) != 0)
+	if (readdir_r(_rep->dir, &_rep->buffer, &_rep->entry) != 0)
         {
 	    _more = false;
-	    throw CannotOpenDirectory(path);
+	    throw CannotOpenDirectory(_path);
         }
 #else
 	_rep->entry = readdir(_rep->dir);
@@ -79,14 +85,13 @@ Dir::Dir(const String& path)
     else
     {
 	_more = false;
-	throw CannotOpenDirectory(path);
+	throw CannotOpenDirectory(_path);
     }
 }
 
 Dir::~Dir()
 {
-    if (
-_rep->dir)
+    if (_rep->dir)
 	closedir(_rep->dir);
 
     delete _rep;
@@ -101,12 +106,12 @@ void Dir::next()
 {
     if (_more)
     {
-#ifdef PEGASUS_OS_OS400
+#ifdef PEGASUS_HAS_READDIR_R
 	// Need to use readdir_r since we are multithreaded
-	if (readdir_r(_rep->dir, &_rep->os400Entry, &_rep->entry) != 0)
+	if (readdir_r(_rep->dir, &_rep->buffer, &_rep->entry) != 0)
         {
 	    _more = false;
-	    throw CannotOpenDirectory(path);
+	    throw CannotOpenDirectory(_path);
         }
 #else
 	_rep->entry = readdir(_rep->dir);

@@ -3,7 +3,7 @@ DIR = Pegasus/Common/tests/DQueue
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 
-LOCAL_DEFINES = -DPEGASUS_INTERNALONLY -DPEGASUS_DEBUG_MEMORY
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
 PROGRAM = DQueue
 SOURCES = DQueue.cpp

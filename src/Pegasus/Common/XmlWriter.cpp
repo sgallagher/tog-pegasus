@@ -393,8 +393,8 @@ void XmlWriter::appendLocalInstancePathElement(
 //
 // appendLocalObjectPathElement()
 //
-//     If the reference has keys, write a LOCALINSTANCEPATH, otherwise write
-//     a LOCALCLASSPATH.
+//     If the reference refers to an instance, write a LOCALINSTANCEPATH;
+//     otherwise write a LOCALCLASSPATH.
 //
 //------------------------------------------------------------------------------
 
@@ -402,7 +402,7 @@ void XmlWriter::appendLocalObjectPathElement(
     Array<Sint8>& out, 
     const CIMReference& objectPath)
 {
-    if (objectPath.getKeyBindings().size() > 0)
+    if (objectPath.isInstanceName())
     {
         appendLocalInstancePathElement(out, objectPath);
     }
@@ -416,7 +416,7 @@ void XmlWriter::appendLocalObjectPathElement(
 //
 // appendMethodCallHeader()
 //
-//     Build HTTP request header.
+//     Build HTTP method call request header.
 //
 //------------------------------------------------------------------------------
 
@@ -1024,7 +1024,7 @@ Array<Sint8> XmlWriter::formatSimpleMethodReqMessage(
 	tmp,
 	host,
 	methodName,
-	path.getNameSpace(),  // ATTN-RK-P3-20020301: Need more in header?
+	path.toString(false),
         authenticationHeader,
 	out.size());
     tmp << out;

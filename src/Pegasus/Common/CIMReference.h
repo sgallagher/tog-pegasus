@@ -520,7 +520,7 @@ public:
 	return _keyBindings;
     }
 
-    /** setkeyBindings - Sets the key/value pairs in the CIMReference
+    /** setKeyBindings - Sets the key/value pairs in the CIMReference
         from an array of keybindings defined by the input parameter
         @param keyBindings Array of keybindings to set into the CIMRefernece
 	object.
@@ -540,13 +540,13 @@ public:
 	The building includes the escaping of special characters.
 	ATTN: The form of the above string definition needs cleaning.
     */
-    String toString() const;
+    String toString(Boolean includeHost=true) const;
 
     /** Stringizes object into canonical form (in which all keys are sorted
 	into ascending order and classnames and keynames are shifted to
 	lower case.
     */
-    String toStringCanonical() const;
+    String toStringCanonical(Boolean includeHost=true) const;
 
     /** Returns true if this reference is identical to the one given
 	by the x argument. Since CIMReferences are normalized when they
@@ -599,12 +599,24 @@ public:
 
 private:
 
-    void nameSpaceToXml(Array<Sint8>& out) const;
+    Boolean _parseHostElement(
+        const String& objectName,
+        char*& p,
+        String& host);
+
+    Boolean _parseNamespaceElement(
+        const String& objectName,
+        char*& p,
+        String& nameSpace);
+
+    void _parseKeyBindingPairs(
+        const String& objectName,
+        char*& p,
+        Array<KeyBinding>& keyBindings);
 
     //
     // Contains port as well (e.g., myhost:1234).
     //
-
     String _host;
 
     String _nameSpace;

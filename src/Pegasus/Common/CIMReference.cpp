@@ -248,6 +248,124 @@ void CIMReference::set(
    setKeyBindings(keyBindings);
 }
 
+Boolean CIMReference::_parseHostElement(
+    const String& objectName,
+    char*& p,
+    String& host)
+{
+    // See if there is a host name (true if it begins with "//"):
+    // Host is of the from <hostname>-<port> and begins with "//"
+    // and ends with "/":
+
+    if (p[0] != '/' || p[1] != '/')
+    {
+        return false;
+    }
+
+    p += 2;
+
+    //----------------------------------------------------------------------
+    // Validate the hostname. Hostnames must match the following
+    // regular expression: "[A-Za-z][A-Za-z0-9-]*"
+    //----------------------------------------------------------------------
+
+    char* q = p;
+
+    if (!isalpha(*q))
+        throw IllformedObjectName(objectName);
+
+    q++;
+
+    while (isalnum(*q) || *q == '-')
+        q++;
+
+    // We now expect a port (or default the port).
+
+    if (*q == ':')
+    {
+        q++;
+        // Check for a port number:
+
+        if (!isdigit(*q))
+            throw IllformedObjectName(objectName);
+	
+        while (isdigit(*q))
+            q++;
+
+        // Finally, assign the host name:
+
+        _host.assign(p, q - p);
+    }
+    else
+    {
+        _host.assign(p, q - p);
+
+        // Assign the default port number:
+
+        _host.append(":");
+        _host.append(PEGASUS_CIMOM_DEFAULT_PORT_STRING);
+    }
+
+    // Check for slash terminating the entire sequence:
+
+    if (*q != '/')
+    {
+        host.clear();
+        throw IllformedObjectName(objectName);
+    }
+
+    p = ++q;
+
+    return true;
+}
+
+Boolean CIMReference::_parseNamespaceElement(
+    const String& objectName,
+    char*& p,
+    String& nameSpace)
+{
+    // If we don't find a valid namespace name followed by a ':', we
+    // assume we're not looking at a namespace name.
+
+    //----------------------------------------------------------------------
+    // Validate the namespace path.  Namespaces must match the following
+    // regular expression: "[A-Za-z_]+(/[A-Za-z_]+)*"
+    //----------------------------------------------------------------------
+
+    char* q = p;
+
+    for (;;)
+    {
+        // Pass the next token:
+
+        if (!*q || (!isalpha(*q) && *q != '_'))
+            return false;
+
+        q++;
+
+        while (isalnum(*q) || *q == '_')
+            q++;
+
+        if (!*q)
+            return false;
+
+        if (*q == ':')
+            break;
+
+        if (*q == '/')
+        {
+            q++;
+            continue;
+        }
+
+        return false;
+    }
+
+    nameSpace.assign(p, q - p);
+    p = ++q;
+    return true;
+}
+
 /**
     ATTN: RK - Association classes have keys whose types are
     references.  These reference values must be treated specially
@@ -305,156 +423,11 @@ void CIMReference::set(
     operation of retrieving the class definition to determine
     the key property types.
 */
-void CIMReference::set(const String& objectName)
+void CIMReference::_parseKeyBindingPairs(
+    const String& objectName,
+    char*& p,
+    Array<KeyBinding>& keyBindings)
 {
-    _host.clear();
-    _nameSpace.clear();
-    _className.clear();
-    _keyBindings.clear();
-
-    //--------------------------------------------------------------------------
-    // We will extract components from an object name. Here is an sample
-    // object name:
-    //
-    //     //atp:9999/root/cimv25:TennisPlayer.first="Patrick",last="Rafter"
-    //--------------------------------------------------------------------------
-
-    // Convert to a C String first:
-
-    char* p = objectName.allocateCString(1);
-    ArrayDestroyer<char> destroyer(p);
-
-    // null terminate the C String
-    p[objectName.size() + 1]= '\0';
-
-    // See if there is a host name (true if it begins with "//"):
-    // Host is of the from <hostname>-<port> and begins with "//"
-    // and ends with "/":
-
-    if (p[0] == '/' && p[1] == '/')
-    {
-	p += 2;
-
-	//----------------------------------------------------------------------
-	// Validate the hostname. Hostnames must match the following
-	// regular expression: "[A-Za-z][A-Za-z0-9-]*"
-	//----------------------------------------------------------------------
-
-	char* q = p;
-
-	if (!isalpha(*q))
-	    throw IllformedObjectName(objectName);
-
-	q++;
-
-	while (isalnum(*q) || *q == '-')
-	    q++;
-
-	// We now expect a port (or default the port).
-
-	if (*q == ':')
-	{
-	    q++;
-	    // Check for a port number:
-
-	    if (!isdigit(*q))
-		throw IllformedObjectName(objectName);
-	
-	    while (isdigit(*q))
-		q++;
-
-	    // Check for slash terminating the entire sequence:
-
-	    if (*q != '/')
-		throw IllformedObjectName(objectName);
-
-	    // Finally, assign the host name:
-
-	    _host.assign(p, q - p);
-	}
-	else
-	{
-	    _host.assign(p, q - p);
-
-	    // Assign the default port number:
-
-	    _host.append(":");
-	    _host.append(PEGASUS_CIMOM_DEFAULT_PORT_STRING);
-	}
-
-	// Check for slash terminating the entire sequence:
-
-	if (*q != '/')
-	    throw IllformedObjectName(objectName);
-
-	p = ++q;
-
-	//----------------------------------------------------------------------
-	// Validate the namespace path:
-	//----------------------------------------------------------------------
-
-	q = strchr(p, ':');
-
-	if (!q)
-	    throw IllformedObjectName(objectName);
-
-	q = p;
-
-	for (;;)
-	{
-	    // Pass next next token:
-
-	    if (!*q || (!isalpha(*q) && *q != '_'))
-		throw IllformedObjectName(objectName);
-
-	    q++;
-
-	    while (isalnum(*q) || *q == '_')
-		q++;
-
-	    if (!*q)
-		throw IllformedObjectName(objectName);
-
-	    if (*q == ':')
-		break;
-
-	    if (*q == '/')
-	    {
-		q++;
-		continue;
-	    }
-
-	    throw IllformedObjectName(objectName);
-	}
-
-	_nameSpace.assign(p, q - p);
-	p = ++q;
-    }
-
-    // Extract the class name:
-
-    char* dot = strchr(p, '.');
-
-    if (!dot)
-    {
-	if (!CIMName::legal(p))
-        {
-	    throw IllformedObjectName(objectName);
-        }
-
-	// ATTN: remove this later: a reference should only be able to hold
-	// an instance name.
-
-	_className.assign(p);
-	return;
-    }
-
-    _className.assign(p, dot - p);
-
-    // Advance past dot:
-
-    p = dot + 1;
-
     // Get the key-value pairs:
 
     while (*p)
@@ -576,7 +549,7 @@ void CIMReference::set(const String& objectName)
             p = p + n;
 	}
 
-	_keyBindings.append(KeyBinding(keyString, valueString, type));
+	keyBindings.append(KeyBinding(keyString, valueString, type));
 
         if (*p)
         {
@@ -587,7 +560,67 @@ void CIMReference::set(const String& objectName)
         }
     }
 
-    _BubbleSort(_keyBindings);
+    _BubbleSort(keyBindings);
+}
+
+void CIMReference::set(const String& objectName)
+{
+    _host.clear();
+    _nameSpace.clear();
+    _className.clear();
+    _keyBindings.clear();
+
+    //--------------------------------------------------------------------------
+    // We will extract components from an object name. Here is an sample
+    // object name:
+    //
+    //     //atp:9999/root/cimv25:TennisPlayer.first="Patrick",last="Rafter"
+    //--------------------------------------------------------------------------
+
+    // Convert to a C String first:
+
+    char* p = objectName.allocateCString(1);
+    ArrayDestroyer<char> destroyer(p);
+    Boolean gotHost;
+    Boolean gotNamespace;
+
+    // null terminate the C String
+    // ATTN-RK-P3-20020301: Is the +1 correct?
+    p[objectName.size() + 1]= '\0';
+
+    gotHost = _parseHostElement(objectName, p, _host);
+    gotNamespace = _parseNamespaceElement(objectName, p, _nameSpace);
+
+    if (gotHost and !gotNamespace)
+    {
+        throw IllformedObjectName(objectName);
+    }
+
+    // Extract the class name:
+
+    char* dot = strchr(p, '.');
+
+    if (!dot)
+    {
+	if (!CIMName::legal(p))
+        {
+	    throw IllformedObjectName(objectName);
+        }
+
+	// ATTN: remove this later: a reference should only be able to hold
+	// an instance name.
+
+	_className.assign(p);
+	return;
+    }
+
+    _className.assign(p, dot - p);
+
+    // Advance past dot:
+
+    p = dot + 1;
+
+    _parseKeyBindingPairs(objectName, p, _keyBindings);
 }
 
 void CIMReference::setNameSpace(const String& nameSpace)
@@ -628,65 +661,69 @@ void CIMReference::setKeyBindings(const Array<KeyBinding>& keyBindings)
     _BubbleSort(_keyBindings);
 }
 
-String CIMReference::toString() const
+String CIMReference::toString(Boolean includeHost) const
 {
     String objectName;
 
     // Get the host:
 
-    if (_host.size() && _nameSpace.size())
+    if (_host.size() && includeHost)
     {
 	objectName = "//";
 	objectName += _host;
 	objectName += "/";
+    }
 
+    // Get the namespace (if we have a host name, we must write namespace):
+
+    if (_nameSpace.size() || _host.size())
+    {
 	objectName += _nameSpace;
 	objectName += ":";
     }
 
     // Get the class name:
 
-    const String& className = getClassName();
-    objectName.append(className);
+    objectName.append(getClassName());
 
-    if (isClassName())
-	return objectName;
-
-    objectName.append('.');
-
-    // Append each key-value pair:
-
-    const Array<KeyBinding>& keyBindings = getKeyBindings();
-
-    for (Uint32 i = 0, n = keyBindings.size(); i < n; i++)
+    if (isInstanceName())
     {
-	objectName.append(keyBindings[i].getName());
-	objectName.append('=');
+        objectName.append('.');
 
-	const String& value = _escapeSpecialCharacters(
-	    keyBindings[i].getValue());
+        // Append each key-value pair:
 
-	KeyBinding::Type type = keyBindings[i].getType();
+        const Array<KeyBinding>& keyBindings = getKeyBindings();
+
+        for (Uint32 i = 0, n = keyBindings.size(); i < n; i++)
+        {
+	    objectName.append(keyBindings[i].getName());
+	    objectName.append('=');
+
+	    const String& value = _escapeSpecialCharacters(
+	        keyBindings[i].getValue());
+
+	    KeyBinding::Type type = keyBindings[i].getType();
 	
-	if (type == KeyBinding::REFERENCE)
-	    objectName.append('R');
+	    if (type == KeyBinding::REFERENCE)
+	        objectName.append('R');
 
-	if (type == KeyBinding::STRING || type == KeyBinding::REFERENCE)
-	    objectName.append('"');
+	    if (type == KeyBinding::STRING || type == KeyBinding::REFERENCE)
+	        objectName.append('"');
 
-	objectName.append(value);
+	    objectName.append(value);
 
-	if (type == KeyBinding::STRING || type == KeyBinding::REFERENCE)
-	    objectName.append('"');
+	    if (type == KeyBinding::STRING || type == KeyBinding::REFERENCE)
+	        objectName.append('"');
 
-	if (i + 1 != n)
-	    objectName.append(',');
+	    if (i + 1 != n)
+	        objectName.append(',');
+        }
     }
 
     return objectName;
 }
 
-String CIMReference::toStringCanonical() const
+String CIMReference::toStringCanonical(Boolean includeHost) const
 {
     CIMReference ref = *this;
 
@@ -695,7 +732,7 @@ String CIMReference::toStringCanonical() const
     for (Uint32 i = 0, n = ref._keyBindings.size(); i < n; i++)
 	ref._keyBindings[i]._name.toLower();
 
-    return ref.toString();
+    return ref.toString(includeHost);
 }
 
 Boolean CIMReference::identical(const CIMReference& x) const

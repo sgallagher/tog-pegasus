@@ -25,74 +25,32 @@
 //
 // Author:      Adrian Schuur, schuur@de.ibm.com 
 //
-// Modified By:
+// Modified By: Adrian Duta
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+
 package org.pegasus.jmpi;
 
+import java.util.*;
 
-public class CIMNameSpace {
-
-   static public final int DEFAULT_PORT=5988;
-   static public final String DEFAULT_NAMESPACE="root/cimv2";
-
+class QualEnumeration implements Enumeration {
    int cInst;
-
-   private native int _new();
-   private native int _newHn(String hn);
-   private native int _newHnNs(String hn, String ns);
-   private native String _getNameSpace(int inst);
-   private native String _getHost(int inst);
-   private native void   _setNameSpace(int inst, String ns);
-   private native void   _setHost(int inst, String h);
-   private native void _finalize(int cns);
-    
-   public CIMNameSpace() {
-      cInst=_new();
-   }
-
-   protected void finalize() {
-      //   _finalize(cInst);
-   }
-
-   public CIMNameSpace(String host) {
-      cInst=_newHn(host);
-   }
+   int cur,max;
    
-   public CIMNameSpace(String host,String ns) {
-      cInst=_newHnNs(host,ns);
-   }
+   private native int _getQualifier(int cInst, int pos);
+   private native int _size(int cInst);
    
-   public String getNameSpace() {
-      return _getNameSpace(cInst);
+   QualEnumeration(int ci) {
+      cInst=ci;
+      max=_size(ci);
+      cur=0;
    }
-   
-   public String getHost(){
-      return _getHost(cInst);
+   public boolean hasMoreElements() {
+      return (cur<max);
    }
-   
-   public void setNameSpace(String ns) {
-      _setNameSpace(cInst,ns);
-   }
-   
-   public void setHost(String host) {
-      _setHost(cInst,host);
-   }
-
-   public int getPortNumber() {
-      return 0;
-   }
-
-   public String getProtocol() {
-      return null;
-   }
-
-   public String getHostURL() {
-      return null;
-   }
-
-   static {
-      System.loadLibrary("JMPIProviderManager");
+   public Object nextElement() {
+      if (cur>=max) return null;
+      return new CIMClass(_getQualifier(cInst,cur++));
    }
 }

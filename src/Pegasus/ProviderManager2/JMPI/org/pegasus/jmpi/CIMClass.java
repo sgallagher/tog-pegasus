@@ -51,9 +51,12 @@ public class CIMClass implements CIMElement
    private native int     _newInstance(int cInst);
    private native String  _getName(int cInst);
    private native int     _getQualifier(int cInst, String n);
+   private native Vector  _getQualifiers(int cInst, Vector vec);
    private native boolean _hasQualifier(int cInst, String n);
+   private native int     _addProperty(int cInst, int p);
+   private native void    _setProperties(int cInst, Vector v);
    private native int     _getProperty(int cInst, String n);
-   private native Vector  _getProperties(int cInst,Vector vec);
+   private native Vector  _getProperties(int cInst, Vector vec);
    private native int     _new(String n);
    private native String  _getSuperClass(int cInst);
    private native Vector  _getKeys(int cInst, Vector vec);
@@ -68,23 +71,24 @@ public class CIMClass implements CIMElement
    CIMClass(int ci) {
       cInst=ci;
    }
-   
-   CIMClass(String n) {
-      cInst = _new(n);
-   }
 
    int cInst() {
       return cInst;
    }
-   
+
+   public CIMClass(String n) {
+      cInst = _new(n);
+   }
+
     /**
        Returns a new instance appropriately initialized
      */
    public CIMInstance newInstance() {
       return new CIMInstance(_newInstance(cInst));
    }
-   
+
     /**
+   public Vector getQualifiers() {
       getName - returns the name of this class
 
       @return String with class name.
@@ -103,6 +107,7 @@ public class CIMClass implements CIMElement
        @param String name - The string name of the CIM qualifier.
 
        @return CIMQualifier Returns the CIM Qualifier in this class else null
+   public Vector getQualifiers() {
      */
    public CIMQualifier getQualifier(String n) {
       int qInst=_getQualifier(cInst,n);
@@ -111,7 +116,10 @@ public class CIMClass implements CIMElement
       return null;
    }
 
-    /**
+   public Vector getQualifiers() {
+      return _getQualifiers(cInst,new Vector());
+   }
+       /**
        Checks whether this class has the specified qualifier
 
        Returns true if qualifier defined
@@ -126,7 +134,10 @@ public class CIMClass implements CIMElement
    public Vector getProperties() {
       return _getProperties(cInst,new Vector());
    }
-   
+
+   public Vector getAllProperties() {
+      return getProperties();
+   }
     /**
        getProperty - get the CIMProperty for the specified class
 
@@ -142,13 +153,21 @@ public class CIMClass implements CIMElement
          return null;
    }
 
+   public void addProperty(CIMProperty p) {
+      _addProperty(cInst,p.cInst);
+   }
+
+   public void setProperties(Vector v) {
+       _setProperties(cInst,v);
+   }
+
     /**
       getSuperClass - returns the name of the parent for this class
 
       @return String with parent class name.
     */
    public String getSuperClass() {//to be implemented
-      return _getSuperClass(cInst); 
+      return _getSuperClass(cInst);
    }
 
     /**

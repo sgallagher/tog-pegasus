@@ -69,37 +69,39 @@ public class CIMObjectPath
    }
    
    public CIMObjectPath(String className) {
-      cInst=_newCn(className);
+      if (className==null) cInst=_new();
+      else cInst=_newCn(className);
    }
-   
+
    public CIMObjectPath(String className, String nameSpace) {
-      cInst=_newCnNs(className,nameSpace);
-   }
-   
+      if (nameSpace==null) cInst=_newCn(className);
+      else cInst=_newCnNs(className,nameSpace);
+  }
+
    public CIMObjectPath(String className, Vector keyValuePairs) {
       cInst=_newCn(className);
       _setKeys(cInst,keyValuePairs);
    }
-   
+
    public CIMObjectPath(CIMInstance ci) {
       cInst=_newCi(ci.cInst());
    }
-   
+
    public CIMObjectPath(CIMInstance ci,String ns) {
       cInst=_newCiNs(ci.cInst(),ns);
    }
-   
+
    public String getHost() {
       return _getHost(cInst);
    }
-   
+
    public void setHost(String hn) {
       _setHost(cInst,hn);
    }
-   
+
    public String getNameSpace() {
       return _getNameSpace(cInst);
-   }  
+   }
    
    public void setNameSpace(String ns) {
       _setNameSpace(cInst,ns);

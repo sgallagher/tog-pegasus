@@ -111,23 +111,28 @@ class _nameSpace {
 };
 
 static int pTypeToJType[]=
- /* CIMTYPE_BOOLEAN,   public static final int BOOLEAN  = 10;
-    CIMTYPE_UINT8,     public static final int UINT8    = 1;
-    CIMTYPE_SINT8,     public static final int SINT8    = 2;
-    CIMTYPE_UINT16,    public static final int UINT16   = 3;
-    CIMTYPE_SINT16,    public static final int SINT16   = 4;
-    CIMTYPE_UINT32,    public static final int UINT32   = 5;
-    CIMTYPE_SINT32,    public static final int SINT32   = 6;
-    CIMTYPE_UINT64,    public static final int UINT64   = 7;
-    CIMTYPE_SINT64,    public static final int SINT64   = 8;
-    CIMTYPE_REAL32,    public static final int REAL32   = 11;
-    CIMTYPE_REAL64,    public static final int REAL64   = 12;
-    CIMTYPE_CHAR16,    public static final int CHAR16   = 14;
-    CIMTYPE_STRING,    public static final int STRING   = 9;
-    CIMTYPE_DATETIME,  public static final int DATETIME = 13;
-    CIMTYPE_REFERENCE  public static final int REFERENCE = 0x32+1;
+ /* CIMTYPE_BOOLEAN,   public static final int BOOLEAN  = 10; 0
+    CIMTYPE_UINT8,     public static final int UINT8    = 1;  1
+    CIMTYPE_SINT8,     public static final int SINT8    = 2;  2
+    CIMTYPE_UINT16,    public static final int UINT16   = 3;  3
+    CIMTYPE_SINT16,    public static final int SINT16   = 4;  4
+    CIMTYPE_UINT32,    public static final int UINT32   = 5;  5
+    CIMTYPE_SINT32,    public static final int SINT32   = 6;  6
+    CIMTYPE_UINT64,    public static final int UINT64   = 7;  7
+    CIMTYPE_SINT64,    public static final int SINT64   = 8;  8
+    CIMTYPE_REAL32,    public static final int REAL32   = 11; 9
+    CIMTYPE_REAL64,    public static final int REAL64   = 12; 10
+    CIMTYPE_CHAR16,    public static final int CHAR16   = 14; 11
+    CIMTYPE_STRING,    public static final int STRING   = 9;  12
+    CIMTYPE_DATETIME,  public static final int DATETIME = 13; 12
+    CIMTYPE_REFERENCE  public static final int REFERENCE = 0x32+1; 14
 */
-   {10,1,2,3,4,5,6,7,8,11,12,14,9,13,0x32+1};
+   {10, 1, 2, 3, 4, 5, 6, 7, 8,11,12,14, 9,13,0x32+1};
+//   0  1  2  3  4  5  6  7  8  9 10 11 12 13 14
+
+static int jTypeToPType[]=
+   {0, 1, 2, 3, 4, 5, 6, 7, 8,12, 0, 9,10,12};
+//  0  1  2  3  4  5  6  7  8  9 10 11 12 13
 
    static char *jTypeToChars[]= {
         NULL,

@@ -37,56 +37,72 @@ public class CIMProperty
    int cInst;
    private native int     _getValue(int p);
    private native String  _getName(int v);
+   private native void    _setName(int v,String n);
    private native int     _property(String name,int v);
+   private native int     _new();
    private native boolean _isReference(int v);
    private native String  _getRefClassName(int v);
    private native int     _getType(int v);
+   private native int     _setType(int v, int t);
    private native void    _setValue(int p,int v);
    private native boolean _isArray(int p);
    private native String  _getIdentifier(int p);
    private native void    _addValue(int p,int v);
-   private native void _finalize(int cp);
+   private native void    _addQualifier(int p,int v);
+   private native void    _finalize(int cp);
 
    protected void finalize() {
       _finalize(cInst);
    }
-  
+
    CIMProperty(int ci) {
       cInst=ci;
    }
-   
+
    int cInst() {
       return cInst;
    }
-   
+
+   public CIMProperty() {
+      cInst=_new();
+   }
+
    public CIMProperty(String name, CIMValue cv) {
       cInst=_property(name,cv.cInst);
    }
-   
+
    public CIMValue getValue() {
       return new CIMValue(_getValue(cInst));
    }
-   
+
    public String getName() {
       return _getName(cInst);
    }
-   
+
+   public void setName(String n) {
+       _setName(cInst,n);
+   }
+
    public boolean isReference() {
       return _isReference(cInst);
    }
-   
+
    public CIMDataType getType() {
       return new CIMDataType(_getType(cInst),true);
    }
-  
+
+   public void setType(CIMDataType dt) {
+       cInst=_setType(cInst,dt.cInst);
+   }
+
    public String getRefClassName() {
       return _getRefClassName(cInst);
    }
-   
+
    public String toString() {
       return getType().toString()+" "+getName()+"="+getValue().toString()+";";
    }
-  
+
   public void setValue(CIMValue v) {
      _setValue(cInst,v.cInst);
   }
@@ -96,7 +112,11 @@ public class CIMProperty
         return;
      _addValue(cInst,v.cInst);
   }
-  
+
+  public void addQualifier(CIMQualifier q) {
+     _addQualifier(cInst,q.cInst);
+  }
+
   public boolean isArray() {
      return _isArray(cInst);
   }

@@ -22,7 +22,10 @@ PACKAGEDIR = org/pegasus/jmpi
    CIMProperty.class \
    CIMValue.class \
    CIMQualifier.class \
+   CIMQualifierType.class \
    CIMDataType.class \
+   CIMFlavor.class \
+   CIMScope.class \
    \
    CIMProvider.class \
    InstanceProvider.class \
@@ -48,6 +51,7 @@ PACKAGEDIR = org/pegasus/jmpi
    CIMClient.class \
    InstEnumeration.class \
    PathEnumeration.class \
+   QualEnumeration.class \
    \
    JarClassLoader.class
 

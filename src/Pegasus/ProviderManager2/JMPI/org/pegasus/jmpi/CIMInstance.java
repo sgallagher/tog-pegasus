@@ -48,6 +48,7 @@ public class CIMInstance implements CIMElement {
    private native int    _newCn(String n);
    private native void   _setName(int cInst, String n);
    private native void   _setProperty(int cInst, String n, int vInst);
+   private native void   _setProperties(int cInst, Vector v);
    private native int    _getProperty(int cInst, String n);
    private native Vector _getKeyValuePairs(int cInst, Vector vec);
    private native Vector _getProperties(int cInst, Vector vec);
@@ -95,8 +96,12 @@ public class CIMInstance implements CIMElement {
    public void setProperty(String n, CIMValue v) {
       _setProperty(cInst,n,v.cInst);
    }
-   
-    /**
+
+   public void setProperty(Vector v) {
+      _setProperties(cInst,v);
+   }
+
+   /**
         Returns a property as specified by the name.
         @param String name  - name of the property
         @return CIMProperty property object the specified name

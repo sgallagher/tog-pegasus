@@ -34,7 +34,10 @@ package org.pegasus.jmpi;
 public class CIMQualifier 
 {
    int cInst;
-   private native Object _getValue(int v);
+   private native int _new(String n);
+   private native String _getName(int cq);
+   private native Object _getValue(int cq);
+   private native void   _setValue(int cq, int v);
    private native void   _finalize(int cq);
 
    protected void finalize() {
@@ -46,7 +49,19 @@ public class CIMQualifier
       cInst=ci;
    }
    
-   public Object getValue() {
-      return _getValue(cInst);
+   public CIMQualifier(String iname) {
+      cInst=_new(iname);
+   }
+
+   public CIMValue getValue() {
+      return new CIMValue(_getValue(cInst));
+   }
+
+   public void setValue(CIMValue value) {
+      _setValue(cInst,value.cInst);
+   }
+
+   public String getName() {
+      return _getName(cInst);
    }
 }

@@ -31,68 +31,30 @@
 
 package org.pegasus.jmpi;
 
+public class CIMFlavor
+{
+   int flavor;
 
-public class CIMNameSpace {
+   public static final int ENABLEOVERRIDE=1;
+   public static final int DISABLEOVERRIDE=2;
+   public static final int RESTRICTED=3;
+   public static final int TOSUBCLASS=4;
+   public static final int TRANSLATE=5;
 
-   static public final int DEFAULT_PORT=5988;
-   static public final String DEFAULT_NAMESPACE="root/cimv2";
-
-   int cInst;
-
-   private native int _new();
-   private native int _newHn(String hn);
-   private native int _newHnNs(String hn, String ns);
-   private native String _getNameSpace(int inst);
-   private native String _getHost(int inst);
-   private native void   _setNameSpace(int inst, String ns);
-   private native void   _setHost(int inst, String h);
-   private native void _finalize(int cns);
-    
-   public CIMNameSpace() {
-      cInst=_new();
+   public CIMFlavor() {
+      flavor=0;
    }
 
-   protected void finalize() {
-      //   _finalize(cInst);
+   public CIMFlavor(int fl) {
+      flavor=fl;
    }
 
-   public CIMNameSpace(String host) {
-      cInst=_newHn(host);
-   }
-   
-   public CIMNameSpace(String host,String ns) {
-      cInst=_newHnNs(host,ns);
-   }
-   
-   public String getNameSpace() {
-      return _getNameSpace(cInst);
-   }
-   
-   public String getHost(){
-      return _getHost(cInst);
-   }
-   
-   public void setNameSpace(String ns) {
-      _setNameSpace(cInst,ns);
-   }
-   
-   public void setHost(String host) {
-      _setHost(cInst,host);
+   public static CIMFlavor getFlavor(int fl) {
+      return new CIMFlavor(fl);
    }
 
-   public int getPortNumber() {
-      return 0;
+   int getFlavor() {
+      return flavor;
    }
 
-   public String getProtocol() {
-      return null;
-   }
-
-   public String getHostURL() {
-      return null;
-   }
-
-   static {
-      System.loadLibrary("JMPIProviderManager");
-   }
 }

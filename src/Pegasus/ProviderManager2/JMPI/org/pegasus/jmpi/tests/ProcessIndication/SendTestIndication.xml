@@ -5,8 +5,8 @@
    <METHODCALL NAME="SendTestIndication"> 
     <LOCALCLASSPATH> 
      <LOCALNAMESPACEPATH> 
-      <NAMESPACE NAME="root"/>
-      <NAMESPACE NAME="cimv2"/>
+      <NAMESPACE NAME="test"/>
+      <NAMESPACE NAME="static"/>
      </LOCALNAMESPACEPATH> 
      <CLASSNAME NAME="JMPI_RT_SampleIndication"/>
     </LOCALCLASSPATH> 

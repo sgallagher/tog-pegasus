@@ -23,76 +23,58 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com 
+// Author:      Adrian Duta
 //
-// Modified By:
+// Modified By: Adrian Schuur, schuur@de.ibm.com 
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 package org.pegasus.jmpi;
 
-
-public class CIMNameSpace {
-
-   static public final int DEFAULT_PORT=5988;
-   static public final String DEFAULT_NAMESPACE="root/cimv2";
-
+public class CIMQualifierType
+{
    int cInst;
+   private native int    _new();
+   private native String _getName(int qt);
+   private native void   _setName(int qt, String n);
+   private native void   _setValue(int qt, int v);
+   private native void   _finalize(int qt);
 
-   private native int _new();
-   private native int _newHn(String hn);
-   private native int _newHnNs(String hn, String ns);
-   private native String _getNameSpace(int inst);
-   private native String _getHost(int inst);
-   private native void   _setNameSpace(int inst, String ns);
-   private native void   _setHost(int inst, String h);
-   private native void _finalize(int cns);
-    
-   public CIMNameSpace() {
+   protected void finalize() {
+      _finalize(cInst);
+   }
+
+
+   CIMQualifierType(int qt) {
+      cInst=qt;
+   }
+
+   public CIMQualifierType() {
       cInst=_new();
    }
 
-   protected void finalize() {
-      //   _finalize(cInst);
+   public String getName() {
+      return _getName(cInst);
    }
 
-   public CIMNameSpace(String host) {
-      cInst=_newHn(host);
-   }
-   
-   public CIMNameSpace(String host,String ns) {
-      cInst=_newHnNs(host,ns);
-   }
-   
-   public String getNameSpace() {
-      return _getNameSpace(cInst);
-   }
-   
-   public String getHost(){
-      return _getHost(cInst);
-   }
-   
-   public void setNameSpace(String ns) {
-      _setNameSpace(cInst,ns);
-   }
-   
-   public void setHost(String host) {
-      _setHost(cInst,host);
+   public void setName(String n) {
+       _setName(cInst,n);
    }
 
-   public int getPortNumber() {
-      return 0;
+   public void setValue(CIMValue v) {
+       _setValue(cInst,v.cInst);
    }
 
-   public String getProtocol() {
-      return null;
+   public void setDefaultValue(CIMValue v) {
    }
 
-   public String getHostURL() {
-      return null;
+   public void setType(CIMDataType t) {
    }
 
-   static {
-      System.loadLibrary("JMPIProviderManager");
+   public void addFlavor(CIMFlavor t) {
+   }
+
+   public void addScope(CIMScope t) {
    }
 }
+

@@ -84,7 +84,7 @@ public class CIMDataType
 
    public static final int REFERENCE = OTHER+1; 
  
-   private int cInst;
+   int cInst;
     
    private native int _new(int type);
    private native int _newAr(int type, int size);
@@ -109,6 +109,7 @@ public class CIMDataType
          cInst=_newRef(REFERENCE,"");
       else cInst=_new(INVALID);
    }
+
    public CIMDataType(int type, int size) {
       if (type>=UINT8_ARRAY && type<=CHAR16_ARRAY)
          cInst=_newAr(type,size);
@@ -135,6 +136,10 @@ public class CIMDataType
    }
    public String toString() {
        return _toString(cInst);
+   }
+
+   public static CIMDataType getPredefinedType(int type) {
+      return new CIMDataType(type);
    }
 
 };

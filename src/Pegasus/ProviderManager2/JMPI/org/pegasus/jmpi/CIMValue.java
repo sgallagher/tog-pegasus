@@ -225,7 +225,15 @@ public class CIMValue
          System.err.println("+++ CIMValue(): unsupported type: "+o.getClass());
    }
 
-   public CIMValue(String str, int type, boolean isArray) throws Exception { 
+   public CIMValue(Object val, CIMDataType type) throws Exception {
+      cInst=new CIMValue(val).cInst;
+   }
+
+   public CIMValue(String str, CIMDataType type) throws Exception {
+      cInst=new CIMValue(str,type.getType(),type.isArrayType()).cInst;
+   }
+
+  public CIMValue(String str, int type, boolean isArray) throws Exception {
 
       //System.out.println("value: "+str+" , type: "+CIMDataType.toStr[type]+" , isArray: "+isArray);
 
@@ -361,23 +369,23 @@ public class CIMValue
       }
       
       if (cInst==-1)
-         throw new Exception("+++ unsupported type: "+type+" , isArray: "+isArray);            
+         throw new Exception("+++ unsupported type: "+type+" , isArray: "+isArray);
    }
-   
-   
+
+
    public Object getValue() throws CIMException {
       return getValue(true);
    }
-   
+
    public Object getValue(boolean toVector) throws CIMException {
       Object resp=null;
       Object o=null;
-      
+
       try {
          o=_getValue(cInst);
          if (o==null)
             return null;
-   
+
          int type=_getType(cInst);
          boolean isArray=_isArray(cInst);
          if (isArray) switch (type) {
@@ -409,7 +417,7 @@ public class CIMValue
                else resp=u8;
                break;
             case CIMDataType.SINT16:
-               Short s16[]=(Short[])o;         
+               Short s16[]=(Short[])o;
                if (toVector) {
                   resp=new Vector();
                   for (int i=0;i<s16.length;i++)
@@ -418,7 +426,7 @@ public class CIMValue
                else resp=s16;
                break;
             case CIMDataType.UINT16:
-               UnsignedInt16 u16[]=(UnsignedInt16[])o;      
+               UnsignedInt16 u16[]=(UnsignedInt16[])o;
                if (toVector) {
                   resp=new Vector();
                   for (int i=0;i<u16.length;i++)
@@ -427,7 +435,7 @@ public class CIMValue
                else resp=u16;
                break;
             case CIMDataType.SINT32:
-               Integer s32[]=(Integer[])o;         
+               Integer s32[]=(Integer[])o;
                if (toVector) {
                   resp=new Vector();
                   for (int i=0;i<s32.length;i++)
@@ -436,7 +444,7 @@ public class CIMValue
                else resp=s32;
                break;
             case CIMDataType.UINT32:
-               UnsignedInt32 u32[]=(UnsignedInt32[])o;         
+               UnsignedInt32 u32[]=(UnsignedInt32[])o;
                if (toVector) {
                   resp=new Vector();
                   for (int i=0;i<u32.length;i++)
@@ -445,7 +453,7 @@ public class CIMValue
                else resp=u32;
                break;
             case CIMDataType.SINT64:
-               Long s64[]=(Long[])o;         
+               Long s64[]=(Long[])o;
                if (toVector) {
                   resp=new Vector();
                   for (int i=0;i<s64.length;i++)
@@ -454,7 +462,7 @@ public class CIMValue
                else resp=s64;
                break;
             case CIMDataType.UINT64:
-               UnsignedInt64 u64[]=(UnsignedInt64[])o;         
+               UnsignedInt64 u64[]=(UnsignedInt64[])o;
                if (toVector) {
                   resp=new Vector();
                   for (int i=0;i<u64.length;i++)
@@ -466,7 +474,7 @@ public class CIMValue
                String s[]=(String[])o;
                if (toVector) {
                   resp=new Vector();
-                  for (int i=0;i<s.length;i++)
+		  for (int i=0;i<s.length;i++)
                      ((Vector)resp).addElement(s[i]);
                }
                else resp=s;
@@ -491,26 +499,27 @@ public class CIMValue
                break;
             case CIMDataType.REFERENCE:
          }
-         else resp=o;        
+         else resp=o;
       }
       catch (CIMException ce) {
          throw ce;
       }
       catch (Exception e) {
+         //e.printStackTrace();
          throw new CIMException(1,e.getMessage());
       }
       return resp;
    }
-  
 
-   public boolean isArray() { 
+
+   public boolean isArray() {
       return _isArray(cInst);
    }
-      
+
    public String toString() {
       return _toString(cInst);
    }
-     
+
    public int cInst(){
       return cInst;
    }

@@ -1,3 +1,4 @@
+
 //%2003////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002  BMC Software, Hewlett-Packard Development
@@ -23,7 +24,7 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com 
+// Author:      Adrian Schuur, schuur@de.ibm.com
 //
 // Modified By:
 //
@@ -32,67 +33,41 @@
 package org.pegasus.jmpi;
 
 
-public class CIMNameSpace {
+/**
+    Creates and instantiates a CIM scope, a qualifier attribute that
+    indicates the CIM objects with which the qualifier can be used. 
+    For example, the qualifier 'ABSTRACT' has the following scope
+    definition: Scope (Class Association Indication), meaning that
+    it can only be used with classes, associations, and indications.
+ */
 
-   static public final int DEFAULT_PORT=5988;
-   static public final String DEFAULT_NAMESPACE="root/cimv2";
+public class CIMScope {
 
-   int cInst;
+    private static final int BAD=0;
+    public static final int SCHEMA=1;
+    public static final int CLASS=2;
+    public static final int ASSOCIATION=3;
+    public static final int INDICATION=4;
+    public static final int PROPERTY=5;
+    public static final int REFERENCE=6;
+    public static final int METHOD=7;
+    public static final int PARAMETER=8;
+    public static final int INSTANCE=9;
+    public static final int ANY=10;
 
-   private native int _new();
-   private native int _newHn(String hn);
-   private native int _newHnNs(String hn, String ns);
-   private native String _getNameSpace(int inst);
-   private native String _getHost(int inst);
-   private native void   _setNameSpace(int inst, String ns);
-   private native void   _setHost(int inst, String h);
-   private native void _finalize(int cns);
-    
-   public CIMNameSpace() {
-      cInst=_new();
-   }
+    private int scope=0;
 
-   protected void finalize() {
-      //   _finalize(cInst);
-   }
+    public CIMScope(int sc) {
+	    scope=sc;
+    }
 
-   public CIMNameSpace(String host) {
-      cInst=_newHn(host);
-   }
-   
-   public CIMNameSpace(String host,String ns) {
-      cInst=_newHnNs(host,ns);
-   }
-   
-   public String getNameSpace() {
-      return _getNameSpace(cInst);
-   }
-   
-   public String getHost(){
-      return _getHost(cInst);
-   }
-   
-   public void setNameSpace(String ns) {
-      _setNameSpace(cInst,ns);
-   }
-   
-   public void setHost(String host) {
-      _setHost(cInst,host);
-   }
+    public static CIMScope getScope(int sc) {
+        if (sc>BAD && sc<=ANY) return new CIMScope(sc);
+	return(null);
+    }
 
-   public int getPortNumber() {
-      return 0;
-   }
+    public int getScope() {
+	return(scope);
+    }
 
-   public String getProtocol() {
-      return null;
-   }
-
-   public String getHostURL() {
-      return null;
-   }
-
-   static {
-      System.loadLibrary("JMPIProviderManager");
-   }
 }

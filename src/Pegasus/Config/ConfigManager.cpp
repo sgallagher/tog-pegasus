@@ -101,7 +101,7 @@ SecurityPropertyOwner*   ConfigManager::securityOwner= new SecurityPropertyOwner
 RepositoryPropertyOwner* ConfigManager::repositoryOwner= new RepositoryPropertyOwner;
 ShutdownPropertyOwner*   ConfigManager::shutdownOwner= new ShutdownPropertyOwner;
 FileSystemPropertyOwner* ConfigManager::fileSystemOwner= new FileSystemPropertyOwner;
-TuningPropertyOwner* ConfigManager::tuningOwner= new TuningPropertyOwner;
+
 
 
 /////////////////////////////////////////////////////////////////////////////

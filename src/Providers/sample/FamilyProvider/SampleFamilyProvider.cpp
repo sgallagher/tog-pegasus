@@ -135,7 +135,7 @@ Boolean _isInstanceValidReference(const CIMObjectPath& target, CIMInstance& inst
             CIMObjectPath path;
             v.get(path);
             // NOTE WE must be namespace and host free here.
-            if (role == String::EMPTY || role == p.getName())
+            if ((role == String::EMPTY) || (role == p.getName().getString()))
             {
                 CDEBUG("_FilterReferenceProperties. target= " << target.toString() << " path= " << path.toString());
                 if (target.identical(path))

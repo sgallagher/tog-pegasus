@@ -1,0 +1,31 @@
+#pragma locale("en_US")
+
+instance of PG_ProviderModule
+{
+    Description = "A test provider to test variations of instances provider might return.";
+    Caption = "Pegasus Test Instance Provider Module";
+    Name = "TestInstanceProviderModule";
+    Vendor = "Pegasus";
+    Version = "2.0.0";
+    InterfaceType = "C++Default";
+    InterfaceVersion = "2.3.0";
+    Location = "TestInstanceProvider";
+};
+
+instance of PG_Provider
+{
+    ProviderModuleName = "TestInstanceProviderModule";
+    Name = "TestInstanceProvider";
+};
+
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "TestInstanceProviderModule";
+    ProviderName = "TestInstanceProvider";
+    CapabilityID = "001";
+    ClassName = "TST_Instance1";
+    Namespaces = { "root/test" };
+    ProviderType = { 2 };
+    SupportedProperties = NULL;
+    SupportedMethods = NULL;
+};

@@ -21,7 +21,7 @@ include $(ROOT)/mak/configschema.mak
 # are to be loaded.
 
 TESTPROVIDERNS=root/testassoc
-TESTPROVIDERNSDIRECTORY=$(REPOSITORY_ROOT)/root\#testassoc
+TESTPROVIDERNSDIRECTORY=$(REPOSITORY_ROOT)/root/testassoc
 
 # Load the sample MOF with the local compiler. Cleans the existing repository
 # before reloading.
@@ -31,12 +31,16 @@ repository:
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-I$(CIM_SCHEMA_DIR)" "-n$(TESTPROVIDERNS)" $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
 	@ $(ECHO) +++++ Loading CIM_Events$(CIM_SCHEMA_VER) into $(TESTPROVIDERNS) namespace ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-I$(CIM_SCHEMA_DIR)" "-n$(TESTPROVIDERNS)" $(CIM_SCHEMA_DIR)/CIM_Event$(CIM_SCHEMA_VER).mof
-	@ $(ECHO) +++++ Loading SampleProvider class definitions into $(TESTPROVIDERNS) namespace ...
+#	@ $(ECHO) +++++ Loading SampleProvider class definitions into $(TESTPROVIDERNS) namespace ...
 	@ $(ECHO) +++++ Loading AssociationTestProvider class definitions into $(TESTPROVIDERNS) namespace ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-n$(TESTPROVIDERNS)" AssociationTestProviderSchema.mof
-	
-	#@ $(ECHO) +++++ Registering AssociationTestProvider schema Providers  ...
-	#@ cimmofl "-R$(REPOSITORY_DIR)" "-n$(INTEROPNS)" AssociationTestProviderSchemaR.mof
+	@ $(ECHO) +++++ Loading TestInstanceProvider class definitions into $(TESTPROVIDERNS) namespace ...
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-n$(TESTPROVIDERNS)" TestInstanceProviderSchema.mof
+
+#	@ $(ECHO) +++++ Registering AssociationTestProvider schema Providers  ...
+#	@ cimmofl "-R$(REPOSITORY_DIR)" "-n$(INTEROPNS)" AssociationTestProviderSchemaR.mof
+	@ $(ECHO) +++++ Registering TestInstanceProvider Providers  ...
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-n$(INTEROPNS)" TestInstanceProviderRegistration.mof
 
 
 # Load the sample mofe through the Client interface compiler but do not
@@ -47,7 +51,7 @@ repositoryServer:
 	@ $(ECHO) +++++ Loading CIM_Events$(CIM_SCHEMA_VER) into $(TESTPROVIDERNS) namespace ...
 	@ cimmof "-I$(CIM_MOF_PATH)" "-n$(TESTPROVIDERNS)" $(CIM_SCHEMA_VER)/CIM_Events$(CIM_SCHEMA_VER).mof
 	@ $(ECHO) +++++ Loading AssociationTestProvider class definitions into $(TESTPROVIDERNS) namespace ...
-	
+
 	#@ $(ECHO) +++++ Registering AssociationTestProvider schema Providers  ...
 	#@ cimmofl "-R$(REPOSITORY_DIR)" "-n$(INTEROPNS)" AssociationTestProviderSchemaR.mof
 
@@ -60,6 +64,7 @@ unregister:
 
 unregisterproviders:
 	cimprovider -r -m AssociationTestProviderModule
+	cimprovider -r -m TestInstanceProviderModule
 
 depend:
 
@@ -91,7 +96,7 @@ clitests:
 		CLI rn TST_ClassC -rc TST_Assoc2 -rr from "-n $(TESTPROVIDERNS)"
 		CLI rn TST_ClassC -rc TST_Assoc2 -rr to "-n $(TESTPROVIDERNS)"
 		CLI rn TST_ClassC -rc TST_Assoc1 "-n $(TESTPROVIDERNS)"
-		
+
 		CLI rn TST_ClassD "-n $(TESTPROVIDERNS)"
 		CLI rn TST_ClassD -rc TST_Assoc1 "-n $(TESTPROVIDERNS)"
 		CLI rn TST_ClassD -rc TST_Assoc1 -rr from "-n $(TESTPROVIDERNS)"

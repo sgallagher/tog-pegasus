@@ -1,0 +1,8 @@
+#pragma locale("en_US")
+
+//[Version ("2.4.0")]
+class TST_Instance1
+{
+    [key]
+    string name;
+};

@@ -1410,7 +1410,17 @@ void XmlWriter::appendMethodCallHeader(
 {
     char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
 
+    // ATTN: KS 20020926 - Temporary change to issue only POST. This may
+    // be changed in the DMTF CIM Operations standard in the future.
+    // If we kept M-Post we would have to retry with Post. Does not
+    // do that in client today. Permanent change is to retry until spec
+    // updated. This change is temp to finish tests or until the retry
+    // installed.  Required because of change to wbemservices cimom
+#ifdef PEGASUS_SNIA_INTEROP_TEST
+    out << "POST /cimom HTTP/1.1\r\n";
+#else
     out << "M-POST /cimom HTTP/1.1\r\n";
+#endif
     out << "HOST: " << host << "\r\n";
     out << "Content-Type: application/xml; charset=\"utf-8\"\r\n";
     out << "Content-Length: " << contentLength << "\r\n";

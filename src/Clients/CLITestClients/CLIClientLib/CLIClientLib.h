@@ -38,6 +38,9 @@
 #include <Clients/CLITestClients/CLIClientLib/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
+#define CDEBUG(X) PEGASUS_STD(cout) << "CLI " << X << PEGASUS_STD(endl)
+//#define CDEBUG(X)
+//#define DEBUG(X) Logger::put (Logger::DEBUG_LOG, "CIMOpReqDsptchr", Logger::INFORMATION, "$0", X)
 
 typedef int     CommandID;
 typedef int     OutputType;
@@ -71,8 +74,9 @@ const CommandID ID_ExecQuery                    = 22;
 
 const CommandID ID_ModifyClass                  = 23;
 const CommandID ID_ModifyInstance               = 24;
-
-const CommandID ID_Unknown                      = 25;
+const CommandID ID_EnumerateAllInstanceNames    = 25;
+const CommandID ID_EnumerateNamespaces          = 26;
+const CommandID ID_Unknown                      = 27;
 
 struct  OUTPUT_STRUCT
 {
@@ -94,39 +98,48 @@ struct  CMD_STRUCT
 {
     CommandID ID_Command;
     const char* CommandName;
+    int minNumArgs;
+    const char* ShortCut;
+    const char* UsageText;
 };
 
 // ******** CIM Client Commands
 CMD_STRUCT CommandTable[] =
 {
-        // Command ID                CommandName                
-    {   ID_EnumerateInstanceNames,  "enumerateinstancenames"    },
-    {   ID_EnumerateInstances,      "enumerateinstances"        },
-    {   ID_EnumerateClassNames,     "enumerateclassnames"       },
-    {   ID_EnumerateClasses,        "enumerateclasses"          },
-    {   ID_GetClass,                "getclass"                  },
-    {   ID_GetInstance,             "getinstance"               },
-    {   ID_CreateInstance,          "createinstance"            },
-    {   ID_DeleteInstance,          "deleteinstance"            },
-    {   ID_CreateClass   ,          "createclass"               },
-    {   ID_DeleteInstance,          "deleteclass"               },
-    {   ID_ModifyInstance,          "modifyclass"               },
-    {   ID_DeleteClass,             "deleteinstance"            },
-    {   ID_GetProperty,             "getproperty"               },
-    {   ID_SetProperty,             "setproperty"               },
-    {   ID_GetQualifier,            "getqualifier"              },
-    {   ID_SetQualifier,            "setqualifier"              },
-    {   ID_EnumerateQualifiers,     "enumeratequalifiers"       },
-    {   ID_InvokeMethod,            "InvokeMethod"              },
-    {   ID_Associators,             "associators"               },
-    {   ID_AssociatorNames,         "associatornames"           },
-    {   ID_References,              "references"                },
-    {   ID_ReferenceNames,          "referencenames"            },
-    {   ID_InvokeMethod,            "InvokeMethod"              },
-    {   ID_ExecQuery,               "execquery"                 },
-    
-//    {   ID_Unknown,                 "unknown"                   }
-//    { 0,                           NULL,                      }
+    // Command ID                CommandName        Min Num Args, ShortCut Name, Usage              
+    {ID_EnumerateInstanceNames,  "enumerateinstancenames", 2 ,"ni",
+         "CLI enumerate instancenames <instancename>  " },
+    {ID_EnumerateAllInstanceNames,"enumerateallinstancenames", 2 , "niall",
+         " "   },
+    {ID_EnumerateInstances,      "enumerateinstances",2 ,   "ei",
+         " "        },
+    {ID_EnumerateClassNames,     "enumerateclassnames",2 ,  "nc",
+         " "       },
+    {ID_EnumerateClasses,        "enumerateclasses",2 ,     "ec",
+         " "          },
+    {ID_GetClass,                "getclass",2 ,             "gc",
+         " "                  },
+    {ID_GetInstance,             "getinstance",   2 ,       "gi", " "  },
+    {ID_CreateInstance,          "createinstance",2 ,       "ci", " "  },
+    {ID_DeleteInstance,          "deleteinstance",2 ,       "di", " "  },
+    {ID_CreateClass   ,          "createclass",   2 ,       "cc", " "  },
+    {ID_DeleteInstance,          "deleteclass",   2 ,       "di", " "  },
+    {ID_ModifyInstance,          "modifyclass",   2 ,       "mi", " "  },
+    {ID_DeleteClass,             "deleteinstance",2 ,       "dc", " "  },
+    {ID_GetProperty,             "getproperty",   2 ,       "gp", " "  },
+    {ID_SetProperty,             "setproperty",   2 ,       "sp", " "  },
+    {ID_GetQualifier,            "getqualifier",  2 ,       "sq", " "  },
+    {ID_SetQualifier,            "setqualifier",  2 ,       "gc", " "  },
+    {ID_EnumerateQualifiers,     "enumeratequalifiers",2 ,  "eq", " "  },
+    {ID_DeleteQualifier,         "deletequalifier",  2 ,    "dq", " "  },
+    {ID_Associators,             "associators",   2 ,       "a" , " "  },
+    {ID_AssociatorNames,         "associatornames", 2 ,     "an", " "  },
+    {ID_References,              "references",      2,      "r",  " "  },
+    {ID_ReferenceNames,          "referencenames",2 ,       "rn", " "  },
+    {ID_InvokeMethod,            "InvokeMethod",  2 ,       "im", " "  },
+    {ID_ExecQuery,               "execquery",     2 ,       "eq", " "  },
+    {ID_EnumerateNamespaces,     "enumeratenamespaces",2 ,  "ns", " "  },
+   
 };
 
 const Uint32 NUM_COMMANDS = sizeof(CommandTable) / sizeof(CommandTable[0]);
@@ -137,26 +150,46 @@ struct  OPTION_STRUCT
 {
     String location;
     String nameSpace;
-    String className;
+    String classNameString;
+    CIMName className;
     String objectName;
-    String cimCmd;
+    String inputObjectName;                 // Name to report as input object on error
+    String cimCmd;                          // Command name
     String outputFormat;
+    Boolean isXmlOutput;
     int outputFormatType;
+    OutputType outputType;
     Boolean deepInheritance;
     Boolean localOnly;
     Boolean includeQualifiers;
     Boolean includeClassOrigin;
     CIMObjectPath instanceName;
     CIMValue newValue;
-    String cimObjectPath;
+    //String cimObjectPath;
     String qualifierName;
     CIMQualifierDecl qualifierDeclaration;
     String user;
     String password;
     String propertyName;
     CIMPropertyList propertyList;
+    String propertyListText;
     Boolean verboseTest;
     Boolean summary;
+
+    // The references and associatior parameters.  We setup both internal and external forms
+    String assocClassName;
+    CIMName assocClass;
+    String resultClassName;
+    CIMName resultClass;
+    String role;
+    String resultRole;
+
+    Uint32 delay;
+    Uint32 trace;
+
+    CIMName methodName;
+    String inputParameters;
+    String outputParameters;
 };
 
 typedef struct OPTION_STRUCT Options;
@@ -185,6 +218,8 @@ int PEGASUS_CLI_LINKAGE deleteInstance(CIMClient& client, Options& opts);
 
 int PEGASUS_CLI_LINKAGE enumerateInstanceNames(CIMClient& client, Options& opts);
 
+int PEGASUS_CLI_LINKAGE enumerateAllInstanceNames(CIMClient& client, Options& opts);
+
 int PEGASUS_CLI_LINKAGE enumerateInstances(CIMClient& client, Options& opts);
 
 int PEGASUS_CLI_LINKAGE getInstance(CIMClient& client, Options& opts);
@@ -209,6 +244,9 @@ int PEGASUS_CLI_LINKAGE associators(CIMClient& client, Options& opts);
 
 int PEGASUS_CLI_LINKAGE associatorNames(CIMClient& client, Options& opts);
 
+int PEGASUS_CLI_LINKAGE invokeMethod(CIMClient& client, Options& opts);
+
+int PEGASUS_CLI_LINKAGE enumerateNamespaces_Namespace(CIMClient& client, Options& opts);
 
 PEGASUS_NAMESPACE_END
 

@@ -14,6 +14,8 @@ tests:
 
 install:
 
+general:
+
 poststarttests:
 	@$(RM) $(RESULTFILE)
 	@$(ECHO) "  " >> $(RESULTFILE)

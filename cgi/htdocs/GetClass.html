@@ -1,23 +1,64 @@
 <html>
-  <body bgcolor="#CCCCCC"> 
+  <body bgcolor="#CCCCCC">
     <table width="100%">
       <tr>
-	<td width="50%" align="bottom"><h1>GetClass</h1><td>
+	<td width="50%" align="bottom"><h1>GetClass Operation</h1><td>
 	<td width="50%" align="right">
 	  <img border=1 src="http://localhost/pegasus/icons/OpenGroupLogo.gif">
         </td>
       </tr>
     </table>
-    <hr></hr>
+    <hr>
     <form METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
       <INPUT TYPE="hidden" NAME="Operation" VALUE="GetClass">
-      <p>NameSpace <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root/cimv20">
-      <p>ClassName <INPUT TYPE="text" NAME="ClassName" SIZE=30>
-      <p>LocalOnly <INPUT TYPE="checkbox" NAME="LocalOnly" VALUE="true" checked>
-      <p>IncludeQualifiers <INPUT TYPE="checkbox" NAME="IncludeQualifiers" VALUE="true">
-      <p>IncludeClassOrigins <INPUT TYPE="checkbox" NAME="IncludeClassOrigins" VALUE="true">
-      <p><INPUT TYPE="submit" VALUE="GetClass">
-      <p><INPUT TYPE="reset" VALUE="Reset">
-    </form>
+      <p>The <TT>GetClass</TT> method returns a single CIM Class from the target Namespace
+      where the ClassName input parameter defines the name of the class to be retrieved.
+
+      <p><b>NameSpace</b> <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root/cimv20">
+      The NameSpace parameter is a string that defines the target namespace.
+      <p><b>ClassName</b> <INPUT TYPE="text" NAME="ClassName" SIZE=30>
+      The ClassName input parameter defines the name of the Class to be retrieved.
+      <p><b>LocalOnly</b> <INPUT TYPE="checkbox" NAME="LocalOnly" VALUE="true" checked>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      If the <TT>LocalOnly</TT> input parameter is true, this specifies that only CIM
+      Elements (properties, methods and qualifiers) overriden within the definition of
+      the Class are returned.  If false, all elements are returned.  This parameter
+      therefore effects a CIM Server-side mechanism to filter certain elements of the
+      returned object based on whether or not they have been propagated from the parent
+      Class (as defined by the PROPAGATED attribute).
+      <p><b>IncludeQualifiers</b> <INPUT TYPE="checkbox" NAME="IncludeQualifiers" VALUE="true">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      If the <TT>IncludeQualifiers</TT> input parameter is true, this specifies that
+      all Qualifiers for that Class (including Qualifiers on the Class and on any
+      returned Properties, Methods or Method Parameters) MUST be included as <QUALIFIER>
+      elements in the response.  If false no QUALIFIER elements are present in the
+      returned Class.
+      <p><b>IncludeClassOrigins</b> <INPUT TYPE="checkbox" NAME="IncludeClassOrigins" VALUE="true">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      If the <TT>IncludeClassOrigin</TT> input parameter is true, this specifies that
+      the CLASSORIGIN attribute MUST be present on all appropriate elements in the returned
+      Class. If false, no CLASSORIGIN attributes are present in the returned Class.
+      <p><b>PropertyList </b> <INPUT TYPE="text" NAME="PropertyList" SIZE=30 VALUE="NULL">
+      NOTE: <b> NOT IMPLEMENTED</b>.
+      If the <TT>PropertyList</TT> input parameter is not NULL, the members of the array
+      define one or more Property names.  The returned Class MUST NOT include elements for any
+      Properties missing from this list. Note that if <TT>LocalOnly</TT> is specified as true this acts
+      as an additional filter on the set of Properties returned (for example, if Property A is
+      included in the <TT>PropertyList</TT> but <TT>LocalOnly</TT> is set to true and A is not local to the
+      requested Class, then it will not be included in the response). If the <TT>PropertyList</TT>
+      input parameter is an empty array this signifies that no Properties are included in
+      the response. If the PropertyList input parameter is NULL this specifies that all
+      Properties (subject to the conditions expressed by the other parameters) are included
+      in the response.
+      <p>If the <TT>PropertyList</TT> contains duplicate elements, the Server MUST ignore
+      the duplicates but otherwise process the request normally. If the PropertyList contains
+      elements which are invalid Property names for the target Class, the Server MUST ignore
+      such entries but otherwise process the request normally.
+      <p><INPUT TYPE="submit" VALUE="Submit Request">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <INPUT TYPE="reset" VALUE="Reset Form">
+      <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>RETURN - </b>If successful, the return value is a single CIM Class.If unsuccessful, one of the following status codes MUST be returned by this method,
+	where the first applicable error in the list (starting with the first element of the list,
+	and working down) is the error returned. Any additional method-specific interpretation of
+	the error in is given in parentheses
+      <p>&nbsp;
+	</form>
+
   </body>
 </html>

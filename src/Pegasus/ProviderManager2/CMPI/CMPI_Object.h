@@ -68,6 +68,7 @@ class CMPI_Object {
    CMPI_Object(CMPISelectCond*);
    ~CMPI_Object();
    void unlinkAndDelete();
+   void unlink();
 };
 
 PEGASUS_NAMESPACE_END

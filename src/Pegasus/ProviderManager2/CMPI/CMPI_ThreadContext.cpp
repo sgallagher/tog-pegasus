@@ -69,7 +69,10 @@ void CMPI_ThreadContext::addObject(CMPI_Object* o) {
 }
 
 void CMPI_ThreadContext::remove(CMPI_Object *o) {
-   DEQ_FROM_LIST(o,CIMfirst,CIMlast,next,prev);
+   if (reinterpret_cast<long>(o->next)!=-1) {
+      DEQ_FROM_LIST(o,CIMfirst,CIMlast,next,prev);
+      o->next=reinterpret_cast<CMPI_Object*>((void*)-1l);
+   }
 }
 
 void CMPI_ThreadContext::remObject(CMPI_Object* o) {

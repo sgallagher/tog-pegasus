@@ -67,7 +67,9 @@ static CMPIStatus instReleaseNop(CMPIInstance* eInst) {
 static CMPIInstance* instClone(CMPIInstance* eInst, CMPIStatus* rc) {
    CIMInstance* inst=(CIMInstance*)eInst->hdl;
    CIMInstance* cInst=new CIMInstance(inst->clone());
-   CMPIInstance* neInst=reinterpret_cast<CMPIInstance*>(new CMPI_Object(cInst));//,CMPI_Instance_Ftab);
+   CMPI_Object* obj=new CMPI_Object(cInst);
+   obj->unlink();
+   CMPIInstance* neInst=reinterpret_cast<CMPIInstance*>(obj);
    if (rc) CMSetStatus(rc,CMPI_RC_OK);
    return neInst;
 }

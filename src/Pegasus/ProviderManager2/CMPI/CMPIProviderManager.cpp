@@ -1405,7 +1405,8 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
 
         rc=pr.miVector.indMI->ft->activateFilter(
            pr.miVector.indMI,&eCtx,NULL,eSelx,
-           CHARS(request->nameSpace.getString().getCString()),&eRef,false);
+           CHARS(eSelx->classNames[0].getClassName().getString().getCString()),
+	   &eRef,false);
 
        STAT_PMS_PROVIDEREND;
 
@@ -1487,10 +1488,10 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
         STAT_GETSTARTTIME;
-
         rc=pr.miVector.indMI->ft->deActivateFilter(
            pr.miVector.indMI,&eCtx,NULL,eSelx,
-           CHARS(request->nameSpace.getString().getCString()),&eRef,prec==NULL);
+           CHARS(eSelx->classNames[0].getClassName().getString().getCString()),
+	   &eRef,prec==NULL);
 
        delete eSelx;
 

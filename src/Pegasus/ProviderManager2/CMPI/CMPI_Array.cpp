@@ -56,7 +56,9 @@ static CMPIStatus arrayRelease(CMPIArray* eArray) {
 static CMPIArray* arrayClone(CMPIArray* eArray, CMPIStatus* rc) {
    CMPIData* dta=(CMPIData*)eArray->hdl;
    CMPIData* nDta=new CMPIData[dta->value.uint32+1];
-   CMPIArray* nArray=(CMPIArray*)new CMPI_Object(nDta,CMPI_Array_Ftab);
+   CMPI_Object* obj=new CMPI_Object(nDta,CMPI_Array_Ftab);
+   obj->unlink();
+   CMPIArray* nArray=(CMPIArray*)obj;
    CMPIStatus rrc={CMPI_RC_OK,NULL};
 
    if (dta->type & CMPI_ENC) for (unsigned int i=1; i<=dta->value.uint32; i++)

@@ -56,8 +56,8 @@ static CMPIStatus stringRelease(CMPIString *eStr) {
 static CMPIString* stringClone(CMPIString *eStr, CMPIStatus* rc) {
    char* str=(char*)eStr->hdl;
    char* newstr=::strdup(str);
-   CMPI_Object * obj=new CMPI_Object(newstr,CMPI_String_Ftab);
-//   CMPIRefs::localRefs().addRef(obj,CMPIRefs::TypeString);
+   CMPI_Object* obj=new CMPI_Object(newstr,CMPI_String_Ftab);
+   obj->unlink();
    if (rc) CMSetStatus(rc,CMPI_RC_OK);
    return (CMPIString*)obj;
 }

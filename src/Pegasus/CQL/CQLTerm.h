@@ -16,7 +16,7 @@ PEGASUS_NAMESPACE_BEGIN
        The enum is private, but the definition is public.
       */
     //##ModelId=40FC31A3026D
-    enum FactorOpType { mult, div, concat };
+    enum FactorOpType { mult, divide, concat };
 
 /** The CQLTerm class encapsulates each CQL term in a CQL expression.  
 

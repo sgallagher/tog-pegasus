@@ -130,6 +130,8 @@ Sint32 ProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
 	 pr = new Provider(*(parms->providerName), module, base);
 	 if(0 == (pr->_cimom_handle =  new CIMOMHandle()))
 	    throw NullPointer();
+	 pr->_quantum=0;
+	 
 
 	 PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2, 
 			  "Loading Provider " +  pr->_name);

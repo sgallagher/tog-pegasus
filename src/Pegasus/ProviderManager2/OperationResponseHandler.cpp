@@ -532,6 +532,15 @@ void CreateInstanceResponseHandler::deliver(const CIMObjectPath & cimObjectPath)
         throw CIMException(CIM_ERR_FAILED, message);
     }
 
+    if(SimpleObjectPathResponseHandler::size() != 0)
+    {
+        MessageLoaderParms message(
+            "Server.OperationResponseHandler.TOO_MANY_OBJECTS_DELIVERED",
+            "Too many objects delivered.");
+
+        throw CIMException(CIM_ERR_FAILED, message);
+    }
+
     SimpleObjectPathResponseHandler::deliver(cimObjectPath);
 }
 

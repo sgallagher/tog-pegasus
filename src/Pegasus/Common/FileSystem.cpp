@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: FileSystem.cpp,v $
+// Revision 1.8  2001/04/08 19:20:04  mike
+// more TCP work
+//
 // Revision 1.7  2001/04/08 01:13:21  mike
 // Changed "ConstCIM" to "CIMConst"
 //
@@ -274,17 +277,20 @@ Boolean FileSystem::removeDirectoryHier(const String& path)
     // ATTN Diagnostics still installed ks.
     for (Uint32 i = 0, n = fileList.getSize(); i < n; i++)
     {
-	if (FileSystem::isDirectory(fileList[i])){
-	    //cout << "DEBUG RMDIR Next " << fileList[i] << endl;
+	if (FileSystem::isDirectory(fileList[i]))
+	{
+	    // std::cout << "DEBUG RMDIR Next " << fileList[i] <<  std::endl;
 	    FileSystem::removeDirectoryHier(fileList[i]);
 	}
 
-	else{
-	    //cout << "DEBUG RMFIL " << fileList[i] <<endl;
+	else
+	{
+	    // std::cout << "DEBUG RMFIL " << fileList[i] << std::endl;
 	    removeFile(fileList[i]);
 	}
 
     }
+
     return removeDirectory(path);	
 }
 

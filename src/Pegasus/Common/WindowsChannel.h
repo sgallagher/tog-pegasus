@@ -23,6 +23,9 @@
 // Author: Michael E. Brasher
 //
 // $Log: WindowsChannel.h,v $
+// Revision 1.2  2001/04/08 19:20:04  mike
+// more TCP work
+//
 // Revision 1.1  2001/04/08 08:28:20  mike
 // Added more windows channel implementation code.
 //
@@ -34,10 +37,13 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Channel.h>
+#include <Pegasus/Common/Array.h>
+#include <Pegasus/Common/Selector.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_COMMON_LINKAGE WindowsChannel : public Channel 
+class PEGASUS_COMMON_LINKAGE WindowsChannel 
+    : public Channel, public SelectorHandler
 {
 public:
 
@@ -84,20 +90,29 @@ public:
     virtual void disconnect(Channel* channel);
 
 private:
+
     Selector* _selector;
 };
 
-class PEGASUS_COMMON_LINKAGE WindowsChannelAcceptor : public ChannelAcceptor
+class PEGASUS_COMMON_LINKAGE WindowsChannelAcceptor 
+    : public ChannelAcceptor, public SelectorHandler
 {
 public:
 
-    WindowsChannelAcceptor(ChannelHandlerFactory* factory);
+    WindowsChannelAcceptor(
+	ChannelHandlerFactory* factory,
+	Selector* selector);
 
     virtual ~WindowsChannelAcceptor();
 
-    virtual void bind(const char* bindString);
+    virtual Boolean bind(const char* address);
 
-    virtual void accept(Channel* channel);
+    virtual Boolean handle(Sint32 desc, Uint32 reasons);
+
+private:
+
+    Selector* _selector;
+    Sint32 _desc;
 };
 
 PEGASUS_NAMESPACE_END

@@ -23,6 +23,9 @@
 // Author: Michael E. Brasher
 //
 // $Log: WindowsChannel.cpp,v $
+// Revision 1.3  2001/04/08 19:20:04  mike
+// more TCP work
+//
 // Revision 1.2  2001/04/08 08:37:35  mike
 // More channel changes
 //
@@ -41,6 +44,7 @@ using namespace std;
 PEGASUS_NAMESPACE_BEGIN
 
 // ATTN-A: manage lifetime of all these objects. Do a walkthrough!
+// ATTN-B: add methods for getting the remote hostname and port!
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -359,8 +363,12 @@ Channel* WindowsChannelConnector::connect(const char* addressString)
     // Create the channel:
 
     ChannelHandler* handler = _factory->create();
-
     WindowsChannel* channel = new WindowsChannel(desc, handler);
+
+    // ATTN-B: at this time, the selector does not manage the lifetime
+    // of channel objects. The selector is responsible for this. When
+    // the selector goes out of scope, it destroys all of its handlers
+    // (including any channels that were registered by this object).
 
     // Register the channel to receive events:
 
@@ -371,15 +379,12 @@ Channel* WindowsChannelConnector::connect(const char* addressString)
 
     handler->handleOpen(channel);
 
-    // ATTN-A: should this channel be kept track of by the channel
-    // implementation itself? And if so, then how will it be cleaned up?
-
     return channel;
 }
 
 void WindowsChannelConnector::disconnect(Channel* channel)
 {
-
+    // ATTN-A: Implement this! But how?
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -388,25 +393,108 @@ void WindowsChannelConnector::disconnect(Channel* channel)
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-WindowsChannelAcceptor::WindowsChannelAcceptor(ChannelHandlerFactory* factory)
-    : ChannelAcceptor(factory)
+WindowsChannelAcceptor::WindowsChannelAcceptor(
+    ChannelHandlerFactory* factory,
+    Selector* selector)
+    : ChannelAcceptor(factory), _selector(selector), _desc(-1)
 {
-
+    _WSAInc();
 }
 
 WindowsChannelAcceptor::~WindowsChannelAcceptor()
 {
-
+    _WSADec();
 }
 
-void WindowsChannelAcceptor::bind(const char* bindString)
+Boolean WindowsChannelAcceptor::bind(const char* addressStr)
 {
+    // Extract the port:
 
+    char* end = 0;
+    Sint32 port = strtol(addressStr, &end, 10);
+
+    if (!end || *end != '\0')
+	return false;
+
+    // Create address:
+
+    struct sockaddr_in address;
+    memset(&address, 0, sizeof(address));
+    address.sin_addr.s_addr = INADDR_ANY;
+    address.sin_family = AF_INET;
+    address.sin_port = htons(port);
+
+    // Create socket:
+    
+    _desc = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+
+    if (_desc < 0)
+    {
+	_desc = -1;
+	return false;
+    }
+
+    // Bind socket to address:
+
+    if (::bind(_desc, (struct sockaddr*)(void*)&address, sizeof(address)) < 0)
+	return false;
+
+    // Listen:
+
+    int const MAX_CONNECTION_QUEUE_LENGTH = 5;
+
+    if (listen(_desc, MAX_CONNECTION_QUEUE_LENGTH) < 0)
+	return false;
+
+    // Register this acceptor to receive read events:
+
+    _selector->addHandler(
+	_desc, 
+	Selector::READ | Selector::EXCEPTION,
+	this);
+
+    return true;
 }
 
-void WindowsChannelAcceptor::accept(Channel* channel)
+Boolean WindowsChannelAcceptor::handle(Sint32 desc, Uint32 reasons)
 {
+    // If socket descriptor is invalid, bail out now!
 
+    if (_desc == -1 || _desc != desc)
+	return true;
+
+    // If this was not called in connection with a read event, bail out!
+
+    if (!(reasons | Selector::READ))
+	return true;
+
+    // Accept the connection (populate the address):
+
+    sockaddr_in address;
+    int n = sizeof(address);
+    Sint32 slaveDesc = accept(_desc, (struct sockaddr*)&address, &n);
+
+    if (slaveDesc < 0)
+	return true;
+
+    // Use factory to create handler; create channel:
+
+    if (!_factory)
+	return true;
+
+    ChannelHandler* handler = _factory->create();
+    WindowsChannel* channel = new WindowsChannel(slaveDesc, handler);
+
+    // Register the channel to receive events:
+
+    _selector->addHandler(
+	slaveDesc, 
+	Selector::READ | Selector::WRITE | Selector::EXCEPTION,
+	channel);
+
+    handler->handleOpen(channel);
+
+    return true;
 }
 
 PEGASUS_NAMESPACE_END

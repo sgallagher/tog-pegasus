@@ -30,7 +30,6 @@
 #define Pegasus_Channel_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Selector.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -53,7 +52,7 @@ PEGASUS_NAMESPACE_BEGIN
     (derived classes of Channel) are hidden from the user (not visible through 
     public header files).
 */
-class PEGASUS_COMMON_LINKAGE Channel : public SelectorHandler
+class PEGASUS_COMMON_LINKAGE Channel
 {
 public:
 
@@ -114,11 +113,6 @@ public:
     /** Returns true if the last error was a would block error:
     */
     virtual Boolean wouldBlock() const = 0;
-
-    /** This method is first define in SelectorHandler and must be
-	overriden by the derived class.
-    */
-    virtual Boolean handle(Sint32 desc, Uint32 reasons) = 0;
 };
 
 /** The user of the channel module derives from the ChannelHandler class
@@ -420,12 +414,7 @@ public:
     /** Binds this acceptor to the given server address. This is the
 	address that the acceptor listens for connections on.
     */
-    virtual void bind(const char* bindString) = 0;
-
-    /** Called to accept new connections. A newly created channel is
-	passed to this method whenever a client connects.
-    */
-    virtual void accept(Channel* channel) = 0;
+    virtual Boolean bind(const char* address) = 0;
 
 protected:
 

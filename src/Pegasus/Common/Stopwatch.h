@@ -23,6 +23,9 @@
 // Author: Mike Brasher
 //
 // $Log: Stopwatch.h,v $
+// Revision 1.4  2001/04/08 19:20:04  mike
+// more TCP work
+//
 // Revision 1.3  2001/02/17 20:09:23  mike
 // new
 //
@@ -72,9 +75,9 @@ public:
 
     /**	printElapsed method sends the current value of the timer and
     sends it to standardout as a string with the word seconds attached
-    
     */
     void printElapsed();
+
     /** sleep
     */
     static void sleep(double seconds);

@@ -93,7 +93,7 @@ public:
     /** Assign this string with String x
     @param x String to assign
     @return Returns the String
-    */.
+    */
     String& assign(const String& x) { _rep = x._rep; return *this; }
 
     /// Assign this string with x.

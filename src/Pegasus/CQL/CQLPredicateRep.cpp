@@ -101,14 +101,21 @@ String CQLPredicateRep::toString(){
 	printf("CQLPredicateRep::toString()\n");
 	if(_terminal){
 	printf("CQLPredicateRep::toString()_terminal\n");
-		return _simplePredicate.toString();
+		String s;
+		if(_invert) s = "NOT ";
+		s.append(_simplePredicate.toString());
+		return s;
 	}
 	if(isSimple()){
 	printf("CQLPredicateRep::toString()isSimple\n");
-		return _simplePredicate.toString();
+		String s;
+                if(_invert) s = "NOT ";
+                s.append(_simplePredicate.toString());
+                return s;
 	}
 	printf("CQLPredicateRep::toString()else\n");
 	String s;
+	if(_invert) s = "NOT ";
 	for(Uint32 i = 0; i < _predicates.size(); i++){
 		s.append(_predicates[i].toString());
 		if(i < _operators.size()){

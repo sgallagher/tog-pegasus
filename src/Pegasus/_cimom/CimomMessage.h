@@ -45,6 +45,7 @@ enum cimom_results
    OK,
    PARAMETER_ERROR,
    MODULE_ALREADY_REGISTERED,
+   MODULE_NOT_FOUND,
    INTERNAL_ERROR,
 
    NUMBER_RESULTS
@@ -54,6 +55,7 @@ enum cimom_messages
 {
    HEARTBEAT,
    MODULE_REGISTER,
+   MODULE_DEREGISTER,
    ASYNC_OP,
    
    NUMBER_MESSAGES
@@ -97,19 +99,41 @@ class PEGASUS_CIMOM_LINKAGE ModuleRegister : public CimomRequest
 		     QueueIdStack queue_ids,
 		     const String & module_name,
 		     Uint32 module_capabilities,
+		     Uint32 module_messages,
 		     Uint32 module_queue)
-	 : CimomRequest(MODULE_REGISTER, key, queue_ids ),
+	 : CimomRequest(MODULE_REGISTER, key, queue_ids, 
+			message_mask::type_cimom | 
+			message_mask::type_request | 
+			message_mask::type_control),
 	   name(module_name), capabilities(module_capabilities),
-	   mask(message_mask::type_cimom | message_mask::type_request | message_mask::type_control ), 
-	   q_id(module_queue)  {   }
+	   msg_mask( ), q_id(module_queue)  {   }
       
       virtual ~ModuleRegister(void);
       
       String name;
       Uint32 capabilities;
-      Uint32 mask;
+      Uint32 msg_mask;
       Uint32 q_id;
 };
+
+
+class PEGASUS_CIMOM_LINKAGE ModuleDeregister : public CimomRequest
+{
+   public:
+      ModuleDeregister(Uint32 key,
+		       QueueIdStack queue_ids, 
+		       Uint32 module_queue)
+	 : CimomRequest(MODULE_DEREGISTER, key, queue_ids, 
+			message_mask::type_cimom | 
+			message_mask::type_request | 
+			message_mask::type_control),
+	   q_id(module_queue) {  }
+      virtual ~ModuleDeregister();
+      
+
+      Uint32 q_id;
+} ;
+
 
 
 class PEGASUS_CIMOM_LINKAGE AsyncDispatch : public CimomRequest

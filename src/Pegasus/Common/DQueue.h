@@ -59,6 +59,9 @@ template<class L> class PEGASUS_COMMON_LINKAGE DQueue : virtual public unlocked_
 
       inline virtual void insert_first(L *element) throw(IPCException) 
       {
+	 if(element == 0)
+	    return;
+	 
 	 _mutex->lock(pegasus_thread_self());
 	 Base::insert_first(element);
 	 _mutex->unlock();
@@ -66,6 +69,9 @@ template<class L> class PEGASUS_COMMON_LINKAGE DQueue : virtual public unlocked_
 
       inline virtual void insert_last(L *element) throw(IPCException)
       {
+	 if(element == 0)
+	    return;
+	 
 	 _mutex->lock(pegasus_thread_self());
 	 Base::insert_last(element);
 	 _mutex->unlock();
@@ -106,6 +112,9 @@ template<class L> class PEGASUS_COMMON_LINKAGE DQueue : virtual public unlocked_
 
       virtual L *remove(void *key) throw(IPCException)
       {
+	 if(key == 0)
+	    return 0;
+	 
 	 L *ret = 0;
 	 if( Internal::count() > 0 ) {
 	    _mutex->lock(pegasus_thread_self());
@@ -131,6 +140,9 @@ template<class L> class PEGASUS_COMMON_LINKAGE DQueue : virtual public unlocked_
 
       inline virtual L *remove(L *key)
       {
+	 if(key == 0)
+	    return 0;
+	 
 	 L *ret = 0;
 	 if( Internal::count() > 0 ) {
 	    _mutex->lock(pegasus_thread_self());
@@ -161,6 +173,9 @@ template<class L> class PEGASUS_COMMON_LINKAGE DQueue : virtual public unlocked_
       
       virtual Boolean exists(void *key) throw(IPCException) 
       {
+	 if(key == 0)
+	    return false;
+	 
 	 Boolean ret = false;
 	 if(Internal::count() > 0)
 	 {
@@ -351,6 +366,9 @@ template<class L> class PEGASUS_COMMON_LINKAGE AsyncDQueue: virtual public inter
       
       inline virtual void insert_first(L *element) throw(IPCException)
       {
+	 if(element == 0)
+	    return;
+	 
 	 lock(pegasus_thread_self());
 	 if(true == is_full())
 	 {
@@ -363,6 +381,9 @@ template<class L> class PEGASUS_COMMON_LINKAGE AsyncDQueue: virtual public inter
       
       inline void insert_first_wait(L *element) throw(IPCException)
       {
+	 if(element == 0)
+	    return;
+	 
 	 _insert_prep();
 	 Base::insert_first(static_cast<void *>(element));
 	 _insert_recover();
@@ -370,6 +391,8 @@ template<class L> class PEGASUS_COMMON_LINKAGE AsyncDQueue: virtual public inter
 
       inline virtual void insert_last(L *element) throw(IPCException)
       {
+	 if(element == 0)
+	    return;
 	 lock(pegasus_thread_self());
 	 if(true == is_full())
 	 {
@@ -382,6 +405,8 @@ template<class L> class PEGASUS_COMMON_LINKAGE AsyncDQueue: virtual public inter
       
       inline void insert_last_wait(L *element) throw(IPCException)
       {
+	 if(element == 0)
+	    return;
 	 _insert_prep();
 	 Base::insert_last(element);
 	 _insert_recover();
@@ -434,6 +459,8 @@ template<class L> class PEGASUS_COMMON_LINKAGE AsyncDQueue: virtual public inter
 
       inline virtual L *remove(void *key) throw(IPCException)
       {
+	 if(key == 0)
+	    return 0;
 	 lock(pegasus_thread_self());
 	 L *ret = _remove_no_lock(key);
 	 if(ret != 0)
@@ -447,6 +474,9 @@ template<class L> class PEGASUS_COMMON_LINKAGE AsyncDQueue: virtual public inter
 
       inline L *remove_wait(void *key) throw(IPCException)
       {
+	 if(key == 0)
+	    return 0;
+	 
 	 lock(pegasus_thread_self());
 	 
 	 L *ret = _remove_no_lock(key);

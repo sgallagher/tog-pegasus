@@ -106,6 +106,9 @@ class PEGASUS_COMMON_LINKAGE internal_dq {
 
       inline void insert_first(void *element)
       {
+	 if(element == 0)
+	    return;
+	 
 	 internal_dq *ins = new internal_dq(false);
 	 ins->_rep = element;
 	 ins->insert_first(*this); 
@@ -113,6 +116,9 @@ class PEGASUS_COMMON_LINKAGE internal_dq {
 
       inline void insert_last(void *element)
       {
+	 if(element == 0)
+	    return;
+
 	 internal_dq *ins = new internal_dq(false);
 	 ins->_rep = element;
 	 ins->insert_last(*this);
@@ -166,6 +172,9 @@ class PEGASUS_COMMON_LINKAGE internal_dq {
 
       inline void *reference(void *key)
       {
+	 if(key == 0)
+	    return 0;
+	 
 	 if( _count > 0 ) {
 	    internal_dq *temp = _next;
 	    while(temp->_isHead == false ) {
@@ -178,12 +187,12 @@ class PEGASUS_COMMON_LINKAGE internal_dq {
 	       temp = temp->_next;
 	    }
 	 }
-	 return(NULL);
+	 return 0;
       }
 
       inline void *next( void * ref)
       {
-	 if( ref == NULL)
+	 if( ref == 0)
 	    _cur = _next;
 	 else {
 	    _cur = _cur->_next;
@@ -193,7 +202,7 @@ class PEGASUS_COMMON_LINKAGE internal_dq {
 
       inline void *prev( void * ref)
       {
-	 if( ref == NULL)
+	 if( ref == 0 )
 	    _cur = _prev;
 	 else {
 	    _cur = _cur->_prev;
@@ -203,7 +212,11 @@ class PEGASUS_COMMON_LINKAGE internal_dq {
 
       inline Boolean exists(void *key) 
       {
+	 if(key == 0 )
+	    return false;
+	 
 	 Boolean ret = false;
+	 
 	 if( _count > 0) {
 	    internal_dq *temp = _next;
 	    while(temp->_isHead == false ) 
@@ -259,6 +272,9 @@ public:
       
       inline virtual L *remove_no_lock(void *key) 
       {
+	 if(key == 0)
+	    return 0;
+	 
 	 L *ret = static_cast<L *>(Base::next(0));
 	 while(ret != 0)
 	 {
@@ -283,6 +299,9 @@ public:
       
       inline virtual L *reference(void *key) 
       {
+	 if( key == 0 )
+	    return 0;
+	 
 	 if(Base::count() > 0 ) 
 	 {
 	    L *ret = static_cast<L *>(Base::next(0));
@@ -298,6 +317,9 @@ public:
 
       inline virtual L *reference(L *key)
       {
+	 if(key == 0)
+	    return 0;
+	 
 	 if(Base::count() > 0 ) 
 	 {
 	    L *ret = static_cast<L *>(Base::next(0));
@@ -331,6 +353,9 @@ public:
 
       virtual Boolean exists(void *key) 
       {
+	 if(key == 0)
+	    return false;
+	 
 	 Boolean ret = false;
 	 if(Base::count() > 0)
 	 {

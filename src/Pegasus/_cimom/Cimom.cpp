@@ -33,9 +33,9 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-const Uint32 module_capabilities::async =   0x00000000;
-const Uint32 module_capabilities::remote =  0x00000001;
-const Uint32 module_capabilities::trusted = 0x00000002; 
+const Uint32 module_capabilities::async =   0x00000001;
+const Uint32 module_capabilities::remote =  0x00000002;
+const Uint32 module_capabilities::trusted = 0x00000004; 
 
 void cimom::_enqueueResponse(
     CimomRequest* request,
@@ -122,7 +122,7 @@ void cimom::register_module(ModuleRegister *msg)
    {
       message_module *new_mod =  new message_module(msg->name,
 						    msg->capabilities,
-						    msg->mask, 
+						    msg->msg_mask, 
 						    msg->q_id);
       try 
       {
@@ -139,6 +139,33 @@ void cimom::register_module(ModuleRegister *msg)
    _enqueueResponse(msg, reply);
    return;
    
+}
+
+void cimom::deregister_module(ModuleDeregister *msg)
+{
+   
+   Uint32 result = OK;
+   
+   _modules.lock();
+   message_module *temp = _modules.next(0);
+   while( temp != 0 )
+   {
+      if (temp->_q_id == msg->q_id)
+	 break;
+      temp = _modules.next(temp);
+   }
+   _modules.remove_no_lock((void *)temp);
+   _modules.unlock();
+
+   if(temp == 0)
+      result = MODULE_NOT_FOUND;
+   else
+      delete temp;
+      
+   CimomReply *reply = new CimomReply ( msg->getType(), msg->getKey(), 
+					result, msg->queues.copyAndPop() );
+   _enqueueResponse(msg, reply);
+   return;
 }
 
 

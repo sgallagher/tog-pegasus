@@ -42,21 +42,34 @@ PEGASUS_NAMESPACE_BEGIN
 
 class PEGASUS_COMMON_LINKAGE message_mask 
 {
-public:
-    static Uint32 type_legacy;
-    static Uint32 type_CIMClass;
-    static Uint32 type_CIMInstance;
-    static Uint32 type_CIMIndication;
-    static Uint32 type_CIMQualifier;
-    static Uint32 type_CIMSubscription;
-    static Uint32 type_socket;
-    static Uint32 type_connection;
-    static Uint32 type_http;
-    static Uint32 type_cimom;
+   public:
+      static Uint32 type_legacy;
+      static Uint32 type_CIMClass;
+      static Uint32 type_CIMInstance;
+      static Uint32 type_CIMIndication;
+      static Uint32 type_CIMQualifier;
+      static Uint32 type_CIMSubscription;
+      static Uint32 type_socket;
+      static Uint32 type_connection;
+      static Uint32 type_http;
+      static Uint32 type_cimom;
+      
+      static Uint32 no_delete;
+      
+      static Uint32 type_request;
+      static Uint32 type_reply;
+      static Uint32 type_control;
 
-    static Uint32 type_request;
-    static Uint32 type_reply;
-    static Uint32 type_control;
+// more for documentation than for use 
+      inline Uint32 get_classification(Uint32 flags)
+      {
+	 return (flags & 0x000fffff);
+      }
+
+      inline Uint32 get_handling(Uint32 flags)
+      {
+	 return( flags & 0xfff00000);
+      }
 };
 
 class MessageQueue;

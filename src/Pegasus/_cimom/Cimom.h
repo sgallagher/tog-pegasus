@@ -52,6 +52,8 @@ class PEGASUS_CIMOM_LINKAGE module_capabilities
       static const Uint32 trusted;
 } ;
 
+class PEGASUS_CIMOM_LINKAGE cimom;
+
 class PEGASUS_CIMOM_LINKAGE message_module
 {
    public:
@@ -67,6 +69,7 @@ class PEGASUS_CIMOM_LINKAGE message_module
       Boolean operator == (const String & name ) const ;
       Boolean operator == (const message_module & mm ) const ;
       Boolean operator == (const void *) const;
+      Boolean operator == (Uint32) const;
       
       
    private:
@@ -74,6 +77,7 @@ class PEGASUS_CIMOM_LINKAGE message_module
       Uint32 _capabilities;
       Uint32 _messages;
       Uint32 _q_id;
+      friend class cimom;
 };
 
 
@@ -90,7 +94,8 @@ class PEGASUS_CIMOM_LINKAGE cimom : public MessageQueue
       {  }
             
       virtual void handleEnqueue();
-      void cimom::register_module(ModuleRegister *);
+      void register_module(ModuleRegister *);
+      void deregister_module(ModuleDeregister *msg) ;
       
 
    protected:
@@ -116,6 +121,12 @@ class PEGASUS_CIMOM_LINKAGE cimom : public MessageQueue
                   
 };
 
+inline Boolean message_module::operator ==(Uint32 q) const
+{
+   if(this->_q_id == q)
+      return true;
+   return false;
+}
 
 inline Boolean message_module::operator == (const message_module *mm) const 
 {
@@ -149,8 +160,7 @@ inline Boolean message_module::operator == (const message_module & mm) const
 
 inline Boolean message_module::operator == (const void *key) const
 {
-   return this->operator == (reinterpret_cast<const String &>(*key));
-      
+   return operator == ( (*(reinterpret_cast<const message_module *>(key) ) ) );
 }
 
 PEGASUS_NAMESPACE_END

@@ -367,7 +367,7 @@ Semaphore::Semaphore(Uint32 initial)
          _count = SEM_VALUE_MAX - 1;
     else
          _count = initial;
-    _semaphore.owner = pthread_self();
+    _semaphore.owner = pegasus_thread_self();
     _semaphore.waiters = 0;
 }
 

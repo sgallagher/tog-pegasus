@@ -41,6 +41,8 @@
 # include "IPCUnix.h"
 #elif defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
 # include "IPCAix.h"
+#elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+# include "IPCzOS.h"
 #else
 # error "Unsupported platform"
 #endif
@@ -533,6 +535,10 @@ class PEGASUS_COMMON_LINKAGE Condition
 #elif defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
 # include "IPCUnix_inline.h"
 #elif defined(PEGASUS_PLATFORM_SOLARIS_SPARC_GNU)
+# include "IPCUnix_inline.h"
+#elif defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
+# include "IPCUnix_inline.h"
+#elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
 # include "IPCUnix_inline.h"
 #endif
 

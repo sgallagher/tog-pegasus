@@ -54,7 +54,11 @@ static sigset_t *block_signal_mask(sigset_t *sig)
 //     sigaddset(sig, SIGUSR1);
 //     sigaddset(sig, SIGUSR2);
 // #endif
+#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
     pthread_sigmask(SIG_BLOCK, sig, NULL);
+#else
+    sigprocmask(SIG_BLOCK, sig, NULL);
+#endif
     return sig;
 }
 
@@ -82,7 +86,11 @@ Thread::Thread( PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *start )(void *),
 Thread::~Thread()
 {
    if( (! _is_detached) && (_handle.thid != 0))
+#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
         pthread_join(_handle.thid,NULL);
+#else
+	pthread_join(*(pthread_t *)&_handle.thid,NULL);
+#endif
 }
 
 

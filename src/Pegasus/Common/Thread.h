@@ -545,6 +545,8 @@ inline void ThreadPool::_link_pool(Thread *th) throw(IPCException)
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 # include "ThreadWindows_inline.h"
+#elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+# include "ThreadzOS_inline.h"
 #elif defined(PEGASUS_OS_TYPE_UNIX)
 # include "ThreadUnix_inline.h"
 #endif

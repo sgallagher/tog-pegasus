@@ -46,7 +46,7 @@
 ** We define the following:
 */
 
-#ifndef PEGASUS_PLATFORM_SOLARIS_SPARC_GNU
+#if !defined(PEGASUS_PLATFORM_SOLARIS_SPARC_GNU) && !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
 # define PEGASUS_HAVE_NP_THREAD_CLEANUP_ROUTINES
 #endif
 
@@ -62,6 +62,7 @@
 # define native_cleanup_pop(execute) \
     pthread_cleanup_pop_restore_np(execute)
 #else
+#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 # define native_cleanup_push(func, arg) \
     { \
 	int _oldtype_; \
@@ -71,6 +72,18 @@
 	pthread_cleanup_pop(execute); \
 	pthread_setcanceltype(_oldtype_, NULL); \
     }
+#else
+// zOS special dish of the day
+# define native_cleanup_push(func, arg) \
+    { \
+       int _oldtype_; \
+       _oldtype_ = pthread_setintrtype(PTHREAD_INTR_CONTROLLED); \
+       pthread_cleanup_push((func), arg);
+# define native_cleanup_pop(execute) \
+       pthread_cleanup_pop(execute); \
+       _oldtype_ = pthread_setintrtype(_oldtype_); \
+    }
+#endif
 #endif
 
 // block until gaining the lock - throw a deadlock 
@@ -260,6 +273,8 @@ inline void Condition::unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE
 // Native implementation of semaphore object
 //-----------------------------------------------------------------
 
+#if !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && !defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
+
 // block until this semaphore is in a signalled state
 inline void Semaphore::wait(void) 
 {
@@ -314,6 +329,8 @@ inline int Semaphore::count()
    sem_getvalue(&_semaphore.sem,&_count);
    return _count;
 }
+
+#endif // supports native semaphore, i.e. no AIX, no zOS
 
 
 //-----------------------------------------------------------------

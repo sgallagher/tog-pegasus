@@ -18,7 +18,50 @@ PEGASUS_USING_STD;
 
 
 #define CIMTYPE_EMBEDDED 15  //temporary
-
+CQLValue::~CQLValue()
+{
+   
+   switch(_valueType)
+   {
+      case String_type: 
+      { 
+         if(_theValue._S != NULL)
+            delete _theValue._S;
+         _theValue._S = NULL;  
+         break;
+      }
+      case CIMDateTime_type:  
+       { 
+         if(_theValue._DT != NULL)
+            delete _theValue._DT;
+         _theValue._DT = NULL;  
+         break;
+      }
+      case CIMReference_type:  
+      { 
+         if(_theValue._OP != NULL)
+            delete _theValue._OP;
+         _theValue._OP = NULL;  
+         break;
+      }
+      case CIMInstance_type:  
+      { 
+         if(_theValue._IN != NULL)
+            delete _theValue._IN;
+         _theValue._IN = NULL;  
+         break;
+      }
+      case CIMClass_type:  
+      { 
+         if(_theValue._CL != NULL)
+            delete _theValue._CL;
+         _theValue._CL = NULL;  
+         break;
+      }
+      default:
+         break;
+   }
+}
 CQLValue::CQLValue(String inString, NumericType inValueType, Boolean inSign)
 {
    CString cStr = inString.getCString();
@@ -104,6 +147,13 @@ CQLValue::CQLValue(CIMInstance inInstance)
    _isResolved = true;
 }
 
+CQLValue::CQLValue(CIMClass inClass)
+{
+   _theValue._CL = new CIMClass(inClass);
+   _valueType = CIMClass_type;
+   _isResolved = true;
+}
+
 CQLValue::CQLValue(CIMObjectPath inObjPath)
 {
    _theValue._OP = new CIMObjectPath(inObjPath);
@@ -122,6 +172,13 @@ CQLValue::CQLValue(Uint64 inUint)
 {
    _theValue._U64 = inUint;
    _valueType = Uint64_type;
+   _isResolved = true;
+}
+
+CQLValue::CQLValue(Boolean inBool)
+{
+   _theValue._B = inBool;
+   _valueType = Boolean_type;
    _isResolved = true;
 }
 
@@ -146,31 +203,42 @@ void CQLValue::resolve(CIMInstance CI, QueryContext& inQueryCtx)
       return;
    }
 
-   CQLIdentifier classNameID;
-   String className;
-   Uint32 index = 0;
-   Boolean matchFound = false;
-   Uint32 matchIndex;
-   CIMClass ScopeClass;
-   CIMClass QueryClass;
-   Array<CQLIdentifier> Idstrings = _CQLChainId->getSubIdentifiers();
-   Array<String> valueMapArray;
-   Array<String> valuesArray;
-   char * endP;
-   Uint64 valueMapNum;
-   CIMProperty propObj;
-   CIMProperty queryPropObj;
-   Uint32 qualIndex;
-   CIMValue valueMap;
-   Boolean isEmbedded = false;
+   CQLIdentifier classNameID;       // Determine if we have Alias/Class/Property 
+   String className;                // Alias/Class Name
+   Array<CQLIdentifier> Idstrings = 
+      _CQLChainId->getSubIdentifiers(); // Array of Identifiers to process
+   Uint32 index = 0;                // Counter for looping through Identifiers
+   
+   CIMClass ScopeClass;             // CIMClass for the scope of Identifier
+   CIMClass QueryClass;             // CIMClass for the current query
+
+   CIMProperty propObj;             // Property object to be processed
+   CIMProperty queryPropObj;        // Property object used for verification
+
+   Uint32 qualIndex;                // Counter for looping through qualifiers
+   CIMValue valueMap;               // CIMValue for Value Map Qualifiers
+   CIMValue values;                 // CIMValue for Values Qualifiers
+   Boolean matchFound = false;      // Indicator for match Qualifier
+   Uint32 matchIndex;               // Placeholder for matched Qualifier
+   Array<String> valueMapArray;     // Value Map Qualifier for property
+   Array<String> valuesArray;       // Values Qualifier for property
+
+   Boolean isEmbedded = false;      // Embedded indicator
+
+   // We need to determine if the first Identifier is an Alias, Class, or Property.
+   // If it is a Alias or a Class the CQLIdentifier return will be the
+   // Class name. If the first Identifier is a property, the return CQLIdentifier
+   // will be empty.
 
    classNameID = inQueryCtx.findClass(Idstrings[index].getName().getString());
-
    className = classNameID.getName().getString();
-   
+
    if(className.size() == 0)
-   {  cout << "step 1" << endl;
-      // Get className from FromList
+   {  
+      // classname is an empty string, the first Identifier must be a property.  
+      // A class is needed to proceed. We will get a class from the FromList.
+      // NOTE: for basic CQL support only one class will be in the FromList.
+      
       Array<CQLIdentifier> classList;
 
       classList = inQueryCtx.getFromList();
@@ -184,87 +252,125 @@ void CQLValue::resolve(CIMInstance CI, QueryContext& inQueryCtx)
    
    }
    else if(Idstrings.size() == 1)
-   {cout << "step 2" << endl;
+   {
+      // A class was passed in with no property indicated.
       // Set the instance passed in, as a primitive.
       _theValue._IN = (CIMInstance *) new CIMInstance(CI);
       _valueType = CIMInstance_type;
+      _isResolved = true;
       return; // Done.
    }
    else
-   {cout << "step 3" << endl;
-      // Need to increment index since the first Identifier is a class
+   {
+      // Need to increment index since the first Identifier is a class,
+      // and additional identifiers need processing.
       ++index;
    }
-   cout << "step 4" << endl;
-   QueryClass = inQueryCtx.getClass(className);
+   
+   // Now we will loop through the remaining CQLIdentifiers, 
+   // and process each one.
 
    for(;index < Idstrings.size(); ++index)
-   {printf("%d < %d\n",index,Idstrings.size());
-cout << "step 5" << endl;
-      cout << Idstrings[index].toString().getCString() << endl;
+   {
+      // We will get the current class from the repository.
+      // We must do this for each loop since the class being 
+      // processed may change with each iteration.
+      QueryClass = inQueryCtx.getClass(className);
+
+      // We need to do special processing on property if the 
+      // property is scoped. 
       if(Idstrings[index].isScoped())
-      {  // This property is scoped.
-      cout << "step 6" << endl;
+      {  
+         // This property is scoped. 
+         // We need to get the scoped class from the repository; to verify
+         // that the property is in the scope and the scope and QueryClass
+         // have a parent child relationship.
          ScopeClass = inQueryCtx.getClass(Idstrings[index].getScope());
 
+         // Verifing property is in Scope.
          if(ScopeClass.findProperty(Idstrings[index].getName()) == 
             PEG_NOT_FOUND)
          {
             // Set the Ignore_type
             _valueType = CQLIgnore_type;
+            _isResolved = true;
             return;
          }
+         // Verifying the QueryClass and the ScopeClass have a
+         // parent child relationship
          else if(!_areClassesInline(ScopeClass,QueryClass,inQueryCtx))
          {
             throw(1);
          }
       }
+      // Verifing that embedded properties are scoped.
       else if(isEmbedded)
       {  // all embedded properties must be scoped.
          throw(1);
       }
+
+      // This is a short cut for wildcard special charactor.
+      // Since no further processing is necessary for this case.
+      if(Idstrings[index].isWildcard())
+      {  
+         _theValue._IN = new CIMInstance(CI);
+         _valueType = CIMInstance_type;
+         _isResolved = true;
+         return;
+      }
+
+      // Now we need to verify that the property is in the class.
       Uint32 propertyIndex = QueryClass.findProperty(Idstrings[index].getName());
- cout << "step 7" << endl;
+
       if(propertyIndex == PEG_NOT_FOUND)
       {
          throw(1);
       }
-cout << "step 8" << endl;
-      CIMType propertyType = QueryClass.getProperty(propertyIndex).getType();
 
-      if(propertyType == CIMTYPE_EMBEDDED)
+      // We will check the property type to determine what processing 
+      // needs to be done.
+      queryPropObj = QueryClass.getProperty(propertyIndex);
+
+      if(queryPropObj.getType() == CIMTYPE_EMBEDDED)
       {
          // Do embedded code here.
          
          isEmbedded = true;
-         break;
+         continue;
       }
       else // Primitive
-      {cout << "step 9" << endl;
-         queryPropObj = QueryClass.getProperty(propertyIndex);
+      {
+         // We will retrieve the property from the instance,
+         // that will be used to set the primitive later in processing.
          propertyIndex = CI.findProperty(Idstrings[index].getName());
-cout << Idstrings[index].getName().getString().getCString() << endl;
          propObj = CI.getProperty(propertyIndex);
-cout << "prop value: " << propObj.getValue().toString().getCString() << endl;
-cout << "step 10" << endl;
+
+         // Process special charactors.
          if(Idstrings[index].isSymbolicConstant())
-         {cout << "step 10a" << endl;
-            
+         {  
+            // We have a symbolic constant (ex. propName#OK)
+            // We need to retrieve the ValueMap and Values Qualifiers for 
+            // the property if the exist.
             qualIndex = queryPropObj.findQualifier(CIMName("ValueMap"));
-         
+
             if(qualIndex == PEG_NOT_FOUND)
-            {cout << "step bad" << endl;
+            {
+               // This property can not be processed with a symbolic constant.
                throw(1);
             }
             valueMap = queryPropObj.getQualifier(qualIndex).getValue();
-
             qualIndex = queryPropObj.findQualifier(CIMName("Values"));
-cout << "step 10b" << endl;
+
             if(qualIndex == PEG_NOT_FOUND)
-            {cout << "step 12" << endl;
-               // The valueMap must be a list of symbolic constants
+            {
+               // This property does not have a Values Qualifier,
+               // therefore the valueMap must be the list of symbolic constants.
+               
                valueMap.get(valueMapArray);
 
+               // We will loop through the list of Symbolic constants to 
+               // determine if we have a match with the Symbolic constant
+               // defined in the CQLIdentifier.
                for(Uint32 i = 0; i < valueMapArray.size(); ++i)
                {
                   if(valueMapArray[i] == 
@@ -277,33 +383,42 @@ cout << "step 10b" << endl;
                }
                if(matchFound == false)
                {
+                  // The symbolic constant provided is not valid
+                  // for this property.
                   throw(1);
+               }
+
+               // The symbolic constant defined in the CQLIdentifier is 
+               // valid for this property. Now we need to determine if the 
+               // property matches the symbolic constant defined by CQLIdentifier.
+                  
+               if(propObj.getValue() == 
+                     CIMValue(Idstrings[index].getSymbolicConstantName()))
+               {
+                  // Set primitive
+                  _setValue(propObj.getValue());
                }
                else
                {
-                  // Verify property value matches SymbolicConstant
-                  if(propObj.getValue() == 
-                        CIMValue(Idstrings[index].getSymbolicConstantName()))
-                  {
-                     // Set primitive
-                  }
-                  else
-                  {
-                     // Set the Ignore_type
-                     _valueType = CQLIgnore_type;
-                     return;     
-                  }
+                  // Set the Ignore_type
+                  _valueType = CQLIgnore_type;
+                  _isResolved = true;
+                  return;     
                }
-   
             }
             else
-            {cout << "step 10c" << endl;
-               // valueMap must be a list of #'s
-               CIMValue values = queryPropObj.getQualifier(qualIndex).getValue();
+            {
+               // The qualifier Values is defined for the property.
+               // valueMap must be a list of #'s.
+               
+               values = queryPropObj.getQualifier(qualIndex).getValue();
    
                valueMap.get(valueMapArray);
                values.get(valuesArray);
-cout << "step 10d" << endl;
+
+               // We will loop through the list of Symbolic constants to 
+               // determine if we have a match with the Symbolic constant
+               // defined in the CQLIdentifier.
                for(Uint32 i = 0; i < valuesArray.size(); ++i)
                {
                   if(valuesArray[i] == Idstrings[index].getSymbolicConstantName())
@@ -315,27 +430,26 @@ cout << "step 10d" << endl;
                }
                if(matchFound == false)
                {
+                  // The symbolic constant provided is not valid
+                  // for this property.
                   throw(1);
                }
-                 
-               cout << "step 10e" << endl;
-               valueMapNum = strtoul(
-                     (const char *)valueMapArray[matchIndex].getCString(),&endP,10);
-               cout << "prop value: " << propObj.getValue().toString().getCString() << endl;
-               Uint16 ttt;
-               propObj.getValue().get(ttt);
-               printf("%i %i\n",valueMapNum,ttt);
-              cout << "step 10f" << endl;
+
+               // The symbolic constant defined in the CQLIdentifier is 
+               // valid for this property. Now we need to determine if the 
+               // property matches the symbolic constant defined by 
+               // CQLIdentifier.               
                if(valueMapArray[matchIndex] == propObj.getValue().toString())
-               {cout << "step 10g" << endl;
+               {
                   // Set Primitive
                   _setValue(propObj.getValue());
                   return;
                }
                else
-               {cout << "step 10h" << endl;
+               {
                   // Set the Ignore_type
                   _valueType = CQLIgnore_type;
+                  _isResolved = true;
                   return;
    
                }
@@ -343,82 +457,19 @@ cout << "step 10d" << endl;
          }
          else if(Idstrings[index].isArray())
          {
-            CIMValue cimVal = propObj.getValue();
-
-            switch(cimVal.getType())
-            {
-               case CIMTYPE_UINT8:
-               case CIMTYPE_UINT16:
-               case CIMTYPE_UINT32:
-               case CIMTYPE_UINT64:
-               {
-                  Array<Uint64> propArray;
-                  cimVal.get(propArray);
-        
-                  _theValue._U64 = 
-                        propArray[Idstrings[index].getSubRanges()[0].start];
-
-                  _valueType = Uint64_type;
-               } break;
- 
-               case CIMTYPE_SINT8:
-               case CIMTYPE_SINT16:
-               case CIMTYPE_SINT32:
-               case CIMTYPE_SINT64:
-               {
-                  Array<Sint64> propArray;
-                  cimVal.get(propArray);
-        
-                  _theValue._S64 = 
-                        propArray[Idstrings[index].getSubRanges()[0].start];
-                  _valueType = Sint64_type;
-               } break;
-
-               case CIMTYPE_REAL32:
-               case CIMTYPE_REAL64:
-               {
-                  Array<Real64> propArray;
-                  cimVal.get(propArray);
-        
-                  _theValue._R64 = 
-                        propArray[Idstrings[index].getSubRanges()[0].start];
-                  _valueType = Real_type;
-               } break;
-
-               case CIMTYPE_CHAR16:
-               case CIMTYPE_STRING:
-               {
-                  Array<String> propArray;
-                  cimVal.get(propArray);
-        
-                  _theValue._S = 
-                    new String(propArray[Idstrings[index].getSubRanges()[0].start]);
-                  _valueType = String_type;
-               } break;
-
-               case CIMTYPE_DATETIME:
-               {
-                  Array<CIMDateTime> propArray;
-                  cimVal.get(propArray);
-        
-                  _theValue._DT = 
-                new CIMDateTime(propArray[Idstrings[index].getSubRanges()[0].start]);
-                  _valueType = CIMDateTime_type;
-               } break;
-
-               default:
-                  throw(1);
-            } // switch statement
-         }
-         else if(Idstrings[index].isWildcard())
-         {  
-            _theValue._IN = new CIMInstance(CI);
-            _valueType = CIMInstance_type;
+            // We have an array property.  All we need to do
+            // Is get the index defined by CQLIdentifier.
+            // NOTE: Basic CQL support only allows one index.
+            _setValue(propObj.getValue(),
+                     Idstrings[index].getSubRanges()[0].start);
+            return;
          }
          else
-         {cout << "step 11" << endl;
+         {
+            // The property has no special charactors.
             CIMValue cimVal = propObj.getValue();
             _setValue(cimVal);
+            return;
          }
       } // else body
    } // loop
@@ -435,9 +486,21 @@ Boolean CQLValue::operator==(const CQLValue& x)
    switch(_valueType)
    {
       case Null_type:
-         return true;
+         return x._valueType == Null_type;
          break;
+      case Boolean_type:
+      {
+         if(x._valueType == Boolean_type)
+         {
+            if(_theValue._B == x._theValue._B)
+            {
+               return true;
+            }
+         }
+         break; 
+      }     
       case Sint64_type:
+      {
          if(x._valueType == Sint64_type)
          {
             if(_theValue._S64 == x._theValue._S64)
@@ -460,6 +523,7 @@ Boolean CQLValue::operator==(const CQLValue& x)
             }
          }
          break;
+      }
       case Uint64_type:
          if(x._valueType == Sint64_type)
          {
@@ -544,115 +608,12 @@ Boolean CQLValue::operator==(const CQLValue& x)
 //##ModelId=40FBFF9502BB
 Boolean CQLValue::operator!=(const CQLValue& x)
 {
-if(!_validate(x))
+   if(!_validate(x))
    {
       throw(1);
    }  
  
-   switch(_valueType)
-   {
-      case Null_type:
-         return false;
-         break;
-      case Sint64_type:
-         if(x._valueType == Sint64_type)
-         {
-            if(_theValue._S64 != x._theValue._S64)
-            {
-               return true;
-            }
-         }
-         else if(x._valueType == Uint64_type)
-         {
-            if(_theValue._S64 != (Sint64)x._theValue._U64)
-            {
-               return true;
-            }
-         }
-         else if(x._valueType == Real_type)
-         {
-            if(_theValue._S64 != x._theValue._R64)
-            {
-               return true;
-            }
-         }
-         break;
-      case Uint64_type:
-         if(x._valueType == Sint64_type)
-         {
-            if((Sint64)_theValue._U64 != x._theValue._S64)
-            {
-               return true;
-            }
-         }
-         else if(x._valueType == Uint64_type)
-         {
-            if(_theValue._U64 != x._theValue._U64)
-            {
-               return true;
-            }
-         }
-         else if(x._valueType == Real_type)
-         {
-            if(_theValue._U64 != x._theValue._R64)
-            {
-               return true;
-            }
-         }
-         break;
-      case Real_type:
-         if(x._valueType == Sint64_type)
-         {
-            if(_theValue._R64 != x._theValue._S64)
-            {
-               return true;
-            }
-         }
-         else if(x._valueType == Uint64_type)
-         {
-            if(_theValue._R64 != x._theValue._U64)
-            {
-               return true;
-            }
-         }
-         else if(x._valueType == Real_type)
-         {
-            if(_theValue._R64 != x._theValue._R64)
-            {
-               return true;
-            }
-         }
-         break;
-      case String_type:
-         if(*_theValue._S != *x._theValue._S)
-         {
-            return true;
-         }
-         break;
-      case CIMDateTime_type:
-         if(*_theValue._DT != *x._theValue._DT)
-         {
-            return true;
-         }
-         break;
-         case CIMReference_type:
-         if(*_theValue._OP != *x._theValue._OP)
-         {
-            return true;
-         }
-         break;
-         case CIMInstance_type:
-            throw(1);
-         break;
-         case CQLIdentifier_type:
-            throw(1);
-         break;
-
-      default:
-         throw(1);
-         break;
-   }
-   return false;
+   return !(this->operator==(x));
 }
 
 
@@ -666,8 +627,19 @@ if(!_validate(x))
    switch(_valueType)
    {
       case Null_type:
-         return true;
+         return x._valueType == Null_type;
          break;
+      case Boolean_type:
+      {
+         if(x._valueType == Boolean_type)
+         {
+            if(_theValue._B <= x._theValue._B)
+            {
+               return true;
+            }
+         }
+         break; 
+      }
       case Sint64_type:
          if(x._valueType == Sint64_type)
          {
@@ -774,8 +746,19 @@ if(!_validate(x))
    switch(_valueType)
    {
       case Null_type:
-         return true;
+         return x._valueType == Null_type;
          break;
+      case Boolean_type:
+      {
+         if(x._valueType == Boolean_type)
+         {
+            if(_theValue._B >= x._theValue._B)
+            {
+               return true;
+            }
+         }
+         break; 
+      }
       case Sint64_type:
          if(x._valueType == Sint64_type)
          {
@@ -882,8 +865,19 @@ if(!_validate(x))
    switch(_valueType)
    {
       case Null_type:
-         return true;
+         return false;
          break;
+      case Boolean_type:
+      {
+         if(x._valueType == Boolean_type)
+         {
+            if(_theValue._B < x._theValue._B)
+            {
+               return true;
+            }
+         }
+         break; 
+      }
       case Sint64_type:
          if(x._valueType == Sint64_type)
          {
@@ -990,8 +984,19 @@ Boolean CQLValue::operator>(const CQLValue& x)
    switch(_valueType)
    {
       case Null_type:
-         return true;
+         return false;
          break;
+      case Boolean_type:
+      {
+         if(x._valueType == Boolean_type)
+         {
+            if(_theValue._B > x._theValue._B)
+            {
+               return true;
+            }
+         }
+         break; 
+      }
       case Sint64_type:
          if(x._valueType == Sint64_type)
          {
@@ -1101,6 +1106,9 @@ CQLValue CQLValue::operator+(const CQLValue& x)
       case Null_type:
          throw(1);
          break;
+      case Boolean_type:
+         throw(1);
+         break;
       case Sint64_type:
          if(x._valueType == Sint64_type)
          {
@@ -1180,6 +1188,9 @@ CQLValue CQLValue::operator-(const CQLValue& x)
    switch(_valueType)
    {
       case Null_type:
+         throw(1);
+         break;
+      case Boolean_type:
          throw(1);
          break;
       case Sint64_type:
@@ -1263,6 +1274,9 @@ CQLValue CQLValue::operator*(const CQLValue& x)
       case Null_type:
          throw(1);
          break;
+      case Boolean_type:
+         throw(1);
+         break;
       case Sint64_type:
          if(x._valueType == Sint64_type)
          {
@@ -1343,6 +1357,9 @@ CQLValue CQLValue::operator/(const CQLValue& x)
       case Null_type:
          throw(1);
          break;
+      case Boolean_type:
+         throw(1);
+         break;
       case Sint64_type:
          if(x._valueType == Sint64_type)
          {
@@ -1419,6 +1436,7 @@ CQLValueType CQLValue::getValueType()
 void CQLValue::setNull()
 {
    _valueType = Null_type;
+   _isResolved = true;
 }
 
 
@@ -1440,19 +1458,14 @@ Boolean CQLValue::isNull()
 
 Boolean CQLValue::isa(const CQLValue& inVal, QueryContext& QueryCtx)
 {
-   if(!_isResolved && !inVal._isResolved)
+   if(!_isResolved || 
+      !inVal._isResolved ||
+      _valueType != CIMInstance_type ||
+      inVal._valueType != String_type)
    {
       throw(1);
    }
-   if(_valueType != CIMInstance_type)
-   {
-      throw(1);
-   }
-   if(inVal._valueType != String_type)
-   {
-      throw(1);
-   }
-
+   
    CIMName  className;
    CIMClass classObj = QueryCtx.getClass(this->_theValue._IN->getClassName());
 
@@ -1475,7 +1488,169 @@ Boolean CQLValue::isa(const CQLValue& inVal, QueryContext& QueryCtx)
 
 Boolean CQLValue::like(const CQLValue& inVal)
 {
+   if( _valueType != String_type ||
+      inVal._valueType != String_type)
+   {
+      throw(1);
+   }
+
+   // Poughkepsie is doing this, Dan Gorey.
    return false;
+}
+
+void CQLValue::invert()
+{
+   switch(_valueType)
+   {
+      case Sint64_type:
+         _theValue._S64 = -1 * _theValue._S64;
+         break;
+      case Real_type:
+         _theValue._R64 = -1 * _theValue._R64;
+         break;
+      case Boolean_type:
+         _theValue._B = !_theValue._B;
+         break;
+      default:
+         break;
+   }
+}
+
+CQLChainedIdentifier CQLValue::getChainedIdentifier()
+{
+   return *_CQLChainId;
+}
+
+Uint64 CQLValue::getUint()
+{
+   if(_valueType != Uint64_type)
+   {
+      throw(1);
+   }
+   return _theValue._U64;
+}
+
+Boolean CQLValue::getBool()
+{
+   if(_valueType != Boolean_type)
+   {
+      throw(1);
+   }
+   return _theValue._B;
+}
+
+Sint64 CQLValue::getSint()
+{
+   if(_valueType != Sint64_type)
+   {
+      throw(1);
+   }
+   return _theValue._S64;
+}
+
+Real64 CQLValue::getReal()
+{
+   if(_valueType != Real_type)
+   {
+      throw(1);
+   }
+   return _theValue._R64;
+}
+
+String CQLValue::getString()
+{
+   if(_valueType != String_type)
+   {
+      throw(1);
+   }
+   return *_theValue._S;
+}
+
+CIMDateTime CQLValue::getDateTime()
+{
+   if(_valueType != CIMDateTime_type)
+   {
+      throw(1);
+   }
+   return *_theValue._DT;
+}
+
+CIMObjectPath CQLValue::getReference()
+{
+   if(_valueType != CIMReference_type)
+   {
+      throw(1);
+   }
+   return *_theValue._OP;
+}
+
+CIMInstance CQLValue::getInstance()
+{
+   if(_valueType != CIMInstance_type)
+   {
+      throw(1);
+   }
+   return *_theValue._IN;
+}
+
+CIMClass CQLValue::getClass()
+{
+   if(_valueType != CIMClass_type)
+   {
+      throw(1);
+   }
+   return *_theValue._CL;
+}
+
+String CQLValue::toString()
+{
+   switch(_valueType)
+   {
+      case Boolean_type:
+      {
+         return (_theValue._B ? String("TRUE") : String("FALSE"));
+         break;
+      }
+      case Sint64_type: 
+      {
+         char buffer[32];  // Should need 21 chars max
+         sprintf(buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "d", _theValue._S64);
+         return String(buffer);
+         break;
+      }
+      case Uint64_type: 
+      {
+         char buffer[32];  // Should need 21 chars max
+         sprintf(buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", _theValue._U64);
+         return String(buffer);
+         break;
+      }
+      case Real_type: 
+      { 
+         char buffer[128];
+         sprintf(buffer, "%.16e", _theValue._R64);
+         return String(buffer);
+         break;
+      }
+      case String_type:  
+         return *_theValue._S;
+         break;
+      case CIMDateTime_type:  
+         _theValue._DT->toString();
+         break;
+      case CIMReference_type:  
+         _theValue._OP->toString();
+         break;
+      case CIMInstance_type:  
+         _theValue._IN->getPath().toString();
+         break;
+      case CIMClass_type:  
+         return _theValue._CL->getPath().toString();
+         break;
+      default:
+         break;
+   }
+   return String();
 }
 
 Boolean CQLValue::_validate(const CQLValue& x)
@@ -1484,6 +1659,12 @@ Boolean CQLValue::_validate(const CQLValue& x)
    {
       case Null_type:
          if(x._valueType != Null_type)
+         {
+            return false;
+         }
+         break;
+      case Boolean_type:
+         if(x._valueType != Boolean_type)
          {
             return false;
          }
@@ -1537,7 +1718,7 @@ Boolean CQLValue::_validate(const CQLValue& x)
 }
 
 Boolean CQLValue::_areClassesInline(CIMClass c1,CIMClass c2,QueryContext& QC)
-{ cout << "_areClassesInline" << endl;
+{
    CIMName superClass;
    CIMName prevClass;
 
@@ -1573,30 +1754,127 @@ void CQLValue::_setValue(CIMValue cv,Uint64 index)
    {
       switch(cv.getType())
       {
+         case CIMTYPE_BOOLEAN:
+         {
+            Array<Boolean> _bool;
+            cv.get(_bool);
+            _theValue._B = _bool[index];
+            _valueType = Boolean_type;
+            break;
+         }
          case CIMTYPE_UINT8:
+         {
+            Array<Uint8> _uint;
+            cv.get(_uint);
+            _theValue._U64 = _uint[index];
+            _valueType = Uint64_type;
+            break;
+         }
          case CIMTYPE_UINT16:
+         {
+            Array<Uint16> _uint;
+            cv.get(_uint);
+            _theValue._U64 = _uint[index];
+            _valueType = Uint64_type;
+            break;
+         }
          case CIMTYPE_UINT32:
+         {
+            Array<Uint32> _uint;
+            cv.get(_uint);
+            _theValue._U64 = _uint[index];
+            _valueType = Uint64_type;
+            break;
+         }
          case CIMTYPE_UINT64:
          {
-            Array<Uint64> u64;
-            cv.get(u64);
-            _theValue._U64 = u64[index];
+            Array<Uint64> _uint;
+            cv.get(_uint);
+            _theValue._U64 = _uint[index];
             _valueType = Uint64_type;
             break;
          }
          case CIMTYPE_SINT8:
+         {
+            Array<Sint8> _sint;
+            cv.get(_sint);
+            _theValue._S64 = _sint[index];
+            _valueType = Sint64_type;
+            break;
+         }
          case CIMTYPE_SINT16:
+         {
+            Array<Sint16> _sint;
+            cv.get(_sint);
+            _theValue._S64 = _sint[index];
+            _valueType = Sint64_type;
+            break;
+         }
          case CIMTYPE_SINT32:
+         {
+            Array<Sint32> _sint;
+            cv.get(_sint);
+            _theValue._S64 = _sint[index];
+            _valueType = Sint64_type;
+            break;
+         }
          case CIMTYPE_SINT64:
+         {
+            Array<Sint64> _sint;
+            cv.get(_sint);
+            _theValue._S64 = _sint[index];
+            _valueType = Sint64_type;
+            break;
+         }
            
          case CIMTYPE_REAL32:
+         {
+            Array<Real32> _real;
+            cv.get(_real);
+            _theValue._R64 = _real[index];
+            _valueType = Real_type;
+            break;
+         }
          case CIMTYPE_REAL64:
-            
+         {
+            Array<Real64> _real;
+            cv.get(_real);
+            _theValue._R64 = _real[index];
+            _valueType = Real_type;
+            break;
+         }   
          case CIMTYPE_CHAR16:
+         {
+            Array<Char16> _str;
+            cv.get(_str);
+            _theValue._S = new String(&_str[index]);
+            _valueType = String_type;
+            break;
+         }
          case CIMTYPE_STRING:
-           
+         {
+            Array<String> _str;
+            cv.get(_str);
+            _theValue._S = new String(_str[index]);
+            _valueType = String_type;
+            break;
+         }  
          case CIMTYPE_DATETIME:
-            
+         {
+            Array<CIMDateTime> _date;
+            cv.get(_date);
+            _theValue._DT = new CIMDateTime(_date[index]);
+            _valueType = CIMDateTime_type;
+            break;
+         }
+         case CIMTYPE_REFERENCE:
+         {
+            Array<CIMObjectPath> _path;
+            cv.get(_path);
+            _theValue._OP = new CIMObjectPath(_path[index]);
+            _valueType = CIMReference_type;
+            break;
+         }   
          default:
             throw(1);
       } // switch statement
@@ -1606,6 +1884,14 @@ void CQLValue::_setValue(CIMValue cv,Uint64 index)
    {
       switch(cv.getType())
       {
+         case CIMTYPE_BOOLEAN:
+         {
+            Boolean _bool;
+            cv.get(_bool);
+            _theValue._B = _bool;
+            _valueType = Boolean_type;
+            break;
+         }
          case CIMTYPE_UINT8:
          {
             Uint8 _uint;
@@ -1688,27 +1974,43 @@ void CQLValue::_setValue(CIMValue cv,Uint64 index)
             break;
          }  
          case CIMTYPE_CHAR16:
+         {
+            Char16 _str;
+            cv.get(_str);
+            _theValue._S = new String(&_str);
+            _valueType = String_type;
+            break;
+         }
          case CIMTYPE_STRING:
          {
-            String tmp1;
-            cv.get(tmp1);
-            _theValue._S = new String(tmp1);
+            String _str;
+            cv.get(_str);
+            _theValue._S = new String(_str);
             _valueType = String_type;
             break;
          }
          case CIMTYPE_DATETIME:
          {
-            CIMDateTime tmp1;
-            cv.get(tmp1);
-            _theValue._DT = new CIMDateTime(tmp1);
+            CIMDateTime _date;
+            cv.get(_date);
+            _theValue._DT = new CIMDateTime(_date);
             _valueType = CIMDateTime_type;
+            break;
+         }
+         case CIMTYPE_REFERENCE:
+         {
+            CIMObjectPath _path;
+            cv.get(_path);
+            _theValue._OP = new CIMObjectPath(_path);
+            _valueType = CIMReference_type;
             break;
          }
          default:
             throw(1);
       } // switch statement
    }
-   
+   _isResolved = true;
+   return;
 }
 
 void CQLValue::print()

@@ -45,7 +45,8 @@ PEGASUS_NAMESPACE_BEGIN
     enum NumericType { Hex, Binary,  Decimal, Real};
     enum CQLValueType { Null_type, Sint64_type, Uint64_type, Real_type, String_type,
                         CIMDateTime_type,  CIMReference_type, CQLIdentifier_type,
-                        CIMInstance_type, CQLIgnore_type};
+                        CIMInstance_type, CQLIgnore_type, Boolean_type, 
+                        CIMClass_type};
 
 /** The CQLValue class encapulates a value
      that is a CQL value.  The possible CQLValue
@@ -83,6 +84,7 @@ class PEGASUS_CQL_LINKAGE CQLValue
        */
     //##ModelId=40FC3EDB0278
     CQLValue(){}
+    ~CQLValue();
     CQLValue(String inString, NumericType inValueType,
         Boolean inSign = true);
 
@@ -98,7 +100,7 @@ class PEGASUS_CQL_LINKAGE CQLValue
        */
     CQLValue(CIMDateTime inDateTime);
 
-    /**  Initializes object as a liiteral string (non-numeric).
+    /**  Initializes object as a literal string (non-numeric).
        */
     CQLValue(String inString);
 
@@ -106,6 +108,8 @@ class PEGASUS_CQL_LINKAGE CQLValue
    CQLValue(Uint64 inUint);
    CQLValue(Real64 inReal);
    CQLValue(CIMInstance inInstance);
+   CQLValue(Boolean inBool);
+   CQLValue(CIMClass inClass);
 
     /**  This method is used to ask an identifier to resolve itself to 
            a number or string (primitive value).
@@ -280,6 +284,19 @@ class PEGASUS_CQL_LINKAGE CQLValue
 
     void print();
    
+   void invert();
+   CQLChainedIdentifier getChainedIdentifier();
+   Uint64 getUint();
+   Sint64 getSint();
+   Real64 getReal();
+   String getString();
+   Boolean getBool();
+   CIMDateTime getDateTime();
+   CIMObjectPath getReference();
+   CIMInstance getInstance();
+   CIMClass getClass();
+   String toString();
+   
   private:
     Boolean _areClassesInline(CIMClass c1,CIMClass c2, QueryContext& in);
    Boolean _validate(const CQLValue& x);
@@ -288,6 +305,7 @@ class PEGASUS_CQL_LINKAGE CQLValue
 
    union TheValue
     {
+      Boolean _B;
       Sint64 _S64;
       Uint64 _U64;
       Real64 _R64;

@@ -89,9 +89,12 @@
 
 #include <stdlib.h>
 
-//The following include is needed for UUID Generator
+//The following include is needed for gethostbyname
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 #include <objbase.h>
+#else
+#include <netdb.h>
+#include <arpa/inet.h>
 #endif
 
 PEGASUS_USING_STD;
@@ -270,7 +273,7 @@ String _getHostAddress(String hostName)
   
   if ((phostent = ::gethostbyname((const char *)hostName.getCString())) != NULL)
     {
-      ::memcpy( &inaddr, phostent->h_addr,4);
+     ::memcpy( &inaddr, phostent->h_addr,4);
       ipAddress = ::inet_ntoa( inaddr );
     }
   return ipAddress;

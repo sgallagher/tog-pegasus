@@ -38,7 +38,7 @@
 #include <fstream>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Common/TLS.h>
+#include <Pegasus/Common/SSLContext.h>
 #include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMInstance.h>

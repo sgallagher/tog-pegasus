@@ -76,10 +76,17 @@ void TestCreateClass()
 	// Ignore this!
     }
 
+    // -- Declare the key qualifier:
+
+    r.setQualifier(NAMESPACE, CIMQualifierDecl("key",true,CIMScope::PROPERTY));
+
     // -- Construct new class:
 
     CIMClass c1("MyClass");
-    c1.addProperty(CIMProperty("key", Uint32(0)));
+    c1.addProperty(
+	CIMProperty("key", Uint32(0))
+	    .addQualifier(CIMQualifier("key", true)));
+
     c1.addProperty(CIMProperty("ratio", Real32(1.5)));
     c1.addProperty(CIMProperty("message", "Hello World"));
 
@@ -87,7 +94,7 @@ void TestCreateClass()
 
     r.createClass(NAMESPACE, c1);
     CIMConstClass cc1;
-    cc1 = r.getClass("xyz", "MyClass");
+    cc1 = r.getClass(NAMESPACE, "MyClass");
     assert(c1.identical(cc1));
     assert(cc1.identical(c1));
 
@@ -97,7 +104,7 @@ void TestCreateClass()
     c2.addProperty(CIMProperty("junk", Real32(66.66)));
     r.createClass(NAMESPACE, c2);
     CIMConstClass cc2;
-    cc2 = r.getClass("xyz", "YourClass");
+    cc2 = r.getClass(NAMESPACE, "YourClass");
     assert(c2.identical(cc2));
     assert(cc2.identical(c2));
     // cc2.print();
@@ -106,24 +113,57 @@ void TestCreateClass()
 
     c2.addProperty(CIMProperty("newProperty", Uint32(888)));
     r.modifyClass(NAMESPACE, c2);
-    cc2 = r.getClass("xyz", "YourClass");
+    cc2 = r.getClass(NAMESPACE, "YourClass");
     assert(c2.identical(cc2));
     assert(cc2.identical(c2));
     // cc2.print();
 
     // -- Enumerate the class names: expect "MyClass", "YourClass"
 
-    Array<String> classNames = r.enumerateClassNames(
-	NAMESPACE, String(), true);
+    Array<String> classNames = r.enumerateClassNames(NAMESPACE, String(), true);
     BubbleSort(classNames);
     assert(classNames.size() == 2);
     assert(classNames[0] == "MyClass");
     assert(classNames[1] == "YourClass");
 
+    // -- Create an instance of each class:
+
+    CIMInstance inst1("MyClass");
+    inst1.addProperty(CIMProperty("key", Uint32(111)));
+    r.createInstance(NAMESPACE, inst1);
+
+    CIMInstance inst2("YourClass");
+    inst2.addProperty(CIMProperty("key", Uint32(222)));
+    r.createInstance(NAMESPACE, inst2);
+
+    // -- Enumerate the instances of 
+
+    Array<CIMReference> instanceNames = 
+	r.enumerateInstanceNames(NAMESPACE, "MyClass");
+
+    assert(instanceNames.size() == 2);
+
+    assert(
+	instanceNames[0].toString() == "MyClass.key=111" ||
+	instanceNames[0].toString() == "YourClass.key=222");
+
+    assert(
+	instanceNames[1].toString() == "MyClass.key=111" ||
+	instanceNames[1].toString() == "YourClass.key=222");
+
+    // -- Delete the instances:
+
+    r.deleteInstance(NAMESPACE, "MyClass.key=111");
+    r.deleteInstance(NAMESPACE, "YourClass.key=222");
+
+    // -- Delete the qualifier:
+
+    r.deleteQualifier(NAMESPACE, "key");
+
     // -- Clean up classes:
 
-    r.deleteClass("xyz", "YourClass");
-    r.deleteClass("xyz", "MyClass");
+    r.deleteClass(NAMESPACE, "YourClass");
+    r.deleteClass(NAMESPACE, "MyClass");
 
     r.deleteNameSpace(NAMESPACE);
 }

@@ -38,7 +38,6 @@
 #include <windows.h>
 #else
 # include <cctype>
-# include <unistd.h>
 # include <cstdlib>
 # include <errno.h>
 # include <fcntl.h>
@@ -47,6 +46,7 @@
 # include <arpa/inet.h>
 # include <sys/socket.h>
 # ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
+# include <unistd.h>
 #  include <sys/un.h>
 # endif
 #endif

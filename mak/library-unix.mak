@@ -27,7 +27,7 @@ endif
 
 ifeq ($(COMPILER),gnu)
   LINK_COMMAND = g++ -shared
-  LINK_ARGUMENTS =
+  LINK_ARGUMENTS = -Wl,-hlib$(LIBRARY)$(LIB_SUFFIX)
   LINK_OUT = -o
 endif
 
@@ -67,6 +67,9 @@ $(FULL_LIB): $(LIB_DIR)/target $(OBJ_DIR)/target $(OBJECTS) $(FULL_LIBRARIES) \
 	$(MAKE) --directory=$(LIB_DIR) -f $(PEGASUS_ROOT)/mak/library-unix.mak ln LIBRARY=lib$(LIBRARY) SUFFIX=$(LIB_SUFFIX) PLATFORM_SUFFIX=sl
     endif
     ifeq ($(PEGASUS_PLATFORM),LINUX_IA64_GNU)
+	$(MAKE) --directory=$(LIB_DIR) -f $(PEGASUS_ROOT)/mak/library-unix.mak ln LIBRARY=lib$(LIBRARY) SUFFIX=$(LIB_SUFFIX) PLATFORM_SUFFIX=so
+    endif
+    ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
 	$(MAKE) --directory=$(LIB_DIR) -f $(PEGASUS_ROOT)/mak/library-unix.mak ln LIBRARY=lib$(LIBRARY) SUFFIX=$(LIB_SUFFIX) PLATFORM_SUFFIX=so
     endif
   else

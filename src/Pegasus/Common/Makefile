@@ -112,6 +112,9 @@ SOURCES = \
 
 ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
 SOURCES += Signal.cpp
+  ifdef PEGASUS_HAS_SSL
+    EXTRA_LIBRARIES += -L$(OPENSSL_HOME)/lib -lssl -lcrypto
+  endif
 endif
 
 ifeq ($(PEGASUS_PLATFORM),LINUX_IA64_GNU)

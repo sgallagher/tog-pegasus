@@ -23,32 +23,40 @@
 //
 // Author: Warren Otsuka, Hewlett-Packard Company (warren.otsuka@hp.com)
 //
-// Modified By:  Jenny Yu, Hewlett-Packard Company (jenny.yu@hp.com)
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_DefaultPropertyTable_h
-#define Pegasus_DefaultPropertyTable_h
-
-#ifdef PEGASUS_PLATFORM_LINUX_IA64_GNU
-#include "DefaultPropertyTableLinuxIA64.h"
-#elif PEGASUS_PLATFORM_LINUX_IX86_GNU
-#include "DefaultPropertyTableLinuxIA32.h"
-#elif PEGASUS_PLATFORM_HPUX_ACC
-#include "DefaultPropertyTableHpux.h"
-#else
-    {"httpPort", "5988", 0, 0, 0},
-    {"httpsPort", "5989", 0, 0, 0},
-    {"enableHttpConnection", "true", 0, 0, 0},
-    {"enableHttpsConnection", "false", 0, 0, 0},
-    {"home", "./", 0, 0, 0},
-    {"daemon", "true", 0, 0, 0},
-    {"slp", "false", 0, 0, 0},
-    {"SSL", "false", 0, 0, 0},
-    {"enableAssociationTraversal", "true", 0, 0, 0},
-    {"enableIndicationService", "true", 0, 0, 0},
-    {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, 0, 0, 0},
-    {"enableClientCertification", "false", 0, 0, 0}
+#ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
+    {"trace",               "false"},
+    {"logtrace",            "false"},
+    {"cleanlogs",           "false"},
+    {"severity",            "ALL"},
+    {"httpPort",            "5988"},
+    {"httpsPort",           "5989"},
+    {"home",                ""},
+    {"daemon",              "true"},
+    {"install",             "false"},
+    {"remove",              "false"},
+    {"slp",                 "false"},
+    {"SSL",                 "false"},
+    {"enableAuthentication", "true"},
+    {"enableAssociationTraversal", "false"},
+    {"enableIndicationService", "false"},
+    {"enableClientCertification", "false"},
+    {"httpAuthType",        "Basic"},
+    {"repositoryIsDefaultInstanceProvider", "false"},
 #endif
-
-#endif /* Pegasus_DefaultPropertyTable_h */
+#ifdef PEGASUS_USE_RELEASE_DIRS
+    {"traceFilePath",       "/var/cache/pegasus/cimserver.trc"},
+    {"logdir",              "/var/log/pegasus"},
+    {"tempLocalAuthDir",    "/var/cache/pegasus/localauth"},
+    {"passwordFilePath",    "/etc/pegasus/cimserver.passwd"},
+    {"sslCertificateFilePath", "/var/cache/pegasus/server.pem"},
+    {"repositoryDir",       "/var/cache/pegasus/repository"},
+    {"providerDir",         "/usr/lib/pegasus/providers"},
+    {"consumerDir",         "/usr/lib/pegasus/providers"}
+#endif
+#if !defined(PEGASUS_USE_RELEASE_CONFIG_OPTIONS) && !defined(PEGASUS_USE_RELEASE_DIRS)
+    {"bogus", "MyBogusValue"} // Remove this line if others are added
+#endif

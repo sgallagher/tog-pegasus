@@ -469,7 +469,7 @@ Boolean Monitor::run(Uint32 milliseconds)
 						Tracer::trace(TRC_HTTP, Tracer::LEVEL4, "Monitor::run - "
 													"Ignoring connection delete request because "
 													"responses are still pending. "
-													"connection=0x%x, socket=%d\n", 
+													"connection=0x%p, socket=%d\n", 
 													(void *)&h, h.getSocket());
 						continue;
 					}

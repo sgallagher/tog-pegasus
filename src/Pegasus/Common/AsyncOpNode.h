@@ -33,6 +33,7 @@
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/DQueue.h>
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Message.h>
 #include <Pegasus/Common/ResponseHandler.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -97,10 +98,10 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
       virtual Boolean operator == (const AsyncOpNode & node) const = 0;
       virtual Boolean timeout(void) throw(IPCException) = 0;
 
-      virtual void notify(void *key,
-			  const OperationContext& context,
-			  const Uint32 flag,
-			  const Uint32 state) throw(IPCException) = 0;
+      virtual void notify(const void *key,
+			  OperationContext *context,
+			  Uint32 flag,
+			  Uint32 state) throw(IPCException) = 0;
 
       virtual void put_req_context(OperationContext *context) throw(IPCException) = 0;
       virtual void put_proc_context(OperationContext *context) throw(IPCException)= 0;
@@ -137,6 +138,9 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
       virtual Uint32 is_parent(void) = 0; 
       virtual Boolean is_my_child(AsyncOpNode *myself) = 0;
       virtual void make_orphan( AsyncOpNode *parent) = 0;
+
+      virtual Uint32 get_total_operations(void) = 0;
+      virtual Uint32 get_completed_operations(void) = 0;
 };
 
 PEGASUS_NAMESPACE_END

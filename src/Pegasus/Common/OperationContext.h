@@ -46,6 +46,7 @@ PEGASUS_NAMESPACE_BEGIN
 #define CONTEXT_OPTIONS          0x00000020
 #define CONTEXT_VENDOR           0x00000040
 #define CONTEXT_UID_PRESENT      0x00000080
+#define CONTEXT_UINT32_PRESENT   0x00000100
 
 #define OPERATION_NONE                      0x00000000
 #define OPERATION_LOCAL_ONLY                0x00000001
@@ -66,7 +67,7 @@ class PEGASUS_EXPORT OperationContext
    public:
 
       OperationContext(Uint32 key = CONTEXT_EMPTY, Uint32 flag = OPERATION_LOCAL_ONLY) 
-	 : _flag(flag), _key(key), _size(0), _data(NULL)
+	 : _flag(flag), _key(key), _uint_val(0), _size(0), _data(NULL)
       { 
 
 	 _serialize = default_serialize;
@@ -76,7 +77,7 @@ class PEGASUS_EXPORT OperationContext
       }
       
       OperationContext(Uint32 key, void * uid, size_t size, Uint32 flag = OPERATION_LOCAL_ONLY)
-	 : _flag(flag), _key(key), _size(size)
+	 : _flag(flag), _key(key), _uint_val(0), _size(size)
       { 
 	 if (uid == NULL )
 	    throw NullPointer();
@@ -148,7 +149,6 @@ class PEGASUS_EXPORT OperationContext
 	 return;
       }
       
-
       void copy_uid(Uint8 **uid)
       {
 	 if(uid == NULL)
@@ -185,9 +185,22 @@ class PEGASUS_EXPORT OperationContext
 	 return(operator==((const void *)b._key));
       }
 
+      inline void set_uint_val(Uint32 val) 
+      {
+	 _uint_val = val;
+	 _flag |= CONTEXT_UINT32_PRESENT;
+      }
+      
+      inline Uint32 get_uint_val(void)
+      {
+	 return _uint_val;
+      }
+      
+
    private:
       Uint32 _flag;
       Uint32 _key;
+      Uint32 _uint_val;
       size_t _size;
       Uint8 _uid[16];
       

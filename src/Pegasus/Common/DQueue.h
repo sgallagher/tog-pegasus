@@ -147,12 +147,13 @@ template<class L> class PEGASUS_EXPORT DQueue {
       inline L *remove_first ( void ) throw(IPCException) { return(remove(PEG_DQUEUE_FIRST) );}
       inline L *remove_last ( void ) throw(IPCException) { return(remove(PEG_DQUEUE_LAST) );}
 
-      L *remove(void *key) throw(IPCException)
+      L *remove_no_lock(void *key) throw(IPCException)
       {
 	 L *ret = NULL;
-
-	 if( _count > 0 ) {
-	    _mutex.lock(pegasus_thread_self());
+	 if( pegasus_thread_self() != _mutex.get_owner())
+	    throw(Permission(pegasus_thread_self()));
+	 if(_count > 0)
+	 {
 	    DQueue *temp = _next;
 	    while ( temp->_isHead == false ) {
 	       if( temp->_rep == key ) {
@@ -165,9 +166,19 @@ template<class L> class PEGASUS_EXPORT DQueue {
 	       }
 	       temp = temp->_next;
 	    }
-	    _mutex.unlock() ;
 	 }
 	 return(ret); 
+      }
+
+      L *remove(void *key) throw(IPCException)
+      {
+	 L *ret = NULL;
+	 if( _count > 0 ) {
+	    _mutex.lock(pegasus_thread_self());
+	    ret = remove_no_lock(key);
+	    _mutex.unlock() ;
+	 }
+	 return(ret);
       }
 
       L *reference(void *key) throw(IPCException)
@@ -216,6 +227,8 @@ template<class L> class PEGASUS_EXPORT DQueue {
 
       inline void lock(void) throw(IPCException) { _mutex.lock(pegasus_thread_self()); }
       inline void unlock(void) throw(IPCException) { _mutex.unlock() ; }
+      inline void try_lock(void) throw(IPCException) {  _mutex.try_lock(pegasus_thread_self()); }
+      
       Boolean exists(void *key) throw(IPCException) 
       {
 	 Boolean ret = false;

@@ -29,8 +29,7 @@
 #include <Pegasus/Common/AsyncOpNodeLocal.h>
 #include <Pegasus/Common/ResponseHandler.h>
 
-
-// rewrite to work with responsehandler types
+PEGASUS_NAMESPACE_BEGIN
 namespace 
 {
    
@@ -69,12 +68,13 @@ namespace
    }
 }
 
-PEGASUS_NAMESPACE_BEGIN
+
 
 AsyncOpNodeLocal::AsyncOpNodeLocal(void) 
    : _mut(), _request(0), _response(0), _req_ctx(0), 
      _proc_ctx(0), _comp_ctx(0), _state(0), _flags(0),
-     _responseHandler(0), _parent(0), _children(true)
+     _total_ops(0), _completed_ops(0), _responseHandler(0), 
+     _parent(0), _children(true)
 {
    memset(&_start, 0x00, sizeof(struct timeval));
    memset(&_lifetime, 0x00, sizeof(struct timeval));
@@ -88,7 +88,7 @@ AsyncOpNodeLocal::~AsyncOpNodeLocal(void)
    delete_rh(_responseHandler, _rh_type);
 }
 
-virtual void AsyncOpNodeLocal::reset(void) throw(IPCException)
+void AsyncOpNodeLocal::reset(void) throw(IPCException)
 {
    delete _request;
    delete _response;
@@ -98,25 +98,25 @@ virtual void AsyncOpNodeLocal::reset(void) throw(IPCException)
    _children.empty_list();
 }
 
-virtual inline Boolean AsyncOpNodeLocal::operator == (const void *key) const
+inline Boolean AsyncOpNodeLocal::operator == (const void *key) const
 {
    if (key == (void *)this)
       return true;
    return false;
 }
 
-virtual inline Boolean AsyncOpNodeLocal::operator == (const AsyncOpNode & node) const
+inline Boolean AsyncOpNodeLocal::operator == (const AsyncOpNode & node) const
 {
    return AsyncOpNodeLocal::operator==((const void *)&node);
 }
 
 
 // notifications should only come from children 
-virtual void AsyncOpNodeLocal::notify(void *key, 
-				      const OperationContext& context,
-				      const Uint32 flag, 
-				      const Uint32 state,
-				      const ResponseHandlerType type)
+ void AsyncOpNodeLocal::notify(const void *key, 
+			       OperationContext *context,
+			       Uint32 flag, 
+			       Uint32 state,
+			       ResponseHandlerType type)
    throw(IPCException)
 {
    if( ! _children.count() )
@@ -140,119 +140,119 @@ virtual void AsyncOpNodeLocal::notify(void *key,
 
 
 
-inline virtual void AsyncOpNodeLocal::put_req_context(OperationContext *context) 
+inline  void AsyncOpNodeLocal::put_req_context(OperationContext *context) 
    throw(IPCException)
 {
    _put_ctx(&_req_ctx, context);
 }
 
-inline virtual void AsyncOpNodeLocal::put_proc_context(OperationContext *context) 
+inline  void AsyncOpNodeLocal::put_proc_context(OperationContext *context) 
    throw(IPCException)
 {
    _put_ctx(&_proc_ctx, context);
 }
 
-inline virtual void AsyncOpNodeLocal::put_completion_context(OperationContext *context) 
+inline  void AsyncOpNodeLocal::put_completion_context(OperationContext *context) 
    throw(IPCException)
 {
    _put_ctx(&_comp_ctx, context);
 }
 
-inline virtual OperationContext * AsyncOpNodeLocal::take_req_context(void) 
+inline  OperationContext * AsyncOpNodeLocal::take_req_context(void) 
    throw(IPCException)
 {
    return(_take_ctx(&_req_ctx));
 }
          
-inline virtual OperationContext * AsyncOpNodeLocal::take_proc_context(void)
+inline  OperationContext * AsyncOpNodeLocal::take_proc_context(void)
    throw(IPCException)
 {
    return(_take_ctx(&_proc_ctx));
 }
 
-inline virtual OperationContext * AsyncOpNodeLocal::take_completion_context(void) 
+inline  OperationContext * AsyncOpNodeLocal::take_completion_context(void) 
    throw(IPCException)
 {
    return(_take_ctx(&_comp_ctx));
 }
 
       
-inline virtual void AsyncOpNodeLocal::put_request(Message *request) 
+inline  void AsyncOpNodeLocal::put_request(Message *request) 
    throw(IPCException)
 {
    _put_msg(&_request, request);
 }
 
-inline virtual Message * AsyncOpNodeLocal::take_request(void) 
+inline  Message * AsyncOpNodeLocal::take_request(void) 
    throw(IPCException)
 {
    return(_take_msg(&_request));
 }
 
-inline virtual void AsyncOpNodeLocal::put_response(Message *response) 
+inline  void AsyncOpNodeLocal::put_response(Message *response) 
    throw(IPCException)
 {
    _put_msg(&_response, response);
 }
 
-inline virtual Message * AsyncOpNodeLocal::take_response(void) 
+inline  Message * AsyncOpNodeLocal::take_response(void) 
    throw(IPCException)
 {
    return(_take_msg(&_response));
 }
 
-inline virtual void AsyncOpNodeLocal::set_state_bits(Uint32 bits) 
+inline  void AsyncOpNodeLocal::set_state_bits(Uint32 bits) 
    throw(IPCException)
 {
    _set_bits(&_state, bits);
 }
 
-inline virtual void AsyncOpNodeLocal::clear_state_bits(Uint32 bits) 
+inline  void AsyncOpNodeLocal::clear_state_bits(Uint32 bits) 
    throw(IPCException)
 {
    _clear_bits(&_state, bits);
 }
 
 
-inline virtual Uint32 AsyncOpNodeLocal::get_state(void) 
+inline  Uint32 AsyncOpNodeLocal::get_state(void) 
    throw(IPCException)
 {
    check_owner();
    return _state;
 }
 
-inline virtual Boolean AsyncOpNodeLocal::test_state_bit(Uint32 mask) 
+inline  Boolean AsyncOpNodeLocal::test_state_bit(Uint32 mask) 
    throw(IPCException)
 {
    return(_test_bits(&_state, mask));
 }
 
-inline virtual void AsyncOpNodeLocal::set_flag_bits(Uint32 bits) 
+inline  void AsyncOpNodeLocal::set_flag_bits(Uint32 bits) 
    throw(IPCException)
 {
    _set_bits(&_flags, bits);
 }
 
-inline virtual void AsyncOpNodeLocal::clear_flag_bits(Uint32 bits) 
+inline  void AsyncOpNodeLocal::clear_flag_bits(Uint32 bits) 
    throw(IPCException)
 {
-   _clear_bits(&_flag, bits);
+   _clear_bits(&_flags, bits);
 }
 
-inline virtual Uint32 AsyncOpNodeLocal::get_flag_bits(void) 
+inline  Uint32 AsyncOpNodeLocal::get_flag_bits(void) 
    throw(IPCException)
 {
    check_owner();
-   return _flag;
+   return _flags;
 }
 
-inline virtual Boolean AsyncOpNodeLocal::test_flag_bit(Uint32 mask) 
+inline  Boolean AsyncOpNodeLocal::test_flag_bit(Uint32 mask) 
    throw(IPCException)
 {
-   return(_test_bit(&_flag, mask));
+   return(_test_bits(&_flags, mask));
 }
       
-inline virtual void AsyncOpNodeLocal::set_lifetime(struct timeval *lifetime) 
+inline  void AsyncOpNodeLocal::set_lifetime(struct timeval *lifetime) 
    throw(IPCException)
 {
    check_owner();
@@ -260,12 +260,12 @@ inline virtual void AsyncOpNodeLocal::set_lifetime(struct timeval *lifetime)
    _lifetime.tv_usec = lifetime->tv_usec;
 }
 
-virtual Boolean AsyncOpNodeLocal::check_lifetime(struct timeval *dst) const 
+Boolean AsyncOpNodeLocal::check_lifetime(struct timeval *dst)
    throw(IPCException)
 {
    check_owner();
    struct timeval now;
-   pegasus_gettimeofday(&now);
+   gettimeofday(&now, NULL);
 
    dst->tv_sec = now.tv_sec - _start.tv_sec;
    dst->tv_usec = now.tv_usec - _start.tv_usec;
@@ -276,26 +276,26 @@ virtual Boolean AsyncOpNodeLocal::check_lifetime(struct timeval *dst) const
    return true;
 }
 
-inline virtual void AsyncOpNodeLocal::lock(void)  
+inline  void AsyncOpNodeLocal::lock(void)  
    throw(IPCException) 
 {
    _mut.lock(pegasus_thread_self());
 }
 
-inline virtual void AsyncOpNodeLocal::unlock(void) 
+inline  void AsyncOpNodeLocal::unlock(void) 
    throw(IPCException) 
 {
    _mut.unlock();
 }
 
-inline virtual void AsyncOpNodeLocal::check_owner(void) throw(IPCException)
+inline  void AsyncOpNodeLocal::check_owner(void) throw(IPCException)
 {
    if(_mut.get_owner() != pegasus_thread_self())
-      throw Permission();
+      throw Permission(pegasus_thread_self());
    return;
 }
 
-inline virtual AsyncOpNodeLocal::ResponseHandlerType get_rh_type(void) 
+inline ResponseHandlerType AsyncOpNodeLocal::get_rh_type(void) 
    throw(IPCException)
 {
    check_owner();
@@ -316,11 +316,12 @@ inline void AsyncOpNodeLocal::_adopt_child(AsyncOpNodeLocal *child)
 
       
 inline void AsyncOpNodeLocal::_disown_child(AsyncOpNodeLocal *child)
+   throw(IPCException)
 {
    if(child == NULL)
       throw NullPointer();
    if( false == child->is_child() || false == child->is_my_child(this))
-      throw Permission(pegasus_thread_self);
+      throw Permission(pegasus_thread_self());
    child->make_orphan(this);
    _children.remove(child);
 }

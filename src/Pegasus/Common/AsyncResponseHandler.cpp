@@ -28,89 +28,131 @@
 
 #include <Pegasus/Common/AsyncResponseHandler.h>
 
-const Uint32 AsyncOpFlags::DELIVER     = 0x00000001;
-const Uint32 AsyncOpFlags::RESERVE     = 0x00000002;
-const Uint32 AsyncOpFlags::PROCESSING  = 0x00000004;
-const Uint32 AsyncOpFlags::COMPLETE    = 0x00000008;
-
-const Uint32 AsyncOpState::NORMAL      = 0x00000000;
-const Uint32 AsyncOpState::PHASED      = 0x00000001;
-const Uint32 AsyncOpState::PARTIAL     = 0x00000002;
-const Uint32 AsyncOpState::TIMEOUT     = 0x00000004;
-const Uint32 AsyncOpState::SINGLE      = 0x00000008;
-const Uint32 AsyncOpState::MULTIPLE    = 0x00000010;
-const Uint32 AsyncOpState::TOTAL       = 0x00000020;
-
-
+PEGASUS_NAMESPACE_BEGIN 
 
 template<class object_type>
-AsyncResponseHandler<object_type>::AsyncResponseHandler(
-                         const CIMProvider *provider = NULL, 
-			 Uint32 phased = 0)
-   :_owner(NULL), _provider(provider), _objects(), _phased(phased),
-    _parents(true), _children(true)
-    
-{
-   pegasus_gettimeofday(&_key);
+AsyncResponseHandler<object_type>::AsyncResponseHandler(ResponseHandlerType type)
+   : _parent(0), _provider(0), _thread(0),
+     _type(type) 
+{ 
+   _objects = (Array<object_type> *)new Array<object_type>();
+   gettimeofday(&_key, NULL);
 }
 
 template<class object_type>
-AsyncResponseHandler<object_type>::~AsyncResponseHandler(void)
+inline void AsyncResponseHandler<object_type>::deliver(const object_type & object)
 {
-   _children.empty_list();
+   _objects->append(object);
+   _parent->notify(&_key,  NULL, AsyncOpFlags::DELIVER, 
+		   AsyncOpState::SINGLE | AsyncOpState::NORMAL , _type);
+}
+
+template<class object_type>
+inline void AsyncResponseHandler<object_type>::deliver(const Array<object_type> & objects) 
+{
+   _objects->appendArray(objects);
+   _parent->notify(&_key,  NULL, AsyncOpFlags::DELIVER, 
+		   AsyncOpState::MULTIPLE | AsyncOpState::NORMAL , _type);
+}
+
+template<class object_type>
+void AsyncResponseHandler<object_type>::reserve(const Uint32 size) 
+{
+   _objects->reserve(size);
+   // parent will destroy this op context
+   OperationContext *context = new OperationContext();
+   context->set_uint_val(size);
+   // parent can inspect the context and set the total operations value
+   _parent->notify(&_key, context, AsyncOpFlags::RESERVE, 
+		   AsyncOpState::NORMAL, _type);
+}
+
+template<class object_type>
+inline void AsyncResponseHandler<object_type>::processing(void) 
+{
+   _parent->notify(&_key, NULL, AsyncOpFlags::PROCESSING, 
+		   AsyncOpState::NORMAL, _type);
+}
+
+template<class object_type>
+inline void AsyncResponseHandler<object_type>::processing(OperationContext *context) 
+{
+   _parent->notify(&_key, context, AsyncOpFlags::PROCESSING, 
+		   AsyncOpState::NORMAL, _type);
+}
+
+template<class object_type>
+inline void AsyncResponseHandler<object_type>::complete(void) 
+{
+   _parent->notify(&_key, NULL, AsyncOpFlags::COMPLETE, 
+		   AsyncOpState::NORMAL, _type);
+}
+
+template<class object_type>
+inline void AsyncResponseHandler<object_type>::complete(OperationContext *context) 
+{
+   _parent->notify(&_key, context, AsyncOpFlags::COMPLETE,
+		   AsyncOpState::NORMAL, _type);
+}
+
+template<class object_type>
+inline void AsyncResponseHandler<object_type>::set_thread(Thread *thread)
+{
+   _thread = thread;
+   
+}
+
+template<class object_type>
+inline void AsyncResponseHandler<object_type>::set_parent(AsyncOpNode *parent)
+{
+   _parent = parent;
+}
+
+template<class object_type>
+inline void AsyncResponseHandler<object_type>::set_provider(CIMBaseProviderHandle *provider)
+{
+   _provider = provider;
 }
 
 
 template<class object_type>
-void AsyncResponseHandler<object_type>::deliver(const object_type & object)
+void AsyncResponseHandler<object_type>::clear(void)
 {
-   _objects.insert(0, object);
-   _completed_values++;
-   _notify_parents(AsyncOpFlags::DELIVER, (AsyncOpState::SINGLE | _phased));
-   _completion_state |= AsyncOpFlags::DELIVER;
-   pegasus_gettimeofday(&_last_update);
+   _parent = 0;
+   _provider = 0;
+   _thread = 0;
+   if(_objects->getCapacity() > 3)
+   {
+      delete _objects;
+      _objects = (Array<object_type> *) new Array<object_type>();
+   }
+   else
+      _objects->clear();
 }
 
 template<class object_type>
-void AsyncResponseHandler<object_type>::deliver(const Array<object_type> & objects)
+inline Boolean AsyncResponseHandler<object_type>::operator == (const void *key) const
 {
-   _objects.appendArray(objects);
-   _completed_values = _objects.size();
-   _notify_parents(AsyncOpFlags::DELIVER, (AsyncOpState::MULTIPLE | _phased));
-   _completion_state |= AsyncOpFlags::DELIVER;
-   pegasus_gettimeofday(&_last_update);
-} 
-
-template<class object_type>
-void AsyncResponseHandler<object_type>::reserve(Uint32 size)
-{
-   _objects.reserve(size);
-   _total_values = size;
-   _notify_parents(AsyncOpFlags::RESERVE, _phased);
-   _completion_state |= AsyncOpFlags::RESERVE;
-   pegasus_gettimeofday(&_last_update);
+   if( ! memcmp(&_key, key, sizeof(struct timeval)))
+      return true;
+   return false;
 }
 
 template<class object_type>
-void AsyncResponseHandler<object_type>::processing(void)
+inline Boolean AsyncResponseHandler<object_type>::operator == (ResponseHandlerType type) const
 {
-   _notify_parents(AsyncOpFlags::PROCESSING, _phased);
-   _completion_state |= AsyncOpFlags::PROCESSING;
-   pegasus_gettimeofday(&_last_update);
+   if(_type == type)
+      return true;
+   return false;
 }
 
 template<class object_type>
-void AsyncResponseHandler<object_type>::complete(void)
+Boolean AsyncResponseHandler<object_type>::operator == (const AsyncResponseHandler<object_type> & rh) const
 {
-   _notify_parents(AsyncOpFlags::COMPLETE, _phased);
-   _completion_state |= AsyncOpFlags::COMPLETE;
-   pegasus_gettimeofday(&_last_update);
+   return(this->operator ==((void *)&(rh._key)));
 }
 
-template<class object_type>
-void 
-
-
+PEGASUS_NAMESPACE_END
 
 /****
 

@@ -36,7 +36,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_EXPORT cleanup_handler
+class PEGASUS_COMMON_LINKAGE cleanup_handler
 {
 
    public:
@@ -65,7 +65,7 @@ class PEGASUS_EXPORT cleanup_handler
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class PEGASUS_EXPORT SimpleThread
+class PEGASUS_COMMON_LINKAGE SimpleThread
 {
 
    public:
@@ -143,7 +143,7 @@ class PEGASUS_EXPORT SimpleThread
 
 
 
-class  PEGASUS_EXPORT thread_data
+class  PEGASUS_COMMON_LINKAGE thread_data
 {
 
    public:
@@ -244,6 +244,7 @@ class  PEGASUS_EXPORT thread_data
       void *_data;
       size_t _size;
       Sint8 *_key;
+
       friend class DQueue<thread_data>;
       friend class Thread;
 };
@@ -251,7 +252,9 @@ class  PEGASUS_EXPORT thread_data
 
 ///////////////////////////////////////////////////////////////////////////
 
-class PEGASUS_EXPORT Thread
+class PEGASUS_COMMON_LINKAGE ThreadPool;
+
+class PEGASUS_COMMON_LINKAGE Thread
 {
 
    public:
@@ -329,6 +332,17 @@ class PEGASUS_EXPORT Thread
 	    return(NULL);
       }
 
+      inline void *try_reference_tsd(Sint8 *key) throw(IPCException)
+      {
+	 _tsd.try_lock();
+	 thread_data *tsd = _tsd.reference((void *)key);
+	 if(tsd != NULL)
+	    return((void *)(tsd->_data) );
+	 else
+	    return(NULL);
+      }
+      
+
       // release the lock held on the tsd
       // NOTE: assumes a corresponding and prior call to reference_tsd() !!!
       inline void dereference_tsd(void) throw(IPCException)
@@ -344,6 +358,16 @@ class PEGASUS_EXPORT Thread
 	    delete tsd;
       }
 
+      inline void *remove_tsd(Sint8 *key) throw(IPCException)
+      {
+	 return(_tsd.remove((void *)key));
+      }
+      
+      inline void empty_tsd(void) throw(IPCException)
+      {
+	 _tsd.empty_list();
+      }
+      
       // create or re-initialize tsd associated with the key
       // if the tsd already exists, return the existing buffer
       thread_data *put_tsd(Sint8 *key, void (*delete_func)(void *), Uint32 size, void *value) 
@@ -364,6 +388,17 @@ class PEGASUS_EXPORT Thread
       inline PEGASUS_THREAD_TYPE self(void) {return pegasus_thread_self(); }
 
       PEGASUS_THREAD_HANDLE getThreadHandle() {return _handle;}
+
+      inline Boolean operator==(const void *key) const 
+      { 
+	 if ( (void *)this == key) 
+	    return(true); 
+	 return(false);
+      } 
+      inline Boolean operator==(const Thread & b) const
+      {
+	 return(operator==((const void *)&b ));
+      }
 
    private:
       Thread();
@@ -390,7 +425,55 @@ class PEGASUS_EXPORT Thread
       void *_thread_parm;
       PEGASUS_THREAD_RETURN _exit_code;
       static Boolean _signals_blocked;
+      friend class ThreadPool;
 } ;
+
+
+class PEGASUS_COMMON_LINKAGE ThreadPool
+{
+   public:
+
+      ThreadPool(Sint16 initial_size, 
+		 Sint16 max, 
+		 Sint16 min,
+		 Sint8 *key);
+
+      ~ThreadPool(void);
+      void allocate_and_awaken(void *parm,
+			       PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *work)(void *))  
+	 throw(IPCException);
+
+      void get_key(Sint8 *buf, int bufsize);
+
+      // accessors for min, max, wait
+      
+   private:
+      ThreadPool(void);
+      Sint16 _max_threads;
+      Sint16 _min_threads;
+      AtomicInt _current_threads;
+      struct timeval _allocate_wait;
+      struct timeval _deallocate_wait;
+      struct timeval _deadlock_detect;
+      static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _loop(void *);
+      Semaphore _waiters;
+      Sint8 _key[17];
+      Semaphore _pool_sem;
+      DQueue<Thread>_pool;
+      DQueue<Thread>_running;
+      AtomicInt _dying;
+      
+      void _kill_dead_threads(DQueue<Thread> *q, Boolean (*check)(struct timeval *)) 
+	 throw(IPCException);
+      static void _sleep_sem_del(void *p);
+      static Boolean _check_time(struct timeval *start, struct timeval *interval);
+      void _check_deadlock(struct timeval *start) throw(Deadlock);
+      Boolean _check_deadlock_no_throw(struct timeval *start);
+      Boolean _check_dealloc(struct timeval *start);
+      Thread *_init_thread(void) throw(IPCException);
+      void _link_pool(Thread *th) throw(IPCException);
+};
+
 PEGASUS_NAMESPACE_END
 
 #endif // Pegasus_Thread_h

@@ -9,6 +9,9 @@ LOCAL_DEFINES = -DPEGASUS_COMMON_INTERNAL
 LIBRARY = pegcommon
 
 NEW_SOURCES = \
+    AsyncOpNode.cpp \
+    AsyncOpNodeLocal.cpp \
+    AsyncResponseHandler.cpp \
     Monitor.cpp \
     HTTPAcceptor.cpp \
     HTTPConnection.cpp \

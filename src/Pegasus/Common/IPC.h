@@ -125,7 +125,6 @@ class PEGASUS_EXPORT TooManyReaders: public IPCException
       TooManyReaders();
 };
 
-
 //-----------------------------------------------------------------
 // internal (unprotected) doubly linked list template
 //-----------------------------------------------------------------

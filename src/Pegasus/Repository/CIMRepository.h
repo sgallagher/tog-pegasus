@@ -262,14 +262,6 @@ public:
         return _isDefaultInstanceProvider;
     }
 
-    /** Indicates the name by which this repository explicitly registers as
-        an instance provider.
-    */
-    const String& getProviderName()
-    {
-        return _providerName;
-    }
-
     /** Get subclass names of the given class in the given namespace.
         @param nameSpaceName
         @param className - class whose subclass names will be gotten. If
@@ -456,10 +448,9 @@ private:
     String _repositoryRoot;
     NameSpaceManager _nameSpaceManager;
 
-    // These must be initialized in the constructor using values from the
+    // This must be initialized in the constructor using values from the
     // ConfigManager.
     Boolean _isDefaultInstanceProvider;
-    String _providerName;
 
 protected:
 

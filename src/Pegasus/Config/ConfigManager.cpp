@@ -126,7 +126,6 @@ struct OwnerEntry ConfigManager::properties[] =
     {"httpAuthType",        (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"passwordFilePath",    (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"repositoryIsDefaultInstanceProvider", (ConfigPropertyOwner* )ConfigManager::repositoryOwner},
-    {"repositoryProviderName", (ConfigPropertyOwner* )ConfigManager::repositoryOwner},
     {"operationTimeout",    (ConfigPropertyOwner* )ConfigManager::shutdownOwner},
     {"shutdownTimeout",     (ConfigPropertyOwner* )ConfigManager::shutdownOwner},
     {"repositoryDir",              (ConfigPropertyOwner* )ConfigManager::fileSystemOwner},

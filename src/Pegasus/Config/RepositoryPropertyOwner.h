@@ -203,8 +203,6 @@ private:
     */
     struct ConfigProperty*      _repositoryIsDefaultInstanceProvider;
 
-    struct ConfigProperty*      _repositoryProviderName;
-
 };
 
 PEGASUS_NAMESPACE_END

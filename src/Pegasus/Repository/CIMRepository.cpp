@@ -188,8 +188,6 @@ CIMRepository::CIMRepository(const String& repositoryRoot)
     _context = new RepositoryDeclContext(this);
     _isDefaultInstanceProvider = (ConfigManager::getInstance()->getCurrentValue(
         "repositoryIsDefaultInstanceProvider") == "true");
-    _providerName = ConfigManager::getInstance()->getCurrentValue(
-        "repositoryProviderName");
 
     PEG_METHOD_EXIT();
 }

@@ -48,8 +48,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 static struct ConfigPropertyRow properties[] =
 {
-    {"repositoryIsDefaultInstanceProvider", "true", 0, 0, 0},
-    {"repositoryProviderName", "repository", 0, 0, 0}
+    {"repositoryIsDefaultInstanceProvider", "true", 0, 0, 0}
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
@@ -59,14 +58,12 @@ const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
 RepositoryPropertyOwner::RepositoryPropertyOwner()
 {
     _repositoryIsDefaultInstanceProvider = new ConfigProperty;
-    _repositoryProviderName = new ConfigProperty;
 }
 
 /** Destructor  */
 RepositoryPropertyOwner::~RepositoryPropertyOwner()
 {
     delete _repositoryIsDefaultInstanceProvider;
-    delete _repositoryProviderName;
 }
 
 
@@ -90,16 +87,6 @@ void RepositoryPropertyOwner::initialize()
             _repositoryIsDefaultInstanceProvider->dynamic = properties[i].dynamic;
             _repositoryIsDefaultInstanceProvider->domain = properties[i].domain;
             _repositoryIsDefaultInstanceProvider->domainSize = properties[i].domainSize;
-        }
-        else if (String::equalNoCase(properties[i].propertyName, "repositoryProviderName"))
-        {
-            _repositoryProviderName->propertyName = properties[i].propertyName;
-            _repositoryProviderName->defaultValue = properties[i].defaultValue;
-            _repositoryProviderName->currentValue = properties[i].defaultValue;
-            _repositoryProviderName->plannedValue = properties[i].defaultValue;
-            _repositoryProviderName->dynamic = properties[i].dynamic;
-            _repositoryProviderName->domain = properties[i].domain;
-            _repositoryProviderName->domainSize = properties[i].domainSize;
         }
     }
 }
@@ -128,21 +115,6 @@ void RepositoryPropertyOwner::getPropertyInfo(
             propertyInfo.append(STRING_FALSE);
         }
     }
-    else if (String::equalNoCase(_repositoryProviderName->propertyName, name))
-    {
-        propertyInfo.append(_repositoryProviderName->propertyName);
-        propertyInfo.append(_repositoryProviderName->defaultValue);
-        propertyInfo.append(_repositoryProviderName->currentValue);
-        propertyInfo.append(_repositoryProviderName->plannedValue);
-        if (_repositoryProviderName->dynamic)
-        {
-            propertyInfo.append(STRING_TRUE);
-        }
-        else
-        {
-            propertyInfo.append(STRING_FALSE);
-        }
-    }
     else
     {
         throw UnrecognizedConfigProperty(name);
@@ -157,10 +129,6 @@ const String RepositoryPropertyOwner::getDefaultValue(const String& name)
     if (String::equalNoCase(_repositoryIsDefaultInstanceProvider->propertyName, name))
     {
         return (_repositoryIsDefaultInstanceProvider->defaultValue);
-    }
-    else if (String::equalNoCase(_repositoryProviderName->propertyName, name))
-    {
-        return (_repositoryProviderName->defaultValue);
     }
     else
     {
@@ -177,10 +145,6 @@ const String RepositoryPropertyOwner::getCurrentValue(const String& name)
     {
         return (_repositoryIsDefaultInstanceProvider->currentValue);
     }
-    else if (String::equalNoCase(_repositoryProviderName->propertyName, name))
-    {
-        return (_repositoryProviderName->currentValue);
-    }
     else
     {
         throw UnrecognizedConfigProperty(name);
@@ -195,10 +159,6 @@ const String RepositoryPropertyOwner::getPlannedValue(const String& name)
     if (String::equalNoCase(_repositoryIsDefaultInstanceProvider->propertyName, name))
     {
         return (_repositoryIsDefaultInstanceProvider->plannedValue);
-    }
-    else if (String::equalNoCase(_repositoryProviderName->propertyName, name))
-    {
-        return (_repositoryProviderName->plannedValue);
     }
     else
     {
@@ -224,10 +184,6 @@ void RepositoryPropertyOwner::initCurrentValue(
     {
         _repositoryIsDefaultInstanceProvider->currentValue = value;
     }
-    else if (String::equalNoCase(_repositoryProviderName->propertyName, name))
-    {
-        _repositoryProviderName->currentValue = value;
-    }
     else
     {
         throw UnrecognizedConfigProperty(name);
@@ -250,10 +206,6 @@ void RepositoryPropertyOwner::initPlannedValue(
     if (String::equalNoCase(_repositoryIsDefaultInstanceProvider->propertyName, name))
     {
         _repositoryIsDefaultInstanceProvider->plannedValue= value;
-    }
-    else if (String::equalNoCase(_repositoryProviderName->propertyName, name))
-    {
-        _repositoryProviderName->plannedValue= value;
     }
     else
     {
@@ -319,10 +271,6 @@ Boolean RepositoryPropertyOwner::isValid(const String& name, const String& value
             retVal = true;
         }
     }
-    else if (String::equalNoCase(_repositoryProviderName->propertyName, name))
-    {
-        retVal = true;
-    }
     else
     {
         throw UnrecognizedConfigProperty(name);
@@ -338,10 +286,6 @@ Boolean RepositoryPropertyOwner::isDynamic(const String& name)
     if (String::equalNoCase(_repositoryIsDefaultInstanceProvider->propertyName, name))
     {
         return (_repositoryIsDefaultInstanceProvider->dynamic);
-    }
-    else if (String::equalNoCase(_repositoryProviderName->propertyName, name))
-    {
-        return (_repositoryProviderName->dynamic);
     }
     else
     {

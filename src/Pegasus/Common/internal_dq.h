@@ -26,6 +26,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Exception.h>
+#include <assert.h>
 
 #ifndef PEG_INTERNAL_DQ_include
 #define PEG_INTERNAL_DQ_include
@@ -447,7 +448,7 @@ template<class L> class PEGASUS_COMMON_LINKAGE unlocked_dq
       
       inline virtual L *next(const void *ref) 
       {
-	 PEGASUS_ASSERT(this->_isHead);
+	 assert(this->_isHead);
 	 
 	 if( ref == 0)
 	    _cur = this->_next;
@@ -459,7 +460,7 @@ template<class L> class PEGASUS_COMMON_LINKAGE unlocked_dq
       
       inline virtual L *prev(const void *ref) 
       {
-	 PEGASUS_ASSERT(this->_isHead);
+	 assert(this->_isHead);
 	 if( ref == 0 )
 	    _cur = _prev;
 	 else {

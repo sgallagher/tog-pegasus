@@ -1,5 +1,5 @@
 #include "Config.h"
-#include <map>
+#include <set>
 #include <string>
 #include <cstdio>
 #include <vector>
@@ -238,7 +238,8 @@ void ProcessFile(
     const string& fileName, 
     FILE* fp,
     const vector<string>& includePath,
-    size_t nesting)
+    size_t nesting,
+    set<string>& cache)
 {
     PrintDependency(objectFileName, fileName);
 
@@ -265,6 +266,16 @@ void ProcessFile(
 	if (line[0] == '#' && 
 	    GetIncludePath(fileName, lineNumber, line, path, openDelim))
 	{
+	    // ATTN: danger! not distinguising between angle brack delimited
+	    // and quote delimited paths!
+	    
+	    set<string>::const_iterator pos = cache.find(path);
+
+	    if (pos != cache.end())
+		continue;
+
+	    cache.insert(path);
+
 	    string fullPath;
 	    FILE* fp = FindFile(includePath, path, openDelim, fullPath);
 
@@ -275,8 +286,8 @@ void ProcessFile(
 	    }
 	    else
 	    {
-		ProcessFile(
-		    objectFileName, fullPath, fp, includePath, nesting + 1);
+		ProcessFile(objectFileName, fullPath, fp, includePath, 
+		    nesting + 1, cache);
 	    }
 	}
     }
@@ -350,7 +361,9 @@ int DependCmdMain(int argc, char** argv)
 	objectFileName.append(start, dot - start);
 	objectFileName += ".obj";
 
-	ProcessFile(objectFileName, fileName, fp, includePath, 0);
+	set<string> cache;
+
+	ProcessFile(objectFileName, fileName, fp, includePath, 0, cache);
     }
 
     return 0;

@@ -1,0 +1,134 @@
+.TH CLI 1 LOCAL 
+.SH NAME 
+CLI - command line WBEM Client 
+.SH SYNOPSIS 
+.B CLI [command] [object] [option]
+.I option option
+.B [" 
+.I f1 f2
+.B ..."] 
+.SH AVAILABILITY 
+
+All platforms that support the Pegasus CIMOM
+
+.SH DESCRIPTION 
+
+.I CLI
+is a test tool for executing CIM client operations from the command line. It implements
+all of the CIM operations except for the modify and create operations and includes several
+other operations that are useful in testing including getting all namespaces, enumerating all
+instances in a namespace.
+.P
+each execution of CLI involves a 
+.TP 12
+[command] defines the CIM operation (ex. getclass) or the compound operation (enumeratenamespace)
+.TP
+[object] This is the name of the object input with the command.  For example, with the get class
+operation the object is a class name.  With the getinstance command the object is an objectname. Note
+that some of the commands do not require an object.   Thus, for example the [object] is optional with
+the enumerateClassnames command as it is with the equivalent CIM operation.
+.TP
+[option...] 
+Options are defined with the - or -- notation.  There are two types of options
+1. A set of options that are universal and modify or define the execution of the command or the the 
+form of the return.  This includes options like setting the output format for object responses or
+requesting only summary operation.
+2. A set of options that represent the optional input parameters for selected commands
+and a set of options on the command line. The
+command defines the CIM Operation that will be executed and the options define the optional
+
+
+.SH COMMANDS
+.TP 10
+ni     enumerateinstancenames
+Execute the enumerateInstanceNames CIM Operation.  This operation takes as input options TBD
+and returns a list of instanceNames.
+
+.TP 
+.TP
+niall enumerateallinstanceNames
+Execute a CLI function that gets all instance names within the defined namespace.  This function
+searches the complete namespace using the CIM getClass operation to get the classes and the
+enumerateInstanceNames command to enumerate all of the instances for each class. It returns
+the list of instances found.
+.TP
+ei    EnumerateInstances
+Execute the CIM operation enumerateInstances.  This function takes as input options specific to the command
+the deep inheritance (-di), TBD options.  It returns the instances found either as MOF or
+XML depending on the output options.
+.TP
+nc    EnumerateClassNames
+Text TBD
+.TP
+ec    EnumerateClasses
+Text
+.TP
+
+
+.SH OPTIONS 
+There are a significant number of options to this utility, some if which provide specific information 
+for one or more commands and some of which are universal across all of the commands.
+.TP 5 
+-u  
+User. Allows input of a user name for authentication
+.TP 
+-p
+password. Allows input of a password for server authentication of the command
+.TP
+-l
+location. Allows input of the host name for the CIM server.  This includes the 
+host name and optionally the port. The default is localhost:5988.  If the port component
+is not input port 5988 is assumed.
+.TP
+-n
+Namespace. Defines the namespace for the operation.
+.TP
+-di
+deepInheritance. Specifies the deepInheritance parameter for selected commands if the option is set.
+Note that this means different things to different commands and is used only with the enumerate commands.
+.TP
+-lo
+localOnly. Specifies the localOnly operation parameter for selected commands if the option is set.
+See the commands for more information.
+.TP
+-iq
+includeQualifiers. Specifies the includeQualifiers operation input paramter for selected commands. if the option is set.
+.TP
+-is
+includeClassOrigin
+.SH EXAMPLES
+.P
+Execute an enumerateinstancenames CIM operation for the pg_computersystem Class
+.br
+CLI enumerateinstancenames pg_computersystem  -- enumerateinstances of class
+.br
+   or
+.br
+ CLI ei pg_computersystem    -- Same as above
+
+.P
+Enumerate the class names from the default namespace "root/cimv2"
+.br
+ CLI enumerateclassnames -- Enumerate classnames from root/cimv2.
+.P
+Enumerate class names from the namespace "root"
+.br
+ CLI ec /n root -- Enumerate classnames from namespace root.
+.P
+ CLI ec -o xml   -- Enumerate classes with XML output starting at root CLI enumerateclasses CIM_Computersystem -o xml
+    -- Enumerate classes in MOF starting with CIM_Computersystem
+.P
+ CLI getclass CIM_door -a -u guest =p guest
+    -- Get class with authentication set and user = guest, password = guest.
+.P
+ CLI rn TST_Person.name=@MIKE@ -n root/sampleprovider -rc TST_Lineage.
+.P
+ CLI ec -o XML -- enumerate classes and output XML rather than MOF.
+.P
+ CLI getqualifiers -- Get the qualifiers in mof output format
+.SH BUGS
+.SH WARNINGS
+.SH "RETURN VALUE"
+.SH AUTHOR 
+
+Karl Schopmeyer

@@ -343,30 +343,47 @@ void MessageQueueService::handle_AsyncIoctl(AsyncIoctl *req)
 
 void MessageQueueService::handle_CimServiceStart(CimServiceStart *req)
 {
-   _make_response(req, async_results::CIM_NAK);
+   // clear the stoped bit and update
+   _capabilities &= ~(module_capabilities::stopped);
+   _make_response(req, async_results::OK);
+   // now tell the meta dispatcher we are stopped 
+   update_service(_capabilities, _mask);
+
 }
 void MessageQueueService::handle_CimServiceStop(CimServiceStop *req)
 {
-   _make_response(req, async_results::CIM_NAK);
+   // set the stopeed bit and update
+   _capabilities |= module_capabilities::stopped;
+   _make_response(req, async_results::CIM_STOPPED);
+   // now tell the meta dispatcher we are stopped 
+   update_service(_capabilities, _mask);
+   
 }
 void MessageQueueService::handle_CimServicePause(CimServicePause *req)
 {
-   _make_response(req, async_results::CIM_NAK);
+   // set the paused bit and update
+   _capabilities |= module_capabilities::stopped;
+   _make_response(req, async_results::CIM_PAUSED);
+   // now tell the meta dispatcher we are stopped 
+   update_service(_capabilities, _mask);
 }
 void MessageQueueService::handle_CimServiceResume(CimServiceResume *req)
 {
-   _make_response(req, async_results::CIM_NAK);
+   // clear the paused  bit and update
+   _capabilities &= ~(module_capabilities::paused);
+   _make_response(req, async_results::OK);
+   // now tell the meta dispatcher we are stopped 
+   update_service(_capabilities, _mask);
 }
       
 void MessageQueueService::handle_AsyncOperationStart(AsyncOperationStart *req)
 {
    _make_response(req, async_results::CIM_NAK);
-
 }
 
 void MessageQueueService::handle_AsyncOperationResult(AsyncOperationResult *req)
 {
-   ;
+
 }
 
 AsyncOpNode *MessageQueueService::get_op(void)

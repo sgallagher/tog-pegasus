@@ -52,6 +52,8 @@ class PEGASUS_COMMON_LINKAGE module_capabilities
       static Uint32 async;
       static Uint32 remote;
       static Uint32 trusted;
+      static Uint32 paused;
+      static Uint32 stopped;
 } ;
 
 class PEGASUS_COMMON_LINKAGE cimom;
@@ -130,6 +132,7 @@ class PEGASUS_COMMON_LINKAGE cimom : public MessageQueue
             
    protected:
       Uint32 get_module_q(const String & name);
+      void _make_response(AsyncRequest *req, Uint32 code);
       void _completeAsyncResponse(AsyncRequest *request, 
 				  AsyncReply *reply, 
 				  Uint32 state, 

@@ -38,6 +38,9 @@ PEGASUS_USING_STD;
 Uint32 module_capabilities::async =   0x00000001;
 Uint32 module_capabilities::remote =  0x00000002;
 Uint32 module_capabilities::trusted = 0x00000004;
+Uint32 module_capabilities::paused  = 0x00000008;
+Uint32 module_capabilities::stopped = 0x00000010;
+
 
 
 const String & message_module::get_name(void) const { return _name ; }
@@ -172,10 +175,14 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
       }
       else 
       {
+	 Uint32 capabilities = 0;
+	 Uint32 code = 0;
+	 
 	 op->lock();
 	 AsyncRequest *request = static_cast<AsyncRequest *>(op->_request.next(0));
 	 PEGASUS_ASSERT(request && (request->getMask() & message_mask::ha_async));
 	 Uint32 dest = request->dest;
+	 code = request->getType();
 	 op->unlock();
       
 	 Boolean accepted = false;
@@ -197,17 +204,38 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
 	    {
 	       if ( temp->_q_id == dest )
 	       {
+		  capabilities = temp->get_capabilities();
 		  svce = static_cast<MessageQueueService *>(MessageQueue::lookup(dest));
 		  break;
 	       }
 	       temp = dispatcher->_modules.next(temp);
 	    }
 	    dispatcher->_modules.unlock();
+	    
+
+	    
 	    if(svce != 0)
 	    {
+
+	       if( capabilities & module_capabilities::paused ||
+		   capabilities & module_capabilities::stopped )
+	       {
+
+		  // the target is stopped or paused
+		  // unless the message is a start or resume
+                  // just respond from here.  
+
+		  if (code != async_messages::CIMSERVICE_START  &&
+		      code != async_messages::CIMSERVICE_RESUME )
+		  {
+		     if ( capabilities & module_capabilities::paused )
+		        dispatcher->_make_response(request, async_results::CIM_PAUSED);
+		     else 
+			dispatcher->_make_response(request, async_results::CIM_STOPPED);
+		  }
+	       }
 	       accepted = svce->accept_async(op);
 	    }
-	 
 	    if ( accepted == false )
 	    {
 	       // make a NAK and flag completed 
@@ -271,6 +299,20 @@ cimom::~cimom(void)
 
 }
 
+
+void cimom::_make_response(AsyncRequest *req, Uint32 code)
+{
+   AsyncReply *reply = 
+      new AsyncReply(async_messages::REPLY,
+		     req->getKey(),
+		     req->getRouting(),
+		     0,
+		     req->op, 
+		     code, 
+		     req->resp,
+		     false);
+   _completeAsyncResponse(req, reply, ASYNC_OPSTATE_COMPLETE, 0 );
+}
 
 void cimom::_completeAsyncResponse(AsyncRequest *request,
 				   AsyncReply *reply,

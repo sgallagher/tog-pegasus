@@ -313,7 +313,6 @@ void MessageQueueClient::send_test_request(char *greeting, Uint32 qid)
    if( response != 0  )
    {
       msg_count++; 
-      cout << "rcv test msg " << msg_count.value() << endl;
       delete response;
    }
    delete req;

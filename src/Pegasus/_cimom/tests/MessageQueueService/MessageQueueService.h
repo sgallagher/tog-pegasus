@@ -30,8 +30,17 @@
 #ifndef MessageQueueService_test_h
 #define MessageQueueService_test_h
 
-
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/MessageQueue.h>
+#include <Pegasus/Common/DQueue.h>
+#include <Pegasus/Common/Thread.h>
+#include <Pegasus/Common/Array.h>
+#include <Pegasus/Common/AsyncOpNode.h>
+#include <Pegasus/_cimom/CimomMessage.h>
+#include <Pegasus/_cimom/Cimom.h>
 #include <Pegasus/_cimom/MessageQueueService.h>
+
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -43,7 +52,7 @@ class test_request : public AsyncRequest
 		   AsyncOpNode *op, 
 		   Uint32 destination, 
 		   Uint32 response,
-		   String message)
+		   char *message)
 	 : AsyncRequest(0x04100000,
 			Message::getNextKey(), 
 			routing,
@@ -66,7 +75,7 @@ class test_response : public AsyncReply
 		    AsyncOpNode *op, 
 		    Uint32 result,
 		    Uint32 destination, 
-		    String message)
+		    char *message)
 	 : AsyncReply(0x04200000,
 		      key, 
 		      routing, 
@@ -93,16 +102,18 @@ class MessageQueueServer : public MessageQueueService
 		 message_mask::type_service | 
 		 message_mask::ha_request | 
 		 message_mask::ha_reply | 
-		 message_mask::ha_async )) {  }
+		 message_mask::ha_async )), _die(false) {  }
       
       virtual ~MessageQueueServer(void);
       
-      virtual void handleEnqueue();
       virtual Boolean messageOK(const Message *msg);
-      
-      
-      void handle_test_request(AsyncMessage *msg);
-      
+      void handle_test_request(AsyncRequest *msg);
+      virtual void handle_CimServiceStop(CimServiceStop *req);
+
+   protected:
+      virtual void _handle_async_msg(AsyncMessage *msg);
+   private:
+      Boolean _die;
 };
 
 
@@ -120,14 +131,25 @@ class MessageQueueClient : public MessageQueueService
 		 message_mask::ha_request | 
 		 message_mask::ha_reply | 
 		 message_mask::ha_async )), 
-	   xid(1), {  }
+	   xid(1)
+      {  }
       
       virtual ~MessageQueueClient(void);
       
-      virtual void handleEnqueue();
       virtual Boolean messageOK(const Message *msg);
-      void send_test_request(String *greeting, Uint32 qid);
+
+      void send_test_request(char *greeting, Uint32 qid);
+
+      Uint32 _capabilities;
+      Uint32 _mask;
+      Uint32 get_qid(void) 
+      {
+	 return _queueId;
+      }
       
+      
+   protected:
+      virtual void _handle_async_msg(AsyncMessage *msg);
       AtomicInt xid;
 };
 

@@ -8,12 +8,12 @@ EXTRA_INCLUDES = $(SYS_INCLUDES)
 
 LOCAL_DEFINES = -DPEGASUS_CIMOM_INTERNAL
 
-LIBRARY = cimom
+LIBRARY = _cimom
 
-LIBRARIES = \
-    pegcommon 
+#LIBRARIES = \
+#    pegcommon 
 
-PRE_DEPEND_INCLUDES = -I./depends
+#PRE_DEPEND_INCLUDES = -I./depends
 
 SOURCES = \
 	CimomMessage.cpp \
@@ -26,5 +26,3 @@ SYS_LIBS = ws2_32.lib advapi32.lib
 
 include $(ROOT)/mak/library.mak
 
-run:
-	Server $(REPOSITORY_ROOT)

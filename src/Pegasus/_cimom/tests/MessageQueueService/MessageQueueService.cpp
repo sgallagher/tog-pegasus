@@ -33,7 +33,7 @@
 #include <Pegasus/Common/DQueue.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/_cimom/Cimom.h>
-#include "MessageQueueService.h"
+
 
 #include <sys/types.h>
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
@@ -46,36 +46,34 @@
 #include <string.h>
 
 
-PEGASUS_NAMESPACE_BEGIN
+#include "MessageQueueService.h"
 
+PEGASUS_USING_STD;
+PEGASUS_USING_PEGASUS;
 
+AtomicInt msg_count;
 
-
-void MessageQueueServer::handleEnqueue()
+void MessageQueueServer::_handle_async_msg(AsyncMessage *msg)
 {
-   Message *msg = dequeue();
-   if ( msg == 0 )
-      return;
-   
-   if( msg->getMask() & message_mask::ha_async )
+   if (msg->getType() == 0x04100000 )
    {
-      handle_test_request(static_cast<AsyncMessage *>(msg));
+      msg->op->processing();
+      handle_test_request(static_cast<AsyncRequest *>(msg));
    }
    else
-      delete msg;
+      Base::_handle_async_msg(msg);
 }
 
 Boolean MessageQueueServer::messageOK(const Message *msg)
 {
    if(msg->getMask() & message_mask::ha_async)
    {
-      if(msg->getType() == 0x04100000)
-	 return true;
+      return true;
    }
    return false;
 }
 
-void MessageQueueServer::handle_test_request(AsyncMessage *msg)
+void MessageQueueServer::handle_test_request(AsyncRequest *msg)
 {
    if( msg->getType() == 0x04100000 )
    {
@@ -83,30 +81,24 @@ void MessageQueueServer::handle_test_request(AsyncMessage *msg)
 	 new test_response(msg->getKey(),
 			   msg->getRouting(),
 			   msg->op, 
-			   async_results::OK, 
+			   async_results::OK,
 			   msg->dest, 
-			   msg->greeting);
-      _enqueueAsyncResponse(msg, resp, ASYNC_OPSTATE_PROCESSING, 0);
+			   "i am a test response");
+      _enqueueAsyncResponse(msg, resp, ASYNC_OPSTATE_COMPLETE, 0);
    }
+}
+
+
+void MessageQueueServer::handle_CimServiceStop(CimServiceStop *req)
+{
    
 }
 
 
-Boolean MessageQueueClient::handleEnqueue()
+
+void MessageQueueClient::_handle_async_msg(AsyncMessage *msg)
 {
-   Message *msg = dequeue();
-   if ( msg == 0 )
-      return;
-   
-   if( msg->getMask() & message_mask::ha_async )
-   {
-      if(msg->getType() == 0x04200000)
-      {
-	 msg_count++;
-      }
-   }
-   else
-      delete msg;
+   Base::_handle_async_msg(msg);
 }
 
 
@@ -114,43 +106,34 @@ Boolean MessageQueueClient::messageOK(const Message *msg)
 {
    if(msg->getMask() & message_mask::ha_async)
    {
-      if(msg->getType() == 0x04200000)
-	 return true;
+      return true;
    }
    return false;
 }
 
 
-void MessageQueueClient::send_test_request(String *greeting, Uint32 qid)
+void MessageQueueClient::send_test_request(char *greeting, Uint32 qid)
 {
    test_request *req = 
-      new test_request(get_next_xid(),
+      new test_request(Base::get_next_xid(),
 		       get_op(),
 		       qid, 
 		       _queueId,
-		       String("message queue service test client "));
+		       greeting);
 
    unlocked_dq<AsyncMessage> replies(true);
-   SendWait(test_request, replies);
+   SendWait(req, &replies);
    while( replies.count() )
    { 
+      msg_count++;
       delete static_cast<test_response *>(replies.remove_first());
    }
+
+
 }
-
-
-PEGASUS_NAMESPACE_END
-
-PEGASUS_USING_STD;
-PEGASUS_USING_PEGASUS;
-
-AtomicInt msg_count;
 
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_func(void *parm);
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL server_func(void *parm);
-
-
-
 
 int main(int argc, char **argv)
 {
@@ -159,14 +142,15 @@ int main(int argc, char **argv)
    
    cimom Q_server();
    
-   client->run();
-   server->run();
+
+   server.run();
+   client.run();
    while( msg_count.value() < 1000 )
    {
       pegasus_sleep(1);
    }
-   client->join();
-   server->join();
+   client.join();
+   server.join();
    
    return(1);
 }
@@ -178,10 +162,30 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_func(void *parm)
    AtomicInt & count = *(reinterpret_cast<AtomicInt *>(my_handle->get_parm()));
    
    MessageQueueClient q_client("test client");
-   q_client.register_service("test client", _capabilities, _mask);
+   q_client.register_service("test client", q_client._capabilities, q_client._mask);
+   Array<Uint32> services;
+   while( services.size() == 0 )
+   {
+      q_client.find_services(String("test server"), 0, 0, &services);
+      my_handle->sleep(1);
+   }
    
-   Uint32 test_server = 
+   while (msg_count.value() < 1000 )
+   {
+      q_client.send_test_request("i am the test client" , services[0]);
 
+   }
+   CimServiceStop *stop = 
+      new CimServiceStop(q_client.get_next_xid(),
+			 q_client.get_op(), 
+			 services[0], 
+			 q_client.get_qid(),
+			 true);
+   unlocked_dq<AsyncMessage> replies(true);
+   q_client.SendWait(stop, &replies);
+   my_handle->exit_self( (PEGASUS_THREAD_RETURN) 1 );
+
+   return(0);
    
 }
 

@@ -109,8 +109,14 @@ void cimom::_enqueueResponse(AsyncOpNode *op)
 	 reply->op->_state |= ASYNC_OPSTATE_RELEASED;;
       }
    }
-   op->unlock();
+   else 
+   {
+      // just set the released bit and we will clean it up automatically
+      reply->op->_state |= ASYNC_OPSTATE_RELEASED;;
+   }
    
+   op->unlock();
+      
    return;
 }
 
@@ -686,7 +692,7 @@ void cimom::enumerate_service(EnumerateService *msg)
 					   String(), 
 					   0, 0, 0);
       
-   }
+    }
    reply->op->complete();
    
    return;

@@ -87,26 +87,27 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
 				 AsyncReply *reply, 
 				 Uint32 state, 
 				 Uint32 flag);
-            
-   protected:
-
-      // handle all your messages. call Base:_handle_async_msg to 
-      // deal with messages you don't handle 
-      virtual void _handle_async_msg(AsyncMessage *msg);
       Boolean register_service(String name, Uint32 capabilities, Uint32 mask);
       Boolean update_service(Uint32 capabilities, Uint32 mask);
       Boolean deregister_service(void);
-      Uint32 get_next_xid(void);
+
       void find_services(String name,
 			 Uint32 capabilities, 
 			 Uint32 mask, 
 			 Array<Uint32> *results);
       void enumerate_service(Uint32 queue, message_module *result);
-            
-      Uint32 _capabilities;
-      Uint32 _mask;
+      Uint32 get_next_xid(void);
       AsyncOpNode *get_op(void);
       void return_op(AsyncOpNode *op);
+
+   protected:
+
+      // handle all your messages. call Base:_handle_async_msg to 
+      // deal with messages you don't handle 
+      virtual void _handle_async_msg(AsyncMessage *msg);
+      Uint32 _capabilities;
+      Uint32 _mask;
+
    private: 
 
       cimom *_meta_dispatcher;

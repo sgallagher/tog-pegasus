@@ -45,7 +45,7 @@ extern const Uint32 CIMOM_Q_ID;
 
 class AsyncOpNode;
 
-class async_results
+class PEGASUS_CIMOM_LINKAGE async_results
 {
    public:
       static const Uint32 OK;
@@ -75,7 +75,7 @@ class async_results
 };
 
 
-class async_messages
+class PEGASUS_CIMOM_LINKAGE async_messages
 {
    public:
       static const Uint32 HEARTBEAT;
@@ -131,8 +131,6 @@ inline Boolean AsyncMessage::operator ==(const AsyncMessage& msg)
 {
    return this->operator==(reinterpret_cast<void *>(const_cast<AsyncMessage *>(&msg)));
 }
-
-
 
 class PEGASUS_CIMOM_LINKAGE AsyncRequest : public AsyncMessage
 {

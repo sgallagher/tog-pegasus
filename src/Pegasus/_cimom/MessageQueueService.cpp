@@ -33,7 +33,6 @@ PEGASUS_NAMESPACE_BEGIN
 AtomicInt MessageQueueService::_xid(1);
 
 // mutex is UNLOCKED
-// this may be overridden by derived classes 
 void MessageQueueService::handleEnqueue(void)
 {
    Message *msg = dequeue();
@@ -67,6 +66,7 @@ void MessageQueueService::_enqueueAsyncResponse(AsyncRequest *request,
    op->unlock();
 }
 
+// may be overriden by derived classes
 void MessageQueueService::_handle_async_msg(AsyncMessage *msg)
 {
    if( msg == 0 )
@@ -110,7 +110,6 @@ void MessageQueueService::_handle_async_request(AsyncRequest *req)
       // we don't handle this request message 
       _make_response(req, async_results::CIM_NAK );
    }
-      
    req->op->complete();
 }
 

@@ -27,6 +27,7 @@
 //
 // Modified By:  Carol Ann Krug Graves, Hewlett-Packard Company
 //               (carolann_graves@hp.com)
+//               Amit K Arora, IBM (amita@in.ibm.com) for PEP-101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -48,6 +49,7 @@
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/PegasusVersion.h>
+#include <Pegasus/Common/AutoPtr.h>
 
 
 #ifdef PEGASUS_OS_OS400
@@ -375,11 +377,6 @@ public:
     */
     CIMProviderCommand ();
 
-    /**    
-        Destructs a CIMProviderCommand.
-    */
-    ~CIMProviderCommand ();
-
     //
     // Overrides the virtual function setCommand from Command class
     // This is defined as an empty function. 
@@ -507,7 +504,7 @@ private:
     //
     // The CIM Client reference
     //
-    CIMClient*    _client;
+    AutoPtr<CIMClient>   _client;//PEP101
 
     //
     // The host name. 
@@ -567,7 +564,6 @@ CIMProviderCommand::CIMProviderCommand ()
     _moduleSet 		= false;
     _providerSet	= false;
     _statusSet		= false;
-    _client             = NULL;
 #ifdef PEGASUS_OS_OS400
      _defaultQuietSet    = false;
 #endif
@@ -636,14 +632,6 @@ CIMProviderCommand::CIMProviderCommand ()
 }
 
 
-/**
-    Destructs a CIMProviderCommand
-*/
-CIMProviderCommand::~CIMProviderCommand ()
-{
-    if (_client != NULL)
-        delete _client;
-}
 
 /**
     Parses the command line, validates the options, and sets instance 
@@ -1035,7 +1023,7 @@ Uint32 CIMProviderCommand::execute (
     {
         // Construct the CIMClient and set to request server messages
         // in the default language of this client process.
-        _client = new CIMClient;
+        _client.reset(new CIMClient);//PEP101
         _client->setRequestDefaultLanguages(); //l10n
     }
     catch (Exception & e)
@@ -1560,8 +1548,7 @@ void CIMProviderCommand::_ListProviders
  	  	cerr << localizeMessage(MSG_PATH,
         								  ERR_PROVIDER_NOT_REGISTERED_KEY,
         								  ERR_PROVIDER_NOT_REGISTERED) << endl;
-                delete _client;  // Bug 980 - need to destruct the CIMClient
-		exit(-1);	
+        exit(-1);	
 	    }
 	    else
 	    {
@@ -1594,7 +1581,6 @@ void CIMProviderCommand::_ListProviders
 		    cerr << localizeMessage(MSG_PATH,
         								  ERR_PROVIDER_NOT_REGISTERED_KEY,
         								  ERR_PROVIDER_NOT_REGISTERED) << endl;
-                    delete _client;  // Bug 980 - need to destruct the CIMClient
 		    exit(-1);
 		}
 	    }
@@ -1612,7 +1598,6 @@ void CIMProviderCommand::_ListProviders
  	  	cerr << localizeMessage(MSG_PATH,
         								  ERR_MODULE_NOT_REGISTERED_KEY,
         								  ERR_MODULE_NOT_REGISTERED) << endl;
-                delete _client;  // Bug 980 - need to destruct the CIMClient
 		exit(-1);	
 	    }
 	    else
@@ -1665,7 +1650,6 @@ CIMInstance CIMProviderCommand::_getModuleInstance()
  	cerr << localizeMessage(MSG_PATH,
         								  ERR_MODULE_NOT_REGISTERED_KEY,
         								  ERR_MODULE_NOT_REGISTERED) << endl;
-        delete _client;  // Bug 980 - need to destruct the CIMClient
 	exit(-1);	
     }
     catch (Exception& exception)
@@ -1676,7 +1660,6 @@ CIMInstance CIMProviderCommand::_getModuleInstance()
  	cerr << localizeMessage(MSG_PATH,
         								  ERR_MODULE_NOT_REGISTERED_KEY,
         								  ERR_MODULE_NOT_REGISTERED) << endl;
-        delete _client;  // Bug 980 - need to destruct the CIMClient
 	exit(-1);	
     }
     
@@ -1716,7 +1699,6 @@ CIMInstance CIMProviderCommand::_getProviderInstance()
         cerr << localizeMessage(MSG_PATH,
         								  ERR_PROVIDER_NOT_REGISTERED_KEY,
         								  ERR_PROVIDER_NOT_REGISTERED) << endl;
-        delete _client;  // Bug 980 - need to destruct the CIMClient
 	exit(-1);	
     }
     catch (Exception& exception)
@@ -1727,7 +1709,6 @@ CIMInstance CIMProviderCommand::_getProviderInstance()
         cerr << localizeMessage(MSG_PATH,
         								  ERR_PROVIDER_NOT_REGISTERED_KEY,
         								  ERR_PROVIDER_NOT_REGISTERED) << endl;
-        delete _client;  // Bug 980 - need to destruct the CIMClient
 	exit(-1);	
     }
     
@@ -1920,7 +1901,7 @@ PEGASUS_USING_STD;
 
 int main (int argc, char* argv []) 
 {
-    CIMProviderCommand*      command;
+    AutoPtr<CIMProviderCommand>  command;
     Uint32               retCode;
     
     MessageLoader::_useProcessLocale = true; //l10n set message loading to process locale
@@ -1965,7 +1946,7 @@ int main (int argc, char* argv [])
 
 #endif
 
-    command  = new CIMProviderCommand ();
+    command.reset(new CIMProviderCommand ());
 
     try 
     {
@@ -1982,8 +1963,6 @@ int main (int argc, char* argv [])
     }
 
     retCode = command->execute (cout, cerr);
-
-    delete command;   // Bug 980 - Needed to destruct the CIMClient used by the command
 
     exit(retCode);
     return (0);

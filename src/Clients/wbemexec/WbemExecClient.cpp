@@ -29,7 +29,7 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
 //              Dan Gorey, IBM (djgorey@us.ibm.com)
-//              Amit Arora, IBM (amita@in.ibm.com)
+//              Amit Arora, IBM (amita@in.ibm.com) for Bug#1170, PEP-101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -43,6 +43,7 @@
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/HTTPMessage.h>
+#include <Pegasus/Common/AutoPtr.h>
 
 #include "HttpConstants.h"
 #include "WbemExecClient.h"
@@ -89,7 +90,6 @@ static Boolean verifyServerCertificate(SSLCertificateInfo &certInfo)
 WbemExecClient::WbemExecClient(Uint32 timeoutMilliseconds)
     : 
     MessageQueue(PEGASUS_QUEUENAME_WBEMEXECCLIENT),
-    _httpConnection(0),
     _timeoutMilliseconds(timeoutMilliseconds),
     _connected(false),
     _isRemote( false ),
@@ -99,19 +99,17 @@ WbemExecClient::WbemExecClient(Uint32 timeoutMilliseconds)
     // Create Monitor and HTTPConnector
     //
     #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
-    _monitor = new Monitor();
-    _httpConnector = new HTTPConnector(_monitor);
+    _monitor.reset(new Monitor());
+    _httpConnector.reset(new HTTPConnector(_monitor.get()));
     #else
-    _monitor = new monitor_2();
-    _httpConnector = new HTTPConnector2(_monitor);
+    _monitor.reset(new monitor_2());
+    _httpConnector.reset(new HTTPConnector2(_monitor.get()));
     #endif
 }
 
 WbemExecClient::~WbemExecClient()
 {
    disconnect();
-   delete _httpConnector;
-   delete _monitor;
 }
 
 void WbemExecClient::handleEnqueue()
@@ -122,7 +120,7 @@ void WbemExecClient::handleEnqueue()
 void WbemExecClient::_connect(
     const String& host,
     const Uint32 portNumber,
-    SSLContext* sslContext
+    AutoPtr<SSLContext>& sslContext
 ) throw(CannotCreateSocketException, CannotConnectException,
         InvalidLocatorException)
 {
@@ -131,13 +129,20 @@ void WbemExecClient::_connect(
     //
     //try
     //{
-	_httpConnection = _httpConnector->connect(host,
-                                                  portNumber,
-                                                  sslContext,
-                                                  this);
-    #ifndef PEGASUS_USE_23HTTPMONITOR_CLIENT
+#ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT 
+    _httpConnection.reset(_httpConnector->connect(host,
+                                                  portNumber, 
+                                                  sslContext.get(), 
+                                                  this));
+    sslContext.release();
+#else 
+    _httpConnection.reset(_httpConnector->connect(host, 
+                                                  portNumber, 
+                                                  sslContext.get(), 
+                                                  this));
+    sslContext.release();
     _monitor->set_session_dispatch(_httpConnection->connection_dispatch);//bug#1170
-    #endif
+#endif
 
     //}
     // Could catch CannotCreateSocketException, CannotConnectException,
@@ -154,7 +159,7 @@ void WbemExecClient::_connect(
 void WbemExecClient::connect(
     const String& host,
     const Uint32 portNumber,
-    SSLContext* sslContext,
+    AutoPtr<SSLContext>& sslContext,
     const String& userName,
     const String& password
 ) throw(AlreadyConnectedException, InvalidLocatorException,
@@ -215,8 +220,9 @@ void WbemExecClient::connectLocal()
     _authenticator.clear();
     _authenticator.setAuthType(ClientAuthenticator::LOCAL);
 
+    AutoPtr<SSLContext>  sslContext;
 #ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
-    _connect(host, portNumber, NULL);
+    _connect(host, portNumber, sslContext);
 #else
 
     try
@@ -231,8 +237,6 @@ void WbemExecClient::connectLocal()
         //  Assign host
         //
         host.assign(_getLocalHostName());
-
-        SSLContext  *sslContext = NULL;
 
         _connect(host, portNumber, sslContext);
     }
@@ -265,8 +269,7 @@ void WbemExecClient::connectLocal()
             pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
 #endif
 
-        SSLContext * sslContext =
-            new SSLContext(certpath, verifyServerCertificate, randFile);
+        AutoPtr<SSLContext> sslContext(new SSLContext(certpath, verifyServerCertificate, randFile));//PEP101
 
         _connect(host, portNumber, sslContext);
     }
@@ -281,7 +284,7 @@ void WbemExecClient::disconnect()
         //
         // Close the connection
         //
-        _httpConnector->disconnect(_httpConnection);
+        _httpConnector->disconnect(_httpConnection.get());
 
         _authenticator.clear();
 
@@ -374,11 +377,10 @@ Array<Sint8> WbemExecClient::issueRequest(
         }
     } while (!finished);
 
-    HTTPMessage* origRequest = (HTTPMessage*)_authenticator.getRequestMessage();
+    AutoPtr<HTTPMessage> origRequest((HTTPMessage*)_authenticator.getRequestMessage());
     _authenticator.setRequestMessage(0);
-    delete origRequest;
-
-    Destroyer<HTTPMessage> destroyer(httpResponse);
+    
+    AutoPtr<HTTPMessage> destroyer(httpResponse);
 
     return(httpResponse->message);
 }

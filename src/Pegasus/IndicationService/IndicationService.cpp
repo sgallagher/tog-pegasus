@@ -1323,10 +1323,8 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
 void IndicationService::_handleEnumerateInstanceNamesRequest
     (const Message* message)
 {
-    const char METHOD_NAME [] = 
-        "IndicationService::_handleEnumerateInstanceNamesRequest";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE, 
+            "IndicationService::_handleEnumerateInstanceNamesRequest");
 
     CIMEnumerateInstanceNamesRequestMessage* request =
 	(CIMEnumerateInstanceNamesRequestMessage*) message;
@@ -1360,9 +1358,20 @@ void IndicationService::_handleEnumerateInstanceNamesRequest
 	    request->queueIds.copyAndPop(),
 	    enumInstanceNames);
 
-    _enqueueResponse(request, response);
+    // preserve message key
+    response->setKey(request->getKey());
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    // lookup the message queue
+    MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
+
+    PEGASUS_ASSERT(queue != 0);
+
+    // enqueue the response
+    queue->enqueue(response);
+
+//    _enqueueResponse(request, response);
+
+    PEG_METHOD_EXIT ();
 }
 
 void IndicationService::_handleModifyInstanceRequest (const Message* message)

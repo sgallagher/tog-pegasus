@@ -8,7 +8,7 @@ Summary: PEGASUS CIMOM for Linux
 Name: pegasus
 Autoreqprov:  on
 Version: 1.0
-Release: 2
+Release: 5
 Group: Systems Management/Base
 Copyright: MIT Public Licence
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}
@@ -175,8 +175,10 @@ sbin/insserv etc/init.d
 %attr(-,root,root) /usr/lib/libHelloWorldProvider.so
 %attr(-,root,root) /usr/lib/libMyProvider.so
 %attr(-,root,root) /usr/lib/libOperatingSystemProvider.so
+%attr(-,root,root) /usr/lib/libPG_ProviderRegistration.so
 %attr(-,root,root) /usr/lib/libSampleIndicationProvider.so
 %attr(-,root,root) /usr/lib/libSampleInstanceProvider.so
+%attr(-,root,root) /usr/lib/libUserManagerProvider.so
 %attr(-,root,root) /usr/lib/lib__NamespaceProvider.so
 %attr(-,root,root) /usr/lib/libpegclient.so
 %attr(-,root,root) /usr/lib/libpegcliutils.so
@@ -186,11 +188,13 @@ sbin/insserv etc/init.d
 %attr(-,root,root) /usr/lib/libpegexportclient.so
 %attr(-,root,root) /usr/lib/libpegexportserver.so
 %attr(-,root,root) /usr/lib/libpeggetoopt.so
+%attr(-,root,root) /usr/lib/libpeglocalauth.so
 %attr(-,root,root) /usr/lib/libpegprotocol.so
 %attr(-,root,root) /usr/lib/libpegprovider.so
 %attr(-,root,root) /usr/lib/libpegprovider2.so
 %attr(-,root,root) /usr/lib/libpegrepository.so
 %attr(-,root,root) /usr/lib/libpegserver.so
+%attr(-,root,root) /usr/lib/libpeguser.so
 %attr(-,root,root) /usr/lib/libsendmailIndicationHandler.so
 %attr(-,root,root) /usr/lib/libslp.so
 %attr(-,root,root) /usr/lib/libsnmpIndicationHandler.so

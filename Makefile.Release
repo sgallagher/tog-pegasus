@@ -7,20 +7,27 @@ ifndef ROOT
 endif
 
 include $(ROOT)/mak/config.mak
-include $(ROOT)/mak/commands.mak
 
 DIRS = src
 
 include $(ROOT)/mak/recurse.mak
 
-rebuild: clean depend all repository
-	$(MAKE) -s tests
+FORCE:
 
-world: depend all repository
-	$(MAKE) -s tests
+world: depend all repository install
+	@$(ECHO) "build completed successfully"
+
+rebuild: clean depend all repository install
+	@$(ECHO) "rebuild completed successfully"
 
 repository: FORCE
 	$(MAKE) "-SC" Schemas/Pegasus repository
+
+install: FORCE
+	$(MAKE) -f $(ROOT)/Makefile.Release verify_install_enabled
+	$(MAKE) -f $(ROOT)/Makefile.Release preinstall_cleanup
+	$(MAKE) -f $(ROOT)/Makefile.Release createPegasusDirectories 
+	$(MAKE) -f $(ROOT)/Makefile.Release copyPegasusFiles 
 
 PEGASUS_LICENSE = \
    license.txt
@@ -69,7 +76,9 @@ PEGASUS_ADMIN_CMDS = \
    cimauth \
    cimconfig \
    cimserver \
-   cimuser
+   cimuser \
+   cimprovagt \
+   cimservera
 
 PEGASUS_USER_CMDS = \
    cimmof \
@@ -116,12 +125,6 @@ MANAGEDSYSTEM_MOF_FILES = \
    PG_OperatingSystem20R.mof \
    PG_UnixProcess20.mof \
    PG_UnixProcess20R.mof
-
-FORCE:
-
-build:
-	$(MAKE) -f $(ROOT)/Makefile.Release verify_install_enabled
-	$(MAKE) 
 
 verify_install_enabled: FORCE
 ifndef PEGASUS_ENABLE_MAKE_INSTALL
@@ -260,9 +263,4 @@ endif
 	$(MAKE) -f $(ROOT)/Makefile.Release createClientCertificateFiles
 endif
 
-install: FORCE
-	$(MAKE) -f $(ROOT)/Makefile.Release verify_install_enabled
-	$(MAKE) -f $(ROOT)/Makefile.Release preinstall_cleanup
-	$(MAKE) -f $(ROOT)/Makefile.Release createPegasusDirectories 
-	$(MAKE) -f $(ROOT)/Makefile.Release copyPegasusFiles 
-	$(MAKE) -f $(ROOT)/Makefile.Release createPegasusFiles 
+include $(ROOT)/mak/commands.mak

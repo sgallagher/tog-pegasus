@@ -43,8 +43,6 @@ ifeq ($(OS),HPUX)
   COPY = cp
   TOUCH = touch
 
-  PEGASUS_ENABLE_MAKE_INSTALL = yes
-
   GENERATE_RANDSEED = randseed
   OPENSSL_COMMAND = openssl
   GET_HOSTNAME = `hostname`
@@ -173,49 +171,49 @@ ifndef TMP_DIR
  endif
 endif
 
-FORCE: 
+CMDSFORCE: 
 
-cimstop: FORCE
+cimstop: CMDSFORCE
 	$(CIMSERVER_STOP_SERVICE)
 
-cimstop_IgnoreError: FORCE
+cimstop_IgnoreError: CMDSFORCE
 	@make -f $(ROOT)/mak/commands.mak -i cimstop
 
-cimstart: FORCE
+cimstart: CMDSFORCE
 	$(CIMSERVER_START_SERVICE)
 
-sleep: FORCE
+sleep: CMDSFORCE
 	$(SLEEP) $(TIME)
 
-mkdirhier: FORCE
+mkdirhier: CMDSFORCE
 	$(MKDIRHIER) $(DIRNAME)
 
-mkdirhier_IgnoreError: FORCE
+mkdirhier_IgnoreError: CMDSFORCE
 	@make -f $(ROOT)/mak/commands.mak -i mkdirhier
 
-rmdirhier: FORCE
+rmdirhier: CMDSFORCE
 	$(RMDIRHIER) $(DIRNAME)
 
-rmdirhier_IgnoreError: FORCE
+rmdirhier_IgnoreError: CMDSFORCE
 	@make -f $(ROOT)/mak/commands.mak -i rmdirhier
 
-setpermissions: FORCE
+setpermissions: CMDSFORCE
 	$(CHMOD) $(PERMISSIONS) $(OBJECT)
 	$(CHOWN) $(OWNER) $(OBJECT) 
 	$(CHGRP) $(GROUP) $(OBJECT) 
 
-sethierpermissions: FORCE
+sethierpermissions: CMDSFORCE
 	$(CHMODDIRHIER) $(PERMISSIONS) $(OBJECT)
 	$(CHOWNDIRHIER) $(OWNER) $(OBJECT) 
 	$(CHGRPDIRHIER) $(GROUP) $(OBJECT) 
 
-createlink: FORCE
+createlink: CMDSFORCE
 	$(SYMBOLIC_LINK_CMD) $(OBJECT) $(LINKNAME)
 
-createrandomseed: FORCE
+createrandomseed: CMDSFORCE
 	$(GENERATE_RANDSEED) $(FILENAME)
 
-testCommands: FORCE
+testCommands: CMDSFORCE
 	$(MAKE) -f $(ROOT)/mak/commands.mak sleep TIME=10
 	$(MAKE) -f $(ROOT)/mak/commands.mak rmdirhier_IgnoreError DIRNAME=$(TMP_DIR)/PegasusTestDirA/PegasusTestDirB
 	$(MAKE) -f $(ROOT)/mak/commands.mak mkdirhier DIRNAME=$(TMP_DIR)/PegasusTestDirA/PegasusTestDirB

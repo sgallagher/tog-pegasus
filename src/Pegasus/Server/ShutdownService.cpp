@@ -246,7 +246,7 @@ void ShutdownService::_shutdownCIMServer()
     
 #endif    
 
-    MessageQueueService::force_shutdown();
+//    MessageQueueService::force_shutdown();
 
     Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
 		"ShutdownService::_shutdownCIMServer - CIM Server shutdown complete");
@@ -323,26 +323,39 @@ void ShutdownService::_sendShutdownRequestToService(const char * serviceName)
     MessageQueueService * _service = dynamic_cast<MessageQueueService *>(queue);
     Uint32 _queueId = _service->getQueueId();
 
-    // 
-    // create stop request
-    //
-    CimServiceStop *stopRequest = 
-        new CimServiceStop(
-                _service->get_next_xid(),    // routing
-                NULL,                        // operation
-                _queueId,                    // destination
-                _controller->getQueueId(),   // response
-                true);                       // blocking
+    // send a stop, start, and CLOSE << Wed Oct 15 08:51:57 2003 mdd >>
+    CimServiceStop* stop_message = new CimServiceStop(_service->get_next_xid(),
+						      NULL, 
+						      _queueId, 
+						      _controller->getQueueId(),
+						      false);
+
+    _controller->ClientSendForget(*_client_handle, _queueId, stop_message);
+
+    CimServiceStart* start_message = new CimServiceStart(_service->get_next_xid(),
+							 NULL, 
+							 _queueId, 
+							 _controller->getQueueId(),
+							 false);
+
+    _controller->ClientSendForget(*_client_handle, _queueId, start_message);
 
 
-    //
-    // Now send Stop request to service
-    //
-    _controller->ClientSendForget(*_client_handle,
-				  _queueId,
-				  stopRequest);
 
-    //delete stopRequest;
+    // create a CLOSE request and send it to the service 
+
+    AsyncIoctl* close_request = new AsyncIoctl(_service->get_next_xid(),
+					       NULL,
+					       _queueId,
+					       _controller->getQueueId(),
+					       false,
+					       AsyncIoctl::IO_CLOSE,
+					       0, 
+					       0);
+    _controller->ClientSendForget(*_client_handle, _queueId, close_request);
+    
+				
+
 
     return;
 }

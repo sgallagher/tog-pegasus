@@ -419,7 +419,7 @@ void CIMServer::_monitor_idle_routine(void *parm)
       myself->monitor2->stop();
       
       ShutdownService::getInstance(myself)->shutdown(true, 10, false);
-      MessageQueueService::force_shutdown(true);
+//      MessageQueueService::force_shutdown(true);
       
       handleShutdownSignal = false;
    }
@@ -477,7 +477,7 @@ void CIMServer::runForever()
   }
   else {
     monitor2->run();
-    MessageQueueService::force_shutdown(true);
+//    MessageQueueService::force_shutdown(true);
   }
 
 }

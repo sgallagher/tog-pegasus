@@ -82,7 +82,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL  MessageQueueService::kill_idle_threa
 
 void MessageQueueService::force_shutdown(Boolean destroy_flag)
 {
-
+   return;
+   
 #ifdef MESSAGEQUEUESERVICE_DEBUG
 	//l10n
    MessageLoaderParms parms("Common.MessageQueueService.FORCING_SHUTDOWN",
@@ -677,6 +678,8 @@ void MessageQueueService::handle_AsyncIoctl(AsyncIoctl *req)
       {
 
 	 MessageQueueService *service = static_cast<MessageQueueService *>(req->op->_service_ptr);
+	 PEGASUS_STD(cout) << service->getQueueName() << " Received AsyncIoctl::IO_CLOSE " << PEGASUS_STD(endl);
+	 
 	 
 	 // respond to this message. this is fire and forget, so we don't need to delete anything. 
 	 // this takes care of two problems that were being found 
@@ -723,6 +726,9 @@ void MessageQueueService::handle_AsyncIoctl(AsyncIoctl *req)
 
 void MessageQueueService::handle_CimServiceStart(CimServiceStart *req)
 {
+
+   PEGASUS_STD(cout) << getQueueName() << "received START" << PEGASUS_STD(endl);
+   
    // clear the stoped bit and update
    _capabilities &= (~(module_capabilities::stopped));
    _make_response(req, async_results::OK);
@@ -732,6 +738,7 @@ void MessageQueueService::handle_CimServiceStart(CimServiceStart *req)
 }
 void MessageQueueService::handle_CimServiceStop(CimServiceStop *req)
 {
+   PEGASUS_STD(cout) << getQueueName() << "received STOP" << PEGASUS_STD(endl);
    // set the stopeed bit and update
    _capabilities |= module_capabilities::stopped;
    _make_response(req, async_results::CIM_STOPPED);

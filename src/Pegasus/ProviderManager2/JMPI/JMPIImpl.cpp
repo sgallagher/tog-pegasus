@@ -38,7 +38,11 @@
 
 #include "JMPIImpl.h"
 
+#if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+#include <Pegasus/Common/DynamicLibrary.h>
+#else
 #include <dlfcn.h>
+#endif
 #include <iostream>
 
 #include <Pegasus/Common/Config.h>

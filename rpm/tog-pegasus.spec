@@ -328,7 +328,7 @@ fi
 
 /var/opt/tog-pegasus/repository
 
-%doc %attr(400,root,root) /opt/tog-pegasus/license.txt
+%doc %attr(444,root,root) /opt/tog-pegasus/license.txt
 %doc /opt/tog-pegasus/share/man/man1/cimmof.1
 %doc /opt/tog-pegasus/share/man/man1/cimprovider.1
 %doc /opt/tog-pegasus/share/man/man1/osinfo.1

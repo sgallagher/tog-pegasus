@@ -799,7 +799,8 @@ _append_filesSectionToSpecFile: FORCE
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "$(PEGASUS_REPOSITORY_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%doc %attr($(Pr________),root,root) $(PEGASUS_PROD_DIR)/license.txt" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(foreach i, $(PEGASUS_LICENSE), \
+	           $(ECHO-E) "%doc %attr($(Pr__r__r__),root,root) $(PEGASUS_PROD_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
 	@$(foreach i, $(PEGASUS_UNIX_MAN_USER_PAGES), \
                    $(ECHO-E) "%doc $(PEGASUS_MANUSER_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 
 	@$(foreach i, $(PEGASUS_UNIX_MAN_ADMIN_PAGES), \

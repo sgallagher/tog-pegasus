@@ -110,9 +110,10 @@ public:
 
     void deleteResponse(const Uint32&pos) { _responseList.remove(pos);}
 
-    Uint32 getRequestType(){
-        return _msgRequestType;
-    }
+    Uint32 getRequestType(){ return _msgRequestType;}
+    
+    // The increment on return must be thread protected.
+    Mutex mutex;
     String _messageId;
     Uint32 _msgRequestType;
     void * dest;

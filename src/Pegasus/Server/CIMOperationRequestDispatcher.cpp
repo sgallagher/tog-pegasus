@@ -841,20 +841,26 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesResponse(operati
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "CIMOperationRequestDispatcher::handleEnumerateInstanceNamesResponse");
+    
     CIMResponseMessage *goodResponse = poA->getResponse(0);
     CIMEnumerateInstanceNamesResponseMessage * toResponse = 
 	(CIMEnumerateInstanceNamesResponseMessage *)goodResponse;
-
-    for(Uint32 i = 1; i < poA->numberResponses(); i++)
+    
+    // for all of the responses in the aggregation except the first
+    // Note that this removes them from the end.
+    for(Uint32 i = (poA->numberResponses() - 1); i > 0; i--)
     {
     	CIMEnumerateInstanceNamesResponseMessage *fromResponse = 
     	    (CIMEnumerateInstanceNamesResponseMessage *)poA->getResponse(i);
-    	//cout << "KSTEST number instances for response = " << i 
-    	//    << " is " << fromResponse->instanceNames.size() << endl;
-    
+        
+        PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4, 
+            Formatter::format(
+            "Enumerate instance names Response Merge $1 names for response $2",
+            fromResponse->instanceNames.size(), i));
+        
+        // for each instance name in each response
     	for (Uint32 j = 0; j < fromResponse->instanceNames.size(); j++)
     	{
-    	    // Duplicate test goes here. 
             // If the from response already contains the name, do not put it.
             /* ATTN: KS 28 May 2002 - Temporarily disable the duplicate delete code.
             if (!Contains( toResponse->instanceNames, fromResponse->instanceNames[j]))
@@ -864,9 +870,8 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesResponse(operati
             */
             toResponse->instanceNames.append(fromResponse->instanceNames[j]);
     	}
-    	poA->deleteResponse(i);
     }
-
+     
     PEG_METHOD_EXIT();
 }
 /* The function aggregates individual EnumerateInstance Responses into a single response
@@ -887,13 +892,19 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesResponse(operationAg
     CIMEnumerateInstancesResponseMessage * toResponse = 
 	(CIMEnumerateInstancesResponseMessage *)goodResponse;
         
-    for(Uint32 i = 1; i < poA->numberResponses(); i++)
+    // for all of the responses in the aggregation except the first
+    // Note that this removes them from the end.
+    for(Uint32 i = (poA->numberResponses() - 1); i > 0; i--)
     {
     	CIMEnumerateInstancesResponseMessage *fromResponse = 
     	    (CIMEnumerateInstancesResponseMessage *)poA->getResponse(i);
-    	//cout << "KSTEST number instances for response = " << i 
-    	//    << " is " << fromResponse->cimNamedInstances.size() << endl;
+        
+        PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4, 
+            Formatter::format(
+            "Enumerate instance Response Merge $1 instances for response $2",
+            fromResponse->cimNamedInstances.size(), i));
     
+        // for each instance name in each response
     	for (Uint32 j = 0; j < fromResponse->cimNamedInstances.size(); j++)
     	{
     	    toResponse->cimNamedInstances.append(fromResponse->cimNamedInstances[j]);
@@ -904,11 +915,12 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesResponse(operationAg
 }
 
 /* handleOperationResponseAggregation - handles all of the general functions of
-   aggregation including:
+   aggregation processing including:
    1. checking for good responses and eliminating any error responses
    2. issuing an error if all responses are bad.
    3. calling the proper function for merging
    4. Issuing the single merged response.
+   This function gets control once all the responses have been returned.
 */
 void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
    operationAggregate* poA)
@@ -998,7 +1010,12 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
    /* Merge the responses into a single CIMEnumerateInstanceNamesResponse
    */
     //cout << "KSTEST total Responses " << totalResponses 
-    //    << " total Good Responses " << poA->numberResponses()<< endl;
+    //   << " total Good Responses " << poA->numberResponses()<< endl;
+    PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4, 
+        Formatter::format(
+        "Total Responses = $1, Total Good = $2",
+        totalResponses, poA->numberResponses()));
+    
 
     // If more than one response, go to proper aggregation function
     if(poA->numberResponses() > 1)
@@ -1143,16 +1160,27 @@ void CIMOperationRequestDispatcher::_handleResponse(CIMOperationRequestDispatche
         assert (false);
     }
 
+    // Increment the response counter and save the response.
+    // THis must be locked because the thread is not guaranteed.
+    // Note that the == test is simply a confirmation.
+    // If it happens, this is an internal error.
     if (response->messageId == poA->_messageId)
     {
+        poA->mutex.lock(pegasus_thread_self());
         poA->appendResponse(response);
         poA->incrementReturned();
+        poA->mutex.unlock();
         // If all responses received, call the postProcessor
+        
         /*cout << "KSTEST counts " 
              << "total = " << poA->total()
              << "returned  = " <<  poA->returned()
-             << " Total Operations outstanding = " << size
              << endl;*/
+        PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4, 
+            Formatter::format(
+            "Total Responses issued = $1, Total returned = $2",
+            poA->total(), poA->returned()));
+        
 
         if (poA->total() == poA->returned())
         {
@@ -1540,7 +1568,7 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
       PEG_METHOD_EXIT();
       return;
    }
-#endif
+#endif /*NEWTEST*/
 
    // not internal or found provider, go to default
    if (_repository->isDefaultInstanceProvider())
@@ -1555,12 +1583,12 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
       try
       {
          cimInstance = _repository->getInstance(
-	    request->nameSpace,
-	    request->instanceName,
-	    request->localOnly,
-	    request->includeQualifiers,
-	    request->includeClassOrigin,
-	    request->propertyList.getPropertyNameArray());
+    	    request->nameSpace,
+    	    request->instanceName,
+    	    request->localOnly,
+    	    request->includeQualifiers,
+    	    request->includeClassOrigin,
+    	    request->propertyList.getPropertyNameArray());
       }
       catch(CIMException& exception)
       {
@@ -1669,6 +1697,22 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
    
    String serviceName = String::EMPTY;
    String controlProviderName = String::EMPTY;
+   String providerName = String::EMPTY;
+// Temp to save old code until we confirm everything runs 7 May ks ATTN P0
+#define NEWTEST
+#ifdef NEWTEST
+   if(_lookupNewInstanceProvider(request->nameSpace, className, serviceName,
+	    controlProviderName))
+    {
+	CIMDeleteInstanceRequestMessage* requestCopy =
+	    new CIMDeleteInstanceRequestMessage(*request);
+
+	_forwardRequest(className, serviceName, controlProviderName,
+	    requestCopy);
+	PEG_METHOD_EXIT();
+	return;
+    }
+#else
 
    // Check for class provided by an internal provider
    if (_lookupInternalProvider(request->nameSpace, className, serviceName,
@@ -1698,6 +1742,8 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
       PEG_METHOD_EXIT();
       return;
    }
+#endif /*NEWTEST*/
+   
    else if (_repository->isDefaultInstanceProvider())
    {
       CIMException cimException;
@@ -1818,6 +1864,23 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 
    String serviceName = String::EMPTY;
    String controlProviderName = String::EMPTY;
+   String providerName = String::EMPTY;
+   
+// Temp to save old code until we confirm everything runs 30 May ks ATTN P0
+#define NEWTEST
+#ifdef NEWTEST
+   if(_lookupNewInstanceProvider(request->nameSpace, className, serviceName,
+	    controlProviderName))
+    {
+	CIMCreateInstanceRequestMessage* requestCopy =
+	    new CIMCreateInstanceRequestMessage(*request);
+
+	_forwardRequest(className, serviceName, controlProviderName,
+	    requestCopy);
+	PEG_METHOD_EXIT();
+	return;
+    }
+#else
 
    // Check for class provided by an internal provider
    if (_lookupInternalProvider(request->nameSpace, className, serviceName,
@@ -1846,6 +1909,8 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
       PEG_METHOD_EXIT();
       return;
    }
+#endif /*NEWTEST*/
+
    else if (_repository->isDefaultInstanceProvider())
    {
       CIMException cimException;
@@ -1971,6 +2036,23 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
 
    String serviceName = String::EMPTY;
    String controlProviderName = String::EMPTY;
+   String providerName = String::EMPTY;
+   
+#define NEWTEST
+#ifdef NEWTEST
+   if(_lookupNewInstanceProvider(request->nameSpace, className, serviceName,
+	    controlProviderName))
+    {
+	CIMModifyInstanceRequestMessage* requestCopy =
+	    new CIMModifyInstanceRequestMessage(*request);
+
+	_forwardRequest(className, serviceName, controlProviderName,
+	    requestCopy);
+	PEG_METHOD_EXIT();
+	return;
+    }
+#else
+   
 
    // Check for class provided by an internal provider
    if (_lookupInternalProvider(request->nameSpace, className, serviceName,
@@ -2000,6 +2082,8 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
       PEG_METHOD_EXIT();
       return;
    }
+#endif /*NEWTEST*/
+
    else if (_repository->isDefaultInstanceProvider())
    {
       // translate and forward request to repository
@@ -2362,7 +2446,6 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 
       STAT_COPYDISPATCHER_REP
 
-#if 0
           // if there will be other responses, put this on the response list.
           // else, simply issue it.
           if (ps > 0)
@@ -2376,11 +2459,9 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
               PEG_METHOD_EXIT();
               return;
           }
-#else
           _enqueueResponse(request, response);
           PEG_METHOD_EXIT();
           return;
-#endif
    }
 
    if(ps > 0)
@@ -2388,7 +2469,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
        //************* Limit to one response if we have problems with more.
 #ifdef LIMIT_ENUM_TO_ONE_LEVEL
        ps = 1;
-#endif
+#endif  /*LIMIT_ENUM_TO_ONE_LEVEL */
        // Simply takes the top level request and ignores the others.
        // decomment the ps = 1 to generate only one request.
        //*******************/
@@ -2491,6 +2572,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
    Array<String> subClassNameList;
    Array<String> serviceNames;
    Array<String> controlProviderNames;
+   Array<String> repositoryClassList;
 
    for(Uint32 i = 0; i < subClassNames.size(); i++)
    {
@@ -2512,6 +2594,9 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 			   + " controlProviderName = " 
                + ((controlProviderName != String::EMPTY)  ? controlProviderName : "None"));
 		}
+       // Put into list to look into repository
+       else
+           repositoryClassList.append(subClassNames[i]);
    }
 
    Uint32 ps = serviceNames.size();
@@ -2614,7 +2699,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
        //************* Limit to one response if we have problems with more.
 #ifdef LIMIT_ENUM_TO_ONE_LEVEL
        ps = 1;
-#endif
+#endif /* LIMIT_ENUM_TO_ONE_LEVEL*/
        // Simply takes the top level request and ignores the others.
        //*******************/
        poA->setTotalIssued(ps);
@@ -2644,7 +2729,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
                     poA->controlProviderNames[current] : "None"),
                i, ps));
             
-    	   /*cout << "KSTEST send to provider, Class =  " << classes[current]
+    	   /*cout << "KSTEST send to provider, Class =  " << poA->classes[current]
                << " servicename = " << poA->serviceNames[current]
                << " control provider name = " 
                << ((poA->controlProviderNames[current] != String::EMPTY)  ?
@@ -2660,7 +2745,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
                          != String::EMPTY)  ?
                            poA->controlProviderNames[j] : "None") 
     	            << " count " << j << endl;
-           }*/
+           } */
            
     	  _forwardRequestEnum(poA->classes[current], poA->serviceNames[current],
     	       poA->controlProviderNames[current], requestCopy, poA);

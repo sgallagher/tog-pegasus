@@ -1,0 +1,35 @@
+#####################################
+# Symbolic Constant testing queries.#
+#####################################
+#Query on fully qualified symbolic constant comparison with integer. Result is TRUE
+select * from CIM_ComputerSystem where CIM_ComputerSystem.EnabledState#'Enabled' = 2
+
+#Query on fully qualified symbolic constant comparison with integer. Result is TRUE
+select * from CIM_ComputerSystem where 2 = CIM_ComputerSystem.EnabledState#'Enabled'
+
+#Query on 2 fully qualified symbolic constants comparison. Result is FALSE
+select * from CIM_ComputerSystem where CIM_ComputerSystem.EnabledState#'Enabled' = CIM_ComputerSystem.EnabledState#'Disabled'
+
+#Query on fully qualified symbolic constant comparison with SC qualified with property name. Result is FALSE 
+select * from CIM_ComputerSystem where CIM_ComputerSystem.EnabledState#'Enabled' = EnabledState#'Disabled'
+
+#Query on fully qualified symbolic constant comparison with SC qualified with property name. Result is FALSE 
+select * from CIM_ComputerSystem where EnabledState#'Enabled' = CIM_ComputerSystem.EnabledState#'Disabled'
+
+#Query on fully qualified symbolic constant comparison with unqualified SC. Result is FALSE 
+select * from CIM_ComputerSystem where CIM_ComputerSystem.EnabledState#'Enabled' = #'Disabled'
+
+#Query on fully qualified symbolic constant comparison with unqualified SC. Result is FALSE 
+select * from CIM_ComputerSystem where #'Enabled' = CIM_ComputerSystem.EnabledState#'Disabled'
+
+#Query on symbolic constant qualified with property name comparison with unqualified SC. Result is FALSE
+select * from CIM_ComputerSystem where EnabledState#'Enabled' = #'Disabled'
+
+#Query on symbolic constant qualified with property name comparison with unqualified SC. Result is FALSE
+select * from CIM_ComputerSystem where #'Enabled' = EnabledState#'Disabled'
+
+#Query on 2 fully qualified symbolic constants comparison with an invalid SC name. Result Exception.
+select * from CIM_ComputerSystem where CIM_ComputerSystem.EnabledState#'Enabled' = CIM_ComputerSystem.EnabledState#'Bogus' 
+
+#Query on 2 unqualified symbolic Constants. Result Exception
+select * from CIM_ComputerSystem where #'Enabled' = #'Disabled'

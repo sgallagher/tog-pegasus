@@ -82,4 +82,6 @@
 
 #define PEGASUS_STATIC_CDECL __cdecl
 
+#define PEGASUS_NO_PASSWORDFILE
+
 #endif /* Pegasus_Platform_OS400_ISERIES_IBM_h */

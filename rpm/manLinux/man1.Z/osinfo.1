@@ -12,9 +12,9 @@ The
 .B osinfo 
 command displays information regarding the operating system,
 gathered via WBEM using the PG_OperatingSystem class supported by the
-OperatingSystem Provider (bundled with HP WBEM Services).
+OperatingSystem Provider (bundled with OpenPegasus).
 .B osinfo
-requires HP WBEM Services to be installed and running.
+requires the CIM Server to be installed and running.
 .PP
 By default, the information is formatted for display, converting
 CIMDateTime strings into a more user-readable format (see Examples),
@@ -73,7 +73,7 @@ command.
 .TP
 .B "OperatingSystem Information"
 .TP
-.B "  Host: rushmore.cup.hp.com "
+.B "  Host: myserver.hp.com "
 .TP
 .B "  Name: HP-UX "
 .TP
@@ -90,7 +90,7 @@ command.
 .B "  SystemUpTime: 20828377 seconds = 241 days, 1 hr, 39 mins, 37 secs  "
 .PD
 .PP
-The system rushmore.cup.hp.com is running version B.11.00 of HP-UX,
+The system myserver.hp.com is running version B.11.00 of HP-UX,
 has an unlimited user license, and is 32-bit capable.  The Operating
 System was last booted on Sept 24, 2001 and the local date and time
 are given.  All time values are offset from GMT by -7 hours.

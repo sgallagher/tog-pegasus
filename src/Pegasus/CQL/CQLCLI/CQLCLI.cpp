@@ -93,14 +93,15 @@ Boolean _getPropertyList(Array<CQLSelectStatement>& _statements, Array<CIMInstan
 
 Boolean _evaluate(Array<CQLSelectStatement>& _statements, Array<CIMInstance>& _instances){
 	for(Uint32 i = 0; i < _statements.size(); i++){
-        	printf("Evaluating query %d...\n",i);
+        	printf("\n\nEvaluating query %d :  ",i+1);
+   		cout << _statements[i].toString() << endl << endl;;
            	for(Uint32 j = 0; j < _instances.size(); j++){
 		  try
 		    {
         		Boolean result = _statements[i].evaluate(_instances[j]);
 			cout << _statements[i].toString() << " = ";
-			if(result) printf("TRUE\n");
-                	else printf("FALSE\n");
+			if(result) printf("TRUE\n\n");
+                	else printf("FALSE\n\n");
 		    }
 		  catch(Exception e){ cout << e.getMessage() << endl;}
 		  catch(...){ cout << "Unknown Exception" << endl;}
@@ -132,8 +133,16 @@ int main(int argc, char ** argv)
         Array<CIMInstance> _instances = _rep->enumerateInstances( _ns, _testclass );
 	_instances.appendArray(_rep->enumerateInstances( _ns, _testclass1 ));
 
+	// demo setup
+	if(argc == 3){
+		_instances.clear();
+		const CIMName _testclassDEMO(String("CIM_Process"));
+		_instances.appendArray(_rep->enumerateInstances( _ns, _testclassDEMO ));
+		_instances.remove(6,6);
+	}
+
 	// setup input stream
-	if(argc == 2){
+	if(argc >= 2){
 		ifstream queryInputSource(argv[1]);
 		if(!queryInputSource){
 			cout << "Cannot open input file.\n" << endl;
@@ -150,8 +159,13 @@ int main(int argc, char ** argv)
 			while(text[i] == ' ' || text[i] == '\t') i++; // ignore whitespace
 			if(text[i] != _comment){
 				if(!(strlen(_text) < 2)){
-					CQLParser::parse(text,_ss);
-					_statements.append(_ss);
+					try{
+						CQLParser::parse(text,_ss);
+						_statements.append(_ss);
+					}catch(Exception& e){
+						cout << endl << "Caught Exception: " << e.getMessage() << endl << endl;
+						_ss.clear();
+					}
 				}
 			}
 		}

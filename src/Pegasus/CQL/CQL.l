@@ -25,12 +25,13 @@ PEGASUS_NAMESPACE_BEGIN
 extern CQLParserState* globalParserState;
                                                                                 
 PEGASUS_NAMESPACE_END
-
 char msg_[100];
 void printf__(char * msg){
         if(DEBUG_LEX == 1)
                 printf("%s\n",msg);
 }
+
+int lineno;
 
 %}
 SIGN [+-]
@@ -76,6 +77,7 @@ Z [Zz]
 
     sprintf(msg_,"LEX: %s [SELECT] ", yytext);
     printf__(msg_);
+    
     return SELECT;
 }
 

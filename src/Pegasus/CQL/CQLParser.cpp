@@ -70,7 +70,6 @@ void CQLParser::parse(
     globalParserState->statement = &statement;
 
     	CQL_parse();
-	String s = globalParserState->statement->toString();
 
     if (globalParserState->error)
     {
@@ -134,7 +133,6 @@ PEGASUS_USING_PEGASUS;
 int CQL_error(const char* errorMessage)
 {
     PEG_METHOD_ENTER(TRC_CQL,"CQL_error");
-
     globalParserState->error = true;
     globalParserState->errorMessage = errorMessage;
 

@@ -21,7 +21,6 @@
 #endif
 
 int yylex();
-int yyerror(char * err){throw ParseError(String(err));}
 char msg[100];
 void printf_(char * msg){
 	if(DEBUG_GRAMMAR == 1)
@@ -30,7 +29,7 @@ void printf_(char * msg){
 extern char * yytext;
 int chain_state;
 CQLFactory _factory = CQLFactory();
-
+extern int CQL_error(const char *err);
 PEGASUS_NAMESPACE_BEGIN
                                                                                 
 extern CQLParserState* globalParserState;
@@ -41,6 +40,9 @@ PEGASUS_NAMESPACE_END
 %}
 %union {
    char * strValue;
+   int lineno;
+   int tokenpos;
+   char * linebuf;
    String * _string;
    CQLValue * _value;
    CQLSelectStatement * _ss;
@@ -791,13 +793,12 @@ comp : arith
        }
      | arith _LIKE literal_string
        {
-	    /* make sure $1 isSimple(), get its expression, make simplepred->predicate */
            sprintf(msg,"BISON::comp->arith _LIKE literal_string\n");
 	   printf_(msg);
 
            CQLExpression *_expr1 = (CQLExpression*)(_factory.getObject($1,Predicate,Expression));
-	   CQLChainedIdentifier _cid(*$3);
-           CQLExpression *_expr2 = (CQLExpression*)(_factory.makeObject(&_cid,Expression));
+	   CQLValue _val(*$3);
+           CQLExpression *_expr2 = (CQLExpression*)(_factory.makeObject(&_val,Expression));
 	   CQLSimplePredicate _sp(*_expr1, *_expr2, LIKE);
            _factory.setObject($1,&_sp,SimplePredicate);
            $$ = $1;
@@ -1041,3 +1042,5 @@ select_statement : SELECT select_list FROM from_criteria optional_where
 ;
 
 %%
+
+/*int yyerror(char * err){yyclearin; yyerrok;throw Exception(String(err));return 1;}*/

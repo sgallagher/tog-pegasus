@@ -43,6 +43,8 @@
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
+Boolean verbose = false;
+
 String repositoryRoot;
 
 Array<CIMNamespaceName> _nameSpaceNames;
@@ -103,8 +105,11 @@ void test01()
     assert (classFilePath == cfp);
 }
 
-int main()
+int main(int argc, char** argv)
 {
+    verbose = (getenv ("PEGASUS_TEST_VERBOSE")) ? true : false;
+    if (verbose) cout << argv[0] << ": started" << endl;
+
     const char* tmpDir = getenv ("PEGASUS_TMP");
     if (tmpDir == NULL)
     {
@@ -122,11 +127,11 @@ int main()
     }
     catch (Exception& e)
     {
-	cout << e.getMessage() << endl;
+      cout << argv[0] << e.getMessage() << endl;
         exit (1);
     }
 
-    cout << "+++++ passed all tests" << endl;
+    cout << argv[0] << " +++++ passed all tests" << endl;
 
     return 0;
 }

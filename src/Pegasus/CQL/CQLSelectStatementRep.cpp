@@ -151,6 +151,18 @@ Boolean CQLSelectStatementRep::evaluate(const CIMInstance& inCI)
     throw CQLRuntimeException(parms);
   }
 
+  // Apply to class contexts to the identifiers.
+  // This will check for a well-formed statement.
+  if (!_contextApplied)
+    applyContext();
+
+  // Make sure the type of instance passed in is the FROM class,
+  // or a subclass of the FROM class.
+  if (!isFromChild(inCI.getClassName()))
+  {
+    return false;
+  }
+
   if (!hasWhereClause())
   {
     PEG_METHOD_EXIT();
@@ -158,9 +170,6 @@ Boolean CQLSelectStatementRep::evaluate(const CIMInstance& inCI)
   }
   else
   {
-    if (!_contextApplied)
-      applyContext();
-
     try
     {
       PEG_METHOD_EXIT();
@@ -193,6 +202,8 @@ void CQLSelectStatementRep::applyProjection(CIMInstance& inCI) throw(Exception)
     throw CQLRuntimeException(parms);
   }
 
+  // Apply to class contexts to the identifiers.
+  // This will check for a well-formed statement.
   if (!_contextApplied)
     applyContext();
 
@@ -1356,6 +1367,18 @@ Boolean CQLSelectStatementRep::containsProperty(const CIMName& name,
 
   PEG_METHOD_EXIT();
   return false;
+}
+
+//
+// Checks if the classname passed in is the FROM class, or
+// a subclass of the FROM class
+//
+Boolean CQLSelectStatementRep::isFromChild(const CIMName& className)
+{
+  QueryContext::ClassRelation rel = 
+    _ctx->getClassRelation(_ctx->getFromList()[0].getName(), className);
+
+  return (rel == QueryContext::SAMECLASS || rel == QueryContext::SUBCLASS) ? true : false;
 }
 
 void CQLSelectStatementRep::appendClassPath(const CQLIdentifier& inIdentifier)

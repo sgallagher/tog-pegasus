@@ -148,6 +148,8 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatementRep : public SelectStatementRep
     Boolean containsProperty(const CIMName& name,
                              const Array<CIMName>& props);
 
+    Boolean isFromChild(const CIMName& className);
+
     void checkWellFormedIdentifier(const QueryChainedIdentifier& chainId,
                                    Boolean isSelectListId);
 

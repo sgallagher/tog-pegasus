@@ -422,6 +422,20 @@ void drive_MessageLoader(){
 
 #ifdef PEGASUS_HAS_ICU
 
+	// If PEGASUS_MSG_HOME is set then use that as the message home for this test.
+	// This will ignore any msg home defined for the platform (Constants.h) 
+	// since this is a test environment, not a production environment.
+	const char* env = getenv("PEGASUS_MSG_HOME");
+	if (env != NULL)
+	{
+	  MessageLoader::setPegasusMsgHome(env);
+	}
+
+	// If PEGASUS_USE_DEFAULT_MESSAGES env var is set then we need to make sure that it doesn't
+	// break this test.
+	// Reset _useDefaultMsg to make sure PEGASUS_USE_DEFAULT_MESSAGES is ignored.
+	MessageLoader::_useDefaultMsg = false;
+
 	assert ( MessageLoader::getMessage(mlp) == "CIM_ERR_SUCCESS: SUCCESSFUL en-us rab oof is foo bar backwards, number = 64,000" );
 
 	// test for return content languages

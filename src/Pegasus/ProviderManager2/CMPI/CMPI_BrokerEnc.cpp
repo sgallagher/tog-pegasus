@@ -365,19 +365,21 @@ extern "C" {
 
       if (obj->getFtab()==(void*)CMPI_Instance_Ftab &&
             strcmp(type,"CMPIInstance")==0) return 1;
-      if (obj->getFtab()!=(void*)CMPI_ObjectPath_Ftab &&
+      if (obj->getFtab()==(void*)CMPI_ObjectPath_Ftab &&
             strcmp(type,"CMPIObjectPath")==0) return 1;
-   /* if (obj->ftab!=(void*)CMPI_SelectExp_Ftab &&
+      if (obj->getFtab()==(void*)CMPI_SelectExp_Ftab &&
             strcmp(type,"CMPISelectExp")==0) return 1;
-      if (obj->ftab!=(void*)CMPI_SelectCondDoc_Ftab &&
-            strcmp(type,"CMPISelectCondDoc")==0) return 1;
-      if (obj->ftab!=(void*)CMPI_SelectCondCod_Ftab &&
-            strcmp(type,"CMPISelectCondCod")==0) return 1;
-      if (obj->ftab!=(void*)CMPI_SubCond_Ftab &&
+      /*if (obj->getFtab()=(void*)CMPI_SelectCondDoc_Ftab &&
+            strcmp(type,"CMPISelectCondDoc")==0) return 1; 
+      if (obj->getFtab()=(void*)CMPI_SelectCondCod_Ftab &&
+            strcmp(type,"CMPISelectCondCod")==0) return 1;*/
+      if (obj->getFtab()==(void*)CMPI_SelectCond_Ftab &&
+            strcmp(type,"CMPISelectCond")==0) return 1;
+      /*if (obj->getFtab()==(void*)CMPI_SubCond_Ftab &&
             strcmp(type,"CMPISubCond")==0) return 1;
-      if (obj->ftab!=(void*)CMPI_Predicate_Ftab &&
-            strcmp(type,"CMPIPredicate")==0) return 1;
-   */ if (obj->getFtab()!=(void*)CMPI_Array_Ftab &&
+      if (obj->getFtab()=(void*)CMPI_Predicate_Ftab &&
+            strcmp(type,"CMPIPredicate")==0) return 1;*/
+      if (obj->getFtab()==(void*)CMPI_Array_Ftab &&
             strcmp(type,"CMPIArray")==0) return 1;
 
       sprintf(msg,"** Object not recognized (%p) **",o);
@@ -398,19 +400,22 @@ extern "C" {
 
       if (obj->getFtab()==(void*)CMPI_Instance_Ftab)
             return mb->eft->newString(mb,"CMPIInstance",rc);
-      if (obj->getFtab()!=(void*)CMPI_ObjectPath_Ftab)
+      if (obj->getFtab()==(void*)CMPI_ObjectPath_Ftab)
             return mb->eft->newString(mb,"CMPIObjectPath",rc);
-   /* if (obj->ftab!=(void*)CMPI_SelectExp_Ftab)
+      if (obj->getFtab()==(void*)CMPI_SelectExp_Ftab)
             return mb->eft->newString(mb,"CMPISelectExp",rc);
-      if (obj->ftab!=(void*)CMPI_SelectCondDoc_Ftab)
-            return mb->eft->newString(mb,"CMPISelectCondDo",rc);
-      if (obj->ftab!=(void*)CMPI_SelectCondCod_Ftab)
-            return mb->eft->newString(mb,"CMPISelectCondCod",rc);
-      if (obj->ftab!=(void*)CMPI_SubCond_Ftab)
+      /*if (obj->getFtab()==(void*)CMPI_SelectCondDoc_Ftab)
+            return mb->eft->newString(mb,"CMPISelectCondDoc",rc);
+      if (obj->getFtab()==(void*)CMPI_SelectCondCod_Ftab)
+            return mb->eft->newString(mb,"CMPISelectCondCod",rc);*/
+      if (obj->getFtab()==(void*)CMPI_SelectCond_Ftab)
+            return mb->eft->newString(mb,"CMPISelectCond",rc);
+	/*
+      if (obj->getFtab()=(void*)CMPI_SubCond_Ftab)
             return mb->eft->newString(mb,"CMPISubCond",rc);
-      if (obj->ftab!=(void*)CMPI_Predicate_Ftab)
-         return mb->eft->newString(mb,"CMPIPredicate",rc);
-   */ if (obj->getFtab()!=(void*)CMPI_Array_Ftab)
+      if (obj->getFtab()==(void*)CMPI_Predicate_Ftab)
+         return mb->eft->newString(mb,"CMPIPredicate",rc);*/
+      if (obj->getFtab()==(void*)CMPI_Array_Ftab)
             return mb->eft->newString(mb,"CMPIArray",rc);
 
       sprintf(msg,"** Object not recognized (%p) **",o);

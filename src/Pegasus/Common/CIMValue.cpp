@@ -140,12 +140,11 @@ static void _UnsignedIntToStr(Uint64 x, char* result)
 
     char buffer[256];
     Uint32 len = 0;
-    Boolean negative = false;
 
     for (Uint32 i = 0; 1; i++)
     {
-	Sint64 q = x / 10;
-	Sint32 r = x % 10;
+	Uint64 q = x / 10;
+	Uint32 r = x % 10;
 
 	if (q == 0 && r == 0)
 	    break;

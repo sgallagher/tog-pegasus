@@ -184,7 +184,7 @@ static CMPIStatus mbDeleteInstance (CMPIBroker *mb, CMPIContext *ctx,
 }
 
 static CMPIEnumeration* mbExecQuery(CMPIBroker *mb, CMPIContext *ctx,
-                 CMPIObjectPath *cop, char *query, char *lang, CMPIStatus *rc) {
+                 CMPIObjectPath *cop, const char *query, const char *lang, CMPIStatus *rc) {
    DDD(cout<<"--- mbExecQuery()"<<endl);
 
    AutoMutex mtx(((CMPI_Broker*)mb)->mtx);
@@ -258,8 +258,8 @@ static CMPIEnumeration* mbEnumInstanceNames(CMPIBroker *mb, CMPIContext *ctx,
 }
 
 static CMPIEnumeration* mbAssociators(CMPIBroker *mb, CMPIContext *ctx,
-                 CMPIObjectPath *cop, char *assocClass, char *resultClass,
-                 char *role, char *resultRole, char **properties, CMPIStatus *rc) {
+                 CMPIObjectPath *cop, const char *assocClass, const char *resultClass,
+                 const char *role, const char *resultRole, char **properties, CMPIStatus *rc) {
    DDD(cout<<"--- mbAssociators()"<<endl);
    CMPIFlags flgs=ctx->ft->getEntry(ctx,CMPIInvocationFlags,NULL).value.uint32;
    CIMPropertyList *props=getList(properties);
@@ -294,8 +294,8 @@ static CMPIEnumeration* mbAssociators(CMPIBroker *mb, CMPIContext *ctx,
 }
 
 static CMPIEnumeration* mbAssociatorNames(CMPIBroker *mb, CMPIContext *ctx,
-                 CMPIObjectPath *cop, char *assocClass, char *resultClass,
-		 char *role, char *resultRole, CMPIStatus *rc) {
+                 CMPIObjectPath *cop, const char *assocClass, const char *resultClass,
+		 const char *role, const char *resultRole, CMPIStatus *rc) {
    DDD(cout<<"--- mbAssociatorsNames()"<<endl);
    CIMObjectPath qop(String::EMPTY,CIMNamespaceName(),
                      CM_ObjectPath(cop)->getClassName(),
@@ -323,7 +323,7 @@ static CMPIEnumeration* mbAssociatorNames(CMPIBroker *mb, CMPIContext *ctx,
 }
 
 static CMPIEnumeration* mbReferences(CMPIBroker *mb, CMPIContext *ctx,
-                 CMPIObjectPath *cop,  char *resultClass, char *role ,
+                 CMPIObjectPath *cop,  const char *resultClass, const char *role ,
 		 char **properties, CMPIStatus *rc) {
    DDD(cout<<"--- mbReferences()"<<endl);
    CMPIFlags flgs=ctx->ft->getEntry(ctx,CMPIInvocationFlags,NULL).value.uint32;
@@ -357,7 +357,7 @@ static CMPIEnumeration* mbReferences(CMPIBroker *mb, CMPIContext *ctx,
 }
 
 static CMPIEnumeration* mbReferenceNames(CMPIBroker *mb, CMPIContext *ctx,
-                 CMPIObjectPath *cop, char *resultClass, char *role,
+                 CMPIObjectPath *cop, const char *resultClass, const char *role,
                  CMPIStatus *rc) {
    DDD(cout<<"--- mbReferencesNames()"<<endl);
    CIMObjectPath qop(String::EMPTY,CIMNamespaceName(),
@@ -384,7 +384,7 @@ static CMPIEnumeration* mbReferenceNames(CMPIBroker *mb, CMPIContext *ctx,
 }
 
 static CMPIData mbInvokeMethod(CMPIBroker *mb, CMPIContext *ctx,
-                 CMPIObjectPath *cop, char *method, CMPIArgs *in, CMPIArgs *out,
+                 CMPIObjectPath *cop, const char *method, CMPIArgs *in, CMPIArgs *out,
 		 CMPIStatus *rc) {
    CMPIData data={0,0,{0}};
    if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_SUPPORTED);
@@ -392,7 +392,7 @@ static CMPIData mbInvokeMethod(CMPIBroker *mb, CMPIContext *ctx,
 }
 
 static CMPIStatus mbSetProperty(CMPIBroker *mb, CMPIContext *ctx,
-                 CMPIObjectPath *cop, char *name, CMPIValue *val,
+                 CMPIObjectPath *cop, const char *name, CMPIValue *val,
                  CMPIType type) {
    DDD(cout<<"--- mbSetProperty()"<<endl);
    CMPIrc rc;
@@ -416,7 +416,7 @@ static CMPIStatus mbSetProperty(CMPIBroker *mb, CMPIContext *ctx,
 }
 
 static CMPIData mbGetProperty(CMPIBroker *mb, CMPIContext *ctx,
-                 CMPIObjectPath *cop,char *name, CMPIStatus *rc) {
+                 CMPIObjectPath *cop, const char *name, CMPIStatus *rc) {
    DDD(cout<<"--- mbGetProperty()"<<endl);
    CMPIData data={0,0,{0}};
 
@@ -467,7 +467,7 @@ static CMPIStatus mbDetachThread(CMPIBroker* mb, CMPIContext* eCtx) {
 }
 
 static CMPIStatus mbDeliverIndication(CMPIBroker* eMb, CMPIContext* ctx,
-             char* ns, CMPIInstance* ind) {
+             const char *ns, CMPIInstance* ind) {
    DDD(cout<<"--- mbDeliverIndication()"<<endl);
    CMPI_Broker *mb=(CMPI_Broker*)eMb;
    CMPIProviderManager::indProvRecord *prec;

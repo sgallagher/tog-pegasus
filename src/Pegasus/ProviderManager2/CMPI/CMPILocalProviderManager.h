@@ -81,7 +81,7 @@ private:
         GET_PROVIDER,
         UNLOAD_PROVIDER,
         UNLOAD_ALL_PROVIDERS,
-        UNLOAD_IDLE_PROVIDERS,
+        UNLOAD_IDLE_PROVIDERS
     };
 
     typedef HashTable<String, CMPIProvider *,

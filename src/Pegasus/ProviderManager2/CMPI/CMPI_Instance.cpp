@@ -97,7 +97,7 @@ static CMPIData instGetPropertyAt(CMPIInstance* eInst, CMPICount pos, CMPIString
    return data;
 }
 
-static CMPIData instGetProperty(CMPIInstance* eInst, char* name, CMPIStatus* rc) {
+static CMPIData instGetProperty(CMPIInstance* eInst, const char *name, CMPIStatus* rc) {
    CIMInstance* inst=(CIMInstance*)eInst->hdl;
    Uint32 pos=inst->findProperty(String(name));
 
@@ -121,7 +121,7 @@ static CMPICount instGetPropertyCount(CMPIInstance* eInst, CMPIStatus* rc) {
     TraceableCIMException(CODE, EXTRA_MESSAGE, __FILE__, __LINE__)
 
 
-static CMPIStatus instSetProperty(CMPIInstance* eInst, char* name,
+static CMPIStatus instSetProperty(CMPIInstance* eInst, const char *name,
                           CMPIValue* data, CMPIType type) {
    CIMInstance *inst=(CIMInstance*)eInst->hdl;
    char **list=(char**)((CMPI_Object*)eInst)->priv;

@@ -86,17 +86,17 @@ static CMPIInstance* mbEncNewInstance(CMPIBroker* mb, CMPIObjectPath* eCop,
    return neInst;
 }
 
-static inline CIMNamespaceName NameSpaceName(char *ns) {
+static inline CIMNamespaceName NameSpaceName(const char *ns) {
    if (ns==NULL) return CIMNamespaceName();
    return CIMNamespaceName(ns);
 }
 
-static inline CIMName Name(char *n) {
+static inline CIMName Name(const char *n) {
    if (n==NULL) return CIMName();
    return CIMName(n);
 }
 
-static CMPIObjectPath* mbEncNewObjectPath(CMPIBroker* mb, char *ns, char *cls,
+static CMPIObjectPath* mbEncNewObjectPath(CMPIBroker* mb, const char *ns, const char *cls,
                   CMPIStatus *rc) {
 //   cout<<"--- mbEncNewObjectPath() "<<ns<<"-"<<cls<<endl;
    Array<CIMKeyBinding> keyBindings;
@@ -114,12 +114,12 @@ static CMPIArgs* mbEncNewArgs(CMPIBroker* mb, CMPIStatus *rc) {
    return (CMPIArgs*)new CMPI_Object(new Array<CIMParamValue>());
 }
 
-static CMPIString* mbEncNewString(CMPIBroker* mb, char *cStr, CMPIStatus *rc) {
+static CMPIString* mbEncNewString(CMPIBroker* mb, const char *cStr, CMPIStatus *rc) {
    if (rc) CMSetStatus(rc,CMPI_RC_OK);
    return (CMPIString*)new CMPI_Object(cStr);
 }
 
-CMPIString* mbIntNewString(char *s) {
+CMPIString* mbIntNewString(const char *s) {
    return mbEncNewString(NULL,s,NULL);
 }
 
@@ -167,20 +167,20 @@ static CMPIString* mbEncToString(CMPIBroker*,void *o, CMPIStatus *rc) {
    String str;
    char msg[128];
    if (obj==NULL) {
-      sprintf(msg,"** Null object ptr (0x%x) **",(int)o);
+      sprintf(msg,"** Null object ptr (%p) **",o);
       if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
       return (CMPIString*)new CMPI_Object(msg);
    }
 
    if (obj->getHdl()==NULL) {
-      sprintf(msg,"** Null object hdl (0x%x) **",(int)o);
+      sprintf(msg,"** Null object hdl (%p) **",o);
       if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
       return (CMPIString*)new CMPI_Object(msg);
    }
    
    if (obj->getFtab()==(void*)CMPI_Instance_Ftab ||
        obj->getFtab()==(void*)CMPI_InstanceOnStack_Ftab) {
-      sprintf(msg,"** Object not supported (0x%x) **",(int)o);
+      sprintf(msg,"** Object not supported (%p) **",o);
       if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
       return (CMPIString*) new CMPI_Object(msg);
       // str=((CIMInstance*)obj->hdl)->toString();
@@ -194,21 +194,21 @@ static CMPIString* mbEncToString(CMPIBroker*,void *o, CMPIStatus *rc) {
        obj->ftab==(void*)CMPI_SelectCondCod_Ftab ||
        obj->ftab==(void*)CMPI_SubCond_Ftab ||
        obj->ftab==(void*)CMPI_Predicate_Ftab) {
-      sprintf(msg,"** Object not supported (0x%x) **",(int)o);
+      sprintf(msg,"** Object not supported (%p) **",o);
       if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
       return (CMPIString*) new CMPI_Object(msg);
    } */
    else {
-      sprintf(msg,"** Object not recognized (0x%x) **",(int)o);
+      sprintf(msg,"** Object not recognized (%p) **",o);
       if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
       return (CMPIString*) new CMPI_Object(msg);
    }
 
-   sprintf(msg,"0x%X: ",(int)o);
+   sprintf(msg,"%p: ",o);
    return (CMPIString*) new CMPI_Object(String(msg)+str);
 }
 
-static CMPIBoolean mbEncClassPathIsA(CMPIBroker *mb, CMPIObjectPath *eCp, char *type, CMPIStatus *rc) {
+static CMPIBoolean mbEncClassPathIsA(CMPIBroker *mb, CMPIObjectPath *eCp, const char *type, CMPIStatus *rc) {
    CIMObjectPath* cop=(CIMObjectPath*)eCp->hdl;
    const CIMName tcn(type);
 
@@ -228,11 +228,11 @@ static CMPIBoolean mbEncClassPathIsA(CMPIBroker *mb, CMPIObjectPath *eCp, char *
    return 0;
 }
 
-static CMPIBoolean mbEncIsOfType(CMPIBroker *mb, void *o, char *type, CMPIStatus *rc) {
+static CMPIBoolean mbEncIsOfType(CMPIBroker *mb, void *o, const char *type, CMPIStatus *rc) {
    CMPI_Object *obj=(CMPI_Object*)o;
    char msg[128];
    if (obj==NULL) {
-      sprintf(msg,"** Null object ptr (0x%x) **",(int)o);
+      sprintf(msg,"** Null object ptr (%p) **",o);
       if (rc) { CMSetStatusWithChars(mb,rc,CMPI_RC_ERR_FAILED,msg); }
       return 0;
    }
@@ -256,7 +256,7 @@ static CMPIBoolean mbEncIsOfType(CMPIBroker *mb, void *o, char *type, CMPIStatus
 */ if (obj->getFtab()!=(void*)CMPI_Array_Ftab &&
          strcmp(type,"CMPIArray")==0) return 1;
 
-   sprintf(msg,"** Object not recognized (0x%x) **",(int)o);
+   sprintf(msg,"** Object not recognized (%p) **",o);
    if (rc) { CMSetStatusWithChars(mb,rc,CMPI_RC_ERR_FAILED,msg); }
    return 0;
 }
@@ -265,7 +265,7 @@ static CMPIString* mbEncGetType(CMPIBroker *mb, void* o, CMPIStatus *rc) {
    CMPI_Object *obj=(CMPI_Object*)o;
    char msg[128];
    if (obj==NULL) {
-      sprintf(msg,"** Null object ptr (0x%x) **",(int)o);
+      sprintf(msg,"** Null object ptr (%p) **",o);
       if (rc) { CMSetStatusWithChars(mb,rc,CMPI_RC_ERR_FAILED,msg); }
       return 0;
    }
@@ -289,7 +289,7 @@ static CMPIString* mbEncGetType(CMPIBroker *mb, void* o, CMPIStatus *rc) {
 */ if (obj->getFtab()!=(void*)CMPI_Array_Ftab)
          return mb->eft->newString(mb,"CMPIArray",rc);
 
-   sprintf(msg,"** Object not recognized (0x%x) **",(int)o);
+   sprintf(msg,"** Object not recognized (%p) **",o);
    if (rc) { CMSetStatusWithChars(mb,rc,CMPI_RC_ERR_FAILED,msg); }
    return 0;
 }
@@ -340,7 +340,7 @@ static Formatter::Arg formatValue(va_list *argptr, CMPIStatus *rc, int *err) {
    }
 }
 
-static CMPIString* mbEncGetMessage(CMPIBroker *mb, char *msgId, char *defMsg,
+static CMPIString* mbEncGetMessage(CMPIBroker *mb, const char *msgId, const char *defMsg,
             CMPIStatus* rc, unsigned int count, ...) {
    MessageLoaderParms parms(msgId,defMsg);
    cerr<<"::: mbEncGetMessage() count: "<<count<<endl;
@@ -380,7 +380,7 @@ static CMPIString* mbEncGetMessage(CMPIBroker *mb, char *msgId, char *defMsg,
 
 #endif
 
-static CMPISelectExp* mbEncNewSelectExp(CMPIBroker* mb, char* query, char* lang,
+static CMPISelectExp* mbEncNewSelectExp(CMPIBroker* mb, const char *query, const char *lang,
                   CMPIArray** projection, CMPIStatus* st) {
    WQLSelectStatement *stmt=new WQLSelectStatement();
    int exception=1;

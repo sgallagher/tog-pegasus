@@ -67,7 +67,7 @@ CMPIPredicate* sbcGetPredicateAt(CMPISubCond* eSbc, unsigned int index, CMPIStat
     return NULL; 
 }
 
-CMPIPredicate* sbcGetPredicate(CMPISubCond* eSbc, char* name, CMPIStatus* rc) {
+CMPIPredicate* sbcGetPredicate(CMPISubCond* eSbc, const char *name, CMPIStatus* rc) {
     CMPI_SubCond *sc=(CMPI_SubCond*)eSbc;
     return NULL;
 }

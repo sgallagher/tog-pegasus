@@ -67,7 +67,7 @@ static CMPIObjectPath* refClone(CMPIObjectPath* eRef, CMPIStatus* rc) {
    return neRef;
 }
 
-static CMPIStatus refSetNameSpace(CMPIObjectPath* eRef, char* ns) {
+static CMPIStatus refSetNameSpace(CMPIObjectPath* eRef, const char *ns) {
    CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
    ref->setNameSpace(String(ns));
    CMReturn(CMPI_RC_OK);
@@ -81,7 +81,7 @@ static CMPIString* refGetNameSpace(CMPIObjectPath* eRef, CMPIStatus* rc) {
    return eNs;
 }
 
-static CMPIStatus refSetHostname(CMPIObjectPath* eRef, char* hn) {
+static CMPIStatus refSetHostname(CMPIObjectPath* eRef, const char *hn) {
    CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
    ref->setHost(String(hn));
    CMReturn(CMPI_RC_OK);
@@ -95,7 +95,9 @@ static CMPIString* refGetHostname(CMPIObjectPath* eRef, CMPIStatus* rc) {
    return eHn;
 }
 
-static CMPIStatus refSetClassName(CMPIObjectPath*,char*) {
+static CMPIStatus refSetClassName(CMPIObjectPath* eRef, const char *cn) {
+   CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
+   ref->setClassName(String(cn));
    CMReturn(CMPI_RC_OK);
 }
 
@@ -116,7 +118,7 @@ static long locateKey(const Array<CIMKeyBinding> &kb, const CIMName &eName) {
    return -1;
 }
 
-static CMPIStatus refAddKey(CMPIObjectPath* eRef, char* name,
+static CMPIStatus refAddKey(CMPIObjectPath* eRef, const char *name,
           CMPIValue* data, CMPIType type) {
    CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
    Array<CIMKeyBinding> keyBindings=ref->getKeyBindings();
@@ -132,7 +134,7 @@ static CMPIStatus refAddKey(CMPIObjectPath* eRef, char* name,
    CMReturn(CMPI_RC_OK);
 }
 
-static CMPIData refGetKey(CMPIObjectPath* eRef, char* name, CMPIStatus* rc) {
+static CMPIData refGetKey(CMPIObjectPath* eRef, const char *name, CMPIStatus* rc) {
    CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
    const CIMName eName(name);
    const Array<CIMKeyBinding> &akb=ref->getKeyBindings();

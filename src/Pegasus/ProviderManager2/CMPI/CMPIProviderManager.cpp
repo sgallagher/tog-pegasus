@@ -60,17 +60,6 @@
 
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 
-#ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
-#include <malloc.h>
-#define ALLOCA _alloca
-#else
-#define ALLOCA alloca
-#endif
-
-#ifdef PEGASUS_OS_HPUX
-#include <alloca.h>
-#endif
-
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
@@ -83,6 +72,34 @@ int _cmpi_trace=0;
 CMPIProviderManager::IndProvTab    CMPIProviderManager::provTab;
 CMPIProviderManager::IndSelectTab  CMPIProviderManager::selxTab;
 CMPIProviderManager::ProvRegistrar CMPIProviderManager::provReg;
+
+class CMPIPropertyList {
+   char **props;
+   int pCount;
+  public: 
+   CMPIPropertyList(CIMPropertyList &propertyList) {
+      if (!propertyList.isNull()) {
+        Array<CIMName> p=propertyList.getPropertyNameArray();
+        pCount=p.size();
+        props=(char**)malloc((1+pCount)*sizeof(char*));
+        for (int i=0; i<pCount; i++) {
+           props[i]=strdup(p[i].getString().getCString());
+        }
+        props[pCount]=NULL;
+      }
+      else props=NULL;
+   }
+   ~CMPIPropertyList() {
+      if (props) {
+         for (int i=0; i<pCount; i++)
+            free(props[i]);
+         free(props);   
+      }
+   }
+   char **getList() {
+      return props;
+   }
+};
 
 CMPIProviderManager::CMPIProviderManager(Mode m)
 {
@@ -214,12 +231,6 @@ void CMPIProviderManager::unload_idle_providers(void)
      providerManager.unload_idle_providers();  
 }
 
-#define STRDUPA(s,o) \
-   if (s) { \
-      o=(const char*)ALLOCA(strlen(s)); \
-      strcpy((char*)(o),(s)); \
-   } \
-   else o=NULL;
 
 #define CHARS(cstring) (char*)(strlen(cstring)?(const char*)cstring:NULL)
 
@@ -317,34 +328,22 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
         context.insert(AcceptLanguageListContainer(request->acceptLanguages));
         context.insert(ContentLanguageListContainer(request->contentLanguages));
 
-        CIMPropertyList propertyList(request->propertyList);
-
         // forward request
-	CMPIProvider & pr=ph.GetProvider();
+        CMPIProvider & pr=ph.GetProvider();
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.getInstance: " + pr.getName());
 
         DDD(cerr<<"--- CMPIProviderManager::getInstance"<<endl);
 
-        const char **props=NULL;
-
-	CMPIStatus rc={CMPI_RC_OK,NULL};
+        CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
         CMPI_ObjectPathOnStack eRef(objectPath);
         CMPI_ResultOnStack eRes(handler,&pr.broker);
         CMPI_ThreadContext thr(&pr.broker,&eCtx);
 
-        if (!propertyList.isNull()) {
-           Array<CIMName> p=propertyList.getPropertyNameArray();
-           int pCount=p.size();
-           props=(const char**)ALLOCA((1+pCount)*sizeof(char*));
-          for (int i=0; i<pCount; i++) {
-              STRDUPA(p[i].getString().getCString(),props[i]);
-	   }
-           props[pCount]=NULL;
-        }
-
+        CMPIPropertyList props(request->propertyList);
+        
         CMPIFlags flgs=0;
         if (request->includeQualifiers) flgs|=CMPI_FLAG_IncludeQualifiers;
         if (request->includeClassOrigin) flgs|=CMPI_FLAG_IncludeClassOrigin;
@@ -352,15 +351,15 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-	STAT_GETSTARTTIME;
+        STAT_GETSTARTTIME;
 
         rc=pr.miVector.instMI->ft->getInstance
-	    (pr.miVector.instMI,&eCtx,&eRes,&eRef,(char**)props);
+        (pr.miVector.instMI,&eCtx,&eRes,&eRef,props.getList());
 
         STAT_PMS_PROVIDEREND;
 
         if (rc.rc!=CMPI_RC_OK)
-	   throw CIMException((CIMStatusCode)rc.rc);
+           throw CIMException((CIMStatusCode)rc.rc);
     }   
     HandlerCatch(handler);
     
@@ -414,30 +413,20 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
         CIMPropertyList propertyList(request->propertyList);
 
         // forward request
-	CMPIProvider & pr=ph.GetProvider();
+        CMPIProvider & pr=ph.GetProvider();
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.enumerateInstances: " + pr.getName());
 
         DDD(cerr<<"--- CMPIProviderManager::enumerateInstances"<<endl);
 
-        const char **props=NULL;
-
-	CMPIStatus rc={CMPI_RC_OK,NULL};
+        CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
         CMPI_ObjectPathOnStack eRef(objectPath);
         CMPI_ResultOnStack eRes(handler,&pr.broker);
         CMPI_ThreadContext thr(&pr.broker,&eCtx);
 
-        if (!propertyList.isNull()) {
-           Array<CIMName> p=propertyList.getPropertyNameArray();
-           int pCount=p.size();
-           props=(const char**)ALLOCA((1+pCount)*sizeof(char*));
-          for (int i=0; i<pCount; i++) {
-              STRDUPA(p[i].getString().getCString(),props[i]);
-	   }
-           props[pCount]=NULL;
-        }
+        CMPIPropertyList props(propertyList);
 
         CMPIFlags flgs=0;
         if (request->includeQualifiers) flgs|=CMPI_FLAG_IncludeQualifiers;
@@ -449,12 +438,12 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
         STAT_GETSTARTTIME;
 
         rc=pr.miVector.instMI->ft->enumInstances
-	   (pr.miVector.instMI,&eCtx,&eRes,&eRef,(char**)props);
+        (pr.miVector.instMI,&eCtx,&eRes,&eRef,props.getList()); 
 
         STAT_PMS_PROVIDEREND;
 
         if (rc.rc!=CMPI_RC_OK)
-	   throw CIMException((CIMStatusCode)rc.rc);
+        throw CIMException((CIMStatusCode)rc.rc);
 
         STAT_PMS_PROVIDEREND;
     }
@@ -663,35 +652,23 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
         context.insert(AcceptLanguageListContainer(request->acceptLanguages));
         context.insert(ContentLanguageListContainer(request->contentLanguages));
 
-        CIMPropertyList propertyList(request->propertyList);
-
         // forward request
- 	CMPIProvider & pr=ph.GetProvider();
+        CMPIProvider & pr=ph.GetProvider();
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.modifyInstance: " + pr.getName());
 
         DDD(cerr<<"--- CMPIProviderManager::modifyInstance"<<endl);
 
-        const char **props=NULL;
-
-	CMPIStatus rc={CMPI_RC_OK,NULL};
+        CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
         CMPI_ObjectPathOnStack eRef(objectPath);
         CMPI_ResultOnStack eRes(handler,&pr.broker);
         CMPI_InstanceOnStack eInst(request->modifiedInstance);
         CMPI_ThreadContext thr(&pr.broker,&eCtx);
 
-        if (!propertyList.isNull()) {
-           Array<CIMName> p=propertyList.getPropertyNameArray();
-           int pCount=p.size();
-           props=(const char**)ALLOCA((1+pCount)*sizeof(char*));
-          for (int i=0; i<pCount; i++) {
-              STRDUPA(p[i].getString().getCString(),props[i]);
-	   }
-           props[pCount]=NULL;
-        }
-
+        CMPIPropertyList props(request->propertyList);
+        
         CMPIFlags flgs=0;
         if (request->includeQualifiers) flgs|=CMPI_FLAG_IncludeQualifiers;
         eCtx.ft->addEntry(&eCtx,CMPIInvocationFlags,(CMPIValue*)&flgs,CMPI_uint32);
@@ -701,7 +678,7 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
         STAT_GETSTARTTIME;
 
         rc=pr.miVector.instMI->ft->setInstance
-	   (pr.miVector.instMI,&eCtx,&eRes,&eRef,&eInst,(char**)props);
+        (pr.miVector.instMI,&eCtx,&eRes,&eRef,&eInst,props.getList());
 
         STAT_PMS_PROVIDEREND;
 
@@ -925,36 +902,26 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
         context.insert(ContentLanguageListContainer(request->contentLanguages));
 
         // forward request
- 	CMPIProvider & pr=ph.GetProvider();
+        CMPIProvider & pr=ph.GetProvider();
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.associators: " + pr.getName());
 
         DDD(cerr<<"--- CMPIProviderManager::associators"<<" role: >"<<request->role<<"< aCls "<<
-	   request->assocClass<<endl);
+        request->assocClass<<endl);
 
-	CMPIStatus rc={CMPI_RC_OK,NULL};
+        CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
         CMPI_ObjectPathOnStack eRef(objectPath);
-	CMPI_ResultOnStack eRes(handler,&pr.broker);
+        CMPI_ResultOnStack eRes(handler,&pr.broker);
         CMPI_ThreadContext thr(&pr.broker,&eCtx);
         const CString aClass=request->assocClass.getString().getCString();
         const CString rClass=request->resultClass.getString().getCString();
         const CString rRole=request->role.getCString();
         const CString resRole=request->resultRole.getCString();
 
-        const char **props=NULL;
-
-/*        if (!propertyList.isNull()) {
-           Array<CIMName> p=propertyList.getPropertyNameArray();
-           int pCount=p.size();
-           props=(const char**)ALLOCA((1+pCount)*sizeof(char*));
-           for (int i=0; i<pCount; i++) {
-              STRDUPA(p[i].getString().getCString(),props[i]);
-	   }
-           props[pCount]=NULL;
-        }
-*/
+        CMPIPropertyList props(request->propertyList);
+        
         CMPIFlags flgs=0;
         if (request->includeQualifiers) flgs|=CMPI_FLAG_IncludeQualifiers;
         if (request->includeClassOrigin) flgs|=CMPI_FLAG_IncludeClassOrigin;
@@ -966,7 +933,7 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
 
         rc=pr.miVector.assocMI->ft->associators(
                          pr.miVector.assocMI,&eCtx,&eRes,&eRef,CHARS(aClass),
-                         CHARS(rClass),CHARS(rRole),CHARS(resRole),(char**)props);
+                         CHARS(rClass),CHARS(rRole),CHARS(resRole),props.getList());
 
         STAT_PMS_PROVIDEREND;
 
@@ -1119,34 +1086,24 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message) 
         context.insert(ContentLanguageListContainer(request->contentLanguages));
 
         // forward request
- 	CMPIProvider & pr=ph.GetProvider();
+        CMPIProvider & pr=ph.GetProvider();
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.references: " + pr.getName());
 
         DDD(cerr<<"--- CMPIProviderManager::references"<<" role: >"<<request->role<<"< aCls "<<
-	   request->resultClass<<endl);
+        request->resultClass<<endl);
 
-	CMPIStatus rc={CMPI_RC_OK,NULL};
+        CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
         CMPI_ObjectPathOnStack eRef(objectPath);
-	CMPI_ResultOnStack eRes(handler,&pr.broker);
+        CMPI_ResultOnStack eRes(handler,&pr.broker);
         CMPI_ThreadContext thr(&pr.broker,&eCtx);
         const CString rClass=request->resultClass.getString().getCString();
         const CString rRole=request->role.getCString();
 
-        const char **props=NULL;
-
-/*        if (!propertyList.isNull()) {
-           Array<CIMName> p=propertyList.getPropertyNameArray();
-           int pCount=p.size();
-           props=(const char**)ALLOCA((1+pCount)*sizeof(char*));
-           for (int i=0; i<pCount; i++) {
-              STRDUPA(p[i].getString().getCString(),props[i]);
-	   }
-           props[pCount]=NULL;
-        }
-*/
+        CMPIPropertyList props(request->propertyList);
+        
         CMPIFlags flgs=0;
         if (request->includeQualifiers) flgs|=CMPI_FLAG_IncludeQualifiers;
         if (request->includeClassOrigin) flgs|=CMPI_FLAG_IncludeClassOrigin;
@@ -1158,12 +1115,12 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message) 
 
         rc=pr.miVector.assocMI->ft->references(
                          pr.miVector.assocMI,&eCtx,&eRes,&eRef,
-                         CHARS(rClass),CHARS(rRole),(char**)props);
+                         CHARS(rClass),CHARS(rRole),props.getList());
 
         STAT_PMS_PROVIDEREND;
 
         if (rc.rc!=CMPI_RC_OK)
-	   throw CIMException((CIMStatusCode)rc.rc);
+            throw CIMException((CIMStatusCode)rc.rc);
     }
     HandlerCatch(handler);
     
@@ -1415,9 +1372,9 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
     try {
         const CIMObjectPath &x=request->subscriptionInstance.getPath();
 
-	String providerName,providerLocation;
-	LocateIndicationProviderNames(request->provider, request->providerModule,
-	   providerName,providerLocation);
+        String providerName,providerLocation;
+        LocateIndicationProviderNames(request->provider, request->providerModule,
+        providerName,providerLocation);
 
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
             "CMPIProviderManager::handleCreateSubscriptionRequest - Host name: $0  Name space: $1  Provider name(s): $2",
@@ -1432,16 +1389,16 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
             providerManager.getProvider(fileName, providerName, String::EMPTY);
 
         indProvRecord *prec=NULL;
-	provTab.lookup(providerName,prec);
-	if (prec) prec->count++;
+        provTab.lookup(providerName,prec);
+        if (prec) prec->count++;
         else {
-	   prec=new indProvRecord();
-	   provTab.insert(providerName,prec);
-	}
+           prec=new indProvRecord();
+           provTab.insert(providerName,prec);
+        }
 
         indSelectRecord *srec=new indSelectRecord();
         const CIMObjectPath &sPath=request->subscriptionInstance.getPath();
-	selxTab.insert(sPath.toString(),srec);
+        selxTab.insert(sPath.toString(),srec);
 
         // convert arguments
         OperationContext *context=new OperationContext();
@@ -1459,14 +1416,14 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
 
         CIMObjectPath subscriptionName = request->subscriptionInstance.getPath();
 
-  	CMPIProvider & pr=ph.GetProvider();
+        CMPIProvider & pr=ph.GetProvider();
 
-	CMPIStatus rc={CMPI_RC_OK,NULL};
+        CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(*context);
         CMPI_SelectExp *eSelx=new CMPI_SelectExp(*context,
-	   getFilter(request->subscriptionInstance),
-	   request->queryLanguage);
-	srec->eSelx=eSelx;
+        getFilter(request->subscriptionInstance),
+        request->queryLanguage);
+        srec->eSelx=eSelx;
         CMPI_ThreadContext thr(&pr.broker,&eCtx);
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
@@ -1484,13 +1441,13 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
         CMPI_ObjectPathOnStack eRef(eSelx->classNames[0]);
 
         CIMPropertyList propertyList = request->propertyList;
-	if (!propertyList.isNull()) {
+        if (!propertyList.isNull()) {
            Array<CIMName> p=propertyList.getPropertyNameArray();
            int pCount=p.size();
            eSelx->props=(const char**)malloc((1+pCount)*sizeof(char*));
            for (int i=0; i<pCount; i++) {
               eSelx->props[i]=strdup(p[i].getString().getCString());
-	   }
+           }
            eSelx->props[pCount]=NULL;
         }
 
@@ -1507,7 +1464,7 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
        STAT_PMS_PROVIDEREND;
 
         if (rc.rc!=CMPI_RC_OK)
-	   throw CIMException((CIMStatusCode)rc.rc);
+           throw CIMException((CIMStatusCode)rc.rc);
     }
     HandlerCatch(handler);
     

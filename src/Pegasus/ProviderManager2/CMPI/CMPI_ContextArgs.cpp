@@ -29,7 +29,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "CMPI_Version.h"
+#include "CMPI_Version.h" 
 
 #include "CMPI_ContextArgs.h"
 #include "CMPI_Ftabs.h"
@@ -69,7 +69,7 @@ static long locateArg(const Array<CIMParamValue> &a, const CIMName &eName) {
    return -1;
 }
 
-static CMPIStatus argsAddArg(CMPIArgs* eArg, char* name, CMPIValue* data, CMPIType type) {
+static CMPIStatus argsAddArg(CMPIArgs* eArg, const char *name, CMPIValue* data, CMPIType type) {
    Array<CIMParamValue>* arg=(Array<CIMParamValue>*)eArg->hdl;
    CMPIrc rc;
    CIMValue v=value2CIMValue(data,type,&rc);
@@ -107,7 +107,7 @@ static CMPIData argsGetArgAt(CMPIArgs* eArg, CMPICount pos, CMPIString** name,
    return data;
 }
 
-static CMPIData argsGetArg(CMPIArgs* eArg, char* name, CMPIStatus* rc) {
+static CMPIData argsGetArg(CMPIArgs* eArg, const char *name, CMPIStatus* rc) {
    Array<CIMParamValue>* arg=(Array<CIMParamValue>*)eArg->hdl;
    CIMName eName(name);
 
@@ -158,7 +158,7 @@ static CMPIStatus contextReleaseNop(CMPIContext* eCtx) {
    CMReturn(CMPI_RC_OK);
 }
 
-static CMPIData contextGetEntry(CMPIContext* eCtx, char* name, CMPIStatus* rc) {
+static CMPIData contextGetEntry(CMPIContext* eCtx, const char *name, CMPIStatus* rc) {
    return argsGetArg((CMPIArgs*)eCtx,name,rc);
 }
 
@@ -171,7 +171,7 @@ static CMPICount contextGetEntryCount(CMPIContext* eCtx, CMPIStatus* rc) {
    return argsGetArgCount((CMPIArgs*)eCtx,rc);
 }
 
-static CMPIStatus contextAddEntry(CMPIContext* eCtx, char* name,
+static CMPIStatus contextAddEntry(CMPIContext* eCtx, const char *name,
             CMPIValue* data, CMPIType type) {
    if (strcmp(name,SnmpTrapOidContainer::NAME.getCString())==0) {
       OperationContext *ctx=((CMPI_Context*)eCtx)->ctx;

@@ -31,6 +31,8 @@
 //
 // Modified By: Alagaraja Ramasubramanian (alags_raj@in.ibm.com)
 //              Alex Dunfey (dunfey_alexander@emc.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -255,7 +257,7 @@ Boolean OperatingSystem::getVersion(String& osVersion)
 Boolean OperatingSystem::getOSType(Uint16& osType)
 {
 
-   osType = OSTYPE::Unknown;
+   osType = Unknown;
 
    OSVERSIONINFO ver;
 
@@ -267,22 +269,22 @@ Boolean OperatingSystem::getOSType(Uint16& osType)
 
    // values defined under the topic "Getting the System Version" in the Win32 platform SDK
    if((ver.dwPlatformId == VER_PLATFORM_WIN32_NT) && (ver.dwMajorVersion <= 4)) {
-      osType = OSTYPE::WINNT;
+      osType = WINNT;
    }
    else if((ver.dwPlatformId == VER_PLATFORM_WIN32_NT) && (ver.dwMajorVersion == 5) && (ver.dwMinorVersion == 0)) {
-      osType = OSTYPE::Windows_2000;
+      osType = Windows_2000;
    }
    else if((ver.dwPlatformId == VER_PLATFORM_WIN32_NT) && (ver.dwMajorVersion == 5) && (ver.dwMinorVersion == 1)) {
-      osType = OSTYPE::Windows_2000;
+      osType = Windows_2000;
    }
    else if((ver.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS) && (ver.dwMajorVersion == 4) && (ver.dwMinorVersion == 0)) {
-      osType = OSTYPE::WIN95;
+      osType = WIN95;
    }
    else if((ver.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS) && (ver.dwMajorVersion == 4) && (ver.dwMinorVersion == 10)) {
-      osType = OSTYPE::WIN98;
+      osType = WIN98;
    }
    else if((ver.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS) && (ver.dwMajorVersion == 4) && (ver.dwMinorVersion == 90)) {
-      osType = OSTYPE::Windows_Me;
+      osType = Windows_Me;
    }
 
    return(true);

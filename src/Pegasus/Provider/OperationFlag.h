@@ -43,7 +43,6 @@ public:
     static const Uint32 INCLUDE_QUALIFIERS;
     static const Uint32 INCLUDE_CLASS_ORIGIN;
     static const Uint32 DEEP_INHERITANCE;
-    static const Uint32 PARTIAL_INSTANCE;
     static const Uint32 REMOTE_ONLY;
 
     static Uint32 convert(
@@ -51,7 +50,6 @@ public:
 	const Boolean includeQualifiers = false,
 	const Boolean includeClassOrigin = false,
 	const Boolean deepInheritance = false,
-	const Boolean partialInstance = false,
 	const Boolean remoteOnly = false);
 
 };
@@ -61,7 +59,6 @@ public:
 //const Uint32 OperationFlag::INCLUDE_QUALIFIERS = 0x00000002;
 //const Uint32 OperationFlag::INCLUDE_CLASS_ORIGIN = 0x00000004;
 //const Uint32 OperationFlag::DEEP_INHERITANCE = 0x00000008;
-//const Uint32 OperationFlag::PARTIAL_INSTANCE = 0x00000010;
 //const Uint32 OperationFlag::REMOTE_ONLY = 0x00000020;
 
 PEGASUS_NAMESPACE_END

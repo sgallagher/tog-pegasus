@@ -58,7 +58,7 @@ DebianSoftwareElementProvider::getInstance(
       				const OperationContext& context,
 			  	const CIMReference& ref,
 			  	const Uint32 flags,
-			  	const Array<String>& propertyList,
+			  	const CIMPropertyList& propertyList,
 			  	ResponseHandler<CIMInstance>& handler )
 {
    Uint32 i;
@@ -137,7 +137,7 @@ DebianSoftwareElementProvider::enumerateInstances(
                           const OperationContext& context,
 			  const CIMReference& ref,
 			  const Uint32 flags,
-			  const Array<String>& propertyList,
+			  const CIMPropertyList& propertyList,
 			  ResponseHandler<CIMInstance>& handler )
 {
    DebianPackageManagerData packageManager(DEFAULT_DEBIAN_DATABASE);
@@ -201,7 +201,7 @@ DebianSoftwareElementProvider::modifyInstance(
 			  	const CIMReference& ref,
 			  	const CIMInstance& instanceObject,
 			  	const Uint32 flags,
-			  	const Array<String>& propertyList,
+			  	const CIMPropertyList& propertyList,
 			  	ResponseHandler<CIMInstance>& handler )
 {
    cout << "DebianSoftwareElementProvider::modifyInstance called" << endl;

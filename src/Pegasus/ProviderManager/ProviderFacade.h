@@ -71,14 +71,14 @@ public:
 	const OperationContext & context,
 	const CIMReference & instanceReference,
 	const Uint32 flags,
-	const Array<String> & propertyList,
+	const CIMPropertyList & propertyList,
 	ResponseHandler<CIMInstance> & handler);
 
     virtual void enumerateInstances(
 	const OperationContext & context,
 	const CIMReference & classReference,
 	const Uint32 flags,
-	const Array<String> & propertyList,
+	const CIMPropertyList & propertyList,
 	ResponseHandler<CIMInstance> & handler);
 
     virtual void enumerateInstanceNames(
@@ -91,7 +91,7 @@ public:
 	const CIMReference & instanceReference,
 	const CIMInstance & instanceObject,
 	const Uint32 flags,
-	const Array<String> & propertyList,
+	const CIMPropertyList & propertyList,
 	ResponseHandler<CIMInstance> & handler);
 
     virtual void createInstance(
@@ -110,7 +110,7 @@ public:
 	const OperationContext & context,
 	const CIMReference & classReference,
 	const Uint32 flags,
-	const Array<String> & propertyList,
+	const CIMPropertyList & propertyList,
 	ResponseHandler<CIMClass> & handler);
 
     virtual void enumerateClasses(
@@ -151,7 +151,7 @@ public:
 	const String & role,
 	const String & resultRole,
 	const Uint32 flags,
-	const Array<String> & propertyList,
+	const CIMPropertyList & propertyList,
 	ResponseHandler<CIMObject> & handler);
 
     virtual void associatorNames(
@@ -169,7 +169,7 @@ public:
 	const String & resultClass,
 	const String & role,
 	const Uint32 flags,
-	const Array<String> & propertyList,
+	const CIMPropertyList & propertyList,
 	ResponseHandler<CIMObject> & handler);
 
     virtual void referenceNames(

@@ -45,6 +45,12 @@ TAG: Version_1_09.
    response encoder has been updated not to include those elements when the
    request does not include a return value.
 
+8. (Roger Kumpf - HP) 9 Apr 2002 - Updated the Instance, Association, and
+   Class provider interfaces to use CIMPropertyList instead of Array<String>
+   for the propertyList parameters.  All providers that implement a method
+   with a propertyList parameter must be modified in accordance with this
+   change.  All providers linked into the Pegasus build have been updated.
+
 ========================================================================
 
 Version 1.08 working towards 1.1 - Started 27 March 2002

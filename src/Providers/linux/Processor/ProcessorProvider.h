@@ -64,13 +64,13 @@ class LinuxProcessorProvider : public CIMInstanceProvider
       void getInstance(const OperationContext& context,
 		       const CIMReference& ref,
 		       const Uint32 flags,
-		       const Array<String>& propertyList,
+		       const CIMPropertyList& propertyList,
 		       ResponseHandler<CIMInstance>& handler );
 
       void enumerateInstances(const OperationContext& context,
 			      const CIMReference& ref,
 			      const Uint32 flags,
-			      const Array<String>& propertyList,
+			      const CIMPropertyList& propertyList,
 			      ResponseHandler<CIMInstance>& handler );
 
       void enumerateInstanceNames(const OperationContext& context,
@@ -81,7 +81,7 @@ class LinuxProcessorProvider : public CIMInstanceProvider
 		    	  const CIMReference& ref,
 		    	  const CIMInstance& instanceObject,
 		    	  const Uint32 flags,
-		    	  const Array<String>& propertyList,
+		    	  const CIMPropertyList& propertyList,
 		    	  ResponseHandler<CIMInstance>& handler );
 
       void createInstance(const OperationContext& context,

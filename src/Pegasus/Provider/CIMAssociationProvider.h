@@ -34,6 +34,7 @@
 
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/CIMPropertyList.h>
 #include <Pegasus/Common/CIMReference.h>
 #include <Pegasus/Common/CIMInstance.h>
 
@@ -76,7 +77,7 @@ public:
 	const String & role,
 	const String & resultRole,
 	const Uint32 flags,
-	const Array<String> & propertyList,
+	const CIMPropertyList & propertyList,
 	ResponseHandler<CIMObject> & handler) = 0;
 
     /**
@@ -125,7 +126,7 @@ public:
 	const String & resultClass,
 	const String & role,
 	const Uint32 flags,
-	const Array<String> & propertyList,
+	const CIMPropertyList & propertyList,
 	ResponseHandler<CIMObject> & handler) = 0;
 
     /**

@@ -34,6 +34,7 @@
 
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/CIMPropertyList.h>
 #include <Pegasus/Common/CIMReference.h>
 #include <Pegasus/Common/CIMClass.h>
 
@@ -68,7 +69,7 @@ public:
 	const OperationContext & context,
 	const CIMReference & classReference,
 	const Uint32 flags,
-	const Array<String> & propertyList,
+	const CIMPropertyList & propertyList,
 	ResponseHandler<CIMClass> & handler) = 0;
 
     /**

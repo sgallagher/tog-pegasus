@@ -54,7 +54,7 @@ void AssociationProvider::associators(
 	const String & role,
 	const String & resultRole,
 	const Uint32 flags,
-	const Array<String> & propertyList,
+	const CIMPropertyList & propertyList,
 	ResponseHandler<CIMObject> & handler)
 {
 	throw NotSupported("AssociationProvider::associators");
@@ -78,7 +78,7 @@ void AssociationProvider::references(
 	const String & resultClass,
 	const String & role,
 	const Uint32 flags,
-	const Array<String> & propertyList,
+	const CIMPropertyList & propertyList,
 	ResponseHandler<CIMObject> & handler)
 {
 	throw NotSupported("AssociationProvider::references");

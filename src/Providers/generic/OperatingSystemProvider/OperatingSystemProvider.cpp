@@ -56,7 +56,7 @@ void OperatingSystemProvider::getInstance(
 	const OperationContext & context,
 	const CIMReference & instanceReference,
 	const Uint32 flags,
-	const Array<String> & propertyList,
+	const CIMPropertyList & propertyList,
 	ResponseHandler<CIMInstance> & handler)
 {
 	handler.processing();
@@ -82,7 +82,7 @@ void OperatingSystemProvider::enumerateInstances(
 	const OperationContext & context,
 	const CIMReference & classReference,
 	const Uint32 flags,
-	const Array<String> & propertyList,
+	const CIMPropertyList & propertyList,
 	ResponseHandler<CIMInstance> & handler)
 {
 	handler.processing();
@@ -188,7 +188,7 @@ void OperatingSystemProvider::modifyInstance(
 	const CIMReference & instanceReference,
 	const CIMInstance & instanceObject,
 	const Uint32 flags,
-	const Array<String> & propertyList,
+	const CIMPropertyList & propertyList,
 	ResponseHandler<CIMInstance> & handler)
 {
 	throw NotSupported("OperatingSystem::modifyInstance");

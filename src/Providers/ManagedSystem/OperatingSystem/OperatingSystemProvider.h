@@ -59,7 +59,7 @@ class OperatingSystemProvider: public CIMInstanceProvider,
       void getInstance(const OperationContext& context, 
 		       const CIMReference& ref, 
 		       const Uint32 flags, 
-		       const Array<String>& propertyList,
+		       const CIMPropertyList& propertyList,
 		       ResponseHandler<CIMInstance>& handler);
 
       /** Returns filled instances for all instances of the CIM class detected
@@ -67,7 +67,7 @@ class OperatingSystemProvider: public CIMInstanceProvider,
       void enumerateInstances(const OperationContext& context, 
 			      const CIMReference& ref, 
 			      const Uint32 flags,
-			      const Array<String>& propertyList,
+			      const CIMPropertyList& propertyList,
 			      ResponseHandler<CIMInstance>& handler);
 
       /** Produces a list of references to all instances of the CIM class
@@ -83,7 +83,7 @@ class OperatingSystemProvider: public CIMInstanceProvider,
 		          const CIMReference& ref,
 		          const CIMInstance& instanceObject,
 		          const Uint32 flags,
-		          const Array<String>& propertyList,
+		          const CIMPropertyList& propertyList,
 		          ResponseHandler<CIMInstance>& handler );
 
       /** Currently unimplemented in the Pegasus source, this is a no-op

@@ -451,7 +451,7 @@ void ProviderManagerService::handleGetInstanceRequest(const Message * message) t
 	    context,
 	    objectPath,
 	    flags,
-	    propertyList.getPropertyNameArray(),
+	    propertyList,
 	    handler);
     }
     catch(CIMException & e)
@@ -531,7 +531,7 @@ void ProviderManagerService::handleEnumerateInstancesRequest(const Message * mes
 	    context,
 	    objectPath,
 	    flags,
-	    propertyList.getPropertyNameArray(),
+	    propertyList,
 	    handler);
     }
     catch(CIMException & e)
@@ -758,7 +758,7 @@ void ProviderManagerService::handleModifyInstanceRequest(const Message * message
 	    objectPath,
 	    request->modifiedInstance.getInstance(),
 	    flags,
-	    propertyList.getPropertyNameArray(),
+	    propertyList,
 	    handler);
     }
     catch(CIMException & e)

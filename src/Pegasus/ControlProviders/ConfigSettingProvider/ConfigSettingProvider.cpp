@@ -84,7 +84,7 @@ void ConfigSettingProvider::getInstance(
 	const OperationContext & context,
         const CIMReference& instanceName,
 	const Uint32 flags,
-        const Array<String>& propertyList,
+        const CIMPropertyList& propertyList,
 	ResponseHandler<CIMInstance> & handler)
     {
         PEG_METHOD_ENTER(TRC_CONFIG, "ConfigSettingProvider::getInstance()");
@@ -169,7 +169,7 @@ void ConfigSettingProvider::modifyInstance(
 	const CIMReference & instanceReference,
         const CIMInstance& modifiedIns,
 	const Uint32 flags,
-        const Array<String>& propertyList,
+        const CIMPropertyList& propertyList,
 	ResponseHandler<CIMInstance> & handler)
     {
         PEG_METHOD_ENTER(TRC_CONFIG, "ConfigSettingProvider::modifyInstance()");
@@ -177,7 +177,7 @@ void ConfigSettingProvider::modifyInstance(
         // ATTN: Partial modification is not yet supported by this provider
         // Qualifiers are not processed anyway, so the IncludeQualifiers
         // flag is ignored
-        if (flags & OperationFlag::PARTIAL_INSTANCE)
+        if (!propertyList.isNull())
         {
             PEG_METHOD_EXIT();
             throw CIMException(CIM_ERR_NOT_SUPPORTED);
@@ -379,7 +379,7 @@ void ConfigSettingProvider::enumerateInstances(
 	const OperationContext & context,
 	const CIMReference & ref,
 	const Uint32 flags,
-        const Array<String>& propertyList,
+        const CIMPropertyList& propertyList,
 	ResponseHandler<CIMInstance> & handler)
     {
         PEG_METHOD_ENTER(TRC_CONFIG, "ConfigSettingProvider::enumerateInstances()");

@@ -73,7 +73,7 @@ void ComputerSystemProvider::getInstance(
     const OperationContext& context,
     const CIMReference& ref,
     const Uint32 flags,
-    const Array<String>& propertyList,
+    const CIMPropertyList& propertyList,
     ResponseHandler<CIMInstance> &handler)
 {
     String className = ref.getClassName();
@@ -126,7 +126,7 @@ void ComputerSystemProvider::enumerateInstances(
       				const OperationContext& context, 
 			        const CIMReference& ref, 
 			        const Uint32 flags, 
-			        const Array<String>& propertyList,
+			        const CIMPropertyList& propertyList,
 			        ResponseHandler<CIMInstance>& handler)
 {
     String className = ref.getClassName();
@@ -173,7 +173,7 @@ ComputerSystemProvider::modifyInstance(
 			  	const CIMReference& ref,
 			  	const CIMInstance& instanceObject,
 			  	const Uint32 flags, 
-			  	const Array<String>& propertyList,
+			  	const CIMPropertyList& propertyList,
 			  	ResponseHandler<CIMInstance>& handler )
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);

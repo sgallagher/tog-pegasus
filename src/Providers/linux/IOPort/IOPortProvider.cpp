@@ -57,7 +57,7 @@ void
 LinuxIOPortProvider::getInstance(const OperationContext& context,
 				 const CIMReference& ref,
 				 const Uint32 flags,
-				 const Array<String>& propertyList,
+				 const CIMPropertyList& propertyList,
 				 ResponseHandler<CIMInstance>& handler)
 {
    Array<KeyBinding> keys = ref.getKeyBindings();
@@ -116,7 +116,7 @@ LinuxIOPortProvider::enumerateInstances(
       				const OperationContext& context, 
 				const CIMReference& ref, 
 				const Uint32 flags, 
-				const Array<String>& propertyList,
+				const CIMPropertyList& propertyList,
 				ResponseHandler<CIMInstance>& handler)
 {
    IOPortInformation* located_port;
@@ -200,7 +200,7 @@ LinuxIOPortProvider::modifyInstance(
 			  	const CIMReference& ref,
 			  	const CIMInstance& instanceObject,
 			  	const Uint32 flags,
-			  	const Array<String>& propertyList,
+			  	const CIMPropertyList& propertyList,
 			  	ResponseHandler<CIMInstance>& handler )
 {
    cout << "LinuxIOPortProvider::modifyInstance called" << endl;

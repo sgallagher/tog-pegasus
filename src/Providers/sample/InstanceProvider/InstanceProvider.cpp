@@ -74,7 +74,7 @@ void InstanceProvider::getInstance(
 	const OperationContext & context,
 	const CIMReference & instanceReference,
 	const Uint32 flags,
-	const Array<String> & propertyList,
+	const CIMPropertyList & propertyList,
 	ResponseHandler<CIMInstance> & handler)
 {
 	// convert a potential fully qualified reference into a local reference
@@ -108,7 +108,7 @@ void InstanceProvider::enumerateInstances(
 	const OperationContext & context,
 	const CIMReference & classReference,
 	const Uint32 flags,
-	const Array<String> & propertyList,
+	const CIMPropertyList & propertyList,
 	ResponseHandler<CIMInstance> & handler)
 {
 	// begin processing the request
@@ -147,7 +147,7 @@ void InstanceProvider::modifyInstance(
 	const CIMReference & instanceReference,
 	const CIMInstance & instanceObject,
 	const Uint32 flags,
-	const Array<String> & propertyList,
+	const CIMPropertyList & propertyList,
 	ResponseHandler<CIMInstance> & handler)
 {
 	// convert a potential fully qualified reference into a local reference

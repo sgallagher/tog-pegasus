@@ -72,7 +72,7 @@ void ProviderFacade::getInstance(
     const OperationContext & context,
     const CIMReference & instanceReference,
     const Uint32 flags,
-    const Array<String> & propertyList,
+    const CIMPropertyList & propertyList,
     ResponseHandler<CIMInstance> & handler)
 {
     CIMInstanceProvider * provider = getInterface<CIMInstanceProvider>(_provider);
@@ -139,7 +139,7 @@ void ProviderFacade::enumerateInstances(
     const OperationContext & context,
     const CIMReference & classReference,
     const Uint32 flags,
-    const Array<String> & propertyList,
+    const CIMPropertyList & propertyList,
     ResponseHandler<CIMInstance> & handler)
 {
     CIMInstanceProvider * provider = getInterface<CIMInstanceProvider>(_provider);
@@ -168,7 +168,7 @@ void ProviderFacade::modifyInstance(
     const CIMReference & instanceReference,
     const CIMInstance & instanceObject,
     const Uint32 flags,
-    const Array<String> & propertyList,
+    const CIMPropertyList & propertyList,
     ResponseHandler<CIMInstance> & handler)
 {
     CIMInstanceProvider * provider = getInterface<CIMInstanceProvider>(_provider);
@@ -204,7 +204,7 @@ void ProviderFacade::getClass(
     const OperationContext & context,
     const CIMReference & classReference,
     const Uint32 flags,
-    const Array<String> & propertyList,
+    const CIMPropertyList & propertyList,
     ResponseHandler<CIMClass> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED, "ProviderFacade::getClass");
@@ -262,7 +262,7 @@ void ProviderFacade::associators(
     const String & role,
     const String & resultRole,
     const Uint32 flags,
-    const Array<String> & propertyList,
+    const CIMPropertyList & propertyList,
     ResponseHandler<CIMObject> & handler)
 {
     CIMAssociationProvider * provider = getInterface<CIMAssociationProvider>(_provider);
@@ -294,7 +294,7 @@ void ProviderFacade::references(
     const String & resultClass,
     const String & role,
     const Uint32 flags,
-    const Array<String> & propertyList,
+    const CIMPropertyList & propertyList,
     ResponseHandler<CIMObject> & handler)
 {
     CIMAssociationProvider * provider = getInterface<CIMAssociationProvider>(_provider);
@@ -324,7 +324,7 @@ void ProviderFacade::getProperty(
     const String & propertyName,
     ResponseHandler<CIMValue> & handler)
 {
-    Uint32 flags = OperationFlag::PARTIAL_INSTANCE;    // LocalOnly = false
+    Uint32 flags = OperationFlag::NONE;    // LocalOnly = false
     Array<String> propertyList;
     propertyList.append(propertyName);
     SimpleResponseHandler<CIMInstance> instanceHandler;
@@ -375,7 +375,7 @@ void ProviderFacade::setProperty(
     //
     // Create the flags and propertyList to pass to modifyInstance()
     //
-    Uint32 flags = OperationFlag::PARTIAL_INSTANCE;  // IncludeQualifiers false
+    Uint32 flags = OperationFlag::NONE;  // IncludeQualifiers false
     Array<String> propertyList;
     propertyList.append(propertyName);
 

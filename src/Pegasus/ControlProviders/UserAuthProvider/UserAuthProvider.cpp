@@ -425,7 +425,7 @@ void UserAuthProvider::modifyInstance(
     const CIMReference & instanceReference,
     const CIMInstance& modifiedIns,
     const Uint32 flags,
-    const Array<String> & propertyList,
+    const CIMPropertyList & propertyList,
     ResponseHandler<CIMInstance> & handler)
 {
     PEG_METHOD_ENTER(TRC_USER_MANAGER,"UserAuthProvider::modifyInstance"); 
@@ -517,7 +517,7 @@ void UserAuthProvider::enumerateInstances(
     const OperationContext & context,
     const CIMReference & ref,
     const Uint32 flags,
-    const Array<String>& propertyList,
+    const CIMPropertyList& propertyList,
     ResponseHandler<CIMInstance> & handler)
 {
     PEG_METHOD_ENTER(TRC_USER_MANAGER,"UserAuthProvider::enumerateInstances");

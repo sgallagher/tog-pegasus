@@ -55,7 +55,7 @@ LinuxInterruptProvider::~LinuxInterruptProvider(void)
 void LinuxInterruptProvider::getInstance(const OperationContext& context,
 					 const CIMReference& ref,
 					 const Uint32 flags,
-					 const Array<String>& propertyList,
+					 const CIMPropertyList& propertyList,
 					 ResponseHandler<CIMInstance>& handler)
 {
    InterruptData interruptData;
@@ -94,7 +94,7 @@ LinuxInterruptProvider::enumerateInstances(
       				const OperationContext& context, 
 			        const CIMReference& ref, 
 			        const Uint32 flags, 
-			        const Array<String>& propertyList,
+			        const CIMPropertyList& propertyList,
 			        ResponseHandler<CIMInstance>& handler )
 {
    InterruptData interruptData;
@@ -144,7 +144,7 @@ void LinuxInterruptProvider::modifyInstance(
 			  	const CIMReference& ref,
 			  	const CIMInstance& instanceObject,
 			  	const Uint32 flags, 
-			  	const Array<String>& propertyList,
+			  	const CIMPropertyList& propertyList,
 			  	ResponseHandler<CIMInstance>& handler )
 {
    cout << "LinuxInterruptProvider::modifyInstance called" << endl;

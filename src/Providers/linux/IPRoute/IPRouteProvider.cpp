@@ -59,7 +59,7 @@ void
 LinuxIPRouteProvider::getInstance(const OperationContext& context,
 				  const CIMReference& ref,
 				  const Uint32 flags,
-				  const Array<String>& propertyList,
+				  const CIMPropertyList& propertyList,
 				  ResponseHandler<CIMInstance>& handler)
 {
    Array<KeyBinding> keys = ref.getKeyBindings();
@@ -127,7 +127,7 @@ LinuxIPRouteProvider::enumerateInstances(
       				const OperationContext& context, 
 				const CIMReference& ref, 
 				const Uint32 flags, 
-				const Array<String>& propertyList,
+				const CIMPropertyList& propertyList,
 				ResponseHandler<CIMInstance>& handler)
 {
    unsigned int i;
@@ -175,7 +175,7 @@ LinuxIPRouteProvider::modifyInstance(
 			  	const CIMReference& ref,
 			  	const CIMInstance& instanceObject,
 			  	const Uint32 flags, 
-			  	const Array<String>& propertyList,
+			  	const CIMPropertyList& propertyList,
 			  	ResponseHandler<CIMInstance>& handler )
 {
    throw NotSupported(IPROUTECLASSNAME"::modifyInstance");

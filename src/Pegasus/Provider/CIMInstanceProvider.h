@@ -34,6 +34,7 @@
 
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/CIMPropertyList.h>
 #include <Pegasus/Common/CIMReference.h>
 #include <Pegasus/Common/CIMInstance.h>
 
@@ -63,12 +64,10 @@ public:
 	<LI>LOCAL_ONLY - include only elements (properties and qualifiers) of the specified class.
 	<LI>INCLUDE_QUALIFIERS - include instance and property qualifiers.
 	<LI>INCLUDE_CLASS_ORIGIN - include the parent class name.
-	<LI>PARTIAL_INSTANCE - use the propertyList parameter to determine the set of properties
-	to include.
 	</LI>
     </UL>
 
-    @param propertyList Assuming the flags parameter specifies the PARTIAL_INSTANCE bit, this parameter
+    @param propertyList If not null, this parameter
     specifies the minimum set of properties required in instances returned by this operation. Because
     support for this parameter is optional, the instances may contain additional properties not specified
     in the list.
@@ -85,7 +84,7 @@ public:
 	const OperationContext & context,
 	const CIMReference & instanceReference,
 	const Uint32 flags,
-	const Array<String> & propertyList,
+	const CIMPropertyList & propertyList,
 	ResponseHandler<CIMInstance> & handler) = 0;
 
     /**
@@ -104,12 +103,10 @@ public:
 	<LI>DEEP_INHERITANCE - include all properties (including thos derived).
 	<LI>INCLUDE_QUALIFIERS - include instance and properties qualified in the result.
 	<LI>INCLUDE_CLASS_ORIGIN - include the parent class name.
-	<LI>PARTIAL_INSTANCE - use the propertyList parameter to determine the set of
-	properties to provide.
 	</LI>
     </UL>
 
-    @param propertyList Assuming the flags parameter specifies the PARTIAL_INSTANCE bit, this parameter
+    @param propertyList If not null, this parameter
     specifies the minimum set of properties required in instances returned by this operation. Because
     support for this parameter is optional, the instances may contain additional properties not specified
     in the list.
@@ -126,7 +123,7 @@ public:
 	const OperationContext & context,
 	const CIMReference & classReference,
 	const Uint32 flags,
-	const Array<String> & propertyList,
+	const CIMPropertyList & propertyList,
 	ResponseHandler<CIMInstance> & handler) = 0;
 
     /**
@@ -145,15 +142,8 @@ public:
 	<LI>INCLUDE_QUALIFIERS - include instance and properties qualified in the result.
 	<LI>INCLUDE_CLASS_ORIGIN - include the parent class name.
 	<LI>DEEP_INHERITANCE - obseverve the property 'override' qualifier.
-	<LI>PARTIAL_INSTANCE - use the propertyList parameter to determine the set of
-	properties to provide.
 	</LI>
     </UL>
-
-    @param propertyList Assuming the flags parameter specifies the PARTIAL_INSTANCE bit, this parameter
-    specifies the minimum set of properties required in instances returned by this operation. Because
-    support for this parameter is optional, the instances may contain additional properties not specified
-    in the list.
 
     @param handler enables providers to asynchronously return the results of this operation.
 
@@ -186,12 +176,10 @@ public:
 
     <UL>
 	<LI>INCLUDE_QUALIFIERS - update the qualifiers in the instance as well as the property values.
-	<LI>PARTIAL_INSTANCE - use the propertyList parameter to determine the set of
-	properties to update.
 	</LI>
     </UL>
 
-    @param propertyList Assuming the flags parameter specifies the PARTIAL_INSTANCE bit, this parameter
+    @param propertyList If not null, this parameter
     specifies the set of properties required to be updated in the instance. Support
     for this parameter is NOT optional.  Providers that do not support this
     feature must throw a NotSupported exception whenever the PARTIAL_INSTANCE
@@ -210,7 +198,7 @@ public:
 	const CIMReference & instanceReference,
 	const CIMInstance & instanceObject,
 	const Uint32 flags,
-	const Array<String> & propertyList,
+	const CIMPropertyList & propertyList,
 	ResponseHandler<CIMInstance> & handler) = 0;
 
     /**

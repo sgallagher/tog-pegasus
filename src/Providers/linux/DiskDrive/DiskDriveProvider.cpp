@@ -56,7 +56,7 @@ LinuxDiskDriveProvider::~LinuxDiskDriveProvider(void)
 void LinuxDiskDriveProvider::getInstance(const OperationContext& context,
 					 const CIMReference& ref,
 					 const Uint32 flags,
-					 const Array<String>& propertyList,
+					 const CIMPropertyList& propertyList,
 					 ResponseHandler<CIMInstance>& handler)
 {
    DiskDriveData diskdriveData;
@@ -96,7 +96,7 @@ LinuxDiskDriveProvider::enumerateInstances(
       				const OperationContext& context, 
 				const CIMReference& ref, 
 				const Uint32 flags, 
-				const Array<String>& propertyList,
+				const CIMPropertyList& propertyList,
 				ResponseHandler<CIMInstance>& handler )
 {
    DiskDriveData diskdriveData;
@@ -148,7 +148,7 @@ LinuxDiskDriveProvider::modifyInstance(
 			  	const CIMReference& ref,
 			  	const CIMInstance& instanceObject,
 			  	const Uint32 flags, 
-			  	const Array<String>& propertyList,
+			  	const CIMPropertyList& propertyList,
 			  	ResponseHandler<CIMInstance>& handler )
 {
    cout << "LinuxDiskDriveProvider::modifyInstance called" << endl;

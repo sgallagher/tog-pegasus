@@ -109,7 +109,7 @@ public:
 	const OperationContext & context,
         const CIMReference& instanceName,
 	const Uint32 flags,
-        const Array<String>& propertyList,
+        const CIMPropertyList& propertyList,
 	ResponseHandler<CIMInstance> & handler)
     {
         throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED, "");
@@ -156,7 +156,7 @@ public:
         const CIMReference & instanceReference,
         const CIMInstance& modifiedIns,
         const Uint32 flags,
-        const Array<String> & propertyList,
+        const CIMPropertyList & propertyList,
         ResponseHandler<CIMInstance> & handler);
 
     /**
@@ -173,7 +173,7 @@ public:
         const OperationContext & context,
         const CIMReference & ref,
         const Uint32 flags,
-        const Array<String>& propertyList,
+        const CIMPropertyList& propertyList,
         ResponseHandler<CIMInstance> & handler);
 
     /**

@@ -185,7 +185,7 @@ void ProviderRegistrationProvider::getInstance(
     const OperationContext & context,
     const CIMReference & instanceReference,
     const Uint32 flags,
-    const Array<String> & propertyList,
+    const CIMPropertyList & propertyList,
     ResponseHandler<CIMInstance> & handler)
 {
 
@@ -224,7 +224,7 @@ void ProviderRegistrationProvider::enumerateInstances(
     const OperationContext & context,
     const CIMReference & classReference,
     const Uint32 flags,
-    const Array<String> & propertyList,
+    const CIMPropertyList & propertyList,
     ResponseHandler<CIMInstance> & handler)
 {
     // ensure the class existing in the specified namespace
@@ -307,7 +307,7 @@ void ProviderRegistrationProvider::modifyInstance(
         const CIMReference & instanceReference,
         const CIMInstance & instanceObject,
         const Uint32 flags,
-        const Array<String> & propertyList,
+        const CIMPropertyList & propertyList,
         ResponseHandler<CIMInstance> & handler)
 {
     //
@@ -320,17 +320,23 @@ void ProviderRegistrationProvider::modifyInstance(
     }
 
     //
-    // only can modify the roperty of Namespaces, property of
+    // only can modify the property of Namespaces, property of
     // SupportedProperties, and property of SupportedMethods
     //
-    for (Uint32 i=0; i<propertyList.size(); i++)
+    if (propertyList.isNull())
     {
-	if (!String::equalNoCase(propertyList[i], _PROPERTY_NAMESPACES) &&
-	    !String::equalNoCase(propertyList[i], _PROPERTY_SUPPORTEDPROPERTIES) &&
-	    !String::equalNoCase(propertyList[i], _PROPERTY_SUPPORTEDMETHODS))
+	throw CIMException (CIM_ERR_NOT_SUPPORTED);
+    }
+
+    Array<String> propertyArray = propertyList.getPropertyNameArray();
+    for (Uint32 i=0; i<propertyArray.size(); i++)
+    {
+	if (!String::equalNoCase(propertyArray[i], _PROPERTY_NAMESPACES) &&
+	    !String::equalNoCase(propertyArray[i], _PROPERTY_SUPPORTEDPROPERTIES) &&
+	    !String::equalNoCase(propertyArray[i], _PROPERTY_SUPPORTEDMETHODS))
 	{
 	    throw CIMException (CIM_ERR_NOT_SUPPORTED);
-	}	
+	}
     }
 
     // begin processing the request
@@ -339,7 +345,7 @@ void ProviderRegistrationProvider::modifyInstance(
     try
     {
         _providerRegistrationManager->modifyInstance(instanceReference, 
-	    instanceObject, flags, propertyList);
+	    instanceObject, flags, propertyArray);
     }
     catch(CIMException& e)
     {

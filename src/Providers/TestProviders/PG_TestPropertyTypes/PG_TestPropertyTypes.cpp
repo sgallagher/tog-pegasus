@@ -123,7 +123,7 @@ void PG_TestPropertyTypes::getInstance(
 	const OperationContext & context,
 	const CIMReference & instanceReference,
 	const Uint32 flags,
-	const Array<String> & propertyList,
+	const CIMPropertyList & propertyList,
 	ResponseHandler<CIMInstance> & handler)
 {
 	// synchronously get references
@@ -177,7 +177,7 @@ void PG_TestPropertyTypes::enumerateInstances(
 	const OperationContext & context,
 	const CIMReference & ref,
 	const Uint32 flags,
-	const Array<String> & propertyList,
+	const CIMPropertyList & propertyList,
 	ResponseHandler<CIMInstance> & handler)
 {
 
@@ -255,7 +255,7 @@ void PG_TestPropertyTypes::modifyInstance(
 	const CIMReference & instanceReference,
 	const CIMInstance & instanceObject,
 	const Uint32 flags,
-	const Array<String> & propertyList,
+	const CIMPropertyList & propertyList,
 	ResponseHandler<CIMInstance> & handler)
 {
 	// ATTN: This provider does not yet support partial modification

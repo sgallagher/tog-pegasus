@@ -118,7 +118,7 @@ public:
 	const OperationContext & context,
 	const CIMReference & classReference,
 	const Uint32 flags,
-	const Array<String> & propertyList,
+	const CIMPropertyList & propertyList,
 	ResponseHandler<CIMInstance> & handler);
 
   void enumerateInstanceNames(const OperationContext        &context,
@@ -128,14 +128,14 @@ public:
   void getInstance(const OperationContext       &context,
                  const CIMReference           &instanceName,
                  const Uint32                  flags,
-                 const Array<String>          &propertyList,
+                 const CIMPropertyList        &propertyList,
                  ResponseHandler<CIMInstance> &handler);
                  
   void modifyInstance(const OperationContext       &context,
                     const CIMReference           &instanceName,
                     const CIMInstance            &instanceObject,
 		    const Uint32                 flags,
-		    const Array<String>          &propertyList,
+		    const CIMPropertyList        &propertyList,
                     ResponseHandler<CIMInstance> &handler);
 
   void initialize(CIMOMHandle &ch);

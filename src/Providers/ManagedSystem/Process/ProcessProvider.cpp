@@ -113,7 +113,7 @@ void ProcessProvider::enumerateInstances(
 	const OperationContext & context,
 	const CIMReference & classReference,
 	const Uint32 flags,
-	const Array<String> & propertyList,
+	const CIMPropertyList & propertyList,
 	ResponseHandler<CIMInstance> & handler)
 {   
     // cout << "ProcessProvider::enumerateInstances()" << endl;
@@ -241,7 +241,7 @@ PARAMETERS        :
 void ProcessProvider::getInstance(const OperationContext &ctx,
                  const CIMReference           &instanceName,
                  const Uint32                  flags,
-                 const Array<String>          &propertyList,
+                 const CIMPropertyList        &propertyList,
                  ResponseHandler<CIMInstance> &handler)
 {	
     // cout << "ProcessProvider::getInstance()" << endl;
@@ -373,7 +373,7 @@ void ProcessProvider::modifyInstance(const OperationContext &context,
                     const CIMReference           &instanceName,
                     const CIMInstance            &instanceObject,
 		    const Uint32                 flags,
-		    const Array<String>          &propertyList,
+		    const CIMPropertyList        &propertyList,
                     ResponseHandler<CIMInstance> &handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);

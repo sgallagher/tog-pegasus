@@ -152,7 +152,7 @@ Message * ProviderMessageFacade::_handleGetInstanceRequest(Message * message) th
 	    context,
 	    objectPath,
 	    flags,
-	    propertyList.getPropertyNameArray(),
+	    propertyList,
 	    handler);
 
 	// error? provider claims success, but did not deliver an instance.
@@ -235,7 +235,7 @@ Message * ProviderMessageFacade::_handleEnumerateInstancesRequest(Message * mess
 	    context,
 	    objectPath,
 	    flags,
-	    propertyList.getPropertyNameArray(),
+	    propertyList,
 	    handler);
 
 	// save returned instance
@@ -469,7 +469,7 @@ Message * ProviderMessageFacade::_handleModifyInstanceRequest(Message * message)
 	    objectPath,
 	    request->modifiedInstance.getInstance(),
 	    flags,
-	    propertyList.getPropertyNameArray(),
+	    propertyList,
 	    handler);
     }
     catch(CIMException & e)

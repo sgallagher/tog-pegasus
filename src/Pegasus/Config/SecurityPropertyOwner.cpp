@@ -245,6 +245,7 @@ void SecurityPropertyOwner::initialize()
         {  
             _trustStore->propertyName = properties[i].propertyName;
             _trustStore->defaultValue = properties[i].defaultValue;
+            _trustStore->currentValue = properties[i].defaultValue;
             _trustStore->plannedValue = properties[i].defaultValue;
             _trustStore->dynamic = properties[i].dynamic;
             _trustStore->domain = properties[i].domain;
@@ -260,21 +261,12 @@ void SecurityPropertyOwner::initialize()
         {
             _exportSSLTrustStore->propertyName = properties[i].propertyName;
             _exportSSLTrustStore->defaultValue = properties[i].defaultValue;
+            _exportSSLTrustStore->currentValue = properties[i].defaultValue;
             _exportSSLTrustStore->plannedValue = properties[i].defaultValue;
             _exportSSLTrustStore->dynamic = properties[i].dynamic;
             _exportSSLTrustStore->domain = properties[i].domain;
             _exportSSLTrustStore->domainSize = properties[i].domainSize;
             _exportSSLTrustStore->externallyVisible = properties[i].externallyVisible;
-
-            //
-            // Initialize SSL trust file path to $PEGASUS_HOME/indication_trust.pem
-            //
-            if ( _exportSSLTrustStore->currentValue == String::EMPTY )
-            {
-                _exportSSLTrustStore->currentValue.append(ConfigManager::getPegasusHome());
-                _exportSSLTrustStore->currentValue.append("/");
-                _exportSSLTrustStore->currentValue.append(_exportSSLTrustStore->defaultValue);
-            }
         }
 #ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
         else if (String::equalNoCase(
@@ -743,21 +735,34 @@ Boolean SecurityPropertyOwner::isValid(const String& name, const String& value)
 	    String fileName(value);
 
         //
-        // Check if the file path is empty
+        // Allow the exportSSLTrustStore file path to be empty
         //
-        if (fileName == String::EMPTY || fileName== "")
+        if (String::equalNoCase(_exportSSLTrustStore->propertyName, name) &&
+            (fileName == String::EMPTY))
         {
-            return false;
+            return true;
         }
+
 
         //
         // Truststore can be set to none
         //
-        if (String::equalNoCase(_trustStore->propertyName, name) && String::equal(value, "none"))
+        if (String::equalNoCase(_trustStore->propertyName, name))
         {
-            return true;
-        }               
-                  
+            //
+            // Check if the file path is empty
+            //
+            if (fileName == String::EMPTY)
+            {
+                return false;
+            }
+
+            if (String::equal(value, "none"))
+            {
+                return true;
+            }
+        }
+
         //
         // Check if the file path is a directory
         //
@@ -774,18 +779,11 @@ Boolean SecurityPropertyOwner::isValid(const String& name, const String& value)
             } 
         }
         //
-        // Check if the file exists and is readable and is not empty
+        // Check if the file exists and is readable
         //
         else if (FileSystem::exists(fileName) && FileSystem::canRead(fileName))
         {
-            Uint32 size;
-            if (FileSystem::getFileSize(fileName, size))
-            {
-                if (size > 0)
-                {
-                    return true;
-                }
-            }
+            return true;
         }
 
         return false;

@@ -910,9 +910,20 @@ SSLContext* CIMServer::_getExportSSLContext()
         //
         // Get the exportSSLTrustStore property from the Config Manager.
         //
-        String trustPath = String::EMPTY;
-        trustPath = ConfigManager::getInstance()->getCurrentValue(
-                                      PROPERTY_NAME__EXPORT_SSLTRUST_STORE);
+        String trustStore = ConfigManager::getInstance()->getCurrentValue(
+            PROPERTY_NAME__EXPORT_SSLTRUST_STORE);
+
+        if (trustStore == String::EMPTY)
+        {
+            MessageLoaderParms parms("Server.CIMServer.EXPORT_TRUST_EMPTY",
+                "The \"exportSSLTrustStore\" configuration property must be set when \"enableSSLExportClientVerification\" is true. cimserver not started.");
+
+            PEG_METHOD_EXIT();
+            throw Exception(parms);
+        }
+
+        String trustPath = ConfigManager::getHomedPath(trustStore);
+
         PEG_TRACE_STRING(TRC_SERVER, Tracer::LEVEL2,
             "Using the export trust store : " + trustPath);
 

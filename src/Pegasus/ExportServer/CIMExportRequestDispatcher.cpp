@@ -58,7 +58,10 @@ CIMExportRequestDispatcher::CIMExportRequestDispatcher(
 }
 
 CIMExportRequestDispatcher::CIMExportRequestDispatcher()
-   : Base(PEGASUS_QUEUENAME_EXPORTREQDISPATCHER)
+   : Base(PEGASUS_QUEUENAME_EXPORTREQDISPATCHER),
+     _dynamicReg( true ),
+     _staticConsumers( false ),
+     _persistence( false )
 {
    PEG_METHOD_ENTER(TRC_EXP_REQUEST_DISP,
       "CIMExportRequestDispatcher::CIMExportRequestDispatcher");

@@ -369,6 +369,7 @@ Boolean test_service::messageOK(const Message *msg)
 void test_service::handle_test_request(AsyncRequest *msg)
 {
 
+   cout << "service received test request" << endl;
    
    if( msg->getType() == 0x04100000 )
    {
@@ -559,6 +560,75 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL module_func(void *parm)
    delete req;
    if(success == true )
       cout << "ClientSendAsync to module successful" << endl;
+
+
+
+
+   req = 
+      new test_request(my_module->get_controller()->get_next_xid(),
+		       0, 
+		       peer_qid,
+		       my_module->get_controller()->getQueueId(),
+		       "hello");
+   
+   success = my_module->get_controller()->ModuleSendForget( (*my_module->get_mod_handle()),
+							    svc_qid,
+							    req);
+   
+   if(success == true )
+      cout << "ModuleSendForget to service successful" << endl;
+
+
+
+   req = 
+      new test_request(my_module->get_controller()->get_next_xid(),
+		       0, 
+		       peer_qid,
+		       my_module->get_controller()->getQueueId(),
+		       "hello");
+   
+   success = my_module->get_controller()->ModuleSendForget( (*my_module->get_mod_handle()),
+							    peer_qid,
+							    String(parms->_peer),
+							    req);
+   
+   if(success == true )
+      cout << "ModuleSendForget to module successful" << endl;
+
+
+
+
+
+   req = 
+      new test_request(my_module->get_controller()->get_next_xid(),
+		       0, 
+		       peer_qid,
+		       my_module->get_controller()->getQueueId(),
+		       "hello");
+   
+   success = my_module->get_controller()->ClientSendForget( (*my_module->get_client_handle()),
+							    svc_qid,
+							    req);
+   
+   if(success == true )
+      cout << "ClientSendForget to service successful" << endl;
+
+
+
+   req = 
+      new test_request(my_module->get_controller()->get_next_xid(),
+		       0, 
+		       peer_qid,
+		       my_module->get_controller()->getQueueId(),
+		       "hello");
+   
+   success = my_module->get_controller()->ClientSendForget( (*my_module->get_client_handle()),
+							    peer_qid,
+							    String(parms->_peer),
+							    req);
+   
+   if(success == true )
+      cout << "ClientSendForget to module successful" << endl;
 
    pegasus_sleep(1000);
    

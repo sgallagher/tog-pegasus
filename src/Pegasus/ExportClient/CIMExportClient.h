@@ -53,10 +53,10 @@ class CIMExportRequestEncoder;
 /** This class provides the interface that a client uses to communicate
     with a CIMOM.
 */
-class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportClient : public MessageQueueService
+class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportClient : public MessageQueue
 {
    public:
-      typedef MessageQueueService Base;
+      typedef MessageQueue Base;
   
 
       enum { DEFAULT_TIMEOUT_MILLISECONDS = 20000 };

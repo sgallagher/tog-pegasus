@@ -45,8 +45,8 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 CIMExportResponseDecoder::CIMExportResponseDecoder(
-   MessageQueueService* outputQueue,
-   MessageQueueService* encoderQueue,
+   MessageQueue* outputQueue,
+   MessageQueue* encoderQueue,
    ClientAuthenticator* authenticator)
    :
    Base(PEGASUS_QUEUENAME_EXPORTRESPDECODER),

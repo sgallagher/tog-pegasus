@@ -45,13 +45,13 @@ class XmlParser;
 
 /** This class decodes CIM operation requests and passes them down-stream.
  */
-class CIMOperationRequestDecoder : public MessageQueueService
+class CIMOperationRequestDecoder : public MessageQueue
 {
    public:
-      typedef MessageQueueService Base;
+      typedef MessageQueue Base;
     
       CIMOperationRequestDecoder(
-	 MessageQueueService* outputQueue,
+	 MessageQueue* outputQueue,
 	 Uint32 returnQueueId);
 
       ~CIMOperationRequestDecoder();
@@ -295,7 +295,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 
    private:
 
-      MessageQueueService* _outputQueue;
+      MessageQueue* _outputQueue;
 
       // Queue where responses should be enqueued.
       Uint32 _returnQueueId;

@@ -970,7 +970,7 @@ void CIMOperationResponseEncoder::encodeExecQueryResponse(
 }
 
 void CIMOperationResponseEncoder::encodeInvokeMethodResponse(
-   CIMInvokeMethodResponseMessage* response)
+    CIMInvokeMethodResponseMessage* response)
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMOperationResponseEncoder::"
 		    "encodeInvokeMethodResponse()");

@@ -1086,7 +1086,7 @@ Boolean ModuleController::ClientSendForget(const client_handle & handle,
 
 Boolean ModuleController::ClientSendForget(const client_handle & handle, 
 					   Uint32 destination_q, 
-					   String & destination_module, 
+					   const String & destination_module, 
 					   AsyncRequest *message)
    throw(Permission, IPCException)
 {

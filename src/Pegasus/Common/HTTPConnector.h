@@ -45,11 +45,11 @@ class HTTPConnection;
     server. For each established connection, a HTTPConnection object
     is created.
 */
-class PEGASUS_COMMON_LINKAGE HTTPConnector : public MessageQueueService
+class PEGASUS_COMMON_LINKAGE HTTPConnector : public MessageQueue
 {
    public:
    
-      typedef MessageQueueService Base;
+      typedef MessageQueue Base;
   
       /** Constructor.
 	  @param monitor pointer to monitor object which this class uses to

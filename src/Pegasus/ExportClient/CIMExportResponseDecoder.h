@@ -46,19 +46,19 @@ class XmlParser;
 /** This class receives HTTP messages and decodes them into CIM Operation 
     Responses messages which it places on its output queue.
 */
-class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportResponseDecoder :  public MessageQueueService
+class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportResponseDecoder :  public MessageQueue
 {
   
    public:
      
-      typedef MessageQueueService Base;
+      typedef MessageQueue Base;
 
       /** Constuctor.
 	  @param outputQueue queue to receive decoded HTTP messages.
       */
       CIMExportResponseDecoder(
-	 MessageQueueService* outputQueue,
-	 MessageQueueService* encoderQueue,
+	 MessageQueue* outputQueue,
+	 MessageQueue* encoderQueue,
 	 ClientAuthenticator* authenticator);
 
       /** Destructor. */
@@ -81,8 +81,8 @@ class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportResponseDecoder :  public MessageQu
       CIMExportIndicationResponseMessage* _decodeExportIndicationResponse(
 	 XmlParser& parser, const String& messageId);
 
-      MessageQueueService*        _outputQueue;
-      MessageQueueService*        _encoderQueue;
+      MessageQueue*        _outputQueue;
+      MessageQueue*        _encoderQueue;
       ClientAuthenticator* _authenticator;
 };
 

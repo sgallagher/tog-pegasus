@@ -511,8 +511,7 @@ public:
             cimInstance,
 	    subscriptionInstanceNames,
             _provider,
-            QueueIdStack(_target->getQueueId(), _source->getQueueId()),
-            contentLangs);
+            QueueIdStack(_target->getQueueId(), _source->getQueueId()));
         request->operationContext = context;
 		try
 		{
@@ -520,6 +519,13 @@ public:
 		}catch(Exception &e)
 		{
 			request->operationContext.insert(ContentLanguageListContainer(contentLangs));
+		}
+		try
+		{
+			AcceptLanguageListContainer cntr = request->operationContext.get(AcceptLanguageListContainer::NAME);
+		}catch(Exception &e)
+		{
+			request->operationContext.insert(AcceptLanguageListContainer(AcceptLanguages::EMPTY));
 		}
 
         // send message

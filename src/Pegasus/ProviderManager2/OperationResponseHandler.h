@@ -523,8 +523,7 @@ public:
             cimInstance,
 	    subscriptionInstanceNames,
             _provider,
-            QueueIdStack(),  // Must be filled in by the callback function
-            contentLangs);
+            QueueIdStack()); // Must be filled in by the callback function
         request->operationContext = context;
 		try
 		{

@@ -302,9 +302,7 @@ IndicationHandlerService::_handleIndication(
                     indication,
                     QueueIdStack(exportServer[0], getQueueId()),
                     String::EMPTY,
-                    String::EMPTY,
-					((ContentLanguageListContainer)request->operationContext.get
-								(ContentLanguageListContainer::NAME)).getLanguages());
+                    String::EMPTY);
 
 			exportmessage->operationContext.set(request->operationContext.get(ContentLanguageListContainer::NAME)); 
             AsyncOpNode* op = this->get_op();

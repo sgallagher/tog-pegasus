@@ -32,6 +32,7 @@
 //              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 //              Dan Gorey (djgorey@us.ibm.com)
+//				Seema Gupta (gseema@in.ibm.com) for PEP135
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -327,8 +328,9 @@ void CIMExportClient::exportIndication(
       instanceName,
       QueueIdStack(),
       String::EMPTY,
-      String::EMPTY,
-      contentLanguages);
+      String::EMPTY);
+
+   request->operationContext.set(ContentLanguageListContainer(contentLanguages));
 
    Message* message = _doRequest(request,
       CIM_EXPORT_INDICATION_RESPONSE_MESSAGE);

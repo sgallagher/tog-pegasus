@@ -308,8 +308,7 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
 	   CIMException(CIM_ERR_FAILED,String::EMPTY), // will be removed later in
 	                                       // handleOperationResponseAggregation
 	   request->queueIds.copyAndPop(),
-	    Array<CIMObject>(),
-		((ContentLanguageListContainer)request->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages()); 
+	    Array<CIMObject>()); 
 
     if (_repository->isDefaultInstanceProvider())
         poA->setTotalIssued(numClasses+1);
@@ -341,9 +340,7 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
 		     providerInfos[i]._className,
 		     false,false,false,false,CIMPropertyList(),
 		     request->queueIds,request->authType,
-		     ((IdentityContainer)request->operationContext.get(IdentityContainer::NAME)).getUserName(),
-             ((ContentLanguageListContainer)request->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(), 
-		     ((AcceptLanguageListContainer)request->operationContext.get(AcceptLanguageListContainer::NAME)).getLanguages()); 
+		     ((IdentityContainer)request->operationContext.get(IdentityContainer::NAME)).getUserName()); 
 
                 _forwardRequestForAggregation(providerInfos[i]._serviceName,
                       providerInfos[i]._controlProviderName, enumReq, poA);

@@ -248,8 +248,9 @@ Message * ProviderMessageFacade::_handleGetInstanceRequest(Message * message) th
 	    request->messageId,
 	    cimException,
 	    request->queueIds.copyAndPop(),
-	    cimInstance,
-            contentLangs));  // l10n
+	    cimInstance));  // l10n
+
+	response->operationContext.set(ContentLanguageListContainer(contentLangs));
 
     // preserve message key
     response->setKey(request->getKey());
@@ -323,8 +324,9 @@ Message * ProviderMessageFacade::_handleEnumerateInstancesRequest(Message * mess
 	    request->messageId,
 	    cimException,
 	    request->queueIds.copyAndPop(),
-	    cimInstances,
-        contentLangs));  // l10n
+	    cimInstances));  // l10n
+
+	response->operationContext.set(ContentLanguageListContainer(contentLangs));
 
     // preserve message key
     response->setKey(request->getKey());
@@ -392,9 +394,9 @@ Message * ProviderMessageFacade::_handleEnumerateInstanceNamesRequest(Message * 
 	    request->messageId,
 	    cimException,
 	    request->queueIds.copyAndPop(),
-	    cimReferences,
-        contentLangs));  //l10n
+	    cimReferences));  //l10n
 
+	response->operationContext.set(ContentLanguageListContainer(contentLangs));
     // preserve message key
     response->setKey(request->getKey());
 
@@ -478,8 +480,9 @@ Message * ProviderMessageFacade::_handleCreateInstanceRequest(Message * message)
 	    request->messageId,
 	    cimException,
 	    request->queueIds.copyAndPop(),
-	    instanceName,
-        contentLangs));  // l10n
+	    instanceName));  // l10n
+
+	response->operationContext.set(ContentLanguageListContainer(contentLangs));
 
     // preserve message key
     response->setKey(request->getKey());
@@ -918,8 +921,9 @@ Message * ProviderMessageFacade::_handleInvokeMethodRequest(Message * message) t
 	    request->queueIds.copyAndPop(),
 	    returnValue,
 	    outParameters,
-	    request->methodName,
-        contentLangs));  // l10n
+	    request->methodName));  // l10n
+
+	response->operationContext.set(ContentLanguageListContainer(contentLangs));
 
     // preserve message key
     response->setKey(request->getKey());

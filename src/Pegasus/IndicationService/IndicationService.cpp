@@ -215,8 +215,8 @@ void IndicationService::handleEnqueue(Message* message)
    {
 	if (msg->thread_changed())
         {
-	   AcceptLanguages *langs = 
-   			new AcceptLanguages(msg->acceptLanguages);	
+            AcceptLanguages *langs =  new AcceptLanguages(((AcceptLanguageListContainer)msg->operationContext.get
+											(AcceptLanguageListContainer::NAME)).getLanguages());
 	   Thread::setLanguages(langs);   		
         }
    } 
@@ -973,8 +973,7 @@ void IndicationService::_handleGetInstanceRequest (const Message* message)
         (request->messageId,
         cimException,
         request->queueIds.copyAndPop(),
-        instance,
-        ContentLanguages(contentLangs));
+        instance);
 
 	response->operationContext.set(ContentLanguageListContainer(ContentLanguages(contentLangs)));
     //
@@ -1139,8 +1138,7 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
             request->messageId,
             cimException,
             request->queueIds.copyAndPop(),
-            returnedInstances,
-            ContentLanguages(aggregatedLangs));
+            returnedInstances);
 
 	response->operationContext.set(ContentLanguageListContainer(ContentLanguages(aggregatedLangs))); 
     //
@@ -2040,9 +2038,7 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
                         formattedIndication,
                         QueueIdStack(_handlerService, getQueueId()),
                         String::EMPTY,
-                        String::EMPTY,
-						((ContentLanguageListContainer)request->operationContext.
-								get(ContentLanguageListContainer::NAME)).getLanguages());
+                        String::EMPTY);
                                       
 		handler_request->operationContext = request->operationContext;
 
@@ -5191,9 +5187,7 @@ void IndicationService::_sendCreateRequests
                 query,
                 QueueIdStack (_providerManager, getQueueId ()),
                 authType,
-                userName,
-                contentLangs,
-                acceptLangs);
+                userName);
 
         //
         //  Store a copy of the request in the operation aggregate instance
@@ -5324,9 +5318,7 @@ void IndicationService::_sendModifyRequests
                 query,
                 QueueIdStack (_providerManager, getQueueId ()),
                 authType,
-                userName,
-                contentLangs,
-                acceptLangs);
+                userName);
 
         //
         //  Store a copy of the request in the operation aggregate instance
@@ -5468,9 +5460,7 @@ void IndicationService::_sendDeleteRequests
                 indicationProviders [i].classList,
                 QueueIdStack (_providerManager, getQueueId ()),
                 authType,
-                userName,
-                contentLangs,
-                acceptLangs);
+                userName);
 
         //
         //  Store a copy of the request in the operation aggregate instance

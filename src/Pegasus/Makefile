@@ -16,6 +16,8 @@ DIRS = \
     Provider \
     Server/ProviderRegistrationManager \
     ProviderManager2 \
+	ProviderManager2/Default \
+	ProviderManager2/CMPI \
     ExportServer \
     Listener \
     Security/UserManager \

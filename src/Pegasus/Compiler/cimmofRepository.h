@@ -42,6 +42,7 @@
 #include <Pegasus/Common/String.h>
 //#include <Pegasus/Compiler/cimmofParser.h>
 #include <Pegasus/Compiler/compilerDeclContext.h>
+#include <Pegasus/Compiler/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

@@ -42,6 +42,7 @@
 
 #include <Pegasus/Provider/CIMMethodProvider.h>
 #include <Pegasus/Server/ShutdownService.h>
+#include <Pegasus/Server/Linkage.h>
 
 
 PEGASUS_NAMESPACE_BEGIN

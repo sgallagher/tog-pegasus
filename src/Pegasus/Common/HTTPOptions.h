@@ -31,6 +31,7 @@
 #define Pegasus_HTTPOptions_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Linkage.h>
 
 
 /*

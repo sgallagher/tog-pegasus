@@ -23,7 +23,8 @@
 //
 // Author: Chuck Carmack (carmack@us.ibm.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -40,7 +41,10 @@
 // chuck
 //#pragma convert(819)
 
-#include <Pegasus/Common/ConfigUnix.h>
+#include <cstddef>
+
+#define PEGASUS_OS_TYPE_UNIX
+
 #include <ifs.cleinc>
   
 #define PEGASUS_OS_OS400
@@ -67,8 +71,6 @@
 #define PEGASUS_HAVE_FOR_SCOPE
 
 #define PEGASUS_HAVE_TEMPLATE_SPECIALIZATION
-
-#define PEGASUS_HAVE_BOOLEAN
 
 #define PEGASUS_HAVE_EBCDIC
 

@@ -36,6 +36,7 @@
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Common/internal_dq.h>
 #include <Pegasus/Common/IPC.h>
+#include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

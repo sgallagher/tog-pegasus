@@ -72,6 +72,7 @@
 #include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Compiler/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

@@ -39,6 +39,7 @@
 #include <Pegasus/Common/CIMParameter.h>
 #include <Pegasus/Common/Sharable.h>
 #include <Pegasus/Common/Pair.h>
+#include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

@@ -36,6 +36,7 @@
 #include <Pegasus/Common/HTTPConnection.h>
 #include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Security/Authentication/AuthenticationManager.h>
+#include <Pegasus/Server/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

@@ -44,6 +44,7 @@
 #include <Pegasus/Common/CIMRepositoryBase.h>
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Repository/NameSpaceManager.h>
+#include <Pegasus/Repository/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

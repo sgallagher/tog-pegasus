@@ -38,6 +38,5 @@
 #    endif
 #  else
 #    define PEGASUS_CLIENT_LINKAGE
-#    define PEGASUS_CLIENT_LINKAGE
 #  endif
 #endif

@@ -42,6 +42,7 @@
 #include <Pegasus/Common/CIMIndication.h>
 
 #include <Pegasus/Provider/ResponseHandlerRep.h>
+#include <Pegasus/Provider/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

@@ -38,6 +38,8 @@
 #if defined(PEGASUS_HAS_SSL)
 #include <Pegasus/Common/SSLContext.h>
 #endif
+#include <Pegasus/Common/Linkage.h>
+
 PEGASUS_NAMESPACE_BEGIN
 
 struct HTTPAcceptorRep;

@@ -30,6 +30,8 @@
 #ifndef PegasusCompiler_Compiler_Common_Defs_h
 #define PegasusCompiler_Compiler_Common_Defs_h
 
+#include <Pegasus/Compiler/Linkage.h>
+
 PEGASUS_USING_PEGASUS;
 
 class PEGASUS_COMPILER_LINKAGE compilerCommonDefs {

@@ -54,6 +54,7 @@
 #include <Pegasus/Common/String.h>
 #include "compilerCommonDefs.h"
 #include <Pegasus/Client/CIMClient.h>
+#include <Pegasus/Compiler/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

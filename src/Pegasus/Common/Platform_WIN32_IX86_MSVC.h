@@ -23,14 +23,19 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Platform_WIN32_IX86_MSVC_h
 #define Pegasus_Platform_WIN32_IX86_MSVC_h
 
-#include <Pegasus/Common/ConfigWindows.h>
+#define PEGASUS_OS_TYPE_WINDOWS
+
+#define PEGASUS_EXPORT __declspec(dllexport)
+
+#define PEGASUS_IMPORT __declspec(dllimport)
 
 #define PEGASUS_OS_WIN32
 
@@ -57,6 +62,17 @@
 
 #define PEGASUS_HAVE_TEMPLATE_SPECIALIZATION
 
-#define PEGASUS_HAVE_BOOLEAN
+#define PEGASUS_HAVE_IOS_BINARY
+
+// Suppress this warning: "identifier was truncated to '255' characters in the
+// debug information":
+#pragma warning( disable : 4786 )
+
+// Suppress this warning: "class <XXX> needs to have dll-interface to be used
+// by clients of class <YYY>"
+#pragma warning ( disable : 4251 )
+
+// Suppress this warning : "'this' : used in base member initializer list"
+#pragma warning ( disable : 4355 )
 
 #endif /* Pegasus_Platform_WIN32_IX86_MSVC_h */

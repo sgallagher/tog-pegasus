@@ -39,13 +39,13 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_CMDLINE_LINKAGE ArgumentErrorsException : public Exception {
+class ArgumentErrorsException : public Exception {
  public:
   static const String MSG;
   ArgumentErrorsException(const String &msg) : Exception(msg) {};
 };
 
-class PEGASUS_CMDLINE_LINKAGE CmdlineNoRepository : public Exception {
+class CmdlineNoRepository : public Exception {
  public:
   static const String MSG;
   CmdlineNoRepository(const String &msg) : Exception(msg) {};

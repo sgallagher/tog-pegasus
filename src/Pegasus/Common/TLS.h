@@ -43,6 +43,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/SSLContext.h>
+#include <Pegasus/Common/Linkage.h>
 
 // REVIEW: Figure out how this works (note to myself)?
 
@@ -51,7 +52,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 
 #ifdef PEGASUS_HAS_SSL
-class PEGASUS_EXPORT SSLSocket
+class PEGASUS_COMMON_LINKAGE SSLSocket
 {
 public:
 
@@ -92,7 +93,7 @@ private:
 
 // offer a non ssl dummy class for use in MP_Socket
 
-class PEGASUS_EXPORT SSLSocket {};
+class PEGASUS_COMMON_LINKAGE SSLSocket {};
 
 #endif // end of PEGASUS_HAS_SSL
 

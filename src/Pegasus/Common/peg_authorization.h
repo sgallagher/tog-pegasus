@@ -33,6 +33,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/Linkage.h>
 #include <bitset>
 
 PEGASUS_NAMESPACE_BEGIN

@@ -36,6 +36,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/CIMValue.h>
+#include <Pegasus/Provider/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

@@ -42,6 +42,7 @@
 //#include <Pegasus/Server/CIMOperationRequestDispatcher.h>
 //#include <Pegasus/Server/CIMOperationResponseEncoder.h>
 //#include <Pegasus/Server/CIMOperationRequestDecoder.h>
+#include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

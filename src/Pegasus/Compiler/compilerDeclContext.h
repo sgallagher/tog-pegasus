@@ -47,6 +47,7 @@
 #include <Pegasus/Compiler/compilerCommonDefs.h>
 #include <Pegasus/Repository/RepositoryDeclContext.h>
 #include <Pegasus/Repository/CIMRepository.h>
+#include <Pegasus/Compiler/Linkage.h>
 
 PEGASUS_USING_PEGASUS;
 

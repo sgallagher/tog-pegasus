@@ -37,6 +37,7 @@
 
 #include <Pegasus/ProviderManager/Lockable.h>
 #include <Pegasus/ProviderManager/Provider.h>
+#include <Pegasus/Server/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

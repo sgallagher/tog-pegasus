@@ -34,6 +34,7 @@
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/AsyncOpNode.h>
+#include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 //

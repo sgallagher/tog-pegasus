@@ -38,6 +38,7 @@
 #include <Pegasus/Common/AsyncOpNode.h>
 #include <Pegasus/Common/Cimom.h>
 #include <Pegasus/Common/CimomMessage.h>
+#include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

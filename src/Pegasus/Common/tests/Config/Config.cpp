@@ -30,12 +30,13 @@
 #include <cassert>
 #include <iostream>
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Linkage.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
-PEGASUS_IMPORT extern int numDummyObjects;
+PEGASUS_COMMON_LINKAGE extern int numDummyObjects;
 PEGASUS_NAMESPACE_END
 
 int main(int argc, char** argv)

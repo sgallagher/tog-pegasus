@@ -37,6 +37,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMStatusCode.h>
+#include <Pegasus/Common/Linkage.h>
 
 #include <cstring>
 

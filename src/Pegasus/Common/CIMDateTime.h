@@ -35,6 +35,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Array.h>
+#include <Pegasus/Common/Linkage.h>
 #include <time.h>
 #ifdef PEGASUS_INTERNALONLY
 #include <iostream>

@@ -38,6 +38,7 @@
 #include <Pegasus/Common/CIMDateTime.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/Array.h>
+#include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

@@ -31,6 +31,7 @@
 #define Pegasus_Indentor_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Linkage.h>
 #include <iostream>
 
 PEGASUS_NAMESPACE_BEGIN

@@ -35,6 +35,7 @@
 #define SSL_CTX void
 #endif
 #include <Pegasus/Common/SSLContext.h>
+#include <Pegasus/Common/Linkage.h>
 
 #ifndef Pegasus_SSLContextRep_h
 #define Pegasus_SSLContextRep_h
@@ -43,7 +44,7 @@
 PEGASUS_NAMESPACE_BEGIN
 
 
-class PEGASUS_EXPORT SSLContextRep
+class PEGASUS_COMMON_LINKAGE SSLContextRep
 {
 public:
 

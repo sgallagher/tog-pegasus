@@ -35,6 +35,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Message.h>
 #include <Pegasus/Common/ModuleController.h>
+#include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

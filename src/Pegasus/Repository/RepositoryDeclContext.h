@@ -31,6 +31,7 @@
 #define PegasusRepository_Repository_Decl_Context_h
 
 #include <Pegasus/Common/DeclContext.h>
+#include <Pegasus/Repository/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

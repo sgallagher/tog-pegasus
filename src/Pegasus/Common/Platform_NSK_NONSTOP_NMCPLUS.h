@@ -23,14 +23,17 @@
 //
 // Author: Rudy Schuet (rudy.schuet@compaq.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Platform_NSK_NONSTOP_NMCPLUS_h
 #define Pegasus_Platform_NSK_NONSTOP_NMCPLUS_h
 
-#include <Pegasus/Common/ConfigNsk.h> 
+#include <cstddef>
+
+#define PEGASUS_OS_TYPE_NSK
 
 #define PEGASUS_OS_NSK   
 
@@ -58,7 +61,5 @@
 #define PEGASUS_HAVE_FOR_SCOPE
 
 #define PEGASUS_HAVE_TEMPLATE_SPECIALIZATION
-
-#define PEGASUS_HAVE_BOOLEAN
 
 #endif /* Pegasus_Platform_NSK_NONSTOP_NMCPLUS_h */

@@ -21,31 +21,23 @@
 //
 //==============================================================================
 //
-// Author: Rudy Schuet (rudy.schuet@compaq.com)
+// Author: Carol Ann Krug Graves, Hewlett-Packard Company
+//           (carolann_graves@hp.com)
 //
 // Modified By: 
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_ConfigNsk_h
-#define Pegasus_ConfigNsk_h
+#include <Pegasus/Common/Config.h>
 
-#include <cstddef>
-
-#ifndef PEGASUS_OS_TYPE_NSK 
-#define PEGASUS_OS_TYPE_NSK 
+#ifndef PEGASUS_PROVIDER_LINKAGE
+#  ifdef PEGASUS_OS_TYPE_WINDOWS
+#    ifdef PEGASUS_PROVIDER_INTERNAL
+#      define PEGASUS_PROVIDER_LINKAGE PEGASUS_EXPORT
+#    else
+#      define PEGASUS_PROVIDER_LINKAGE PEGASUS_IMPORT
+#    endif
+#  else
+#    define PEGASUS_PROVIDER_LINKAGE /* empty */
+#  endif
 #endif
-#define PEGASUS_EXPORT /* empty */
-#define PEGASUS_IMPORT /* empty */
-#define PEGASUS_IOS_BINARY /* empty */
-#define PEGASUS_COMMON_LINKAGE /* empty */
-#define PEGASUS_REPOSITORY_LINKAGE /* empty */
-#define PEGASUS_PROTOCOL_LINKAGE /* empty */
-#define PEGASUS_SERVER_LINKAGE /* empty */
-#define PEGASUS_COMPILER_LINKAGE /* empty */
-#define PEGASUS_GETOOPT_LINKAGE /* empty */
-#define PEGASUS_PROVIDER_LINKAGE /* empty */
-#define PEGASUS_CMDLINE_LINKAGE /* empty */
-#define PEGASUS_HANDLER_LINKAGE /* empty */
-
-#endif  /* Pegasus_ConfigNsk_h */

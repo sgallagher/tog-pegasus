@@ -38,6 +38,7 @@
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/TraceComponents.h>
 #include <Pegasus/Common/TraceFileHandler.h>
+#include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

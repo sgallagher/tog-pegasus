@@ -31,6 +31,7 @@
 #define Pegasus_OperationFlag_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Provider/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

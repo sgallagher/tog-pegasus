@@ -21,34 +21,23 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
+// Author: Carol Ann Krug Graves, Hewlett-Packard Company
+//           (carolann_graves@hp.com)
 //
 // Modified By: 
-//         Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//		   Ramnath Ravindran (Ramnath.Ravindran@compaq.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_ConfigUnix_h
-#define Pegasus_ConfigUnix_h
+#include <Pegasus/Common/Config.h>
 
-#include <cstddef>
-
-#ifndef PEGASUS_OS_TYPE_UNIX
-#define PEGASUS_OS_TYPE_UNIX
+#ifndef PEGASUS_GETOOPT_LINKAGE
+#  ifdef PEGASUS_OS_TYPE_WINDOWS
+#    ifdef PEGASUS_GETOOPT_INTERNAL
+#      define PEGASUS_GETOOPT_LINKAGE PEGASUS_EXPORT
+#    else
+#      define PEGASUS_GETOOPT_LINKAGE PEGASUS_IMPORT
+#    endif
+#  else
+#    define PEGASUS_GETOOPT_LINKAGE /* empty */
+#  endif
 #endif
-#define PEGASUS_EXPORT /* empty */
-#define PEGASUS_IMPORT /* empty */
-#define PEGASUS_IOS_BINARY /* empty */
-#define PEGASUS_OR_IOS_BINARY /* empty */
-#define PEGASUS_COMMON_LINKAGE /* empty */
-#define PEGASUS_REPOSITORY_LINKAGE /* empty */
-#define PEGASUS_PROTOCOL_LINKAGE /* empty */
-#define PEGASUS_SERVER_LINKAGE /* empty */
-#define PEGASUS_COMPILER_LINKAGE /* empty */
-#define PEGASUS_GETOOPT_LINKAGE /* empty */
-#define PEGASUS_PROVIDER_LINKAGE /* empty */
-#define PEGASUS_CMDLINE_LINKAGE /* empty */
-#define PEGASUS_HANDLER_LINKAGE /* empty */
-#define PEGASUS_CIMOM_LINKAGE /* empty */
-#endif  /* Pegasus_ConfigUnix_h */

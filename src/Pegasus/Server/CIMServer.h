@@ -37,6 +37,7 @@
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Server/CIMServerState.h>
 #include <Pegasus/Common/Cimom.h>
+#include <Pegasus/Server/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

@@ -36,6 +36,7 @@
 #include <cstring>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Char16.h>
+#include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

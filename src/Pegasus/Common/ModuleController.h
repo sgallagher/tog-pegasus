@@ -41,6 +41,7 @@
 #include <Pegasus/Common/CimomMessage.h>
 #include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/peg_authorization.h>
+#include <Pegasus/Common/Linkage.h>
 
 
 PEGASUS_NAMESPACE_BEGIN

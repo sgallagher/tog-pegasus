@@ -24,13 +24,17 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Mike Day (mdday@us.ibm.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Platform_LINUX_IA64_GNU_h
 #define Pegasus_Platform_LINUX_IA64_GNU_h
 
-#include <Pegasus/Common/ConfigUnix.h>
+#include <cstddef>
+
+#define PEGASUS_OS_TYPE_UNIX
 
 #define PEGASUS_OS_LINUX
 
@@ -56,8 +60,6 @@
 #define PEGASUS_HAVE_FOR_SCOPE
 
 // #define PEGASUS_HAVE_TEMPLATE_SPECIALIZATION
-
-#define PEGASUS_HAVE_BOOLEAN
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE

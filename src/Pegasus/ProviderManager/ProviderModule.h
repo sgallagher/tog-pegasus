@@ -37,6 +37,7 @@
 #include <Pegasus/Provider/CIMBaseProvider.h>
 #include <Pegasus/ProviderManager/ProviderAdapter.h>
 #include <Pegasus/Config/ConfigManager.h>
+#include <Pegasus/Server/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

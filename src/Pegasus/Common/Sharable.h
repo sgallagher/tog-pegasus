@@ -31,6 +31,7 @@
 #define Pegasus_Sharable_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

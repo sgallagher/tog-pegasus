@@ -32,6 +32,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/IPC.h>
+#include <Pegasus/Server/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

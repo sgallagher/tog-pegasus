@@ -42,6 +42,7 @@
 #include <Pegasus/Common/Thread.h>
 
 #include <Pegasus/ProviderManager/SafeQueue.h>
+#include <Pegasus/Server/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

@@ -34,6 +34,7 @@
 #include <Pegasus/Common/CIMQualifier.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/Pair.h>
+#include <Pegasus/Common/Linkage.h>
 
 
 /* ATTN: P2 KS 25 Mar 2002 - The function names are a mismash of local and taken

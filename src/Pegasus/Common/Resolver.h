@@ -39,6 +39,7 @@
 #include <Pegasus/Common/CIMQualifier.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/DeclContext.h>
+#include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

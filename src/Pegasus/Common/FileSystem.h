@@ -34,6 +34,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/Linkage.h>
 #include <fstream>
 
 PEGASUS_NAMESPACE_BEGIN

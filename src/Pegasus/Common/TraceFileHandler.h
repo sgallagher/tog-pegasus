@@ -34,6 +34,7 @@
 #include <cstdarg>
 #include <cstdio>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/Linkage.h>
 
 // REVIEW: are tracing and logging facilities redundant?
 

@@ -38,6 +38,7 @@
 
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMValue.h>
+#include <Pegasus/Compiler/Linkage.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;

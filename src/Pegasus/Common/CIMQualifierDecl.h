@@ -38,6 +38,7 @@
 #include <Pegasus/Common/CIMScope.h>
 #include <Pegasus/Common/CIMType.h>
 #include <Pegasus/Common/CIMValue.h>
+#include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

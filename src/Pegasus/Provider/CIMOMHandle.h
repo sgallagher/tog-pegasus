@@ -42,6 +42,7 @@
 #include <Pegasus/Common/CIMPropertyList.h>
 
 #include <Pegasus/Provider/ResponseHandler.h>
+#include <Pegasus/Provider/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

@@ -51,6 +51,7 @@
 #include <Pegasus/Repository/CIMRepository.h>
 
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
+#include <Pegasus/Server/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

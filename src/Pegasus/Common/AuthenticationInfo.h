@@ -34,6 +34,7 @@
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/AuthenticationInfoRep.h>
+#include <Pegasus/Common/Linkage.h>
 
 
 PEGASUS_NAMESPACE_BEGIN

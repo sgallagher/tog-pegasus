@@ -31,6 +31,7 @@
 #define Pegasus_DQueue_h
 
 #include <Pegasus/Common/IPC.h>
+#include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

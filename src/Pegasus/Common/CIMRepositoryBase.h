@@ -45,10 +45,10 @@ class RepositoryDeclContext;
 
 /** This class declares the interface for a CIM repository implementation.
 
-    CIMRepositoryBase is an pure virtual base class (all the method signatures
+    CIMRepositoryBase is a pure virtual base class (all the method signatures
     must 
 */
-class PEGASUS_REPOSITORY_LINKAGE CIMRepositoryBase
+class CIMRepositoryBase
 {
 public:
 

@@ -28,10 +28,11 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "Config.h"
+#include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-PEGASUS_EXPORT int numDummyObjects = 0;
+PEGASUS_COMMON_LINKAGE int numDummyObjects = 0;
 
 // This class is used to test the number of global constructions. It is used
 // to test whether shared libraries are really constructing the object created

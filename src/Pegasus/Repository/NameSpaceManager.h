@@ -32,6 +32,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Repository/InheritanceTree.h>
+#include <Pegasus/Repository/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

@@ -27,6 +27,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Linkage.h>
 #include <assert.h>
 
 #ifndef PEG_INTERNAL_DQ_include

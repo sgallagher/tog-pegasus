@@ -56,6 +56,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Compiler/compilerCommonDefs.h>
+#include <Pegasus/Compiler/Linkage.h>
 #include <iostream>
 
 PEGASUS_USING_STD;

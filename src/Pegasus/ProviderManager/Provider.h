@@ -35,6 +35,7 @@
 
 #include <Pegasus/ProviderManager/ProviderModule.h>
 #include <Pegasus/ProviderManager/ProviderFacade.h>
+#include <Pegasus/Server/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

@@ -23,14 +23,17 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Platform_SOLARIS_SPARC_GNU_h
 #define Pegasus_Platform_SOLARIS_SPARC_GNU_h
 
-#include <Pegasus/Common/ConfigUnix.h>
+#include <cstddef>
+
+#define PEGASUS_OS_TYPE_UNIX
 
 #define PEGASUS_OS_SOLARIS
 
@@ -56,7 +59,5 @@
 #define PEGASUS_HAVE_FOR_SCOPE
 
 // #define PEGASUS_HAVE_TEMPLATE_SPECIALIZATION
-
-#define PEGASUS_HAVE_BOOLEAN
 
 #endif /* Pegasus_Platform_SOLARIS_SPARC_GNU_h */

@@ -34,6 +34,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/Linkage.h>
 
 
 PEGASUS_NAMESPACE_BEGIN
@@ -44,7 +45,7 @@ class SSLContextRep;
 /** This class provides the interface that a client gets as argument
     to certificate verification call back function.
 */
-class PEGASUS_EXPORT CertificateInfo
+class PEGASUS_COMMON_LINKAGE CertificateInfo
 {
 public:
     /** Constructor for a CertificateInfo object.
@@ -111,7 +112,7 @@ typedef Boolean (*VERIFY_CERTIFICATE) (CertificateInfo &certInfo);
     CIM clients must specify a SSL random file and also
     set isCIMClient to true. 
 */
-class PEGASUS_EXPORT SSLContext
+class PEGASUS_COMMON_LINKAGE SSLContext
 {
 public:
 

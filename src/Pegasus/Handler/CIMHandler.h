@@ -33,6 +33,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Repository/CIMRepository.h>
+#include <Pegasus/Handler/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

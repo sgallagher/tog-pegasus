@@ -21,43 +21,23 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
+// Author: Carol Ann Krug Graves, Hewlett-Packard Company
+//           (carolann_graves@hp.com)
 //
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
+// Modified By: 
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_Platform_AIX_RS_IBMCXX_h
-#define Pegasus_Platform_AIX_RS_IBMCXX_h
+#include <Pegasus/Common/Config.h>
 
-#include <cstdlib>
-#include <cstddef>
-
-#define PEGASUS_OS_TYPE_UNIX
-
-#define PEGASUS_OS_AIX
-
-#define PEGASUS_ARCHITECTURE_RS
-
-#define PEGASUS_COMPILER_IBMCXX
-
-#define PEGASUS_UINT64 unsigned long long
-#define PEGASUS_SINT64 long long
-
-#define PEGASUS_LLONG_MAX 9223372036854775807LL
-#define PEGASUS_LLONG_MIN (-PEGASUS_LLONG_MAX - 1LL)
-
-#define PEGASUS_ULLONG_MAX 18446744073709551615ULL
-
-#define PEGASUS_HAVE_NAMESPACES
-
-// #define PEGASUS_HAVE_EXPLICIT
-
-// #define PEGASUS_HAVE_MUTABLE
-
-// #define PEGASUS_HAVE_FOR_SCOPE
-
- #define PEGASUS_HAVE_TEMPLATE_SPECIALIZATION
-
-#endif /* Pegasus_Platform_AIX_RS_IBMCXX_h */
+#ifndef PEGASUS_SERVER_LINKAGE
+#  ifdef PEGASUS_OS_TYPE_WINDOWS
+#    ifdef PEGASUS_SERVER_INTERNAL
+#      define PEGASUS_SERVER_LINKAGE PEGASUS_EXPORT
+#    else
+#      define PEGASUS_SERVER_LINKAGE PEGASUS_IMPORT
+#    endif
+#  else
+#    define PEGASUS_SERVER_LINKAGE /* empty */
+#  endif
+#endif

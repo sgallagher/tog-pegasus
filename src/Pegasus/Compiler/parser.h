@@ -50,6 +50,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Stack.h>
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Compiler/Linkage.h>
 
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;

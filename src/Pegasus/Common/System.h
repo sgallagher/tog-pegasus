@@ -33,6 +33,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/Linkage.h>
 
 //
 // Protocal Type

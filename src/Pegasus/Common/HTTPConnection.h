@@ -43,6 +43,7 @@
 #include <Pegasus/Common/AuthenticationInfo.h>
 #include <Pegasus/Common/TLS.h>
 #include <Pegasus/Common/HTTPAcceptor.h>
+#include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

@@ -39,6 +39,7 @@
 // which should be reusable outside Pegasus.
 
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Compiler/Linkage.h>
 
 #ifdef PEGASUS_HAVE_NAMESPACES
 namespace ParserExceptions {

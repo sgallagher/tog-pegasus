@@ -26,6 +26,8 @@
 // Modified By: Rudy Schuet (rudy.schuet@compaq.com) 11/25/01
 //              added NSK platform support and PEGASUS_HAVE_NO_STD option
 //              K. Schopmeyer. Added  PEGASUS_TEST_EXCEPTION_DECLARATION Feb 27 2002
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -57,6 +59,10 @@
 #include <iostream>
 #include <cstdlib>
 
+// ATTN: This is a temporary hack until the correct linkages are defined
+#ifndef PEGASUS_EXPORT
+#define PEGASUS_EXPORT /* empty */
+#endif
 
 #ifdef PEGASUS_HAVE_NAMESPACES
 # define PEGASUS_NAMESPACE_BEGIN namespace Pegasus {
@@ -100,13 +106,21 @@
 # define PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 
+#ifdef PEGASUS_HAVE_IOS_BINARY
+#define PEGASUS_IOS_BINARY ,std::ios::binary
+#define PEGASUS_OR_IOS_BINARY | std::ios::binary
+#else
+#define PEGASUS_IOS_BINARY /* empty */
+#define PEGASUS_OR_IOS_BINARY /* empty */
+#endif
+
 
 PEGASUS_NAMESPACE_BEGIN
 
-#ifdef PEGASUS_HAVE_BOOLEAN
-  typedef bool Boolean;
-#else
+#ifdef PEGASUS_HAVE_NO_BOOLEAN
 # include <Pegasus/Common/Boolean.h>
+#else
+  typedef bool Boolean;
 #endif
 
 typedef unsigned char Uint8;

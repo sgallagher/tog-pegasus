@@ -52,6 +52,7 @@
 #include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/CIMPropertyList.h>
+#include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;

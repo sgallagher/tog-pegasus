@@ -43,6 +43,7 @@
 #include <Pegasus/WQL/WQLParser.h>
 #include <Pegasus/WQL/WQLSelectStatement.h>
 #include <Pegasus/WQL/WQLSimplePropertySource.h>
+#include <Pegasus/Server/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

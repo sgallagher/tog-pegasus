@@ -34,6 +34,7 @@
 #define Pegasus_IPC_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Linkage.h>
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 # include "IPCWindows.h"
 #elif defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)

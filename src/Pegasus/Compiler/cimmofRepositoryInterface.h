@@ -52,6 +52,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Compiler/Linkage.h>
 #include "mofCompilerOptions.h"
 
 PEGASUS_NAMESPACE_BEGIN

@@ -54,6 +54,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Exception.h>
+#include <Pegasus/getoopt/Linkage.h>
 
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;

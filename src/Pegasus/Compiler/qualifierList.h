@@ -43,6 +43,7 @@
 
 #include <Pegasus/Common/CIMQualifier.h>
 #include <Pegasus/Common/Array.h>
+#include <Pegasus/Compiler/Linkage.h>
 #include "memobjs.h"
 
 PEGASUS_USING_PEGASUS;

@@ -35,6 +35,7 @@
 #include <Pegasus/Common/Queue.h>
 
 #include <Pegasus/ProviderManager/MutexLock.h>
+#include <Pegasus/Server/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

@@ -33,6 +33,8 @@
 #define Pegasus_ArrayInter_h
 #endif
 
+#include <Pegasus/Common/Linkage.h>
+
 /** Array Class.
     This class is used to represent arrays of intrinsic data types in CIM. And
     it is also used by the implementation to represent arrays of other kinds of

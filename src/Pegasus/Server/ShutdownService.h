@@ -38,6 +38,7 @@
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/ModuleController.h>
 #include <Pegasus/Server/CIMServer.h>
+#include <Pegasus/Server/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

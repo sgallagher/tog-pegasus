@@ -118,6 +118,10 @@ class CQLSimplePredicate
 
     CQLSimplePredicate& operator=(const CQLSimplePredicate& rhs);
 
+    Boolean operator==(const CQLSimplePredicate &rhs)const;
+
+    void setOperation(ExpressionOpType op);
+
     friend class CQLFactory;
   private:
     CQLSimplePredicateRep *_rep;

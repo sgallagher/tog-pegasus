@@ -345,5 +345,8 @@ Boolean CQLSimplePredicateRep::isSimple()const{
 Boolean CQLSimplePredicateRep::isSimpleValue()const{
 	return _leftSide.isSimpleValue();
 }
- 
+
+void CQLSimplePredicateRep::setOperation(ExpressionOpType op){
+	_operator = op;
+} 
 PEGASUS_NAMESPACE_END

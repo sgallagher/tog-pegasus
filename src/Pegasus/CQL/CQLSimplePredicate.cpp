@@ -115,4 +115,17 @@ CQLSimplePredicate& CQLSimplePredicate::operator=(const CQLSimplePredicate& rhs)
 	return *this;
 }
 
+Boolean CQLSimplePredicate::operator==(const CQLSimplePredicate& rhs)const{
+	if(_rep->getLeftExpression() == rhs._rep->getLeftExpression() &&
+	   _rep->getRightExpression() == rhs._rep->getRightExpression() &&
+	   _rep->getOperation() == rhs._rep->getOperation()
+	  )
+		return true;
+	return false;
+}
+
+void CQLSimplePredicate::setOperation(ExpressionOpType op){
+	_rep->setOperation(op);
+}
+
 PEGASUS_NAMESPACE_END

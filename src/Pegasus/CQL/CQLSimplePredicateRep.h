@@ -111,6 +111,8 @@ class CQLSimplePredicateRep
 
     Boolean isSimpleValue()const;
 
+    void setOperation(ExpressionOpType op);
+
     friend class CQLFactory;
   private:
     CQLExpression _leftSide;

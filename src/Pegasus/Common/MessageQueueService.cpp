@@ -80,7 +80,14 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL  MessageQueueService::kill_idle_threa
 
       }
    }
-   return (PEGASUS_THREAD_RETURN)dead_threads;
+
+#ifdef PEGASUS_ARCHITECTURE_64BIT
+   return (PEGASUS_THREAD_RETURN)(Uint64)dead_threads;
+#elif PEGASUS_PLATFORM_AIX_RS_IBMCXX
+   return (PEGASUS_THREAD_RETURN)(unsigned long)dead_threads;
+#else
+   return (PEGASUS_THREAD_RETURN)(Uint32)dead_threads;
+#endif
 }
 
 

@@ -40,6 +40,8 @@
 
 #define PEGASUS_COMPILER_ACC
 
+#define PEGASUS_ARCHITECTURE_64BIT
+
 #define PEGASUS_UINT64 unsigned long long
 
 #define PEGASUS_SINT64 long long

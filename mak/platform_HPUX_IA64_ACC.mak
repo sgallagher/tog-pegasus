@@ -9,7 +9,6 @@ else
   SYS_INCLUDES += -I$(ROOT)/src/stdcxx/stream
 endif
 
-DEFINES += -DPEGASUS_ARCHITECTURE_IA64
 ifeq ($(HPUX_IA64_NATIVE_COMPILER), yes)
   DEFINES += -DHPUX_IA64_NATIVE_COMPILER
 endif

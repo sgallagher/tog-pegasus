@@ -85,7 +85,7 @@ static CIMDateTime *makeCIMDateTime(time_t inTime, unsigned long usec, CMPIBoole
      if (strftime(strTime,256,"%Y%m%d%H%M%S.",&tmTime)) {
       SNPRINTF(usTime,32,"%6.6ld",usec);
       strcat(strTime,usTime);
-#if defined (PEGASUS_PLATFORM_LINUX_IX86_GNU)
+#if defined (PEGASUS_OS_LINUX)
       SNPRINTF(utcOffset,20,"%+4.3ld",tmTime.tm_gmtoff/60);
 #else
       SNPRINTF(utcOffset,20,"%+4.3ld",0);

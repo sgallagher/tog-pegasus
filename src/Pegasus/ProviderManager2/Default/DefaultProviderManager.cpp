@@ -49,7 +49,7 @@
 #include <Pegasus/Common/MessageLoader.h> //l10n
 #include <Pegasus/Common/Constants.h>
 
-#include <Pegasus/Common/QueryExpression.h>
+#include <Pegasus/Query/QueryExpression/QueryExpression.h>
 #include <Pegasus/ProviderManager2/QueryExpressionFactory.h>
 
 #include <Pegasus/ProviderManager2/Default/Provider.h>
@@ -963,8 +963,7 @@ Message * DefaultProviderManager::handleExecQueryRequest(const Message * message
 		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
 	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 
-        QueryExpression qx(QueryExpressionFactory::routeBuildQueryExpressionRep
-           (request->queryLanguage,request->query));
+        QueryExpression qx(request->queryLanguage,request->query);
 
         // forward request
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,

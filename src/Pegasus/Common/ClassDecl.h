@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: ClassDecl.h,v $
+// Revision 1.3  2001/01/28 18:46:50  mike
+// more docs'
+//
 // Revision 1.2  2001/01/15 04:31:43  mike
 // worked on resolve scheme
 //
@@ -40,13 +43,12 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// ClassDecl
-//
-////////////////////////////////////////////////////////////////////////////////
-
 class ConstClassDecl;
+
+/**
+    The ClassDecl class is used to represent CIM classes, associations,
+    and qualifiers.
+*/
 
 class PEGASUS_COMMON_LINKAGE ClassDecl
 {

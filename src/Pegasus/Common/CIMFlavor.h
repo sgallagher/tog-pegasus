@@ -11,7 +11,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -25,7 +25,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:	 Karl Schopmeyer(k.schopmeyer@opengroup.org)
+// Modified By:  Karl Schopmeyer(k.schopmeyer@opengroup.org)
 //               Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
@@ -42,16 +42,16 @@
 PEGASUS_NAMESPACE_BEGIN
 
 /**
-    The CIMFlavor class implements the concept of the CIM qualifier flavor.
-    The qualifier flavor concept encapsulates the propagation and override 
-    rules for the qualifier.  The propagation rules define whether a qualifier
-    may be propagated from classes to derived classes, or from classes to 
+    The CIMFlavor class implements the concept of the CIM qualifier flavor that
+    encapsulates the propagation and override rules for qualifiers.
+    The propagation rules define whether a qualifier
+    may be propagated from classes to derived classes, or from classes to
     instances.  The override rules define whether or not derived classes may
-    override a qualifier value, or whether it must be fixed for an entire 
+    override a qualifier value or whether it must be fixed for an entire
     class hierarchy.
 
-    The possible values are: OVERRIDABLE, TOSUBCLASS, TOINSTANCE, 
-    TRANSLATABLE, DISABLEOVERRIDE, RESTRICTED.
+    The possible values are: OVERRIDABLE, TOSUBCLASS, TOINSTANCE,
+    TRANSLATABLE, DISABLEOVERRIDE, ENABLEOVERRID, RESTRICTED and DEFAULTS.
     The flavor is a set of zero or more of these possible values.
  */
 class PEGASUS_COMMON_LINKAGE CIMFlavor
@@ -59,26 +59,28 @@ class PEGASUS_COMMON_LINKAGE CIMFlavor
 public:
 
     /**
-        Constructs a CIMFlavor object with no flavor values set (default 
-        constructor).
+        Constructs a CIMFlavor object with no flavor values set (default
+        constructor). The parameters and values are null.
      */
     CIMFlavor ();
 
     /**
-        Constructs a CIMFlavor object from an existing CIMFlavor object (copy 
+        Constructs a CIMFlavor object from an existing CIMFlavor object (copy
         constructor).
 
-        @param   flavor  another CIMFlavor object.
+        @param   flavor  Specifies the name of the CIMFlavor instance of
+        the CIMFlavor object.
      */
     CIMFlavor (const CIMFlavor & flavor);
 
     /**
-        Assigns the value of one CIMFlavor object to another (assignment 
+        Assigns the value of one CIMFlavor object to another (assignment
         operator).
 
-        @param   flavor   a CIMFlavor object.
+        @param   flavor   Specifies the name of the CIMFlavor instance of
+        the CIMFlavor object.
 
-        @return  the CIMFlavor object
+        @return  The new instance of the CIMFlavor object.
      */
     CIMFlavor & operator= (const CIMFlavor & flavor);
 
@@ -86,112 +88,123 @@ public:
         Adds the set of flavor values of the specified CIMFlavor object to this
         CIMFlavor object.
 
-        @param   flavor  a CIMFlavor object.
+        @param   flavor  Specifies the name of the CIMFlavor object that
+        contains the flavor values to add to the CIMFlavor object.
      */
     void addFlavor (const CIMFlavor & flavor);
 
     /**
         Removes the specified set of flavor values from the CIMFlavor object.
 
-        @param   flavor   a CIMFlavor representing the flavor 
-                          values to be removed.
+        @param   flavor   Specifies the name of the CIMFlavor object that
+        contains the flavor values to remove from the CIMFlavor object.
      */
     void removeFlavor (const CIMFlavor & flavor);
 
     /**
-        Determines if every value in the specified CIMFlavor object is included 
+        Determines if every value in the specified CIMFlavor object is included
         in this CIMFlavor object.
 
-        @param   flavor  a CIMFlavor object.
+        @param   flavor  Specifies the name of the CIMFlavor instance whose
+        values you want to compare to the CIMFlavor object.
 
-        @return  true if every value in the specified CIMFlavor object is 
-                 included in the CIMFlavor object, false otherwise.
+        @return  True if every value in the specified instance of the CIMFlavor
+        object is included in the CIMFlavor object.  Otherwise, a value of
+        false is returned.
      */
     Boolean hasFlavor (const CIMFlavor & flavor) const;
 
-    /** 
-        Compares two CIMFlavor objects.
+    /**
+        Compares two CIMFlavor objects and determines whether or not they are equal.
 
-        @param   flavor  a CIMFlavor object.
+        @param   flavor  Specifies the name of the CIMFlavor instance that you want
+        to compare to the CIMFlavor object.
 
-        @return true if the two CIMFlavor objects are equal, 
-                false otherwise.
+        @return True if the two CIMFlavor objects are equal.  Otherwise, a value
+        of false is returned.
      */
     Boolean equal (const CIMFlavor & flavor) const;
 
-    /** 
-        Combines two CIMFlavor objects.
+    /**
+        Combines two CIMFlavor objects. The parameters and values of the specified
+        CIMFlavor instance are included (added) to the CIMFlavor object.
 
-        @param   flavor   a CIMFlavor object to add.
+        @param   flavor   Specifies the name of the CIMFlavor instance to add to the
+        CIMFlavor object.
 
         @return A new CIMFlavor object that represents the combination of this
                 flavor with the specified flavor.
      */
     CIMFlavor operator+ (const CIMFlavor & flavor) const;
 
-    /** 
+    /**
         Returns a String representation of the CIMFlavor object.
-        This method is for diagnostic purposes.  The format of the output
-        is subject to change.
+        Use this method to aide in debugging problems.  Depending on the implementation,
+        the string format may vary.  The returned value cannot be null but may be empty.
      */
     String toString () const;
 
-    /** 
-        Indicates that the qualifier has no flavors.
+    /**
+        Indicates that the qualifier has no flavors. Thus, the qualifier does not have
+         any parameters nor values.
      */
     static const CIMFlavor NONE;
 
-    /** 
+    /**
         Indicates that the qualifier may be overridden.
      */
     static const CIMFlavor OVERRIDABLE;
+    /**
+        Indicates that the override feature is enable for the qualifier. Thus, the
+        qualifier can be overridden.
+     */
     static const CIMFlavor ENABLEOVERRIDE;
 
-    /** 
+    /**
         Indicates that the qualifier may not be overridden.
      */
     static const CIMFlavor DISABLEOVERRIDE;
 
-    /** 
+    /**
         Indicates that the qualifier is propagated to the qualifier in the
-	subclass with the same name.
+    subclass with the same name.
      */
     static const CIMFlavor TOSUBCLASS;
 
-    /** 
+    /**
         Indicates that the qualifier is not propagated to the qualifier in the
-	subclass with the same name; it applies only to the class in which it 
+    subclass with the same name; it applies only to the class in which it
         is declared.
      */
     static const CIMFlavor RESTRICTED;
 
-    /** 
+    /**
         Indicates that the qualifier is propagated to the qualifier in the
-	instance with the same name.
+    instance with the same name.
      */
     static const CIMFlavor TOINSTANCE;
 
-    /** 
+    /**
         Indicates that the qualifier is translatable (for internationalization).
      */
     static const CIMFlavor TRANSLATABLE;
 
-    /** 
-        Indicates default flavor setting (OVERRIDABLE | TOSUBCLASS).
+    /**
+        Indicates the default flavor settings. (OVERRIDABLE | TOSUBCLASS).
      */
     static const CIMFlavor DEFAULTS;
 
-    /** 
+    /**
         Indicates both toSubclass and toInstance (TOSUBCLASS | TOINSTANCE).
      */
     static const CIMFlavor TOSUBELEMENTS;
 
 private:
 
-    /**
-        Constructs a CIMFlavor object with the specified set of values.
+    /*
+        Constructs an instance of the CIMFlavor object with the specified set of values.
 
-        @param   flavor    a Uint32 representing the set of flavor 
+        @param   flavor    A Uint32 representing the set of flavor
                            values to initialize with.
      */
     CIMFlavor (const Uint32 flavor);

@@ -79,7 +79,7 @@ class PEGASUS_COMMON_LINKAGE ResponseHandler
 public:
 
     /**
-    Destructor.
+    ResponseHandler destructor.
     */
     virtual ~ResponseHandler(void);
 
@@ -92,16 +92,16 @@ public:
     //virtual void deliver(const Array<T> & objects);
 
     /**
-    Inform the CIM Server that delivery of results will begin.
+    Inform the CIM server that delivery of results will begin.
     <p>The provider must call <tt>processing</tt> before
     attempting to call <tt>deliver</tt>.
     */
     virtual void processing(void) = 0;
 
     /**
-    Inform the CIM Server that delivery of results is complete.
+    Inform the CIM server that delivery of results is complete.
     <p>The provider must call <tt>complete</tt> when all
-    results have been delivered. It must not call <tt>deliver</tt>
+    results have been delivered. The provider must not call <tt>deliver</tt>
     after calling <tt>complete</tt>.</p>
     */
     virtual void complete(void) = 0;
@@ -140,16 +140,18 @@ protected:
 
     ResponseHandler& operator=(const ResponseHandler& handler);
 
-    //
-    // Gets the context for the results delivered to the CIM Server.
-    //
+    /**
+    Gets the context for the results delivered to the CIM server.
+    */
     OperationContext getContext(void) const;
 };
 
 
-//
-// InstanceResponseHandler
-///
+/**
+The InstanceResponseHandler class is a subclass to the ResponseHandler class.
+The InstanceResponseHandler class contains functions that are specific to an 
+instance of the ResponseHandler class.
+*/
 class PEGASUS_COMMON_LINKAGE InstanceResponseHandler : virtual public ResponseHandler
 {
 public:
@@ -205,40 +207,58 @@ public:
 };
 
 
-//
-// MethodResultResponseHandler
-///
+/**
+The MethodResultResponseHandler class is a subclass to the ResponseHandler class.
+*/
 class PEGASUS_COMMON_LINKAGE MethodResultResponseHandler : virtual public ResponseHandler
 {
 public:
-    ///
+    /**
+	Add documentation here.
+	*/
     virtual void deliverParamValue(const CIMParamValue & outParamValue) = 0;
 
-    ///
+    /**
+	Add documentation here.
+	*/
     virtual void deliverParamValue(const Array<CIMParamValue> & outParamValues) = 0;
 
-    ///
+    /**
+	Add documentation here.
+	*/
     virtual void deliver(const CIMValue & returnValue) = 0;
 };
 
 
-//
-// IndicationResponseHandler
-//
-// NOTE: This class definition should not be considered complete until
-// indication support has been completed in Pegasus.  Implementation of
-// indication support may reveal a need for API changes in this class.
+/**
+The IndicationResponseHandler class is a subclass to the ResponseHandler class.
+<p> NOTE: This class definition should not be considered complete until indication
+support has been completed in Pegasus.  Implementation of indication support may
+reveal a need for API changes in this class.</p>
+*/
 class PEGASUS_COMMON_LINKAGE IndicationResponseHandler : virtual public ResponseHandler
 {
 public:
+    /**
+	Add documentation here.
+	*/
     virtual void deliver(const CIMIndication & indication) = 0;
 
+	/**
+	Add documentation here.
+	*/
     virtual void deliver(const Array<CIMIndication> & indications) = 0;
 
+	/**
+	Add documentation here.
+	*/
     virtual void deliver(
         const OperationContext & context,
         const CIMIndication & indication) = 0;
 
+	/**
+	Add documentation here.
+	*/
     virtual void deliver(
         const OperationContext & context,
         const Array<CIMIndication> & indications) = 0;

@@ -59,73 +59,71 @@ class PEGASUS_COMMON_LINKAGE CIMScope
 public:
 
     /** Constructs a CIMScope object with no value set (default constructor).
+        The values are null.
     */
     CIMScope ();
 
     /** Constructs a CIMScope object from an existing CIMScope object (copy 
         constructor).
-        @param   scope                 another CIMScope object
+        @param   scope   Specifies an instance of CIMScope object.
     */
     CIMScope (const CIMScope & scope);
 
     /** Assigns the value of one CIMScope object to another (assignment 
         operator).
-        @param   scope - a CIMScope object.
-        @return  the CIMScope object.
-	    <pre>
-	    CimScope s0;
-	    CIMScope s1(s0);
-	    </pre>
+        @param   scope Specifies the name of a CIMScope object that contains
+        the values that you want to assign to another CIMScope object.
+        @return  The CIMScope object with the values of the specified CIMScope
+        object. For example:
+        <pre>
+            CIMScope s0;
+            CIMScope s1(s0);
+        </pre>
+        The values in CIMScope s0 are assigned to the CIMScope s1 instance.
     */
     CIMScope & operator= (const CIMScope & scope);
 
     /** Determines if every value in the specified CIMScope object is included 
         in this CIMScope object.
-        @param   scope - a CIMScope object.
-        @return  true if every value in the specified CIMScope object is 
-                 included in the CIMScope object, false otherwise.
-	    <pre>
-		CIMScope s0;
-		CIMScope s2;
-		s0.addScope (CIMScope::INDICATION);
-	    s3 = s0;
-	    </pre>
+        @param   scope - Specifies a name of a CIMScope object.
+        @return  True if every value in the specified CIMScope object is 
+                 included in the CIMScope object; otherwise, false. 
     */
     Boolean hasScope (const CIMScope & scope) const;
 
     /** Adds the specified scope value to the CIMScope object.
-        @param   scope - a scope value.
-	    <pre>
-		CIMScope s0;
-		s0.addScope (CIMScope::INDICATION);
-		if(s0.hasScope (CIMScope::INDICATION))
-			...				..
-	    </pre>
+        @param   scope - Specifies a scope value. For example:
+        <pre>
+            CIMScope s0;
+            s0.addScope (CIMScope::INDICATION);
+            if(s0.hasScope (CIMScope::INDICATION))
+                ...				..
+        </pre>
     */
     void addScope (const CIMScope & scope);
 
     /** Compares two CIMScope objects.
-        @param  scope - a CIMScope object.
-        @return true if the two CIMScope objects are equal, 
-                false otherwise.
-		<pre>
-		CIMScope s0;
-		s0.addScope (CIMScope::CLASS + CIMScope::PARAMETER);
-		if(s0.hasScope (CIMScope::CLASS))
-			...				..
-		</pre>
+        @param  scope - Specifies a CIMScope object.
+        @return True if the two CIMScope objects are equal; otherwise, false.
+        For example,
+        <pre>
+            CIMScope s0;
+            s0.addScope (CIMScope::CLASS + CIMScope::PARAMETER);
+            if(s0.hasScope (CIMScope::CLASS))
+                ...	..
+    </pre>
     */
     Boolean equal (const CIMScope & scope) const;
 
     /** Combines two CIMScope objects.
-        @param  scope - a CIMScope object to add.
+        @param  scope - Specifies a CIMScope object to add.
         @return A new CIMScope object that represents the combination of this
                 scope object with the specified scope object.
-	    <pre>
-	    CIMScope s0(CIMScope::CLASS);
-	    CIMScope s1(CIMScope::PARAMETER);
-	    CIMScope s3 = s0 + S1;
-	    </pre>
+        <pre>
+            CIMScope s0(CIMScope::CLASS);
+            CIMScope s1(CIMScope::PARAMETER);
+            CIMScope s3 = s0 + S1;
+        </pre>
     */
     CIMScope operator+ (const CIMScope & scope) const;
 
@@ -175,9 +173,9 @@ public:
 
 private:
 
-    ///
+    // 
     CIMScope (const Uint32 scope);
-
+    // Private member for storing he CIMScope
     Uint32 cimScope;
 };
 

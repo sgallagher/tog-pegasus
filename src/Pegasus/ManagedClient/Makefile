@@ -29,7 +29,7 @@ endif
 PRE_DEPEND_INCLUDES = -I./depends
 
 SOURCES = \
-	../Client/CIMClientRep.cpp \
+    ../Client/CIMClientRep.cpp \
     CIMManagedClient.cpp \
     ../Client/CIMOperationRequestEncoder.cpp \
     ../Client/CIMOperationResponseDecoder.cpp \
@@ -39,8 +39,6 @@ SOURCES = \
     CIMDefaultClientConnectionManager.cpp    
 
 SOURCES_SLP = \
-    ../Client/Attribute.cpp \
-    ../Client/CIMServerDescription.cpp \
     ../Client/CIMServerDiscovery.cpp
 
 ifdef PEGASUS_ENABLE_SLP

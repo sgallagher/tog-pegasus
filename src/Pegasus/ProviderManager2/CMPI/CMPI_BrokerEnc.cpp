@@ -81,7 +81,7 @@ static CMPIInstance* mbEncNewInstance(CMPIBroker* mb, CMPIObjectPath* eCop,
    }
 
    ci->setPath(*cop);
-   CMPIInstance* neInst=(CMPIInstance*)new CMPI_Object(ci);
+   CMPIInstance* neInst=reinterpret_cast<CMPIInstance*>(new CMPI_Object(ci));
    if (rc) CMSetStatus(rc,CMPI_RC_OK);
    return neInst;
 }
@@ -104,19 +104,19 @@ static CMPIObjectPath* mbEncNewObjectPath(CMPIBroker* mb, const char *ns, const 
    CIMName className=Name(cls);
    CIMNamespaceName nameSpace=NameSpaceName(ns);
    CIMObjectPath *cop=new CIMObjectPath(host,nameSpace,className,keyBindings);
-   CMPIObjectPath *nePath=(CMPIObjectPath*)new CMPI_Object(cop);
+   CMPIObjectPath *nePath=reinterpret_cast<CMPIObjectPath*>(new CMPI_Object(cop));
    if (rc) CMSetStatus(rc,CMPI_RC_OK);
    return nePath;
 }
 
 static CMPIArgs* mbEncNewArgs(CMPIBroker* mb, CMPIStatus *rc) {
    if (rc) CMSetStatus(rc,CMPI_RC_OK);
-   return (CMPIArgs*)new CMPI_Object(new Array<CIMParamValue>());
+   return reinterpret_cast<CMPIArgs*>(new CMPI_Object(new Array<CIMParamValue>()));
 }
 
 static CMPIString* mbEncNewString(CMPIBroker* mb, const char *cStr, CMPIStatus *rc) {
    if (rc) CMSetStatus(rc,CMPI_RC_OK);
-   return (CMPIString*)new CMPI_Object(cStr);
+   return reinterpret_cast<CMPIString*>(new CMPI_Object(cStr));
 }
 
 CMPIString* mbIntNewString(const char *s) {
@@ -134,7 +134,7 @@ static CMPIArray* mbEncNewArray(CMPIBroker* mb, CMPICount count, CMPIType type,
       dta[i].state=CMPI_nullValue;
       dta[i].value.uint64=0;
    }
-   return (CMPIArray*)new CMPI_Object(dta);
+   return reinterpret_cast<CMPIArray*>(new CMPI_Object(dta));
 }
 
 extern CMPIDateTime *newDateTime();
@@ -169,20 +169,20 @@ static CMPIString* mbEncToString(CMPIBroker*,void *o, CMPIStatus *rc) {
    if (obj==NULL) {
       sprintf(msg,"** Null object ptr (%p) **",o);
       if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
-      return (CMPIString*)new CMPI_Object(msg);
+      return reinterpret_cast<CMPIString*>(new CMPI_Object(msg));
    }
 
    if (obj->getHdl()==NULL) {
       sprintf(msg,"** Null object hdl (%p) **",o);
       if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
-      return (CMPIString*)new CMPI_Object(msg);
+      return reinterpret_cast<CMPIString*>(new CMPI_Object(msg));
    }
    
    if (obj->getFtab()==(void*)CMPI_Instance_Ftab ||
        obj->getFtab()==(void*)CMPI_InstanceOnStack_Ftab) {
       sprintf(msg,"** Object not supported (%p) **",o);
       if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
-      return (CMPIString*) new CMPI_Object(msg);
+      return reinterpret_cast<CMPIString*>(new CMPI_Object(msg));
       // str=((CIMInstance*)obj->hdl)->toString();
    }
    else if (obj->getFtab()==(void*)CMPI_ObjectPath_Ftab ||
@@ -201,11 +201,11 @@ static CMPIString* mbEncToString(CMPIBroker*,void *o, CMPIStatus *rc) {
    else {
       sprintf(msg,"** Object not recognized (%p) **",o);
       if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
-      return (CMPIString*) new CMPI_Object(msg);
+      return reinterpret_cast<CMPIString*>(new CMPI_Object(msg));
    }
 
    sprintf(msg,"%p: ",o);
-   return (CMPIString*) new CMPI_Object(String(msg)+str);
+   return reinterpret_cast<CMPIString*>(new CMPI_Object(String(msg)+str));
 }
 
 static CMPIBoolean mbEncClassPathIsA(CMPIBroker *mb, CMPIObjectPath *eCp, const char *type, CMPIStatus *rc) {

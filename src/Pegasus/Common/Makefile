@@ -8,7 +8,7 @@ LOCAL_DEFINES = -DPEGASUS_COMMON_INTERNAL
 
 LIBRARY = pegcommon
 
-ifeq (0,0)
+ifeq (0,1)
 ifeq ($(OS_TYPE),windows)
 WINDOWS_SOURCES = \
     Channel.cpp \

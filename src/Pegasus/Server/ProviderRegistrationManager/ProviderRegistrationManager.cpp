@@ -502,54 +502,6 @@ Boolean ProviderRegistrationManager::lookupAssociationProvider(
     Array<CIMInstance>& providers,
     Array<CIMInstance>& providerModules)
 {
-    // assume assocClassName is empty
-    
-    /*** Delete all of this code from earlier version
-    Array<CIMName> classNames;
-    _repository->read_lock();
-    try
-    {
-         classNames = _repository->enumerateClassNames(
-             nameSpace, CIMName(), true);
-    }
-    catch(CIMException& exception) {}
-    catch(Exception& exception) {}
-    catch(...) {}
-    _repository->read_unlock();
-    
-    //PEGASUS_STD(cout) << "KSTEST ProviderRegistrationManagr::lookupAssociationProvider post repository "
-    //    << " returned " << classNames.size() << " classnames." 
-    //    << PEGASUS_STD(endl);
-    
-    CIMInstance pInstance;
-    CIMInstance pmInstance;
-    String providerName;
-
-    for(Uint32 i=0,n=classNames.size(); i<n; i++)
-    {
-        if (lookupInstanceProvider(
-            nameSpace, classNames[i], pInstance, pmInstance, true))
-        {
-            // get the provider name
-            Uint32 pos = pInstance.findProperty(CIMName ("Name"));
-
-            if ( pos != PEG_NOT_FOUND )
-            {
-                pInstance.getProperty(pos).getValue().get(providerName);
-
-                PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                             "providerName = " + providerName + " found.");
-                providers.append(pInstance);
-                providerModules.append(pmInstance);
-                PEGASUS_STD(cout) << "KSTEST ProviderRegistrationManagr::lookupAssociationProvider found."
-                    << " Class = " << classNames[i]
-                    <<"  providers.size =" 
-                    << providers.size() << PEGASUS_STD(endl);
-            }
-        }
-    }
-    **********************************/
-    // Lookup the provider for 
     CIMInstance pInstance;
     CIMInstance pmInstance;
     String providerName;

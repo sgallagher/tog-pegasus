@@ -288,7 +288,7 @@ void PG_TestPropertyTypes::createInstance(
 	const OperationContext & context,
 	const CIMReference & instanceReference,
 	const CIMInstance & instanceObject,
-	ResponseHandler<CIMInstance> & handler)
+	ResponseHandler<CIMReference> & handler)
 {
 	// synchronously get references
 	Array<CIMReference> references = _enumerateInstanceNames(context, instanceReference);
@@ -306,14 +306,28 @@ void PG_TestPropertyTypes::createInstance(
 	}
 
 	// ensure the InstanceId key is valid
-	Array<KeyBinding> keys = instanceReference.getKeyBindings();
-	int i;
-	for (i=0; i<keys.size() && keys[i].getName() != "InstanceId"; i++);
-
-	if (i==keys.size())
+        int propIndex = instanceObject.findProperty("InstanceId");
+	if (propIndex == PEG_NOT_FOUND)
 	{
-		throw CIMException(CIM_ERR_INVALID_PARAMETER);
+            throw CIMException(CIM_ERR_INVALID_PARAMETER);
 	}
+
+//	int i;
+//	for (i=0; i<keys.size() && keys[i].getName() != "InstanceId"; i++);
+
+//	if (i==keys.size())
+//	{
+//		throw CIMException(CIM_ERR_INVALID_PARAMETER);
+//	}
+
+        // create the CIMReference to return
+        KeyBinding kb(instanceObject.getProperty(propIndex).getName(),
+                      instanceObject.getProperty(propIndex).getValue().toString(),
+                      KeyBinding::NUMERIC);
+        CIMReference returnReference(instanceReference);
+	Array<KeyBinding> keys;
+        keys.append(kb);
+        returnReference.setKeyBindings(keys);
 
 	// ensure the property values are valid
 	_testPropertyTypesValue(instanceObject);
@@ -333,7 +347,8 @@ void PG_TestPropertyTypes::createInstance(
 	// begin processing the request
 	handler.processing();
 
-	// we do not add the new instance to the end of the list 
+	handler.deliver(returnReference);
+
 	// complete processing request
 	handler.complete();
 

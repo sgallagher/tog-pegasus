@@ -31,11 +31,11 @@
 
 
 #include <cassert>
-#include <stdcxx/stream/strstream>
 #include <cstring>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/CommonUTF.h>
+#include <stdcxx/stream/strstream>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;

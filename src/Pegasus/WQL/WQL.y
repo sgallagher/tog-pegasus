@@ -8,6 +8,10 @@
 
 %{
 
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/WQL/WQLOperation.h>
+#include <Pegasus/WQL/WQLOperand.h>
+#include <Pegasus/WQL/WQLSelectStatement.h>
 #include <string.h>
 #include <stdlib.h>
 
@@ -19,7 +23,7 @@
 # include <alloca.h>
 #endif
 
-#if 0
+#if 1
 # define WQL_TRACE(X) printf(X)
 #else
 # define WQL_TRACE(X)
@@ -165,11 +169,11 @@ whereClause
 searchCondition 
     : searchCondition TOK_OR searchCondition
     {
-
+	WQL_TRACE(("YACC: TOK_OR\n"));
     }
     | searchCondition TOK_AND searchCondition
     {
-
+	WQL_TRACE(("YACC: TOK_AND\n"));
     }
     | TOK_NOT searchCondition
     {
@@ -205,37 +209,37 @@ predicate
 comparisonPredicate
     : comparisonTerm TOK_LT comparisonTerm 
     {
-
+	WQL_TRACE(("YACC: TOK_LT\n"));
     }
     | comparisonTerm TOK_GT comparisonTerm
     {
-
+	WQL_TRACE(("YACC: TOK_GT\n"));
     }
     | comparisonTerm TOK_LE comparisonTerm
     {
-
+	WQL_TRACE(("YACC: TOK_LE\n"));
     }
     | comparisonTerm TOK_GE comparisonTerm
     {
-
+	WQL_TRACE(("YACC: TOK_GE\n"));
     }
     | comparisonTerm TOK_EQ comparisonTerm
     {
-
+	WQL_TRACE(("YACC: TOK_EQ\n"));
     }
     | comparisonTerm TOK_NE comparisonTerm
     {
-
+	WQL_TRACE(("YACC: TOK_NE\n"));
     }
 
 nullPredicate
     : comparisonTerm TOK_IS TOK_NULL
     {
-
+	WQL_TRACE(("YACC: TOK_IS TOK_NULL\n"));
     }
     | comparisonTerm TOK_IS TOK_NOT TOK_NULL
     {
-
+	WQL_TRACE(("YACC: TOK_NOT TOK_NULL\n"));
     }
 
 truthValue 
@@ -278,6 +282,7 @@ comparisonTerm
     }
     | truthValue
     {
+
     }
 
 %%

@@ -1,4 +1,3 @@
-
 //%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM, 
@@ -31,6 +30,7 @@
 #include <Pegasus/Common/Config.h>
 #include <iostream>
 #include "WQLParser.h"
+#include "WQLParserState.h"
 
 PEGASUS_USING_STD;
 
@@ -38,19 +38,26 @@ extern int WQL_parse();
 
 PEGASUS_NAMESPACE_BEGIN
 
-static Array<Sint8> _text;
-static int _offset;
+WQLParserState* globalParserState = 0;
 
-void WQLParser::parse(const Array<Sint8>& text)
+void WQLParser::parse(
+    const Array<Sint8>& text,
+    WQLSelectStatement& statement)
 {
     // ATTN: raise error here:
 
     if (text.size() == 0 || text[text.size() - 1] != '\0')
 	return;
 
-    _text = text;
-    _offset = 0;
+    globalParserState = new WQLParserState;
+    globalParserState->error = false;
+    globalParserState->text = text;
+    globalParserState->offset = 0;
+    globalParserState->statement = &statement;
+
     WQL_parse();
+
+    delete globalParserState;
 }
 
 PEGASUS_NAMESPACE_END
@@ -64,7 +71,8 @@ int WQLInput(char* buffer, int& numRead, int numRequested)
     // be one or more; this is fixed checked beforehand by WQLParser::parse()).
     //
 
-    int remaining = _text.size() - _offset - 1;
+    int remaining = 
+	globalParserState->text.size() - globalParserState->offset - 1;
 
     if (remaining == 0)
     {
@@ -75,8 +83,11 @@ int WQLInput(char* buffer, int& numRead, int numRequested)
     if (remaining < numRequested)
 	numRequested = remaining;
 
-    memcpy(buffer, _text.getData() + _offset, numRequested);
-    _offset += numRequested;
+    memcpy(buffer, 
+	globalParserState->text.getData() + globalParserState->offset, 
+	numRequested);
+
+    globalParserState->offset += numRequested;
     numRead = numRequested;
 
     return numRead;

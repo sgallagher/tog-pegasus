@@ -27,6 +27,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <cstdio>
 #include "WQLOperand.h"
 
 PEGASUS_NAMESPACE_BEGIN
@@ -87,6 +88,64 @@ void WQLOperand::assign(const WQLOperand& x)
 	    _booleanValue = x._booleanValue;
 	    break;
     }
+}
+
+String WQLOperand::toString() const
+{
+    String result;
+
+    switch (_type)
+    {
+	case PROPERTY_NAME:
+	{
+	    result = "PROPERTY_NAME: ";
+	    result += *((String*)_propertyName);
+	    break;
+	}
+
+	case STRING_VALUE:
+	{
+	    result = "STRING_VALUE: ";
+	    result += *((String*)_stringValue);
+	    break;
+	}
+
+	case INTEGER_VALUE:
+	{
+	    result = "INTEGER_VALUE: ";
+	    char buffer[32];
+	    sprintf(buffer, "%d", _integerValue);
+	    result += buffer;
+	    break;
+	}
+
+	case DOUBLE_VALUE:
+	{
+	    result = "DOUBLE_VALUE: ";
+	    char buffer[32];
+	    sprintf(buffer, "%f", _doubleValue);
+	    result += buffer;
+	    break;
+	} 
+
+	case BOOLEAN_VALUE:
+	{
+	    result = "BOOLEAN_VALUE: ";
+
+	    if (_booleanValue)
+		result += "TRUE";
+	    else
+		result += "FALSE";
+
+	    break;
+	}
+
+	default:
+	    result = "UNITIALIZED";
+	    break;
+    }
+
+    return result;
 }
 
 PEGASUS_NAMESPACE_END

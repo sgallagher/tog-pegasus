@@ -53,7 +53,9 @@ int main(int argc, char** argv)
     text.append(argv[1], strlen(argv[1]));
     text.append('\0');
 
-    WQLParser::parse(text);
+    WQLSelectStatement statement;
+
+    WQLParser::parse(text, statement);
 
     return 0;
 }

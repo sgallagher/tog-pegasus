@@ -136,6 +136,8 @@ public:
 	_type = PROPERTY_NAME;
     }
 
+    String toString() const;
+
 private:
 
     union

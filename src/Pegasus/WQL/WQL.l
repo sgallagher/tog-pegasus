@@ -10,7 +10,11 @@ extern int WQL_error(char*);
 #include "WQLYACC.h"
 #include <cstring>
 
-#define WQL_TRACE(X) printf X
+#if 1
+# define WQL_TRACE(X) printf X
+#else
+# define WQL_TRACE(X)
+#endif
 
 %}
 

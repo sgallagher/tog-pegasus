@@ -33,6 +33,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/WQL/Linkage.h>
+#include <Pegasus/WQL/WQLSelectStatement.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -40,7 +41,9 @@ class PEGASUS_WQL_LINKAGE WQLParser
 {
 public:
 
-    static void parse(const Array<Sint8>& text);
+    static void parse(
+	const Array<Sint8>& text,
+	WQLSelectStatement& statement);
 
 private:
 

@@ -190,6 +190,9 @@ void HTTPConnection::handleEnqueue(Message *message)
 
 	 // Send response message to the client (use synchronous I/O for now:
 
+#ifdef LOCK_CONNECTION_ENABLED
+         lock_connection();
+#endif
 	 _socket->enableBlocking();
 
 	 const Array<Sint8>& buffer = httpMessage->message;
@@ -204,6 +207,8 @@ void HTTPConnection::handleEnqueue(Message *message)
 	 //Thread t(::segmentation_faulter,NULL,false);
 	 //t.run();
 #endif
+
+         Uint32 totalBytesWritten = 0;
 	 for (Uint32 bytesRemaining = buffer.size(); bytesRemaining > 0; )
 	 {
 	    Uint32 bytesToWrite = _Min(bytesRemaining, CHUNK_SIZE);
@@ -216,21 +221,22 @@ void HTTPConnection::handleEnqueue(Message *message)
 	       break;
 	    //throw ConnectionBroken();
 
+            totalBytesWritten += bytesWritten;
 	    bytesRemaining -= bytesWritten;
-
-            Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-                "Socket Write: bytesWritten = %d, bytesRemaining = %d, data = %s ",
-                bytesWritten, bytesRemaining, buffer.getData());
-	    
 	 }
 	 //
 	 // decrement request count
 	 //
 	 _requestCount--;
-         Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-            "_requestCount = %d", _requestCount.value());
-
 	 _socket->disableBlocking();
+
+#ifdef LOCK_CONNECTION_ENABLED
+         unlock_connection();
+#endif
+         Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+            "Total bytes written = %d; Buffer Size = %d; _requestCount = %d",
+             totalBytesWritten,  buffer.size(), _requestCount.value());
+
 #ifdef PEGASUS_CCOVER
       cov_write();
 #endif
@@ -374,6 +380,10 @@ void HTTPConnection::_handleReadEvent()
 
     // -- Append all data waiting on socket to incoming buffer:
 
+#ifdef LOCK_CONNECTION_ENABLED
+    lock_connection();
+#endif
+
     Sint32 bytesRead = 0;
     for (;;)
     {
@@ -415,10 +425,22 @@ void HTTPConnection::_handleReadEvent()
 	message->dest = _outputMessageQueue->getQueueId();
 //	SendForget(message);
 	
+#ifndef LOCK_CONNECTION_ENABLED
 	_outputMessageQueue->enqueue(message);
+#endif
 	_clearIncoming();
 
+#ifdef LOCK_CONNECTION_ENABLED
+        unlock_connection();
+
+	if (bytesRead > 0)
+        {
+	   _outputMessageQueue->enqueue(message);
+        }
+        else 
+#else
 	if (bytesRead == 0)
+#endif
 	{
 	   Tracer::trace(TRC_HTTP, Tracer::LEVEL3,
 			 "HTTPConnection::_handleReadEvent - bytesRead == 0 - Conection being closed.");

@@ -56,6 +56,10 @@ ifeq ($(HPUX_IA64_NATIVE_COMPILER), yes)
  DEFINES += -DHPUX_IA64_NATIVE_COMPILER
 endif
 
+ifdef LOCK_CONNECTION_ENABLED
+ DEFINES += -DLOCK_CONNECTION_ENABLED
+endif
+
 ##
 ## The following two flags need to be set or unset together
 ## to compile-in the code required for PAM authentication

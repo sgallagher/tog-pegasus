@@ -100,12 +100,18 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueue
 
       void lock_connection(void)
       {
+         Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+            "HTTPConnection::lock_connection - LOCK REQUESTED");
 	 _connection_mut.lock(pegasus_thread_self());
+         Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+            "HTTPConnection::lock_connection - LOCK ACQUIRED");
       }
       
       void unlock_connection(void)
       {
 	 _connection_mut.unlock();
+         Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+            "HTTPConnection::unlock_connection - LOCK RELEASED");
       } 
       
       Boolean is_dying(void)

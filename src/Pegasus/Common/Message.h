@@ -20,14 +20,48 @@
 //
 //==============================================================================
 //
-// Author: Karl Schopmeyer (k.schopmeyer@attglobal.net)
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "Queue.h"
+#ifndef Pegasus_Message_h
+#define Pegasus_Message_h
+
+#include <Pegasus/Common/Config.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
+class MessageQueue;
+
+/** The Message class and derived classes are used to pass messages between 
+    modules. Messages are passed between processes using the MessageQueue
+    class.
+*/
+class Message
+{
+public:
+
+    Message(Uint32 type, Uint32 key) 
+	: _type(type), _key(key), _next(0), _prev(0) { }
+
+    Uint32 getType() const { return _type; }
+
+    void setType(Uint32 type) { _type = type; }
+
+    Uint32 getKey() const { return _key; }
+
+    void setKey(Uint32 key) { _key = key; }
+
+private:
+    Uint32 _type;
+    Uint32 _key;
+    Message* _next;
+    Message* _prev;
+    friend class MessageQueue;
+};
+
 PEGASUS_NAMESPACE_END
+
+#endif /* Pegasus_Message_h */

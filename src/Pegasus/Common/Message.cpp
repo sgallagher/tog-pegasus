@@ -20,14 +20,16 @@
 //
 //==============================================================================
 //
-// Author: Karl Schopmeyer (k.schopmeyer@attglobal.net)
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "Queue.h"
+#include "Message.h"
 
 PEGASUS_NAMESPACE_BEGIN
+
+
 
 PEGASUS_NAMESPACE_END

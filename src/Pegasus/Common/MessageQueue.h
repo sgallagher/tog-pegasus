@@ -20,14 +20,45 @@
 //
 //==============================================================================
 //
-// Author: Karl Schopmeyer (k.schopmeyer@attglobal.net)
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "Queue.h"
+#ifndef Pegasus_MessageQueue_h
+#define Pegasus_MessageQueue_h
+
+#include <Pegasus/Common/Config.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
+class Message;
+
+class PEGASUS_COMMON_LINKAGE MessageQueue
+{
+public:
+
+    virtual void enqueue(Message* message) = 0;
+
+    virtual Message* dequeue() = 0;
+
+    virtual const Message* front() const = 0;
+
+    virtual const Message* back() const = 0;
+
+    void remove(Message* message);
+
+    Boolean isEmpty() const;
+
+    Uint32 countMessages() const;
+
+private:
+
+    Message* _front;
+    Message* _back;
+};
+
 PEGASUS_NAMESPACE_END
+
+#endif /* Pegasus_MessageQueue_h */

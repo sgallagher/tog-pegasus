@@ -20,7 +20,7 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
+// Author: Karl Schopmeyer (k.schopmeyer@attglobal.net)
 //
 // Modified By:
 //
@@ -77,7 +77,7 @@ public:
     const T& front() const { return ((Queue<T>*)this)->front(); }
 
     /** */
-    T& back();;
+    T& back();
 
     /** */
     const T& back() const { return ((Queue<T>*)this)->back(); }

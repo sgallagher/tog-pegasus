@@ -44,7 +44,7 @@ doc:
 	$(MAKE) --directory=$(PEGASUS_ROOT)/doc/DevManual -f Makefile
 
 repositoryServer:
-	$(CIMSERVER_STOP_SERVICE)
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
 	$(SLEEP) 5
 	$(RMDIRHIER) $(REPOSITORY_ROOT)
 	$(CIMSERVER_START_SERVICE)
@@ -53,7 +53,7 @@ repositoryServer:
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile testrepositoryServer
 
 prestarttests:
-	$(CIMSERVER_STOP_SERVICE)
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
 	$(SLEEP) 5
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repository
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile testrepository
@@ -71,7 +71,7 @@ poststarttests:
 
 tests: $(TESTS)
 ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
-	$(CIMSERVER_STOP_SERVICE)
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Server -f Makefile uninstall
 endif
 	@ $(ECHO) Finished Tests

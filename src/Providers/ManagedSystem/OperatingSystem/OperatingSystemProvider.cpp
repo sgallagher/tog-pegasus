@@ -4,18 +4,18 @@
 // The Open Group, Tivoli Systems
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to 
-// deal in the Software without restriction, including without limitation the 
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
-// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+//
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
-// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
-// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
-// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
@@ -67,7 +67,7 @@ OperatingSystemProvider::getInstance(const OperationContext& context,
 
     //-- make sure we're working on the right class
     className = ref.getClassName();
-    if (!String::equalNoCase(className, STANDARDOPERATINGSYSTEMCLASS) ||
+    if (!String::equalNoCase(className, STANDARDOPERATINGSYSTEMCLASS) &&
         !String::equalNoCase(className, EXTENDEDOPERATINGSYSTEMCLASS))
         throw CIMException(CIM_ERR_NOT_SUPPORTED);
 
@@ -120,7 +120,7 @@ OperatingSystemProvider::getInstance(const OperationContext& context,
               throw CIMException(CIM_ERR_INVALID_PARAMETER);
          }
      }
-   
+
      if (keyCount)
      {
         throw CIMException(CIM_ERR_INVALID_PARAMETER);
@@ -141,11 +141,11 @@ OperatingSystemProvider::getInstance(const OperationContext& context,
     return;
 }
 
-void 
+void
 OperatingSystemProvider::enumerateInstances(
-      				const OperationContext& context, 
-			        const CIMReference& ref, 
-			        const Uint32 flags, 
+      				const OperationContext& context,
+			        const CIMReference& ref,
+			        const Uint32 flags,
 			        const Array<String>& propertyList,
 			        ResponseHandler<CIMInstance>& handler)
 {
@@ -172,7 +172,7 @@ OperatingSystemProvider::enumerateInstances(
      return;
 }
 
-void 
+void
 OperatingSystemProvider::enumerateInstanceNames(
       				const OperationContext& context,
 			  	const CIMReference &ref,
@@ -182,7 +182,7 @@ OperatingSystemProvider::enumerateInstanceNames(
     String className;
 
     className = ref.getClassName();
-    if (!String::equalNoCase(className, STANDARDOPERATINGSYSTEMCLASS) && 
+    if (!String::equalNoCase(className, STANDARDOPERATINGSYSTEMCLASS) &&
         !String::equalNoCase(className, EXTENDEDOPERATINGSYSTEMCLASS))
     {
         throw CIMException(CIM_ERR_NOT_SUPPORTED);
@@ -196,19 +196,19 @@ OperatingSystemProvider::enumerateInstanceNames(
     return;
 }
 
-void 
+void
 OperatingSystemProvider::modifyInstance(
       				const OperationContext& context,
 			  	const CIMReference& ref,
 			  	const CIMInstance& instanceObject,
-			  	const Uint32 flags, 
+			  	const Uint32 flags,
 			  	const Array<String>& propertyList,
 			  	ResponseHandler<CIMInstance>& handler )
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
-void 
+void
 OperatingSystemProvider::createInstance(
       				const OperationContext& context,
 			  	const CIMReference& ref,
@@ -219,7 +219,7 @@ OperatingSystemProvider::createInstance(
 
 }
 
-void 
+void
 OperatingSystemProvider::deleteInstance(
       				const OperationContext& context,
 			  	const CIMReference& ref,
@@ -239,7 +239,7 @@ void OperatingSystemProvider::terminate(void)
 
 
 CIMInstance
-OperatingSystemProvider::_build_instance(const CIMReference& objectReference) 
+OperatingSystemProvider::_build_instance(const CIMReference& objectReference)
 {
     CIMInstance instance(objectReference.getClassName());
     OperatingSystem os;
@@ -262,7 +262,7 @@ OperatingSystemProvider::_build_instance(const CIMReference& objectReference)
     {
         instance.addProperty(CIMProperty("CSName", stringValue));
     }
-    
+
     instance.addProperty(CIMProperty("CreationClassName",
  	                 STANDARDOPERATINGSYSTEMCLASS));
 
@@ -303,7 +303,7 @@ OperatingSystemProvider::_build_instance(const CIMReference& objectReference)
 
     if (os.getVersion(stringValue))
     {
-        instance.addProperty(CIMProperty("Version", stringValue)); 
+        instance.addProperty(CIMProperty("Version", stringValue));
     }
 
     if (os.getLastBootUpTime(cimDateTimeValue))
@@ -318,31 +318,31 @@ OperatingSystemProvider::_build_instance(const CIMReference& objectReference)
 
     if (os.getCurrentTimeZone(sint16Value))
     {
-        instance.addProperty(CIMProperty("CurrentTimeZone", sint16Value)); 
+        instance.addProperty(CIMProperty("CurrentTimeZone", sint16Value));
     }
-   
+
     if (os.getNumberOfLicensedUsers(uint32Value))
     {
-        instance.addProperty(CIMProperty("NumberOfLicensedUsers",uint32Value)); 
+        instance.addProperty(CIMProperty("NumberOfLicensedUsers",uint32Value));
     }
 
     if (os.getNumberOfUsers(uint32Value))
-    { 
-        instance.addProperty(CIMProperty("NumberOfUsers", uint32Value)); 
+    {
+        instance.addProperty(CIMProperty("NumberOfUsers", uint32Value));
     }
 
     if (os.getNumberOfProcesses(uint32Value))
     {
-        instance.addProperty(CIMProperty("NumberOfProcesses", uint32Value)); 
+        instance.addProperty(CIMProperty("NumberOfProcesses", uint32Value));
     }
 
     if (os.getMaxNumberOfProcesses(uint32Value))
     {
         instance.addProperty(CIMProperty("MaxNumberOfProcesses", uint32Value));
-    } 
+    }
 
     if (os.getTotalSwapSpaceSize(uint64Value))
-    {    
+    {
         instance.addProperty(CIMProperty("TotalSwapSpaceSize", uint64Value));
     }
 
@@ -397,12 +397,12 @@ OperatingSystemProvider::_build_instance(const CIMReference& objectReference)
         {
             instance.addProperty(CIMProperty("OperatingSystemCapability",
                                               stringValue));
-        } 
+        }
     }
     return instance;
 }
 
-CIMReference 
+CIMReference
 OperatingSystemProvider::_fill_reference(const String &nameSpace,
 				         const String &className)
 {
@@ -421,7 +421,7 @@ OperatingSystemProvider::_fill_reference(const String &nameSpace,
        name = "Unknown";
     }
 
-    keys.append(KeyBinding("CSCreationClassName", 
+    keys.append(KeyBinding("CSCreationClassName",
  	                   "CIM_ComputerSystem",
 			   KeyBinding::STRING));
     keys.append(KeyBinding("CSName", csName, KeyBinding::STRING));

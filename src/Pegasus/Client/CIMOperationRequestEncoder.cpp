@@ -303,7 +303,8 @@ void CIMOperationRequestEncoder::_encodeEnumerateClassesRequest(
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(), params);
 
-    _outputQueue->enqueue(new HTTPMessage(buffer));
+    //_outputQueue->enqueue(new HTTPMessage(buffer));
+    _enqueueHTTPMessage(buffer);
 }
 
 void CIMOperationRequestEncoder::_encodeDeleteClassRequest(
@@ -320,7 +321,8 @@ void CIMOperationRequestEncoder::_encodeDeleteClassRequest(
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(), params);
 
-    _outputQueue->enqueue(new HTTPMessage(buffer));
+    //_outputQueue->enqueue(new HTTPMessage(buffer));
+    _enqueueHTTPMessage(buffer);
 }
 
 void CIMOperationRequestEncoder::_encodeCreateInstanceRequest(
@@ -336,7 +338,8 @@ void CIMOperationRequestEncoder::_encodeCreateInstanceRequest(
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(), params);
 
-    _outputQueue->enqueue(new HTTPMessage(buffer));
+    //_outputQueue->enqueue(new HTTPMessage(buffer));
+    _enqueueHTTPMessage(buffer);
 }
 
 void CIMOperationRequestEncoder::_encodeGetInstanceRequest(
@@ -368,7 +371,8 @@ void CIMOperationRequestEncoder::_encodeGetInstanceRequest(
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(), params);
 
-    _outputQueue->enqueue(new HTTPMessage(buffer));
+    //_outputQueue->enqueue(new HTTPMessage(buffer));
+    _enqueueHTTPMessage(buffer);
 }
 
 void CIMOperationRequestEncoder::_encodeModifyInstanceRequest(
@@ -391,7 +395,8 @@ void CIMOperationRequestEncoder::_encodeModifyInstanceRequest(
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(), params);
 
-    _outputQueue->enqueue(new HTTPMessage(buffer));
+    //_outputQueue->enqueue(new HTTPMessage(buffer));
+    _enqueueHTTPMessage(buffer);
 }
 
 void CIMOperationRequestEncoder::_encodeEnumerateInstanceNamesRequest(
@@ -407,7 +412,8 @@ void CIMOperationRequestEncoder::_encodeEnumerateInstanceNamesRequest(
         message->messageId, message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(), params);
 
-    _outputQueue->enqueue(new HTTPMessage(buffer));
+    //_outputQueue->enqueue(new HTTPMessage(buffer));
+    _enqueueHTTPMessage(buffer);
 }
 
 void CIMOperationRequestEncoder::_encodeEnumerateInstancesRequest(
@@ -441,7 +447,8 @@ void CIMOperationRequestEncoder::_encodeEnumerateInstancesRequest(
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(), params);
 
-    _outputQueue->enqueue(new HTTPMessage(buffer));
+    //_outputQueue->enqueue(new HTTPMessage(buffer));
+    _enqueueHTTPMessage(buffer);
 }
 
 void CIMOperationRequestEncoder::_encodeDeleteInstanceRequest(
@@ -457,7 +464,8 @@ void CIMOperationRequestEncoder::_encodeDeleteInstanceRequest(
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(), params);
 
-    _outputQueue->enqueue(new HTTPMessage(buffer));
+    //_outputQueue->enqueue(new HTTPMessage(buffer));
+    _enqueueHTTPMessage(buffer);
 }
 
 void CIMOperationRequestEncoder::_encodeGetPropertyRequest(
@@ -476,7 +484,8 @@ void CIMOperationRequestEncoder::_encodeGetPropertyRequest(
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(), params);
 
-    _outputQueue->enqueue(new HTTPMessage(buffer));
+    //_outputQueue->enqueue(new HTTPMessage(buffer));
+    _enqueueHTTPMessage(buffer);
 }
 
 void CIMOperationRequestEncoder::_encodeSetPropertyRequest(
@@ -499,7 +508,8 @@ void CIMOperationRequestEncoder::_encodeSetPropertyRequest(
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(), params);
 
-    _outputQueue->enqueue(new HTTPMessage(buffer));
+    //_outputQueue->enqueue(new HTTPMessage(buffer));
+    _enqueueHTTPMessage(buffer);
 }
 
 void CIMOperationRequestEncoder::_encodeSetQualifierRequest(
@@ -514,7 +524,8 @@ void CIMOperationRequestEncoder::_encodeSetQualifierRequest(
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(), params);
 
-    _outputQueue->enqueue(new HTTPMessage(buffer));
+    //_outputQueue->enqueue(new HTTPMessage(buffer));
+    _enqueueHTTPMessage(buffer);
 }
 
 void CIMOperationRequestEncoder::_encodeGetQualifierRequest(
@@ -531,7 +542,8 @@ void CIMOperationRequestEncoder::_encodeGetQualifierRequest(
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(), params);
 
-    _outputQueue->enqueue(new HTTPMessage(buffer));
+    //_outputQueue->enqueue(new HTTPMessage(buffer));
+    _enqueueHTTPMessage(buffer);
 }
 
 void CIMOperationRequestEncoder::_encodeEnumerateQualifiersRequest(
@@ -544,7 +556,8 @@ void CIMOperationRequestEncoder::_encodeEnumerateQualifiersRequest(
         message->getHttpMethod(), 
         _authenticator->buildRequestAuthHeader(), params);
 
-    _outputQueue->enqueue(new HTTPMessage(buffer));
+    //_outputQueue->enqueue(new HTTPMessage(buffer));
+    _enqueueHTTPMessage(buffer);
 }
 
 void CIMOperationRequestEncoder::_encodeDeleteQualifierRequest(
@@ -561,7 +574,8 @@ void CIMOperationRequestEncoder::_encodeDeleteQualifierRequest(
         message->getHttpMethod(), 
         _authenticator->buildRequestAuthHeader(), params);
 
-    _outputQueue->enqueue(new HTTPMessage(buffer));
+    //_outputQueue->enqueue(new HTTPMessage(buffer));
+    _enqueueHTTPMessage(buffer);
 }
 
 void CIMOperationRequestEncoder::_encodeReferenceNamesRequest(
@@ -590,7 +604,8 @@ void CIMOperationRequestEncoder::_encodeReferenceNamesRequest(
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(), params);
 
-    _outputQueue->enqueue(new HTTPMessage(buffer));
+    //_outputQueue->enqueue(new HTTPMessage(buffer));
+    _enqueueHTTPMessage(buffer);
 }
 
 void CIMOperationRequestEncoder::_encodeReferencesRequest(
@@ -629,7 +644,8 @@ void CIMOperationRequestEncoder::_encodeReferencesRequest(
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(), params);
 
-    _outputQueue->enqueue(new HTTPMessage(buffer));
+    //_outputQueue->enqueue(new HTTPMessage(buffer));
+    _enqueueHTTPMessage(buffer);
 }
 
 void CIMOperationRequestEncoder::_encodeAssociatorNamesRequest(
@@ -671,7 +687,8 @@ void CIMOperationRequestEncoder::_encodeAssociatorNamesRequest(
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(), params);
 
-    _outputQueue->enqueue(new HTTPMessage(buffer));
+    //_outputQueue->enqueue(new HTTPMessage(buffer));
+    _enqueueHTTPMessage(buffer);
 }
 
 void CIMOperationRequestEncoder::_encodeAssociatorsRequest(
@@ -723,7 +740,8 @@ void CIMOperationRequestEncoder::_encodeAssociatorsRequest(
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(), params);
 
-    _outputQueue->enqueue(new HTTPMessage(buffer));
+    _enqueueHTTPMessage(buffer);
+    //_outputQueue->enqueue(new HTTPMessage(buffer));
 }
 
 void CIMOperationRequestEncoder::_encodeExecQueryRequest(
@@ -742,7 +760,8 @@ void CIMOperationRequestEncoder::_encodeExecQueryRequest(
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(), params);
 
-    _outputQueue->enqueue(new HTTPMessage(buffer));
+    _enqueueHTTPMessage(buffer);
+    //_outputQueue->enqueue(new HTTPMessage(buffer));
 }
 
 void CIMOperationRequestEncoder::_encodeInvokeMethodRequest(
@@ -753,7 +772,8 @@ void CIMOperationRequestEncoder::_encodeInvokeMethodRequest(
 	message->inParameters, message->messageId, 
 	message->getHttpMethod(), _authenticator->buildRequestAuthHeader());
     
-    _outputQueue->enqueue(new HTTPMessage(buffer));
+    _enqueueHTTPMessage(buffer);
+    //_outputQueue->enqueue(new HTTPMessage(buffer));
 }
 
 // Enqueue the buffer to the ouptut queue with a conditional display

@@ -1,6 +1,6 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000 The Open Group, BMC Software
+// Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
@@ -17,24 +17,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author: Mike Brasher
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// $Log: CIMServer.h,v $
-// Revision 1.2  2001/04/12 07:25:20  mike
-// Replaced ACE with new Channel implementation.
-// Removed all ACE dependencies.
+// Modified By:
 //
-// Revision 1.2  2001/01/29 02:19:18  mike
-// added primitive provider dispatching
-//
-// Revision 1.1.1.1  2001/01/14 19:54:05  mike
-// Pegasus import
-//
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
 //

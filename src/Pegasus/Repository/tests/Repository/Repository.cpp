@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,38 +17,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author:
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// $Log: Repository.cpp,v $
-// Revision 1.10  2001/04/25 20:44:21  mike
-// Added strip and prepend command to mu
+// Modified By:
 //
-// Revision 1.9  2001/04/08 01:13:23  mike
-// Changed "ConstCIM" to "CIMConst"
-//
-// Revision 1.6  2001/02/19 01:47:17  mike
-// Renamed names of the form CIMConst to CIMConst.
-//
-// Revision 1.5  2001/02/18 19:02:18  mike
-// Fixed CIM debacle
-//
-// Revision 1.4  2001/02/18 03:56:01  mike
-// Changed more class names (e.g., ConstClassDecl -> CIMConstClass)
-//
-// Revision 1.3  2001/02/16 02:06:09  mike
-// Renamed many classes and headers.
-//
-// Revision 1.2  2001/02/13 07:00:18  mike
-// Added partial createInstance() method to repository.
-//
-// Revision 1.1.1.1  2001/01/14 19:53:59  mike
-// Pegasus import
-//
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
 
 #include <cassert>
 #include <Pegasus/Repository/CIMRepository.h>

@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,17 +17,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author: Michael E. Brasher
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// $Log: Channel.h,v $
-// Revision 1.6  2001/04/12 09:57:39  mike
-// Post Channel Port to Linux
+// Modified By:
 //
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Channel_h
 #define Pegasus_Channel_h

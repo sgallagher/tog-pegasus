@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,23 +17,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author:
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// $Log: Handler.cpp,v $
-// Revision 1.5  2001/04/18 11:51:33  karl
-// get and set property
+// Modified By:
 //
-// Revision 1.4  2001/04/12 09:57:40  mike
-// Post Channel Port to Linux
-//
-// Revision 1.1.1.1  2001/01/14 19:53:51  mike
-// Pegasus import
-//
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
 #include <cctype>

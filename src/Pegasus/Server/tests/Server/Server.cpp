@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,27 +17,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author:
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// $Log: Server.cpp,v $
-// Revision 1.6  2001/04/12 07:25:20  mike
-// Replaced ACE with new Channel implementation.
-// Removed all ACE dependencies.
+// Modified By:
 //
-// Revision 1.3  2001/02/16 02:06:09  mike
-// Renamed many classes and headers.
-//
-// Revision 1.2  2001/01/29 07:03:48  mike
-// reworked build environment variables
-//
-// Revision 1.1.1.1  2001/01/14 19:54:05  mike
-// Pegasus import
-//
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
 
 #include <cassert>
 #include <cstdlib>

@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,61 +17,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author:
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// $Log: CIMRepository.h,v $
-// Revision 1.6  2001/04/24 01:50:15  mike
-// Switch to use of cimmof compiler for populating the repository.
+// Modified By:
 //
-// Revision 1.5  2001/04/07 12:01:19  karl
-// remove namespace support
-//
-// Revision 1.4  2001/03/11 21:52:28  karl
-// Stub delete namespace
-//
-// Revision 1.3  2001/03/05 19:54:50  mike
-// Fixed earlier boo boo (renamed CimException to CIMException).
-//
-// Revision 1.2  2001/02/18 19:02:18  mike
-// Fixed CIM debacle
-//
-// Revision 1.1  2001/02/18 18:50:50  mike
-// new
-//
-// Revision 1.9  2001/02/18 02:49:01  mike
-// Removed ugly workarounds for MSVC++ 5.0 (using SP3 now)
-//
-// Revision 1.8  2001/02/16 02:06:09  mike
-// Renamed many classes and headers.
-//
-// Revision 1.7  2001/02/13 07:00:18  mike
-// Added partial createInstance() method to repository.
-//
-// Revision 1.6  2001/02/11 05:45:33  mike
-// Added case insensitive logic for files in CIMRepository
-//
-// Revision 1.5  2001/02/08 00:31:51  mike
-// Clean up on CIMOperations class.
-// Reformmatted documentation.
-//
-// Revision 1.4  2001/02/06 17:04:03  karl
-// add documentation
-//
-// Revision 1.3  2001/01/31 08:20:51  mike
-// Added dispatcher framework.
-// Added enumerateInstanceNames.
-//
-// Revision 1.2  2001/01/28 04:11:03  mike
-// fixed qualifier resolution
-//
-// Revision 1.1.1.1  2001/01/14 19:53:56  mike
-// Pegasus import
-//
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef PegasusRepository_Repository_h
 #define PegasusRepository_Repository_h

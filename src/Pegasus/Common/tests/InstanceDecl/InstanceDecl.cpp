@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,26 +17,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author:
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// $Log: InstanceDecl.cpp,v $
-// Revision 1.5  2001/04/08 01:13:22  mike
-// Changed "ConstCIM" to "CIMConst"
+// Modified By:
 //
-// Revision 1.3  2001/02/20 05:16:57  mike
-// Implemented CIMInstance::getInstanceName()
-//
-// Revision 1.2  2001/02/16 02:06:07  mike
-// Renamed many classes and headers.
-//
-// Revision 1.1.1.1  2001/01/14 19:53:46  mike
-// Pegasus import
-//
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
 
 #include <cassert>
 #include <Pegasus/Common/CIMInstance.h>
@@ -78,7 +65,7 @@ void test01()
 	.addProperty(CIMProperty("ratio", Real32(1.5)));
 
     class1.resolve(context, NAMESPACE);
-    context->addClassDecl(NAMESPACE, class1);
+    context->addClass(NAMESPACE, class1);
     // class1.print();
 
     CIMInstance instance1("MyClass");

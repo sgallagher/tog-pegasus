@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,57 +17,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author:
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// $Log: FileSystem.cpp,v $
-// Revision 1.17  2001/04/15 17:59:11  mike
-// todo
+// Modified By:
 //
-// Revision 1.16  2001/04/13 19:57:17  mike
-// Fixed several memory leaks.
-// Fixed build crash problem (caused by screwed up NT flags).
-//
-// Revision 1.15  2001/04/12 09:57:39  mike
-// Post Channel Port to Linux
-//
-// Revision 1.13  2001/04/08 21:57:13  karl
-// dir hier tested
-//
-// Revision 1.12  2001/04/08 20:31:55  mike
-// Fixed
-//
-// Revision 1.11  2001/04/08 20:29:41  mike
-// Added std:: before cout and endl
-//
-// Revision 1.10  2001/04/08 20:28:27  karl
-// test
-//
-// Revision 1.9  2001/04/08 19:56:38  karl
-// Test version
-//
-// Revision 1.8  2001/04/08 19:20:04  mike
-// more TCP work
-//
-// Revision 1.7  2001/04/08 01:13:21  mike
-// Changed "ConstCIM" to "CIMConst"
-//
-// Revision 1.5  2001/03/11 23:35:32  mike
-// Ports to Linux
-//
-// Revision 1.3  2001/02/13 02:06:40  mike
-// Added renameFile() method.
-//
-// Revision 1.2  2001/02/11 05:42:33  mike
-// new
-//
-// Revision 1.1.1.1  2001/01/14 19:51:35  mike
-// Pegasus import
-//
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
 #include <cstdio>

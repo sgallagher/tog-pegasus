@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,41 +17,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author:
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// $Log: FileSystem.cpp,v $
-// Revision 1.10  2001/04/13 21:06:36  mike
-// new
+// Modified By:
 //
-// Revision 1.9  2001/04/08 21:57:13  karl
-// dir hier tested
-//
-// Revision 1.8  2001/04/08 19:56:38  karl
-// Test version
-//
-// Revision 1.7  2001/04/07 12:01:18  karl
-// remove namespace support
-//
-// Revision 1.6  2001/03/11 23:35:33  mike
-// Ports to Linux
-//
-// Revision 1.4  2001/02/13 02:06:40  mike
-// Added renameFile() method.
-//
-// Revision 1.3  2001/02/11 05:42:33  mike
-// new
-//
-// Revision 1.2  2001/01/14 23:39:04  mike
-// fixed broken regression test
-//
-// Revision 1.1.1.1  2001/01/14 19:53:46  mike
-// Pegasus import
-//
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
 
 #include <cassert>
 #include <fstream>

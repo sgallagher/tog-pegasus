@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,26 +17,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author:
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// $Log: Char16.h,v $
-// Revision 1.4  2001/02/16 02:06:06  mike
-// Renamed many classes and headers.
+// Modified By:
 //
-// Revision 1.3  2001/02/05 03:40:28  mike
-// new documentation
-//
-// Revision 1.2  2001/01/30 23:39:00  karl
-// Add doc++ Documentation to header files
-//
-// Revision 1.1.1.1  2001/01/14 19:50:36  mike
-// Pegasus import
-//
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Char16_h
 #define Pegasus_Char16_h

@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,23 +17,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author:
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// $Log: ValidateClass.cpp,v $
-// Revision 1.3  2001/02/16 02:06:07  mike
-// Renamed many classes and headers.
+// Modified By:
 //
-// Revision 1.2  2001/01/23 01:25:35  mike
-// Reworked resolve scheme.
-//
-// Revision 1.1.1.1  2001/01/14 19:53:49  mike
-// Pegasus import
-//
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/DeclContext.h>
@@ -54,14 +44,14 @@ int main()
 	x.addProperty(CIMProperty("one", Uint32(111)));
 	x.addProperty(CIMProperty("two", Real32(222.222)));
 	x.addProperty(CIMProperty("three", "Three"));
-	context.addClassDecl(NAMESPACE, x);
+	context.addClass(NAMESPACE, x);
 	x.resolve(&context, NAMESPACE);
 
 	CIMClass y("Y", "X");
 	y.addProperty(CIMProperty("three", String("Three - Three")));
 	y.addProperty(CIMProperty("four", Boolean(false)));
 	y.addProperty(CIMProperty("five", Real32(555.555)));
-	context.addClassDecl(NAMESPACE, y);
+	context.addClass(NAMESPACE, y);
 	y.resolve(&context, NAMESPACE);
 
 	// y.print();

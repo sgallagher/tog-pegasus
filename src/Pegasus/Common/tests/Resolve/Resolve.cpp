@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,22 +17,15 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author:
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// $Log: Resolve.cpp,v $
-// Revision 1.2  2001/01/23 01:25:35  mike
-// Reworked resolve scheme.
+// Modified By:
 //
-// Revision 1.1.1.1  2001/01/14 19:53:48  mike
-// Pegasus import
-//
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/ClassDecl.h>
+#include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/DeclContext.h>
 
 using namespace Pegasus;
@@ -43,23 +36,23 @@ void test01()
     const String NAMESPACE = "/ttt";
 
     SimpleDeclContext* context = new SimpleDeclContext;
-    ClassDecl class2("YourClass", "");
-    context->addClassDecl(NAMESPACE, class2);
+    CIMClass class2("YourClass", "");
+    context->addClass(NAMESPACE, class2);
     class2.resolve(context, NAMESPACE);
     
-    ClassDecl class1("MyClass", "YourClass");
+    CIMClass class1("MyClass", "YourClass");
 
     class1
-	.addQualifier(Qualifier("q1", Uint32(55)))
-	.addQualifier(Qualifier("q2", "Hello"))
-	.addProperty(Property("message", String("Hello")))
-	.addProperty(Property("count", Uint32(77)))
-	// .addProperty(Property("ref1", Reference("MyClass.key1=\"fred\"")))
-	.addMethod(Method("isActive", Type::BOOLEAN)
-	    .addParameter(Parameter("hostname", Type::STRING))
-	    .addParameter(Parameter("port", Type::UINT32)));
+	// .addQualifier(CIMQualifier("q1", Uint32(55)))
+	// .addQualifier(CIMQualifier("q2", "Hello"))
+	.addProperty(CIMProperty("message", String("Hello")))
+	.addProperty(CIMProperty("count", Uint32(77)))
+	// .addProperty(CIMProperty("ref1", Reference("MyClass.key1=\"fred\"")))
+	.addMethod(CIMMethod("isActive", CIMType::BOOLEAN)
+	    .addParameter(CIMParameter("hostname", CIMType::STRING))
+	    .addParameter(CIMParameter("port", CIMType::UINT32)));
 
-    class1.print();
+    // class1.print();
     class1.resolve(context, NAMESPACE);
 }
 
@@ -72,6 +65,7 @@ int main()
     catch (Exception& e)
     {
 	cout << "Exception: " << e.getMessage() << endl;
+	exit(1);
     }
 
     cout << "+++++ passed all tests" << endl;

@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,26 +17,15 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author: Bob Blair
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// $Log: getoopt.h,v $
-// Revision 1.5  2001/04/24 21:15:49  mike
-// port back to Linux
+// Modified By:
 //
-// Revision 1.4  2001/04/24 00:00:15  mike
-// Ported compiler to use String and Array (rather than STL equivalents)
-//
-// Revision 1.3  2001/03/04 22:06:10  bob
-// Made a parallel printErrors method to a String
-//
-// Revision 1.2  2001/02/16 23:43:15  bob
-// Add standard Opengroup header
-//
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
+
+
 //
 // Yet another attempt to create a general-purpose, object-oriented,
 // portable C++ command line parser.

@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,13 +17,15 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
 // Author: Bob Blair (bblair@bmc.com)
 //
+// Modified By:
 //
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
+
+
 // A main for the cimmof_parser.  It can be embedded elsewhere, too. 
 
 #include <iostream>

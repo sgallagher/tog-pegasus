@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,29 +17,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author:
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// $Log: ConfigUnix.h,v $
-// Revision 1.5  2001/04/11 00:39:18  mike
-// More porting
+// Modified By:
 //
-// Revision 1.4  2001/03/04 21:59:39  bob
-// Added PEGASUS_CMDLINE_LINKAGE macro
-//
-// Revision 1.3  2001/02/17 00:44:13  bob
-// Added linkage macros for new libraries:  getoopt and Compiler
-//
-// Revision 1.2  2001/02/11 05:42:33  mike
-// new
-//
-// Revision 1.1.1.1  2001/01/14 19:50:40  mike
-// Pegasus import
-//
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
 //

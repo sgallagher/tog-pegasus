@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,32 +17,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author: Michael E. Brasher
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// $Log: Selector.h,v $
-// Revision 1.6  2001/04/11 05:18:17  mike
-// Added documentation.
+// Modified By:
 //
-// Revision 1.5  2001/04/11 04:53:10  mike
-// Porting
-//
-// Revision 1.4  2001/04/11 04:20:39  mike
-// new
-//
-// Revision 1.3  2001/04/08 08:28:20  mike
-// Added more windows channel implementation code.
-//
-// Revision 1.2  2001/04/08 05:06:06  mike
-// New Files for Channel Implementation
-//
-// Revision 1.1  2001/04/08 04:46:11  mike
-// Added new selector class for windows
-//
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Selector_h 
 #define Pegasus_Selector_h 

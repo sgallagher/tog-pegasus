@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,26 +17,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author:
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// $Log: CIMType.h,v $
-// Revision 1.2  2001/04/04 20:02:27  karl
-// documentation update
+// Modified By:
 //
-// Revision 1.1  2001/02/16 02:07:06  mike
-// Renamed many classes and headers (using new CIM prefixes).
-//
-// Revision 1.2  2001/01/24 16:16:38  karl
-// Incorporate Doc++ Comments as documentation into .h files
-//
-// Revision 1.1.1.1  2001/01/14 19:53:15  mike
-// Pegasus import
-//
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
 
 /*
  CIMType.h - This file defines the CIMType enumeration which introduces

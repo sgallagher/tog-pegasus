@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,41 +17,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author: Michael E. Brasher
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// $Log: OptionManager.h,v $
-// Revision 1.9  2001/04/14 19:57:30  mike
-// Finalized OptionManager class.
+// Modified By:
 //
-// Revision 1.8  2001/04/14 07:52:22  mike
-// more docs
-//
-// Revision 1.7  2001/04/14 07:46:47  mike
-// new
-//
-// Revision 1.6  2001/04/14 07:35:04  mike
-// Added config file loading to OptionManager
-//
-// Revision 1.5  2001/04/14 06:41:17  mike
-// New
-//
-// Revision 1.4  2001/04/14 03:37:16  mike
-// Added new example to test option manager
-//
-// Revision 1.3  2001/04/14 02:26:42  mike
-// More on option manager implementation
-//
-// Revision 1.2  2001/04/14 02:11:41  mike
-// New option manager class.
-//
-// Revision 1.1  2001/04/14 01:52:45  mike
-// New option management class.
-//
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_OptionManager_h
 #define Pegasus_OptionManager_h

@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,20 +17,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author: Mike Brasher
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// $Log: Formatter.h,v $
-// Revision 1.3  2001/04/11 07:03:02  mike
-// Port to Unix
+// Modified By:
 //
-// Revision 1.1  2001/03/22 23:24:23  mike
-// Added new formatter class for formatting log entries and other things.
-//
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Formatter_h
 #define Pegasus_Formatter_h

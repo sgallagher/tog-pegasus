@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,39 +17,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author:
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// $Log: MyProvider.cpp,v $
-// Revision 1.12  2001/04/24 00:00:15  mike
-// Ported compiler to use String and Array (rather than STL equivalents)
+// Modified By:
 //
-// Revision 1.11  2001/04/18 11:51:33  karl
-// get and set property
-//
-// Revision 1.10  2001/03/30 01:59:14  karl
-// clean up get property
-//
-// Revision 1.9  2001/02/18 21:56:12  karl
-// conflicts fix
-//
-// Revision 1.8  2001/02/18 19:02:18  mike
-// Fixed CIM debacle
-//
-// Revision 1.7  2001/02/18 02:49:01  mike
-// Removed ugly workarounds for MSVC++ 5.0 (using SP3 now)
-//
-// Revision 1.6  2001/02/16 18:17:11  mike
-// new
-//
-// Revision 1.5  2001/02/16 13:05:18  karl
-// Clean up and remove an extra include
-//
-//
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
 /* MyProvider Provider	- This provider was written as a simple test provider 
 to allow a first demonstration of the interfaces and of instances.  It uses a 
 completely artifical class today (Process) and creates a couple of new 

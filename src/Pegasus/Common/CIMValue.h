@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,38 +17,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author:
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// $Log: CIMValue.h,v $
-// Revision 1.3  2001/03/04 21:57:34  bob
-// Changed print methods to take a stream instead of hardcoded cout
+// Modified By:
 //
-// Revision 1.2  2001/02/20 05:16:57  mike
-// Implemented CIMInstance::getInstanceName()
-//
-// Revision 1.1  2001/02/18 18:39:06  mike
-// new
-//
-// Revision 1.2  2001/02/18 02:49:00  mike
-// Removed ugly workarounds for MSVC++ 5.0 (using SP3 now)
-//
-// Revision 1.1  2001/02/16 02:07:06  mike
-// Renamed many classes and headers (using new CIM prefixes).
-//
-// Revision 1.3  2001/01/30 08:00:43  karl
-// DOC++ Documentation update for header files
-//
-// Revision 1.2  2001/01/29 08:03:12  karl
-// DOC++ Documentation
-//
-// Revision 1.1.1.1  2001/01/14 19:53:21  mike
-// Pegasus import
-//
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Value_h
 #define Pegasus_Value_h

@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,36 +17,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author:
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// $Log: XmlReader.cpp,v $
-// Revision 1.8  2001/04/18 11:51:32  karl
-// get and set property
+// Modified By:
 //
-// Revision 1.7  2001/04/13 21:53:47  karl
-// add get and set property
-//
-// Revision 1.6  2001/04/08 01:13:22  mike
-// Changed "ConstCIM" to "CIMConst"
-//
-// Revision 1.4  2001/02/26 04:33:28  mike
-// Fixed many places where cim names were be compared with operator==(String,String).
-// Changed all of these to use CIMName::equal()
-//
-// Revision 1.3  2001/02/19 01:47:16  mike
-// Renamed names of the form CIMConst to CIMConst.
-//
-// Revision 1.2  2001/02/16 02:06:07  mike
-// Renamed many classes and headers.
-//
-// Revision 1.1.1.1  2001/01/14 19:53:32  mike
-// Pegasus import
-//
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
 
 #include <cassert>
 #include <cctype>

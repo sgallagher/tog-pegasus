@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,37 +17,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author:
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// $Log: Config.h,v $
-// Revision 1.7  2001/04/25 07:44:35  mike
-// Documented the heck out of the CIMReference class.
+// Modified By:
 //
-// Revision 1.6  2001/04/13 22:20:03  mike
-// new
-//
-// Revision 1.5  2001/04/13 21:06:36  mike
-// new
-//
-// Revision 1.4  2001/04/13 19:57:17  mike
-// Fixed several memory leaks.
-// Fixed build crash problem (caused by screwed up NT flags).
-//
-// Revision 1.3  2001/04/13 18:20:51  mike
-// Ported so Solaris.
-// Fixed memory leaks.
-//
-// Revision 1.2  2001/04/11 00:39:18  mike
-// More porting
-//
-// Revision 1.1.1.1  2001/01/14 19:50:39  mike
-// Pegasus import
-//
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
 //

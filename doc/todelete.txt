@@ -1,0 +1,7 @@
+
+These directories should be deleted form the Pegasus CVS repository:
+
+    pegasus\src\CommExample
+    pegasus/src/Pegasus/Channel
+    pegasus/src/Pegasus/Repository/tests/TestClasses
+    pegauss/src/AceExample

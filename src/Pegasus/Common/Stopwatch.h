@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,33 +17,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author: Mike Brasher
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// $Log: Stopwatch.h,v $
-// Revision 1.6  2001/04/11 00:23:44  mike
-// new files
+// Modified By:
 //
-// Revision 1.5  2001/04/10 23:01:52  mike
-// Added new TimeValue class and regression tests for it.
-// Modified Stopwatch class to use TimeValue class.
-//
-// Revision 1.4  2001/04/08 19:20:04  mike
-// more TCP work
-//
-// Revision 1.3  2001/02/17 20:09:23  mike
-// new
-//
-// Revision 1.2  2001/02/17 19:58:54  karl
-// Add Linkage
-//
-// Revision 1.1  2001/02/16 02:08:26  mike
-// Renamed several classes
-//
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Stopwatch_h
 #define Pegasus_Stopwatch_h

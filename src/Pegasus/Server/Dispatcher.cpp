@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,38 +17,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author:
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// $Log: Dispatcher.cpp,v $
-// Revision 1.8  2001/03/30 01:59:14  karl
-// clean up get property
+// Modified By:
 //
-// Revision 1.7  2001/03/05 19:54:50  mike
-// Fixed earlier boo boo (renamed CimException to CIMException).
-//
-// Revision 1.6  2001/02/20 07:25:57  mike
-// Added basic create-instance in repository and in client.
-//
-// Revision 1.5  2001/02/19 01:47:17  mike
-// Renamed names of the form CIMConst to ConstCIM.
-//
-// Revision 1.4  2001/02/18 19:02:18  mike
-// Fixed CIM debacle
-//
-// Revision 1.3  2001/02/16 02:06:09  mike
-// Renamed many classes and headers.
-//
-// Revision 1.2  2001/02/13 16:35:32  mike
-// Fixed compiler error with createInstance()
-//
-// Revision 1.1  2001/01/31 08:22:28  mike
-// added dispatcher
-//
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
 
 #include "Dispatcher.h"
 #include <Pegasus/Repository/CIMRepository.h>

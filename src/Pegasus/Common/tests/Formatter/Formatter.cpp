@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,20 +17,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author:
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// $Log: Formatter.cpp,v $
-// Revision 1.1  2001/03/22 23:24:23  mike
-// Added new formatter class for formatting log entries and other things.
+// Modified By:
 //
-// Revision 1.1.1.1  2001/01/14 19:53:45  mike
-// Pegasus import
-//
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
 
 #include <cassert>
 #include <iostream>
@@ -44,7 +37,7 @@ int main()
     String str = 
 	Formatter::format("\\$dollar\\$ X=$0, Y=$1, Z=$2, X=$0", 88, "Hello World", 7.5);
 
-    cout << "str[" << str << "]" << endl;
+    // cout << "str[" << str << "]" << endl;
 
     cout << "+++++ passed all tests" << endl;
 

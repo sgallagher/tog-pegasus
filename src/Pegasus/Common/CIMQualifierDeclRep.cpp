@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,30 +17,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author:
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// $Log: CIMQualifierDeclRep.cpp,v $
-// Revision 1.3  2001/03/04 21:57:34  bob
-// Changed print methods to take a stream instead of hardcoded cout
+// Modified By:
 //
-// Revision 1.2  2001/02/26 04:33:28  mike
-// Fixed many places where cim names were be compared with operator==(String,String).
-// Changed all of these to use CIMName::equal()
-//
-// Revision 1.1  2001/02/18 18:39:06  mike
-// new
-//
-// Revision 1.1  2001/02/16 02:07:06  mike
-// Renamed many classes and headers (using new CIM prefixes).
-//
-// Revision 1.1.1.1  2001/01/14 19:53:08  mike
-// Pegasus import
-//
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
 
 #include <cstdio>
 #include "CIMQualifierDecl.h"

@@ -1,6 +1,6 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000 The Open Group, BMC Software
+// Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
@@ -17,72 +17,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author: Mike Brasher
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// $Log: CIMOperations.h,v $
-// Revision 1.6  2001/04/11 00:23:43  mike
-// new files
+// Modified By:
 //
-// Revision 1.5  2001/04/04 20:02:27  karl
-// documentation update
-//
-// Revision 1.4  2001/03/27 18:09:03  karl
-// add documentaiton
-//
-// Revision 1.3  2001/03/23 13:14:25  karl
-// fix comments
-//
-// Revision 1.2  2001/02/26 10:13:24  karl
-// documentation changes
-//
-// Revision 1.1  2001/02/18 18:39:06  mike
-// new
-//
-// Revision 1.2  2001/02/18 02:49:00  mike
-// Removed ugly workarounds for MSVC++ 5.0 (using SP3 now)
-//
-// Revision 1.1  2001/02/16 02:07:06  mike
-// Renamed many classes and headers (using new CIM prefixes).
-//
-// Revision 1.11  2001/02/13 07:00:18  mike
-// Added partial createInstance() method to repository.
-//
-// Revision 1.10  2001/02/11 05:42:33  mike
-// new
-//
-// Revision 1.9  2001/02/08 00:31:51  mike
-// Clean up on CIMOperations class.
-// Reformmatted documentation.
-//
-// Revision 1.8  2001/02/06 17:04:03  karl
-// add documentation
-//
-// Revision 1.7  2001/02/02 21:59:45  karl
-// fix enuminstances and some DOC++
-//
-// Revision 1.6  2001/01/31 08:20:51  mike
-// Added dispatcher framework.
-// Added enumerateInstanceNames.
-//
-// Revision 1.5  2001/01/29 08:03:12  karl
-// DOC++ Documentation
-//
-// Revision 1.4  2001/01/28 10:48:22  karl
-// Doc++ Documentation
-//
-// Revision 1.3  2001/01/15 04:31:44  mike
-// worked on resolve scheme
-//
-// Revision 1.2  2001/01/15 04:19:08  karl
-// Add Class Documentation
-//
-// Revision 1.1.1.1  2001/01/14 19:53:00  mike
-// Pegasus import
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Operations_h
 #define Pegasus_Operations_h

@@ -1,5 +1,0 @@
-
-The following directories should be removed from CVS:
-
-    pegasus/src/CommExample
-    pegasus/src/Pegasus/Channel

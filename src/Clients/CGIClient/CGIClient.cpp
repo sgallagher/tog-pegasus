@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,66 +17,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author:
+// Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
-// $Log: CGIClient.cpp,v $
-// Revision 1.27  2001/04/18 11:51:32  karl
-// get and set property
+// Modified By:
 //
-// Revision 1.26  2001/04/12 09:57:39  mike
-// Post Channel Port to Linux
-//
-// Revision 1.23  2001/04/07 12:01:18  karl
-// remove namespace support
-//
-// Revision 1.22  2001/03/30 01:59:14  karl
-// clean up get property
-//
-// Revision 1.21  2001/03/29 16:41:38  karl
-// Add Class Tree Stuff
-//
-// Revision 1.20  2001/03/27 18:06:45  karl
-// Add new operations
-//
-// Revision 1.19  2001/03/13 01:22:02  karl
-// Add delete Namespace
-//
-// Revision 1.18  2001/03/05 19:54:49  mike
-// Fixed earlier boo boo (renamed CimException to CIMException).
-//
-// Revision 1.17  2001/02/21 01:53:08  karl
-// Namespaces stuff
-//
-// Revision 1.16  2001/02/19 21:42:30  karl
-// namespace create
-//
-// Revision 1.15  2001/02/19 01:47:16  mike
-// Renamed names of the form CIMConst to ConstCIM.
-//
-// Revision 1.14  2001/02/18 23:28:14  karl
-// add namespace stuff. Not finished
-//
-// Revision 1.13  2001/02/18 19:02:16  mike
-// Fixed CIM debacle
-//
-// Revision 1.12  2001/02/18 03:56:00  mike
-// Changed more class names (e.g., ConstClassDecl -> ConstCIMClass)
-//
-// Revision 1.11  2001/02/16 02:06:06  mike
-// Renamed many classes and headers.
-//
-// Revision 1.10  2001/02/11 05:45:33  mike
-// Added case insensitive logic for files in CIMRepository
-//
-// Revision 1.9  2001/02/06 15:47:56  karl
-// add propety functions
-//
-//
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
 
 /* CGIClient - This is a CGI driven test program that
 1. Makes calls to Pegasus CIMOperations client functions

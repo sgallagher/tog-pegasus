@@ -19,28 +19,8 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
+// Author:
 //
 // Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
-
-#include <iostream>
-#include <cassert>
-#include <Pegasus/Common/Stopwatch.h>
-
-using namespace Pegasus;
-using namespace std;
-
-int main()
-{
-    Stopwatch sw;
-    System::sleep(5);
-    // sw.printElapsed();
-    double elapsed = sw.getElapsed();
-    assert(elapsed >= 4.5 && elapsed <= 5.5);
-
-    cout << "+++++ passed all tests" << endl;
-
-    return 0;
-}

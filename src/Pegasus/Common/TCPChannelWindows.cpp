@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,32 +17,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author: Michael E. Brasher
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// $Log: TCPChannelWindows.cpp,v $
-// Revision 1.3  2001/04/12 09:57:39  mike
-// Post Channel Port to Linux
+// Modified By:
 //
-// Revision 1.1  2001/04/11 04:30:33  mike
-// More porting
-//
-// Revision 1.4  2001/04/08 22:06:31  mike
-// New acceptor
-//
-// Revision 1.3  2001/04/08 19:20:04  mike
-// more TCP work
-//
-// Revision 1.2  2001/04/08 08:37:35  mike
-// More channel changes
-//
-// Revision 1.1  2001/04/08 08:28:20  mike
-// Added more windows channel implementation code.
-//
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
 #include "TCPChannel.h"

@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,36 +17,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author:
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// $Log: ClassDeclRep.cpp,v $
-// Revision 1.7  2001/03/05 19:54:50  mike
-// Fixed earlier boo boo (renamed CimException to CIMException).
+// Modified By:
 //
-// Revision 1.6  2001/02/26 04:33:30  mike
-// Fixed many places where cim names were be compared with operator==(String,String).
-// Changed all of these to use CIMName::equal()
-//
-// Revision 1.5  2001/02/19 01:47:17  mike
-// Renamed names of the form CIMConst to ConstCIM.
-//
-// Revision 1.4  2001/02/18 19:02:18  mike
-// Fixed CIM debacle
-//
-// Revision 1.3  2001/02/18 03:56:01  mike
-// Changed more class names (e.g., ConstClassDecl -> ConstCIMClass)
-//
-// Revision 1.2  2001/02/16 02:06:09  mike
-// Renamed many classes and headers.
-//
-// Revision 1.1.1.1  2001/01/14 19:53:56  mike
-// Pegasus import
-//
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
 
 #include <cassert>
 #include <Pegasus/Repository/CIMRepository.h>

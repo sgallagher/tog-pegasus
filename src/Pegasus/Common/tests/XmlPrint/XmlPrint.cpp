@@ -1,7 +1,6 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
-//
-// Copyright (c) 2000 The Open Group, BMC Software
+// Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
@@ -18,17 +17,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author: Mike Brasher
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// $Log: XmlPrint.cpp,v $
-// Revision 1.1  2001/01/14 19:53:50  mike
-// Initial revision
+// Modified By:
 //
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
 #include <fstream>

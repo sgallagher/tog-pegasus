@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,41 +17,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author:
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// $Log: Exception.cpp,v $
-// Revision 1.9  2001/04/25 20:43:31  mike
-// better
+// Modified By:
 //
-// Revision 1.8  2001/03/05 04:29:01  mike
-// renamed CimException to CIMException
-//
-// Revision 1.7  2001/02/16 02:06:06  mike
-// Renamed many classes and headers.
-//
-// Revision 1.6  2001/02/11 05:42:33  mike
-// new
-//
-// Revision 1.5  2001/01/29 02:23:44  mike
-// Added support for GetInstance operation
-//
-// Revision 1.4  2001/01/28 04:11:03  mike
-// fixed qualifier resolution
-//
-// Revision 1.3  2001/01/23 01:25:35  mike
-// Reworked resolve scheme.
-//
-// Revision 1.2  2001/01/22 00:45:47  mike
-// more work on resolve scheme
-//
-// Revision 1.1.1.1  2001/01/14 19:51:33  mike
-// Pegasus import
-//
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
 
 #include <cstdio>
 #include "Exception.h"

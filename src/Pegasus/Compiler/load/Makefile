@@ -14,3 +14,5 @@ tests:
 
 clean:
 depend:
+strip-headers:
+prepend-headers:

@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,20 +17,15 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
 // Author: Bob Blair (bblair@bmc.com)
 //
-// $Log: cimmofRepository.cpp,v $
-// Revision 1.2  2001/02/18 19:02:17  mike
-// Fixed CIM debacle
+// Modified By:
 //
-// Revision 1.1  2001/02/16 23:59:09  bob
-// Initial checkin
-//
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
+
+
 //
 // implementation of valueFactory 
 //

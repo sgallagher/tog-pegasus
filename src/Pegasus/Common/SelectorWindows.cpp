@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,35 +17,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author: Michael E. Brasher
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// $Log: SelectorWindows.cpp,v $
-// Revision 1.3  2001/04/11 19:53:22  mike
-// More porting
+// Modified By:
 //
-// Revision 1.2  2001/04/11 07:03:02  mike
-// Port to Unix
-//
-// Revision 1.3  2001/04/11 04:20:39  mike
-// new
-//
-// Revision 1.4  2001/04/08 22:06:31  mike
-// New acceptor
-//
-// Revision 1.3  2001/04/08 08:28:20  mike
-// Added more windows channel implementation code.
-//
-// Revision 1.2  2001/04/08 05:06:06  mike
-// New Files for Channel Implementation
-//
-// Revision 1.1  2001/04/08 04:46:11  mike
-// Added new selector class for windows
-//
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
 
 #include "Selector.h"
 

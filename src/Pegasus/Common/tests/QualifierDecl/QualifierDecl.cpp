@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,23 +17,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author:
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// $Log: QualifierDecl.cpp,v $
-// Revision 1.3  2001/02/16 02:06:07  mike
-// Renamed many classes and headers.
+// Modified By:
 //
-// Revision 1.2  2001/01/25 02:12:05  mike
-// Added meta-qualifiers to LoadRepository program.
-//
-// Revision 1.1.1.1  2001/01/14 19:53:47  mike
-// Pegasus import
-//
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/CIMQualifierDecl.h>
 

@@ -2,7 +2,7 @@ ROOT = ../../../..
 
 include $(ROOT)/mak/config.mak
 
-DIRS = Server ProviderTable MyProvider LoadProcessClass
+DIRS = ClientServer Server ProviderTable MyProvider LoadProcessClass
 
 # ProviderTable MyProvider LoadProcessClass
 

@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,40 +17,15 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
 // Author: Bob Blair (bblair@bmc.com)
 //
-// $Log: cimmofParser.cpp,v $
-// Revision 1.8  2001/04/24 00:00:14  mike
-// Ported compiler to use String and Array (rather than STL equivalents)
+// Modified By:
 //
-// Revision 1.7  2001/03/05 21:54:29  bob
-// Implement instance compilation
-//
-// Revision 1.6  2001/03/05 17:00:47  bob
-// Catch up with the change from CimException to CIMException
-//
-// Revision 1.5  2001/03/04 22:18:00  bob
-// Cleanup, support for reference, message moving, start of instance support
-//
-// Revision 1.4  2001/02/26 04:33:30  mike
-// Fixed many places where cim names were be compared with operator==(String,String).
-// Changed all of these to use CIMName::equal()
-//
-// Revision 1.3  2001/02/18 19:02:17  mike
-// Fixed CIM debacle
-//
-// Revision 1.2  2001/02/18 02:45:49  mike
-// Added bison.simple to distribution so that there
-// would be no dependency on an external directory.
-//
-// Revision 1.1  2001/02/16 23:59:09  bob
-// Initial checkin
-//
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
+
+
 //
 // implementation of valueFactory 
 //

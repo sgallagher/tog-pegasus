@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,34 +17,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author:
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// $Log: CIMClient.h,v $
-// Revision 1.3  2001/04/12 07:25:20  mike
-// Replaced ACE with new Channel implementation.
-// Removed all ACE dependencies.
+// Modified By:
 //
-// Revision 1.1  2001/02/16 02:08:26  mike
-// Renamed several classes
-//
-// Revision 1.4  2001/02/13 07:00:18  mike
-// Added partial createInstance() method to repository.
-//
-// Revision 1.3  2001/02/06 17:04:03  karl
-// add documentation
-//
-// Revision 1.2  2001/01/31 08:20:51  mike
-// Added dispatcher framework.
-// Added enumerateInstanceNames.
-//
-// Revision 1.1.1.1  2001/01/14 19:50:31  mike
-// Pegasus import
-//
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
 //

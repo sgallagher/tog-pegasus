@@ -3,6 +3,11 @@ ROOT=../../../..
 include $(ROOT)/mak/config.mak
 
 DIRS = \
+    Resolve \
+    Logger \
+    Acceptor \
+    Connector \
+    Formatter \
     Abstract \
     Array \
     CGIQueryString \

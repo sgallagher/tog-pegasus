@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,65 +17,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author:
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// $Log: Array.h,v $
-// Revision 1.16  2001/04/25 07:44:35  mike
-// Documented the heck out of the CIMReference class.
+// Modified By:
 //
-// Revision 1.15  2001/04/24 00:00:14  mike
-// Ported compiler to use String and Array (rather than STL equivalents)
-//
-// Revision 1.14  2001/04/11 19:53:22  mike
-// More porting
-//
-// Revision 1.13  2001/03/04 21:41:44  bob
-// Commented out forward declaration of "const Class String": it caused compiler
-// errors.
-//
-// Revision 1.12  2001/02/26 10:13:24  karl
-// documentation changes
-//
-// Revision 1.11  2001/02/26 04:33:28  mike
-// Fixed many places where cim names were be compared with operator==(String,String).
-// Changed all of these to use CIMName::equal()
-//
-// Revision 1.10  2001/02/21 01:50:30  karl
-// comments
-//
-// Revision 1.9  2001/02/18 02:49:00  mike
-// Removed ugly workarounds for MSVC++ 5.0 (using SP3 now)
-//
-// Revision 1.8  2001/02/16 02:06:06  mike
-// Renamed many classes and headers.
-//
-// Revision 1.7  2001/02/11 05:42:33  mike
-// new
-//
-// Revision 1.6  2001/02/08 00:31:51  mike
-// Clean up on CIMOperations class.
-// Reformmatted documentation.
-//
-// Revision 1.5  2001/02/05 03:40:28  mike
-// new documentation
-//
-// Revision 1.4  2001/02/05 02:49:45  mike
-// Added new line and reformatted some comments.
-//
-// Revision 1.3  2001/01/31 15:57:06  karl
-// comments
-//
-// Revision 1.2  2001/01/30 23:39:00  karl
-// Add doc++ Documentation to header files
-//
-// Revision 1.1.1.1  2001/01/14 19:50:34  mike
-// Pegasus import
-//
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Array_h
 #define Pegasus_Array_h

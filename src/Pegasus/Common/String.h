@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,67 +17,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author:
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// $Log: String.h,v $
-// Revision 1.17  2001/04/24 00:00:14  mike
-// Ported compiler to use String and Array (rather than STL equivalents)
+// Modified By:
 //
-// Revision 1.16  2001/04/14 07:35:05  mike
-// Added config file loading to OptionManager
-//
-// Revision 1.15  2001/04/11 19:53:22  mike
-// More porting
-//
-// Revision 1.14  2001/04/10 23:01:52  mike
-// Added new TimeValue class and regression tests for it.
-// Modified Stopwatch class to use TimeValue class.
-//
-// Revision 1.13  2001/04/10 22:42:55  karl
-// Correct error in String find
-//
-// Revision 1.12  2001/04/09 20:18:47  karl
-// add find substring function
-//
-// Revision 1.11  2001/04/04 20:02:27  karl
-// documentation update
-//
-// Revision 1.10  2001/03/29 16:40:31  karl
-// add doc
-//
-// Revision 1.9  2001/02/26 04:33:28  mike
-// Fixed many places where cim names were be compared with operator==(String,String).
-// Changed all of these to use CIMName::equal()
-//
-// Revision 1.8  2001/02/20 14:05:24  karl
-// Comments for Document
-//
-// Revision 1.7  2001/02/11 17:19:30  mike
-// added reverseFind() method
-//
-// Revision 1.6  2001/02/11 05:42:33  mike
-// new
-//
-// Revision 1.5  2001/01/30 08:00:43  karl
-// DOC++ Documentation update for header files
-//
-// Revision 1.4  2001/01/28 07:05:18  mike
-// added instance name/reference converters
-//
-// Revision 1.3  2001/01/28 04:11:03  mike
-// fixed qualifier resolution
-//
-// Revision 1.2  2001/01/24 16:16:38  karl
-// Incorporate Doc++ Comments as documentation into .h files
-//
-// Revision 1.1.1.1  2001/01/14 19:53:15  mike
-// Pegasus import
-//
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_String_h
 #define Pegasus_String_h

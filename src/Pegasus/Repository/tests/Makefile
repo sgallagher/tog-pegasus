@@ -6,6 +6,7 @@ XDIRS = \
     TestClasses \
 
 DIRS = \
+    LoadClass \
     ClassDeclRep \
     Repository \
     QualifierDeclRep \

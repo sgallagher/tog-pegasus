@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,29 +17,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author:
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// $Log: Inst.cpp,v $
-// Revision 1.5  2001/02/18 19:02:18  mike
-// Fixed CIM debacle
+// Modified By:
 //
-// Revision 1.4  2001/02/13 07:07:08  mike
-// new things
-//
-// Revision 1.3  2001/02/13 02:12:47  mike
-// new
-//
-// Revision 1.2  2001/02/13 01:28:15  mike
-// new
-//
-// Revision 1.1  2001/02/11 17:18:43  mike
-// new
-//
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
 
 #include <fstream>
 #include <cassert>

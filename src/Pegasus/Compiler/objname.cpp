@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -10,30 +10,22 @@
 // Software is furnished to do so, subject to the following conditions:
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
 // THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
 // Author: Bob Blair (bblair@bmc.com)
 //
-// $Log: objname.cpp,v $
-// Revision 1.3  2001/04/24 00:00:15  mike
-// Ported compiler to use String and Array (rather than STL equivalents)
+// Modified By:
 //
-// Revision 1.2  2001/03/04 22:18:00  bob
-// Cleanup, support for reference, message moving, start of instance support
-//
-// Revision 1.1  2001/02/16 23:59:09  bob
-// Initial checkin
-//
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
+
+
 //
 // implementation of valueFactory 
 //

@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,22 +17,15 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author:
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// $Log: LoadClass.cpp,v $
-// Revision 1.2  2001/01/25 02:12:06  mike
-// Added meta-qualifiers to LoadRepository program.
+// Modified By:
 //
-// Revision 1.1.1.1  2001/01/14 19:53:57  mike
-// Pegasus import
-//
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Repository/Repository.h>
+#include <Pegasus/Repository/CIMRepository.h>
 
 using namespace Pegasus;
 using namespace std;
@@ -44,15 +37,20 @@ int main(int argc, char** argv)
 	cerr << "Usage: " << argv[0] << ": xml-file" << endl;
 	exit(1);
     }
-    Repository repository("../../../../..");
+    CIMRepository repository("../../../../..");
 
     try
     {
-	ConstClassDecl classDecl = repository.getClass(
+	CIMConstClass classDecl = repository.getClass(
 	    "root/cimv20", argv[1], true);
     }
     catch (Exception& e)
     {
 	cerr << e.getMessage() << endl;
+	exit(1);
     }
+
+    cout << "+++++ passed all tests" << endl;
+
+    return 0;
 }

@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,43 +17,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author:
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// $Log: Client.cpp,v $
-// Revision 1.12  2001/04/12 07:25:20  mike
-// Replaced ACE with new Channel implementation.
-// Removed all ACE dependencies.
+// Modified By:
 //
-// Revision 1.8  2001/02/26 04:33:28  mike
-// Fixed many places where cim names were be compared with operator==(String,String).
-// Changed all of these to use CIMName::equal()
-//
-// Revision 1.7  2001/02/20 07:25:57  mike
-// Added basic create-instance in repository and in client.
-//
-// Revision 1.6  2001/02/18 19:02:17  mike
-// Fixed CIM debacle
-//
-// Revision 1.5  2001/02/16 02:06:06  mike
-// Renamed many classes and headers.
-//
-// Revision 1.4  2001/02/11 06:21:24  mike
-// removed some coments
-//
-// Revision 1.3  2001/02/11 05:45:33  mike
-// Added case insensitive logic for files in CIMRepository
-//
-// Revision 1.2  2001/01/25 02:12:05  mike
-// Added meta-qualifiers to LoadRepository program.
-//
-// Revision 1.1.1.1  2001/01/14 19:50:33  mike
-// Pegasus import
-//
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
 
 #include <cassert>
 #include <Pegasus/Common/Selector.h>

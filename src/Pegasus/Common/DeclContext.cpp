@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,20 +17,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author:
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// $Log: DeclContext.cpp,v $
-// Revision 1.2  2001/02/16 02:06:06  mike
-// Renamed many classes and headers.
+// Modified By:
 //
-// Revision 1.1.1.1  2001/01/14 19:51:13  mike
-// Pegasus import
-//
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
 
 #include "DeclContext.h"
 #include "CIMName.h"
@@ -57,11 +50,11 @@ void SimpleDeclContext::addQualifierDecl(
     _qualifierDeclarations.append(QPair(nameSpace, x));
 }
 
-void SimpleDeclContext::addClassDecl(
+void SimpleDeclContext::addClass(
     const String& nameSpace,
     const CIMClass& x)
 {
-    if (lookupClassDecl(nameSpace, x.getClassName()))
+    if (lookupClass(nameSpace, x.getClassName()))
 	throw AlreadyExists();
 
     _classDeclarations.append(CPair(nameSpace, x));
@@ -87,7 +80,7 @@ CIMQualifierDecl SimpleDeclContext::lookupQualifierDecl(
     return CIMQualifierDecl();
 }
 
-CIMClass SimpleDeclContext::lookupClassDecl(
+CIMClass SimpleDeclContext::lookupClass(
     const String& nameSpace,
     const String& name) const
 {

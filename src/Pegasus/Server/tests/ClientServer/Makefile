@@ -14,4 +14,3 @@ SOURCES = ClientServer.cpp
 include $(ROOT)/mak/program.mak
 
 tests:
-	ClientServer

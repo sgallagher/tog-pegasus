@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,20 +17,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author:
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// $Log: DeclContext.h,v $
-// Revision 1.2  2001/02/16 02:06:06  mike
-// Renamed many classes and headers.
+// Modified By:
 //
-// Revision 1.1.1.1  2001/01/14 19:51:13  mike
-// Pegasus import
-//
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -65,7 +58,7 @@ public:
 	const String& nameSpace,
 	const String& name) const = 0;
 
-    virtual CIMClass lookupClassDecl(
+    virtual CIMClass lookupClass(
 	const String& nameSpace,
 	const String& name) const = 0;
 };
@@ -80,7 +73,7 @@ public:
 	const String& nameSpace,
 	const CIMQualifierDecl& x);
 
-    void addClassDecl(
+    void addClass(
 	const String& nameSpace,
 	const CIMClass& x);
 
@@ -88,7 +81,7 @@ public:
 	const String& nameSpace,
 	const String& name) const;
 
-    virtual CIMClass lookupClassDecl(
+    virtual CIMClass lookupClass(
 	const String& nameSpace,
 	const String& name) const;
 

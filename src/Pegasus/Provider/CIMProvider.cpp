@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,36 +17,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author:
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// $Log: CIMProvider.cpp,v $
-// Revision 1.3  2001/03/05 19:54:49  mike
-// Fixed earlier boo boo (renamed CimException to CIMException).
+// Modified By:
 //
-// Revision 1.2  2001/02/18 19:02:17  mike
-// Fixed CIM debacle
-//
-// Revision 1.1  2001/02/16 02:08:26  mike
-// Renamed several classes
-//
-// Revision 1.4  2001/02/13 16:35:32  mike
-// Fixed compiler error with createInstance()
-//
-// Revision 1.3  2001/01/31 08:20:51  mike
-// Added dispatcher framework.
-// Added enumerateInstanceNames.
-//
-// Revision 1.2  2001/01/29 02:24:15  mike
-// Added support for GetInstance.
-//
-// Revision 1.1  2001/01/20 22:29:24  karl
-// new provider interface class
-//
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
 
 #include "CIMProvider.h"
 

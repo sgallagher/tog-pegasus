@@ -26,6 +26,9 @@ include $(ROOT)/mak/clean.mak
 
 include $(ROOT)/mak/build.mak
 
+include $(ROOT)/mak/headers.mak
+
 -include $(OBJ_DIR)/depend.mak
+
 
 include $(ROOT)/mak/misc.mak

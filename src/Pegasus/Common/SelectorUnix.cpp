@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,24 +17,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author: Michael E. Brasher
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// $Log: SelectorUnix.cpp,v $
-// Revision 1.3  2001/04/13 18:20:51  mike
-// Ported so Solaris.
-// Fixed memory leaks.
+// Modified By:
 //
-// Revision 1.2  2001/04/11 19:53:22  mike
-// More porting
-//
-// Revision 1.1  2001/04/11 07:03:02  mike
-// Port to Unix
-//
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
 
 #include "Selector.h"
 

@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,45 +17,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author:
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// $Log: String.cpp,v $
-// Revision 1.11  2001/04/14 07:35:05  mike
-// Added config file loading to OptionManager
+// Modified By:
 //
-// Revision 1.10  2001/04/11 19:53:22  mike
-// More porting
-//
-// Revision 1.9  2001/04/11 07:03:02  mike
-// Port to Unix
-//
-// Revision 1.7  2001/04/10 22:42:55  karl
-// Correct error in String find
-//
-// Revision 1.6  2001/04/09 20:18:47  karl
-// add find substring function
-//
-// Revision 1.5  2001/03/09 19:49:32  karl
-// long lines
-//
-// Revision 1.4  2001/02/26 04:33:28  mike
-// Fixed many places where cim names compared with operator==(String,String).
-// Changed all of these to use CIMName::equal()
-//
-// Revision 1.3  2001/02/11 17:19:30  mike
-// added reverseFind() method
-//
-// Revision 1.2  2001/02/11 05:42:33  mike
-// new
-//
-// Revision 1.1.1.1  2001/01/14 19:53:14  mike
-// Pegasus import
-//
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
 
 
 #include <cctype>

@@ -1,6 +1,6 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000 The Open Group, BMC Software
+// Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
@@ -17,48 +17,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author: Mike Brasher
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// $Log: CIMServer.cpp,v $
-// Revision 1.10  2001/04/18 11:51:33  karl
-// get and set property
+// Modified By:
 //
-// Revision 1.9  2001/04/12 09:57:40  mike
-// Post Channel Port to Linux
-//
-// Revision 1.5  2001/02/20 07:25:57  mike
-// Added basic create-instance in repository and in client.
-//
-// Revision 1.4  2001/02/19 01:47:17  mike
-// Renamed names of the form CIMConst to CIMConst.
-//
-// Revision 1.3  2001/02/18 19:02:18  mike
-// Fixed CIM debacle
-//
-// Revision 1.2  2001/02/18 03:56:01  mike
-// Changed more class names (e.g., ConstClassDecl -> CIMConstClass)
-//
-// Revision 1.1  2001/02/16 02:08:26  mike
-// Renamed several classes
-//
-// Revision 1.4  2001/01/31 08:20:51  mike
-// Added dispatcher framework.
-// Added enumerateInstanceNames.
-//
-// Revision 1.3  2001/01/29 07:03:48  mike
-// reworked build environment variables
-//
-// Revision 1.2  2001/01/29 02:19:18  mike
-// added primitive provider dispatching
-//
-// Revision 1.1.1.1  2001/01/14 19:54:04  mike
-// Pegasus import
-//
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
 
 #include <cassert>
 #include <cstdio>

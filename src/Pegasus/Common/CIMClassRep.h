@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,41 +17,16 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author:
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// $Log: CIMClassRep.h,v $
-// Revision 1.5  2001/04/08 01:13:21  mike
-// Changed "ConstCIM" to "CIMConst"
+// Modified By:
 //
-// Revision 1.3  2001/02/20 05:16:57  mike
-// Implemented CIMInstance::getInstanceName()
-//
-// Revision 1.2  2001/02/19 01:47:16  mike
-// Renamed names of the form CIMConst to CIMConst.
-//
-// Revision 1.1  2001/02/18 18:39:05  mike
-// new
-//
-// Revision 1.2  2001/02/18 03:56:00  mike
-// Changed more class names (e.g., ConstClassDecl -> CIMConstClass)
-//
-// Revision 1.1  2001/02/16 02:06:06  mike
-// Renamed many classes and headers.
-//
-// Revision 1.2  2001/01/15 04:31:43  mike
-// worked on resolve scheme
-//
-// Revision 1.1.1.1  2001/01/14 19:50:39  mike
-// Pegasus import
-//
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_ClassDeclRep_h
-#define Pegasus_ClassDeclRep_h
+#ifndef Pegasus_CIMClassRep_h
+#define Pegasus_CIMClassRep_h
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Exception.h>
@@ -192,4 +167,4 @@ private:
 
 PEGASUS_NAMESPACE_END
 
-#endif /* Pegasus_ClassDeclRep_h */
+#endif /* Pegasus_CIMClassRep_h */

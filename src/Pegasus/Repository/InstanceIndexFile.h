@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,23 +17,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author: Mike Brasher
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// $Log: InstanceIndexFile.h,v $
-// Revision 1.1  2001/02/13 07:08:06  mike
-// new
+// Modified By:
 //
-// Revision 1.2  2001/02/13 02:12:47  mike
-// new
-//
-// Revision 1.1  2001/02/13 01:28:35  mike
-// new
-//
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_InstanceIndexFile_h
 #define Pegasus_InstanceIndexFile_h

@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,30 +17,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author:
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// $Log: Dir.cpp,v $
-// Revision 1.3  2001/02/26 04:33:30  mike
-// Fixed many places where cim names were be compared with operator==(String,String).
-// Changed all of these to use CIMName::equal()
+// Modified By:
 //
-// Revision 1.2  2001/02/11 06:52:32  mike
-// fixed compiler error
-//
-// Revision 1.1  2001/02/11 05:46:52  mike
-// new
-//
-// Revision 1.2  2001/01/14 23:39:04  mike
-// fixed broken regression test
-//
-// Revision 1.1.1.1  2001/01/14 19:53:46  mike
-// Pegasus import
-//
-//
-//END_HISTORY
+//%/////////////////////////////////////////////////////////////////////////////
 
 #include <cassert>
 #include <iostream>

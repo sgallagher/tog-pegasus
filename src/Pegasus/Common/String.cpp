@@ -464,7 +464,7 @@ Uint32 String::find(const String& s) const
 	    Uint32 i = 1;
 	    for (; i < subStrLen; i++)
 		if (*pStr++ != *p++ )
-		    {pStr--; break;} // break from loop
+		    {pStr-=i; break;} // break from loop
 	    if (i == subStrLen)
 		return loc;
 	}

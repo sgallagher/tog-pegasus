@@ -210,6 +210,9 @@ public:
   unix_socket_factory(void);
   ~unix_socket_factory(void);
   abstract_socket* make_socket(void);
+#ifdef PEGASUS_HAS_SSL
+  abstract_socket *make_socket(SSLContext*);  // Do not use
+#endif
 };
 
 

@@ -985,6 +985,15 @@ abstract_socket* unix_socket_factory::make_socket(void)
    return new unix_socket_rep();
 }
 
+#ifdef PEGASUS_HAS_SSL
+
+abstract_socket* unix_socket_factory::make_socket(SSLContext *ctx)
+{
+   PEGASUS_ASSERT(true);
+   return new unix_socket_rep();
+}
+
+#endif // PEGASUS_HAS_SSL
 
 #endif // domain socket 
 

@@ -50,6 +50,7 @@
 #include "CIMClient.h"
 
 #include <iostream>
+#include <fstream>
 #ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
 # include <windows.h>
 #else

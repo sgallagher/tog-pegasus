@@ -62,7 +62,6 @@
 # error "<Pegasus/Common/Config.h>: Unsupported Platform"
 #endif
 
-#include <iostream>
 #include <cstdlib>
 
 // used for Windows only

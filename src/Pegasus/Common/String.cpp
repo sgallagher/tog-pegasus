@@ -33,6 +33,7 @@
 #include "Array.h"
 #include "InternalException.h"
 #include <iostream>
+#include <fstream>
 #ifndef PEGASUS_REMOVE_DEPRECATED
 #include "System.h"  // for strcasecmp
 #endif

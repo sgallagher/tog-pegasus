@@ -31,6 +31,7 @@
 #ifndef Pegasus_InstanceIndexFile_h
 #define Pegasus_InstanceIndexFile_h
 
+#include <fstream>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/InternalException.h>

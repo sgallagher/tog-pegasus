@@ -43,6 +43,7 @@
 #include <time.h>        // localtime()
 #include <sys/utsname.h> // uname()
 #include <sys/param.h>   // MAXHOSTNAMELEN
+#include <fstream.h>
 
 #include <Pegasus/Common/InternalException.h>
 #include "ComputerSystemProvider.h"

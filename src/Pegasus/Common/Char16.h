@@ -30,7 +30,6 @@
 #ifndef Pegasus_Char16_h
 #define Pegasus_Char16_h
 
-#include <iostream>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Linkage.h>
 

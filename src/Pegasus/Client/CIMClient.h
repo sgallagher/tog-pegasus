@@ -35,7 +35,6 @@
 #ifndef Pegasus_Client_h
 #define Pegasus_Client_h
 
-#include <fstream>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMName.h>

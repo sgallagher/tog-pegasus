@@ -430,7 +430,7 @@ AtomicInt& AtomicInt::operator=(Uint32 val)
     return *this;
 }
 
-Uint32 AtomicInt::value(void)
+Uint32 AtomicInt::value(void) const
 {
     _rep._mutex.lock(pegasus_thread_self());
     Uint32 retval = _rep._value;

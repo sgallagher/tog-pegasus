@@ -1943,6 +1943,24 @@ Array<CIMObjectPath> CIMRepository::associatorNames(
 
     Array<String> associatorNames;
 
+    // The assocClass parameter implies subclasses, so retrieve them
+    Array<CIMName> assocClassList;
+    if (!assocClass.isNull())
+    {
+        _nameSpaceManager.getSubClassNames(
+            nameSpace, assocClass, true, assocClassList);
+        assocClassList.append(assocClass);
+    }
+
+    // The resultClass parameter implies subclasses, so retrieve them
+    Array<CIMName> resultClassList;
+    if (!resultClass.isNull())
+    {
+        _nameSpaceManager.getSubClassNames(
+            nameSpace, resultClass, true, resultClassList);
+        resultClassList.append(resultClass);
+    }
+
     //
     //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
     //  distinguish instanceNames from classNames in every case
@@ -1951,13 +1969,19 @@ Array<CIMObjectPath> CIMRepository::associatorNames(
     //
     if (objectName.getKeyBindings ().size () == 0)
     {
+        CIMName className = objectName.getClassName();
+
+        Array<CIMName> classList;
+        _nameSpaceManager.getSuperClassNames(nameSpace, className, classList);
+        classList.append(className);
+
         String assocFileName = _nameSpaceManager.getAssocClassPath(nameSpace);
 
         AssocClassTable::getAssociatorNames(
             assocFileName,
-            objectName.getClassName(),
-            assocClass,
-            resultClass,
+            classList,
+            assocClassList,
+            resultClassList,
             role,
             resultRole,
             associatorNames);
@@ -1969,8 +1993,8 @@ Array<CIMObjectPath> CIMRepository::associatorNames(
         AssocInstTable::getAssociatorNames(
             assocFileName,
             objectName,
-            assocClass,
-            resultClass,
+            assocClassList,
+            resultClassList,
             role,
             resultRole,
             associatorNames);
@@ -2079,13 +2103,14 @@ Array<CIMObjectPath> CIMRepository::referenceNames(
 
     Array<String> tmpReferenceNames;
 
-    CIMName className = objectName.getClassName();
-
-    Array<CIMName> classList;
-    _nameSpaceManager.getSuperClassNames(nameSpace, className, classList);
-    classList.prepend(className);
-
-    // ATTN: KS 20030428 - Apparently getSuperClassNames returning toplevel twice.
+    // The resultClass parameter implies subclasses, so retrieve them
+    Array<CIMName> resultClassList;
+    if (!resultClass.isNull())
+    {
+        _nameSpaceManager.getSubClassNames(
+            nameSpace, resultClass, true, resultClassList);
+        resultClassList.append(resultClass);
+    }
 
     //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
     //  distinguish instanceNames from classNames in every case
@@ -2094,12 +2119,18 @@ Array<CIMObjectPath> CIMRepository::referenceNames(
     //
     if (objectName.getKeyBindings ().size () == 0)
     {
+        CIMName className = objectName.getClassName();
+
+        Array<CIMName> classList;
+        _nameSpaceManager.getSuperClassNames(nameSpace, className, classList);
+        classList.append(className);
+
         String assocFileName = _nameSpaceManager.getAssocClassPath(nameSpace);
 
         if (!AssocClassTable::getReferenceNames(
             assocFileName,
             classList,
-            resultClass,
+            resultClassList,
             role,
             tmpReferenceNames))
         {
@@ -2113,7 +2144,7 @@ Array<CIMObjectPath> CIMRepository::referenceNames(
         if (!AssocInstTable::getReferenceNames(
             assocFileName,
             objectName,
-            resultClass,
+            resultClassList,
             role,
             tmpReferenceNames))
         {
@@ -2139,40 +2170,6 @@ Array<CIMObjectPath> CIMRepository::referenceNames(
     PEG_METHOD_EXIT();
     return result;
 }
-
-Array<CIMName> CIMRepository::referencedClassNames(
-    const CIMNamespaceName& nameSpace,
-    const CIMName& className,
-    const CIMName& resultClass,
-    const String& role)
-{
-    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::referencedClassNames");
-    Array<String> referenceNames;
-
-    Array<CIMName> referencedNames;
-
-    Array<CIMName> classList;
-    _nameSpaceManager.getSuperClassNames(nameSpace, className, classList);
-    classList.prepend(className);
-
-    // ATTN: KS 20030428 - Apparently getSuperClassNames returning toplevel twice.
-
-        String assocFileName = _nameSpaceManager.getAssocClassPath(nameSpace);
-
-        if (!AssocClassTable::getReferencedClassNames(
-            assocFileName,
-            classList,
-            resultClass,
-            role,
-            referencedNames))
-        {
-            // Ignore error! It's okay not to have references.
-        }
-    // ATTN: KS 030301 Probably need a test here to clip off anything above the class names
-    PEG_METHOD_EXIT();
-    
-    return referencedNames;
- }
 
 CIMValue CIMRepository::getProperty(
     const CIMNamespaceName& nameSpace,

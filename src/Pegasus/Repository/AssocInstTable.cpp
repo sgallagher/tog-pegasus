@@ -25,6 +25,7 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -52,6 +53,19 @@ PEGASUS_NAMESPACE_BEGIN
 static inline Boolean _MatchNoCase(const String& x, const String& pattern)
 {
     return pattern.size() == 0 || String::equalNoCase(x, pattern);
+}
+
+static inline Boolean _ContainsClass(const Array<CIMName>& classNames, const String& match )
+{
+    Uint32 n = classNames.size();
+
+    for (Uint32 i = 0; i < n; i++)
+    {
+        if (_MatchNoCase(classNames[i].getString(), match))
+            return true;
+    }
+
+    return false;
 }
 
 static String _Escape(const String& str)
@@ -279,34 +293,50 @@ Boolean AssocInstTable::deleteAssociation(
 Boolean AssocInstTable::getAssociatorNames(
     const String& path,
     const CIMObjectPath& instanceName,
-    const CIMName& assocClass,
-    const CIMName& resultClass,
+    const Array<CIMName>& assocClassList,
+    const Array<CIMName>& resultClassList,
     const String& role,
     const String& resultRole,
     Array<String>& associatorNames)
 {
     // Open input file:
-    
     ifstream is;
 
     if (!Open(is, path))
 	return false;
 
-    // For each line:
-
     Array<String> fields;
     Boolean found = false;
 
+    // For each line in the associations table:
     while (_GetRecord(is, fields))
     {
+        // Process associations from the right end object and with right roles
 	if (instanceName == fields[FROM_OBJECT_NAME_INDEX] &&
-	    _MatchNoCase(fields[ASSOC_CLASS_NAME_INDEX], 
-                assocClass.getString()) &&
-	    _MatchNoCase(fields[TO_CLASS_NAME_INDEX], resultClass.getString()) &&
 	    _MatchNoCase(fields[FROM_PROPERTY_NAME_INDEX], role) &&
 	    _MatchNoCase(fields[TO_PROPERTY_NAME_INDEX], resultRole))
 	{
-	    associatorNames.append(fields[TO_OBJECT_NAME_INDEX]);
+            // Skip classes that do not appear in the association class list
+            if ((assocClassList.size() != 0) &&
+                (!_ContainsClass(assocClassList,
+                                 fields[ASSOC_CLASS_NAME_INDEX])))
+            {
+                continue;
+            }
+
+            // Skip classes that do not appear in the result class list
+            if ((resultClassList.size() != 0) &&
+                (!_ContainsClass(resultClassList,
+                                 fields[TO_CLASS_NAME_INDEX])))
+            {
+                continue;
+            }
+
+            // This class qualifies; add it to the list (skipping duplicates)
+            if (!Contains(associatorNames, fields[TO_OBJECT_NAME_INDEX]))
+            {
+	        associatorNames.append(fields[TO_OBJECT_NAME_INDEX]);
+            }
 	    found = true;
 	}
     }
@@ -317,31 +347,39 @@ Boolean AssocInstTable::getAssociatorNames(
 Boolean AssocInstTable::getReferenceNames(
     const String& path,
     const CIMObjectPath& instanceName,
-    const CIMName& resultClass,
+    const Array<CIMName>& resultClassList,
     const String& role,
     Array<String>& referenceNames)
 {
     // Open input file:
-    
     ifstream is;
 
     if (!Open(is, path))
 	return false;
     
-    // For each line:
-
     Array<String> fields;
     Boolean found = false;
 
+    // For each line in the associations table:
     while (_GetRecord(is, fields))
     {
+        // Process associations from the right end class and with right role
 	if (instanceName == fields[FROM_OBJECT_NAME_INDEX] &&
-	    _MatchNoCase(fields[ASSOC_CLASS_NAME_INDEX], 
-                resultClass.getString()) &&
 	    _MatchNoCase(fields[FROM_PROPERTY_NAME_INDEX], role))
 	{
+            // Skip classes that do not appear in the result class list
+            if ((resultClassList.size() != 0) &&
+                (!_ContainsClass(resultClassList,
+                                 fields[ASSOC_CLASS_NAME_INDEX])))
+            {
+                continue;
+            }
+
+            // This instance qualifies; add it to the list (skipping duplicates)
 	    if (!Contains(referenceNames, fields[ASSOC_INSTANCE_NAME_INDEX]))
+            {
 		referenceNames.append(fields[ASSOC_INSTANCE_NAME_INDEX]);
+            }
 	    found = true;
 	}
     }

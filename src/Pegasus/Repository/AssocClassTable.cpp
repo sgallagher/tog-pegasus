@@ -25,6 +25,7 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -277,38 +278,53 @@ Boolean AssocClassTable::deleteAssociation(
 
 Boolean AssocClassTable::getAssociatorNames(
     const String& path,
-    const CIMName& className,
-    const CIMName& assocClass,
-    const CIMName& resultClass,
+    const Array<CIMName>& classList,
+    const Array<CIMName>& assocClassList,
+    const Array<CIMName>& resultClassList,
     const String& role,
     const String& resultRole,
     Array<String>& associatorNames)
 {
     // Open input file:
-    
     ifstream is;
 
     if (!Open(is, path))
-	return false;
-
-    // For each line:
+        return false;
 
     Array<String> fields;
     Boolean found = false;
 
-
+    // For each line in the associations table:
     while (_GetRecord(is, fields))
     {
-	if (_MatchNoCase(className.getString(), fields[FROM_CLASS_NAME_INDEX]) &&
-	    _MatchNoCase(fields[ASSOC_CLASS_NAME_INDEX], 
-                assocClass.getString()) &&
-	    _MatchNoCase(fields[TO_CLASS_NAME_INDEX], resultClass.getString()) &&
-	    _MatchNoCase(fields[FROM_PROPERTY_NAME_INDEX], role) &&
-	    _MatchNoCase(fields[TO_PROPERTY_NAME_INDEX], resultRole))
-	{
-	    associatorNames.append(fields[TO_CLASS_NAME_INDEX]);
-	    found = true;
-	}
+        // Process associations from the right end class and with right roles
+        if (_ContainsClass(classList, fields[FROM_CLASS_NAME_INDEX]) &&
+            _MatchNoCase(fields[FROM_PROPERTY_NAME_INDEX], role) &&
+            _MatchNoCase(fields[TO_PROPERTY_NAME_INDEX], resultRole))
+        {
+            // Skip classes that do not appear in the association class list
+            if ((assocClassList.size() != 0) &&
+                (!_ContainsClass(assocClassList,
+                                 fields[ASSOC_CLASS_NAME_INDEX])))
+            {
+                continue;
+            }
+
+            // Skip classes that do not appear in the result class list
+            if ((resultClassList.size() != 0) &&
+                (!_ContainsClass(resultClassList,
+                                 fields[TO_CLASS_NAME_INDEX])))
+            {
+                continue;
+            }
+
+            // This class qualifies; add it to the list (skipping duplicates)
+            if (!Contains(associatorNames, fields[TO_CLASS_NAME_INDEX]))
+            {
+                associatorNames.append(fields[TO_CLASS_NAME_INDEX]);
+            }
+            found = true;
+        }
     }
 
     return found;
@@ -317,76 +333,40 @@ Boolean AssocClassTable::getAssociatorNames(
 Boolean AssocClassTable::getReferenceNames(
     const String& path,
     const Array<CIMName>& classList,
-    const CIMName& resultClass,
+    const Array<CIMName>& resultClassList,
     const String& role,
     Array<String>& referenceNames)
 {
     // Open input file:
-    
     ifstream is;
 
     if (!Open(is, path))
-	return false;
+        return false;
 
     Array<String> fields;
     Boolean found = false;
-    //for (Uint32 i = 0 ; i < classList.size() ; i++)
-    //{
-    //    cout << " KSTest ReferenceNames assoc Classname " << classList[i].getString() << endl;
-    //}
-    // For each line i n the table:
 
-
+    // For each line in the associations table:
     while (_GetRecord(is, fields))
     {
-        //if (_MatchNoCase(className.getString(), fields[FROM_CLASS_NAME_INDEX]) &&
-    	if (_ContainsClass(classList, fields[FROM_CLASS_NAME_INDEX]) &&
-    	    _MatchNoCase(fields[ASSOC_CLASS_NAME_INDEX], 
-                    resultClass.getString()) &&
-    	    _MatchNoCase(fields[FROM_PROPERTY_NAME_INDEX], role))
-    	{
-    	    if (!Contains(referenceNames, fields[ASSOC_CLASS_NAME_INDEX]))
-    		referenceNames.append(fields[ASSOC_CLASS_NAME_INDEX]);
-    	    found = true;
-    	}
-    }
-
-    return found;
-}
-Boolean AssocClassTable::getReferencedClassNames(
-    const String& path,
-    const Array<CIMName>& classNameList,
-    const CIMName& resultClass,
-    const String& role,
-    Array<CIMName>& referencedNames)
-{
-    // Open input file:
-    
-    ifstream is;
-
-    if (!Open(is, path))
-	return false;
-
-
-    Array<String> fields;
-    Boolean found = false;
-    
-    // For each line in the table:
-    while (_GetRecord(is, fields))
-    {
-        for (Uint32 i = 0; i < classNameList.size(); i++)
+        // Process associations from the right end class and with right role
+        if (_ContainsClass(classList, fields[FROM_CLASS_NAME_INDEX]) &&
+            _MatchNoCase(fields[FROM_PROPERTY_NAME_INDEX], role))
         {
-            if (_MatchNoCase(classNameList[i].getString(), fields[FROM_CLASS_NAME_INDEX]) &&
-                _MatchNoCase(fields[ASSOC_CLASS_NAME_INDEX], 
-                        resultClass.getString()) &&
-                _MatchNoCase(fields[FROM_PROPERTY_NAME_INDEX], role))
+            // Skip classes that do not appear in the result class list
+            if ((resultClassList.size() != 0) &&
+                (!_ContainsClass(resultClassList,
+                                 fields[ASSOC_CLASS_NAME_INDEX])))
             {
-                if (!Contains(referencedNames, classNameList[i]))
-                {
-                    referencedNames.append(classNameList[i]);
-                }
-                found = true;
+                continue;
             }
+
+            // This class qualifies; add it to the list (skipping duplicates)
+            if (!Contains(referenceNames, fields[ASSOC_CLASS_NAME_INDEX]))
+            {
+                referenceNames.append(fields[ASSOC_CLASS_NAME_INDEX]);
+            }
+            found = true;
         }
     }
 

@@ -26,6 +26,7 @@
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
 //              Karl Schopmeyer (k.schopmeyer@opengroup.org)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -85,36 +86,24 @@ public:
     */
     static Boolean getAssociatorNames(
     	const String& path,
-    	const CIMName& className,
-        const CIMName& assocClass,
-        const CIMName& resultClass,
+    	const Array<CIMName>& classList,
+        const Array<CIMName>& assocClassList,
+        const Array<CIMName>& resultClassList,
         const String& role,
         const String& resultRole,
     	Array<String>& associatorNames);
 
-    /** Get all references (association instance names) in which the
+    /** Get all references (association class names) in which the
 	given class involved. See CIMOperations::referenceNames() for a 
 	full description.
     */
     static Boolean getReferenceNames(
     	const String& path,
-    	const Array<CIMName>& classNameList,
-     	const CIMName& resultClass,
+    	const Array<CIMName>& classList,
+     	const Array<CIMName>& resultClassList,
      	const String& role,
     	Array<String>& referenceNames);
 
-    /** Get all classes for which the input class has references (association class names)
-     *  in which the
-	given class involved. See CIMOperations::referenceNames() for a 
-	full description.
-    @return - Returns the subset of classNameList that has valid references.
-    */
-    static Boolean getReferencedClassNames(
-    	const String& path,
-    	const Array<CIMName>& classNameList,
-     	const CIMName& resultClass,
-     	const String& role,
-    	Array<CIMName>& referencedNames);
 private:
 
     AssocClassTable() { /* private */ }

@@ -25,6 +25,7 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -91,8 +92,8 @@ public:
     static Boolean getAssociatorNames(
 	const String& path,
 	const CIMObjectPath& objectName,
-        const CIMName& assocClass,
-        const CIMName& resultClass,
+        const Array<CIMName>& assocClassList,
+        const Array<CIMName>& resultClassList,
         const String& role,
         const String& resultRole,
 	Array<String>& associatorNames);
@@ -104,7 +105,7 @@ public:
     static Boolean getReferenceNames(
 	const String& path,
 	const CIMObjectPath& objectName,
- 	const CIMName& resultClass,
+ 	const Array<CIMName>& resultClassList,
  	const String& role,
 	Array<String>& referenceNames);
 

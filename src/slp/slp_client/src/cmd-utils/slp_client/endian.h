@@ -26,7 +26,7 @@
 //==============================================================================
 /*****************************************************************************
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/endian.h,v 1.2 2004/10/17 20:40:43 karl Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/endian.h,v 1.3 2005/02/03 18:25:12 konrad.r Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -56,7 +56,9 @@
 
 
 #define	__LITTLE_ENDIAN__	1234
+#ifndef __BIG_ENDIAN__
 #define	__BIG_ENDIAN__	4321
+#endif
 #define	__PDP_ENDIAN__	3412
 
 #ifdef NUCLEUS

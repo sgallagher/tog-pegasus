@@ -95,7 +95,7 @@ CIMDateTime CIMDateTime::getCurrentDateTime()
     year = 1900;
 
     // Format the date
-    sprintf((char *)&dateTime,"%04d%02d%02d%02d%02d%02d.%06d+%03d",
+    sprintf((char *)&dateTime,"%04d%02d%02d%02d%02d%02d.%06ld+%03d",
                     year + tmval->tm_year,
                     tmval->tm_mon + 1,
                     tmval->tm_mday,

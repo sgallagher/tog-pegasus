@@ -46,6 +46,7 @@
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Channel.h>
+#include <Pegasus/Common/Logger.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -80,6 +81,9 @@ public:
     void print() const;
 
     void log() const;
+
+    //void logMessage(LogFileType logFileType, String& subsystem, 
+    //    	    Uint32 severity, String& formatMsg) const;
 
     virtual int handleMessage();
 

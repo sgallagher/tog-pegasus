@@ -118,10 +118,13 @@ cimmofParser::setRepository(void) {
 				  arglist);
 	elog(message);
 	return false;
-      } 
+      }
+      // FIX KAS/MEB Change exception to CIMException June 11 2001
       try {
         _repository->createNameSpace(s);
-      } catch(AlreadyExists &) {
+      } catch(CIMException& e) {
+	  if (e.getCode() != CIMException::ALREADY_EXISTS)
+	      throw e;
 	// OK, that's what we expect
       } catch(Exception &e) {
 	arglist.append(s);

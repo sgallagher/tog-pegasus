@@ -9,22 +9,24 @@ Urgent
     -	Add newly implemented repository operations to protocol and to
 	dispatcher.
 
-    -	Change INVALID_CLASS exceptions to NOT_FOUND (they're wrong in 
+    -	Change INVALID_CLASS exceptions to NOT_FOUND (they're wrong in
 	Repository).
 
     -	Add tracing of output HTTP messages.
 
     -   Need CIMInstance::removeMethod() and CIMInstance::removeProperty().
+    -   Add a exists namespace operation under the repository stuff.  Maybe we
+    need more than this.
 
 Topical To-Do List
 ==================
 
     -	Provide way of printing out command line options help from cimserver.
 
-    - 	GetInstances() and GetClasses() need to use iterators on 
+    - 	GetInstances() and GetClasses() need to use iterators on
 	provider and repository end. Otherwise, all classes or instance
 	to be enumerated, must be sucked into memory.
-    
+
     -   Template bloat reduction.
 
     -	Use YACC on Linux.
@@ -105,7 +107,7 @@ Topical To-Do List
 -   Aesthetics/Consistency/Usability:
 
     -	Change getLength() and getSize() to just size(): "Brevity is the soul
-	of genius and of Lingerie". 
+	of genius and of Lingerie".
 
     -	Add methods to get objects by their names, in addition to index. For
 	example:
@@ -137,7 +139,8 @@ Topical To-Do List
 
     -	Add CIM-Server handles to provider interface.
 
-    -	Implement MOF provider registration scheme (according to the standard).
+    -	Implement MOF provider registration scheme (according to the
+    standard).
 
 -   WBEM Query Language
 
@@ -188,7 +191,7 @@ Topical To-Do List
 
     -	Place configuration startup parameters in Repository (e.g., port).
 
-    -	Integrate logging 
+    -	Integrate logging
 
     -	Figure out how to handle CIM null values.
 
@@ -199,7 +202,7 @@ Topical To-Do List
     -	Investiage weak assocations.
 
     -	Provide conversions between DateTime and time_t.
-        
+
 -   Constraint hanlding
 
     -	Enforce constraint qualifiers.
@@ -237,3 +240,4 @@ Topical To-Do List
     -	Use Service class in cimserver
 
     -	Implement Service class on Unix (daemonization from Comer book).
+

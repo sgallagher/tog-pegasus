@@ -199,6 +199,48 @@ void Handler::log() const
 
 }
 
+/** Handler::log generates a log entry for the message.
+   It depends on the message being defined in -message.
+   This is a generalized message logger so that the specific logs
+   and supplementary information are provided with the call.
+   @param logFileType
+   @param subsystem
+   @param severity
+   @param msg text message
+   @parm message The pointer to the message to be logged
+*/
+/* Temporarily disabled during test
+void Handler::logMessage(LogFileType logFileType, String& subsystem, Uint32 
+		severity, String& formatMsg) const
+{
+    ostrstream os;
+    const char* message = _message.getData();
+    
+    // log header
+    for (Uint32 i = 0; i < _lines.size(); i++)
+    {
+	os << &message[_lines[i]] << "\r\n";
+    }
+    os << "\r\n";
+
+    // Log message
+    const char* content = _message.getData() + _contentOffset;
+    const char* end = content + _contentLength;
+
+    ((Array<Sint8>&)_message).append('\0');
+    XmlWriter::indentedPrint(os, content);
+    ((Array<Sint8>&)_message).remove(_message.size() - 1);
+    os.put('\0');
+    char* tmp = os.str();
+
+    // add $0 to string input.
+    Logger::put(logFileType, subsystem,severity,
+	       formatMsg, tmp);
+
+}
+************/
+
+
 static char* _FindTerminator(const char* data, Uint32 size)
 {
     const char* p = data;
@@ -377,6 +419,8 @@ int Handler::handleMessage()
     // printMessage(cout, _message);
     if (_messageLogTrace)
 	log();
+	//log(Logger::TRACE_LOG, "Handler",Logger::INFORMATION, 
+	//		"RCVD================\n $0");
 
     return 0;
 }

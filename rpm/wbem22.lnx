@@ -1,0 +1,129 @@
+#! /bin/sh
+#%/////////////////////////////////////////////////////////////////////////////
+#
+# Copyright (c) 2003 BMC Software, Hewlett-Packard Company, IBM,
+# The Open Group, Tivoli Systems
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to
+# deal in the Software without restriction, including without limitation the
+# rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+# sell copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+# 
+# THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+# ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+# "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+# LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+# PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+#==============================================================================
+#
+# Author: Konrad Rzeszutek <konradr@us.ibm.com>
+#
+# Modified By:
+#	10-28-2003: Martin Knipper <knipper@de.ibm.com>
+#		- Changed the chkconfig runlevel from 2345 to 3 and 5
+#		- Fixed a confusing output about syslog when you ask for the status on SuSE
+#		- The startproc command for stopping pegasus removed
+#
+#%/////////////////////////////////////////////////////////////////////////////
+#
+#
+# chkconfig: 35 26 74
+# description: Pegasus CIMOM enables a Linux System for WBEM (visit http://www.dmtf.org for
+# more information about CIM and WBEM). With appropriate instrumentation
+# Linux can provide systems management information or be managed by a remote
+# client application.
+# processname: cimserver 
+
+# Source function library.
+# /etc/init.d/pegasus-wbem
+#
+### BEGIN INIT INFO
+# Provides: pegasus
+# Required-Start: $network
+# X-UnitedLinux-Should-Start: network
+# Required-Stop:  
+# Default-Start:  3 5
+# Default-Stop:
+# Description:    init script for Pegasus CIMServer
+### END INIT INFO
+
+isUnited=`grep "UnitedLinux" /etc/issue`
+isSUSE=`grep -i "SuSE" /etc/issue`
+
+if [ "$isUnited" ] || [ "$isSUSE" ]; then
+
+ . /etc/rc.status
+  rc_reset
+
+  RETVAL=$rc_done
+
+  case "$1" in
+    start)
+	echo -n "Starting up Pegasus CIMOM daemon  "
+	startproc /usr/sbin/cimserver 
+	rc_status -v
+	;;
+    stop)
+	echo -n "Shutting down Pegasus CIMOM daemon  "	
+	cimserver -s || killproc -TERM /usr/sbin/cimserver 
+	rc_status -v
+	;;
+    try-restart)
+	$0 stop && $0 start
+	rc_status
+	;;
+    restart)
+	$0 stop
+	$0 start
+	rc_status
+	;;
+    status)
+	echo -n "Checking for Pegasus CIMOM daemon:"
+	checkproc /usr/sbin/cimserver  ; rc_status -v
+	;;
+    *)
+	echo "Usage: $0 {start|stop|status|try-restart|restart}"
+		exit 1
+	;;
+   esac
+   rc_exit
+else
+   . /etc/rc.d/init.d/functions
+   RETVAL=0
+
+   # Red Hat/Turbo/Caldera 
+   case "$1" in
+     start)
+	echo -n $"Starting up Pegasus CIMOM daemon: "
+	daemon cimserver 
+	RETVAL=$?
+	echo
+	;;
+
+     stop)
+	echo -n $"Shutting down Pegasus CIMOM daemon: "
+	daemon cimserver -s
+	RETVAL=$?
+	echo
+	;;
+     status) 
+	status cimserver
+	RETVAL=$?
+	;;
+     restart|reload)
+	$0 stop && $0 start
+	;;
+     *)
+	echo "Usage: $0 {start|stop|status|restart|reload}"
+	exit 1
+   esac
+
+   exit $RETVAL
+
+fi

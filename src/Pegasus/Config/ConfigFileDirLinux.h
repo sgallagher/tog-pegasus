@@ -29,31 +29,34 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
-    {"httpPort",            "5988"},
-    {"httpsPort",           "5989"},
-    {"home",                ""},
-    {"daemon",              "true"},
-    {"install",             "false"},
-    {"remove",              "false"},
-    {"slp",                 "false"},
-    {"enableAuthentication", "true"},
-    {"enableClientCertification", "false"},
-    {"httpAuthType",        "Basic"},
-    {"repositoryIsDefaultInstanceProvider", "false"},
-    {"usePAMAuthentication", "true"},
-#endif
 #ifdef PEGASUS_USE_RELEASE_DIRS
-    {"traceFilePath",       "/var/cache/pegasus/cimserver.trc"},
-    {"logdir",              "/var/log/pegasus"},
-    {"tempLocalAuthDir",    "/var/cache/pegasus/localauth"},
-    {"passwordFilePath",    "/etc/pegasus/cimserver.passwd"},
-    {"sslCertificateFilePath", "/etc/pegasus/server.pem"},
-    {"sslKeyFilePath",      "/etc/pegasus/file.pem"},
-    {"sslTrustFilePath",      "/etc/pegasus/client.pem"},
-    {"repositoryDir",       "/var/pegasus/repository"},
-    {"providerDir",         "/usr/lib/pegasus/providers:/usr/lib/openwbem/cimpiproviders:/usr/lib/cmpi"},
-#endif
-#if !defined(PEGASUS_USE_RELEASE_CONFIG_OPTIONS) && !defined(PEGASUS_USE_RELEASE_DIRS)
-    {"bogus", "MyBogusValue"} // Remove this line if others are added
+/**
+    Default file name for the current configuration.
+*/
+static char CURRENT_CONFIG_FILE [] = "/etc/pegasus/cimserver_current.conf";
+
+/**
+    Default file name for the planned configuration.
+*/
+static char PLANNED_CONFIG_FILE [] = "/etc/pegasus/cimserver_planned.conf";
+
+/**
+    Default file name for the cimserver startup file containing the PID.
+*/
+static char CIMSERVER_START_FILE [] = "/var/run/cimserver.pid";
+#else
+/**
+    Default file name for the current configuration.
+*/
+static char CURRENT_CONFIG_FILE [] = "cimserver_current.conf";
+
+/**
+    Default file name for the planned configuration.
+*/
+static char PLANNED_CONFIG_FILE [] = "cimserver_planned.conf";
+
+/**
+    Default file name for the cimserver startup file containing the PID.
+*/
+static char CIMSERVER_START_FILE [] = "cimserver_start.conf";
 #endif

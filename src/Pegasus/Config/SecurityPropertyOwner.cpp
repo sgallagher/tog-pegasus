@@ -65,11 +65,6 @@ static struct ConfigPropertyRow properties[] =
 #else
     {"usePAMAuthentication", "false", 0, 0, 0, 1},
 #endif
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_OS400)
-    {"enableRemotePrivilegedUserAccess", "true", 0, 0, 0, 1},
-#else
-    {"enableRemotePrivilegedUserAccess", "false", 0, 0, 0, 1},
-#endif
 #if defined(PEGASUS_OS_OS400) && defined(PEGASUS_KERBEROS_AUTHENTICATION)
     {"httpAuthType", "Kerberos", 0, 0, 0, 1},
 #else
@@ -92,6 +87,7 @@ static struct ConfigPropertyRow properties[] =
     {"kerberosServiceName", "cimom", 0, 0, 0, 1},
 #endif
     {"enableSubscriptionsForNonprivilegedUsers", "true", 0, 0, 0, 0},
+    {"enableRemotePrivilegedUserAccess", "true", 0, 0, 0, 1},
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);

@@ -47,7 +47,7 @@ static char* _clonePath(const String& path)
     if (!*p)
 	return p;
 
-    char* last = p + path.getLength() - 1;
+    char* last = p + path.size() - 1;
 
     if (*last == '/')
 	*last = '\0';
@@ -170,7 +170,7 @@ Boolean FileSystem::removeDirectoryHier(const String& path)
 
     // for files-in-directory, delete or recall removedir
 
-    for (Uint32 i = 0, n = fileList.getSize(); i < n; i++)
+    for (Uint32 i = 0, n = fileList.size(); i < n; i++)
     {   
 	String newPath = path;	 // extend path	to subdir
 	newPath.append("/");
@@ -332,7 +332,7 @@ Boolean FileSystem::renameFile(
 
 void FileSystem::translateSlashes(String& path)
 {
-    for (Uint32 i = 0, n = path.getLength(); i < n; i++)
+    for (Uint32 i = 0, n = path.size(); i < n; i++)
     {
 	if (path[i] == '\\')
 	    path[i] = '/';

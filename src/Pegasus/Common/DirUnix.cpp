@@ -43,7 +43,7 @@ static char* _clonePath(const String& path)
     if (!*p)
 	return p;
 
-    char* last = p + path.getLength() - 1;
+    char* last = p + path.size() - 1;
 
     if (*last == '/')
 	*last = '\0';

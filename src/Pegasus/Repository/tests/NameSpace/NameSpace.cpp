@@ -41,7 +41,7 @@ the makefile.
 */
 void test()
 {
-    CIMRepository r(".");
+    CIMRepository r("./repository");
 
     try
     {
@@ -54,7 +54,7 @@ void test()
 	BubbleSort(arr1);
 
 	// create the namespaces
-	for (Uint32 i = 0; i < arr1.getSize(); i++)
+	for (Uint32 i = 0; i < arr1.size(); i++)
 	    r.createNameSpace(String(arr1[i]));
 
 	//retrieve the namespaces from rep. as array
@@ -63,22 +63,22 @@ void test()
 	BubbleSort(arr2);
 
 #if 0
-	for (Uint32 i = 0; i < arr2.getSize(); i++)
+	for (Uint32 i = 0; i < arr2.size(); i++)
 	    cout << "===>" << arr2[i] << endl;
 #endif
 
 	//confirm that the input and return are equal
-	assert(arr1.getSize() == 3);
-	assert(arr2.getSize() == 3);
+	assert(arr1.size() == 3);
+	assert(arr2.size() == 3);
 	assert(arr1 == arr2);
 
 	// Delete the namespaces test. Put in when delete installed
-	//for (Uint32 i = 0; i < arr1.getSize(); i++)
+	//for (Uint32 i = 0; i < arr1.size(); i++)
 	//    r.deleteNameSpace(String(arr1[i]));
 
 	//enumerate the namespaces
 	//Array<String> arr3 = r.enumerateNameSpaces();
-	//assert(arr3.getSize() == 0);
+	//assert(arr3.size() == 0);
 
     }
     catch (AlreadyExists&)
@@ -89,8 +89,6 @@ void test()
 
 int main()
 {
-    CIMRepository r(".");
-
     try 
     {
 	test();

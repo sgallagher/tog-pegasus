@@ -62,7 +62,7 @@ static char* _allocLogFileName(
     const char* logFileName = fileNames[index];
 
     String result;
-    result.reserve(homeDirectory.getLength() + 1 + strlen(logFileName));
+    result.reserve(homeDirectory.size() + 1 + strlen(logFileName));
     result += homeDirectory;
     result += '/';
     result += logFileName;

@@ -42,7 +42,7 @@ CIMClassRep::CIMClassRep(
     if (!CIMName::legal(className))
 	throw IllegalName();
 
-    if (superClassName.getLength() && !CIMName::legal(superClassName))
+    if (superClassName.size() && !CIMName::legal(superClassName))
 	throw IllegalName();
 }
 
@@ -112,7 +112,7 @@ void CIMClassRep::addProperty(const CIMProperty& x)
     // Set the class origin:
     // ATTN: put this check in other places:
 
-    if (x.getClassOrigin().getLength() == 0)
+    if (x.getClassOrigin().size() == 0)
 	CIMProperty(x).setClassOrigin(_className);
 
     // Add the property:
@@ -122,13 +122,13 @@ void CIMClassRep::addProperty(const CIMProperty& x)
 
 void CIMClassRep::removeProperty(Uint32 pos)
 {
-    if (pos >= _properties.getSize())
+    if (pos >= _properties.size())
 	throw OutOfBounds();
 }
 
 Uint32 CIMClassRep::findProperty(const String& name)
 {
-    for (Uint32 i = 0, n = _properties.getSize(); i < n; i++)
+    for (Uint32 i = 0, n = _properties.size(); i < n; i++)
     {
 	if (CIMName::equal(_properties[i].getName(), name))
 	    return i;
@@ -139,7 +139,7 @@ Uint32 CIMClassRep::findProperty(const String& name)
 
 CIMProperty CIMClassRep::getProperty(Uint32 pos)
 {
-    if (pos >= _properties.getSize())
+    if (pos >= _properties.size())
 	throw OutOfBounds();
 
     return _properties[pos];
@@ -147,7 +147,7 @@ CIMProperty CIMClassRep::getProperty(Uint32 pos)
 
 Uint32 CIMClassRep::getPropertyCount() const
 {
-    return _properties.getSize();
+    return _properties.size();
 }
 
 void CIMClassRep::addMethod(const CIMMethod& x)
@@ -167,7 +167,7 @@ void CIMClassRep::addMethod(const CIMMethod& x)
 
 Uint32 CIMClassRep::findMethod(const String& name)
 {
-    for (Uint32 i = 0, n = _methods.getSize(); i < n; i++)
+    for (Uint32 i = 0, n = _methods.size(); i < n; i++)
     {
 	if (CIMName::equal(_methods[i].getName(), name))
 	    return i;
@@ -178,7 +178,7 @@ Uint32 CIMClassRep::findMethod(const String& name)
 
 CIMMethod CIMClassRep::getMethod(Uint32 pos)
 {
-    if (pos >= _methods.getSize())
+    if (pos >= _methods.size())
 	throw OutOfBounds();
 
     return _methods[pos];
@@ -186,7 +186,7 @@ CIMMethod CIMClassRep::getMethod(Uint32 pos)
 
 Uint32 CIMClassRep::getMethodCount() const
 {
-    return _methods.getSize();
+    return _methods.size();
 }
 
 void CIMClassRep::resolve(
@@ -201,7 +201,7 @@ void CIMClassRep::resolve(
     if (!context)
 	throw NullPointer();
 
-    if (_superClassName.getLength())
+    if (_superClassName.size())
     {
 	//----------------------------------------------------------------------
 	// First check to see if the super-class really exists:
@@ -223,7 +223,7 @@ void CIMClassRep::resolve(
 	// set the class-origin:
 	//----------------------------------------------------------------------
 
-	for (Uint32 i = 0, n = _properties.getSize(); i < n; i++)
+	for (Uint32 i = 0, n = _properties.size(); i < n; i++)
 	{
 	    CIMProperty& property = _properties[i];
 	    Uint32 pos = superClass.findProperty(property.getName());
@@ -256,7 +256,7 @@ void CIMClassRep::resolve(
 
 	    Uint32 pos = Uint32(-1);
 
-	    for (Uint32 j = m, n = _properties.getSize(); j < n; j++)
+	    for (Uint32 j = m, n = _properties.size(); j < n; j++)
 	    {
 		if (CIMName::equal(
 		    _properties[j].getName(), 
@@ -284,7 +284,7 @@ void CIMClassRep::resolve(
 	// set the class-origin:
 	//----------------------------------------------------------------------
 
-	for (Uint32 i = 0, n = _methods.getSize(); i < n; i++)
+	for (Uint32 i = 0, n = _methods.size(); i < n; i++)
 	{
 	    CIMMethod& method = _methods[i];
 	    Uint32 pos = superClass.findMethod(method.getName());
@@ -315,7 +315,7 @@ void CIMClassRep::resolve(
 
 	    Uint32 pos = Uint32(-1);
 
-	    for (Uint32 j = m, n = _methods.getSize(); j < n; j++)
+	    for (Uint32 j = m, n = _methods.size(); j < n; j++)
 	    {
 		if (CIMName::equal(
 		    _methods[j].getName(), 
@@ -355,14 +355,14 @@ void CIMClassRep::resolve(
 	// Resolve each property:
 	//----------------------------------------------------------------------
 
-	for (Uint32 i = 0, n = _properties.getSize(); i < n; i++)
+	for (Uint32 i = 0, n = _properties.size(); i < n; i++)
 	    _properties[i].resolve(context, nameSpace, false);
 
 	//----------------------------------------------------------------------
 	// Resolve each method:
 	//----------------------------------------------------------------------
 
-	for (Uint32 i = 0, n = _methods.getSize(); i < n; i++)
+	for (Uint32 i = 0, n = _methods.size(); i < n; i++)
 	    _methods[i].resolve(context, nameSpace);
 
 	//----------------------------------------------------------------------
@@ -389,7 +389,7 @@ void CIMClassRep::toXml(Array<Sint8>& out) const
     out << "<CLASS ";
     out << " NAME=\"" << _className << "\" ";
 
-    if (_superClassName.getLength())
+    if (_superClassName.size())
 	out << " SUPERCLASS=\"" << _superClassName << "\" ";
 
     out << ">\n";
@@ -400,12 +400,12 @@ void CIMClassRep::toXml(Array<Sint8>& out) const
 
     // Parameters:
 
-    for (Uint32 i = 0, n = _properties.getSize(); i < n; i++)
+    for (Uint32 i = 0, n = _properties.size(); i < n; i++)
 	_properties[i].toXml(out);
 
     // Methods:
 
-    for (Uint32 i = 0, n = _methods.getSize(); i < n; i++)
+    for (Uint32 i = 0, n = _methods.size(); i < n; i++)
 	_methods[i].toXml(out);
 
     // Class closing element:
@@ -435,14 +435,14 @@ CIMClassRep::CIMClassRep(const CIMClassRep& x) :
 {
     x._qualifiers.cloneTo(_qualifiers);
 
-    _properties.reserve(x._properties.getSize());
+    _properties.reserve(x._properties.size());
 
-    for (Uint32 i = 0, n = x._properties.getSize(); i < n; i++)
+    for (Uint32 i = 0, n = x._properties.size(); i < n; i++)
 	_properties.append(x._properties[i].clone());
 
-    _methods.reserve(x._methods.getSize());
+    _methods.reserve(x._methods.size());
 
-    for (Uint32 i = 0, n = x._methods.getSize(); i < n; i++)
+    for (Uint32 i = 0, n = x._methods.size(); i < n; i++)
 	_methods.append(x._methods[i].clone());
 }
 
@@ -468,10 +468,10 @@ Boolean CIMClassRep::identical(const CIMClassRep* x) const
 	const Array<CIMProperty>& tmp1 = _properties;
 	const Array<CIMProperty>& tmp2 = x->_properties;
 
-	if (tmp1.getSize() != tmp2.getSize())
+	if (tmp1.size() != tmp2.size())
 	    return false;
 
-	for (Uint32 i = 0, n = tmp1.getSize(); i < n; i++)
+	for (Uint32 i = 0, n = tmp1.size(); i < n; i++)
 	{
 	    if (!tmp1[i].identical(tmp2[i]))
 		return false;
@@ -484,10 +484,10 @@ Boolean CIMClassRep::identical(const CIMClassRep* x) const
 	const Array<CIMMethod>& tmp1 = _methods;
 	const Array<CIMMethod>& tmp2 = x->_methods;
 
-	if (tmp1.getSize() != tmp2.getSize())
+	if (tmp1.size() != tmp2.size())
 	    return false;
 
-	for (Uint32 i = 0, n = tmp1.getSize(); i < n; i++)
+	for (Uint32 i = 0, n = tmp1.size(); i < n; i++)
 	{
 	    if (!tmp1[i].identical(tmp2[i]))
 		return false;

@@ -329,7 +329,7 @@ String XmlReader::getCimNameAttribute(
 	throw XmlValidationError(lineNumber, buffer);
     }
 
-    if (acceptNull && name.getLength() == 0)
+    if (acceptNull && name.size() == 0)
 	return name;
 
     if (!CIMName::legal(name))
@@ -993,7 +993,7 @@ CIMValue StringArrayToValueAux(
 {
     Array<T> array;
 
-    for (Uint32 i = 0, n = stringArray.getSize(); i < n; i++)
+    for (Uint32 i = 0, n = stringArray.size(); i < n; i++)
     {
 	CIMValue value = XmlReader::stringToValue(
 	    lineNumber, stringArray[i], type);
@@ -1582,13 +1582,13 @@ Boolean XmlReader::getLocalNameSpacePathElement(
 
     while (getNameSpaceElement(parser, nameSpaceComponent))
     {
-	if (nameSpace.getLength())
+	if (nameSpace.size())
 	    nameSpace += '/';
 
 	nameSpace += nameSpaceComponent;
     }
 
-    if (!nameSpace.getLength())
+    if (!nameSpace.size())
     {
 	throw XmlValidationError(parser.getLine(),
 	    "Expected one or more NAMESPACE elements within "

@@ -45,7 +45,7 @@ CIMMethodRep::CIMMethodRep(
     if (!CIMName::legal(name))
 	throw IllegalName();
 
-    if (classOrigin.getLength() && !CIMName::legal(classOrigin))
+    if (classOrigin.size() && !CIMName::legal(classOrigin))
 	throw IllegalName();
 
     if (type == CIMType::NONE)
@@ -86,7 +86,7 @@ void CIMMethodRep::addParameter(const CIMParameter& x)
 
 Uint32 CIMMethodRep::findParameter(const String& name)
 {
-    for (Uint32 i = 0, n = _parameters.getSize(); i < n; i++)
+    for (Uint32 i = 0, n = _parameters.size(); i < n; i++)
     {
 	if (CIMName::equal(_parameters[i].getName(), name))
 	    return i;
@@ -97,7 +97,7 @@ Uint32 CIMMethodRep::findParameter(const String& name)
 
 CIMParameter CIMMethodRep::getParameter(Uint32 pos)
 {
-    if (pos >= _parameters.getSize())
+    if (pos >= _parameters.size())
 	throw OutOfBounds();
 
     return _parameters[pos];
@@ -105,7 +105,7 @@ CIMParameter CIMMethodRep::getParameter(Uint32 pos)
 
 Uint32 CIMMethodRep::getParameterCount() const
 {
-    return _parameters.getSize();
+    return _parameters.size();
 }
 
 void CIMMethodRep::resolve(
@@ -133,7 +133,7 @@ void CIMMethodRep::resolve(
 
     // Validate each of the parameters:
 
-    for (size_t i = 0; i < _parameters.getSize(); i++)
+    for (size_t i = 0; i < _parameters.size(); i++)
 	_parameters[i].resolve(declContext, nameSpace);
 
     _classOrigin = inheritedMethod.getClassOrigin();
@@ -156,7 +156,7 @@ void CIMMethodRep::resolve(
 
     // Validate each of the parameters:
 
-    for (size_t i = 0; i < _parameters.getSize(); i++)
+    for (size_t i = 0; i < _parameters.size(); i++)
 	_parameters[i].resolve(declContext, nameSpace);
 }
 
@@ -173,7 +173,7 @@ void CIMMethodRep::toXml(Array<Sint8>& out) const
 
     out << " TYPE=\"" << TypeToString(_type) << "\"";
 
-    if (_classOrigin.getLength())
+    if (_classOrigin.size())
 	out << " CLASSORIGIN=\"" << _classOrigin << "\"";
 
     if (_propagated != false)
@@ -183,7 +183,7 @@ void CIMMethodRep::toXml(Array<Sint8>& out) const
 
     _qualifiers.toXml(out);
 
-    for (Uint32 i = 0, n = _parameters.getSize(); i < n; i++)
+    for (Uint32 i = 0, n = _parameters.size(); i < n; i++)
 	_parameters[i].toXml(out);
 
     out << "</METHOD>\n";
@@ -211,9 +211,9 @@ CIMMethodRep::CIMMethodRep(const CIMMethodRep& x) :
 {
     x._qualifiers.cloneTo(_qualifiers);
 
-    _parameters.reserve(x._parameters.getSize());
+    _parameters.reserve(x._parameters.size());
 
-    for (Uint32 i = 0, n = x._parameters.getSize(); i < n; i++)
+    for (Uint32 i = 0, n = x._parameters.size(); i < n; i++)
 	_parameters.append(x._parameters[i].clone());
 }
 
@@ -233,10 +233,10 @@ Boolean CIMMethodRep::identical(const CIMMethodRep* x) const
     if (!_qualifiers.identical(x->_qualifiers))
 	return false;
 
-    if (_parameters.getSize() != x->_parameters.getSize())
+    if (_parameters.size() != x->_parameters.size())
 	return false;
 
-    for (Uint32 i = 0, n = _parameters.getSize(); i < n; i++)
+    for (Uint32 i = 0, n = _parameters.size(); i < n; i++)
     {
 	if (!_parameters[i].identical(x->_parameters[i]))
 	    return false;

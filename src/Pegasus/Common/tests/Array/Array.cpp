@@ -40,7 +40,7 @@ using namespace std;
 template<class T>
 void Print(const Array<T>& arr)
 {
-    for (size_t i = 0; i < arr.getSize(); i++)
+    for (size_t i = 0; i < arr.size(); i++)
 	cout << arr[i] << endl;
     cout << "-- end" << endl;
 }
@@ -49,7 +49,7 @@ template<class STR>
 void test01(STR*)
 {
     Array<STR> arr(3, STR("Hello"));
-    assert(arr.getSize() == 3);
+    assert(arr.size() == 3);
     assert(arr[0] == STR("Hello"));
     assert(arr[1] == STR("Hello"));
     assert(arr[2] == STR("Hello"));
@@ -59,7 +59,7 @@ template<class STR>
 void test02(STR*)
 {
     Array<STR> arr;
-    assert(arr.getSize() == 0);
+    assert(arr.size() == 0);
 
     arr.append("three");
     arr.append("four");
@@ -67,7 +67,7 @@ void test02(STR*)
     arr.prepend("zero");
     arr.insert(2, "two");
 
-    assert(arr.getSize() == 5);
+    assert(arr.size() == 5);
     assert(arr[0] == "zero");
     assert(arr[1] == "one");
     assert(arr[2] == "two");
@@ -75,7 +75,7 @@ void test02(STR*)
     assert(arr[4] == "four");
 
     arr.remove(2);
-    assert(arr.getSize() == 4);
+    assert(arr.size() == 4);
     assert(arr[0] == "zero");
     assert(arr[1] == "one");
     assert(arr[2] == "three");
@@ -101,7 +101,7 @@ void test03(const T*)
     arr3 = arr2;
     arr = arr3;
 
-    assert(arr.getSize() == 5);
+    assert(arr.size() == 5);
     assert(arr[0] == 0);
     assert(arr[1] == 1);
     assert(arr[2] == 2);
@@ -109,31 +109,31 @@ void test03(const T*)
     assert(arr[4] == 4);
 
     arr.remove(4);
-    assert(arr.getSize() == 4);
+    assert(arr.size() == 4);
     assert(arr[0] == 0);
     assert(arr[1] == 1);
     assert(arr[2] == 2);
     assert(arr[3] == 3);
 
     arr.remove(0);
-    assert(arr.getSize() == 3);
+    assert(arr.size() == 3);
     assert(arr[0] == 1);
     assert(arr[1] == 2);
     assert(arr[2] == 3);
 
     arr.remove(0);
     arr.remove(1);
-    assert(arr.getSize() == 1);
+    assert(arr.size() == 1);
     assert(arr[0] == 2);
 
     arr.remove(0);
-    assert(arr.getSize() == 0);
+    assert(arr.size() == 0);
 }
 
 void test04()
 {
     Array<String> arr(3, "Hello");
-    assert(arr.getSize() == 3);
+    assert(arr.size() == 3);
     assert(arr[0] == "Hello");
     assert(arr[1] == "Hello");
     assert(arr[2] == "Hello");
@@ -142,7 +142,7 @@ void test04()
 void test05()
 {
     Array<String> arr;
-    assert(arr.getSize() == 0);
+    assert(arr.size() == 0);
 
     arr.append("three");
     arr.append("four");
@@ -150,7 +150,7 @@ void test05()
     arr.prepend("zero");
     arr.insert(2, "two");
 
-    assert(arr.getSize() == 5);
+    assert(arr.size() == 5);
     assert(arr[0] == "zero");
     assert(arr[1] == "one");
     assert(arr[2] == "two");
@@ -158,7 +158,7 @@ void test05()
     assert(arr[4] == "four");
 
     arr.remove(2);
-    assert(arr.getSize() == 4);
+    assert(arr.size() == 4);
     assert(arr[0] == "zero");
     assert(arr[1] == "one");
     assert(arr[2] == "three");

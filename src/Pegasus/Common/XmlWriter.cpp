@@ -215,7 +215,7 @@ Array<Sint8> XmlWriter::formatMPostHeader(
     out << "M-POST /cimom HTTP/1.1\r\n";
     out << "HOST: " << host << "\r\n";
     out << "Content-CIMType: application/xml; charset=\"utf-8\"\r\n";
-    out << "Content-Length: " << content.getSize() << "\r\n";
+    out << "Content-Length: " << content.size() << "\r\n";
     out << "Man: http://www.dmtf.org/cim/mapping/http/v1.0; ns=";
     out << nn <<"\r\n";
     out << nn << "-CIMOperation: " << cimOperation << "\r\n";
@@ -242,7 +242,7 @@ Array<Sint8> XmlWriter::formatMethodResponseHeader(
 
     out << "HTTP/1.1 200 OK\r\n";
     out << "Content-CIMType: application/xml; charset=\"utf-8\"\r\n";
-    out << "Content-Length: " << content.getSize() << "\r\n";
+    out << "Content-Length: " << content.size() << "\r\n";
     out << "Ext:\r\n";
     out << "Cache-Control: no-cache\r\n";
     out << "Man: http://www.dmtf.org/cim/mapping/http/v1.0; ns=";
@@ -635,7 +635,7 @@ void XmlWriter::indentedPrint(
 	{
 	    case XmlEntry::XML_DECLARATION:
 	    {
-		_indent(os, stack.getSize(), indentChars);
+		_indent(os, stack.size(), indentChars);
 
 		os << "<?" << entry.text << " ";
 		_printAttributes(os, entry.attributes, entry.attributeCount);
@@ -645,7 +645,7 @@ void XmlWriter::indentedPrint(
 
 	    case XmlEntry::START_TAG:
 	    {
-		_indent(os, stack.getSize(), indentChars);
+		_indent(os, stack.size(), indentChars);
 
 		os << "<" << entry.text;
 
@@ -660,7 +660,7 @@ void XmlWriter::indentedPrint(
 
 	    case XmlEntry::EMPTY_TAG:
 	    {
-		_indent(os, stack.getSize(), indentChars);
+		_indent(os, stack.size(), indentChars);
 
 		os << "<" << entry.text << " ";
 		_printAttributes(os, entry.attributes, entry.attributeCount);
@@ -673,7 +673,7 @@ void XmlWriter::indentedPrint(
 		if (!stack.isEmpty() && strcmp(stack.top(), entry.text) == 0)
 		    stack.pop();
 
-		_indent(os, stack.getSize(), indentChars);
+		_indent(os, stack.size(), indentChars);
 
 		os << "</" << entry.text << ">";
 		break;
@@ -682,7 +682,7 @@ void XmlWriter::indentedPrint(
 	    case XmlEntry::COMMENT:
 	    {
 
-		_indent(os, stack.getSize(), indentChars);
+		_indent(os, stack.size(), indentChars);
 		os << "<!--";
 		AppendSpecial(os, entry.text);
 		os << "-->";
@@ -691,21 +691,21 @@ void XmlWriter::indentedPrint(
 
 	    case XmlEntry::CONTENT:
 	    {
-		_indent(os, stack.getSize(), indentChars);
+		_indent(os, stack.size(), indentChars);
 		AppendSpecial(os, entry.text);
 		break;
 	    }
 
 	    case XmlEntry::CDATA:
 	    {
-		_indent(os, stack.getSize(), indentChars);
+		_indent(os, stack.size(), indentChars);
 		os << "<![CDATA[...]]>";
 		break;
 	    }
 
 	    case XmlEntry::DOCTYPE:
 	    {
-		_indent(os, stack.getSize(), indentChars);
+		_indent(os, stack.size(), indentChars);
 		os << "<!DOCTYPE...>";
 		break;
 	    }

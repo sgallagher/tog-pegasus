@@ -39,7 +39,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 Uint32 Selector::_findEntry(Sint32 desc) const
 {
-    for (Uint32 i = 0, n = _entries.getSize(); i < n; i++)
+    for (Uint32 i = 0, n = _entries.size(); i < n; i++)
     {
 	if (_entries[i].desc == desc)
 	    return i;

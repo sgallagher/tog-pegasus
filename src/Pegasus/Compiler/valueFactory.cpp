@@ -44,7 +44,7 @@
 
 unsigned long
 valueFactory::Stoi(const String &val) {
-  unsigned int end = val.getLength();
+  unsigned int end = val.size();
   String s;
   for (unsigned int i = 0; i < end; i++) {
     switch(val[i]) {
@@ -65,7 +65,7 @@ valueFactory::Stoi(const String &val) {
 
 static double
 Stof(const String &val) {
-  unsigned int end = val.getLength();
+  unsigned int end = val.size();
   String s;
   for (unsigned int i = 0; i < end; i++) {
     switch(val[i]) {
@@ -89,7 +89,7 @@ Stof(const String &val) {
 
 static CIMDateTime &
 StoDT(const String &val, CIMDateTime &dt) {
-  unsigned int end = val.getLength();
+  unsigned int end = val.size();
   String s;
   for (unsigned int i = 0; i < end; i++) {
     switch(val[i]) {
@@ -125,7 +125,7 @@ nextcsv(const String &csv, int sep, const Uint32 start,
 {
   enum parsestate {INDQUOTE, INSQUOTE, NOTINQUOTE};
   value = "";
-  Uint32 maxend = min(csv.getLength(), end);
+  Uint32 maxend = min(csv.size(), end);
   Uint32 idx = start;
   parsestate state = NOTINQUOTE;
   while (idx < maxend) {
@@ -189,7 +189,7 @@ build_array_value(CIMType::Tag type, unsigned int arrayDimension,
 {
   String sval;
   Uint32 start = 0;
-  Uint32 strsize = rep.getLength();
+  Uint32 strsize = rep.size();
   Uint32 end = strsize - 1;
  
   switch (type) {

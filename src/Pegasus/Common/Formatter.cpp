@@ -75,7 +75,7 @@ String Formatter::format(
 {
     String result;
     const Char16* first = formatString.getData();
-    const Char16* last = formatString.getData() + formatString.getLength();
+    const Char16* last = formatString.getData() + formatString.size();
 
     for (; first != last; first++)
     {

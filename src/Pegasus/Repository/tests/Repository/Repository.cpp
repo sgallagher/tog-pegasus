@@ -33,7 +33,7 @@ using namespace std;
 
 void test01()
 {
-    CIMRepository r(".");
+    CIMRepository r("./repository");
 
     const String NAMESPACE = "aa/bb";
 
@@ -74,7 +74,7 @@ void test02()
     // Create repository:
     //--------------------------------------------------------------------------
 
-    CIMRepository r(".");
+    CIMRepository r("./repository");
 
     const String NAMESPACE = "aa/bb";
 
@@ -125,8 +125,6 @@ void test02()
 
 int main()
 {
-    CIMRepository r(".");
-
     try 
     {
 	test01();

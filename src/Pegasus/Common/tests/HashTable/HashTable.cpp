@@ -14,7 +14,7 @@ void test01()
     assert(ht.insert("Red", 100));
     assert(ht.insert("Green", 200));
     assert(ht.insert("Blue", 300));
-    assert(ht.getSize() == 3);
+    assert(ht.size() == 3);
 
     Uint32 sum = 0;
 
@@ -44,10 +44,10 @@ void test01()
 
     assert(ht.remove("Red"));
     assert(ht.remove("Green"));
-    assert(ht.getSize() == 1);
+    assert(ht.size() == 1);
 
     ht.clear();
-    assert(ht.getSize() == 0);
+    assert(ht.size() == 0);
 
 }
 
@@ -67,7 +67,7 @@ void test02()
 
     HT ht2 = ht;
 
-    assert(ht2.getSize() == N);
+    assert(ht2.size() == N);
 
     Uint32 expectedSum = 0;
     Uint32 n = 0;

@@ -153,7 +153,7 @@ void InheritanceTree::insert(
 
     InheritanceTreeNode* superClassNode = 0;
 
-    if (superClassName.getLength() &&
+    if (superClassName.size() &&
 	!_rep->table.lookup(superClassName, superClassNode))
     {
 	superClassNode = new InheritanceTreeNode(superClassName);
@@ -223,7 +223,7 @@ Boolean InheritanceTree::getSubClassNames(
     // -- Case 1: className is empty: get all class names (if deepInheritance)
     // -- or just root class names (if not deepInheritance).
 
-    if (!className.getLength())
+    if (!className.size())
     {
 	for (InheritanceTreeRep::Table::Iterator i = _rep->table.start();i;i++)
 	{
@@ -271,6 +271,11 @@ Boolean InheritanceTree::hasSubClasses(
 
     hasSubClasses = node->subClasses != 0;
     return true;
+}
+
+Boolean InheritanceTree::containsClass(const String& className) const
+{
+    return _rep->table.contains(className);
 }
 
 void InheritanceTree::print(std::ostream& os) const

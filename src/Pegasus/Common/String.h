@@ -41,9 +41,9 @@ PEGASUS_NAMESPACE_BEGIN
     This class is based on the general handle/representation pattern
     defined for all the Pegasus objects.  However, it differes from
     most in that it implements "copy on assign" all of the others implement 
-    "no copy on assign" semantics.	The string class uses the Array class and
+    "no copy on assign" semantics. The string class uses the Array class and
     implements an array of characters.
- */
+*/
 class PEGASUS_COMMON_LINKAGE String
 {
 public:
@@ -105,7 +105,7 @@ public:
     /// Assign this string with first n characters of the plain old C-String x.
     String& assign(const char* x, Uint32 n);
 
-    /** Clear this string. After calling clear(), getLength() will return 0.
+    /** Clear this string. After calling clear(), size() will return 0.
 	<pre>
 	    String test = "abc";
 	    test.clear();	// String test is now NULL (length == 0)
@@ -114,7 +114,7 @@ public:
     void clear() { _rep.clear(); _rep.append('\0'); }
 
     /** Reserves memory for capacity characters. Notice that this does not
-	change the size of the string (getSize() returns what it did before).
+	change the size of the string (size() returns what it did before).
 	If the capacity of the string is already greater or equal to the
 	capacity argument, this method has no effect. After calling reserve(),
 	getCapicty() returns a value which is greater or equal to the 
@@ -127,10 +127,10 @@ public:
 	@return Length of the string in characters.
 	<pre>
 	    String s = "abcd";
-	    assert(s.getLength() == 4);
+	    assert(s.size() == 4);
 	</pre>
     */
-    Uint32 getLength() const { return _rep.getSize() - 1; }
+    Uint32 size() const { return _rep.size() - 1; }
 
     /** Returns a pointer to the first character in the null-terminated string 
 	string.
@@ -171,7 +171,7 @@ public:
 	    const char STR0[] = "one two three four";
 	    String s = STR0;
 	    const char STR1[] = "zero ";
-	    char* tmp = new char[strlen(STR1) + s.getLength() + 1];
+	    char* tmp = new char[strlen(STR1) + s.size() + 1];
 	    strcpy(tmp, STR1);
 	    s.appendToCString(tmp, 7);
 	    assert(strcmp(tmp, "zero one two") == 0);
@@ -207,7 +207,7 @@ public:
     */
     String& append(const Char16& c)
     {
-	_rep.insert(_rep.getSize() - 1, c);
+	_rep.insert(_rep.size() - 1, c);
 	return *this;
     }
 
@@ -217,7 +217,7 @@ public:
     /// Append the characters of str to this String object.
     String& append(const String& str)
     {
-	return append(str.getData(), str.getLength());
+	return append(str.getData(), str.size());
     }
 
     /** Overload operator += appends the parameter String to this String.
@@ -264,10 +264,10 @@ public:
 	    s = "abc";
 	    s.remove(0, 1);
 	    assert(String::equal(s, "bc"));
-	    assert(s.getLength() == 2);
+	    assert(s.size() == 2);
 	    s.remove(0);
 	    assert(String::equal(s, ""));
-	    assert(s.getLength() == 0);
+	    assert(s.size() == 0);
 	</pre>
 	@exception throws "OutOfBounds" exception if size is greater than
 	length of String plus starting position for remove.
@@ -544,6 +544,45 @@ private:
 
     char* _rep;
 };
+
+inline Uint32 _Length(const String& s1) { return s1.size(); }
+
+inline Uint32 _Length(const char* s1) { return strlen(s1); }
+
+inline Uint32 _Length(const char) { return 1; }
+
+template<class S1, class S2>
+inline String Cat(const S1& s1, const S2& s2)
+{
+    String tmp;
+    tmp.reserve(_Length(s1) + _Length(s2));
+    tmp.append(s1);
+    tmp.append(s2);
+    return tmp;
+}
+
+template<class S1, class S2, class S3>
+inline String Cat(const S1& s1, const S2& s2, const S3& s3)
+{
+    String tmp;
+    tmp.reserve(_Length(s1) + _Length(s2) + _Length(s3));
+    tmp.append(s1);
+    tmp.append(s2);
+    tmp.append(s3);
+    return tmp;
+}
+
+template<class S1, class S2, class S3, class S4>
+inline String Cat(const S1& s1, const S2& s2, const S3& s3, const S4& s4)
+{
+    String tmp;
+    tmp.reserve(_Length(s1) + _Length(s2) + _Length(s3) + _Length(s4));
+    tmp.append(s1);
+    tmp.append(s2);
+    tmp.append(s3);
+    tmp.append(s4);
+    return tmp;
+}
 
 PEGASUS_NAMESPACE_END
 

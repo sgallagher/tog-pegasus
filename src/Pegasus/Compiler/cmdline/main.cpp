@@ -72,8 +72,8 @@ main(int argc, char ** argv) {
     return ret;
   }
 
-  if (filespecs.getSize())    // user specified command line args
-    for (unsigned int i = 0; i < filespecs.getSize(); i++) {
+  if (filespecs.size())    // user specified command line args
+    for (unsigned int i = 0; i < filespecs.size(); i++) {
       if (p->setInputBufferFromName((const String &)filespecs[i]) == 0) {
 	try {
 	  ret = p->parse();

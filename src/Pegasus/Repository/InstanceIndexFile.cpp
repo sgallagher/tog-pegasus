@@ -218,7 +218,7 @@ Boolean InstanceIndexFile::insert(
 		return false;
 	    }
 
-	    if (used.getSize() < index)
+	    if (used.size() < index)
 		used.grow(index, '\0');
 
 	    used[index-1] = true;
@@ -234,7 +234,7 @@ Boolean InstanceIndexFile::insert(
 
 	newIndex = Uint32(-1);
 
-	for (Uint32 i = 0, n = used.getSize(); i < n; i++)
+	for (Uint32 i = 0, n = used.size(); i < n; i++)
 	{
 	    if (!used[i])
 	    {
@@ -244,7 +244,7 @@ Boolean InstanceIndexFile::insert(
 	}
 
 	if (newIndex == Uint32(-1))
-	    newIndex = used.getSize() + 1;
+	    newIndex = used.size() + 1;
 
     }
     else

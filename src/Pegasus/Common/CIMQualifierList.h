@@ -43,7 +43,7 @@ public:
 
     CIMQualifierList& add(const CIMQualifier& qualifier);
 
-    Uint32 getCount() const { return _qualifiers.getSize(); }
+    Uint32 getCount() const { return _qualifiers.size(); }
 
     CIMQualifier& getQualifier(Uint32 pos) { return _qualifiers[pos]; }
 

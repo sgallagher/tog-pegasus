@@ -69,8 +69,8 @@ String ScopeToString(Uint32 scope)
     if (scope & CIMScope::PARAMETER)
 	tmp += "PARAMETER ";
 
-    if (tmp.getLength())
-	tmp.remove(tmp.getLength() - 1);
+    if (tmp.size())
+	tmp.remove(tmp.size() - 1);
 
     return tmp;
 }

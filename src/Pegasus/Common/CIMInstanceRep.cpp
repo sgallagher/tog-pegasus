@@ -66,7 +66,7 @@ void CIMInstanceRep::addProperty(const CIMProperty& x)
 
 Uint32 CIMInstanceRep::findProperty(const String& name)
 {
-    for (Uint32 i = 0, n = _properties.getSize(); i < n; i++)
+    for (Uint32 i = 0, n = _properties.size(); i < n; i++)
     {
 	if (CIMName::equal(_properties[i].getName(), name))
 	    return i;
@@ -77,7 +77,7 @@ Uint32 CIMInstanceRep::findProperty(const String& name)
 
 CIMProperty CIMInstanceRep::getProperty(Uint32 pos)
 {
-    if (pos >= _properties.getSize())
+    if (pos >= _properties.size())
 	throw OutOfBounds();
 
     return _properties[pos];
@@ -85,7 +85,7 @@ CIMProperty CIMInstanceRep::getProperty(Uint32 pos)
 
 Uint32 CIMInstanceRep::getPropertyCount() const
 {
-    return _properties.getSize();
+    return _properties.size();
 }
 
 void CIMInstanceRep::resolve(
@@ -144,7 +144,7 @@ void CIMInstanceRep::resolve(
 
     String classOrigin = cimClass.getClassName();
 
-    for (Uint32 i = 0, n = _properties.getSize(); i < n; i++)
+    for (Uint32 i = 0, n = _properties.size(); i < n; i++)
     {
 	CIMProperty& property = _properties[i];
 
@@ -172,7 +172,7 @@ void CIMInstanceRep::resolve(
 
 	Boolean found = false;
 
-	for (Uint32 j = m, n = _properties.getSize(); j < n; j++)
+	for (Uint32 j = m, n = _properties.size(); j < n; j++)
 	{
 	    if (CIMName::equal(_properties[j].getName(), name))
 	    {
@@ -206,9 +206,9 @@ CIMInstanceRep::CIMInstanceRep(const CIMInstanceRep& x) :
 {
     x._qualifiers.cloneTo(_qualifiers);
 
-    _properties.reserve(x._properties.getSize());
+    _properties.reserve(x._properties.size());
 
-    for (Uint32 i = 0, n = x._properties.getSize(); i < n; i++)
+    for (Uint32 i = 0, n = x._properties.size(); i < n; i++)
 	_properties.append(x._properties[i].clone());
 }
 
@@ -231,10 +231,10 @@ Boolean CIMInstanceRep::identical(const CIMInstanceRep* x) const
 	const Array<CIMProperty>& tmp1 = _properties;
 	const Array<CIMProperty>& tmp2 = x->_properties;
 
-	if (tmp1.getSize() != tmp2.getSize())
+	if (tmp1.size() != tmp2.size())
 	    return false;
 
-	for (Uint32 i = 0, n = tmp1.getSize(); i < n; i++)
+	for (Uint32 i = 0, n = tmp1.size(); i < n; i++)
 	{
 	    if (!tmp1[i].identical(tmp2[i]))
 		return false;
@@ -261,7 +261,7 @@ void CIMInstanceRep::toXml(Array<Sint8>& out) const
 
     // Parameters:
 
-    for (Uint32 i = 0, n = _properties.getSize(); i < n; i++)
+    for (Uint32 i = 0, n = _properties.size(); i < n; i++)
 	_properties[i].toXml(out);
 
     // Class closing element:
@@ -293,7 +293,7 @@ CIMReference CIMInstanceRep::getInstanceName(
     Array<String> keyNames;
     cimClass.getKeyNames(keyNames);
 
-    if (keyNames.getSize() == 0)
+    if (keyNames.size() == 0)
 	return CIMReference();
 
     //--------------------------------------------------------------------------
@@ -302,7 +302,7 @@ CIMReference CIMInstanceRep::getInstanceName(
 
     KeyBindingArray keyBindings;
 
-    for (Uint32 i = 0, n = keyNames.getSize(); i < n; i++)
+    for (Uint32 i = 0, n = keyNames.size(); i < n; i++)
     {
 	const String& keyName = keyNames[i];
 

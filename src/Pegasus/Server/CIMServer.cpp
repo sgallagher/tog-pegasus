@@ -465,7 +465,7 @@ void ServerHandler::sendError(
 		    methodName,
 		    XmlWriter::formatErrorElement(code, description)))));
 
-    _channel->writeN(message.getData(), message.getSize());
+    _channel->writeN(message.getData(), message.size());
 }
 
 //------------------------------------------------------------------------------
@@ -535,7 +535,7 @@ void ServerHandler::handleGetClass(
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"GetClass", body);
 
-    _channel->writeN(message.getData(), message.getSize());
+    _channel->writeN(message.getData(), message.size());
 }
 
 //------------------------------------------------------------------------------
@@ -613,7 +613,7 @@ std::cout << e.getMessage() << std::endl;
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"GetInstance", body);
 
-    _channel->writeN(message.getData(), message.getSize());
+    _channel->writeN(message.getData(), message.size());
 }
 
 //STUB{
@@ -672,13 +672,13 @@ void ServerHandler::handleEnumerateClassNames(
 
     Array<Sint8> body;
 
-    for (Uint32 i = 0; i < classNames.getSize(); i++)
+    for (Uint32 i = 0; i < classNames.size(); i++)
 	XmlWriter::appendClassNameElement(body, classNames[i]);
 
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"EnumerateClassNames", body);
 
-    _channel->writeN(message.getData(), message.getSize());
+    _channel->writeN(message.getData(), message.size());
 }
 //STUB}
 
@@ -736,7 +736,7 @@ void ServerHandler::handleCreateInstance(
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"CreateInstance", body);
 
-    _channel->writeN(message.getData(), message.getSize());
+    _channel->writeN(message.getData(), message.size());
 }
 
 //------------------------------------------------------------------------------
@@ -790,13 +790,13 @@ void ServerHandler::handleEnumerateInstanceNames(
 
     Array<Sint8> body;
 
-    for (Uint32 i = 0; i < instanceNames.getSize(); i++)
+    for (Uint32 i = 0; i < instanceNames.size(); i++)
 	XmlWriter::appendInstanceNameElement(body, instanceNames[i]);
 
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"EnumerateInstanceNames", body);
 
-    _channel->writeN(message.getData(), message.getSize());
+    _channel->writeN(message.getData(), message.size());
 }
 
 //------------------------------------------------------------------------------
@@ -842,7 +842,7 @@ void ServerHandler::handleDeleteQualifier(
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"DeleteQualifier", body);
 
-    _channel->writeN(message.getData(), message.getSize());
+    _channel->writeN(message.getData(), message.size());
 }
 
 //------------------------------------------------------------------------------
@@ -892,7 +892,7 @@ void ServerHandler::handleGetQualifier(
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"GetQualifier", body);
 
-    _channel->writeN(message.getData(), message.getSize());
+    _channel->writeN(message.getData(), message.size());
 }
 
 //------------------------------------------------------------------------------
@@ -940,7 +940,7 @@ void ServerHandler::handleSetQualifier(
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"SetQualifier", body);
 
-    _channel->writeN(message.getData(), message.getSize());
+    _channel->writeN(message.getData(), message.size());
 }
 
 //------------------------------------------------------------------------------
@@ -978,13 +978,13 @@ void ServerHandler::handleEnumerateQualifiers(
 
     Array<Sint8> body;
 
-    for (Uint32 i = 0; i < qualifierDecls.getSize(); i++)
+    for (Uint32 i = 0; i < qualifierDecls.size(); i++)
 	qualifierDecls[i].toXml(body);
 
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"EnumerateQualifiers", body);
 
-    _channel->writeN(message.getData(), message.getSize());
+    _channel->writeN(message.getData(), message.size());
 }
 
 //------------------------------------------------------------------------------
@@ -1054,13 +1054,13 @@ void ServerHandler::handleEnumerateClasses(
 
     Array<Sint8> body;
 
-    for (Uint32 i = 0; i < classDecls.getSize(); i++)
+    for (Uint32 i = 0; i < classDecls.size(); i++)
 	classDecls[i].toXml(body);
 
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"EnumerateClasses", body);
 
-    _channel->writeN(message.getData(), message.getSize());
+    _channel->writeN(message.getData(), message.size());
 }
 
 //------------------------------------------------------------------------------
@@ -1113,7 +1113,7 @@ void ServerHandler::handleCreateClass(
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"CreateClass", body);
 
-    _channel->writeN(message.getData(), message.getSize());
+    _channel->writeN(message.getData(), message.size());
 }
 
 //------------------------------------------------------------------------------
@@ -1166,7 +1166,7 @@ void ServerHandler::handleModifyClass(
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"ModifyClass", body);
 
-    _channel->writeN(message.getData(), message.getSize());
+    _channel->writeN(message.getData(), message.size());
 }
 
 //------------------------------------------------------------------------------
@@ -1219,7 +1219,7 @@ void ServerHandler::handleDeleteClass(
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"DeleteClass", body);
 
-    _channel->writeN(message.getData(), message.getSize());
+    _channel->writeN(message.getData(), message.size());
 }
 
 //------------------------------------------------------------------------------
@@ -1295,7 +1295,7 @@ void ServerHandler::handleGetProperty(
 
     // Here is where we format the parm part of the response.
     // neet to format the CIMValue here in the response
-    //for (Uint32 i = 0; i < classNames.getSize(); i++)
+    //for (Uint32 i = 0; i < classNames.size(); i++)
     //    XmlWriter::appendClassNameElement(body, classNames[i]);
     // We need to put propertyValue on this thing.  Note
     // Lets assume that at this point we have cimvalue with
@@ -1324,7 +1324,7 @@ void ServerHandler::handleGetProperty(
     cout << "DEBUG CIMServer:IhandleGetProperty " <<
 	cimValueRtn.toString() << endl;
 
-    _channel->writeN(message.getData(), message.getSize());
+    _channel->writeN(message.getData(), message.size());
 }
 
 
@@ -1383,13 +1383,13 @@ void ServerHandler::handleSetProperty(
 
     Array<Sint8> body;
 
-    for (Uint32 i = 0; i < classNames.getSize(); i++)
+    for (Uint32 i = 0; i < classNames.size(); i++)
 	XmlWriter::appendClassNameElement(body, classNames[i]);
 
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"EnumerateClassNames", body);
 
-    _channel->writeN(message.getData(), message.getSize());
+    _channel->writeN(message.getData(), message.size());
 }
 
 
@@ -1451,7 +1451,7 @@ CIMServer::CIMServer(
     if (!FileSystem::isDirectory(_repositoryRootPath))
 	throw NoSuchDirectory(_repositoryRootPath);
 
-    CIMRepository* repository = new CIMRepository(rootPath);
+    CIMRepository* repository = new CIMRepository(rootPath + "./repository");
 
     // -- Create a dispatcher object:
 

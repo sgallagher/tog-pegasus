@@ -116,7 +116,7 @@ Selector::Selector()
 
 Selector::~Selector()
 {
-    for (Uint32 i = 0, n = _entries.getSize(); i < n; i++)
+    for (Uint32 i = 0, n = _entries.size(); i < n; i++)
 	delete _entries[i].handler;
 
     delete _rep;
@@ -128,7 +128,7 @@ Boolean Selector::select(Uint32 milliseconds)
     // there are no descriptors in the set even if the timeout is non-zero. 
     // To work around this, we call Sleep() for now:
 
-    if (_entries.getSize() == 0)
+    if (_entries.size() == 0)
 	Sleep(milliseconds);
 
     // Check for events on the selected file descriptors. Only do this if
@@ -164,7 +164,7 @@ Boolean Selector::select(Uint32 milliseconds)
 
     // Dispatch any handler events:
 
-    for (Uint32 i = 0, n = _entries.getSize(); i < n; i++)
+    for (Uint32 i = 0, n = _entries.size(); i < n; i++)
     {
 	Sint32 desc = _entries[i].desc;
 	Uint32 reasons = 0;
@@ -245,7 +245,7 @@ Boolean Selector::removeHandler(SelectorHandler* handler)
 {
     // Look for the given handler and remove it!
 
-    for (Uint32 i = 0, n = _entries.getSize(); i < n; i++)
+    for (Uint32 i = 0, n = _entries.size(); i < n; i++)
     {
 	if (_entries[i].handler == handler)
 	{

@@ -64,7 +64,7 @@ CIMQualifierDecl SimpleDeclContext::lookupQualifierDecl(
     const String& nameSpace,
     const String& name) const
 {
-    for (Uint32 i = 0, n = _qualifierDeclarations.getSize(); i < n; i++)
+    for (Uint32 i = 0, n = _qualifierDeclarations.size(); i < n; i++)
     {
 	const String& first = _qualifierDeclarations[i].first;
 	const CIMQualifierDecl& second = _qualifierDeclarations[i].second;
@@ -84,7 +84,7 @@ CIMClass SimpleDeclContext::lookupClass(
     const String& nameSpace,
     const String& name) const
 {
-    for (Uint32 i = 0, n = _classDeclarations.getSize(); i < n; i++)
+    for (Uint32 i = 0, n = _classDeclarations.size(); i < n; i++)
     {
 	const String& first = _classDeclarations[i].first;
 	const CIMClass& second = _classDeclarations[i].second;

@@ -176,7 +176,7 @@ String GetNameSpaceQueryField(const CGIQueryString& qs)
 
     String nameSpace = tmp;
 
-    if (!nameSpace.getLength())
+    if (!nameSpace.size())
 	ErrorExit("NameSpace parameter is null");
 
     return nameSpace;
@@ -186,7 +186,7 @@ static String EncodeQueryStringValue(const String& x)
 {
     String result;
 
-    for (Uint32 j = 0, m = x.getLength(); j < m; j++)
+    for (Uint32 j = 0, m = x.size(); j < m; j++)
     {
 	char c = x[j];
 
@@ -292,7 +292,7 @@ static void PrintRow(
     cout << "<td>" << name << "</td>\n";
     cout << "<td>" << type << "</td>\n";
 
-    if (value.getLength())
+    if (value.size())
 	cout << "<td>" << value << "</td>\n";
     else
 	cout << "<td>null</td>\n";
@@ -370,7 +370,7 @@ void PrintObjectProperties(
 
 	String valueString = value.toString();
 
-	if (valueString.getLength())
+	if (valueString.size())
 	    cout << "<td>" << valueString << "</td>\n";
 	else
 	    cout << "<td>null</td>\n";
@@ -526,7 +526,7 @@ static void GetClass(const CGIQueryString& qs)
 
     String className = tmp;
 
-    if (!className.getLength())
+    if (!className.size())
 	ErrorExit("ClassName parameter is null");
 
     // Process Checkbox items that become call opptions
@@ -588,7 +588,7 @@ static void GetPropertyDeclaration(const CGIQueryString& qs)
 
     String className = tmp;
 
-    if (!className.getLength())
+    if (!className.size())
 	ErrorExit("ClassName parameter is null");
 
     // Get PropertyName:
@@ -598,7 +598,7 @@ static void GetPropertyDeclaration(const CGIQueryString& qs)
 
     String propertyName = tmp;
 
-    if (!propertyName.getLength())
+    if (!propertyName.size())
 	ErrorExit("PropertyName parameter is null");
 
     //
@@ -640,7 +640,7 @@ static void PrintClassNames(
     cout << "<table border=1>\n";
     cout << "<tr><th>Class Names</th><tr>\n";
 
-    for (Uint32 i = 0, n = classNames.getSize(); i < n; i++)
+    for (Uint32 i = 0, n = classNames.size(); i < n; i++)
     {
 	cout << "<tr><td>\n";
 
@@ -669,7 +669,7 @@ static void PrintClassNames(
     cout << "</table>\n";
 
     // Close the Page
-    cout << "<p>Returned " << classNames.getSize() << " ClassNames ";
+    cout << "<p>Returned " << classNames.size() << " ClassNames ";
     cout << " in " << elapsedTime << " Seconds</p>\n";
     cout << "</body>\n" << "</html>\n";
 }
@@ -746,7 +746,7 @@ static void DeleteClass(const CGIQueryString& qs)
 
     String className = tmp;
 
-    if (!className.getLength())
+    if (!className.size())
 	ErrorExit("ClassName parameter is null");
 
     try
@@ -855,7 +855,7 @@ void PrintEnumerateQualifiers(
 
     cout << "<h1>Qualifiers:</h1>\n";
 
-    for (Uint32 i = 0; i < qualifierDecls.getSize(); i++)
+    for (Uint32 i = 0; i < qualifierDecls.size(); i++)
     {
 	PrintQualifierRow(nameSpace, qualifierDecls[i]);
     }
@@ -906,7 +906,7 @@ static void GetQualifier(const CGIQueryString& qs)
 
     String qualifierName = tmp;
 
-    if (!qualifierName.getLength())
+    if (!qualifierName.size())
 	ErrorExit("QualifierName parameter is null");
 
     try
@@ -954,7 +954,7 @@ static void PrintInstanceNames(
     cout << "<tr><th>Instance Names</th><tr>\n";
     // For each name prepare the table entry with an href for
     // click access to the getInstance for that name
-    for (Uint32 i = 0, n = InstanceNames.getSize(); i < n; i++)
+    for (Uint32 i = 0, n = InstanceNames.size(); i < n; i++)
     {
 	cout << "<tr><td>\n";
 
@@ -980,7 +980,7 @@ static void PrintInstanceNames(
     cout << "</table>\n";
 
     // Close the Page
-    cout << "<p>Returned " << InstanceNames.getSize() << " Instances ";
+    cout << "<p>Returned " << InstanceNames.size() << " Instances ";
     cout << " in " << elapsedTime << " Seconds</p>\n";
     cout << "</body>\n" << "</html>\n";
 
@@ -1026,7 +1026,7 @@ static void EnumerateInstanceNames(const CGIQueryString& qs)
 
 	Array<String> tmpInstanceNames;
 
-	for (Uint32 i = 0; i < instanceNames.getSize(); i++)
+	for (Uint32 i = 0; i < instanceNames.size(); i++)
 	    tmpInstanceNames.append(instanceNames[i].toString());
 
 	// Print the name array
@@ -1072,7 +1072,7 @@ static void GetInstance(const CGIQueryString& qs)
     }
 
 
-    // if (!instanceName.getLength())
+    // if (!instanceName.size())
     // ErrorExit("InstanceName parameter is null");
 
     // ATTN: handle these later!
@@ -1195,7 +1195,7 @@ static void EnumerateInstances(const CGIQueryString& qs)
 	    String valueString = value.toString();
 	    cout << "<B>Value = </B> "; 
 
-	    if (valueString.getLength())
+	    if (valueString.size())
 	       cout << " " << valueString << " \n\n";
 	    else
 	       cout << " NULL \n\n";
@@ -1386,7 +1386,7 @@ static void EnumerateNameSpaces(const CGIQueryString& qs)
 	// Convert from CIMReference to String form
 	Array<String> tmpInstanceNames;
 
-        for (Uint32 i = 0; i < instanceNames.getSize(); i++)
+        for (Uint32 i = 0; i < instanceNames.size(); i++)
 	    tmpInstanceNames.append(instanceNames[i].toString());
 
 	// Print the name array
@@ -1394,7 +1394,7 @@ static void EnumerateNameSpaces(const CGIQueryString& qs)
 
 	cout << "<table border=1>\n";
 	cout << "<tr><th>Namespaces</th><tr>\n";
-	for (Uint32 i = 0, n = instanceNames.getSize(); i < n; i++)
+	for (Uint32 i = 0, n = instanceNames.size(); i < n; i++)
 	{
 	    cout << "<tr><td>\n";
 	    // Instnance name in form
@@ -1406,7 +1406,7 @@ static void EnumerateNameSpaces(const CGIQueryString& qs)
 		work = tmpInstanceNames[i].subString((pos+1), -1);
 
 	    // remove trailing quote
-	    work.remove((work.getLength() - 1),-1);
+	    work.remove((work.size() - 1),-1);
 
 	    // Create href for click to get classnames
 
@@ -1425,7 +1425,7 @@ static void EnumerateNameSpaces(const CGIQueryString& qs)
 
 	// Close the Page
 	cout << "<p>Click on a namespace to enumerate class Names</p>";
-	cout << "<p>Returned " << instanceNames.getSize() << " Names";
+	cout << "<p>Returned " << instanceNames.size() << " Names";
 	cout << " in " << elapsedTime.getElapsed() << " Seconds</p>\n";
 	cout << "</body>\n" << "</html>\n";
 
@@ -1609,9 +1609,9 @@ static void ClassInheritance(const CGIQueryString& qs)
 	cout << "<tr><th>Super Class Names<th>Class Names<tr></th>\n";
 
 	String classNameHrefBuilder;
-	cout << "Count " <<   classArray.getSize() << endl;
+	cout << "Count " <<   classArray.size() << endl;
 
-	for (Uint32 i = 0, n = classArray.getSize(); i < n; i++)
+	for (Uint32 i = 0, n = classArray.size(); i < n; i++)
 	{
 	    cout << "<tr><td>\n";
 
@@ -1638,7 +1638,7 @@ static void ClassInheritance(const CGIQueryString& qs)
 	cout << "</table>\n";
 
 	// Close the Page
-	cout << "<p>Returned " << classArray.getSize() << " Classes ";
+	cout << "<p>Returned " << classArray.size() << " Classes ";
 	cout << " in " << elapsedTime.getElapsed() << " Seconds</p>\n";
 	cout << "</body>\n" << "</html>\n";
 
@@ -1688,7 +1688,7 @@ static void ClassTree(const CGIQueryString& qs)
 
 	PrintHTMLHead("EnumerateClassTree", "Enumerate Classes Tree Result");
 
-  	cout << "Count of Class Enumerate " <<   classNames.getSize() << endl;
+  	cout << "Count of Class Enumerate " <<   classNames.size() << endl;
 	cout << " in " << elapsedTime.getElapsed() << " Seconds</p>\n";
 
         elapsedTime.reset();
@@ -1700,7 +1700,7 @@ static void ClassTree(const CGIQueryString& qs)
 	Array<String> superClassNames;
 
 	// Now we make loop getting classes to get the superclassname
-	for (Uint32 i = 0, n = classNames.getSize(); i < n; i++)
+	for (Uint32 i = 0, n = classNames.size(); i < n; i++)
 	{
             // Now get the class corresponding to the class name
 	    myClass = client.getClass(nameSpace,
@@ -1713,10 +1713,10 @@ static void ClassTree(const CGIQueryString& qs)
 	   superClassNames.append(myClass.getSuperClassName());
 	}
  	TraverseClassTree(nameSpace, rootClass, superClassNames,
-			    classNames,classNames.getSize(),Uint32(-1));
+			    classNames,classNames.size(),Uint32(-1));
 
 	// Close the Page
-	cout << "<p>Returned " << classNames.getSize() << " getClasses ";
+	cout << "<p>Returned " << classNames.size() << " getClasses ";
 	cout << " in " << elapsedTime.getElapsed() << " Seconds</p>\n";
 	cout << "</body>\n" << "</html>\n";
 

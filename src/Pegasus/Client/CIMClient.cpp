@@ -1278,7 +1278,7 @@ void CIMClient::get(const char* document) const
     Array<Sint8> message = XmlWriter::formatGetHeader(document);
 
     _channel->writeN(
-	message.getData(), message.getSize());
+	message.getData(), message.size());
 }
 
 void CIMClient::runOnce()
@@ -1347,7 +1347,7 @@ CIMClass CIMClient::getClass(
     Array<Sint8> message = XmlWriter::formatSimpleReqMessage(
 	_getHostName(), nameSpace, "GetClass", parameters);
 
-    _channel->writeN(message.getData(), message.getSize());
+    _channel->writeN(message.getData(), message.size());
 
     if (!_getHandler()->waitForResponse(_timeOutMilliseconds))
 	throw TimedOut();
@@ -1397,7 +1397,7 @@ CIMInstance CIMClient::getInstance(
     Array<Sint8> message = XmlWriter::formatSimpleReqMessage(
 	_getHostName(), nameSpace, "GetInstance", parameters);
 
-    _channel->writeN(message.getData(), message.getSize());
+    _channel->writeN(message.getData(), message.size());
 
     if (!_getHandler()->waitForResponse(_timeOutMilliseconds))
 	throw TimedOut();
@@ -1422,14 +1422,14 @@ void CIMClient::deleteClass(
 
     Array<Sint8> parameters;
 
-    if (className.getLength())
+    if (className.size())
 	XmlWriter::appendClassNameParameter(parameters, "ClassName", className);
 
     Array<Sint8> message = XmlWriter::formatSimpleReqMessage(
 	_getHostName(),
 	nameSpace, "DeleteClass", parameters);
 	
-    _channel->writeN(message.getData(), message.getSize());
+    _channel->writeN(message.getData(), message.size());
 
     if (!_getHandler()->waitForResponse(_timeOutMilliseconds))
 	throw TimedOut();
@@ -1464,7 +1464,7 @@ void CIMClient::createClass(
 	_getHostName(),
 	nameSpace, "CreateClass", parameters);
 
-    _channel->writeN(message.getData(), message.getSize());
+    _channel->writeN(message.getData(), message.size());
 
     if (!_getHandler()->waitForResponse(_timeOutMilliseconds))
 	throw TimedOut();
@@ -1493,7 +1493,7 @@ void CIMClient::createInstance(
 	_getHostName(),
 	nameSpace, "CreateInstance", parameters);
 
-    _channel->writeN(message.getData(), message.getSize());
+    _channel->writeN(message.getData(), message.size());
 
     if (!_getHandler()->waitForResponse(_timeOutMilliseconds))
 	throw TimedOut();
@@ -1520,7 +1520,7 @@ void CIMClient::modifyClass(
 	_getHostName(),
 	nameSpace, "ModifyClass", parameters);
 
-    _channel->writeN(message.getData(), message.getSize());
+    _channel->writeN(message.getData(), message.size());
 
     if (!_getHandler()->waitForResponse(_timeOutMilliseconds))
 	throw TimedOut();
@@ -1554,7 +1554,7 @@ Array<CIMClass> CIMClient::enumerateClasses(
 
     Array<Sint8> parameters;
 
-    if (className.getLength())
+    if (className.size())
 	XmlWriter::appendClassNameParameter(parameters, "ClassName", className);
 	
     if (deepInheritance != false)
@@ -1575,7 +1575,7 @@ Array<CIMClass> CIMClient::enumerateClasses(
 	_getHostName(),
 	nameSpace, "EnumerateClasses", parameters);
 
-    _channel->writeN(message.getData(), message.getSize());
+    _channel->writeN(message.getData(), message.size());
 
     if (!_getHandler()->waitForResponse(_timeOutMilliseconds))
 	throw TimedOut();
@@ -1608,7 +1608,7 @@ Array<String> CIMClient::enumerateClassNames(
 
     Array<Sint8> parameters;
 
-    if (className.getLength())
+    if (className.size())
 	XmlWriter::appendClassNameParameter(parameters, "ClassName", className);
 	
     if (deepInheritance != false)
@@ -1618,7 +1618,7 @@ Array<String> CIMClient::enumerateClassNames(
 	_getHostName(),
 	nameSpace, "EnumerateClassNames", parameters);
 
-    _channel->writeN(message.getData(), message.getSize());
+    _channel->writeN(message.getData(), message.size());
 
     if (!_getHandler()->waitForResponse(_timeOutMilliseconds))
 	throw TimedOut();
@@ -1664,7 +1664,7 @@ Array<CIMReference> CIMClient::enumerateInstanceNames(
 	_getHostName(),
 	nameSpace, "EnumerateInstanceNames", parameters);
 
-    _channel->writeN(message.getData(), message.getSize());
+    _channel->writeN(message.getData(), message.size());
 
     if (!_getHandler()->waitForResponse(_timeOutMilliseconds))
 	throw TimedOut();
@@ -1792,7 +1792,7 @@ CIMValue CIMClient::getProperty(
 
     // -------- Append propertyName parameter here
 
-    _channel->writeN(message.getData(), message.getSize());
+    _channel->writeN(message.getData(), message.size());
 
     if (!_getHandler()->waitForResponse(_timeOutMilliseconds))
 	throw TimedOut();
@@ -1835,7 +1835,7 @@ void CIMClient::setProperty(
 
     // append propertyName and newValue properties here
 
-    _channel->writeN(message.getData(), message.getSize());
+    _channel->writeN(message.getData(), message.size());
 
     if (!_getHandler()->waitForResponse(_timeOutMilliseconds))
 	throw TimedOut();
@@ -1863,7 +1863,7 @@ CIMQualifierDecl CIMClient::getQualifier(
     // ATTN: no way in the specification to pass a qualifier name within
     // an IPARAMVALUE. Need help to solve this one.
 
-    if (qualifierName.getLength())
+    if (qualifierName.size())
 	XmlWriter::appendClassNameParameter(
 	    parameters, "QualifierName", qualifierName);
 	
@@ -1871,7 +1871,7 @@ CIMQualifierDecl CIMClient::getQualifier(
 	_getHostName(),
 	nameSpace, "GetQualifier", parameters);
 
-    _channel->writeN(message.getData(), message.getSize());
+    _channel->writeN(message.getData(), message.size());
 
     if (!_getHandler()->waitForResponse(_timeOutMilliseconds))
 	throw TimedOut();
@@ -1902,7 +1902,7 @@ void CIMClient::setQualifier(
 	_getHostName(),
 	nameSpace, "SetQualifier", parameters);
 
-    _channel->writeN(message.getData(), message.getSize());
+    _channel->writeN(message.getData(), message.size());
 
     if (!_getHandler()->waitForResponse(_timeOutMilliseconds))
 	throw TimedOut();
@@ -1927,7 +1927,7 @@ void CIMClient::deleteQualifier(
     // ATTN: no way in the specification to pass a qualifier name within
     // an IPARAMVALUE. Need help to solve this one.
 
-    if (qualifierName.getLength())
+    if (qualifierName.size())
 	XmlWriter::appendClassNameParameter(
 	    parameters, "QualifierName", qualifierName);
 	
@@ -1935,7 +1935,7 @@ void CIMClient::deleteQualifier(
 	_getHostName(),
 	nameSpace, "DeleteQualifier", parameters);
 
-    _channel->writeN(message.getData(), message.getSize());
+    _channel->writeN(message.getData(), message.size());
 
     if (!_getHandler()->waitForResponse(_timeOutMilliseconds))
 	throw TimedOut();
@@ -1960,7 +1960,7 @@ Array<CIMQualifierDecl> CIMClient::enumerateQualifiers(
 	_getHostName(),
 	nameSpace, "EnumerateQualifiers", parameters);
 
-    _channel->writeN(message.getData(), message.getSize());
+    _channel->writeN(message.getData(), message.size());
 
     if (!_getHandler()->waitForResponse(_timeOutMilliseconds))
 	throw TimedOut();

@@ -52,13 +52,13 @@ CIMPropertyRep::CIMPropertyRep(
     if (arraySize && (!value.isArray() || value.getArraySize() != arraySize))
 	throw IncompatibleTypes();
 
-    if (classOrigin.getLength() && !CIMName::legal(classOrigin))
+    if (classOrigin.size() && !CIMName::legal(classOrigin))
 	throw IllegalName();
 
     if (_value.getType() == CIMType::NONE)
 	throw NullType();
 
-    if (referenceClassName.getLength())
+    if (referenceClassName.size())
     {
 	if (!CIMName::legal(referenceClassName))
 	    throw IllegalName();
@@ -172,7 +172,7 @@ void CIMPropertyRep::toXml(Array<Sint8>& out) const
 	    out << " ARRAYSIZE=\"" << buffer << "\"";
 	}
 
-	if (_classOrigin.getLength())
+	if (_classOrigin.size())
 	    out << " CLASSORIGIN=\"" << _classOrigin << "\"";
 
 	if (_propagated != false)
@@ -194,7 +194,7 @@ void CIMPropertyRep::toXml(Array<Sint8>& out) const
 
 	out << " REFERENCECLASS=\"" << _referenceClassName << "\"";
 
-	if (_classOrigin.getLength())
+	if (_classOrigin.size())
 	    out << " CLASSORIGIN=\"" << _classOrigin << "\"";
 
 	if (_propagated != false)
@@ -213,7 +213,7 @@ void CIMPropertyRep::toXml(Array<Sint8>& out) const
 	out << "<PROPERTY";
 	out << " NAME=\"" << _name << "\" ";
 
-	if (_classOrigin.getLength())
+	if (_classOrigin.size())
 	    out << " CLASSORIGIN=\"" << _classOrigin << "\"";
 
 	if (_propagated != false)

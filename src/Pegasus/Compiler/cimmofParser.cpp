@@ -219,7 +219,7 @@ cimmofParser::enterInlineInclude(const String &filename) {
   if (!f) {
     if (_cmdline) {
       const Array<String> &include_paths = _cmdline->get_include_paths();
-      for (unsigned int i = 0; i < include_paths.getSize(); i++) {
+      for (unsigned int i = 0; i < include_paths.size(); i++) {
 	String s = include_paths[i] + "/" + fqname;
 	if ( (f = fopen(_CString(s), "r")) ) {
 	  _includefile = s;
@@ -303,7 +303,7 @@ char *
 cimmofParser::oct_to_dec(const String &octrep) const {
   unsigned long oval = 0;
   char buf[40];  // can't overrrun on an itoa of a long
-  for (int i = octrep.getLength() - 1; i >= 0; --i) {
+  for (int i = octrep.size() - 1; i >= 0; --i) {
      oval *= 8;
      switch(octrep[i]) {
      case '1': oval += 1; break;
@@ -329,7 +329,7 @@ char *
 cimmofParser::hex_to_dec(const String &hexrep) const {
   unsigned long hval = 0;
   char buf[40];  // can't overrrun on an itoa of a long
-  for (int i = hexrep.getLength() - 1; i >= 2; --i) {
+  for (int i = hexrep.size() - 1; i >= 2; --i) {
      hval *= 16;
      switch(hexrep[i]) {
      case '1': hval += 1; break;
@@ -375,7 +375,7 @@ char *
 cimmofParser::binary_to_dec(const String &binrep) const {
   unsigned long bval = 0;
   char buf[40];  // can't overrrun on an itoa of a long
-  for (int i = binrep.getLength() - 1; i >= 0; --i) {
+  for (int i = binrep.size() - 1; i >= 0; --i) {
      bval *= 2;
      bval += binrep[i] == '1' ? 1 : 0;
   }

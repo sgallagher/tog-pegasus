@@ -56,14 +56,14 @@ const String NAMESPACE = "/zzz";
 void print(const Array<String>& array)
 {
 #if 0
-    for (Uint32 i = 0, n = array.getSize(); i < n; i++)
+    for (Uint32 i = 0, n = array.size(); i < n; i++)
 	cout << "array[" << i << "]: " << array[i] << endl;
 #endif
 }
 
 void TestCase1()
 {
-    CIMRepository r(".");
+    CIMRepository r("./repository");
 
     // Enumerate the class names:
 
@@ -84,7 +84,7 @@ void TestCase1()
 
 void TestCase2()
 {
-    CIMRepository r(".");
+    CIMRepository r("./repository");
 
     // Enumerate the class names:
 
@@ -116,7 +116,7 @@ void TestCase2()
 
 void TestCase3()
 {
-    CIMRepository r(".");
+    CIMRepository r("./repository");
 
     // Enumerate the class names:
 
@@ -138,7 +138,7 @@ void TestCase3()
 
 void TestCase4()
 {
-    CIMRepository r(".");
+    CIMRepository r("./repository");
 
     // Enumerate the class names:
 
@@ -173,7 +173,7 @@ static void CreateClass(
 
 int main()
 {
-    CIMRepository r(".");
+    CIMRepository r("./repository");
 
     try 
     {

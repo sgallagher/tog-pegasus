@@ -53,7 +53,7 @@ CIMParameterRep::CIMParameterRep(
     if (_arraySize && !_isArray)
 	throw IncompatibleTypes();
 
-    if (referenceClassName.getLength())
+    if (referenceClassName.size())
     {
 	if (!CIMName::legal(referenceClassName))
 	    throw IllegalName();
@@ -194,7 +194,7 @@ void CIMParameterRep::setType(CIMType type)
 { 
     _type = type;
 
-    if (_referenceClassName.getLength() == 0 && _type == CIMType::REFERENCE)
+    if (_referenceClassName.size() == 0 && _type == CIMType::REFERENCE)
     {
 	throw MissingReferenceClassName();
     }

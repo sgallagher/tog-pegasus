@@ -106,9 +106,9 @@ cimmofMessages::msgCodeToString(MsgCode code)
 static int
 find(const String &haystack, const String &needle)
 {
-  unsigned int size = haystack.getLength();
+  unsigned int size = haystack.size();
   unsigned int npos = 0;
-  unsigned int nsize = needle.getLength();
+  unsigned int nsize = needle.size();
   for (unsigned int i = 0; i < size; i++) {
     if (haystack[i] == '\\')
       i++;
@@ -136,14 +136,14 @@ cimmofMessages::getMessage(String &out, MsgCode code, const arglist &args)
   String s = msgCodeToString(code);
   out = s;
   int pos;
-  for (unsigned int i = 0; i < args.getSize(); i++) {
+  for (unsigned int i = 0; i < args.size(); i++) {
     int state = 0;
     char buf[40];
     sprintf(buf, "%d", i + 1);
     String srchstr = "%";
     srchstr.append(buf);
     if ( (pos = find(out, srchstr)) != -1 ) {
-      replace(out, pos, srchstr.getLength(), args[i]);
+      replace(out, pos, srchstr.size(), args[i]);
     }
   }
 }

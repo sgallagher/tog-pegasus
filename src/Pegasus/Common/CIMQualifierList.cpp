@@ -49,7 +49,7 @@ CIMQualifierList& CIMQualifierList::add(const CIMQualifier& qualifier)
 
 Uint32 CIMQualifierList::find(const String& name) const
 {
-    for (Uint32 i = 0, n = _qualifiers.getSize(); i < n; i++)
+    for (Uint32 i = 0, n = _qualifiers.size(); i < n; i++)
     {
 	if (CIMName::equal(_qualifiers[i].getName(), name))
 	    return i;
@@ -60,7 +60,7 @@ Uint32 CIMQualifierList::find(const String& name) const
 
 Uint32 CIMQualifierList::findReverse(const String& name) const
 {
-    for (Uint32 i = _qualifiers.getSize(); i; --i)
+    for (Uint32 i = _qualifiers.size(); i; --i)
     {
 	if (CIMName::equal(_qualifiers[i - 1].getName(), name))
 	    return i - 1;
@@ -93,7 +93,7 @@ void CIMQualifierList::resolve(
     // If the qualifier should be overriden, then it is injected into the 
     // qualifiers array (from the inheritedQualifiers array).
 
-    for (Uint32 i = 0, n = _qualifiers.getSize(); i < n; i++)
+    for (Uint32 i = 0, n = _qualifiers.size(); i < n; i++)
     {
 	CIMQualifier q = _qualifiers[i];
 
@@ -181,7 +181,7 @@ void CIMQualifierList::resolve(
 
 void CIMQualifierList::toXml(Array<Sint8>& out) const
 {
-    for (Uint32 i = 0, n = _qualifiers.getSize(); i < n; i++)
+    for (Uint32 i = 0, n = _qualifiers.size(); i < n; i++)
 	_qualifiers[i].toXml(out);
 }
 
@@ -209,9 +209,9 @@ Boolean CIMQualifierList::identical(const CIMQualifierList& x) const
 void CIMQualifierList::cloneTo(CIMQualifierList& x) const
 {
     x._qualifiers.clear();
-    x._qualifiers.reserve(_qualifiers.getSize());
+    x._qualifiers.reserve(_qualifiers.size());
 
-    for (Uint32 i = 0, n = _qualifiers.getSize(); i < n; i++)
+    for (Uint32 i = 0, n = _qualifiers.size(); i < n; i++)
 	x._qualifiers.append(_qualifiers[i].clone());
 }
 

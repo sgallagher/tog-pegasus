@@ -221,7 +221,7 @@ static String _formMessage(Uint32 code, Uint32 line, const String& message)
     result.append(": on line ");
     result.append(buffer);
 
-    if (message.getLength())
+    if (message.size())
     {
 	result.append(": ");
 	result.append(message);

@@ -33,6 +33,7 @@
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/CIMQualifierDecl.h>
 #include <Pegasus/Common/CIMOperations.h>
+#include <Pegasus/Repository/NameSpaceManager.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -52,7 +53,7 @@ class PEGASUS_REPOSITORY_LINKAGE CIMRepository : public CIMOperations
 public:
 
     /// Constructor
-    CIMRepository(const String& path);
+    CIMRepository(const String& repositoryRoot);
 
     /// Descructor
     virtual ~CIMRepository();
@@ -257,8 +258,9 @@ private:
     void _createMetaQualifiers(const String& nameSpace);
 #endif
 
-    String _root;
+    String _repositoryRoot;
     RepositoryDeclContext* _context;
+    NameSpaceManager _nameSpaceManager;
 };
 
 PEGASUS_NAMESPACE_END

@@ -74,7 +74,7 @@ int _Compare(const String& s1_, const String& s2_)
 
 static void _BubbleSort(Array<KeyBinding>& x) 
 {
-    Uint32 n = x.getSize();
+    Uint32 n = x.size();
 
     if (n < 2)
 	return;
@@ -436,7 +436,7 @@ String CIMReference::toString() const
 
     // Get the host:
 
-    if (_host.getLength() && _nameSpace.getLength())
+    if (_host.size() && _nameSpace.size())
     {
 	objectName = "//";
 	objectName += _host;
@@ -456,7 +456,7 @@ String CIMReference::toString() const
 
     const Array<KeyBinding>& keyBindings = getKeyBindings();
 
-    for (Uint32 i = 0, n = keyBindings.getSize(); i < n; i++)
+    for (Uint32 i = 0, n = keyBindings.size(); i < n; i++)
     {
 	objectName.append(keyBindings[i].getName());
 	objectName.append('=');
@@ -493,7 +493,7 @@ Boolean CIMReference::identical(const CIMReference& x) const
 
 void CIMReference::nameSpaceToXml(Array<Sint8>& out) const
 {
-    if (_host.getLength())
+    if (_host.size())
     {
 	out << "<NAMESPACEPATH>\n";
 	out << "<HOST>" << _host << "</HOST>\n";
@@ -501,7 +501,7 @@ void CIMReference::nameSpaceToXml(Array<Sint8>& out) const
     
     XmlWriter::appendLocalNameSpaceElement(out, _nameSpace);
 
-    if (_host.getLength())
+    if (_host.size())
 	out << "</NAMESPACEPATH>\n";
 }
 
@@ -530,7 +530,7 @@ void CIMReference::instanceNameToXml(Array<Sint8>& out) const
 {
     out << "<INSTANCENAME CLASSNAME=\"" << _className << "\">\n";
 
-    for (Uint32 i = 0, n = _keyBindings.getSize(); i < n; i++)
+    for (Uint32 i = 0, n = _keyBindings.size(); i < n; i++)
     {
 	out << "<KEYBINDING NAME=\"" << _keyBindings[i].getName() << "\">\n";
 
@@ -554,16 +554,16 @@ void CIMReference::toXml(Array<Sint8>& out) const
     // See if it is a class or instance reference (instance references have
     // key-bindings; class references do not).
 
-    if (_keyBindings.getSize())
+    if (_keyBindings.size())
     {
-	if (_host.getLength())
+	if (_host.size())
 	{
 	    out << "<INSTANCEPATH>\n";
 	    nameSpaceToXml(out);
 	    instanceNameToXml(out);
 	    out << "</INSTANCEPATH>\n";
 	}
-	else if (_nameSpace.getLength())
+	else if (_nameSpace.size())
 	{
 	    out << "<LOCALINSTANCEPATH>\n";
 	    localNameSpaceToXml(out);
@@ -575,14 +575,14 @@ void CIMReference::toXml(Array<Sint8>& out) const
     }
     else
     {
-	if (_host.getLength())
+	if (_host.size())
 	{
 	    out << "<CLASSPATH>\n";
 	    nameSpaceToXml(out);
 	    classNameToXml(out);
 	    out << "</CLASSPATH>";
 	}
-	else if (_nameSpace.getLength())
+	else if (_nameSpace.size())
 	{
 	    out << "<LOCALCLASSPATH>\n";
 	    nameSpaceToXml(out);
@@ -626,7 +626,7 @@ Uint32 CIMReference::makeHashCode() const
 
     ref._className.toLower();
 
-    for (Uint32 i = 0, n = ref._keyBindings.getSize(); i < n; i++)
+    for (Uint32 i = 0, n = ref._keyBindings.size(); i < n; i++)
 	ref._keyBindings[i]._name.toLower();
 
     return HashFunc<String>::hash(ref.toString());

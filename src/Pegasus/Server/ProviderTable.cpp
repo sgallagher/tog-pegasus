@@ -38,7 +38,7 @@ ProviderTable::ProviderTable()
 
 CIMProvider* ProviderTable::lookupProvider(const String& providerId)
 {
-    for (Uint32 i = 0, n = _providers.getSize(); i < n; i++)
+    for (Uint32 i = 0, n = _providers.size(); i < n; i++)
 	if (String::equal(_providers[i].providerId, providerId))
 	    return _providers[i].provider;
 

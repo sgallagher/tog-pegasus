@@ -146,7 +146,7 @@ public:
 
     ~XmlParser();
 
-    Uint32 getStackSize() const { return _stack.getSize(); }
+    Uint32 getStackSize() const { return _stack.size(); }
 
     Uint32 getLine() const { return _line; }
 

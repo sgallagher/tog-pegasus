@@ -127,7 +127,7 @@ public:
     
 	    // ATTN: Does this throw an exception?
 	    ns = _repository->enumerateNameSpaces();
-	    for (Uint32 i = 0, n = ns.getSize(); i < n; i++)
+	    for (Uint32 i = 0, n = ns.size(); i < n; i++)
 		{
 		cout <<"DEBUG Loop " << ns[i] << " " << n << " " << myName << 
 			endl;
@@ -180,7 +180,7 @@ public:
  
        // Create an instance name from namespace names
        // ATTN: Legal to append to String in Array?
-       for (Uint32 i = 0; i < ns.getSize(); i++)
+       for (Uint32 i = 0; i < ns.size(); i++)
        {
 	    instanceName.append("__Namespace.name=\"");
 	    instanceName[i].append(ns[i]);
@@ -191,7 +191,7 @@ public:
        CIMReference ref;
        try
        {
-	   for (Uint32 i = 0; i < instanceName.getSize(); i++)
+	   for (Uint32 i = 0; i < instanceName.size(); i++)
 	   {
 		// Convert instance names to References
 	       instanceRefs.append(instanceName[i]);

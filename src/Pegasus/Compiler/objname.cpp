@@ -69,7 +69,7 @@ void
 namespaceHandle::namespaceHandleRepToComponents(const String &rep) {
   _host.clear();
   _path.clear();
-  Uint32 n = rep.getLength();
+  Uint32 n = rep.size();
   typedef enum _states {BEGIN, INHOST, INPATH, DONE} states;
   states state = BEGIN;
   bool hashost = false;
@@ -140,7 +140,7 @@ modelPath::KeyBindingTypeOf(const String &s)
 const String &
 modelPath::modelPathComponentsToRep() {
   String stringrep = _className;
-  Uint32 numkeys = _KeyBindings.getSize();
+  Uint32 numkeys = _KeyBindings.size();
   if (numkeys) {
     stringrep += ".";
   }
@@ -155,7 +155,7 @@ modelPath::modelPathRepToComponents(const String &rep) {
   String keyname;
   KeyBinding::Type kbtype = KeyBinding::STRING;
   String keyvalue;
-  Uint32 n = rep.getLength();
+  Uint32 n = rep.size();
   enum _states{BEGIN, INCLASS, KEYBEGIN, INKEYNAME, KEYVALBEGIN,
 		    INSTRINGKEYVAL, INNUMERICKEYVAL,
 		    INBOOLEANKEYVAL, ENDINGKEYVAL};
@@ -260,7 +260,7 @@ const String &
 modelPath::KeyBindingsToKeyString()
 {
   String stringrep;
-  Uint32 numkeys = _KeyBindings.getSize();
+  Uint32 numkeys = _KeyBindings.size();
   for (Uint32 i = 0; i < numkeys; i++) {
     const KeyBinding &kb = _KeyBindings[i];
     const String &keyname = kb.getName();
@@ -313,7 +313,7 @@ objectName::~objectName() {
 
 void
 objectName::set(const String &stringrep) {
-  Uint32 n = stringrep.getLength();
+  Uint32 n = stringrep.size();
   Char16 lastchar = '\0';
   Array<Uint32> colons;
   for (Uint32 i = 0; i < n; i++) {
@@ -327,7 +327,7 @@ objectName::set(const String &stringrep) {
   int delimiter2 = 0; // if non-zero, separates host from path
   int delimiter3 = 0; // if non-zero, separates path from object name & key
   int handlestart = 0;  // where the namspaceHandle, if any, starts
-  int numcolons = colons.getSize();
+  int numcolons = colons.size();
   if (numcolons == 3) {
     delimiter1 = colons[0];
     delimiter2 = colons[1];

@@ -80,7 +80,7 @@ const char* Handler::getFieldValue(const char* fieldName) const
     const char* message = _message.getData();
     Uint32 fieldNameLength = strlen(fieldName);
 
-    for (Uint32 i = 1; i < _lines.getSize(); i++)
+    for (Uint32 i = 1; i < _lines.size(); i++)
     {
 	const char* line = &message[_lines[i]];
 
@@ -103,7 +103,7 @@ const char* Handler::getFieldValueSubString(const char* str) const
 {
     const char* message = _message.getData();
 
-    for (Uint32 i = 1; i < _lines.getSize(); i++)
+    for (Uint32 i = 1; i < _lines.size(); i++)
     {
 	const char* line = &message[_lines[i]];
 
@@ -147,7 +147,7 @@ void Handler::print() const
 
     const char* message = _message.getData();
 
-    for (Uint32 i = 0; i < _lines.getSize(); i++)
+    for (Uint32 i = 0; i < _lines.size(); i++)
     {
 	cout << &message[_lines[i]] << "\r\n";
     }
@@ -161,7 +161,7 @@ void Handler::print() const
 
     ((Array<Sint8>&)_message).append('\0');
     XmlWriter::indentedPrint(cout, content);
-    ((Array<Sint8>&)_message).remove(_message.getSize() - 1);
+    ((Array<Sint8>&)_message).remove(_message.size() - 1);
 }
 
 static char* _FindTerminator(const char* data, Uint32 size)
@@ -222,7 +222,7 @@ Boolean Handler::handleInput(Channel* channel)
 	if (_state == CONTENT)
 	{
 	    _state = DONE;
-	    _contentLength = _message.getSize() - _contentOffset;
+	    _contentLength = _message.size() - _contentOffset;
 	    D( cout << "handleMessage(); closed connection" << endl; )
 
 	    if (handleMessage() != 0)
@@ -244,7 +244,7 @@ Boolean Handler::handleInput(Channel* channel)
 	case LINES:
 	{
 	    char* m = (char*)_message.getData();
-	    Uint32 mSize = _message.getSize();
+	    Uint32 mSize = _message.size();
 	    char* term = _FindTerminator(m, mSize);
 
 	    if (term)
@@ -289,7 +289,7 @@ Boolean Handler::handleInput(Channel* channel)
 
 	case CONTENT:
 	{
-	    Uint32 currentContentLength = _message.getSize() - _contentOffset;
+	    Uint32 currentContentLength = _message.size() - _contentOffset;
 
 	    if (_contentLength != Uint32(-1)
 		&& currentContentLength == _contentLength)
@@ -378,7 +378,7 @@ void Handler::printMessage(ostream& os, const Array<Sint8>& message)
     XmlWriter::indentedPrint(os, p);
 
     *((char*)separator) = '\n';
-    ((Array<Sint8>&)message).remove(message.getSize() - 1);
+    ((Array<Sint8>&)message).remove(message.size() - 1);
 }
 
 PEGASUS_NAMESPACE_END

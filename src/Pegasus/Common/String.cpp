@@ -154,7 +154,7 @@ String& String::assign(const char* x, Uint32 n_)
 
 char* String::allocateCString(Uint32 extraBytes, Boolean noThrow) const
 {
-    Uint32 n = getLength() + 1;
+    Uint32 n = size() + 1;
     char* str = new char[n + extraBytes];
     char* p = str;
     const Char16* q = getData();
@@ -179,7 +179,7 @@ void String::appendToCString(
     if (!str)
 	throw NullPointer();
 
-    Uint32 n = _min(getLength(), length);
+    Uint32 n = _min(size(), length);
 
     char* p = str + strlen(str);
     const Char16* q = getData();
@@ -198,7 +198,7 @@ void String::appendToCString(
 
 Char16& String::operator[](Uint32 i)
 {
-    if (i > getLength())
+    if (i > size())
 	ThrowOutOfBounds();
 
     return _rep[i];
@@ -206,7 +206,7 @@ Char16& String::operator[](Uint32 i)
 
 const Char16 String::operator[](Uint32 i) const
 {
-    if (i > getLength())
+    if (i > size())
 	ThrowOutOfBounds();
 
     return _rep[i];
@@ -215,8 +215,8 @@ const Char16 String::operator[](Uint32 i) const
 String& String::append(const Char16* str, Uint32 n)
 {
     Uint32 m = _min(StrLen(str), n);
-    _rep.reserve(_rep.getSize() + m);
-    _rep.remove(_rep.getSize() - 1);
+    _rep.reserve(_rep.size() + m);
+    _rep.remove(_rep.size() - 1);
     _rep.append(str, m);
     _rep.append('\0');
     return *this;
@@ -225,9 +225,9 @@ String& String::append(const Char16* str, Uint32 n)
 void String::remove(Uint32 pos, Uint32 size)
 {
     if (size == Uint32(-1))
-	size = getLength() - pos;
+	size = this->size() - pos;
 
-    if (pos + size > getLength())
+    if (pos + size > this->size())
 	ThrowOutOfBounds();
 
     if (size)
@@ -249,18 +249,18 @@ int String::compare(const Char16* s1, const Char16* s2, Uint32 n)
 
 Boolean String::equal(const String& x, const String& y)
 {
-    if (x.getLength() != y.getLength())
+    if (x.size() != y.size())
 	return false;
 
-    return String::compare(x.getData(), y.getData(), x.getLength()) == 0;
+    return String::compare(x.getData(), y.getData(), x.size()) == 0;
 }
 
 Boolean String::equal(const String& x, const Char16* y)
 {
-    if (x.getLength() != StrLen(y))
+    if (x.size() != StrLen(y))
 	return false;
 
-    return String::compare(x.getData(), y, x.getLength()) == 0;
+    return String::compare(x.getData(), y, x.size()) == 0;
 }
 
 Boolean String::equal(const Char16* x, const String& y)
@@ -280,13 +280,13 @@ Boolean String::equal(const char* x, const String& y)
 
 Boolean String::equalIgnoreCase(const String& x, const String& y)
 {
-    if (x.getLength() != y.getLength())
+    if (x.size() != y.size())
 	return false;
 
     const Char16* p = x.getData();
     const Char16* q = y.getData();
 
-    Uint32 n = x.getLength();
+    Uint32 n = x.size();
 
     while (n--)
     {
@@ -304,10 +304,10 @@ Boolean String::equalIgnoreCase(const String& x, const String& y)
 
 String String::subString(Uint32 pos, Uint32 length) const
 {
-    if (pos < getLength())
+    if (pos < size())
     {
 	if (length == Uint32(-1))
-	    length = getLength() - pos;
+	    length = size() - pos;
 
 	return String(getData() + pos, length);
     }
@@ -332,8 +332,8 @@ Uint32 String::find(const String& s) const
 {
     const Char16* pSubStr = s.getData();
     const Char16* pStr = getData();
-    Uint32 subStrLen = s.getLength();
-    Uint32 strLen = getLength();
+    Uint32 subStrLen = s.size();
+    Uint32 strLen = size();
     
     // loop to find first char match
     Uint32 loc = 0;
@@ -365,7 +365,7 @@ Uint32 String::find(const char* s) const
 Uint32 String::reverseFind(Char16 c) const
 {
     const Char16* first = getData();
-    const Char16* last = getData() + getLength();
+    const Char16* last = getData() + size();
 
     while (last != first)
     {
@@ -414,7 +414,7 @@ int String::compare(const Char16* s1, const Char16* s2)
 
 std::ostream& operator<<(std::ostream& os, const String& x)
 {
-    for (Uint32 i = 0, n = x.getLength(); i < n; i++)
+    for (Uint32 i = 0, n = x.size(); i < n; i++)
 	os << x[i];
 
     return os;
@@ -430,7 +430,7 @@ String ToLower(const String& str)
 {
     String tmp(str);
 
-    for (Uint32 i = 0, n = tmp.getLength(); i < n; i++)
+    for (Uint32 i = 0, n = tmp.size(); i < n; i++)
     {
 	Char16 c = tmp[i];
 

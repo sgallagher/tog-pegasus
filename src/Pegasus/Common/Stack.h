@@ -54,7 +54,7 @@ public:
     ///
     Stack& operator=(const Stack& x) { _rep = x._rep; return *this; }
     ///
-    Boolean isEmpty() const { return _rep.getSize() == 0; }
+    Boolean isEmpty() const { return _rep.size() == 0; }
     ///
     void push(const T& x) { _rep.append(x); }
     ///
@@ -64,7 +64,7 @@ public:
     ///
     void pop();
     ///
-    Uint32 getSize() const { return _rep.getSize(); }
+    Uint32 size() const { return _rep.size(); }
     ///
     T& operator[](Uint32 i) { return _rep[i]; }
     ///
@@ -79,7 +79,7 @@ template<class T>
 T& Stack<T>::top()
 {
     if (!isEmpty())
-	return _rep[_rep.getSize() - 1];
+	return _rep[_rep.size() - 1];
     else
     {
 	static T dummy = T();
@@ -90,10 +90,10 @@ T& Stack<T>::top()
 template<class T>
 void Stack<T>::pop()
 {
-    if (_rep.getSize() == 0)
+    if (_rep.size() == 0)
 	throw StackUnderflow();
 
-    _rep.remove(_rep.getSize() - 1);
+    _rep.remove(_rep.size() - 1);
 }
 
 PEGASUS_NAMESPACE_END

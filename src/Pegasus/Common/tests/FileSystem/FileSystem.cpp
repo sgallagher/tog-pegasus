@@ -56,7 +56,7 @@ int main()
     Array<String> paths;
     assert( FileSystem::getDirectoryContents("./testdir", paths) );
 
-    for (Uint32 i = 0; i < paths.getSize(); i++)
+    for (Uint32 i = 0; i < paths.size(); i++)
     {
 	if (String::equal(paths[i], "CVS"))
 	{
@@ -74,7 +74,7 @@ int main()
     assert(String::equal(realName, "../FileSystem/FileSystem.cpp"));
 
     BubbleSort(paths);
-    assert(paths.getSize() == 3);
+    assert(paths.size() == 3);
     assert(String::equal(paths[0], "a"));
     assert(String::equal(paths[1], "b"));
     assert(String::equal(paths[2], "c"));

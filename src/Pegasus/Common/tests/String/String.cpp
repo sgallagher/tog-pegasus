@@ -101,7 +101,7 @@ int main()
 	const char STR0[] = "one two three four";
 	String s = STR0;
 	const char STR1[] = "zero ";
-	char* tmp = new char[strlen(STR1) + s.getLength() + 1];
+	char* tmp = new char[strlen(STR1) + s.size() + 1];
 	strcpy(tmp, STR1);
 	s.appendToCString(tmp);
 	assert(strcmp(tmp, "zero one two three four") == 0);
@@ -113,7 +113,7 @@ int main()
 	const char STR0[] = "one two three four";
 	String s = STR0;
 	const char STR1[] = "zero ";
-	char* tmp = new char[strlen(STR1) + s.getLength() + 1];
+	char* tmp = new char[strlen(STR1) + s.size() + 1];
 	strcpy(tmp, STR1);
 	s.appendToCString(tmp, 7);
 	assert(strcmp(tmp, "zero one two") == 0);
@@ -125,32 +125,32 @@ int main()
 	String s = "abcdefg";
 	s.remove(3, 3);
 	assert(String::equal(s, "abcg"));
-	assert(s.getLength() == 4);
+	assert(s.size() == 4);
 
 	s = "abcdefg";
 	s.remove(3, 4);
 	assert(String::equal(s, "abc"));
-	assert(s.getLength() == 3);
+	assert(s.size() == 3);
 
 	s = "abcdefg";
 	s.remove(3);
 	assert(String::equal(s, "abc"));
-	assert(s.getLength() == 3);
+	assert(s.size() == 3);
 
 	s = "abc";
 	s.remove(3);
 	assert(String::equal(s, "abc"));
-	assert(s.getLength() == 3);
+	assert(s.size() == 3);
 
 	s = "abc";
 	s.remove(0);
 	assert(String::equal(s, ""));
-	assert(s.getLength() == 0);
+	assert(s.size() == 0);
 
 	s = "abc";
 	s.remove(0, 1);
 	assert(String::equal(s, "bc"));
-	assert(s.getLength() == 2);
+	assert(s.size() == 2);
 
 	String t1 = "HELLO";
 	String t2 = ToLower(t1);

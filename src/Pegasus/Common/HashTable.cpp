@@ -40,7 +40,7 @@ Uint32 HashFunc<String>::hash(const String& str)
 {
     Uint32 h = 0;
 
-    for (Uint32 i = 0, n = str.getLength(); i < n; i++)
+    for (Uint32 i = 0, n = str.size(); i < n; i++)
         h = 5 * h + str[i];
 
     return h;

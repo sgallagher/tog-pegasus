@@ -51,7 +51,7 @@ void test01()
     }
 
     BubbleSort(names);
-    assert(names.getSize() == 3);
+    assert(names.size() == 3);
     assert(String::equal(names[0], "a"));
     assert(String::equal(names[1], "b"));
     assert(String::equal(names[2], "c"));

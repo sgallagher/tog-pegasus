@@ -769,7 +769,7 @@ public:
 
 	_received.append(buffer, size);
 
-	if (_received.getSize() == sizeof(LONG_MESSAGE))
+	if (_received.size() == sizeof(LONG_MESSAGE))
 	{
 	    assert(memcmp(
 		_received.getData(), LONG_MESSAGE, sizeof(LONG_MESSAGE)) == 0);

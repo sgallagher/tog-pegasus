@@ -49,7 +49,7 @@ public:
     CGIQueryString(char* queryString);
 
     /// Returns the number of fields.
-    Uint32 getCount() const { return _entries.getSize(); }
+    Uint32 getCount() const { return _entries.size(); }
 
     /// Returns the name of the ith field.
     const char* getName(Uint32 i) const { return _entries[i].name; }

@@ -91,7 +91,7 @@ Array<String> _GlobClassesDir(
 
     Array<String> result;
 
-    for (Uint32 i = 0; i < fileNames.getSize(); i++)
+    for (Uint32 i = 0; i < fileNames.size(); i++)
     {
 	const String& tmp = fileNames[i];
 
@@ -143,7 +143,7 @@ static void _MakeNameSpacePath(
 
     path.append(nameSpace);
 
-    Char16* p = (Char16*)(path.getData() + root.getLength() + 1);
+    Char16* p = (Char16*)(path.getData() + root.size() + 1);
 
     while (*p)
     {
@@ -183,7 +183,7 @@ void _FindClass(
 
     Array<String> fileNames = _GlobClassesDir(path, className, "*");
 
-    Uint32 size = fileNames.getSize();
+    Uint32 size = fileNames.size();
 
     if (size == 0)
 	throw CIMException(CIMException::INVALID_CLASS);
@@ -214,7 +214,7 @@ static void _MakeNewClassPath(
     path.append(className);
     path.append('.');
 
-    if (superClassName.getLength() == 0)
+    if (superClassName.size() == 0)
 	path.append("#");
     else
 	path.append(superClassName);
@@ -319,7 +319,7 @@ void _SaveObject(const String& path, Object& object)
 #ifdef INDENT_XML_FILES
     XmlWriter::indentedPrint(os, out.getData(), 2);
 #else
-    os.write((char*)out.getData(), out.getSize());
+    os.write((char*)out.getData(), out.size());
 #endif
 }
 
@@ -339,7 +339,7 @@ static void _AppendClassNames(
     Array<String> fileNames = 
 	_GlobClassesDir(path, className, superClassName);
 
-    for (Uint32 i = 0, n = fileNames.getSize(); i < n; i++)
+    for (Uint32 i = 0, n = fileNames.size(); i < n; i++)
     {
 	String& tmp = fileNames[i];
 	Uint32 pos = tmp.find('.');
@@ -360,7 +360,7 @@ static void _AppendSubclassesDeepAux(
     const String& className,
     Array<String>& classNames)
 {
-    for (Uint32 i = 0, n = table.getSize(); i < n; i++)
+    for (Uint32 i = 0, n = table.size(); i < n; i++)
     {
 	if (CIMName::equal(className, table[i].second))
 	{
@@ -381,9 +381,9 @@ static void _AppendSubclassesDeep(
 	throw NoSuchDirectory(path);
 
     Array<Node> table;
-    table.reserve(allFiles.getSize());
+    table.reserve(allFiles.size());
 
-    for (Uint32 i = 0, n = allFiles.getSize(); i < n; i++)
+    for (Uint32 i = 0, n = allFiles.size(); i < n; i++)
     {
 	const String& fileName = allFiles[i];
 
@@ -416,7 +416,7 @@ static Boolean _HasSubclasses(
     path.append(CLASSES);
     Array<String> fileNames = _GlobClassesDir(path, "*", className);
 
-    return fileNames.getSize() != 0;
+    return fileNames.size() != 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -497,18 +497,9 @@ CIMClass RepositoryDeclContext::lookupClass(
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-CIMRepository::CIMRepository(const String& path)
+CIMRepository::CIMRepository(const String& repositoryRoot) 
+    : _repositoryRoot(repositoryRoot), _nameSpaceManager(repositoryRoot)
 {
-    const char REPOSITORY[] = "/repository";
-    _root = path;
-    _root.append(REPOSITORY);
-
-    if (!FileSystem::isDirectory(_root))
-    {
-	if (!FileSystem::makeDirectory(_root))
-	    throw CannotCreateDirectory(_root);
-    }
-
     _context = new RepositoryDeclContext(this);
 }
 
@@ -528,7 +519,7 @@ CIMClass CIMRepository::getClass(
     // Form the path to the class:
 
     String path;
-    _FindClass(_root, nameSpace, className, path);
+    _FindClass(_repositoryRoot, nameSpace, className, path);
 
     // Load the class:
 
@@ -551,7 +542,7 @@ CIMInstance CIMRepository::getInstance(
     String indexPath;
 
     _MakeInstanceIndexPath(
-	_root, nameSpace, instanceName.getClassName(), indexPath);
+	_repositoryRoot, nameSpace, instanceName.getClassName(), indexPath);
 
     // Lookup the index of the instance:
 
@@ -565,7 +556,7 @@ CIMInstance CIMRepository::getInstance(
     String path;
 
     _MakeInstancePath(
-	_root, nameSpace, instanceName.getClassName(), index, path);
+	_repositoryRoot, nameSpace, instanceName.getClassName(), index, path);
 
     CIMInstance cimInstance;
     _LoadObject(path, cimInstance);
@@ -579,11 +570,11 @@ void CIMRepository::deleteClass(
     // Get path of class file:
 
     String path;
-    _FindClass(_root, nameSpace, className, path);
+    _FindClass(_repositoryRoot, nameSpace, className, path);
 
     // Disallow if the class has subclasses:
 
-    if (_HasSubclasses(_root, nameSpace, className))
+    if (_HasSubclasses(_repositoryRoot, nameSpace, className))
 	throw CIMException(CIMException::CLASS_HAS_CHILDREN);
 
     // ATTN-C: check to see if the class has instances:
@@ -611,7 +602,7 @@ void CIMRepository::createClass(
     const String& className = newClass.getClassName();
     const String& superClassName = newClass.getSuperClassName();
     _MakeNewClassPath(
-	_root, nameSpace, className, superClassName, path);
+	_repositoryRoot, nameSpace, className, superClassName, path);
 
     String realPath;
 
@@ -643,7 +634,7 @@ void CIMRepository::createInstance(
     String indexFilePath;
 
     _MakeInstanceIndexPath(
-	_root, nameSpace, newInstance.getClassName(), indexFilePath);
+	_repositoryRoot, nameSpace, newInstance.getClassName(), indexFilePath);
 
     // Insert a new entry for this instance into the index file:
 
@@ -660,7 +651,7 @@ void CIMRepository::createInstance(
     String instanceFilePath;
 
     _MakeInstancePath(
-	_root, nameSpace, newInstance.getClassName(), index, instanceFilePath);
+	_repositoryRoot, nameSpace, newInstance.getClassName(), index, instanceFilePath);
 
     // Save the instance in the instance file:
 
@@ -712,7 +703,7 @@ Array<CIMClass> CIMRepository::enumerateClasses(
 
     Array<CIMClass> result;
 
-    for (Uint32 i = 0; i < classNames.getSize(); i++)
+    for (Uint32 i = 0; i < classNames.size(); i++)
     {
 	result.append(getClass(nameSpace, classNames[i], localOnly, 
 	    includeQualifiers, includeClassOrigin));
@@ -730,7 +721,7 @@ Array<String> CIMRepository::enumerateClassNames(
 
     const char CLASSES[] = "/classes/";
     String path;
-    _MakeNameSpacePath(_root, nameSpace, path);
+    _MakeNameSpacePath(_repositoryRoot, nameSpace, path);
     path.append(CLASSES);
 
     if (!FileSystem::isDirectory(path))
@@ -738,7 +729,7 @@ Array<String> CIMRepository::enumerateClassNames(
 
     if (deepInheritance)
     {
-	if (className.getLength() == 0)
+	if (className.size() == 0)
 	{
 	    Array<String> classNames;
 	    _AppendSubclassesDeep(path, String(), classNames);
@@ -753,7 +744,7 @@ Array<String> CIMRepository::enumerateClassNames(
     }
     else
     {
-	if (className.getLength() == 0)
+	if (className.size() == 0)
 	{
 	    Array<String> classNames;
 	    _AppendClassNames(path, "*", "#", classNames);
@@ -875,7 +866,7 @@ CIMQualifierDecl CIMRepository::getQualifier(
     // Form the path of the qualifier file:
 
     String path;
-    _MakeQualfierPath(_root, nameSpace, qualifierName, path);
+    _MakeQualfierPath(_repositoryRoot, nameSpace, qualifierName, path);
 
     // If it does not exist:
 
@@ -901,7 +892,7 @@ void CIMRepository::setQualifier(
     // Form the path of the qualifier:
 
     String path;
-    _MakeQualfierPath(_root, nameSpace, qualifierDecl.getName(), path);
+    _MakeQualfierPath(_repositoryRoot, nameSpace, qualifierDecl.getName(), path);
 
     // If the qualifier already exists, delete it:
 
@@ -925,7 +916,7 @@ void CIMRepository::deleteQualifier(
     const String& qualifierName) 
 {
     String path;
-    _MakeQualfierPath(_root, nameSpace, qualifierName, path);
+    _MakeQualfierPath(_repositoryRoot, nameSpace, qualifierName, path);
 
     String realPath;
 
@@ -943,7 +934,7 @@ Array<CIMQualifierDecl> CIMRepository::enumerateQualifiers(
 
     const char QUALIFIERS[] = "/qualifiers/";
     String path;
-    _MakeNameSpacePath(_root, nameSpace, path);
+    _MakeNameSpacePath(_repositoryRoot, nameSpace, path);
     path.append(QUALIFIERS);
 
     if (!FileSystem::isDirectory(path))
@@ -960,7 +951,7 @@ Array<CIMQualifierDecl> CIMRepository::enumerateQualifiers(
 
     Array<CIMQualifierDecl> result;
 
-    for (Uint32 i = 0, n = qualifierNames.getSize(); i < n; i++)
+    for (Uint32 i = 0, n = qualifierNames.size(); i < n; i++)
     {
 	CIMQualifierDecl tmp = getQualifier(nameSpace, qualifierNames[i]);
 	result.append(tmp);
@@ -989,7 +980,7 @@ CIMValue CIMRepository::invokeMethod(
 void CIMRepository::createNameSpace(const String& nameSpace)
 {
     String path;
-    _MakeNameSpacePath(_root, nameSpace, path);
+    _MakeNameSpacePath(_repositoryRoot, nameSpace, path);
 
     if (FileSystem::exists(path))
     {
@@ -1029,10 +1020,10 @@ Array<String> CIMRepository::enumerateNameSpaces() const
 {
     Array<String> result;
 
-    if (!FileSystem::getDirectoryContents(_root, result))
-	throw NoSuchDirectory(_root);
+    if (!FileSystem::getDirectoryContents(_repositoryRoot, result))
+	throw NoSuchDirectory(_repositoryRoot);
 
-    for (Uint32 i = 0, n = result.getSize(); i < n; i++)
+    for (Uint32 i = 0, n = result.size(); i < n; i++)
     {
 	const String& tmp = result[i];
 
@@ -1049,7 +1040,7 @@ Array<String> CIMRepository::enumerateNameSpaces() const
 void CIMRepository::deleteNameSpace(const String& nameSpace)
 {
     String path;
-    _MakeNameSpacePath(_root, nameSpace, path);
+    _MakeNameSpacePath(_repositoryRoot, nameSpace, path);
 
     if (!FileSystem::exists(path))
 	throw CIMException(CIMException::INVALID_NAMESPACE);

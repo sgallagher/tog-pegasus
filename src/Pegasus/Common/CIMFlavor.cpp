@@ -65,8 +65,8 @@ String FlavorToString(Uint32 flavor)
     if (translatable)
 	tmp += "TRANSLATABLE ";
 
-    if (tmp.getLength())
-	tmp.remove(tmp.getLength() - 1);
+    if (tmp.size())
+	tmp.remove(tmp.size() - 1);
 
     return tmp;
 }

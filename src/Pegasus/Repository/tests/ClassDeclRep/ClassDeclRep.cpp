@@ -34,7 +34,7 @@ using namespace std;
 
 void Test01()
 {
-    CIMRepository r(".");
+    CIMRepository r("./repository");
 
     // Create a namespace:
 
@@ -67,7 +67,7 @@ void Test01()
 
     // Print(classNames);
 
-    assert(classNames.getSize() == 2);
+    assert(classNames.size() == 2);
     assert(CIMName::equal(classNames[0], "Class1"));
     assert(CIMName::equal(classNames[1], "Class2"));
 
@@ -92,7 +92,7 @@ void Test01()
 
     Array<String> tmp;
     assert(FileSystem::getDirectoryContents("./repository/#zzz/classes", tmp));
-    assert(tmp.getSize() == 0);
+    assert(tmp.size() == 0);
 }
 
 int main()

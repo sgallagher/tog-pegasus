@@ -197,7 +197,7 @@ getoopt::~getoopt() {;}
 // short flag.
 bool
 getoopt::addFlagspec(const String &opt) {
-  unsigned int size = opt.getLength();
+  unsigned int size = opt.size();
   if (size == 0)
     return false;
   for (unsigned int i = 0; i < size; i++) {
@@ -275,7 +275,7 @@ getoopt::removeFlagspec(char opt) {
 //          --longflag=value
 static void
 partsFromLongOpt (const String &s, String &name, String &value) {
-  for (unsigned int i = 0; i < s.getLength(); i++) {
+  for (unsigned int i = 0; i < s.size(); i++) {
     if (s[i] == '=') {
       name = s.subString(0, i);
       value = s.subString(i+1);
@@ -443,7 +443,7 @@ getoopt::parse(int argc, char **argv) {
     addError("Missing required value for flag " + o.getName());
   }
   copyargs(_args, nonflagargs);
-  return !_errorStrings.getSize();
+  return !_errorStrings.size();
 }
 
 //----------------------------------------------------------------------
@@ -457,7 +457,7 @@ getoopt::parse(int argc, char **argv) {
 // Index operator
 const Optarg &
 getoopt::operator[](unsigned int n) {
-  unsigned int lim = _args.getSize();
+  unsigned int lim = _args.size();
   if (n < lim) 
     return _args[n];
   else
@@ -470,7 +470,7 @@ getoopt::first() const { return 0; }
 
 // Return one past last index
 unsigned int
-getoopt::last() const { return _args.getSize(); }
+getoopt::last() const { return _args.size(); }
 
 //-----------------------------------------------
 // Access the command line arguments using
@@ -496,7 +496,7 @@ getoopt::end() {
 unsigned int
 getoopt::isSet(char c) const {
   unsigned int cnt = 0;
-  for (unsigned int i = 0; i < _args.getSize(); i++) {
+  for (unsigned int i = 0; i < _args.size(); i++) {
     const Optarg &o = _args[i];
     if (o.getType() == Optarg::FLAG) {
       const String &s = o.getopt();
@@ -513,7 +513,7 @@ getoopt::isSet(char c) const {
 unsigned int
 getoopt::isSet(const String &s) const {
   unsigned int cnt = 0;
-  for (unsigned int i = 0; i < _args.getSize(); i++) {
+  for (unsigned int i = 0; i < _args.size(); i++) {
     const Optarg &o = _args[i];
     if (o.optarg() == s) {
       cnt++;
@@ -527,7 +527,7 @@ getoopt::isSet(const String &s) const {
 const String &
 getoopt::value(char opt, unsigned int idx) const {
   unsigned int cnt = 0;
-  for (unsigned int i = 0; i < _args.getSize(); i++) {
+  for (unsigned int i = 0; i < _args.size(); i++) {
     const Optarg &o = _args[i];
     if (o.getType() == Optarg::FLAG) {
       const String &s = o.getopt();
@@ -547,7 +547,7 @@ getoopt::value(char opt, unsigned int idx) const {
 const String &
 getoopt::value(const String &opt, unsigned int idx) const {
   unsigned int cnt = 0;
-  for (unsigned int i = 0; i < _args.getSize(); i++) {
+  for (unsigned int i = 0; i < _args.size(); i++) {
     const Optarg &o = _args[i];
     if (o.optarg() == opt) {
       if (cnt == idx) {
@@ -576,7 +576,7 @@ getoopt::flagcnt() const {
 // How many command line arguments were there?
 unsigned int
 getoopt::size() const {
-  return _args.getSize();
+  return _args.size();
 }
 
 // Return the list of command line arguments for use by
@@ -607,14 +607,14 @@ getoopt::getErrorStrings() const {
 // Did any errors occur?
 bool
 getoopt::hasErrors() const {
-  return _errorStrings.getSize() ? true : false;
+  return _errorStrings.size() ? true : false;
 }
 
 
 
 flagspec *
 getoopt::getFlagspecForUpdate(const String &s) {
-  for (unsigned int i = 0; i < _flagspecs.getSize(); i++) {
+  for (unsigned int i = 0; i < _flagspecs.size(); i++) {
     flagspec &o = _flagspecs[i];
     if (o.islong && s == o.name)
       return &_flagspecs[i];
@@ -651,7 +651,7 @@ getoopt::printErrors(String &s) const {
 //---------------------------------------------------------------
 flagspec *
 getoopt::getFlagspecForUpdate(char c) {
-  for (unsigned int i = 0; i < _flagspecs.getSize(); i++) {
+  for (unsigned int i = 0; i < _flagspecs.size(); i++) {
     flagspec &o = _flagspecs[i];
     if (!o.islong && c == o.name[0])
       return &_flagspecs[i];

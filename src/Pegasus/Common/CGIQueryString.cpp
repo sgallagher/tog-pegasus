@@ -103,7 +103,7 @@ CGIQueryString::CGIQueryString(char* queryString)
 
 const char* CGIQueryString::findValue(const char* name) const
 {
-    for (Uint32 i = 0, n = _entries.getSize(); i < n; i++)
+    for (Uint32 i = 0, n = _entries.size(); i < n; i++)
     {
 	if (strcmp(_entries[i].name, name) == 0)
 	    return _entries[i].value;

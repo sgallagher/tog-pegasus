@@ -75,7 +75,7 @@ static void TestClassOperations(CIMClient& client)
 
     Boolean found = false;
 
-    for (Uint32 i = 0; i < classNames.getSize(); i++)
+    for (Uint32 i = 0; i < classNames.size(); i++)
     {
 	if (CIMName::equal(classNames[i], "SubClass"))
 	    found = true;
@@ -95,9 +95,9 @@ static void TestClassOperations(CIMClient& client)
     Array<CIMClass> classDecls = client.enumerateClasses(
 	NAMESPACE, String(), false, false, true, true);
 
-    assert(classDecls.getSize() == classNames.getSize());
+    assert(classDecls.size() == classNames.size());
 
-    for (Uint32 i = 0; i < classNames.getSize(); i++)
+    for (Uint32 i = 0; i < classNames.size(); i++)
     {
 	CIMClass tmp = client.getClass(
 	    NAMESPACE, classNames[i], false, true, true);
@@ -131,7 +131,7 @@ static void TestQualifierOperations(CIMClient& client)
 
     Array<CIMQualifierDecl> qualifierDecls = client.enumerateQualifiers(NAMESPACE);
 
-    for (Uint32 i = 0; i < qualifierDecls.getSize(); i++)
+    for (Uint32 i = 0; i < qualifierDecls.size(); i++)
     {
 	CIMQualifierDecl tmp = qualifierDecls[i];
 

@@ -63,7 +63,7 @@ OptionManager::~OptionManager()
 {
     // Delete all options in the list:
 
-    for (Uint32 i = 0; i < _options.getSize(); i++)
+    for (Uint32 i = 0; i < _options.size(); i++)
 	delete _options[i];
 }
 
@@ -340,7 +340,7 @@ void OptionManager::mergeFile(const String& fileName)
 
 void OptionManager::checkRequiredOptions() const
 {
-    for (Uint32 i = 0; i < _options.getSize(); i++)
+    for (Uint32 i = 0; i < _options.size(); i++)
     {
 	const Option* option = _options[i];
 
@@ -351,7 +351,7 @@ void OptionManager::checkRequiredOptions() const
 
 const Option* OptionManager::lookupOption(const String& name) const
 {
-    for (Uint32 i = 0; i < _options.getSize(); i++)
+    for (Uint32 i = 0; i < _options.size(); i++)
     {
 	if (_options[i]->getOptionName() == name)
 	    return _options[i];
@@ -373,7 +373,7 @@ Boolean OptionManager::lookupValue(const String& name, String& value) const
 
 Option* OptionManager::_lookupOptionByCommandLineOptionName(const String& name)
 {
-    for (Uint32 i = 0; i < _options.getSize(); i++)
+    for (Uint32 i = 0; i < _options.size(); i++)
     {
 	if (_options[i]->getCommandLineOptionName() == name)
 	    return _options[i];
@@ -384,7 +384,7 @@ Option* OptionManager::_lookupOptionByCommandLineOptionName(const String& name)
 
 void OptionManager::print() const
 {
-    for (Uint32 i = 0; i < _options.getSize(); i++)
+    for (Uint32 i = 0; i < _options.size(); i++)
     {
 	Option* option = _options[i];
 	cout << option->getOptionName() << "=\"";
@@ -456,7 +456,7 @@ Boolean Option::isValid(const String& value) const
 {
     // Check to see that the value is in the domain (if a domain was given)
 
-    Uint32 domainSize = _domain.getSize();
+    Uint32 domainSize = _domain.size();
 
     if (domainSize)
     {

@@ -107,6 +107,16 @@ public:
     /** Print out the namespaces. */
     void print(std::ostream& os) const;
 
+    /** Get path to the class file for the given class. 
+	@param nameSpaceName name of the namespace.
+	@param className name of class.
+	@exception CIMException(CIMException::INVALID_CLASS)
+	@exception CIMException(CIMException::INVALID_NAMESPACE)
+    */
+    String getClassFilePath(
+	const String& nameSpaceName,
+	const String& className) const;
+
 private:
 
     String _repositoryRoot;

@@ -153,10 +153,13 @@ static Boolean _NameSpaceDirHierIsEmpty(const String& nameSpacePath)
 NameSpaceManager::NameSpaceManager(const String& repositoryRoot)
     : _repositoryRoot(repositoryRoot)
 {
-    // Be certain the repository root directory exists:
+    // Create directory if does not already exist:
 
-    if (!FileSystem::isDirectory(repositoryRoot))
-	throw NoSuchDirectory(repositoryRoot);
+    if (!FileSystem::isDirectory(_repositoryRoot))
+    {
+	if (!FileSystem::makeDirectory(_repositoryRoot))
+	    throw CannotCreateDirectory(_repositoryRoot);
+    }
 
     _rep = new NameSpaceManagerRep;
 
@@ -196,6 +199,9 @@ NameSpaceManager::NameSpaceManager(const String& repositoryRoot)
 
 NameSpaceManager::~NameSpaceManager()
 {
+    for (Table::Iterator i = _rep->table.start(); i; i++)
+	delete i.value();
+
     delete _rep;
 }
 
@@ -283,6 +289,27 @@ void NameSpaceManager::getNameSpaceNames(Array<String>& nameSpaceNames) const
 
     for (Table::Iterator i = _rep->table.start(); i; i++)
 	nameSpaceNames.append(i.key());
+}
+
+String NameSpaceManager::getClassFilePath(
+    const String& nameSpaceName,
+    const String& className) const
+{
+    // -- Lookup NameSpace object:
+
+    NameSpace* nameSpace = 0;
+
+    if (!_rep->table.lookup(nameSpaceName, nameSpace))
+	throw CIMException(CIMException::INVALID_NAMESPACE);
+
+    // -- Find class:
+
+    if (!nameSpace->getInheritanceTree().containsClass(className))
+	throw CIMException(CIMException::INVALID_CLASS);
+
+    // -- Form the full name of the class file:
+
+    return Cat(nameSpace->getNameSpacePath(), _CLASSES_SUFFIX, '/', className);
 }
 
 PEGASUS_NAMESPACE_END

@@ -215,13 +215,13 @@ public:
     /// Assignment operator.
     Array<T>& operator=(const Array<T>& x);
 
-    /** Clears the contents of the array. After calling this, getSize()
+    /** Clears the contents of the array. After calling this, size()
 	returns zero.
     */
     void clear();
 
     /** Reserves memory for capacity elements. Notice that this does not
-	change the size of the array (getSize() returns what it did before).
+	change the size of the array (size() returns what it did before).
 	If the capacity of the array is already greater or equal to the
 	capacity argument, this method has no effect. After calling reserve(),
 	getCapacity() returns a value which is greater or equal to the
@@ -235,7 +235,7 @@ public:
     }
 
     /** Make the size of the array grow by size elements. Thenew size will 
-	be getSize() + size. The new elements (there are size of them) are
+	be size() + size. The new elements (there are size of them) are
 	initialized with x.
 	@parm size defines the number of elements by which the array is to
 	grow.
@@ -248,7 +248,7 @@ public:
     /** Returns the number of elements in the array.
     @return The number of elements in the array.
     */
-    Uint32 getSize() const { return _rep->size; }
+    Uint32 size() const { return _rep->size; }
 
     /// Returns the capacity of the array.
     Uint32 getCapacity() const { return _rep->capacity; }
@@ -286,7 +286,7 @@ public:
     */
     void appendArray(const Array<T>& x)
     {
-	append(x.getData(), x.getSize());
+	append(x.getData(), x.size());
     }
 
     /** Appends one element to the beginning of the array. This increases
@@ -327,11 +327,11 @@ public:
 
     iterator begin() { return _rep->data(); }
 
-    iterator end() { return _rep->data() + getSize(); }
+    iterator end() { return _rep->data() + size(); }
 
     const_iterator begin() const { return getData(); }
 
-    const_iterator end() const { return getData() + getSize(); }
+    const_iterator end() const { return getData() + size(); }
 
 private:
 
@@ -427,7 +427,7 @@ void Array<T>::clear()
 template<class T>
 void Array<T>::_reserveAux(Uint32 capacity)
 {
-    Uint32 size = getSize();
+    Uint32 size = this->size();
     Rep* rep = Rep::create(capacity);
     rep->size = size;
     CopyToRaw(rep->data(), _rep->data(), size);
@@ -462,7 +462,7 @@ void Array<T>::swap(Array<T>& x)
 template<class T>
 inline T& Array<T>::operator[](Uint32 pos)
 {
-    if (pos >= getSize())
+    if (pos >= size())
 	ThrowOutOfBounds();
 
     _copyOnWrite();
@@ -473,7 +473,7 @@ inline T& Array<T>::operator[](Uint32 pos)
 template<class T>
 inline const T& Array<T>::operator[](Uint32 pos) const
 {
-    if (pos >= getSize())
+    if (pos >= size())
 	ThrowOutOfBounds();
 
     return _rep->data()[pos];
@@ -482,27 +482,27 @@ inline const T& Array<T>::operator[](Uint32 pos) const
 template<class T>
 void Array<T>::append(const T& x)
 {
-    reserve(getSize() + 1);
+    reserve(size() + 1);
     _copyOnWrite();
-    new (_data() + getSize()) T(x);
+    new (_data() + size()) T(x);
     _rep->size++;
 }
 
 template<class T>
 void Array<T>::append(const T* x, Uint32 size)
 {
-    reserve(getSize() + size);
+    reserve(this->size() + size);
     _copyOnWrite();
-    CopyToRaw(_data() + getSize(), x, size);
+    CopyToRaw(_data() + this->size(), x, size);
     _rep->size += size;
 }
 
 template<class T>
 void Array<T>::prepend(const T& x)
 {
-    reserve(getSize() + 1);
+    reserve(size() + 1);
     _copyOnWrite();
-    memmove(_data() + 1, _data(), sizeof(T) * getSize());
+    memmove(_data() + 1, _data(), sizeof(T) * size());
     new(_data()) T(x);
     _rep->size++;
 }
@@ -510,9 +510,9 @@ void Array<T>::prepend(const T& x)
 template<class T>
 void Array<T>::prepend(const T* x, Uint32 size)
 {
-    reserve(getSize() + size);
+    reserve(size() + size);
     _copyOnWrite();
-    memmove(_data() + size, _data(), sizeof(T) * getSize());
+    memmove(_data() + size, _data(), sizeof(T) * size());
     CopyToRaw(_data(), x, size);
     _rep->size += size;
 }
@@ -520,13 +520,13 @@ void Array<T>::prepend(const T* x, Uint32 size)
 template<class T>
 void Array<T>::insert(Uint32 pos, const T& x)
 {
-    if (pos > getSize())
+    if (pos > size())
 	ThrowOutOfBounds();
 
-    reserve(getSize() + 1);
+    reserve(size() + 1);
     _copyOnWrite();
 
-    Uint32 n = getSize() - pos;
+    Uint32 n = size() - pos;
 
     if (n)
 	memmove(_data() + pos + 1, _data() + pos, sizeof(T) * n);
@@ -538,13 +538,13 @@ void Array<T>::insert(Uint32 pos, const T& x)
 template<class T>
 void Array<T>::insert(Uint32 pos, const T* x, Uint32 size)
 {
-    if (pos + size > getSize())
+    if (pos + size > size())
 	ThrowOutOfBounds();
 
-    reserve(getSize() + size);
+    reserve(size() + size);
     _copyOnWrite();
 
-    Uint32 n = getSize() - pos;
+    Uint32 n = size() - pos;
 
     if (n)
 	memmove(_data() + pos + size, _data() + pos, sizeof(T) * n);
@@ -556,14 +556,14 @@ void Array<T>::insert(Uint32 pos, const T* x, Uint32 size)
 template<class T>
 void Array<T>::remove(Uint32 pos)
 {
-    if (pos >= getSize())
+    if (pos >= size())
 	ThrowOutOfBounds();
 
     _copyOnWrite();
 
     (_data() + pos)->~T();
 
-    Uint32 rem = getSize() - pos - 1;
+    Uint32 rem = size() - pos - 1;
 
     if (rem)
 	memmove(_data() + pos, _data() + pos + 1, sizeof(T) * rem);
@@ -574,14 +574,14 @@ void Array<T>::remove(Uint32 pos)
 template<class T>
 void Array<T>::remove(Uint32 pos, Uint32 size)
 {
-    if (pos + size > getSize())
+    if (pos + size > this->size())
 	ThrowOutOfBounds();
 
     _copyOnWrite();
 
     Destroy(_data() + pos, size);
 
-    Uint32 rem = getSize() - (pos + size);
+    Uint32 rem = this->size() - (pos + size);
 
     if (rem)
 	memmove(_data() + pos, _data() + pos + size, sizeof(T) * rem);
@@ -614,10 +614,10 @@ PEGASUS_COMMON_LINKAGE Boolean Equal(const String& x, const String& y);
 template<class T>
 Boolean operator==(const Array<T>& x, const Array<T>& y)
 {
-    if (x.getSize() != y.getSize())
+    if (x.size() != y.size())
 	return false;
 
-    for (Uint32 i = 0, n = x.getSize(); i < n; i++)
+    for (Uint32 i = 0, n = x.size(); i < n; i++)
     {
 	if (!Equal(x[i], y[i]))
 	    return false;
@@ -629,7 +629,7 @@ Boolean operator==(const Array<T>& x, const Array<T>& y)
 template<class T>
 void BubbleSort(Array<T>& x) 
 {
-    Uint32 n = x.getSize();
+    Uint32 n = x.size();
 
     if (n < 2)
 	return;
@@ -651,7 +651,7 @@ void BubbleSort(Array<T>& x)
 template<class T>
 void Print(Array<T>& x)
 {
-    for (Uint32 i = 0, n = x.getSize(); i < n; i++)
+    for (Uint32 i = 0, n = x.size(); i < n; i++)
 	cout << x[i] << endl;
 }
 

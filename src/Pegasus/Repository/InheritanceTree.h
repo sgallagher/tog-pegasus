@@ -197,6 +197,9 @@ public:
 	const String& className,
 	Boolean& hasSubClasses) const;
 
+    /** Returns true if this inhertance tree contains the given class. */
+    Boolean containsClass(const String& className) const;
+
     /** Prints the class */
     void print(std::ostream& os) const;
 

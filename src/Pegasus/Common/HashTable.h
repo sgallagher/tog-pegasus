@@ -156,10 +156,10 @@ public:
     _HashTableRep& operator=(const _HashTableRep& x);
 
     /*- Returns the size of this hash table (the number of entries). */
-    Uint32 getSize() const { return _size; }
+    Uint32 size() const { return _size; }
 
     /*- Clears the contents of this hash table. After this is called, the
-	getSize() method returns zero.
+	size() method returns zero.
     */
     void clear();
 
@@ -440,10 +440,10 @@ public:
     }
 
     /** Returns the size of this hash table (the number of entries). */
-    Uint32 getSize() const { return _rep.getSize(); }
+    Uint32 size() const { return _rep.size(); }
 
     /** Clears the contents of this hash table. After this is called, the
-	getSize() method returns zero.
+	size() method returns zero.
     */
     void clear() { _rep.clear(); }
 

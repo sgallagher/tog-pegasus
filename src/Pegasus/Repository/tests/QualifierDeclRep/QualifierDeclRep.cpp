@@ -33,7 +33,7 @@ using namespace std;
 
 void test()
 {
-    CIMRepository r(".");
+    CIMRepository r("./repository");
 
     // Create a namespace:
 
@@ -79,9 +79,9 @@ void test()
 
     Array<CIMQualifierDecl> qualifiers = r.enumerateQualifiers(NAMESPACE);
 
-    assert(qualifiers.getSize() == 2);
+    assert(qualifiers.size() == 2);
 
-    for (Uint32 i = 0, n = qualifiers.getSize(); i < n; i++)
+    for (Uint32 i = 0, n = qualifiers.size(); i < n; i++)
     {
 	// qualifiers[i].print();
 

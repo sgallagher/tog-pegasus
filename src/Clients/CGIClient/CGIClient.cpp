@@ -1009,8 +1009,35 @@ static void PrintObjectNames(
 	href.append(EncodeQueryStringValue(hostinfo.getAddress()));
 	href.append("&");
 	href.append("InstanceName=");
-	href.append(instanceNames[i].toString());
-	href.append("&");
+
+        //
+        // Need to convert the '"' (double quote) character to '%22' to
+        // make it a valid URL string in the HTML tag.  Also, need to
+        // convert the '_' (underscore) character in the instanceName
+        // string to a '.' (dot).
+        //
+        const String instanceName = instanceNames[i].toString();
+        String nameString;
+
+        for (Uint32 j = 0, n = instanceName.size(); j < n; j++)
+        {
+            switch (instanceName[j])
+            {
+                case '-':
+                    nameString += ".";
+                    break;
+
+                case '"':
+                    nameString += "%22";
+                    break;
+
+                default:
+                    nameString += instanceName[j];
+            }
+        }
+
+        href.append(nameString);
+        href.append("&");
 
 	href.append("LocalOnly=true");
 	href.append("includQualifiers=false");

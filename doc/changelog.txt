@@ -8,6 +8,9 @@ Version 0.98.0 - Work in progress
 1. (Mike Brasher) Added support for class association operations
     (references(), associators(), referenceNames(), associatorNames()).
 
+2. (Jenny Yu - HP) Fixed problem in CGIClient.cpp to handle double quotes
+   in the HTML URL reference for passing instance names.
+
 ------------------------------------------------------------------------------
 --
 

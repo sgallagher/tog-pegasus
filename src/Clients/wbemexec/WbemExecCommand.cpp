@@ -35,7 +35,7 @@
 //	       David Eger (dteger@us.ibm.com)
 //         Amit K Arora (amita@in.ibm.com) for PEP-101
 //         Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
-//         Amit K Arora (amita@in.ibm.com) for Bug#
+//         Amit K Arora (amita@in.ibm.com) for Bug#2333
 //
 //%/////////////////////////////////////////////////////////////////////////////
 

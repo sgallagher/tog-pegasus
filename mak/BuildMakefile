@@ -65,6 +65,12 @@ ifeq ($(PEGASUS_PLATFORM),LINUX_IA64_GNU)
   TESTS = prestarttests poststarttests
 endif
 
+ifeq ($(DYNAMIC_SOCKSIFY),TRUE)
+  CVS = socksify cvs
+else
+  CVS = cvs
+endif
+
 error: 
 	@ echo "Specify desired makefile option (i.e., cleanbuild, rebuild)"
 
@@ -80,7 +86,7 @@ removeall:
 	$(REMOVE_PEGASUS_DIRECTORY)
 
 checkout:
-	cvs checkout pegasus
+	$(CVS) checkout pegasus
 	
 rebuild: clean buildmu all tests
 

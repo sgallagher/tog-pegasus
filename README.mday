@@ -1,0 +1,94 @@
+Wed Oct 30 14:56:07 2002
+
+Notes for mday-2-0-patches branch.This is a branch from the STABLE
+tag, main trunk, as of October 29.
+
+There are some substantial changes in addition to small bug fixes in
+this branch. PLEASE TEST this on your platform(s) and send me trace
+files or console dumps when you have problems. 
+
+
+
+The following known issues are fixed for Linux and Windows in this branch: 
+
+
+1) cimserver -s now shuts down the cimserver. This involved a fix to
+the Indication Service, which was hanging because it shut down its
+message queue prior to sending alerts to indication subscribers. I
+changed the ordering of its shutdown procedures and it unblocked
+everything else. There are a series of messages that display 
+
+2) HTTPConnection destructor fault. This was a combination of problems
+that involved the Monitor, the HTTP Connector, and the HTTP Connection
+classes. I rewrote the monitor to use a pre-allocated connection table
+and to change the state of table entries to reflect the creation and
+destruction of connections (instead of creating and destroying table
+entries). This is a much more stable design than the previous one,
+given an asynchronous environment. The actual segfault occured when
+the monitor selected a socket for which the owner had already deleted
+the HTTPConnection. This can still happen on an MP machine. However,
+now the monitor only changes the status of the entry to EMPTY. All the
+cleanup is done outside of the monitor. 
+
+cimconfig now works. 
+
+2) HTTPConnection locking. The locking of an HTTP connection is still
+necessary to avoid a race condition that involves socket
+selection. However, I changed the locking to be per connection, rather
+than for the entire class. 
+
+3) Indication Response Handler lifetime. Indications did not work
+because the Provider Manager Services used an automatic reference to
+an EnableIndicationResponseHandler to pass to the indication
+provider. Of course, when the indication fired it went into stack
+memory that was no longer framed. Now the Provider Manager Service
+allocates the EnableIndicationResponseHandler on the heap and stores
+it in a table of active indication subscriptions (on a per-provider
+basis). Only after the indication subscription is cancelled does the
+Provider Manager Service delete the response handler. 
+
+You can now run the subscription tests successfully. 
+
+3) CIMOM Handle Lifetime. The Provider Manager was giving all
+providers a reference to the same automatically allocated cimom
+handle. When the stack went out of frame the CIMOM Handle reference
+pointed to unframed stack memory. Now the Provider Manager allocates
+the CIMOMHandle from the heap and keeps it until the provider
+terminates. 
+
+4) CIMOM Handle message addressing. The CIMOM handle is not complete
+and uses the messaging system correctly. It works. I've done some
+initial tests and they are all successful. I still want to make some
+changes to better contain error conditions. 
+
+5) Provider Lifetime. Providers are now unloaded after being idle for
+five minutes. This feature was disabled in the main branch after the
+provider manager reference counting was rewritten to support
+HPUX. The storage of providers and provider modules as references in
+the Array class caused memory corruption. This is all fixed and the
+provider manager is completely rewritten. 
+
+6) Provider Module reference counting. Reference counting is now
+accomplished differently and provider modules are not copied - there
+is only one module per library, but the reference counting now works. 
+
+7) Provider Module Lifetime. Modules (provider libraries) are now
+unloaded when their reference count goes to zero. This will work on
+operating systems that do not have inherent reference counting for
+shared libraries. 
+
+8) Thread Pool lifetime. The thread pool's management of idle threads
+has been restored to its previous algorithm, except the bugs that
+caused memory corruption on MP systems. These were broken from the
+very beginning but should now work correctly. The code is set to
+delete deadlocked threads in addition to idle threads. 
+
+9) I changed the method of making the name space manager
+case-insensitive. 
+
+Please run the ThreadPool test and let me know how it works. I cannot
+test this code on all platforms. 
+
+
+ 
+

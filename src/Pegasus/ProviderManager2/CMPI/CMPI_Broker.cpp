@@ -29,6 +29,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#define CMPI_VER_86 1
+
 #include "CMPI_Broker.h"
 #include "CMPI_Object.h"
 #include "CMPI_ContextArgs.h"
@@ -57,7 +59,7 @@ CIMPropertyList *getList(char** l) {
 CIMClass* mbGetClass(CMPIBroker *mb, const CIMObjectPath &cop) {
    DDD(cout<<"--- mbGetClass()"<<std::endl);
    CMPI_Broker *xBroker=(CMPI_Broker*)mb;
-   String clsId=cop.getNameSpace()+":"+cop.getClassName();
+   String clsId=cop.getNameSpace().getString()+":"+cop.getClassName().getString();
    CIMClass *ccp;
 
    AutoMutex mtx(&((CMPI_Broker*)mb)->mtx);

@@ -29,6 +29,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#define CMPI_VER_86 1
+
 #include "CMPI_ContextArgs.h"
 #include "CMPI_Ftabs.h"
 #include "CMPI_Value.h"
@@ -62,7 +64,7 @@ static CMPIArgs* argsClone(CMPIArgs* eArg, CMPIStatus* rc) {
 static long locateArg(const Array<CIMParamValue> &a, const CIMName &eName) {
    for (long i=0,s=a.size(); i<s; i++) {
       const String &n=a[i].getParameterName();
-      if (String::equalNoCase(n,eName)) return i;
+      if (String::equalNoCase(n,eName.getString())) return i;
    }
    return -1;
 }
@@ -76,7 +78,7 @@ static CMPIStatus argsAddArg(CMPIArgs* eArg, char* name, CMPIValue* data, CMPITy
    long i=locateArg(*arg,sName);
    if (i>=0) arg->remove(i);
 
-   arg->append(CIMParamValue(sName,v));
+   arg->append(CIMParamValue(sName.getString(),v));
    CMReturn(CMPI_RC_OK);
 }
 

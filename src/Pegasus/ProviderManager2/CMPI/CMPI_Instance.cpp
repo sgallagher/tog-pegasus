@@ -29,6 +29,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#define CMPI_VER_86 1
+
 #include "CMPI_Instance.h"
 #include "CMPI_Broker.h"
 #include "CMPI_Value.h"
@@ -82,7 +84,7 @@ static CMPIData instGetPropertyAt(CMPIInstance* eInst, CMPICount pos, CMPIString
    value2CMPIData(v,t,&data);
 
    if (name) {
-      String str=p.getName();
+      String str=p.getName().getString();
       *name=(CMPIString*)string2CMPIString(str);
    }
 

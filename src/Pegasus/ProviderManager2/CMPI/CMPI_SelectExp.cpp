@@ -29,8 +29,9 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "CMPI_SelectExp.h"
+#define CMPI_VER_86 1
 
+#include "CMPI_SelectExp.h"
 #include "CMPI_Ftabs.h"
 #include "CMPI_Value.h"
 #include "CMPI_String.h"

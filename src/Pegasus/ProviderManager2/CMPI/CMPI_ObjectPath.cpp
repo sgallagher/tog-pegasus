@@ -29,6 +29,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#define CMPI_VER_86 1
+
 #include "CMPI_ObjectPath.h"
 
 #include "CMPI_Ftabs.h"
@@ -58,7 +60,7 @@ static CMPIObjectPath* refClone(CMPIObjectPath* eRef, CMPIStatus* rc) {
    CIMObjectPath *nRef=new CIMObjectPath(ref->getHost(),
                                           ref->getNameSpace(),
 					  ref->getClassName());
-   Array<KeyBinding> kb=ref->getKeyBindings();
+   Array<CIMKeyBinding> kb=ref->getKeyBindings();
    nRef->setKeyBindings(kb);
    CMPIObjectPath* neRef=(CMPIObjectPath*)new CMPI_Object(nRef,CMPI_ObjectPath_Ftab);
    if (rc) CMSetStatus(rc,CMPI_RC_OK);
@@ -106,10 +108,10 @@ static CMPIString* refGetClassName(CMPIObjectPath* eRef, CMPIStatus* rc) {
 }
 
 
-static long locateKey(const Array<KeyBinding> &kb, const CIMName &eName) {
+static long locateKey(const Array<CIMKeyBinding> &kb, const CIMName &eName) {
    for (ulong i=0,s=kb.size(); i<s; i++) {
-      const String &n=kb[i].getName();
-      if (String::equalNoCase(n,eName)) return i;
+      const String &n=kb[i].getName().getString();
+      if (String::equalNoCase(n,eName.getString())) return i;
    }
    return -1;
 }
@@ -117,7 +119,7 @@ static long locateKey(const Array<KeyBinding> &kb, const CIMName &eName) {
 static CMPIStatus refAddKey(CMPIObjectPath* eRef, char* name,
           CMPIValue* data, CMPIType type) {
    CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
-   Array<KeyBinding> keyBindings=ref->getKeyBindings();
+   Array<CIMKeyBinding> keyBindings=ref->getKeyBindings();
    CIMName key(name);
    CMPIrc rc;
 
@@ -125,15 +127,15 @@ static CMPIStatus refAddKey(CMPIObjectPath* eRef, char* name,
    if (i>=0) keyBindings.remove(i);
 
    CIMValue val=value2CIMValue(data,type,&rc);
-   keyBindings.append(KeyBinding(key,val));
-   ref->setKeyBindings(Array<KeyBinding>(keyBindings));
+   keyBindings.append(CIMKeyBinding(key,val));
+   ref->setKeyBindings(Array<CIMKeyBinding>(keyBindings));
    CMReturn(CMPI_RC_OK);
 }
 
 static CMPIData refGetKey(CMPIObjectPath* eRef, char* name, CMPIStatus* rc) {
    CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
    const CIMName eName(name);
-   const Array<KeyBinding> &akb=ref->getKeyBindings();
+   const Array<CIMKeyBinding> &akb=ref->getKeyBindings();
    CMPIData data={0,0,{0}};
    if (rc) CMSetStatus(rc,CMPI_RC_OK);
 
@@ -149,7 +151,7 @@ static CMPIData refGetKey(CMPIObjectPath* eRef, char* name, CMPIStatus* rc) {
 static CMPIData refGetKeyAt(CMPIObjectPath* eRef, unsigned pos, CMPIString** name,
           CMPIStatus* rc) {
    CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
-   const Array<KeyBinding> &akb=ref->getKeyBindings();
+   const Array<CIMKeyBinding> &akb=ref->getKeyBindings();
    CMPIData data={0,0,{0}};
    if (rc) CMSetStatus(rc,CMPI_RC_OK);
 
@@ -161,7 +163,7 @@ static CMPIData refGetKeyAt(CMPIObjectPath* eRef, unsigned pos, CMPIString** nam
    key2CMPIData(akb[pos].getValue(),akb[pos].getType(),&data);
 
    if (name) {
-      const String &n=akb[pos].getName();
+      const String &n=akb[pos].getName().getString();
       *name=(CMPIString*)string2CMPIString(n);
    }
    return data;
@@ -169,7 +171,7 @@ static CMPIData refGetKeyAt(CMPIObjectPath* eRef, unsigned pos, CMPIString** nam
 
 static CMPICount refGetKeyCount(CMPIObjectPath* eRef, CMPIStatus* rc) {
    CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
-   const Array<KeyBinding> &akb=ref->getKeyBindings();
+   const Array<CIMKeyBinding> &akb=ref->getKeyBindings();
    if (rc) CMSetStatus(rc,CMPI_RC_OK);
    return akb.size();
 }

@@ -29,6 +29,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#define CMPI_VER_86 1
+
 #include "CMPI_Object.h"
 #include "CMPI_Broker.h"
 #include "CMPI_Ftabs.h"
@@ -92,7 +94,7 @@ static inline CIMName Name(char *n) {
 static CMPIObjectPath* mbEncNewObjectPath(CMPIBroker* mb, char *ns, char *cls,
                   CMPIStatus *rc) {
 //   cout<<"--- mbEncNewObjectPath() "<<ns<<"-"<<cls<<endl;
-   KeyBindingArray keyBindings;
+   Array<CIMKeyBinding> keyBindings;
    String host;
    CIMName className=Name(cls);
    CIMNamespaceName nameSpace=NameSpaceName(ns);

@@ -29,6 +29,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#define CMPI_VER_86 1
+
 #include "CMPI_String.h"
 
 PEGASUS_USING_STD;
@@ -263,10 +265,10 @@ CMPIType type2CMPIType(CIMType pt, int array) {
     return (CMPIType)t;
 }
 
-CMPIrc key2CMPIData(const String& v, KeyBinding::Type t, CMPIData *data) {
+CMPIrc key2CMPIData(const String& v, CIMKeyBinding::Type t, CMPIData *data) {
    data->state=CMPI_keyValue;
    switch (t) {
-   case KeyBinding::NUMERIC: {
+   case CIMKeyBinding::NUMERIC: {
          const char *vp=v.getCString();
          #ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
          data->value.sint64=strtoll(vp, NULL, 10);
@@ -277,15 +279,15 @@ CMPIrc key2CMPIData(const String& v, KeyBinding::Type t, CMPIData *data) {
          delete vp;
       }
       break;
-   case KeyBinding::STRING:
+   case CIMKeyBinding::STRING:
       data->value.string=string2CMPIString(v);
       data->type=CMPI_string;
       break;
-   case KeyBinding::BOOLEAN:
+   case CIMKeyBinding::BOOLEAN:
       data->value.boolean=(String::equalNoCase(v,"true"));
       data->type=CMPI_boolean;
       break;
-   case KeyBinding::REFERENCE:
+   case CIMKeyBinding::REFERENCE:
       data->value.ref=(CMPIObjectPath*)new CMPI_Object(new CIMObjectPath(v));
       data->type=CMPI_ref;
       break;

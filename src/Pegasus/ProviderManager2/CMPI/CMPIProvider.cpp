@@ -29,6 +29,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#define CMPI_VER_86 1
+
 #include "CMPIProvider.h"
 
 #include "CMPI_Object.h"
@@ -207,7 +209,8 @@ void CMPIProvider::_terminate(void)
         std::cerr<<"--- CMPIProvider::_terminate() deleting ClassCache "<<std::endl;
 	ClassCache::Iterator i=broker.clsCache->start();
 	for (; i; i++) {
-	   std::cerr<<"--- CMPIProvider::_terminate() deleting class "<<i.value()->getClassName()<<std::endl;
+	   std::cerr<<"--- CMPIProvider::_terminate() deleting class "
+	      <<i.value()->getClassName().getString()<<std::endl;
 	   delete i.value(); }
 	delete broker.clsCache;
     }

@@ -41,7 +41,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 CIMValue value2CIMValue(CMPIValue* data, CMPIType type, CMPIrc *rc);
 CMPIrc value2CMPIData(const CIMValue&,CMPIType,CMPIData *data);
-CMPIrc key2CMPIData(const String& v, KeyBinding::Type t, CMPIData *data);
+CMPIrc key2CMPIData(const String& v, CIMKeyBinding::Type t, CMPIData *data);
 CMPIType type2CMPIType(CIMType pt, int array);
 
 PEGASUS_NAMESPACE_END

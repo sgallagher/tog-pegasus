@@ -1789,7 +1789,7 @@ void CIMOperationRequestDispatcher::_forwardRequestCallback(
     PEGASUS_ASSERT(response != 0);
 
     // ensure that the destination queue is in response->dest
-#ifdef PEGASUS_ARCHITECTURE_64BIT
+#ifdef PEGASUS_POINTER_64BIT
     response->dest = (Uint64)userParameter;
 #elif PEGASUS_PLATFORM_AIX_RS_IBMCXX
     response->dest = (unsigned long)userParameter;   //Cast to size 32/64 bit safe
@@ -1858,7 +1858,7 @@ void CIMOperationRequestDispatcher::_forwardRequestToService(
 	      serviceIds[0],
 	      CIMOperationRequestDispatcher::_forwardRequestCallback,
 	      this,
-#ifdef PEGASUS_ARCHITECTURE_64BIT
+#ifdef PEGASUS_POINTER_64BIT
               (void *)(Uint64)request->queueIds.top());
 #elif PEGASUS_PLATFORM_AIX_RS_IBMCXX
               (void *)(unsigned long)request->queueIds.top());
@@ -2007,7 +2007,7 @@ void CIMOperationRequestDispatcher::_forwardRequestToProviderManager(
 		  serviceIds[0],
 		  CIMOperationRequestDispatcher::_forwardRequestCallback,
 		  this,
-#ifdef PEGASUS_ARCHITECTURE_64BIT
+#ifdef PEGASUS_POINTER_64BIT
                   (void *)(Uint64)request->queueIds.top());
 #elif PEGASUS_PLATFORM_AIX_RS_IBMCXX
                   (void *)(unsigned long)request->queueIds.top());
@@ -2041,7 +2041,7 @@ void CIMOperationRequestDispatcher::_forwardRequestToProviderManager(
 		 serviceIds[0],
 		 CIMOperationRequestDispatcher::_forwardRequestCallback,
 		 this,
-#ifdef PEGASUS_ARCHITECTURE_64BIT
+#ifdef PEGASUS_POINTER_64BIT
                  (void *)(Uint64)request->queueIds.top());
 #elif PEGASUS_PLATFORM_AIX_RS_IBMCXX
                  (void *)(unsigned long)request->queueIds.top());

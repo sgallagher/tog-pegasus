@@ -32,7 +32,7 @@
 #include <stdlib>
 #include "ConfigVms.h"
 
-#define PEGASUS_ARCHITECTURE_64BIT
+#define PEGASUS_POINTER_64BIT
 
 #define PEGASUS_COMPILER_DECCXX
 

@@ -118,7 +118,7 @@ AtomicInt function_count;
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL work_func_blocking(void *parm)
 {
 
-#ifdef PEGASUS_ARCHITECTURE_64BIT
+#ifdef PEGASUS_POINTER_64BIT
    Uint32 sleep_interval = (Uint64)parm;
 #elif PEGASUS_PLATFORM_AIX_RS_IBMCXX
    unsigned long sleep_interval = (unsigned long)parm;
@@ -133,7 +133,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL work_func_blocking(void *parm)
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL work_func(void *parm)
 {
 
-#ifdef PEGASUS_ARCHITECTURE_64BIT
+#ifdef PEGASUS_POINTER_64BIT
    Uint32 sleep_interval = (Uint64)parm;
 #elif PEGASUS_PLATFORM_AIX_RS_IBMCXX
    unsigned long sleep_interval = (unsigned long)parm;

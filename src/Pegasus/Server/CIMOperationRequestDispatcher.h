@@ -173,7 +173,7 @@ public:
 				QueryExpressionRep* query=NULL,
 				String queryLanguage=String::EMPTY)
     : _messageId(messageId), _msgRequestType(msgRequestType),
-      _dest(dest), _className(className), _nameSpace(nameSpace), 
+      _dest(dest), _nameSpace(nameSpace), _className(className),  
       _query(query),_queryLanguage(queryLanguage),
       _request(request), _totalIssued(0), _magicNumber(12345)
     {}

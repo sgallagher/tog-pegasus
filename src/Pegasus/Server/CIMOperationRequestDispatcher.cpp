@@ -1,4 +1,4 @@
-//%2004////////////////////////////////////////////////////////////////////////
+//%2005////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
 // Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
@@ -6,6 +6,8 @@
 // IBM Corp.; EMC Corporation, The Open Group.
 // Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
 // IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -1295,7 +1297,7 @@ void CIMOperationRequestDispatcher::_forwardForAggregationCallback(
     // Verify that the aggregator is valid.
     PEGASUS_ASSERT(poA->valid());
     //CDEBUG("_ForwardForAggregationCallback ");
-    CIMResponseMessage *response=0L;
+    CIMResponseMessage *response = 0;
 
     Uint32 msgType = asyncReply->getType();
 
@@ -1353,7 +1355,7 @@ void CIMOperationRequestDispatcher::_forwardRequestCallback(
     AsyncRequest *asyncRequest = static_cast<AsyncRequest *>(op->get_request());
     AsyncReply *asyncReply = static_cast<AsyncReply *>(op->get_response());
 
-    CIMResponseMessage *response=0L;
+    CIMResponseMessage *response = 0;
 
     Uint32 msgType = asyncReply->getType();
 
@@ -1375,7 +1377,7 @@ void CIMOperationRequestDispatcher::_forwardRequestCallback(
     PEGASUS_ASSERT(response != 0);
 
     // ensure that the destination queue is in response->dest
-#ifdef PEGASUS_ARCHITECTURE_IA64
+#ifdef PEGASUS_POINTER_64BIT
     response->dest = (Uint64)userParameter;
 #elif PEGASUS_PLATFORM_AIX_RS_IBMCXX
     response->dest = (unsigned long)userParameter;   //Cast to size 32/64 bit safe
@@ -1439,7 +1441,13 @@ void CIMOperationRequestDispatcher::_forwardRequestToService(
 	      serviceIds[0],
 	      CIMOperationRequestDispatcher::_forwardRequestCallback,
 	      this,
-	      (void *)request->queueIds.top());
+#ifdef PEGASUS_POINTER_64BIT
+              (void *)(Uint64)request->queueIds.top());
+#elif PEGASUS_PLATFORM_AIX_RS_IBMCXX
+              (void *)(unsigned long)request->queueIds.top());
+#else
+              (void *)(Uint32)request->queueIds.top());
+#endif
 
     PEG_METHOD_EXIT();
 }
@@ -1616,7 +1624,13 @@ void CIMOperationRequestDispatcher::_forwardRequestToProviderManager(
 		  serviceIds[0],
 		  CIMOperationRequestDispatcher::_forwardRequestCallback,
 		  this,
-		  (void *)request->queueIds.top());
+#ifdef PEGASUS_POINTER_64BIT
+                  (void *)(Uint64)request->queueIds.top());
+#elif PEGASUS_PLATFORM_AIX_RS_IBMCXX
+                  (void *)(unsigned long)request->queueIds.top());
+#else
+                  (void *)(Uint32)request->queueIds.top());
+#endif
     }
     else
     {
@@ -1644,7 +1658,13 @@ void CIMOperationRequestDispatcher::_forwardRequestToProviderManager(
 		 serviceIds[0],
 		 CIMOperationRequestDispatcher::_forwardRequestCallback,
 		 this,
-		 (void *)request->queueIds.top());
+#ifdef PEGASUS_POINTER_64BIT
+                 (void *)(Uint64)request->queueIds.top());
+#elif PEGASUS_PLATFORM_AIX_RS_IBMCXX
+                 (void *)(unsigned long)request->queueIds.top());
+#else
+                 (void *)(Uint32)request->queueIds.top());
+#endif
     }
 
     PEG_METHOD_EXIT();

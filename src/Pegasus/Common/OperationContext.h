@@ -176,8 +176,11 @@ public:
     static const String NAME;
 
     IdentityContainer(const OperationContext::Container & container);
+    IdentityContainer(const IdentityContainer & container);
     IdentityContainer(const String & userName);
     virtual ~IdentityContainer(void);
+
+    IdentityContainer & operator=(const IdentityContainer & container);
 
     virtual String getName(void) const;
     virtual OperationContext::Container * clone(void) const;

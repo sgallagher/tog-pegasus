@@ -57,7 +57,8 @@ TBD: Pegasus API version information
 /** @name Pegasus CIM Objects and Common Function APIs
 	This section defines the Pegasus C++ Class that represent
         the CIM objects and the common functions used by Pegasus 
-*/    
+*/
+            
         //@{
         /// @name Classes for CIM Objects and Containers
            //@{ 
@@ -136,14 +137,14 @@ TBD: Pegasus API version information
 			//@Include: ../../src/Pegasus/Provider/CIMMethodProvider.h
 	        //@}  	 
 	    /// Pegasus CIM Provider  CIMOM Handle Callback
-	      //@{ 
-		//@Include: ../../src/Pegasus/Provider/CIMOMHandle.h
-	      //@}  	 
+	        //@{ 
+		    //@Include: ../../src/Pegasus/Provider/CIMOMHandle.h
+	        //@}  	 
 	    /// Pegasus CIM Provider Exceptions
-	      //@{ 
-		//@Include: ../../src/Pegasus/Provider/ProviderException.h
-	      //@}  	 
-	//@}
+	        //@{ 
+		    //@Include: ../../src/Pegasus/Provider/ProviderException.h
+                //@}
+	//@}  	 
   /// @name Pegasus Server Indication Consumer
         //@{
                 //@Include: ../../src/Pegasus/Consumer/CIMIndicationConsumer.h

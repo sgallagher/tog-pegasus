@@ -73,12 +73,12 @@ _lookup_attrs(const String &save_url, Array<Attribute>& attribs,const SLPClientO
     struct slp_client *client = NULL;
     lslpMsg responses, *attrReplyEntry;
     
-    int8 *scopes;
-    int8 *spi;
+    const int8 *scopes;
+    const int8 *spi;
     int8 *iface;
     int8 *addr;
-    int8 *type;
-    int8 *predicate;
+    const int8 *type;
+    const int8 *predicate;
     int16 port;
     BOOL dir_agent;
     
@@ -174,12 +174,12 @@ CIMServerDiscoveryRep::lookup(const Array<Attribute> & criteria, const SLPClient
   struct slp_client *client = NULL;
   lslpMsg responses, *srvReplyEntry;
   
-  int8 *scopes; // = strdup("DEFAULT");
-  int8 *spi; // = strdup("DSA");
+  const int8 *scopes; // = strdup("DEFAULT");
+  const int8 *spi; // = strdup("DSA");
   int8 *iface; // = NULL;
   int8 *addr; // = NULL;
-  int8 *type; // = strdup("service:wbem");
-  int8 *predicate; // = NULL;
+  const int8 *type; // = strdup("service:wbem");
+  const int8 *predicate; // = NULL;
   int16 port; // = 427;
   BOOL dir_agent; // = FALSE;
  

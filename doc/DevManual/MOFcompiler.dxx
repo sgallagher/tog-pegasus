@@ -1,5 +1,8 @@
 /*
 	$Log: MOFcompiler.dxx,v $
+	Revision 1.2  2001/03/05 15:22:53  bob
+	Minor cleanup
+	
 	Revision 1.1  2001/02/25 15:01:40  karl
 	Add frames to manual
 	
@@ -24,16 +27,19 @@ The compiler operates standalone in the syntax checking mode but requires the
 Pegasus libraries when compiling into a Pegasus respository.
 
 The compiler requires that the input MOF files be in the current directory
-unless TBD
+or that a fully qualified path be given.  MOF files included using
+#pragma include must be in the current directory or in a directory specified
+by a -I command line switch.
 
 The compiler assumes that the file extension is .mof it is not specified.
+(This feature is not yet implemented.)
 
 The actual configuration and type of repository created depends on the characteristics of the repository implemented in Pegasus. See the description of the Pegasus repositories for more information.
 
 <B>EXAMPLE</B>
 
 <PRE>
-       cimmof -w -Rtestrepository -IMOF MOF/CIMSchema25.mof
+       cimmof -w -Rtestrepository -I./MOF MOF/CIMSchema25.mof
 </PRE>
 
 Compile the mof file defined in the directory MOF with the name CIMSchema25.mof
@@ -60,17 +66,16 @@ The MOF compiler TBD
 <LI>-h, --help	Print out usage message with command line definitions.
 
 
-<LI>-E - 		Perform only a syntax check on the input and creates no 					repository.  Inthis mode, the compiler does not do the sematic checks that are done when MOFis added to a repository
+<LI>-E - 		Perform only a syntax check on the input and creates no 					repository.  Inthis mode, the compiler does not do the sematic checks that are done when a CIM object is\
+ added to a repository
 
--w -- Suppresses ??? warnings.
+-w -- Suppresses warning messages.
 
 <LI>-R<path> - 	Specifies the path to the repository to be written. This is an
 alternative to the PEGASUS_HOME environment variable. If PEGASUS_HOME is set
 the repository gets written to $PEGASUS_HOME/repository. The -R flag one the
 command line overrides this with <path> specified in the directive.
-
-
-?? relative or absolute???
+Specify an absolute path.
 
 <LI>--CIMRepository=<path>
 
@@ -78,7 +83,7 @@ command line overrides this with <path> specified in the directive.
 
 	cimmof -I~/testfiles ~/testfiles/main.mof
 
-?? relative or absolute ??
+The path may be relative or absolute.
 
 </UL>
 

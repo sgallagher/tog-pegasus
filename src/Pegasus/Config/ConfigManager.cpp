@@ -138,7 +138,6 @@ static struct OwnerEntry _properties[] =
     {"enableIndicationService", (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     // Removed because unresolved PEP 66 KS{"maximumEnumerationBreadth", (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"enableAuthentication", (ConfigPropertyOwner* )ConfigManager::securityOwner},
-    {"usePAMAuthentication", (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"enableNamespaceAuthorization", (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"httpAuthType",        (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"passwordFilePath",    (ConfigPropertyOwner* )ConfigManager::securityOwner},

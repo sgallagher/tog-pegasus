@@ -210,8 +210,6 @@ private:
     */
     struct ConfigProperty*      _enableAuthentication;
 
-    struct ConfigProperty*      _usePAMAuthentication;
-
     struct ConfigProperty*      _enableNamespaceAuthorization;
 
     struct ConfigProperty*      _httpAuthType;

@@ -102,32 +102,14 @@ PAMBasicAuthenticator::PAMBasicAuthenticator()
     _realm.append(port);
 
     //
-    // Check for platforms that allow PAM
+    // Check for platforms that allow PAM Standalone Process
     //
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-    //
-    // get the configured usePAMAuthentication flag
-    //
-    if (String::equal(
-        configManager->getCurrentValue("usePAMAuthentication"), "true"))
-    {
-        _usePAM = true;
-    }
-    else
-    {
-	_usePAM = false;
-    }
 #if defined(PEGASUS_USE_PAM_STANDALONE_PROC)
     //
     // Set up the separate process to do PAM Authentication
     //
-    if (_usePAM)
-    {
-        _pamBasicAuthenticatorStandAlone = 
+    _pamBasicAuthenticatorStandAlone = 
             new PAMBasicAuthenticatorStandAlone();
-    }
-#endif
-
 #endif
 
     PEG_METHOD_EXIT();
@@ -152,25 +134,17 @@ Boolean PAMBasicAuthenticator::authenticate(
     Boolean authenticated;
 
 #if !defined(PEGASUS_USE_PAM_STANDALONE_PROC)
-    authenticated = _authenticateByPAM(userName, password);
+        authenticated = _authenticateByPAM(userName, password);
 #else
-    //
-    // Mutex to Serialize Authentication calls.
-    //
-    Tracer::trace(TRC_AUTHENTICATION, Tracer::LEVEL4,
-        "Authentication Mutex lock.");
-    AutoMutex lock(_authSerializeMutex);
-
-    if (_usePAM)
-    {
+        //
+        // Mutex to Serialize Authentication calls.
+        //
+        Tracer::trace(TRC_AUTHENTICATION, Tracer::LEVEL4,
+           "Authentication Mutex lock.");
+        AutoMutex lock(_authSerializeMutex);
         authenticated =
-            _pamBasicAuthenticatorStandAlone->authenticate(userName,
+                _pamBasicAuthenticatorStandAlone->authenticate(userName,
                                                               password);
-    }
-    else
-    {
-        authenticated = _authenticateByPwnam(userName.getCString(), password);
-    }
 #endif
 
     PEG_METHOD_EXIT();
@@ -242,89 +216,6 @@ Boolean PAMBasicAuthenticator::_authenticateByPAM(
 
     return (authenticated);
 }
-
-#if defined(PEGASUS_USE_PAM_STANDALONE_PROC)
-Boolean PAMBasicAuthenticator::_authenticateByPwnam(
-    const char * userName, 
-    const String& password) 
-{
-    PEG_METHOD_ENTER(TRC_AUTHENTICATION,
-        "PAMBasicAuthenticator::_authenticateByPwnam()");
-
-    Boolean authenticated = false;
-
-    String currPassword         = String::EMPTY;
-    String encryptedPassword    = String::EMPTY;
-    String saltStr              = String::EMPTY;
-
-    //
-    // check if the system has been converted to a trusted system.
-    //
-
-#if defined(PEGASUS_OS_HPUX)
-    if (iscomsec())
-    {
-	// system is a trusted system
-	// use interface getprpwnam to get pr_passwd structure
-
-	struct pr_passwd * pwd;
-
-	char* _userName = strcpy(new char[strlen(userName) + 1], userName);
-	
-	// getprpwnam returns a pointer to a pr_passwd structure  upon success
-	if ( (pwd = getprpwnam(_userName)) != NULL)
-	{
-           Tracer::trace(TRC_AUTHENTICATION, Tracer::LEVEL4,
-              "getprpwnam successful.");
-	   // get user's password from pr_passwd structure
-	    currPassword = pwd->ufld.fd_encrypt; 
-	}
-
-	delete [] _userName;
-    }
-    else
-    {
-#endif
-	//
-	// system is not a trusted system
-	// use reentrant interface getpwnam_r to get password structure
-	//
-	struct passwd pwd;
-	struct passwd *result;
-	char pwdBuffer[BUFFERLEN];
-
-	// getpwnam_r returns zero upon success
-	if (getpwnam_r(userName, &pwd, pwdBuffer, BUFFERLEN, &result) == 0)
-	{
-           Tracer::trace(TRC_AUTHENTICATION, Tracer::LEVEL4,
-              "getpwnam_r successful.");
-	   // get user's password from password file
-	    currPassword = pwd.pw_passwd; 
-	}
-#if defined(PEGASUS_OS_HPUX)
-    }
-#endif
-
-    //
-    // Check if the specified password mathches user's password 
-    //
-    saltStr = currPassword.subString(0,2);
-
-    encryptedPassword = System::encryptPassword(password.getCString(),
-			saltStr.getCString());
-
-    if (String::equal(currPassword, encryptedPassword))
-    {
-	authenticated = true;
-        Tracer::trace(TRC_AUTHENTICATION, Tracer::LEVEL4,
-                  "Password match successful.");
-    }
-
-    PEG_METHOD_EXIT();
-
-    return (authenticated);
-}
-#endif
 
 //
 // Create authentication response header

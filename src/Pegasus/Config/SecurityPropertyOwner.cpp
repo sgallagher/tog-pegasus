@@ -61,11 +61,6 @@ static struct ConfigPropertyRow properties[] =
 #else
     {"enableAuthentication", "false", 0, 0, 0, 1},
 #endif
-#ifdef PEGASUS_OS_HPUX
-    {"usePAMAuthentication", "true", 0, 0, 0, 0},
-#else
-    {"usePAMAuthentication", "false", 0, 0, 0, 1},
-#endif
 #if defined(PEGASUS_OS_OS400) && defined(PEGASUS_KERBEROS_AUTHENTICATION)
     {"httpAuthType", "Kerberos", 0, 0, 0, 1},
 #else
@@ -107,7 +102,6 @@ const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
 SecurityPropertyOwner::SecurityPropertyOwner()
 {
     _enableAuthentication = new ConfigProperty();
-    _usePAMAuthentication = new ConfigProperty();
     _enableNamespaceAuthorization = new ConfigProperty();
     _httpAuthType = new ConfigProperty();
     _passwordFilePath = new ConfigProperty();
@@ -126,7 +120,6 @@ SecurityPropertyOwner::SecurityPropertyOwner()
 SecurityPropertyOwner::~SecurityPropertyOwner()
 {
     delete _enableAuthentication;
-    delete _usePAMAuthentication;
     delete _enableNamespaceAuthorization;
     delete _httpAuthType;
     delete _passwordFilePath;
@@ -163,18 +156,6 @@ void SecurityPropertyOwner::initialize()
             _enableAuthentication->domain = properties[i].domain;
             _enableAuthentication->domainSize = properties[i].domainSize;
             _enableAuthentication->externallyVisible = properties[i].externallyVisible;
-        }
-        else if (String::equalNoCase(
-            properties[i].propertyName, "usePAMAuthentication"))
-        {
-            _usePAMAuthentication->propertyName = properties[i].propertyName;
-            _usePAMAuthentication->defaultValue = properties[i].defaultValue;
-            _usePAMAuthentication->currentValue = properties[i].defaultValue;
-            _usePAMAuthentication->plannedValue = properties[i].defaultValue;
-            _usePAMAuthentication->dynamic = properties[i].dynamic;
-            _usePAMAuthentication->domain = properties[i].domain;
-            _usePAMAuthentication->domainSize = properties[i].domainSize;
-            _usePAMAuthentication->externallyVisible = properties[i].externallyVisible;
         }
         else if (String::equalNoCase(
             properties[i].propertyName, "enableNamespaceAuthorization"))
@@ -348,10 +329,6 @@ struct ConfigProperty* SecurityPropertyOwner::_lookupConfigProperty(
     if (String::equalNoCase(_enableAuthentication->propertyName, name))
     {
         return _enableAuthentication;
-    }
-    else if (String::equalNoCase(_usePAMAuthentication->propertyName, name))
-    {
-        return _usePAMAuthentication;
     }
     else if (String::equalNoCase(_enableNamespaceAuthorization->propertyName, name))
     {
@@ -530,13 +507,6 @@ Boolean SecurityPropertyOwner::isValid(const String& name, const String& value)
     // Validate the specified value
     //
     if (String::equalNoCase(_enableAuthentication->propertyName, name))
-    {
-        if(String::equal(value, "true") || String::equal(value, "false"))
-        {
-            retVal = true;
-        }
-    }
-    else if (String::equalNoCase(_usePAMAuthentication->propertyName, name))
     {
         if(String::equal(value, "true") || String::equal(value, "false"))
         {

@@ -60,13 +60,6 @@ ifdef PEGASUS_PAM_AUTHENTICATION
 ## and compile-out the code that uses the password file.
 
  DEFINES += -DPEGASUS_PAM_AUTHENTICATION -DPEGASUS_NO_PASSWORDFILE
-
-##
-## The following flag sets the Authentication to be PAM based authentication.
-##
-  ifdef PEGASUS_ALWAYS_USE_PAM
-   DEFINES += -DPEGASUS_ALWAYS_USE_PAM
-  endif
 endif
 
 

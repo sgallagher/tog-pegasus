@@ -38,6 +38,10 @@ ModuleController::callback_handle * ModuleController::callback_handle::_head;
 const int ModuleController::callback_handle::BLOCK_SIZE = 20;
 Mutex ModuleController::callback_handle::_alloc_mut;
 
+
+
+
+
 void * ModuleController::callback_handle::operator new(size_t size)
 {
    if( size != sizeof(callback_handle))
@@ -376,21 +380,21 @@ ModuleController::ModuleController(const char *name )
 ModuleController::~ModuleController()
 {
 
-   // deregister all modules 
    pegasus_module *module;
-   _modules.lock();
-    
-   module = _modules.next(0);
-   while(module != NULL )
+
+   try 
    {
-      String name = module->get_name();
-      _modules.unlock();
-      deregister_module(name);
-      delete module;
-      _modules.lock();
-      module = _modules.next(0);
+      module = _modules.remove_first();
+      while(module)
+      {
+	 delete module;
+	 module = _modules.remove_first();
+      }
+
    }
-   _modules.unlock();
+   catch(...)
+   {
+   }
 }
 
 // called by a module to register itself, returns a handle to the controller 
@@ -425,14 +429,17 @@ ModuleController & ModuleController::register_module(const String & controller_n
 
    controller = static_cast<ModuleController *>(service);
    
+   
+   {
+      
    // see if the module already exists in this controller.
-   controller->_modules.lock();
+   _module_lock lock(&(controller->_modules));
+   
    module = controller->_modules.next(0);
    while(module != NULL )
    {
       if(module->get_name() == module_name )
       {
-	 controller->_modules.unlock();
 	 //l10n
 	 //throw AlreadyExistsException("module \"" + module_name + "\"");
 	 MessageLoaderParms parms("Common.ModuleController.MODULE",
@@ -442,7 +449,8 @@ ModuleController & ModuleController::register_module(const String & controller_n
       }
       module = controller->_modules.next(module);
    }
-   controller->_modules.unlock();
+   
+   }
    
    // now reserve this module name with the meta dispatcher
 
@@ -506,47 +514,43 @@ Boolean ModuleController::deregister_module(const String & module_name)
    delete request;
    delete response;
    
-   Boolean ret = false;
    pegasus_module *module;
-   _modules.lock();
+
+   _module_lock lock(&_modules);
    module = _modules.next(0);
    while(module != NULL )
    {
       if( module->get_name() == module_name)
       {
 	 _modules.remove_no_lock(module);
-	 ret = true;
-	 break;
+	 return true;
       }
       module = _modules.next(module);
    }
-   _modules.unlock();
-   return ret;
+   return false;
 }
 
 Boolean ModuleController::verify_handle(pegasus_module *handle)
 {
    pegasus_module *module;
-   Boolean ret = false;
    
    // ATTN change to use authorization and the pegasus_id class
    // << Fri Apr  5 12:43:19 2002 mdd >>
    if( handle->_rep->_module_address == (void *)this)
       return true;
    
-   _modules.lock();
+   _module_lock lock(&_modules);
+   
    module = _modules.next(0);
    while(module != NULL)
    {
       if ( module == handle)
       {
-	 ret = true;
-	 break;
+	 return true;
       }
       module = _modules.next(module);
    }
-   _modules.unlock();
-   return ret;
+   return false;
 }
 
 // given a name, find a service's queue id
@@ -602,7 +606,7 @@ pegasus_module * ModuleController::get_module_reference(const pegasus_module & m
       throw(Permission(pegasus_thread_self()));
 
    pegasus_module *module, *ref = NULL;
-   _modules.lock();
+   _module_lock lock(&_modules);
    module = _modules.next(0);
    while(module != NULL)
    {
@@ -613,7 +617,6 @@ pegasus_module * ModuleController::get_module_reference(const pegasus_module & m
       }
       module = _modules.next(module);
    }
-   _modules.unlock();
    return ref;
 }
 
@@ -901,21 +904,23 @@ void ModuleController::_handle_async_request(AsyncRequest *rq)
       // find the target module
       pegasus_module *target;
       Message *module_result = NULL;
-      
-      _modules.lock();
-      target = _modules.next(0);
-      while(target != NULL)
       {
-	 if(target->get_name() == static_cast<AsyncModuleOperationStart *>(rq)->_target_module)
+	 
+	 _module_lock lock(&_modules);
+	 target = _modules.next(0);
+	 while(target != NULL)
 	 {
+	    if(target->get_name() == static_cast<AsyncModuleOperationStart *>(rq)->_target_module)
+	    {
+	       
+	       module_result = target->_receive_message(static_cast<AsyncModuleOperationStart *>(rq)->_act);
+	       break;
+	    }
 	    
-	    module_result = target->_receive_message(static_cast<AsyncModuleOperationStart *>(rq)->_act);
-	    break;
+	    target = _modules.next(target);
 	 }
 	 
-	 target = _modules.next(target);
       }
-      _modules.unlock();
       
       if(module_result == NULL)
       {

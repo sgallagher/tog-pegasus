@@ -438,6 +438,30 @@ class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
       virtual void _handle_async_callback(AsyncOpNode *op);
 
    private:
+
+
+      class _module_lock 
+      {
+	 public:
+	    _module_lock(DQueue<pegasus_module> * list)
+	       :_list(list)
+	    {
+	       _list->lock();
+	       
+	    }
+	    ~_module_lock(void)
+	    {
+	       _list->unlock();
+	    }
+	    
+	    
+	 private:
+	    _module_lock();
+	    DQueue<pegasus_module> * _list;
+      };
+      
+      
+
       static void _async_handleEnqueue(AsyncOpNode *h, MessageQueue *q, void *parm);
       DQueue<pegasus_module> _modules;
       pegasus_module _internal_module;
@@ -453,6 +477,8 @@ class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
 	 PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *), 
 	 void *parm) ;
 };
+
+
 
 
 

@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,7 +28,8 @@
 //
 // Author: Willis White (whiwill@us.ibm.com)
 //
-// Modified By: 
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -47,9 +48,9 @@
 
 
 
-PEGASUS_NAMESPACE_BEGIN;  
+PEGASUS_NAMESPACE_BEGIN
 
-                                                                          
+
 
 struct ClientOpPerformanceDataHandler;
 struct ClientOpPerformanceData;
@@ -57,10 +58,10 @@ struct ClientOpPerformanceData;
 /* The ClientPerfDataStore class is internal to pegasus. It has no API's that client apps can
 access. It's purpose is to collect and calculate the data that is returned to the client app
 in the ClientOpPerformanceData object.
-*/ 
+*/
 
-class PEGASUS_CLIENT_LINKAGE ClientPerfDataStore 
-  
+class PEGASUS_CLIENT_LINKAGE ClientPerfDataStore
+
 {
 public:
 
@@ -69,12 +70,12 @@ public:
     /**Resets all the data members to 0
     */
     void reset();
-     
+
     /**Creates a ClientOpPerformanceData from the current values of of the private data members
     */
     ClientOpPerformanceData createPerfDataStruct();
 
-    /**checks the currentMessageID and _operationType data members against  
+    /**checks the currentMessageID and _operationType data members against
     @param messageID and @param type if the values equea
     true is returned.
     @param messageID
@@ -87,7 +88,7 @@ public:
     */
     void setServerTime(Uint64 time);
 
-    /**sets the responsSize data member 
+    /**sets the responsSize data member
     */
     void setResponseSize(Uint64 size);
 
@@ -108,7 +109,7 @@ public:
     */
     void setServerTimeKnown(Boolean bol);
 
-    /**sets _operationType data member by translating message type given by 
+    /**sets _operationType data member by translating message type given by
     @param type, into a CIMOperationType. That value is ues to set the _operationType
     data member and is returned.
     @param type integer repesenting the message type
@@ -139,22 +140,22 @@ protected:
     Boolean _errorCondition;
     Boolean _classRegistered;
     Uint64 _serverTime;
-    Uint64 _requestSize; 
-    Uint64 _responseSize; 
+    Uint64 _requestSize;
+    Uint64 _responseSize;
     String _messID;
     CIMDateTime _networkEndTime;
     CIMDateTime _networkStartTime;
-    
-    
-    
+
+
+
 
     //using the singleton pattern - constructors are made un-usealbe
-    ClientPerfDataStore();    
+    ClientPerfDataStore();
     ClientPerfDataStore(const ClientPerfDataStore&);
     ClientPerfDataStore& operator= (const ClientPerfDataStore&);
 
-};   
-    
+};
+
 
 PEGASUS_NAMESPACE_END
 

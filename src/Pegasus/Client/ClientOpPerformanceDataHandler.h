@@ -39,7 +39,7 @@
 #include <Pegasus/Client/ClientPerfDataStore.h>
 #include <iostream>
 
-PEGASUS_NAMESPACE_BEGIN;
+PEGASUS_NAMESPACE_BEGIN
 
 
 

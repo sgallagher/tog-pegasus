@@ -1,9 +1,15 @@
 CHANGE LOG FOR PEGASUS
 
+-----------------------------------------------------------------------
+23 May 20010.97.1
+1. Add PEG_NOT_FOUND symbol to replace Uint32(-1) in any of the object
+find functions.  Note: This symbol is defined in config.h. (ks).
+
+2. Port To HP UX (Mike Add comments here).
 
 
 ------------------------------------------------------------------------
-21 May 2001  Version 0.97
+21 May 2001  Version 0.97 - Tagged as version_0_97
 
 1. Added methods in CIMClass, CIMInstance, for existance of properties,
 qualifiers, methods.

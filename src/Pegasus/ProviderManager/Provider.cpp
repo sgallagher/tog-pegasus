@@ -40,6 +40,14 @@ Provider::Provider(const String & name, const String & path)
     //PEG_METHOD_EXIT();
 }
 
+Provider::Provider(const Provider & p)
+    : ProviderFacade(p._module.getProvider()), _module(p._module)
+{
+    //PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "Provider::Provider");
+    //PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, "name = " + name + "; path = " + path);
+    //PEG_METHOD_EXIT();
+}
+
 Provider::~Provider(void)
 {
 }

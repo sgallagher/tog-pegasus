@@ -40,6 +40,14 @@ ProviderModule::ProviderModule(const String & fileName, const String & providerN
 {
 }
 
+ProviderModule::ProviderModule(const ProviderModule & pm)
+    : _fileName(pm._fileName),
+      _providerName(pm._providerName),
+      _library(pm._library),
+      _provider(pm._provider)
+{
+}
+
 ProviderModule::~ProviderModule(void)
 {
 }

@@ -44,6 +44,7 @@ class PEGASUS_SERVER_LINKAGE Provider : public ProviderFacade
 {
 public:
     Provider(const String & name, const String & path);
+    Provider(const Provider & p);
     virtual ~Provider(void);
 
     virtual void initialize(CIMOMHandle & cimom);

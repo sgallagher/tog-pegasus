@@ -44,6 +44,7 @@ class PEGASUS_SERVER_LINKAGE ProviderModule
 {
 public:
     ProviderModule(const String & fileName, const String & providerName);
+    ProviderModule(const ProviderModule & pm);
     virtual ~ProviderModule(void);
 
     const String & getFileName(void) const;

@@ -11,7 +11,8 @@ DOC_HEAD = ProviderSpec.dxx
 
 
 all:
-	$(RM) $(DOC_OUTPUT)/*	
+	$(RM) $(DOC_OUTPUT)/*
+	$(RM) DocTOC.htm
 	gawk --file=DocTOC.awk $(DOC_HEAD) >DocTOC.htm
 	docxx --dir $(DOC_OUTPUT)  --verbose -H $(DOC_HEAD)
 	$(COPY) $(DOC_DIR)/*.gif $(DOC_OUTPUT)

@@ -90,7 +90,9 @@ This version of the Pegasus Provider Interface Specification was created at \tod
          	//@Include: ..\..\src\Pegasus\Common\Stack.h 
          	//@Include: ..\..\src\Pegasus\Common\CIMName.h 
              	//@Include: ..\..\src\Pegasus\Common\StopWatch.h 
-         	//@Include: ..\..\src\Pegasus\Common\TimeValue.h 
+         	//@Include: ..\..\src\Pegasus\Common\TimeValue.h
+         	//@Include: ..\..\src\Pegasus\Common\CIMPredicate.h
+         	
         	//@{
 		//@Include: Exceptions.dxx  
         	//@Include: ..\..\src\Pegasus\Common\Exception.h
@@ -110,7 +112,6 @@ This version of the Pegasus Provider Interface Specification was created at \tod
 		    //@Include: ..\..\src\Pegasus\Provider2\CIMIndicationProvider.h
 		    //@Include: ..\..\src\Pegasus\Provider2\CIMInstanceProvider.h
 		    //@Include: ..\..\src\Pegasus\Provider2\CIMMethodProvider.h
-		    //@Include: ..\..\src\Pegasus\Provider2\CIMPredicate.h
 		    //@Include: ..\..\src\Pegasus\Provider2\CIMPropertyProvider.h
 		    //@Include: ..\..\src\Pegasus\Provider2\CIMProviderStub.h
 		    //@Include: ..\..\src\Pegasus\Provider2\CIMQueryProvider.h

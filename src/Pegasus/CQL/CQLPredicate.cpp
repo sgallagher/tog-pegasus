@@ -78,8 +78,8 @@ Boolean CQLPredicate::getInverted()const{
 	return _rep->getInverted();
 }
 
-void CQLPredicate::setInverted(){
-	_rep->setInverted();
+void CQLPredicate::setInverted(Boolean invert){
+	_rep->setInverted(invert);
 }
 
 void CQLPredicate::appendPredicate(const CQLPredicate& inPredicate){

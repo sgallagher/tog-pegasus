@@ -42,6 +42,17 @@
  
 PEGASUS_NAMESPACE_BEGIN
 
+CQLFactorRep::CQLFactorRep():
+   _CQLExp(),
+	_CQLVal(),
+	_CQLFunct(),
+	_invert(false),
+	_simpleValue(false), 
+	_containedType(VALUE)
+{
+
+}
+
 CQLFactorRep::CQLFactorRep(const CQLFactorRep* rep):
   _CQLExp(rep->_CQLExp),
   _CQLVal(rep->_CQLVal),

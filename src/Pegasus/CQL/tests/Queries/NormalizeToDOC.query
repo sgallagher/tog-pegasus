@@ -3,10 +3,12 @@
 #
 # Top predicate is simple
 SELECT * FROM CQL_TestPropertyTypes WHERE NOT PropertyString = 'a'
+
 #
 # Top predicate is not simple, but 2nd level predicates are simple
 SELECT * FROM CQL_TestPropertyTypes WHERE PropertyString = 'a' AND PropertyUint8 = 3
 SELECT * FROM CQL_TestPropertyTypes WHERE PropertyString = 'a' AND NOT PropertyUint8 = 3
+SELECT * FROM CQL_TestPropertyTypes WHERE NOT (PropertyString = 'a' AND PropertyString = 'b')
 #
 # Top predicate is not simple, 2nd level predicates are not simple
 # Requires distribution of AND
@@ -41,3 +43,13 @@ select * from x where x.A LIKE 'this' AND x.B LIKE 'that'
 select * from x where (x.A LIKE '1' OR x.B = '2' AND ( x.D = '3' OR x.E IS NOT NULL )) AND (x.C LIKE '5')
 select * from x where (x.A <> '1' OR x.B ISA Xclass AND ( x.D = '3' OR x.E = '4' )) AND (x.C IS NULL)
 select * from class where NOT (NOT (x LIKE 'this') OR x LIKE 'that')
+# Simple LIKE/ISA
+select * from class where NOT ('aa' LIKE 'bb')
+select * from class where NOT (class ISA Aclass) 
+# the following 2 statements are equivalent
+select * from class where NOT class.prop IS NULL
+select * from class where NOT (class.prop IS NULL)
+# should cancel the NOTs
+select * from class where NOT ( NOT (class.prop LIKE 'this') )
+# should be left with one NOT
+select * from class where NOT (NOT ( NOT (class.prop IS NULL) ) )

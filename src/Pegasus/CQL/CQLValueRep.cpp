@@ -58,7 +58,7 @@ PEGASUS_USING_STD;
 
 
 CQLValueRep::CQLValueRep()
-  :_valueType(CQLValue::Null_type)
+  :_theValue(),_CQLChainId(),_isResolved(false),_valueType(CQLValue::Null_type)
 {
 }
 

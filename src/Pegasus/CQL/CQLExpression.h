@@ -52,7 +52,7 @@ class PEGASUS_QUERYCOMMON_LINKAGE QueryContext;
 /**  
     The enum is private, but the definition is public.
 */
-enum TermOpType {/*TERM_ADD,TERM_SUBTRACT*/};
+enum TermOpType {TERM_ADD,TERM_SUBTRACT};
 
 /*
 #ifndef PEGASUS_ARRAY_T

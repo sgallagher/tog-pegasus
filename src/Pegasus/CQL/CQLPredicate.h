@@ -167,7 +167,7 @@ class PEGASUS_CQL_LINKAGE CQLPredicate
         @throws - None.
         <I><B>Experimental Interface</B></I><BR>
     */
-    void setInverted();
+    void setInverted(Boolean invert);
 
     /**
 	Appends a predicate to the predicate array. This method should only

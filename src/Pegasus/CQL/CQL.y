@@ -1068,12 +1068,12 @@ expr_factor : comp
               }
             | NOT comp
               {
-		  CQL_globalParserState->currentRule = "expr_factor->NOT comp";
-                  sprintf(msg,"BISON::expr_factor->NOT comp\n");
-	 	  printf_(msg);
-
-		  $2->setInverted();
-		  $$ = $2;
+		           CQL_globalParserState->currentRule = "expr_factor->NOT comp";
+                 sprintf(msg,"BISON::expr_factor->NOT comp\n");
+	 	           printf_(msg);
+        
+		           $2->setInverted(!($2->getInverted()));
+		           $$ = $2;
               }
 ;
 

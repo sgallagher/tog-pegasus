@@ -133,7 +133,7 @@ class PEGASUS_CQL_LINKAGE CQLPredicateRep
 
     Boolean getInverted()const;
 
-    void setInverted();
+    void setInverted(Boolean invert);
 
     /** Appends a predicate to the predicate array. This method should only
             be called by Bison.

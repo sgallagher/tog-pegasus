@@ -202,6 +202,7 @@ Boolean CQLSimplePredicateRep::evaluate(CIMInstance CI, QueryContext& QueryCtx)
     PEGASUS_ASSERT(false);
   case IS_NULL:
   case IS_NOT_NULL:
+  case NOOP:
     // Never get here due to the assert.
     break;
   }
@@ -361,6 +362,8 @@ String CQLSimplePredicateRep::toString()const
 			break;
 		case LIKE:
 			s.append(" LIKE ");
+			break;
+		case NOOP:
 			break;
 	   }
 	   s.append(_rightSide.toString());

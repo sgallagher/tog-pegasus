@@ -580,43 +580,46 @@ void Cql2Dnf::_construct(){
 		if(eval.is_terminal1 && eval.is_terminal2){
 			switch(eval.op){
 				case CQL_NOT:
-                        	{
-                                	_preds.append(CQLPredicate(terminal_heap[eval.opn1]._simplePredicate,true));
+           	{
+              	_preds.append(CQLPredicate(terminal_heap[eval.opn1]._simplePredicate,true));
 					break;
-                                }
+            }
 				case CQL_NOOP:
 				{
-					_preds.append(CQLPredicate(terminal_heap[eval.opn1]._simplePredicate,false));
+					CQLPredicate p(terminal_heap[eval.opn1]._simplePredicate,false);
+					if(terminal_heap[eval.opn1].NOT == true)
+					   p.setInverted(true);
+					_preds.append(p);
 					break;
 				}
-                        	case CQL_AND:
-                        	{
+            case CQL_AND:
+            {
 					CQLPredicate p;
 					CQLPredicate p1(terminal_heap[eval.opn2]._simplePredicate,false);
 					if(terminal_heap[eval.opn2].NOT == true)
-					   p1.setInverted();
+					   p1.setInverted(true);
 					p.appendPredicate(p1);
 					CQLPredicate p2(terminal_heap[eval.opn1]._simplePredicate,false);
 					if(terminal_heap[eval.opn1].NOT == true)
-					   p2.setInverted();
+					   p2.setInverted(true);
 					p.appendPredicate(p2,AND);
 					_preds.append(p);
 					break;
-                        	}
-                        	case CQL_OR:
-                        	{
-					CQLPredicate p;
-                                        CQLPredicate p1(terminal_heap[eval.opn2]._simplePredicate,false);
-													 if(terminal_heap[eval.opn2].NOT == true)
-													    p1.setInverted();
-                                        p.appendPredicate(p1);
-                                        CQLPredicate p2(terminal_heap[eval.opn1]._simplePredicate,false);
-													 if(terminal_heap[eval.opn1].NOT == true)
-                                           p2.setInverted();
-                                        p.appendPredicate(p2,OR);
-                                        _preds.append(p);
-                                        break;
-                        	}
+            }
+            case CQL_OR:
+            {
+				   CQLPredicate p;
+               CQLPredicate p1(terminal_heap[eval.opn2]._simplePredicate,false);
+					if(terminal_heap[eval.opn2].NOT == true)
+					   p1.setInverted(true);
+               p.appendPredicate(p1);
+               CQLPredicate p2(terminal_heap[eval.opn1]._simplePredicate,false);
+					if(terminal_heap[eval.opn1].NOT == true)
+                  p2.setInverted(true);
+               p.appendPredicate(p2,OR);
+               _preds.append(p);
+               break;
+            }
 				case CQL_EQ:
                 		case CQL_NE:
                 		case CQL_GT:
@@ -632,37 +635,40 @@ void Cql2Dnf::_construct(){
 		}else if(eval.is_terminal1 && !eval.is_terminal2){
 			switch(eval.op){
 				case CQL_NOT:
-                                {
-                                        _preds.append(CQLPredicate(terminal_heap[eval.opn1]._simplePredicate,true));
+            {
+               _preds.append(CQLPredicate(terminal_heap[eval.opn1]._simplePredicate,true));
 					break;
-                                }
+            }
 				case CQL_NOOP:
-                                {
-                                        _preds.append(CQLPredicate(terminal_heap[eval.opn1]._simplePredicate,false));
-					break;
-                                }
-                                case CQL_AND:
-                                {
-                                        CQLPredicate p;
-                                        CQLPredicate p1(terminal_heap[eval.opn1]._simplePredicate,false);
-													 if(terminal_heap[eval.opn1].NOT == true)
-                                           p1.setInverted();
-                                        p = _preds[eval.opn2];
-                                        p.appendPredicate(p1,AND);
-                                        _preds.append(p);
-                                        break;
-                                }
-                                case CQL_OR:
-                                {
-                                        CQLPredicate p;
-                                        CQLPredicate p1(terminal_heap[eval.opn1]._simplePredicate,false);
-													 if(terminal_heap[eval.opn1].NOT == true)
-                                           p1.setInverted();
-                                        p = _preds[eval.opn2];
-                                        p.appendPredicate(p1,OR);
-                                        _preds.append(p);
-                                        break;
-                                }
+            {
+               CQLPredicate p(terminal_heap[eval.opn1]._simplePredicate,false);
+               if(terminal_heap[eval.opn1].NOT == true)
+                  p.setInverted(true);
+               _preds.append(p);
+               break;
+            }
+            case CQL_AND:
+            {
+               CQLPredicate p;
+               CQLPredicate p1(terminal_heap[eval.opn1]._simplePredicate,false);
+			      if(terminal_heap[eval.opn1].NOT == true)
+                  p1.setInverted(true);
+               p = _preds[eval.opn2];
+               p.appendPredicate(p1,AND);
+               _preds.append(p);
+               break;
+            }
+            case CQL_OR:
+            {
+              CQLPredicate p;
+              CQLPredicate p1(terminal_heap[eval.opn1]._simplePredicate,false);
+				  if(terminal_heap[eval.opn1].NOT == true)
+                 p1.setInverted(true);
+              p = _preds[eval.opn2];
+              p.appendPredicate(p1,OR);
+              _preds.append(p);
+              break;
+            }
 				case CQL_EQ:
                                 case CQL_NE:
                                 case CQL_GT:
@@ -676,41 +682,41 @@ void Cql2Dnf::_construct(){
                                
 			}
 		}else if(!eval.is_terminal1 && eval.is_terminal2){
-                        switch(eval.op){
-                                case CQL_NOT:
-                                {
-					CQLPredicate p = _preds[eval.opn1];
-                                        p.setInverted();
-                                        _preds.append(p);
+         switch(eval.op){
+            case CQL_NOT:
+            {
+				   CQLPredicate p = _preds[eval.opn1];
+               p.setInverted(true);
+                _preds.append(p);
 					break;
-                                }
+            }
 				case CQL_NOOP:
-                                {
-                                        _preds.append(_preds[eval.opn1]);
+            {
+               _preds.append(_preds[eval.opn1]);
 					break;
-                                }
-                                case CQL_AND:
-                                {
-                                        CQLPredicate p;
-                                        CQLPredicate p1(terminal_heap[eval.opn2]._simplePredicate,false);
-													 if(terminal_heap[eval.opn2].NOT == true)
-                                           p1.setInverted();
-                                        p = _preds[eval.opn1];
-                                        p.appendPredicate(p1,AND);
-                                        _preds.append(p);
-                                        break;
-                                }
-                                case CQL_OR:
-                                {
-                                        CQLPredicate p;
-                                        CQLPredicate p1(terminal_heap[eval.opn2]._simplePredicate,false);
-													 if(terminal_heap[eval.opn2].NOT == true)
-                                           p1.setInverted();
-                                        p = _preds[eval.opn1];
-                                        p.appendPredicate(p1,OR);
-                                        _preds.append(p);
-                                        break;
-                                }
+            }
+            case CQL_AND:
+            {
+               CQLPredicate p;
+               CQLPredicate p1(terminal_heap[eval.opn2]._simplePredicate,false);
+				   if(terminal_heap[eval.opn2].NOT == true)
+                  p1.setInverted(true);
+               p = _preds[eval.opn1];
+               p.appendPredicate(p1,AND);
+               _preds.append(p);
+               break;
+            }
+            case CQL_OR:
+            {
+               CQLPredicate p;
+               CQLPredicate p1(terminal_heap[eval.opn2]._simplePredicate,false);
+				   if(terminal_heap[eval.opn2].NOT == true)
+                  p1.setInverted(true);
+               p = _preds[eval.opn1];
+               p.appendPredicate(p1,OR);
+               _preds.append(p);
+               break;
+            }
 				case CQL_EQ:
                                 case CQL_NE:
                                 case CQL_GT:
@@ -725,32 +731,32 @@ void Cql2Dnf::_construct(){
                         }                                                                                                                                    
                 }else{ // !eval.is_terminal1 && !eval.is_terminal2
 			switch(eval.op){
-                                case CQL_NOT:
-                                {
+            case CQL_NOT:
+            {
 					CQLPredicate p = _preds[eval.opn1];
-					p.setInverted();
-                                        _preds.append(p);
+					p.setInverted(true);
+               _preds.append(p);
 					break;
-                                }
-				case CQL_NOOP:
-                                {
-                                        _preds.append(_preds[eval.opn1]);
+            }
+			   case CQL_NOOP:
+            {
+               _preds.append(_preds[eval.opn1]);
 					break;
-                                }
-                                case CQL_AND:
-                                {
+            }
+            case CQL_AND:
+            {
 					CQLPredicate p = _preds[eval.opn2];
-                                        _flattenANDappend(p,AND,_preds[eval.opn1]);
-                                        _preds.append(p);
-                                        break;
-                                }
-                                case CQL_OR:
-                                {
+               _flattenANDappend(p,AND,_preds[eval.opn1]);
+               _preds.append(p);
+               break;
+            }
+            case CQL_OR:
+            {
 					CQLPredicate p = _preds[eval.opn2];
-                                        _flattenANDappend(p,OR,_preds[eval.opn1]);
-                                        _preds.append(p);
-                                        break;
-                                }
+               _flattenANDappend(p,OR,_preds[eval.opn1]);
+               _preds.append(p);
+               break;
+            }
 				case CQL_EQ:
                                 case CQL_NE:
                                 case CQL_GT:

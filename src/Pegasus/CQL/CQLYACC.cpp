@@ -1546,12 +1546,12 @@ break;
 case 55:
 #line 1070 "CQL.y"
 {
-		  CQL_globalParserState->currentRule = "expr_factor->NOT comp";
-                  sprintf(msg,"BISON::expr_factor->NOT comp\n");
-	 	  printf_(msg);
-
-		  yyvsp[0]._predicate->setInverted();
-		  yyval._predicate = yyvsp[0]._predicate;
+		           CQL_globalParserState->currentRule = "expr_factor->NOT comp";
+                 sprintf(msg,"BISON::expr_factor->NOT comp\n");
+	 	           printf_(msg);
+        
+		           yyvsp[0]._predicate->setInverted(!(yyvsp[0]._predicate->getInverted()));
+		           yyval._predicate = yyvsp[0]._predicate;
               }
 break;
 case 56:

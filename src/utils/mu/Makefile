@@ -21,6 +21,7 @@ endif
 
 ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
 OS=hpux
+IAFLAGS =
 endif
 
 # Set Parameters for OS type
@@ -75,11 +76,16 @@ ifeq ($(OS),tru64)
 endif
 
 ifeq ($(OS),hpux)
-    FLAGS = +Z +DAportable -D_POSIX_C_SOURCE=199506L -D_HPUX_SOURCE -DPEGASUS_PLATFORM_HPUX_PARISC_ACC
+    ifeq ($(HPUX_IA64_VERSION), yes)
+      IAFLAGS =  -AP
+    else
+      IAFLAGS =  +DAportable
+    endif
+    FLAGS = +Z -D_POSIX_C_SOURCE=199506L -D_HPUX_SOURCE -DPEGASUS_PLATFORM_HPUX_PARISC_ACC
     INCLUDES = -I../../stdcxx/stream
     CXX = aCC
     LXX = $(CXX)
-    CXXFLAGS = $(FLAGS) $(INCLUDES)
+    CXXFLAGS = $(FLAGS) $(IAFLAGS) $(INCLUDES)
     DEFINES = -DOS_UNIX
     PROGRAM = mu
     EXE_OUT = -o
@@ -124,7 +130,7 @@ HEADERS = \
 OBJECTS=$(SOURCES:.cpp=$(OBJ))
 
 $(PROGRAM): $(OBJECTS)
-	$(LXX) $(LIBFLAGS) $(SRLFLAGS) $(EXE_OUT)$(PROGRAM) $(OBJECTS)
+	$(LXX) $(CXXFLAGS) $(LIBFLAGS) $(SRLFLAGS) $(EXE_OUT)$(PROGRAM) $(OBJECTS)
 
 %$(OBJ) : %.cpp
 	$(CXX) -c $(CXXFLAGS) $(DEFINES) $*.cpp

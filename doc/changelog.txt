@@ -500,6 +500,7 @@ repository implementation.
     The Configuration data was extended with the boolean SSL property, and
     cimserver and TestClient now understand the -SSL, resp. -ssl flag.
 
+60. (Bapu Patil - HP) Updated makefiles to support HP-UX IA64 bits O.S.
 
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch

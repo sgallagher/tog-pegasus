@@ -24,6 +24,7 @@ endif
 
 DEPEND_INCLUDES =
 
+
 ## Flags:
 ##     +Z - produces position independent code (PIC).
 ##     +DAportable generates code for any HP9000 architecture
@@ -34,9 +35,17 @@ DEPEND_INCLUDES =
 ##       +b enables dynamic search in the specified directory(ies)
 ##
 
-FLAGS = +Z +DAportable -D_POSIX_C_SOURCE=199506L -D_HPUX_SOURCE
+IAFLAGS =
+
+ifeq ($(HPUX_IA64_VERSION), yes)
+  IAFLAGS =  -AP 
+else
+  IAFLAGS =  +DAportable 
+endif
+
+FLAGS = +Z $(IAFLAGS) -D_POSIX_C_SOURCE=199506L -D_HPUX_SOURCE
 ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
-  FLAGS += -Wl,+b/usr/lib -Wl,+s
+  FLAGS += -Wl,+b/usr/lib -Wl,+s 
 endif
 ifdef PEGASUS_DEBUG
   FLAGS += -g

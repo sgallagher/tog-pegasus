@@ -4,4 +4,5 @@ LIBRARIES= \
     pegcommon \
     pegconfig \
     pegrepository \
-    pegauthentication
+    pegauthentication \
+    peguser

@@ -376,7 +376,7 @@ Boolean ShutdownService::_waitUntilNoMoreRequests()
     Uint32 requestCount = _cimserver->getOutstandingRequestCount();
 
     // create a mutex
-    Mutex _mutex = Mutex();
+    Mutex _mutex;
 
     // create a condition 
     Condition _cond = Condition(_mutex);

@@ -145,7 +145,7 @@ void HTTPConnection::handleEnqueue(Message *message)
    
 // #ifdef ENABLETIMEOUTWORKAROUNDHACK
 // << Wed Mar  6 12:30:38 2002 mdd >>
-   static Mutex handleEnqueue_mut = Mutex();
+   static Mutex handleEnqueue_mut;
    Boolean LockAcquired = false;
 // #endif
 

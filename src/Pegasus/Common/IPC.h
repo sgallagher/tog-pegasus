@@ -197,9 +197,6 @@ class PEGASUS_COMMON_LINKAGE Mutex
       Mutex(void) ;
       Mutex(int type);
 
-      // to be able to share the mutex handle between different condition variables
-      Mutex(const Mutex& _mutex);
-      
       ~Mutex(void);
 
       // block until gaining the lock - throw a deadlock 
@@ -230,6 +227,15 @@ class PEGASUS_COMMON_LINKAGE Mutex
       {
 	 return _mutex;
       }
+
+      // Hide the assignment operator to avoid implicit use of the default
+      // assignment operator.  Do not use this method.
+      Mutex& operator=(const Mutex& original) {return *this;}
+
+      // Hide the copy constructor to avoid implicit use of the default
+      // copy constructor.  Do not use this method.
+      Mutex(const Mutex& _mutex);
+      
       friend class Condition;
 } ;
 

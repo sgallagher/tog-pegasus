@@ -29,7 +29,7 @@ DIRS = \
 
 ifdef PEGASUS_ENABLE_SLP
 DIRS += \
-    ControlProviders/InteropProvider
+    ControlProviders/InteropProvider \
 	ControlProviders/InteropProvider/tests
 endif
 

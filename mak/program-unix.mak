@@ -8,6 +8,14 @@ FULL_PROGRAM=$(BIN_DIR)/$(PROGRAM)$(EXE)
 
 EXE_OUTPUT = $(EXE_OUT) $(FULL_PROGRAM)
 
+ifdef PEGASUS_HAS_MESSAGES
+    ifdef ICU_ROOT
+        ifdef ICU_INSTALL
+          SYS_LIBS += -L${ICU_INSTALL}/lib -licui18n -licuuc
+        endif
+    endif
+endif
+
 ifdef PEGASUS_PURIFY
     PUREOPTIONS = -follow-child-processes=yes -locking=no \
         -always-use-cache-dir -cache-dir=$(PURIFY_TMP)/cache \
@@ -30,7 +38,15 @@ ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
 	$(LINK_WRAPPER) $(CXX) $(PR_FLAGS) -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS)
      else
       ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
-	$(LINK_WRAPPER) $(CXX) $(FLAGS) -Xlinker -rpath -Xlinker $(LIB_DIR) -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS)
+        ifdef PEGASUS_HAS_MESSAGES  
+          ifdef ICU_ROOT
+            ifdef ICU_INSTALL
+		$(LINK_WRAPPER) $(CXX) $(FLAGS) -Xlinker -rpath -Xlinker $(LIB_DIR) -Xlinker -rpath -Xlinker ${ICU_INSTALL}/lib -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS)
+            endif
+          endif
+        else
+	  $(LINK_WRAPPER) $(CXX) $(FLAGS) -Xlinker -rpath -Xlinker $(LIB_DIR) -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS)
+        endif
       else
        ifeq ($(PEGASUS_PLATFORM),AIX_RS_IBMCXX)
 	$(LINK_WRAPPER) $(CXX) -Wl,-brtl -Wl,-bhalt:$(AIX_LD_HALT) $(FLAGS) -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS)

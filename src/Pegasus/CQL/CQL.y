@@ -3,6 +3,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CommonUTF.h>
 #include <Pegasus/CQL/CQLFactory.h>
+#include <Pegasus/Common/InternalException.h>
 #include "CQLObjects.h"
 #include <stdio.h>
 
@@ -20,7 +21,7 @@
 #endif
 
 int yylex();
-int yyerror(char * err){printf("%s\n", err); return 1;}
+int yyerror(char * err){throw ParseError(String(err));}
 char msg[100];
 void printf_(char * msg){
 	if(DEBUG_GRAMMAR == 1)
@@ -418,7 +419,7 @@ chain : literal
         }
       | chain DOT scoped_property
         {
-	    sprintf(msg,"BISON::chain-> chain DOT scoped_property\n");
+	    sprintf(msg,"BISON::chain-> chain DOT scoped_property : chain_state = %d\n",chain_state);
 	    printf_(msg);
 
 	    CQLIdentifier *_id;
@@ -437,13 +438,15 @@ chain : literal
 		delete $3;
 	    }else{
 		/* error */
+		String _msg("chain-> chain DOT scoped_property : chain state not CQLIDENTIFIER or CQLCHAINEDIDENTIFIER");
+		throw ParseError(_msg);
             }
 
             chain_state = CQLCHAINEDIDENTIFIER;
         }
       | chain DOT identifier
         {
-            sprintf(msg,"BISON::chain->chain.identifier\n");
+            sprintf(msg,"BISON::chain->chain.identifier : chain_state = %d\n",chain_state);
 	    printf_(msg);
 
             if(chain_state == CQLIDENTIFIER){
@@ -460,13 +463,15 @@ chain : literal
 		delete $3;
             }else{
                 /* error */
+		String _msg("chain-> chain DOT identifier : chain state not CQLIDENTIFIER or CQLCHAINEDIDENTIFIER");
+                throw ParseError(_msg);
             }
 	    chain_state = CQLCHAINEDIDENTIFIER;
 
         }
       | chain DOT identifier HASH literal_string
         {
-            sprintf(msg,"BISON::chain->chain.identifier#literal_string\n");
+            sprintf(msg,"BISON::chain->chain.identifier#literal_string : chain_state = %d\n",chain_state);
 	    printf_(msg);
 
 	    CQLChainedIdentifier *_cid;
@@ -492,6 +497,8 @@ chain : literal
 		delete $3; delete $5;
             }else{
                 /* error */
+		String _msg("chain->chain.identifier#literal_string : chain state not CQLIDENTIFIER or CQLCHAINEDIDENTIFIER");
+		throw ParseError(_msg);
             }
                                                                                                         
             chain_state = CQLCHAINEDIDENTIFIER;
@@ -499,7 +506,7 @@ chain : literal
         }
       | chain LBRKT array_index_list RBRKT
         {
-            sprintf(msg,"BISON::chain->chain[ array_index_list ]\n");
+            sprintf(msg,"BISON::chain->chain[ array_index_list ] : chain_state = %d\n",chain_state);
 	    printf_(msg);
 	
             if(chain_state == CQLIDENTIFIER){
@@ -529,6 +536,8 @@ chain : literal
 		delete $3;
 	    }else{
 		/* error */
+		String _msg("chain->chain[ array_index_list ] : chain state not CQLIDENTIFIER or CQLCHAINEDIDENTIFIER or CQLVALUE");
+                throw ParseError(_msg);
 	    }
         }
 ;
@@ -738,6 +747,8 @@ comp : arith
            	$$ = new CQLPredicate(_sp);
 	   }else{
 		/* error */
+		String _msg("comp->arith comp_op arith_or_value_symbol : $1 is not simple OR $3 is not simple");
+                throw ParseError(_msg);	 
 	   }
        }
      | value_symbol comp_op arith
@@ -752,6 +763,8 @@ comp : arith
            	$$ = new CQLPredicate(_sp);
 	   }else{
 		/* error */
+		String _msg("comp->comp->value_symbol comp_op arith : $3 is not simple");
+                throw ParseError(_msg);
 	   }
        }
      | arith _ISA identifier
@@ -947,6 +960,16 @@ star_expr : STAR
 		CQLIdentifier _id("*");
 		$$ = (CQLChainedIdentifier*)(_factory.makeObject(&_id,ChainedIdentifier));
             }
+	  | chain DOT STAR
+	    {
+		sprintf(msg,"BISON::star_expr->chain.*\n");
+                printf_(msg);
+		CQLChainedIdentifier* _tmp = (CQLChainedIdentifier*)(_factory.getObject($1,Predicate,ChainedIdentifier));
+		CQLChainedIdentifier* _cid = new CQLChainedIdentifier(*_tmp);
+                CQLIdentifier _id("*");
+		_cid->append(_id);
+                $$ = _cid;
+	    }
 ;
 
 selected_entry : expr 
@@ -958,6 +981,8 @@ selected_entry : expr
 		        globalParserState->statement->appendSelectIdentifier(*_cid);
 		     }else{
 			/* error */
+			String _msg("selected_entry->expr : $1 is not a simple value");
+                	throw ParseError(_msg);
 		     }
                  }
                | star_expr

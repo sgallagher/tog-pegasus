@@ -1,0 +1,9 @@
+[Indication]
+class RT_TestIndication : CIM_Indication
+{
+    uint32 IndicationID;
+    datetime IndicationTime;
+    string MethodName;
+    [Static] uint32 SendTestIndication();
+};
+

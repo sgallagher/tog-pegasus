@@ -1,0 +1,30 @@
+#pragma locale ("en_US")
+
+instance of PG_ProviderModule
+{
+    Description = "Sample Pegasus Round Trip Indication Provider";
+    Caption = "Sample Pegasus Round Trip Indication Provider";
+    Name = "RT_IndicationProviderModule";
+    Vendor = "Pegasus";
+    InterfaceType = "PG_DefaultC++";
+    InterfaceVersion = "2.0.0";
+    Location = "RT_IndicationProvider";
+};
+
+instance of PG_Provider
+{
+    ProviderModuleName = "RT_IndicationProviderModule";
+    Name = "RT_IndicationProvider";
+};
+
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "RT_IndicationProviderModule";
+    ProviderName = "RT_IndicationProvider";
+    CapabilityID = "1";
+    ClassName = "RT_TestIndication";
+    Namespaces = { "root/SampleProvider" };
+    ProviderType = { 2, 4, 5 };  // Indication & Indication & Method
+    SupportedProperties = NULL;
+    SupportedMethods = {"SendTestIndication"};
+};

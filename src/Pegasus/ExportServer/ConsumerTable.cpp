@@ -38,6 +38,7 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Config/ConfigManager.h>
+#include <Pegasus/Common/Tracer.h>
 #include "ConsumerTable.h"
 
 PEGASUS_USING_STD;
@@ -171,8 +172,10 @@ void ConsumerTable::set(Boolean dynamicReg, Boolean staticConsumers, Boolean per
 CIMIndicationConsumer* ConsumerTable::lookupConsumer(const String& consumerId)
 {
     for (Uint32 i = 0, n = _consumers.size(); i < n; i++)
+    {
 	if (String::equal(_consumers[i].consumerId, consumerId))
 	    return _consumers[i].consumer;
+    }
 
     return 0;
 }
@@ -183,6 +186,13 @@ CIMStatusCode ConsumerTable::registerConsumer(
     const String& action,
     String& errorDescription)
 {
+    PEG_METHOD_ENTER(TRC_EXP_REQUEST_DISP,
+       "ConsumerTable::registerConsumer");
+
+    PEG_TRACE_STRING(TRC_EXP_REQUEST_DISP, Tracer::LEVEL4,
+       "consumerId = " + consumerId + ", consumerLocation = " +
+       consumerLocation + ", action = " + action );
+
     CIMStatusCode errorCode = CIM_ERR_SUCCESS;
 
     if (action == String("2"))
@@ -195,27 +205,33 @@ CIMStatusCode ConsumerTable::registerConsumer(
 	    {
 		errorCode = CIM_ERR_FAILED;
 		errorDescription = "Consumer Already registered";
+                PEG_METHOD_EXIT();
 		return errorCode;
 	    }
 	}
 
 	// New consumer
 
-	if (FileSystem::existsNoCase(consumerLocation))
-	{
+       // ATTN-DME-P1-20020504: path needs to be appended to consumerLocation
+       // for this test to work.
+
+//	if (FileSystem::existsNoCase(consumerLocation))
+//	{
 	    ConsumerList newConsumer;
 	    newConsumer.consumerId = consumerId;
 	    newConsumer.consumerLocation = consumerLocation;
 	    _consumerList.append(newConsumer);
-	}
-	else
-	{
-	    errorCode = CIM_ERR_FAILED;
-	    errorDescription = "Invalid Consumer Path or Library Name";
-	    return errorCode;
-	}
+//	}
+//	else
+//	{
+//	    errorCode = CIM_ERR_FAILED;
+//	    errorDescription = "Invalid Consumer Path or Library Name";
+//          PEG_METHOD_EXIT();
+//	    return errorCode;
+//	}
     }
 
+    PEG_METHOD_EXIT();
     return errorCode;
 }
 
@@ -223,6 +239,9 @@ typedef CIMIndicationConsumer* (*CreateIndicationConsumerFunc)();
 
 CIMIndicationConsumer* ConsumerTable::loadConsumer(const String& consumerId)
 {
+    PEG_METHOD_ENTER(TRC_EXP_REQUEST_DISP,
+       "ConsumerTable::loadConsumer");
+
     String consumerName = _GetConsumerName(consumerId);
 
     if (consumerName.size() != 0)
@@ -248,10 +267,12 @@ CIMIndicationConsumer* ConsumerTable::loadConsumer(const String& consumerId)
 
 	if (!libraryHandle) {
 #ifdef PEGASUS_OS_TYPE_WINDOWS
+            PEG_METHOD_EXIT();
 	    throw DynamicLoadFailed(libraryName.getPointer());
 #else
 	    unixLibName = System::dynamicLoadError();
 	    ArrayDestroyer<char> errorMsg = unixLibName.allocateCString();
+            PEG_METHOD_EXIT();
 	    throw DynamicLoadFailed(errorMsg.getPointer());
 #endif
 	}
@@ -267,16 +288,22 @@ CIMIndicationConsumer* ConsumerTable::loadConsumer(const String& consumerId)
 	    libraryHandle, functionName.getPointer());
 
 	if (!func)
+        {
+            PEG_METHOD_EXIT();
 	    throw DynamicLookupFailed(functionName.getPointer());
+        }
 
 	// Create the consumer:
 
 	CIMIndicationConsumer* consumer = func();
 
-	if (!consumer)
+	if (!consumer) 
+        {
+            PEG_METHOD_EXIT();
 	    throw CreateIndicationConsumerReturnedNull(
 		libraryName.getPointer(), 
 		functionName.getPointer());
+        }
 
 	if (consumer)
 	{
@@ -285,19 +312,30 @@ CIMIndicationConsumer* ConsumerTable::loadConsumer(const String& consumerId)
 	    entry.consumer = consumer;
 	    _consumers.append(entry);
 	}
+        PEG_METHOD_EXIT();
         return consumer;
     }
     else
+    {
+        PEG_METHOD_EXIT();
         return 0;
+    }
 }
 
 String ConsumerTable::_GetConsumerName(const String& consumerId)
 {
+    PEG_METHOD_ENTER(TRC_EXP_REQUEST_DISP,
+       "ConsumerTable::_GetConsumerName");
+
     for (Uint8 i = 0; i < _consumerList.size(); i++)
     {
 	if (String::equal(_consumerList[i].consumerId, consumerId))
+            {
+            PEG_METHOD_EXIT();
 	    return _consumerList[i].consumerLocation;
+            }
     }
+    PEG_METHOD_EXIT();
     return String();
 }
 

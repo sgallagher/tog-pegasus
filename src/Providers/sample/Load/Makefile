@@ -23,18 +23,30 @@ SAMPLEPROVIDERNSDIRECTORY=$(REPOSITORY_ROOT)/root\#SampleProvider
 repository:
 	@ echo +++++ Removing existing repository named $(SAMPLEPROVIDERNS)
 	@$(RMREPOSITORY) $(SAMPLEPROVIDERNSDIRECTORY)
+	@ echo +++++ Removing existing repository named $(SAMPLEPROVIDERNS)
+	@$(RMREPOSITORY) $(SAMPLEPROVIDERNSDIRECTORY)
 	@ echo +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
 	@ cimmofl -I$(CIM_MOF_PATH) -n$(SAMPLEPROVIDERNS) $(CIM_MOF_PATH)/CIM_Core$(CIM_SCHEMA_VER).mof
 	@ echo +++++ Loading CIM_Events$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
 	@ cimmofl -I$(CIM_MOF_PATH) -n$(SAMPLEPROVIDERNS) $(CIM_MOF_PATH)/CIM_Events$(CIM_SCHEMA_VER).mof
 	@ echo +++++ Loading SampleProvider class definitions into $(SAMPLEPROVIDERNS) namespace ...
 	@ cimmofl -n$(SAMPLEPROVIDERNS) SampleProviderSchema.mof
+	@ cimmofl -n$(SAMPLEPROVIDERNS) RT_Indication.mof
 	@ echo +++++ Registering SampleProvider schema Providers  ...
 	@ cimmofl -n$(INTEROPNS) SampleProviderSchemaR.mof
 
 removerepository:
 	@ echo +++++ Removing existing repository named $(SAMPLEPROVIDERNS)
 	@ $(RMREPOSITORY) $(SAMPLEPROVIDERNSDIRECTORY)
+
+unregister:
+	$(MAKE) -i unregisterproviders
+
+unregisterproviders:
+	cimprovider -r -m SampleIndicationProviderModule
+	cimprovider -r -m SampleInstanceProviderModule
+	cimprovider -r -m SampleMethodProviderModule
+	cimprovider -r -m RT_IndicationProviderModule
 
 depend:
 

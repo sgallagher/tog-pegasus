@@ -32,6 +32,7 @@
 #include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Provider/CIMOMHandle.h>
+#include <Pegasus/Common/Tracer.h>
 
 #include "CIMExportRequestDispatcher.h"
 
@@ -46,23 +47,35 @@ CIMExportRequestDispatcher::CIMExportRequestDispatcher(
      _staticConsumers(staticConsumers),
      _persistence(persistence)
 {
+   PEG_METHOD_ENTER(TRC_EXP_REQUEST_DISP,
+      "CIMExportRequestDispatcher::CIMExportRequestDispatcher");
    _consumerTable.set(_dynamicReg, _staticConsumers, _persistence);
+   PEG_METHOD_EXIT();
 }
 
 CIMExportRequestDispatcher::CIMExportRequestDispatcher()
    :
    Base("CIMExportRequestDispatcher", MessageQueue::getNextQueueId())
 {
+   PEG_METHOD_ENTER(TRC_EXP_REQUEST_DISP,
+      "CIMExportRequestDispatcher::CIMExportRequestDispatcher");
 
+   PEG_METHOD_EXIT();
 }
 
 CIMExportRequestDispatcher::~CIMExportRequestDispatcher()
 {
+   PEG_METHOD_ENTER(TRC_EXP_REQUEST_DISP,
+      "CIMExportRequestDispatcher::~CIMExportRequestDispatcher");
 
+   PEG_METHOD_EXIT();
 }
 
 void CIMExportRequestDispatcher::_handle_async_request(AsyncRequest *req)
 {
+   PEG_METHOD_ENTER(TRC_EXP_REQUEST_DISP,
+      "CIMExportRequestDispatcher::_handle_async_request");
+
     if ( req->getType() == async_messages::CIMSERVICE_STOP )
     {
         req->op->processing();
@@ -72,7 +85,6 @@ void CIMExportRequestDispatcher::_handle_async_request(AsyncRequest *req)
     {
        try 
        {
-	  
         req->op->processing();
         Message *legacy = (static_cast<AsyncLegacyOperationStart *>(req)->get_action());
 	handleEnqueue(legacy);
@@ -81,17 +93,26 @@ void CIMExportRequestDispatcher::_handle_async_request(AsyncRequest *req)
        {
 	  _make_response(req, async_results::CIM_NAK);
        }
+        PEG_METHOD_EXIT();
         return;
     }
     else
+    {
         Base::_handle_async_request(req);
+    }
+    PEG_METHOD_EXIT();
 }
 
 void CIMExportRequestDispatcher::handleEnqueue(Message* message)
 {
+   PEG_METHOD_ENTER(TRC_EXP_REQUEST_DISP,
+      "CIMExportRequestDispatcher::handleEnqueue");
 
    if( ! message)
+   {
+      PEG_METHOD_EXIT();
       return;
+   }
 
     switch (message->getType())
     {
@@ -105,21 +126,29 @@ void CIMExportRequestDispatcher::handleEnqueue(Message* message)
     }
     delete message;
 
+    PEG_METHOD_EXIT();
 }
 
 
 void CIMExportRequestDispatcher::handleEnqueue()
 {
+   PEG_METHOD_ENTER(TRC_EXP_REQUEST_DISP,
+      "CIMExportRequestDispatcher::handleEnqueue");
+
    Message *message = dequeue();
    if(message)
       handleEnqueue(message);
 
+   PEG_METHOD_EXIT();
 }
 
 
 void CIMExportRequestDispatcher::_handleExportIndicationRequest(
     CIMExportIndicationRequestMessage* request)
 {
+    PEG_METHOD_ENTER(TRC_EXP_REQUEST_DISP,
+      "CIMExportRequestDispatcher::handleEnqueue");
+
     OperationContext context;
 
     CIMException cimException;
@@ -202,6 +231,8 @@ void CIMExportRequestDispatcher::_handleExportIndicationRequest(
     response->dest = request->queueIds.top();
 
     _enqueueResponse(request, response);
+
+    PEG_METHOD_EXIT();
 }
 
 // REVIEW: Why must consumer be dynamically loaded? It makes sense in
@@ -210,6 +241,12 @@ void CIMExportRequestDispatcher::_handleExportIndicationRequest(
 CIMIndicationConsumer* CIMExportRequestDispatcher::_lookupConsumer(
     const String& url)
 {
+    PEG_METHOD_ENTER(TRC_EXP_REQUEST_DISP,
+      "CIMExportRequestDispatcher::_lookupConsumer");
+
+    PEG_TRACE_STRING(TRC_EXP_REQUEST_DISP, Tracer::LEVEL4, 
+       "_lookupConsumer url = " + url);
+
     CIMIndicationConsumer* consumer =
         _consumerTable.lookupConsumer(url);
 
@@ -229,6 +266,7 @@ CIMIndicationConsumer* CIMExportRequestDispatcher::_lookupConsumer(
 	   consumer->initialize();
     }
 
+    PEG_METHOD_EXIT();
     return consumer;
 }
 

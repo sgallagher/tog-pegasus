@@ -36,6 +36,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+template<class T> class SimpleResponseHandlerRep;
+
 template<class T>
 class PEGASUS_COMMON_LINKAGE SimpleResponseHandler : public ResponseHandler<T>
 {
@@ -59,7 +61,7 @@ public:
             return(*this);
         }
 
-        ResponseHandler::operator=(handler);
+        ResponseHandler<T>::operator=(handler);
 
         return(*this);
     }
@@ -67,7 +69,7 @@ public:
     const Array<T> getObjects(void) const
     {
         SimpleResponseHandlerRep<T> * rep =
-            reinterpret_cast<SimpleResponseHandlerRep<T> *>(getRep());
+            reinterpret_cast<SimpleResponseHandlerRep<T> *>(this->getRep());
 
         return(rep->getObjects());
     }

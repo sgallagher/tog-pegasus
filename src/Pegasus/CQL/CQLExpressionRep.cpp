@@ -64,10 +64,11 @@ CQLValue CQLExpressionRep::resolveValue(const CIMInstance& CI, const QueryContex
 
   CQLValue returnVal = _CQLTerms[0].resolveValue(CI,QueryCtx);
   
+  /*
   for(Uint32 i = 0; i < _TermOperators.size(); ++i)
     {
       switch(_TermOperators[i])
-	{/*
+	{
 	   case TERM_ADD:
 	   returnVal = returnVal + 
 	   _CQLTerms[i+1].resolveValue(CI,QueryCtx);
@@ -76,11 +77,11 @@ CQLValue CQLExpressionRep::resolveValue(const CIMInstance& CI, const QueryContex
 	   returnVal = returnVal - 
 	   _CQLTerms[i+1].resolveValue(CI,QueryCtx);
 	   break;
-	 */
 	default:
 	  throw(1);
 	}
     }
+  */
   
   PEG_METHOD_EXIT();
   return returnVal;

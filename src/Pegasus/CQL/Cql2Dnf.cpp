@@ -283,7 +283,6 @@ void Cql2Dnf::_pushNOTDown()
     for (int i=eval_heap.size()-1; i >= 0; i--)
     {
         Boolean _found = false;
-        int k;
 
         // Order all operators, so that op1 > op2 for non-terminals
         // and terminals appear as second operand

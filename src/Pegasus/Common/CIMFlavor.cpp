@@ -22,18 +22,13 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <cstring>
 #include "CIMFlavor.h"
-#include "Exception.h"
-#include "XmlWriter.h"
-//#include <iostream>
 
 PEGASUS_NAMESPACE_BEGIN
-PEGASUS_USING_STD;
 
 const Uint32 CIMFlavor::NONE = 0;
 const Uint32 CIMFlavor::OVERRIDABLE = 1;
@@ -49,99 +44,5 @@ const Uint32 CIMFlavor::DEFAULTS = OVERRIDABLE | TOSUBCLASS;
 //const Uint32 CIMFlavor::DEFAULTS = OVERRIDABLE | TOSUBCLASS| TOINSTANCE;
 const Uint32 CIMFlavor::ALL = OVERRIDABLE | DEFAULTS
 						 | TRANSLATABLE | DISABLEOVERRIDE | RESTRICTED;
-
-static const char* _toString(Boolean x)
-{
-    return x ? "true" : "false";
-}
-/** FlavorToMof	Convert the Qualifier flavors to a string of MOF 
-    flavor keywords.
-
-  <pre>
-  Keyword            Function				  Default
-    EnableOverride  Qualifier is overridable. 		    yes
-    DisableOverride Qualifier cannot be overridden.          no
-    ToSubclass      Qualifier is inherited by any subclass. yes
-    Restricted      Qualifier applies only to the class	    no
-                    in which it is declared
-    Translatable    Indicates the value of the qualifier
-                    can be specified inmultiple languages   no
-    NOTE: There is an open issue with the keyword toinstance.
-
-    flavor 	      = ENABLEOVERRIDE | DISABLEOVERRIDE | RESTRICTED |
-			TOSUBCLASS | TRANSLATABLE
-    DISABLEOVERRIDE   = "disableOverride"
-
-    ENABLEOVERRIDE    = "enableoverride"
-
-    RESTRICTED        = "restricted"
-
-    TOSUBCLASS        = "tosubclass"
-
-    TRANSLATABLE      = "translatable"
-   </pre>
-   The keyword toinstance is not in the CIMspecification. For the moment we are
-   assuming that it is the same as the TOSubclass. We had a choice of using
-   one entity for both or separating them and letting the compiler set both.
- 
-*/
-String FlavorToMof(Uint32 flavor)
-{
-    Boolean overridable = (flavor & CIMFlavor::OVERRIDABLE) != 0;
-    Boolean toSubClass = (flavor & CIMFlavor::TOSUBCLASS) != 0;
-    Boolean toInstance = (flavor & CIMFlavor::TOINSTANCE) != 0;
-    Boolean translatable = (flavor & CIMFlavor::TRANSLATABLE) != 0;
-
-    String tmp;
-
-    tmp = "";
-
-    if (!overridable)
-	tmp += "DisableOverride, ";
-
-    if (!toSubClass)
-	tmp += "Restricted, ";
-
-    if (translatable)
-	tmp += "Translatable, ";
-
-    if (tmp.size())
-	tmp.remove(tmp.size() - 2);
-
-    return tmp;
-}
-
-/*
-The XML Definition is, from XML Specification
-<!ENTITY % QualifierFlavor "OVERRIDABLE  (true|false)   'true' 
-                              TOSUBCLASS   (true|false)   'true' 
-                              TOINSTANCE   (true|false)   'false' 
-                              TRANSLATABLE (true|false)   'false'">
-*/
-void FlavorToXml(Array<Sint8>& out, Uint32 flavor)
-{
-    Boolean overridable = (flavor & CIMFlavor::OVERRIDABLE) != 0;
-    Boolean toSubClass = (flavor & CIMFlavor::TOSUBCLASS) != 0;
-    Boolean toInstance = (flavor & CIMFlavor::TOINSTANCE) != 0;
-    Boolean translatable = (flavor & CIMFlavor::TRANSLATABLE) != 0;
-
-    if (!overridable)
-	out << " OVERRIDABLE=\"" << _toString(overridable) << "\"";
-
-    /*cout << "KSTEST XML " << hex << flavor << "  overridable = " 
-        << overridable 
-        << " " << FlavorToMof(flavor)
-        << endl; */
-
-    if (!toSubClass)
-	out << " TOSUBCLASS=\"" << _toString(toSubClass) << "\"";
-
-    if (toInstance)
-	out << " TOINSTANCE=\"" << _toString(toInstance) << "\"";
-
-    if (translatable)
-	out << " TRANSLATABLE=\"" << _toString(translatable) << "\"";
-}
-
 
 PEGASUS_NAMESPACE_END

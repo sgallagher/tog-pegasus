@@ -90,6 +90,8 @@ public:
         Array<Sint8>& out,
         const CIMConstQualifierDecl& qualifierDecl);
 
+    static String getQualifierFlavor(Uint32 flavor);
+
 private:
 
     MofWriter() { }

@@ -119,7 +119,7 @@ void CIMQualifierDeclRep::toXml(Array<Sint8>& out) const
 	}
     }
 
-    FlavorToXml(out, _flavor);
+    XmlWriter::appendQualifierFlavorEntity(out, _flavor);
 
     out << ">\n";
 
@@ -186,7 +186,7 @@ void CIMQualifierDeclRep::toMof(Array<Sint8>& out) const
     //}
     // Output Flavor Information
     String flavorString;
-    flavorString = FlavorToMof(_flavor);
+    flavorString = MofWriter::getQualifierFlavor(_flavor);
     if (flavorString.size())
     {
     out << ", Flavor(" << flavorString << ")";

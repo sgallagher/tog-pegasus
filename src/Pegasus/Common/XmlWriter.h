@@ -222,6 +222,10 @@ public:
         const CIMConstQualifierDecl& qualifierDecl,
         PEGASUS_STD(ostream)& os=PEGASUS_STD(cout));
 
+    static void appendQualifierFlavorEntity(
+        Array<Sint8>& out,
+        Uint32 flavor);
+
     static void appendMethodCallHeader(
 	Array<Sint8>& out,
 	const char* host,

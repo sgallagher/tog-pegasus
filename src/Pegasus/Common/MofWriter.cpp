@@ -197,7 +197,7 @@ inline void _appendValue(Array<Sint8>& out, const CIMReference& x)
     arrayInitializer = "{" constantValue*( "," constantValue)"}"
 */
 template<class T>
-void _appendValueArray(Array<Sint8>& out, const T* p, Uint32 size)
+void _appendValueArrayMof(Array<Sint8>& out, const T* p, Uint32 size)
 {
     Boolean isFirstEntry = true;
     // if there are any entries in the array output them
@@ -243,7 +243,7 @@ void MofWriter::appendValueElement(
             {
                 Array<Boolean> a;
                 value.get(a);
-                _appendValueArray(out, a.getData(), a.size());
+                _appendValueArrayMof(out, a.getData(), a.size());
                 break;
             }
 
@@ -251,7 +251,7 @@ void MofWriter::appendValueElement(
             {
                 Array<Uint8> a;
                 value.get(a);
-                _appendValueArray(out, a.getData(), a.size());
+                _appendValueArrayMof(out, a.getData(), a.size());
                 break;
             }
 
@@ -259,7 +259,7 @@ void MofWriter::appendValueElement(
             {
                 Array<Sint8> a;
                 value.get(a);
-                _appendValueArray(out, a.getData(), a.size());
+                _appendValueArrayMof(out, a.getData(), a.size());
                 break;
             }
 
@@ -267,7 +267,7 @@ void MofWriter::appendValueElement(
             {
                 Array<Uint16> a;
                 value.get(a);
-                _appendValueArray(out, a.getData(), a.size());
+                _appendValueArrayMof(out, a.getData(), a.size());
                 break;
             }
 
@@ -275,7 +275,7 @@ void MofWriter::appendValueElement(
             {
                 Array<Sint16> a;
                 value.get(a);
-                _appendValueArray(out, a.getData(), a.size());
+                _appendValueArrayMof(out, a.getData(), a.size());
                 break;
             }
 
@@ -283,7 +283,7 @@ void MofWriter::appendValueElement(
             {
                 Array<Uint32> a;
                 value.get(a);
-                _appendValueArray(out, a.getData(), a.size());
+                _appendValueArrayMof(out, a.getData(), a.size());
                 break;
             }
 
@@ -291,7 +291,7 @@ void MofWriter::appendValueElement(
             {
                 Array<Sint32> a;
                 value.get(a);
-                _appendValueArray(out, a.getData(), a.size());
+                _appendValueArrayMof(out, a.getData(), a.size());
                 break;
             }
 
@@ -299,7 +299,7 @@ void MofWriter::appendValueElement(
             {
                 Array<Uint64> a;
                 value.get(a);
-                _appendValueArray(out, a.getData(), a.size());
+                _appendValueArrayMof(out, a.getData(), a.size());
                 break;
             }
 
@@ -307,7 +307,7 @@ void MofWriter::appendValueElement(
             {
                 Array<Sint64> a;
                 value.get(a);
-                _appendValueArray(out, a.getData(), a.size());
+                _appendValueArrayMof(out, a.getData(), a.size());
                 break;
             }
 
@@ -315,7 +315,7 @@ void MofWriter::appendValueElement(
             {
                 Array<Real32> a;
                 value.get(a);
-                _appendValueArray(out, a.getData(), a.size());
+                _appendValueArrayMof(out, a.getData(), a.size());
                 break;
             }
 
@@ -323,7 +323,7 @@ void MofWriter::appendValueElement(
             {
                 Array<Real64> a;
                 value.get(a);
-                _appendValueArray(out, a.getData(), a.size());
+                _appendValueArrayMof(out, a.getData(), a.size());
                 break;
             }
 
@@ -331,7 +331,7 @@ void MofWriter::appendValueElement(
             {
                 Array<Char16> a;
                 value.get(a);
-                _appendValueArray(out, a.getData(), a.size());
+                _appendValueArrayMof(out, a.getData(), a.size());
                 break;
             }
 
@@ -339,7 +339,7 @@ void MofWriter::appendValueElement(
             {
                 Array<String> a;
                 value.get(a);
-                _appendValueArray(out, a.getData(), a.size());
+                _appendValueArrayMof(out, a.getData(), a.size());
                 break;
             }
 
@@ -347,7 +347,7 @@ void MofWriter::appendValueElement(
             {
                 Array<CIMDateTime> a;
                 value.get(a);
-                _appendValueArray(out, a.getData(), a.size());
+                _appendValueArrayMof(out, a.getData(), a.size());
                 break;
             }
 
@@ -355,7 +355,7 @@ void MofWriter::appendValueElement(
             {
                 Array<CIMReference> a;
                 value.get(a);
-                _appendValueArray(out, a.getData(), a.size());
+                _appendValueArrayMof(out, a.getData(), a.size());
                 break;
             }
 
@@ -613,6 +613,66 @@ void MofWriter::appendQualifierDeclElement(
 {
     qualifierDecl._checkRep();
     qualifierDecl._rep->toMof(out);
+}
+
+//------------------------------------------------------------------------------
+//
+// getQualifierFlavor()
+//
+// Convert the Qualifier flavors to a string of MOF flavor keywords.
+//
+//   <pre>
+//   Keyword            Function                             Default
+//     EnableOverride  Qualifier is overridable.               yes
+//     DisableOverride Qualifier cannot be overridden.          no
+//     ToSubclass      Qualifier is inherited by any subclass. yes
+//     Restricted      Qualifier applies only to the class     no
+//                     in which it is declared
+//     Translatable    Indicates the value of the qualifier
+//                     can be specified inmultiple languages   no
+//     NOTE: There is an open issue with the keyword toinstance.
+//
+//     flavor            = ENABLEOVERRIDE | DISABLEOVERRIDE | RESTRICTED |
+//                         TOSUBCLASS | TRANSLATABLE
+//     DISABLEOVERRIDE   = "disableOverride"
+//
+//     ENABLEOVERRIDE    = "enableoverride"
+//
+//     RESTRICTED        = "restricted"
+//
+//     TOSUBCLASS        = "tosubclass"
+//
+//     TRANSLATABLE      = "translatable"
+//    </pre>
+//
+//    The keyword toinstance is not in the CIM specification. For the moment 
+//    we are assuming that it is the same as the toSubclass. We had a choice
+//    of using one entity for both or separating them and letting the
+//    compiler set both.
+//
+//------------------------------------------------------------------------------
+
+String MofWriter::getQualifierFlavor(Uint32 flavor)
+{
+    String tmp = "";
+
+    if (!(flavor & CIMFlavor::OVERRIDABLE))
+        tmp += "DisableOverride, ";
+
+    if (!(flavor & CIMFlavor::TOSUBCLASS))
+        tmp += "Restricted, ";
+
+    // ATTN-RK-P3-20020515: FUTURE: Need to check toInstance flavor?
+    //if (!(flavor & CIMFlavor::TOINSTANCE))
+    //    tmp += "Restricted, ";
+
+    if (flavor & CIMFlavor::TRANSLATABLE)
+        tmp += "Translatable, ";
+
+    if (tmp.size())
+        tmp.remove(tmp.size() - 2);
+
+    return tmp;
 }
 
 PEGASUS_NAMESPACE_END

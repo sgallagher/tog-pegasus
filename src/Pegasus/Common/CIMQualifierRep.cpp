@@ -105,7 +105,7 @@ void CIMQualifierRep::toXml(Array<Sint8>& out) const
     if (_propagated != false)
 	out << " PROPAGATED=\"" << _toString(_propagated) << "\"";
 
-    FlavorToXml(out, _flavor);
+    XmlWriter::appendQualifierFlavorEntity(out, _flavor);
 
     out << ">\n";
     
@@ -157,7 +157,7 @@ void CIMQualifierRep::toMof(Array<Sint8>& out) const
 
     // output the flavors
     String flavorString;
-    flavorString = FlavorToMof(_flavor);
+    flavorString = MofWriter::getQualifierFlavor(_flavor);
     if (flavorString.size())
     {
 		out << " : ";

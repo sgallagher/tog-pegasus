@@ -1287,6 +1287,34 @@ void XmlWriter::printQualifierDeclElement(
 
 //------------------------------------------------------------------------------
 //
+// appendQualifierFlavorEntity()
+//
+//     <!ENTITY % QualifierFlavor "OVERRIDABLE  (true|false)   'true'
+//                                 TOSUBCLASS   (true|false)   'true'
+//                                 TOINSTANCE   (true|false)   'false'
+//                                 TRANSLATABLE (true|false)   'false'">
+//
+//------------------------------------------------------------------------------
+
+void XmlWriter::appendQualifierFlavorEntity(
+    Array<Sint8>& out,
+    Uint32 flavor)
+{
+    if (!(flavor & CIMFlavor::OVERRIDABLE))
+        out << " OVERRIDABLE=\"false\"";
+
+    if (!(flavor & CIMFlavor::TOSUBCLASS))
+        out << " TOSUBCLASS=\"false\"";
+
+    if (flavor & CIMFlavor::TOINSTANCE)
+        out << " TOINSTANCE=\"true\"";
+
+    if (flavor & CIMFlavor::TRANSLATABLE)
+        out << " TRANSLATABLE=\"true\"";
+}
+
+//------------------------------------------------------------------------------
+//
 // appendMethodCallHeader()
 //
 //     Build HTTP method call request header.

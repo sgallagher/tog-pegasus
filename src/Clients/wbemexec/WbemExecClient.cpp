@@ -41,7 +41,6 @@
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/HTTPConnection.h>
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/TimeValue.h>
 #include <Pegasus/Common/PegasusVersion.h>
@@ -230,7 +229,7 @@ void WbemExecClient::connectLocal()
 
         _connect(host, portNumber, sslContext);
     }
-    catch(CannotConnectException &e)
+    catch(CannotConnectException &)
     {
         //
         // Look up the WBEM HTTPS port number for the local system

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CGIClient.cpp,v $
+// Revision 1.3  2001/01/30 07:38:33  karl
+// add instance operations, getinstance, enumerateinstance
+//
 // Revision 1.2  2001/01/26 23:26:53  mike
 // reworked CGI inteface
 //
@@ -48,6 +51,7 @@ void PrintRule()
     cout << "<hr></hr>";
 }
 
+
 static void PrintHead(const String& title)
 {
     cout << "<head>\n";
@@ -57,7 +61,7 @@ static void PrintHead(const String& title)
 
 static void PrintHeader(const String& title)
 {
-    String img = "http://localhost/pegasus/icons/OpenGroupLogo.gif";
+    String img = "/pegasus/icons/OpenGroupLogo.gif";
 
     cout << "<table width=\"100%\">\n";
     cout << "<tr>\n";
@@ -69,13 +73,24 @@ static void PrintHeader(const String& title)
     cout << "</table>\n";
 }
 
+static void PrintHTMLHead(const String& title, const String& header)
+{
+     cout << "<html>\n";
+     PrintHead(title);
+     cout << "<body bgcolor=\"#CCCCCC\">\n";
+     PrintHeader(header);
+     PrintRule();
+
+}
+
 void ErrorExit(const String& message)
 {
-    cout << "<html>\n";
-    PrintHead("Message");
-    PrintHeader("Error");
-    PrintRule();
-    cout << "  <body bgcolor=\"#CCCCCC\">\n";
+    PrintHTMLHead("Message", "Error");
+    // kscout << "<html>\n";
+    // ksPrintHead("Message");
+    // ksPrintHeader("Error");
+    // ksPrintRule();
+    // kscout << "  <body bgcolor=\"#CCCCCC\">\n";
     cout << "    <h1>" << message << "</h1>\n";
     cout << "  </body>\n";
     cout << "</html>\n";
@@ -113,7 +128,10 @@ static String EncodeQueryStringValue(const String& x)
 
     return result;
 }
-
+/* PrintA - Prints a single href
+@param href - the references
+@content - The content of the reference
+*/
 static void PrintA(const String& href, const String& content)
 {
     cout << "<a href=\"" << href << "\">\n";
@@ -131,7 +149,10 @@ static void PrintTableHeader(const String& tableName)
     cout << "<th>Value</th>\n";
     cout << "</tr>\n";
 }
-
+/** Header for the Properties HTML table
+Columns in the table are Property Name, type, Vlaue, ClassOrigin,
+Propogated indicator.
+*/
 static void PrintPropertiesTableHeader(const String& tableName)
 {
     cout << "<h2>" << tableName << "</h2>\n";
@@ -171,7 +192,8 @@ static void PrintLogo()
 {
     cout << "<table border=2>\n";
     cout << "<tr>\n";
-    cout << "<td><img src=\"http://localhost/pegasus/icons/OpenGroupLogo.gif\"></td>\n";
+    cout <<
+    "<td><img src=\"/pegasus/icons/OpenGroupLogo.gif\"></td>\n";
     cout << "</tr>\n";
     cout << "</table>\n";
 }
@@ -189,25 +211,32 @@ void PrintSingleProperty(Property& property)
 
     PrintTableTrailer();
 }
-
-void PrintClassProperties(
+/** PrintObjectProperties - Template for a function
+that prints the Properties information for either Classes
+or instances.	 This prints an HTML table of the properties
+fields including name, type, value, ClassOrigin, and propagated.
+The name is wrapped in an href so a click will get detailed
+property information.
+*/
+template<class OBJECT>
+void PrintObjectProperties(
     const String& nameSpace,
-    ClassDecl& classDecl)
+    OBJECT& object)
 {
     PrintPropertiesTableHeader("Properties:");
-
-    for (Uint32 i = 0, n = classDecl.getPropertyCount(); i < n; i++)
+    // Loop for each property
+    for (Uint32 i = 0, n = object.getPropertyCount(); i < n; i++)
     {
-	Property property = classDecl.getProperty(i);
+	Property property = object.getProperty(i);
 	const Value& value = property.getValue();
-
+	// Define href with the property name
 	String href = "/pegasus/cgi-bin/CGIClient?";
-	href.append("Operation=GetProperty&");
+	href.append("Operation=GetPropertyDeclaration&");
 	href.append("NameSpace=");
 	href.append(EncodeQueryStringValue(nameSpace));
 	href.append("&");
 	href.append("ClassName=");
-	href.append(classDecl.getClassName());
+	href.append(object.getClassName());
 	href.append("&");
 	href.append("PropertyName=");
 	href.append(property.getName());
@@ -224,9 +253,9 @@ void PrintClassProperties(
 	    cout << "<td>" << valueString << "</td>\n";
 	else
 	    cout << "<td>null</td>\n";
-
+	// Output the ClassOrigin
 	cout << "<td>" << property.getClassOrigin() << "</td>\n";
-
+	// Output the Propagated field
 	cout << "<td>" << (property.getPropagated() ? "true" : "false");
 	cout << "</td>\n";
 
@@ -254,7 +283,10 @@ void PrintQualifiers(OBJECT& object)
 
     PrintTableTrailer();
 }
-
+/** Prepare an HTML table with a header and an entry
+for each method defined in the class with the Name
+and type of the Method in each entry
+*/
 void PrintClassMethods(ClassDecl& classDecl)
 {
     cout << "<h2>Methods:</h2>\n";
@@ -282,30 +314,42 @@ void PrintClass(
     const String& nameSpace,
     ClassDecl& classDecl)
 {
-    cout << "<html>\n";
-    PrintHead("GetClass");
-    cout << "<body bgcolor=\"#CCCCCC\">\n";
-
-    PrintHeader(classDecl.getClassName());
-    PrintRule();
-
+    PrintHTMLHead("GetClass", classDecl.getClassName());
+    
     PrintQualifiers(classDecl);
-    PrintClassProperties(nameSpace, classDecl);
+    PrintObjectProperties(nameSpace, classDecl);
     PrintClassMethods(classDecl);
 
     cout << "</body>\n";
     cout << "</html>\n";
 }
-
-void PrintProperty(Property& property)
+/** PrintInstance - Print an HTML page with the characteristics
+of the instance including:
+<UL>
+    <LI>ClassName
+    <LI>Qualifiers
+    <LI>Properties
+</UL>
+Note that methods are at the class level, not the instance
+level so they do not appear in the Instance page.
+*/
+void PrintInstance(
+const String& nameSpace,
+    InstanceDecl& instanceDecl)
 {
-    cout << "<html>\n";
-    PrintHead("GetProperty");
-    cout << "<body bgcolor=\"#CCCCCC\">\n";
+    PrintHTMLHead("GetInstance", instanceDecl.getClassName());
+    PrintQualifiers(instanceDecl);
+    PrintObjectProperties(nameSpace, instanceDecl);
 
-    PrintHeader(property.getName());
-    PrintRule();
+    cout << "</body>\n";
+    cout << "</html>\n";
 
+}
+
+void PrintPropertyDeclaration(Property& property)
+{
+    PrintHTMLHead("GetPropertyDeclaration", property.getName());
+    
     PrintQualifiers(property);
     PrintSingleProperty(property);
 
@@ -313,14 +357,14 @@ void PrintProperty(Property& property)
     cout << "</html>\n";
 }
 
+/** Function GetClass Peforms the getClass
+request and prints the result as an HTML page  
+*/
 static void GetClass(const CGIQueryString& qs)
 {
-    // Get NameSpace:
-
     String nameSpace = GetNameSpaceQueryField(qs);
 
     // Get ClassName:
-
     const char* tmp;
 
     if (!(tmp = qs.findValue("ClassName")))
@@ -342,7 +386,7 @@ static void GetClass(const CGIQueryString& qs)
 	Client client;
 	client.connect("localhost", 8888);
 
-	ClassDecl classDecl = client.getClass(nameSpace, className, 
+	ClassDecl classDecl = client.getClass(nameSpace, className,
 	    localOnly, includeClassOrigin, includeClassOrigin);
 
 	PrintClass(nameSpace, classDecl);
@@ -353,17 +397,18 @@ static void GetClass(const CGIQueryString& qs)
     }
 }
 
-static void GetProperty(const CGIQueryString& qs)
+/** Function GetPropertyDeclaration
+This function is NOT a a WBEM Function. It is used by
+the Get Class function to get properties for the getClass
+presentation. This function uses the getClass with the
+PropertyName parameter to find each property
+get the property and Print each property.
+*/
+static void GetPropertyDeclaration(const CGIQueryString& qs)
 {
-    //--------------------------------------------------------------------------
-    // Get NameSpace:
-    //--------------------------------------------------------------------------
-
     String nameSpace = GetNameSpaceQueryField(qs);
 
-    //--------------------------------------------------------------------------
     // Get ClassName:
-    //--------------------------------------------------------------------------
 
     const char* tmp;
 
@@ -375,9 +420,7 @@ static void GetProperty(const CGIQueryString& qs)
     if (!className.getLength())
 	ErrorExit("ClassName parameter is null");
 
-    //--------------------------------------------------------------------------
     // Get PropertyName:
-    //--------------------------------------------------------------------------
 
     if (!(tmp = qs.findValue("PropertyName")))
 	ErrorExit("Missing ClassName field");
@@ -387,16 +430,16 @@ static void GetProperty(const CGIQueryString& qs)
     if (!propertyName.getLength())
 	ErrorExit("PropertyName parameter is null");
 
-    //--------------------------------------------------------------------------
+    //
 
     try
     {
 	Client client;
 	client.connect("localhost", 8888);
-
+	// get the class
 	ClassDecl classDecl = client.getClass(
 	    nameSpace, className, false, true, true);
-
+	// 
 	Uint32 pos = classDecl.findProperty(propertyName);
 
 	if (pos == Uint32(-1))
@@ -404,10 +447,10 @@ static void GetProperty(const CGIQueryString& qs)
 	    ErrorExit("No such property");
 	    return;
 	}
-
+	// Now Get the property
 	Property property = classDecl.getProperty(pos);
 
-	PrintProperty(property);
+	PrintPropertyDeclaration(property);
     }
     catch(Exception& e)
     {
@@ -419,12 +462,13 @@ static void PrintClassNames(
     const String& nameSpace,
     const Array<String>& classNames)
 {
-    cout << "<html>\n";
-    PrintHead("GetClassNames");
-    cout << "<body bgcolor=\"#CCCCCC\">\n";
+    PrintHTMLHead("GetClassNames", "EnumerateClassNames Rusult");
+    // cout << "<html>\n";
+    // PrintHead("GetClassNames");
+    // cout << "<body bgcolor=\"#CCCCCC\">\n";
 
-    PrintHeader("EnumerateClassNames Result");
-    PrintRule();
+    // PrintHeader("EnumerateClassNames Result");
+    //PrintRule();
 
     cout << "<table border=1>\n";
     cout << "<tr><th>Class Names</th><tr>\n";
@@ -457,15 +501,11 @@ static void PrintClassNames(
 
 static void EnumerateClassNames(const CGIQueryString& qs)
 {
-    //--------------------------------------------------------------------------
     // Get NameSpace:
-    //--------------------------------------------------------------------------
 
     String nameSpace = GetNameSpaceQueryField(qs);
 
-    //--------------------------------------------------------------------------
     // Get ClassName:
-    //--------------------------------------------------------------------------
 
     String className;
 
@@ -474,18 +514,14 @@ static void EnumerateClassNames(const CGIQueryString& qs)
     if ((tmp = qs.findValue("ClassName")))
 	className = tmp;
 
-    //--------------------------------------------------------------------------
     // Get DeepInheritance:
-    //--------------------------------------------------------------------------
 
     Boolean deepInheritance = false;
 
     if (qs.findValue("DeepInheritance"))
 	deepInheritance = true;
 
-    //--------------------------------------------------------------------------
     // Invoke the method:
-    //--------------------------------------------------------------------------
 
     try
     {
@@ -493,7 +529,7 @@ static void EnumerateClassNames(const CGIQueryString& qs)
 	client.connect("localhost", 8888);
 
 	Array<String> classNames = client.enumerateClassNames(
-	    nameSpace, className, deepInheritance); 
+	    nameSpace, className, deepInheritance);
 
 	PrintClassNames(nameSpace, classNames);
     }
@@ -505,12 +541,9 @@ static void EnumerateClassNames(const CGIQueryString& qs)
 
 static void DeleteClass(const CGIQueryString& qs)
 {
-    // Get NameSpace:
-
     String nameSpace = GetNameSpaceQueryField(qs);
 
     // Get ClassName:
-
     const char* tmp;
 
     if (!(tmp = qs.findValue("ClassName")))
@@ -569,12 +602,13 @@ void PrintGetQualifier(
     const String& nameSpace,
     QualifierDecl qualifierDecl)
 {
-    cout << "<html>\n";
-    PrintHead("GetQualifier");
-    cout << "<body bgcolor=\"#CCCCCC\">\n";
+    PrintHTMLHead("GetQualifier", "GetQualifier");
+    // cout << "<html>\n";
+    // PrintHead("GetQualifier");
+    // cout << "<body bgcolor=\"#CCCCCC\">\n";
 
-    PrintHeader("GetQualifier");
-    PrintRule();
+    // PrintHeader("GetQualifier");
+    // PrintRule();
 
     cout << "<table border=1 width=\"50%\">\n";
     cout << "  <tr>\n";
@@ -600,7 +634,8 @@ void PrintEnumerateQualifiers(
     const String& nameSpace,
     const Array<QualifierDecl>& qualifierDecls)
 {
-    cout << "<html>\n";
+    // Check this, why no HTML header here.????
+
     PrintHead("EnumerateQualifiers");
     cout << "<body bgcolor=\"#CCCCCC\">\n";
 
@@ -630,11 +665,10 @@ void PrintEnumerateQualifiers(
     cout << "</body>\n";
     cout << "</html>\n";
 }
-
+/* Method to execute the EnumerateQualifiers operation
+*/
 static void EnumerateQualifiers(const CGIQueryString& qs)
 {
-    // Get NameSpace:
-
     String nameSpace = GetNameSpaceQueryField(qs);
 
     try
@@ -653,14 +687,13 @@ static void EnumerateQualifiers(const CGIQueryString& qs)
     }
 }
 
+/* Method to execute the getQualifier Operation
+*/
 static void GetQualifier(const CGIQueryString& qs)
 {
-    // Get NameSpace:
-
     String nameSpace = GetNameSpaceQueryField(qs);
 
     // Get Qualifier name:
-
     const char* tmp;
 
     if (!(tmp = qs.findValue("QualifierName")))
@@ -686,6 +719,188 @@ static void GetQualifier(const CGIQueryString& qs)
     }
 }
 
+/** PrintInstanceNames
+    Prints the HTML form for the names provided in the
+    String array of instancenames.
+    The table created includes an href for each name so that
+    a click on the href entry will get the instance
+    Note that we assume the defaults for the extra
+    parameters on the getInstance
+    ATTN: Change so the user can select extra params.
+*/
+static void PrintInstanceNames(
+    const String& nameSpace,
+    const Array<String>& InstanceNames)
+{
+    PrintHTMLHead("GetInstanceNames", "EnumerateInstanceNames Rusult");
+    // cout << "<html>\n";
+    // PrintHead("GetClassNames");
+    // cout << "<body bgcolor=\"#CCCCCC\">\n";
+
+    // PrintHeader("EnumerateClassNames Result");
+    //PrintRule();
+    cout << "trace operation Print Instance Names\r\n\r\n";  
+
+    cout << "<table border=1>\n";
+    cout << "<tr><th>Instance Names</th><tr>\n";
+    // For each name prepare the table entry with an href for
+    // click access to the getInstance for that name
+    for (Uint32 i = 0, n = InstanceNames.getSize(); i < n; i++)
+    {
+	cout << "<tr><td>\n";
+
+	String href = "/pegasus/cgi-bin/CGIClient?";
+	href.append("Operation=GetInstance&");
+	href.append("NameSpace=");
+	href.append(EncodeQueryStringValue(nameSpace));
+	href.append("&");
+
+	href.append("ClassName=");
+	href.append(InstanceNames[i]);
+	href.append("&");
+
+	href.append("LocalOnly=true");
+	href.append("includQualifiers=false");
+	href.append("includeClassOrigin=false");
+        
+	PrintA(href, InstanceNames[i]);
+
+	cout << "</tr></td>\n";
+    }
+    // Close the HTML Page
+    cout << "</table>\n";
+    cout << "</body>\n";
+    cout << "</html>\n";
+  
+}
+
+/** EnumerateInstanceNames
+ Called for evaluation of the EvaluateInstance Names operation.
+ Gets the parameters from the CGIQuery String and calls
+ the enumerateInstanceNames Client function.
+ The resulting string array of names is printed by
+ the function printInstanceNames
+*/
+static void EnumerateInstanceNames(const CGIQueryString& qs)
+{
+    // Get NameSpace:
+    String nameSpace = GetNameSpaceQueryField(qs);
+
+    // Get ClassName:
+    String className;
+
+    const char* tmp;
+
+    if ((tmp = qs.findValue("ClassName")))
+	className = tmp;
+
+    // Invoke the method:
+
+    try
+    {
+	Client client;
+	client.connect("localhost", 8888);
+
+	Array<String> classNames = client.enumerateInstanceNames(
+	    nameSpace, className);
+	// Print the name array
+	PrintInstanceNames(nameSpace, classNames);
+    }
+    catch(Exception& e)
+    {
+	ErrorExit(e.getMessage());
+    }
+}
+
+/** GetInstance Function
+This function is executed for the getInstance Operation
+It takes the parameters from the CGIQueryString
+to create parameters for the getInstance Client
+method call.
+The results of the call are printed in an HTML page.
+*/
+static void GetInstance(const CGIQueryString& qs)
+{
+    String nameSpace = GetNameSpaceQueryField(qs);
+
+    // Get InstanceName:
+    const char* tmp;
+
+    if (!(tmp = qs.findValue("InstanceName")))
+	ErrorExit("Missing InstanceName field");
+
+    // This must be modified for the toString ATTN KS
+    Reference referenceName;
+    try
+    {
+    Reference::instanceNameToReference(tmp,referenceName);
+    }
+    catch(Exception& e)
+    {
+        ErrorExit(e.getMessage());
+    }
+
+
+    // if (!instanceName.getLength())
+    // ErrorExit("InstanceName parameter is null");
+
+    // ATTN: handle these later!
+
+    Boolean localOnly = true;
+    Boolean includeQualifiers = true;
+    Boolean includeClassOrigin = false;
+
+    try
+    {
+	Client client;
+	client.connect("localhost", 8888);
+          
+	InstanceDecl instanceDecl = client.getInstance(nameSpace, 
+	    referenceName, localOnly, includeClassOrigin, includeClassOrigin);
+
+	PrintInstance(nameSpace, instanceDecl);
+    }
+    catch(Exception& e)
+    {
+	ErrorExit(e.getMessage());
+    }
+}
+
+
+static void EnumerateInstances(const CGIQueryString& qs)
+{
+ // Get NameSpace:
+    String nameSpace = GetNameSpaceQueryField(qs);
+
+    // Get ClassName:
+    String className;
+
+    const char* tmp;
+
+    if ((tmp = qs.findValue("ClassName")))
+	className = tmp;
+
+    // Invoke the method:
+    String message = "operation EnumerateInstances Under Construction: ";
+    ErrorExit(message);
+    //try
+    //{
+    //    Client client;
+    //    client.connect("localhost", 8888);
+    //
+    //    Array<String> classNames = client.enumerateInstancs(
+    //        nameSpace, className);
+    //    // Print the name array
+    //    PrintInstance(nameSpace, classNames);
+    //}
+    //catch(Exception& e)
+    //{
+    //    ErrorExit(e.getMessage());
+    //}
+   
+}
+
+
 int main(int argc, char** argv)
 {
     cout << "Content-type: text/html\r\n\r\n";
@@ -705,22 +920,33 @@ int main(int argc, char** argv)
 	CGIQueryString qs(queryString);
 
         const char* operation = qs.findValue("Operation");
-
 	if (!operation)
-	    ErrorExit("Missing Operation field");
-
+	    ErrorExit("Missing Operation field"); 
 	if (strcmp(operation, "GetClass") == 0)
 	    GetClass(qs);
 	else if (strcmp(operation, "EnumerateClassNames") == 0)
 	    EnumerateClassNames(qs);
 	else if (strcmp(operation, "DeleteClass") == 0)
 	    DeleteClass(qs);
-	else if (strcmp(operation, "GetProperty") == 0)
-	    GetProperty(qs);
-	else if (strcmp(operation, "EnumerateQualifiers") == 0)
+	else if (strcmp(operation, "GetPropertyDeclaration") == 0)
+	    GetPropertyDeclaration(qs);
+        else if (strcmp(operation, "EnumerateQualifiers") == 0)
 	    EnumerateQualifiers(qs);
-	else if (strcmp(operation, "GetQualifier") == 0)
+        else if (strcmp(operation, "GetQualifier") == 0)
 	    GetQualifier(qs);
+        else if (strcmp(operation, "GetInstance") == 0)
+	    GetInstance(qs);
+        else if (strcmp(operation, "EnumerateInstanceNames") == 0)
+	    EnumerateInstanceNames(qs);
+       else if (strcmp(operation, "EnumerateInstances") == 0)
+	    EnumerateInstances(qs);
+	//else if (strcmp(operation, "GetProperty") == 0)
+	//    GetProperty(qs);
+	//else if (strcmp(operation, "SetProperty") == 0)
+	//    SetProperty(qs);
+
+
+
 	else
 	{
 	    String message = "Unknown operation: ";
@@ -736,3 +962,4 @@ int main(int argc, char** argv)
 
     return 0;
 }
+

@@ -37,6 +37,7 @@ LIBRARIES = \
 	pegauthentication \
 	peghandlerservice \
 	pegindicationservice \
+	pegquerycommon \
 	pegwql \
 	pegclient \
 	pegprm \

@@ -8,6 +8,7 @@ LIBRARY = SampleInstanceQueryProvider
 
 LIBRARIES = \
 	pegcommon \
+	pegqueryexpression \
 	pegprovider
 	
 SOURCES = \

@@ -39,7 +39,7 @@ PEGASUS_USING_PEGASUS;
 
 PEGASUS_USING_STD;
 
-void main(void)
+int main(void)
 {
     // instantiate the primary response handler types
     {
@@ -90,4 +90,6 @@ void main(void)
     }
 
     cout << "+++++ passed all tests." << endl;
+
+    return(0);
 }

@@ -36,6 +36,7 @@
 #define Pegasus_CQLSelectStatementRep_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/CQL/SelectStatementRep.h>
 #include <Pegasus/CQL/CQLChainedIdentifier.h>
 #include <Pegasus/CQL/CQLIdentifier.h>
@@ -83,7 +84,7 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatementRep : public SelectStatementRep
            */
         String& inQuery, 
         
-        QueryContext* inCtx);
+        QueryContext& inCtx);
 
     CQLSelectStatementRep(const CQLSelectStatementRep& rep);
 
@@ -266,7 +267,8 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatementRep : public SelectStatementRep
     void applyProjection(PropertyNode* node, CIMProperty& nodeProp);
 
     void removeUnneededProperties(CIMInstance& inst, 
-				  Array<CIMName>& requiredProps);
+				  Array<CIMName>& requiredProps,
+				  CIMName requiredScope);
 
     void validateProperty(CQLChainedIdentifier& chainId);
 
@@ -286,6 +288,8 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatementRep : public SelectStatementRep
 				   Boolean isSelectListId);
 
     CQLPredicate _predicate;
+
+    Boolean _contextApplied;
 };
 
 PEGASUS_NAMESPACE_END

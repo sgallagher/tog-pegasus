@@ -61,6 +61,7 @@ PEGASUS_NAMESPACE_BEGIN
 struct PropertyNode
 {
   CIMName name;
+  Array<CIMName> scopes;
   Boolean wildcard;
   AutoPtr<PropertyNode> sibling;
   AutoPtr<PropertyNode> firstChild;
@@ -72,13 +73,17 @@ struct PropertyNode
 
 CQLSelectStatementRep::CQLSelectStatementRep()
   :SelectStatementRep(),
-   _hasWhereClause(false)
+   _hasWhereClause(false),
+   _contextApplied(false)
 {
 }
 
-CQLSelectStatementRep::CQLSelectStatementRep(String& inQlang, String& inQuery, QueryContext* inCtx)
+CQLSelectStatementRep::CQLSelectStatementRep(String& inQlang,
+					     String& inQuery,
+					     QueryContext& inCtx)
   :SelectStatementRep(inQlang, inQuery, inCtx),
-   _hasWhereClause(false)
+   _hasWhereClause(false),
+   _contextApplied(false)
 {
 }
 
@@ -87,7 +92,8 @@ CQLSelectStatementRep::CQLSelectStatementRep(const CQLSelectStatementRep& rep)
    _selectIdentifiers(rep._selectIdentifiers),
    _whereIdentifiers(rep._whereIdentifiers),
    _hasWhereClause(rep._hasWhereClause),
-   _predicate(rep._predicate)
+   _predicate(rep._predicate),
+   _contextApplied(rep._contextApplied)
 {
 }
 
@@ -105,6 +111,8 @@ CQLSelectStatementRep& CQLSelectStatementRep::operator=(const CQLSelectStatement
   _whereIdentifiers = rhs._whereIdentifiers;
   _selectIdentifiers = rhs._selectIdentifiers;
   _predicate = rhs._predicate;
+  _contextApplied = rhs._contextApplied;
+  _hasWhereClause = rhs._hasWhereClause;
 
   return *this;
 }
@@ -112,9 +120,14 @@ CQLSelectStatementRep& CQLSelectStatementRep::operator=(const CQLSelectStatement
 Boolean CQLSelectStatementRep::evaluate(const CIMInstance& inCI)
 {
   if (!hasWhereClause())
+  {
     return true;
+  }
   else
   {
+    if (!_contextApplied)
+      applyContext();
+
     try
     {
       return _predicate.evaluate(inCI, *_ctx);
@@ -130,7 +143,8 @@ Boolean CQLSelectStatementRep::evaluate(const CIMInstance& inCI)
 
 void CQLSelectStatementRep::applyProjection(CIMInstance& inCI) throw(Exception)
 {
-  // assumes that applyContext had been called.
+  if (!_contextApplied)
+    applyContext();
 
   AutoPtr<PropertyNode> rootNode(new PropertyNode);
   Array<CQLIdentifier> fromList = _ctx->getFromList();
@@ -138,27 +152,9 @@ void CQLSelectStatementRep::applyProjection(CIMInstance& inCI) throw(Exception)
 
   for (Uint32 i = 0; i < _selectIdentifiers.size(); i++)
   {
-    CQLValue val(_selectIdentifiers[i]);
+    Array<CQLIdentifier> ids = _selectIdentifiers[i].getSubIdentifiers();
 
-    // The CQLValue::getNormalizedIdentifier API does the following:
-    // 1) Checks if the instance can be projected:
-    //    a) the instance and its embedded objects are the right type
-    //       as determined by the class contexts (note that the instance
-    //       can be a subclass of the class context) 
-    //    b) the property referenced by the identifier exists on the instance
-    //       or its embedded object as needed.
-    //    c) if either of the above are not true, an exception is thrown
-    // 2) Returns a CQLChainedIdentifier with each chain element replaced by
-    //    the property name on the instance or its embedded object. All
-    //    the class relationships (scoping, etc) have been resolved to actual
-    //    property names on the instance.
-    //    a) Note that '*' is not replaced.
-    //    b) The API will always prepend the instance's class name
-
-// ATTN: UNCOMMENT when API is available
-    CQLChainedIdentifier normalizedId; // = val.getNormalizedIdentifier(inCI, *_ctx);
-
-    Array<CQLIdentifier> ids = normalizedId.getSubIdentifiers();
+    // ATTN optimize to build the tree once and validate vs schema once
 
     PropertyNode * curNode = rootNode.get();
     PropertyNode * curChild = curNode->firstChild.get();
@@ -186,17 +182,35 @@ void CQLSelectStatementRep::applyProjection(CIMInstance& inCI) throw(Exception)
 
       if (!found)
       {
-	/*
-	PEGASUS_STD(cout) << "adding-" << ids[j].getName().getString() 
-			  << PEGASUS_STD(endl);
-	PEGASUS_STD(cout) << "parent is -" << curNode->name.getString() << PEGASUS_STD(endl);
-	if (curNode->firstChild.get() != NULL)
-	  PEGASUS_STD(cout) << "sibling is -" << curNode->firstChild->name.getString()
-			    << PEGASUS_STD(endl);
-	*/
 	curChild = new PropertyNode;
 	curChild->sibling = curNode->firstChild;
 	curChild->name = ids[j].getName();
+
+	if (ids[j].isScoped())
+	{
+	  CQLIdentifier matchId  = _ctx->findClass(ids[j].getScope());
+	  CIMName scope;
+	  if (matchId.getName().getString() != String::EMPTY)
+	  {
+	    scope = matchId.getName();
+	  }
+	  else
+	  {
+	    scope = CIMName(ids[j].getScope());
+	  }
+	  
+	  Uint32 i = 0;
+	  for (; i < curChild->scopes.size(); i++)
+	  {
+	    if (curChild->scopes[i] == scope)
+	      break;
+	  }
+	  if (i == curChild->scopes.size())
+	  {
+	    curChild->scopes.append(scope);
+	  }
+ 	}
+
 	curChild->wildcard = false;
 	curNode->firstChild.reset(curChild);  // safer than using the = operator
       }
@@ -207,24 +221,12 @@ void CQLSelectStatementRep::applyProjection(CIMInstance& inCI) throw(Exception)
   }
 
   Array<CIMName> requiredProps;
-
+  CIMName requiredScope;
   PropertyNode* childNode = rootNode->firstChild.get();
   while (childNode != NULL)
   {
-    /*
-    PEGASUS_STD(cout) << "applying to  " << childNode->name.getString() 
-		      << PEGASUS_STD(endl);
-    if (childNode->wildcard)     
-      PEGASUS_STD(cout) << "is wildcard "  << PEGASUS_STD(endl);
-    */
-
     if (childNode->firstChild.get() != NULL)
     {
-      /*
-      PEGASUS_STD(cout) << "has first child  " << childNode->firstChild->name.getString()
-			<< PEGASUS_STD(endl);
-      */
-
       Uint32 index = inCI.findProperty(childNode->name);
       CIMProperty childProp = inCI.getProperty(index);
       inCI.removeProperty(index);
@@ -240,19 +242,46 @@ void CQLSelectStatementRep::applyProjection(CIMInstance& inCI) throw(Exception)
 
     if (!rootNode->wildcard)
       requiredProps.append(childNode->name);   
+
+    for (Uint32 i = 0; i < childNode->scopes.size(); i++)    
+    {
+      if (childNode->scopes[i] == requiredScope)
+      {
+	continue;
+      }
+
+      if (requiredScope.isNull() || 
+	  isSubClass(childNode->scopes[i], requiredScope))
+      {
+	requiredScope = childNode->scopes[i];
+      }
+      else if (!isSubClass(requiredScope, childNode->scopes[i]))
+      {
+	// note: no multiple inheritance in CIM
+	throw Exception("TEMP MSG instance cannot be all the required scopes");
+      }
+    }
  
     childNode = childNode->sibling.get();
   }
 
-  if (!rootNode->wildcard)
-    removeUnneededProperties(inCI, requiredProps);
+  if (requiredScope.getString() == String::EMPTY)
+  {
+    requiredScope = fromList[0].getName(); 
+  }
+
+  if (!inCI.getClassName().equal(requiredScope) &&
+      !isSubClass(inCI.getClassName(),requiredScope))
+  {
+    throw Exception("TEMP MSG - indication is not of the required scope");
+  }
+
+  removeUnneededProperties(inCI, requiredProps, requiredScope);
 }
 
 void CQLSelectStatementRep::applyProjection(PropertyNode* node,
 					    CIMProperty& nodeProp)
 {
-PEGASUS_STD(cout) << "applying to " << node->name.getString() << PEGASUS_STD(endl);
-
   PEGASUS_ASSERT(node->firstChild.get() != NULL);
 
   CIMInstance nodeInst;
@@ -262,19 +291,13 @@ PEGASUS_STD(cout) << "applying to " << node->name.getString() << PEGASUS_STD(end
 //nodeVal.get(nodeInst);
 
   Array<CIMName> requiredProps;
+  CIMName requiredScope;
 
   PropertyNode * curChild = node->firstChild.get();
   while (curChild != NULL)
   {
-    // PEGASUS_STD(cout) << "has child  " << curChild->name.getString() << PEGASUS_STD(endl);
-
     if (curChild->firstChild.get() != NULL)
     {
-      /*
-      PEGASUS_STD(cout) << "child has first child  " << 
-	curChild->firstChild->name.getString() << PEGASUS_STD(endl);
-      */
-
       Uint32 index = nodeInst.findProperty(curChild->name);
       CIMProperty childProp = nodeInst.getProperty(index); 
       nodeInst.removeProperty(index);
@@ -291,11 +314,37 @@ PEGASUS_STD(cout) << "applying to " << node->name.getString() << PEGASUS_STD(end
       requiredProps.append(curChild->name);
     }
 
+    for (Uint32 i = 0; i < curChild->scopes.size(); i++)    
+    {
+      if (curChild->scopes[i] == requiredScope)
+      {
+	continue;
+      }
+
+      if (requiredScope.isNull() || 
+	  isSubClass(curChild->scopes[i], requiredScope))
+      {
+	requiredScope = curChild->scopes[i];
+      }
+      else if (!isSubClass(requiredScope, curChild->scopes[i]))
+      {
+	// note: no multiple inheritance in CIM
+	throw Exception("TEMP MSG instance cannot be all the required scopes");
+      }
+    }
+
     curChild = curChild->sibling.get();
   }
 
-  if (!node->wildcard)
-    removeUnneededProperties(nodeInst, requiredProps);
+  PEGASUS_ASSERT(requiredScope.getString() != String::EMPTY);
+
+  if (!nodeInst.getClassName().equal(requiredScope) &&
+      !isSubClass(nodeInst.getClassName(),requiredScope))
+  {
+    throw Exception("TEMP MSG - indication is not of the required scope");
+  }
+
+  removeUnneededProperties(nodeInst, requiredProps, requiredScope);
 
 // ATTN - UNCOMMENT when emb objs are supported
 //CIMValue newNodeVal(nodeInst);
@@ -303,21 +352,36 @@ PEGASUS_STD(cout) << "applying to " << node->name.getString() << PEGASUS_STD(end
 } 
 
 void CQLSelectStatementRep::removeUnneededProperties(CIMInstance& inst, 
-						     Array<CIMName>& requiredProps)
+						     Array<CIMName>& requiredProps,
+						     CIMName requiredScope)
 {
+  if (requiredProps.size() == 0)
+  {
+    CIMClass cls = _ctx->getClass(requiredScope);
+    Array<CIMName> clsProps;
+    for (Uint32 i = 0; i < cls.getPropertyCount(); i++)
+    {
+      requiredProps.append(cls.getProperty(i).getName());
+    }
+  }
+
+  Array<CIMName> supportedProps;
   for (Uint32 i = 0; i < inst.getPropertyCount(); i++)
   {
-    Boolean found = false;
-    for (Uint32 j = 0; j < requiredProps.size(); j++)
+    supportedProps.append(inst.getProperty(i).getName());
+  }
+  
+  for (Uint32 i = 0; i < requiredProps.size(); i++)
+  {
+    if (!containsProperty(requiredProps[i], supportedProps))
     {
-      if (inst.getProperty(i).getName() == requiredProps[j])
-      {
-	found = true;
-	break;
-      }  
+      throw Exception("TEMP MSG - instance missing required property");
     }
+  }
 
-    if (!found)
+  for (Uint32 i = 0; i < supportedProps.size(); i++)
+  {
+    if (!containsProperty(supportedProps[i], requiredProps))
     {
       inst.removeProperty(i);
     }
@@ -356,7 +420,8 @@ void CQLSelectStatementRep::validateClass(const CIMObjectPath& inClassName) thro
 //
 void CQLSelectStatementRep::validateProperties() throw(Exception)
 {
-  // assumes applyContext has been called
+  if (!_contextApplied)
+    applyContext();
 
   for (Uint32 i = 0; i < _selectIdentifiers.size(); i++)
   {
@@ -375,14 +440,12 @@ void CQLSelectStatementRep::validateProperties() throw(Exception)
 //
 void CQLSelectStatementRep::validateProperty(CQLChainedIdentifier& chainId)
 {
-  // assumes that applyContext has been called
-
   Array<CQLIdentifier> ids = chainId.getSubIdentifiers();
 
   // Determine the starting class context.
   // See CQLIdentifier::applyContext for a description
   // of the form of the identifier after applyContext.
-  CIMName prevContext;
+  CIMName startingContext;
   Uint32 startingPos = 0;
   if (ids[0].isScoped())
   { 
@@ -390,20 +453,20 @@ void CQLSelectStatementRep::validateProperty(CQLChainedIdentifier& chainId)
     // was not prepended.  Get the starting context from the FROM
     Array<CQLIdentifier> fromList = _ctx->getFromList();
     PEGASUS_ASSERT(fromList.size() == 1);   // no joins yet
-    prevContext = fromList[0].getName();
+    startingContext = fromList[0].getName();
   }
   else
   {
     // First element was not scoped, therefore the FROM class
     // was prepended.  Use the first element as the starting context.
-    prevContext = ids[0].getName();
+    startingContext = ids[0].getName();
     startingPos = 1;
   }
-  
+
+  CIMName curContext;
   for (Uint32 pos = startingPos; pos < ids.size(); pos++)
   {
     // Determine the current class context
-    CIMName curContext;
     if (ids[pos].isScoped())
     {
       // The chain element is scoped.  Lookup the scope
@@ -419,7 +482,7 @@ void CQLSelectStatementRep::validateProperty(CQLChainedIdentifier& chainId)
     else
     {
       PEGASUS_ASSERT(pos == startingPos || ids[pos].isWildcard());
-      curContext = prevContext;
+      curContext = startingContext;
     }
 
     // Get the class definition of the current class context
@@ -447,16 +510,16 @@ void CQLSelectStatementRep::validateProperty(CQLChainedIdentifier& chainId)
     }
 
     // Checking class relationship rules in section 5.4.1.
-    if (!curContext.equal(prevContext))
+    // For validateProperties, this only applies to the first
+    // property in the chain,
+    if ((pos == startingPos) && !curContext.equal(startingContext))
     {
-      if (!isSubClass(curContext, prevContext) &&
-	  !isSubClass(prevContext, curContext))
+      if (!isSubClass(curContext, startingContext) &&
+	  !isSubClass(startingContext, curContext))
       {
 	throw Exception("TEMP MSG: section 5.4.1 violation!");
       }
     }
-
-    prevContext = curContext;
   }
 }
 
@@ -483,7 +546,8 @@ Array<CIMObjectPath> CQLSelectStatementRep::getClassPathList()
 
 CIMPropertyList CQLSelectStatementRep::getPropertyList(const CIMObjectPath& inClassName)
 {
-  // assumes that applyContext had been called.
+  if (!_contextApplied)
+    applyContext();
 
   // check if namespace matches default namespace?
   
@@ -535,7 +599,6 @@ Boolean CQLSelectStatementRep::addRequiredProperty(Array<CIMName>& reqProps,
 						     CIMClass& theClass,
 						     CQLChainedIdentifier& chainId)
 {
-  // Assumes that applyContext had been called
   // Does not look at properties on embedded objects
 
   Array<CQLIdentifier> ids = chainId.getSubIdentifiers();
@@ -627,7 +690,8 @@ void CQLSelectStatementRep::setPredicate(CQLPredicate inPredicate)
   _predicate = inPredicate;
 }
 
-void CQLSelectStatementRep::insertClassPathAlias(const CQLIdentifier& inIdentifier, String inAlias)
+void CQLSelectStatementRep::insertClassPathAlias(const CQLIdentifier& inIdentifier,
+						 String inAlias)
 {
   _ctx->insertClassPath(inIdentifier,inAlias);
 }
@@ -700,7 +764,7 @@ void CQLSelectStatementRep::checkWellFormedIdentifier(const CQLChainedIdentifier
 	throw Exception("TEMP MSG: wildcard not allowed in WHERE clause");
       }
 
-      if ( pos != ids.size())
+      if ( pos != ids.size() - 1)
       {
 	throw Exception("TEMP MSG: wildcard must be at the end of select-list property");
       }
@@ -723,7 +787,6 @@ void CQLSelectStatementRep::normalizeToDOC()
 
 String CQLSelectStatementRep::toString()
 {
-    printf("CQLSelectStatementRep::toString()\n");
 	String s("SELECT ");
 	for(Uint32 i = 0; i < _selectIdentifiers.size(); i++){
 		if((i > 0) && (i < _selectIdentifiers.size())){
@@ -731,14 +794,10 @@ String CQLSelectStatementRep::toString()
 		}
 		s.append(_selectIdentifiers[i].toString());
 	}	
-	s.append(" FROM ");
-	Array<CQLIdentifier> _ids = _ctx->getFromList();
-	for(Uint32 i = 0; i < _ids.size(); i++){
-		if((i > 0) && (i < _ids.size())){
-                        s.append(",");
-                }
-		s.append(_ids[i].toString());
-	}
+
+	s.append(" ");
+	s.append(_ctx->getFromString());
+
 	if(_hasWhereClause){
 		s.append(" WHERE ");
 		s.append(_predicate.toString());
@@ -759,6 +818,11 @@ Boolean CQLSelectStatementRep::hasWhereClause()
 void  CQLSelectStatementRep::clear()
 {
 	_ctx->clear();
+	_hasWhereClause = false;
+	_contextApplied = false;
+	_predicate = CQLPredicate();
+	_selectIdentifiers.clear();
+	_whereIdentifiers.clear();
 }
 
 PEGASUS_NAMESPACE_END

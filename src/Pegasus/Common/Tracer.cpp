@@ -242,7 +242,7 @@ void Tracer::_traceString(
         if (_isTraceEnabled(traceComponent,traceLevel))
         {
             String msg = traceString;
-            char* traceMsg = msg.allocateCString();
+            ArrayDestroyer<char> traceMsg(msg.allocateCString());
             trace(traceComponent,traceLevel,"%s",traceMsg);
         }
     }
@@ -268,7 +268,7 @@ void Tracer::_traceString(
         if ( _isTraceEnabled( traceComponent, traceLevel ) )
         {
             String msg = traceString;
-            char* traceMsg = msg.allocateCString();
+            ArrayDestroyer<char> traceMsg(msg.allocateCString());
             trace(fileName,lineNum,traceComponent,traceLevel,"%s",traceMsg);
         }
     }

@@ -29,17 +29,18 @@
 #ifndef Pegasus_SignalHandler_h
 #define Pegasus_SignalHandler_h
 
-// Ensure Unix 98
-#ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU
-   #ifndef _GNU_SOURCE
-      #define _GNU_SOURCE
-   #endif
-#else
-   #ifdef _XOPEN_SOURCE
-      #undef _XOPEN_SOURCE
-   #endif
-   #define _XOPEN_SOURCE 600
-#endif
+// // Ensure Unix 98
+// #ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU
+//    #ifndef _GNU_SOURCE
+//       #define _GNU_SOURCE
+//    #endif
+// #else
+//    #ifdef _XOPEN_SOURCE
+//       #undef _XOPEN_SOURCE
+//    #endif
+//    #define _XOPEN_SOURCE 600
+// #endif
+
 #include <signal.h>
 
 typedef void (* signal_handler)(int,siginfo_t *,void *);

@@ -9,6 +9,9 @@ LOCAL_DEFINES = -DPEGASUS_COMMON_INTERNAL
 LIBRARY = pegcommon
 
 SOURCES = \
+    IPC.cpp \
+    Thread.cpp \
+    DQueue.cpp \
     Array.cpp \
     AsyncOpNode.cpp \
     AsyncOpNodeLocal.cpp \
@@ -54,7 +57,6 @@ SOURCES = \
     DeclContext.cpp \
     Destroyer.cpp \
     Dir.cpp \
-    DQueue.cpp \
     Exception.cpp \
     FileSystem.cpp \
     Formatter.cpp \
@@ -64,7 +66,6 @@ SOURCES = \
     HTTPConnector.cpp  \
     HTTPMessage.cpp \
     Indentor.cpp \
-    IPC.cpp \
     Logger.cpp \
     Memory.cpp \
     Message.cpp \
@@ -84,7 +85,6 @@ SOURCES = \
     String.cpp \
     System.cpp \
     TCPChannel.cpp \
-    Thread.cpp \
     TimeValue.cpp \
     TraceFileHandler.cpp \
     Tracer.cpp \

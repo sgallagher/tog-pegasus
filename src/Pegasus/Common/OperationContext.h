@@ -28,12 +28,14 @@
 
 #ifndef Pegasus_OperationContext_h
 #define Pegasus_OperationContext_h
-
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/IPC.h>
+#include <Pegasus/Common/DQueue.h>
+
+#include <Pegasus/Common/Exception.h>
 #include <Pegasus/Provider/ProviderException.h>
-
+#include <sys/types.h>
 #include <stdio.h>
-
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -47,6 +49,7 @@ PEGASUS_NAMESPACE_BEGIN
 #define CONTEXT_VENDOR           0x00000040
 #define CONTEXT_UID_PRESENT      0x00000080
 #define CONTEXT_UINT32_PRESENT   0x00000100
+#define CONTEXT_OTHER            0x00000200
 
 #define OPERATION_NONE                      0x00000000
 #define OPERATION_LOCAL_ONLY                0x00000001
@@ -55,140 +58,72 @@ PEGASUS_NAMESPACE_BEGIN
 #define OPERATION_DEEP_INHERITANCE          0x00000008
 #define OPERATION_PARTIAL_INSTANCE          0x00000010
 #define OPERATION_REMOTE_ONLY               0x00000020
+#define CONTEXT_COPY_MEMORY                 0x00000040
+#define CONTEXT_DELETE_MEMORY               0x00000080
+#define CONTEXT_POINTER                     0x00000100
 
-void PEGASUS_EXPORT default_serialize(Sint8 *, Uint32 ) throw(BufferTooSmall, NotSupported);
+
+//void PEGASUS_EXPORT default_serialize(Sint8 *, Uint32 ) throw(BufferTooSmall, NotSupported);
 void PEGASUS_EXPORT default_delete(void * data) ;
 void PEGASUS_EXPORT stringize_uid(void *uid, Sint8 **dest, size_t *size) throw (NullPointer, BufferTooSmall);
 void PEGASUS_EXPORT binaryize_uid(Sint8 *uid, void *dest, size_t size) throw(NullPointer, BufferTooSmall);
 
-class PEGASUS_EXPORT OperationContext
+class PEGASUS_EXPORT context
 {
-
    public:
-
-      OperationContext(Uint32 key = CONTEXT_EMPTY, Uint32 flag = OPERATION_LOCAL_ONLY) 
-	 : _flag(flag), _key(key), _uint_val(0), _size(0), _data(NULL)
-      { 
-
-	 _serialize = default_serialize;
-	 _deserialize = (void (*)(void *,unsigned int))default_serialize;
-	 _delete_func = default_delete;
-	 memset(_uid, 0x00, 16); 
-      }
+      context(Uint32 data_size,
+		 void *data, 
+		 void (*del)(void *), 
+		 Uint32 uint_val = 0x00000000,
+		 Uint32 key = CONTEXT_OTHER, 
+		 Uint32 flag = OPERATION_LOCAL_ONLY | CONTEXT_COPY_MEMORY | CONTEXT_DELETE_MEMORY,
+		 Uint8 *uid = 0 );
       
-      OperationContext(Uint32 key, void * uid, size_t size, Uint32 flag = OPERATION_LOCAL_ONLY)
-	 : _flag(flag), _key(key), _uint_val(0), _size(size)
-      { 
-	 if (uid == NULL )
-	    throw NullPointer();
-	 _serialize = default_serialize;
-	 _deserialize = (void (*)(void *,unsigned int))default_serialize;
-	 _delete_func = default_delete;
-
-	 memcpy(_uid, uid, 16); 
-	 _data = ::operator new(_size);
-      }
-
-      ~OperationContext(void)
+      
+      ~context(void);
+      
+      inline Boolean operator == (const Uint32 uint_val) const
       {
-	 if(_data != NULL)
-	    if(_delete_func != NULL)
-	       _delete_func(_data);
-      }
-      
-      Uint32 get_flag(void) { return _flag; }
-      
-
-      void set_flag(Uint32 flag) { _flag = flag; }
-      
-      Uint32 get_key(void) { return _key; }
-
-      void put_data(void (*del)(void *), size_t size, void *data ) throw(NullPointer)
-      {
-	 if(_data != NULL)
-	    if(_delete_func != NULL)
-	       _delete_func(_data);
-
-	 _delete_func = del;
-	 _data = data;
-	 _size = size;
-	 return ;
-      }
-      size_t get_size(void) { return _size; }
-
-      void get_data(void **data, size_t *size) 
-      {  
-	 if(data == NULL || size == NULL)
-	    throw NullPointer();
-	 
-	 *data = _data;
-	 *size = _size;
-	 return;
-	 
-      }
-
-      void copy_data(void **buf, size_t *size) throw(BufferTooSmall, NullPointer)
-      {
-	 if((buf == NULL) || (size == NULL)) 
-	    throw NullPointer() ; 
-	 *buf = ::operator new(_size);
-	 *size = _size;
-	 memcpy(*buf, _data, _size);
-	 return;
-      }
-      
-
-      void get_uid(Uint8 **uid)
-      {
-	 if(uid == NULL)
-	    throw NullPointer();
-	 if(_flag & CONTEXT_UID_PRESENT)
-	    *uid = _uid;
-	 else
-	    *uid = NULL;
-	 return;
-      }
-      
-      void copy_uid(Uint8 **uid)
-      {
-	 if(uid == NULL)
-	    throw NullPointer();
-	 if(_flag & CONTEXT_UID_PRESENT)
-	 {
-	    *uid = new Uint8[16];
-	    memcpy(*uid, _uid, 16);
-	 }
-	 else
-	    *uid = NULL;
-	 return;
-      }
-      
-      inline Boolean operator==(const void *key) const 
-      { 
-	 if(key == NULL)
-	    return false;
-	 
-	 if(_flag & CONTEXT_UID_PRESENT)
-	 {
-	    if ( 0 == memcmp(key, _uid, 16) )
-	       return true;
-	 }
-	 else if (*(Uint32 *)key == _key)
+	 if(_uint_val == uint_val)
 	    return true;
-	 return(false);
-      } 
-
-      inline Boolean operator==(const OperationContext& b) const
-      {
-	 if(_flag & CONTEXT_UID_PRESENT)
-	    return(operator==((const void *)b._uid));
-	 return(operator==((const void *)b._key));
+	 return false;
       }
-
-      inline void set_uint_val(Uint32 val) 
+      
+      inline Boolean operator == (const Uint8 *uid) const
       {
-	 _uint_val = val;
-	 _flag |= CONTEXT_UINT32_PRESENT;
+	 if(uid == 0)
+	    return(false);
+	 if( ! memcmp(_uid, const_cast<Uint8 *>(uid), 16) )
+	    return true;
+	 return false;
+      }
+      
+      inline Boolean operator == (const void *data) const
+      {
+	 if(data == 0 || _data == 0)
+	    return false;
+	 if(! memcmp(_data, const_cast<void *>(data), _size))
+	    return true;
+	 return false;
+      }
+      
+      inline Boolean operator == (const context & c) const
+      {
+	 if( true == (operator == ((const Uint32)c._uint_val)))
+	    if( true == (operator ==((const Uint8 *)c._uid )))
+	       if( true == (operator ==((const void *)c._data)))
+		  return true;
+	 return false;
+      }
+      
+      inline Uint32 get_key(void) 
+      {
+	 return _key;
+      }
+      
+      inline Uint32 get_flag(void)
+      {
+	 return _flag;
       }
       
       inline Uint32 get_uint_val(void)
@@ -196,20 +131,157 @@ class PEGASUS_EXPORT OperationContext
 	 return _uint_val;
       }
       
-
-   private:
-      Uint32 _flag;
-      Uint32 _key;
-      Uint32 _uint_val;
-      size_t _size;
-      Uint8 _uid[16];
+      inline void *get_data(void **buf, Uint32 *size)
+      {
+	 if(buf != 0)
+	    *buf = _data;
+	 if(size != 0)
+	    *size = _size;
+	 return(_data);
+      }
       
+      inline void get_uid(Uint8 *buf)
+      {
+	 if(buf != 0)
+	    memcpy(buf, _uid, 16);
+      }
+      
+   private:
+      size_t _size;
+      Uint32 _uint_val;
+      Uint32 _key;
+      Uint32 _flag;
+      Uint8 _uid[16];
       void *_data;
-
-      void (*_serialize)(Sint8 *dest, Uint32 dest_size) ;
-      void (*_deserialize)(void *dest, Uint32 dest_size) ;
       void (*_delete_func)(void *data);
-};
+      friend class OperationContext;
+} ;
+
+
+class PEGASUS_EXPORT OperationContext
+{
+   public:
+      OperationContext(void)
+	 : _context(true) 
+      {
+      }
+      
+      ~OperationContext(void)
+      {
+
+      }
+      
+      void add_context(Uint32 data_size,
+		       void *data, 
+		       void (*del)(void *), 
+		       Uint32 uint_val = 0x00000000,
+		       Uint32 key = CONTEXT_OTHER, 
+		       Uint32 flag = OPERATION_LOCAL_ONLY | CONTEXT_COPY_MEMORY | CONTEXT_DELETE_MEMORY,
+		       Uint8 *uid = 0 );
+
+      void add_context(context *);
+
+      context *remove_context(void);
+      context *remove_context(Uint32 uint_val);
+      context *remove_context(Uint8 *uid); 
+      context *remove_context(void *data);
+      context *remove_context_key(Uint32 key);
+      
+   private:
+      unlocked_dq<class context> _context;
+} ;
+
+
+inline void OperationContext::add_context(Uint32 data_size,
+					  void *data, 
+					  void (*del)(void *), 
+					  Uint32 uint_val = 0x00000000,
+					  Uint32 key = CONTEXT_OTHER, 
+					  Uint32 flag = OPERATION_LOCAL_ONLY | CONTEXT_COPY_MEMORY | CONTEXT_DELETE_MEMORY,
+					  Uint8 *uid = 0 )
+
+{
+   context *c = new context(data_size, data, del, uint_val, key, flag, uid);
+   _context.insert_first(c);
+   return;
+}
+
+inline void OperationContext::add_context(context *c)
+{
+   if(c != 0)
+      _context.insert_first(c);
+   return;
+}
+
+inline context *OperationContext::remove_context(void)
+{
+   return(_context.remove_first());
+}
+
+inline context *OperationContext::remove_context(Uint32 uint_val)
+{
+   context *c = 0;
+   c = _context.next(c);
+   while(c != 0)
+   {
+      if (c->operator==(uint_val) == true)
+      {
+	 _context.remove(c);
+	 break;
+      }
+      c = _context.next(0);
+   }
+   return c;
+}
+
+inline context *OperationContext::remove_context(Uint8 *uid) 
+{
+   context *c = 0;
+   c = _context.next(c);
+   while(c != 0)
+   {
+      if (c->operator==(uid) == true)
+      {
+	 _context.remove(c);
+	 break;
+      }
+      c = _context.next(0);
+   }
+   return c;
+}
+
+inline context *OperationContext::remove_context(void *data)
+{
+   context *c = 0;
+   c = _context.next(c);
+   while(c != 0)
+   {
+      if (c->operator==(data) == true)
+      {
+	 _context.remove(c);
+	 break;
+      }
+      c = _context.next(0);
+   }
+   return c;
+}
+
+inline context *OperationContext::remove_context_key(Uint32 key)
+{
+   context *c = 0;
+   c = _context.next(c);
+   while(c != 0)
+   {
+      if (c->get_key() == key)
+      {
+	 _context.remove(c);
+	 break;
+      }
+      c = _context.next(0);
+   }
+   return c;
+}
+
 
 
 PEGASUS_NAMESPACE_END

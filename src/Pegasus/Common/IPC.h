@@ -28,6 +28,7 @@
 
 #ifndef Pegasus_IPC_h
 #define Pegasus_IPC_h
+
 #include <Pegasus/Common/Config.h>
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 # include "IPCWindows.h"
@@ -38,7 +39,7 @@
 #else
 # error "Unsupported platform"
 #endif
-//#include <Pegasus/Common/Config.h>
+
 #include <Pegasus/Common/Exception.h>
 
 #define PEG_SEM_READ 1
@@ -258,10 +259,19 @@ class PEGASUS_EXPORT internal_dq {
 
       inline void *remove(void *key)
       {
-	 void *ret = NULL;
+	 void *ret = 0;
+	 if(key == 0)
+	    return ret;
+	 
 	 if(_count > 0)
 	 {
 	    internal_dq *temp = _next;
+	    if(_cur->_rep == key)
+	    {
+	       temp  = _cur;
+	       _cur = _cur->_next;
+	    }
+	    
 	    while ( temp->_isHead == false ) {
 	       if( temp->_rep == key ) {
 		  temp->unlink();
@@ -283,7 +293,11 @@ class PEGASUS_EXPORT internal_dq {
 	    internal_dq *temp = _next;
 	    while(temp->_isHead == false ) {
 	       if(key == temp->_rep)
+	       {
+		  _cur = temp;
 		  return(temp->_rep);
+	       }
+	       
 	       temp = temp->_next;
 	    }
 	 }

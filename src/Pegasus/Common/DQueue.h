@@ -44,32 +44,32 @@ public:
       
       virtual ~unlocked_dq() {  }
 
-      inline virtual void insert_first(L *element) throw(IPCException) 
+      inline virtual void insert_first(L *element) 
       {
 	 Base::insert_first(static_cast<void *>(element));
       }
 
-      inline virtual void insert_last(L *element) throw(IPCException)
+      inline virtual void insert_last(L *element) 
       {
 	 Base::insert_last(static_cast<void *>(element));
       }
       
-      inline virtual void empty_list( void ) throw(IPCException) 
+      inline virtual void empty_list( void ) 
       {
 	 Base::empty_list();
       }
 
-      inline virtual L *remove_first ( void ) throw(IPCException) 
+      inline virtual L *remove_first ( void ) 
       { 
 	 return static_cast<L *>(Base::remove_first());
       }
 
-      inline virtual L *remove_last ( void ) throw(IPCException) 
+      inline virtual L *remove_last ( void ) 
       { 
 	 return static_cast<L *>(Base::remove_last());
       }
       
-      inline virtual L *remove_no_lock(void *key) throw(IPCException)
+      inline virtual L *remove_no_lock(void *key) 
       {
 	 L *ret = static_cast<L *>(Base::next(0));
 	 while(ret != 0)
@@ -81,7 +81,7 @@ public:
 	 return 0;
       }
 
-      inline virtual L *remove(void *key) throw(IPCException)
+      inline virtual L *remove(void *key) 
       {
 	 L *ret = 0;
 	 if( count() > 0 ) 
@@ -90,8 +90,10 @@ public:
 	 }
 	 return(ret);
       }
-
-      inline virtual L *reference(void *key) throw(IPCException)
+      
+      
+      
+      inline virtual L *reference(void *key) 
       {
 	 if(Base::count() > 0 ) 
 	 {
@@ -106,17 +108,40 @@ public:
 	 return(0);
       }
 
-      inline virtual L *next( void * ref) throw(IPCException)
+      inline virtual L *reference(L *key)
+      {
+	 if(Base::count() > 0 ) 
+	 {
+	    L *ret = static_cast<L *>(Base::next(0));
+	    while(ret != 0)
+	    {
+	       if(ret->operator==(key))
+		  return ret;
+	       ret = static_cast<L *>(Base::next(static_cast<void *>(ret)));
+	    }
+	 }
+	 return(0);
+      }
+
+      inline virtual L *remove(L *key)
+      {
+	 L *ret = unlocked_dq::reference(key);
+	 if(ret != 0)
+	    ret =  static_cast<L *>(Base::remove(static_cast<void *>(ret)));
+	 return ret;
+      }
+
+      inline virtual L *next( void * ref) 
       {
 	 return static_cast<L *>(Base::next( ref));
       }
       
-      inline virtual L *prev( void *ref) throw(IPCException)
+      inline virtual L *prev( void *ref) 
       {
 	 return  static_cast<L *>(Base::prev(ref));
       }
 
-      virtual Boolean exists(void *key) throw(IPCException) 
+      virtual Boolean exists(void *key) 
       {
 	 Boolean ret = false;
 	 if(Base::count() > 0)
@@ -227,6 +252,24 @@ template<class L> class PEGASUS_EXPORT DQueue : virtual public unlocked_dq<L>
 	 if( pegasus_thread_self() != _mutex->get_owner())
 	    throw Permission(pegasus_thread_self());
 	 return Base::reference(key);
+      }
+
+      inline virtual L *reference(L *key)
+      {
+	 if( pegasus_thread_self() != _mutex->get_owner())
+	    throw Permission(pegasus_thread_self());
+	 return Base::reference(key);
+      }
+
+      inline virtual L *remove(L *key)
+      {
+	 L *ret = 0;
+	 if( Internal::count() > 0 ) {
+	    _mutex->lock(pegasus_thread_self());
+	    ret = Base::remove(key);
+	    _mutex->unlock() ;
+	 }
+	 return ret;
       }
 
       virtual L *next( void * ref) throw(IPCException)

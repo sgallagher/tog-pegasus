@@ -54,10 +54,12 @@
 #define PEGASUS_HAVE_BOOLEAN
 
 // #define PEGASUS_EXPLICIT_INSTANTIATION
-
-
-
-
-
-
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+#ifndef _REENTRANT
+#define _REENTRANT
+#endif
+#define _THREAD_SAFE
+#include <features.h>
 #endif /* Pegasus_Platform_LINUX_IX86_GNU_h */

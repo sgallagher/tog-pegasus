@@ -90,4 +90,54 @@ void binaryize_uid(Sint8 *uid, void *dest, size_t size) throw(NullPointer, Buffe
 }
 
 
+context::context(Uint32 data_size,
+		 void *data, 
+		 void (*del)(void *), 
+		 Uint32 uint_val = 0x00000000,
+		 Uint32 key = CONTEXT_OTHER, 
+		 Uint32 flag = OPERATION_LOCAL_ONLY | CONTEXT_COPY_MEMORY | CONTEXT_DELETE_MEMORY,
+		 Uint8 *uid = 0 )
+   : _size(data_size), _uint_val(uint_val), _key(key), _flag(flag)
+     
+{
+   if(uid != 0)
+      memcpy(_uid, uid, 16);
+   else
+      memset(_uid, 0x00, 16);
+   
+   if(flag & CONTEXT_POINTER)
+      _data = data;
+   else if (flag & CONTEXT_COPY_MEMORY)
+   {
+      if(data != 0)
+      {
+	 _data = ::operator new(_size);
+	 memcpy(_data, data, _size);
+      }
+      
+   }
+
+   if(flag & CONTEXT_DELETE_MEMORY)
+   {
+      if(del != 0)
+	 _delete_func = del;
+      else 
+	 _delete_func =  default_delete;
+   }
+   
+}
+
+context::~context(void)
+{
+   if(_flag & CONTEXT_DELETE_MEMORY)
+   {
+      if(_delete_func != 0)
+	 _delete_func(_data);
+      else
+	 default_delete(_data);
+   }
+   
+}
+
+
 PEGASUS_NAMESPACE_END

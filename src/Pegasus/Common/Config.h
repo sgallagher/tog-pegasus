@@ -31,13 +31,6 @@
 #ifndef Pegasus_Config_h
 #define Pegasus_Config_h
 
-// Ensure Unix 98, IPCUnix.h comes sometimes too late 
-#if defined (PEGASUS_PLATFORM_LINUX_IX86_GNU)
-#ifndef _GNU_SOURCE
-      #define _GNU_SOURCE
-#endif
-#endif
-
 #include <iostream>
 #include <cstdlib>
 

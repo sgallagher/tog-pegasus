@@ -104,11 +104,11 @@ void AsyncResponseHandler<object_type>::reserve(const Uint32 size)
 {
    _objects->reserve(size);
    // parent will destroy this op context
-   OperationContext *context = new OperationContext();
-   context->set_uint_val(size);
+//   OperationContext *context = new OperationContext();
+//   context->set_uint_val(size);
    // parent can inspect the context and set the total operations value
-   _parent->notify(&_key, context, ASYNC_OPFLAGS_RESERVE, 
-		   ASYNC_OPSTATE_NORMAL, _type);
+   //  _parent->notify(&_key, context, ASYNC_OPFLAGS_RESERVE, 
+// 		   ASYNC_OPSTATE_NORMAL, _type);
 }
 
 

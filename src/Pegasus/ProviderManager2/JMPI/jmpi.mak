@@ -17,13 +17,18 @@ endif
 
 LOCAL_DEFINES = -DPEGASUS_SERVER_INTERNAL -DPEGASUS_INTERNALONLY
 
+ifeq ($(OS_TYPE),vms)
+ VMS_VECTOR = PegasusCreateProviderManager
+endif
+
 LIBRARY = JMPIProviderManager
 
 LIBRARIES = \
-        pegcommon \
-        pegprovider \
-        pegprovidermanager \
-        CMPIProviderManager
+    CMPIProviderManager \
+    pegprovidermanager \
+    pegprovider \
+    pegclient \
+    pegcommon
 
 ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
 LIBRARIES += \

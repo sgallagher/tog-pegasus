@@ -30,6 +30,7 @@
 // Author: Warren Otsuka, Hewlett-Packard Company (warren.otsuka@hp.com)
 //
 // Modified By:  Jenny Yu, Hewlett-Packard Company (jenny.yu@hp.com)
+//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -46,6 +47,8 @@
 #include "ConfigFileDirAix.h"
 #elif PEGASUS_PLATFORM_DARWIN_PPC_GNU
 #include "ConfigFileDirDarwin.h"
+#elif defined (PEGASUS_OS_VMS)
+#include "ConfigFileDirVms.h"
 #else
 /**
     Default file name for the current configuration.

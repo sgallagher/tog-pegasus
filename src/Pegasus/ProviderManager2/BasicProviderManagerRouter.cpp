@@ -31,6 +31,7 @@
 //         Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 // Modified By: Seema Gupta(gseema@in.ibm.com) for PEP135
+//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -81,8 +82,12 @@ public:
         PEGASUS_INDICATION_CALLBACK indicationCallback)
     : _manager(0)
     {
+#if defined (PEGASUS_OS_VMS)
+        _physicalName = FileSystem::buildLibraryFileName(physicalName);
+#else
         _physicalName = ConfigManager::getHomedPath(PEGASUS_DEST_LIB_DIR) +
             String("/") + FileSystem::buildLibraryFileName(physicalName);
+#endif
 
         _logicalName = logicalName;
         _interfaceName = interfaceName;

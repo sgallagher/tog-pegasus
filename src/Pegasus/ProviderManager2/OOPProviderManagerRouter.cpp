@@ -30,7 +30,7 @@
 // Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //         Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //
-// Modified By:
+// Modified By:	Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -51,14 +51,20 @@
 #include <Pegasus/Config/ConfigManager.h>
 
 #if defined (PEGASUS_OS_TYPE_WINDOWS)
-#include <windows.h>  // For CreateProcess()
+# include <windows.h>  // For CreateProcess()
+#elif defined (PEGASUS_OS_OS400)
+# include <unistd.cleinc>
+#elif defined (PEGASUS_OS_VMS)
+# include <perror.h>
+# include <climsgdef.h>
+# include <stdio.h>
+# include <stdlib.h>
+# include <string.h>
+# include <processes.h>
+# include <unixio.h>
 #else
-# if defined (PEGASUS_OS_OS400)
-#  include <unistd.cleinc>
-# else
-#  include <unistd.h>  // For fork(), exec(), and _exit()
-# endif
-#include <errno.h>
+# include <unistd.h>  // For fork(), exec(), and _exit()
+# include <errno.h>
 #endif
 
 #include "OOPProviderManagerRouter.h"
@@ -363,6 +369,69 @@ void ProviderAgentContainer::_startAgentProcess()
 
     CloseHandle(piProcInfo.hProcess);
     CloseHandle(piProcInfo.hThread);
+
+#elif defined (PEGASUS_OS_VMS)
+
+        //
+        //  fork and exec the child process
+        //
+        int status;
+
+        status = vfork ();
+        switch (status)
+        {
+          case 0:
+            try
+            {
+              //
+              // Execute the cimprovagt program
+              //
+              String agentCommandPath =
+                  ConfigManager::getHomedPath(PEGASUS_PROVIDER_AGENT_PROC_NAME);
+              CString agentCommandPathCString = agentCommandPath.getCString();
+
+              char readHandle[32];
+              char writeHandle[32];
+              pipeToAgent->exportReadHandle(readHandle);
+              pipeFromAgent->exportWriteHandle(writeHandle);
+
+              if ((status = execl(agentCommandPathCString, agentCommandPathCString,
+                  readHandle, writeHandle,
+                  (const char*)_moduleName.getCString(), (char*)0)) == -1);
+              {
+                // If we're still here, there was an error
+                Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                    "execl() failed.  errno = %d.", errno);
+                _exit(1);
+              }
+              break;
+            }
+            catch (...)
+            {
+              // There's not much we can do here in no man's land
+              try
+              {
+                PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                    "Caught exception before calling execl().");
+              }
+              catch (...) 
+              {
+              }
+             _exit(1);
+            }
+            break;
+
+          case -1:
+            Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+                "fork() failed.  errno = %d.", errno);
+            PEG_METHOD_EXIT();
+            throw Exception(MessageLoaderParms(
+                "ProviderManager.OOPProviderManagerRouter.CIMPROVAGT_START_FAILED",
+                "Failed to start cimprovagt \"$0\".",
+                _moduleName));
+            break;
+
+          default:
 #else
     pid_t pid = fork();
     if (pid < 0)
@@ -451,6 +520,13 @@ void ProviderAgentContainer::_startAgentProcess()
     _pipeFromAgent.reset(pipeFromAgent.release());
 
     PEG_METHOD_EXIT();
+
+#if defined (PEGASUS_OS_VMS)
+    //
+    // Denote end of switch
+    //
+    }
+#endif
 }
 
 // Note: Caller must lock _agentMutex

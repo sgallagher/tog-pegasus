@@ -30,6 +30,7 @@
 // Author:      Adrian Schuur, schuur@de.ibm.com
 //
 // Modified By:
+//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -111,8 +112,12 @@ extern "C" {
 
    CMPIDateTime *newDateTime() {
       struct timeval tv;
+#if defined (PEGASUS_OS_VMS)
+      gettimeofday(&tv,NULL);
+#else
       struct timezone tz;
       gettimeofday(&tv,&tz);
+#endif
       return (CMPIDateTime*)new CMPI_Object(makeCIMDateTime(tv.tv_sec,tv.tv_usec,0));
    }
 

@@ -32,6 +32,7 @@
 // Modified By: Sushma Fernandes, 
 //                 Hewlett-Packard Company (sushma_fernandes@hp.com)
 //            : Yi Zhou Hewlett-Packard Company (yi_zhou@hp.com)
+//		Sean Keenan (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -63,14 +64,18 @@ typedef CIMHandler* (*CreateHandlerFunc)();
 
 CIMHandler* HandlerTable::loadHandler(const String& handlerId)
 {
-    String fileName = ConfigManager::getHomedPath(PEGASUS_DEST_LIB_DIR) +
-        String("/") + FileSystem::buildLibraryFileName(handlerId);
+#if defined (PEGASUS_OS_VMS)
+    String fileName = FileSystem::buildLibraryFileName(handlerId);
+#else
+    String fileName = ConfigManager::getHomedPath((PEGASUS_DEST_LIB_DIR) +
+        String("/") + FileSystem::buildLibraryFileName(handlerId));
+#endif
 
     DynamicLibraryHandle libraryHandle = 
 	System::loadDynamicLibrary(fileName.getCString());
 
     if (!libraryHandle) {
-#ifdef PEGASUS_OS_TYPE_WINDOWS
+#if defined(PEGASUS_OS_TYPE_WINDOWS) || defined(PEGASUS_OS_VMS)
 	throw DynamicLoadFailed(fileName);
 #else
         String errorMsg = System::dynamicLoadError();

@@ -32,6 +32,7 @@
 // Modified By:  Jenny Yu, Hewlett-Packard Company (jenny.yu@hp.com)
 //               Heather Sterling, IBM (hsterl@us.ibm.com)
 //               Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//               Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -44,6 +45,8 @@
 #include "DefaultPropertyTableHpux.h"
 #elif defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
 #include "DefaultPropertyTableOS400.h"
+#elif defined (PEGASUS_OS_VMS)
+#include "DefaultPropertyTableVms.h"
 #else
     {"httpPort", "5988", IS_STATIC, 0, 0, IS_VISIBLE},
     {"httpsPort", "5989", IS_STATIC, 0, 0, IS_VISIBLE},

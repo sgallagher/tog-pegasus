@@ -30,6 +30,7 @@
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -138,8 +139,10 @@ int main(int argc, char** argv)
 
     // Use "bin" directory for Windows, to be consistent with the default
     // providerDir value in Config/ProviderDirPropertyOwner.cpp.
-#ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+#if defined (PEGASUS_PLATFORM_WIN32_IX86_MSVC)
     fileName=String(getenv("PEGASUS_HOME"))+String("/bin/")+FILE_NAME;
+#elif defined (PEGASUS_OS_VMS)
+    fileName= FILE_NAME;
 #else
     fileName=String(getenv("PEGASUS_HOME"))+String("/lib/")+FILE_NAME;
 #endif

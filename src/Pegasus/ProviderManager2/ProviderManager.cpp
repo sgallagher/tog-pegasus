@@ -30,6 +30,7 @@
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//         Sean Keenan, Hewlett-Packard Company <sean.keenan@hp.com>
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -51,12 +52,30 @@ String ProviderManager::_resolvePhysicalName(String physicalName)
 {
     String fileName = FileSystem::buildLibraryFileName(physicalName);
 
+#if defined(PEGASUS_OS_VMS)
+    String temp;
+
+    temp =  fileName + String(".exe");
+
+    temp =  FileSystem::getAbsoluteFileName(
+                        ConfigManager::getHomedPath(
+                        getenv("PEGASUS_SYSSHAREA")), temp);
+    if (temp == String::EMPTY)
+    {
+      return temp;
+    }
+    else
+    {
+      return fileName;
+    }
+#else
     fileName = FileSystem::getAbsoluteFileName(
         ConfigManager::getHomedPath(
             ConfigManager::getInstance()->getCurrentValue("providerDir")),
         fileName);
 
     return fileName;
+#endif
 }
 
 void ProviderManager::setIndicationCallback(

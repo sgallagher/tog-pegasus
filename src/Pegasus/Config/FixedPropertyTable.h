@@ -30,6 +30,7 @@
 // Author: Warren Otsuka, Hewlett-Packard Company (warren.otsuka@hp.com)
 //
 // Modified By:  Jenny Yu, Hewlett-Packard Company (jenny.yu@hp.com)
+//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -44,6 +45,8 @@
 #include "FixedPropertyTableOS400.h"
 #elif defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
 #include "FixedPropertyTableAix.h"
+#elif defined (PEGASUS_OS_VMS)
+#include "FixedPropertyTableVms.h"
 #else
     {"bogus", "MyBogusValue"} // Remove this line if others are added
 #endif

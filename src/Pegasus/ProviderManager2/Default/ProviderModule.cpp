@@ -35,6 +35,7 @@
 //     Mike Day, IBM (mdday@us.ibm.com)
 //     Adrian Schuur, IBM (schuur@de.ibm.com)
 //              Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
+//         Sean Keenan, Hewlett-Packard Company <sean.keenan@hp.com>
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -67,6 +68,8 @@ ProviderModule::ProviderModule(const String & fileName, const String & interface
         _interfaceFileName=interfaceName+String("Adapter");
         #elif defined(PEGASUS_OS_DARWIN)
         _interfaceFileName= String("lib")+interfaceName+String("Adapter.dylib");           
+        #elif defined(PEGASUS_OS_VMS)
+        _interfaceFileName= String("lib")+interfaceName+String("Adapter.exe");
         #else
         _interfaceFileName= String("lib")+interfaceName+String("Adapter.so");
         #endif
@@ -105,6 +108,8 @@ ProviderModule::ProviderModule(const String & fileName,
             _interfaceFileName = _interfaceName;
             #elif defined(PEGASUS_OS_DARWIN)
             _interfaceFileName = String("lib") + _interfaceName + String(".dylib");
+            #elif defined(PEGASUS_OS_VMS)
+            _interfaceFileName = String("lib") + _interfaceName + String(".exe");
             #else
             _interfaceFileName = String("lib") + _interfaceName + String(".so");
             #endif

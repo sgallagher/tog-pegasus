@@ -1040,9 +1040,9 @@ int main(int argc, char** argv)
     {
         cerr << argv[0] << " Shared Namespace test Caught General Exception:" << endl;
     }
-    /****************************************************************
+    //****************************************************************
     // Test the characteristics of the CIM_ObjectManager Class and Instances
-    //***************************************************************/
+    //****************************************************************
     try
     {
     // Test the CIM_ObjectManager Object

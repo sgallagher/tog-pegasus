@@ -30,6 +30,7 @@
 // Author: Bob Blair (bblair@bmc.com)
 //
 // Modified By:
+//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -65,7 +66,7 @@ parser::pop_statebuff() {
 //-------------------------------------------------------------------
 int 
 parser::setInputBufferFromName(const String &filename) {
-#ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
+#if defined PEGASUS_PLATFORM_OS400_ISERIES_IBM || defined (PEGASUS_OS_VMS)
   // 't' not supported on OS/400
   FILE *f = fopen(filename.getCString(),"r");
 #else

@@ -206,6 +206,41 @@ public:
 
     void handleModifyClassRequest(CIMModifyClassRequestMessage* request);
 
+    void handleModifyInstanceRequest(CIMModifyInstanceRequestMessage* request);
+
+    void handleEnumerateClassesRequest(
+	CIMEnumerateClassesRequestMessage* request);
+
+    void handleEnumerateClassNamesRequest(
+	CIMEnumerateClassNamesRequestMessage* request);
+
+    void handleEnumerateInstancesRequest(
+	CIMEnumerateInstancesRequestMessage* request);
+
+    void handleEnumerateInstanceNamesRequest(
+	CIMEnumerateInstanceNamesRequestMessage* request);
+
+    void handleAssociatorsRequest(
+	CIMAssociatorsRequestMessage* request);
+
+    void handleAssociatorNamesRequest(
+	CIMAssociatorNamesRequestMessage* request);
+
+    void handleReferencesRequest(
+	CIMReferencesRequestMessage* request);
+
+    void handleReferenceNamesRequest(
+	CIMReferenceNamesRequestMessage* request);
+
+    void handleGetQualifierRequest(
+	CIMGetQualifierRequestMessage* request);
+
+    void handleSetQualifierRequest(
+	CIMSetQualifierRequestMessage* request);
+
+    void handleDeleteQualifierRequest(
+	CIMDeleteQualifierRequestMessage* request);
+
 protected:
 
     CIMProvider* _lookupProviderForClass(

@@ -143,6 +143,10 @@ void ArrayRep<T>::dec(const ArrayRep<T>* rep_)
     if (rep && --rep->ref == 0)
     {
 	Destroy(rep->data(), rep->size);
+
+	// ATTN: take this out later:
+	memset(rep->data(), 0xaa, rep->size * sizeof(T));
+
 	operator delete(rep);
     }
 }

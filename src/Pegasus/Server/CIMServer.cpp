@@ -129,32 +129,37 @@ public:
     void handleGetInstanceResponse(
 	CIMGetInstanceResponseMessage* response);
 
-    //STUB{
-    void handleEnumerateClassNamesRequest(
-	XmlParser& parser, 
-	const String& messageId,
-	const String& nameSpace);
-    //STUB}
-
     void handleReferenceNamesRequest(
 	XmlParser& parser, 
 	const String& messageId,
 	const String& nameSpace);
+
+    void handleReferenceNamesResponse(
+	CIMReferenceNamesResponseMessage* response);
 
     void handleReferencesRequest(
 	XmlParser& parser, 
 	const String& messageId,
 	const String& nameSpace);
 
+    void handleReferencesResponse(
+	CIMReferencesResponseMessage* response);
+
     void handleAssociatorNamesRequest(
 	XmlParser& parser, 
 	const String& messageId,
 	const String& nameSpace);
 
+    void handleAssociatorNamesResponse(
+	CIMAssociatorNamesResponseMessage* response);
+
     void handleAssociatorsRequest(
 	XmlParser& parser, 
 	const String& messageId,
 	const String& nameSpace);
+
+    void handleAssociatorsResponse(
+	CIMAssociatorsResponseMessage* response);
 
     void handleCreateInstanceRequest(
 	XmlParser& parser, 
@@ -169,32 +174,34 @@ public:
 	const String& messageId,
 	const String& nameSpace);
 
+    void handleEnumerateInstanceNamesResponse(
+	CIMEnumerateInstanceNamesResponseMessage* response);
+
     void handleDeleteQualifierRequest(
 	XmlParser& parser, 
 	const String& messageId,
 	const String& nameSpace);
+
+    void handleDeleteQualifierResponse(
+	CIMDeleteQualifierResponseMessage* response);
 
     void handleGetQualifierRequest(
 	XmlParser& parser, 
 	const String& messageId,
 	const String& nameSpace);
 
+    void handleGetQualifierResponse(
+	CIMGetQualifierResponseMessage* response);
+
     void handleSetQualifierRequest(
 	XmlParser& parser, 
 	const String& messageId,
 	const String& nameSpace);
 
+    void handleSetQualifierResponse(
+	CIMSetQualifierResponseMessage* response);
+
     void handleEnumerateQualifiersRequest(
-	XmlParser& parser, 
-	const String& messageId,
-	const String& nameSpace);
-
-    void handleEnumerateClassesRequest(
-	XmlParser& parser, 
-	const String& messageId,
-	const String& nameSpace);
-
-    void handleEnumerateInstancesRequest(
 	XmlParser& parser, 
 	const String& messageId,
 	const String& nameSpace);
@@ -215,6 +222,30 @@ public:
     void handleModifyClassResponse(
 	CIMModifyClassResponseMessage* response);
 
+    void handleModifyInstanceRequest(
+	XmlParser& parser, 
+	const String& messageId,
+	const String& nameSpace);
+
+    void handleModifyInstanceResponse(
+	CIMModifyInstanceResponseMessage* response);
+
+    void handleEnumerateClassesRequest(
+	XmlParser& parser, 
+	const String& messageId,
+	const String& nameSpace);
+
+    void handleEnumerateClassesResponse(
+	CIMEnumerateClassesResponseMessage* response);
+
+    void handleEnumerateClassNamesRequest(
+	XmlParser& parser, 
+	const String& messageId,
+	const String& nameSpace);
+
+    void handleEnumerateClassNamesResponse(
+	CIMEnumerateClassNamesResponseMessage* response);
+
     void handleDeleteClassRequest(
 	XmlParser& parser, 
 	const String& messageId,
@@ -230,6 +261,14 @@ public:
 
     void handleDeleteInstanceResponse(
 	CIMDeleteInstanceResponseMessage* response);
+
+    void handleEnumerateInstancesRequest(
+	XmlParser& parser, 
+	const String& messageId,
+	const String& nameSpace);
+
+    void handleEnumerateInstancesResponse(
+	CIMEnumerateInstancesResponseMessage* response);
 
     void handleGetPropertyRequest(
 	XmlParser& parser, 
@@ -274,6 +313,7 @@ void ClientConnection::sendMessage (Array<Sint8>& message)
 	message.remove(message.size() - 1);
 
     }
+
     if (_messageLogTrace)
     {
 	message.append('\0');
@@ -486,14 +526,14 @@ int ClientConnection::handleMethodCall()
     // Dispatch the method:
     //--------------------------------------------------------------------------
 
+PEGASUS_OUT(iMethodCallName);
+
     if (CompareNoCase(iMethodCallName, "GetClass") == 0)
 	handleGetClassRequest(parser, messageId, nameSpace);
     else if (CompareNoCase(iMethodCallName, "GetInstance") == 0)
 	handleGetInstanceRequest(parser, messageId, nameSpace);
-    //STUB{
     else if (CompareNoCase(iMethodCallName, "EnumerateClassNames") == 0)
 	handleEnumerateClassNamesRequest(parser, messageId, nameSpace);
-    //STUB}
     else if (CompareNoCase(iMethodCallName, "References") == 0)
 	handleReferencesRequest(parser, messageId, nameSpace);
     else if (CompareNoCase(iMethodCallName, "ReferenceNames") == 0)
@@ -516,12 +556,16 @@ int ClientConnection::handleMethodCall()
 	handleEnumerateQualifiersRequest(parser, messageId, nameSpace);
     else if (CompareNoCase(iMethodCallName, "EnumerateClasses") == 0)
 	handleEnumerateClassesRequest(parser, messageId, nameSpace);
+    else if (CompareNoCase(iMethodCallName, "EnumerateClassNames") == 0)
+	handleEnumerateClassNamesRequest(parser, messageId, nameSpace);
     else if (CompareNoCase(iMethodCallName, "EnumerateInstances") == 0)
 	handleEnumerateInstancesRequest(parser, messageId, nameSpace);
     else if (CompareNoCase(iMethodCallName, "CreateClass") == 0)
 	handleCreateClassRequest(parser, messageId, nameSpace);
     else if (CompareNoCase(iMethodCallName, "ModifyClass") == 0)
 	handleModifyClassRequest(parser, messageId, nameSpace);
+    else if (CompareNoCase(iMethodCallName, "ModifyInstance") == 0)
+	handleModifyInstanceRequest(parser, messageId, nameSpace);
     else if (CompareNoCase(iMethodCallName, "DeleteClass") == 0)
 	handleDeleteClassRequest(parser, messageId, nameSpace);
     else if (CompareNoCase(iMethodCallName, "DeleteInstance") == 0)
@@ -562,7 +606,8 @@ void ClientConnection::handleEnqueue()
     if (!response)
 	return;
 
-    // response->print(cout);
+    if (getenv("PEGASUS_TRACE"))
+	response->print(cout);
 
     switch (response->getType())
     {
@@ -598,21 +643,79 @@ void ClientConnection::handleEnqueue()
 	    break;
 
 	case CIM_MODIFY_INSTANCE_RESPONSE_MESSAGE:
+	    handleModifyInstanceResponse(
+		(CIMModifyInstanceResponseMessage*)response);
+	    break;
+
 	case CIM_ENUMERATE_CLASSES_RESPONSE_MESSAGE:
+	    handleEnumerateClassesResponse(
+		(CIMEnumerateClassesResponseMessage*)response);
+	    break;
+
 	case CIM_ENUMERATE_CLASS_NAMES_RESPONSE_MESSAGE:
+	    handleEnumerateClassNamesResponse(
+		(CIMEnumerateClassNamesResponseMessage*)response);
+	    break;
+
 	case CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE:
+	    handleEnumerateInstancesResponse(
+		(CIMEnumerateInstancesResponseMessage*)response);
+	    break;
+
 	case CIM_ENUMERATE_INSTANCE_NAMES_RESPONSE_MESSAGE:
+	    handleEnumerateInstanceNamesResponse(
+		(CIMEnumerateInstanceNamesResponseMessage*)response);
+	    break;
+
+	// ATTN: implement this!
 	case CIM_EXEC_QUERY_RESPONSE_MESSAGE:
+	    break;
+
 	case CIM_ASSOCIATORS_RESPONSE_MESSAGE:
+	    handleAssociatorsResponse((CIMAssociatorsResponseMessage*)response);
+	    break;
+
 	case CIM_ASSOCIATOR_NAMES_RESPONSE_MESSAGE:
+	    handleAssociatorNamesResponse(
+		(CIMAssociatorNamesResponseMessage*)response);
+	    break;
+
 	case CIM_REFERENCES_RESPONSE_MESSAGE:
+	    handleReferencesResponse((CIMReferencesResponseMessage*)response);
+	    break;
+
 	case CIM_REFERENCE_NAMES_RESPONSE_MESSAGE:
+	    handleReferenceNamesResponse(
+		(CIMReferenceNamesResponseMessage*)response);
+	    break;
+
+	// ATTN: implement this!
 	case CIM_GET_PROPERTY_RESPONSE_MESSAGE:
+	    break;
+
+	// ATTN: implement this!
 	case CIM_SET_PROPERTY_RESPONSE_MESSAGE:
+	    break;
+
 	case CIM_GET_QUALIFIER_RESPONSE_MESSAGE:
+	    handleGetQualifierResponse(
+		(CIMGetQualifierResponseMessage*)response);
+	    break;
+
 	case CIM_SET_QUALIFIER_RESPONSE_MESSAGE:
+	    handleSetQualifierResponse(
+		(CIMSetQualifierResponseMessage*)response);
+	    break;
+
 	case CIM_DELETE_QUALIFIER_RESPONSE_MESSAGE:
+	    handleDeleteQualifierResponse(
+		(CIMDeleteQualifierResponseMessage*)response);
+	    break;
+
 	case CIM_ENUMERATE_QUALIFIERS_RESPONSE_MESSAGE:
+	    break;
+
+	// ATTN: implement this:
 	case CIM_INVOKE_METHOD_RESPONSE_MESSAGE:
 	    break;
     }
@@ -642,325 +745,6 @@ void ClientConnection::sendError(
     char* tmp = m->errorDescription.allocateCString();
     sendError(m->messageId, methodName, m->errorCode, tmp);
     delete [] tmp;
-}
-
-//STUB{
-void ClientConnection::handleEnumerateClassNamesRequest(
-    XmlParser& parser, 
-    const String& messageId,
-    const String& nameSpace)
-{
-    //--------------------------------------------------------------------------
-    // <!ELEMENT IPARAMVALUE (VALUE|VALUE.ARRAY|VALUE.REFERENCE
-    //     |INSTANCENAME|CLASSNAME|QUALIFIER.DECLARATION
-    //     |CLASS|INSTANCE|VALUE.NAMEDINSTANCE)?>
-    // <!ATTLIST IPARAMVALUE %CIMName;>
-    //--------------------------------------------------------------------------
-
-    String className;
-    Boolean deepInheritance = false;
-
-    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
-    {
-	if (CompareNoCase(name, "ClassName") == 0)
-	    XmlReader::getClassNameElement(parser, className, true);
-	else if (CompareNoCase(name, "DeepInheritance") == 0)
-	    XmlReader::getBooleanValueElement(parser, deepInheritance, true);
-
-	XmlReader::expectEndTag(parser, "IPARAMVALUE");
-    }
-
-    Array<String> classNames;
-    
-    try
-    {
-	classNames = _dispatcher->enumerateClassNames(
-	    nameSpace,
-	    className,
-	    deepInheritance);
-    }
-    catch (CIMException& e)
-    {
-	sendError(messageId, "EnumerateClassNames", 
-	    e.getCode(), CIMStatusCodeToString(e.getCode()));
-	return;
-    }
-    catch (Exception&)
-    {
-	sendError(messageId, "EnumerateClassNames", CIM_ERR_FAILED, 
-	    CIMStatusCodeToString(CIM_ERR_FAILED));
-	return;
-    }
-
-    Array<Sint8> body;
-
-    for (Uint32 i = 0; i < classNames.size(); i++)
-	XmlWriter::appendClassNameElement(body, classNames[i]);
-
-    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
-	"EnumerateClassNames", messageId, body);
-
-    sendMessage(message);
-}
-//STUB}
-
-void ClientConnection::handleReferencesRequest(
-    XmlParser& parser, 
-    const String& messageId,
-    const String& nameSpace)
-{
-    // -- Extract the parameters:
-
-    CIMReference objectName;
-    String resultClass;
-    String role;
-    Boolean includeQualifiers = false;
-    Boolean includeClassOrigin = false;
-    Array<String> propertyList;
-
-    // ATTN-B: handle the property list!
-
-    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
-    {
-	if (CompareNoCase(name, "ObjectName") == 0)
-	{
-	    XmlReader::getObjectNameElement(parser, objectName);
-	}
-	else if (CompareNoCase(name, "ResultClass") == 0)
-	{
-	    XmlReader::getClassNameElement(parser, resultClass, true);
-	}
-	else if (CompareNoCase(name, "Role") == 0)
-	{
-	    XmlReader::getStringValueElement(parser, role, true);
-	}
-	else if (CompareNoCase(name, "IncludeQualifiers") == 0)
-	{
-	    XmlReader::getBooleanValueElement(parser, includeQualifiers, true);
-	}
-	else if (CompareNoCase(name, "IncludeClassOrigin") == 0)
-	{
-	    XmlReader::getBooleanValueElement(parser, includeClassOrigin, true);
-	}
-
-	XmlReader::expectEndTag(parser, "IPARAMVALUE");
-    }
-
-    Array<CIMObjectWithPath> objectWithPathArray;
-    
-    try
-    {
-	objectWithPathArray = _dispatcher->references(
-	    nameSpace,
-	    objectName,
-	    resultClass,
-	    role,
-	    includeQualifiers,
-	    includeClassOrigin,
-	    propertyList);
-    }
-    catch (CIMException& e)
-    {
-	sendError(messageId, "References", 
-	    e.getCode(), CIMStatusCodeToString(e.getCode()));
-	return;
-    }
-    catch (Exception&)
-    {
-	sendError(messageId, "References", CIM_ERR_FAILED, 
-	    CIMStatusCodeToString(CIM_ERR_FAILED));
-	return;
-    }
-
-    Array<Sint8> body;
-
-    for (Uint32 i = 0; i < objectWithPathArray.size(); i++)
-	objectWithPathArray[i].toXml(body);
-
-    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
-	"References", messageId, body);
-
-    sendMessage(message);
-}
-
-void ClientConnection::handleEnumerateInstanceNamesRequest(
-    XmlParser& parser, 
-    const String& messageId,
-    const String& nameSpace)
-{
-    //--------------------------------------------------------------------------
-    // <!ELEMENT IPARAMVALUE (VALUE|VALUE.ARRAY|VALUE.REFERENCE
-    //     |INSTANCENAME|CLASSNAME|QUALIFIER.DECLARATION
-    //     |CLASS|INSTANCE|VALUE.NAMEDINSTANCE)?>
-    // <!ATTLIST IPARAMVALUE %CIMName;>
-    //--------------------------------------------------------------------------
-
-    String className;
-
-    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
-    {
-	if (CompareNoCase(name, "ClassName") == 0)
-	    XmlReader::getClassNameElement(parser, className, true);
-
-	XmlReader::expectEndTag(parser, "IPARAMVALUE");
-    }
-
-    Array<CIMReference> instanceNames;
-    
-    try
-    {
-	instanceNames = _dispatcher->enumerateInstanceNames(
-	    nameSpace,
-	    className);
-    }
-    catch (CIMException& e)
-    {
-	sendError(messageId, "EnumerateInstanceNames", 
-	    e.getCode(), CIMStatusCodeToString(e.getCode()));
-	return;
-    }
-    catch (Exception&)
-    {
-	sendError(messageId, "EnumerateInstanceNames", CIM_ERR_FAILED, 
-	    CIMStatusCodeToString(CIM_ERR_FAILED));
-	return;
-    }
-
-    Array<Sint8> body;
-
-    for (Uint32 i = 0; i < instanceNames.size(); i++)
-	XmlWriter::appendInstanceNameElement(body, instanceNames[i]);
-
-    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
-	"EnumerateInstanceNames", messageId, body);
-
-    sendMessage(message);
-}
-
-void ClientConnection::handleDeleteQualifierRequest(
-    XmlParser& parser, 
-    const String& messageId,
-    const String& nameSpace)
-{
-    String qualifierName;
-
-    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
-    {
-	if (CompareNoCase(name, "QualifierName") == 0)
-	    XmlReader::getClassNameElement(parser, qualifierName, true);
-
-	XmlReader::expectEndTag(parser, "IPARAMVALUE");
-    }
-
-    try
-    {
-	_dispatcher->deleteQualifier(nameSpace, qualifierName);
-    }
-    catch (CIMException& e)
-    {
-	sendError(messageId, "DeleteQualifier", 
-	    e.getCode(), CIMStatusCodeToString(e.getCode()));
-	return;
-    }
-    catch (Exception&)
-    {
-	sendError(messageId, "DeleteQualifier", CIM_ERR_FAILED, 
-	    CIMStatusCodeToString(CIM_ERR_FAILED));
-	return;
-    }
-
-    Array<Sint8> body;
-
-    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
-	"DeleteQualifier", messageId, body);
-
-    sendMessage(message);
-}
-
-void ClientConnection::handleGetQualifierRequest(
-    XmlParser& parser, 
-    const String& messageId,
-    const String& nameSpace)
-{
-    String qualifierName;
-    Boolean deepInheritance = false;
-
-    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
-    {
-	if (CompareNoCase(name, "QualifierName") == 0)
-	    XmlReader::getClassNameElement(parser, qualifierName, true);
-
-	XmlReader::expectEndTag(parser, "IPARAMVALUE");
-    }
-
-    CIMQualifierDecl qualifierDecl;
-    
-    try
-    {
-	qualifierDecl = _dispatcher->getQualifier(nameSpace, qualifierName);
-    }
-    catch (CIMException& e)
-    {
-	sendError(messageId, "GetQualifier", 
-	    e.getCode(), CIMStatusCodeToString(e.getCode()));
-	return;
-    }
-    catch (Exception&)
-    {
-	sendError(messageId, "GetQualifier", CIM_ERR_FAILED, 
-	    CIMStatusCodeToString(CIM_ERR_FAILED));
-	return;
-    }
-
-    Array<Sint8> body;
-    qualifierDecl.toXml(body);
-
-    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
-	"GetQualifier", messageId, body);
-
-    sendMessage(message);
-}
-
-void ClientConnection::handleSetQualifierRequest(
-    XmlParser& parser, 
-    const String& messageId,
-    const String& nameSpace)
-{
-    CIMQualifierDecl qualifierDecl;
-
-    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
-    {
-	if (CompareNoCase(name, "QualifierDeclaration") == 0)
-	    XmlReader::getQualifierDeclElement(parser, qualifierDecl);
-
-	XmlReader::expectEndTag(parser, "IPARAMVALUE");
-    }
-
-    Array<String> classNames;
-    
-    try
-    {
-	_dispatcher->setQualifier(nameSpace, qualifierDecl);
-    }
-    catch (CIMException& e)
-    {
-	sendError(messageId, "SetQualifier", 
-	    e.getCode(), CIMStatusCodeToString(e.getCode()));
-	return;
-    }
-    catch (Exception&)
-    {
-	sendError(messageId, "SetQualifier", CIM_ERR_FAILED, 
-	    CIMStatusCodeToString(CIM_ERR_FAILED));
-	return;
-    }
-
-    Array<Sint8> body;
-
-    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
-	"SetQualifier", messageId, body);
-
-    sendMessage(message);
 }
 
 void ClientConnection::handleEnumerateQualifiersRequest(
@@ -997,148 +781,6 @@ void ClientConnection::handleEnumerateQualifiersRequest(
 
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"EnumerateQualifiers", messageId, body);
-
-    sendMessage(message);
-}
-
-void ClientConnection::handleEnumerateClassesRequest(
-    XmlParser& parser, 
-    const String& messageId,
-    const String& nameSpace)
-{
-    //--------------------------------------------------------------------------
-    // <!ELEMENT IPARAMVALUE (VALUE|VALUE.ARRAY|VALUE.REFERENCE
-    //     |INSTANCENAME|CLASSNAME|QUALIFIER.DECLARATION
-    //     |CLASS|INSTANCE|VALUE.NAMEDINSTANCE)?>
-    // <!ATTLIST IPARAMVALUE %CIMName;>
-    //--------------------------------------------------------------------------
-
-    String className;
-    Boolean deepInheritance = false;
-    Boolean localOnly = true;
-    Boolean includeQualifiers = true;
-    Boolean includeClassOrigin = false;
-
-    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
-    {
-	if (CompareNoCase(name, "ClassName") == 0)
-	    XmlReader::getClassNameElement(parser, className, true);
-	else if (CompareNoCase(name, "DeepInheritance") == 0)
-	    XmlReader::getBooleanValueElement(parser, deepInheritance, true);
-	else if (CompareNoCase(name, "LocalOnly") == 0)
-	    XmlReader::getBooleanValueElement(parser, localOnly, true);
-	else if (CompareNoCase(name, "IncludeQualifiers") == 0)
-	    XmlReader::getBooleanValueElement(parser, includeQualifiers, true);
-	else if (CompareNoCase(name, "IncludeClassOrigin") == 0)
-	    XmlReader::getBooleanValueElement(parser, includeClassOrigin, true);
-
-	XmlReader::expectEndTag(parser, "IPARAMVALUE");
-    }
-
-    Array<CIMClass> classDecls;
-    
-    try
-    {
-	classDecls = _dispatcher->enumerateClasses(
-	    nameSpace,
-	    className,
-	    deepInheritance,
-	    localOnly,
-	    includeQualifiers,
-	    includeClassOrigin);
-    }
-    catch (CIMException& e)
-    {
-	sendError(messageId, "EnumerateClasses", 
-	    e.getCode(), CIMStatusCodeToString(e.getCode()));
-	return;
-    }
-    catch (Exception&)
-    {
-	sendError(messageId, "EnumerateClasses", CIM_ERR_FAILED, 
-	    CIMStatusCodeToString(CIM_ERR_FAILED));
-	return;
-    }
-
-    Array<Sint8> body;
-
-    for (Uint32 i = 0; i < classDecls.size(); i++)
-	classDecls[i].toXml(body);
-
-    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
-	"EnumerateClasses", messageId, body);
-
-    sendMessage(message);
-}
-
-void ClientConnection::handleEnumerateInstancesRequest(
-    XmlParser& parser, 
-    const String& messageId,
-    const String& nameSpace)
-{
-    //--------------------------------------------------------------------------
-    // <!ELEMENT IPARAMVALUE (VALUE|VALUE.ARRAY|VALUE.REFERENCE
-    //     |INSTANCENAME|CLASSNAME|QUALIFIER.DECLARATION
-    //     |CLASS|INSTANCE|VALUE.NAMEDINSTANCE)?>
-    // <!ATTLIST IPARAMVALUE %CIMName;>
-    //--------------------------------------------------------------------------
-
-    String className;
-    Boolean deepInheritance = false;
-    Boolean localOnly = true;
-    Boolean includeQualifiers = true;
-    Boolean includeClassOrigin = false;
-    Array<String> propertyList = EmptyStringArray();
-
-    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
-    {
-	if (CompareNoCase(name, "ClassName") == 0)
-	    XmlReader::getClassNameElement(parser, className, true);
-	else if (CompareNoCase(name, "DeepInheritance") == 0)
-	    XmlReader::getBooleanValueElement(parser, deepInheritance, true);
-	else if (CompareNoCase(name, "LocalOnly") == 0)
-	    XmlReader::getBooleanValueElement(parser, localOnly, true);
-	else if (CompareNoCase(name, "IncludeQualifiers") == 0)
-	    XmlReader::getBooleanValueElement(parser, includeQualifiers, true);
-	else if (CompareNoCase(name, "IncludeClassOrigin") == 0)
-	    XmlReader::getBooleanValueElement(parser, includeClassOrigin, true);
-	//ATTN: Property List
-	XmlReader::expectEndTag(parser, "IPARAMVALUE");
-    }
-
-    Array<CIMInstance> instances;
-    
-    try
-    {
-	instances = _dispatcher->enumerateInstances(
-	    nameSpace,
-	    className,
-	    deepInheritance,
-	    localOnly,
-	    includeQualifiers,
-	    includeClassOrigin,
-	    propertyList);
-    }
-    catch (CIMException& e)
-    {
-	sendError(messageId, "EnumerateInstances", 
-	    e.getCode(), CIMStatusCodeToString(e.getCode()));
-	return;
-    }
-    catch (Exception&)
-    {
-	sendError(messageId, "EnumerateInstances", CIM_ERR_FAILED, 
-	    CIMStatusCodeToString(CIM_ERR_FAILED));
-	return;
-    }
-
-    Array<Sint8> body;
-
-    for (Uint32 i = 0; i < instances.size(); i++)
-	instances[i].toXml(body);
-
-    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
-	"EnumerateInstances", messageId, body);
 
     sendMessage(message);
 }
@@ -1270,245 +912,6 @@ void ClientConnection::handleSetPropertyRequest(
 
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"EnumerateClassNames", messageId, body);
-
-    sendMessage(message);
-}
-
-void ClientConnection::handleAssociatorsRequest(
-    XmlParser& parser, 
-    const String& messageId,
-    const String& nameSpace)
-{
-    // -- Extract the parameters:
-
-    CIMReference objectName;
-    String assocClass;
-    String resultClass;
-    String role;
-    String resultRole;
-    Boolean includeQualifiers = false;
-    Boolean includeClassOrigin = false;
-    Array<String> propertyList;
-
-    // ATTN-B: handle the property list!
-
-    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
-    {
-	if (CompareNoCase(name, "ObjectName") == 0)
-	{
-	    XmlReader::getObjectNameElement(parser, objectName);
-	}
-	else if (CompareNoCase(name, "AssocClass") == 0)
-	{
-	    XmlReader::getClassNameElement(parser, assocClass, true);
-	}
-	else if (CompareNoCase(name, "ResultClass") == 0)
-	{
-	    XmlReader::getClassNameElement(parser, resultClass, true);
-	}
-	else if (CompareNoCase(name, "Role") == 0)
-	{
-	    XmlReader::getStringValueElement(parser, role, true);
-	}
-	else if (CompareNoCase(name, "ResultRole") == 0)
-	{
-	    XmlReader::getStringValueElement(parser, resultRole, true);
-	}
-	else if (CompareNoCase(name, "IncludeQualifiers") == 0)
-	{
-	    XmlReader::getBooleanValueElement(parser, includeQualifiers, true);
-	}
-	else if (CompareNoCase(name, "IncludeClassOrigin") == 0)
-	{
-	    XmlReader::getBooleanValueElement(parser, includeClassOrigin, true);
-	}
-
-	XmlReader::expectEndTag(parser, "IPARAMVALUE");
-    }
-
-    Array<CIMObjectWithPath> objectWithPathArray;
-
-    try
-    {
-	objectWithPathArray = _dispatcher->associators(
-	    nameSpace,
-	    objectName,
-	    assocClass,
-	    resultClass,
-	    role,
-	    resultRole,
-	    includeQualifiers,
-	    includeClassOrigin,
-	    propertyList);
-    }
-    catch (CIMException& e)
-    {
-	sendError(messageId, "Associators", 
-	    e.getCode(), CIMStatusCodeToString(e.getCode()));
-	return;
-    }
-    catch (Exception&)
-    {
-	sendError(messageId, "Associators", CIM_ERR_FAILED, 
-	    CIMStatusCodeToString(CIM_ERR_FAILED));
-	return;
-    }
-
-    Array<Sint8> body;
-
-    for (Uint32 i = 0; i < objectWithPathArray.size(); i++)
-	objectWithPathArray[i].toXml(body);
-
-    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
-	"Associators", messageId, body);
-
-    sendMessage(message);
-}
-
-void ClientConnection::handleAssociatorNamesRequest(
-    XmlParser& parser, 
-    const String& messageId,
-    const String& nameSpace)
-{
-    // -- Extract the parameters:
-
-    CIMReference objectName;
-    String assocClass;
-    String resultClass;
-    String role;
-    String resultRole;
-
-    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
-    {
-	if (CompareNoCase(name, "ObjectName") == 0)
-	{
-	    XmlReader::getObjectNameElement(parser, objectName);
-	}
-	else if (CompareNoCase(name, "AssocClass") == 0)
-	{
-	    XmlReader::getClassNameElement(parser, assocClass, true);
-	}
-	else if (CompareNoCase(name, "ResultClass") == 0)
-	{
-	    XmlReader::getClassNameElement(parser, resultClass, true);
-	}
-	else if (CompareNoCase(name, "Role") == 0)
-	{
-	    XmlReader::getStringValueElement(parser, role, true);
-	}
-	else if (CompareNoCase(name, "ResultRole") == 0)
-	{
-	    XmlReader::getStringValueElement(parser, resultRole, true);
-	}
-
-	XmlReader::expectEndTag(parser, "IPARAMVALUE");
-    }
-
-    Array<CIMReference> objectPaths;
-    
-    try
-    {
-	objectPaths = _dispatcher->associatorNames(
-	    nameSpace,
-	    objectName,
-	    assocClass,
-	    resultClass,
-	    role,
-	    resultRole);
-    }
-    catch (CIMException& e)
-    {
-	sendError(messageId, "AssociatorNames", 
-	    e.getCode(), CIMStatusCodeToString(e.getCode()));
-	return;
-    }
-    catch (Exception&)
-    {
-	sendError(messageId, "AssociatorNames", CIM_ERR_FAILED, 
-	    CIMStatusCodeToString(CIM_ERR_FAILED));
-	return;
-    }
-
-    Array<Sint8> body;
-
-    for (Uint32 i = 0; i < objectPaths.size(); i++)
-    {
-	body << "<OBJECTPATH>\n";
-	objectPaths[i].toXml(body, false);
-	body << "</OBJECTPATH>\n";
-    }
-
-    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
-	"AssociatorNames", messageId, body);
-
-    sendMessage(message);
-}
-
-void ClientConnection::handleReferenceNamesRequest(
-    XmlParser& parser, 
-    const String& messageId,
-    const String& nameSpace)
-{
-    // -- Extract the parameters:
-
-    CIMReference objectName;
-    String assocClass;
-    String resultClass;
-    String role;
-    String resultRole;
-
-    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
-    {
-	if (CompareNoCase(name, "ObjectName") == 0)
-	{
-	    XmlReader::getObjectNameElement(parser, objectName);
-	}
-	else if (CompareNoCase(name, "ResultClass") == 0)
-	{
-	    XmlReader::getClassNameElement(parser, resultClass, true);
-	}
-	else if (CompareNoCase(name, "Role") == 0)
-	{
-	    XmlReader::getStringValueElement(parser, role, true);
-	}
-
-	XmlReader::expectEndTag(parser, "IPARAMVALUE");
-    }
-
-    Array<CIMReference> objectPaths;
-    
-    try
-    {
-	objectPaths = _dispatcher->referenceNames(
-	    nameSpace,
-	    objectName,
-	    resultClass,
-	    role);
-    }
-    catch (CIMException& e)
-    {
-	sendError(messageId, "ReferenceNames", 
-	    e.getCode(), CIMStatusCodeToString(e.getCode()));
-	return;
-    }
-    catch (Exception&)
-    {
-	sendError(messageId, "ReferenceNames", CIM_ERR_FAILED, 
-	    CIMStatusCodeToString(CIM_ERR_FAILED));
-	return;
-    }
-
-    Array<Sint8> body;
-
-    for (Uint32 i = 0; i < objectPaths.size(); i++)
-    {
-	body << "<OBJECTPATH>\n";
-	objectPaths[i].toXml(body, false);
-	body << "</OBJECTPATH>\n";
-    }
-
-    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
-	"ReferenceNames", messageId, body);
 
     sendMessage(message);
 }
@@ -1702,7 +1105,7 @@ void ClientConnection::handleDeleteInstanceResponse(
 {
     if (response->errorCode != CIM_ERR_SUCCESS)
     {
-	sendError(response, "GetInstance");
+	sendError(response, "DeleteInstance");
 	return;
     }
 
@@ -1827,7 +1230,7 @@ void ClientConnection::handleModifyClassResponse(
 {
     if (response->errorCode != CIM_ERR_SUCCESS)
     {
-	sendError(response, "GetInstance");
+	sendError(response, "ModifyClass");
 	return;
     }
 
@@ -1835,6 +1238,684 @@ void ClientConnection::handleModifyClassResponse(
 
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"ModifyClass", response->messageId, body);
+
+    sendMessage(message);
+}
+
+void ClientConnection::handleModifyInstanceRequest(
+    XmlParser& parser, 
+    const String& messageId,
+    const String& nameSpace)
+{
+    CIMInstance modifiedInstance;
+
+    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+    {
+	if (CompareNoCase(name, "ModifiedInstance") == 0)
+	    XmlReader::getInstanceElement(parser, modifiedInstance);
+
+	XmlReader::expectEndTag(parser, "IPARAMVALUE");
+    }
+
+    CIMModifyInstanceRequestMessage* request = 
+	new CIMModifyInstanceRequestMessage(
+	    messageId,
+	    nameSpace,
+	    modifiedInstance,
+	    getQueueId());
+
+    _dispatcher->enqueue(request);
+}
+
+void ClientConnection::handleModifyInstanceResponse(
+    CIMModifyInstanceResponseMessage* response)
+{
+    if (response->errorCode != CIM_ERR_SUCCESS)
+    {
+	sendError(response, "ModifyInstance");
+	return;
+    }
+
+    Array<Sint8> body;
+
+    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
+	"ModifyInstance", response->messageId, body);
+
+    sendMessage(message);
+}
+
+void ClientConnection::handleEnumerateClassesRequest(
+    XmlParser& parser, 
+    const String& messageId,
+    const String& nameSpace)
+{
+    String className;
+    Boolean deepInheritance = false;
+    Boolean localOnly = true;
+    Boolean includeQualifiers = true;
+    Boolean includeClassOrigin = false;
+
+    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+    {
+	if (CompareNoCase(name, "ClassName") == 0)
+	    XmlReader::getClassNameElement(parser, className, true);
+	else if (CompareNoCase(name, "DeepInheritance") == 0)
+	    XmlReader::getBooleanValueElement(parser, deepInheritance, true);
+	else if (CompareNoCase(name, "LocalOnly") == 0)
+	    XmlReader::getBooleanValueElement(parser, localOnly, true);
+	else if (CompareNoCase(name, "IncludeQualifiers") == 0)
+	    XmlReader::getBooleanValueElement(parser, includeQualifiers, true);
+	else if (CompareNoCase(name, "IncludeClassOrigin") == 0)
+	    XmlReader::getBooleanValueElement(parser, includeClassOrigin, true);
+
+	XmlReader::expectEndTag(parser, "IPARAMVALUE");
+    }
+
+    CIMEnumerateClassesRequestMessage* request = 
+	new CIMEnumerateClassesRequestMessage(
+	    messageId,
+	    nameSpace,
+	    className,
+	    deepInheritance,
+	    localOnly,
+	    includeQualifiers,
+	    includeClassOrigin,
+	    getQueueId());
+
+    _dispatcher->enqueue(request);
+}
+
+void ClientConnection::handleEnumerateClassesResponse(
+    CIMEnumerateClassesResponseMessage* response)
+{
+    if (response->errorCode != CIM_ERR_SUCCESS)
+    {
+	sendError(response, "EnumerateClasses");
+	return;
+    }
+
+    Array<Sint8> body;
+
+    for (Uint32 i = 0; i < response->cimClasses.size(); i++)
+	response->cimClasses[i].toXml(body);
+
+    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
+	"EnumerateClasses", response->messageId, body);
+
+    sendMessage(message);
+}
+
+void ClientConnection::handleEnumerateClassNamesRequest(
+    XmlParser& parser, 
+    const String& messageId,
+    const String& nameSpace)
+{
+    String className;
+    Boolean deepInheritance = false;
+
+    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+    {
+	if (CompareNoCase(name, "ClassName") == 0)
+	    XmlReader::getClassNameElement(parser, className, true);
+	else if (CompareNoCase(name, "DeepInheritance") == 0)
+	    XmlReader::getBooleanValueElement(parser, deepInheritance, true);
+
+	XmlReader::expectEndTag(parser, "IPARAMVALUE");
+    }
+
+    CIMEnumerateClassNamesRequestMessage* request = 
+	new CIMEnumerateClassNamesRequestMessage(
+	    messageId,
+	    nameSpace,
+	    className,
+	    deepInheritance,
+	    getQueueId());
+
+    _dispatcher->enqueue(request);
+}
+
+void ClientConnection::handleEnumerateClassNamesResponse(
+    CIMEnumerateClassNamesResponseMessage* response)
+{
+    if (response->errorCode != CIM_ERR_SUCCESS)
+    {
+	sendError(response, "EnumerateClassNames");
+	return;
+    }
+
+    Array<Sint8> body;
+
+    for (Uint32 i = 0; i < response->classNames.size(); i++)
+	XmlWriter::appendClassNameElement(body, response->classNames[i]);
+
+    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
+	"EnumerateClassNames", response->messageId, body);
+
+    sendMessage(message);
+}
+
+void ClientConnection::handleEnumerateInstancesRequest(
+    XmlParser& parser, 
+    const String& messageId,
+    const String& nameSpace)
+{
+    String className;
+    Boolean deepInheritance = false;
+    Boolean localOnly = true;
+    Boolean includeQualifiers = true;
+    Boolean includeClassOrigin = false;
+    Array<String> propertyList = EmptyStringArray();
+
+    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+    {
+	if (CompareNoCase(name, "ClassName") == 0)
+	    XmlReader::getClassNameElement(parser, className, true);
+	else if (CompareNoCase(name, "DeepInheritance") == 0)
+	    XmlReader::getBooleanValueElement(parser, deepInheritance, true);
+	else if (CompareNoCase(name, "LocalOnly") == 0)
+	    XmlReader::getBooleanValueElement(parser, localOnly, true);
+	else if (CompareNoCase(name, "IncludeQualifiers") == 0)
+	    XmlReader::getBooleanValueElement(parser, includeQualifiers, true);
+	else if (CompareNoCase(name, "IncludeClassOrigin") == 0)
+	    XmlReader::getBooleanValueElement(parser, includeClassOrigin, true);
+	//ATTN: Property List
+	XmlReader::expectEndTag(parser, "IPARAMVALUE");
+    }
+
+    CIMEnumerateInstancesRequestMessage* request = 
+	new CIMEnumerateInstancesRequestMessage(
+	    messageId,
+	    nameSpace,
+	    className,
+	    deepInheritance,
+	    localOnly,
+	    includeQualifiers,
+	    includeClassOrigin,
+	    Array<String>(),
+	    getQueueId());
+
+    _dispatcher->enqueue(request);
+}
+
+void ClientConnection::handleEnumerateInstancesResponse(
+    CIMEnumerateInstancesResponseMessage* response)
+{
+    if (response->errorCode != CIM_ERR_SUCCESS)
+    {
+	sendError(response, "EnumerateInstances");
+	return;
+    }
+
+    Array<Sint8> body;
+
+    for (Uint32 i = 0; i < response->cimInstances.size(); i++)
+	response->cimInstances[i].toXml(body);
+
+    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
+	"EnumerateInstances", response->messageId, body);
+
+    sendMessage(message);
+}
+
+void ClientConnection::handleEnumerateInstanceNamesRequest(
+    XmlParser& parser, 
+    const String& messageId,
+    const String& nameSpace)
+{
+    String className;
+
+    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+    {
+	if (CompareNoCase(name, "ClassName") == 0)
+	    XmlReader::getClassNameElement(parser, className, true);
+
+	XmlReader::expectEndTag(parser, "IPARAMVALUE");
+    }
+
+    CIMEnumerateInstanceNamesRequestMessage* request = 
+	new CIMEnumerateInstanceNamesRequestMessage(
+	    messageId,
+	    nameSpace,
+	    className,
+	    getQueueId());
+
+    _dispatcher->enqueue(request);
+}
+
+void ClientConnection::handleEnumerateInstanceNamesResponse(
+    CIMEnumerateInstanceNamesResponseMessage* response)
+{
+    if (response->errorCode != CIM_ERR_SUCCESS)
+    {
+	sendError(response, "EnumerateInstanceNames");
+	return;
+    }
+
+    Array<Sint8> body;
+
+    for (Uint32 i = 0; i < response->instanceNames.size(); i++)
+	XmlWriter::appendInstanceNameElement(body, response->instanceNames[i]);
+
+    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
+	"EnumerateInstanceNames", response->messageId, body);
+
+    sendMessage(message);
+}
+
+void ClientConnection::handleAssociatorsRequest(
+    XmlParser& parser, 
+    const String& messageId,
+    const String& nameSpace)
+{
+    // ATTN: handle the property list!
+
+    CIMReference objectName;
+    String assocClass;
+    String resultClass;
+    String role;
+    String resultRole;
+    Boolean includeQualifiers = false;
+    Boolean includeClassOrigin = false;
+    Array<String> propertyList;
+
+    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+    {
+	if (CompareNoCase(name, "ObjectName") == 0)
+	{
+	    XmlReader::getObjectNameElement(parser, objectName);
+	}
+	else if (CompareNoCase(name, "AssocClass") == 0)
+	{
+	    XmlReader::getClassNameElement(parser, assocClass, true);
+	}
+	else if (CompareNoCase(name, "ResultClass") == 0)
+	{
+	    XmlReader::getClassNameElement(parser, resultClass, true);
+	}
+	else if (CompareNoCase(name, "Role") == 0)
+	{
+	    XmlReader::getStringValueElement(parser, role, true);
+	}
+	else if (CompareNoCase(name, "ResultRole") == 0)
+	{
+	    XmlReader::getStringValueElement(parser, resultRole, true);
+	}
+	else if (CompareNoCase(name, "IncludeQualifiers") == 0)
+	{
+	    XmlReader::getBooleanValueElement(parser, includeQualifiers, true);
+	}
+	else if (CompareNoCase(name, "IncludeClassOrigin") == 0)
+	{
+	    XmlReader::getBooleanValueElement(parser, includeClassOrigin, true);
+	}
+
+	XmlReader::expectEndTag(parser, "IPARAMVALUE");
+    }
+
+    CIMAssociatorsRequestMessage* request = 
+	new CIMAssociatorsRequestMessage(
+	    messageId,
+	    nameSpace,
+	    objectName,
+	    assocClass,
+	    resultClass,
+	    role,
+	    resultRole,
+	    includeQualifiers,
+	    includeClassOrigin,
+	    propertyList,
+	    getQueueId());
+
+    _dispatcher->enqueue(request);
+}
+
+void ClientConnection::handleAssociatorsResponse(
+    CIMAssociatorsResponseMessage* response)
+{
+    if (response->errorCode != CIM_ERR_SUCCESS)
+    {
+	sendError(response, "Associators");
+	return;
+    }
+
+    Array<Sint8> body;
+
+    for (Uint32 i = 0; i < response->cimObjects.size(); i++)
+	response->cimObjects[i].toXml(body);
+
+    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
+	"Associators", response->messageId, body);
+
+    sendMessage(message);
+}
+
+void ClientConnection::handleAssociatorNamesRequest(
+    XmlParser& parser, 
+    const String& messageId,
+    const String& nameSpace)
+{
+    CIMReference objectName;
+    String assocClass;
+    String resultClass;
+    String role;
+    String resultRole;
+
+    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+    {
+	if (CompareNoCase(name, "ObjectName") == 0)
+	    XmlReader::getObjectNameElement(parser, objectName);
+	else if (CompareNoCase(name, "AssocClass") == 0)
+	    XmlReader::getClassNameElement(parser, assocClass, true);
+	else if (CompareNoCase(name, "ResultClass") == 0)
+	    XmlReader::getClassNameElement(parser, resultClass, true);
+	else if (CompareNoCase(name, "Role") == 0)
+	    XmlReader::getStringValueElement(parser, role, true);
+	else if (CompareNoCase(name, "ResultRole") == 0)
+	    XmlReader::getStringValueElement(parser, resultRole, true);
+
+	XmlReader::expectEndTag(parser, "IPARAMVALUE");
+    }
+
+    CIMAssociatorNamesRequestMessage* request = 
+	new CIMAssociatorNamesRequestMessage(
+	    messageId,
+	    nameSpace,
+	    objectName,
+	    assocClass,
+	    resultClass,
+	    role,
+	    resultRole,
+	    getQueueId());
+
+    _dispatcher->enqueue(request);
+}
+
+void ClientConnection::handleAssociatorNamesResponse(
+    CIMAssociatorNamesResponseMessage* response)
+{
+    if (response->errorCode != CIM_ERR_SUCCESS)
+    {
+	sendError(response, "AssociatorNames");
+	return;
+    }
+
+    Array<Sint8> body;
+
+    for (Uint32 i = 0; i < response->objectNames.size(); i++)
+    {
+	body << "<OBJECTPATH>\n";
+	response->objectNames[i].toXml(body, false);
+	body << "</OBJECTPATH>\n";
+    }
+
+    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
+	"AssociatorNames", response->messageId, body);
+
+    sendMessage(message);
+}
+
+void ClientConnection::handleReferencesRequest(
+    XmlParser& parser, 
+    const String& messageId,
+    const String& nameSpace)
+{
+    // ATTN: handle the property list!
+
+    CIMReference objectName;
+    String resultClass;
+    String role;
+    Boolean includeQualifiers = false;
+    Boolean includeClassOrigin = false;
+    Array<String> propertyList;
+
+    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+    {
+	if (CompareNoCase(name, "ObjectName") == 0)
+	{
+	    XmlReader::getObjectNameElement(parser, objectName);
+	}
+	else if (CompareNoCase(name, "ResultClass") == 0)
+	{
+	    XmlReader::getClassNameElement(parser, resultClass, true);
+	}
+	else if (CompareNoCase(name, "Role") == 0)
+	{
+	    XmlReader::getStringValueElement(parser, role, true);
+	}
+	else if (CompareNoCase(name, "IncludeQualifiers") == 0)
+	{
+	    XmlReader::getBooleanValueElement(parser, includeQualifiers, true);
+	}
+	else if (CompareNoCase(name, "IncludeClassOrigin") == 0)
+	{
+	    XmlReader::getBooleanValueElement(parser, includeClassOrigin, true);
+	}
+
+	XmlReader::expectEndTag(parser, "IPARAMVALUE");
+    }
+
+    CIMReferencesRequestMessage* request = 
+	new CIMReferencesRequestMessage(
+	    messageId,
+	    nameSpace,
+	    objectName,
+	    resultClass,
+	    role,
+	    includeQualifiers,
+	    includeClassOrigin,
+	    propertyList,
+	    getQueueId());
+
+    _dispatcher->enqueue(request);
+}
+
+void ClientConnection::handleReferencesResponse(
+    CIMReferencesResponseMessage* response)
+{
+    if (response->errorCode != CIM_ERR_SUCCESS)
+    {
+	sendError(response, "References");
+	return;
+    }
+
+    Array<Sint8> body;
+
+    for (Uint32 i = 0; i < response->cimObjects.size(); i++)
+	response->cimObjects[i].toXml(body);
+
+    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
+	"References", response->messageId, body);
+
+    sendMessage(message);
+}
+
+void ClientConnection::handleReferenceNamesRequest(
+    XmlParser& parser, 
+    const String& messageId,
+    const String& nameSpace)
+{
+    CIMReference objectName;
+    String resultClass;
+    String role;
+
+    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+    {
+	if (CompareNoCase(name, "ObjectName") == 0)
+	{
+	    XmlReader::getObjectNameElement(parser, objectName);
+	}
+	else if (CompareNoCase(name, "ResultClass") == 0)
+	{
+	    XmlReader::getClassNameElement(parser, resultClass, true);
+	}
+	else if (CompareNoCase(name, "Role") == 0)
+	{
+	    XmlReader::getStringValueElement(parser, role, true);
+	}
+
+	XmlReader::expectEndTag(parser, "IPARAMVALUE");
+    }
+
+    CIMReferenceNamesRequestMessage* request = 
+	new CIMReferenceNamesRequestMessage(
+	    messageId,
+	    nameSpace,
+	    objectName,
+	    resultClass,
+	    role,
+	    getQueueId());
+
+    _dispatcher->enqueue(request);
+}
+
+void ClientConnection::handleReferenceNamesResponse(
+    CIMReferenceNamesResponseMessage* response)
+{
+    if (response->errorCode != CIM_ERR_SUCCESS)
+    {
+	sendError(response, "ReferenceNames");
+	return;
+    }
+
+    Array<Sint8> body;
+
+    for (Uint32 i = 0; i < response->objectNames.size(); i++)
+    {
+	body << "<OBJECTPATH>\n";
+	response->objectNames[i].toXml(body, false);
+	body << "</OBJECTPATH>\n";
+    }
+
+    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
+	"ReferenceNames", response->messageId, body);
+
+    sendMessage(message);
+}
+
+void ClientConnection::handleGetQualifierRequest(
+    XmlParser& parser, 
+    const String& messageId,
+    const String& nameSpace)
+{
+    String qualifierName;
+
+    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+    {
+	if (CompareNoCase(name, "QualifierName") == 0)
+	    XmlReader::getClassNameElement(parser, qualifierName, true);
+
+	XmlReader::expectEndTag(parser, "IPARAMVALUE");
+    }
+
+    CIMGetQualifierRequestMessage* request = 
+	new CIMGetQualifierRequestMessage(
+	    messageId,
+	    nameSpace,
+	    qualifierName,
+	    getQueueId());
+
+    _dispatcher->enqueue(request);
+}
+
+void ClientConnection::handleGetQualifierResponse(
+    CIMGetQualifierResponseMessage* response)
+{
+    if (response->errorCode != CIM_ERR_SUCCESS)
+    {
+	sendError(response, "GetQualifier");
+	return;
+    }
+
+    Array<Sint8> body;
+    response->cimQualifierDecl.toXml(body);
+
+    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
+	"GetQualifier", response->messageId, body);
+
+    sendMessage(message);
+}
+
+void ClientConnection::handleSetQualifierRequest(
+    XmlParser& parser, 
+    const String& messageId,
+    const String& nameSpace)
+{
+cout << "handleSetQualifierRequest" << endl;
+    CIMQualifierDecl qualifierDeclaration;
+
+    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+    {
+	if (CompareNoCase(name, "QualifierDeclaration") == 0)
+	    XmlReader::getQualifierDeclElement(parser, qualifierDeclaration);
+
+	XmlReader::expectEndTag(parser, "IPARAMVALUE");
+    }
+
+    CIMSetQualifierRequestMessage* request = 
+	new CIMSetQualifierRequestMessage(
+	    messageId,
+	    nameSpace,
+	    qualifierDeclaration,
+	    getQueueId());
+
+    _dispatcher->enqueue(request);
+}
+
+void ClientConnection::handleSetQualifierResponse(
+    CIMSetQualifierResponseMessage* response)
+{
+    if (response->errorCode != CIM_ERR_SUCCESS)
+    {
+	sendError(response, "SetQualifier");
+	return;
+    }
+
+    Array<Sint8> body;
+
+    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
+	"SetQualifier", response->messageId, body);
+
+    sendMessage(message);
+}
+
+void ClientConnection::handleDeleteQualifierRequest(
+    XmlParser& parser, 
+    const String& messageId,
+    const String& nameSpace)
+{
+    String qualifierName;
+
+    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+    {
+	if (CompareNoCase(name, "QualifierName") == 0)
+	    XmlReader::getClassNameElement(parser, qualifierName, true);
+
+	XmlReader::expectEndTag(parser, "IPARAMVALUE");
+    }
+
+    CIMDeleteQualifierRequestMessage* request = 
+	new CIMDeleteQualifierRequestMessage(
+	    messageId,
+	    nameSpace,
+	    qualifierName,
+	    getQueueId());
+
+    _dispatcher->enqueue(request);
+}
+
+void ClientConnection::handleDeleteQualifierResponse(
+    CIMDeleteQualifierResponseMessage* response)
+{
+    if (response->errorCode != CIM_ERR_SUCCESS)
+    {
+	sendError(response, "DeleteQualifier");
+	return;
+    }
+
+    Array<Sint8> body;
+
+    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
+	"DeleteQualifier", response->messageId, body);
 
     sendMessage(message);
 }

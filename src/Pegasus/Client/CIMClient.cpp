@@ -235,6 +235,17 @@ struct ModifyClassResult
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+// ModifyInstanceResult
+//
+////////////////////////////////////////////////////////////////////////////////
+
+struct ModifyInstanceResult
+{
+    CIMStatusCode code;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+//
 // DeleteClassResult
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -322,7 +333,9 @@ public:
 	XmlParser& parser, 
 	const String& messageId);
 
-    int handleAssociatorsResponse(XmlParser& parser, const String& messageId);
+    int handleAssociatorsResponse(
+	XmlParser& parser, 
+	const String& messageId);
 
     int handleCreateInstanceResponse(
 	XmlParser& parser, 
@@ -336,9 +349,13 @@ public:
 	XmlParser& parser, 
 	const String& messageId);
 
-    int handleGetQualifierResponse(XmlParser& parser, const String& messageId);
+    int handleGetQualifierResponse(
+	XmlParser& parser, 
+	const String& messageId);
 
-    int handleSetQualifierResponse(XmlParser& parser, const String& messageId);
+    int handleSetQualifierResponse(
+	XmlParser& parser, 
+	const String& messageId);
 
     int handleEnumerateQualifiersResponse(
 	XmlParser& parser, 
@@ -348,23 +365,36 @@ public:
 	XmlParser& parser, 
 	const String& messageId);
 
-    int handleCreateClassResponse(XmlParser& parser, const String& messageId);
+    int handleCreateClassResponse(
+	XmlParser& parser, 
+	const String& messageId);
 
-    int handleModifyClassResponse(XmlParser& parser, const String& messageId);
+    int handleModifyClassResponse(
+	XmlParser& parser, 
+	const String& messageId);
 
-    int handleDeleteClassResponse(XmlParser& parser, const String& messageId);
+    int handleModifyInstanceResponse(
+	XmlParser& parser, 
+	const String& messageId);
+
+    int handleDeleteClassResponse(
+	XmlParser& parser, 
+	const String& messageId);
 
     int handleDeleteInstanceResponse(
 	XmlParser& parser, 
 	const String& messageId);
 
-    int handleGetPropertyResponse(XmlParser& parser, const String& messageId);
+    int handleGetPropertyResponse(
+	XmlParser& parser, 
+	const String& messageId);
 
-    int handleSetPropertyResponse(XmlParser& parser, const String& messageId);
+    int handleSetPropertyResponse(
+	XmlParser& parser, 
+	const String& messageId);
 
-
-
-    Boolean waitForResponse(Uint32 timeOutMilliseconds);
+    Boolean waitForResponse(
+	Uint32 timeOutMilliseconds);
 
     union
     {
@@ -386,6 +416,7 @@ public:
 	EnumerateClassesResult* _enumerateClassesResult;
 	CreateClassResult* _createClassResult;
 	ModifyClassResult* _modifyClassResult;
+	ModifyInstanceResult* _modifyInstanceResult;
 	DeleteClassResult* _deleteClassResult;
 	DeleteInstanceResult* _deleteInstanceResult;
 	GetPropertyResult* _getPropertyResult;
@@ -397,12 +428,6 @@ private:
     char _hostNameTmp[256];
     Selector* _selector;
 };
-
-//------------------------------------------------------------------------------
-//
-// ClientHandler::handleMessage()
-//
-//------------------------------------------------------------------------------
 
 int ClientHandler::handleMessage()
 {
@@ -427,23 +452,6 @@ int ClientHandler::handleMessage()
 
     return 0;
 }
-
-//------------------------------------------------------------------------------
-//
-// ClientHandler::handleMethodResponse()
-//
-//     <?xml version="1.0" encoding="utf-8" ?>
-//     <CIM CIMVERSION="2.0" DTDVERSION="2.0">
-//       <MESSAGE ID="87872" PROTOCOLVERSION="1.0">
-//         <SIMPLERSP>
-//           <IMETHODRESPONSE NAME="GetClass">
-//           ...
-//           </IMETHODRESPONSE>
-//         </SIMPLERSP>
-//       </MESSAGE>
-//     </CIM>
-//
-//------------------------------------------------------------------------------
 
 int ClientHandler::handleMethodResponse()
 {
@@ -546,6 +554,8 @@ int ClientHandler::handleMethodResponse()
 	handleCreateClassResponse(parser, messageId);
     else if (strcmp(iMethodResponseName, "ModifyClass") == 0)
 	handleModifyClassResponse(parser, messageId);
+    else if (strcmp(iMethodResponseName, "ModifyInstance") == 0)
+	handleModifyInstanceResponse(parser, messageId);
     else if (strcmp(iMethodResponseName, "DeleteClass") == 0)
 	handleDeleteClassResponse(parser, messageId);
     else if (strcmp(iMethodResponseName, "DeleteInstance") == 0)
@@ -566,14 +576,6 @@ int ClientHandler::handleMethodResponse()
 
     return 0;
 }
-
-//------------------------------------------------------------------------------
-//
-// ClientHandler::handleGetClassResponse()
-//
-//     Expect (ERROR|IRETURNVALUE).
-//
-//------------------------------------------------------------------------------
 
 int ClientHandler::handleGetClassResponse(
     XmlParser& parser, 
@@ -613,14 +615,6 @@ int ClientHandler::handleGetClassResponse(
 
     return 0;
 }
-
-//------------------------------------------------------------------------------
-//
-// ClientHandler::handleGetInstanceResponse()
-//
-//     Expect (ERROR|IRETURNVALUE).
-//
-//------------------------------------------------------------------------------
 
 int ClientHandler::handleGetInstanceResponse(
     XmlParser& parser,
@@ -665,13 +659,6 @@ int ClientHandler::handleGetInstanceResponse(
 }
 
 //STUB{
-//------------------------------------------------------------------------------
-//
-// ClientHandler::handleEnumerateClassNamesResponse()
-//
-//     Expect (ERROR|IRETURNVALUE).
-//
-//------------------------------------------------------------------------------
 
 int ClientHandler::handleEnumerateClassNamesResponse(
     XmlParser& parser,
@@ -714,15 +701,6 @@ int ClientHandler::handleEnumerateClassNamesResponse(
 }
 //STUB}
 
-//------------------------------------------------------------------------------
-//
-// ClientHandler::handleReferencesResponse()
-//
-// <!ELEMENT VALUE.OBJECTWITHPATH 
-//     ((CLASSPATH,CLASS)|(INSTANCEPATH,INSTANCE))>
-//
-//------------------------------------------------------------------------------
-
 int ClientHandler::handleReferencesResponse(
     XmlParser& parser,
     const String& messageId)
@@ -762,14 +740,6 @@ int ClientHandler::handleReferencesResponse(
 
     return 0;
 }
-
-//------------------------------------------------------------------------------
-//
-// ClientHandler::handleReferenceNamesResponse()
-//
-//     Expect (ERROR|IRETURNVALUE).
-//
-//------------------------------------------------------------------------------
 
 int ClientHandler::handleReferenceNamesResponse(
     XmlParser& parser,
@@ -811,14 +781,6 @@ int ClientHandler::handleReferenceNamesResponse(
     return 0;
 }
 
-//------------------------------------------------------------------------------
-//
-// ClientHandler::handleAssociatorNamesResponse()
-//
-//     Expect (ERROR|IRETURNVALUE).
-//
-//------------------------------------------------------------------------------
-
 int ClientHandler::handleAssociatorNamesResponse(
     XmlParser& parser,
     const String& messageId)
@@ -858,15 +820,6 @@ int ClientHandler::handleAssociatorNamesResponse(
 
     return 0;
 }
-
-//------------------------------------------------------------------------------
-//
-// ClientHandler::handleAssociatorsResponse()
-//
-// <!ELEMENT VALUE.OBJECTWITHPATH 
-//     ((CLASSPATH,CLASS)|(INSTANCEPATH,INSTANCE))>
-//
-//------------------------------------------------------------------------------
 
 int ClientHandler::handleAssociatorsResponse(
     XmlParser& parser,
@@ -908,14 +861,6 @@ int ClientHandler::handleAssociatorsResponse(
     return 0;
 }
 
-//------------------------------------------------------------------------------
-//
-// ClientHandler::handleCreateInstanceResponse()
-//
-//     Expect (ERROR|IRETURNVALUE).
-//
-//------------------------------------------------------------------------------
-
 int ClientHandler::handleCreateInstanceResponse(
     XmlParser& parser,
     const String& messageId)
@@ -948,14 +893,6 @@ int ClientHandler::handleCreateInstanceResponse(
 
     return 0;
 }
-
-//------------------------------------------------------------------------------
-//
-// ClientHandler::handleEnumerateInstanceNamesResponse()
-//
-//     Expect (ERROR|IRETURNVALUE).
-//
-//------------------------------------------------------------------------------
 
 int ClientHandler::handleEnumerateInstanceNamesResponse(
     XmlParser& parser,
@@ -1006,14 +943,6 @@ int ClientHandler::handleEnumerateInstanceNamesResponse(
     return 0;
 }
 
-//------------------------------------------------------------------------------
-//
-// ClientHandler::handleDeleteQualifierResponse()
-//
-//     Expect (ERROR|IRETURNVALUE).
-//
-//------------------------------------------------------------------------------
-
 int ClientHandler::handleDeleteQualifierResponse(
     XmlParser& parser,
     const String& messageId)
@@ -1046,14 +975,6 @@ int ClientHandler::handleDeleteQualifierResponse(
 
     return 0;
 }
-
-//------------------------------------------------------------------------------
-//
-// ClientHandler::handleGetQualifierResponse()
-//
-//     Expect (ERROR|IRETURNVALUE).
-//
-//------------------------------------------------------------------------------
 
 int ClientHandler::handleGetQualifierResponse(
     XmlParser& parser,
@@ -1092,14 +1013,6 @@ int ClientHandler::handleGetQualifierResponse(
     return 0;
 }
 
-//------------------------------------------------------------------------------
-//
-// ClientHandler::handleSetQualifierResponse()
-//
-//     Expect (ERROR|IRETURNVALUE).
-//
-//------------------------------------------------------------------------------
-
 int ClientHandler::handleSetQualifierResponse(
     XmlParser& parser,
     const String& messageId)
@@ -1132,14 +1045,6 @@ int ClientHandler::handleSetQualifierResponse(
 
     return 0;
 }
-
-//------------------------------------------------------------------------------
-//
-// ClientHandler::handleEnumerateQualifiersResponse()
-//
-//     Expect (ERROR|IRETURNVALUE).
-//
-//------------------------------------------------------------------------------
 
 int ClientHandler::handleEnumerateQualifiersResponse(
     XmlParser& parser,
@@ -1181,14 +1086,6 @@ int ClientHandler::handleEnumerateQualifiersResponse(
     return 0;
 }
 
-//------------------------------------------------------------------------------
-//
-// ClientHandler::handleEnumerateClassesResponse()
-//
-//     Expect (ERROR|IRETURNVALUE).
-//
-//------------------------------------------------------------------------------
-
 int ClientHandler::handleEnumerateClassesResponse(
     XmlParser& parser,
     const String& messageId)
@@ -1229,14 +1126,6 @@ int ClientHandler::handleEnumerateClassesResponse(
     return 0;
 }
 
-//------------------------------------------------------------------------------
-//
-// ClientHandler::handleCreateClassResponse()
-//
-//     Expect (ERROR|IRETURNVALUE).
-//
-//------------------------------------------------------------------------------
-
 int ClientHandler::handleCreateClassResponse(
     XmlParser& parser,
     const String& messageId)
@@ -1269,14 +1158,6 @@ int ClientHandler::handleCreateClassResponse(
 
     return 0;
 }
-
-//------------------------------------------------------------------------------
-//
-// ClientHandler::handleModifyClassResponse()
-//
-//     Expect (ERROR|IRETURNVALUE).
-//
-//------------------------------------------------------------------------------
 
 int ClientHandler::handleModifyClassResponse(
     XmlParser& parser,
@@ -1311,13 +1192,38 @@ int ClientHandler::handleModifyClassResponse(
     return 0;
 }
 
-//------------------------------------------------------------------------------
-//
-// ClientHandler::handleDeleteClassResponse()
-//
-//     Expect (ERROR|IRETURNVALUE).
-//
-//------------------------------------------------------------------------------
+int ClientHandler::handleModifyInstanceResponse(
+    XmlParser& parser,
+    const String& messageId)
+{
+    XmlEntry entry;
+    CIMStatusCode code;
+    const char* description = 0;
+
+    if (XmlReader::getErrorElement(parser, code, description))
+    {
+	_modifyInstanceResult = new ModifyInstanceResult;
+	_modifyInstanceResult->code = code;
+	_blocked = false;
+	return 0;
+    }
+    else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+    {
+	XmlReader::testEndTag(parser, "IRETURNVALUE");
+
+	_modifyInstanceResult = new ModifyInstanceResult;
+	_modifyInstanceResult->code = CIM_ERR_SUCCESS;
+	_blocked = false;
+	return 0;
+    }
+    else
+    {
+	throw XmlValidationError(parser.getLine(),
+	    "expected ERROR or IRETURNVALUE element");
+    }
+
+    return 0;
+}
 
 int ClientHandler::handleDeleteClassResponse(
     XmlParser& parser,
@@ -1352,14 +1258,6 @@ int ClientHandler::handleDeleteClassResponse(
     return 0;
 }
 
-//------------------------------------------------------------------------------
-//
-// ClientHandler::handleDeleteInstanceResponse()
-//
-//     Expect (ERROR|IRETURNVALUE).
-//
-//------------------------------------------------------------------------------
-
 int ClientHandler::handleDeleteInstanceResponse(
     XmlParser& parser,
     const String& messageId)
@@ -1393,131 +1291,19 @@ int ClientHandler::handleDeleteInstanceResponse(
     return 0;
 }
 
-//------------------------------------------------------------------------------
-//
-// ClientHandler::handleGetPropertyResponse()
-//
-//     Expect (ERROR|IRETURNVALUE).!ELEMENT VALUE (#PCDATA)>
-//
-//	PropertyValue:
-//	<!ELEMENT VALUE>
-//
-//	<!ELEMENT VALUE.ARRAY (VALUE*)>
-//
-//	<!ELEMENT VALUE.REFERENCE (CLASSPATH|LOCALCLASSPATH|CLASSNAME|
-//                           INSTANCEPATH|LOCALINSTANCEPATH|INSTANCENAME)>
-//
-//   If the value is NULL then no element is returned.
-//
-//   <CIM CIMVERSION="2.0" DTDVERSION="2.0">
-//   <MESSAGE ID="87872" PROTOCOLVERSION="1.0">
-//    <SIMPLERSP>
-//     <IMETHODRESPONSE NAME="GetProperty">
-//      <IRETURNVALUE>
-//       <VALUE>6752332</VALUE>
-//      </IRETURNVALUE>
-//     </IMETHODRESPONSE>
-//    </SIMPLERSP>
-//   </MESSAGE>
-// </CIM>
-//----------------------------------------------------------------------------
-
-// ATTN: the following is not correct or complete.
 int ClientHandler::handleGetPropertyResponse(
     XmlParser& parser,
     const String& messageId)
 {
-    XmlEntry entry;
-    CIMStatusCode code;
-    const char* description = 0;
-
-    cout << "DEBUG GetPropertyResponse "
-	<< __LINE__ << endl;
-    if (XmlReader::getErrorElement(parser, code, description))
-    {
-	_getPropertyResult = new GetPropertyResult;
-	_getPropertyResult->code = code;
-	_blocked = false;
-	return 0;
-    }
-    else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
-    {
-	
-	// NOTE: We have not accounted for the reference here.
-	
-	CIMValue cimValue;
-	// Major Problem since we do not know type.
-	// This function can return VALUE, VALUE.ARRAY or VALUE.REFERENCE
-	// We need to handle all three.
-	// Handle them in getPropertyValuein XML Reader.
-	//CIMType type = CIMType::STRING;
-	//XmlReader::getValueElement(parser, type, cimValue);
-	// WHere is the boolean return on this???
-	XmlReader::getPropertyValue(parser,cimValue);
-
-	
-	XmlReader::testEndTag(parser, "IRETURNVALUE");
-
-	_getPropertyResult = new GetPropertyResult;
-	_getPropertyResult->code = CIM_ERR_SUCCESS;
-	_blocked = false;
-	return 0;
-    }
-    else
-    {
-	throw XmlValidationError(parser.getLine(),
-	    "expected ERROR or IRETURNVALUE element");
-    }
-
     return 0;
 }
-//------------------------------------------------------------------------------
-//
-// ClientHandler::handleSetPropertyResponse()
-//
-//     Expect (ERROR|IRETURNVALUE).
-//
 
-//------------------------------------------------------------------------------
-// ATTN: The following is not complete or correct
 int ClientHandler::handleSetPropertyResponse(
     XmlParser& parser,
     const String& messageId)
 {
-    XmlEntry entry;
-    CIMStatusCode code;
-    const char* description = 0;
-
-    if (XmlReader::getErrorElement(parser, code, description))
-    {
-	_setPropertyResult = new SetPropertyResult;
-	_setPropertyResult->code = code;
-	_blocked = false;
-	return 0;
-    }
-    else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
-    {
-	XmlReader::testEndTag(parser, "IRETURNVALUE");
-
-	_setPropertyResult = new SetPropertyResult;
-	_setPropertyResult->code = CIM_ERR_SUCCESS;
-	_blocked = false;
-	return 0;
-    }
-    else
-    {
-	throw XmlValidationError(parser.getLine(),
-	    "expected ERROR or IRETURNVALUE element");
-    }
-
     return 0;
 }
-
-//------------------------------------------------------------------------------
-//
-// ClientHandler::waitForResponse()
-//
-//------------------------------------------------------------------------------
 
 Boolean ClientHandler::waitForResponse(Uint32 timeOutMilliseconds)
 {
@@ -1633,28 +1419,6 @@ void CIMClient::runForever()
     for (;;)
 	runOnce();
 }
-
-//------------------------------------------------------------------------------
-//
-// CIMClient::getClass()
-//
-//     <?xml version="1.0" encoding="utf-8" ?>
-//     <CIM CIMVERSION="2.0" DTDVERSION="2.0">
-//       <MESSAGE ID="87872" PROTOCOLVERSION="1.0">
-//         <SIMPLEREQ>
-//           <IMETHODCALL NAME="GetClass">
-// 	       <LOCALNAMESPACEPATH>
-// 	         <NAMESPACE NAME="root"/>
-// 	         <NAMESPACE NAME="cimv2"/>
-// 	       </LOCALNAMESPACEPATH>
-// 	       <IPARAMVALUE NAME="ClassName"><CLASSNAME NAME="X"/></IPARAMVALUE>
-// 	       <IPARAMVALUE NAME="LocalOnly"><VALUE>FALSE</VALUE></IPARAMVALUE>
-// 	     </IMETHODCALL>
-//         </SIMPLEREQ>
-//       </MESSAGE>
-//     </CIM>
-//
-//------------------------------------------------------------------------------
 
 CIMClass CIMClient::getClass(
     const String& nameSpace,
@@ -1895,12 +1659,31 @@ void CIMClient::modifyClass(
 	throw CIMException(code);
 }
 
-
 void CIMClient::modifyInstance(
     const String& nameSpace,
     const CIMInstance& modifiedInstance)
 {
-    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+    String messageId = XmlWriter::getNextMessageId();
+
+    Array<Sint8> params;
+    XmlWriter::appendInstanceParameter(
+	params, "ModifiedInstance", modifiedInstance);
+	
+    Array<Sint8> message = XmlWriter::formatSimpleReqMessage(
+	_getHostName(), nameSpace, "ModifyInstance", params);
+
+    _channel->writeN(message.getData(), message.size());
+
+    if (!_getHandler()->waitForResponse(_timeOutMilliseconds))
+	throw TimedOut();
+
+    ModifyInstanceResult* result = _getHandler()->_modifyInstanceResult;
+    CIMStatusCode code = result->code;
+    delete result;
+    _getHandler()->_modifyInstanceResult = 0;
+
+    if (code != CIM_ERR_SUCCESS)
+	throw CIMException(code);
 }
 
 Array<CIMClass> CIMClient::enumerateClasses(
@@ -1952,12 +1735,6 @@ Array<CIMClass> CIMClient::enumerateClasses(
 
     return classDecls;
 }
-
-//------------------------------------------------------------------------------
-//
-// CIMClient::enumerateClassNames()
-//
-//------------------------------------------------------------------------------
 
 Array<String> CIMClient::enumerateClassNames(
     const String& nameSpace,
@@ -2262,72 +2039,13 @@ Array<CIMReference> CIMClient::referenceNames(
     return objectPaths;
 }
 
-/**-----------------------------------------------------------------------------
-
-<?xml version="1.0" encoding="utf-8" ?>
- <CIM CIMVERSION="2.0" DTDVERSION="2.0">
-  <MESSAGE ID="87872" PROTOCOLVERSION="1.0">
-   <SIMPLEREQ>
-    <IMETHODCALL NAME="GetProperty">
-     <LOCALNAMESPACEPATH>
-      <NAMESPACE NAME="root"/>
-      <NAMESPACE NAME="myNamespace"/>
-     </LOCALNAMESPACEPATH>
-     <IPARAMVALUE NAME="InstanceName">
-      <INSTANCENAME CLASSNAME="MyDisk">
-       <KEYBINDING NAME="DeviceID"><KEYVALUE>C:</KEYVALUE></KEYBINDING>
-      </INSTANCENAME>
-     </IPARAMVALUE>
-     <IPARAMVALUE NAME="PropertyName"><VALUE>FreeSpace</VALUE></IPARAMVALUE>
-    </IMETHODCALL>
-   </SIMPLEREQ>
-  </MESSAGE>
- </CIM>
-
------------------------------------------------------------------------------**/
-
 CIMValue CIMClient::getProperty(
     const String& nameSpace,
     const CIMReference& instanceName,
     const String& propertyName)
 {
-    //throw CIMException(CIM_ERR_NOT_SUPPORTED);
-    //return CIMValue();
-    // taken from get instance
-    String messageId = XmlWriter::getNextMessageId();
-
-    Array<Sint8> params;
-    cout << "DEBUG getProperty " << __LINE__ << endl;
-
-    XmlWriter::appendInstanceNameParameter(
-	params, "InstanceName", instanceName);
-
-    XmlWriter::appendPropertyNameParameter(params,propertyName);
-
-
-    Array<Sint8> message = XmlWriter::formatSimpleReqMessage(
-	_getHostName(),
-	nameSpace, "GetProperty", params);
-
-    // -------- Append propertyName parameter here
-
-    _channel->writeN(message.getData(), message.size());
-
-    if (!_getHandler()->waitForResponse(_timeOutMilliseconds))
-	throw TimedOut();
-    cout << "DEBUG " << __LINE__ << endl;
-
-    // Following changes to return value rather than instance
-    GetPropertyResult* result = _getHandler()->_getPropertyResult;
-    CIMValue cimValue = result->cimValue;
-    CIMStatusCode code = result->code;
-    delete result;
-    _getHandler()->_getPropertyResult = 0;
-
-    if (code != CIM_ERR_SUCCESS)
-	throw CIMException(code);
-
-    return cimValue;
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+    return CIMValue();
 }
 
 void CIMClient::setProperty(
@@ -2337,34 +2055,6 @@ void CIMClient::setProperty(
     const CIMValue& newValue)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
-
-
-    String messageId = XmlWriter::getNextMessageId();
-
-    Array<Sint8> params;
-    XmlWriter::appendInstanceNameParameter(
-	params, "InstanceName", instanceName);
-
-    Array<Sint8> message = XmlWriter::formatSimpleReqMessage(
-	_getHostName(),
-	nameSpace, "SetProperty", params);
-
-    // append propertyName and newValue properties here
-
-    _channel->writeN(message.getData(), message.size());
-
-    if (!_getHandler()->waitForResponse(_timeOutMilliseconds))
-	throw TimedOut();
-
-    SetPropertyResult* result = _getHandler()->_setPropertyResult;
-    CIMStatusCode code = result->code;
-    delete result;
-    _getHandler()->_setPropertyResult = 0;
-
-    if (code != CIM_ERR_SUCCESS)
-	throw CIMException(code);
-
-
 }
 
 CIMQualifierDecl CIMClient::getQualifier(

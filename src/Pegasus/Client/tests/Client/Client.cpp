@@ -315,7 +315,12 @@ int main(int argc, char** argv)
 
 	client.connect("localhost:5988");
 
-#if 0
+
+	TestGetClass(client);
+	TestQualifierOperations(client);
+	TestClassOperations(client);
+	TestInstanceOperations(client);
+
 	// To run the following test, first compile "test.mof" into the
 	// repository!
 	TestAssociatorNames(client);
@@ -324,12 +329,6 @@ int main(int argc, char** argv)
 	TestReferences(client);
 	TestAssociatorClassNames(client);
 	TestReferenceClassNames(client);
-#endif
-
-	TestGetClass(client);
-	TestQualifierOperations(client);
-	TestClassOperations(client);
-	TestInstanceOperations(client);
     }
     catch(Exception& e)
     {

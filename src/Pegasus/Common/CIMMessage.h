@@ -408,7 +408,7 @@ public:
     String query;
 };
 
-class CIMAssociatorsRequestMessage : CIMRequestMessage
+class CIMAssociatorsRequestMessage : public CIMRequestMessage
 {
 public:    
 
@@ -451,7 +451,7 @@ public:
     Array<String> propertyList;
 };
 
-class CIMAssociatorNamesRequestMessage : CIMRequestMessage
+class CIMAssociatorNamesRequestMessage : public CIMRequestMessage
 {
 public:
 
@@ -466,7 +466,7 @@ public:
 	Uint32 queueId_) 
 	: 
 	CIMRequestMessage(
-	    CIM_ASSOCIATORS_REQUEST_MESSAGE, messageId_, queueId_),
+	    CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE, messageId_, queueId_),
 	nameSpace(nameSpace_),
 	objectName(objectName_),
 	assocClass(assocClass_),
@@ -502,7 +502,7 @@ public:
 	CIMRequestMessage(CIM_REFERENCES_REQUEST_MESSAGE, messageId_, queueId_),
 	nameSpace(nameSpace_),
 	objectName(objectName_),
-	resultClass(resultClass),
+	resultClass(resultClass_),
 	role(role_),
 	includeQualifiers(includeQualifiers_),
 	includeClassOrigin(includeClassOrigin_),
@@ -633,7 +633,7 @@ public:
 	Uint32 queueId_) 
 	:
 	CIMRequestMessage(
-	    CIM_GET_QUALIFIER_REQUEST_MESSAGE, messageId_, queueId_),
+	    CIM_SET_QUALIFIER_REQUEST_MESSAGE, messageId_, queueId_),
 	nameSpace(nameSpace_),
 	qualifierDeclaration(qualifierDeclaration_)
     {
@@ -860,11 +860,11 @@ public:
     Array<CIMClass> cimClasses;
 };
 
-class CIMEnumerateClassNameResponseMessage : public CIMResponseMessage
+class CIMEnumerateClassNamesResponseMessage : public CIMResponseMessage
 {
 public:
 
-    CIMEnumerateClassNameResponseMessage(
+    CIMEnumerateClassNamesResponseMessage(
         const String& messageId_,
         CIMStatusCode errorCode_,
 	const String& errorDescription_,
@@ -898,11 +898,11 @@ public:
     Array<CIMInstance> cimInstances;
 };
 
-class CIMEnumerateInstanceNameResponseMessage : public CIMResponseMessage
+class CIMEnumerateInstanceNamesResponseMessage : public CIMResponseMessage
 {
 public:
 
-    CIMEnumerateInstanceNameResponseMessage(
+    CIMEnumerateInstanceNamesResponseMessage(
         const String& messageId_,
         CIMStatusCode errorCode_,
 	const String& errorDescription_,

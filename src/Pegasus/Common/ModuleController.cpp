@@ -295,9 +295,11 @@ ModuleController & ModuleController::register_module(const String & controller_n
 
    MessageQueueService *service = static_cast<MessageQueueService *>(message_queue);
    if( (service == NULL) ||  ! ( service->get_capabilities() & module_capabilities::module_controller ))
+   {
+      // ATTN-RK-P1-20020326: Missing code here?
+   }
 
-
-   ModuleController *controller = static_cast<ModuleController *>(service);
+   controller = static_cast<ModuleController *>(service);
    
    // see if the module already exists in this controller.
    controller->_modules.lock();

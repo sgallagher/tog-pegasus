@@ -40,7 +40,7 @@ public class CIMObjectPath
    private native int    _newCn(String cn);
    private native int    _newCnNs(String cn, String ns);
    private native int    _newCi(int ci);
-   private native int    _newCiNs(int ci,String ns);//to be implemented
+   private native int    _newCiNs(int ci,String ns);
    private native void   _finalize(int ci);
    private native String _getNameSpace(int ci);
    private native void   _setNameSpace(int ci, String ns);

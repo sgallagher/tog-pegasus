@@ -49,6 +49,7 @@ public class CIMClass implements CIMElement
 {
    int cInst;
    private native int     _newInstance(int cInst);
+   private native int     _filterProperties(int cInst, String[] pl, boolean iq, boolean ic, boolean lo);
    private native String  _getName(int cInst);
    private native int     _getQualifier(int cInst, String n);
    private native Vector  _getQualifiers(int cInst, Vector vec);
@@ -85,6 +86,15 @@ public class CIMClass implements CIMElement
      */
    public CIMInstance newInstance() {
       return new CIMInstance(_newInstance(cInst));
+   }
+
+   public CIMClass filterProperties(String propertyList[],
+        boolean includeQualifier, boolean includeClassOrigin) {
+      return new CIMClass(_filterProperties(cInst,propertyList,includeQualifier,includeClassOrigin,false));
+   }
+
+   public CIMClass localElements() {
+      return new CIMClass(_filterProperties(cInst,null,false,false,true));
    }
 
     /**

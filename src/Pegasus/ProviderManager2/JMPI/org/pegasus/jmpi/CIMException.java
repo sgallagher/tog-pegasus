@@ -76,8 +76,9 @@ public class CIMException  extends Exception {
       CIM_ERR_METHOD_NOT_FOUND
    };
 
-   String msg;
-   String id;
+   protected String msg=null;
+   protected String id;
+   protected Object[] params = null;
 
    public CIMException() {
    }
@@ -104,6 +105,27 @@ public class CIMException  extends Exception {
       id=strId;
    }
 
+   public CIMException(String strId, Object o1) {
+      id=strId;
+      params = new Object[1];
+      params[0] = o1;
+   }
+
+   public CIMException(String strId, Object o1, Object o2) {
+      id=strId;
+      params = new Object[2];
+      params[0] = o1;
+      params[0] = o2;
+   }
+
+    public CIMException(String strId, Object o1, Object o2, Object o3) {
+      id=strId;
+      params = new Object[3];
+      params[0] = o1;
+      params[0] = o2;
+      params[0] = o3;
+   }
+
    public String getID() {
       return(id);
    }
@@ -115,10 +137,29 @@ public class CIMException  extends Exception {
    }
 
    public String toString() {
-      return(id+" ("+msg+")");
+      if (msg!=null)
+         return(id+" ("+msg+")");
+      String str=id;
+      for (int i=0,m=params.length; i<m; i++) {
+          if (i==0) str=str+"\n";
+          else str=str+",";
+          str=str+params[i];
+       }
+       return str;
    }
 
-   static {
+    public String getMessage() {
+      if (msg!=null)
+         return(msg);
+      String str="";
+      for (int i=0,m=params.length; i<m; i++) {
+          if (i!=0) str=str+",";
+          str=str+params[i];
+       }
+       return str;
+   }
+
+  static {
    }
 };
 

@@ -343,56 +343,45 @@ public class CIMClient {
 	       CIMValue newValue) throws CIMException {
        _setProperty(cInst,cNsInst,path.cInst,propertyName,newValue.cInst);
     }
-   
+
     public Enumeration execQuery(CIMObjectPath path,
 				 String query,String ql) throws CIMException {
        return new InstEnumeration(_execQuery(cInst,cNsInst,path.cInst,query,ql));
     }
-    
-    public Enumeration associatorNames(CIMObjectPath path,
-               String assocClass,
-					String resultClass,
-					String role,
-               String resultRole) 
-	       throws CIMException{
-       return new InstEnumeration(_associatorNames(cInst,cNsInst,path.cInst,
+
+    public Enumeration associatorNames(CIMObjectPath path, String assocClass,
+                String resultClass, String role,
+                String resultRole)
+        throws CIMException{
+       return new PathEnumeration(_associatorNames(cInst,cNsInst,path.cInst,
             assocClass,resultClass,role,resultRole));
     }
 
-    public Enumeration associators(CIMObjectPath path,
-					String assocClass,
-					String resultClass,
-					String role,
-					String resultRole,
-					boolean includeQualifiers,
-					boolean includeClassOrigin,
-					String propertyList[]) 
+    public Enumeration associators(CIMObjectPath path, String assocClass,
+                String resultClass, String role,
+                String resultRole, boolean includeQualifiers,
+                boolean includeClassOrigin, String propertyList[])
           throws CIMException {
-       return new InstEnumeration(_associators(cInst,cNsInst,path.cInst,
+        return new InstEnumeration(_associators(cInst,cNsInst,path.cInst,
             assocClass,resultClass,role,resultRole,
             includeQualifiers,includeClassOrigin,propertyList));
     }
 
     public Enumeration referenceNames(CIMObjectPath path,
-					String resultClass,
-					String role) 
-	        throws CIMException{
-        return new InstEnumeration(_referenceNames(cInst,cNsInst,path.cInst,
+                String resultClass, String role)
+        throws CIMException{
+       return new PathEnumeration(_referenceNames(cInst,cNsInst,path.cInst,
             resultClass,role));
     }
 
-    public Enumeration references(CIMObjectPath path,
-					String resultClass,
-					String role,
-					boolean includeQualifiers,
-					boolean includeClassOrigin,
-					String propertyList[]) 
-		     throws CIMException {
-        return new InstEnumeration(_references(cInst,cNsInst,path.cInst,
-            resultClass,role,
-            includeQualifiers,includeClassOrigin,propertyList));
+    public Enumeration references(CIMObjectPath path, String resultClass,
+                String role, boolean includeQualifiers,
+                boolean includeClassOrigin, String propertyList[])
+        throws CIMException {
+       return new InstEnumeration(_references(cInst,cNsInst,path.cInst,
+            resultClass,role,includeQualifiers,includeClassOrigin,propertyList));
     }
-/*    
+/*
     public CIMNameSpace getNameSpace() {
     }
     public CIMFeatures getServerFeatures() throws CIMException

@@ -46,6 +46,7 @@ public class CIMInstance implements CIMElement {
    String name;
    private native int    _new();
    private native int    _newCn(String n);
+   private native int    _filterProperties(int cInst, String[] pl, boolean iq, boolean ic, boolean lo);
    private native void   _setName(int cInst, String n);
    private native void   _setProperty(int cInst, String n, int vInst);
    private native void   _setProperties(int cInst, Vector v);
@@ -55,7 +56,7 @@ public class CIMInstance implements CIMElement {
    private native String _getClassName(int cInst);
    private native int    _getQualifier(int cInst,String n);
    private native int    _clone(int cInst);
-   private native String _toString(int cInst);    
+   private native String _toString(int cInst);
    private native void   _finalize(int ci);
 
    protected void finalize() {
@@ -77,6 +78,15 @@ public class CIMInstance implements CIMElement {
    public CIMInstance(String cn) {
       name=cn;
       cInst=_newCn(cn);
+   }
+
+   public CIMInstance filterProperties(String propertyList[],
+        boolean includeQualifier, boolean includeClassOrigin) {
+      return new CIMInstance(_filterProperties(cInst,propertyList,includeQualifier,includeClassOrigin,false));
+   }
+
+   public CIMInstance localElements() {
+      return new CIMInstance(_filterProperties(cInst,null,false,false,true));
    }
 
    public void setName(String n) {
@@ -111,7 +121,7 @@ public class CIMInstance implements CIMElement {
         if (p!=-1) return new CIMProperty(p);
       return null;
    }
-   
+
     /**
         Returns the list of key-value pairs for this instance
         @return Vector  list of key-value pairs for this instance
@@ -119,7 +129,7 @@ public class CIMInstance implements CIMElement {
    public Vector getKeyValuePairs() {
       return _getKeyValuePairs(cInst,new Vector());
    }
-   
+
     /**
         Gets the properties list
         @return Vector  properties list
@@ -127,15 +137,15 @@ public class CIMInstance implements CIMElement {
    public Vector getProperties() {
       return _getProperties(cInst,new Vector());
    }
-   
+
     /**
         Returns the class name of the instance
         @return String with the class name.
      */
    public String getClassName() {
       return _getClassName(cInst);
-   }   
-   
+   }
+
     /**
         getQualifiers - Retrieves the qualifier object defined for this
                         instance.
@@ -147,7 +157,7 @@ public class CIMInstance implements CIMElement {
          return new CIMQualifier(qInst);
       return null;
    }
-   
+
     /**
         Returns a String representation of the CIMInstance.
         @return String representation of the CIMInstance

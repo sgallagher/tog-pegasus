@@ -14,11 +14,13 @@ PACKAGEDIR = org/pegasus/jmpi
    CIMDataType.class \
    CIMDateTime.class \
    CIMException.class \
+   CIMInstanceException.class \
    CIMInstance.class \
    CIMMethod.class \
    CIMNameSpace.class \
    CIMObjectPath.class \
    CIMOMHandle.class \
+   ProviderCIMOMHandle.class \
    CIMProperty.class \
    CIMValue.class \
    CIMQualifier.class \
@@ -29,6 +31,10 @@ PACKAGEDIR = org/pegasus/jmpi
    CIMArgument.class \
    \
    CIMProvider.class \
+   CIMInstanceProvider.class \
+   CIMAssociatorProvider.class \
+   CIMMethodProvider.class \
+   \
    InstanceProvider.class \
    MethodProvider.class \
    AssociatorProvider.class \

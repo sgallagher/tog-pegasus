@@ -1,6 +1,9 @@
 /* PegasusDoc.dxx - Top Level file for Developer Documentation.
 This file defines the document strucuture and provides the introduction
 	$Log: PegasusDoc.dxx,v $
+	Revision 1.18  2001/05/21 17:33:33  karl
+	Update version number
+	
 	Revision 1.17  2001/05/05 10:07:23  karl
 	
 	no Change
@@ -110,7 +113,13 @@ This version of the Pegasus User Manual was created at \today
           <td width="13%">05/03/2001</td>
           <td width="37%">Karl</td>
           <td width="117%">Generate for 0.9 Pegasus Code</td>
-  </tr
+  </tr> 
+  <tr>
+          <td width="10%">0.97</td>
+          <td width="13%">05/21/2001</td>
+          <td width="37%">Karl</td>
+          <td width="117%">Generate for 0.97 Pegasus Code</td>
+  </tr>
 </table></p>
 */
 

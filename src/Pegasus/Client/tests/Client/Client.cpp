@@ -34,7 +34,7 @@
 //              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
-//              Amit K Arora, IBM (amita@in.ibm.com) for Bug#1979
+//              Amit K Arora, IBM (amita@in.ibm.com) for Bug#1979,#2011
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -239,6 +239,12 @@ static void TestInstanceOperations(CIMClient& client)
 
     // cimInstance.print();
     // tmp.print();
+
+    if(cimInstance.getPath() != tmp.getPath())
+    {
+       Exception e("Instances do not match.");
+       throw e;
+    }
 
     client.deleteInstance(SAMPLEPROVIDER_NAMESPACE, instanceName);
 }

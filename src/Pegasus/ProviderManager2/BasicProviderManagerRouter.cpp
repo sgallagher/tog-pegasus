@@ -334,7 +334,7 @@ ProviderManager* BasicProviderManagerRouter::_lookupProviderManager(
         }
 #endif
 
-#if defined(ENABLE_CMPI_PROVIDER_MANAGER)
+#if defined(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER)
         if (interfaceType == "CMPI")
         {
             ProviderManagerContainer* pmc = new ProviderManagerContainer(
@@ -344,7 +344,7 @@ ProviderManager* BasicProviderManagerRouter::_lookupProviderManager(
         }
 #endif
 
-#if defined(ENABLE_JMPI_PROVIDER_MANAGER)
+#if defined(PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER)
         if (interfaceType == "JMPI")
         {
             ProviderManagerContainer* pmc = new ProviderManagerContainer(

@@ -58,7 +58,7 @@ DIRS += \
 endif
 
 ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
-   ifdef ENABLE_JMPI_PROVIDER_MANAGER
+   ifdef PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER
       DIRS += \
          ProviderManager2/JMPI
    endif

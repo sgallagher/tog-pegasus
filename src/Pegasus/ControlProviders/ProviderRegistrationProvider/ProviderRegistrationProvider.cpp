@@ -448,7 +448,7 @@ void ProviderRegistrationProvider::createInstance(
             get(ifcTypeString);
 
         if (ifcTypeString != "C++Default"
-#ifdef ENABLE_CMPI_PROVIDER_MANAGER
+#ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
             && ifcTypeString != "CMPI"
 #endif
 	        )
@@ -476,7 +476,7 @@ void ProviderRegistrationProvider::createInstance(
         instanceObject.getProperty(ifcVersionIndex).getValue().
             get(ifcVersionString);
         if (
-#ifdef ENABLE_CMPI_PROVIDER_MANAGER
+#ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
            (ifcTypeString == "CMPI" &&
             ifcVersionString != "2.0.0") ||
 #endif

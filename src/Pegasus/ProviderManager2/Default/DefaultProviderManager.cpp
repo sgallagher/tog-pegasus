@@ -2074,6 +2074,13 @@ Message * DefaultProviderManager::handleDeleteSubscriptionRequest(const Message 
     {
         String temp;
 
+        if (request->classNames.size()==0) {
+           cout<<"--- Internal error: empty classlist found in CIMDeleteSubscriptionRequestMessage"<<
+              endl;
+           throw CIMException(CIM_ERR_FAILED,
+              "Internal error: empty classlist found in CIMDeleteSubscriptionRequestMessage");
+        }
+        
         for(Uint32 i = 0, n = request->classNames.size(); i < n; i++)
         {
             temp.append(request->classNames[i].getString());

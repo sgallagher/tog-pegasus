@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CIMRepository.cpp,v $
+// Revision 1.11  2001/04/13 18:22:54  mike
+// Cleaned up memory leaks.
+//
 // Revision 1.10  2001/04/08 01:13:22  mike
 // Changed "ConstCIM" to "CIMConst"
 //
@@ -354,7 +357,7 @@ void _SaveObject(const String& path, Object& object)
     object.toXml(out);
     out.append('\0');
 
-    Destroyer<char> destroyer(path.allocateCString());
+    ArrayDestroyer<char> destroyer(path.allocateCString());
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
     std::ofstream os(destroyer.getPointer(), std::ios::binary);
@@ -563,7 +566,7 @@ CIMRepository::CIMRepository(const String& path)
 
 CIMRepository::~CIMRepository()
 {
-
+    delete _context;
 }
 
 CIMClass CIMRepository::getClass(
@@ -1049,7 +1052,10 @@ void CIMRepository::createNameSpace(const String& nameSpace)
     _MakeNameSpacePath(_root, nameSpace, path);
 
     if (FileSystem::exists(path))
+    {
+        return;
 	throw AlreadyExists(nameSpace);
+    }
 
     if (!FileSystem::makeDirectory(path))
 	throw CannotCreateDirectory(path);

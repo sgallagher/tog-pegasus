@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: InstanceIndexFile.cpp,v $
+// Revision 1.5  2001/04/13 18:22:54  mike
+// Cleaned up memory leaks.
+//
 // Revision 1.4  2001/03/11 23:35:33  mike
 // Ports to Linux
 //
@@ -122,7 +125,7 @@ Boolean InstanceIndexFile::lookup(
     if (!FileSystem::existsIgnoreCase(path, realPath))
 	throw CannotOpenFile(path);
 
-    Destroyer<char> p(realPath.allocateCString());
+    ArrayDestroyer<char> p(realPath.allocateCString());
 
     ifstream is(p.getPointer());
 
@@ -168,7 +171,7 @@ Boolean InstanceIndexFile::insert(
     //--------------------------------------------------------------------------
 
     Uint32 newIndex = Uint32(-1);
-    Destroyer<char> p(path.allocateCString());
+    ArrayDestroyer<char> p(path.allocateCString());
     ifstream is(p.getPointer());
 
     if (is)
@@ -243,7 +246,7 @@ Boolean InstanceIndexFile::remove(
 {
     // Open output file:
 
-    Destroyer<char> p(path.allocateCString(4));
+    ArrayDestroyer<char> p(path.allocateCString(4));
     strcat(p.getPointer(), ".tmp");
     ofstream os(p.getPointer());
 
@@ -252,7 +255,7 @@ Boolean InstanceIndexFile::remove(
 
     // Open intput file:
 
-    Destroyer<char> q(path.allocateCString());
+    ArrayDestroyer<char> q(path.allocateCString());
     ifstream is(q.getPointer());
 
     if (!is)

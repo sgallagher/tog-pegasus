@@ -21,69 +21,53 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
+// Author: Chip Vincent (cvincent@us.ibm.com)
 //
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_CIMExportRequestDispatcher_h
-#define Pegasus_CIMExportRequestDispatcher_h
+#ifndef Pegasus_CIMIndicationConsumer_h
+#define Pegasus_CIMIndicationConsumer_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/MessageQueue.h>
-#include <Pegasus/Common/CIMMessage.h>
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/CIMObject.h>
-#include <Pegasus/Provider/CIMIndicationConsumer.h>
-#include <Pegasus/ExportServer/Linkage.h>
+#include <Pegasus/Common/CIMInstance.h>
+#include <Pegasus/Common/OperationContext.h>
 
-#include "ConsumerTable.h"
+#include "Linkage.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-/** This class dispatches CIM export requests. For now it simply
+/**
+This class defines the set of methods implemented by an indication consumer provider.
+A providers that derives from this class must implement all methods. The minimal method
+implementation simply throw the NotSupported exception.
 */
-class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportRequestDispatcher
-    : public MessageQueue
+class PEGASUS_CONSUMER_LINKAGE CIMIndicationConsumer
 {
 public:
+	CIMIndicationConsumer(void);
+	virtual ~CIMIndicationConsumer(void);
 
-  typedef MessageQueue Base;
+	/**
+	@param contex contains security and locale information relevant for the lifetime
+	of this operation.
+	
+	@param url
+	
+	@param indicationInstance
+	*/
+	//virtual void handleIndication(
+	//    const OperationContext & context,
+	//    const CIMInstance & indication,
+        //    ResponseHandler<CIMInstance> & handler) = 0;
 
-    CIMExportRequestDispatcher();
-
-    CIMExportRequestDispatcher(
-	Boolean dynamicReg,
-	Boolean staticConsumers,
-	Boolean persistence);
-
-    virtual ~CIMExportRequestDispatcher();
-
-protected:
-
-    CIMIndicationConsumer* _lookupConsumer(const String& url);
-
-    virtual void handleEnqueue();
-
-    virtual const char* getQueueName() const;
-        
-private:
-
-    void _handleExportIndicationRequest(
-	CIMExportIndicationRequestMessage* request);
-
-    void _enqueueResponse(
-	CIMRequestMessage* request,
-	CIMResponseMessage* response);
-
-    ConsumerTable _consumerTable;
-
-    Boolean _dynamicReg;
-    Boolean _staticConsumers;
-    Boolean _persistence;
+	virtual void handleIndication(
+		const OperationContext & context,
+		const String & url,
+		const CIMInstance& indicationInstance);
 };
 
 PEGASUS_NAMESPACE_END
 
-#endif /* Pegasus_CIMExportRequestDispatcher_h */
+#endif

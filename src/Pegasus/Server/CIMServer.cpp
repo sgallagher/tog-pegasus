@@ -159,7 +159,7 @@ CIMServer::CIMServer(
     }
 
     _cimExportRequestDispatcher
-	= new CIMExportRequestDispatcher(repository);
+	= new CIMExportRequestDispatcher();
 
     _cimExportResponseEncoder
 	= new CIMExportResponseEncoder;

@@ -21,69 +21,63 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
+// Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
-// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_CIMExportRequestDispatcher_h
-#define Pegasus_CIMExportRequestDispatcher_h
-
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/MessageQueue.h>
-#include <Pegasus/Common/CIMMessage.h>
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/CIMObject.h>
-#include <Pegasus/Provider/CIMIndicationConsumer.h>
-#include <Pegasus/ExportServer/Linkage.h>
-
-#include "ConsumerTable.h"
+#include <iostream>
+#include <Pegasus/Consumer/CIMIndicationConsumer.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-/** This class dispatches CIM export requests. For now it simply
-*/
-class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportRequestDispatcher
-    : public MessageQueue
+PEGASUS_USING_STD;
+
+class PEGASUS_PROVIDER_LINKAGE DisplayConsumer : public CIMIndicationConsumer
 {
 public:
 
-  typedef MessageQueue Base;
+    DisplayConsumer()
+    {
 
-    CIMExportRequestDispatcher();
+    }
 
-    CIMExportRequestDispatcher(
-	Boolean dynamicReg,
-	Boolean staticConsumers,
-	Boolean persistence);
+    virtual ~DisplayConsumer()
+    {
 
-    virtual ~CIMExportRequestDispatcher();
+    }
 
-protected:
+    void initialize()
+    {
+	
+    }
 
-    CIMIndicationConsumer* _lookupConsumer(const String& url);
+    void terminate()
+    {
 
-    virtual void handleEnqueue();
+    }
 
-    virtual const char* getQueueName() const;
-        
-private:
-
-    void _handleExportIndicationRequest(
-	CIMExportIndicationRequestMessage* request);
-
-    void _enqueueResponse(
-	CIMRequestMessage* request,
-	CIMResponseMessage* response);
-
-    ConsumerTable _consumerTable;
-
-    Boolean _dynamicReg;
-    Boolean _staticConsumers;
-    Boolean _persistence;
+    void handleIndication(
+	const OperationContext & context,
+	const String& url,
+	const CIMInstance& indicationInstance)
+    {
+	Array<Sint8> buffer;
+	indicationInstance.toXml(buffer);
+	cout << buffer.getData() << endl;
+    }
 };
 
-PEGASUS_NAMESPACE_END
+// This is the dynamic entry point into this dynamic module. The name of
+// this handler is "FlatFileConsumer" which is appened to "PegasusCreateHandler_"
+// to form a symbol name. This function is called by the HandlerTable
+// to load this handler.
 
-#endif /* Pegasus_CIMExportRequestDispatcher_h */
+extern "C" PEGASUS_EXPORT CIMIndicationConsumer*
+    PegasusCreateIndicationConsumer_DisplayConsumer() {
+    return new DisplayConsumer;
+}
+
+PEGASUS_NAMESPACE_END

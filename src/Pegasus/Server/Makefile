@@ -43,7 +43,8 @@ SOURCES = \
     ProviderManager/ProviderBlockedEntry.cpp \
     ConfigurationManager/ConfigurationManagerQueue.cpp \
     ConfigurationManager/PG_RegistrationProvider.cpp \
-    IndicationService/IndicationService.cpp
+    IndicationService/IndicationService.cpp \
+    IndicationService/HandlerTable.cpp
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 

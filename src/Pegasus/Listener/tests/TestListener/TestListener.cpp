@@ -20,7 +20,7 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
+// Author: 
 //
 // Modified By:
 //
@@ -30,52 +30,14 @@
 #include <cstdio>
 #include <cassert>
 #include <iostream>
+#include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/HTTPAcceptor.h>
 #include <Pegasus/Common/HTTPConnection.h>
 #include <Pegasus/Common/HTTPMessage.h>
-#include <Pegasus/Repository/CIMRepository.h>
-#include <Pegasus/ExportServer/CIMExportRequestDecoder.h>
-#include <Pegasus/ExportServer/CIMExportResponseEncoder.h>
-#include <Pegasus/ExportServer/CIMExportRequestDispatcher.h>
+#include <Pegasus/Listener/CIMListener.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// ListenerQueue
-//
-////////////////////////////////////////////////////////////////////////////////
-
-class ListenerQueue : public MessageQueue
-{
-public:
-
-    virtual void handleEnqueue();
-
-    virtual const char* getQueueName() const { return "ListenerQueue"; }
-
-    static Message* handleHTTPMessage(HTTPMessage* requestMessage);
-};
-
-void ListenerQueue::handleEnqueue()
-{
-    Message* message = dequeue();
-    assert(message != 0);
-
-    if (message->getType() == HTTP_MESSAGE)
-    {
-	// Down-cast the message to its derived type:
-
-	HTTPMessage* requestHTTPMessage = (HTTPMessage*)message;
-
-	// Print the incoming message:
-
-	requestHTTPMessage->printAll(cout);
-    }
-
-    delete message;
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -87,40 +49,36 @@ int main()
 {
     try
     {
+	// Get environment variables:
+
+	const char* tmp = getenv("PEGASUS_HOME");
+
+	if (!tmp)
+	{
+	    cerr << "PEGASUS_HOME environment variable undefined" << endl;
+	    exit(1);
+	}
+
+	String pegasusHome = tmp;
+	FileSystem::translateSlashes(pegasusHome);
+
 	// Create a monitor to watch for activity on sockets:
 
         Monitor* monitor = new Monitor;
 
-	CIMExportRequestDispatcher* dispatcher
-	    = new CIMExportRequestDispatcher();
+	CIMListener listener(monitor, pegasusHome, false, false, false);
+		
+	char* end = 0;
+	long portNumber = strtol("8888", &end, 10);
+	assert(end != 0 && *end == '\0');
+	listener.bind(portNumber);
 
-	CIMExportResponseEncoder* encoder
-	    = new CIMExportResponseEncoder;
-
-	CIMExportRequestDecoder* decoder = new CIMExportRequestDecoder(
-	    dispatcher,
-	    encoder->getQueueId());
-
-	// Create an acceptor to wait for and accept connections on the
-	// server port.
-
-	HTTPAcceptor* acceptor = new HTTPAcceptor(monitor, decoder);
-
-	// Bind the acceptor to listen on the given port:
-
-	const Uint32 PORT_NUMBER = 8888;
-	cout << "Binding to port " << PORT_NUMBER << "..." << endl;
-	acceptor->bind(PORT_NUMBER);
-
-	// Run the main loop (timeout after five seconds):
-
-	const Uint32 FIVE_SECONDS_MSEC = 5 * 1000;
-
-	for (;;)
-	{
-	    // cout << "Loop..." << endl;
-	    monitor->run(FIVE_SECONDS_MSEC);
-	}
+        //
+        // Loop to call Listener's runForever() method until CIMListener
+        // has been shutdown
+        //
+	while(!listener.terminated())
+	    listener.runForever();
     }
     catch (Exception& e)
     {

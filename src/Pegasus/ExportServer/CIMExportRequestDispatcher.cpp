@@ -30,7 +30,6 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Provider/CIMOMHandle.h>
-#include <Pegasus/Repository/CIMRepository.h>
 
 #include "CIMExportRequestDispatcher.h"
 
@@ -39,10 +38,17 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 CIMExportRequestDispatcher::CIMExportRequestDispatcher(
-    CIMRepository* repository)
-    : Base("CIMExportDispatcher", true), _repository(repository)
+    Boolean dynamicReg, Boolean staticConsumers, Boolean persistence)
+    : Base("CIMExportDispatcher", true),
+    _dynamicReg(dynamicReg), 
+    _staticConsumers(staticConsumers), 
+    _persistence(persistence)
 {
+    _consumerTable.set(_dynamicReg, _staticConsumers, _persistence);
+}
 
+CIMExportRequestDispatcher::CIMExportRequestDispatcher()
+{
 }
 
 CIMExportRequestDispatcher::~CIMExportRequestDispatcher()
@@ -94,29 +100,49 @@ void CIMExportRequestDispatcher::_enqueueResponse(
 void CIMExportRequestDispatcher::_handleExportIndicationRequest(
     CIMExportIndicationRequestMessage* request)
 {
-    // ATTN: This is just demo code
-
     OperationContext context;
 
     CIMStatusCode errorCode = CIM_ERR_SUCCESS;
     String errorDescription;
 
-    // REVIEW: CIMIndicationConsumer implementation is tied to provider
-    // interface which makes it unsuable by stand-alone listeners
-    // which aren't CIMOMs and don't have provider interfaces.
-
-    CIMIndicationConsumer* consumer = _lookupConsumer(request->url);
-
-    if (consumer)
+    if (request->indicationInstance.getClassName() == 
+	"PG_IndicationConsumerRegistration")
     {
-    	consumer->handleIndication(
-	    context,
-	    request->url,
-	    request->indicationInstance);
+	CIMInstance instance = request->indicationInstance;
+	if (instance.existsProperty("ConsumerId") &&
+	    instance.existsProperty("Location") &&
+	    instance.existsProperty("ActionType"))
+	{
+	    errorCode = _consumerTable.registerConsumer(
+		instance.getProperty(instance.findProperty("ConsumerId"))
+		    .getValue().toString(),
+		instance.getProperty(instance.findProperty("Location"))
+		    .getValue().toString(),
+		instance.getProperty(instance.findProperty("ActionType"))
+		    .getValue().toString(),
+		errorDescription);
+	}
+	else
+	{
+	    errorCode = CIM_ERR_FAILED;
+	    errorDescription = "Invalid Consumer registration data";
+	}
     }
     else
     {
-	throw CIMException(CIM_ERR_FAILED);
+	CIMIndicationConsumer* consumer = _lookupConsumer(request->url);
+
+	if (consumer)
+	{
+    	    consumer->handleIndication(
+		context,
+		request->url,
+		request->indicationInstance);
+	}
+	else
+	{
+	    throw CIMException(CIM_ERR_FAILED);
+	}
     }
 
     CIMExportIndicationResponseMessage* response =
@@ -129,134 +155,18 @@ void CIMExportRequestDispatcher::_handleExportIndicationRequest(
     _enqueueResponse(request, response);
 }
 
-// REVIEW: this implementation ties the CIMExportRequestDispatcher
-// to the CIMOM so that it cannot be used in a standalone listener.
-// This belongs in the indication processor.
-
-void CIMExportRequestDispatcher::handleIndication(
-    CIMInstance& indicationHandlerInstance,
-    CIMInstance& indicationInstance,
-    String nameSpace)
-{
-    String className = indicationHandlerInstance.getClassName();
-    CIMHandler* handler = _lookupHandlerForClass(nameSpace, className);
-
-    if (handler)
-    {
-	handler->handleIndication(
-	    indicationHandlerInstance,
-	    indicationInstance,
-	    nameSpace);
-    }
-    else
-	throw CIMException(CIM_ERR_FAILED);
-}
-
-CIMHandler* CIMExportRequestDispatcher::_lookupHandlerForClass(
-    const String& nameSpace,
-    const String& className)
-{
-    //----------------------------------------------------------------------
-    // Look up the class:
-    //----------------------------------------------------------------------
-
-    CIMClass cimClass = _repository->getClass(nameSpace, className);
-
-    if (!cimClass)
-	throw CIMException(CIM_ERR_INVALID_CLASS);
-
-    //----------------------------------------------------------------------
-    // Get the handler qualifier:
-    //----------------------------------------------------------------------
-
-    Uint32 pos = cimClass.findQualifier("Handler");
-
-    if (pos == PEG_NOT_FOUND)
-	return 0;
-
-    CIMQualifier q = cimClass.getQualifier(pos);
-    String handlerId;
-
-    q.getValue().get(handlerId);
-
-    CIMHandler* handler = _handlerTable.lookupHandler(handlerId);
-
-    if (!handler)
-    {
-	handler = _handlerTable.loadHandler(handlerId);
-
-	if (!handler)
-	    throw CIMException(CIM_ERR_FAILED);
-
-	handler->initialize(_repository);
-    }
-
-    return handler;
-}
-
 // REVIEW: Why must consumer be dynamically loaded? It makes sense in
 // the case in which they are provider (then let the provider manager do it).
 
 CIMIndicationConsumer* CIMExportRequestDispatcher::_lookupConsumer(
     const String& url)
 {
-    //ATTN: How to get NAMESPACE? Defining just to proceed further.
-    String NAMESPACE = "root/cimv2";
-
-    Array<CIMNamedInstance> cNamedInst;
-    cNamedInst = _repository->enumerateInstances(NAMESPACE,
-        "PG_ConsumerRegistration");
-
-    String consumerName;
-
-    for (Uint32 i=0; (i < cNamedInst.size()) && (consumerName.size() == 0); i++)
-    {
-        Uint32 urlPropertyPos;
-        Uint32 consumerPropertyPos;
-        String consumerUrl;
-        CIMInstance& cInst = cNamedInst[i].getInstance();
-
-        urlPropertyPos = cInst.findProperty("url");
-
-        // Ignore malformed consumer registration
-        if (urlPropertyPos != PEG_NOT_FOUND)
-        {
-            try
-            {
-                cInst.getProperty(urlPropertyPos).getValue()
-                    .get(consumerUrl);
-                if (consumerUrl == url)
-                {
-                    consumerPropertyPos = cInst.findProperty("consumerName");
-
-                    // Ignore malformed consumer registration
-                    if (consumerPropertyPos != PEG_NOT_FOUND)
-                    {
-                        // TypeMismatch exception is caught in outer block
-                        cInst.getProperty(consumerPropertyPos).getValue()
-                            .get(consumerName);
-                    }
-                }
-            }
-            catch (TypeMismatch& e)
-            {
-                // Ignore malformed consumer registration
-            }
-        }
-    }
-
-    if (consumerName.size() == 0)
-    {
-        // ATTN: What to do if no consumers are registered for this URL?
-        throw CIMException(CIM_ERR_FAILED);
-    }
-
     CIMIndicationConsumer* consumer =
-        _consumerTable.lookupConsumer(consumerName);
+        _consumerTable.lookupConsumer(url);
 
     if (!consumer)
     {
-	consumer = _consumerTable.loadConsumer(consumerName);
+	consumer = _consumerTable.loadConsumer(url);
 
 	if (!consumer)
 	    throw CIMException(CIM_ERR_FAILED);

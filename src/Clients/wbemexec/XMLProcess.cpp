@@ -176,6 +176,8 @@ Array <Sint8> XMLProcess::encapsulate (XmlParser parser,
     Uint32                       i                     = 0;
     static Uint32                BUFFERSIZE            = 1024;
 
+    Boolean                      expReq                = false;
+
 
     //
     //  xml declaration
@@ -234,15 +236,10 @@ Array <Sint8> XMLProcess::encapsulate (XmlParser parser,
     {
         multireq = true;
     }
-    else if (!XmlReader::testStartTag (parser, entry, XML_ELEMENT_SIMPLEREQ))
-    {
-        throw XmlValidationError (parser.getLine (), MISSING_ELEMENT_REQ);
-    }
-
     //
     //  SIMPLEREQ element
     //
-    else
+    else if (XmlReader::testStartTag (parser, entry, XML_ELEMENT_SIMPLEREQ))
     {
         //
         //  IMETHODCALL element
@@ -375,6 +372,14 @@ Array <Sint8> XMLProcess::encapsulate (XmlParser parser,
                 MISSING_ELEMENT_METHODCALL);
         }
     }
+    else if (XmlReader::testStartTag (parser, entry, "SIMPLEEXPREQ"))
+    {
+        expReq = true;
+    }
+    else if (!XmlReader::testStartTag (parser, entry, XML_ELEMENT_SIMPLEREQ))
+    {
+        throw XmlValidationError (parser.getLine (), MISSING_ELEMENT_REQ);
+    }
 
     //
     //  Set headers
@@ -416,25 +421,40 @@ Array <Sint8> XMLProcess::encapsulate (XmlParser parser,
 
     if (useMPost)
     {
-        message << HEADER_NAME_MAN << HEADER_SEPARATOR << HTTP_SP 
-                << HEADER_VALUE_MAN << nn << HTTP_CRLF;
-        message << nn << HEADER_PREFIX_DELIMITER 
-                << HEADER_NAME_CIMPROTOCOLVERSION << HEADER_SEPARATOR 
-                << HTTP_SP << protocolVersion << HTTP_CRLF;
-        message << nn << HEADER_PREFIX_DELIMITER << HEADER_NAME_CIMOPERATION
-                << HEADER_SEPARATOR << HTTP_SP << HEADER_VALUE_CIMOPERATION 
-                << HTTP_CRLF;
-        if (multireq)
+        if (!expReq)
         {
-            message << nn << HEADER_PREFIX_DELIMITER << HEADER_NAME_CIMBATCH 
-                << HTTP_CRLF;
+            message << HEADER_NAME_MAN << HEADER_SEPARATOR << HTTP_SP 
+                    << HEADER_VALUE_MAN << nn << HTTP_CRLF;
+            message << nn << HEADER_PREFIX_DELIMITER 
+                    << HEADER_NAME_CIMPROTOCOLVERSION << HEADER_SEPARATOR 
+                    << HTTP_SP << protocolVersion << HTTP_CRLF;
+            message << nn << HEADER_PREFIX_DELIMITER << HEADER_NAME_CIMOPERATION
+                    << HEADER_SEPARATOR << HTTP_SP << HEADER_VALUE_CIMOPERATION 
+                    << HTTP_CRLF;
+            if (multireq)
+            {
+                message << nn << HEADER_PREFIX_DELIMITER << HEADER_NAME_CIMBATCH 
+                    << HTTP_CRLF;
+            }
+            else
+            {
+                message << nn << HEADER_PREFIX_DELIMITER << HEADER_NAME_CIMMETHOD 
+                    << HEADER_SEPARATOR << HTTP_SP << methodName << HTTP_CRLF;
+                message << nn << HEADER_PREFIX_DELIMITER << HEADER_NAME_CIMOBJECT
+                    << HEADER_SEPARATOR << HTTP_SP << objPath << HTTP_CRLF;
+            }
         }
         else
         {
-            message << nn << HEADER_PREFIX_DELIMITER << HEADER_NAME_CIMMETHOD 
-                << HEADER_SEPARATOR << HTTP_SP << methodName << HTTP_CRLF;
-            message << nn << HEADER_PREFIX_DELIMITER << HEADER_NAME_CIMOBJECT
-                << HEADER_SEPARATOR << HTTP_SP << objPath << HTTP_CRLF;
+            message << HEADER_NAME_MAN << HEADER_SEPARATOR << HTTP_SP
+                    << HEADER_VALUE_MAN << nn << HTTP_CRLF;
+            message << nn << HEADER_PREFIX_DELIMITER
+                    << HEADER_NAME_CIMPROTOCOLVERSION << HEADER_SEPARATOR
+                    << HTTP_SP << protocolVersion << HTTP_CRLF;
+            message << "CIMExport" << HEADER_SEPARATOR << HTTP_SP 
+                    << "MethodRequest" << HTTP_CRLF;
+            message << "CIMExportMethod" << HEADER_SEPARATOR << HTTP_SP 
+                    << "ExportIndication" << HTTP_CRLF;
         }
     }
     else

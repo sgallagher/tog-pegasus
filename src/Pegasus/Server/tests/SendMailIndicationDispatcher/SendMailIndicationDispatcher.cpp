@@ -106,8 +106,8 @@ int main()
     r.createInstance(_NAMESPACE, indicationInstance);
 
     CIMRepository* repository = new CIMRepository(_REPOSITORY_PATH);
-    CIMExportRequestDispatcher* dispatcher = new CIMExportRequestDispatcher(repository);
-    dispatcher->handleIndication(handlerInstance, indicationInstance, _NAMESPACE);
+    CIMExportRequestDispatcher* dispatcher = new CIMExportRequestDispatcher();
+    //dispatcher->handleIndication(handlerInstance, indicationInstance, _NAMESPACE);
 
     //Removing everything
 #ifdef PEGASUS_OS_TYPE_UNIX

@@ -53,17 +53,39 @@ public:
 // consumer identifiers and consumers. CIMOM Listner will use the
 // consumer table to find consumer for the purposes of request dispatching.
 
+static char CONSUMER_LIST_FILE [] = "consumer_list.dat";
+
 class PEGASUS_EXPORT_SERVER_LINKAGE ConsumerTable
 {
 public:
 
     ConsumerTable();
 
+    ~ConsumerTable()
+    {
+    }
+
+    void set(Boolean dynamicReg, Boolean staticConsumers, Boolean persistence);
+
     CIMIndicationConsumer* lookupConsumer(const String& consumerId);
 
     CIMIndicationConsumer* loadConsumer(const String& consumerId);
 
+    CIMStatusCode registerConsumer(
+	const String& consumerId,
+	const String& consumerLocation,
+	const String& action,
+	String& errorDescription);
+
 private:
+
+    struct ConsumerList
+    {
+	String consumerId;
+	String consumerLocation;
+    };
+
+    Array<struct ConsumerList> _consumerList;
 
     struct Entry
     {
@@ -72,6 +94,12 @@ private:
     };
 
     Array<Entry> _consumers;
+
+    Boolean _dynamicReg;
+    Boolean _staticConsumers;
+    Boolean _persistence;
+
+    String _GetConsumerName(const String& consumerId);
 
 public:
 

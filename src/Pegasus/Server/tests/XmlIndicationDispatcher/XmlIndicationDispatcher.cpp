@@ -83,9 +83,9 @@ int main()
     r.createInstance(NAMESPACE, cimInstance);
 
     CIMRepository* repository = new CIMRepository("/PegasusRun/repository");
-    CIMExportRequestDispatcher* dispatcher = new CIMExportRequestDispatcher(repository);
+    CIMExportRequestDispatcher* dispatcher = new CIMExportRequestDispatcher();
 
-    dispatcher->handleIndication(handlerInstance, cimInstance, NAMESPACE);
+    //dispatcher->handleIndication(handlerInstance, cimInstance, NAMESPACE);
 
     r.deleteInstance(NAMESPACE, instanceName1);
     r.deleteInstance(NAMESPACE, instanceName2);

@@ -27,10 +27,14 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Config.h>
 #include <cstdlib>
-// #include <dlfcn.h>
+#include <cstdlib>
+#include <cctype>
+#include <fstream>
+#include <cstdio>
+#include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Destroyer.h>
+#include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/System.h>
 #include "ConsumerTable.h"
 
@@ -39,7 +43,135 @@ PEGASUS_NAMESPACE_BEGIN
 
 ConsumerTable::ConsumerTable()
 {
+    ConsumerList regConsumers;
 
+    String    pegasusHome   = String::EMPTY;
+
+    //
+    // Get environment variable
+    //
+    String consumerFile;
+    String plannedFile;
+
+    const char* env = getenv("PEGASUS_HOME");
+
+    if (!env || env == "")
+    {
+        cerr << "PEGASUS_HOME environment variable undefined," << endl;
+    }
+    else
+    {
+        pegasusHome = env;
+        FileSystem::translateSlashes(pegasusHome);
+        consumerFile.append(pegasusHome + "/" + CONSUMER_LIST_FILE);
+    }
+
+    String line;
+
+    //
+    // Delete the backup configuration file
+    //
+    if (FileSystem::exists(pegasusHome + "/" + CONSUMER_LIST_FILE + ".bak"))
+    {
+        FileSystem::removeFile(pegasusHome + "/" + CONSUMER_LIST_FILE + ".bak");
+    }
+
+    //
+    // Open the config file
+    //
+    ArrayDestroyer<char> p(consumerFile.allocateCString());
+    ifstream ifs(p.getPointer());
+    if (!ifs)
+    {
+        return;
+    }
+
+    //
+    // Read each line of the file
+    //
+    for (Uint32 lineNumber = 1; GetLine(ifs, line); lineNumber++)
+    {
+        // Get the property name and value
+
+        //
+        // Skip leading whitespace
+        //
+        const Char16* p = line.getData();
+
+        while (*p && isspace(*p))
+        {
+            p++;
+        }
+
+        if (!*p)
+        {
+            continue;
+        }
+
+        //
+        // Skip comment lines
+        //
+        if (*p == '#')
+        {
+            continue;
+        }
+
+        //
+        // Get the property name
+        //
+        String name = String::EMPTY;
+
+        name += *p++;
+
+        while (isalnum(*p) || *p == '_')
+        {
+            name += *p++;
+        }
+
+        //
+        // Skip whitespace after property name
+        //
+        while (*p && isspace(*p))
+        {
+            p++;
+        }
+
+        p++;
+
+        //
+        // Skip whitespace after equal sign
+        //
+        while (*p && isspace(*p))
+        {
+            p++;
+        }
+
+        //
+        // Get the value
+        //
+        String value = String::EMPTY;
+
+        while (*p)
+        {
+            value += *p++;
+        }
+
+        //
+        // Store the property name and value in the table
+        //
+	regConsumers.consumerId = name;
+	regConsumers.consumerLocation = value;
+	_consumerList.append(regConsumers);
+    }
+
+    ifs.close();
+}
+
+void ConsumerTable::set(Boolean dynamicReg, Boolean staticConsumers, Boolean persistence)
+{
+    _dynamicReg = dynamicReg;
+    _staticConsumers = staticConsumers;
+    _persistence = persistence;
 }
 
 CIMIndicationConsumer* ConsumerTable::lookupConsumer(const String& consumerId)
@@ -51,70 +183,129 @@ CIMIndicationConsumer* ConsumerTable::lookupConsumer(const String& consumerId)
     return 0;
 }
 
+CIMStatusCode ConsumerTable::registerConsumer(
+    const String& consumerId,
+    const String& consumerLocation,
+    const String& action,
+    String& errorDescription)
+{
+    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+
+    if (action == String("2"))
+    {
+	// Check if already registered
+
+	for (Uint8 i = 0; i < _consumerList.size(); i++)
+	{
+	    if (String::matchNoCase(_consumerList[i].consumerId, consumerId))
+	    {
+		errorCode = CIM_ERR_FAILED;
+		errorDescription = "Consumer Already registered";
+		return errorCode;
+	    }
+	}
+
+	// New consumer
+
+	if (FileSystem::existsNoCase(consumerLocation))
+	{
+	    ConsumerList newConsumer;
+	    newConsumer.consumerId = consumerId;
+	    newConsumer.consumerLocation = consumerLocation;
+	    _consumerList.append(newConsumer);
+	}
+	else
+	{
+	    errorCode = CIM_ERR_FAILED;
+	    errorDescription = "Invalid Consumer Path or Library Name";
+	    return errorCode;
+	}
+    }
+
+    return errorCode;
+}
+
 typedef CIMIndicationConsumer* (*CreateIndicationConsumerFunc)();
 
 CIMIndicationConsumer* ConsumerTable::loadConsumer(const String& consumerId)
 {
-    // Load the dynamic library:
+    String consumerName = _GetConsumerName(consumerId);
 
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-    ArrayDestroyer<char> libraryName = consumerId.allocateCString();
-#else
-    String unixLibName = getenv("PEGASUS_HOME");
-    unixLibName += "/lib/lib";
-    unixLibName += consumerId;
-#ifdef PEGASUS_OS_HPUX
-    unixLibName += ".sl";
-#else
-    unixLibName += ".so";
-#endif
-    ArrayDestroyer<char> libraryName = unixLibName.allocateCString();
-#endif
-
-    DynamicLibraryHandle libraryHandle = 
-	System::loadDynamicLibrary(libraryName.getPointer());
-
-    if (!libraryHandle) {
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-	throw DynamicLoadFailed(libraryName.getPointer());
-#else
-        unixLibName = System::dynamicLoadError();
-        ArrayDestroyer<char> errorMsg = unixLibName.allocateCString();
-	throw DynamicLoadFailed(errorMsg.getPointer());
-#endif
-    }
-
-    // Lookup the create consumer symbol:
-
-    String tmp = "PegasusCreateIndicationConsumer_";
-    tmp.append(consumerId);
-    ArrayDestroyer<char> functionName = tmp.allocateCString();
-
-    CreateIndicationConsumerFunc func = 
-	(CreateIndicationConsumerFunc)System::loadDynamicSymbol(
-	libraryHandle, functionName.getPointer());
-
-    if (!func)
-	throw DynamicLookupFailed(functionName.getPointer());
-
-    // Create the consumer:
-
-    CIMIndicationConsumer* consumer = func();
-
-    if (!consumer)
-	throw CreateIndicationConsumerReturnedNull(
-	    libraryName.getPointer(), 
-	    functionName.getPointer());
-
-    if (consumer)
+    if (consumerName.size() != 0)
     {
-	Entry entry;
-	entry.consumerId = consumerId;
-	entry.consumer = consumer;
-	_consumers.append(entry);
-    }
+	// Load the dynamic library:
 
-    return consumer;
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+	ArrayDestroyer<char> libraryName = consumerName.allocateCString();
+#else
+	String unixLibName = getenv("PEGASUS_HOME");
+	unixLibName += "/lib/lib";
+	unixLibName += consumerName;
+#ifdef PEGASUS_OS_HPUX
+	unixLibName += ".sl";
+#else
+	unixLibName += ".so";
+#endif
+	ArrayDestroyer<char> libraryName = unixLibName.allocateCString();
+#endif
+
+	DynamicLibraryHandle libraryHandle = 
+	    System::loadDynamicLibrary(libraryName.getPointer());
+
+	if (!libraryHandle) {
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+	    throw DynamicLoadFailed(libraryName.getPointer());
+#else
+	    unixLibName = System::dynamicLoadError();
+	    ArrayDestroyer<char> errorMsg = unixLibName.allocateCString();
+	    throw DynamicLoadFailed(errorMsg.getPointer());
+#endif
+	}
+
+	// Lookup the create consumer symbol:
+
+	String tmp = "PegasusCreateIndicationConsumer_";
+	tmp.append(consumerName);
+	ArrayDestroyer<char> functionName = tmp.allocateCString();
+
+	CreateIndicationConsumerFunc func = 
+	    (CreateIndicationConsumerFunc)System::loadDynamicSymbol(
+	    libraryHandle, functionName.getPointer());
+
+	if (!func)
+	    throw DynamicLookupFailed(functionName.getPointer());
+
+	// Create the consumer:
+
+	CIMIndicationConsumer* consumer = func();
+
+	if (!consumer)
+	    throw CreateIndicationConsumerReturnedNull(
+		libraryName.getPointer(), 
+		functionName.getPointer());
+
+	if (consumer)
+	{
+	    Entry entry;
+	    entry.consumerId = consumerId;
+	    entry.consumer = consumer;
+	    _consumers.append(entry);
+	}
+        return consumer;
+
+    }
+    else
+        return 0;
+}
+
+String ConsumerTable::_GetConsumerName(const String& consumerId)
+{
+    for (Uint8 i = 0; i < _consumerList.size(); i++)
+    {
+	if (String::equal(_consumerList[i].consumerId, consumerId))
+	    return _consumerList[i].consumerLocation;
+    }
+    return String();
 }
 
 PEGASUS_NAMESPACE_END

@@ -31,7 +31,7 @@
 #define PegasusHandler_Handler_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/CIMOperations.h>
+#include <Pegasus/Common/CIMObject.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

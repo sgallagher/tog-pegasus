@@ -32,25 +32,18 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMClass.h>
+#include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/CIMQualifierDecl.h>
-#include <Pegasus/Common/CIMOperations.h>
 #include <Pegasus/Repository/NameSpaceManager.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 class RepositoryDeclContext;
 
-/** This class derives from the CIMOperations class and provides a simple
-    implementation of a CIM repository. It only implements the methods
-    for manipulating classes and instances. The others throw this exception:
-
-    <pre>
-        CIMException(CIM_ERR_NOT_SUPPORTED)
-    </pre>
+/** This class provides a simple implementation of a CIM repository.
 */
-
-class PEGASUS_REPOSITORY_LINKAGE CIMRepository : public CIMOperations
+class PEGASUS_REPOSITORY_LINKAGE CIMRepository
 {
 public:
 

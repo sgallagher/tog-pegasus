@@ -37,7 +37,6 @@ SOURCES = \
     CIMMethod.cpp \
     CIMMethodRep.cpp \
     CIMName.cpp \
-    CIMOperations.cpp \
     CIMParameter.cpp \
     CIMParameterRep.cpp \
     CIMProperty.cpp \

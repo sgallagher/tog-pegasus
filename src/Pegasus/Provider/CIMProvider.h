@@ -30,14 +30,13 @@
 #define PegasusProvider_Provider_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/CIMOperations.h>
 #include <Pegasus/Common/CIMOMHandle.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 class CIMRepository;
 
-class PEGASUS_PROVIDER_LINKAGE CIMProvider : public CIMOperations
+class PEGASUS_PROVIDER_LINKAGE CIMProvider
 {
 public:
 

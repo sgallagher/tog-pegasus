@@ -32,7 +32,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/CIMMessage.h>
-#include <Pegasus/Common/CIMOperations.h>
+#include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Server/ProviderTable.h>
 
 PEGASUS_NAMESPACE_BEGIN

@@ -31,7 +31,7 @@
 #define PegasusCIMExportRequestDispatcher_CIMExportRequestDispatcher_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/CIMOperations.h>
+#include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Server/HandlerTable.h>
 
 PEGASUS_NAMESPACE_BEGIN

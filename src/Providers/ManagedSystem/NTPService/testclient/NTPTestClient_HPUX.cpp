@@ -349,10 +349,11 @@ NTPTestClient::goodServerAddress(Array<String> & srvAddress, Boolean verbose) {
         strBuffer.assign(buffer);
 
         ps = strBuffer.find(ROLE_CLIENT);
+        okRet = true;
         
         if(ps == 0) 
         {
-            okRet = true;
+        	okRet = true;
             fseek(fp, lstPos, SEEK_SET);
             fscanf(fp, "%s", buffer);
             strBuffer.assign(buffer);
@@ -379,6 +380,10 @@ NTPTestClient::goodServerAddress(Array<String> & srvAddress, Boolean verbose) {
         lstPos = ftell(fp);
     }
 	fclose(fp);
+
+	if(okRet && srvAddr.size() != srvAddress.size())
+		okRet = false;
+		
     if(okRet) {
         count = 0;
         for(i=0; i < srvAddress.size(); i++) {

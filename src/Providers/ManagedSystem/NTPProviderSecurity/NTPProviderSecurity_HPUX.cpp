@@ -127,15 +127,17 @@ NTPProviderSecurity::checkAccess(const String username,
 		// DLH set the group and user id
 		user_id = pwd->pw_uid;
 		group_id = pwd->pw_gid;
+	    memset(&grps, 0, sizeof(grps));
         isRoot = (user_id == 0);
     
 	    if(!isRoot) {
+			grps[ngr++] = group_id;
+
 		    // Find the groups to which this user belongs and store the list in "member"
 			strValue.clear(); 
-		    memset(&grps, 0, sizeof(grps));
 		    // Return a pointer to the first group structure in the group database
 		    grp = getgrent();
-		    while(grp != NULL) {
+		    while(grp) {
 				i = 0;
 		    	strMembers.clear();
 				member = grp->gr_mem[i++];
@@ -194,29 +196,26 @@ NTPProviderSecurity::checkAccess(const String username,
         	return ok;
 
 		// Return ok, if is invalid user_id and other permission or is root
-		if(!okUser && st.st_basemode & 0x04 || isRoot)
+		if(!okUser && st.st_basemode & 0x04 || isRoot) 
             ok = true;
 		else if(user_id > 0) 
         {            
 			// Use getaccess to check permission instead of stat so that we get consistent response from OS
 			accessrights = getaccess( strTmp.getCString(), user_id, ngr, grps,(void *) 0,(void *) 0);
-        	if ( accessrights == -1)
+        	if ( accessrights == -1) 
 			// if error - just return with ok set to false
 				return ok;
-        
+			
 	        // Verify status by type test
 	        switch(opt) {
 	            case 1:
-	                if(accessrights & R_OK)
-	                	ok = true;
+	                ok = (accessrights & R_OK);
 	            	break;
 	            case 2:
-	                if(accessrights & W_OK)
-	                	ok = true;
+	                ok = (accessrights & W_OK);
 	            	break;
 	            case 3:
-	                if(accessrights & X_OK)
-	                	ok = true;
+	                ok = (accessrights & X_OK);
 	            	break;
 	            default:
 	                break;

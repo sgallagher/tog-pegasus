@@ -45,6 +45,7 @@ ifeq ($(OS),HPUX)
   DIRS += NTPProviderSecurity \
 	  NTPService \
 	  NTPService/tests \
+	  NTPService/testclient \
 	  DNSService \
 	  DNSService/tests \
 	  DNSService/tests/testclient

@@ -10,6 +10,13 @@ SHARE_COPY = YES
 
 include $(ROOT)/mak/program.mak
 
+tests: $(ERROR)
+
+#l10n
+messages: $(ERROR)
+
+poststarttests: $(ERROR)
+
 else
 
 include $(ROOT)/mak/library.mak

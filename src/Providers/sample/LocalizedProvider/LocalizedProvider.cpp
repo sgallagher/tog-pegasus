@@ -28,19 +28,19 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 // This is a sample provider that test globalization support, including unicode
-// support and and localized message loads.
+// support and localized message loads.
 
 // Testcases:
 //
-// 1) Round Trip Test: Verifies that a string containing Unicode
+// 1) Round Trip Test: Verifies that a string and char16 containing Unicode
 // chars has no characters lost on a round trip.  The client sends a Unicode
-// string in a property for createInstance and modifyInstance.
-// We check that string against an expected string. If it miscompares then
-// some Unicode chars were lost.  The Unicode string is then saved along with the 
-// instance sent by the client. When the client does a getInstance it can
-// compare the string to an expected string on the client side.
+// string and char16 in properties for createInstance and modifyInstance.
+// We check these against an expected string and char16. If it miscompares then
+// some Unicode chars were lost.  The Unicode string and char16 are then saved along 
+// with the instance sent by the client. When the client does a getInstance it can
+// compare the string and char16 to an expected values on the client side.
 // 
-// Test Property: RoundTripString  
+// Test Properties: RoundTripString, RoundTripChar
 // 
 // 2) Resource Bundle Test:  One of the properties on the instances
 // returned is a read-only string property where the string is loaded 
@@ -86,7 +86,6 @@
    
 
 // l10n TODO
-// -- create resource bundles
 // -- implement test providers for other provider types
 // -- expand the instance provider to test aggregation across classes
 
@@ -105,7 +104,8 @@ PEGASUS_NAMESPACE_BEGIN
  
 // Property names 
 #define IDENTIFIER_PROP "Identifier"		// Key
-#define ROUNDTRIP_PROP "RoundTripString"	// Property for round trip test (R/W)
+#define ROUNDTRIPSTRING_PROP "RoundTripString"	// Property for round trip test (R/W)
+#define ROUNDTRIPCHAR_PROP "RoundTripChar"	// Property for round trip test (R/W)
 #define RB_STRING_PROP "ResourceBundleString" // Property for resource bundle
 											// test (R/O)
 #define CONTENTLANG_PROP "ContentLanguageString" // Property from content 
@@ -132,7 +132,6 @@ PEGASUS_NAMESPACE_BEGIN
 // Expected round-trip string from the client. 
 // Includes a UTF-16 surrogate pair (last two elements)
 static const Char16 roundTripChars[] = 
-/*
 			{0x6A19, 
 			0x6E96,
 			0x842C, 
@@ -140,10 +139,6 @@ static const Char16 roundTripChars[] =
 			0x78BC,
 			0xdbc0,
 			0xdc01,
-			0x00};	
-*/			
-			{'a', 
-			'b',
 			0x00};	
 
 // Constructor - initializes parameters for the MessageLoader that won't
@@ -175,7 +170,8 @@ void LocalizedProvider::initialize(CIMOMHandle & cimom)
 	CIMObjectPath reference1(REFERENCE1);
 
 	instance1.addProperty(CIMProperty(IDENTIFIER_PROP, Uint8(0)));   
-	instance1.addProperty(CIMProperty(ROUNDTRIP_PROP, String(roundTripChars)));						 
+	instance1.addProperty(CIMProperty(ROUNDTRIPSTRING_PROP, String(roundTripChars)));	
+	instance1.addProperty(CIMProperty(ROUNDTRIPCHAR_PROP, roundTripChars[0]));						 
 	_instances.append(instance1);
 	_instanceNames.append(reference1);
 	_instanceLangs.append(ContentLanguages::EMPTY);
@@ -185,7 +181,8 @@ void LocalizedProvider::initialize(CIMOMHandle & cimom)
 	CIMObjectPath reference2(REFERENCE2);	
  	
 	instance2.addProperty(CIMProperty(IDENTIFIER_PROP, Uint8(1)));   
-	instance2.addProperty(CIMProperty(ROUNDTRIP_PROP, String(roundTripChars)));	
+	instance2.addProperty(CIMProperty(ROUNDTRIPSTRING_PROP, String(roundTripChars)));
+	instance2.addProperty(CIMProperty(ROUNDTRIPCHAR_PROP, roundTripChars[0]));	
 	_instances.append(instance2);	
 	_instanceNames.append(reference2);
 	_instanceLangs.append(ContentLanguages::EMPTY);		
@@ -204,14 +201,6 @@ void LocalizedProvider::getInstance(
     const CIMPropertyList & propertyList,
     InstanceResponseHandler & handler)
 {
-	// convert a potential fully qualified reference into a local reference
-	// (class name and keys only).
-	CIMObjectPath localReference = CIMObjectPath(
-		String(),
-		String(),
-		instanceReference.getClassName(),
-		instanceReference.getKeyBindings());
-
 	// begin processing the request
 	handler.processing();
 
@@ -222,7 +211,8 @@ void LocalizedProvider::getInstance(
 	// instance index corresponds to reference index
 	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
 	{
-		if(localReference == _instanceNames[i])
+		if(instanceReference.getClassName() == _instanceNames[i].getClassName() &&
+                   instanceReference.getKeyBindings() == _instanceNames[i].getKeyBindings()) 
 		{
 			// Load the localized properties and figure out what content
 			// language to return, based on the design mentioned above.
@@ -336,14 +326,16 @@ void LocalizedProvider::modifyInstance(
 	// begin processing the request
 	handler.processing();
 
+        Uint32 i = 0;
+
 	// instance index corresponds to reference index
-	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
+	for(Uint32 n = _instances.size(); i < n; i++)
 	{
 		if(localReference == _instanceNames[i])
 		{
-			// We expect the client to send us a specific value in the
-			// round trip string property.  This is to test that the Unicode characters
-			// got to use properly.
+			// We expect the client to send us specific values in the
+			// round trip string and char16 properties.
+                    // This is to test that the Unicode characters got to us properly.
 			// (Note: this call can throw an exception)
 			_checkRoundTripString(context, instanceObject);				
 			
@@ -365,6 +357,9 @@ void LocalizedProvider::modifyInstance(
 		}
 	}
 	
+	if (i == _instanceNames.size())
+		throw CIMObjectNotFoundException(instanceReference.toString());
+
 	// complete processing the request
 	handler.complete();
 }
@@ -394,10 +389,10 @@ void LocalizedProvider::createInstance(
 	// begin processing the request
 	handler.processing();
 
-	// We expect the client to send us a specific value in the
-	// round trip string property.  This is to test that the Unicode characters
-	// got to use properly.
-	// (Note: this call can throw an exception)
+        // We expect the client to send us specific values in the
+	// round trip string and char16 properties.
+        // This is to test that the Unicode characters got to us properly.
+        // (Note: this call can throw an exception)
 	_checkRoundTripString(context, instanceObject);	
 
 	// add the new instance to the array
@@ -429,19 +424,12 @@ void LocalizedProvider::deleteInstance(
 {
 	// We're not going to support this for instances 0 or 1
 
-	// convert a potential fully qualified reference into a local reference
-	// (class name and keys only).
-	CIMObjectPath localReference = CIMObjectPath(
-		String(),
-		String(),
-		instanceReference.getClassName(),
-		instanceReference.getKeyBindings());
-
 	// instance index corresponds to reference index
 	Uint32 i = 0;
 	for(Uint32 n = _instanceNames.size(); i < n; i++)
 	{
-		if(localReference == _instanceNames[i])
+		if(instanceReference.getClassName() == _instanceNames[i].getClassName() &&
+                   instanceReference.getKeyBindings() == _instanceNames[i].getKeyBindings()) 
 		{
 			if (i < 2)
 			{
@@ -456,7 +444,7 @@ void LocalizedProvider::deleteInstance(
 	}
 	
 	if (i == _instanceNames.size())
-		throw CIMObjectNotFoundException(localReference.toString());
+		throw CIMObjectNotFoundException(instanceReference.toString());
 
 	handler.processing();
 	
@@ -614,25 +602,32 @@ void LocalizedProvider::handleIndication(
 void LocalizedProvider::_checkRoundTripString(const OperationContext & context,
 								const CIMInstance& instanceObject)
 {
-	// Get the round trip string sent by the client
-	String roundTripProp; 
-    instanceObject.getProperty(instanceObject.findProperty(ROUNDTRIP_PROP)).
+    // Get the round trip string sent by the client
+    String roundTripStringProp; 
+    instanceObject.getProperty(instanceObject.findProperty(ROUNDTRIPSTRING_PROP)).
             getValue().
-            get(roundTripProp);    	
+            get(roundTripStringProp);   
 
-	// Now compare the string from the client to the one we expect
-	// This checks that Unicode chars were not lost
-	if (roundTripString != roundTripProp)
-	{
-		// A miscompare.  The Unicode was not preserved from the
-		// client, through Pegasus, down to us.  	
+    // Get the round trip char16 sent by the client
+    Char16 roundTripCharProp; 
+    instanceObject.getProperty(instanceObject.findProperty(ROUNDTRIPCHAR_PROP)).
+            getValue().
+            get(roundTripCharProp);  	
+
+    // Now compare the string and char16 from the client to the ones we expect
+    // This checks that Unicode chars were not lost
+    if ((roundTripString != roundTripStringProp) ||
+        (roundTripChars[0] != roundTripCharProp))
+    {
+	// A miscompare.  The Unicode was not preserved from the
+	// client, through Pegasus, down to us.  	
 			
-		// Throw an exception with a localized message using the
-		// AcceptLanguages set into our thread by Pegasus.
-		// (this equals the AcceptLanguages requested by the client)
-		//  Note: the exception object will load the string for us. 
-		throw CIMInvalidParameterException(roundTripErrorParms);		
-	}	
+	// Throw an exception with a localized message using the
+	// AcceptLanguages set into our thread by Pegasus.
+	// (this equals the AcceptLanguages requested by the client)
+	//  Note: the exception object will load the string for us. 
+	throw CIMInvalidParameterException(roundTripErrorParms);		
+    }	
 }
 
 AcceptLanguages LocalizedProvider::getRequestAcceptLanguages(
@@ -646,14 +641,15 @@ AcceptLanguages LocalizedProvider::getRequestAcceptLanguages(
 
 CIMObjectPath LocalizedProvider::buildRefFromInstance(const CIMInstance& instanceObject)
 {
-	// Build the local reference (maybe there is a better way to do this)
-	String local = CLASSNAME;
-	Uint32 index = instanceObject.findProperty(IDENTIFIER_PROP);	
-	if (index == PEG_NOT_FOUND)
-	{
-		throw CIMPropertyNotFoundException(IDENTIFIER_PROP);
-	}
-	Uint8 id;
+    // Build the local reference (maybe there is a better way to do this)
+    String local = CLASSNAME;
+    Uint32 index = instanceObject.findProperty(IDENTIFIER_PROP);	
+    if (index == PEG_NOT_FOUND)
+    {
+       throw CIMPropertyNotFoundException(IDENTIFIER_PROP);
+    }
+
+    Uint8 id;
     instanceObject.getProperty(index).getValue().get(id);   	
     char bfr[8] = {0};
     sprintf(bfr,"%d",id);

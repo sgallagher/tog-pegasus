@@ -150,10 +150,9 @@ inline void _appendChar(Array<Sint8>& out, const Char16& c)
     // NOTE: The UTF8 character could be several bytes long.
     // WARNING: This function will put in replacement character for
     // all characters that have surogate pairs.
-
-    char str[6];
+    Uint8 str[6];
     memset(str,0x00,sizeof(str));
-    char* charIN = (char *)&c;
+    Uint8* charIN = (Uint8 *)&c;
 
     const Uint16 *strsrc = (Uint16 *)charIN;
     Uint16 *endsrc = (Uint16 *)&charIN[1];
@@ -208,9 +207,9 @@ inline void _appendSpecialChar(Array<Sint8>& out, const Char16& c)
 		    // NOTE: The UTF8 character could be several bytes long.
 		    // WARNING: This function will put in replacement character for
 		    // all characters that have surogate pairs.
-		    char str[6];
+                    Uint8 str[6];
 		    memset(str,0x00,sizeof(str));
-		    char* charIN = (char *)&c;
+		    Uint8* charIN = (Uint8 *)&c;
 
 		    const Uint16 *strsrc = (Uint16 *)charIN;
 		    Uint16 *endsrc = (Uint16 *)&charIN[1];
@@ -224,6 +223,7 @@ inline void _appendSpecialChar(Array<Sint8>& out, const Char16& c)
 				endtgt);
 
 		    Uint32 number1 = trailingBytesForUTF8[Uint32(str[0])]+1;
+
 		    out.append((Sint8 *)str,number1);
 		}
         }
@@ -309,8 +309,8 @@ static inline void _appendSpecialChar(PEGASUS_STD(ostream)& os, char c)
 
 void _appendSurrogatePair(Array<Sint8>& out, Uint16 high, Uint16 low)
 {
-    char str[6];
-    char charIN[5];
+    Uint8 str[6];
+    Uint8 charIN[5];
     memset(str,0x00,sizeof(str));
     memcpy(&charIN,&high,2);
     memcpy(&charIN[2],&low,2);
@@ -391,7 +391,19 @@ void XmlWriter::append(Array<Sint8>& out, const String& str)
 {
     for (Uint32 i = 0; i < str.size(); i++)
     {
-        _appendChar(out, str[i]);
+        Uint16 c = str[i];
+	if(((c >= FIRST_HIGH_SURROGATE) && (c <= LAST_HIGH_SURROGATE)) ||
+	   ((c >= FIRST_LOW_SURROGATE) && (c <= LAST_LOW_SURROGATE)))
+	{
+	    Char16 highSurrogate = str[i];
+	    Char16 lowSurrogate = str[++i];
+	    
+	    _appendSurrogatePair(out, Uint16(highSurrogate),Uint16(lowSurrogate));
+	}
+	else
+	{
+	    _appendChar(out, str[i]);
+	}
     }
 }
 
@@ -421,8 +433,10 @@ void XmlWriter::appendSpecial(Array<Sint8>& out, const String& str)
 {
     for (Uint32 i = 0; i < str.size(); i++)
     {
-	if(((str[i] >= FIRST_HIGH_SURROGATE) && (str[i] <= LAST_HIGH_SURROGATE)) ||
-	   ((str[i] >= FIRST_LOW_SURROGATE) && (str[i] <= LAST_LOW_SURROGATE)))
+        Uint16 c = str[i];
+
+	if(((c >= FIRST_HIGH_SURROGATE) && (c <= LAST_HIGH_SURROGATE)) ||
+	   ((c >= FIRST_LOW_SURROGATE) && (c <= LAST_LOW_SURROGATE)))
 	{
 	    Char16 highSurrogate = str[i];
 	    Char16 lowSurrogate = str[++i];
@@ -443,6 +457,9 @@ void XmlWriter::appendSpecial(Array<Sint8>& out, const String& str)
 //   Space character = 0x20
 //   Delimiters = '<' '>' '#' '%' '"'
 //   Unwise = '{' '}' '|' '\\' '^' '[' ']' '`'
+//
+// Also see the "CIM Operations over HTTP" spec, section 3.3.2 and
+// 3.3.3, for the treatment of non US-ASCII chars
 inline void _encodeURIChar(String& outString, Char16 char16)
 {
     // We need to convert the Char16 to UTF8 then append the UTF8
@@ -450,46 +467,51 @@ inline void _encodeURIChar(String& outString, Char16 char16)
     // NOTE: The UTF8 character could be several bytes long.
     // WARNING: This function will put in replacement character for
     // all characters that have surogate pairs.
+    Uint8 str[6];
+    memset(str,0x00,sizeof(str));
+    Uint8* charIN = (Uint8 *)&char16;
 
-    char* str = new char[6];
-    Uint16* charIN = (Uint16 *)&char16;
-
-    const Uint16 *strsrc = (Uint16*)charIN;
-    Uint16 *endsrc = &charIN[1];
+    const Uint16 *strsrc = (Uint16 *)charIN;
+    Uint16 *endsrc = (Uint16 *)&charIN[1];
 
     Uint8 *strtgt = (Uint8 *)str;
-    Uint8 *endtgt = (Uint8 *)&str[6];
+    Uint8 *endtgt = (Uint8 *)&str[5];
 
     UTF16toUTF8(&strsrc,
 		endsrc, 
 		&strtgt,
 		endtgt);
 
-    // Since multi-byte UTF8 charactors fall above the 7F
-    // range we only need to check the first byte.
-    char c = str[0];
-
+    // Loop through the UTF8 bytes for the character,
+    // escaping as needed. 
+    Uint32 number1 = trailingBytesForUTF8[Uint32(str[0])]+1;
+    for (Uint32 i = 0; i < number1; i++)
+    {
+        Uint8 c = str[i];
+    
 #ifndef PEGASUS_DO_NOT_IMPLEMENT_URI_ENCODING
-    if ( ((c <= 0x20) && (c >= 0x00)) ||    // Control characters + space char
-         ( (c >= 0x22) && (c <= 0x26) ) ||  // '"' '#' '$' '%' '&'
-         (c == 0x2b) ||                     // '+'
-         (c == 0x2c) ||                     // ','
-         (c == 0x2f) ||                     // '/'
-         ( (c >= 0x3a) && (c <= 0x40) ) ||  // ':' ';' '<' '=' '>' '?' '@'
-         ( (c >= 0x5b) && (c <= 0x5e) ) ||  // '[' '\\' ']' '^'
-         (c == 0x60) ||                     // '`'
-         ( (c >= 0x7b) && (c <= 0x7d) ) ||  // '{' '|' '}'
-         (c == 0x7f) )                      // Control character
-    {
-        char hexencoding[4];
+        if ( ((c <= 0x20) && (c >= 0x00)) ||    // Control characters + space char
+             ( (c >= 0x22) && (c <= 0x26) ) ||  // '"' '#' '$' '%' '&'
+             (c == 0x2b) ||                     // '+'
+             (c == 0x2c) ||                     // ','
+             (c == 0x2f) ||                     // '/'
+             ( (c >= 0x3a) && (c <= 0x40) ) ||  // ':' ';' '<' '=' '>' '?' '@'
+             ( (c >= 0x5b) && (c <= 0x5e) ) ||  // '[' '\\' ']' '^'
+             (c == 0x60) ||                     // '`'
+             ( (c >= 0x7b) && (c <= 0x7d) ) ||  // '{' '|' '}'
+//           (c == 0x7f) )                      // Control character
+	     (c >= 0x7f) )                      // Control character or non US-ASCII (UTF-8)
+        {
+            char hexencoding[4];
 
-        sprintf(hexencoding, "%%%X%X", c/16, c%16);
-        outString.append(hexencoding);
-    }
-    else
+            sprintf(hexencoding, "%%%X%X", c/16, c%16);
+            outString.append(hexencoding);
+        }
+        else
 #endif
-    {
-	outString.append(char16);
+        {
+            outString.append((Uint16)c);
+        }
     }
 }
 

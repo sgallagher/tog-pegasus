@@ -51,6 +51,18 @@ PEGASUS_USING_STD;
 
 static char* programVersion =  "1.0";
 
+// Array of UTF-16 chars to be sent and received to the server.
+// Note: the last 2 elements are a surrogate pair
+Char16 utf16Chars[] = 
+			{0x6A19, 
+			0x6E96,
+			0x842C, 
+			0x570B,
+			0x78BC,
+			0xdbc0,
+			0xdc01,
+			0x00};
+
 /** ErrorExit - Print out the error message as an
     and get out.
     @param - Text for error message
@@ -84,19 +96,182 @@ static void testEnd(const double elapsedTime)
 // l10n start
 
 /*
+   Tests the UTF support in the repository
+*/
+static void TestUTFRepository( CIMClient& client, Boolean verboseTest )
+{
+  const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/SampleProvider");
+
+  Boolean deepInheritance = true;
+  Boolean localOnly = true;
+  Boolean includeQualifiers = true;
+  Boolean includeClassOrigin = true;
+
+  try
+    {
+        String utf16String(utf16Chars);
+
+  	//
+  	//  TEST 1 - Create qualifier 
+  	//  Create a qualifier with UTF-16 in the qualifier name,
+        //  and value
+  	//  This will test UTF support in the repository.
+  	//
+
+	cout << endl << "REPOSITORY TEST 1: Create Qualifier with UTF-16 chars" << endl;	
+
+        CIMName qualDeclName("UTFTestQualifier");
+
+        //  First, delete the qualifier if it was there from before  
+        if (verboseTest)
+	    cout << "Deleting the qualifier in case it was there from before" << endl;
+
+        try
+        {
+       	  client.deleteQualifier(NAMESPACE, qualDeclName);
+        }
+        catch (CIMException & e)
+        {
+          if (e.getCode() != CIM_ERR_NOT_FOUND)
+            throw e;
+        }
+
+        if (verboseTest)
+	    cout << "Creating the qualifier" << endl;
+
+        CIMQualifierDecl qualDecl(qualDeclName, 
+                     utf16String, 
+                     CIMScope::PROPERTY + CIMScope::CLASS,
+		     CIMFlavor::OVERRIDABLE);
+
+        client.setQualifier(NAMESPACE, qualDecl);
+
+        if (verboseTest)
+	    cout << "Getting the qualifier that was just created" << endl;
+
+        CIMQualifierDecl rtnQualDecl = client.getQualifier(
+			NAMESPACE,
+			qualDeclName);
+
+        if (verboseTest)
+	    cout << "Checking that UTF-16 was preserved" << endl;
+
+        MYASSERT(qualDecl.identical(rtnQualDecl));
+
+  	//
+  	//  TEST 2 - Create class 
+  	//  Create a class with UTF-16 in the class name,
+        //  property names, and qualifiers.
+        //
+        //  We will use the UTF16 qualifier created above
+        //  in this class.
+        //
+  	//  This will test UTF support in the repository.
+  	//
+
+	cout << endl << "REPOSITORY TEST 2: Create Class with UTF-16 chars" << endl;	
+
+        CIMName className("UTFTestClass");
+
+        //  First, delete the class if it was there from before  
+        if (verboseTest)
+	    cout << "Deleting the class in case it was there from before" << endl;
+
+        try
+        {
+       	  client.deleteClass(NAMESPACE, className);
+        }
+        catch (CIMException & e)
+        {
+          if (e.getCode() != CIM_ERR_NOT_FOUND)
+            throw e;
+        }
+                 
+        if (verboseTest)
+	    cout << "Creating the class" << endl;
+
+        // How did this get so ugly?
+        CIMClass cimClass(className, CIMName ("CIM_ManagedElement"));
+        CIMName name1("fred");
+        CIMName name2(utf16String);
+        CIMValue fred("fred");
+        CIMName key("key");
+
+        CIMProperty prop1(name1, fred);
+        CIMQualifier qual1(key, true);
+        CIMProperty prop2 = prop1.addQualifier(qual1);  
+        cimClass.addProperty(prop2);
+
+        CIMProperty prop3(name2, fred);             // UTF16 prop name
+        CIMQualifier qual2(qualDecl.getName(),
+                           qualDecl.getValue(),
+                           qualDecl.getFlavor());
+        CIMProperty prop4 = prop3.addQualifier(qual2);
+        cimClass.addProperty(prop4);
+
+       	client.createClass(NAMESPACE, cimClass);
+
+        if (verboseTest)
+	    cout << "Getting the class that was just created" << endl;
+
+        CIMClass rtnClass = client.getClass(
+			NAMESPACE,
+			className,
+			true,
+                    true);
+
+        if (verboseTest)
+	    cout << "Checking that the UTF-16 was preserved is property name" << endl;
+
+	Uint32 idx = rtnClass.findProperty(name2);  // name2 is UTF16
+        MYASSERT(idx != PEG_NOT_FOUND);
+
+        if (verboseTest)
+	    cout << "Checking that the UTF-16 was preserved in qualifier" << endl;
+
+	CIMProperty rtnProp = rtnClass.getProperty(idx);
+        idx = rtnProp.findQualifier(qualDecl.getName());
+        MYASSERT(idx != PEG_NOT_FOUND);
+
+        CIMQualifier rtnQual = rtnProp.getQualifier(idx);
+        MYASSERT(rtnQual.getValue() == utf16String);
+
+        //
+        // Clean up the repository
+        //
+        if (verboseTest)
+	    cout << endl << "Cleaning up the repository" << endl;
+
+        if (verboseTest)
+	    cout << "Delete the qualifier" << endl;
+
+     	client.deleteQualifier(NAMESPACE, qualDeclName);
+
+        if (verboseTest)
+	    cout << "Deleting the class" << endl;
+
+        client.deleteClass(NAMESPACE, className);
+    }
+    catch(Exception& e)
+    {
+      PEGASUS_STD(cerr) << "Error in TestLocalizedRepository: " << e.getMessage() << PEGASUS_STD(endl);
+      throw e;      
+    }
+}
+ 
+/*
    Tests the globalization support of the LocalizedProvider
    for the instance operations
 */
-
 static void TestLocalizedInstances( CIMClient& client, Boolean verboseTest )
 {
-
   const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/SampleProvider");
   const CIMName CLASSNAME = CIMName ("Sample_LocalizedProviderClass");
   const String INSTANCE0 = "instance 0Sample_LocalizedProviderClass";
   const String INSTANCE1 = "instance 1Sample_LocalizedProviderClass";
   const String RBPROP = "ResourceBundleString";
-  const String ROUNDTRIPPROP = "RoundTripString";
+  const String ROUNDTRIPSTRINGPROP = "RoundTripString";
+  const String ROUNDTRIPCHARPROP = "RoundTripChar";
   const String CLPROP = "ContentLanguageString";
   const String IDPROP = "Identifier";
 
@@ -108,24 +283,7 @@ static void TestLocalizedInstances( CIMClient& client, Boolean verboseTest )
   String expectedDftString = "ResourceBundleString DEFAULT";
 
   ContentLanguages CL_ES("es");  
-  
-// l10n TODO - put back UTF16 when that is ready
-/*
-Char16 utf16Chars[] = 
-			{0x6A19, 
-			0x6E96,
-			0x842C, 
-			0x570B,
-			0x78BC,
-			0xdbc0,
-			0xdc01,
-			0x00};
-*/
-Char16 utf16Chars[] = 
-			{'a', 
-			'b',
-			0x00};	
-						
+		
   String expectedUTF16String(utf16Chars);			
 
   try
@@ -166,25 +324,32 @@ Char16 utf16Chars[] =
 		acceptLangs1.add(AcceptLanguageElement("es", float(0.4)));    	  	
 		client.setRequestAcceptLanguages(acceptLangs1);
         	
-  		cout << "INSTANCE TEST 1: Enumerate Instances with AcceptLanguages = " << acceptLangs1 << endl;	        	
+  		cout << endl << "INSTANCE TEST 1: Enumerate Instances with AcceptLanguages = " << acceptLangs1 << endl;	        	
         	
    		Array<CIMInstance> cimNInstances =
 	    client.enumerateInstances(NAMESPACE,  className, deepInheritance,
 				      localOnly,  includeQualifiers,
 				      includeClassOrigin );
-				      
-		cout << "Found " << cimNInstances.size() << " Instances of " << className << endl;
+			
+	        if (verboseTest)	      
+		   cout << "Found " << cimNInstances.size() << " Instances of " << className << endl;
+
 	  	MYASSERT(cimNInstances.size() == 2);
 
 #ifdef PEGASUS_HAS_MESSAGES	
-		cout << "Checking expected response ContentLanguages: " << CL_DE << endl;
+	        if (verboseTest)
+		   cout << "Checking expected response ContentLanguages: " << CL_DE << endl;
+
 		MYASSERT(CL_DE == client.getResponseContentLanguages());
 #else
-		cout << "Checking expected response ContentLanguages: " << CL_Dft << endl;
+	        if (verboseTest)
+		   cout << "Checking expected response ContentLanguages: " << CL_Dft << endl;
+
 		MYASSERT(CL_Dft == client.getResponseContentLanguages());
 #endif		
 
-		cout << "Checking the translated string in each instance" << endl;
+	        if (verboseTest)
+		   cout << "Checking the returned string in each instance" << endl;
 
   		for (Uint32 i = 0; i < cimNInstances.size(); i++)
 	    {
@@ -214,7 +379,7 @@ Char16 utf16Chars[] =
 		acceptLangs2.add(AcceptLanguageElement("x-men", float(0.4)));  	  	
 		client.setRequestAcceptLanguages(acceptLangs2);	    
 
-  		cout << "INSTANCE TEST 2: Get Instance with AcceptLanguages = " << acceptLangs2 << endl;	        		    
+  		cout << endl << "INSTANCE TEST 2: Get Instance with AcceptLanguages = " << acceptLangs2 << endl;	        		    
 		
 		CIMInstance instance2 = client.getInstance(
 				NAMESPACE,
@@ -224,12 +389,15 @@ Char16 utf16Chars[] =
 				includeClassOrigin);
 
 		String returnedString;
+                Char16 returnedChar16;
+
 		instance2.getProperty (
 				instance2.findProperty(RBPROP)).
     	        getValue().
         	    get(returnedString);
 
-		cout << "Checking for default language returned" << endl;
+	        if (verboseTest)
+		   cout << "Checking for default language returned" << endl;
 
 		MYASSERT(expectedDftString == returnedString); 
 		
@@ -245,7 +413,7 @@ Char16 utf16Chars[] =
 		acceptLangs3.add(AcceptLanguageElement("x-men", float(0.4)));  	  	
 		client.setRequestAcceptLanguages(acceptLangs3);	  		
 		
-  		cout << "INSTANCE TEST 3: Get Instance with AcceptLanguages = " << acceptLangs3 << endl;	        		    		
+  		cout << endl << "INSTANCE TEST 3: Get Instance with AcceptLanguages = " << acceptLangs3 << endl;	        		    		
 		
 		CIMInstance instance3 = client.getInstance(
 				NAMESPACE,
@@ -259,12 +427,16 @@ Char16 utf16Chars[] =
     	        getValue().
         	    get(returnedString);		
 
-#ifdef PEGASUS_HAS_MESSAGES		
-		cout << "Checking for fr returned" << endl;	
+#ifdef PEGASUS_HAS_MESSAGES	
+	        if (verboseTest)	
+		   cout << "Checking for fr returned" << endl;
+	
 		MYASSERT(CL_FR == client.getResponseContentLanguages());
 		MYASSERT(expectedFRString == returnedString); 		
 #else
-		cout << "Checking for default language returned" << endl;
+	        if (verboseTest)
+		   cout << "Checking for default language returned" << endl;
+
 		MYASSERT(CL_Dft == client.getResponseContentLanguages());
 		MYASSERT(expectedDftString == returnedString); 		
 #endif			 
@@ -277,26 +449,32 @@ Char16 utf16Chars[] =
 	  	//  the fr string is preserved on get instance.
 	  	//  (fr is one of the supported languages of the provider)
 	  	//
-	  	//  Create with a UTF-16 string and expect that the
-	  	//  UTF-16 string is preserved on get instance
+	  	//  Create with a UTF-16 string and char16 and expect that they
+	  	//  are preserved on get instance
 	  	//	  	
 	
  		String oui = "Oui";
     	CIMInstance frInstance(CLASSNAME);
 	    frInstance.addProperty(CIMProperty(	CIMName(CLPROP),
 		    				oui));
-	    frInstance.addProperty(CIMProperty(	CIMName(ROUNDTRIPPROP),
+	    frInstance.addProperty(CIMProperty(	CIMName(ROUNDTRIPSTRINGPROP),
 		    				String(utf16Chars)));
+	    frInstance.addProperty(CIMProperty(	CIMName(ROUNDTRIPCHARPROP),
+		    				utf16Chars[0]));
 	    frInstance.addProperty(CIMProperty(	CIMName(IDPROP),
 		    				Uint8(2)));				
 
 	    CIMObjectPath frInstanceName = frInstance.buildPath(sampleClass);
+            frInstance.setPath(frInstanceName);
 	    
 	    client.setRequestContentLanguages(CL_FR);
 	    
- 		cout << "INSTANCE TEST 4: Create Instance with ContentLanguages = " << CL_FR
- 		     << "  and UTF-16 string." << endl;	        		    			    
-	    
+ 		cout << endl << "INSTANCE TEST 4: Create Instance with ContentLanguages = " << CL_FR
+ 		     << "  and UTF-16 string." << endl;	
+        		
+	        if (verboseTest)    			    
+ 		   cout << "Creating the instance" << endl;		    
+
 	    client.createInstance(NAMESPACE, frInstance);
 	
 		AcceptLanguages acceptLangs4;
@@ -305,7 +483,8 @@ Char16 utf16Chars[] =
 		acceptLangs4.add(AcceptLanguageElement("x-men", float(0.4)));  	  	
 		client.setRequestAcceptLanguages(acceptLangs4);		
 
- 		cout << "Getting the instance with AcceptLanguages = " << acceptLangs4
+	        if (verboseTest)
+ 		   cout << "Getting the instance just created, using AcceptLanguages = " << acceptLangs4
  		     << endl;	   	
     						
 		CIMInstance instance4 = client.getInstance(
@@ -315,24 +494,34 @@ Char16 utf16Chars[] =
 				includeQualifiers,
 				includeClassOrigin);	    						
 
-		instance4.getProperty (instance4.findProperty(ROUNDTRIPPROP)).
+		instance4.getProperty (instance4.findProperty(ROUNDTRIPSTRINGPROP)).
 		  getValue().
         	  get(returnedString);
 
- 		cout << "Checking the UTF-16 string was preserved" << endl;	 
+		instance4.getProperty (instance4.findProperty(ROUNDTRIPCHARPROP)).
+		  getValue().
+        	  get(returnedChar16);
 
-		MYASSERT(expectedUTF16String == returnedString); 
+	        if (verboseTest)
+ 		   cout << "Checking the UTF-16 chars were preserved" << endl;	 
+
+		MYASSERT(expectedUTF16String == returnedString);
+		MYASSERT(utf16Chars[0] == returnedChar16);  
 		
 		instance4.getProperty (	instance4.findProperty(CLPROP)).
 		  getValue().
 		  get(returnedString);
 
-		cout << "Checking for fr returned" << endl;
+	        if (verboseTest)
+		   cout << "Checking for fr returned" << endl;
+
 		MYASSERT(oui == returnedString); 
 		MYASSERT(CL_FR == client.getResponseContentLanguages());
 
 		// Delete the instance for the next pass
-		cout << "Deleting the instance" << endl;
+	        if (verboseTest)
+		   cout << "Deleting the instance" << endl;
+
 		client.deleteInstance(
 					NAMESPACE,
 					frInstanceName);		
@@ -347,24 +536,32 @@ Char16 utf16Chars[] =
 	  	//  (x-homer is not one of the supported languages of the provider
 	  	//   but still should be returned when asked for)
 	  	//
-	  	//  Modify instance2 with a UTF-16 string and expect that the
-	  	//  UTF-16 string is preserved on get instance
+	  	//  Modify instance2 with a UTF-16 string and char16 and expect that 
+	  	//  they are preserved on get instance
 	  	//	  	        
 	        	
 	    String doh = "doh!";
-	    ContentLanguages CL_HOMER("x-homer");    	
+	    ContentLanguages CL_HOMER("x-homer");
 		instance2.removeProperty (instance2.findProperty(CLPROP));
 	    instance2.addProperty(CIMProperty(CIMName(CLPROP),
 		    				doh));
-	    instance2.removeProperty (instance2.findProperty(ROUNDTRIPPROP));		
-	    instance2.addProperty(CIMProperty(CIMName(ROUNDTRIPPROP),
-					      String(utf16Chars)));			
+
+	    instance2.removeProperty (instance2.findProperty(ROUNDTRIPSTRINGPROP));		
+	    instance2.addProperty(CIMProperty(CIMName(ROUNDTRIPSTRINGPROP),
+					      String(utf16Chars)));	
+
+	    instance2.removeProperty (instance2.findProperty(ROUNDTRIPCHARPROP));		
+	    instance2.addProperty(CIMProperty(CIMName(ROUNDTRIPCHARPROP),
+					      utf16Chars[0]));			
 		
 	    client.setRequestContentLanguages(CL_HOMER);
 	    
- 		cout << "INSTANCE TEST 5: Modify Instance with ContentLanguages = " << 
+ 		cout << endl << "INSTANCE TEST 5: Modify Instance with ContentLanguages = " << 
  				CL_HOMER << "  and UTF-16 string." << endl;	   	    
 	    
+	        if (verboseTest)
+		   cout << "Modifying the instance" << endl;
+
 	    client.modifyInstance(NAMESPACE,
 				instance2,
 				includeQualifiers);
@@ -373,7 +570,8 @@ Char16 utf16Chars[] =
 	    acceptLangs5.add(AcceptLanguageElement("x-homer", float(0.8)));		
 	    client.setRequestAcceptLanguages(acceptLangs5);
 	    
- 		cout << "Getting the instance with AcceptLanguages = " << acceptLangs5
+	        if (verboseTest)
+ 		   cout << "Getting the instance just modified, using AcceptLanguages = " << acceptLangs5
  		     << endl;	 	    
 	    	
 		CIMInstance instance5 = client.getInstance(
@@ -384,20 +582,29 @@ Char16 utf16Chars[] =
 				includeClassOrigin);
 					 
 		instance5.getProperty (
-				instance5.findProperty(ROUNDTRIPPROP)).
+				instance5.findProperty(ROUNDTRIPSTRINGPROP)).
     	        getValue().
         	    get(returnedString);
-        	       		
-		cout << "Checking the UTF-16 string was preserved" << endl;    		
+
+		instance5.getProperty (
+				instance5.findProperty(ROUNDTRIPCHARPROP)).
+    	        getValue().
+        	    get(returnedChar16);
+        	  
+	        if (verboseTest)     		
+		   cout << "Checking the UTF-16 chars were preserved" << endl;    		
         	       						
 		MYASSERT(expectedUTF16String == returnedString);
+		MYASSERT(utf16Chars[0] == returnedChar16);
 		
 		instance5.getProperty (
 				instance5.findProperty(CLPROP)).
     	        getValue().
         	    get(returnedString);
         	
-		cout << "Checking for x-homer returned" << endl;	         	    
+	        if (verboseTest)
+		   cout << "Checking for x-homer returned" << endl;	
+         	    
 		MYASSERT(returnedString == doh); 
 		MYASSERT(CL_HOMER == client.getResponseContentLanguages());	
 		
@@ -415,27 +622,33 @@ Char16 utf16Chars[] =
 		acceptLangs6.add(AcceptLanguageElement("fr", float(0.9))); 
 		client.setRequestAcceptLanguages(acceptLangs6);			  	
 	  	
- 		cout << "INSTANCE TEST 6: Delete Instance with AcceptLanguages = " << 
+ 		cout << endl << "INSTANCE TEST 6: Delete Instance with AcceptLanguages = " << 
  				acceptLangs6 << endl;	   	  	
 	  	
 	  	// Try to delete instance2, expect an exception
+	        if (verboseTest)
+		   cout << "Deleting the instance, expecting to get a CIMException" << endl;
+
 	  	Boolean gotException = false;
 	  	try 
 	  	{
 			client.deleteInstance(
-					NAMESPACE,
-					instance2.buildPath(sampleClass)); 	  	
+					NAMESPACE,					instance2.buildPath(sampleClass)); 	  	
 	  	} catch (CIMException & ce)
 	  	{
+	            if (verboseTest)
+            		    cout << "Got the CIMException" << endl;
 	  		String message = ce.getMessage();	
 	  		
-#ifdef PEGASUS_HAS_MESSAGES		
-			cout << "Checking for es returned" << endl;	
+#ifdef PEGASUS_HAS_MESSAGES
+	            if (verboseTest)		
+			    cout << "Checking for es returned in the exception" << endl;	
 			MYASSERT(CL_ES == client.getResponseContentLanguages());
 	  		Uint32 n = message.find("ES");
 	  		MYASSERT(n != PEG_NOT_FOUND);			
 #else
-			cout << "Checking for default language returned" << endl;
+	            if (verboseTest)
+			    cout << "Checking for default language returned in the exception" << endl;
 			MYASSERT(CL_Dft == client.getResponseContentLanguages());
 	  		Uint32 n = message.find("default");
 	  		MYASSERT(n != PEG_NOT_FOUND);				
@@ -446,10 +659,10 @@ Char16 utf16Chars[] =
 		MYASSERT(gotException == true);		
 	  }
     }
-	catch(Exception& e)
+    catch(Exception& e)
     {
-      PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
-      return;
+      PEGASUS_STD(cerr) << "Error in TestLocalizedInstances: " << e.getMessage() << PEGASUS_STD(endl);
+      throw e;      
     }
 }
 // l10n end
@@ -627,10 +840,11 @@ int main(int argc, char** argv)
     for (Uint32 i = 0; i < connectionList.size(); i++)
 	cout << "Connection " << i << " address " << connectionList[i] << endl;
 
+    cout << "==========START GLOBALIZATION TEST============" << endl;
 #ifdef PEGASUS_HAS_MESSAGES	
-	cout << "NOTE: Pegasus supports ICU resource bundles.  Expecting strings loaded from resource bundles." << endl;  
+	cout << "NOTE: Pegasus supports ICU resource bundles.  Expecting the provider to return translated strings loaded from resource bundles." << endl;  
 #else
-	cout << "NOTE: Pegasus does not support ICU resource bundles.  Expecting default strings." << endl;
+	cout << "NOTE: Pegasus does not support ICU resource bundles.  Expecting the provider to return untranslated hardcoded strings." << endl;
 #endif
 
     for(Uint32 numTests = 1; numTests <= repeatTestCount; numTests++)
@@ -678,6 +892,12 @@ int main(int argc, char** argv)
 			 testStart("Test Instance Operations");
 			 elapsedTime.reset();
 			 TestLocalizedInstances(client, verboseTest);
+			 testEnd(elapsedTime.getElapsed());
+
+
+			 testStart("Test Class and Qualifier Operations");
+			 elapsedTime.reset();
+			 TestUTFRepository(client, verboseTest);
 			 testEnd(elapsedTime.getElapsed());
 
 			 client.disconnect();

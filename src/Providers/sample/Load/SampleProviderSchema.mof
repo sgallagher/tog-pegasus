@@ -20,6 +20,9 @@ class Sample_LocalizedProviderClass : Sample_ProviderClass
 	[read, write]
 	string RoundTripString;
 
+	[read, write]
+	char16 RoundTripChar;
+
 	[read]
 	string ResourceBundleString;
 

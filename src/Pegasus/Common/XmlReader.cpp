@@ -916,10 +916,14 @@ inline Uint8 _hexCharToNumeric(const char c)
 }
 
 // See http://www.ietf.org/rfc/rfc2396.txt section 2
+//
+// Also see the "CIM Operations over HTTP" spec, section 3.3.2 and
+// 3.3.3, for the treatment of non US-ASCII chars (UTF-8)
 String XmlReader::decodeURICharacters(String uriString)
 {
-    String decodedString;
     Uint32 i;
+
+    Array<Uint8> utf8Chars; 
 
     for (i=0; i<uriString.size(); i++)
     {
@@ -952,17 +956,26 @@ String XmlReader::decodeURICharacters(String uriString)
 	      throw ParseError(MessageLoader::getMessage(mlParms));
             }
 
-            // ATTN: Handle non-UTF-8 character sets
             Uint16 decodedChar = Uint16(digit1<<4) + Uint16(digit2);
-            decodedString.append(Char16(decodedChar));
+            utf8Chars.append((Uint8)decodedChar);				
         }
         else
         {
-            decodedString.append(uriString[i]);
+            utf8Chars.append((Uint8)uriString[i]);	
         }
     }
 
-    return decodedString;
+    // If there was a string to decode...
+    if (uriString.size() > 0)
+    {
+        // Convert UTF-8 to UTF-16 and return the String
+        utf8Chars.append('\0');
+        return String((char *)utf8Chars.getData(),STRING_FLAG_UTF8);
+    }
+    else
+    {
+        return String();
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -1237,8 +1250,10 @@ CIMValue XmlReader::stringToValue(
 
 	case CIMTYPE_CHAR16:
 	{
-	  if (strlen(valueString) != 1) {
 
+// remove this test, utf-8 can be up to 6 bytes per char
+/*
+	  if (strlen(valueString) != 1) {
 	    // l10n
 
 	    // throw XmlSemanticError(lineNumber, "Invalid char16 value");
@@ -1248,8 +1263,22 @@ CIMValue XmlReader::stringToValue(
 	    
 	    throw XmlSemanticError(lineNumber, mlParms);
 	  }
+*/
+          // Converts UTF-8 to UTF-16
+          String tmp(valueString, STRING_FLAG_UTF8);
+          if (tmp.size() != 1)
+          {
+	    // l10n
 
-	    return CIMValue(Char16(valueString[0]));
+	    // throw XmlSemanticError(lineNumber, "Invalid char16 value");
+	    
+	    MessageLoaderParms mlParms("Common.XmlReader.INVALID_CHAR16_VALUE",
+				       "Invalid char16 value");
+	    
+	    throw XmlSemanticError(lineNumber, mlParms);
+          }
+
+	    return CIMValue(tmp[0]);
 	}
 
 	case CIMTYPE_UINT8:

@@ -77,7 +77,7 @@ public:
     */
     void runForever();
     void killServer() { _dieNow = 1 ; }
-    void setSLP(int on_off) { _useSLP = on_off ; }
+    void setSLP(Boolean useSLP) { _useSLP = useSLP ; }
     void setServiceURL(String &url);
 
 private:

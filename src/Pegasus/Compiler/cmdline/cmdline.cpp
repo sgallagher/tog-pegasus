@@ -86,7 +86,8 @@ process_filelist(const String &filename, mofCompilerOptions &cmdlinedata)
 {
   String line;
 
-  ifstream ifs(_CString(filename).data());
+  ifstream ifs;
+  Open(ifs, filename);
 
   while (ifs != 0) {
     GetLine(ifs, line);   

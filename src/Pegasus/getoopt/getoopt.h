@@ -23,6 +23,9 @@
 // Author: Bob Blair
 //
 // $Log: getoopt.h,v $
+// Revision 1.3  2001/03/04 22:06:10  bob
+// Made a parallel printErrors method to a string
+//
 // Revision 1.2  2001/02/16 23:43:15  bob
 // Add standard Opengroup header
 //
@@ -209,6 +212,7 @@ class PEGASUS_GETOOPT_LINKAGE getoopt {
   bool hasErrors() const;
   const Error_List &getErrorStrings() const;
   ostream &printErrors(ostream &os) const;
+  void printErrors(string &s) const;
 
   // Routines for processing the parsed command line
   //   Using iterators

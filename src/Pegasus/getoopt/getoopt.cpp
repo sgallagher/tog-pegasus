@@ -628,6 +628,15 @@ getoopt::printErrors(ostream &os) const {
   return os;
 }
 
+void
+getoopt::printErrors(string &s) const {
+  for (Error_List::const_iterator it = _errorStrings.begin();
+       it != _errorStrings.end();
+	 it++) {
+    s += "> " + *it + "\n";
+  }
+}
+
 //---------------------------------------------------------------
 //              Private methods
 //---------------------------------------------------------------

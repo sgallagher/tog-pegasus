@@ -30,7 +30,7 @@
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Exception.h>
-#include "AssocFile.h"
+#include "AssocTable.h"
 
 PEGASUS_USING_STD;
 
@@ -44,39 +44,149 @@ PEGASUS_NAMESPACE_BEGIN
 #define TO_OBJECT_NAME_INDEX 5
 #define TO_CLASS_NAME_INDEX 6 
 #define TO_PROPERTY_NAME_INDEX 7
+#define NUM_FIELDS 8
 
 static inline Boolean _Match(const String& x, const String& pattern)
 {
     return pattern.size() == 0 || x == pattern;
 }
 
-static Boolean _GetLine(ifstream& is, Array<String>& fields)
+static String _Escape(const String& str)
 {
-    // Get the next line:
+    String result;
 
+    for (Uint32 i = 0, n = str.size(); i < n; i++)
+    {
+	Char16 c = str[i];
+
+	switch (c)
+	{
+	    case '\n':
+		result += "\\n";
+		break;
+
+	    case '\r':
+		result += "\\r";
+		break;
+
+	    case '\t':
+		result += "\\t";
+		break;
+
+	    case '\f':
+		result += "\\f";
+		break;
+
+	    case '\\':
+		result += "\\\\";
+		break;
+
+	    default:
+		result += c;
+	}
+    }
+
+    return result;
+}
+
+static String _Unescape(const String& str)
+{
+    String result;
+
+    for (Uint32 i = 0, n = str.size(); i < n; i++)
+    {
+	Char16 c = str[i];
+
+	if (c == '\\')
+	{
+	    if (i + 1 == n)
+		break;
+
+	    c = str[i + 1];
+
+	    switch (c)
+	    {
+		case 'n':
+		    result += "\n";
+		    break;
+
+		case 'r':
+		    result += "\r";
+		    break;
+
+		case 't':
+		    result += "\t";
+		    break;
+
+		case 'f':
+		    result += "\f";
+		    break;
+
+		default:
+		    result += c;
+	    }
+	}
+	else
+	    result += c;
+    }
+
+    return result;
+}
+
+static Boolean _GetRecord(ifstream& is, Array<String>& fields)
+{
+    fields.clear();
     String line;
+
+    for (Uint32 i = 0; i < NUM_FIELDS; i++)
+    {
+	if (!GetLine(is, line))
+	    return false;
+
+	fields.append(_Unescape(line));
+    }
+
+    // Skip the blank line:
 
     if (!GetLine(is, line))
 	return false;
 
-    // Split line into fields:
-
-    String::split(line, fields);
     return true;
 }
 
-static void _WriteLine(
-    ofstream& os,
-    Array<String>& fields)
+static void _PutRecord(ofstream& os, Array<String>& fields)
 {
-    // Insert the entry:
-
-    String line;
-    String::join(fields, line);
-    os << line << endl;
+    for (Uint32 i = 0, n = fields.size(); i < n; i++)
+	os << _Escape(fields[i]) << endl;
+    os << endl;
 }
 
-void AssocFile::append(
+void AssocTable::append(
+    PEGASUS_STD(ofstream)& os,
+    const String& assocInstanceName,
+    const String& assocClassName,
+    const String& fromObjectName,
+    const String& fromClassName,
+    const String& fromPropertyName,
+    const String& toObjectName,
+    const String& toClassName,
+    const String& toPropertyName)
+{
+    Array<String> fields;
+    fields.reserve(8);
+    fields.append(assocInstanceName);
+    fields.append(assocClassName);
+    fields.append(fromObjectName);
+    fields.append(fromClassName);
+    fields.append(fromPropertyName);
+    fields.append(toObjectName);
+    fields.append(toClassName);
+    fields.append(toPropertyName);
+
+    _PutRecord(os, fields);
+}
+
+void AssocTable::append(
     const String& path,
     const String& assocInstanceName,
     const String& assocClassName,
@@ -107,10 +217,10 @@ void AssocFile::append(
     fields.append(toClassName);
     fields.append(toPropertyName);
 
-    _WriteLine(os, fields);
+    _PutRecord(os, fields);
 }
 
-Boolean AssocFile::containsObject(
+Boolean AssocTable::containsObject(
     const String& path,
     const String& objectName)
 {
@@ -125,7 +235,7 @@ Boolean AssocFile::containsObject(
 
     Array<String> fields;
 
-    while (_GetLine(is, fields))
+    while (_GetRecord(is, fields))
     {
 	if (fields[TO_OBJECT_NAME_INDEX] == objectName)
 	    return true;
@@ -134,7 +244,7 @@ Boolean AssocFile::containsObject(
     return false;
 }
 
-Boolean AssocFile::deleteAssociation(
+Boolean AssocTable::deleteAssociation(
     const String& path,
     const String& assocInstanceName)
 {
@@ -158,11 +268,11 @@ Boolean AssocFile::deleteAssociation(
     Array<String> fields;
     Boolean found = false;
 
-    while (_GetLine(is, fields))
+    while (_GetRecord(is, fields))
     {
 	if (assocInstanceName != fields[ASSOC_INSTANCE_NAME_INDEX])
 	{
-	    _WriteLine(os, fields);
+	    _PutRecord(os, fields);
 	    found = true;
 	}
     }
@@ -185,7 +295,7 @@ Boolean AssocFile::deleteAssociation(
     return found;
 }
 
-Boolean AssocFile::getAssociatorNames(
+Boolean AssocTable::getAssociatorNames(
     const String& path,
     const String& objectName,
     const String& assocClass,
@@ -206,7 +316,7 @@ Boolean AssocFile::getAssociatorNames(
     Array<String> fields;
     Boolean found = false;
 
-    while (_GetLine(is, fields))
+    while (_GetRecord(is, fields))
     {
 	if (objectName == fields[FROM_OBJECT_NAME_INDEX] &&
 	    _Match(fields[ASSOC_CLASS_NAME_INDEX], assocClass) &&
@@ -222,7 +332,7 @@ Boolean AssocFile::getAssociatorNames(
     return found;
 }
 
-Boolean AssocFile::getReferenceNames(
+Boolean AssocTable::getReferenceNames(
     const String& path,
     const String& objectName,
     const String& resultClass,
@@ -241,7 +351,7 @@ Boolean AssocFile::getReferenceNames(
     Array<String> fields;
     Boolean found = false;
 
-    while (_GetLine(is, fields))
+    while (_GetRecord(is, fields))
     {
 	if (objectName == fields[FROM_OBJECT_NAME_INDEX] &&
 	    _Match(fields[ASSOC_CLASS_NAME_INDEX], resultClass) &&

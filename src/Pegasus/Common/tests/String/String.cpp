@@ -19,27 +19,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-//%/////////////////////////////////////////////////////////////////////////////
-//
-// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to 
-// deal in the Software without restriction, including without limitation the 
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-// 
-// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
-// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
-// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
-// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
-// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
-// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
-// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//==============================================================================
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
@@ -60,79 +39,6 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 #include <Pegasus/Common/Exception.h>
-
-static void TestSplit()
-{
-    {
-	String line = " a 	b \"c d e\" fff  \"\" 	gggg";
-	Array<String> fields;
-	String::split(line, fields);
-	assert(fields.size() == 6);
-	assert(fields[0] == "a");
-	assert(fields[1] == "b");
-	assert(fields[2] == "c d e");
-	assert(fields[3] == "fff");
-	assert(fields[4] == "");
-	assert(fields[5] == "gggg");
-    }
-
-    {
-	String line = "";
-	Array<String> fields;
-	String::split(line, fields);
-	assert(fields.size() == 0);
-    }
-
-    {
-	String line = "hello";
-	Array<String> fields;
-	String::split(line, fields);
-	assert(fields.size() == 1);
-	assert(fields[0] == "hello");
-    }
-
-    {
-	String line;
-	Array<String> fields;
-	fields.append("one");
-	fields.append("two \"three\" four");
-	fields.append("five");
-	String::join(fields, line);
-	Boolean result = line == "one \"two \\\"three\\\" four\" five";
-	assert(result);
-
-	fields.clear();
-	String::split(line, fields);
-	assert(fields.size() == 3);
-	assert(fields[0] == "one");
-	result = fields[1] == "two \"three\" four";
-	assert(result);
-	assert(fields[2] == "five");
-    }
-
-    {
-    Array<String> fields;
-    fields.append("./associations.txt");
-    fields.append("A.left=\"x.key=\\\"one\\\"\",right=\"y.key=\\\"two\\\"\"");
-    fields.append("A");
-    fields.append("X.key=\"one\"");
-    fields.append("X");
-    fields.append("left");
-    fields.append("Y");
-    fields.append("right");
-    fields.append("Y.key=\"two\"");
-
-    String line;
-    String::join(fields, line);
-
-    Array<String> tmpFields;
-    String::split(line, tmpFields);
-
-    assert(tmpFields.size() == fields.size());
-    for (Uint32 i = 0; i < fields.size(); i++)
-	assert(fields[i] == tmpFields[i]);
-    }
-}
 
 int main()
 {
@@ -385,8 +291,6 @@ int main()
 	    nameSpace.translate('#', '/');
 	    assert(nameSpace == "a/b/c");
 	}
-
-	TestSplit();
     }
 
 

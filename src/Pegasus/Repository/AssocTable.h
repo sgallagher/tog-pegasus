@@ -26,9 +26,11 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_AssocFile_h
-#define Pegasus_AssocFile_h
+#ifndef Pegasus_AssocTable_h
+#define Pegasus_AssocTable_h
 
+#include <iostream>
+#include <fstream>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Array.h>
@@ -37,9 +39,23 @@ PEGASUS_NAMESPACE_BEGIN
 
 /** Maintains all associations for a given namesspace.
 */
-class PEGASUS_REPOSITORY_LINKAGE AssocFile
+class PEGASUS_REPOSITORY_LINKAGE AssocTable
 {
 public:
+
+    /** Appends a row into the association table. There is no checking
+	for duplicate entries (the caller ensures this).
+    */
+    static void append(
+	PEGASUS_STD(ofstream)& os,
+	const String& assocInstanceName,
+	const String& assocClassName,
+	const String& fromObjectName,
+	const String& fromClassName,
+	const String& fromPropertyName,
+	const String& toObjectName,
+	const String& toClassName,
+	const String& toPropertyName);
 
     /** Appends a row into the association table. There is no checking
 	for duplicate entries (the caller ensures this).
@@ -97,9 +113,9 @@ public:
 
 private:
 
-    AssocFile() { /* private */ }
+    AssocTable() { /* private */ }
 };
 
 PEGASUS_NAMESPACE_END
 
-#endif /* Pegasus_AssocFile_h */
+#endif /* Pegasus_AssocTable_h */

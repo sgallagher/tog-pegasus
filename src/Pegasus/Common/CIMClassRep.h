@@ -171,10 +171,9 @@ public:
 	return new CIMClassRep(*this);
     }
 
-    /** Return the names of all properties which bear a true key qualifier.
-	Sort the keys in ascending order.
-    */
     void getKeyNames(Array<String>& keyNames) const;
+
+    Boolean hasKeys() const;
 
 private:
 

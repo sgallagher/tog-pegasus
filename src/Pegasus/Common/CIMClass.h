@@ -482,17 +482,23 @@ public:
     */
     Boolean identical(const CIMConstClass& x) const;
 
-    /// CIMMethod clone - ATTN:
+    /** Makes a deep copy (clone) of the given object. */
     CIMClass clone() const
     {
 	return CIMClass(_rep->clone());
     }
-    /** getKeyNames - ATTN
-    */
+
+    /** Get names of all keys of this class. */
     void getKeyNames(Array<String>& keyNames) const
     {
 	_checkRep();
 	_rep->getKeyNames(keyNames);
+    }
+
+    Boolean hasKeys() const
+    {
+	_checkRep();
+	return _rep->hasKeys();
     }
 
 private:
@@ -679,6 +685,12 @@ public:
     {
 	_checkRep();
 	_rep->getKeyNames(keyNames);
+    }
+
+    Boolean hasKeys() const
+    {
+	_checkRep();
+	return _rep->hasKeys();
     }
 
 private:

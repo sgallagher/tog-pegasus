@@ -544,5 +544,18 @@ void CIMClassRep::getKeyNames(Array<String>& keyNames) const
     }
 }
 
+Boolean CIMClassRep::hasKeys() const
+{
+    for (Uint32 i = 0, n = getPropertyCount(); i < n; i++)
+    {
+	CIMConstProperty property = getProperty(i);
+
+	if (getProperty(i).isKey())
+	    return true;
+    }
+
+    return false;
+}
+
 PEGASUS_NAMESPACE_END
 

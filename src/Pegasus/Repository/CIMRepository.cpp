@@ -39,8 +39,9 @@
 #include <Pegasus/Common/DeclContext.h>
 #include "CIMRepository.h"
 #include "InstanceIndexFile.h"
+#include "AssocTable.h"
 
-// #define INDENT_XML_FILES
+#define INDENT_XML_FILES
 
 PEGASUS_USING_STD;
 
@@ -100,6 +101,7 @@ void _SaveObject(const String& path, const Object& object)
 	throw CannotOpenFile(path);
 
 #ifdef INDENT_XML_FILES
+    out.append('\0');
     XmlWriter::indentedPrint(os, out.getData(), 2);
 #else
     os.write((char*)out.getData(), out.size());
@@ -249,6 +251,7 @@ Boolean CIMRepository::_getInstanceIndex(
     // -- Get all descendent classes of this class:
 
     className = instanceName.getClassName();
+
     Array<String> classNames;
     _nameSpaceManager.getSubClassNames(nameSpace, className, true, classNames);
     classNames.prepend(className);
@@ -426,6 +429,20 @@ void CIMRepository::_createAssociationEntries(
     const CIMInstance& cimInstance,
     const CIMReference& instanceName)
 {
+    // Form the association file name:
+
+    String tmpNameSpace = nameSpace;
+    tmpNameSpace.translate('/', '#');
+    String assocFileName = 
+	Cat(_repositoryRoot, "/", tmpNameSpace, "/associations");
+
+    // Open input file:
+    
+    ofstream os;
+
+    if (!OpenAppend(os, assocFileName))
+	throw CannotOpenFile(assocFileName);
+
     // Get the association's instance name and class name:
 
     String assocInstanceName = instanceName.toString();
@@ -435,35 +452,46 @@ void CIMRepository::_createAssociationEntries(
 
     for (Uint32 i = 0, n = cimInstance.getPropertyCount(); i < n; i++)
     {
-	CIMConstProperty iProp = cimInstance.getProperty(i);
+	CIMConstProperty fromProp = cimInstance.getProperty(i);
 
 	// If a reference property:
 
-	if (iProp.getType() == CIMType::REFERENCE)
+	if (fromProp.getType() == CIMType::REFERENCE)
 	{
 	    // For each property:
 
 	    for (Uint32 j = 0, n = cimInstance.getPropertyCount(); j < n; j++)
 	    {
-		CIMConstProperty jProp = cimInstance.getProperty(j);
+		CIMConstProperty toProp = cimInstance.getProperty(j);
 
 		// If a reference property and not the same property:
 
-		if (jProp.getType() == CIMType::REFERENCE &&
-		    iProp.getName() != jProp.getName())
+		if (toProp.getType() == CIMType::REFERENCE &&
+		    fromProp.getName() != toProp.getName())
 		{
-		    CIMReference iRef;
-		    iProp.getValue().get(iRef);
+		    CIMReference fromRef;
+		    fromProp.getValue().get(fromRef);
 
-		    CIMReference jRef;
-		    jProp.getValue().get(jRef);
+		    CIMReference toRef;
+		    toProp.getValue().get(toRef);
 
-		    String fromObjectName;
-		    String fromClassName;
-		    String fromPropertyName;
-		    String toObjectName;
-		    String toClassName;
-		    String toPropertyName;
+		    String fromObjectName = fromRef.toString();
+		    String fromClassName = fromRef.getClassName();
+		    String fromPropertyName = fromProp.getName();
+		    String toObjectName = toRef.toString();
+		    String toClassName = toRef.getClassName();
+		    String toPropertyName = toProp.getName();
+
+		    AssocTable::append(
+			os,
+			assocInstanceName,
+			assocClassName,
+			fromObjectName,
+			fromClassName,
+			fromPropertyName,
+			toObjectName,
+			toClassName,
+			toPropertyName);
 		}
 	    }
 	}
@@ -479,6 +507,16 @@ void CIMRepository::createInstance(
     CIMConstClass cimClass;
     newInstance.resolve(_context, nameSpace, cimClass);
     CIMReference instanceName = newInstance.getInstanceName(cimClass);
+
+    // -- Make sure the class has keys (otherwise it will be impossible to
+    // -- create the instance.
+
+    if (!cimClass.hasKeys())
+    {
+	String message = "class has no keys: ";
+	message += cimClass.getClassName();
+	throw PEGASUS_CIM_EXCEPTION(FAILED, message);
+    }
 
     // -- Be sure instance does not already exist:
 
@@ -723,7 +761,7 @@ Array<CIMInstance> CIMRepository::associators(
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const Array<String>& propertyList)
-{
+{ 
     throw PEGASUS_CIM_EXCEPTION(NOT_SUPPORTED, "associators()");
     return Array<CIMInstance>();
 }
@@ -735,9 +773,34 @@ Array<CIMReference> CIMRepository::associatorNames(
     const String& resultClass,
     const String& role,
     const String& resultRole)
-{ 
-    throw PEGASUS_CIM_EXCEPTION(NOT_SUPPORTED, "associatorNames()");
-    return Array<CIMReference>();
+{
+    // Form the association file name:
+
+    String tmpNameSpace = nameSpace;
+    tmpNameSpace.translate('/', '#');
+    String assocFileName = 
+	Cat(_repositoryRoot, "/", tmpNameSpace, "/associations");
+
+    Array<String> associatorNames;
+
+    if (!AssocTable::getAssociatorNames(
+	assocFileName,
+	objectName.toString(),
+        assocClass,
+        resultClass,
+        role,
+        resultRole,
+	associatorNames))
+    {
+	throw PEGASUS_CIM_EXCEPTION(FAILED, "associators not found for: "
+	    + objectName.toString());
+    }
+
+    Array<CIMReference> result;
+    for (Uint32 i = 0, n = associatorNames.size(); i < n; i++)
+	result.append(associatorNames[i]);
+
+    return result;
 }
 
 Array<CIMInstance> CIMRepository::references(

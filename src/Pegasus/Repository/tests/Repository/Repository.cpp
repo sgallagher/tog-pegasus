@@ -138,12 +138,37 @@ void test02()
     assert(subClassInstance.identical(tmp));
 }
 
+void test03()
+{
+    const char* home = getenv("PEGASUS_HOME");
+
+    if (!home)
+    {
+	cerr << "PEGASUS_HOME environment variable not set" << endl;
+	exit(1);
+    }
+
+    String repositoryRoot = home;
+    repositoryRoot += "/repository";
+    CIMRepository r(repositoryRoot);
+
+    Array<CIMReference> names = r.associatorNames(
+	"root/cimv2",
+	"X.key=\"John Smith\"");
+
+    for (Uint32 i = 0; i < names.size(); i++)
+    {
+	PEGASUS_OUT(names[i]);
+    }
+}
+
 int main()
 {
     try 
     {
 	test01();
 	test02();
+	// test03();
     }
     catch (Exception& e)
     {

@@ -13,7 +13,7 @@ LIBRARIES = $(LIB_DIR)/$(LIB_PREFIX)pegcommon$(LIB_SUFFIX)
 LIBRARY = pegrepository
 
 SOURCES = \
-    AssocFile.cpp \
+    AssocTable.cpp \
     NameSpaceManager.cpp \
     InheritanceTree.cpp \
     InstanceIndexFile.cpp \

@@ -72,6 +72,10 @@ repository implementation.
     CIMOperationRequestDecoder.cpp and CIMOperationResponseEncoder.cpp so XML 
     input and output can be written in a trace file.
 
+21. (Markus Mueller - IBM) 25 Sep 2001 - Initial Signal Handler support
+    Created new class SignalHandler that allow registration, activation and
+    deactivation of signal handler functions (Linux only !).
+
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch
               Tagged as version_1_01 on 3 August 2001 (sorry should have been

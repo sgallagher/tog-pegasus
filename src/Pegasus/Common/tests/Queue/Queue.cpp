@@ -59,7 +59,8 @@
 #include <cassert>
 #include <Pegasus/Common/Queue.h>
 #include <Pegasus/Common/Stopwatch.h>
-#include <Pegasus/suballoc/suballoc.h>  
+#include <Pegasus/suballoc/suballoc.h> 
+#include <Pegasus/Common/Array.h>
 PEGASUS_USING_PEGASUS; 
 PEGASUS_USING_STD;
 
@@ -70,74 +71,130 @@ int main(int argc, char** argv)
     verbose = getenv("PEGASUS_TEST_VERBOSE");
     try
     {
-	// Simple test with Uint32 Stack of push, pop, top, and tests.
-	Queue<Uint32> q1;
-	assert (q1.isEmpty());
-
-	q1.enqueue(1);
-	assert(q1.size() == 1);
-	assert(!q1.isEmpty());
-	assert(q1.back() == 1);
-	assert(q1.front() == 1);
-	
-	q1.enqueue(2);
-	assert(q1.size() == 2);
-	assert (!q1.isEmpty());
-
-	assert(q1.back() = 2);
-	assert(q1.front() = 1);
-
-	q1.dequeue();
-	assert(q1.size() == 1);
-	assert(!q1.isEmpty());
-	assert(q1.back() == 2);
-	assert(q1.front() == 2);
-
-
-	q1.dequeue();
-	assert(q1.size() == 0);
-	assert (q1.isEmpty());
-
-	// Performance tests - Filling and emptying
-        
-	Stopwatch sw;
+    	// Simple test with Uint32 Stack of push, pop, top, and tests.
+    	Queue<Uint32> q1;
+    	assert (q1.isEmpty());
     
-	Queue<Uint32> q2;
-	Uint32 queueSize = 10000;
-      
-	for (Uint32 i = 0; i < queueSize; i++)
-	    q2.enqueue(i); 
-     
-	assert(q2.size() == queueSize);
-	for (Uint32 i = 0; i < queueSize; i++)
-	    q2.dequeue();
-	if(verbose)
-	{
-	    cout << "Queue fill and empty of " << queueSize << " integers in " << 
-		    sw.getElapsed() << " Seconds" << endl;
-	}
-	
-	// Performance test - Passing item through a queue.
-	{
-	    Queue<Uint32> q3;
-    	    queueSize = 30;
-	    for (Uint32 i = 0; i < queueSize; i++)
-		q2.enqueue(i);
+    	q1.enqueue(1);
+    	assert(q1.size() == 1);
+    	assert(!q1.isEmpty());
+    	assert(q1.back() == 1);
+    	assert(q1.front() == 1);
+    	
+    	q1.enqueue(2);
+    	assert(q1.size() == 2);
+    	assert (!q1.isEmpty());
+    
+    	assert(q1.back() = 2);
+    	assert(q1.front() = 1);
+    
+    	q1.dequeue();
+    	assert(q1.size() == 1);
+    	assert(!q1.isEmpty());
+    	assert(q1.back() == 2);
+    	assert(q1.front() == 2);
+    
+    
+    	q1.dequeue();
+    	assert(q1.size() == 0);
+    	assert (q1.isEmpty());
+    
+    
+    
+    	// Performance tests - Filling and emptying
+            
+    	Stopwatch sw;
+        
+    	Queue<Uint32> q2;
+    	Uint32 queueSize = 10000;
+          
+    	for (Uint32 i = 0; i < queueSize; i++)
+    	    q2.enqueue(i); 
+         
+    	assert(q2.size() == queueSize);
+    	for (Uint32 i = 0; i < queueSize; i++)
+    	    q2.dequeue();
+    	if(verbose)
+    	{
+    	    cout << "Queue fill and empty of " << queueSize << " integers in " << 
+    		    sw.getElapsed() << " Seconds" << endl;
+    	}
+    	
+    	// Performance test - Passing item through a queue.
+            {
+                Queue<Uint32> q3;
+                queueSize = 3000;
+                for (Uint32 i = 0; i < queueSize; i++)
+                    q2.enqueue(i);
+    
+                Stopwatch sw;
+                Uint32 iterations = 10000;
+                for (Uint32 i = 0; i < iterations; i++)
+                    q3.enqueue(i);
+                q3.dequeue();
+    
+                if (verbose)
+                {
+                    cout << "Queue transit. Queue size =  " << queueSize 
+                    << " integers. Transit of " << iterations << " in "
+                    << sw.getElapsed() << " Seconds" << endl;
+                }
+            }
+        // Testing items in a queue
+        Queue<Uint32> q4;
+        for (Uint32 i = 0; i < 30; i++)
+        {
+            q4.enqueue(i);
+        }
+        Boolean found = false;
+        /*if (Contains(q4, 12))
+        {
+            found = true;
+        }
+        assert(found);
+        found = false;
 
-	    Stopwatch sw;
-	    Uint32 iterations = 10000;
-	    for (Uint32 i = 0; i < iterations; i++)
-		 q3.enqueue(i);
-		 q3.dequeue();
+        for (Uint32 i = 0; i < 30; i++)
+        {
+            if (q4[i] = 12)
+            {
+                found = true;
+            }
+        }
+        assert(found);*/
 
-	 if(verbose)
-	 {
-	     cout << "Queue transit. Queue size =  " << queueSize 
-		 << " integers. Transit of " << iterations << " in "
-		  << sw.getElapsed() << " Seconds" << endl;
-	 }
-      }
-	
+    	assert(q4.size() == 30);
+        q4.remove(12);
+
+    	assert(q4.size() == 29);
+        found = false;
+
+        for (Uint32 i = 0; i < q4.size(); i++)
+        {
+            if (q4[i] == 12)
+            {
+                assert(false);
+            }
+        }
+
+        // Test removing from a queue with remove
+        {
+            Queue<Uint32> q5;
+            for (Uint32 i = 0; i < 30; i++)
+            {
+                q5.enqueue(i);
+            }
+            while (q5.size() > 0)
+            {
+                Uint32 qsize = q5.size();
+                q5.remove(0);
+                if (q5.size() != qsize - 1)
+                {
+                    assert (false);
+                }
+            }
+        }
+
     }
     catch (Exception& e)
     {

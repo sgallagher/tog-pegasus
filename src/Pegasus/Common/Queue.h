@@ -20,9 +20,9 @@
 //
 //==============================================================================
 //
-// Author: Karl Schopmeyer (k.schopmeyer@attglobal.net)
+// Author: Mike Brasher  (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -97,6 +97,17 @@ public:
         and look at individual items on the queue.
     */
     const T& operator[](Uint32 i) const { return _rep[i]; }
+
+    /* remove - Removes an entry from the queue.  Normally the role of
+       queues is to pass information from the back to the front but
+       this function allows removeing any single item from the queue
+       @param pos - Position in the array containing the item to be removed
+       @exception - Throws the "outOfBounds" exception of pos is outside the queue
+       This works because the queue implementation is an array.
+    */
+    void remove(Uint32 pos) { _rep.remove(pos); }
+
+    //void operator
 
 private:
 

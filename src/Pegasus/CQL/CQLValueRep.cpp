@@ -1269,8 +1269,12 @@ Boolean CQLValueRep::like(const CQLValueRep& inVal)
    {
       throw(Exception(String("CQLValueRep::like")));
    }
+   
+   String leftside(*_theValue._S);
+   String rightside(*inVal._theValue._S);
 
    // Poughkepsie is doing this, Dan Gorey.
+   // return someLikefunction(leftside,rightside);
    return false;
 }
 

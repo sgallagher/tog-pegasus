@@ -30,7 +30,7 @@
 // Modified By: Gerarda Marquez (gmarquez@us.ibm.com)
 //              -- PEP 43
 //              Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
-//              Amit K Arora, IBM (amitarora@in.ibm.com) - Bug#2333
+//              Amit K Arora, IBM (amitarora@in.ibm.com) - Bug#2333, #2351
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -373,6 +373,7 @@ int
 processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
 	       ostream &helpos = cerr) {
   getoopt cmdline;
+  int type = -1;
   setCmdLineOpts(cmdline, getType(argv[0]));
   cmdline.parse(argc, argv);
   switch (getType(argv[0])) {
@@ -415,18 +416,22 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
 
     throw ArgumentErrorsException(msg);
   }
+
+  MessageLoaderParms parms("Compiler.cmdline.cimmof.CMDLINE_ERRORS",
+                           "Too many options specified.\n");
+
   for (unsigned int i = cmdline.first(); i < cmdline.last(); i++) {
     const Optarg &arg = cmdline[i];
     opttypes c = catagorize(arg, getType(argv[0]));
+    if(type == HELPFLAG || type == VERSIONFLAG)
+          throw ArgumentErrorsException(parms);
     switch (c)
       {
       case VERSIONFLAG:  
-          cerr << "Version " << PEGASUS_PRODUCT_VERSION << endl;
-          return(-1);
-          break;
+        if(type != -1) throw ArgumentErrorsException(parms);
+        break;
       case HELPFLAG:  
-          help(helpos, getType(argv[0]));
-	return(-1);
+        if(type != -1) throw ArgumentErrorsException(parms);
         break;
       case INCLUDEPATH:cmdlinedata.add_include_path(arg.optarg());
         break;
@@ -544,7 +549,20 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
       case OPTEND_CIMMOF: return -1;  // shouldn't happen
 	break;
       }
+      type = c;
   }
+
+  if(type == VERSIONFLAG)
+  {
+     cerr << "Version " << PEGASUS_PRODUCT_VERSION << endl;
+     return(-1);
+  }
+  else if(type == HELPFLAG)
+  {
+     help(helpos, getType(argv[0]));
+     return(-1);
+  }
+
   if (String::equal(cmdlinedata.get_repository_name(), String::EMPTY)) {
   	//l10n
     //throw CmdlineNoRepository(

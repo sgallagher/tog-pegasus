@@ -513,8 +513,17 @@ void CIMExportRequestDecoder::handleMethodRequest(
       if (!XmlReader::getMessageStartTag(
 	     parser, messageId, protocolVersion))
       {
-	 throw XmlValidationError(
-	    parser.getLine(), "expected MESSAGE element");
+
+	// l10n
+
+	// throw XmlValidationError(
+	// parser.getLine(), "expected MESSAGE element");
+
+	 MessageLoaderParms mlParms("ExportServer.CIMExportRequestDecoder.EXPECTED_ELEMENT",
+				   "expected $0 element",
+				   "MESSAGE");
+
+	 throw XmlValidationError(parser.getLine(), mlParms);
       }
 
       // Validate that the protocol version in the header matches the XML
@@ -556,8 +565,17 @@ void CIMExportRequestDecoder::handleMethodRequest(
 
       if (!XmlReader::getEMethodCallStartTag(parser, cimExportMethodName))
       {
-	 throw XmlValidationError(parser.getLine(), 
-				  "expected EXPMETHODCALL element");
+
+	// l10n
+
+	// throw XmlValidationError(parser.getLine(), 
+	//		  "expected EXPMETHODCALL element");
+
+	MessageLoaderParms mlParms("ExportServer.CIMExportRequestDecoder.EXPECTED_ELEMENT",
+				   "expected $0 element",
+				   "EXPMETHODCALL");
+
+	 throw XmlValidationError(parser.getLine(), mlParms);
       }
 
       // The Specification for CIM Operations over HTTP reads:
@@ -613,8 +631,16 @@ void CIMExportRequestDecoder::handleMethodRequest(
          }
          else
          {
-            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
-               String("Unrecognized export method: ") + cimExportMethodName);
+
+	   // l10n
+
+	   // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
+	   // String("Unrecognized export method: ") + cimExportMethodName);
+
+            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_NOT_SUPPORTED,
+					   MessageLoaderParms("ExportServer.CIMExportRequestDecoder.UNRECOGNIZED_EXPORT_METHOD",
+							      "Unrecognized export method: $0",
+							      cimExportMethodName));
          }
       }
       catch (CIMException& e)

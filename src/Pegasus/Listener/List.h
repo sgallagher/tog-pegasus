@@ -43,6 +43,12 @@ PEGASUS_NAMESPACE_BEGIN
 class Iterator
 {
 public:
+    /**
+     * Destroys the object.  This is needed so that an object of a
+     * subclass can be correctly destroyed thru an Iterator pointer.
+     */
+    virtual ~Iterator();
+
 	/**
    * Returns <tt>true</tt> if the iteration has more elements. (In other
    * words, returns <tt>true</tt> if <tt>next</tt> would return an element

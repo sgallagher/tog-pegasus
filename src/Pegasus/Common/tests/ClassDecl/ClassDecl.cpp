@@ -61,9 +61,9 @@ void test01()
 	.addQualifier(CIMQualifier("q2", String("Hello")))
 	.addProperty(CIMProperty("message", String("Hello")))
 	.addProperty(CIMProperty("count", Uint32(77)))
-	.addMethod(CIMMethod("isActive", CIMType::BOOLEAN)
-	    .addParameter(CIMParameter("hostname", CIMType::STRING))
-	    .addParameter(CIMParameter("port", CIMType::UINT32)));
+	.addMethod(CIMMethod("isActive", CIMTYPE_BOOLEAN)
+	    .addParameter(CIMParameter("hostname", CIMTYPE_STRING))
+	    .addParameter(CIMParameter("port", CIMTYPE_UINT32)));
 
     // Test the method count function
     assert(CIMName::equal(class1.getClassName(), "myclass"));
@@ -81,9 +81,9 @@ void test01()
 
     // Now add another method and reconfirm.
 
-    class1.addMethod(CIMMethod("makeActive", CIMType::BOOLEAN)
-	.addParameter(CIMParameter("hostname", CIMType::STRING))
-	.addParameter(CIMParameter("port", CIMType::UINT32)));
+    class1.addMethod(CIMMethod("makeActive", CIMTYPE_BOOLEAN)
+	.addParameter(CIMParameter("hostname", CIMTYPE_STRING))
+	.addParameter(CIMParameter("port", CIMTYPE_UINT32)));
 
     assert(class1.getMethodCount() == 2);
 

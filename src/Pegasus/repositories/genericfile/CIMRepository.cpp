@@ -415,13 +415,13 @@ void CIMRepository::_createAssocClassEntries(
     {
         CIMConstProperty fromProp = assocClass.getProperty(i);
 
-        if (fromProp.getType() == CIMType::REFERENCE)
+        if (fromProp.getType() == CIMTYPE_REFERENCE)
         {
             for (Uint32 j = 0; j < n; j++)
             {
                 CIMConstProperty toProp = assocClass.getProperty(j);
 
-                if (toProp.getType() == CIMType::REFERENCE &&
+                if (toProp.getType() == CIMTYPE_REFERENCE &&
                     fromProp.getName() != toProp.getName())
                 {
                     String fromClassName = fromProp.getReferenceClassName();
@@ -526,7 +526,7 @@ void CIMRepository::_createAssocInstEntries(
 
         // If a reference property:
 
-        if (fromProp.getType() == CIMType::REFERENCE)
+        if (fromProp.getType() == CIMTYPE_REFERENCE)
         {
             // For each property:
 
@@ -536,7 +536,7 @@ void CIMRepository::_createAssocInstEntries(
 
                 // If a reference property and not the same property:
 
-                if (toProp.getType() == CIMType::REFERENCE &&
+                if (toProp.getType() == CIMTYPE_REFERENCE &&
                     fromProp.getName() != toProp.getName())
                 {
                     CIMObjectPath fromRef;

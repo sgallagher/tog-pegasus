@@ -31,6 +31,8 @@
 //         Jim Metcalfe, Hewlett-Packard Company
 //         Carlos Bonilla, Hewlett-Packard Company
 //         Mike Glantz, Hewlett-Packard Company <michael_glantz@hp.com>
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -628,7 +630,7 @@ CIMInstance ProcessProvider::_constructInstance(const String &className,
     if (String::equal(s,String::EMPTY))
     {
       inst.addProperty(CIMProperty(PROPERTY_OTHER_EXECUTION_DESCRIPTION,
-                                   CIMValue(CIMType::STRING, false)));
+                                   CIMValue(CIMTYPE_STRING, false)));
     }
     else
     {

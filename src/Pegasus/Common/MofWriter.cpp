@@ -23,7 +23,8 @@
 //
 // Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -240,7 +241,7 @@ void MofWriter::appendValueElement(
     {
         switch (value.getType())
         {
-            case CIMType::BOOLEAN:
+            case CIMTYPE_BOOLEAN:
             {
                 Array<Boolean> a;
                 value.get(a);
@@ -248,7 +249,7 @@ void MofWriter::appendValueElement(
                 break;
             }
 
-            case CIMType::UINT8:
+            case CIMTYPE_UINT8:
             {
                 Array<Uint8> a;
                 value.get(a);
@@ -256,7 +257,7 @@ void MofWriter::appendValueElement(
                 break;
             }
 
-            case CIMType::SINT8:
+            case CIMTYPE_SINT8:
             {
                 Array<Sint8> a;
                 value.get(a);
@@ -264,7 +265,7 @@ void MofWriter::appendValueElement(
                 break;
             }
 
-            case CIMType::UINT16:
+            case CIMTYPE_UINT16:
             {
                 Array<Uint16> a;
                 value.get(a);
@@ -272,7 +273,7 @@ void MofWriter::appendValueElement(
                 break;
             }
 
-            case CIMType::SINT16:
+            case CIMTYPE_SINT16:
             {
                 Array<Sint16> a;
                 value.get(a);
@@ -280,7 +281,7 @@ void MofWriter::appendValueElement(
                 break;
             }
 
-            case CIMType::UINT32:
+            case CIMTYPE_UINT32:
             {
                 Array<Uint32> a;
                 value.get(a);
@@ -288,7 +289,7 @@ void MofWriter::appendValueElement(
                 break;
             }
 
-            case CIMType::SINT32:
+            case CIMTYPE_SINT32:
             {
                 Array<Sint32> a;
                 value.get(a);
@@ -296,7 +297,7 @@ void MofWriter::appendValueElement(
                 break;
             }
 
-            case CIMType::UINT64:
+            case CIMTYPE_UINT64:
             {
                 Array<Uint64> a;
                 value.get(a);
@@ -304,7 +305,7 @@ void MofWriter::appendValueElement(
                 break;
             }
 
-            case CIMType::SINT64:
+            case CIMTYPE_SINT64:
             {
                 Array<Sint64> a;
                 value.get(a);
@@ -312,7 +313,7 @@ void MofWriter::appendValueElement(
                 break;
             }
 
-            case CIMType::REAL32:
+            case CIMTYPE_REAL32:
             {
                 Array<Real32> a;
                 value.get(a);
@@ -320,7 +321,7 @@ void MofWriter::appendValueElement(
                 break;
             }
 
-            case CIMType::REAL64:
+            case CIMTYPE_REAL64:
             {
                 Array<Real64> a;
                 value.get(a);
@@ -328,7 +329,7 @@ void MofWriter::appendValueElement(
                 break;
             }
 
-            case CIMType::CHAR16:
+            case CIMTYPE_CHAR16:
             {
                 Array<Char16> a;
                 value.get(a);
@@ -336,7 +337,7 @@ void MofWriter::appendValueElement(
                 break;
             }
 
-            case CIMType::STRING:
+            case CIMTYPE_STRING:
             {
                 Array<String> a;
                 value.get(a);
@@ -344,7 +345,7 @@ void MofWriter::appendValueElement(
                 break;
             }
 
-            case CIMType::DATETIME:
+            case CIMTYPE_DATETIME:
             {
                 Array<CIMDateTime> a;
                 value.get(a);
@@ -352,7 +353,7 @@ void MofWriter::appendValueElement(
                 break;
             }
 
-            case CIMType::REFERENCE:
+            case CIMTYPE_REFERENCE:
             {
                 Array<CIMObjectPath> a;
                 value.get(a);
@@ -368,7 +369,7 @@ void MofWriter::appendValueElement(
     {
         switch (value.getType())
         {
-            case CIMType::BOOLEAN:
+            case CIMTYPE_BOOLEAN:
             {
                 Boolean v;
                 value.get(v);
@@ -376,7 +377,7 @@ void MofWriter::appendValueElement(
                 break;
             }
 
-            case CIMType::UINT8:
+            case CIMTYPE_UINT8:
             {
                 Uint8 v;
                 value.get(v);
@@ -384,7 +385,7 @@ void MofWriter::appendValueElement(
                 break;
             }
 
-            case CIMType::SINT8:
+            case CIMTYPE_SINT8:
             {
                 Sint8 v;
                 value.get(v);
@@ -392,7 +393,7 @@ void MofWriter::appendValueElement(
                 break;
             }
 
-            case CIMType::UINT16:
+            case CIMTYPE_UINT16:
             {
                 Uint16 v;
                 value.get(v);
@@ -400,7 +401,7 @@ void MofWriter::appendValueElement(
                 break;
             }
 
-            case CIMType::SINT16:
+            case CIMTYPE_SINT16:
             {
                 Sint16 v;
                 value.get(v);
@@ -408,7 +409,7 @@ void MofWriter::appendValueElement(
                 break;
             }
 
-            case CIMType::UINT32:
+            case CIMTYPE_UINT32:
             {
                 Uint32 v;
                 value.get(v);
@@ -416,7 +417,7 @@ void MofWriter::appendValueElement(
                 break;
             }
 
-            case CIMType::SINT32:
+            case CIMTYPE_SINT32:
             {
                 Sint32 v;
                 value.get(v);
@@ -424,7 +425,7 @@ void MofWriter::appendValueElement(
                 break;
             }
 
-            case CIMType::UINT64:
+            case CIMTYPE_UINT64:
             {
                 Uint64 v;
                 value.get(v);
@@ -432,7 +433,7 @@ void MofWriter::appendValueElement(
                 break;
             }
 
-            case CIMType::SINT64:
+            case CIMTYPE_SINT64:
             {
                 Sint64 v;
                 value.get(v);
@@ -440,7 +441,7 @@ void MofWriter::appendValueElement(
                 break;
             }
 
-            case CIMType::REAL32:
+            case CIMTYPE_REAL32:
             {
                 Real32 v;
                 value.get(v);
@@ -448,7 +449,7 @@ void MofWriter::appendValueElement(
                 break;
             }
 
-            case CIMType::REAL64:
+            case CIMTYPE_REAL64:
             {
                 Real64 v;
                 value.get(v);
@@ -456,7 +457,7 @@ void MofWriter::appendValueElement(
                 break;
             }
 
-            case CIMType::CHAR16:
+            case CIMTYPE_CHAR16:
             {
                 Char16 v;
                 value.get(v);
@@ -464,7 +465,7 @@ void MofWriter::appendValueElement(
                 break;
             }
 
-            case CIMType::STRING:
+            case CIMTYPE_STRING:
             {
                 String v;
                 value.get(v);
@@ -472,7 +473,7 @@ void MofWriter::appendValueElement(
                 break;
             }
 
-            case CIMType::DATETIME:
+            case CIMTYPE_DATETIME:
             {
                 CIMDateTime v;
                 value.get(v);
@@ -480,7 +481,7 @@ void MofWriter::appendValueElement(
                 break;
             }
 
-            case CIMType::REFERENCE:
+            case CIMTYPE_REFERENCE:
             {
                 CIMObjectPath v;
                 value.get(v);

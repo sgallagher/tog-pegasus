@@ -26,6 +26,8 @@
 // Modified By: Nag Boranna (nagaraja_boranna@hp.com)
 //
 // Modified By: Jenny Yu (jenny_yu@am.exch.hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -114,7 +116,7 @@ const char TruncatedCharacter::MSG[] =
     "truncated character during conversion from Char16 to char";
 
 const char ExpectedReferenceValue::MSG[] =
-    "Expected CIMValue object to be CIMType::REFERENCE or CIMType::REFERENCE_ARRAY "
+    "Expected CIMValue object to be of type reference "
     "in this context";
 
 const char MissingReferenceClassName::MSG[] = "missing reference class name";

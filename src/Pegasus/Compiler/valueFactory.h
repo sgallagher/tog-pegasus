@@ -23,7 +23,8 @@
 //
 // Author: Bob Blair (bblair@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -48,7 +49,7 @@ PEGASUS_USING_STD;
 class PEGASUS_COMPILER_LINKAGE valueFactory  {
  public:
   static long Stoi(const String &s);
-  static CIMValue * createValue(CIMType::Tag type, int arrayDimension,
+  static CIMValue * createValue(CIMType type, int arrayDimension,
                              Boolean isNull,
 			     const String *rep);
 };

@@ -23,7 +23,8 @@
 //
 // Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -382,7 +383,7 @@ int main(int argc, char** argv)
 			{
 			 	p = (instance.getProperty(pos));
 				v = p.getValue();
-				if (v.getType() == CIMType::STRING)
+				if (v.getType() == CIMTYPE_STRING)
 				{
 					v.get(statName);
 				}
@@ -398,7 +399,7 @@ int main(int argc, char** argv)
 			{
 			 	p = (instance.getProperty(pos));
 				v = p.getValue();
-				if (v.getType() == CIMType::UINT64)
+				if (v.getType() == CIMTYPE_UINT64)
 				{
 					v.get(numberOfRequests);
 				}
@@ -411,7 +412,7 @@ int main(int argc, char** argv)
 			{
 			 	p = (instance.getProperty(pos));
 				v = p.getValue();
-				if (v.getType() == CIMType::UINT64)
+				if (v.getType() == CIMTYPE_UINT64)
 				{
 					v.get(totalCimomTime);
 				}
@@ -433,7 +434,7 @@ int main(int argc, char** argv)
 			{
 			 	p = (instance.getProperty(pos));
 				v = p.getValue();
-				if (v.getType() == CIMType::UINT64)
+				if (v.getType() == CIMTYPE_UINT64)
 				{
 					v.get(totalProviderTime);
 				}
@@ -456,7 +457,7 @@ int main(int argc, char** argv)
 			{
 			 	p = (instance.getProperty(pos));
 				v = p.getValue();
-				if (v.getType() == CIMType::UINT64)
+				if (v.getType() == CIMTYPE_UINT64)
 				{
 					v.get(totalResponseSize);
 				}
@@ -474,7 +475,7 @@ int main(int argc, char** argv)
 			{
 			 	p = (instance.getProperty(pos));
 				v = p.getValue();
-				if (v.getType() == CIMType::UINT64)
+				if (v.getType() == CIMTYPE_UINT64)
 				{
 					v.get(totalRequestSize);
 				}

@@ -499,45 +499,45 @@ CIMType XmlReader::getCimTypeAttribute(
 	}
 	else
 	{
-	    return CIMType::NONE;
+	    return CIMTYPE_NONE;
 	}
     }
 
-    CIMType type = CIMType::NONE;
+    CIMType type = CIMTYPE_NONE;
 
     if (strcmp(typeName, "boolean") == 0)
-	type = CIMType::BOOLEAN;
+	type = CIMTYPE_BOOLEAN;
     else if (strcmp(typeName, "string") == 0)
-	type = CIMType::STRING;
+	type = CIMTYPE_STRING;
     else if (strcmp(typeName, "char16") == 0)
-	type = CIMType::CHAR16;
+	type = CIMTYPE_CHAR16;
     else if (strcmp(typeName, "uint8") == 0)
-	type = CIMType::UINT8;
+	type = CIMTYPE_UINT8;
     else if (strcmp(typeName, "sint8") == 0)
-	type = CIMType::SINT8;
+	type = CIMTYPE_SINT8;
     else if (strcmp(typeName, "uint16") == 0)
-	type = CIMType::UINT16;
+	type = CIMTYPE_UINT16;
     else if (strcmp(typeName, "sint16") == 0)
-	type = CIMType::SINT16;
+	type = CIMTYPE_SINT16;
     else if (strcmp(typeName, "uint32") == 0)
-	type = CIMType::UINT32;
+	type = CIMTYPE_UINT32;
     else if (strcmp(typeName, "sint32") == 0)
-	type = CIMType::SINT32;
+	type = CIMTYPE_SINT32;
     else if (strcmp(typeName, "uint64") == 0)
-	type = CIMType::UINT64;
+	type = CIMTYPE_UINT64;
     else if (strcmp(typeName, "sint64") == 0)
-	type = CIMType::SINT64;
+	type = CIMTYPE_SINT64;
     else if (strcmp(typeName, "datetime") == 0)
-	type = CIMType::DATETIME;
+	type = CIMTYPE_DATETIME;
     else if (strcmp(typeName, "real32") == 0)
-	type = CIMType::REAL32;
+	type = CIMTYPE_REAL32;
     else if (strcmp(typeName, "real64") == 0)
-	type = CIMType::REAL64;
+	type = CIMTYPE_REAL64;
     else if (strcmp(typeName, "reference") == 0)
-	type = CIMType::REFERENCE;
+	type = CIMTYPE_REFERENCE;
 
-    if ((type == CIMType::NONE) ||
-        ((type == CIMType::REFERENCE) &&
+    if ((type == CIMTYPE_NONE) ||
+        ((type == CIMTYPE_REFERENCE) &&
          (strcmp(attributeName, "PARAMTYPE") != 0)))
     {
 	char message[MESSAGE_SIZE];
@@ -930,7 +930,7 @@ CIMValue XmlReader::stringToValue(
     // Create value per type
     switch (type)
     {
-	case CIMType::BOOLEAN:
+	case CIMTYPE_BOOLEAN:
 	{
 	    if (CompareNoCase(valueString, "TRUE") == 0)
 		return CIMValue(true);
@@ -941,12 +941,12 @@ CIMValue XmlReader::stringToValue(
 		    lineNumber, "Bad boolean value");
 	}
 
-	case CIMType::STRING:
+	case CIMTYPE_STRING:
 	{
 	    return CIMValue(String(valueString));
 	}
 
-	case CIMType::CHAR16:
+	case CIMTYPE_CHAR16:
 	{
 	    if (strlen(valueString) != 1)
 		throw XmlSemanticError(lineNumber, "Bad char16 value");
@@ -954,10 +954,10 @@ CIMValue XmlReader::stringToValue(
 	    return CIMValue(Char16(valueString[0]));
 	}
 
-	case CIMType::UINT8:
-	case CIMType::UINT16:
-	case CIMType::UINT32:
-	case CIMType::UINT64:
+	case CIMTYPE_UINT8:
+	case CIMTYPE_UINT16:
+	case CIMTYPE_UINT32:
+	case CIMTYPE_UINT64:
 	{
 	    Uint64 x;
 
@@ -969,7 +969,7 @@ CIMValue XmlReader::stringToValue(
 
 	    switch (type)
 	    {
-		case CIMType::UINT8:
+		case CIMTYPE_UINT8:
                 {
                     if (x >= (Uint64(1)<<8))
 		    {
@@ -978,7 +978,7 @@ CIMValue XmlReader::stringToValue(
 		    }
 		    return CIMValue(Uint8(x));
                 }
-		case CIMType::UINT16:
+		case CIMTYPE_UINT16:
                 {
                     if (x >= (Uint64(1)<<16))
 		    {
@@ -987,7 +987,7 @@ CIMValue XmlReader::stringToValue(
 		    }
 		    return CIMValue(Uint16(x));
                 }
-		case CIMType::UINT32:
+		case CIMTYPE_UINT32:
                 {
                     if (x >= (Uint64(1)<<32))
 		    {
@@ -996,15 +996,15 @@ CIMValue XmlReader::stringToValue(
 		    }
 		    return CIMValue(Uint32(x));
                 }
-		case CIMType::UINT64: return CIMValue(Uint64(x));
+		case CIMTYPE_UINT64: return CIMValue(Uint64(x));
 		default: break;
 	    }
 	}
 
-	case CIMType::SINT8:
-	case CIMType::SINT16:
-	case CIMType::SINT32:
-	case CIMType::SINT64:
+	case CIMTYPE_SINT8:
+	case CIMTYPE_SINT16:
+	case CIMTYPE_SINT32:
+	case CIMTYPE_SINT64:
 	{
 	    Sint64 x;
 
@@ -1016,7 +1016,7 @@ CIMValue XmlReader::stringToValue(
 
 	    switch (type)
 	    {
-		case CIMType::SINT8:
+		case CIMTYPE_SINT8:
                 {
                     if(  (x >= (Sint64(1)<<7)) || (x < (-(Sint64(1)<<7))) )
 		    {
@@ -1025,7 +1025,7 @@ CIMValue XmlReader::stringToValue(
 		    }
 		    return CIMValue(Sint8(x));
                 }
-		case CIMType::SINT16:
+		case CIMTYPE_SINT16:
                 {
                     if(  (x >= (Sint64(1)<<15)) || (x < (-(Sint64(1)<<15))) )
 		    {
@@ -1034,7 +1034,7 @@ CIMValue XmlReader::stringToValue(
 		    }
 		    return CIMValue(Sint16(x));
                 }
-		case CIMType::SINT32:
+		case CIMTYPE_SINT32:
                 {
                     if(  (x >= (Sint64(1)<<31)) || (x < (-(Sint64(1)<<31))) )
 		    {
@@ -1043,12 +1043,12 @@ CIMValue XmlReader::stringToValue(
 		    }
 		    return CIMValue(Sint32(x));
                 }
-		case CIMType::SINT64: return CIMValue(Sint64(x));
+		case CIMTYPE_SINT64: return CIMValue(Sint64(x));
 		default: break;
 	    }
 	}
 
-	case CIMType::DATETIME:
+	case CIMTYPE_DATETIME:
 	{
 	    CIMDateTime tmp;
 
@@ -1064,7 +1064,7 @@ CIMValue XmlReader::stringToValue(
 	    return CIMValue(tmp);
 	}
 
-	case CIMType::REAL32:
+	case CIMTYPE_REAL32:
 	{
 	    Real64 x;
 
@@ -1074,7 +1074,7 @@ CIMValue XmlReader::stringToValue(
 	    return CIMValue(Real32(x));
 	}
 
-	case CIMType::REAL64:
+	case CIMTYPE_REAL64:
 	{
 	    Real64 x;
 
@@ -1193,7 +1193,7 @@ Boolean XmlReader::getPropertyValue(
     CIMValue& cimValue)
 {
     // Can not test for value type, so assume String
-    const CIMType type = CIMType::STRING;
+    const CIMType type = CIMTYPE_STRING;
 
     // Test for VALUE element
     if (XmlReader::getValueElement(parser, type, cimValue))
@@ -1259,46 +1259,46 @@ CIMValue XmlReader::stringArrayToValue(
 {
     switch (type)
     {
-	case CIMType::BOOLEAN: 
+	case CIMTYPE_BOOLEAN: 
 	    return StringArrayToValueAux(lineNumber, array, type, (Boolean*)0);
 
-	case CIMType::STRING:
+	case CIMTYPE_STRING:
 	    return StringArrayToValueAux(lineNumber, array, type, (String*)0);
 
-	case CIMType::CHAR16:
+	case CIMTYPE_CHAR16:
 	    return StringArrayToValueAux(lineNumber, array, type, (Char16*)0);
 
-	case CIMType::UINT8:
+	case CIMTYPE_UINT8:
 	    return StringArrayToValueAux(lineNumber, array, type, (Uint8*)0);
 
-	case CIMType::UINT16:
+	case CIMTYPE_UINT16:
 	    return StringArrayToValueAux(lineNumber, array, type, (Uint16*)0);
 
-	case CIMType::UINT32:
+	case CIMTYPE_UINT32:
 	    return StringArrayToValueAux(lineNumber, array, type, (Uint32*)0);
 
-	case CIMType::UINT64:
+	case CIMTYPE_UINT64:
 	    return StringArrayToValueAux(lineNumber, array, type, (Uint64*)0);
 
-	case CIMType::SINT8:
+	case CIMTYPE_SINT8:
 	    return StringArrayToValueAux(lineNumber, array, type, (Sint8*)0);
 
-	case CIMType::SINT16:
+	case CIMTYPE_SINT16:
 	    return StringArrayToValueAux(lineNumber, array, type, (Sint16*)0);
 
-	case CIMType::SINT32:
+	case CIMTYPE_SINT32:
 	    return StringArrayToValueAux(lineNumber, array, type, (Sint32*)0);
 
-	case CIMType::SINT64:
+	case CIMTYPE_SINT64:
 	    return StringArrayToValueAux(lineNumber, array, type, (Sint64*)0);
 
-	case CIMType::DATETIME:
+	case CIMTYPE_DATETIME:
 	    return StringArrayToValueAux(lineNumber, array, type, (CIMDateTime*)0);
 
-	case CIMType::REAL32:
+	case CIMTYPE_REAL32:
 	    return StringArrayToValueAux(lineNumber, array, type, (Real32*)0);
 
-	case CIMType::REAL64:
+	case CIMTYPE_REAL64:
 	    return StringArrayToValueAux(lineNumber, array, type, (Real64*)0);
 
 	default:
@@ -2434,7 +2434,7 @@ Boolean XmlReader::getPropertyReferenceElement(
 
     // Create property:
 
-    CIMValue value = CIMValue(CIMType::REFERENCE, false, 0);
+    CIMValue value = CIMValue(CIMTYPE_REFERENCE, false, 0);
 //    value.set(CIMObjectPath());
     property = CIMProperty(
 	name, value, 0, referenceClass, classOrigin, propagated);
@@ -2609,7 +2609,7 @@ Boolean XmlReader::getParameterReferenceElement(
 
     // Create parameter:
 
-    parameter = CIMParameter(name, CIMType::REFERENCE, false, 0, referenceClass);
+    parameter = CIMParameter(name, CIMTYPE_REFERENCE, false, 0, referenceClass);
 
     if (!empty)
     {
@@ -2661,7 +2661,7 @@ Boolean XmlReader::getParameterReferenceArrayElement(
 
     // Create parameter:
 
-    parameter = CIMParameter(name, CIMType::REFERENCE, true, arraySize,
+    parameter = CIMParameter(name, CIMTYPE_REFERENCE, true, arraySize,
 			     referenceClass);
 
     if (!empty)
@@ -2794,7 +2794,7 @@ Boolean XmlReader::getQualifierDeclElement(
 	expectEndTag(parser, "QUALIFIER.DECLARATION");
     }
 
-    if (value.getType() == CIMType::NONE)
+    if (value.getType() == CIMTYPE_NONE)
     {
 	if (isArray)
 	    value.setNullValue(type, true, arraySize);
@@ -3605,29 +3605,29 @@ Boolean XmlReader::getParamValueElement(
     if (!empty)
     {
         // Parse VALUE.REFERENCE and VALUE.REFARRAY type
-        if ( (type == CIMType::REFERENCE) || (type == CIMType::NONE) )
+        if ( (type == CIMTYPE_REFERENCE) || (type == CIMTYPE_NONE) )
         {
 	    CIMObjectPath reference;
 	    if (XmlReader::getValueReferenceElement(parser, reference))
 	    {
 	        value.set(reference);
-	        type = CIMType::REFERENCE;
+	        type = CIMTYPE_REFERENCE;
 	    }
             else if (XmlReader::getValueReferenceArrayElement(parser, value))
 	    {
-	        type = CIMType::REFERENCE;
+	        type = CIMTYPE_REFERENCE;
 	    }
             // If type==reference but no VALUE.REFERENCE found, use null value
         }
 
         // Parse non-reference value
-        if ( type != CIMType::REFERENCE )
+        if ( type != CIMTYPE_REFERENCE )
         {
 	    // If we don't know what type the value is, read it as a String
             CIMType effectiveType = type;
-            if ( effectiveType == CIMType::NONE)
+            if ( effectiveType == CIMTYPE_NONE)
 	    {
-		effectiveType = CIMType::STRING;
+		effectiveType = CIMTYPE_STRING;
 	    }
 
             if ( !XmlReader::getValueArrayElement(parser, effectiveType, value) &&
@@ -3640,7 +3640,7 @@ Boolean XmlReader::getParamValueElement(
         expectEndTag(parser, "PARAMVALUE");
     }
 
-    paramValue = CIMParamValue(name, value, Boolean(type!=CIMType::NONE));
+    paramValue = CIMParamValue(name, value, Boolean(type!=CIMTYPE_NONE));
 
     return true;
 }
@@ -3673,15 +3673,15 @@ Boolean XmlReader::getReturnValueElement(
 			       "PARAMTYPE", false);
 
     // Parse VALUE.REFERENCE type
-    if ( (type == CIMType::REFERENCE) || (type == CIMType::NONE) )
+    if ( (type == CIMTYPE_REFERENCE) || (type == CIMTYPE_NONE) )
     {
         CIMObjectPath reference;
         if (XmlReader::getValueReferenceElement(parser, reference))
         {
             returnValue.set(reference);
-            type = CIMType::REFERENCE;
+            type = CIMTYPE_REFERENCE;
         }
-        else if (type == CIMType::REFERENCE)
+        else if (type == CIMTYPE_REFERENCE)
         {
             throw XmlValidationError(parser.getLine(),
                 "expected VALUE.REFERENCE element");
@@ -3689,12 +3689,12 @@ Boolean XmlReader::getReturnValueElement(
     }
 
     // Parse non-reference return value
-    if ( type != CIMType::REFERENCE )
+    if ( type != CIMTYPE_REFERENCE )
     {
         // If we don't know what type the value is, read it as a String
-        if ( type == CIMType::NONE)
+        if ( type == CIMTYPE_NONE)
         {
-            type = CIMType::STRING;
+            type = CIMTYPE_STRING;
         }
 
         if ( !XmlReader::getValueElement(parser, type, returnValue) )

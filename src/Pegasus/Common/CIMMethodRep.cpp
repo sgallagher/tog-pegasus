@@ -54,7 +54,7 @@ CIMMethodRep::CIMMethodRep(
     if (classOrigin.size() && !CIMName::legal(classOrigin))
 	throw IllegalName();
 
-    if (type == CIMType::NONE)
+    if (type == CIMTYPE_NONE)
 	throw NullType();
 }
 
@@ -179,7 +179,7 @@ void CIMMethodRep::toXml(Array<Sint8>& out) const
 
     out << " NAME=\"" << _name << "\"";
 
-    out << " TYPE=\"" << _type.toString() << "\"";
+    out << " TYPE=\"" << cimTypeToString (_type) << "\"";
 
     if (_classOrigin.size())
 	out << " CLASSORIGIN=\"" << _classOrigin << "\"";
@@ -215,7 +215,7 @@ void CIMMethodRep::toMof(Array<Sint8>& out) const   //ATTNKS:
     _qualifiers.toMof(out);
 
     // output the type,	MethodName and ParmeterList left enclosure
-    out << "\n" << _type.toString() << " " << _name << "(";
+    out << "\n" << cimTypeToString (_type) << " " << _name << "(";
 
     // output the param list separated by commas.
     
@@ -280,7 +280,7 @@ void CIMMethodRep::setType(CIMType type)
 {
     _type = type;
 
-    if (type == CIMType::NONE)
+    if (type == CIMTYPE_NONE)
 	throw NullType();
 }
 

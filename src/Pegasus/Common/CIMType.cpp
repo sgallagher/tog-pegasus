@@ -24,6 +24,8 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -40,68 +42,10 @@ static const char* _typeStrings[] =
 
 static const Uint32 _NUM_TYPES = sizeof(_typeStrings) / sizeof(_typeStrings[0]);
 
-CIMType::CIMType() : _tag(NONE)
+const char * cimTypeToString (
+    const CIMType type) 
 {
-}
-
-CIMType::CIMType(Tag tag) : _tag(tag)
-{
-}
-
-CIMType::CIMType(const CIMType& x) : _tag(x._tag)
-{
-}
-
-CIMType& CIMType::operator=(Tag tag)
-{
-    _tag = tag;
-    return *this;
-}
-
-CIMType::operator CIMType::Tag() const
-{
-    return _tag;
-}
-
-Boolean CIMType::equal(const CIMType& x) const
-{
-    return Uint32(x._tag) == Uint32(_tag);
-}
-
-const char* CIMType::toString() const
-{
-    return _typeStrings[Uint32(_tag)];
-}
-
-
-Boolean operator==(CIMType x, CIMType y)
-{
-    return x.equal(y);
-}
-
-Boolean operator!=(CIMType x, CIMType y)
-{
-    return !x.equal(y);
-}
-
-Boolean operator==(CIMType x, CIMType::Tag y)
-{
-    return x.equal(y);
-}
-
-Boolean operator==(CIMType::Tag x, CIMType y)
-{
-    return y.equal(x);
-}
-
-Boolean operator!=(CIMType x, CIMType::Tag y)
-{
-    return !x.equal(y);
-}
-
-Boolean operator!=(CIMType::Tag x, CIMType y)
-{
-    return !y.equal(x);
+    return _typeStrings [Uint32 (type)];
 }
 
 PEGASUS_NAMESPACE_END

@@ -294,37 +294,37 @@ CIMObjectPath CIMInstanceRep::getInstanceName(
 
 	    switch (type)
 	    {
-		case CIMType::BOOLEAN:
+		case CIMTYPE_BOOLEAN:
 		    kbType = KeyBinding::BOOLEAN;
 		    valueStr = value.toString();
 		    break;
 
-		case CIMType::UINT8:
-		case CIMType::SINT8:
-		case CIMType::UINT16:
-		case CIMType::SINT16:
-		case CIMType::UINT32:
-		case CIMType::SINT32:
-		case CIMType::UINT64:
-		case CIMType::SINT64:
-		case CIMType::CHAR16:
+		case CIMTYPE_UINT8:
+		case CIMTYPE_SINT8:
+		case CIMTYPE_UINT16:
+		case CIMTYPE_SINT16:
+		case CIMTYPE_UINT32:
+		case CIMTYPE_SINT32:
+		case CIMTYPE_UINT64:
+		case CIMTYPE_SINT64:
+		case CIMTYPE_CHAR16:
 		    kbType = KeyBinding::NUMERIC;
 		    valueStr = value.toString();
 		    break;
 
-		case CIMType::STRING:
-		case CIMType::DATETIME:
+		case CIMTYPE_STRING:
+		case CIMTYPE_DATETIME:
 		    kbType = KeyBinding::STRING;
 		    valueStr = value.toString();
 		    break;
 
-		case CIMType::REFERENCE:
+		case CIMTYPE_REFERENCE:
 		    kbType = KeyBinding::REFERENCE;
 		    valueStr = value.toString();
 		    break;
 
-		case CIMType::REAL32:
-		case CIMType::REAL64:
+		case CIMTYPE_REAL32:
+		case CIMTYPE_REAL64:
 		    PEGASUS_ASSERT(false);
 	    }
 

@@ -71,7 +71,7 @@ Boolean CIMClassRep::isAssociation() const
 
     const CIMValue& value = getQualifier(pos).getValue();
 
-    if (value.getType() != CIMType::BOOLEAN)
+    if (value.getType() != CIMTYPE_BOOLEAN)
 	return false;
 
     value.get(flag);
@@ -88,7 +88,7 @@ Boolean CIMClassRep::isAbstract() const
     Boolean flag;
     const CIMValue& value = getQualifier(pos).getValue();
 
-    if (value.getType() != CIMType::BOOLEAN)
+    if (value.getType() != CIMTYPE_BOOLEAN)
 	return false;
 
     value.get(flag);
@@ -105,7 +105,7 @@ Boolean CIMClassRep::isTrueQualifier(const String& name) const
     Boolean flag;
     const CIMValue& value = getQualifier(pos).getValue();
 
-    if (value.getType() != CIMType::BOOLEAN)
+    if (value.getType() != CIMTYPE_BOOLEAN)
 	return false;
 
     value.get(flag);
@@ -132,7 +132,7 @@ void CIMClassRep::addProperty(const CIMProperty& x)
 
     // Reject addition of references to non-associations:
 
-    if (!isAssociation() && x.getValue().getType() == CIMType::REFERENCE)
+    if (!isAssociation() && x.getValue().getType() == CIMTYPE_REFERENCE)
 	throw AddedReferenceToClass(_reference.getClassName());
 
     // Set the class origin:

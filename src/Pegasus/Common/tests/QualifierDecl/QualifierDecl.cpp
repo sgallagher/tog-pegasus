@@ -24,6 +24,8 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -63,7 +65,7 @@ void test01()
     //
     // Test getType 
     //
-    assert(qual1.getType() == CIMType::STRING);
+    assert(qual1.getType() == CIMTYPE_STRING);
 
     //
     // Test getScope and getFlavor
@@ -142,7 +144,7 @@ void test02()
     //
     // Test getType 
     //
-    assert(cq1.getType() == CIMType::STRING);
+    assert(cq1.getType() == CIMTYPE_STRING);
 
     //
     // Test getScope and getFlavor

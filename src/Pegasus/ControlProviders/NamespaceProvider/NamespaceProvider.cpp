@@ -23,7 +23,8 @@
 //
 // Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -169,7 +170,7 @@ void _getKeyValue (
        }
 
        propertyValue = namespaceInstance.getProperty(pos).getValue();
-       if (propertyValue.getType() != CIMType::STRING)
+       if (propertyValue.getType() != CIMTYPE_STRING)
        {
            throw InvalidParameter("Invalid type for property: "
                                  + String(NAMESPACE_PROPERTYNAME));

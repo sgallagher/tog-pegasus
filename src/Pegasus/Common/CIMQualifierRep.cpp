@@ -23,7 +23,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -59,7 +60,7 @@ CIMQualifierRep::CIMQualifierRep(
 	if (!CIMName::legal(name))
 	throw IllegalName();
 
-    if (_value.getType() == CIMType::NONE)
+    if (_value.getType() == CIMTYPE_NONE)
 	throw NullType();
 }
 
@@ -101,7 +102,7 @@ void CIMQualifierRep::toXml(Array<Sint8>& out) const
 {
     out << "<QUALIFIER";
     out << " NAME=\"" << _name << "\"";
-    out << " TYPE=\"" << _value.getType().toString() << "\"";
+    out << " TYPE=\"" << cimTypeToString (_value.getType ()) << "\"";
 
     if (_propagated != false)
 	out << " PROPAGATED=\"" << _toString(_propagated) << "\"";
@@ -140,7 +141,7 @@ void CIMQualifierRep::toMof(Array<Sint8>& out) const
     Boolean hasValueField = false;
     if (!_value.isNull())
     {
-	   if (_value.getType() == CIMType::BOOLEAN)
+	   if (_value.getType() == CIMTYPE_BOOLEAN)
 	   {
 		    Boolean b;
 			_value.get(b);
@@ -196,7 +197,7 @@ void CIMQualifierRep::setValue(const CIMValue& value)
 {
     _value = value; 
 
-    if (_value.getType() == CIMType::NONE)
+    if (_value.getType() == CIMTYPE_NONE)
 	throw NullType();
 }
 

@@ -4938,95 +4938,95 @@ WQLSimplePropertySource IndicationService::_getPropertySourceFromInstance(
 
         switch (type)
         {
-            case CIMType::UINT8:
+            case CIMTYPE_UINT8:
                 Uint8 propertyValueUint8;
                 propertyValue.get(propertyValueUint8);
                 source.addValue(propertyName,
                     WQLOperand(propertyValueUint8, WQL_INTEGER_VALUE_TAG));
                 break;
 
-            case CIMType::UINT16:
+            case CIMTYPE_UINT16:
                 Uint16 propertyValueUint16;
                 propertyValue.get(propertyValueUint16);
                 source.addValue(propertyName,
                     WQLOperand(propertyValueUint16, WQL_INTEGER_VALUE_TAG));
                 break;
 
-            case CIMType::UINT32:
+            case CIMTYPE_UINT32:
                 Uint32 propertyValueUint32;
                 propertyValue.get(propertyValueUint32);
                 source.addValue(propertyName,
                     WQLOperand(propertyValueUint32, WQL_INTEGER_VALUE_TAG));
                 break;
 
-            case CIMType::UINT64:
+            case CIMTYPE_UINT64:
                 Uint64 propertyValueUint64;
                 propertyValue.get(propertyValueUint64);
                 source.addValue(propertyName,
                     WQLOperand(propertyValueUint64, WQL_INTEGER_VALUE_TAG));
                 break;
 
-            case CIMType::SINT8:
+            case CIMTYPE_SINT8:
                 Sint8 propertyValueSint8;
                 propertyValue.get(propertyValueSint8);
                 source.addValue(propertyName,
                     WQLOperand(propertyValueSint8, WQL_INTEGER_VALUE_TAG));
                 break;
 
-            case CIMType::SINT16:
+            case CIMTYPE_SINT16:
                 Sint16 propertyValueSint16;
                 propertyValue.get(propertyValueSint16);
                 source.addValue(propertyName,
                     WQLOperand(propertyValueSint16, WQL_INTEGER_VALUE_TAG));
                 break;
 
-            case CIMType::SINT32:
+            case CIMTYPE_SINT32:
                 Sint32 propertyValueSint32;
                 propertyValue.get(propertyValueSint32);
                 source.addValue(propertyName,
                     WQLOperand(propertyValueSint32, WQL_INTEGER_VALUE_TAG));
                 break;                break;
 
-            case CIMType::SINT64:
+            case CIMTYPE_SINT64:
                 Sint64 propertyValueSint64;
                 propertyValue.get(propertyValueSint64);
                 source.addValue(propertyName,
                     WQLOperand(propertyValueSint64, WQL_INTEGER_VALUE_TAG));
                 break;
 
-            case CIMType::REAL32:
+            case CIMTYPE_REAL32:
                 Real32 propertyValueReal32;
                 propertyValue.get(propertyValueReal32);
                 source.addValue(propertyName,
                     WQLOperand(propertyValueReal32, WQL_DOUBLE_VALUE_TAG));
                 break;
 
-            case CIMType::REAL64:
+            case CIMTYPE_REAL64:
                 Real64 propertyValueReal64;
                 propertyValue.get(propertyValueReal64);
                 source.addValue(propertyName,
                     WQLOperand(propertyValueReal64, WQL_DOUBLE_VALUE_TAG));
                 break;
 
-            case CIMType::BOOLEAN :
+            case CIMTYPE_BOOLEAN :
                 property.getValue().get(booleanValue);
                 source.addValue(propertyName,
                     WQLOperand(booleanValue, WQL_BOOLEAN_VALUE_TAG));
                 break;
 
-            case CIMType::CHAR16:
-            case CIMType::STRING :
+            case CIMTYPE_CHAR16:
+            case CIMTYPE_STRING :
                 source.addValue(propertyName,
                     WQLOperand(property.getValue().toString(),
                     WQL_STRING_VALUE_TAG));
                 break;
 
-            case CIMType::DATETIME :
+            case CIMTYPE_DATETIME :
                 source.addValue (propertyName,
                     WQLOperand ());
                 break;
 
-            case CIMType::NONE :
+            case CIMTYPE_NONE :
                 source.addValue(propertyName,
                     WQLOperand());
                 break;

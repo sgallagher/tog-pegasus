@@ -1030,7 +1030,7 @@ CIMGetClassRequestMessage* CIMOperationRequestDecoder::decodeGetClassRequest(
       else if (CompareNoCase(name, "PropertyList") == 0)
       {
 	 CIMValue pl;
-	 if (XmlReader::getValueArrayElement(parser, CIMType::STRING, pl))
+	 if (XmlReader::getValueArrayElement(parser, CIMTYPE_STRING, pl))
 	 {
 	    Array<String> propertyListArray;
 	    pl.get(propertyListArray);
@@ -1433,7 +1433,7 @@ CIMGetInstanceRequestMessage* CIMOperationRequestDecoder::decodeGetInstanceReque
       else if (CompareNoCase(name, "PropertyList") == 0)
       {
 	 CIMValue pl;
-	 if (XmlReader::getValueArrayElement(parser, CIMType::STRING, pl))
+	 if (XmlReader::getValueArrayElement(parser, CIMTYPE_STRING, pl))
 	 {
 	    Array<String> propertyListArray;
 	    pl.get(propertyListArray);
@@ -1512,7 +1512,7 @@ CIMModifyInstanceRequestMessage* CIMOperationRequestDecoder::decodeModifyInstanc
       else if (CompareNoCase(name, "PropertyList") == 0)
       {
 	 CIMValue pl;
-	 if (XmlReader::getValueArrayElement(parser, CIMType::STRING, pl))
+	 if (XmlReader::getValueArrayElement(parser, CIMTYPE_STRING, pl))
 	 {
 	    Array<String> propertyListArray;
 	    pl.get(propertyListArray);
@@ -1614,7 +1614,7 @@ CIMEnumerateInstancesRequestMessage* CIMOperationRequestDecoder::decodeEnumerate
       else if (CompareNoCase(name, "PropertyList") == 0)
       {
 	 CIMValue pl;
-	 if (XmlReader::getValueArrayElement(parser, CIMType::STRING, pl))
+	 if (XmlReader::getValueArrayElement(parser, CIMTYPE_STRING, pl))
 	 {
 	    Array<String> propertyListArray;
 	    pl.get(propertyListArray);
@@ -2089,7 +2089,7 @@ CIMReferencesRequestMessage* CIMOperationRequestDecoder::decodeReferencesRequest
       else if (CompareNoCase(name, "PropertyList") == 0)
       {
 	 CIMValue pl;
-	 if (XmlReader::getValueArrayElement(parser, CIMType::STRING, pl))
+	 if (XmlReader::getValueArrayElement(parser, CIMTYPE_STRING, pl))
 	 {
 	    Array<String> propertyListArray;
 	    pl.get(propertyListArray);
@@ -2300,7 +2300,7 @@ CIMAssociatorsRequestMessage* CIMOperationRequestDecoder::decodeAssociatorsReque
       else if (CompareNoCase(name, "PropertyList") == 0)
       {
 	 CIMValue pl;
-	 if (XmlReader::getValueArrayElement(parser, CIMType::STRING, pl))
+	 if (XmlReader::getValueArrayElement(parser, CIMTYPE_STRING, pl))
 	 {
 	    Array<String> propertyListArray;
 	    pl.get(propertyListArray);
@@ -2446,7 +2446,7 @@ CIMSetPropertyRequestMessage* CIMOperationRequestDecoder::decodeSetPropertyReque
       {
 	 if (!XmlReader::getPropertyValue(parser, propertyValue))
 	 {
-	    propertyValue.setNullValue(CIMType::STRING, false);
+	    propertyValue.setNullValue(CIMTYPE_STRING, false);
 	 }
 	 duplicateParameter = gotNewValue;
 	 gotNewValue = true;

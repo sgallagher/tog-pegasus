@@ -111,7 +111,7 @@ cimmof_error(const char *msg) {
   int              ival;
   //  char             *strval;
   String *         strval;
-  CIMType::Tag        datatype;
+  CIMType        datatype;
   CIMValue *          value;
   String *         strptr;
   CIMQualifier *      qualifier;
@@ -325,7 +325,7 @@ referenceDeclaration: qualifierList referencedObject TOK_REF referenceName
   String s(*$2);
   if (!String::equal(*$5, String::EMPTY))
     s += "." + *$5;
-  CIMValue *v = valueFactory::createValue(CIMType::REFERENCE, -1, true, &s);
+  CIMValue *v = valueFactory::createValue(CIMTYPE_REFERENCE, -1, true, &s);
   //KS add the isArray and arraysize parameters. 8 mar 2002
   $$ = cimmofParser::Instance()->newProperty(*$4, *v, false,0, *$2);
   apply(&g_qualifierList, $$);
@@ -365,7 +365,7 @@ parameter: qualifierList parameterType parameterName array
 } ;
 
 parameterType: dataType { $$ = $1; }
-             | objectRef { $$ = CIMType::REFERENCE; } ;
+             | objectRef { $$ = CIMTYPE_REFERENCE; } ;
 
 objectRef: className TOK_REF {  
                           g_referenceClassName = *$1; } ;
@@ -720,22 +720,22 @@ overrideFlavors: explicitFlavor
  
 dataType: intDataType     { $$ = $1; }
         | realDataType    { $$ = $1; }
-        | TOK_DT_STR      { $$ = CIMType::STRING;   }
-        | TOK_DT_BOOL     { $$ = CIMType::BOOLEAN;  }
-        | TOK_DT_DATETIME { $$ = CIMType::DATETIME; } ;
+        | TOK_DT_STR      { $$ = CIMTYPE_STRING;   }
+        | TOK_DT_BOOL     { $$ = CIMTYPE_BOOLEAN;  }
+        | TOK_DT_DATETIME { $$ = CIMTYPE_DATETIME; } ;
 
-intDataType: TOK_DT_UINT8  { $$ = CIMType::UINT8;  }
-           | TOK_DT_SINT8  { $$ = CIMType::SINT8;  }
-           | TOK_DT_UINT16 { $$ = CIMType::UINT16; }
-           | TOK_DT_SINT16 { $$ = CIMType::SINT16; }
-           | TOK_DT_UINT32 { $$ = CIMType::UINT32; }
-           | TOK_DT_SINT32 { $$ = CIMType::SINT32; }
-           | TOK_DT_UINT64 { $$ = CIMType::UINT64; }
-           | TOK_DT_SINT64 { $$ = CIMType::SINT64; }
-           | TOK_DT_CHAR16 { $$ = CIMType::CHAR16; } ;
+intDataType: TOK_DT_UINT8  { $$ = CIMTYPE_UINT8;  }
+           | TOK_DT_SINT8  { $$ = CIMTYPE_SINT8;  }
+           | TOK_DT_UINT16 { $$ = CIMTYPE_UINT16; }
+           | TOK_DT_SINT16 { $$ = CIMTYPE_SINT16; }
+           | TOK_DT_UINT32 { $$ = CIMTYPE_UINT32; }
+           | TOK_DT_SINT32 { $$ = CIMTYPE_SINT32; }
+           | TOK_DT_UINT64 { $$ = CIMTYPE_UINT64; }
+           | TOK_DT_SINT64 { $$ = CIMTYPE_SINT64; }
+           | TOK_DT_CHAR16 { $$ = CIMTYPE_CHAR16; } ;
 
-realDataType: TOK_DT_REAL32 { $$ =CIMType::REAL32; }
-            | TOK_DT_REAL64 { $$ =CIMType::REAL64; };
+realDataType: TOK_DT_REAL32 { $$ =CIMTYPE_REAL32; }
+            | TOK_DT_REAL64 { $$ =CIMTYPE_REAL64; };
 
 qualifierList: qualifierListBegin qualifiers TOK_RIGHTSQUAREBRACKET 
              | /* empty */ { };

@@ -24,6 +24,8 @@
 // Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -61,9 +63,9 @@ void CIMParamValueRep::toXml(Array<Sint8>& out) const
 
     CIMType type = _value.getType();
 
-    if (_isTyped && (type != CIMType::NONE))
+    if (_isTyped && (type != CIMTYPE_NONE))
     {
-        out << " PARAMTYPE=\"" << type.toString() << "\"";
+        out << " PARAMTYPE=\"" << cimTypeToString (type) << "\"";
     }
 
     out << ">\n";

@@ -24,6 +24,8 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -41,22 +43,22 @@ void test01()
     CIMParameter p;
     assert(p.isNull());
 
-    CIMParameter p1("message", CIMType::STRING);
+    CIMParameter p1("message", CIMTYPE_STRING);
     p1.addQualifier(CIMQualifier("in", true));
 	if(verbose)
 		XmlWriter::printParameterElement(p1, cout);
 
-    CIMParameter p2("message2", CIMType::STRING);
+    CIMParameter p2("message2", CIMTYPE_STRING);
     p2.addQualifier(CIMQualifier("in", true));
 	if(verbose)
 		XmlWriter::printParameterElement(p2, cout);
 
-    CIMParameter p3("message3", CIMType::STRING);
+    CIMParameter p3("message3", CIMTYPE_STRING);
     p3.setName("message3a");
     assert(p3.getName() == "message3a");
 	if(verbose)
 		XmlWriter::printParameterElement(p3, cout);
-    assert(p3.getType() == CIMType::STRING);;
+    assert(p3.getType() == CIMTYPE_STRING);;
 
     //
     // clone
@@ -131,13 +133,13 @@ void test01()
     CIMConstParameter cp1 = p1;
     CIMConstParameter cp2 = p2;
     CIMConstParameter cp3 = p3;
-    CIMConstParameter cp4("message4", CIMType::STRING);
+    CIMConstParameter cp4("message4", CIMTYPE_STRING);
 
 	if(verbose)
 		XmlWriter::printParameterElement(cp1, cout);
 
     assert(cp3.getName() == "message3a");
-    assert(cp3.getType() == CIMType::STRING);;
+    assert(cp3.getType() == CIMTYPE_STRING);;
 
     const CIMParameter cp1clone = cp1.clone();
 	if(verbose)

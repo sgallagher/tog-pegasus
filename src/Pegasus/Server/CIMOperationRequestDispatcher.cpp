@@ -3594,7 +3594,7 @@ CIMValue CIMOperationRequestDispatcher::_convertValueType(
          PEG_METHOD_EXIT();
 	 throw PEGASUS_CIM_EXCEPTION(
 	    CIM_ERR_INVALID_PARAMETER,
-	    String("Malformed ") + type.toString() + " value");
+	    String("Malformed ") + cimTypeToString (type) + " value");
       }
 
       for (Uint32 k=0; k<charPtrArray.size(); k++)
@@ -3619,7 +3619,7 @@ CIMValue CIMOperationRequestDispatcher::_convertValueType(
          PEG_METHOD_EXIT();
 	 throw PEGASUS_CIM_EXCEPTION(
 	    CIM_ERR_INVALID_PARAMETER,
-	    String("Malformed ") + type.toString() + " value");
+	    String("Malformed ") + cimTypeToString (type) + " value");
       }
    }
 
@@ -3765,8 +3765,8 @@ void CIMOperationRequestDispatcher::_fixSetPropertyValueType(
    //
    // Only do the conversion if the type is not already set
    //
-   if ((inValue.getType() != CIMType::STRING) &&
-       (inValue.getType() != CIMType::NONE))
+   if ((inValue.getType() != CIMTYPE_STRING) &&
+       (inValue.getType() != CIMTYPE_NONE))
    {
       PEG_METHOD_EXIT();
       return;

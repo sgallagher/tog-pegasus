@@ -23,7 +23,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -61,7 +62,7 @@ CIMQualifierDeclRep::CIMQualifierDeclRep(
     if (!CIMName::legal(name))
 	throw IllegalName();
 
-    if (_value.getType() == CIMType::NONE)
+    if (_value.getType() == CIMTYPE_NONE)
 	throw NullType();
 
 	// Set the flavor defaults. Must actively set them in case input flavor
@@ -106,7 +107,7 @@ void CIMQualifierDeclRep::toXml(Array<Sint8>& out) const
 {
     out << "<QUALIFIER.DECLARATION";
     out << " NAME=\"" << _name << "\"";
-    out << " TYPE=\"" << _value.getType().toString() << "\"";
+    out << " TYPE=\"" << cimTypeToString (_value.getType ()) << "\"";
 
     if (_value.isArray())
     {
@@ -153,7 +154,7 @@ void CIMQualifierDeclRep::toMof(Array<Sint8>& out) const
     out << "Qualifier " << _name;
 
     // output the qualifiertype
-    out << " : " << _value.getType().toString();
+    out << " : " << cimTypeToString (_value.getType ());
 
     // If array put the Array indicator "[]" and possible size after name.
     if (_value.isArray())
@@ -170,7 +171,7 @@ void CIMQualifierDeclRep::toMof(Array<Sint8>& out) const
 
     Boolean hasValueField = false;
     // KS think through the following test
-    //if (!_value.isNull() || !(_value.getType() == CIMType::BOOLEAN) )
+    //if (!_value.isNull() || !(_value.getType() == CIMTYPE_BOOLEAN) )
     //{
         // KS With CIM Qualifier, this should be =
 	out << " = ";
@@ -228,7 +229,7 @@ void CIMQualifierDeclRep::setValue(const CIMValue& value)
 {
     _value = value;
 
-    if (_value.getType() == CIMType::NONE)
+    if (_value.getType() == CIMTYPE_NONE)
 	throw NullType();
 }
 

@@ -25,13 +25,10 @@
 //
 // Modified By: Ramnath Ravindran (Ramnath.Ravindran@compaq.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
-
-/*
- CIMType.h - This file defines the CIMType enumeration which introduces
-symbolic constants for the CIM data types.
-*/
 
 #ifndef Pegasus_Type_h
 #define Pegasus_Type_h
@@ -41,8 +38,7 @@ symbolic constants for the CIM data types.
 PEGASUS_NAMESPACE_BEGIN
 
 /**
-    The CIMType Class defines the CIMType enumeration which introduces
-    symbolic constants for the CIM data types.
+    The CIMType enumeration defines symbolic constants for the CIM data types.
 
     The table below shows each CIM type, its symbolic constant, and its
     representation type.
@@ -50,87 +46,54 @@ PEGASUS_NAMESPACE_BEGIN
     <pre>
 	    CIM CIMType	Constant	        C++ CIMType
 	    -------------------------------------------------------
-	    boolean	CIMType::BOOLEAN	Boolean
-	    uint8	CIMType::UINT8		Uint8
-	    sint8	CIMType::SINT8		Sint8
-	    uint16	CIMType::UINT16		Uint16
-	    sint16	CIMType::SINT16		Sint16
-	    uint32	CIMType::UINT32		Uint32
-	    sint32	CIMType::SINT32		Sint32
-	    uint64	CIMType::UINT64		Sint64
-	    sint64	CIMType::SINT64		Sint64
-	    real32	CIMType::REAL32		Real32
-	    real64	CIMType::REAL64		Real64
-	    char16	CIMType::CHAR16		Char16
-	    string	CIMType::STRING		String
-	    datetime	CIMType::DATETIME	CIMDateTime
-	    reference	CIMType::REFERENCE	CIMObjectPath
-
+	    boolean	CIMTYPE_BOOLEAN		Boolean
+	    uint8	CIMTYPE_UINT8		Uint8
+	    sint8	CIMTYPE_SINT8		Sint8
+	    uint16	CIMTYPE_UINT16		Uint16
+	    sint16	CIMTYPE_SINT16		Sint16
+	    uint32	CIMTYPE_UINT32		Uint32
+	    sint32	CIMTYPE_SINT32		Sint32
+	    uint64	CIMTYPE_UINT64		Sint64
+	    sint64	CIMTYPE_SINT64		Sint64
+	    real32	CIMTYPE_REAL32		Real32
+	    real64	CIMTYPE_REAL64		Real64
+	    char16	CIMTYPE_CHAR16		Char16
+	    string	CIMTYPE_STRING		String
+	    datetime	CIMTYPE_DATETIME	CIMDateTime
+	    reference	CIMTYPE_REFERENCE	CIMObjectPath
     </pre>
 */
-class PEGASUS_COMMON_LINKAGE CIMType
+
+enum CIMType
 {
-public:
-
-    enum Tag
-    {
-	NONE,
-	BOOLEAN,
-	UINT8,
-	SINT8,
-	UINT16,
-	SINT16,
-	UINT32,
-	SINT32,
-	UINT64,
-	SINT64,
-	REAL32,
-	REAL64,
-	CHAR16,
-	STRING,
-	DATETIME,
-	REFERENCE
-    };
-
-    /// Constructor
-    CIMType();
-
-    ///  Constructor
-    CIMType(Tag tag);
-
-    ///  Constructor
-    CIMType(const CIMType& x);
-
-    /// operator =
-    CIMType& operator=(Tag tag);
-
-    /// 
-    operator Tag() const;
-
-    ///
-    Boolean equal(const CIMType& x) const;
-
-    /** Returns a string representation of the given type that may be useful
-        for debugging.  (Note: the current implementation returns a string
-        matching the first column in the table above, but that is subject to
-        change in later revisions.
-    */
-    const char* toString() const;
-
-private:
-
-    Tag _tag;
+    CIMTYPE_NONE,
+    CIMTYPE_BOOLEAN,
+    CIMTYPE_UINT8,
+    CIMTYPE_SINT8,
+    CIMTYPE_UINT16,
+    CIMTYPE_SINT16,
+    CIMTYPE_UINT32,
+    CIMTYPE_SINT32,
+    CIMTYPE_UINT64,
+    CIMTYPE_SINT64,
+    CIMTYPE_REAL32,
+    CIMTYPE_REAL64,
+    CIMTYPE_CHAR16,
+    CIMTYPE_STRING,
+    CIMTYPE_DATETIME,
+    CIMTYPE_REFERENCE
 };
 
-PEGASUS_COMMON_LINKAGE Boolean operator==(CIMType x, CIMType y);
-PEGASUS_COMMON_LINKAGE Boolean operator!=(CIMType x, CIMType y);
+/** 
+    Returns a string representation of the given type.
 
-PEGASUS_COMMON_LINKAGE Boolean operator==(CIMType x, CIMType::Tag y);
-PEGASUS_COMMON_LINKAGE Boolean operator==(CIMType::Tag x, CIMType y);
-PEGASUS_COMMON_LINKAGE Boolean operator!=(CIMType x, CIMType::Tag y);
-PEGASUS_COMMON_LINKAGE Boolean operator!=(CIMType::Tag x, CIMType y);
+    Note: the current implementation returns a string matching the first 
+    column in the table above, but that is subject to change in later 
+    revisions.
+ */
+const char * cimTypeToString (
+    const CIMType type);
 
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_Type_h */
-

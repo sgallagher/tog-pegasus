@@ -84,8 +84,8 @@ void test01()
         assert(name == "message");
 
     // Test type
-        assert(p1.getType() == CIMType::STRING);
-        assert(p2.getType() == CIMType::STRING);
+        assert(p1.getType() == CIMTYPE_STRING);
+        assert(p2.getType() == CIMTYPE_STRING);
 
     // Test isKey
         assert(p1.isKey() == true);
@@ -172,7 +172,7 @@ void test02()
         XmlWriter::appendPropertyElement(xmlOut, cp1);
 
         assert(cp1.getName() == "message");
-        assert(cp1.getType() == CIMType::STRING);
+        assert(cp1.getType() == CIMTYPE_STRING);
         assert(cp1.isKey() == true);
         assert(cp1.getArraySize() == 0);
         assert(cp1.getPropagated() == false);

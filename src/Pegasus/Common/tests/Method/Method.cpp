@@ -24,6 +24,8 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Sushma Fernandes (sushma_fernandes@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -44,10 +46,10 @@ int main(int argc, char** argv)
 
     try
     {
-	CIMMethod m1("getHostName", CIMType::STRING);
+	CIMMethod m1("getHostName", CIMTYPE_STRING);
 	m1.addQualifier(CIMQualifier("stuff", true));
 	m1.addQualifier(CIMQualifier("stuff2", true));
-	m1.addParameter(CIMParameter("ipaddress", CIMType::STRING));
+	m1.addParameter(CIMParameter("ipaddress", CIMTYPE_STRING));
 
 
 	// Tests for Qualifiers
@@ -80,12 +82,12 @@ int main(int argc, char** argv)
         CIMParameter cp = m1.getParameter(m1.findParameter("ipaddress"));
         assert(cp.getName() == "ipaddress");
  
-        CIMMethod m2("test", CIMType::STRING);
+        CIMMethod m2("test", CIMTYPE_STRING);
         m2.setName("getVersion");
         assert(m2.getName() == "getVersion");
 
-        m2.setType(CIMType::STRING);
-        assert(m2.getType() == CIMType::STRING);
+        m2.setType(CIMTYPE_STRING);
+        assert(m2.getType() == CIMTYPE_STRING);
 
         m2.setClassOrigin("test");
         assert(m2.getClassOrigin() == "test");
@@ -103,7 +105,7 @@ int main(int argc, char** argv)
         CIMQualifier q = m1.getQualifier(posQualifier);
         CIMConstParameter ccp = cm1.getParameter(cm1.findParameter("ipaddress"));
         assert(cm1.getName() == "getHostName");
-        assert(cm1.getType() == CIMType::STRING);
+        assert(cm1.getType() == CIMTYPE_STRING);
         assert(!(cm1.getClassOrigin() == "test"));
         assert(!cm1.getPropagated() == true);
         assert(!m1.identical(m2));
@@ -143,11 +145,11 @@ int main(int argc, char** argv)
         CIMMethod m4;
         CIMMethod m5(m4);
 
-        CIMConstMethod ccm1("getHostName",CIMType::STRING);
+        CIMConstMethod ccm1("getHostName",CIMTYPE_STRING);
         assert(!(ccm1.getParameterCount() == 3));
 
         assert(ccm1.getName() == "getHostName");
-        assert(ccm1.getType() == CIMType::STRING);
+        assert(ccm1.getType() == CIMTYPE_STRING);
         assert(!(ccm1.getClassOrigin() == "test"));
         assert(!ccm1.getPropagated() == true);
         assert(!(ccm1.getParameterCount() == 3));

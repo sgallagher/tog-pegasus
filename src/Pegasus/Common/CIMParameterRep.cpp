@@ -23,7 +23,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -51,7 +52,7 @@ CIMParameterRep::CIMParameterRep(
     if (!CIMName::legal(name))
 	throw IllegalName();
 
-    if (_type == CIMType::NONE)
+    if (_type == CIMTYPE_NONE)
 	throw NullType();
 
     if (_arraySize && !_isArray)
@@ -62,7 +63,7 @@ CIMParameterRep::CIMParameterRep(
 	if (!CIMName::legal(referenceClassName))
 	    throw IllegalName();
 
-	if (_type != CIMType::REFERENCE)
+	if (_type != CIMTYPE_REFERENCE)
 	{
 	    throw ExpectedReferenceValue();
 	}
@@ -72,7 +73,7 @@ CIMParameterRep::CIMParameterRep(
 
     // ATTN: revisit this later!
 #if 0
-	if (_type == CIMType::REFERENCE)
+	if (_type == CIMTYPE_REFERENCE)
 	    throw MissingReferenceClassName();
 #endif
     }
@@ -118,7 +119,7 @@ void CIMParameterRep::toXml(Array<Sint8>& out) const
 
 	out << " NAME=\"" << _name << "\" ";
 
-	out << " TYPE=\"" << _type.toString() << "\"";
+	out << " TYPE=\"" << cimTypeToString (_type) << "\"";
 
 	if (_arraySize)
 	{
@@ -133,7 +134,7 @@ void CIMParameterRep::toXml(Array<Sint8>& out) const
 
 	out << "</PARAMETER.ARRAY>\n";
     }
-    else if (_type == CIMType::REFERENCE)
+    else if (_type == CIMTYPE_REFERENCE)
     {
 	out << "<PARAMETER.REFERENCE";
 	out << " NAME=\"" << _name << "\" ";
@@ -148,7 +149,7 @@ void CIMParameterRep::toXml(Array<Sint8>& out) const
     {
 	out << "<PARAMETER";
 	out << " NAME=\"" << _name << "\" ";
-	out << " TYPE=\"" << _type.toString() << "\"";
+	out << " TYPE=\"" << cimTypeToString (_type) << "\"";
 	out << ">\n";
 
 	_qualifiers.toXml(out);
@@ -180,7 +181,7 @@ void CIMParameterRep::toMof(Array<Sint8>& out) const
 	out << " ";
 
     // Output the data type and name
-    out << _type.toString() << " " <<  _name;
+    out << cimTypeToString (_type) << " " <<  _name;
 
     if (_isArray)
     {
@@ -234,7 +235,7 @@ void CIMParameterRep::setType(CIMType type)
 { 
     _type = type;
 
-    if (_referenceClassName.size() == 0 && _type == CIMType::REFERENCE)
+    if (_referenceClassName.size() == 0 && _type == CIMTYPE_REFERENCE)
     {
 	throw MissingReferenceClassName();
     }

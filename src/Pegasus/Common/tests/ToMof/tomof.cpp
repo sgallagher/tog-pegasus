@@ -23,7 +23,8 @@
 //
 // Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -130,9 +131,9 @@ int main(int argc, char** argv)
 	    .addQualifier(CIMQualifier("q2", String("Hello")))
 	    .addProperty(CIMProperty("message", String("Hello")))
 	    .addProperty(CIMProperty("count", Uint32(77)))
-	    .addMethod(CIMMethod("isActive", CIMType::BOOLEAN)
-		.addParameter(CIMParameter("hostname", CIMType::STRING))
-		.addParameter(CIMParameter("port", CIMType::UINT32)));
+	    .addMethod(CIMMethod("isActive", CIMTYPE_BOOLEAN)
+		.addParameter(CIMParameter("hostname", CIMTYPE_STRING))
+		.addParameter(CIMParameter("port", CIMTYPE_UINT32)));
         if (verbose)
             XmlWriter::printClassElement(class1);
 	Array<Sint8> tmp;
@@ -157,9 +158,9 @@ int main(int argc, char** argv)
 	    .addQualifier(CIMQualifier("q2", String("Hello")))
 	    .addProperty(CIMProperty("message", String("Hello")))
 	    .addProperty(CIMProperty("count", Uint32(77)))
-	    .addMethod(CIMMethod("isActive", CIMType::BOOLEAN)
-		.addParameter(CIMParameter("hostname", CIMType::STRING))
-		.addParameter(CIMParameter("port", CIMType::UINT32)));
+	    .addMethod(CIMMethod("isActive", CIMTYPE_BOOLEAN)
+		.addParameter(CIMParameter("hostname", CIMTYPE_STRING))
+		.addParameter(CIMParameter("port", CIMTYPE_UINT32)));
         if (verbose)
             XmlWriter::printClassElement(class1);
 	Array<Sint8> tmp;
@@ -208,20 +209,20 @@ int main(int argc, char** argv)
 
 	    .addProperty(CIMProperty("VolumeLabel", String(" ")))
 	
-    	    .addMethod(CIMMethod("NoParmsMethod", CIMType::BOOLEAN))
+    	    .addMethod(CIMMethod("NoParmsMethod", CIMTYPE_BOOLEAN))
 	    
-	    .addMethod(CIMMethod("OneParmmethod", CIMType::BOOLEAN)
-	        .addParameter(CIMParameter("FastFormat", CIMType::BOOLEAN)
+	    .addMethod(CIMMethod("OneParmmethod", CIMTYPE_BOOLEAN)
+	        .addParameter(CIMParameter("FastFormat", CIMTYPE_BOOLEAN)
 	        	   .addQualifier(CIMQualifier("Dangerous", true))
 			     )
 		      )
 
-	    .addMethod(CIMMethod("TwoParmMethod", CIMType::BOOLEAN)
-		.addParameter(CIMParameter("FirstParam", CIMType::BOOLEAN)
+	    .addMethod(CIMMethod("TwoParmMethod", CIMTYPE_BOOLEAN)
+		.addParameter(CIMParameter("FirstParam", CIMTYPE_BOOLEAN)
 			   .addQualifier(CIMQualifier("Dangerous", true))
 			   .addQualifier(CIMQualifier("in",true)) 	     
 			    )
-		.addParameter(CIMParameter("SecondParam", CIMType::BOOLEAN)
+		.addParameter(CIMParameter("SecondParam", CIMTYPE_BOOLEAN)
 			    .addQualifier(CIMQualifier("Dangerous", true))
 			    .addQualifier(CIMQualifier("in",true)) 	     
 			    )

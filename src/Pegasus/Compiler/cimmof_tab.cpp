@@ -191,7 +191,7 @@ typedef union {
   int              ival;
   //  char             *strval;
   String *         strval;
-  CIMType::Tag        datatype;
+  CIMType        datatype;
   CIMValue *          value;
   String *         strptr;
   CIMQualifier *      qualifier;
@@ -1211,7 +1211,7 @@ case 27:
   String s(*yyvsp[-4].strval);
   if (!String::equal(*yyvsp[-1].strval, String::EMPTY))
     s += "." + *yyvsp[-1].strval;
-  CIMValue *v = valueFactory::createValue(CIMType::REFERENCE, -1, true, &s);
+  CIMValue *v = valueFactory::createValue(CIMTYPE_REFERENCE, -1, true, &s);
   //KS add the isArray and arraysize parameters. 8 mar 2002
   yyval.property = cimmofParser::Instance()->newProperty(*yyvsp[-2].strval, *v, false,0, *yyvsp[-4].strval);
   apply(&g_qualifierList, yyval.property);
@@ -1260,7 +1260,7 @@ case 37:
     break;}
 case 38:
 #line 368 "cimmof.y"
-{ yyval.datatype = CIMType::REFERENCE; ;
+{ yyval.datatype = CIMTYPE_REFERENCE; ;
     break;}
 case 39:
 #line 370 "cimmof.y"
@@ -1737,59 +1737,59 @@ case 131:
     break;}
 case 132:
 #line 723 "cimmof.y"
-{ yyval.datatype = CIMType::STRING;   ;
+{ yyval.datatype = CIMTYPE_STRING;   ;
     break;}
 case 133:
 #line 724 "cimmof.y"
-{ yyval.datatype = CIMType::BOOLEAN;  ;
+{ yyval.datatype = CIMTYPE_BOOLEAN;  ;
     break;}
 case 134:
 #line 725 "cimmof.y"
-{ yyval.datatype = CIMType::DATETIME; ;
+{ yyval.datatype = CIMTYPE_DATETIME; ;
     break;}
 case 135:
 #line 727 "cimmof.y"
-{ yyval.datatype = CIMType::UINT8;  ;
+{ yyval.datatype = CIMTYPE_UINT8;  ;
     break;}
 case 136:
 #line 728 "cimmof.y"
-{ yyval.datatype = CIMType::SINT8;  ;
+{ yyval.datatype = CIMTYPE_SINT8;  ;
     break;}
 case 137:
 #line 729 "cimmof.y"
-{ yyval.datatype = CIMType::UINT16; ;
+{ yyval.datatype = CIMTYPE_UINT16; ;
     break;}
 case 138:
 #line 730 "cimmof.y"
-{ yyval.datatype = CIMType::SINT16; ;
+{ yyval.datatype = CIMTYPE_SINT16; ;
     break;}
 case 139:
 #line 731 "cimmof.y"
-{ yyval.datatype = CIMType::UINT32; ;
+{ yyval.datatype = CIMTYPE_UINT32; ;
     break;}
 case 140:
 #line 732 "cimmof.y"
-{ yyval.datatype = CIMType::SINT32; ;
+{ yyval.datatype = CIMTYPE_SINT32; ;
     break;}
 case 141:
 #line 733 "cimmof.y"
-{ yyval.datatype = CIMType::UINT64; ;
+{ yyval.datatype = CIMTYPE_UINT64; ;
     break;}
 case 142:
 #line 734 "cimmof.y"
-{ yyval.datatype = CIMType::SINT64; ;
+{ yyval.datatype = CIMTYPE_SINT64; ;
     break;}
 case 143:
 #line 735 "cimmof.y"
-{ yyval.datatype = CIMType::CHAR16; ;
+{ yyval.datatype = CIMTYPE_CHAR16; ;
     break;}
 case 144:
 #line 737 "cimmof.y"
-{ yyval.datatype =CIMType::REAL32; ;
+{ yyval.datatype =CIMTYPE_REAL32; ;
     break;}
 case 145:
 #line 738 "cimmof.y"
-{ yyval.datatype =CIMType::REAL64; ;
+{ yyval.datatype =CIMTYPE_REAL64; ;
     break;}
 case 147:
 #line 741 "cimmof.y"

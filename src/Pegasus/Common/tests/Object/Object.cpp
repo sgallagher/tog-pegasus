@@ -285,10 +285,10 @@ void test04()
     //
     CIMClass class1 ("//localhost/root/cimv2:MyClass");
     CIMProperty prop1;
-    prop1 = CIMProperty ("message", CIMValue (CIMType::STRING));
+    prop1 = CIMProperty ("message", CIMValue (CIMTYPE_STRING));
     prop1.addQualifier (CIMQualifier ("Key", true));
     CIMProperty prop2;
-    prop2 = CIMProperty ("count", CIMValue (CIMType::UINT32));
+    prop2 = CIMProperty ("count", CIMValue (CIMTYPE_UINT32));
     prop2.addQualifier (CIMQualifier ("Key", true));
     class1.addProperty (prop1);
     class1.addProperty (prop2);

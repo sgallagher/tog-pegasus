@@ -96,7 +96,7 @@ Boolean CIMQualifierList::isTrue(const String& name) const
     Boolean flag;
     const CIMValue& value = getQualifier(pos).getValue();
 
-    if (value.getType() != CIMType::BOOLEAN)
+    if (value.getType() != CIMTYPE_BOOLEAN)
 	return false;
 
     value.get(flag);

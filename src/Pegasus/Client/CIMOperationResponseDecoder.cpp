@@ -862,7 +862,7 @@ CIMGetPropertyResponseMessage* CIMOperationResponseDecoder::_decodeGetPropertyRe
     }
     else
     {
-	CIMValue cimValue(CIMType::STRING, false);
+	CIMValue cimValue(CIMTYPE_STRING, false);
 
 	if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
 	{

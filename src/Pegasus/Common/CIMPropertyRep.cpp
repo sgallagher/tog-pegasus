@@ -23,7 +23,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -60,7 +61,7 @@ CIMPropertyRep::CIMPropertyRep(
     if (classOrigin.size() && !CIMName::legal(classOrigin))
 		throw IllegalName();
 
-    if (_value.getType() == CIMType::NONE)
+    if (_value.getType() == CIMTYPE_NONE)
 		throw NullType();
 
 	// If referenceClassName exists, must be legal namd and CIMType REFERENCE.
@@ -69,12 +70,12 @@ CIMPropertyRep::CIMPropertyRep(
 		if (!CIMName::legal(referenceClassName))
 			throw IllegalName();
 	
-		if (_value.getType() != CIMType::REFERENCE)
+		if (_value.getType() != CIMTYPE_REFERENCE)
 			throw ExpectedReferenceValue();
 	}
 	else
 	{
-		if (_value.getType() == CIMType::REFERENCE)
+		if (_value.getType() == CIMTYPE_REFERENCE)
 			throw MissingReferenceClassName();
     }
 }
@@ -120,7 +121,7 @@ void CIMPropertyRep::resolve(
 
     Uint32 scope = CIMScope::PROPERTY;
 
-    if (_value.getType() == CIMType::REFERENCE)
+    if (_value.getType() == CIMTYPE_REFERENCE)
 	scope = CIMScope::REFERENCE;
 
     _qualifiers.resolve(
@@ -144,7 +145,7 @@ void CIMPropertyRep::resolve(
 
     Uint32 scope = CIMScope::PROPERTY;
 
-    if (_value.getType() == CIMType::REFERENCE)
+    if (_value.getType() == CIMTYPE_REFERENCE)
 	scope = CIMScope::REFERENCE;
 
     _qualifiers.resolve(
@@ -169,7 +170,7 @@ void CIMPropertyRep::toXml(Array<Sint8>& out) const
 
 	out << " NAME=\"" << _name << "\" ";
 
-	out << " TYPE=\"" << _value.getType().toString() << "\"";
+	out << " TYPE=\"" << cimTypeToString (_value.getType ()) << "\"";
 
 	if (_arraySize)
 	{
@@ -192,7 +193,7 @@ void CIMPropertyRep::toXml(Array<Sint8>& out) const
 
 	out << "</PROPERTY.ARRAY>\n";
     }
-    else if (_value.getType() == CIMType::REFERENCE)
+    else if (_value.getType() == CIMTYPE_REFERENCE)
     {
 	out << "<PROPERTY.REFERENCE";
 
@@ -225,7 +226,7 @@ void CIMPropertyRep::toXml(Array<Sint8>& out) const
 	if (_propagated != false)
 	    out << " PROPAGATED=\"" << _toString(_propagated) << "\"";
 
-	out << " TYPE=\"" << _value.getType().toString() << "\"";
+	out << " TYPE=\"" << cimTypeToString (_value.getType ()) << "\"";
 
 	out << ">\n";
 
@@ -258,7 +259,7 @@ void CIMPropertyRep::toMof(Array<Sint8>& out) const  //ATTNKS:
     _qualifiers.toMof(out);
 
     // Output the Type and name on a new line
-    out << "\n" << _value.getType().toString() << " " << _name;
+    out << "\n" << cimTypeToString (_value.getType ()) << " " << _name;
 
     // If array put the Array indicator "[]" and possible size after name.
     if (_value.isArray())
@@ -282,7 +283,7 @@ void CIMPropertyRep::toMof(Array<Sint8>& out) const  //ATTNKS:
 	    // Insert any property values
 	    MofWriter::appendValueElement(out, _value);
 	}
-	else if (_value.getType() == CIMType::REFERENCE)
+	else if (_value.getType() == CIMTYPE_REFERENCE)
 	{
 	    MofWriter::appendValueElement(out, _value);
 	}

@@ -1072,7 +1072,7 @@ cimmofParser::QualifierValue(const String &qualifierName,
   CIMValue v = q.getValue();
   Uint32 asize = v.getArraySize();
 
-  if (isNull & v.getType() == CIMType::BOOLEAN)
+  if (isNull & v.getType() == CIMTYPE_BOOLEAN)
   {
       Boolean b;
       v.get(b);

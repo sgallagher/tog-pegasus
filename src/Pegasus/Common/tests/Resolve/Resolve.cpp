@@ -112,7 +112,7 @@ void test01()
 	  CIMFlavor::TOSUBCLASS);
 
 	// Flavor is the defaults. overridable and tosubclass.
-    CIMValue v1(CIMType::UINT32, false);
+    CIMValue v1(CIMTYPE_UINT32, false);
     CIMQualifierDecl q3("q3",v1,CIMScope::CLASS);
 
 	// Flavor should be tosubclass and overridable
@@ -173,9 +173,9 @@ void test01()
 	// .addProperty(CIMProperty(keyProperty))
 	.addProperty(CIMProperty("count", Uint32(77)))
 	// .addProperty(CIMProperty("ref1", Reference("MyClass.key1=\"fred\"")))
-	.addMethod(CIMMethod("isActive", CIMType::BOOLEAN)
-	    .addParameter(CIMParameter("hostname", CIMType::STRING))
-	    .addParameter(CIMParameter("port", CIMType::UINT32)));
+	.addMethod(CIMMethod("isActive", CIMTYPE_BOOLEAN)
+	    .addParameter(CIMParameter("hostname", CIMTYPE_STRING))
+	    .addParameter(CIMParameter("port", CIMTYPE_UINT32)));
 
     if(verbose)
 	{
@@ -291,7 +291,7 @@ void test02()
       CIMQualifierDecl q2("q2",String(),CIMScope::CLASS, CIMFlavor::DEFAULTS);
 
 	  // Qualifier q3 Boolean with value zero
-	  CIMValue v1(CIMType::UINT32, false);
+	  CIMValue v1(CIMTYPE_UINT32, false);
       CIMQualifierDecl q3("q3",v1,CIMScope::CLASS, CIMFlavor::DEFAULTS);
 
 	  Array<String> stringArray;
@@ -360,9 +360,9 @@ void test02()
 		.addProperty(CIMProperty(propertyWithQualifier))
 
 		// This method to demo propagation of method to subclass
-		.addMethod(CIMMethod("methodinSuperclass", CIMType::BOOLEAN)
-			.addParameter(CIMParameter("hostname", CIMType::STRING))
-			.addParameter(CIMParameter("port", CIMType::UINT32)));
+		.addMethod(CIMMethod("methodinSuperclass", CIMTYPE_BOOLEAN)
+			.addParameter(CIMParameter("hostname", CIMTYPE_STRING))
+			.addParameter(CIMParameter("port", CIMTYPE_UINT32)));
 
 		;
 
@@ -390,9 +390,9 @@ void test02()
 		.addProperty(CIMProperty("count", Uint32(77)))
 		// .addProperty(CIMProperty("ref1", Reference("MyClass.key1=\"fred\"")))
 
-		.addMethod(CIMMethod("isActive", CIMType::BOOLEAN)
-			.addParameter(CIMParameter("hostname", CIMType::STRING))
-			.addParameter(CIMParameter("port", CIMType::UINT32)));
+		.addMethod(CIMMethod("isActive", CIMTYPE_BOOLEAN)
+			.addParameter(CIMParameter("hostname", CIMTYPE_STRING))
+			.addParameter(CIMParameter("port", CIMTYPE_UINT32)));
     if(verbose)
 	{
 		cout << "Classes before resolution " << endl;
@@ -489,7 +489,7 @@ void test02()
 		// Confirm classorigin OK and value not changed.
 		assert(p.getClassOrigin() == "SuperClass");
 		CIMValue v = p.getValue();
-		assert(v.getType() == CIMType::STRING);
+		assert(v.getType() == CIMTYPE_STRING);
 		String s;
 		v.get(s);
 		assert(s == "Hello");     			// Assert correct value moved
@@ -501,7 +501,7 @@ void test02()
 		assert(psc.getPropagated());
 		assert(psc.getClassOrigin() == "SuperClass");
 		CIMValue vsc = p.getValue();
-		assert(vsc.getType() == CIMType::STRING);
+		assert(vsc.getType() == CIMTYPE_STRING);
 		String ssc;
 		vsc.get(ssc);
 		assert(s == "Hello");     			// Assert correct value moved
@@ -520,7 +520,7 @@ void test02()
 		assert(p.getPropagated());
 		assert(p.getClassOrigin() == "SuperClass");
 		CIMValue v = p.getValue();
-		assert(v.getType() == CIMType::BOOLEAN);
+		assert(v.getType() == CIMTYPE_BOOLEAN);
 		Boolean b;
 		v.get(b);
 		assert(b == true);
@@ -536,9 +536,9 @@ void test02()
 		CIMProperty p = subClass.getProperty(pos);
 		assert(p.getClassOrigin() == "SuperClass");
 		assert(p.getPropagated());
-		assert(p.getType() == CIMType::BOOLEAN);
+		assert(p.getType() == CIMTYPE_BOOLEAN);
 		CIMValue pv = p.getValue();
-		assert(pv.getType() == CIMType::BOOLEAN);
+		assert(pv.getType() == CIMTYPE_BOOLEAN);
 		Boolean b;
 		pv.get(b);
 		assert(b == true);
@@ -550,7 +550,7 @@ void test02()
 		CIMQualifier q = p.getQualifier(qpos);
 		CIMValue v = q.getValue();
 
-		assert(v.getType() == CIMType::STRING);
+		assert(v.getType() == CIMTYPE_STRING);
 		String s;
 		v.get(s);
 		assert(s == "default");  // same as value in superclass
@@ -573,7 +573,7 @@ void test02()
 		assert(mpos != PEG_NOT_FOUND);
 		CIMMethod m = superClass.getMethod(mpos);
 		assert(!m.getPropagated()); 				// should not be propagated
-		assert(m.getType() == CIMType::BOOLEAN);
+		assert(m.getType() == CIMTYPE_BOOLEAN);
 
 		// Now confirm the parameters
         assert(m.findParameter("hostname") != PEG_NOT_FOUND);
@@ -586,7 +586,7 @@ void test02()
         assert(mp1.getName() == "hostname");
 		/* ATTN: KS P3 23 Mar 2002 Want to test values here
 		CIMValue vmp1 = mp1.getValue();
-		assert(vmp1.getType() == CIMType::Boolean);
+		assert(vmp1.getType() == CIMTYPE_Boolean);
 		*/
 		//assert(p1.getQualifierCount() == 0);
 
@@ -595,7 +595,7 @@ void test02()
 		assert(ppos2 != PEG_NOT_FOUND);
 		CIMParameter mp2 = m.getParameter(m.findParameter("port"));
         assert(mp2.getName() == "port");
-		assert(mp2.getType() == CIMType::UINT32);
+		assert(mp2.getType() == CIMTYPE_UINT32);
 
 		// Test for second method
 		assert(superClass.findMethod("methodInSuperclass") != 
@@ -622,7 +622,7 @@ void test02()
 			assert(mpos != PEG_NOT_FOUND);
 			CIMMethod m = subClass.getMethod(mpos);
 			assert(m.getPropagated()); 				// should not be propagated
-			assert(m.getType() == CIMType::BOOLEAN);
+			assert(m.getType() == CIMTYPE_BOOLEAN);
 
 			// Now confirm the parameters
 			assert(m.findParameter("hostname") != PEG_NOT_FOUND);
@@ -635,7 +635,7 @@ void test02()
 			assert(mp1.getName() == "hostname");
 			/* ATTN: Want to test values here
 			CIMValue vmp1 = mp1.getValue();
-			assert(vmp1.getType() == CIMType::Boolean);
+			assert(vmp1.getType() == CIMTYPE_Boolean);
             */
 			//assert(p1.getQualifierCount() == 0);
 						
@@ -644,7 +644,7 @@ void test02()
 			assert(ppos2 != PEG_NOT_FOUND);
 			CIMParameter mp2 = m.getParameter(m.findParameter("port"));
 			assert(mp2.getName() == "port");
-			assert(mp2.getType() == CIMType::UINT32);
+			assert(mp2.getType() == CIMTYPE_UINT32);
 		}
 
 	}
@@ -667,7 +667,7 @@ void test04()
 
     CIMQualifierDecl q2("Abstract", Boolean(true), CIMScope::CLASS , CIMFlavor::NONE);
     
-    CIMValue v1(CIMType::UINT32, false);
+    CIMValue v1(CIMTYPE_UINT32, false);
     CIMQualifierDecl q3("q1",v1,CIMScope::CLASS);
 	// flavors for this one should be disableoverride, but tosubclass 
 	CIMQualifierDecl key("key",Boolean(true),(CIMScope::PROPERTY + CIMScope::REFERENCE),
@@ -698,9 +698,9 @@ void test04()
 	.addProperty(CIMProperty("message", String("Hello")))
 	.addProperty(CIMProperty("count", Uint32(77)))
 	// .addProperty(CIMProperty("ref1", Reference("MyClass.key1=\"fred\"")))
-	.addMethod(CIMMethod("isActive", CIMType::BOOLEAN)
-	    .addParameter(CIMParameter("hostname", CIMType::STRING))
-	    .addParameter(CIMParameter("port", CIMType::UINT32)));
+	.addMethod(CIMMethod("isActive", CIMTYPE_BOOLEAN)
+	    .addParameter(CIMParameter("hostname", CIMTYPE_STRING))
+	    .addParameter(CIMParameter("port", CIMTYPE_UINT32)));
 
     if(verbose)
 	{
@@ -786,8 +786,8 @@ void test05()
 		.addProperty(CIMProperty(keyProperty))
 		.addProperty(CIMProperty("message", String("Hello")))
 
-		.addMethod(CIMMethod("isActive", CIMType::BOOLEAN)
-			.addParameter(CIMParameter("hostname", CIMType::STRING)));
+		.addMethod(CIMMethod("isActive", CIMTYPE_BOOLEAN)
+			.addParameter(CIMParameter("hostname", CIMTYPE_STRING)));
 
     resolved = false;
     if(verbose)
@@ -826,8 +826,8 @@ void test05()
 		.addProperty(CIMProperty(keyProperty))
 		.addProperty(CIMProperty(propertyWithClassQualifier))
 
-		.addMethod(CIMMethod("isActive", CIMType::BOOLEAN)
-			.addParameter(CIMParameter("hostname", CIMType::STRING)));
+		.addMethod(CIMMethod("isActive", CIMTYPE_BOOLEAN)
+			.addParameter(CIMParameter("hostname", CIMTYPE_STRING)));
 	
     if(verbose)
 		XmlWriter::printClassElement(classWithBadProperty);
@@ -913,8 +913,8 @@ void test06()
 		.addProperty(CIMProperty(keyProperty))
 		.addProperty(CIMProperty("message", String("Hello")))
 
-		.addMethod(CIMMethod("isActive", CIMType::BOOLEAN)
-			.addParameter(CIMParameter("hostname", CIMType::STRING)));
+		.addMethod(CIMMethod("isActive", CIMTYPE_BOOLEAN)
+		.addParameter(CIMParameter("hostname", CIMTYPE_STRING)));
     try
 	{
         Resolver::resolveClass (subClass, context, NAMESPACE);

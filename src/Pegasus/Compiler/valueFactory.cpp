@@ -25,6 +25,8 @@
 //
 // Modified By:  Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //                  Correct Null processing and correct calls to nextcsv - Mar 4 2002
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -207,7 +209,7 @@ build_reference_value(const String &rep)
 // ----------------------------------------------------------------- 
 static
 CIMValue *
-build_array_value(CIMType::Tag type, unsigned int arrayDimension,
+build_array_value(CIMType type, unsigned int arrayDimension,
 		  const String &rep)
 {
   String sval;
@@ -219,7 +221,7 @@ build_array_value(CIMType::Tag type, unsigned int arrayDimension,
   The combination of the testing and nexcsv meant the last entry was not processed.
   */
   switch (type) {
-  case CIMType::BOOLEAN: {
+  case CIMTYPE_BOOLEAN: {
     Array<Boolean> *a = new Array<Boolean>;
     if (strsize != 0){
         do{
@@ -232,7 +234,7 @@ build_array_value(CIMType::Tag type, unsigned int arrayDimension,
     }
     return new CIMValue(*a);
   }
-  case CIMType::UINT8: {
+  case CIMTYPE_UINT8: {
     Array<Uint8> *a = new Array<Uint8>;
     if (strsize != 0){
         do{
@@ -242,7 +244,7 @@ build_array_value(CIMType::Tag type, unsigned int arrayDimension,
     }
     return new CIMValue(*a);
   }
-  case CIMType::SINT8: {
+  case CIMTYPE_SINT8: {
     Array<Sint8> *a = new Array<Sint8>;
     if (strsize != 0){
         do{
@@ -252,7 +254,7 @@ build_array_value(CIMType::Tag type, unsigned int arrayDimension,
     }
     return new CIMValue(*a);
   }
-  case CIMType::UINT16: {
+  case CIMTYPE_UINT16: {
     Array<Uint16> *a = new Array<Uint16>;
     if (strsize != 0){
         do{
@@ -262,7 +264,7 @@ build_array_value(CIMType::Tag type, unsigned int arrayDimension,
     }
     return new CIMValue(*a);
   }
-  case CIMType::SINT16: {
+  case CIMTYPE_SINT16: {
     Array<Sint16> *a = new Array<Sint16>;
     if (strsize != 0){
         do{
@@ -272,7 +274,7 @@ build_array_value(CIMType::Tag type, unsigned int arrayDimension,
     }
     return new CIMValue(*a);
   }
-  case CIMType::UINT32: {
+  case CIMTYPE_UINT32: {
     Array<Uint32> *a = new Array<Uint32>;
     if (strsize != 0){
         do{
@@ -282,7 +284,7 @@ build_array_value(CIMType::Tag type, unsigned int arrayDimension,
     }
     return new CIMValue(*a);
   }
-  case CIMType::SINT32: {
+  case CIMTYPE_SINT32: {
     Array<Sint32> *a = new Array<Sint32>;
     if (strsize != 0){
         do{
@@ -292,7 +294,7 @@ build_array_value(CIMType::Tag type, unsigned int arrayDimension,
     }
     return new CIMValue(*a);
   }
-  case CIMType::UINT64: {
+  case CIMTYPE_UINT64: {
     Array<Uint64> *a = new Array<Uint64>;
     if (strsize != 0){
         do{
@@ -302,7 +304,7 @@ build_array_value(CIMType::Tag type, unsigned int arrayDimension,
     }
     return new CIMValue(*a);
   }
-  case CIMType::SINT64: {
+  case CIMTYPE_SINT64: {
     Array<Sint64> *a = new Array<Sint64>;
     if (strsize != 0){
         do{
@@ -312,7 +314,7 @@ build_array_value(CIMType::Tag type, unsigned int arrayDimension,
     }
     return new CIMValue(*a);
   }
-  case CIMType::REAL32: {
+  case CIMTYPE_REAL32: {
     Array<Real32> *a = new Array<Real32>;
     if (strsize != 0){
         do{
@@ -322,7 +324,7 @@ build_array_value(CIMType::Tag type, unsigned int arrayDimension,
     }
     return new CIMValue(*a);
   }
-  case CIMType::REAL64: {
+  case CIMTYPE_REAL64: {
     Array<Real64> *a = new Array<Real64>;
     if (strsize != 0){
         do{
@@ -332,7 +334,7 @@ build_array_value(CIMType::Tag type, unsigned int arrayDimension,
     }
     return new CIMValue(*a);
   }
-  case CIMType::CHAR16: {
+  case CIMTYPE_CHAR16: {
     Array<Char16> *a = new Array<Char16>;
     if (strsize != 0){
         do{
@@ -342,7 +344,7 @@ build_array_value(CIMType::Tag type, unsigned int arrayDimension,
     }
     return new CIMValue(*a);
   }
-  case CIMType::STRING: {
+  case CIMTYPE_STRING: {
     Array<String> *a = new Array<String>;
     if (strsize != 0){
         do{
@@ -352,7 +354,7 @@ build_array_value(CIMType::Tag type, unsigned int arrayDimension,
     }
     return new CIMValue(*a);
   }
-  case CIMType::DATETIME: {
+  case CIMTYPE_DATETIME: {
     Array<CIMDateTime> *a = new Array<CIMDateTime>;
     while (strsize && (start = nextcsv(rep, ',', start, end, sval)) < end ) {
       CIMDateTime dt;
@@ -361,8 +363,8 @@ build_array_value(CIMType::Tag type, unsigned int arrayDimension,
     }
     return new CIMValue(*a);
   }
-  case CIMType::REFERENCE:
-  case CIMType::NONE:
+  case CIMTYPE_REFERENCE:
+  case CIMTYPE_NONE:
     break;
   }  // end switch
   return 0;
@@ -378,7 +380,7 @@ build_array_value(CIMType::Tag type, unsigned int arrayDimension,
             x.set(Uint16(9)
 */
 CIMValue *
-valueFactory::createValue(CIMType::Tag type, int arrayDimension,
+valueFactory::createValue(CIMType type, int arrayDimension,
                           Boolean isNULL,
 			  const String *repp)
 {
@@ -391,22 +393,22 @@ valueFactory::createValue(CIMType::Tag type, int arrayDimension,
        return new CIMValue(type, false);
     }
     switch(type) {
-    case CIMType::UINT8:    return new CIMValue((Uint8)  valueFactory::Stoi(rep));
-    case CIMType::SINT8:    return new CIMValue((Sint8)  valueFactory::Stoi(rep));
-    case CIMType::UINT16:   return new CIMValue((Uint16) valueFactory::Stoi(rep));
-    case CIMType::SINT16:   return new CIMValue((Sint16) valueFactory::Stoi(rep));
-    case CIMType::UINT32:   return new CIMValue((Uint32) valueFactory::Stoi(rep));
-    case CIMType::SINT32:   return new CIMValue((Sint32) valueFactory::Stoi(rep));
-    case CIMType::UINT64:   return new CIMValue((Uint64) valueFactory::Stoi(rep));
-    case CIMType::SINT64:   return new CIMValue((Sint64) valueFactory::Stoi(rep));
-    case CIMType::REAL32:   return new CIMValue((Real32) Stof(rep));
-    case CIMType::REAL64:   return new CIMValue((Real64) Stof(rep));
-    case CIMType::CHAR16:   return new CIMValue((Char16) rep[0]);
-    case CIMType::BOOLEAN:  return new CIMValue((Boolean) (rep[0] == 'T'?1:0));
-    case CIMType::STRING:   return new CIMValue(rep);
-    case CIMType::DATETIME: return new CIMValue(StoDT(rep, dt));
-    case CIMType::REFERENCE: return build_reference_value(rep);
-    case CIMType::NONE:     return(new CIMValue((Uint32) 0));
+    case CIMTYPE_UINT8:    return new CIMValue((Uint8)  valueFactory::Stoi(rep));
+    case CIMTYPE_SINT8:    return new CIMValue((Sint8)  valueFactory::Stoi(rep));
+    case CIMTYPE_UINT16:   return new CIMValue((Uint16) valueFactory::Stoi(rep));
+    case CIMTYPE_SINT16:   return new CIMValue((Sint16) valueFactory::Stoi(rep));
+    case CIMTYPE_UINT32:   return new CIMValue((Uint32) valueFactory::Stoi(rep));
+    case CIMTYPE_SINT32:   return new CIMValue((Sint32) valueFactory::Stoi(rep));
+    case CIMTYPE_UINT64:   return new CIMValue((Uint64) valueFactory::Stoi(rep));
+    case CIMTYPE_SINT64:   return new CIMValue((Sint64) valueFactory::Stoi(rep));
+    case CIMTYPE_REAL32:   return new CIMValue((Real32) Stof(rep));
+    case CIMTYPE_REAL64:   return new CIMValue((Real64) Stof(rep));
+    case CIMTYPE_CHAR16:   return new CIMValue((Char16) rep[0]);
+    case CIMTYPE_BOOLEAN:  return new CIMValue((Boolean) (rep[0] == 'T'?1:0));
+    case CIMTYPE_STRING:   return new CIMValue(rep);
+    case CIMTYPE_DATETIME: return new CIMValue(StoDT(rep, dt));
+    case CIMTYPE_REFERENCE: return build_reference_value(rep);
+    case CIMTYPE_NONE:     return(new CIMValue((Uint32) 0));
     }
     return(new CIMValue((Uint32) 0));    // default
   } else { // an array type, either fixed or variable

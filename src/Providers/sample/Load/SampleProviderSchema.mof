@@ -38,6 +38,8 @@ class Sample_LocalizedProviderClass : Sample_ProviderClass
 
 	string UTFMethod( [IN] string inStr, [IN] char16 inChar16,
                          [OUT] string outStr, [OUT] char16 outChar16);
+
+	uint16 generateIndication();
 };
 
 // globalization test class for aggregation tests
@@ -46,6 +48,14 @@ class Sample_LocalizedProviderSubClass : Sample_LocalizedProviderClass
 {
 	[read, write]
 	string TestString;
+};
+
+// globalization test class for indication tests
+[Indication]
+class LocalizedProvider_TestIndication : CIM_Indication
+{
+    string UnicodeStr;
+    char16 UnicodeChar;
 };
 
 [Version ("2.2.0")]

@@ -44,3 +44,15 @@ instance of PG_ProviderCapabilities
    SupportedMethods = NULL;
 };
 
+instance of PG_ProviderCapabilities
+{
+   ProviderModuleName = "SampleLocalizedProviderModule";
+   ProviderName = "SampleLocalizedProvider";
+   CapabilityID = "3";  
+   ClassName = "LocalizedProvider_TestIndication";
+   Namespaces = {"root/SampleProvider"};
+   ProviderType = { 4 };   //Indication
+   SupportedProperties = NULL;
+   SupportedMethods = NULL;
+};
+

@@ -226,6 +226,8 @@ void PEGASUS_CLI_LINKAGE printHelpMsg(const char* pgmName, const char* usage, co
 
 void PEGASUS_CLI_LINKAGE printHelp(char* name, OptionManager& om);
 
+void PEGASUS_CLI_LINKAGE printUsageMsg(const char* pgmName,OptionManager& om);
+
 void  PEGASUS_CLI_LINKAGE GetOptions(OptionManager& om, int& argc, char** argv,  const String& testHome);
 
 int PEGASUS_CLI_LINKAGE CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts);

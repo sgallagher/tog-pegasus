@@ -130,6 +130,15 @@ Boolean _getQualifierNameInput(int argc, char** argv, Options& opts)
 int main(int argc, char** argv)
 {
 
+    // If no arguments, simply print usage message and terminate.
+    OptionManager om;
+    Options opts;
+    if (argc == 1)
+    {
+        printUsageMsg(argv[0], om);
+        exit(0);
+    }
+
     // Get options (from command line and from configuration file); this
     // removes corresponding options and their arguments from the command
     // line.
@@ -156,9 +165,6 @@ int main(int argc, char** argv)
         for (int i = 0; i < argc; i++)
             cout << "argv[" << i << "] = " << argv[i] << endl;
     }
-
-    OptionManager om;
-	Options opts;
 
     try
     {

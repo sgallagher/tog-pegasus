@@ -1404,6 +1404,7 @@ void showCommands()
         cout << txtFormat << endl;
     }
 }
+
 /* PrintHelpMsg - This is temporary until we expand the options manager to allow
    options help to be defined with the OptionRow entries and presented from
    those entries.
@@ -1427,6 +1428,11 @@ void printHelpMsg(const char* pgmName, const char* usage, const char* extraHelp,
     
     cout << extraHelp << endl;
 
+}
+
+void printUsageMsg(const char* pgmName,OptionManager& om)
+{
+    printHelpMsg(pgmName, usage, usageDetails, om);
 }
 
 int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts) 

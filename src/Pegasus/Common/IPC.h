@@ -262,8 +262,10 @@ class PEGASUS_EXPORT Mutex
       Mutex(void) ;
       Mutex(int type);
 
+#ifdef PEGASUS_OS_TYPE_UNIX
       // to be able to share the mutex between different condition variables
       Mutex(const Mutex& _mutex);
+#endif
 
       ~Mutex(void);
 

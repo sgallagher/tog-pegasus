@@ -43,6 +43,7 @@
     {"enableAuthentication", "true"},
     {"enableAssociationTraversal", "false"},
     {"enableIndicationService", "false"},
+    {"enableClientCertification", "false"},
     {"httpAuthType",        "Basic"},
     {"repositoryIsDefaultInstanceProvider", "false"},
     {"usePAMAuthentication", "true"},

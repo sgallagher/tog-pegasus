@@ -617,6 +617,21 @@ void ProviderRegistrationProvider::deleteInstance(
             instanceReference.getNameSpace().getString());
     }
 
+
+// l10n
+    // Get the client's list of preferred languages for the response
+    AcceptLanguages al = AcceptLanguages::EMPTY;
+    try 
+    {
+        AcceptLanguageListContainer al_container = 
+		(AcceptLanguageListContainer)context.get(AcceptLanguageListContainer::NAME);
+        al = al_container.getLanguages();
+    }
+    catch (...)
+    {
+        ;   // Leave AcceptLanguages empty
+    }
+
     CIMName className = instanceReference.getClassName();
 
     // ensure the class existing in the specified namespace
@@ -668,7 +683,8 @@ void ProviderRegistrationProvider::deleteInstance(
              //
              // if the provider disable failed
              //
-             if (_disableModule(instanceReference, moduleName, true) == -1)
+// l10n
+             if (_disableModule(instanceReference, moduleName, true, al) == -1)
              {
                  throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
                      "disable the provider failed.");
@@ -713,7 +729,8 @@ void ProviderRegistrationProvider::deleteInstance(
             //
             // if the provider module disable failed
             //
-            if (_disableModule(instanceReference, moduleName, false) == -1)
+// l10n
+            if (_disableModule(instanceReference, moduleName, false, al) == -1)
             {
                  throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
                      "disable the provider module failed.");
@@ -770,6 +787,21 @@ void ProviderRegistrationProvider::invokeMethod(
             objectReference.getNameSpace().getString());
     }
 
+
+// l10n
+    // Get the client's list of preferred languages for the response
+    AcceptLanguages al = AcceptLanguages::EMPTY;
+    try 
+    {
+        AcceptLanguageListContainer al_container = 
+		(AcceptLanguageListContainer)context.get(AcceptLanguageListContainer::NAME);
+        al = al_container.getLanguages();
+    }
+    catch (...)
+    {
+        ;   // Leave AcceptLanguages empty
+    }
+
     String moduleName;
     Boolean moduleFound = false;
 
@@ -801,7 +833,8 @@ void ProviderRegistrationProvider::invokeMethod(
 	// disable module
 	try
 	{
-    	     ret_value =  _disableModule(objectReference, moduleName, false);
+// l10n
+    	     ret_value =  _disableModule(objectReference, moduleName, false, al);
 	}
     	catch(CIMException& e)
     	{
@@ -862,6 +895,8 @@ void ProviderRegistrationProvider::invokeMethod(
 		    XmlWriter::getNextMessageId (),
 		    mInstance,
 		    QueueIdStack(_service->getQueueId()));
+// l10n
+            enable_req->acceptLanguages = al;
 
   	    Array<Uint16> _opStatus;
             _opStatus = _sendEnableMessageToProviderManager(enable_req);
@@ -997,7 +1032,8 @@ Array<Uint16> ProviderRegistrationProvider::_sendEnableMessageToProviderManager(
 // send termination message to subscription service
 void ProviderRegistrationProvider::_sendTerminationMessageToSubscription(
     const CIMObjectPath & ref, const String & moduleName,
-    const Boolean disableProviderOnly)
+    const Boolean disableProviderOnly,
+    const AcceptLanguages & al)
 {
     CIMInstance instance;
     String _moduleName;
@@ -1057,6 +1093,9 @@ void ProviderRegistrationProvider::_sendTerminationMessageToSubscription(
 	        instances,
 	        QueueIdStack(_service->getQueueId()));
 
+// l10n
+        termination_req->acceptLanguages = al;
+
         // create request envelope
         AsyncLegacyOperationStart * asyncRequest =
             new AsyncLegacyOperationStart (
@@ -1093,7 +1132,8 @@ MessageQueueService * ProviderRegistrationProvider::_getIndicationService()
 Sint16 ProviderRegistrationProvider::_disableModule(
     const CIMObjectPath & objectReference, 
     const String & moduleName,
-    Boolean disableProviderOnly)
+    Boolean disableProviderOnly,
+    const AcceptLanguages & al)         // l10n
 {
     	//
     	// get module status
@@ -1202,6 +1242,8 @@ Sint16 ProviderRegistrationProvider::_disableModule(
 		    instances,
 		    disableProviderOnly,
 		    QueueIdStack(_service->getQueueId()));
+// l10n
+            disable_req->acceptLanguages = al;
 
   	    Array<Uint16> _opStatus =
 	        _sendDisableMessageToProviderManager(disable_req);
@@ -1215,7 +1257,7 @@ Sint16 ProviderRegistrationProvider::_disableModule(
 	            {
 	 	        // send termination message to subscription service
 		        _sendTerminationMessageToSubscription(objectReference,
-				moduleName, false);
+				moduleName, false, al);
 		        return (0);
 	            }
 	        }
@@ -1223,7 +1265,7 @@ Sint16 ProviderRegistrationProvider::_disableModule(
 	    else // disable provider
 	    {
 	        _sendTerminationMessageToSubscription(objectReference,
-			moduleName, true);
+			moduleName, true, al);
 	        return (0);
 	    }
   	}

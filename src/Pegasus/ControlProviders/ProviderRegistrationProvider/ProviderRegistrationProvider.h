@@ -34,6 +34,8 @@
 #include <Pegasus/Provider/CIMMethodProvider.h>
 #include <Pegasus/Common/ModuleController.h>
 
+#include <Pegasus/Common/AcceptLanguages.h> // l10n
+
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -148,11 +150,13 @@ protected:
     MessageQueueService * _getIndicationService();
     void _sendTerminationMessageToSubscription(
 	const CIMObjectPath & ref, const String & moduleName,
-	const Boolean disableProviderOnly);
+	const Boolean disableProviderOnly,
+        const AcceptLanguages & al);           // l10n
 
     Sint16 _disableModule(const CIMObjectPath & moduleRef, 
 			  const String & moduleName,
-			  Boolean disableProviderOnly);
+			  Boolean disableProviderOnly,
+                      const AcceptLanguages & al);           // l10n
 };
 
 PEGASUS_NAMESPACE_END

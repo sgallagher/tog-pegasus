@@ -151,6 +151,7 @@ Message * ProviderMessageFacade::_handleGetInstanceRequest(Message * message) th
 
     CIMException cimException;
     CIMInstance cimInstance;
+    ContentLanguages contentLangs;  // l10n
 
     try
     {
@@ -166,6 +167,11 @@ Message * ProviderMessageFacade::_handleGetInstanceRequest(Message * message) th
 
 	// add the user name to the context
 	context.insert(IdentityContainer(request->userName));
+
+//l10n
+	// add the langs to the context
+	context.insert(AcceptLanguageListContainer(request->acceptLanguages));
+	context.insert(ContentLanguageListContainer(request->contentLanguages));
 
 	CIMPropertyList propertyList(request->propertyList);
 
@@ -196,6 +202,7 @@ Message * ProviderMessageFacade::_handleGetInstanceRequest(Message * message) th
 
 	// save returned instance
 	cimInstance = handler.getObjects()[0];
+        contentLangs = handler.getLanguages();  // l10n
     }
     catch(CIMException & e)
     {
@@ -219,7 +226,8 @@ Message * ProviderMessageFacade::_handleGetInstanceRequest(Message * message) th
 	    request->messageId,
 	    cimException,
 	    request->queueIds.copyAndPop(),
-	    cimInstance);
+	    cimInstance,
+            contentLangs);  // l10n
 
     // preserve message key
     response->setKey(request->getKey());
@@ -236,6 +244,7 @@ Message * ProviderMessageFacade::_handleEnumerateInstancesRequest(Message * mess
 
     CIMException cimException;
     Array<CIMInstance> cimInstances;
+    ContentLanguages contentLangs;  // l10n
 
     try
     {
@@ -251,6 +260,11 @@ Message * ProviderMessageFacade::_handleEnumerateInstancesRequest(Message * mess
 	// add the user name to the context
 	context.insert(IdentityContainer(request->userName));
 
+//l10n
+	// add the langs to the context
+	context.insert(AcceptLanguageListContainer(request->acceptLanguages));
+	context.insert(ContentLanguageListContainer(request->contentLanguages));
+
 	CIMPropertyList propertyList(request->propertyList);
 
 	SimpleInstanceResponseHandler handler;
@@ -265,6 +279,7 @@ Message * ProviderMessageFacade::_handleEnumerateInstancesRequest(Message * mess
 
 	// save returned instances
         cimInstances = handler.getObjects();
+        contentLangs = handler.getLanguages();  // l10n
     }
     catch(CIMException & e)
     {
@@ -288,7 +303,8 @@ Message * ProviderMessageFacade::_handleEnumerateInstancesRequest(Message * mess
 	    request->messageId,
 	    cimException,
 	    request->queueIds.copyAndPop(),
-	    cimInstances);
+	    cimInstances,
+            contentLangs);  // l10n
 
     // preserve message key
     response->setKey(request->getKey());
@@ -305,6 +321,7 @@ Message * ProviderMessageFacade::_handleEnumerateInstanceNamesRequest(Message * 
 
     CIMException cimException;
     Array<CIMObjectPath> cimReferences;
+    ContentLanguages contentLangs;  // l10n
 
     try
     {
@@ -320,6 +337,11 @@ Message * ProviderMessageFacade::_handleEnumerateInstanceNamesRequest(Message * 
 	// add the user name to the context
 	context.insert(IdentityContainer(request->userName));
 
+//l10n
+	// add the langs to the context
+	context.insert(AcceptLanguageListContainer(request->acceptLanguages));
+	context.insert(ContentLanguageListContainer(request->contentLanguages));
+
 	SimpleObjectPathResponseHandler handler;
 
 	enumerateInstanceNames(
@@ -329,6 +351,7 @@ Message * ProviderMessageFacade::_handleEnumerateInstanceNamesRequest(Message * 
 
 	// save returned instance
 	cimReferences = handler.getObjects();
+        contentLangs = handler.getLanguages();  // l10n
     }
     catch(CIMException & e)
     {
@@ -352,7 +375,8 @@ Message * ProviderMessageFacade::_handleEnumerateInstanceNamesRequest(Message * 
 	    request->messageId,
 	    cimException,
 	    request->queueIds.copyAndPop(),
-	    cimReferences);
+	    cimReferences,
+            contentLangs);  //l10n
 
     // preserve message key
     response->setKey(request->getKey());
@@ -370,6 +394,7 @@ Message * ProviderMessageFacade::_handleCreateInstanceRequest(Message * message)
     CIMException cimException;
     CIMInstance cimInstance;
     CIMObjectPath instanceName;
+    ContentLanguages contentLangs;  // l10n
 
     try
     {
@@ -385,6 +410,11 @@ Message * ProviderMessageFacade::_handleCreateInstanceRequest(Message * message)
 
 	// add the user name to the context
 	context.insert(IdentityContainer(request->userName));
+
+//l10n
+	// add the langs to the context
+	context.insert(AcceptLanguageListContainer(request->acceptLanguages));
+	context.insert(ContentLanguageListContainer(request->contentLanguages));
 
 	SimpleObjectPathResponseHandler handler;
 
@@ -410,6 +440,7 @@ Message * ProviderMessageFacade::_handleCreateInstanceRequest(Message * message)
 
 	// save returned instance name
 	instanceName = handler.getObjects()[0];
+        contentLangs = handler.getLanguages();  // l10n
     }
     catch(CIMException & e)
     {
@@ -433,7 +464,8 @@ Message * ProviderMessageFacade::_handleCreateInstanceRequest(Message * message)
 	    request->messageId,
 	    cimException,
 	    request->queueIds.copyAndPop(),
-	    instanceName);
+	    instanceName,
+            contentLangs);  // l10n
 
     // preserve message key
     response->setKey(request->getKey());
@@ -468,6 +500,11 @@ Message * ProviderMessageFacade::_handleModifyInstanceRequest(Message * message)
 
 	// add the user name to the context
 	context.insert(IdentityContainer(request->userName));
+
+//l10n
+	// add the langs to the context
+	context.insert(AcceptLanguageListContainer(request->acceptLanguages));
+	context.insert(ContentLanguageListContainer(request->contentLanguages));
 
 	CIMPropertyList propertyList(request->propertyList);
 
@@ -533,6 +570,11 @@ Message * ProviderMessageFacade::_handleDeleteInstanceRequest(Message * message)
 	OperationContext context;
 
 	context.insert(IdentityContainer(request->userName));
+
+//l10n
+	// add the langs to the context
+	context.insert(AcceptLanguageListContainer(request->acceptLanguages));
+	context.insert(ContentLanguageListContainer(request->contentLanguages));
 
 	SimpleResponseHandler handler;
 
@@ -797,6 +839,7 @@ Message * ProviderMessageFacade::_handleInvokeMethodRequest(Message * message) t
     CIMValue returnValue;
     Array<CIMParamValue> outParameters;
     CIMInstance cimInstance;
+    ContentLanguages contentLangs;  // l10n
 
     try
     {
@@ -811,6 +854,11 @@ Message * ProviderMessageFacade::_handleInvokeMethodRequest(Message * message) t
 
 	// add the user name to the context
 	context.insert(IdentityContainer(request->userName));
+
+//l10n
+	// add the langs to the context
+	context.insert(AcceptLanguageListContainer(request->acceptLanguages));
+	context.insert(ContentLanguageListContainer(request->contentLanguages));
 
 	CIMObjectPath instanceReference(request->instanceName);
 
@@ -838,6 +886,7 @@ Message * ProviderMessageFacade::_handleInvokeMethodRequest(Message * message) t
 
 	outParameters = handler.getParamValues();
 	returnValue = handler.getReturnValue();
+        contentLangs = handler.getLanguages();  // l10n
     }
     catch(CIMException & e)
     {
@@ -863,7 +912,8 @@ Message * ProviderMessageFacade::_handleInvokeMethodRequest(Message * message) t
 	    request->queueIds.copyAndPop(),
 	    returnValue,
 	    outParameters,
-	    request->methodName);
+	    request->methodName,
+            contentLangs);  // l10n
 
     // preserve message key
     response->setKey(request->getKey());

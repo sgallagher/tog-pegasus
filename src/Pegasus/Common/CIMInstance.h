@@ -45,7 +45,7 @@ class CIMConstInstance;
 class CIMObject;
 class CIMConstObject;
 
-/** This class represents the instance of a CIM class. It is used manipulate 
+/** This class represents the instance of a CIM class. It is used manipulate
     instances and their parts.
 */
 class PEGASUS_COMMON_LINKAGE CIMInstance
@@ -97,7 +97,7 @@ public:
     }
 
     /** Destructor. */
-    ~CIMInstance()
+    virtual ~CIMInstance()
     {
         Dec(_rep);
     }
@@ -347,7 +347,7 @@ public:
 
     /**	resolve - ATTN: */
     void resolve(
-	DeclContext* declContext, 
+	DeclContext* declContext,
 	const String& nameSpace,
 	Boolean propagateQualifiers);
 

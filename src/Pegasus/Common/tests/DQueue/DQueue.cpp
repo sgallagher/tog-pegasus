@@ -84,9 +84,26 @@ typedef struct
 
 AtomicInt replies;
 AtomicInt requests;
+Mutex msg_mutex;
+
 const Uint32 NUMBER_MSGS = 100000; 
-const int NUMBER_CLIENTS = 8;
-const int NUMBER_SERVERS = 2; 
+const int NUMBER_CLIENTS = 20;
+const int NUMBER_SERVERS = 10; 
+
+FAKE_MESSAGE *get_next_msg(void *key )
+{
+   FAKE_MESSAGE *msg = 0;
+   
+   msg_mutex.lock(pegasus_thread_self());
+   if(requests.value() < NUMBER_MSGS)
+   {
+      msg = new FAKE_MESSAGE(key, 0);
+      requests++;
+   }
+   msg_mutex.unlock();
+   return msg;
+}
+
 int main(int argc, char **argv)
 {
    
@@ -96,7 +113,7 @@ int main(int argc, char **argv)
 	 new AsyncDQueue<FAKE_MESSAGE>(true, 100)
       };
 
-   Thread *client_sender[10];
+   Thread *client_sender[20];
    Thread *server[10];
    int i;
 
@@ -154,18 +171,17 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_sending_thread(void *parm)
    Thread *receiver = new Thread(client_receiving_thread, my_qs, false);
    receiver->run();
    FAKE_MESSAGE *msg = 0;
-   while(requests.value() < (Uint32) NUMBER_MSGS )
+   while( 1 )
    {
-     msg = new FAKE_MESSAGE((void *)receiver, 0);
-     requests++;
-   
+      msg = get_next_msg((void *)receiver);
+      if(msg == 0)
+	 break;
       try
       {
 	 my_qs->incoming->insert_last_wait(msg);
       }
       catch(ListClosed & lc)
       {
-//	 cout << endl << "client ---> server q is shutting down" << endl;
 	 break;
       }
       catch(IPCException & e)
@@ -174,12 +190,12 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_sending_thread(void *parm)
 	 abort();
       } 
    }
-
+   
    while(my_qs->incoming->count() > 0 || my_qs->outgoing->count() > 0)
    {
       my_handle->sleep(1);
    }
-
+   
    receiver->join();
    my_handle->exit_self((PEGASUS_THREAD_RETURN)1);
    return(0);
@@ -239,7 +255,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_receiving_thread(void *parm)
    Thread *my_handle = (Thread *)parm;
    read_write * my_qs = (read_write *)my_handle->get_parm();
    PEGASUS_THREAD_TYPE myself = pegasus_thread_self();
-   while(replies.value() < NUMBER_MSGS)
+   while(replies.value() < NUMBER_MSGS )
    {
       FAKE_MESSAGE *msg = 0;
       try

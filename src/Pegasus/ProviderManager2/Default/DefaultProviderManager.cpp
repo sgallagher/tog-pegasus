@@ -2693,14 +2693,16 @@ ProviderName DefaultProviderManager::_resolveProviderName(const ProviderName & p
     physicalName = physicalName + String(".dll");
     #elif defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_LINUX_IA86_GNU)
     String root = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-    physicalName = root + String("/lib") + physicalName + String(".so"));
+    physicalName = root + String("/lib") + physicalName + String(".so");
     #elif defined(PEGASUS_OS_HPUX)
     String root = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-    physicalName = root + String("/lib") + moduleLocation + String(".sl"));
+    physicalName = root + String("/lib") + moduleLocation + String(".sl");
     #elif defined(PEGASUS_OS_OS400)
     // do nothing
     #else
-    foo // needs code
+    String root = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
+    physicalName = root + String("/lib") + physicalName + String(".so");
+
     #endif
 
     temp.setPhysicalName(physicalName);

@@ -96,6 +96,7 @@ Monitor::Monitor()
 
 Monitor::~Monitor()
 {
+    delete _rep;
     Socket::uninitializeInterface();
 }
 

@@ -55,6 +55,17 @@ public:
     {
     }
 
+    virtual ~CIMIndication(void)
+    {
+    }
+
+    CIMIndication & operator=(const CIMIndication & x)
+    {
+	CIMInstance::operator=(x);
+
+	return(*this);
+    }
+
 protected:
 
 };

@@ -131,7 +131,7 @@ cimmofParser::setRepository(void) {
       try {
         _repository.createNameSpace(s);
       }
-      catch(CIMClientCIMException &e) {
+      catch(CIMException &e) {
 	if (e.getCode() == CIM_ERR_ALREADY_EXISTS) {
 	  // Not a problem.  Happens all the time.
 	} else {
@@ -141,13 +141,6 @@ cimmofParser::setRepository(void) {
                      cimmofMessages::NAMESPACE_CREATE_ERROR, arglist);
                elog(message);
                return false;
-	}
-      }
-      catch(CIMException &e) {
-	if (e.getCode() == CIM_ERR_ALREADY_EXISTS) {
-	  // Not a problem.  Happens all the time.
-	} else {
-    		throw e;
 	}
       }
     } else {
@@ -523,19 +516,6 @@ cimmofParser::addClass(CIMClass *classdecl)
 			       arglist);
     wlog(message);
   } catch (CIMException &e) {
-    if (e.getCode() == CIM_ERR_ALREADY_EXISTS) {
-      cimmofMessages::getMessage(message, cimmofMessages::CLASS_EXISTS_WARNING,
-				 arglist);
-      wlog(message);
-    } else {
-      arglist.append(e.getMessage());
-      cimmofMessages::getMessage(message, cimmofMessages::ADD_CLASS_ERROR,
-				 arglist);
-      elog(message);
-      maybeThrowParseError(message);
-    } 
-  } catch (CIMClientCIMException &e) {
-//ATTN-DME-P1-20020508: Is there any opportunity to consolidate catches?
     if (e.getCode() == CIM_ERR_ALREADY_EXISTS) {
       cimmofMessages::getMessage(message, cimmofMessages::CLASS_EXISTS_WARNING,
 				 arglist);

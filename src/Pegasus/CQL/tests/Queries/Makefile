@@ -13,7 +13,7 @@ endif
 # Steps to add a testcase:
 # 1) Add your .query and .query.resgood file to this directory
 # 2) Add a rule to build your .query.res file from a .query file 
-# 3) Add the .query.res file to the tests target  BUT NOT YET!!!!!
+# 3) Add the .query.res file to the tests target
 # 4) Add the .query.res file to the clean target  
 
 Like.query.res: Like.query

@@ -15,9 +15,8 @@
 // ===================================================================
 // PG_ShutdownService    
 // ===================================================================
-[Description (
-   "PG_ShutdownService is a representation of the Pegasus Shutdown Service"),
-   provider("ShutdownProvider") ]
+[Version("2.3.0"), Description (
+   "PG_ShutdownService is a representation of the Pegasus Shutdown Service")]
 
 class PG_ShutdownService
 {

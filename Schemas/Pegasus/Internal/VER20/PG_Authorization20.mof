@@ -13,9 +13,8 @@
 // ===================================================================
 // PG_Authorization
 // ===================================================================
-[Version ("2.2.0"), Description (
-   "PG_Authorization is a representation of CIM User Authorization"),
-   provider("UserManagerProvider")]
+[Version ("2.3.0"), Description (
+   "PG_Authorization is a representation of CIM User Authorization")]
 
 class PG_Authorization
 {

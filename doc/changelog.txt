@@ -26,6 +26,9 @@ Version 0.98.0 - Work in progress
 6. (Mike Brasher) - Started integration of message queues with ServerHandler
    and Dispatcher.
 
+7. (Chip Vincent) - Update Provider2 interfaces. Made changes to Dispatcher and
+   CIMProvider to support both interfaces. Added CIMOMHandle and sample 
+   ResponseHandler for Provider2 interface.
 ------------------------------------------------------------------------------
 --
 

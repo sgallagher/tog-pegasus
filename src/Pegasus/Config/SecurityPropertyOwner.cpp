@@ -74,7 +74,7 @@ static struct ConfigPropertyRow properties[] =
     {"sslCertificateFilePath", "server.pem", 0, 0, 0, 1}, 
 #endif
     {"sslKeyFilePath", "file.pem", 0, 0, 0, 1}, 
-    {"sslTrustStore", "none", 0, 0, 0, 1}, 
+    {"sslTrustStore", "", 0, 0, 0, 1}, 
     {"exportSSLTrustStore", "indication_trust.pem", 0, 0, 0, 1},
 #ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
     {"sslClientVerificationMode", "disabled", 0, 0, 0, 1},
@@ -708,32 +708,13 @@ Boolean SecurityPropertyOwner::isValid(const String& name, const String& value)
 	String fileName(value);
 
         //
-        // Allow the exportSSLTrustStore file path to be empty
+        // Allow the exportSSLTrustStore and sslTrustStore file paths to be empty
         //
-        if (String::equalNoCase(_exportSSLTrustStore->propertyName, name) &&
+        if ((String::equalNoCase(_exportSSLTrustStore->propertyName, name) || 
+			 String::equalNoCase(_trustStore->propertyName, name)) &&
             (fileName == String::EMPTY))
         {
             return true;
-        }
-
-
-        //
-        // Truststore can be set to none
-        //
-        if (String::equalNoCase(_trustStore->propertyName, name))
-        {
-            //
-            // Check if the file path is empty
-            //
-            if (fileName == String::EMPTY)
-            {
-                return false;
-            }
-
-            if (String::equal(value, "none"))
-            {
-                return true;
-            }
         }
 
         //

@@ -26,7 +26,7 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                       mdday@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/slp_client.h,v 1.2.2.1 2004/01/28 20:24:01 tony Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/slp_client.h,v 1.2.2.2 2004/02/11 09:11:07 marek Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -720,6 +720,14 @@ char *slp_get_host_name( char *buf, int buf_size  );
 		      int *errnop) ;
 #endif
 
+#if defined( PEGASUS_PLATFORM_ZOS_ZSERIES_IBM ) 
+ int gethostbyname_r(const char *name, 
+		      struct hostent *resultbuf, 
+		      char *buf, 
+		      size_t bufsize, 
+		      struct hostent **result, 
+		      int *errnop) ;
+#endif
 
 #if defined( _NUCLEUS )
 

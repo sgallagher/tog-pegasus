@@ -150,7 +150,7 @@ Array<CIMNamespaceName> _getNamespacesOld( CIMClient& client)
     return(returnNamespaceNames); 
 }
 
-Boolean _deleteOneLevelOfNamespace(CIMClient& client, CIMNamespaceName& parent,String & child)
+Boolean _deleteOneLevelOfNamespace(CIMClient& client, const CIMNamespaceName& parent, const String & child)
 {
     
     try
@@ -171,7 +171,7 @@ Boolean _deleteOneLevelOfNamespace(CIMClient& client, CIMNamespaceName& parent,S
 /* Delete the namespace defined by the input. This function uses
     the __Namspace tools to do the delete.
 */
-Boolean _deleteNamespaceOld(CIMClient& client, String & name)
+Boolean _deleteNamespaceOld(CIMClient& client, const String & name)
 {
     
     Uint32 pos;
@@ -383,7 +383,7 @@ void _showNamespaceList(const Array<CIMNamespaceName> names, const String title)
 }
 // Determine if the named namespace exists in the host.
 // gets all namespaces and compares for this one.
-Boolean _existsNew(CIMClient& client, CIMNamespaceName& name)
+Boolean _existsNew(CIMClient& client, const CIMNamespaceName& name)
 {
     //Get all namespace instances
     
@@ -400,7 +400,7 @@ Boolean _existsNew(CIMClient& client, CIMNamespaceName& name)
     }
     return false;
 }
-Boolean _namespaceCreateOld(CIMClient& client, CIMNamespaceName& parent, String& childName)
+Boolean _namespaceCreateOld(CIMClient& client, const CIMNamespaceName& parent, const String& childName)
 {
     CIMObjectPath newInstanceName;
     try
@@ -437,7 +437,7 @@ Boolean _namespaceCreateOld(CIMClient& client, CIMNamespaceName& parent, String&
     return(true);
 }
 
-Boolean _namespaceCreateNew(CIMClient& client, CIMNamespaceName& name)
+Boolean _namespaceCreateNew(CIMClient& client, const CIMNamespaceName& name)
 {
     // Does this namespace exist.
     if (_existsNew(client, name))
@@ -485,7 +485,7 @@ Boolean _namespaceCreateNew(CIMClient& client, CIMNamespaceName& name)
 
     return(true);
 }
-Boolean _namespaceDeleteNew(CIMClient& client, CIMNamespaceName& name)
+Boolean _namespaceDeleteNew(CIMClient& client, const CIMNamespaceName& name)
 {
     // If does not exist, don't try to delete
     if (!_existsNew(client, name))

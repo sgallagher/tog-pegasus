@@ -39,12 +39,17 @@
 
 #include <Pegasus/Common/Constants.h>
 //The following include is needed for UUID Generator
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#include <dce/uuid.h>
+#include <exception>
+#else
+#include <uuid/uuid.h>
+#endif
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 #include <objbase.h>
 #endif
 // #include <uuid/uuid.h>
 
-//#include <sys/utsname.h>
 
 #include <set>
 #include <sys/types.h>
@@ -111,6 +116,10 @@ String  classinfoAttribute =  "classinfo";
 // by the ProviderModule to load this provider.
 //
 // NOTE: The name of the provider must be correct to be loadable.
+
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+	const int MAXPATHLEN=2000;
+#endif
 
 extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(const String & name)
 {
@@ -265,8 +274,8 @@ String SLPProvider::getNameSpaceInfo(const CIMNamespaceName& nameSpace, String& 
                                          CIMName(CIMNamespaceClassName),
                                          true, true, true, true,
                                          CIMPropertyList());
-}
-    catch (exception& e)
+	}
+    catch (Exception& e)
     {
         //... catch if we get error here. In particular unsupported class
         return(names);

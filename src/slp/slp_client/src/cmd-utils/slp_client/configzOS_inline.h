@@ -23,18 +23,18 @@
 //
 //==============================================================================
 //
-// Author: Tony Fiorentino (fiorentino_tony@emc.com)
+// Author: Marek Szermutzky (MSzermutzky@de.ibm.com)
 //
 // Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
+#ifndef configzOS_inline_h
+#define configzOS_inline_h
 
-#if defined(_WIN32)
-# include "lslp-windows.cpp"
-#elif defined(__linux__)
-# include "lslp-linux.cpp"
-#elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
-# include "lslp-linux.cpp"
-#else
-# error "Unsupported platform"
+// this inline method is needed as zOS does not support an ASCII enabled version
+// of inet_addr() at the current time (29th Jan. 2004)
+extern "C" in_addr_t inet_addr_in_ebcdic(const char * ip_inptr);
+
+#define inet_addr inet_addr_in_ebcdic
+
 #endif

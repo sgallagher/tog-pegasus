@@ -23,18 +23,27 @@
 //
 //==============================================================================
 //
-// Author: Tony Fiorentino (fiorentino_tony@emc.com)
+// Author: Marek Szermutzky (MSzermutzky@de.ibm.com)
 //
 // Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#if defined(_WIN32)
-# include "lslp-windows.cpp"
-#elif defined(__linux__)
-# include "lslp-linux.cpp"
-#elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
-# include "lslp-linux.cpp"
-#else
-# error "Unsupported platform"
-#endif
+#include <arpa/inet.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
+
+extern "C" in_addr_t inet_addr_in_ebcdic(const char * ip_inptr)
+{
+    int array_size = 0;
+    in_addr_t return_addr;
+    while (ip_inptr[array_size] != 0) array_size++;
+    char * ip_ptr2 = (char *)malloc(array_size);
+    memcpy(ip_ptr2,ip_inptr,array_size);
+    __atoe_l(ip_ptr2,array_size);
+    return_addr = inet_addr(ip_ptr2);
+    free(ip_ptr2);
+    return return_addr;
+}

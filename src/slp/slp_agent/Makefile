@@ -1,6 +1,6 @@
 ROOT = ../../..
 
-DIR = slp
+DIR = slp/slp_agent
 
 include $(ROOT)/mak/config.mak
 
@@ -12,7 +12,7 @@ LIBRARY = slp
 
 PRE_DEPEND_INCLUDES = -I./depends
 
-ifneq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
+ifneq ($PEGASUS_SUPPORTS_DYNLIB,yes)
     LIBRARIES = pegcommon
 endif
 

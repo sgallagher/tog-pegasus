@@ -5,7 +5,7 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdday@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/slp_client.cpp,v 1.1.4.1 2004/01/28 20:24:01 tony Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/slp_client.cpp,v 1.1.4.2 2004/02/11 09:11:07 marek Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -296,6 +296,27 @@ void free_url_list(struct url_entry *list)
 
 #endif
 
+#if defined ( PEGASUS_PLATFORM_ZOS_ZSERIES_IBM )
+ int gethostbyname_r(const char *name, 
+		    struct hostent *resultbuf, 
+		    char *buf, 
+		    size_t bufsize, 
+		    struct hostent **result, 
+		    int *errnop) 
+{
+	name = name;
+	resultbuf = resultbuf;
+	buf = buf;
+	bufsize = bufsize;
+	if (NULL == (*result = gethostbyname(name))) {
+
+		*errnop = *__h_errno();
+		return(-1);
+	} 
+	return(0);
+}
+#endif
+
 #if defined( NUCLEUS )  //jeb
 
  int gethostbyname_r(const char *name, 
@@ -337,7 +358,11 @@ char *slp_get_addr_string_from_url(const char *url, char *addr, int addr_len)
 #elif defined (NUCLEUS)                                              //jeb
     sprintf(name, "%s:%d", inet_ntoa(a.sin_addr), a.sin_port );  //jeb
 #else                                                                   //jeb
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+	sprintf(name, "%s:%d",  inet_ntoa(a.sin_addr), ntohs(a.sin_port) );
+#else                                                                   //jeb
     snprintf(name, 254, "%s:%d", inet_ntoa(a.sin_addr), ntohs(a.sin_port) );
+    #endif //end of PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 #endif
     
     memset(addr, 0x00, addr_len);
@@ -1170,7 +1195,12 @@ void decode_srvrply( struct slp_client *client,
   reply = alloc_slp_msg(FALSE);
   if(reply == NULL) abort();
   reply->hdr.ver = _LSLP_GETVERSION(bptr);
-  reply->type = reply->hdr.msgid = _LSLP_GETFUNCTION(bptr);
+  reply->hdr.msgid = _LSLP_GETFUNCTION(bptr);
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+  reply->type = (msg_types) reply->hdr.msgid;
+#else
+  reply->type = reply->hdr.msgid;
+#endif
   reply->hdr.len = purported_len;
   reply->hdr.flags = _LSLP_GETFLAGS(bptr);
   reply->hdr.nextExt = _LSLP_GETNEXTEXT(bptr);
@@ -2254,7 +2284,7 @@ int8 *encode_opaque(void *buffer, int16 length)
   if( 0xffff0000 & encoded_length )
     return NULL;
   
-  buf = malloc(encoded_length);
+  buf = (int8 *) malloc(encoded_length);
   if(buf == NULL)
     return NULL;
   bptr = buf;
@@ -2303,7 +2333,7 @@ void *decode_opaque(int8 *buffer)
   if( *srcptr == 0x5c ){
     if( (*(srcptr + 1) == 0x46) || (*(srcptr + 1) == 0x66 ) ) {
       if( (*(srcptr + 2) == 0x46) || (*(srcptr + 2) == 0x66 ) ) {
-	retptr = (bptr = malloc(alloc_length));
+	retptr = (bptr = (int8 *) malloc(alloc_length));
 	if(bptr == NULL)
 	  return NULL;
 	/* adjust the encoded length to reflect that we consumed the header */
@@ -3182,7 +3212,18 @@ BOOL lslp_scope_intersection(lslpScopeList *a, lslpScopeList *b)
     while(!(_LSLP_IS_HEAD(b->next))) {
       b = b->next;
       assert((a->scope != NULL) && (b->scope != NULL));
+#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
       if(! strcasecmp(a->scope, b->scope)) {
+#else
+	  int alength_of_string = strlen(a->scope);
+	  int blength_of_string = strlen(a->scope);
+
+	  if (alength_of_string > blength_of_string)
+	  {
+		  blength_of_string = alength_of_string;
+	  }
+	  if(! strncasecmp(a->scope, b->scope, blength_of_string)) {
+#endif
 	return(TRUE);
       }
     }
@@ -3492,13 +3533,21 @@ lslpAuthBlock *lslpUnstuffAuthList(int8 **buf, int16 *len, int16 *err)
 	  (*buf) += 2;                                  /* advance to the spi */ 
 	  *len -= 10;
 	  if(*len >= (temp->spiLen)) {
-	    if(NULL != (temp->spi = (uint8 *)calloc(temp->spiLen + 1, sizeof(uint8)))) {
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+		if(NULL != (temp->spi = (int8 *) calloc(temp->spiLen + 1, sizeof(uint8)))) {
+#else
+	    if(NULL != (temp->spi = (uint8 *) calloc(temp->spiLen + 1, sizeof(uint8)))) {
+#endif
 	      memcpy(temp->spi, *buf, temp->spiLen);  /* copy the spi */
 	      (*buf) += temp->spiLen;                   /* advance to the next block */
 	      (*len) -= temp->spiLen;
 	      if(*len >= (temp->len - (10 + temp->spiLen))) {
 		if (NULL != (temp->block = 
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+				 (int8 *)calloc((temp->len - (10 + temp->spiLen)) + 1, 
+#else
 			     (uint8 *)calloc((temp->len - (10 + temp->spiLen)) + 1, 
+#endif
 					     sizeof(uint8)))) {
 		  memcpy(temp->block, *buf, (temp->len - (10 + temp->spiLen)) );
 		  _LSLP_INSERT(temp, list);                /* insert the auth block into the list */ 

@@ -26,7 +26,7 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdd@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/lslp-linux.h,v 1.1.4.1 2004/01/30 21:50:41 tony Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/lslp-linux.h,v 1.1.4.2 2004/02/11 09:11:07 marek Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -67,7 +67,13 @@
 #include <sys/types.h>
 #include <sys/time.h>
 #include <pthread.h>
+#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 #include <semaphore.h>
+#endif
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#include <netdb.h>
+#include <strings.h>
+#endif
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/ioctl.h>
@@ -92,6 +98,10 @@ typedef uint32 BOOL;
 #ifdef __cplusplus
 extern "C" {
 #endif
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#include "configzOS_inline.h"
+#endif
+
 
 void _lslp_term(int sig) ;
 void  num_to_ascii(uint32 val, int8 *buf, int32 radix, BOOL is_neg);
@@ -125,13 +135,23 @@ void  hug_num_to_ascii(uint64 val, int8 *buf, int32 radix, BOOL is_neg);
 #define WAIT_TIMEOUT LSLP_WAIT_TIMEOUT
 #define LSLP_WAIT_ABANDONDED 0xffffffff
 
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#define _LSLP_SLEEP(m) \
+  { if(m) { \
+		if (m<=1000) \
+		{ usleep(1); } else { \
+			sleep( m / 1000000000);	\
+			usleep((m % 1000000000) / 1000); \
+		} \
+  } }
+#else
 #define _LSLP_SLEEP(m) \
   { if(m) { \
       struct timespec wait_time , actual_time; \
       wait_time.tv_sec = (m / 1000); ; wait_time.tv_nsec = (((m % 1000) * 1000) * 1000);  \
       nanosleep(&wait_time, &actual_time); \
   } }
-  
+#endif  
 
 #define INVALID_SOCKET -1
 #define SOCKET_ERROR -1

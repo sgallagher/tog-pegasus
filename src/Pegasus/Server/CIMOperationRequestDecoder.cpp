@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -34,7 +34,7 @@
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //              Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//              Sushma Fernandes, Hewlett-Packard Company 
+//              Sushma Fernandes, Hewlett-Packard Company
 //              (sushma_fernandes@hp.com)
 //              Arthur Pichlkostner (via Markus: sedgewick_de@yahoo.de)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
@@ -86,7 +86,7 @@ CIMOperationRequestDecoder::~CIMOperationRequestDecoder()
 }
 
 void CIMOperationRequestDecoder::sendResponse(
-   Uint32 queueId, 
+   Uint32 queueId,
    Array<char>& message)
 {
    MessageQueue* queue = MessageQueue::lookup(queueId);
@@ -99,7 +99,7 @@ void CIMOperationRequestDecoder::sendResponse(
 }
 
 void CIMOperationRequestDecoder::sendIMethodError(
-   Uint32 queueId, 
+   Uint32 queueId,
    HttpMethod httpMethod,
    const String& messageId,
    const String& iMethodName,
@@ -116,7 +116,7 @@ void CIMOperationRequestDecoder::sendIMethodError(
 }
 
 void CIMOperationRequestDecoder::sendMethodError(
-   Uint32 queueId, 
+   Uint32 queueId,
    HttpMethod httpMethod,
    const String& messageId,
    const String& methodName,
@@ -128,22 +128,22 @@ void CIMOperationRequestDecoder::sendMethodError(
         messageId,
         httpMethod,
         cimException);
-    
+
     sendResponse(queueId, message);
 }
 
 void CIMOperationRequestDecoder::sendHttpError(
-   Uint32 queueId, 
+   Uint32 queueId,
    const String& status,
    const String& cimError,
-   const String& pegasusError) 
+   const String& pegasusError)
 {
     Array<char> message;
     message = XmlWriter::formatHttpErrorRspMessage(
         status,
         cimError,
         pegasusError);
-    
+
     sendResponse(queueId, message);
 }
 
@@ -175,22 +175,22 @@ void CIMOperationRequestDecoder::handleEnqueue()
 //
 // From the HTTP/1.1 Specification (RFC 2626):
 //
-// Both types of message consist of a start-line, zero or more header fields 
-// (also known as "headers"), an empty line (i.e., a line with nothing 
-// preceding the CRLF) indicating the end of the header fields, and possibly 
+// Both types of message consist of a start-line, zero or more header fields
+// (also known as "headers"), an empty line (i.e., a line with nothing
+// preceding the CRLF) indicating the end of the header fields, and possibly
 // a message-body.
 //
 // Example CIM request:
 //
-//     M-POST /cimom HTTP/1.1 
-//     HOST: www.erewhon.com 
-//     Content-Type: application/xml; charset="utf-8" 
-//     Content-Length: xxxx 
-//     Man: http://www.dmtf.org/cim/operation ; ns=73 
-//     73-CIMOperation: MethodCall 
-//     73-CIMMethod: EnumerateInstances 
-//     73-CIMObject: root/cimv2 
-// 
+//     M-POST /cimom HTTP/1.1
+//     HOST: www.erewhon.com
+//     Content-Type: application/xml; charset="utf-8"
+//     Content-Length: xxxx
+//     Man: http://www.dmtf.org/cim/operation ; ns=73
+//     73-CIMOperation: MethodCall
+//     73-CIMMethod: EnumerateInstances
+//     73-CIMObject: root/cimv2
+//
 //------------------------------------------------------------------------------
 
 void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
@@ -256,7 +256,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    //
    //  Mismatch of method and version is caught in HTTPAuthenticatorDelegator
    //
-   PEGASUS_ASSERT (!((httpMethod == HTTP_METHOD_M_POST) && 
+   PEGASUS_ASSERT (!((httpMethod == HTTP_METHOD_M_POST) &&
                      (httpVersion == "HTTP/1.0")));
 
    // Process M-POST and POST messages:
@@ -357,7 +357,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
          MessageLoaderParms parms("Server.CIMOperationRequestDecoder.CIMMETHOD_VALUE_SYNTAX_ERROR",
    								 "CIMMethod value syntax error.");
    		sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
-   						MessageLoader::getMessage(parms)); 
+   						MessageLoader::getMessage(parms));
          PEG_METHOD_EXIT();
          return;
       }
@@ -396,7 +396,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
          return;
       }
    }
-   
+
    // Zero-terminate the message:
 
    httpMessage->message.append('\0');
@@ -427,7 +427,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    		sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
    						MessageLoader::getMessage(parms));
        PEG_METHOD_EXIT();
-       return; 
+       return;
    }
    // Validating content falls within UTF8
    // (required to be complaint with section C12 of Unicode 4.0 spec, chapter 3.)
@@ -445,9 +445,9 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    								 "Invalid UTF-8 character detected.");
    			sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "request-not-valid",
    						MessageLoader::getMessage(parms));
-			
+
 	       PEG_METHOD_EXIT();
-	       return; 
+	       return;
 	   }
 	   UTF8_NEXT(content,count);
        }
@@ -456,11 +456,11 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    // If it is a method call, then dispatch it to be handled:
 
 // l10n
-   handleMethodCall(queueId, httpMethod, content, contentLength, 
+   handleMethodCall(queueId, httpMethod, content, contentLength,
                     cimProtocolVersion, cimMethod,
                     cimObject, authType, userName,
                     httpMessage->acceptLanguages, httpMessage->contentLanguages);
-    
+
    PEG_METHOD_EXIT();
 }
 
@@ -599,8 +599,8 @@ void CIMOperationRequestDecoder::handleMethodCall(
 				   "expected MESSAGE element");
 
 	throw XmlValidationError(parser.getLine(), mlParms);
-				 
-			       
+
+
       }
 
       // Validate that the protocol version in the header matches the XML
@@ -693,7 +693,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
          //     3.3.6. CIMMethod
          //
          //     This header MUST be present in any CIM Operation Request
-         //     message that contains a Simple Operation Request.  
+         //     message that contains a Simple Operation Request.
          //
          //     It MUST NOT be present in any CIM Operation Response message,
          //     nor in any CIM Operation Request message that is not a
@@ -708,9 +708,9 @@ void CIMOperationRequestDecoder::handleMethodCall(
          //
          //     - The CIMMethod header is present but has an invalid value, or;
          //     - The CIMMethod header is not present but the Operation
-         //       Request Message is a Simple Operation Request, or; 
+         //       Request Message is a Simple Operation Request, or;
          //     - The CIMMethod header is present but the Operation Request
-         //       Message is not a Simple Operation Request, or; 
+         //       Message is not a Simple Operation Request, or;
          //     - The CIMMethod header is present, the Operation Request
          //       Message is a Simple Operation Request, but the CIMIdentifier
          //       value (when unencoded) does not match the unique method name
@@ -759,22 +759,22 @@ void CIMOperationRequestDecoder::handleMethodCall(
 
 	   // l10n
 
-	   // throw XmlValidationError(parser.getLine(), 
+	   // throw XmlValidationError(parser.getLine(),
 	   // "expected LOCALNAMESPACEPATH element");
 
 	   MessageLoaderParms mlParms("Server.CIMOperationRequestDecoder.EXPECTED_LOCALNAMESPACEPATH_ELEMENT",
 				      "expected LOCALNAMESPACEPATH element");
 
 	   throw XmlValidationError(parser.getLine(),mlParms);
-				    
-			       
+
+
 	 }
 
          // The Specification for CIM Operations over HTTP reads:
          //     3.3.7. CIMObject
          //
          //     This header MUST be present in any CIM Operation Request
-         //     message that contains a Simple Operation Request.  
+         //     message that contains a Simple Operation Request.
          //
          //     It MUST NOT be present in any CIM Operation Response message,
          //     nor in any CIM Operation Request message that is not a
@@ -790,9 +790,9 @@ void CIMOperationRequestDecoder::handleMethodCall(
          //
          //     - The CIMObject header is present but has an invalid value, or;
          //     - The CIMObject header is not present but the Operation
-         //       Request Message is a Simple Operation Request, or; 
+         //       Request Message is a Simple Operation Request, or;
          //     - The CIMObject header is present but the Operation Request
-         //       Message is not a Simple Operation Request, or; 
+         //       Message is not a Simple Operation Request, or;
          //     - The CIMObject header is present, the Operation Request
          //       Message is a Simple Operation Request, but the ObjectPath
          //       value does not match (where match is defined in the section
@@ -924,7 +924,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
          catch (CIMException& e)
          {
             sendIMethodError(
-               queueId, 
+               queueId,
                httpMethod,
                messageId,
                cimMethodName,
@@ -944,7 +944,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
             // have had a problem reconstructing a CIM object, we'll treat it
             // as an invalid parameter
             sendIMethodError(
-               queueId, 
+               queueId,
                httpMethod,
                messageId,
                cimMethodName,
@@ -968,7 +968,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
          //     3.3.6. CIMMethod
          //
          //     This header MUST be present in any CIM Operation Request
-         //     message that contains a Simple Operation Request.  
+         //     message that contains a Simple Operation Request.
          //
          //     It MUST NOT be present in any CIM Operation Response message,
          //     nor in any CIM Operation Request message that is not a
@@ -983,9 +983,9 @@ void CIMOperationRequestDecoder::handleMethodCall(
          //
          //     - The CIMMethod header is present but has an invalid value, or;
          //     - The CIMMethod header is not present but the Operation
-         //       Request Message is a Simple Operation Request, or; 
+         //       Request Message is a Simple Operation Request, or;
          //     - The CIMMethod header is present but the Operation Request
-         //       Message is not a Simple Operation Request, or; 
+         //       Message is not a Simple Operation Request, or;
          //     - The CIMMethod header is present, the Operation Request
          //       Message is a Simple Operation Request, but the CIMIdentifier
          //       value (when unencoded) does not match the unique method name
@@ -1040,7 +1040,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
            													 MISSING_ELEMENT_LOCALPATH);
            throw XmlValidationError(parser.getLine(), parms);
 	   //throw XmlValidationError(parser.getLine(), MISSING_ELEMENT_LOCALPATH);
-	   
+
 	   // this throw is not updated with MLP because MISSING_ELEMENT_LOCALPATH
 	   // is a hardcoded variable, not a message
 	 }
@@ -1049,7 +1049,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
          //     3.3.7. CIMObject
          //
          //     This header MUST be present in any CIM Operation Request
-         //     message that contains a Simple Operation Request.  
+         //     message that contains a Simple Operation Request.
          //
          //     It MUST NOT be present in any CIM Operation Response message,
          //     nor in any CIM Operation Request message that is not a
@@ -1065,9 +1065,9 @@ void CIMOperationRequestDecoder::handleMethodCall(
          //
          //     - The CIMObject header is present but has an invalid value, or;
          //     - The CIMObject header is not present but the Operation
-         //       Request Message is a Simple Operation Request, or; 
+         //       Request Message is a Simple Operation Request, or;
          //     - The CIMObject header is present but the Operation Request
-         //       Message is not a Simple Operation Request, or; 
+         //       Message is not a Simple Operation Request, or;
          //     - The CIMObject header is present, the Operation Request
          //       Message is a Simple Operation Request, but the ObjectPath
          //       value does not match (where match is defined in the section
@@ -1136,10 +1136,10 @@ void CIMOperationRequestDecoder::handleMethodCall(
 	    // Delegate to appropriate method to handle:
 
             request.reset(decodeInvokeMethodRequest(
-               queueId, 
-               parser, 
-               messageId, 
-               reference, 
+               queueId,
+               parser,
+               messageId,
+               reference,
                cimMethodNameUTF16,   // contains UTF-16 converted from UTF-8
                authType,
                userName));
@@ -1147,7 +1147,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
          catch (CIMException& e)
          {
             sendMethodError(
-               queueId, 
+               queueId,
                httpMethod,
                messageId,
                cimMethodNameUTF16,   // contains UTF-16 converted from UTF-8
@@ -1167,7 +1167,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
             // have had a problem reconstructing a CIM object, we'll treat it
             // as an invalid parameter
             sendMethodError(
-               queueId, 
+               queueId,
                httpMethod,
                messageId,
                cimMethodNameUTF16,   // contains UTF-16 converted from UTF-8
@@ -1186,14 +1186,14 @@ void CIMOperationRequestDecoder::handleMethodCall(
       {
 	// l10n
 
-	// throw XmlValidationError(parser.getLine(), 
+	// throw XmlValidationError(parser.getLine(),
 	// "expected IMETHODCALL or METHODCALL element");
 
 	MessageLoaderParms mlParms("Server.CIMOperationRequestDecoder.EXPECTED_IMETHODCALL_ELEMENT",
 				   "expected IMETHODCALL or METHODCALL element");
 
 	throw XmlValidationError(parser.getLine(),mlParms);
-			       
+
       }
 
       // Expect </SIMPLEREQ>
@@ -1276,18 +1276,18 @@ void CIMOperationRequestDecoder::handleMethodCall(
 	}
 	else
 	{
-		;	// l10n TODO - error back to client here	
+		;	// l10n TODO - error back to client here
 	}
-// l10n end	
+// l10n end
 
    _outputQueue->enqueue(request.release());
-   
+
    PEG_METHOD_EXIT();
 }
 
 CIMCreateClassRequestMessage* CIMOperationRequestDecoder::decodeCreateClassRequest(
    Uint32 queueId,
-   XmlParser& parser, 
+   XmlParser& parser,
    const String& messageId,
    const CIMNamespaceName& nameSpace,
    const String& authType,
@@ -1335,7 +1335,7 @@ CIMCreateClassRequestMessage* CIMOperationRequestDecoder::decodeCreateClassReque
       PEG_METHOD_EXIT();
       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
- 
+
    AutoPtr<CIMCreateClassRequestMessage> request(new CIMCreateClassRequestMessage(
       messageId,
       nameSpace,
@@ -1352,7 +1352,7 @@ CIMCreateClassRequestMessage* CIMOperationRequestDecoder::decodeCreateClassReque
 
 CIMGetClassRequestMessage* CIMOperationRequestDecoder::decodeGetClassRequest(
    Uint32 queueId,
-   XmlParser& parser, 
+   XmlParser& parser,
    const String& messageId,
    const CIMNamespaceName& nameSpace,
    const String& authType,
@@ -1470,14 +1470,14 @@ CIMGetClassRequestMessage* CIMOperationRequestDecoder::decodeGetClassRequest(
 
 CIMModifyClassRequestMessage* CIMOperationRequestDecoder::decodeModifyClassRequest(
    Uint32 queueId,
-   XmlParser& parser, 
+   XmlParser& parser,
    const String& messageId,
    const CIMNamespaceName& nameSpace,
    const String& authType,
    const String& userName)
 {
    STAT_GETSTARTTIME
-  
+
    CIMClass modifiedClass;
    Boolean duplicateParameter = false;
    Boolean gotClass = false;
@@ -1529,7 +1529,7 @@ CIMModifyClassRequestMessage* CIMOperationRequestDecoder::decodeModifyClassReque
 
 CIMEnumerateClassNamesRequestMessage* CIMOperationRequestDecoder::decodeEnumerateClassNamesRequest(
    Uint32 queueId,
-   XmlParser& parser, 
+   XmlParser& parser,
    const String& messageId,
    const CIMNamespaceName& nameSpace,
    const String& authType,
@@ -1598,7 +1598,7 @@ CIMEnumerateClassNamesRequestMessage* CIMOperationRequestDecoder::decodeEnumerat
 
 CIMEnumerateClassesRequestMessage* CIMOperationRequestDecoder::decodeEnumerateClassesRequest(
    Uint32 queueId,
-   XmlParser& parser, 
+   XmlParser& parser,
    const String& messageId,
    const CIMNamespaceName& nameSpace,
    const String& authType,
@@ -1697,7 +1697,7 @@ CIMEnumerateClassesRequestMessage* CIMOperationRequestDecoder::decodeEnumerateCl
 
 CIMDeleteClassRequestMessage* CIMOperationRequestDecoder::decodeDeleteClassRequest(
    Uint32 queueId,
-   XmlParser& parser, 
+   XmlParser& parser,
    const String& messageId,
    const CIMNamespaceName& nameSpace,
    const String& authType,
@@ -1755,7 +1755,7 @@ CIMDeleteClassRequestMessage* CIMOperationRequestDecoder::decodeDeleteClassReque
 
 CIMCreateInstanceRequestMessage* CIMOperationRequestDecoder::decodeCreateInstanceRequest(
    Uint32 queueId,
-   XmlParser& parser, 
+   XmlParser& parser,
    const String& messageId,
    const CIMNamespaceName& nameSpace,
    const String& authType,
@@ -1814,7 +1814,7 @@ CIMCreateInstanceRequestMessage* CIMOperationRequestDecoder::decodeCreateInstanc
 
 CIMGetInstanceRequestMessage* CIMOperationRequestDecoder::decodeGetInstanceRequest(
    Uint32 queueId,
-   XmlParser& parser, 
+   XmlParser& parser,
    const String& messageId,
    const CIMNamespaceName& nameSpace,
    const String& authType,
@@ -1910,7 +1910,7 @@ CIMGetInstanceRequestMessage* CIMOperationRequestDecoder::decodeGetInstanceReque
       messageId,
       nameSpace,
       instanceName,
-      localOnly,
+      false,    // Bug 1985 localOnly is deprecated
       includeQualifiers,
       includeClassOrigin,
       propertyList,
@@ -1925,7 +1925,7 @@ CIMGetInstanceRequestMessage* CIMOperationRequestDecoder::decodeGetInstanceReque
 
 CIMModifyInstanceRequestMessage* CIMOperationRequestDecoder::decodeModifyInstanceRequest(
    Uint32 queueId,
-   XmlParser& parser, 
+   XmlParser& parser,
    const String& messageId,
    const CIMNamespaceName& nameSpace,
    const String& authType,
@@ -2017,7 +2017,7 @@ CIMModifyInstanceRequestMessage* CIMOperationRequestDecoder::decodeModifyInstanc
 
 CIMEnumerateInstancesRequestMessage* CIMOperationRequestDecoder::decodeEnumerateInstancesRequest(
    Uint32 queueId,
-   XmlParser& parser, 
+   XmlParser& parser,
    const String& messageId,
    const CIMNamespaceName& nameSpace,
    const String& authType,
@@ -2124,7 +2124,7 @@ CIMEnumerateInstancesRequestMessage* CIMOperationRequestDecoder::decodeEnumerate
 	 nameSpace,
 	 className,
 	 deepInheritance,
-	 localOnly,
+     false,    // Bug 1985 localOnly is deprecated
 	 includeQualifiers,
 	 includeClassOrigin,
 	 propertyList,
@@ -2139,7 +2139,7 @@ CIMEnumerateInstancesRequestMessage* CIMOperationRequestDecoder::decodeEnumerate
 
 CIMEnumerateInstanceNamesRequestMessage* CIMOperationRequestDecoder::decodeEnumerateInstanceNamesRequest(
    Uint32 queueId,
-   XmlParser& parser, 
+   XmlParser& parser,
    const String& messageId,
    const CIMNamespaceName& nameSpace,
    const String& authType,
@@ -2198,7 +2198,7 @@ CIMEnumerateInstanceNamesRequestMessage* CIMOperationRequestDecoder::decodeEnume
 
 CIMDeleteInstanceRequestMessage* CIMOperationRequestDecoder::decodeDeleteInstanceRequest(
    Uint32 queueId,
-   XmlParser& parser, 
+   XmlParser& parser,
    const String& messageId,
    const CIMNamespaceName& nameSpace,
    const String& authType,
@@ -2256,7 +2256,7 @@ CIMDeleteInstanceRequestMessage* CIMOperationRequestDecoder::decodeDeleteInstanc
 
 CIMSetQualifierRequestMessage* CIMOperationRequestDecoder::decodeSetQualifierRequest(
    Uint32 queueId,
-   XmlParser& parser, 
+   XmlParser& parser,
    const String& messageId,
    const CIMNamespaceName& nameSpace,
    const String& authType,
@@ -2315,7 +2315,7 @@ CIMSetQualifierRequestMessage* CIMOperationRequestDecoder::decodeSetQualifierReq
 
 CIMGetQualifierRequestMessage* CIMOperationRequestDecoder::decodeGetQualifierRequest(
    Uint32 queueId,
-   XmlParser& parser, 
+   XmlParser& parser,
    const String& messageId,
    const CIMNamespaceName& nameSpace,
    const String& authType,
@@ -2376,7 +2376,7 @@ CIMGetQualifierRequestMessage* CIMOperationRequestDecoder::decodeGetQualifierReq
 
 CIMEnumerateQualifiersRequestMessage* CIMOperationRequestDecoder::decodeEnumerateQualifiersRequest(
    Uint32 queueId,
-   XmlParser& parser, 
+   XmlParser& parser,
    const String& messageId,
    const CIMNamespaceName& nameSpace,
    const String& authType,
@@ -2406,7 +2406,7 @@ CIMEnumerateQualifiersRequestMessage* CIMOperationRequestDecoder::decodeEnumerat
 
 CIMDeleteQualifierRequestMessage* CIMOperationRequestDecoder::decodeDeleteQualifierRequest(
    Uint32 queueId,
-   XmlParser& parser, 
+   XmlParser& parser,
    const String& messageId,
    const CIMNamespaceName& nameSpace,
    const String& authType,
@@ -2467,7 +2467,7 @@ CIMDeleteQualifierRequestMessage* CIMOperationRequestDecoder::decodeDeleteQualif
 
 CIMReferenceNamesRequestMessage* CIMOperationRequestDecoder::decodeReferenceNamesRequest(
    Uint32 queueId,
-   XmlParser& parser, 
+   XmlParser& parser,
    const String& messageId,
    const CIMNamespaceName& nameSpace,
    const String& authType,
@@ -2556,7 +2556,7 @@ CIMReferenceNamesRequestMessage* CIMOperationRequestDecoder::decodeReferenceName
 
 CIMReferencesRequestMessage* CIMOperationRequestDecoder::decodeReferencesRequest(
    Uint32 queueId,
-   XmlParser& parser, 
+   XmlParser& parser,
    const String& messageId,
    const CIMNamespaceName& nameSpace,
    const String& authType,
@@ -2688,7 +2688,7 @@ CIMReferencesRequestMessage* CIMOperationRequestDecoder::decodeReferencesRequest
 
 CIMAssociatorNamesRequestMessage* CIMOperationRequestDecoder::decodeAssociatorNamesRequest(
    Uint32 queueId,
-   XmlParser& parser, 
+   XmlParser& parser,
    const String& messageId,
    const CIMNamespaceName& nameSpace,
    const String& authType,
@@ -2807,7 +2807,7 @@ CIMAssociatorNamesRequestMessage* CIMOperationRequestDecoder::decodeAssociatorNa
 
 CIMAssociatorsRequestMessage* CIMOperationRequestDecoder::decodeAssociatorsRequest(
    Uint32 queueId,
-   XmlParser& parser, 
+   XmlParser& parser,
    const String& messageId,
    const CIMNamespaceName& nameSpace,
    const String& authType,
@@ -2969,7 +2969,7 @@ CIMAssociatorsRequestMessage* CIMOperationRequestDecoder::decodeAssociatorsReque
 
 CIMGetPropertyRequestMessage* CIMOperationRequestDecoder::decodeGetPropertyRequest(
    Uint32 queueId,
-   XmlParser& parser, 
+   XmlParser& parser,
    const String& messageId,
    const CIMNamespaceName& nameSpace,
    const String& authType,
@@ -3037,7 +3037,7 @@ CIMGetPropertyRequestMessage* CIMOperationRequestDecoder::decodeGetPropertyReque
 
 CIMSetPropertyRequestMessage* CIMOperationRequestDecoder::decodeSetPropertyRequest(
    Uint32 queueId,
-   XmlParser& parser, 
+   XmlParser& parser,
    const String& messageId,
    const CIMNamespaceName& nameSpace,
    const String& authType,
@@ -3117,7 +3117,7 @@ CIMSetPropertyRequestMessage* CIMOperationRequestDecoder::decodeSetPropertyReque
 
 CIMExecQueryRequestMessage* CIMOperationRequestDecoder::decodeExecQueryRequest(
    Uint32 queueId,
-   XmlParser& parser, 
+   XmlParser& parser,
    const String& messageId,
    const CIMNamespaceName& nameSpace,
    const String& authType,
@@ -3186,7 +3186,7 @@ CIMExecQueryRequestMessage* CIMOperationRequestDecoder::decodeExecQueryRequest(
 
 CIMInvokeMethodRequestMessage* CIMOperationRequestDecoder::decodeInvokeMethodRequest(
    Uint32 queueId,
-   XmlParser& parser, 
+   XmlParser& parser,
    const String& messageId,
    const CIMObjectPath& reference,
    const String& cimMethodName,
@@ -3197,7 +3197,7 @@ CIMInvokeMethodRequestMessage* CIMOperationRequestDecoder::decodeInvokeMethodReq
 
    CIMParamValue paramValue;
    Array<CIMParamValue> inParameters;
-    
+
    while (XmlReader::getParamValueElement(parser, paramValue))
    {
       inParameters.append(paramValue);
@@ -3205,9 +3205,9 @@ CIMInvokeMethodRequestMessage* CIMOperationRequestDecoder::decodeInvokeMethodReq
 
    AutoPtr<CIMInvokeMethodRequestMessage> request(
       new CIMInvokeMethodRequestMessage(
-	 messageId, 
-	 reference.getNameSpace(), 
-	 reference, 
+	 messageId,
+	 reference.getNameSpace(),
+	 reference,
 	 cimMethodName,
 	 inParameters,
 	 QueueIdStack(queueId, _returnQueueId),

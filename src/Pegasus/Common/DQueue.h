@@ -73,23 +73,23 @@ template<class L> class PEGASUS_EXPORT DQueue : private internal_dq  {
 	 return;
       }
 
-      virtual L *remove_first ( void ) throw(IPCException) 
+      virtual void *remove_first ( void ) throw(IPCException) 
       { 
 	 _mutex.lock(pegasus_thread_self());
-	 L *ret = static_cast<L *>(Base::remove_first());
+	 void *ret = Base::remove_first();
 	 _mutex.unlock();
 	 return ret;
       }
 
-      virtual L *remove_last ( void ) throw(IPCException) 
+      virtual void *remove_last ( void ) throw(IPCException) 
       { 
 	 _mutex.lock(pegasus_thread_self());
-	 L *ret = static_cast<L *>(remove_last());
+	 void *ret = Base::remove_last();
 	 _mutex.unlock();
 	 return ret;
       }
       
-      virtual L *remove_no_lock(void *key) throw(IPCException)
+      virtual void *remove_no_lock(void *key) throw(IPCException)
       {
 	 if( pegasus_thread_self() != _mutex.get_owner())
 	    throw(Permission(pegasus_thread_self()));
@@ -97,15 +97,15 @@ template<class L> class PEGASUS_EXPORT DQueue : private internal_dq  {
 	 while(ret != 0)
 	 {
 	    if(ret->operator==(key))
-	       return(static_cast<L *>(Base::remove(static_cast<void *>(ret))));
+	       return(Base::remove(static_cast<void *>(ret)));
 	    ret = static_cast<L *>(Base::next(static_cast<void *>(ret)));
 	 }
-	 return ret;
+	 return 0;
       }
 
-      virtual L *remove(void *key) throw(IPCException)
+      void *remove(void *key) throw(IPCException)
       {
-	 L *ret = 0;
+	 void *ret = 0;
 	 if( Base::count() > 0 ) {
 	    _mutex.lock(pegasus_thread_self());
 	    ret = remove_no_lock(key);
@@ -114,7 +114,7 @@ template<class L> class PEGASUS_EXPORT DQueue : private internal_dq  {
 	 return(ret);
       }
 
-      virtual L *reference(void *key) throw(IPCException)
+      void *reference(void *key) throw(IPCException)
       {
 	 if( pegasus_thread_self() != _mutex.get_owner())
 	    throw(Permission(pegasus_thread_self()));
@@ -123,25 +123,26 @@ template<class L> class PEGASUS_EXPORT DQueue : private internal_dq  {
 	    while(ret != 0)
 	    {
 	       if(ret->operator==(key))
-		  return ret;
+		  return static_cast<void *>(ret);
 	       ret = static_cast<L *>(Base::next(static_cast<void *>(ret)));
 	    }
 	 }
 	 return(0);
       }
 
-      virtual L *next( L * ref) throw(IPCException)
+      void *next( void * ref) throw(IPCException)
       {
 	 if (_mutex.get_owner() != pegasus_thread_self())
 	    throw(Permission(pegasus_thread_self()));
-	 return( (L *) Base::next((void *)ref));
+	 return  Base::next( ref);
       }
-
-      virtual L *prev( L * ref) throw(IPCException)
+      
+      void *prev( void *ref) throw(IPCException)
       {
 	 if (_mutex.get_owner() != pegasus_thread_self())
 	    throw(Permission(pegasus_thread_self()));
-	 return(static_cast<L *>(Base::prev(static_cast<void *>(ref))));
+	 return  Base::prev(ref) ;
+	 
       }
 
       inline virtual void lock(void) throw(IPCException) { _mutex.lock(pegasus_thread_self()); }

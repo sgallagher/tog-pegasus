@@ -141,8 +141,9 @@ process_filelist(const String &filename, mofCompilerOptions &cmdlinedata)
   Open(ifs, filename);
 
   while (ifs != 0) {
-    GetLine(ifs, line);   
-    cmdlinedata.add_filespecs(line);
+    GetLine(ifs, line);
+    if (line.size() > 0) 
+      cmdlinedata.add_filespecs(line);
   }
   return 0;
 }

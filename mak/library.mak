@@ -23,6 +23,7 @@ CPP_OBJECTS = $(TMP_OBJECTS:.cpp=.obj)
 OBJECTS = $(CPP_OBJECTS:.c=.obj)
 else
 CPP_OBJECTS = $(TMP_OBJECTS:.cpp=.o)
+OBJECTS = $(CPP_OBJECTS:.c=.o)
 endif
 
 ################################################################################

@@ -80,8 +80,9 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
       virtual Boolean messageOK(const Message *msg) ;
 
       AsyncReply *SendWait(AsyncRequest *request);
-      Boolean SendAsync(AsyncRequest *request, 
-			void (*callback)(AsyncOpNode *, MessageQueueService *, void *));
+      Boolean SendAsync(AsyncOpNode *op, 
+			Uint32 destination,
+			void (*callback)(AsyncOpNode *, MessageQueue *, void *));
       Boolean  SendForget(Message *msg);
 
       void _completeAsyncResponse(AsyncRequest *request, 
@@ -110,7 +111,6 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
       virtual void _handle_incoming_operation(AsyncOpNode *operation, Thread *thread, MessageQueue *queue);
       virtual void _handle_async_request(AsyncRequest *req);
       virtual void _make_response(Message *req, Uint32 code);
-      static void default_async_callback(AsyncOpNode *, MessageQueueService *, void *);
       
       static cimom *_meta_dispatcher;
       static AtomicInt _service_count;

@@ -140,6 +140,9 @@ class PEGASUS_COMMON_LINKAGE cimom : public MessageQueue
 				  AsyncReply *reply, 
 				  Uint32 state, 
 				  Uint32 flag);
+      static void _complete_op_node(AsyncOpNode *op, Uint32 state, Uint32 flag, Uint32 code);
+      static void _default_callback(AsyncOpNode *, MessageQueue *, void *);
+      
    private:
       struct timeval _default_op_timeout;
       struct timeval _last_module_change;
@@ -163,6 +166,7 @@ class PEGASUS_COMMON_LINKAGE cimom : public MessageQueue
       AtomicInt _routed_queue_shutdown;
       
       static AtomicInt _xid;
+      static cimom *_global_this;
       
       friend class MessageQueueService;
       

@@ -33,8 +33,9 @@ PEGASUS_NAMESPACE_BEGIN
 AsyncOpNode::AsyncOpNode(void) 
    : _client_sem(0), _mut(), _request(true), _response(true), 
      _state(0), _flags(0), _offered_count(0), _total_ops(0), _completed_ops(0),
-     _user_data(0), _completion_code(0), 
-     _parent(0), _children(true), _async_callback(0)
+     _user_data(0), _completion_code(0), _op_dest(0),
+     _parent(0), _children(true), _async_callback(0),_callback_node(0),
+     _callback_queue(0), _callback_ptr(0)
 {
    gettimeofday(&_start, NULL);
    memset(&_lifetime, 0x00, sizeof(struct timeval));
@@ -73,7 +74,11 @@ void AsyncOpNode::_reset(unlocked_dq<AsyncOpNode> *dst_q)
    _completed_ops = 0;
    _user_data = 0;
    _completion_code = 0;
+   _op_dest = 0;
    _async_callback = 0;
+   _callback_node =0;
+   _callback_queue = 0; 
+   _callback_ptr=0;
    dst_q->insert_first(this);
    while ( _client_sem.count() )
       _client_sem.wait();

@@ -133,6 +133,8 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
       Uint32 _completed_ops;
       Uint32 _user_data;
       Uint32 _completion_code;
+      MessageQueue *_op_dest;
+      
             
       struct timeval _start;
       struct timeval _lifetime;
@@ -150,14 +152,17 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
 
       Boolean _is_child(void) ;
       Uint32 _is_parent(void) ;
-
       Boolean _is_my_child(const AsyncOpNode & caller) const;
       void _make_orphan( AsyncOpNode & parent) ;
       void _adopt_child(AsyncOpNode *child) ;
       void _disown_child(AsyncOpNode *child) ;
       void (*_async_callback)(AsyncOpNode *, 
-			      MessageQueueService *, 
+			      MessageQueue *, 
 			      void *);
+      AsyncOpNode *_callback_node;
+      MessageQueue *_callback_queue;
+      void *_callback_ptr;
+      
       friend class cimom;
       friend class MessageQueueService;
       

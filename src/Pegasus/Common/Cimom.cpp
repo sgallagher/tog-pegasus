@@ -134,7 +134,8 @@ void cimom::_shutdown_routed_queue(void)
 				    0);
    msg->op = get_cached_op();
    msg->op->_request.insert_first(msg);
-
+   msg->op->_op_dest = _global_this;
+   
    _routed_ops.insert_last_wait(msg->op);
    msg->op->_client_sem.wait();
    
@@ -190,25 +191,19 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
 //      unles reading/writing status bits
 
 	 op->lock();
-	 Message *request = op->_request.next(0);
-	 Uint32 dest = request->dest;
-	 Uint32 mask = request->getMask();
-	 code = request->getType();
+	 MessageQueue *dest_q = op->_op_dest;
+	 Uint32 dest_qid = dest_q->getQueueId();
 	 op->unlock();
       
 	 Boolean accepted = false;
 
-	 if(dest == CIMOM_Q_ID )
+	 if(dest_qid == CIMOM_Q_ID )
 	 {
-	    PEGASUS_ASSERT(mask & message_mask::ha_async);
 	    dispatcher->_handle_cimom_op(op, myself, dispatcher);
 	    accepted = true;
 	 }
 	 else
 	 {
-	    
-	    MessageQueueService *svce = 0;
-	
 //          ATTN: optimization
 //          <<< Sun Feb 17 18:29:26 2002 mdd >>>
 //          this lock/loop/unlock is really just a safety check to ensure 
@@ -217,55 +212,47 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
 //          because we have converted to MessageQueueService from 
 //          MessageQueue, and because we register in the constructore, 
 //          the safety check is unecessary
+//
+//   << Tue Feb 19 11:40:37 2002 mdd >>
+//   moved the lookup to sendwait/nowait/forget functions. 
+//   now a dynamic cast is sufficient safeguard 
 
-	    message_module *temp = 0;
-	    dispatcher->_modules.lock();
-	    temp = dispatcher->_modules.next(temp);
-	    while( temp != 0 )
-	    {
-	       if ( temp->_q_id == dest )
-	       {
-		  capabilities = temp->get_capabilities();
-		  svce = static_cast<MessageQueueService *>(MessageQueue::lookup(dest));
-		  break;
-	       }
-	       temp = dispatcher->_modules.next(temp);
-	    }
-	    dispatcher->_modules.unlock();
+	    MessageQueueService *dest_svc = dynamic_cast<MessageQueueService *>(dest_q);
 	    
-	    if(svce != 0)
+	    if(dest_svc != 0)
 	    {
-
-	       if( capabilities & module_capabilities::paused ||
-		   capabilities & module_capabilities::stopped )
+	       if( dest_svc->_capabilities & module_capabilities::paused ||
+		   dest_svc->_capabilities & module_capabilities::stopped )
 	       {
 		  // the target is stopped or paused
 		  // unless the message is a start or resume
 		  // just handle it from here.  
-		  if( ! (mask & message_mask::ha_async ) )
-		     delete op;
-		  else 
+		  op->lock();
+		  AsyncRequest *request = static_cast<AsyncRequest *>(op->_request.next(0));
+		  op->unlock();		  
+		  code = request->getType();
+		  
+		  if (code != async_messages::CIMSERVICE_START  &&
+		      code != async_messages::CIMSERVICE_RESUME )
 		  {
-		     if (code != async_messages::CIMSERVICE_START  &&
-			 code != async_messages::CIMSERVICE_RESUME )
-		     {
-			if ( capabilities & module_capabilities::paused )
-			   dispatcher->_make_response(request, async_results::CIM_PAUSED);
-			else 
-			   dispatcher->_make_response(request, async_results::CIM_STOPPED);
-			accepted = true;
-		     }
-		     else // deliver the start or resume message 
-			accepted = svce->accept_async(op);
+		     if ( dest_svc->_capabilities & module_capabilities::paused )
+			dispatcher->_make_response(request, async_results::CIM_PAUSED);
+		     else 
+			dispatcher->_make_response(request, async_results::CIM_STOPPED);
+		     accepted = true;
 		  }
+		  else // deliver the start or resume message 
+		     accepted = dest_svc->accept_async(op);
 	       }
 	       else 
-		  accepted = svce->accept_async(op);
+		  accepted = dest_svc->accept_async(op);
 	    }
 	    if ( accepted == false )
 	    {
-	       // make a NAK and flag completed 
-	       dispatcher->_make_response(request, async_results::CIM_NAK);
+	       // set completion code to NAK and flag completed 
+	       _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 
+				 ASYNC_OPFLAGS_SIMPLE_STATUS, 
+				 async_results::CIM_NAK);
 	    }
 	 }
       }
@@ -285,6 +272,10 @@ cimom::cimom(void)
      _routing_thread( _routing_proc, this, false),
      _die(0), _routed_queue_shutdown(0)
 {
+
+
+   _global_this = static_cast<cimom *>(MessageQueue::lookup(CIMOM_Q_ID));
+   
    pegasus_gettimeofday(&_last_module_change);
    _default_op_timeout.tv_sec = 30;
    _default_op_timeout.tv_usec = 100;
@@ -370,6 +361,47 @@ void cimom::_completeAsyncResponse(AsyncRequest *request,
    op->_client_sem.signal();
 }
 
+cimom *cimom::_global_this;
+
+
+void cimom::_default_callback(AsyncOpNode *op, MessageQueue *q, void *ptr)
+{
+   PEGASUS_ASSERT(op != 0 && q != 0);
+   
+   op->_op_dest = q;
+   _global_this->route_async(op);
+}
+
+
+void cimom::_complete_op_node(AsyncOpNode *op, Uint32 state, Uint32 flag, Uint32 code)
+{
+   
+   Uint32 flags;
+   
+   op->lock();
+   
+   op->_completion_code = code;
+   op->_state |= (state | ASYNC_OPSTATE_COMPLETE);
+   flags = (op->_flags |= flag);
+   op->unlock();
+   if ( flags & ASYNC_OPFLAGS_FIRE_AND_FORGET )
+   {
+      delete op;
+      return;
+   }
+   
+   if ( flags & ASYNC_OPFLAGS_CALLBACK )
+   {
+      (*(op->_async_callback))(op->_callback_node, 
+			       op->_callback_queue,
+			       op->_callback_ptr);
+      return;
+   }
+   
+   op->_client_sem.signal();
+   return;
+}
+
 
 void cimom::handleEnqueue(void)
 {
@@ -387,6 +419,9 @@ void cimom::_handle_cimom_op(AsyncOpNode *op, Thread *thread, MessageQueue *queu
 {
    if(op == 0)
       return;
+
+   // ATTN: optimization << Tue Feb 19 11:33:21 2002 mdd >>
+   // do away with the lock/unlock 
    op->lock();
    Message *msg = op->_request.next(0);
    op->unlock();
@@ -398,6 +433,11 @@ void cimom::_handle_cimom_op(AsyncOpNode *op, Thread *thread, MessageQueue *queu
 
    Uint32 mask = msg->getMask();
    Uint32 type = msg->getType();
+   if ( ! (mask & message_mask::ha_async) )
+   {
+      _make_response(msg, async_results::CIM_NAK);
+   }
+   
    static_cast<AsyncMessage *>(msg)->_myself = thread;
    static_cast<AsyncMessage *>(msg)->_service = queue;
 

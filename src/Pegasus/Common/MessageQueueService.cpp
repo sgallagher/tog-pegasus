@@ -122,8 +122,7 @@ void MessageQueueService::_shutdown_incoming_queue(void)
 
    msg->op = get_op();
    msg->op->_request.insert_first(msg);
-
-
+   msg->op->_op_dest = this;
    
    _incoming.insert_last_wait(msg->op);
    msg->op->_client_sem.wait();
@@ -143,17 +142,6 @@ void MessageQueueService::_shutdown_incoming_queue(void)
    _req_thread.join();
    
 }
-
-void MessageQueueService::default_async_callback(AsyncOpNode *op, 
-						 MessageQueueService *mq, 
-						 void *parm)
-{
-   PEGASUS_ASSERT(op != 0 && mq != 0 );
-   op->complete();
-   return;
-}
-
-
 
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::_req_proc(void * parm)
 {
@@ -500,13 +488,23 @@ void MessageQueueService::return_op(AsyncOpNode *op)
 }
 
 
-Boolean MessageQueueService::SendAsync(AsyncRequest *request, 
+Boolean MessageQueueService::SendAsync(AsyncOpNode *op, 
+				       Uint32 destination,
 				       void (*callback)(AsyncOpNode *, 
-							MessageQueueService *, 
+							MessageQueue *, 
 							void *))
 { 
+   PEGASUS_ASSERT(op != 0 && callback != 0 );
    
-   return true;
+   // get the queue handle for the destination
+   if ( 0 == (op->_op_dest = MessageQueue::lookup(destination)))
+      return false;
+
+   op->_flags &= ASYNC_OPFLAGS_CALLBACK;
+   op->_flags &= ~(ASYNC_OPFLAGS_FIRE_AND_FORGET | ASYNC_OPSTATE_COMPLETE);
+   
+
+   return  _meta_dispatcher->route_async(op);
 }
 
 
@@ -525,10 +523,14 @@ Boolean MessageQueueService::SendForget(Message *msg)
       op->_request.insert_first(msg);
    }
 
-   op->_state &= ~ASYNC_OPSTATE_COMPLETE;
    op->_flags &= ASYNC_OPFLAGS_FIRE_AND_FORGET;
+   op->_flags &= ~(ASYNC_OPFLAGS_CALLBACK | ASYNC_OPFLAGS_SIMPLE_STATUS | ASYNC_OPSTATE_COMPLETE);
    op->put_response(0);
    
+   // get the queue handle for the destination
+   if ( 0 == (op->_op_dest = MessageQueue::lookup(msg->dest)))
+      return false;
+      
    // now see if the meta dispatcher will take it
    return  _meta_dispatcher->route_async(op);
 }
@@ -549,11 +551,13 @@ AsyncReply *MessageQueueService::SendWait(AsyncRequest *request)
    }
    
    request->block = true;
-   request->op->_state &= ~ASYNC_OPSTATE_COMPLETE;
+   request->op->_state &= ~(ASYNC_OPSTATE_COMPLETE | ASYNC_OPFLAGS_CALLBACK);
    request->op->put_response(0);
    
-   // first link it on our pending list
-   // _pending.insert_last_wait(request->op);
+   // get the queue handle for the destination
+   if ( 0 == (request->op->_op_dest = MessageQueue::lookup(request->dest)))
+      return 0;
+   
    
    // now see if the meta dispatcher will take it
 

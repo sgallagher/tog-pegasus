@@ -396,7 +396,13 @@ void XmlWriter::appendLocalNameSpacePathElement(
     out << "<LOCALNAMESPACEPATH>\n";
 
     char* nameSpaceCopy = strdup(nameSpace.getString().getCString());
+#ifdef PEGASUS_PLATFORM_SOLARIS_SPARC_CC
+    char *last;
+    for (const char* p = strtok_r(nameSpaceCopy, "/", &last); p;
+					 p = strtok_r(NULL, "/", &last))
+#else
     for (const char* p = strtok(nameSpaceCopy, "/"); p; p = strtok(NULL, "/"))
+#endif
     {
 	out << "<NAMESPACE NAME=\"" << p << "\"/>\n";
     }
@@ -1506,7 +1512,7 @@ void XmlWriter::appendMethodCallHeader(
     // do that in client today. Permanent change is to retry until spec
     // updated. This change is temp to finish tests or until the retry
     // installed.  Required because of change to wbemservices cimom
-#ifdef PEGASUS_SNIA_INTEROP_TEST
+#if defined PEGASUS_SNIA_INTEROP_TEST || defined PEGASUS_FORCE_POST_METHOD
     out << "POST /cimom HTTP/1.1\r\n";
 #else
     if (httpMethod == HTTP_METHOD_M_POST)

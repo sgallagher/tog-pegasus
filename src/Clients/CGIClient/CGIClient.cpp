@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CGIClient.cpp,v $
+// Revision 1.4  2001/01/31 08:41:45  mike
+// updated makefile
+//
 // Revision 1.3  2001/01/30 07:38:33  karl
 // add instance operations, getinstance, enumerateinstance
 //
@@ -801,10 +804,20 @@ static void EnumerateInstanceNames(const CGIQueryString& qs)
 	Client client;
 	client.connect("localhost", 8888);
 
-	Array<String> classNames = client.enumerateInstanceNames(
+	Array<Reference> instanceNames = client.enumerateInstanceNames(
 	    nameSpace, className);
+
+	Array<String> tmpInstanceNames;
+
+	for (Uint32 i = 0; i < instanceNames.getSize(); i++)
+	{
+	    String tmp;
+	    Reference::referenceToInstanceName(instanceNames[i], tmp);
+	    tmpInstanceNames.append(tmp);
+	}
+
 	// Print the name array
-	PrintInstanceNames(nameSpace, classNames);
+	PrintInstanceNames(nameSpace, tmpInstanceNames);
     }
     catch(Exception& e)
     {

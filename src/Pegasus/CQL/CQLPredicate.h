@@ -123,7 +123,7 @@ class PEGASUS_CQL_LINKAGE CQLPredicate
     Array<CQLPredicate> getPredicates();
   
     CQLSimplePredicate getSimplePredicate();
-
+    
     Array<BooleanOpType> getOperators();
 
     Array<CQLScope> getScopes();
@@ -131,7 +131,7 @@ class PEGASUS_CQL_LINKAGE CQLPredicate
     void applyScopes(Array<CQLScope> & inScopes);
 
     Boolean isSimple();
-
+    Boolean isSimpleValue();
     String toString();
     friend class CQLFactory;
   private:

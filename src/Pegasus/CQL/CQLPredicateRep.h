@@ -123,6 +123,7 @@ class PEGASUS_CQL_LINKAGE CQLPredicateRep
 
     Boolean isSimple();
 
+    Boolean isSimpleValue();
     String toString();
     friend class CQLFactory;
   private:

@@ -76,6 +76,11 @@ Boolean CQLPredicate::isSimple(){
 	return _rep->isSimple();
 }
 
+Boolean CQLPredicate::isSimpleValue(){
+        return _rep->isSimpleValue();
+}
+
+
 String CQLPredicate::toString(){
 	return _rep->toString();
 }

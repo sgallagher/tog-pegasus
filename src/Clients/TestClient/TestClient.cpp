@@ -1121,7 +1121,10 @@ void GetOptions(
 		 		 		 "Specifies password" },
 
 		{"simultaneous", "1", false, Option::WHOLE_NUMBER, 0, 0, "t",
-						 "Number of simultaneous client threads" }
+						 "Number of simultaneous client threads" },
+
+		{"timeout","30000", false, Option::WHOLE_NUMBER, 0, 0, "to",
+						"Client connection timeout value" }
 
     };
     const Uint32 NUM_OPTIONS = sizeof(optionsTable) / sizeof(optionsTable[0]);
@@ -1232,10 +1235,11 @@ Thread * runTests(CIMClient *client, Uint32 testCount, Boolean activeTest, Boole
 	return t;
 }
 
-void connectClient(CIMClient *client, String host, Uint32 portNumber, String userName, String password, Boolean useSSL, Boolean localConnection){
+void connectClient(CIMClient *client, String host, Uint32 portNumber, String userName, String password, Boolean useSSL, Boolean localConnection,
+			Uint32 timeout){
  
    try{
-	client->setTimeout(3000000);
+	client->setTimeout(timeout);
         if (useSSL){
 		if (localConnection)
                 {
@@ -1395,6 +1399,10 @@ int main(int argc, char** argv)
     else if(useSLP == false && argc < 2)
         connectionList.append("localhost:5988");
 
+    // timeout
+    Uint32 timeout = 30000;
+    om.lookupIntegerValue("timeout",timeout);
+
     // create clients
     Uint32 clients = 1;
     om.lookupIntegerValue("simultaneous",clients);
@@ -1425,7 +1433,7 @@ int main(int argc, char** argv)
 
     	// connect the clients
     	for(Uint32 i=0; i<clients; i++){
-		connectClient(clientConnections[i], host, portNumber, userName, password, useSSL, localConnection);
+		connectClient(clientConnections[i], host, portNumber, userName, password, useSSL, localConnection, timeout);
     	}
 
     	// run tests

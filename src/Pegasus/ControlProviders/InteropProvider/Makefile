@@ -16,7 +16,7 @@ LIBRARIES = \
     pegconfig \
     pegprovider
 
-SOURCES = $(MODULE_NAME).cpp
+SOURCES = $(MODULE_NAME).cpp Guid.cpp
 
 ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
 NEEDS_LIBRARIES = -L$(LIB_DIR) -lpegcommon -lpegconfig -lpegprovider

@@ -70,6 +70,7 @@
 #include <iostream>
 
 #include "InteropProvider.h"
+#include "Guid.h"
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/ArrayInternal.h>
@@ -259,44 +260,8 @@ String getUUIDString()
    */
     //char strUUID[37], tempstrUUID[3];
 
-  String strUUID;
+    String strUUID(Guid::getGuid());
 
-// ------------------------------------------
-// GUID string for Windows
-// ------------------------------------------
-#if defined(PEGASUS_OS_TYPE_WINDOWS)
-  GUID guid;
-  HRESULT hres = CoCreateGuid(&guid);
-  if (hres == S_OK)
-    {
-      WCHAR guid_strW[38] = { L"" };
-      char guid_str[100];
-      ::memset(&guid_str, 0, sizeof(guid_str));
-      if (StringFromGUID2(guid, guid_strW, sizeof(guid_strW)) > 0)
-        {
-          Uint32 numBytes =  sizeof(guid_strW)/sizeof(guid_strW[0]);
-          WideCharToMultiByte(CP_ACP, 0, guid_strW, numBytes, guid_str, sizeof(guid_str), NULL, NULL);
-          // exclude the first and last chars (i.e., { and })
-          for (Uint32 i=1; i<sizeof(guid_str); i++)
-            {
-              if (guid_str[i] != '}')
-                {
-                  strUUID.append(Char16(guid_str[i]));
-                }
-              else
-                break;
-            }
-        }
-    }
-  
-// ------------------------------------------
-// GUID string for Unix and other transients
-// ------------------------------------------
-#elif defined(PEGASUS_OS_TYPE_UNIX)
-#elif defined(PEGASUS_OS_TYPE_NSK)
-#else
-# error "Unsupported platform"
-#endif
 
     if (strUUID == String::EMPTY)
       {

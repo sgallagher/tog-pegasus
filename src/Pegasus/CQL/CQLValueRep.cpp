@@ -2170,4 +2170,8 @@ void CQLValueRep::_setValue(CIMValue cv,Uint64 index)
    return;
 }
 
+void CQLValueRep::applyContext(QueryContext& _ctx){
+        
+}
+
 PEGASUS_NAMESPACE_END

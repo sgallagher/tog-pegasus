@@ -135,7 +135,7 @@ public:
     SSLContext(
         const String& certPath,
         SSLCertificateVerifyFunction* verifyCert,
-        const String& randomFile = String::EMPTY,
+        const String& randomFile,
         Boolean isCIMClient);
 #endif
 

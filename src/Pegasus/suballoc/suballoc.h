@@ -38,7 +38,7 @@
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 #include <windows.h>
 #include <process.h>
-
+#include <stdio.h>
 #elif defined (PEGASUS_PLATFORM_LINUX_IX86_GNU) 
 #include <pthread.h>
 #include <semaphore.h>
@@ -114,7 +114,7 @@ PEGASUS_NAMESPACE_BEGIN
 #ifndef EINVAL
 #define EINVAL WSAEINVAL
 #endif
-
+#define snprintf _snprintf
 typedef HANDLE PEGASUS_MUTEX_T;
 
 #elif defined (PEGASUS_PLATFORM_LINUX_IX86_GNU) 
@@ -151,15 +151,12 @@ typedef pthread_mutex_t PEGASUS_MUTEX_T;
 
 #endif
 
-class PEGASUS_SUBALLOC_INTERNAL peg_suballocator 
+
+class PEGASUS_SUBALLOC_LINKAGE peg_suballocator 
 {
    public:
-      static const int GUARD_SIZE = 0x10;
-      static const int MAX_PATH_LEN = 0xff;
-      static const int MAX_LINE_LEN = 0x14 ;
-      static const int PRE_ALLOCATE = 0x00;
-      static const int STEP_ALLOCATE = 0x01;
-
+      
+            
    private:
       peg_suballocator(const peg_suballocator &);
       peg_suballocator & operator = (const peg_suballocator &);
@@ -193,11 +190,11 @@ class PEGASUS_SUBALLOC_INTERNAL peg_suballocator
 
       PEGASUS_MUTEX_T globalSemHandle;
       PEGASUS_MUTEX_T semHandles[3][16];
-      static const Sint32 nodeSizes[][16]; 
-      Uint32 allocs[][16];
-      Uint32 wastedBytes[][16];
-      Uint32 inUse[][16];
-      Uint32 avail[][16] ;
+      static const Sint32 nodeSizes[3][16]; 
+      Uint32 allocs[3][16];
+      Uint32 wastedBytes[3][16];
+      Uint32 inUse[3][16];
+      Uint32 avail[3][16] ;
       Uint32 totalAllocs;
       Uint32 totalMemoryInUse;
       
@@ -219,7 +216,6 @@ class PEGASUS_SUBALLOC_INTERNAL peg_suballocator
       void INSERT(SUBALLOC_NODE *new_node, SUBALLOC_NODE *after);
       void INSERT_AFTER(SUBALLOC_NODE *new_node, SUBALLOC_NODE *after);
       void INSERT_BEFORE(SUBALLOC_NODE *new_node, SUBALLOC_NODE *before);
-      void DELETE(SUBALLOC_NODE *x);
       void _DELETE(SUBALLOC_NODE *x);
       Boolean IS_LAST(SUBALLOC_NODE *head, SUBALLOC_NODE *node);
       Boolean IS_FIRST(SUBALLOC_NODE *head, SUBALLOC_NODE *node);
@@ -315,12 +311,6 @@ inline void peg_suballocator::_DELETE(SUBALLOC_NODE *x)
 {
    x->prev->next = x->next;
    x->next->prev = x->prev;	
-}
-      
-inline void peg_suballocator::DELETE(SUBALLOC_NODE *x)
-{
-   _DELETE(x);
-   return;
 }
       
 inline Boolean peg_suballocator::IS_LAST(SUBALLOC_NODE *head, SUBALLOC_NODE *node)

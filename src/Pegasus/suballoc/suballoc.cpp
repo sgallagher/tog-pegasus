@@ -29,6 +29,14 @@
 // <<< Sat May  4 21:23:28 2002 mdd >>>
 // protect _init_count with a mutex
 
+namespace 
+      {
+	 const int GUARD_SIZE = 0x10;
+	 const int MAX_PATH_LEN = 0xff;
+	 const int MAX_LINE_LEN = 0x14;
+	 const int PRE_ALLOCATE = 0x00;
+	 const int STEP_ALLOCATE = 0x01;
+      }
 
 #include <Pegasus/suballoc/suballoc.h>
 

@@ -964,7 +964,7 @@ void CIMProviderCommand::_deleteProvider
 	    CIMInstance providerInstance = _getProviderInstance();
 
 	    CIMObjectPath providerRef = providerInstance.getPath ();
-	    providerRef.setNameSpace(PEGASUS_NAMESPACENAME_INTEROP);
+	    providerRef.setNameSpace(PEGASUS_NAMESPACENAME_PROVIDERREG);
 	    providerRef.setClassName(PEGASUS_CLASSNAME_PROVIDER);
 
 	    KeyBinding kb1(_PROPERTY_PROVIDERMODULENAME, _moduleName, KeyBinding::STRING);
@@ -977,7 +977,7 @@ void CIMProviderCommand::_deleteProvider
 	    outPrintWriter << DELETEING_PROVIDER << endl;
 
 	    _client->deleteInstance(
-		PEGASUS_NAMESPACENAME_INTEROP,
+		PEGASUS_NAMESPACENAME_PROVIDERREG,
 		providerRef);
 
 	    outPrintWriter << DELETE_PROVIDER_SUCCESS << endl;
@@ -989,7 +989,7 @@ void CIMProviderCommand::_deleteProvider
 	    CIMInstance moduleInstance = _getModuleInstance();
 
 	    CIMObjectPath moduleRef = moduleInstance.getPath ();
-	    moduleRef.setNameSpace(PEGASUS_NAMESPACENAME_INTEROP);
+	    moduleRef.setNameSpace(PEGASUS_NAMESPACENAME_PROVIDERREG);
 	    moduleRef.setClassName(PEGASUS_CLASSNAME_PROVIDERMODULE);
 
 	    KeyBinding kb1("Name", _moduleName, KeyBinding::STRING);
@@ -1001,7 +1001,7 @@ void CIMProviderCommand::_deleteProvider
 	    outPrintWriter << DELETEING_PROVIDER_MODULE << endl;
 
 	    _client->deleteInstance(
-		PEGASUS_NAMESPACENAME_INTEROP,
+		PEGASUS_NAMESPACENAME_PROVIDERREG,
 		moduleRef);
 
 	    outPrintWriter << DELETE_PROVIDER_MODULE_SUCCESS << endl;
@@ -1039,7 +1039,7 @@ void CIMProviderCommand::_StartProvider
 	    CIMInstance moduleInstance = _getModuleInstance();
 
 	    CIMObjectPath moduleRef = moduleInstance.getPath ();
-	    moduleRef.setNameSpace(PEGASUS_NAMESPACENAME_INTEROP);
+	    moduleRef.setNameSpace(PEGASUS_NAMESPACENAME_PROVIDERREG);
 	    moduleRef.setClassName(PEGASUS_CLASSNAME_PROVIDERMODULE);
 
 	    KeyBinding kb1("Name", _moduleName, KeyBinding::STRING);
@@ -1057,7 +1057,7 @@ void CIMProviderCommand::_StartProvider
 	Array<CIMParamValue> outParams;
 
 	CIMValue ret_value = _client->invokeMethod(
-		PEGASUS_NAMESPACENAME_INTEROP,
+		PEGASUS_NAMESPACENAME_PROVIDERREG,
 		ref,
 		START_METHOD,
 		inParams,
@@ -1111,7 +1111,7 @@ void CIMProviderCommand::_StopProvider
 	    CIMInstance moduleInstance = _getModuleInstance();
 
 	    CIMObjectPath moduleRef = moduleInstance.getPath ();
-	    moduleRef.setNameSpace(PEGASUS_NAMESPACENAME_INTEROP);
+	    moduleRef.setNameSpace(PEGASUS_NAMESPACENAME_PROVIDERREG);
 	    moduleRef.setClassName(PEGASUS_CLASSNAME_PROVIDERMODULE);
 
 	    KeyBinding kb1("Name", _moduleName, KeyBinding::STRING);
@@ -1128,7 +1128,7 @@ void CIMProviderCommand::_StopProvider
 	Array<CIMParamValue> outParams;
 
 	CIMValue ret_value = _client->invokeMethod(
-		PEGASUS_NAMESPACENAME_INTEROP,
+		PEGASUS_NAMESPACENAME_PROVIDERREG,
 		ref,
 		STOP_METHOD,
 		inParams,
@@ -1181,7 +1181,7 @@ void CIMProviderCommand::_ListProviders
 	{
 	    // get registered providers which are in the specified module
 	    providerInstances = _client->enumerateInstances(
-				PEGASUS_NAMESPACENAME_INTEROP, 
+				PEGASUS_NAMESPACENAME_PROVIDERREG, 
 				PEGASUS_CLASSNAME_PROVIDER);
 
 	    if ( providerInstances.size() == 0 )
@@ -1210,7 +1210,7 @@ void CIMProviderCommand::_ListProviders
 	{
 	    // Get all registered provider modules
     	    moduleInstances = _client->enumerateInstances(
-				PEGASUS_NAMESPACENAME_INTEROP, 
+				PEGASUS_NAMESPACENAME_PROVIDERREG, 
 				PEGASUS_CLASSNAME_PROVIDERMODULE);
 	    if ( moduleInstances.size() == 0 )
 	    {
@@ -1266,7 +1266,7 @@ CIMInstance CIMProviderCommand::_getModuleInstance()
     String moduleName;
 
     // Get all registered provider modules
-    namedInstances = _client->enumerateInstances(PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_PROVIDERMODULE);
+    namedInstances = _client->enumerateInstances(PEGASUS_NAMESPACENAME_PROVIDERREG, PEGASUS_CLASSNAME_PROVIDERMODULE);
     if ( namedInstances.size() == 0 )
     {
  	cerr << ERR_MODULE_NOT_REGISTERED << endl;
@@ -1302,7 +1302,7 @@ CIMInstance CIMProviderCommand::_getProviderInstance()
     String providerName;
 
     // Get all registered providers
-    namedInstances = _client->enumerateInstances(PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_PROVIDER);
+    namedInstances = _client->enumerateInstances(PEGASUS_NAMESPACENAME_PROVIDERREG, PEGASUS_CLASSNAME_PROVIDER);
 
     if ( namedInstances.size() == 0 )
     {

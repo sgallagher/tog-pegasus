@@ -33,6 +33,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/getoopt/getoopt.h>
+#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/CIMProperty.h>
@@ -94,11 +95,6 @@ static const Uint32 OPERATION_TYPE_UNSET          = 3;
 static const Uint32 OPERATION_TYPE_LIST           = 4;
 
 
-/**
-    The constant representing the default namespace
-*/
-const String INTERNAL_NAMESPACE                = "root/PG_Internal";
- 
 /**
     The constants representing the string literals.
 */
@@ -170,10 +166,6 @@ static const char INVALID_PROPERTY_VALUE []    =
 
 static const char PROPERTY_NOT_MODIFIED []     =
                         "Specified property can not be modified.";
-/**
-    The constant representing the config setting class name
-*/
-static const char PG_CONFIG_CLASS []          = "PG_ConfigSetting";
 
 /**
     The option character used to specify get config property.
@@ -1086,10 +1078,11 @@ void CIMConfigCommand::_getPropertiesFromCIMServer
         kbArray.append(kb);
 
         CIMObjectPath reference(
-            _hostName, INTERNAL_NAMESPACE, PG_CONFIG_CLASS, kbArray);
+            _hostName, PEGASUS_NAMESPACENAME_CONFIG,
+            PEGASUS_CLASSNAME_CONFIGSETTING, kbArray);
 
         CIMInstance cimInstance =
-            _client->getInstance(INTERNAL_NAMESPACE, reference);
+            _client->getInstance(PEGASUS_NAMESPACENAME_CONFIG, reference);
 
         Uint32 pos = cimInstance.findProperty(PROPERTY_NAME);
         prop = (CIMProperty)cimInstance.getProperty(pos);
@@ -1142,9 +1135,10 @@ void CIMConfigCommand::_updatePropertyInCIMServer
         kbArray.append(kb);
 
         CIMObjectPath reference(
-            _hostName, INTERNAL_NAMESPACE, PG_CONFIG_CLASS, kbArray);
+            _hostName, PEGASUS_NAMESPACENAME_CONFIG,
+            PEGASUS_CLASSNAME_CONFIGSETTING, kbArray);
 
-        CIMInstance modifiedInst = CIMInstance(PG_CONFIG_CLASS);
+        CIMInstance modifiedInst = CIMInstance(PEGASUS_CLASSNAME_CONFIGSETTING);
         Array<String> propertyList;
 
         if ( _currentValueSet )
@@ -1172,7 +1166,7 @@ void CIMConfigCommand::_updatePropertyInCIMServer
         CIMInstance namedInstance (modifiedInst);
         namedInstance.setPath (reference);
         _client->modifyInstance(
-            INTERNAL_NAMESPACE,
+            PEGASUS_NAMESPACENAME_CONFIG,
             namedInstance,
             false,
             CIMPropertyList(propertyList));
@@ -1205,7 +1199,9 @@ void CIMConfigCommand::_listAllPropertiesInCIMServer
             // get all the instances of class PG_ConfigSetting
             //
             configNamedInstances =
-                _client->enumerateInstances(INTERNAL_NAMESPACE, PG_CONFIG_CLASS);
+                _client->enumerateInstances(
+                    PEGASUS_NAMESPACENAME_CONFIG,
+                    PEGASUS_CLASSNAME_CONFIGSETTING);
 
             //
             // copy all the property names and values
@@ -1245,7 +1241,9 @@ void CIMConfigCommand::_listAllPropertiesInCIMServer
             // call enumerateInstanceNames
             //
             Array<CIMObjectPath> instanceNames =
-                _client->enumerateInstanceNames(INTERNAL_NAMESPACE, PG_CONFIG_CLASS);
+                _client->enumerateInstanceNames(
+                    PEGASUS_NAMESPACENAME_CONFIG,
+                    PEGASUS_CLASSNAME_CONFIGSETTING);
 
             //
             // copy all the property names

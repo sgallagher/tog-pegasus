@@ -29,6 +29,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Constants.h>
 
 #include <iostream>
 
@@ -112,16 +113,6 @@ static const Uint32 OPERATION_TYPE_REMOVE         = 3;
 */
 static const Uint32 OPERATION_TYPE_LIST           = 4;
 
-/**
-    The constant representing the default namespace
-*/
-const String INTERNAL_NAMESPACE                = "root/PG_Internal";
- 
-/**
-    The constant representing the User class 
-*/
-const String PG_AUTH_CLASS                     = "PG_Authorization";
- 
 
 /**
     The constants representing the messages.
@@ -961,7 +952,7 @@ void CIMAuthCommand::_AddAuthorization
     
     try
     {
-        CIMInstance newInstance( PG_AUTH_CLASS );
+        CIMInstance newInstance( PEGASUS_CLASSNAME_AUTHORIZATION );
 	newInstance.addProperty ( 
             CIMProperty( PROPERTY_NAME_USERNAME, _userName ) );
 	newInstance.addProperty ( 
@@ -969,7 +960,9 @@ void CIMAuthCommand::_AddAuthorization
 	newInstance.addProperty ( 
             CIMProperty( PROPERTY_NAME_AUTHORIZATION, _authorizations ) );
 
-	_client->createInstance( INTERNAL_NAMESPACE, newInstance );
+	_client->createInstance(
+            PEGASUS_NAMESPACENAME_AUTHORIZATION,
+            newInstance);
 	outPrintWriter << ADD_AUTH_SUCCESS << endl;
 
     }
@@ -1009,9 +1002,10 @@ void CIMAuthCommand::_ModifyAuthorization
         kbArray.append(kb);
 
         CIMObjectPath reference(
-            _hostName, INTERNAL_NAMESPACE, PG_AUTH_CLASS, kbArray);
+            _hostName, PEGASUS_NAMESPACENAME_AUTHORIZATION,
+            PEGASUS_CLASSNAME_AUTHORIZATION, kbArray);
 
-        CIMInstance modifiedInst( PG_AUTH_CLASS );
+        CIMInstance modifiedInst( PEGASUS_CLASSNAME_AUTHORIZATION );
 	modifiedInst.addProperty( 
             CIMProperty( PROPERTY_NAME_USERNAME, _userName ) );
 	modifiedInst.addProperty( 
@@ -1021,7 +1015,9 @@ void CIMAuthCommand::_ModifyAuthorization
 
         CIMInstance namedInstance (modifiedInst);
         namedInstance.setPath (reference);
-        _client->modifyInstance( INTERNAL_NAMESPACE, namedInstance );
+        _client->modifyInstance(
+            PEGASUS_NAMESPACENAME_AUTHORIZATION,
+            namedInstance);
         outPrintWriter << MODIFY_AUTH_SUCCESS << endl;
     }
     catch (CIMClientException& e)
@@ -1065,9 +1061,12 @@ void CIMAuthCommand::_RemoveAuthorization
             kbArray.append(kb);
 
             CIMObjectPath reference(
-                _hostName, INTERNAL_NAMESPACE, PG_AUTH_CLASS, kbArray);
+                _hostName, PEGASUS_NAMESPACENAME_AUTHORIZATION,
+                PEGASUS_CLASSNAME_AUTHORIZATION, kbArray);
 
-            _client->deleteInstance(INTERNAL_NAMESPACE, reference);
+            _client->deleteInstance(
+                PEGASUS_NAMESPACENAME_AUTHORIZATION,
+                reference);
         }
         else 
         {
@@ -1077,7 +1076,9 @@ void CIMAuthCommand::_RemoveAuthorization
             // each of the namespaces.
             //
             Array<CIMObjectPath> instanceNames =
-                _client->enumerateInstanceNames(INTERNAL_NAMESPACE, PG_AUTH_CLASS);
+                _client->enumerateInstanceNames(
+                    PEGASUS_NAMESPACENAME_AUTHORIZATION,
+                    PEGASUS_CLASSNAME_AUTHORIZATION);
             //
             //
             //
@@ -1099,7 +1100,7 @@ void CIMAuthCommand::_RemoveAuthorization
                 if ( String::equal(user, _userName) )
                 {
                     _client->deleteInstance(
-                        INTERNAL_NAMESPACE, instanceNames[i]);
+                        PEGASUS_NAMESPACENAME_AUTHORIZATION, instanceNames[i]);
                 }
             }
         }
@@ -1130,7 +1131,9 @@ void CIMAuthCommand::_ListAuthorization
         // get all the instances of class PG_Authorization
         //
         authNamedInstances =
-            _client->enumerateInstances(INTERNAL_NAMESPACE, PG_AUTH_CLASS);
+            _client->enumerateInstances(
+                PEGASUS_NAMESPACENAME_AUTHORIZATION,
+                PEGASUS_CLASSNAME_AUTHORIZATION);
 
         //
         // display all the user names, namespaces, and authorizations

@@ -29,6 +29,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Constants.h>
 
 #include <iostream>
 
@@ -105,16 +106,6 @@ static const Uint32 OPERATION_TYPE_REMOVE         = 3;
 */
 static const Uint32 OPERATION_TYPE_LIST           = 4;
 
-/**
-    The constant representing the default namespace
-*/
-const String PROPERTY_NAME_NAMESPACE                         = "root/PG_Internal";
- 
-/**
-    The constant representing the User class 
-*/
-const String PG_USER_CLASS                     = "PG_User";
- 
 
 /**
     The constants representing the messages.
@@ -1093,14 +1084,14 @@ void CIMUserCommand::_AddUser
     
     try
     {
-        CIMInstance newInstance( PG_USER_CLASS );
+        CIMInstance newInstance( PEGASUS_CLASSNAME_USER );
 	newInstance.addProperty ( 
 			  CIMProperty( PROPERTY_NAME_USER_NAME, _userName ) );
 	newInstance.addProperty ( 
 			  CIMProperty( PROPERTY_NAME_PASSWORD , _password ) );
 
 	outPrintWriter << ADDING_USER << endl;
-	_client->createInstance( PROPERTY_NAME_NAMESPACE, newInstance );
+	_client->createInstance( PEGASUS_NAMESPACENAME_USER, newInstance );
 	outPrintWriter << ADD_USER_SUCCESS << endl;
 
     }
@@ -1141,7 +1132,8 @@ void CIMUserCommand::_ModifyUser
         kbArray.append(kb);
 
         CIMObjectPath reference(
-            _hostName, PROPERTY_NAME_NAMESPACE, PG_USER_CLASS, kbArray);
+            _hostName, PEGASUS_NAMESPACENAME_USER,
+            PEGASUS_CLASSNAME_USER, kbArray);
 
 	//
 	// Call the invokeMethod with the input parameters
@@ -1154,7 +1146,7 @@ void CIMUserCommand::_ModifyUser
 	// return codes are added in future, they need to be handled here.  
 	//
 	CIMValue retValue = _client->invokeMethod (
-		                       PROPERTY_NAME_NAMESPACE,
+		                       PEGASUS_NAMESPACENAME_USER,
 		                       reference,
 		                       MODIFY_METHOD,
 		                       inParams,
@@ -1189,10 +1181,11 @@ void CIMUserCommand::_RemoveUser
         kbArray.append(kb);
 
         CIMObjectPath reference(
-            _hostName, PROPERTY_NAME_NAMESPACE, PG_USER_CLASS, kbArray);
+            _hostName, PEGASUS_NAMESPACENAME_USER,
+            PEGASUS_CLASSNAME_USER, kbArray);
 
         outPrintWriter << REMOVING_USER << endl;
-        _client->deleteInstance(PROPERTY_NAME_NAMESPACE, reference);
+        _client->deleteInstance(PEGASUS_NAMESPACENAME_USER, reference);
 	outPrintWriter << REMOVE_USER_SUCCESS << endl;
 
     }
@@ -1220,8 +1213,8 @@ void CIMUserCommand::_ListUsers
 	outPrintWriter << LISTING_USERS << endl;
         Array<CIMObjectPath> instanceNames =
             _client->enumerateInstanceNames(
-	       PROPERTY_NAME_NAMESPACE, 
-	       PG_USER_CLASS);
+	        PEGASUS_NAMESPACENAME_USER, 
+	        PEGASUS_CLASSNAME_USER);
 
         if ( instanceNames.size() == 0 )
         {

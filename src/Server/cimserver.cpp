@@ -77,6 +77,7 @@
 
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Constants.h>
 #include <Pegasus/suballoc/suballoc.h>
 #include <iostream>
 #include <cassert>
@@ -138,8 +139,6 @@ static const char OPTION_TIMEOUT     = 't';
 static const char OPTION_BINDVERBOSE = 'X';
 #endif
 
-static const String NAMESPACE = "root/PG_Internal";
-static const String CLASSNAME_SHUTDOWNSERVICE = "PG_ShutdownService";
 static const String PROPERTY_TIMEOUT = "shutdownTimeout";
 static const String CIMSERVERSTART_FILE = "/etc/wbem/cimserver_start.conf";
 
@@ -276,7 +275,7 @@ void shutdownCIMOM(Uint32 timeoutValue)
         //
         String referenceStr = "//";
         referenceStr.append(hostStr);
-        referenceStr.append(PEGASUS_NAMESPACENAME_CIMV2);
+        referenceStr.append(PEGASUS_NAMESPACENAME_SHUTDOWN);
         referenceStr.append(":");
         referenceStr.append(PEGASUS_CLASSNAME_SHUTDOWN);
         CIMObjectPath reference(referenceStr);
@@ -295,7 +294,7 @@ void shutdownCIMOM(Uint32 timeoutValue)
             CIMValue(Uint32(timeoutValue))));
 
         CIMValue retValue = client.invokeMethod(
-            NAMESPACE,
+            PEGASUS_NAMESPACENAME_SHUTDOWN,
             reference,
             "shutdown",
             inParams,

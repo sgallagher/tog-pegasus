@@ -121,7 +121,8 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
     service =  String::EMPTY;
     provider = String::EMPTY;
 
-    if (String::equalNoCase(className, PEGASUS_CLASSNAME_CONFIGSETTING))
+    if (String::equalNoCase(className, PEGASUS_CLASSNAME_CONFIGSETTING) &&
+        String::equalNoCase(nameSpace, PEGASUS_NAMESPACENAME_CONFIG))
     {
         service = PEGASUS_QUEUENAME_CONTROLSERVICE;
         provider = PEGASUS_MODULENAME_CONFIGPROVIDER;
@@ -130,8 +131,10 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
         PEG_METHOD_EXIT();
         return true;
     }
-    if (String::equalNoCase(className, PEGASUS_CLASSNAME_AUTHORIZATION) ||
-        String::equalNoCase(className, PEGASUS_CLASSNAME_USER))
+    if ((String::equalNoCase(className, PEGASUS_CLASSNAME_AUTHORIZATION) &&
+         String::equalNoCase(nameSpace, PEGASUS_NAMESPACENAME_AUTHORIZATION)) ||
+        (String::equalNoCase(className, PEGASUS_CLASSNAME_USER) &&
+         String::equalNoCase(nameSpace, PEGASUS_NAMESPACENAME_USER)))
     {
         service = PEGASUS_QUEUENAME_CONTROLSERVICE;
         provider = PEGASUS_MODULENAME_USERAUTHPROVIDER;
@@ -140,7 +143,8 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
         PEG_METHOD_EXIT();
         return true;
     }
-    if (String::equalNoCase(className, PEGASUS_CLASSNAME_SHUTDOWN))
+    if (String::equalNoCase(className, PEGASUS_CLASSNAME_SHUTDOWN) &&
+        String::equalNoCase(nameSpace, PEGASUS_NAMESPACENAME_SHUTDOWN))
     {
         service = PEGASUS_QUEUENAME_CONTROLSERVICE;
         provider = PEGASUS_MODULENAME_SHUTDOWNPROVIDER;
@@ -160,9 +164,10 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
         return true;
     }
 
-    if (String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDERMODULE) ||
-        String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDER) ||
-        String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDERCAPABILITIES))
+    if ((String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDERMODULE) ||
+         String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDER) ||
+         String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDERCAPABILITIES)) &&
+        String::equalNoCase(nameSpace, PEGASUS_NAMESPACENAME_PROVIDERREG))
     {
         service = PEGASUS_QUEUENAME_CONTROLSERVICE;
         provider = PEGASUS_MODULENAME_PROVREGPROVIDER;

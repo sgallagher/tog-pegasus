@@ -1,0 +1,20 @@
+<html>
+  <body bgcolor="#CCCCCC">
+    <table width="100%">
+      <tr>
+	<td width="50%" align="bottom"><h1>GetQualifier</h1><td>
+	<td width="50%" align="right">
+	  <img border=1 src="http://localhost/pegasus/icons/OpenGroupLogo.gif">
+        </td>
+      </tr>
+    </table>
+    <hr></hr>
+    <form METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
+      <INPUT TYPE="hidden" NAME="Operation" VALUE="GetQualifier">
+      <p>NameSpace <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root/cimv20">
+      <p>QualifierName <INPUT TYPE="text" NAME="QualifierName" SIZE=30>
+      <p><INPUT TYPE="submit" VALUE="GetQualifier">
+      <p><INPUT TYPE="reset" VALUE="Reset">
+    </form>
+  </body>
+</html>

@@ -1,0 +1,15 @@
+
+
+This directory contains the HTML CGI interface to Pegasus. To use it,
+you must add definitions to your web server. For example, in Apace, I
+added these defintions to httpd.conf:
+
+    ScriptAlias /pegasus/cgi-bin "D:/tog/pegasus/cgi/cgi-bin"
+    Alias /pegasus/icons "D:/tog/pegasus/cgi/icons"
+    Alias /pegasus "D:/tog/pegasus/cgi/htdocs"
+
+    <Directory "D:/tog/pegasus/cgi/cgi-bin">
+    AllowOverride None
+    Options ExecCGI
+    allow from all
+    </Directory>

@@ -1,0 +1,23 @@
+<html>
+  <body bgcolor="#CCCCCC"> 
+    <table width="100%">
+      <tr>
+	<td width="50%" align="bottom"><h1>GetClass</h1><td>
+	<td width="50%" align="right">
+	  <img border=1 src="http://localhost/pegasus/icons/OpenGroupLogo.gif">
+        </td>
+      </tr>
+    </table>
+    <hr></hr>
+    <form METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
+      <INPUT TYPE="hidden" NAME="Operation" VALUE="GetClass">
+      <p>NameSpace <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root/cimv20">
+      <p>ClassName <INPUT TYPE="text" NAME="ClassName" SIZE=30>
+      <p>LocalOnly <INPUT TYPE="checkbox" NAME="LocalOnly" VALUE="true" checked>
+      <p>IncludeQualifiers <INPUT TYPE="checkbox" NAME="IncludeQualifiers" VALUE="true">
+      <p>IncludeClassOrigins <INPUT TYPE="checkbox" NAME="IncludeClassOrigins" VALUE="true">
+      <p><INPUT TYPE="submit" VALUE="GetClass">
+      <p><INPUT TYPE="reset" VALUE="Reset">
+    </form>
+  </body>
+</html>

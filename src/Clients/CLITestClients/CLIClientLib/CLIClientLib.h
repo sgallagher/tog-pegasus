@@ -176,6 +176,7 @@ struct  OPTION_STRUCT
     String resultClassName;
     CIMName resultClass;
     String role;
+    String resultRole;
     CIMName methodName;
 };
 

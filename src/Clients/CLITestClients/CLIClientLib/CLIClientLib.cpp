@@ -649,7 +649,12 @@ int references(CIMClient& client, Options& opts)
             << endl;
     }
     Array<CIMObject> objects =  
-    client.references( opts.nameSpace, opts.objectName);
+    client.references( opts.nameSpace, opts.objectName,
+        opts.resultClass,
+        opts.role,
+        opts.includeQualifiers,
+        opts.includeClassOrigin,
+        opts.propertyList);
     
     if (opts.summary)
     {
@@ -701,7 +706,9 @@ int associatorNames(CIMClient& client, Options& opts)
     }
     Array<CIMObjectPath> associatorNames = 
     
-    client.associatorNames( opts.nameSpace, opts.objectName);
+    client.associatorNames( opts.nameSpace, opts.objectName,
+        opts.resultClass,
+        opts.role);
     
     /*
 	const CIMNamespaceName& nameSpace,
@@ -743,10 +750,22 @@ int associators(CIMClient& client, Options& opts)
         cout << "Associators "
             << "Namespace = " << opts.nameSpace
             << ", Object = " << opts.objectName
+            << ", assocClass = " << opts.assocClass
+            << ", resultClass = " << opts.resultClass
+            << ", role = " << opts.role
+            << ", includeQualifiers = " << ((opts.includeQualifiers)? "true" : "false")
+            << ", includeClassOrigin = " << ((opts.includeClassOrigin)? "true" : "false")
+            << ", propertyList = " << printPropertyList(opts.propertyList)
             << endl;
     }
     Array<CIMObject> objects =  
-    client.associators( opts.nameSpace, opts.objectName);
+    client.associators( opts.nameSpace, opts.objectName,
+        opts.assocClass,
+        opts.resultClass,
+        opts.role,
+        opts.includeQualifiers,
+        opts.includeClassOrigin,
+        opts.propertyList);
     
     if (opts.summary)
     {

@@ -302,6 +302,7 @@ void HTTPConnector::destroyConnections()
    _rep->connections.clear();
 }
 
+
 void HTTPConnector::disconnect(HTTPConnection* currentConnection)
 {
     //
@@ -311,8 +312,9 @@ void HTTPConnector::disconnect(HTTPConnection* currentConnection)
     {
         if (currentConnection == _rep->connections[i])
         {
-            _deleteConnection(_rep->connections[i]);
-
+	   Sint32 socket = _rep->connections[i]->getSocket();
+	   _monitor->unsolicitSocketMessages(socket);
+	   _rep->connections.remove(i);
             return;
         }
     }

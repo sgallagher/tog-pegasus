@@ -579,6 +579,7 @@ void CIMClientRep::connectLocal()
 #endif
 }
 
+
 void CIMClientRep::disconnect()
 {
     if (_connected)
@@ -598,6 +599,8 @@ void CIMClientRep::disconnect()
         if (_httpConnector)
         {
             _httpConnector->disconnect(_httpConnection);
+	    delete _httpConnection;
+	    _httpConnection = 0;
         }
 
         //

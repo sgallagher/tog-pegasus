@@ -29,6 +29,8 @@
 //              Arthur Pichlkostner (via Markus: sedgewick_de@yahoo.de)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Sushma Fernandes , Hewlett-Packard Company
+//                (sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -53,6 +55,9 @@
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
+
+const String CIMOperationResponseEncoder::OUT_OF_MEMORY_MESSAGE  =
+   "A System error has occured. Please retry the CIM Operation at a later time.";
 
 CIMOperationResponseEncoder::CIMOperationResponseEncoder()
    : Base(PEGASUS_QUEUENAME_OPRESPENCODER)
@@ -462,18 +467,40 @@ void CIMOperationResponseEncoder::encodeEnumerateClassesResponse(
    }
 
    Array<Sint8> body;
+   Array<Sint8> message;
 
-   for (Uint32 i = 0; i < response->cimClasses.size(); i++)
-      XmlWriter::appendClassElement(body, response->cimClasses[i]);
+   try
+   {
+       for (Uint32 i = 0; i < response->cimClasses.size(); i++)
+          XmlWriter::appendClassElement(body, response->cimClasses[i]);
 
-   Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
-      CIMName ("EnumerateClasses"), response->messageId, 
-      response->getHttpMethod(), body);
+       message = XmlWriter::formatSimpleIMethodRspMessage(
+          CIMName ("EnumerateClasses"), response->messageId, 
+          response->getHttpMethod(), body);
 
-   STAT_SERVEREND
+       STAT_SERVEREND
+   }
+   // This operation may result in a large response. Handle the bad_alloc
+   // exception and send an error response.
 
-   sendResponse(response->queueIds.top(), message);
-   PEG_METHOD_EXIT();
+#ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+   catch (std::bad_alloc& be)
+#else
+   catch (bad_alloc& be)
+#endif
+   {
+       // ATTN-SF-P5-20021004 A message should be logged here
+       // indicating the out of memory message.
+       CIMException cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+                                      OUT_OF_MEMORY_MESSAGE);
+       response->cimException = cimException;
+       sendIMethodError(response, "EnumerateClasses");
+       PEG_METHOD_EXIT();
+       return;
+   }
+
+       sendResponse(response->queueIds.top(), message);
+       PEG_METHOD_EXIT();
 }
 
 void CIMOperationResponseEncoder::encodeDeleteClassResponse(
@@ -603,16 +630,38 @@ void CIMOperationResponseEncoder::encodeEnumerateInstancesResponse(
    }
 
    Array<Sint8> body;
+   Array<Sint8> message;
 
-   for (Uint32 i = 0; i < response->cimNamedInstances.size(); i++)
-      XmlWriter::appendValueNamedInstanceElement(
-          body, response->cimNamedInstances[i]);
+   try
+   {
+       for (Uint32 i = 0; i < response->cimNamedInstances.size(); i++)
+          XmlWriter::appendValueNamedInstanceElement(
+              body, response->cimNamedInstances[i]);
 
-   Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
-      CIMName ("EnumerateInstances"), response->messageId, 
-      response->getHttpMethod(), body);
+       message = XmlWriter::formatSimpleIMethodRspMessage(
+          CIMName ("EnumerateInstances"), response->messageId, 
+          response->getHttpMethod(), body);
 
    STAT_SERVEREND
+   }
+   // This operation may result in a large response. Handle the bad_alloc
+   // exception and send an error response.
+
+#ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+   catch (std::bad_alloc& be)
+#else
+   catch (bad_alloc& be)
+#endif
+   {
+       // ATTN-SF-P5-20021004 A message should be logged here
+       // indicating the out of memory message.
+       CIMException cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+                                      OUT_OF_MEMORY_MESSAGE);
+       response->cimException = cimException;
+       sendIMethodError(response, "EnumerateInstances");
+       PEG_METHOD_EXIT();
+       return;
+   }
 
    sendResponse(response->queueIds.top(), message);
    PEG_METHOD_EXIT();

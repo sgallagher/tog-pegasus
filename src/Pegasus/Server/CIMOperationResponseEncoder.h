@@ -26,6 +26,8 @@
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Sushma Fernandes, Hewlett-Packard Company
+//                (sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -42,6 +44,9 @@ PEGASUS_NAMESPACE_BEGIN
  */
 class CIMOperationResponseEncoder : public MessageQueueService
 {
+   private:
+       static const String OUT_OF_MEMORY_MESSAGE;
+
    public:
   
       typedef MessageQueueService Base;

@@ -4,23 +4,26 @@ DIR = Pegasus/Provider
 
 include $(ROOT)/mak/config.mak
 
-INCLUDES = -I..
-
 LOCAL_DEFINES = -DPEGASUS_PROVIDER_INTERNAL
 
-LIBRARIES = $(LIB_DIR)/$(LIB_PREFIX)pegcommon$(LIB_SUFFIX)
-
-ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
-DYNAMIC_LIBRARIES = $(LIB_DIR)/$(LIB_PREFIX)pegcommon.x
-else
- DYNAMIC_LIBRARIES = -lpegcommon
-endif
+LIBRARIES = \
+    pegcommon
 
 LIBRARY = pegprovider
 
 SOURCES = \
-    ProviderHandle.cpp \
-    CIMProviderHandle.cpp \
-    CIMProvider.cpp
+	 OperationFlag.cpp \
+	 ResponseHandler.cpp \
+	 SimpleResponseHandler.cpp \
+    CIMOMHandle.cpp \
+    CIMBaseProvider.cpp \
+    CIMInstanceProvider.cpp \
+    CIMClassProvider.cpp \
+    CIMMethodProvider.cpp \
+    CIMIndicationProvider.cpp \
+    CIMIndicationConsumer.cpp \
+    CIMPropertyProvider.cpp \
+    CIMQueryProvider.cpp \
+    CIMAssociationProvider.cpp
 
 include $(ROOT)/mak/library.mak

@@ -200,7 +200,8 @@ private:
     friend class JMPILocalProviderManager;
     friend class JMPIProviderManager;
     friend class ProviderManagerService;
-//    friend class OpProviderHolder;
+    class OpProviderHolder;
+    friend class OpProviderHolder;
     CIMOMHandle *_cimom_handle;
     void *jProviderClass,*jProvider;
     String _name;

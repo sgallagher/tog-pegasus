@@ -476,8 +476,6 @@ PEGASUS_COMMON_LINKAGE Boolean operator>=(
 */
 PEGASUS_COMMON_LINKAGE int CompareNoCase(const char* s1, const char* s2);
 
-PEGASUS_COMMON_LINKAGE int EqualNoCase(const char* s1, const char* s2);
-
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_String_h */

@@ -336,52 +336,52 @@ void CIMOperationResponseDecoder::_handleMethodResponse(char* content)
 	    // Dispatch the method:
 	    //
 
-	    if (EqualNoCase(iMethodResponseName, "GetClass"))
+	    if (CompareNoCase(iMethodResponseName, "GetClass") == 0)
 		response = _decodeGetClassResponse(parser, messageId);
-	    else if (EqualNoCase(iMethodResponseName, "GetInstance"))
+	    else if (CompareNoCase(iMethodResponseName, "GetInstance") == 0)
 		response = _decodeGetInstanceResponse(parser, messageId);
-	    else if (EqualNoCase(iMethodResponseName, "EnumerateClassNames"))
+	    else if (CompareNoCase(iMethodResponseName, "EnumerateClassNames") == 0)
 		response = _decodeEnumerateClassNamesResponse(parser,messageId);
-	    else if (EqualNoCase(iMethodResponseName, "References"))
+	    else if (CompareNoCase(iMethodResponseName, "References") == 0)
 		response = _decodeReferencesResponse(parser, messageId);
-	    else if (EqualNoCase(iMethodResponseName, "ReferenceNames"))
+	    else if (CompareNoCase(iMethodResponseName, "ReferenceNames") == 0)
 		response = _decodeReferenceNamesResponse(parser, messageId);
-	    else if (EqualNoCase(iMethodResponseName, "AssociatorNames"))
+	    else if (CompareNoCase(iMethodResponseName, "AssociatorNames") == 0)
 		response = _decodeAssociatorNamesResponse(parser, messageId);
-	    else if (EqualNoCase(iMethodResponseName, "Associators"))
+	    else if (CompareNoCase(iMethodResponseName, "Associators") == 0)
 		response = _decodeAssociatorsResponse(parser, messageId);
-	    else if (EqualNoCase(iMethodResponseName, "CreateInstance"))
+	    else if (CompareNoCase(iMethodResponseName, "CreateInstance") == 0)
 		response = _decodeCreateInstanceResponse(parser, messageId);
-	    else if (EqualNoCase(iMethodResponseName,"EnumerateInstanceNames"))
+	    else if (CompareNoCase(iMethodResponseName,"EnumerateInstanceNames") == 0)
 		response = _decodeEnumerateInstanceNamesResponse(
                   parser, messageId);
-	    else if (EqualNoCase(iMethodResponseName,"EnumerateInstances"))
+	    else if (CompareNoCase(iMethodResponseName,"EnumerateInstances") == 0)
 		response = _decodeEnumerateInstancesResponse(parser, messageId);
-	    else if (EqualNoCase(iMethodResponseName, "GetProperty"))
+	    else if (CompareNoCase(iMethodResponseName, "GetProperty") == 0)
 		response = _decodeGetPropertyResponse(parser, messageId);
-	    else if (EqualNoCase(iMethodResponseName, "SetProperty"))
+	    else if (CompareNoCase(iMethodResponseName, "SetProperty") == 0)
 		response = _decodeSetPropertyResponse(parser, messageId);
-	    else if (EqualNoCase(iMethodResponseName, "DeleteQualifier"))
+	    else if (CompareNoCase(iMethodResponseName, "DeleteQualifier") == 0)
 		response = _decodeDeleteQualifierResponse(parser, messageId);
-	    else if (EqualNoCase(iMethodResponseName, "GetQualifier"))
+	    else if (CompareNoCase(iMethodResponseName, "GetQualifier") == 0)
 		response = _decodeGetQualifierResponse(parser, messageId);
-	    else if (EqualNoCase(iMethodResponseName, "SetQualifier"))
+	    else if (CompareNoCase(iMethodResponseName, "SetQualifier") == 0)
 		response = _decodeSetQualifierResponse(parser, messageId);
-	    else if (EqualNoCase(iMethodResponseName, "EnumerateQualifiers"))
+	    else if (CompareNoCase(iMethodResponseName, "EnumerateQualifiers") == 0)
 		response = _decodeEnumerateQualifiersResponse(parser,messageId);
-	    else if (EqualNoCase(iMethodResponseName, "EnumerateClasses"))
+	    else if (CompareNoCase(iMethodResponseName, "EnumerateClasses") == 0)
 		response = _decodeEnumerateClassesResponse(parser, messageId);
-	    else if (EqualNoCase(iMethodResponseName, "CreateClass"))
+	    else if (CompareNoCase(iMethodResponseName, "CreateClass") == 0)
 		response = _decodeCreateClassResponse(parser, messageId);
-	    else if (EqualNoCase(iMethodResponseName, "ModifyClass"))
+	    else if (CompareNoCase(iMethodResponseName, "ModifyClass") == 0)
 		response = _decodeModifyClassResponse(parser, messageId);
-	    else if (EqualNoCase(iMethodResponseName, "ModifyInstance"))
+	    else if (CompareNoCase(iMethodResponseName, "ModifyInstance") == 0)
 		response = _decodeModifyInstanceResponse(parser, messageId);
-	    else if (EqualNoCase(iMethodResponseName, "DeleteClass"))
+	    else if (CompareNoCase(iMethodResponseName, "DeleteClass") == 0)
 		response = _decodeDeleteClassResponse(parser, messageId);
-	    else if (EqualNoCase(iMethodResponseName, "DeleteInstance"))
+	    else if (CompareNoCase(iMethodResponseName, "DeleteInstance") == 0)
 		response = _decodeDeleteInstanceResponse(parser, messageId);
-	    else if (EqualNoCase(iMethodResponseName, "ExecQuery"))
+	    else if (CompareNoCase(iMethodResponseName, "ExecQuery") == 0)
 		response = _decodeExecQueryResponse(parser, messageId);
 	    else
 	    {

@@ -24,7 +24,7 @@
         <IPARAMVALUE NAME="PropertyName">
          <VALUE> PropertyUint32 </VALUE>
         </IPARAMVALUE>
-        <IPARAMVALUE NAME="New Value">
+        <IPARAMVALUE NAME="NewValue">
          <VALUE>200</VALUE>
         </IPARAMVALUE>
       </IMETHODCALL>

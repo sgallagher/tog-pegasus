@@ -1026,7 +1026,8 @@ Boolean _addPropertiesToArray(Array<CIMName>& pl, const CIMClass& cimClass)
 */
 
 Boolean _mergePropertyLists(const CIMClass& cl, const Boolean localOnly,
-    const CIMPropertyList& pl, Array<CIMName>& outputPropertyListArray)
+     const Boolean di, const CIMPropertyList& pl,
+    Array<CIMName>& outputPropertyListArray)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
            "CIMOperationRequestDispatcher::_mergePropertyLists");
@@ -1052,9 +1053,9 @@ Boolean _mergePropertyLists(const CIMClass& cl, const Boolean localOnly,
    // ATTN: Spec says property must be in this class. Do we need additional
    // test to assure that properties in list are in this class.  Or is this
    // covered below? No.  Since this could be the class AND subclasses.
-   // If list null and !localOnly, request is for all properties.  Do not
-   // create a new list.
-   if (listIsNull && !localOnly)
+   // If list null and !localOnly and di, request is for all properties from
+   // all providers.  Do not create a new list.
+   if (listIsNull && !localOnly && di)
    {
        PEG_METHOD_EXIT();
        return(false);
@@ -3194,20 +3195,11 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
     // of the propertyList and the localOnly attribute.
     rtn = _mergePropertyLists(cimClass,
                               request->localOnly,
+                              request->deepInheritance,
                               request->propertyList,
                               localPropertyListArray);
 
-    CDEBUG("EnumerateInstances Built property list size = " <<
-        localPropertyListArray.size());
-
-    // CV 20050211 Commented out debug loops
-    //for (Uint32 i = 0; i < localPropertyListArray.size() ; i++)
-    //{
-    //    CDEBUG("P= " << localPropertyListArray[i].getString());
-    //}
-
-    CDEBUG("CIMOP ei propertyList1= " <<
-        _showPropertyList(request->propertyList));
+    CDEBUG("CIMOP ei propertyList1= " << _showPropertyList(request->propertyList));
 
     // if new propertyList built, reset it into the
     // request propertylist.
@@ -3215,6 +3207,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
     {
         CIMPropertyList pl(localPropertyListArray);
         request->propertyList = pl;
+        CDEBUG("CIMOP ei propertyList Modified= " << _showPropertyList(request->propertyList));
     }
 
     CDEBUG("CIMOP ei propertyList2= " <<
@@ -3325,6 +3318,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
         request->messageId,
         request->queueIds.top(),
         request->className);
+
     poA->_aggregationSN = cimOperationAggregationSN++;
 		Uint32 numClasses = providerInfos.size();
 
@@ -3357,14 +3351,14 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 					// Enumerate instances only for this class
 					cimNamedInstances =
 						_repository->enumerateInstancesForClass(
-																										request->nameSpace,
-																										providerInfo.className,
-																										request->deepInheritance,
-																										request->localOnly,
-																										request->includeQualifiers,
-																										request->includeClassOrigin,
-																										false,
-																										request->propertyList);
+                        request->nameSpace,
+                        providerInfo.className,
+                        request->deepInheritance,
+                        request->localOnly,
+                        request->includeQualifiers,
+                        request->includeClassOrigin,
+                        false,
+                        request->propertyList);
 				}
 				catch(CIMException& exception)
 				{
@@ -3373,12 +3367,12 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 				catch(Exception& exception)
 				{
 					cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-																							 exception.getMessage());
+                        exception.getMessage());
 				}
 				catch(...)
 				{
 					cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-																							 String::EMPTY);
+						String::EMPTY);
 				}
 
 				STAT_PROVIDEREND
@@ -3400,7 +3394,8 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 			{
 				handleEnumerateInstancesResponseAggregation(poA);
 				CIMResponseMessage *response = poA->removeResponse(0);
-				_forwardRequestForAggregation(String(PEGASUS_QUEUENAME_OPREQDISPATCHER), String(), new CIMEnumerateInstancesRequestMessage(*request), poA, response);
+				_forwardRequestForAggregation(String(PEGASUS_QUEUENAME_OPREQDISPATCHER),
+                    String(), new CIMEnumerateInstancesRequestMessage(*request), poA, response);
 			}
 
     } // if isDefaultInstanceProvider
@@ -3424,13 +3419,12 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 			STAT_PROVIDERSTART
 
 			PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4, Formatter::format
-											 (
-												"EnumerateInstances Req. class $0 to svc \"$1\" for "
-                        "control provider \"$2\", No $3 of $4, SN $5",
-												providerInfo.className.getString(),
-												providerInfo.serviceName,
-												providerInfo.controlProviderName,
-												i, numClasses, poA->_aggregationSN));
+                ("EnumerateInstances Req. class $0 to svc \"$1\" for "
+                "control provider \"$2\", No $3 of $4, SN $5",
+                providerInfo.className.getString(),
+                providerInfo.serviceName,
+                providerInfo.controlProviderName,
+                i, numClasses, poA->_aggregationSN));
 
 			CIMEnumerateInstancesRequestMessage* requestCopy =
 				new CIMEnumerateInstancesRequestMessage(*request);
@@ -3469,7 +3463,9 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
                 requestCopy->operationContext.insert(CachedClassDefinitionContainer(cimClass));
             }
             #endif
-
+            
+            // if this is deep inheritance request and the original property list requested all
+            // properties, we must expand the property list for each subclass.
             if(request->deepInheritance && request->propertyList.isNull())
             {
                 _addPropertiesToArray(localPropertyListArray, cimClass);
@@ -3482,6 +3478,14 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 			// Save for test cout << _toStringPropertyList(requestCopy->propertyList) << endl;
             if(checkClassException.getCode() == CIM_ERR_SUCCESS)
             {
+                PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4, Formatter::format
+                    ("EnumerateInstances Req. Fwd class $0 to svc \"$1\" for "
+                    "control provider \"$2\", PropertyList= $3",
+                    providerInfo.className.getString(),
+                    providerInfo.serviceName,
+                    providerInfo.controlProviderName,
+                    _showPropertyList(requestCopy->propertyList)));
+
                 _forwardRequestForAggregation(
                     providerInfo.serviceName,
                     providerInfo.controlProviderName,
@@ -3671,11 +3675,10 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 				// If this class does not have a provider
 
 				PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,  Formatter::format
-												 (
-													"EnumerateInstanceNames Req. class $0 to repository, "
-													"No $1 of $2, SN $3",
-													providerInfo.className.getString(),
-													i, numClasses, poA->_aggregationSN));
+                    ("EnumerateInstanceNames Req. class $0 to repository, "
+                    "No $1 of $2, SN $3",
+                    providerInfo.className.getString(),
+                    i, numClasses, poA->_aggregationSN));
 
 				CIMException cimException;
 				Array<CIMObjectPath> cimInstanceNames;
@@ -3727,7 +3730,8 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 			{
 				handleEnumerateInstanceNamesResponseAggregation(poA);
 				CIMResponseMessage *response = poA->removeResponse(0);
-				_forwardRequestForAggregation(String(PEGASUS_QUEUENAME_OPREQDISPATCHER), String(), new CIMEnumerateInstanceNamesRequestMessage(*request), poA, response);
+				_forwardRequestForAggregation(String(PEGASUS_QUEUENAME_OPREQDISPATCHER),
+                    String(), new CIMEnumerateInstanceNamesRequestMessage(*request), poA, response);
 			}
     } // if isDefaultInstanceProvider
 		else
@@ -3748,12 +3752,12 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 			STAT_PROVIDERSTART
 
 			PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4, Formatter::format
-											 ("EnumerateInstanceNames Req. class $0 to svc \"$1\" for "
+                        ("EnumerateInstanceNames Req. class $0 to svc \"$1\" for "
                         "control provider \"$2\", No $3 of $4, SN $5",
-												providerInfo.className.getString(),
-												providerInfo.serviceName,
-												providerInfo.controlProviderName,
-												i, numClasses, poA->_aggregationSN));
+                        providerInfo.className.getString(),
+                        providerInfo.serviceName,
+                        providerInfo.controlProviderName,
+                        i, numClasses, poA->_aggregationSN));
 
 			CIMEnumerateInstanceNamesRequestMessage* requestCopy =
 				new CIMEnumerateInstanceNamesRequestMessage(*request);
@@ -4593,7 +4597,8 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
         poA->_aggregationSN = cimOperationAggregationSN++;
         poA->setTotalIssued(providerCount+1);
 				// send the repository's results
-				_forwardRequestForAggregation(String(PEGASUS_QUEUENAME_OPREQDISPATCHER), String(), new CIMReferencesRequestMessage(*request), poA, response);
+				_forwardRequestForAggregation(String(PEGASUS_QUEUENAME_OPREQDISPATCHER), 
+                    String(), new CIMReferencesRequestMessage(*request), poA, response);
 
         for (Uint32 i = 0; i < providerInfos.size(); i++)
         {
@@ -5938,7 +5943,8 @@ CIMValue CIMOperationRequestDispatcher::_convertValueType(
 	 // CIM_ERR_INVALID_PARAMETER,
 	 // String("Malformed ") + cimTypeToString (type) + " value");
 
-	 throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER, MessageLoaderParms("Server.CIMOperationRequestDispatcher.CIM_ERR_INVALID_PARAMETER",
+	 throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,
+         MessageLoaderParms("Server.CIMOperationRequestDispatcher.CIM_ERR_INVALID_PARAMETER",
 									"Malformed $0 value", cimTypeToString (type)));
 
       }
@@ -5980,7 +5986,8 @@ CIMValue CIMOperationRequestDispatcher::_convertValueType(
 	 // CIM_ERR_INVALID_PARAMETER,
 	 // String("Malformed ") + cimTypeToString (type) + " value");
 
-	 throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER, MessageLoaderParms("Server.CIMOperationRequestDispatcher.CIM_ERR_INVALID_PARAMETER",
+	 throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER, 
+         MessageLoaderParms("Server.CIMOperationRequestDispatcher.CIM_ERR_INVALID_PARAMETER",
 			       "Malformed $0 value", cimTypeToString (type)));
 
       }
@@ -6033,7 +6040,7 @@ void CIMOperationRequestDispatcher::_fixInvokeMethodParameterTypes(
                         false, //includeClassOrigin,
                         CIMPropertyList());
 
-		    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+                Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
 				"CIMOperationRequestDispatcher::_fixInvokeMethodParameterTypes - Name Space: $0  Class Name: $1",
 				request->nameSpace.getString(),
 				request->instanceName.getClassName().getString());

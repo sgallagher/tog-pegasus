@@ -16,6 +16,7 @@ DIRS = \
     ClassDeclRep \
     SharedNameSpace \
     SharedInheritanceTree \
-    CompareRepositories 
+    CompareRepositories \
+    CompareXmlBin
 
 include ../../../../mak/recurse.mak

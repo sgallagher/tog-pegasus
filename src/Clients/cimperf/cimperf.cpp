@@ -90,7 +90,7 @@ void mofFormat(
     Boolean qualifierState = false;
     char c;
     char prevchar;
-    while (c = *tmp++)
+    while ((c = *tmp++) != '\0')
     {
 	count++;
 	// This is too simplistic and must move to a token based mini parser
@@ -260,11 +260,11 @@ Uint64  dateToInt(CIMDateTime date)
 //	printf("this is millisec as a integer %d \n",mil_int);
 
 
-	Uint64 ndays = day_int*86400000000;        //one day = 8.64*10^10 millisecond
-	Uint64 nhour = hour_int*3600000000;  //one hour = 3.6*10^9 milliseconds
-   	 Uint64 nmin = min_int*60000000;  // one minute = 6*10^7
-    Uint64 nsecond = sec_int*1000000; //one second = 10^6 milliseconds
-    Uint64 milTime = ndays+nhour+nmin+nsecond+mil_int;
+	const Uint64 ndays = day_int*static_cast<Uint64>(864)*100000000;     //one day = 8.64*10^10 millisecond
+	const Uint64 nhour = hour_int*static_cast<Uint64>(36)*100000000;     //one hour = 3.6*10^9 milliseconds
+	const Uint64 nmin = min_int*60000000;            // one minute = 6*10^7
+	const Uint64 nsecond = sec_int*1000000;          //one second = 10^6 milliseconds
+	const Uint64 milTime = ndays+nhour+nmin+nsecond+mil_int;
 	
 //	printf("this is what is being passed back %d",milTime);
 
@@ -611,7 +611,12 @@ int main(int argc, char** argv)
 
 	//if StatisticalData::copyGSD is FALSE this will only return 0's
  
-			printf(" %-25s%9lu %10lu %10lu %10lu %10lu\n",
+			printf(" %-25s"
+			       "%9"  PEGASUS_64BIT_CONVERSION_WIDTH "u"
+			       "%10" PEGASUS_64BIT_CONVERSION_WIDTH "u"
+			       "%10" PEGASUS_64BIT_CONVERSION_WIDTH "u"
+			       "%10" PEGASUS_64BIT_CONVERSION_WIDTH "u"
+			       "%10" PEGASUS_64BIT_CONVERSION_WIDTH "u\n",
 			   (const char*)statName.getCString(),
 			   numberOfRequests, averageCimomTime,
 			   averageProviderTime, averageRequestSize, 

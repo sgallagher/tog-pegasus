@@ -9,7 +9,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,7 +28,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 
-// << Thu Aug 14 15:00:35 2003 mdd >> domain sockets and socket tests work 
+// << Thu Aug 14 15:00:35 2003 mdd >> domain sockets and socket tests work
 #include "pegasus_socket.h"
 #include <Pegasus/Common/Socket.h>
 #include <Pegasus/Common/TLS.h>
@@ -44,9 +44,9 @@
 #ifndef PEGASUS_OS_OS400
 //#   include <unistd.h>
 #else
-#   include <unistd.cleinc> 
+#   include <unistd.cleinc>
 #endif
-#   include <string.h> 
+#   include <string.h>
 # include <cstdlib>
 # include <errno.h>
 #ifdef PEGASUS_OS_TYPE_WINDOWS
@@ -71,17 +71,22 @@
 PEGASUS_NAMESPACE_BEGIN
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
-#define errno WSAGetLastError()
-#endif 
+ #ifdef errno
+ #undef errno
+ #endif
+
+ #define errno WSAGetLastError()
+#endif
+
 class PEGASUS_COMMON_LINKAGE abstract_socket : public Sharable
 {
    public:
       abstract_socket(void) { }
       virtual ~abstract_socket(void){ }
-      
+
       virtual operator Sint32() const = 0;
       virtual int socket(int sock_type, int sock_style, int sock_protocol, void *ssl_context = 0) = 0;
-      
+
       virtual Sint32 read(void* ptr, Uint32 size) = 0;
       virtual Sint32 write(const void* ptr, Uint32 size) = 0;
       virtual int close(void) = 0;
@@ -90,7 +95,7 @@ class PEGASUS_COMMON_LINKAGE abstract_socket : public Sharable
 
       virtual int getsockname (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE *length_ptr) = 0;
       virtual int bind (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE length) = 0;
-     
+
       virtual abstract_socket* accept(struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE *length_ptr) = 0;
       virtual int connect (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE length) = 0;
       virtual int shutdown(int how) = 0;
@@ -107,7 +112,7 @@ class PEGASUS_COMMON_LINKAGE abstract_socket : public Sharable
       virtual Boolean is_secure(void) = 0;
       virtual void set_close_on_exec(void) = 0;
       virtual const char* get_err_string(void) = 0;
-      
+
    private:
 
       abstract_socket(const abstract_socket& );
@@ -116,10 +121,10 @@ class PEGASUS_COMMON_LINKAGE abstract_socket : public Sharable
 
 
 
-/** 
- * null socket class - 
- * error handling rep for empty pegasus_sockets - 
- * 
+/**
+ * null socket class -
+ * error handling rep for empty pegasus_sockets -
+ *
  */
 class empty_socket_rep : public abstract_socket
 {
@@ -127,19 +132,19 @@ class empty_socket_rep : public abstract_socket
       empty_socket_rep(void){ }
       ~empty_socket_rep(void){ }
       operator Sint32() const { return -1 ;}
-      
-      int socket(int sock_type, int sock_style, 
+
+      int socket(int sock_type, int sock_style,
 		 int sock_protocol, void *ssl_context = 0) { return -1 ;}
-      
+
       Sint32 read(void* ptr, Uint32 size) { return -1 ;}
       Sint32 write(const void* ptr, Uint32 size){ return -1 ;}
       int close(void){ return -1 ;}
       int enableBlocking(void){ return -1 ;}
       int disableBlocking(void){ return -1 ;}
- 
+
        int getsockname (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE *length_ptr){ return -1 ;}
        int bind (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE length) { return -1;}
-     
+
        abstract_socket* accept(struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE *length_ptr) { return 0;}
        int connect (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE length) { return -1;}
        int shutdown(int how) { return -1;}
@@ -155,8 +160,8 @@ class empty_socket_rep : public abstract_socket
        Boolean incompleteReadOccurred(Sint32 retCode) { return false;}
        Boolean is_secure(void) { return false;}
       void set_close_on_exec(void) { }
-      const char* get_err_string(void) 
-      { 
+      const char* get_err_string(void)
+      {
 	 static const char* msg = "Unsupported.";
 	 return msg;
       }
@@ -165,17 +170,17 @@ class empty_socket_rep : public abstract_socket
 };
 
 
-/** 
+/**
  * internet socket class
  * designed to be overriden by ssl_socket_rep
- * 
+ *
  */
 class bsd_socket_rep : public abstract_socket
 {
    public:
 
-      /** 
-       * map to pegasus_socket::sock_err 
+      /**
+       * map to pegasus_socket::sock_err
        */
 
       bsd_socket_rep(void);
@@ -185,7 +190,7 @@ class bsd_socket_rep : public abstract_socket
 
       virtual operator Sint32() const;
       int socket(int sock_type, int sock_style, int sock_protocol, void *ssl_context = 0);
-      
+
       virtual Sint32 read(void* ptr, Uint32 size);
       virtual Sint32 write(const void* ptr, Uint32 size);
       virtual int close(void);
@@ -194,7 +199,7 @@ class bsd_socket_rep : public abstract_socket
 
       virtual int getsockname (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE *length_ptr);
       virtual int bind (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE length);
-     
+
       virtual abstract_socket* accept(struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE *length_ptr);
       virtual int connect (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE length);
       virtual int shutdown(int how);
@@ -223,13 +228,13 @@ class bsd_socket_rep : public abstract_socket
 	    {
 #ifdef PEGASUS_OS_TYPE_WINDOWS
 	       Socket::initializeInterface();
-#endif 
+#endif
 	    }
 	    ~_library_init(void)
 	    {
 #ifdef PEGASUS_OS_TYPE_WINDOWS
 	       Socket::uninitializeInterface();
-#endif 
+#endif
 	    }
       };
 
@@ -251,8 +256,8 @@ class bsd_socket_rep : public abstract_socket
 #endif
 
 
-/** 
- * default constructor for an (uninitialized) bsd socket 
+/**
+ * default constructor for an (uninitialized) bsd socket
  */
 bsd_socket_rep::bsd_socket_rep(void)
    :_errno(0)
@@ -265,13 +270,13 @@ bsd_socket_rep::bsd_socket_rep(int sock)
 }
 
 
-/** 
+/**
  * default destructor for bsd_socket_rep
  *
  */
 bsd_socket_rep::~bsd_socket_rep(void)
 {
-   
+
 }
 
 int bsd_socket_rep::shutdown(int how)
@@ -311,7 +316,7 @@ Sint32 bsd_socket_rep::write(const void* ptr, Uint32 size)
 {
    int ccode = Socket::write(_socket, ptr, size);
    if(ccode == -1)
-      errno = _errno;
+      _errno = errno;
    return ccode;
 }
 
@@ -319,7 +324,7 @@ Sint32 bsd_socket_rep::write(const void* ptr, Uint32 size)
 int bsd_socket_rep::close(void)
 {
    int ccode;
-   
+
    shutdown(2);
    ccode = Socket::close2(_socket);
    if(ccode == -1)
@@ -347,7 +352,7 @@ int bsd_socket_rep::getsockname (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE *le
    return ccode;
 }
 
-/** 
+/**
  * default implementation allows reuseof address
  * sockaddr structure needs to be fully initialized or call will fail
  */
@@ -373,7 +378,7 @@ abstract_socket* bsd_socket_rep::accept(struct sockaddr *addr, PEGASUS_SOCKLEN_S
    }
 
    bsd_socket_rep *rep = new bsd_socket_rep(new_sock);
-   // set the close-on-exec flag 
+   // set the close-on-exec flag
    rep->set_close_on_exec();
    return rep;
 }
@@ -406,7 +411,12 @@ int bsd_socket_rep::getpeername (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE *le
 
 int bsd_socket_rep::send (void *buffer, PEGASUS_SOCKLEN_SIZE size, int flags)
 {
+   #ifdef PEGASUS_OS_TYPE_WINDOWS
+   int ccode = ::send(_socket, (char *)buffer, size, flags);
+   #else
    int ccode = ::send(_socket, buffer, size, flags);
+   #endif
+
    if(ccode == -1)
       _errno = errno;
    return ccode;
@@ -415,7 +425,12 @@ int bsd_socket_rep::send (void *buffer, PEGASUS_SOCKLEN_SIZE size, int flags)
 
 int bsd_socket_rep::recv (void *buffer, PEGASUS_SOCKLEN_SIZE size, int flags)
 {
+   #ifdef PEGASUS_OS_TYPE_WINDOWS
+   int ccode = ::recv(_socket, (char *)buffer, size, flags);
+   #else
    int ccode = ::recv(_socket, buffer, size, flags);
+   #endif
+
    if(ccode == -1)
       _errno = errno;
    return ccode;
@@ -423,20 +438,30 @@ int bsd_socket_rep::recv (void *buffer, PEGASUS_SOCKLEN_SIZE size, int flags)
 
 int bsd_socket_rep::sendto(void *buffer, PEGASUS_SOCKLEN_SIZE size, int flags, struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE length)
 {
+   #ifdef PEGASUS_OS_TYPE_WINDOWS
+   int ccode = ::sendto(_socket, (char *)buffer, size, flags, addr, length);
+   #else
    int ccode = ::sendto(_socket, buffer, size, flags, addr, length);
-      if(ccode == -1)
+   #endif
+
+   if(ccode == -1)
       _errno = errno;
    return ccode;
 }
 
 
-int bsd_socket_rep::recvfrom(void *buffer, 
-			     PEGASUS_SOCKLEN_SIZE size, 
-			     int flags, 
-			     struct sockaddr *addr, 
+int bsd_socket_rep::recvfrom(void *buffer,
+			     PEGASUS_SOCKLEN_SIZE size,
+			     int flags,
+			     struct sockaddr *addr,
 			     PEGASUS_SOCKLEN_SIZE *length_ptr)
 {
+   #ifdef PEGASUS_OS_TYPE_WINDOWS
+   int ccode = ::recvfrom(_socket, (char *)buffer, size, flags, addr, length_ptr);
+   #else
    int ccode = ::recvfrom(_socket, buffer, size, flags, addr, length_ptr);
+   #endif
+
    if(ccode == -1)
       _errno = errno;
    return ccode;
@@ -444,7 +469,12 @@ int bsd_socket_rep::recvfrom(void *buffer,
 
 int bsd_socket_rep::setsockopt (int level, int optname, void *optval, PEGASUS_SOCKLEN_SIZE optlen)
 {
+   #ifdef PEGASUS_OS_TYPE_WINDOWS
+   int ccode = ::setsockopt(_socket, level, optname, (char *)optval, optlen);
+   #else
    int ccode = ::setsockopt(_socket, level, optname, optval, optlen);
+   #endif
+
    if(ccode == -1)
       _errno = errno;
    return ccode;
@@ -453,7 +483,12 @@ int bsd_socket_rep::setsockopt (int level, int optname, void *optval, PEGASUS_SO
 
 int bsd_socket_rep::getsockopt (int level, int optname, void *optval, PEGASUS_SOCKLEN_SIZE *optlen_ptr)
 {
+   #ifdef PEGASUS_OS_TYPE_WINDOWS
+   int ccode = ::getsockopt(_socket, level, optname, (char *)optval, optlen_ptr);
+   #else
    int ccode = ::getsockopt(_socket, level, optname, optval, optlen_ptr);
+   #endif
+
    if(ccode == -1)
       _errno = errno;
    return ccode;
@@ -472,15 +507,16 @@ Boolean bsd_socket_rep::is_secure(void)
 
 void bsd_socket_rep::set_close_on_exec(void)
 {
+   #ifdef PEGASUS_OS_TYPE_WINDOWS
+   // ATTN: needs implementation
+   #else
    int sock_flags;
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-#else
    if( (sock_flags = fcntl(_socket, F_GETFD, 0)) >= 0)
    {
       sock_flags |= FD_CLOEXEC;
       fcntl(_socket, F_SETFD, sock_flags);
    }
-#endif
+   #endif
 }
 
 
@@ -515,24 +551,24 @@ abstract_socket* bsd_socket_factory::make_socket(SSLContext *ctx)
 
 
 /**
- * ssl_socket_rep - derived from bsd_socket 
- * 
- **/ 
+ * ssl_socket_rep - derived from bsd_socket
+ *
+ **/
 
 
 class ssl_socket_rep : public bsd_socket_rep
 {
    public:
 
-      /** 
-       * map to pegasus_socket::sock_err 
+      /**
+       * map to pegasus_socket::sock_err
        */
       typedef bsd_socket_rep Base;
-      
+
       ssl_socket_rep(void);
       ~ssl_socket_rep(void);
       ssl_socket_rep(SSLContext *);
-      
+
       Sint32 read(void* ptr, Uint32 size);
       Sint32 write(const void* ptr, Uint32 size);
       int close(void);
@@ -542,7 +578,7 @@ class ssl_socket_rep : public bsd_socket_rep
       const char* get_err_string(void);
 
       void set_ctx(SSLContext *);
-      
+
    private:
 
       ssl_socket_rep& operator=(const ssl_socket_rep& );
@@ -560,18 +596,18 @@ class ssl_socket_rep : public bsd_socket_rep
       static struct ss_library_init _lib_init;
 
       Boolean _init(void);
-      
+
 
       // << Thu Aug 14 12:29:21 2003 mdd >> _internal_socket
       // is created by this class, it is ok to delete
       // upon instance destruction
       SSLSocket* _internal_socket;
 
-      // << Thu Aug 14 12:28:54 2003 mdd >> never delete 
+      // << Thu Aug 14 12:28:54 2003 mdd >> never delete
       // the ctx, it is created outside of this class
       SSLContext* _ctx;
       AtomicInt _initialized;
-      
+
 };
 
 ssl_socket_rep::ssl_socket_rep(void)
@@ -618,16 +654,16 @@ Sint32 ssl_socket_rep::read(void* ptr, Uint32 size)
 {
    if(true == _init())
       return _internal_socket->read(ptr, size);
-   else 
+   else
       return -1;
-   
+
 }
 
 Sint32 ssl_socket_rep::write(const void* ptr, Uint32 size)
 {
    if(true == _init())
       return _internal_socket->write(ptr, size);
-   else 
+   else
       return -1;
 }
 
@@ -642,7 +678,7 @@ Boolean ssl_socket_rep::incompleteReadOccurred(Sint32 retCode)
 {
    if(true == _init())
       return _internal_socket->incompleteReadOccurred(retCode);
-   else 
+   else
       return false;
 }
 
@@ -677,11 +713,11 @@ abstract_socket* ssl_socket_factory::make_socket(SSLContext *ctx)
 }
 
 
-#endif // PEGASUS_HAS_SSL 
-/** 
+#endif // PEGASUS_HAS_SSL
+/**
  * pegasus_socket - the high level socket object in pegasus
- * 
- **/ 
+ *
+ **/
 
 pegasus_socket::pegasus_socket(void)
 {
@@ -848,7 +884,7 @@ Boolean pegasus_socket::is_secure(void)
 
 void pegasus_socket::set_close_on_exec(void)
 {
-   return _rep->set_close_on_exec();
+   _rep->set_close_on_exec();
 }
 
 
@@ -860,18 +896,18 @@ const char* pegasus_socket::get_err_string(void)
 
 #ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
 
-/** 
+/**
  * unix domain socket class
- * 
+ *
  */
 class unix_socket_rep : public bsd_socket_rep
 {
    public:
 
       typedef bsd_socket_rep Base;
-      
-      /** 
-       * map to pegasus_socket::sock_err 
+
+      /**
+       * map to pegasus_socket::sock_err
        */
 
       unix_socket_rep(void);
@@ -884,7 +920,7 @@ class unix_socket_rep : public bsd_socket_rep
       int disableBlocking(void);
 
       virtual int bind (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE length);
-     
+
       virtual abstract_socket* accept(struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE *length_ptr);
 
 
@@ -901,13 +937,13 @@ class unix_socket_rep : public bsd_socket_rep
 
 
 
-/** 
- * default constructor for an (uninitialized) bsd socket 
+/**
+ * default constructor for an (uninitialized) bsd socket
  */
 unix_socket_rep::unix_socket_rep(void)
    : Base()
 {
-   
+
 }
 
 unix_socket_rep::unix_socket_rep(int sock)
@@ -917,7 +953,7 @@ unix_socket_rep::unix_socket_rep(int sock)
 }
 
 
-/** 
+/**
  * default destructor for bsd_socket_rep
  *
  */
@@ -946,7 +982,7 @@ int unix_socket_rep::disableBlocking(void)
 }
 
 
-/** 
+/**
  * default implementation allows reuseof address
  * sockaddr structure needs to be fully initialized or call will fail
  */
@@ -968,7 +1004,7 @@ abstract_socket* unix_socket_rep::accept(struct sockaddr *addr, PEGASUS_SOCKLEN_
    }
 
    unix_socket_rep *rep = new unix_socket_rep(new_sock);
-   // set the close-on-exec flag 
+   // set the close-on-exec flag
    rep->set_close_on_exec();
    return rep;
 }
@@ -996,10 +1032,6 @@ abstract_socket* unix_socket_factory::make_socket(SSLContext *ctx)
 
 #endif // PEGASUS_HAS_SSL
 
-#endif // domain socket 
-
-
-
+#endif // domain socket
 
 PEGASUS_NAMESPACE_END
-

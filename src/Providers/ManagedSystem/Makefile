@@ -41,5 +41,13 @@ DIRS =  \
 	IP \
 	IP/tests
 
+ifeq ($(OS),HPUX)
+  DIRS += NTPProviderSecurity \
+	  NTPService \
+	  NTPService/tests \
+	  DNSService \
+	  DNSService/tests
+endif
+
 include $(ROOT)/mak/recurse.mak
 

@@ -17,6 +17,12 @@ DIRS = \
     wbemexec/tests \
     tomof
 
+ifeq ($(OS),HPUX)
+  DIRS += \
+    ntpinfo \
+    dnsinfo
+endif
+
 
 #The following tests are NOT included as part of the standard
 #regession test.  The cimuser tests require PrivilegedUser

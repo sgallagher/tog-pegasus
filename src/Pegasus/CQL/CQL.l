@@ -40,7 +40,7 @@ POSITIVE_DECIMAL_DIGIT [1-9]
 DECIMAL_DIGIT [0-9]
 BLANK [ \t]
 IDENT_CHAR [A-Za-z_\x80-\xFF]
-PROP_CHAR [A-Za-z0-9_\[\]\-\#\,\']
+PROP_CHAR [A-Za-z0-9_\[\]\-\#\']
 
 A [Aa]
 B [Bb]
@@ -231,7 +231,7 @@ Z [Zz]
     return _OR;
 }
 
-{IDENT_CHAR}*\:\:{PROP_CHAR}*[.]? {
+{IDENT_CHAR}*\:\:{PROP_CHAR}* {
     size_t n = strlen(yytext);
     if(CQL_lval.strValue)
         delete [] CQL_lval.strValue;

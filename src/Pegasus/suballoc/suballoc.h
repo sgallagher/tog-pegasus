@@ -203,7 +203,7 @@ class peg_suballoc;
 
 #if defined(PEGASUS_DEBUG_MEMORY)
 #define PEGASUS_NEW(a, h) new((pegasus_alloc(sizeof(a), ((void *)h), NORMAL, (#a), __FILE__, __LINE__)))
-#define PEGASUS_ARRAY_NEW(a, i, h) new(pegasus_alloc(sizeof(a) * (i), ((void *)(h)), ARRAY, (#a), __FILE__, __LINE__)) (a)
+#define PEGASUS_ARRAY_NEW(a, i, h) new(pegasus_alloc(sizeof(a) * (i), ((void *)(h)), ARRAY, (#a), __FILE__, __LINE__)) a
 #define PEGASUS_DELETE(a) pegasus_free((a), NULL, NORMAL, (#a), __FILE__, __LINE__)
 #define PEGASUS_ARRAY_DELETE(a) pegasus_free(a, NULL, ARRAY, (#a), __FILE__, __LINE__)
 #define PEGASUS_CHECK_FOR_LEAKS(h) peg_suballocator::get_instance()->_UnfreedNodes((h))
@@ -235,10 +235,10 @@ class PEGASUS_SUBALLOC_LINKAGE peg_suballocator
 	    void *concurrencyHandle;
 #if defined(PEGASUS_DEBUG_MEMORY)
 	    Sint8 file[MAX_PATH_LEN + 1];
-	    Sint8 line[MAX_LINE_LEN + 1];
+	    Uint32 line;
 	    Sint8 classname[MAX_CLASS_LEN + 1];
 	    Sint8 d_file[MAX_PATH_LEN + 1];
-	    Sint8 d_line[MAX_LINE_LEN + 1];
+	    Uint32 d_line;
 	    Sint8 d_classname[MAX_CLASS_LEN + 1];
 	    Uint8 guardPre[GUARD_SIZE];
 #endif

@@ -37,7 +37,10 @@ PEGASUS_SUBALLOC_LINKAGE peg_suballocator *peg_suballocator::get_instance(void)
 {
    if(peg_suballocator::_suballoc_instance == 0)
    {
-      PEGASUS_STD(cout) << "Initializing Heap" << PEGASUS_STD(endl);
+#if defined(PEGASUS_DEBUG_MEMORY)
+      PEGASUS_STD(cout) << "Initializing Debug Heap" << PEGASUS_STD(endl);
+       
+#endif
       void *buffer = calloc(sizeof(peg_suballocator), sizeof(char));
       peg_suballocator::_suballoc_instance = new(buffer) peg_suballocator(true);
    }
@@ -260,7 +263,7 @@ peg_suballocator::peg_suballocator(void)
      internal_handle("internal_suballoc_log")
      
 {
-   sprintf(internal_handle.classname, "internal");
+   memcpy(internal_handle.classname, "internal\0", 9);
    InitializeSubAllocator();
    return;
 }
@@ -273,7 +276,7 @@ peg_suballocator::peg_suballocator(Boolean mode)
      internal_handle("internal_suballoc_log")
      
 { 
-   sprintf(internal_handle.classname, "internal");
+   memcpy(internal_handle.classname, "internal\0", 9);
    InitializeSubAllocator();
    return;
 }
@@ -448,8 +451,8 @@ Boolean peg_suballocator::_Allocate(Sint32 vector, Sint32 index, Sint32 code)
       g+= sizeof(SUBALLOC_NODE);
       g+= nodeSizes[vector][index];
 #if defined(PEGASUS_DEBUG_MEMORY)
-	 memcpy(g, guard, GUARD_SIZE);
-	 g += GUARD_SIZE;
+      memcpy(g, guard, GUARD_SIZE);
+      g += GUARD_SIZE;
 #endif
       INSERT(temp2, temp);
       temp2 = (SUBALLOC_NODE *)g;
@@ -773,12 +776,10 @@ void *peg_suballocator::vs_malloc(size_t size, void *handle, int type, const Sin
    if(f)
       strncpy(temp->file, f, MAX_PATH_LEN);
    else 
-      temp->file[0] = 0x00;
+   temp->file[0] = 0x00;
    
-   if(l)
-      sprintf(temp->line, "%d", l);
-   else
-      temp->line[0] = 0x00;
+   temp->line = l;
+
    g = (Sint8 *)temp;
    g += sizeof(SUBALLOC_NODE);
    memcpy(g + size, guard, GUARD_SIZE);
@@ -882,8 +883,7 @@ void peg_suballocator::vs_free(void *m,
    strncpy(temp->d_classname, classname, MAX_CLASS_LEN);
    memset(temp->d_file, 0x00, MAX_PATH_LEN + 1);
    strncpy(temp->d_file, file, MAX_PATH_LEN);
-   memset(temp->d_line, 0x00, MAX_LINE_LEN + 1);
-   sprintf(temp->d_line, "%d", line); 
+   temp->d_line = line;
    
    if (! (temp->allocSize >> 8))
    {
@@ -1060,7 +1060,6 @@ Boolean peg_suballocator::_UnfreedNodes(void * handle)
    SUBALLOC_NODE *temp;
    Boolean ccode = false;
    SUBALLOC_HANDLE *h = (SUBALLOC_HANDLE *)handle;
-   WAIT_MUTEX(&(globalSemHandle), 1000, &waitCode);
    for (y = 0; y < 3; y++ )
    {
       for (i = 0; i < 16; i++)
@@ -1076,11 +1075,10 @@ Boolean peg_suballocator::_UnfreedNodes(void * handle)
 	       {
 		  h = (SUBALLOC_HANDLE *)temp->concurrencyHandle;
 		  RELEASE_MUTEX(&(semHandles[y][i]));
-
 		  
 		  Tracer::trace(__FILE__, __LINE__, TRC_MEMORY, Tracer::LEVEL2, 
 				"Memory Leak: %d bytes class %s allocated memory in source file %s at " \
-				"line %s", temp->allocSize, temp->classname, temp->file, temp->line);
+				"line %d", temp->allocSize, temp->classname, temp->file, temp->line);
 		  WAIT_MUTEX(&(semHandles[y][i]), 1000, &waitCode);
 		  ccode = true;
 	       }
@@ -1090,7 +1088,6 @@ Boolean peg_suballocator::_UnfreedNodes(void * handle)
 	 RELEASE_MUTEX(&(semHandles[y][i]));
       }
    }
-   RELEASE_MUTEX(&(globalSemHandle));
    return(ccode);
 }
 	
@@ -1158,7 +1155,7 @@ peg_suballocator::SUBALLOC_NODE *peg_suballocator::_CheckNode(void *m,
    {
       Tracer::trace(file, line, TRC_MEMORY, Tracer::LEVEL2, 
 		    "Doubly freed memory, already deleted by class %s at " \
-		    "source file %s line number %s; this deletion is from " \
+		    "source file %s line number %d; this deletion is from " \
 		    "source file %s line number %d",
 		    temp->d_classname, temp->d_file, temp->d_line, file, line);
       temp->flags |= CHECK_FAILED;
@@ -1173,7 +1170,7 @@ peg_suballocator::SUBALLOC_NODE *peg_suballocator::_CheckNode(void *m,
 	 Tracer::trace(file, line, TRC_MEMORY, Tracer::LEVEL2,
 		       "Array delete called with non-array object at " \
 		       "source file %s line number %d. Object was originally allocated " \
-		       " by class %s in source file %s at line number %s",
+		       " by class %s in source file %s at line number %d",
 		       file, line, temp->classname, temp->file, temp->line);
 	 temp->flags |= CHECK_FAILED;
 	 if( abort_on_error)
@@ -1185,7 +1182,7 @@ peg_suballocator::SUBALLOC_NODE *peg_suballocator::_CheckNode(void *m,
       Tracer::trace(file, line, TRC_MEMORY, Tracer::LEVEL2,
 		    "Normal delete called with array object at " \
 		    "source file %s line number %d. Object was originally allocated " \
-		    " by class %s in source file %s at line number %s",
+		    " by class %s in source file %s at line number %d",
 		    file, line, temp->classname, temp->file, temp->line);
       temp->flags |= CHECK_FAILED;
       if( abort_on_error)
@@ -1196,7 +1193,7 @@ peg_suballocator::SUBALLOC_NODE *peg_suballocator::_CheckNode(void *m,
    if(false == _CheckGuard(temp))
    {
       Tracer::trace(file, line, TRC_MEMORY, Tracer::LEVEL2,
-		    "Memory overwritten. Allocated by %s in source file %s at line number %s",
+		    "Memory overwritten. Allocated by %s in source file %s at line number %d",
 		    temp->classname, temp->file, temp->line);
       temp->flags |= CHECK_FAILED;
       if( abort_on_error)

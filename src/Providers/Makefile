@@ -1,10 +1,11 @@
 # Recurse the directories defined in DIRS
-# This makefile simply recurses all of the toplevel repository directories
+# This makefile simply recurses all of the toplevel provider directories
 
 ROOT = ../..
 
 include $(ROOT)/mak/config.mak
 
+#Directories to recurse
 DIRS = generic
 
 # ATTN: Comment this out: it was breaking the build:

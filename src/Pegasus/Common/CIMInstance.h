@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CIMInstance.h,v $
+// Revision 1.6  2001/02/27 09:32:35  karl
+// Document cleanup
+//
 // Revision 1.5  2001/02/20 14:05:24  karl
 // Comments for Document
 //
@@ -120,8 +123,8 @@ public:
 	from the input parameters
 	@param - String className to be used with new instance object
 	@return The new instance object
-	Throws IllegalName if className argument not legal CIM identifier.
-	ATTN: Clarify the defintion
+	@exception Throws IllegalName if className argument not legal CIM 
+	identifier. ATTN: Clarify the defintion	of legal CIM identifier.
     */
     CIMInstance(const String& className)
     {
@@ -182,7 +185,9 @@ public:
 	The index to qualifier objects is zero-origin and continuous
 	so that incrementing loops can be used to get all qualifier
 	objects in a CIMInstnace.  
-	@return: Returns qualifier object defined by index.  
+	@return: Returns qualifier object defined by index.
+	@exception Throws the OutOfBounds exception if the index
+	is out of bounds  
     ATTN: What is effect of out of range index???
     */
     CIMQualifier getQualifier(Uint32 pos)
@@ -196,7 +201,10 @@ public:
 	The index to qualifier objects is zero-origin and continuous
 	so that incrementing loops can be used to get all qualifier
 	objects in a CIMInstnace.  
-	@return: Returns qualifier object defined by index.  
+	@return: Returns qualifier object defined by index. 
+	@exception Throws the OutOfBounds exception if the index
+	is out of bounds  
+ 
     ATTN: What is effect of out of range index???
     ATTN: Is the above statement correct???
     */
@@ -210,6 +218,9 @@ public:
 	defined for this CIMInstance.
 	@return	Count of the number of CIMQalifier objects in the
 	CIMInstance.
+	@exception Throws the OutOfBounds exception if the index
+	is out of bounds  
+
     */ 
     Uint32 getQualifierCount() const
     {
@@ -222,6 +233,8 @@ public:
 	@param Property Object to be added.  See the CIM Property
 	class for definition of the property object
 	@return ATTN:
+	@exception Throws the exception AlreadyExists if the property 
+	already exists.
     */
     CIMInstance& addProperty(const CIMProperty& x)
     {
@@ -262,7 +275,10 @@ public:
     	The index to qualifier objects is zero-origin and continuous
 	so that incrementing loops can be used to get all qualifier
 	objects in a CIMInstnace. 
-	@return CIMProperty object corresponding to the index. 
+	@return CIMProperty object corresponding to the index.
+	@exception Throws the OutOfBounds exception if the index
+	is out of bounds  
+ 
 	ATTN: What is the effect of out of range?
     */
     CIMProperty getProperty(Uint32 pos)
@@ -277,7 +293,10 @@ public:
     	The index to qualifier objects is zero-origin and continuous
 	so that incrementing loops can be used to get all qualifier
 	objects in a CIMInstnace. 
-	@return CIMProperty object corresponding to the index. 
+	@return CIMProperty object corresponding to the index.
+	@exception Throws the OutOfBounds exception if the index
+	is out of bounds  
+ 
 	ATTN: What is the effect of out of range?
     */
     ConstCIMProperty getProperty(Uint32 pos) const
@@ -291,6 +310,9 @@ public:
 	@return	Count of the number of CIMProperty objects in the
 	CIMInstance. Zero indicates that no CIMProperty objects
 	are contained in the CIMInstance
+	@exception Throws the OutOfBounds exception if the index
+	is out of bounds  
+
     */
     Uint32 getPropertyCount() const
     {

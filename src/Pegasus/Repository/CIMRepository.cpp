@@ -78,10 +78,14 @@ void _LoadObject(
     String realPath;
 
     if (!FileSystem::existsNoCase(path, realPath))
-    {
+    { 
+        String traceString = path + " does not exists.";
+        PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4, traceString);
         PEG_METHOD_EXIT();
         throw CannotOpenFile(path);
     }
+
+    PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4, "realpath = " + realPath);
 
     // Load file into memory:
 
@@ -246,6 +250,9 @@ CIMClass CIMRepository::getClass(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::getClass");
 
+    PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4, "nameSpace = " + 
+                     nameSpace + ", className = " + className);
+
     // ATTN: localOnly, includeQualifiers, and includeClassOrigin are ignored
     // for now.
 
@@ -379,7 +386,7 @@ void CIMRepository::deleteClass(
     const String& nameSpace,
     const String& className)
 {
-    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::deleteClass");
+    PEG_METHOD_ENTER(TRC_REPOSITORY,"CIMRepository::deleteClass");
 
     //
     // Get the class and check to see if it is an association class:
@@ -393,8 +400,12 @@ void CIMRepository::deleteClass(
     //
 
     String indexFilePath = _getInstanceIndexFilePath(nameSpace, className);
+    PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4, 
+                     "instance indexFilePath = " + indexFilePath);
 
     String dataFilePath = _getInstanceDataFilePath(nameSpace, className);
+    PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4, 
+                     "instance dataFilePath = " + dataFilePath);
 
     if (InstanceIndexFile::hasNonFreeEntries(indexFilePath))
     {
@@ -417,6 +428,7 @@ void CIMRepository::deleteClass(
     }
 
     FileSystem::removeFileNoCase(indexFilePath);
+
     FileSystem::removeFileNoCase(dataFilePath);
 
     //
@@ -434,7 +446,7 @@ void CIMRepository::deleteClass(
         if (FileSystem::exists(assocFileName))
             AssocClassTable::deleteAssociation(assocFileName, className);
     }
-
+    
     PEG_METHOD_EXIT();
 }
 
@@ -796,7 +808,7 @@ CIMReference CIMRepository::createInstance(
     const String& nameSpace,
     const CIMInstance& newInstance)
 {
-    PEG_METHOD_ENTER(TRC_REPOSITORY,"CIMRepository::createInstance");
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::createInstance");
 
     String errMessage;
 
@@ -1044,7 +1056,7 @@ void CIMRepository::modifyInstance(
     }
 
     if (!InstanceDataFile::beginTransaction(dataFilePath))
-    {
+    { 
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "begin failed");
     }
@@ -1524,14 +1536,14 @@ Array<CIMReference> CIMRepository::enumerateInstanceNames(
     const String& nameSpace,
     const String& className)
 {
-    PEG_METHOD_ENTER(TRC_REPOSITORY,"CIMRepository::enumerateInstanceNames");
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::enumerateInstanceNames");
 
     //
     // Get names of descendent classes:
     //
 
     Array<String> classNames;
-    try 
+    try
     {
         _nameSpaceManager.getSubClassNames(nameSpace, className, true, classNames);
     }
@@ -1540,7 +1552,7 @@ Array<CIMReference> CIMRepository::enumerateInstanceNames(
         PEG_METHOD_EXIT();
         throw e;
     }
-        
+
     classNames.prepend(className);
 
     //
@@ -2110,7 +2122,7 @@ String CIMRepository::_getInstanceDataFilePath(
     String tmp = _nameSpaceManager.getInstanceDataFileBase(
 	nameSpace, className);
     tmp.append(".instances");
-
+  
     PEG_METHOD_EXIT();
     return tmp;
 }

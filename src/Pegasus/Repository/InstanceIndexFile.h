@@ -164,6 +164,7 @@ public:
 	Array<CIMReference>& instanceNames,
 	Boolean includeFreeEntries);
 
+
     /** Returns true if this index file has any non-free entries:
     */
     static Boolean hasNonFreeEntries(const String& path);
@@ -195,11 +196,13 @@ private:
 
     /** Open the index file and position the file pointer on the first
 	entry (immediately after the free count). Create the file if it
-	does not exist (writing a free count of zero).
+	does not exist and if the create flag is true (writing a free 
+        count of zero).
     */
     static Boolean _openFile(
 	const String& path, 
-        PEGASUS_STD(fstream)& fs);
+        PEGASUS_STD(fstream)& fs,
+        Boolean create = false);
     
     /** Appends a new entry to the index file; called by both createEntry()
         and modifyEntry().

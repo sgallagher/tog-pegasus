@@ -30,6 +30,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/Dir.h>
+#include <Pegasus/Common/Tracer.h>
 #include "NameSpaceManager.h"
 
 PEGASUS_USING_STD;
@@ -61,7 +62,9 @@ static inline String _MakeClassFilePath(
 	    superClassName);
     }
     else
+    {
 	return Cat(nameSpacePath, _CLASSES_SUFFIX, '/', className, '.', '#');
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -307,10 +310,15 @@ Boolean NameSpaceManager::nameSpaceExists(const String& nameSpaceName) const
 
 void NameSpaceManager::createNameSpace(const String& nameSpaceName)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::createNameSpace()");
+
     // Throw exception if namespace already exists:
 
     if (nameSpaceExists(nameSpaceName))
+    {
+        PEG_METHOD_EXIT();
 	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ALREADY_EXISTS, nameSpaceName);
+    }
 
     // Attempt to create all the namespace diretories:
 
@@ -331,20 +339,28 @@ void NameSpaceManager::createNameSpace(const String& nameSpaceName)
     catch (Exception& e)
     {
 	delete nameSpace;
+        PEG_METHOD_EXIT();
 	throw e;
     }
 
     _rep->table.insert(nameSpaceName, nameSpace);
+
+    PEG_METHOD_EXIT();
 }
 
 void NameSpaceManager::deleteNameSpace(const String& nameSpaceName)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::deleteNameSpace()");
+
     // If no such namespace:
 
     NameSpace* nameSpace = 0;
 
     if (!_rep->table.lookup(nameSpaceName, nameSpace))
+    {
+        PEG_METHOD_EXIT();
 	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_NAMESPACE, nameSpaceName);
+    }
 
     // Form namespace path:
 
@@ -355,16 +371,24 @@ void NameSpaceManager::deleteNameSpace(const String& nameSpaceName)
     // Delete the entire namespace directory hierarchy:
 
     if (!_NameSpaceDirHierIsEmpty(nameSpacePath))
+    {
+        PEG_METHOD_EXIT();
 	throw NonEmptyNameSpace(nameSpaceName);
+    }
 
     if (!FileSystem::removeDirectoryHier(nameSpacePath))
+    {
+        PEG_METHOD_EXIT();
 	throw CannotRemoveDirectory(nameSpacePath);
+    }
 
     // Remove and delete the namespace object:
 
     Boolean success = _rep->table.remove(nameSpaceName);
     PEGASUS_ASSERT(success);
     delete nameSpace;
+
+    PEG_METHOD_EXIT();
 }
 
 void NameSpaceManager::getNameSpaceNames(Array<String>& nameSpaceNames) const
@@ -379,11 +403,17 @@ String NameSpaceManager::getClassFilePath(
     const String& nameSpaceName,
     const String& className) const
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::getClassFilePath()");
+
     NameSpace* nameSpace = 0;
 
     if (!_rep->table.lookup(nameSpaceName, nameSpace))
+    {
+        PEG_METHOD_EXIT();
 	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_NAMESPACE, nameSpaceName);
+    }
 
+    PEG_METHOD_EXIT();
     return nameSpace->getClassFilePath(className);
 }
 
@@ -391,11 +421,17 @@ String NameSpaceManager::getInstanceDataFileBase(
     const String& nameSpaceName,
     const String& className) const
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::getInstanceDataFileBase()");
+
     NameSpace* nameSpace = 0;
 
     if (!_rep->table.lookup(nameSpaceName, nameSpace))
+    {
+        PEG_METHOD_EXIT();
 	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_NAMESPACE, nameSpaceName);
+    }
 
+    PEG_METHOD_EXIT();
     return nameSpace->getInstanceDataFileBase(className);
 }
 
@@ -403,11 +439,17 @@ String NameSpaceManager::getQualifierFilePath(
     const String& nameSpaceName,
     const String& qualifierName) const
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::getQualifierFilePath()");
+
     NameSpace* nameSpace = 0;
 
     if (!_rep->table.lookup(nameSpaceName, nameSpace))
+    {
+        PEG_METHOD_EXIT();
 	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_NAMESPACE, nameSpaceName);
+    }
 
+    PEG_METHOD_EXIT();
     return nameSpace->getQualifierFilePath(qualifierName);
 }
 
@@ -415,12 +457,17 @@ void NameSpaceManager::deleteClass(
     const String& nameSpaceName,
     const String& className) const
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::deleteClass()");
+
     // -- Lookup NameSpace object:
 
     NameSpace* nameSpace = 0;
 
     if (!_rep->table.lookup(nameSpaceName, nameSpace))
+    {
+        PEG_METHOD_EXIT();
 	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_NAMESPACE, nameSpaceName);
+    }
 
     // -- Get path to class file:
 
@@ -433,7 +480,12 @@ void NameSpaceManager::deleteClass(
     // -- Remove the file from disk:
 
     if (!FileSystem::removeFileNoCase(classFilePath))
+    {
+        PEG_METHOD_EXIT();
 	throw CannotRemoveFile(classFilePath);
+    }
+
+    PEG_METHOD_EXIT();
 }
 
 void NameSpaceManager::print(PEGASUS_STD(ostream)& os) const
@@ -453,24 +505,39 @@ void NameSpaceManager::createClass(
     const String& superClassName,
     String& classFilePath)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::createClass()");
+
     // -- Lookup namespace:
 
     NameSpace* nameSpace = 0;
 
     if (!_rep->table.lookup(nameSpaceName, nameSpace))
+    {
+        PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4, "Invalid NameSpace.");
+        PEG_METHOD_EXIT();
 	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_NAMESPACE, nameSpaceName);
+    }
 
     InheritanceTree& it = nameSpace->getInheritanceTree();
 
     // -- Be certain class doesn't already exist:
 
     if (it.containsClass(className))
+    {
+        PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4, "Class already exists.");
+        PEG_METHOD_EXIT();
 	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ALREADY_EXISTS, className);
+    }
 
     // -- Be certain superclass exists:
 
     if (superClassName.size() && !it.containsClass(superClassName))
+    {
+        PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4, 
+                         "SuperClass does not exists.");
+        PEG_METHOD_EXIT();
 	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_SUPERCLASS, superClassName);
+    }
 
     // -- Insert the entry:
 
@@ -480,6 +547,8 @@ void NameSpaceManager::createClass(
 
     classFilePath = _MakeClassFilePath(
 	nameSpace->getNameSpacePath(), className, superClassName);
+
+    PEG_METHOD_EXIT();
 }
 
 void NameSpaceManager::checkModify(
@@ -488,12 +557,17 @@ void NameSpaceManager::checkModify(
     const String& superClassName,
     String& classFilePath)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::checkModify()");
+
     // -- Lookup namespace:
 
     NameSpace* nameSpace = 0;
 
     if (!_rep->table.lookup(nameSpaceName, nameSpace))
+    {
+        PEG_METHOD_EXIT();
 	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_NAMESPACE, nameSpaceName);
+    }
 
     InheritanceTree& it = nameSpace->getInheritanceTree();
 
@@ -502,10 +576,14 @@ void NameSpaceManager::checkModify(
     String oldSuperClassName;
 
     if (!it.getSuperClass(className, oldSuperClassName))
+    {
+        PEG_METHOD_EXIT();
 	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_CLASS, className);
+    }
 
     if (superClassName != oldSuperClassName)
     {
+        PEG_METHOD_EXIT();
 	throw PEGASUS_CIM_EXCEPTION(
 	    CIM_ERR_FAILED, "attempt to change superclass");
     }
@@ -516,12 +594,17 @@ void NameSpaceManager::checkModify(
     it.hasSubClasses(className, hasSubClasses);
 
     if (hasSubClasses)
+    {
+        PEG_METHOD_EXIT();
 	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_CLASS_HAS_CHILDREN, className);
+    }
 
     // -- Build the path to the class:
 
     classFilePath = _MakeClassFilePath(
 	nameSpace->getNameSpacePath(), className, superClassName);
+
+    PEG_METHOD_EXIT();
 }
 
 void NameSpaceManager::getSubClassNames(
@@ -530,17 +613,27 @@ void NameSpaceManager::getSubClassNames(
     Boolean deepInheritance,
     Array<String>& subClassNames) const
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::getSubClassNames()");
+
     // -- Lookup namespace:
 
     NameSpace* nameSpace = 0;
 
     if (!_rep->table.lookup(nameSpaceName, nameSpace))
+    {
+        PEG_METHOD_EXIT();
 	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_NAMESPACE, nameSpaceName);
+    }
 
     InheritanceTree& it = nameSpace->getInheritanceTree();
 
     if (!it.getSubClassNames(className, deepInheritance, subClassNames))
+    {
+        PEG_METHOD_EXIT();
 	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_CLASS, className);
+    }
+
+    PEG_METHOD_EXIT();
 }
 
 void NameSpaceManager::getSuperClassNames(
@@ -548,30 +641,46 @@ void NameSpaceManager::getSuperClassNames(
     const String& className,
     Array<String>& subClassNames) const
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::getSuperClassNames()");
+
     // -- Lookup namespace:
 
     NameSpace* nameSpace = 0;
 
     if (!_rep->table.lookup(nameSpaceName, nameSpace))
+    {
+        PEG_METHOD_EXIT();
 	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_NAMESPACE, nameSpaceName);
+    }
 
     InheritanceTree& it = nameSpace->getInheritanceTree();
 
     // -- Get names of all superclasses:
 
     if (!it.getSuperClassNames(className, subClassNames))
+    {
+        PEG_METHOD_EXIT();
 	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_CLASS, className);
+    }
+
+    PEG_METHOD_EXIT();
 }
 
 String NameSpaceManager::getQualifiersRoot(const String& nameSpaceName) const
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::getQualifiersRoot()");
+
     // -- Lookup namespace:
 
     NameSpace* nameSpace = 0;
 
     if (!_rep->table.lookup(nameSpaceName, nameSpace))
+    {
+        PEG_METHOD_EXIT();
 	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_NAMESPACE, nameSpaceName);
+    }
 
+    PEG_METHOD_EXIT();
     return Cat(nameSpace->getNameSpacePath(), _QUALIFIERS_SUFFIX);
 }
 

@@ -24,9 +24,9 @@
 //
 // Modified By: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //
-//				Ramnath Ravindran (Ramnath.Ravindran@compaq.com) 03/21/2002
-//					replaced instances of "| ios::binary" with 
-//					PEGASUS_OR_IOS_BINARY
+//              Ramnath Ravindran (Ramnath.Ravindran@compaq.com) 03/21/2002
+//			replaced instances of "| ios::binary" with 
+//			PEGASUS_OR_IOS_BINARY
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -38,6 +38,7 @@
 #include <cstdlib>
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/FileSystem.h>
+#include <Pegasus/Common/Tracer.h>
 #include "InstanceIndexFile.h"
 
 PEGASUS_USING_STD;
@@ -191,10 +192,15 @@ Boolean InstanceIndexFile::lookupEntry(
     Uint32& indexOut,
     Uint32& sizeOut)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "InstanceIndexFile::lookupEntry()");
+
     fstream fs;
 
     if (!_openFile(path, fs))
+    {
+        PEG_METHOD_EXIT();
 	return false;
+    }
 
     Uint32 entryOffset = 0;
 
@@ -202,6 +208,8 @@ Boolean InstanceIndexFile::lookupEntry(
 	fs, instanceName, indexOut, sizeOut, entryOffset);
 
     fs.close();
+
+    PEG_METHOD_EXIT();
     return result;
 }
 
@@ -211,14 +219,19 @@ Boolean InstanceIndexFile::createEntry(
     Uint32 indexIn,
     Uint32 sizeIn)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "InstanceIndexFile::createEntry()");
+
     //
     // Open the file:
     //
 
     fstream fs;
 
-    if (!_openFile(path, fs))
+    if (!_openFile(path, fs, true))
+    {
+        PEG_METHOD_EXIT();
 	return false;
+    }
 
     //
     // Return false if entry already exists:
@@ -230,20 +243,28 @@ Boolean InstanceIndexFile::createEntry(
 
     if (InstanceIndexFile::_lookupEntry(
 	fs, instanceName, tmpIndex, tmpSize, tmpEntryOffset))
+    {
+        PEG_METHOD_EXIT();
 	return false;
+    }
 
     //
     // Append the new entry to the end of the file:
     //
 
     if (!_appendEntry(fs, instanceName, indexIn, sizeIn))
+    {
+        PEG_METHOD_EXIT();
 	return false;
+    }
 
     //
     // Close the file:
     //
 
     fs.close();
+
+    PEG_METHOD_EXIT();
     return true;
 }
 
@@ -252,6 +273,8 @@ Boolean InstanceIndexFile::deleteEntry(
     const CIMReference& instanceName,
     Uint32& freeCount)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "InstanceIndexFile::deleteEntry()");
+
     freeCount = 0;
 
     //
@@ -262,6 +285,7 @@ Boolean InstanceIndexFile::deleteEntry(
 
     if (!_openFile(path, fs))
     {
+        PEG_METHOD_EXIT();
 	return false;
     }
 
@@ -271,6 +295,7 @@ Boolean InstanceIndexFile::deleteEntry(
 
     if (!_markEntryFree(fs, instanceName))
     {
+        PEG_METHOD_EXIT();
 	return false;
     }
 
@@ -281,7 +306,10 @@ Boolean InstanceIndexFile::deleteEntry(
     freeCount = 0;
 
     if (!_incrementFreeCount(fs, freeCount))
+    {
+        PEG_METHOD_EXIT();
 	return false;
+    }
 
     //
     // Close the file:
@@ -289,6 +317,7 @@ Boolean InstanceIndexFile::deleteEntry(
 
     fs.close();
 
+    PEG_METHOD_EXIT();
     return true;
 }
 
@@ -299,6 +328,8 @@ Boolean InstanceIndexFile::modifyEntry(
     Uint32 sizeIn,
     Uint32& freeCount)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "InstanceIndexFile::modifyEntry()");
+
     //
     // Open the file:
     //
@@ -306,21 +337,30 @@ Boolean InstanceIndexFile::modifyEntry(
     fstream fs;
 
     if (!_openFile(path, fs))
+    {
+        PEG_METHOD_EXIT();
 	return false;
+    }
 
     //
     // Mark the entry as free:
     //
 
     if (!_markEntryFree(fs, instanceName))
+    {
+        PEG_METHOD_EXIT();
 	return false;
+    }
 
     //
     // Append new entry:
     //
 
     if (!_appendEntry(fs, instanceName, indexIn, sizeIn))
+    {
+        PEG_METHOD_EXIT();
 	return false;
+    }
 
     //
     // Increment the free count:
@@ -329,7 +369,10 @@ Boolean InstanceIndexFile::modifyEntry(
     freeCount = 0;
 
     if (!_incrementFreeCount(fs, freeCount))
+    {
+        PEG_METHOD_EXIT();
 	return false;
+    }
 
     //
     // Close the file:
@@ -337,6 +380,7 @@ Boolean InstanceIndexFile::modifyEntry(
 
     fs.close();
 
+    PEG_METHOD_EXIT();
     return true;
 }
 
@@ -348,6 +392,8 @@ Boolean InstanceIndexFile::enumerateEntries(
     Array<CIMReference>& instanceNames,
     Boolean includeFreeEntries)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "InstanceIndexFile::enumerateEntries()");
+
     //
     // Reserve space for at least COUNT entries:
     //
@@ -366,7 +412,11 @@ Boolean InstanceIndexFile::enumerateEntries(
     fstream fs;
 
     if (!_openFile(path, fs))
-	return false;
+    {
+        // file does not exist, just return with no instanceNames
+        PEG_METHOD_EXIT();
+        return true;
+    }
 
     //
     // Iterate over all instances to build output arrays:
@@ -393,8 +443,12 @@ Boolean InstanceIndexFile::enumerateEntries(
     }
 
     if (error)
+    {
+        PEG_METHOD_EXIT();
 	return false;
+    }
 
+    PEG_METHOD_EXIT();
     return true;
 }
 
@@ -402,6 +456,8 @@ Boolean InstanceIndexFile::_incrementFreeCount(
     PEGASUS_STD(fstream)& fs,
     Uint32& freeCount)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "InstanceIndexFile::_incrementFreeCount()");
+
     //
     // Position file pointer to beginning of file (where free count is
     // located) and read the current free count.
@@ -412,7 +468,10 @@ Boolean InstanceIndexFile::_incrementFreeCount(
     fs.read(hexString, 8);
 
     if (!fs)
+    {
+        PEG_METHOD_EXIT();
 	return false;
+    }
 
     hexString[8] = '\0';
 
@@ -424,7 +483,10 @@ Boolean InstanceIndexFile::_incrementFreeCount(
     long tmp = strtol(hexString, &end, 16);
 
     if (!end || *end != '\0' || tmp < 0)
+    {
+        PEG_METHOD_EXIT();
 	return false;
+    }
 
     freeCount = Uint32(tmp);
 
@@ -436,13 +498,17 @@ Boolean InstanceIndexFile::_incrementFreeCount(
     fs.seekg(0);
     fs.write(hexString, 8);
 
+    PEG_METHOD_EXIT();
     return !!fs;
 }
 
 Boolean InstanceIndexFile::_openFile(
     const String& path, 
-    PEGASUS_STD(fstream)& fs)
+    PEGASUS_STD(fstream)& fs,
+    Boolean create)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "InstanceIndexFile::_openFile()");
+
     const char ZERO_FREE_COUNT[] = "00000000\n";
 
     //
@@ -451,25 +517,39 @@ Boolean InstanceIndexFile::_openFile(
 
     if (!FileSystem::openNoCase(fs, path, ios::in | ios::out PEGASUS_OR_IOS_BINARY))
     {
-	//
-	// File does not exist so create it:
-	//
+        if (create)
+        {
+	    //
+	    // File does not exist so create it:
+	    //
 
-	ArrayDestroyer<char> p(path.allocateCString());
-	fs.open(p.getPointer(), ios::out PEGASUS_OR_IOS_BINARY);
+            ArrayDestroyer<char> p(path.allocateCString());
+            fs.open(p.getPointer(), ios::out PEGASUS_OR_IOS_BINARY);
 
-	if (!fs)
-	    return false;
+            if (!fs)
+            {
+                PEG_METHOD_EXIT();
+	        return false;
+            }
 
-	fs.write(ZERO_FREE_COUNT, sizeof(ZERO_FREE_COUNT) - 1);
-	fs.close();
+	    fs.write(ZERO_FREE_COUNT, sizeof(ZERO_FREE_COUNT) - 1);
+	    fs.close();
 
-	//
-	// Reopen the file:
-	//
+	    //
+	    // Reopen the file:
+            //
 
-	if (!FileSystem::openNoCase(fs, path, ios::in | ios::out PEGASUS_OR_IOS_BINARY))
-	    return false;
+	    if (!FileSystem::openNoCase(fs, path, ios::in | ios::out PEGASUS_OR_IOS_BINARY))
+            {
+                PEG_METHOD_EXIT();
+	        return false;
+            }
+        }
+        else
+        {
+            PEG_METHOD_EXIT();
+            return false;
+        }
     }
 
     //
@@ -478,6 +558,7 @@ Boolean InstanceIndexFile::_openFile(
 
     fs.seekg(sizeof(ZERO_FREE_COUNT) - 1);
 
+    PEG_METHOD_EXIT();
     return true;
 }
 
@@ -487,6 +568,8 @@ Boolean InstanceIndexFile::_appendEntry(
     Uint32 indexIn,
     Uint32 sizeIn)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "InstanceIndexFile::_appendEntry()");
+
     //
     // Position the file at the end:
     //
@@ -494,7 +577,10 @@ Boolean InstanceIndexFile::_appendEntry(
     fs.seekg(0, ios::end);
 
     if (!fs)
+    {
+        PEG_METHOD_EXIT();
 	return false;
+    }
 
     //
     // Write the entry:
@@ -508,6 +594,7 @@ Boolean InstanceIndexFile::_appendEntry(
     fs << "0 " << buffer << ' ' << indexIn << ' ' << sizeIn << ' ';
     fs << instanceName << endl;
 
+    PEG_METHOD_EXIT();
     return !!fs;
 }
 
@@ -515,6 +602,8 @@ Boolean InstanceIndexFile::_markEntryFree(
     PEGASUS_STD(fstream)& fs,
     const CIMReference& instanceName)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "InstanceIndexFile::_markEntryFree()");
+
     //
     // First look up the entry:
     //
@@ -526,6 +615,7 @@ Boolean InstanceIndexFile::_markEntryFree(
     if (!InstanceIndexFile::_lookupEntry(
 	fs, instanceName, index, size, entryOffset))
     {
+        PEG_METHOD_EXIT();
 	return false;
     }
 
@@ -538,11 +628,13 @@ Boolean InstanceIndexFile::_markEntryFree(
 
     if (!fs)
     {
+        PEG_METHOD_EXIT();
 	return false;
     }
 
     fs.write("1", 1);
 
+    PEG_METHOD_EXIT();
     return !!fs;
 }
 
@@ -553,6 +645,8 @@ Boolean InstanceIndexFile::_lookupEntry(
     Uint32& sizeOut,
     Uint32& entryOffset)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "InstanceIndexFile::_lookupEntry()");
+
     indexOut = 0;
     sizeOut = 0;
     entryOffset = 0;
@@ -577,6 +671,7 @@ Boolean InstanceIndexFile::_lookupEntry(
 	{
 	    indexOut = index;
 	    sizeOut = size;
+            PEG_METHOD_EXIT();
 	    return true;
 	}
 
@@ -585,12 +680,15 @@ Boolean InstanceIndexFile::_lookupEntry(
 
     fs.clear();
 
+    PEG_METHOD_EXIT();
     return false;
 }
 
 Boolean InstanceIndexFile::compact(
     const String& path)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "InstanceIndexFile::compact()");
+
     //
     // Open input file:
     //
@@ -598,7 +696,10 @@ Boolean InstanceIndexFile::compact(
     fstream fs;
 
     if (!_openFile(path, fs))
+    {
+        PEG_METHOD_EXIT();
 	return false;
+    }
 
     //
     // Open temporary file (delete it first):
@@ -608,10 +709,13 @@ Boolean InstanceIndexFile::compact(
     String tmpPath = path;
     tmpPath += ".tmp";
 
-    FileSystem::removeFile(tmpPath);
+    FileSystem::removeFileNoCase(tmpPath);
 
-    if (!_openFile(tmpPath, tmpFs))
+    if (!_openFile(tmpPath, tmpFs, true))
+    {
+        PEG_METHOD_EXIT();
 	return false;
+    }
 
     //
     // Iterate over all instances to build output arrays:
@@ -662,7 +766,8 @@ Boolean InstanceIndexFile::compact(
 
     if (error)
     {
-	FileSystem::removeFile(tmpPath);
+	FileSystem::removeFileNoCase(tmpPath);
+        PEG_METHOD_EXIT();
 	return false;
     }
 
@@ -670,12 +775,19 @@ Boolean InstanceIndexFile::compact(
     // Replace index file with temporary file:
     //
 
-    if (!FileSystem::removeFile(path))
+    if (!FileSystem::removeFileNoCase(path))
+    {
+        PEG_METHOD_EXIT();
 	return false;
+    }
 
     if (!FileSystem::renameFile(tmpPath, path))
+    {
+        PEG_METHOD_EXIT();
 	return false;
+    }
 
+    PEG_METHOD_EXIT();
     return true;
 }
 
@@ -709,6 +821,8 @@ Boolean InstanceIndexFile::hasNonFreeEntries(const String& path)
 
 Boolean InstanceIndexFile::beginTransaction(const String& path)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "InstanceIndexFile::beginTransaction()");
+
     //
     // Create a rollback file which is a copy of the index file. The
     // new filename is formed by appending ".rollback" to the name of
@@ -719,20 +833,29 @@ Boolean InstanceIndexFile::beginTransaction(const String& path)
     rollbackPath += ".rollback";
 
     if (!FileSystem::copyFile(path, rollbackPath))
+    {
+        PEG_METHOD_EXIT();
 	return false;
+    }
 
+    PEG_METHOD_EXIT();
     return true;
 }
 
 Boolean InstanceIndexFile::rollbackTransaction(const String& path)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "InstanceIndexFile::rollbackTransaction()");
+
     //
     // If the rollback file does not exist, then everything is fine (nothing
     // to roll back).
     //
 
     if (!FileSystem::existsNoCase(Cat(path, ".rollback")))
+    {
+        PEG_METHOD_EXIT();
 	return true;
+    }
 
     //
     // To roll back, simply delete the index file and rename
@@ -740,13 +863,19 @@ Boolean InstanceIndexFile::rollbackTransaction(const String& path)
     //
 
     if (!FileSystem::removeFileNoCase(path))
+    {
+        PEG_METHOD_EXIT();
 	return false;
+    }
 
+    PEG_METHOD_EXIT();
     return FileSystem::renameFileNoCase(Cat(path, ".rollback"), path);
 }
 
 Boolean InstanceIndexFile::commitTransaction(const String& path)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "InstanceIndexFile::commitTransaction()");
+
     //
     // To commit, simply remove the rollback file:
     //
@@ -754,6 +883,7 @@ Boolean InstanceIndexFile::commitTransaction(const String& path)
     String rollbackPath = path;
     rollbackPath += ".rollback";
 
+    PEG_METHOD_EXIT();
     return FileSystem::removeFileNoCase(rollbackPath);
 }
 

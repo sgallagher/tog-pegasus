@@ -25,9 +25,9 @@
 //
 // Modified By: Michael E. Brasher (mbrasher@bmc.com)
 //
-//				Ramnath Ravindran (Ramnath.Ravindran@compaq.com) 03/21/2002
-//					replaced instances of "| ios::binary" with 
-//					PEGASUS_OR_IOS_BINARY
+//		Ramnath Ravindran (Ramnath.Ravindran@compaq.com) 03/21/2002
+//			replaced instances of "| ios::binary" with 
+//			PEGASUS_OR_IOS_BINARY
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -37,6 +37,7 @@
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Destroyer.h>
+#include <Pegasus/Common/Tracer.h>
 
 PEGASUS_USING_STD;
 
@@ -47,8 +48,13 @@ Boolean InstanceDataFile::_openFile(
     const String& path,
     int mode)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "InstanceDataFile::_openFile()");
+
     if (FileSystem::openNoCase(fs, path, mode))
+    {
+        PEG_METHOD_EXIT();
 	return true;
+    }
 
     //
     // File does not exist so create it:
@@ -57,6 +63,7 @@ Boolean InstanceDataFile::_openFile(
     ArrayDestroyer<char> p(path.allocateCString());
     fs.open(p.getPointer(), mode);
 
+    PEG_METHOD_EXIT();
     return !!fs;
 }
 
@@ -66,6 +73,8 @@ Boolean InstanceDataFile::loadInstance(
     Uint32 size,  
     Array<Sint8>& data)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "InstanceDataFile::loadInstance()");
+
     //
     // Open the file:
     //
@@ -73,7 +82,10 @@ Boolean InstanceDataFile::loadInstance(
     fstream fs;
 
     if (!_openFile(fs, path, ios::in PEGASUS_OR_IOS_BINARY))
+    {
+        PEG_METHOD_EXIT();
 	return false;
+    }
 
     //
     // Postion file pointer:
@@ -82,7 +94,10 @@ Boolean InstanceDataFile::loadInstance(
     fs.seekg(index);
 
     if (!fs)
+    {
+        PEG_METHOD_EXIT();
 	return false;
+    }
 
     //
     // Read the instance:
@@ -92,7 +107,10 @@ Boolean InstanceDataFile::loadInstance(
     fs.read((char*)data.getData(), size);
 
     if (!fs)
+    {
+        PEG_METHOD_EXIT();
 	return false;
+    }
 
     //
     // Close the file:
@@ -100,6 +118,7 @@ Boolean InstanceDataFile::loadInstance(
 
     fs.close();
 
+    PEG_METHOD_EXIT();
     return true;
 }
 
@@ -107,6 +126,8 @@ Boolean InstanceDataFile::loadAllInstances(
     const String& path, 
     Array<Sint8>& data)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "InstanceDataFile::loadAllInstance()");
+
     //
     // Get size of the data file:
     //
@@ -114,7 +135,10 @@ Boolean InstanceDataFile::loadAllInstances(
     Uint32 fileSize;
 
     if (!FileSystem::getFileSizeNoCase(path, fileSize))
+    {
+        PEG_METHOD_EXIT();
 	return false;
+    }
 
     //
     // Open the file:
@@ -123,7 +147,10 @@ Boolean InstanceDataFile::loadAllInstances(
     fstream fs;
 
     if (!_openFile(fs, path, ios::in PEGASUS_OR_IOS_BINARY))
+    {
+        PEG_METHOD_EXIT();
 	return false;
+    }
 
     //
     // Suck the entire contents of the file into the data array parameter:
@@ -133,7 +160,10 @@ Boolean InstanceDataFile::loadAllInstances(
     fs.read((char*)data.getData(), fileSize);
 
     if (!fs)
+    {
+        PEG_METHOD_EXIT();
 	return false;
+    }
 
     //
     // Close the file:
@@ -141,6 +171,7 @@ Boolean InstanceDataFile::loadAllInstances(
 
     fs.close();
 
+    PEG_METHOD_EXIT();
     return true;
 }
 
@@ -149,6 +180,8 @@ Boolean InstanceDataFile::appendInstance(
     const Array<Sint8>& data,
     Uint32& index)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "InstanceDataFile::appendInstance()");
+
     //
     // Get size of the data file:
     //
@@ -163,7 +196,10 @@ Boolean InstanceDataFile::appendInstance(
     fstream fs;
 
     if (!_openFile(fs, path, ios::app | ios::out PEGASUS_OR_IOS_BINARY))
+    {
+        PEG_METHOD_EXIT();
 	return false;
+    }
 
     //
     // Save index to data:
@@ -178,7 +214,10 @@ Boolean InstanceDataFile::appendInstance(
     fs.write((char*)data.getData(), data.size());
 
     if (!fs)
+    {
+        PEG_METHOD_EXIT();
 	return false;
+    }
 
     //
     // Close the file:
@@ -186,11 +225,14 @@ Boolean InstanceDataFile::appendInstance(
 
     fs.close();
 
+    PEG_METHOD_EXIT();
     return true;
 }
 
 Boolean InstanceDataFile::beginTransaction(const String& path)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "InstanceDataFile::beginTransaction()");
+
     Uint32 fileSize;
 
     //
@@ -204,7 +246,10 @@ Boolean InstanceDataFile::beginTransaction(const String& path)
     else
     {
 	if (!FileSystem::getFileSizeNoCase(path, fileSize))
+        {
+            PEG_METHOD_EXIT();
 	    return false;
+        }
     }
 
     //
@@ -214,7 +259,10 @@ Boolean InstanceDataFile::beginTransaction(const String& path)
     fstream fs;
 
     if (!_openFile(fs, Cat(path, ".rollback"), ios::out PEGASUS_OR_IOS_BINARY))
+    {
+        PEG_METHOD_EXIT();
 	return false;
+    }
 
     //
     // Save the size of the data file in the rollback file.
@@ -225,7 +273,10 @@ Boolean InstanceDataFile::beginTransaction(const String& path)
     fs.write(buffer, strlen(buffer));
 
     if (!fs)
+    {
+        PEG_METHOD_EXIT();
 	return false;
+    }
 
     //
     // Close the file.
@@ -233,18 +284,24 @@ Boolean InstanceDataFile::beginTransaction(const String& path)
 
     fs.close();
 
+    PEG_METHOD_EXIT();
     return true;
 }
 
 Boolean InstanceDataFile::rollbackTransaction(const String& path)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "InstanceDataFile::rollbackTransaction()");
+
     //
     // If rollback file does not exist, then everything is fine, just
     // return.
     //
 
     if (!FileSystem::existsNoCase(Cat(path, ".rollback")))
+    {
+        PEG_METHOD_EXIT();
 	return true;
+    }
 
     //
     // Open the rollback file:
@@ -253,7 +310,10 @@ Boolean InstanceDataFile::rollbackTransaction(const String& path)
     fstream rollbackFs;
 
     if (!_openFile(rollbackFs, Cat(path, ".rollback"), ios::in PEGASUS_OR_IOS_BINARY))
+    {
+        PEG_METHOD_EXIT();
 	return false;
+    }
 
     //
     // Retrieve the file size from the rollback file:
@@ -263,7 +323,10 @@ Boolean InstanceDataFile::rollbackTransaction(const String& path)
     rollbackFs.read(buffer, 8);
 
     if (!rollbackFs)
+    {
+        PEG_METHOD_EXIT();
 	return false;
+    }
 
     buffer[8] = '\0';
 
@@ -271,7 +334,10 @@ Boolean InstanceDataFile::rollbackTransaction(const String& path)
     long fileSize = strtol(buffer, &end, 16);
 
     if (!end || *end != '\0' || fileSize < 0)
+    {
+        PEG_METHOD_EXIT();
 	return false;
+    }
 
     rollbackFs.close();
 
@@ -282,21 +348,28 @@ Boolean InstanceDataFile::rollbackTransaction(const String& path)
     ArrayDestroyer<char> tmp(path.allocateCString());
 
     if (!System::truncateFile(tmp.getPointer(), fileSize))
+    {
+        PEG_METHOD_EXIT();
 	return false;
+    }
 
     //
     // Now get rid of rollback file!
     //
 
+    PEG_METHOD_EXIT();
     return FileSystem::removeFileNoCase(Cat(path, ".rollback"));
 }
 
 Boolean InstanceDataFile::commitTransaction(const String& path)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "InstanceDataFile::commitTransaction()");
+
     //
     // To commit the transaction, we simply remove the rollback file:
     //
 
+    PEG_METHOD_EXIT();
     return FileSystem::removeFileNoCase(Cat(path, ".rollback"));
 }
 
@@ -306,6 +379,8 @@ Boolean InstanceDataFile::compact(
     const Array<Uint32>& indices,
     const Array<Uint32>& sizes)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "InstanceDataFile::compact()");
+
     //
     // Open the input file (the data file):
     //
@@ -313,7 +388,10 @@ Boolean InstanceDataFile::compact(
     fstream fs;
 
     if (!_openFile(fs, path, ios::in PEGASUS_OR_IOS_BINARY))
+    {
+        PEG_METHOD_EXIT();
 	return false;
+    }
 
     //
     // Open the output file (temporary data file):
@@ -322,7 +400,10 @@ Boolean InstanceDataFile::compact(
     fstream tmpFs;
 
     if (!_openFile(tmpFs, Cat(path, ".tmp"), ios::out PEGASUS_OR_IOS_BINARY))
+    {
+        PEG_METHOD_EXIT();
 	return false;
+    }
 
     Array<Sint8> data;
 
@@ -344,14 +425,20 @@ Boolean InstanceDataFile::compact(
 	    //
 
 	    if (!fs.seekg(indices[i]))
+            {
+                PEG_METHOD_EXIT();
 		return false;
+            }
 
 	    data.grow(sizes[i], '\0');
 
 	    fs.read((char*)data.getData(), sizes[i]);
 
 	    if (!fs)
+            {
+                PEG_METHOD_EXIT();
 		return false;
+            }
 
 	    //
 	    //  Write out the next instance:
@@ -373,11 +460,18 @@ Boolean InstanceDataFile::compact(
     //
 
     if (!FileSystem::removeFileNoCase(path))
+    {
+        PEG_METHOD_EXIT();
 	return false;
+    }
 
     if (!FileSystem::renameFileNoCase(Cat(path, ".tmp"), path))
+    {
+        PEG_METHOD_EXIT();
 	return false;
+    }
 
+    PEG_METHOD_EXIT();
     return true;
 }
 

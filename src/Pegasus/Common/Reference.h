@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Reference.h,v $
+// Revision 1.3  2001/01/28 07:05:18  mike
+// added instance name/reference converters
+//
 // Revision 1.2  2001/01/28 04:11:03  mike
 // fixed qualifier resolution
 //
@@ -141,6 +144,8 @@ public:
 	return Array<KeyBinding>();
     }
 
+    void clear();
+
     void set(
 	const String& host,
 	const String& nameSpace,
@@ -192,6 +197,26 @@ public:
 
     void classNameToXml(Array<Sint8>& out) const;
 
+    /** 
+	Converts an instance name of the form
+
+	    "ClassName.key1=value1,...keyN=valueN"
+
+	to a Reference.
+    */
+    static void instanceNameToReference(
+	const String& str,
+	Reference& reference);
+
+    /**
+	Converts a reference to an instance name of the form:
+
+	    "ClassName.key1=value1,...keyN=valueN"
+    */
+    static void referenceToInstanceName(
+	const Reference& reference,
+	String& instanceName);
+
 private:
 
     String _host;
@@ -204,10 +229,6 @@ inline Boolean operator==(const Reference& x, const Reference& y)
 {
     return x.identical(y);
 }
-
-PEGASUS_COMMON_LINKAGE void InstanceNameToReference(
-    const String& str,
-    Reference& reference);
 
 PEGASUS_NAMESPACE_END
 

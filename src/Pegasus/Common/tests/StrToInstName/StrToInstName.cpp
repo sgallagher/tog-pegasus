@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: StrToInstName.cpp,v $
+// Revision 1.2  2001/01/28 07:05:18  mike
+// added instance name/reference converters
+//
 // Revision 1.1  2001/01/28 04:12:05  mike
 // new
 //
@@ -32,10 +35,26 @@
 //
 //END_HISTORY
 
+#include <cassert>
 #include <Pegasus/Common/Reference.h>
 
 using namespace Pegasus;
 using namespace std;
+
+void test(const String& instanceName)
+{
+
+    Reference reference;
+    Reference::instanceNameToReference(instanceName, reference);
+
+    String tmpInstanceName;
+    Reference::referenceToInstanceName(reference, tmpInstanceName);
+
+    // cout << "instanceName[" << instanceName << "]" << endl;
+    // cout << "tmpInstanceName[" << tmpInstanceName << "]" << endl;
+
+    assert(instanceName == tmpInstanceName);
+}
 
 int main()
 {
@@ -44,14 +63,10 @@ int main()
 	Reference reference;
 	String instanceName;
 	
-	instanceName = "X.key1=\"Hello World\",key2=123";
-	InstanceNameToReference(instanceName, reference);
-
-	instanceName = "X.key1=TRUE,key2=123";
-	InstanceNameToReference(instanceName, reference);
-
-	instanceName = "X.key1=TRUE,key2=123,key3=\"Hello World\"";
-	InstanceNameToReference(instanceName, reference);
+	test("X.key1=\"Hello World\"");
+	test("X.key1=TRUE,key2=123");
+	test("X.key1=TRUE,key2=123,key3=\"Hello World\"");
+	test("X.x=0");
     }
     catch (Exception& e)
     {

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: String.h,v $
+// Revision 1.4  2001/01/28 07:05:18  mike
+// added instance name/reference converters
+//
 // Revision 1.3  2001/01/28 04:11:03  mike
 // fixed qualifier resolution
 //
@@ -120,13 +123,19 @@ public:
     /** Method clear -- ATTN:
     */
     void clear() { _rep.clear(); _rep.append('\0'); }
-    /** Method reserve - ATTN:
+
+    /** 
+	Method reserve - ATTN:
     */
     void reserve(Uint32 capacity) { _rep.reserve(capacity + 1); }
-    /** Method getLength - ATTN:
+
+    /** 
+	Method getLength - ATTN:
     */
     Uint32 getLength() const { return _rep.getSize() - 1; }
-    /** Method getData - ATT
+
+    /** 
+	Method getData - ATT
     */
     const Char16* getData() const { return _rep.getData(); }
 

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Reference.cpp,v $
+// Revision 1.3  2001/01/28 07:05:18  mike
+// added instance name/reference converters
+//
 // Revision 1.2  2001/01/28 04:11:03  mike
 // fixed qualifier resolution
 //
@@ -42,6 +45,12 @@
 #include "XmlReader.h"
 
 PEGASUS_NAMESPACE_BEGIN
+
+// ATTN: add a resolve method to this class to verify that the
+// reference is correct (that the class name corresponds to a real
+// class and that the property names are really keys and that all keys
+// of the class or used. Also be sure that there is a valid conversion 
+// between the string value and the value of that property.
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -123,6 +132,14 @@ Reference& Reference::operator=(const Reference& x)
 	_keyBindings = x._keyBindings;
     }
     return *this;
+}
+
+void Reference::clear()
+{
+    _host.clear();
+    _nameSpace.clear();
+    _className.clear();
+    _keyBindings.clear();
 }
 
 void Reference::set(
@@ -291,15 +308,12 @@ const char* KeyBinding::typeToString(Type type)
     return "unknown";
 }
 
-// Get an instance name of this form:
-//
-//	ClassName.key1=value1,...,keyN=valueN
-
-
-void InstanceNameToReference(
+void Reference::instanceNameToReference(
     const String& instanceName,
     Reference& reference)
 {
+    reference.clear();
+
     // Convert to a C String first:
 
     char* p = instanceName.allocateCString();
@@ -318,6 +332,8 @@ void InstanceNameToReference(
     p = dot + 1;
 
     // Get the key-value pairs:
+
+    Array<KeyBinding> keyBindings;
 
     for (p = strtok(p, ","); p; p = strtok(NULL, ","))
     {
@@ -347,10 +363,8 @@ void InstanceNameToReference(
 	{
 	    q++;
 
-std::cout << __LINE__ << std::endl;
 	    type = KeyBinding::Type::STRING;
 
-std::cout << __LINE__ << std::endl;
 	    while (*q && *q != '"')
 	    {
 		// ATTN: need to handle special characters here:
@@ -361,16 +375,13 @@ std::cout << __LINE__ << std::endl;
 		valueString.append(*q++);
 	    }
 
-std::cout << __LINE__ << std::endl;
 	    if (*q++ != '"')
 		throw BadInstanceName(instanceName);
-std::cout << __LINE__ << std::endl;
-std::cout << "q=" << q << std::endl;
+
 	    if (*q)
 		throw BadInstanceName(instanceName);
-std::cout << __LINE__ << std::endl;
 	}
-	else if (tolower(*q) == 't' || tolower(*q) == 'f')
+	else if (toupper(*q) == 'T' || toupper(*q) == 'F')
 	{
 	    type = KeyBinding::Type::BOOLEAN;
 
@@ -378,17 +389,19 @@ std::cout << __LINE__ << std::endl;
 
 	    while (*r)
 	    {
-		*r = tolower(*r);
+		*r = toupper(*r);
 		r++;
 	    }
 
-	    if (strcmp(q, "true") != 0 && strcmp(q, "false") != 0)
+	    if (strcmp(q, "TRUE") != 0 && strcmp(q, "FALSE") != 0)
 		throw BadInstanceName(instanceName);
 
 	    valueString.assign(q);
 	}
 	else
 	{
+	    type = KeyBinding::Type::NUMERIC;
+
 	    Sint64 x;
 
 	    if (!XmlReader::stringToSignedInteger(q, x))
@@ -397,8 +410,49 @@ std::cout << __LINE__ << std::endl;
 	    valueString.assign(q);
 	}
 
-	std::cout << "key=" << keyString << std::endl;
-	std::cout << "value=" << valueString << std::endl;
+	keyBindings.append(KeyBinding(keyString, valueString, type));
+    }
+
+    reference.set(String(), String(), className, keyBindings);
+}
+
+void Reference::referenceToInstanceName(
+    const Reference& reference,
+    String& instanceName)
+{
+    instanceName.clear();
+
+    // Get the class name:
+
+    const String& className = reference.getClassName();
+    instanceName.append(className);
+    instanceName.append('.');
+
+    // Append each key-value pair:
+
+    const Array<KeyBinding>& keyBindings = reference.getKeyBindings();
+
+    for (Uint32 i = 0, n = keyBindings.getSize(); i < n; i++)
+    {
+	instanceName.append(keyBindings[i].getName());
+	instanceName.append('=');
+
+	// ATTN: handle escaping of special characters:
+
+	const String& value = keyBindings[i].getValue();
+
+	KeyBinding::Type type = keyBindings[i].getType();
+	
+	if (type == KeyBinding::Type::STRING)
+	    instanceName.append('"');
+
+	instanceName.append(value);
+
+	if (type == KeyBinding::Type::STRING)
+	    instanceName.append('"');
+
+	if (i + 1 != n)
+	    instanceName.append(',');
     }
 }
 

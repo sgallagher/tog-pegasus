@@ -39,7 +39,7 @@ PEGASUS_NAMESPACE_BEGIN
 ProviderManager *my_instance = 0;
 
 ProviderManager::ProviderManager(void)
-   : _idle_timeout(5), _unload_idle_flag(1)
+   : _idle_timeout(600), _unload_idle_flag(1)
 {
    my_instance = this;
    

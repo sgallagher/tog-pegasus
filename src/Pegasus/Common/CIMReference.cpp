@@ -49,7 +49,7 @@ PEGASUS_NAMESPACE_BEGIN
 // ATTN: add a resolve method to this class to verify that the
 // reference is correct (that the class name corresponds to a real
 // class and that the property names are really keys and that all keys
-// of the class or used. Also be sure that there is a valid conversion 
+// of the class or used. Also be sure that there is a valid conversion
 // between the string value and the value of that property.
 
 static String _escapeSpecialCharacters(const String& str)
@@ -113,7 +113,7 @@ int _Compare(const String& s1_, const String& s2_)
     return 0;
 }
 
-static void _BubbleSort(Array<KeyBinding>& x) 
+static void _BubbleSort(Array<KeyBinding>& x)
 {
     Uint32 n = x.size();
 
@@ -143,19 +143,19 @@ static void _BubbleSort(Array<KeyBinding>& x)
 KeyBinding::KeyBinding() { }
 
 KeyBinding::KeyBinding(const KeyBinding& x)
-    : _name(x._name), _value(x._value), _type(x._type) 
-{ 
+    : _name(x._name), _value(x._value), _type(x._type)
+{
 
 }
 
 KeyBinding::KeyBinding(const String& name, const String& value, Type type)
-    : _name(name), _value(value), _type(type) 
-{ 
+    : _name(name), _value(value), _type(type)
+{
 
 }
 
-KeyBinding::~KeyBinding() 
-{ 
+KeyBinding::~KeyBinding()
+{
 
 }
 
@@ -179,7 +179,7 @@ CIMReference::CIMReference()
 }
 
 CIMReference::CIMReference(const CIMReference& x)
-    : _host(x._host), _nameSpace(x._nameSpace), 
+    : _host(x._host), _nameSpace(x._nameSpace),
     _className(x._className), _keyBindings(x._keyBindings)
 {
     _BubbleSort(_keyBindings);
@@ -198,16 +198,10 @@ CIMReference::CIMReference(const char* objectName)
 CIMReference::CIMReference(
     const String& host,
     const String& nameSpace,
-    const String& className, 
+    const String& className,
     const Array<KeyBinding>& keyBindings)
-    : 
-    _host(host), 
-    _nameSpace(nameSpace), 
-    _className(className), 
-    _keyBindings(keyBindings)
 {
-    // ATTN-B: Note that the host, nameSpace, and className are not validated
-    // at this time.
+   set(host, nameSpace, className, keyBindings);
 }
 
 CIMReference::~CIMReference()
@@ -238,14 +232,14 @@ void CIMReference::clear()
 void CIMReference::set(
     const String& host,
     const String& nameSpace,
-    const String& className, 
+    const String& className,
     const Array<KeyBinding>& keyBindings)
 {
-    _host = host;
-    _nameSpace = nameSpace;
-    _className = className;
-    _keyBindings = keyBindings;
-    _BubbleSort(_keyBindings);
+   setHost(host);
+   setNameSpace(nameSpace);
+   setClassName(className);
+   setKeyBindings(keyBindings);
+   _BubbleSort(_keyBindings);
 }
 
 void CIMReference::set(const String& objectName)
@@ -257,7 +251,7 @@ void CIMReference::set(const String& objectName)
 
     //--------------------------------------------------------------------------
     // We will extract components from an object name. Here is an sample
-    // object name: 
+    // object name:
     //
     //     //atp:9999/root/cimv25:TennisPlayer.first="Patrick",last="Rafter"
     //--------------------------------------------------------------------------
@@ -301,7 +295,7 @@ void CIMReference::set(const String& objectName)
 
 	if (!isdigit(*q))
 	    throw IllformedObjectName(objectName);
-	    
+	
 	while (isdigit(*q))
 	    q++;
 
@@ -456,8 +450,20 @@ void CIMReference::set(const String& objectName)
 
 void CIMReference::setNameSpace(const String& nameSpace)
 {
-    if (!CIMName::legal(nameSpace))
-	throw IllegalName();
+   String temp;
+
+   // check each namespace segment (delimted by '\\') for correctness
+   for(Uint32 i = 0; i < nameSpace.size(); i += temp.size() + 1) {
+      // isolate the segment beginning at i and ending at the first ocurrance of '\\' after i or eos
+      temp = nameSpace.subString(i, nameSpace.subString(i).find('\\'));
+
+      // check segment for correctness
+      if(!CIMName::legal(temp)) {
+         throw(IllegalName());
+      }
+   }
+
+   _nameSpace = nameSpace;
 }
 
 void CIMReference::setClassName(const String& className)
@@ -468,9 +474,10 @@ void CIMReference::setClassName(const String& className)
     _className = className;
 }
 
-void CIMReference::setKeyBindings(const Array<KeyBinding>& keyBindings) 
+void CIMReference::setKeyBindings(const Array<KeyBinding>& keyBindings)
 {
-    _keyBindings = keyBindings; 
+    _keyBindings = keyBindings;
+    _BubbleSort(_keyBindings);
 }
 
 String CIMReference::toString() const
@@ -538,10 +545,10 @@ String CIMReference::toStringCanonical() const
 
 Boolean CIMReference::identical(const CIMReference& x) const
 {
-    return 
-	String::equal(_host, x._host) && 
-	String::equal(_nameSpace, x._nameSpace) && 
-	CIMName::equal(_className, x._className) && 
+    return
+	String::equal(_host, x._host) &&
+	String::equal(_nameSpace, x._nameSpace) &&
+	CIMName::equal(_className, x._className) &&
 	_keyBindings == x._keyBindings;
 }
 
@@ -552,7 +559,7 @@ void CIMReference::nameSpaceToXml(Array<Sint8>& out) const
 	out << "<NAMESPACEPATH>\n";
 	out << "<HOST>" << _host << "</HOST>\n";
     }
-    
+
     XmlWriter::appendLocalNameSpaceElement(out, _nameSpace);
 
     if (_host.size())
@@ -661,14 +668,14 @@ const char* KeyBinding::typeToString(Type type)
 {
     switch (type)
     {
-	case KeyBinding::BOOLEAN: 
-	    return "boolean"; 
+	case KeyBinding::BOOLEAN:
+	    return "boolean";
 
 	case KeyBinding::STRING:
-	    return "string"; 
+	    return "string";
 
 	case KeyBinding::NUMERIC:
-	    return "numeric"; 
+	    return "numeric";
     }
 
     return "unknown";

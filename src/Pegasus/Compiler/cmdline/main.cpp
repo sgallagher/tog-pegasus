@@ -26,39 +26,36 @@
 //END_HISTORY
 // A main for the cimmof_parser.  It can be embedded elsewhere, too. 
 
-// #include "cimmof_tab.h"
 #include <iostream>
 #include "../mofCompilerOptions.h"
+#include "cmdlineExceptions.h"
 #include "../cimmofParser.h"
-#include <Pegasus/Common/Exception.h>
+#include "../parserExceptions.h"
+//#include <Pegasus/Common/Exception.h>
 
 using namespace std;
 
-// This global is used by the parsing routines to control flow
+// This is used by the parsing routines to control flow
 // through include files
 static mofCompilerOptions cmdline;
-//cimmofParser g_cimmofParser(cmdline);
 
-// Note:  moved to cimmof.y
-//extern "C" {
-//int 
-//cimmof_wrap() {
-//  int ret =  g_cimmofParser.wrapCurrentBuffer();
-//  return ret;
-//}
-//	   }
 
-// int cimmof_parse();
+extern "C++" int processCmdLine(int, char **, mofCompilerOptions &, ostream &);
 
-extern int processCmdLine(int, char **, mofCompilerOptions &);
-
-#define NAMESPACE_ROOT "cim2m2/root"
+#define NAMESPACE_ROOT "root/cimv20"
 
 int
 main(int argc, char ** argv) {
   int ret = 0;
-  if (int stat = processCmdLine(argc, argv, cmdline))
-    return stat;
+  try {
+    ret = processCmdLine(argc, argv, cmdline, cerr);
+  } catch (ArgumentErrorsException &e) {
+    cerr << e.getMessage() << endl;
+    cerr << "Compilation terminating." << endl;
+    ret =  -2;
+  }
+  if (ret)
+    return ret;
 
   const vector<string>& filespecs = cmdline.get_filespec_list();
 
@@ -78,10 +75,10 @@ main(int argc, char ** argv) {
       if (p->setInputBufferFromName((const string &)filespecs[i]) == 0) {
 	try {
 	  ret = p->parse();
-	} catch(Exception e) {
-		cerr << p->get_current_filename() << "(";
-		cerr << p->get_lineno() << "): ";
-		cerr << "Parsing error: " << e.getMessage() << endl;
+	} catch(ParserExceptions::ParserLexException &e) {
+	  cerr << "Lexer error: " << e.getMessage() << endl;
+	} catch(Exception &e) {
+	  cerr << "Parsing error: " << e.getMessage() << endl;
 	}
       } else {
         cerr << "Can't open file " << (filespecs[i]).c_str()  << endl;
@@ -90,13 +87,12 @@ main(int argc, char ** argv) {
   else {
     try {
     int ret =  p->parse();
-    }
-    catch(Exception e) {
-	    cerr << p->get_current_filename() << "(";
-	    cerr << p->get_lineno() << "): ";
+    } catch(Exception &e) {
 	    cerr << "Parsing error: "  << e.getMessage() << endl;
+    } catch(ParserExceptions::ParserLexException &e) {
+      cerr << "Lexer error: " << e.getMessage() << endl;
     }
   }
-  cout <<  "return value" << ret << endl;
+  
   return ret;
 }

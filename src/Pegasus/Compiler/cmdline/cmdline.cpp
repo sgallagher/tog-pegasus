@@ -31,34 +31,39 @@
 //
 
 #include "../mofCompilerOptions.h"
+#include "cmdlineExceptions.h"
 #include "cmdline.h"
+#include "cmdlineExceptions.h"
 #include <Pegasus/getoopt/getoopt.h>
 #include <fstream>
-#include <iostream>
+//#include <strstream>
+//#include <sstream>
 
-//extern "C" {
-//extern int getopt(int argc, char **argv, const char *optstring);
-//extern char *optarg;
-//extern int optind;
-//}
 
-static void 
-help() {
-  cout << endl << "MofCompiler version 0.0" << endl << endl;
-  cout << "Usage: cimmof -hEw -Ipath -Rrepository -ffile" << endl;
-  cout << "  -h, --help -- show this help." << endl;
-  cout << "  -E -- syntax check only." << endl;
-  cout << "  -w -- suppress warnings." << endl;
-  cout << "  -Rrepository -- specify the repository path." << endl;
-  cout << "  --CIMRepository=repository -- specify repository path." << endl;
-  cout << "  -Ipath -- specify an include path." << endl;
-  cout << "  -ffile -- specify file containing a list of MOFs to compile."
+
+// COMPILER VERSION ++++++++++++++++++++++++++++++++++++++++++++++++++++
+#define COMPILER_VERSION "1.0" /* as of March 3, 2001 */
+// COMPILER_VERSION ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 
+
+static ostream & 
+help(ostream &os) {
+  os << endl << "MofCompiler version " << COMPILER_VERSION << endl << endl;
+  os << "Usage: cimmof -hEw -Ipath -Rrepository -ffile" << endl;
+  os << "  -h, --help -- show this help." << endl;
+  os << "  -E -- syntax check only." << endl;
+  os << "  -w -- suppress warnings." << endl;
+  os << "  -Rrepository -- specify the repository path." << endl;
+  os << "  --CIMRepository=repository -- specify repository path." << endl;
+  os << "  -Ipath -- specify an include path." << endl;
+  os << "  -ffile -- specify file containing a list of MOFs to compile."
        << endl;
-  cout << " --file=file -- specify file containing list of MOFs." << endl;
-  cout << " -npath -- override the default CIMRepository namespace." << endl;
-  cout << " --namespace=path -- override default CIMRepository namespace." 
+  os << " --file=file -- specify file containing list of MOFs." << endl;
+  os << " -npath -- override the default CIMRepository namespace." << endl;
+  os << " --namespace=path -- override default CIMRepository namespace." 
        << endl;
-  cout << " -t -- trace." << endl;
+  os << " -ttracefile -- trace to file (default to stdout)." << endl;
+  return os;
 }
 
 // If the 'f' flag is encountered, it names a file that contains the
@@ -77,6 +82,7 @@ process_filelist(const string &filename, mofCompilerOptions &cmdlinedata)
   return 0;
 }
 
+/* flag value, type, islong?, needsValue? */
 static struct optspec 
 optspecs[] = {{"", FILESPEC, false, true},
 {"h", HELPFLAG, false, false},
@@ -89,8 +95,8 @@ optspecs[] = {{"", FILESPEC, false, true},
 {"Include", INCLUDEPATH, true, true},
 {"R", REPOSITORYNAME, false, true},
 {"CIMRepository", REPOSITORYNAME, true, true},
-{"E", SYNTAXFLAG, false, true}, 
-{"w", SUPPRESSFLAG, false, true},
+{"E", SYNTAXFLAG, false, false}, 
+{"w", SUPPRESSFLAG, false, false},
 {"t", TRACEFLAG, false, false},
 {"", OPTEND, false, false}};
 
@@ -131,29 +137,34 @@ applyDefaults(mofCompilerOptions &cmdlinedata) {
     cmdlinedata.set_repository_name(peghome);
   cmdlinedata.reset_syntax_only();
   cmdlinedata.reset_suppress_warnings();
+  cmdlinedata.reset_suppress_all_messages();
   cmdlinedata.reset_trace();
   cmdlinedata.add_include_path(".");
   cmdlinedata.set_namespacePath(ROOTCIMV20);
+  cmdlinedata.set_erroros(std::cerr);
+  cmdlinedata.set_warningos(std::cerr);
 }
 
+extern "C++" int processCmdline(int, char **, mofCompilerOptions &, ostream&);
 int
-processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata) {
+processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
+	       ostream &helpos = cerr) {
   getoopt cmdline;
   setCmdLineOpts(cmdline);
   cmdline.parse(argc, argv);
   applyDefaults(cmdlinedata);
   if (cmdline.hasErrors()) {
-    // FIXME:  throw an exception and hande it in the caller
-    cerr << "Command line errors:" << endl;
-    cmdline.printErrors(cerr);
-    return -1;
+    string msg = "Command line errors:\n";
+    //  throw an exception and hande it in the caller
+    cmdline.printErrors(msg);
+    throw ArgumentErrorsException(msg.c_str());
   }
   for (unsigned int i = cmdline.first(); i < cmdline.last(); i++) {
     const Optarg &arg = cmdline[i];
     opttypes c = catagorize(arg);
     switch (c)
       {
-      case HELPFLAG:  help();
+      case HELPFLAG:  help(helpos);
 	return(-1);
         break;
       case INCLUDEPATH:cmdlinedata.add_include_path(arg.optarg());
@@ -164,7 +175,19 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata) {
 	break;
       case SUPPRESSFLAG: cmdlinedata.set_suppress_warnings();
 	break;
-      case TRACEFLAG: cmdlinedata.set_trace();
+      case TRACEFLAG: 
+	{
+	  cmdlinedata.set_trace();
+	  const string &s = arg.optarg();
+	  if (s != "") {
+	    // FIXME:  This leaves no way to close the trace stream
+	    // or to delete the ostream object.  It's OK for now because
+	    // the program terminates when we're done with the stream.
+	    ofstream *tracefile = new ofstream(s.c_str());
+	    if (tracefile && *tracefile)
+	      cmdlinedata.set_traceos(*tracefile);
+	  }
+	}
 	break;
       case FILELIST: {
 	int stat = process_filelist(arg.optarg(), cmdlinedata);
@@ -183,10 +206,8 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata) {
       }
   }
   if (String::equal(cmdlinedata.get_repository_name(), String::EMPTY)) {
-    // FIXME
-    cerr << "You must specify -R or set PEGASUS_HOME environment variable"
-	    << endl;
-    return -1;
+    throw CmdlineNoRepository(
+          "You must specify -R or set PEGASUS_HOME environment variable");
   }
   return 0;
 }

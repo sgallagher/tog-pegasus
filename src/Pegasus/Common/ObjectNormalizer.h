@@ -46,6 +46,7 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_COMMON_LINKAGE ObjectNormalizer
 {
 public:
+    ObjectNormalizer(void);
     ObjectNormalizer(
         const CIMClass & cimClass,
         const Boolean localOnly,

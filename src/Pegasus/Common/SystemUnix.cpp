@@ -172,9 +172,7 @@ Boolean System::renameFile(const char* oldPath, const char* newPath)
 
 DynamicLibraryHandle System::loadDynamicLibrary(const char* fileName)
 {
-    const char METHOD_NAME[] = "System::loadDynamicLibrary()";
-
-    PEG_FUNC_ENTER(TRC_OS_ABSTRACTION, METHOD_NAME);
+    PEG_METHOD_ENTER(TRC_OS_ABSTRACTION, "System::loadDynamicLibrary()");
 
     Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL2, 
                   "Attempting to load library %s", fileName);
@@ -194,16 +192,16 @@ DynamicLibraryHandle System::loadDynamicLibrary(const char* fileName)
                   "After loading lib %s, error code is %d", fileName, 
                   (handle == (void *)0)?errno:0);
 
-    PEG_FUNC_EXIT(TRC_OS_ABSTRACTION, METHOD_NAME);
+    PEG_METHOD_EXIT();
     return DynamicLibraryHandle(handle);
 #elif defined(PEGASUS_OS_TRU64)
-    PEG_FUNC_EXIT(TRC_OS_ABSTRACTION, METHOD_NAME);
+    PEG_METHOD_EXIT();
     return DynamicLibraryHandle(dlopen(fileName, RTLD_NOW));
 #elif defined(PEGASUS_OS_ZOS)
-    PEG_FUNC_EXIT(TRC_OS_ABSTRACTION, METHOD_NAME);
+    PEG_METHOD_EXIT();
     return DynamicLibraryHandle(dllload(fileName));
 #else
-    PEG_FUNC_EXIT(TRC_OS_ABSTRACTION, METHOD_NAME);
+    PEG_METHOD_EXIT();
     return DynamicLibraryHandle(dlopen(fileName, RTLD_NOW | RTLD_GLOBAL));
 #endif
 

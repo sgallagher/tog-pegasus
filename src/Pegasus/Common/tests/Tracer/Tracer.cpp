@@ -95,10 +95,10 @@ Uint32 compare(const char* fileName, const char* compareStr)
 Uint32 test1()
 {
     const char* METHOD_NAME = "test1";
-    PEG_FUNC_ENTER(TRC_CONFIG,METHOD_NAME);
+    PEG_METHOD_ENTER(TRC_CONFIG,METHOD_NAME);
     Tracer::trace(__FILE__,__LINE__,TRC_CONFIG,Tracer::LEVEL2,"%s %d",
 	"This message should not appear value=",123);
-    PEG_FUNC_EXIT(TRC_CONFIG,METHOD_NAME);
+    PEG_METHOD_EXIT();
     return(compare(FILE1,""));
 }
 
@@ -117,7 +117,7 @@ Uint32 test2()
 {
     const char* METHOD_NAME = "test2";
     Tracer::setTraceFile(FILE1);
-    PEG_FUNC_ENTER(TRC_CONFIG,METHOD_NAME);
+    PEG_METHOD_ENTER(TRC_CONFIG,METHOD_NAME);
     Tracer::trace(__FILE__,__LINE__,TRC_CONFIG,Tracer::LEVEL2,"%s %d",
 	"This message should not appear value=",123);
     return(compare(FILE1,"This message should not appear value=123"));
@@ -138,7 +138,7 @@ Uint32 test3()
 {
     const char* METHOD_NAME = "test3";
     Tracer::setTraceLevel(Tracer::LEVEL1);
-    PEG_FUNC_ENTER(TRC_CONFIG,METHOD_NAME);
+    PEG_METHOD_ENTER(TRC_CONFIG,METHOD_NAME);
     Tracer::trace(__FILE__,__LINE__,TRC_CONFIG,Tracer::LEVEL2,"%s",
 	"This message should not appear");
     return(compare(FILE1,"This message should not appear"));
@@ -159,7 +159,7 @@ Uint32 test4()
 {
     const char* METHOD_NAME = "test4";
     Tracer::setTraceComponents("Config");
-    PEG_FUNC_ENTER(TRC_CONFIG,METHOD_NAME);
+    PEG_METHOD_ENTER(TRC_CONFIG,METHOD_NAME);
     return(compare(FILE1,"Entering method test4"));
 }
 
@@ -178,7 +178,7 @@ Uint32 test5()
 {
     const char* METHOD_NAME = "test5";
     Tracer::setTraceComponents("Wrong Component Name");
-    PEG_FUNC_EXIT(TRC_CONFIG,METHOD_NAME);
+    Tracer::traceExit(__FILE__,__LINE__,TRC_CONFIG,METHOD_NAME);
     return(compare(FILE1,"Entering method test4"));
 }
 
@@ -223,7 +223,7 @@ Uint32 test7()
 {
     const char* METHOD_NAME = "test7";
     Tracer::setTraceLevel(100);
-    PEG_FUNC_EXIT(TRC_CONFIG,METHOD_NAME);
+    Tracer::traceExit(__FILE__,__LINE__,TRC_CONFIG,METHOD_NAME);
     return(compare(FILE1,"Test Message for Level2 in test6"));
 }
 
@@ -263,7 +263,7 @@ Uint32 test9()
     Tracer::setTraceLevel(Tracer::LEVEL3);
     Tracer::setTraceFile(FILE2);
 
-    PEG_FUNC_ENTER(TRC_CONFIG,METHOD_NAME);
+    PEG_METHOD_ENTER(TRC_CONFIG,METHOD_NAME);
     Tracer::trace(TRC_CONFIG,Tracer::LEVEL3,"%s %s",
 	"Test Message for Level3 in",METHOD_NAME);
     return(compare(FILE2,"Test Message for Level3 in test9"));
@@ -285,7 +285,7 @@ Uint32 test10()
 {
     const char* METHOD_NAME = "test10";
     Tracer::setTraceComponents("ALL");
-    PEG_FUNC_EXIT(Uint32(-1),METHOD_NAME);
+    Tracer::traceExit(__FILE__,__LINE__,Uint32(-1),METHOD_NAME);
     return(compare(FILE2,"Test Message for Level3 in test9"));
 }
 
@@ -306,7 +306,7 @@ Uint32 test11()
     const char* METHOD_NAME = "test11";
     Tracer::setTraceComponents("ALL");
     Tracer::setTraceLevel(Tracer::LEVEL4);
-    PEG_FUNC_ENTER(TRC_CONFIG,METHOD_NAME);
+    PEG_METHOD_ENTER(TRC_CONFIG,METHOD_NAME);
     return(compare(FILE2,"Entering method test11"));
 }
 
@@ -327,7 +327,7 @@ Uint32 test12()
     const char* METHOD_NAME = "test12";
     Tracer::setTraceComponents("ALL");
     Tracer::setTraceLevel(Tracer::LEVEL4);
-    PEG_FUNC_EXIT(TRC_CONFIG,METHOD_NAME);
+    Tracer::traceExit(__FILE__,__LINE__,TRC_CONFIG,METHOD_NAME);
     return(compare(FILE2,"Exiting method test12"));
 }
 

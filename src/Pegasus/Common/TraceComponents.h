@@ -127,7 +127,7 @@ static char const* TRACE_COMPONENT_LIST[] =
     The Configuration framework component will be using the constant,
     TRC_CONFIG while invoking the trace call.
               
-        PEG_FUNC_ENTER(TRC_CONFIG, "ConfigManager::updateCurrentValue()");
+        PEG_METHOD_ENTER(TRC_CONFIG, "ConfigManager::updateCurrentValue()");
  */
 
 enum TRACE_COMPONENT_ID

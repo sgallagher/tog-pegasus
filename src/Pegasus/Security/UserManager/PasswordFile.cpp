@@ -89,8 +89,7 @@ static const int HEADER_SIZE = sizeof(PasswordFileHeader)/sizeof(PasswordFileHea
 */
 PasswordFile::PasswordFile (const String& fileName)
 {
-    const char METHOD_NAME[] = "PasswordFile::PasswordFile";
-    PEG_FUNC_ENTER(TRC_USER_MANAGER,METHOD_NAME);
+    PEG_METHOD_ENTER(TRC_USER_MANAGER, "PasswordFile::PasswordFile");
 
     _passwordFile       = fileName;
 
@@ -114,7 +113,7 @@ PasswordFile::PasswordFile (const String& fileName)
     {
 	throw e;
     }
-    PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
+    PEG_METHOD_EXIT();
 }
 
 /** 
@@ -122,10 +121,9 @@ PasswordFile::PasswordFile (const String& fileName)
 */
 PasswordFile::~PasswordFile ()
 {
-    const char METHOD_NAME[] = "PasswordFile::~PasswordFile";
-    PEG_FUNC_ENTER(TRC_USER_MANAGER,METHOD_NAME);
+    PEG_METHOD_ENTER(TRC_USER_MANAGER, "PasswordFile::~PasswordFile");
 
-    PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
+    PEG_METHOD_EXIT();
 }
 
 /** 
@@ -134,9 +132,8 @@ PasswordFile::~PasswordFile ()
 void PasswordFile::load (PasswordTable& passwordTable)
 {
     String line;
-    const char METHOD_NAME[] = "PasswordFile::load";
 
-    PEG_FUNC_ENTER(TRC_USER_MANAGER,METHOD_NAME);
+    PEG_METHOD_ENTER(TRC_USER_MANAGER, "PasswordFile::load");
 
     // 
     // Check if the backup file exists, if it does use the backup file
@@ -276,7 +273,7 @@ void PasswordFile::load (PasswordTable& passwordTable)
     }
 
     ifs.close();
-    PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
+    PEG_METHOD_EXIT();
 }
 
 
@@ -285,9 +282,7 @@ void PasswordFile::load (PasswordTable& passwordTable)
 */
 void PasswordFile::save (PasswordTable& passwordTable)
 {
-    const char METHOD_NAME[] = "PasswordFile::save";
-
-    PEG_FUNC_ENTER(TRC_USER_MANAGER, METHOD_NAME);
+    PEG_METHOD_ENTER(TRC_USER_MANAGER, "PasswordFile::save");
 
     //
     // Check if backup password file exists, if it does remove the password file
@@ -325,7 +320,7 @@ void PasswordFile::save (PasswordTable& passwordTable)
     ofstream ofs(p.getPointer());
     if (!ofs)
     {
-        PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
+        PEG_METHOD_EXIT();
 	throw CannotOpenFile(getFileName());
     }
 	
@@ -363,7 +358,7 @@ void PasswordFile::save (PasswordTable& passwordTable)
 	    throw CannotRemoveFile(_passwordBackupFile);
         }
     }
-    PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
+    PEG_METHOD_EXIT();
 }
 
 PEGASUS_NAMESPACE_END

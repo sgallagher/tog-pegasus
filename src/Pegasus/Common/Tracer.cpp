@@ -52,11 +52,11 @@ const Boolean Tracer::_SUCCESS = 1;
 const Boolean Tracer::_FAILURE = 0;
 
 // Set the Enter and Exit messages
-const char Tracer::_FUNC_ENTER_MSG[] = "Entering method";
-const char Tracer::_FUNC_EXIT_MSG[]  = "Exiting method";
+const char Tracer::_METHOD_ENTER_MSG[] = "Entering method";
+const char Tracer::_METHOD_EXIT_MSG[]  = "Exiting method";
 
 // Set Log messages
-const char Tracer::_LOG_MSG[] = "LEVEL1 may only be used with trace macros PEG_FUNC_ENTER/PEG_FUNC_EXIT or PEG_METHOD_ENTER/PEG_METHOD_EXIT.";
+const char Tracer::_LOG_MSG[] = "LEVEL1 may only be used with trace macros PEG_METHOD_ENTER/PEG_METHOD_EXIT.";
 
 // Initialize singleton instance of Tracer
 Tracer* Tracer::_tracerInstance = 0;

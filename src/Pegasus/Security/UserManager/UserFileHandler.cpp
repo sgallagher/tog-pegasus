@@ -66,9 +66,8 @@ void UserFileHandler::_GetSalt(char *salt)
     long 	randNum;
     Uint32 	sec;
     Uint32 	milliSec;
-    const char  METHOD_NAME[] = "PasswordFile::_GetSalt";
 
-    PEG_FUNC_ENTER(TRC_USER_MANAGER,METHOD_NAME);
+    PEG_METHOD_ENTER(TRC_USER_MANAGER, "PasswordFile::_GetSalt");
 
     //
     // Generate a random number and get the salt 
@@ -88,7 +87,7 @@ void UserFileHandler::_GetSalt(char *salt)
 
     salt[2] = '\0';
 
-    PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
+    PEG_METHOD_EXIT();
 }
 
 //
@@ -96,9 +95,7 @@ void UserFileHandler::_GetSalt(char *salt)
 //
 UserFileHandler::UserFileHandler()
 {
-    const char  METHOD_NAME[] = "UserFileHandler::UserFileHandler";
-
-    PEG_FUNC_ENTER(TRC_USER_MANAGER,METHOD_NAME);
+    PEG_METHOD_ENTER(TRC_USER_MANAGER, "UserFileHandler::UserFileHandler");
 
     //
     // Get an instance of the ConfigManager.
@@ -136,7 +133,7 @@ UserFileHandler::UserFileHandler()
     //
     _mutex = new Mutex;
 
-    PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
+    PEG_METHOD_EXIT();
 }
 
 
@@ -145,14 +142,12 @@ UserFileHandler::UserFileHandler()
 //
 UserFileHandler::~UserFileHandler()
 {
-    const char  METHOD_NAME[] = "UserFileHandler::~UserFileHandler";
-
-    PEG_FUNC_ENTER(TRC_USER_MANAGER,METHOD_NAME);
+    PEG_METHOD_ENTER(TRC_USER_MANAGER, "UserFileHandler::~UserFileHandler");
 
     delete _passwordFile;
     delete _mutex;
 
-    PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
+    PEG_METHOD_EXIT();
 }
 
 // 
@@ -160,9 +155,7 @@ UserFileHandler::~UserFileHandler()
 //
 void UserFileHandler::_loadAllUsers ()
 {
-    const char  METHOD_NAME[] = "UserFileHandler::_loadAllUsers";
-
-    PEG_FUNC_ENTER(TRC_USER_MANAGER,METHOD_NAME);
+    PEG_METHOD_ENTER(TRC_USER_MANAGER, "UserFileHandler::_loadAllUsers");
 
     try
     {
@@ -172,10 +165,10 @@ void UserFileHandler::_loadAllUsers ()
     catch (CannotOpenFile cof)
     {
         _passwordTable.clear();
-        PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
+        PEG_METHOD_EXIT();
         throw cof;
     }
-    PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
+    PEG_METHOD_EXIT();
 }
 
 void UserFileHandler::_Update(
@@ -183,9 +176,7 @@ void UserFileHandler::_Update(
 			   const String& userName,
 			   const String& password)
 {
-    const char  METHOD_NAME[] = "UserFileHandler::_Update";
-
-    PEG_FUNC_ENTER(TRC_USER_MANAGER,METHOD_NAME);
+    PEG_METHOD_ENTER(TRC_USER_MANAGER, "UserFileHandler::_Update");
 
     //
     // Hold the mutex lock.
@@ -222,7 +213,7 @@ void UserFileHandler::_Update(
                 if (!_passwordTable.insert(userName,password))
                 {
                     _mutex->unlock();
-                    PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
+                    PEG_METHOD_EXIT();
                     throw PasswordCacheError();
                 }
 		break; 
@@ -231,7 +222,7 @@ void UserFileHandler::_Update(
                 if (!_passwordTable.remove(userName))
                 {
                     _mutex->unlock();
-                    PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
+                    PEG_METHOD_EXIT();
                     throw PasswordCacheError();
                 }
                 if (!_passwordTable.insert(userName,password))
@@ -240,7 +231,7 @@ void UserFileHandler::_Update(
                     Logger::put(Logger::ERROR_LOG, "UserManager", 
 			Logger::SEVERE, 
 			"Error updating user information for : $0.",userName);
-                    PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
+                    PEG_METHOD_EXIT();
                     throw PasswordCacheError();
                 }
 	        break; 
@@ -251,7 +242,7 @@ void UserFileHandler::_Update(
                 if (!_passwordTable.remove(userName))
                 {
                     _mutex->unlock();
-                    PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
+                    PEG_METHOD_EXIT();
                     throw InvalidUser(userName);
                 }
 	        break; 
@@ -269,7 +260,7 @@ void UserFileHandler::_Update(
     catch (CannotOpenFile& e)
     {
         _mutex->unlock();
-        PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
+        PEG_METHOD_EXIT();
         throw e;
     }
     catch (CannotRenameFile& e)
@@ -280,11 +271,11 @@ void UserFileHandler::_Update(
         _loadAllUsers();
 
         _mutex->unlock();
-        PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
+        PEG_METHOD_EXIT();
         throw e;
     }
     _mutex->unlock();
-    PEG_FUNC_ENTER(TRC_USER_MANAGER,METHOD_NAME);
+    PEG_METHOD_EXIT();
 }
 
 
@@ -297,14 +288,13 @@ void UserFileHandler::addUserEntry(
 {
     char 	salt[3];
     String 	encryptedPassword = String::EMPTY;
-    const char  METHOD_NAME[] = "UserFileHandler::addUserEntry";
 
-    PEG_FUNC_ENTER(TRC_USER_MANAGER,METHOD_NAME);
+    PEG_METHOD_ENTER(TRC_USER_MANAGER, "UserFileHandler::addUserEntry");
 
     // Check if the user already exists
     if (_passwordTable.contains(userName))
     {
-        PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
+        PEG_METHOD_EXIT();
 	throw DuplicateUser(userName);
     }
 
@@ -318,7 +308,7 @@ void UserFileHandler::addUserEntry(
     // add the user to the cache and password file
     _Update(ADD_USER,userName, encryptedPassword);
 
-    PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
+    PEG_METHOD_EXIT();
 }
 
 // 
@@ -331,9 +321,8 @@ void UserFileHandler::modifyUserEntry(
 {
     char 	salt[3];
     String 	encryptedPassword = String::EMPTY;
-    const char  METHOD_NAME[] = "UserFileHandler::modifyUserEntry";
 
-    PEG_FUNC_ENTER(TRC_USER_MANAGER,METHOD_NAME);
+    PEG_METHOD_ENTER(TRC_USER_MANAGER, "UserFileHandler::modifyUserEntry");
 
     //
     // Check if the given password matches the passwd in the file
@@ -342,13 +331,13 @@ void UserFileHandler::modifyUserEntry(
     {
         if ( !verifyCIMUserPassword (userName,password) )
         {
-            PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
+            PEG_METHOD_EXIT();
 	    throw PasswordMismatch(userName);
         }
     }
     catch (Exception& e)
     {
-        PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
+        PEG_METHOD_EXIT();
 	throw e;
     }
 
@@ -361,7 +350,7 @@ void UserFileHandler::modifyUserEntry(
 
     _Update(MODIFY_USER, userName, encryptedPassword);
 
-    PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
+    PEG_METHOD_EXIT();
 }
 
 // 
@@ -369,13 +358,11 @@ void UserFileHandler::modifyUserEntry(
 // 
 void UserFileHandler::removeUserEntry(const String& userName)
 {
-    const char  METHOD_NAME[] = "UserFileHandler::removeUserEntry";
-
-    PEG_FUNC_ENTER(TRC_USER_MANAGER,METHOD_NAME);
+    PEG_METHOD_ENTER(TRC_USER_MANAGER, "UserFileHandler::removeUserEntry");
 
     _Update(REMOVE_USER, userName);
 
-    PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
+    PEG_METHOD_EXIT();
 }
 
 //
@@ -383,9 +370,7 @@ void UserFileHandler::removeUserEntry(const String& userName)
 //
 void UserFileHandler::getAllUserNames(Array<String>& userNames)
 {
-    const char  METHOD_NAME[] = "UserFileHandler::getAllUserNames";
-
-    PEG_FUNC_ENTER(TRC_USER_MANAGER,METHOD_NAME);
+    PEG_METHOD_ENTER(TRC_USER_MANAGER, "UserFileHandler::getAllUserNames");
 
     userNames.clear();
 
@@ -393,7 +378,7 @@ void UserFileHandler::getAllUserNames(Array<String>& userNames)
     {
         userNames.append(i.key());
     }
-    PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
+    PEG_METHOD_EXIT();
 }
 
 //
@@ -401,11 +386,9 @@ void UserFileHandler::getAllUserNames(Array<String>& userNames)
 //
 Boolean UserFileHandler::verifyCIMUser (const String& userName)
 {
-    const char  METHOD_NAME[] = "UserFileHandler::verifyCIMUser";
+    PEG_METHOD_ENTER(TRC_USER_MANAGER, "UserFileHandler::verifyCIMUser");
 
-    PEG_FUNC_ENTER(TRC_USER_MANAGER,METHOD_NAME);
-
-    PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
+    PEG_METHOD_EXIT();
     return _passwordTable.contains(userName);
 }
 
@@ -416,9 +399,8 @@ Boolean UserFileHandler::verifyCIMUserPassword (
 			    const String& userName, 
 			    const String& password)
 {
-    const char  METHOD_NAME[] = "UserFileHandler::verifyCIMUserPassword";
-
-    PEG_FUNC_ENTER(TRC_USER_MANAGER,METHOD_NAME);
+    PEG_METHOD_ENTER(TRC_USER_MANAGER,
+                     "UserFileHandler::verifyCIMUserPassword");
 
     // Check if the user's password mathches the specified password
     String curPassword 		= String::EMPTY;
@@ -428,7 +410,7 @@ Boolean UserFileHandler::verifyCIMUserPassword (
     // Check if the user exists in the password table
     if ( !_passwordTable.lookup(userName,curPassword) )
     {
-        PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
+        PEG_METHOD_EXIT();
         throw InvalidUser(userName);
     }
 
@@ -441,11 +423,11 @@ Boolean UserFileHandler::verifyCIMUserPassword (
 
     if ( curPassword != encryptedPassword )
     {
-        PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
+        PEG_METHOD_EXIT();
         return false;
     }
 
-    PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
+    PEG_METHOD_EXIT();
     return true;
 }
 PEGASUS_NAMESPACE_END

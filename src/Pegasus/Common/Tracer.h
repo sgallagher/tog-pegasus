@@ -297,7 +297,7 @@ public:
         const char* methodName)
     {
         _traceEnter( fileName, lineNum, traceComponent, "%s %s",
-    	    _FUNC_ENTER_MSG, methodName);
+    	    _METHOD_ENTER_MSG, methodName);
     }
     
     /** Traces method exit. 
@@ -313,7 +313,7 @@ public:
         const char* methodName)
     {
         _traceExit( fileName, lineNum, traceComponent, "%s %s",
-    	    _FUNC_EXIT_MSG, methodName);
+    	    _METHOD_EXIT_MSG, methodName);
     }
 
     /** Validates the File Path for the trace File
@@ -353,9 +353,9 @@ private:
     TraceFileHandler*   _traceHandler;
     static Tracer*      _tracerInstance;
 
-    // Message Strings for fucntion Entry and Exit
-    static const char _FUNC_ENTER_MSG[]; 
-    static const char _FUNC_EXIT_MSG[]; 
+    // Message Strings for function Entry and Exit
+    static const char _METHOD_ENTER_MSG[]; 
+    static const char _METHOD_EXIT_MSG[]; 
 
     // Message Strings for Logger
     static const char _LOG_MSG[]; 
@@ -513,28 +513,10 @@ private:
 
 // Define the macros for method entry/exit, and tracing a given string
 #ifdef PEGASUS_REMOVE_TRACE
-    #define PEG_FUNC_ENTER(traceComponent,methodName) 
-    #define PEG_FUNC_EXIT(traceComponent,methodName) 
     #define PEG_METHOD_ENTER(traceComponent,methodName) 
     #define PEG_METHOD_EXIT() 
     #define PEG_TRACE_STRING(traceComponent,traceLevel,traceString) 
 #else
-    /** Macro for tracing method entry
-        ATTN: Phase out in favor of PEG_METHOD_ENTER
-        @param    traceComponent  component being traced
-        @param    methodName      name of the method
-     */
-    #define PEG_FUNC_ENTER(traceComponent,methodName) \
-	Tracer::traceEnter(__FILE__, __LINE__,traceComponent,methodName)
-
-    /** Macro for tracing method exit
-        ATTN: Phase out in favor of PEG_METHOD_EXIT
-        @param    traceComponent  component being traced
-        @param    methodName      name of the method
-     */
-    #define PEG_FUNC_EXIT(traceComponent,methodName) \
-	Tracer::traceExit(__FILE__,__LINE__,traceComponent,methodName)
-
     /** Macro for tracing method entry
         @param    traceComponent  component being traced
         @param    methodName      name of the method

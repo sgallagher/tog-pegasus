@@ -277,9 +277,7 @@ void IndicationService::_initialize (void)
     Array <ProviderClassList> enableProviders;
     Boolean duplicate;
 
-    const char METHOD_NAME [] = "IndicationService::_initialize";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE, "IndicationService::_initialize");
  
     //
     //  Find required services
@@ -445,7 +443,7 @@ void IndicationService::_initialize (void)
         _sendEnable (enableProviders [m]);
     }
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
 }
 
 void IndicationService::_terminate (void)
@@ -453,9 +451,7 @@ void IndicationService::_terminate (void)
     Array <CIMInstance> activeSubscriptions;
     CIMInstance indicationInstance;
 
-    const char METHOD_NAME [] = "IndicationService::_terminate";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE, "IndicationService::_terminate");
 
     //
     //  Get existing active subscriptions from each namespace in the repository
@@ -474,15 +470,13 @@ void IndicationService::_terminate (void)
     //
     _sendAlerts (activeSubscriptions, indicationInstance);
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
 }
 
 void IndicationService::_handleCreateInstanceRequest (const Message * message)
 {
-    const char METHOD_NAME [] = 
-        "IndicationService::_handleCreateInstanceRequest";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_handleCreateInstanceRequest");
 
     CIMCreateInstanceRequestMessage* request = 
         (CIMCreateInstanceRequestMessage*) message;
@@ -551,7 +545,7 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
                         //  There are no providers that can support this 
                         //  subscription
                         //
-                        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+                        PEG_METHOD_EXIT ();
                         throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED,
                             _MSG_NO_PROVIDERS);
                     }
@@ -648,7 +642,7 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
     
                 Base::_enqueueResponse (request, response);
     
-                PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+                PEG_METHOD_EXIT ();
                 return;
             }
         
@@ -672,7 +666,7 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
                         queryLanguage, instance,
                         request->userName, request->authType))
                     {
-                        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+                        PEG_METHOD_EXIT ();
                         throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED,
                             _MSG_NOT_ACCEPTED);
                     }
@@ -724,14 +718,13 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
     
     Base::_enqueueResponse (request, response);
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
 }
 
 void IndicationService::_handleGetInstanceRequest (const Message* message)
 {
-    const char METHOD_NAME [] = "IndicationService::_handleGetInstanceRequest";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_handleGetInstanceRequest");
 
     CIMGetInstanceRequestMessage* request = 
         (CIMGetInstanceRequestMessage*) message;
@@ -797,15 +790,13 @@ void IndicationService::_handleGetInstanceRequest (const Message* message)
     
     Base::_enqueueResponse (request, response);
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
 }
 
 void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
 {
-    const char METHOD_NAME [] = 
-        "IndicationService::_handleEnumerateInstancesRequest";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_handleEnumerateInstancesRequest");
 
     CIMEnumerateInstancesRequestMessage* request = 
         (CIMEnumerateInstancesRequestMessage*) message;
@@ -875,15 +866,15 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
     
     Base::_enqueueResponse (request, response);
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
 }
 
 void IndicationService::_handleEnumerateInstanceNamesRequest
     (const Message* message)
 {
-    const char METHOD_NAME [] = 
-        "IndicationService::_handleEnumerateInstancesNamesRequest";
-    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (
+        TRC_INDICATION_SERVICE,
+        "IndicationService::_handleEnumerateInstancesNamesRequest");
    
     CIMEnumerateInstanceNamesRequestMessage* request =
         (CIMEnumerateInstanceNamesRequestMessage*) message;
@@ -930,15 +921,13 @@ void IndicationService::_handleEnumerateInstanceNamesRequest
     //    SendForget(response);
     Base::_enqueueResponse(request, response);
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
 }
 
 void IndicationService::_handleModifyInstanceRequest (const Message* message)
 {
-    const char METHOD_NAME [] = 
-        "IndicationService::_handleModifyInstanceRequest";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_handleModifyInstanceRequest");
 
     CIMModifyInstanceRequestMessage* request = 
         (CIMModifyInstanceRequestMessage*) message;
@@ -968,7 +957,7 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
         catch (Exception e)
         {
             _repository->read_unlock ();
-            PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+            PEG_METHOD_EXIT ();
             throw e;
         }
 
@@ -988,7 +977,7 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                 _deleteExpiredSubscription (instanceReference);
     
                 String exceptionStr = _MSG_EXPIRED;
-                PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+                PEG_METHOD_EXIT ();
                 throw PEGASUS_CIM_EXCEPTION (CIM_ERR_FAILED, exceptionStr);
             }
     
@@ -1133,7 +1122,7 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                         //
                         instance.setPath (instanceReference);
                         _handleError (instance);
-                        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+                        PEG_METHOD_EXIT ();
                         throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED,
                             _MSG_NO_PROVIDERS);
                     }
@@ -1183,7 +1172,7 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
     
                     Base::_enqueueResponse (request, response);
         
-                    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+                    PEG_METHOD_EXIT ();
                     return;
                 }
                 
@@ -1204,7 +1193,7 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                         instance,
                         request->userName, request->authType))
                     {
-                        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+                        PEG_METHOD_EXIT ();
                         throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED,
                             _MSG_NOT_ACCEPTED);
                     }
@@ -1280,15 +1269,13 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
     
     Base::_enqueueResponse (request, response);
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
 }
 
 void IndicationService::_handleDeleteInstanceRequest (const Message* message)
 {
-    const char METHOD_NAME [] = 
-        "IndicationService::_handleDeleteInstanceRequest";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_handleDeleteInstanceRequest");
 
     CIMDeleteInstanceRequestMessage* request = 
         (CIMDeleteInstanceRequestMessage*) message;
@@ -1320,7 +1307,7 @@ void IndicationService::_handleDeleteInstanceRequest (const Message* message)
                 catch (Exception e)
                 {
                     _repository->read_unlock ();
-                    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+                    PEG_METHOD_EXIT ();
                     throw e;
                 }
 
@@ -1382,7 +1369,7 @@ void IndicationService::_handleDeleteInstanceRequest (const Message* message)
 
                 Base::_enqueueResponse (request, response);
 
-                PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+                PEG_METHOD_EXIT ();
                 return;
             }
         }
@@ -1419,15 +1406,13 @@ void IndicationService::_handleDeleteInstanceRequest (const Message* message)
     
     Base::_enqueueResponse (request, response);
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
 }
 
 void IndicationService::_handleProcessIndicationRequest (const Message* message)
 {
-    const char METHOD_NAME [] =
-        "IndicationService::_handleProcessIndicationRequest";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_handleProcessIndicationRequest");
 
     CIMProcessIndicationRequestMessage* request =
         (CIMProcessIndicationRequestMessage*) message;
@@ -1613,7 +1598,7 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
 
     _enqueueResponse(request, response);
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
 
     return;
 }
@@ -1621,10 +1606,9 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
 void IndicationService::_handleNotifyProviderRegistrationRequest
     (const Message* message)
 {
-    const char METHOD_NAME [] = 
-        "IndicationService::_handleNotifyProviderRegistrationRequest";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (
+        TRC_INDICATION_SERVICE,
+        "IndicationService::_handleNotifyProviderRegistrationRequest");
 
     CIMNotifyProviderRegistrationRequestMessage* request = 
         (CIMNotifyProviderRegistrationRequestMessage*) message;
@@ -1687,7 +1671,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
             //
             //  Error condition: operation not supported
             //
-            PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+            PEG_METHOD_EXIT ();
             throw CIMException (CIM_ERR_NOT_SUPPORTED);
             break;
     }  // switch
@@ -1757,7 +1741,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                     sourceNameSpace, requiredProperties, condition, 
                     queryLanguage, newSubscriptions [i], creator))
                 {
-                    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+                    PEG_METHOD_EXIT ();
                     throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED, 
                         _MSG_NOT_ACCEPTED);
                 }
@@ -1871,7 +1855,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
         _sendAlerts (formerSubscriptions, indicationInstance);
     }
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
 }
 
 void IndicationService::_handleNotifyProviderTerminationRequest
@@ -1880,10 +1864,8 @@ void IndicationService::_handleNotifyProviderTerminationRequest
     Array <CIMInstance> providerSubscriptions;
     CIMInstance indicationInstance;
 
-    const char METHOD_NAME [] = 
-        "IndicationService::_handleNotifyProviderTermination";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_handleNotifyProviderTermination");
 
     CIMNotifyProviderTerminationRequestMessage* request = 
 	(CIMNotifyProviderTerminationRequestMessage*) message;
@@ -1925,15 +1907,14 @@ void IndicationService::_handleNotifyProviderTerminationRequest
         _sendAlerts (providerSubscriptions, indicationInstance);
     }
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
 }
 
 Boolean IndicationService::_handleError (
     const CIMInstance subscription)
 {
-    const char METHOD_NAME [] = "IndicationService::_handleError";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_handleError");
 
     Boolean handleError = false;
 
@@ -1970,16 +1951,15 @@ Boolean IndicationService::_handleError (
         handleError = true;
     }
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
     return handleError;
 }
 
 void IndicationService::_disableSubscription (
     CIMInstance subscription)
 {
-    const char METHOD_NAME [] = "IndicationService::_disableSubscription";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_disableSubscription");
 
     //
     //  Create property list
@@ -2033,15 +2013,14 @@ void IndicationService::_disableSubscription (
 
     _repository->write_unlock ();
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
 }
 
 void IndicationService::_deleteSubscription (
     const CIMInstance subscription)
 {
-    const char METHOD_NAME [] = "IndicationService::_deleteSubscription";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_deleteSubscription");
 
     //
     //  Delete referencing subscription instance from repository
@@ -2063,16 +2042,14 @@ void IndicationService::_deleteSubscription (
 
     _repository->write_unlock ();
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
 }
 
 Boolean IndicationService::_canCreate (
     CIMInstance & instance,
     const String & nameSpace)
 {
-    const char METHOD_NAME [] = "IndicationService::_canCreate";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE, "IndicationService::_canCreate");
 
     // REVIEW: Derived classes of CIM_IndicationSubscription not
     // handled. It is reasonable for a user to derive from this
@@ -2208,13 +2185,13 @@ Boolean IndicationService::_canCreate (
             //
             //  A class not currently served by the Indication Service
             //
-            PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+            PEG_METHOD_EXIT ();
             throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED,
                 _MSG_CLASS_NOT_SERVED);
         }
     }
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
     return true;
 }
 
@@ -2223,9 +2200,8 @@ void IndicationService::_checkRequiredProperty (
     const String & propertyName,
     const String & message)
 {
-    const char METHOD_NAME [] = "IndicationService::_checkRequiredProperty";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_checkRequiredProperty");
 
     Boolean missingProperty = false;
 
@@ -2259,11 +2235,11 @@ void IndicationService::_checkRequiredProperty (
         String exceptionStr = _MSG_MISSING_REQUIRED;
         exceptionStr.append (propertyName);
         exceptionStr.append (message);
-        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+        PEG_METHOD_EXIT ();
         throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER,
             exceptionStr);
     }
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
 }
 
 void IndicationService::_checkPropertyWithOther (
@@ -2276,9 +2252,8 @@ void IndicationService::_checkPropertyWithOther (
 {
     Uint16 result = defaultValue;
 
-    const char METHOD_NAME [] = "IndicationService::_checkPropertyWithOther";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_checkPropertyWithOther");
 
     //
     //  If the property doesn't exist, add it with the default value
@@ -2317,7 +2292,7 @@ void IndicationService::_checkPropertyWithOther (
                 exceptionStr.append (theValue.toString ());
                 exceptionStr.append (_MSG_FOR_PROPERTY);
                 exceptionStr.append (propertyName);
-                PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+                PEG_METHOD_EXIT ();
                 throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER,
                     exceptionStr);
             }
@@ -2334,7 +2309,7 @@ void IndicationService::_checkPropertyWithOther (
                 String exceptionStr = _MSG_MISSING_REQUIRED;
                 exceptionStr.append (otherPropertyName);
                 exceptionStr.append (_MSG_PROPERTY);
-                PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+                PEG_METHOD_EXIT ();
                 throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER,
                     exceptionStr);
             }
@@ -2348,7 +2323,7 @@ void IndicationService::_checkPropertyWithOther (
                     String exceptionStr = _MSG_MISSING_REQUIRED;
                     exceptionStr.append (otherPropertyName);
                     exceptionStr.append (_MSG_PROPERTY);
-                    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+                    PEG_METHOD_EXIT ();
                     throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER,
                         exceptionStr);
                 }
@@ -2371,14 +2346,14 @@ void IndicationService::_checkPropertyWithOther (
                 exceptionStr.append (propertyName);
                 exceptionStr.append (_MSG_VALUE_NOT);
                 exceptionStr.append (CIMValue (otherValue).toString ());
-                PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+                PEG_METHOD_EXIT ();
                 throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER,
                     exceptionStr);
             }
         }
     }
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
 }
 
 String IndicationService::_checkPropertyWithDefault (
@@ -2388,9 +2363,8 @@ String IndicationService::_checkPropertyWithDefault (
 {
     String result = defaultValue;
 
-    const char METHOD_NAME [] = "IndicationService::_checkPropertyWithDefault";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_checkPropertyWithDefault");
 
     //
     //  If the property doesn't exist, add it with the default value
@@ -2424,7 +2398,7 @@ String IndicationService::_checkPropertyWithDefault (
 
     return result;
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
 }
 
 Boolean IndicationService::_canModify (
@@ -2432,9 +2406,7 @@ Boolean IndicationService::_canModify (
     const CIMObjectPath & instanceReference,
     CIMInstance & instance)
 {
-    const char METHOD_NAME [] = "IndicationService::_canModify";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE, "IndicationService::_canModify");
 
     //
     //  Currently, only modification allowed is of Subscription State 
@@ -2442,13 +2414,13 @@ Boolean IndicationService::_canModify (
     //
     if (instanceReference.getClassName () != PEGASUS_CLASSNAME_INDSUBSCRIPTION)
     {
-        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+        PEG_METHOD_EXIT ();
         throw CIMException (CIM_ERR_NOT_SUPPORTED);
     }
 
     if (request->includeQualifiers)
     {
-        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+        PEG_METHOD_EXIT ();
         throw CIMException (CIM_ERR_NOT_SUPPORTED);
     }
 
@@ -2458,7 +2430,7 @@ Boolean IndicationService::_canModify (
     //
     if (request->propertyList.isNull ())
     {
-        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+        PEG_METHOD_EXIT ();
         throw CIMException (CIM_ERR_NOT_SUPPORTED);
     }
 
@@ -2467,7 +2439,7 @@ Boolean IndicationService::_canModify (
     //
     else if (request->propertyList.getNumProperties () > 1)
     {
-        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+        PEG_METHOD_EXIT ();
         throw CIMException (CIM_ERR_NOT_SUPPORTED);
     }
 
@@ -2478,7 +2450,7 @@ Boolean IndicationService::_canModify (
     else if ((request->propertyList.getNumProperties () == 1) &&
              (request->propertyList.getPropertyName (0) != _PROPERTY_STATE))
     {
-        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+        PEG_METHOD_EXIT ();
         throw CIMException (CIM_ERR_NOT_SUPPORTED);
     }
 
@@ -2503,12 +2475,12 @@ Boolean IndicationService::_canModify (
         (!System::isPrivilegedUser (currentUser)) && 
         (currentUser != creator))
     {
-        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+        PEG_METHOD_EXIT ();
         throw CIMException (CIM_ERR_ACCESS_DENIED);
     }
 
     return true;
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
 }
 
 Boolean IndicationService::_canDelete (
@@ -2519,9 +2491,7 @@ Boolean IndicationService::_canDelete (
     String superClass;
     String propName;
 
-    const char METHOD_NAME [] = "IndicationService::_canDelete";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE, "IndicationService::_canDelete");
 
     //
     //  Get the instance to be deleted from the respository
@@ -2537,7 +2507,7 @@ Boolean IndicationService::_canDelete (
     catch (Exception e)
     {
         _repository->read_unlock ();
-        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+        PEG_METHOD_EXIT ();
         throw e;
     }
 
@@ -2560,7 +2530,7 @@ Boolean IndicationService::_canDelete (
         (!System::isPrivilegedUser (currentUser)) &&
         (currentUser != creator))
     {
-        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+        PEG_METHOD_EXIT ();
         throw CIMException (CIM_ERR_ACCESS_DENIED);
     }
 
@@ -2578,7 +2548,7 @@ Boolean IndicationService::_canDelete (
     catch (Exception e)
     {
         _repository->read_unlock ();
-        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+        PEG_METHOD_EXIT ();
         throw e;
     }
 
@@ -2612,7 +2582,7 @@ Boolean IndicationService::_canDelete (
             {
                 _deleteReferencingSubscriptions (nameSpace, propName,
                     instanceReference);
-                PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+                PEG_METHOD_EXIT ();
                 return true;
             }
         }
@@ -2649,13 +2619,13 @@ Boolean IndicationService::_canDelete (
             if (instanceReference == ref)
             {
                 String exceptionStr = _MSG_REFERENCED;
-                PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+                PEG_METHOD_EXIT ();
                 throw PEGASUS_CIM_EXCEPTION (CIM_ERR_FAILED, exceptionStr);
             }
         }
     }
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
     return true;
 }
 
@@ -2668,10 +2638,8 @@ Array <CIMInstance> IndicationService::_getActiveSubscriptions () const
     CIMValue subscriptionStateValue;
     Uint16 subscriptionState;
 
-    const char METHOD_NAME [] = 
-        "IndicationService::_getActiveSubscriptions";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_getActiveSubscriptions");
 
     //
     //  Get list of namespaces in repository
@@ -2724,7 +2692,7 @@ Array <CIMInstance> IndicationService::_getActiveSubscriptions () const
         }  // for each subscription
     }  // for each namespace
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
     return activeSubscriptions;
 }
 
@@ -2740,10 +2708,8 @@ Array <CIMInstance> IndicationService::_getMatchingSubscriptions (
     CIMValue subscriptionStateValue;
     Uint16 subscriptionState;
 
-    const char METHOD_NAME [] = 
-        "IndicationService::_getMatchingSubscriptions";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_getMatchingSubscriptions");
 
     //
     //  Get list of namespaces in repository
@@ -2885,7 +2851,7 @@ Array <CIMInstance> IndicationService::_getMatchingSubscriptions (
         }  // for each subscription
     }  // for each namespace
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
     return matchingSubscriptions;
 }
 
@@ -2903,10 +2869,8 @@ void IndicationService::_getModifiedSubscriptions (
     CIMValue subscriptionStateValue;
     Uint16 subscriptionState;
 
-    const char METHOD_NAME [] = 
-        "IndicationService::_getModifiedSubscriptions";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_getModifiedSubscriptions");
 
     newSubscriptions.clear ();
     formerSubscriptions.clear ();
@@ -3064,16 +3028,15 @@ void IndicationService::_getModifiedSubscriptions (
         }  // for each subscription
     }  // for each namespace
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
 }
 
 Array <String> IndicationService::_getNameSpaceNames (void) const
 {
     Array <String> nameSpaceNames;
 
-    const char METHOD_NAME [] = "IndicationService::__getNameSpaceNames";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::__getNameSpaceNames");
 
     _repository->read_lock ();
 
@@ -3084,13 +3047,13 @@ Array <String> IndicationService::_getNameSpaceNames (void) const
     catch (Exception e)
     {
         _repository->read_unlock ();
-        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+        PEG_METHOD_EXIT ();
         throw e;
     }
 
     _repository->read_unlock ();
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
     return nameSpaceNames;
 }
 
@@ -3099,9 +3062,8 @@ Array <CIMInstance> IndicationService::_getSubscriptions (
 {
     Array <CIMInstance> subscriptions;
 
-    const char METHOD_NAME [] = "IndicationService::_getSubscriptions";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_getSubscriptions");
 
     //
     //  Get existing subscriptions in current namespace
@@ -3123,14 +3085,14 @@ Array <CIMInstance> IndicationService::_getSubscriptions (
         if (e.getCode () != CIM_ERR_INVALID_CLASS)
         {
             _repository->read_unlock ();
-            PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+            PEG_METHOD_EXIT ();
             throw e;
         }
     }
 
     _repository->read_unlock ();
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
     return subscriptions;
 }
 
@@ -3138,9 +3100,8 @@ Boolean IndicationService::_inPropertyList (
     const CIMPropertyList & requiredProperties,
     const CIMPropertyList & supportedProperties)
 {
-    const char METHOD_NAME [] = "IndicationService::_inPropertyList";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_inPropertyList");
 
     //
     //  If property list is null (all properties)
@@ -3178,7 +3139,7 @@ Boolean IndicationService::_inPropertyList (
         }
     }
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
     return true;
 }
 
@@ -3187,10 +3148,8 @@ Array <CIMInstance> IndicationService::_getProviderSubscriptions (
 {
     Array <CIMInstance> providerSubscriptions;
 
-    const char METHOD_NAME [] = 
-        "IndicationService::_getProviderSubscriptions";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_getProviderSubscriptions");
 
     //
     //  Iterate through the subscription table
@@ -3206,7 +3165,7 @@ Array <CIMInstance> IndicationService::_getProviderSubscriptions (
         }
     }
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
     return providerSubscriptions;
 }
 
@@ -3221,9 +3180,8 @@ void IndicationService::_getFilterProperties (
     CIMObjectPath filterReference;
     CIMInstance filterInstance;
 
-    const char METHOD_NAME [] = "IndicationService::_getFilterProperties";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_getFilterProperties");
 
     filterValue = subscription.getProperty (subscription.findProperty
         (_PROPERTY_FILTER)).getValue ();
@@ -3240,7 +3198,7 @@ void IndicationService::_getFilterProperties (
     catch (Exception e)
     {
         _repository->read_unlock ();
-        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+        PEG_METHOD_EXIT ();
         throw e;
     }
 
@@ -3256,7 +3214,7 @@ void IndicationService::_getFilterProperties (
         (filterInstance.findProperty (_PROPERTY_QUERYLANGUAGE)).
         getValue ().toString ();
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
 }
 
 void IndicationService::_getFilterProperties (
@@ -3269,9 +3227,8 @@ void IndicationService::_getFilterProperties (
     CIMObjectPath filterReference;
     CIMInstance filterInstance;
 
-    const char METHOD_NAME [] = "IndicationService::_getFilterProperties";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_getFilterProperties");
 
     filterValue = subscription.getProperty (subscription.findProperty
         (_PROPERTY_FILTER)).getValue ();
@@ -3288,7 +3245,7 @@ void IndicationService::_getFilterProperties (
     catch (Exception e)
     {
         _repository->read_unlock ();
-        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+        PEG_METHOD_EXIT ();
         throw e;
     }
 
@@ -3300,7 +3257,7 @@ void IndicationService::_getFilterProperties (
     sourceNameSpace = filterInstance.getProperty (filterInstance.findProperty 
         (_PROPERTY_SOURCENAMESPACE)).getValue ().toString ();
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
 }
 
 void IndicationService::_getFilterProperties (
@@ -3312,9 +3269,8 @@ void IndicationService::_getFilterProperties (
     CIMObjectPath filterReference;
     CIMInstance filterInstance;
 
-    const char METHOD_NAME [] = "IndicationService::_getFilterProperties";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_getFilterProperties");
 
     filterValue = subscription.getProperty (subscription.findProperty
         (_PROPERTY_FILTER)).getValue ();
@@ -3331,7 +3287,7 @@ void IndicationService::_getFilterProperties (
     catch (Exception e)
     {
         _repository->read_unlock ();
-        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+        PEG_METHOD_EXIT ();
         throw e;
     }
 
@@ -3340,16 +3296,16 @@ void IndicationService::_getFilterProperties (
     query = filterInstance.getProperty (filterInstance.findProperty 
         (_PROPERTY_QUERY)).getValue ().toString ();
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
 }
 
 WQLSelectStatement IndicationService::_getSelectStatement (
     const String & filterQuery) const
 {
     WQLSelectStatement selectStatement;
-    const char METHOD_NAME [] = "IndicationService::_getSelectStatement";
 
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_getSelectStatement");
 
     try
     {
@@ -3364,17 +3320,17 @@ WQLSelectStatement IndicationService::_getSelectStatement (
     catch (ParseError & pe)
     {
         String exceptionStr = pe.getMessage ();
-        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+        PEG_METHOD_EXIT ();
         throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, exceptionStr);
     }
     catch (MissingNullTerminator & mnt)
     {
         String exceptionStr = mnt.getMessage ();
-        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+        PEG_METHOD_EXIT ();
         throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, exceptionStr);
     }
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
     return selectStatement;
 }
 
@@ -3384,10 +3340,9 @@ String IndicationService::_getIndicationClassName (
 {
     String indicationClassName;
     Array <String> indicationSubclasses;
-    const char METHOD_NAME [] = 
-        "IndicationService::_getIndicationClassName";
 
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_getIndicationClassName");
 
     indicationClassName = selectStatement.getClassName ();
 
@@ -3406,7 +3361,7 @@ String IndicationService::_getIndicationClassName (
     catch (Exception e)
     {
         _repository->read_unlock ();
-        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+        PEG_METHOD_EXIT ();
         throw e;
     }
 
@@ -3434,12 +3389,12 @@ String IndicationService::_getIndicationClassName (
         exceptionStr.append (" ");
         exceptionStr.append (_PROPERTY_QUERY);
         exceptionStr.append (_MSG_PROPERTY);
-        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+        PEG_METHOD_EXIT ();
         throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
             exceptionStr);
     }
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
     return indicationClassName;
 }
 
@@ -3451,7 +3406,8 @@ Array <String> IndicationService::_getIndicationSubclasses (
 
     const char METHOD_NAME [] = "IndicationService::_getIndicationSubclasses";
 
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_getIndicationSubclasses");
 
     _repository->read_lock ();
 
@@ -3463,7 +3419,7 @@ Array <String> IndicationService::_getIndicationSubclasses (
     catch (Exception e)
     {
         _repository->read_unlock ();
-        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+        PEG_METHOD_EXIT ();
         throw e;
     }
 
@@ -3471,7 +3427,7 @@ Array <String> IndicationService::_getIndicationSubclasses (
 
     indicationSubclasses.append (indicationClassName);
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
     return indicationSubclasses;
 }
 
@@ -3488,9 +3444,8 @@ Array <ProviderClassList>
     Array <CIMInstance> providerModuleInstances;
     Boolean duplicate = false;
 
-    const char METHOD_NAME [] = "IndicationService::_getIndicationProviders";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_getIndicationProviders");
 
     //
     //  For each indication subclass, get providers
@@ -3556,7 +3511,7 @@ Array <ProviderClassList>
         }  // if any providers
     }  // for each indication subclass
         
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
     return indicationProviders;
 }
 
@@ -3568,9 +3523,8 @@ CIMPropertyList IndicationService::_getPropertyList
     Array <String> propertyList;
     String propertyName;
 
-    const char METHOD_NAME [] = "IndicationService::_getPropertyList";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_getPropertyList");
 
     //
     //  Get all the properties referenced in the projection list (SELECT clause)
@@ -3583,7 +3537,7 @@ CIMPropertyList IndicationService::_getPropertyList
             //
             //  Return null CIMPropertyList for all properties
             //
-            PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+            PEG_METHOD_EXIT ();
             return CIMPropertyList ();
         }
 
@@ -3625,9 +3579,8 @@ CIMPropertyList IndicationService::_checkPropertyList
      const String & nameSpaceName,
      const String & indicationClassName) const
 {
-    const char METHOD_NAME [] = "IndicationService::_checkPropertyList";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_checkPropertyList");
 
     //
     //  Check if list includes all properties in class
@@ -3644,7 +3597,7 @@ CIMPropertyList IndicationService::_checkPropertyList
     catch (Exception e)
     {
         _repository->read_unlock ();
-        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+        PEG_METHOD_EXIT ();
         throw e;
     }
 
@@ -3666,12 +3619,12 @@ CIMPropertyList IndicationService::_checkPropertyList
         //
         //  Return NULL CIMPropertyList
         //
-        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+        PEG_METHOD_EXIT ();
         return CIMPropertyList ();
     }
     else
     {
-        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+        PEG_METHOD_EXIT ();
         return CIMPropertyList (propertyList);
     }
 }
@@ -3680,9 +3633,9 @@ String IndicationService::_getCondition
     (const String & filterQuery) const
 {
     String condition = String::EMPTY;
-    const char METHOD_NAME [] = "IndicationService::_getCondition";
 
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_getCondition");
 
     //
     //  Get condition substring from filter query
@@ -3693,7 +3646,7 @@ String IndicationService::_getCondition
             (_QUERY_WHERE) + 6);
     }
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
     return condition;
 }
 
@@ -3704,9 +3657,8 @@ CIMInstance IndicationService::_getHandler (
     CIMValue handlerValue;
     CIMObjectPath handlerRef;
     CIMInstance handlerInstance;
-    const char METHOD_NAME [] = "IndicationService::_getHandler";
 
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE, "IndicationService::_getHandler");
 
     //
     //  Get Handler reference from subscription instance
@@ -3730,7 +3682,7 @@ CIMInstance IndicationService::_getHandler (
     catch (Exception e)
     {
         _repository->read_unlock ();
-        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+        PEG_METHOD_EXIT ();
         throw e;
     }
 
@@ -3743,7 +3695,7 @@ CIMInstance IndicationService::_getHandler (
         (subscription.getPath ().getNameSpace ());
     handlerInstance.setPath (handlerRef);
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
     return handlerInstance;
 }
 
@@ -3753,9 +3705,9 @@ Boolean IndicationService::_isTransient (
 {
     CIMValue persistenceValue;
     Uint16 persistenceType;
-    const char METHOD_NAME [] = "IndicationService::_isTransient";
 
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_isTransient");
 
     //
     //  Get the handler instance from the respository
@@ -3770,7 +3722,7 @@ Boolean IndicationService::_isTransient (
     catch (Exception e)
     {
         _repository->read_unlock ();
-        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+        PEG_METHOD_EXIT ();
         throw e;
     }
 
@@ -3789,12 +3741,12 @@ Boolean IndicationService::_isTransient (
     //
     if (persistenceType == _PERSISTENCE_TRANSIENT)
     {
-        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+        PEG_METHOD_EXIT ();
         return true;
     }
     else
     {
-        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+        PEG_METHOD_EXIT ();
         return false;
     }
 }
@@ -3805,10 +3757,9 @@ void IndicationService::_deleteReferencingSubscriptions (
     const CIMObjectPath & handler)
 {
     Array <CIMInstance> subscriptions;
-    const char METHOD_NAME [] = 
-        "IndicationService::_deleteReferencingSubscriptions";
 
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_deleteReferencingSubscriptions");
 
     //
     //  Get existing subscriptions in the namespace
@@ -3873,15 +3824,13 @@ void IndicationService::_deleteReferencingSubscriptions (
         }
     }
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
 }
 
 Boolean IndicationService::_isExpired (
     const CIMInstance & instance) const
 {
-    const char METHOD_NAME [] = "IndicationService::_isExpired";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE, "IndicationService::_isExpired");
 
     Boolean isExpired = true;
     Uint64 timeRemaining = 0;
@@ -3904,17 +3853,15 @@ Boolean IndicationService::_isExpired (
         isExpired = false;
     }
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
     return isExpired;
 }
 
 void IndicationService::_deleteExpiredSubscription (
     CIMObjectPath & subscription)
 {
-    const char METHOD_NAME [] = 
-        "IndicationService::_deleteExpiredSubscription";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_deleteExpiredSubscription");
 
     String nameSpace = subscription.getNameSpace ();
     subscription.setNameSpace ("");
@@ -3938,17 +3885,15 @@ void IndicationService::_deleteExpiredSubscription (
 
     _repository->write_unlock ();
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
 }
 
 Boolean IndicationService::_getTimeRemaining (
     const CIMInstance & instance,
     Uint64 & timeRemaining) const
 {
-    const char METHOD_NAME [] = 
-        "IndicationService::_getTimeRemaining";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_getTimeRemaining");
 
     Boolean hasDuration = true;
     timeRemaining = 0;
@@ -4008,17 +3953,15 @@ Boolean IndicationService::_getTimeRemaining (
         hasDuration = false;
     }
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
     return hasDuration;
 }
 
 void IndicationService::_setTimeRemaining (
     CIMInstance & instance)
 {
-    const char METHOD_NAME [] = 
-        "IndicationService::_setTimeRemaining";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_setTimeRemaining");
 
     Uint64 timeRemaining = 0;
     if (_getTimeRemaining (instance, timeRemaining))
@@ -4039,7 +3982,7 @@ void IndicationService::_setTimeRemaining (
         }
     }
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
 }
 
 void IndicationService::_getCreateParams (
@@ -4057,9 +4000,9 @@ void IndicationService::_getCreateParams (
     Array <String> indicationSubclasses;
     condition = String::EMPTY;
     queryLanguage = String::EMPTY;
-    const char METHOD_NAME [] = "IndicationService::_getCreateParams";
 
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_getCreateParams");
 
     //
     //  Get filter properties
@@ -4109,7 +4052,7 @@ void IndicationService::_getCreateParams (
         }
     }
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
 }
     
 void IndicationService::_getCreateParams (
@@ -4124,9 +4067,9 @@ void IndicationService::_getCreateParams (
     WQLSelectStatement selectStatement;
     condition = String::EMPTY;
     queryLanguage = String::EMPTY;
-    const char METHOD_NAME [] = "IndicationService::_getCreateParams";
 
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_getCreateParams");
 
     //
     //  Get filter properties
@@ -4156,7 +4099,7 @@ void IndicationService::_getCreateParams (
         condition = _getCondition (filterQuery);
     }
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
 }
     
 Array <ProviderClassList> IndicationService::_getDeleteParams (
@@ -4171,9 +4114,8 @@ Array <ProviderClassList> IndicationService::_getDeleteParams (
     CIMPropertyList propertyList;
     Array <ProviderClassList> indicationProviders;
 
-    const char METHOD_NAME [] = "IndicationService::_getDeleteParams";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_getDeleteParams");
 
     //
     //  Get filter properties
@@ -4212,7 +4154,7 @@ Array <ProviderClassList> IndicationService::_getDeleteParams (
         (sourceNameSpace, indicationClassName, indicationSubclasses, 
          propertyList);
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
     return indicationProviders;
 }
     
@@ -4221,10 +4163,8 @@ void IndicationService::_sendCreateRequestsCallBack(AsyncOpNode *op,
 						    MessageQueue *q, 
 						    void *parm)
 {
-    const char METHOD_NAME [] = 
-        "IndicationService::_sendCreateRequestsCallBack";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_sendCreateRequestsCallBack");
 
     IndicationService *service = 
       static_cast<IndicationService *>(q);
@@ -4273,7 +4213,7 @@ void IndicationService::_sendCreateRequestsCallBack(AsyncOpNode *op,
    op->release();
    service->return_op(op);
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
 }
 
 
@@ -4289,9 +4229,9 @@ Boolean IndicationService::_sendCreateRequests
 {
     CIMValue propValue;
     Uint16 repeatNotificationPolicy;
-    const char METHOD_NAME [] = "IndicationService::_sendCreateRequests";
 
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_sendCreateRequests");
 
     //
     //  Get repeat notification policy value from subscription instance
@@ -4357,7 +4297,7 @@ Boolean IndicationService::_sendCreateRequests
     Boolean result = true;
     return result;
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
 }
 
 void IndicationService::_sendModifyRequestsCallBack (
@@ -4365,10 +4305,8 @@ void IndicationService::_sendModifyRequestsCallBack (
     MessageQueue * q,
     void * parm)
 {
-    const char METHOD_NAME [] = 
-        "IndicationService::_sendModifyRequestsCallBack";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_sendModifyRequestsCallBack");
 
     IndicationService *service = static_cast <IndicationService *> (q);
     struct enableProviderList * epl = reinterpret_cast
@@ -4441,9 +4379,9 @@ void IndicationService::_sendModifyRequests
 {
     CIMValue propValue;
     Uint16 repeatNotificationPolicy;
-    const char METHOD_NAME [] = "IndicationService::_sendModifyRequests";
 
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_sendModifyRequests");
 
     //
     //  Get repeat notification policy value from subscription instance
@@ -4499,7 +4437,7 @@ void IndicationService::_sendModifyRequests
         // AsyncReply * async_reply = SendWait (async_req);
     }
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
 }
 
 
@@ -4508,10 +4446,8 @@ void IndicationService::_sendDeleteRequestsCallBack (
     MessageQueue * q, 
     void * parm)
 {
-    const char METHOD_NAME [] = 
-        "IndicationService::_sendDeleteRequestsCallBack";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_sendDeleteRequestsCallBack");
 
     IndicationService * service = static_cast <IndicationService *> (q);
     struct enableProviderList * epl = 
@@ -4574,9 +4510,8 @@ void IndicationService::_sendDeleteRequests
      const String & userName,
      const String & authType)
 {
-    const char METHOD_NAME [] = "IndicationService::_sendDeleteRequests";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_sendDeleteRequests");
 
     //
     //  Send Delete request to each provider
@@ -4621,7 +4556,7 @@ void IndicationService::_sendDeleteRequests
 	// AsyncReply * async_reply = SendWait (async_req);
     }
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
 }
 
 String IndicationService::_generateKey (
@@ -4629,9 +4564,9 @@ String IndicationService::_generateKey (
     const CIMInstance provider)
 {
     String tableKey;
-    const char METHOD_NAME [] = "IndicationService::_generateKey";
 
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_generateKey");
 
     //
     //  Append subscription namespace name to key
@@ -4680,7 +4615,7 @@ String IndicationService::_generateKey (
     tableKey.append (providerName);
     tableKey.append (providerModuleName);
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
     return tableKey;
 }
 
@@ -4689,9 +4624,8 @@ void IndicationService::_insertEntry (
     const CIMInstance & provider,
     const Array <String> classList)
 {
-    const char METHOD_NAME [] = "IndicationService::_insertEntry";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_insertEntry");
 
     String tableKey = _generateKey 
         (subscription, provider);
@@ -4702,16 +4636,15 @@ void IndicationService::_insertEntry (
     _subscriptionTable.insert (tableKey, entry);
 //cout << "Entry inserted: " << tableKey << endl;
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
 }
 
 CIMInstance IndicationService::_createAlertInstance (
     const String & alertClassName,
     const Array <CIMInstance> & subscriptions)
 {
-    const char METHOD_NAME [] = "IndicationService::_createAlertInstance";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_createAlertInstance");
 
     CIMInstance indicationInstance (alertClassName);
 
@@ -4755,7 +4688,7 @@ CIMInstance IndicationService::_createAlertInstance (
     {
     }
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
     return indicationInstance;
 }
 
@@ -4764,10 +4697,8 @@ void IndicationService::_sendAlertsCallBack(AsyncOpNode *op,
 					    MessageQueue *q, 
 					    void *parm)
 {
-    const char METHOD_NAME [] = 
-        "IndicationService::_sendAlertsCallBack";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_sendAlertsCallBack");
 
    IndicationService *service = 
       static_cast<IndicationService *>(q);
@@ -4820,9 +4751,7 @@ void IndicationService::_sendAlerts (
     Boolean duplicate;
     Array <CIMInstance> handlers; 
     
-    const char METHOD_NAME [] = "IndicationService::_sendAlerts";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE, "IndicationService::_sendAlerts");
 
     handlers.clear ();
 
@@ -4889,16 +4818,15 @@ void IndicationService::_sendAlerts (
 	// AsyncReply *async_reply = SendWait(async_req);
     }
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
 }
 
 void IndicationService::_sendEnableCallBack(AsyncOpNode *op,
 					   MessageQueue *q,
 					   void *parm)
 {
-    const char METHOD_NAME [] = "IndicationService::_sendEnableCallBack";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_sendEnableCallBack");
 
    IndicationService *service = 
       static_cast<IndicationService *>(q);
@@ -4941,16 +4869,14 @@ void IndicationService::_sendEnableCallBack(AsyncOpNode *op,
    op->release();
    service->return_op(op);
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
 }
 
 
 void IndicationService::_sendEnable (
     const ProviderClassList & enableProvider)
 {
-    const char METHOD_NAME [] = "IndicationService::_sendEnable";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE, "IndicationService::_sendEnable");
  
     CIMEnableIndicationsRequestMessage * request =
         new CIMEnableIndicationsRequestMessage
@@ -4979,7 +4905,7 @@ void IndicationService::_sendEnable (
 //    AsyncReply * async_reply = SendWait (async_req);
     // << Wed Apr 10 12:26:16 2002 mdd >>
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
 }
 
 WQLSimplePropertySource IndicationService::_getPropertySourceFromInstance(
@@ -4988,10 +4914,8 @@ WQLSimplePropertySource IndicationService::_getPropertySourceFromInstance(
     Boolean booleanValue;
     WQLSimplePropertySource source;
 
-    const char METHOD_NAME [] = 
-        "IndicationService::_getPropertySourceFromInstance";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_getPropertySourceFromInstance");
 
     for (Uint8 i=0; i < indicationInstance.getPropertyCount(); i++)
     {
@@ -5097,7 +5021,7 @@ WQLSimplePropertySource IndicationService::_getPropertySourceFromInstance(
         }
     }
 
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    PEG_METHOD_EXIT ();
     return source;
 }
 

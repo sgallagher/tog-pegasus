@@ -68,9 +68,7 @@ CIMListener::CIMListener(
     _staticConsumers(staticConsumers), 
     _persistence(persistence)
 {
-    const char METHOD_NAME[] = "CIMListener::CIMListener()";
-
-    PEG_FUNC_ENTER(TRC_SERVER, METHOD_NAME);
+    PEG_METHOD_ENTER(TRC_SERVER, "CIMListener::CIMListener()");
 
     // -- Save the monitor or create a new one:
 
@@ -92,33 +90,29 @@ CIMListener::CIMListener(
 
     _acceptor = new HTTPAcceptor(_monitor, _cimExportRequestDecoder, sslcontext);
 
-    PEG_FUNC_EXIT(TRC_SERVER, METHOD_NAME);
+    PEG_METHOD_EXIT();
 }
 
 CIMListener::~CIMListener()
 {
-    const char METHOD_NAME[] = "CIMListener::~CIMListener()";
-
-    PEG_FUNC_ENTER(TRC_SERVER, METHOD_NAME);
+    PEG_METHOD_ENTER(TRC_SERVER, "CIMListener::~CIMListener()");
 
     // Note: do not delete the acceptor because it belongs to the Monitor
     // which takes care of disposing of it.
 
-    PEG_FUNC_EXIT(TRC_SERVER, METHOD_NAME);
+    PEG_METHOD_EXIT();
 }
 
 void CIMListener::bind(Uint32 port)
 {
-    const char METHOD_NAME[] = "CIMListener::bind()";
-
-    PEG_FUNC_ENTER(TRC_SERVER, METHOD_NAME);
+    PEG_METHOD_ENTER(TRC_SERVER, "CIMListener::bind()");
 
     // not the best place to build the service url, but it works for now
     // because the address string is accessible  mdday
 
     _acceptor->bind(port);
 
-    PEG_FUNC_EXIT(TRC_SERVER, METHOD_NAME);
+    PEG_METHOD_EXIT();
 }
 
 void CIMListener::runForever()
@@ -130,55 +124,45 @@ void CIMListener::runForever()
 
 void CIMListener::stopClientConnection()
 {
-    const char METHOD_NAME[] = "CIMListener::stopClientConnection()";
-
-    PEG_FUNC_ENTER(TRC_SERVER, METHOD_NAME);
+    PEG_METHOD_ENTER(TRC_SERVER, "CIMListener::stopClientConnection()");
 
     _acceptor->closeConnectionSocket();
 
-    PEG_FUNC_EXIT(TRC_SERVER, METHOD_NAME);
+    PEG_METHOD_EXIT();
 }
 
 void CIMListener::shutdown()
 {
-    const char METHOD_NAME[] = "CIMListener::shutdown()";
-
-    PEG_FUNC_ENTER(TRC_SERVER, METHOD_NAME);
+    PEG_METHOD_ENTER(TRC_SERVER, "CIMListener::shutdown()");
 
     _dieNow = true;
 
-    PEG_FUNC_EXIT(TRC_SERVER, METHOD_NAME);
+    PEG_METHOD_EXIT();
 }
 
 void CIMListener::resume()
 {
-    const char METHOD_NAME[] = "CIMListener::resume()";
-
-    PEG_FUNC_ENTER(TRC_SERVER, METHOD_NAME);
+    PEG_METHOD_ENTER(TRC_SERVER, "CIMListener::resume()");
 
     _acceptor->reopenConnectionSocket();
 
-    PEG_FUNC_EXIT(TRC_SERVER, METHOD_NAME);
+    PEG_METHOD_EXIT();
 }
 
 CIMExportRequestDispatcher* CIMListener::getDispatcher()
 {
-    const char METHOD_NAME[] = "CIMListener::getDispatcher()";
+    PEG_METHOD_ENTER(TRC_SERVER, "CIMListener::getDispatcher()");
 
-    PEG_FUNC_ENTER(TRC_SERVER, METHOD_NAME);
-
-    PEG_FUNC_EXIT(TRC_SERVER, METHOD_NAME);
+    PEG_METHOD_EXIT();
 
     return _cimExportRequestDispatcher;
 }
 
 Uint32 CIMListener::getOutstandingRequestCount()
 {
-    const char METHOD_NAME[] = "CIMListener::getOutstandingRequestCount()";
+    PEG_METHOD_ENTER(TRC_SERVER, "CIMListener::getOutstandingRequestCount()");
 
-    PEG_FUNC_ENTER(TRC_SERVER, METHOD_NAME);
-
-    PEG_FUNC_EXIT(TRC_SERVER, METHOD_NAME);
+    PEG_METHOD_EXIT();
 
     return (_acceptor->getOutstandingRequestCount());
 }

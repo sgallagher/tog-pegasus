@@ -74,7 +74,7 @@ void LinuxCDROMDriveProvider::getInstance(const OperationContext& context,
    i = 0;
    while(i < keys.size())
    {
-      if(keys[i].getName() == "Name")
+      if(keys[i].getName() == CIMName("Name"))
          nameString = keys[i].getValue();
       i++;
    }
@@ -191,8 +191,8 @@ void LinuxCDROMDriveProvider::terminate(void)
 }
 
 CIMObjectPath
-LinuxCDROMDriveProvider::fill_reference(const String &nameSpace, 
-      					const String &className, 
+LinuxCDROMDriveProvider::fill_reference(const CIMNamespaceName& nameSpace, 
+      					const CIMName& className, 
 					const MediaAccessDeviceInformation *ptr)
 {
    Array<CIMKeyBinding> keys;
@@ -205,7 +205,7 @@ LinuxCDROMDriveProvider::fill_reference(const String &nameSpace,
 }
 
 CIMInstance
-LinuxCDROMDriveProvider::build_instance(const String &className, 
+LinuxCDROMDriveProvider::build_instance(const CIMName& className, 
       					const MediaAccessDeviceInformation *ptr)
 {
    CIMInstance instance(className);

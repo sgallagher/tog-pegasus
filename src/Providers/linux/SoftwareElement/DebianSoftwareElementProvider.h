@@ -101,12 +101,12 @@ class DebianSoftwareElementProvider : public SoftwareElementProvider
       void terminate(void);
 
    protected:
-      virtual CIMObjectPath fill_reference(const String& nameSpace, 
-	    				  const String& className, 
+      virtual CIMObjectPath fill_reference(const CIMNamespaceName& nameSpace, 
+	    				  const CIMName& className, 
 					  const String& inDirectory,
 				          const PackageInformation* ptr);
 
-      virtual CIMInstance build_instance(const String& className, 
+      virtual CIMInstance build_instance(const CIMName& className, 
 	    				 const PackageInformation* ptr);
 };
 

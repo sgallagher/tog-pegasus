@@ -73,7 +73,7 @@ void LinuxInterruptProvider::getInstance(const OperationContext& context,
    i = 0;
    while (i < keys.size())
    {
-      if (keys[i].getName() == "IRQNumber")
+      if (keys[i].getName() == CIMName("IRQNumber"))
          nameString = keys[i].getValue();
       i++;
    }
@@ -185,8 +185,8 @@ void LinuxInterruptProvider::terminate(void)
 }
 
 CIMObjectPath 
-LinuxInterruptProvider::fill_reference(const String& nameSpace, 
-      				       const String& className,
+LinuxInterruptProvider::fill_reference(const CIMNamespaceName& nameSpace, 
+      				       const CIMName& className,
 				       const InterruptData* ptr)
 {
    Array<CIMKeyBinding> keys;
@@ -199,7 +199,7 @@ LinuxInterruptProvider::fill_reference(const String& nameSpace,
 }
 
 CIMInstance 
-LinuxInterruptProvider::build_instance(const String& className,
+LinuxInterruptProvider::build_instance(const CIMName& className,
       				       const InterruptData* ptr)
 {
    CIMInstance instance(className);

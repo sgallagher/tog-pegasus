@@ -106,11 +106,11 @@ class LinuxPCIControllerProvider : public CIMInstanceProvider
       void terminate(void);
 
    protected:
-      CIMObjectPath fill_reference(String const& nameSpace,
-	    			  String const& className,
+      CIMObjectPath fill_reference(const CIMNamespaceName& nameSpace,
+	    			  const CIMName& className,
 			          PCIControllerData const* ptr);
 
-      CIMInstance build_instance(String const& className,
+      CIMInstance build_instance(const CIMName& className,
 			         PCIControllerData const* ptr);
 };
 

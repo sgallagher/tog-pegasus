@@ -76,7 +76,7 @@ LinuxProcessorProvider::getInstance(const OperationContext& context,
    i = 0;
    while (i<keys.size())
    {
-      if (keys[i].getName() == "Role")
+      if (keys[i].getName() == CIMName("Role"))
          roleString = keys[i].getValue();
       i++;
    }
@@ -193,8 +193,8 @@ void LinuxProcessorProvider::terminate(void)
 
 
 CIMObjectPath
-LinuxProcessorProvider::fill_reference(const String& nameSpace, 
-      				       const String& className,
+LinuxProcessorProvider::fill_reference(const CIMNamespaceName& nameSpace, 
+      				       const CIMName& className,
 				       const ProcessorInformation* ptr)
 {
    Array<CIMKeyBinding> keys;
@@ -211,7 +211,7 @@ LinuxProcessorProvider::fill_reference(const String& nameSpace,
 }
 
 CIMInstance 
-LinuxProcessorProvider::build_instance(const String& className,
+LinuxProcessorProvider::build_instance(const CIMName& className,
       				       const ProcessorInformation* ptr)
 {
    CIMInstance instance(className);

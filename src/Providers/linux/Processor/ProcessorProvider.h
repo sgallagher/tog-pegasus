@@ -101,11 +101,11 @@ class LinuxProcessorProvider : public CIMInstanceProvider
       void terminate(void);
 
    protected:
-      CIMObjectPath fill_reference(const String& nameSpace, 
-	    			  const String& className,
+      CIMObjectPath fill_reference(const CIMNamespaceName& nameSpace, 
+	    			  const CIMName& className,
 				  const ProcessorInformation* ptr);
 
-      CIMInstance build_instance(const String& className, 
+      CIMInstance build_instance(const CIMName& className, 
 	    			 const ProcessorInformation* ptr);
 };
 

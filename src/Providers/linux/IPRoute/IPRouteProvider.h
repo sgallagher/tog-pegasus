@@ -136,13 +136,13 @@ class LinuxIPRouteProvider : public CIMInstanceProvider
    private:
       /** Takes the route_data structure and builds a reference (a set of
        *  Key,Value pairs) for it. */
-      CIMObjectPath fill_reference(const String& nameSpace, 
-	    			  const String& className,
+      CIMObjectPath fill_reference(const CIMNamespaceName& nameSpace, 
+	    			  const CIMName& className,
 			          const struct route_data* ptr);
 
       /** Takes the route_data structure and builds a filled-in instance for
        *  its data. */
-      CIMInstance build_instance(const String& className, 
+      CIMInstance build_instance(const CIMName& className, 
 			         const struct route_data* ptr);
 
    private:

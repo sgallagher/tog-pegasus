@@ -121,11 +121,11 @@ class LinuxNetworkAdapterProvider : public CIMInstanceProvider
       void terminate(void);
 
    private:
-       CIMObjectPath fill_reference(const String& nameSpace,
-	     			   const String &className,
+       CIMObjectPath fill_reference(const CIMNamespaceName& nameSpace,
+	     			   const CIMName &className,
 			           NetworkAdapterData const* ptr);
 
-       CIMInstance build_instance(const String& className, 
+       CIMInstance build_instance(const CIMName& className, 
                                   enum network_provider_types classType,
 			          NetworkAdapterData const* ptr);
 

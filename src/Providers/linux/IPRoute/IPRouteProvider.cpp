@@ -73,7 +73,7 @@ LinuxIPRouteProvider::getInstance(const OperationContext& context,
  
    for (i = 0; i < keys.size(); i++)
    {
-      if (keys[i].getName() == "IPDestinationAddress")
+      if (keys[i].getName() == CIMName("IPDestinationAddress"))
       {
          in_addr.append(keys[i].getValue());
          break;
@@ -82,7 +82,7 @@ LinuxIPRouteProvider::getInstance(const OperationContext& context,
  
    for (i = 0; i < keys.size(); i++)
    {
-      if (keys[i].getName() == "IPDestinationMask")
+      if (keys[i].getName() == CIMName("IPDestinationMask"))
       {
          in_mask.append(keys[i].getValue());
          break;
@@ -91,7 +91,7 @@ LinuxIPRouteProvider::getInstance(const OperationContext& context,
  
    for (i = 0; i < keys.size(); i++)
    {
-      if (keys[i].getName() == "NextHop")
+      if (keys[i].getName() == CIMName("NextHop"))
       {
          in_hop.append(keys[i].getValue());
          break;
@@ -100,7 +100,7 @@ LinuxIPRouteProvider::getInstance(const OperationContext& context,
  
    for (i = 0; i < keys.size(); i++)
    {
-      if (keys[i].getName() == "AddressType")
+      if (keys[i].getName() == CIMName("AddressType"))
       {
          in_type.append(keys[i].getValue());
          break;
@@ -214,13 +214,14 @@ void LinuxIPRouteProvider::terminate(void)
 }
 
 CIMObjectPath 
-LinuxIPRouteProvider::fill_reference(const String& nameSpace, 
-				     const String& className, 
+LinuxIPRouteProvider::fill_reference(const CIMNamespaceName& nameSpace, 
+				     const CIMName& className, 
 				     struct route_data const* ptr)
 {
    Array<CIMKeyBinding> keys;
 
-   keys.append(CIMKeyBinding("CreationClassName", className, CIMKeyBinding::STRING));
+   keys.append(CIMKeyBinding("CreationClassName", className.getString(),
+                          CIMKeyBinding::STRING));
 
    keys.append(CIMKeyBinding("IPDestinationAddress", ptr->IPDestinationAddress,
                           CIMKeyBinding::STRING));
@@ -236,7 +237,7 @@ LinuxIPRouteProvider::fill_reference(const String& nameSpace,
 }
 
 CIMInstance 
-LinuxIPRouteProvider::build_instance(const String& className, 
+LinuxIPRouteProvider::build_instance(const CIMName& className, 
 				     struct route_data const* ptr)
 {
    CIMInstance instance(className);

@@ -65,7 +65,7 @@ LinuxPCIControllerProvider::getInstance(const OperationContext& context,
  
    /* Get the unique ID of the controller that was requested */
    for (i = 0; i < keys.size(); i++)
-      if(keys[i].getName() == "DeviceID")
+      if(keys[i].getName() == CIMName("DeviceID"))
          uniqueKeyID = keys[i].getValue();
  
    if (i == keys.size())
@@ -194,8 +194,8 @@ void LinuxPCIControllerProvider::terminate(void)
 
 
 CIMObjectPath
-LinuxPCIControllerProvider::fill_reference(String const& nameSpace,
-					   String const& className, 
+LinuxPCIControllerProvider::fill_reference(const CIMNamespaceName& nameSpace,
+					   const CIMName& className, 
 					   PCIControllerData const* ptr)
 {
    Array<CIMKeyBinding> keys;
@@ -212,7 +212,7 @@ LinuxPCIControllerProvider::fill_reference(String const& nameSpace,
 
 
 CIMInstance 
-LinuxPCIControllerProvider::build_instance(String const& className, 
+LinuxPCIControllerProvider::build_instance(const CIMName& className, 
 					  PCIControllerData const* ptr)
 {
    CIMInstance instance(className);

@@ -67,28 +67,28 @@ LinuxIOPortProvider::getInstance(const OperationContext& context,
    Uint32 i;
    String in_addr;
    IOPortInformation* located_port;
-   String className;
+   CIMName className;
    Uint16 subClass;
 
    className = ref.getClassName();
-   if (String::equalNoCase(className, IOPORTCLASSNAME))
+   if (className.equal(IOPORTCLASSNAME))
    {
       subClass = Device_SystemResources_IOPort;
    }
-   else if (String::equalNoCase(className, IOMEMORYCLASSNAME))
+   else if (className.equal(IOMEMORYCLASSNAME))
    {
       subClass = Device_SystemResources_IOMemory;
    }
    else
    {
-      throw CIMNotSupportedException(className + "::getInstance");
+      throw CIMNotSupportedException(className.getString() + "::getInstance");
    }
  
    DeviceLocator deviceLocator(Device_SystemResources,subClass);
 
    for (i = 0; i < keys.size(); i++)
    {
-      if (keys[i].getName() == "StartingAddress")
+      if (keys[i].getName() == CIMName("StartingAddress"))
       {
          in_addr = keys[i].getValue();
          break;
@@ -124,21 +124,22 @@ LinuxIOPortProvider::enumerateInstances(
 				InstanceResponseHandler& handler)
 {
    IOPortInformation* located_port;
-   String className;
+   CIMName className;
    Uint16 subClass;
 
    className = ref.getClassName();
-   if (String::equalNoCase(className, IOPORTCLASSNAME))
+   if (className.equal(IOPORTCLASSNAME))
    {
       subClass = Device_SystemResources_IOPort;
    }
-   else if (String::equalNoCase(className, IOMEMORYCLASSNAME))
+   else if (className.equal(IOMEMORYCLASSNAME))
    {
       subClass = Device_SystemResources_IOMemory;
    }
    else
    {
-      throw CIMNotSupportedException(className + "::enumerateInstances");
+      throw CIMNotSupportedException(className.getString() +
+                                     "::enumerateInstances");
    }
  
    DeviceLocator deviceLocator(Device_SystemResources,subClass);
@@ -164,21 +165,22 @@ LinuxIOPortProvider::enumerateInstanceNames(
 				ObjectPathResponseHandler& handler )
 {
    IOPortInformation* located_port;
-   String className;
+   CIMName className;
    Uint16 subClass;
 
    className = ref.getClassName();
-   if (String::equalNoCase(className, IOPORTCLASSNAME))
+   if (className.equal(IOPORTCLASSNAME))
    {
       subClass = Device_SystemResources_IOPort;
    }
-   else if (String::equalNoCase(className, IOMEMORYCLASSNAME))
+   else if (className.equal(IOMEMORYCLASSNAME))
    {
       subClass = Device_SystemResources_IOMemory;
    }
    else
    {
-      throw CIMNotSupportedException(className + "::enumerateInstanceNames");
+      throw CIMNotSupportedException(className.getString() +
+                                     "::enumerateInstanceNames");
    }
  
    DeviceLocator deviceLocator(Device_SystemResources,subClass);
@@ -242,13 +244,13 @@ void LinuxIOPortProvider::terminate(void)
 }
 
 CIMObjectPath 
-LinuxIOPortProvider::fill_reference(const String& nameSpace, 
-				    const String& className, 
+LinuxIOPortProvider::fill_reference(const CIMNamespaceName& nameSpace, 
+				    const CIMName& className, 
 				    struct IOPortInformation const* ptr)
 {
    Array<CIMKeyBinding> keys;
 
-   keys.append(CIMKeyBinding("CreationClassName", className,
+   keys.append(CIMKeyBinding("CreationClassName", className.getString(),
                           CIMKeyBinding::STRING));
    keys.append(CIMKeyBinding("StartingAddress", ptr->getStartingAddress(),
                           CIMKeyBinding::STRING));
@@ -258,14 +260,14 @@ LinuxIOPortProvider::fill_reference(const String& nameSpace,
 }
 
 CIMInstance 
-LinuxIOPortProvider::build_instance(const String& className, 
+LinuxIOPortProvider::build_instance(const CIMName& className, 
 				    struct IOPortInformation const* ptr)
 {
    CIMInstance instance(className);
 
 #define ADD_TO_INSTANCE(x) instance.addProperty(CIMProperty(#x, ptr->get ## x()))  
 
-   instance.addProperty(CIMProperty("CreationClassName",className));
+   instance.addProperty(CIMProperty("CreationClassName",className.getString()));
    ADD_TO_INSTANCE(StartingAddress);
    ADD_TO_INSTANCE(EndingAddress);
    ADD_TO_INSTANCE(MappedResource);

@@ -71,25 +71,25 @@ LinuxNetworkAdapterProvider::getInstance(const OperationContext& context,
    Uint32 i;
    NetworkAdapterData* located_interface;
    String unique_name;
-   String className;
+   CIMName className;
    enum network_provider_types classType;
 
    className = ref.getClassName();
-   if (String::equalNoCase(className, "Linux_EthernetAdapter"))
+   if (className.equal("Linux_EthernetAdapter"))
    {
       classType = NETWORK_ADAPTER_PROVIDER_ETHERNET;
    }
-   else if (String::equalNoCase(className, "Linux_NetworkAdapter"))
+   else if (className.equal("Linux_NetworkAdapter"))
    {
       classType = NETWORK_ADAPTER_PROVIDER_OTHER;
    }
    else
    {
-      throw CIMNotSupportedException(className + "::getInstance");
+      throw CIMNotSupportedException(className.getString() + "::getInstance");
    }
  
    for (i = 0; i < keys.size(); i++)
-      if (keys[i].getName() == "Name")
+      if (keys[i].getName() == CIMName("Name"))
          unique_name = keys[i].getValue();
  
    handler.processing();
@@ -121,21 +121,22 @@ LinuxNetworkAdapterProvider::enumerateInstances(
    int i;
    NetworkAdapterData *iface;
    vector<String> adapter_names;
-   String className;
+   CIMName className;
    enum network_provider_types classType;
 
    className = ref.getClassName();
-   if (String::equalNoCase(className, "Linux_EthernetAdapter"))
+   if (className.equal("Linux_EthernetAdapter"))
    {
       classType = NETWORK_ADAPTER_PROVIDER_ETHERNET;
    }
-   else if (String::equalNoCase(className, "Linux_NetworkAdapter"))
+   else if (className.equal("Linux_NetworkAdapter"))
    {
       classType = NETWORK_ADAPTER_PROVIDER_OTHER;
    }
    else
    {
-      throw CIMNotSupportedException(className + "::enumerateInstances");
+      throw CIMNotSupportedException(className.getString() +
+		                     "::enumerateInstances");
    }
 
    adapter_names = NetworkAdapterData::list_all_adapters();
@@ -164,21 +165,22 @@ LinuxNetworkAdapterProvider::enumerateInstanceNames(
    int i;
    vector<String> adapter_names;
    NetworkAdapterData *iface;
-   String className;
+   CIMName className;
    enum network_provider_types classType;
 
    className = ref.getClassName();
-   if (String::equalNoCase(className, "Linux_EthernetAdapter"))
+   if (className.equal("Linux_EthernetAdapter"))
    {
       classType = NETWORK_ADAPTER_PROVIDER_ETHERNET;
    }
-   else if (String::equalNoCase(className, "Linux_NetworkAdapter"))
+   else if (className.equal("Linux_NetworkAdapter"))
    {
       classType = NETWORK_ADAPTER_PROVIDER_OTHER;
    }
    else
    {
-      throw CIMNotSupportedException(className + "::enumerateInstanceNames");
+      throw CIMNotSupportedException(className.getString() +
+		                     "::enumerateInstanceNames");
    }
 
    adapter_names = NetworkAdapterData::list_all_adapters();
@@ -207,7 +209,8 @@ LinuxNetworkAdapterProvider::modifyInstance(
 			  	const CIMPropertyList& propertyList,
 			  	ResponseHandler& handler )
 {
-   throw CIMNotSupportedException(ref.getClassName() + "::modifyInstance");
+   throw CIMNotSupportedException(ref.getClassName().getString() +
+		                  "::modifyInstance");
 }
 
 void
@@ -217,7 +220,8 @@ LinuxNetworkAdapterProvider::createInstance(
 			  	const CIMInstance& instanceObject,
 			  	ObjectPathResponseHandler& handler )
 {
-   throw CIMNotSupportedException(ref.getClassName() + "::createInstance");
+   throw CIMNotSupportedException(ref.getClassName().getString() +
+		                  "::createInstance");
 }
 
 void
@@ -226,7 +230,8 @@ LinuxNetworkAdapterProvider::deleteInstance(
 			  	const CIMObjectPath& ref,
 			  	ResponseHandler& handler )
 {
-   throw CIMNotSupportedException(ref.getClassName() + "::deleteInstance");
+   throw CIMNotSupportedException(ref.getClassName().getString() +
+		                  "::deleteInstance");
 }
 
 void LinuxNetworkAdapterProvider::initialize(CIMOMHandle& handle)
@@ -240,13 +245,14 @@ void LinuxNetworkAdapterProvider::terminate(void)
 }
 
 CIMObjectPath
-LinuxNetworkAdapterProvider::fill_reference(const String& nameSpace, 
-					    const String& className, 
+LinuxNetworkAdapterProvider::fill_reference(const CIMNamespaceName& nameSpace, 
+					    const CIMName& className, 
 					    NetworkAdapterData const* ptr)
 {
    Array<CIMKeyBinding> keys;
 
-   keys.append(CIMKeyBinding("CreationClassName", className, CIMKeyBinding::STRING));
+   keys.append(CIMKeyBinding("CreationClassName", className.getString(),
+                             CIMKeyBinding::STRING));
 
    // LogicalDevice keys
    keys.append(CIMKeyBinding("Name", ptr->GetName(),
@@ -258,7 +264,7 @@ LinuxNetworkAdapterProvider::fill_reference(const String& nameSpace,
 
 
 CIMInstance
-LinuxNetworkAdapterProvider::build_instance(const String& className, 
+LinuxNetworkAdapterProvider::build_instance(const CIMName& className, 
                                             enum network_provider_types classType,
 					    NetworkAdapterData const* ptr)
 {

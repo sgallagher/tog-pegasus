@@ -82,14 +82,14 @@ DebianSoftwareElementProvider::getInstance(
    more_junk = "ldsep-> key is ";
    while (i < keys.size())
    {
-      more_junk.append(keys[i].getName() + "=");
+      more_junk.append(keys[i].getName().getString() + "=");
       more_junk.append(keys[i].getValue() + ",");
 
-      if (keys[i].getName() == "Name")
+      if (keys[i].getName() == CIMName("Name"))
  	 packageName=keys[i].getValue();
-      else if (keys[i].getName() == "Version")
+      else if (keys[i].getName() == CIMName("Version"))
     	 packageVersion=keys[i].getValue();
-      else if (keys[i].getName() == "PackageDatabase")
+      else if (keys[i].getName() == CIMName("PackageDatabase"))
       	 packageDatabaseDirectory=keys[i].getValue();
       i++;
    }
@@ -243,7 +243,7 @@ void DebianSoftwareElementProvider::terminate(void)
 }
 
 CIMInstance 
-DebianSoftwareElementProvider::build_instance(const String& className, 
+DebianSoftwareElementProvider::build_instance(const CIMName& className, 
       					      const PackageInformation* ptr)
 {
    CIMInstance instance(className);
@@ -264,8 +264,8 @@ DebianSoftwareElementProvider::build_instance(const String& className,
 
 
 CIMObjectPath 
-DebianSoftwareElementProvider::fill_reference(const String& nameSpace,
-      					      const String& className,
+DebianSoftwareElementProvider::fill_reference(const CIMNamespaceName& nameSpace,
+      					      const CIMName& className,
 					      const String& packageDirectory,
 					      const PackageInformation* ptr)
 {

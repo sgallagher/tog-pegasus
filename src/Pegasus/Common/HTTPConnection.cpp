@@ -46,7 +46,7 @@ PEGASUS_NAMESPACE_BEGIN
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-static inline _Min(Uint32 x, Uint32 y) 
+static inline Uint32 _Min(Uint32 x, Uint32 y) 
 {
     return x < y ? x : y; 
 }

@@ -3,18 +3,18 @@
 // Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to 
-// deal in the Software without restriction, including without limitation the 
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
-// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+//
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
-// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
-// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
-// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
@@ -30,9 +30,10 @@
 #define Pegasus_MessageQueue_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Message.h>
 #include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/IPC.h>
+#include <Pegasus/Common/Thread.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -50,10 +51,8 @@ public:
 	may be obtained by calling getQueueId()). The queue-id may be passed
 	to lookupQueue() to obtain a pointer to the corresponding queue).
     */
-    MessageQueue();
+    MessageQueue(const char * name = 0);
 
-    MessageQueue(char *name);
-    
     /** Removes this queue from the queue table. */
     virtual ~MessageQueue();
 
@@ -81,7 +80,7 @@ public:
 	@return pointer to message if found; null otherwise.
     */
     Message* findByType(Uint32 type) throw(IPCException);
- 
+
     /** Const version of findByType(). */
     const Message* findByType(Uint32 type) const throw(IPCException);
 
@@ -148,20 +147,22 @@ public:
 	of enqueue()).
     */
     virtual void handleEnqueue();
-    
-    /** This method <b>may</b> be called prior to enqueueing an message. 
+
+    /** This method <b>may</b> be called prior to enqueueing an message.
 	the message queue can inform the caller that it does not want
 	to handle the message by returning false **/
 
     virtual Boolean messageOK(const Message *msg) { return true ;}
-    
+
     /** Lookup a message queue from a queue id. */
     static MessageQueue* lookup(Uint32 queueId) throw(IPCException);
     static  MessageQueue* lookup(const char *name) throw(IPCException);
     static Uint32 _CIMOM_Q_ID;
-    
+
+	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL workThread(void * arg);
+
 private:
-    
+
     Mutex _mut;
     Uint32 _queueId;
     Uint32 _count;
@@ -169,9 +170,12 @@ private:
     Message* _back;
     // Wed Oct 17 11:26:22 2001 mdday
     char _name[26];
+	
+	Thread _workThread;
+	Semaphore _workSemaphore;
 };
 
-inline const Message* MessageQueue::findByType(Uint32 type) const 
+inline const Message* MessageQueue::findByType(Uint32 type) const
      throw(IPCException)
 {
     return ((MessageQueue*)this)->findByType(type);

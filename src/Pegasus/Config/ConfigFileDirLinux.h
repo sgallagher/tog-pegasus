@@ -25,7 +25,7 @@
 //
 // Author: Warren Otsuka, Hewlett-Packard Company (warren.otsuka@hp.com)
 //
-// Modified By:
+// Modified By: Amit K Arora, IBM (amita@in.ibm.com) for Bug#1805
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -74,5 +74,5 @@ static char PLANNED_CONFIG_FILE [] = "cimserver_planned.conf";
 /**
     Default file name for the cimserver startup file containing the PID.
 */
-static char CIMSERVER_START_FILE [] = "cimserver_start.conf";
+static char CIMSERVER_START_FILE [] = "/tmp/cimserver_start.conf";
 #endif

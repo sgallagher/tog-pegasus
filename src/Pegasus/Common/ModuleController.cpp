@@ -461,7 +461,7 @@ Boolean ModuleController::deregister_module(const String & module_name)
 	 ret = true;
 	 break;
       }
-      module = _modules.next(0);
+      module = _modules.next(module);
    }
    _modules.unlock();
    return ret;

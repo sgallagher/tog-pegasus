@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CIMReference.cpp,v $
+// Revision 1.5  2001/04/13 18:26:33  mike
+// Fixed more memory leaks.
+//
 // Revision 1.4  2001/04/13 18:20:51  mike
 // Ported so Solaris.
 // Fixed memory leaks.
@@ -339,7 +342,7 @@ void CIMReference::instanceNameToReference(
     // Convert to a C String first:
 
     char* p = instanceName.allocateCString();
-    ArrayDestroyer<char> tmp(p);
+    ArrayDestroyer<char> destroyer(p);
 
     // Extract the class name:
 

@@ -11,6 +11,12 @@ createSubscription:
 	@wbemexec $(WBEMEXECOPTIONS) CreateFilter03.xml
 	@wbemexec $(WBEMEXECOPTIONS) CreateSubscription03.xml
 
+disableSubscription:
+	@wbemexec $(WBEMEXECOPTIONS) ModifySubscription01.xml
+
+enableSubscription:
+	@wbemexec $(WBEMEXECOPTIONS) ModifySubscription02.xml
+
 deleteSubscription:
 	@wbemexec $(WBEMEXECOPTIONS) DeleteSubscription01.xml
 	@wbemexec $(WBEMEXECOPTIONS) DeleteFilter01.xml

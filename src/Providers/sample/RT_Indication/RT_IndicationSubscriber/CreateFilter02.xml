@@ -24,7 +24,7 @@
             <PROPERTY NAME="Query" TYPE="string"> 
               <VALUE>
 		SELECT * FROM RT_TestIndication
-		WHERE MethodName = "invokeMethod" 
+		WHERE MethodName = "generateIndication" 
 		</VALUE>
             </PROPERTY>
             <PROPERTY NAME="QueryLanguage" TYPE="string"> 

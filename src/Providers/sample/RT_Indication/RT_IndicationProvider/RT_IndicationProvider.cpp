@@ -24,7 +24,7 @@
 // Author: Carol Ann Krug Graves, Hewlett-Packard Company
 //         (carolann_graves@hp.com)
 //
-// Modified By:
+// Modified By: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -40,13 +40,10 @@ PEGASUS_NAMESPACE_BEGIN
 static IndicationResponseHandler * _handler = 0; 
 static Boolean _enabled = false;
 static Uint32 _nextUID = 0;
+static Uint32 _numSubscriptions = 0;
 
 void _generateIndication (
     IndicationResponseHandler * handler,
-    const CIMName methodName);
-
-void _generateIndication (
-    IndicationResponseHandler & handler,
     const CIMName methodName);
 
 RT_IndicationProvider::RT_IndicationProvider (void) throw ()
@@ -70,10 +67,6 @@ void RT_IndicationProvider::enableIndications (
 {
     _enabled = true;
     _handler = &handler;
-cout << "enable RT_IndicationProvider" << " _handler = " << _handler << endl;
-    handler.processing ();
-    _generateIndication(handler, "enableSubscription");
-//    _generateIndication(_handler, "enableSubscription");
 }
 
 void _generateIndication (
@@ -82,8 +75,6 @@ void _generateIndication (
 {
     if (_enabled)
     {
-        cout << "_generateIndication RT_IndicationProvider" << endl;
-
 	CIMInstance indicationInstance (CIMName("RT_TestIndication"));
 
         CIMObjectPath path ;
@@ -92,14 +83,14 @@ void _generateIndication (
 
         indicationInstance.setPath(path);
 
-	CIMDateTime currentDateTime = CIMDateTime::getCurrentDateTime ();
-	indicationInstance.addProperty
-            (CIMProperty ("IndicationTime", currentDateTime));
-
         char buffer[32];
         sprintf(buffer, "%d", _nextUID++);
         indicationInstance.addProperty
             (CIMProperty ("IndicationID",String(buffer)));
+
+	CIMDateTime currentDateTime = CIMDateTime::getCurrentDateTime ();
+	indicationInstance.addProperty
+            (CIMProperty ("IndicationTime", currentDateTime));
 
         indicationInstance.addProperty
             (CIMProperty ("MethodName", CIMValue(methodName.getString())));
@@ -110,42 +101,8 @@ void _generateIndication (
     }
 }
 
-void _generateIndication (
-    IndicationResponseHandler & handler,
-    const CIMName methodName)
-{
-    if (_enabled)
-    {
-        cout << "_generateIndication RT_IndicationProvider" << endl;
-
-	CIMInstance indicationInstance (CIMName("RT_TestIndication"));
-
-        CIMObjectPath path ;
-        path.setNameSpace("root/SampleProvider");
-        path.setClassName("RT_TestIndication");
-
-        indicationInstance.setPath(path);
-
-        indicationInstance.addProperty
-            (CIMProperty ("IndicationTime", CIMValue (CIMDateTime ())));
-
-        char buffer[32];
-        sprintf(buffer, "%d", _nextUID++);
-        indicationInstance.addProperty
-            (CIMProperty ("IndicationID",String(buffer)));
-
-        indicationInstance.addProperty
-            (CIMProperty ("MethodName", CIMValue(methodName.getString())));
-        
-        CIMIndication cimIndication (indicationInstance);
-
-        handler.deliver (indicationInstance);
-    }
-}
-
 void RT_IndicationProvider::disableIndications (void)
 {
-cout << "disable RT_IndicationProvider" << endl;
     _enabled = false;
     _handler->complete ();
 }
@@ -157,8 +114,7 @@ void RT_IndicationProvider::createSubscription (
     const CIMPropertyList & propertyList,
     const Uint16 repeatNotificationPolicy)
 {
-//cout << "RT_IndicationProvider::createSubscription" << endl;
-//  _generateIndication(_handler, "createSubscription");
+    _numSubscriptions++;
 }
 
 void RT_IndicationProvider::modifySubscription (
@@ -176,7 +132,10 @@ void RT_IndicationProvider::deleteSubscription (
     const CIMObjectPath & subscriptionName,
     const Array <CIMObjectPath> & classNames)
 {
-//    _generateIndication(_handler, "deleteSubscription");
+    _numSubscriptions--;
+
+    if (_numSubscriptions == 0)
+        _enabled = false;
 }
 
 void RT_IndicationProvider::invokeMethod(
@@ -186,11 +145,11 @@ void RT_IndicationProvider::invokeMethod(
         const Array<CIMParamValue> & inParameters,
         MethodResultResponseHandler & handler)
 {
-cout << "invokeMethod RT_IndicationProvider" << endl;
         Boolean sendIndication = false;
         handler.processing();
 
-        if (objectReference.getClassName().equal ("RT_TestIndication"))
+        if (objectReference.getClassName().equal ("RT_TestIndication") &&
+	    _enabled)
         {                
             if(methodName.equal("SendTestIndication"))
             {
@@ -202,13 +161,13 @@ cout << "invokeMethod RT_IndicationProvider" << endl;
         else
         {
              handler.deliver( CIMValue( 1 ) );
+	     PEGASUS_STD(cout) << "Provider is not enabled." << PEGASUS_STD(endl);
         }
 
         handler.complete();
 
         if (sendIndication)
-           _generateIndication(_handler,"invokeMethod");
+           _generateIndication(_handler,"generateIndication");
 }
-
 
 PEGASUS_NAMESPACE_END

@@ -144,9 +144,9 @@ public:
 		useICUfallback = false;
 		#endif
 		
-		acceptlanguages = AcceptLanguages::EMPTY;
-		contentlanguages = ContentLanguages::EMPTY;
-		msg_src_path = String::EMPTY;
+		acceptlanguages = AcceptLanguages();
+		contentlanguages = ContentLanguages();
+		msg_src_path = String();
 	}
 	
 	/*

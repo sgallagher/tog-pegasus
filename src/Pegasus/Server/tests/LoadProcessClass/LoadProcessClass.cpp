@@ -25,6 +25,13 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+/*
+    This test installs a set of classes into the repository.  It is here 
+    because the initial versions of Pegasus were available before the
+    compiler was complete.
+    This code is temporary, even as a test and will be removed in the future
+*/
+ 
 #include <cassert>
 #include <Pegasus/Server/ProviderTable.h>
 #include <Pegasus/Repository/CIMRepository.h>

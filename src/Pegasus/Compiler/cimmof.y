@@ -409,7 +409,7 @@ stringValue: TOK_STRING_VALUE
    String oldrep = *$1;
    String s(oldrep), s1(String::EMPTY);
    // Handle quoted quote
-   int len = s.getLength();
+   int len = s.size();
    if (s[len] == '\n') {
      // error: new line inside a string constant unless it is quoted
      if (s[len - 2] == '\\') {

@@ -94,7 +94,7 @@ CQLFunction& CQLFunction::operator=(const CQLFunction& rhs){
 }
 
 Boolean CQLFunction::operator==(const CQLFunction& func)const{
-	return (_rep == func._rep);
+	return (*_rep == *(func._rep));
 }
 Boolean CQLFunction::operator!=(const CQLFunction& func)const{
 	return (_rep != func._rep);

@@ -128,6 +128,8 @@ public:
         argument not legal CIM identifier.
 	@param - Name to set
 	@exception Throws "IllegalName" exception is name
+	ATTN: please hide this. The only way a name should be
+	set is through a constructor.
 	is not legal syntax.
     */
     void setName(const String& name)

@@ -112,12 +112,12 @@ CIMParamValueRep& CIMParamValueRep::operator=(const CIMParamValueRep& x)
     return *this; 
 }
 
-void CIMParamValueRep::setParameter(CIMParameter parameter)
+void CIMParamValueRep::setParameter(CIMParameter& parameter)
 { 
     _parameter = parameter;
 }
 
-void CIMParamValueRep::setValue(CIMValue value)
+void CIMParamValueRep::setValue(CIMValue& value)
 { 
     _value = value;
 }

@@ -93,6 +93,18 @@ public:
 	return _rep->getValue();
     }
 
+    void setParameter(CIMParameter& parameter)
+    { 
+	_checkRep();
+	_rep->setParameter(parameter);
+    }
+
+    void setValue(CIMValue& value)
+    { 
+	_checkRep();
+	_rep->setValue(value);
+    }
+
     operator int() const { return _rep != 0; }
 
     void toXml(Array<Sint8>& out) const

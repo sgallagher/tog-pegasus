@@ -3324,7 +3324,9 @@ Boolean XmlReader::getParamValueElement(
         expectEndTag(parser, "PARAMVALUE");
     }
 
-    paramValue = CIMParamValue(CIMParameter(name, type), value);
+    // ATTN-RK-P2-20020221: Any other properties to set in CIMParameter?
+    // (referenceClassName)
+    paramValue = CIMParamValue(CIMParameter(name, type, value.isArray(), value.getArraySize()), value);
 
     return true;
 }

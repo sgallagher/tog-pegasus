@@ -61,9 +61,9 @@ public:
 	return _value; 
     }
 
-    void setParameter(CIMParameter parameter);
+    void setParameter(CIMParameter& parameter);
 
-    void setValue(CIMValue value);
+    void setValue(CIMValue& value);
 
     void toXml(Array<Sint8>& out) const;
 

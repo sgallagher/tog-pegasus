@@ -27,6 +27,7 @@
 //		(sushma_fernandes@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -362,7 +363,7 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
             request->getHttpMethod(),
 	    ((CIMRequestMessage*)request)->messageId,
 	    cimMethodName,
-	    PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, description));
+	    PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, description));
 
 	 PEG_METHOD_EXIT();
 

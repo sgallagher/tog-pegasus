@@ -314,15 +314,23 @@ void CQLValueRep::resolve(const CIMInstance& CI, const  QueryContext& inQueryCtx
       // needs to be done.
       propObj = objectContext.getProperty(propertyIndex);
 
-      /*      
-      if(inQueryCtx.getClassRelation(Idstrings[index].getScope(),classContext)
-	 == QueryContext::NOTRELATED)
+      try
+	{
+	  if(Idstrings[index].isScoped() && inQueryCtx.getClassRelation(Idstrings[index].getScope(),objectContext.getClassName())
+	     == QueryContext::NOTRELATED)
+	    {
+	      // The chain is not inline with scope.
+	      _valueType = CQLValue::Null_type;
+	      return;
+	    }
+	}
+      catch(CIMException &e)
 	{
 	  // The chain is not inline with scope.
 	  _valueType = CQLValue::Null_type;
 	  return;
 	}
-      */
+     
       
       if(index == Idstrings.size()-1)
 	{

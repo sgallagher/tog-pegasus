@@ -6,7 +6,7 @@ include $(ROOT)/mak/config.mak
 
 include ../libraries.mak
 
-PROGRAM = Tracer
+PROGRAM = TracerTest
 
 SOURCES = Tracer.cpp
 

@@ -35,6 +35,12 @@
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
+// If Windows platform then set the EOF_CHAR to 2
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
+    #define EOF_CHAR 2
+#else
+    #define EOF_CHAR 1
+#endif
 
 // Trace files for test purposes
 // Will be created in the current directory
@@ -56,7 +62,7 @@ Uint32 compare(const char* fileName, const char* compareStr)
     Uint32 retCode=0;
     fstream file;
     Uint32 size=strlen(compareStr);
-    char* readStr= new char[size+1];
+    char* readStr= new char[size+EOF_CHAR+1];
 
     file.open(fileName,fstream::in);
     if (!file.good())
@@ -64,9 +70,9 @@ Uint32 compare(const char* fileName, const char* compareStr)
         delete []readStr;
 	return 1;
     }
-    file.seekg(-(size+1),fstream::end);
+    file.seekg(-(size+EOF_CHAR),fstream::end);
 
-    file.read(readStr,size+1);
+    file.read(readStr,size+EOF_CHAR);
     readStr[size]='\0';
     retCode=strcmp(compareStr,readStr);
     delete []readStr;

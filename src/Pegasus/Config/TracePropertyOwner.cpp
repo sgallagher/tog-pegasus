@@ -130,9 +130,11 @@ void TracePropertyOwner::initialize()
         pegasusHome.append("/logs/");
 
 	// Create $PEGASUS_HOME/logs directory if it does not exist
-        if (! FileSystem::isDirectory(pegasusHome))
+	// If unable to create the directory then create the traceFile
+	// in the current working directory
+        if (!FileSystem::isDirectory(pegasusHome))
 	{
-	    if (! FileSystem::makeDirectory(pegasusHome))
+	    if (!FileSystem::makeDirectory(pegasusHome))
 	    {
 	        Logger::put(Logger::DEBUG_LOG,"TracePropertyOwner",
 		    Logger::WARNING,
@@ -147,32 +149,39 @@ void TracePropertyOwner::initialize()
         FileSystem::translateSlashes(pegasusHome);
 
         ArrayDestroyer<char> fileName(pegasusHome.allocateCString());
-        Uint32 retCode = Tracer::setTraceFile(fileName.getPointer());
+	if (Tracer::isValid(fileName.getPointer()))
+	{ 
+            Uint32 retCode = Tracer::setTraceFile(fileName.getPointer());
+	    // Check whether the filepath was set
+	    if ( retCode == 1 )
+	    {
+	        Logger::put(Logger::DEBUG_LOG,"TracePropertyOwner",
+	            Logger::WARNING,
+	            "Unable to write to trace file $0",pegasusHome);
 
-	// Check whether the filepath was set
-	if ( retCode == 1 )
-	{
-	     Logger::put(Logger::DEBUG_LOG,"TracePropertyOwner",
-	        Logger::WARNING,
-	       "Unable to write to trace file $0",pegasusHome);
+	        _traceFilePath->currentValue = "";
+            }
+	    else
+	    {
+	        _traceFilePath->currentValue = pegasusHome;
+	    }
         }
-	_traceFilePath->currentValue = pegasusHome;
     }
     if (_traceLevel->defaultValue != String::EMPTY)
     {
-        if ( _traceLevel->defaultValue == "1")
+        if (_traceLevel->defaultValue == "1")
         {
             Tracer::setTraceLevel(Tracer::LEVEL1);
         }
-        else if ( _traceLevel->defaultValue == "2")
+        else if (_traceLevel->defaultValue == "2")
         {
             Tracer::setTraceLevel(Tracer::LEVEL2);
         }
-        else if ( _traceLevel->defaultValue == "3")
+        else if (_traceLevel->defaultValue == "3")
         {
             Tracer::setTraceLevel(Tracer::LEVEL3);
         }
-        else if ( _traceLevel->defaultValue == "4")
+        else if (_traceLevel->defaultValue == "4")
         {
             Tracer::setTraceLevel(Tracer::LEVEL4);
         }
@@ -367,6 +376,10 @@ void TracePropertyOwner::initCurrentValue(
         }
 
         ArrayDestroyer<char> fileName(newValue.allocateCString());
+	if (!Tracer::isValid(fileName.getPointer()))
+        {
+            throw InvalidPropertyValue(name,newValue);
+        }
         retCode = Tracer::setTraceFile(fileName.getPointer());
         if (retCode == 1)
         {
@@ -423,23 +436,14 @@ void TracePropertyOwner::initPlannedValue(
         else
         {
             // Validate Trace File
-            ofstream outFile;
-    
-            outFile.open(value.allocateCString(),ofstream::app);
-
-            if (outFile.good())
+            ArrayDestroyer<char> fileName(value.allocateCString());
+	    if (Tracer::isValid(fileName.getPointer()))
             {
-                _traceFilePath->plannedValue= value;
-                outFile.close();
+                _traceFilePath->plannedValue = value;
             }
-            else
-            {
-                Logger::put(Logger::DEBUG_LOG,"TracePropertyOwner",
-                    Logger::WARNING, 
-                    "Unable to write to trace file $0", value);
-
-                outFile.close();
-                throw InvalidPropertyValue(name, value); 
+	    else
+	    {
+		throw InvalidPropertyValue(name,value);
             }
         }
     }
@@ -514,21 +518,16 @@ Boolean TracePropertyOwner::isValid(const String& name, const String& value)
     }
     else if (String::equalNoCase(_traceFilePath->propertyName, name))
     {
-        // Validate trace file
-        ofstream outFile;
+        // Check if the file path is a directory
         ArrayDestroyer<char> fileName(value.allocateCString());
-        outFile.open(fileName.getPointer(),ofstream::app);
-
-        if (outFile.good())
-        {
-            outFile.close();
+	if (Tracer::isValid(fileName.getPointer()))
+	{
             return 1;
-        }
-        else
-        {
-            outFile.close();
+	}
+	else
+	{
             return 0;
-        }
+	}
     }
     else
     {

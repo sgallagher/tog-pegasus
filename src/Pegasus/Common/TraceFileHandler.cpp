@@ -29,6 +29,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/TraceFileHandler.h>
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
@@ -75,32 +76,97 @@ TraceFileHandler::~TraceFileHandler ()
 
 Uint32 TraceFileHandler::setFileName(const char* fileName)
 {
-
-    Uint32 retCode;
-
+    if (!isValidFilePath(fileName))
+    {
+	return 1;
+    }
     // Check if a file is already open, if so close it
     if (_fileHandle)
     {
-	fclose(_fileHandle);
+        fclose(_fileHandle);
     }
 
-    // Check if the file can be opened
+    // Now open the file
     _fileHandle = fopen(fileName,"a+");
     if (!_fileHandle)
     {
-	// Unable to open file, log a message
-	Logger::put(Logger::DEBUG_LOG,"Tracer",Logger::WARNING,
-	    "Failed to open File $0",fileName);
-	retCode = 1;
+        // Unable to open file, log a message
+        Logger::put(Logger::DEBUG_LOG,"Tracer",Logger::WARNING,
+           "Failed to open File $0",fileName);
+            return 1;
     }
     else
     {
-	// File is valid, set the file name
-	_fileName = new char [strlen(fileName)+1];
+        _fileName = new char [strlen(fileName)+1];
         strcpy (_fileName,fileName);
-	retCode = 0;
     }
-    return retCode;
+    return 0;
 }
 
+Boolean TraceFileHandler::isValidFilePath(const char* filePath)
+{
+    String fileName = String(filePath);
+
+    // Check if the file path is a directory
+    FileSystem::translateSlashes(fileName);
+    if (FileSystem::isDirectory(fileName))
+    {
+	return 0;
+    }
+
+    // Check if the file exists and is writable
+    if (FileSystem::exists(fileName))
+    {
+        if (!FileSystem::canWrite(fileName))
+        {
+	    return 0;
+        }
+	else
+	{
+	    return 1;
+        }
+    }
+    else
+    {
+        // Check if directory is writable
+        String dirSeparator("/");
+
+        Uint32 pos = fileName.reverseFind(*(dirSeparator.getData()));
+
+        if (pos != PEG_NOT_FOUND)
+	{
+            String dirName = fileName.subString(0,pos);
+            if (!FileSystem::isDirectory(dirName))
+            {
+	        return 0;
+            }
+            if (!FileSystem::canWrite(dirName) )
+            {
+		return 0;
+            }
+	    else
+	    {
+		return 1;
+            }
+        }
+	else
+        {
+            String currentDir;
+
+            // Check if there is permission to write in the
+            // current working directory
+            FileSystem::getCurrentDirectory(currentDir);
+
+            if (!FileSystem::canWrite(currentDir))
+            {
+		return 0;
+            }
+	    else
+	    {
+		return 1;
+            }
+        }
+    }
+    return 1;
+}
 PEGASUS_NAMESPACE_END

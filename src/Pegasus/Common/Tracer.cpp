@@ -258,34 +258,36 @@ void Tracer::_trace(
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+//Validate the trace file
+////////////////////////////////////////////////////////////////////////////////
+Boolean Tracer::isValid(const char* filePath)
+{
+    return (_getInstance()->_traceHandler->isValidFilePath(filePath));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//Returns the Singleton instance of the Tracer
+////////////////////////////////////////////////////////////////////////////////
+Tracer* Tracer::_getInstance()
+{
+    if (_tracerInstance == 0)
+    {
+        _tracerInstance = new Tracer();
+    }
+    return _tracerInstance;
+}
+
+// PEGASUS_REMOVE_TRACE defines the compile time inclusion of the Trace 
+// interfaces. If defined the interfaces map to empty functions
+
+#ifndef PEGASUS_REMOVE_TRACE
+
+////////////////////////////////////////////////////////////////////////////////
 //Set the trace file
 ////////////////////////////////////////////////////////////////////////////////
 Uint32 Tracer::setTraceFile(const char* traceFile)
 {
-    ofstream outFile;
-    Uint32 retCode = 0;
-
-    // Check if the file can be opened in append mode
-    if (traceFile)
-    {
-        outFile.open(traceFile,ofstream::app);
-
-        if (outFile.good())
-        {
-            _getInstance()->_traceHandler->setFileName (traceFile);
-            outFile.close();
-        }
-        else
-        { 
-	    outFile.close();
-	    retCode = 1;
-        }
-    }
-    else 
-    {
-        retCode=1;
-    }
-    return retCode;
+    return (_getInstance()->_traceHandler->setFileName (traceFile));
 } 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -333,7 +335,7 @@ void Tracer::setTraceComponents(String traceComponents)
     if (traceComponents != String::EMPTY)
     {
 	// Check if ALL is specified
-	if (traceComponents == "ALL")
+	if (String::equalNoCase(traceComponents,"ALL"))
 	{
 	    for (int index=0; index < _NUM_COMPONENTS;
 		_getInstance()->_traceComponentMask[index++] = true);
@@ -341,7 +343,7 @@ void Tracer::setTraceComponents(String traceComponents)
         }
 
         // initialise ComponentMask array to False
-        for (int index = 0;index < _NUM_COMPONENTS; 
+        for (index = 0;index < _NUM_COMPONENTS; 
 	    _getInstance()->_traceComponentMask[index++] = false);
 
  	// Append _COMPONENT_SEPARATOR to the end of the traceComponents
@@ -383,16 +385,6 @@ void Tracer::setTraceComponents(String traceComponents)
     }
 }
 
-////////////////////////////////////////////////////////////////////////////////
-//Returns the Singleton instance of the Tracer
-////////////////////////////////////////////////////////////////////////////////
-Tracer* Tracer::_getInstance()
-{
-    if (_tracerInstance == 0)
-    {
-        _tracerInstance = new Tracer();
-    }
-    return _tracerInstance;
-}
+#endif
 
 PEGASUS_NAMESPACE_END

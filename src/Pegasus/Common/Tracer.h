@@ -86,6 +86,24 @@ public:
             // empty function
         }
 
+        static Uint32 setTraceFile(const char* traceFile)
+	{
+	    // empty function
+	    return 0;
+        }
+
+        static Uint32 setTraceLevel(const Uint32 traceLevel)
+	{
+	    // empty function
+	    return 0;
+        }
+
+        static void setTraceComponents(String traceComponents)
+	{
+	    // empty function
+        }
+        
+
     #else
         
         /** Traces the given message 
@@ -130,6 +148,27 @@ public:
             _trace(fileName,lineNum,traceComponent,traceLevel,fmt,argList); 
             va_end(argList);
         }
+
+        /** Set the trace file to the given file
+            @param    traceFile       full path of the trace file
+            @return   0               if the filepath is valid 
+                      1               if an error occurs while opening the file
+				      in append mode
+        */
+        static Uint32 setTraceFile(const char* traceFile);
+
+        /** Set the trace level to the given level
+            @param    traceLevel      trace level to be set
+            @return   0               if trace level is valid
+                      1               if trace level is invalid
+        */
+        static Uint32 setTraceLevel(const Uint32 traceLevel);
+
+        /** Set components to be traced
+            @param    traceComponents list of components to be traced, 
+		      components should be separated by ','
+        */
+        static void setTraceComponents(String traceComponents);
         
     #endif 
 
@@ -167,26 +206,14 @@ public:
     	    _FUNC_EXIT_MSG, methodName);
     }
 
-    /** Set the trace file to the given file
-        @param    traceFile       full path of the trace file
-        @return   0               if the filepath is valid 
-                  1               if an error occurs while opening the file in
-                                  append mode
+    /** Validates the File Path for the trace File
+        @param    filePath full path of the file 
+        @return   1        if the file path is valid
+                  0        if the file path is invalid
      */
-    static Uint32 setTraceFile(const char* traceFile);
+    static Boolean isValid(const char* filePath);
 
-    /** Set the trace level to the given level
-        @param    traceLevel      trace level to be set
-        @return   0               if trace level is valid
-                  1               if trace level is invalid
-     */
-    static Uint32 setTraceLevel(const Uint32 traceLevel);
 
-   /** Set components to be traced
-       @param    traceComponents list of components to be traced, components 
-                 should be separated by ','
-    */
-    static void setTraceComponents(String traceComponents);
 
 private:
 

@@ -53,6 +53,8 @@ repository implementation.
 
 13. (Mike Brasher) - New webserver and webclient examples.
 
+14. (Sushma Fernandes - HP) 21 Aug 2001 - Fixed a bug that was creating an empty file when trace was not enabled. Changed the Tracer test program's executable file name to TracerTest instead of Tracer.
+
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch
               Tagged as version_1_01 on 3 August 2001 (sorry should have been

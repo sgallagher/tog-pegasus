@@ -74,6 +74,13 @@ public:
      */
     Uint32 setFileName(const char* fileName);
 
+    /** Validates the File Path for the trace File
+        @param    filePath full path of the file 
+        @return   1        if the file path is valid
+                  0        if the file path is invalid
+     */
+    Boolean isValidFilePath(const char* filePath);
+
     TraceFileHandler();
 
     ~TraceFileHandler();

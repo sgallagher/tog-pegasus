@@ -89,12 +89,13 @@ static Message * controlProviderReceiveMessageCallback(
     return mpf->handleRequestMessage(message);
 }
 
-Boolean handleSigHup = false;
-void sigHupHandler(int s_n, PEGASUS_SIGINFO_T * s_info, void * sig)
+Boolean handleShutdownSignal = false;
+void shutdownSignalHandler(int s_n, PEGASUS_SIGINFO_T * s_info, void * sig)
 {
-    PEG_METHOD_ENTER(TRC_SERVER, "sigHupHandler");
+    PEG_METHOD_ENTER(TRC_SERVER, "shutdownSignalHandler");
+    Tracer::trace(TRC_SERVER, Tracer::LEVEL2, "Signal %d received.", s_n);
 
-    handleSigHup = true;
+    handleShutdownSignal = true;
 
     PEG_METHOD_EXIT();
 }
@@ -266,9 +267,11 @@ CIMServer::CIMServer(Monitor* monitor)
             (_repository, _providerRegistrationManager);
     }
 
-    // Enable the signal handler to shutdown gracefully on SIGHUP
-    getSigHandle()->registerHandler(PEGASUS_SIGHUP, sigHupHandler);
+    // Enable the signal handler to shutdown gracefully on SIGHUP and SIGTERM
+    getSigHandle()->registerHandler(PEGASUS_SIGHUP, shutdownSignalHandler);
     getSigHandle()->activate(PEGASUS_SIGHUP);
+    getSigHandle()->registerHandler(PEGASUS_SIGTERM, shutdownSignalHandler);
+    getSigHandle()->activate(PEGASUS_SIGTERM);
 
     PEG_METHOD_EXIT();
 }
@@ -350,13 +353,13 @@ void CIMServer::runForever()
 	 
       }
 
-      if (handleSigHup)
+      if (handleShutdownSignal)
       {
          Tracer::trace(TRC_SERVER, Tracer::LEVEL3,
-		       "CIMServer::runForever - HUP signal received.  Shutting down.");
+		       "CIMServer::runForever - signal received.  Shutting down.");
 	 
          ShutdownService::getInstance(this)->shutdown(true, 10, false);
-         handleSigHup = false;
+         handleShutdownSignal = false;
       }
    }
    

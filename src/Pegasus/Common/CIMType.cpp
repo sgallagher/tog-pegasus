@@ -64,7 +64,7 @@ CIMType::operator CIMType::Tag() const
 
 Boolean CIMType::equal(const CIMType& x) const
 {
-    return x._tag == _tag;
+    return Uint32(x._tag) == Uint32(_tag);
 }
 
 const char* CIMType::toString() const
@@ -73,15 +73,14 @@ const char* CIMType::toString() const
 }
 
 
-#if 0
 Boolean operator==(CIMType x, CIMType y)
 {
-    return CIMType::Tag(x) == CIMType::Tag(y);
+    return x.equal(y);
 }
 
 Boolean operator!=(CIMType x, CIMType y)
 {
-    return CIMType::Tag(x) != CIMType::Tag(y);
+    return !x.equal(y);
 }
 
 Boolean operator==(CIMType x, CIMType::Tag y)
@@ -96,13 +95,12 @@ Boolean operator==(CIMType::Tag x, CIMType y)
 
 Boolean operator!=(CIMType x, CIMType::Tag y)
 {
-    return !operator==(x, y);
+    return !x.equal(y);
 }
 
 Boolean operator!=(CIMType::Tag x, CIMType y)
 {
-    return !operator==(x, y);
+    return !y.equal(x);
 }
-#endif
 
 PEGASUS_NAMESPACE_END

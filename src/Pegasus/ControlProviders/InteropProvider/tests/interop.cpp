@@ -89,6 +89,9 @@ static const CIMName CIM_NAMESPACE_CLASSNAME  = CIMName ("CIM_Namespace");
 
 static const CIMName PG_NAMESPACE_CLASSNAME  = CIMName ("PG_Namespace");
 static const CIMName CIM_OBJECTMANAGER_CLASSNAME  = CIMName ("CIM_ObjectManager");
+
+static const CIMName CIM_WBEMSERVICE_CLASSNAME  = CIMName ("CIM_WBEMService");
+
 static const CIMName CIM_OBJECTMANAGERCOMMUNICATIONMECHANISM_CLASSNAME  =
         CIMName ("CIM_ObjectManagerCommunicationMechanism");
 static const CIMName PG_CIMXMLCOMMUNICATIONMECHANISM_CLASSNAME  =
@@ -97,6 +100,44 @@ static const CIMName CIM_COMMMECHANISMFORMANAGER_CLASSNAME  =
         CIMName ("CIM_CommMechanismForManager");
 static const CIMName CIM_NAMESPACEINMANAGER_CLASSNAME  =
         CIMName ("CIM_NamespaceInManager");
+
+
+String _toString(Boolean x)
+{
+    return(x ? "true" : "false");
+}
+ /* local support for display of propertyLists. Converts a property list
+   to a String for display. This function is only for diagnostic support.
+   Assumes that there is a propertylist and it is not empty or null.
+   @param pl CIMPropertyList to convert.
+   @return String representation of property list for display.
+*/
+String _toStringPropertyList(const CIMPropertyList& pl)
+{
+    String tmp;
+    for (Uint32 i = 0; i < pl.size() ; i++)
+    {
+        if (i > 0)
+            tmp.append(", ");
+        tmp.append(pl[i].getString());
+    }
+    return(tmp);
+}
+
+/* _showPropertyList is local support for displaying the propertylist
+   For display only. Generates String with property list names
+   or "empty" or "NULL" if that is the case.
+   @param pl CIMPropertyList to convert
+   @return String containing the list of properties comma separated
+   or the keywords NULL or Empty.
+ */
+String _showPropertyList(const CIMPropertyList& pl)
+{
+    if (pl.isNull())
+        return("NULL");
+
+    return((pl.size() == 0) ? String("EMPTY") : _toStringPropertyList(pl));
+}
 
 /* Class created to provide cover for all of the tests in this
     test program.
@@ -150,14 +191,72 @@ public:
     void testCommunicationClass();
     void testNameSpaceInObjectManagerAssocClass();
     void testCommMechinManagerAssocClass();
+    Boolean testEnumerateOptions(
+        const CIMName& className,
+        Boolean localOnly,
+        Boolean deepInheritance,
+        const CIMPropertyList propertyList,
+        const Uint32 expectedPropertyCount);
 
 private:
+
+
 
 CIMClient _client;
 CIMInstance objectManagerInstance;
 };
 
+Boolean InteropTest::testEnumerateOptions(
+        const CIMName& className,
+        Boolean localOnly,
+        Boolean deepInheritance,
+        const CIMPropertyList propertyList,
+        const Uint32 expectedPropertyCount)
+{
 
+    CDEBUG("testEnumerations 0" );
+    Array<CIMInstance> instancesObjMgr = _client.enumerateInstances(
+                                             PEGASUS_NAMESPACENAME_INTEROP,
+                                             className,
+                                             deepInheritance,
+                                             localOnly,  
+                                             false,  // include qualifiers = false
+                                             false, 
+                                             propertyList);
+
+    assert(instancesObjMgr.size() == 1);
+    CIMInstance instance = instancesObjMgr[0];
+    CIMPropertyList rtnd;
+    Array<CIMName> nameList;
+    CDEBUG("testEnumerations 1" << " prpertycount= " << instance.getPropertyCount());
+    for (Uint32 i = 0 ; i < instance.getPropertyCount() ; i++)
+    {
+
+        CDEBUG("testEnumerations 1a" << " prpertycount= " << instance.getProperty(i).getName().getString());
+        nameList.append(instance.getProperty(i).getName());
+    }
+
+    CDEBUG("testEnumerations 2" );
+    rtnd.set(nameList);
+    CDEBUG("testEnumerations 3" );
+    if (instance.getPropertyCount() != expectedPropertyCount)
+    {
+        cout << "Error in enumerate options. "
+             << " Class " << className.getString()
+             << " lo= "   << _toString(localOnly)
+             << " di= "   << _toString(deepInheritance)
+             << " Expected Property count " << expectedPropertyCount
+             << " Received Property Count " << instance.getPropertyCount()
+             << "\nPl Sent= " << _showPropertyList(propertyList)
+             << "\nPl Rcvd= " << _showPropertyList(rtnd)
+             << endl;
+
+        assert(false);
+        return(false);
+    }
+    CDEBUG("testEnumerations rtn" );
+    return(true);
+}
 InteropTest::InteropTest()
 {
     try
@@ -169,6 +268,7 @@ InteropTest::InteropTest()
         cerr <<" Error: " << e.getMessage() << " Conection terminate abnormal" << endl;
         exit(1);
     }
+
 }
 
 InteropTest::~InteropTest()
@@ -1571,6 +1671,51 @@ int main(int argc, char** argv)
         it.testSharedNameSpacesManagement();
 
         it.testObjectManagerClass();
+
+        // Do the enumerate options tests for object manager object
+        // classname, lo, di, propertylist, expected rtn count
+        it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, true, true, CIMPropertyList(), 4);
+        it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, false, true, CIMPropertyList(), 21);
+        it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, true, false, CIMPropertyList(), 4);
+        it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, false, false, CIMPropertyList(), 21);
+
+        CIMPropertyList pl1;
+        Array<CIMName> pla1;
+        pla1.append("gatherstatisticaldata");
+        pl1.set(pla1);
+
+        CIMPropertyList pl2;
+        Array<CIMName> pla2;
+        pl2.set(pla2);
+
+        it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, true, true, pl1, 1);
+        it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, false, true, pl1, 1);
+        it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, true, false, pl1, 1);
+        it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, false, false, pl1, 1);
+
+        it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, true, true, pl2, 0);
+        it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, false, true, pl2, 0);
+        it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, true, false, pl2, 0);
+        it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, false, false, pl2, 0);
+
+        // Repeat the tests for the superclass.
+        // classname, lo, di, propertylist, expected rtn count
+        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, true, CIMPropertyList(), 0);
+        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, false, true, CIMPropertyList(), 21);
+        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, false, CIMPropertyList(), 0);
+        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, false, false, CIMPropertyList(), 20);
+
+        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, true, pl1, 1);
+        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, false, true, pl1, 1);
+        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, false, pl1, 1);
+        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, false, false, pl1, 1);
+
+
+        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, true, pl2, 0);
+        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, false, true, pl2, 0);
+        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, false, pl2, 0);
+        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, false, false, pl2, 0);
+
 
         it.testStatisticsEnable();
 

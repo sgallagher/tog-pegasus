@@ -466,6 +466,13 @@ void CIMExportRequestDecoder::handleMethodRequest(
       // Process <?xml ... >
       //
 
+      // iSeries does not support indications at this time.
+      // When iSeries indication support is implemented this code
+      // Must be removed.
+#ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
+	throw PEGASUS_CIM_EXCEPTION (CIM_ERROR_NOT_SUPPORTED,
+	                             "INDICATIONS NOT SUPPORTED");
+#endif
       // These values are currently unused
       const char* xmlVersion = 0;
       const char* xmlEncoding = 0;

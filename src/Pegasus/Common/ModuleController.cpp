@@ -213,6 +213,27 @@ Boolean pegasus_module::_shutdown(void)
 } 
 
 
+
+const Uint32 ModuleController::GET_CLIENT_HANDLE =          0x00000001;
+const Uint32 ModuleController::REGISTER_MODULE =            0x00000002;
+const Uint32 ModuleController::DEREGISTER_MODULE =          0x00000004;
+const Uint32 ModuleController::FIND_SERVICE =               0x00000008;
+const Uint32 ModuleController::FIND_MODULE_IN_SERVICE =     0x00000010;
+const Uint32 ModuleController::GET_MODULE_REFERENCE =       0x00000020;
+const Uint32 ModuleController::MODULE_SEND_WAIT =           0x00000040;
+const Uint32 ModuleController::MODULE_SEND_WAIT_MODULE =    0x00000040;
+const Uint32 ModuleController::MODULE_SEND_ASYNC =          0x00000080;
+const Uint32 ModuleController::MODULE_SEND_ASYNC_MODULE =   0x00000080;
+const Uint32 ModuleController::BLOCKING_THREAD_EXEC =       0x00000100;
+const Uint32 ModuleController::ASYNC_THREAD_EXEC =          0x00000200;
+const Uint32 ModuleController::CLIENT_SEND_WAIT =           0x00000400;
+const Uint32 ModuleController::CLIENT_SEND_WAIT_MODULE =    0x00000400;
+const Uint32 ModuleController::CLIENT_SEND_ASYNC =          0x00000800;
+const Uint32 ModuleController::CLIENT_SEND_ASYNC_MODULE =   0x00000800;
+const Uint32 ModuleController::CLIENT_BLOCKING_THREAD_EXEC =0x00001000;
+const Uint32 ModuleController::CLIENT_ASYNC_THREAD_EXEC =   0x00001000;
+
+
 // NOTE: "destroy" is defined in <memory> on HP-UX and must not be redefined
 static struct timeval createTime = {0, 50000};
 static struct timeval destroyTime = {15, 0};

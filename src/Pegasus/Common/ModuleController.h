@@ -180,6 +180,9 @@ class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
       static const Uint32 CLIENT_SEND_WAIT_MODULE;
       static const Uint32 CLIENT_SEND_ASYNC;
       static const Uint32 CLIENT_SEND_ASYNC_MODULE;
+      static const Uint32 CLIENT_BLOCKING_THREAD_EXEC;
+      static const Uint32 CLIENT_ASYNC_THREAD_EXEC;
+      
 
    private: 
       class PEGASUS_COMMON_LINKAGE client_handle : pegasus_authorization_handle

@@ -265,3 +265,7 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection2 : public MessageQueue
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_HTTPConnection_h */
+
+
+
+// HINT: - you are not deleting the connection object !!!!! 

@@ -305,6 +305,7 @@ public:
   
 };
 
+class HTTPConnection2;
 
 class PEGASUS_COMMON_LINKAGE monitor_2 
 {
@@ -324,20 +325,25 @@ public:
   
   Uint32 getOutstandingRequestCount(void);
   
-  
+      static HTTPConnection2* remove_connection(Sint32 sock);
+      static Boolean insert_connection(HTTPConnection2* connection);
+      
+
 private:
 
-  void _dispatch(void);
-  void (*_session_dispatch)(monitor_2_entry*);
-  void (*_accept_dispatch)(monitor_2_entry*);
-  AsyncDQueue<monitor_2_entry> _listeners;
-  internal_dq _ready;
+      void _dispatch(void);
+      void (*_session_dispatch)(monitor_2_entry*);
+      void (*_accept_dispatch)(monitor_2_entry*);
+      AsyncDQueue<monitor_2_entry> _listeners;
+      AsyncDQueue<monitor_2_entry> _ready;
+      static AsyncDQueue<HTTPConnection2> _connections;
+      
   
-  monitor_2_entry _tickler;
-  struct sockaddr_in _tickle_addr;
-  AtomicInt _die;
-  fd_set rd_fd_set;  
-  AtomicInt _requestCount;
+      monitor_2_entry _tickler;
+      struct sockaddr_in _tickle_addr;
+      AtomicInt _die;
+      fd_set rd_fd_set;  
+      AtomicInt _requestCount;
 };
 
 

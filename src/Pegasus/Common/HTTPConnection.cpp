@@ -447,7 +447,7 @@ void HTTPConnection::_closeConnection()
    _dying = 1;
    PEG_METHOD_EXIT();
 
-//     Message* message= new CloseConnectionMessage(_socket->getSocket());
+//     Message* message= new CloseConnectionMessage(_socket->getSocket));
 //     message->dest = _ownerMessageQueue->getQueueId();
 //    SendForget(message);
 //    _ownerMessageQueue->enqueue(message);
@@ -654,13 +654,13 @@ void HTTPConnection2::handleEnqueue(Message *message)
    }
 
    
-   Boolean LockAcquired = false;
+//    Boolean LockAcquired = false;
 
-  if (pegasus_thread_self() != _connection_mut.get_owner())
-  {
-     _connection_mut.lock(pegasus_thread_self());  // Use lock_connection() ?
-     LockAcquired = true;
-  }
+//   if (pegasus_thread_self() != _connection_mut.get_owner())
+//   {
+//      _connection_mut.lock(pegasus_thread_self());  // Use lock_connection() ?
+//      LockAcquired = true;
+//   }
 
    switch (message->getType())
    {
@@ -823,10 +823,10 @@ void HTTPConnection2::handleEnqueue(Message *message)
 
    delete message;
 
-   if (LockAcquired)
-   {
-      _connection_mut.unlock();  // Use unlock_connection() ?
-   }
+//    if (LockAcquired)
+//    {
+//       _connection_mut.unlock();  // Use unlock_connection() ?
+//    }
    PEG_METHOD_EXIT();
 }
 
@@ -839,6 +839,13 @@ void HTTPConnection2::handleEnqueue()
         return;
     handleEnqueue(message);
 }
+
+Sint32 HTTPConnection2::getSocket(void)
+{
+   return (Sint32)_socket;
+   
+}
+
 
 void HTTPConnection2::_getContentLengthAndContentOffset()
 {
@@ -916,17 +923,15 @@ void HTTPConnection2::_handleReadEvent(monitor_2_entry* entry)
 
     // -- Append all data waiting on socket to incoming buffer:
 
-#ifdef LOCK_CONNECTION_ENABLED
     lock_connection();
-#endif
     _socket.disableBlocking();
     Sint32 bytesRead = 0;
     Boolean incompleteSecureReadOccurred = false;
     for (;;)
     {
 	char buffer[4096];
+	
         Sint32 n = _socket.read(buffer, sizeof(buffer));
-
 	if (n <= 0)
 	{
 	    if (_socket.is_secure() && bytesRead == 0)
@@ -949,7 +954,9 @@ void HTTPConnection2::_handleReadEvent(monitor_2_entry* entry)
 
 	    break;
 	}
-
+	if(n < 0 )
+	   continue;
+	
 	_incomingBuffer.append(buffer, n);
 	bytesRead += n;
     }
@@ -981,28 +988,21 @@ void HTTPConnection2::_handleReadEvent(monitor_2_entry* entry)
         Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
           "_requestCount = %d", _requestCount.value());
 	message->dest = _outputMessageQueue->getQueueId();
-//	SendForget(message);
-	
-#ifndef LOCK_CONNECTION_ENABLED
-	_outputMessageQueue->enqueue(message);
-#endif
+
 	_clearIncoming();
 
-#ifdef LOCK_CONNECTION_ENABLED
         unlock_connection();
 
 	if (bytesRead > 0)
         {
 	   _outputMessageQueue->enqueue(message);
         }
-        else 
-#else
-	if (bytesRead == 0)
-#endif
+        else if (bytesRead == 0)
+
 	{
 	   Tracer::trace(TRC_HTTP, Tracer::LEVEL3,
 			 "HTTPConnection2::_handleReadEvent - bytesRead == 0 - Conection being closed.");
-	   _closeConnection();
+	   _closeConnection(); 
 	   entry->set_state(CLOSED);
 	   
 	   //

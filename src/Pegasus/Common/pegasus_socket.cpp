@@ -117,6 +117,7 @@ class PEGASUS_COMMON_LINKAGE abstract_socket : public Sharable
 
       abstract_socket(const abstract_socket& );
       abstract_socket& operator=(const abstract_socket& );
+      
 };
 
 
@@ -276,7 +277,7 @@ bsd_socket_rep::bsd_socket_rep(int sock)
  */
 bsd_socket_rep::~bsd_socket_rep(void)
 {
-
+   close();
 }
 
 int bsd_socket_rep::shutdown(int how)
@@ -324,7 +325,7 @@ Sint32 bsd_socket_rep::write(const void* ptr, Uint32 size)
 int bsd_socket_rep::close(void)
 {
    int ccode;
-
+   
    shutdown(2);
    ccode = Socket::close2(_socket);
    if(ccode == -1)
@@ -732,15 +733,12 @@ pegasus_socket::pegasus_socket(socket_factory *factory)
 
 pegasus_socket::pegasus_socket(const pegasus_socket& s)
 {
-   if(this != &s)
-   {
-     Inc(this->_rep = s._rep);
-   }
+   Inc(this->_rep = s._rep);
 };
 
 pegasus_socket::pegasus_socket(abstract_socket* s)
 {
-  _rep = s;
+   _rep = s;
 }
 
 
@@ -751,6 +749,7 @@ pegasus_socket::~pegasus_socket(void)
 
 pegasus_socket& pegasus_socket::operator =(const pegasus_socket& s)
 {
+
    if(this != &s)
    {
       Dec(_rep);
@@ -952,13 +951,13 @@ unix_socket_rep::unix_socket_rep(int sock)
  */
 unix_socket_rep::~unix_socket_rep(void)
 {
+   close();
 }
 
 
 int unix_socket_rep::close(void)
 {
    int ccode = Base::close();
-//   System::removeFile(PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);
    return ccode;
 }
 

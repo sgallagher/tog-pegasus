@@ -176,7 +176,6 @@ class PEGASUS_COMMON_LINKAGE pegasus_acceptor
   SSLContext * _sslcontext;
   pegasus_socket _listener;
 
-  // change to a dqueue
   AsyncDQueue<HTTPConnection2> connections;
   static AsyncDQueue<pegasus_acceptor> acceptors;
   

@@ -23,7 +23,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Mike Day (monitor_2) mdday@us.ibm.com 
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -544,9 +544,12 @@ void monitor_2_entry::set_sock(pegasus_socket& s)
 }
 
 
+AsyncDQueue<HTTPConnection2> monitor_2::_connections(true, 0);
+
+
 monitor_2::monitor_2(void)
   : _session_dispatch(0), _accept_dispatch(0), _listeners(true, 0), 
-    _ready(true),  _die(0), _requestCount(0)
+    _ready(true, 0), _die(0), _requestCount(0)
 {
   try {
     
@@ -623,6 +626,7 @@ void monitor_2::run(void)
 {
   monitor_2_entry* temp;
   while(_die.value() == 0) {
+     
      struct timeval tv = {0, 0};
 
     // place all sockets in the select set 
@@ -635,6 +639,8 @@ void monitor_2::run(void)
 	  monitor_2_entry* closed = temp;
 	  temp = _listeners.next(closed);
 	  _listeners.remove_no_lock(closed);
+	  HTTPConnection2 *cn = monitor_2::remove_connection((Sint32)(closed->get_sock()));
+	  delete cn;
 	  delete closed;
 	}
 	if(temp == 0)
@@ -663,7 +669,14 @@ void monitor_2::run(void)
 	  temp->set_state(BUSY);
 	  FD_CLR(fd,  &rd_fd_set);
 	  monitor_2_entry* ready = new monitor_2_entry(*temp);
-	  _ready.insert_first((void*)ready);
+	  try 
+	  {
+	     _ready.insert_first(ready);
+	  }
+	  catch(...)
+	  {
+	  }
+	  
 	  _requestCount++;
 	}
 	temp = _listeners.next(temp);
@@ -699,21 +712,39 @@ void* monitor_2::set_accept_dispatch(void (*dp)(monitor_2_entry*))
 // the pointer must not be tampered with. 
 void monitor_2::_dispatch(void)
 {
-  monitor_2_entry* entry = (monitor_2_entry*) _ready.remove_first();
-  while(entry != 0 ){
+   monitor_2_entry* entry;
+   
+   if(_ready.count() == 0 )
+      return;
+   
+      
+   try 
+   {
+
+	 entry = _ready.remove_first();
+   }
+   catch(...)
+   {
+   }
+   
+  while(entry != 0 ) {
     switch(entry->get_type()) {
     case INTERNAL:
       static char buffer[2];
+      entry->get_sock().disableBlocking();
       entry->get_sock().read(&buffer, 2);
+      entry->get_sock().enableBlocking();
       break;
     case LISTEN:
       {
 	static struct sockaddr peer;
 	static PEGASUS_SOCKLEN_SIZE peer_size = sizeof(peer);
+	entry->get_sock().disableBlocking();
 	pegasus_socket connected = entry->get_sock().accept(&peer, &peer_size);
+	entry->get_sock().enableBlocking();
 	monitor_2_entry *temp = add_entry(connected, SESSION, entry->get_accept(), entry->get_dispatch());
 	if(temp && _accept_dispatch != 0)
-	  _accept_dispatch(temp);
+	   _accept_dispatch(temp);
       }
       break;
     case SESSION:
@@ -731,7 +762,18 @@ void monitor_2::_dispatch(void)
     }
     _requestCount--;
     delete entry;
-    entry = (monitor_2_entry*) _ready.remove_first();
+    
+    if(_ready.count() == 0 )
+       break;
+    
+    try 
+    {
+       entry = _ready.remove_first();
+    }
+    catch(...)
+    {
+    }
+    
   }
 }
 
@@ -800,6 +842,46 @@ Uint32 monitor_2::getOutstandingRequestCount(void)
 {
   return _requestCount.value();
   
+}
+
+
+HTTPConnection2* monitor_2::remove_connection(Sint32 sock)
+{
+
+   HTTPConnection2* temp;
+   try 
+   {
+      monitor_2::_connections.lock(pegasus_thread_self());
+      temp = monitor_2::_connections.next(0);
+      while(temp != 0 )
+      {
+	 if(sock == temp->getSocket())
+	 {
+	    temp = monitor_2::_connections.remove_no_lock(temp);
+	    monitor_2::_connections.unlock();
+	    return temp;
+	 }
+	 temp = monitor_2::_connections.next(temp);
+      }
+      monitor_2::_connections.unlock();
+   }
+   catch(...)
+   {
+   }
+   return 0;
+}
+
+Boolean monitor_2::insert_connection(HTTPConnection2* connection)
+{
+   try 
+   {
+      monitor_2::_connections.insert_first(connection);
+   }
+   catch(...)
+   {
+      return false;
+   }
+   return true;
 }
 
 

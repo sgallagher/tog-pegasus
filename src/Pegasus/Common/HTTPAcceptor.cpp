@@ -505,6 +505,7 @@ void HTTPAcceptor::_acceptConnection()
 
    if (socket < 0)
    {
+
        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
 		   "HTTPAcceptor - accept() failure.  errno: $0"
 		   ,errno);
@@ -760,11 +761,7 @@ void pegasus_acceptor::accept_dispatch(monitor_2_entry *entry)
   // set the entry's dispatch parameter to point to the connection object
   entry->set_dispatch ((void*)connection);
 
-  try {
-    myself->connections.insert_first(connection);
-  }
-  catch(...){
-  }
+  monitor_2::insert_connection(connection);
 }
 
 

@@ -31,6 +31,7 @@
 #ifndef Pegasus_CommonUTF_h
 #define Pegasus_CommonUTF_h
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Linkage.h>
 
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
@@ -70,18 +71,18 @@ static const char trailingBytesForUTF8[256] = {
 } 
 
 
-int isValid_U8(const Uint8 *src,int size);
-int UTF16toUTF8(const Uint16** srcHead,
+PEGASUS_COMMON_LINKAGE int isValid_U8(const Uint8 *src,int size);
+PEGASUS_COMMON_LINKAGE int UTF16toUTF8(const Uint16** srcHead,
 		const Uint16* srcEnd, 
 		Uint8** tgtHead,
 		Uint8* tgtEnd);
 
-int UTF8toUTF16 (const Uint8** srcHead,
+PEGASUS_COMMON_LINKAGE int UTF8toUTF16 (const Uint8** srcHead,
 		 const Uint8* srcEnd, 
 		 Uint16** tgtHead,
 		 Uint16* tgtEnd);
 
-Boolean isUTF8(const char*);
+PEGASUS_COMMON_LINKAGE Boolean isUTF8(const char*);
 
 PEGASUS_NAMESPACE_END
 

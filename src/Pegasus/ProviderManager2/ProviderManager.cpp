@@ -11,7 +11,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -25,7 +25,7 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:    Dan Gorey, djgorey@us.ibm.com
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -42,7 +42,7 @@ ProviderManager::~ProviderManager(void)
 {
 }
 
-Message * ProviderManager::processMessage(Message * message, ProviderName managerName)
+Message * ProviderManager::processMessage(Message * message)
 {
     // subclasses should implement this method. if not implented, the base
     // classes generates a generic failure.
@@ -73,7 +73,7 @@ Boolean ProviderManager::removeProvider(const ProviderName & providerName)
 String ProviderManager::_resolvePhysicalName(String physicalName)
 {
     String temp;
-    String root = "."; 
+    String root = ".";
 
     // fully qualify physical provider name (module), if not already done so.
     #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)

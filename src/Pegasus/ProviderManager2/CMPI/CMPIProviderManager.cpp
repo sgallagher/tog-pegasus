@@ -25,7 +25,7 @@
 //
 // Author:      Adrian Schuur, schuur@de.ibm.com
 //
-// Modified By:  Dan Gorey, djgorey@us.ibm.com 
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -76,7 +76,7 @@ CMPIProviderManager::ProvRegistrar CMPIProviderManager::provReg;
 class CMPIPropertyList {
    char **props;
    int pCount;
-  public: 
+  public:
    CMPIPropertyList(CIMPropertyList &propertyList) {
       if (!propertyList.isNull()) {
         Array<CIMName> p=propertyList.getPropertyNameArray();
@@ -93,7 +93,7 @@ class CMPIPropertyList {
       if (props) {
          for (int i=0; i<pCount; i++)
             free(props[i]);
-         free(props);   
+         free(props);
       }
    }
    char **getList() {
@@ -121,66 +121,66 @@ Boolean CMPIProviderManager::insertProvider(const ProviderName & name,
 }
 
 
-Message * CMPIProviderManager::processMessage(Message * request, ProviderName managerName)
+Message * CMPIProviderManager::processMessage(Message * request)
 {
       PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "CMPIProviderManager::processMessage()");
 
     Message * response = 0;
-    
+
     // pass the request message to a handler method based on message type
     switch(request->getType())
     {
     case CIM_GET_INSTANCE_REQUEST_MESSAGE:
-        response = handleGetInstanceRequest(request,managerName);
+        response = handleGetInstanceRequest(request);
 
         break;
     case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
-        response = handleEnumerateInstancesRequest(request,managerName);
+        response = handleEnumerateInstancesRequest(request);
 
         break;
     case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE:
-        response = handleEnumerateInstanceNamesRequest(request,managerName);
+        response = handleEnumerateInstanceNamesRequest(request);
 
         break;
     case CIM_CREATE_INSTANCE_REQUEST_MESSAGE:
-        response = handleCreateInstanceRequest(request,managerName);
+        response = handleCreateInstanceRequest(request);
 
         break;
     case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
-        response = handleModifyInstanceRequest(request,managerName);
+        response = handleModifyInstanceRequest(request);
 
         break;
     case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
-        response = handleDeleteInstanceRequest(request,managerName);
+        response = handleDeleteInstanceRequest(request);
 
         break;
     case CIM_EXEC_QUERY_REQUEST_MESSAGE:
-        response = handleExecQueryRequest(request,managerName);
+        response = handleExecQueryRequest(request);
 
         break;
     case CIM_ASSOCIATORS_REQUEST_MESSAGE:
-        response = handleAssociatorsRequest(request,managerName);
+        response = handleAssociatorsRequest(request);
 
         break;
     case CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE:
-        response = handleAssociatorNamesRequest(request,managerName);
+        response = handleAssociatorNamesRequest(request);
 
         break;
     case CIM_REFERENCES_REQUEST_MESSAGE:
-        response = handleReferencesRequest(request,managerName);
+        response = handleReferencesRequest(request);
 
         break;
     case CIM_REFERENCE_NAMES_REQUEST_MESSAGE:
-        response = handleReferenceNamesRequest(request,managerName);
+        response = handleReferenceNamesRequest(request);
 
         break;
     case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
-        response = handleInvokeMethodRequest(request,managerName);
+        response = handleInvokeMethodRequest(request);
 
         break;
     case CIM_CREATE_SUBSCRIPTION_REQUEST_MESSAGE:
-        response = handleCreateSubscriptionRequest(request,managerName);
+        response = handleCreateSubscriptionRequest(request);
 
         break;
 /*    case CIM_MODIFY_SUBSCRIPTION_REQUEST_MESSAGE:
@@ -188,15 +188,15 @@ Message * CMPIProviderManager::processMessage(Message * request, ProviderName ma
 
         break;
 */  case CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE:
-        response = handleDeleteSubscriptionRequest(request,managerName);
+        response = handleDeleteSubscriptionRequest(request);
 
         break;
     case CIM_ENABLE_INDICATIONS_REQUEST_MESSAGE:
-        response = handleEnableIndicationsRequest(request,managerName);
+        response = handleEnableIndicationsRequest(request);
 
         break;
     case CIM_DISABLE_INDICATIONS_REQUEST_MESSAGE:
-        response = handleDisableIndicationsRequest(request,managerName);
+        response = handleDisableIndicationsRequest(request);
 
         break;
 /*    case CIM_CONSUME_INDICATION_REQUEST_MESSAGE:
@@ -204,31 +204,31 @@ Message * CMPIProviderManager::processMessage(Message * request, ProviderName ma
         break;
 */
     case CIM_DISABLE_MODULE_REQUEST_MESSAGE:
-        response = handleDisableModuleRequest(request,managerName);
+        response = handleDisableModuleRequest(request);
 
         break;
     case CIM_ENABLE_MODULE_REQUEST_MESSAGE:
-        response = handleEnableModuleRequest(request,managerName);
+        response = handleEnableModuleRequest(request);
 
-        break; 
+        break;
     case CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE:
-        response = handleStopAllProvidersRequest(request,managerName);
+        response = handleStopAllProvidersRequest(request);
 
         break;
     default:
-        response = handleUnsupportedRequest(request,managerName);
+        response = handleUnsupportedRequest(request);
 
         break;
     }
- 
+
     PEG_METHOD_EXIT();
 
     return(response);
 }
 
-void CMPIProviderManager::unload_idle_providers(void) 
+void CMPIProviderManager::unload_idle_providers(void)
 {
-     providerManager.unload_idle_providers();  
+     providerManager.unload_idle_providers();
 }
 
 
@@ -248,7 +248,7 @@ void CMPIProviderManager::unload_idle_providers(void)
     PEGASUS_ASSERT(response != 0); \
     response->setKey(request->getKey()); \
     response->setHttpMethod(request->getHttpMethod()); \
-    type1##ResponseHandler handler(request, response); 
+    type1##ResponseHandler handler(request, response);
 
 #define VOIDINTRO );
 #define NOVOIDINTRO(type) ,type);
@@ -266,7 +266,7 @@ void CMPIProviderManager::unload_idle_providers(void)
 
 #define HandlerIntro(type,message,request,response,handler,respType) \
      HandlerIntroBase(type,type,message,request,response,handler,NOVOIDINTRO(respType))
-     
+
 #define HandlerCatch(handler) \
     catch(CIMException & e)  \
     { PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, \
@@ -286,7 +286,7 @@ void CMPIProviderManager::unload_idle_providers(void)
 
 
 
-Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message, ProviderName managerName)
+Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "CMPIProviderManager::handleGetInstanceRequest");
@@ -294,7 +294,7 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message,
     HandlerIntro(GetInstance,message,request,response,handler,CIMInstance());
 
     try {
-	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
             "CmpiProviderManager::handleGetInstanceRequest - Host name: $0  Name space: $1  Class name: $2",
             System::getHostName(),
             request->nameSpace.getString(),
@@ -312,11 +312,11 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message,
             ProviderType::INSTANCE);
 
         // resolve provider name
-        name = _resolveProviderName(managerName);
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph = providerManager.getProvider(name.getPhysicalName(),
-	                                name.getLogicalName());
+                                        name.getLogicalName());
 
         // convert arguments
         OperationContext context;
@@ -340,7 +340,7 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message,
         CMPI_ThreadContext thr(&pr.broker,&eCtx);
 
         CMPIPropertyList props(request->propertyList);
-        
+
         CMPIFlags flgs=0;
         if (request->includeQualifiers) flgs|=CMPI_FLAG_IncludeQualifiers;
         if (request->includeClassOrigin) flgs|=CMPI_FLAG_IncludeClassOrigin;
@@ -357,23 +357,23 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message,
 
         if (rc.rc!=CMPI_RC_OK)
            throw CIMException((CIMStatusCode)rc.rc,
-	       rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+               rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
     }
     HandlerCatch(handler);
-    
+
     PEG_METHOD_EXIT();
 
     return(response);
 }
 
-Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * message, ProviderName managerName)
+Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "CMPIProviderManager::handleEnumerateInstanceRequest");
 
     HandlerIntro(EnumerateInstances,message,request,response,
                  handler,Array<CIMInstance>());
-    try {  
+    try {
       Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
             "CMPIProviderManager::handleEnumerateInstancesRequest - Host name: $0  Name space: $1  Class name: $2",
             System::getHostName(),
@@ -391,14 +391,14 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
             ProviderType::INSTANCE);
 
         // resolve provider name
-        name = _resolveProviderName(managerName);
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
             providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(),
                String::EMPTY);
 
-	// convert arguments
+        // convert arguments
         OperationContext context;
 
         context.insert(IdentityContainer(request->userName));
@@ -433,24 +433,24 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
         STAT_GETSTARTTIME;
 
         rc=pr.miVector.instMI->ft->enumInstances
-        (pr.miVector.instMI,&eCtx,&eRes,&eRef,props.getList()); 
+        (pr.miVector.instMI,&eCtx,&eRes,&eRef,props.getList());
 
         STAT_PMS_PROVIDEREND;
 
         if (rc.rc!=CMPI_RC_OK)
         throw CIMException((CIMStatusCode)rc.rc,
-	       rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+               rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
 
         STAT_PMS_PROVIDEREND;
     }
     HandlerCatch(handler);
-    
+
     PEG_METHOD_EXIT();
 
     return(response);
 }
 
-Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message * message, ProviderName managerName)
+Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager::handleEnumerateInstanceNamesRequest");
 
@@ -462,7 +462,7 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
             System::getHostName(),
             request->nameSpace.getString(),
             request->className.getString());
-       
+
        // make target object path
         CIMObjectPath objectPath(
             System::getHostName(),
@@ -475,7 +475,7 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
             ProviderType::INSTANCE);
 
         // resolve provider name
-        name = _resolveProviderName(managerName);
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
@@ -488,9 +488,9 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
         context.insert(AcceptLanguageListContainer(request->acceptLanguages));
         context.insert(ContentLanguageListContainer(request->contentLanguages));
 
-	CMPIProvider & pr=ph.GetProvider();
+        CMPIProvider & pr=ph.GetProvider();
 
-	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.enumerateInstanceNames: " + pr.getName());
 
         DDD(cerr<<"--- CMPIProviderManager::enumerateInstanceNames"<<endl);
@@ -513,18 +513,18 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
         STAT_PMS_PROVIDEREND;
 
         if (rc.rc!=CMPI_RC_OK)
-	   throw CIMException((CIMStatusCode)rc.rc,
-	       rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+           throw CIMException((CIMStatusCode)rc.rc,
+               rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
     }
     HandlerCatch(handler);
-    
+
 
     PEG_METHOD_EXIT();
 
     return(response);
 }
 
-Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * message, ProviderName managerName)
+Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
        "CMPIProviderManager::handleCreateInstanceRequest");
@@ -545,17 +545,17 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * messa
             request->newInstance.getPath().getClassName(),
             request->newInstance.getPath().getKeyBindings());
 
-	ProviderName name(
+        ProviderName name(
             objectPath,
             ProviderType::INSTANCE);
 
         // resolve provider name
-        name = _resolveProviderName(managerName);
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
             providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(),
-	           String::EMPTY);
+                   String::EMPTY);
 
         // convert arguments
         OperationContext context;
@@ -565,14 +565,14 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * messa
         context.insert(ContentLanguageListContainer(request->contentLanguages));
 
         // forward request
- 	CMPIProvider & pr=ph.GetProvider();
+        CMPIProvider & pr=ph.GetProvider();
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.createInstance: " +
             ph.GetProvider().getName());
 
         DDD(cerr<<"--- CMPIProviderManager::createInstances"<<endl);
-	CMPIStatus rc={CMPI_RC_OK,NULL};
+        CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
         CMPI_ObjectPathOnStack eRef(objectPath);
         CMPI_ResultOnStack eRes(handler,&pr.broker);
@@ -587,22 +587,22 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * messa
         STAT_GETSTARTTIME;
 
         rc=pr.miVector.instMI->ft->createInstance
-	   (pr.miVector.instMI,&eCtx,&eRes,&eRef,&eInst);
+           (pr.miVector.instMI,&eCtx,&eRes,&eRef,&eInst);
 
         STAT_PMS_PROVIDEREND;
 
         if (rc.rc!=CMPI_RC_OK)
-	   throw CIMException((CIMStatusCode)rc.rc,
-	       rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+           throw CIMException((CIMStatusCode)rc.rc,
+               rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
     }
     HandlerCatch(handler);
-    
+
     PEG_METHOD_EXIT();
 
     return(response);
 }
 
-Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * message, ProviderName managerName)
+Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
        "CMPIProviderManager::handleModifyInstanceRequest");
@@ -628,7 +628,7 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
             ProviderType::INSTANCE);
 
         // resolve provider name
-        name = _resolveProviderName(managerName);
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
@@ -657,7 +657,7 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
         CMPI_ThreadContext thr(&pr.broker,&eCtx);
 
         CMPIPropertyList props(request->propertyList);
-        
+
         CMPIFlags flgs=0;
         if (request->includeQualifiers) flgs|=CMPI_FLAG_IncludeQualifiers;
         eCtx.ft->addEntry(&eCtx,CMPIInvocationFlags,(CMPIValue*)&flgs,CMPI_uint32);
@@ -672,17 +672,17 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
         STAT_PMS_PROVIDEREND;
 
         if (rc.rc!=CMPI_RC_OK)
-	   throw CIMException((CIMStatusCode)rc.rc,
-	       rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+           throw CIMException((CIMStatusCode)rc.rc,
+               rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
     }
     HandlerCatch(handler);
-    
+
     PEG_METHOD_EXIT();
 
     return(response);
 }
 
-Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * message, ProviderName managerName)
+Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
        "CMPIProviderManager::handleDeleteInstanceRequest");
@@ -708,7 +708,7 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
             ProviderType::INSTANCE);
 
         // resolve provider name
-        name = _resolveProviderName(managerName);
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
@@ -722,12 +722,12 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
         context.insert(ContentLanguageListContainer(request->contentLanguages));
 
         // forward request
- 	CMPIProvider & pr=ph.GetProvider();
+        CMPIProvider & pr=ph.GetProvider();
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.deleteInstance: " + pr.getName());
 
-	CMPIStatus rc={CMPI_RC_OK,NULL};
+        CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
         CMPI_ObjectPathOnStack eRef(objectPath);
         CMPI_ResultOnStack eRes(handler,&pr.broker);
@@ -741,22 +741,22 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
         STAT_GETSTARTTIME;
 
         rc=pr.miVector.instMI->ft->deleteInstance
-	   (pr.miVector.instMI,&eCtx,&eRes,&eRef);
+           (pr.miVector.instMI,&eCtx,&eRes,&eRef);
 
         STAT_PMS_PROVIDEREND;
 
         if (rc.rc!=CMPI_RC_OK)
-	   throw CIMException((CIMStatusCode)rc.rc,
-	       rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+           throw CIMException((CIMStatusCode)rc.rc,
+               rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
     }
     HandlerCatch(handler);
-    
+
     PEG_METHOD_EXIT();
 
     return(response);
 }
 
-Message * CMPIProviderManager::handleExecQueryRequest(const Message * message, ProviderName managerName)
+Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
        "CMPIProviderManager::handleExecQueryRequest");
@@ -764,7 +764,7 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message, P
     HandlerIntro(ExecQuery,message,request,response,
                  handler,Array<CIMObject>());
 
-    try {  
+    try {
       Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
             "CMPIProviderManager::ExecQueryRequest - Host name: $0  Name space: $1  Class name: $2",
             System::getHostName(),
@@ -782,14 +782,14 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message, P
             ProviderType::QUERY);
 
         // resolve provider name
-        name = _resolveProviderName(managerName);
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
             providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(),
                String::EMPTY);
 
-	// convert arguments
+        // convert arguments
         OperationContext context;
 
         context.insert(IdentityContainer(request->userName));
@@ -797,7 +797,7 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message, P
         context.insert(ContentLanguageListContainer(request->contentLanguages));
 
         // forward request
-	CMPIProvider & pr=ph.GetProvider();
+        CMPIProvider & pr=ph.GetProvider();
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.execQuery: " + pr.getName());
@@ -806,7 +806,7 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message, P
 
         const char **props=NULL;
 
-	CMPIStatus rc={CMPI_RC_OK,NULL};
+        CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
         CMPI_ObjectPathOnStack eRef(objectPath);
         CMPI_ResultOnStack eRes(handler,&pr.broker);
@@ -822,13 +822,13 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message, P
         STAT_GETSTARTTIME;
 
         rc=pr.miVector.instMI->ft->execQuery
-	   (pr.miVector.instMI,&eCtx,&eRes,&eRef,CHARS(queryLan),CHARS(query));
+           (pr.miVector.instMI,&eCtx,&eRes,&eRef,CHARS(queryLan),CHARS(query));
 
         STAT_PMS_PROVIDEREND;
 
         if (rc.rc!=CMPI_RC_OK)
-	   throw CIMException((CIMStatusCode)rc.rc,
-	       rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+           throw CIMException((CIMStatusCode)rc.rc,
+               rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
 
         STAT_PMS_PROVIDEREND;
     }
@@ -839,7 +839,7 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message, P
     return(response);
 }
 
-Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message, ProviderName managerName)
+Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
        "CMPIProviderManager::handleAssociatorsRequest");
@@ -871,7 +871,7 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message,
             ProviderType::ASSOCIATION);
 
         // resolve provider name
-        name = _resolveProviderName(managerName);
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
@@ -904,7 +904,7 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message,
         const CString resRole=request->resultRole.getCString();
 
         CMPIPropertyList props(request->propertyList);
-        
+
         CMPIFlags flgs=0;
         if (request->includeQualifiers) flgs|=CMPI_FLAG_IncludeQualifiers;
         if (request->includeClassOrigin) flgs|=CMPI_FLAG_IncludeClassOrigin;
@@ -921,17 +921,17 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message,
         STAT_PMS_PROVIDEREND;
 
         if (rc.rc!=CMPI_RC_OK)
-	   throw CIMException((CIMStatusCode)rc.rc,
-	       rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+           throw CIMException((CIMStatusCode)rc.rc,
+               rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
     }
     HandlerCatch(handler);
-    
+
     PEG_METHOD_EXIT();
 
     return(response);
 }
 
-Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * message, ProviderName managerName)
+Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
        "CMPIProviderManager::handleAssociatorNamesRequest");
@@ -963,7 +963,7 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
             ProviderType::ASSOCIATION);
 
         // resolve provider name
-        name = _resolveProviderName(managerName);
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
@@ -977,18 +977,18 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
         context.insert(ContentLanguageListContainer(request->contentLanguages));
 
         // forward request
- 	CMPIProvider & pr=ph.GetProvider();
+        CMPIProvider & pr=ph.GetProvider();
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.associatorNames: " + pr.getName());
 
         DDD(cerr<<"--- CMPIProviderManager::associatorNames"<<" role: >"<<request->role<<"< aCls "<<
-	   request->assocClass<<endl);
+           request->assocClass<<endl);
 
-	CMPIStatus rc={CMPI_RC_OK,NULL};
+        CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
         CMPI_ObjectPathOnStack eRef(objectPath);
-	CMPI_ResultOnStack eRes(handler,&pr.broker);
+        CMPI_ResultOnStack eRes(handler,&pr.broker);
         CMPI_ThreadContext thr(&pr.broker,&eCtx);
         const CString aClass=request->assocClass.getString().getCString();
         const CString rClass=request->resultClass.getString().getCString();
@@ -1009,17 +1009,17 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
         STAT_PMS_PROVIDEREND;
 
         if (rc.rc!=CMPI_RC_OK)
-	   throw CIMException((CIMStatusCode)rc.rc,
-	       rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+           throw CIMException((CIMStatusCode)rc.rc,
+               rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
     }
     HandlerCatch(handler);
-    
+
     PEG_METHOD_EXIT();
 
     return(response);
 }
 
-Message * CMPIProviderManager::handleReferencesRequest(const Message * message, ProviderName managerName)
+Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
        "CMPIProviderManager::handleReferencesRequest");
@@ -1051,7 +1051,7 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message, 
             ProviderType::ASSOCIATION);
 
         // resolve provider name
-        name = _resolveProviderName(managerName);
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
@@ -1082,7 +1082,7 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message, 
         const CString rRole=request->role.getCString();
 
         CMPIPropertyList props(request->propertyList);
-        
+
         CMPIFlags flgs=0;
         if (request->includeQualifiers) flgs|=CMPI_FLAG_IncludeQualifiers;
         if (request->includeClassOrigin) flgs|=CMPI_FLAG_IncludeClassOrigin;
@@ -1100,16 +1100,16 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message, 
 
         if (rc.rc!=CMPI_RC_OK)
             throw CIMException((CIMStatusCode)rc.rc,
-	       rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+               rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
     }
     HandlerCatch(handler);
-    
+
     PEG_METHOD_EXIT();
 
     return(response);
 }
 
-Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * message, ProviderName managerName)
+Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "CMPIProviderManager::handleReferenceNamesRequest");
@@ -1141,7 +1141,7 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * messa
             ProviderType::ASSOCIATION);
 
         // resolve provider name
-        name = _resolveProviderName(managerName);
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
@@ -1154,18 +1154,18 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * messa
         context.insert(AcceptLanguageListContainer(request->acceptLanguages));
         context.insert(ContentLanguageListContainer(request->contentLanguages));
 
-  	CMPIProvider & pr=ph.GetProvider();
+        CMPIProvider & pr=ph.GetProvider();
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.referenceNames: " + pr.getName());
 
         DDD(cerr<<"--- CMPIProviderManager::referenceNames"<<" role: >"<<request->role<<"< aCls "<<
-	   request->resultClass<<endl);
+           request->resultClass<<endl);
 
-	CMPIStatus rc={CMPI_RC_OK,NULL};
+        CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
         CMPI_ObjectPathOnStack eRef(objectPath);
-	CMPI_ResultOnStack eRes(handler,&pr.broker);
+        CMPI_ResultOnStack eRes(handler,&pr.broker);
         CMPI_ThreadContext thr(&pr.broker,&eCtx);
         const CString rClass=request->resultClass.getString().getCString();
         const CString rRole=request->role.getCString();
@@ -1184,17 +1184,17 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * messa
         STAT_PMS_PROVIDEREND;
 
         if (rc.rc!=CMPI_RC_OK)
-	   throw CIMException((CIMStatusCode)rc.rc,
-	       rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+           throw CIMException((CIMStatusCode)rc.rc,
+               rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
     }
     HandlerCatch(handler);
-    
+
     PEG_METHOD_EXIT();
 
     return(response);
 }
 
-Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message, ProviderName managerName)
+Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "CMPIProviderManager::handleInvokeMethodRequest");
@@ -1221,7 +1221,7 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
             request->methodName);
 
         // resolve provider name
-        name = _resolveProviderName(managerName);
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
@@ -1240,12 +1240,12 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
         instanceReference.setNameSpace(request->nameSpace);
 
         // forward request
- 	CMPIProvider & pr=ph.GetProvider();
+        CMPIProvider & pr=ph.GetProvider();
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.invokeMethod: " + pr.getName());
 
-	CMPIStatus rc={CMPI_RC_OK,NULL};
+        CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
         CMPI_ObjectPathOnStack eRef(objectPath);
         CMPI_ResultOnStack eRes(handler,&pr.broker);
@@ -1268,18 +1268,18 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
         STAT_PMS_PROVIDEREND;
 
         if (rc.rc!=CMPI_RC_OK)
-	   throw CIMException((CIMStatusCode)rc.rc,
-	       rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+           throw CIMException((CIMStatusCode)rc.rc,
+               rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
 
        for (int i=0,s=outArgs.size(); i<s; i++)
            handler.deliverParamValue(outArgs[i]);
        handler.complete();
     }
     HandlerCatch(handler);
-    
+
     PEG_METHOD_EXIT();
 
-    return(response); 
+    return(response);
 }
 
 int LocateIndicationProviderNames(const CIMInstance& pInstance, const CIMInstance& pmInstance,
@@ -1289,7 +1289,7 @@ int LocateIndicationProviderNames(const CIMInstance& pInstance, const CIMInstanc
     pInstance.getProperty(pos).getValue().get(providerName);
 
     pos = pmInstance.findProperty(CIMName ("Location"));
-    pmInstance.getProperty(pos).getValue().get(location); 
+    pmInstance.getProperty(pos).getValue().get(location);
     return 0;
 }
 
@@ -1321,7 +1321,7 @@ String CMPIProviderManager::getFilter(CIMInstance &subscription)
    return String::EMPTY;
 }
 
-Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * message, ProviderName managerName)
+Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager::handleCreateSubscriptionRequest");
 
@@ -1418,31 +1418,31 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
         rc=pr.miVector.indMI->ft->activateFilter(
            pr.miVector.indMI,&eCtx,NULL,eSelx,
            CHARS(eSelx->classNames[0].getClassName().getString().getCString()),
-	   &eRef,false);
+           &eRef,false);
 
        STAT_PMS_PROVIDEREND;
 
         if (rc.rc!=CMPI_RC_OK)
            throw CIMException((CIMStatusCode)rc.rc,
-	       rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+               rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
     }
     HandlerCatch(handler);
-    
+
     PEG_METHOD_EXIT();
 
     return(response);
 }
 
-Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * message, ProviderName managerName)
+Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager::handleDeleteSubscriptionRequest");
 
     HandlerIntroInd(DeleteSubscription,message,request,response,
                  handler);
     try {
-	String providerName,providerLocation;
-	LocateIndicationProviderNames(request->provider, request->providerModule,
-	   providerName,providerLocation);
+        String providerName,providerLocation;
+        LocateIndicationProviderNames(request->provider, request->providerModule,
+           providerName,providerLocation);
 
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
             "CMPIProviderManager::handleDeleteSubscriptionRequest - Host name: $0  Name space: $1  Provider name(s): $2",
@@ -1458,22 +1458,22 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
 
 
         indProvRecord *prec=NULL;
-	provTab.lookup(providerName,prec);
-	if (--prec->count<=0) {
-	   provTab.remove(providerName);
-	   prec=NULL;
-	}
+        provTab.lookup(providerName,prec);
+        if (--prec->count<=0) {
+           provTab.remove(providerName);
+           prec=NULL;
+        }
 
         indSelectRecord *srec=NULL;
         const CIMObjectPath &sPath=request->subscriptionInstance.getPath();
-	String sPathString=sPath.toString();
-	selxTab.lookup(sPathString,srec);
+        String sPathString=sPath.toString();
+        selxTab.lookup(sPathString,srec);
 
         CMPI_SelectExp *eSelx=srec->eSelx;
         CMPI_ObjectPathOnStack eRef(eSelx->classNames[0]);
-	selxTab.remove(sPathString);
+        selxTab.remove(sPathString);
 
-	// convert arguments
+        // convert arguments
         OperationContext context;
 
         context.insert(IdentityContainer(request->userName));
@@ -1487,9 +1487,9 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
 
         CIMObjectPath subscriptionName = request->subscriptionInstance.getPath();
 
-  	CMPIProvider & pr=ph.GetProvider();
+        CMPIProvider & pr=ph.GetProvider();
 
-	CMPIStatus rc={CMPI_RC_OK,NULL};
+        CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
         CMPI_ThreadContext thr(&pr.broker,&eCtx);
 
@@ -1504,24 +1504,24 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
         rc=pr.miVector.indMI->ft->deActivateFilter(
            pr.miVector.indMI,&eCtx,NULL,eSelx,
            CHARS(eSelx->classNames[0].getClassName().getString().getCString()),
-	   &eRef,prec==NULL);
+           &eRef,prec==NULL);
 
        delete eSelx;
 
        STAT_PMS_PROVIDEREND;
 
         if (rc.rc!=CMPI_RC_OK)
-	   throw CIMException((CIMStatusCode)rc.rc,
-	       rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+           throw CIMException((CIMStatusCode)rc.rc,
+               rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
     }
     HandlerCatch(handler);
-    
+
     PEG_METHOD_EXIT();
 
     return(response);
 }
 
-Message * CMPIProviderManager::handleEnableIndicationsRequest(const Message * message, ProviderName managerName)
+Message * CMPIProviderManager::handleEnableIndicationsRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager:: handleEnableIndicationsRequest");
 
@@ -1529,8 +1529,8 @@ Message * CMPIProviderManager::handleEnableIndicationsRequest(const Message * me
                  handler);
     try {
         String providerName,providerLocation;
-	LocateIndicationProviderNames(request->provider, request->providerModule,
-	   providerName,providerLocation);
+        LocateIndicationProviderNames(request->provider, request->providerModule,
+           providerName,providerLocation);
 
         indProvRecord *provRec;
         if (provTab.lookup(providerName,provRec)) {
@@ -1551,9 +1551,9 @@ Message * CMPIProviderManager::handleEnableIndicationsRequest(const Message * me
         context.insert(AcceptLanguageListContainer(request->acceptLanguages));
         context.insert(ContentLanguageListContainer(request->contentLanguages));
 
-  	CMPIProvider & pr=ph.GetProvider();
+        CMPIProvider & pr=ph.GetProvider();
 
-	CMPIStatus rc={CMPI_RC_OK,NULL};
+        CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
         CMPI_ThreadContext thr(&pr.broker,&eCtx);
 
@@ -1572,13 +1572,13 @@ Message * CMPIProviderManager::handleEnableIndicationsRequest(const Message * me
        STAT_PMS_PROVIDEREND;
     }
     HandlerCatch(handler);
-    
+
     PEG_METHOD_EXIT();
 
     return(response);
 }
 
-Message * CMPIProviderManager::handleDisableIndicationsRequest(const Message * message, ProviderName managerName)
+Message * CMPIProviderManager::handleDisableIndicationsRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager:: handleDisableIndicationsRequest");
 
@@ -1586,14 +1586,14 @@ Message * CMPIProviderManager::handleDisableIndicationsRequest(const Message * m
                  handler);
     try {
         String providerName,providerLocation;
-	LocateIndicationProviderNames(request->provider, request->providerModule,
-	   providerName,providerLocation);
+        LocateIndicationProviderNames(request->provider, request->providerModule,
+           providerName,providerLocation);
 
         indProvRecord *provRec;
         if (provTab.lookup(providerName,provRec)) {
            provRec->enabled=false;
            if (provRec->handler) delete provRec->handler;
-	   provRec->handler=NULL;
+           provRec->handler=NULL;
         }
 
         String fileName = _resolvePhysicalName(providerLocation);
@@ -1608,9 +1608,9 @@ Message * CMPIProviderManager::handleDisableIndicationsRequest(const Message * m
         context.insert(AcceptLanguageListContainer(request->acceptLanguages));
         context.insert(ContentLanguageListContainer(request->contentLanguages));
 
-  	CMPIProvider & pr=ph.GetProvider();
+        CMPIProvider & pr=ph.GetProvider();
 
-	CMPIStatus rc={CMPI_RC_OK,NULL};
+        CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
         CMPI_ThreadContext thr(&pr.broker,&eCtx);
 
@@ -1629,7 +1629,7 @@ Message * CMPIProviderManager::handleDisableIndicationsRequest(const Message * m
        STAT_PMS_PROVIDEREND;
     }
     HandlerCatch(handler);
-    
+
     PEG_METHOD_EXIT();
 
     return(response);
@@ -1641,7 +1641,7 @@ static const Uint16 _MODULE_OK       = 2;
 static const Uint16 _MODULE_STOPPING = 9;
 static const Uint16 _MODULE_STOPPED  = 10;
 
-Message * CMPIProviderManager::handleDisableModuleRequest(const Message * message, ProviderName managerName)
+Message * CMPIProviderManager::handleDisableModuleRequest(const Message * message)
 {
     // HACK
     ProviderRegistrationManager * _providerRegistrationManager = GetProviderRegistrationManager();
@@ -1708,12 +1708,12 @@ Message * CMPIProviderManager::handleDisableModuleRequest(const Message * messag
     // Unload providers
     Array<CIMInstance> _pInstances = request->providers;
     String physicalName=_resolvePhysicalName(request->providerModule.getProperty(
-	      request->providerModule.findProperty("Location")).getValue().toString());
+              request->providerModule.findProperty("Location")).getValue().toString());
 
     for(Uint32 i = 0, n = _pInstances.size(); i < n; i++)
     {
         providerManager.unloadProvider(_pInstances[i].getProperty(
-	                                  request->providerModule.findProperty
+                                          request->providerModule.findProperty
                                           ("Name")).getValue ().toString (),
                                        physicalName);
     }
@@ -1765,7 +1765,7 @@ Message * CMPIProviderManager::handleDisableModuleRequest(const Message * messag
     return(response);
 }
 
-Message * CMPIProviderManager::handleEnableModuleRequest(const Message * message, ProviderName managerName)
+Message * CMPIProviderManager::handleEnableModuleRequest(const Message * message)
 {
     // HACK
     ProviderRegistrationManager * _providerRegistrationManager = GetProviderRegistrationManager();
@@ -1845,7 +1845,7 @@ Message * CMPIProviderManager::handleEnableModuleRequest(const Message * message
     return(response);
 }
 
-Message * CMPIProviderManager::handleStopAllProvidersRequest(const Message * message, ProviderName managerName)
+Message * CMPIProviderManager::handleStopAllProvidersRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager::handleStopAllProvidersRequest");
 
@@ -1876,7 +1876,7 @@ Message * CMPIProviderManager::handleStopAllProvidersRequest(const Message * mes
     return(response);
 }
 
-Message * CMPIProviderManager::handleUnsupportedRequest(const Message * message, ProviderName managerName)
+Message * CMPIProviderManager::handleUnsupportedRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager::handleUnsupportedRequest");
 
@@ -1886,11 +1886,10 @@ Message * CMPIProviderManager::handleUnsupportedRequest(const Message * message,
     return(0);
 }
 
-ProviderName CMPIProviderManager::_resolveProviderName(ProviderName managerName)
+ProviderName CMPIProviderManager::_resolveProviderName(const ProviderName & providerName)
 {
-    //ProviderName temp = findProvider(providerName);
-    ProviderName temp = managerName;
-    
+    ProviderName temp = findProvider(providerName);
+
     String physicalName=_resolvePhysicalName(temp.getPhysicalName());
 
     temp.setPhysicalName(physicalName);

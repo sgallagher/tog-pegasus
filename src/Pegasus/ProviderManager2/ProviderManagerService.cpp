@@ -31,7 +31,6 @@
 //              Karl Schopmeyer(k.schopmeyer@opengroup.org) - Fix associators.
 //              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //              Adrian Schuur, IBM (schuur@de.ibm.com)
-//              Dan Gorey, djgorey@us.ibm.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -171,7 +170,7 @@ ProviderManagerService::ProviderManagerService(
 {
     providerManagerService=this;
     _repository=repository;
-    
+
     SetProviderRegistrationManager(providerRegistrationManager);
 
     // ATTN: this section is a temporary solution to populate the list of enabled
@@ -386,9 +385,9 @@ void ProviderManagerService::handleCimRequest(AsyncOpNode * op, const Message * 
     // get the responsible provider Manager
     ProviderManager * pm = locateProviderManager(message,ifc);
     if (pm) {
-        response = pm->processMessage(request,providerManagerName); 
+        response = pm->processMessage(request);
     }
-    
+
     else for (Uint32 i = 0, n = _providerManagers.size(); i < n; i++) {
               ProviderManagerContainer *pmc=_providerManagers[i];
        switch (message->getType()) {
@@ -397,7 +396,7 @@ void ProviderManagerService::handleCimRequest(AsyncOpNode * op, const Message * 
                 dynamic_cast<CIMEnableModuleRequestMessage*>(const_cast<Message*>(message));
              if (request->providerModule.getProperty(request->providerModule.findProperty
                  ("InterfaceType")).getValue().toString()==pmc->getInterfaceName())
-             response=pmc->getProviderManager()->processMessage(request,providerManagerName); 
+             response=pmc->getProviderManager()->processMessage(request);
            }
           break;
        case CIM_DISABLE_MODULE_REQUEST_MESSAGE: {
@@ -405,12 +404,12 @@ void ProviderManagerService::handleCimRequest(AsyncOpNode * op, const Message * 
                 dynamic_cast<CIMDisableModuleRequestMessage*>(const_cast<Message*>(message));
              if (request->providerModule.getProperty(request->providerModule.findProperty
                  ("InterfaceType")).getValue().toString()==pmc->getInterfaceName())
-             response=pmc->getProviderManager()->processMessage(request,providerManagerName); 
+             response=pmc->getProviderManager()->processMessage(request);
        }
           break;
        case CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE: {
-          Message  *resp=pmc->getProviderManager()->processMessage(request,providerManagerName); 
-	  if (resp) response=resp; }
+          Message  *resp=pmc->getProviderManager()->processMessage(request);
+          if (resp) response=resp; }
           break;
        default:
           CIMRequestMessage * req =
@@ -454,22 +453,21 @@ ProviderManager* ProviderManagerService::locateProviderManager(const Message *me
 
     if (p) {
        nameSpace=p->nameSpace;
-       
+
        if (p->providerType==ProviderType::ASSOCIATION)
           className=((CIMAssociatorsRequestMessage*)p)->assocClass;
        else className=p->className;
-       
+
        if (p->providerType==ProviderType::METHOD)
           method=((CIMInvokeMethodRequestMessage*)p)->methodName;
-       
-       ProviderName name(nameSpace, 
+
+       ProviderName name(nameSpace,
            className,
            p->providerType,
            method);
-           
+
        // find provider manager
        name = ProviderRegistrar().findProvider(name,false);
-       providerManagerName = name;
        it=name.getInterfaceName();
     }
 
@@ -481,12 +479,12 @@ ProviderManager* ProviderManagerService::locateProviderManager(const Message *me
           it=m->providerModule.getProperty (m->providerModule.findProperty
                 ("InterfaceType")).getValue ().toString ();
        }
-       
+
        else switch (message->getType()) {
        case CIM_DISABLE_MODULE_REQUEST_MESSAGE:
        case CIM_ENABLE_MODULE_REQUEST_MESSAGE:
        case CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE:
-	  return NULL;
+          return NULL;
        default:
           it="C++Default";
        }
@@ -497,7 +495,7 @@ ProviderManager* ProviderManagerService::locateProviderManager(const Message *me
     {
         if (String::equalNoCase(it,_providerManagers[i]->getInterfaceName())) {
            ProviderManagerContainer *pmc=_providerManagers[i];
-	   return pmc->getProviderManager();
+           return pmc->getProviderManager();
         }
     }
     ProviderManagerContainer *pmc=_providerManagers[0];
@@ -509,4 +507,3 @@ void ProviderManagerService::unload_idle_providers(void)
 }
 
 PEGASUS_NAMESPACE_END
-

@@ -11,7 +11,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -25,7 +25,7 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:   Dan Gorey, djgorey@us.ibm.com
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -48,7 +48,7 @@ public:
     ProviderManager(void);
     virtual ~ProviderManager(void);
 
-    virtual Message * processMessage(Message * message, ProviderName managerName);
+    virtual Message * processMessage(Message * message);
 
     virtual ProviderName findProvider(const ProviderName & providerName);
     virtual ProviderName findProvider(const String & destinationPath);

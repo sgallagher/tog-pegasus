@@ -34,7 +34,6 @@
 //                (carolann_graves@hp.com)
 //              Mike Day, IBM (mdday@us.ibm.com)
 //              Adrian Schuur, IBM (schuur@de.ibm.com)
-//              Dan Gorey, djgorey@us.ibm.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -82,8 +81,6 @@ protected:
     virtual void _handle_async_request(AsyncRequest * request);
 
     static CIMRepository* _repository;
-
-    ProviderName providerManagerName;
 
 private:
     //static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleServiceOperation(void * arg) throw();

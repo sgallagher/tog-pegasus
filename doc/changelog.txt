@@ -4,6 +4,9 @@ CHANGE LOG FOR PEGASUS
 
 Version 0.97.5 - Work in progress
 
+1. (Mike Brasher) Added support for class association operations 
+    (references(), associators(), referenceNames(), associatorNames()).
+
 --------------------------------------------------------------------------------
 
 Version 0.97.4 - Tag Created for 0.97.4 and snapshot 7 July 2001

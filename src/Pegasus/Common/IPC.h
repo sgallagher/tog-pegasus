@@ -28,6 +28,7 @@
 // Modified By: Markus Mueller
 //         Ramnath Ravindran (Ramnath.Ravindran@compaq.com)
 //         David Eger (dteger@us.ibm.com)
+//         Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -40,6 +41,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/AutoPtr.h>
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 # include "IPCWindows.h"
 #elif defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
@@ -629,7 +631,7 @@ class PEGASUS_COMMON_LINKAGE Condition
       AtomicInt _disallow; // don't allow any further waiters
       Boolean _destroy_mut;
       PEGASUS_COND_TYPE _condition; // special type to control execution flow
-      Mutex *_cond_mutex; // the conditional mutex
+      AutoPtr<Mutex> _cond_mutex; // the conditional mutex //PEP101
       friend void extricate_condition(void *);
       
       // Hide the assignment operator to avoid implicit use of the default

@@ -26,6 +26,7 @@
 // Author: Mike Day (mdday@us.ibm.com)
 //
 // Modified By: 
+//         Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -121,7 +122,7 @@ AtomicInt::AtomicInt(const AtomicInt& original)
 
 Condition::Condition(void) : _disallow(0)
 { 
-   _cond_mutex = new Mutex();
+   _cond_mutex.reset(new Mutex());
    _destroy_mut = true;
 
     // Change from PulseEvent to SetEvent, this is part of 
@@ -136,7 +137,7 @@ Condition::Condition(void) : _disallow(0)
 
 Condition::Condition(const Mutex & mutex) : _disallow(0), _condition()
 {
-   _cond_mutex = const_cast<Mutex *>(&mutex);
+   _cond_mutex.reset(const_cast<Mutex *>(&mutex));
    _destroy_mut = false;
 
     // Change from PulseEvent to SetEvent, this is part of 
@@ -160,7 +161,9 @@ Condition::~Condition(void)
 
 
    if(_destroy_mut == true)
-      delete _cond_mutex;
+      _cond_mutex.reset();
+   else
+      _cond_mutex.release();
 
     // Change from PulseEvent to SetEvent, this is part of 
     //    fix to avoid deadlock in CIMClient Constructor.

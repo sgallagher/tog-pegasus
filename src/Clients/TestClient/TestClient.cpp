@@ -33,6 +33,7 @@
 //         Nag Boranna(nagaraja_boranna@hp.com)
 //         Carol Ann Krug Graves, Hewlett-Packard Company
 //               (carolann_graves@hp.com)
+//         Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -50,6 +51,7 @@
 #include <Pegasus/Common/Stopwatch.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/AutoPtr.h>
 #if !defined(PEGASUS_OS_ZOS) && ! defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_OS_LINUX) && !defined(PEGASUS_OS_AIX)
 // Rempve SLP #include <slp/slp.h>
 #endif
@@ -67,7 +69,7 @@ static const char* programVersion =  "2.0";
 */
 class T_Parms{
    public:
-	CIMClient *client;
+	AutoPtr<CIMClient> client; //PEP101
 	int verboseTest;
 	int activeTest;
 	int testCount;
@@ -1148,7 +1150,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL executeTests(void *parm){
 
 	Thread *my_thread = (Thread *)parm;
 	T_Parms *parms = (T_Parms *)my_thread->get_parm();
-	CIMClient *client = parms->client;
+	CIMClient *client = parms->client.get();
 	Uint32 testCount = parms->testCount;
 	Boolean verboseTest = parms->verboseTest;
 	Boolean activeTest = parms->activeTest;
@@ -1221,18 +1223,18 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL executeTests(void *parm){
 
 Thread * runTests(CIMClient *client, Uint32 testCount, Boolean activeTest, Boolean verboseTest, int uniqueID){
         // package parameters, create thread and run...
-        T_Parms *parms = new T_Parms();
-        parms->client = client;
+        AutoPtr<T_Parms> parms(new T_Parms());
+        parms->client.reset(client);
         parms->testCount = testCount;
         parms->activeTest = (activeTest) ? 1 : 0;
         parms->verboseTest = (verboseTest) ? 1 : 0;
 	parms->uniqueID = uniqueID;
-        Thread *t = new Thread(executeTests, (void*)parms, false);
+        AutoPtr<Thread> t(new Thread(executeTests, (void*)parms.release(), false));
 
 	// zzzzz... (1 second) zzzzz...
         pegasus_sleep(1000);
 	t->run();
-	return t;
+	return t.release();
 }
 
 void connectClient(CIMClient *client, String host, Uint32 portNumber, String userName, String password, Boolean useSSL, Boolean localConnection,

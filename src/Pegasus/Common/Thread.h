@@ -27,6 +27,7 @@
 //
 // Modified By: Markus Mueller
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -40,6 +41,7 @@
 #include <Pegasus/Common/DQueue.h>
 #include <Pegasus/Common/AcceptLanguages.h>  // l10n
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/AutoPtr.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -257,9 +259,10 @@ class PEGASUS_COMMON_LINKAGE Thread
       // create and initialize a tsd
       inline void create_tsd(const Sint8 *key, int size, void *buffer) throw(IPCException)
       {
-	 thread_data *tsd = new thread_data(key, size, buffer);
-	 try { _tsd.insert_first(tsd); }
-	 catch(IPCException& e) { e = e; delete tsd; throw; }
+        AutoPtr<thread_data> tsd(new thread_data(key, size, buffer));
+        try { _tsd.insert_first(tsd.get()); }
+        catch(IPCException& e) { e = e; throw; }
+        tsd.release();
       }
 
       // get the buffer associated with the key
@@ -295,9 +298,7 @@ class PEGASUS_COMMON_LINKAGE Thread
       // delete the tsd associated with the key
       inline void delete_tsd(const Sint8 *key) throw(IPCException)
       {
-	 thread_data *tsd = _tsd.remove((const void *)key);
-	 if(tsd != NULL)
-	    delete tsd;
+         AutoPtr<thread_data> tsd(_tsd.remove((const void *)key));
       }
 
       // Note: Caller must delete the thread_data object returned (if not null)
@@ -319,12 +320,11 @@ class PEGASUS_COMMON_LINKAGE Thread
 	    return;
 	 }
 	 
-	 thread_data* tsd = _tsd.next(0);
-	 while(tsd)
+	 AutoPtr<thread_data> tsd(_tsd.next(0));
+	 while(tsd.get())
 	 {
-	    _tsd.remove_no_lock(tsd);
-	    delete tsd;
-	    tsd = _tsd.next(0);
+	    _tsd.remove_no_lock(tsd.get());
+	    tsd.reset(_tsd.next(0));
 	 }
 	 _tsd.unlock();
       }
@@ -336,13 +336,14 @@ class PEGASUS_COMMON_LINKAGE Thread
 
       {
 	 PEGASUS_ASSERT(key != NULL);
-	 thread_data *tsd ;
-	 tsd = _tsd.remove((const void *)key);  // may throw an IPC exception 
-	 delete tsd;
-	 thread_data *ntsd = new thread_data(key);
+	 AutoPtr<thread_data> tsd ;
+	 tsd.reset(_tsd.remove((const void *)key));  // may throw an IPC exception 
+	 tsd.reset();
+	 AutoPtr<thread_data> ntsd(new thread_data(key));
 	 ntsd->put_data(delete_func, size, value);
-	 try { _tsd.insert_first(ntsd); }
-	 catch(IPCException& e) { e = e; delete ntsd; throw; }
+	 try { _tsd.insert_first(ntsd.get()); }
+	 catch(IPCException& e) { e = e; throw; }
+     ntsd.release();
       }
       inline PEGASUS_THREAD_RETURN get_exit(void) { return _exit_code; }
       inline PEGASUS_THREAD_TYPE self(void) {return pegasus_thread_self(); }
@@ -405,9 +406,10 @@ class PEGASUS_COMMON_LINKAGE Thread
 
       inline void create_tsd(const Sint8 *key ) throw(IPCException)
       {
-	 thread_data *tsd = new thread_data(key);
-	 try { _tsd.insert_first(tsd); }
-	 catch(IPCException& e) { e = e; delete tsd; throw; }
+	 AutoPtr<thread_data> tsd(new thread_data(key));
+	 try { _tsd.insert_first(tsd.get()); }
+	 catch(IPCException& e) { e = e; throw; }
+     tsd.release();
       }
       PEGASUS_THREAD_HANDLE _handle;
       Boolean _is_detached;

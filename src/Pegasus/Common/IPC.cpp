@@ -26,6 +26,7 @@
 // Author: Markus Mueller (sedgewick_de@yahoo.de)
 //
 // Modified By: Mike Day (mdday@us.ibm.com)
+//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -133,7 +134,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 // Lock this object to maintain integrity while we decide 
 // exactly what to do next.
 //-----------------------------------------------------------------
-   IPCException * caught = NULL;
+   AutoPtr<IPCException> caught;
    
    { // cleanup stack frame 
       native_cleanup_push(extricate_read_write, this);
@@ -148,7 +149,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
       }
       catch(IPCException& e)
       {
-	 caught = &e;
+	 caught.reset(&e);
 	 goto throw_from_here;
       }
       
@@ -164,7 +165,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	    if(_readers.value() > 0)
 	    {
 	       _rwlock._internal_lock.unlock();
-	       caught = new WaitFailed(pegasus_thread_self());
+	       caught.reset(new WaitFailed(pegasus_thread_self()));
 	       goto throw_from_here;
 	    }
 	 }
@@ -184,7 +185,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	       if((now.tv_usec > start.tv_usec) || now.tv_sec > start.tv_sec )
 	       {
 		  _rwlock._internal_lock.unlock();
-		  caught = new TimeOut(pegasus_thread_self());
+		  caught.reset(new TimeOut(pegasus_thread_self()));
 		  goto throw_from_here;
 	       }
 	       pegasus_yield();
@@ -203,7 +204,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	    catch(IPCException& e) 
 	    {
 	       _rwlock._internal_lock.unlock();
-	       caught = &e;
+	       caught.reset(&e);
 	       goto throw_from_here;
 	    }
 	 }
@@ -216,7 +217,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	    catch (IPCException& e) 
 	    {
 	       _rwlock._internal_lock.unlock();
-	       caught = &e;
+	       caught.reset(&e);
 	       goto throw_from_here;
 	    }
 	 }
@@ -229,7 +230,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	    catch(IPCException& e)
 	    {
 	       _rwlock._internal_lock.unlock();
-	       caught = &e;
+	       caught.reset(&e);
 	       goto throw_from_here;
 	    }
 	 }
@@ -254,7 +255,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	    if(_writers.value() > 0)
 	    {
 	       _rwlock._internal_lock.unlock();
-	       caught = new WaitFailed(pegasus_thread_self());
+	       caught.reset(new WaitFailed(pegasus_thread_self()));
 	       goto throw_from_here;
 	    }
 	 }
@@ -275,7 +276,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	       if((now.tv_usec > start.tv_usec) || (now.tv_sec > start.tv_sec))
 	       {
 		  _rwlock._internal_lock.unlock();
-		  caught = new TimeOut(pegasus_thread_self());
+		  caught.reset(new TimeOut(pegasus_thread_self()));
 		  goto throw_from_here;
 	       }
 	       pegasus_yield();
@@ -300,7 +301,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	       // unlock the object
 	      e = e;
 	       _rwlock._internal_lock.unlock();
-	       caught = new TooManyReaders(pegasus_thread_self());
+	       caught.reset(new TooManyReaders(pegasus_thread_self()));
 	    }
 	 }
 	 else if(milliseconds == -1) // infinite wait
@@ -312,7 +313,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	    catch(IPCException& e)
 	    {
 	       _rwlock._internal_lock.unlock();
-	       caught = &e;
+	       caught.reset(&e);
 	       goto throw_from_here;
 	    }
 	 }      
@@ -325,7 +326,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	    catch(IPCException& e)
 	    {
 	       _rwlock._internal_lock.unlock();
-	       caught = &e;
+	       caught.reset(&e);
 	       goto throw_from_here;
 	    }
 	 }
@@ -340,8 +341,8 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
   throw_from_here:
       native_cleanup_pop(0);
    } // cleanup stack frame 
-   if(caught != NULL)
-      throw(*caught);
+   if(caught.get() != 0)
+      throw(*caught.release());
    return;
 }
 
@@ -583,13 +584,13 @@ void extricate_condition(void *parm)
 
 Condition::Condition(void) : _disallow(0), _condition()
 { 
-   _cond_mutex = new Mutex();
+   _cond_mutex.reset(new Mutex());
    _destroy_mut = true;
 } 
 
 Condition::Condition(const Mutex & mutex) : _disallow(0), _condition()
 {
-   _cond_mutex = const_cast<Mutex *>(&mutex);
+   _cond_mutex.reset(const_cast<Mutex *>(&mutex));
    _destroy_mut = false;
 }
 
@@ -610,7 +611,9 @@ Condition::~Condition(void)
       pegasus_yield();
    }
    if(_destroy_mut == true)
-      delete _cond_mutex;
+      _cond_mutex.reset();
+   else
+      _cond_mutex.release();
 }
 
 void Condition::signal(PEGASUS_THREAD_TYPE caller)

@@ -29,6 +29,7 @@
 // of AtomicInt class, exceptions
 //         Ramnath Ravindran (Ramnath.Ravindran@compaq.com)
 //         David Eger (dteger@us.ibm.com)
+//         Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -412,7 +413,7 @@ int ReadWriteSem::write_count()
 /// Conditions are implemented as process-wide condition variables
 Condition::Condition() : _disallow(0)
 {
-   _cond_mutex = new Mutex();
+   _cond_mutex.reset(new Mutex());
    _destroy_mut = true;
    pthread_cond_init((PEGASUS_COND_TYPE *)&_condition, 0);
 
@@ -429,7 +430,7 @@ Condition::Condition() : _disallow(0)
 //#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
 Condition::Condition(const Mutex& mutex)  : _disallow(0)
 {
-   _cond_mutex = const_cast<Mutex *>(&mutex);
+   _cond_mutex.reset(const_cast<Mutex *>(&mutex));
    _destroy_mut = false;
    pthread_cond_init((PEGASUS_COND_TYPE *)&_condition, 0);
 }
@@ -451,7 +452,9 @@ Condition::~Condition()
       pegasus_yield();
    }
    if(_destroy_mut == true)
-      delete _cond_mutex;
+      _cond_mutex.reset();
+   else
+      _cond_mutex.release();
 }
 
  void Condition::signal(PEGASUS_THREAD_TYPE caller) 

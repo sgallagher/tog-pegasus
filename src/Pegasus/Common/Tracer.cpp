@@ -26,12 +26,12 @@
 // Author: Sushma Fernandes, Hewlett-Packard Company (sushma_fernandes@hp.com)
 //
 // Modified By: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
+//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/System.h>
@@ -84,13 +84,13 @@ const Uint32 Tracer::_STRLEN_MAX_PID_TID = 20;
 Tracer::Tracer()
 {
     // Initialize Trace File Handler
-    _traceHandler=new TraceFileHandler();
+    _traceHandler.reset(new TraceFileHandler());
     _traceLevelMask=0;
-    _traceComponentMask=new Boolean[_NUM_COMPONENTS];
+    _traceComponentMask.reset(new Boolean[_NUM_COMPONENTS]);
 
     // Initialize ComponentMask array to false
     for (Uint32 index=0;index < _NUM_COMPONENTS;
-	_traceComponentMask[index++]=false);
+	(_traceComponentMask.get())[index++]=false);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -98,8 +98,6 @@ Tracer::Tracer()
 ////////////////////////////////////////////////////////////////////////////////
 Tracer::~Tracer()
 {
-    delete []_traceComponentMask;
-    delete _traceHandler;
     delete _tracerInstance;
 }
 
@@ -385,7 +383,7 @@ Boolean Tracer::_isTraceEnabled(const Uint32 traceComponent,
     {
 	return false;
     }
-    return ((instance->_traceComponentMask[traceComponent]) &&
+    return (((instance->_traceComponentMask.get())[traceComponent]) &&
 	    (traceLevel  & instance->_traceLevelMask));
 }
 
@@ -628,13 +626,13 @@ void Tracer::setTraceComponents( const String traceComponents )
         if (String::equalNoCase(componentStr,"ALL"))
         {
             for (index=0; index < _NUM_COMPONENTS;
-                    _getInstance()->_traceComponentMask[index++] = true);
+                    (_getInstance()->_traceComponentMask.get())[index++] = true);
             return ;
         }
 
         // initialise ComponentMask array to False
         for (index = 0;index < _NUM_COMPONENTS;
-	        _getInstance()->_traceComponentMask[index++] = false);
+	        (_getInstance()->_traceComponentMask.get())[index++] = false);
 
  	// Append _COMPONENT_SEPARATOR to the end of the traceComponents
         componentStr.append(_COMPONENT_SEPARATOR);
@@ -653,7 +651,7 @@ void Tracer::setTraceComponents( const String traceComponents )
 	        if (String::equalNoCase(
 		       componentName,TRACE_COMPONENT_LIST[index]))
 	        {
-                    _getInstance()->_traceComponentMask[index]=true;
+                    (_getInstance()->_traceComponentMask.get())[index]=true;
 
                     // Found component, break from the loop
                     break;
@@ -672,7 +670,7 @@ void Tracer::setTraceComponents( const String traceComponents )
     {
         // initialise ComponentMask array to False
         for (Uint32 index = 0;index < _NUM_COMPONENTS;
-                 _getInstance()->_traceComponentMask[index++] = false);
+                 (_getInstance()->_traceComponentMask.get())[index++] = false);
     }
     return ;
 }

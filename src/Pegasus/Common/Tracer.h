@@ -26,6 +26,7 @@
 // Author: Sushma Fernandes, Hewlett-Packard Company (sushma_fernandes@hp.com)
 //
 // Modified By: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
+//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -41,6 +42,7 @@
 #include <Pegasus/Common/TraceComponents.h>
 #include <Pegasus/Common/TraceFileHandler.h>
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/AutoPtr.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -351,9 +353,9 @@ private:
     static const Uint32 _STRLEN_MAX_PID_TID;
     static const Boolean _SUCCESS;
     static const Boolean _FAILURE;
-    Boolean*            _traceComponentMask;
+    AutoArrayPtr<Boolean>    _traceComponentMask; //PEP101
     Uint32              _traceLevelMask;
-    TraceFileHandler*   _traceHandler;
+    AutoPtr<TraceFileHandler>   _traceHandler; //PEP101
     static Tracer*      _tracerInstance;
 
     // Message Strings for function Entry and Exit

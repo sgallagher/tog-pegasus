@@ -28,6 +28,7 @@
 // Modified By: Rudy Schuet (rudy.schuet@compaq.com) 11/12/01
 //              added nsk platform support
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -59,8 +60,7 @@ void language_delete(void * data)
 {
    if( data != NULL)
    {
-      AcceptLanguages * al = static_cast<AcceptLanguages *>(data);
-      delete al;
+      AutoPtr<AcceptLanguages> al(static_cast<AcceptLanguages *>(data));
    }
 }
 // l10n end
@@ -80,25 +80,25 @@ Boolean Thread::_key_error = false;
 #ifndef PEGASUS_THREAD_CLEANUP_NATIVE
 void Thread::cleanup_push( void (*routine)(void *), void *parm) throw(IPCException)
 {
-    cleanup_handler *cu = new cleanup_handler(routine, parm);
+    AutoPtr<cleanup_handler> cu(new cleanup_handler(routine, parm));
     try
     {
-	_cleanup.insert_first(cu);
+	_cleanup.insert_first(cu.get());
     }
     catch(IPCException&)
     {
-	delete cu;
 	throw;
     }
+    cu.release();
     return;
 }
 	
 void Thread::cleanup_pop(Boolean execute) throw(IPCException)
 {
-    cleanup_handler *cu ;
+    AutoPtr<cleanup_handler> cu ;
     try
     {
-	cu = _cleanup.remove_first() ;
+	cu.reset(_cleanup.remove_first());
     }
     catch(IPCException&)
     {
@@ -106,7 +106,6 @@ void Thread::cleanup_pop(Boolean execute) throw(IPCException)
      }
     if(execute == true)
 	cu->execute();
-    delete cu;
 }
 		
 #endif

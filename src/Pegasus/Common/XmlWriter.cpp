@@ -30,6 +30,7 @@
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
+//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -37,7 +38,6 @@
 #include <cstdlib>
 #include <cstdio>
 #include "Constants.h"
-#include "Destroyer.h"
 #include "CIMClass.h"
 #include "CIMClassRep.h"
 #include "CIMInstance.h"
@@ -3039,9 +3039,9 @@ void XmlWriter::indentedPrint(
     const char* text, 
     Uint32 indentChars)
 {
-    char* tmp = strcpy(new char[strlen(text) + 1], text);
+    AutoArrayPtr<char> tmp(strcpy(new char[strlen(text) + 1], text));
 
-    XmlParser parser(tmp);
+    XmlParser parser(tmp.get());
     XmlEntry entry;
     Stack<const char*> stack;
 
@@ -3130,7 +3130,6 @@ void XmlWriter::indentedPrint(
 	os << PEGASUS_STD(endl);
     }
 
-    delete [] tmp;
 }
 
 //------------------------------------------------------------------------------

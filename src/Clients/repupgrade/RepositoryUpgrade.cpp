@@ -30,7 +30,8 @@
 // Author : Sushma Fernandes, Hewlett-Packard Company
 //         (sushma_fernandes@hp.com)
 //
-// Modified By:
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -269,7 +270,7 @@ const char* RepositoryUpgrade::_ALL = "a";
 #if defined(PEGASUS_USE_RELEASE_DIRS) && defined(PEGASUS_OS_HPUX)
     const String OLD_REPOSITORY_PATH = "/var/opt/wbem/prev_repository";
     const String NEW_REPOSITORY_PATH = "/var/opt/wbem/repository";
-    const String RepositoryUpgrade::_LOG_PATH  = "/var/opt/wbem/upgrade"; 
+    const String RepositoryUpgrade::_LOG_PATH  = "/var/opt/wbem/upgrade";
 #else
     const String RepositoryUpgrade::_LOG_PATH
                                               = "./";
@@ -336,7 +337,7 @@ RepositoryUpgrade::RepositoryUpgrade ()
     _usage = String (_USAGE);
     _usage.append (COMMAND_NAME);
 
-#if !(defined(PEGASUS_USE_RELEASE_DIRS) && defined (PEGASUS_OS_HPUX)) 
+#if !(defined(PEGASUS_USE_RELEASE_DIRS) && defined (PEGASUS_OS_HPUX))
     _usage.append (" -").append (_OPTION_OLD_REPOSITORY_PATH);
     _usage.append (" old_repository_path");
     _usage.append (" -").append (_OPTION_NEW_REPOSITORY_PATH);
@@ -365,7 +366,7 @@ RepositoryUpgrade::RepositoryUpgrade ()
     // Options description
     //
     _usage.append("Options : \n");
-#if !(defined(PEGASUS_USE_RELEASE_DIRS) && defined (PEGASUS_OS_HPUX)) 
+#if !(defined(PEGASUS_USE_RELEASE_DIRS) && defined (PEGASUS_OS_HPUX))
     _usage.append("    -o              ");
     _usage.append("- Specifies the old repository path\n");
 
@@ -377,7 +378,7 @@ RepositoryUpgrade::RepositoryUpgrade ()
     _usage.append("    -v, --version   - Display CIM Server version number\n");
 
     //l10n localize usage
-#if defined(PEGASUS_USE_RELEASE_DIRS) && defined (PEGASUS_OS_HPUX) 
+#if defined(PEGASUS_USE_RELEASE_DIRS) && defined (PEGASUS_OS_HPUX)
     MessageLoaderParms menuparms(
         "Clients.repupgrade.RepositoryUpgradeRelease.MENU.STANDARD", _usage);
 #else
@@ -394,7 +395,7 @@ RepositoryUpgrade::RepositoryUpgrade ()
    _oldRepositoryPathSet = false;
    _newRepositoryPathSet = false;
 
-   // 
+   //
    // If the PEGASUS_USE_RELEASE_DIRS is set make the old and new
    // repository paths fixed.
    //
@@ -407,7 +408,7 @@ RepositoryUpgrade::RepositoryUpgrade ()
 
    _oldRepository = 0;
    _newRepository = 0;
-    
+
 }
 
 RepositoryUpgrade::~RepositoryUpgrade ()
@@ -457,7 +458,7 @@ void RepositoryUpgrade::setCommand (Uint32 argc, char* argv [])
     //
     //  Construct optString
     //
-#if !(defined(PEGASUS_USE_RELEASE_DIRS) && defined (PEGASUS_OS_HPUX)) 
+#if !(defined(PEGASUS_USE_RELEASE_DIRS) && defined (PEGASUS_OS_HPUX))
     optString.append (_OPTION_OLD_REPOSITORY_PATH);
     optString.append (getoopt::GETOPT_ARGUMENT_DESIGNATOR);
     optString.append (_OPTION_NEW_REPOSITORY_PATH);
@@ -509,7 +510,7 @@ void RepositoryUpgrade::setCommand (Uint32 argc, char* argv [])
                     throw e;
                 }
 
-               _optionType = _OPTION_TYPE_HELP;            
+               _optionType = _OPTION_TYPE_HELP;
             }
             else if (getOpts [i].getopt () == LONG_VERSION)
             {
@@ -540,7 +541,7 @@ void RepositoryUpgrade::setCommand (Uint32 argc, char* argv [])
 
             switch (c)
             {
-#if !(defined(PEGASUS_USE_RELEASE_DIRS) && defined(PEGASUS_OS_HPUX)) 
+#if !(defined(PEGASUS_USE_RELEASE_DIRS) && defined(PEGASUS_OS_HPUX))
                 case _OPTION_OLD_REPOSITORY_PATH:
                 {
                     if (getOpts.isSet (_OPTION_OLD_REPOSITORY_PATH) > 1)
@@ -559,7 +560,7 @@ void RepositoryUpgrade::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one operation option was found
                         //
-                        UnexpectedOptionException 
+                        UnexpectedOptionException
                              e (_OPTION_OLD_REPOSITORY_PATH);
                         throw e;
                     }
@@ -588,7 +589,7 @@ void RepositoryUpgrade::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one operation option was found
                         //
-                        UnexpectedOptionException 
+                        UnexpectedOptionException
                              e (_OPTION_NEW_REPOSITORY_PATH);
                         throw e;
                     }
@@ -659,7 +660,7 @@ void RepositoryUpgrade::setCommand (Uint32 argc, char* argv [])
     }
 
     // Check if an operation type was not specified.
-#if !(defined(PEGASUS_USE_RELEASE_DIRS) && defined (PEGASUS_OS_HPUX)) 
+#if !(defined(PEGASUS_USE_RELEASE_DIRS) && defined (PEGASUS_OS_HPUX))
     if ( _optionType == _OPTION_TYPE_UNINITIALIZED )
     {
         //
@@ -697,7 +698,7 @@ Uint32 RepositoryUpgrade::execute (
     //
     if ( _oldRepositoryPathSet && !FileSystem::exists (_oldRepositoryPath))
     {
-        cerr << localizeMessage ( MSG_PATH, 
+        cerr << localizeMessage ( MSG_PATH,
                                   REPOSITORY_DOES_NOT_EXIST_KEY,
                                   REPOSITORY_DOES_NOT_EXIST,
                                   _oldRepositoryPath ) << endl;
@@ -755,10 +756,10 @@ Uint32 RepositoryUpgrade::execute (
     }
     catch (...)
     {
-        errPrintWriter << localizeMessage ( MSG_PATH, 
+        errPrintWriter << localizeMessage ( MSG_PATH,
                                   REPOSITORY_UPGRADE_UNKNOWN_ERROR_KEY,
                                   REPOSITORY_UPGRADE_UNKNOWN_ERROR )
-             << localizeMessage ( MSG_PATH, 
+             << localizeMessage ( MSG_PATH,
                                   REPOSITORY_UPGRADE_FAILURE_KEY,
                                   REPOSITORY_UPGRADE_FAILURE );
         return 1;
@@ -779,7 +780,7 @@ void RepositoryUpgrade::upgradeRepository()
     //
     _oldRepository = new CIMRepository (_oldRepositoryPath);
     _newRepository = new CIMRepository (_newRepositoryPath);
-  
+
     //
     // Get Namespace information for old Repository.
     //
@@ -789,20 +790,20 @@ void RepositoryUpgrade::upgradeRepository()
     // Get Namespace information for new Repository.
     //
     newNamespaces = _newRepository->enumerateNameSpaces();
- 
+
     //
     // Check if the namespaces in the old repository exist in the new.
     // If they don't exist, create them and populate.
     //
     missingNamespaces = _compareNamespaces( oldNamespaces, newNamespaces );
- 
+
     if ( missingNamespaces.size() > 0 )
     {
-        // 
+        //
         // Need to add the missing namespaces (includes classes &
         // qualifiers) to the new repository.
         //
-        _addNamespaces(missingNamespaces); 
+        _addNamespaces(missingNamespaces);
 
         //
         // Since the missing namespaces have been processed, remove
@@ -827,10 +828,10 @@ void RepositoryUpgrade::upgradeRepository()
     }
 
     //
-    // Get the class information for pre-existing namespaces 
+    // Get the class information for pre-existing namespaces
     // in the old and new repositories.
-    // 
-    
+    //
+
     Uint32 n = oldNamespaces.size();
 
     Array<CIMName> 			oldClassNames;
@@ -846,7 +847,7 @@ void RepositoryUpgrade::upgradeRepository()
         _addQualifiers (oldNamespaces[i]);
 
 #ifdef REPUPGRADE_DEBUG
-        cout << "Now processing namespace : " 
+        cout << "Now processing namespace : "
                 << oldNamespaces[i] << " i=" << i << endl;
 #endif
 
@@ -858,20 +859,20 @@ void RepositoryUpgrade::upgradeRepository()
                            className,
                            true);
 
-        newClassNames = _newRepository->enumerateClassNames( 
-                                 oldNamespaces[i], 
-                                 className, 
+        newClassNames = _newRepository->enumerateClassNames(
+                                 oldNamespaces[i],
+                                 className,
                                  true);
-        
+
         //
         // Process the class list.
         //
         if ( oldClassNames.size() > 0 )
         {
             _processClasses(
-            oldNamespaces[i], 
-            oldClassNames, 
-            newClassNames); 
+            oldNamespaces[i],
+            oldClassNames,
+            newClassNames);
         }
     }
 
@@ -883,7 +884,7 @@ void RepositoryUpgrade::upgradeRepository()
 }
 
 Array<CIMNamespaceName> RepositoryUpgrade::_compareNamespaces(
-                           const Array<CIMNamespaceName>& oldNamespaces, 
+                           const Array<CIMNamespaceName>& oldNamespaces,
                            const Array<CIMNamespaceName>& newNamespaces)
 {
     Array<CIMNamespaceName>     namespaceNames;
@@ -912,10 +913,10 @@ void RepositoryUpgrade::_addQualifiers (const CIMNamespaceName namespaceName)
 
     for (Uint32 j=0 ; j<n ; j++)
     {
-        try 
+        try
         {
             // Check if the qualifier exists in the new repository.
-            CIMQualifierDecl qual = 
+            CIMQualifierDecl qual =
                _newRepository->getQualifier(namespaceName,
                                qualifiers[j].getName());
 
@@ -927,7 +928,7 @@ void RepositoryUpgrade::_addQualifiers (const CIMNamespaceName namespaceName)
         }
         catch (CIMException& ce)
         {
-            // 
+            //
             // Check if the error returned was that the qualifier does not
             // exist. If not propagate the error.
             //
@@ -986,7 +987,7 @@ void RepositoryUpgrade::_addQualifiers (const CIMNamespaceName namespaceName)
 void RepositoryUpgrade::_addNamespaces(
                          const Array<CIMNamespaceName>& namespaces)
 {
-    
+
     Array<CIMName> 			oldClassNames;
     Array<CIMName> 			newClassNames;
     CIMName				className;
@@ -999,7 +1000,7 @@ void RepositoryUpgrade::_addNamespaces(
 #endif
         try
         {
-            _newRepository->createNameSpace(namespaces[i]); 
+            _newRepository->createNameSpace(namespaces[i]);
         }
         catch (Exception& e)
         {
@@ -1008,7 +1009,7 @@ void RepositoryUpgrade::_addNamespaces(
                                REPOSITORY_UPGRADE_FAILURE) +
 
                              e.getMessage() +
- 
+
                              localizeMessage (MSG_PATH,
                                NAMESPACE_CREATION_ERROR_KEY,
                                NAMESPACE_CREATION_ERROR,
@@ -1021,7 +1022,7 @@ void RepositoryUpgrade::_addNamespaces(
             String message = localizeMessage (MSG_PATH,
                                REPOSITORY_UPGRADE_FAILURE_KEY,
                                REPOSITORY_UPGRADE_FAILURE) +
-                             
+
                              localizeMessage (MSG_PATH,
                                NAMESPACE_CREATION_ERROR_KEY,
                                NAMESPACE_CREATION_ERROR,
@@ -1049,26 +1050,26 @@ void RepositoryUpgrade::_addNamespaces(
 
         if (oldClassNames.size() > 0)
         {
-            _processNewClasses (namespaces[i], 
-                            oldClassNames, 
+            _processNewClasses (namespaces[i],
+                            oldClassNames,
                             newClassNames);
         }
 
         oldClassNames.clear();
 	newClassNames.clear();
- 
+
     }
 }
 
 void RepositoryUpgrade::_processClasses(
-                      const CIMNamespaceName& namespaceName, 
-                      const Array<CIMName>&   oldClasses , 
+                      const CIMNamespaceName& namespaceName,
+                      const Array<CIMName>&   oldClasses ,
                       Array<CIMName>&   newClasses)
 {
     Array<CIMName>		missingClasses;
     Array<CIMName>		existingClasses;
 
-    // 
+    //
     // Separate the existing and missing classes.
     //
 
@@ -1083,7 +1084,7 @@ void RepositoryUpgrade::_processClasses(
         if ( !Contains(newClasses, oldClasses[oldclasses]) )
         {
 #ifdef REPUPGRADE_DEBUG
-            cout << "Now appending to missing: " 
+            cout << "Now appending to missing: "
                  << oldClasses[oldclasses] << endl;
 #endif
             missingClasses.append(oldClasses[oldclasses]);
@@ -1091,13 +1092,13 @@ void RepositoryUpgrade::_processClasses(
         else
         {
 #ifdef REPUPGRADE_DEBUG
-        cout << "Now appending to existing: " 
+        cout << "Now appending to existing: "
              << oldClasses[oldclasses] << endl;
 #endif
             existingClasses.append(oldClasses[oldclasses]);
-        } 
+        }
     }
-           
+
     // Check if any missing classes existed and add them.
     if (missingClasses.size() > 0)
     {
@@ -1128,9 +1129,9 @@ void RepositoryUpgrade::_processExistingClasses(
 	String 			newVersion;
 	Boolean 		oldVersionFound=false;
 	Boolean 		newVersionFound=false;
-   
+
 #ifdef REPUPGRADE_DEBUG
-        cout << "In Namespace: " << namespaceName  
+        cout << "In Namespace: " << namespaceName
              << "Existing Classname: " << existingClasses[i] << endl;
 #endif
 
@@ -1158,18 +1159,18 @@ void RepositoryUpgrade::_processExistingClasses(
         }
         catch (...)
         {
-            String errMsg = localizeMessage ( MSG_PATH, 
+            String errMsg = localizeMessage ( MSG_PATH,
                                               REPOSITORY_UPGRADE_FAILURE_KEY,
                                               REPOSITORY_UPGRADE_FAILURE )
-                            + localizeMessage ( MSG_PATH,  
+                            + localizeMessage ( MSG_PATH,
                                                 OLD_CLASS_RETRIEVAL_ERROR_KEY,
-                                                OLD_CLASS_RETRIEVAL_ERROR, 
+                                                OLD_CLASS_RETRIEVAL_ERROR,
                                                 existingClasses[i].getString(),
                                                 namespaceName.getString());
 
             throw RepositoryUpgradeException (errMsg);
         }
-   
+
         try
         {
             newClass = _newRepository->getClass(namespaceName,
@@ -1192,10 +1193,10 @@ void RepositoryUpgrade::_processExistingClasses(
         }
         catch (...)
         {
-            String errMsg = localizeMessage ( MSG_PATH, 
+            String errMsg = localizeMessage ( MSG_PATH,
                                               REPOSITORY_UPGRADE_FAILURE_KEY,
                                               REPOSITORY_UPGRADE_FAILURE )
-                            + localizeMessage ( MSG_PATH, 
+                            + localizeMessage ( MSG_PATH,
                                                 NEW_CLASS_RETRIEVAL_ERROR_KEY,
                                                 NEW_CLASS_RETRIEVAL_ERROR,
                                                 existingClasses[i].getString(),
@@ -1227,20 +1228,20 @@ void RepositoryUpgrade::_processExistingClasses(
         //
         // 1. If the class in old Repository contains a version number
         //    and the new Repository class does not have a version number then
-        //    print a warning message 
+        //    print a warning message
         // 2. If the class in old Repository contains a higher version number
-        //    than the new Repository class then print a warning message 
+        //    than the new Repository class then print a warning message
         //
         if ( oldVersionFound && !newVersionFound )
         {
-            // 
+            //
             // The old Repository has a higher version of the class.
             // Log a warning message and ignore the class.
             //
             cerr << localizeMessage (MSG_PATH,
                                      HIGHER_VERSION_OLD_CLASS_KEY,
                                      HIGHER_VERSION_OLD_CLASS,
-                                     oldClass.getClassName().getString(), 
+                                     oldClass.getClassName().getString(),
                                      namespaceName.getString()) << endl;
         }
         else if ( oldVersionFound && newVersionFound )
@@ -1255,14 +1256,14 @@ void RepositoryUpgrade::_processExistingClasses(
                 cerr << localizeMessage (MSG_PATH,
                                          HIGHER_VERSION_OLD_CLASS_KEY,
                                          HIGHER_VERSION_OLD_CLASS,
-                                         oldClass.getClassName().getString(), 
+                                         oldClass.getClassName().getString(),
                                          namespaceName.getString()) << endl;
-                                         
+
             }
         }
     }
 }
-             
+
 //
 // Return true if old repository class has a higher version, else return false.
 //
@@ -1292,11 +1293,11 @@ Boolean RepositoryUpgrade::_compareVersion(const String& oldVersion,
     // PEGASUS_ASSERT(retVal != false);
 
 #ifdef REPUPGRADE_DEBUG
-    cout << "old Version : " << iMajorOld << "." 
-                             << iMinorOld << "." 
+    cout << "old Version : " << iMajorOld << "."
+                             << iMinorOld << "."
                              << iUpdateOld << endl;
-    cout << "new Version : " << iMajorNew << "." 
-                             << iMinorNew << "." 
+    cout << "new Version : " << iMajorNew << "."
+                             << iMinorNew << "."
                              << iUpdateNew << endl;
 #endif
 
@@ -1308,7 +1309,7 @@ Boolean RepositoryUpgrade::_compareVersion(const String& oldVersion,
     else if ( iMajorOld == iMajorNew )
     {
         if ( iMinorOld > iMinorNew )
-        { 
+        {
             retVal = true;
         }
         else if ( iMinorOld == iMinorNew )
@@ -1325,7 +1326,7 @@ Boolean RepositoryUpgrade::_compareVersion(const String& oldVersion,
 //
 // ATTN-SF-P3-20050209: The following needs to be consolidated with
 //                      cimmofParser::verifyVersion method.
-// 
+//
 Boolean RepositoryUpgrade::_parseVersion(const String& version,
                                                Sint32& iMajor,
                                                Sint32& iMinor,
@@ -1343,7 +1344,7 @@ Boolean RepositoryUpgrade::_parseVersion(const String& version,
     if (version.size())
     {
         // If "V" specified as first character go ahead and ignore
-        if (isdigit(version[0]))
+        if (version[0].isDigit())
         {
             pos = 0;
             iMajor = version.find(0, CHAR_PERIOD);
@@ -1376,7 +1377,7 @@ Boolean RepositoryUpgrade::_parseVersion(const String& version,
         // There should be no additional identifiers after the update identifier
         if (iUpdate >= 0 && iUpdate != (Sint32)PEG_NOT_FOUND)
         {
-            // Examples of invalid version:  "2.7.0.", "2.7.0.1", 
+            // Examples of invalid version:  "2.7.0.", "2.7.0.1",
             //                               "2.7.0.a", "2.7.0.1."
             return false;
         }
@@ -1405,7 +1406,7 @@ Boolean RepositoryUpgrade::_parseVersion(const String& version,
         }
         for (int i = pos; i < endM; i++)
         {
-             if (!isdigit(version[i]))
+             if (!version[i].isDigit())
              {
                  // Example of invalid version:  "1B.2D.3F"
                  return false;
@@ -1429,27 +1430,27 @@ Boolean RepositoryUpgrade::_parseVersion(const String& version,
             }
             for (int i = iMajor+1; i < endN; i++)
             {
-                 if (!isdigit(version[i]))
+                 if (!version[i].isDigit())
                  {
                      // Example of invalid version:  "99.CD", "11.2D.3F"
                      return false;
                  }
             }
         }
-  
+
         // Check Update identifier for invalid format
         if (iMinor > 0)
         {
             for (int i = iMinor+1; i < (int)version.size(); i++)
             {
-                 if (!isdigit(version[i]))
+                 if (!version[i].isDigit())
                  {
                       // Example of invalid version: "99.88.EF", "11.22.3F"
                       return false;
                  }
             }
         }
-  
+
         // Set major, minor, and update values as integers
         if (iMajor >= 0)
         {
@@ -1480,8 +1481,8 @@ Boolean RepositoryUpgrade::_parseVersion(const String& version,
 }
 
 void RepositoryUpgrade::_processNewClasses(
-                          const CIMNamespaceName& namespaceName, 
-                          Array<CIMName>&   missingClasses, 
+                          const CIMNamespaceName& namespaceName,
+                          Array<CIMName>&   missingClasses,
                           Array<CIMName>&   currClasses)
 {
     Boolean		allSuperClassesExist = true;
@@ -1489,12 +1490,12 @@ void RepositoryUpgrade::_processNewClasses(
     Uint32 		superClassCount      = 0;
     Uint32 		saveCount            = 0;
     Array<CIMName>      superClassList;
-    
+
     while (missingCount > 0)
     {
         for ( Uint32 i=0; i < missingCount; i++)
         {
-            allSuperClassesExist 	= true;	
+            allSuperClassesExist 	= true;
 
             //
             // Check if the class already exists in the new repository.
@@ -1515,10 +1516,10 @@ void RepositoryUpgrade::_processNewClasses(
                 while ( superClassCount > 0 && allSuperClassesExist)
                 {
                     //
-                    // Check if all the super classes exist in the 
+                    // Check if all the super classes exist in the
                     // new repository.
                     //
-                    if (!Contains(currClasses, 
+                    if (!Contains(currClasses,
                                      superClassList[superClassCount-1]))
                     {
                         allSuperClassesExist = false;
@@ -1529,13 +1530,13 @@ void RepositoryUpgrade::_processNewClasses(
 
                 //
                 // If all the super classes existed or if the class did not have
-                // any super classes then try to add the class to the 
+                // any super classes then try to add the class to the
                 // new Repository.
                 //
                 if (allSuperClassesExist || (saveCount==0))
                 {
-                    Uint32 retCode = 
-                          _addClassToRepository (namespaceName, 
+                    Uint32 retCode =
+                          _addClassToRepository (namespaceName,
                                              missingClasses[i],
                                              currClasses);
 
@@ -1553,12 +1554,12 @@ void RepositoryUpgrade::_processNewClasses(
 
             missingCount = missingClasses.size();
             superClassList.clear();
-           
-        } 
-    } 
+
+        }
+    }
 }
 
-Uint32 RepositoryUpgrade::_addClassToRepository ( 
+Uint32 RepositoryUpgrade::_addClassToRepository (
                       const CIMNamespaceName& namespaceName,
                       const CIMName&          className,
                       const Array<CIMName>    existingClasses)
@@ -1593,10 +1594,10 @@ Uint32 RepositoryUpgrade::_addClassToRepository (
     }
     catch (...)
     {
-        String message = localizeMessage ( MSG_PATH, 
+        String message = localizeMessage ( MSG_PATH,
                                            REPOSITORY_UPGRADE_FAILURE_KEY,
                                            REPOSITORY_UPGRADE_FAILURE ) +
-                         localizeMessage ( MSG_PATH, 
+                         localizeMessage ( MSG_PATH,
                                            OLD_CLASS_RETRIEVAL_ERROR_KEY,
                                            OLD_CLASS_RETRIEVAL_ERROR,
                                            className.getString(),
@@ -1643,8 +1644,8 @@ Uint32 RepositoryUpgrade::_addClassToRepository (
 
                 //
                 // Check if the error was due to a non-existent class, if so
-                // will try to create this class later. This error could be 
-                // because a dependent class of an Association class 
+                // will try to create this class later. This error could be
+                // because a dependent class of an Association class
                 // has not yet been created.
                 //
                 if (! Contains( existingClasses, className))
@@ -1657,28 +1658,28 @@ Uint32 RepositoryUpgrade::_addClassToRepository (
                 }
                 else
                 {
-                    _logCreateClassError (namespaceName, 
+                    _logCreateClassError (namespaceName,
                                               oldClass,
-                                              (ce.getMessage()+". ")); 
+                                              (ce.getMessage()+". "));
                 }
             }
             else
             {
-                _logCreateClassError (namespaceName, 
+                _logCreateClassError (namespaceName,
                                           oldClass,
-                                          (ce.getMessage()+". ")); 
+                                          (ce.getMessage()+". "));
             }
         }
         catch (Exception& e)
         {
-            _logCreateClassError (namespaceName, 
-                                      oldClass, 
+            _logCreateClassError (namespaceName,
+                                      oldClass,
                                       (e.getMessage()+". "));
         }
         catch (...)
         {
-            _logCreateClassError (namespaceName, 
-                                      oldClass, 
+            _logCreateClassError (namespaceName,
+                                      oldClass,
                                       String::EMPTY);
         }
 #ifdef ENABLE_MODULE_PROCESSING
@@ -1700,7 +1701,7 @@ void RepositoryUpgrade::_addInstances(void)
 
         for ( Uint32 i = 0; i < oldNamespaces.size(); i++)
         {
-            // 
+            //
             // Get the list of class names.
             //
             Array<CIMName>                  oldClassNames;
@@ -1721,7 +1722,7 @@ void RepositoryUpgrade::_addInstances(void)
                 for ( Uint32 ctr=0; ctr < oldClassNames.size(); ctr++)
                 {
 #ifdef REPUPGRADE_DEBUG
-            cout << "Processing namespace : " << oldNamespaces[i] 
+            cout << "Processing namespace : " << oldNamespaces[i]
                  << "class name : " <<  oldClassNames[ctr] << endl;
 #endif
                     Array<CIMInstance>         instances;
@@ -1738,30 +1739,30 @@ void RepositoryUpgrade::_addInstances(void)
                         if (instances.size() > 0)
                         {
 #ifdef REPUPGRADE_DEBUG
-                            cout << "Found instances : " 
-                                 << instances.size() << endl; 
+                            cout << "Found instances : "
+                                 << instances.size() << endl;
 #endif
                             for ( ictr=0; ictr<instances.size(); ictr++)
                             {
                                 try
                                 {
                                     //
-                                    // Check if the instance must be created. 
-                                    // If true, use the processed instance.  
-                                    // If an SSP Module has chosen to ignore 
-                                    // the instance then skip the 
+                                    // Check if the instance must be created.
+                                    // If true, use the processed instance.
+                                    // If an SSP Module has chosen to ignore
+                                    // the instance then skip the
                                     // instance creation.
                                     //
-                                    CIMInstance processedInstance = 
+                                    CIMInstance processedInstance =
                                                instances[ictr].clone();
 
 #ifdef ENABLE_MODULE_PROCESSING
-                                    if (!_invokeModules(instances[ictr], 
+                                    if (!_invokeModules(instances[ictr],
                                               processedInstance))
                                     {
 #ifdef REPUPGRADE_DEBUG
-                                        cerr << "Ignoring instance creation : " 
-                                        << instances[ictr].getPath().toString() 
+                                        cerr << "Ignoring instance creation : "
+                                        << instances[ictr].getPath().toString()
                                         << endl;
 #endif
                                         continue;
@@ -1786,7 +1787,7 @@ void RepositoryUpgrade::_addInstances(void)
                                     if (ce.getCode() == CIM_ERR_ALREADY_EXISTS)
                                     {
 #ifdef REPUPGRADE_DEBUG
-                                       cout << 
+                                       cout <<
                                        "Instance already exists." << endl;
 #endif
                                     }
@@ -1795,28 +1796,28 @@ void RepositoryUpgrade::_addInstances(void)
                                         _logCreateInstanceError(
                                          oldNamespaces[i],
                                                         instances[ictr],
-                                         (ce.getMessage()+". ")); 
+                                         (ce.getMessage()+". "));
                                     }
-                                } 
+                                }
                                 catch (Exception& e)
                                 {
                                     _logCreateInstanceError(oldNamespaces[i],
                                                    instances[ictr],
-                                                   (e.getMessage()+". ")); 
-                        
+                                                   (e.getMessage()+". "));
+
                                 }
                                 catch (...)
                                 {
                                     _logCreateInstanceError(oldNamespaces[i],
                                                     instances[ictr],
-                                                    String::EMPTY); 
+                                                    String::EMPTY);
                                 }
                             }
                         }
-                   } 
-              } 
-         } 
-    } 
+                   }
+              }
+         }
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1841,7 +1842,7 @@ static String _namespaceNameToDirName(const CIMNamespaceName& namespaceName)
     return dirName;
 }
 
-void RepositoryUpgrade::_logRequestToFile( 
+void RepositoryUpgrade::_logRequestToFile(
                               const String&   fileName)
 {
     Uint64 				timeoutMilliseconds = 20;
@@ -1893,12 +1894,12 @@ void RepositoryUpgrade::_logRequestToFile(
                 //
                 ((Array <Sint8>&) data).append ('\0');
                 const char* content = (char*) data.getData () + contentOffset;
- 
+
                 ofstream outFile(fileName.getCString(), ios::app);
                 if (!outFile)
                 {
 #ifdef REPUPGRADE_DEBUG
-                    cerr << "Unable to open output file : " 
+                    cerr << "Unable to open output file : "
                          << fileName << endl;
 #endif
                     return;
@@ -1911,8 +1912,8 @@ void RepositoryUpgrade::_logRequestToFile(
     }
 }
 
-void RepositoryUpgrade::_logCreateClassError( 
-               const CIMNamespaceName& namespaceName, 
+void RepositoryUpgrade::_logCreateClassError(
+               const CIMNamespaceName& namespaceName,
                const CIMClass& oldClass,
                const String&   message) throw (RepositoryUpgradeException)
 {
@@ -1929,10 +1930,10 @@ void RepositoryUpgrade::_logCreateClassError(
     _requestEncoder->enqueue(request);
 
     // Build the output filepath.
-    String outputFileName = String(_LOG_PATH + 
-                                   _namespaceNameToDirName(namespaceName) + 
-                                   "."+ 
-                                   oldClass.getClassName().getString() + 
+    String outputFileName = String(_LOG_PATH +
+                                   _namespaceNameToDirName(namespaceName) +
+                                   "."+
+                                   oldClass.getClassName().getString() +
                                    _FILE_EXTENSION);
 
     // Log the request to output filepath.
@@ -1945,7 +1946,7 @@ void RepositoryUpgrade::_logCreateClassError(
                               REPOSITORY_UPGRADE_FAILURE_KEY,
                               REPOSITORY_UPGRADE_FAILURE) +
                     message +
-                    localizeMessage ( MSG_PATH, 
+                    localizeMessage ( MSG_PATH,
                               CLASS_CREATION_ERROR_KEY,
                               CLASS_CREATION_ERROR,
                               oldClass.getClassName().getString(),
@@ -1958,8 +1959,8 @@ void RepositoryUpgrade::_logCreateClassError(
     throw RepositoryUpgradeException (errMsg);
 }
 
-void RepositoryUpgrade::_logCreateInstanceError( 
-             const CIMNamespaceName& namespaceName, 
+void RepositoryUpgrade::_logCreateInstanceError(
+             const CIMNamespaceName& namespaceName,
              const CIMInstance& instance,
              const String&      message) throw (RepositoryUpgradeException)
 {
@@ -1980,10 +1981,10 @@ void RepositoryUpgrade::_logCreateInstanceError(
     char buffer[34];
     sprintf( buffer, "%u", instanceCount );
     // Build the output filepath.
-    String outputFileName = String(_LOG_PATH + 
-                                   _namespaceNameToDirName(namespaceName) + 
-                                   "."+ 
-                                   "instance." + buffer + 
+    String outputFileName = String(_LOG_PATH +
+                                   _namespaceNameToDirName(namespaceName) +
+                                   "."+
+                                   "instance." + buffer +
                                    _FILE_EXTENSION);
 
     // Log the request to output filepath.
@@ -1993,8 +1994,8 @@ void RepositoryUpgrade::_logCreateInstanceError(
        delete request;
 
     String errMsg = localizeMessage ( MSG_PATH, REPOSITORY_UPGRADE_FAILURE_KEY,
-                                       REPOSITORY_UPGRADE_FAILURE) 
-                     + message 
+                                       REPOSITORY_UPGRADE_FAILURE)
+                     + message
                      + localizeMessage ( MSG_PATH, INSTANCE_CREATION_ERROR_KEY,
                                          INSTANCE_CREATION_ERROR,
                                          namespaceName.getString())
@@ -2005,8 +2006,8 @@ void RepositoryUpgrade::_logCreateInstanceError(
     throw RepositoryUpgradeException (errMsg);
 }
 
-void RepositoryUpgrade::_logSetQualifierError( 
-          const CIMNamespaceName& namespaceName, 
+void RepositoryUpgrade::_logSetQualifierError(
+          const CIMNamespaceName& namespaceName,
           const CIMQualifierDecl& qualifier,
           const String&           message) throw (RepositoryUpgradeException)
 {
@@ -2023,13 +2024,13 @@ void RepositoryUpgrade::_logSetQualifierError(
 
     // Enqueue the request.
     _requestEncoder->enqueue(request);
- 
+
     char buffer[34];
     sprintf( buffer, "%u", qualifierCount );
     // Build the output filepath.
-    String outputFileName = String(_LOG_PATH + 
-                                   _namespaceNameToDirName(namespaceName) + 
-                                   "." + 
+    String outputFileName = String(_LOG_PATH +
+                                   _namespaceNameToDirName(namespaceName) +
+                                   "." +
                                    "qualifier." + buffer +
                                    _FILE_EXTENSION );
 
@@ -2041,15 +2042,15 @@ void RepositoryUpgrade::_logSetQualifierError(
 
     String errMsg =  localizeMessage ( MSG_PATH, REPOSITORY_UPGRADE_FAILURE_KEY,
                                        REPOSITORY_UPGRADE_FAILURE)
-                     + message 
+                     + message
                      + localizeMessage ( MSG_PATH, QUALIFIER_CREATION_ERROR_KEY,
                                          QUALIFIER_CREATION_ERROR,
-                                         namespaceName.getString(), 
-                                         qualifier.getName().getString()) 
+                                         namespaceName.getString(),
+                                         qualifier.getName().getString())
                      + localizeMessage (MSG_PATH, QUALIFIER_XML_OUTPUT_FILE_KEY,
                                           QUALIFIER_XML_OUTPUT_FILE,
                                           outputFileName);
- 
+
     throw RepositoryUpgradeException (errMsg);
 }
 
@@ -2058,7 +2059,7 @@ DynamicLibrary RepositoryUpgrade::_loadSSPModule(const String& moduleName)
 {
     String fileName;
 
-// 
+//
 // Get the Special Process Module location.
 //
 // ATTN-SF-P3-20050209: Platforms that use a different directory path other than
@@ -2068,11 +2069,11 @@ DynamicLibrary RepositoryUpgrade::_loadSSPModule(const String& moduleName)
 //
 
 #if defined (PEGASUS_OS_TYPE_WINDOWS)
-    fileName = _pegasusHome + "/bin/" + 
-                  FileSystem::buildLibraryFileName(moduleName);   
+    fileName = _pegasusHome + "/bin/" +
+                  FileSystem::buildLibraryFileName(moduleName);
 #else
-    fileName = _pegasusHome + "/lib/" + 
-                  FileSystem::buildLibraryFileName(moduleName);   
+    fileName = _pegasusHome + "/lib/" +
+                  FileSystem::buildLibraryFileName(moduleName);
 #endif
 
     DynamicLibrary dl(fileName);
@@ -2082,10 +2083,10 @@ DynamicLibrary RepositoryUpgrade::_loadSSPModule(const String& moduleName)
 #ifdef REPUPGRADE_DEBUG
         cout << "Error is : " << strerror(errno) << endl;
 #endif
-        String message =  localizeMessage ( MSG_PATH, 
+        String message =  localizeMessage ( MSG_PATH,
                                             LIBRARY_LOAD_ERROR_KEY,
                                             LIBRARY_LOAD_ERROR,
-                                            moduleName); 
+                                            moduleName);
 
         throw RepositoryUpgradeException(message);
     }
@@ -2104,7 +2105,7 @@ SchemaSpecialProcessModule *  RepositoryUpgrade::_createSSPModule(
 
     if (!sspModule)
     {
-        String message =  localizeMessage ( MSG_PATH, 
+        String message =  localizeMessage ( MSG_PATH,
                                             LIBRARY_ENTRY_POINT_ERROR_KEY,
                                             LIBRARY_ENTRY_POINT_ERROR,
                                             library.getFileName());
@@ -2123,14 +2124,14 @@ void RepositoryUpgrade::_initSSPModule()
         // Load the SSPModule library.
         //
 #ifdef REPUPGRADE_DEBUG
-        cout << "Loading library name : " 
+        cout << "Loading library name : "
              << schemaProcessingModules[counter].moduleName << endl;
 #endif
-        DynamicLibrary tmpLibrary 
+        DynamicLibrary tmpLibrary
                  = _loadSSPModule(schemaProcessingModules[counter].moduleName);
-      
+
         _library[counter] = tmpLibrary;
-    
+
         //
         // Create the SSPModule object.
         //
@@ -2158,20 +2159,20 @@ Boolean RepositoryUpgrade::_invokeModules(CIMQualifierDecl& inputQualifier,
                                           CIMQualifierDecl& outputQualifier)
 {
     Boolean createQualifier = true;
- 
-    for (Uint32 counter=0; counter < SSPModuleTable::NUM_MODULES 
+
+    for (Uint32 counter=0; counter < SSPModuleTable::NUM_MODULES
          && createQualifier==true ; counter++)
     {
         if ((strcmp(schemaProcessingModules[counter].moduleType, _ALL) == 0) ||
-             (strcmp(schemaProcessingModules[counter].moduleType, 
+             (strcmp(schemaProcessingModules[counter].moduleType,
                 _QUALIFIER_ONLY ) == 0 ))
         {
 #ifdef REPUPGRADE_DEBUG
-            cout << "Invoking library name : " 
+            cout << "Invoking library name : "
              << schemaProcessingModules[counter].moduleName << endl;
 #endif
-            createQualifier = 
-                      _sspModule[counter]->processQualifier(inputQualifier, 
+            createQualifier =
+                      _sspModule[counter]->processQualifier(inputQualifier,
                                                            outputQualifier);
             inputQualifier = outputQualifier.clone();
         }
@@ -2180,23 +2181,23 @@ Boolean RepositoryUpgrade::_invokeModules(CIMQualifierDecl& inputQualifier,
     return createQualifier;
 }
 
-Boolean RepositoryUpgrade::_invokeModules(CIMClass& inputClass, 
+Boolean RepositoryUpgrade::_invokeModules(CIMClass& inputClass,
                                           CIMClass& outputClass)
 {
    Boolean createClass = true;
 
-   for (Uint32 counter=0; counter < SSPModuleTable::NUM_MODULES 
+   for (Uint32 counter=0; counter < SSPModuleTable::NUM_MODULES
         && createClass==true ; counter++)
    {
        if ((strcmp(schemaProcessingModules[counter].moduleType, _ALL) == 0) ||
-             (strcmp(schemaProcessingModules[counter].moduleType, 
+             (strcmp(schemaProcessingModules[counter].moduleType,
                 _CLASS_ONLY ) == 0 ))
        {
 #ifdef REPUPGRADE_DEBUG
-           cout << "Invoking library name : " 
+           cout << "Invoking library name : "
                 << schemaProcessingModules[counter].moduleName << endl;
 #endif
-           createClass = 
+           createClass =
                _sspModule[counter]->processClass(inputClass, outputClass);
            inputClass = outputClass.clone();
        }
@@ -2214,11 +2215,11 @@ Boolean RepositoryUpgrade::_invokeModules(CIMInstance& inputInstance,
           && createInstance==true; counter++)
     {
         if ((strcmp(schemaProcessingModules[counter].moduleType, _ALL) == 0) ||
-             (strcmp(schemaProcessingModules[counter].moduleType, 
+             (strcmp(schemaProcessingModules[counter].moduleType,
                 _INSTANCE_ONLY ) == 0 ))
         {
 #ifdef REPUPGRADE_DEBUG
-            cout << "Invoking library name : " 
+            cout << "Invoking library name : "
              << schemaProcessingModules[counter].moduleName << endl;
 #endif
             createInstance =
@@ -2233,16 +2234,16 @@ Boolean RepositoryUpgrade::_invokeModules(CIMInstance& inputInstance,
 #endif
 
 /**
-    
-    Parses the command line for old repository path, creates RepositoryUpgrade    
-    instance and invokes upgradeRepository method. 
-  
+
+    Parses the command line for old repository path, creates RepositoryUpgrade
+    instance and invokes upgradeRepository method.
+
     @param   argc  the number of command line arguments
     @param   argv  the string vector of command line arguments
-  
+
     @return  0                  if the command is successful
              1                  if an error occurs in executing the command
-  
+
  */
 PEGASUS_NAMESPACE_END
 
@@ -2250,7 +2251,7 @@ PEGASUS_NAMESPACE_END
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-int main (int argc, char* argv []) 
+int main (int argc, char* argv [])
 {
     RepositoryUpgrade 	command;
     Uint32		retCode;

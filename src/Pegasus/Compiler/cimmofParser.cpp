@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,20 +29,22 @@
 //
 // Author: Bob Blair (bblair@bmc.com)
 //
-// Modified By:  Karl Schopmeyer (k.schopmeyer@opengroup.org) 
+// Modified By:  Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //                  1. add comment line to xml output.  aug 2001
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
 //              Gerarda Marquez (gmarquez@us.ibm.com)
 //              -- PEP 43 changes
-//				Seema gupta (gseema@in.ibm.com) Bug 281
+//              Seema gupta (gseema@in.ibm.com) Bug 281
 //              Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 
 //
-// implementation of valueFactory 
+// implementation of valueFactory
 //
 //
 //
@@ -58,7 +60,6 @@
 #include "valueFactory.h"
 #include "cimmofMessages.h"
 #include "cimmofParser.h"
-#include <cctype>
 #include <cstring>
 #include <iostream>
 
@@ -85,8 +86,8 @@ const char LexerError::MSG[] = "";
 
 cimmofParser *cimmofParser::_instance = 0;
 
-cimmofParser::cimmofParser(): 
-  parser(),  _cmdline(0), 
+cimmofParser::cimmofParser():
+  parser(),  _cmdline(0),
   _ot(compilerCommonDefs::USE_REPOSITORY) {
 }
 
@@ -139,7 +140,7 @@ cimmofParser::setRepository(void) {
       else
         rt = cimmofRepositoryInterface::REPOSITORY_INTERFACE_CLIENT;
       try {
-	// need to cat repo name to the dir 
+	// need to cat repo name to the dir
 	String rep_name = _cmdline->get_repository_name();
 	String combined = rep + "/";
 	combined = combined + rep_name;
@@ -148,7 +149,7 @@ cimmofParser::setRepository(void) {
 	Mode.flag = CIMRepository_Mode::NONE;
 
 	String mode = _cmdline->get_repository_mode();
-	if (String::equalNoCase(mode, "BIN") ) 
+	if (String::equalNoCase(mode, "BIN") )
 	  Mode.flag |= CIMRepository_Mode::BIN;
 	_repository.init(rt, combined, Mode,  _ot);
       } catch(Exception &e) {
@@ -182,14 +183,14 @@ cimmofParser::setRepository(void) {
 			  arglist);
         elog(message);
         return false;
-      } 
+      }
     } else {
-      cimmofMessages::getMessage(message, 
+      cimmofMessages::getMessage(message,
 				 cimmofMessages::SETREPOSITORY_BLANK_NAME);
       elog(message);
     }
   } else {
-    cimmofMessages::getMessage(message, 
+    cimmofMessages::getMessage(message,
 		       cimmofMessages::SETREPOSITORY_NO_COMPILER_OPTIONS);
     elog(message);
   }
@@ -224,7 +225,7 @@ cimmofParser::getOperationType() const
 //------------------------------------------------------------------
 // Set up the default and override namespace path in the repository
 //------------------------------------------------------------------
-void 
+void
 cimmofParser::setDefaultNamespacePath(const String &path) {
   if (String::equal(_defaultNamespacePath, ""))  // it can only be set once
     _defaultNamespacePath = path;
@@ -296,8 +297,8 @@ cimmofParser::enterInlineInclude(const String &filename) {
 	if ( (f = fopen(s.getCString(), "r")) ) {
 	  _includefile = s;
 	  break;
-	}	 
-      } 
+	}
+      }
     } else {  // incorrect call:  cmdline should have been set
       return ret;
     }
@@ -312,7 +313,7 @@ cimmofParser::enterInlineInclude(const String &filename) {
   }
   return ret;
 }
-    
+
 int
 cimmofParser::enterInlineInclude(const FILE *f) {
   if (f) {
@@ -342,19 +343,19 @@ cimmofParser::wrapCurrentBuffer()
 //--------------------------------------------------------------------
 int
 cimmofParser::parse()
-{ 
+{
     int ret;
     if (_cmdline)
     {
       	// ATTN: KS added the following 7 Aug 2001 to put header and trailer
 	// lines on xml output from the parser.
 	// If xml_output put the XML headers and trailers around the output
-      if (_cmdline->xml_output() ) 
+      if (_cmdline->xml_output() )
       {
 	  cout << "<?xml version=\"1.0\"?>" << endl;
 	  cout << "<!-- Open Group Pegasus CIM Compiler V "
 	       << PEGASUS_PRODUCT_VERSION << " Built " << __DATE__
-	       << " -->" << endl; 
+	       << " -->" << endl;
 	  cout << "<CIM CIMVERSION=\"2.0\" DTDVERSION=\"2.0\">" << endl;
 	  cout << "<DECLARATION>" << endl;
 	  cout << "<DECLGROUP>" << endl;
@@ -364,7 +365,7 @@ cimmofParser::parse()
     if (_cmdline)
     {
 
-      if (_cmdline->xml_output() ) 
+      if (_cmdline->xml_output() )
       {
 	  cout << "</DECLGROUP>" << endl;
 	  cout << "</DECLARATION>" << endl;
@@ -400,8 +401,8 @@ cimmofParser::log_parse_error(char *token, const char *errmsg) const {
   //------------------------------------------------------------------
 
 // -----------------------------------------------------------------
-// Convert a String representing an octal integer to a String        
-// representing the corresponding decimal integer                    
+// Convert a String representing an octal integer to a String
+// representing the corresponding decimal integer
 // ATTN: P1 BB 2001 Need to support 64-bit integers in String transformation
 // ATTN: P1 BB 2001 Needs to support non-ascii strings (UTF-8)
 // ------------------------------------------------------------------
@@ -422,7 +423,7 @@ cimmofParser::oct_to_dec(const String &octrep) const {
      case '4': oval += 4; break;
      case '5': oval += 5; break;
      case '6': oval += 6; break;
-     case '7': oval += 7; break; 
+     case '7': oval += 7; break;
      }
   }
 
@@ -434,9 +435,9 @@ cimmofParser::oct_to_dec(const String &octrep) const {
   return strdup(buf);
 }
 
-// ----------------------------------------------------------------- 
-// Convert a String representing a hexadecimal integer to a String   
-// representing the corresponding decimal integer                    
+// -----------------------------------------------------------------
+// Convert a String representing a hexadecimal integer to a String
+// representing the corresponding decimal integer
 // ATTN: 2001 P1 BB Need to support 64-bit integers in string conversion
 // ATTN: 2001 P1 BB  Needs to support non-ascii strings in string conversion
 // ------------------------------------------------------------------
@@ -457,7 +458,7 @@ cimmofParser::hex_to_dec(const String &hexrep) const {
      case '4': hval += 4; break;
      case '5': hval += 5; break;
      case '6': hval += 6; break;
-     case '7': hval += 7; break; 
+     case '7': hval += 7; break;
      case '8': hval += 8; break;
      case '9': hval += 9; break;
      case 'a': case 'A':
@@ -485,9 +486,9 @@ cimmofParser::hex_to_dec(const String &hexrep) const {
   return strdup(buf);
 }
 
-// ----------------------------------------------------------------- 
-// Convert a String representing a binary integer to a String        
-// representing the corresponding decimal integer                    
+// -----------------------------------------------------------------
+// Convert a String representing a binary integer to a String
+// representing the corresponding decimal integer
 // ATTN: P1 BB 2001 Need to support 64-bit integers in string conversion
 // ------------------------------------------------------------------
 char *
@@ -538,7 +539,7 @@ cimmofParser::processPragma(const String &name, const String &value) {
 // When a class declaration production is complete, try to add it to
 // the Repository
 //-------------------------------------------------------------------
-int 
+int
 cimmofParser::addClass(CIMClass *classdecl)
 {
   int ret = 0;
@@ -546,7 +547,7 @@ cimmofParser::addClass(CIMClass *classdecl)
   cimmofMessages::arglist arglist;
   arglist.append(classdecl->getClassName().getString());
   if (_cmdline) {
-    if (_cmdline->xml_output() ) 
+    if (_cmdline->xml_output() )
     {
       if (classdecl)
       {
@@ -559,14 +560,14 @@ cimmofParser::addClass(CIMClass *classdecl)
     } else if (_cmdline->trace() ) {
       String header;
       cimmofMessages::getMessage(header, cimmofMessages::ADD_CLASS);
-      trace(header,""); 
+      trace(header,"");
       if (classdecl)
 	XmlWriter::printClassElement(*classdecl, _cmdline->traceos());
-    } 
+    }
   }
   if (_cmdline &&
       _cmdline->operationType() != compilerCommonDefs::USE_REPOSITORY) {
-    return ret; 
+    return ret;
   }
   try {
    Boolean classExist;
@@ -579,7 +580,7 @@ cimmofParser::addClass(CIMClass *classdecl)
       {
         _repository.modifyClass(getNamespacePath(), *classdecl);
       }
-      else 
+      else
       {
         _repository.addClass(getNamespacePath(), *classdecl);
       }
@@ -603,16 +604,16 @@ cimmofParser::addClass(CIMClass *classdecl)
    }
   } catch(AlreadyExistsException&) {
     //ATTN: P1 2001 BB  We should be able to modify the class through the compiler
-    // 04/26/2003 GM  See cimmofParser::updateClass() for info on why modify was not 
+    // 04/26/2003 GM  See cimmofParser::updateClass() for info on why modify was not
     // done here
     cimmofMessages::getMessage(message, cimmofMessages::CLASS_EXISTS_WARNING,
 			       arglist);
     wlog(message);
   } catch (CIMException &e) {
     if (e.getCode() == CIM_ERR_ALREADY_EXISTS) {
-      // 04/26/2003 GM  See cimmofParser::updateClass() for info on why modify 
-      // was not done here. This where cimmofl and cimmof fell into prior to 
-      // changes above 
+      // 04/26/2003 GM  See cimmofParser::updateClass() for info on why modify
+      // was not done here. This where cimmofl and cimmof fell into prior to
+      // changes above
       cimmofMessages::getMessage(message, cimmofMessages::CLASS_EXISTS_WARNING,
 				 arglist);
       wlog(message);
@@ -622,14 +623,14 @@ cimmofParser::addClass(CIMClass *classdecl)
 				 arglist);
       elog(message);
       maybeThrowParseError(message);
-    } 
+    }
   } catch(Exception &e) {
     arglist.append(e.getMessage());
     cimmofMessages::getMessage(message, cimmofMessages::ADD_CLASS_ERROR,
 			       arglist);
     elog(message);
     maybeThrowParseError(message);
-  } 
+  }
 
   if (_cmdline && _cmdline->trace()) {
     String ok;
@@ -658,7 +659,7 @@ cimmofParser::newClassDecl(const CIMName &name, const CIMName &superclassname)
 			       arglist);
     elog(message);
     maybeThrowParseError(message);
-  } 
+  }
 
   return c;
 }
@@ -666,16 +667,16 @@ cimmofParser::newClassDecl(const CIMName &name, const CIMName &superclassname)
 //---------------------------------------------------------------------
 // When an instance production is complete, add it to the Repository
 //---------------------------------------------------------------------
-int 
+int
 cimmofParser::addInstance(CIMInstance *instance)
-{ 
+{
   cimmofMessages::arglist arglist;
   String message;
   int ret = 0;
   Boolean err_out = false;
-  if (_cmdline) 
+  if (_cmdline)
   {
-    if (_cmdline->xml_output()) 
+    if (_cmdline->xml_output())
     {
       if (instance)
       {
@@ -686,7 +687,7 @@ cimmofParser::addInstance(CIMInstance *instance)
       }
       return ret;
     }
-    else if (_cmdline->trace()) 
+    else if (_cmdline->trace())
     {
       String header;
       cimmofMessages::getMessage(header, cimmofMessages::ADD_INSTANCE);
@@ -697,7 +698,7 @@ cimmofParser::addInstance(CIMInstance *instance)
   }
   if (_cmdline &&
       _cmdline->operationType() != compilerCommonDefs::USE_REPOSITORY) {
-    return ret; 
+    return ret;
   }
   try {
     _repository.addInstance(getNamespacePath(), *instance);
@@ -753,7 +754,7 @@ cimmofParser::newQualifierDecl(const String &name, const CIMValue *value,
 			       arglist);
     elog(message);
     maybeThrowParseError(message);
-  } 
+  }
 
   return q;
 }
@@ -762,7 +763,7 @@ cimmofParser::newQualifierDecl(const String &name, const CIMValue *value,
 // When a QualifierDeclaration production is complete, add the qualifier
 // to the Repository.
 //---------------------------------------------------------------------
-int 
+int
 cimmofParser::addQualifier(CIMQualifierDecl *qualifier)
 {
   int ret  = 0;
@@ -771,9 +772,9 @@ cimmofParser::addQualifier(CIMQualifierDecl *qualifier)
     arglist.append(qualifier->getName().getString());
   String message;
   if (_cmdline) {
-    if (_cmdline->xml_output()) 
+    if (_cmdline->xml_output())
     {
-      if (qualifier) 
+      if (qualifier)
       {
 	cout << "<VALUE.OBJECT>" << endl;
 	XmlWriter::printQualifierDeclElement(*qualifier, PEGASUS_STD(cout));
@@ -781,20 +782,20 @@ cimmofParser::addQualifier(CIMQualifierDecl *qualifier)
 	cout << endl;
       }
       return ret;
-    } 
-    else if (_cmdline->trace()) 
+    }
+    else if (_cmdline->trace())
     {
       String header;
       cimmofMessages::getMessage(header, cimmofMessages::ADD_QUALIFIER);
       trace(header, "");
-      if (qualifier) 
+      if (qualifier)
 	XmlWriter::printQualifierDeclElement(*qualifier, _cmdline->traceos());
     }
   }
- 
+
   if (_cmdline &&
       _cmdline->operationType() != compilerCommonDefs::USE_REPOSITORY) {
-    return ret; 
+    return ret;
   }
   try {
     _repository.addQualifier(getNamespacePath(), *qualifier);
@@ -847,7 +848,7 @@ cimmofParser::newQualifier(const String &name, const CIMValue &value,
 			       arglist);
     elog(message);
     maybeThrowParseError(message);
-  } 
+  }
 
   return q;
 }
@@ -889,7 +890,7 @@ cimmofParser::newProperty(const CIMName &name, const CIMValue &val,
 			  const CIMName &referencedObject) const
 {
   CIMProperty *p = 0;
-  
+
   try {
      //ATTNKS: P1 Note that we are not passing isArray
     p = new CIMProperty(name, val, arraySize, referencedObject);
@@ -902,7 +903,7 @@ cimmofParser::newProperty(const CIMName &name, const CIMValue &val,
 			       arglist);
     elog(message);
     maybeThrowParseError(message);
-  } 
+  }
   return p;
 }
 
@@ -932,12 +933,12 @@ cimmofParser::applyProperty(CIMClass &c, CIMProperty &p)
     wlog(message);
   } catch(Exception &e) {
     arglist.append(e.getMessage());
-    cimmofMessages::getMessage(message, 
+    cimmofMessages::getMessage(message,
 			       cimmofMessages::APPLYING_PROPERTY_ERROR,
 			       arglist);
     elog(message);
     maybeThrowParseError(message);
-  } 
+  }
 
   return 0;
 }
@@ -978,7 +979,7 @@ cimmofParser::applyProperty(CIMInstance &i, CIMProperty &p)
     err_out = true;
   }
   if (err_out) {
-    cimmofMessages::getMessage(message, 
+    cimmofMessages::getMessage(message,
 			       cimmofMessages::APPLY_INSTANCE_PROPERTY_ERROR,
 			       arglist);
     elog(message);
@@ -986,7 +987,7 @@ cimmofParser::applyProperty(CIMInstance &i, CIMProperty &p)
   }
   return 0;
 }
-    
+
 //----------------------------------------------------------------------
 // When a property object's value changes, create a clone of the
 // property object with a new value
@@ -998,13 +999,13 @@ cimmofParser::copyPropertyWithNewValue(const CIMProperty &p,
   cimmofMessages::arglist arglist;
   String message;
   CIMProperty *newprop = 0;
-  arglist.append(p.getName().getString());  
+  arglist.append(p.getName().getString());
   try {
     newprop = new CIMProperty(p);
     newprop->setValue(v);
   } catch (Exception &e) {
     arglist.append(e.getMessage());
-    cimmofMessages::getMessage(message, 
+    cimmofMessages::getMessage(message,
 			       cimmofMessages::CLONING_PROPERTY_ERROR,
 			       arglist);
     elog(message);
@@ -1012,14 +1013,14 @@ cimmofParser::copyPropertyWithNewValue(const CIMProperty &p,
   }
   return newprop;
 }
-    
+
 //----------------------------------------------------------------------
 // When a method of a class being declared is discovered, create the
 // new CIMMethod object.
 //----------------------------------------------------------------------
 CIMMethod *
 cimmofParser::newMethod(const CIMName &name, const CIMType type)
-{ 
+{
   CIMMethod *m = 0;
   try {
     m = new CIMMethod(name, type);
@@ -1032,7 +1033,7 @@ cimmofParser::newMethod(const CIMName &name, const CIMType type)
 			       arglist);
     elog(message);
     maybeThrowParseError(message);
-  } 
+  }
   return m;
 }
 
@@ -1049,7 +1050,7 @@ cimmofParser::applyMethod(CIMClass &c, CIMMethod &m) {
   try {
     c.addMethod(m);
   } catch(UninitializedObjectException&) {
-    cimmofMessages::getMessage(message, 
+    cimmofMessages::getMessage(message,
 			       cimmofMessages::UNINITIALIZED_PARAMETER_ERROR,
 			       arglist);
     elog(message);
@@ -1066,7 +1067,7 @@ cimmofParser::applyMethod(CIMClass &c, CIMMethod &m) {
 			       arglist);
     elog(message);
     maybeThrowParseError(message);
-  } 
+  }
 
   return 0;
 }
@@ -1087,7 +1088,7 @@ cimmofParser::newParameter(const CIMName &name, const CIMType type,
 			       arglist);
     elog(message);
     maybeThrowParseError(message);
-  } 
+  }
   return p;
 }
 
@@ -1105,14 +1106,14 @@ cimmofParser::applyParameter(CIMMethod &m, CIMParameter &p) {
 			       arglist);
     elog(message);
     maybeThrowParseError(message);
-  } 
+  }
   return 0;
 }
 
 
 
 CIMValue *
-cimmofParser::QualifierValue(const CIMName &qualifierName, 
+cimmofParser::QualifierValue(const CIMName &qualifierName,
                              Boolean isNull,
                              const String &valstr)
 {
@@ -1130,7 +1131,7 @@ cimmofParser::QualifierValue(const CIMName &qualifierName,
 			       arglist);
     elog(message);
     maybeThrowParseError(message);
-  } 
+  }
 
   CIMValue v = q.getValue();
   Uint32 asize = v.getArraySize();
@@ -1143,7 +1144,7 @@ cimmofParser::QualifierValue(const CIMName &qualifierName,
     return new CIMValue(Boolean(true));
   }
   return valueFactory::createValue(v.getType(),
-				     v.isArray() ? (int)asize : -1, 
+				     v.isArray() ? (int)asize : -1,
                                      isNull,
 				     &valstr);
 }
@@ -1159,7 +1160,7 @@ cimmofParser::PropertyFromInstance(CIMInstance &instance,
   try {
     Uint32 pos = instance.findProperty(propertyName);
     if (pos != (Uint32)-1) {
-      //ATTN: P2 2001 There doesn't seem to be a way to get a copy of an 
+      //ATTN: P2 2001 There doesn't seem to be a way to get a copy of an
       // instance's properties (or to change them if you got one)
       CIMProperty oldp = instance.getProperty(pos);
       //CIMProperty *p = new CIMProperty(oldp);
@@ -1189,7 +1190,7 @@ cimmofParser::PropertyFromInstance(CIMInstance &instance,
   try {
     Array<String> propertyList;
     propertyList.append(propertyName.getString());
-    CIMClass c = _repository.getClass(getNamespacePath(), className); 
+    CIMClass c = _repository.getClass(getNamespacePath(), className);
     Uint32 pos = c.findProperty(propertyName);
     if (pos != (Uint32)-1) {
       return new CIMProperty(c.getProperty(pos));
@@ -1242,7 +1243,7 @@ cimmofParser::PropertyValueFromInstance(CIMInstance &instance,
   delete prop;
   return value;
 }
-  
+
 CIMObjectPath *
 cimmofParser::newReference(const objectName &oname)
 {
@@ -1266,7 +1267,7 @@ cimmofParser::newReference(const objectName &oname)
 			       arglist);
     elog(message);
     maybeThrowParseError(message);
-  } 
+  }
   return ref;
 }
 
@@ -1343,13 +1344,13 @@ cimmofParser::maybeThrowLexerError(const String &msg) const
 //--------------------------------------------------------------------
 // Update class
 //--------------------------------------------------------------------
-Boolean 
-cimmofParser::updateClass(const CIMClass &classdecl, 
-                          cimmofMessages::MsgCode &updateMessage, 
+Boolean
+cimmofParser::updateClass(const CIMClass &classdecl,
+                          cimmofMessages::MsgCode &updateMessage,
                           Boolean &classExist)
 {
   classExist = true;
-  
+
   Boolean ret = true;
   Boolean iExperimental = false;
   Boolean rExperimental = false;
@@ -1372,32 +1373,32 @@ cimmofParser::updateClass(const CIMClass &classdecl,
   // Please reference PEP #43 for more information.
 
   // Note: Updating the class was not done when an "class already exists
-  // exception" in cimmofParser::addClass() occurs because when it gets  
-  // to the catch the class has been fully populated (it has inherited  
-  // all the properties and qualifiers from the superclass).  This means 
-  // that the Version and Experimental qualifers were propagated to child 
+  // exception" in cimmofParser::addClass() occurs because when it gets
+  // to the catch the class has been fully populated (it has inherited
+  // all the properties and qualifiers from the superclass).  This means
+  // that the Version and Experimental qualifers were propagated to child
   // class.  This made checking whether a version or experimental change
   // would occur difficult. This class, cimmofParser::updateClass(), will
   // get the class, if it exists, from the repository and save off the
   // version and experimental qualifiers so that it can be compared with
   // qualifiers of the class in the mof files.  It it finds the class and
-  // the class cannot be updated, cimmofParser::addClass() will be notified 
-  // that the class exists and send the same message that it has sent 
+  // the class cannot be updated, cimmofParser::addClass() will be notified
+  // that the class exists and send the same message that it has sent
   // in the past.  In cases when the class cannot be modified due to that
-  // the allow experimental and allow version options have not be specified 
+  // the allow experimental and allow version options have not be specified
   // then an appropriate message will also be sent to cimmofParser::addClass().
 
   // Note on Experimental qualifier:
   // With the implementation of PEP #43 Experimental classes cannot be
-  // added to the repository unless the -aE option is specified in the 
-  // cimmof/cimmofl CLIs. 
+  // added to the repository unless the -aE option is specified in the
+  // cimmof/cimmofl CLIs.
 
   // Note on Version qualifier:
-  // Classes that cause a Major update (the m in m.n.u is changed) will 
+  // Classes that cause a Major update (the m in m.n.u is changed) will
   // require that the -aV option be specified.  Classes that cause a
   // Down Revision will also require that the -aV option be specified.
   // If the version of the class in the mof file has the same version
-  // as the class in the repository the class will not be updated.   
+  // as the class in the repository the class will not be updated.
   // Classes with the same version are considered the same.
   // The version specified in the Version qualifier will be checked for
   // a valid format.  A valid version format is m.n.u (m is major, n is minor,
@@ -1408,27 +1409,27 @@ cimmofParser::updateClass(const CIMClass &classdecl,
   {
     cRep = _repository.getClass(getNamespacePath(), classdecl.getClassName());
   }
-  catch (CIMException &e) 
+  catch (CIMException &e)
   {
-    if (e.getCode() == CIM_ERR_NOT_FOUND) 
+    if (e.getCode() == CIM_ERR_NOT_FOUND)
     {
         classExist = false;
     }
     else
-    if (e.getCode() == CIM_ERR_INVALID_CLASS) 
+    if (e.getCode() == CIM_ERR_INVALID_CLASS)
     {
         /* Note:  this is where cimmofl and cimmof fall into */
         classExist = false;
     }
-    else 
+    else
     {
         throw e;
-    } 
+    }
   }
 
-  // Get the experimental qualifier from the input class 
+  // Get the experimental qualifier from the input class
   idx = classdecl.findQualifier(EXPERIMENTAL);
-  if (idx >= 0) 
+  if (idx >= 0)
   {
       CIMConstQualifier iExp = classdecl.getQualifier(idx);
       CIMValue iExpVal = iExp.getValue();
@@ -1438,7 +1439,7 @@ cimmofParser::updateClass(const CIMClass &classdecl,
   // Get the version qualifier from the input class
   idx = classdecl.findQualifier(VERSION);
   // A version was found for the input class
-  if (idx >= 0) 
+  if (idx >= 0)
   {
       CIMConstQualifier iVer = classdecl.getQualifier(idx);
       CIMValue iVerVal = iVer.getValue();
@@ -1450,7 +1451,7 @@ cimmofParser::updateClass(const CIMClass &classdecl,
   {
       // Get the experimental qualifier from the repository class
       idx = cRep.findQualifier(EXPERIMENTAL);
-      if (idx >= 0) 
+      if (idx >= 0)
       {
           CIMQualifier rExp = cRep.getQualifier(idx);
           CIMValue rExpVal = rExp.getValue();
@@ -1459,26 +1460,26 @@ cimmofParser::updateClass(const CIMClass &classdecl,
 
       // Get the version qualifier from the repository class
       idx = cRep.findQualifier(VERSION);
-      if (idx >= 0) 
+      if (idx >= 0)
       {
           CIMQualifier rVer = cRep.getQualifier(idx);
           CIMValue rVal = rVer.getValue();
-          rVal.get(rVersion);              
+          rVal.get(rVersion);
       }
   }
 
-  // Verify version format specified in the Version qualifier of mof class  
-  if (!verifyVersion(iVersion, iM, iN, iU))  
+  // Verify version format specified in the Version qualifier of mof class
+  if (!verifyVersion(iVersion, iM, iN, iU))
   {
        updateMessage = cimmofMessages::INVALID_VERSION_FORMAT;
-       return false; 
+       return false;
   }
 
-  // Verify version format specified in the Version qualifier of repository class  
-  if (!verifyVersion(rVersion, rM, rN, rU))  
+  // Verify version format specified in the Version qualifier of repository class
+  if (!verifyVersion(rVersion, rM, rN, rU))
   {
        updateMessage = cimmofMessages::INVALID_VERSION_FORMAT;
-       return false;  
+       return false;
   }
 
   //
@@ -1488,14 +1489,14 @@ cimmofParser::updateClass(const CIMClass &classdecl,
   if (!classExist)
   {
       // Will create an experimental class in the repository
-      if (iExperimental)  
+      if (iExperimental)
       {
-          if (!_cmdline->allow_experimental()) 
+          if (!_cmdline->allow_experimental())
           {
               /* PEP43: ID = 1 */
               //printf("ID=1 (NoAction): Does Not Exist. -aE not set.\n");
               updateMessage = cimmofMessages::NO_EXPERIMENTAL_UPDATE;
-              return false;  
+              return false;
           }
           else
           {
@@ -1516,22 +1517,22 @@ cimmofParser::updateClass(const CIMClass &classdecl,
           /* PEP43: ID = 4 */
           //printf("ID=4 (NoAction): Exists. -uC not set.\n");
           updateMessage = cimmofMessages::NO_CLASS_UPDATE;
-          return false;  
+          return false;
       }
 
       // Will create an experimental class in the repository
       if (!rExperimental && iExperimental)   /* FALSE->TRUE */
       {
-          if (!_cmdline->allow_experimental()) 
+          if (!_cmdline->allow_experimental())
           {
               /* PEP43: ID = 5 */
               //printf("ID=5 (NoAction): Exists. -aE not set.\n");
               updateMessage = cimmofMessages::NO_EXPERIMENTAL_UPDATE;
-              return false;  
+              return false;
           }
- 
+
           // Some examples:
-          // Requires minor and update ids in repository and mof to be set with the 
+          // Requires minor and update ids in repository and mof to be set with the
           // exception of the major id
           // 2.7.0->NULL (ex. repository has 2.7.0 and mof has no version)
           // 2.7.0->3.x.x or 2.7.0->1.x.x (Major Update)
@@ -1548,13 +1549,13 @@ cimmofParser::updateClass(const CIMClass &classdecl,
                   /* PEP43: ID = 6 */
                   //printf("ID=6 (No Action): Exists. -aV not set.\n");
                   updateMessage = cimmofMessages::NO_VERSION_UPDATE;
-                  return false;  
+                  return false;
               }
               else
               {
                   /* ID = 7 */
                   //printf("ID=7: (ModifyClass): Exists. -aEV set. (Major Update, Down Revision, Version->NULL)\n");
-                  
+
               }
           }
           else
@@ -1570,7 +1571,7 @@ cimmofParser::updateClass(const CIMClass &classdecl,
              {
                  /* PEP43: ID = 8 */
                  //printf("ID=8 (ModifyClass): Exists. -aE set. (Minor Update, NULL->Any)\n");
-                 
+
              }
              else
              {
@@ -1582,13 +1583,13 @@ cimmofParser::updateClass(const CIMClass &classdecl,
                  //printf("ID=9 (NoAction): Exists. Same Version.\n");
                  updateMessage = cimmofMessages::SAME_VERSION;
                  return false;
-                 
+
              }
           }
       }
       else
       {
-          // Will not create an experimental class in the repository or 
+          // Will not create an experimental class in the repository or
           // class in the repository is already experimental
           if ((rExperimental && iExperimental) ||        /* TRUE->TRUE */
               (!iExperimental))                          /* Any->FALSE */
@@ -1604,15 +1605,15 @@ cimmofParser::updateClass(const CIMClass &classdecl,
                       /* PEP43: ID = 10 */
                       //printf("ID=10 (NoAction): Exists. -aV not set.\n");
                       updateMessage = cimmofMessages::NO_VERSION_UPDATE;
-                      return false;  
+                      return false;
                   }
                   else
                   {
                       /* ID = 11 */
                       //printf("ID=11 (ModifyClass): Exists. -aV set. (Major Update, Down Revision, Version->NULL)\n");
-                      
+
                   }
-              }              
+              }
               else
               {
                  // See above for examples...ID=8
@@ -1622,7 +1623,7 @@ cimmofParser::updateClass(const CIMClass &classdecl,
                  {
                      /* PEP43: ID = 12 */
                      //printf("ID=12 (ModifyClass): Exists: (Minor Update, NULL->Any)\n");
-                     
+
                  }
                  else
                  {
@@ -1631,7 +1632,7 @@ cimmofParser::updateClass(const CIMClass &classdecl,
                      //printf("ID=13 (NoAction): Exists. Same Version.\n");
                      updateMessage = cimmofMessages::SAME_VERSION;
                      return false;
-                     
+
                  }
               }
           }
@@ -1641,7 +1642,7 @@ cimmofParser::updateClass(const CIMClass &classdecl,
   return ret;
 }
 
-Boolean 
+Boolean
 cimmofParser::verifyVersion(const String &version, int &iM, int &iN, int &iU)
 {
   Boolean ret = true;
@@ -1650,12 +1651,12 @@ cimmofParser::verifyVersion(const String &version, int &iM, int &iN, int &iU)
   int posM = -1;   /* Major  */
   int posN = -1;   /* Minor  */
   int posU = -1;   /* Update */
-  
+
   // Parse the input version
   if (version.size())
   {
       // If "V" specified as first character go ahead and ignore
-      if (isdigit(version[0]))
+      if (version[0].isDigit())
       {
           pos = 0;
           posM = version.find(0, CHAR_PERIOD);
@@ -1670,19 +1671,19 @@ cimmofParser::verifyVersion(const String &version, int &iM, int &iN, int &iU)
           else
           {
               // First character is unknown.
-              // Examples of invalid version:  ".2.7", ".", "..", "...", "AB"  
+              // Examples of invalid version:  ".2.7", ".", "..", "...", "AB"
               return false;
           }
       }
- 
+
       // Find the second and possible third period
       if (posM >=0)
-      { 
-          posN = version.find(posM+1, CHAR_PERIOD);  
+      {
+          posN = version.find(posM+1, CHAR_PERIOD);
       }
       if (posN >= 0)
       {
-          posU = version.find(posN+1, CHAR_PERIOD); 
+          posU = version.find(posN+1, CHAR_PERIOD);
       }
 
       // There should be no additional identifiers after the update identifier
@@ -1694,7 +1695,7 @@ cimmofParser::verifyVersion(const String &version, int &iM, int &iN, int &iU)
 
       // Check for trailing period
       if ((posM >=0 && posM+1 == (int)version.size()) ||
-          (posN >=0 && posN+1 == (int)version.size()) || 
+          (posN >=0 && posN+1 == (int)version.size()) ||
           (posU >=0 && posU+1 == (int)version.size()))
       {
           // Examples of invalid version:  "2.", "2.7.", "V.", "9.."
@@ -1707,7 +1708,7 @@ cimmofParser::verifyVersion(const String &version, int &iM, int &iN, int &iU)
       {
           // Examples of invalid version: "V.2.7", "V"
           return false;
-      }   
+      }
 
       // Check Major identifier for invalid format
       int endM = posM;
@@ -1717,7 +1718,7 @@ cimmofParser::verifyVersion(const String &version, int &iM, int &iN, int &iU)
       }
       for (int i = pos; i < endM; i++)
       {
-           if (!isdigit(version[i]))
+           if (!version[i].isDigit())
            {
                // Example of invalid version:  "1B.2D.3F"
                return false;
@@ -1741,7 +1742,7 @@ cimmofParser::verifyVersion(const String &version, int &iM, int &iN, int &iU)
           }
           for (int i = posM+1; i < endN; i++)
           {
-               if (!isdigit(version[i]))
+               if (!version[i].isDigit())
                {
                    // Example of invalid version:  "99.CD", "11.2D.3F"
                    return false;
@@ -1754,7 +1755,7 @@ cimmofParser::verifyVersion(const String &version, int &iM, int &iN, int &iU)
       {
           for (int i = posN+1; i < (int)version.size(); i++)
           {
-               if (!isdigit(version[i]))
+               if (!version[i].isDigit())
                {
                     // Example of invalid version: "99.88.EF", "11.22.3F"
                     return false;

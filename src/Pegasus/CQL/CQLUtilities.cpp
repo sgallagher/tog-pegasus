@@ -32,7 +32,9 @@
 //          Chuck Carmack (carmack@us.ibm.com)
 //          Brian Lucier (lucier@us.ibm.com)
 //
-// Modified By: 
+// Modified By:
+//          David Dillard, VERITAS Software Corp.
+//              (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -58,13 +60,13 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-inline Uint8 _CQLUtilities_hexCharToNumeric(const Char16 c)
+inline Uint8 _CQLUtilities_hexCharToNumeric(Char16 c)
 {
     Uint8 n;
 
-    if (isdigit(c))
+    if (c.isDigit())
         n = (c - '0');
-    else if (isupper(c))
+    else if (c.isUpper())
         n = (c - 'A' + 10);
     else // if (islower(c))
         n = (c - 'a' + 10);
@@ -117,7 +119,7 @@ Uint64 CQLUtilities::stringToUint64(const String &stringNum)
   if (*p == '+')
     p++;  // skip over the positive sign
 
-  if (!isdigit(*p))
+  if (!p->isDigit())
   {
      MessageLoaderParms mload(String("CQL.CQLUtilities.INVALID_NUM_FORMAT"),
                               String("Error converting string to $0.  String '$1' is badly formed."),
@@ -145,7 +147,7 @@ Uint64 CQLUtilities::stringToUint64(const String &stringNum)
     }
 
     // Add on each digit, checking for overflow errors
-    while (isxdigit(*p))
+    while (p->isXDigit())
     {
       // Make sure we won't overflow when we multiply by 16
       if (x > PEGASUS_UINT64_MAX/16)
@@ -327,7 +329,7 @@ Sint64 CQLUtilities::stringToSint64(const String &stringNum)
   if (*p == '+')
     p++;
 
-  if (!isdigit(*p))
+  if (!p->isDigit())
   {
      MessageLoaderParms mload(String("CQL.CQLUtilities.INVALID_NUM_FORMAT"),
                               String("Error converting string to $0.  String '$1' is badly formed."),
@@ -360,7 +362,7 @@ Sint64 CQLUtilities::stringToSint64(const String &stringNum)
     }
 
     // Add on each digit, checking for overflow errors
-    while (isxdigit(*p))
+    while (p->isXDigit())
     {
       // Make sure we won't overflow when we multiply by 16
       if (x < PEGASUS_SINT64_MIN/16)

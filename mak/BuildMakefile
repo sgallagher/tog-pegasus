@@ -21,7 +21,7 @@
 ##
 ###############################################################################
 
-include pegasus/mak/config.mak
+include $(PEGASUS_ROOT)/mak/config.mak
 
 # There is a start command for cimserver but no stop today.  Because of problems with
 # the use of cimserver as a service, we simply used the start command to allow us to

@@ -22,7 +22,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Karl Schopmeyer(k.schopmeyer@opengroup.org)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,6 +34,12 @@
 #include <iostream>
 
 PEGASUS_NAMESPACE_BEGIN
+
+/* ATTN: P3. Several functions should be added to this class for datetime manipulation
+   including get and set each subcomponent (year, month, etc). isInterval, test for equality,
+   create intervals from absolutes, possibly gett current time, Note that
+   the Java rep is probably tostring, not get string, 
+*/
 
 /**
     The CIMDateTime class represents the CIM datetime data type as a C++ class 
@@ -96,29 +102,39 @@ public:
 
     enum { FORMAT_LENGTH = 25 };
 
-    /// CIMDateTime CIMMethod
+    /** Create a new CIMDateTime object with NULL DateTime definition.
+    */
     CIMDateTime();
 
-    /** CIMDateTime CIMMethod creates the CIM CIMDateTime from a string 
+    /** CIMDateTime - Creat a CIM CIMDateTime instance from a string 
 	constant representing the CIM DateTime formatted datetime
+        See the class documentation for CIMDateTime for the defintion of the
+        input string for absolute and interval datetime.
 	@param str String object containing the CIM DateTime formatted string
     */
     CIMDateTime(const char* str);
 
-    /** CIMDateTime CIMMethod - Creates the CIMDateTime instance from another 
+    /** CIMDateTime Create a CIMDateTime instance from another 
 	CIMDateTime object
 	@param x CIMDateTime object to be copied.
     */
     CIMDateTime(const CIMDateTime& x);
 
-    /** Destructor. */
+    /** DateTime Destructor. */
     ~CIMDateTime() { }
 
-    /**  assign CIMDateTime
+    /**  Assign one DateTime object to another
+    @param - The DateTime Object to assign
+    <pre>
+    CIMDateTime d1;
+    CIMDateTime d2 = "00000000000000.000000:000";
+    d1 = d1;
+    </pre>
     */
     CIMDateTime& operator=(const CIMDateTime& x);
 
-    /** CIMDateTime isNull method - Tests for an all zero date time
+    /** CIMDateTime isNull method - Tests for an all zero date time. Note that
+        today this function checks for absolute datetime == zero, not interval.
 	<PRE>
 	CIMDateTime dt;
 	dt.clear();
@@ -129,7 +145,12 @@ public:
     */
     Boolean isNull() const;
 
-    /// method getString
+    /** getString - Returns the string representing the DateTime value of the
+        CIMDateTime Object.
+        ATTN: P3 KS.  This simply returns a string whether the datetime is a
+        real value or the NULL value.  It is up to the user to test.  Should
+        this be modified so we do something like an interupt on NULL?
+    */
     const char* getString() const;
 
     /** method set - Sets the date time. Creates the CIMDateTime instance from 
@@ -147,10 +168,12 @@ public:
     */
     void set(const char* str);
 
-    ///  clear - Clears the datetime class instance.
+    /**  clear - Clears the datetime class instance. The date time is set to our
+        defintion of NULL, absolute zero date time.
+    */
     void clear();
 
-    /** CIMDateTime CIMMethod - ATTN: Friend operator Test for CIMDateTime 
+    /** CIMDateTime - ATTN: Friend operator Test for CIMDateTime 
 	equality
     */
     PEGASUS_COMMON_LINKAGE friend Boolean operator==(

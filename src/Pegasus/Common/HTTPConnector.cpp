@@ -291,16 +291,7 @@ void HTTPConnector::destroyConnections()
 
    for (Uint32 i = 0, n = _rep->connections.size(); i < n; i++)
    {
-      HTTPConnection* connection = _rep->connections[i];	
-      Sint32 socket = connection->getSocket();
-
-      // Unsolicit SocketMessages:
-
-      _monitor->unsolicitSocketMessages(socket);
-
-      // Destroy the connection (causing it to close):
-
-      delete connection;
+      _deleteConnection(_rep->connections[i]);
    }
 
    _rep->connections.clear();
@@ -315,21 +306,26 @@ void HTTPConnector::disconnect(HTTPConnection* currentConnection)
     {
         if (currentConnection == _rep->connections[i])
         {
-            HTTPConnection* connection = _rep->connections[i];
-            Sint32 socket = connection->getSocket();
-
-            //
-            // Unsolicit SocketMessages:
-            //
-            _monitor->unsolicitSocketMessages(socket);
-
-            //
-            // Destroy the connection (causing it to close):
-            //
-            delete connection;
+            _deleteConnection(_rep->connections[i]);
 
             return;
         }
     }
 }
+
+void HTTPConnector::_deleteConnection(HTTPConnection* httpConnection)
+{
+    HTTPConnection* connection = httpConnection;	
+
+    Sint32 socket = connection->getSocket();
+
+    // Unsolicit SocketMessages:
+
+    _monitor->unsolicitSocketMessages(socket);
+
+    // Destroy the connection (causing it to close):
+
+    delete connection;
+}
+
 PEGASUS_NAMESPACE_END

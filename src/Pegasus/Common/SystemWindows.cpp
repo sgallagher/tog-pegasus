@@ -235,6 +235,14 @@ Boolean System::isPrivilegedUser(const String userName)
     //       This is used in cimuser CLI and CIMOperationRequestAuthorizer
     return true;
 }
+
+String System::getPrivilegedUserName()
+{
+    // ATTN-NB-03-20000304: Implement better way to get the privileged
+    // user on the system.
+
+    return (String("Administrator"));
+}
     
 Uint32 System::getPID()
 {

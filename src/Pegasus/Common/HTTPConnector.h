@@ -97,6 +97,9 @@ class PEGASUS_COMMON_LINKAGE HTTPConnector : public MessageQueueService
 
    private:
 
+      /** Delete the specified connection. */
+      void _deleteConnection(HTTPConnection* httpConnection);
+
       Monitor* _monitor;
       HTTPConnectorRep* _rep;
     

@@ -116,6 +116,14 @@ Boolean System::isPrivilegedUser(const String userName)
     return true;
 }
 
+String System::getPrivilegedUserName()
+{
+    // ATTN-NB-03-20000304: Implement code to get the privileged
+    // user on the system.
+
+    return (String(""));
+}
+
 Uint32 System::getPID()
 {
     // ATTN: Implement this to get the process ID of the current process

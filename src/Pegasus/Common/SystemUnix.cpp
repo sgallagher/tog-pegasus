@@ -56,6 +56,7 @@
 #include <netdb.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Destroyer.h>
+#include <Pegasus/Common/Exception.h>
 
 #ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU
 #include <pwd.h>
@@ -376,6 +377,34 @@ Boolean System::isPrivilegedUser(const String userName)
         }
         return true;
     }
+}
+
+String System::getPrivilegedUserName()
+{
+    static String userName = String::EMPTY;
+
+    if (userName == String::EMPTY)
+    {
+        struct passwd*   pwd = NULL;
+
+        //
+        //  get the privileged user's UID.
+        //
+        pwd = getpwuid(0);
+        if ( pwd != NULL )
+        {
+            //
+            //  get the user name
+            //
+            userName.assign(pwd->pw_name);
+        }
+        else
+        {
+            PEGASUS_ASSERT(0);
+        }
+    }
+
+    return (userName);
 }
 
 Uint32 System::getPID()

@@ -163,6 +163,13 @@ public:
     static Boolean isPrivilegedUser(const String userName = String::EMPTY);
 
     /**
+    This function returns the privileged user name on the system.
+
+    @return             the privileged user name
+    */
+    static String getPrivilegedUserName();
+
+    /**
     This function is used to get the process ID of the calling process.
 
     @return             Process ID

@@ -97,13 +97,22 @@ public:
 
 private:
 
+    String _buildLocalAuthResponse();
+
     String _getFileContent(String filePath);
+
+    Boolean _parseAuthHeader(
+        const String authHeader,
+        String& authType,
+        String& authRealm);
+
+    String _getSubStringUptoMarker(
+        const char** line,
+        char marker);
 
     Message* _requestMessage;    
 
     Boolean  _challengeReceived;
-
-    String   _challengeResponse;
 
     String   _userName;
 

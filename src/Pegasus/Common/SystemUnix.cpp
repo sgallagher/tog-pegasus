@@ -180,20 +180,23 @@ DynamicLibraryHandle System::loadDynamicLibrary(const char* fileName)
 
 void System::unloadDynamicLibrary(DynamicLibraryHandle libraryHandle)
 {
+    // ATTN: Should this method indicate success/failure?
 #ifdef PEGASUS_OS_LINUX
     dlclose(libraryHandle);
 #endif
 
 #ifdef PEGASUS_OS_HPUX
-    // ATTN: shl_load will unload the library even if it has been loaded
-    //       multiple times.  No reference count is kept.
-    // ATTN: Failure (return code -1) is ignored.
+    // Note: shl_unload will unload the library even if it has been loaded
+    // multiple times.  No reference count is kept.
     int ignored = shl_unload(shl_t(libraryHandle));
 #endif
 }
 
 String System::dynamicLoadError() {
+    // ATTN: Is this safe in a multi-threaded process?  Should this string
+    // be returned from loadDynamicLibrary?
 #ifdef PEGASUS_OS_HPUX
+    // ATTN: If shl_load() returns NULL, this value should be strerror(errno)
     return String();
 #elif defined(PEGASUS_OS_ZOS)
     return String();

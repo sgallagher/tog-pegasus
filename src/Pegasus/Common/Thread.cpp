@@ -328,9 +328,16 @@ ThreadPool::~ThreadPool(void)
 	    th->dereference_tsd();
 	    throw NullPointer();
 	 }
-	 
 
+	 // Signal to get the thread out of the work loop.
 	 sleep_sem->signal();
+	 // Signal to get the thread past the end. See the comment
+	 // "wait to be awakend by the thread pool destructor"
+	 // Note: the current implementation of Thread for Windows
+	 // does not implement "pthread" cancelation points so this
+	 // is needed.
+	 sleep_sem->signal();
+
 	 th->dereference_tsd();
 	 // signal the thread's sleep semaphore
 	 th->cancel();
@@ -534,8 +541,11 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
 	 return((PEGASUS_THREAD_RETURN)0);
       }
    }
+
+   // TODO: Why is this needed? Why not just continue?
    // wait to be awakend by the thread pool destructor
    sleep_sem->wait();
+
    myself->test_cancel();
 
    PEG_METHOD_EXIT();

@@ -459,6 +459,13 @@ Z [Zz]
     return DOTDOT;
 }
 
+\#{1} {
+    sprintf(msg_,"LEX: [HASH] ");
+    printf__(msg_);
+                                                                                                                  
+    return HASH;
+}
+
 \.{1} {
     sprintf(msg_,"LEX: [DOT] ");
     printf__(msg_);

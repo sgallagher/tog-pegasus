@@ -18,3 +18,5 @@ select * from CIM_InstModification where SourceInstance ISA CIM_FCPort AND Previ
 select DetectionTime, SystemIPAddress, PerceivedSeverity, MonitorEventID, UPSttyPath from ACME_UPSAlertIndication where UPSttyPath = '/dev/tty0p1' AND MonitorEventID = 20
 select * from class where class = 'blah' AND NOT class > 10
 select * from class where class = 'blah' AND max(*) IS NOT NULL
+select * from class where prop#'OK' = 'blah'
+select * from class where class.prop#'OK' = 'blah'

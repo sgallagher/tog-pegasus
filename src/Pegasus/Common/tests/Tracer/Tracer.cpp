@@ -71,8 +71,7 @@ Uint32 compare(const char* fileName, const char* compareStr)
         delete []readStr;
 	return 1;
     }
-    file.seekg(-(size+EOF_CHAR),fstream::end);
-
+    file.seekg((Sint32) -(size+EOF_CHAR),fstream::end);
     file.read(readStr,size+EOF_CHAR);
     readStr[size]='\0';
     retCode=strcmp(compareStr,readStr);

@@ -53,8 +53,10 @@ public:
 //
 /////////////////////////////////////////////////////////////////////////////////
     /// references
-    virtual Array<CIMObject> references(
+	virtual Array<CIMObject> references(
         const String& nameSpace,
+        const String& userName,
+        const String& password,
         const CIMObjectPath& objectName,
         const String& resultClass = String::EMPTY,
         const String& role = String::EMPTY,
@@ -65,10 +67,11 @@ public:
     /// referenceNames
     virtual Array<CIMObjectPath> referenceNames(
         const String& nameSpace,
+        const String& userName,
+        const String& password,
         const CIMObjectPath& objectName,
         const String& resultClass = String::EMPTY,
         const String& role = String::EMPTY);
-
 
 protected:
 

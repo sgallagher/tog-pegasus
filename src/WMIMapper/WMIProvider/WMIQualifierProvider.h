@@ -46,23 +46,31 @@ public:
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /// getQualifier
-    virtual CIMQualifierDecl getQualifier(
+	virtual CIMQualifierDecl getQualifier(
         const String& nameSpace,
+        const String& userName,
+        const String& password,
         const String& qualifierName);
 
     /// setQualifier
     virtual void setQualifier(
         const String& nameSpace,
+        const String& userName,
+        const String& password,
         const CIMQualifierDecl& qualifierDecl);
 
     /// virtual deleteQualifier
     virtual void deleteQualifier(
         const String& nameSpace,
+        const String& userName,
+        const String& password,
         const String& qualifierName);
 
     /// enumerateQualifiers
     virtual Array<CIMQualifierDecl> enumerateQualifiers(
-        const String& nameSpace);
+        const String& nameSpace,
+		const String& userName,
+        const String& password);
 
 protected:
 

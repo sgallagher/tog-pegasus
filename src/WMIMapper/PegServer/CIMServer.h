@@ -9,7 +9,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-//
+// 
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -27,7 +27,6 @@
 //         Mike Day (mdday@us.ibm.com)
 //	   Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //	   Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//	   Barbara Packard, Hewlett-Packard Company (barbara_packard@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -38,8 +37,10 @@
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Server/CIMServerState.h>
 #include <Pegasus/Common/Cimom.h>
-#include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Server/Linkage.h>
+#include <Pegasus/Common/SSLContext.h>
+
+#include "HTTPAuthenticatorDelegator.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -56,10 +57,13 @@ class CIMExportRequestDecoder;
 class HTTPAcceptor;
 class CIMRepository;
 
-//class IndicationHandlerService;
-//class IndicationService;
+class ModuleController;
+/*
+class IndicationHandlerService;
+class IndicationService;
 class ProviderManagerService;
 class ProviderRegistrationManager;
+*/
 
 class PEGASUS_SERVER_LINKAGE CIMServer
 {
@@ -74,18 +78,28 @@ public:
         @param monitor	  monitor object for the server.
         @exception - ATTN
     */
-    CIMServer(
-	Monitor* monitor,
-        Boolean useSSL);
+    CIMServer(Monitor* monitor);
 
     ~CIMServer();
 
-    /** bind Binds the port address to the Server.
-	@param address char* to the port address for TCP.
+    /** Adds a connection acceptor for the specified listen socket.
+        @param localConnection Boolean specifying whether the acceptor should
+               listen on a local-system-only connection.
+        @param portNumber Port number that should be used by the listener.
+               This parameter is ignored if localConnection=true.
+        @param useSSL Boolean specifying whether SSL should be used for
+               connections created by this acceptor.
+    */
+    void addAcceptor(
+        Boolean localConnection,
+        Uint32 portNumber,
+        Boolean useSSL);
+
+    /** Bind the acceptors to the specified listen sockets.
 	@exception - This function may receive exceptions from
 	Channel specific subfunctions.
     */
-    void bind(Uint32 port);
+    void bind();
 
     /** runForever Main runloop for the server.
     */
@@ -117,13 +131,11 @@ public:
 
     Uint32 getOutstandingRequestCount();
 
-    CIMOperationRequestDispatcher* getDispatcher();
-
 private:
 
-    Boolean _dieNow;
+    SSLContext* _getSSLContext();
 
-    Boolean _useSSL;
+    Boolean _dieNow;
 
     Monitor* _monitor;
     CIMRepository* _repository;
@@ -135,14 +147,20 @@ private:
     CIMExportRequestDispatcher* _cimExportRequestDispatcher;
     CIMExportResponseEncoder* _cimExportResponseEncoder;
     CIMExportRequestDecoder* _cimExportRequestDecoder;
+    HTTPAuthenticatorDelegator* _httpAuthenticatorDelegator;
 
-    HTTPAcceptor*   _acceptor;
+    Array<HTTPAcceptor*> _acceptors;
     CIMServerState* _serverState;
 
-//    IndicationHandlerService* _handlerService;
-//    IndicationService* _indicationService;
-//    ProviderManagerService* _providerManager;
-//    ProviderRegistrationManager* _providerRegistrationManager;
+    ModuleController* _controlService;
+    /*
+	IndicationHandlerService* _handlerService;
+    IndicationService* _indicationService;
+    ProviderManagerService* _providerManager;
+    ProviderRegistrationManager* _providerRegistrationManager;
+	*/
+
+    SSLContext* _sslcontext;
 };
 
 PEGASUS_NAMESPACE_END

@@ -9,17 +9,11 @@ LIBRARIES = \
     pegwmiserver \
     pegprovider \
     pegwql \
-    pegclient 
-
-ifneq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
-ifneq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
-    LIBRARIES += slp
-endif
-endif
+    pegwmiclient
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
-LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY -DPEGASUS_NO_SLP
 
 PROGRAM = WMIServer
 

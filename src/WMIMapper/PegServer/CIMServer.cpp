@@ -39,7 +39,6 @@
 #include <Pegasus/Common/Config.h>
 
 #include <iostream>
-#include <cassert>
 #include <cstdio>
 #include <cctype>
 #include <ctime>
@@ -51,27 +50,34 @@
 #include <Pegasus/Common/PegasusVersion.h>
 
 #include <Pegasus/Repository/CIMRepository.h>
-//#include "ProviderMessageFacade.h"
+/*
+#include "ProviderMessageFacade.h"
+*/
 #include <Pegasus/ExportServer/CIMExportRequestDispatcher.h>
 #include <Pegasus/ExportServer/CIMExportResponseEncoder.h>
 #include <Pegasus/ExportServer/CIMExportRequestDecoder.h>
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Security/UserManager/UserManager.h>
-//#include <Pegasus/HandlerService/IndicationHandlerService.h>
-//#include <Pegasus/IndicationService/IndicationService.h>
-//#include <Pegasus/ProviderManager/ProviderManagerService.h>
+/*
+#include <Pegasus/HandlerService/IndicationHandlerService.h>
+#include <Pegasus/IndicationService/IndicationService.h>
+#include <Pegasus/ProviderManager/ProviderManagerService.h>
+*/
 #include "CIMServer.h"
 #include "CIMOperationRequestDispatcher.h"
-#include <Pegasus/Server/CIMOperationResponseEncoder.h>
-#include <Pegasus/Server/CIMOperationRequestDecoder.h>
-#include <Pegasus/Server/CIMOperationRequestAuthorizer.h>
-#include <Pegasus/Server/HTTPAuthenticatorDelegator.h>
-//#include "ShutdownProvider.h"
-//#include <Pegasus/Common/ModuleController.h>
-//#include <Pegasus/ControlProviders/ConfigSettingProvider/ConfigSettingProvider.h>
-//#include <Pegasus/ControlProviders/UserAuthProvider/UserAuthProvider.h>
-//#include <Pegasus/ControlProviders/ProviderRegistrationProvider/ProviderRegistrationProvider.h>
-//#include <Pegasus/ControlProviders/NamespaceProvider/NamespaceProvider.h>
+#include "CIMOperationResponseEncoder.h"
+#include "CIMOperationRequestDecoder.h"
+#include "CIMOperationRequestAuthorizer.h"
+#include "HTTPAuthenticatorDelegator.h"
+/*
+#include "ShutdownProvider.h"
+#include "ShutdownService.h"
+#include <Pegasus/Common/ModuleController.h>
+#include <Pegasus/ControlProviders/ConfigSettingProvider/ConfigSettingProvider.h>
+#include <Pegasus/ControlProviders/UserAuthProvider/UserAuthProvider.h>
+#include <Pegasus/ControlProviders/ProviderRegistrationProvider/ProviderRegistrationProvider.h>
+#include <Pegasus/ControlProviders/NamespaceProvider/NamespaceProvider.h>
+*/
 
 PEGASUS_USING_STD;
 
@@ -81,10 +87,9 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-// Need a static method to act as a callback for the configuration control
-// provider.  This doesn't belong here, but I don't have a better place to
-// put it right now.
 /*
+// Need a static method to act as a callback for the control provider.
+// This doesn't belong here, but I don't have a better place to put it.
 static Message * controlProviderReceiveMessageCallback(
     Message * message,
     void * instance)
@@ -93,54 +98,52 @@ static Message * controlProviderReceiveMessageCallback(
         reinterpret_cast<ProviderMessageFacade *>(instance);
     return mpf->handleRequestMessage(message);
 }
+
+Boolean handleShutdownSignal = false;
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+void shutdownSignalHandler(int s_n, siginfo_t * s_info, void * sig)
+{
+    PEG_METHOD_ENTER(TRC_SERVER, "shutdownSignalHandler");
+    Tracer::trace(TRC_SERVER, Tracer::LEVEL2, "Signal %d received.", s_n);
+
+    handleShutdownSignal = true;
+
+    PEG_METHOD_EXIT();
+}
+#endif
 */
 
-//static Boolean verifyClientCertificate(CertificateInfo &certInfo)
-static Boolean verifyClientCertificate(SSLCertificateInfo &certInfo)
-{
-#ifdef CLIENT_CERTIFY
-    //ATTN-NB-03-05132002: Add code to handle client certificate verification.
-    return true;
-#else
-    return true;
-#endif
-}
-
-CIMServer::CIMServer(
-    Monitor* monitor,
-    Boolean useSSL)
-   : _dieNow(false), _useSSL(useSSL)
+CIMServer::CIMServer(Monitor* monitor)
+   : _dieNow(false)
 {
     PEG_METHOD_ENTER(TRC_WMI_MAPPER, "CIMServer::CIMServer()");
-
-    static String PROPERTY_NAME__SSLCERT_FILEPATH =
-                                "sslCertificateFilePath";
 
     String repositoryRootPath = String::EMPTY;
 
     // -- Save the monitor or create a new one:
-
+    
     _monitor = monitor;
 
     repositoryRootPath =
 	    ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("repositoryDir"));
 
     // -- Create a repository:
+
 /*
 #ifdef DO_NOT_CREATE_REPOSITORY_ON_STARTUP
     // If this code is enable, the CIMServer will fail to start
     // if the repository directory does not exit. If called,
     // the Repository will create an empty repository.
 
-    // This check has been disabled to allow cimmof to call
+    // This check has been disabled to allow cimmof to call 
     // the CIMServer to build the initial repository.
     if (!FileSystem::isDirectory(repositoryRootPath))
     {
         PEG_METHOD_EXIT();
 	throw NoSuchDirectory(repositoryRootPath);
     }
-#endif	*/
-
+#endif
+*/
     _repository = new CIMRepository(repositoryRootPath);
 
     // -- Create a UserManager object:
@@ -150,6 +153,7 @@ CIMServer::CIMServer(
     // -- Create a CIMServerState object:
 
     _serverState = new CIMServerState();
+
 /*
     _providerRegistrationManager = new ProviderRegistrationManager(_repository);
 
@@ -158,8 +162,7 @@ CIMServer::CIMServer(
     _handlerService = new IndicationHandlerService(_repository);
 
     // Create the control service
-    ModuleController* controlService =
-        new ModuleController(PEGASUS_QUEUENAME_CONTROLSERVICE);
+    _controlService = new ModuleController(PEGASUS_QUEUENAME_CONTROLSERVICE);
 
     // Create the Configuration control provider
     ProviderMessageFacade * configProvider =
@@ -205,13 +208,14 @@ CIMServer::CIMServer(
                                        namespaceProvider,
                                        controlProviderReceiveMessageCallback,
                                        0, 0);
+	_cimOperationRequestDispatcher
+	= new CIMOperationRequestDispatcher(_repository,
+                                        _providerRegistrationManager);
 */
 
-    _cimOperationRequestDispatcher
-	= new CIMOperationRequestDispatcher;
-
-    _cimOperationResponseEncoder
-	= new CIMOperationResponseEncoder;
+	_cimOperationRequestDispatcher = new CIMOperationRequestDispatcher;
+    
+	_cimOperationResponseEncoder = new CIMOperationResponseEncoder;
 
     //
     // get the configured authentication and authorization flags
@@ -219,24 +223,17 @@ CIMServer::CIMServer(
     ConfigManager* configManager = ConfigManager::getInstance();
 
     Boolean enableAuthentication = false;
-    Boolean enableNamespaceAuthorization = false;
-
-    if (String::equal(
+    
+    if (String::equalNoCase(
         configManager->getCurrentValue("enableAuthentication"), "true"))
     {
         enableAuthentication = true;
     }
 
-    if (String::equal(
-        configManager->getCurrentValue("enableNamespaceAuthorization"), "true"))
-    {
-        enableNamespaceAuthorization = true;
-    }
-
     //
     // check if authentication and authorization are enabled
     //
-    if ( enableAuthentication && enableNamespaceAuthorization )
+    if ( enableAuthentication )
     {
         //
         // Create Authorization queue only if authorization and
@@ -249,126 +246,148 @@ CIMServer::CIMServer(
             _cimOperationRequestAuthorizer,
             _cimOperationResponseEncoder->getQueueId());
     }
-    else	
+    else
     {
-        _cimOperationRequestDecoder = new CIMOperationRequestDecoder(
-// to test async cimom, substibute cimom for _cimOperationRequestDispatcher below
-            _cimOperationRequestDispatcher,
-// substitute the cimom as well for the _cimOperationResponseEncoder below
-            _cimOperationResponseEncoder->getQueueId());
+        //_cimOperationRequestAuthorizer = 0;
+
+        _cimOperationRequestDecoder = new CIMOperationRequestDecoder(	
+            _cimOperationRequestDispatcher, // to test async cimom, substibute cimom for _cimOperationRequestDispatcher below
+            _cimOperationResponseEncoder->getQueueId()); // substitute the cimom as well for the _cimOperationResponseEncoder below
 
     }
 
-    _cimExportRequestDispatcher
-	= new CIMExportRequestDispatcher();
+    _cimExportRequestDispatcher	= new CIMExportRequestDispatcher;
 
-    _cimExportResponseEncoder
-	= new CIMExportResponseEncoder;
+    _cimExportResponseEncoder = new CIMExportResponseEncoder;
 
     _cimExportRequestDecoder = new CIMExportRequestDecoder(
-	_cimExportRequestDispatcher,
-	_cimExportResponseEncoder->getQueueId());
+		_cimExportRequestDispatcher,
+		_cimExportResponseEncoder->getQueueId());
 
-    HTTPAuthenticatorDelegator* serverQueue = new HTTPAuthenticatorDelegator(
+    _httpAuthenticatorDelegator = new HTTPAuthenticatorDelegator(
         _cimOperationRequestDecoder->getQueueId(),
         _cimExportRequestDecoder->getQueueId());
 
-    // Create SSL context
-    SSLContext * sslcontext;
-    if (_useSSL)
-    {
-        //
-        // Get an instance of the ConfigManager.
-        //
-        ConfigManager*  configManager;
-        configManager = ConfigManager::getInstance();
+    _sslcontext = 0;
 
-        //
-        // Get the CertificateFilePath property from the Config Manager.
-        //
-        String certPath;
-        certPath = configManager->getCurrentValue(
-                               PROPERTY_NAME__SSLCERT_FILEPATH);
-
-        sslcontext = new SSLContext(certPath, verifyClientCertificate);
-    }
-    else
-        sslcontext = NULL;
-
-/*
     // IMPORTANT-NU-20020513: Indication service must start after ExportService
     // otherwise HandlerService started by indicationService will never
     // get ExportQueue to export indications for existing subscriptions
 
-    _indicationService = 0;
+/*
+	_indicationService = 0;
     if (String::equal(
         configManager->getCurrentValue("enableIndicationService"), "true"))
     {
         _indicationService = new IndicationService
             (_repository, _providerRegistrationManager);
     }
+
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+    // Enable the signal handler to shutdown gracefully on SIGHUP
+    getSigHandle()->registerHandler(SIGHUP, sigHupHandler);
+    getSigHandle()->activate(SIGHUP);
+#endif
 */
-
-    _acceptor = new HTTPAcceptor(_monitor, serverQueue, sslcontext);
-
-    /** load registered providers from repository, and creates
-        provider block table
-    */
-    //_cimOperationRequestDispatcher->loadRegisteredProviders();
 
     PEG_METHOD_EXIT();
 }
 
 CIMServer::~CIMServer()
 {
-    PEG_METHOD_ENTER(TRC_WMI_MAPPER, "CIMServer::~CIMServer()");
+    PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::~CIMServer()");
 
     // Note: do not delete the acceptor because it belongs to the Monitor
     // which takes care of disposing of it.
 
+    /*
+	if (_providerRegistrationManager)
+    {
+        delete _providerRegistrationManager;
+    }
+	*/
+
+    if (_sslcontext)
+	delete _sslcontext;
+
     PEG_METHOD_EXIT();
 }
 
-void CIMServer::bind(Uint32 port)
+void CIMServer::addAcceptor(
+    Boolean localConnection,
+    Uint32 portNumber,
+    Boolean useSSL)
 {
-    PEG_METHOD_ENTER(TRC_WMI_MAPPER, "CIMServer::bind()");
+    HTTPAcceptor* acceptor;
+    acceptor = new HTTPAcceptor(_monitor,
+                                _httpAuthenticatorDelegator,
+                                localConnection,
+                                portNumber,
+                                useSSL ? _getSSLContext() : 0);
 
-    // not the best place to build the service url, but it works for now
-    // because the address string is accessible  mdday
+    _acceptors.append(acceptor);
+}
 
-    _acceptor->bind(port);
+void CIMServer::bind()
+{
+    PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::bind()");
+
+    if (_acceptors.size() == 0)
+    {
+        throw BindFailedException("No CIM Server connections are enabled.");
+    }
+
+    for (Uint32 i=0; i<_acceptors.size(); i++)
+    {
+        _acceptors[i]->bind();
+    }
 
     PEG_METHOD_EXIT();
 }
 
 void CIMServer::runForever()
 {
-	static int modulator = 0;
+   // Note: Trace code in this method will be invoked frequently.
 
-    //ATTN: Do not add Trace code in this method.
+   static int modulator = 0;
+   
    if(!_dieNow)
    {
       if(false == _monitor->run(100))
       {
-	 modulator++;
-	 if( ! (modulator % 1000) )
-	    ThreadPool::kill_idle_threads();
+		modulator++;
+		if( ! (modulator % 1000) )
+			ThreadPool::kill_idle_threads();
       }
-    }
 
+      /*
+	  if (handleShutdownSignal)
+      {
+         Tracer::trace(TRC_SERVER, Tracer::LEVEL3,
+            "CIMServer::runForever - signal received.  Shutting down.");
+
+         ShutdownService::getInstance(this)->shutdown(true, 10, false);
+         handleShutdownSignal = false;
+      }
+	  */
+   }
+   
 }
+
 void CIMServer::stopClientConnection()
 {
-    PEG_METHOD_ENTER(TRC_WMI_MAPPER, "CIMServer::stopClientConnection()");
+    PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::stopClientConnection()");
 
-    _acceptor->closeConnectionSocket();
+    // set monitor flag to close the acceptor sockets
+    //
+    _monitor->setCloseAcceptorSockets();
 
     PEG_METHOD_EXIT();
 }
 
 void CIMServer::shutdown()
 {
-    PEG_METHOD_ENTER(TRC_WMI_MAPPER, "CIMServer::shutdown()");
+    PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::shutdown()");
 
     _dieNow = true;
 
@@ -377,24 +396,19 @@ void CIMServer::shutdown()
 
 void CIMServer::resume()
 {
-    PEG_METHOD_ENTER(TRC_WMI_MAPPER, "CIMServer::resume()");
+    PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::resume()");
 
-    _acceptor->reopenConnectionSocket();
-
-    PEG_METHOD_EXIT();
-}
-
-CIMOperationRequestDispatcher* CIMServer::getDispatcher()
-{
-    PEG_METHOD_ENTER(TRC_WMI_MAPPER, "CIMServer::getDispatcher()");
+    for (Uint32 i=0; i<_acceptors.size(); i++)
+    {
+        _acceptors[i]->reopenConnectionSocket();
+    }
 
     PEG_METHOD_EXIT();
-    return _cimOperationRequestDispatcher;
 }
 
 void CIMServer::setState(Uint32 state)
 {
-    PEG_METHOD_ENTER(TRC_WMI_MAPPER, "CIMServer::setState()");
+    PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::setState()");
 
     _serverState->setState(state);
 
@@ -451,12 +465,46 @@ void CIMServer::setState(Uint32 state)
 
 Uint32 CIMServer::getOutstandingRequestCount()
 {
-    PEG_METHOD_ENTER(TRC_WMI_MAPPER, "CIMServer::getOutstandingRequestCount()");
+    PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::getOutstandingRequestCount()");
 
-    Uint32 requestCount = _acceptor->getOutstandingRequestCount();
+    Uint32 requestCount = 0;
+    for (Uint32 i=0; i<_acceptors.size(); i++)
+    {
+        requestCount += _acceptors[i]->getOutstandingRequestCount();
+    }
 
     PEG_METHOD_EXIT();
     return requestCount;
+}
+
+SSLContext* CIMServer::_getSSLContext()
+{
+    static String PROPERTY_NAME__SSLCERT_FILEPATH = "sslCertificateFilePath"; 
+
+    if (_sslcontext == 0)
+    {
+        //
+        // Get the CertificateFilePath property from the Config Manager.
+        //
+        String certPath;
+        certPath = ConfigManager::getInstance()->getCurrentValue(
+                               PROPERTY_NAME__SSLCERT_FILEPATH);
+
+        String randFile = String::EMPTY;
+
+#ifdef PEGASUS_SSL_RANDOMFILE
+        // NOTE: It is technically not necessary to set up a random file on
+        // the server side, but it is easier to use a consistent interface
+        // on the client and server than to optimize out the random file on
+        // the server side.
+        randFile = ConfigManager::getHomedPath(PEGASUS_SSLCLIENT_RANDOMFILE);
+
+#endif
+
+		_sslcontext = new SSLContext(String::EMPTY, certPath, 0, randFile);
+    }
+
+    return _sslcontext;
 }
 
 PEGASUS_NAMESPACE_END

@@ -102,33 +102,36 @@ WMIFlavor::WMIFlavor(const LONG flavor) // : _ui32(0)
 }
 
 /*
-
 WMIFlavor::operator Uint32(void) const
 {
    return(_ui32);
 }
 
+
 WMIFlavor::operator LONG(void) const
 {
-   long l = 0;
-
-   if(_ui32 & NONE) {
-   }
-
-   if(_ui32 & OVERRIDABLE) {
-   }
-
-   if(_ui32 & TOSUBCLASS) {
-   }
-
-   if(_ui32 & TOINSTANCE) {
-   }
-
-   if(_ui32 & TRANSLATABLE) {
-   }
-
-   return(l);
+   return LONG(cimFlavor);
 }
 */
+
+/////////////////////////////////////////////////////////////////////////////
+// WMIFlavor::getAsWMIValue - maps the flavor values from CIM to WMI
+//
+// ///////////////////////////////////////////////////////////////////////////
+long WMIFlavor::getAsWMIValue ()
+{
+	long wmiVal = 0;
+	if (hasFlavor(CIMFlavor::OVERRIDABLE))
+		wmiVal |= WBEM_FLAVOR_OVERRIDABLE;
+	if (hasFlavor(CIMFlavor::OVERRIDABLE))
+		wmiVal |= WBEM_FLAVOR_OVERRIDABLE;
+	if (hasFlavor(CIMFlavor::TOSUBCLASS))
+		wmiVal |= WBEM_FLAVOR_FLAG_PROPAGATE_TO_DERIVED_CLASS;
+	if (hasFlavor(CIMFlavor::TOINSTANCE))
+		wmiVal |= WBEM_FLAVOR_FLAG_PROPAGATE_TO_INSTANCE;
+	if (hasFlavor(CIMFlavor::DISABLEOVERRIDE))
+		wmiVal |= WBEM_FLAVOR_NOT_OVERRIDABLE;
+	return wmiVal;
+}
 
 PEGASUS_NAMESPACE_END

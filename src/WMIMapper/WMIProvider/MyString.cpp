@@ -23,14 +23,12 @@
 //
 // Author: Barbara Packard (barbara_packard@hp.com)
 //
-// Modified By:
+// Modified By: Jair F. T. Santos (jair.santos@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
 #include <Pegasus/Common/Config.h>
-//#include <stdio.h>
-//#include <stdarg.h>
 #include "MyString.h"
 
 PEGASUS_NAMESPACE_BEGIN
@@ -190,12 +188,12 @@ const CMyString& CMyString::operator=(LPCTSTR lpsz)	{
 const CMyString& CMyString::operator=(LPCWSTR lpsz)	{
 
     if (lpsz && *lpsz)  {
-	    int nLen = ::WideCharToMultiByte(CP_ACP, 0, lpsz, -1, NULL, 0, NULL, NULL);
+	    int nLen = ::WideCharToMultiByte(CP_UTF8, 0, lpsz, -1, NULL, 0, NULL, NULL);
 
         AllocBeforeWrite(nLen);
 
         if (m_pszData)  {
-            ::WideCharToMultiByte(CP_ACP, 0, lpsz, -1, m_pszData, m_nBufLen, NULL, NULL);
+            ::WideCharToMultiByte(CP_UTF8, 0, lpsz, -1, m_pszData, m_nBufLen, NULL, NULL);
             m_nStrLen = _tcslen(m_pszData);
         }
     }

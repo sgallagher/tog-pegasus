@@ -13,8 +13,8 @@ EXTRA_INCLUDES = $(SYS_INCLUDES)
 LIBRARY = WMIProvider
 
 LIBRARIES = \
-	pegcommon 
-	
+	pegcommon
+		
 SOURCES = \
    WMIInstanceProvider.cpp \
    WMIClassProvider.cpp \
@@ -35,7 +35,7 @@ SOURCES = \
    WMIDateTime.cpp \
    WMIObjectPath.cpp \
    StdAfx.cpp \
-   MyString.cpp
+   MyString.cpp 
 
 SYS_LIBS = uuid.lib wbemuuid.lib Framedyn.lib ws2_32.lib advapi32.lib
 

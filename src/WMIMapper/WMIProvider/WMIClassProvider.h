@@ -23,14 +23,16 @@
 //
 // Author: Barbara Packard (barbara_packard@hp.com)
 //
-// Modified By:
+// Modified By:	Adriano Zanuz (adriano.zanuz@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_WMIClassProvider_h
 #define Pegasus_WMIClassProvider_h
 
+#include "Stdafx.h"
 #include <WMIMapper/WMIProvider/WMIBaseProvider.h>
+#include <WMIMapper/WMIProvider/WMIQualifier.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -46,35 +48,40 @@ public:
     /// virtual class CIMClass. From the operations class
     virtual CIMClass getClass(
         const String& nameSpace,
+        const String& userName,
+        const String& password,
         const String& className,
         Boolean localOnly = true,
         Boolean includeQualifiers = true,
         Boolean includeClassOrigin = false,
         const CIMPropertyList& propertyList = CIMPropertyList());	
 
-/////////////////////////////////////////////////////////////////////////////////
-// ATTN:
-// The  following public methods are not yet implemented
-//
-/////////////////////////////////////////////////////////////////////////////////
 	// deleteClass
 	virtual void deleteClass(
 		const String& nameSpace, 
+        const String& userName,
+        const String& password,
 		const String& className);
 
 	// createClass
 	virtual void createClass(
 		const String& nameSpace, 
+        const String& userName,
+        const String& password,
 		const CIMClass& newClass);
 
 	// modifyClass
 	virtual void modifyClass(
 		const String& nameSpace, 
+        const String& userName,
+        const String& password,
 		const CIMClass& modifiedClass);
 
     /// enumerateClasses
     virtual Array<CIMClass> enumerateClasses(
         const String& nameSpace,
+        const String& userName,
+        const String& password,
         const String& className = String::EMPTY,
         Boolean deepInheritance = false,
         Boolean localOnly = true,
@@ -84,13 +91,53 @@ public:
     /// enumerateClassNames
     virtual Array<CIMName> enumerateClassNames(
         const String& nameSpace,
+        const String& userName,
+        const String& password,
         const String& className = String::EMPTY,
         Boolean deepInheritance = false);
 
 protected:
 	
+	// verifies if the class already exists into the wmi
+	void performInitialCheck(const CIMClass& newClass);
+
+	// do the initial consistences defined by the CIM model, this is a step of create class
+	Boolean classAlreadyExists(const String& className);
+
 
 private:
+	// create the properties for the new class, this is a step of create class
+	// keys are a special kind of property
+	void createProperties(const CIMClass& newClass,
+						  IWbemServices *pServices,
+						  IWbemClassObject *pNewClass);
+	// create the class name and the class qualifiers, this is a step of create class
+	// if the function could create the name and qualifiers, it returns a valid
+	// pNewClass.
+	void createClassNameAndClassQualifiers(const CIMClass& newClass,
+										   IWbemServices *pServices,
+										   IWbemClassObject **pNewClass,
+ 										   const bool hasSuperClass);
+	// create the methods of a class
+	void createMethods (const CIMClass& newClass, IWbemServices *pServices, IWbemClassObject *pNewClass);
+	
+	// create one property
+	void createProperty (const CIMProperty &keyProp, IWbemClassObject *pNewClass);
+	// create one qualifier
+	void createQualifier (const WMIQualifier &qualifier, IWbemQualifierSet *pQual);
+	// create a method
+	void createMethod (CIMConstMethod &method,
+					   IWbemServices *pServices,
+					   IWbemClassObject *pNewClass);
+	// create a parameter
+	void createParam (const CIMConstParameter &param, IWbemClassObject *pNewClass);
+	
+	// remove class methods
+	void removeMethods (IWbemClassObject *pClass);
+	// remove class properties
+	void removeProperties (IWbemClassObject *pClass);
+	// remove class qualifiers
+	void removeQualifiers (IWbemClassObject *pClass);
 
 };
 

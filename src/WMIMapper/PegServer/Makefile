@@ -1,12 +1,18 @@
 ROOT = ../../..
 
-DIR = WMIMapper/PegWMIServer
+DIR = WMIMapper/PegServer
 
 include $(ROOT)/mak/config.mak
 
+# SSL support
+ifdef PEGASUS_HAS_SSL
+  FLAGS += -DPEGASUS_HAS_SSL -DPEGASUS_SSL_RANDOMFILE
+  SYS_INCLUDES += -I$(OPENSSL_HOME)/include
+endif
+
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
-LOCAL_DEFINES = -DPEGASUS_SERVER_INTERNAL -DPEGASUS_INTERNALONLY
+LOCAL_DEFINES = -DPEGASUS_SERVER_INTERNAL -DPEGASUS_INTERNALONLY -DPEGASUS_WMIMAPPER
 
 LIBRARY = pegwmiserver
 
@@ -24,16 +30,19 @@ PRE_DEPEND_INCLUDES = -I./depends
 
 SOURCES = \
     CIMOperationRequestDecoder.cpp \
+    HTTPAuthenticatorDelegator.cpp \
+    CIMServer.cpp \
     CIMOperationResponseEncoder.cpp \
     CIMOperationRequestDispatcher.cpp \
     CIMOperationRequestAuthorizer.cpp \
-    HTTPAuthenticatorDelegator.cpp \
-    CIMServer.cpp \
     CIMServerState.cpp 
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 
 SYS_LIBS = ws2_32.lib advapi32.lib
+ifdef PEGASUS_HAS_SSL
+  SYS_LIBS += $(OPENSSL_HOME)/Lib/*.lib
+endif
 
 include $(ROOT)/mak/library.mak
 
@@ -41,13 +50,10 @@ run:
 	Server $(REPOSITORY_ROOT)
 
 copy2:
-	$(COPY) $(ROOT)/src/Pegasus/Server/CIMOperationRequestDecoder.cpp ./CIMOperationRequestDecoder.cpp
 	$(COPY) $(ROOT)/src/Pegasus/Server/CIMOperationResponseEncoder.cpp ./CIMOperationResponseEncoder.cpp
-	$(COPY) $(ROOT)/src/Pegasus/Server/CIMOperationRequestAuthorizer.cpp ./CIMOperationRequestAuthorizer.cpp 
-	$(COPY) $(ROOT)/src/Pegasus/Server/HTTPAuthenticatorDelegator.cpp ./HTTPAuthenticatorDelegator.cpp
-	$(COPY) $(ROOT)/src/Pegasus/Server/CIMServerState.cpp ./CIMServerState.cpp
-	$(COPY) $(ROOT)/src/Pegasus/Server/CIMOperationRequestDecoder.h ./CIMOperationRequestDecoder.h
 	$(COPY) $(ROOT)/src/Pegasus/Server/CIMOperationResponseEncoder.h ./CIMOperationResponseEncoder.h
+	$(COPY) $(ROOT)/src/Pegasus/Server/CIMOperationRequestAuthorizer.cpp ./CIMOperationRequestAuthorizer.cpp 
 	$(COPY) $(ROOT)/src/Pegasus/Server/CIMOperationRequestAuthorizer.h ./CIMOperationRequestAuthorizer.h 
-	$(COPY) $(ROOT)/src/Pegasus/Server/HTTPAuthenticatorDelegator.h ./HTTPAuthenticatorDelegator.h
+	$(COPY) $(ROOT)/src/Pegasus/Server/CIMServerState.cpp ./CIMServerState.cpp
 	$(COPY) $(ROOT)/src/Pegasus/Server/CIMServerState.h ./CIMServerState.h
+	$(COPY) $(ROOT)/src/Pegasus/Server/HTTPAuthenticatorDelegator.h ./HTTPAuthenticatorDelegator.h

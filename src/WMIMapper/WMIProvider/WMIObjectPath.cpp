@@ -105,7 +105,6 @@ WMIObjectPath::WMIObjectPath(const BSTR bstr)
 				temp[i] = '/';
 			}
 		}
-
 		setNameSpace(temp);
 	}
 
@@ -152,14 +151,18 @@ WMIObjectPath::WMIObjectPath(const BSTR bstr)
 			bool quote = false;
 
 			// seek to '\"' or eos
+			
 			for(len = 0; (p[pos] != Char16(0)) && !((p[pos] == ',') && (!quote)); len++, pos++)
 			{
 				quote = (p[pos] == '\"') ? !quote : quote;
+				
+				// By Jair - check if it is not an 'internal' quote.
+				// If it is, must be discarded in this case.
+				if (!quote && len) quote = (p[pos - 1] == '\\');
 			}
 
 			// strip outer quotes
 			String temp(&p[pos - len], len);
-
 			if((temp.size() != 0) && (temp[0] == '\"') && (temp[temp.size() - 1] == '\"'))
 			{
 				temp.remove(temp.size() - 1, 1);
@@ -169,7 +172,13 @@ WMIObjectPath::WMIObjectPath(const BSTR bstr)
 			// remove escape sequences (the parent class will put them back later).
 			for(Uint32 i = 0; i < temp.size(); i++)
 			{
-				if((temp[i] == '\\') && ((temp[i + 1] == '"') || (temp[i + 1] == '\n') || (temp[i + 1] == '\r') || (temp[i + 1] == '\t')))
+				//if((temp[i] == '\\') && ((temp[i + 1] == '"') || (temp[i + 1] == '\n') || (temp[i + 1] == '\r') || (temp[i + 1] == '\t')))
+				if((temp[i] == '\\') && 
+				   ((temp[i + 1] == '\\') || 
+				    (temp[i + 1] == '"')  || 
+					(temp[i + 1] == '\n') || 
+					(temp[i + 1] == '\r') || 
+					(temp[i + 1] == '\t')))
 				{
 					temp.remove(i, 1);
 				}

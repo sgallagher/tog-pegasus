@@ -25,6 +25,7 @@
 //
 // Modified By: Mary Hinton (m.hinton@verizon.net)
 //              Sushma Fernandes (sushma_fernandes@hp.com)
+//		Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -32,7 +33,6 @@
 #include <process.h>    /* _beginthread, _endthread */
 #include <tchar.h>
 #include <direct.h>
-
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -59,27 +59,45 @@ int cimserver_fork( ) { return(0); }
 int cimserver_kill( ) { return(0); }
 Boolean isCIMServerRunning( ) { return(false); }
 
+// notify parent process to terminate so user knows that cimserver 
+// is ready to serve CIM requests. If this plateform needs to implement 
+// this functionality, please see sample implementation in cimserver_unix.cpp
+void notify_parent(void)
+{
+}
+
 static void __cdecl cimserver_windows_thread(void *parm) 
 {
 
-    // Get options (from command line and from configuration file); this
-    // removes corresponding options and their arguments fromt he command
-    // line.
+	// Get options (from command line and from configuration file); this
+	// removes corresponding options and their arguments fromt he command
+	// line.
 
-    ConfigManager* configManager = ConfigManager::getInstance();
+	String pegasusHome;
+
+	// mdh: need to get the environment for the Windows Service to run 
+	const char* tmp = getenv("PEGASUS_HOME");
+	if (tmp)
+	{
+		pegasusHome = tmp;
+	}
+
+	ConfigManager::setPegasusHome(pegasusHome);
+	
+  	ConfigManager* configManager = ConfigManager::getInstance();
     int dummy = 0;
-    String pegasusHome;
+    //String pegasusHome;
 
-    try
+	try
     {
-	GetOptions(configManager, dummy, NULL, pegasusHome);
+		GetOptions(configManager, dummy, NULL, pegasusHome);
     }
     catch (Exception&)
     {
-      exit(1);
+		exit(1);
     }
 
-    //
+	//
     // Check the trace options and set global variable
     //
     Boolean pegasusIOTrace = false;
@@ -89,7 +107,7 @@ static void __cdecl cimserver_windows_thread(void *parm)
         pegasusIOTrace = true;
     }
 
-    //
+	//
     // Check the log trace options and set global variable
     //
     Boolean pegasusIOLog = false;
@@ -98,64 +116,100 @@ static void __cdecl cimserver_windows_thread(void *parm)
     {
         pegasusIOLog = true;
     }
-    Boolean useSSL = false;
-    
-    if (String::equal(configManager->getCurrentValue("SSL"), "true"))
+
+	// The "SSL" property overrides the enableHttp*Connection properties and
+    // enables only the HTTPS connection.
+	Boolean enableHttpConnection = String::equal(
+		configManager->getCurrentValue("enableHttpConnection"), "true");
+
+	Boolean enableHttpsConnection = String::equal(
+		configManager->getCurrentValue("enableHttpsConnection"), "true");
+
+	if (!enableHttpConnection && !enableHttpsConnection)
     {
-       useSSL =  true;
+        Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::WARNING,
+            "Neither HTTP nor HTTPS connection is enabled.  "
+            "CIMServer will not be started.");
+        cerr << "Neither HTTP nor HTTPS connection is enabled.  "
+            "CIMServer will not be started." << endl;
+        exit(1);
     }
 
-    // mdh: need to get the environment for the Windows Service to run 
-    const char* tmp = getenv("PEGASUS_HOME");
-    if (tmp)
+    // Get the connection port configurations
+
+    Uint32 portNumberHttps;
+    Uint32 portNumberHttp;
+
+    if (enableHttpsConnection)
     {
-        pegasusHome = tmp;
-    }    
-    ConfigManager::setPegasusHome(pegasusHome);
+        String httpsPort = configManager->getCurrentValue("httpsPort");
+        CString portString = httpsPort.getCString();
+        char* end = 0;
+        Uint32 port = strtol(portString, &end, 10);
+        assert(end != 0 && *end == '\0');
 
-    // Grab the port otpion:
-
-    String portOption;
-
-    if (useSSL)
-    {
-        portOption = configManager->getCurrentValue("httpsPort");
+        //
+        // Look up the WBEM-HTTPS port number
+        //
+        portNumberHttps = System::lookupPort(WBEM_HTTPS_SERVICE_NAME, port);
     }
-    else
+
+    if (enableHttpConnection)
     {
-        portOption = configManager->getCurrentValue("httpPort");
+        String httpPort = configManager->getCurrentValue("httpPort");
+        CString portString = httpPort.getCString();
+        char* end = 0;
+        Uint32 port = strtol(portString, &end, 10);
+        assert(end != 0 && *end == '\0');
+
+        //
+        // Look up the WBEM-HTTP port number
+        //
+        portNumberHttp = System::lookupPort(WBEM_HTTP_SERVICE_NAME, port);
     }
-    CString address = portOption.getCString();
 
     // Set up the Logger
     Logger::setHomeDirectory("./logs");
 
     // Put server start message to the logger
     Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
-	"Start $0 %1 port $2 $3 ", 88, PEGASUS_NAME, PEGASUS_VERSION,
-		(const char*)address, (pegasusIOTrace ? " Tracing": " "));
+	"Start $0 %1 $2 ", 88, PEGASUS_NAME, PEGASUS_VERSION,
+		(pegasusIOTrace ? " Tracing": " "));
+    // ATTN: Should this really be: ?
+    //Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
+    //            "Started $0 version $1.", PEGASUS_NAME, PEGASUS_VERSION);
+
      // try loop to bind the address, and run the server
     try
     {
-	Monitor monitor;
+		Monitor monitor(true);
         
-       	CIMServer server(&monitor, useSSL);
-	server_windows = &server;
+		CIMServer server(&monitor);
+		server_windows = &server;
 
-	char* end = 0;
-	long portNumber = strtol(address, &end, 10);
-	assert(end != 0 && *end == '\0');
-	
-	server_windows->bind(portNumber);
+		if (enableHttpConnection)
+		{
+			server_windows->addAcceptor(false, portNumberHttp, false);
+			Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
+						"Listening on HTTP port $0.", portNumberHttp);
+		}
+		if (enableHttpsConnection)
+		{
+			server_windows->addAcceptor(false, portNumberHttps, true);
+			Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
+						"Listening on HTTPS port $0.", portNumberHttps);
+		}
 
-	while(!server_windows->terminated())
-	{
-	    server_windows->runForever();
-	}
+		server_windows->bind();
+
+		while(!server_windows->terminated())
+		{
+			server_windows->runForever();
+		}
     }
     catch(Exception& e)
     {
-	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
+		PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
     }
 
     _endthreadex(NULL);
@@ -165,28 +219,25 @@ static void __cdecl cimserver_windows_thread(void *parm)
 /////////////////////////////////////////////////////////////////
 //  Windows NT Service Control Code 
 /////////////////////////////////////////////////////////////////
-
-
-
-
 VOID WINAPI  cimserver_windows_main(int argc, char **argv) 
 {
-  int ccode;
-  SERVICE_TABLE_ENTRY dispatch_table[] = 
-  {
-    {"cimserver", cimserver_service_start},
-    {NULL, NULL}
-  };
+	int ccode;
+	SERVICE_TABLE_ENTRY dispatch_table[] = 
+	{
+		{"wmiserver", cimserver_service_start},
+		{NULL, NULL}
+	};
 
-   /* let everyone know we are running (or trying to run) as an NT service */
-  if(!(ccode =  StartServiceCtrlDispatcher(dispatch_table))) 
-    {
-      ccode = GetLastError();
-      // Put server start message to the logger
-      Logger::put(Logger::STANDARD_LOG, "CIMServer_Windows", Logger::INFORMATION,
-		  "Started as a Windows Service");
-    }
-  return;
+	/* let everyone know we are running (or trying to run) as an NT service */
+	if(!(ccode =  StartServiceCtrlDispatcher(dispatch_table))) 
+	{
+		ccode = GetLastError();
+		// Put server start message to the logger
+		Logger::put(Logger::STANDARD_LOG, "CIMServer_Windows", Logger::INFORMATION,
+			"Started as a Windows Service");
+	}
+
+	return;
 }
 
 /////////////////////////////////////////////////////////////////
@@ -194,177 +245,202 @@ VOID WINAPI  cimserver_windows_main(int argc, char **argv)
 // called by the NT service control manager to start the SLP service
 //
 /////////////////////////////////////////////////////////////////
-
 VOID WINAPI cimserver_service_start(DWORD argc, LPTSTR *argv) 
 {
 
-  DWORD status;
-  DWORD specificError;
-  pegasus_status.dwServiceType = SERVICE_WIN32;
-  pegasus_status.dwCurrentState = SERVICE_START_PENDING;
-  pegasus_status.dwControlsAccepted 
-      = SERVICE_ACCEPT_STOP | SERVICE_ACCEPT_SHUTDOWN ;
-  pegasus_status.dwWin32ExitCode = 0;
-  pegasus_status.dwServiceSpecificExitCode = 0;
-  pegasus_status.dwCheckPoint = 0;
-  pegasus_status.dwWaitHint = 0;
+	DWORD status;
+	DWORD specificError;
+	pegasus_status.dwServiceType = SERVICE_WIN32;
+	pegasus_status.dwCurrentState = SERVICE_START_PENDING;
+	pegasus_status.dwControlsAccepted 
+		= SERVICE_ACCEPT_STOP | SERVICE_ACCEPT_SHUTDOWN ;
+	pegasus_status.dwWin32ExitCode = 0;
+	pegasus_status.dwServiceSpecificExitCode = 0;
+	pegasus_status.dwCheckPoint = 0;
+	pegasus_status.dwWaitHint = 0;
+	pegasus_status_handle = RegisterServiceCtrlHandler("wmiserver", cimserver_service_ctrl_handler);
 
-  pegasus_status_handle = RegisterServiceCtrlHandler("cimserver", cimserver_service_ctrl_handler);
-  if( pegasus_status_handle == (SERVICE_STATUS_HANDLE)0) 
-    {
-      Logger::put(Logger::STANDARD_LOG, "CIMServer_Windows", Logger::INFORMATION,
-		  "Error installing service handler");
-      return;
-    }
-
-  // mdday -- I need to replace this hack with registry code
-
-  // this is an ugly hack because we should really be getting this data 
-  // out of the registry. We are essentially forcing pegasus to be run 
-  // from its build tree. i.e.: 
-  // PEGASUS_HOME = binary_exe_path minus  "\bin\cimserver.exe"
-
-  // so if my build environment is in "c:\my-programs\pegasus\ 
-  // I will install the service binary path as "c:\my-programs\pegasus\bin\cimserver.exe"
-  // Therefore I will derive PEGASUS_HOME as "c:\my-programs\pegasus"
-  
-  // If I do something wierd and run pegasus from "c:\winnt" then this hack will break 
-  // the service will think its running but the CIMServer object will never have been instantiated. 
- 
-  SC_HANDLE service_handle, sc_manager;
-  if(NULL != (sc_manager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS))) 
-    {
-      if(NULL != (service_handle = OpenService(sc_manager, 
-					       "cimserver",
-					       SERVICE_ALL_ACCESS)))
-
+	if(pegasus_status_handle == (SERVICE_STATUS_HANDLE)0)
 	{
-	  DWORD bytes_needed = 0;
-	  QUERY_SERVICE_CONFIG *svc_config = NULL;
-	  
-	  QueryServiceConfig(service_handle, svc_config, sizeof(svc_config), &bytes_needed);
-	  if(bytes_needed > 0) 
-	    {
-	      if(NULL != ( svc_config = (QUERY_SERVICE_CONFIG *) malloc(bytes_needed))) 
-		{
-		  if(TRUE == QueryServiceConfig(service_handle, svc_config, bytes_needed, &bytes_needed)) 
-		    {
-		      Uint32 position;
-		      runPath = new String(svc_config->lpBinaryPathName);
-		      if(PEG_NOT_FOUND != (position = runPath->reverseFind('\\'))) 
-			{
-			  Uint32 len = runPath->size();
-			  runPath->remove(position, len - position);
-			  position = runPath->reverseFind('\\');
-			  len = runPath->size();
-			  runPath->remove(position, len - position);
-			}
-		    }
-		  free(svc_config);
-		}
-	    }
-	  CloseServiceHandle(service_handle);
+		Logger::put(Logger::STANDARD_LOG, "CIMServer_Windows", Logger::INFORMATION,
+			"Error installing service handler");
+		return;
 	}
-      CloseServiceHandle(sc_manager);
-    }
 
-  status = cimserver_initialization(argc, argv, &specificError);
-  if(status < 0) 
+	// mdday -- I need to replace this hack with registry code
+
+	// this is an ugly hack because we should really be getting this data 
+	// out of the registry. We are essentially forcing pegasus to be run 
+	// from its build tree. i.e.: 
+	// PEGASUS_HOME = binary_exe_path minus  "\bin\cimserver.exe"
+
+	// so if my build environment is in "c:\my-programs\pegasus\ 
+	// I will install the service binary path as "c:\my-programs\pegasus\bin\cimserver.exe"
+	// Therefore I will derive PEGASUS_HOME as "c:\my-programs\pegasus"
+  
+	// If I do something wierd and run pegasus from "c:\winnt" then this hack will break 
+	// the service will think its running but the CIMServer object will never have been instantiated. 
+ 
+	SC_HANDLE service_handle, sc_manager;
+	if(NULL != (sc_manager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS))) 
+	{
+		if(NULL != (service_handle = OpenService(sc_manager, 
+												 "wmiserver",
+												 SERVICE_ALL_ACCESS)))
+
+		{
+			DWORD bytes_needed = 0;
+			QUERY_SERVICE_CONFIG *svc_config = NULL;
+	  
+			QueryServiceConfig(service_handle, svc_config, sizeof(svc_config), &bytes_needed);
+			if(bytes_needed > 0) 
+			{
+				if(NULL != ( svc_config = (QUERY_SERVICE_CONFIG *) malloc(bytes_needed))) 
+				{
+					if(TRUE == QueryServiceConfig(service_handle, svc_config, bytes_needed, &bytes_needed)) 
+					{
+						Uint32 position;
+						runPath = new String(svc_config->lpBinaryPathName);
+						if(PEG_NOT_FOUND != (position = runPath->reverseFind('\\'))) 
+						{
+							Uint32 len = runPath->size();
+							runPath->remove(position, len - position);
+							position = runPath->reverseFind('\\');
+							len = runPath->size();
+							runPath->remove(position, len - position);
+						}
+					}
+
+					free(svc_config);
+				}
+			}
+
+			CloseServiceHandle(service_handle);
+		}
+
+		CloseServiceHandle(sc_manager);
+	}
+
+	status = cimserver_initialization(argc, argv, &specificError);
+	if(status < 0) 
     {
-      pegasus_status.dwCurrentState = SERVICE_STOPPED;
-      pegasus_status.dwCheckPoint = 0;
-      pegasus_status.dwWaitHint = 0;
-      pegasus_status.dwWin32ExitCode = status;
-      pegasus_status.dwServiceSpecificExitCode = specificError;
-      SetServiceStatus(pegasus_status_handle, &pegasus_status);
-      Logger::put(Logger::STANDARD_LOG, "CIMServer_Windows", Logger::INFORMATION,
-		  "Error starting Cim Server");
-    return;
-    }
+		pegasus_status.dwCurrentState = SERVICE_STOPPED;
+		pegasus_status.dwCheckPoint = 0;
+		pegasus_status.dwWaitHint = 0;
+		pegasus_status.dwWin32ExitCode = status;
+		pegasus_status.dwServiceSpecificExitCode = specificError;
+		SetServiceStatus(pegasus_status_handle, &pegasus_status);
+		Logger::put(Logger::STANDARD_LOG, "CIMServer_Windows", Logger::INFORMATION,
+			"Error starting Cim Server");
+		return;
+	}
 
-  pegasus_status.dwCurrentState = SERVICE_RUNNING;
-  pegasus_status.dwCheckPoint = 0;
-  pegasus_status.dwWaitHint = 0;
+	pegasus_status.dwCurrentState = SERVICE_RUNNING;
+	pegasus_status.dwCheckPoint = 0;
+	pegasus_status.dwWaitHint = 0;
 
-  if(!SetServiceStatus(pegasus_status_handle, &pegasus_status)) 
-    {
-      if(server_windows != NULL)
-	server_windows->shutdown();
-    }
+	if(!SetServiceStatus(pegasus_status_handle, &pegasus_status)) 
+	{
+		if(server_windows != NULL)
+			server_windows->shutdown();
+	}
 
-  return;
+	return;
 }
 
+/////////////////////////////////////////////////////////////////
+//
+/////////////////////////////////////////////////////////////////
 VOID WINAPI cimserver_service_ctrl_handler(DWORD opcode) 
 {
+	switch(opcode) 
+	{
+		case SERVICE_CONTROL_STOP:
+		case SERVICE_CONTROL_SHUTDOWN:
+			if(server_windows != NULL)
+				server_windows->shutdown();
+			pegasus_status.dwCurrentState = SERVICE_STOPPED;
+			pegasus_status.dwCheckPoint = 0;
+			pegasus_status.dwWaitHint = 0;
+			pegasus_status.dwWin32ExitCode = 0;
+			SetServiceStatus(pegasus_status_handle, &pegasus_status);
+			return;
+			break;
+		default:
+			break;
+	}
+	
+	SetServiceStatus(pegasus_status_handle, &pegasus_status);
 
-  switch(opcode) {
-  case SERVICE_CONTROL_STOP:
-  case SERVICE_CONTROL_SHUTDOWN:
-    if(server_windows != NULL)
-      server_windows->shutdown();
-    pegasus_status.dwCurrentState = SERVICE_STOPPED;
-    pegasus_status.dwCheckPoint = 0;
-    pegasus_status.dwWaitHint = 0;
-    pegasus_status.dwWin32ExitCode = 0;
-    SetServiceStatus(pegasus_status_handle, &pegasus_status);
-    return;
-    break;
-    default:
-      break;
-  }
-  SetServiceStatus(pegasus_status_handle, &pegasus_status);
-  return;
+	return;
 }
 
+/////////////////////////////////////////////////////////////////
+//
+/////////////////////////////////////////////////////////////////
 DWORD cimserver_initialization(DWORD argc, LPTSTR *argv, DWORD *specificError) 
 {
-  
-  return( _beginthread(cimserver_windows_thread, 0, NULL ));
+	return( _beginthread(cimserver_windows_thread, 0, NULL ));
 }
  
-
-Uint32 cimserver_install_nt_service(String &pegasusHome ) 
+/////////////////////////////////////////////////////////////////
+//
+/////////////////////////////////////////////////////////////////
+Uint32 cimserver_install_nt_service(String &pegasusHome) 
 {
-  SC_HANDLE service_handle, sc_manager;
-  Uint32 ccode = 0;
-  pegasusHome.append("\\bin\\cimserver.exe");
-  CString pegHome = pegasusHome.getCString() ;
-  LPCSTR path_name = (const char*) pegHome;
-  if(NULL != (sc_manager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS))) 
+	SC_HANDLE service_handle, sc_manager;
+	Uint32 ccode = 0;
+	
+	pegasusHome.append("\\bin\\wmiserver.exe");
+
+	CString pegHome = pegasusHome.getCString() ;
+	LPCSTR path_name = (const char*) pegHome;
+		
+	if(NULL != (sc_manager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS))) 
     {
-      if(NULL != (service_handle = CreateService(sc_manager, 
-						 "cimserver",
-						 "Pegasus CIM Object Manager",
-						 SERVICE_ALL_ACCESS,
-						 SERVICE_WIN32_OWN_PROCESS,
-						 SERVICE_DEMAND_START,
-						 SERVICE_ERROR_NORMAL, 
-						 path_name,
-						 NULL, NULL, NULL, NULL, NULL))) 
-	{
-	  ccode = (Uint32)service_handle;
+		if(NULL != (service_handle = CreateService(sc_manager, 
+												   "wmiserver",
+												   "Pegasus WMI Mapper",
+												   SERVICE_ALL_ACCESS,
+												   SERVICE_WIN32_OWN_PROCESS,
+												   SERVICE_DEMAND_START,
+												   SERVICE_ERROR_NORMAL, 
+												   path_name,
+												   NULL, 
+												   NULL, 
+												   NULL, 
+												   NULL, 
+												   NULL))) 
+		{
+			ccode = (Uint32)service_handle;
+		}
+		
+		CloseServiceHandle(service_handle);
 	}
-      CloseServiceHandle(service_handle);
-    }
   
-  return(ccode);
+	return(ccode);
 }
 
+/////////////////////////////////////////////////////////////////
+//
+/////////////////////////////////////////////////////////////////
 Uint32 cimserver_remove_nt_service(void) 
 {
 
-  SC_HANDLE service_handle, sc_manager;
-  int ccode = 0;
-  if(NULL != (sc_manager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS))) 
-    {
-      if(NULL != (service_handle = OpenService(sc_manager, "cimserver", DELETE))) 
+	SC_HANDLE service_handle, sc_manager;
+	int ccode = 0;
+
+	if(NULL != (sc_manager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS))) 
 	{
-	  DeleteService(service_handle);
-	  CloseServiceHandle(service_handle);
-	  ccode = 1;
+		if(NULL != (service_handle = OpenService(sc_manager, "wmiserver", DELETE))) 
+		{
+			DeleteService(service_handle);
+			CloseServiceHandle(service_handle);
+			ccode = 1;
+		} 
+		
+		CloseServiceHandle(sc_manager);
 	} 
-      CloseServiceHandle(sc_manager);
-    } 
-  return(ccode);
+	
+	return(ccode);
 }

@@ -23,7 +23,7 @@
 //
 // Author: Barbara Packard (barbara_packard@hp.com)
 //
-// Modified By:
+// Modified By:	Adriano Zanuz (adriano.zanuz@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -46,6 +46,8 @@ public:
 	// CIMInstanceProvider interface
 	virtual CIMInstance getInstance(
         const String& nameSpace,
+        const String& userName,
+        const String& password,
         const CIMObjectPath& instanceName,
         Boolean localOnly = true,
         Boolean includeQualifiers = false,
@@ -54,6 +56,8 @@ public:
 
    virtual Array<CIMInstance> enumerateInstances(
         const String& nameSpace,
+        const String& userName,
+        const String& password,
         const String& className,
         Boolean deepInheritance = true,
         Boolean localOnly = true,
@@ -63,42 +67,54 @@ public:
 
 	virtual Array<CIMObjectPath> enumerateInstanceNames(
 		const String& nameSpace,
+        const String& userName,
+        const String& password,
 		const String& className);
 
 	virtual CIMValue getProperty(
-		const String & nameSpace,
-		const CIMObjectPath & instanceName,
-		const String & propertyName);
+		const String& nameSpace,
+        const String& userName,
+        const String& password,
+		const CIMObjectPath& instanceName,
+		const String& propertyName);
 
-/////////////////////////////////////////////////////////////////////////////////
-// ATTN:
-// The  following methods are not yet implemented
-//
-/////////////////////////////////////////////////////////////////////////////////
 	virtual void modifyInstance(
-		const String & nameSpace,
-		const CIMInstance & modifiedInstance,
+		const String& nameSpace,
+        const String& userName,
+        const String& password,
+		const CIMInstance& modifiedInstance,
 		Boolean includeQualifiers = true,
-		const CIMPropertyList & propertylist = CIMPropertyList());
+		const CIMPropertyList& propertylist = CIMPropertyList());
 
 	virtual CIMObjectPath createInstance(
-		const String & nameSpace,
-		const CIMInstance & newInstance);
+		const String& nameSpace,
+        const String& userName,
+        const String& password,
+		const CIMInstance& newInstance);
 
 	virtual void deleteInstance(
-		const String & nameSpace,
-		const CIMObjectPath & instanceName);
+		const String& nameSpace,
+        const String& userName,
+        const String& password,
+		const CIMObjectPath& instanceName);
 
 	virtual void setProperty(
-		const String & nameSpace,
-		const CIMObjectPath & instanceName,
-		const String & propertyName,
+		const String& nameSpace,
+        const String& userName,
+        const String& password,
+		const CIMObjectPath& instanceName,
+		const String& propertyName,
 		const CIMValue& newValue = CIMValue());
 
-protected:
-	
 private:
+	
+	String WMIInstanceProvider::getHostName();
 
+//////////////////////////////////////////////////////////////////////
+// TERRY: ADDED: helper function, maybe should go in a utilities or base class?
+//////////////////////////////////////////////////////////////////////
+    bool GetKeyBindingsFromCIMInstance(const CIMInstance& newInstance, 
+                                       BSTR* pbsKeyBindings);
 
 };
 

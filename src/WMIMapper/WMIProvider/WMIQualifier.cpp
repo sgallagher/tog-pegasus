@@ -44,11 +44,6 @@ WMIQualifier::WMIQualifier(const CIMQualifier & qualifier) : CIMQualifier(qualif
 WMIQualifier::WMIQualifier(const CComBSTR & name, const CComVariant & value, 
 						   const LONG flavor)
 {
-	CMyString	sQualName;
-	sQualName = name;
-//	Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
-//		"WMIQualifier::WMIQualifier() - Name is %s, flavor is %x", sQualName, flavor);
-
 	*this = CIMQualifier(WMIString(name), WMIValue(value), WMIFlavor(flavor));
 }
 

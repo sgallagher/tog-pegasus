@@ -54,8 +54,10 @@ public:
 //
 /////////////////////////////////////////////////////////////////////////////////
   /// invokeMethod
-    virtual CIMValue invokeMethod(
+	virtual CIMValue invokeMethod(
         const String& nameSpace,
+        const String& userName,
+        const String& password,
         const CIMObjectPath& instanceName,
         const String& methodName,
         const Array<CIMParamValue>& inParameters,

@@ -78,6 +78,8 @@ WMIQueryProvider::~WMIQueryProvider()
 // ///////////////////////////////////////////////////////////////////////////
 Array<CIMObject> WMIQueryProvider::execQuery(
 		const String& nameSpace,
+		const String& userName,
+		const String& password,
         const String& queryLanguage,
         const String& query,
 		const CIMPropertyList& propertyList,
@@ -98,7 +100,7 @@ Array<CIMObject> WMIQueryProvider::execQuery(
 
 	PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIQueryProvider::execQuery()");
 
-	setup(nameSpace);
+	setup(nameSpace,userName,password);
 
 	if (!m_bInitialized)
 	{
@@ -108,11 +110,13 @@ Array<CIMObject> WMIQueryProvider::execQuery(
 	// retrieve results
 	if (!(_collector->getQueryResult(&pObjEnum, query, queryLanguage)))
 	{
-		throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, "ExecQuery failed!");
+		throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "ExecQuery failed!");
 	}
 
+	//set proxy security on pObjEnum
+	bool bSecurity = _collector->setProxySecurity(pObjEnum);
+	
 	//get the results and append them to the array
-
 	hr = pObjEnum->Next(WBEM_INFINITE, 1, &pObject, &dwReturned);
 
 	
@@ -122,24 +126,22 @@ Array<CIMObject> WMIQueryProvider::execQuery(
 	}
 
 	
-	while (SUCCEEDED(hr) && (1== dwReturned))
+	while (SUCCEEDED(hr) && (1 == dwReturned))
 	{
 		CIMObject cimObj;
 		String className2 = _collector->getClassName(pObject);
-//		CIMPropertyList propertyList;
+
 
 		if (!(String::equalNoCase(className, className2)))
 		{	// first time or
 			// changed classes on us, have to get new data...
 			// shouldn't happen very often (I hope!)
-			CMyString p;
-			;p = className;
-			CMyString q;
-			q = className2;
+			CMyString p; p = className;
+			CMyString q; q = className2;
 
 			Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
-			"WMIInstanceProvider::execQuery() - classname changed from %s to %s",
-			(LPCTSTR)p, (LPCTSTR)q);
+						  "WMIInstanceProvider::execQuery() - classname changed from %s to %s",
+						  (LPCTSTR)p, (LPCTSTR)q);
 
 			className = className2;
 
@@ -147,6 +149,8 @@ Array<CIMObject> WMIQueryProvider::execQuery(
 			{
 				cimclass = getCIMClass(
 					nameSpace,
+					userName,
+					password,
 					className);
 			}
 		}
@@ -171,7 +175,7 @@ Array<CIMObject> WMIQueryProvider::execQuery(
 		}
 		else
 		{
-		// we are collecting a class
+			// we are collecting a class
 			String superClass = _collector->getSuperClass(pObject);
 			CIMName objName = className;
 
@@ -185,12 +189,14 @@ Array<CIMObject> WMIQueryProvider::execQuery(
 
 			cimObj = CIMObject(cimclass);
 
-			if (_collector->getCIMObject(pObject, cimObj,
-											false, includeQualifiers, includeClassOrigin,
-											propertyList))
+			if (_collector->getCIMObject(pObject, 
+				                         cimObj,
+										 false, 
+										 includeQualifiers, 
+										 includeClassOrigin,
+										 propertyList))
 			{
 				lCount++;
-
 				objects.append(cimObj);
 			}
 		}
@@ -199,8 +205,6 @@ Array<CIMObject> WMIQueryProvider::execQuery(
 		hr = pObjEnum->Next(WBEM_INFINITE, 1, &pObject, &dwReturned);
 	}
 
-
-
 	Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
 		"WMIQueryProvider::execQuery() - Result count is %d", lCount); 
 
@@ -208,7 +212,9 @@ Array<CIMObject> WMIQueryProvider::execQuery(
 	{
 		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
 			"WMIQueryProvider::execQuery() - hResult value is %x", hr); 
-		throw CIMException(CIM_ERR_NOT_FOUND);
+		
+		//it is not an error
+		//throw CIMException(CIM_ERR_NOT_FOUND);
 	}
 
 	PEG_METHOD_EXIT();
@@ -217,4 +223,3 @@ Array<CIMObject> WMIQueryProvider::execQuery(
 }
 
 PEGASUS_NAMESPACE_END
-

@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "PEGSERVER_EXPORTS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GR /GX /O2 /I "..\..\..\src" /D "NDEBUG" /D "PEGASUS_SERVER_INTERNAL" /D "PEGASUS_PLATFORM_WIN32_IX86_MSVC" /D "PEGASUS_INTERNALONLY" /D _WIN32_WINNT=0x400 /FR"" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GR /GX /O2 /I "..\..\..\src" /D "NDEBUG" /D "PEGASUS_SERVER_INTERNAL" /D "PEGASUS_PLATFORM_WIN32_IX86_MSVC" /D "PEGASUS_INTERNALONLY" /D _WIN32_WINNT=0x400 /D "PEGASUS_WMIMAPPER" /FR"" /YX /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
@@ -53,12 +53,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
-# ADD LINK32 pegwql.lib PegCommon.lib PegRepository.lib pegexportserver.lib pegconfig.lib peguser.lib pegauthentication.lib WmiProvider.lib ws2_32.lib advapi32.lib /nologo /dll /machine:I386 /out:"Release/pegwmiserver.dll" /libpath:"d:\PegasusRun\lib"
-# Begin Special Build Tool
-OutDir=.\Release
-SOURCE="$(InputPath)"
-PostBuild_Cmds=copy         $(Outdir)\MyServer.dll         d:\PegasusRun\bin        	copy         $(Outdir)\MyServer.lib        d:\PegasusRun\lib
-# End Special Build Tool
+# ADD LINK32 pegwql.lib PegCommon.lib PegRepository.lib pegexportserver.lib pegconfig.lib peguser.lib pegauthentication.lib WmiProvider.lib ws2_32.lib advapi32.lib /nologo /dll /machine:I386 /out:"Release/pegwmiserver.dll" /libpath:"D:\Projects\WMIMapper\pegasus(2.1)\lib" /libpath:"..\WMIProvider\release"
 
 !ELSEIF  "$(CFG)" == "PegServer - Win32 Debug"
 

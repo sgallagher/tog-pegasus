@@ -28,6 +28,7 @@ include $(ROOT)/mak/config.mak
 
 mapper:
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/WMIMapper/PegServer -f Makefile copy2
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/WMIMapper/Client -f Makefile copy2
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/WMIMapper -f Makefile rebuild
 
 

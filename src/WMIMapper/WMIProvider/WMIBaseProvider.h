@@ -47,18 +47,25 @@ public:
 	WMIBaseProvider();
 	virtual ~WMIBaseProvider();
 
-	void initialize(void);
+	void initialize(bool bLocal = FALSE);
 	virtual void terminate(void);
 
-	CIMInstance getCIMInstance(const String & nameSpace,
+	CIMInstance getCIMInstance(const String& nameSpace,
+		const String& userName,
+		const String& password,
 		const CIMObjectPath & instanceName, 
 		const CIMPropertyList & propertyList = CIMPropertyList( ));
 
-	CIMClass getCIMClass(const String& nameSpace, const String& className,
+	CIMClass getCIMClass(const String& nameSpace, 
+		const String& userName,
+		const String& password,
+		const String& className,
 		const CIMPropertyList &propertyList = CIMPropertyList());
 
-    Array<CIMObject> execCIMQuery(
+	Array<CIMObject> execCIMQuery(
 		const String& nameSpace,
+		const String& userName,
+		const String& password,
         const String& queryLanguage,
         const String& query,
 		const CIMPropertyList& propertyList = CIMPropertyList(),
@@ -66,8 +73,11 @@ public:
 		Boolean includeClassOrigin = false) ;
 
 protected:
-	void setup(const String & nameSpace);
-	void initCollector();
+	void setup(
+		const String & nameSpace,
+		const String & userName,
+		const String & password);
+	void initCollector(bool bLocal = FALSE);
 	void cleanup();
 
 	String getQueryString(
@@ -86,7 +96,8 @@ protected:
 	bool	m_bInitialized;
 
 	String				m_sNamespace;
-
+	String				m_sUserName;
+	String				m_sPassword;
 };
 
 PEGASUS_NAMESPACE_END

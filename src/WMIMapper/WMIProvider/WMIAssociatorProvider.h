@@ -51,8 +51,10 @@ public:
 /////////////////////////////////////////////////////////////////////////////////
 
     /// associators
-    virtual Array<CIMObject> associators(
+	virtual Array<CIMObject> associators(
         const String& nameSpace,
+        const String& userName,
+        const String& password,
         const CIMObjectPath& objectName,
         const String& assocClass = String::EMPTY,
         const String& resultClass = String::EMPTY,
@@ -65,6 +67,8 @@ public:
     /// associateNames
     virtual Array<CIMObjectPath> associatorNames(
         const String& nameSpace,
+        const String& userName,
+        const String& password,
         const CIMObjectPath& objectName,
         const String& assocClass = String::EMPTY,
         const String& resultClass = String::EMPTY,

@@ -61,6 +61,7 @@
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/XmlReader.h> // stringToValue(), stringArrayToValue()
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Config/ConfigManager.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -302,16 +303,19 @@ void CIMOperationRequestDispatcher::handleGetClassRequest(
 
 	provider.initialize();
 
+	 WMIMapperUserInfoContainer container = request->operationContext.get(WMIMapperUserInfoContainer::NAME);
 
      cimClass = provider.getClass(
 	 request->nameSpace,
+	 request->userName,
+	 container.getPassword(),
 	 request->className,
 	 request->localOnly,
 	 request->includeQualifiers,
 	 request->includeClassOrigin,
 	 request->propertyList);
 
-    //terminate the provider
+	//terminate the provider
 	provider.terminate();
   }
    catch(CIMException& exception)
@@ -343,6 +347,7 @@ void CIMOperationRequestDispatcher::handleGetClassRequest(
 void CIMOperationRequestDispatcher::handleGetInstanceRequest(
    CIMGetInstanceRequestMessage* request)
 {
+
 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
       "CIMOperationRequestDispatcher::handleGetInstanceRequest");
 
@@ -361,12 +366,16 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 	{
 		provider.initialize( );
 
-		CIMObjectPath instanceReference(request->instanceName);
-		instanceReference.setNameSpace(request->nameSpace);
+		/*CIMObjectPath instanceReference(request->instanceName);
+		instanceReference.setNameSpace(request->nameSpace);*/
+
+	    WMIMapperUserInfoContainer container = request->operationContext.get(WMIMapperUserInfoContainer::NAME);
 
 		cimInstance = provider.getInstance(
 			request->nameSpace,
-			instanceReference,
+			request->userName,
+			container.getPassword(),
+			request->instanceName,
 			request->localOnly,
 			request->includeQualifiers,
 			request->includeClassOrigin,
@@ -418,8 +427,12 @@ void CIMOperationRequestDispatcher::handleDeleteClassRequest(
 
 		provider.initialize();
 
+	    WMIMapperUserInfoContainer container = request->operationContext.get(WMIMapperUserInfoContainer::NAME);
+		
 		provider.deleteClass(
 			request->nameSpace,
+			request->userName,
+			container.getPassword(),
 			request->className);
 
 		//terminate the provider
@@ -469,8 +482,12 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
 
 		provider.initialize();
 
+	    WMIMapperUserInfoContainer container = request->operationContext.get(WMIMapperUserInfoContainer::NAME);
+
 		provider.deleteInstance(
 			request->nameSpace,
+			request->userName,
+			container.getPassword(),
 			request->instanceName);
 
 		//terminate the provider
@@ -521,8 +538,12 @@ void CIMOperationRequestDispatcher::handleCreateClassRequest(
 
 		provider.initialize();
 
+	    WMIMapperUserInfoContainer container = request->operationContext.get(WMIMapperUserInfoContainer::NAME);
+
 		provider.createClass(
 			request->nameSpace,
+			request->userName,
+			container.getPassword(),
 			request->newClass);
 
 		//terminate the provider
@@ -558,6 +579,7 @@ void CIMOperationRequestDispatcher::handleCreateClassRequest(
 void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
    CIMCreateInstanceRequestMessage* request)
 {
+
    PEG_METHOD_ENTER(TRC_WMI_MAPPER,
       "CIMOperationRequestDispatcher::handleCreateInstanceRequest");
 
@@ -572,8 +594,12 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 
 		provider.initialize();
 
+	    WMIMapperUserInfoContainer container = request->operationContext.get(WMIMapperUserInfoContainer::NAME);
+
 		instanceName = provider.createInstance(
 			request->nameSpace,
+			request->userName,
+			container.getPassword(),
 			request->newInstance);
 
 		//terminate the provider
@@ -624,8 +650,12 @@ void CIMOperationRequestDispatcher::handleModifyClassRequest(
 
 		provider.initialize();
 
-      provider.modifyClass(
+	  WMIMapperUserInfoContainer container = request->operationContext.get(WMIMapperUserInfoContainer::NAME);
+
+	  provider.modifyClass(
 		request->nameSpace,
+		request->userName,
+		container.getPassword(),
 		request->modifiedClass);
 
 		//terminate the provider
@@ -674,8 +704,12 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
 
 	   provider.initialize();
 
+	   WMIMapperUserInfoContainer container = request->operationContext.get(WMIMapperUserInfoContainer::NAME);
+
 	   provider.modifyInstance(
 		   request->nameSpace,
+		   request->userName,
+		   container.getPassword(),
 		   request->modifiedInstance,
 		   request->includeQualifiers,
 		   request->propertyList);
@@ -728,8 +762,12 @@ void CIMOperationRequestDispatcher::handleEnumerateClassesRequest(
 
 		provider.initialize();
 
+	    WMIMapperUserInfoContainer container = request->operationContext.get(WMIMapperUserInfoContainer::NAME);
+
 		cimClasses = provider.enumerateClasses(
 	 		request->nameSpace,
+			request->userName,
+			container.getPassword(),
 	 		request->className,
 	 		request->deepInheritance,
 	 		request->localOnly,
@@ -785,8 +823,12 @@ void CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest(
 
 		provider.initialize();
 
+	  WMIMapperUserInfoContainer container = request->operationContext.get(WMIMapperUserInfoContainer::NAME);
+
       classNames = provider.enumerateClassNames(
 			request->nameSpace,
+			request->userName,
+			container.getPassword(),
 			request->className,
 			request->deepInheritance);
 
@@ -847,8 +889,12 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 
 		// ATTN: fix parameter list
 
+	    WMIMapperUserInfoContainer container = request->operationContext.get(WMIMapperUserInfoContainer::NAME);
+
 		cimInstances = provider.enumerateInstances(
 			request->nameSpace,
+			request->userName,
+			container.getPassword(),
 			request->className,
 			true, true, false, false,
 			propertyList);
@@ -896,12 +942,6 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 
 	Array<CIMObjectPath> instanceNames;
 
-	// get the class name
-	String className = request->className;
-
-	// and the name space
-	String nameSpace = request->nameSpace;
-
 	WMIInstanceProvider provider;
 
 	try
@@ -909,9 +949,13 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 		// make the request...
 		provider.initialize( );
 
+	    WMIMapperUserInfoContainer container = request->operationContext.get(WMIMapperUserInfoContainer::NAME);
+
 		instanceNames = provider.enumerateInstanceNames(
-			nameSpace,
-			className);
+			request->nameSpace,
+			request->userName,
+			container.getPassword(),
+			request->className);
 	}
     catch(CIMException& exception)
    {
@@ -968,8 +1012,12 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
 
 		// ATTN: fix parameter list
 
-        cimObjects = provider.associators(
+	    WMIMapperUserInfoContainer container = request->operationContext.get(WMIMapperUserInfoContainer::NAME);
+
+		cimObjects = provider.associators(
 			request->nameSpace,
+			request->userName,
+			container.getPassword(),
 			request->objectName,
 			request->assocClass,
 			request->resultClass,
@@ -978,7 +1026,6 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
 			request->includeQualifiers,
 			request->includeClassOrigin,
 			propertyList);
-
 	}
     catch(CIMException& exception)
    {
@@ -1023,17 +1070,18 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
 
 	Array<CIMObjectPath> objectNames;
 
-	// get the class name
-//	String className = request->className;
-
 	WMIAssociatorProvider provider;
 
 	try
 	{
 		provider.initialize( );
 
-        objectNames = provider.associatorNames(
+	    WMIMapperUserInfoContainer container = request->operationContext.get(WMIMapperUserInfoContainer::NAME);
+
+		objectNames = provider.associatorNames(
 			request->nameSpace,
+			request->userName,
+			container.getPassword(),
 			request->objectName,
 			request->assocClass,
 			request->resultClass,
@@ -1097,8 +1145,12 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
 
 		// ATTN: fix parameter list
 
-        cimObjects = provider.references(
+	    WMIMapperUserInfoContainer container = request->operationContext.get(WMIMapperUserInfoContainer::NAME);
+
+		cimObjects = provider.references(
 			request->nameSpace,
+			request->userName,
+			container.getPassword(),
 			request->objectName,
 			request->resultClass,
 			request->role,
@@ -1156,8 +1208,12 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
 	{
 		provider.initialize( );
 
-        objectNames = provider.referenceNames(
+	    WMIMapperUserInfoContainer container = request->operationContext.get(WMIMapperUserInfoContainer::NAME);
+
+		objectNames = provider.referenceNames(
 			request->nameSpace,
+			request->userName,
+			container.getPassword(),
 			request->objectName,
 			request->resultClass,
 			request->role);
@@ -1196,7 +1252,7 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
 void CIMOperationRequestDispatcher::handleGetPropertyRequest(
    CIMGetPropertyRequestMessage* request)
 {
- 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
+	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
       "CIMOperationRequestDispatcher::handleGetPropertyRequest");
 
 	CIMStatusCode errorCode = CIM_ERR_SUCCESS;
@@ -1211,11 +1267,15 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
 
 		provider.initialize();
 
+	    WMIMapperUserInfoContainer container = request->operationContext.get(WMIMapperUserInfoContainer::NAME);
+
 		value = provider.getProperty(
 			request->nameSpace,
+			request->userName,
+			container.getPassword(),
 			request->instanceName,
 			request->propertyName);
-
+		
 		provider.terminate();
 	}
     catch(CIMException& exception)
@@ -1258,7 +1318,7 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
 
 	CIMValue value;
 
-   {
+  /* {
       CIMException cimException;
       try
       {
@@ -1293,7 +1353,7 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
          PEG_METHOD_EXIT();
          return;
       }
-	}
+	}*/
 
 	try
 	{
@@ -1301,8 +1361,12 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
 
 		provider.initialize();
 
+	    WMIMapperUserInfoContainer container = request->operationContext.get(WMIMapperUserInfoContainer::NAME);
+
 		provider.setProperty(
 			request->nameSpace,
+			request->userName,
+			container.getPassword(),
 			request->instanceName,
 			request->propertyName,
 			request->newValue);
@@ -1354,8 +1418,12 @@ void CIMOperationRequestDispatcher::handleGetQualifierRequest(
 
 		provider.initialize();
 
+	    WMIMapperUserInfoContainer container = request->operationContext.get(WMIMapperUserInfoContainer::NAME);
+
 		cimQualifierDecl = provider.getQualifier(
 			request->nameSpace,
+			request->userName,
+			container.getPassword(),
 			request->qualifierName);
 
 		provider.terminate();
@@ -1404,8 +1472,12 @@ void CIMOperationRequestDispatcher::handleSetQualifierRequest(
 
 		provider.initialize();
 
+	    WMIMapperUserInfoContainer container = request->operationContext.get(WMIMapperUserInfoContainer::NAME);
+
 		provider.setQualifier(
 			request->nameSpace,
+			request->userName,
+			container.getPassword(),
 			request->qualifierDeclaration);
 
 		provider.terminate();
@@ -1453,8 +1525,12 @@ void CIMOperationRequestDispatcher::handleDeleteQualifierRequest(
 
 		provider.initialize();
 
+	    WMIMapperUserInfoContainer container = request->operationContext.get(WMIMapperUserInfoContainer::NAME);
+
 		provider.deleteQualifier(
 			request->nameSpace,
+			request->userName,
+			container.getPassword(),
 			request->qualifierName);
 
 		provider.terminate();
@@ -1504,8 +1580,12 @@ void CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest(
 
 		provider.initialize();
 
+	    WMIMapperUserInfoContainer container = request->operationContext.get(WMIMapperUserInfoContainer::NAME);
+
 		qualifierDeclarations = provider.enumerateQualifiers(
-			request->nameSpace);
+			request->nameSpace,
+			request->userName,
+			container.getPassword());
 
 		provider.terminate();
 	}
@@ -1555,8 +1635,12 @@ void CIMOperationRequestDispatcher::handleExecQueryRequest(
 
 		provider.initialize();
 
+	    WMIMapperUserInfoContainer container = request->operationContext.get(WMIMapperUserInfoContainer::NAME);
+
 		cimObjects = provider.execQuery(
 			request->nameSpace,
+			request->userName,
+			container.getPassword(),
 			request->queryLanguage,
 			request->query);
 
@@ -1600,7 +1684,7 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
    String errorDescription;
    CIMException cimException;
 
-   {
+   /*{
       try
       {
          _fixInvokeMethodParameterTypes(request);
@@ -1635,7 +1719,7 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
          PEG_METHOD_EXIT();
          return;
       }
-   }
+   }*/
 
    CIMValue retValue;
    Array<CIMParamValue> outParameters;
@@ -1646,8 +1730,12 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
 
 		provider.initialize();
 
+	    WMIMapperUserInfoContainer container = request->operationContext.get(WMIMapperUserInfoContainer::NAME);
+
 		retValue = provider.invokeMethod(
 			request->nameSpace,
+			request->userName,
+			container.getPassword(),
 			request->instanceName,
 			request->methodName,
 			request->inParameters,
@@ -1807,8 +1895,12 @@ void CIMOperationRequestDispatcher::_fixInvokeMethodParameterTypes(
 
 					provider.initialize();
 
-                    cimClass = provider.getClass(
+	                WMIMapperUserInfoContainer container = request->operationContext.get(WMIMapperUserInfoContainer::NAME);
+
+					cimClass = provider.getClass(
                         request->nameSpace,
+						request->userName,
+						container.getPassword(),
                         request->instanceName.getClassName(),
                         false, //localOnly,
                         false, //includeQualifiers,
@@ -1942,8 +2034,12 @@ void CIMOperationRequestDispatcher::_fixSetPropertyValueType(
 	provider.initialize();
 
 
-     cimClass = provider.getClass(
+	 WMIMapperUserInfoContainer container = request->operationContext.get(WMIMapperUserInfoContainer::NAME);
+
+	 cimClass = provider.getClass(
 	 request->nameSpace,
+	 request->userName,
+	 container.getPassword(),
 	 sClassName,
 	 false,
 	 false,

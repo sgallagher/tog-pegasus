@@ -24,6 +24,7 @@
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
 // Modified By:	Barbara Packard  (barbara_packard@hp.com)
+//				Paulo Sehn (paulo_sehn@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -42,6 +43,8 @@ PEGASUS_WMIPROVIDER_LINKAGE CIMType WMITypeToCIMType(const CIMTYPE type);
 PEGASUS_WMIPROVIDER_LINKAGE CIMType variantToCIMType(const CComVariant & vValue);
 
 PEGASUS_WMIPROVIDER_LINKAGE CIMType vartypeToCIMType(const VARTYPE vt);
+
+PEGASUS_WMIPROVIDER_LINKAGE CIMTYPE_ENUMERATION CIMTypeToWMIType(const CIMTYPE type);
 
 PEGASUS_NAMESPACE_END
 

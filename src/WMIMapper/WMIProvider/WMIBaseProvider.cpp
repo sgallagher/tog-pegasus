@@ -23,7 +23,7 @@
 //
 // Author: Barbara Packard (barbara_packard@hp.com)
 //
-// Modified By:
+// Modified By:	 Adriano Zanuz (adriano.zanuz@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 // WMIBaseProvider.cpp: implementation of the WMIBaseProvider class.
@@ -66,15 +66,13 @@ WMIBaseProvider::~WMIBaseProvider()
 // WMIBaseProvider::initialize
 //
 // ///////////////////////////////////////////////////////////////////////////
-void WMIBaseProvider::initialize(void)
+void WMIBaseProvider::initialize(bool bLocal)
 {
 	PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIBaseProvider::initialize()");
 
-	initCollector();
-
+	initCollector(bLocal);
 
 	PEG_METHOD_EXIT();
-
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -95,10 +93,14 @@ void WMIBaseProvider::terminate(void)
 /////////////////////////////////////////////////////////////////////////////
 // WMIBaseProvider::setup
 //
-// ///////////////////////////////////////////////////////////////////////////
-void WMIBaseProvider::setup(const String & nameSpace)
+/////////////////////////////////////////////////////////////////////////////
+void WMIBaseProvider::setup(const String & nameSpace,
+							const String & userName,
+							const String & password)
 {
 	m_sNamespace = nameSpace;
+	m_sUserName = userName;
+	m_sPassword = password;
 
 	if (!m_bInitialized)	
 	{
@@ -108,6 +110,12 @@ void WMIBaseProvider::setup(const String & nameSpace)
 	if (m_bInitialized)
 	{
 		_collector->setNamespace(m_sNamespace);
+
+		if (m_sUserName != String::EMPTY)
+			_collector->setUserName(m_sUserName);
+		
+		if (m_sPassword != String::EMPTY)
+			_collector->setPassword(m_sPassword);
 	}
 }
 
@@ -115,12 +123,12 @@ void WMIBaseProvider::setup(const String & nameSpace)
 // WMIBaseProvider::initCollector
 //
 // ///////////////////////////////////////////////////////////////////////////
-void WMIBaseProvider::initCollector()
+void WMIBaseProvider::initCollector(bool bLocal)
 {
 
-	if (!m_bInitialized)	
+	if (!m_bInitialized)
 	{
-		_collector = new WMICollector( );
+		_collector = new WMICollector(bLocal);
 		m_bInitialized = _collector->setup();
 	}
 
@@ -145,7 +153,9 @@ void WMIBaseProvider::cleanup()
 // WMIBaseProvider::getCIMInstance - retrieves a CIMInstance object
 //
 // ///////////////////////////////////////////////////////////////////////////
-CIMInstance WMIBaseProvider::getCIMInstance(const String &nameSpace,
+CIMInstance WMIBaseProvider::getCIMInstance(const String& nameSpace,
+												const String& userName,
+												const String& password,
 												const CIMObjectPath &instanceName, 
 												const CIMPropertyList &propertyList)
 {
@@ -160,9 +170,16 @@ CIMInstance WMIBaseProvider::getCIMInstance(const String &nameSpace,
 	{
 		WMIInstanceProvider provider;
 
-		provider.initialize();
+		provider.initialize(_collector->isLocalConnection());
 
-		cimInstance = provider.getInstance(nameSpace, instanceName, false, false, false, propertyList);
+		cimInstance = provider.getInstance(nameSpace, 
+										   userName, 
+										   password, 
+										   instanceName, 
+										   false, 
+										   false, 
+										   false, 
+										   propertyList);
 
 		provider.terminate();
 	}
@@ -193,8 +210,11 @@ CIMInstance WMIBaseProvider::getCIMInstance(const String &nameSpace,
 // WMIBaseProvider::getCIMClass - retrieves a CIMClass object
 //
 // ///////////////////////////////////////////////////////////////////////////
-CIMClass WMIBaseProvider::getCIMClass(const String &nameSpace, const String &className,
-										  const CIMPropertyList &propertyList)
+CIMClass WMIBaseProvider::getCIMClass(const String& nameSpace,
+										const String& userName,
+										const String& password,
+										const String& className,
+										const CIMPropertyList &propertyList)
 {
 	CIMClass cimClass;
 	CIMStatusCode errorCode = CIM_ERR_SUCCESS;
@@ -206,9 +226,9 @@ CIMClass WMIBaseProvider::getCIMClass(const String &nameSpace, const String &cla
 	{
 		WMIClassProvider provider;
 
-		provider.initialize();
+		provider.initialize(_collector->isLocalConnection());
 
-		cimClass = provider.getClass(nameSpace, className, false, true, true, propertyList);
+		cimClass = provider.getClass(nameSpace, userName, password, className, false, true, true, propertyList);
 
 		provider.terminate();
 	}
@@ -240,6 +260,8 @@ CIMClass WMIBaseProvider::getCIMClass(const String &nameSpace, const String &cla
 // ///////////////////////////////////////////////////////////////////////////
 Array<CIMObject> WMIBaseProvider::execCIMQuery(
 	const String& nameSpace,
+	const String& userName,
+	const String& password,
     const String& queryLanguage,
     const String& query,
 	const CIMPropertyList& propertyList,
@@ -258,9 +280,11 @@ Array<CIMObject> WMIBaseProvider::execCIMQuery(
 	{
 		WMIQueryProvider provider;
 
-		provider.initialize();
+		provider.initialize(_collector->isLocalConnection());
 
 		objects = provider.execQuery(nameSpace,
+					userName,
+					password,
 					queryLanguage,
 					query,
 					propertyList,
@@ -399,7 +423,7 @@ String WMIBaseProvider::getObjectName( const CIMObjectPath& objectName)
 	KeyBindingArray keys = objectName.getKeyBindings();
 	size = keys.size();
 
-	for (i=0, refCount=0; i<size; i++)
+	for (i = 0, refCount = 0; i < size; i++)
 	{
 		KeyBinding key = keys[i];
 
@@ -412,20 +436,39 @@ String WMIBaseProvider::getObjectName( const CIMObjectPath& objectName)
 	Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
 		"WMIBaseProvider::getObjectName() - Reference count is %x", refCount); 
 	
-	sObjName = objectName.toString();  //false);	//no host name
+	sObjName = objectName.toString();
+	
 	Tracer::trace("WMIBaseProvider", 400, TRC_WMIPROVIDER, Tracer::LEVEL3,
 		sObjName); 
 
 	// and remove the namespace stuff
-	Uint32 pos = sObjName.find(qString(Q_COLON));
+	//===================================
+	Uint32 pos;
 	
+	//1. Remove the machine name, port before looking for the classname
+	if (sObjName.subString(0, 4) != "root") 
+	{
+		pos = sObjName.find("root");
+		
+		if (PEG_NOT_FOUND != pos)
+		{
+			sObjName.remove(0, pos);	
+		}
+	}
+
+	//2. After ensuring that all stuff before root was removed,
+	//   get the class/instance name.
+	pos = sObjName.find(qString(Q_COLON));
+		
 	if (PEG_NOT_FOUND != pos)
 	{
-		sObjName.remove(0, pos+1);
+		sObjName.remove(0, pos + 1);	
 	}
+	//===================================
 
 	// Check if has =R".." for a reference instance and
 	//	if so, remove the R
+	//Uint32 pos = sObjName.find(qString(Q_REF_KEY));
 	pos = sObjName.find(qString(Q_REF_KEY));
 	bHaveReference = (PEG_NOT_FOUND != pos);
 
@@ -433,21 +476,30 @@ String WMIBaseProvider::getObjectName( const CIMObjectPath& objectName)
 	{
 		while (PEG_NOT_FOUND != pos)
 		{
-			sObjName.remove(pos+1, 2);	//removing R"
+			sObjName.remove(pos + 1, 1);	//removing R"
 			pos = sObjName.find(qString(Q_REF_KEY));
 		}
 
 		// now remove extra quotes and \"
-		pos = sObjName.find(qString(Q_SLASH_QUOTE));
+		//===================================
+		/*
+		pos = sObjName.find(qString(Q_SLASH));
 		while (PEG_NOT_FOUND != pos)
 		{
-			sObjName.remove(pos+1, 1);	// removing \ from \"
+			sObjName[pos] = '\\';
+			pos = sObjName.find(qString(Q_SLASH));
+		}
+
+		while (PEG_NOT_FOUND != pos)
+		{
+			sObjName.remove(pos, 1);	// removing \ from \"
 			pos = sObjName.find(qString(Q_SLASH_QUOTE));
 		}
+		*/
+		//===================================
 	}
 
-	Tracer::trace("WMIBaseProvider", 420, TRC_WMIPROVIDER, Tracer::LEVEL3,
-		sObjName); 
+	Tracer::trace("WMIBaseProvider", 420, TRC_WMIPROVIDER, Tracer::LEVEL3, sObjName); 
 	PEG_METHOD_EXIT();
 
 	return sObjName;

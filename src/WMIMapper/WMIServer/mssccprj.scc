@@ -1,5 +1,0 @@
-SCC = This is a Source Code Control file
-
-[CimServer.dsp]
-SCC_Aux_Path = "\\Bumblebee\RidgeView\Vss"
-SCC_Project_Name = "$/Gryphon/WMI Mapper/WMIServer", ZCLPAAAA

@@ -6,13 +6,17 @@ include $(ROOT)/mak/config.mak
 
 DIRS = \
 	WMIProvider \
+	Client \
 	PegServer \
-	WMIServer
+	WMIServer \
+	WMIOP
+	
 
 include $(ROOT)/mak/recurse.mak
 
 mapper:
-                $(MAKE) --directory=$(PEGASUS_ROOT)/src/WMIMapper/PegServer -f Makefile copy2
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/WMIMapper/Client -f Makefile copy2
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/WMIMapper/PegServer -f Makefile copy2
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/WMIMapper -f Makefile rebuild
 
 rebuild:  clean depend all

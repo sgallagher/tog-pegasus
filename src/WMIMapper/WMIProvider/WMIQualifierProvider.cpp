@@ -23,7 +23,7 @@
 //
 // Author: Barbara Packard (barbara_packard@hp.com)
 //
-// Modified By:
+// Modified By: Jair F. T. Santos (t.dos.santos.francisco@hp.com)
 //
 // WMIQualifierProvider.cpp: implementation of the WMIQualifierProvider class.
 //
@@ -46,7 +46,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
@@ -64,11 +63,13 @@ WMIQualifierProvider::~WMIQualifierProvider()
 
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//	ATTN:
-//	The following public methods have not been implemented
-//	yet.
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
+// Due to the difference between DMTF and WMI approaches related to        //
+// qualifiers, the qualifier handling methods will not be implemented      //
+// they will only return success from some cases (SetQualifier and         //
+// DeleteQualifier methods) and will throw an NOT_SUPPORTED exception      //
+// for the other methods (GetQualifier and EnumerateQualifiers) (by Jair)  //
+/////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////////////////
 // WMIQualifierProvider::getQualifier
@@ -76,6 +77,8 @@ WMIQualifierProvider::~WMIQualifierProvider()
 // ///////////////////////////////////////////////////////////////////////////
 CIMQualifierDecl WMIQualifierProvider::getQualifier(
         const String& nameSpace,
+        const String& userName,
+        const String& password,
         const String& qualifierName)
 {
 	throw CIMException(CIM_ERR_NOT_SUPPORTED);
@@ -87,9 +90,11 @@ CIMQualifierDecl WMIQualifierProvider::getQualifier(
 // ///////////////////////////////////////////////////////////////////////////
 void WMIQualifierProvider::setQualifier(
         const String& nameSpace,
+        const String& userName,
+        const String& password,
         const CIMQualifierDecl& qualifierDecl)
 {
-	throw CIMException(CIM_ERR_NOT_SUPPORTED);
+	return;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -98,9 +103,11 @@ void WMIQualifierProvider::setQualifier(
 // ///////////////////////////////////////////////////////////////////////////
 void WMIQualifierProvider::deleteQualifier(
         const String& nameSpace,
+        const String& userName,
+        const String& password,
         const String& qualifierName)
 {
-	throw CIMException(CIM_ERR_NOT_SUPPORTED);
+	return;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -108,12 +115,11 @@ void WMIQualifierProvider::deleteQualifier(
 //
 // ///////////////////////////////////////////////////////////////////////////
 Array<CIMQualifierDecl> WMIQualifierProvider::enumerateQualifiers(
-        const String& nameSpace)
+        const String& nameSpace,
+		const String& userName,
+        const String& password)
 {
 	throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
-
-
-
 
 PEGASUS_NAMESPACE_END

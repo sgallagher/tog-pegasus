@@ -77,6 +77,8 @@ WMIAssociatorProvider::~WMIAssociatorProvider()
 //////////////////////////////////////////////////////////////////////////////
 Array<CIMObject> WMIAssociatorProvider::associators(
         const String& nameSpace,
+        const String& userName,
+        const String& password,
         const CIMObjectPath& objectName,
         const String& assocClass,
         const String& resultClass,
@@ -100,7 +102,9 @@ Array<CIMObject> WMIAssociatorProvider::associators(
 				role, 
 				resultRole);
 
-	objects = execCIMQuery(nameSpace, 
+	objects = execCIMQuery(nameSpace,
+				userName,
+				password,
 				sQueryLanguage, 
 				sQuery, 
 				propertyList,
@@ -118,6 +122,8 @@ Array<CIMObject> WMIAssociatorProvider::associators(
 // ///////////////////////////////////////////////////////////////////////////
 Array<CIMObjectPath> WMIAssociatorProvider::associatorNames(
         const String& nameSpace,
+        const String& userName,
+        const String& password,
         const CIMObjectPath& objectName,
         const String& assocClass,
         const String& resultClass,
@@ -135,6 +141,8 @@ Array<CIMObjectPath> WMIAssociatorProvider::associatorNames(
 
 	// now get the objects
 	objects = associators(	nameSpace,
+							userName,
+							password,
 							objectName,
 							assocClass,
 							resultClass,

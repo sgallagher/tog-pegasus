@@ -57,8 +57,8 @@ static char const* QUERY_STRING_LIST[] =
 	".",
 	"=R\"",
 	"\\\"",
-	"\""
-
+	"\"",
+	"/"
 };
 
 // Constants identifying the strings
@@ -81,7 +81,8 @@ enum QUERY_STRING_ID
 	Q_PERIOD,
 	Q_REF_KEY,
 	Q_SLASH_QUOTE,
-	Q_QUOTE
+	Q_QUOTE,
+	Q_SLASH
 
 };
 

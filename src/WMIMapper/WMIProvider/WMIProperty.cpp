@@ -117,7 +117,7 @@ WMIProperty::WMIProperty(const BSTR & name,
 
 	*this = CIMProperty(CIMName(s), WMIValue(vValue, type), 0, cimRef,
 				cimClsOrigin, (classOrigin.size() != 0));
-	
+
 	// add the qualifiers
 	if (includeQualifiers)
 	{

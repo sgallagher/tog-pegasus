@@ -49,8 +49,10 @@ public:
 	virtual ~WMIQueryProvider();
 
     /// execQuery
-    virtual Array<CIMObject> execQuery(
+	virtual Array<CIMObject> execQuery(
 		const String& nameSpace,
+		const String& userName,
+		const String& password,
         const String& queryLanguage,
         const String& query,
 		const CIMPropertyList& propertyList = CIMPropertyList(),

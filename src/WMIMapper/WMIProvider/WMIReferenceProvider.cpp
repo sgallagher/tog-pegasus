@@ -80,6 +80,8 @@ WMIReferenceProvider::~WMIReferenceProvider()
 // ///////////////////////////////////////////////////////////////////////////
 Array<CIMObject> WMIReferenceProvider::references(
         const String& nameSpace,
+        const String& userName,
+        const String& password,
         const CIMObjectPath& objectName,
         const String& resultClass,
         const String& role,
@@ -99,7 +101,9 @@ Array<CIMObject> WMIReferenceProvider::references(
 				resultClass, 
 				role); 
 
-	objects = execCIMQuery(nameSpace, 
+	objects = execCIMQuery(nameSpace,
+				userName,
+				password,
 				sQueryLanguage, 
 				sQuery, 
 				propertyList,
@@ -118,6 +122,8 @@ Array<CIMObject> WMIReferenceProvider::references(
 // ///////////////////////////////////////////////////////////////////////////
 Array<CIMObjectPath> WMIReferenceProvider::referenceNames(
         const String& nameSpace,
+        const String& userName,
+        const String& password,
         const CIMObjectPath& objectName,
         const String& resultClass,
         const String& role)
@@ -133,6 +139,8 @@ Array<CIMObjectPath> WMIReferenceProvider::referenceNames(
 
 	// now get the objects
 	objects = references(	nameSpace,
+							userName,
+							password,
 							objectName,
 							resultClass,
 							role,

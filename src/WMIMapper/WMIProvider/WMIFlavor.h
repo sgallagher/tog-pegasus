@@ -23,7 +23,7 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:
+// Modified By: Paulo Sehn	(paulo_sehn@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -43,6 +43,9 @@ public:
 
 //   operator Uint32(void) const;
 //   operator LONG(void) const;
+
+   // this function maps the flavors values from CIM to WMI
+   long getAsWMIValue ();
 
 protected:
    WMIFlavor(void) { };

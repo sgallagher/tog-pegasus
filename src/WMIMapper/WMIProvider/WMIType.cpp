@@ -24,6 +24,7 @@
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
 // Modified By: Barbara Packard (barbara_packard@hp.com)
+//				Paulo Sehn		(paulo_sehn@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -119,73 +120,155 @@ CIMType variantToCIMType(const CComVariant & vValue)
 
 CIMType vartypeToCIMType(const VARTYPE vt)
 {
-   CIMType type;
+	CIMType type;
 
-   switch(vt & ~VT_ARRAY) {
-   case VT_I2:
-      type = CIMTYPE_SINT16;
+	switch(vt & ~VT_ARRAY) 
+	{
+		case VT_UI1:
+			type = CIMTYPE_UINT8;
+			break;
 
-      break;
-   case VT_UI2:
-      type = CIMTYPE_UINT16;
+		case VT_I2:
+			type = CIMTYPE_SINT16;
+			break;
+   
+		case VT_UI2:
+      		type = CIMTYPE_UINT16;
+			break;
+   
+		case VT_I4:
+			type = CIMTYPE_SINT32;
+			break;
 
-      break;
-   case VT_I4:
-      type = CIMTYPE_SINT32;
+   		case VT_UI4:
+			type = CIMTYPE_UINT32;
+			break;
 
-      break;
-   case VT_UI4:
-      type = CIMTYPE_UINT32;
+   		case VT_I8:
+			type = CIMTYPE_SINT64;
+			break;
 
-      break;
-   case VT_I8:
-      type = CIMTYPE_SINT64;
+		case VT_UI8:
+			type = CIMTYPE_UINT64;
+			break;
 
-      break;
-   case VT_UI8:
-      type = CIMTYPE_UINT64;
+   		case VT_R4:
+			type = CIMTYPE_REAL32;
+			break;
 
-      break;
-   case VT_R4:
-      type = CIMTYPE_REAL32;
+		case VT_R8:
+			type = CIMTYPE_REAL64;
+			break;
+   
+		case VT_BSTR:
+			//type = CIMTYPE_REFERENCE;
+			//type = CIMTYPE_DATETIME;
+			type = CIMTYPE_STRING;
+			break;
 
-      break;
-   case VT_R8:
-      type = CIMTYPE_REAL64;
+		case VT_DATE:
+			type = CIMTYPE_DATETIME;
+			break;
 
-      break;
-   case VT_BSTR:
-      //type = CIMTYPE_REFERENCE;
-      //type = CIMTYPE_DATETIME;
+		case VT_BOOL:
+			type = CIMTYPE_BOOLEAN;
+			break;
 
-      type = CIMTYPE_STRING;
+		case VT_INT:
+			type = (sizeof(int) == 8) ? CIMTYPE_SINT64 : CIMTYPE_SINT32;
+			break;
 
-      break;
-	case VT_DATE:
-		type = CIMTYPE_DATETIME;
+		case VT_UINT:
+			type = (sizeof(int) == 8) ? CIMTYPE_UINT64 : CIMTYPE_UINT32;
+			break;
 
-		break;
-   case VT_BOOL:
-      type = CIMTYPE_BOOLEAN;
+		case VT_EMPTY:
+		case VT_NULL:
+		default:
+			throw TypeMismatchException();
+			break;
+	}
 
-      break;
-	case VT_INT:	
-		type = (sizeof(int) == 8) ? CIMTYPE_SINT64 : CIMTYPE_SINT32;
-		break;
-
-	case VT_UINT:	
-		type = (sizeof(int) == 8) ? CIMTYPE_UINT64 : CIMTYPE_UINT32;
-
-		break;
-   case VT_EMPTY:
-   case VT_NULL:
-   default:
-		throw TypeMismatchException();
-		break;
-   }
-
-   return type;
+	return type;
 }
 
+
+CIMTYPE_ENUMERATION CIMTypeToWMIType(const CIMTYPE type)
+{
+   CIMTYPE_ENUMERATION _type;
+
+   switch(type) 
+   {
+	   case CIMTYPE_BOOLEAN:
+		  _type = CIM_BOOLEAN;
+		  break;
+
+	   case CIMTYPE_SINT8:
+		  _type = CIM_SINT8;
+		  break;
+
+	   case CIMTYPE_UINT8:
+		  _type = CIM_UINT8;
+		  break;
+
+	   case CIMTYPE_SINT16:
+		  _type = CIM_SINT16;
+		  break;
+
+	   case CIMTYPE_UINT16:
+		  _type = CIM_UINT16;
+		  break;
+
+	   case CIMTYPE_SINT32:
+		  _type = CIM_SINT32;
+		  break;
+
+	   case CIMTYPE_UINT32:
+		  _type = CIM_UINT32;
+		  break;
+
+	   case CIMTYPE_SINT64:
+		  _type = CIM_SINT64;
+		  break;
+
+	   case CIMTYPE_UINT64:
+		  _type = CIM_UINT64;
+		  break;
+
+	   case CIMTYPE_REAL32:
+		  _type = CIM_REAL32;
+		  break;
+
+	   case CIMTYPE_REAL64:
+		  _type = CIM_REAL64;
+		  break;
+
+	   case CIMTYPE_CHAR16:
+		  _type = CIM_CHAR16;
+		  break;
+
+	   case CIMTYPE_STRING:
+		  _type = CIM_STRING;
+		  break;
+
+	   case CIMTYPE_DATETIME:
+		  _type = CIM_DATETIME;
+		  break;
+
+	   case CIMTYPE_REFERENCE:
+		  _type = CIM_REFERENCE;
+		  break;
+
+	//   case CIMTYPE_OBJECT:
+	//   case CIMTYPE_FLAG_ARRAY:
+	//   case CIMTYPE_EMPTY:
+	//   case CIMTYPE_ILLEGAL:
+	   default:
+		  throw TypeMismatchException();
+      break;
+   }
+
+   return _type;
+}
 
 PEGASUS_NAMESPACE_END

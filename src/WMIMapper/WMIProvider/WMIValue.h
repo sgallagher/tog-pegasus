@@ -24,7 +24,8 @@
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
 // Modified By:	Barbara Packard (barbara_packard@hp.com)
-//
+//				Paulo Sehn		(paulo_sehn@hp.com)
+//				Adriano Zanuz	(adriano.zanuz@hp.com)
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_WMIValue_h
@@ -45,6 +46,9 @@ public:
 
    VARIANT toVariant();
    operator VARIANT(void) const;
+
+   // returns a variant type from the WMIVAlue
+   void getAsVariant (CComVariant *var);
 
 protected:
    WMIValue(void) { };

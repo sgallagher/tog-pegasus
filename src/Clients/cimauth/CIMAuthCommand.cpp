@@ -30,7 +30,7 @@
 // Modified By:  Carol Ann Krug Graves, Hewlett-Packard Company
 //               (carolann_graves@hp.com)
 //              Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
-//              Amit K Arora, IBM (amitarora@in.ibm.com) for Bug#2311
+//              Amit K Arora, IBM (amitarora@in.ibm.com) for Bug#2311 & 2333
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -1588,12 +1588,18 @@ int main (int argc, char* argv [])
     } 
     catch (CommandFormatException& cfe) 
     {
-        if (!String::equal(cfe.getMessage (), ""))
-        {
-            cerr << COMMAND_NAME << ": " <<  "Invalid option. Use '-h' " 
-                 << "or '--help' to obtain command syntax" << endl;
-        }
-        return 1;
+        String msg(cfe.getMessage());
+
+        cerr << COMMAND_NAME << ": " << msg <<  endl;
+
+        if (msg.find(String("Unknown flag")) != PEG_NOT_FOUND)
+          cerr << COMMAND_NAME <<
+            ": Invalid option. Use '--help' to obtain command syntax" << endl;
+        else
+          cerr << COMMAND_NAME <<
+            ": Incorrect usage. Use '--help' to obtain command syntax" << endl;
+
+        exit (Command::RC_ERROR);
     }
 
     retCode = command->execute (cout, cerr);

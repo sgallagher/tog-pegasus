@@ -1226,8 +1226,8 @@ static void TestServerMessages( CIMClient& client,
 
             try
             {
-//              if (verboseTest)
-//                 cout << "Sending the getClass request " << i << endl;
+              //if (verboseTest)
+	      //  cout << "Sending the getClass request " << i << endl;
 
                 client.setRequestAcceptLanguages(acceptLangs1);
 
@@ -1345,79 +1345,148 @@ static void TestServerMessages( CIMClient& client,
     }
 }
 
-/*
-   Tests the globalization support for indications. 
+/* 
+   Creates the subscriptions, filters, and handlers for the indication tests
 */
-static void TestLocalizedIndications( CIMClient& client, 
-				      Boolean activeTest,
-				      Boolean verboseTest,
-				      Boolean skipIndications,
-				      Uint32 listenerPort)
+static void createSubscriptions(CIMClient& client,
+				CIMObjectPath & g11ntestHandlerRef,
+				CIMObjectPath & providerHandlerRef,
+				CIMObjectPath & filterRef,
+				CIMObjectPath & g11ntestSubscriptionRef,
+				CIMObjectPath & providerSubscriptionRef,
+				String & listenerDest,
+				Boolean skipListener,
+				Boolean verboseTest)
 {
   const CIMNamespaceName SAMPLE_NAMESPACE = CIMNamespaceName ("root/SampleProvider");
   const CIMNamespaceName INTEROP_NAMESPACE = CIMNamespaceName ("root/PG_InterOp");
-  const CIMName METHOD = CIMName("generateIndication");
+  const CIMName METHOD = CIMName("getIndicationResult");
   const CIMObjectPath REFERENCE = CIMObjectPath("Sample_LocalizedProviderClass.Identifier=0");
 
   try
   {
-    //
-    // TEST 1 - Cause the LocalizedProvider to send an indication to a CIMListener
-    // in this process.
-    //
-    // When the indication arrives then check that the UTF-16 chars in the
-    // indication properties are preserved, and that the Content-Language header 
-    // in the Export message is preserved.
-    //
- 
-    cout << endl 
-	 << "INDICATION TEST 1: Receive indication with UTF-16 characters and language tag"
-	 << endl;
+    //---------------------------------------------------------
+    // Build the paths to the handlers, filter, and subscription
+    //---------------------------------------------------------
 
-    if (skipIndications)
-    {
-      cout << "Skipping the indications tests." << endl;
-      return;
-    }
+    // The handler that will have program as the destination
+    String g11ntestHandlerPath = "CIM_IndicationHandlerCIMXML."
+      "CreationClassName=\"CIM_IndicationHandlerCIMXML\","
+      "Name=\"g11ntest_Handler\","
+      "SystemCreationClassName=\"CIM_UnitaryComputerSystem\","
+      "SystemName=\"server001.acme.com\"";
 
-    // Create the handler instance
+    // The handler that will have LocalizedProvider as the destination
+    String providerHandlerPath = "CIM_IndicationHandlerCIMXML."
+      "CreationClassName=\"CIM_IndicationHandlerCIMXML\","
+      "Name=\"provider_Handler\","
+      "SystemCreationClassName=\"CIM_UnitaryComputerSystem\","
+      "SystemName=\"server001.acme.com\"";
+
+    // The filter
+    String filterPath = "CIM_IndicationFilter."
+      "CreationClassName=\"CIM_IndicationFilter\","
+      "Name=\"g11ntest_Filter\","
+      "SystemCreationClassName=\"CIM_UnitaryComputerSystem\","
+      "SystemName=\"server001.acme.com\"";
+
+    // The subscription that will have this program as the destination
+    String g11ntestSubscriptionPath = "CIM_IndicationSubscription."
+      "Filter=\"CIM_IndicationFilter.CreationClassName=\\\"CIM_IndicationFilter\\\","
+      "Name=\\\"g11ntest_Filter\\\","
+      "SystemCreationClassName=\\\"CIM_UnitaryComputerSystem\\\","
+      "SystemName=\\\"server001.acme.com\\\"\","
+      "Handler=\"CIM_IndicationHandlerCIMXML.CreationClassName=\\\"CIM_IndicationHandlerCIMXML\\\","
+      "Name=\\\"g11ntest_Handler\\\","
+      "SystemCreationClassName=\\\"CIM_UnitaryComputerSystem\\\","
+      "SystemName=\\\"server001.acme.com\\\"\"";
+
+    // The subscription that will have LocalizedProvider as the destination
+    String providerSubscriptionPath = "CIM_IndicationSubscription."
+      "Filter=\"CIM_IndicationFilter.CreationClassName=\\\"CIM_IndicationFilter\\\","
+      "Name=\\\"g11ntest_Filter\\\","
+      "SystemCreationClassName=\\\"CIM_UnitaryComputerSystem\\\","
+      "SystemName=\\\"server001.acme.com\\\"\","
+      "Handler=\"CIM_IndicationHandlerCIMXML.CreationClassName=\\\"CIM_IndicationHandlerCIMXML\\\","
+      "Name=\\\"provider_Handler\\\","
+      "SystemCreationClassName=\\\"CIM_UnitaryComputerSystem\\\","
+      "SystemName=\\\"server001.acme.com\\\"\"";
+
+    // Need to delete the old subscription and handler that have this program as the
+    // destination.  This is done in case the port changed since the last time.
     if (verboseTest)
-      cout << "Creating the handler" << endl;
+      cout << "Deleting the old subscription" << endl;
 
-    String dest("http://localhost:");
-    char port[32];
-    memset(port, '\0', sizeof(port));
-    sprintf(port,"%d",listenerPort);
-    dest.append(port);
-    dest.append("/g11ntest");
-
-    CIMInstance handlerInstance(PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
-    handlerInstance.addProperty(CIMProperty (CIMName("SystemCreationClassName"),
-        String("CIM_UnitaryComputerSystem")));
-    handlerInstance.addProperty(CIMProperty(CIMName ("SystemName"),
-        String("server001.acme.com")));
-    handlerInstance.addProperty(CIMProperty(CIMName ("CreationClassName"),
-        PEGASUS_CLASSNAME_INDHANDLER_CIMXML.getString()));
-    handlerInstance.addProperty(CIMProperty(CIMName ("Name"),
-        String("g11ntest_Handler")));
-    handlerInstance.addProperty(CIMProperty(CIMName ("Destination"), dest));
-
-    CIMObjectPath handlerRef;
-    Boolean handlerCreated = true;
     try
     {
-      handlerRef = client.createInstance(INTEROP_NAMESPACE, handlerInstance);
+      client.deleteInstance(INTEROP_NAMESPACE, CIMObjectPath(g11ntestSubscriptionPath));
     }
-    catch (CIMException& ce)
+    catch (CIMException & ce)
+    {
+      if (ce.getCode() != CIM_ERR_NOT_FOUND)       
+      {
+	throw ce;
+      }
+    }
+
+    if (verboseTest)
+      cout << "Deleting the old handler" << endl;
+
+    try
+    {
+      client.deleteInstance(INTEROP_NAMESPACE, CIMObjectPath(g11ntestHandlerPath));
+    }
+    catch (CIMException & ce)
+    {
+      if (ce.getCode() != CIM_ERR_NOT_FOUND)       
+      {
+	throw ce;
+      }
+    }
+
+    // Create the new handler instance with this program as the destination
+    if (verboseTest)
+      cout << "Creating the handlers" << endl;
+
+    if (!skipListener)
+    {
+      CIMInstance g11ntestHandlerInstance(PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
+      g11ntestHandlerInstance.addProperty(CIMProperty (CIMName("SystemCreationClassName"),
+						       String("CIM_UnitaryComputerSystem")));
+      g11ntestHandlerInstance.addProperty(CIMProperty(CIMName ("SystemName"),
+						      String("server001.acme.com")));
+      g11ntestHandlerInstance.addProperty(CIMProperty(CIMName ("CreationClassName"),
+					      PEGASUS_CLASSNAME_INDHANDLER_CIMXML.getString()));
+      g11ntestHandlerInstance.addProperty(CIMProperty(CIMName ("Name"),
+						      String("g11ntest_Handler")));
+      g11ntestHandlerInstance.addProperty(CIMProperty(CIMName ("Destination"), listenerDest));
+      
+      g11ntestHandlerRef = client.createInstance(INTEROP_NAMESPACE, g11ntestHandlerInstance);
+    }
+
+    // Create the new handler instance with LocalizedProvider as the destination
+    CIMInstance providerHandlerInstance(PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
+    providerHandlerInstance.addProperty(CIMProperty (CIMName("SystemCreationClassName"),
+        String("CIM_UnitaryComputerSystem")));
+    providerHandlerInstance.addProperty(CIMProperty(CIMName ("SystemName"),
+        String("server001.acme.com")));
+    providerHandlerInstance.addProperty(CIMProperty(CIMName ("CreationClassName"),
+        PEGASUS_CLASSNAME_INDHANDLER_CIMXML.getString()));
+    providerHandlerInstance.addProperty(CIMProperty(CIMName ("Name"),
+        String("provider_Handler")));
+    providerHandlerInstance.addProperty(CIMProperty(CIMName ("Destination"),
+        String("http://localhost:5988/CIMListener/localizedprovider")));
+
+    try
+    {
+      providerHandlerRef = client.createInstance(INTEROP_NAMESPACE, providerHandlerInstance);
+    }
+    catch (CIMException& ce) 
     {
       if (ce.getCode() != CIM_ERR_ALREADY_EXISTS)
 	throw ce;
-      cout << "The handler already exists!" << endl;
-      cout << "If you specified the listenerport option to be different "
-	"than the one on the handler's Destination property in the repository, " 
-	"then this program will not receive indications." << endl;
-      cout << "Removing and re-making the testrepository will fix this." << endl;
-      handlerCreated = false;
+
+      providerHandlerRef = CIMObjectPath(providerHandlerPath);
     }
 
     // Create the filter instance
@@ -1440,8 +1509,6 @@ static void TestLocalizedIndications( CIMClient& client,
     filterInstance.addProperty (CIMProperty(CIMName ("QueryLanguage"),
         String("WQL")));
 
-    CIMObjectPath filterRef;
-    Boolean filterCreated = true;
     try
     {
       filterRef = client.createInstance(INTEROP_NAMESPACE, filterInstance);
@@ -1450,52 +1517,177 @@ static void TestLocalizedIndications( CIMClient& client,
     {
       if (ce.getCode() != CIM_ERR_ALREADY_EXISTS)
 	throw ce;
-      filterCreated = false;
+
+      filterRef = CIMObjectPath(filterPath);
     }
 
     // Create the subscription
     if (verboseTest)
       cout << "Creating the subscription" << endl;
 
-    CIMInstance subscriptionInstance(PEGASUS_CLASSNAME_INDSUBSCRIPTION);
-    subscriptionInstance.addProperty(CIMProperty(CIMName ("Filter"),
+    if (!skipListener)
+    {
+      // The subscription with this program as the destination
+      CIMInstance g11ntestSubscriptionInstance(PEGASUS_CLASSNAME_INDSUBSCRIPTION);
+      g11ntestSubscriptionInstance.addProperty(CIMProperty(CIMName ("Filter"),
+				   filterRef, 0, PEGASUS_CLASSNAME_INDFILTER));
+      g11ntestSubscriptionInstance.addProperty(CIMProperty(CIMName ("Handler"),
+				   g11ntestHandlerRef, 0, PEGASUS_CLASSNAME_INDHANDLER_CIMXML));
+      g11ntestSubscriptionInstance.addProperty (CIMProperty
+				(CIMName ("SubscriptionState"), CIMValue ((Uint16) 2)));
+
+      try
+	{
+	  g11ntestSubscriptionRef = client.createInstance(INTEROP_NAMESPACE,
+							  g11ntestSubscriptionInstance);
+	}
+      catch (CIMException& ce)
+	{
+	  if (ce.getCode() != CIM_ERR_ALREADY_EXISTS)
+	    throw ce;
+
+	  g11ntestSubscriptionRef = CIMObjectPath(g11ntestSubscriptionPath);
+	}
+    }
+
+    // The subscription with LocalizedProvider as the destination
+    CIMInstance providerSubscriptionInstance(PEGASUS_CLASSNAME_INDSUBSCRIPTION);
+    providerSubscriptionInstance.addProperty(CIMProperty(CIMName ("Filter"),
         filterRef, 0, PEGASUS_CLASSNAME_INDFILTER));
-    subscriptionInstance.addProperty(CIMProperty(CIMName ("Handler"),
-        handlerRef, 0, PEGASUS_CLASSNAME_INDHANDLER_CIMXML));
-    subscriptionInstance.addProperty (CIMProperty
+    providerSubscriptionInstance.addProperty(CIMProperty(CIMName ("Handler"),
+        providerHandlerRef, 0, PEGASUS_CLASSNAME_INDHANDLER_CIMXML));
+    providerSubscriptionInstance.addProperty (CIMProperty
         (CIMName ("SubscriptionState"), CIMValue ((Uint16) 2)));
 
-    CIMObjectPath subscriptionRef;
-    Boolean subscriptionCreated = false;
     try
     {
-      if (handlerCreated && filterCreated)
-      {
-	subscriptionRef = client.createInstance(INTEROP_NAMESPACE, subscriptionInstance);
-	subscriptionCreated = true;
-      }
+      providerSubscriptionRef = client.createInstance(INTEROP_NAMESPACE,
+						      providerSubscriptionInstance);
     }
     catch (CIMException& ce)
     {
       if (ce.getCode() != CIM_ERR_ALREADY_EXISTS)
 	throw ce;
+
+      providerSubscriptionRef = CIMObjectPath(providerSubscriptionPath);
     }
 
-    // Make ourselves a CIMListener to catch the indication
-    if (verboseTest)
-      cout << "Creating the listener" << endl;
+  }
+  catch (Exception& e)
+  {
+    PEGASUS_STD(cerr) << "Error in createSubscriptions " << 
+      e.getMessage() << PEGASUS_STD(endl);
+    throw e;
+  }
+}
 
-    CIMListener listener(listenerPort);
+/*
+   Tests the globalization support for indications. 
+*/
+static void TestLocalizedIndications( CIMClient& client, 
+				      Boolean activeTest,
+				      Boolean verboseTest,
+				      Boolean skipListener,
+				      String listenerHost)
+{
+  const CIMNamespaceName SAMPLE_NAMESPACE = CIMNamespaceName ("root/SampleProvider");
+  const CIMNamespaceName INTEROP_NAMESPACE = CIMNamespaceName ("root/PG_InterOp");
+  const CIMName GEN_METHOD = CIMName("generateIndication");
+  const CIMName RESULT_METHOD = CIMName("getConsumerStatus");
+  const CIMObjectPath REFERENCE = CIMObjectPath("Sample_LocalizedProviderClass.Identifier=0");
+
+  if (!activeTest)
+  {
+    cout << "Active tests are disabled. Nothing to do for this test." << endl;   
+    return;
+  }
+
+  try
+  {
+    //
+    // TEST 1 - Cause the LocalizedProvider to send an indication to a CIMListener
+    // in this process.
+    //
+    // When the indication arrives then check that the UTF-16 chars in the
+    // indication properties were received, and that the Content-Language header 
+    // in the Export message was received.
+    //
+ 
+    cout << endl 
+	 << "INDICATION TEST 1: Send an indication containing UTF-16 to a CIMListener"
+	 << endl;
+
+    // Build the destination path to this program as the CIMListener
+    String dest("http://");
+    dest.append(listenerHost);
+    dest.append("/g11ntest");
+
+    // Get the subscriptions set up to send the indications
+    CIMObjectPath g11ntestHandlerRef;
+    CIMObjectPath providerHandlerRef;
+    CIMObjectPath filterRef;
+    CIMObjectPath g11ntestSubscriptionRef;
+    CIMObjectPath providerSubscriptionRef;
+    createSubscriptions(client,
+			g11ntestHandlerRef,
+			providerHandlerRef,
+			filterRef,
+			g11ntestSubscriptionRef,
+			providerSubscriptionRef,
+			dest,
+			skipListener,
+			verboseTest);
+
+    // Construct our CIMListener in case we use it.
+    Boolean listenerError = false;
+
+    Uint32 index = listenerHost.find (':');
+    Uint32 portNumber = 2003;
+    if (index != PEG_NOT_FOUND)
+    {
+      String portStr = listenerHost.subString(index + 1, listenerHost.size());
+      sscanf (portStr.getCString(), "%u", &portNumber);
+    }
+
+    CIMListener listener(portNumber);
 
     // Add our comsumer
     MyIndicationConsumer* consumer1 = new MyIndicationConsumer("1");
     listener.addConsumer(consumer1);
 
-    // Start the listener
-    listener.start();
-    pegasus_sleep(3000);  
+    // If we are running the listener test, then finish starting the CIMListener
+    if (!skipListener)
+    {
+      try
+	{
+	  if (verboseTest)
+	    cout << "Starting the CIMListener at destination " << dest << endl;
 
-    // Cause the indication
+	  // Start the listener
+	  listener.start();
+	}
+      catch (BindFailedException & bfe)
+	{
+	  // Got a bind error.  The port is probably already in use.
+	  // Put out a message and keep going.
+	  // NOTE - pegasus_acceptor (part of monitor_2) does not appear
+	  // to throw this exception on bind errors.  So, when monitor_2
+	  // is used, we will get the timeout below rather than a bind error.
+	  cerr << endl << "==>WARNING: unable to bind to listener port " << portNumber << endl;
+	  cerr << "The listener port may be in use." << endl;
+	  cerr << "Skipping the CIMListener tests." << endl;
+	  listenerError = true;
+	}
+    }
+    else
+    {
+      cout << "skiplistener option is true. Skipping the CIMListener tests." << endl;
+      listenerError = true;   // forces the validation to be skipped.
+    }
+
+    // Cause the indication.  
+    // Note: because of the subscriptions, the indication will go to the CIMListener
+    // (if enabled) and the CIMIndicationConsumerProvider.
     if (verboseTest)
       cout << "Causing the indication" << endl;
 
@@ -1509,82 +1701,149 @@ static void TestLocalizedIndications( CIMClient& client,
 
     Array<CIMParamValue> inParams;
     Array<CIMParamValue> outParams;
-    CIMValue rtn = client.invokeMethod(
+    CIMValue rtnVal = client.invokeMethod(
 	    SAMPLE_NAMESPACE, 
 	    REFERENCE, 
-	    METHOD,
+	    GEN_METHOD,
 	    inParams, 
 	    outParams);
 
     // Block until the indication comes in (let the user know we are waiting)
-    cout << "Waiting to receive the indication (timeout is 30sec)" << endl;
-    Boolean indicationTO = false;
-    try 
+    if (!listenerError)
     {
-      indicationReceived.time_wait(30 * 1000);
-      cout << "Received the indication" << endl;
-    }
-    catch (TimeOut & to)
-    {
-      indicationTO = true;
-    }
+      cout << "Waiting to receive the indication (timeout is 10sec)" << endl;
+      try 
+      {
+	indicationReceived.time_wait(10 * 1000);
+	cout << "Received the indication" << endl;
+
+	// Verify that the UTF-16  properties in the indication got to our CIMListener
+	if (verboseTest)
+	  cout << "Checking the indication for valid utf-16 chars" << endl;
+
+	Uint8 pos = indication.findProperty("UnicodeStr");
+	MYASSERT(pos != PEG_NOT_FOUND);
+
+	CIMValue val = indication.getProperty(pos).getValue();
+	String utf16;
+	val.get(utf16);
+	MYASSERT(utf16 == String(utf16Chars));
+
+	pos = indication.findProperty("UnicodeChar");
+	MYASSERT(pos != PEG_NOT_FOUND);
+
+	val = indication.getProperty(pos).getValue();
+	Char16 char16;
+	val.get(char16);
+	MYASSERT(char16 == utf16Chars[0]);
+ 
+	// Verify that the Content-Language of the indication got to us
+	ContentLanguages expectedCL("x-world");
+
+	if (verboseTest)
+	  cout << "Checking the indication for ContentLanguages = " 
+	       << expectedCL.toString() << endl;
+
+	ContentLanguageListContainer cntr = 
+	  indicationContext.get(ContentLanguageListContainer::NAME);
+	ContentLanguages cl = cntr.getLanguages();
+	MYASSERT(cl == expectedCL);
+      }
+      catch (TimeOut & to)
+      {
+	// Ignore the timeout.  Forced to do this because pegasus_acceptor 
+	// (part of monitor_2) does not return an error if the bind fails.
+	// Put out a warning and keep going.
+	cerr << "==>WARNING: Did not receive the indication on port " << portNumber << endl;
+	cerr << "The listener port may be in use" << endl;
+	cerr << "Skipping the CIMListener tests." << endl; 
+      }
+    }  // endif !skiplistener
 
     // Clean up the listener
-    if (verboseTest)
+    if (verboseTest && !skipListener)
       cout << "Stopping the listener"  << endl;   
 
     listener.stop();
-    pegasus_sleep(3000);
     listener.removeConsumer(consumer1);
     delete consumer1;
 
+    //
+    // TEST 2 - Cause the LocalizedProvider to send an indication to a 
+    // CIMIndicationConsumerProvider
+    //
+    // The consumer provider checks that the UTF-16 chars in the
+    // indication properties were received, and that the Content-Language header 
+    // in the Export message was received.  This program calls a method on
+    // the provider to get the test result.
+    //
+    // Note:  LocalizedProvider is the consumer in this test.  So the provider
+    // is sending an indication to itself.  However, the destination in the handler is
+    // set up so that the indication still goes through the TCP/IP stack.
+    // (this is done by setting the host:port to localhost:5988)
+    //
+
+    cout << endl 
+	 << "INDICATION TEST 2: Send an indication containing UTF-16 "
+            "to a CIMIndicationConsumerProvider"
+	 << endl;
+
+
+    // Verify that the indication got to the CIMIndicationConsumerProvider
+    if (verboseTest)
+      cout << "Getting the status from the CIMIndicationConsumerProvider"  << endl; 
+
+    pegasus_sleep(3000);  // give the indication 3 sec to get to the consumer
+    rtnVal = client.invokeMethod(
+	    SAMPLE_NAMESPACE, 
+	    REFERENCE, 
+	    RESULT_METHOD,
+	    inParams, 
+	    outParams);
+
+    if (verboseTest)
+      cout << "Checking the status from the CIMIndicationConsumerProvider"  << endl; 
+
+    Uint8 result;
+    rtnVal.get(result);
+    switch (result)
+    {
+    case 0:
+      break;
+    case 1:
+      throw Exception("CIMIndicationConsumer did not receive the indication");
+      break;
+    case 2:
+      throw Exception("CIMIndicationConsumer did not receive the UTF-16 string");
+      break;
+    case 3:
+      throw Exception("CIMIndicationConsumer did not receive the correct value in UTF-16 string");
+      break;
+    case 4:
+      throw Exception("CIMIndicationConsumer did not receive the UTF-16 character");
+      break;
+    case 5:
+      throw Exception("CIMIndicationConsumer did not receive the correct value in UTF-16 character");
+      break;
+    case 6:
+      throw Exception("CIMIndicationConsumer did not receive the correct content languages");
+      break;
+    default:
+      throw Exception("CIMIndicationConsumer sent an unknown status value");
+      break;
+    }
+
     // Clean up the repository
     if (verboseTest)
-      cout << "Removing the handler, filter,and subscription"  << endl;    
+      cout << "Removing the handlers, filters,and subscriptions"  << endl;    
 
-    if (subscriptionCreated)
-      client.deleteInstance(INTEROP_NAMESPACE, subscriptionRef);
-    if (filterCreated)
-      client.deleteInstance(INTEROP_NAMESPACE, filterRef);
-    if (handlerCreated)
-      client.deleteInstance(INTEROP_NAMESPACE, handlerRef);
-
-    // Done cleaning up.  Cancel the test if we timed out.
-    if (indicationTO)
-      throw Exception("Did not receive the indication!  Try remaking the testrepository "
-		      "Another possibility is the listener port is in use");
-
-    // Verify that the UTF-16  properties in the indication got to us
-    if (verboseTest)
-      cout << "Checking the indication for valid utf-16 chars" << endl;
-
-    Uint8 pos = indication.findProperty("UnicodeStr");
-    MYASSERT(pos != PEG_NOT_FOUND);
-
-    CIMValue val = indication.getProperty(pos).getValue();
-    String utf16;
-    val.get(utf16);
-    MYASSERT(utf16 == String(utf16Chars));
-
-    pos = indication.findProperty("UnicodeChar");
-    MYASSERT(pos != PEG_NOT_FOUND);
-
-    val = indication.getProperty(pos).getValue();
-    Char16 char16;
-    val.get(char16);
-    MYASSERT(char16 == utf16Chars[0]);
- 
-    // Verify that the Content-Language of the indication got to us
-    ContentLanguages expectedCL("x-world");
-
-    if (verboseTest)
-      cout << "Checking the indication for ContentLanguages = " 
-	   << expectedCL.toString() << endl;
-
-    ContentLanguageListContainer cntr = 
-      indicationContext.get(ContentLanguageListContainer::NAME);
-    ContentLanguages cl = cntr.getLanguages();
-    MYASSERT(cl == expectedCL);
+    if (!skipListener)
+      client.deleteInstance(INTEROP_NAMESPACE, g11ntestSubscriptionRef);
+    client.deleteInstance(INTEROP_NAMESPACE, providerSubscriptionRef);
+    client.deleteInstance(INTEROP_NAMESPACE, filterRef);
+    if (!skipListener)
+      client.deleteInstance(INTEROP_NAMESPACE, g11ntestHandlerRef);
+    client.deleteInstance(INTEROP_NAMESPACE, providerHandlerRef);
 
     if (verboseTest)
       cout << "Indication test completed successfully " << endl;
@@ -1658,11 +1917,11 @@ void GetOptions(
 		 {"skipactive", "false", false, Option::BOOLEAN, 0, 0, "skipactive",
 	 		      "If set then skips tests that modify CIM Objects on the server" },
 
-		 {"skipindication", "false", false, Option::BOOLEAN, 0, 0, "skipindication",
-	 		      "If set then skips indication tests" },
+		 {"skiplistener", "false", false, Option::BOOLEAN, 0, 0, "skiplistener",
+	 		      "If set then skips the CIMListener tests" },
 
-		 {"listenerport", "49152", false, Option::WHOLE_NUMBER, 0, 0, "l",
-		 		       "Specifies the listener port for the indication tests" },
+		 {"listenerhost", "localhost:2003", false, Option::STRING, 0, 0, "l",
+		 		       "Specifies the listener host:port for the CIMListener tests" },
 
 		 {"utfrep", "false", false, Option::BOOLEAN, 0, 0, "utfrep",
 	 		      "If set then use UTF-16 class/qualifier names in the repository tests" }
@@ -1798,15 +2057,13 @@ int main(int argc, char** argv)
     if (!om.lookupIntegerValue("repeat", repeatTestCount))
         repeatTestCount = 1;
 
-    // Settings for the indication test
-    Uint32 listenerPort = 0;
-    if (!om.lookupIntegerValue("listenerport", listenerPort))
-      // Default to the first private port defined by IANA.
-        listenerPort = 49152;
-    cout << "Listener Port = " << listenerPort << endl;
-    Boolean skipIndications = false;
-    if (om.valueEquals("skipindication", "true"))
-        skipIndications = true;
+    // Settings for the indication tests
+    String listenerHost;
+    om.lookupValue("listenerhost",listenerHost);
+    cout << "Listener Host:Port = " << listenerHost << endl;
+    Boolean skipListener = false;
+    if (om.valueEquals("skiplistener", "true"))
+        skipListener = true;
 	
     if(verboseTest)
 		cout << "Test repeat count " << repeatTestCount << endl;
@@ -1895,7 +2152,7 @@ int main(int argc, char** argv)
                      testStart("Test Indication Operations");
                      elapsedTime.reset();
                      TestLocalizedIndications(client, activeTest, verboseTest,
-					      skipIndications,listenerPort);
+					      skipListener ,listenerHost);
                      testEnd(elapsedTime.getElapsed());
 
                      client.disconnect();

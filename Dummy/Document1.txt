@@ -10,3 +10,6 @@ Testing branch/tag reporting
 
 Seem to be dropping the tag.
 
+Hopefully this will fix it.
+
+

@@ -118,8 +118,8 @@ void async_operation_dispatch(CIMOperationRequestDispatcher *d,
 
 
 
-CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(CIMRepository* repository)
-   : _repository(repository), _providerManager(this, repository),
+CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(CIMRepository* repository, CIMServer* server)
+   : _repository(repository), _providerManager(this, repository, server),
      _dispatch_thread(_qthread, this, false),
      _dispatch_pool(10, "CIMOp dispatch", 5, 30, alloc_wait, dealloc_wait, deadlock_detect),
      _context_cache(true), _async_cache(true), _opnode_cache(true), _waiting_ops(true, 100),

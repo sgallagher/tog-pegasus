@@ -427,6 +427,10 @@ repository implementation.
     repository as an instance provider for a class, add a
     'Provider("repository")' qualifier to the class definition.
 
+51. (Roger Kumpf - HP) 26 Nov 2001 - Added a new ServiceCIMOMHandle to
+    pass to providers that act as services.  This handle provides
+    service providers with access to the CIMServer data structures.
+
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch
               Tagged as version_1_01 on 3 August 2001 (sorry should have been

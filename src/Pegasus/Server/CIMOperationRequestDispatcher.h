@@ -88,7 +88,7 @@ public:
       
       static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL async_dispatcher(void *parm);
       
-      CIMOperationRequestDispatcher(CIMRepository* repository);
+      CIMOperationRequestDispatcher(CIMRepository* repository, CIMServer* server);
       
       virtual ~CIMOperationRequestDispatcher();
       

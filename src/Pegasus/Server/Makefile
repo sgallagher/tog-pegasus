@@ -51,6 +51,7 @@ SOURCES = \
     HTTPAuthenticatorDelegator.cpp \
     ProviderManager.cpp \
     ProviderModule.cpp \
+    ServiceCIMOMHandle.cpp \
     CIMServer.cpp
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))

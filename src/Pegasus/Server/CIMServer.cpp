@@ -79,12 +79,12 @@ CIMServer::CIMServer(
     if (!FileSystem::isDirectory(_repositoryRootPath))
 	throw NoSuchDirectory(_repositoryRootPath);
 
-    CIMRepository* repository = new CIMRepository(rootPath + "/repository");
+    CIMRepository* repository = new CIMRepository(_repositoryRootPath);
 
     // -- Create queue inter-connections:
 
     _cimOperationRequestDispatcher
-	= new CIMOperationRequestDispatcher(repository);
+	= new CIMOperationRequestDispatcher(repository, this);
 
     _cimOperationResponseEncoder
 	= new CIMOperationResponseEncoder;
@@ -103,11 +103,11 @@ CIMServer::CIMServer(
 	_cimExportRequestDispatcher,
 	_cimExportResponseEncoder->getQueueId());
 
-    HTTPAuthenticatorDelegator* serevrQueue = new HTTPAuthenticatorDelegator(
+    HTTPAuthenticatorDelegator* serverQueue = new HTTPAuthenticatorDelegator(
         _cimOperationRequestDecoder,
         _cimExportRequestDecoder);
 
-    _acceptor = new HTTPAcceptor(_monitor, serevrQueue);
+    _acceptor = new HTTPAcceptor(_monitor, serverQueue);
 }
 
 CIMServer::~CIMServer()

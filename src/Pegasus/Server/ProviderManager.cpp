@@ -31,7 +31,13 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-ProviderManager::ProviderManager(MessageQueue * outputQueue, CIMRepository * repository) : _cimom(outputQueue, repository)
+ProviderManager::ProviderManager(
+    MessageQueue * outputQueue,
+    CIMRepository * repository,
+    CIMServer * server)
+:
+    _cimom(outputQueue, repository),
+    _serviceCimom(outputQueue, repository, server)
 {
     Thread * thread = new Thread(monitorThread, this, false);
 
@@ -80,7 +86,11 @@ ProviderHandle * ProviderManager::getProvider(const String & providerName, const
     }
     
     // initialize provider
-    provider->initialize(_cimom);
+    // ATTN: Distinguish between services and other providers and send the
+    // appropriate CIMOMHandle
+    // ATTN: Is it okay to pass the same CIMOMHandle to multiple providers?
+    // Is that object reentrant?  (it has a waitForResponse method)
+    provider->initialize(_serviceCimom);
     
     // add provider to list
     _providers.append(module);

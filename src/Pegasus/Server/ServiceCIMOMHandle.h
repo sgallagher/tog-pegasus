@@ -20,43 +20,41 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
+// Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 // Modified By:
-//              Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_ProviderManager_h
-#define Pegasus_ProviderManager_h
+#ifndef Pegasus_ServiceCIMOMHandle_h
+#define Pegasus_ServiceCIMOMHandle_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/String.h>
-#include <Pegasus/Common/Thread.h>
-
-#include <Pegasus/Server/ProviderModule.h>
-#include <Pegasus/Server/ServiceCIMOMHandle.h>
-
-#include <Pegasus/Provider/ProviderHandle.h>
-#include <Pegasus/Provider/ProviderException.h>
+#include <Pegasus/Common/CIMOMHandle.h>
+#include <Pegasus/Server/CIMServer.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_SERVER_LINKAGE ProviderManager
+class PEGASUS_SERVER_LINKAGE ServiceCIMOMHandle : public CIMOMHandle
 {
 public:
-	ProviderManager(MessageQueue * outputQueue, CIMRepository * repository, CIMServer * server);
-	virtual ~ProviderManager(void);
+	/** */
+	ServiceCIMOMHandle(void);
 
-	ProviderHandle * getProvider(const String & providerName, const String & className);
+	/** */
+	ServiceCIMOMHandle(MessageQueue* outputQueue, CIMRepository * repository, CIMServer * cimserver);
 
-protected:
-	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL monitorThread(void * arg);
+	/** */
+	virtual ~ServiceCIMOMHandle(void);
 
-	CIMOMHandle _cimom;
-	ServiceCIMOMHandle _serviceCimom;
-	Array<ProviderModule> _providers;
+	ServiceCIMOMHandle & operator=(const ServiceCIMOMHandle & handle);
 
+	const CIMServer * getServer(void) const { return(_server); }
+	
+	CIMServer * getServer(void) { return(_server); }
+
+protected:	
+	CIMServer * _server;
 };
 
 PEGASUS_NAMESPACE_END

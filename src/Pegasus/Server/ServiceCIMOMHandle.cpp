@@ -20,45 +20,53 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
+// Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 // Modified By:
-//              Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_ProviderManager_h
-#define Pegasus_ProviderManager_h
-
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/String.h>
-#include <Pegasus/Common/Thread.h>
-
-#include <Pegasus/Server/ProviderModule.h>
-#include <Pegasus/Server/ServiceCIMOMHandle.h>
-
-#include <Pegasus/Provider/ProviderHandle.h>
-#include <Pegasus/Provider/ProviderException.h>
+#include "ServiceCIMOMHandle.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_SERVER_LINKAGE ProviderManager
+////////////////////////////////////////////////////////////////////////////////
+//
+// ServiceCIMOMHandle:
+//
+////////////////////////////////////////////////////////////////////////////////
+
+ServiceCIMOMHandle::ServiceCIMOMHandle(void) : _server(0)
 {
-public:
-	ProviderManager(MessageQueue * outputQueue, CIMRepository * repository, CIMServer * server);
-	virtual ~ProviderManager(void);
+}
 
-	ProviderHandle * getProvider(const String & providerName, const String & className);
+ServiceCIMOMHandle::ServiceCIMOMHandle(
+    MessageQueue* outputQueue,
+    CIMRepository * repository,
+    CIMServer * server)
+:
+    CIMOMHandle(outputQueue, repository),
+    _server(server)
+{
+}
 
-protected:
-	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL monitorThread(void * arg);
+ServiceCIMOMHandle::~ServiceCIMOMHandle(void)
+{
+    CIMOMHandle::~CIMOMHandle();
+}
 
-	CIMOMHandle _cimom;
-	ServiceCIMOMHandle _serviceCimom;
-	Array<ProviderModule> _providers;
+ServiceCIMOMHandle& ServiceCIMOMHandle::operator=(const ServiceCIMOMHandle& handle)
+{
+    if(this == &handle)
+    {
+        return(*this);
+    }
 
-};
+    CIMOMHandle::operator=(handle);
+
+    _server = handle._server;
+
+    return(*this);
+}
 
 PEGASUS_NAMESPACE_END
-
-#endif

@@ -17,7 +17,9 @@ SOURCES = TestClient.cpp
 
 ifneq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
   ifneq ($(OS),HPUX)
-    LIBRARIES += slp
+    ifndef NO_SLP
+       LIBRARIES += slp
+    endif
   endif
 endif
 

@@ -39,6 +39,10 @@
 
 #include <Pegasus/Common/PegasusVersion.h>
 
+#ifdef PEGASUS_OS_OS400
+#include "qycmutiltyUtility.H"
+#endif
+
 PEGASUS_USING_STD;
 
 #ifdef PEGASUS_HAVE_NAMESPACES
@@ -57,6 +61,14 @@ extern "C++" int processCmdLine(int, char **, mofCompilerOptions &, ostream &);
 int
 main(int argc, char ** argv) {
   int ret = 0;
+
+#ifdef PEGASUS_OS_OS400
+  if(FALSE == ycmCheckCmdAuthorities())
+  { 
+    return -9;
+  }
+#endif
+
   try {
     ret = processCmdLine(argc, argv, cmdline, cerr);
   } catch (ArgumentErrorsException &e) {

@@ -11,7 +11,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,7 +28,7 @@
 // Modified By: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //
 //              Ramnath Ravindran (Ramnath.Ravindran@compaq.com) 03/21/2002
-//			replaced instances of "| ios::binary" with 
+//			replaced instances of "| ios::binary" with
 //			PEGASUS_OR_IOS_BINARY
 //
 //              Sushma Fernandes. Hewlett-Packard Company
@@ -88,7 +88,7 @@ static Boolean _GetLine(fstream& fs, Array<char>& x)
 
     char c;
 
-    while (fs.get(c) && c != '\n') 
+    while (fs.get(c) && c != '\n')
         x.append(c);
 
     x.append('\0');
@@ -141,7 +141,7 @@ Boolean _GetIntField(
 //
 
 static Boolean _GetNextRecord(
-    fstream& fs, 
+    fstream& fs,
     Array<char>& line,
     Uint32& freeFlag,
     Uint32& hashCode,
@@ -211,7 +211,7 @@ static Boolean _GetNextRecord(
 ////////////////////////////////////////////////////////////////////////////////
 
 Boolean InstanceIndexFile::lookupEntry(
-    const String& path, 
+    const String& path,
     const CIMObjectPath& instanceName,
     Uint32& indexOut,
     Uint32& sizeOut)
@@ -238,7 +238,7 @@ Boolean InstanceIndexFile::lookupEntry(
 }
 
 Boolean InstanceIndexFile::createEntry(
-    const String& path, 
+    const String& path,
     const CIMObjectPath& instanceName,
     Uint32 indexIn,
     Uint32 sizeIn)
@@ -293,7 +293,7 @@ Boolean InstanceIndexFile::createEntry(
 }
 
 Boolean InstanceIndexFile::deleteEntry(
-    const String& path, 
+    const String& path,
     const CIMObjectPath& instanceName,
     Uint32& freeCount)
 {
@@ -346,7 +346,7 @@ Boolean InstanceIndexFile::deleteEntry(
 }
 
 Boolean InstanceIndexFile::modifyEntry(
-    const String& path, 
+    const String& path,
     const CIMObjectPath& instanceName,
     Uint32 indexIn,
     Uint32 sizeIn,
@@ -459,8 +459,8 @@ Boolean InstanceIndexFile::enumerateEntries(
     {
 	if (!freeFlag || includeFreeEntries)
 	{
-	    freeFlags.append(freeFlag); 
-	    indices.append(index); 
+	    freeFlags.append(freeFlag);
+	    indices.append(index);
 	    sizes.append(size);
 	    instanceNames.append (CIMObjectPath (instanceName));
 	}
@@ -527,7 +527,7 @@ Boolean InstanceIndexFile::_incrementFreeCount(
 }
 
 Boolean InstanceIndexFile::_openFile(
-    const String& path, 
+    const String& path,
     PEGASUS_STD(fstream)& fs,
     Boolean create)
 {
@@ -677,7 +677,16 @@ Boolean InstanceIndexFile::_lookupEntry(
     sizeOut = 0;
     entryOffset = 0;
 
-    Uint32 targetHashCode = instanceName.makeHashCode();
+    // For for bugzilla 1508. Hostname and namespace are not included
+    // in the comparison here. Instances in the repository index file
+    // are generally stored without hostname and namespace. If the hostname
+    // and namespace of the instance to look up would not match, we would have
+    // not gotten here at all.
+    CIMObjectPath shortInstanceName = instanceName;
+    shortInstanceName.setNameSpace(CIMNamespaceName());
+    shortInstanceName.setHost(String::EMPTY);
+
+    Uint32 targetHashCode = shortInstanceName.makeHashCode();
     Array<char> line;
     Uint32 freeFlag;
     Uint32 hashCode;
@@ -694,16 +703,17 @@ Boolean InstanceIndexFile::_lookupEntry(
     while (_GetNextRecord(
 	fs, line, freeFlag, hashCode, index, size, instanceNameTmp, error))
     {
+
 #ifdef PEGASUS_REPOSITORY_NOT_NORMALIZED
         // See bugzilla 1207.  If the object paths in the repository
         // are not normalized, then the hashcodes cannot be used for
         // the look up (because the hash is based on the normalized path).
         if (freeFlag == 0 &&
-	  CIMObjectPath(instanceNameTmp) == instanceName)
+	        CIMObjectPath(instanceNameTmp) == shortInstanceName)
 #else
 	if (freeFlag == 0 &&
 	    hashCode == targetHashCode &&
-	    CIMObjectPath(instanceNameTmp) == instanceName)
+	    CIMObjectPath(instanceNameTmp) == shortInstanceName)
 #endif
 	{
 	    indexOut = index;
@@ -786,7 +796,7 @@ Boolean InstanceIndexFile::compact(
 	}
 	else
 	{
-	    if (!_appendEntry(tmpFs, CIMObjectPath (instanceName), 
+	    if (!_appendEntry(tmpFs, CIMObjectPath (instanceName),
                 index - adjust, size))
 	    {
 		error = true;
@@ -874,8 +884,8 @@ Boolean InstanceIndexFile::beginTransaction(const String& path)
     String rollbackPath = path;
     rollbackPath.append(".rollback");
 
-    // ATTN-SF-P3-20020517: FUTURE: Need to look in to this. Empty rollback 
-    // files are getting created in some error conditions. 
+    // ATTN-SF-P3-20020517: FUTURE: Need to look in to this. Empty rollback
+    // files are getting created in some error conditions.
     if (!FileSystem::copyFile(path, rollbackPath))
     {
         PEG_METHOD_EXIT();

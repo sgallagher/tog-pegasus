@@ -31,7 +31,7 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
 //              Karl Schopmeyer(k.schopmeyer@opengroup.org) - extend ref function.
-//              Robert Kieninger, IBM (kieningr@de.ibm.com) - Bugzilla 383
+//              Robert Kieninger, IBM (kieningr@de.ibm.com) - Bugzilla 383,1508
 //              Seema Gupta (gseema@in.ibm.com) - Bugzilla 281, Bugzilla 1313
 //              Adrian Schuur (schuur@de.ibm.com) - PEP 129 & 164
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
@@ -1867,7 +1867,12 @@ void CIMRepository::modifyInstance(
     // Disallow operation if the instance name was changed:
     //
 
-    if (instanceName != modifiedInstance.getPath ())
+    // For for bugzilla 1508. Hostname and namespace are not included
+    // in the comparison here.
+    CIMObjectPath modifiedInstancePath = modifiedInstance.getPath();
+    modifiedInstancePath.setNameSpace(CIMNamespaceName());
+    modifiedInstancePath.setHost(String::EMPTY);
+    if (instanceName != modifiedInstancePath)
     {
         PEG_METHOD_EXIT();
         //l10n

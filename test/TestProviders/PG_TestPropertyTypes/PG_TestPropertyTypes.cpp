@@ -129,7 +129,7 @@ void PG_TestPropertyTypes::getInstance(
 
 	// ensure the InstanceId key is valid
 	Array<KeyBinding> keys = instanceReference.getKeyBindings();
-	int i;
+	Uint32 i;
 	for (i=0; i<keys.size() && keys[i].getName() != "InstanceId"; i++);
 
 	if (i==keys.size())
@@ -335,7 +335,7 @@ void PG_TestPropertyTypes::createInstance(
             throw CIMException(CIM_ERR_INVALID_PARAMETER);
 	}
 
-//	int i;
+//	Uint32 i;
 //	for (i=0; i<keys.size() && keys[i].getName() != "InstanceId"; i++);
 
 //	if (i==keys.size())

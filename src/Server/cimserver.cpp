@@ -796,14 +796,9 @@ int cimserver_run( int argc, char** argv, Boolean shutdownOption )
 // l10n
 	// Set the home directory, msg sub-dir, into the MessageLoader.
 	// This will be the default directory where the resource bundles 
-	// are found.
-	String messagesDir = String::EMPTY;
-#ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
-	messagesDir = OS400_DEFAULT_MESSAGE_SOURCE;
-#else
-	messagesDir = ConfigManager::getHomedPath("msg");
-#endif
-	MessageLoader::setPegasusMsgHome(messagesDir);		
+	// are found.    
+	MessageLoader::setPegasusMsgHome(ConfigManager::getHomedPath(
+		ConfigManager::getInstance()->getCurrentValue("messageDir")));		
 
 #ifdef PEGASUS_OS_OS400
     // Still need to declare and set the connection variables.

@@ -57,6 +57,7 @@ PEGASUS_NAMESPACE_BEGIN
 static struct ConfigPropertyRow properties[] =
 {
     {"repositoryDir", "repository", 0, 0, 0, 1},
+    {"messageDir", "msg", 0, 0, 0, 1},
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
@@ -66,12 +67,14 @@ const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
 FileSystemPropertyOwner::FileSystemPropertyOwner()
 {
     _repositoryDir = new ConfigProperty;
+    _messageDir = new ConfigProperty;
 }
 
 /** Destructor  */
 FileSystemPropertyOwner::~FileSystemPropertyOwner()
 {
     delete _repositoryDir;
+    delete _messageDir;
 }
 
 /**
@@ -107,6 +110,17 @@ void FileSystemPropertyOwner::initialize()
             _repositoryDir->domainSize = properties[i].domainSize;
             _repositoryDir->externallyVisible = properties[i].externallyVisible;
         }
+        else if (String::equalNoCase(properties[i].propertyName, "messageDir"))
+        {
+            _messageDir->propertyName = properties[i].propertyName;
+            _messageDir->defaultValue = properties[i].defaultValue;
+            _messageDir->currentValue = properties[i].defaultValue;
+            _messageDir->plannedValue = properties[i].defaultValue;
+            _messageDir->dynamic = properties[i].dynamic;
+            _messageDir->domain = properties[i].domain;
+            _messageDir->domainSize = properties[i].domainSize;
+            _messageDir->externallyVisible = properties[i].externallyVisible;
+        }
     }
 }
 
@@ -116,6 +130,10 @@ struct ConfigProperty* FileSystemPropertyOwner::_lookupConfigProperty(
     if (String::equalNoCase(_repositoryDir->propertyName, name))
     {
         return _repositoryDir;
+    }
+    if (String::equalNoCase(_messageDir->propertyName, name))
+    {
+        return _messageDir;
     }
     else
     {

@@ -195,6 +195,8 @@ private:
     */
     struct ConfigProperty*      _repositoryDir;
 
+    struct ConfigProperty*      _messageDir;
+
 };
 
 PEGASUS_NAMESPACE_END

@@ -43,45 +43,47 @@
 PEGASUS_NAMESPACE_BEGIN
 
 /** This class dispatches CIM export requests. For now it simply
-*/
+ */
 class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportRequestDispatcher
-    : public MessageQueueService
+   : public MessageQueueService
 {
-public:
+   public:
 
-  typedef MessageQueueService Base;
+      typedef MessageQueueService Base;
 
-    CIMExportRequestDispatcher();
+      CIMExportRequestDispatcher();
 
-    CIMExportRequestDispatcher(
-	Boolean dynamicReg,
-	Boolean staticConsumers,
-	Boolean persistence);
+      CIMExportRequestDispatcher(
+	 Boolean dynamicReg,
+	 Boolean staticConsumers,
+	 Boolean persistence);
 
-    virtual ~CIMExportRequestDispatcher();
+      virtual ~CIMExportRequestDispatcher();
 
-protected:
+   protected:
 
-    CIMIndicationConsumer* _lookupConsumer(const String& url);
+      CIMIndicationConsumer* _lookupConsumer(const String& url);
 
-    virtual void _handle_async_request(AsyncRequest *req);
+      virtual void _handle_async_request(AsyncRequest *req);
 
-    void handleEnqueue(Message *);
+      virtual void handleEnqueue(Message *);
+      
+      virtual void handleEnqueue();
+      
+      AtomicInt dienow;
 
-    AtomicInt dienow;
-
-    virtual const char* getQueueName() const;
+      virtual const char* getQueueName() const;
         
-private:
+   private:
 
-    void _handleExportIndicationRequest(
-	CIMExportIndicationRequestMessage* request);
+      void _handleExportIndicationRequest(
+	 CIMExportIndicationRequestMessage* request);
 
-    ConsumerTable _consumerTable;
+      ConsumerTable _consumerTable;
 
-    Boolean _dynamicReg;
-    Boolean _staticConsumers;
-    Boolean _persistence;
+      Boolean _dynamicReg;
+      Boolean _staticConsumers;
+      Boolean _persistence;
 };
 
 PEGASUS_NAMESPACE_END

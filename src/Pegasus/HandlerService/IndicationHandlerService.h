@@ -62,39 +62,39 @@
 PEGASUS_NAMESPACE_BEGIN
 
 class PEGASUS_HANDLER_SERVICE_LINKAGE IndicationHandlerService 
-    : public MessageQueueService
+   : public MessageQueueService
 {
-public:
+   public:
     
-    typedef MessageQueueService Base;
+      typedef MessageQueueService Base;
     
-    IndicationHandlerService(CIMRepository* repository);
+      IndicationHandlerService(CIMRepository* repository);
 
-    IndicationHandlerService(void);
+      IndicationHandlerService(void);
 
-    ~IndicationHandlerService(void) { } ;
+      ~IndicationHandlerService(void) { } ;
       
-    virtual void _handle_async_request(AsyncRequest *req);
+      virtual void _handle_async_request(AsyncRequest *req);
 
-    void handleEnqueue(Message *);
+      virtual void handleEnqueue(Message *);
 
-    virtual void handleEnqueue(void);
+      virtual void handleEnqueue(void);
 
-    virtual const char* getQueueName() const;
+      virtual const char* getQueueName() const;
     
-    AtomicInt dienow;
+      AtomicInt dienow;
 
-protected:
+   protected:
 
-    void _handleIndication(const Message* message);
+      void _handleIndication(const Message* message);
 
-    HandlerTable _handlerTable;
+      HandlerTable _handlerTable;
 
-    CIMHandler* _lookupHandlerForClass(
-	const String& nameSpace, const String& className);
+      CIMHandler* _lookupHandlerForClass(
+	 const String& nameSpace, const String& className);
 
-private:
-    CIMRepository* _repository;
+   private:
+      CIMRepository* _repository;
 };
 
 PEGASUS_NAMESPACE_END

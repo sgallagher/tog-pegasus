@@ -49,83 +49,88 @@ HTTPOptions::~HTTPOptions()
 
 }
 
+void HTTPOptions::handleEnqueue(Message *message)
+{
+   if (message)
+   {
+      if (message->getType() == HTTP_MESSAGE)
+      {
+	 handleHTTPMessage((HTTPMessage*)message);
+      }
+
+      //delete message;
+   }
+}
+
 void HTTPOptions::handleEnqueue()
 {
-    // cout << "HTTPOptions::handleEnqueue()" << endl;
 
-    Message* message = dequeue();
-    if (message)
-    {
-	if (message->getType() == HTTP_MESSAGE)
-	{
-	    handleHTTPMessage((HTTPMessage*)message);
-	}
-
-	//delete message;
-    }
+   Message* message = dequeue();
+   handleEnqueue(message);
+   
 }
 
 void HTTPOptions::handleHTTPMessage(HTTPMessage* httpMessage)
 {
  
-    // Save queueId:
+   // Save queueId:
 
-    Uint32 queueId = httpMessage->queueId;
+   Uint32 queueId = httpMessage->queueId;
 
-    // Parse the HTTP message:
-    String startLine;
-    Array<HTTPHeader> headers;
-    Sint8* content;
-    Uint32 contentLength;
+   // Parse the HTTP message:
+   String startLine;
+   Array<HTTPHeader> headers;
+   Sint8* content;
+   Uint32 contentLength;
 
-    httpMessage->parse(startLine, headers, content, contentLength);
+   httpMessage->parse(startLine, headers, content, contentLength);
     
-    // Parse the request line:
+   // Parse the request line:
 
-    String methodName;
-    String requestUri;
-    String httpVersion;
+   String methodName;
+   String requestUri;
+   String httpVersion;
 
-    HTTPMessage::parseRequestLine(
-        startLine, methodName, requestUri, httpVersion);
+   HTTPMessage::parseRequestLine(
+      startLine, methodName, requestUri, httpVersion);
 
-    // Process M-POST and POST messages:
+   // Process M-POST and POST messages:
 
-    if (methodName == "M-POST" || methodName == "POST")
-    {
-	// Search for "CIMOperation" header:
+   if (methodName == "M-POST" || methodName == "POST")
+   {
+      // Search for "CIMOperation" header:
 
-	String cimOperation;
-	httpMessage->message.append('\0');
+      String cimOperation;
+      httpMessage->message.append('\0');
 
-	//SocketMessage* socketMessage = (SocketMessage*)httpMessage;
+      //SocketMessage* socketMessage = (SocketMessage*)httpMessage;
 
-	if (HTTPMessage::lookupHeader(
-	    headers, "*CIMOperation", cimOperation, true))
-	{
-	    //_operationMessageQueue->enqueue(socketMessage);
-	    _operationMessageQueue->enqueue(httpMessage);
-	}
-	else if (HTTPMessage::lookupHeader(
-	    headers, "*CIMExport", cimOperation, true))
-	{
-	    //_exportMessageQueue->enqueue(socketMessage);
-	    _exportMessageQueue->enqueue(httpMessage);
-	}
-	else
-	{
-	    // ATTN: error discarded at this time!
-	    return;
-	}
+      if (HTTPMessage::lookupHeader(
+	     headers, "*CIMOperation", cimOperation, true))
+      {
+	 //_operationMessageQueue->enqueue(socketMessage);
+	 _operationMessageQueue->enqueue(httpMessage);
+      }
+      else if (HTTPMessage::lookupHeader(
+		  headers, "*CIMExport", cimOperation, true))
+      {
+	 //_exportMessageQueue->enqueue(socketMessage);
+	 _exportMessageQueue->enqueue(httpMessage);
+      }
+      else
+      {
+	 // ATTN: error discarded at this time!
+	 return;
+      }
 
-    }
-    // ATTN: KS Add the else here for Post, etc.  Also go to OPTIONS here.
+   }
+   // ATTN: KS Add the else here for Post, etc.  Also go to OPTIONS here.
 }
 
 
- const char* HTTPOptions::getQueueName() const
+const char* HTTPOptions::getQueueName() const
 {
-    return "HTTPOptions";
+   return "HTTPOptions";
 }
 
 PEGASUS_NAMESPACE_END

@@ -42,6 +42,7 @@ class PEGASUS_REPOSITORY_LINKAGE RepositoryQueue : public MessageQueueService
       RepositoryQueue(void);
       virtual ~RepositoryQueue(void);
       
+      virtual void handleEnqueue(Message *);
       virtual void handleEnqueue(void);
 
    protected:

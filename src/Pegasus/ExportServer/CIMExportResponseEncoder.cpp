@@ -54,92 +54,98 @@ CIMExportResponseEncoder::~CIMExportResponseEncoder()
 }
 
 void CIMExportResponseEncoder::sendResponse(
-    Uint32 queueId, 
-    Array<Sint8>& message)
+   Uint32 queueId, 
+   Array<Sint8>& message)
 {
-    MessageQueue* queue = MessageQueue::lookup(queueId);
+   MessageQueue* queue = MessageQueue::lookup(queueId);
 
-    if (queue)
-    {
-	HTTPMessage* httpMessage = new HTTPMessage(message);
-	queue->enqueue(httpMessage);
-    }
+   if (queue)
+   {
+      HTTPMessage* httpMessage = new HTTPMessage(message);
+      queue->enqueue(httpMessage);
+   }
 }
 
 void CIMExportResponseEncoder::sendError(
-    Uint32 queueId, 
-    const String& messageId,
-    const String& cimMethodName,
-    CIMStatusCode code,
-    const String& description) 
+   Uint32 queueId, 
+   const String& messageId,
+   const String& cimMethodName,
+   CIMStatusCode code,
+   const String& description) 
 {
-    ArrayDestroyer<char> tmp1(cimMethodName.allocateCString());
-    ArrayDestroyer<char> tmp2(description.allocateCString());
+   ArrayDestroyer<char> tmp1(cimMethodName.allocateCString());
+   ArrayDestroyer<char> tmp2(description.allocateCString());
 
-    Array<Sint8> message = XmlWriter::formatEMethodResponseHeader(
-	XmlWriter::formatMessageElement(
-	    messageId,
-	    XmlWriter::formatSimpleExportRspElement(
-		XmlWriter::formatEMethodResponseElement(
-		    tmp1.getPointer(),
-		    XmlWriter::formatErrorElement(code, tmp2.getPointer())))));
+   Array<Sint8> message = XmlWriter::formatEMethodResponseHeader(
+      XmlWriter::formatMessageElement(
+	 messageId,
+	 XmlWriter::formatSimpleExportRspElement(
+	    XmlWriter::formatEMethodResponseElement(
+	       tmp1.getPointer(),
+	       XmlWriter::formatErrorElement(code, tmp2.getPointer())))));
     
-    sendResponse(queueId, message);
+   sendResponse(queueId, message);
 }
 
 void CIMExportResponseEncoder::sendError(
-    CIMResponseMessage* response,
-    const String& cimMethodName)
+   CIMResponseMessage* response,
+   const String& cimMethodName)
 {
-    Uint32 queueId = response->queueIds.top();
-    response->queueIds.pop();
+   Uint32 queueId = response->queueIds.top();
+   response->queueIds.pop();
 
-    sendError(
-	queueId,
-	response->messageId, 
-	cimMethodName, 
-	response->errorCode, 
-	response->errorDescription);
+   sendError(
+      queueId,
+      response->messageId, 
+      cimMethodName, 
+      response->errorCode, 
+      response->errorDescription);
 }
+
+void CIMExportResponseEncoder::handleEnqueue(Message *message)
+{
+   if (!message)
+      return;
+
+   switch (message->getType())
+   {
+      case CIM_EXPORT_INDICATION_RESPONSE_MESSAGE:
+	 encodeExportIndicationResponse(
+	    (CIMExportIndicationResponseMessage*)message);
+	 break;
+   }
+   
+   delete message;
+}
+
 
 void CIMExportResponseEncoder::handleEnqueue()
 {
-    Message* message = dequeue();
-
-    if (!message)
-	return;
-
-    switch (message->getType())
-    {
-	case CIM_EXPORT_INDICATION_RESPONSE_MESSAGE:
-	    encodeExportIndicationResponse(
-		(CIMExportIndicationResponseMessage*)message);
-	    break;
-    }
-
-    delete message;
+   Message* message = dequeue();
+   if(message)
+      handleEnqueue(message);
 }
 
 const char* CIMExportResponseEncoder::getQueueName() const
 {
-    return "CIMExportResponseEncoder";
+   return "CIMExportResponseEncoder";
 }
 
 void CIMExportResponseEncoder::encodeExportIndicationResponse(
-    CIMExportIndicationResponseMessage* response)
+   CIMExportIndicationResponseMessage* response)
 {
-    if (response->errorCode != CIM_ERR_SUCCESS)
-    {
-	sendError(response, "ExportIndication");
-	return;
-    }
+   if (response->errorCode != CIM_ERR_SUCCESS)
+   {
+      sendError(response, "ExportIndication");
+      return;
+   }
 
-    Array<Sint8> body;
+   Array<Sint8> body;
     
-    Array<Sint8> message = XmlWriter::formatSimpleIndicationRspMessage(
-        "ExportIndication", response->messageId, body);
+   Array<Sint8> message = XmlWriter::formatSimpleIndicationRspMessage(
+      "ExportIndication", response->messageId, body);
 
-    sendResponse(response->queueIds.top(), message);
+   sendResponse(response->queueIds.top(), message);
 }
 
 PEGASUS_NAMESPACE_END

@@ -122,94 +122,105 @@ HTTPConnection::~HTTPConnection()
     delete _authInfo;
 }
 
-void HTTPConnection::handleEnqueue()
-{
-    const char METHOD_NAME[] = "HTTPConnection::handleEnqueue";
 
-    PEG_FUNC_ENTER(TRC_HTTP, METHOD_NAME);
+void HTTPConnection::handleEnqueue(Message *message)
+{
+   if( ! message) 
+      return;
+   
+   const char METHOD_NAME[] = "HTTPConnection::handleEnqueue";
+   
+   PEG_FUNC_ENTER(TRC_HTTP, METHOD_NAME);
 
 #ifdef ENABLETIMEOUTWORKAROUNDHACK
-    static Mutex handleEnqueue_mut = Mutex();
+   static Mutex handleEnqueue_mut = Mutex();
 #endif
 
-    Message* message = dequeue();
+
+#ifdef ENABLETIMEOUTWORKAROUNDHACK
+   handleEnqueue_mut.lock(pegasus_thread_self());
+#endif
+
+   switch (message->getType())
+   {
+      case SOCKET_MESSAGE:
+      {
+	 SocketMessage* socketMessage = (SocketMessage*)message;
+
+	 if (socketMessage->events & SocketMessage::READ)
+	    _handleReadEvent();
+
+	 break;
+      }
+
+      case HTTP_MESSAGE:
+      {
+	 HTTPMessage* httpMessage = (HTTPMessage*)message;
+
+	 // ATTN: convert over to asynchronous write scheme:
+
+	 // Send response message to the client (use synchronous I/O for now:
+
+	 _socket->enableBlocking();
+
+	 const Array<Sint8>& buffer = httpMessage->message;
+	 const Uint32 CHUNK_SIZE = 16 * 1024;
+
+#ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU
+	 SignalHandler::ignore(SIGPIPE);
+
+	 //getSigHandle()->registerHandler(SIGSEGV,sig_act);
+	 //getSigHandle()->activate(SIGSEGV);
+	 // use the next two lines to test the SIGSEGV handler
+	 //Thread t(::segmentation_faulter,NULL,false);
+	 //t.run();
+#endif
+	 for (Uint32 bytesRemaining = buffer.size(); bytesRemaining > 0; )
+	 {
+	    Uint32 bytesToWrite = _Min(bytesRemaining, CHUNK_SIZE);
+
+	    Sint32 bytesWritten = _socket->write(
+	       buffer.getData() + buffer.size() - bytesRemaining, 
+	       bytesToWrite);
+
+	    if (bytesWritten < 0)
+	       break;
+	    //throw ConnectionBroken();
+
+	    bytesRemaining -= bytesWritten;
+	 }
+	 //
+	 // decrement request count
+	 //
+	 _requestCount--;
+
+	 _socket->disableBlocking();
+	 break;
+      }
+
+      default:
+	 // ATTN: need unexpected message error!
+	 break;
+   };
+
+   delete message;
+
+#ifdef ENABLETIMEOUTWORKAROUNDHACK
+   handleEnqueue_mut.unlock();
+#endif
+
+   PEG_FUNC_EXIT(TRC_HTTP, METHOD_NAME);
+
+}
+
+
+void HTTPConnection::handleEnqueue()
+{
+   Message* message = dequeue();
 
     if (!message)
         return;
-
-#ifdef ENABLETIMEOUTWORKAROUNDHACK
-    handleEnqueue_mut.lock(pegasus_thread_self());
-#endif
-
-    switch (message->getType())
-    {
-	case SOCKET_MESSAGE:
-	{
-	    SocketMessage* socketMessage = (SocketMessage*)message;
-
-	    if (socketMessage->events & SocketMessage::READ)
-		_handleReadEvent();
-
-	    break;
-	}
-
-	case HTTP_MESSAGE:
-	{
-	    HTTPMessage* httpMessage = (HTTPMessage*)message;
-
-	    // ATTN: convert over to asynchronous write scheme:
-
-	    // Send response message to the client (use synchronous I/O for now:
-
-            _socket->enableBlocking();
-
-	    const Array<Sint8>& buffer = httpMessage->message;
-	    const Uint32 CHUNK_SIZE = 16 * 1024;
-
-#ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU
-            SignalHandler::ignore(SIGPIPE);
-
-            //getSigHandle()->registerHandler(SIGSEGV,sig_act);
-            //getSigHandle()->activate(SIGSEGV);
-            // use the next two lines to test the SIGSEGV handler
-            //Thread t(::segmentation_faulter,NULL,false);
-            //t.run();
-#endif
-	    for (Uint32 bytesRemaining = buffer.size(); bytesRemaining > 0; )
-	    {
-		Uint32 bytesToWrite = _Min(bytesRemaining, CHUNK_SIZE);
-
-		Sint32 bytesWritten = _socket->write(
-		    buffer.getData() + buffer.size() - bytesRemaining, 
-		    bytesToWrite);
-
-		if (bytesWritten < 0)
-		    break;
-                    //throw ConnectionBroken();
-
-		bytesRemaining -= bytesWritten;
-	    }
-            //
-            // decrement request count
-            //
-            _requestCount--;
-
-            _socket->disableBlocking();
-            break;
-	}
-
-	default:
-	    // ATTN: need unexpected message error!
-	    break;
-    };
-
-    delete message;
-
-#ifdef ENABLETIMEOUTWORKAROUNDHACK
-    handleEnqueue_mut.unlock();
-#endif
-
-    PEG_FUNC_EXIT(TRC_HTTP, METHOD_NAME);
+    handleEnqueue(message);
 }
 
 const char* HTTPConnection::getQueueName() const

@@ -1,4 +1,4 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%///-*-c++-*-/////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM, 
 // The Open Group, Tivoli Systems
@@ -44,73 +44,76 @@ struct HTTPAcceptorRep;
 */
 class PEGASUS_COMMON_LINKAGE HTTPAcceptor : public MessageQueueService
 {
-public:
-  typedef MessageQueueService Base;
+   public:
+      typedef MessageQueueService Base;
   
-    /** Constructor.
-	@param monitor pointer to monitor object which this class uses to
-	    solicit SocketMessages on the server port (socket).
-	@param outputMessageQueue ouptut message queue for connections
-	    created by this acceptor.
-    */
-    HTTPAcceptor(Monitor* monitor, MessageQueue* outputMessageQueue);
+      /** Constructor.
+	  @param monitor pointer to monitor object which this class uses to
+	  solicit SocketMessages on the server port (socket).
+	  @param outputMessageQueue ouptut message queue for connections
+	  created by this acceptor.
+      */
+      HTTPAcceptor(Monitor* monitor, MessageQueue* outputMessageQueue);
 
-    HTTPAcceptor(Monitor* monitor, MessageQueue* outputMessageQueue, 
-                 SSLContext * sslcontext);
+      HTTPAcceptor(Monitor* monitor, MessageQueue* outputMessageQueue, 
+		   SSLContext * sslcontext);
 
-    /** Destructor. */
-    ~HTTPAcceptor();
+      /** Destructor. */
+      ~HTTPAcceptor();
 
-    /** This method is called whenever a SocketMessage is enqueued
-	on the input queue of the HTTPAcceptor object.
-    */ 
-    virtual void handleEnqueue();
+      /** This method is called whenever a SocketMessage is enqueued
+	  on the input queue of the HTTPAcceptor object.
+      */ 
 
-    virtual const char* getQueueName() const;
+      virtual void handleEnqueue(Message *);
+    
+      virtual void handleEnqueue();
 
-    /** Bind to the given port (the port on which this acceptor listens for 
-	connections).
-	@param portNumber the number of the port used to listen for
-	    connection requests.
-	@exception throws BindFailed is unable to bind to the given
-	    port (either because the port number is invalid or the
-	    port is in use).
-    */
-    void bind(Uint32 portNumber);
+      virtual const char* getQueueName() const;
 
-    /** Unbind from the given port.
-    */
-    void unbind();
+      /** Bind to the given port (the port on which this acceptor listens for 
+	  connections).
+	  @param portNumber the number of the port used to listen for
+	  connection requests.
+	  @exception throws BindFailed is unable to bind to the given
+	  port (either because the port number is invalid or the
+	  port is in use).
+      */
+      void bind(Uint32 portNumber);
 
-    /** Close the connection socket.
-    */
-    void closeConnectionSocket();
+      /** Unbind from the given port.
+       */
+      void unbind();
 
-    /** Reopen the connection socket.
-    */
-    void reopenConnectionSocket();
+      /** Close the connection socket.
+       */
+      void closeConnectionSocket();
 
-    /** Destroys all the connections created by this acceptor. */
-    void destroyConnections();
+      /** Reopen the connection socket.
+       */
+      void reopenConnectionSocket();
 
-    /** Returns the number of outstanding requests
-    */
-    Uint32 getOutstandingRequestCount();
+      /** Destroys all the connections created by this acceptor. */
+      void destroyConnections();
 
-private:
+      /** Returns the number of outstanding requests
+       */
+      Uint32 getOutstandingRequestCount();
 
-    void _acceptConnection();
-    void _bind();
+   private:
 
-    cimom *_meta_dispatcher;
+      void _acceptConnection();
+      void _bind();
+
+      cimom *_meta_dispatcher;
     
 
-    Monitor* _monitor;
-    MessageQueue* _outputMessageQueue;
-    HTTPAcceptorRep* _rep;
+      Monitor* _monitor;
+      MessageQueue* _outputMessageQueue;
+      HTTPAcceptorRep* _rep;
 
-    SSLContext * _sslcontext;
-    Uint32  _portNumber;
+      SSLContext * _sslcontext;
+      Uint32  _portNumber;
 };
 
 PEGASUS_NAMESPACE_END

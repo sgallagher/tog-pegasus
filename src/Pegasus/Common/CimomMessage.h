@@ -359,7 +359,13 @@ class PEGASUS_COMMON_LINKAGE AsyncOperationStart : public AsyncRequest
 
       }
       
-      Message *act;
+
+      Message *get_action(void);
+      
+   private:
+      friend MessageQueueService;
+      friend cimom;
+      Message *_act;
 };
 
 class PEGASUS_COMMON_LINKAGE AsyncOperationResult : public AsyncReply
@@ -394,9 +400,14 @@ class PEGASUS_COMMON_LINKAGE AsyncLegacyOperationStart : public AsyncRequest
       {
 
       }
-      
-      Message *act;
-      Uint32 legacy_destination;
+
+      Message *get_action(void);
+
+   private:
+      friend MessageQueueService;
+      friend cimom;
+      Message *_act;
+      Uint32 _legacy_destination;
       
 };
 
@@ -413,7 +424,13 @@ class PEGASUS_COMMON_LINKAGE AsyncLegacyOperationResult : public AsyncReply
 
       }
 
-      Message *res;
+      Message *get_result(void);
+      
+
+   private:
+      friend MessageQueueService;
+      friend cimom;
+      Message *_res;
 };
 
 

@@ -55,70 +55,71 @@ class CIMExportRequestEncoder;
 */
 class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportClient : public MessageQueueService
 {
-public:
-  typedef MessageQueueService Base;
+   public:
+      typedef MessageQueueService Base;
   
 
-    enum { DEFAULT_TIMEOUT_MILLISECONDS = 20000 };
+      enum { DEFAULT_TIMEOUT_MILLISECONDS = 20000 };
 
-    ///
-    CIMExportClient(
-	Monitor* monitor,
-	HTTPConnector* httpConnector,
-	Uint32 timeOutMilliseconds = DEFAULT_TIMEOUT_MILLISECONDS);
+      ///
+      CIMExportClient(
+	 Monitor* monitor,
+	 HTTPConnector* httpConnector,
+	 Uint32 timeOutMilliseconds = DEFAULT_TIMEOUT_MILLISECONDS);
 
-    ///
-    ~CIMExportClient();
+      ///
+      ~CIMExportClient();
 
-    ///
-    virtual void handleEnqueue();
+      ///
+      virtual void handleEnqueue(Message *);
+      virtual void handleEnqueue();
 
-    /** Returns the queue name. */
-    virtual const char* getQueueName() const;
+      /** Returns the queue name. */
+      virtual const char* getQueueName() const;
 
-    ///
-    Uint32 getTimeOut() const
-    {
-	return _timeOutMilliseconds;
-    }
+      ///
+      Uint32 getTimeOut() const
+      {
+	 return _timeOutMilliseconds;
+      }
 
-    ///
-    void setTimeOut(Uint32 timeOutMilliseconds)
-    {
-	_timeOutMilliseconds = timeOutMilliseconds;
-    }
+      ///
+      void setTimeOut(Uint32 timeOutMilliseconds)
+      {
+	 _timeOutMilliseconds = timeOutMilliseconds;
+      }
 
-    ///
-    void connect(const String& address);
+      ///
+      void connect(const String& address);
 
-    //
-    // Connection used by local clients
-    //
-    void connectLocal(
-        const String& address,
-        const String& userName = String::EMPTY);
+      //
+      // Connection used by local clients
+      //
+      void connectLocal(
+	 const String& address,
+	 const String& userName = String::EMPTY);
 
-    ///
-    virtual void exportIndication(
-	const String& nameSpace,
-	const CIMInstance& instanceName);
+      ///
+      virtual void exportIndication(
+	 const String& nameSpace,
+	 const CIMInstance& instanceName);
 
-private:
+   private:
 
-    Message* _waitForResponse(
-	const Uint32 messageType,
-	const String& messageId,
-	const Uint32 timeOutMilliseconds = DEFAULT_TIMEOUT_MILLISECONDS);
+      Message* _waitForResponse(
+	 const Uint32 messageType,
+	 const String& messageId,
+	 const Uint32 timeOutMilliseconds = DEFAULT_TIMEOUT_MILLISECONDS);
 
-    void _checkError(const CIMResponseMessage* responseMessage);
+      void _checkError(const CIMResponseMessage* responseMessage);
 
-    Monitor* _monitor;
-    HTTPConnector* _httpConnector;
-    Uint32 _timeOutMilliseconds;
-    Boolean _connected;
-    CIMExportResponseDecoder* _responseDecoder;
-    CIMExportRequestEncoder* _requestEncoder;
-    ClientAuthenticator* _authenticator;
+      Monitor* _monitor;
+      HTTPConnector* _httpConnector;
+      Uint32 _timeOutMilliseconds;
+      Boolean _connected;
+      CIMExportResponseDecoder* _responseDecoder;
+      CIMExportRequestEncoder* _requestEncoder;
+      ClientAuthenticator* _authenticator;
 };
 
 PEGASUS_NAMESPACE_END

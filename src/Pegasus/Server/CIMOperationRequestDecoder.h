@@ -44,248 +44,250 @@ PEGASUS_NAMESPACE_BEGIN
 class XmlParser;
 
 /** This class decodes CIM operation requests and passes them down-stream.
-*/
+ */
 class CIMOperationRequestDecoder : public MessageQueueService
 {
    public:
       typedef MessageQueueService Base;
     
-    CIMOperationRequestDecoder(
-	MessageQueue* outputQueue,
-	Uint32 returnQueueId);
+      CIMOperationRequestDecoder(
+	 MessageQueue* outputQueue,
+	 Uint32 returnQueueId);
 
-    ~CIMOperationRequestDecoder();
+      ~CIMOperationRequestDecoder();
 
-    void sendResponse(
-	Uint32 queueId, 
-	Array<Sint8>& message);
+      void sendResponse(
+	 Uint32 queueId, 
+	 Array<Sint8>& message);
 
-    void sendError(
-	Uint32 queueId, 
-	const String& messageId,
-	const String& methodName,
-	CIMStatusCode code,
-	const String& description);
+      void sendError(
+	 Uint32 queueId, 
+	 const String& messageId,
+	 const String& methodName,
+	 CIMStatusCode code,
+	 const String& description);
 
-    virtual void handleEnqueue();
+      virtual void handleEnqueue(Message *);
 
-    virtual const char* getQueueName() const;
+      virtual void handleEnqueue();
 
-    void handleHTTPMessage(HTTPMessage* httpMessage);
+      virtual const char* getQueueName() const;
 
-    void handleMethodCall(
-	Uint32 queueId,
-	Sint8* content,
-	String authType,
-        String userName);
+      void handleHTTPMessage(HTTPMessage* httpMessage);
 
-    CIMCreateClassRequestMessage* decodeCreateClassRequest(
-        Uint32 queueId,
-	XmlParser& parser, 
-	const String& messageId,
-        const String& nameSpace,
-        const String& authType,
-        const String& userName);
+      void handleMethodCall(
+	 Uint32 queueId,
+	 Sint8* content,
+	 String authType,
+	 String userName);
+
+      CIMCreateClassRequestMessage* decodeCreateClassRequest(
+	 Uint32 queueId,
+	 XmlParser& parser, 
+	 const String& messageId,
+	 const String& nameSpace,
+	 const String& authType,
+	 const String& userName);
 
 
-    CIMGetClassRequestMessage* decodeGetClassRequest(
-        Uint32 queueId,
-	XmlParser& parser, 
-	const String& messageId,
-        const String& nameSpace,
-        const String& authType,
-        const String& userName);
+      CIMGetClassRequestMessage* decodeGetClassRequest(
+	 Uint32 queueId,
+	 XmlParser& parser, 
+	 const String& messageId,
+	 const String& nameSpace,
+	 const String& authType,
+	 const String& userName);
 
-    CIMModifyClassRequestMessage* decodeModifyClassRequest(
-        Uint32 queueId,
-	XmlParser& parser, 
-	const String& messageId,
-        const String& nameSpace,
-        const String& authType,
-        const String& userName);
+      CIMModifyClassRequestMessage* decodeModifyClassRequest(
+	 Uint32 queueId,
+	 XmlParser& parser, 
+	 const String& messageId,
+	 const String& nameSpace,
+	 const String& authType,
+	 const String& userName);
 
-    CIMEnumerateClassNamesRequestMessage* decodeEnumerateClassNamesRequest(
-        Uint32 queueId,
-	XmlParser& parser, 
-	const String& messageId,
-        const String& nameSpace,
-        const String& authType,
-        const String& userName);
+      CIMEnumerateClassNamesRequestMessage* decodeEnumerateClassNamesRequest(
+	 Uint32 queueId,
+	 XmlParser& parser, 
+	 const String& messageId,
+	 const String& nameSpace,
+	 const String& authType,
+	 const String& userName);
 
-    CIMEnumerateClassesRequestMessage* decodeEnumerateClassesRequest(
-        Uint32 queueId,
-	XmlParser& parser, 
-	const String& messageId,
-        const String& nameSpace,
-        const String& authType,
-        const String& userName);
+      CIMEnumerateClassesRequestMessage* decodeEnumerateClassesRequest(
+	 Uint32 queueId,
+	 XmlParser& parser, 
+	 const String& messageId,
+	 const String& nameSpace,
+	 const String& authType,
+	 const String& userName);
 
-    CIMDeleteClassRequestMessage* decodeDeleteClassRequest(
-        Uint32 queueId,
-	XmlParser& parser, 
-	const String& messageId,
-        const String& nameSpace,
-        const String& authType,
-        const String& userName);
+      CIMDeleteClassRequestMessage* decodeDeleteClassRequest(
+	 Uint32 queueId,
+	 XmlParser& parser, 
+	 const String& messageId,
+	 const String& nameSpace,
+	 const String& authType,
+	 const String& userName);
 
-    CIMCreateInstanceRequestMessage* decodeCreateInstanceRequest(
-        Uint32 queueId,
-	XmlParser& parser, 
-	const String& messageId,
-        const String& nameSpace,
-        const String& authType,
-        const String& userName);
+      CIMCreateInstanceRequestMessage* decodeCreateInstanceRequest(
+	 Uint32 queueId,
+	 XmlParser& parser, 
+	 const String& messageId,
+	 const String& nameSpace,
+	 const String& authType,
+	 const String& userName);
 
-    CIMGetInstanceRequestMessage* decodeGetInstanceRequest(
-        Uint32 queueId,
-	XmlParser& parser, 
-	const String& messageId,
-        const String& nameSpace,
-        const String& authType,
-        const String& userName);
+      CIMGetInstanceRequestMessage* decodeGetInstanceRequest(
+	 Uint32 queueId,
+	 XmlParser& parser, 
+	 const String& messageId,
+	 const String& nameSpace,
+	 const String& authType,
+	 const String& userName);
 
-    CIMModifyInstanceRequestMessage* decodeModifyInstanceRequest(
-        Uint32 queueId,
-	XmlParser& parser, 
-	const String& messageId,
-        const String& nameSpace,
-        const String& authType,
-        const String& userName);
+      CIMModifyInstanceRequestMessage* decodeModifyInstanceRequest(
+	 Uint32 queueId,
+	 XmlParser& parser, 
+	 const String& messageId,
+	 const String& nameSpace,
+	 const String& authType,
+	 const String& userName);
 
-    CIMEnumerateInstanceNamesRequestMessage* decodeEnumerateInstanceNamesRequest(
-        Uint32 queueId,
-	XmlParser& parser, 
-	const String& messageId,
-        const String& nameSpace,
-        const String& authType,
-        const String& userName);
+      CIMEnumerateInstanceNamesRequestMessage* decodeEnumerateInstanceNamesRequest(
+	 Uint32 queueId,
+	 XmlParser& parser, 
+	 const String& messageId,
+	 const String& nameSpace,
+	 const String& authType,
+	 const String& userName);
 
-    CIMEnumerateInstancesRequestMessage* decodeEnumerateInstancesRequest(
-        Uint32 queueId,
-	XmlParser& parser, 
-	const String& messageId,
-        const String& nameSpace,
-        const String& authType,
-        const String& userName);
+      CIMEnumerateInstancesRequestMessage* decodeEnumerateInstancesRequest(
+	 Uint32 queueId,
+	 XmlParser& parser, 
+	 const String& messageId,
+	 const String& nameSpace,
+	 const String& authType,
+	 const String& userName);
 
-    CIMDeleteInstanceRequestMessage* decodeDeleteInstanceRequest(
-        Uint32 queueId,
-	XmlParser& parser, 
-	const String& messageId,
-        const String& nameSpace,
-        const String& authType,
-        const String& userName);
+      CIMDeleteInstanceRequestMessage* decodeDeleteInstanceRequest(
+	 Uint32 queueId,
+	 XmlParser& parser, 
+	 const String& messageId,
+	 const String& nameSpace,
+	 const String& authType,
+	 const String& userName);
 
-    CIMSetQualifierRequestMessage* decodeSetQualifierRequest(
-        Uint32 queueId,
-	XmlParser& parser, 
-	const String& messageId,
-        const String& nameSpace,
-        const String& authType,
-        const String& userName);
+      CIMSetQualifierRequestMessage* decodeSetQualifierRequest(
+	 Uint32 queueId,
+	 XmlParser& parser, 
+	 const String& messageId,
+	 const String& nameSpace,
+	 const String& authType,
+	 const String& userName);
 
-    CIMGetQualifierRequestMessage* decodeGetQualifierRequest(
-        Uint32 queueId,
-	XmlParser& parser, 
-	const String& messageId,
-        const String& nameSpace,
-        const String& authType,
-        const String& userName);
+      CIMGetQualifierRequestMessage* decodeGetQualifierRequest(
+	 Uint32 queueId,
+	 XmlParser& parser, 
+	 const String& messageId,
+	 const String& nameSpace,
+	 const String& authType,
+	 const String& userName);
 
-    CIMEnumerateQualifiersRequestMessage* decodeEnumerateQualifiersRequest(
-        Uint32 queueId,
-	XmlParser& parser, 
-	const String& messageId,
-        const String& nameSpace,
-        const String& authType,
-        const String& userName);
+      CIMEnumerateQualifiersRequestMessage* decodeEnumerateQualifiersRequest(
+	 Uint32 queueId,
+	 XmlParser& parser, 
+	 const String& messageId,
+	 const String& nameSpace,
+	 const String& authType,
+	 const String& userName);
 
-    CIMDeleteQualifierRequestMessage* decodeDeleteQualifierRequest(
-        Uint32 queueId,
-	XmlParser& parser, 
-	const String& messageId,
-        const String& nameSpace,
-        const String& authType,
-        const String& userName);
+      CIMDeleteQualifierRequestMessage* decodeDeleteQualifierRequest(
+	 Uint32 queueId,
+	 XmlParser& parser, 
+	 const String& messageId,
+	 const String& nameSpace,
+	 const String& authType,
+	 const String& userName);
 
-    CIMReferenceNamesRequestMessage* decodeReferenceNamesRequest(
-        Uint32 queueId,
-	XmlParser& parser, 
-	const String& messageId,
-        const String& nameSpace,
-        const String& authType,
-        const String& userName);
+      CIMReferenceNamesRequestMessage* decodeReferenceNamesRequest(
+	 Uint32 queueId,
+	 XmlParser& parser, 
+	 const String& messageId,
+	 const String& nameSpace,
+	 const String& authType,
+	 const String& userName);
 
-    CIMReferencesRequestMessage* decodeReferencesRequest(
-        Uint32 queueId,
-	XmlParser& parser, 
-	const String& messageId,
-        const String& nameSpace,
-        const String& authType,
-        const String& userName);
+      CIMReferencesRequestMessage* decodeReferencesRequest(
+	 Uint32 queueId,
+	 XmlParser& parser, 
+	 const String& messageId,
+	 const String& nameSpace,
+	 const String& authType,
+	 const String& userName);
 
-    CIMAssociatorNamesRequestMessage* decodeAssociatorNamesRequest(
-        Uint32 queueId,
-	XmlParser& parser, 
-	const String& messageId,
-        const String& nameSpace,
-        const String& authType,
-        const String& userName);
+      CIMAssociatorNamesRequestMessage* decodeAssociatorNamesRequest(
+	 Uint32 queueId,
+	 XmlParser& parser, 
+	 const String& messageId,
+	 const String& nameSpace,
+	 const String& authType,
+	 const String& userName);
 
-    CIMAssociatorsRequestMessage* decodeAssociatorsRequest(
-        Uint32 queueId,
-	XmlParser& parser, 
-	const String& messageId,
-        const String& nameSpace,
-        const String& authType,
-        const String& userName);
+      CIMAssociatorsRequestMessage* decodeAssociatorsRequest(
+	 Uint32 queueId,
+	 XmlParser& parser, 
+	 const String& messageId,
+	 const String& nameSpace,
+	 const String& authType,
+	 const String& userName);
 
-    CIMGetPropertyRequestMessage* decodeGetPropertyRequest(
-        Uint32 queueId,
-	XmlParser& parser, 
-	const String& messageId,
-        const String& nameSpace,
-        const String& authType,
-        const String& userName);
+      CIMGetPropertyRequestMessage* decodeGetPropertyRequest(
+	 Uint32 queueId,
+	 XmlParser& parser, 
+	 const String& messageId,
+	 const String& nameSpace,
+	 const String& authType,
+	 const String& userName);
 
-    CIMSetPropertyRequestMessage* decodeSetPropertyRequest(
-        Uint32 queueId,
-	XmlParser& parser, 
-	const String& messageId,
-        const String& nameSpace,
-        const String& authType,
-        const String& userName);
+      CIMSetPropertyRequestMessage* decodeSetPropertyRequest(
+	 Uint32 queueId,
+	 XmlParser& parser, 
+	 const String& messageId,
+	 const String& nameSpace,
+	 const String& authType,
+	 const String& userName);
 
-    CIMInvokeMethodRequestMessage* decodeInvokeMethodRequest(
-        Uint32 queueId,
-	XmlParser& parser, 
-	const String& messageId,
-	const CIMReference& reference,
-	const String& cimMethodName,
-	const String& authType,
-        const String& userName);
+      CIMInvokeMethodRequestMessage* decodeInvokeMethodRequest(
+	 Uint32 queueId,
+	 XmlParser& parser, 
+	 const String& messageId,
+	 const CIMReference& reference,
+	 const String& cimMethodName,
+	 const String& authType,
+	 const String& userName);
         
-    void sendMethodError(
-	Uint32 queueId, 
-	const String& messageId,
-	const String& methodName,
-	CIMStatusCode code,
-	const String& description);
+      void sendMethodError(
+	 Uint32 queueId, 
+	 const String& messageId,
+	 const String& methodName,
+	 CIMStatusCode code,
+	 const String& description);
 
-    /** Sets the flag to indicate whether or not the CIMServer is 
-        shutting down.
-    */
-    void setServerTerminating(Boolean flag);
+      /** Sets the flag to indicate whether or not the CIMServer is 
+	  shutting down.
+      */
+      void setServerTerminating(Boolean flag);
 
-private:
+   private:
 
-    MessageQueue* _outputQueue;
+      MessageQueue* _outputQueue;
 
-    // Queue where responses should be enqueued.
-    Uint32 _returnQueueId;
+      // Queue where responses should be enqueued.
+      Uint32 _returnQueueId;
 
-    // Flag to indicate whether or not the CIMServer is shutting down.
-    Boolean _serverTerminating;
+      // Flag to indicate whether or not the CIMServer is shutting down.
+      Boolean _serverTerminating;
 };
 
 PEGASUS_NAMESPACE_END

@@ -42,40 +42,41 @@ PEGASUS_NAMESPACE_BEGIN
 
 class PEGASUS_SERVER_LINKAGE ProviderManagerService : public MessageQueueService
 {
-public:
-	ProviderManagerService(void);
-	virtual ~ProviderManagerService(void);
+   public:
+      ProviderManagerService(void);
+      virtual ~ProviderManagerService(void);
 
-	virtual void handleEnqueue(void);
+      virtual void handleEnqueue(Message *);
+      virtual void handleEnqueue(void);
 
-	// short term hack
-	ProviderManager * getProviderManager(void)
-	{
-		return(&providerManager);
-	}
+      // short term hack
+      ProviderManager * getProviderManager(void)
+      {
+	 return(&providerManager);
+      }
 
-protected:
-	Pair<String, String> _lookupProviderForClass(const CIMObjectPath & objectPath);
+   protected:
+      Pair<String, String> _lookupProviderForClass(const CIMObjectPath & objectPath);
 	
-protected:	
-	void handleGetInstanceRequest(const Message * message);
-	void handleEnumerateInstancesRequest(const Message * message);
-	void handleEnumerateInstanceNamesRequest(const Message * message);
-	void handleCreateInstanceRequest(const Message * message);
-	void handleModifyInstanceRequest(const Message * message);
-	void handleDeleteInstanceRequest(const Message * message);
+   protected:	
+      void handleGetInstanceRequest(const Message * message);
+      void handleEnumerateInstancesRequest(const Message * message);
+      void handleEnumerateInstanceNamesRequest(const Message * message);
+      void handleCreateInstanceRequest(const Message * message);
+      void handleModifyInstanceRequest(const Message * message);
+      void handleDeleteInstanceRequest(const Message * message);
 	
-	void handleGetPropertyRequest(const Message * message);
-	void handleSetPropertyRequest(const Message * message);
+      void handleGetPropertyRequest(const Message * message);
+      void handleSetPropertyRequest(const Message * message);
 	
-	void handleInvokeMethodRequest(const Message * message);
+      void handleInvokeMethodRequest(const Message * message);
 
-  	void handleEnableIndicationRequest(const Message * message);
-  	void handleModifyIndicationRequest(const Message * message);
-  	void handleDisableIndicationRequest(const Message * message);
+      void handleEnableIndicationRequest(const Message * message);
+      void handleModifyIndicationRequest(const Message * message);
+      void handleDisableIndicationRequest(const Message * message);
 
-protected:
- 	ProviderManager providerManager;
+   protected:
+      ProviderManager providerManager;
 	
 };
 

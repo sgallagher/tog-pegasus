@@ -198,7 +198,7 @@ class PEGASUS_COMMON_LINKAGE MessageQueue
 	  method could handle the incoming message in the thread of the caller
 	  of enqueue()).
       */
-      virtual void handleEnqueue();
+      virtual void handleEnqueue() ;
 
       /** This method <b>may</b> be called prior to enqueueing an message.
 	  the message queue can inform the caller that it does not want

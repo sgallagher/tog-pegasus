@@ -273,9 +273,19 @@ AsyncOperationStart::AsyncOperationStart(Uint32 routing,
 		  Message::getNextKey(), routing, 0,
 		  operation, 
 		  destination, response, blocking),
-     act(action) 
+     _act(action) 
 {  
 
+}
+
+
+inline Message * AsyncOperationStart::get_action(void)
+{
+   Message *ret = _act;
+   _act = 0;
+   ret->put_async(0);
+   return ret;
+   
 }
 
 
@@ -303,11 +313,20 @@ AsyncLegacyOperationStart::AsyncLegacyOperationStart(Uint32 routing,
    : AsyncRequest(async_messages::ASYNC_LEGACY_OP_START, 
 		  Message::getNextKey(), routing, 0,
 		  operation, destination, CIMOM_Q_ID, false),
-     act(action) , legacy_destination(action_destination)
+     _act(action) , _legacy_destination(action_destination)
 {  
-   act->_async = this;
+   _act->put_async(this);
 }
 
+
+Message * AsyncLegacyOperationStart::get_action(void)
+{
+   Message *ret = _act;
+   _act = 0;
+//   ret->put_async(0);
+   return ret;
+   
+}
 
 AsyncLegacyOperationResult::AsyncLegacyOperationResult(Uint32 key, 
 						       Uint32 routing, 
@@ -316,12 +335,18 @@ AsyncLegacyOperationResult::AsyncLegacyOperationResult(Uint32 key,
    : AsyncReply(async_messages::ASYNC_LEGACY_OP_RESULT, 
 		key, routing, 0, operation, 
 		0, CIMOM_Q_ID, false),
-     res(result)
+     _res(result)
 {   
-   res->_async = this;
+   _res->put_async(this);
 }
       
-
+Message *AsyncLegacyOperationResult::get_result(void)
+{
+   Message *ret = _res;
+   _res = 0;
+//   ret->put_async(0);
+   return ret;
+}
 
 FindServiceQueue::FindServiceQueue(Uint32 routing, 
 				   AsyncOpNode *operation, 
@@ -343,8 +368,7 @@ FindServiceQueue::FindServiceQueue(Uint32 routing,
 	 
 }
 
-
-
+ 
 FindServiceQueueResult::FindServiceQueueResult(Uint32 key, 
 					       Uint32 routing, 
 					       AsyncOpNode *operation, 

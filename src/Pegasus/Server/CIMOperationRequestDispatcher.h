@@ -55,103 +55,105 @@ PEGASUS_NAMESPACE_BEGIN
 
 class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher : public MessageQueueService
 {
-public:
+   public:
 
-    typedef MessageQueueService Base;
+      typedef MessageQueueService Base;
 
-    CIMOperationRequestDispatcher(
-	CIMRepository* repository, CIMServer* server);
+      CIMOperationRequestDispatcher(
+	 CIMRepository* repository, CIMServer* server);
 
       virtual ~CIMOperationRequestDispatcher();
       
+      virtual void handleEnqueue(Message *);
+
       virtual void handleEnqueue();
 
-    virtual const char* getQueueName() const;
+      virtual const char* getQueueName() const;
 
-    void handleGetClassRequest(
-	CIMGetClassRequestMessage* request);
+      void handleGetClassRequest(
+	 CIMGetClassRequestMessage* request);
 
-    void handleGetInstanceRequest(
-	CIMGetInstanceRequestMessage* request);
+      void handleGetInstanceRequest(
+	 CIMGetInstanceRequestMessage* request);
 
-    void handleDeleteClassRequest(
-	CIMDeleteClassRequestMessage* request);
+      void handleDeleteClassRequest(
+	 CIMDeleteClassRequestMessage* request);
 
-    void handleDeleteInstanceRequest(
-	CIMDeleteInstanceRequestMessage* request);
+      void handleDeleteInstanceRequest(
+	 CIMDeleteInstanceRequestMessage* request);
 
-    void handleCreateClassRequest(
-	CIMCreateClassRequestMessage* request);
+      void handleCreateClassRequest(
+	 CIMCreateClassRequestMessage* request);
 
-    void handleCreateInstanceRequest(
-	CIMCreateInstanceRequestMessage* request);
+      void handleCreateInstanceRequest(
+	 CIMCreateInstanceRequestMessage* request);
 
-    void handleModifyClassRequest(
-	CIMModifyClassRequestMessage* request);
+      void handleModifyClassRequest(
+	 CIMModifyClassRequestMessage* request);
 
-    void handleModifyInstanceRequest(
-	CIMModifyInstanceRequestMessage* request);
+      void handleModifyInstanceRequest(
+	 CIMModifyInstanceRequestMessage* request);
 
-    void handleEnumerateClassesRequest(
-	CIMEnumerateClassesRequestMessage* request);
+      void handleEnumerateClassesRequest(
+	 CIMEnumerateClassesRequestMessage* request);
 
-    void handleEnumerateClassNamesRequest(
-	CIMEnumerateClassNamesRequestMessage* request);
+      void handleEnumerateClassNamesRequest(
+	 CIMEnumerateClassNamesRequestMessage* request);
 
-    void handleEnumerateInstancesRequest(
-	CIMEnumerateInstancesRequestMessage* request);
+      void handleEnumerateInstancesRequest(
+	 CIMEnumerateInstancesRequestMessage* request);
 
-    void handleEnumerateInstanceNamesRequest(
-	CIMEnumerateInstanceNamesRequestMessage* request);
+      void handleEnumerateInstanceNamesRequest(
+	 CIMEnumerateInstanceNamesRequestMessage* request);
 
-    void handleAssociatorsRequest(
-	CIMAssociatorsRequestMessage* request);
+      void handleAssociatorsRequest(
+	 CIMAssociatorsRequestMessage* request);
 
-    void handleAssociatorNamesRequest(
-	CIMAssociatorNamesRequestMessage* request);
+      void handleAssociatorNamesRequest(
+	 CIMAssociatorNamesRequestMessage* request);
 
-    void handleReferencesRequest(
-	CIMReferencesRequestMessage* request);
+      void handleReferencesRequest(
+	 CIMReferencesRequestMessage* request);
 
-    void handleReferenceNamesRequest(
-	CIMReferenceNamesRequestMessage* request);
+      void handleReferenceNamesRequest(
+	 CIMReferenceNamesRequestMessage* request);
 
-    void handleGetPropertyRequest(
-	CIMGetPropertyRequestMessage* request);
+      void handleGetPropertyRequest(
+	 CIMGetPropertyRequestMessage* request);
 
-    void handleSetPropertyRequest(
-	CIMSetPropertyRequestMessage* request);
+      void handleSetPropertyRequest(
+	 CIMSetPropertyRequestMessage* request);
 
-    void handleGetQualifierRequest(
-	CIMGetQualifierRequestMessage* request);
+      void handleGetQualifierRequest(
+	 CIMGetQualifierRequestMessage* request);
 
-    void handleSetQualifierRequest(
-	CIMSetQualifierRequestMessage* request);
+      void handleSetQualifierRequest(
+	 CIMSetQualifierRequestMessage* request);
 
-    void handleDeleteQualifierRequest(
-	CIMDeleteQualifierRequestMessage* request);
+      void handleDeleteQualifierRequest(
+	 CIMDeleteQualifierRequestMessage* request);
 
-    void handleEnumerateQualifiersRequest(
-	CIMEnumerateQualifiersRequestMessage* request);
+      void handleEnumerateQualifiersRequest(
+	 CIMEnumerateQualifiersRequestMessage* request);
 
-    void handleInvokeMethodRequest(
-	CIMInvokeMethodRequestMessage* request);
+      void handleInvokeMethodRequest(
+	 CIMInvokeMethodRequestMessage* request);
 
-    void handleEnableIndicationSubscriptionRequest(
-        CIMEnableIndicationSubscriptionRequestMessage* request);
+      void handleEnableIndicationSubscriptionRequest(
+	 CIMEnableIndicationSubscriptionRequestMessage* request);
 
-    void handleModifyIndicationSubscriptionRequest(
-        CIMModifyIndicationSubscriptionRequestMessage* request);
+      void handleModifyIndicationSubscriptionRequest(
+	 CIMModifyIndicationSubscriptionRequestMessage* request);
 
-    void handleDisableIndicationSubscriptionRequest(
-        CIMDisableIndicationSubscriptionRequestMessage* request);
+      void handleDisableIndicationSubscriptionRequest(
+	 CIMDisableIndicationSubscriptionRequestMessage* request);
 
-    void handleProcessIndicationRequest(
-        CIMProcessIndicationRequestMessage* request);
+      void handleProcessIndicationRequest(
+	 CIMProcessIndicationRequestMessage* request);
 
-    //void loadRegisteredProviders(void);
+      //void loadRegisteredProviders(void);
 
-protected:
+   protected:
 
       String _lookupProviderForClass(
 	 const String& nameSpace, const String& className);
@@ -159,12 +161,12 @@ protected:
       void _enqueueResponse(
 	 CIMRequestMessage* request, CIMResponseMessage* response);
 
-	/*
-	  Message * _waitForResponse(
-	 const Uint32 messageType,
-	 const Uint32 messageKey,
-	 const Uint32 timeout = 0xffffffff);
-	*/
+      /*
+	Message * _waitForResponse(
+	const Uint32 messageType,
+	const Uint32 messageKey,
+	const Uint32 timeout = 0xffffffff);
+      */
 
       CIMValue _convertValueType(const CIMValue& value, CIMType type);
 
@@ -180,7 +182,7 @@ protected:
 
       AtomicInt _dying;
 
-	// << Tue Feb 12 08:48:09 2002 mdd >> meta dispatcher integration
+      // << Tue Feb 12 08:48:09 2002 mdd >> meta dispatcher integration
       virtual void _handle_async_request(AsyncRequest *req);
 
 };

@@ -56,10 +56,10 @@ class CloseConnectionMessage : public Message
 {
    public:
 
-    CloseConnectionMessage(Sint32 socket_) 
-	: Message(CLOSE_CONNECTION_MESSAGE), socket(socket_) { }
+      CloseConnectionMessage(Sint32 socket_) 
+	 : Message(CLOSE_CONNECTION_MESSAGE), socket(socket_) { }
 
-    Sint32 socket;
+      Sint32 socket;
 };
 
 /** This class represents an HTTP listener.
@@ -69,55 +69,57 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueueService
    public:
       typedef MessageQueueService Base;
       
-    /** Constructor. */
-    HTTPConnection(
-	Monitor* monitor,
-	//Sint32 socket, 
-	MP_Socket * socket, 
-	MessageQueue* ownerMessageQueue,
-	MessageQueue* outputMessageQueue);
+      /** Constructor. */
+      HTTPConnection(
+	 Monitor* monitor,
+	 //Sint32 socket, 
+	 MP_Socket * socket, 
+	 MessageQueue* ownerMessageQueue,
+	 MessageQueue* outputMessageQueue);
 
-    /** Destructor. */
-    ~HTTPConnection();
+      /** Destructor. */
+      ~HTTPConnection();
 
-    /** This method is called whenever a SocketMessage is enqueued
-	on the input queue of the HTTPConnection object.
-    */ 
-    virtual void handleEnqueue();
+      /** This method is called whenever a SocketMessage is enqueued
+	  on the input queue of the HTTPConnection object.
+      */ 
+      virtual void handleEnqueue(Message *);
+      
+      virtual void handleEnqueue();
 
-    virtual const char* getQueueName() const;
+      virtual const char* getQueueName() const;
 
-    /** Return socket this connection is using. */
-    Sint32 getSocket() { return _socket->getSocket();}
+      /** Return socket this connection is using. */
+      Sint32 getSocket() { return _socket->getSocket();}
 
-    /** Return the number of outstanding requests for all HTTPConnection 
-        instances.
-    */
-    Uint32 getRequestCount();
+      /** Return the number of outstanding requests for all HTTPConnection 
+	  instances.
+      */
+      Uint32 getRequestCount();
 
-private:
+   private:
 
-    void _clearIncoming();
+      void _clearIncoming();
 
-    void _getContentLengthAndContentOffset();
+      void _getContentLengthAndContentOffset();
 
-    void _closeConnection();
+      void _closeConnection();
 
-    void _handleReadEvent();
+      void _handleReadEvent();
 
-    Monitor* _monitor;
+      Monitor* _monitor;
 
-    //Sint32 _socket;
-    MP_Socket* _socket;
-    MessageQueue* _ownerMessageQueue;
-    MessageQueue* _outputMessageQueue;
+      //Sint32 _socket;
+      MP_Socket* _socket;
+      MessageQueue* _ownerMessageQueue;
+      MessageQueue* _outputMessageQueue;
 
-    Sint32 _contentOffset;
-    Sint32 _contentLength;
-    Array<Sint8> _incomingBuffer;
-    AuthenticationInfo* _authInfo;
+      Sint32 _contentOffset; 
+      Sint32 _contentLength;
+      Array<Sint8> _incomingBuffer;
+      AuthenticationInfo* _authInfo;
 
-    static AtomicInt _requestCount;
+      static AtomicInt _requestCount;
 };
 
 PEGASUS_NAMESPACE_END

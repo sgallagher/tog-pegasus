@@ -103,18 +103,19 @@ void HTTPAuthenticatorDelegator::_sendError(
     _sendResponse(queueId, message);
 }
 
-void HTTPAuthenticatorDelegator::handleEnqueue()
+
+void HTTPAuthenticatorDelegator::handleEnqueue(Message *message)
 {
-    Message* message = dequeue();
 
-    // Flag indicating whether the message should be deleted after handling.
-    // This should be set to false by handleHTTPMessage when the message is
-    // passed as is to another queue.
-    Boolean deleteMessage = true;
-
-    if (!message)
+   
+   if (!message)
         return;
 
+   // Flag indicating whether the message should be deleted after handling.
+   // This should be set to false by handleHTTPMessage when the message is
+   // passed as is to another queue.
+   Boolean deleteMessage = true;
+   
     if (message->getType() == HTTP_MESSAGE)
     {
         handleHTTPMessage((HTTPMessage*)message, deleteMessage);
@@ -124,6 +125,13 @@ void HTTPAuthenticatorDelegator::handleEnqueue()
     {
         delete message;
     }
+}
+
+void HTTPAuthenticatorDelegator::handleEnqueue()
+{
+    Message* message = dequeue();
+    if(message)
+       handleEnqueue(message);
 }
 
 void HTTPAuthenticatorDelegator::handleHTTPMessage(

@@ -374,6 +374,8 @@ void cimom::_completeAsyncResponse(AsyncRequest *request,
    gettimeofday(&(op->_updated), NULL);
    if ( op->_flags & ASYNC_OPFLAGS_SIMPLE_STATUS )
    { 
+      PEGASUS_ASSERT(reply != 0 );
+      
       op->_completion_code = reply->result;
       delete reply;
    }

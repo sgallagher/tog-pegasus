@@ -432,7 +432,7 @@ void IndicationService::_handle_async_request(AsyncRequest *req)
     else if ( req->getType() == async_messages::ASYNC_LEGACY_OP_START )
     {
         req->op->processing();
-        Message *legacy = (static_cast<AsyncLegacyOperationStart *>(req)->act);
+        Message *legacy = (static_cast<AsyncLegacyOperationStart *>(req)->get_action());
         handleEnqueue(legacy);
         return;
     }
@@ -3517,7 +3517,7 @@ void IndicationService::_sendEnableRequests
             reinterpret_cast 
             <CIMEnableIndicationSubscriptionResponseMessage *>
             ((static_cast <AsyncLegacyOperationResult *>
-            (async_reply))->res);
+            (async_reply))->get_result());
 
         delete async_req;
         delete async_reply;
@@ -3637,7 +3637,7 @@ void IndicationService::_sendModifyRequests
                 reinterpret_cast
                 <CIMModifyIndicationSubscriptionResponseMessage *>
                 ((static_cast <AsyncLegacyOperationResult *>
-                (async_reply))->res);
+                (async_reply))->get_result());
 
             delete async_req;
             delete async_reply;
@@ -3703,7 +3703,7 @@ void IndicationService::_sendDisableRequests
                 reinterpret_cast
                 <CIMDisableIndicationSubscriptionResponseMessage *>
                 ((static_cast <AsyncLegacyOperationResult *>
-                (async_reply))->res);
+                (async_reply))->get_result());
 
             delete async_req;
             delete async_reply;
@@ -3846,7 +3846,7 @@ void IndicationService::_sendAlerts (
              CIMHandleIndicationResponseMessage* response = 
                  reinterpret_cast<CIMHandleIndicationResponseMessage *>
                  ((static_cast<AsyncLegacyOperationResult *>
-                 (async_reply))->res);
+                 (async_reply))->get_result());
 
              delete async_req;
              delete async_reply;

@@ -6,7 +6,7 @@ LOCAL_DEFINES = -DPEGASUS_CMDLINE_INTERNAL
 
 LIBRARIES = \
 	pegcommon \
-    	pegrepository \
+        pegrepository \
 	pegcompiler \
 	peggetoopt
 

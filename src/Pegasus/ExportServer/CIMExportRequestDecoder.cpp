@@ -45,8 +45,8 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 CIMExportRequestDecoder::CIMExportRequestDecoder(
-    MessageQueue* outputQueue,
-    Uint32 returnQueueId)
+   MessageQueue* outputQueue,
+   Uint32 returnQueueId)
    :   
    Base("CIMExportRequestDecoder", MessageQueue::getNextQueueId()),
    _outputQueue(outputQueue),
@@ -62,59 +62,66 @@ CIMExportRequestDecoder::~CIMExportRequestDecoder()
 }
 
 void CIMExportRequestDecoder::sendResponse(
-    Uint32 queueId, 
-    Array<Sint8>& message)
+   Uint32 queueId, 
+   Array<Sint8>& message)
 {
-    MessageQueue* queue = MessageQueue::lookup(queueId);
+   MessageQueue* queue = MessageQueue::lookup(queueId);
 
-    if (queue)
-    {
-	HTTPMessage* httpMessage = new HTTPMessage(message);
-	queue->enqueue(httpMessage);
-    }
+   if (queue)
+   {
+      HTTPMessage* httpMessage = new HTTPMessage(message);
+      queue->enqueue(httpMessage);
+   }
 }
 
 void CIMExportRequestDecoder::sendError(
-    Uint32 queueId, 
-    const String& messageId,
-    const String& cimMethodName,
-    CIMStatusCode code,
-    const String& description) 
+   Uint32 queueId, 
+   const String& messageId,
+   const String& cimMethodName,
+   CIMStatusCode code,
+   const String& description) 
 {
-    ArrayDestroyer<char> tmp1(cimMethodName.allocateCString());
-    ArrayDestroyer<char> tmp2(description.allocateCString());
+   ArrayDestroyer<char> tmp1(cimMethodName.allocateCString());
+   ArrayDestroyer<char> tmp2(description.allocateCString());
 
-    Array<Sint8> message = XmlWriter::formatEMethodResponseHeader(
-	XmlWriter::formatMessageElement(
-	    messageId,
-	    XmlWriter::formatSimpleExportRspElement(
-		XmlWriter::formatEMethodResponseElement(
-		    tmp1.getPointer(),
-		    XmlWriter::formatErrorElement(code, tmp2.getPointer())))));
+   Array<Sint8> message = XmlWriter::formatEMethodResponseHeader(
+      XmlWriter::formatMessageElement(
+	 messageId,
+	 XmlWriter::formatSimpleExportRspElement(
+	    XmlWriter::formatEMethodResponseElement(
+	       tmp1.getPointer(),
+	       XmlWriter::formatErrorElement(code, tmp2.getPointer())))));
     
-    sendResponse(queueId, message);
+   sendResponse(queueId, message);
 }
+
+
+void CIMExportRequestDecoder::handleEnqueue(Message *message)
+{
+   if (!message)
+      return;
+
+   switch (message->getType())
+   {
+      case HTTP_MESSAGE:
+	 handleHTTPMessage((HTTPMessage*)message);
+	 break;
+   }
+
+   delete message;
+}
+
 
 void CIMExportRequestDecoder::handleEnqueue()
 {
-    Message* message = dequeue();
-
-    if (!message)
-	return;
-
-    switch (message->getType())
-    {
-	case HTTP_MESSAGE:
-	    handleHTTPMessage((HTTPMessage*)message);
-	    break;
-    }
-
-    delete message;
+   Message* message = dequeue();
+   if(message)
+      handleEnqueue(message);
 }
 
 const char* CIMExportRequestDecoder::getQueueName() const
 {
-    return "CIMExportRequestDecoder";
+   return "CIMExportRequestDecoder";
 }
 
 //------------------------------------------------------------------------------
@@ -141,280 +148,280 @@ const char* CIMExportRequestDecoder::getQueueName() const
 
 void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 {
-    // Save queueId:
+   // Save queueId:
 
-    Uint32 queueId = httpMessage->queueId;
+   Uint32 queueId = httpMessage->queueId;
 
-    // Save userName:
+   // Save userName:
 
-    String userName;
+   String userName;
 
-    if ( httpMessage->authInfo->isAuthenticated() )
-    {
-        userName = httpMessage->authInfo->getAuthenticatedUser();
-    }
+   if ( httpMessage->authInfo->isAuthenticated() )
+   {
+      userName = httpMessage->authInfo->getAuthenticatedUser();
+   }
 
-    // Parse the HTTP message:
+   // Parse the HTTP message:
 
-    String startLine;
-    Array<HTTPHeader> headers;
-    Sint8* content;
-    Uint32 contentLength;
+   String startLine;
+   Array<HTTPHeader> headers;
+   Sint8* content;
+   Uint32 contentLength;
 
-    httpMessage->parse(startLine, headers, contentLength);
+   httpMessage->parse(startLine, headers, contentLength);
 
-    // Parse the request line:
+   // Parse the request line:
 
-    String methodName;
-    String requestUri;
-    String httpVersion;
+   String methodName;
+   String requestUri;
+   String httpVersion;
 
-    HTTPMessage::parseRequestLine(
-        startLine, methodName, requestUri, httpVersion);
+   HTTPMessage::parseRequestLine(
+      startLine, methodName, requestUri, httpVersion);
 
-    // Process M-POST and POST messages:
+   // Process M-POST and POST messages:
 
-    if (methodName == "M-POST" || methodName == "POST")
-    {
-	String url;
+   if (methodName == "M-POST" || methodName == "POST")
+   {
+      String url;
 
-        if (HTTPMessage::lookupHeader(
-	    headers, "*HOST", url, true))
-	   _url = url;
-        else
-           return;
+      if (HTTPMessage::lookupHeader(
+	     headers, "*HOST", url, true))
+	 _url = url;
+      else
+	 return;
 
-	// Search for "CIMOperation" header:
-	String cimOperation;
+      // Search for "CIMOperation" header:
+      String cimOperation;
 
-	if (!HTTPMessage::lookupHeader(
-	    headers, "*CIMExport", cimOperation, true))
-	{
-	    // ATTN: error discarded at this time!
-	    return;
-	}
+      if (!HTTPMessage::lookupHeader(
+	     headers, "*CIMExport", cimOperation, true))
+      {
+	 // ATTN: error discarded at this time!
+	 return;
+      }
 
-	// Zero-terminate the message:
+      // Zero-terminate the message:
 
-	httpMessage->message.append('\0');
+      httpMessage->message.append('\0');
 
-	// Calculate the beginning of the content from the message size and
-	// the content length.  Subtract 1 to take into account the null
-	// character we just added to the end of the message.
+      // Calculate the beginning of the content from the message size and
+      // the content length.  Subtract 1 to take into account the null
+      // character we just added to the end of the message.
 
-	content = (Sint8*) httpMessage->message.getData() +
-	    httpMessage->message.size() - contentLength - 1;
+      content = (Sint8*) httpMessage->message.getData() +
+	 httpMessage->message.size() - contentLength - 1;
 
-	// If it is a method call, then dispatch it to be handled:
+      // If it is a method call, then dispatch it to be handled:
 
-	if (!String::equalNoCase(cimOperation, "MethodRequest"))
-	{
-	    // ATTN: error discarded at this time!
-	    return;
-	}
+      if (!String::equalNoCase(cimOperation, "MethodRequest"))
+      {
+	 // ATTN: error discarded at this time!
+	 return;
+      }
 
-        handleMethodRequest(queueId, content, userName);
-    }
+      handleMethodRequest(queueId, content, userName);
+   }
 }
 
 
 void CIMExportRequestDecoder::handleMethodRequest(
-    Uint32 queueId,
-    Sint8* content,
-    String userName)
+   Uint32 queueId,
+   Sint8* content,
+   String userName)
 {
-    Message* request;
+   Message* request;
 
-    //
-    // get the configured authentication flag
-    //
-    ConfigManager* configManager = ConfigManager::getInstance();
+   //
+   // get the configured authentication flag
+   //
+   ConfigManager* configManager = ConfigManager::getInstance();
 
-    Boolean requireAuthentication = false;
-    Boolean requireAuthorization = false;
+   Boolean requireAuthentication = false;
+   Boolean requireAuthorization = false;
 
-    if (String::equal(
-        configManager->getCurrentValue("requireAuthentication"), "true"))
-    {
-        requireAuthentication = true;
-    }
+   if (String::equal(
+	  configManager->getCurrentValue("requireAuthentication"), "true"))
+   {
+      requireAuthentication = true;
+   }
 
-    if (String::equal(
-        configManager->getCurrentValue("requireAuthorization"), "true"))
-    {
-        requireAuthorization = true;
-    }
+   if (String::equal(
+	  configManager->getCurrentValue("requireAuthorization"), "true"))
+   {
+      requireAuthorization = true;
+   }
 
-    // Create a parser:
+   // Create a parser:
 
-    XmlParser parser(content);
-    XmlEntry entry;
-    String messageId;
-    const char* cimMethodName = "";
+   XmlParser parser(content);
+   XmlEntry entry;
+   String messageId;
+   const char* cimMethodName = "";
 
-    try
-    {
-	// Expect <?xml ...>
+   try
+   {
+      // Expect <?xml ...>
 
-	XmlReader::expectXmlDeclaration(parser, entry);
+      XmlReader::expectXmlDeclaration(parser, entry);
 
-	// Expect <CIM ...>
+      // Expect <CIM ...>
 
-	XmlReader::testCimStartTag(parser);
+      XmlReader::testCimStartTag(parser);
 
-	// Expect <MESSAGE ...>
+      // Expect <MESSAGE ...>
 
-	const char* protocolVersion = 0;
+      const char* protocolVersion = 0;
 
-	if (!XmlReader::getMessageStartTag(
-	    parser, messageId, protocolVersion))
-	{
-	    throw XmlValidationError(
-		parser.getLine(), "expected MESSAGE element");
-	}
+      if (!XmlReader::getMessageStartTag(
+	     parser, messageId, protocolVersion))
+      {
+	 throw XmlValidationError(
+	    parser.getLine(), "expected MESSAGE element");
+      }
 
-	if (strcmp(protocolVersion, "1.0") != 0)
-	{
-	    throw XmlSemanticError(parser.getLine(), 
-		"Expected MESSAGE.PROTOCOLVERSION to be \"1.0\"");
-	}
-    }
-    catch (Exception&)
-    {
-	// ATTN: no error can be sent back to the client yet since
-	// errors require a message-id (which was in the process of
-	// being obtained above).
-	return;
-    }
+      if (strcmp(protocolVersion, "1.0") != 0)
+      {
+	 throw XmlSemanticError(parser.getLine(), 
+				"Expected MESSAGE.PROTOCOLVERSION to be \"1.0\"");
+      }
+   }
+   catch (Exception&)
+   {
+      // ATTN: no error can be sent back to the client yet since
+      // errors require a message-id (which was in the process of
+      // being obtained above).
+      return;
+   }
 
-    try
-    {
-	// Expect <SIMPLEEXPREQ ...>
+   try
+   {
+      // Expect <SIMPLEEXPREQ ...>
 
-	XmlReader::expectStartTag(parser, entry, "SIMPLEEXPREQ");
+      XmlReader::expectStartTag(parser, entry, "SIMPLEEXPREQ");
 	
-	// Expect <EXPMETHODCALL ...>
+      // Expect <EXPMETHODCALL ...>
 
-	if (!XmlReader::getEMethodCallStartTag(parser, cimMethodName))
-	{
-	    throw XmlValidationError(parser.getLine(), 
-		"expected EXPMETHODCALL element");
-	}
+      if (!XmlReader::getEMethodCallStartTag(parser, cimMethodName))
+      {
+	 throw XmlValidationError(parser.getLine(), 
+				  "expected EXPMETHODCALL element");
+      }
 	
-	// Expect <LOCALNAMESPACEPATH ...>
+      // Expect <LOCALNAMESPACEPATH ...>
 
-	String nameSpace;
+      String nameSpace;
 
-	//if (!XmlReader::getLocalNameSpacePathElement(parser, nameSpace))
-	//{
-	//    throw XmlValidationError(parser.getLine(), 
-	//	"expected LOCALNAMESPACEPATH element");
-	//}
+      //if (!XmlReader::getLocalNameSpacePathElement(parser, nameSpace))
+      //{
+      //    throw XmlValidationError(parser.getLine(), 
+      //	"expected LOCALNAMESPACEPATH element");
+      //}
 
-	// Delegate to appropriate method to handle:
+      // Delegate to appropriate method to handle:
 
-	if (CompareNoCase(cimMethodName, "ExportIndication") == 0)
-        {
-            //
-            // If CIMOM is shutting down, return error response
-            //
-            // ATTN:  need to define a new CIM Error.
-            //
-            if (_serverTerminating)
-            {
-                String description = "CIMServer is shutting down.  ";
-                description.append("Request cannot be processed: ");
-                description += cimMethodName;
-
-                sendError(
-                    queueId,
-                    messageId,
-                    cimMethodName,
-                    CIM_ERR_FAILED,
-                    description);
-
-                return;
-            }
-            else
-            {
-	        request = decodeExportIndicationRequest(queueId, parser, messageId, _url);
-            }
-        }
-	else
-	{
-	    String description = "Unknown intrinsic method: ";
+      if (CompareNoCase(cimMethodName, "ExportIndication") == 0)
+      {
+	 //
+	 // If CIMOM is shutting down, return error response
+	 //
+	 // ATTN:  need to define a new CIM Error.
+	 //
+	 if (_serverTerminating)
+	 {
+	    String description = "CIMServer is shutting down.  ";
+	    description.append("Request cannot be processed: ");
 	    description += cimMethodName;
 
 	    sendError(
-		queueId, 
-		messageId,
-		cimMethodName,
-		CIM_ERR_FAILED,
-		description);
+	       queueId,
+	       messageId,
+	       cimMethodName,
+	       CIM_ERR_FAILED,
+	       description);
 
 	    return;
-	}
+	 }
+	 else
+	 {
+	    request = decodeExportIndicationRequest(queueId, parser, messageId, _url);
+	 }
+      }
+      else
+      {
+	 String description = "Unknown intrinsic method: ";
+	 description += cimMethodName;
 
-	// Expect </EXPMETHODCALL>
-
-	XmlReader::expectEndTag(parser, "EXPMETHODCALL");
-
-	// Expect </SIMPLEEXPREQ>
-
-	XmlReader::expectEndTag(parser, "SIMPLEEXPREQ");
-
-	// Expect </MESSAGE>
-
-	XmlReader::expectEndTag(parser, "MESSAGE");
-
-	// Expect </CIM>
-
-	XmlReader::expectEndTag(parser, "CIM");
-    }
-    catch (Exception& e)
-    {
-	sendError(
+	 sendError(
 	    queueId, 
 	    messageId,
 	    cimMethodName,
 	    CIM_ERR_FAILED,
-	    e.getMessage());
-        return;
-    }
+	    description);
 
-    _outputQueue->enqueue(request);
+	 return;
+      }
+
+      // Expect </EXPMETHODCALL>
+
+      XmlReader::expectEndTag(parser, "EXPMETHODCALL");
+
+      // Expect </SIMPLEEXPREQ>
+
+      XmlReader::expectEndTag(parser, "SIMPLEEXPREQ");
+
+      // Expect </MESSAGE>
+
+      XmlReader::expectEndTag(parser, "MESSAGE");
+
+      // Expect </CIM>
+
+      XmlReader::expectEndTag(parser, "CIM");
+   }
+   catch (Exception& e)
+   {
+      sendError(
+	 queueId, 
+	 messageId,
+	 cimMethodName,
+	 CIM_ERR_FAILED,
+	 e.getMessage());
+      return;
+   }
+
+   _outputQueue->enqueue(request);
 }
 
 CIMExportIndicationRequestMessage* CIMExportRequestDecoder::decodeExportIndicationRequest(
-    Uint32 queueId,
-    XmlParser& parser, 
-    const String& messageId,
-    const String& url)
+   Uint32 queueId,
+   XmlParser& parser, 
+   const String& messageId,
+   const String& url)
 {
-    // ATTN: handle property lists!
+   // ATTN: handle property lists!
 
-    CIMInstance instanceName;
+   CIMInstance instanceName;
 
-    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
-    {
-	if (CompareNoCase(name, "NewIndication") == 0)
-	    XmlReader::getInstanceElement(parser, instanceName);
+   for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+   {
+      if (CompareNoCase(name, "NewIndication") == 0)
+	 XmlReader::getInstanceElement(parser, instanceName);
 
-	XmlReader::expectEndTag(parser, "IPARAMVALUE");
-    }
+      XmlReader::expectEndTag(parser, "IPARAMVALUE");
+   }
     
-    CIMExportIndicationRequestMessage* request = new CIMExportIndicationRequestMessage(
-	messageId,  
-	url,
-	instanceName,
-	QueueIdStack(queueId, _returnQueueId));
+   CIMExportIndicationRequestMessage* request = new CIMExportIndicationRequestMessage(
+      messageId,  
+      url,
+      instanceName,
+      QueueIdStack(queueId, _returnQueueId));
     
-    return(request);
+   return(request);
 }
 
 void CIMExportRequestDecoder::setServerTerminating(Boolean flag)
 {
-    _serverTerminating = flag;
+   _serverTerminating = flag;
 }
 
 PEGASUS_NAMESPACE_END

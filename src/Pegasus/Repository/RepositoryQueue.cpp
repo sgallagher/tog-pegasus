@@ -40,115 +40,127 @@ RepositoryQueue::~RepositoryQueue(void)
 {
 }
 
+
+void RepositoryQueue::handleEnqueue(Message *message)
+{
+   if( ! message )
+      return;
+   
+   switch(message->getType())
+   {
+      case CIM_GET_CLASS_REQUEST_MESSAGE:
+	 handleGetClassRequest(message);
+
+	 break;
+      case CIM_ENUMERATE_CLASSES_REQUEST_MESSAGE:
+	 handleEnumerateClassesRequest(message);
+
+	 break;
+      case CIM_ENUMERATE_CLASS_NAMES_REQUEST_MESSAGE:
+	 handleEnumerateClassNamesRequest(message);
+
+	 break;
+      case CIM_CREATE_CLASS_REQUEST_MESSAGE:
+	 handleCreateClassRequest(message);
+
+	 break;
+      case CIM_MODIFY_CLASS_REQUEST_MESSAGE:
+	 handleModifyClassRequest(message);
+
+	 break;
+      case CIM_DELETE_CLASS_REQUEST_MESSAGE:
+	 handleDeleteClassRequest(message);
+
+	 break;
+      case CIM_GET_INSTANCE_REQUEST_MESSAGE:
+	 handleGetInstanceRequest(message);
+
+	 break;
+      case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
+	 handleEnumerateInstancesRequest(message);
+
+	 break;
+      case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE:
+	 handleEnumerateInstanceNamesRequest(message);
+
+	 break;
+      case CIM_CREATE_INSTANCE_REQUEST_MESSAGE:
+	 handleCreateInstanceRequest(message);
+
+	 break;
+      case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
+	 handleModifyInstanceRequest(message);
+
+	 break;
+      case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
+	 handleDeleteInstanceRequest(message);
+
+	 break;
+      case CIM_EXEC_QUERY_REQUEST_MESSAGE:
+	 handleExecQueryRequest(message);
+
+	 break;
+      case CIM_ASSOCIATORS_REQUEST_MESSAGE:
+	 handleAssociatorsRequest(message);
+
+	 break;
+      case CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE:
+	 handleAssociatorNamesRequest(message);
+
+	 break;
+      case CIM_REFERENCES_REQUEST_MESSAGE:
+	 handleReferencesRequest(message);
+
+	 break;
+      case CIM_REFERENCE_NAMES_REQUEST_MESSAGE:
+	 handleRefereceNamesRequest(message);
+
+	 break;
+      case CIM_GET_PROPERTY_REQUEST_MESSAGE:
+	 handleGetPropertyRequest(message);
+
+	 break;
+      case CIM_SET_PROPERTY_REQUEST_MESSAGE:
+	 handleSetPropertyRequest(message);
+
+	 break;
+      case CIM_GET_QUALIFIER_REQUEST_MESSAGE:
+	 handleGetQualifierRequest(message);
+
+	 break;
+      case CIM_SET_QUALIFIER_REQUEST_MESSAGE:
+	 handleSetQualifierRequest(message);
+
+	 break;
+      case CIM_DELETE_QUALIFIER_REQUEST_MESSAGE:
+	 handleDeleteQualifierRequest(message);
+
+	 break;
+      case CIM_ENUMERATE_QUALIFIERS_REQUEST_MESSAGE:
+	 handleEnumerateQualifiersRequest(message);
+
+	 break;
+      case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
+	 handleInvokeMethodRequest(message);
+
+	 break;
+      default:
+	 break;
+   }
+
+   delete message;
+}
+
+
 void RepositoryQueue::handleEnqueue(void)
 {
-	Message * message = dequeue();
+   Message * message = dequeue();
 
-	PEGASUS_ASSERT(message != 0);
+   PEGASUS_ASSERT(message != 0);
+   if(message)
+      handleEnqueue(message);
+	
 
-	switch(message->getType())
-	{
-	case CIM_GET_CLASS_REQUEST_MESSAGE:
-		handleGetClassRequest(message);
-
-		break;
-	case CIM_ENUMERATE_CLASSES_REQUEST_MESSAGE:
-		handleEnumerateClassesRequest(message);
-
-		break;
-	case CIM_ENUMERATE_CLASS_NAMES_REQUEST_MESSAGE:
-		handleEnumerateClassNamesRequest(message);
-
-		break;
-	case CIM_CREATE_CLASS_REQUEST_MESSAGE:
-		handleCreateClassRequest(message);
-
-		break;
-	case CIM_MODIFY_CLASS_REQUEST_MESSAGE:
-		handleModifyClassRequest(message);
-
-		break;
-	case CIM_DELETE_CLASS_REQUEST_MESSAGE:
-		handleDeleteClassRequest(message);
-
-		break;
-	case CIM_GET_INSTANCE_REQUEST_MESSAGE:
-		handleGetInstanceRequest(message);
-
-		break;
-	case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
-		handleEnumerateInstancesRequest(message);
-
-		break;
-	case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE:
-		handleEnumerateInstanceNamesRequest(message);
-
-		break;
-	case CIM_CREATE_INSTANCE_REQUEST_MESSAGE:
-		handleCreateInstanceRequest(message);
-
-		break;
-	case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
-		handleModifyInstanceRequest(message);
-
-		break;
-	case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
-		handleDeleteInstanceRequest(message);
-
-		break;
-	case CIM_EXEC_QUERY_REQUEST_MESSAGE:
-		handleExecQueryRequest(message);
-
-		break;
-	case CIM_ASSOCIATORS_REQUEST_MESSAGE:
-		handleAssociatorsRequest(message);
-
-		break;
-	case CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE:
-		handleAssociatorNamesRequest(message);
-
-		break;
-	case CIM_REFERENCES_REQUEST_MESSAGE:
-		handleReferencesRequest(message);
-
-		break;
-	case CIM_REFERENCE_NAMES_REQUEST_MESSAGE:
-		handleRefereceNamesRequest(message);
-
-		break;
-	case CIM_GET_PROPERTY_REQUEST_MESSAGE:
-		handleGetPropertyRequest(message);
-
-		break;
-	case CIM_SET_PROPERTY_REQUEST_MESSAGE:
-		handleSetPropertyRequest(message);
-
-		break;
-	case CIM_GET_QUALIFIER_REQUEST_MESSAGE:
-		handleGetQualifierRequest(message);
-
-		break;
-	case CIM_SET_QUALIFIER_REQUEST_MESSAGE:
-		handleSetQualifierRequest(message);
-
-		break;
-	case CIM_DELETE_QUALIFIER_REQUEST_MESSAGE:
-		handleDeleteQualifierRequest(message);
-
-		break;
-	case CIM_ENUMERATE_QUALIFIERS_REQUEST_MESSAGE:
-		handleEnumerateQualifiersRequest(message);
-
-		break;
-	case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
-		handleInvokeMethodRequest(message);
-
-		break;
-	default:
-		break;
-	}
-
-	delete message;
 }
 
 void RepositoryQueue::handleGetClassRequest(const Message * message)

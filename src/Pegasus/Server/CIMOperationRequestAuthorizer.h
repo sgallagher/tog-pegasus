@@ -60,6 +60,8 @@ class PEGASUS_SERVER_LINKAGE CIMOperationRequestAuthorizer : public MessageQueue
 	 CIMStatusCode code,
 	 const String& description);
 
+      virtual void handleEnqueue(Message *);
+
       virtual void handleEnqueue();
 
       virtual const char* getQueueName() const;

@@ -93,6 +93,19 @@ HTTPMessage::HTTPMessage(
 
 }
 
+
+HTTPMessage::HTTPMessage(HTTPMessage & msg)
+   : Base(msg)
+{
+   if(this != &msg)
+   {
+      message = msg.message;
+      queueId = msg.queueId;
+      authInfo = 0;
+   }
+}
+
+
 void HTTPMessage::parse(
     String& startLine,
     Array<HTTPHeader>& headers,

@@ -38,11 +38,11 @@
 PEGASUS_NAMESPACE_BEGIN
 
 /** This class encodes CIM operation requests and passes them up-stream.
-*/
+ */
 class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportResponseEncoder 
-    : public MessageQueueService
+   : public MessageQueueService
 {
-public:
+   public:
       typedef MessageQueueService Base;
       
       CIMExportResponseEncoder();
@@ -52,22 +52,24 @@ public:
       void sendResponse(Uint32 queueId, Array<Sint8>& message);
       
       void sendError(
-	Uint32 queueId, 
-	const String& messageId,
-	const String& methodName,
-	CIMStatusCode code,
-	const String& description);
+	 Uint32 queueId, 
+	 const String& messageId,
+	 const String& methodName,
+	 CIMStatusCode code,
+	 const String& description);
 
-    void sendError(
-	CIMResponseMessage* response,
-	const String& cimMethodName);
+      void sendError(
+	 CIMResponseMessage* response,
+	 const String& cimMethodName);
 
-    virtual void handleEnqueue();
+      virtual void handleEnqueue(Message *);
 
-    virtual const char* getQueueName() const;
+      virtual void handleEnqueue();
 
-    void encodeExportIndicationResponse(
-	CIMExportIndicationResponseMessage* response);
+      virtual const char* getQueueName() const;
+
+      void encodeExportIndicationResponse(
+	 CIMExportIndicationResponseMessage* response);
 };
 
 PEGASUS_NAMESPACE_END

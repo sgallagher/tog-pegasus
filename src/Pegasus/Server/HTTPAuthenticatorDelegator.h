@@ -40,53 +40,54 @@
 PEGASUS_NAMESPACE_BEGIN
 
 /**
-    This class parses the HTTP header in the HTTPMessage passed to it and
-    performs authentication based on the authentication specified in the
-    configuration. It sends the challenge for unauthorized requests and
-    validates the response.
+   This class parses the HTTP header in the HTTPMessage passed to it and
+   performs authentication based on the authentication specified in the
+   configuration. It sends the challenge for unauthorized requests and
+   validates the response.
 
 */
 
 class PEGASUS_SERVER_LINKAGE HTTPAuthenticatorDelegator : public MessageQueueService
 {
-public:
+   public:
 
-  typedef MessageQueueService Base;
+      typedef MessageQueueService Base;
   
 
-    /** Constructor. */
-    HTTPAuthenticatorDelegator(
-	Uint32 operationMessageQueueId,
-	Uint32 exportMessageQueueId);
+      /** Constructor. */
+      HTTPAuthenticatorDelegator(
+	 Uint32 operationMessageQueueId,
+	 Uint32 exportMessageQueueId);
 
-    /** Destructor. */
-    ~HTTPAuthenticatorDelegator();
+      /** Destructor. */
+      ~HTTPAuthenticatorDelegator();
 
-    virtual void handleEnqueue();
+      virtual void handleEnqueue(Message *);
+      virtual void handleEnqueue();
 
-    virtual const char* getQueueName() const;
+      virtual const char* getQueueName() const;
 
-    void handleHTTPMessage(HTTPMessage* httpMessage, Boolean & deleteMessage);
+      void handleHTTPMessage(HTTPMessage* httpMessage, Boolean & deleteMessage);
 
-private:
+   private:
 
-    void _sendResponse( 
-        Uint32 queueId, 
-        Array<Sint8>& message); 
+      void _sendResponse( 
+	 Uint32 queueId, 
+	 Array<Sint8>& message); 
 
-    void _sendChallenge(
-        Uint32 queueId,
-        const String& authResponse);
+      void _sendChallenge(
+	 Uint32 queueId,
+	 const String& authResponse);
 
-    void _sendError(
-        Uint32 queueId,
-        const String errorMessage);
+      void _sendError(
+	 Uint32 queueId,
+	 const String errorMessage);
 
-    Uint32 _operationMessageQueueId;
+      Uint32 _operationMessageQueueId;
 
-    Uint32 _exportMessageQueueId;
+      Uint32 _exportMessageQueueId;
 
-    AuthenticationManager* _authenticationManager;
+      AuthenticationManager* _authenticationManager;
 };
 
 PEGASUS_NAMESPACE_END

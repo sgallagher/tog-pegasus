@@ -37,23 +37,23 @@ PEGASUS_NAMESPACE_BEGIN
 
 
 /*
-    The HTTP Options module processes incoming HTTP Messages OPTIONS Method
-    and generates the appropriate responses.
-    The OPTIONS Header is used by a CIM Client to demand capabilities
-    from the target CIM Server
-    Example of a capabilities response
-        HTTP/1.1 200 OK
-        Opt: http://www.dmtf.org/cim/mapping/http/v1.0 ; ns=77
-        77-CIMProtocolVersion: 1.0
-        77-CIMSupportedFunctionalGroups: basic-read
-        77-CIMBatch
-        77-CIMSupportedQueryLanguages: wql
-    Reference the CIM Operations standard section 4.5 for the exact definition
-    of the OPTIONS response
-    Note that we ignore any entity body for the Option method
+  The HTTP Options module processes incoming HTTP Messages OPTIONS Method
+  and generates the appropriate responses.
+  The OPTIONS Header is used by a CIM Client to demand capabilities
+  from the target CIM Server
+  Example of a capabilities response
+  HTTP/1.1 200 OK
+  Opt: http://www.dmtf.org/cim/mapping/http/v1.0 ; ns=77
+  77-CIMProtocolVersion: 1.0
+  77-CIMSupportedFunctionalGroups: basic-read
+  77-CIMBatch
+  77-CIMSupportedQueryLanguages: wql
+  Reference the CIM Operations standard section 4.5 for the exact definition
+  of the OPTIONS response
+  Note that we ignore any entity body for the Option method
 */
 /*
-    QUESTION: Do we support HTTP 1.1
+  QUESTION: Do we support HTTP 1.1
 */ 
 #include "HTTPOptions.h"
 
@@ -77,26 +77,26 @@ PEGASUS_USING_STD;
 
 class PEGASUS_COMMON_LINKAGE HTTPOptions : public MessageQueueService
 {
-public:
-  typedef MessageQueueService Base;
+   public:
+      typedef MessageQueueService Base;
   
-    /** Constructor. There are no further 
-    */
-  HTTPOptions() 
-    {
+      /** Constructor. There are no further 
+       */
+      HTTPOptions() 
+      {
 #error  "this class does not appear to be used" // <<< Sat Feb  9 17:33:07 2002 mdd >>>
-    }
+      }
   
-    /** Destructor. */
-    ~HTTPOptions();
+      /** Destructor. */
+      ~HTTPOptions();
+      virtual void handleEnqueue(Message *);
+      virtual void handleEnqueue();
 
-    virtual void handleEnqueue();
+      virtual const char* getQueueName() const;
 
-    virtual const char* getQueueName() const;
+      void handleHTTPMessage(HTTPMessage* httpMessage);
 
-    void handleHTTPMessage(HTTPMessage* httpMessage);
-
-private:
+   private:
 
 
 };

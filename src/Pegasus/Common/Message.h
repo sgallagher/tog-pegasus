@@ -65,6 +65,8 @@ class PEGASUS_COMMON_LINKAGE message_mask
       static Uint32 ha_reply;
       static Uint32 ha_synchronous;
       static Uint32 ha_async;
+      static Uint32 ha_wait;
+      
       
       // more for documentation than for use 
 
@@ -119,6 +121,20 @@ class PEGASUS_COMMON_LINKAGE Message
 
       }
 
+      Message(Message & msg)
+      {
+	 if( this != &msg)
+	 {
+	    _type = msg._type;
+	    _key = msg._key;
+	    _routing_code = msg._routing_code;
+	    _mask = msg._mask;
+	    _next = _prev = _async = 0;
+	    dest = msg.dest;
+	 }
+      }
+      
+
       virtual ~Message(); 
 
       Uint32 getType() const { return _type; }
@@ -164,7 +180,20 @@ class PEGASUS_COMMON_LINKAGE Message
 	 return false;
       }
       
-
+      Message *get_async(void)
+      {
+	 Message *ret = _async;
+	 _async = 0;
+	 return ret;
+	 
+      }
+      
+      void put_async(Message * msg)
+      {
+	 _async = msg;
+      }
+      
+      
    private:
       Uint32 _type;
       Uint32 _key;

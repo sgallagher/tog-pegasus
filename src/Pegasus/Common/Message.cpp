@@ -53,6 +53,7 @@ Uint32 message_mask::ha_request =             0x00200000;
 Uint32 message_mask::ha_reply =               0x00400000;
 Uint32 message_mask::ha_synchronous =         0x00800000;
 Uint32 message_mask::ha_async =               0x01000000;
+Uint32 message_mask::ha_wait =                0x02000000;
 
 Uint32 Message::_nextKey = 0;
 Mutex Message::_mut;

@@ -1,4 +1,4 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////-*-c++-*-////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM, 
 // The Open Group, Tivoli Systems
@@ -50,32 +50,36 @@ typedef Pair<String, String> HTTPHeader;
 */
 class PEGASUS_COMMON_LINKAGE HTTPMessage : public Message
 {
-public:
+   public:
+  
+      typedef Message Base;
+      
+      HTTPMessage(const Array<Sint8>& message_, Uint32 queueId_ = 0);
 
-    HTTPMessage(const Array<Sint8>& message_, Uint32 queueId_ = 0);
+      HTTPMessage(HTTPMessage & msg);
+    
+      Array<Sint8> message;
+      Uint32 queueId;
+      AuthenticationInfo* authInfo;
 
-    Array<Sint8> message;
-    Uint32 queueId;
-    AuthenticationInfo* authInfo;
+      void parse(
+	 String& startLine,
+	 Array<HTTPHeader>& headers,
+	 Uint32& contentLength) const;
 
-    void parse(
-	String& startLine,
-	Array<HTTPHeader>& headers,
-	Uint32& contentLength) const;
+      void printAll(PEGASUS_STD(ostream)& os) const;
 
-    void printAll(PEGASUS_STD(ostream)& os) const;
+      static Boolean lookupHeader(
+	 Array<HTTPHeader>& headers,
+	 const String& fieldName,
+	 String& fieldValue,
+	 Boolean wildCardMatch = false);
 
-    static Boolean lookupHeader(
-	Array<HTTPHeader>& headers,
-	const String& fieldName,
-	String& fieldValue,
-	Boolean wildCardMatch = false);
-
-    static Boolean parseRequestLine(
-	const String& startLine,
-	String& methodName,
-	String& requestUri,
-	String& httpVersion);
+      static Boolean parseRequestLine(
+	 const String& startLine,
+	 String& methodName,
+	 String& requestUri,
+	 String& httpVersion);
 };
 
 PEGASUS_NAMESPACE_END

@@ -74,7 +74,7 @@ void CIMExportRequestDispatcher::_handle_async_request(AsyncRequest *req)
     else if ( req->getType() == async_messages::ASYNC_LEGACY_OP_START )
     {
         req->op->processing();
-        Message *legacy = (static_cast<AsyncLegacyOperationStart *>(req)->act);
+        Message *legacy = (static_cast<AsyncLegacyOperationStart *>(req)->get_action());
 	handleEnqueue(legacy);
 	
 //         if (false == handleEnqueue(legacy))
@@ -88,6 +88,9 @@ void CIMExportRequestDispatcher::_handle_async_request(AsyncRequest *req)
 void CIMExportRequestDispatcher::handleEnqueue(Message* message)
 {
 
+   if( ! message)
+      return;
+   
     switch (message->getType())
     {
 	case CIM_EXPORT_INDICATION_REQUEST_MESSAGE:
@@ -101,6 +104,16 @@ void CIMExportRequestDispatcher::handleEnqueue(Message* message)
     delete message;
 
 }
+
+
+void CIMExportRequestDispatcher::handleEnqueue()
+{
+   Message *message = dequeue();
+   if(message)
+      handleEnqueue(message);
+   
+}
+
 
 void CIMExportRequestDispatcher::_handleExportIndicationRequest(
     CIMExportIndicationRequestMessage* request)

@@ -61,6 +61,7 @@ public:
     /** This method is called whenever a SocketMessage is enqueued
 	on the input queue of the HTTPListener object.
     */ 
+    virtual void handleEnqueue(Message *);
     virtual void handleEnqueue();
 
     /** Bind to the given port (the port on which this HTTP listener

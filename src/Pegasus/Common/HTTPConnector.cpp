@@ -61,62 +61,62 @@ PEGASUS_NAMESPACE_BEGIN
 ////////////////////////////////////////////////////////////////////////////////
 
 static Boolean _ParseLocator(
-    const String& locator, 
-    char*& hostname,
-    int& port)
+   const String& locator, 
+   char*& hostname,
+   int& port)
 {
-    // Extract the hostname:port expression (e.g., www.book.com:8080):
+   // Extract the hostname:port expression (e.g., www.book.com:8080):
 
-    hostname = locator.allocateCString();
-    char* p = strchr(hostname, ':');
+   hostname = locator.allocateCString();
+   char* p = strchr(hostname, ':');
 
-    if (!p)
-    {
-	delete [] hostname;
-	return false;
-    }
+   if (!p)
+   {
+      delete [] hostname;
+      return false;
+   }
 
-    *p++ = '\0';
+   *p++ = '\0';
 
-    char* end = 0;
-    port = strtol(p, &end, 10);
+   char* end = 0;
+   port = strtol(p, &end, 10);
 
-    if (!end || *end != '\0')
-    {
-	delete [] hostname;
-	return false;
-    }
+   if (!end || *end != '\0')
+   {
+      delete [] hostname;
+      return false;
+   }
 
-    return true;
+   return true;
 }
 
 static Boolean _MakeAddress(
-    const char* hostname, 
-    int port, 
-    sockaddr_in& address)
+   const char* hostname, 
+   int port, 
+   sockaddr_in& address)
 {
-    if (!hostname)
-	return false;
+   if (!hostname)
+      return false;
 	
-    struct hostent *entry;
+   struct hostent *entry;
 	
-    if (isalpha(hostname[0]))
-	entry = gethostbyname(hostname);
-    else
-    {
-	unsigned long tmp = inet_addr((char *)hostname);
-	entry = gethostbyaddr((char *)&tmp, sizeof(tmp), AF_INET);
-    }
+   if (isalpha(hostname[0]))
+      entry = gethostbyname(hostname);
+   else
+   {
+      unsigned long tmp = inet_addr((char *)hostname);
+      entry = gethostbyaddr((char *)&tmp, sizeof(tmp), AF_INET);
+   }
 
-    if (!entry)
-	return false;
+   if (!entry)
+      return false;
 
-    memset(&address, 0, sizeof(address));
-    memcpy(&address.sin_addr, entry->h_addr, entry->h_length);
-    address.sin_family = entry->h_addrtype;
-    address.sin_port = htons(port);
+   memset(&address, 0, sizeof(address));
+   memcpy(&address.sin_addr, entry->h_addr, entry->h_length);
+   address.sin_family = entry->h_addrtype;
+   address.sin_port = htons(port);
 
-    return true;
+   return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -127,7 +127,7 @@ static Boolean _MakeAddress(
 
 struct HTTPConnectorRep
 {
-    Array<HTTPConnection*> connections;
+      Array<HTTPConnection*> connections;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -138,7 +138,7 @@ struct HTTPConnectorRep
 
 HTTPConnector::HTTPConnector(Monitor* monitor)
    : Base("HTTPConnector", MessageQueue::getNextQueueId()),
-   _monitor(monitor), _sslcontext(NULL)
+     _monitor(monitor), _sslcontext(NULL)
 {
    _rep = new HTTPConnectorRep;
    Socket::initializeInterface();
@@ -154,147 +154,156 @@ HTTPConnector::HTTPConnector(Monitor* monitor, SSLContext * sslcontext)
 
 HTTPConnector::~HTTPConnector()
 {
-    delete _rep;
-    Socket::uninitializeInterface();
+   delete _rep;
+   Socket::uninitializeInterface();
 }
+
+void HTTPConnector::handleEnqueue(Message *message)
+{
+
+   if (!message)
+      return;
+
+   switch (message->getType())
+   {
+      // It might be useful to catch socket messages later to implement
+      // asynchronous establishment of connections.
+
+      case SOCKET_MESSAGE:
+	 break;
+
+      case CLOSE_CONNECTION_MESSAGE:
+      {
+	 CloseConnectionMessage* closeConnectionMessage 
+	    = (CloseConnectionMessage*)message;
+
+	 for (Uint32 i = 0, n = _rep->connections.size(); i < n; i++)
+	 {
+	    HTTPConnection* connection = _rep->connections[i];	
+	    Sint32 socket = connection->getSocket();
+
+	    if (socket == closeConnectionMessage->socket)
+	    {
+	       _monitor->unsolicitSocketMessages(socket);
+	       _rep->connections.remove(i);
+	       delete connection;
+	       break;
+	    }
+	 }
+      }
+
+      default:
+	 // ATTN: need unexpected message error!
+	 break;
+   };
+
+   delete message;
+}
+
 
 void HTTPConnector::handleEnqueue()
 {
-    // cout << "HTTPConnector::handleEnqueue()" << endl;
 
-    Message* message = dequeue();
+   Message* message = dequeue();
 
-    if (!message)
-        return;
+   if (!message)
+      return;
 
-    switch (message->getType())
-    {
-	// It might be useful to catch socket messages later to implement
-	// asynchronous establishment of connections.
-
-	case SOCKET_MESSAGE:
-	    break;
-
-	case CLOSE_CONNECTION_MESSAGE:
-	{
-	    CloseConnectionMessage* closeConnectionMessage 
-		= (CloseConnectionMessage*)message;
-
-	    for (Uint32 i = 0, n = _rep->connections.size(); i < n; i++)
-	    {
-		HTTPConnection* connection = _rep->connections[i];	
-		Sint32 socket = connection->getSocket();
-
-		if (socket == closeConnectionMessage->socket)
-		{
-		    _monitor->unsolicitSocketMessages(socket);
-		    _rep->connections.remove(i);
-		    delete connection;
-		    break;
-		}
-	    }
-	}
-
-	default:
-	    // ATTN: need unexpected message error!
-	    break;
-    };
-
-    delete message;
+   handleEnqueue(message);
 }
 
 const char* HTTPConnector::getQueueName() const
 {
-    return "HTTPConnector";
+   return "HTTPConnector";
 }
 
 HTTPConnection* HTTPConnector::connect(
-    const String& locator, 
-    MessageQueue* outputMessageQueue)
+   const String& locator, 
+   MessageQueue* outputMessageQueue)
 {
-    // Parse the locator (get hostname and port):
+   // Parse the locator (get hostname and port):
 
-    char* hostname;
-    int port;
+   char* hostname;
+   int port;
 
-    if (!_ParseLocator(locator, hostname, port))
-    {
-	delete [] hostname;
-	throw InvalidLocator(locator);
-    }
+   if (!_ParseLocator(locator, hostname, port))
+   {
+      delete [] hostname;
+      throw InvalidLocator(locator);
+   }
 
-    // Make the internet address:
+   // Make the internet address:
 
-    sockaddr_in address;
+   sockaddr_in address;
 
-    if (!_MakeAddress(hostname, port, address))
-    {
-	delete [] hostname;
-	throw InvalidLocator(locator);
-    }
+   if (!_MakeAddress(hostname, port, address))
+   {
+      delete [] hostname;
+      throw InvalidLocator(locator);
+   }
 
-    delete [] hostname;
+   delete [] hostname;
 
-    // Create the socket:
+   // Create the socket:
 
-    Sint32 socket = ::socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+   Sint32 socket = ::socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 
-    if (socket < 0)
-	throw CannotCreateSocket();
+   if (socket < 0)
+      throw CannotCreateSocket();
 
-    // Conect the socket to the address:
+   // Conect the socket to the address:
 
-    if (::connect(socket, (sockaddr*)&address, sizeof(address)) < 0)
-	throw CannotConnect(locator);
+   if (::connect(socket, (sockaddr*)&address, sizeof(address)) < 0)
+      throw CannotConnect(locator);
 
-    // Create HTTPConnection object:
+   // Create HTTPConnection object:
 
-    MP_Socket * mp_socket = new MP_Socket(socket, _sslcontext);
-    if (mp_socket->connect() < 0) {
-	throw CannotConnect(locator);
-    }
+   MP_Socket * mp_socket = new MP_Socket(socket, _sslcontext);
+   if (mp_socket->connect() < 0) {
+      throw CannotConnect(locator);
+   }
     
-    HTTPConnection* connection = new HTTPConnection(_monitor, mp_socket,
-	this, outputMessageQueue);
+   HTTPConnection* connection = new HTTPConnection(_monitor, mp_socket,
+						   this, outputMessageQueue);
 
-    // Solicit events on this new connection's socket:
+   // Solicit events on this new connection's socket:
 
-    if (!_monitor->solicitSocketMessages(
-	socket,
-	SocketMessage::READ | SocketMessage::EXCEPTION,
-	connection->getQueueId()))
-    {
-	delete connection;
-	Socket::close(socket);
-	throw UnexpectedFailure();
-    }
+   if (!_monitor->solicitSocketMessages(
+	  socket,
+	  SocketMessage::READ | SocketMessage::EXCEPTION,
+	  connection->getQueueId()))
+   {
+      delete connection;
+      Socket::close(socket);
+      throw UnexpectedFailure();
+   }
 
-    // Save the socket for cleanup later:
+   // Save the socket for cleanup later:
 
-    _rep->connections.append(connection);
+   _rep->connections.append(connection);
 
-    return connection;
+   return connection;
 }
 
 void HTTPConnector::destroyConnections()
 {
-    // For each connection created by this object:
+   // For each connection created by this object:
 
-    for (Uint32 i = 0, n = _rep->connections.size(); i < n; i++)
-    {
-	HTTPConnection* connection = _rep->connections[i];	
-	Sint32 socket = connection->getSocket();
+   for (Uint32 i = 0, n = _rep->connections.size(); i < n; i++)
+   {
+      HTTPConnection* connection = _rep->connections[i];	
+      Sint32 socket = connection->getSocket();
 
-	// Unsolicit SocketMessages:
+      // Unsolicit SocketMessages:
 
-	_monitor->unsolicitSocketMessages(socket);
+      _monitor->unsolicitSocketMessages(socket);
 
-	// Destroy the connection (causing it to close):
+      // Destroy the connection (causing it to close):
 
-	delete connection;
-    }
+      delete connection;
+   }
 
-    _rep->connections.clear();
+   _rep->connections.clear();
 }
 
 PEGASUS_NAMESPACE_END

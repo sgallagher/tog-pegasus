@@ -64,9 +64,9 @@ PEGASUS_NAMESPACE_BEGIN
 
 struct HTTPAcceptorRep
 {
-    struct sockaddr_in address;
-    Sint32 socket;
-    Array<HTTPConnection*> connections;
+      struct sockaddr_in address;
+      Sint32 socket;
+      Array<HTTPConnection*> connections;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -76,12 +76,12 @@ struct HTTPAcceptorRep
 ////////////////////////////////////////////////////////////////////////////////
 
 HTTPAcceptor::HTTPAcceptor(Monitor* monitor, MessageQueue* outputMessageQueue)
-    : Base("HTTPAcceptor", MessageQueue::getNextQueueId()), 
-      _monitor(monitor), _outputMessageQueue(outputMessageQueue), 
-      _rep(0), _sslcontext(NULL)
+   : Base("HTTPAcceptor", MessageQueue::getNextQueueId()), 
+     _monitor(monitor), _outputMessageQueue(outputMessageQueue), 
+     _rep(0), _sslcontext(NULL)
 {
 
-    Socket::initializeInterface();
+   Socket::initializeInterface();
 }
 
 HTTPAcceptor::HTTPAcceptor(Monitor* monitor, MessageQueue* outputMessageQueue,
@@ -90,309 +90,319 @@ HTTPAcceptor::HTTPAcceptor(Monitor* monitor, MessageQueue* outputMessageQueue,
 	   _monitor(monitor), _outputMessageQueue(outputMessageQueue), _rep(0),
 	   _sslcontext(sslcontext)
 {
-    Socket::initializeInterface();
+   Socket::initializeInterface();
 }
 
 HTTPAcceptor::~HTTPAcceptor()
 {
-    unbind();
-    Socket::uninitializeInterface();
+   unbind();
+   Socket::uninitializeInterface();
 }
+
+void HTTPAcceptor::handleEnqueue(Message *message)
+{
+   if (! message)
+      return;
+   
+   switch (message->getType())
+   {
+      case SOCKET_MESSAGE:
+      {
+	 SocketMessage* socketMessage = (SocketMessage*)message;
+
+	 // If this is a connection request:
+
+	 if (socketMessage->socket == _rep->socket &&
+	     socketMessage->events | SocketMessage::READ)
+	 {
+	    _acceptConnection();
+	 }
+	 else
+	 {
+	    // ATTN! this can't happen!
+	 }
+
+	 break;
+      }
+
+      case CLOSE_CONNECTION_MESSAGE:
+      {
+	 CloseConnectionMessage* closeConnectionMessage 
+	    = (CloseConnectionMessage*)message;
+
+	 for (Uint32 i = 0, n = _rep->connections.size(); i < n; i++)
+	 {
+	    HTTPConnection* connection = _rep->connections[i];	
+	    Sint32 socket = connection->getSocket();
+
+	    if (socket == closeConnectionMessage->socket)
+	    {
+	       _monitor->unsolicitSocketMessages(socket);
+	       _rep->connections.remove(i);
+	       delete connection;
+	       break;
+	    }
+	 }
+      }
+
+     Default:
+      // Attn: need unexpected message error!
+      break;
+   };
+
+   delete message;
+}
+
 
 void HTTPAcceptor::handleEnqueue()
 {
-    Message* message = dequeue();
+   Message* message = dequeue();
 
-    if (!message)
-        return;
+   if (!message)
+      return;
+   
+   handleEnqueue(message);
 
-    switch (message->getType())
-    {
-	case SOCKET_MESSAGE:
-	{
-	    SocketMessage* socketMessage = (SocketMessage*)message;
-
-	    // If this is a connection request:
-
-	    if (socketMessage->socket == _rep->socket &&
-		socketMessage->events | SocketMessage::READ)
-	    {
-		_acceptConnection();
-	    }
-	    else
-	    {
-		// ATTN! this can't happen!
-	    }
-
-	    break;
-	}
-
-	case CLOSE_CONNECTION_MESSAGE:
-	{
-	    CloseConnectionMessage* closeConnectionMessage 
-		= (CloseConnectionMessage*)message;
-
-	    for (Uint32 i = 0, n = _rep->connections.size(); i < n; i++)
-	    {
-		HTTPConnection* connection = _rep->connections[i];	
-		Sint32 socket = connection->getSocket();
-
-		if (socket == closeConnectionMessage->socket)
-		{
-		    _monitor->unsolicitSocketMessages(socket);
-		    _rep->connections.remove(i);
-		    delete connection;
-		    break;
-		}
-	    }
-	}
-
-	default:
-	    // ATTN: need unexpected message error!
-	    break;
-    };
-
-    delete message;
 }
 
 const char* HTTPAcceptor::getQueueName() const
 {
-    return "HTTPAcceptor";
+   return "HTTPAcceptor";
 }
 
 void HTTPAcceptor::bind(Uint32 portNumber)
 {
-    if (_rep)
-	throw BindFailed("HTTPAcceptor already bound");
+   if (_rep)
+      throw BindFailed("HTTPAcceptor already bound");
 
-    _rep = new HTTPAcceptorRep;
+   _rep = new HTTPAcceptorRep;
 
-    _portNumber = portNumber;
+   _portNumber = portNumber;
 
-    // bind address
-    _bind();
+   // bind address
+   _bind();
 
-    return;
+   return;
 }
 
 /**
- _bind - creates a new server socket and bind socket to the port address.
+   _bind - creates a new server socket and bind socket to the port address.
 */
 void HTTPAcceptor::_bind()
 {
 
-    // Create address:
+   // Create address:
 
-    memset(&_rep->address, 0, sizeof(_rep->address));
+   memset(&_rep->address, 0, sizeof(_rep->address));
 
 #ifdef PEGASUS_ACCEPT_ONLY_LOCAL_CONNECTIONS
-    _rep->address.sin_addr.s_addr = INADDR_LOOPBACK;
+   _rep->address.sin_addr.s_addr = INADDR_LOOPBACK;
 #else
-    _rep->address.sin_addr.s_addr = INADDR_ANY;
+   _rep->address.sin_addr.s_addr = INADDR_ANY;
 #endif
 
-    _rep->address.sin_family = AF_INET;
-    _rep->address.sin_port = htons(_portNumber);
+   _rep->address.sin_family = AF_INET;
+   _rep->address.sin_port = htons(_portNumber);
 
-    // Create socket:
+   // Create socket:
     
-    _rep->socket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+   _rep->socket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 
-    if (_rep->socket < 0)
-    {
-	delete _rep;
-	_rep = 0;
-	throw BindFailed("Failed to create socket");
-    }
+   if (_rep->socket < 0)
+   {
+      delete _rep;
+      _rep = 0;
+      throw BindFailed("Failed to create socket");
+   }
 
-    //
-    // Set the socket option SO_REUSEADDR to reuse the socket address so
-    // that we can rebind to a new socket using the same address when we
-    // need to resume the cimom as a result of a timeout during a Shutdown
-    // operation.
-    //
-    int opt=1;
-    if (setsockopt(_rep->socket, SOL_SOCKET, SO_REUSEADDR,
-                 (char *)&opt, sizeof(opt)) < 0)
-    {
-        delete _rep;
-        _rep = 0;
-        throw BindFailed("Failed to set socket option");
-    }
+   //
+   // Set the socket option SO_REUSEADDR to reuse the socket address so
+   // that we can rebind to a new socket using the same address when we
+   // need to resume the cimom as a result of a timeout during a Shutdown
+   // operation.
+   //
+   int opt=1;
+   if (setsockopt(_rep->socket, SOL_SOCKET, SO_REUSEADDR,
+		  (char *)&opt, sizeof(opt)) < 0)
+   {
+      delete _rep;
+      _rep = 0;
+      throw BindFailed("Failed to set socket option");
+   }
 
-    // Bind socket to port:
+   // Bind socket to port:
 
-    if (::bind(_rep->socket, 
-	(struct sockaddr*)(void*)&_rep->address, 
-	sizeof(_rep->address)) < 0)
-    {
-	Socket::close(_rep->socket);
-	delete _rep;
-	_rep = 0;
-	throw BindFailed("Failed to bind socket to port");
-    }
+   if (::bind(_rep->socket, 
+	      (struct sockaddr*)(void*)&_rep->address, 
+	      sizeof(_rep->address)) < 0)
+   {
+      Socket::close(_rep->socket);
+      delete _rep;
+      _rep = 0;
+      throw BindFailed("Failed to bind socket to port");
+   }
 
-    // Set up listening on the given port:
+   // Set up listening on the given port:
 
-    int const MAX_CONNECTION_QUEUE_LENGTH = 5;
+   int const MAX_CONNECTION_QUEUE_LENGTH = 5;
 
-    if (listen(_rep->socket, MAX_CONNECTION_QUEUE_LENGTH) < 0)
-    {
-	Socket::close(_rep->socket);
-	delete _rep;
-	_rep = 0;
-	throw BindFailed("Failed to bind socket to port");
-    }
+   if (listen(_rep->socket, MAX_CONNECTION_QUEUE_LENGTH) < 0)
+   {
+      Socket::close(_rep->socket);
+      delete _rep;
+      _rep = 0;
+      throw BindFailed("Failed to bind socket to port");
+   }
 
-    // Register to receive SocketMessages on this socket:
+   // Register to receive SocketMessages on this socket:
 
-    if (!_monitor->solicitSocketMessages(
-	_rep->socket,
-	SocketMessage::READ | SocketMessage::EXCEPTION,
-	getQueueId()))
-    {
-	Socket::close(_rep->socket);
-	delete _rep;
-	_rep = 0;
-	throw BindFailed("Failed to solicit socket messaeges");
-    }
+   if (!_monitor->solicitSocketMessages(
+	  _rep->socket,
+	  SocketMessage::READ | SocketMessage::EXCEPTION,
+	  getQueueId()))
+   {
+      Socket::close(_rep->socket);
+      delete _rep;
+      _rep = 0;
+      throw BindFailed("Failed to solicit socket messaeges");
+   }
 }
 
 /**
- closeConnectionSocket - close the server listening socket to disallow
- new client connections.
+   closeConnectionSocket - close the server listening socket to disallow
+   new client connections.
 */
 void HTTPAcceptor::closeConnectionSocket()
 {
-    if (_rep)
-    {
-        // unregister the socket
-        _monitor->unsolicitSocketMessages(_rep->socket);
+   if (_rep)
+   {
+      // unregister the socket
+      _monitor->unsolicitSocketMessages(_rep->socket);
 
-        // close the socket
-        Socket::close(_rep->socket);
-    }
+      // close the socket
+      Socket::close(_rep->socket);
+   }
 }
 
 /**
- reopenConnectionSocket - creates a new server socket.
+   reopenConnectionSocket - creates a new server socket.
 */
 void HTTPAcceptor::reopenConnectionSocket()
 {
-    if (_rep)
-    {
-        _bind();
-    }
+   if (_rep)
+   {
+      _bind();
+   }
 }
 
 /**
- getOutstandingRequestCount - returns the number of outstanding requests.
+   getOutstandingRequestCount - returns the number of outstanding requests.
 */
 Uint32 HTTPAcceptor::getOutstandingRequestCount()
 {
-    if (_rep->connections.size() > 0)
-    {
-        HTTPConnection* connection = _rep->connections[0];	
-        return(connection->getRequestCount());
-    }
-    else
-    {
-        return(0);
-    }
+   if (_rep->connections.size() > 0)
+   {
+      HTTPConnection* connection = _rep->connections[0];	
+      return(connection->getRequestCount());
+   }
+   else
+   {
+      return(0);
+   }
 }
 
 void HTTPAcceptor::unbind()
 {
-    if (_rep)
-    {
-	Socket::close(_rep->socket);
-	delete _rep;
-	_rep = 0;
-    }
+   if (_rep)
+   {
+      Socket::close(_rep->socket);
+      delete _rep;
+      _rep = 0;
+   }
 }
 
 void HTTPAcceptor::destroyConnections()
 {
-    // For each connection created by this object:
+   // For each connection created by this object:
 
-    for (Uint32 i = 0, n = _rep->connections.size(); i < n; i++)
-    {
-	HTTPConnection* connection = _rep->connections[i];	
-	Sint32 socket = connection->getSocket();
+   for (Uint32 i = 0, n = _rep->connections.size(); i < n; i++)
+   {
+      HTTPConnection* connection = _rep->connections[i];	
+      Sint32 socket = connection->getSocket();
 
-	// Unsolicit SocketMessages:
+      // Unsolicit SocketMessages:
 
-	_monitor->unsolicitSocketMessages(socket);
+      _monitor->unsolicitSocketMessages(socket);
 
-	// Destroy the connection (causing it to close):
+      // Destroy the connection (causing it to close):
 
-	delete connection;
-    }
+      delete connection;
+   }
 
-    _rep->connections.clear();
+   _rep->connections.clear();
 }
 
 void HTTPAcceptor::_acceptConnection()
 {
-    // This function cannot be called on an invalid socket!
+   // This function cannot be called on an invalid socket!
 
-    PEGASUS_ASSERT(_rep != 0);
+   PEGASUS_ASSERT(_rep != 0);
 
-    if (!_rep)
-	return;
+   if (!_rep)
+      return;
 
-    // Accept the connection (populate the address):
+   // Accept the connection (populate the address):
 
-    sockaddr_in address;
+   sockaddr_in address;
 
 #if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
-    size_t n = sizeof(address);
+   size_t n = sizeof(address);
 #else
-    int n = sizeof(address);
+   int n = sizeof(address);
 #endif
 
 #if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)    
-    Sint32 socket = accept(
-	_rep->socket, (struct sockaddr*)&address, (socklen_t *)&n);
+   Sint32 socket = accept(
+      _rep->socket, (struct sockaddr*)&address, (socklen_t *)&n);
 #else
-    Sint32 socket = accept(_rep->socket, (struct sockaddr*)&address, &n);
+   Sint32 socket = accept(_rep->socket, (struct sockaddr*)&address, &n);
 #endif
 
-    if (socket < 0)
-    {
-	if (getenv("PEGASUS_TRACE"))
-	    cerr <<"HTTPAcceptor: accept() failed" << endl;
+   if (socket < 0)
+   {
+      if (getenv("PEGASUS_TRACE"))
+	 cerr <<"HTTPAcceptor: accept() failed" << endl;
 
-	return;
-    }
+      return;
+   }
 
-    // Create a new conection and add it to the connection list:
+   // Create a new conection and add it to the connection list:
 
-    MP_Socket * mp_socket = new MP_Socket(socket, _sslcontext);
-    if (mp_socket->accept() < 0) {
-	if (getenv("PEGASUS_TRACE"))
-	    cerr <<"HTTPAcceptor: SSL_accept() failed" << endl;
+   MP_Socket * mp_socket = new MP_Socket(socket, _sslcontext);
+   if (mp_socket->accept() < 0) {
+      if (getenv("PEGASUS_TRACE"))
+	 cerr <<"HTTPAcceptor: SSL_accept() failed" << endl;
 
-	return;
-    }
+      return;
+   }
 
-    HTTPConnection* connection = new HTTPConnection(
-	_monitor, mp_socket, this, _outputMessageQueue);
+   HTTPConnection* connection = new HTTPConnection(
+      _monitor, mp_socket, this, _outputMessageQueue);
 
-    // Solicit events on this new connection's socket:
+   // Solicit events on this new connection's socket:
 
-    if (!_monitor->solicitSocketMessages(
-	socket,
-	SocketMessage::READ | SocketMessage::EXCEPTION,
-	connection->getQueueId()))
-    {
-	delete connection;
-	Socket::close(socket);
-    }
+   if (!_monitor->solicitSocketMessages(
+	  socket,
+	  SocketMessage::READ | SocketMessage::EXCEPTION,
+	  connection->getQueueId()))
+   {
+      delete connection;
+      Socket::close(socket);
+   }
 
-    // Save the socket for cleanup later:
+   // Save the socket for cleanup later:
 
-    _rep->connections.append(connection);
+   _rep->connections.append(connection);
 }
 
 PEGASUS_NAMESPACE_END

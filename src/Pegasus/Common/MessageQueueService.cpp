@@ -295,6 +295,18 @@ Boolean MessageQueueService::_enqueueResponse(
    Message* response)
    
 {
+
+   if( request->getMask() & message_mask::ha_async)
+   {
+      if (response->getMask() & message_mask::ha_async )
+      {
+	 _completeAsyncResponse(static_cast<AsyncRequest *>(request), 
+				static_cast<AsyncReply *>(response), 
+				ASYNC_OPSTATE_COMPLETE, 0 );
+	 return true;
+      }
+   }
+   
    if(request->_async != 0 )
    {
       Uint32 mask = request->_async->getMask();
@@ -366,21 +378,20 @@ Boolean MessageQueueService::messageOK(const Message *msg)
    return true;
 }
 
-
-void MessageQueueService::handleEnqueue(Message *msg)
-{
+// void MessageQueueService::handleEnqueue(Message *msg)
+// {
    
    
-   if ( msg )
-      delete msg;
-}
+//    if ( msg )
+//       delete msg;
+// }
 
 
-void MessageQueueService::handleEnqueue(void)
-{
-    Message *msg = dequeue();
-    handleEnqueue(msg);
-}
+// void MessageQueueService::handleEnqueue(void)
+// {
+//     Message *msg = dequeue();
+//     handleEnqueue(msg);
+// }
 
 void MessageQueueService::handle_heartbeat_request(AsyncRequest *req)
 {
@@ -508,14 +519,22 @@ void MessageQueueService::handle_AsyncLegacyOperationStart(AsyncLegacyOperationS
    // remove the legacy message from the request and enqueue it to its destination
    Uint32 result = async_results::CIM_NAK;
    
-   Message *legacy = req->act;
+   Message *legacy = req->_act;
    if ( legacy != 0 )
    {
-      MessageQueue* queue = MessageQueue::lookup(req->legacy_destination);
+      MessageQueue* queue = MessageQueue::lookup(req->_legacy_destination);
       if( queue != 0 )
       {
-	// Enqueue the response:
-	 queue->enqueue(legacy);
+	 if(queue->isAsync() == true )
+	 {
+	    (static_cast<MessageQueueService *>(queue))->handleEnqueue(legacy);
+	 }
+	 else 
+	 {
+	    // Enqueue the response:
+	    queue->enqueue(req->get_action());
+	 }
+	 
 	 result = async_results::OK;
       }
    }

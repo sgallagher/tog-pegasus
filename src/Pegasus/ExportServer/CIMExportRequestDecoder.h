@@ -43,65 +43,67 @@ PEGASUS_NAMESPACE_BEGIN
 class XmlParser;
 
 /** This class decodes CIM operation requests and passes them down-stream.
-*/
+ */
 class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportRequestDecoder 
-    : public MessageQueueService
+   : public MessageQueueService
 {
-public:
+   public:
 
-  typedef MessageQueueService Base;
+      typedef MessageQueueService Base;
   
-    CIMExportRequestDecoder(
-	MessageQueue* outputQueue,
-	Uint32 returnQueueId);
+      CIMExportRequestDecoder(
+	 MessageQueue* outputQueue,
+	 Uint32 returnQueueId);
 
-    ~CIMExportRequestDecoder();
+      ~CIMExportRequestDecoder();
 
-    void sendResponse(
-	Uint32 queueId, 
-	Array<Sint8>& message);
+      void sendResponse(
+	 Uint32 queueId, 
+	 Array<Sint8>& message);
 
-    void sendError(
-	Uint32 queueId, 
-	const String& messageId,
-	const String& methodName,
-	CIMStatusCode code,
-	const String& description);
+      void sendError(
+	 Uint32 queueId, 
+	 const String& messageId,
+	 const String& methodName,
+	 CIMStatusCode code,
+	 const String& description);
 
-    virtual void handleEnqueue();
+      virtual void handleEnqueue(Message *);
 
-    virtual const char* getQueueName() const;
+      virtual void handleEnqueue();
 
-    void handleHTTPMessage(HTTPMessage* httpMessage);
+      virtual const char* getQueueName() const;
 
-    void handleMethodRequest(
-        Uint32 queueId,
-        Sint8* content,
-        String userName);
+      void handleHTTPMessage(HTTPMessage* httpMessage);
 
-    CIMExportIndicationRequestMessage* decodeExportIndicationRequest(
-        Uint32 queueId,
-	XmlParser& parser, 
-	const String& messageId,
-	const String& nameSpace);
+      void handleMethodRequest(
+	 Uint32 queueId,
+	 Sint8* content,
+	 String userName);
 
-    /** Sets the flag to indicate whether or not the CIMServer is 
-        shutting down.
-    */
-    void setServerTerminating(Boolean flag);
+      CIMExportIndicationRequestMessage* decodeExportIndicationRequest(
+	 Uint32 queueId,
+	 XmlParser& parser, 
+	 const String& messageId,
+	 const String& nameSpace);
 
-private:
+      /** Sets the flag to indicate whether or not the CIMServer is 
+	  shutting down.
+      */
+      void setServerTerminating(Boolean flag);
 
-    MessageQueue* _outputQueue;
+   private:
 
-    // Consumer to which the indication to be send.
-    String _url;
+      MessageQueue* _outputQueue;
 
-    // Queue where responses should be enqueued.
-    Uint32 _returnQueueId;
+      // Consumer to which the indication to be send.
+      String _url;
 
-    // Flag to indicate whether or not the CIMServer is shutting down.
-    Boolean _serverTerminating;
+      // Queue where responses should be enqueued.
+      Uint32 _returnQueueId;
+
+      // Flag to indicate whether or not the CIMServer is shutting down.
+      Boolean _serverTerminating;
 };
 
 PEGASUS_NAMESPACE_END

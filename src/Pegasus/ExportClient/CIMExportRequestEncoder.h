@@ -45,34 +45,35 @@ PEGASUS_NAMESPACE_BEGIN
     and encodes them into HTTP messages which it places on its output queue.
 */
 class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportRequestEncoder 
-    : public MessageQueueService
+   : public MessageQueueService
 {
-public:
-  typedef MessageQueueService Base;
+   public:
+      typedef MessageQueueService Base;
   
-    /** Constuctor.
-	@param outputQueue queue to receive encoded HTTP messages.
-    */
-    CIMExportRequestEncoder(
-        MessageQueue* outputQueue, ClientAuthenticator* authenticator);
+      /** Constuctor.
+	  @param outputQueue queue to receive encoded HTTP messages.
+      */
+      CIMExportRequestEncoder(
+	 MessageQueue* outputQueue, ClientAuthenticator* authenticator);
 
-    /** Destructor. */
-    ~CIMExportRequestEncoder();
+      /** Destructor. */
+      ~CIMExportRequestEncoder();
 
-    /** This method is called when a message is enqueued on this queue. */
-    virtual void handleEnqueue();
+      /** This method is called when a message is enqueued on this queue. */
+      virtual void handleEnqueue(Message *);
+      virtual void handleEnqueue();
 
-    /** Returns the queue name. */
-    virtual const char* getQueueName() const;
+      /** Returns the queue name. */
+      virtual const char* getQueueName() const;
 
-private:
+   private:
 
-    void _encodeExportIndicationRequest(
-	CIMExportIndicationRequestMessage* message);
+      void _encodeExportIndicationRequest(
+	 CIMExportIndicationRequestMessage* message);
 
-    MessageQueue* _outputQueue;
-    char* _hostName;
-    ClientAuthenticator* _authenticator;
+      MessageQueue* _outputQueue;
+      char* _hostName;
+      ClientAuthenticator* _authenticator;
 };
 
 PEGASUS_NAMESPACE_END

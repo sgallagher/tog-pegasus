@@ -47,55 +47,57 @@ class HTTPConnection;
 */
 class PEGASUS_COMMON_LINKAGE HTTPConnector : public MessageQueueService
 {
-public:
+   public:
    
-  typedef MessageQueueService Base;
+      typedef MessageQueueService Base;
   
-    /** Constructor.
-	@param monitor pointer to monitor object which this class uses to
-	    solicit SocketMessages on the server port (socket).
-	@param outputMessageQueue ouptut message queue for connections
-	    created by this connector.
-    */
-    HTTPConnector(Monitor* monitor);
+      /** Constructor.
+	  @param monitor pointer to monitor object which this class uses to
+	  solicit SocketMessages on the server port (socket).
+	  @param outputMessageQueue ouptut message queue for connections
+	  created by this connector.
+      */
+      HTTPConnector(Monitor* monitor);
 
-    HTTPConnector(Monitor* monitor, SSLContext * sslcontext);
+      HTTPConnector(Monitor* monitor, SSLContext * sslcontext);
 
-    /** Destructor. */
-    ~HTTPConnector();
+      /** Destructor. */
+      ~HTTPConnector();
 
-    /** This method is called whenever a SocketMessage is enqueued
-	on the input queue of the HTTPConnector object.
-    */ 
-    virtual void handleEnqueue();
+      /** This method is called whenever a SocketMessage is enqueued
+	  on the input queue of the HTTPConnector object.
+      */ 
 
-    virtual const char* getQueueName() const;
+      virtual void handleEnqueue(Message *);
+      virtual void handleEnqueue();
 
-    /** Establishes a new connection and creates an HTTPConnection object
-	to represent it.
+      virtual const char* getQueueName() const;
 
-	@param locator indicates which server to connect to (of the form
-	    host:port).
-	@param outputMessageQueue output message queue for the HTTPConnection
-	    that will be created.
-	@exception InvalidLocator
-	@exception CannotCreateSocket
-	@exception CannotConnect
-	@exception UnexpectedFailure
-    */
-    HTTPConnection* connect(
-	const String& locator, 
-	MessageQueue* outputMessageQueue);
+      /** Establishes a new connection and creates an HTTPConnection object
+	  to represent it.
 
-    /** Destroys all the connections created by this connector. */
-    void destroyConnections();
+	  @param locator indicates which server to connect to (of the form
+	  host:port).
+	  @param outputMessageQueue output message queue for the HTTPConnection
+	  that will be created.
+	  @exception InvalidLocator
+	  @exception CannotCreateSocket
+	  @exception CannotConnect
+	  @exception UnexpectedFailure
+      */
+      HTTPConnection* connect(
+	 const String& locator, 
+	 MessageQueue* outputMessageQueue);
 
-private:
+      /** Destroys all the connections created by this connector. */
+      void destroyConnections();
 
-    Monitor* _monitor;
-    HTTPConnectorRep* _rep;
+   private:
+
+      Monitor* _monitor;
+      HTTPConnectorRep* _rep;
     
-    SSLContext * _sslcontext;
+      SSLContext * _sslcontext;
 };
 
 PEGASUS_NAMESPACE_END

@@ -41,11 +41,11 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 CIMExportRequestEncoder::CIMExportRequestEncoder(
-    MessageQueue* outputQueue, ClientAuthenticator* authenticator)
-    : 
+   MessageQueue* outputQueue, ClientAuthenticator* authenticator)
+   : 
    Base("CIMExportRequestEncoder", MessageQueue::getNextQueueId()),
-    _outputQueue(outputQueue),
-    _authenticator(authenticator)
+   _outputQueue(outputQueue),
+   _authenticator(authenticator)
 {
    String tmpHostName = System::getHostName();
    _hostName = tmpHostName.allocateCString();
@@ -53,55 +53,61 @@ CIMExportRequestEncoder::CIMExportRequestEncoder(
 
 CIMExportRequestEncoder::~CIMExportRequestEncoder()
 {
-    delete [] _hostName;
+   delete [] _hostName;
 }
+
+void CIMExportRequestEncoder::handleEnqueue(Message *message)
+{
+   if (!message)
+      return;
+
+   _authenticator->setRequestMessage(message);
+
+   switch (message->getType())
+   {
+      case CIM_EXPORT_INDICATION_REQUEST_MESSAGE:
+	 _encodeExportIndicationRequest((CIMExportIndicationRequestMessage*)message);
+	 break;
+   }
+
+   //ATTN: Do not delete the message here.
+   //
+   // ClientAuthenticator needs this message for resending the request on
+   // authentication challenge from the server. The message is deleted in
+   // the decoder after receiving the valid response from thr server.
+   //
+   //delete message;
+}
+
 
 void CIMExportRequestEncoder::handleEnqueue()
 {
-    Message* message = dequeue();
-
-    if (!message)
-	return;
-
-    _authenticator->setRequestMessage(message);
-
-    switch (message->getType())
-    {
-	case CIM_EXPORT_INDICATION_REQUEST_MESSAGE:
-	    _encodeExportIndicationRequest((CIMExportIndicationRequestMessage*)message);
-	    break;
-    }
-
-    //ATTN: Do not delete the message here.
-    //
-    // ClientAuthenticator needs this message for resending the request on
-    // authentication challenge from the server. The message is deleted in
-    // the decoder after receiving the valid response from thr server.
-    //
-    //delete message;
+   Message* message = dequeue();
+   if( message != 0 )
+      handleEnqueue(message);
 }
 
 const char* CIMExportRequestEncoder::getQueueName() const
 {
-    return "CIMExportRequestEncoder";
+   return "CIMExportRequestEncoder";
 }
 
 void CIMExportRequestEncoder::_encodeExportIndicationRequest(
-    CIMExportIndicationRequestMessage* message)
+   CIMExportIndicationRequestMessage* message)
 {
-    Array<Sint8> params;
+   Array<Sint8> params;
 
-    XmlWriter::appendInstanceParameter(
-	params, "NewIndication", message->indicationInstance);
+   XmlWriter::appendInstanceParameter(
+      params, "NewIndication", message->indicationInstance);
 	
-    Array<Sint8> buffer = XmlWriter::formatSimpleIndicationReqMessage(
-	message->url.allocateCString(), 
-	"ExportIndication", 
-	message->messageId, 
-	_authenticator->buildRequestAuthHeader(), 
-	params);
+   Array<Sint8> buffer = XmlWriter::formatSimpleIndicationReqMessage(
+      message->url.allocateCString(), 
+      "ExportIndication", 
+      message->messageId, 
+      _authenticator->buildRequestAuthHeader(), 
+      params);
 
-    _outputQueue->enqueue(new HTTPMessage(buffer));
+   _outputQueue->enqueue(new HTTPMessage(buffer));
 }
 
 PEGASUS_NAMESPACE_END

@@ -49,43 +49,44 @@ class XmlParser;
 class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportResponseDecoder :  public MessageQueueService
 {
   
- public:
+   public:
      
-  typedef MessageQueueService Base;
+      typedef MessageQueueService Base;
 
-    /** Constuctor.
-	@param outputQueue queue to receive decoded HTTP messages.
-    */
-    CIMExportResponseDecoder(
-        MessageQueue* outputQueue,
-        MessageQueue* encoderQueue,
-        ClientAuthenticator* authenticator);
+      /** Constuctor.
+	  @param outputQueue queue to receive decoded HTTP messages.
+      */
+      CIMExportResponseDecoder(
+	 MessageQueue* outputQueue,
+	 MessageQueue* encoderQueue,
+	 ClientAuthenticator* authenticator);
 
-    /** Destructor. */
-    ~CIMExportResponseDecoder();
+      /** Destructor. */
+      ~CIMExportResponseDecoder();
 
-    void setEncoderQueue(MessageQueue* encoderQueue);
+      void setEncoderQueue(MessageQueue* encoderQueue);
 
-    /** This method is called when a message is enqueued on this queue. */
-    virtual void handleEnqueue();
+      /** This method is called when a message is enqueued on this queue. */
+      virtual void handleEnqueue(Message *);
+      virtual void handleEnqueue();
 
-    /** Returns the queue name. */
-    virtual const char* getQueueName() const;
+      /** Returns the queue name. */
+      virtual const char* getQueueName() const;
 
-private:
+   private:
 
-    void _handleHTTPMessage(
-	HTTPMessage* message);
+      void _handleHTTPMessage(
+	 HTTPMessage* message);
 
-    void _handleMethodResponse(
-	char* content);
+      void _handleMethodResponse(
+	 char* content);
 
-    CIMExportIndicationResponseMessage* _decodeExportIndicationResponse(
-	XmlParser& parser, const String& messageId);
+      CIMExportIndicationResponseMessage* _decodeExportIndicationResponse(
+	 XmlParser& parser, const String& messageId);
 
-    MessageQueue*        _outputQueue;
-    MessageQueue*        _encoderQueue;
-    ClientAuthenticator* _authenticator;
+      MessageQueue*        _outputQueue;
+      MessageQueue*        _encoderQueue;
+      ClientAuthenticator* _authenticator;
 };
 
 PEGASUS_NAMESPACE_END

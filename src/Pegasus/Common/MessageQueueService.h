@@ -107,9 +107,9 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
       Uint32 _mask;
       AtomicInt _die;
    protected:
-      virtual void handleEnqueue(void);
-      virtual void handleEnqueue(Message *);
-      virtual Boolean _enqueueResponse(Message *, Message *);
+      virtual void handleEnqueue(void) = 0;
+      virtual void handleEnqueue(Message *) = 0;
+      Boolean _enqueueResponse(Message *, Message *);
       virtual void _handle_incoming_operation(AsyncOpNode *operation, Thread *thread, MessageQueue *queue);
       virtual void _handle_async_request(AsyncRequest *req);
       virtual void _handle_async_callback(AsyncOpNode *operation);     

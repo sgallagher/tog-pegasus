@@ -177,7 +177,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	    {
 	       _rwlock._internal_lock.unlock();
 	       //caught.reset(new WaitFailed(pegasus_thread_self()));
-         caughtWaitFailed = *new WaitFailed(pegasus_thread_self());
+         caughtWaitFailed = WaitFailed(pegasus_thread_self());
 	       goto throw_from_here;
 	    }
 	 }
@@ -269,7 +269,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	    {
 	       _rwlock._internal_lock.unlock();
 	       //caught.reset(new WaitFailed(pegasus_thread_self()));
-         caughtWaitFailed =  *new WaitFailed(pegasus_thread_self());
+         caughtWaitFailed =  WaitFailed(pegasus_thread_self());
 	       goto throw_from_here;
 	    }
 	 }

@@ -28,13 +28,12 @@
 
 #include "CommonUTF.h"
 #include <cstring>
+
 PEGASUS_NAMESPACE_BEGIN
+
+// Note: Caller must ensure that "src" contains "size" bytes.
 int isValid_U8(const Uint8 *src, int size)
 {
-    if((strlen((const char*)src)+1) < size)
-    {
-        return false;
-    }
     Uint8 U8_char;
     const Uint8 *srcptr = src+size;
     switch (size)

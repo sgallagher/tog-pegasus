@@ -653,8 +653,19 @@ CString String::getCStringUTF8() const
 
 Boolean String::isUTF8(const char *legal)
 {
-    return (isValid_U8((const Uint8 *)legal,
-		       UTF_8_COUNT_TRAIL_BYTES(*legal)+1));
+    char numBytes = UTF_8_COUNT_TRAIL_BYTES(*legal)+1;
+
+    // Validate that the string is long enough to hold all the expected bytes.
+    // Note that if legal[0] == 0, numBytes will be 1.
+    for (Uint32 i=1; i<numBytes; i++)
+    {
+        if (legal[i] == 0)
+        {
+            return false;
+        }
+    }
+
+    return (isValid_U8((const Uint8 *)legal, numBytes));
 }
 
 #if 0

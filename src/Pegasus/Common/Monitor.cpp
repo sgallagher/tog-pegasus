@@ -205,7 +205,7 @@ Boolean Monitor::run(Uint32 milliseconds)
                    else
                    {
                        // set status to DYING
-                      _entries[indx]._status.value() == _MonitorEntry::DYING;
+                      _entries[indx]._status = _MonitorEntry::DYING;
                    }
                }
            }

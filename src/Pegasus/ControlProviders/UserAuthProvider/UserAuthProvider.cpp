@@ -364,7 +364,7 @@ void UserAuthProvider::deleteInstance(
             kbArray = myInstance.getKeyBindings();
             if ( ! kbArray.size() )
             {
-                throw CIMException( CIM_ERR_INVALID_PARAMETER,
+                throw PEGASUS_CIM_EXCEPTION( CIM_ERR_INVALID_PARAMETER,
                      "Unable to find Key Property Username");
             }
             if ( kbArray[0].getName() == PROPERTY_NAME_USERNAME )
@@ -373,7 +373,7 @@ void UserAuthProvider::deleteInstance(
             }
             else
             {
-                throw CIMException(CIM_ERR_INVALID_PARAMETER,
+                throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER,
                      "Unexpected Key property");
             }
 
@@ -879,7 +879,7 @@ void UserAuthProvider::invokeMethod(
         if ( !kbArray.size() )
         {
             PEG_METHOD_EXIT();
-            throw CIMException( CIM_ERR_INVALID_PARAMETER,
+            throw PEGASUS_CIM_EXCEPTION( CIM_ERR_INVALID_PARAMETER,
                      "Unable to find Key Property Username");
         }
 
@@ -893,7 +893,7 @@ void UserAuthProvider::invokeMethod(
         else
         {
             PEG_METHOD_EXIT();
-            throw CIMException( CIM_ERR_INVALID_PARAMETER,
+            throw PEGASUS_CIM_EXCEPTION( CIM_ERR_INVALID_PARAMETER,
                     "Unexpected key property");
         }
 

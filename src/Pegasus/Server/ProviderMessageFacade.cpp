@@ -182,7 +182,7 @@ Message * ProviderMessageFacade::_handleGetInstanceRequest(Message * message) th
 	if(handler.getObjects().size() == 0)
 	{
 	   // << Mon Apr 29 12:40:36 2002 mdd >>
-//	    throw CIMException(CIM_ERR_NOT_FOUND);
+//	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, String::EMPTY);
 	   cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
 	}
 
@@ -387,7 +387,7 @@ Message * ProviderMessageFacade::_handleCreateInstanceRequest(Message * message)
 	// instance name.
 	if(handler.getObjects().size() == 0)
 	{
-//	    throw CIMException(CIM_ERR_NOT_FOUND);
+//	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, String::EMPTY);
 	   // << Mon Apr 29 12:40:57 2002 mdd >>
 	    cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
 	}
@@ -750,7 +750,7 @@ Message * ProviderMessageFacade::_handleInvokeMethodRequest(Message * message) t
 	// error? provider claims success, but did not deliver a CIMValue.
 	if(handler.getObjects().size() == 0)
 	{
-//	    throw CIMException(CIM_ERR_NOT_FOUND);
+//	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, String::EMPTY);
 // << Mon Apr 29 12:41:15 2002 mdd >>
 	    cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
 	}

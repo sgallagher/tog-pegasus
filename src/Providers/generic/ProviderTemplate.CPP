@@ -63,7 +63,7 @@ static CIMRepository* _repository;
     ATTN: How do we handle CIM_Provider Operations that are not
     implemented in this particular provider.  We need to:
     
-    throw CIMException(CIMException::NOT_SUPPORTED);
+    throw NotSupported("Optional descriptive text");
     
     
 */
@@ -232,7 +232,7 @@ public:
     { 
 	DDD(cout << "**NAMEOFPROVIDER**::execQuery() called" << endl;)
 	
-	throw CIMException(CIMException::NOT_SUPPORTED);
+	throw NotSupported("execQuery");
 	return Array<CIMInstance>();
     }
     
@@ -249,7 +249,7 @@ public:
     {
 	DDD(cout << "**NAMEOFPROVIDER**::associators() called" << endl;)
 
-	throw CIMException(CIMException::NOT_SUPPORTED);
+	throw NotSupported("associators");
 	return Array<CIMInstance>();
     }
     
@@ -263,7 +263,7 @@ public:
     { 
 	DDD(cout << "**NAMEOFPROVIDER**::associatorNames() called" << endl;)
 	
-	throw CIMException(CIMException::NOT_SUPPORTED);
+	throw NotSupported("associatorNames");
 	return Array<CIMObjectPath>();
     }
     
@@ -278,7 +278,7 @@ public:
     {
 	DDD(cout << "**NAMEOFPROVIDER**::references() called" << endl;)
 	
-	throw CIMException(CIMException::NOT_SUPPORTED);
+	throw NotSupported("references");
 	return Array<CIMInstance>();
     }
     
@@ -290,7 +290,7 @@ public:
     { 
 	DDD(cout << "**NAMEOFPROVIDER**::referenceNames() called" << endl;)
 	
-	throw CIMException(CIMException::NOT_SUPPORTED);
+	throw NotSupported("referenceNames");
 	return Array<CIMObjectPath>();
     }
 

@@ -147,7 +147,7 @@ CIMClass CIMOMHandle::getClass(
     {
         delete asyncRequest;
         delete cb_data;
-        throw CIMException(CIM_ERR_NOT_FOUND);
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, String::EMPTY);
 
     }
     cb_data->client_sem.wait();
@@ -173,7 +173,7 @@ void CIMOMHandle::getClassAsync(
     const CIMPropertyList& propertyList,
     ResponseHandler<CIMClass> & handler)
 {
-    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
 }
 
 Array<CIMClass> CIMOMHandle::enumerateClasses(
@@ -216,7 +216,7 @@ void CIMOMHandle::enumerateClassesAsync(
     Boolean includeClassOrigin,
     ResponseHandler<CIMClass> & handler)
 {
-    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
 }
 
 Array<CIMName> CIMOMHandle::enumerateClassNames(
@@ -250,7 +250,7 @@ void CIMOMHandle::enumerateClassNamesAsync(
     Boolean deepInheritance,
     ResponseHandler<CIMObjectPath> & handler)
 {
-    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
 }
 
 void CIMOMHandle::createClass(
@@ -279,7 +279,7 @@ void CIMOMHandle::createClassAsync(
     const CIMClass& newClass,
     ResponseHandler<void> & handler)
 {
-    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
 }
 
 void CIMOMHandle::modifyClass(
@@ -308,7 +308,7 @@ void CIMOMHandle::modifyClassAsync(
     const CIMClass& modifiedClass,
     ResponseHandler<void> & handler)
 {
-    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
 }
 
 void CIMOMHandle::deleteClass(
@@ -338,7 +338,7 @@ void CIMOMHandle::deleteClassAsync(
     const CIMName& className,
     ResponseHandler<void> & handler)
 {
-    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
 }
 
 CIMInstance CIMOMHandle::getInstance(
@@ -391,7 +391,7 @@ CIMInstance CIMOMHandle::getInstance(
     {
         delete asyncRequest;
         delete cb_data;
-        throw CIMException(CIM_ERR_NOT_FOUND);
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, String::EMPTY);
     }
 
     cb_data->client_sem.wait();
@@ -428,7 +428,7 @@ void CIMOMHandle::getInstanceAsync(
     const CIMPropertyList& propertyList,
     ResponseHandler<CIMInstance> & handler)
 {
-    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
 }
 
 Array<CIMInstance> CIMOMHandle::enumerateInstances(
@@ -488,7 +488,7 @@ Array<CIMInstance> CIMOMHandle::enumerateInstances(
     {
         delete asyncRequest;
         delete cb_data;
-        throw CIMException(CIM_ERR_NOT_FOUND);
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, String::EMPTY);
     }
 
     cb_data->client_sem.wait();
@@ -529,7 +529,7 @@ void CIMOMHandle::enumerateInstancesAsync(
     const CIMPropertyList& propertyList,
     ResponseHandler<CIMInstance> & handler)
 {
-    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
 }
 
 Array<CIMObjectPath> CIMOMHandle::enumerateInstanceNames(
@@ -573,7 +573,7 @@ Array<CIMObjectPath> CIMOMHandle::enumerateInstanceNames(
     {
         delete asyncRequest;
         delete cb_data;
-        throw CIMException(CIM_ERR_NOT_FOUND);
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, String::EMPTY);
     }
 
 
@@ -604,7 +604,7 @@ void CIMOMHandle::enumerateInstanceNamesAsync(
     const CIMName& className,
     ResponseHandler<CIMObjectPath> & handler)
 {
-    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
 }
 
 CIMObjectPath CIMOMHandle::createInstance(
@@ -635,7 +635,7 @@ void CIMOMHandle::createInstanceAsync(
     const CIMInstance& newInstance,
     ResponseHandler<void> & handler)
 {
-    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
 }
 
 void CIMOMHandle::modifyInstance(
@@ -670,7 +670,7 @@ void CIMOMHandle::modifyInstanceAsync(
     const CIMPropertyList& propertyList,
     ResponseHandler<void> & handler)
 {
-    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
 }
 
 void CIMOMHandle::deleteInstance(
@@ -699,7 +699,7 @@ void CIMOMHandle::deleteInstanceAsync(
     const CIMObjectPath& instanceName,
     ResponseHandler<void> & handler)
 {
-    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
 }
 
 Array<CIMInstance> CIMOMHandle::execQuery(
@@ -733,7 +733,7 @@ void CIMOMHandle::execQueryAsync(
     const String& query,
     ResponseHandler<CIMObject> & handler)
 {
-    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
 }
 
 Array<CIMObject> CIMOMHandle::associators(
@@ -785,7 +785,7 @@ void CIMOMHandle::associatorsAsync(
     const CIMPropertyList& propertyList,
     ResponseHandler<CIMObject> & handler)
 {
-    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
 }
 
 Array<CIMObjectPath> CIMOMHandle::associatorNames(
@@ -828,7 +828,7 @@ void CIMOMHandle::associatorNamesAsync(
     const String& resultRole,
     ResponseHandler<CIMObjectPath> & handler)
 {
-    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
 }
 
 Array<CIMObject> CIMOMHandle::references(
@@ -874,7 +874,7 @@ void CIMOMHandle::referencesAsync(
     const CIMPropertyList& propertyList,
     ResponseHandler<CIMObject> & handler)
 {
-    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
 }
 
 Array<CIMObjectPath> CIMOMHandle::referenceNames(
@@ -911,7 +911,7 @@ void CIMOMHandle::referenceNamesAsync(
     const String& role,
     ResponseHandler<CIMObjectPath> & handler)
 {
-    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
 }
 
 CIMValue CIMOMHandle::getProperty(
@@ -945,7 +945,7 @@ void CIMOMHandle::getPropertyAsync(
     const CIMName& propertyName,
     ResponseHandler<CIMValue> & handler)
 {
-    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
 }
 
 void CIMOMHandle::setProperty(
@@ -980,7 +980,7 @@ void CIMOMHandle::setPropertyAsync(
     const CIMValue& newValue,
     ResponseHandler<CIMValue> & handler)
 {
-    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
 }
 
 /*
@@ -1017,7 +1017,7 @@ void CIMOMHandle::invokeMethodAsync(
     Array<CIMParamValue>& outParameters,
     ResponseHandler<CIMValue> & handler)
 {
-    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
 }
 */
 

@@ -257,7 +257,7 @@ CIMIndicationConsumer* CIMExportRequestDispatcher::_lookupConsumer(
 
 // << Mon Apr 29 12:49:49 2002 mdd >>
 //	if (!consumer)
-//	    throw CIMException(CIM_ERR_FAILED);
+//	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
 
 	//ATTN: How will get this handle? Defining just to proceed further.
 	//CIMOMHandle cimom;

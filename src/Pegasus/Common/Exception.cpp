@@ -33,6 +33,7 @@
 
 #include <cstdio>
 #include "Exception.h"
+#include <Pegasus/Common/CIMExceptionRep.h>
 #include "Tracer.h"
 
 PEGASUS_NAMESPACE_BEGIN
@@ -111,79 +112,44 @@ const char SSLException::MSG[] = "SSL Exception ";
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-//
-// Creates a description without source file name and line number.
-//
-static String _makeCIMExceptionDescription(
-    CIMStatusCode code,
-    const String& message)
-{
-    String tmp;
-    tmp.append(cimStatusCodeToString(code));
-    if (message != String::EMPTY)
-    {
-        tmp.append(": \"");
-        tmp.append(message);
-        tmp.append("\"");
-    }
-    return tmp;
-}
-
-//
-// Creates a description with source file name and line number.
-//
-static String _makeCIMExceptionDescription(
-    CIMStatusCode code,
-    const String& message,
-    const char* file,
-    Uint32 line)
-{
-    String tmp = file;
-    tmp.append("(");
-    char buffer[32];
-    sprintf(buffer, "%d", line);
-    tmp.append(buffer);
-    tmp.append("): ");
-    tmp.append(_makeCIMExceptionDescription(code, message));
-    return tmp;
-}
-
 CIMException::CIMException(
     CIMStatusCode code,
-    const String& message,
-    const char* file,
-    Uint32 line)
+    const String& message)
     :
-    Exception(message),
-    _code(code),
-    _file(file),
-    _line(line)
+    Exception(message)
 {
-
+    _rep = new CIMExceptionRep();
+    _rep->code = code;
+    _rep->file = "";
+    _rep->line = 0;
 }
 
-//
-// Returns a description string fit for human consumption
-//
-String CIMException::getDescription() const
+CIMException::CIMException(const CIMException & cimException)
+    : Exception(cimException.getMessage())
 {
-#ifdef DEBUG_CIMEXCEPTION
-    return getTraceDescription();
-#else
-    return _makeCIMExceptionDescription(_code, getMessage());
-#endif
+    _rep = new CIMExceptionRep();
+    _rep->code = cimException._rep->code;
+    _rep->file = cimException._rep->file;
+    _rep->line = cimException._rep->line;
 }
 
-//
-// Returns a description string with filename and line number information
-// specifically for tracing.
-//
-String CIMException::getTraceDescription() const
+CIMException& CIMException::operator=(const CIMException & cimException)
 {
-    String traceDescription =
-        _makeCIMExceptionDescription(_code, getMessage(), _file, _line);
+    _message = cimException._message;
+    _rep->code = cimException._rep->code;
+    _rep->file = cimException._rep->file;
+    _rep->line = cimException._rep->line;
+    return *this;
+}
 
-    return traceDescription;
+CIMException::~CIMException()
+{
+    delete _rep;
+}
+
+CIMStatusCode CIMException::getCode() const
+{
+    return _rep->code;
 }
 
 PEGASUS_NAMESPACE_END

@@ -414,31 +414,29 @@ public:
     UnauthorizedAccess() : Exception(MSG) { }
 };
 
-#if 0
-#define PEGASUS_CIM_EXCEPTION(CODE, EXTRA_MESSAGE) \
-    CIMException(CODE, EXTRA_MESSAGE, __FILE__, __LINE__)
-
 /** The CIMException defines the CIM exceptions that are formally defined in
-    the CIM Operations over HTTP specification.  InternalCIMException allows
+    the CIM Operations over HTTP specification.  TraceableCIMException allows
     file name and line number information to be added for diagnostic purposes.
 */
-class PEGASUS_COMMON_LINKAGE InternalCIMException : public CIMException
+class PEGASUS_COMMON_LINKAGE TraceableCIMException : public CIMException
 {
 public:
 
-    InternalCIMException(
-	CIMStatusCode code = CIM_ERR_SUCCESS,
-	const String& message = String::EMPTY,
-	const char* file = "",
-	Uint32 line = 0);
+    TraceableCIMException(
+	CIMStatusCode code,
+	const String& message,
+	const char* file,
+	Uint32 line);
+
+    TraceableCIMException(const CIMException & cimException);
+
+    String getDescription() const;
 
     String getTraceDescription() const;
-
-private:
-    const char*    _file;
-    Uint32         _line;
 };
-#endif
+
+#define PEGASUS_CIM_EXCEPTION(CODE, EXTRA_MESSAGE) \
+    TraceableCIMException(CODE, EXTRA_MESSAGE, __FILE__, __LINE__)
 
 PEGASUS_NAMESPACE_END
 

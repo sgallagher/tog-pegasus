@@ -208,7 +208,8 @@ void ProviderRegistrationProvider::getInstance(
     if(!String::equalNoCase(instanceReference.getNameSpace(),
       	                    PEGASUS_NAMESPACENAME_INTEROP))
     {
-	throw CIMException (CIM_ERR_NOT_SUPPORTED, instanceReference.getNameSpace());
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
+                                    instanceReference.getNameSpace());
     }
 
     // ensure the class existing in the specified namespace
@@ -218,7 +219,7 @@ void ProviderRegistrationProvider::getInstance(
        !String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDERCAPABILITIES) &&
        !String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDERMODULE))
     {
-	throw CIMException(CIM_ERR_NOT_SUPPORTED, className);
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, className);
     }
 
     // begin processing the request
@@ -252,7 +253,7 @@ void ProviderRegistrationProvider::enumerateInstances(
     if(!String::equalNoCase(classReference.getNameSpace(),
       	                    PEGASUS_NAMESPACENAME_INTEROP))
     {
-	throw CIMException (CIM_ERR_NOT_SUPPORTED, classReference.getNameSpace());
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, classReference.getNameSpace());
     }
 
     // ensure the class existing in the specified namespace
@@ -262,7 +263,7 @@ void ProviderRegistrationProvider::enumerateInstances(
        !String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDERCAPABILITIES) &&
        !String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDERMODULE))
     {
-	throw CIMException(CIM_ERR_NOT_SUPPORTED, className);
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, className);
     }
 
     // begin processing the request
@@ -294,7 +295,7 @@ void ProviderRegistrationProvider::enumerateInstanceNames(
     if(!String::equalNoCase(classReference.getNameSpace(),
       	                    PEGASUS_NAMESPACENAME_INTEROP))
     {
-	throw CIMException (CIM_ERR_NOT_SUPPORTED, classReference.getNameSpace());
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, classReference.getNameSpace());
     }
 
     // ensure the class existing in the specified namespace
@@ -304,7 +305,7 @@ void ProviderRegistrationProvider::enumerateInstanceNames(
        !String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDERCAPABILITIES) &&
        !String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDERMODULE))
     {
-	throw CIMException(CIM_ERR_NOT_SUPPORTED, className);
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, className);
     }
 
     // begin processing the request
@@ -354,14 +355,14 @@ void ProviderRegistrationProvider::modifyInstance(
 
     if ((userName != String::EMPTY) && !System::isPrivilegedUser(userName))
     {
-	throw CIMException (CIM_ERR_ACCESS_DENIED,
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED,
 	    "You must have superuser privilege to modify the registration."); 	
     }
 
     if(!String::equalNoCase(instanceReference.getNameSpace(),
       	                    PEGASUS_NAMESPACENAME_INTEROP))
     {
-	throw CIMException (CIM_ERR_NOT_SUPPORTED, instanceReference.getNameSpace());
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, instanceReference.getNameSpace());
     }
 
     //
@@ -370,7 +371,7 @@ void ProviderRegistrationProvider::modifyInstance(
     if (!String::equalNoCase(instanceReference.getClassName(),
 			     PEGASUS_CLASSNAME_PROVIDERCAPABILITIES))
     {
-	throw CIMException (CIM_ERR_NOT_SUPPORTED, instanceReference.getClassName());
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, instanceReference.getClassName());
     }
 
     //
@@ -379,7 +380,7 @@ void ProviderRegistrationProvider::modifyInstance(
     //
     if (propertyList.isNull())
     {
-	throw CIMException (CIM_ERR_NOT_SUPPORTED,
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
 	    "Only can modify Namespaces, SupportedProperties, and SupportedMethods.");
     }
 
@@ -390,7 +391,7 @@ void ProviderRegistrationProvider::modifyInstance(
 	    !String::equalNoCase(propertyArray[i], _PROPERTY_SUPPORTEDPROPERTIES) &&
 	    !String::equalNoCase(propertyArray[i], _PROPERTY_SUPPORTEDMETHODS))
 	{
-	    throw CIMException (CIM_ERR_NOT_SUPPORTED, propertyArray[i]);
+	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, propertyArray[i]);
 	}
     }
 
@@ -432,7 +433,7 @@ void ProviderRegistrationProvider::createInstance(
 
     if ((userName != String::EMPTY) && !System::isPrivilegedUser(userName))
     {
-	throw CIMException (CIM_ERR_ACCESS_DENIED,
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED,
 	    "You must have superuser privilege to register providers."); 	
     }
 
@@ -445,7 +446,7 @@ void ProviderRegistrationProvider::createInstance(
 
     if(!String::equalNoCase(nameSpace, PEGASUS_NAMESPACENAME_INTEROP))
     {
-	throw CIMException (CIM_ERR_NOT_SUPPORTED, nameSpace);
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, nameSpace);
     }
 
     // ensure the class existing in the specified namespace
@@ -453,7 +454,7 @@ void ProviderRegistrationProvider::createInstance(
        !String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDERCAPABILITIES) &&
        !String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDERMODULE))
     {
-	throw CIMException(CIM_ERR_NOT_SUPPORTED, className);
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, className);
     }
 
     //
@@ -469,39 +470,39 @@ void ProviderRegistrationProvider::createInstance(
 	if (instanceObject.findProperty(_PROPERTY_PROVIDERMODULE_NAME) ==
             PEG_NOT_FOUND)
 	{
-	    throw CIMException (CIM_ERR_FAILED,
+	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
 		"Missing Name which is required property in PG_ProviderModule class.");
 	}
 
 	if (instanceObject.findProperty(_PROPERTY_VENDOR) == PEG_NOT_FOUND)
 	{
-	    throw CIMException (CIM_ERR_FAILED,
+	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
 		"Missing Vendor which is required property in PG_ProviderModule class.");
 	}
 
 	if (instanceObject.findProperty(_PROPERTY_VERSION) == PEG_NOT_FOUND)
 	{
-	    throw CIMException (CIM_ERR_FAILED,
+	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
 		"Missing Version which is required property in PG_ProviderModule class.");
 	}
 
 	if (instanceObject.findProperty(_PROPERTY_INTERFACETYPE) == 
             PEG_NOT_FOUND)
 	{
-	    throw CIMException (CIM_ERR_FAILED,
+	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
 		"Missing InterfaceType which is required property in PG_ProviderModule class.");
 	}
 
 	if (instanceObject.findProperty(_PROPERTY_INTERFACEVERSION) == 
             PEG_NOT_FOUND)
 	{
-	    throw CIMException (CIM_ERR_FAILED,
+	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
 		"Missing InterfaceVersion which is required property in PG_ProviderModule class.");
 	}
 
 	if (instanceObject.findProperty(_PROPERTY_LOCATION) == PEG_NOT_FOUND)
 	{
-	    throw CIMException (CIM_ERR_FAILED,
+	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
 		"Missing Location which is required property in PG_ProviderModule class.");
 	}
 
@@ -524,39 +525,39 @@ void ProviderRegistrationProvider::createInstance(
 	if (instanceObject.findProperty(_PROPERTY_PROVIDERMODULENAME) ==
             PEG_NOT_FOUND)
 	{
-	    throw CIMException (CIM_ERR_FAILED,
+	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
 		"Missing ProviderModuleName which is required property in PG_ProviderCapabilities class.");
 	}
 
 	if (instanceObject.findProperty(_PROPERTY_PROVIDERNAME) == 
             PEG_NOT_FOUND)
 	{
-	    throw CIMException (CIM_ERR_FAILED,
+	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
 		"Missing ProviderName which is required property in PG_ProviderCapabilities class.");
 	}
 
 	if (instanceObject.findProperty(_PROPERTY_CAPABILITYID) == 
             PEG_NOT_FOUND)
 	{
-	    throw CIMException (CIM_ERR_FAILED,
+	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
 		"Missing CapabilityID which is required property in PG_ProviderCapabilities class.");
 	}
 
 	if (instanceObject.findProperty(_PROPERTY_CLASSNAME) == PEG_NOT_FOUND)
 	{
-	    throw CIMException (CIM_ERR_FAILED,
+	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
 		"Missing ClassName which is required property in PG_ProviderCapabilities class.");
 	}
 
 	if (instanceObject.findProperty(_PROPERTY_NAMESPACES) == PEG_NOT_FOUND)
 	{
-	    throw CIMException (CIM_ERR_FAILED,
+	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
 		"Missing Namespaces which is required property in PG_ProviderCapabilities class.");
 	}
 
 	if (instanceObject.findProperty(_PROPERTY_PROVIDERTYPE) == PEG_NOT_FOUND)
 	{
-	    throw CIMException (CIM_ERR_FAILED,
+	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
 		"Missing ProviderType which is required property in PG_ProviderCapabilities class.");
 	}
     }
@@ -567,14 +568,14 @@ void ProviderRegistrationProvider::createInstance(
 	//
 	if (instanceObject.findProperty(_PROPERTY_PROVIDER_NAME) == PEG_NOT_FOUND)
 	{
-	    throw CIMException (CIM_ERR_FAILED,
+	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
 		"Missing Name which is required property in PG_Provider class.");
 	}
 	
 	if (instanceObject.findProperty(_PROPERTY_PROVIDERMODULENAME) == 
             PEG_NOT_FOUND)
 	{
-	    throw CIMException (CIM_ERR_FAILED,
+	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
 		"Missing ProviderModuleName which is required property in PG_Provider class.");
 	}
     }
@@ -618,14 +619,14 @@ void ProviderRegistrationProvider::deleteInstance(
 
     if ((userName != String::EMPTY) && !System::isPrivilegedUser(userName))
     {
-	throw CIMException (CIM_ERR_ACCESS_DENIED,
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED,
 	    "You must have superuser privilege to unregister providers."); 	
     }
 
     if(!String::equalNoCase(instanceReference.getNameSpace(),
       	                    PEGASUS_NAMESPACENAME_INTEROP))
     {
-	throw CIMException (CIM_ERR_NOT_SUPPORTED, instanceReference.getNameSpace());
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, instanceReference.getNameSpace());
     }
 
     String className = instanceReference.getClassName();
@@ -635,7 +636,7 @@ void ProviderRegistrationProvider::deleteInstance(
        !String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDERCAPABILITIES) &&
        !String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDERMODULE))
     {
-	throw CIMException(CIM_ERR_NOT_SUPPORTED, className);
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, className);
     }
 
     // begin processing the request
@@ -677,14 +678,14 @@ void ProviderRegistrationProvider::invokeMethod(
 
     if ((userName != String::EMPTY) && !System::isPrivilegedUser(userName))
     {
-	throw CIMException (CIM_ERR_ACCESS_DENIED,
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED,
 	    "You must have superuser privilege to disable or enable providers."); 	
     }
 
     if(!String::equalNoCase(objectReference.getNameSpace(),
       	                    PEGASUS_NAMESPACENAME_INTEROP))
     {
-	throw CIMException (CIM_ERR_NOT_SUPPORTED, objectReference.getNameSpace());
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, objectReference.getNameSpace());
     }
 
     String moduleName;
@@ -869,7 +870,7 @@ void ProviderRegistrationProvider::invokeMethod(
     }
     else
     {
-	throw CIMException(CIM_ERR_METHOD_NOT_AVAILABLE);
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_METHOD_NOT_AVAILABLE, String::EMPTY);
     }
 }
 
@@ -1036,7 +1037,7 @@ void ProviderRegistrationProvider::_sendTerminationMessageToSubscription(
                            asyncRequest))
         {
             delete asyncRequest;
-            throw CIMException(CIM_ERR_NOT_FOUND);
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, String::EMPTY);
         }
     }
 }

@@ -1690,7 +1690,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
             //  Error condition: operation not supported
             //
             PEG_METHOD_EXIT ();
-            throw CIMException (CIM_ERR_NOT_SUPPORTED);
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
             break;
     }  // switch
 
@@ -2433,13 +2433,13 @@ Boolean IndicationService::_canModify (
     if (instanceReference.getClassName () != PEGASUS_CLASSNAME_INDSUBSCRIPTION)
     {
         PEG_METHOD_EXIT ();
-        throw CIMException (CIM_ERR_NOT_SUPPORTED);
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
     }
 
     if (request->includeQualifiers)
     {
         PEG_METHOD_EXIT ();
-        throw CIMException (CIM_ERR_NOT_SUPPORTED);
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
     }
 
     //
@@ -2449,7 +2449,7 @@ Boolean IndicationService::_canModify (
     if (request->propertyList.isNull ())
     {
         PEG_METHOD_EXIT ();
-        throw CIMException (CIM_ERR_NOT_SUPPORTED);
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
     }
 
     //
@@ -2458,7 +2458,7 @@ Boolean IndicationService::_canModify (
     else if (request->propertyList.size () > 1)
     {
         PEG_METHOD_EXIT ();
-        throw CIMException (CIM_ERR_NOT_SUPPORTED);
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
     }
 
     //
@@ -2469,7 +2469,7 @@ Boolean IndicationService::_canModify (
              (request->propertyList[0] != _PROPERTY_STATE))
     {
         PEG_METHOD_EXIT ();
-        throw CIMException (CIM_ERR_NOT_SUPPORTED);
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
     }
 
     _checkPropertyWithOther (instance, _PROPERTY_STATE, _PROPERTY_OTHERSTATE,
@@ -2494,7 +2494,7 @@ Boolean IndicationService::_canModify (
         (currentUser != creator))
     {
         PEG_METHOD_EXIT ();
-        throw CIMException (CIM_ERR_ACCESS_DENIED);
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, String::EMPTY);
     }
 
     return true;
@@ -2549,7 +2549,7 @@ Boolean IndicationService::_canDelete (
         (currentUser != creator))
     {
         PEG_METHOD_EXIT ();
-        throw CIMException (CIM_ERR_ACCESS_DENIED);
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, String::EMPTY);
     }
 
     //

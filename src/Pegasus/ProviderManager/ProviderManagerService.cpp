@@ -94,7 +94,7 @@ Triad<String, String, String> _getProviderRegPair(
 
         PEG_METHOD_EXIT();
 
-        throw CIMException(CIM_ERR_FAILED, "provider lookup failed.");
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "provider lookup failed.");
     }
 
     pmInstance.getProperty(pos).getValue().get(operationalStatus);
@@ -109,7 +109,7 @@ Triad<String, String, String> _getProviderRegPair(
 
             PEG_METHOD_EXIT();
 
-            throw CIMException(CIM_ERR_ACCESS_DENIED, "provider blocked.");
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, "provider blocked.");
         }
     }
 
@@ -123,7 +123,7 @@ Triad<String, String, String> _getProviderRegPair(
 
         PEG_METHOD_EXIT();
 
-        throw CIMException(CIM_ERR_FAILED, "provider lookup failed.");
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "provider lookup failed.");
     }
 
     pInstance.getProperty(pos).getValue().get(providerName);
@@ -141,7 +141,7 @@ Triad<String, String, String> _getProviderRegPair(
 
         PEG_METHOD_EXIT();
 
-        throw CIMException(CIM_ERR_FAILED, "provider lookup failed.");
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "provider lookup failed.");
     }
 
     pmInstance.getProperty(pos).getValue().get(location);
@@ -202,7 +202,7 @@ void ProviderManagerService::_lookupProviderForAssocClass(
 
         PEG_METHOD_EXIT();
 
-        throw CIMException(CIM_ERR_FAILED, "provider lookup failed.");
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "provider lookup failed.");
     }
 
     for(Uint32 i=0,n=pInstances.size(); i<n; i++)
@@ -292,7 +292,7 @@ Triad<String, String, String> ProviderManagerService::_lookupMethodProviderForCl
 
         PEG_METHOD_EXIT();
 
-        throw CIMException(CIM_ERR_FAILED, "provider lookup failed.");
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "provider lookup failed.");
     }
 
     Triad<String, String, String> triad;
@@ -325,7 +325,7 @@ Triad<String, String, String> ProviderManagerService::_lookupProviderForClass(
 
         PEG_METHOD_EXIT();
 
-        throw CIMException(CIM_ERR_FAILED, "provider lookup failed.");
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "provider lookup failed.");
     }
 
     Triad<String, String, String> triad;
@@ -2196,7 +2196,7 @@ void ProviderManagerService::handleDisableModuleRequest(AsyncOpNode *op, const M
     if(_providerRegistrationManager->setProviderModuleStatus
         (moduleName, operationalStatus) == false)
     {
-        throw CIMException(CIM_ERR_FAILED, "set module status failed.");
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "set module status failed.");
     }
 
     Array<CIMInstance> _pInstances = request->providers;
@@ -2223,7 +2223,7 @@ void ProviderManagerService::handleDisableModuleRequest(AsyncOpNode *op, const M
     if(_providerRegistrationManager->setProviderModuleStatus
         (moduleName, operationalStatus) == false)
     {
-        throw CIMException(CIM_ERR_FAILED, "set module status failed.");
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "set module status failed.");
     }
 
     CIMDisableModuleResponseMessage * response =
@@ -2292,7 +2292,7 @@ void ProviderManagerService::handleEnableModuleRequest(AsyncOpNode *op, const Me
     if(_providerRegistrationManager->setProviderModuleStatus
         (moduleName, operationalStatus) == false)
     {
-        throw CIMException(CIM_ERR_FAILED, "set module status failed.");
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "set module status failed.");
     }
 
     CIMEnableModuleResponseMessage * response =

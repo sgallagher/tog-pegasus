@@ -944,7 +944,7 @@ CIMCreateClassRequestMessage* CIMOperationRequestDecoder::decodeCreateClassReque
       else
       {
          PEG_METHOD_EXIT();
-	 throw CIMException(CIM_ERR_NOT_SUPPORTED);
+	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
       }
 
       XmlReader::expectEndTag(parser, "IPARAMVALUE");
@@ -952,14 +952,14 @@ CIMCreateClassRequestMessage* CIMOperationRequestDecoder::decodeCreateClassReque
       if (duplicateParameter)
       {
          PEG_METHOD_EXIT();
-	 throw CIMException(CIM_ERR_INVALID_PARAMETER);
+	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
       }
    }
 
    if (!gotClass)
    {
       PEG_METHOD_EXIT();
-      throw CIMException(CIM_ERR_INVALID_PARAMETER);
+      throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
  
    CIMCreateClassRequestMessage* request = new CIMCreateClassRequestMessage(
@@ -1047,7 +1047,7 @@ CIMGetClassRequestMessage* CIMOperationRequestDecoder::decodeGetClassRequest(
       else
       {
          PEG_METHOD_EXIT();
-	 throw CIMException(CIM_ERR_NOT_SUPPORTED);
+	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
       }
 
       XmlReader::expectEndTag(parser, "IPARAMVALUE");
@@ -1055,14 +1055,14 @@ CIMGetClassRequestMessage* CIMOperationRequestDecoder::decodeGetClassRequest(
       if (duplicateParameter)
       {
          PEG_METHOD_EXIT();
-	 throw CIMException(CIM_ERR_INVALID_PARAMETER);
+	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
       }
    }
 
    if (!gotClassName)
    {
       PEG_METHOD_EXIT();
-      throw CIMException(CIM_ERR_INVALID_PARAMETER);
+      throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
    CIMGetClassRequestMessage* request = new CIMGetClassRequestMessage(
@@ -1107,20 +1107,20 @@ CIMModifyClassRequestMessage* CIMOperationRequestDecoder::decodeModifyClassReque
       }
       else
       {
-	 throw CIMException(CIM_ERR_NOT_SUPPORTED);
+	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
       }
 
       XmlReader::expectEndTag(parser, "IPARAMVALUE");
 
       if (duplicateParameter)
       {
-	 throw CIMException(CIM_ERR_INVALID_PARAMETER);
+	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
       }
    }
 
    if (!gotClass)
    {
-      throw CIMException(CIM_ERR_INVALID_PARAMETER);
+      throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
    CIMModifyClassRequestMessage* request = 
@@ -1169,14 +1169,14 @@ CIMEnumerateClassNamesRequestMessage* CIMOperationRequestDecoder::decodeEnumerat
       }
       else
       {
-	 throw CIMException(CIM_ERR_NOT_SUPPORTED);
+	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
       }
 
       XmlReader::expectEndTag(parser, "IPARAMVALUE");
 
       if (duplicateParameter)
       {
-	 throw CIMException(CIM_ERR_INVALID_PARAMETER);
+	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
       }
    }
 
@@ -1251,14 +1251,14 @@ CIMEnumerateClassesRequestMessage* CIMOperationRequestDecoder::decodeEnumerateCl
       }
       else
       {
-	 throw CIMException(CIM_ERR_NOT_SUPPORTED);
+	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
       }
 
       XmlReader::expectEndTag(parser, "IPARAMVALUE");
 
       if (duplicateParameter)
       {
-	 throw CIMException(CIM_ERR_INVALID_PARAMETER);
+	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
       }
    }
 
@@ -1304,20 +1304,20 @@ CIMDeleteClassRequestMessage* CIMOperationRequestDecoder::decodeDeleteClassReque
       }
       else
       {
-	 throw CIMException(CIM_ERR_NOT_SUPPORTED);
+	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
       }
 
       XmlReader::expectEndTag(parser, "IPARAMVALUE");
 
       if (duplicateParameter)
       {
-	 throw CIMException(CIM_ERR_INVALID_PARAMETER);
+	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
       }
    }
 
    if (!gotClassName)
    {
-      throw CIMException(CIM_ERR_INVALID_PARAMETER);
+      throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
    CIMDeleteClassRequestMessage* request = new CIMDeleteClassRequestMessage(
@@ -1357,20 +1357,20 @@ CIMCreateInstanceRequestMessage* CIMOperationRequestDecoder::decodeCreateInstanc
       }
       else
       {
-	 throw CIMException(CIM_ERR_NOT_SUPPORTED);
+	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
       }
 
       XmlReader::expectEndTag(parser, "IPARAMVALUE");
 
       if (duplicateParameter)
       {
-	 throw CIMException(CIM_ERR_INVALID_PARAMETER);
+	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
       }
    }
 
    if (!gotInstance)
    {
-      throw CIMException(CIM_ERR_INVALID_PARAMETER);
+      throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
    CIMCreateInstanceRequestMessage* request = 
@@ -1454,20 +1454,20 @@ CIMGetInstanceRequestMessage* CIMOperationRequestDecoder::decodeGetInstanceReque
       }
       else
       {
-	 throw CIMException(CIM_ERR_NOT_SUPPORTED);
+	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
       }
 
       XmlReader::expectEndTag(parser, "IPARAMVALUE");
 
       if (duplicateParameter)
       {
-	 throw CIMException(CIM_ERR_INVALID_PARAMETER);
+	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
       }
    }
 
    if (!gotInstanceName)
    {
-      throw CIMException(CIM_ERR_INVALID_PARAMETER);
+      throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
    CIMGetInstanceRequestMessage* request = new CIMGetInstanceRequestMessage(
@@ -1538,20 +1538,20 @@ CIMModifyInstanceRequestMessage* CIMOperationRequestDecoder::decodeModifyInstanc
       }
       else
       {
-	 throw CIMException(CIM_ERR_NOT_SUPPORTED);
+	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
       }
 
       XmlReader::expectEndTag(parser, "IPARAMVALUE");
 
       if (duplicateParameter)
       {
-	 throw CIMException(CIM_ERR_INVALID_PARAMETER);
+	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
       }
    }
 
    if (!gotInstance)
    {
-      throw CIMException(CIM_ERR_INVALID_PARAMETER);
+      throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
    CIMModifyInstanceRequestMessage* request = 
@@ -1645,20 +1645,20 @@ CIMEnumerateInstancesRequestMessage* CIMOperationRequestDecoder::decodeEnumerate
       }
       else
       {
-	 throw CIMException(CIM_ERR_NOT_SUPPORTED);
+	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
       }
 
       XmlReader::expectEndTag(parser, "IPARAMVALUE");
 
       if (duplicateParameter)
       {
-	 throw CIMException(CIM_ERR_INVALID_PARAMETER);
+	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
       }
    }
 
    if (!gotClassName)
    {
-      throw CIMException(CIM_ERR_INVALID_PARAMETER);
+      throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
    CIMEnumerateInstancesRequestMessage* request = 
@@ -1704,20 +1704,20 @@ CIMEnumerateInstanceNamesRequestMessage* CIMOperationRequestDecoder::decodeEnume
       }
       else
       {
-	 throw CIMException(CIM_ERR_NOT_SUPPORTED);
+	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
       }
 
       XmlReader::expectEndTag(parser, "IPARAMVALUE");
 
       if (duplicateParameter)
       {
-	 throw CIMException(CIM_ERR_INVALID_PARAMETER);
+	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
       }
    }
 
    if (!gotClassName)
    {
-      throw CIMException(CIM_ERR_INVALID_PARAMETER);
+      throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
    CIMEnumerateInstanceNamesRequestMessage* request = 
@@ -1758,20 +1758,20 @@ CIMDeleteInstanceRequestMessage* CIMOperationRequestDecoder::decodeDeleteInstanc
       }
       else
       {
-	 throw CIMException(CIM_ERR_NOT_SUPPORTED);
+	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
       }
 
       XmlReader::expectEndTag(parser, "IPARAMVALUE");
 
       if (duplicateParameter)
       {
-	 throw CIMException(CIM_ERR_INVALID_PARAMETER);
+	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
       }
    }
 
    if (!gotInstanceName)
    {
-      throw CIMException(CIM_ERR_INVALID_PARAMETER);
+      throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
    CIMDeleteInstanceRequestMessage* request = new CIMDeleteInstanceRequestMessage(
@@ -1811,20 +1811,20 @@ CIMSetQualifierRequestMessage* CIMOperationRequestDecoder::decodeSetQualifierReq
       }
       else
       {
-	 throw CIMException(CIM_ERR_NOT_SUPPORTED);
+	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
       }
 
       XmlReader::expectEndTag(parser, "IPARAMVALUE");
 
       if (duplicateParameter)
       {
-	 throw CIMException(CIM_ERR_INVALID_PARAMETER);
+	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
       }
    }
 
    if (!gotQualifierDeclaration)
    {
-      throw CIMException(CIM_ERR_INVALID_PARAMETER);
+      throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
    CIMSetQualifierRequestMessage* request = 
@@ -1865,20 +1865,20 @@ CIMGetQualifierRequestMessage* CIMOperationRequestDecoder::decodeGetQualifierReq
       }
       else
       {
-	 throw CIMException(CIM_ERR_NOT_SUPPORTED);
+	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
       }
 
       XmlReader::expectEndTag(parser, "IPARAMVALUE");
 
       if (duplicateParameter)
       {
-	 throw CIMException(CIM_ERR_INVALID_PARAMETER);
+	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
       }
    }
 
    if (!gotQualifierName)
    {
-      throw CIMException(CIM_ERR_INVALID_PARAMETER);
+      throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
    CIMGetQualifierRequestMessage* request = 
@@ -1908,7 +1908,7 @@ CIMEnumerateQualifiersRequestMessage* CIMOperationRequestDecoder::decodeEnumerat
    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
    {
       // No IPARAMVALUEs are defined for this operation
-      throw CIMException(CIM_ERR_NOT_SUPPORTED);
+      throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
    }
 
    CIMEnumerateQualifiersRequestMessage* request = 
@@ -1948,20 +1948,20 @@ CIMDeleteQualifierRequestMessage* CIMOperationRequestDecoder::decodeDeleteQualif
       }
       else
       {
-	 throw CIMException(CIM_ERR_NOT_SUPPORTED);
+	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
       }
 
       XmlReader::expectEndTag(parser, "IPARAMVALUE");
 
       if (duplicateParameter)
       {
-	 throw CIMException(CIM_ERR_INVALID_PARAMETER);
+	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
       }
    }
 
    if (!gotQualifierName)
    {
-      throw CIMException(CIM_ERR_INVALID_PARAMETER);
+      throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
    CIMDeleteQualifierRequestMessage* request = 
@@ -2018,20 +2018,20 @@ CIMReferenceNamesRequestMessage* CIMOperationRequestDecoder::decodeReferenceName
       }
       else
       {
-	 throw CIMException(CIM_ERR_NOT_SUPPORTED);
+	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
       }
 
       XmlReader::expectEndTag(parser, "IPARAMVALUE");
 
       if (duplicateParameter)
       {
-	 throw CIMException(CIM_ERR_INVALID_PARAMETER);
+	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
       }
    }
 
    if (!gotObjectName)
    {
-      throw CIMException(CIM_ERR_INVALID_PARAMETER);
+      throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
    CIMReferenceNamesRequestMessage* request = 
@@ -2125,20 +2125,20 @@ CIMReferencesRequestMessage* CIMOperationRequestDecoder::decodeReferencesRequest
       }
       else
       {
-	 throw CIMException(CIM_ERR_NOT_SUPPORTED);
+	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
       }
 
       XmlReader::expectEndTag(parser, "IPARAMVALUE");
 
       if (duplicateParameter)
       {
-	 throw CIMException(CIM_ERR_INVALID_PARAMETER);
+	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
       }
    }
 
    if (!gotObjectName)
    {
-      throw CIMException(CIM_ERR_INVALID_PARAMETER);
+      throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
    CIMReferencesRequestMessage* request = 
@@ -2216,20 +2216,20 @@ CIMAssociatorNamesRequestMessage* CIMOperationRequestDecoder::decodeAssociatorNa
       }
       else
       {
-	 throw CIMException(CIM_ERR_NOT_SUPPORTED);
+	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
       }
 
       XmlReader::expectEndTag(parser, "IPARAMVALUE");
 
       if (duplicateParameter)
       {
-	 throw CIMException(CIM_ERR_INVALID_PARAMETER);
+	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
       }
    }
 
    if (!gotObjectName)
    {
-      throw CIMException(CIM_ERR_INVALID_PARAMETER);
+      throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
    CIMAssociatorNamesRequestMessage* request = 
@@ -2341,20 +2341,20 @@ CIMAssociatorsRequestMessage* CIMOperationRequestDecoder::decodeAssociatorsReque
       }
       else
       {
-	 throw CIMException(CIM_ERR_NOT_SUPPORTED);
+	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
       }
 
       XmlReader::expectEndTag(parser, "IPARAMVALUE");
 
       if (duplicateParameter)
       {
-	 throw CIMException(CIM_ERR_INVALID_PARAMETER);
+	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
       }
    }
 
    if (!gotObjectName)
    {
-      throw CIMException(CIM_ERR_INVALID_PARAMETER);
+      throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
    CIMAssociatorsRequestMessage* request = 
@@ -2410,20 +2410,20 @@ CIMGetPropertyRequestMessage* CIMOperationRequestDecoder::decodeGetPropertyReque
       }
       else
       {
-	 throw CIMException(CIM_ERR_NOT_SUPPORTED);
+	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
       }
 
       XmlReader::expectEndTag(parser, "IPARAMVALUE");
 
       if (duplicateParameter)
       {
-	 throw CIMException(CIM_ERR_INVALID_PARAMETER);
+	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
       }
    }
 
    if (!gotInstanceName || !gotPropertyName)
    {
-      throw CIMException(CIM_ERR_INVALID_PARAMETER);
+      throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
    CIMGetPropertyRequestMessage* request = new CIMGetPropertyRequestMessage(
@@ -2483,20 +2483,20 @@ CIMSetPropertyRequestMessage* CIMOperationRequestDecoder::decodeSetPropertyReque
       }
       else
       {
-	 throw CIMException(CIM_ERR_NOT_SUPPORTED);
+	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
       }
 
       XmlReader::expectEndTag(parser, "IPARAMVALUE");
 
       if (duplicateParameter)
       {
-	 throw CIMException(CIM_ERR_INVALID_PARAMETER);
+	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
       }
    }
 
    if (!gotInstanceName || !gotPropertyName)
    {
-      throw CIMException(CIM_ERR_INVALID_PARAMETER);
+      throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
    CIMSetPropertyRequestMessage* request = new CIMSetPropertyRequestMessage(
@@ -2546,20 +2546,20 @@ CIMExecQueryRequestMessage* CIMOperationRequestDecoder::decodeExecQueryRequest(
       }
       else
       {
-	 throw CIMException(CIM_ERR_NOT_SUPPORTED);
+	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
       }
 
       XmlReader::expectEndTag(parser, "IPARAMVALUE");
 
       if (duplicateParameter)
       {
-	 throw CIMException(CIM_ERR_INVALID_PARAMETER);
+	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
       }
    }
 
    if (!gotQueryLanguage || !gotQuery)
    {
-      throw CIMException(CIM_ERR_INVALID_PARAMETER);
+      throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
    CIMExecQueryRequestMessage* request = 

@@ -107,7 +107,7 @@ void sendmailIndicationHandler::handleIndication(
     FILE* sendmailFile;
     sendmailFile = fopen(_MAIL_FILE_NAME, "a");
     if (!sendmailFile)
-        throw CIMException(CIM_ERR_FAILED); 
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
 
     Uint32 n = indicationInstance.getPropertyCount();
     for (Uint32 i = 0; i < n; i++)
@@ -131,12 +131,12 @@ void sendmailIndicationHandler::handleIndication(
             _MAIL_FILE_NAME);
 
     if ((sendmailptr = popen(sendcmd, "r")) == NULL)
-        throw CIMException(CIM_ERR_FAILED);
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
     else
         pclose(sendmailptr);
     unlink(_MAIL_FILE_NAME);
 #else
-    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
 #endif
 }
 

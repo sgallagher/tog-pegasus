@@ -1705,12 +1705,11 @@ void XmlWriter::_appendErrorElement(
     Array<Sint8>& out,
     const CIMException& cimException)
 {
-    PEG_TRACE_STRING(TRC_XML_WRITER, Tracer::LEVEL2,
-                     cimException.getTraceDescription());
+    Tracer::traceCIMException(TRC_XML_WRITER, Tracer::LEVEL2, cimException);
 
     out << "<ERROR";
     out << " CODE=\"" << Uint32(cimException.getCode()) << "\"";
-    String description = cimException.getDescription();
+    String description = TraceableCIMException(cimException).getDescription();
     if (description != String::EMPTY)
     {
         out << " DESCRIPTION=\"";

@@ -246,7 +246,7 @@ CIMHandler* IndicationHandlerService::_lookupHandlerForClass(
       handler = _handlerTable.loadHandler(handlerId);
 
       if (!handler)
-	 throw CIMException(CIM_ERR_FAILED);
+	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
 
       handler->initialize(_repository);
    }

@@ -45,7 +45,7 @@ inline T * getInterface(CIMBaseProvider * provider)
 
     if(p == 0)
     {
-        throw CIMException(CIM_ERR_NOT_SUPPORTED, "Invalid provider interface.");
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "Invalid provider interface.");
     }
 
     return(p);
@@ -234,7 +234,7 @@ void ProviderFacade::getClass(
     const CIMPropertyList & propertyList,
     ResponseHandler<CIMClass> & handler)
 {
-    throw CIMException(CIM_ERR_NOT_SUPPORTED, "ProviderFacade::getClass");
+    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "ProviderFacade::getClass");
 }
 
 void ProviderFacade::enumerateClasses(
@@ -243,7 +243,7 @@ void ProviderFacade::enumerateClasses(
     const Uint32 flags,
     ResponseHandler<CIMClass> & handler)
 {
-    throw CIMException(CIM_ERR_NOT_SUPPORTED, "ProviderFacade::enumerateClasses");
+    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "ProviderFacade::enumerateClasses");
 }
 
 void ProviderFacade::enumerateClassNames(
@@ -252,7 +252,7 @@ void ProviderFacade::enumerateClassNames(
     const Uint32 flags,
     ResponseHandler<CIMObjectPath> & handler)
 {
-    throw CIMException(CIM_ERR_NOT_SUPPORTED, "ProviderFacade::enumerateClassNames");
+    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "ProviderFacade::enumerateClassNames");
 }
 
 void ProviderFacade::modifyClass(
@@ -261,7 +261,7 @@ void ProviderFacade::modifyClass(
     const CIMClass & classObject,
     ResponseHandler<void> & handler)
 {
-    throw CIMException(CIM_ERR_NOT_SUPPORTED, "ProviderFacade::modifyClass");
+    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "ProviderFacade::modifyClass");
 }
 
 void ProviderFacade::createClass(
@@ -270,7 +270,7 @@ void ProviderFacade::createClass(
     const CIMClass & classObject,
     ResponseHandler<void> & handler)
 {
-    throw CIMException(CIM_ERR_NOT_SUPPORTED, "ProviderFacade::createClass");
+    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "ProviderFacade::createClass");
 }
 
 void ProviderFacade::deleteClass(
@@ -278,7 +278,7 @@ void ProviderFacade::deleteClass(
     const CIMObjectPath & classReference,
     ResponseHandler<void> & handler)
 {
-    throw CIMException(CIM_ERR_NOT_SUPPORTED, "ProviderFacade::deleteClass");
+    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "ProviderFacade::deleteClass");
 }
 
 void ProviderFacade::associators(
@@ -493,7 +493,7 @@ void ProviderFacade::executeQuery(
     const String & query,
     ResponseHandler<CIMObject> & handler)
 {
-    throw CIMException(CIM_ERR_NOT_SUPPORTED, "CIMQueryProvider::*");
+    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "CIMQueryProvider::*");
 }
 
 void ProviderFacade::enableIndications(ResponseHandler<CIMIndication> & handler)

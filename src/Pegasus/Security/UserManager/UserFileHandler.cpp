@@ -190,19 +190,19 @@ void UserFileHandler::_Update(
     }
     catch (TimeOut e)
     {
-	throw CIMException( CIM_ERR_FAILED, 
+	throw PEGASUS_CIM_EXCEPTION( CIM_ERR_FAILED, 
 	"Timed out trying to perform requested operation."
 	"Please re-try the operation again.");
     }
     catch (WaitFailed e)
     {
-	throw CIMException( CIM_ERR_FAILED, 
+	throw PEGASUS_CIM_EXCEPTION( CIM_ERR_FAILED, 
 	"Timed out trying to perform requested operation."
 	"Please re-try the operation again.");
     }
     catch (Deadlock e)
     {
-	throw CIMException( CIM_ERR_FAILED, 
+	throw PEGASUS_CIM_EXCEPTION( CIM_ERR_FAILED, 
 	"Deak lock encountered trying to perform requested operation."
 	"Please re-try the operation again.");
     }

@@ -246,7 +246,7 @@ void shutdownCIMOM(Uint32 timeoutValue)
         //
         client.setTimeOut(2000);
     }
-    catch(CIMClientException& e)
+    catch(Exception& e)
     {
         PEGASUS_STD(cerr) << "Unable to connect to CIM Server." << PEGASUS_STD(endl);
         PEGASUS_STD(cerr) << "CIM Server may not be running." << PEGASUS_STD(endl);

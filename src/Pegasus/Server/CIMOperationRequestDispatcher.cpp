@@ -3687,7 +3687,7 @@ void CIMOperationRequestDispatcher::_fixInvokeMethodParameterTypes(
                 {
                     _repository->read_unlock();
                     PEG_METHOD_EXIT();
-                    throw CIMException(CIM_ERR_FAILED);
+                    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
                 }
                 _repository->read_unlock();
 
@@ -3697,7 +3697,8 @@ void CIMOperationRequestDispatcher::_fixInvokeMethodParameterTypes(
                 Uint32 methodPos = cimClass.findMethod(request->methodName);
                 if (methodPos == PEG_NOT_FOUND)
                 {
-                    throw CIMException(CIM_ERR_METHOD_NOT_FOUND);
+                    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_METHOD_NOT_FOUND,
+                                                String::EMPTY);
                 }
                 method = cimClass.getMethod(methodPos);
 
@@ -3730,7 +3731,8 @@ void CIMOperationRequestDispatcher::_fixInvokeMethodParameterTypes(
                     {
                         // ATTN-RK-P1-20020222: Who catches this?  They aren't.
                         PEG_METHOD_EXIT();
-                        throw CIMException(CIM_ERR_TYPE_MISMATCH);
+                        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_TYPE_MISMATCH,
+                                                    String::EMPTY);
                     }
                     else
                     {
@@ -3803,7 +3805,7 @@ void CIMOperationRequestDispatcher::_fixSetPropertyValueType(
    {
       _repository->read_unlock();
       PEG_METHOD_EXIT();
-      throw CIMException(CIM_ERR_FAILED);
+      throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
    }
    _repository->read_unlock();
 
@@ -3814,7 +3816,7 @@ void CIMOperationRequestDispatcher::_fixSetPropertyValueType(
    if (propertyPos == PEG_NOT_FOUND)
    {
       PEG_METHOD_EXIT();
-      throw CIMException(CIM_ERR_NO_SUCH_PROPERTY);
+      throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NO_SUCH_PROPERTY, String::EMPTY);
    }
    CIMProperty property = cimClass.getProperty(propertyPos);
 
@@ -3832,7 +3834,7 @@ void CIMOperationRequestDispatcher::_fixSetPropertyValueType(
    {
       // ATTN-RK-P1-20020222: Who catches this?  They aren't.
       PEG_METHOD_EXIT();
-      throw CIMException(CIM_ERR_TYPE_MISMATCH);
+      throw PEGASUS_CIM_EXCEPTION(CIM_ERR_TYPE_MISMATCH, String::EMPTY);
    }
    else
    {

@@ -360,6 +360,10 @@ ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
  DEFINES += -DPEGASUS_ENABLE_USERGROUP_AUTHORIZATION
 endif
 
+# Allow ExecQuery functionality to be enabled
+ifndef PEGASUS_ENABLE_EXECQUERY
+    DEFINES += -DPEGASUS_DISABLE_EXECQUERY
+endif
 
 # setup function to enable SLP functions in the Pegasus standard compile
 # Set the environment varaible PEGASUS_ENABLE_SLP to enable SLP code.  

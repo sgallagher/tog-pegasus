@@ -196,6 +196,9 @@ repository implementation.
     the windows platform (related to change from 28 Oct). Replaced
     leading whitespace in front of commands with tabs as required
     in make files.
+   
+35. (K Schopmeyer 2 Nov 2001)Temporarily moved repository back to CIM25 
+    because getting an error in 26
 
 35. (Roger Kumpf - HP) 30 Oct 2001 - Association classes have keys
     whose types are references.  These reference values must be

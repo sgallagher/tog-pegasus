@@ -33,18 +33,27 @@ PEGASUS_NAMESPACE_BEGIN
 //
 // OperationContext
 //
+class OperationContextRep
+{
+public:
+    Array<OperationContext::Container *> containers;
+};
+
 OperationContext::OperationContext(void)
 {
+    _rep = new OperationContextRep;
 }
 
 OperationContext::OperationContext(const OperationContext & context)
 {
+    _rep = new OperationContextRep;
     *this = context;
 }
 
 OperationContext::~OperationContext(void)
 {
     clear();
+    delete _rep;
 }
 
 OperationContext & OperationContext::operator=(const OperationContext & context)
@@ -56,9 +65,9 @@ OperationContext & OperationContext::operator=(const OperationContext & context)
 
     clear();
 
-    for(Uint32 i = 0, n = context._containers.size(); i < n; i++)
+    for(Uint32 i = 0, n = context._rep->containers.size(); i < n; i++)
     {
-        _containers.append(context._containers[i]->clone());
+        _rep->containers.append(context._rep->containers[i]->clone());
     }
 
     return(*this);
@@ -66,21 +75,21 @@ OperationContext & OperationContext::operator=(const OperationContext & context)
 
 void OperationContext::clear(void)
 {
-    for(Uint32 i = 0, n = _containers.size(); i < n; i++)
+    for(Uint32 i = 0, n = _rep->containers.size(); i < n; i++)
     {
-        delete _containers[i];
+        delete _rep->containers[i];
     }
 
-    _containers.clear();
+    _rep->containers.clear();
 }
 
 const OperationContext::Container & OperationContext::get(const Uint32 key) const
 {
-    for(Uint32 i = 0, n = _containers.size(); i < n; i++)
+    for(Uint32 i = 0, n = _rep->containers.size(); i < n; i++)
     {
-        if(key == _containers[i]->getKey())
+        if(key == _rep->containers[i]->getKey())
         {
-            Container * p = _containers[i];
+            Container * p = _rep->containers[i];
 
             return(*p);
         }
@@ -91,15 +100,16 @@ const OperationContext::Container & OperationContext::get(const Uint32 key) cons
 
 void OperationContext::set(const OperationContext::Container & container)
 {
-    for(Uint32 i = 0, n = _containers.size(); i < n; i++)
+    for(Uint32 i = 0, n = _rep->containers.size(); i < n; i++)
     {
-        if(container.getKey() == _containers[i]->getKey())
+        if(container.getKey() == _rep->containers[i]->getKey())
         {
             // delete previous container
-            _containers.remove(i);
+            delete _rep->containers[i];
+            _rep->containers.remove(i);
 
             // append current container
-            _containers.append(container.clone());
+            _rep->containers.append(container.clone());
 
             return;
         }
@@ -110,24 +120,25 @@ void OperationContext::set(const OperationContext::Container & container)
 
 void OperationContext::insert(const OperationContext::Container & container)
 {
-    for(Uint32 i = 0, n = _containers.size(); i < n; i++)
+    for(Uint32 i = 0, n = _rep->containers.size(); i < n; i++)
     {
-        if(container.getKey() == _containers[i]->getKey())
+        if(container.getKey() == _rep->containers[i]->getKey())
         {
             throw Exception("object already exists.");
         }
     }
 
-    _containers.append(container.clone());
+    _rep->containers.append(container.clone());
 }
 
 void OperationContext::remove(const Uint32 key)
 {
-    for(Uint32 i = 0, n = _containers.size(); i < n; i++)
+    for(Uint32 i = 0, n = _rep->containers.size(); i < n; i++)
     {
-        if(key == _containers[i]->getKey())
+        if(key == _rep->containers[i]->getKey())
         {
-            _containers.remove(i);
+            delete _rep->containers[i];
+            _rep->containers.remove(i);
 
             return;
         }
@@ -147,13 +158,18 @@ OperationContext::Container::~Container(void)
 {
 }
 
+const Uint32 & OperationContext::Container::getKey(void) const
+{
+    return(_key);
+}
+
 OperationContext::Container * OperationContext::Container::clone(void) const
 {
     return(new Container(*this));
 }
 
 //
-// IdentitiyContainer
+// IdentityContainer
 //
 IdentityContainer::IdentityContainer(const OperationContext::Container & container)
 {

@@ -30,7 +30,6 @@
 #define Pegasus_OperationContext_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Sharable.h>
 #include <Pegasus/Common/Exception.h>
 
 #include <Pegasus/Common/CIMInstance.h>
@@ -65,6 +64,8 @@ static const Uint32 OPERATION_RESERVE =                 0x00000080;
 static const Uint32 OPERATION_PROCESSING =              0x00000100;
 static const Uint32 OPERATION_COMPLETE =                0x00000200;
 
+class OperationContextRep;
+
 /**
     This class represents a set of arbitrary information (stored in containers)
     associated with a CIM operation request. As an example, each operation may
@@ -85,6 +86,7 @@ public:
         ///
         const Uint32 & getKey(void) const;
 
+        // Caller is responsible for deleting dynamically allocated memory.
         virtual Container * clone(void) const;
 
     protected:
@@ -126,14 +128,10 @@ public:
     void remove(const Uint32 key);
 
 protected:
-    Array<Container *> _containers;
+    OperationContextRep* _rep;
 
 };
 
-inline const Uint32 & OperationContext::Container::getKey(void) const
-{
-    return(_key);
-}
 
 class PEGASUS_COMMON_LINKAGE IdentityContainer : public OperationContext::Container
 {

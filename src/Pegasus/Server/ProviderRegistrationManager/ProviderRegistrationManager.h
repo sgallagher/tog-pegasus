@@ -411,7 +411,7 @@ private:
             for write access.
         */
 	void _addInstancesToTable(const String & key,
-		const Array<CIMInstance> & instances); 
+		Array<CIMInstance> & instances); 
 
         /**
             Adds an entry to the registration table for the specified

@@ -2265,20 +2265,6 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
     CIMPropertyList newPropertyNames = request->newPropertyNames;
     CIMPropertyList oldPropertyNames = request->oldPropertyNames;
 
-    //
-    //  Set path in each instance, so instances may later be easily
-    //  compared
-    //  ATTN: this code may be removed once bugzilla 1196 has been fixed
-    //
-    CIMClass providerClass = _subscriptionRepository->getClass
-        (PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_PROVIDER,
-         true, true, false, CIMPropertyList ());
-    CIMClass providerModuleClass = _subscriptionRepository->getClass
-        (PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_PROVIDERMODULE,
-         true, true, false, CIMPropertyList ());
-    provider.setPath (provider.buildPath (providerClass));
-    providerModule.setPath (providerModule.buildPath (providerModuleClass));
-
     Array <CIMInstance> newSubscriptions;
     Array <CIMInstance> formerSubscriptions;
     Array <ProviderClassList> indicationProviders;
@@ -2707,20 +2693,8 @@ void IndicationService::_handleNotifyProviderTerminationRequest
 
     Array <CIMInstance> providers = request->providers;
 
-    CIMClass providerClass = _subscriptionRepository->getClass
-        (PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_PROVIDER,
-         true, true, false, CIMPropertyList ());
-
     for (Uint32 i = 0; i < providers.size (); i++)
     {
-        //
-        //  Set path in each instance, so instances may later be easily
-        //  compared
-        //  ATTN: this code may be removed once bugzilla 1196 has been fixed
-        //  (including getClass call above)
-        //
-        providers [i].setPath (providers [i].buildPath (providerClass));
-
         //
         //  Get list of affected subscriptions
         //
@@ -2812,20 +2786,6 @@ void IndicationService::_handleNotifyProviderEnableRequest
 
     CIMException cimException;
     Boolean responseSent = false;
-
-    //
-    //  Set path in each instance, so instances may later be easily
-    //  compared
-    //  ATTN: this code may be removed once bugzilla 1196 has been fixed
-    //
-    CIMClass providerClass = _subscriptionRepository->getClass
-        (PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_PROVIDER,
-         true, true, false, CIMPropertyList ());
-    CIMClass providerModuleClass = _subscriptionRepository->getClass
-        (PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_PROVIDERMODULE,
-         true, true, false, CIMPropertyList ());
-    provider.setPath (provider.buildPath (providerClass));
-    providerModule.setPath (providerModule.buildPath (providerModuleClass));
 
     //
     //  Get class name, namespace names, and property list
@@ -4518,12 +4478,6 @@ Array <ProviderClassList> IndicationService::_getIndicationProviders (
     //
     //  For each indication subclass, get providers
     //
-    CIMClass providerClass = _subscriptionRepository->getClass
-        (PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_PROVIDER,
-         true, true, false, CIMPropertyList ());
-    CIMClass providerModuleClass = _subscriptionRepository->getClass
-        (PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_PROVIDERMODULE,
-         true, true, false, CIMPropertyList ());
     for (Uint32 i = 0; i < indicationSubclasses.size (); i++)
     {
         //
@@ -4550,19 +4504,6 @@ Array <ProviderClassList> IndicationService::_getIndicationProviders (
             {
                 provider.classList.clear ();
                 duplicate = false;
-
-                //
-                //  Set path in each instance, so instances may later be easily
-                //  compared
-                //  ATTN: this code may be removed once bugzilla 1196 has been
-                //  fixed
-                //  (including getClass calls above)
-                //
-                providerInstances [j].setPath
-                    (providerInstances [j].buildPath (providerClass));
-                providerModuleInstances [j].setPath
-                    (providerModuleInstances [j].buildPath
-                    (providerModuleClass));
 
                 //
                 //  See if indication provider is already in list

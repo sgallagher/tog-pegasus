@@ -79,7 +79,8 @@ class PG_SSLCertificate
     [static, Description ("Used to register a client certificate with a truststore")]
     boolean addCertificate([in] string certificateContents,
                            [in] string userName,
-                           [in] uint16 truststoreType);
+                           [in] uint16 truststoreType,
+			   [in] string truststorePath);
 
 };
 

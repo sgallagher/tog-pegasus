@@ -202,7 +202,6 @@ PEG_METHOD_ENTER(TRC_CQL, "CQLFactory::makeObject,CQLFactor");
                 return makeObject((CQLTerm*)(_CQLObjectPtr._ptr), target);
                 break;
         }
-PEG_METHOD_EXIT();
 }
 void* CQLFactory::makeObject(CQLTerm* obj, FactoryType target){
 //printf("CQLFactory::makeObject(term)\n");

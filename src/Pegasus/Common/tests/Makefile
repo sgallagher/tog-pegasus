@@ -45,8 +45,7 @@ DIRS = \
     DynLoad \
     Logger \
     WebClient \
-    ParamValue \
-    async_callback
+    ParamValue 
 
 #    MessageQueueService \
 #    WebServer \

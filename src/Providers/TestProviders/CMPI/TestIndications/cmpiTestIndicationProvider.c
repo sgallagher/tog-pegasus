@@ -509,7 +509,7 @@ TestCMPIIndicationProviderActivateFilter (CMPIIndicationMI * mi,
   CMPIString *name = NULL;
   CMPIData prop_data = { 0, CMPI_null, {0} };
   CMPIData data = { 0, CMPI_null, {0} };
-  CMPIArray **projection = NULL;
+  CMPIArray *projection = NULL;
   /* General purpose counters */
   unsigned int idx;
   CMPICount cnt;
@@ -544,20 +544,23 @@ TestCMPIIndicationProviderActivateFilter (CMPIIndicationMI * mi,
   PROV_LOG ("-- #1.1 CMNewSelectExp");
   str = CMGetSelExpString (se, &rc);
   clone =
-    CMPI_CQL_NewSelectExp (_broker, CMGetCharPtr (str), "CIMxCQL",
-                           (const CMPIArray **) projection, &rc_Clone);
+    //CMPI_CQL_NewSelectExp (_broker, CMGetCharPtr (str), "CIMxCQL",
+    CMNewSelectExp (_broker, CMGetCharPtr (str), "CIM:CQL",
+                            &projection, &rc_Clone);
 
   PROV_LOG ("---- %s", strCMPIStatus (rc_Clone));
   if (clone)
     {
+	if (projection)
+		{
       PROV_LOG ("--- Projection list is: ");
-      cnt = CMGetArrayCount (*projection, &rc_Array);
+      cnt = CMGetArrayCount (projection, &rc_Array);
       PROV_LOG ("---- %s", strCMPIStatus (rc_Array));
       PROV_LOG ("---- CMGetArrayCount, %d", cnt);
       for (idx = 0; idx < cnt; idx++)
         {
           PROV_LOG ("--- CMGetArrayElementAt");
-          data = CMGetArrayElementAt (*projection, idx, &rc_Array);
+          data = CMGetArrayElementAt (projection, idx, &rc_Array);
           PROV_LOG ("---- %s", strCMPIStatus (rc_Array));
           PROV_LOG ("---- tpye is : %d", data.type);
           if (data.type == CMPI_chars)
@@ -569,6 +572,7 @@ TestCMPIIndicationProviderActivateFilter (CMPIIndicationMI * mi,
               PROV_LOG ("---- %s", CMGetCharPtr (data.value.string));
             }
         }
+	  }
     }
 
   PROV_LOG ("-- #2 MakeObjectPath");

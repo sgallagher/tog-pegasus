@@ -114,7 +114,6 @@ void Thread::exit_self(PEGASUS_THREAD_RETURN exit_code)
 
 #endif
 
-
 ThreadPool::ThreadPool(Sint16 initial_size,
 		       Sint8 *key,
 		       Sint16 min,
@@ -230,7 +229,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
       // when we awaken we reside on the running queue, not the pool queue
       if(pool->_dying > 0)
 	 break;
-      gettimeofday(deadlock_timer, NULL);
+     
       
       PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *_work)(void *);
       void *parm;
@@ -250,6 +249,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
       
       if(_work == 0)
 	 throw NullPointer();
+      gettimeofday(deadlock_timer, NULL);
       _work(parm);
 	    
       // put myself back onto the available list 

@@ -72,7 +72,6 @@ void CIMOperationResponseEncoder::sendResponse(
       	Tracer::traceBuffer(TRC_XML_IO, Tracer::LEVEL2, 
 		 httpMessage->message.getData(), httpMessage->message.size());
 
-
 	queue->enqueue(httpMessage);
 
 

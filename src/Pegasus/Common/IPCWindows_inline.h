@@ -338,3 +338,4 @@ inline void Condition::unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE
 #endif // inline native conditional 
 
 #endif // IPCWindows_inline_h
+

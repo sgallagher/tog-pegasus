@@ -50,6 +50,7 @@
 #include <sys/time.h>
 #include <time.h>
 #include <sys/timex.h>
+#include <unistd.h>
 
 typedef pthread_spinlock_t PEGASUS_CRIT_TYPE;
 typedef sem_t PEGASUS_SEMAPHORE_TYPE;
@@ -196,13 +197,11 @@ inline void enable_cancel(void)
 
 inline void pegasus_sleep(int msec)
 {
-
    struct timespec wait;
    wait.tv_sec = msec / 1000;
    msec -= wait.tv_sec * 1000;
    wait.tv_nsec =  (msec & 1000) * 1000000;
    nanosleep(&wait, NULL);
-   
 }
 
 inline void init_crit(PEGASUS_CRIT_TYPE *crit)

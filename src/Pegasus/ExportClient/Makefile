@@ -17,8 +17,8 @@ DYNAMIC_LIBRARIES = \
     $(LIB_DIR)/$(LIB_PREFIX)pegcommon.x \
     $(LIB_DIR)/$(LIB_PREFIX)pegclient.x
 else
- DYNAMIC_LIBRARIES = -lpegcommon \
- DYNAMIC_LIBRARIES = -lpegclient
+ DYNAMIC_LIBRARIES = -lpegcommon 
+ DYNAMIC_LIBRARIES += -lpegclient
 endif
 
 PRE_DEPEND_INCLUDES = -I./depends

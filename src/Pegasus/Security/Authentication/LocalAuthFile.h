@@ -35,6 +35,7 @@
 
 #include <fstream>
 #include <stdlib.h>
+#include <stdio.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/System.h>
 #include "Linkage.h"

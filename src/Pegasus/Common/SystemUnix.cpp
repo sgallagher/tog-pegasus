@@ -47,6 +47,10 @@
 #include <time.h>
 #include <Pegasus/Common/Tracer.h>
 
+#ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU
+#include <pwd.h>
+#endif
+
 PEGASUS_NAMESPACE_BEGIN
 
 #include <sys/time.h>

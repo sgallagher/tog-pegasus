@@ -35,48 +35,81 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Message.h>
 #include <Pegasus/Common/ResponseHandler.h>
+#include <Pegasus/Provider2/CIMBaseProviderHandle.h>
+#include <Pegasus/Provider2/CIMIndicationProvider.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
+#define ASYNC_OPFLAGS_UNKNOWN           0x00000000
+#define ASYNC_OPFLAGS_DELIVER           0x00000001 
+#define ASYNC_OPFLAGS_RESERVE           0x00000002
+#define ASYNC_OPFLAGS_PROCESSING        0x00000004
+#define ASYNC_OPFLAGS_COMPLETE          0x00000008
+#define ASYNC_OPFLAGS_INTERVAL_REPEAT   0x00000010;
+#define ASYNC_OPFLAGS_INDICATION        0x00000020
+#define ASYNC_OPFLAGS_REMOTE            0x00000040
+#define ASYNC_OPFLAGS_LOCAL_OUT_OF_PROC 0x00000080
 
-class PEGASUS_COMMON_LINKAGE AsyncOpFlags 
-{
-   public:
-      static const Uint32 UNKNOWN;
-      static const Uint32 DELIVER;
-      static const Uint32 RESERVE;
-      static const Uint32 PROCESSING;
-      static const Uint32 COMPLETE;
-      static const Uint32 INTERVAL_REPEAT;;
-      static const Uint32 INDICATION;
-      static const Uint32 REMOTE;
-      static const Uint32 LOCAL_OUT_OF_PROC;
-};
 
-class PEGASUS_COMMON_LINKAGE AsyncOpState
-{
-   public:
-      static const Uint32 NORMAL;
-      static const Uint32 PHASED;
-      static const Uint32 PARTIAL;
-      static const Uint32 TIMEOUT;
-      static const Uint32 SINGLE;
-      static const Uint32 MULTIPLE;
-      static const Uint32 TOTAL;
-};
+#define ASYNC_OPSTATE_NORMAL            0x00000000
+#define ASYNC_OPSTATE_PHASED            0x00000001
+#define ASYNC_OPSTATE_PARTIAL           0x00000002
+#define ASYNC_OPSTATE_TIMEOUT           0x00000004
+#define ASYNC_OPSTATE_SINGLE            0x00000008
+#define ASYNC_OPSTATE_MULTIPLE          0x00000010
+#define ASYNC_OPSTATE_TOTAL             0x00000020
 
-enum ResponseHandlerType 
-{
-   UNDEFINED,
-   CIM_CLASS,
-   CIM_INSTANCE,
-   CIM_OBJECT,
-   CIM_OBJECT_WITH_PATH,
-   CIM_VALUE,
-   CIM_INDICATION,
-   CIM_REFERENCE, 
-   CIM_LAST
-};
+
+// class PEGASUS_EXPORT AsyncOpFlags 
+// { 
+//    public:
+//         static const Uint32 UNKNOWN;
+//         static const Uint32 DELIVER;
+//         static const Uint32 RESERVE;
+//         static const Uint32 PROCESSING;
+//         static const Uint32 COMPLETE;
+//         static const Uint32 INTERVAL_REPEAT;;
+//         static const Uint32 INDICATION;
+//         static const Uint32 REMOTE;
+//         static const Uint32 LOCAL_OUT_OF_PROC;
+// };
+
+// class PEGASUS_EXPORT AsyncOpState
+// {
+//    public:
+//         static const Uint32 NORMAL;
+//         static const Uint32 PHASED;
+//         static const Uint32 PARTIAL;
+//         static const Uint32 TIMEOUT;
+//         static const Uint32 SINGLE;
+//         static const Uint32 MULTIPLE;
+//         static const Uint32 TOTAL;
+// };
+
+// enum PEGASUS_EXPORT ResponseHandlerType 
+// {
+//    UNDEFINED,
+//    CIM_CLASS,
+//    CIM_INSTANCE,
+//    CIM_OBJECT,
+//    CIM_OBJECT_WITH_PATH,
+//    CIM_VALUE,
+//    CIM_INDICATION,
+//    CIM_REFERENCE, 
+//    CIM_LAST
+
+// };
+
+
+#define RESPONSE_HANDLER_TYPE_UNDEFINED 0
+#define RESPONSE_HANDLER_TYPE_CIM_CLASS 1
+#define RESPONSE_HANDLER_TYPE_CIM_INSTANCE 2
+#define RESPONSE_HANDLER_TYPE_CIM_OBJECT 3
+#define RESPONSE_HANDLER_TYPE_CIM_OBJECT_WITH_PATH 4
+#define RESPONSE_HANDLER_TYPE_CIM_VALUE 5
+#define RESPONSE_HANDLER_TYPE_CIM_INDICATION 6
+#define RESPONSE_HANDLER_TYPE_CIM_REFERENCE 7
+#define RESPONSE_HANDLER_TYPE_CIM_LAST 8
 
 // ok, create a wrapper facade around the responsehandler, 
 //  include type info and acces functions, 
@@ -84,7 +117,7 @@ enum ResponseHandlerType
 
 
 
-class PEGASUS_COMMON_LINKAGE AsyncOpNode
+class PEGASUS_EXPORT AsyncOpNode
 {
   
    public:
@@ -103,7 +136,7 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
 			  OperationContext *context,
 			  Uint32 flag,
 			  Uint32 state,
-			  ResponseHandlerType type) throw(IPCException) = 0;
+			  int type) throw(IPCException) = 0;
 
       virtual void put_req_context(OperationContext *context) throw(IPCException) = 0;
       virtual void put_proc_context(OperationContext *context) throw(IPCException)= 0;
@@ -135,16 +168,24 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
       virtual void lock(void)  throw(IPCException) = 0;
       virtual void unlock(void) throw(IPCException) = 0;
       virtual void check_owner(void) throw(IPCException) = 0;
-      virtual ResponseHandlerType get_rh_type(void) = 0;
+      virtual int get_rh_type(void) throw(IPCException) = 0;
+      virtual void put_response_handler(void *rh, int type) throw(IPCException) = 0;
+      virtual void *take_response_handler(void) throw(IPCException) = 0;
       virtual Boolean is_child(void) = 0;
       virtual Uint32 is_parent(void) = 0; 
-      virtual Boolean is_my_child(AsyncOpNode *myself) = 0;
-      virtual void make_orphan( AsyncOpNode *parent) = 0;
+      virtual Boolean is_my_child(AsyncOpNode *myself) throw(IPCException) = 0;
+      virtual void make_orphan( AsyncOpNode *parent) throw(IPCException) = 0;
 
       virtual Uint32 get_total_operations(void) = 0;
       virtual Uint32 get_completed_operations(void) = 0;
+      virtual ProviderHandle *take_provider_handle(void) throw(IPCException) = 0;
+      virtual void put_provider_handle(ProviderHandle *handle) throw(IPCException) = 0;
+      virtual int get_error_code(void) throw(IPCException) = 0;
+      virtual String get_error_description(void) throw(IPCException) = 0 ;
+      virtual void put_dispatch_async_struct(void *) throw (IPCException) = 0;
+      virtual void *take_dispatch_async_struct(void) throw (IPCException) = 0;
 };
 
-PEGASUS_NAMESPACE_END
+ PEGASUS_NAMESPACE_END
 
 #endif //Pegasus_AsyncOpNode_h

@@ -1,4 +1,4 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%///////-*-c++-*-/////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
 // The Open Group, Tivoli Systems
@@ -40,6 +40,7 @@
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/AsyncOpNode.h>
+#include <Pegasus/Common/AsyncOpNodeLocal.h>
 #include <Pegasus/Common/AsyncResponseHandler.h>
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Server/ProviderManager.h>
@@ -52,11 +53,45 @@ class CIMRepository;
 class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher : public MessageQueue
 {
 public:
+      typedef void (CIMOperationRequestDispatcher::*p_handler)(AsyncOpNode *);
+      typedef struct op_async
+      {
+	    CIMOperationRequestDispatcher *dispatcher;
+	    p_handler top_half;
+	    p_handler bottom_half;
+	    AsyncOpNode *work;
+	    op_async(CIMOperationRequestDispatcher *d, 
+			       p_handler top, 
+			       p_handler bottom,
+			       AsyncOpNode *op)
+	    {
+	       dispatcher = d;
+	       top_half = top;
+	       bottom_half = bottom;
+	       work = op;
+	    }
+	    
+	    inline Boolean operator==(const void *key) const 
+	    { 
+	       if ( this == key) 
+		  return(true); 
+	       return(false);
+	    } 
+	    inline Boolean operator==(const struct op_async & b) const
+	    {
+	       return(operator==((const void *)this));
+	    }
+// call (dispatcher->*top)(work_node);
+//	(dispatcher->*bottom)(work_node);    
 
+      }CIMOperation_async;
+
+      static void async_dispatcher(void *);
+      
     CIMOperationRequestDispatcher(CIMRepository* repository);
 
     virtual ~CIMOperationRequestDispatcher();
-
+      
     virtual void handleEnqueue();
 
     virtual const char* getQueueName() const;
@@ -80,6 +115,7 @@ public:
 	CIMCreateInstanceRequestMessage* request);
 
     void handleModifyClassRequest(
+
 	CIMModifyClassRequestMessage* request);
 
     void handleModifyInstanceRequest(
@@ -146,15 +182,29 @@ protected:
 	const String& nameSpace,
 	const String& className);
 
-    CIMRepository* _repository;
-    ProviderManager _providerManager;
-    
-    internal_dq _response_handler_cache[CIM_LAST - 1];
-    AsyncDQueue<OperationContext> _context_cache;
-    AsyncDQueue<AsyncOpNode> _opnode_cache;
-    AsyncDQueue<AsyncOpNode> _started_ops;
-    AsyncDQueue<AsyncOpNode> _completed_ops;
-    
+      CIMRepository* _repository;
+      ProviderManager _providerManager;
+      
+      Thread _dispatch_thread;
+      ThreadPool _dispatch_pool; 
+      
+      static  PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _qthread (void *);
+      internal_dq _response_handler_cache[RESPONSE_HANDLER_TYPE_CIM_LAST - 1];
+           
+      DQueue<OperationContext> _context_cache;
+      DQueue<CIMOperation_async> _async_cache;
+      DQueue<AsyncOpNode> _opnode_cache;
+      AsyncDQueue<AsyncOpNode> _waiting_ops;
+      AsyncDQueue<AsyncOpNode> _started_ops;
+      AsyncDQueue<AsyncOpNode> _completed_ops;
+      
+      Boolean _dying ;
+      friend void async_operation_dispatch(CIMOperationRequestDispatcher *d, 
+					   void (CIMOperationRequestDispatcher::*top)(AsyncOpNode *),
+					   void (CIMOperationRequestDispatcher::*bottom)(AsyncOpNode *),
+					   int rh_type,
+					   Message *request) 
+	 throw(IPCException) ;
 };
 
 PEGASUS_NAMESPACE_END

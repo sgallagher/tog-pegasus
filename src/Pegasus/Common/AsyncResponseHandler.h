@@ -40,17 +40,35 @@
 #include <Pegasus/Common/AsyncOpNode.h>
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Provider2/CIMBaseProviderHandle.h>
-
+#include <Pegasus/Provider2/CIMIndicationProvider.h>
 
 PEGASUS_NAMESPACE_BEGIN
-template<class object_type>
-class PEGASUS_COMMON_LINKAGE AsyncResponseHandler : public ResponseHandler<object_type>
+
+PEGASUS_EXPORT void *create_rh(int type);
+PEGASUS_EXPORT void delete_rh(void *handler, int type);
+
+
+template<class PEGASUS_EXPORT object_type>
+class PEGASUS_EXPORT AsyncResponseHandler : public ResponseHandler<object_type>
 {
    public:
   
-      AsyncResponseHandler(ResponseHandlerType type) ;
+      AsyncResponseHandler<object_type>(void)
+	 : _parent(0), _provider(0), _thread(0), _type(0)
+      {
+	 _objects = (Array<object_type> *)new Array<object_type>();
+	 gettimeofday(&_key, NULL);
+      }
+      AsyncResponseHandler<object_type>(int type) 
+	 : _parent(0), _provider(0), _thread(0),
+	   _type(type)
+      { 
+	 _objects = (Array<object_type> *)new Array<object_type>();
+	 gettimeofday(&_key, NULL);
+      }
 
-      ~AsyncResponseHandler(void) ;
+      ~AsyncResponseHandler(void) {}
+            
       
       virtual void deliver(const object_type & object) ;
 
@@ -82,19 +100,19 @@ class PEGASUS_COMMON_LINKAGE AsyncResponseHandler : public ResponseHandler<objec
 
 
       virtual Boolean operator == (const void *key) const;
-      virtual Boolean operator == (ResponseHandlerType type) const;
+      virtual Boolean operator == (int type) const;
       virtual Boolean operator == (const AsyncResponseHandler & rh) const;
       
 
    private:
 
-      AsyncResponseHandler(void);
+     
       AsyncOpNode *_parent;
       CIMBaseProviderHandle *_provider;
       // to gain access to the Thread object's utility routines 
       Thread *_thread;
       Array<object_type> *_objects;
-      ResponseHandlerType _type;
+      int _type;
       struct timeval _key;
       void _clear(void);
       friend class AsyncOpNode;
@@ -106,45 +124,45 @@ template<class object_type>
 inline void AsyncResponseHandler<object_type>::deliver(const object_type & object)
 {
    _objects->append(object);
-   _parent->notify(&_key,  NULL, AsyncOpFlags::DELIVER, 
-		   AsyncOpState::SINGLE | AsyncOpState::NORMAL , _type);
+   _parent->notify(&_key,  NULL, ASYNC_OPFLAGS_DELIVER, 
+		   ASYNC_OPSTATE_SINGLE | ASYNC_OPSTATE_NORMAL , _type);
 }
 
 template<class object_type>
 inline void AsyncResponseHandler<object_type>::deliver(const Array<object_type> & objects) 
 {
    _objects->appendArray(objects);
-   _parent->notify(&_key,  NULL, AsyncOpFlags::DELIVER, 
-		   AsyncOpState::MULTIPLE | AsyncOpState::NORMAL , _type);
+   _parent->notify(&_key,  NULL, ASYNC_OPFLAGS_DELIVER, 
+		   ASYNC_OPSTATE_MULTIPLE | ASYNC_OPSTATE_NORMAL , _type);
 }
 
 
 template<class object_type>
 inline void AsyncResponseHandler<object_type>::processing(void) 
 {
-   _parent->notify(&_key, NULL, AsyncOpFlags::PROCESSING, 
-		   AsyncOpState::NORMAL, _type);
+   _parent->notify(&_key, NULL, ASYNC_OPFLAGS_PROCESSING, 
+		   ASYNC_OPSTATE_NORMAL, _type);
 }
 
 template<class object_type>
 inline void AsyncResponseHandler<object_type>::processing(OperationContext *context) 
 {
-   _parent->notify(&_key, context, AsyncOpFlags::PROCESSING, 
-		   AsyncOpState::NORMAL, _type);
+   _parent->notify(&_key, context, ASYNC_OPFLAGS_PROCESSING, 
+		   ASYNC_OPSTATE_NORMAL, _type);
 }
 
 template<class object_type>
 inline void AsyncResponseHandler<object_type>::complete(void) 
 {
-   _parent->notify(&_key, NULL, AsyncOpFlags::COMPLETE, 
-		   AsyncOpState::NORMAL, _type);
+   _parent->notify(&_key, NULL, ASYNC_OPFLAGS_COMPLETE, 
+		   ASYNC_OPSTATE_NORMAL, _type);
 }
 
 template<class object_type>
 inline void AsyncResponseHandler<object_type>::complete(OperationContext *context) 
 {
-   _parent->notify(&_key, context, AsyncOpFlags::COMPLETE,
-		   AsyncOpState::NORMAL, _type);
+   _parent->notify(&_key, context, ASYNC_OPFLAGS_COMPLETE,
+		   ASYNC_OPSTATE_NORMAL, _type);
 }
 
 template<class object_type>
@@ -176,7 +194,7 @@ inline Boolean AsyncResponseHandler<object_type>::operator == (const void *key) 
 }
 
 template<class object_type>
-inline Boolean AsyncResponseHandler<object_type>::operator == (ResponseHandlerType type) const
+inline Boolean AsyncResponseHandler<object_type>::operator == (int type) const
 {
    if(_type == type)
       return true;
@@ -189,6 +207,9 @@ inline Boolean AsyncResponseHandler<object_type>::operator == (
 {
    return(this->operator ==((void *)&(rh._key)));
 }
+
+
+
 
 
 

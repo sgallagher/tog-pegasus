@@ -26,19 +26,78 @@
 //
 //%////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/ResponseHandler.h>
 #include <Pegasus/Common/AsyncResponseHandler.h>
 
-PEGASUS_NAMESPACE_BEGIN 
+PEGASUS_NAMESPACE_BEGIN
 
-template<class object_type>
-AsyncResponseHandler<object_type>::AsyncResponseHandler(ResponseHandlerType type)
-   : _parent(0), _provider(0), _thread(0),
-     _type(type) 
-{ 
-   _objects = (Array<object_type> *)new Array<object_type>();
-   gettimeofday(&_key, NULL);
+PEGASUS_EXPORT void delete_rh(void *handler, int type) 
+   throw(TypeMismatch)
+{
+   if(handler == NULL)
+      return;
+   switch(type)
+   {
+      case RESPONSE_HANDLER_TYPE_UNDEFINED:
+	 break;
+      case RESPONSE_HANDLER_TYPE_CIM_CLASS:
+	 delete reinterpret_cast< AsyncResponseHandler<CIMClass> *>(handler);
+	 break;
+      case RESPONSE_HANDLER_TYPE_CIM_INSTANCE:
+	 delete reinterpret_cast<AsyncResponseHandler<CIMInstance> *>(handler);
+	 break;
+      case RESPONSE_HANDLER_TYPE_CIM_OBJECT:
+	 delete reinterpret_cast<AsyncResponseHandler<CIMObject> *>(handler);
+	 break;
+      case RESPONSE_HANDLER_TYPE_CIM_OBJECT_WITH_PATH:
+	 delete reinterpret_cast<AsyncResponseHandler<CIMObjectWithPath> *>(handler);
+	 break;
+      case RESPONSE_HANDLER_TYPE_CIM_VALUE:
+	 delete reinterpret_cast<AsyncResponseHandler<CIMValue> *>(handler);
+	 break;
+      case RESPONSE_HANDLER_TYPE_CIM_INDICATION:
+	 delete reinterpret_cast<AsyncResponseHandler<CIMIndication> *>(handler);
+	 break;
+      case RESPONSE_HANDLER_TYPE_CIM_REFERENCE:
+	 delete reinterpret_cast<AsyncResponseHandler<CIMReference> *>(handler);
+      default:
+	 throw TypeMismatch();
+   }
 }
 
+PEGASUS_EXPORT void * create_rh(int type) 
+  throw(TypeMismatch)
+{
+   void *ret = 0;
+   switch(type)
+   {
+      case RESPONSE_HANDLER_TYPE_UNDEFINED:
+	 break;
+      case RESPONSE_HANDLER_TYPE_CIM_CLASS:
+	 ret = (void *) new AsyncResponseHandler<CIMClass>;
+	 break;	 
+      case RESPONSE_HANDLER_TYPE_CIM_INSTANCE:
+	 ret = reinterpret_cast<void *>( new AsyncResponseHandler<CIMInstance> );
+	 break;
+      case RESPONSE_HANDLER_TYPE_CIM_OBJECT:
+	 ret = reinterpret_cast<void *> (new AsyncResponseHandler<CIMObject> );
+	 break;
+      case RESPONSE_HANDLER_TYPE_CIM_OBJECT_WITH_PATH:
+	 ret = reinterpret_cast<void *> (new AsyncResponseHandler<CIMObjectWithPath> );
+	 break;
+      case RESPONSE_HANDLER_TYPE_CIM_VALUE:
+	 ret = reinterpret_cast<void *> (new AsyncResponseHandler<CIMValue> );
+	 break;
+      case RESPONSE_HANDLER_TYPE_CIM_INDICATION:
+	 ret = reinterpret_cast<void *> (new AsyncResponseHandler<CIMIndication> );
+	 break;
+      case RESPONSE_HANDLER_TYPE_CIM_REFERENCE:
+	 ret = reinterpret_cast<void *> (new AsyncResponseHandler<CIMReference> );
+      default:
+	 throw TypeMismatch();
+   }
+   return ret;
+}
 
 template<class object_type>
 void AsyncResponseHandler<object_type>::reserve(const Uint32 size) 
@@ -48,8 +107,8 @@ void AsyncResponseHandler<object_type>::reserve(const Uint32 size)
    OperationContext *context = new OperationContext();
    context->set_uint_val(size);
    // parent can inspect the context and set the total operations value
-   _parent->notify(&_key, context, AsyncOpFlags::RESERVE, 
-		   AsyncOpState::NORMAL, _type);
+   _parent->notify(&_key, context, ASYNC_OPFLAGS_RESERVE, 
+		   ASYNC_OPSTATE_NORMAL, _type);
 }
 
 
@@ -67,8 +126,6 @@ void AsyncResponseHandler<object_type>::_clear(void)
    else
       _objects->clear();
 }
-
-
 
 
 PEGASUS_NAMESPACE_END

@@ -32,27 +32,24 @@ PEGASUS_USING_STD;
 
 
 PEGASUS_NAMESPACE_BEGIN
-
-const Uint32 AsyncOpFlags::UNKNOWN           = 0x00000000;
-const Uint32 AsyncOpFlags::DELIVER           = 0x00000001; 
-const Uint32 AsyncOpFlags::RESERVE           = 0x00000002;
-const Uint32 AsyncOpFlags::PROCESSING        = 0x00000004;
-const Uint32 AsyncOpFlags::COMPLETE          = 0x00000008;
-const Uint32 AsyncOpFlags::INTERVAL_REPEAT   = 0x00000010;
-const Uint32 AsyncOpFlags::INDICATION        = 0x00000020;
-const Uint32 AsyncOpFlags::REMOTE            = 0x00000040;
-const Uint32 AsyncOpFlags::LOCAL_OUT_OF_PROC = 0x00000080;
-
-
-const Uint32 AsyncOpState::NORMAL            = 0x00000000;
-const Uint32 AsyncOpState::PHASED            = 0x00000001;
-const Uint32 AsyncOpState::PARTIAL           = 0x00000002;
-const Uint32 AsyncOpState::TIMEOUT           = 0x00000004;
-const Uint32 AsyncOpState::SINGLE            = 0x00000008;
-const Uint32 AsyncOpState::MULTIPLE          = 0x00000010;
-const Uint32 AsyncOpState::TOTAL             = 0x00000020;
+//  const Uint32 AsyncOpFlags::UNKNOWN           = 0x00000000;
+//  const Uint32 AsyncOpFlags::DELIVER           = 0x00000001; 
+//  const Uint32 AsyncOpFlags::RESERVE           = 0x00000002;
+//  const Uint32 AsyncOpFlags::PROCESSING        = 0x00000004;
+//  const Uint32 AsyncOpFlags::COMPLETE          = 0x00000008;
+//  const Uint32 AsyncOpFlags::INTERVAL_REPEAT   = 0x00000010;
+//  const Uint32 AsyncOpFlags::INDICATION        = 0x00000020;
+//  const Uint32 AsyncOpFlags::REMOTE            = 0x00000040;
+//  const Uint32 AsyncOpFlags::LOCAL_OUT_OF_PROC = 0x00000080;
 
 
+//  const Uint32 AsyncOpState::NORMAL            = 0x00000000;
+//  const Uint32 AsyncOpState::PHASED            = 0x00000001;
+//  const Uint32 AsyncOpState::PARTIAL           = 0x00000002;
+//  const Uint32 AsyncOpState::TIMEOUT           = 0x00000004;
+//  const Uint32 AsyncOpState::SINGLE            = 0x00000008;
+//  const Uint32 AsyncOpState::MULTIPLE          = 0x00000010;
+//  const Uint32 AsyncOpState::TOTAL             = 0x00000020;
 
 
 PEGASUS_NAMESPACE_END

@@ -28,6 +28,7 @@
 //               Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //               Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //               Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//               Mike Day (mdday@us.ibm.com) 
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -46,21 +47,92 @@ PEGASUS_USING_STD;
 #define DDD(X) // X
 
 DDD(static const char* _DISPATCHER = "CIMOperationRequestDispatcher::";)
+   
+   
+struct timeval alloc_wait = { 0, 40 };
+struct timeval dealloc_wait = { 10, 0 };
+struct timeval deadlock_detect = { 5, 0 };
+
+
+void async_operation_dispatch(CIMOperationRequestDispatcher *d, 
+			      void (CIMOperationRequestDispatcher::*top)(AsyncOpNode *),
+			      void (CIMOperationRequestDispatcher::*bottom)(AsyncOpNode *),
+			      int rh_type, 
+			      Message *request)
+			      
+   throw(IPCException)
+{
+   
+   // allocate a CIM Operation_async,  opnode, context, and response handler
+   // initialize with pointers to async top and async bottom
+   // link to the waiting q
+   
+
+   //----------------------------------------------------------------- 
+   // 1 - get all the resources we need to start an async operation
+   //-----------------------------------------------------------------
+   AsyncOpNodeLocal *node;
+   CIMOperationRequestDispatcher::CIMOperation_async *operation;
+   OperationContext *context;
+   void *response_handler;
+   
+   node = static_cast<AsyncOpNodeLocal *>(d->_opnode_cache.remove_first());
+   if(node == 0)
+      node = new AsyncOpNodeLocal();
+
+   operation = d->_async_cache.remove_first();
+   if(operation == 0)
+      operation = new CIMOperationRequestDispatcher::CIMOperation_async(d, top, bottom, node);
+
+   
+   context = d->_context_cache.remove_first();
+   if(context == 0)
+      context = new OperationContext();
+
+   response_handler = d->_response_handler_cache[rh_type].remove_first();
+   if(response_handler == 0)
+      response_handler = create_rh(rh_type);
+
+   //-----------------------------------------------------------------
+   // 2 - lock the op node and initialize it with the other resources
+   //-----------------------------------------------------------------
+
+   node->lock();
+   node->put_dispatch_async_struct(operation);
+   node->put_request(request);
+   node->put_req_context(context);
+   node->put_response_handler(response_handler, rh_type);
+
+   node->set_state_bits(ASYNC_OPSTATE_NORMAL | ASYNC_OPSTATE_SINGLE);
+   node->set_flag_bits(ASYNC_OPFLAGS_UNKNOWN);
+   
+   //-----------------------------------------------------------------
+   // 3 - unlock the node and put it on the waitng operations queue
+   //-----------------------------------------------------------------
+   
+   node->unlock();
+   d->_waiting_ops.insert_last(node);
+   return;
+}
+
+
 
 CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(CIMRepository* repository)
    : _repository(repository), _providerManager(this, repository),
-     _context_cache(true, 15), _opnode_cache(true, 15), 
-     _started_ops(true, 10), _completed_ops(true, 10)
-     
+     _dispatch_thread(_qthread, this, false),
+     _dispatch_pool(10, "CIMOp dispatch", 5, 30, alloc_wait, dealloc_wait, deadlock_detect),
+     _context_cache(true), _async_cache(true), _opnode_cache(true), _waiting_ops(true, 100),
+     _started_ops(true, 100),  _completed_ops(true, 100), _dying(false)
+   
 {
-   _response_handler_cache[CIM_CLASS] = AsyncDQueue<AsyncResponseHandler<CIMClass> >(true, 5);
-   _response_handler_cache[CIM_INSTANCE] = AsyncDQueue<AsyncResponseHandler<CIMInstance> >(true, 5);
-   _response_handler_cache[CIM_OBJECT] = AsyncDQueue<AsyncResponseHandler<CIMObject> >(true, 5);
-   _response_handler_cache[CIM_OBJECT_WITH_PATH] = AsyncDQueue<AsyncResponseHandler<CIMObjectWithPath> >(true, 5);
-   _response_handler_cache[CIM_VALUE] = AsyncDQueue<AsyncResponseHandler<CIMValue> >(true, 5);
-   _response_handler_cache[CIM_INDICATION] = AsyncDQueue<AsyncResponseHandler<CIMIndication> >(true, 5);
-   _response_handler_cache[CIM_REFERENCE] = AsyncDQueue<AsyncResponseHandler<CIMReference> >(true, 5);
-
+   _response_handler_cache[RESPONSE_HANDLER_TYPE_CIM_CLASS] = DQueue<AsyncResponseHandler<CIMClass> >(true);
+   _response_handler_cache[RESPONSE_HANDLER_TYPE_CIM_INSTANCE] = DQueue<AsyncResponseHandler<CIMInstance> >(true);
+   _response_handler_cache[RESPONSE_HANDLER_TYPE_CIM_OBJECT] = DQueue<AsyncResponseHandler<CIMObject> >(true);
+   _response_handler_cache[RESPONSE_HANDLER_TYPE_CIM_OBJECT_WITH_PATH] = DQueue<AsyncResponseHandler<CIMObjectWithPath> >(true);   
+   _response_handler_cache[RESPONSE_HANDLER_TYPE_CIM_VALUE] = DQueue<AsyncResponseHandler<CIMValue> >(true);
+   _response_handler_cache[RESPONSE_HANDLER_TYPE_CIM_INDICATION] = DQueue<AsyncResponseHandler<CIMIndication> >(true);
+   _response_handler_cache[RESPONSE_HANDLER_TYPE_CIM_REFERENCE] = DQueue<AsyncResponseHandler<CIMReference> >(true);
+   
     DDD(cout << _DISPATCHER << endl;)
 }
 
@@ -135,12 +207,20 @@ void CIMOperationRequestDispatcher::_enqueueResponse(
     queue->enqueue(response);
 }
 
+
+// allocate a CIM Operation_async,  opnode, context, and response handler
+// initialize with pointers to async top and async bottom
+// link to the waiting q
+
 void CIMOperationRequestDispatcher::handleEnqueue()
 {
     Message* request = dequeue();
 
     if (!request)
 	return;
+    
+
+    
 
     switch (request->getType())
     {
@@ -340,7 +420,8 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 	if(providerName.size() != 0)
 	{
 		// attempt to load provider
-		ProviderHandle * provider = _providerManager.getProvider(providerName, className);
+	   ProviderHandle * provider = _providerManager.getProvider(providerName, className);
+
 
 		cimInstance = provider->getInstance(
 		OperationContext(),
@@ -1294,5 +1375,56 @@ void CIMOperationRequestDispatcher::handleUpdateIndicationRequest(
     //ATTN: Implement loading of provider and then call updateIndication()
     cout << "ATTN : implement updateIndication" << endl;
 }
+
+// this is a static class method
+void CIMOperationRequestDispatcher::async_dispatcher(void *parm)
+{
+
+   // call the top half dispatcher when starting the operation
+   (((reinterpret_cast<CIMOperation_async *>(parm))->dispatcher)->*((reinterpret_cast<CIMOperation_async *>(parm))->top_half))((reinterpret_cast<CIMOperation_async *>(parm))->work);
+
+   // call the bottom half dispatcher when completing the operation
+   (((reinterpret_cast<CIMOperation_async *>(parm))->dispatcher)->*((reinterpret_cast<CIMOperation_async *>(parm))->bottom_half))((reinterpret_cast<CIMOperation_async *>(parm))->work);
+
+}
+
+// static class method 
+
+// 1 - pull all nodes off the waiting list and start them, then put them on the started list
+// 2 - check the started list for nodes that are complete
+//     unlink completed nodes and dispatch them
+//     put completed nodes on the completed list
+// 3 - if no nodes from step 2, recycle nodes on the completed list
+
+
+
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL CIMOperationRequestDispatcher::_qthread(void *parm)
+{
+   Thread *myself = reinterpret_cast<Thread *>(parm);
+   if(myself == 0)
+      throw NullPointer();
+   
+   CIMOperationRequestDispatcher *dispatcher =
+      reinterpret_cast<CIMOperationRequestDispatcher *>(myself->get_parm());
+   if(dispatcher == 0)
+      throw NullPointer();
+      
+   while(dispatcher->_dying == false)
+   {
+
+      // nodes on the started list 
+
+      AsyncOpNode *worknode = 0;
+      
+   
+      
+   }
+   myself->test_cancel();
+   myself->exit_self(0);
+   return((PEGASUS_THREAD_RETURN)0);
+
+}
+
+
 
 PEGASUS_NAMESPACE_END

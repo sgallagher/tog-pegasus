@@ -34,79 +34,112 @@
 #include <Pegasus/Common/DQueue.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/AsyncOpNode.h>
-#include <Pegasus/Common/ResponseHandler.h>
-#include <Pegasus/Common/CIMMessage.h>
-#include <Pegasus/Common/CIMIndication.h>
-
+#include <Pegasus/Common/AsyncResponseHandler.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_COMMON_LINKAGE AsyncOpNodeLocal : public AsyncOpNode
+//void Pegasus::delete_rh(void *handler, ResponseHandlerType type)
+//   throw(TypeMismatch) ;
+
+class PEGASUS_EXPORT AsyncOpNodeLocal : public AsyncOpNode
 {
    public:
       AsyncOpNodeLocal(void);
       ~AsyncOpNodeLocal(void);
             
-      virtual void reset(void) throw(IPCException);
-      virtual Boolean  operator == (const void *key) const;
-      virtual Boolean operator == (const AsyncOpNode & node) const;
+      void reset(void) throw(IPCException);
+      Boolean  operator == (const void *key) const;
+      Boolean operator == (const AsyncOpNode & node) const;
+      virtual Boolean timeout(void) throw(IPCException) ;
 
-      virtual void notify(const void *key,
-			  OperationContext *context,
-			  Uint32 flag,
-			  Uint32 state,
-			  ResponseHandlerType type) throw(IPCException);
+      void notify(const void *key,
+		  OperationContext *context,
+		  Uint32 flag,
+		  Uint32 state,
+		  int type) throw(IPCException);
 
-      virtual void put_req_context(OperationContext *context) throw(IPCException);
-      virtual void put_proc_context(OperationContext *context) throw(IPCException);
-      virtual void put_completion_context(OperationContext *context) throw(IPCException);
+      void put_req_context(OperationContext *context) throw(IPCException);
+      void put_proc_context(OperationContext *context) throw(IPCException);
+      void put_completion_context(OperationContext *context) throw(IPCException);
       
-      virtual OperationContext *take_req_context(void) throw(IPCException);
-      virtual OperationContext *take_proc_context(void) throw(IPCException);
-      virtual OperationContext *take_completion_context(void) throw(IPCException);
+      OperationContext *take_req_context(void) throw(IPCException);
+      OperationContext *take_proc_context(void) throw(IPCException);
+      OperationContext *take_completion_context(void) throw(IPCException);
       
-      virtual void put_request(Message *request) throw(IPCException);
-      virtual Message *take_request(void) throw(IPCException);
+      void put_request(Message *request) throw(IPCException);
+      Message *take_request(void) throw(IPCException);
       
-      virtual void put_response(Message *response) throw(IPCException);
-      virtual Message *take_response(void) throw(IPCException);
+      void put_response(Message *response) throw(IPCException);
+      Message *take_response(void) throw(IPCException);
       
-      virtual void set_state_bits(Uint32 bits) throw(IPCException);
-      virtual void clear_state_bits(Uint32 bits) throw(IPCException);
-      virtual Uint32 get_state(void) throw(IPCException);
-      virtual Boolean test_state_bit(Uint32 mask) throw(IPCException);
+      void set_state_bits(Uint32 bits) throw(IPCException);
+      void clear_state_bits(Uint32 bits) throw(IPCException);
+      Uint32 get_state(void) throw(IPCException);
+      Boolean test_state_bit(Uint32 mask) throw(IPCException);
       
-      virtual void set_flag_bits(Uint32 bits) throw(IPCException);
-      virtual void clear_flag_bits(Uint32 bits) throw(IPCException);
-      virtual Uint32 get_flag_bits(void) throw(IPCException);
-      virtual Boolean test_flag_bit(Uint32 mask) throw(IPCException);
+      void set_flag_bits(Uint32 bits) throw(IPCException);
+      void clear_flag_bits(Uint32 bits) throw(IPCException);
+      Uint32 get_flag_bits(void) throw(IPCException);
+      Boolean test_flag_bit(Uint32 mask) throw(IPCException);
       
-      virtual void set_lifetime(struct timeval *lifetime) throw(IPCException);
-      virtual Boolean check_lifetime(struct timeval *dst) throw(IPCException);
-      virtual void lock(void)  throw(IPCException);
-      virtual void unlock(void) throw(IPCException);
-      virtual void check_owner(void) throw(IPCException);
-      virtual ResponseHandlerType get_rh_type(void) throw(IPCException);
-      virtual Boolean is_child(void) { if(_parent != NULL) return true; return false; }
-      virtual Uint32 is_parent(void) { return _children.count();}
-      virtual Boolean is_my_child(AsyncOpNode *myself) 
+      void set_lifetime(struct timeval *lifetime) throw(IPCException);
+      Boolean check_lifetime(void) const throw(IPCException);
+      void lock(void)  throw(IPCException);
+      void unlock(void) throw(IPCException);
+      void check_owner(void) throw(IPCException);
+
+      int get_rh_type(void) throw(IPCException);
+      void put_response_handler(void *rh, int type) throw(IPCException);
+      void *take_response_handler(void) throw(IPCException);
+      
+      Boolean is_child(void) { if(_parent != NULL) return true; return false; }
+      Uint32 is_parent(void) { return _children.count();}
+      Boolean is_my_child(AsyncOpNode *myself) 
+	 throw(IPCException)
       {
+	 check_owner();
 	 if ((AsyncOpNode *)_parent == myself)
 	    return true;
 	 return false;
       }
-      virtual void make_orphan( AsyncOpNode *parent)
+      void make_orphan( AsyncOpNode *parent)
       {
+	 check_owner();
 	 if(parent == (AsyncOpNode *) _parent)
 	    _parent = NULL;
 	 else
 	    throw Permission(pegasus_thread_self());
       }
       
-      virtual Uint32 get_total_operations(void) { return _total_ops; }
-      
-      virtual Uint32 get_completed_operations(void) { return _completed_ops; }
+      Uint32 get_total_operations(void) { return _total_ops.value(); }
+      Uint32 get_completed_operations(void) { return _completed_ops.value(); }
 
+      ProviderHandle *take_provider_handle(void) throw(IPCException)
+      {
+	 check_owner();
+	 ProviderHandle *ret = _provider;
+	 _provider = 0;
+	 return ret;
+      }
+      
+      void put_provider_handle(ProviderHandle *handle) throw(IPCException)
+      {
+	 check_owner();
+	 delete _provider;
+	 _provider = handle;
+      }
+      
+      int get_error_code(void) throw(IPCException) { return _err_code; }
+      
+      String get_error_description(void ) throw(IPCException) 
+      { 
+	 return String(_err_description);
+      }
+      void put_dispatch_async_struct(void *) throw (IPCException);
+      void *take_dispatch_async_struct(void) throw (IPCException);
+
+
+      
    private:
       Mutex _mut;
       Message *_request;
@@ -116,18 +149,22 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNodeLocal : public AsyncOpNode
       OperationContext *_comp_ctx;
       Uint32 _state;
       Uint32 _flags;
-      Uint32 _total_ops;
-      Uint32 _completed_ops;
+      AtomicInt _total_ops;
+      AtomicInt _completed_ops;
       struct timeval _start;
       struct timeval _lifetime;
       struct timeval _updated;
       struct timeval _timeout_interval;
-      ResponseHandlerType _rh_type;
-      void *_responseHandler;
+      int _rh_type;
+      void *_response_handler;
+      ProviderHandle *_provider;
+      void *_dispatch_async_struct;
 
       AsyncOpNode *_parent;
-      AsyncDQueue<AsyncOpNode> _children;
-
+      DQueue<AsyncOpNode> _children;
+      int _err_code;
+      String _err_description;
+      
       void _adopt_child(AsyncOpNodeLocal *child) throw(IPCException) ;
       void _disown_child(AsyncOpNodeLocal *child) throw(IPCException);
       void _put_ctx(OperationContext **dst, OperationContext *src) 
@@ -218,6 +255,22 @@ inline Boolean AsyncOpNodeLocal::operator == (const AsyncOpNode & node) const
 {
    return AsyncOpNodeLocal::operator==((const void *)&node);
 }
+
+
+inline Boolean AsyncOpNodeLocal::timeout(void) 
+   throw(IPCException) 
+{
+   check_owner();
+   struct timeval now;
+   gettimeofday(&now, NULL);
+   
+   if((_updated.tv_sec + _timeout_interval.tv_sec ) >= now.tv_sec)
+      if((_updated.tv_usec + _timeout_interval.tv_usec ) >= now.tv_usec)
+	 return true;
+   return false;
+}
+
+
 
 inline  void AsyncOpNodeLocal::put_req_context(OperationContext *context) 
    throw(IPCException)
@@ -339,6 +392,21 @@ inline  void AsyncOpNodeLocal::set_lifetime(struct timeval *lifetime)
    _lifetime.tv_usec = lifetime->tv_usec;
 }
 
+inline Boolean AsyncOpNodeLocal::check_lifetime(void) const 
+   throw(IPCException)
+{
+   const_cast<AsyncOpNodeLocal *>(this)->check_owner();
+   struct timeval now;
+   gettimeofday(&now, NULL);
+   
+   
+   if((_start.tv_sec + _lifetime.tv_sec ) >= now.tv_sec)
+      if((_start.tv_usec + _lifetime.tv_usec ) >= now.tv_usec)
+	 return true;
+   return false;
+}
+
+
 inline  void AsyncOpNodeLocal::lock(void)  
    throw(IPCException) 
 {
@@ -358,12 +426,13 @@ inline  void AsyncOpNodeLocal::check_owner(void) throw(IPCException)
    return;
 }
 
-inline ResponseHandlerType AsyncOpNodeLocal::get_rh_type(void) 
+inline int AsyncOpNodeLocal::get_rh_type(void) 
    throw(IPCException)
 {
    check_owner();
    return _rh_type;
 }
+
 
 
 inline void AsyncOpNodeLocal::_adopt_child(AsyncOpNodeLocal *child) 
@@ -376,7 +445,6 @@ inline void AsyncOpNodeLocal::_adopt_child(AsyncOpNodeLocal *child)
    child->_parent = this;
    _children.insert_last(child);
 }
-
       
 inline void AsyncOpNodeLocal::_disown_child(AsyncOpNodeLocal *child)
    throw(IPCException)
@@ -388,6 +456,44 @@ inline void AsyncOpNodeLocal::_disown_child(AsyncOpNodeLocal *child)
    child->make_orphan(this);
    _children.remove(child);
 } 
+
+inline void AsyncOpNodeLocal::put_dispatch_async_struct(void *d)
+   throw (IPCException)
+{
+   check_owner();
+   ::operator delete(_dispatch_async_struct);
+   _dispatch_async_struct = d;
+   return;
+}
+
+inline void *AsyncOpNodeLocal::take_dispatch_async_struct(void )
+   throw (IPCException)
+{
+   check_owner();
+   void *tmp = _dispatch_async_struct;
+   _dispatch_async_struct = 0;
+   return(tmp);
+}
+
+
+inline void AsyncOpNodeLocal::put_response_handler(void *rh, int type) 
+   throw(IPCException)
+{
+   check_owner();
+   delete_rh(_response_handler, _rh_type);
+   _rh_type = type;
+   _response_handler = rh;
+}
+
+inline void *AsyncOpNodeLocal::take_response_handler(void) 
+   throw(IPCException)
+{
+   void *tmp = _response_handler;
+   delete_rh(_response_handler, _rh_type);
+   _response_handler = 0;
+   return(tmp);
+}
+
 
 PEGASUS_NAMESPACE_END
 

@@ -27,54 +27,21 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/AsyncOpNodeLocal.h>
+#include <Pegasus/Common/AsyncResponseHandler.h>
 #include <Pegasus/Common/ResponseHandler.h>
 
 PEGASUS_NAMESPACE_BEGIN
-namespace 
-{
    
-   void delete_rh(void *handler, ResponseHandlerType type)
-      throw(TypeMismatch)
-   {
-      if(handler == NULL)
-	 return;
-      switch(type)
-      {
-	 case UNDEFINED:
-	    break;
-	 case CIM_CLASS:
-	    delete reinterpret_cast<ResponseHandler<CIMClass> *>(handler);
-	    break;
-	 case CIM_INSTANCE:
-	    delete reinterpret_cast<ResponseHandler<CIMInstance> *>(handler);
-	    break;
-	 case CIM_OBJECT:
-	    delete reinterpret_cast<ResponseHandler<CIMObject> *>(handler);
-	    break;
-	 case CIM_OBJECT_WITH_PATH:
-	    delete reinterpret_cast<ResponseHandler<CIMObjectWithPath> *>(handler);
-	    break;
-	 case CIM_VALUE:
-	    delete reinterpret_cast<ResponseHandler<CIMValue> *>(handler);
-	    break;
-	 case CIM_INDICATION:
-	    delete reinterpret_cast<ResponseHandler<CIMIndication> *>(handler);
-	    break;
-	 case CIM_REFERENCE:
-	    delete reinterpret_cast<ResponseHandler<CIMReference> *>(handler);
-	 default:
-	    throw TypeMismatch();
-      }
-   }
-}
 
 
 
 AsyncOpNodeLocal::AsyncOpNodeLocal(void) 
    : _mut(), _request(0), _response(0), _req_ctx(0), 
      _proc_ctx(0), _comp_ctx(0), _state(0), _flags(0),
-     _total_ops(0), _completed_ops(0), _responseHandler(0), 
-     _parent(0), _children(true, 100)
+     _total_ops(0), _completed_ops(0), _response_handler(0), 
+     _provider(0), _parent(0), _children(true), 
+     _err_code(0), _err_description()
+      
 {
    memset(&_start, 0x00, sizeof(struct timeval));
    memset(&_lifetime, 0x00, sizeof(struct timeval));
@@ -85,7 +52,7 @@ AsyncOpNodeLocal::AsyncOpNodeLocal(void)
 AsyncOpNodeLocal::~AsyncOpNodeLocal(void)
 {
    reset();
-   delete_rh(_responseHandler, _rh_type);
+   delete_rh(_response_handler, _rh_type);
 }
 
 void AsyncOpNodeLocal::reset(void) throw(IPCException)
@@ -103,7 +70,7 @@ void AsyncOpNodeLocal::reset(void) throw(IPCException)
 			       OperationContext *context,
 			       Uint32 flag, 
 			       Uint32 state,
-			       ResponseHandlerType type)
+			       int type)
    throw(IPCException)
 {
 
@@ -112,17 +79,17 @@ void AsyncOpNodeLocal::reset(void) throw(IPCException)
    // this allows a trickle up consolidation of complex
    // operation results
 
-   if(flag & AsyncOpFlags::COMPLETE)
+   if(flag & ASYNC_OPFLAGS_COMPLETE)
    {
 
       ;
    }
-   if(flag & AsyncOpFlags::INDICATION)
+   if(flag & ASYNC_OPFLAGS_INDICATION)
    {
       ;
    }
    
-   if(flag & AsyncOpFlags::DELIVER)
+   if(flag & ASYNC_OPFLAGS_DELIVER)
    {
       ;
    }
@@ -132,24 +99,5 @@ void AsyncOpNodeLocal::reset(void) throw(IPCException)
 
 
 
-
-
-Boolean AsyncOpNodeLocal::check_lifetime(struct timeval *dst)
-   throw(IPCException)
-{
-   check_owner();
-   struct timeval now;
-   gettimeofday(&now, NULL);
-
-   dst->tv_sec = now.tv_sec - _start.tv_sec;
-   dst->tv_usec = now.tv_usec - _start.tv_usec;
-   
-   if(dst->tv_sec <= _lifetime.tv_sec)
-      if(dst->tv_usec <= _lifetime.tv_usec)
-	 return false;
-   return true;
-}
-
- 
 
 PEGASUS_NAMESPACE_END

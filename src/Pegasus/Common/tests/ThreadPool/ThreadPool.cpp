@@ -50,10 +50,7 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL work_func(void *parm)
 {
    Uint32 sleep_interval = (Uint32)parm;
-      
-   cout << "*";
    pegasus_sleep(sleep_interval);
-   cout << "~";
    
    return 0; 
 }  
@@ -63,14 +60,16 @@ int main(int argc, char **argv)
    
    struct timeval await = { 0, 40 };
    struct timeval dwait = { 10, 0 };
-   struct timeval deadwait = { 5, 0 };
+   struct timeval deadwait = { 1, 0 };
 
-   ThreadPool tp(10, "test pool ", 5, 15, await, dwait, deadwait);
+   ThreadPool tp(10, "test pool ", 5, 15, await, dwait, deadwait);  
 
    int i = 0;
    
    for( ; i < 10; i++)
    { 
+      cout << "Thread Pool scheduling Round " << i << endl;
+      
       try 
       {
 	 tp.allocate_and_awaken((void *)0, work_func );
@@ -89,14 +88,13 @@ int main(int argc, char **argv)
 	 tp.allocate_and_awaken((void *)130, work_func );
 	 tp.allocate_and_awaken((void *)140, work_func );
 	 tp.allocate_and_awaken((void *)150, work_func );
-	 tp.allocate_and_awaken((void *)1600, work_func );  
+	 tp.allocate_and_awaken((void *)160, work_func );   
       }   
       catch(Deadlock & dl)
       {
-	 cout << "thread " << (Uint32)dl.get_owner() << " timeout waiting for thread " << endl;
+	 cout << "Thread Pool is fully in use... " << endl;
       }
-      
-   }
+   } 
    cout << "deliberately causing deadlock detection to occur ..." << endl;
    pegasus_sleep( 7000 ) ;
    tp.kill_dead_threads( );  

@@ -78,7 +78,7 @@ void mofFormat(
     Uint32 indent = 0;
     Boolean quoteState = false;
     char c;
-    while (c = *tmp++)
+    while ((c = *tmp++))
     {
 	count++;
 	switch (c)

@@ -1191,13 +1191,49 @@ void GetOptions(
     om.checkRequiredOptions();
 
 }
+
+/* Remap a long string into a string that can be positioned on a line
+   starting at pos and with length but broken into multiple lines.  
+   The input string is recreated and filled from the left so that the
+   returned string can be output as a multiline string starting at pos.
+*/
+String formatLongString (const char * input, Uint32 pos, Uint32 length)
+{
+    String output;
+    String work = input;
+    Array<String> list;
+
+    // create the fill string starting with the newline character
+    String fill;
+    fill.append("\n");
+    for (Uint32 i = 0; i < pos; i++)
+        fill.append (" ");
+    
+    list = _tokenize(work, ' ');
+    
+    for (Uint32 i = 0 ; i < list.size() ; i++)
+    {
+        // move a single word and either a space or create new line
+        if (((output.size() % length) + list[i].size()) >= (length))
+            output.append(fill);
+        else
+            output.append(" ");
+
+        output.append(list[i]);
+    }
+    return(output);
+}
 /* showCommands - Display the list of operation commands.
 */
 void showCommands()
 {
     for( Uint32 i = 0; i < NUM_COMMANDS; i++ ) 
     {
-        printf("%-5s %-21s%s\n",CommandTable[i].ShortCut, CommandTable[i].CommandName, CommandTable[i].UsageText);
+        
+        String txtFormat = formatLongString(CommandTable[i].UsageText,28 ,75 - 28 );
+
+        printf("%-5s %-21s",CommandTable[i].ShortCut, CommandTable[i].CommandName);
+        cout << txtFormat << endl;
     }
 }
 /* PrintHelpMsg - This is temporary until we expand the options manager to allow
@@ -1252,6 +1288,22 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
                 fileList.append(temp);
             }
     }*/
+
+
+    if (om.isTrue("help"))
+    {
+                printHelpMsg(argv[0], usage, usageDetails, om);
+                exit(0);
+    }
+
+    // Establish the namespace from the input parameters
+    //String nameSpace;
+    if(om.lookupValue("namespace", opts.nameSpace))
+    {
+        if (verboseTest)
+            cout << "Namespace = " << opts.nameSpace << endl;
+    }
+
     String temprole;
     if(om.lookupValue("role", temprole))
     {

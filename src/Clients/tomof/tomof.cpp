@@ -209,7 +209,7 @@ void mofFormat(
     Boolean qualifierState = false;
     char c;
     char prevchar;
-    while (c = *tmp++)
+    while ((c = *tmp++))
     {
 	count++;
 	// This is too simplistic and must move to a token based mini parser
@@ -454,6 +454,7 @@ int main(int argc, char** argv)
 
     // Check for the summary count flag
     Boolean summary = om.isTrue("summary");
+    
     Uint32 qualifierCount = 0;
     Uint32 classCount = 0;
     Uint32 classCountDisplayed = 0;
@@ -505,7 +506,7 @@ int main(int argc, char** argv)
     // if "Client" set, open a connected and set 
     Boolean isClient = om.isTrue("client");
 
-    // if "Client" set, open a connected and set 
+    // Determine if output is XML or MOF 
     Boolean isXMLOutput = om.isTrue("xml");
 
     // Check for repository path flag and set repository directory
@@ -529,11 +530,13 @@ int main(int argc, char** argv)
 
     if(isClient)
     {
+        cout << "Calling Client interface " << endl;
         location = "localhost:5988";
         rt = clientRepositoryInterface::REPOSITORY_INTERFACE_CLIENT;
     }
     else
     {
+        cout << "Calling Repository interface " << endl;
         rt = clientRepositoryInterface::REPOSITORY_INTERFACE_LOCAL;
         location.append("/repository");
         location = location;
@@ -555,6 +558,7 @@ int main(int argc, char** argv)
     // if client mode, do client connection, else do repository connection
     try
     {
+        cout << "Execute .init on location " << location << endl;
         clRepository.init(rt, location);
     }
     catch(Exception &e)

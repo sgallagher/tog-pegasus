@@ -76,6 +76,7 @@ clientRepositoryInterface::init(_repositoryType type,
             String portStr = location.subString (index + 1, location.size ());
             sscanf (portStr.getCString (), "%u", &portNumber);
         }
+        cout << "open " << host << " port " << portNumber << endl;
         _client = new CIMClient();
         _client->connect (host, portNumber, String::EMPTY, String::EMPTY);
     } 

@@ -218,6 +218,35 @@ Boolean Monitor::run(Uint32 milliseconds)
         _stopConnections = 0;
     }
 
+    for( int indx = 0; indx < (int)_entries.size(); indx++)
+    {
+       if ((_entries[indx]._status.value() == _MonitorEntry::DYING) &&
+                (_entries[indx]._type == Monitor::CONNECTION))
+       {
+          MessageQueue *q = MessageQueue::lookup(_entries[indx].queueId);
+          PEGASUS_ASSERT(q != 0);
+          MessageQueue & o = static_cast<HTTPConnection *>(q)->get_owner();
+          Message* message= new CloseConnectionMessage(_entries[indx].socket);
+          message->dest = o.getQueueId();
+
+          // HTTPAcceptor is responsible for closing the connection. 
+          // The lock is released to allow HTTPAcceptor to call
+          // unsolicitSocketMessages to free the entry. 
+          // Once HTTPAcceptor completes processing of the close
+          // connection, the lock is re-requested and processing of
+          // the for loop continues.  This is safe with the current
+          // implementation of the _entries object.  Note that the
+          // loop condition accesses the _entries.size() on each
+          // iteration, so that a change in size while the mutex is
+          // unlocked will not result in an ArrayIndexOutOfBounds
+          // exception.
+
+          _entry_mut.unlock();
+          o.enqueue(message);
+          _entry_mut.lock(pegasus_thread_self());
+       }
+    }
+
     Uint32 _idleEntries = 0;
     
     for( int indx = 0; indx < (int)_entries.size(); indx++)
@@ -230,7 +259,7 @@ Boolean Monitor::run(Uint32 milliseconds)
     }
 
     // Fixed in monitor_2 but added because Monitor is still the default monitor.
-    // When _idleEntries is 0 don't imediatly return, otherwize this loops out of control 
+    // When _idleEntries is 0 don't immediately return, otherwise this loops out of control
     // kicking off kill idle thread threads.  E.g. There is nothing to select on when the cimserver
     // is shutting down.
     if( _idleEntries == 0 )
@@ -284,19 +313,6 @@ Boolean Monitor::run(Uint32 milliseconds)
                    Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
                      "_entries[indx].type for indx = %d is Monitor::CONNECTION", indx);
 		   static_cast<HTTPConnection *>(q)->_entry_index = indx;
-		   if(static_cast<HTTPConnection *>(q)->_dying.value() > 0 )
-		   {
-                      Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-                          "Monitor::run processing dying value > 0 for indx = %d, connection being closed.",
-                          indx);
-		      _entries[indx]._status = _MonitorEntry::DYING;
-		      MessageQueue & o = static_cast<HTTPConnection *>(q)->get_owner();
-		      Message* message= new CloseConnectionMessage(_entries[indx].socket);
-		      message->dest = o.getQueueId();
-		      _entry_mut.unlock();
-		      o.enqueue(message);
-		      return true;
-		   }
 		   _entries[indx]._status = _MonitorEntry::BUSY;
                    // If allocate_and_awaken failure, retry on next iteration
                    if (!_thread_pool->allocate_and_awaken((void *)q, _dispatch))
@@ -417,19 +433,20 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL Monitor::_dispatch(void *parm)
    Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
           "Monitor::_dispatch: exited run() for index %d", dst->_entry_index);
    
-   dst->_monitor->_entry_mut.lock(pegasus_thread_self());
-   // It shouldn't be necessary to set status = _MonitorEntry::IDLE
-   // if the connection is being closed.  However, the current logic
-   // in Monitor::run requires this value to be set for the close
-   // to be processed. 
-   
    PEGASUS_ASSERT(dst->_monitor->_entries[dst->_entry_index]._status.value() == _MonitorEntry::BUSY);
-   dst->_monitor->_entries[dst->_entry_index]._status = _MonitorEntry::IDLE;
+
+   // Once the HTTPConnection thread has set the status value to either
+   // Monitor::DYING or Monitor::IDLE, it has returned control of the connection
+   // to the Monitor.  It is no longer permissible to access the connection
+   // or the entry in the _entries table.
    if (dst->_connectionClosePending)
    {
-      dst->_dying = 1;
+      dst->_monitor->_entries[dst->_entry_index]._status = _MonitorEntry::DYING;
    }
-   dst->_monitor->_entry_mut.unlock();
+   else
+   {
+      dst->_monitor->_entries[dst->_entry_index]._status = _MonitorEntry::IDLE;
+   }
    return 0;
 }
 

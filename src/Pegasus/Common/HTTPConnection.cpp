@@ -160,8 +160,6 @@ void HTTPConnection::handleEnqueue(Message *message)
 {
    PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection::handleEnqueue");
 
-   PEGASUS_ASSERT(_dying.value() == 0);
-
    if( ! message )
    {
       PEG_METHOD_EXIT();
@@ -635,8 +633,6 @@ Uint32 HTTPConnection::getRequestCount()
 
 Boolean HTTPConnection::run(Uint32 milliseconds)
 {
-   PEGASUS_ASSERT(_dying.value() == 0);
-   
    Boolean handled_events = false;
    int events = 0;
    
@@ -656,7 +652,6 @@ Boolean HTTPConnection::run(Uint32 milliseconds)
 	 return false;
       }
 
-      PEGASUS_ASSERT(_dying.value() == 0);
       if (events)
       {
 	 events = 0;

@@ -78,8 +78,11 @@ CQLSimplePredicateRep::CQLSimplePredicateRep(const CQLSimplePredicateRep* rep){
 
 Boolean CQLSimplePredicateRep::evaluate(CIMInstance CI, QueryContext& QueryCtx)
 {
+  // Resolve the value of the left side
   CQLValue leftVal = _leftSide.resolveValue(CI, QueryCtx);
 
+  // If there isn't a right side then operator must by IS_NULL
+  // or IS_NOT_NULL
   if (isSimple())
   {
     PEGASUS_ASSERT(_operator == IS_NULL || _operator == IS_NOT_NULL);
@@ -91,17 +94,31 @@ Boolean CQLSimplePredicateRep::evaluate(CIMInstance CI, QueryContext& QueryCtx)
 
   if (leftVal.isNull())
   {
-    // The null contagion rule
+    // The null contagion rule.  See CQLSelectStatementRep for details.  
     // ATTN - change this to a specific CQLException so that it can
     // be caught above
     throw UninitializedObjectException(); 
   }
 
+  if (_operator == ISA)
+  {
+    // Special processing for ISA.  The CQLValue on the right side of ISA
+    // has a CQLChainedIdentifier with one element that contains
+    // the class name.  We don't want to resolve the right side because
+    // CQLValue would assume that a single element chained identifier
+    // refers to an instance of the FROM class.
+    PEGASUS_ASSERT(_rightSide.isSimpleValue());
+
+    CQLValue isaVal = _rightSide.getTerms()[0].getFactors()[0].getValue();
+    return leftVal.isa(isaVal, QueryCtx);
+  }
+
+  // Resolve the value of the right side
   CQLValue rightVal = _rightSide.resolveValue(CI, QueryCtx);
 
   if (rightVal.isNull())
   {
-    // The null contagion rule
+    // The null contagion rule.  See CQLSelectStatementRep for details. 
     // ATTN - change this to a specific CQLException so that it can
     // be caught above
     throw UninitializedObjectException(); 
@@ -133,14 +150,13 @@ Boolean CQLSimplePredicateRep::evaluate(CIMInstance CI, QueryContext& QueryCtx)
     return leftVal != rightVal;
     break;
 
-  case ISA:
-    return leftVal.isa(rightVal, QueryCtx);
-    break;
-
   case LIKE:
     return leftVal.like(rightVal);
     break;
 
+  case ISA:
+    // Never get here due to special processing above.
+    PEGASUS_ASSERT(false);
   case IS_NULL:
   case IS_NOT_NULL:
     // Never get here due to the assert.

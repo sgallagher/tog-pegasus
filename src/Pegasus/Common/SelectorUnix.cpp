@@ -38,6 +38,10 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
+#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+# define SOCKET_ERROR -1
+#endif
+
 PEGASUS_NAMESPACE_BEGIN
 
 ////////////////////////////////////////////////////////////////////////////////

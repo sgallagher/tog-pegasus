@@ -321,10 +321,13 @@ Boolean ComputerSystem::getResetCapability(CIMProperty& p)
 
 Boolean ComputerSystem::getPowerManagementCapabilities(CIMProperty& p)
 {
+  Array<Uint16> capabilities;
+
   // Since PowerManagementSupported == FALSE
   // Capabilities must be defined to return "1" which signifies
   // "Not Supported" from Capabilities enum
-  p = CIMProperty(PROPERTY_POWER_MANAGEMENT_CAPABILITIES,1); 
+  capabilities.append(1);
+  p = CIMProperty(PROPERTY_POWER_MANAGEMENT_CAPABILITIES,capabilities);
   return true;
 }
 

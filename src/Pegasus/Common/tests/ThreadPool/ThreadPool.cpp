@@ -84,7 +84,7 @@ int main(int argc, char **argv)
       
       try 
       {
-	 tp.allocate_and_awaken((void *)1, work_func );
+ 	 tp.allocate_and_awaken((void *)1, work_func );
 	 tp.allocate_and_awaken((void *)2, work_func );	 
 	 tp.allocate_and_awaken((void *)3, work_func );
 	 tp.allocate_and_awaken((void *)4 , work_func );	 
@@ -143,7 +143,7 @@ int main(int argc, char **argv)
       {
 	 cout << "Thread Pool is fully in use... " << endl; 
       }
-   } 
+   }  
    cout << "deliberately causing deadlock detection to occur ..." << endl;
    pegasus_sleep( 7000 ) ; 
    cout << " killed " << tp.kill_dead_threads( ) << " threads " << endl;  
@@ -151,25 +151,25 @@ int main(int argc, char **argv)
     
    cout << " allocating joinable threads " << endl;
    Semaphore *blocking = new Semaphore(0);
-   Boolean success = false;
+   Boolean success = true;
    
-//    do 
-//    {
-//       try 
-//       {
-// 	 tp.allocate_and_awaken((void *)16, work_func , blocking);
-//       }
-//       catch(Deadlock & )
-//       {
-// 	 success = false;
-// 	 pegasus_sleep(100);
-//       }
-//    } while( success == false ); 
+   do 
+   {
+      try 
+      {
+	 tp.allocate_and_awaken((void *)16, work_func , blocking);
+      }
+      catch(Deadlock & ) 
+      { 
+	 success = false; 
+	 pegasus_sleep(100);
+      } 
+   } while( success == false ); 
    
    
    
-//   blocking->wait();
-//   cout << " joined " << endl;
+   blocking->wait();
+   cout << " joined " << endl;
    tp.kill_dead_threads( ) ;
    while(tp.running_count() )
    {  

@@ -374,13 +374,10 @@ class PEGASUS_COMMON_LINKAGE ThreadPool
 		 struct timeval & deadlock_detect);
       
       ~ThreadPool(void);
-      void allocate_and_awaken(void *parm,
-			       PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *work)(void *))  
-	 throw(IPCException);
 
       void allocate_and_awaken(void *parm, 
-			       PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *work)(void *),
-			       Semaphore *blocking_sem)
+			       PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *work)(void *), 
+			       Semaphore *blocking = 0)
 	 throw(IPCException);
       
 

@@ -126,19 +126,30 @@ template<class L> class PEGASUS_COMMON_LINKAGE DQueue : public internal_dq
 
       L *remove_first ( void ) throw(IPCException) 
       { 
-	 _mutex->lock(pegasus_thread_self());
-	 L *ret = static_cast<L *>(Base::remove_first());
-	 (*_actual_count)--;
-	 _mutex->unlock();
+	 L *ret = 0;
+	 
+	 if( _actual_count->value() )
+	 {
+	    _mutex->lock(pegasus_thread_self());
+	    ret = static_cast<L *>(Base::remove_first());
+	    if( ret != 0 )
+	       (*_actual_count)--;
+	    _mutex->unlock();
+	 }
 	 return ret;
       }
 
       L *remove_last ( void ) throw(IPCException) 
       { 
-	 _mutex->lock(pegasus_thread_self());
-	 L *ret = static_cast<L *>(Base::remove_last());
-	 (*_actual_count)--;
-	 _mutex->unlock();
+	 L * ret = 0;
+	 if( _actual_count->value() )
+	 {
+	    _mutex->lock(pegasus_thread_self());
+	    ret = static_cast<L *>(Base::remove_last());
+	    if( ret != 0 )
+	       (*_actual_count)--;
+	    _mutex->unlock();
+	 }
 	 return ret;
       }
       

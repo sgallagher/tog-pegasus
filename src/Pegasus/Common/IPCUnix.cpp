@@ -151,16 +151,17 @@ Mutex::~Mutex()
    throw(Deadlock, TimeOut, WaitFailed)
 {
 
-   struct timeval start, now;
+   struct timeval now, finish, remaining;
    int errorcode;
   
-   gettimeofday(&start,NULL);
-   now.tv_sec = start.tv_sec;
-   now.tv_usec = start.tv_usec;
+   Uint32 usec;
    
-   start.tv_usec += (milliseconds * 1000);
-   if (start.tv_usec < now.tv_usec)
-      start.tv_sec++;
+   gettimeofday(&finish, NULL);
+   finish.tv_sec += (milliseconds / 1000 );
+   milliseconds %= 1000;
+   usec = finish.tv_usec + ( milliseconds * 1000 );
+   finish.tv_sec += (usec / 1000000);
+   finish.tv_usec = usec % 1000000;
 
    while(1)
    {
@@ -171,9 +172,7 @@ Mutex::~Mutex()
       if(errorcode == EBUSY)
       {
 	 gettimeofday(&now, NULL);
-	 if ( now.tv_sec > start.tv_sec || 
-	      now.tv_sec >= start.tv_sec && 
-	      now.tv_usec >= start.tv_usec )
+	 if ( timeval_subtract( &remaining, &finish, &now ))
 	 {
 	    throw TimeOut(pegasus_thread_self());
 	 }
@@ -290,11 +289,16 @@ void ReadWriteSem::try_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller)
 void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milliseconds) 
    throw(TimeOut, Deadlock, Permission, WaitFailed, TooManyReaders)
 {
-   struct timeval start, now;
-   int errorcode = 0;
-
-   gettimeofday(&start, NULL);
-   start.tv_usec += (milliseconds * 1000);
+   int errorcode = 0, timeout ;
+   struct timeval now, finish, remaining;
+   Uint32 usec;
+   
+   gettimeofday(&finish, NULL);
+   finish.tv_sec += (milliseconds / 1000 );
+   milliseconds %= 1000;
+   usec = finish.tv_usec + ( milliseconds * 1000 );
+   finish.tv_sec += (usec / 1000000);
+   finish.tv_usec = usec % 1000000;
    
    if (mode == PEG_SEM_READ)
    {
@@ -304,7 +308,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	 gettimeofday(&now, NULL);
       }
       while (errorcode == EBUSY && 
-	     ((now.tv_usec < start.tv_usec) || (now.tv_sec <= start.tv_sec)));
+	     ( 0 == (timeout = timeval_subtract(&remaining, &finish, &now ))));
       if(0 == errorcode)
       {
 	 _readers++;
@@ -318,10 +322,8 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	 errorcode = pthread_rwlock_trywrlock(&_rwlock.rwlock);
 	 gettimeofday(&now, NULL);
       }
-      while(errorcode == EBUSY && 
-	    ( (now.tv_sec <= start.tv_sec ) &&  (now.tv_usec < start.tv_usec) ));
-      // ATTN: RK - Added ');' to the end of the preceding line.  Is this
-      // "while" condition correct?
+      while (errorcode == EBUSY && 
+	     ( 0 == (timeout = timeval_subtract(&remaining, &finish, &now ))));
 
       if(0 == errorcode)
       {
@@ -331,8 +333,8 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
       }
    }
    else
-      throw(Permission(pegasus_thread_self()));
-   if (errorcode == ETIMEDOUT)
+      throw(Permission(pthread_self()));
+   if (timeout != 0 )
       throw(TimeOut(_rwlock.owner));
    else if (errorcode == EDEADLK)
       throw(Deadlock(_rwlock.owner));
@@ -620,11 +622,14 @@ Semaphore::~Semaphore()
    int retcode, i = 0;
 
    struct timeval now, finish, remaining;
-   gettimeofday(&now, NULL);
-   finish.tv_sec = now.tv_sec;
-   finish.tv_usec = now.tv_usec;
-   finish.tv_sec += ( milliseconds / 1000 );
-   finish.tv_usec += (( milliseconds % 1000) * 1000);
+   Uint32 usec;
+   
+   gettimeofday(&finish, NULL);
+   finish.tv_sec += (milliseconds / 1000 );
+   milliseconds %= 1000;
+   usec = finish.tv_usec + ( milliseconds * 1000 );
+   finish.tv_sec += (usec / 1000000);
+   finish.tv_usec = usec % 1000000;
       
    while( 1 )
    {

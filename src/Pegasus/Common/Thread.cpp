@@ -207,6 +207,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
    if(pool == 0 )
       throw NullPointer();
    Semaphore *sleep_sem = 0;
+   Semaphore *blocking_sem = 0;
+   
    struct timeval *deadlock_timer = 0;
 
    try
@@ -242,6 +244,9 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
 	 myself->dereference_tsd();
 	 parm = myself->reference_tsd("work parm");
 	 myself->dereference_tsd();
+	 blocking_sem = (Semaphore *)myself->reference_tsd("blocking sem");
+	 myself->dereference_tsd();
+
       }
       catch(IPCException &)
       {
@@ -254,6 +259,9 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
       gettimeofday(deadlock_timer, NULL);
       _work(parm);
 	
+      if( blocking_sem != 0 )
+	 blocking_sem->signal();
+      
       // put myself back onto the available list
       try
       {
@@ -273,10 +281,11 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
    return((PEGASUS_THREAD_RETURN)0);
 }
 
-
 void ThreadPool::allocate_and_awaken(void *parm,
 				     PEGASUS_THREAD_RETURN \
-				     (PEGASUS_THREAD_CDECL *work)(void *))
+				     (PEGASUS_THREAD_CDECL *work)(void *), 
+				     Semaphore *blocking)
+
    throw(IPCException)
 {
    struct timeval start;
@@ -308,7 +317,10 @@ void ThreadPool::allocate_and_awaken(void *parm,
 		  (void *)work);
       th->remove_tsd("work parm");
       th->put_tsd("work parm", NULL, sizeof(void *), parm);
-
+      th->remove_tsd("blocking sem");
+      if(blocking != 0 )
+	 th->put_tsd("blocking sem", NULL, sizeof(Semaphore *), blocking);
+      
       // put the thread on the running list
       _running.insert_first(th);
 
@@ -317,7 +329,6 @@ void ThreadPool::allocate_and_awaken(void *parm,
 
       if(sleep_sem == 0)
       {
-
 	 th->dereference_tsd();
 	 throw NullPointer();
       }
@@ -412,10 +423,12 @@ Uint32 ThreadPool::kill_dead_threads(void)
 	    {
 	       // if we are deallocating from the pool, escape if we are
 	       // down to the minimum thread count
+	       _current_threads--;
 	       if( _current_threads.value() <= (Uint32)_min_threads )
 	       {
-		  if( i == 1)
+		  if( i == 0)
 		  {
+		     _current_threads++;
 		     th = q->next(th);
 		     continue;
 		  }
@@ -451,6 +464,7 @@ Uint32 ThreadPool::kill_dead_threads(void)
 		  _dead.insert_first(th);
 		  bodies++;
 		  sleep_sem->signal();
+		  
 		  th->dereference_tsd();
 		  th = 0;
 	       }
@@ -471,42 +485,19 @@ Uint32 ThreadPool::kill_dead_threads(void)
 }
 
 
-// inline int timeval_subtract (struct timeval *result, 
-// 			     struct timeval *x, 
-// 			     struct timeval *y)
-// {
-//    /* Perform the carry for the later subtraction by updating Y. */
-//    if (x->tv_usec < y->tv_usec) {
-//       int nsec = (y->tv_usec - x->tv_usec) / 1000000 + 1;
-//       y->tv_usec -= 1000000 * nsec;
-//       y->tv_sec += nsec;
-//    }
-//    if (x->tv_usec - y->tv_usec > 1000000) {
-//       int nsec = (x->tv_usec - y->tv_usec) / 1000000;
-//       y->tv_usec += 1000000 * nsec;
-//       y->tv_sec -= nsec;
-//    }
-   
-//    /* Compute the time remaining to wait.
-//       `tv_usec' is certainly positive. */
-//    result->tv_sec = x->tv_sec - y->tv_sec;
-//    result->tv_usec = x->tv_usec - y->tv_usec;
-   
-//    /* Return 1 if result is negative. */
-//    return x->tv_sec < y->tv_sec;
-// }
-
 Boolean ThreadPool::check_time(struct timeval *start, struct timeval *interval)
 {
-   struct timeval now;
+   struct timeval now, finish, remaining;
+   Uint32 usec;
    gettimeofday(&now, NULL);
-   start->tv_sec += interval->tv_sec;
-   start->tv_usec += interval->tv_usec;
-   start->tv_sec += start->tv_usec / 1000000;
-   start->tv_usec %= 1000000;
-   struct timeval remaining;
-   
-   if ( timeval_subtract(&remaining, start, &now) )
+
+   finish.tv_sec = start->tv_sec + interval->tv_sec;
+   usec = start->tv_usec + interval->tv_usec;
+   finish.tv_sec += (usec / 1000000);
+   usec %= 1000000;
+   finish.tv_usec = usec;
+    
+   if ( timeval_subtract(&remaining, &finish, &now) )
       return true;
    else
       return false;

@@ -14,7 +14,7 @@ pegasus_home_undefined:
 	@ exit 1
 endif
 
-VALID_PLATFORMS = win32_iX86_msvc linux_iX86_gnu
+VALID_PLATFORMS = WIN32_IX86_MSVC LINUX_IX86_GNU
 
 ifndef PEGASUS_PLATFORM
   ERROR = pegasus_platform_undefined
@@ -41,13 +41,13 @@ YACC = bison
 ##
 ################################################################################
 
-ifeq ($(PEGASUS_PLATFORM),win32_iX86_msvc)
-  include $(ROOT)/mak/config-$(PEGASUS_PLATFORM).mak
+ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
+  include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
   FOUND = true
 endif
 
-ifeq ($(PEGASUS_PLATFORM),linux_iX86_gnu)
-  include $(ROOT)/mak/config-$(PEGASUS_PLATFORM).mak
+ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
+  include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
   FOUND = true
 endif
 

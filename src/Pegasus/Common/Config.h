@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Config.h,v $
+// Revision 1.6  2001/04/13 22:20:03  mike
+// new
+//
 // Revision 1.5  2001/04/13 21:06:36  mike
 // new
 //
@@ -52,9 +55,15 @@
 #ifndef Pegasus_Config_h
 #define Pegasus_Config_h
 
-#include <Pegasus/Common/ConfigPlatform.h>
-
 #include <iostream>
+
+#if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+# include <Pegasus/Common/Platform_WIN32_IX86_MSVC.h>
+#elif defined (PEGASUS_PLATFORM_LINUX_IX86_GNU)
+# include <Pegasus/Common/Platform_LINUX_IX86_GNU.h>
+#else
+# error "<Pegasus/Common/Config.h>: Unsupported Platform"
+#endif
 
 #define PEGASUS_TRACE \
     std::cout << __FILE__ << '(' << __LINE__ << ')' << std::endl

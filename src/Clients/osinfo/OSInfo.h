@@ -31,6 +31,7 @@
 //
 // Modified By:
 //         Warren Otsuka (warren_otsuka@hp.com)
+//         Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -291,6 +292,11 @@ private:
      String osSystemUpTime;
      String osNumberOfProcesses;
      String osNumberOfUsers;
+
+     String usage;
+     
+     // The type of operation specified on the command line. 
+     Uint32        _operationType;
 };
 
 PEGASUS_NAMESPACE_END

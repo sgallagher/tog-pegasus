@@ -39,6 +39,7 @@
 //         Warren Otsuka, Hewlett-Packard Company (warren_otsuka@hp.com)
 //         Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //         Susan Campbell, Hewlett-Packard Company (scampbell@hp.com)
+//         Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -77,7 +78,7 @@ const char   OSInfoCommand::COMMAND_NAME []      = "osinfo";
 /**
     Label for the usage string for this command.
  */
-const char   OSInfoCommand::_USAGE []            = "usage: ";
+const char   OSInfoCommand::_USAGE []            = "Usage: ";
 
 /**
     The option character used to specify the hostname.
@@ -124,11 +125,43 @@ const Uint32 OSInfoCommand::_MIN_PORTNUMBER      = 0;
  */
 const Uint32 OSInfoCommand::_MAX_PORTNUMBER      = 65535;
 
+//l10n
+/**
+ * The CLI message resource name
+ */
+
+static const char MSG_PATH [] 				= "pegasus/pegasusCLI";
 static const char PASSWORD_PROMPT []  =
                      "Please enter your password: ";
 
 static const char PASSWORD_BLANK []  = 
                      "Password cannot be blank. Please re-enter your password.";
+
+static const char   LONG_HELP []  = "help";
+
+static const char   LONG_VERSION []  = "version";
+
+static const char REQUIRED_ARGS_MISSING []        =
+                        "Required arguments missing.";
+
+static const char REQUIRED_ARGS_MISSING_KEY []        = "Clients.cimuser.CIMUserCommand.REQUIRED_ARGS_MISSING";
+
+
+/**
+    This constant signifies that an operation option has not been recorded
+*/
+
+static const Uint32 OPERATION_TYPE_UNINITIALIZED  = 0;
+/**
+    This constant represents a help operation
+*/
+static const Uint32 OPERATION_TYPE_HELP           = 1;
+
+/**
+    This constant represents a version display operation
+*/
+static const Uint32 OPERATION_TYPE_VERSION        = 2;
+
 
 static const Uint32 MAX_PW_RETRIES = 3;
 
@@ -167,7 +200,7 @@ OSInfoCommand::OSInfoCommand ()
     _useSSL              = false;
     _useRawDateTimeFormat   = false;
 
-    String usage = String (_USAGE);
+    usage = String (_USAGE);
     usage.append (COMMAND_NAME);
     usage.append (" [ -");
 #ifndef DISABLE_SUPPORT_FOR_REMOTE_CONNECTIONS
@@ -178,7 +211,7 @@ OSInfoCommand::OSInfoCommand ()
     usage.append (_OPTION_PORTNUMBER);
     usage.append (" portnumber ] [ -");
     usage.append (_OPTION_USERNAME);
-    usage.append (" username ] [ -");
+    usage.append (" username ]\n              [ -");
     usage.append (_OPTION_PASSWORD);
     usage.append (" password ] [ -");
     usage.append (_OPTION_TIMEOUT);
@@ -186,6 +219,23 @@ OSInfoCommand::OSInfoCommand ()
 #endif
     usage.append (_OPTION_RAW_DATETIME_FORMAT);
     usage.append (" ]");
+    usage.append (" [ --");
+    usage.append (LONG_HELP);
+    usage.append(" ] [ --").append(LONG_VERSION).append(" ] \n");
+
+    usage.append("Options : \n");
+    usage.append("    -c         - Use CIM format for date and time\n");
+    usage.append("    -h         - Connect to CIM Server on specified hostname\n");
+    usage.append("    --help     - Display this help message\n");
+    usage.append("    -p         - Connect to CIM Server on specified portnumber\n");
+    usage.append("    -s         - Use SSL protocol between 'osinfo' client and the CIM Server\n");
+    usage.append("    -t         - Specify response timeout value in milliseconds\n");
+    usage.append("    -u         - Connect to CIM Server using the specified username\n");
+    usage.append("    --version  - Display CIM Server version number\n");
+    usage.append("    -w         - Connect to CIM Server using the specified password\n");
+
+    usage.append("\nUsage note: The osinfo command requires that the CIM Server is running.\n");
+
     setUsage (usage);
 }
 
@@ -359,6 +409,11 @@ void OSInfoCommand::setCommand (Uint32 argc, char* argv [])
     //
     getOpts = getoopt ();
     getOpts.addFlagspec (GetOptString);
+
+    //PEP#167 - adding long flag for options : 'help' and 'version'
+    getOpts.addLongFlagspec(LONG_HELP,getoopt::NOARG);
+    getOpts.addLongFlagspec(LONG_VERSION,getoopt::NOARG);
+
     getOpts.parse (argc, argv);
 
     if (getOpts.hasErrors ())
@@ -374,9 +429,16 @@ void OSInfoCommand::setCommand (Uint32 argc, char* argv [])
     {
         if (getOpts [i].getType () == Optarg::LONGFLAG)
         {
-            UnexpectedArgumentException e (
+            //PEP 167 : long flags newly added to this command
+
+            if(getOpts [i].getopt () == LONG_HELP)
+               _operationType = OPERATION_TYPE_HELP;
+            else if (getOpts [i].getopt () == LONG_VERSION)
+               _operationType = OPERATION_TYPE_VERSION;
+
+            /*UnexpectedArgumentException e (
                          getOpts [i].Value ());
-            throw e;
+            throw e;*/
         } 
         else if (getOpts [i].getType () == Optarg::REGULAR)
         {
@@ -387,7 +449,6 @@ void OSInfoCommand::setCommand (Uint32 argc, char* argv [])
         else /* getOpts [i].getType () == FLAG */
         {
             c = getOpts [i].getopt () [0];
-    
             switch (c) 
             {
                 case _OPTION_HOSTNAME: 
@@ -511,12 +572,27 @@ void OSInfoCommand::setCommand (Uint32 argc, char* argv [])
                 default:
                     //
                     //  This path should not be hit
-                    //
+                    //  PEP#167 unless an empty '-' is specified
+                    //_operationType = OPERATION_TYPE_UNINITIALIZED;
                     break;
             }
         }
     }
 
+    // 
+    // Some more validations
+    //
+    /*if ( _operationType == OPERATION_TYPE_UNINITIALIZED )
+    {
+        //
+        // No operation type was specified 
+        // Show the usage 
+        //
+		  //l10n
+		  //CommandFormatException e (REQUIRED_ARGS_MISSING);
+        CommandFormatException e (localizeMessage(MSG_PATH,REQUIRED_ARGS_MISSING_KEY, REQUIRED_ARGS_MISSING));
+        throw e;
+    }*/
     if (getOpts.isSet (_OPTION_PORTNUMBER) < 1)
     {
         //
@@ -936,6 +1012,16 @@ void OSInfoCommand::getOSInfo(ostream& outPrintWriter,
 Uint32 OSInfoCommand::execute (ostream& outPrintWriter, 
                                  ostream& errPrintWriter) 
 {
+    if ( _operationType == OPERATION_TYPE_HELP )
+    {
+        cerr << usage << endl;
+        return (RC_SUCCESS);
+    }
+    else if ( _operationType == OPERATION_TYPE_VERSION )
+    {
+        cerr << "Version " << PEGASUS_VERSION << endl;
+        return (RC_SUCCESS);
+    }
     try
     {
         OSInfoCommand::getOSInfo( outPrintWriter, errPrintWriter );
@@ -977,9 +1063,8 @@ int main (int argc, char* argv [])
     } 
     catch (CommandFormatException& cfe) 
     {
-        cerr << OSInfoCommand::COMMAND_NAME << ": " << cfe.getMessage () 
-             << endl;
-        cerr << command.getUsage () << endl;
+        cerr << OSInfoCommand::COMMAND_NAME << 
+            ": Invalid option. Use '--help' to obtain command syntax" << endl;
         exit (Command::RC_ERROR);
     }
 

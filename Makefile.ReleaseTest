@@ -100,7 +100,7 @@ stage_makfiles:
 	@$(foreach i, $(MAK_FILES), $(COPY) $(TEST_MAK_FILES_SRCPATH)/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/mak/$(i);)
 
 stage_testproviderfiles:
-	@$(foreach i, $(PEGASUS_TEST_PROVIDERS), $(COPY) $(TEST_LIB_FILES_SRCPATH)/$(i)$(LIB_SUFFIX) $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/lib/$(i)$(LIB_SUFFIX); $(MAKE) -f $(ROOT)/Makefile.ReleaseTest setpermissions PERMISSIONS="$(P_rwxr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/lib/$(i)$(LIB_SUFFIX);)
+	@$(foreach i, $(PEGASUS_TEST_PROVIDERS), $(COPY) $(TEST_LIB_FILES_SRCPATH)/$(i)$(LIB_SUFFIX) $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/lib/$(i)$(LIB_SUFFIX);)
 
 stage_prestarttests:
 	@$(foreach i, $(PRESTARTTEST_FILES), $(COPY) $(TEST_BIN_FILES_SRCPATH)/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/bin/$(i);)
@@ -157,4 +157,10 @@ create_repository:
                    REPOSITORY_DIR=$(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_REPOSITORY_DIR) REPOSITORY_NAME=$(PEGASUS_TEST_REPOSITORY_NAME) repository
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Providers/TestProviders/Load -f Makefile \
                    REPOSITORY_DIR=$(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_REPOSITORY_DIR) REPOSITORY_NAME=$(PEGASUS_TEST_REPOSITORY_NAME) repository
+
+preinstall:
+	 @$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile.ReleaseTest -s preinstall_setreleasepermissions
+
+preinstall_setreleasepermissions:
+	@$(foreach i, $(PEGASUS_TEST_PROVIDERS), $(MAKE) -f $(ROOT)/Makefile.ReleaseTest setpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/lib/$(i)$(LIB_SUFFIX);)
 

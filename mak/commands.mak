@@ -11,6 +11,10 @@ ifndef ROOT
     include $(ROOT)/mak/config.mak
 endif
 
+ifndef OPENSSL_BIN
+    OPENSSL_BIN = $(OPENSSL_HOME)/bin
+endif
+
 ifeq ($(OS),win32)
     STRIPCRS = stripcrs $(RESULTFILE) $(MASTERRESULTFILE)
     DIFF = mu compare
@@ -51,7 +55,7 @@ ifeq ($(OS),HPUX)
     DOCXX = doc++
 
     GENERATE_RANDSEED = randseed
-    OPENSSL_COMMAND = openssl
+    OPENSSL_COMMAND = $(OPENSSL_BIN)/openssl
     GET_HOSTNAME = `hostname`
 
     ifeq ($(PEGASUS_PLATFORM), HPUX_PARISC_ACC)
@@ -60,13 +64,12 @@ ifeq ($(OS),HPUX)
         LIB_LINK_SUFFIX = .so
     endif
 
-    Pdr_xr_xr_x = 555
-    P_rwxr_xr_x = 755
-    P_r_xr__r__ = 744
-    P_r__r__r__ = 444
-    P_r________ = 400
-    P_r_xr_xr_x = 555
-    P_rw_r__r__ = 644
+    Prwxr_xr_x = 755
+    Pr_xr__r__ = 744
+    Pr__r__r__ = 444
+    Pr________ = 400
+    Pr_xr_xr_x = 555
+    Prw_r__r__ = 644
     CHMODDIRHIER = chmod -R
 
     INSTALL_USR = bin
@@ -122,22 +125,21 @@ ifeq ($(OS),linux)
     CAT = cat
     DOCXX = doc++
 
-    OPENSSL_COMMAND = openssl
+    OPENSSL_COMMAND = $(OPENSSL_BIN)/openssl
     GET_HOSTNAME = `hostname`
 
     LIB_LINK_SUFFIX = .so
 
-    Pdr_xr_xr_x = 555
-    P_rwxr_xr_x = 755
-    P_r_xr__r__ = 744
-    P_r__r__r__ = 444
-    P_r________ = 400
-    P_r_xr_xr_x = 555
-    P_rw_r__r__ = 644
+    Prwxr_xr_x = 755
+    Pr_xr__r__ = 744
+    Pr__r__r__ = 444
+    Pr________ = 400
+    Pr_xr_xr_x = 555
+    Prw_r__r__ = 644
     CHMODDIRHIER = chmod -R
 
-    INSTALL_USR = root
-    INSTALL_GRP = root
+    INSTALL_USR = bin
+    INSTALL_GRP = bin
     CIMSERVER_USR = root
     CIMSERVER_GRP = root
     CHMOD = chmod

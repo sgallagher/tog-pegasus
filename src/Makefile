@@ -16,8 +16,10 @@ rebuild: clean depend all repository config
 world: depend all repository config
 	$(MAKE) -s tests
 
+# Note: Arguments must be quoted to preserve upper case characters in VMS.
 repository:
-	@ $(MAKE) -SC Pegasus/Compiler/load repository
+	@ $(MAKE) "-SC" Pegasus/Compiler/load repository
 
 config:
-	@ $(MAKE) -SC Providers/generic/ConfigSettingProvider/load config 
+	@ $(MAKE) "-SC" Providers/generic/ConfigSettingProvider/load config 
+

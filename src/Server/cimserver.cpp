@@ -287,7 +287,7 @@ void shutdownCIMOM(Uint32 timeoutValue)
         //
         // construct CIMObjectPath
         //
-        String referenceStr = "//";
+        String referenceStr;
         referenceStr.append(hostStr);
         referenceStr.append("/");  
         referenceStr.append(PEGASUS_NAMESPACENAME_SHUTDOWN.getString());

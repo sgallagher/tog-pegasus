@@ -2842,7 +2842,7 @@ en:table {
         *   Do not translate the word 'IPARAMVALUE' since it is a standard element name for CIM in XML 
         * @version 2.4 
         */
-        Common.XmlReader.INVALID_NULL_IPARAMVALUE:string {"PGS09669: A null value is not valid for IPARAMVALUE \"$0\"."
+        Common.XmlReader.INVALID_NULL_IPARAMVALUE:string {"PGS09669: A null value is not valid for IPARAMVALUE \"{0}\"."
 
 
         // ==========================================================
@@ -3769,6 +3769,7 @@ CIM server listening on HTTPS port {0}."}
 	Server.CIMServer.SSL_CLIENT_VERIFICATION_INVALID_AUTO_UPDATE_MODE:string {"PGS13201: The \"enableSSLTrustStoreAutoUpdate\" property can only be 'true' if \"sslClientVerificationMode\" is 'optional'. cimserver not started."}
 	Server.CIMServer.SSL_CLIENT_VERIFICATION_INVALID_AUTO_UPDATE_DIRECTORY:string {"PGS13201: The \"sslTrustStore\" value must be a valid directory if \"enableSSLTrustStoreAutoUpdate\" is 'true'. cimserver not started."}
 
+
         // ==========================================================
         // Messages for AnonymousPipe
         //  Please use message prefix "PGS13400" 
@@ -3780,3 +3781,65 @@ CIM server listening on HTTPS port {0}."}
         */
         Common.AnonymousPipe.CREATE_PIPE_FAILED:string {"PGS13400: Failed to create pipe."}
 }
+
+
+	// ==========================================================
+        // Messages for ProviderManager.OOPProviderManagerRouter
+        //  Please use message prefix "PGS13600"
+        // ==========================================================
+
+        /**
+        * @note  PGS13600
+        *    Substitution {0} is a string ID for the cimprovagt process instance
+        *    Do not translate the word 'cimprovagt' since it is a command name.
+        */
+        ProviderManager.OOPProviderManagerRouter.CIMPROVAGT_START_FAILED:string {"PGS13600:  Failed to start cimprovagt \"{0}\"."}
+
+        /**
+        * @note  PGS13601
+        *    Substitution {0} is a string ID for the cimprovagt process instance
+        *    Do not translate the word 'cimprovagt' since it is a command name.
+        */
+        ProviderManager.OOPProviderManagerRouter.CIMPROVAGT_COMMUNICATION_FAILED:string {"PGS13601:  Failed to communicate with cimprovagt \"{0}\"."}
+
+        /**
+        * @note  PGS13602
+        *    Substitution {0} is a string ID for the cimprovagt process instance
+        *    Do not translate the word 'cimprovagt' since it is a command name.
+        */
+        ProviderManager.OOPProviderManagerRouter.CIMPROVAGT_CONNECTION_LOST:string {"PGS13602:  Lost connection with cimprovagt \"{0}\"."}
+
+
+	// ==========================================================
+        // Messages for ProviderManager.ProviderAgent.cimprovagt
+        //  Please use message prefix "PGS13800"
+        // ==========================================================
+
+        /**
+        * @note  PGS13800
+        *    Substitution {0} is a string ID for the cimprovagt process instance
+        *    Substitution {1} is another message string
+        *    Do not translate the word 'cimprovagt' since it is a command name.
+        */
+        ProviderManager.ProviderAgent.cimprovagt.CIMPROVAGT_EXCEPTION:string {"PGS13800:  cimprovagt \"{0}\" error: {1}"}
+
+        /**
+        * @note  PGS13801
+        *    Substitution {0} is a string ID for the cimprovagt process instance
+        *    Do not translate the word 'cimprovagt' since it is a command name.
+        */
+        ProviderManager.ProviderAgent.cimprovagt.CIMPROVAGT_ERROR:string {"PGS13801:  cimprovagt \"{0}\" error.  Exiting."}
+
+
+	// ==========================================================
+        // Messages for ProviderManager.ProviderAgent.ProviderAgent
+        //  Please use message prefix "PGS14000"
+        // ==========================================================
+
+        /**
+        * @note  PGS14000
+        *    Substitution {0} is a string ID for the cimprovagt process instance
+        *    Do not translate the word 'cimprovagt' since it is a command name.
+        */
+        ProviderManager.ProviderAgent.ProviderAgent.CIMSERVER_COMMUNICATION_FAILED:string {"PGS14000:  cimprovagt \"{0}\" communication with CIM Server failed.  Exiting."}
+

@@ -44,6 +44,7 @@ DIRS += \
         ProviderManager2 \
 	ProviderManager2/Default \
 	ProviderManager2/CMPI \
+	ProviderManager2/ProviderAgent \
 	ProviderManager2/tests \
 	ProviderManager2/Default/tests
 endif

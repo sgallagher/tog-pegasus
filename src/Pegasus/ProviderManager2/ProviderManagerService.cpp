@@ -51,6 +51,7 @@
 #include <Pegasus/Config/ConfigManager.h>
 
 #include <Pegasus/ProviderManager2/BasicProviderManagerRouter.h>
+#include <Pegasus/ProviderManager2/OOPProviderManagerRouter.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -95,8 +96,19 @@ ProviderManagerService::ProviderManagerService(
 
     _unloadIdleProvidersBusy = 0;
 
-    _providerManagerRouter =
-        new BasicProviderManagerRouter(indicationCallback);
+    // Determine whether Out-of-Process Provider support is enabled
+    ConfigManager* configManager = ConfigManager::getInstance();
+    if (String::equal(
+        configManager->getCurrentValue("enableProviderProcesses"), "true"))
+    {
+        _providerManagerRouter =
+            new OOPProviderManagerRouter(indicationCallback);
+    }
+    else
+    {
+        _providerManagerRouter =
+            new BasicProviderManagerRouter(indicationCallback);
+    }
 }
 
 ProviderManagerService::~ProviderManagerService(void)

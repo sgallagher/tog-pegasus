@@ -24,6 +24,7 @@ SOURCES = \
 	ProviderManagerService.cpp \
 	ProviderManagerRouter.cpp \
 	BasicProviderManagerRouter.cpp \
+        OOPProviderManagerRouter.cpp \
 	ProviderManagerModule.cpp \
 	\
 	ProviderManager.cpp \

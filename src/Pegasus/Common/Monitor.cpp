@@ -728,7 +728,7 @@ void monitor_2::run(void)
       while(temp != 0 ){
 	if(temp->get_state() == CLOSED ) {
 	  monitor_2_entry* closed = temp;
-	  temp = _listeners.next(closed);
+      temp = _listeners.next(closed);
 	  _listeners.remove_no_lock(closed);
       
       Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
@@ -802,9 +802,9 @@ void monitor_2::run(void)
       _listeners.lock(pegasus_thread_self());
       temp = _listeners.next(0);
       while(temp != 0 ){
-	Sint32 fd = (Sint32) temp->get_sock();
-	if(fd >= 0 && FD_ISSET(fd, &rd_fd_set)) {
-	  temp->set_state(BUSY);
+	  Sint32 fd = (Sint32) temp->get_sock();
+	  if(fd >= 0 && FD_ISSET(fd, &rd_fd_set)) {
+	  if(temp->get_type() != CLIENTSESSION) temp->set_state(BUSY);
 	  FD_CLR(fd,  &rd_fd_set);
 	  monitor_2_entry* ready = new monitor_2_entry(*temp);
 	  try 
@@ -834,6 +834,7 @@ void monitor_2::run(void)
     }
    }  // if events
   } // while alive 
+  _die=0;
 
 }
 
@@ -998,10 +999,23 @@ void monitor_2::_dispatch(void)
       }
       break;
     case SESSION:
+    case CLIENTSESSION:
        if(_session_dispatch != 0 )
        {
 	  // NOTE: _session_dispatch will delete entry - do not do it here
-	  _session_dispatch(entry);
+	     unsigned client=0;
+         if(entry->get_type() == CLIENTSESSION) client = 1;
+         Sint32 sock=(Sint32)(entry->get_sock());
+     
+	     _session_dispatch(entry);
+
+         if(client)
+         {
+           HTTPConnection2 *cn = monitor_2::remove_connection(sock);
+	       if(cn) delete cn;
+           // stop();
+           _die=1;
+         }
        }
        
       else {

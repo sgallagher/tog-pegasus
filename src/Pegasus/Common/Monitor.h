@@ -25,7 +25,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By:   Amit Arora (amita@in.ibm.com) for Bug#1170
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -243,7 +243,7 @@ private:
       
 };
 
-enum monitor_2_entry_type { UNTYPED, INTERNAL, LISTEN, CONNECT, SESSION };
+enum monitor_2_entry_type { UNTYPED, INTERNAL, LISTEN, CONNECT, SESSION, CLIENTSESSION };
 enum monitor_2_entry_state {IDLE, BUSY, CLOSED };
 
 

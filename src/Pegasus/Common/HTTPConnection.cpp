@@ -963,7 +963,8 @@ void HTTPConnection2::_handleReadEvent(monitor_2_entry* entry)
 			 "_requestCount = %d", _requestCount.value());
 	   
 	   _close_connection();
-	   entry->set_state(CLOSED);
+       if(entry->get_type() != CLIENTSESSION)
+	     entry->set_state(CLOSED);
 	   delete entry;
 	   
 	   }

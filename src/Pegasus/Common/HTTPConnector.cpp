@@ -30,6 +30,7 @@
 // Modified By: Sushma Fernandes, Hewlett-Packard Company
 //                (sushma_fernandes@hp.com)
 // Modified By: Dan Gorey, IBM (djgorey@us.ibm.com)
+// Modified By: Amit Arora (amita@in.ibm.com) for Bug#1170
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -72,6 +73,8 @@
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
+
+class bsd_socket_rep;
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -567,7 +570,8 @@ HTTPConnection2* HTTPConnector2::connect(
    // Create HTTPConnection2 object:
 
   //MP_Socket * mp_socket = new MP_Socket(socket, sslContext);
-   pegasus_socket * peg_socket = new pegasus_socket();
+    bsd_socket_rep *bsdrep=new bsd_socket_rep(socket);
+    pegasus_socket * peg_socket = new pegasus_socket(bsdrep);
   /* if (peg_socket->connect() < 0) {
       char portStr [32];
       sprintf (portStr, "%u", portNumber);
@@ -586,7 +590,9 @@ HTTPConnection2* HTTPConnector2::connect(
 //	this, static_cast<MessageQueueService *>(outputMessageQueue));
 
    // Solicit events on this new connection's socket:
+   _monitor->add_entry(*peg_socket, CLIENTSESSION, this, connection);
 
+ /*
    if (-1 == (_entry_index = _monitor->solicitSocketMessages(
   socket,
   SocketMessage::READ | SocketMessage::EXCEPTION,
@@ -594,7 +600,7 @@ HTTPConnection2* HTTPConnector2::connect(
    {
       peg_socket->close();
    }
-
+ */
    // Save the socket for cleanup later:
 
    _rep2->connections2.append(connection);

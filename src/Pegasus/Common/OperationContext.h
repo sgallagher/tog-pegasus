@@ -124,7 +124,8 @@ public:
     */
     void clear(void);
 
-    /** REVIEWERS:Insert description here. What parameters need descriptions?
+    /** This operation is used to retrieve the container based on the key name.
+	* Note: If the key is not present, the Exception("Common.OperationContext.OBJECT_NOT_FOUND") is thrown.
     @param containerName Specifies the name of the String container.
     */
     

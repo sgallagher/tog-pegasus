@@ -34,23 +34,34 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 const Uint32 Logger::TRACE = (1 << 0);
-const Uint32 Logger::INFORMATIVE = (1 << 1);
+const Uint32 Logger::INFORMATION = (1 << 1);
 const Uint32 Logger::WARNING = (1 << 2);
 const Uint32 Logger::SEVERE = (1 << 3);
 const Uint32 Logger::FATAL = (1 << 4);
 
 LoggerRep* Logger::_rep = 0;
 String Logger::_homeDirectory = ".";
+Uint32 Logger::_severityMask = 0xFF;      // Set all on by default
+Uint32 Logger::_writeControlMask = 0xF;   // Set all on by default
 
+/* _allocLogFileName. Allocates the name from a name set.
+    Today this is static.  However, it should be completely
+    configerable and driven from the config file so that
+    Log organization and names are open.
+    ATTN: rewrite this so that names, choice to do logs and
+    mask for level of severity are all driven from configuration
+    input.
+*/
 static char* _allocLogFileName(
     const String& homeDirectory,
     Logger::LogFileType logFileType)
 {
     static char* fileNames[] = 
     {
-	"trace.log",
-	"standard.log",
-	"error.log"
+	"PegasusTrace.log",
+	"PegasuStandard.log",
+	"PegasuError.log",
+	"PegasusDebug.log"
     };
 
     int index = int(logFileType);
@@ -105,7 +116,7 @@ private:
 void Logger::put(
     LogFileType logFileType,
     const String& systemId,
-    Uint32 level,
+    Uint32 severity,
     const String& formatString,
     const Formatter::Arg& arg0,
     const Formatter::Arg& arg1,
@@ -118,11 +129,22 @@ void Logger::put(
     const Formatter::Arg& arg8,
     const Formatter::Arg& arg9)
 {
-    if (!_rep)
-	_rep = new LoggerRep(_homeDirectory);
+    // Test for severity and log type masks to determine
+    // if we write this log.
+    if (((_severityMask & severity) != 0) 
+	&& 
+	((logFileType & _writeControlMask) != 0) )
+    {
+	if (!_rep)
+	   _rep = new LoggerRep(_homeDirectory);
 
-    _rep->logOf(logFileType) << Formatter::format(formatString,
-	arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) << endl;
+       // ATTN: We are not using the severity at this point.
+       // Should be part of LOG entry. Also not putting in datetime
+       // group.
+       _rep->logOf(logFileType) << Formatter::format(formatString,
+	   arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) << endl;
+
+    }
 }
 
 void Logger::setHomeDirectory(const String& homeDirectory)

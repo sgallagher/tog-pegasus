@@ -46,21 +46,46 @@ public:
     { 
 	TRACE_LOG, 
 	STANDARD_LOG, 
-	ERROR_LOG
+	ERROR_LOG,
+	DEBUG_LOG
     };
-
-    enum { NUM_LOGS = 3 };
+    enum { NUM_LOGS = 4 };
+      
+    /** Log file Level - Defines the level of seriousness of the
+        log entry irrespective of which log file it goes into. This is 
+        actually a bit mask as defined in logger.cpp.  Thus, it serves both
+        as a level of indication of the seriousness and possibly as a mask
+        to select what is logged.
+        ATTN: The selection test has not been done.
+    */
 
     static const Uint32 TRACE;
-    static const Uint32 INFORMATIVE;
+    static const Uint32 INFORMATION;
     static const Uint32 WARNING;
     static const Uint32 SEVERE;
     static const Uint32 FATAL;
 
+    /** put - Puts a message to the defined log file
+	@param logFileType - Type of log file (Trace, etc.)
+	@param systemId  - ID of the system generating the log entry within 
+	Pegasus. This is user defined but generally breaks down into major
+	Pegasus components.
+	@param level Level of severity of the log entry. To be used both t0
+	mark the log entry and tested against a mask to determine if log 
+	entry should be written.
+	@param formatString	Format definition string for the Log. See the 
+	Formatter for details.
+	@param Arg0 - Arg 9 - Up to 9 arguments representing the variables
+	that go into the log entry.
+    <pre>
+    Logger::put(Logger::TRACE_LOG, "CIMServer", Logger::WARNING,
+	"X=$0, Y=$1, Z=$2", 88,  "Hello World", 7.5);
+    </pre>
+    */
     static void put(
 	LogFileType logFileType,
 	const String& systemId,
-	Uint32 level,
+	Uint32 severity,
 	const String& formatString,
 	const Formatter::Arg& arg0 = Formatter::Arg(),
 	const Formatter::Arg& arg1 = Formatter::Arg(),
@@ -73,12 +98,24 @@ public:
 	const Formatter::Arg& arg8 = Formatter::Arg(),
 	const Formatter::Arg& arg9 = Formatter::Arg());
 
+    /** setHomeDirectory
+    */
     static void setHomeDirectory(const String& homeDirectory);
+
+    /** setSeverityMask
+    */
+    static void setSeverityMask(const Uint32);
+
+    /** setLogWriteControlMask
+    */
+    static void setLogWriteControlMask(const Uint32);
 
 private:
 
     static LoggerRep* _rep;
     static String _homeDirectory;
+    static Uint32 _severityMask;
+    static Uint32 _writeControlMask;
 };
 
 PEGASUS_NAMESPACE_END

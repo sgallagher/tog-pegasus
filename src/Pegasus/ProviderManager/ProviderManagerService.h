@@ -34,50 +34,80 @@
 #define Pegasus_ProviderManagerService_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/String.h>
+#include <Pegasus/Common/Pair.h>
+#include <Pegasus/Common/CIMReference.h>
 #include <Pegasus/Common/MessageQueueService.h>
-#include <Pegasus/ProviderManager/ProviderManager.h>
+#include <Pegasus/Common/Thread.h>
+#include <Pegasus/Common/Stack.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
+class ProviderManager;
+
+class PEGASUS_SERVER_LINKAGE SafeMessageQueue
+{
+public:
+	SafeMessageQueue(void);
+	virtual ~SafeMessageQueue(void);
+
+	const Message * front(void);
+		
+	void enqueue(Message * message);
+	Message * dequeue(void);
+	
+	void lock(void);
+	void unlock(void);
+
+protected:
+	Mutex _mutex;
+	Stack<Message *> _stack;
+
+};
+
 class PEGASUS_SERVER_LINKAGE ProviderManagerService : public MessageQueueService
 {
-   public:
-      ProviderManagerService(void);
-      virtual ~ProviderManagerService(void);
+public:
+	ProviderManagerService(void);
+	virtual ~ProviderManagerService(void);
 
-      virtual void handleEnqueue(Message *);
-      virtual void handleEnqueue(void);
+	// short term hack
+	ProviderManager * getProviderManager(void);
 
-      // short term hack
-      ProviderManager * getProviderManager(void)
-      {
-	 return(&providerManager);
-      }
-
-   protected:
-      Pair<String, String> _lookupProviderForClass(const CIMObjectPath & objectPath);
+protected:
+	virtual Boolean messageOK(const Message * message);
+	virtual void handleEnqueue(void);
+	virtual void handleEnqueue(Message * message);
 	
-   protected:	
-      void handleGetInstanceRequest(const Message * message);
-      void handleEnumerateInstancesRequest(const Message * message);
-      void handleEnumerateInstanceNamesRequest(const Message * message);
-      void handleCreateInstanceRequest(const Message * message);
-      void handleModifyInstanceRequest(const Message * message);
-      void handleDeleteInstanceRequest(const Message * message);
-	
-      void handleGetPropertyRequest(const Message * message);
-      void handleSetPropertyRequest(const Message * message);
-	
-      void handleInvokeMethodRequest(const Message * message);
+	virtual void _handle_async_request(AsyncRequest * request);
 
-      void handleEnableIndicationRequest(const Message * message);
-      void handleModifyIndicationRequest(const Message * message);
-      void handleDisableIndicationRequest(const Message * message);
+protected:
+	Pair<String, String> _lookupProviderForClass(const CIMObjectPath & objectPath);
 
-   protected:
-      ProviderManager providerManager;
+protected:	
+	void handleOperation(void);
+
+	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleGetInstanceRequest(void *);
+	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleEnumerateInstancesRequest(void *);
+	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleEnumerateInstanceNamesRequest(void *);
+	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleCreateInstanceRequest(void *);
+	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleModifyInstanceRequest(void *);
+	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleDeleteInstanceRequest(void *);
 	
+	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleGetPropertyRequest(void *);
+	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleSetPropertyRequest(void *);
+	
+	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleInvokeMethodRequest(void *);
+
+  	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleEnableIndicationRequest(void *);
+  	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleModifyIndicationRequest(void *);
+  	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleDisableIndicationRequest(void *);
+
+protected:
+	ThreadPool _threadPool;
+	Semaphore _threadSemaphore;
+	
+	SafeMessageQueue messageQueue;
+
 };
 
 PEGASUS_NAMESPACE_END

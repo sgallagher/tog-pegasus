@@ -39,38 +39,36 @@ PEGASUS_NAMESPACE_BEGIN
 
 class PEGASUS_SERVER_LINKAGE ProviderManager
 {
-   public:
-      ProviderManager(void);
-      virtual ~ProviderManager(void);
+public:
+	ProviderManager(void);
+	virtual ~ProviderManager(void);
 
-   public:	
-      ProviderModule getProviderModule(const String & fileName, const String & providerName);
+public:	
+	ProviderModule getProviderModule(const String & fileName, const String & providerName);
 
-      /*
+	/*
 	getProvider();
 	addProvider();
 	removeProvider();
 	startProvider();
 	stopProvider();
-      */
+	*/
 
-      void addProviderToTable(const String & providerName, Boolean BlockFlag);
-      void removeProviderFromTable(const String & providerName);
-      Uint32 blockProvider(const String & providerName);
-      Uint32 unblockProvider(const String & providerName);
-      Uint32 stopProvider(const String & providerName);
-      Boolean isProviderBlocked(const String & providerName);
-      void createProviderBlockTable(Array<CIMNamedInstance> & instances);
+	void addProviderToTable(const String & providerName, Boolean BlockFlag);
+	void removeProviderFromTable(const String & providerName);
+	Uint32 blockProvider(const String & providerName);
+	Uint32 unblockProvider(const String & providerName);
+	Uint32 stopProvider(const String & providerName);
+	Boolean isProviderBlocked(const String & providerName);
+	void createProviderBlockTable(Array<CIMNamedInstance> & instances);
 
-      void shutdownAllProviders(const String & providerName, const String & className);
+    void shutdownAllProviders(const String & providerName, const String & className);
 
+protected:
 
-      
-   protected:
-
-   protected:
-      Array<ProviderModule> _providers;
-      Array<ProviderBlockedEntry> _providerBT;
+protected:
+	Array<ProviderModule> _providers;
+	Array<ProviderBlockedEntry> _providerBT;
 
 };
 

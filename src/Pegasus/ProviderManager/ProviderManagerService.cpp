@@ -23,1129 +23,1566 @@
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
 // Modified By:
-//              Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
-//              Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
-//              Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//              Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "ProviderManagerService.h"
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Config/ConfigManager.h>
-#include <Pegasus/ProviderManager/ProviderFacade.h>
 #include <Pegasus/Common/OperationContext.h>
+#include <Pegasus/Common/Destroyer.h>
+
+#include <Pegasus/ProviderManager/ProviderManager.h>
+#include <Pegasus/ProviderManager/ProviderFacade.h>
+
 #include <Pegasus/Provider/OperationFlag.h>
 #include <Pegasus/Provider/SimpleResponseHandler.h>
 
+#include <Pegasus/Config/ConfigManager.h>
+
 PEGASUS_NAMESPACE_BEGIN
+
+	static ProviderManager providerManager;
+
+SafeMessageQueue::SafeMessageQueue(void)	
+{
+}
+
+SafeMessageQueue::~SafeMessageQueue(void)	
+{
+}
+
+void SafeMessageQueue::lock(void)
+{
+	_mutex.lock(pegasus_thread_self());
+}
+
+void SafeMessageQueue::unlock(void)
+{
+	_mutex.unlock();
+}
+
+const Message * SafeMessageQueue::front(void)
+{
+	const Message * front = 0;
+
+	try
+	{
+		lock();
+
+		front = _stack.top();
+
+		unlock();
+	}
+	catch(...)
+	{
+		unlock();
+	}
+
+	return(front);
+}
+
+void SafeMessageQueue::enqueue(Message * message)
+{
+	// do nothing for empty messages
+	if(message == 0)
+	{
+		return;
+	}
+
+	try
+	{
+		lock();
+
+		_stack.push(message);
+
+		unlock();
+	}
+	catch(...)
+	{
+		unlock();
+	}
+}
+
+Message * SafeMessageQueue::dequeue(void)
+{
+	Message * front = 0;
+
+	try
+	{
+		lock();
+
+		front = _stack.top();
+
+		_stack.pop();
+
+		unlock();
+	}
+	catch(...)
+	{
+		unlock();
+	}
+
+	return(front);
+}
 
 class Status
 {
-   public:
-      Status(void)
-	 : _code(0), _message("")
-      {
-      }
+public:
+	Status(void)
+	: _code(0), _message("")
+	{
+	}
 
-      Status(const Uint32 code, const String & message)
-	 : _code(code), _message(message)
-      {
-      }
+	Status(const Uint32 code, const String & message)
+	: _code(code), _message(message)
+	{
+	}
 
-      Uint32 getCode(void) const
-      {
-	 return(_code);
-      }
+	Uint32 getCode(void) const
+	{
+		return(_code);
+	}
 
-      String getMessage(void) const
-      {
-	 return(_message);
-      }
+	String getMessage(void) const
+	{
+		return(_message);
+	}
 
-   private:
-      Uint32 _code;
-      String _message;
+private:
+	Uint32 _code;
+	String _message;
 
 };
 
+static struct timeval await = { 0, 40};
+static struct timeval dwait = { 10, 0};
+static struct timeval deadwait = { 1, 0};
+
 ProviderManagerService::ProviderManagerService(void)
-   : MessageQueueService("Server::ProviderManagerService", MessageQueue::getNextQueueId())
+	: MessageQueueService("Server::ProviderManagerService", MessageQueue::getNextQueueId()),
+	_threadPool(10, "ProviderManagerService", 5, 15, await, dwait, deadwait),
+	_threadSemaphore(0)
 {
 }
 
-ProviderManagerService::~ProviderManagerService(void)
+ProviderManagerService::~ProviderManagerService(void)	
 {
 }
 
-void ProviderManagerService::handleEnqueue(Message *message)
+ProviderManager * ProviderManagerService::getProviderManager(void)
 {
-   if(! message)
-      return;
-   
-
-   switch(message->getType())
-   {
-      case CIM_GET_CLASS_REQUEST_MESSAGE:
-      case CIM_ENUMERATE_CLASSES_REQUEST_MESSAGE:
-      case CIM_ENUMERATE_CLASS_NAMES_REQUEST_MESSAGE:
-      case CIM_CREATE_CLASS_REQUEST_MESSAGE:
-      case CIM_MODIFY_CLASS_REQUEST_MESSAGE:
-      case CIM_DELETE_CLASS_REQUEST_MESSAGE:
-	 break;
-      case CIM_GET_INSTANCE_REQUEST_MESSAGE:
-	 handleGetInstanceRequest(message);
-
-	 break;
-      case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
-	 handleEnumerateInstancesRequest(message);
-
-	 break;
-      case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE:
-	 handleEnumerateInstanceNamesRequest(message);
-
-	 break;
-      case CIM_CREATE_INSTANCE_REQUEST_MESSAGE:
-	 handleCreateInstanceRequest(message);
-
-	 break;
-      case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
-	 handleModifyInstanceRequest(message);
-
-	 break;
-      case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
-	 handleDeleteInstanceRequest(message);
-
-	 break;
-      case CIM_EXEC_QUERY_REQUEST_MESSAGE:
-      case CIM_ASSOCIATORS_REQUEST_MESSAGE:
-      case CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE:
-      case CIM_REFERENCES_REQUEST_MESSAGE:
-      case CIM_REFERENCE_NAMES_REQUEST_MESSAGE:
-	 break;
-      case CIM_GET_PROPERTY_REQUEST_MESSAGE:
-	 handleGetPropertyRequest(message);
-
-	 break;
-      case CIM_SET_PROPERTY_REQUEST_MESSAGE:
-	 handleSetPropertyRequest(message);
-
-	 break;
-      case CIM_GET_QUALIFIER_REQUEST_MESSAGE:
-      case CIM_SET_QUALIFIER_REQUEST_MESSAGE:
-      case CIM_DELETE_QUALIFIER_REQUEST_MESSAGE:
-      case CIM_ENUMERATE_QUALIFIERS_REQUEST_MESSAGE:
-	 break;
-      case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
-	 handleInvokeMethodRequest(message);
-
-	 break;
-      case CIM_ENABLE_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
-	 handleEnableIndicationRequest(message);
-
-	 break;
-
-      case CIM_MODIFY_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
-	 handleModifyIndicationRequest(message);
-
-	 break;
-      case CIM_DISABLE_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
-	 handleDisableIndicationRequest(message);
-
-	 break;
-      default:
-	 break;
-   }
-
-   delete message;
-}
-
-
-void ProviderManagerService::handleEnqueue(void)
-{
-   Message * message = dequeue();
-	
-   PEGASUS_ASSERT(message != 0);
-   if( message )
-      handleEnqueue(message);
-	
-
+	return(&providerManager);
 }
 
 Pair<String, String> ProviderManagerService::_lookupProviderForClass(const CIMObjectPath & objectPath)
 {
-   MessageQueue * queue = MessageQueue::lookup("Server::ConfigurationManagerQueue");
+	// get target queue id
+	Uint32 targetQueueId = 0;
 
-   PEGASUS_ASSERT(queue != 0);
+	{
+		MessageQueue * queue = MessageQueue::lookup("Server::ConfigurationManagerQueue");
 
-   Uint32 targetQueueId = queue->getQueueId();
-   Uint32 sourceQueueId = this->getQueueId();
+		PEGASUS_ASSERT(queue != 0);
 
-   // get all CIM_ProviderElementCapabilities instances
-   Array<CIMInstance> providerElementCapabilitiesInstances;
+		targetQueueId = queue->getQueueId();
+	}
 
-   {
-      // create request
-      CIMRequestMessage * request = new CIMEnumerateInstancesRequestMessage(
-	 "golden snitch",
-	 objectPath.getNameSpace(),
-	 "CIM_ProviderElementCapabilities",
-	 false,
-	 false,
-	 false,
-	 false,
-	 Array<String>(),
-	 QueueIdStack(targetQueueId, sourceQueueId));
+	// get source queue id
+	Uint32 sourceQueueId = 0;
 
-      // save the message key because the lifetime of the message is not known.
-      Uint32 messageKey = request->getKey();
+	{
+		MessageQueue * queue = MessageQueue::lookup("Server::ProviderManagerService");
 
-      //	<< Tue Feb 12 08:29:38 2002 mdd >> example of conversion to meta dispatcher
-      // automatically initializes backpointer
-      AsyncLegacyOperationStart * async_req = new AsyncLegacyOperationStart(
-	 get_next_xid(),
-	 0,
-	 targetQueueId,
-	 request,
-	 sourceQueueId);
+		PEGASUS_ASSERT(queue != 0);
 
-      // send request and wait for response
-      AsyncReply * async_reply = SendWait(async_req);
+		sourceQueueId = queue->getQueueId();
+	}
 
-      CIMEnumerateInstancesResponseMessage * response =
-	 reinterpret_cast<CIMEnumerateInstancesResponseMessage *>
-	 ((static_cast<AsyncLegacyOperationResult *>(async_reply))->get_result());
+	// get all CIM_ProviderElementCapabilities instances
+	Array<CIMInstance> providerElementCapabilitiesInstances;
 
-      delete async_req;
-      delete async_reply;
+	{
+		// create request
+		CIMRequestMessage * request = new CIMEnumerateInstancesRequestMessage(
+			"golden snitch",
+			objectPath.getNameSpace(),
+			"CIM_ProviderElementCapabilities",
+			false,
+			false,
+			false,
+			false,
+			Array<String>(),
+			QueueIdStack(targetQueueId, sourceQueueId));
 
-      // ATTN: temporary fix until CIMNamedInstance is removed
-      for(Uint32 i = 0, n = response->cimNamedInstances.size(); i < n; i++)
-      {
-	 providerElementCapabilitiesInstances.append(response->cimNamedInstances[i].getInstance());
-      }
-   }
+		//	<< Tue Feb 12 08:29:38 2002 mdd >> example of conversion to meta dispatcher
+		// automatically initializes backpointer
+		AsyncLegacyOperationStart * async_req = new AsyncLegacyOperationStart(
+			get_next_xid(),
+			0,
+			targetQueueId,
+			request,
+			sourceQueueId);
 
-   for(Uint32 i = 0, n = providerElementCapabilitiesInstances.size(); i < n; i++)
-   {
-      // get the associated CIM_ProviderCapabilities instance
-      CIMInstance providerCapabilitiesInstance;
+		// send request and wait for response
+		AsyncReply * async_reply = SendWait(async_req);
 
-      {
-	 // the object path of the associated instance is in the 'Capabilities' property
-	 Uint32 pos = providerElementCapabilitiesInstances[i].findProperty("Capabilities");
+		CIMEnumerateInstancesResponseMessage * response =
+			reinterpret_cast<CIMEnumerateInstancesResponseMessage *>
+			((static_cast<AsyncLegacyOperationResult *>(async_reply))->get_result());
 
-	 PEGASUS_ASSERT(pos != PEG_NOT_FOUND);
+		delete async_req;
+		delete async_reply;
 
-	 CIMReference cimReference = providerElementCapabilitiesInstances[i].getProperty(pos).getValue().toString();
+		// ATTN: temporary fix until CIMNamedInstance is removed
+		for(Uint32 i = 0, n = response->cimNamedInstances.size(); i < n; i++)
+		{
+			providerElementCapabilitiesInstances.append(response->cimNamedInstances[i].getInstance());
+		}
+	}
 
-	 // create request
-	 CIMRequestMessage * request = new CIMGetInstanceRequestMessage(
-	    "golden snitch",
-	    objectPath.getNameSpace(),
-	    cimReference,
-	    false,
-	    false,
-	    false,
-	    Array<String>(),
-	    QueueIdStack(targetQueueId, sourceQueueId));
+	for(Uint32 i = 0, n = providerElementCapabilitiesInstances.size(); i < n; i++)
+	{
+		// get the associated CIM_ProviderCapabilities instance
+		CIMInstance providerCapabilitiesInstance;
 
-	 // save the message key because the lifetime of the message is not known.
-	 Uint32 messageKey = request->getKey();
+		{
+			// the object path of the associated instance is in the 'Capabilities' property
+			Uint32 pos = providerElementCapabilitiesInstances[i].findProperty("Capabilities");
 
-	 //	<< Tue Feb 12 08:29:38 2002 mdd >> example of conversion to meta dispatcher
-	 // automatically initializes backpointer
-	 AsyncLegacyOperationStart * async_req = new AsyncLegacyOperationStart(
-	    get_next_xid(),
-	    0,
-	    targetQueueId,
-	    request,
-	    sourceQueueId);
+			PEGASUS_ASSERT(pos != PEG_NOT_FOUND);
 
-	 // send request and wait for response
-	 AsyncReply * async_reply = SendWait(async_req);
+			CIMReference cimReference = providerElementCapabilitiesInstances[i].getProperty(pos).getValue().toString();
 
-	 CIMGetInstanceResponseMessage * response =
-	    reinterpret_cast<CIMGetInstanceResponseMessage *>
-	    ((static_cast<AsyncLegacyOperationResult *>(async_reply))->get_result());
+			// create request
+			CIMRequestMessage * request = new CIMGetInstanceRequestMessage(
+				"golden snitch",
+				objectPath.getNameSpace(),
+				cimReference,
+				false,
+				false,
+				false,
+				Array<String>(),
+				QueueIdStack(targetQueueId, sourceQueueId));
 
-	 delete async_req;
-	 delete async_reply;
+			//	<< Tue Feb 12 08:29:38 2002 mdd >> example of conversion to meta dispatcher
+			// automatically initializes backpointer
+			AsyncLegacyOperationStart * async_req = new AsyncLegacyOperationStart(
+				get_next_xid(),
+				0,
+				targetQueueId,
+				request,
+				sourceQueueId);
 
-	 providerCapabilitiesInstance = response->cimInstance;
-      }
+			// send request and wait for response
+			AsyncReply * async_reply = SendWait(async_req);
 
-      try
-      {
-	 // get the ClassName property value from the instance
-	 Uint32 pos = providerCapabilitiesInstance.findProperty("ClassName");
+			CIMGetInstanceResponseMessage * response =
+				reinterpret_cast<CIMGetInstanceResponseMessage *>
+				((static_cast<AsyncLegacyOperationResult *>(async_reply))->get_result());
 
-	 PEGASUS_ASSERT(pos != PEG_NOT_FOUND);
+			delete async_req;
+			delete async_reply;
 
-	 // compare the property value with the requested class name
-	 if(!String::equalNoCase(objectPath.getClassName(), providerCapabilitiesInstance.getProperty(pos).getValue().toString()))
-	 {
-	    // go to the next CIM_ProviderCapabilities instance
-	    continue;
-	 }
-      }
-      catch(...)
-      {
-	 // instance or property error, use different technique
-	 break;
-      }
+			providerCapabilitiesInstance = response->cimInstance;
+		}
 
-      // get the associated CIM_Provider instance
-      CIMInstance providerInstance;
+		try
+		{
+			// get the ClassName property value from the instance
+			Uint32 pos = providerCapabilitiesInstance.findProperty("ClassName");
 
-      {
-	 // the object path of the associated instance is in the 'ManagedElement' property
-	 Uint32 pos = providerElementCapabilitiesInstances[i].findProperty("ManagedElement");
+			PEGASUS_ASSERT(pos != PEG_NOT_FOUND);
 
-	 PEGASUS_ASSERT(pos != PEG_NOT_FOUND);
+			// compare the property value with the requested class name
+			if(!String::equalNoCase(objectPath.getClassName(), providerCapabilitiesInstance.getProperty(pos).getValue().toString()))
+			{
+				// go to the next CIM_ProviderCapabilities instance
+				continue;
+			}
+		}
+		catch(...)
+		{
+			// instance or property error, use different technique
+			break;
+		}
 
-	 CIMReference cimReference = providerElementCapabilitiesInstances[i].getProperty(pos).getValue().toString();
+		// get the associated CIM_Provider instance
+		CIMInstance providerInstance;
 
-	 // create request
-	 CIMRequestMessage * request = new CIMGetInstanceRequestMessage(
-	    "golden snitch",
-	    objectPath.getNameSpace(),
-	    cimReference,
-	    false,
-	    false,
-	    false,
-	    Array<String>(),
-	    QueueIdStack(targetQueueId, sourceQueueId));
+		{
+			// the object path of the associated instance is in the 'ManagedElement' property
+			Uint32 pos = providerElementCapabilitiesInstances[i].findProperty("ManagedElement");
 
-	 // save the message key because the lifetime of the message is not known.
-	 Uint32 messageKey = request->getKey();
+			PEGASUS_ASSERT(pos != PEG_NOT_FOUND);
 
-	 //	<< Tue Feb 12 08:29:38 2002 mdd >> example of conversion to meta dispatcher
-	 // automatically initializes backpointer
-	 AsyncLegacyOperationStart * async_req = new AsyncLegacyOperationStart(
-	    get_next_xid(),
-	    0,
-	    targetQueueId,
-	    request,
-	    sourceQueueId);
+			CIMReference cimReference = providerElementCapabilitiesInstances[i].getProperty(pos).getValue().toString();
 
-	 // send request and wait for response
-	 AsyncReply * async_reply = SendWait(async_req);
+			// create request
+			CIMRequestMessage * request = new CIMGetInstanceRequestMessage(
+				"golden snitch",
+				objectPath.getNameSpace(),
+				cimReference,
+				false,
+				false,
+				false,
+				Array<String>(),
+				QueueIdStack(targetQueueId, sourceQueueId));
 
-	 CIMGetInstanceResponseMessage * response =
-	    reinterpret_cast<CIMGetInstanceResponseMessage *>
-	    ((static_cast<AsyncLegacyOperationResult *>(async_reply))->get_result());
+			//	<< Tue Feb 12 08:29:38 2002 mdd >> example of conversion to meta dispatcher
+			// automatically initializes backpointer
+			AsyncLegacyOperationStart * async_req = new AsyncLegacyOperationStart(
+				get_next_xid(),
+				0,
+				targetQueueId,
+				request,
+				sourceQueueId);
 
-	 delete async_req;
-	 delete async_reply;
+			// send request and wait for response
+			AsyncReply * async_reply = SendWait(async_req);
 
-	 providerInstance = response->cimInstance;
-      }
+			CIMGetInstanceResponseMessage * response =
+				reinterpret_cast<CIMGetInstanceResponseMessage *>
+				((static_cast<AsyncLegacyOperationResult *>(async_reply))->get_result());
 
-      // extract provider information
-      String providerName = providerInstance.getProperty(providerInstance.findProperty("Name")).getValue().toString();
-      String providerLocation = providerInstance.getProperty(providerInstance.findProperty("Location")).getValue().toString();
+			delete async_req;
+			delete async_reply;
 
-      if((providerName.size() != 0) && (providerLocation.size() != 0))
-      {
-	 String fileName;
+			providerInstance = response->cimInstance;
+		}
 
-	 //
-	 // translate the provider identifier into a file name
-	 //
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-	 fileName = providerLocation + String(".dll");
-#elif defined(PEGASUS_OS_HPUX)
-	 fileName = ConfigManager::getHomedPath(
-	    ConfigManager::getInstance()->getCurrentValue(
-	       "providerDir")) + String("/lib") +
-	    providerName + String(".sl");
-#else
-	 // fileName = providerLocation + getenv("PEGASUS_HOME") + String("/lib/lib") + _providerName + String(".so");
-	 fileName = ConfigManager::getHomedPath(
-	    ConfigManager::getInstance()->getCurrentValue(
-	       "providerDir")) + String("/lib") +
-	    providerName + String(".so");
-#endif
+		// extract provider information
+		String providerName = providerInstance.getProperty(providerInstance.findProperty("Name")).getValue().toString();
+		String providerLocation = providerInstance.getProperty(providerInstance.findProperty("Location")).getValue().toString();
 
-	 return(Pair<String, String>(fileName, providerName));
-      }
+		if((providerName.size() != 0) && (providerLocation.size() != 0))
+		{
+			String fileName;
 
-      // provider information error, use different technique
-      break;
-   }
+			//
+			// translate the provider identifier into a file name
+			//
+			#ifdef PEGASUS_OS_TYPE_WINDOWS
+			fileName = providerLocation + String(".dll");
+			#elif defined(PEGASUS_OS_HPUX)
+			fileName = ConfigManager::getHomedPath(
+				ConfigManager::getInstance()->getCurrentValue("providerDir")) +
+				String("/lib") + providerName + String(".sl");
+			#else
+			fileName = ConfigManager::getHomedPath(
+				ConfigManager::getInstance()->getCurrentValue("providerDir")) +
+				String("/lib") + providerName + String(".so");
+			#endif
 
-   return(Pair<String, String>(String::EMPTY, String::EMPTY));
+			return(Pair<String, String>(fileName, providerName));
+		}
+
+		break;
+	}
+
+	return(Pair<String, String>(String::EMPTY, String::EMPTY));
 }
 
-void ProviderManagerService::handleGetInstanceRequest(const Message * message)
+Boolean ProviderManagerService::messageOK(const Message * message)
 {
-   const CIMGetInstanceRequestMessage * request =
-      (const CIMGetInstanceRequestMessage *)message;
+	PEGASUS_ASSERT(message != 0);
 
-   Status status;
-
-   CIMInstance cimInstance;
-
-   try
-   {
-      // make class reference
-      CIMReference classReference(
-	 request->instanceName.getHost(),
-	 request->nameSpace,
-	 request->instanceName.getClassName());
-
-      // get the provider file name and logical name
-      Pair<String, String> pair = _lookupProviderForClass(classReference);
-
-      // get cached or load new provider module
-      ProviderModule module = providerManager.getProviderModule(pair.first, pair.second);
-
-      // encapsulate the physical provider in a facade
-      ProviderFacade facade(module.getProvider());
-
-      // convert arguments
-      OperationContext context;
-      CIMReference instanceReference(request->instanceName);
-
-      // ATTN: propagate namespace
-      instanceReference.setNameSpace(request->nameSpace);
-
-      // ATTN: convert flags to bitmask
-      Uint32 flags = OperationFlag::convert(false);
-      CIMPropertyList propertyList(request->propertyList);
-
-      SimpleResponseHandler<CIMInstance> handler;
-
-      // forward request
-      facade.getInstance(
-	 context,
-	 instanceReference,
-	 flags,
-	 propertyList.getPropertyNameArray(),
-	 handler);
-
-      // error? provider claims success, but did not deliver an instance.
-      if(handler._objects.size() == 0)
-      {
-	 throw CIMException(CIM_ERR_NOT_FOUND);
-      }
-
-      // save returned instance
-      cimInstance = handler._objects[0];
-   }
-   catch(CIMException & e)
-   {
-      status = Status(e.getCode(), e.getMessage());
-   }
-   catch(Exception & e)
-   {
-      status = Status(CIM_ERR_FAILED, e.getMessage());
-   }
-   catch(...)
-   {
-      status = Status(CIM_ERR_FAILED, "Unknown Error");
-   }
-
-   // create response message
-   CIMGetInstanceResponseMessage * response =
-      new CIMGetInstanceResponseMessage(
-	 request->messageId,
-	 CIMStatusCode(status.getCode()),
-	 status.getMessage(),
-	 request->queueIds.copyAndPop(),
-	 cimInstance);
-
-   // preserve message key
-   response->setKey(request->getKey());
-
-   // lookup the message queue
-   MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
-
-   PEGASUS_ASSERT(queue != 0);
-
-   // enqueue the response
-   queue->enqueue(response);
+	return(MessageQueueService::messageOK(message));
+/*
+	Boolean rc = false;
+	
+	switch(message->getType())
+	{
+	case CIM_GET_INSTANCE_REQUEST_MESSAGE:
+	case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
+	case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE:
+	case CIM_CREATE_INSTANCE_REQUEST_MESSAGE:
+	case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
+	case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
+	case CIM_GET_PROPERTY_REQUEST_MESSAGE:
+	case CIM_SET_PROPERTY_REQUEST_MESSAGE:
+	case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
+	case CIM_ENABLE_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
+	case CIM_MODIFY_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
+	case CIM_DISABLE_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
+		rc = true;
+		
+		break;
+	default:
+		rc = false;
+		
+		break;
+	}
+	
+	return(rc);
+*/
 }
 
-void ProviderManagerService::handleEnumerateInstancesRequest(const Message * message)
+void ProviderManagerService::handleEnqueue(void)
 {
-   const CIMEnumerateInstancesRequestMessage * request =
-      (const CIMEnumerateInstancesRequestMessage *)message;
-
-   Status status;
-
-   Array<CIMNamedInstance> cimInstances;
-
-   try
-   {
-      // make class reference
-      CIMReference classReference(
-	 "",
-	 request->nameSpace,
-	 request->className);
-
-      // get the provider file name and logical name
-      Pair<String, String> pair = _lookupProviderForClass(classReference);
-
-      // get cached or load new provider module
-      ProviderModule module = providerManager.getProviderModule(pair.first, pair.second);
-
-      // encapsulate the physical provider in a facade
-      ProviderFacade facade(module.getProvider());
-
-      // convert arguments
-      OperationContext context;
-
-      // ATTN: propagate namespace
-      classReference.setNameSpace(request->nameSpace);
-
-      // ATTN: convert flags to bitmask
-      Uint32 flags = OperationFlag::convert(false);
-      CIMPropertyList propertyList(request->propertyList);
-
-      SimpleResponseHandler<CIMInstance> handler;
-
-      facade.enumerateInstances(
-	 context,
-	 classReference,
-	 flags,
-	 propertyList.getPropertyNameArray(),
-	 handler);
-
-      // save returned instance
-
-      // ATTN: can be removed once CIMNamedInstance is removed
-      for(Uint32 i = 0, n = handler._objects.size(); i < n; i++)
-      {
-	 cimInstances.append(CIMNamedInstance(handler._objects[i].getPath(), handler._objects[i]));
-      }
-   }
-   catch(CIMException & e)
-   {
-      status = Status(e.getCode(), e.getMessage());
-   }
-   catch(Exception & e)
-   {
-      status = Status(CIM_ERR_FAILED, e.getMessage());
-   }
-   catch(...)
-   {
-      status = Status(CIM_ERR_FAILED, "Unknown Error");
-   }
-
-   // create response message
-   CIMEnumerateInstancesResponseMessage * response =
-      new CIMEnumerateInstancesResponseMessage(
-	 request->messageId,
-	 CIMStatusCode(status.getCode()),
-	 status.getMessage(),
-	 request->queueIds.copyAndPop(),
-	 cimInstances);
-
-   // preserve message key
-   response->setKey(request->getKey());
-
-   // lookup the message queue
-   MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
-
-   PEGASUS_ASSERT(queue != 0);
-
-   // enqueue the response
-   queue->enqueue(response);
+	return;
 }
 
-void ProviderManagerService::handleEnumerateInstanceNamesRequest(const Message * message)
+void ProviderManagerService::handleEnqueue(Message * message)
 {
-   const CIMEnumerateInstanceNamesRequestMessage * request =
-      (const CIMEnumerateInstanceNamesRequestMessage *)message;
-
-   Status status;
-
-   Array<CIMReference> cimReferences;
-
-   try
-   {
-      // make class reference
-      CIMReference classReference(
-	 "",
-	 request->nameSpace,
-	 request->className);
-
-      // get the provider file name and logical name
-      Pair<String, String> pair = _lookupProviderForClass(classReference);
-
-      // get cached or load new provider module
-      ProviderModule module = providerManager.getProviderModule(pair.first, pair.second);
-
-      // encapsulate the physical provider in a facade
-      ProviderFacade facade(module.getProvider());
-
-      // convert arguments
-      OperationContext context;
-
-      // ATTN: propagate namespace
-      classReference.setNameSpace(request->nameSpace);
-
-      SimpleResponseHandler<CIMReference> handler;
-
-      facade.enumerateInstanceNames(
-	 context,
-	 classReference,
-	 handler);
-
-      // save returned instance
-      cimReferences = handler._objects;
-   }
-   catch(CIMException & e)
-   {
-      status = Status(e.getCode(), e.getMessage());
-   }
-   catch(Exception & e)
-   {
-      status = Status(CIM_ERR_FAILED, e.getMessage());
-   }
-   catch(...)
-   {
-      status = Status(CIM_ERR_FAILED, "Unknown Error");
-   }
-
-   // create response message
-   CIMEnumerateInstanceNamesResponseMessage * response =
-      new CIMEnumerateInstanceNamesResponseMessage(
-	 request->messageId,
-	 CIMStatusCode(status.getCode()),
-	 status.getMessage(),
-	 request->queueIds.copyAndPop(),
-	 cimReferences);
-
-   // preserve message key
-   response->setKey(request->getKey());
-
-   // lookup the message queue
-   MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
-
-   PEGASUS_ASSERT(queue != 0);
-
-   // enqueue the response
-   queue->enqueue(response);
+	return;
 }
 
-void ProviderManagerService::handleCreateInstanceRequest(const Message * message)
+void ProviderManagerService::_handle_async_request(AsyncRequest * request)
 {
-   const CIMCreateInstanceRequestMessage * request =
-      (const CIMCreateInstanceRequestMessage *)message;
+	PEGASUS_ASSERT(request != 0);
 
-   CIMInstance cimInstance;
-   CIMReference instanceName;
-   Status status;
+	if(request->getType() == async_messages::ASYNC_LEGACY_OP_START)
+	{
+		request->op->processing();
 
-   try
-   {
-      String className = request->newInstance.getClassName();
+		Message * message = (static_cast<AsyncLegacyOperationStart *>(request)->get_action());
 
-      // make class reference
-      CIMReference classReference(
-         "",
-         request->nameSpace,
-         className);
+		PEGASUS_ASSERT(message != 0);
 
-      // get the provider file name and logical name
-      Pair<String, String> pair = _lookupProviderForClass(classReference);
+		messageQueue.enqueue(message);
 
-      // get cached or load new provider module
-      ProviderModule module = providerManager.getProviderModule(pair.first, pair.second);
+		handleOperation();
 
-      // encapsulate the physical provider in a facade
-      ProviderFacade facade(module.getProvider());
+		return;
+	}
 
-      // convert arguments
-      OperationContext context;
-
-      CIMReference instanceReference;
-
-      // ATTN: propagate namespace
-      instanceReference.setNameSpace(request->nameSpace);
-
-      // ATTN: need to handle key binding
-      instanceReference.setClassName(className);
-
-      SimpleResponseHandler<CIMReference> handler;
-
-      // forward request
-      facade.createInstance(
-         context,
-         instanceReference,
-         request->newInstance,
-         handler);
-
-      // error? provider claims success, but did not deliver an 
-      // instance name.
-      if(handler._objects.size() == 0)
-      {
-          throw CIMException(CIM_ERR_NOT_FOUND);
-      }
-
-      // save returned instance name
-      instanceName = handler._objects[0];
-   }
-   catch(CIMException & e)
-   {
-      status = Status(e.getCode(), e.getMessage());
-   }
-   catch(Exception & e)
-   {
-      status = Status(CIM_ERR_FAILED, e.getMessage());
-   }
-   catch(...)
-   {
-      status = Status(CIM_ERR_FAILED, "Unknown Error");
-   }
-
-   // create response message
-   CIMCreateInstanceResponseMessage * response =
-      new CIMCreateInstanceResponseMessage(
-         request->messageId,
-         CIMStatusCode(status.getCode()),
-         status.getMessage(),
-         request->queueIds.copyAndPop(),
-         instanceName);
-
-   // preserve message key
-   response->setKey(request->getKey());
-
-   // lookup the message queue
-   MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
-
-   PEGASUS_ASSERT(queue != 0);
-
-   // enqueue the response
-   queue->enqueue(response);
+	// pass all other operations to the default handler
+	MessageQueueService::_handle_async_request(request);
 }
 
-void ProviderManagerService::handleModifyInstanceRequest(const Message * message)
+void ProviderManagerService::handleOperation(void)
 {
-   const CIMModifyInstanceRequestMessage * request =
-      (const CIMModifyInstanceRequestMessage *)message;
+	const Message * message = messageQueue.front();
 
-   CIMReference instanceName;
-   Status status;
+	PEGASUS_ASSERT(message != 0);
 
-   try
-   {
-      instanceName = request->modifiedInstance.getInstanceName();
-      String className = instanceName.getClassName();
+	// pass the request message to a handler method based on message type
+	switch(message->getType())
+	{
+	case CIM_GET_CLASS_REQUEST_MESSAGE:
+	case CIM_ENUMERATE_CLASSES_REQUEST_MESSAGE:
+	case CIM_ENUMERATE_CLASS_NAMES_REQUEST_MESSAGE:
+	case CIM_CREATE_CLASS_REQUEST_MESSAGE:
+	case CIM_MODIFY_CLASS_REQUEST_MESSAGE:
+	case CIM_DELETE_CLASS_REQUEST_MESSAGE:
+		break;
+	case CIM_GET_INSTANCE_REQUEST_MESSAGE:
+		// forward request to specialized method
+		_threadPool.allocate_and_awaken((void *)this, handleGetInstanceRequest);
 
-      // make class reference
-      CIMReference classReference(
-         instanceName.getHost(),
-         request->nameSpace,
-         className);
+		// wait for specialized method to initialize
+		_threadSemaphore.wait();
 
-      // get the provider file name and logical name
-      Pair<String, String> pair = _lookupProviderForClass(classReference);
+		break;
+	case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
+		_threadPool.allocate_and_awaken((void *)this, handleEnumerateInstancesRequest);
 
-      // get cached or load new provider module
-      ProviderModule module = providerManager.getProviderModule(pair.first, pair.second);
+		// wait for specialized method to initialize
+		_threadSemaphore.wait();
 
-      // encapsulate the physical provider in a facade
-      ProviderFacade facade(module.getProvider());
+		break;
+	case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE:
+		_threadPool.allocate_and_awaken((void *)this, handleEnumerateInstanceNamesRequest);
 
-      // convert arguments
-      OperationContext context;
+		// wait for specialized method to initialize
+		_threadSemaphore.wait();
 
-      // ATTN: convert flags to bitmask
-      Uint32 flags = OperationFlag::convert(false);
-      CIMPropertyList propertyList(request->propertyList);
+		break;
+	case CIM_CREATE_INSTANCE_REQUEST_MESSAGE:
+		_threadPool.allocate_and_awaken((void *)this, handleCreateInstanceRequest);
 
-      SimpleResponseHandler<CIMInstance> handler;
+		// wait for specialized method to initialize
+		_threadSemaphore.wait();
 
-      // forward request
-      facade.modifyInstance(
-         context,
-         instanceName,
-         request->modifiedInstance.getInstance(),
-         flags,
-         propertyList.getPropertyNameArray(),
-         handler);
-   }
-   catch(CIMException & e)
-   {
-      status = Status(e.getCode(), e.getMessage());
-   }
-   catch(Exception & e)
-   {
-      status = Status(CIM_ERR_FAILED, e.getMessage());
-   }
-   catch(...)
-   {
-      status = Status(CIM_ERR_FAILED, "Unknown Error");
-   }
+		break;
+	case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
+		_threadPool.allocate_and_awaken((void *)this, handleModifyInstanceRequest);
 
-   // create response message
-   CIMModifyInstanceResponseMessage * response =
-      new CIMModifyInstanceResponseMessage(
-         request->messageId,
-         CIMStatusCode(status.getCode()),
-         status.getMessage(),
-         request->queueIds.copyAndPop());
+		break;
+	case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
+		_threadPool.allocate_and_awaken((void *)this, handleDeleteInstanceRequest);
 
-   // preserve message key
-   response->setKey(request->getKey());
+		break;
+	case CIM_EXEC_QUERY_REQUEST_MESSAGE:
+	case CIM_ASSOCIATORS_REQUEST_MESSAGE:
+	case CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE:
+	case CIM_REFERENCES_REQUEST_MESSAGE:
+	case CIM_REFERENCE_NAMES_REQUEST_MESSAGE:
+		break;
+	case CIM_GET_PROPERTY_REQUEST_MESSAGE:
+		_threadPool.allocate_and_awaken((void *)this, handleGetPropertyRequest);
 
-   // lookup the message queue
-   MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
+		// wait for specialized method to initialize
+		_threadSemaphore.wait();
 
-   PEGASUS_ASSERT(queue != 0);
+		break;
+	case CIM_SET_PROPERTY_REQUEST_MESSAGE:
+		_threadPool.allocate_and_awaken((void *)this, handleSetPropertyRequest);
 
-   // enqueue the response
-   queue->enqueue(response);
+		// wait for specialized method to initialize
+		_threadSemaphore.wait();
+
+		break;
+	case CIM_GET_QUALIFIER_REQUEST_MESSAGE:
+	case CIM_SET_QUALIFIER_REQUEST_MESSAGE:
+	case CIM_DELETE_QUALIFIER_REQUEST_MESSAGE:
+	case CIM_ENUMERATE_QUALIFIERS_REQUEST_MESSAGE:
+		break;
+	case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
+		_threadPool.allocate_and_awaken((void *)this, handleInvokeMethodRequest);
+
+		// wait for specialized method to initialize
+		_threadSemaphore.wait();
+
+		break;
+	case CIM_ENABLE_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
+		_threadPool.allocate_and_awaken((void *)this, handleEnableIndicationRequest);
+
+		// wait for specialized method to initialize
+		_threadSemaphore.wait();
+
+		break;
+	case CIM_MODIFY_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
+		_threadPool.allocate_and_awaken((void *)this, handleModifyIndicationRequest);
+
+		// wait for specialized method to initialize
+		_threadSemaphore.wait();
+
+		break;
+	case CIM_DISABLE_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
+		_threadPool.allocate_and_awaken((void *)this, handleDisableIndicationRequest);
+
+		// wait for specialized method to initialize
+		_threadSemaphore.wait();
+
+		break;
+	default:
+		break;
+	}
 }
 
-void ProviderManagerService::handleDeleteInstanceRequest(const Message * message)
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleGetInstanceRequest(void * arg)
 {
-   const CIMDeleteInstanceRequestMessage * request =
-      (const CIMDeleteInstanceRequestMessage *)message;
+	// get the service from argument
+	ProviderManagerService * service = reinterpret_cast<ProviderManagerService *>(arg);
 
-   Status status;
+	PEGASUS_ASSERT(service != 0);
 
-   try
-   {
-      String className = request->instanceName.getClassName();
+	// get message from service queue
+	const CIMGetInstanceRequestMessage * request =
+		(const CIMGetInstanceRequestMessage *)service->messageQueue.dequeue();
 
-      // make class reference
-      CIMReference classReference(
-         request->instanceName.getHost(),
-         request->nameSpace,
-         className);
+	PEGASUS_ASSERT(request != 0);
 
-      // get the provider file name and logical name
-      Pair<String, String> pair = _lookupProviderForClass(classReference);
+	// notify the service that the request has been accepted
+	service->_threadSemaphore.signal();
 
-      // get cached or load new provider module
-      ProviderModule module = providerManager.getProviderModule(pair.first, pair.second);
+	Status status;
 
-      // encapsulate the physical provider in a facade
-      ProviderFacade facade(module.getProvider());
+	CIMInstance cimInstance;
 
-      // convert arguments
-      OperationContext context;
+	try
+	{
+		// make class reference
+		CIMReference classReference(
+			request->instanceName.getHost(),
+			request->nameSpace,
+			request->instanceName.getClassName());
 
-      SimpleResponseHandler<CIMInstance> handler;
+		// get the provider file name and logical name
+		Pair<String, String> pair = service->_lookupProviderForClass(classReference);
 
-      // forward request
-      facade.deleteInstance(
-         context,
-         request->instanceName,
-         handler);
-   }
-   catch(CIMException & e)
-   {
-      status = Status(e.getCode(), e.getMessage());
-   }
-   catch(Exception & e)
-   {
-      status = Status(CIM_ERR_FAILED, e.getMessage());
-   }
-   catch(...)
-   {
-      status = Status(CIM_ERR_FAILED, "Unknown Error");
-   }
+		// get cached or load new provider module
+		ProviderModule module = providerManager.getProviderModule(pair.first, pair.second);
 
-   // create response message
-   CIMDeleteInstanceResponseMessage * response =
-      new CIMDeleteInstanceResponseMessage(
-         request->messageId,
-         CIMStatusCode(status.getCode()),
-         status.getMessage(),
-         request->queueIds.copyAndPop());
+		// encapsulate the physical provider in a facade
+		ProviderFacade facade(module.getProvider());
 
-   // preserve message key
-   response->setKey(request->getKey());
+		// convert arguments
+		OperationContext context;
+		CIMReference instanceReference(request->instanceName);
 
-   // lookup the message queue
-   MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
+		// ATTN: propagate namespace
+		instanceReference.setNameSpace(request->nameSpace);
 
-   PEGASUS_ASSERT(queue != 0);
+		// ATTN: convert flags to bitmask
+		Uint32 flags = OperationFlag::convert(false);
+		CIMPropertyList propertyList(request->propertyList);
 
-   // enqueue the response
-   queue->enqueue(response);
+		SimpleResponseHandler<CIMInstance> handler;
+
+		// forward request
+		facade.getInstance(
+			context,
+			instanceReference,
+			flags,
+			propertyList.getPropertyNameArray(),
+			handler);
+
+		// error? provider claims success, but did not deliver an instance.
+		if(handler._objects.size() == 0)
+		{
+			throw CIMException(CIM_ERR_NOT_FOUND);
+		}
+
+		// save returned instance
+		cimInstance = handler._objects[0];
+	}
+	catch(CIMException & e)
+	{
+		status = Status(e.getCode(), e.getMessage());
+	}
+	catch(Exception & e)
+	{
+		status = Status(CIM_ERR_FAILED, e.getMessage());
+	}
+	catch(...)
+	{
+		status = Status(CIM_ERR_FAILED, "Unknown Error");
+	}
+
+	// create response message
+	CIMGetInstanceResponseMessage * response =
+		new CIMGetInstanceResponseMessage(
+		request->messageId,
+		CIMStatusCode(status.getCode()),
+		status.getMessage(),
+		request->queueIds.copyAndPop(),
+		cimInstance);
+
+	// preserve message key
+	response->setKey(request->getKey());
+
+	// call the message queue service method to see if this is an async envelope
+	if(service->_enqueueResponse((Message *)request, (Message *)response))
+	{
+		return(0);
+	}
+
+	/*
+	// lookup the message queue
+	MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
+
+	PEGASUS_ASSERT(queue != 0);
+
+	// enqueue the response
+	queue->enqueue(response);
+	*/
+
+	return(0);
 }
 
-void ProviderManagerService::handleGetPropertyRequest(const Message * message)
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleEnumerateInstancesRequest(void * arg)
 {
-   const CIMGetPropertyRequestMessage * request =
-      (const CIMGetPropertyRequestMessage *)message;
+	// get the service from argument
+	ProviderManagerService * service = reinterpret_cast<ProviderManagerService *>(arg);
 
-   CIMValue cimValue;
+	PEGASUS_ASSERT(service != 0);
 
-   // create response message
-   CIMGetPropertyResponseMessage * response =
-      new CIMGetPropertyResponseMessage(
-	 request->messageId,
-	 CIM_ERR_FAILED,
-	 "not implemented",
-	 request->queueIds.copyAndPop(),
-	 cimValue);
+	// get message from service queue
+	const CIMEnumerateInstancesRequestMessage * request =
+		(const CIMEnumerateInstancesRequestMessage *)service->messageQueue.dequeue();
 
-   // preserve message key
-   response->setKey(request->getKey());
+	PEGASUS_ASSERT(request != 0);
 
-   // lookup the message queue
-   MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
+	// notify the service that the request has been accepted
+	service->_threadSemaphore.signal();
 
-   PEGASUS_ASSERT(queue != 0);
+	Status status;
 
-   // enqueue the response
-   queue->enqueue(response);
+	Array<CIMNamedInstance> cimInstances;
+
+	try
+	{
+		// make class reference
+		CIMReference classReference(
+			"",
+			request->nameSpace,
+			request->className);
+
+		// get the provider file name and logical name
+		Pair<String, String> pair = service->_lookupProviderForClass(classReference);
+
+		// get cached or load new provider module
+		ProviderModule module = providerManager.getProviderModule(pair.first, pair.second);
+
+		// encapsulate the physical provider in a facade
+		ProviderFacade facade(module.getProvider());
+
+		// convert arguments
+		OperationContext context;
+
+		// ATTN: propagate namespace
+		classReference.setNameSpace(request->nameSpace);
+
+		// ATTN: convert flags to bitmask
+		Uint32 flags = OperationFlag::convert(false);
+		CIMPropertyList propertyList(request->propertyList);
+
+		SimpleResponseHandler<CIMInstance> handler;
+
+		facade.enumerateInstances(
+			context,
+			classReference,
+			flags,
+			propertyList.getPropertyNameArray(),
+			handler);
+
+		// save returned instance
+
+		// ATTN: can be removed once CIMNamedInstance is removed
+		for(Uint32 i = 0, n = handler._objects.size(); i < n; i++)
+		{
+			cimInstances.append(CIMNamedInstance(handler._objects[i].getPath(), handler._objects[i]));
+		}
+	}
+	catch(CIMException & e)
+	{
+		status = Status(e.getCode(), e.getMessage());
+	}
+	catch(Exception & e)
+	{
+		status = Status(CIM_ERR_FAILED, e.getMessage());
+	}
+	catch(...)
+	{
+		status = Status(CIM_ERR_FAILED, "Unknown Error");
+	}
+
+	// create response message
+	CIMEnumerateInstancesResponseMessage * response =
+		new CIMEnumerateInstancesResponseMessage(
+		request->messageId,
+		CIMStatusCode(status.getCode()),
+		status.getMessage(),
+		request->queueIds.copyAndPop(),
+		cimInstances);
+
+	// preserve message key
+	response->setKey(request->getKey());
+
+	// call the message queue service method to see if this is an async envelope
+	if(service->_enqueueResponse((Message *)request, (Message *)response))
+	{
+		return(0);
+	}
+
+	/*
+	// lookup the message queue
+	MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
+
+	PEGASUS_ASSERT(queue != 0);
+
+	// enqueue the response
+	queue->enqueue(response);
+	*/
+
+	return(0);
 }
 
-void ProviderManagerService::handleSetPropertyRequest(const Message * message)
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleEnumerateInstanceNamesRequest(void * arg)
 {
-   const CIMSetPropertyRequestMessage * request =
-      (const CIMSetPropertyRequestMessage *)message;
+	// get the service from argument
+	ProviderManagerService * service = reinterpret_cast<ProviderManagerService *>(arg);
 
-   // create response message
-   CIMSetPropertyResponseMessage * response =
-      new CIMSetPropertyResponseMessage(
-	 request->messageId,
-	 CIM_ERR_FAILED,
-	 "not implemented",
-	 request->queueIds.copyAndPop());
+	PEGASUS_ASSERT(service != 0);
 
-   // preserve message key
-   response->setKey(request->getKey());
+	// get message from service queue
+	const CIMEnumerateInstanceNamesRequestMessage * request =
+		(const CIMEnumerateInstanceNamesRequestMessage *)service->messageQueue.dequeue();
 
-   // lookup the message queue
-   MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
+	PEGASUS_ASSERT(request != 0);
 
-   PEGASUS_ASSERT(queue != 0);
+	// notify the service that the request has been accepted
+	service->_threadSemaphore.signal();
 
-   // enqueue the response
-   queue->enqueue(response);
+	Status status;
+
+	Array<CIMReference> cimReferences;
+
+	try
+	{
+		// make class reference
+		CIMReference classReference(
+			"",
+			request->nameSpace,
+			request->className);
+
+		// get the provider file name and logical name
+		Pair<String, String> pair = service->_lookupProviderForClass(classReference);
+
+		// get cached or load new provider module
+		ProviderModule module = providerManager.getProviderModule(pair.first, pair.second);
+
+		// encapsulate the physical provider in a facade
+		ProviderFacade facade(module.getProvider());
+
+		// convert arguments
+		OperationContext context;
+
+		// ATTN: propagate namespace
+		classReference.setNameSpace(request->nameSpace);
+
+		SimpleResponseHandler<CIMReference> handler;
+
+		facade.enumerateInstanceNames(
+			context,
+			classReference,
+			handler);
+
+		// save returned instance
+		cimReferences = handler._objects;
+	}
+	catch(CIMException & e)
+	{
+		status = Status(e.getCode(), e.getMessage());
+	}
+	catch(Exception & e)
+	{
+		status = Status(CIM_ERR_FAILED, e.getMessage());
+	}
+	catch(...)
+	{
+		status = Status(CIM_ERR_FAILED, "Unknown Error");
+	}
+
+	// create response message
+	CIMEnumerateInstanceNamesResponseMessage * response =
+		new CIMEnumerateInstanceNamesResponseMessage(
+		request->messageId,
+		CIMStatusCode(status.getCode()),
+		status.getMessage(),
+		request->queueIds.copyAndPop(),
+		cimReferences);
+
+	// preserve message key
+	response->setKey(request->getKey());
+
+	// call the message queue service method to see if this is an async envelope
+	if(service->_enqueueResponse((Message *)request, (Message *)response))
+	{
+		return(0);
+	}
+
+	/*
+	// lookup the message queue
+	MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
+
+	PEGASUS_ASSERT(queue != 0);
+
+	// enqueue the response
+	queue->enqueue(response);
+	*/
+
+	return(0);
 }
 
-void ProviderManagerService::handleInvokeMethodRequest(const Message * message)
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCreateInstanceRequest(void * arg)
 {
-   CIMValue returnValue;
-   Array<CIMParamValue> outParameters;
-   Status status;
-   CIMInstance cimInstance;
+	// get the service from argument
+	ProviderManagerService * service = reinterpret_cast<ProviderManagerService *>(arg);
 
-   const CIMInvokeMethodRequestMessage * request =
-      (const CIMInvokeMethodRequestMessage *)message;
+	PEGASUS_ASSERT(service != 0);
 
-   try
-   {
-      // make class reference
-      CIMReference classReference(
-	 request->instanceName.getHost(),
-	 request->nameSpace,
-	 request->instanceName.getClassName());
+	// get message from service queue
+	const CIMCreateInstanceRequestMessage * request =
+		(const CIMCreateInstanceRequestMessage *)service->messageQueue.dequeue();
 
-      // get the provider file name and logical name
-      Pair<String, String> pair = _lookupProviderForClass(classReference);
+	PEGASUS_ASSERT(request != 0);
 
-      // get cached or load new provider module
-      ProviderModule module = providerManager.getProviderModule(pair.first, pair.second);
+	// notify the service that the request has been accepted
+	service->_threadSemaphore.signal();
 
-      // encapsulate the physical provider in a facade
-      ProviderFacade facade(module.getProvider());
+	CIMInstance cimInstance;
+	CIMReference instanceName;
+	Status status;
 
-      // convert arguments
-      OperationContext context;
-      CIMReference instanceReference(request->instanceName);
+	try
+	{
+	   String className = request->newInstance.getClassName();
 
-      // ATTN: propagate namespace
-      instanceReference.setNameSpace(request->nameSpace);
+	   // make class reference
+	   CIMReference classReference(
+		  "",
+		  request->nameSpace,
+		  className);
 
-      SimpleResponseHandler<CIMValue> handler;
+	   // get the provider file name and logical name
+	   Pair<String, String> pair = service->_lookupProviderForClass(classReference);
 
-      // forward request
-      facade.invokeMethod(
-	 context,
-	 instanceReference,
-	 request->methodName,
-	 request->inParameters,
-	 outParameters,
-	 handler);
+	   // get cached or load new provider module
+	   ProviderModule module = providerManager.getProviderModule(pair.first, pair.second);
 
-      // error? provider claims success, but did not deliver a CIMValue.
-      if(handler._objects.size() == 0)
-      {
-	 throw CIMException(CIM_ERR_NOT_FOUND);
-      }
+	   // encapsulate the physical provider in a facade
+	   ProviderFacade facade(module.getProvider());
 
-      returnValue = handler._objects[0];
-   }
-   catch(CIMException & e)
-   {
-      status = Status(e.getCode(), e.getMessage());
-   }
-   catch(Exception & e)
-   {
-      status = Status(CIM_ERR_FAILED, e.getMessage());
-   }
-   catch(...)
-   {
-      status = Status(CIM_ERR_FAILED, "Unknown Error");
-   }
+	   // convert arguments
+	   OperationContext context;
 
-   // create response message
-   CIMInvokeMethodResponseMessage * response =
-      new CIMInvokeMethodResponseMessage(
-	 request->messageId,
-	 CIMStatusCode(status.getCode()),
-	 status.getMessage(),
-	 request->queueIds.copyAndPop(),
-	 returnValue,
-	 outParameters,
-	 request->methodName);
+	   CIMReference instanceReference;
 
-   // preserve message key
-   response->setKey(request->getKey());
+	   // ATTN: propagate namespace
+	   instanceReference.setNameSpace(request->nameSpace);
 
-   // lookup the message queue
-   MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
+	   // ATTN: need to handle key binding
+	   instanceReference.setClassName(className);
 
-   PEGASUS_ASSERT(queue != 0);
+	   SimpleResponseHandler<CIMReference> handler;
 
-   // enqueue the response
-   queue->enqueue(response);
+	   // forward request
+	   facade.createInstance(
+		  context,
+		  instanceReference,
+		  request->newInstance,
+		  handler);
+
+	   // error? provider claims success, but did not deliver an
+	   // instance name.
+	   if(handler._objects.size() == 0)
+	   {
+		   throw CIMException(CIM_ERR_NOT_FOUND);
+	   }
+
+	   // save returned instance name
+	   instanceName = handler._objects[0];
+	}
+	catch(CIMException & e)
+	{
+	   status = Status(e.getCode(), e.getMessage());
+	}
+	catch(Exception & e)
+	{
+	   status = Status(CIM_ERR_FAILED, e.getMessage());
+	}
+	catch(...)
+	{
+	   status = Status(CIM_ERR_FAILED, "Unknown Error");
+	}
+
+	// create response message
+	CIMCreateInstanceResponseMessage * response =
+	   new CIMCreateInstanceResponseMessage(
+		  request->messageId,
+		  CIMStatusCode(status.getCode()),
+		  status.getMessage(),
+		  request->queueIds.copyAndPop(),
+		  instanceName);
+
+	// preserve message key
+	response->setKey(request->getKey());
+
+	// call the message queue service method to see if this is an async envelope
+	if(service->_enqueueResponse((Message *)request, (Message *)response))
+	{
+		return(0);
+	}
+
+	/*
+	// lookup the message queue
+	MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
+
+	PEGASUS_ASSERT(queue != 0);
+
+	// enqueue the response
+	queue->enqueue(response);
+	*/
+
+	return(0);
 }
 
-void ProviderManagerService::handleEnableIndicationRequest(const Message * message)
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleModifyInstanceRequest(void * arg)
 {
-   const CIMEnableIndicationSubscriptionRequestMessage * request =
-      (const CIMEnableIndicationSubscriptionRequestMessage *)message;
+	// get the service from argument
+	ProviderManagerService * service = reinterpret_cast<ProviderManagerService *>(arg);
 
-   CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-   String errorDescription = String::EMPTY;
+	PEGASUS_ASSERT(service != 0);
 
-   try
-   {
-      // make class reference
-      CIMReference classReference(
-	 "",
-	 request->nameSpace,
-	 request->classNames[0]);
+	// get message from service queue
+	const CIMModifyInstanceRequestMessage * request =
+		(const CIMModifyInstanceRequestMessage *)service->messageQueue.dequeue();
 
-      // ATTN: this needs to be message based
-      Pair<String, String> pair = _lookupProviderForClass(classReference);
-      ProviderModule module = providerManager.getProviderModule(pair.first, pair.second);
-      ProviderFacade facade(module.getProvider());
+	PEGASUS_ASSERT(request != 0);
 
-      SimpleResponseHandler<CIMInstance> handler;
+	// notify the service that the request has been accepted
+	service->_threadSemaphore.signal();
 
-      try
-      {
-	 //
-	 //  ATTN: pass thresholding parameter values in
-	 //  operation context
-	 //
-	 facade.enableIndication(
-	    OperationContext (),
-	    request->nameSpace,
-	    request->classNames,
-	    request->providerName,
-	    request->propertyList,
-	    request->repeatNotificationPolicy,
-	    request->otherRepeatNotificationPolicy,
-	    request->repeatNotificationInterval,
-	    request->repeatNotificationGap,
-	    request->repeatNotificationCount,
-	    request->condition,
-	    request->queryLanguage,
-	    request->subscription,
-	    handler);
-      }
-      catch(...)
-      {
-	 errorCode = CIM_ERR_FAILED;
-	 errorDescription = "Provider not available";
-      }
-   }
-   catch(CIMException& exception)
-   {
-      errorCode = exception.getCode ();
-      errorDescription = exception.getMessage ();
-   }
-   catch(Exception& exception)
-   {
-      errorCode = CIM_ERR_FAILED;
-      errorDescription = exception.getMessage ();
-   }
-   catch(...)
-   {
-      errorCode = CIM_ERR_FAILED;
-   }
+	CIMReference instanceName;
+	Status status;
 
-   CIMEnableIndicationSubscriptionResponseMessage * response =
-      new CIMEnableIndicationSubscriptionResponseMessage(
-	 request->messageId,
-	 errorCode,
-	 errorDescription,
-	 request->queueIds.copyAndPop());
+	try
+	{
+	   instanceName = request->modifiedInstance.getInstanceName();
+	   String className = instanceName.getClassName();
 
-   // preserve message key
-   response->setKey(request->getKey());
+	   // make class reference
+	   CIMReference classReference(
+		  instanceName.getHost(),
+		  request->nameSpace,
+		  className);
 
-   // lookup the message queue
-   MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
+	   // get the provider file name and logical name
+	   Pair<String, String> pair = service->_lookupProviderForClass(classReference);
 
-   PEGASUS_ASSERT(queue != 0);
+	   // get cached or load new provider module
+	   ProviderModule module = providerManager.getProviderModule(pair.first, pair.second);
 
-   // enqueue the response
-   queue->enqueue(response);
+	   // encapsulate the physical provider in a facade
+	   ProviderFacade facade(module.getProvider());
+
+	   // convert arguments
+	   OperationContext context;
+
+	   // ATTN: convert flags to bitmask
+	   Uint32 flags = OperationFlag::convert(false);
+	   CIMPropertyList propertyList(request->propertyList);
+
+	   SimpleResponseHandler<CIMInstance> handler;
+
+	   // forward request
+	   facade.modifyInstance(
+		  context,
+		  instanceName,
+		  request->modifiedInstance.getInstance(),
+		  flags,
+		  propertyList.getPropertyNameArray(),
+		  handler);
+	}
+	catch(CIMException & e)
+	{
+	   status = Status(e.getCode(), e.getMessage());
+	}
+	catch(Exception & e)
+	{
+	   status = Status(CIM_ERR_FAILED, e.getMessage());
+	}
+	catch(...)
+	{
+	   status = Status(CIM_ERR_FAILED, "Unknown Error");
+	}
+
+	// create response message
+	CIMModifyInstanceResponseMessage * response =
+	   new CIMModifyInstanceResponseMessage(
+		  request->messageId,
+		  CIMStatusCode(status.getCode()),
+		  status.getMessage(),
+		  request->queueIds.copyAndPop());
+
+	// preserve message key
+	response->setKey(request->getKey());
+
+	// call the message queue service method to see if this is an async envelope
+	if(service->_enqueueResponse((Message *)request, (Message *)response))
+	{
+		return(0);
+	}
+
+	/*
+	// lookup the message queue
+	MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
+
+	PEGASUS_ASSERT(queue != 0);
+
+	// enqueue the response
+	queue->enqueue(response);
+	*/
+
+	return(0);
 }
 
-void ProviderManagerService::handleModifyIndicationRequest(const Message * message)
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleDeleteInstanceRequest(void * arg)
 {
-   const CIMModifyIndicationSubscriptionRequestMessage * request =
-      (const CIMModifyIndicationSubscriptionRequestMessage *)message;
+	// get the service from argument
+	ProviderManagerService * service = reinterpret_cast<ProviderManagerService *>(arg);
 
-   CIMModifyIndicationSubscriptionResponseMessage * response =
-      new CIMModifyIndicationSubscriptionResponseMessage(
-	 request->messageId,
-	 CIM_ERR_FAILED,
-	 "not implemented",
-	 request->queueIds.copyAndPop());
+	PEGASUS_ASSERT(service != 0);
 
-   // preserve message key
-   response->setKey(request->getKey());
+	// get message from service queue
+	const CIMDeleteInstanceRequestMessage * request =
+		(const CIMDeleteInstanceRequestMessage *)service->messageQueue.dequeue();
 
-   // lookup the message queue
-   MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
+	PEGASUS_ASSERT(request != 0);
 
-   PEGASUS_ASSERT(queue != 0);
+	// notify the service that the request has been accepted
+	service->_threadSemaphore.signal();
 
-   // enqueue the response
-   queue->enqueue(response);
+	Status status;
+
+	try
+	{
+	   String className = request->instanceName.getClassName();
+
+	   // make class reference
+	   CIMReference classReference(
+		  request->instanceName.getHost(),
+		  request->nameSpace,
+		  className);
+
+	   // get the provider file name and logical name
+	   Pair<String, String> pair = service->_lookupProviderForClass(classReference);
+
+	   // get cached or load new provider module
+	   ProviderModule module = providerManager.getProviderModule(pair.first, pair.second);
+
+	   // encapsulate the physical provider in a facade
+	   ProviderFacade facade(module.getProvider());
+
+	   // convert arguments
+	   OperationContext context;
+
+	   SimpleResponseHandler<CIMInstance> handler;
+
+	   // forward request
+	   facade.deleteInstance(
+		  context,
+		  request->instanceName,
+		  handler);
+	}
+	catch(CIMException & e)
+	{
+	   status = Status(e.getCode(), e.getMessage());
+	}
+	catch(Exception & e)
+	{
+	   status = Status(CIM_ERR_FAILED, e.getMessage());
+	}
+	catch(...)
+	{
+	   status = Status(CIM_ERR_FAILED, "Unknown Error");
+	}
+
+	// create response message
+	CIMDeleteInstanceResponseMessage * response =
+	   new CIMDeleteInstanceResponseMessage(
+		  request->messageId,
+		  CIMStatusCode(status.getCode()),
+		  status.getMessage(),
+		  request->queueIds.copyAndPop());
+
+	// preserve message key
+	response->setKey(request->getKey());
+
+	// call the message queue service method to see if this is an async envelope
+	if(service->_enqueueResponse((Message *)request, (Message *)response))
+	{
+		return(0);
+	}
+
+	/*
+	// lookup the message queue
+	MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
+
+	PEGASUS_ASSERT(queue != 0);
+
+	// enqueue the response
+	queue->enqueue(response);
+	*/
+
+	return(0);
 }
 
-void ProviderManagerService::handleDisableIndicationRequest(const Message * message)
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleGetPropertyRequest(void * arg)
 {
-   const CIMDisableIndicationSubscriptionRequestMessage * request =
-      (const CIMDisableIndicationSubscriptionRequestMessage *)message;
+	// get the service from argument
+	ProviderManagerService * service = reinterpret_cast<ProviderManagerService *>(arg);
 
-   CIMDisableIndicationSubscriptionResponseMessage * response =
-      new CIMDisableIndicationSubscriptionResponseMessage(
-	 request->messageId,
-	 CIM_ERR_FAILED,
-	 "not implemented",
-	 request->queueIds.copyAndPop());
+	PEGASUS_ASSERT(service != 0);
 
-   // preserve message key
-   response->setKey(request->getKey());
+	// get message from service queue
+	const CIMGetPropertyRequestMessage * request =
+		(const CIMGetPropertyRequestMessage *)service->messageQueue.dequeue();
 
-   // lookup the message queue
-   MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
+	PEGASUS_ASSERT(request != 0);
 
-   PEGASUS_ASSERT(queue != 0);
+	// notify the service that the request has been accepted
+	service->_threadSemaphore.signal();
 
-   // enqueue the response
-   queue->enqueue(response);
+	CIMValue cimValue;
+
+	// create response message
+	CIMGetPropertyResponseMessage * response =
+		new CIMGetPropertyResponseMessage(
+		request->messageId,
+		CIM_ERR_FAILED,
+		"not implemented",
+		request->queueIds.copyAndPop(),
+		cimValue);
+
+	// preserve message key
+	response->setKey(request->getKey());
+
+	// call the message queue service method to see if this is an async envelope
+	if(service->_enqueueResponse((Message *)request, (Message *)response))
+	{
+		return(0);
+	}
+
+	/*
+	// lookup the message queue
+	MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
+
+	PEGASUS_ASSERT(queue != 0);
+
+	// enqueue the response
+	queue->enqueue(response);
+	*/
+
+	return(0);
+}
+
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleSetPropertyRequest(void * arg)
+{
+	// get the service from argument
+	ProviderManagerService * service = reinterpret_cast<ProviderManagerService *>(arg);
+
+	PEGASUS_ASSERT(service != 0);
+
+	// get message from service queue
+	const CIMSetPropertyRequestMessage * request =
+		(const CIMSetPropertyRequestMessage *)service->messageQueue.dequeue();
+
+	PEGASUS_ASSERT(request != 0);
+
+	// notify the service that the request has been accepted
+	service->_threadSemaphore.signal();
+
+	// create response message
+	CIMSetPropertyResponseMessage * response =
+		new CIMSetPropertyResponseMessage(
+		request->messageId,
+		CIM_ERR_FAILED,
+		"not implemented",
+		request->queueIds.copyAndPop());
+
+	// preserve message key
+	response->setKey(request->getKey());
+
+	// call the message queue service method to see if this is an async envelope
+	if(service->_enqueueResponse((Message *)request, (Message *)response))
+	{
+		return(0);
+	}
+
+	/*
+	// lookup the message queue
+	MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
+
+	PEGASUS_ASSERT(queue != 0);
+
+	// enqueue the response
+	queue->enqueue(response);
+	*/
+
+	return(0);
+}
+
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleInvokeMethodRequest(void * arg)
+{
+	// get the service from argument
+	ProviderManagerService * service = reinterpret_cast<ProviderManagerService *>(arg);
+
+	PEGASUS_ASSERT(service != 0);
+
+	// get message from service queue
+	const CIMInvokeMethodRequestMessage * request =
+		(const CIMInvokeMethodRequestMessage *)service->messageQueue.dequeue();
+
+	PEGASUS_ASSERT(request != 0);
+
+	// notify the service that the request has been accepted
+	service->_threadSemaphore.signal();
+
+	// process request
+	CIMValue returnValue;
+	Array<CIMParamValue> outParameters;
+	Status status;
+	CIMInstance cimInstance;
+
+	try
+	{
+		// make class reference
+		CIMReference classReference(
+			request->instanceName.getHost(),
+			request->nameSpace,
+			request->instanceName.getClassName());
+
+		// get the provider file name and logical name
+		Pair<String, String> pair = service->_lookupProviderForClass(classReference);
+
+		// get cached or load new provider module
+		ProviderModule module = providerManager.getProviderModule(pair.first, pair.second);
+
+		// encapsulate the physical provider in a facade
+		ProviderFacade facade(module.getProvider());
+
+		// convert arguments
+		OperationContext context;
+		CIMReference instanceReference(request->instanceName);
+
+		// ATTN: propagate namespace
+		instanceReference.setNameSpace(request->nameSpace);
+
+		SimpleResponseHandler<CIMValue> handler;
+
+		// forward request
+		facade.invokeMethod(
+			context,
+			instanceReference,
+			request->methodName,
+			request->inParameters,
+			outParameters,
+			handler);
+
+		// error? provider claims success, but did not deliver a CIMValue.
+		if(handler._objects.size() == 0)
+		{
+			throw CIMException(CIM_ERR_NOT_FOUND);
+		}
+
+		returnValue = handler._objects[0];
+	}
+	catch(CIMException & e)
+	{
+		status = Status(e.getCode(), e.getMessage());
+	}
+	catch(Exception & e)
+	{
+		status = Status(CIM_ERR_FAILED, e.getMessage());
+	}
+	catch(...)
+	{
+		status = Status(CIM_ERR_FAILED, "Unknown Error");
+	}
+
+	// create response message
+	CIMInvokeMethodResponseMessage * response =
+		new CIMInvokeMethodResponseMessage(
+		request->messageId,
+		CIMStatusCode(status.getCode()),
+		status.getMessage(),
+		request->queueIds.copyAndPop(),
+		returnValue,
+		outParameters,
+		request->methodName);
+
+	// preserve message key
+	response->setKey(request->getKey());
+
+	// call the message queue service method to see if this is an async envelope
+	if(service->_enqueueResponse((Message *)request, (Message *)response))
+	{
+		return(0);
+	}
+
+	/*
+	// lookup the message queue
+	MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
+
+	PEGASUS_ASSERT(queue != 0);
+
+	// enqueue the response
+	queue->enqueue(response);
+	*/
+
+	return(0);
+}
+
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleEnableIndicationRequest(void * arg)
+{
+	// get the service from argument
+	ProviderManagerService * service = reinterpret_cast<ProviderManagerService *>(arg);
+
+	PEGASUS_ASSERT(service != 0);
+
+	// get message from service queue
+	const CIMEnableIndicationSubscriptionRequestMessage * request =
+		(const CIMEnableIndicationSubscriptionRequestMessage *)service->messageQueue.dequeue();
+
+	PEGASUS_ASSERT(request != 0);
+
+	// notify the service that the request has been accepted
+	service->_threadSemaphore.signal();
+
+	CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+	String errorDescription = String::EMPTY;
+
+	try
+	{
+		// make class reference
+		CIMReference classReference(
+			"",
+			request->nameSpace,
+			request->classNames[0]);
+
+		// ATTN: this needs to be message based
+		Pair<String, String> pair = service->_lookupProviderForClass(classReference);
+		ProviderModule module = providerManager.getProviderModule(pair.first, pair.second);
+		ProviderFacade facade(module.getProvider());
+
+		SimpleResponseHandler<CIMInstance> handler;
+
+		try
+		{
+			//
+			//  ATTN: pass thresholding parameter values in
+			//  operation context
+			//
+			facade.enableIndication(
+				OperationContext (),
+				request->nameSpace,
+				request->classNames,
+				request->providerName,
+				request->propertyList,
+				request->repeatNotificationPolicy,
+				request->otherRepeatNotificationPolicy,
+				request->repeatNotificationInterval,
+				request->repeatNotificationGap,
+				request->repeatNotificationCount,
+				request->condition,
+				request->queryLanguage,
+				request->subscription,
+				handler);
+		}
+		catch(...)
+		{
+			errorCode = CIM_ERR_FAILED;
+			errorDescription = "Provider not available";
+		}
+	}
+	catch(CIMException& exception)
+	{
+		errorCode = exception.getCode ();
+		errorDescription = exception.getMessage ();
+	}
+	catch(Exception& exception)
+	{
+		errorCode = CIM_ERR_FAILED;
+		errorDescription = exception.getMessage ();
+	}
+	catch(...)
+	{
+		errorCode = CIM_ERR_FAILED;
+	}
+
+	CIMEnableIndicationSubscriptionResponseMessage * response =
+		new CIMEnableIndicationSubscriptionResponseMessage(
+		request->messageId,
+		errorCode,
+		errorDescription,
+		request->queueIds.copyAndPop());
+
+	// preserve message key
+	response->setKey(request->getKey());
+
+	// call the message queue service method to see if this is an async envelope
+	if(service->_enqueueResponse((Message *)request, (Message *)response))
+	{
+		return(0);
+	}
+
+	/*
+	// lookup the message queue
+	MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
+
+	PEGASUS_ASSERT(queue != 0);
+
+	// enqueue the response
+	queue->enqueue(response);
+	*/
+
+	return(0);
+}
+
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleModifyIndicationRequest(void * arg)
+{
+	// get the service from argument
+	ProviderManagerService * service = reinterpret_cast<ProviderManagerService *>(arg);
+
+	PEGASUS_ASSERT(service != 0);
+
+	// get message from service queue
+	const CIMModifyIndicationSubscriptionRequestMessage * request =
+		(const CIMModifyIndicationSubscriptionRequestMessage *)service->messageQueue.dequeue();
+
+	PEGASUS_ASSERT(request != 0);
+
+	// notify the service that the request has been accepted
+	service->_threadSemaphore.signal();
+
+	CIMModifyIndicationSubscriptionResponseMessage * response =
+		new CIMModifyIndicationSubscriptionResponseMessage(
+		request->messageId,
+		CIM_ERR_FAILED,
+		"not implemented",
+		request->queueIds.copyAndPop());
+
+	// preserve message key
+	response->setKey(request->getKey());
+
+	// call the message queue service method to see if this is an async envelope
+	if(service->_enqueueResponse((Message *)request, (Message *)response))
+	{
+		return(0);
+	}
+
+	/*
+	// lookup the message queue
+	MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
+
+	PEGASUS_ASSERT(queue != 0);
+
+	// enqueue the response
+	queue->enqueue(response);
+	*/
+
+	return(0);
+}
+
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleDisableIndicationRequest(void * arg)
+{
+	// get the service from argument
+	ProviderManagerService * service = reinterpret_cast<ProviderManagerService *>(arg);
+
+	PEGASUS_ASSERT(service != 0);
+
+	// get message from service queue
+	const CIMDisableIndicationSubscriptionRequestMessage * request =
+		(const CIMDisableIndicationSubscriptionRequestMessage *)service->messageQueue.dequeue();
+
+	PEGASUS_ASSERT(request != 0);
+
+	// notify the service that the request has been accepted
+	service->_threadSemaphore.signal();
+
+	CIMDisableIndicationSubscriptionResponseMessage * response =
+		new CIMDisableIndicationSubscriptionResponseMessage(
+		request->messageId,
+		CIM_ERR_FAILED,
+		"not implemented",
+		request->queueIds.copyAndPop());
+
+	// preserve message key
+	response->setKey(request->getKey());
+
+	// call the message queue service method to see if this is an async envelope
+	if(service->_enqueueResponse((Message *)request, (Message *)response))
+	{
+		return(0);
+	}
+
+	/*
+	// lookup the message queue
+	MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
+
+	PEGASUS_ASSERT(queue != 0);
+
+	// enqueue the response
+	queue->enqueue(response);
+	*/
+
+	return(0);
 }
 
 PEGASUS_NAMESPACE_END
+	

@@ -45,8 +45,8 @@ else
 endif
 
 PLATFORM_FILES=$(wildcard $(ROOT)/mak/platform*.mak)
-TEMP=$(subst $(ROOT)/mak/platform_,, $(PLATFORM_FILES))
-VALID_PLATFORMS=$(subst .mak,, $(TEMP))
+PLATFORM_TEMP=$(subst $(ROOT)/mak/platform_,, $(PLATFORM_FILES))
+VALID_PLATFORMS=$(subst .mak,, $(PLATFORM_TEMP))
 
 ifndef PEGASUS_PLATFORM
     $(error PEGASUS_PLATFORM environment variable undefined. Please set to\

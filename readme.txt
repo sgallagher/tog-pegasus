@@ -28,9 +28,10 @@ Contents:
 14. Development with Pegasus and Pegasus Tools
 15. Commands
 16. Creating SSL certifications.
-17. Testing with ICU enabled
-18. Documentation
-19. Participate
+17. Configuring Pegasus to use SSL
+18. Testing with ICU enabled
+19. Documentation
+20. Participate
 
 
 
@@ -533,6 +534,9 @@ bin/tomof CIM_Config (extract CIM_Config from repository and present it in MOF t
 16. Creating SSL certifications
 ================================
 
+Please follow section 11, titled "Notes about Building Pegasus with SSL" 
+before embarking on this endeavour.
+
 Type these commands in your shell to create the SSL certifications. The PEGASUS_ROOT 
 and PEGASUS_HOME have to be set to your respective installation and source directory. 
 
@@ -554,7 +558,30 @@ cat $PEGASUS_HOME/key.pem $PEGASUS_HOME/cert.pem > $PEGASUS_HOME/server.pem
 cp $PEGASUS_HOME/cert.pem $PEGASUS_HOME/client.pem
 rm $PEGASUS_HOME/key.pem $PEGASUS_HOME/cert.pem
 
-17. Testing with ICU enabled:
+17. Configuring Pegasus to use SSL
+================================
+
+Please follow section 11 and 16 before reading this section.
+
+To configure Pegasus to take advantage of SSL, configure
+cimserver_planned.conf to have:
+
+	sslTrustFilePath=client.pem
+	sslCertificateFilePath=server.pem
+	sslKeyFilePath=file.pem
+	httpsPort=5989
+	enableHttpsConnection=true
+
+(The client.pem and server.pem are the certifications
+files created per the steps in the earlier section).
+
+For good riddance you might consider closing down
+the cleartext 5988 port. Modify your cimserver_planned.conf
+to include:
+
+	enableHttpConnection=false
+
+18. Testing with ICU enabled:
 ==============================
 
 ICU (International Compoments for Unicode) refers to the set of libraries that
@@ -581,7 +608,7 @@ complete, you should stop the cimserver and then undefine PEGASUS_USE_DEFAULT_ME
 If this variable is left defined, Pegasus will not be able to load messages
 using ICU resource bundles. 
 
-18. Documentation:
+19. Documentation:
 ===================
 
 The documentation is currently in preperation. The preliminary documentation
@@ -595,7 +622,7 @@ documentation in the future and today is the source of most discussion and
 design documentation.
 
 
-19. Participate!
+20. Participate!
 =================
 
 We are looking for people who want to join the Pegasus work group and

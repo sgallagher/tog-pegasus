@@ -111,6 +111,9 @@ Providers</a><p align="left" style="margin-top: 0; margin-bottom: 0">
 <a href="#Creating SSL certifications">Creating SSL certifications</a>.
 
 <p align="left" style="margin-top: 0; margin-bottom: 0">
+<a href="#Configuring SSL">Configuring Pegasus to use SSL</a>.
+
+<p align="left" style="margin-top: 0; margin-bottom: 0">
 <a href="#Testing with ICU enabled">Testing with ICU enabled </a>
 
 <p align="left" style="margin-top: 0; margin-bottom: 0">
@@ -842,8 +845,12 @@ bin/cimuser –l (lists the users)
 bin/tomof CIM_Config (extract CIM_Config from repository and present it in MOF type)
 </pre>
 </blockquote><h1><a name="Creating SSL certifications">Creating SSL certifications </a></h1><p>
-Type these commands in your shell to create the SSL certifications. The PEGASUS_ROOT and PEGASUS_HOME have to be set to your respective installation and source 
-directory. <blockquote><pre>CN=&quot;Common Name&quot;
+Please follow section <a href="#Notes about Building Pegasus with SSL">Notes on building Pegasus with SSL</a> before embarking on this endeavour.
+<br><br>
+Type these commands in your shell to create the SSL certifications. The PEGASUS_ROOT 
+and PEGASUS_HOME have to be set to your respective installation and source directory. 
+
+<blockquote><pre>CN=&quot;Common Name&quot;
 EMAIL=&quot;test@email.address&quot;
 HOSTNAME=`uname -n`
 sed -e &quot;s/$CN/$HOSTNAME/&quot; \
@@ -860,6 +867,30 @@ chgrp bin $PEGASUS_HOME/ssl.cnf
 cat $PEGASUS_HOME/key.pem $PEGASUS_HOME/cert.pem &gt; $PEGASUS_HOME/server.pem
 rm $PEGASUS_HOME/key.pem $PEGASUS_HOME/cert.pem
 cp $PEGASUS_HOME/cert.pem $PEGASUS_HOME/client.pem
+
+</pre></blockquote>
+<h1><a name="Configuring SSL">Configuring Pegasus to use SSL</a></h1><p>
+
+Please follow section <a href="#Notes about Building Pegasus with SSL">Notes on building Pegasus with SSL</a> and <a href="#Creating SSL certifications">Creating SSL certifications</a>
+before embarking on this endeavour.<br><br>
+
+To configure Pegasus to take advantage of SSL, configure
+cimserver_planned.conf to have:
+<blockquote><pre>
+	sslTrustFilePath=client.pem
+	sslCertificateFilePath=server.pem
+	sslKeyFilePath=file.pem
+	httpsPort=5989
+	enableHttpsConnection=true
+</pre></blockquote>
+(The client.pem and server.pem are the certifications
+files created per the steps in the earlier section).
+
+For good riddance you might consider closing down
+the cleartext 5988 port. Modify your cimserver_planned.conf
+to include:
+<blockquote><pre>
+	enableHttpConnection=false
 </pre></blockquote><h1><a name="Testing with ICU enabled">Testing with ICU enabled</a></h1><p>
 ICU (International Components for Unicode) refers to the set of libraries that
 Pegasus uses to run globalized. For example: these libraries are used to

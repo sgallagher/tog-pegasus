@@ -74,10 +74,10 @@ class PEGASUS_EXPORT context
       context(Uint32 data_size,
 		 void *data, 
 		 void (*del)(void *), 
-		 Uint32 uint_val = 0x00000000,
-		 Uint32 key = CONTEXT_OTHER, 
-		 Uint32 flag = OPERATION_LOCAL_ONLY | CONTEXT_COPY_MEMORY | CONTEXT_DELETE_MEMORY,
-		 Uint8 *uid = 0 );
+		 Uint32 uint_val ,
+		 Uint32 key , 
+		 Uint32 flag ,
+		 Uint8 *uid);
       
       
       ~context(void);
@@ -174,10 +174,10 @@ class PEGASUS_EXPORT OperationContext
       void add_context(Uint32 data_size,
 		       void *data, 
 		       void (*del)(void *), 
-		       Uint32 uint_val = 0x00000000,
-		       Uint32 key = CONTEXT_OTHER, 
-		       Uint32 flag = OPERATION_LOCAL_ONLY | CONTEXT_COPY_MEMORY | CONTEXT_DELETE_MEMORY,
-		       Uint8 *uid = 0 );
+		       Uint32 uint_val,
+		       Uint32 key , 
+		       Uint32 flag ,
+		       Uint8 *uid );
 
       void add_context(context *);
 
@@ -191,17 +191,16 @@ class PEGASUS_EXPORT OperationContext
       unlocked_dq<class context> _context;
 } ;
 
-
 inline void OperationContext::add_context(Uint32 data_size,
-					  void *data, 
-					  void (*del)(void *), 
-					  Uint32 uint_val = 0x00000000,
-					  Uint32 key = CONTEXT_OTHER, 
-					  Uint32 flag = OPERATION_LOCAL_ONLY | CONTEXT_COPY_MEMORY | CONTEXT_DELETE_MEMORY,
-					  Uint8 *uid = 0 )
+		       void *data, 
+		       void (*del)(void *), 
+		       Uint32 uint_val ,
+		       Uint32 key , 
+		       Uint32 flag ,
+		       Uint8 *uid )
 
 {
-   context *c = new context(data_size, data, del, uint_val, key, flag, uid);
+   context *c = new context(data_size, data, del, uint_val, key, flag, uid );
    _context.insert_first(c);
    return;
 }

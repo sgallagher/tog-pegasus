@@ -93,10 +93,10 @@ void binaryize_uid(Sint8 *uid, void *dest, size_t size) throw(NullPointer, Buffe
 context::context(Uint32 data_size,
 		 void *data, 
 		 void (*del)(void *), 
-		 Uint32 uint_val = 0x00000000,
-		 Uint32 key = CONTEXT_OTHER, 
-		 Uint32 flag = OPERATION_LOCAL_ONLY | CONTEXT_COPY_MEMORY | CONTEXT_DELETE_MEMORY,
-		 Uint8 *uid = 0 )
+		 Uint32 uint_val ,
+		 Uint32 key , 
+		 Uint32 flag ,
+		 Uint8 *uid)
    : _size(data_size), _uint_val(uint_val), _key(key), _flag(flag)
      
 {

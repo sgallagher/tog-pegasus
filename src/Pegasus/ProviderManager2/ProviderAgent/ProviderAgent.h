@@ -183,6 +183,14 @@ private:
         unloading idle providers concurrently.
      */
     AtomicInt _unloadIdleProvidersBusy;
+
+    /**
+        Holds the last provider module instance received from the CIM Server
+        in a ProviderIdContainer.  Since the provider module instance rarely
+        changes, an optimization is used to send it only when it differs from
+        the last provider module instance sent.
+     */
+    CIMInstance _providerModuleCache;
 };
 
 PEGASUS_NAMESPACE_END

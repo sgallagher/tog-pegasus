@@ -215,6 +215,14 @@ private:
         updating the _outstandingRequestTable.
      */
     Mutex _outstandingRequestTableMutex;
+
+    /**
+        Holds the last provider module instance sent to the Provider Agent in
+        a ProviderIdContainer.  Since the provider module instance rarely
+        changes, an optimization is used to send it only when it differs from
+        the last provider module instance sent.
+     */
+    CIMInstance _providerModuleCache;
 };
 
 ProviderAgentContainer::ProviderAgentContainer(
@@ -516,6 +524,8 @@ void ProviderAgentContainer::_uninitialize()
         _pipeFromAgent.reset();
         _pipeToAgent.reset();
 
+        _providerModuleCache = CIMInstance();
+
         _isInitialized = false;
 
         //
@@ -557,6 +567,12 @@ CIMResponseMessage* ProviderAgentContainer::processMessage(
 
     CIMResponseMessage* response;
     String originalMessageId = request->messageId;
+
+    // These three variables are used for the provider module optimization.
+    // See the _providerModuleCache member description for more information.
+    AutoPtr<ProviderIdContainer> origProviderId;
+    Boolean doProviderModuleOptimization = false;
+    Boolean updateProviderModuleCache = false;
 
     try
     {
@@ -603,6 +619,39 @@ CIMResponseMessage* ProviderAgentContainer::processMessage(
                     uniqueMessageId, &outstandingRequestEntry);
             }
 
+            // Get the provider module from the ProviderIdContainer to see if
+            // we can optimize out the transmission of this instance to the
+            // Provider Agent.  (See the _providerModuleCache description.)
+            try
+            {
+                ProviderIdContainer pidc = request->operationContext.get(
+                    ProviderIdContainer::NAME);
+                origProviderId.reset(new ProviderIdContainer(
+                    pidc.getModule(), pidc.getProvider(),
+                    pidc.isRemoteNameSpace(), pidc.getRemoteInfo()));
+                if (_providerModuleCache.isUninitialized() ||
+                    (!pidc.getModule().identical(_providerModuleCache)))
+                {
+                    // We haven't sent this provider module instance to the
+                    // Provider Agent yet.  Update our cache after we send it.
+                    updateProviderModuleCache = true;
+                }
+                else
+                {
+                    // Replace the provider module in the ProviderIdContainer
+                    // with an uninitialized instance.  We'll need to put the
+                    // original one back after the message is sent.
+                    request->operationContext.set(ProviderIdContainer(
+                        CIMInstance(), pidc.getProvider(),
+                        pidc.isRemoteNameSpace(), pidc.getRemoteInfo()));
+                    doProviderModuleOptimization = true;
+                }
+            }
+            catch (...)
+            {
+                // No ProviderIdContainer to optimize
+            }
+
             //
             // Write the message to the pipe
             //
@@ -617,6 +666,11 @@ CIMResponseMessage* ProviderAgentContainer::processMessage(
                     _pipeToAgent->writeMessage(request);
                 request->messageId = originalMessageId;
 
+                if (doProviderModuleOptimization)
+                {
+                    request->operationContext.set(*origProviderId.get());
+                }
+
                 if (writeStatus != AnonymousPipe::STATUS_SUCCESS)
                 {
                     Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
@@ -628,10 +682,21 @@ CIMResponseMessage* ProviderAgentContainer::processMessage(
                         "Failed to communicate with cimprovagt \"$0\".",
                         _moduleName));
                 }
+
+                if (updateProviderModuleCache)
+                {
+                    _providerModuleCache = origProviderId->getModule();
+                }
             }
             catch (...)
             {
                 request->messageId = originalMessageId;
+
+                if (doProviderModuleOptimization)
+                {
+                    request->operationContext.set(*origProviderId.get());
+                }
+
                 Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
                     "Failed to write message to pipe.");
                 // Remove the OutstandingRequestTable entry for this request

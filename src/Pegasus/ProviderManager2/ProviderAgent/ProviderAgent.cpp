@@ -264,6 +264,32 @@ Boolean ProviderAgent::_readAndProcessRequest()
         String("Received request from server with messageId ") +
             request->messageId);
 
+    // Get the ProviderIdContainer to complete the provider module instance
+    // optimization.  If the provider module instance is blank (optimized
+    // out), fill it in from our cache.  If it is not blank, update our
+    // cache.  (See the _providerModuleCache member description.)
+    try
+    {
+        ProviderIdContainer pidc = request->operationContext.get(
+            ProviderIdContainer::NAME);
+        if (pidc.getModule().isUninitialized())
+        {
+            // Provider module is optimized out.  Fill it in from the cache.
+            request->operationContext.set(ProviderIdContainer(
+                _providerModuleCache, pidc.getProvider(),
+                pidc.isRemoteNameSpace(), pidc.getRemoteInfo()));
+        }
+        else
+        {
+            // Update the cache with the new provider module instance.
+            _providerModuleCache = pidc.getModule();
+        }
+    }
+    catch (...)
+    {
+        // No ProviderIdContainer to optimize
+    }
+
     //
     // Check for messages to be handled by the Agent itself.
     //

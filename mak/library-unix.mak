@@ -13,6 +13,9 @@ ifeq ($(COMPILER),acc)
   ifdef PEGASUS_DEBUG
     LINK_COMMAND += -g
   endif
+  ifdef PEGASUS_CCOVER
+    LIBRARIES += $(CCOVER_LIB)/libcov-PIC.a
+  endif
   LINK_ARGUMENTS =
   LINK_OUT = -o
 endif

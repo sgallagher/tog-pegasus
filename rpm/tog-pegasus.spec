@@ -51,7 +51,7 @@ sources.
 Summary:      The OpenPegasus Software Development Kit
 Group:        Systems Management/Base
 Autoreq: 0
-Requires: tog-pegasus >= 2.4, openssl-devel >= 0.9.6
+Requires: tog-pegasus >= 2.4
 
 %description sdk
 The OpenPegasus WBEM Services for Linux SDK is the developer's kit for the OpenPegasus WBEM

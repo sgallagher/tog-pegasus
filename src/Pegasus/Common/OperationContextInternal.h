@@ -13,7 +13,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -37,6 +37,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/OperationContext.h>
+#include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMInstance.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -52,7 +53,8 @@ public:
     LocaleContainer(const OperationContext::Container & container);
     LocaleContainer(const String & languageId);
     virtual ~LocaleContainer(void);
-		LocaleContainer &operator=(const LocaleContainer &);
+
+    LocaleContainer & operator=(const LocaleContainer & container);
 
     virtual String getName(void) const;
     virtual OperationContext::Container * clone(void) const;
@@ -73,9 +75,10 @@ public:
 
     ProviderIdContainer(const OperationContext::Container & container);
     ProviderIdContainer(const CIMInstance & module, const CIMInstance & provider,
-        Boolean remoteNameSpace=false, String remoteInfo=String::EMPTY);
+        Boolean remoteNameSpace = false, String remoteInfo = String::EMPTY);
     virtual ~ProviderIdContainer(void);
-		ProviderIdContainer &operator=(const ProviderIdContainer &);
+
+    ProviderIdContainer & operator=(const ProviderIdContainer & container);
 
     virtual String getName(void) const;
     virtual OperationContext::Container * clone(void) const;
@@ -83,14 +86,37 @@ public:
 
     CIMInstance getModule(void) const;
     CIMInstance getProvider(void) const;
-    const String & getRemoteInfo() const;
-    Boolean isRemoteNameSpace() const;
+    const String & getRemoteInfo(void) const;
+    Boolean isRemoteNameSpace(void) const;
 
 protected:
     CIMInstance _module;
     CIMInstance _provider;
     Boolean _remoteNameSpace;
     String _remoteInfo;
+
+};
+
+class PEGASUS_COMMON_LINKAGE CachedClassDefinitionContainer
+    : virtual public OperationContext::Container
+{
+public:
+    static const String NAME;
+
+    CachedClassDefinitionContainer(const OperationContext::Container & container);
+    CachedClassDefinitionContainer(const CIMClass & cimClass);
+    virtual ~CachedClassDefinitionContainer(void);
+
+    CachedClassDefinitionContainer & operator=(const CachedClassDefinitionContainer & container);
+
+    virtual String getName(void) const;
+    virtual OperationContext::Container * clone(void) const;
+    virtual void destroy(void);
+
+    CIMClass getClass(void) const;
+
+protected:
+    CIMClass _cimClass;
 
 };
 

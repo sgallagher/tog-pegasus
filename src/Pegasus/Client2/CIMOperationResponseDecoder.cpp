@@ -194,6 +194,12 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     //
     // Check for a success (200 OK) response
     //
+    httpMessage->message.append('\0');
+
+    // Display of received packet.  Displays the complete received packet
+    // For now, this is conditionally compiled.
+    if (getenv("PEGASUS_CLIENT_TRACE"))
+        XmlWriter::indentedPrint(cout, httpMessage->message.getData());
 
     if (statusCode != HTTP_STATUSCODE_OK)
     {
@@ -234,12 +240,12 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     // Zero-terminate the message:
     //
 
-    httpMessage->message.append('\0');
+    //httpMessage->message.append('\0');
 
     // Display of received packet.  Displays the complete received packet
     // For now, this is conditionally compiled.
-    if (getenv("PEGASUS_CLIENT_TRACE"))
-        XmlWriter::indentedPrint(cout, httpMessage->message.getData());
+    //if (getenv("PEGASUS_CLIENT_TRACE"))
+    //    XmlWriter::indentedPrint(cout, httpMessage->message.getData());
     
     // Calculate the beginning of the content from the message size and
     // the content length.  Subtract 1 to take into account the null
@@ -1140,6 +1146,90 @@ CIMReferencesResponseMessage* CIMOperationResponseDecoder::_decodeReferencesResp
     }
 }
 
+// KS 20021001 - Added this duplicate from xmlreader to test changes
+// for wbemservices problem where it does not return objectpath element
+// Tests for ObjectPath OR InstancePathelemen or classpath element
+Boolean _getObjectPathElement(
+    XmlParser& parser, 
+    CIMObjectPath& objectPath)
+{
+    XmlEntry entry;
+
+    if (!XmlReader::testStartTag(parser, entry, "OBJECTPATH"))
+    {               // loop for the interop test
+        //See getValueReferenceElement for good code.
+        if (!parser.next(entry))
+            throw XmlException(XmlException::UNCLOSED_TAGS, parser.getLine());
+        if (entry.type != XmlEntry::START_TAG && 
+        entry.type != XmlEntry::EMPTY_TAG)
+        {
+            parser.putBack(entry);
+            return false;
+        }
+        if (strcmp(entry.text, "CLASSPATH") == 0)
+        {
+            parser.putBack(entry);
+            XmlReader::getClassPathElement(parser, objectPath);
+            return true;
+        }
+        else if (strcmp(entry.text, "LOCALCLASSPATH") == 0)
+        {
+            parser.putBack(entry);
+            XmlReader::getLocalClassPathElement(parser, objectPath);
+            return true;
+        }
+        else if (strcmp(entry.text, "CLASSNAME") == 0)
+        {
+            parser.putBack(entry);
+            CIMName className;
+            XmlReader::getClassNameElement(parser, className);
+            objectPath.set(String(), CIMNamespaceName(), className);
+            return true;
+        }
+        else if (strcmp(entry.text, "INSTANCEPATH") == 0)
+        {
+            parser.putBack(entry);
+            XmlReader::getInstancePathElement(parser, objectPath);
+            return true;
+        }
+        else if (strcmp(entry.text, "LOCALINSTANCEPATH") == 0)
+        {
+            parser.putBack(entry);
+            XmlReader::getLocalInstancePathElement(parser, objectPath);
+            return true;
+        }
+        else if (strcmp(entry.text, "INSTANCENAME") == 0)
+        {
+            parser.putBack(entry);
+            String className;
+            Array<CIMKeyBinding> keyBindings;
+            XmlReader::getInstanceNameElement(parser, className, keyBindings);
+            objectPath.set(String(), CIMNamespaceName(), className, keyBindings);
+            return true;
+        }
+        return false;
+    }
+    
+    if (XmlReader::getClassPathElement(parser, objectPath))
+    {
+	XmlReader::expectEndTag(parser, "OBJECTPATH");
+	return true;
+    }
+    else if (XmlReader::getInstancePathElement(parser, objectPath))
+    {
+	XmlReader::expectEndTag(parser, "OBJECTPATH");
+	return true;
+    }
+    else
+    {
+	throw XmlValidationError(parser.getLine(),
+	    "expected INSTANCEPATH or CLASSPATH element");
+    }
+
+    PEGASUS_UNREACHABLE ( return false; )
+}
+
+
 CIMAssociatorNamesResponseMessage* CIMOperationResponseDecoder::_decodeAssociatorNamesResponse(
     XmlParser& parser, const String& messageId)
 {
@@ -1157,7 +1247,11 @@ CIMAssociatorNamesResponseMessage* CIMOperationResponseDecoder::_decodeAssociato
     else
     {
 	Array<CIMObjectPath> objectPaths;
-
+    
+    // KS 20020931 - Addition to allow empty tag return.
+    // WBEMServices returns this tag wneh no instances exist.
+    // Put here to keep out of the general code since this is 
+    // client problem only.
     // KS 20020931 - Addition to allow empty tag return.
     // WBEMServices returns this tag wneh no instances exist.
     if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
@@ -1165,9 +1259,12 @@ CIMAssociatorNamesResponseMessage* CIMOperationResponseDecoder::_decodeAssociato
     	{
     	    CIMObjectPath objectPath;
     
-    	    while (XmlReader::getObjectPathElement(parser, objectPath))
-    	        objectPaths.append(objectPath);
+    	    //while (XmlReader::getObjectPathElement(parser, objectPath))
+    	    //    objectPaths.append(objectPath);
     
+    	    while (_getObjectPathElement(parser, objectPath))
+    	        objectPaths.append(objectPath);
+            
     	    XmlReader::expectEndTag(parser, "IRETURNVALUE");
     	}
 

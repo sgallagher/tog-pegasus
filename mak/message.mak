@@ -45,15 +45,13 @@ include $(ROOT)/mak/clean.mak
 
 include $(ROOT)/mak/objects.mak
 
-include $(ROOT)/mak/depend.mak
+depend:
 
 include $(ROOT)/mak/build.mak
 
 include $(ROOT)/mak/docxx.mak
 
 include $(ROOT)/mak/sub.mak
-
--include $(OBJ_DIR)/depend.mak
 
 include $(ROOT)/mak/misc.mak
 

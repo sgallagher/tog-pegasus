@@ -67,17 +67,17 @@
 #include "../slp_client/slp_client.h"
 
 
-static int8 *type;
-static int8 *addr;
-static int8 *scopes;
-static int8 *_interface;
-static int8 *predicate;
-static  int8 *spi;
+static char *type;
+static char *addr;
+static char *scopes;
+static char *_interface;
+static char *predicate;
+static char *spi;
 static int16 port = 427, converge;
 static BOOL dir_agent = FALSE;
 static BOOL test = FALSE;
 static BOOL parsable= FALSE;
-static int8 fs='\t', rs='\n';
+static char fs='\t', rs='\n';
 
 
 void free_globals(void)
@@ -124,7 +124,7 @@ void usage(void)
 BOOL get_options(int argc, char *argv[])
 {
   int i;
-  int8 *bptr;
+  char *bptr;
   
   for(i = 1; i < argc; i++){
     if((*argv[i] == '-') && (*(argv[i] + 1) == '-')) {

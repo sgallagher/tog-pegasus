@@ -33,7 +33,7 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                       mdday@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_srvreg/slp_srvreg.cpp,v 1.3 2005/02/05 23:01:37 karl Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_srvreg/slp_srvreg.cpp,v 1.4 2005/02/26 06:15:24 david.dillard Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -66,7 +66,7 @@
 #include <time.h>
 #endif
 
-int8 *type, *url, *attrs, *addr, *scopes, *iface, *spi;
+char *type, *url, *attrs, *addr, *scopes, *iface, *spi;
 uint16 life = 0x0fff, port=427;
 BOOL should_listen = FALSE, dir_agent = FALSE, test = FALSE;
 
@@ -115,7 +115,7 @@ void usage(void)
 BOOL get_options(int argc, char *argv[])
 {
   int i;
-  int8 *bptr;
+  char *bptr;
   
   for(i = 1; i < argc; i++){
     if((*argv[i] == '-') && (*(argv[i] + 1) == '-')) {

@@ -13,7 +13,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -36,16 +36,9 @@
 
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMInstance.h>
-#include <Pegasus/Common/CIMIndication.h>
-#include <Pegasus/Common/CIMProperty.h>
-#include <Pegasus/Common/CIMMethod.h>
-#include <Pegasus/Common/CIMParameter.h>
-#include <Pegasus/Common/CIMQualifier.h>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Common/DeclContext.h>
-#include <Pegasus/Common/Linkage.h>
 
-#include <Pegasus/Repository/CIMRepository.h>
+#include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -53,38 +46,25 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_COMMON_LINKAGE ObjectNormalizer
 {
 public:
-    ObjectNormalizer(CIMRepository & repository);
-
-    CIMClass normalizeClass(
+    ObjectNormalizer(
         const CIMClass & cimClass,
         const Boolean localOnly,
         const Boolean includeQualifiers,
-        const Boolean includeClassOrigin,
-        const CIMPropertyList & propertyList);
+        const Boolean includeClassOrigin);
 
-    CIMInstance normalizeInstance(
-        const CIMInstance & cimInstance,
-        const Boolean localOnly,
-        const Boolean includeQualifiers,
-        const Boolean includeClassOrigin,
-        const CIMPropertyList & propertyList);
+    CIMObjectPath processClassObjectPath(const CIMObjectPath & cimObjectPath) const;
+    CIMObjectPath processInstanceObjectPath(const CIMObjectPath & cimObjectPath) const;
 
-    Array<CIMInstance> normalizeInstances(
-        const Array<CIMInstance> & cimInstances,
-        const Boolean localOnly,
-        const Boolean includeQualifiers,
-        const Boolean includeClassOrigin,
-        const CIMPropertyList & propertyList);
-
-    CIMIndication normalizeIndication(
-        const CIMIndication & cimIndication,
-        const Boolean localOnly,
-        const Boolean includeQualifiers,
-        const Boolean includeClassOrigin,
-        const CIMPropertyList & propertyList);
+    //CIMClass processClass(const CIMClass & cimClass) const;
+    CIMInstance processInstance(const CIMInstance & cimInstance) const;
+    //CIMIndication processIndication(const CIMIndication & cimIndication);
 
 private:
-    CIMRepository & _repository;
+    CIMClass _cimClass;
+
+    Boolean _localOnly;
+    Boolean _includeQualifiers;
+    Boolean _includeClassOrigin;
 
 };
 

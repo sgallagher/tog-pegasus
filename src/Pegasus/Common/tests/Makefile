@@ -54,7 +54,8 @@ DIRS = \
     ParamValue \
     L10N \
     L10N/msg \
-    OperationContext
+    OperationContext \
+	ObjectNormalizer
 
 ifdef PEGASUS_HAS_PERFINST
 DIRS += \

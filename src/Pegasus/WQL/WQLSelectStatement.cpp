@@ -58,7 +58,7 @@ void WQLSelectStatement::clear()
 }
 
 Boolean WQLSelectStatement::evaluateWhereClause(
-    const CIMInstance& instance) const
+    const WQLPropertySource* symbolTable) const
 {
     return false;
 }

@@ -33,9 +33,9 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/WQL/WQLOperation.h>
 #include <Pegasus/WQL/WQLOperand.h>
+#include <Pegasus/WQL/WQLPropertySource.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -139,9 +139,9 @@ public:
 	return _operations.size() != 0;
     }
 
-    /** Evalautes the where clause using the CIMInstance as input.
+    /** Evalautes the where clause using the symbol table to resolve symbols.
     */
-    Boolean evaluateWhereClause(const CIMInstance& instance) const;
+    Boolean evaluateWhereClause(const WQLPropertySource* symbolTable) const;
 
     /** Prints out the members of this class.
     */

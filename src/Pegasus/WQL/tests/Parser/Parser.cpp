@@ -28,13 +28,66 @@
 
 #include <cassert>
 #include <iostream>
+#include <Pegasus/Common/Exception.h>
 #include <Pegasus/WQL/WQLParser.h>
+#include <Pegasus/WQL/WQLSimplePropertySource.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
+void test01()
+{
+    //
+    // Create a property source (a place for the evaluate to get the
+    // values of properties from):
+    //
+
+    WQLSimplePropertySource source;
+    assert(source.addValue("x", Sint32(10), false));
+    assert(source.addValue("y", Sint32(20), false));
+    assert(source.addValue("z", Real32(1.5), false));
+
+    //
+    // Define query:
+    //
+    
+    const char TEXT[] = 
+	"SELECT x,y,z\n"
+	"FROM MyClass\n "
+	"WHERE x > 5 AND y < 20 AND z > 1.0";
+
+    Array<Sint8> text;
+    text.append(TEXT, sizeof(TEXT));
+    cout << text.getData() << endl;
+
+    // 
+    // Parse the text:
+    //
+
+    WQLSelectStatement statement;
+
+    try
+    {
+	WQLParser::parse(text, statement);
+
+	Boolean result = statement.evaluateWhereClause(&source);
+
+	cout << "result=" << result << endl;
+    }
+    catch (Exception& e)
+    {
+	cerr << "Exception: " << e.getMessage() << endl;
+	exit(1);
+    }
+
+    statement.print();
+}
+
 int main(int argc, char** argv)
 {
+    test01();
+    exit(1);
+
     //
     // Check arguments:
     //

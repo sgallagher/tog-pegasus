@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Reference.h,v $
+// Revision 1.5  2001/01/28 17:44:55  karl
+// Doc++ Comments
+//
 // Revision 1.4  2001/01/28 10:48:22  karl
 // Doc++ Documentation
 //
@@ -122,19 +125,44 @@ inline Boolean operator==(const KeyBinding& x, const KeyBinding& y)
     return x._name == y._name && x._value == y._value && x._type == y._type;
 }
 
-/** Class Reference - ATTN
-*/
+/** Class Reference Path to the specified CIM class or CIM instance or CIM 
+qualifier.  The CIM object path is a reference to CIM elements.  It is only 
+valid in context of an active connection to a CIM Object Manager on a host.  
+In order to uniquely identify a given object on a host, it includes the 
+namespace, object name, and keys (if the object is an instance).  The 
+namespace is taken to be relative to the namespace that the CIMClient is 
+currently connected to.  A key is a property or set of properties used to 
+uniquely identify an instance of a class.  Key properties are marked with the 
+KEY qualifier.
+  
+For example, the object path
+
+<TT>\\Server\Root\cimv2\CIM_ComputerSystem.Name=mycomputer: 
+CreationClassName=CIM_ComputerSystem</TT>
+
+has two parts:
+ 
+<TT>\\server\Root\cimv2</TT> - The default CIM namespace on host Server  
+<TT>CIM_ComputerSystem.Name=mycomputer</TT>, 
+
+<TT>CreationClassName=Solaris_ComputerSystem</TT> - A specific Solaris 
+Computer System object in the default namespace on host myserver.  This 
+computer system is uniquely identified by two key property values in 
+the format (key property = value): Name=mycomputer 
+CreationClassName=CIM_ComputerSystem */ 
 
 
 
 class PEGASUS_COMMON_LINKAGE Reference 
 {
 public:
-	/// Method  - ATTN
+    /** Constructs a default CIM Object Path with empty namespace, 
+    objectName and keys
+    */
     Reference();
-	/// Method	- ATTN
+    /// Method	- ATTN
     Reference(const Reference& x);
-	/// Method  -ATTN
+    /// Method  -ATTN
     Reference(
 	const String& host,
 	const String& nameSpace,
@@ -151,39 +179,42 @@ public:
     {
 	return Array<KeyBinding>();
     }
-	/// Method Clear - ATTN
+    /// Method Clear - ATTN
     void clear();
-	/// Method set - ATTN
+    /// Method set - ATTN
     void set(
 	const String& host,
 	const String& nameSpace,
 	const String& className, 
 	const Array<KeyBinding>& keyBindings = _getDefaultArray());
-	/// Method getHost - ATTN
+    /** Method getHost - Gets the host for this CIMObjectPath.
+    @return -  String& with host name
+    */
     const String& getHost() const 
     {
 	return _host; 
     }
-	/// Method setHost - ATTN
+    /** Method setHost - Sets the host for this CIMObjectPath object.
+    */
     void setHost(const String& host)
     {
 	_host = host;
     }
-	/// Method getNameSpace - ATTN
+    /// Method getNameSpace - ATTN
     const String& getNameSpace() const 
     {
 	return _nameSpace; 
     }
-	/// Method setNameSpace - ATTN
+    /// Method setNameSpace - ATTN
     void setNameSpace(const String& nameSpace);
-	/// Method getClassName - ATTN
+    /// Method getClassName - ATTN
     const String& getClassName() const 
     { 
 	return _className; 
     }
 	/// Method setClassName - ATTN
     void setClassName(const String& className);
-	/// Method getKeyBindings -- ATTN
+    /// Method getKeyBindings -- ATTN
     const Array<KeyBinding>& getKeyBindings() const 
     { 
 	return _keyBindings; 
@@ -192,11 +223,15 @@ public:
     void setKeyBindings(const Array<KeyBinding>& keyBindings);
 	/// Method identical - ATTN
     Boolean identical(const Reference& x) const;
-	/// Method toXML - ATTN
+    /** Method toXML - Returns an XML representation of this CIM object 
+    path. 
+    @param Reference to the CIM Object Path
+    @return XML representation of the CIM Object path
+    */
     void toXml(Array<Sint8>& out) const;
-	/// Method Print -- ATTN
+    /// Method Print -- ATTN
     void print() const;
-	/// Method nameSpaceToXML - ATTN
+    /// Method nameSpaceToXML - ATTN
     void nameSpaceToXml(Array<Sint8>& out) const;
 	/// Method
     void localNameSpaceToXml(Array<Sint8>& out) const;

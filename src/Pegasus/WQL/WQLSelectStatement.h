@@ -36,6 +36,7 @@
 #define Pegasus_WQLSelectStatement_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/WQL/Linkage.h>
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMPropertyList.h>
@@ -44,8 +45,13 @@
 #include <Pegasus/WQL/WQLOperation.h>
 #include <Pegasus/WQL/WQLOperand.h>
 #include <Pegasus/WQL/WQLPropertySource.h>
+#include <Pegasus/Query/QueryCommon/SelectStatement.h>
+#include <Pegasus/Query/QueryCommon/QueryContext.h>
 
 PEGASUS_NAMESPACE_BEGIN
+
+
+class PEGASUS_WQL_LINKAGE WQLSelectStatementRep;
 
 /** This class represents a compiled WQL1 select statement. 
 
@@ -67,17 +73,26 @@ PEGASUS_NAMESPACE_BEGIN
     YACC parser). Evaluation is performed using a Boolean stack. See the
     implementation of evaluateWhereClause() for details.
 */
-class PEGASUS_WQL_LINKAGE WQLSelectStatement
+class PEGASUS_WQL_LINKAGE WQLSelectStatement: public SelectStatement
 {
 public:
+	
+
+    WQLSelectStatement(String& queryLang, String& query);
+
+    WQLSelectStatement(String& queryLang, String& query, QueryContext& inCtx);
 
     /** Default constructor. 
     */
     WQLSelectStatement();
 
+    WQLSelectStatement(const WQLSelectStatement& statement);
+
     /** Destructor.
     */
     ~WQLSelectStatement();
+
+    WQLSelectStatement& operator=(const WQLSelectStatement& rhs);
 
     /** Clears all data members of this object.
     */
@@ -85,18 +100,12 @@ public:
 
     /** Accessor.
     */
-    const CIMName& getClassName() const
-    {
-	return _className;
-    }
+    const CIMName& getClassName() const;
 
     /** Modifier. This method should not be called by the user (only by the
 	parser).
     */
-    void setClassName(const CIMName& className)
-    {
-	_className = className;
-    }
+    void setClassName(const CIMName& className);
 
     /** 
         Returns true if the query selects all properties ("*")
@@ -113,18 +122,12 @@ public:
 	selection list.
         This function should only be used if getAllProperties() returns false.
     */
-    Uint32 getSelectPropertyNameCount() const
-    {
-	return _selectPropertyNames.size();
-    }
+    Uint32 getSelectPropertyNameCount() const;
 
     /** Gets the i-th selected property name in the list.
         This function should only be used if getAllProperties() returns false.
     */
-    const CIMName& getSelectPropertyName(Uint32 i) const
-    {
-	return _selectPropertyNames[i];
-    }
+    const CIMName& getSelectPropertyName(Uint32 i) const;
 
     /** 
         Returns a CIMPropertyList containing the selected properties.
@@ -135,24 +138,15 @@ public:
     /** Appends a property name to the property name list. The user should
 	not call this method; it should only be called by the parser.
     */
-    void appendSelectPropertyName(const CIMName& x)
-    {
-	_selectPropertyNames.append(x);
-    }
+    void appendSelectPropertyName(const CIMName& x);
 
     /** Returns the number of unique property names from the where clause.
     */
-    Uint32 getWherePropertyNameCount() const
-    {
-	return _wherePropertyNames.size();
-    }
+    Uint32 getWherePropertyNameCount() const;
 
     /** Gets the i-th unique property appearing in the where clause.
     */
-    const CIMName& getWherePropertyName(Uint32 i) const
-    {
-	return _wherePropertyNames[i];
-    }
+    const CIMName& getWherePropertyName(Uint32 i) const;
 
     /** 
         Returns a CIMPropertyList containing the unique properties used in the 
@@ -171,25 +165,16 @@ public:
     /** Appends an operation to the operation array. This method should only
 	be called by the parser itself.
     */
-    void appendOperation(WQLOperation x)
-    {
-	_operations.append(x);
-    }
+    void appendOperation(WQLOperation x);
 
     /** Appends an operand to the operation array. This method should only
 	be called by the parser itself.
     */
-    void appendOperand(const WQLOperand& x)
-    {
-	_operands.append(x);
-    }
+    void appendOperand(const WQLOperand& x);
 
     /** Returns true if this class has a where clause.
     */
-    Boolean hasWhereClause() const
-    {
-	return _operations.size() != 0;
-    }
+    Boolean hasWhereClause() const;
 
     /** Evalautes the where clause using the symbol table to resolve symbols.
     */
@@ -197,7 +182,7 @@ public:
 
     /** Inspect an instance and remove properties not listed in Select projection.
     */
-    void applyProjection(CIMInstance& inst);
+    void applyProjection(CIMInstance& inst) throw (Exception);
     void applyProjection(CIMObject& inst);
     
     /** Prints out the members of this class.
@@ -205,78 +190,20 @@ public:
     void print() const;
 
     static const WQLSelectStatement EMPTY;
+
+    Boolean evaluate(const CIMInstance& inCI);
+
+    void validate() throw (Exception);
+
+    CIMPropertyList getPropertyList(const CIMObjectPath& inClassName = CIMObjectPath());
+
+    Array<CIMObjectPath> getClassPathList();
+
 private:
 
-    //
-    // The name of the target class. For example:
-    //
-    //     SELECT * 
-    //     FROM TargetClass
-    //     WHERE ...
-    //
+    WQLSelectStatementRep* _rep;
 
-    CIMName _className;
-
-    //
-    // Indicates that all properties are selected (i.e. SELECT * FROM ...)
-    //
-    Boolean _allProperties;
-
-    //
-    // The list of property names being selected. For example, see "firstName",
-    // and "lastName" below.
-    //
-    //     SELECT firstName, lastName 
-    //     FROM TargetClass
-    //     WHERE ...
-    //
-    // NOTE: if the query selects all properties, this list is empty, and 
-    // _allProperties is true
-    //
-    // NOTE: duplicate property names are not removed from the select list 
-    // (e.g. SELECT firstName, firstName FROM...) results in a list of 
-    // two properties
-    //
-
-    Array<CIMName> _selectPropertyNames;
-
-    //
-    // The unique list of property names appearing in the WHERE clause.
-    // Although a property may occur many times in the WHERE clause, it will
-    // only appear once in this list.
-    //
-
-    Array<CIMName> _wherePropertyNames;
-
-    //
-    // The list of operations encountered while parsing the WHERE clause.
-    // Consider this query:
-    //
-    //     SELECT *
-    //     FROM TargetClass
-    //     WHERE count > 10 OR peak < 20 AND state = "OKAY"
-    //
-    // This would generate the following stream of WQLOperations:
-    //
-    //     WQL_GT
-    //     WQL_LT
-    //     WQL_EQ
-    //     WQL_AND
-    //     WQL_OR
-    //
-
-    Array<WQLOperation> _operations;
-
-    // 
-    // The list of operands encountered while parsing the WHERE clause. The
-    // query just above would generate the following stream of operands:
-    //
-    //     count, 10, peak, 20, state, "OKAY"
-    //
-
-    Array<WQLOperand> _operands;
-
-    void f() const { }
+    //void f() const { }
     
     friend class CMPI_Wql2Dnf;
 };

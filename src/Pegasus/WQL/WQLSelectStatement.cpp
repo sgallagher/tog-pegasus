@@ -31,448 +31,205 @@
 //                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
-
+#include "WQLSelectStatement.h"
+#include "WQLSelectStatementRep.h"
 #include <iostream>
 #include <Pegasus/Common/Stack.h>
-#include "WQLSelectStatement.h"
 
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-template<class T>
-inline static Boolean _Compare(const T& x, const T& y, WQLOperation op)
-{
-    switch (op)
-    {
-	case WQL_EQ: 
-	    return x == y;
-
-	case WQL_NE: 
-	    return x != y;
-
-	case WQL_LT: 
-	    return x < y;
-	case WQL_LE: 
-	    return x <= y;
-
-	case WQL_GT: 
-	    return x > y;
-
-	case WQL_GE: 
-	    return x >= y;
-
-	default:
-	    PEGASUS_ASSERT(0);
-    }
-
-    return false;
-}
-
-static Boolean _Evaluate(
-    const WQLOperand& lhs, 
-    const WQLOperand& rhs, 
-    WQLOperation op)
-{
-    switch (lhs.getType())
-    {
-	case WQLOperand::NULL_VALUE:
-	{
-	    // This cannot happen since expressions of the form
-	    // OPERAND OPERATOR NULL are converted to unary form.
-	    // For example: "count IS NULL" is treated as a unary
-	    // operation in which IS_NULL is the unary operation
-	    // and count is the the unary operand.
-
-	    PEGASUS_ASSERT(0);
-	    break;
-	}
-
-	case WQLOperand::INTEGER_VALUE:
-	{
-	    return _Compare(
-		lhs.getIntegerValue(),
-		rhs.getIntegerValue(),
-		op);
-	}
-
-	case WQLOperand::DOUBLE_VALUE:
-	{
-	    return _Compare(
-		lhs.getDoubleValue(),
-		rhs.getDoubleValue(),
-		op);
-	}
-
-	case WQLOperand::BOOLEAN_VALUE:
-	{
-	    return _Compare(
-		lhs.getBooleanValue(),
-		rhs.getBooleanValue(),
-		op);
-	}
-
-	case WQLOperand::STRING_VALUE:
-	{
-	    return _Compare(
-		lhs.getStringValue(),
-		rhs.getStringValue(),
-		op);
-	}
-
-	default:
-	    PEGASUS_ASSERT(0);
-    }
-
-    return false;
-}
-
 const WQLSelectStatement WQLSelectStatement::EMPTY=WQLSelectStatement();
 
-WQLSelectStatement::WQLSelectStatement()
+WQLSelectStatement::WQLSelectStatement(String& queryLang, String& query)
+   :SelectStatement()
 {
-    //
-    // Reserve space for a where clause with up to sixteen terms.
-    //
-
-    _operations.reserveCapacity(16);
-    _operands.reserveCapacity(16);
-
-    _allProperties = false;
+	_rep = new WQLSelectStatementRep(queryLang,query);
+	// Set the _rep into the base class also
+  	SelectStatement::_rep = _rep;
 }
+
+WQLSelectStatement::WQLSelectStatement(String& queryLang, String& query, QueryContext& inCtx)
+   :SelectStatement()
+{
+  _rep = new WQLSelectStatementRep(queryLang,query,inCtx);
+	// Set the _rep into the base class also
+  	SelectStatement::_rep = _rep;
+}
+
+WQLSelectStatement::WQLSelectStatement()
+   :SelectStatement()
+{
+  _rep = new WQLSelectStatementRep();
+	// Set the _rep into the base class also
+  	SelectStatement::_rep = _rep;
+}
+
+WQLSelectStatement::WQLSelectStatement(const WQLSelectStatement& statement)
+  :SelectStatement()
+{
+  _rep = new WQLSelectStatementRep(*statement._rep);
+
+  // Set the _rep into the base class also
+  SelectStatement::_rep = _rep;
+}
+
+WQLSelectStatement& WQLSelectStatement::operator=(const WQLSelectStatement& rhs)
+{
+  if(&rhs != this)
+  {
+    if(_rep) delete _rep;	
+    _rep = new WQLSelectStatementRep(*rhs._rep);
+
+    // Set the _rep into the base class also
+    SelectStatement::_rep = _rep;
+  }
+
+  return *this;
+}
+
 
 WQLSelectStatement::~WQLSelectStatement()
 {
-
+	if(_rep)
+		delete _rep;
 }
 
 void WQLSelectStatement::clear()
 {
-    _className.clear();
-    _allProperties = false;
-    _selectPropertyNames.clear();
-    _operations.clear();
-    _operands.clear();
+	_rep->clear();
 }
 
 Boolean WQLSelectStatement::getAllProperties() const
 {
-    return _allProperties;
+    return _rep->getAllProperties();
 }
 
 void WQLSelectStatement::setAllProperties(const Boolean allProperties)
 {
-    _allProperties = allProperties;
+    _rep->setAllProperties(allProperties);
 }
 
 const CIMPropertyList WQLSelectStatement::getSelectPropertyList () const
 {
-    //
-    //  Check for "*"
-    //
-    if (_allProperties)
-    {
-        //
-        //  Return null CIMPropertyList for all properties
-        //
-        return CIMPropertyList ();
-    }
-    else 
-    {
-        //
-        //  Return CIMPropertyList for properties referenced in the projection 
-        //  list (SELECT clause)
-        //
-        return CIMPropertyList (_selectPropertyNames);
-    }
+	return _rep->getSelectPropertyList();
 }
 
 const CIMPropertyList WQLSelectStatement::getWherePropertyList () const
 {
-    //
-    //  Return CIMPropertyList for properties referenced in the condition 
-    //  (WHERE clause)
-    //  The list may be empty, but may not be NULL
-    //
-    return CIMPropertyList (_wherePropertyNames);
+    return _rep->getWherePropertyList();
 }
 
 Boolean WQLSelectStatement::appendWherePropertyName(const CIMName& x)
 {
-    //
-    // Reject duplicate property names by returning false.
-    //
-
-    for (Uint32 i = 0, n = _wherePropertyNames.size(); i < n; i++)
-    {
-	if (_wherePropertyNames[i] == x)
-	    return false;
-    }
-
-    //
-    // Append the new property.
-    //
-
-    _wherePropertyNames.append(x);
-    return true;
-}
-
-static inline void _ResolveProperty(
-    WQLOperand& op,
-    const WQLPropertySource* source)
-{
-    //
-    // Resolve the operand: if it's a property name, look up its value:
-    //
-
-    if (op.getType() == WQLOperand::PROPERTY_NAME)
-    {
-	const CIMName& propertyName = op.getPropertyName();
-
-	if (!source->getValue(propertyName, op))
-	    op = WQLOperand();
-    }
+    return _rep->appendWherePropertyName(x);
 }
 
 Boolean WQLSelectStatement::evaluateWhereClause(
     const WQLPropertySource* source) const
 {
-    if (!hasWhereClause())
-	return true;
-
-    Stack<Boolean> stack;
-    stack.reserveCapacity(16);
-
-    // 
-    // Counter for operands:
-    //
-
-    Uint32 j = 0;
-
-    //
-    // Process each of the operations:
-    //
-
-    for (Uint32 i = 0, n = _operations.size(); i < n; i++)
-    {
-	WQLOperation op = _operations[i];
-
-	switch (op)
-	{
-	    case WQL_OR:
-	    {
-		PEGASUS_ASSERT(stack.size() >= 2);
-
-		Boolean op1 = stack.top();
-		stack.pop();
-
-		Boolean op2 = stack.top();
-
-		stack.top() = op1 || op2;
-		break;
-	    }
-
-	    case WQL_AND:
-	    {
-		PEGASUS_ASSERT(stack.size() >= 2);
-
-		Boolean op1 = stack.top();
-		stack.pop();
-
-		Boolean op2 = stack.top();
-
-		stack.top() = op1 && op2;
-		break;
-	    }
-
-	    case WQL_NOT:
-	    {
-		PEGASUS_ASSERT(stack.size() >= 1);
-
-		Boolean op = stack.top();
-		stack.top() = !op;
-		break;
-	    }
-
-	    case WQL_EQ:
-	    case WQL_NE:
-	    case WQL_LT:
-	    case WQL_LE:
-	    case WQL_GT:
-	    case WQL_GE:
-	    {
-		Array<WQLOperand> whereOperands(_operands);
-		PEGASUS_ASSERT(whereOperands.size() >= 2);
-
-		//
-		// Resolve the left-hand-side to a value (if not already
-		// a value).
-		//
-
-		WQLOperand& lhs = whereOperands[j++];
-		_ResolveProperty(lhs, source);
-
-		//
-		// Resolve the right-hand-side to a value (if not already
-		// a value).
-		//
-
-		WQLOperand& rhs = whereOperands[j++];
-		_ResolveProperty(rhs, source);
-
-		//
-		// Check for a type mismatch:
-		//
-
-		// PEGASUS_OUT(lhs.toString());
-		// PEGASUS_OUT(rhs.toString());
-
-		if (rhs.getType() != lhs.getType())
-		    throw TypeMismatchException();
-
-		//
-		// Now that the types are known to be alike, apply the
-		// operation:
-		//
-
-		stack.push(_Evaluate(lhs, rhs, op));
-		break;
-	    }
-
-	    case WQL_IS_TRUE:
-	    case WQL_IS_NOT_FALSE:
-	    {
-		PEGASUS_ASSERT(stack.size() >= 1);
-		break;
-	    }
-
-	    case WQL_IS_FALSE:
-	    case WQL_IS_NOT_TRUE:
-	    {
-		PEGASUS_ASSERT(stack.size() >= 1);
-		stack.top() = !stack.top();
-		break;
-	    }
-
-	    case WQL_IS_NULL:
-	    {
-		Array<WQLOperand> whereOperands(_operands);
-		PEGASUS_ASSERT(whereOperands.size() >= 1);
-		WQLOperand& op = whereOperands[j++];
-		_ResolveProperty(op, source);
-		stack.push(op.getType() == WQLOperand::NULL_VALUE);
-		break;
-	    }
-
-	    case WQL_IS_NOT_NULL:
-	    {
-		Array<WQLOperand> whereOperands(_operands);
-		PEGASUS_ASSERT(whereOperands.size() >= 1);
-		WQLOperand& op = whereOperands[j++];
-		_ResolveProperty(op, source);
-		stack.push(op.getType() != WQLOperand::NULL_VALUE);
-		break;
-	    }
-	}
-    }
-
-    PEGASUS_ASSERT(stack.size() == 1);
-    return stack.top();
+	return _rep->evaluateWhereClause(source);
 }
 
-void WQLSelectStatement::applyProjection(CIMInstance& ci) 
+void WQLSelectStatement::applyProjection(CIMInstance& ci) throw (Exception)
 {
-   if (_allProperties) return;
-
-   for (int i=ci.getPropertyCount(); i!=0; i--) {
-      CIMName pn=ci.getProperty(i-1).getName();
-      for (int ii=0,mm=_selectPropertyNames.size(); ii<mm; ii++) {
-         if (_selectPropertyNames[ii]==pn) break;
-	 ci.removeProperty(i-1);
-	 break;
-      }	 
-   }
+	_rep->applyProjection(ci);
 }
 
 void WQLSelectStatement::applyProjection(CIMObject& ci) 
 {
-   if (_allProperties) return;
- 
-   for (int i=ci.getPropertyCount(); i!=0; i--) {
-      CIMName pn=ci.getProperty(i-1).getName();
-      for (int ii=0,mm=_selectPropertyNames.size(); ii<mm; ii++) {
-         if (_selectPropertyNames[ii]==pn) break;
-	 ci.removeProperty(i-1);
-	 break;
-      }	 
-   }
+	_rep->applyProjection(ci);
 }
 
 void WQLSelectStatement::print() const
 {
-    //
-    // Print the header:
-    //
-    
-    cout << "WQLSelectStatement" << endl;
-    cout << "{" << endl;
-
-    //
-    // Print the class name:
-    //
-
-    cout << "    _className: \"" << _className.getString() << '"' << endl;
-
-    // 
-    // Print the select properties:
-    //
-
-    if (_allProperties)
-    {
-        cout << endl;
-        cout << "    _allProperties: TRUE" << endl;
-    }
-
-    else for (Uint32 i = 0; i < _selectPropertyNames.size(); i++)
-    {
-	if (i == 0)
-	    cout << endl;
-
-	cout << "    _selectPropertyNames[" << i << "]: ";
-	cout << '"' << _selectPropertyNames[i].getString() << '"' << endl;
-    }
-
-    //
-    // Print the operations:
-    //
-
-    for (Uint32 i = 0; i < _operations.size(); i++)
-    {
-        if (i == 0)
-            cout << endl;
-
-        cout << "    _operations[" << i << "]: ";
-        cout << '"' << WQLOperationToString(_operations[i]) << '"' << endl;
-    }
-
-    //
-    // Print the operands:
-    //
-
-    for (Uint32 i = 0; i < _operands.size(); i++)
-    {
-        if (i == 0)
-	    cout << endl;
-
-	cout << "    _operands[" << i << "]: ";
-	cout << '"' << _operands[i].toString() << '"' << endl;
-    }
-
-    //
-    // Print the trailer:
-    //
-
-    cout << "}" << endl;
+	_rep->print();
 }
+
+Boolean WQLSelectStatement::evaluate(const CIMInstance& inCI)
+{
+	return _rep->evaluate(inCI);
+}
+           
+void WQLSelectStatement::validate() throw (Exception)
+{
+	_rep->validate();
+}
+              
+CIMPropertyList WQLSelectStatement::getPropertyList(const CIMObjectPath& inClassName)
+{
+	return _rep->getPropertyList(inClassName);
+}
+
+Array<CIMObjectPath> WQLSelectStatement::getClassPathList()
+{
+	return _rep->getClassPathList();
+}
+
+Uint32 WQLSelectStatement::getSelectPropertyNameCount() const
+{
+        return _rep->getSelectPropertyNameCount();
+}
+                                              
+    /** Gets the i-th selected property name in the list.
+        This function should only be used if getAllProperties() returns false.
+    */
+const CIMName& WQLSelectStatement::getSelectPropertyName(Uint32 i) const
+{
+     return _rep->getSelectPropertyName(i);
+}
+
+const CIMName& WQLSelectStatement::getClassName() const
+    {
+        return _rep->getClassName();
+    }
+                                                
+    /** Modifier. This method should not be called by the user (only by the
+        parser).
+    */
+    void WQLSelectStatement::setClassName(const CIMName& className)
+    {
+        _rep->setClassName(className);
+    }
+
+void WQLSelectStatement::appendSelectPropertyName(const CIMName& x)
+    {
+        _rep->appendSelectPropertyName(x);
+    }
+                                                
+    /** Returns the number of unique property names from the where clause.
+    */
+    Uint32 WQLSelectStatement::getWherePropertyNameCount() const
+    {
+        return _rep->getWherePropertyNameCount();
+    }
+                                               
+    /** Gets the i-th unique property appearing in the where clause.
+    */
+    const CIMName& WQLSelectStatement::getWherePropertyName(Uint32 i) const
+    {
+        return _rep->getWherePropertyName(i);
+    }
+
+void WQLSelectStatement::appendOperation(WQLOperation x)
+    {
+        _rep->appendOperation(x);
+    }
+                                               
+    /** Appends an operand to the operation array. This method should only
+        be called by the parser itself.
+    */
+    void WQLSelectStatement::appendOperand(const WQLOperand& x)
+    {
+        _rep->appendOperand(x);
+    }
+                                                
+    /** Returns true if this class has a where clause.
+    */
+    Boolean WQLSelectStatement::hasWhereClause() const
+    {
+        return _rep->hasWhereClause();
+    }
 
 PEGASUS_NAMESPACE_END

@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -47,9 +47,9 @@ int main(int argc, char *argv[]) {
   char outfilename[1024];
   FILE *outfile;
   FILE *textfile;
-  char *tmp; 
+  char *tmp;
   char line[1024];
-  
+
   unsigned int i;
   int found_first_line = 0;
   int in_quotes;
@@ -83,13 +83,13 @@ int main(int argc, char *argv[]) {
     fprintf (stderr, "ERROR: could not open %s\nUSAGE: %s {-u if uppercase} [filename]\n", infilename, argv[0]);
     exit (1);
   }
-  
+
   sprintf (outfilename, "%s", infilename);
   if ((tmp = strchr(outfilename, '_')) == NULL) {
     fprintf (stderr, "ERROR: could not convert %s - invalid filename\nUSAGE: %s {-u if uppercase} [filename]\n", infilename, argv[0]);
     exit (1);
   }
-  
+
   // append root to the outputfilename
   sprintf(tmp, "_root.rb"); //\n
 
@@ -111,10 +111,10 @@ comment out this code.
 	fprintf (stderr, "ERROR: first line of file not in proper format: [bundlename]_[lang]:table {\nLINE: %s", line);
 	exit (1);
       }
-	
+
       // deal with the first line (the bundle name)
       tmp[0] = '\0';
-      
+
       fprintf (outfile, "%s_root:table {", line); //\n
 */
       fprintf (outfile, "root:table {"); //\n
@@ -132,31 +132,31 @@ comment out this code.
       }
       fprintf (outfile, "%c", line[0]);
       // end of first character special case
-      
+
       for (i = 1; i < strlen(line); i++) {
-	
+
 	if (do_uppercase) {
 
 	  if (in_quotes == 0) {
-	    
+
 	    if (line[i] == '\"' && line[i-1] != '\\') {
-	      
+
 	      in_quotes = 1;
 	    }
-	    
+
 	  } else if (in_quotes == 1) {
-	    
+
 	    if (line[i] == '\"' && line[i-1] != '\\') {
 	      in_quotes = 0;
 	    }
-	    
+
 	    if (line[i] >= 'a' && line[i] <= 'z' && line[i-1] != '\\') {
 	      line[i] += 'A' - 'a'; // uppercase the character
 	    }
 	  }
 
 	} // end if do_uppercase
-	
+
 	fprintf (outfile, "%c", line[i]);
 
       } // ends the for-loop for each character in the line
@@ -176,4 +176,6 @@ comment out this code.
 
   fclose (outfile);
   fclose (textfile);
+
+  return(0);
 }

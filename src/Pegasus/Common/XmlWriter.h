@@ -23,6 +23,10 @@
 // Author:
 //
 // $Log: XmlWriter.h,v $
+// Revision 1.3  2001/01/31 08:20:51  mike
+// Added dispatcher framework.
+// Added enumerateInstanceNames.
+//
 // Revision 1.2  2001/01/29 02:23:44  mike
 // Added support for GetInstance operation
 //
@@ -166,6 +170,10 @@ public:
     static Array<Sint8>& appendClassNameElement(
 	Array<Sint8>& out,
 	const String& className);
+
+    static Array<Sint8>& appendInstanceNameElement(
+	Array<Sint8>& out,
+	const Reference& instanceName);
 
     static void indentedPrint(
 	std::ostream& os,

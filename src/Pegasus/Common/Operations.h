@@ -23,6 +23,10 @@
 // Author:
 //
 // $Log: Operations.h,v $
+// Revision 1.6  2001/01/31 08:20:51  mike
+// Added dispatcher framework.
+// Added enumerateInstanceNames.
+//
 // Revision 1.5  2001/01/29 08:03:12  karl
 // DOC++ Documentation
 //
@@ -900,8 +904,7 @@ public:
      </UL>
     */
 
-    virtual Array<String> enumerateInstanceNames(
-
+    virtual Array<Reference> enumerateInstanceNames(
         const String& nameSpace,
         const String& className) = 0;
 

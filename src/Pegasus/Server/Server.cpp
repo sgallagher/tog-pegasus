@@ -23,6 +23,10 @@
 // Author: Mike Brasher
 //
 // $Log: Server.cpp,v $
+// Revision 1.4  2001/01/31 08:20:51  mike
+// Added dispatcher framework.
+// Added enumerateInstanceNames.
+//
 // Revision 1.3  2001/01/29 07:03:48  mike
 // reworked build environment variables
 //
@@ -46,7 +50,7 @@
 #include <Pegasus/Repository/Repository.h>
 #include <Pegasus/Protocol/Handler.h>
 #include <Pegasus/Server/Server.h>
-#include <Pegasus/Server/ProviderTable.h>
+#include <Pegasus/Server/Dispatcher.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -74,7 +78,7 @@ class ServerHandler : public Handler
 {
 public:
 
-    ServerHandler() : _repository(0), _providerTable(0)
+    ServerHandler() : _dispatcher(0)
     {
     }
 
@@ -106,6 +110,11 @@ public:
 	Uint32 messageId,
 	const String& nameSpace);
     //STUB}
+
+    void handleEnumerateInstanceNames(
+	XmlParser& parser, 
+	Uint32 messageId,
+	const String& nameSpace);
 
     void handleDeleteQualifier(
 	XmlParser& parser, 
@@ -147,20 +156,14 @@ public:
 	Uint32 messageId,
 	const String& nameSpace);
 
-    void setRepository(Repository* repository)
+    void setDispatcher(Dispatcher* dispatcher)
     {
-	_repository = repository;
-    }
-
-    void setProviderTable(ProviderTable* providerTable)
-    {
-	_providerTable = providerTable;
+	_dispatcher = dispatcher;
     }
 
 private:
 
-    Repository* _repository;
-    ProviderTable* _providerTable;
+    Dispatcher* _dispatcher;
 };
 
 //------------------------------------------------------------------------------
@@ -390,6 +393,8 @@ cout << "CONTENT[" << (char*)getContent() << "]" << endl;
     else if (strcmp(iMethodCallName, "EnumerateClassNames") == 0)
 	handleEnumerateClassNames(parser, messageId, nameSpace);
     //STUB}
+    else if (strcmp(iMethodCallName, "EnumerateInstanceNames") == 0)
+	handleEnumerateInstanceNames(parser, messageId, nameSpace);
     else if (strcmp(iMethodCallName, "DeleteQualifier") == 0)
 	handleDeleteQualifier(parser, messageId, nameSpace);
     else if (strcmp(iMethodCallName, "GetQualifier") == 0)
@@ -479,13 +484,11 @@ void ServerHandler::handleGetClass(
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
     }
 
-    assert(_repository != 0);
-
     ConstClassDecl classDecl;
     
     try
     {
-	classDecl = _repository->getClass(
+	classDecl = _dispatcher->getClass(
 	    nameSpace,
 	    className,
 	    localOnly,
@@ -559,68 +562,15 @@ void ServerHandler::handleGetInstance(
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
     }
 
-    assert(_repository != 0);
-
     ConstInstanceDecl instanceDecl;
     
     try
     {
-	// ATTN: this code should be moved into some kind of dispatcher
-	// class since it has nothing to do with communication!
-
-	String className = instanceName.getClassName();
-
-	//----------------------------------------------------------------------
-	// Look up the class:
-	//----------------------------------------------------------------------
-
-	ClassDecl classDecl = _repository->getClass(nameSpace, className);
-
-	if (!classDecl)
-	    throw CimException(CimException::INVALID_CLASS);
-
-	// classDecl.print();
-
-	//----------------------------------------------------------------------
-	// Get the provider qualifier:
-	//----------------------------------------------------------------------
-
-	Uint32 pos = classDecl.findQualifier("provider");
-
-	if (pos == Uint32(-1))
-	    throw CimException(CimException::FAILED);
-
-	Qualifier q = classDecl.getQualifier(pos);
-	String providerId;
-	q.getValue().get(providerId);
-
-	//----------------------------------------------------------------------
-	// Get the provider (initialize it if not already initialize)
-	// ATTN: move this block so that it can be shared.
-	//----------------------------------------------------------------------
-
-	Provider* provider = _providerTable->lookupProvider(providerId);
-
-	if (!provider)
-	{
-	    provider = _providerTable->loadProvider(providerId);
-
-	    if (!provider)
-		throw CimException(CimException::FAILED);
-
-	    provider->initialize(*_repository);
-	}
-
-	//----------------------------------------------------------------------
-	// Get instance from provider:
-	//----------------------------------------------------------------------
-
-	instanceDecl = provider->getInstance(nameSpace, instanceName, 
-	    localOnly, includeQualifiers, includeClassOrigin);
-
-	// ATTN: Need code here to fill out the class?
-
-	// instanceName.print();
+	instanceDecl = _dispatcher->getInstance(
+	    nameSpace,
+	    instanceName,
+	    includeQualifiers,
+	    includeClassOrigin);
     }
     catch (CimException& e)
     {
@@ -628,8 +578,9 @@ void ServerHandler::handleGetInstance(
 	    messageId, "GetInstance", e.getCode(), e.codeToString(e.getCode()));
 	return;
     }
-    catch (Exception&)
+    catch (Exception& e)
     {
+std::cout << e.getMessage() << std::endl;
 	sendError(messageId, "GetInstance", CimException::FAILED, 
 	    CimException::codeToString(CimException::FAILED));
 	return;
@@ -676,13 +627,11 @@ void ServerHandler::handleEnumerateClassNames(
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
     }
 
-    assert(_repository != 0);
-
     Array<String> classNames;
     
     try
     {
-	classNames = _repository->enumerateClassNames(
+	classNames = _dispatcher->enumerateClassNames(
 	    nameSpace,
 	    className,
 	    deepInheritance);
@@ -714,6 +663,66 @@ void ServerHandler::handleEnumerateClassNames(
 
 //------------------------------------------------------------------------------
 //
+// ServerHandler::handleEnumerateInstanceNames()
+//
+//------------------------------------------------------------------------------
+
+void ServerHandler::handleEnumerateInstanceNames(
+    XmlParser& parser, 
+    Uint32 messageId,
+    const String& nameSpace)
+{
+    //--------------------------------------------------------------------------
+    // <!ELEMENT IPARAMVALUE (VALUE|VALUE.ARRAY|VALUE.REFERENCE
+    //     |INSTANCENAME|CLASSNAME|QUALIFIER.DECLARATION
+    //     |CLASS|INSTANCE|VALUE.NAMEDINSTANCE)?>
+    // <!ATTLIST IPARAMVALUE %CIMName;>
+    //--------------------------------------------------------------------------
+
+    String className;
+
+    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+    {
+	if (strcmp(name, "ClassName") == 0)
+	    XmlReader::getClassNameElement(parser, className, true);
+
+	XmlReader::expectEndTag(parser, "IPARAMVALUE");
+    }
+
+    Array<Reference> instanceNames;
+    
+    try
+    {
+	instanceNames = _dispatcher->enumerateInstanceNames(
+	    nameSpace,
+	    className);
+    }
+    catch (CimException& e)
+    {
+	sendError(messageId, "EnumerateInstanceNames", 
+	    e.getCode(), e.codeToString(e.getCode()));
+	return;
+    }
+    catch (Exception&)
+    {
+	sendError(messageId, "EnumerateInstanceNames", CimException::FAILED, 
+	    CimException::codeToString(CimException::FAILED));
+	return;
+    }
+
+    Array<Sint8> body;
+
+    for (Uint32 i = 0; i < instanceNames.getSize(); i++)
+	XmlWriter::appendInstanceNameElement(body, instanceNames[i]);
+
+    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
+	"EnumerateInstanceNames", body);
+
+    sendMessage(message);
+}
+
+//------------------------------------------------------------------------------
+//
 // ServerHandler::handleDeleteQualifier()
 //
 //------------------------------------------------------------------------------
@@ -733,11 +742,9 @@ void ServerHandler::handleDeleteQualifier(
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
     }
 
-    assert(_repository != 0);
-
     try
     {
-	_repository->deleteQualifier(nameSpace, qualifierName);
+	_dispatcher->deleteQualifier(nameSpace, qualifierName);
     }
     catch (CimException& e)
     {
@@ -782,12 +789,11 @@ void ServerHandler::handleGetQualifier(
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
     }
 
-    assert(_repository != 0);
     QualifierDecl qualifierDecl;
     
     try
     {
-	qualifierDecl = _repository->getQualifier(nameSpace, qualifierName);
+	qualifierDecl = _dispatcher->getQualifier(nameSpace, qualifierName);
     }
     catch (CimException& e)
     {
@@ -832,13 +838,11 @@ void ServerHandler::handleSetQualifier(
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
     }
 
-    assert(_repository != 0);
-
     Array<String> classNames;
     
     try
     {
-	_repository->setQualifier(nameSpace, qualifierDecl);
+	_dispatcher->setQualifier(nameSpace, qualifierDecl);
     }
     catch (CimException& e)
     {
@@ -875,13 +879,11 @@ void ServerHandler::handleEnumerateQualifiers(
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
 
-    assert(_repository != 0);
-
     Array<QualifierDecl> qualifierDecls;
     
     try
     {
-	qualifierDecls = _repository->enumerateQualifiers(nameSpace);
+	qualifierDecls = _dispatcher->enumerateQualifiers(nameSpace);
     }
     catch (CimException& e)
     {
@@ -947,13 +949,11 @@ void ServerHandler::handleEnumerateClasses(
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
     }
 
-    assert(_repository != 0);
-
     Array<ClassDecl> classDecls;
     
     try
     {
-	classDecls = _repository->enumerateClasses(
+	classDecls = _dispatcher->enumerateClasses(
 	    nameSpace,
 	    className,
 	    deepInheritance,
@@ -1013,11 +1013,9 @@ void ServerHandler::handleCreateClass(
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
     }
 
-    assert(_repository != 0);
-
     try
     {
-	_repository->createClass(nameSpace, classDecl);
+	_dispatcher->createClass(nameSpace, classDecl);
     }
     catch (CimException& e)
     {
@@ -1068,11 +1066,9 @@ void ServerHandler::handleModifyClass(
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
     }
 
-    assert(_repository != 0);
-
     try
     {
-	_repository->modifyClass(nameSpace, classDecl);
+	_dispatcher->modifyClass(nameSpace, classDecl);
     }
     catch (CimException& e)
     {
@@ -1123,11 +1119,9 @@ void ServerHandler::handleDeleteClass(
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
     }
 
-    assert(_repository != 0);
-
     try
     {
-	_repository->deleteClass(nameSpace, className);
+	_dispatcher->deleteClass(nameSpace, className);
     }
     catch (CimException& e)
     {
@@ -1166,16 +1160,23 @@ public:
 
     Acceptor(const ACE_INET_Addr& addr, const String& repositoryRoot) :
 	AcceptorBase(addr, ACE_Reactor::instance()),
-	_repository(repositoryRoot)
+	_repository(repositoryRoot), _dispatcher(0)
     {
 
+    }
+
+    virtual ~Acceptor()
+    {
+	if (_dispatcher)
+	    delete _dispatcher;
     }
 
     virtual int make_svc_handler(ServerHandler*& handler)
     {
 	handler = new ServerHandler;
-	handler->setRepository(&_repository);
-	handler->setProviderTable(&_providerTable);
+
+	_dispatcher = new Dispatcher(&_repository);
+	handler->setDispatcher(_dispatcher);
 
 	if (reactor())
 	    handler->reactor(reactor());
@@ -1184,7 +1185,7 @@ public:
     }
 
     Repository _repository;
-    ProviderTable _providerTable;
+    Dispatcher* _dispatcher;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

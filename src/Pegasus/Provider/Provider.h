@@ -23,6 +23,10 @@
 // Author:
 //
 // $Log: Provider.h,v $
+// Revision 1.3  2001/01/31 08:20:51  mike
+// Added dispatcher framework.
+// Added enumerateInstanceNames.
+//
 // Revision 1.2  2001/01/29 02:24:15  mike
 // Added support for GetInstance.
 //
@@ -113,7 +117,7 @@ public:
 	Boolean includeClassOrigin = false,
 	const Array<String>& propertyList = _getStringArray());
 
-    virtual Array<String> enumerateInstanceNames(
+    virtual Array<Reference> enumerateInstanceNames(
 	const String& nameSpace,
 	const String& className);
 

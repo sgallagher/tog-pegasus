@@ -23,6 +23,10 @@
 // Author:
 //
 // $Log: Provider.cpp,v $
+// Revision 1.3  2001/01/31 08:20:51  mike
+// Added dispatcher framework.
+// Added enumerateInstanceNames.
+//
 // Revision 1.2  2001/01/29 02:24:15  mike
 // Added support for GetInstance.
 //
@@ -146,12 +150,12 @@ Array<InstanceDecl> Provider::enumerateInstances(
     return Array<InstanceDecl>();
 }
 
-Array<String> Provider::enumerateInstanceNames(
+Array<Reference> Provider::enumerateInstanceNames(
     const String& nameSpace,
     const String& className) 
 { 
     throw CimException(CimException::NOT_SUPPORTED);
-    return Array<String>();
+    return Array<Reference>();
 }
 
 Array<InstanceDecl> Provider::execQuery(

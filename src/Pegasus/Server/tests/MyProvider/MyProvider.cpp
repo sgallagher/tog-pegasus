@@ -42,6 +42,24 @@ public:
 	return instance;
     }
 
+    Array<Reference> enumerateInstanceNames(
+	const String& nameSpace,
+	const String& className) 
+    {
+	Array<Reference> instanceNames;
+
+	Reference ref1;
+	Reference::instanceNameToReference("Process.pid=777",ref1);
+
+	Reference ref2;
+	Reference::instanceNameToReference("Process.pid=888",ref2);
+
+	instanceNames.append(ref1);
+	instanceNames.append(ref2);
+
+	return instanceNames;
+    }
+
     void initialize(Repository& repository)
     {
 	cout << "MyProvider::initialize() called" << endl;

@@ -23,6 +23,10 @@
 // Author:
 //
 // $Log: XmlWriter.cpp,v $
+// Revision 1.3  2001/01/31 08:20:51  mike
+// Added dispatcher framework.
+// Added enumerateInstanceNames.
+//
 // Revision 1.2  2001/01/29 02:23:44  mike
 // Added support for GetInstance operation
 //
@@ -529,6 +533,20 @@ Array<Sint8>& XmlWriter::appendClassNameElement(
     const String& className)
 {
     return out << "<CLASSNAME NAME=\"" << className << "\"/>\n";
+}
+
+//------------------------------------------------------------------------------
+//
+// appendInstanceNameElement()
+//
+//------------------------------------------------------------------------------
+
+Array<Sint8>& XmlWriter::appendInstanceNameElement(
+    Array<Sint8>& out,
+    const Reference& instanceName)
+{
+    instanceName.instanceNameToXml(out);
+    return out;
 }
 
 //------------------------------------------------------------------------------

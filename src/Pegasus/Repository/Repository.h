@@ -23,6 +23,10 @@
 // Author:
 //
 // $Log: Repository.h,v $
+// Revision 1.3  2001/01/31 08:20:51  mike
+// Added dispatcher framework.
+// Added enumerateInstanceNames.
+//
 // Revision 1.2  2001/01/28 04:11:03  mike
 // fixed qualifier resolution
 //
@@ -124,7 +128,7 @@ public:
 	Boolean includeClassOrigin = false,
 	const Array<String>& propertyList = _getStringArray());
 
-    virtual Array<String> enumerateInstanceNames(
+    virtual Array<Reference> enumerateInstanceNames(
 	const String& nameSpace,
 	const String& className);
 

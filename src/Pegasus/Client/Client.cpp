@@ -23,6 +23,10 @@
 // Author:
 //
 // $Log: Client.cpp,v $
+// Revision 1.3  2001/01/31 08:20:51  mike
+// Added dispatcher framework.
+// Added enumerateInstanceNames.
+//
 // Revision 1.2  2001/01/29 02:19:57  mike
 // added getInstance stub
 //
@@ -81,6 +85,18 @@ struct EnumerateClassNamesResult
     Array<String> classNames;
 };
 //STUB}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// EnumerateInstanceNamesResult
+//
+////////////////////////////////////////////////////////////////////////////////
+
+struct EnumerateInstanceNamesResult
+{
+    CimException::Code code;
+    Array<Reference> instanceNames;
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -209,6 +225,10 @@ public:
     int handleEnumerateClassNamesResponse(XmlParser& parser, Uint32 messageId);
     //STUB}
 
+    int handleEnumerateInstanceNamesResponse(
+	XmlParser& parser, 
+	Uint32 messageId);
+
     int handleDeleteQualifierResponse(XmlParser& parser, Uint32 messageId);
 
     int handleGetQualifierResponse(XmlParser& parser, Uint32 messageId);
@@ -237,6 +257,7 @@ public:
 	//STUB{
 	EnumerateClassNamesResult* _enumerateClassNamesResult;
 	//STUB}
+	EnumerateInstanceNamesResult* _enumerateInstanceNamesResult;
 	DeleteQualifierResult* _deleteQualifierResult;
 	GetQualifierResult* _getQualifierResult;
 	SetQualifierResult* _setQualifierResult;
@@ -386,6 +407,8 @@ int ClientHandler::handleMethodResponse()
     else if (strcmp(iMethodResponseName, "EnumerateClassNames") == 0)
 	handleEnumerateClassNamesResponse(parser, messageId);
     //STUB}
+    else if (strcmp(iMethodResponseName, "EnumerateInstanceNames") == 0)
+	handleEnumerateInstanceNamesResponse(parser, messageId);
     else if (strcmp(iMethodResponseName, "DeleteQualifier") == 0)
 	handleDeleteQualifierResponse(parser, messageId);
     else if (strcmp(iMethodResponseName, "GetQualifier") == 0)
@@ -561,6 +584,59 @@ int ClientHandler::handleEnumerateClassNamesResponse(
     return 0;
 }
 //STUB}
+
+//------------------------------------------------------------------------------
+//
+// ClientHandler::handleEnumerateInstanceNamesResponse()
+//
+//     Expect (ERROR|IRETURNVALUE).
+//
+//------------------------------------------------------------------------------
+
+int ClientHandler::handleEnumerateInstanceNamesResponse(
+    XmlParser& parser, 
+    Uint32 messageId) 
+{
+    XmlEntry entry;
+    CimException::Code code;
+    const char* description = 0;
+
+    if (XmlReader::getErrorElement(parser, code, description))
+    {
+	_enumerateInstanceNamesResult = new EnumerateInstanceNamesResult;
+	_enumerateInstanceNamesResult->code = code;
+	_blocked = false;
+	return 0;
+    }
+    else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+    {
+	Array<Reference> instanceNames;
+	String className;
+	Array<KeyBinding> keyBindings;
+
+	while (XmlReader::getInstanceNameElement(
+	    parser, className, keyBindings))
+	{
+	    Reference reference(String(), String(), className, keyBindings);
+	    instanceNames.append(reference);
+	}
+
+	XmlReader::testEndTag(parser, "IRETURNVALUE");
+
+	_enumerateInstanceNamesResult = new EnumerateInstanceNamesResult;
+	_enumerateInstanceNamesResult->code = CimException::SUCCESS;
+	_enumerateInstanceNamesResult->instanceNames = instanceNames;
+	_blocked = false;
+	return 0;
+    }
+    else
+    {
+	throw XmlValidationError(parser.getLine(),
+	    "expected ERROR or IRETURNVALUE element");
+    }
+
+    return 0;
+}
 
 //------------------------------------------------------------------------------
 //
@@ -1390,14 +1466,38 @@ Array<InstanceDecl> Client::enumerateInstances(
 }
 
 
-Array<String> Client::enumerateInstanceNames(
+Array<Reference> Client::enumerateInstanceNames(
     const String& nameSpace,
     const String& className)
 {
-    throw CimException(CimException::NOT_SUPPORTED);
-    return Array<String>();
-}
+    Uint32 messageId = XmlWriter::getNextMessageId();
 
+    Array<Sint8> parameters;
+
+    XmlWriter::appendClassNameParameter(parameters, "ClassName", className);
+	
+    Array<Sint8> message = XmlWriter::formatSimpleReqMessage(
+	((ClientHandler*)_handler)->getHostName(),
+	nameSpace, "EnumerateInstanceNames", parameters);
+
+    ClientHandler* handler = (ClientHandler*)_handler;
+    handler->sendMessage(message);
+
+    if (!handler->waitForResponse(_timeOutMilliseconds))
+	throw TimedOut();
+
+    EnumerateInstanceNamesResult* result 
+	= handler->_enumerateInstanceNamesResult;
+    Array<Reference> instanceNames = result->instanceNames;
+    CimException::Code code = result->code;
+    delete result;
+    handler->_enumerateInstanceNamesResult = 0;
+
+    if (code != CimException::SUCCESS)
+	throw CimException(code);
+
+    return instanceNames;
+}
 
 Array<InstanceDecl> Client::execQuery(
     const String& queryLanguage,

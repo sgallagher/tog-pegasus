@@ -18,7 +18,7 @@ LIBRARIES = \
 
 PRE_DEPEND_INCLUDES = -I./depends
 
-SOURCES = Server.cpp ProviderTable.cpp
+SOURCES = Dispatcher.cpp Server.cpp ProviderTable.cpp
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 

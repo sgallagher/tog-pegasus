@@ -2008,8 +2008,10 @@ Boolean XmlReader::getQualifierElement(
     // Get QUALIFIER element:
 
     XmlEntry entry;
-    if (!testStartTag(parser, entry, "QUALIFIER"))
+    if (!testStartTagOrEmptyTag(parser, entry, "QUALIFIER"))
 	return false;
+
+    Boolean empty = entry.type == XmlEntry::EMPTY_TAG;
 
     // Get QUALIFIER.NAME attribute:
 
@@ -2033,15 +2035,22 @@ Boolean XmlReader::getQualifierElement(
 
     CIMValue value;
 
-    if (!getValueElement(parser, type, value) &&
-	!getValueArrayElement(parser, type, value))
+    if (empty)
     {
         value.setNullValue(type, false);
     }
+    else
+    {
+        if (!getValueElement(parser, type, value) &&
+	    !getValueArrayElement(parser, type, value))
+        {
+            value.setNullValue(type, false);
+        }
 
-    // Expect </QUALIFIER>:
+        // Expect </QUALIFIER>:
 
-    expectEndTag(parser, "QUALIFIER");
+        expectEndTag(parser, "QUALIFIER");
+    }
 
     // Build qualifier:
 

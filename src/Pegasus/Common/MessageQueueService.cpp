@@ -28,6 +28,8 @@
 
 #include "MessageQueueService.h"
 
+PEGASUS_USING_STD;
+
 PEGASUS_NAMESPACE_BEGIN
 
 MessageQueueService::MessageQueueService(const char *name, 

@@ -16,7 +16,10 @@ else
 FLAGS = -O2 -W -Wall -Wno-unused
 endif
 
-SYS_LIBS = -ldl -lpthread -lcrypt
+FLAGS += -DPEGASUS_HAS_SSL
+SYS_LIBS = -ldl -lpthread -lcrypt -lssl
+#SYS_LIBS = -ldl -lpthread -lcrypt
+
 
 CXX = g++
 

@@ -34,8 +34,8 @@
 
 #include "CMPI_Object.h"
 
-#include "cmpidt.h"
-#include "cmpift.h"
+#include <Pegasus/Provider/CMPI/cmpidt.h>
+#include <Pegasus/Provider/CMPI/cmpift.h>
 
 #include <Pegasus/Common/OperationContext.h>
 

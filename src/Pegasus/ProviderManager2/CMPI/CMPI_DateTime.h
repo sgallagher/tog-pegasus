@@ -33,7 +33,7 @@
 #define _CMPI_DateTime_H_
 
 #include "CMPI_Object.h"
-#include "cmpidt.h"
+#include <Pegasus/Provider/CMPI/cmpidt.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

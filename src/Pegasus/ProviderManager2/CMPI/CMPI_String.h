@@ -33,7 +33,7 @@
 #define _CMPI_String_H_
 
 #include "CMPI_Object.h"
-#include "cmpidt.h"
+#include <Pegasus/Provider/CMPI/cmpidt.h>
 
 #include <Pegasus/Common/String.h>
 

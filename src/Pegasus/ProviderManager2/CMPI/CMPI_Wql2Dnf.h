@@ -32,7 +32,7 @@
 #ifndef CMPI_Wql2Dnf_h
 #define CMPI_Wql2Dnf_h
 
-#include "cmpidt.h"
+#include <Pegasus/Provider/CMPI/cmpidt.h>
 
 //#include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/Stack.h>

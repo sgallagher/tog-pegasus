@@ -32,9 +32,7 @@
 #include "CMPI_Version.h"
 
 #include "CMPI_SelectExpAccessor.h"
-#include "cmpidt.h"
-#include "cmpimacs.h"
-
+#include <Pegasus/Provider/CMPI/cmpimacs.h>
 PEGASUS_NAMESPACE_BEGIN
 
 CMPI_SelectExpAccessor::CMPI_SelectExpAccessor(CMPIAccessor *acc, void *parm)

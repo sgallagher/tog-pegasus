@@ -32,7 +32,7 @@
 #ifndef _CMPI_Value_H_
 #define _CMPI_Value_H_
 
-#include "cmpidt.h"
+#include <Pegasus/Provider/CMPI/cmpidt.h>
 #include <Pegasus/Common/CIMType.h>
 #include <Pegasus/Common/CIMValue.h>
 #include <Pegasus/Common/CIMObjectPath.h>

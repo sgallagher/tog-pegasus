@@ -32,8 +32,8 @@
 #ifndef _CMPI_Broker_H_
 #define _CMPI_Broker_H_
 
-#include "cmpidt.h"
-#include "cmpift.h"
+#include <Pegasus/Provider/CMPI/cmpidt.h>
+#include <Pegasus/Provider/CMPI/cmpift.h>
 
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMClass.h>

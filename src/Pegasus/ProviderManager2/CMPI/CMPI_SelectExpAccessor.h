@@ -32,7 +32,7 @@
 #ifndef CMPI_SelectExpAccessor_h
 #define CMPI_SelectExpAccessor_h
 
-#include "cmpidt.h"
+#include <Pegasus/Provider/CMPI/cmpidt.h>
 #include <Pegasus/WQL/WQLPropertySource.h>
 
 PEGASUS_NAMESPACE_BEGIN

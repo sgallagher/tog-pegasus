@@ -40,8 +40,8 @@
 #include <pthread.h>
 #endif
 
-#include "cmpidt.h"
-#include "cmpift.h"
+#include <Pegasus/Provider/CMPI/cmpidt.h>
+#include <Pegasus/Provider/CMPI/cmpift.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

@@ -32,8 +32,8 @@
 #ifndef _CMPI_Result_H_
 #define _CMPI_Result_H_
 
-#include "cmpidt.h"
-#include "cmpift.h"
+#include <Pegasus/Provider/CMPI/cmpidt.h>
+#include <Pegasus/Provider/CMPI/cmpift.h>
 #include "CMPI_Ftabs.h"
 #include "CMPI_Object.h"
 #include "CMPI_Broker.h"

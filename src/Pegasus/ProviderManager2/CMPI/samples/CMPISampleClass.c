@@ -35,9 +35,9 @@
 #include <string.h>
 #include <time.h>
 
-#include <Pegasus/ProviderManager2/CMPI/cmpidt.h>
-#include <Pegasus/ProviderManager2/CMPI/cmpift.h>
-#include <Pegasus/ProviderManager2/CMPI/cmpimacs.h>
+#include <Pegasus/Provider/CMPI/cmpidt.h>
+#include <Pegasus/Provider/CMPI/cmpift.h>
+#include <Pegasus/Provider/CMPI/cmpimacs.h>
 
 unsigned char CMPI_true=1;
 unsigned char CMPI_false=0;

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CIMClass.h,v $
+// Revision 1.7  2001/04/04 20:02:27  karl
+// documentation update
+//
 // Revision 1.6  2001/03/29 16:40:31  karl
 // add doc
 //
@@ -93,15 +96,19 @@ public:
 	copy constructor.  It cannot be used to create a class by
 	appending names, properties, etc. since it is unitiated.
 	
-	Useone of the other constructors to create an initiated new CIM class 
+	Use one of the other constructors to create an initiated new CIM class 
 	object.
+	@exception Throws an exception "unitialized handle" if this 
+	unitialized handle is used
+	/REF(HPEGASUS_HANDLES)
     */
     CIMClass() : _rep(0)
     {
 
     }
 
-    /// Constructor - Creates a class from a previous class
+    /** Constructor - Creates a class from a previous class
+    */
     CIMClass(const CIMClass& x)
     {
 	Inc(_rep = x._rep);
@@ -124,6 +131,10 @@ public:
 	@param superClassName - String representing name of the SuperClass
 	ATTN: Define what makes up legal name.
 	@return Throws IllegalName if className argument illegal CIM identifier.
+	<pre>
+	    CIMClass NewCass("MyClass", "YourClass"); 
+	</pre>
+
     */
     CIMClass(
 	const String& className,

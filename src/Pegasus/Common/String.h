@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: String.h,v $
+// Revision 1.11  2001/04/04 20:02:27  karl
+// documentation update
+//
 // Revision 1.10  2001/03/29 16:40:31  karl
 // add doc
 //
@@ -96,7 +99,7 @@ public:
     /// Initialize from the first n characters of a plain old C-String:
     String(const char* x, Uint32 n);
 
-    /// Release all resources.
+    /// String destructor.
     ~String() 
     {
     }
@@ -153,6 +156,15 @@ public:
 	then the lesser of the the length argument and the length of this 
 	string is truncated. Otherwise, the entire string is trunctated. The 
 	TruncatedCharacter exception is thrown if any characters are truncated.
+	<pre>
+	    const char STR0[] = "one two three four";
+	    String s = STR0;
+	    const char STR1[] = "zero ";
+	    char* tmp = new char[strlen(STR1) + s.getLength() + 1];
+	    strcpy(tmp, STR1);
+	    s.appendToCString(tmp, 7);
+	    assert(strcmp(tmp, "zero one two") == 0);
+	</pre>
     */
     void appendToCString(
 	char* str,
@@ -165,7 +177,12 @@ public:
     /// Returns the Ith character of the string (const version).
     const Char16 operator[](Uint32 i) const;
 
-    /// Append the given character to the string.
+    /** Append the given character to the string.
+        <pre>
+	     String s4 = "Hello";
+	    s4.append(Char16(0x0000))
+	</pre>
+    */
     String& append(const Char16& c)
     {
 	_rep.insert(_rep.getSize() - 1, c);
@@ -204,13 +221,18 @@ public:
     */
     void remove(Uint32 pos, Uint32 size = Uint32(-1));
 
-    /** Return a new string which is initialzed with <TT>length</TT> 
+    /** Return a new String which is initialzed with <TT>length</TT> 
 	characters from this string starting at <TT>pos</TT>. 
 	@param <TT>pos</TT> is the positon in string to start getting the 
 	substring. 
 	@param <TT>length</TT> is the number of characters to get. If length
 	is -1, then all characters after pos are added to the new string.
 	@return String with the defined substring.
+	<pre>
+	    s = "abcdefg";
+	    s.remove(3);
+	    assert(String::equal(s, "abc"));
+	</pre>
     */
     String subString(Uint32 pos, Uint32 length = Uint32(-1)) const;
 
@@ -234,7 +256,14 @@ public:
     */
     static int compare(const Char16* s1, const Char16* s2);
 
-    /// Return true if the two strins are equal.
+    /** Return true if the two strins are equal.
+	<pre>
+	    String s1 = "Hello World";
+	    String s2 = s1;
+	    String s3(s2);
+	    assert(String::equal(s1, s3));
+	</pre>
+    */
     static Boolean equal(const String& x, const String& y);
 
     /// Return true if the two strins are equal.
@@ -246,7 +275,7 @@ public:
     /// Return true if the two strins are equal.
     static Boolean equal(const String& x, const char* y);
 
-    /// Return true if the two strins are equal.
+    /// Return true if the two strings are equal.
     static Boolean equal(const char* x, const String& y);
 
     /// Convert the plain old C-string to lower case:

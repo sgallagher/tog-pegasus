@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CGIQueryString.cpp,v $
+// Revision 1.4  2001/04/04 20:02:27  karl
+// documentation update
+//
 // Revision 1.3  2001/02/11 05:42:33  mike
 // new
 //
@@ -44,6 +47,8 @@ PEGASUS_NAMESPACE_BEGIN
 ////////////////////////////////////////////////////////////////////////////////
 //
 // CGIQueryString:
+//   This file provides the methods for the CIGQuery String class that
+//   parse a CGI query string of the following form:
 //
 //     NameSpace=root%2Fcimv20&ClassName=&LocalOnly=true
 //

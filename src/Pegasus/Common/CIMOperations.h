@@ -23,6 +23,9 @@
 // Author: Mike Brasher
 //
 // $Log: CIMOperations.h,v $
+// Revision 1.5  2001/04/04 20:02:27  karl
+// documentation update
+//
 // Revision 1.4  2001/03/27 18:09:03  karl
 // add documentaiton
 //
@@ -834,6 +837,15 @@ public:
     based on whether or not they have been propagated from the parent
     Class (as defined by the <TT>PROPAGATED</TT> attribute).
 
+    Only elements (properties, methods and qualifiers) defined or
+    overridden within the class are included in the response. Propagated
+    properties are not included because their values are based on another class’
+    information. If not specified, all elements of the class’ definition are
+    returned.  Note: When instances are returned, the InstanceName must include
+    all keys, including propagated keys. Therefore, these attributes are
+    included in the name part of the method response, but not in the value
+    information.
+
     @param DeepInheritance If the <TT>DeepInheritance</TT> input
     parameter is <TT>true</TT>, this specifies that, for each
     returned Instance of the Class, all properties of the Instance MUST
@@ -841,6 +853,11 @@ public:
     parameters), including any which were added by subclassing the specified
     Class. If <TT>false</TT>, each returned Instance includes only
     properties defined for the specified Class.
+
+    The Enumerate Instances operation returns the same number of instances
+    regardless of whether or not the DeepInheritance flag is set.  The
+    DeepInheritance flag is only used to determine whether or not the subclass
+    property values should be returned.
 
     @param IncludeQualifiersIf the <TT>IncludeQualifiers</TT> input
     parameter is <TT>true</TT>, this specifies that all Qualifiers

@@ -23,8 +23,8 @@
 // Author:
 //
 // $Log: CIMDateTime.cpp,v $
-// Revision 1.1  2001/02/18 18:39:05  mike
-// new
+// Revision 1.2  2001/04/04 20:02:27  karl
+// documentation update
 //
 // Revision 1.1  2001/02/16 02:07:06  mike
 // Renamed many classes and headers (using new CIM prefixes).

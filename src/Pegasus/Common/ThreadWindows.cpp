@@ -53,13 +53,16 @@ Thread::~Thread()
    {
       // emulate the unix join api. caller sleeps until 
       // thread is done.
-      DWORD exit_code = 0;
-      do 
-      {
-	 GetExitCodeThread(_handle.thid, &exit_code);
-	 Sleep(0);
-      }
-      while( exit_code == STILL_ACTIVE);
+     if(false  == is_cancelled())
+       {
+	 DWORD exit_code = 0;
+	 do 
+	   {
+	     GetExitCodeThread(_handle.thid, &exit_code);
+	     Sleep(0);
+	   }
+	 while( exit_code == STILL_ACTIVE);
+       }
    }
    CloseHandle(_handle.thid);
    

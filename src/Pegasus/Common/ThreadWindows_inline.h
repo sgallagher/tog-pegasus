@@ -41,6 +41,7 @@ inline void Thread::run(void)
 inline void Thread::cancel(void)
 {
   _cancelled = true;
+  TerminateThread(_handle.thid, 0);
 }
 
 inline void Thread::test_cancel(void)
@@ -74,7 +75,7 @@ inline void Thread::sleep(Uint32 milliseconds)
 
 inline void Thread::join(void)
 {
-   if( (! _is_detached) && (_handle.thid != 0))
+   if( (! _is_detached) && (_handle.thid != 0) && (false == is_cancelled()))
    {
       // emulate the unix join api. caller sleeps until 
       // thread is done.

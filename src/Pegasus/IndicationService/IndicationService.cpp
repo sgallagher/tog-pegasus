@@ -653,123 +653,123 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
 
     try
     {
-        _checkNonprivilegedAuthorization(request->userName);
-
-        if (_canCreate (instance, request->nameSpace))
-        {
-
-            //
-            //  If the instance is of the PEGASUS_CLASSNAME_INDSUBSCRIPTION 
-            //  class and subscription state is enabled, determine if any 
-            //  providers can serve the subscription
-            //
-            Uint16 subscriptionState;
-            String condition;
-            String queryLanguage;
-            CIMPropertyList requiredProperties;
-            CIMNamespaceName sourceNameSpace;
-            Array <CIMName> indicationSubclasses;
-            Array <ProviderClassList> indicationProviders;
-
-            if (instance.getClassName ().equal 
-                (PEGASUS_CLASSNAME_INDSUBSCRIPTION))
-            {
-                //
-                //  Get subscription state
-                //
-                //  NOTE: _canCreate has already validated the 
-                //  SubscriptionState property in the instance; if missing, it 
-                //  was added with the default value; if null, it was set to 
-                //  the default value; if invalid, an exception was thrown
-                //
-                CIMValue subscriptionStateValue;
-                subscriptionStateValue = instance.getProperty
-                    (instance.findProperty (_PROPERTY_STATE)).getValue ();
-                subscriptionStateValue.get (subscriptionState);
-
-                if ((subscriptionState == _STATE_ENABLED) ||
-                    (subscriptionState == _STATE_ENABLEDDEGRADED))
-                {
-                    _getCreateParams (request->nameSpace, instance,
-                        indicationSubclasses, indicationProviders, 
-                        requiredProperties, sourceNameSpace, condition, 
-                        queryLanguage);
-
-                    if (indicationProviders.size () == 0)
-                    {
-                        //
-                        //  There are no providers that can support this 
-                        //  subscription
-                        //
-                        PEG_METHOD_EXIT ();
+			_checkNonprivilegedAuthorization(request->userName);
 			
-			// l10n
-
-                        // throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED,
-			//  _MSG_NO_PROVIDERS);
-
-			throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_NOT_SUPPORTED,
-				 MessageLoaderParms(_MSG_NO_PROVIDERS_KEY, _MSG_NO_PROVIDERS));
-                    }
-
-                    //
-                    //  Send Create request message to each provider
-                    //
-                    instanceRef = instance.getPath ();
-                    instanceRef.setNameSpace (request->nameSpace);
-
-                    CIMValue filterValue = instance.getProperty( 
-                        instance.findProperty( _PROPERTY_FILTER ) ).getValue();
-                    CIMValue handlerValue = instance.getProperty( 
-                        instance.findProperty( _PROPERTY_HANDLER ) ).getValue();
-
-                    Array< CIMKeyBinding > kb;
-                    kb.append( CIMKeyBinding( _PROPERTY_FILTER, filterValue ) );
-                    kb.append( CIMKeyBinding( _PROPERTY_HANDLER, handlerValue ) );
-
-                    instanceRef.setKeyBindings( kb );
-
-                    instance.setPath (instanceRef);
-// l10n 
-                    _sendCreateRequests (indicationProviders, 
-                        sourceNameSpace, requiredProperties, condition, 
-                        queryLanguage, instance,
-                        request->acceptLanguages,
-                        request->contentLanguages,   
-                        request,
-                        indicationSubclasses,
-                        request->userName, request->authType);
-
-                    //
-                    //  Response is sent from _aggregationCallBack 
-                    //
-                    responseSent = true;
-                }
-                else
-                {
-                    //
-                    //  Create instance for disabled subscription
-                    //
-                    instanceRef = _createInstance (request, instance, false);
-                }
-            }
-            else 
-            {
-                //
-                //  Create instance for filter or handler
-                //
-                instanceRef = _createInstance (request, instance, false);
-            }
-        }
+			if (_canCreate (instance, request->nameSpace))
+			{
+				
+				//
+				//  If the instance is of the PEGASUS_CLASSNAME_INDSUBSCRIPTION 
+				//  class and subscription state is enabled, determine if any 
+				//  providers can serve the subscription
+				//
+				Uint16 subscriptionState;
+				String condition;
+				String queryLanguage;
+				CIMPropertyList requiredProperties;
+				CIMNamespaceName sourceNameSpace;
+				Array <CIMName> indicationSubclasses;
+				Array <ProviderClassList> indicationProviders;
+				
+				if (instance.getClassName ().equal 
+					(PEGASUS_CLASSNAME_INDSUBSCRIPTION))
+				{
+					//
+					//  Get subscription state
+					//
+					//  NOTE: _canCreate has already validated the 
+					//  SubscriptionState property in the instance; if missing, it 
+					//  was added with the default value; if null, it was set to 
+					//  the default value; if invalid, an exception was thrown
+					//
+					CIMValue subscriptionStateValue;
+					subscriptionStateValue = instance.getProperty
+						(instance.findProperty (_PROPERTY_STATE)).getValue ();
+					subscriptionStateValue.get (subscriptionState);
+					
+					if ((subscriptionState == _STATE_ENABLED) ||
+						(subscriptionState == _STATE_ENABLEDDEGRADED))
+					{
+						_getCreateParams (request->nameSpace, instance,
+							indicationSubclasses, indicationProviders, 
+							requiredProperties, sourceNameSpace, condition, 
+							queryLanguage);
+						
+						if (indicationProviders.size () == 0)
+						{
+							//
+							//  There are no providers that can support this 
+							//  subscription
+							//
+							PEG_METHOD_EXIT ();
+							
+							// l10n
+							
+							// throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED,
+							//  _MSG_NO_PROVIDERS);
+							
+							throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_NOT_SUPPORTED,
+								MessageLoaderParms(_MSG_NO_PROVIDERS_KEY, _MSG_NO_PROVIDERS));
+						}
+						
+						//
+						//  Send Create request message to each provider
+						//
+						instanceRef = instance.getPath ();
+						instanceRef.setNameSpace (request->nameSpace);
+						
+						CIMValue filterValue = instance.getProperty( 
+							instance.findProperty( _PROPERTY_FILTER ) ).getValue();
+						CIMValue handlerValue = instance.getProperty( 
+							instance.findProperty( _PROPERTY_HANDLER ) ).getValue();
+						
+						Array< CIMKeyBinding > kb;
+						kb.append( CIMKeyBinding( _PROPERTY_FILTER, filterValue ) );
+						kb.append( CIMKeyBinding( _PROPERTY_HANDLER, handlerValue ) );
+						
+						instanceRef.setKeyBindings( kb );
+						
+						instance.setPath (instanceRef);
+						// l10n 
+						_sendCreateRequests (indicationProviders, 
+							sourceNameSpace, requiredProperties, condition, 
+							queryLanguage, instance,
+							request->acceptLanguages,
+							request->contentLanguages,   
+							request,
+							indicationSubclasses,
+							request->userName, request->authType);
+						
+						//
+						//  Response is sent from _aggregationCallBack 
+						//
+						responseSent = true;
+					}
+					else
+					{
+						//
+						//  Create instance for disabled subscription
+						//
+						instanceRef = _createInstance (request, instance, false);
+					}
+				}
+				else 
+				{
+					//
+					//  Create instance for filter or handler
+					//
+					instanceRef = _createInstance (request, instance, false);
+				}
+      }
     }
     catch (CIMException & exception)
     {
-        cimException = exception;
+			cimException = exception;
     }
     catch (Exception & exception)
     {
-        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-                                             exception.getMessage());
+			cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+				exception.getMessage());
     }
 
     //
@@ -2823,6 +2823,8 @@ Boolean IndicationService::_canCreate (
         //
         else if ((instance.getClassName ().equal 
                   (PEGASUS_CLASSNAME_INDHANDLER_CIMXML)) ||
+								 (instance.getClassName ().equal 
+                  (PEGASUS_CLASSNAME_LSTNRDST_CIMXML)) ||
                  (instance.getClassName ().equal
                   (PEGASUS_CLASSNAME_INDHANDLER_SNMP)))
         {
@@ -2831,7 +2833,10 @@ Boolean IndicationService::_canCreate (
                 (Uint16) _PERSISTENCE_OTHER, _validPersistenceTypes);
 
             if (instance.getClassName ().equal 
-                (PEGASUS_CLASSNAME_INDHANDLER_CIMXML))
+                (PEGASUS_CLASSNAME_INDHANDLER_CIMXML)
+								|| instance.getClassName ().equal 
+									 (PEGASUS_CLASSNAME_LSTNRDST_CIMXML)
+							 )
             {
                 //
                 //  Destination property is required for CIMXML 
@@ -8087,3 +8092,5 @@ const char IndicationService::_MSG_NON_PRIVILEGED_ACCESS_DISABLED_KEY [] =
     "IndicationService.IndicationService._MSG_NON_PRIVILEGED_ACCESS_DISABLED";
 
 PEGASUS_NAMESPACE_END
+
+

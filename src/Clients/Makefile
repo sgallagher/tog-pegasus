@@ -14,7 +14,6 @@ DIRS = \
     cimprovider/tests \
     osinfo \
     wbemexec \
-    wbemexec/tests \
     tomof \
     ipinfo \
     g11ntest \
@@ -24,6 +23,11 @@ DIRS = \
     repupgrade  \
     repupgrade/SSPModules/SampleSSPModule \
     repupgrade/tests
+
+ifndef PEGASUS_XML_ORDERING_DEFECT_ENCOUNTERED
+  DIRS += \
+    wbemexec.tests
+endif
 
 ifeq ($(OS),HPUX)
   DIRS += \

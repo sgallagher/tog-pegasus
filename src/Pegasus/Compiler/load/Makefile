@@ -6,7 +6,7 @@ MOF_PATH = $(ROOT)/Schemas/CIM25
 
 all:
 
-tests:
+repository:
 	@ echo +++++ Populating CIM repository - this will take a minute
 	@ $(RMDIRHIER) $(REPOSITORY_ROOT)
 	@ echo +++++ Loading CIM_Core.mof into root namespace...
@@ -21,3 +21,5 @@ depend:
 sub:
 
 misc:
+
+tests:

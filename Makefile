@@ -12,3 +12,6 @@ rebuild: clean depend all
 
 world: depend all
 	$(MAKE) -s tests
+
+repository:
+	$(MAKE) -SC src/Pegasus/Compiler/load repository

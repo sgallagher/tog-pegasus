@@ -5,9 +5,7 @@ ROOT = ../../../..
 include $(ROOT)/mak/config.mak
 include $(ROOT)/test/config.mak
 
-XMLSCRIPTS = GetQualifier37002
-
-BROKERNXMLSCRIPTS = GetQualifier37000 
+XMLSCRIPTS = GetQualifier37000 GetQualifier37002
 
 ifndef SECURITY_ENABLED
 XMLSCRIPTS += \

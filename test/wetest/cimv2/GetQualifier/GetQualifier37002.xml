@@ -8,7 +8,7 @@
           <NAMESPACE NAME="cimv2"/>
         </LOCALNAMESPACEPATH>
         <IPARAMVALUE NAME="QualifierName">
-          <CLASSNAME NAME="notaqualifier"/>
+          <VALUE>notaqualifier</VALUE>
         </IPARAMVALUE>
       </IMETHODCALL>
     </SIMPLEREQ>

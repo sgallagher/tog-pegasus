@@ -1876,6 +1876,7 @@ CIMGetQualifierRequestMessage* CIMOperationRequestDecoder::decodeGetQualifierReq
 {
    STAT_GETSTARTTIME
 
+   String qualifierNameString;
    CIMName qualifierName;
    Boolean duplicateParameter = false;
    Boolean gotQualifierName = false;
@@ -1884,7 +1885,8 @@ CIMGetQualifierRequestMessage* CIMOperationRequestDecoder::decodeGetQualifierReq
    {
       if (System::strcasecmp(name, "QualifierName") == 0)
       {
-	 XmlReader::getClassNameElement(parser, qualifierName, true);
+	 XmlReader::getStringValueElement(parser, qualifierNameString, true);
+	 qualifierName = qualifierNameString;
 	 duplicateParameter = gotQualifierName;
 	 gotQualifierName = true;
       }
@@ -1959,6 +1961,7 @@ CIMDeleteQualifierRequestMessage* CIMOperationRequestDecoder::decodeDeleteQualif
 {
    STAT_GETSTARTTIME
 
+   String qualifierNameString;
    CIMName qualifierName;
    Boolean duplicateParameter = false;
    Boolean gotQualifierName = false;
@@ -1967,7 +1970,8 @@ CIMDeleteQualifierRequestMessage* CIMOperationRequestDecoder::decodeDeleteQualif
    {
       if (System::strcasecmp(name, "QualifierName") == 0)
       {
-	 XmlReader::getClassNameElement(parser, qualifierName, true);
+	 XmlReader::getStringValueElement(parser, qualifierNameString, true);
+	 qualifierName = qualifierNameString;
 	 duplicateParameter = gotQualifierName;
 	 gotQualifierName = true;
       }

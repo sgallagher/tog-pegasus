@@ -522,8 +522,8 @@ void CIMOperationRequestEncoder::_encodeGetQualifierRequest(
     Array<Sint8> params;
 
     if (!message->qualifierName.isNull())
-	XmlWriter::appendClassNameIParameter(
-	    params, "QualifierName", message->qualifierName);
+	XmlWriter::appendStringIParameter(
+	    params, "QualifierName", message->qualifierName.getString());
 	
     Array<Sint8> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
         message->nameSpace, CIMName ("GetQualifier"), message->messageId,
@@ -552,8 +552,8 @@ void CIMOperationRequestEncoder::_encodeDeleteQualifierRequest(
     Array<Sint8> params;
 
     if (!message->qualifierName.isNull())
-	XmlWriter::appendClassNameIParameter(
-	    params, "QualifierName", message->qualifierName);
+	XmlWriter::appendStringIParameter(
+	    params, "QualifierName", message->qualifierName.getString());
 	
     Array<Sint8> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
         message->nameSpace, CIMName ("DeleteQualifier"), message->messageId,

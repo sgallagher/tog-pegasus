@@ -968,6 +968,22 @@ Boolean CQLSelectStatementRep::addRequiredProperty(Array<CIMName>& reqProps,
   return false;
 }
 
+Array<CQLChainedIdentifier> CQLSelectStatementRep::getSelectChainedIdentifiers()
+{
+  if (!_contextApplied)
+    applyContext();
+
+  return _selectIdentifiers;
+}
+
+Array<CQLChainedIdentifier> CQLSelectStatementRep::getWhereChainedIdentifiers()
+{
+  if (!_contextApplied)
+    applyContext();
+
+  return _ctx->getWhereList();
+}
+
 Boolean CQLSelectStatementRep::containsProperty(const CIMName& name,
                                                 const Array<CIMName>& props) 
 {

@@ -133,6 +133,22 @@ CIMPropertyList CQLSelectStatement::getWherePropertyList(const CIMObjectPath& in
   return _rep->getWherePropertyList(inClassName);
 }
 
+Array<CQLChainedIdentifier> CQLSelectStatement::getSelectChainedIdentifiers()
+{
+  // Should be set by the concrete sub-classes
+  PEGASUS_ASSERT(_rep != NULL);
+
+  return _rep->getSelectChainedIdentifiers();
+}
+
+Array<CQLChainedIdentifier> CQLSelectStatement::getWhereChainedIdentifiers()
+{
+  // Should be set by the concrete sub-classes
+  PEGASUS_ASSERT(_rep != NULL);
+
+  return _rep->getWhereChainedIdentifiers();
+}
+
 void CQLSelectStatement::appendClassPath(const CQLIdentifier& inIdentifier)
 {
   PEGASUS_ASSERT(_rep != NULL);

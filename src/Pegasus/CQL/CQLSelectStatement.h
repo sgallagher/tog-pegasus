@@ -143,6 +143,10 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
     CIMPropertyList getWherePropertyList(
         const CIMObjectPath& inClassName = CIMObjectPath());
 
+    Array<CQLChainedIdentifier> getSelectChainedIdentifiers();
+
+    Array<CQLChainedIdentifier> getWhereChainedIdentifiers();
+
     /** Modifier. This method should not be called by the user (only by the
             parser).
          Appends a CQLIdentifier to an array of CIMObjectPaths from the FROM

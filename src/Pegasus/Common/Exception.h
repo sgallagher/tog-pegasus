@@ -26,6 +26,8 @@
 //
 // Modified By: Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
+// Modified By: Jenny Yu (jenny_yu@hp.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Exception_h
@@ -517,10 +519,14 @@ public:
 	const String& extraMessage = String());
 
     CIMStatusCode getCode() const { return _code; }
+    String getTraceMessage();
 
 private:
 
-    CIMStatusCode _code;
+    CIMStatusCode  _code;
+    const char*    _file;
+    Uint32         _line;
+    String         _extraMessage;
 };
 
 class PEGASUS_COMMON_LINKAGE StackUnderflow : public Exception

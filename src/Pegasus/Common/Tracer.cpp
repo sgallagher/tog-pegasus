@@ -23,7 +23,7 @@
 //
 // Author: Sushma Fernandes, Hewlett-Packard Company (sushma_fernandes@hp.com)
 //
-// Modified By:
+// Modified By: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -57,10 +57,7 @@ const char Tracer::_FUNC_ENTER_MSG[] = "Entering method";
 const char Tracer::_FUNC_EXIT_MSG[]  = "Exiting method";
 
 // Set Log messages
-const char Tracer::_LOG_MSG1[] = "LEVEL1 not enabled with Tracer::trace call.";
-const char 
-      Tracer::_LOG_MSG2[] = "LEVEL1 not enabled with Tracer::traceBuffer call.";
-const char Tracer::_LOG_MSG3[]="Use trace macros, PEG_FUNC_ENTER/PEG_FUNC_EXIT";
+const char Tracer::_LOG_MSG[] = "LEVEL1 may only be used with trace macros PEG_FUNC_ENTER/PEG_FUNC_EXIT or PEG_METHOD_ENTER/PEG_METHOD_EXIT.";
 
 // Initialize singleton instance of Tracer
 Tracer* Tracer::_tracerInstance = 0;
@@ -119,8 +116,7 @@ void Tracer::_trace(
     {
 	// ATTN: Setting the Log file type to DEBUG_LOG
 	// May need to change to an appropriate log file type
-	Logger::put(Logger::DEBUG_LOG,"Tracer",Logger::WARNING,"$0 $1",
-           _LOG_MSG1,_LOG_MSG3); 
+	Logger::put(Logger::DEBUG_LOG,"Tracer",Logger::WARNING,"$0", _LOG_MSG);
     }
     else
     {
@@ -146,8 +142,7 @@ void Tracer::_trace(
 
     if ( traceLevel == LEVEL1 )
     {
-	Logger::put(Logger::DEBUG_LOG,"Tracer",Logger::WARNING,"$0 $1",
-           _LOG_MSG1,_LOG_MSG3); 
+	Logger::put(Logger::DEBUG_LOG,"Tracer",Logger::WARNING,"$0", _LOG_MSG);
     }
     else
     {
@@ -184,8 +179,7 @@ void Tracer::_traceBuffer(
 {
     if ( traceLevel == LEVEL1 )
     {
-        Logger::put(Logger::DEBUG_LOG,"Tracer",Logger::WARNING,"$0 $1",
-           _LOG_MSG2,_LOG_MSG3);
+        Logger::put(Logger::DEBUG_LOG,"Tracer",Logger::WARNING,"$0", _LOG_MSG);
     }
     else
     {
@@ -214,8 +208,7 @@ void Tracer::_traceBuffer(
 {
     if ( traceLevel == LEVEL1 )
     {
-        Logger::put(Logger::DEBUG_LOG,"Tracer",Logger::WARNING,"$0 $1",
-           _LOG_MSG2,_LOG_MSG3);
+        Logger::put(Logger::DEBUG_LOG,"Tracer",Logger::WARNING,"$0", _LOG_MSG);
     }
     else
     {
@@ -228,6 +221,80 @@ void Tracer::_traceBuffer(
             trace(fileName,lineNum,traceComponent,traceLevel,"%s",tmpBuf);
 
             delete []tmpBuf;
+        }
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//Traces the given string
+////////////////////////////////////////////////////////////////////////////////
+void Tracer::_traceString(
+    const Uint32   traceComponent,
+    const Uint32   traceLevel,
+    const String&  traceString)
+{
+    if ( traceLevel == LEVEL1 )
+    {
+        Logger::put(Logger::DEBUG_LOG,"Tracer",Logger::WARNING,"$0", _LOG_MSG);
+    }
+    else
+    {
+        if (_isTraceEnabled(traceComponent,traceLevel))
+        {
+            String msg = traceString;
+            char* traceMsg = msg.allocateCString();
+            trace(traceComponent,traceLevel,"%s",traceMsg);
+        }
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//Traces the given string - Overloaded to include the fileName and line number
+//of trace origin.
+////////////////////////////////////////////////////////////////////////////////
+void Tracer::_traceString(
+    const char*   fileName,
+    const Uint32  lineNum,
+    const Uint32  traceComponent,
+    const Uint32  traceLevel,
+    const String& traceString)
+{
+    if ( traceLevel == LEVEL1 )
+    {
+        Logger::put(Logger::DEBUG_LOG,"Tracer",Logger::WARNING,"$0", _LOG_MSG);
+    }
+    else
+    {
+        if ( _isTraceEnabled( traceComponent, traceLevel ) )
+        {
+            String msg = traceString;
+            char* traceMsg = msg.allocateCString();
+            trace(fileName,lineNum,traceComponent,traceLevel,"%s",traceMsg);
+        }
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//Traces the message in the given CIMException object.
+////////////////////////////////////////////////////////////////////////////////
+void Tracer::_traceCIMException(
+    const Uint32 traceComponent,
+    const Uint32 traceLevel,
+    CIMException cimException)
+{
+    if ( traceLevel == LEVEL1 )
+    {
+        Logger::put(Logger::DEBUG_LOG,"Tracer",Logger::WARNING,"$0", _LOG_MSG);
+    }
+    else
+    {
+        if ( _isTraceEnabled( traceComponent, traceLevel ) )
+        {
+            // get the CIMException trace message string
+            String traceMsg = cimException.getTraceMessage();
+
+            // trace the string
+            _traceString(traceComponent, traceLevel, traceMsg);
         }
     }
 }

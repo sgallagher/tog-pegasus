@@ -23,7 +23,7 @@
 //
 // Author: Sushma Fernandes (sushma_fernandes@hp.com)
 //
-// Modified By:
+// Modified By: Jenny Yu (jenny_yu@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -48,6 +48,7 @@ PEGASUS_USING_PEGASUS;
 const char* FILE1 = "testtracer1.trace";
 const char* FILE2 = "testtracer2.trace";
 const char* FILE3 = "testtracer1.trace";
+const char* FILE4 = "testtracer4.trace";
 
 // 
 // Reads the last trace message from a given trace file and compares the 
@@ -478,16 +479,102 @@ Uint32 test18()
 
 Uint32 test19()
 {
-    const char* METHOD_NAME = "test19";
-    String components = "InvalidComp,Config";
-    Tracer::isValid(components);
-    Tracer::setTraceComponents("InvalidComp");
+    const char* METHOD_NAME = "test18";
+    Tracer::setTraceComponents("Config,InvalidComp");
     Tracer::setTraceLevel(Tracer::LEVEL4);
-    Tracer::traceBuffer(__FILE__,__LINE__,TRC_CONFIG,Tracer::LEVEL1,
-        "This Message should appear in",3);
-    Tracer::traceBuffer(TRC_CONFIG,Tracer::LEVEL1,
-        "This Message should appear in",3);
+    Tracer::traceBuffer(__FILE__,__LINE__,TRC_CONFIG,Tracer::LEVEL4,
+        "This Message should appear in",4);
+    Tracer::traceBuffer(TRC_CONFIG,Tracer::LEVEL4,
+        "This Message should appear in",4);
     return(compare(FILE3,"This"));
+}
+
+//
+// Description:
+// Trace a string.
+// Calls the _traceString() method
+// should log a trace message
+//
+// Type:
+// Positive
+//
+// return 0 if the test passed
+// return 1 if the test failed
+//
+
+Uint32 test20()
+{
+    const char* METHOD_NAME = "test20";
+    Tracer::setTraceFile(FILE4);
+    Tracer::setTraceComponents("ALL");
+    Tracer::setTraceLevel(Tracer::LEVEL4);
+
+    PEG_METHOD_ENTER(TRC_CONFIG, METHOD_NAME);
+    Tracer::trace(__FILE__,__LINE__,TRC_CONFIG,Tracer::LEVEL4,
+	"Test Message for Level4 in test20");
+    return(compare(FILE4,"Test Message for Level4 in test20"));
+}
+
+//
+// Description:
+// Trace a CIMException.
+// Calls the traceCIMException() method
+// should log a trace message
+//
+// Type:
+// Positive
+//
+// return 0 if the test passed
+// return 1 if the test failed
+//
+
+Uint32 test21()
+{
+    const char* METHOD_NAME = "test21";
+    Tracer::setTraceFile(FILE4);
+    Tracer::setTraceComponents("ALL");
+    Tracer::setTraceLevel(Tracer::LEVEL4);
+
+    PEG_METHOD_ENTER(TRC_CONFIG, METHOD_NAME);
+
+    // test tracing CIMException
+    try
+    {
+        throw PEGASUS_CIM_EXCEPTION(
+            CIM_ERR_NOT_SUPPORTED, 
+            "CIM Exception Message for Level4 in test21.");
+    }
+    catch (CIMException e)
+    {
+        Tracer::traceCIMException(TRC_CONFIG,Tracer::LEVEL4, e);
+    }
+
+    return 0;
+}
+
+//
+// Description:
+// Trace a string using macro.
+// should log a trace message
+//
+// Type:
+// Positive
+//
+// return 0 if the test passed
+// return 1 if the test failed
+//
+Uint32 test22()
+{
+    const char* METHOD_NAME = "test22";
+    Tracer::setTraceFile(FILE4);
+    Tracer::setTraceComponents("ALL");
+    Tracer::setTraceLevel(Tracer::LEVEL4);
+
+    PEG_METHOD_ENTER(TRC_CONFIG, METHOD_NAME);
+
+    PEG_TRACE_STRING(TRC_CONFIG,Tracer::LEVEL4,"Test message for Level4 in test22.");
+
+    return(compare(FILE4,"Test message for Level4 in test22."));
 }
 
 int main()
@@ -502,6 +589,7 @@ int main()
     System::removeFile(FILE1);
     System::removeFile(FILE2);
     System::removeFile(FILE3);
+    System::removeFile(FILE4);
     if (test1() == 0)
     {
        cout << "Tracer test (test1) failed" << endl;
@@ -597,10 +685,26 @@ int main()
        cout << "Tracer test (test19) failed" << endl;
        exit(1);
     }
+    if (test20() != 0)
+    {
+       cout << "Tracer test (test20) failed" << endl;
+       exit(1);
+    }
+    if (test21() != 0)
+    {
+       cout << "Tracer test (test21) failed" << endl;
+       exit(1);
+    }
+    if (test22() != 0)
+    {
+       cout << "Tracer test (test22) failed" << endl;
+       exit(1);
+    }
     cout << "+++++ passed all tests" << endl;
     System::removeFile(FILE1);
     System::removeFile(FILE2);
     System::removeFile(FILE3);
+    System::removeFile(FILE4);
     return 0;
 #endif
 }

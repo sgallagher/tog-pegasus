@@ -23,7 +23,7 @@
 //
 // Author: Sushma Fernandes, Hewlett-Packard Company (sushma_fernandes@hp.com)
 //
-// Modified By:
+// Modified By: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -35,6 +35,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Logger.h>
+#include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/TraceComponents.h>
 #include <Pegasus/Common/TraceFileHandler.h>
 
@@ -102,6 +103,24 @@ public:
             const Uint32 traceLevel,
             const char* fmt,
             ...)
+        {
+            // empty function
+        }
+
+        inline static void trace(
+            const char*   fileName,
+            const Uint32  lineNum,
+            const Uint32  traceComponent,
+            const Uint32  traceLevel,
+            const String& traceString)
+        {
+            // empty function
+        }
+
+        inline static void traceCIMException(
+            const Uint32  traceComponent,
+            const Uint32  traceLevel,
+            CIMException  cimException)
         {
             // empty function
         }
@@ -207,6 +226,40 @@ public:
             va_end(argList);
         }
 
+        /** Traces the given string.  Overloaded to include the filename
+            and line number of trace origin.
+            @param    fileName        filename of the trace originator
+            @param    lineNum         line number of the trace originator
+            @param    traceComponent  component being traced
+            @param    traceLevel      trace level of the trace message
+            @param    traceString     the string to be traced
+         */
+        inline static void trace(
+            const char*   fileName,
+            const Uint32  lineNum,
+            const Uint32  traceComponent,
+            const Uint32  traceLevel,
+            const String& traceString)
+        {
+            _traceString( fileName, lineNum, traceComponent, traceLevel,
+		          traceString ); 
+        }
+
+        /** Traces the message in the given CIMException object.  The message
+            written to the trace file will include the source filename and
+            line number of the CIMException originator.
+            @param    traceComponent  component being traced
+            @param    traceLevel      trace level of the trace message
+            @param    CIMException    the CIMException to be traced.
+         */
+        inline static void traceCIMException(
+            const Uint32  traceComponent,
+            const Uint32  traceLevel,
+            CIMException  cimException)
+        {
+            _traceCIMException( traceComponent, traceLevel, cimException );
+        }
+
         /** Set the trace file to the given file
             @param    traceFile       full path of the trace file
             @return   0               if the filepath is valid 
@@ -300,9 +353,7 @@ private:
     static const char _FUNC_EXIT_MSG[]; 
 
     // Message Strings for Logger
-    static const char _LOG_MSG1[]; 
-    static const char _LOG_MSG2[]; 
-    static const char _LOG_MSG3[]; 
+    static const char _LOG_MSG[]; 
 
     // Checks if trace is enabled for the given component and trace level
     // @param    traceComponent  component being traced
@@ -367,6 +418,43 @@ private:
         const char*  data,
         const Uint32 size);
 
+    //  Traces the given string.
+    //  @param    traceComponent  component being traced
+    //  @param    traceLevel      trace level of the trace message
+    //  @param    traceString     the string to be traced
+    //
+    static void _traceString(
+        const Uint32  traceComponent,
+        const Uint32  traceLevel,
+        const String& traceString);
+
+    //  Traces a given string.  Overloaded to include the filename
+    //  and line number of trace origin.
+    //  @param    fileName        filename of the trace originator
+    //  @param    lineNum         line number of the trace originator
+    //  @param    traceComponent  component being traced
+    //  @param    traceLevel      trace level of the trace message
+    //  @param    traceString     the string to be traced
+    //
+    static void _traceString(
+        const char*   fileName,
+        const Uint32  lineNum,
+        const Uint32  traceComponent,
+        const Uint32  traceLevel,
+        const String& traceString);
+
+    //  Traces the message in the given CIMException object.  The message
+    //  to be written to the trace file will include the source filename and 
+    //  line number of the CIMException originator.
+    //  @param    traceComponent  component being traced
+    //  @param    traceLevel      trace level of the trace message
+    //  @param    CIMException    the CIMException to be traced.
+    //
+    static void _traceCIMException(
+        const Uint32  traceComponent,
+        const Uint32  traceLevel,
+        CIMException  cimException);
+        
     // Called by all the trace interfaces to log message to the 
     // trace file
     // @param    fileName        filename of the trace originator
@@ -418,12 +506,13 @@ private:
     static Tracer* _getInstance();
 };
 
-// Define the macros for method entry/exit
+// Define the macros for method entry/exit, and tracing a given string
 #ifdef PEGASUS_REMOVE_TRACE
     #define PEG_FUNC_ENTER(traceComponent,methodName) 
     #define PEG_FUNC_EXIT(traceComponent,methodName) 
     #define PEG_METHOD_ENTER(traceComponent,methodName) 
     #define PEG_METHOD_EXIT() 
+    #define PEG_TRACE_STRING(traceComponent,traceLevel,traceString) 
 #else
     /** Macro for tracing method entry
         ATTN: Phase out in favor of PEG_METHOD_ENTER
@@ -454,6 +543,14 @@ private:
      */
     #define PEG_METHOD_EXIT() \
 	Tracer::traceExit(__FILE__,__LINE__,PEG_TRACE_COMPONENT,PEG_METHOD_NAME)
+
+    /** Macro for tracing a string
+        @param    traceComponent  component being traced
+        @param    traceLevel      trace level of the trace message
+        @param    traceString     the string to be traced
+     */
+    #define PEG_TRACE_STRING(traceComponent,traceLevel,traceString) \
+	Tracer::trace(__FILE__, __LINE__,traceComponent,traceLevel,traceString)
 #endif
 
 PEGASUS_NAMESPACE_END

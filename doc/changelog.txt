@@ -234,11 +234,37 @@ will be deleted.
     NOTE:  Client applications are affected and must be updated with this
     change.  I've already updated all the clients that are checked in and
     included in the Pegasus build.
-    
-    
+
 23. (KS) 8 March 2002 - Correct error in compiler that caused length field
     of fixed length arrays to be lost.
 
+24. (Jenny Yu - HP) 8 March 2002 - Modified the CIMException class to NOT
+    include the source filename and line number in the exception message.
+    However, for anyone who wishes to include such information in the 
+    CIM Exception message, a compile option DEBUG_CIMEXCEPTION can be used
+    for that purpose.   
+
+    A couple of changes have been made to the Tracer class:
+
+    - CIMException messages can now be put in a trace file using the Tracer.
+      A new interface has been added to the Tracer to accept a CIMException
+      as input and writes the exception message in the CIMException to the
+      trace file.  This message will include the source filename and the
+      line number of the CIMException originator.
+
+      Tracer::traceCIMException(traceComponent, traceLevel, cimException);
+
+    - Strings can now be traced using the Tracer class:
+      A new interface has been added to the Tracer to accept a String as
+      input and writes the String to the trace file.
+
+      (ex.)
+      You can issue the following method call:
+         Tracer::trace(TRC_CONFIG, Tracer::LEVEL2, "Operation Failed.");
+
+      or use the following new macro:
+         PEG_TRACE_STRING(TRC_CONFIG, Tracer::LEVEL2, "Operation Failed.");
+    
 -------------------------------------------------------------------
 Version 1.06 working towards 1.1 Started 13 December 2001
 

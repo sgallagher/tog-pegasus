@@ -3,7 +3,7 @@
 <MESSAGE ID="39002" PROTOCOLVERSION="1.0">
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="DeleteQualifier">
-<ERROR CODE="3" DESCRIPTION="NameSpaceManager.cpp(409): CIM_ERR_INVALID_NAMESPACE: The target namespace does not exist: &quot;test/test_notanamespace&quot;"/>
+<ERROR CODE="3" DESCRIPTION="CIM_ERR_INVALID_NAMESPACE: The target namespace does not exist: &quot;test/test_notanamespace&quot;"/>
 </IMETHODRESPONSE>
 </SIMPLERSP>
 </MESSAGE>

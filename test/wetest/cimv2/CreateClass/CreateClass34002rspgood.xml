@@ -3,7 +3,7 @@
 <MESSAGE ID="34002" PROTOCOLVERSION="1.0">
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="CreateClass">
-<ERROR CODE="11" DESCRIPTION="NameSpaceManager.cpp(468): CIM_ERR_ALREADY_EXISTS: Operation cannot be carried out because an object already exists: &quot;Test_ClassforCreateClass001&quot;"/>
+<ERROR CODE="11" DESCRIPTION="CIM_ERR_ALREADY_EXISTS: Operation cannot be carried out because an object already exists: &quot;Test_ClassforCreateClass001&quot;"/>
 </IMETHODRESPONSE>
 </SIMPLERSP>
 </MESSAGE>

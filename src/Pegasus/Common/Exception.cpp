@@ -24,7 +24,7 @@
 //
 // Modified By: Nag Boranna (nagaraja_boranna@hp.com)
 //
-// Modified By:
+// Modified By: Jenny Yu (jenny_yu@am.exch.hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -206,6 +206,24 @@ const char InvalidAuthHeader::MSG[] = "Invalid Authorization header";
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+//
+// Creates a message without source file name and line number.
+//
+static String _makeCIMExceptionMessage(
+    CIMStatusCode code,
+    const String& extraMessage)
+{
+    String tmp;
+    tmp.append(CIMStatusCodeToString(code));
+    tmp.append(": \"");
+    tmp.append(extraMessage);
+    tmp.append("\"");
+    return tmp;
+}
+
+//
+// Creates a message with source file name and line number.
+//
 static String _makeCIMExceptionMessage(
     CIMStatusCode code, 
     const char* file,
@@ -226,13 +244,32 @@ static String _makeCIMExceptionMessage(
     return tmp;
 }
 
+//
+// Returns a message string specifically for tracing. 
+//
+String CIMException::getTraceMessage()
+{
+    String traceMsg =
+        _makeCIMExceptionMessage(_code, _file, _line, _extraMessage);
+    
+    return traceMsg;
+}
+
 CIMException::CIMException(
     CIMStatusCode code, 
     const char* file,
     Uint32 line,
     const String& extraMessage)
-    : Exception(_makeCIMExceptionMessage(code, file, line, extraMessage)),
-    _code(code)
+    : 
+#ifdef DEBUG_CIMEXCEPTION
+    Exception(_makeCIMExceptionMessage(code, file, line, extraMessage)),
+#else
+    Exception(_makeCIMExceptionMessage(code, extraMessage)),
+#endif
+    _code(code), 
+    _file(file), 
+    _line(line), 
+    _extraMessage(extraMessage)
 {
 
 }

@@ -148,8 +148,10 @@ catagorize(const Optarg &arg) {
 static void
 applyDefaults(mofCompilerOptions &cmdlinedata) {
   char *peghome = getenv(PEGASUS_HOME);
-  if (peghome)
+  if (peghome) {
     cmdlinedata.set_repository_name(peghome);
+  } else {
+  }
   cmdlinedata.reset_syntax_only();
   cmdlinedata.reset_suppress_warnings();
   cmdlinedata.reset_suppress_all_messages();

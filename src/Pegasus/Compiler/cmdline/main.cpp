@@ -58,6 +58,10 @@ main(int argc, char ** argv) {
     cerr << e.getMessage() << endl;
     cerr << "Compilation terminating." << endl;
     ret =  -2;
+  } catch (CmdlineNoRepository &e) {
+    cerr << e.getMessage() << endl;
+    cerr << "Compilation terminating." << endl;
+    ret = -3;
   }
   if (ret)
     return ret;
@@ -68,7 +72,7 @@ main(int argc, char ** argv) {
   // create one and we need to, bail. 
   cimmofParser *p = cimmofParser::Instance(); 
   p->setCompilerOptions(&cmdline);
-  if ( p->setRepository() ) {
+  if ( p->setRepository() ) {	
     p->setDefaultNamespacePath(NAMESPACE_ROOT);
   } else {
     // FIXME:  We may need to log an error here.

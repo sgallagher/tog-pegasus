@@ -76,12 +76,14 @@ ProviderManagerService::~ProviderManagerService(void)
 {
 }
 
-Pair<String, String> _getProviderRegPair(const CIMInstance& pInstance, const CIMInstance& pmInstance)
+Triad<String, String, String> _getProviderRegPair(
+    const CIMInstance& pInstance, const CIMInstance& pmInstance)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "_getProviderRegPair");
 
     String providerName;
     String location;
+    String interfaceName;
 
     Array<Uint16> operationalStatus;
 
@@ -147,6 +149,20 @@ Pair<String, String> _getProviderRegPair(const CIMInstance& pInstance, const CIM
 
     pmInstance.getProperty(pos).getValue().get(location);
 
+//
+    // get the provider location from the provider module instance
+    pos = pmInstance.findProperty("InterfaceType");
+
+    if (pos != PEG_NOT_FOUND)
+    {
+        pmInstance.getProperty(pos).getValue().get(interfaceName);
+
+        if (String::equal(interfaceName,"C++Default") )
+            interfaceName = String::EMPTY;
+    }
+   
+//
+
     PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
         "location = " + location + " found.");
 
@@ -164,13 +180,14 @@ Pair<String, String> _getProviderRegPair(const CIMInstance& pInstance, const CIM
 
     PEG_METHOD_EXIT();
 
-    return(Pair<String, String>(fileName, providerName));
+    return(Triad<String, String, String>(fileName, providerName,interfaceName));
 }
 
 void ProviderManagerService::_lookupProviderForAssocClass(
     const CIMObjectPath & objectPath, const String& assocClassName,
     const String& resultClassName,
-    Array<String>& Locations, Array<String>& providerNames)
+    Array<String>& Locations, Array<String>& providerNames,
+    Array<String>& interfaceNames)
 {
     Array<CIMInstance> pInstances;
     Array<CIMInstance> pmInstances;
@@ -199,7 +216,7 @@ void ProviderManagerService::_lookupProviderForAssocClass(
         // get the provider name from the provider instance
         Uint32 pos = pInstances[i].findProperty("Name");
 
-        String providerName, Location;
+        String providerName, Location, interfaceName;
 
         if(pos == PEG_NOT_FOUND)
         {
@@ -223,6 +240,20 @@ void ProviderManagerService::_lookupProviderForAssocClass(
 
         pmInstances[i].getProperty(pos).getValue().get(Location);
 
+//
+        // get the provider location from the provider module instance
+        pos = pmInstances[i].findProperty("InterfaceType");
+
+        if (pos != PEG_NOT_FOUND)
+        {
+            pmInstances[i].getProperty(pos).getValue().get(interfaceName);
+
+            if (String::equal(interfaceName,"C++Default") )
+                interfaceName = String::EMPTY;
+        }
+   
+//
+
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "location = " + Location + " found.");
 
@@ -240,6 +271,7 @@ void ProviderManagerService::_lookupProviderForAssocClass(
 
         providerNames.append(providerName);
         Locations.append(fileName);
+        interfaceNames.append(interfaceName);
     }
 
     PEG_METHOD_EXIT();
@@ -247,7 +279,8 @@ void ProviderManagerService::_lookupProviderForAssocClass(
     return;
 }
 
-Pair<String, String> ProviderManagerService::_lookupMethodProviderForClass(
+Triad<String, String, String>
+    ProviderManagerService::_lookupMethodProviderForClass(
   const CIMObjectPath & objectPath,
   const String & methodName)
 {
@@ -272,16 +305,18 @@ Pair<String, String> ProviderManagerService::_lookupMethodProviderForClass(
         throw CIMException(CIM_ERR_FAILED, "provider lookup failed.");
     }
 
-    Pair<String, String> pair;
+    Triad<String, String, String> triad;
 
-    pair = _getProviderRegPair(pInstance, pmInstance);
+    triad = _getProviderRegPair(pInstance, pmInstance);
 
     PEG_METHOD_EXIT();
 
-    return(pair);
+    return(triad);
 }
 
-Pair<String, String> ProviderManagerService::_lookupProviderForClass(const CIMObjectPath & objectPath)
+
+Triad<String, String,String> ProviderManagerService::_lookupProviderForClass(
+    const CIMObjectPath & objectPath)
 {
     CIMInstance pInstance;
     CIMInstance pmInstance;
@@ -304,13 +339,13 @@ Pair<String, String> ProviderManagerService::_lookupProviderForClass(const CIMOb
         throw CIMException(CIM_ERR_FAILED, "provider lookup failed.");
     }
 
-    Pair<String, String> pair;
+    Triad<String, String, String> triad;
 
-    pair = _getProviderRegPair(pInstance, pmInstance);
+    triad = _getProviderRegPair(pInstance, pmInstance);
 
     PEG_METHOD_EXIT();
 
-    return(pair);
+    return triad;
 }
 
 Boolean ProviderManagerService::messageOK(const Message * message)
@@ -592,24 +627,26 @@ void ProviderManagerService::handleGetInstanceRequest(AsyncOpNode *op, const Mes
 
     try
     {
-        // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->instanceName.getClassName(),
-            request->instanceName.getKeyBindings());
+	// make target object path
+	CIMObjectPath objectPath(
+	    System::getHostName(),
+	    request->nameSpace,
+	    request->instanceName.getClassName(),
+	    request->instanceName.getKeyBindings());
 
-        // get the provider file name and logical name
-        Pair<String, String> pair = _lookupProviderForClass(objectPath);
+	// get the provider file name and logical name
+	Triad<String, String, String> triad =
+            _lookupProviderForClass(objectPath);
 
-        // get cached or load new provider module
-        Provider provider = providerManager.getProvider(pair.first, pair.second);
+	// get cached or load new provider module
+	Provider provider =
+            providerManager.getProvider(triad.first, triad.second, triad.third);
 
-        // convert arguments
-        OperationContext context;
+	// convert arguments
+	OperationContext context;
 
-        // add the user name to the context
-        context.insert(IdentityContainer(request->userName));
+	// add the user name to the context
+	context.insert(IdentityContainer(request->userName));
 
         // convert flags to bitmask
         Uint32 flags = OperationFlag::convert(false);
@@ -686,11 +723,13 @@ void ProviderManagerService::handleEnumerateInstancesRequest(AsyncOpNode *op, co
             request->nameSpace,
             request->className);
 
-        // get the provider file name and logical name
-        Pair<String, String> pair = _lookupProviderForClass(objectPath);
+	// get the provider file name and logical name
+	Triad<String, String, String> triad =
+            _lookupProviderForClass(objectPath);
 
-        // get cached or load new provider module
-        Provider provider = providerManager.getProvider(pair.first, pair.second);
+	// get cached or load new provider module
+	Provider provider =
+            providerManager.getProvider(triad.first, triad.second, triad.third);
 
         // convert arguments
         OperationContext context;
@@ -767,20 +806,22 @@ void ProviderManagerService::handleEnumerateInstanceNamesRequest(AsyncOpNode *op
     // process the request
     try
     {
-        // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->className);
+	// make target object path
+	CIMObjectPath objectPath(
+	    System::getHostName(),
+	    request->nameSpace,
+	    request->className);
 
-        // get the provider file name and logical name
-        Pair<String, String> pair = _lookupProviderForClass(objectPath);
+	// get the provider file name and logical name
+	Triad<String, String, String> triad =
+            _lookupProviderForClass(objectPath);
 
-        // get cached or load new provider module
-        Provider provider = providerManager.getProvider(pair.first, pair.second);
+	// get cached or load new provider module
+	Provider provider =
+            providerManager.getProvider(triad.first, triad.second, triad.third);
 
-        // convert arguments
-        OperationContext context;
+	// convert arguments
+	OperationContext context;
 
         // add the user name to the context
         context.insert(IdentityContainer(request->userName));
@@ -844,21 +885,23 @@ void ProviderManagerService::handleCreateInstanceRequest(AsyncOpNode *op, const 
 
     try
     {
-        // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->newInstance.getPath().getClassName(),
-            request->newInstance.getPath().getKeyBindings());
+	// make target object path
+	CIMObjectPath objectPath(
+	    System::getHostName(),
+	    request->nameSpace,
+	    request->newInstance.getPath().getClassName(),
+	    request->newInstance.getPath().getKeyBindings());
 
-        // get the provider file name and logical name
-        Pair<String, String> pair = _lookupProviderForClass(objectPath);
+	// get the provider file name and logical name
+	Triad<String, String, String> triad =
+            _lookupProviderForClass(objectPath);
 
-        // get cached or load new provider module
-        Provider provider = providerManager.getProvider(pair.first, pair.second);
+	// get cached or load new provider module
+	Provider provider =
+            providerManager.getProvider(triad.first, triad.second, triad.third);
 
-        // convert arguments
-        OperationContext context;
+	// convert arguments
+	OperationContext context;
 
         // add the user name to the context
         context.insert(IdentityContainer(request->userName));
@@ -930,11 +973,13 @@ void ProviderManagerService::handleModifyInstanceRequest(AsyncOpNode *op, const 
             request->modifiedInstance.getInstanceName().getClassName(),    //request->modifiedInstance.getInstance().getPath().getClassName(),
             request->modifiedInstance.getInstanceName().getKeyBindings()); //request->modifiedInstance.getInstance().getPath().getKeyBindings());
 
-        // get the provider file name and logical name
-        Pair<String, String> pair = _lookupProviderForClass(objectPath);
+	// get the provider file name and logical name
+	Triad<String, String, String> triad =
+            _lookupProviderForClass(objectPath);
 
-        // get cached or load new provider module
-        Provider provider = providerManager.getProvider(pair.first, pair.second);
+	// get cached or load new provider module
+	Provider provider =
+            providerManager.getProvider(triad.first, triad.second, triad.third);
 
         // convert arguments
         OperationContext context;
@@ -1012,18 +1057,20 @@ void ProviderManagerService::handleDeleteInstanceRequest(AsyncOpNode *op, const 
 
     try
     {
-        // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->instanceName.getClassName(),
-            request->instanceName.getKeyBindings());
+	// make target object path
+	CIMObjectPath objectPath(
+	    System::getHostName(),
+	    request->nameSpace,
+	    request->instanceName.getClassName(),
+	    request->instanceName.getKeyBindings());
 
-        // get the provider file name and logical name
-        Pair<String, String> pair = _lookupProviderForClass(objectPath);
+	// get the provider file name and logical name
+	Triad<String, String, String> triad =
+            _lookupProviderForClass(objectPath);
 
-        // get cached or load new provider module
-        Provider provider = providerManager.getProvider(pair.first, pair.second);
+	// get cached or load new provider module
+	Provider provider =
+            providerManager.getProvider(triad.first, triad.second, triad.third);
 
         // convert arguments
         OperationContext context;
@@ -1169,19 +1216,20 @@ void ProviderManagerService::handleAssociatorNamesRequest(AsyncOpNode *op, const
         // get the provider file name and logical name
         Array<String> first;
         Array<String> second;
+        Array<String> third;
 
         _lookupProviderForAssocClass(objectPath,
         //                             request->associationClass,
         //                             request->resultClass,
-            String::EMPTY,
-            String::EMPTY,
-            first, second);
+                                     String::EMPTY,
+                                     String::EMPTY,
+                                     first, second, third);
 
         for(Uint32 i=0,n=first.size(); i<n; i++)
         {
             // get cached or load new provider module
             Provider provider =
-                providerManager.getProvider(first[i], second[i]);
+               providerManager.getProvider(first[i], second[i], third[i]);
 
             // convert arguments
             OperationContext context;
@@ -1273,19 +1321,20 @@ void ProviderManagerService::handleReferencesRequest(AsyncOpNode *op, const Mess
         // get the provider file name and logical name
         Array<String> first;
         Array<String> second;
+        Array<String> third;
 
         _lookupProviderForAssocClass(objectPath,
         //                             request->associationClass,
         //                             request->resultClass,
-            String::EMPTY,
-            String::EMPTY,
-            first, second);
+                                     String::EMPTY,
+                                     String::EMPTY,
+                                     first, second, third);
 
         for(Uint32 i=0,n=first.size(); i<n; i++)
         {
             // get cached or load new provider module
             Provider provider =
-                providerManager.getProvider(first[i], second[i]);
+               providerManager.getProvider(first[i], second[i], third[i]);
 
             // convert arguments
             OperationContext context;
@@ -1379,20 +1428,21 @@ void ProviderManagerService::handleReferenceNamesRequest(AsyncOpNode *op, const 
 
         // get the provider file name and logical name
         Array<String> first;
-        Array<String> second;
+	Array<String> second;
+        Array<String> third;
 
         _lookupProviderForAssocClass(objectPath,
         //                             request->associationClass,
         //                             request->resultClass,
-            String::EMPTY,
-            String::EMPTY,
-            first, second);
+                                     String::EMPTY,
+                                     String::EMPTY,
+                                     first, second, third);
 
         for(Uint32 i=0,n=first.size(); i<n; i++)
         {
             // get cached or load new provider module
             Provider provider =
-                providerManager.getProvider(first[i], second[i]);
+               providerManager.getProvider(first[i], second[i], third[i]);
 
             // convert arguments
             OperationContext context;
@@ -1473,24 +1523,26 @@ void ProviderManagerService::handleGetPropertyRequest(AsyncOpNode *op, const Mes
 
     try
     {
-        // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->instanceName.getClassName(),
-            request->instanceName.getKeyBindings());
+	// make target object path
+	CIMObjectPath objectPath(
+	    System::getHostName(),
+	    request->nameSpace,
+	    request->instanceName.getClassName(),
+	    request->instanceName.getKeyBindings());
 
-        // get the provider file name and logical name
-        Pair<String, String> pair = _lookupProviderForClass(objectPath);
+	// get the provider file name and logical name
+	Triad<String, String, String> triad =
+            _lookupProviderForClass(objectPath);
 
-        // get cached or load new provider module
-        Provider provider = providerManager.getProvider(pair.first, pair.second);
+	// get cached or load new provider module
+	Provider provider = 
+            providerManager.getProvider(triad.first, triad.second, triad.third);
 
-        // convert arguments
-        OperationContext context;
+	// convert arguments
+	OperationContext context;
 
-        // add the user name to the context
-        context.insert(IdentityContainer(request->userName));
+	// add the user name to the context
+	context.insert(IdentityContainer(request->userName));
 
         // convert flags to bitmask
         Uint32 flags = 0;
@@ -1559,33 +1611,35 @@ void ProviderManagerService::handleSetPropertyRequest(AsyncOpNode *op, const Mes
 
     try
     {
-        // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->instanceName.getClassName(),
-            request->instanceName.getKeyBindings());
+	// make target object path
+	CIMObjectPath objectPath(
+	    System::getHostName(),
+	    request->nameSpace,
+	    request->instanceName.getClassName(),
+	    request->instanceName.getKeyBindings());
 
-        // get the provider file name and logical name
-        Pair<String, String> pair = _lookupProviderForClass(objectPath);
+	// get the provider file name and logical name
+	Triad<String, String, String> triad =
+            _lookupProviderForClass(objectPath);
 
-        // get cached or load new provider module
-        Provider provider = providerManager.getProvider(pair.first, pair.second);
+	// get cached or load new provider module
+	Provider provider = 
+            providerManager.getProvider(triad.first, triad.second, triad.third);
 
-        // convert arguments
-        OperationContext context;
+	// convert arguments
+	OperationContext context;
 
-        // add the user name to the context
-        context.insert(IdentityContainer(request->userName));
+	// add the user name to the context
+	context.insert(IdentityContainer(request->userName));
 
         // convert flags to bitmask
         Uint32 flags = 0;
 
+	String propertyName; // = request->propertyName;
+	CIMValue propertyValue; // = request->propertyValue;
+
         // strip flags inappropriate for providers
         //flags = flags & ~OperationFlag::LOCAL_ONLY & ~OperationFlag::DEEP_INHERITANCE;
-
-        String propertyName; // = request->propertyName;
-        CIMValue propertyValue; // = request->propertyValue;
 
         STAT_GETSTARTTIME;
 
@@ -1662,10 +1716,12 @@ void ProviderManagerService::handleInvokeMethodRequest(AsyncOpNode *op, const Me
             request->instanceName.getKeyBindings());
 
         // get the provider file name and logical name
-        Pair<String, String> pair = _lookupMethodProviderForClass(objectPath, request->methodName);
+        Triad<String, String, String> triad =
+            _lookupMethodProviderForClass(objectPath, request->methodName);
 
-        // get cached or load new provider module
-        Provider provider = providerManager.getProvider(pair.first, pair.second);
+	// get cached or load new provider module
+	Provider provider = 
+            providerManager.getProvider(triad.first, triad.second, triad.third);
 
         // convert arguments
         OperationContext context;
@@ -1745,41 +1801,44 @@ void ProviderManagerService::handleCreateSubscriptionRequest(AsyncOpNode *op, co
 
     try
     {
-        // get the provider file name and logical name
-        Pair<String, String> pair = _getProviderRegPair(request->provider, request->providerModule);
+	// get the provider file name and logical name
+	Triad<String, String, String> triad =
+	    _getProviderRegPair(request->provider, request->providerModule);
 
-        // get cached or load new provider module
-        Provider provider = providerManager.getProvider(pair.first, pair.second);
+	// get cached or load new provider module
+	Provider provider = 
+            providerManager.getProvider(triad.first, triad.second, triad.third);
 
-        // convert arguments
-        OperationContext context;
 
-        context.insert(IdentityContainer(request->userName));
+	// convert arguments
+	OperationContext context;
 
-        CIMObjectPath subscriptionName = request->subscriptionInstance.getPath();
+	context.insert(IdentityContainer(request->userName));
+	
+	CIMObjectPath subscriptionName = request->subscriptionInstance.getPath();
+	
+	Array<CIMObjectPath> classNames;
 
-        Array<CIMObjectPath> classNames;
+	for(Uint32 i = 0, n = request->classNames.size(); i < n; i++)
+	{
+	    CIMObjectPath className(
+		System::getHostName(),
+		request->nameSpace,
+		request->classNames[i]);
 
-        for(Uint32 i = 0, n = request->classNames.size(); i < n; i++)
-        {
-            CIMObjectPath className(
-                System::getHostName(),
-                request->nameSpace,
-                request->classNames[i]);
+	    classNames.append(className);
+	}
 
-            classNames.append(className);
-        }
-
-        CIMPropertyList propertyList = request->propertyList;
-
-        Uint16 repeatNotificationPolicy = request->repeatNotificationPolicy;
-
-        provider.createSubscription(
-            context,
-            subscriptionName,
-            classNames,
-            propertyList,
-            repeatNotificationPolicy);
+	CIMPropertyList propertyList = request->propertyList;
+	
+	Uint16 repeatNotificationPolicy = request->repeatNotificationPolicy;
+	
+	provider.createSubscription(
+	    context,
+	    subscriptionName,
+	    classNames,
+	    propertyList,
+	    repeatNotificationPolicy);
     }
     catch(CIMException & e)
     {
@@ -1828,11 +1887,13 @@ void ProviderManagerService::handleModifySubscriptionRequest(AsyncOpNode *op, co
 
     try
     {
-        // get the provider file name and logical name
-        Pair<String, String> pair = _getProviderRegPair(request->provider, request->providerModule);
+	// get the provider file name and logical name
+	Triad<String, String, String> triad =
+	    _getProviderRegPair(request->provider, request->providerModule);
 
-        // get cached or load new provider module
-        Provider provider = providerManager.getProvider(pair.first, pair.second);
+	// get cached or load new provider module
+	Provider provider = 
+            providerManager.getProvider(triad.first, triad.second, triad.third);
 
         // convert arguments
         OperationContext context;
@@ -1911,11 +1972,13 @@ void ProviderManagerService::handleDeleteSubscriptionRequest(AsyncOpNode *op, co
 
     try
     {
-        // get the provider file name and logical name
-        Pair<String, String> pair = _getProviderRegPair(request->provider, request->providerModule);
+	// get the provider file name and logical name
+	Triad<String, String, String> triad =
+	    _getProviderRegPair(request->provider, request->providerModule);
 
-        // get cached or load new provider module
-        Provider provider = providerManager.getProvider(pair.first, pair.second);
+	// get cached or load new provider module
+	Provider provider = 
+            providerManager.getProvider(triad.first, triad.second, triad.third);
 
         // convert arguments
         OperationContext context;
@@ -1990,11 +2053,13 @@ void ProviderManagerService::handleEnableIndicationsRequest(AsyncOpNode *op, con
 
     try
     {
-        // get the provider file name and logical name
-        Pair<String, String> pair = _getProviderRegPair(request->provider, request->providerModule);
+	// get the provider file name and logical name
+	Triad<String, String, String> triad =
+	    _getProviderRegPair(request->provider, request->providerModule);
 
-        // get cached or load new provider module
-        Provider provider = providerManager.getProvider(pair.first, pair.second);
+	// get cached or load new provider module
+	Provider provider = 
+            providerManager.getProvider(triad.first, triad.second, triad.third);
 
         provider.enableIndications(handler);
     }
@@ -2045,11 +2110,13 @@ void ProviderManagerService::handleDisableIndicationsRequest(AsyncOpNode *op, co
 
     try
     {
-        // get the provider file name and logical name
-        Pair<String, String> pair = _getProviderRegPair(request->provider, request->providerModule);
+	// get the provider file name and logical name
+	Triad<String, String, String> triad =
+	    _getProviderRegPair(request->provider, request->providerModule);
 
-        // get cached or load new provider module
-        Provider provider = providerManager.getProvider(pair.first, pair.second);
+	// get cached or load new provider module
+	Provider provider = 
+            providerManager.getProvider(triad.first, triad.second, triad.third);
 
         provider.disableIndications();
     }
@@ -2112,10 +2179,11 @@ void ProviderManagerService::handleDisableModuleRequest(AsyncOpNode *op, const M
 
     for(Uint32 i = 0, n = _pInstances.size(); i<n; i++)
     {
-        // get the provider file name and logical name
-        Pair<String, String> pair = _getProviderRegPair(_pInstances[i], mInstance);
+	// get the provider file name and logical name
+	Triad<String, String, String> triad =
+            _getProviderRegPair(_pInstances[i], mInstance);
 
-        providerManager.unloadProvider(pair.second, pair.first);
+        providerManager.unloadProvider(triad.second, triad.first);
     }
 
     // set module status to be Stopped

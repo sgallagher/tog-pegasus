@@ -19,7 +19,6 @@ LOGREQUESTS = $(foreach i, $(LOGFILES), $i.loggood)
 LOGRESPONSES = $(LOGREQUESTS:.loggood=.logresp)
 
 %.logresp: %.loggood
-	@ $(ECHO) AAA
 	@ $(DIFF) $*.loggood $(TMP_DIR)/$*.log
 	@ $(RM) $(TMP_DIR)/$*.log
 	@ $(ECHO) +++ $* passed successfully +++

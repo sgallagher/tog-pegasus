@@ -45,22 +45,11 @@ public:
 
    benchmarkDefinition();
 
-   const CIMName& getClassName(Uint32 index);
-
-   Uint32 getNumberOfClassDefinitions();
-
    Uint32 getConfiguration(
                           const CIMName& className,
                           Uint32& numberOfProperties,
                           Uint32& sizeOfPropertyValue,
                           Uint32& numberOfInstances);
-
-private:
-
-   Array<CIMName> _benchmarkDefinitionClassNames;
-   Uint32 _numberOfClassDefinitions;
-   Uint32 _maxClassDefinitionIndex;
-
 };
 
 #endif /* Pegasus_benchmarkDefinition_h */

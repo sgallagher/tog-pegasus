@@ -148,6 +148,8 @@ private:
 
     void _getSystemConfiguration(ostream& outPrintWriter, ostream& errPrintWriter);
 
+    void _getTestConfiguration(ostream& outPrintWriter, ostream& errPrintWriter);
+
     void dobenchmarkTest1(Uint32 testID, ostream& outPrintWriter, ostream& errPrintWriter);
 
     void dobenchmarkTest2(Uint32 testID, const CIMName& className,
@@ -206,6 +208,7 @@ private:
     String _testIDStr;
     Uint32 _testID;
     Boolean _testIDSet;
+    Array<CIMName> _testClassNames;
 
     /**
         The timeout value to be used, in milliseconds.

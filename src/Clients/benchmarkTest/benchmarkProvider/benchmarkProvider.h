@@ -93,7 +93,7 @@ protected:
 
         CIMObjectPath _buildObjectPath(
                 const CIMName& className,
-                CIMValue Identifier);
+                CIMKeyBinding keyBinding);
 
         CIMInstance _buildInstance(
                          const    CIMName& className,

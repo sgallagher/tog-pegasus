@@ -836,6 +836,57 @@ void benchmarkTestCommand::_getSystemConfiguration(
    outPrintWriter << endl << endl;
 }
 
+void benchmarkTestCommand::_getTestConfiguration(
+				      ostream& outPrintWriter,
+                                      ostream& errPrintWriter)
+{
+    Boolean isConnected = false;
+    CIMClient client;
+    client.setTimeout( _timeout );
+
+    try
+    {
+        _connectToServer( client, outPrintWriter);
+        isConnected = true;
+
+        Boolean deepInheritance = true;
+
+        Array<CIMName> classNames = client.enumerateClassNames(
+                  NAMESPACE, CIMName(), deepInheritance);
+
+
+        Uint32 numberOfProperties;
+        Uint32 sizeOfPropertyValue;
+        Uint32 numberOfInstances;
+       
+        for (Uint32 i = 0, n = classNames.size(); i < n; i++)
+	{
+            if (CIM_ERR_SUCCESS == test.getConfiguration(classNames[i], 
+                 numberOfProperties, sizeOfPropertyValue, numberOfInstances))
+            {
+               _testClassNames.append (classNames[i]);
+            }
+        }
+
+    }  // end try
+
+    catch (Exception& e)
+    {
+        if (isConnected)
+           client.disconnect();
+        throw;
+    }
+
+    catch (exception& e)
+    {
+        if (isConnected)
+           client.disconnect();
+        throw;
+    }
+
+    client.disconnect();
+}
+
 
 CIMObjectPath benchmarkTestCommand::_buildObjectPath(
                          const CIMName& className,
@@ -859,7 +910,6 @@ Boolean benchmarkTestCommand::_invokeProviderModuleMethod(
     Boolean isConnected = false;
     Sint16 retValue = -1;
     client.setTimeout( _timeout );
-
     CIMObjectPath moduleRef;
     try
     {
@@ -897,7 +947,7 @@ Boolean benchmarkTestCommand::_invokeProviderModuleMethod(
     {
         if (isConnected)
            client.disconnect();
-        throw e;
+        throw;
     }
 
     if ((retValue == 0) || (retValue == 1)) 
@@ -1258,43 +1308,42 @@ Uint32 benchmarkTestCommand::execute (ostream& outPrintWriter,
            benchmarkTestCommand::_getSystemConfiguration(outPrintWriter, errPrintWriter);
         }
 
+        benchmarkTestCommand::_getTestConfiguration(outPrintWriter, errPrintWriter);
 
-#if 0
 	testID++;
 	if (!_testIDSet || (testID == _testID))
 	{
            benchmarkTestCommand::dobenchmarkTest1(testID, outPrintWriter, errPrintWriter);
         }
-#endif
 
 	testID++;
 	if (!_testIDSet || (testID == _testID))
 	{
-           benchmarkTestCommand::dobenchmarkTest2(testID, test.getClassName(0),
+           benchmarkTestCommand::dobenchmarkTest2(testID, _testClassNames[0],
                                                   outPrintWriter, errPrintWriter);
         }
 
-        for (Uint32 i = 0, n = test.getNumberOfClassDefinitions(); i < n; i++)
+        for (Uint32 i = 0, n = _testClassNames.size(); i < n; i++)
 
 	{
 	    testID++;	
 	    if (!_testIDSet || (testID == _testID))
 	    {
-                benchmarkTestCommand::dobenchmarkTest3(testID, test.getClassName(i),
+                benchmarkTestCommand::dobenchmarkTest3(testID, _testClassNames[i],
                                                   outPrintWriter, errPrintWriter);
             }
 
 	    testID++;
 	    if (!_testIDSet || (testID == _testID))
 	    {
-                benchmarkTestCommand::dobenchmarkTest4(testID, test.getClassName(i),
+                benchmarkTestCommand::dobenchmarkTest4(testID, _testClassNames[i],
                                                   outPrintWriter, errPrintWriter);
             }
 
 	    testID++;
 	    if (!_testIDSet || (testID == _testID))
 	    {
-                benchmarkTestCommand::dobenchmarkTest5(testID, test.getClassName(i),
+                benchmarkTestCommand::dobenchmarkTest5(testID, _testClassNames[i],
                                                   outPrintWriter, errPrintWriter);
             }
         }
@@ -1306,6 +1355,21 @@ Uint32 benchmarkTestCommand::execute (ostream& outPrintWriter,
 	e.getMessage () << endl;
         return (RC_ERROR);
     }
+
+    catch (Exception& e)
+    {
+      errPrintWriter << benchmarkTestCommand::COMMAND_NAME << ": " << 
+	e.getMessage () << endl;
+        return (RC_ERROR);
+    }
+
+    catch (exception& e)
+    {
+      errPrintWriter << benchmarkTestCommand::COMMAND_NAME << ": " << 
+	e.what () << endl;
+        return (RC_ERROR);
+     }
+
     return (RC_SUCCESS);
 }
 

@@ -50,14 +50,12 @@ benchmarkProvider::~benchmarkProvider(void)
 
 CIMObjectPath benchmarkProvider::_buildObjectPath(
                          const CIMName& className,
-                         CIMValue Identifier)
+                         CIMKeyBinding keyBinding)
 {
-    Array<CIMKeyBinding> keys;
-
-    keys.append(CIMKeyBinding("Idenitifier", Identifier.toString(),
-               CIMKeyBinding::NUMERIC));
-
-    return CIMObjectPath(String(), CIMNamespaceName(NAMESPACE), className, keys);
+    Array<CIMKeyBinding> keyBindings;
+    keyBindings.append(keyBinding);
+    return CIMObjectPath(String(), CIMNamespaceName(NAMESPACE), 
+                                className, keyBindings);
 }
 
 CIMInstance benchmarkProvider::_buildInstance(
@@ -70,52 +68,25 @@ CIMInstance benchmarkProvider::_buildInstance(
     char propertyName[20];
     char propertyValue[10000];
 
-    try
+    for (Uint32 i = 0; i < propertySize; i++)
     {
+       propertyValue[i] = 'a';
+    }
+    propertyValue[propertySize] = 0;
 
-       for (Uint32 i = 0; i < propertySize; i++)
-       {
-          propertyValue[i] = 'a';
-       }
-       propertyValue[propertySize] = 0;
+    CIMInstance instance(className);
+    instance.addProperty(CIMProperty("Identifier", Identifier));
 
-       CIMInstance instance(className);
-       instance.addProperty(CIMProperty("Identifier", Identifier));
-
-       for(Uint32 i = 0; i < numberOfProperties;  i++)
-       {
-          sprintf(propertyName, "Property%4.4d", i);
-          instance.addProperty(CIMProperty(propertyName, String(propertyValue)));
-       }
-
-       CIMObjectPath reference = _buildObjectPath(className, Identifier);
-       instance.setPath(reference);
-       return(instance);
+    for(Uint32 i = 0; i < numberOfProperties;  i++)
+    {
+       sprintf(propertyName, "Property%4.4d", i);
+       instance.addProperty(CIMProperty(propertyName, String(propertyValue)));
     }
 
-    catch (CIMException& e)
-    {
-#ifdef DEBUG
-        cout << "benchmarkProvider::initialize(): Got CIMException:";
-        cout << e.getMessage() << endl;
-#endif
-        throw;
-    }
-    catch (Exception& e)
-    {
-#ifdef DEBUG
-        cout << "benchmarkProvider::initialize(): Got Exception: ";
-        cout << e.getMessage() << endl;
-#endif
-        throw;
-    }
-    catch (...)
-    {
-#ifdef DEBUG
-        cout << "benchmarkProvider::initialize(): Got Unknown Exception: ";
-#endif
-        throw;
-    }
+    CIMObjectPath reference = _buildObjectPath(className, 
+               CIMKeyBinding(CIMName("Identifier"), Identifier));
+    instance.setPath(reference);
+    return(instance);
 }
 
 void benchmarkProvider::initialize(CIMOMHandle & cimom)
@@ -148,14 +119,19 @@ void benchmarkProvider::getInstance(
     {
        throw CIMException(CIM_ERR_NOT_SUPPORTED);
     }
-
-    String Identifier = keyBindings[0].getValue();
-
+    
     // begin processing the request
     handler.processing();
 
+    Uint32 ID;
+    if (sscanf (keyBindings[0].getValue().getCString(), "%d", &ID) != 1)
+    {
+        throw CIMException (CIM_ERR_INVALID_PARAMETER);
+    }
+
     _instance = _buildInstance(className, numberOfProperties,
-                        sizeOfPropertyValue , CIMValue(Identifier));   
+                        sizeOfPropertyValue , CIMValue(ID));   
+
     handler.deliver(_instance);
 
     // complete processing the request
@@ -212,7 +188,8 @@ void benchmarkProvider::enumerateInstanceNames(
 
     for (Uint32 i = 1; i <= numberOfInstances; i++)
     {
-       _instanceName = _buildObjectPath(className, CIMValue(i)); 
+       _instanceName = _buildObjectPath(className, 
+               CIMKeyBinding(CIMName("Identifier"), CIMValue(i))); 
        handler.deliver(_instanceName);
     }
  

@@ -35,9 +35,10 @@
 PEGASUS_NAMESPACE_BEGIN
 
 CIMParamValueRep::CIMParamValueRep(
-    CIMParameter parameter,
-    CIMValue value)
-    : _parameter(parameter), _value(value)
+    String parameterName,
+    CIMValue value,
+    Boolean isTyped)
+    : _parameterName(parameterName), _value(value), _isTyped(isTyped)
 {
 }
 
@@ -56,12 +57,11 @@ CIMParamValueRep::~CIMParamValueRep()
 //------------------------------------------------------------------------------
 void CIMParamValueRep::toXml(Array<Sint8>& out) const
 {
-    out << "<PARAMVALUE NAME=\"" << _parameter.getName() << "\"";
+    out << "<PARAMVALUE NAME=\"" << _parameterName << "\"";
 
-    // ATTN-RK-P2-20010219: Should this type come from the Parameter or Value?
     CIMType type = _value.getType();
 
-    if (type != CIMType::NONE)
+    if (_isTyped && (type != CIMType::NONE))
     {
         out << " PARAMTYPE=\"" << TypeToString(type) << "\"";
     }
@@ -83,10 +83,13 @@ void CIMParamValueRep::print(PEGASUS_STD(ostream) &os) const
 
 Boolean CIMParamValueRep::identical(const CIMParamValueRep* x) const
 {
-    if (_parameter != x->_parameter)
+    if (_parameterName != x->_parameterName)
 	return false;
 
     if (_value != x->_value)
+	return false;
+
+    if (_isTyped != x->_isTyped)
 	return false;
 
     return true;
@@ -99,8 +102,9 @@ CIMParamValueRep::CIMParamValueRep()
 
 CIMParamValueRep::CIMParamValueRep(const CIMParamValueRep& x) :
     Sharable(),
-    _parameter(x._parameter),
-    _value(x._value)
+    _parameterName(x._parameterName),
+    _value(x._value),
+    _isTyped(x._isTyped)
 {
 }
 
@@ -112,14 +116,19 @@ CIMParamValueRep& CIMParamValueRep::operator=(const CIMParamValueRep& x)
     return *this; 
 }
 
-void CIMParamValueRep::setParameter(CIMParameter& parameter)
+void CIMParamValueRep::setParameterName(String& parameterName)
 { 
-    _parameter = parameter;
+    _parameterName = parameterName;
 }
 
 void CIMParamValueRep::setValue(CIMValue& value)
 { 
     _value = value;
+}
+
+void CIMParamValueRep::setIsTyped(Boolean isTyped)
+{ 
+    _isTyped = isTyped;
 }
 
 PEGASUS_NAMESPACE_END

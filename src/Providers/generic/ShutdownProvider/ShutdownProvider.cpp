@@ -105,7 +105,7 @@ public:
         // Get the input parameter values
         for (Uint32 i = 0; i < inParameters.size(); i++)
         {
-            String parmName = inParameters[i].getParameter().getName();
+            String parmName = inParameters[i].getParameterName();
             if (String::equalNoCase(parmName, "force"))
             {
                 //

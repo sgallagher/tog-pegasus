@@ -1200,14 +1200,10 @@ void CIMUserCommand::_ModifyUser
 	//
 	// Build the input params
 	//
-	inParams.append ( CIMParamValue (
-			     CIMParameter ( OLD_PASS_PARAM,
-					    CIMType::STRING ),
-                             CIMValue ( _password )));
-	inParams.append ( CIMParamValue (
-			     CIMParameter ( NEW_PASS_PARAM, 
-					    CIMType::STRING ),
-                             CIMValue ( _newpassword )));
+	inParams.append ( CIMParamValue ( OLD_PASS_PARAM,
+                                          CIMValue ( _password )));
+	inParams.append ( CIMParamValue ( NEW_PASS_PARAM, 
+                                          CIMValue ( _newpassword )));
 
         kb.setName("Username");
         kb.setValue(_userName);

@@ -58,12 +58,8 @@ int main(int argc, char** argv)
     {
 	Array<CIMParamValue> inParams;
 	Array<CIMParamValue> outParams;
-	inParams.append(CIMParamValue(
-	    CIMParameter("param1", CIMType::STRING), 
-	    CIMValue("Hewlett-Packard")));
-	inParams.append(CIMParamValue(
-	    CIMParameter("param2", CIMType::STRING), 
-	    CIMValue("California")));
+	inParams.append(CIMParamValue("param1", CIMValue("Hewlett-Packard")));
+	inParams.append(CIMParamValue("param2", CIMValue("California")));
 	
 	CIMValue retValue = client.invokeMethod(
 	    NAMESPACE, 

@@ -2321,7 +2321,7 @@ void CIMOperationRequestDispatcher::_fixInvokeMethodParameterTypes(
     Uint32 numInParamValues = inParameters.size();
     for (Uint32 i=0; i<numInParamValues; i++)
     {
-        if (inParameters[i].getParameter().getType() == CIMType::NONE)
+        if (!inParameters[i].isTyped())
         {
             //
             // Retrieve the method definition, if we haven't already done so
@@ -2361,7 +2361,7 @@ void CIMOperationRequestDispatcher::_fixInvokeMethodParameterTypes(
             //
             // Find the parameter definition for this input parameter
             //
-            String paramName = inParameters[i].getParameter().getName();
+            String paramName = inParameters[i].getParameterName();
             Uint32 numParams = method.getParameterCount();
             for (Uint32 j=0; j<numParams; j++)
             {
@@ -2391,10 +2391,7 @@ void CIMOperationRequestDispatcher::_fixInvokeMethodParameterTypes(
                             paramType);
                     }
 
-                    // Should already have correct IsArray, ArraySize values
-                    CIMParameter newParameter = inParameters[i].getParameter();
-                    newParameter.setType(paramType);
-                    inParameters[i] = CIMParamValue(newParameter, newValue);
+                    inParameters[i] = CIMParamValue(paramName, newValue, true);
                     break;
                 }
             }

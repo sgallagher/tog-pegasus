@@ -68,10 +68,11 @@ public:
     }
 
     CIMParamValue(
-	CIMParameter parameter,
-	CIMValue value)
+	String parameterName,
+	CIMValue value,
+	Boolean isTyped=true)
     {
-	_rep = new CIMParamValueRep(parameter, value);
+	_rep = new CIMParamValueRep(parameterName, value, isTyped);
     }
 
     ~CIMParamValue()
@@ -79,30 +80,40 @@ public:
 	Dec(_rep);
     }
 
-    // ATTN-RK-P3-20010219: Shouldn't have to clone this object on retrieval
-    CIMParameter getParameter() const 
+    String getParameterName() const 
     { 
 	_checkRep();
-	return _rep->getParameter();
+	return _rep->getParameterName();
     }
 
-    // ATTN-RK-P3-20010219: Shouldn't have to clone this object on retrieval
     CIMValue getValue() const 
     { 
 	_checkRep();
 	return _rep->getValue();
     }
 
-    void setParameter(CIMParameter& parameter)
+    Boolean isTyped() const 
     { 
 	_checkRep();
-	_rep->setParameter(parameter);
+	return _rep->isTyped();
+    }
+
+    void setParameterName(String& parameterName)
+    { 
+	_checkRep();
+	_rep->setParameterName(parameterName);
     }
 
     void setValue(CIMValue& value)
     { 
 	_checkRep();
 	_rep->setValue(value);
+    }
+
+    void setIsTyped(Boolean isTyped=true)
+    { 
+	_checkRep();
+	_rep->setIsTyped(isTyped);
     }
 
     operator int() const { return _rep != 0; }
@@ -190,10 +201,11 @@ public:
     // Throws IllegalName if name argument not legal CIM identifier.
 
     CIMConstParamValue(
-	CIMParameter parameter,
-	CIMValue value)
+	String parameterName,
+	CIMValue value,
+	Boolean isTyped=true)
     {
-	_rep = new CIMParamValueRep(parameter, value);
+	_rep = new CIMParamValueRep(parameterName, value, isTyped);
     }
 
     ~CIMConstParamValue()
@@ -201,11 +213,22 @@ public:
 	Dec(_rep);
     }
 
-    // ATTN-RK-P3-20010219: Shouldn't have to clone this object on retrieval
-    CIMParameter getParameter() const 
+    String getParameterName() const 
     { 
 	_checkRep();
-	return _rep->getParameter();
+	return _rep->getParameterName();
+    }
+
+    CIMValue getValue() const 
+    { 
+	_checkRep();
+	return _rep->getValue();
+    }
+
+    Boolean isTyped() const 
+    { 
+	_checkRep();
+	return _rep->isTyped();
     }
 
     operator int() const { return _rep != 0; }

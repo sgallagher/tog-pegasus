@@ -460,12 +460,8 @@ static void TestMethodOperations( CIMClient& client, Boolean
         
 	Array<CIMParamValue> inParams;
 	Array<CIMParamValue> outParams;
-	inParams.append(CIMParamValue(
-	    CIMParameter("param1", CIMType::STRING), 
-	    CIMValue("Hewlett-Packard")));
-	inParams.append(CIMParamValue(
-	    CIMParameter("param2", CIMType::STRING), 
-	    CIMValue("California")));
+	inParams.append(CIMParamValue("param1", CIMValue("Hewlett-Packard")));
+	inParams.append(CIMParamValue("param2", CIMValue("California")));
         Uint32 testRepeat = 100;
 	for (Uint32 i = 0; i < testRepeat; i++)        // repeat the test x time
         {
@@ -479,7 +475,7 @@ static void TestMethodOperations( CIMClient& client, Boolean
             {
                     cout << "Output : " << retValue.toString() << endl;
                     for (Uint8 i = 0; i < outParams.size(); i++)
-                        cout << outParams[i].getParameter().getName() 
+                        cout << outParams[i].getParameterName() 
                             << " : " 
                             << outParams[i].getValue().toString()
                             << endl;

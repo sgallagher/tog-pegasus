@@ -39,29 +39,24 @@ void test01()
     CIMParamValue pv;
     assert(!pv);
 
-    CIMParameter p1("message", CIMType::STRING);
-    p1.addQualifier(CIMQualifier("in", true));
+    String p1("message");
     CIMValue v1("argument_Test");
     CIMParamValue a1(p1, v1);
 
-    CIMParameter p2("message2", CIMType::STRING);
-    p2.addQualifier(CIMQualifier("in", true));
+    String p2("message2");
     CIMValue v2("argument_Test2");
     CIMParamValue a2(p2, v2);
 
-    CIMParameter p3("message3", CIMType::STRING);
-    p3.addQualifier(CIMQualifier("in", true));
+    String p3("message3");
     CIMValue v3("argument_Test3");
     CIMParamValue a3(p3, v3);
 
-    CIMParameter p4("message4", CIMType::STRING);
-    p4.addQualifier(CIMQualifier("in", true));
+    String p4("message4");
     CIMValue v4("argument_Test4");
     CIMParamValue a4(p4, v4);
     CIMParamValue a5 = a4;
 
-    CIMParameter p6("message6", CIMType::STRING);
-    p6.addQualifier(CIMQualifier("in", true));
+    String p6("message6");
     CIMValue v6("argument_Test6");
     CIMParamValue a6(p6, v6);
 
@@ -69,11 +64,9 @@ void test01()
     aa.append(a1);
     aa.append(a2);
 
-    aa.append(CIMParamValue(CIMParameter("message3", CIMType::UINT16), 
-		CIMValue(200000)));
+    aa.append(CIMParamValue("message3", CIMValue(200000)));
 
-    aa.append(CIMParamValue(CIMParameter("message4", CIMType::STRING), 
-		CIMValue("test4")));
+    aa.append(CIMParamValue("message4", CIMValue("test4")));
     
     //
     // clone

@@ -34,26 +34,24 @@
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Sharable.h>
-#include <Pegasus/Common/CIMParameter.h>
 #include <Pegasus/Common/CIMValue.h>
 
 PEGASUS_NAMESPACE_BEGIN
-
-class CIMConstParameter;
 
 class PEGASUS_COMMON_LINKAGE CIMParamValueRep : public Sharable
 {
 public:
 
     CIMParamValueRep(
-	CIMParameter parameter,
-	CIMValue value);
+	String parameterName,
+	CIMValue value,
+	Boolean isTyped=true);
 
     ~CIMParamValueRep();
 
-    const CIMParameter & getParameter() const 
+    const String & getParameterName() const 
     { 
-	return _parameter; 
+	return _parameterName; 
     }
 
     const CIMValue & getValue() const 
@@ -61,9 +59,16 @@ public:
 	return _value; 
     }
 
-    void setParameter(CIMParameter& parameter);
+    Boolean isTyped() const 
+    { 
+	return _isTyped; 
+    }
+
+    void setParameterName(String& parameterName);
 
     void setValue(CIMValue& value);
+
+    void setIsTyped(Boolean isTyped);
 
     void toXml(Array<Sint8>& out) const;
 
@@ -84,8 +89,9 @@ private:
 
     CIMParamValueRep& operator=(const CIMParamValueRep& x);
 
-    CIMParameter _parameter;
+    String _parameterName;
     CIMValue _value;
+    Boolean _isTyped;
 };
 
 PEGASUS_NAMESPACE_END

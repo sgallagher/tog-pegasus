@@ -134,6 +134,19 @@ will be deleted.
     to be returned as the correct type must use GetInstance (perhaps with
     a property list) rather than GetProperty.
 
+13. (Roger Kumpf - HP) 22 Feb 2002 - Reworked the CIMParamValue class.
+    Instead of being composed of a CIMParameter and a CIMValue, this
+    class is now composed of a String (parameter name) and a CIMValue.
+    This change removes the redundancy of having the type, isArray,
+    and arraySize members in both the CIMParameter and the CIMValue.
+    The new CIMParamValue definition is more consistent with the XML
+    encoding of parameter values.
+
+    An isTyped member was also added to CIMParamValue to support the
+    behavior outlined in item 12 above.  Clients should use the isTyped()
+    method to determine whether the output parameters returned from
+    InvokeMethod operations are of the correct type, or whether they
+    have defaulted to String type.
 
 -------------------------------------------------------------------
 Version 1.06 working towards 1.1 Started 13 December 2001

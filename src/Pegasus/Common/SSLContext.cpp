@@ -485,7 +485,7 @@ SSLContextRep::~SSLContextRep()
         {
             free_ssl();
         }
-        throw;
+        
     }
     PEG_METHOD_EXIT();
 }

@@ -74,7 +74,7 @@ OperatingSystemProvider::getInstance(const OperationContext& context,
     className = ref.getClassName();
     if (!String::equalNoCase(className, STANDARDOPERATINGSYSTEMCLASS) &&
         !String::equalNoCase(className, EXTENDEDOPERATINGSYSTEMCLASS))
-        throw NotSupported("Don't support that class");
+        throw NotSupported("OperatingSystemProvider Does not support class " + className);
 
     //-- make sure we're the right instance
     int keyCount;
@@ -181,7 +181,7 @@ OperatingSystemProvider::enumerateInstances(
     }
     else
     {
-        throw NotSupported("Don't support that class");
+        throw NotSupported("OperatingSystemProvider does not support class " + className);
     }
     return;
 }
@@ -201,7 +201,7 @@ OperatingSystemProvider::enumerateInstanceNames(
     className = ref.getClassName();
     if (!String::equalNoCase(className, EXTENDEDOPERATINGSYSTEMCLASS))
     {
-        throw NotSupported("Don't support that class");
+        throw NotSupported("OperatingSystemProvider does not support class " + className);
     }
 
     handler.processing();
@@ -223,7 +223,7 @@ OperatingSystemProvider::modifyInstance(
 			  	const CIMPropertyList& propertyList,
 			  	ResponseHandler<CIMInstance>& handler )
 {
-    throw NotSupported("Don't support modifyInstance");
+    throw NotSupported("OperatingSystemProvider does not support modifyInstance");
 }
 
 void
@@ -233,7 +233,7 @@ OperatingSystemProvider::createInstance(
 			  	const CIMInstance& instanceObject,
 			  	ResponseHandler<CIMReference>& handler )
 {
-    throw NotSupported("Don't support createInstance");
+    throw NotSupported("OperatingSystemProvider does not support createInstance");
 }
 
 void
@@ -242,7 +242,7 @@ OperatingSystemProvider::deleteInstance(
 			  	const CIMReference& ref,
 			  	ResponseHandler<CIMInstance>& handler )
 {
-    throw NotSupported("Don't support deleteInstance");
+    throw NotSupported("OperatingSystemProvider does not support deleteInstance");
 }
 
 void OperatingSystemProvider::initialize(CIMOMHandle& handle)
@@ -469,7 +469,7 @@ void OperatingSystemProvider::invokeMethod(
 				Array<CIMParamValue>& outParameters,
 				ResponseHandler<CIMValue>& handler)
 {
-    throw NotSupported("Don't support invokeMethod");
+    throw NotSupported("OperatingSystemProvider does not support invokeMethod");
 }
 
 PEGASUS_NAMESPACE_END

@@ -9,7 +9,9 @@ LOCAL_DEFINES = -DPEGASUS_COMMON_INTERNAL
 LIBRARY = pegcommon
 
 SOURCES = \
+    CIMMessage.cpp \
     Message.cpp \
+    MessageQueue.cpp \
     CIMObject.cpp \
     Array.cpp \
     Channel.cpp \

@@ -28,8 +28,115 @@
 
 #include "MessageQueue.h"
 
+PEGASUS_USING_STD;
+
 PEGASUS_NAMESPACE_BEGIN
 
+void MessageQueue::enqueue(Message* message)
+{
+    if (!message)
+	throw NullPointer();
 
+    if (_back)
+    {
+	_back->_next = message;
+	message->_prev = _back;
+	message->_next = 0;
+	_back = message;
+    }
+    else
+    {
+	_front = message;
+	_back = message;
+	message->_prev = 0;
+	message->_next = 0;
+    }
+    message->_owner = this;
+    _count++;
+}
+
+Message* MessageQueue::dequeue()
+{
+    if (_front)
+    {
+	Message* message = _front;
+	_front = _front->_next;
+	if (_front)
+	    _front->_prev = 0;
+
+	if (_back == message)
+	    _back = 0;
+	
+	message->_next = 0;
+	message->_prev = 0;
+	message->_owner = 0;
+	_count--;
+	return message;
+    }
+    return 0;
+}
+
+void MessageQueue::remove(Message* message)
+{
+    if (!message)
+	throw NullPointer();
+
+    if (message->_owner != this)
+	throw NoSuchMessageOnQueue();
+
+    if (message->_next)
+	message->_next->_prev = message->_prev;
+    else
+	_back = message->_prev;
+
+    if (message->_prev)
+	message->_prev->_next = message->_next;
+    else
+	_front = message->_next;
+
+    message->_prev = 0;
+    message->_next = 0;
+    message->_owner = 0;
+    _count--;
+}
+
+Message* MessageQueue::findByType(Uint32 type)
+{
+    for (Message* m = front(); m; m = m->getNext())
+    {
+	if (m->getType() == type)
+	    return m;
+    }
+
+    return 0;
+}
+
+Message* MessageQueue::findByKey(Uint32 key)
+{
+    for (Message* m = front(); m; m = m->getNext())
+    {
+	if (m->getKey() == key)
+	    return m;
+    }
+
+    return 0;
+}
+
+void MessageQueue::print(ostream& os) const
+{
+    for (const Message* m = front(); m; m = m->getNext())
+	m->print(os);
+}
+
+Message* MessageQueue::find(Uint32 type, Uint32 key)
+{
+    for (Message* m = front(); m; m = m->getNext())
+    {
+	if (m->getType() == type && m->getKey() == key)
+	    return m;
+    }
+
+    return 0;
+}
 
 PEGASUS_NAMESPACE_END

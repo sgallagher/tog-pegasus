@@ -26,35 +26,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "Message.h"
-
-PEGASUS_USING_STD;
+#include "CIMMessage.h"
 
 PEGASUS_NAMESPACE_BEGIN
-
-Uint32 Message::_nextKey = 0;
-
-Message::~Message() 
-{ 
-
-}
-
-void Message::print(ostream& os, Boolean printHeader) const
-{
-    if (printHeader)
-    {
-	os << "Message\n";
-	os << "{\n";
-    }
-
-    os << "    type: " << _type << endl;
-    os << "    key: " << _key << endl;
-
-    if (printHeader)
-    {
-	os << "}\n";
-	os << endl;
-    }
-}
 
 PEGASUS_NAMESPACE_END

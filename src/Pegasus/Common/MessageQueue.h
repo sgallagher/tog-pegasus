@@ -30,33 +30,120 @@
 #define Pegasus_MessageQueue_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Message.h>
+#include <Pegasus/Common/Exception.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class Message;
-
+/** The MessageQueue class represents a queue abstraction and is used by
+    modules to exchange messages. Methods are provided for enqueuing,
+    dequeuing, removing, iterating messages. Some methods are virtual and
+    may be overriden but subclasses to modify the behavior.
+*/
 class PEGASUS_COMMON_LINKAGE MessageQueue
 {
 public:
 
-    virtual void enqueue(Message* message) = 0;
+    /** Default constructor. */
 
-    virtual Message* dequeue() = 0;
+    MessageQueue() : _count(0), _front(0), _back(0) { }
 
-    virtual const Message* front() const = 0;
+    /** Enques a message (places it at the back of the queue).
+	@param message pointer to message to be enqueued.
+	@exception throws NullPointer exception if message parameter is null.
+    */
+    virtual void enqueue(Message* message);
 
-    virtual const Message* back() const = 0;
+    /** Dequeues a message (removes it from the front of the queue).
+	@return pointer to message or zero if queue is empty.
+    */
+    virtual Message* dequeue();
 
-    void remove(Message* message);
+    /** Removes the given message from the queue.
+	@param message to be removed.
+	@exception throws NullPointer if message parameter is null.
+	@exception throws NoSuchMessageOnQueue is message paramter is not
+	    on this queue.
+    */
+    virtual void remove(Message* message);
 
-    Boolean isEmpty() const;
+    /** Find the message with the given type.
+	@parameter type type of message to be found.
+	@return pointer to message if found; null otherwise.
+    */
+    Message* findByType(Uint32 type);
 
-    Uint32 countMessages() const;
+    /** Const version of findByType(). */
+    const Message* findByType(Uint32 type) const;
+
+    /** Find the message with the given key.
+	@parameter key key of message to be found.
+	@return pointer to message if found; null otherwise.
+    */
+    Message* findByKey(Uint32 key);
+
+    /** Const version of findByKey(). */
+    const Message* findByKey(Uint32 key) const;
+
+    /** Finds the messages with the given type and key.
+	@param type type of message to be found.
+	@param type key of message to be found.
+	@return pointer to message if found; null otherwise.
+    */
+    Message* find(Uint32 type, Uint32 key);
+
+    /** Const version of find(). */
+    const Message* find(Uint32 type, Uint32 key) const;
+
+    /** Returns pointer to front message. */
+    Message* front() { return _front; }
+
+    /** Const version of front(). */
+    const Message* front() const { return _front; }
+
+    /** Returns pointer to back message. */
+    Message* back() { return _back; }
+
+    /** Const version of back(). */
+    const Message* back() const { return _back; }
+
+    /** Returns true if there are no messages on the queue. */
+    Boolean isEmpty() const { return _front == 0; }
+
+    /** Returns the number of messages on the queue. */
+    Uint32 getCount() const { return _count; }
+
+    /** Prints the contents of this queue by calling the print() method
+	of each message.
+	@param os stream onto which the output is placed.
+    */
+    void print(PEGASUS_STD(ostream)& os) const;
 
 private:
-
+    Uint32 _count;
     Message* _front;
     Message* _back;
+};
+
+inline const Message* MessageQueue::findByType(Uint32 type) const
+{
+    return ((MessageQueue*)this)->findByType(type);
+}
+
+inline const Message* MessageQueue::findByKey(Uint32 key) const
+{
+    return ((MessageQueue*)this)->findByKey(key);
+}
+
+inline const Message* MessageQueue::find(Uint32 type, Uint32 key) const
+{
+    return ((MessageQueue*)this)->find(type, key);
+}
+
+class NoSuchMessageOnQueue : public Exception
+{
+public:
+    NoSuchMessageOnQueue() : Exception("No such message on this queue") { }
 };
 
 PEGASUS_NAMESPACE_END

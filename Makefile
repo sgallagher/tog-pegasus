@@ -31,3 +31,4 @@ world: depend all repository
 
 repository:
 	@ $(MAKE) -SC src/Pegasus/Compiler/load repository
+

@@ -90,8 +90,7 @@ ifndef PEGASUS_DISABLE_PERFINST
 DIRS += \
 	ControlProviders/Statistic \
 	ControlProviders/Statistic/test \
-	ControlProviders/InteropProvider \
-    	ControlProviders/InteropProvider/tests
+	ControlProviders/InteropProvider
 
 endif
 

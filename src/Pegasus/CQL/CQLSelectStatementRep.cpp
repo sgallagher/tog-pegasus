@@ -68,11 +68,13 @@ struct PropertyNode
 CQLSelectStatementRep::CQLSelectStatementRep()
   :SelectStatementRep()
 {
+	_hasWhereClause = false;
 }
 
 CQLSelectStatementRep::CQLSelectStatementRep(String& inQlang, String& inQuery, QueryContext* inCtx)
   :SelectStatementRep(inQlang, inQuery, inCtx)
 {
+	_hasWhereClause = false;
 }
 
 CQLSelectStatementRep::CQLSelectStatementRep(const CQLSelectStatementRep& rep)
@@ -81,6 +83,7 @@ CQLSelectStatementRep::CQLSelectStatementRep(const CQLSelectStatementRep& rep)
    _whereIdentifiers(rep._whereIdentifiers),
    _predicate(rep._predicate)
 {
+	_hasWhereClause = rep._hasWhereClause;
 }
 
 CQLSelectStatementRep::~CQLSelectStatementRep()

@@ -26,6 +26,7 @@
 // Modified By: Arthur Pichlkostner
 //             (checked in: Markus Mueller sedgewick_de@yahoo.de)
 //              Mary Hinton (m.hinton@verizon.net)
+//              Steve Hills (steve.hills@ncr.com)
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -72,7 +73,7 @@ typedef struct {
 
 typedef void *PEGASUS_CLEANUP_HANDLE;
 
-typedef DWORD PEGASUS_THREAD_RETURN;
+typedef unsigned PEGASUS_THREAD_RETURN;
 
 #define PTHREAD_MUTEX_TIMED_NP
 

@@ -24,7 +24,7 @@
 // Author: Mike Day (mdday@us.ibm.com)
 //
 // Modified By:
-//
+//              Steve Hills (steve.hills@ncr.com)
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/IPC.h>
@@ -48,17 +48,76 @@ Boolean die = false;
 
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL reading_thread(void *parm);
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL writing_thread(void *parm);
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test1_thread( void* parm );
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test2_thread( void* parm );
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test3_thread( void* parm );
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test4_thread( void* parm );
 
 
 AtomicInt read_count ;
 AtomicInt write_count ;
+AtomicInt testval1 = 0;
 
 int main(int argc, char **argv)
 {
+	int i;
+
+	{
+	// Test return code
+	Thread t( test1_thread, 0, false );
+	t.run();
+	t.join();
+	if( t.get_exit() != 32 )
+	{
+		cerr << "Error test return code" << endl;
+		return 1;
+	}
+	}
+
+	{
+	// There shouldn't be a memory leak here
+	Thread* threads[1000];
+	for( i = 0; i < 1000; i++ )
+	{
+		threads[i] = new Thread( test2_thread, 0, false );
+		threads[i]->put_tsd( "test1", thread_data::default_delete, 20000, new char[ 20000 ] );
+		threads[i]->run();
+	}
+	for( i = 0; i < 500; i++ )
+		threads[i]->join();
+	for( i = 0; i < 500; i++ )
+		delete threads[i];
+	// TODO: Programatically check
+	//pegasus_sleep( 10000 );
+	}
+
+	{
+	// Test proper canceling/thread exit
+	Thread t( test3_thread, 0, false );
+	t.run();
+	t.cancel();
+	t.join();
+	if( testval1.value() != 42 )
+	{
+		cerr << "Thread probably incorrectly terminated!" << endl;
+		return 1;
+	}
+	}
+
+	{
+	// Test deadlocked thread handling
+	Thread t( test4_thread, 0, false );
+	t.run();
+	t.cancel();
+	cout << "If this hangs here then there is a thread deadlock handling bug..." << endl;
+	t.join();
+	// Shouldn't hang forever
+	cout << "Deadlock test finished." << endl;
+	}
+
    ReadWriteSem *rw = new ReadWriteSem();
    Thread *readers[40];
    Thread *writers[10];
-   int i;
    
    for(i = 0; i < 40; i++)
    {
@@ -89,6 +148,7 @@ int main(int argc, char **argv)
    delete rw;
    cout << endl << "read operations: " << read_count.value() << endl;
    cout << "write operations: " << write_count.value() << endl;
+
    return(0);
 }
 
@@ -301,4 +361,43 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL writing_thread(void *parm)
 
    my_handle->exit_self((PEGASUS_THREAD_RETURN)1);
    return(0);
+}
+
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test1_thread( void* parm )
+{
+	pegasus_sleep( 1000 );
+	return( (PEGASUS_THREAD_RETURN)32 );
+}
+
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test2_thread( void* parm )
+{
+	Thread* thread = (Thread*)parm;
+	thread->exit_self( (PEGASUS_THREAD_RETURN)33 );
+	return( (PEGASUS_THREAD_RETURN)32 );
+}
+
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test3_thread( void* parm )
+{
+	Thread* thread = (Thread*)parm;
+	while( true )
+	{
+		testval1 = 0;
+		pegasus_sleep( 2000 );
+		testval1 = 42;
+		thread->test_cancel();
+	}
+	thread->exit_self( (PEGASUS_THREAD_RETURN)42 );
+	return( (PEGASUS_THREAD_RETURN)42 );
+}
+
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test4_thread( void* parm )
+{
+	Thread* thread = (Thread*)parm;
+	// Simulate a deadlocked thread
+	while( true )
+	{
+		pegasus_sleep( 2000 );
+	}
+	thread->exit_self( (PEGASUS_THREAD_RETURN)52 );
+	return( (PEGASUS_THREAD_RETURN)52 );
 }

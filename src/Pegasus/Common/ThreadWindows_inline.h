@@ -24,7 +24,7 @@
 // Author: Mike Day (mdday@us.ibm.com)
 //
 // Modified By:
-//
+//              Steve Hills (steve.hills@ncr.com)
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -33,73 +33,85 @@
 
 inline void Thread::run(void)
 {
-   _handle.thid = (PEGASUS_THREAD_TYPE)_beginthread( ((void (__cdecl *)(void *))(_start)), 
-						     0, 
-						     (void *)this) ;
+	// Note: A Win32 thread ID is not the same thing as a pthread ID.
+	// Win32 threads have both a thread ID and a handle.  The handle
+	// is used in the wait functions, etc.
+	// So _handle.thid is actually the thread handle.
+
+	unsigned threadid = 0;
+	_handle.thid = (PEGASUS_THREAD_TYPE)_beginthreadex( NULL, 0, _start, this, 0, &threadid );
+	if( _handle.thid == 0 )
+	{
+		// Throw?
+	}
 }
 
 inline void Thread::cancel(void)
 {
-  _cancelled = true;
-  TerminateThread(_handle.thid, 0);
+	_cancelled = true;
 }
 
 inline void Thread::test_cancel(void)
 {
-   if(_cancel_enabled == true)
-   {
-      if(_cancelled == true)
-      {
-	 exit_self(0);
-	 _endthread();
-	 _handle.thid = 0 ;
-	 
-      }
-   }
+	if( _cancel_enabled && _cancelled )
+	{
+		exit_self( 0 );
+	}
 }
 
 inline Boolean Thread::is_cancelled(void)
 {
-   return _cancelled;
+	return _cancelled;
 }
 
 inline void Thread::thread_switch(void)
 {
-   Sleep(0);
+	Sleep( 0 );
 }
 
-inline void Thread::sleep(Uint32 milliseconds)
+inline void Thread::sleep( Uint32 milliseconds )
 {
-  Sleep(milliseconds);
+	Sleep( milliseconds );
 }
 
 inline void Thread::join(void)
 {
-   if( (! _is_detached) && (_handle.thid != 0) && (false == is_cancelled()))
-   {
-      // emulate the unix join api. caller sleeps until 
-      // thread is done.
-      DWORD exit_code = 0;
-      do 
-      {
-	 GetExitCodeThread(_handle.thid, &exit_code);
-	 Sleep(0);
-      }
-      while( exit_code == STILL_ACTIVE);
-   }
-   _handle.thid = 0;
+	if( _handle.thid != 0 )
+	{
+		if( !_is_detached )
+		{
+			if( !_cancelled )
+			{
+				// Emulate the unix join api. Caller sleeps until thread is done.
+				WaitForSingleObject( _handle.thid, INFINITE );
+			}
+			else
+			{
+				// Currently this is the only way to ensure this code does not 
+				// hang forever.
+				WaitForSingleObject( _handle.thid, 10000 );
+				std::cerr << "Thread::join(): Terminating a thread: handle = " << _handle.thid << std::endl;
+				TerminateThread( _handle.thid, 0 );
+			}
+
+			DWORD exit_code = 0;
+			GetExitCodeThread( _handle.thid, &exit_code );
+			_exit_code = (PEGASUS_THREAD_RETURN)exit_code;
+		}
+
+		CloseHandle( _handle.thid );
+		_handle.thid = 0;
+	}
 }
 
 inline void Thread::thread_init(void)
 {
-   ;
-   
+	_cancel_enabled = true;
 }
 
 inline void Thread::detach(void)
 {
-   _is_detached = true;
+	_is_detached = true;
 }
-
 
 #endif // ThreadWindows_inline_h

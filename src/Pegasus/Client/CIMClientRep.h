@@ -55,6 +55,7 @@
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/TimeValue.h>
+#include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Client/CIMClientException.h>
 #include <Pegasus/Client/Linkage.h>
 #include <Pegasus/Client/CIMClientInterface.h>
@@ -320,7 +321,7 @@ private:
     ClientAuthenticator _authenticator;
     String _connectHost;
     Uint32 _connectPortNumber;
-    SSLContext* _connectSSLContext;
+    AutoPtr<SSLContext> _connectSSLContext;
 
     // l10n
     AcceptLanguages requestAcceptLanguages;

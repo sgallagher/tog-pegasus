@@ -160,7 +160,7 @@ void CIMClientRep::_connect()
         #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
         _httpConnection = _httpConnector->connect(_connectHost,
                                                   _connectPortNumber,
-                                                  _connectSSLContext,
+                                                  _connectSSLContext.get(),
                                                   _responseDecoder);
         #else
         _httpConnection = _httpConnector->connect(_connectHost,
@@ -229,12 +229,6 @@ void CIMClientRep::_disconnect()
             _requestEncoder = 0;
         }
 
-        if (_connectSSLContext)
-        {
-            delete _connectSSLContext;
-            _connectSSLContext = 0;
-        }
-
         _connected = false;
     }
 }
@@ -283,7 +277,7 @@ void CIMClientRep::connect(
         _authenticator.setPassword(password);
     }
 
-    _connectSSLContext = 0;
+    _connectSSLContext.reset(0);
     _connectHost = hostName;
     _connectPortNumber = portNumber;
 
@@ -329,7 +323,7 @@ void CIMClientRep::connect(
         _authenticator.setPassword(password);
     }
 
-    _connectSSLContext = new SSLContext(sslContext);
+    _connectSSLContext.reset(new SSLContext(sslContext));
     _connectHost = hostName;
     _connectPortNumber = portNumber;
 
@@ -340,8 +334,7 @@ void CIMClientRep::connect(
     }
     catch (Exception&)
     {
-        delete _connectSSLContext;
-        _connectSSLContext = 0;
+        _connectSSLContext.reset(0);
         throw;
     }
 }
@@ -378,7 +371,7 @@ void CIMClientRep::connectLocal()
         //
         _connectHost.assign(_getLocalHostName());
 
-        _connectSSLContext = 0;
+        _connectSSLContext.reset(0);
 
         _connect();
     }
@@ -421,8 +414,8 @@ void CIMClientRep::connectLocal()
 
         try
         {
-            _connectSSLContext =
-                new SSLContext(String::EMPTY, NULL, randFile);
+            _connectSSLContext.reset(
+                new SSLContext(String::EMPTY, NULL, randFile));
         }
         catch (SSLException &se)
         {
@@ -435,8 +428,7 @@ void CIMClientRep::connectLocal()
         }
         catch (Exception&)
         {
-            delete _connectSSLContext;
-            _connectSSLContext = 0;
+            _connectSSLContext.reset();
             throw;
         }
     }
@@ -448,6 +440,7 @@ void CIMClientRep::disconnect()
 {
     _disconnect();
     _authenticator.clear();
+    _connectSSLContext.reset();
 }
 
 

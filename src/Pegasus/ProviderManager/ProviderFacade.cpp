@@ -26,6 +26,8 @@
 // Modified By: Markus Mueller (sedgewick_de@yahoo.de)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+//              Sushma Fernandes, Hewlett-Packard Company 
+//                  (sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -427,6 +429,14 @@ void ProviderFacade::getProperty(
         if(pos != PEG_NOT_FOUND)
         {
             handler.deliver(instance.getProperty(pos).getValue());
+        }
+        // Property not found. Return CIM_ERR_NO_SUCH_PROPERTY.
+        else
+        {
+            handler.complete();
+            throw PEGASUS_CIM_EXCEPTION(
+                    CIM_ERR_NO_SUCH_PROPERTY, 
+                    propertyName.getString());
         }
     }
 

@@ -377,13 +377,33 @@ void HTTPConnection::_handleReadEvent()
 #endif
 
     Sint32 bytesRead = 0;
+    Boolean incompleteSecureReadOccurred = false;
     for (;;)
     {
 	char buffer[4096];
         Sint32 n = _socket->read(buffer, sizeof(buffer));
 
 	if (n <= 0)
+	{
+	    if (_socket->isSecure() && bytesRead == 0)
+            {
+	       // It is possible that SSL_read was not able to 
+	       // read the entire SSL record.  This could happen
+	       // if the record was send in multiple packets
+	       // over the network and only some of the packets
+	       // are available.  Since SSL requires the entire
+	       // record to successfully decrypt, the SSL_read
+	       // operation will return "0 bytes" read.
+	       // Once all the bytes of the SSL record have been read,
+	       // SSL_read will return the entire record.
+	       // The following test was added to allow
+	       // handleReadEvent to distinguish between a 
+	       // disconnect and partial read of an SSL record.
+	       //
+               incompleteSecureReadOccurred = !_socket->incompleteReadOccurred(n);
+            }
 	    break;
+	}
 
 	_incomingBuffer.append(buffer, n);
 	bytesRead += n;
@@ -401,7 +421,7 @@ void HTTPConnection::_handleReadEvent()
     // -- HTTP header and then there are those messages which have no bodies
     // -- at all).
 
-    if (bytesRead == 0 || 
+    if ((bytesRead == 0 && !incompleteSecureReadOccurred) ||  
 	_contentLength != -1 && 
 	(Sint32(_incomingBuffer.size()) >= _contentLength + _contentOffset))
     {

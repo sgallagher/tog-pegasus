@@ -95,35 +95,25 @@ SSLSocket::~SSLSocket()
     PEG_METHOD_EXIT();
 }
 
+Boolean SSLSocket::incompleteReadOccurred(Sint32 retCode)
+{
+    retCode = SSL_get_error(_SSLConnection, retCode);
+
+    Tracer::trace(TRC_SSL, Tracer::LEVEL4,
+        "SSLSocket::incompleteReadOccurred : retCode = %d", retCode);
+
+    return(!(retCode == SSL_ERROR_WANT_READ ||
+             retCode == SSL_ERROR_WANT_WRITE));
+}
+
 Sint32 SSLSocket::read(void* ptr, Uint32 size)
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLSocket::read()");
-
-    #define MAX_READ_RETRIES 5
-    #define SLEEP_TIME_TO_RETRY 10
-
     Sint32 rc;
-    Uint32 retryCount = 0;
 
     PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "---> SSL: (r) ");
     PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, SSL_state_string_long(_SSLConnection) );
-
-    while (retryCount++ < MAX_READ_RETRIES)
-    {
-	rc = SSL_read(_SSLConnection, (char *)ptr, size);
-	if (rc > 0) return rc;
-	switch (SSL_get_error (_SSLConnection, rc))
-	{
-           case SSL_ERROR_ZERO_RETURN:
-	      return 0;
-	      break;
-	   case SSL_ERROR_WANT_READ:
-	      pegasus_sleep(SLEEP_TIME_TO_RETRY);
-	      break;
-	   default:
-	      return rc;
-	}
-    }
+    rc = SSL_read(_SSLConnection, (char *)ptr, size);
 
     PEG_METHOD_EXIT();
     return rc;
@@ -351,6 +341,13 @@ MP_Socket::~MP_Socket()
    
 Boolean MP_Socket::isSecure() {return _isSecure;}
 
+Boolean MP_Socket::incompleteReadOccurred(Sint32 retCode)
+{
+    if (_isSecure)
+        return(_sslsock->incompleteReadOccurred(retCode));
+    return (retCode <=  0);
+}
+
 Sint32 MP_Socket::getSocket()
 {
     if (_isSecure)
@@ -430,6 +427,11 @@ MP_Socket::MP_Socket(Uint32 socket, SSLContext * sslcontext)
 MP_Socket::~MP_Socket() {}
 
 Boolean MP_Socket::isSecure() {return _isSecure;}
+
+Boolean MP_Socket::incompleteReadOccurred(Sint32 retCode) 
+{
+   return (retCode <= 0);
+}
 
 Sint32 MP_Socket::getSocket()
 {

@@ -61,6 +61,8 @@ public:
 
     ~SSLSocket();
 
+    Boolean incompleteReadOccurred(Sint32 retCode);
+
     Sint32 read(void* ptr, Uint32 size);
 
     Sint32 write(const void* ptr, Uint32 size);
@@ -112,6 +114,8 @@ public:
     ~MP_Socket();
 
     Boolean isSecure();
+
+    Boolean incompleteReadOccurred(Sint32 retCode);
 
     Sint32 getSocket();
 

@@ -540,7 +540,15 @@ int getInstance(CIMClient& client, Options& opts)
 
     if (opts.time) {opts.saveElapsedTime = opts.elapsedTime.getElapsed();}
     // Check Output Format to print results
-    OutputFormatInstance(opts.outputType, cimInstance);
+	if (opts.summary)
+    {
+		if (opts.time)
+		{
+			cout << opts.saveElapsedTime << endl;
+		}
+	}
+	else
+		OutputFormatInstance(opts.outputType, cimInstance);
     return 0;
 }
 

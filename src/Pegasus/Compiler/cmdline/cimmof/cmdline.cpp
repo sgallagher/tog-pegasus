@@ -89,13 +89,16 @@ cimmofl_warning(ostream &os) {
 #endif
 
 ostream & 
-help(ostream &os, char* progname) {
+help(ostream &os, int progtype) {
 	
 //l10n menu
   //PEP167 change
   String help;
 #ifdef PEGASUS_OS_HPUX
-  help.append("Usage: ").append(progname);
+  if(progtype == 1)
+      help.append("Usage: ").append("cimmofl");
+  else
+      help.append("Usage: ").append("cimmof");
   help.append(" [ -h ] [ --help ] [ --version ] [ -w ] [ -uc ] [ -aE | -aV | -aEV ] [ -I path ] [ -n namespace ] [ --namespace namespace ] <mof_file1 mof_file2...>\n");
   help.append("Options : \n");  
   help.append( "    -aE          - Allow Experimental Schema changes\n");
@@ -108,27 +111,30 @@ help(ostream &os, char* progname) {
   help.append( "    --version    - Display CIM Server version\n");
   help.append( "    -w           - Suppress warning messages \n");
 #else
-  help.append("Usage: ").append(progname);
+  if(progtype == 1)
+      help.append("Usage: ").append("cimmofl");
+  else
+      help.append("Usage: ").append("cimmof");
   help.append( " [ -h ] [ --help ] [ --version ] [ -E ] [ -w ]\n");
-  if(String::equalNoCase(progname,"cimmofl"))
+  if(progtype == 1)
       help.append(" "); //Display alignment, if cimmofl is used
   help.append("              [ -uc ] [ -aE | -aV | -aEV ]\n");
-  if(String::equalNoCase(progname,"cimmofl"))
+  if(progtype == 1)
       help.append(" "); //Display alignment, if cimmofl is used
   help.append( "              [ -I path ] [ -n namespace ] [ --namespace namespace ]\n");
-  if(String::equalNoCase(progname,"cimmofl"))
+  if(progtype == 1)
       help.append(" "); //Display alignment, if cimmofl is used
   help.append("              [ --xml ] [ --trace ]");
 #ifdef PEGASUS_OS_OS400
   help.append(" [ -q ] ");
 #endif
-  if(String::equalNoCase(progname,"cimmofl"))
+  if(progtype == 1)
   {
       help.append("\n               [ -R repository ] [ --CIMRepository repository ] ");
   }
 
   help.append("\n");
-  if(String::equalNoCase(progname,"cimmofl"))
+  if(progtype == 1)
       help.append(" "); //Display alignment, if cimmofl is used
   help.append("              <mof_file1 mof_file2...>\n");
   help.append("Options : \n");  
@@ -136,7 +142,7 @@ help(ostream &os, char* progname) {
   help.append( "    -aEV            - Allow both Experimental and Version Schema changes\n");
   help.append( "    -aV             - Allow both Major and Down Revision Schema changes\n");
   // PEP167 - '--CIMRepository' disabled for cimmof ONLY.
-  if(String::equalNoCase(progname,"cimmofl"))
+  if(progtype == 1)
       help.append( "    --CIMRepository - Specify the repository path\n");
   help.append( "    -E              - Syntax check only\n");
   help.append( "    -h, --help      - Display this help message\n");
@@ -147,7 +153,7 @@ help(ostream &os, char* progname) {
   help.append( "    -q              - Suppress all messages except command line usage errors\n");
 #endif
   // PEP167 - '-R' disabled for cimmof ONLY.
-  if(String::equalNoCase(progname,"cimmofl"))
+  if(progtype == 1)
       help.append( "    -R              - Specify the repository path\n");
   //PEP167 - Remove and disable 'f' and 'file' options. No longer required
   //help.append( "  -ffile -- specify file containing a list of MOFs to compile.\n");
@@ -159,7 +165,7 @@ help(ostream &os, char* progname) {
   help.append( "    --xml           - Output XML only, to stdout. Do not update repository\n");
 #endif
 
-  if(String::equalNoCase(progname,"cimmofl"))
+  if(progtype == 1)
   {
       help.append("\n\nWarning: Use of cimmofl can corrupt the CIM Server Repository.\n");
       help.append("         cimmofl should only be used under very controlled situations.\n");
@@ -235,15 +241,16 @@ static struct optspec optspecs[] =
 
 //PEP167 change - 2nd argument char* added
 static void
-setCmdLineOpts(getoopt &cmdline, char* progname) {
+setCmdLineOpts(getoopt &cmdline, int progtype) {
   for (unsigned int i = 0; ; i++) {
     const optspec &o = optspecs[i];
     //PEP167 change
-    if(String::equalNoCase(progname,"cimmofl") && o.catagory == OPTEND_CIMMOF) continue;
-    else if(String::equalNoCase(progname,"cimmofl") && o.catagory == OPTEND_CIMMOFL) break;
-    else if(String::equalNoCase(progname,"cimmof") && o.catagory == OPTEND_CIMMOF) break;
-
-    if (o.flag == "")
+    if(progtype == 1 && o.catagory == OPTEND_CIMMOF) continue;
+    else if(progtype == 1 && o.catagory == OPTEND_CIMMOFL) break;
+    else if(progtype == 0 && o.catagory == OPTEND_CIMMOF) break;
+    
+    //if (o.flag == "") Bug#2314 - Incorrect comparison
+    if ((o.flag != 0) && (o.flag[0] == '\0'))
       continue;
     if (o.islong)
       cmdline.addLongFlagspec(o.flag, (getoopt::argtype)o.needsvalue);
@@ -255,18 +262,18 @@ setCmdLineOpts(getoopt &cmdline, char* progname) {
 
 //PEP167 change - 2nd argument char* added
 static opttypes
-catagorize(const Optarg &arg, char* progname) {
+catagorize(const Optarg &arg, int progtype) {
   
   for (unsigned int i = 0; ; i++) {
     const optspec &o = optspecs[i];
     //PEP167 change
-    if(String::equalNoCase(progname,"cimmofl") && o.catagory == OPTEND_CIMMOF) continue;
-    else if(String::equalNoCase(progname,"cimmofl") && o.catagory == OPTEND_CIMMOFL) break;
-    else if(String::equalNoCase(progname,"cimmof") && o.catagory == OPTEND_CIMMOF) break;
+    if(progtype == 1 && o.catagory == OPTEND_CIMMOF) continue;
+    else if(progtype == 1 && o.catagory == OPTEND_CIMMOFL) break;
+    else if(progtype == 0 && o.catagory == OPTEND_CIMMOF) break;
     if (arg.getName() == o.flag)
       return o.catagory;
   }
-  if(String::equalNoCase(progname,"cimmof"))
+  if(progtype == 0)
       return OPTEND_CIMMOF;
   else 
       return OPTEND_CIMMOFL;
@@ -365,7 +372,7 @@ int
 processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
 	       ostream &helpos = cerr) {
   getoopt cmdline;
-  setCmdLineOpts(cmdline, argv[0]);
+  setCmdLineOpts(cmdline, getType(argv[0]));
   cmdline.parse(argc, argv);
   switch (getType(argv[0])) {
   case 1: cmdlinedata.set_is_local();
@@ -409,14 +416,15 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
   }
   for (unsigned int i = cmdline.first(); i < cmdline.last(); i++) {
     const Optarg &arg = cmdline[i];
-    opttypes c = catagorize(arg, argv[0]);
+    opttypes c = catagorize(arg, getType(argv[0]));
     switch (c)
       {
       case VERSIONFLAG:  
           cerr << "Version " << PEGASUS_VERSION << endl;
           return(-1);
           break;
-      case HELPFLAG:  help(helpos, argv[0]);
+      case HELPFLAG:  
+          help(helpos, getType(argv[0]));
 	return(-1);
         break;
       case INCLUDEPATH:cmdlinedata.add_include_path(arg.optarg());

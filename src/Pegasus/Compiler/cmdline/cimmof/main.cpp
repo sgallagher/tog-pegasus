@@ -67,7 +67,7 @@ static mofCompilerOptions cmdline;
 
 extern "C++" int processCmdLine(int, char **, mofCompilerOptions &, ostream &);
 
-extern "C++" ostream& help(ostream& os, char* progname);
+extern "C++" ostream& help(ostream& os, int progtype);
 
 #ifndef DISABLE_CIMMOFL_WARNING 
 extern "C++" ostream& cimmofl_warning(ostream& os);

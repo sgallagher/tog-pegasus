@@ -360,8 +360,7 @@ static CIMDateTime time_t_to_CIMDateTime(time_t *time_to_represent)
    if (strftime(date_ascii_rep, CIM_DATE_TIME_ASCII_LEN,
                 "%Y%m%d%H%M%S.000000", &broken_time))
    {
-#if defined (PEGASUS_PLATFORM_LINUX_IX86_GNU) ||  \
-    defined (PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+#if defined (PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
       //-- the following makes use of a GNU extension
       snprintf(utc_offset, 20, "%+03ld", broken_time.tm_gmtoff / 60);
 #else
@@ -433,8 +432,6 @@ Boolean OperatingSystem::getLocalDateTime(CIMDateTime& localDateTime)
 /**
    getCurrentTimeZone method for Linux implementation of OS Provider
 
-   gets timezone from gmt offset (only if #define
-   PEGASUS_PLATFORM_LINUX_IX86_GNU) - why?
   */
 
 Boolean OperatingSystem::getCurrentTimeZone(Sint16& currentTimeZone)
@@ -444,7 +441,7 @@ Boolean OperatingSystem::getCurrentTimeZone(Sint16& currentTimeZone)
 
 // check vs. HP-UX implementation - can't use the same?
 
-#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
    now = time(NULL);
    localtime_r(&now, &buf);
    currentTimeZone = (buf.tm_gmtoff / 60);
@@ -512,7 +509,7 @@ Boolean OperatingSystem::getNumberOfProcesses(Uint32& numberOfProcesses)
       {
          while (readdir_r(procdir, &entry, &result) == 0 && result != NULL)
          {
-#if defined (PEGASUS_PLATFORM_LINUX_IX86_GNU)
+#if defined (PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
             if (entry.d_type != DT_DIR)
                continue;
 #endif

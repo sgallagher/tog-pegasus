@@ -83,27 +83,27 @@ static const char GETOPT_ARGUMENT_DESIGNATOR   = ':';
 /**
     This constant signifies that an operation option has not been recorded
 */
-static const int OPERATION_TYPE_UNINITIALIZED  = 0;
+static const Uint32 OPERATION_TYPE_UNINITIALIZED  = 0;
 
 /**
     This constant represents a add user operation
 */
-static const int OPERATION_TYPE_ADD            = 1;
+static const Uint32 OPERATION_TYPE_ADD            = 1;
 
 /**
     This constant represents a add user operation
 */
-static const int OPERATION_TYPE_MODIFY         = 2;
+static const Uint32 OPERATION_TYPE_MODIFY         = 2;
 
 /**
     This constant represents a remove user operation
 */
-static const int OPERATION_TYPE_REMOVE         = 3;
+static const Uint32 OPERATION_TYPE_REMOVE         = 3;
 
 /**
     This constant represents a list operation
 */
-static const int OPERATION_TYPE_LIST           = 4;
+static const Uint32 OPERATION_TYPE_LIST           = 4;
 
 /**
     The constant representing the default namespace

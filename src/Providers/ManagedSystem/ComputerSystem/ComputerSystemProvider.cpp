@@ -82,7 +82,7 @@ void ComputerSystemProvider::getInstance(
     Array<KeyBinding> keys = ref.getKeyBindings();
 
     //-- make sure we're the right instance
-    int keyCount = 2;
+    unsigned int keyCount = 2;
     String keyName;
     String keyValue;
 

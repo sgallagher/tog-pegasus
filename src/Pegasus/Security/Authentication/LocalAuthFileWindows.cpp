@@ -39,8 +39,8 @@ PEGASUS_NAMESPACE_BEGIN
 
 LocalAuthFile::LocalAuthFile(const String& userName)
     : _userName(userName),
-      _challenge(String::EMPTY),
-      _filePathName(String::EMPTY)
+      _filePathName(String::EMPTY),
+      _challenge(String::EMPTY)
 {
 
 }

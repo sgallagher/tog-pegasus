@@ -74,8 +74,8 @@ static Uint32 sequenceCount  =  212;
 
 LocalAuthFile::LocalAuthFile(const String& userName)
     : _userName(userName),
-      _challenge(String::EMPTY),
-      _filePathName(String::EMPTY)
+      _filePathName(String::EMPTY),
+      _challenge(String::EMPTY)
 {
     PEG_METHOD_ENTER(TRC_AUTHENTICATION, "LocalAuthFile::LocalAuthFile()");
 
@@ -218,7 +218,7 @@ Boolean LocalAuthFile::_changeFileOwner(const String& fileName)
     
     ArrayDestroyer<char> pFileName(fileName.allocateCString());
 
-    Uint32 ret = chown(pFileName.getPointer(), userPasswd->pw_uid, userPasswd->pw_gid);
+    Sint32 ret = chown(pFileName.getPointer(), userPasswd->pw_uid, userPasswd->pw_gid);
     if ( ret == -1)
     {
         PEG_METHOD_EXIT();

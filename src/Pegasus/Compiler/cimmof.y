@@ -66,7 +66,8 @@ extern void cimmof_yy_less(int n);
 /* ------------------------------------------------------------------- */
   Uint32 g_flavor = CIMFlavor::NONE;
   Uint32 g_scope = 0;
-  qualifierList g_qualifierList(10);  /* FIXME */
+  //ATTN: BB 2001 BB P1 - Fixed size qualifier list max 10. Make larger or var
+  qualifierList g_qualifierList(10);
   CIMMethod *g_currentMethod = 0;
   CIMClass *g_currentClass = 0;
   CIMInstance *g_currentInstance = 0;
@@ -222,7 +223,7 @@ mofSpec: mofProductions
 
 mofProductions: mofProduction mofProductions
               | /* empty */ ;
-
+// ATTN: P1 KS Apr 2002 Limit in (none) Directive handling. See FIXME below.
 mofProduction: compilerDirective { /* FIXME: Where do we put directives? */ }
              | qualifierDeclaration 
                  { cimmofParser::Instance()->addQualifier($1); delete $1; }
@@ -341,7 +342,7 @@ parameters : parameter
            | /* empty */ ;
 
 parameter: qualifierList parameterType parameterName array 
-{ // FIXME:  Need to create default value including type?
+{ // ATTN: P2 2002 Question Need to create default value including type?
   CIMParameter *p = 0;
   cimmofParser *cp = cimmofParser::Instance();
   if ($4 == -1) {
@@ -531,7 +532,7 @@ valueInitializer: qualifierList TOK_SIMPLE_IDENTIFIER array TOK_EQUAL
                   initializer TOK_SEMICOLON 
 {
   cimmofParser *cp = cimmofParser::Instance();
-  // FIXME:  This still doesn't work because there is no way to update 
+  // ATTN: P1 InstnaceUpdate function 2001 BB  Instnace update needs work here and CIMOM 
   // a property.  It must be fixed in the Common code first.
   // What we have to do here is create a CIMProperty  and initialize it with
   // the value provided.  The name of the property is $2 and it belongs
@@ -605,10 +606,11 @@ scope_begin: TOK_COMMA TOK_SCOPE TOK_LEFTPAREN { g_scope = CIMScope::NONE; } ;
 metaElements: metaElement { $$ = $1; }
             | metaElements TOK_COMMA metaElement
 	                  { $$ |= $3; } ;
+// ATTN:  2001 P3 defer There is not CIMScope::SCHEMA. Spec Limit KS
 
 metaElement: TOK_CLASS       { $$ = CIMScope::CLASS;        }
 //           | TOK_SCHEMA      { $$ = CIMScope::SCHEMA;       }
-           | TOK_SCHEMA        { $$ = CIMScope::CLASS; } // FIXME: There is not CIMScope::SCHEMA
+           | TOK_SCHEMA        { $$ = CIMScope::CLASS; }
            | TOK_ASSOCIATION { $$ = CIMScope::ASSOCIATION;  }
            | TOK_INDICATION  { $$ = CIMScope::INDICATION;   }
 //           | TOK_QUALIFIER   { $$ = CIMScope::QUALIFIER; }

@@ -165,7 +165,7 @@ cimmofParser::setOperationType(compilerCommonDefs::operationType ot)
 {
   _ot = ot;
   if (_ot == compilerCommonDefs::USE_REPOSITORY && !_repository.ok()) {
-    // FIXME:  throw an exception
+    // ATTN: P2  throw an exception on bad commonDef. Just goes away now
   }
 }
 
@@ -262,7 +262,7 @@ cimmofParser::enterInlineInclude(const String &filename) {
   if (f) {
      ret = enterInlineInclude((const FILE *)f);
   } else {
-    // FIXME:  need to throw an exception 
+    // ATTN:  need to throw an exception when include file not found. error only
     cerr << "Could not open include file " << fqname << endl;
   }
   return ret;
@@ -357,8 +357,8 @@ cimmofParser::log_parse_error(char *token, char *errmsg) const {
 // -----------------------------------------------------------------
 // Convert a String representing an octal integer to a String        
 // representing the corresponding decimal integer                    
-// FIXME:  Need to support 64-bit integers
-// FIXME:  Needs to support non-ascii strings
+// ATTN: P1 BB 2001 Need to support 64-bit integers in String transformation
+// ATTN: P1 BB 2001 Needs to support non-ascii strings (UTF-8)
 // ------------------------------------------------------------------
 char *
 cimmofParser::oct_to_dec(const String &octrep) const {
@@ -383,8 +383,8 @@ cimmofParser::oct_to_dec(const String &octrep) const {
 // ----------------------------------------------------------------- 
 // Convert a String representing a hexadecimal integer to a String   
 // representing the corresponding decimal integer                    
-// FIXME:  Need to support 64-bit integers
-// FIXME:  Needs to support non-ascii strings
+// ATTN: 2001 P1 BB Need to support 64-bit integers in string conversion
+// ATTN: 2001 P1 BB  Needs to support non-ascii strings in string conversion
 // ------------------------------------------------------------------
 char *
 cimmofParser::hex_to_dec(const String &hexrep) const {
@@ -430,7 +430,7 @@ cimmofParser::hex_to_dec(const String &hexrep) const {
 // ----------------------------------------------------------------- 
 // Convert a String representing a binary integer to a String        
 // representing the corresponding decimal integer                    
-// FIXME:  Need to support 64-bit integers
+// ATTN: P1 BB 2001 Need to support 64-bit integers in string conversion
 // ------------------------------------------------------------------
 char *
 cimmofParser::binary_to_dec(const String &binrep) const {
@@ -463,7 +463,8 @@ cimmofParser::processPragma(const String &name, const String &value) {
   // source
   // sourcetype
 
-  // FIXME:  We have to be able to do something about the namespaces
+  // ATTN: P1 BB 2001 Des not process several Pragmas
+  // instancelocale, locale, namespace, nonlocal, nonlocaltype, source, etc.
   // at least.
 }
 
@@ -504,7 +505,7 @@ cimmofParser::addClass(CIMClass *classdecl)
   try {
    _repository.addClass(getNamespacePath(), *classdecl);
   } catch(AlreadyExists) {
-    //FIXME:  We should be able to modify the class through the compiler
+    //ATTN: P1 2001 BB  We should be able to modify the class through the compiler
     cimmofMessages::getMessage(message, cimmofMessages::CLASS_EXISTS_WARNING,
 			       arglist);
     wlog(message);
@@ -601,7 +602,7 @@ cimmofParser::addInstance(CIMInstance *instance)
   } catch (CIMException &e) {
     arglist.append(e.getMessage());
     if (e.getCode() == CIM_ERR_ALREADY_EXISTS) {
-      // FIXME:  We should be able to modify the instance through the compiler
+      // ATTN: P1 BB 2001  We should be able to modify the instance through the compiler
       cimmofMessages::getMessage(message,
 			       cimmofMessages::INSTANCE_EXISTS_WARNING,
 			       arglist);
@@ -708,7 +709,7 @@ cimmofParser::addQualifier(CIMQualifierDecl *qualifier)
       maybeThrowParseError(message);
     }
   } catch(Exception e) {
-    // FIXME:  at the time of writing, the Common code does not throw
+    // ATTN:2001 P1 BB  at the time of writing, the Common code does not throw
     // an CIM_ERR_ALREADY_EXISTS CIMException.  It might at any time.
     arglist.append(e.getMessage());
     cimmofMessages::getMessage(message, cimmofMessages::ADD_QUALIFIER_ERROR,
@@ -857,7 +858,7 @@ cimmofParser::applyProperty(CIMInstance &i, CIMProperty &p)
     if (pos == (Uint32)-1) {
       i.addProperty(p);   // Add the property
     } else {
-      // FIXME:  There doesn't seem to be a way to change a property value
+      // ATTN: 2001 There doesn't seem to be a way to change a property value
       // yet.
     }
   } catch (CIMException &e) {
@@ -1055,7 +1056,7 @@ cimmofParser::PropertyFromInstance(CIMInstance &instance,
   try {
     Uint32 pos = instance.findProperty(propertyName);
     if (pos != (Uint32)-1) {
-      //FIXME:  There doesn't seem to be a way to get a copy of an 
+      //ATTN: P2 2001 There doesn't seem to be a way to get a copy of an 
       // instance's properties (or to change them if you got one)
       CIMProperty oldp = instance.getProperty(pos);
       //CIMProperty *p = new CIMProperty(oldp);
@@ -1163,14 +1164,14 @@ void
 cimmofParser::addClassAlias(const String &alias, const CIMClass *cd,
 		       Boolean isInstance)
 {
-  // FIXME:  As soon as we figure out what Aliases are for, do something
+  // ATTN: P3 BB 2001 ClassAlias - to be deprecated.  Simply warning here
 }
 
 void
 cimmofParser::addInstanceAlias(const String &alias, const CIMInstance *cd,
 		       Boolean isInstance)
 {
-  // FIXME:  As soon as we figure out what Aliases are for, do something
+  // ATTN:P3 BB 2001  As soon as we figure out what Aliases are for, do something
 }
 
 
@@ -1224,7 +1225,7 @@ cimmofParser::maybeThrowParseError(const String &msg) const
 void
 cimmofParser::maybeThrowLexerError(const String &msg) const
 {
-  // unless we may want to continue (and that's not possible with the
-  // lexer written as it is now) (FIXME:),
+  // ATTN: P1 BB 2001-unless we may want to continue (and that's not possible with the
+  // lexer written as it is now),
   throw LexerError(msg);
 }

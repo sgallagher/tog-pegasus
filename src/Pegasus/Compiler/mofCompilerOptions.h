@@ -43,8 +43,8 @@
 //                 suppress warnings (-w)
 //             The files to be compiled.
 //
-// FIXME:  This needs to be reworked so that the same options offered
-// by the Microsoft compiler are supported.  They allow modes for
+// ATTN: BB P3  Mar 2001 This needs to be reworked so that the same options
+// offered by the Microsoft compiler are supported.  They allow modes for
 //      -- Marking as an error an attempt to create an existing object
 //      -- Marking as an error an attempt to create an existing object
 //         with different elements (i.e. overwriting)

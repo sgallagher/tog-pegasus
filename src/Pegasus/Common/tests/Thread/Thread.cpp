@@ -132,7 +132,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL reading_thread(void *parm)
    
    cout << "r";
    
-   char *keys[] = 
+   const char *keys[] = 
       {
 	 "one", "two", "three", "four"
       };

@@ -41,6 +41,8 @@
 
 #ifdef PEGASUS_OS_OS400
 #include <qycmutiltyUtility.H>
+#include "vfyptrs.cinc"
+#include <stdio.h>
 #endif
 
 PEGASUS_USING_STD;
@@ -63,13 +65,26 @@ extern "C++" ostream& help(ostream& os);
 int
 main(int argc, char ** argv) {
   int ret = 0;
+  String msg_;
 
 #ifdef PEGASUS_OS_OS400
+
+  VFYPTRS_INCDCL;               // VFYPTRS local variables
+
+  // verify pointers
+  #pragma exception_handler (qsyvp_excp_hndlr,qsyvp_excp_comm_area,\
+    0,_C2_MH_ESCAPE)
+    for( int arg_index = 1; arg_index < argc; arg_index++ ){
+	VFYPTRS(VERIFY_SPP_NULL(argv[arg_index]));
+    }
+  #pragma disable_handler
+
   // Check to ensure the user is authorized to use the command
   if(FALSE == ycmCheckCmdAuthorities())
   { 
     return -9;
   }
+
 #endif
 
   try {
@@ -94,6 +109,20 @@ main(int argc, char ** argv) {
   }
   const Array<String>& filespecs = cmdline.get_filespec_list();
 
+#ifdef PEGASUS_OS_OS400
+  // If quiet mode is chosen then shut down stdout and stderr.
+  // This is used during product installation and PTF application.
+  // We must be absolutely quiet to avoid a terminal being
+  // activated in native mode.
+  if (cmdline.quiet())
+  {
+      // Redirect to /dev/null.
+      // Works for both qshell and native modes.
+      freopen("/dev/null","w",stdout);
+      freopen("/dev/null","w",stderr);
+  } 	
+#endif
+
   // For most options, a real repository is required.  If we can't
   // create one and we need to, bail. 
   cimmofParser *p = cimmofParser::Instance(); 
@@ -111,23 +140,64 @@ main(int argc, char ** argv) {
 	try {
 	  ret = p->parse();
 	} catch(ParserLexException &e) {
-	  cerr << "Lexer error: " << e.getMessage() << endl;
+	    msg_ = String("Lexer error: ").append(e.getMessage());
+	    ret = -5;
 	} catch(Exception &e) {
-	  cerr << "Parsing error: " << e.getMessage() << endl;
+	    msg_ = String("Parsing error: ").append(e.getMessage());
+	    ret = -6;
 	}
       } else {
-        cerr << "Can't open file " << filespecs[i] << endl;
+	  msg_ = String("Can't open file ").append(filespecs[i]);
+          ret = -7;
       }
     }
   else {
     try {
     int ret =  p->parse();
     } catch(ParserLexException &e) {
-      cerr << "Lexer error: " << e.getMessage() << endl;
+	msg_ = String("Lexer error: ").append(e.getMessage());
+        ret = -5;
     } catch(Exception &e) {
-      cerr << "Compiler general exception: " << e.getMessage() << endl;
+	msg_ = String("Compiler general exception: ").append(e.getMessage());
+        ret = -8;
     }
   }
-  
+  cerr << msg_ << endl;
+
+#ifdef PEGASUS_OS_OS400
+  // Send good completion message to stdout if the compile worked.
+  // Callers of QYCMMOFL *PGM from the native command line will want to see this.
+  if (ret == 0)
+      cout << "Compile completed successfully." << endl;
+
+  // Send a CPDDF83 and CPFDF81 OS/400 program message if an error occurred
+  // This will allow PTFs to monitor for this message.
+  if (ret != 0)
+  {
+      message_t    message_;	// Message information
+      cmd_msg_t    cmdMSG;
+      memset((char *)&cmdMSG, ' ', sizeof(cmd_msg_t) ); // init to blanks
+      memcpy(cmdMSG.commandName, "QYCMMOFL", 7);
+      memcpy(cmdMSG.message, msg_.getCString(), sizeof(msg_.getCString()) );
+      memcpy(message_.MsgId, "CPDDF83", 7);
+      memcpy(message_.MsgData, (char *)&cmdMSG, sizeof(cmd_msg_t));
+      message_.MsgLen = sizeof(cmd_msg_t);
+      memcpy(message_.MsgType, "*DIAG     ", 10); 
+      ycmSend_Message(&message_);
+
+      
+      message_t    message;	// Message information
+      cmd_error_t  cmdError; // structure to hold the command and error reason code
+      memset((char *)&cmdError, ' ', sizeof(cmd_error_t) ); // init to blanks
+      memcpy(cmdError.commandName, "QYCMMOFL", 7);
+      memcpy(cmdError.reasonCode, "03", 2 );
+      memcpy(message.MsgId, "CPFDF81", 7);
+      memcpy(message.MsgData, (char *)&cmdError, sizeof(cmd_error_t) );
+      message.MsgLen = sizeof(cmd_error_t);
+      memcpy(message.MsgType, "*DIAG     ", 10); 
+      ycmSend_Message(&message);
+  }
+#endif
+
   return ret;
 }

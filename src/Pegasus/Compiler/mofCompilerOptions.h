@@ -76,7 +76,6 @@ class PEGASUS_COMPILER_LINKAGE mofCompilerOptions {
   compilerCommonDefs::operationType _ot;
   Boolean         _trace;
 #ifdef PEGASUS_OS_OS400
-// chuck
   Boolean         _quiet;
 #endif
   PEGASUS_STD(ostream)      *_traceos;
@@ -123,7 +122,6 @@ class PEGASUS_COMPILER_LINKAGE mofCompilerOptions {
   void reset_trace() { _trace = false; }
   Boolean trace() const { return _trace; }
 #ifdef PEGASUS_OS_OS400
-// chuck
   void set_quiet() { _quiet = true; }
   void reset_quiet() { _quiet = false; }
   Boolean quiet() const { return _quiet; }

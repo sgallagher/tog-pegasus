@@ -75,15 +75,19 @@ help(ostream &os) {
   os << "    -n namespace - override the default CIMRepository namespace "
      << endl;
 #else
-  os << "Usage: cimmof [-h] [-E] [-w] [-R repository] [-I path] [-n namespace] [--xml] [--trace] -ffile" << endl;
 #ifndef PEGASUS_OS_OS400
+  os << "Usage: cimmof [-h] [-E] [-w] [-R repository] [-I path] [-n namespace] [--xml] [--trace] -ffile" << endl;
   os << "       cimmof [-h] [-E] [-w] [-R repository] [-I path] [-n namespace] [--xml] [--trace] [mof_files...]" << endl;
 #else
-  os << "       cimmof [-h] [-E] [-w] [-R repository] [-I path] [-n namespace] [--xml] [--trace] mof_files..." << endl;
+  os << "Usage: cimmof [-h] [-E] [-w] [-R repository] [-I path] [-n namespace] [--xml] [--trace] [-q] -ffile" << endl;
+  os << "       cimmof [-h] [-E] [-w] [-R repository] [-I path] [-n namespace] [--xml] [--trace] [-q] mof_files..." << endl;
 #endif
   os << "  -h, --help -- show this help." << endl;
   os << "  -E -- syntax check only." << endl;
   os << "  -w -- suppress warnings." << endl;
+#ifdef PEGASUS_OS_OS400
+  os << "  -q -- suppress all messages except command line usage errors." << endl;
+#endif
   os << "  -Rrepository -- specify the repository path (cimmofl) or hostname:portnumber (cimmof)" << endl;
   os << "  --CIMRepository=repository -- specify repository path or hostname:portnumber." << endl;
   os << "  -Ipath -- specify an include path." << endl;
@@ -138,6 +142,9 @@ static struct optspec optspecs[] =
     {(char*)"E", SYNTAXFLAG, false, getoopt::NOARG}, 
     {(char*)"trace", TRACEFLAG, true, getoopt::OPTIONALARG},
     {(char*)"xml", XMLFLAG, true, getoopt::NOARG},
+#endif
+#ifdef PEGASUS_OS_OS400
+    {(char*)"q", QUIETFLAG, false, getoopt::NOARG},
 #endif
     {(char*)"", OPTEND, false, getoopt::NOARG}
 };
@@ -197,6 +204,9 @@ applyDefaults(mofCompilerOptions &cmdlinedata) {
   cmdlinedata.set_warningos(PEGASUS_STD(cerr));
   cmdlinedata.reset_operationType();
   cmdlinedata.reset_xmloutput();
+#ifdef PEGASUS_OS_OS400
+  cmdlinedata.reset_quiet();
+#endif
 }
 
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
@@ -307,6 +317,10 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
 	}
 	break;
       }
+#endif
+#ifdef PEGASUS_OS_OS400
+      case QUIETFLAG: cmdlinedata.set_quiet();
+	break;
 #endif
       case FILESPEC: cmdlinedata.add_filespecs(arg.optarg());
 	break;

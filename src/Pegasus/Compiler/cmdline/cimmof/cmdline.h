@@ -49,6 +49,9 @@ enum opttypes {FILESPEC,
 	       TRACEFLAG,
 	       XMLFLAG,
 #endif
+#ifdef PEGASUS_OS_OS400
+	       QUIETFLAG,
+#endif
 	       OPTEND};
 
 struct optspec {

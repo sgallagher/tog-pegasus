@@ -255,14 +255,18 @@ Boolean InstanceIndexFile::deleteEntry(
     fstream fs;
 
     if (!_openFile(path, fs))
+    {
 	return false;
+    }
 
     //
     // Mark the entry as free:
     //
 
     if (!_markEntryFree(fs, instanceName))
+    {
 	return false;
+    }
 
     //
     // Increment the free count:
@@ -284,7 +288,10 @@ Boolean InstanceIndexFile::deleteEntry(
     //
 
     if (freeCount == _MAX_FREE_COUNT)
-	_compact(path);
+    {
+	if (!_compact(path))
+	    return false;
+    }
 
     return true;
 }
@@ -332,14 +339,16 @@ Boolean InstanceIndexFile::modifyEntry(
     //
 
     fs.close();
-    return true;
 
     //
     // Compact if max free count reached:
     //
 
     if (freeCount == _MAX_FREE_COUNT)
-	_compact(path);
+    {
+	if (!_compact(path))
+	    return false;
+    }
 
     return true;
 }
@@ -523,9 +532,11 @@ Boolean InstanceIndexFile::_markEntryFree(
     Uint32 size = 0;
     Uint32 entryOffset = 0;
 
-    if (InstanceIndexFile::_lookupEntry(
+    if (!InstanceIndexFile::_lookupEntry(
 	fs, instanceName, index, size, entryOffset))
+    {
 	return false;
+    }
 
     //
     // Now mark the entry as free (change the first character of the entry
@@ -535,7 +546,9 @@ Boolean InstanceIndexFile::_markEntryFree(
     fs.seekg(entryOffset);
 
     if (!fs)
+    {
 	return false;
+    }
 
     fs.write("1", 1);
 
@@ -579,6 +592,8 @@ Boolean InstanceIndexFile::_lookupEntry(
 	entryOffset = fs.tellp();
     }
 
+    fs.clear();
+
     return false;
 }
 
@@ -595,12 +610,14 @@ Boolean InstanceIndexFile::_compact(
 	return false;
 
     //
-    // Open temporary file:
+    // Open temporary file (delete it first):
     //
 
     fstream tmpFs;
     String tmpPath = path;
     tmpPath += ".tmp";
+
+    FileSystem::removeFile(tmpPath);
 
     if (!_openFile(tmpPath, tmpFs))
 	return false;
@@ -640,6 +657,12 @@ Boolean InstanceIndexFile::_compact(
 	    }
 	}
     }
+
+    //
+    // Close both files:
+
+    fs.close();
+    tmpFs.close();
 
     //
     // If an error occurred, remove the temporary file and

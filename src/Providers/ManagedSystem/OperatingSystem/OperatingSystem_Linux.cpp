@@ -568,31 +568,13 @@ Boolean OperatingSystem::getMaxNumberOfProcesses(Uint32& mMaxProcesses)
   */
 Boolean OperatingSystem::getTotalSwapSpaceSize(Uint64& mTotalSwapSpaceSize)
 {
-    //-- it is a technicality, but, linux does not have swap space;
-    //   it has paging space.  Hence, set return false.
-    return false;
-}
- 
-/** _totalVM method for Linux implementation of OS Provider
-
-    Gets the information from SwapTotal in /proc/meminfo
-    (already in KB).   Is always called to get the TotalVirtualMemory, 
-    may be called to get this amount for the MaxProcessMemory size 
-    if nothing is found in /proc/sys/vm/overcommit_memoryt.
-
-   Would be more efficient to store this and not call twice
-  */
-
-Uint64 OperatingSystem::_totalVM()
-{
-  Uint64 total;
    const char proc_file[] = "/proc/meminfo";
    char buffer[MAXPATHLEN];
    struct stat statBuf;
    regex_t pattern;
    FILE *vf;
 
-   total = 0;
+   mTotalSwapSpaceSize = 0;
    if (!stat(proc_file, &statBuf))
    {
       vf = fopen(proc_file, "r");
@@ -604,7 +586,7 @@ Uint64 OperatingSystem::_totalVM()
             {
                if (regexec(&pattern, buffer, 0, NULL, 0) == 0)
                {
-                  sscanf(buffer, "SwapTotal: %llu kB", &total);
+                  sscanf(buffer, "SwapTotal: %llu kB", &mTotalSwapSpaceSize);
                }
             }
             regfree(&pattern);
@@ -613,7 +595,30 @@ Uint64 OperatingSystem::_totalVM()
       fclose(vf);
    }
 
-   return total;
+   if(mTotalSwapSpaceSize) return true;
+   else return false;
+}
+ 
+/** _totalVM method for Linux implementation of OS Provider
+
+    Calculates TotalVirtualMemory as the sum of totalSwap
+    and totalMem.
+*/
+Uint64 OperatingSystem::_totalVM()
+{
+  Uint64 total;
+  Uint64 tmp;
+
+  total = 0;
+  if( getTotalSwapSpaceSize(tmp) )
+  {
+    total += tmp;
+  }
+  if( getTotalVisibleMemorySize(tmp))
+  {
+    total += tmp;
+  }
+  return total;
 }
 
 /**
@@ -711,7 +716,36 @@ Boolean OperatingSystem::getFreePhysicalMemory(Uint64& total)
   */
 Boolean OperatingSystem::getTotalVisibleMemorySize(Uint64& memory)
 {
-    return false;
+  Uint64 total;
+   const char proc_file[] = "/proc/meminfo";
+   char buffer[MAXPATHLEN];
+   struct stat statBuf;
+   regex_t pattern;
+   FILE *vf;
+
+   memory = 0;
+
+   if (!stat(proc_file, &statBuf))
+   {
+      vf = fopen(proc_file, "r");
+      if (vf)
+      {
+         if (regcomp(&pattern, "^MemTotal:", 0) == 0)
+         {
+            while (fgets(buffer, MAXPATHLEN, vf) != NULL)
+            {
+               if (regexec(&pattern, buffer, 0, NULL, 0) == 0)
+               {
+                  sscanf(buffer, "MemTotal: %llu kB", &memory);
+               }
+            }
+            regfree(&pattern);
+         }
+      }
+      fclose(vf);
+   }
+
+   return true;
 }
 
 /**
@@ -764,7 +798,8 @@ Boolean OperatingSystem::getMaxProcessMemorySize(Uint64& maxProcessMemorySize)
    }
    else {
 //ATTN-SLC-P3-18-Apr-02: Optimization?  get this once & share
-      maxProcessMemorySize = _totalVM();
+      if( ! getTotalSwapSpaceSize(maxProcessMemorySize) )
+	      return false;
    }
    return true;
 }

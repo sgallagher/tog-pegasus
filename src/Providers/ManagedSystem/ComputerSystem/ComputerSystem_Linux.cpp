@@ -339,7 +339,11 @@ Boolean ComputerSystem::getResetCapability(CIMProperty& p)
 
 Boolean ComputerSystem::getPowerManagementCapabilities(CIMProperty& p)
 {
-  return false;
+  // Since PowerManagementSupported == FALSE
+  // Capabilities must be defined to return "1" which signifies
+  // "Not Supported" from Capabilities enum
+  p = CIMProperty(PROPERTY_POWER_MANAGEMENT_CAPABILITIES,1); 
+  return true;
 }
 
 Boolean ComputerSystem::getInitialLoadInfo(CIMProperty& p)

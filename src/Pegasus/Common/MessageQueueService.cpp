@@ -28,8 +28,6 @@
 
 #include "MessageQueueService.h"
 
-PEGASUS_USING_STD;
-
 PEGASUS_NAMESPACE_BEGIN
 
 MessageQueueService::MessageQueueService(const char *name, 
@@ -174,10 +172,7 @@ void MessageQueueService::_handle_async_request(AsyncRequest *req)
       else if (type == async_messages::CIMSERVICE_STOP)
 	 handle_CimServiceStop(static_cast<CimServiceStop *>(req));
       else if (type == async_messages::CIMSERVICE_PAUSE)
-      {
 	 handle_CimServicePause(static_cast<CimServicePause *>(req));
-      }
-      
       else if (type == async_messages::CIMSERVICE_RESUME)
 	 handle_CimServiceResume(static_cast<CimServiceResume *>(req));
       else if ( type == async_messages::ASYNC_OP_START)
@@ -387,7 +382,32 @@ void MessageQueueService::handle_AsyncOperationStart(AsyncOperationStart *req)
 
 void MessageQueueService::handle_AsyncOperationResult(AsyncOperationResult *req)
 {
+   ;
+}
 
+
+void MessageQueueService::handle_AsyncLegacyOperationStart(AsyncLegacyOperationStart *req)
+{
+   // remove the legacy message from the request and enqueue it to its destination
+   Uint32 result = async_results::CIM_NAK;
+   
+   Message *legacy = req->act;
+   if ( legacy != 0 )
+   {
+      MessageQueue* queue = MessageQueue::lookup(req->legacy_destination);
+      if( queue != 0 )
+      {
+	// Enqueue the response:
+	 queue->enqueue(legacy);
+	 result = async_results::OK;
+      }
+   }
+   _make_response(req, result);
+}
+
+void MessageQueueService::handle_AsyncLegacyOperationResult(AsyncLegacyOperationResult *rep)
+{
+   ;
 }
 
 AsyncOpNode *MessageQueueService::get_op(void)

@@ -151,7 +151,7 @@ class MessageQueueServer : public MessageQueueService
       void handle_test_request(AsyncRequest *msg);
       virtual void handle_CimServiceStop(CimServiceStop *req);
       virtual void _handle_async_request(AsyncRequest *req);
-      
+      void handle_LegacyOpStart(AsyncLegacyOperationStart *req);
       AtomicInt dienow;
       
 
@@ -230,6 +230,11 @@ void MessageQueueServer::_handle_async_request(AsyncRequest *req)
       req->op->processing();
       handle_CimServiceStop(static_cast<CimServiceStop *>(req));
    }
+   else if ( req->getType() == async_messages::ASYNC_LEGACY_OP_START )
+   {
+      req->op->processing();
+      handle_LegacyOpStart(static_cast<AsyncLegacyOperationStart *>(req));
+   }
    
    else
       Base::_handle_async_request(req);
@@ -242,11 +247,36 @@ Boolean MessageQueueServer::messageOK(const Message *msg)
       if( msg->getType() == 0x04100000 ||
 	  msg->getType() == async_messages::CIMSERVICE_STOP || 
 	  msg->getType() == async_messages::CIMSERVICE_PAUSE || 
+	  msg->getType() == async_messages::ASYNC_LEGACY_OP_START ||
 	  msg->getType() == async_messages::CIMSERVICE_RESUME )
       return true;
    }
    return false;
 }
+
+void MessageQueueServer::handle_LegacyOpStart(AsyncLegacyOperationStart *req)
+{
+
+   Message *legacy = req->act;
+   cout << " ### handling legacy messages " << endl;
+   
+
+      AsyncReply *resp =  
+	 new AsyncReply(async_messages::REPLY, 
+			req->getKey(), 
+			req->getRouting(), 
+			0, 
+			req->op, 
+			async_results::OK, 
+			req->resp, 
+			req->block);
+      _completeAsyncResponse(req, resp, ASYNC_OPSTATE_COMPLETE, 0 );
+
+      if (legacy != 0 )
+	 cout << " legacy msg type: " << legacy->getType() << endl;
+      
+}
+
 
 void MessageQueueServer::handle_test_request(AsyncRequest *msg)
 {
@@ -393,6 +423,22 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_func(void *parm)
    // now that we have sent and received all of our responses, tell 
    // the server thread to stop 
 
+
+   cout << " sending LEGACY to test server" << endl;
+   
+   Message *legacy = new Message(0x11100011, 
+				 Message::getNextKey());
+   AsyncOpNode *op = q_client->get_op();
+   
+   AsyncLegacyOperationStart *req = 
+      new AsyncLegacyOperationStart(q_client->get_next_xid(), 
+				    op, 
+				    services[0],
+				    legacy, 
+				    q_client->getQueueId());
+   q_client->SendWait(req);
+   
+
    cout << "sending STOP to test server" << endl;
    
    CimServiceStop *stop =   
@@ -439,6 +485,9 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL server_func(void *parm)
    {
       pegasus_yield();
       
+
+      // send client at QID 2 a pause and resume message. 
+
       if ( msg_count.value() > 1000 && paused_client == false)
       {
 	 paused_client = true;

@@ -40,7 +40,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class cimom;
+
 class message_module;
 
 class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
@@ -63,7 +63,10 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
       virtual void handle_CimServiceResume(CimServiceResume *req);
       
       virtual void handle_AsyncOperationStart(AsyncOperationStart *req);
-      virtual void handle_AsyncOperationResult(AsyncOperationResult *req);
+      virtual void handle_AsyncOperationResult(AsyncOperationResult *rep);
+      virtual void handle_AsyncLegacyOperationStart(AsyncLegacyOperationStart *req);
+      virtual void handle_AsyncLegacyOperationResult(AsyncLegacyOperationResult *rep);
+      
       virtual Boolean accept_async(AsyncOpNode *op);
       virtual Boolean messageOK(const Message *msg) ;
 

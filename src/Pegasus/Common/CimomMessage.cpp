@@ -301,14 +301,14 @@ AsyncOperationResult::AsyncOperationResult(Uint32 key,
 AsyncLegacyOperationStart::AsyncLegacyOperationStart(Uint32 routing, 
 						     AsyncOpNode *operation, 
 						     Uint32 destination, 
-						     Message *action)
+						     Message *action,
+						     Uint32 action_destination)
    : AsyncRequest(async_messages::ASYNC_LEGACY_OP_START, 
 		  Message::getNextKey(), routing, 0,
 		  operation, destination, CIMOM_Q_ID, false),
-     act(action) 
+     act(action) , legacy_destination(action_destination)
 {  
-   if( op != 0 )
-      op->put_request(act);
+
 }
 
 
@@ -321,8 +321,7 @@ AsyncLegacyOperationResult::AsyncLegacyOperationResult(Uint32 key,
 		0, CIMOM_Q_ID, false),
      res(result)
 {   
-   if( op != 0 )
-      op->put_response(res);
+
 }
       
 

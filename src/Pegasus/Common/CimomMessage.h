@@ -389,7 +389,8 @@ class PEGASUS_COMMON_LINKAGE AsyncLegacyOperationStart : public AsyncRequest
       AsyncLegacyOperationStart(Uint32 routing, 
 				AsyncOpNode *operation, 
 				Uint32 destination, 
-				Message *action);
+				Message *action, 
+				Uint32 action_destination);
       
       
       virtual ~AsyncLegacyOperationStart(void)
@@ -398,6 +399,8 @@ class PEGASUS_COMMON_LINKAGE AsyncLegacyOperationStart : public AsyncRequest
       }
       
       Message *act;
+      Uint32 legacy_destination;
+      
 };
 
 class PEGASUS_COMMON_LINKAGE AsyncLegacyOperationResult : public AsyncReply

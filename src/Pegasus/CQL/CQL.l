@@ -459,13 +459,17 @@ Z [Zz]
 
     String _esc_doubleslash = "\\\\";
     String _esc_singlequote = "\\'";
+	 String _esc_doublequote = "\\\"";
     String s(yytext);
 
     Uint32 index = 1;
-    while((index = s.find(_esc_doubleslash)) != PEG_NOT_FOUND || (index = s.find(_esc_singlequote)) != PEG_NOT_FOUND){
-	if(index == s.size() - 2) // make sure we dont remove the slash from say 'abc\'
-		break;
-	s.remove(index,1);
+    while((index = s.find(_esc_doubleslash)) != PEG_NOT_FOUND || 
+	       (index = s.find(_esc_singlequote)) != PEG_NOT_FOUND ||
+			 (index = s.find(_esc_doublequote)) != PEG_NOT_FOUND)
+	 {
+				if(index == s.size() - 2) // make sure we dont remove the slash from say 'abc\'
+				break;
+				s.remove(index,1);
     }
     CString cstr = s.getCString();
     const char* string = (const char*)cstr;

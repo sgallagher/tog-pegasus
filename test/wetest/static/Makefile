@@ -9,10 +9,10 @@ DIRS = \
 	GetInstance\
 	EnumerateInstanceNames\
 	EnumerateInstances\
+	ModifyInstance\
 	DeleteInstance\
 #	ModifyClass\
 #	DeleteClass
-#	ModifyInstance\
 	
 include $(ROOT)/mak/recurse.mak
 

@@ -27,6 +27,8 @@
 //
 // Modified By:
 //                Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//                Sushma Fernandes, Hewlett-Packard Company 
+//                        (sushma_fernandes.hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -165,9 +167,10 @@ String LocalAuthFile::create()
     {
         // unable to create file
         PEG_TRACE_STRING(TRC_AUTHENTICATION, Tracer::LEVEL4,
-            "Failed to create file: " + filePath + ", " + strerror(errno));
+            "Failed to create local auth file: " + 
+             filePath + ", " + strerror(errno));
         PEG_METHOD_EXIT();
-        return(_filePathName);
+        throw CannotOpenFile (filePath);
     }
     outfs.clear();
 
@@ -184,8 +187,24 @@ String LocalAuthFile::create()
 #endif
     if ( ret == -1)
     {
+        String errorMsg = strerror(errno);
+        PEG_TRACE_STRING(TRC_AUTHENTICATION, Tracer::LEVEL4,
+            "Failed to change mode on file: " + filePath 
+            + ", err is: " + errorMsg);
         PEG_METHOD_EXIT();
-        return(_filePathName);
+        
+        // Unable to change the local auth file permissions, remove the file 
+        // and throw CannotOpenFile error.
+
+        if (filePath.size())
+        {
+            if (FileSystem::exists(filePath))
+            {
+                FileSystem::removeFile(filePath);
+            }
+        }
+
+        throw CannotOpenFile (filePath);
     }
 
     //
@@ -200,11 +219,24 @@ String LocalAuthFile::create()
     //
     if (!_changeFileOwner(filePath))
     {
-        PEG_TRACE_STRING(TRC_AUTHENTICATION, Tracer::LEVEL3, 
-            "Could not change owner of file '" + filePath + "' to '" +
-            _userName + "'.");
+        String errorMsg = strerror(errno);
+        PEG_TRACE_STRING(TRC_AUTHENTICATION, Tracer::LEVEL4, 
+            "Failed to change owner of file '" + filePath + "' to '" +
+            _userName + "', err is: " + errorMsg);
         PEG_METHOD_EXIT();
-        return(_filePathName);
+
+        // Unable to change owner on local auth file, remove the file
+        // and throw CannotOpenFile error.
+
+        if (filePath.size())
+        {
+            if (FileSystem::exists(filePath))
+            {
+                FileSystem::removeFile(filePath);
+            }
+        }
+
+        throw CannotOpenFile (filePath);
     }
 
     _challenge = randomToken;

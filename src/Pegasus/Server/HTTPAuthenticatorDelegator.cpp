@@ -26,6 +26,7 @@
 // Author:  Nag Boranna,   Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //
 // Modified By: Dave Rosckes (rosckes@us.ibm.com)
+//              Sushma Fernandes (sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -312,34 +313,47 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
              enableAuthentication
            )
         {
-            //
-            // Do pegasus/local authentication
-            //
-            authenticated = 
-                _authenticationManager->performPegasusAuthentication(
-                    authorization,
-                    httpMessage->authInfo);
-
-            if (!authenticated)
+            try 
             {
-                String authChallenge = String::EMPTY;
-                String authResp = String::EMPTY;
+                //
+                // Do pegasus/local authentication
+                //
+                authenticated = 
+                    _authenticationManager->performPegasusAuthentication(
+                        authorization,
+                        httpMessage->authInfo);
 
-                authResp = _authenticationManager->getPegasusAuthResponseHeader(
-                    authorization,
-                    httpMessage->authInfo);
-
-                if (!String::equal(authResp, String::EMPTY))
+                if (!authenticated)
                 {
-                    _sendChallenge(queueId, authResp);
-                }
-                else
-                {
-                    _sendError(queueId, "Invalid Request");
-                }
+                    String authChallenge = String::EMPTY;
+                    String authResp = String::EMPTY;
 
+                    authResp = _authenticationManager->getPegasusAuthResponseHeader(
+                        authorization,
+                        httpMessage->authInfo);
+
+                    if (!String::equal(authResp, String::EMPTY))
+                    {
+                        _sendChallenge(queueId, authResp);
+                    }
+                    else
+                    {
+                        _sendError(queueId, "Invalid Request");
+                    }
+
+                    PEG_METHOD_EXIT();
+                    return;
+                }
+            }
+            catch (CannotOpenFile &cof)
+            {
+                Array<Sint8> errMsg; 
+                errMsg = XmlWriter::formatHttpErrorRspMessage(
+                   HTTP_STATUS_INTERNALSERVERERROR);
+                _sendResponse(queueId, errMsg);
                 PEG_METHOD_EXIT();
                 return;
+                
             }
         }
 

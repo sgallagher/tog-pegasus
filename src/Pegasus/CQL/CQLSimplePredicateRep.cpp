@@ -54,7 +54,10 @@ String CQLSimplePredicateRep::toString()
 {
 	return String::EMPTY;
 }
-
+Boolean CQLSimplePredicateRep::isSimple(){
+        //return (_rightSide != CQLExpression());
+	return true;
+}
 Boolean CQLSimplePredicateRep::isSimpleValue(){
 	return _leftSide.isSimpleValue();
 }

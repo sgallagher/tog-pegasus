@@ -46,6 +46,11 @@ String CQLTerm::toString()
    return _rep->toString();
 }
 
+Boolean CQLTerm::isSimple()
+{
+   return _rep->isSimple();
+}
+
 Boolean CQLTerm::isSimpleValue()
 {
    return _rep->isSimpleValue();

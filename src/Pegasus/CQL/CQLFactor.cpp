@@ -46,7 +46,10 @@ CQLValue CQLFactor::resolveValue(CIMInstance CI, QueryContext& QueryCtx)
 {
 	return _rep->resolveValue(CI, QueryCtx);
 }
-
+Boolean CQLFactor::isSimple()
+{
+        return _rep->isSimple();
+}
 Boolean CQLFactor::isSimpleValue()
 {
 	return _rep->isSimpleValue();

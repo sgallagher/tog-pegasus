@@ -394,8 +394,8 @@ chain : literal
 
             String tmp = $1->getName().getString();
             tmp.append("#").append(*$3);
-            $1 = new CQLIdentifier(tmp);
-   	    $$ = _factory.makeObject($1,Predicate);
+            CQLIdentifier _id(tmp);
+   	    $$ = _factory.makeObject(&_id,Predicate);
 	    chain_state = CQLIDENTIFIER;
         }
       | scoped_property
@@ -420,14 +420,14 @@ chain : literal
 	    sprintf(msg,"BISON::chain-> chain DOT scoped_property\n");
 	    printf_(msg);
 
-	    CQLChainedIdentifier * _cid;
 	    CQLIdentifier *_id;
 	    if(chain_state == CQLIDENTIFIER){
 	        _id = ((CQLIdentifier*)(_factory.getObject($1,Predicate,Identifier)));
-                _cid = new CQLChainedIdentifier(*_id);
-                _cid->append(*$3);
-		$$ = _factory.makeObject(_cid,Predicate);
+                CQLChainedIdentifier _cid(*_id);
+                _cid.append(*$3);
+		$$ = _factory.makeObject(&_cid,Predicate);
             }else if(chain_state == CQLCHAINEDIDENTIFIER){
+		CQLChainedIdentifier *_cid;
 		_cid = ((CQLChainedIdentifier*)(_factory.getObject($1,Predicate,ChainedIdentifier)));
 		_cid->append(*$3);
 		_factory.setObject(((CQLPredicate*)$1),_cid,ChainedIdentifier);
@@ -443,14 +443,13 @@ chain : literal
             sprintf(msg,"BISON::chain->chain.identifier\n");
 	    printf_(msg);
 
-            CQLChainedIdentifier * _cid;
-	    CQLIdentifier *_id;
             if(chain_state == CQLIDENTIFIER){
-		_id = ((CQLIdentifier*)(_factory.getObject($1,Predicate,Identifier)));
-                _cid = new CQLChainedIdentifier(*_id);
-                _cid->append(*$3);
-                $$ = _factory.makeObject(_cid,Predicate);
+		CQLIdentifier *_id = ((CQLIdentifier*)(_factory.getObject($1,Predicate,Identifier)));
+                CQLChainedIdentifier _cid(*_id);
+                _cid.append(*$3);
+                $$ = _factory.makeObject(&_cid,Predicate);
             }else if(chain_state == CQLCHAINEDIDENTIFIER){
+		CQLChainedIdentifier *_cid;
                 _cid = ((CQLChainedIdentifier*)(_factory.getObject($1,Predicate,ChainedIdentifier)));
                 _cid->append(*$3);
                 _factory.setObject(((CQLPredicate*)$1),_cid,ChainedIdentifier);
@@ -469,20 +468,20 @@ chain : literal
 	    CQLChainedIdentifier *_cid;
 	    CQLIdentifier *_id;
             if(chain_state == CQLIDENTIFIER){
-		_id = ((CQLIdentifier*)(_factory.getObject($1,Predicate,Identifier)));	
-                _cid = new CQLChainedIdentifier(*_id);
+		CQLIdentifier *_id = ((CQLIdentifier*)(_factory.getObject($1,Predicate,Identifier)));	
+		CQLChainedIdentifier _cid(*_id);
                 String tmp($3->getName().getString());
 		tmp.append("#").append(*$5);
-                _id = new CQLIdentifier(tmp);
-                _cid->append(*_id);
-		_factory.setObject(((CQLPredicate*)$1),_cid,ChainedIdentifier);
+                CQLIdentifier _id1(tmp);
+                _cid.append(_id1);
+		_factory.setObject(((CQLPredicate*)$1),&_cid,ChainedIdentifier);
                 $$ = $1;
             }else if(chain_state == CQLCHAINEDIDENTIFIER){
-		_cid =  ((CQLChainedIdentifier*)(_factory.getObject($1,Predicate,ChainedIdentifier)));
+		CQLChainedIdentifier *_cid =  ((CQLChainedIdentifier*)(_factory.getObject($1,Predicate,ChainedIdentifier)));
 		String tmp($3->getName().getString());
                 tmp.append("#").append(*$5);
-                _id = new CQLIdentifier(tmp);
-                _cid->append(*_id);
+                CQLIdentifier _id1(tmp);
+                _cid->append(_id1);
 		_factory.setObject(((CQLPredicate*)$1),_cid,ChainedIdentifier);
 		$$ = $1;
             }else{
@@ -497,22 +496,21 @@ chain : literal
             sprintf(msg,"BISON::chain->chain[ array_index_list ]\n");
 	    printf_(msg);
 
-	    CQLChainedIdentifier *_cid;
-	    CQLIdentifier *_id;
             if(chain_state == CQLIDENTIFIER){
-		_id = ((CQLIdentifier*)(_factory.getObject($1,Predicate,Identifier)));
+		CQLIdentifier *_id = ((CQLIdentifier*)(_factory.getObject($1,Predicate,Identifier)));
 		String tmp = _id->getName().getString();
 		tmp.append("[").append(*$3).append("]");
-		_id  = new CQLIdentifier(tmp);
-		_cid = new CQLChainedIdentifier(*_id);
-		_factory.setObject(((CQLPredicate*)$1),_cid,ChainedIdentifier);
+		CQLIdentifier _id1(tmp);
+		CQLChainedIdentifier _cid(_id1);
+		_factory.setObject(((CQLPredicate*)$1),&_cid,ChainedIdentifier);
                 $$ = $1;		
 	    }else if(chain_state == CQLCHAINEDIDENTIFIER){
-		_cid = ((CQLChainedIdentifier*)(_factory.getObject($1,Predicate,ChainedIdentifier)));
+		CQLChainedIdentifier *_cid = ((CQLChainedIdentifier*)(_factory.getObject($1,Predicate,ChainedIdentifier)));
 		CQLIdentifier tmpid = _cid->getLastIdentifier();
 		String tmp = tmpid.getName().getString();
                 tmp.append("[").append(*$3).append("]");
-		_cid->append(*(new CQLIdentifier(tmp)));
+		CQLIdentifier _id1(tmp);
+		_cid->append(_id1);
 		_factory.setObject(((CQLPredicate*)$1),_cid,ChainedIdentifier);
                 $$ = $1;
 	    }else{
@@ -536,9 +534,9 @@ concat : chain
 	     if($1->isSimpleValue() && ((CQLPredicate*)$3)->isSimpleValue()){
 		CQLFactor* _fctr1 = ((CQLFactor*)(_factory.getObject($1, Predicate, Factor)));
 		CQLFactor* _fctr2 = ((CQLFactor*)(_factory.getObject($3, Predicate, Factor)));	
-		CQLTerm* _term1 = new CQLTerm(*_fctr1);
-		_term1->appendOperation(concat,*_fctr2);
-		$$ = (CQLPredicate*)(_factory.makeObject(_term1,Predicate));
+		CQLTerm _term1(*_fctr1);
+		_term1.appendOperation(concat,*_fctr2);
+		$$ = (CQLPredicate*)(_factory.makeObject(&_term1,Predicate));
 	     }
          }
 ;
@@ -620,8 +618,8 @@ value_symbol : HASH literal_string
 
 		   String tmp("#");
 		   tmp.append(*$2);
-		   CQLIdentifier *tmpid = new CQLIdentifier(tmp);
-		   $$ = new CQLValue(*tmpid);
+		   CQLIdentifier tmpid(tmp);
+		   $$ = new CQLValue(tmpid);
                }
 ;
 
@@ -633,7 +631,8 @@ arith_or_value_symbol : arith
                         {
 			    /* make into predicate */
                             printf("BISON::arith_or_value_symbol->value_symbol\n");
-			    $$ = (CQLPredicate*)(_factory.makeObject(new CQLFactor(*$1), Predicate));
+			    CQLFactor _fctr(*$1);
+			    $$ = (CQLPredicate*)(_factory.makeObject(&_fctr, Predicate));
                         }
 ;
 
@@ -682,8 +681,8 @@ comp : arith
 	   printf_(msg);
 
 	   CQLExpression *_expr = (CQLExpression*)(_factory.getObject($1,Expression));
-	   CQLSimplePredicate *_sp = new CQLSimplePredicate(*_expr, IS_NOT_NULL);
-           _factory.setObject($1,_sp,SimplePredicate);
+	   CQLSimplePredicate _sp(*_expr, IS_NOT_NULL);
+           _factory.setObject($1,&_sp,SimplePredicate);
 	   $$ = $1;
        }
      | arith IS _NULL
@@ -692,8 +691,8 @@ comp : arith
 	   printf_(msg);
 
 	   CQLExpression *_expr = (CQLExpression*)(_factory.getObject($1,Expression));
-           CQLSimplePredicate *_sp = new CQLSimplePredicate(*_expr, IS_NULL);
-           _factory.setObject($1,_sp,SimplePredicate);
+           CQLSimplePredicate _sp(*_expr, IS_NULL);
+           _factory.setObject($1,&_sp,SimplePredicate);
            $$ = $1;
        }
      | arith comp_op arith_or_value_symbol
@@ -718,9 +717,10 @@ comp : arith
 	   printf_(msg);
 
 	   CQLExpression *_expr1 = (CQLExpression*)(_factory.getObject($1,Predicate,Expression));
-	   CQLExpression *_expr2 = (CQLExpression*)(_factory.makeObject(new CQLChainedIdentifier(*$3),Expression));
-           CQLSimplePredicate *_sp = new CQLSimplePredicate(*_expr1, *_expr2, ISA);
-	   _factory.setObject($1,_sp,SimplePredicate);
+	   CQLChainedIdentifier _cid(*$3);
+	   CQLExpression *_expr2 = (CQLExpression*)(_factory.makeObject(&_cid,Expression));
+           CQLSimplePredicate _sp(*_expr1, *_expr2, ISA);
+	   _factory.setObject($1,&_sp,SimplePredicate);
            $$ = $1;
        }
      | arith _LIKE literal_string
@@ -730,9 +730,10 @@ comp : arith
 	   printf_(msg);
 
            CQLExpression *_expr1 = (CQLExpression*)(_factory.getObject($1,Predicate,Expression));
-           CQLExpression *_expr2 = (CQLExpression*)(_factory.makeObject(new CQLChainedIdentifier(*$3),Expression));
-	   CQLSimplePredicate *_sp = new CQLSimplePredicate(*_expr1, *_expr2, LIKE);
-           _factory.setObject($1,_sp,SimplePredicate);
+	   CQLChainedIdentifier _cid(*$3);
+           CQLExpression *_expr2 = (CQLExpression*)(_factory.makeObject(&_cid,Expression));
+	   CQLSimplePredicate _sp(*_expr1, *_expr2, LIKE);
+           _factory.setObject($1,&_sp,SimplePredicate);
            $$ = $1;
        }
 ;
@@ -893,7 +894,8 @@ star_expr : STAR
                 sprintf(msg,"BISON::star_expr->STAR\n");
 		printf_(msg);
 
-		$$ = (CQLChainedIdentifier*)(_factory.makeObject(new CQLIdentifier("*"),ChainedIdentifier));
+		CQLIdentifier _id("*");
+		$$ = (CQLChainedIdentifier*)(_factory.makeObject(&_id,ChainedIdentifier));
             }
 ;
 

@@ -46,6 +46,7 @@ class PEGASUS_CQL_LINKAGE CQLExpressionRep
     void appendOperation(TermOpType theTermOpType, CQLTerm& theTerm);
 
    String toString();
+   Boolean isSimple();
    Boolean isSimpleValue();
    Array<CQLTerm> getTerms();
    Array<TermOpType> getOperators();

@@ -66,7 +66,7 @@ class CQLSimplePredicateRep
     enum ExpressionOpType getOperation();
 
     String toString();
-
+    Boolean isSimple();
     Boolean isSimpleValue();
 
     friend class CQLFactory;

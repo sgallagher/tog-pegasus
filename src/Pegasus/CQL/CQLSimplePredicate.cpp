@@ -54,7 +54,9 @@ String CQLSimplePredicate::toString()
 {
 	return _rep->toString();
 }
-
+Boolean CQLSimplePredicate::isSimple(){
+        return _rep->isSimple();
+}
 Boolean CQLSimplePredicate::isSimpleValue(){
 	return _rep->isSimpleValue();
 }

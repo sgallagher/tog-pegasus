@@ -71,9 +71,7 @@ void CQLPredicateRep::applyScopes(Array<CQLScope> & inScopes){
 
 
 Boolean CQLPredicateRep::isSimple(){
-	//if(_predicates.size() == 0)
-	//	return _predicates[0].isSimple();
-	return false;
+	return (_predicates.size() == 0);
 }
 Boolean CQLPredicateRep::isSimpleValue(){
 	return (_simplePredicate.isSimpleValue());

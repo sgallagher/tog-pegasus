@@ -72,7 +72,10 @@ String CQLExpression::toString()
 {
    return _rep->toString();
 }
-
+Boolean CQLExpression::isSimple()
+{
+        return _rep->isSimple();
+}
 Boolean CQLExpression::isSimpleValue()
 {
 	return _rep->isSimpleValue();

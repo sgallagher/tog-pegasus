@@ -64,6 +64,7 @@ class PEGASUS_CQL_LINKAGE CQLTerm
     void appendOperation(FactorOpType inFactorOpType, CQLFactor inFactor);
 
    String toString();
+   Boolean isSimple();
    Boolean isSimpleValue();
    Array<CQLFactor> getFactors();
    Array<FactorOpType> getOperators();

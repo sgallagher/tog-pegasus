@@ -68,6 +68,11 @@ String CQLTermRep::toString()
 
 }
 
+Boolean CQLTermRep::isSimple()
+{
+   return (_Factors.size() == 1);
+}
+
 Boolean CQLTermRep::isSimpleValue()
 {
    if(_Factors.size() == 1) 

@@ -292,6 +292,23 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
 	    return;    	
    }        
 // l10n end   
+    //
+    // Search for "Content-Type" header:
+    //
+
+   String cimContentType;
+
+   if (!HTTPMessage::lookupHeader(
+				  headers, "Content-Type", cimContentType, true))
+   {
+       CIMClientMalformedHTTPException* malformedHTTPException = new
+	 CIMClientMalformedHTTPException("Missing CIMContentType HTTP header");
+       ClientExceptionMessage * response =
+	 new ClientExceptionMessage(malformedHTTPException);
+
+       _outputQueue->enqueue(response);
+       return;
+   }
 
     //
     // Zero-terminate the message:

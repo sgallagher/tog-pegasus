@@ -64,7 +64,12 @@ int main(int argc, char** argv)
 	ostrstream os;
 	os << s4;
 	os.put('\0');
+#ifndef PEGASUS_HAS_ICU
 	const char EXPECTED[] = "Hello\\x0000\\x1234\\x5678\\x9CDE\\xFFFF";
+#else
+	CString cstr = s4.getCStringUTF8();
+	const char * EXPECTED = (const char *)cstr;
+#endif
 	char* tmp = os.str();
 	assert(strcmp(EXPECTED, tmp) == 0);
 #ifdef PEGASUS_PLATFORM_AIX_RS_IBMCXX

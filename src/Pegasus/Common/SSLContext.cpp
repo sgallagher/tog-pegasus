@@ -210,8 +210,87 @@ int SSLCallback::verificationCRLCallback(int ok, X509_STORE_CTX *ctx, X509_STORE
 {
 	PEG_METHOD_ENTER(TRC_SSL, "SSLCallback::verificationCRLCallback");
     
-	//PEP187 function
-	//ATTN: must reimplement this callback 2/2/2005
+	char buf[1024];
+
+	//check whether a CRL store was specified
+    if (sslCRLStore == NULL)
+    {
+        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: CRL store is NULL");
+        return ok;
+    }
+
+	//get the current certificate info
+	X509* currentCert;
+	X509_NAME* issuerName;
+	X509_NAME* subjectName;
+	ASN1_INTEGER* serialNumber;
+
+    currentCert = X509_STORE_CTX_get_current_cert(ctx);
+	subjectName = X509_get_subject_name(currentCert);
+	issuerName = X509_get_issuer_name(currentCert);
+	serialNumber = X509_get_serialNumber(currentCert);
+
+	//log certificate information
+	//this is information in the "public" key, so it does no harm to log it
+    X509_NAME_oneline(issuerName, buf, sizeof(buf));
+	PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "---> SSL: Certificate Data: Issuer/Subject");
+	PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, buf);
+	X509_NAME_oneline(subjectName, buf, sizeof(buf));
+	PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, buf);
+
+	//initialize the CRL store
+	X509_STORE_CTX crlStoreCtx;
+	if (!X509_STORE_CTX_init(&crlStoreCtx, sslCRLStore, NULL, NULL))
+	{
+		//fail if a CRL store was specified but we cannot open it
+		PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL2, "---> SSL: Error: Could not initialize CRL store context");
+		return 0;
+	}
+
+	PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "---> SSL: Initialized CRL store");
+
+	//attempt to get a CRL issued by the certificate's issuer
+	X509_OBJECT obj;
+	if (X509_STORE_get_by_subject(&crlStoreCtx, X509_LU_CRL, issuerName, &obj) <= 0)
+	{
+	 	PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: No CRL by that issuer");
+		return ok; 
+	}
+	X509_STORE_CTX_cleanup(&crlStoreCtx);
+
+	//get CRL
+    X509_CRL* crl = obj.data.crl;
+	if (crl == NULL)
+	{
+		PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "---> SSL: CRL is null");
+		return ok;
+	} else
+	{
+        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "---> SSL: Found CRL by that issuer");
+	}
+
+	//get revoked certificates
+    STACK_OF(X509_REVOKED)* revokedCerts = NULL;
+    revokedCerts = X509_CRL_get_REVOKED(crl);
+	int numRevoked = sk_X509_REVOKED_num(revokedCerts);
+	Tracer::trace(TRC_SSL, Tracer::LEVEL4,"---> SSL: Number of certificates revoked by the issuer %d\n", numRevoked);
+
+	//check whether the subject's certificate is revoked
+	X509_REVOKED* revokedCert = NULL;
+	for (int i = 0; i < sk_X509_REVOKED_num(revokedCerts); i++)
+	{
+		revokedCert = (X509_REVOKED *)sk_value(X509_CRL_get_REVOKED(crl), i);
+
+		//a matching serial number indicates revocation
+		if (ASN1_INTEGER_cmp(revokedCert->serialNumber, serialNumber) == 0) 
+		{
+			PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL2, "---> SSL: Certificate is revoked");
+			X509_STORE_CTX_set_error(ctx, X509_V_ERR_CERT_REVOKED);
+			return 0;
+		}
+	}
+
+	PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "---> SSL: Certificate is not revoked at this level");
 
 	PEG_METHOD_EXIT();
     return ok;
@@ -256,12 +335,17 @@ int SSLCallback::verificationCallback(int preVerifyOk, X509_STORE_CTX *ctx)
 		if (exData->_crlStore == NULL) 
 		{
 			PEG_METHOD_EXIT();
-        return (preVerifyOk);
+			return (preVerifyOk);
 		} else
 		{
 			revoked = verificationCRLCallback(preVerifyOk,ctx,exData->_crlStore);
-			PEG_METHOD_EXIT();
-			return (revoked);
+			Tracer::trace(TRC_SSL, Tracer::LEVEL4, "---> SSL: CRL callback returned %d", revoked);
+
+			if (revoked == 0) //with the SSL callbacks '0' indicates failure
+			{
+				PEG_METHOD_EXIT();
+                return 0;
+			}
 		}
     }
 
@@ -271,8 +355,13 @@ int SSLCallback::verificationCallback(int preVerifyOk, X509_STORE_CTX *ctx)
 	if (exData->_crlStore) 
 	{
         revoked = verificationCRLCallback(preVerifyOk,ctx,exData->_crlStore);
-		Tracer::trace(TRC_SSL, Tracer::LEVEL4,
-					  "---> SSL: CRL callback returned %d", revoked);
+		Tracer::trace(TRC_SSL, Tracer::LEVEL4, "---> SSL: CRL callback returned %d", revoked);
+
+		if (revoked == 0) //with the SSL callbacks '0' indicates failure
+		{
+			PEG_METHOD_EXIT();
+            return 0;
+		}
 	}
 
     //

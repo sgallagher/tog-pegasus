@@ -10,6 +10,7 @@
 #include <Pegasus/Provider/CMPI/cmpidt.h>
 #include <Pegasus/Provider/CMPI/cmpift.h>
 #include <Pegasus/Provider/CMPI/cmpimacs.h>
+#include <Pegasus/Provider/CMPI/cmpi_cql.h>
 
 #define _IndClassName "TestCMPI_Indication"
 #define _Namespace    "test/TestProvider"
@@ -396,8 +397,7 @@ TestCMPIIndicationProviderAuthorizeFilter (CMPIIndicationMI * mi,
   CMPIString *str = NULL;
   CMPIStatus rc = { CMPI_RC_OK, NULL };
 
-  str = CMGetSelExpString (se, &rc);
-  PROV_LOG_OPEN (CMGetCharPtr (str));
+  PROV_LOG_OPEN (_IndClassName);
 
   PROV_LOG ("--- %s CMPI AuthorizeFilter() called", _IndClassName);
   /* we don't object */
@@ -427,8 +427,7 @@ TestCMPIIndicationProviderMustPoll (CMPIIndicationMI * mi,
   CMPIString *str = NULL;
   CMPIStatus rc = { CMPI_RC_OK, NULL };
 
-  str = CMGetSelExpString (se, &rc);
-  PROV_LOG_OPEN (CMGetCharPtr (str));
+  PROV_LOG_OPEN (_IndClassName);
 
   PROV_LOG ("--- %s CMPI MustPoll() called", _IndClassName);
   /* no polling */
@@ -455,7 +454,7 @@ TestCMPIIndicationProviderActivateFilter (CMPIIndicationMI * mi,
   CMPIStatus rc_Clone = { CMPI_RC_OK, NULL };
   CMPIStatus rc_Inst = { CMPI_RC_OK, NULL };
   CMPIStatus rc_Pred = { CMPI_RC_OK, NULL };
-
+  CMPIStatus rc_Array = { CMPI_RC_OK, NULL };
   CMPIString *type = NULL;
   CMPISelectExp *clone = NULL;
   CMPIBoolean evalRes;
@@ -465,15 +464,48 @@ TestCMPIIndicationProviderActivateFilter (CMPIIndicationMI * mi,
   CMPIString *name = NULL;
   CMPIStatus rc_CMGetPropertyAt = { CMPI_RC_OK, NULL };
   CMPIData prop_data;
+  CMPIArray **projection;
 
-  str = CMGetSelExpString (se, &rc);
-  PROV_LOG_OPEN (CMGetCharPtr (str));
+  PROV_LOG_OPEN (_IndClassName);
 
   PROV_LOG ("--- %s CMPI ActivateFilter() called", _IndClassName);
 
   PROV_LOG ("-- #1 Clone");
   clone = CMClone (se, &rc_Clone);
   PROV_LOG ("---- %s", strCMPIStatus (rc_Clone));
+  if (clone) CMRelease(clone);
+
+	/*
+	This functionality is not used in indication providers, but instead in
+	ExecQuery provider API (instance providers). But for the sake
+	of completness this functionality is also used here. */
+
+  PROV_LOG ("-- #1.1 CMNewSelectExp");
+  str = CMGetSelExpString (se, &rc);
+  clone = CMPI_CQL_NewSelectExp(_broker, CMGetCharPtr (str), "CIMxCQL", (const CMPIArray **)projection, &rc_Clone);
+
+  PROV_LOG ("---- %s", strCMPIStatus (rc_Clone));
+  if (clone) {
+		PROV_LOG("--- Projection list is: ");
+	    CMPICount cnt = CMGetArrayCount(*projection, &rc_Array);
+        PROV_LOG ("---- %s", strCMPIStatus (rc_Array));
+		PROV_LOG ("---- CMGetArrayCount, %d", cnt);
+		for (idx = 0; idx < cnt; idx++)
+		{	
+			PROV_LOG("--- CMGetArrayElementAt");
+			CMPIData data = CMGetArrayElementAt(*projection, idx, &rc_Array);
+        	PROV_LOG ("---- %s", strCMPIStatus (rc_Array));
+			PROV_LOG ("---- tpye is : %d", data.type);
+			if (data.type == CMPI_chars)
+			{
+				PROV_LOG ("---- %s", data.value.chars);
+			}
+			if (data.type == CMPI_string)
+			{
+				PROV_LOG ("---- %s", CMGetCharPtr(data.value.string));
+			}
+		}
+  }
 
   PROV_LOG ("-- #2 MakeObjectPath");
   // Create instance
@@ -661,8 +693,7 @@ TestCMPIIndicationProviderDeActivateFilter (CMPIIndicationMI * mi,
   CMPIStatus rc = { CMPI_RC_OK, NULL };
   CMPIString *str = NULL;
 
-  str = CMGetSelExpString (se, &rc);
-  PROV_LOG_OPEN (CMGetCharPtr (str));
+  PROV_LOG_OPEN (_IndClassName);
   PROV_LOG ("--- %s CMPI DeActivateFilter() called", _IndClassName);
   str = CMGetSelExpString (se, &rc);
   PROV_LOG ("-- Query is [%s]", CMGetCharPtr (str));

@@ -30,6 +30,8 @@
 //
 // Modified By: Jenny Yu (jenny_yu@hp.com)
 //
+// Modified By: Sushma Fernandes (sushma_fernandes@hp.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -88,6 +90,7 @@
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/HTTPConnector.h>
 #include <Pegasus/Server/ShutdownService.h>
+#include <Pegasus/Common/Destroyer.h>
 #ifndef PEGASUS_OS_ZOS
 #include <slp/slp.h>
 #endif
@@ -135,37 +138,6 @@ static const String PROPERTY_TIMEOUT = "operationTimeout";
 
 ConfigManager*    configManager;
 
-void GetEnvironmentVariables(
-    const char* arg0,
-    String& pegasusHome)
-{
-    // Get environment variables:
-
-    const char* tmp = getenv("PEGASUS_HOME");
-
-    if (!tmp)
-    {
-	cerr << arg0 << ": PEGASUS_HOME environment variable undefined" << endl;
-	exit(1);
-    }
-
-    pegasusHome = tmp;
-    FileSystem::translateSlashes(pegasusHome);
-}
-
-void SetEnvironmentVariables(
-    const char* arg0)
-{
-    cout << "PEGASUS_HOME is now " << arg0 << endl;
-
-    String str = "PEGASUS_HOME=";
-    str += arg0;
-    char* tmp = str.allocateCString();
-    putenv(tmp);
-
-    // Note: don't delete tmp! putenv() uses it.
-}
-
 /** GetOptions function - This function defines the Options Table
     and sets up the options from that table using the config manager.
 */
@@ -175,12 +147,9 @@ void GetOptions(
     char** argv,
     const String& pegasusHome)
 {
-    String currentFile = pegasusHome + "/" + CURRENT_CONFIG_FILE;
-    String plannedFile = pegasusHome + "/" + PLANNED_CONFIG_FILE;
-
     try
     {
-        cm->mergeConfigFiles(currentFile, plannedFile);
+        cm->mergeConfigFiles();
 
         cm->mergeCommandLine(argc, argv);
     }
@@ -240,7 +209,6 @@ void PrintHelp(const char* arg0)
 
     usage.append ("  configProperty=value\n");
     usage.append ("    port=nnnn            - sets port number to listen on\n");
-    usage.append ("    home=/pegasus/bin    - sets pegasus home directory\n");
     usage.append ("    logdir=/pegasus/logs - directory for log files\n");
 
     cout << endl;
@@ -361,6 +329,18 @@ int main(int argc, char** argv)
     String  timeoutStr  = String::EMPTY;
     long timeoutValue  = 0;
 
+    //
+    // Get environment variables:
+    //
+    const char* tmp = getenv("PEGASUS_HOME");
+
+    if (tmp)
+    {
+        pegasusHome = tmp;
+    }
+
+    FileSystem::translateSlashes(pegasusHome);
+
     // on Windows NT if there are no command-line options, run as a service
 
     if (argc == 1 )
@@ -402,7 +382,6 @@ int main(int argc, char** argv)
                     if (i + 1 < argc) 
                     {
                         pegasusHome.assign(argv[i + 1]);
-        	        SetEnvironmentVariables(argv[i + 1]);
                     }
                     else
                     {
@@ -514,8 +493,10 @@ int main(int argc, char** argv)
         }
     }
 
-    if (pegasusHome.size() == 0)
-        GetEnvironmentVariables(argv[0], pegasusHome);
+    //
+    // Set the value for pegasusHome property
+    //
+    ConfigManager::setPegasusHome(pegasusHome);
 
     //
     // Get an instance of the Config Manager.
@@ -590,6 +571,8 @@ int main(int argc, char** argv)
         // ATTN-KS: create String based directory functions.
 
         logsDirectory = configManager->getCurrentValue("logdir");
+        logsDirectory = 
+	    ConfigManager::getHomedPath(configManager->getCurrentValue("logdir"));
 
         // Set up the Logger. This does not open the logs
         // Might be more logical to clean before set.
@@ -708,7 +691,7 @@ int main(int argc, char** argv)
 #endif
 
 	Monitor monitor;
-	CIMServer server(&monitor, pegasusHome, useSSL);
+	CIMServer server(&monitor, useSSL);
 		
 	// bind throws an exception of the bind fails
 	cout << "Binding to " << address << endl;

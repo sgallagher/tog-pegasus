@@ -23,7 +23,8 @@
 //
 // Author: Nag Boranna (nagaraja_boranna@hp.com)
 //
-// Modified By:
+// Modified By: Sushma Fernandes, Hewlett-Packard Company
+//                 (sushma_fernandes@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -52,6 +53,7 @@
 #include <Pegasus/Config/SecurityPropertyOwner.h>
 #include <Pegasus/Config/RepositoryPropertyOwner.h>
 #include <Pegasus/Config/ShutdownPropertyOwner.h>
+#include <Pegasus/Config/FileSystemPropertyOwner.h>
 
 
 PEGASUS_NAMESPACE_BEGIN
@@ -131,7 +133,17 @@ private:
     */
     ConfigFileHandler*    _configFileHandler;
 
+    /**
+    Pegasus home variable
+    */
+    static String	  _pegasusHome;
+
 public:
+
+    /**
+    Default location of Pegasus home.
+    */
+    static const String PEGASUS_HOME_DEFAULT;
 
     /**
     Constants representing the command line options.
@@ -160,6 +172,8 @@ public:
     static RepositoryPropertyOwner* repositoryOwner; 
 
     static ShutdownPropertyOwner*   shutdownOwner; 
+
+    static FileSystemPropertyOwner*   fileSystemOwner; 
 
     /**
     Property list
@@ -317,6 +331,25 @@ public:
     */
     void mergeCommandLine(int& argc, char**& argv);
         //throw (UnrecognizedConfigProperty, InvalidPropertyValue);
+
+
+    /**
+    Get Pegasus Home
+    */
+    static String getPegasusHome();
+
+    /**
+    Set Pegasus Home 
+    */
+    static void setPegasusHome(String& home);
+
+    /**
+    Get Homed Path
+    This function checks if the argument passed is an absolute path. 
+    If true then it returns the same value. Else, it prepends 
+    the value of pegasusHome to the value.
+    */
+    static String getHomedPath(const String& value);
 
 };
 

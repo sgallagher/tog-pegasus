@@ -23,6 +23,7 @@
 // Author: Mike Day (mdday@us.ibm.com)
 //
 // Modified By: Mary Hinton (m.hinton@verizon.net)
+//              Sushma Fernandes (sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -127,7 +128,7 @@ PEGASUS_TRACE;
 PEGASUS_TRACE;
 	Monitor monitor;
         
-       	CIMServer server(&monitor, *runPath, useSSL);
+       	CIMServer server(&monitor, useSSL);
 	server_windows = &server;
 
 	char* end = 0;

@@ -29,6 +29,7 @@
 //         Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //         Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //         Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
+//         Sushma Fernandes, Hewlett-Packard Company (sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -65,40 +66,33 @@ PEGASUS_NAMESPACE_BEGIN
 
 CIMServer::CIMServer(
     Monitor* monitor,
-    const String& rootPath,
     Boolean useSSL)
-   : _dieNow(false), _rootPath(rootPath), _useSSL(useSSL)
+   : _dieNow(false), _useSSL(useSSL)
 {
     const char METHOD_NAME[] = "CIMServer::CIMServer()";
 
     PEG_FUNC_ENTER(TRC_SERVER, METHOD_NAME);
 
-    static const char REPOSITORY[] = "/repository";
-
     static const char CERTIFICATE[] = "/server.pem";
+
+    String repositoryRootPath = String::EMPTY;
 
     // -- Save the monitor or create a new one:
 
     _monitor = monitor;
 
+    repositoryRootPath =
+	    ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("repositoryDir"));
+
     // -- Create a repository:
 
-    if (!FileSystem::isDirectory(_rootPath))
+    if (!FileSystem::isDirectory(repositoryRootPath))
     {
         PEG_FUNC_EXIT(TRC_SERVER, METHOD_NAME);
-	throw NoSuchDirectory(_rootPath);
+	throw NoSuchDirectory(repositoryRootPath);
     }
 
-    _repositoryRootPath = rootPath;
-    _repositoryRootPath.append(REPOSITORY);
-
-    if (!FileSystem::isDirectory(_repositoryRootPath))
-    {
-        PEG_FUNC_EXIT(TRC_SERVER, METHOD_NAME);
-	throw NoSuchDirectory(_repositoryRootPath);
-    }
-
-    CIMRepository* repository = new CIMRepository(_repositoryRootPath);
+    CIMRepository* repository = new CIMRepository(repositoryRootPath);
 
     // -- Create a CIMServerState object:
 
@@ -178,7 +172,7 @@ CIMServer::CIMServer(
     SSLContext * sslcontext;
     if (_useSSL)
     {
-        String certPath = rootPath;
+        String certPath = ConfigManager::getPegasusHome();
         certPath.append(CERTIFICATE);
 
         sslcontext = new SSLContext(certPath);

@@ -23,7 +23,8 @@
 //
 // Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
-// Modified By:
+// Modified By: Sushma Fernandes, 
+//                 Hewlett-Packard Company (sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -59,8 +60,9 @@ CIMHandler* HandlerTable::loadHandler(const String& handlerId)
 #ifdef PEGASUS_OS_TYPE_WINDOWS
     ArrayDestroyer<char> libraryName = handlerId.allocateCString();
 #else
-    String unixLibName = getenv("PEGASUS_HOME");
-    unixLibName += "/lib/lib";
+    String unixLibName = 
+              ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
+    unixLibName += "/lib";
     unixLibName += handlerId;
 #ifdef PEGASUS_OS_HPUX
     unixLibName += ".sl";

@@ -18,6 +18,7 @@ SOURCES = \
 	ConfigManager.cpp \
 	ConfigPropertyOwner.cpp \
 	DefaultPropertyOwner.cpp \
+	FileSystemPropertyOwner.cpp \
 	LogPropertyOwner.cpp \
 	TracePropertyOwner.cpp \
         SecurityPropertyOwner.cpp \

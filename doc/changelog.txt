@@ -588,6 +588,20 @@ repository implementation.
 
 60. (Bapu Patil - HP) Updated makefiles to support HP-UX IA64 bits O.S.
 
+61. (Sushma Fernandes - HP) 13 Feb 2001 Implemented FileSystemPropertyOwner 
+    class to support PEGASUS_HOME dependent properties like Repository 
+    location, Provider location and Consumer location. 
+    The default location for these properties continue to be the same 
+    as before. Added support to the Config Manager to own the
+    Pegasus Home variable and implemented method (getHomedPath) to
+    return absolute paths based from Pegasus Home.
+
+    For more information look in to the following files:
+    pegasus/src/Pegasus/Config/ConfigManager.h
+    pegasus/src/Pegasus/Config/ConfigManager.cpp
+    pegasus/src/Pegasus/Config/FileSystemPropertyOwner.h
+    pegasus/src/Pegasus/Config/FileSystemPropertyOwner.cpp
+
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch
               Tagged as version_1_01 on 3 August 2001 (sorry should have been

@@ -23,7 +23,8 @@
 //
 // Author: Nag Boranna (nagaraja_boranna@hp.com)
 //
-// Modified By:
+// Modified By: Sushma Fernandes, Hewlett-Packard Company
+//                  (sushma_fernandes@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -83,6 +84,7 @@ DefaultPropertyOwner*    ConfigManager::defaultOwner = new DefaultPropertyOwner;
 SecurityPropertyOwner*   ConfigManager::securityOwner= new SecurityPropertyOwner;
 RepositoryPropertyOwner* ConfigManager::repositoryOwner= new RepositoryPropertyOwner;
 ShutdownPropertyOwner*   ConfigManager::shutdownOwner= new ShutdownPropertyOwner;
+FileSystemPropertyOwner*   ConfigManager::fileSystemOwner= new FileSystemPropertyOwner;
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -94,11 +96,11 @@ ShutdownPropertyOwner*   ConfigManager::shutdownOwner= new ShutdownPropertyOwner
 struct PropertyList ConfigManager::properties[] =
 {
     {"traceLevel",          (ConfigPropertyOwner* )ConfigManager::traceOwner},
-    {"traceFilePath",       (ConfigPropertyOwner* )ConfigManager::traceOwner},
     {"traceComponents",     (ConfigPropertyOwner* )ConfigManager::traceOwner},
+    {"traceFilePath",       (ConfigPropertyOwner* )ConfigManager::traceOwner},
     {"trace",               (ConfigPropertyOwner* )ConfigManager::logOwner},
-    {"logtrace",            (ConfigPropertyOwner* )ConfigManager::logOwner},
     {"logdir",              (ConfigPropertyOwner* )ConfigManager::logOwner},
+    {"logtrace",            (ConfigPropertyOwner* )ConfigManager::logOwner},
     {"cleanlogs",           (ConfigPropertyOwner* )ConfigManager::logOwner},
     {"severity",            (ConfigPropertyOwner* )ConfigManager::logOwner},
     {"port",                (ConfigPropertyOwner* )ConfigManager::defaultOwner},
@@ -111,17 +113,25 @@ struct PropertyList ConfigManager::properties[] =
     {"requireAuthentication", (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"requireAuthorization",  (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"httpAuthType",        (ConfigPropertyOwner* )ConfigManager::securityOwner},
+    {"passwordFilePath",    (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"repositoryIsDefaultInstanceProvider", (ConfigPropertyOwner* )ConfigManager::repositoryOwner},
     {"repositoryProviderName", (ConfigPropertyOwner* )ConfigManager::repositoryOwner},
     {"operationTimeout",    (ConfigPropertyOwner* )ConfigManager::shutdownOwner},
     {"shutdownTimeout",     (ConfigPropertyOwner* )ConfigManager::shutdownOwner},
-    {"passwordFilePath",    (ConfigPropertyOwner* )ConfigManager::securityOwner}
+    {"repositoryDir",              (ConfigPropertyOwner* )ConfigManager::fileSystemOwner},
+    {"providerDir",         (ConfigPropertyOwner* )ConfigManager::fileSystemOwner},
+    {"consumerDir",          (ConfigPropertyOwner* )ConfigManager::fileSystemOwner}
 };
 
 const Uint32 NUM_PROPERTIES = 
     sizeof(ConfigManager::properties) / sizeof(ConfigManager::properties[0]);
 
+/**
+Initialize the default PEGASUS_HOME location, the default is set to the current directory.
+*/
+const String ConfigManager::PEGASUS_HOME_DEFAULT  = ".";
 
+String ConfigManager::_pegasusHome = PEGASUS_HOME_DEFAULT;
 
 /**
 Initialize the constants representing the command line options.
@@ -680,5 +690,45 @@ void ConfigManager::_initPropertyOwners()
     }
 }
 
+/**
+Get Pegasus Home
+*/
+String ConfigManager::getPegasusHome()
+{
+    return _pegasusHome;
+}
+
+/**
+Set Pegasus Home variable
+*/
+void ConfigManager::setPegasusHome(String& home)
+{
+    if ( home != String::EMPTY )
+    {
+       _pegasusHome = home;
+    }
+}
+
+/**
+Get the homed path for a given property. 
+*/
+String ConfigManager::getHomedPath(const String& value)
+{
+    String homedPath = String::EMPTY;
+
+    if ( value != String::EMPTY )
+    {
+	if ( value.subString(0,1) == "/" )
+	{
+	    return value; 
+        }
+        //
+        // Get the pegasusHome and prepend it
+        //
+        homedPath= _pegasusHome + "/" + value;
+    }
+    return homedPath;
+}
+     
 PEGASUS_NAMESPACE_END
 

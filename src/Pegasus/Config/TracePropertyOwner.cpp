@@ -38,6 +38,7 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Destroyer.h>
+#include "ConfigManager.h"
 #include "TracePropertyOwner.h"
 
 
@@ -167,10 +168,7 @@ void TracePropertyOwner::initialize()
 	// Get the value of environment variable PEGASUS_HOME to set the
 	// default trace filepath
 	// The default trace file location is <$PEGASUS_HOME/logs>
-        const char* tmp = getenv("PEGASUS_HOME");
-
-        String pegasusHome(tmp);
-        pegasusHome.append("/logs/");
+        String pegasusHome = ConfigManager::getHomedPath(ConfigManager::getPegasusHome() + String("/logs/"));
 
 	// Create $PEGASUS_HOME/logs directory if it does not exist
 	// If unable to create the directory then create the traceFile

@@ -24,6 +24,7 @@
 // Author: Nag Boranna (nagaraja_boranna@hp.com)
 //
 // Modified By: Yi Zhou (yi_zhou@hp.com)
+//            : Sushma Fernandes (sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,6 +35,7 @@
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/Logger.h>
 #include "ConfigFileHandler.h"
+#include "ConfigManager.h"
 
 
 PEGASUS_USING_STD;
@@ -68,9 +70,15 @@ ConfigFileHandler::ConfigFileHandler (
     const Boolean offLine)
     : _offLine(offLine)
 {
-    String cFile = currentFile;
+    String cFile;
+    String pFile;
 
-    String pFile = plannedFile;
+    //
+    // Set the current and planned config files
+    //
+    cFile = ConfigManager::getHomedPath(currentFile);
+
+    pFile = ConfigManager::getHomedPath(plannedFile);
 
     //
     // Initialize instance variables.

@@ -63,12 +63,10 @@ public:
         a dispatcher object, and creates a channnel factory and
         acceptor for the Server.
         @param monitor	  monitor object for the server.
-        @param rootPath Directory path to the repository.
         @exception - ATTN
     */
     CIMServer(
 	Monitor* monitor,
-	const String& rootPath,
         Boolean useSSL);
 
     ~CIMServer();
@@ -115,9 +113,6 @@ public:
 private:
 
     Boolean _dieNow;
-
-    String _rootPath;
-    String _repositoryRootPath;
 
     Boolean _useSSL;
 

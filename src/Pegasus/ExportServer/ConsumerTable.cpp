@@ -23,7 +23,8 @@
 //
 // Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
-// Modified By:
+// Modified By: Sushma Fernandes, Hewlett-Packard Company
+//                 sushma_fernandes@hp.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -36,6 +37,7 @@
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/System.h>
+#include <Pegasus/Config/ConfigManager.h>
 #include "ConsumerTable.h"
 
 PEGASUS_USING_STD;
@@ -45,7 +47,7 @@ ConsumerTable::ConsumerTable()
 {
     ConsumerList regConsumers;
 
-    String    pegasusHome   = String::EMPTY;
+    String    consumerDir   = String::EMPTY;
 
     //
     // Get environment variable
@@ -53,27 +55,18 @@ ConsumerTable::ConsumerTable()
     String consumerFile;
     String plannedFile;
 
-    const char* env = getenv("PEGASUS_HOME");
-
-    if (!env || env == "")
-    {
-        cerr << "PEGASUS_HOME environment variable undefined," << endl;
-    }
-    else
-    {
-        pegasusHome = env;
-        FileSystem::translateSlashes(pegasusHome);
-        consumerFile.append(pegasusHome + "/" + CONSUMER_LIST_FILE);
-    }
+    consumerDir = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("consumerDir"));
+    FileSystem::translateSlashes(consumerDir);
+    consumerFile.append(consumerDir + "/" + CONSUMER_LIST_FILE);
 
     String line;
 
     //
     // Delete the backup configuration file
     //
-    if (FileSystem::exists(pegasusHome + "/" + CONSUMER_LIST_FILE + ".bak"))
+    if (FileSystem::exists(consumerDir + "/" + CONSUMER_LIST_FILE + ".bak"))
     {
-        FileSystem::removeFile(pegasusHome + "/" + CONSUMER_LIST_FILE + ".bak");
+        FileSystem::removeFile(consumerDir + "/" + CONSUMER_LIST_FILE + ".bak");
     }
 
     //
@@ -238,8 +231,8 @@ CIMIndicationConsumer* ConsumerTable::loadConsumer(const String& consumerId)
 #ifdef PEGASUS_OS_TYPE_WINDOWS
 	ArrayDestroyer<char> libraryName = consumerName.allocateCString();
 #else
-	String unixLibName = getenv("PEGASUS_HOME");
-	unixLibName += "/lib/lib";
+        String unixLibName = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
+	unixLibName += "/lib";
 	unixLibName += consumerName;
 #ifdef PEGASUS_OS_HPUX
 	unixLibName += ".sl";

@@ -36,6 +36,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+#include "ConfigManager.h"
 #include "SecurityPropertyOwner.h"
 #include <Pegasus/Common/FileSystem.h>
 
@@ -136,8 +137,7 @@ void SecurityPropertyOwner::initialize()
             //
 	    if ( _passwordFilePath->currentValue == String::EMPTY )
 	    {
-                char* tmp = getenv("PEGASUS_HOME");
-                _passwordFilePath->currentValue += tmp;
+                _passwordFilePath->currentValue += ConfigManager::getPegasusHome();
                 _passwordFilePath->currentValue.append("/");
                 _passwordFilePath->currentValue += _passwordFilePath->defaultValue;
             }

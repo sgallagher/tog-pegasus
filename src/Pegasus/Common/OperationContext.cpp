@@ -235,12 +235,6 @@ IdentityContainer::IdentityContainer(const OperationContext::Container & contain
     _rep->userName = p->_rep->userName;
 }
 
-IdentityContainer::IdentityContainer(const IdentityContainer & container)
-{
-    _rep = new IdentityContainerRep();
-    _rep->userName = container._rep->userName;
-}
-
 IdentityContainer::IdentityContainer(const String & userName)
 #ifndef PEGASUS_REMOVE_DEPRECATED
     : OperationContext::Container(CONTEXT_IDENTITY)
@@ -253,19 +247,6 @@ IdentityContainer::IdentityContainer(const String & userName)
 IdentityContainer::~IdentityContainer(void)
 {
     delete _rep;
-}
-
-IdentityContainer & IdentityContainer::operator=(
-    const IdentityContainer & container)
-{
-    if (this == &container)
-    {
-        return (*this);
-    }
-
-    _rep->userName = container._rep->userName;
-
-    return (*this);
 }
 
 String IdentityContainer::getName(void) const

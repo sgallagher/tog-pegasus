@@ -6,6 +6,13 @@ endif
 
 ifeq ($(COMPILER),acc)
   LINK_COMMAND = aCC -b
+  ifdef PEGASUS_PURIFY
+    PUREOPTIONS = -follow-child-processes=yes -locking=no \
+                  -always-use-cache-dir -cache-dir=/tmp/cache \
+                  -view-file=/tmp/cimserver.pv -log-file=/tmp/cimserver.log
+    LINK_COMMAND = $(PURIFY_HOME)/purify $(PUREOPTIONS) aCC -b
+    FULL_LIBRARIES += $(PURIFY_HOME)/libpurify_stubs.a
+  endif
   ifeq ($(HPUX_IA64_VERSION), yes)
     LINK_COMMAND += +DD64 -mt
   endif

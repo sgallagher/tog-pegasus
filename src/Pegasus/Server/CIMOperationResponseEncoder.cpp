@@ -48,6 +48,10 @@
 # include <ccover.h>
 #endif
 
+#ifdef PEGASUS_PURIFY
+# include <purify.h>
+#endif
+
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
@@ -82,6 +86,11 @@ void CIMOperationResponseEncoder::sendResponse(
 
 #ifdef PEGASUS_CCOVER
       cov_write();
+#endif
+
+#ifdef PEGASUS_PURIFY
+      // Dump all the leaks to purify log file
+      purify_all_leaks();
 #endif
    }
    else

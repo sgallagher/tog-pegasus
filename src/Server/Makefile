@@ -27,6 +27,12 @@ ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
   SYS_LIBS = ws2_32.lib advapi32.lib	
 endif
 
+ifdef PEGASUS_PURIFY
+    PUREOPTIONS = -follow-child-processes=yes -locking=no \
+                   -always-use-cache-dir  -cache-dir=/tmp/cache \
+                   -view-file=/tmp/cimserver.pv -log-file=/tmp/cimserver.log
+    CXX = $(PURIFY_HOME)/purify $(PUREOPTIONS) aCC
+endif
 
 tests:
 

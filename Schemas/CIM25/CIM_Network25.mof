@@ -2038,7 +2038,7 @@ class CIM_FilterList : CIM_LogicalElement
          "indicating destination port = 80, and source and "
          "destination addresses of a and b, respectively. "
          "Then, for the outbound direction, the filter "
-         "entries match as specified and the ‘mirror’ (for "
+         "entries match as specified and the mirror (for "
          "the inbound direction) matches on source "
          "port = 80 and source and destination addresses "
          "of b and a, respectively."),

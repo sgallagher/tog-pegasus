@@ -23,6 +23,9 @@
 // Author: Bob Blair (bblair@bmc.com)
 //
 // $Log: memobjs.h,v $
+// Revision 1.2  2001/04/24 00:00:14  mike
+// Ported compiler to use String and Array (rather than STL equivalents)
+//
 // Revision 1.1  2001/02/16 23:59:09  bob
 // Initial checkin
 //
@@ -30,7 +33,7 @@
 //
 //END_HISTORY
 //
-// Header for a class to generate CIMValue objects from string values
+// Header for a class to generate CIMValue objects from String values
 //
 //
 // ----------------------------------------------------------------------

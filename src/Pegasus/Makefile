@@ -16,6 +16,7 @@ DIRS = \
     Provider \
     Server \
     getoopt \
+    Compiler \
     $(TEST_DIRS)
 
 # Compiler \

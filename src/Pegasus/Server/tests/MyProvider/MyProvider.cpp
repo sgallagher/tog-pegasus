@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: MyProvider.cpp,v $
+// Revision 1.12  2001/04/24 00:00:15  mike
+// Ported compiler to use String and Array (rather than STL equivalents)
+//
 // Revision 1.11  2001/04/18 11:51:33  karl
 // get and set property
 //
@@ -128,7 +131,7 @@ public:
 	CIMReference::referenceToInstanceName(instanceName, tmp);
 	cout << "MyProvider::getProperty() called" <<
 	    " instanceName= " << tmp <<
-	    " CIM Saved Value = " << savedCIMValue->toString <<
+	    " CIM Saved Value = " << savedCIMValue->toString() <<
 	    " propertyName = " << propertyName << endl;
 
 	
@@ -154,7 +157,7 @@ public:
 	    CIMReference::referenceToInstanceName(instanceName, tmp);
 	    cout << "MyProvider::setProperty() called" <<
 		" instanceName= " << tmp << 
-		" Saved CIM Value " << savedCIMValue->toString <<
+		" Saved CIM Value " << savedCIMValue->toString() <<
 		" propertyName = " << propertyName << endl;
 
 	    

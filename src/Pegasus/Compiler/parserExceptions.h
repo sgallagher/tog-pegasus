@@ -8,23 +8,23 @@
 // Pegasus/Common because it has to do with the base class parser,
 // which should be reusable outside Pegasus.
 
-#include <string>
+#include <Pegasus/Common/String.h>
 
 namespace ParserExceptions {
 
 class PEGASUS_COMPILER_LINKAGE ParserException {
  private:
-  const string _msg;
+  const String _msg;
  public:
   ParserException(const char *msg) : _msg(msg) {} ;
-  ParserException(const string &msg) :  _msg(msg) {};
-  const string &getMessage() const { return _msg; };
+  ParserException(const String &msg) :  _msg(msg) {};
+  const String &getMessage() const { return _msg; };
 };
 
 class PEGASUS_COMPILER_LINKAGE ParserLexException : public ParserException  {
  public:
   ParserLexException(const char *msg) : ParserException(msg) {};
-  ParserLexException(const string &msg) : ParserException(msg) {};
+  ParserLexException(const String &msg) : ParserException(msg) {};
   ~ParserLexException() {};
 };
 

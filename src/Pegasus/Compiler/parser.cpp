@@ -23,6 +23,9 @@
 // Author: Bob Blair (bblair@bmc.com)
 //
 // $Log: parser.cpp,v $
+// Revision 1.3  2001/04/24 00:00:15  mike
+// Ported compiler to use String and Array (rather than STL equivalents)
+//
 // Revision 1.2  2001/03/04 22:18:00  bob
 // Cleanup, support for reference, message moving, start of instance support
 //
@@ -58,11 +61,11 @@ parser::pop_statebuff() {
 }
 
 //-------------------------------------------------------------------
-// Create a flex input buffer from a string containing the file name
+// Create a flex input buffer from a String containing the file name
 //-------------------------------------------------------------------
 int 
-parser::setInputBufferFromName(const string &filename) {
-  FILE *f = fopen(filename.c_str(),"rt");
+parser::setInputBufferFromName(const String &filename) {
+  FILE *f = fopen(_CString(filename),"rt");
   if (f) {
     set_current_filename(filename);
     set_lineno(1);
@@ -101,7 +104,7 @@ void
 parser::log_parse_error(char *token, char *errmsg) const {
   char buf[40];
   sprintf(buf, "%d", _lineno);
-  string s = _current_filename + ":" + buf + ": " + errmsg + " before `" 
+  String s = _current_filename + ":" + buf + ": " + errmsg + " before `" 
     + token + "'\n";
-  throw ParserLexException(s.c_str());
+  throw ParserLexException(_CString(s));
 }

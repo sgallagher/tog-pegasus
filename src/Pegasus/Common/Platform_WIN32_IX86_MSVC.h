@@ -11,4 +11,9 @@
 
 #define PEGASUS_COMPILER_MSVC
 
+// Suppress this warning: "identifier was truncated to '255' characters in the 
+// debug information"
+
+#pragma warning( disable : 4786 )
+
 #endif /* Pegasus_ConfigPlatform_h */

@@ -8,7 +8,7 @@
 PEGASUS_NAMESPACE_BEGIN
 using namespace std;
 
-const cimmofMessages::arglist cimmofMessages::EMPTYLIST(0);
+const cimmofMessages::arglist cimmofMessages::EMPTYLIST;
 
 static String _cimmofMessages[] = {
   "OK", //SUCCESS
@@ -108,7 +108,7 @@ cimmofMessages::getMessage(String &out, MsgCode code, const arglist &args)
   String s = msgCodeToString(code);
   out = s;
   int pos;
-  for (unsigned int i = 0; i < args.size(); i++) {
+  for (unsigned int i = 0; i < args.getSize(); i++) {
     int state = 0;
     char buf[40];
     sprintf(buf, "%d", i + 1);

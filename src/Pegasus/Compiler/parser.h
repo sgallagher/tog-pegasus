@@ -23,6 +23,9 @@
 // Author: Bob Blair (bblair@bmc.com)
 //
 // $Log: parser.h,v $
+// Revision 1.2  2001/04/24 00:00:15  mike
+// Ported compiler to use String and Array (rather than STL equivalents)
+//
 // Revision 1.1  2001/02/16 23:59:09  bob
 // Initial checkin
 //
@@ -30,7 +33,7 @@
 //
 //END_HISTORY
 //
-// Header for a class to generate CIMValue objects from string values
+// Header for a class to generate CIMValue objects from String values
 //
 //
 //
@@ -40,7 +43,7 @@
 // compile both parser and lexer with a C++ compiler, although there
 // is no need to generate a C++ lexer.
 //
-// The include file and compile-from-string techniques used here are
+// The include file and compile-from-String techniques used here are
 // supported only by bison and flex.
 //
 
@@ -50,14 +53,15 @@
 #include <stack>
 #include <list>
 #include <cstdio>
-#include <string>
+#include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Config.h>
 
 using namespace std;
+using namespace Pegasus;
 
 struct bufstate {
 	void *buffer_state; // the YY_BUFFER_STATE of the stacked context
-	string filename;    // the name of the file open in the stacked context
+	String filename;    // the name of the file open in the stacked context
 	int    lineno;      // the line number of the file
 };
 
@@ -65,7 +69,7 @@ class PEGASUS_COMPILER_LINKAGE  parser {
  private:
   unsigned int _buffer_size;   // the value of the YY_BUFFER_SIZE macro
   stack<bufstate *, list<bufstate *> > _include_stack;  // a stack of YY_BUFFER_STATEs
-  string _current_filename; // name of the file being parsed
+  String _current_filename; // name of the file being parsed
   unsigned int _lineno;     // current line number in the file 
  protected:
   void push_statebuff(bufstate *statebuff) { _include_stack.push(statebuff); }
@@ -79,9 +83,9 @@ class PEGASUS_COMPILER_LINKAGE  parser {
   virtual int parse() = 0;    // call the parser main yy_parse()
   virtual int wrap();         // handle the end of the current stream
 
-  int setInputBufferFromName(const string &filename); // start parsing this file
+  int setInputBufferFromName(const String &filename); // start parsing this file
   virtual int setInputBuffer(const FILE *f) = 0;  // start parsing this handle
-  //  int setInputBuffer(const char *buf);   // start parsing this string
+  //  int setInputBuffer(const char *buf);   // start parsing this String
   virtual int setInputBuffer(void *buffstate) = 0; // start parsing this buffer
 
   // given a file stream, treat it as an include file
@@ -93,9 +97,9 @@ class PEGASUS_COMPILER_LINKAGE  parser {
 
   // We keep track of the filename associated with the current input
   // buffer so we can report on it.
-  void set_current_filename(const string &filename)
+  void set_current_filename(const String &filename)
   	{ _current_filename = filename; }
-  const string &get_current_filename() const { return _current_filename; }
+  const String &get_current_filename() const { return _current_filename; }
 
   // Ditto the line number
   void set_lineno(int n) { _lineno = n; }

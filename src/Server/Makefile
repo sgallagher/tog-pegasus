@@ -16,3 +16,8 @@ PROGRAM = cimserver
 SOURCES = cimserver.cpp
 
 include $(ROOT)/mak/program.mak
+
+tests:
+
+install:
+	$(COPY) cimserver.conf $(PEGASUS_HOME)

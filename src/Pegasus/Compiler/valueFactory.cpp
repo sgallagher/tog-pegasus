@@ -23,6 +23,9 @@
 // Author: Bob Blair (bblair@bmc.com)
 //
 // $Log: valueFactory.cpp,v $
+// Revision 1.3  2001/04/24 00:00:15  mike
+// Ported compiler to use String and Array (rather than STL equivalents)
+//
 // Revision 1.2  2001/03/04 22:18:00  bob
 // Cleanup, support for reference, message moving, start of instance support
 //
@@ -42,7 +45,7 @@
                               to know about cimmofParser, it might as well
 			      be rolled into it. */
 #include <cstring>
-#include <string>
+#include <Pegasus/Common/String.h>
 
 #define min(a,b) ( a < b ? a : b )
 #define max(a,b) ( a > b ? a : b )
@@ -50,7 +53,7 @@
 unsigned long
 valueFactory::Stoi(const String &val) {
   unsigned int end = val.getLength();
-  string s;
+  String s;
   for (unsigned int i = 0; i < end; i++) {
     switch(val[i]) {
     case '1': s += "1"; break;
@@ -65,13 +68,13 @@ valueFactory::Stoi(const String &val) {
     case '0': s += "0"; break;
     }
   }
-  return atol(s.c_str());
+  return atol(_CString(s));
 }
 
 static double
 Stof(const String &val) {
   unsigned int end = val.getLength();
-  string s;
+  String s;
   for (unsigned int i = 0; i < end; i++) {
     switch(val[i]) {
     case '1': s += "1"; break;
@@ -89,13 +92,13 @@ Stof(const String &val) {
     case 'e': s += "E"; break;
     }
   }
-  return atof(s.c_str());
+  return atof(_CString(s));
 }
 
 static CIMDateTime &
 StoDT(const String &val, CIMDateTime &dt) {
   unsigned int end = val.getLength();
-  string s;
+  String s;
   for (unsigned int i = 0; i < end; i++) {
     switch(val[i]) {
     case '1': s += "1"; break;
@@ -114,15 +117,15 @@ StoDT(const String &val, CIMDateTime &dt) {
     }
   }
   if (s != "") {
-    dt.set(s.c_str());
+    dt.set(_CString(s));
   }
   return dt;
 }
 
 //-------------------------------------------------------------------------
-// This is a parser for a comma-separated value string.  It returns one
-// value per call.  It handles quoted string and depends on the caller to
-// tell it where the end of the string is.
+// This is a parser for a comma-separated value String.  It returns one
+// value per call.  It handles quoted String and depends on the caller to
+// tell it where the end of the String is.
 //-------------------------------------------------------------------------
 static Uint32
 nextcsv(const String &csv, int sep, const Uint32 start,
@@ -172,7 +175,7 @@ nextcsv(const String &csv, int sep, const Uint32 start,
 }
 
 //-------------------------------------------------------------------
-// This builds a reference value from a string via the objname class
+// This builds a reference value from a String via the objname class
 //-------------------------------------------------------------------
 static
 CIMValue *
@@ -184,7 +187,7 @@ build_reference_value(const String &rep)
 }
 
 // ------------------------------------------------------------------
-// When the value to be build is of vector type, this routine
+// When the value to be build is of Array type, this routine
 // parses out the comma-separated values and builds the array
 // ----------------------------------------------------------------- 
 static

@@ -57,7 +57,7 @@ main(int argc, char ** argv) {
   if (ret)
     return ret;
 
-  const vector<string>& filespecs = cmdline.get_filespec_list();
+  const Array<String>& filespecs = cmdline.get_filespec_list();
 
   // For most options, a real repository is required.  If we can't
   // create one and we need to, bail. 
@@ -70,9 +70,9 @@ main(int argc, char ** argv) {
     return ret;
   }
 
-  if (filespecs.size())    // user specified command line args
-    for (unsigned int i = 0; i < filespecs.size(); i++) {
-      if (p->setInputBufferFromName((const string &)filespecs[i]) == 0) {
+  if (filespecs.getSize())    // user specified command line args
+    for (unsigned int i = 0; i < filespecs.getSize(); i++) {
+      if (p->setInputBufferFromName((const String &)filespecs[i]) == 0) {
 	try {
 	  ret = p->parse();
 	} catch(ParserExceptions::ParserLexException &e) {
@@ -81,7 +81,7 @@ main(int argc, char ** argv) {
 	  cerr << "Parsing error: " << e.getMessage() << endl;
 	}
       } else {
-        cerr << "Can't open file " << (filespecs[i]).c_str()  << endl;
+        cerr << "Can't open file " << filespecs[i] << endl;
       }
     }
   else {

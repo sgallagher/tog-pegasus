@@ -27,7 +27,6 @@
 #include <Pegasus/Common/Exception.h>
 #include "memobjs.h"
 #include "objname.h"
-#include <string>
 
 extern int cimmof_parse(); // the yacc parser entry point
 
@@ -52,7 +51,7 @@ class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser {
 
   // Here are the members added by this specialization
   const mofCompilerOptions *_cmdline;
-  string _includefile;  // temp storage for included file to be entered
+  String _includefile;  // temp storage for included file to be entered
   cimmofRepository *_repository; // the repository object to use
   String _defaultNamespacePath;  // The path we'll use if none is given
   String _currentNamespacePath;  // a namespace set from a #pragma

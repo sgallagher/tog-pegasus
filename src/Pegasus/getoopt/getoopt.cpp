@@ -30,7 +30,7 @@
 // implementation of getoopt
 
 #include "getoopt.h"
-#include <string.h>
+#include <String.h>
 
 using namespace std;
 
@@ -45,7 +45,7 @@ Optarg::Optarg() : _name(""), _opttype(REGULAR), _value("") {
 }
 
 //   All-in-one
-Optarg::Optarg(const string &name, opttype type, const string &value) :
+Optarg::Optarg(const String &name, opttype type, const String &value) :
   _name(name), _opttype(type), _value(value) {
 }
 
@@ -58,7 +58,7 @@ Optarg::~Optarg() {};
 
 // Set the _name member
 void
-Optarg::setName(const string &name) {
+Optarg::setName(const String &name) {
   _name = name;
 }
 
@@ -70,7 +70,7 @@ Optarg::setType(opttype type) {
 
 // Set the _value member
 void
-Optarg::setValue(const string &value) {
+Optarg::setValue(const String &value) {
   _value = value;
 }
 
@@ -79,11 +79,11 @@ Optarg::setValue(const string &value) {
 //-----------------------------------------------------------------------
 
 //  Get the _name member
-const string &
+const String &
 Optarg::getName() const { return _name; }
 
 //  Get the _name member using getopt() terminology
-const string &
+const String &
 Optarg::getopt()  const { return _name; }
 
 //  Get the _type member
@@ -94,44 +94,47 @@ Optarg::getType() const { return _opttype; }
 //             Ways to get the _value member
 //-------------------------------------------------------------------
 
-//  Return _value as const string ref
-const string &
+//  Return _value as const String ref
+const String &
 Optarg::Value() const { return _value; }
 
 //  Same thing as Value(), but using getopt() terminology
-const string &
+const String &
 Optarg::optarg() const { return _value; }
 
-//  Fill in a caller-provided string
+//  Fill in a caller-provided String
 void
-Optarg::Value(string &s) const { s = _value; }
+Optarg::Value(String &s) const { s = _value; }
 
 //  Fill in a caller-provided int with the integer conversion of the value.
 void
-Optarg::Value(int &i) const { i = (int)atoi(_value.c_str()); }
+Optarg::Value(int &i) const 
+{
+    i = (int)atoi(_CString(_value)); 
+}
 
 //  Fill in a caller-provided unsigned int
 void
 Optarg::Value(unsigned int &i) const {
-  i = (unsigned int)atoi(_value.c_str());
+  i = (unsigned int)atoi(_CString(_value));
 }
 
 //  Fill in a call-provided unsigned int
 void
 Optarg::Value(long &l) const {
-  l = (long)atoi(_value.c_str());
+  l = (long)atoi(_CString(_value));
 }
 
 //  Fill in a caller-provided long
 void
 Optarg::Value(unsigned long &l) const {
-  l = (unsigned long)atoi(_value.c_str());
+  l = (unsigned long)atoi(_CString(_value));
 }
 
 //  Ditto unsigned long
 void
 Optarg::Value(double &d) const {
-  d = (double)atof(_value.c_str());
+  d = (double)atof(_CString(_value));
 }
 
 //--------------------------------------------------------------------
@@ -147,7 +150,7 @@ bool
 Optarg::isLongFlag() const { return (_opttype == LONGFLAG); }
 
 //-----------------------------------------------------------------------
-//  print the members as a formatted string
+//  print the members as a formatted String
 //-----------------------------------------------------------------------
 ostream &
 Optarg::print(ostream &os) const {
@@ -170,7 +173,7 @@ Optarg::print(ostream &os) const {
 
 // Constructors and destructor
 
-// Default constructor.  The optional string is in the format of
+// Default constructor.  The optional String is in the format of
 // a getopt() optstring 
 getoopt::getoopt(const char *optstring)
 {
@@ -192,8 +195,8 @@ getoopt::~getoopt() {;}
 // Parse through a getopt() optstring and create flagspecs from each
 // short flag.
 bool
-getoopt::addFlagspec(const string &opt) {
-  unsigned int size = opt.size();
+getoopt::addFlagspec(const String &opt) {
+  unsigned int size = opt.getLength();
   if (size == 0)
     return false;
   for (unsigned int i = 0; i < size; i++) {
@@ -226,19 +229,24 @@ getoopt::addFlagspec(char flag, bool hasarg) {
   fs.argtype = hasarg ? 1 : 0;
   fs.islong = false;
   fs.active = true;
-  _flagspecs.push_back(fs);
+  _flagspecs.append(fs);
   return true;
 }
 
 // Create a flagspec from a single long flag and push it onto the array
 bool
-getoopt::addLongFlagspec(const string &name, argtype type) {
+getoopt::addLongFlagspec(const String &name, argtype type) {
   flagspec fs;
+
+  // Changing "fs.name = name" to the following line masks an ugly crash
+  // which occurs when compiling with debug option on WIN32:
+
   fs.name = name;
+  
   fs.argtype = type;
   fs.islong = true;
   fs.active = true;
-  _flagspecs.push_back(fs);
+  _flagspecs.append(fs);
   return true;
 }
 
@@ -265,11 +273,11 @@ getoopt::removeFlagspec(char opt) {
 // may be in the form
 //          --longflag=value
 static void
-partsFromLongOpt (const string &s, string &name, string &value) {
-  for (unsigned int i = 0; i < s.size(); i++) {
+partsFromLongOpt (const String &s, String &name, String &value) {
+  for (unsigned int i = 0; i < s.getLength(); i++) {
     if (s[i] == '=') {
-      name = s.substr(0, i);
-      value = s.substr(i+1);
+      name = s.subString(0, i);
+      value = s.subString(i+1);
       return;
     }
   }
@@ -277,20 +285,20 @@ partsFromLongOpt (const string &s, string &name, string &value) {
   value =  "";
 }
 
-// Create an Optarg instance from a long flag string like
+// Create an Optarg instance from a long flag String like
 //          --longflag=value
 // (The =value is optional).
 static void 
-optargFromLongOpt(Optarg &o, const string &arg) {
-  string name;
-  string value;
+optargFromLongOpt(Optarg &o, const String &arg) {
+  String name;
+  String value;
   partsFromLongOpt(arg, name, value);
   o.setName(name);
   o.setType(Optarg::LONGFLAG);
   o.setValue(value);
 }
 
-// Create an Optarg instance from a short flag string like
+// Create an Optarg instance from a short flag String like
 //      -fValue
 // (The Value part is optional)
 static void
@@ -320,13 +328,13 @@ catagorize(const char *s) {
 static void
 addarg(getoopt::Arg_List&list, const Optarg &o) {
   //o.print(cout);
-  list.push_back(o);
+  list.append(o);
 }
 
 // Create an Optarg from its members and push it onto the array
 static void
-addarg(getoopt::Arg_List&list, const string &name, Optarg::opttype type,
-	      const string &value) {
+addarg(getoopt::Arg_List&list, const String &name, Optarg::opttype type,
+	      const String &value) {
   Optarg *o = new Optarg(name, type, value);
   addarg(list, *o);
   delete o;
@@ -372,8 +380,8 @@ getoopt::parse(int argc, char **argv) {
 	    while (argpos < endsize) {
 	      char c = argv[i][argpos];
 	      fs = getFlagspec(c);  // Short flag
-	      string temp = argv[i];
-	      string name = temp.substr(argpos, 1);
+	      String temp = argv[i];
+	      String name = temp.subString(argpos, 1);
 	      if (!fs) {  // See if we recognize it
 		addError("Unknown flag -" + name);
 		argpos++;
@@ -396,11 +404,11 @@ getoopt::parse(int argc, char **argv) {
 	  break;
 	case 2:  // long (--xyz) flag
 	  { 
-	    string arg = &(argv[i][2]);
+	    String arg = &(argv[i][2]);
 	    optargFromLongOpt(o, arg);
 	    fs = getFlagspec(o.getName());
 	    if (!fs) { // see if we recognize this flag
-	      string temp = "Unknown flag ";
+	      String temp = "Unknown flag ";
 	      addError(temp + o.getName());
 	    } else {
 	        // this is a long flag we know about
@@ -434,7 +442,7 @@ getoopt::parse(int argc, char **argv) {
     addError("Missing required value for flag " + o.getName());
   }
   copyargs(_args, nonflagargs);
-  return !_errorStrings.size();
+  return !_errorStrings.getSize();
 }
 
 //----------------------------------------------------------------------
@@ -448,7 +456,7 @@ getoopt::parse(int argc, char **argv) {
 // Index operator
 const Optarg &
 getoopt::operator[](unsigned int n) {
-  unsigned int lim = _args.size();
+  unsigned int lim = _args.getSize();
   if (n < lim) 
     return _args[n];
   else
@@ -461,7 +469,7 @@ getoopt::first() const { return 0; }
 
 // Return one past last index
 unsigned int
-getoopt::last() const { return _args.size(); }
+getoopt::last() const { return _args.getSize(); }
 
 //-----------------------------------------------
 // Access the command line arguments using
@@ -487,10 +495,10 @@ getoopt::end() {
 unsigned int
 getoopt::isSet(char c) const {
   unsigned int cnt = 0;
-  for (unsigned int i = 0; i < _args.size(); i++) {
+  for (unsigned int i = 0; i < _args.getSize(); i++) {
     const Optarg &o = _args[i];
     if (o.getType() == Optarg::FLAG) {
-      const string &s = o.getopt();
+      const String &s = o.getopt();
       if (s[0] == c) {
 	cnt++;
       }
@@ -502,9 +510,9 @@ getoopt::isSet(char c) const {
 // Return the number of times any flag is set
 // on the command line
 unsigned int
-getoopt::isSet(const string &s) const {
+getoopt::isSet(const String &s) const {
   unsigned int cnt = 0;
-  for (unsigned int i = 0; i < _args.size(); i++) {
+  for (unsigned int i = 0; i < _args.getSize(); i++) {
     const Optarg &o = _args[i];
     if (o.optarg() == s) {
       cnt++;
@@ -513,15 +521,15 @@ getoopt::isSet(const string &s) const {
   return cnt;
 }
 
-// Return the string value of the nth instance of
+// Return the String value of the nth instance of
 // a particular short flag on the command line
-const string &
+const String &
 getoopt::value(char opt, unsigned int idx) const {
   unsigned int cnt = 0;
-  for (unsigned int i = 0; i < _args.size(); i++) {
+  for (unsigned int i = 0; i < _args.getSize(); i++) {
     const Optarg &o = _args[i];
     if (o.getType() == Optarg::FLAG) {
-      const string &s = o.getopt();
+      const String &s = o.getopt();
       if (s[0] == opt) {
 	if (cnt == idx) {
 	  return o.optarg();
@@ -535,10 +543,10 @@ getoopt::value(char opt, unsigned int idx) const {
 }
 
 // Return the nth instance of any flag on the command line
-const string &
-getoopt::value(const string &opt, unsigned int idx) const {
+const String &
+getoopt::value(const String &opt, unsigned int idx) const {
   unsigned int cnt = 0;
-  for (unsigned int i = 0; i < _args.size(); i++) {
+  for (unsigned int i = 0; i < _args.getSize(); i++) {
     const Optarg &o = _args[i];
     if (o.optarg() == opt) {
       if (cnt == idx) {
@@ -567,7 +575,7 @@ getoopt::flagcnt() const {
 // How many command line arguments were there?
 unsigned int
 getoopt::size() const {
-  return _args.size();
+  return _args.getSize();
 }
 
 // Return the list of command line arguments for use by
@@ -584,9 +592,9 @@ getoopt::getArgs() const { return _args; }
 
 // Add an error into the list
 void
-getoopt::addError(const string &s)
+getoopt::addError(const String &s)
 {
-  _errorStrings.push_back(s);
+  _errorStrings.append(s);
 }
 
 // Return a list of the errors
@@ -598,14 +606,14 @@ getoopt::getErrorStrings() const {
 // Did any errors occur?
 bool
 getoopt::hasErrors() const {
-  return _errorStrings.size() ? true : false;
+  return _errorStrings.getSize() ? true : false;
 }
 
 
 
 flagspec *
-getoopt::getFlagspecForUpdate(const string &s) {
-  for (unsigned int i = 0; i < _flagspecs.size(); i++) {
+getoopt::getFlagspecForUpdate(const String &s) {
+  for (unsigned int i = 0; i < _flagspecs.getSize(); i++) {
     flagspec &o = _flagspecs[i];
     if (o.islong && s == o.name)
       return &_flagspecs[i];
@@ -614,7 +622,7 @@ return 0;
 }
 
 const flagspec *
-getoopt::getFlagspec(const string &s) {
+getoopt::getFlagspec(const String &s) {
   return (const flagspec *)getFlagspecForUpdate(s);
 }
 
@@ -629,7 +637,7 @@ getoopt::printErrors(ostream &os) const {
 }
 
 void
-getoopt::printErrors(string &s) const {
+getoopt::printErrors(String &s) const {
   for (Error_List::const_iterator it = _errorStrings.begin();
        it != _errorStrings.end();
 	 it++) {
@@ -642,7 +650,7 @@ getoopt::printErrors(string &s) const {
 //---------------------------------------------------------------
 flagspec *
 getoopt::getFlagspecForUpdate(char c) {
-  for (unsigned int i = 0; i < _flagspecs.size(); i++) {
+  for (unsigned int i = 0; i < _flagspecs.getSize(); i++) {
     flagspec &o = _flagspecs[i];
     if (!o.islong && c == o.name[0])
       return &_flagspecs[i];

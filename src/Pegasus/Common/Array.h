@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Array.h,v $
+// Revision 1.15  2001/04/24 00:00:14  mike
+// Ported compiler to use String and Array (rather than STL equivalents)
+//
 // Revision 1.14  2001/04/11 19:53:22  mike
 // More porting
 //
@@ -366,6 +369,18 @@ public:
 	the array shrinks by size elements.
     */
     void remove(Uint32 pos, Uint32 size);
+
+    typedef T* iterator;
+
+    typedef const T* const_iterator;
+
+    iterator begin() { return _rep->data(); }
+
+    iterator end() { return _rep->data() + getSize(); }
+
+    const_iterator begin() const { return getData(); }
+
+    const_iterator end() const { return getData() + getSize(); }
 
 private:
 

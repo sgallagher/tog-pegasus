@@ -23,6 +23,9 @@
 // Author: Bob Blair (bblair@bmc.com)
 //
 // $Log: qualifierList.cpp,v $
+// Revision 1.2  2001/04/24 00:00:15  mike
+// Ported compiler to use String and Array (rather than STL equivalents)
+//
 // Revision 1.1  2001/02/16 23:59:09  bob
 // Initial checkin
 //
@@ -52,5 +55,5 @@ qualifierList::init(int size) {
 
 void
 qualifierList::add(CIMQualifier *q) {
-  _pv->push_back(q);
+  _pv->append(q);
 }

@@ -23,6 +23,9 @@
 // Author: Bob Blair (bblair@bmc.com)
 //
 // $Log: objname.cpp,v $
+// Revision 1.3  2001/04/24 00:00:15  mike
+// Ported compiler to use String and Array (rather than STL equivalents)
+//
 // Revision 1.2  2001/03/04 22:18:00  bob
 // Cleanup, support for reference, message moving, start of instance support
 //
@@ -47,10 +50,10 @@ PEGASUS_NAMESPACE_BEGIN
 #define WHITESPACE(x) (x==' ' || x=='\t' || x=='\n' || x=='\r')
 #define DIGIT(x) (x=='0' || x=='1' || x=='2' || x=='3' || x=='4' || x=='5' || x=='6' || x=='7' || x=='8' || x=='9')
 
-// The string representation of the namespaceHandle begins
+// The String representation of the namespaceHandle begins
 // with 0 or more slashes, followed by a host designation,
 // followed by a path.  The path begins with a slash and
-// terminates with the end of the string
+// terminates with the end of the String
 
 namespaceHandle::namespaceHandle(const String &rep) {
   namespaceHandleRepToComponents(rep);
@@ -237,7 +240,7 @@ modelPath::modelPathRepToComponents(const String &rep) {
 	keyvalue.append(c);
       }
       break;
-    case ENDINGKEYVAL: // (applies only to string value)
+    case ENDINGKEYVAL: // (applies only to String value)
       if (c == ',') {
 	_keyString += keyvalue;
 	kb.setName(keyname);

@@ -6,7 +6,7 @@
 // strings will be translated for the locale.
 
 #include <Pegasus/Common/String.h>
-#include <vector>
+#include <Pegasus/Common/Array.h>
 
 PEGASUS_NAMESPACE_BEGIN
 using namespace std;
@@ -56,7 +56,7 @@ class cimmofMessages {
     ADD_INSTANCE_ERROR,
     END
   };
-  typedef vector<String> arglist;
+  typedef Array<String> arglist;
   static const arglist EMPTYLIST;
   static const String &msgCodeToString(MsgCode code);
   static void          getMessage(String &out, MsgCode code, 

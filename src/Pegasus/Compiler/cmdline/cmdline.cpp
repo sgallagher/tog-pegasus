@@ -30,15 +30,24 @@
 // the include path list and the other options
 //
 
+#include <fstream>
+#include <iostream>
+#include <Pegasus/Common/String.h>
+
+using namespace std;
+using namespace Pegasus;
+
 #include "../mofCompilerOptions.h"
 #include "cmdlineExceptions.h"
 #include "cmdline.h"
 #include "cmdlineExceptions.h"
 #include <Pegasus/getoopt/getoopt.h>
 #include <fstream>
+#include <Pegasus/Common/String.h>
 //#include <strstream>
 //#include <sstream>
 
+using namespace Pegasus;
 
 
 // COMPILER VERSION ++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -70,13 +79,14 @@ help(ostream &os) {
 // names of files to be processed.  Open the file and stick them into
 // the filelist.
 static int
-process_filelist(const string &filename, mofCompilerOptions &cmdlinedata)
+process_filelist(const String &filename, mofCompilerOptions &cmdlinedata)
 {
-  string line;
+  String line;
 
-  ifstream ifs(filename.c_str());
-  while (ifs) {
-    getline(ifs, line);   
+  ifstream ifs(_CString(filename).data());
+
+  while (ifs != 0) {
+    GetLine(ifs, line);   
     cmdlinedata.add_filespecs(line);
   }
   return 0;
@@ -154,10 +164,10 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
   cmdline.parse(argc, argv);
   applyDefaults(cmdlinedata);
   if (cmdline.hasErrors()) {
-    string msg = "Command line errors:\n";
+    String msg = "Command line errors:\n";
     //  throw an exception and hande it in the caller
     cmdline.printErrors(msg);
-    throw ArgumentErrorsException(msg.c_str());
+    throw ArgumentErrorsException(msg);
   }
   for (unsigned int i = cmdline.first(); i < cmdline.last(); i++) {
     const Optarg &arg = cmdline[i];
@@ -178,12 +188,14 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
       case TRACEFLAG: 
 	{
 	  cmdlinedata.set_trace();
-	  const string &s = arg.optarg();
+	  const String &s = arg.optarg();
 	  if (s != "") {
 	    // FIXME:  This leaves no way to close the trace stream
 	    // or to delete the ostream object.  It's OK for now because
 	    // the program terminates when we're done with the stream.
-	    ofstream *tracefile = new ofstream(s.c_str());
+	    char* tmp = s.allocateCString();
+	    ofstream *tracefile = new ofstream(tmp);
+	    delete [] tmp;
 	    if (tracefile && *tracefile)
 	      cmdlinedata.set_traceos(*tracefile);
 	  }

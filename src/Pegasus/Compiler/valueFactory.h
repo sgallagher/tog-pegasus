@@ -23,6 +23,9 @@
 // Author: Bob Blair (bblair@bmc.com)
 //
 // $Log: valueFactory.h,v $
+// Revision 1.2  2001/04/24 00:00:15  mike
+// Ported compiler to use String and Array (rather than STL equivalents)
+//
 // Revision 1.1  2001/02/16 23:59:09  bob
 // Initial checkin
 //
@@ -30,7 +33,7 @@
 //
 //END_HISTORY
 //
-// Header for a class to generate CIMValue objects from string values
+// Header for a class to generate CIMValue objects from String values
 //
 
 #ifndef _VALUEFACTORY_H_
@@ -43,8 +46,8 @@ using namespace Pegasus;
 using namespace std;
 
 // The valueFactory builds a CIMValue object given an indication of
-// whether this is a vector type, the CIM type to be coerced, and
-// a string representation of the value.
+// whether this is a Array type, the CIM type to be coerced, and
+// a String representation of the value.
 //
 class PEGASUS_COMPILER_LINKAGE valueFactory  {
  public:

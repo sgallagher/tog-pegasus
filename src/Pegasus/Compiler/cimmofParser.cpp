@@ -23,6 +23,9 @@
 // Author: Bob Blair (bblair@bmc.com)
 //
 // $Log: cimmofParser.cpp,v $
+// Revision 1.8  2001/04/24 00:00:14  mike
+// Ported compiler to use String and Array (rather than STL equivalents)
+//
 // Revision 1.7  2001/03/05 21:54:29  bob
 // Implement instance compilation
 //
@@ -107,8 +110,8 @@ cimmofParser::Instance() {
 void
 cimmofParser::setCompilerOptions(const mofCompilerOptions *co) {
   _cmdline = co;
-  const string path = co->get_namespacePath();
-  setDefaultNamespacePath(path.c_str());
+  const String path = co->get_namespacePath();
+  setDefaultNamespacePath(path);
 }
 
 const mofCompilerOptions *
@@ -131,8 +134,8 @@ cimmofParser::setRepository(void) {
       try {
       _repository = new cimmofRepository(rep);
       } catch(Exception &e) {
-	arglist.push_back(rep);
-	arglist.push_back(e.getMessage());
+	arglist.append(rep);
+	arglist.append(e.getMessage());
 	cimmofMessages::getMessage(message,
 				  cimmofMessages::REPOSITORY_CREATE_ERROR,
 				  arglist);
@@ -144,8 +147,8 @@ cimmofParser::setRepository(void) {
       } catch(AlreadyExists &) {
 	// OK, that's what we expect
       } catch(Exception &e) {
-	arglist.push_back(s);
-	arglist.push_back(e.getMessage());
+	arglist.append(s);
+	arglist.append(e.getMessage());
 	cimmofMessages::getMessage(message, 
 				   cimmofMessages::NAMESPACE_CREATE_ERROR,
 				   arglist);
@@ -240,10 +243,10 @@ cimmofParser::enterInlineInclude(const String &filename) {
   f = fopen(fqname, "r");
   if (!f) {
     if (_cmdline) {
-      const vector<string> &include_paths = _cmdline->get_include_paths();
-      for (unsigned int i = 0; i < include_paths.size(); i++) {
-	string s = include_paths[i] + "/" + fqname;
-	if ( (f = fopen(s.c_str(), "r")) ) {
+      const Array<String> &include_paths = _cmdline->get_include_paths();
+      for (unsigned int i = 0; i < include_paths.getSize(); i++) {
+	String s = include_paths[i] + "/" + fqname;
+	if ( (f = fopen(_CString(s), "r")) ) {
 	  _includefile = s;
 	  break;
 	}	 
@@ -301,10 +304,10 @@ cimmofParser::log_parse_error(char *token, char *errmsg) const {
   char buf[40];  // itoa can't overflow
   sprintf(buf, "%d", get_lineno());
   cimmofMessages::arglist arglist;
-  arglist.push_back(get_current_filename().c_str());
-  arglist.push_back(buf);
-  arglist.push_back(errmsg);
-  arglist.push_back(token);
+  arglist.append(get_current_filename());
+  arglist.append(buf);
+  arglist.append(errmsg);
+  arglist.append(token);
   cimmofMessages::getMessage(message, cimmofMessages::PARSER_SYNTAX_ERROR,
 			     arglist);
   elog(message);
@@ -316,7 +319,7 @@ cimmofParser::log_parse_error(char *token, char *errmsg) const {
   //------------------------------------------------------------------
 
 // -----------------------------------------------------------------
-// Convert a string representing an octal integer to a string        
+// Convert a String representing an octal integer to a String        
 // representing the corresponding decimal integer                    
 // FIXME:  Need to support 64-bit integers
 // FIXME:  Needs to support non-ascii strings
@@ -342,7 +345,7 @@ cimmofParser::oct_to_dec(const String &octrep) const {
 }
 
 // ----------------------------------------------------------------- 
-// Convert a string representing a hexadecimal integer to a string   
+// Convert a String representing a hexadecimal integer to a String   
 // representing the corresponding decimal integer                    
 // FIXME:  Need to support 64-bit integers
 // FIXME:  Needs to support non-ascii strings
@@ -389,7 +392,7 @@ cimmofParser::hex_to_dec(const String &hexrep) const {
 }
 
 // ----------------------------------------------------------------- 
-// Convert a string representing a binary integer to a string        
+// Convert a String representing a binary integer to a String        
 // representing the corresponding decimal integer                    
 // FIXME:  Need to support 64-bit integers
 // ------------------------------------------------------------------
@@ -438,7 +441,7 @@ cimmofParser::addClass(CIMClass *classdecl)
   int ret = 0;
   String message;
   cimmofMessages::arglist arglist;
-  arglist.push_back(classdecl->getClassName());
+  arglist.append(classdecl->getClassName());
   if ( _cmdline && _cmdline->trace() ) {
     String header;
     cimmofMessages::getMessage(header, cimmofMessages::ADD_CLASS);
@@ -462,14 +465,14 @@ cimmofParser::addClass(CIMClass *classdecl)
 				 arglist);
       wlog(message);
     } else {
-      arglist.push_back(e.getMessage());
+      arglist.append(e.getMessage());
       cimmofMessages::getMessage(message, cimmofMessages::ADD_CLASS_ERROR,
 				 arglist);
       elog(message);
       maybeThrowParseError(message);
     } 
   } catch(Exception &e) {
-    arglist.push_back(e.getMessage());
+    arglist.append(e.getMessage());
     cimmofMessages::getMessage(message, cimmofMessages::ADD_CLASS_ERROR,
 			       arglist);
     elog(message);
@@ -496,8 +499,8 @@ cimmofParser::newClassDecl(const String &name, const String &superclassname)
     c = new CIMClass(name, superclassname);
   } catch(CIMException &e) {
     cimmofMessages::arglist arglist;
-    arglist.push_back(name);
-    arglist.push_back(e.getMessage());
+    arglist.append(name);
+    arglist.append(e.getMessage());
     String message;
     cimmofMessages::getMessage(message, cimmofMessages::NEW_CLASS_ERROR,
 			       arglist);
@@ -531,7 +534,7 @@ cimmofParser::addInstance(CIMInstance *instance)
   try {
     _repository->addInstance(instance);
   } catch (CIMException &e) {
-    arglist.push_back(e.getMessage());
+    arglist.append(e.getMessage());
     if (e.getCode() == CIMException::ALREADY_EXISTS) {
       // FIXME:  We should be able to modify the instance through the compiler
       cimmofMessages::getMessage(message,
@@ -542,7 +545,7 @@ cimmofParser::addInstance(CIMInstance *instance)
       err_out = true;
     }
   } catch (Exception &e) {
-    arglist.push_back(e.getMessage());
+    arglist.append(e.getMessage());
     err_out = true;
   }
   if (err_out) {
@@ -573,8 +576,8 @@ cimmofParser::newQualifierDecl(const String &name, const CIMValue *value,
     q = new CIMQualifierDecl(name, *value, scope, flavor);
   } catch(Exception &e) {
     cimmofMessages::arglist arglist;
-    arglist.push_back(name);
-    arglist.push_back(e.getMessage());
+    arglist.append(name);
+    arglist.append(e.getMessage());
     String message;
     cimmofMessages::getMessage(message,
 			       cimmofMessages::NEW_QUALIFIER_DECLARATION_ERROR,
@@ -611,8 +614,8 @@ cimmofParser::addQualifier(CIMQualifierDecl *qualifier)
     // FIXME:  at the time of writing, the Common code does not throw
     // an ALREADY_EXISTS CIMException.  It might at any time.
     cimmofMessages::arglist arglist;
-    arglist.push_back(qualifier->getName());
-    arglist.push_back(e.getMessage());
+    arglist.append(qualifier->getName());
+    arglist.append(e.getMessage());
     String message;
     cimmofMessages::getMessage(message, cimmofMessages::ADD_QUALIFIER_ERROR,
 			       arglist);
@@ -640,8 +643,8 @@ cimmofParser::newQualifier(const String &name, const CIMValue &value,
     q = new CIMQualifier(name, value, flavor);
   } catch(Exception &e) {
     cimmofMessages::arglist arglist;
-    arglist.push_back(name);
-    arglist.push_back(e.getMessage());
+    arglist.append(name);
+    arglist.append(e.getMessage());
     String message;
     cimmofMessages::getMessage(message, cimmofMessages::NEW_QUALIFIER_ERROR,
 			       arglist);
@@ -665,8 +668,8 @@ cimmofParser::newInstance(const String &className)
     instance = new CIMInstance(className);
   } catch (Exception &e) {
     cimmofMessages::arglist arglist;
-    arglist.push_back(className);
-    arglist.push_back(e.getMessage());
+    arglist.append(className);
+    arglist.append(e.getMessage());
     String message;
     cimmofMessages::getMessage(message, cimmofMessages::NEW_INSTANCE_ERROR,
 			       arglist);
@@ -689,8 +692,8 @@ cimmofParser::newProperty(const String &name, const CIMValue &val,
     p = new CIMProperty(name, val, 0, referencedObject);
   } catch(Exception &e) {
     cimmofMessages::arglist arglist;
-    arglist.push_back(name);
-    arglist.push_back(e.getMessage());
+    arglist.append(name);
+    arglist.append(e.getMessage());
     String message;
     cimmofMessages::getMessage(message, cimmofMessages::NEW_PROPERTY_ERROR,
 			       arglist);
@@ -708,8 +711,8 @@ int
 cimmofParser::applyProperty(CIMClass &c, CIMProperty &p)
 {
   cimmofMessages::arglist arglist;
-  arglist.push_back(c.getClassName());
-  arglist.push_back(p.getName());
+  arglist.append(c.getClassName());
+  arglist.append(p.getName());
   String message;
   try {
     c.addProperty(p);
@@ -725,7 +728,7 @@ cimmofParser::applyProperty(CIMClass &c, CIMProperty &p)
 			       arglist);
     wlog(message);
   } catch(Exception &e) {
-    arglist.push_back(e.getMessage());
+    arglist.append(e.getMessage());
     cimmofMessages::getMessage(message, 
 			       cimmofMessages::APPLYING_PROPERTY_ERROR,
 			       arglist);
@@ -745,8 +748,8 @@ cimmofParser::applyProperty(CIMInstance &i, CIMProperty &p)
 {
   cimmofMessages::arglist arglist;
   const String &propertyName = p.getName();
-  arglist.push_back(i.getClassName());
-  arglist.push_back(propertyName);
+  arglist.append(i.getClassName());
+  arglist.append(propertyName);
   String message;
   bool err_out = false;
   try {
@@ -764,11 +767,11 @@ cimmofParser::applyProperty(CIMInstance &i, CIMProperty &p)
 				arglist);
       wlog(message);
     } else {
-      arglist.push_back(e.getMessage());
+      arglist.append(e.getMessage());
       err_out = true;
     }
   } catch (Exception &e) {
-    arglist.push_back(e.getMessage());
+    arglist.append(e.getMessage());
     err_out = true;
   }
   if (err_out) {
@@ -792,12 +795,12 @@ cimmofParser::copyPropertyWithNewValue(const CIMProperty &p,
   cimmofMessages::arglist arglist;
   String message;
   CIMProperty *newprop = 0;
-  arglist.push_back(p.getName());  
+  arglist.append(p.getName());  
   try {
     newprop = new CIMProperty(p);
     newprop->setValue(v);
   } catch (Exception &e) {
-    arglist.push_back(e.getMessage());
+    arglist.append(e.getMessage());
     cimmofMessages::getMessage(message, 
 			       cimmofMessages::CLONING_PROPERTY_ERROR,
 			       arglist);
@@ -820,8 +823,8 @@ cimmofParser::newMethod(const String &name, const CIMType type)
   } catch(Exception &e) {
     cimmofMessages::arglist arglist;
     String message;
-    arglist.push_back(name);
-    arglist.push_back(e.getMessage());
+    arglist.append(name);
+    arglist.append(e.getMessage());
     cimmofMessages::getMessage(message, cimmofMessages::NEW_METHOD_ERROR,
 			       arglist);
     elog(message);
@@ -838,8 +841,8 @@ int
 cimmofParser::applyMethod(CIMClass &c, CIMMethod &m) {
   cimmofMessages::arglist arglist;
   String message;
-  arglist.push_back(m.getName());
-  arglist.push_back(c.getClassName());
+  arglist.append(m.getName());
+  arglist.append(c.getClassName());
   try {
     c.addMethod(m);
   } catch(UnitializedHandle) {
@@ -854,7 +857,7 @@ cimmofParser::applyMethod(CIMClass &c, CIMMethod &m) {
 			       arglist);
     wlog(message);
   } catch(Exception &e) {
-    arglist.push_back(e.getMessage());
+    arglist.append(e.getMessage());
     cimmofMessages::getMessage(message,
 			       cimmofMessages::APPLY_METHOD_ERROR,
 			       arglist);
@@ -874,8 +877,8 @@ cimmofParser::newParameter(const String &name, const CIMType type,
     p = new CIMParameter(name, type, isArray, array, objName);
   } catch(Exception &e) {
     cimmofMessages::arglist arglist;
-    arglist.push_back(name);
-    arglist.push_back(e.getMessage());
+    arglist.append(name);
+    arglist.append(e.getMessage());
     String message;
     cimmofMessages::getMessage(message, cimmofMessages::NEW_PARAMETER_ERROR,
 			       arglist);
@@ -892,9 +895,9 @@ cimmofParser::applyParameter(CIMMethod &m, CIMParameter &p) {
   } catch(CIMException &e) {
     cimmofMessages::arglist arglist;
     String message;
-    arglist.push_back(p.getName());
-    arglist.push_back(m.getName());
-    arglist.push_back(e.getMessage());
+    arglist.append(p.getName());
+    arglist.append(m.getName());
+    arglist.append(e.getMessage());
     cimmofMessages::getMessage(message, cimmofMessages::APPLY_PARAMETER_ERROR,
 			       arglist);
     elog(message);
@@ -931,7 +934,7 @@ cimmofParser::PropertyFromInstance(CIMInstance &instance,
 				  const String &propertyName) const
 {
   cimmofMessages::arglist arglist;
-  arglist.push_back(propertyName);
+  arglist.append(propertyName);
   String className, message;
   try {
     Uint32 pos = instance.findProperty(propertyName);
@@ -943,7 +946,7 @@ cimmofParser::PropertyFromInstance(CIMInstance &instance,
       //return p;
     }
   } catch (Exception &e) {
-    arglist.push_back(e.getMessage());
+    arglist.append(e.getMessage());
     cimmofMessages::getMessage(message,
 			       cimmofMessages::GET_INSTANCE_PROPERTY_ERROR,
 			       arglist);
@@ -954,8 +957,8 @@ cimmofParser::PropertyFromInstance(CIMInstance &instance,
   try {
     className = instance.getClassName();
   } catch (Exception &e) {
-    arglist.push_back(className);
-    arglist.push_back(e.getMessage());
+    arglist.append(className);
+    arglist.append(e.getMessage());
     cimmofMessages::getMessage(message,
 			       cimmofMessages::FIND_CLASS_OF_INSTANCE_ERROR,
 			       arglist);
@@ -974,9 +977,9 @@ cimmofParser::PropertyFromInstance(CIMInstance &instance,
       return new CIMProperty(c.getProperty(pos));
     }
   } catch (Exception &e) {
-    arglist.push_back(getNamespacePath());
-    arglist.push_back(className);
-    arglist.push_back(e.getMessage());
+    arglist.append(getNamespacePath());
+    arglist.append(className);
+    arglist.append(e.getMessage());
     cimmofMessages::getMessage(message,
 			       cimmofMessages::GET_CLASS_PROPERTY_ERROR,
 			       arglist);
@@ -999,8 +1002,8 @@ cimmofParser::ValueFromProperty(const CIMProperty &prop) const
   } catch (Exception &e) {
     cimmofMessages::arglist arglist;
     String message;
-    arglist.push_back(propname);
-    arglist.push_back(e.getMessage());
+    arglist.append(propname);
+    arglist.append(e.getMessage());
     cimmofMessages::getMessage(message,
 			       cimmofMessages::GET_PROPERTY_VALUE_ERROR,
 			       arglist);
@@ -1030,8 +1033,8 @@ cimmofParser::newReference(const Pegasus::objectName &oname)
 			   oname.KeyBindings());
   } catch(Exception &e) {
     cimmofMessages::arglist arglist;
-    arglist.push_back(oname.className());
-    arglist.push_back(e.getMessage());
+    arglist.append(oname.className());
+    arglist.append(e.getMessage());
     String message;
     cimmofMessages::getMessage(message, cimmofMessages::NEW_REFERENCE_ERROR,
 			       arglist);

@@ -33,7 +33,7 @@
 #ifndef _CMDLINE_CMDLINE_H_
 #define _CMDLINE_CMDLINE_H_
 
-#include <string>
+#include <Pegasus/Common/String.h>
 
 enum opttypes {FILESPEC,
 	       HELPFLAG, 

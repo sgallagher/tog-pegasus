@@ -38,7 +38,7 @@
 #include <malloc.h>
 #include <cstdio>
 #include <cstring>
-  //#include <string>
+#include <Pegasus/Common/String.h>
 #include "cimmofParser.h"
 #include "valueFactory.h"
 #include "memobjs.h"
@@ -107,7 +107,7 @@ cimmof_error(char *msg) {
   String *         strval;
   CIMType::Tag        datatype;
   CIMValue *          value;
-  string *         strptr;
+  String *         strptr;
   CIMQualifier *      qualifier;
   CIMProperty *       property;
   CIMMethod *         method;

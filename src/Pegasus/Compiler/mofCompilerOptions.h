@@ -23,6 +23,9 @@
 // Author: Bob Blair (bblair@bmc.com)
 //
 // $Log: mofCompilerOptions.h,v $
+// Revision 1.3  2001/04/24 00:00:14  mike
+// Ported compiler to use String and Array (rather than STL equivalents)
+//
 // Revision 1.2  2001/03/04 22:18:00  bob
 // Cleanup, support for reference, message moving, start of instance support
 //
@@ -33,7 +36,7 @@
 //
 //END_HISTORY
 //
-// Header for a class to generate CIMValue objects from string values
+// Header for a class to generate CIMValue objects from String values
 //
 //
 //
@@ -57,8 +60,7 @@
 #define _MOFCOMPILEROPTIONS_H_
 
 #include <Pegasus/Common/String.h>
-#include <string>
-#include <vector>
+#include <Pegasus/Common/Array.h>
 #include <iostream>
 
 using namespace std;
@@ -66,10 +68,10 @@ using namespace Pegasus;
 
 class PEGASUS_COMPILER_LINKAGE mofCompilerOptions {
  private:
-  vector<string> _include_paths;
-  vector<string> _filespecs;
-  Pegasus::String       _repository;
-  string                _namespacePath;
+  Array<String> _include_paths;
+  Array<String> _filespecs;
+  String       _repository;
+  String                _namespacePath;
   bool         _syntax_only;
   bool         _suppress_warnings;
   bool         _suppress_all_messages;
@@ -91,13 +93,13 @@ class PEGASUS_COMPILER_LINKAGE mofCompilerOptions {
 
   ~mofCompilerOptions() {;}
 
-  void add_include_path(const string& path) { _include_paths.push_back(path); }
-  const vector<string> &get_include_paths() const { return _include_paths; }
-  void add_filespecs(const string &spec) { _filespecs.push_back(spec); }
-  const vector<string>& get_include_path_list() const {return _include_paths; }
-  const vector<string>& get_filespec_list() const { return _filespecs; }
-  void  set_repository_name(const string &repository) { \
-    _repository = repository.c_str(); }
+  void add_include_path(const String& path) { _include_paths.append(path); }
+  const Array<String> &get_include_paths() const { return _include_paths; }
+  void add_filespecs(const String &spec) { _filespecs.append(spec); }
+  const Array<String>& get_include_path_list() const {return _include_paths; }
+  const Array<String>& get_filespec_list() const { return _filespecs; }
+  void  set_repository_name(const String &repository) { \
+    _repository = repository; }
   const Pegasus::String &get_repository_name() const { return _repository; }
   void set_syntax_only() { _syntax_only = true; }
   void reset_syntax_only() { _syntax_only = false; }
@@ -121,9 +123,8 @@ class PEGASUS_COMPILER_LINKAGE mofCompilerOptions {
   void reset_warningos() { _warningos = 0; }
   std::ostream &warningos() const {return _warningos ? *_warningos : \
 				                       std::cerr;}
-  void set_namespacePath(const string &path) { _namespacePath \
-						 = path.c_str(); }
-  const string &get_namespacePath() const  { return _namespacePath; }
+  void set_namespacePath(const String &path) { _namespacePath = path; }
+  const String &get_namespacePath() const  { return _namespacePath; }
 };
 
 #endif

@@ -23,6 +23,9 @@
 // Author: Bob Blair (bblair@bmc.com)
 //
 // $Log: objname.h,v $
+// Revision 1.3  2001/04/24 00:00:15  mike
+// Ported compiler to use String and Array (rather than STL equivalents)
+//
 // Revision 1.2  2001/03/04 22:18:00  bob
 // Cleanup, support for reference, message moving, start of instance support
 //
@@ -33,7 +36,7 @@
 //
 //END_HISTORY
 //
-// Header for a class to generate CIMValue objects from string values
+// Header for a class to generate CIMValue objects from String values
 //
 //
 //
@@ -62,7 +65,7 @@
 //       KeyBindings -- first="top", last="cat"
 //
 // This class allows you to convert among various forms of the object name:
-//     -- the string (as above)
+//     -- the String (as above)
 //     -- the decomposed pieces
 //     -- an instance object
 //     -- a reference object

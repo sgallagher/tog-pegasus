@@ -23,6 +23,9 @@
 // Author: Michael E. Brasher
 //
 // $Log: OptionManager.cpp,v $
+// Revision 1.9  2001/04/24 00:00:14  mike
+// Ported compiler to use String and Array (rather than STL equivalents)
+//
 // Revision 1.8  2001/04/15 17:59:11  mike
 // todo
 //
@@ -57,14 +60,23 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// TODO: add descriptions for each otpion so that they may be printed out
+// to the command line user to tell him which command line options are legal.
+//
+// TODO: expand varaibles in the configuration file. For example:
+//
+//     provider_dir = "${home}/providers"
+//
+////////////////////////////////////////////////////////////////////////////////
+
+
 using namespace std;
 
 ////////////////////////////////////////////////////////////////////////////////
 //
 // OptionManager
-//
-// TODO: add descriptions for each otpion so that they may be printed out
-// to the command line user to tell him which command line options are legal.
 //
 ////////////////////////////////////////////////////////////////////////////////
 

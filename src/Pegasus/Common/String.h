@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: String.h,v $
+// Revision 1.17  2001/04/24 00:00:14  mike
+// Ported compiler to use String and Array (rather than STL equivalents)
+//
 // Revision 1.16  2001/04/14 07:35:05  mike
 // Added config file loading to OptionManager
 //
@@ -537,8 +540,55 @@ PEGASUS_COMMON_LINKAGE int CompareIgnoreCase(const char* s1, const char* s2);
 */
 PEGASUS_COMMON_LINKAGE Boolean GetLine(std::istream& is, String& line);
 
+/*  This is an internal class not to be used by the internal Pegasus
+    components only. It provides an easy way to create an 8-bit string
+    representation on the fly without calling allocateCString() and
+    then worrying about deleting the string. The underscore before the
+    class name denotes that this class is internal, unsupported, undocumented,
+    and may be removed in future releases.
+*/
+class _CString
+{
+public:
+
+    _CString(const String& x)
+    {
+	_rep = x.allocateCString();
+    }
+
+    _CString(const _CString& x)
+    {
+	_rep = strcpy(new char[strlen(x._rep) + 1], x._rep);
+    }
+
+    ~_CString()
+    {
+	delete [] _rep;
+    }
+
+    _CString& operator=(const _CString& x)
+    {
+	if (this != &x)
+	    _rep = strcpy(new char[strlen(x._rep) + 1], x._rep);
+
+	return *this;
+    }
+
+    operator const char*() const
+    {
+	return _rep;
+    }
+
+    const char* data() const
+    {
+	return _rep;
+    }
+
+private:
+
+    char* _rep;
+};
 
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_String_h */
-

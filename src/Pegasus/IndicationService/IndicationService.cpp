@@ -6899,9 +6899,12 @@ void IndicationService::_sendEnable (
     //  object path of the created instance in the operation aggregate object 
     //  (because it will be needed for the response)
     //
-    if (origRequest->getType () == CIM_CREATE_INSTANCE_REQUEST_MESSAGE)
+    if (origRequest != 0)
     {
-        operationAggregate->setPath (path);
+        if (origRequest->getType () == CIM_CREATE_INSTANCE_REQUEST_MESSAGE)
+        {
+            operationAggregate->setPath (path);
+        }
     }
 
     //

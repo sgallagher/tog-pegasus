@@ -1117,7 +1117,7 @@ void HTTPConnection::_closeConnection()
 			 Tracer::trace(TRC_HTTP, Tracer::LEVEL2,
 				 "HTTPConnection::_closeConnection - Close connection requested while "
 				 "responses are still expected on this connection. "
-				 "connection=0x%x, socket=%d\n", (int)this, getSocket());
+				 "connection=0x%x, socket=%d\n", (void*)this, getSocket());
 
 		 }
 

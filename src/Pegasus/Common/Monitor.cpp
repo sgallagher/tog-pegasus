@@ -470,7 +470,7 @@ Boolean Monitor::run(Uint32 milliseconds)
 													"Ignoring connection delete request because "
 													"responses are still pending. "
 													"connection=0x%x, socket=%d\n", 
-													(int)&h, h.getSocket());
+													(void *)&h, h.getSocket());
 						continue;
 					}
 					h._connectionClosePending = false;

@@ -101,7 +101,7 @@ void ShutdownService::shutdown(Boolean force, Uint32 timeout)
     //
     // get ProviderManagerService
     //
-    MessageQueue * providerManagerServiceQueue =  
+    MessageQueue * providerManagerServiceQueue =
         MessageQueue::lookup(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP);
 
     _providerManagerService =
@@ -279,8 +279,13 @@ void ShutdownService::_shutdownProviders()
     // ATTN:  Need to make use of the provider shutdown timeout
     //        when asyn provider API is supported.
     //
-    _providerManager->shutdownAllProviders(shutdownProviderName,
-                                           PEGASUS_CLASSNAME_SHUTDOWN);
+
+    //
+    // ATTN: providers are automatically unloaded when the
+    // provider manager service is shutdown
+    //
+    //_providerManager->shutdownAllProviders(shutdownProviderName,
+    //                                       PEGASUS_CLASSNAME_SHUTDOWN);
 
     return;
 }

@@ -635,6 +635,7 @@ void ModuleController::_async_handleEnqueue(AsyncOpNode *op,
    (static_cast<AsyncMessage *>(request))->op = NULL;
    (static_cast<AsyncMessage *>(response))->op = NULL;
 
+   op->release();
    myself->return_op(op);
 
    // get rid of the module wrapper 

@@ -372,24 +372,27 @@ public:
 		QueueIdStack(_target->getQueueId(), _source->getQueueId()));
 
 	// send message
-        AsyncOpNode * op = _source->get_op();
+	// <<< Wed Apr 10 21:04:00 2002 mdd >>>
+        // AsyncOpNode * op = _source->get_op();
 
         AsyncLegacyOperationStart * asyncRequest =
             new AsyncLegacyOperationStart(
 		_source->get_next_xid(),
-                op,
+                0,
                 _target->getQueueId(),
                 request,
                 _target->getQueueId());
 
 	PEGASUS_ASSERT(asyncRequest != 0);
 	
-	AsyncReply * asyncReply = _source->SendWait(asyncRequest);
-
-	PEGASUS_ASSERT(asyncReply != 0);
+	//AsyncReply * asyncReply = _source->SendWait(asyncRequest);
+	// <<< Wed Apr 10 21:04:50 2002 mdd >>>
+	_source->SendForget(asyncRequest);
+	//PEGASUS_ASSERT(asyncReply != 0);
 	
+	//  Chip - receiver of the request should delete it
 	delete asyncRequest;
-	delete asyncReply;
+	// <<< Wed Apr 10 21:05:10 2002 mdd >>>
     }
 
     virtual void deliver(const Array<CIMIndication> & cimIndications)
@@ -410,7 +413,6 @@ public:
 protected:
     MessageQueueService * _source;
     MessageQueueService * _target;
-
 };
 
 PEGASUS_NAMESPACE_END

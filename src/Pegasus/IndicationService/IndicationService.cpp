@@ -4683,7 +4683,7 @@ void IndicationService::_sendAlertsCallBack(AsyncOpNode *op,
    delete response;
    delete asyncRequest;
    delete asyncReply;
-   op->complete();
+   op->release();
    service->return_op(op);
 }
 
@@ -4799,7 +4799,7 @@ void IndicationService::_sendStartCallBack(AsyncOpNode *op,
    delete response;
    delete asyncRequest;
    delete asyncReply;
-   op->complete();
+   op->release();
    service->return_op(op);
 }
 

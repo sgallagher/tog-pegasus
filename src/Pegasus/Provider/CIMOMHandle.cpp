@@ -130,11 +130,11 @@ CIMClass CIMOMHandle::getClass(
 	    _cimom->getQueueId());
 
     if( false  == _controller->ClientSendAsync(*_client_handle, 
-					     0, 
-					     _cimom->getQueueId(),
-					     asyncRequest,
-					     async_callback,
-					     (void *)cb_data) )
+					       0, 
+					       _cimom->getQueueId(),
+					       asyncRequest,
+					       async_callback,
+					       (void *)cb_data) )
     {
        delete asyncRequest;
        delete cb_data;
@@ -359,19 +359,38 @@ CIMInstance CIMOMHandle::getInstance(
 	    QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
 
     // create an op node
-    AsyncOpNode * op = _service->get_op();
+    //    AsyncOpNode * op = _service->get_op();
 
     // create request envelope
     AsyncLegacyOperationStart * asyncRequest =
 	new AsyncLegacyOperationStart (
 	    _service->get_next_xid(),
-	    op,
+	    0,
 	    _cimom->getQueueId(),
 	    request,
 	    _cimom->getQueueId());
 
-    // send request and wait for response
-    AsyncReply * asyncReply = _service->SendWait(asyncRequest);
+
+    callback_data *cb_data = new callback_data(this);
+    
+    if ( false == _controller->ClientSendAsync(*_client_handle, 
+					       0, 
+					       _cimom->getQueueId(), 
+					       asyncRequest, 
+					       async_callback, 
+					       (void *)cb_data) )
+    {
+       delete asyncRequest;
+       delete cb_data;
+       throw CIMException(CIM_ERR_NOT_FOUND);
+    }
+    
+    cb_data->client_sem.wait();
+    AsyncReply *asyncReply = static_cast<AsyncReply *>(cb_data->reply);
+    
+    // send request and wait for response 
+    // <<< Wed Apr 10 20:24:22 2002 mdd >>>
+    //    AsyncReply * asyncReply = _service->SendWait(asyncRequest);
 
     // decode response
     CIMGetInstanceResponseMessage * response =
@@ -382,6 +401,9 @@ CIMInstance CIMOMHandle::getInstance(
 
     delete asyncRequest;
     delete asyncReply;
+    delete response;
+    delete cb_data;
+    
     //delete op;
 
     return(cimInstance);
@@ -429,20 +451,40 @@ Array<CIMInstance> CIMOMHandle::enumerateInstances(
 	    QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
 
     // obtain an op node
-    AsyncOpNode * op = _service->get_op();
+    // AsyncOpNode * op = _service->get_op();
+
+    callback_data *cb_data = new callback_data(this);
 
     // create request envelope
     AsyncLegacyOperationStart * asyncRequest =
 	new AsyncLegacyOperationStart (
 	    _service->get_next_xid(),
-	    op,
+	    0,
 	    _cimom->getQueueId(),
 	    request,
 	    _cimom->getQueueId());
+    
 
     // send request and wait for response
-    AsyncReply * asyncReply = _service->SendWait(asyncRequest);
+    // <<< Wed Apr 10 20:24:36 2002 mdd >>>
+    // AsyncReply * asyncReply = _service->SendWait(asyncRequest);
 
+
+    if(false == _controller->ClientSendAsync(*_client_handle, 
+					     0, 
+					     _cimom->getQueueId(),
+					     asyncRequest,
+					     async_callback, 
+					     (void *)cb_data) )
+    {
+       delete asyncRequest;
+       delete cb_data;
+       throw CIMException(CIM_ERR_NOT_FOUND);
+    }
+    
+    cb_data->client_sem.wait();
+    AsyncReply *asyncReply = static_cast<AsyncReply *>(cb_data->reply);
+    
     // decode response
     CIMEnumerateInstancesResponseMessage * response =
 	reinterpret_cast<CIMEnumerateInstancesResponseMessage *>(
@@ -461,7 +503,9 @@ Array<CIMInstance> CIMOMHandle::enumerateInstances(
     // release the request objects
     delete asyncRequest;
     delete asyncReply;
-
+    delete response;
+    delete cb_data;
+    
     return(cimInstances);
 }
 
@@ -498,32 +542,52 @@ Array<CIMReference> CIMOMHandle::enumerateInstanceNames(
 	    QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
 
     // create an op node
-    AsyncOpNode * op = _service->get_op();
+    // AsyncOpNode * op = _service->get_op();
 
+    callback_data *cb_data = new callback_data(this);
+    
     // create request envelope
     AsyncLegacyOperationStart * asyncRequest =
 	new AsyncLegacyOperationStart (
 	    _service->get_next_xid(),
-	    op,
+	    0,
 	    _cimom->getQueueId(),
 	    request,
 	    _cimom->getQueueId());
-
+    
+    if(false == _controller->ClientSendAsync(*_client_handle,
+					     0,
+					     _cimom->getQueueId(),
+					     asyncRequest, 
+					     async_callback, 
+					     (void *)cb_data))
+       {
+	  delete asyncRequest;
+	  delete cb_data;
+	  throw CIMException(CIM_ERR_NOT_FOUND);
+       }
+    
+    
+    
     // send request and wait for response
-    AsyncReply * asyncReply = _service->SendWait(asyncRequest);
-
+    // <<< Wed Apr 10 20:30:31 2002 mdd >>>
+    // AsyncReply * asyncReply = _service->SendWait(asyncRequest);
+    
+    AsyncReply * asyncReply = static_cast<AsyncReply *>(cb_data->reply);
     // decode response
     CIMEnumerateInstanceNamesResponseMessage * response =
-	reinterpret_cast<CIMEnumerateInstanceNamesResponseMessage *>(
-	    (static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
-
+       reinterpret_cast<CIMEnumerateInstanceNamesResponseMessage *>(
+	  (static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
+    
     Array<CIMReference> cimReferences = response->instanceNames;
-
+    
     //_service->return_op(op);
 
     delete asyncRequest;
     delete asyncReply;
-
+    delete response;
+    delete cb_data;
+    
     return(cimReferences);
 }
 

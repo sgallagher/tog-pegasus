@@ -26,7 +26,7 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                       mdday@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/slp_client.h,v 1.3 2004/06/03 23:22:30 tony Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/slp_client.h,v 1.4 2004/08/23 12:51:34 karl Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -586,16 +586,27 @@ extern "C" {
     uint32 _msg_counts[12];
     lslpSPIList *_spi;
     lslpScopeList *_scopes;
-    int8 _pr_buf[LSLP_MTU];
-    int8 _msg_buf[LSLP_MTU];
-    int8 _rcv_buf[LSLP_MTU];
-    int8 _scratch[LSLP_MTU];
-    int8 _err_buf[255];
+/*     int8 _pr_buf[LSLP_MTU]; */
+/*     int8 _msg_buf[LSLP_MTU]; */
+/*     int8 _rcv_buf[LSLP_MTU]; */
+/*     int8 _scratch[LSLP_MTU]; */
+/*     int8 _err_buf[255]; */
 
+    int8* _pr_buf;
+    int8* _msg_buf;
+    int8* _rcv_buf;
+    int8* _scratch;
+    int8* _err_buf;
+    
     BOOL _use_das;
     uint16 _da_target_port;
     uint32 _da_target_addr;
     
+    /* add field and record separators for shell scripting */
+    BOOL _use_separators;
+    int8 _fs;
+    int8 _rs;
+
     time_t _last_da_cycle;
     struct timeval _tv;
     int _retries;
@@ -637,6 +648,33 @@ extern "C" {
 		     const int8 *, 
 		     const int8 *, 
 		     BOOL);
+  /** <<< Sat Jul 24 14:56:59 2004 mdd >>> add attr request **/
+
+    void (*converge_attr_req)( struct slp_client *, 
+			  const int8 *, 
+			  const int8 *, 
+			  const int8 * );
+  
+    void (*unicast_attr_req)( struct slp_client *,
+			      const int8 *, 
+			      const int8 *,
+			      const int8 *,
+			      SOCKADDR_IN *);
+  
+    void (*local_attr_req)( struct slp_client *, 
+		      const int8 *, 
+		      const int8 *, 
+		      const int8 * );
+
+    void (*attr_req)( struct slp_client *, 
+		      const int8 *, 
+		      const int8 *,
+		      const int8 *,
+		      BOOL);
+  
+    void (*decode_attr_rply)( struct slp_client *, SOCKADDR_IN * );
+  /** <<< Sat Jul 24 15:10:07 2004 mdd >>>  end **/
+
     BOOL (*srv_reg)(struct slp_client *,
 		    const int8 *,
 		    const int8 *,
@@ -674,7 +712,9 @@ extern "C" {
 			   SOCKADDR_IN *);
     void (*decode_daadvert)( struct slp_client *,
 			     SOCKADDR_IN *);
-    BOOL (*send_rcv_udp)(struct slp_client *) ;
+    void (*decode_attrreq)(struct slp_client *, SOCKADDR_IN *);
+    
+    BOOL (*send_rcv_udp)(struct slp_client *, BOOL) ;
     int32 (*service_listener_wait)(struct slp_client *, 
 				   time_t, 
 				   SOCKETD extra, 
@@ -757,6 +797,34 @@ char *slp_get_host_name( char *buf, int buf_size  );
 		const int8 *predicate, 
 		const int8 *scopes, 
 		BOOL retry );
+
+
+  /** <<< Sat Jul 24 14:56:59 2004 mdd >>> add attr request **/
+
+  void converge_attr_req( struct slp_client *client, 
+			  const int8 *url, 
+			  const int8 *scopes, 
+			  const int8 *tags);
+  
+  void unicast_attr_req( struct slp_client *client,
+			 const int8 *url, 
+			 const int8 *scopes,
+			 const int8 *tags,
+			 SOCKADDR_IN *addr);
+  
+  void local_attr_req( struct slp_client *client, 
+		      const int8 *url, 
+		      const int8 *scopes, 
+		      const int8 *tags );
+  void attr_req( struct slp_client *client, 
+		 const int8 *url, 
+		 const int8 *scopes,
+		 const int8 *tags,
+		 BOOL retry);
+  
+  void decode_attr_rply( struct slp_client *client, SOCKADDR_IN *remote);
+  /** <<< Sat Jul 24 15:10:07 2004 mdd >>>  end **/
+
  void decode_srvreg(struct slp_client *client, SOCKADDR_IN *remote);
   
  void decode_msg( struct slp_client *client, 
@@ -775,7 +843,7 @@ char *slp_get_host_name( char *buf, int buf_size  );
 		    const int8 *service_type,
 		    const int8 *scopes,
 		    int16 lifetime) ;
- BOOL send_rcv_udp( struct slp_client *client );
+  BOOL send_rcv_udp( struct slp_client *client , BOOL retry);
 
  int32 __service_listener_wait(struct slp_client *client, 
 			      time_t wait, 
@@ -935,6 +1003,7 @@ char *slp_get_host_name( char *buf, int buf_size  );
 						      int16 errCode);
   /* a is an attribute list, while b is a string representation of an ldap filter  */
  BOOL lslp_predicate_match(lslpAttrList *a, int8 *b);
+
  int8 * lslp_get_next_ext(int8 *hdr_buf);
 
 
@@ -943,7 +1012,7 @@ char *slp_get_host_name( char *buf, int buf_size  );
 SLP_STORAGE_DECL int find_das(struct slp_client *client, 
 	       const int8 *predicate, 
 	       const int8 *scopes);
-SLP_STORAGE_DECL BOOL  lslp_pattern_match(const int8 *s, const int8 *p, BOOL case_sensitive);
+SLP_STORAGE_DECL  BOOL  lslp_pattern_match(const int8 *s, const int8 *p, BOOL case_sensitive);
 SLP_STORAGE_DECL struct slp_client *create_slp_client(const int8 *target_addr, 
 							     const int8 *local_interface, 
 							     uint16 target_port, 
@@ -958,7 +1027,11 @@ SLP_STORAGE_DECL  void *decode_opaque(int8 *buffer);
 SLP_STORAGE_DECL  lslpMsg *alloc_slp_msg(BOOL head);
 SLP_STORAGE_DECL  void lslpDestroySLPMsg(lslpMsg *msg, int8 flag);
 SLP_STORAGE_DECL  void lslp_print_srv_rply(lslpMsg *srvrply);
+SLP_STORAGE_DECL  void lslp_print_srv_rply_parse(lslpMsg *srvrply, int8 fs, int8 rs);
+  
 
+SLP_STORAGE_DECL  void lslp_print_attr_rply(lslpMsg *attrrply);
+SLP_STORAGE_DECL  void lslp_print_attr_rply_parse(lslpMsg *attrrply, int8 fs, int8 rs);
 
 /** test functions - use these to test the correctness of
     slp strings. They will use the actual parsers to
@@ -1005,10 +1078,6 @@ SLP_STORAGE_DECL uint32 test_srv_reg(int8 *type,
 SLP_STORAGE_DECL uint32 test_query(int8 *type,
 				   int8 *predicate, 
 				   int8 *scopes);
-
-
-
-
 
 #ifdef	__cplusplus
 }

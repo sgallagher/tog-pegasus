@@ -5,7 +5,6 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdd@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/filter.y,v 1.1 2003/12/17 18:05:31 tony Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -184,7 +183,7 @@ lslpLDAPFilter *lslpAllocFilter(int operator)
       filter->children.isHead = 1;
       filter->attrs.next = filter->attrs.prev = &(filter->attrs);
       filter->attrs.isHead = 1;
-      filter->_operator = operator;
+      filter->operator = operator;
     }
   }
   return(filter);

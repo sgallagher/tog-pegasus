@@ -1,4 +1,4 @@
 HTTP/1.1 400 Bad Request
 CIMError: header-mismatch
-PGErrorDetail: Empty CIMMethod value.
+PGErrorDetail: Empty%20CIMMethod%20value.
 

@@ -1,4 +1,4 @@
 HTTP/1.1 400 Bad Request
 CIMError: request-not-well-formed
-PGErrorDetail: Bad opening element: on line 11
+PGErrorDetail: Bad%20opening%20element%3A%20on%20line%2011
 

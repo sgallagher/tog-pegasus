@@ -645,7 +645,7 @@ wbemexec ./cimreqerr01b.xml
  
 HTTP/1.1 501 Not Implemented
 CIMError: unsupported-cim-version
-PGErrorDetail: CIM version "3.0" is not supported.
+PGErrorDetail: CIM%20version%20%223.0%22%20is%20not%20supported.
 
  
  
@@ -654,7 +654,7 @@ wbemexec ./cimreqerr01c.xml
  
 HTTP/1.1 501 Not Implemented
 CIMError: unsupported-dtd-version
-PGErrorDetail: DTD version "3.0" is not supported.
+PGErrorDetail: DTD%20version%20%223.0%22%20is%20not%20supported.
 
  
  

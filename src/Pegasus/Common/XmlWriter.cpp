@@ -309,9 +309,7 @@ inline void _encodeURIChar(String& outString, Char16 char16)
     // ATTN: Handle non-UTF-8 character sets
     char c = char16 & 0x007f;
 
-#if 0
-// Enable this functionality when approved by Pegasus community
-//#ifndef PEGASUS_DO_NOT_IMPLEMENT_URI_ENCODING
+#ifndef PEGASUS_DO_NOT_IMPLEMENT_URI_ENCODING
     if ( (c <= 0x20) ||                     // Control characters + space char
          ( (c >= 0x22) && (c <= 0x26) ) ||  // '"' '#' '$' '%' '&'
          (c == 0x2b) ||                     // '+'

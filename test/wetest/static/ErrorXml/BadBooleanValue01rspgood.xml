@@ -1,4 +1,4 @@
 HTTP/1.1 400 Bad Request
 CIMError: request-not-valid
-PGErrorDetail: Semantic error: on line 16: Invalid value for VALUE element: must be "TRUE" or "FALSE"
+PGErrorDetail: Semantic%20error%3A%20on%20line%2016%3A%20Invalid%20value%20for%20VALUE%20element%3A%20must%20be%20%22TRUE%22%20or%20%22FALSE%22
 

@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,11 +29,11 @@
 //
 // Author: Yi Zhou (yi_zhou@hp.com)
 //
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Sushma Fernandes, Hewlett-Packard Company
-//              (sushma_fernandes@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
+// Modified By:
+//      Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//      Sushma Fernandes, Hewlett-Packard Company (sushma_fernandes@hp.com)
+//      Carol Ann Krug Graves, Hewlett-Packard Company (carolann_graves@hp.com)
+//      Chip Vincent (cvincent@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -51,10 +51,12 @@ PEGASUS_NAMESPACE_BEGIN
 extern "C" PEGASUS_EXPORT CIMProvider* PegasusCreateProvider(const String & providerName)
 {
     const String PROVIDER_NAME = "PG_TestPropertyTypes";
-    if (String::equalNoCase(providerName, "PG_TestPropertyTypes"))
+
+    if (String::equalNoCase(providerName, PROVIDER_NAME))
     {
-	return(new PG_TestPropertyTypes());
+        return(new PG_TestPropertyTypes());
     }
+
     return (0);
 }
 
@@ -109,7 +111,30 @@ void PG_TestPropertyTypes::initialize(CIMOMHandle& cimom)
 	instance1.addProperty(CIMProperty("PropertyDatetime",
 			      CIMDateTime("20010515104354.000000:000")));
 
-	_instances.append(instance1);
+    // update object path
+    {
+        CIMObjectPath objectPath = instance1.getPath();
+
+        Array<CIMKeyBinding> keys;
+
+        {
+            CIMProperty keyProperty = instance1.getProperty(instance1.findProperty("CreationClassName"));
+
+            keys.append(CIMKeyBinding(keyProperty.getName(), keyProperty.getValue()));
+        }
+
+        {
+            CIMProperty keyProperty = instance1.getProperty(instance1.findProperty("InstanceId"));
+
+            keys.append(CIMKeyBinding(keyProperty.getName(), keyProperty.getValue()));
+        }
+
+        objectPath.setKeyBindings(keys);
+
+        instance1.setPath(objectPath);
+    }
+
+    _instances.append(instance1);
 
 	CIMInstance instance2("PG_TestPropertyTypes");
 
@@ -136,6 +161,28 @@ void PG_TestPropertyTypes::initialize(CIMOMHandle& cimom)
 
 	_instances.append(instance2);
 
+    // update object path
+    {
+        CIMObjectPath objectPath = instance2.getPath();
+
+        Array<CIMKeyBinding> keys;
+
+        {
+            CIMProperty keyProperty = instance2.getProperty(instance2.findProperty("CreationClassName"));
+
+            keys.append(CIMKeyBinding(keyProperty.getName(), keyProperty.getValue()));
+        }
+
+        {
+            CIMProperty keyProperty = instance2.getProperty(instance2.findProperty("InstanceId"));
+
+            keys.append(CIMKeyBinding(keyProperty.getName(), keyProperty.getValue()));
+        }
+
+        objectPath.setKeyBindings(keys);
+
+        instance2.setPath(objectPath);
+    }
 }
 
 void PG_TestPropertyTypes::terminate(void)
@@ -302,7 +349,7 @@ void PG_TestPropertyTypes::modifyInstance(
 	// begin processing the request
 	handler.processing();
 
-	// We do nothing here since we like to have static result	
+	// We do nothing here since we like to have static result
 	// complete processing the request
 	handler.complete();
 }
@@ -455,12 +502,12 @@ void PG_TestPropertyTypes::_testPropertyTypesValue(
 	  const CIMValue& propertyValue = property.getValue();
 
 	  CIMType type = propertyValue.getType();
-	
+
 	  switch (type)
 	  {
 	     case CIMTYPE_UINT8:
 	    	Uint8 propertyValueUint8;
-		propertyValue.get(propertyValueUint8);	
+		propertyValue.get(propertyValueUint8);
 		if (propertyValueUint8 >= 255)
 		{
 		   throw CIMException(CIM_ERR_INVALID_PARAMETER);
@@ -469,7 +516,7 @@ void PG_TestPropertyTypes::_testPropertyTypesValue(
 
 	     case CIMTYPE_UINT16:
 	    	Uint16 propertyValueUint16;
-		propertyValue.get(propertyValueUint16);	
+		propertyValue.get(propertyValueUint16);
 		if (propertyValueUint16 >= 10000)
 		{
 		   throw CIMException(CIM_ERR_INVALID_PARAMETER);
@@ -478,7 +525,7 @@ void PG_TestPropertyTypes::_testPropertyTypesValue(
 
 	     case CIMTYPE_UINT32:
 	    	Uint32 propertyValueUint32;
-		propertyValue.get(propertyValueUint32);	
+		propertyValue.get(propertyValueUint32);
 		if (propertyValueUint32 >= 10000000)
 		{
 		   throw CIMException(CIM_ERR_INVALID_PARAMETER);
@@ -487,7 +534,7 @@ void PG_TestPropertyTypes::_testPropertyTypesValue(
 
 	     case CIMTYPE_UINT64:
 	    	Uint64 propertyValueUint64;
-		propertyValue.get(propertyValueUint64);	
+		propertyValue.get(propertyValueUint64);
 		if (propertyValueUint64 >= 1000000000)
 		{
 		   throw CIMException(CIM_ERR_INVALID_PARAMETER);
@@ -496,7 +543,7 @@ void PG_TestPropertyTypes::_testPropertyTypesValue(
 
 	     case CIMTYPE_SINT8:
 	    	Sint8 propertyValueSint8;
-		propertyValue.get(propertyValueSint8);	
+		propertyValue.get(propertyValueSint8);
 		if (propertyValueSint8 <= (Sint8)-120)
 		{
 		   throw CIMException(CIM_ERR_INVALID_PARAMETER);
@@ -505,7 +552,7 @@ void PG_TestPropertyTypes::_testPropertyTypesValue(
 
 	     case CIMTYPE_SINT16:
 	    	Sint16 propertyValueSint16;
-		propertyValue.get(propertyValueSint16);	
+		propertyValue.get(propertyValueSint16);
 		if (propertyValueSint16 < -10000)
 		{
 		   throw CIMException(CIM_ERR_INVALID_PARAMETER);
@@ -514,7 +561,7 @@ void PG_TestPropertyTypes::_testPropertyTypesValue(
 
 	     case CIMTYPE_SINT32:
 	    	Sint32 propertyValueSint32;
-		propertyValue.get(propertyValueSint32);	
+		propertyValue.get(propertyValueSint32);
 		if (propertyValueSint32 <= -10000000)
 		{
 		   throw CIMException(CIM_ERR_INVALID_PARAMETER);
@@ -523,7 +570,7 @@ void PG_TestPropertyTypes::_testPropertyTypesValue(
 
 	     case CIMTYPE_SINT64:
 	    	Sint64 propertyValueSint64;
-		propertyValue.get(propertyValueSint64);	
+		propertyValue.get(propertyValueSint64);
 		if (propertyValueSint64 <= -1000000000)
 		{
 		   throw CIMException(CIM_ERR_INVALID_PARAMETER);
@@ -532,7 +579,7 @@ void PG_TestPropertyTypes::_testPropertyTypesValue(
 
 	     case CIMTYPE_REAL32:
 	    	Real32 propertyValueReal32;
-		propertyValue.get(propertyValueReal32);	
+		propertyValue.get(propertyValueReal32);
 		if (propertyValueReal32 >= 10000000.32)
 		{
 		   throw CIMException(CIM_ERR_INVALID_PARAMETER);
@@ -541,7 +588,7 @@ void PG_TestPropertyTypes::_testPropertyTypesValue(
 
 	     case CIMTYPE_REAL64:
 	    	Real64 propertyValueReal64;
-		propertyValue.get(propertyValueReal64);	
+		propertyValue.get(propertyValueReal64);
 		if (propertyValueReal64 >= 1000000000.64)
 		{
 		   throw CIMException(CIM_ERR_INVALID_PARAMETER);

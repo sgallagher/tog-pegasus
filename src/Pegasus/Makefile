@@ -113,6 +113,10 @@ DIRS += \
     Common/tests \
     Config/tests \
     Repository/tests \
+    CQL/tests \
+    CQL/CQLCLI \
+    Query/QueryExpression/tests \
+    Query/QueryExpression/tests/Queries \
     Server/tests \
     Server/ProviderRegistrationManager/tests \
     ExportClient/tests \
@@ -125,10 +129,6 @@ DIRS += \
     ControlProviders/ProviderRegistrationProvider/tests \
     Listener/tests \
     Consumer/tests \
-    CQL/tests \
-    CQL/CQLCLI \
-    Query/QueryExpression/tests \
-    Query/QueryExpression/tests/Queries \
     msg/Server \
     msg/CLI
 

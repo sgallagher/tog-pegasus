@@ -48,8 +48,8 @@ PEGASUS_NAMESPACE_BEGIN
     a class or an instance the methods check whether it meets the criteria for
     special processing. In this example it checks whether a class or an instance
     uses the "Required qualifier" and if so whether the flavor on it is set 
-    to OVERRIDABLE. If true the class or instance is updated with the flavor
-    on the Required qualifier set to DISABLEOVERRIDE.
+    to OVERRIDABLE. If true the class or instance is updated 
+    to unset flavor OVERRIDABLE.
 
  */
 
@@ -64,10 +64,6 @@ public:
 
     /**
        Performs special processing on a qualifier.
-
-       @value		CIMQualifier qualifier. 
-
-       @return           CIMQualifier updated qualifier.
     */
     virtual Boolean processQualifier (CIMQualifierDecl& inputQual,
                                       CIMQualifierDecl& outputQual);
@@ -82,7 +78,7 @@ public:
        Interface for special processing on an instance.
     */
     virtual Boolean processInstance (CIMInstance& inputInstance,
-                                         CIMInstance& outputInstance);
+                                     CIMInstance& outputInstance);
 
 
 };

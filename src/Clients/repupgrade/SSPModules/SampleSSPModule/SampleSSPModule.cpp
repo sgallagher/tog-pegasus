@@ -67,6 +67,9 @@ Boolean SampleSSPModule::processQualifier (CIMQualifierDecl& inputQual,
 Boolean SampleSSPModule::processClass (CIMClass& inputClass,
                                        CIMClass& outputClass)
 {
+/* This is a sample implementation to update a CIM Class
+   Uncomment for implementation 
+
     //
     // Check if the input class defines "Required" qualifier and
     // if the flavor on the qualifier is set to OVERRIDABLE.
@@ -83,7 +86,7 @@ Boolean SampleSSPModule::processClass (CIMClass& inputClass,
              // change the qualifier flavor
              if ( q.getFlavor().hasFlavor( CIMFlavor::OVERRIDABLE))
              {
-                 q.unsetFlavor (CIMFlavor::DISABLEOVERRIDE);
+                 q.unsetFlavor (CIMFlavor::OVERRIDABLE);
                  outputClass.removeQualifier(i);
                  outputClass.addQualifier(q);
              }
@@ -93,13 +96,11 @@ Boolean SampleSSPModule::processClass (CIMClass& inputClass,
     //
     // Check if any property defines "Required" qualifier. 
     //
-    Boolean propertyChanged = false;
 
     Array<CIMProperty> 		cimProperty;
 
     for ( Uint32 i = 0; i < inputClass.getPropertyCount(); i++ )
     {
-        propertyChanged = false;
         CIMProperty  p = inputClass.getProperty(i);
 
         Uint32 qualCount = p.getQualifierCount();
@@ -115,15 +116,12 @@ Boolean SampleSSPModule::processClass (CIMClass& inputClass,
                          CIMFlavor::OVERRIDABLE))
                 {
                     q.unsetFlavor (CIMFlavor::OVERRIDABLE);
-                    propertyChanged = true;
                     p.removeQualifier(qctr);
                     p.addQualifier(q);
+                    cimProperty.append(p);
+                    break;
                 }
             }
-        }
-        if ( propertyChanged )
-        {
-            cimProperty.append(p);
         }
     }
 
@@ -138,11 +136,9 @@ Boolean SampleSSPModule::processClass (CIMClass& inputClass,
     // Check if any Method defines "Required" qualifier.
     //
 
-    Boolean methodChanged = false;
 
     for ( Uint32 i = 0; i < inputClass.getMethodCount(); i++ )
     {
-         methodChanged = false;
          CIMMethod  m = inputClass.getMethod (i);
 
          Uint32 qualCount = m.getQualifierCount();
@@ -157,15 +153,12 @@ Boolean SampleSSPModule::processClass (CIMClass& inputClass,
                  if ( q.getFlavor().hasFlavor(
                            CIMFlavor::OVERRIDABLE))
                  {
-                     q.unsetFlavor (CIMFlavor::DISABLEOVERRIDE);
-                     methodChanged = true;
+                     q.unsetFlavor (CIMFlavor::OVERRIDABLE);
+                     outputClass.removeMethod (i);
+                     outputClass.addMethod (m);
                  }
+                 break;
              }
-         }
-         if (methodChanged)
-         {
-             outputClass.removeMethod (i);
-             outputClass.addMethod (m);
          }
     }
 
@@ -179,12 +172,11 @@ Boolean SampleSSPModule::processClass (CIMClass& inputClass,
         CIMMethod  m = inputClass.getMethod (i);
 
         // Check the method parameters.
-        Boolean parameterChanged = false;
+        Boolean methodChanged = false;
         Uint32 paramCount = m.getParameterCount();
 
         for ( Uint32 pctr = 0; pctr < paramCount; pctr++)
         {
-            parameterChanged = false;
             CIMParameter p1  = m.getParameter(pctr);
 
             Uint32 pqCount = p1.getQualifierCount();
@@ -198,26 +190,26 @@ Boolean SampleSSPModule::processClass (CIMClass& inputClass,
                     if ( q.getFlavor().hasFlavor
                                ( CIMFlavor::OVERRIDABLE))
                     {
-                        q.unsetFlavor
-                              (CIMFlavor::DISABLEOVERRIDE);
-                        parameterChanged = true;
+                        q.unsetFlavor (CIMFlavor::OVERRIDABLE);
+                        methodChanged = true;
+                        p1.removeQualifier(pqctr);
+                        p1.addQualifier (q);
+                        m.removeParameter(pctr);
+                        m.addParameter(p1);
                     }
-                }
-                if (parameterChanged)
-                {
-                    p1.removeQualifier(pqctr);
-                    p1.addQualifier (q);
+                    break;
                 }
             }
-            m.removeParameter(pctr);
-            m.addParameter(p1);
         }
-        if ( parameterChanged)
+        if ( methodChanged)
         {
             outputClass.removeMethod (i);
             outputClass.addMethod (m);
         }
     }
+
+Uncomment for implementation */
+
     return true;
 }
 
@@ -227,7 +219,10 @@ Boolean SampleSSPModule::processClass (CIMClass& inputClass,
 Boolean SampleSSPModule::processInstance (CIMInstance& inputInstance,
                                                   CIMInstance& outputInstance)
 {
-    Boolean propertyChanged = false;
+
+/* This is a sample implementation to update a CIM Instance.
+   Uncomment for implementation 
+
     Array<CIMProperty> cimProperty;
 
     //
@@ -238,7 +233,6 @@ Boolean SampleSSPModule::processInstance (CIMInstance& inputInstance,
 
     for ( Uint32 i = 0; i < inputInstance.getPropertyCount(); i++ )
     {
-        propertyChanged = false;
         CIMProperty  p = inputInstance.getProperty (i);
 
         Uint32 qualCount = p.getQualifierCount();
@@ -255,15 +249,12 @@ Boolean SampleSSPModule::processInstance (CIMInstance& inputInstance,
                     CIMFlavor::OVERRIDABLE))
                 {
                     q.unsetFlavor (CIMFlavor::OVERRIDABLE);
-                    propertyChanged = true;
                     p.removeQualifier(qctr);
                     p.addQualifier(q);
+                    cimProperty.append(p);
                 }
+                break;
             }
-        }
-        if ( propertyChanged )
-        {
-            cimProperty.append(p);
         }
     }
     for ( Uint32 i=0; i<cimProperty.size(); i++)
@@ -272,6 +263,8 @@ Boolean SampleSSPModule::processInstance (CIMInstance& inputInstance,
              outputInstance.findProperty (cimProperty[i].getName()));
          outputInstance.addProperty (cimProperty[i]);
     }
+
+Uncomment for implementation */
 
     return true;
 }

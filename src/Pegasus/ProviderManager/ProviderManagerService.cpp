@@ -82,7 +82,7 @@ Pair<String, String> _getProviderRegPair(const CIMInstance& pInstance, const CIM
 
     if(pos == PEG_NOT_FOUND)
     {
-	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Trcer::LEVEL4,
 	    "Provider name not found.");
 
 	PEG_METHOD_EXIT();
@@ -128,6 +128,96 @@ Pair<String, String> _getProviderRegPair(const CIMInstance& pInstance, const CIM
     PEG_METHOD_EXIT();
 
     return(Pair<String, String>(fileName, providerName));
+}
+
+void ProviderManagerService::_lookupProviderForAssocClass(
+        const CIMObjectPath & objectPath, const String& assocClassName,
+        const String& resultClassName,
+        Array<String>& Locations, Array<String>& providerNames)
+{
+    Array<CIMInstance> pInstances;
+    Array<CIMInstance> pmInstances;
+
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::_lookupProviderForAssocClass");
+
+    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        "nameSpace = " + objectPath.getNameSpace() + "; className = " + objectPath.getClassName());
+
+    // ATTN: try all provider type lookups
+
+    // get the provider and provider module instance from the registration manager
+    if(_providerRegistrationManager->lookupAssociationProvider(
+        objectPath.getNameSpace(), objectPath.getClassName(),
+        assocClassName, resultClassName,
+        pInstances, pmInstances) == false)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Provider registration not found.");
+
+        PEG_METHOD_EXIT();
+
+        throw CIMException(CIM_ERR_FAILED, "provider lookup failed.");
+    }
+
+    for(Uint32 i=0,n=pInstances.size(); i<n; i++)
+    {
+
+        // get the provider name from the provider instance
+        Uint32 pos = pInstances[i].findProperty("Name");
+
+        String providerName, Location;
+
+        if(pos == PEG_NOT_FOUND)
+        {
+            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                "Provider name not found.");
+
+            //PEG_METHOD_EXIT();
+            //throw CIMException(CIM_ERR_FAILED, "provider lookup failed.");
+        }
+
+        pInstances[i].getProperty(pos).getValue().get(providerName);
+
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        "providerName = " + providerName + " found.");
+
+        // get the provider location from the provider module instance
+        pos = pmInstances[i].findProperty("Location");
+
+        if(pos == PEG_NOT_FOUND)
+        {
+            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                "Provider location not found.");
+            //PEG_METHOD_EXIT();
+            //throw CIMException(CIM_ERR_FAILED, "provider lookup failed.");
+        }
+
+        pmInstances[i].getProperty(pos).getValue().get(Location);
+
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+           "location = " + Location + " found.");
+
+
+        String fileName;
+
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+    fileName = Location + String(".dll");
+#elif defined(PEGASUS_OS_HPUX)
+    fileName = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
+    fileName += String("/lib") + Location + String(".sl");
+#else
+    fileName = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
+    fileName += String("/lib") + Location + String(".so");
+#endif
+
+
+        providerNames.append(providerName);
+        Locations.append(fileName);
+    }
+
+    PEG_METHOD_EXIT();
+
+    return;
 }
 
 Pair<String, String> ProviderManagerService::_lookupProviderForClass(const CIMObjectPath & objectPath)
@@ -211,6 +301,12 @@ void ProviderManagerService::handleEnqueue(Message * message)
 {
     PEGASUS_ASSERT(message != 0);
 
+// *FIXME* Markus
+// catch response messages that should never appear here
+// 
+    if (message->getType() == CIM_ENUMERATE_INSTANCE_NAMES_RESPONSE_MESSAGE)
+        abort(); // handle double provider callback !
+
     AsyncOpNode * op = this->get_op();
 
     AsyncLegacyOperationStart * asyncRequest =
@@ -221,15 +317,6 @@ void ProviderManagerService::handleEnqueue(Message * message)
 	message,
 	this->getQueueId());
 
-    //PEGASUS_ASSERT(asyncRequest != 0);
-
-    //AsynReply * asyncReplay = SendWait(asyncRequest);
-
-    //PEGASUS_ASSERT(asyncReplay != 0);
-
-    //delete asyncRequest;
-    //delete asyncReply;
-
     _handle_async_request(asyncRequest);
 }
 
@@ -239,7 +326,6 @@ void ProviderManagerService::_handle_async_request(AsyncRequest * request)
                      "ProviderManagerService::_handle_async_request");
 
     PEGASUS_ASSERT(request != 0);
-
     if(request->getType() == async_messages::ASYNC_LEGACY_OP_START)
     {
 	request->op->processing();
@@ -916,7 +1002,7 @@ void ProviderManagerService::handleAssociatorNamesRequest(const Message * messag
     CIMAssociatorNamesResponseMessage * response =
 	new CIMAssociatorNamesResponseMessage(
 	request->messageId,
-	PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
+        CIMException(),
 	request->queueIds.copyAndPop(),
 	cimReferences);
 
@@ -925,7 +1011,79 @@ void ProviderManagerService::handleAssociatorNamesRequest(const Message * messag
     // preserve message key
     response->setKey(request->getKey());
 
-    _enqueueResponse(request, response);
+    // create a handler for this request
+    AssociatorNamesResponseHandler handler(request, response);
+
+    // process the request
+    try
+    {
+        // make target object path
+        CIMObjectPath objectPath(
+            System::getHostName(),
+            request->nameSpace,
+            request->objectName.getClassName());
+        objectPath.setKeyBindings(request->objectName.getKeyBindings());
+
+        // get the provider file name and logical name
+        Array<String> first;
+        Array<String> second;
+        _lookupProviderForAssocClass(objectPath,
+        //                             request->associationClass,
+        //                             request->resultClass,
+                                     String::EMPTY,
+                                     String::EMPTY,
+                                     first, second);
+
+        for(Uint32 i=0,n=first.size(); i<n; i++)
+        {
+            // get cached or load new provider module
+            Provider provider = 
+               providerManager.getProvider(first[i], second[i]);
+
+            // convert arguments
+            OperationContext context;
+
+            // add the user name to the context
+            context.add_context(sizeof(String *),
+                const_cast<String *>(&(request->userName)),
+                0,
+                0,
+                CONTEXT_IDENTITY,
+                0,
+                0);
+
+            // convert flags to bitmask
+            Uint32 flags = OperationFlag::convert(false);
+
+            // ATTN: strip flags inappropriate for providers
+            flags = flags | ~OperationFlag::LOCAL_ONLY |
+                            ~OperationFlag::DEEP_INHERITANCE;
+
+            provider.associatorNames(
+                context,
+                objectPath,
+                request->assocClass,
+                request->resultClass,
+                request->role,
+                request->resultRole,
+                handler);
+        } // end for loop
+
+    }
+    catch(CIMException & e)
+    {
+        handler.setStatus(e.getCode(), e.getMessage());
+    }
+    catch(Exception & e)
+    {
+        handler.setStatus(CIM_ERR_FAILED, e.getMessage());
+    }
+    catch(...)
+    {
+        handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
+    }
+
+    _enqueueResponse(handler.getRequest(), handler.getResponse());
 }
 
 void ProviderManagerService::handleReferencesRequest(const Message * message) throw()
@@ -940,7 +1098,7 @@ void ProviderManagerService::handleReferencesRequest(const Message * message) th
     CIMReferencesResponseMessage * response =
 	new CIMReferencesResponseMessage(
 	request->messageId,
-	PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
+	CIMException(),
 	request->queueIds.copyAndPop(),
 	cimObjects);
 
@@ -948,8 +1106,83 @@ void ProviderManagerService::handleReferencesRequest(const Message * message) th
 
     // preserve message key
     response->setKey(request->getKey());
+    // create a handler for this request
+    ReferencesResponseHandler handler(request, response);
 
-    _enqueueResponse(request, response);
+    // process the request
+    try
+    {
+        // make target object path
+        CIMObjectPath objectPath(
+            System::getHostName(),
+            request->nameSpace,
+            request->objectName.getClassName());
+        objectPath.setKeyBindings(request->objectName.getKeyBindings());
+
+        // get the provider file name and logical name
+        Array<String> first;
+        Array<String> second;
+        _lookupProviderForAssocClass(objectPath,
+        //                             request->associationClass,
+        //                             request->resultClass,
+                                     String::EMPTY,
+                                     String::EMPTY,
+                                     first, second);
+
+        for(Uint32 i=0,n=first.size(); i<n; i++)
+        {
+            // get cached or load new provider module
+            Provider provider = 
+               providerManager.getProvider(first[i], second[i]);
+
+            // convert arguments
+            OperationContext context;
+
+            // add the user name to the context
+            context.add_context(sizeof(String *),
+                const_cast<String *>(&(request->userName)),
+                0,
+                0,
+                CONTEXT_IDENTITY,
+                0,
+                0);
+
+            // convert flags to bitmask
+            Uint32 flags = OperationFlag::convert(false);
+
+            // ATTN: strip flags inappropriate for providers
+            flags = flags | ~OperationFlag::LOCAL_ONLY |
+                            ~OperationFlag::DEEP_INHERITANCE;
+
+            //CIMPropertyList propertyList(request->propertyList);
+ 
+            //SimpleResponseHandler<CIMReference> handler;
+
+            provider.references(
+                context,
+                objectPath,
+                request->resultClass,
+                request->role,
+                flags,
+                request->propertyList.getPropertyNameArray(),
+                handler);
+        } // end for loop
+
+    }
+    catch(CIMException & e)
+    {
+        handler.setStatus(e.getCode(), e.getMessage());
+    }
+    catch(Exception & e)
+    {
+        handler.setStatus(CIM_ERR_FAILED, e.getMessage());
+    }
+    catch(...)
+    {
+        handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
+    }
+
+    _enqueueResponse(handler.getRequest(), handler.getResponse());
 }
 
 void ProviderManagerService::handleReferenceNamesRequest(const Message * message) throw()
@@ -964,14 +1197,86 @@ void ProviderManagerService::handleReferenceNamesRequest(const Message * message
     CIMReferenceNamesResponseMessage * response =
 	new CIMReferenceNamesResponseMessage(
 	request->messageId,
-	PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
+	CIMException(),
 	request->queueIds.copyAndPop(),
 	cimReferences);
 
     // preserve message key
     response->setKey(request->getKey());
 
-    _enqueueResponse(request, response);
+    // create a handler for this request
+    ReferenceNamesResponseHandler handler(request, response);
+
+    // process the request
+    try
+    {
+        // make target object path
+        CIMObjectPath objectPath(
+            System::getHostName(),
+            request->nameSpace,
+            request->objectName.getClassName());
+        objectPath.setKeyBindings(request->objectName.getKeyBindings());
+
+        // get the provider file name and logical name
+        Array<String> first;
+        Array<String> second;
+        _lookupProviderForAssocClass(objectPath,
+        //                             request->associationClass,
+        //                             request->resultClass,
+                                     String::EMPTY,
+                                     String::EMPTY,
+                                     first, second);
+
+        for(Uint32 i=0,n=first.size(); i<n; i++)
+        {
+            // get cached or load new provider module
+            Provider provider = 
+               providerManager.getProvider(first[i], second[i]);
+
+            // convert arguments
+            OperationContext context;
+
+            // add the user name to the context
+            context.add_context(sizeof(String *),
+                const_cast<String *>(&(request->userName)),
+                0,
+                0,
+                CONTEXT_IDENTITY,
+                0,
+                0);
+
+            // convert flags to bitmask
+            Uint32 flags = OperationFlag::convert(false);
+
+            // ATTN: strip flags inappropriate for providers
+            flags = flags | ~OperationFlag::LOCAL_ONLY |
+                            ~OperationFlag::DEEP_INHERITANCE;
+
+            //CIMPropertyList propertyList(request->propertyList);
+ 
+            provider.referenceNames(
+                context,
+                objectPath,
+                request->resultClass,
+                request->role,
+                handler);
+        } // end for loop
+
+    }
+    catch(CIMException & e)
+    {
+        handler.setStatus(e.getCode(), e.getMessage());
+    }
+    catch(Exception & e)
+    {
+        handler.setStatus(CIM_ERR_FAILED, e.getMessage());
+    }
+    catch(...)
+    {
+        handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
+    }
+
+    _enqueueResponse(handler.getRequest(), handler.getResponse());
 }
 
 void ProviderManagerService::handleGetPropertyRequest(const Message * message) throw()

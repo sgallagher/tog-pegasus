@@ -148,7 +148,7 @@ String CIMOperationRequestDispatcher::_lookupInstanceProvider(
                      "CIMOperationRequestDispatcher::_lookupInstanceProvider");
 
     if (_providerRegistrationManager->lookupInstanceProvider(
-	nameSpace, className, pInstance, pmInstance))
+	nameSpace, className, pInstance, pmInstance, false))
     {
 	// get the provder name
 	Uint32 pos = pInstance.findProperty("Name");
@@ -230,18 +230,55 @@ String CIMOperationRequestDispatcher::_lookupIndicationProvider(
 }
 
 // ATTN-YZ-P1-20020305: Implement this interface
-String CIMOperationRequestDispatcher::_lookupAssociationProvider(
+//
+// ATTN Markus:
+// algorithm: enumerateClassnames, find all association providers
+// registered for classes and give back this list
+
+Array<String> CIMOperationRequestDispatcher::_lookupAssociationProvider(
    const String& nameSpace,
-   const String& className)
+   const String& className,
+   const String& assocClassName = String::EMPTY,
+   const String& resultClassName = String::EMPTY)
 {
+    Array<CIMInstance> pInstances; // Provider
+    Array<CIMInstance> pmInstances; // ProviderModule
+
+    Array<String> providerNames;
+    String providerName;
+
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "CIMOperationRequestDispatcher::_lookupAssociationProvider");
 
+        // assume assocClassName is empty
+    // algorithm: enumerateClassnames, find all association providers
+    // registered for classes and give back this list
+
+    if (_providerRegistrationManager->lookupAssociationProvider(
+            nameSpace, className, assocClassName, resultClassName,
+                pInstances, pmInstances))
+    {
+
+        for(Uint32 i=0,n=pInstances.size(); i<n; i++)
+        {
+            // get the provider name
+            Uint32 pos = pInstances[i].findProperty("Name");
+
+            if ( pos != PEG_NOT_FOUND )
+            {
+                pInstances[i].getProperty(pos).getValue().get(providerName);
+
+                PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                             "providerName = " + providerName + " found.");
+                providerNames.append(providerName);
+            }
+        }
+    }
+
     PEG_METHOD_EXIT();
-    return(String::EMPTY);
+
+    return providerNames;
 }
-
-
 
 void CIMOperationRequestDispatcher::_forwardToServiceCallBack(AsyncOpNode *op, 
 							      MessageQueue *q,
@@ -1511,12 +1548,15 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
       "CIMOperationRequestDispatcher::handleAssociatorsRequest");
 
    String className = request->objectName.getClassName();
+   String assocClassName = request->assocClass;
+   String resultClassName = request->resultClass;
+
    CIMResponseMessage * response;
 	
    // check the class name for an "external provider"
-   String providerName = _lookupAssociationProvider(request->nameSpace, className);
+   Array<String> providerNames = _lookupAssociationProvider(request->nameSpace, className);
 
-   if(providerName.size() != 0)
+   if(providerNames.size() != 0)
    {
       CIMAssociatorsRequestMessage* requestCopy =
           new CIMAssociatorsRequestMessage(*request);
@@ -1594,12 +1634,13 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
       "CIMOperationRequestDispatcher::handleAssociatorNamesRequest");
 
    String className = request->objectName.getClassName();
+   String resultClassName = request->resultClass;
    CIMResponseMessage * response;
 	
    // check the class name for an "external provider"
-   String providerName = _lookupAssociationProvider(request->nameSpace, className);
+   Array<String> providerNames = _lookupAssociationProvider(request->nameSpace, className);
 
-   if(providerName.size() != 0)
+   if(providerNames.size() != 0)
    {
       CIMAssociatorNamesRequestMessage* requestCopy =
           new CIMAssociatorNamesRequestMessage(*request);
@@ -1677,9 +1718,9 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
    CIMResponseMessage * response;
 	
    // check the class name for an "external provider"
-   String providerName = _lookupAssociationProvider(request->nameSpace, className);
+   Array<String> providerNames = _lookupAssociationProvider(request->nameSpace, className);
 
-   if(providerName.size() != 0)
+   if(providerNames.size() != 0)
    {
       CIMReferencesRequestMessage* requestCopy =
           new CIMReferencesRequestMessage(*request);
@@ -1758,9 +1799,9 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
    CIMResponseMessage * response;
 	
    // check the class name for an "external provider"
-   String providerName = _lookupAssociationProvider(request->nameSpace, className);
+   Array<String> providerNames = _lookupAssociationProvider(request->nameSpace, className);
 
-   if(providerName.size() != 0)
+   if(providerNames.size() != 0)
    {
       CIMReferenceNamesRequestMessage* requestCopy =
           new CIMReferenceNamesRequestMessage(*request);

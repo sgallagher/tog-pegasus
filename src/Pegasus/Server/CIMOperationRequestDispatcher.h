@@ -162,8 +162,10 @@ public:
       String _lookupInstanceProvider(
 	const String& nameSpace, const String& className);
 
-      String _lookupAssociationProvider(
-	const String& nameSpace, const String& className);
+      Array<String> _lookupAssociationProvider(
+	const String& nameSpace, const String& className,
+        const String& assocClassName = String::EMPTY,
+        const String& resultClassName = String::EMPTY);
 
       String _lookupMethodProvider(const String& nameSpace,
 	const String& className, const String& methodName);

@@ -65,6 +65,11 @@ protected:
 protected:
     virtual Pair<String, String> _lookupProviderForClass(const CIMObjectPath & objectPath);
 
+    virtual void _lookupProviderForAssocClass(
+        const CIMObjectPath & objectPath, const String& assocClassName,
+        const String& resultClassName,
+        Array<String>& Locations, Array<String>& providerNames);
+
 protected:
     static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleServiceOperation(void * arg) throw();
 

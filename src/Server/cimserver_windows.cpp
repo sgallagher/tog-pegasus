@@ -107,6 +107,14 @@ PEGASUS_TRACE;
        useSSL =  true;
     }
 
+    // mdh: need to get the environment for the Windows Service to run 
+    const char* tmp = getenv("PEGASUS_HOME");
+    if (tmp)
+    {
+        pegasusHome = tmp;
+    }    
+    ConfigManager::setPegasusHome(pegasusHome);
+
 PEGASUS_TRACE;
     
     // Grab the port otpion:

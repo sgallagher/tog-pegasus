@@ -99,7 +99,7 @@ int main(int argc, char ** argv)
 			return 1;
 		}
 		int i = 0;
-		while(queryInputSource){
+		while(!queryInputSource.eof()){
 			queryInputSource.getline(text, 255);
 			char* _ptr = text;
 			_text = strcat(_ptr,"\n");	
@@ -112,6 +112,7 @@ int main(int argc, char ** argv)
                         }*/
 			i++;
 		}
+		queryInputSource.close();
 	}else{
 		// manually setup parser state
 		String lang("CQL");

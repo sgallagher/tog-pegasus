@@ -60,7 +60,7 @@ void CQLParser::parse(
 	throw NullPointer();
     }
 
-    //statement.clear();
+    statement.clear();
 
     globalParserState = new CQLParserState;
     globalParserState->error = false;
@@ -69,7 +69,9 @@ void CQLParser::parse(
     globalParserState->offset = 0;
     globalParserState->statement = &statement;
 
-    CQL_parse();
+    	CQL_parse();
+	String s = globalParserState->statement->toString();
+        printf("CQLParser::parse--> %s\n",(const char*)(s.getCString()));
 
     if (globalParserState->error)
     {

@@ -500,7 +500,7 @@ Uint64 OperatingSystem::_totalVM()
     swapSize = 0;
 
     // Use a pipe to invoke swapinfo. 
-    if ((mswapInfo = popen("swapinfo -q 2>/dev/null", "r")) != NULL)
+    if ((mswapInfo = popen("/usr/sbin/swapinfo -q 2>/dev/null", "r")) != NULL)
     {
         // Now extract the total swap space size from the swapinfo output. 
         while (fgets(mline, 80, mswapInfo))
@@ -566,7 +566,7 @@ Boolean OperatingSystem::getFreeVirtualMemory(Uint64& freeVirtualMemory)
     freeVirtualMemory = 0;
 
     // Use a pipe to invoke swapinfo. 
-    if ((mswapInfo = popen("swapinfo -at 2>/dev/null", "r")) != NULL)
+    if ((mswapInfo = popen("/usr/sbin/swapinfo -at 2>/dev/null", "r")) != NULL)
     {
         // Now extract the total swap space size from the swapinfo output. 
         while (fgets(mline, 80, mswapInfo))

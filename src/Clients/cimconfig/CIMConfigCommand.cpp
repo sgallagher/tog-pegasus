@@ -1237,7 +1237,7 @@ void CIMConfigCommand::_listAllPropertiesInCIMServer
             {
                 Uint32 pos = configInstances[i].findProperty("PropertyName");
                 CIMProperty prop = (CIMProperty)configInstances[i].getProperty(pos);
-                propNames[i] = prop.getValue().toString();
+                propNames.append(prop.getValue().toString());
 
                 if (_currentValueSet)
                 {
@@ -1246,7 +1246,7 @@ void CIMConfigCommand::_listAllPropertiesInCIMServer
                     //
                     pos = configInstances[i].findProperty("CurrentValue");
                     prop = (CIMProperty)configInstances[i].getProperty(pos);
-                    propValues[i] = prop.getValue().toString();
+                    propValues.append(prop.getValue().toString());
                 }
                 else if (_plannedValueSet)
                 {

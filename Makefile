@@ -46,12 +46,14 @@ testrepository: FORCE
 	@ $(MAKE) "-SC" test/wetest repository
 	@ $(MAKE) "-SC" src/Clients/benchmarkTest/Load repository
 	@ $(MAKE) "-SC" src/Pegasus/CQL/CQLCLI repository
+	@ $(MAKE) "-SC" src/Pegasus/Query/QueryExpression/tests repository
 
 testrepositoryServer: FORCE
 	@ $(MAKE) "-SC" src/Providers/sample/Load repositoryServer
 	@ $(MAKE) "-SC" test/wetest repositoryServer
 	@ $(MAKE) "-SC" src/Clients/benchmarkTest/Load repositoryServer
 	@ $(MAKE) "-SC" src/Pegasus/CQL/CQLCLI repositoryServer
+	@ $(MAKE) "-SC" src/Pegasus/Query/QueryExpression/tests repositoryServer
 
 removetestrepository: FORCE
 	@ $(MAKE) "-SC" src/Providers/sample/Load removerepository

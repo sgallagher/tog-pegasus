@@ -101,6 +101,218 @@ inline void OperationResponseHandler<T>::setStatus(const Uint32 code, const Stri
     _response->cimException = PEGASUS_CIM_EXCEPTION(CIMStatusCode(code), message);
 }
 
+/* ------------------------------------------------------------------------- */
+/* operation specific response handlers                                      */
+/* ------------------------------------------------------------------------- */
+
+class GetInstanceResponseHandler:  public OperationResponseHandler<CIMInstance>
+{
+    public:
+        GetInstanceResponseHandler(
+            CIMGetInstanceRequestMessage * request,
+            CIMGetInstanceResponseMessage * response)
+        : OperationResponseHandler<CIMInstance>(request, response)
+        {
+        }
+
+        virtual void complete(const OperationContext & context)
+        {
+            if(getObjects().size() > 0)
+            {
+                ((CIMGetInstanceResponseMessage *)getResponse())->cimInstance =
+                     getObjects()[0];
+            }
+            else
+            {
+                // error? provider claims success,
+                // but did not deliver an instance.
+                setStatus(CIM_ERR_NOT_FOUND);
+            }
+        }
+};
+
+    class EnumerateInstancesResponseHandler : public OperationResponseHandler<CIMInstance>
+    {
+    public:
+        EnumerateInstancesResponseHandler(
+            CIMEnumerateInstancesRequestMessage * request,
+            CIMEnumerateInstancesResponseMessage * response)
+        : OperationResponseHandler<CIMInstance>(request, response)
+        {
+        }
+
+        virtual void complete(const OperationContext & context)
+        {
+            Array<CIMNamedInstance> cimInstances;
+
+            // ATTN: can be removed once CIMNamedInstance is removed
+            for(Uint32 i = 0, n = getObjects().size(); i < n; i++)
+            {
+                CIMInstance cimInstance(getObjects()[i]);
+
+                cimInstances.append(CIMNamedInstance(cimInstance.getPath(),
+                                    cimInstance));
+            }
+
+            ((CIMEnumerateInstancesResponseMessage *)
+                getResponse())->cimNamedInstances = cimInstances;
+        }
+
+    };
+
+    class EnumerateInstanceNamesResponseHandler : public OperationResponseHandler<CIMReference>
+    {
+    public:
+        EnumerateInstanceNamesResponseHandler(
+            CIMEnumerateInstanceNamesRequestMessage * request,
+            CIMEnumerateInstanceNamesResponseMessage * response)
+        : OperationResponseHandler<CIMReference>(request, response)
+        {
+        }
+
+        virtual void complete(const OperationContext & context)
+        {
+            ((CIMEnumerateInstanceNamesResponseMessage *)
+                getResponse())->instanceNames = getObjects();
+        }
+
+    };
+
+    class CreateInstanceResponseHandler : public OperationResponseHandler<CIMReference>
+    {
+    public:
+        CreateInstanceResponseHandler(
+            CIMCreateInstanceRequestMessage * request,
+            CIMCreateInstanceResponseMessage * response)
+        : OperationResponseHandler<CIMReference>(request, response)
+        {
+        }
+
+        virtual void complete(const OperationContext & context)
+        {
+            if (getObjects().size() > 0)
+            {
+                ((CIMCreateInstanceResponseMessage *)
+                    getResponse())->instanceName = getObjects()[0];
+            }
+
+            // ATTN: is it an error to not return instance name?
+        }
+
+    };
+
+    class ModifyInstanceResponseHandler : public OperationResponseHandler<CIMInstance>
+    {
+    public:
+        ModifyInstanceResponseHandler(
+            CIMModifyInstanceRequestMessage * request,
+            CIMModifyInstanceResponseMessage * response)
+        : OperationResponseHandler<CIMInstance>(request, response)
+        {
+        }
+
+    };
+
+    class DeleteInstanceResponseHandler : public OperationResponseHandler<CIMInstance>
+    {
+    public:
+        DeleteInstanceResponseHandler(
+            CIMDeleteInstanceRequestMessage * request,
+            CIMDeleteInstanceResponseMessage * response)
+        : OperationResponseHandler<CIMInstance>(request, response)
+        {
+        }
+
+    };
+
+
+    class AssociatorNamesResponseHandler : public OperationResponseHandler<CIMReference>
+    {
+    public:
+        AssociatorNamesResponseHandler(
+            CIMAssociatorNamesRequestMessage * request,
+            CIMAssociatorNamesResponseMessage * response)
+        : OperationResponseHandler<CIMReference>(request, response)
+        {
+        }
+
+        virtual void complete(const OperationContext & context)
+        {
+            ((CIMAssociatorNamesResponseMessage *)
+                getResponse())->objectNames.appendArray(getObjects());
+        }
+
+    };
+
+
+    class ReferencesResponseHandler : public OperationResponseHandler<CIMObject>    {
+    public:
+        ReferencesResponseHandler(
+            CIMReferencesRequestMessage * request,
+            CIMReferencesResponseMessage * response)
+        : OperationResponseHandler<CIMObject>(request, response)
+        {
+        }
+
+        virtual void complete(const OperationContext & context)
+        {
+            Array<CIMObjectWithPath> cimObjects;
+
+            // ATTN: can be removed once CIMNamedInstance is removed
+            for(Uint32 i = 0, n = getObjects().size(); i < n; i++)
+            {
+                CIMObject cimObject(getObjects()[i]);
+
+                cimObjects.append(
+                    CIMObjectWithPath(cimObject.getPath(), cimObject));
+            }
+            ((CIMReferencesResponseMessage *)
+                getResponse())->cimObjects.appendArray(cimObjects);
+        }
+
+    };
+
+
+    class ReferenceNamesResponseHandler : public OperationResponseHandler<CIMReference>
+    {
+    public:
+        ReferenceNamesResponseHandler(
+            CIMReferenceNamesRequestMessage * request,
+            CIMReferenceNamesResponseMessage * response)
+        : OperationResponseHandler<CIMReference>(request, response)
+        {
+        }
+
+        virtual void complete(const OperationContext & context)
+        {
+            ((CIMReferenceNamesResponseMessage *)
+                getResponse())->objectNames.appendArray(getObjects());
+        }
+
+    };
+
+
+    class InvokeMethodResponseHandler : public OperationResponseHandler<CIMValue>
+    {
+    public:
+        InvokeMethodResponseHandler(
+            CIMInvokeMethodRequestMessage * request,
+            CIMInvokeMethodResponseMessage * response)
+        : OperationResponseHandler<CIMValue>(request, response)
+        {
+        }
+
+        virtual void complete(const OperationContext & context)
+        {
+            // error? provider claims success, but did not deliver a CIMValue.
+            if(getObjects().size() == 0)
+            {
+                ((CIMInvokeMethodResponseMessage *)
+                    getResponse())->retValue = getObjects()[0];
+            }
+        }
+    };
+
 PEGASUS_NAMESPACE_END
 
 #endif

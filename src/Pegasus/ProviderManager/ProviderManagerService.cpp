@@ -379,30 +379,7 @@ void ProviderManagerService::handleGetInstanceRequest(const Message * message) t
     response->setKey(request->getKey());
 
     // create a handler for this request
-    class GetInstanceResponseHandler : public OperationResponseHandler<CIMInstance>
-    {
-    public:
-	GetInstanceResponseHandler(
-	    CIMGetInstanceRequestMessage * request,
-	    CIMGetInstanceResponseMessage * response)
-	: OperationResponseHandler<CIMInstance>(request, response)
-	{
-	}
-
-	virtual void complete(const OperationContext & context)
-	{
-	    if(getObjects().size() > 0)
-	    {
-		((CIMGetInstanceResponseMessage *)getResponse())->cimInstance = getObjects()[0];
-	    }
-	    else
-	    {
-		// error? provider claims success, but did not deliver an instance.
-		setStatus(CIM_ERR_NOT_FOUND);
-	    }
-	}
-
-    } handler(request, response);
+    GetInstanceResponseHandler handler(request, response);
 
     try
     {
@@ -484,32 +461,7 @@ void ProviderManagerService::handleEnumerateInstancesRequest(const Message * mes
     response->setKey(request->getKey());
 
     // create a handler for this request
-    class EnumerateInstancesResponseHandler : public OperationResponseHandler<CIMInstance>
-    {
-    public:
-	EnumerateInstancesResponseHandler(
-	    CIMEnumerateInstancesRequestMessage * request,
-	    CIMEnumerateInstancesResponseMessage * response)
-	: OperationResponseHandler<CIMInstance>(request, response)
-	{
-	}
-
-	virtual void complete(const OperationContext & context)
-	{
-	    Array<CIMNamedInstance> cimInstances;
-
-	    // ATTN: can be removed once CIMNamedInstance is removed
-	    for(Uint32 i = 0, n = getObjects().size(); i < n; i++)
-	    {
-		CIMInstance cimInstance(getObjects()[i]);
-
-		cimInstances.append(CIMNamedInstance(cimInstance.getPath(), cimInstance));
-	    }
-
-	    ((CIMEnumerateInstancesResponseMessage *)getResponse())->cimNamedInstances = cimInstances;
-	}
-
-    } handler(request, response);
+    EnumerateInstancesResponseHandler handler(request, response);
 
     try
     {
@@ -589,22 +541,7 @@ void ProviderManagerService::handleEnumerateInstanceNamesRequest(const Message *
     response->setKey(request->getKey());
 
     // create a handler for this request
-    class EnumerateInstanceNamesResponseHandler : public OperationResponseHandler<CIMReference>
-    {
-    public:
-	EnumerateInstanceNamesResponseHandler(
-	    CIMEnumerateInstanceNamesRequestMessage * request,
-	    CIMEnumerateInstanceNamesResponseMessage * response)
-	: OperationResponseHandler<CIMReference>(request, response)
-	{
-	}
-
-	virtual void complete(const OperationContext & context)
-	{
-	    ((CIMEnumerateInstanceNamesResponseMessage *)getResponse())->instanceNames = getObjects();
-	}
-
-    } handler(request, response);
+    EnumerateInstanceNamesResponseHandler handler(request, response);
 
     // process the request
     try
@@ -676,27 +613,7 @@ void ProviderManagerService::handleCreateInstanceRequest(const Message * message
     response->setKey(request->getKey());
 
     // create a handler for this request
-    class CreateInstanceResponseHandler : public OperationResponseHandler<CIMReference>
-    {
-    public:
-	CreateInstanceResponseHandler(
-	    CIMCreateInstanceRequestMessage * request,
-	    CIMCreateInstanceResponseMessage * response)
-	: OperationResponseHandler<CIMReference>(request, response)
-	{
-	}
-
-	virtual void complete(const OperationContext & context)
-	{
-	    if(getObjects().size() > 0)
-	    {
-		((CIMCreateInstanceResponseMessage *)getResponse())->instanceName = getObjects()[0];
-	    }
-
-	    // ATTN: is it an error to not return instance name?
-	}
-
-    } handler(request, response);
+    CreateInstanceResponseHandler handler(request, response);
 
     try
     {
@@ -768,17 +685,7 @@ void ProviderManagerService::handleModifyInstanceRequest(const Message * message
     response->setKey(request->getKey());
 
     // create a handler for this request
-    class ModifyInstanceResponseHandler : public OperationResponseHandler<CIMInstance>
-    {
-    public:
-	ModifyInstanceResponseHandler(
-	    CIMModifyInstanceRequestMessage * request,
-	    CIMModifyInstanceResponseMessage * response)
-	: OperationResponseHandler<CIMInstance>(request, response)
-	{
-	}
-
-    } handler(request, response);
+    ModifyInstanceResponseHandler handler(request, response);
 
     try
     {
@@ -861,17 +768,7 @@ void ProviderManagerService::handleDeleteInstanceRequest(const Message * message
     response->setKey(request->getKey());
 
     // create a handler for this request
-    class DeleteInstanceResponseHandler : public OperationResponseHandler<CIMInstance>
-    {
-    public:
-	DeleteInstanceResponseHandler(
-	    CIMDeleteInstanceRequestMessage * request,
-	    CIMDeleteInstanceResponseMessage * response)
-	: OperationResponseHandler<CIMInstance>(request, response)
-	{
-	}
-
-    } handler(request, response);
+    DeleteInstanceResponseHandler handler(request, response);
 
     try
     {
@@ -1114,26 +1011,7 @@ void ProviderManagerService::handleInvokeMethodRequest(const Message * message) 
     response->setKey(request->getKey());
 
     // create a handler for this request
-    class InvokeMethodResponseHandler : public OperationResponseHandler<CIMValue>
-    {
-    public:
-	InvokeMethodResponseHandler(
-	    CIMInvokeMethodRequestMessage * request,
-	    CIMInvokeMethodResponseMessage * response)
-	: OperationResponseHandler<CIMValue>(request, response)
-	{
-	}
-
-	virtual void complete(const OperationContext & context)
-	{
-	    // error? provider claims success, but did not deliver a CIMValue.
-	    if(getObjects().size() != 0)
-	    {
-		((CIMInvokeMethodResponseMessage *)getResponse())->retValue = getObjects()[0];
-	    }
-	}
-
-    } handler(request, response);
+    InvokeMethodResponseHandler handler(request, response);
 
     try
     {

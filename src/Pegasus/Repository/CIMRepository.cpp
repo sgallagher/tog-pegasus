@@ -41,7 +41,7 @@
 #include "CIMRepository.h"
 #include "RepositoryDeclContext.h"
 #include "InstanceIndexFile.h"
-#include "AssocTable.h"
+#include "AssocInstTable.h"
 
 #define INDENT_XML_FILES
 
@@ -316,7 +316,7 @@ void CIMRepository::deleteInstance(
 
 
     if (FileSystem::exists(assocFileName))
-	AssocTable::deleteAssociation(assocFileName, instanceName);
+	AssocInstTable::deleteAssociation(assocFileName, instanceName);
 }
 
 void CIMRepository::createClass(
@@ -424,7 +424,7 @@ void CIMRepository::_createAssociationEntries(
 		    String toClassName = toRef.getClassName();
 		    String toPropertyName = toProp.getName();
 
-		    AssocTable::append(
+		    AssocInstTable::append(
 			os,
 			assocInstanceName,
 			assocClassName,
@@ -781,7 +781,7 @@ Array<CIMReference> CIMRepository::associatorNames(
     // the given object not to have any associators (in this case we just
     // return a zero-sized array of associators.
 
-    AssocTable::getAssociatorNames(
+    AssocInstTable::getAssociatorNames(
 	assocFileName,
 	objectName.toString(),
         assocClass,
@@ -862,7 +862,7 @@ Array<CIMReference> CIMRepository::referenceNames(
     String assocFileName = _MakeAssocPath(nameSpace, _repositoryRoot);
     Array<String> tmpReferenceNames;
 
-    if (!AssocTable::getReferenceNames(
+    if (!AssocInstTable::getReferenceNames(
 	assocFileName,
 	objectName,
         resultClass,

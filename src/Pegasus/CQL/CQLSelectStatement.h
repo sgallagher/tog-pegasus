@@ -54,158 +54,435 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatementRep;
 This class is derived from the SelectStatement base class.  
 The purpose of this class is to perform the select statement operations for
 CIM Query Language (CQL). 
-
-Notes on CQLSelectStatement class:
-
-(A) Contains a CQLPredicate for the WHERE clause
-(B) Contains an array of CQLIdentifiers for the SELECT projection
-(C) Contains an array of classpaths from the FROM clause
-
-
-   */
+*/
 class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
 {
   public:
+
+    /** 
+      Constructs a CQLSelectStatement default object.
+      
+      @param  - None.
+      @return - None.
+      @throw  - None.
+
+      <I><B>Experimental Interface</B></I><BR>
+    */
     CQLSelectStatement();
 
-    /**  This is the constructor for the CQLSelectStatement object.  
-           The ctor requires 3 parameters:   
-                 query language (qlang) which is CQL,  
-                 the query itself, 
-                 and the name of the CIM namespace.
-       */
-    CQLSelectStatement(
-        /**  The query language is needed so the
-              base class can retrieve the query language.
-              The class member variable where this data
-              is stored is located in the base SelectStatement
-              class.
-           */
-        String& inQlang, 
-        /**  input parameter containing the query string.
-           */
-        String& inQuery, 
-        
-        QueryContext& inCtx);
+    /** 
+      Constructs a CQLSelectStatement object.
+      
+      @param  inQlang - String containing the language of the query.
+      @param  inQuery - String containing the query.
+      @param  inCtx - Context in which the select statement is running.
+      @return - None.
+      @throw  - None.
 
+      <I><B>Experimental Interface</B></I><BR>
+    */
+    CQLSelectStatement(String& inQlang, 
+                       String& inQuery, 
+                       QueryContext& inCtx);
+
+    /** 
+      Constructs a CQLSelectStatement object.
+      
+      @param  inQlang - String containing the language of the query.
+      @param  inQuery - String containing the query.
+      @return - None.
+      @throw  - None.
+
+      <I><B>Experimental Interface</B></I><BR>
+    */
     CQLSelectStatement(String& inQLang, String& inQuery);
 
+    /** 
+      Copy constructs a CQLSelectStatement object.
+      
+      @param  statement - CQLSelectStatement to be copied.
+      @return - None.
+      @throw  - None.
+
+      <I><B>Experimental Interface</B></I><BR>
+    */
     CQLSelectStatement(const CQLSelectStatement& statement);
 
+    /** 
+      Destructs a CQLSelectStatement object.
+      
+      @param  - None.
+      @return - None.
+      @throw  - None.
+
+      <I><B>Experimental Interface</B></I><BR>
+    */
     ~CQLSelectStatement();
 
+    /** 
+      Assigns a CQLSelectStatement to this object.
+      
+      @param rhs - CQLSelectStatement to be assigned to this object.
+      @return - Updated this object.
+      @throw  - None.
+
+      <I><B>Experimental Interface</B></I><BR>
+    */
     CQLSelectStatement& operator=(const CQLSelectStatement& rhs);
 
-    void setQueryContext(QueryContext& inCtx);
+    /**
+      Applies the class contexts from the FROM list to the 
+      chained identifiers in the statement. This will transform
+      each chained identifier into a normalized form.  The FROM
+      classname is prepended if needed, and all class aliases are resolved.
 
-    /**  Implements the evaluate method from the
-          base SelectStatement class.
+      Note: there are cases where the FROM classname is not prepended.
+      This can occur for the classname on the right side of ISA, 
+      or the classname at the beginning of a symbolic constant chained
+      identifier.  Neither of these classnames need to be the FROM class.
+   
+      This function also validates that each chained identifier
+      is well-formed.  It is possible for a chained identifier 
+      to be syntactically correct in the CQL language, but
+      cannot be processed by the CQL engine.      
+      
+      Pre-condition: QueryContext has been set into this object.
+      Post-condition: Chained identifiers have been normalized.
+
+      @param None.
+      @return None
+      @throw CQLRuntimeException if the QueryContext had not been set.
+      @throw CQLValidationException if a chained identifier is not well formed.
+      @throw CQLSyntaxErrorException if a chained identifier is not well formed.
+
+      <I><B>Experimental Interface</B></I><BR>
+     */
+    void applyContext();
+
+    /** 
+      Evaluates the WHERE clause of the select statement using
+      a CIM instance as the source of properties.
+
+      Pre-condition: QueryContext has been set into this object.
+      Post-condition: Chained identifiers have been normalized 
+      ie.applyContext has been called.  See the applyContext function.
     
-       */
-    Boolean evaluate(
-        /**  The CIM instance that will be evaluated.
-               The CIMInstance object is not modified by this method.
-           */
-        const CIMInstance& inCI);
+      @param inCI - The instance to be evaluated.
+      @return True, if the WHERE clause evaluates to true based on
+              the type of the instance and its properties.
+      @throw CQLRuntimeException if the instance cannot be evaluated
+      @throw CQLValidationException for applyContext error.
+      @throw CQLSyntaxErrorException for applyContext error.
 
-    /**  Implements the applyProjection method from the
-          base SelectStatement class.
-       */
-    void applyProjection(
-        /**  Input the CIMInstance object in which to apply the
-              projection.
-           */
-        CIMInstance& inCI) throw(Exception);
+      <I><B>Experimental Interface</B></I><BR>
+    */
+    Boolean evaluate(const CIMInstance& inCI);
 
-    /**  Implements the validatedProperties method from the
-          base SelectStatement class.
-       */
+    /**
+      Projects the properties in the SELECT list of the select
+      statement onto the instance.  This involves checking that
+      all required properties exist on the instance passed in, 
+      and removing any unneeded properties from that instance.
+
+      Pre-condition: QueryContext has been set into this object.
+      Post-condition: Chained identifiers have been normalized 
+      ie.applyContext has been called.  See the applyContext function.
+
+      @param inCI - The instance to be projected.
+      @return None
+      @throw  CQLRuntimeException if the instance cannot be projected
+      @throw CQLValidationException for applyContext error.
+      @throw CQLSyntaxErrorException for applyContext error.
+
+      <I><B>Experimental Interface</B></I><BR>
+    */
+    void applyProjection(CIMInstance& inCI) throw(Exception);
+
+    /**  
+      Validates the classes and properties used in the select statement
+      against the class schema.  The existence of classes and properties
+      are checked, along with class relationships defined in the CQL
+      specification.
+
+      Pre-condition: QueryContext has been set into this object.
+      Post-condition: Chained identifiers have been normalized 
+      ie.applyContext has been called.  See the applyContext function.
+
+      @param None 
+      @return None
+      @throw CQLValidationException for applyContext error, the select 
+      statement is invalid against the schema, or the QueryContext has
+      not been set.
+      @throw CQLSyntaxErrorException for applyContext error.
+
+      <I><B>Experimental Interface</B></I><BR>
+    */
     void validate() throw(Exception);
 
-    /** Returns an array of CIMObjectPath objects that are the 
-          class paths from the select statement in the FROM list.
+    /**
+      Normalizes the predicates in the WHERE clause to a 
+      disjunction of conjunctions.
+
+      Post-condition: Chained identifiers have been normalized 
+      ie.applyContext has been called.  See the applyContext function.
+
+      @param None 
+      @return None
+      @throw None 
+
+      <I><B>Experimental Interface</B></I><BR>
+     */
+    void normalizeToDOC();
+
+    /** 
+      Returns an array of CIMObjectPath objects that are the 
+      class paths in the FROM list of the select statement.
+
+      Note:  Currently CQL only supports one class path in the
+      FROM list.  This class path does not support WBEM-URI, so that
+      only the namespace and classname parts are filled in.
+
+      Pre-condition: QueryContext has been set into this object.
+
+      @param None 
+      @return Array of FROM list class paths.
+      @throw CQLRuntimeException if the QueryContext had not been set.
+
+      <I><B>Experimental Interface</B></I><BR>
      */
     Array<CIMObjectPath> getClassPathList();
 
-    /** Returns the required properties from the combined SELECT and WHERE
-         clauses for the classname passed in.
-    
-         If all the properties for the input classname are required, a null
-         CIMPropertyList is returned.
-       */
-    CIMPropertyList getPropertyList(
-        /**  The input parameter className is one of the
-              classes from the FROM list.
-           */
-        const CIMObjectPath& inClassName = CIMObjectPath());
+    /** 
+      Returns the required properties from the combined SELECT and WHERE
+      clauses for the classname passed in.  The classname parameter is
+      needed in case scoping operators are used in the select statement.
+      This function does not return properties for the classname if they
+      are required on embedded objects.  This function does not return
+      required array indices.
+      
+      Pre-condition: QueryContext has been set into this object.
+      Post-condition: Chained identifiers have been normalized 
+      ie.applyContext has been called.  See the applyContext function.
 
-    CIMPropertyList getSelectPropertyList(
-        const CIMObjectPath& inClassName = CIMObjectPath());
+      @param inClassName - class to determine the required properties.  Defaults
+      to the FROM class.
+      @return CIMPropertyList containing the required properties for the class.
+      If all the properties are required, a null CIMPropertyList is returned.
+      If no properties are required, an empty CIMPropertyList is returned.
+      @throw CQLRuntimeException if the QueryContext had not been set.
+      @throw CQLValidationException for applyContext error.
+      @throw CQLSyntaxErrorException for applyContext error.
 
-    CIMPropertyList getWherePropertyList(
-        const CIMObjectPath& inClassName = CIMObjectPath());
+      <I><B>Experimental Interface</B></I><BR>
+    */
+    CIMPropertyList getPropertyList(const CIMObjectPath& inClassName = CIMObjectPath());
 
+    /** 
+      Returns the required properties from the SELECT clause for the
+      classname passed in.  The classname parameter is needed in case
+      scoping operators are used in the select statement.  This function
+      does not return properties for the classname if they are required
+      on embedded objects. This function does not return required array indices.
+      
+      Pre-condition: QueryContext has been set into this object.
+      Post-condition: Chained identifiers have been normalized 
+      ie.applyContext has been called.  See the applyContext function.
+
+      @param inClassName - class to determine the required properties.  Defaults
+      to the FROM class.
+      @return CIMPropertyList containing the required properties for the class.
+      If all the properties are required, a null CIMPropertyList is returned.
+      If no properties are required, an empty CIMPropertyList is returned.
+      @throw CQLRuntimeException if the QueryContext had not been set.
+      @throw CQLValidationException for applyContext error.
+      @throw CQLSyntaxErrorException for applyContext error.
+
+      <I><B>Experimental Interface</B></I><BR>
+    */
+    CIMPropertyList getSelectPropertyList(const CIMObjectPath& inClassName = CIMObjectPath());
+
+    /** 
+      Returns the required properties from the WHERE clause for the
+      classname passed in.  The classname parameter is needed in case
+      scoping operators are used in the select statement.  This function
+      does not return properties for the classname if they are required
+      on embedded objects.  This function does not return required array indices.
+      
+      Pre-condition: QueryContext has been set into this object.
+      Post-condition: Chained identifiers have been normalized 
+      ie.applyContext has been called.  See the applyContext function.
+
+      @param inClassName - class to determine the required properties.  Defaults
+      to the FROM class.
+      @return CIMPropertyList containing the required properties for the class.
+      If all the properties are required, a null CIMPropertyList is returned.
+      If no properties are required, an empty CIMPropertyList is returned.
+      @throw CQLRuntimeException if the QueryContext had not been set.
+      @throw CQLValidationException for applyContext error.
+      @throw CQLSyntaxErrorException for applyContext error.
+
+      <I><B>Experimental Interface</B></I><BR>
+    */
+    CIMPropertyList getWherePropertyList(const CIMObjectPath& inClassName = CIMObjectPath());
+
+    /**
+      Returns the chained identifiers from the SELECT clause.  These chained
+      identifiers contain the fully qualified property names, including embedded
+      objects, array indices, scoping operators, and symbolic constants.
+
+      Post-condition: Chained identifiers have been normalized 
+      ie.applyContext has been called.  See the applyContext function.
+
+      @param None
+      @return Array of chained identifiers.
+      @throw CQLValidationException for applyContext error.
+      @throw CQLSyntaxErrorException for applyContext error.
+
+      <I><B>Experimental Interface</B></I><BR>
+     */
     Array<CQLChainedIdentifier> getSelectChainedIdentifiers();
 
+    /**
+      Returns the chained identifiers from the WHERE clause.  These chained
+      identifiers contain the fully qualified property names, including embedded
+      objects, array indices, scoping operators, and symbolic constants.
+
+      Pre-condition: QueryContext has been set into this object.
+      Post-condition: Chained identifiers have been normalized 
+      ie.applyContext has been called.  See the applyContext function.
+
+      @param None
+      @return Array of chained identifiers.
+      @throw CQLRuntimeException if the QueryContext had not been set.
+      @throw CQLValidationException for applyContext error.   
+      @throw CQLSyntaxErrorException for applyContext error.
+
+      <I><B>Experimental Interface</B></I><BR>
+     */
     Array<CQLChainedIdentifier> getWhereChainedIdentifiers();
 
-    /** Modifier. This method should not be called by the user (only by the
-            parser).
-         Appends a CQLIdentifier to an array of CIMObjectPaths from the FROM
-    statement.
-        */
-    void appendClassPath(
-        /**  
-           */
-        const CQLIdentifier& inIdentifier);
+    /** 
+      Gets the top-level CQLPredicate of this object.
+      This is the predicate that contains the top-level
+      of any nested boolean operations in the WHERE clause.
+
+      @param None.
+      @return Top-level predicate
+      @throw None.
+
+      <I><B>Experimental Interface</B></I><BR>
+    */
+    CQLPredicate getPredicate() const;
+
+    /** 
+      Determines whether the select statement has a WHERE clause.
+
+      @param None
+      @return True if there is a WHERE clause.
+      @throw None
+
+      <I><B>Experimental Interface</B></I><BR>
+    */
+    Boolean hasWhereClause();
+
+    /** 
+      Returns the select statement in string form.
+      Note that this can be different than the original
+      statement after it has been parsed, and applyContext
+      has been called.
+
+      Pre-condition: QueryContext has been set into this object.
+
+      @param None
+      @return String containing the select statement.
+      @throw 
+
+      <I><B>Experimental Interface</B></I><BR>
+    */
+    String toString();
+
+    /* 
+       ATTN - the following methods should only be set by CQLParser.
+       These should be made private, and CQLParser made a friend.
+    */
+
+    /** 
+      Appends a CQLIdentifier/alias combination into the FROM list of the
+      statement. This method should only be called by the CQL parser.
+
+      @param inIdentifier - CQLIdentifier to append.
+      @param inAlias - Alias of the identifier.
+      @return None
+      @throw QueryException if the identifier/alias cannot be appended.
+
+      <I><B>Experimental Interface</B></I><BR>
+    */
+    void insertClassPathAlias(const CQLIdentifier& inIdentifier, 
+                              String inAlias);
+
+    /** 
+      Appends a CQLIdentifier into the FROM list of the statement.
+      This method should only be called by the CQL parser.
+
+      @param inIdentifier - CQLIdentifier to append.
+      @return None
+      @throw QueryException if the identifier cannot be appended.
+
+      <I><B>Experimental Interface</B></I><BR>
+    */
+    void appendClassPath(const CQLIdentifier& inIdentifier);
+
+    /** 
+      Appends a CQLChainedIdentifier to the select list.
+      This method should only be called by the CQL parser.
+
+      @param x - CQLChainedIdentifier to append.
+      @return None
+      @throw None
+
+      <I><B>Experimental Interface</B></I><BR>
+    */
+    void appendSelectIdentifier(const CQLChainedIdentifier& x);
 
     /** Sets a predicate into this object. This method should only
             be called by Bison.
         */
+    /** 
+      Sets the top-level CQLPredicate into this object.
+      This method should only be called by the CQL parser.
+
+      @param Predicate to set into this object.
+      @return None
+      @throw None.
+
+      <I><B>Experimental Interface</B></I><BR>
+    */
     void setPredicate(const CQLPredicate& inPredicate);
 
-    /** Gets the top-level predicate contained by this object */
-    CQLPredicate getPredicate() const;
+    /** 
+      Sets the select statement to have a WHERE clause.
+      This method should only be called by the CQL parser.
 
-    /**  This method calls QueryContext::insertClassPathAlias()  to insert a
-    classpath-alias pair
-          into the hash table.  The record is keyed by the class alias.
-    
-         This method is used by Bison.
-    
-        TODO:  think about exceptions such as duplicate key.
-     */
-    void insertClassPathAlias(
-        /**  The CQLIdentifier object that contains the class path.
-           */
-        const CQLIdentifier& inIdentifier, 
-        /**  The alias for the class.
-           */
-        String inAlias);
+      @param None
+      @return None
+      @throw None
 
-    /** Appends a CQL chained identifier to the CQL identifier list. The user
-    should
-            not call this method; it should only be called by the Bison.
-        */
-    void appendSelectIdentifier(const CQLChainedIdentifier& x);
-
-    /**
-       Applies the class contexts from the FROM list to the identifiers
-       in the statement.
-     */
-    void applyContext();
-
-    /**
-       Normalizes the WHERE clause to disjunction of conjunctions.
-     */
-    void normalizeToDOC();
-
+      <I><B>Experimental Interface</B></I><BR>
+    */
     void setHasWhereClause();
 
-    Boolean hasWhereClause();
+    /** 
+      Clears the internal data structures.
+      This method should only be called by the CQL parser.
 
-    String toString();
+      Pre-condition: QueryContext has been set into this object.
 
+      @param None
+      @return None.
+      @throw CQLRuntimeException if the QueryContext had not been set.  
+
+      <I><B>Experimental Interface</B></I><BR>
+    */
     void clear();
 
   private:

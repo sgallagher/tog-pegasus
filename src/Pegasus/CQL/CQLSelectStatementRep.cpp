@@ -44,6 +44,7 @@
 #include <Pegasus/Query/QueryCommon/QueryException.h>
 #include <Pegasus/Query/QueryCommon/QueryIdentifier.h>
 #include <Pegasus/Query/QueryCommon/QueryChainedIdentifier.h>
+#include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/CIMStatusCode.h>
 #include <Pegasus/Common/AutoPtr.h>
@@ -55,7 +56,6 @@
 // ATTN: TODOs - 
 // optimize
 // documentation
-// trace? but this could be used by provider
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -63,7 +63,9 @@ struct PropertyNode
 {
   CIMName name;              // property name
   CIMName scope;             // class the property is on
-  Boolean wildcard;          // true if this property is a wildcard 
+  Boolean wildcard;          // true if this property is wildcarded 
+  Boolean endpoint;          // true if this property is an endpoint
+                             // of a chained identifier
   AutoPtr<PropertyNode> sibling;
   AutoPtr<PropertyNode> firstChild;
 
@@ -77,7 +79,7 @@ CQLSelectStatementRep::CQLSelectStatementRep()
    _hasWhereClause(false),
    _contextApplied(false)
 {
-
+  PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep()");
 }
 
 CQLSelectStatementRep::CQLSelectStatementRep(String& inQlang,
@@ -87,7 +89,7 @@ CQLSelectStatementRep::CQLSelectStatementRep(String& inQlang,
    _hasWhereClause(false),
    _contextApplied(false)
 {
-
+  PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep(inQlang,inQuery,inCtx)");
 }
 
 CQLSelectStatementRep::CQLSelectStatementRep(String& inQlang,
@@ -97,7 +99,7 @@ CQLSelectStatementRep::CQLSelectStatementRep(String& inQlang,
    _hasWhereClause(false),
    _contextApplied(false)
 {
-
+  PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep(inQlang,inQuery)");
 }
 
 CQLSelectStatementRep::CQLSelectStatementRep(const CQLSelectStatementRep& rep)
@@ -107,16 +109,23 @@ CQLSelectStatementRep::CQLSelectStatementRep(const CQLSelectStatementRep& rep)
    _predicate(rep._predicate),
    _contextApplied(rep._contextApplied)
 {
+  PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep(rep)");
 }
 
 CQLSelectStatementRep::~CQLSelectStatementRep()
 {
+  PEG_METHOD_ENTER (TRC_CQL, "~CQLSelectStatementRep()");
 }
 
 CQLSelectStatementRep& CQLSelectStatementRep::operator=(const CQLSelectStatementRep& rhs)
 {
+  PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::operator=");
+
   if (this ==  &rhs)
+  {
+    PEG_METHOD_EXIT();
     return *this;
+  }
 
   SelectStatementRep::operator=(rhs);
 
@@ -125,23 +134,26 @@ CQLSelectStatementRep& CQLSelectStatementRep::operator=(const CQLSelectStatement
   _contextApplied = rhs._contextApplied;
   _hasWhereClause = rhs._hasWhereClause;
 
+  PEG_METHOD_EXIT();
   return *this;
-}
-
-void CQLSelectStatementRep::setQueryContext(QueryContext& inCtx)
-{
-  SelectStatementRep::setQueryContext(inCtx);
 }
 
 Boolean CQLSelectStatementRep::evaluate(const CIMInstance& inCI)
 {
-  if(_ctx == NULL){
+  PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::evaluate");
+
+  if(_ctx == NULL)
+  {
+    PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"QC not set");
+    PEG_METHOD_EXIT();
     MessageLoaderParms parms("CQL.CQLSelectStatementRep.QUERY_CONTEXT_IS_NULL",
                              "Trying to process a query with a NULL Query Context.");
     throw CQLRuntimeException(parms);
   }
+
   if (!hasWhereClause())
   {
+    PEG_METHOD_EXIT();
     return true;
   }
   else
@@ -151,19 +163,31 @@ Boolean CQLSelectStatementRep::evaluate(const CIMInstance& inCI)
 
     try
     {
+      PEG_METHOD_EXIT();
       return _predicate.evaluate(inCI, *_ctx);
     }
     catch (CQLNullContagionException& )
     {
       // The null contagion rule.
+      PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"null contagion");
+      PEG_METHOD_EXIT();
       return false;
     }
   }
+
+  PEGASUS_ASSERT(false);
+  PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"should not get here in evaluate");
+  return true;  //should never get here
 }
 
 void CQLSelectStatementRep::applyProjection(CIMInstance& inCI) throw(Exception)
 {
-  if(_ctx == NULL){
+  PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::applyProjection(inCI)");
+
+  if(_ctx == NULL)
+  {
+    PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"QC not set");
+    PEG_METHOD_EXIT();
     MessageLoaderParms parms("CQL.CQLSelectStatementRep.QUERY_CONTEXT_IS_NULL",
                              "Trying to process a query with a NULL Query Context.");
     throw CQLRuntimeException(parms);
@@ -203,6 +227,9 @@ void CQLSelectStatementRep::applyProjection(CIMInstance& inCI) throw(Exception)
   // Build the tree below the root.
   for (Uint32 i = 0; i < _selectIdentifiers.size(); i++)
   {
+    PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"select chained id = " +
+                      _selectIdentifiers[i].toString());
+
     // Get the chain elements
     Array<CQLIdentifier> ids = _selectIdentifiers[i].getSubIdentifiers();
 
@@ -217,11 +244,15 @@ void CQLSelectStatementRep::applyProjection(CIMInstance& inCI) throw(Exception)
     // ie. it will become a child node of the current node.
     for (Uint32 j = 1; j < ids.size(); j++)
     {
+      PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"curNode = " + curNode->name.getString());
+      PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"id = " + ids[j].toString());
+
       // If the child is wildcarded, then every property exposed by the
       // class of the instance at the current node is required.
       // Mark the current node as wildcarded.
       if (ids[j].isWildcard())
       {
+        PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"id is wildcard");
         curNode->wildcard = true;
         break;
       }
@@ -239,10 +270,13 @@ void CQLSelectStatementRep::applyProjection(CIMInstance& inCI) throw(Exception)
           scope = ids[j].getScope();
         }
 
+        PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"scope to compare = " + scope);
+
         if (curChild->name == ids[j].getName() &&
             String::equalNoCase(curChild->scope.getString(), scope))
         {
-          // Name and scope match.  The identifier already has a child node.
+          // Name and scope match.  The identifier is already child node.
+          PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"id is already a child node");
           found = true;
         }
         else
@@ -253,12 +287,15 @@ void CQLSelectStatementRep::applyProjection(CIMInstance& inCI) throw(Exception)
 
       if (!found)
       {
-        // The identifier doesn't already have a child node. 
+        // The identifier is not already a child node. 
         // Create a node and add it as a child to the current node.
+        PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"new child" + 
+                          ids[j].getName().getString());
         curChild = new PropertyNode;
         curChild->sibling = curNode->firstChild;
         curChild->name = ids[j].getName();
         curChild->wildcard = false;
+        curChild->endpoint = false;
         curNode->firstChild.reset(curChild);  // safer than using the = operator
       }
 
@@ -267,6 +304,8 @@ void CQLSelectStatementRep::applyProjection(CIMInstance& inCI) throw(Exception)
       {
         // Child node has a scoping class
         PEGASUS_ASSERT(ids[j].getScope().size() > 0);
+        PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"child set with scoping class: " +
+                          ids[j].getScope());
         curChild->scope =  CIMName(ids[j].getScope());
       }
       else
@@ -274,7 +313,16 @@ void CQLSelectStatementRep::applyProjection(CIMInstance& inCI) throw(Exception)
         // Not scoped.  The scope is the FROM class.
         PEGASUS_ASSERT(j == 1);
         PEGASUS_ASSERT(fromList[0].getName().getString().size() > 0);
+        PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"child set with scoping class: " + 
+                          fromList[0].getName().getString());
         curChild->scope = fromList[0].getName();
+      }
+
+      // If the identifier is the last element of the chain, 
+      // then mark it as an endpoint
+      if ((ids.size() - 1) == j)
+      {
+        curChild->endpoint = true;
       }
 
       curNode = curChild;
@@ -295,9 +343,14 @@ void CQLSelectStatementRep::applyProjection(CIMInstance& inCI) throw(Exception)
   PropertyNode* childNode = rootNode->firstChild.get();
   while (childNode != NULL)
   {
+    PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"project childNode = " + childNode->name.getString());
+
     // Determine if the instance passed in meets the class scoping
     // rules for the current child node.
     Boolean filterable = isFilterable(inCI, childNode);
+
+    // Indicates if the child node is still required after the recursive call.
+    Boolean childRequired = true;
 
     // If the instance is filterable, and the child node has children,
     // or is wildcarded, then the child is assumed to be an embedded instance,
@@ -310,22 +363,33 @@ void CQLSelectStatementRep::applyProjection(CIMInstance& inCI) throw(Exception)
       // remove the embedded instance property from the instance passed in,
       // project on that embedded instance property, and then add the projected 
       // embedded instance property back to the instance passed in.
+      PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"about to recurse: " + childNode->name.getString());
       Uint32 index = inCI.findProperty(childNode->name);
       if (index != PEG_NOT_FOUND)
       {
-        // The embedded instance has the required embedded instance property.
+        // The instance passed in has the required embedded instance property.
+        // Note: embedded instance property missing is caught below.
+
+        // Remove the embedded instance property
         CIMProperty childProp = inCI.getProperty(index);
         inCI.removeProperty(index);
-        applyProjection(childNode, childProp);
+
+        // Project onto the embedded instance property. 
+        // If the last parameter is true, then the childNode
+        // will not remove properties when filtering the embedded instance.
+        // This call returns whether the embedded instance property
+        // should be added to the required property list.
+        childRequired = applyProjection(childNode, childProp, allPropsRequired);
         inCI.addProperty(childProp);
       }
     }
 
     // If the node is not wildcarded, and the instance passed in
     // is filterable, then add the current child to the list
-    // of required properties on the instance passed in.
-    if (!allPropsRequired && filterable)
+    // if it is still required.
+    if (!allPropsRequired && filterable && childRequired)
     {
+      PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"add req prop: " + childNode->name.getString());
       requiredProps.append(childNode->name);
     }
 
@@ -334,35 +398,50 @@ void CQLSelectStatementRep::applyProjection(CIMInstance& inCI) throw(Exception)
 
   // Remove the properties that are not in the projection.
   // This also checks for missing required properties.
-  removeUnneededProperties(inCI,
-                           allPropsRequired,
-                           fromList[0].getName(),
-                           requiredProps);
+  Boolean preserve = false;
+  filterInstance(inCI,
+                 allPropsRequired,
+                 fromList[0].getName(),
+                 requiredProps,
+                 preserve);
 }
 
-void CQLSelectStatementRep::applyProjection(PropertyNode* node,
-                                            CIMProperty& nodeProp)
+Boolean CQLSelectStatementRep::applyProjection(PropertyNode* node,
+                                               CIMProperty& nodeProp,
+                                               Boolean& preservePropsForParent)
 {
-  PEGASUS_ASSERT(node->firstChild.get() != NULL);
+  PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::applyProjection(node, nodeProp)");
+
+  PEGASUS_ASSERT(node->firstChild.get() != NULL || node->wildcard);
 
   //
   // The property passed in must be an embedded instance. It is not
   // allowed to project properties on embedded classes.
-  //
   // Get the embedded instance from the property.
   //
 
+  // First check that it is an embedded object
   CIMValue nodeVal = nodeProp.getValue();
-// ATTN - UNCOMMENT when emb objs are supported 
-/*
   if (nodeVal.getType() != CIMTYPE_OBJECT)
   {
+    PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"not emb");
+    PEG_METHOD_EXIT();
     MessageLoaderParms parms("CQL.CQLSelectStatementRep.PROP_NOT_EMB",
                              "The property $0 must contain an embedded object.",
                              nodeProp.getName().getString());
     throw CQLRuntimeException(parms);
   }
-*/
+
+  if (nodeVal.isNull())
+  {
+    // Since we will be projecting on the embedded object, it cannot be null
+    PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"value is null");
+    PEG_METHOD_EXIT();
+    MessageLoaderParms parms("CQL.CQLSelectStatementRep.NULL_EMB_OBJ",
+                             "The embedded object property $0 cannot contain a null value.",
+                             nodeProp.getName().getString());
+    throw CQLRuntimeException(parms);
+  }
 
   if (nodeVal.isArray() && 
       (node->firstChild.get() != NULL || node->wildcard))
@@ -372,18 +451,32 @@ void CQLSelectStatementRep::applyProjection(PropertyNode* node,
     // an embedded object with properties or wildcard.
     // Examples not allowed:  SELECT fromClass.someArrayProp.scope::notAllowedProp FROM fromClass
     //                        SELECT fromClass.someArrayProp.* FROM fromClass
+    PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"array index needed");
+    PEG_METHOD_EXIT();
     MessageLoaderParms parms("CQL.CQLSelectStatementRep.PROJ_WHOLE_ARRAY",
-                             "CQL requires that array indexing is used on embedded object property $0.",
+                  "CQL requires that array indexing is used on embedded object property $0.",
+                   nodeProp.getName().getString());
+    throw CQLRuntimeException(parms);
+  }
+
+  CIMObject nodeObj;  // this starts uninitialized
+  nodeVal.get(nodeObj);
+  if (nodeObj.isUninitialized())
+  {
+    // Not allowed to project on an uninitialized object
+    PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"is uninitialized");
+    PEG_METHOD_EXIT();
+    MessageLoaderParms parms("CQL.CQLSelectStatementRep.PROJ_UNINIT",
+                             "The embedded object property $0 is uninitialized.",
                              nodeProp.getName().getString());
     throw CQLRuntimeException(parms);
   }
 
-  CIMObject nodeObj;
-// ATTN - UNCOMMENT when emb objs are supported 
-// nodeVal.get(nodeObj);
   if (!nodeObj.isInstance())
   {
     // Not allowed to project on a Class
+    PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"is a class");
+    PEG_METHOD_EXIT();
     MessageLoaderParms parms("CQL.CQLSelectStatementRep.PROJ_CLASS",
                              "CQL does not allow properties to be projected on class $0.",
                              nodeProp.getName().getString());
@@ -391,7 +484,7 @@ void CQLSelectStatementRep::applyProjection(PropertyNode* node,
   }
 
   CIMInstance nodeInst(nodeObj);  
-    
+
   //
   // Do the projection.
   //
@@ -405,9 +498,14 @@ void CQLSelectStatementRep::applyProjection(PropertyNode* node,
   PropertyNode * curChild = node->firstChild.get();
   while (curChild != NULL)
   {
+    PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"project childNode = " + curChild->name.getString());
+
     // Determine if the embedded instance meets the class scoping
     // rules for the current child node
     Boolean filterable = isFilterable(nodeInst, curChild);
+
+    // Indicates if the child node is still required after the recursive call.
+    Boolean childRequired = true;
 
     // If the embedded instance is filterable, and the child node has children,
     // or is wildcarded, then the child is assumed to be an embedded instance,
@@ -420,45 +518,78 @@ void CQLSelectStatementRep::applyProjection(PropertyNode* node,
       // remove the embedded instance property from the current instance,
       // project on that embedded instance property, and then add the projected 
       // embedded instance property back to the current instance.
+      PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"about to recurse: " + curChild->name.getString());
       Uint32 index = nodeInst.findProperty(curChild->name);
       if (index != PEG_NOT_FOUND)
       {
-        // The embedded instance has the required embedded instance property.
+        // The current instance has the required embedded instance property.
+        // Note: embedded instance property missing is caught below.
+
+        // Remove the embedded instance property
         CIMProperty childProp = nodeInst.getProperty(index); 
         nodeInst.removeProperty(index);
-        applyProjection(curChild, childProp);
+
+        // Project onto the embedded instance property. 
+        // If the last parameter is true, then the childNode
+        // will not remove properties when filtering the embedded instance.
+        // This call returns whether the embedded instance property
+        // should be added to the required property list.
+        Boolean preserve = 
+          node->endpoint || allPropsRequired || preservePropsForParent;
+        childRequired = applyProjection(curChild, childProp, preserve);
         nodeInst.addProperty(childProp);
       }
     }
 
     // If the node is not wildcarded, and the embedded instance
     // is filterable, then add the current child to the list
-    // of required properties on the embedded instance.
-    if (!allPropsRequired && filterable)
+    // if it is still required.
+    if (!allPropsRequired && filterable && childRequired)
     {
       // The instance is filterable, add the property to the required list. 
-      requiredProps.append(node->name);
+      PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"add req prop: " + curChild->name.getString());
+      requiredProps.append(curChild->name);
     }
 
     curChild = curChild->sibling.get();
   }
 
-  // Remove the properties that are not in the projection.
-  // This also checks for missing required properties.
-  removeUnneededProperties(nodeInst, 
-                           allPropsRequired,
-                           nodeInst.getClassName(),
-                           requiredProps);
+  // Filter the instance.
+  // This removes unneeded properties, unless this
+  // embedded instance node was an endpoint (last element)
+  // in a chained identifier.
+  // This also checks for missing required properties on the instance.
+  Boolean preserveProps = node->endpoint || preservePropsForParent;
+  filterInstance(nodeInst, 
+                 allPropsRequired,
+                 nodeInst.getClassName(),
+                 requiredProps,
+                 preserveProps);
 
   // Put the projected instance back into the property.
-// ATTN - UNCOMMENT when emb objs are supported
-//CIMValue newNodeVal(nodeInst);
-//nodeProp.setValue(newNodeVal);
+  CIMObject newNodeObj(nodeInst);
+  CIMValue newNodeVal(newNodeObj);
+  nodeProp.setValue(newNodeVal);
+
+  // Indicate to the caller whether the projected instance
+  // is still a required property.  It is required if it is an endpoint
+  // (ie. the last element of a chained identifier)
+  // OR if it still has properties after being projected
+  if (node->endpoint || nodeInst.getPropertyCount() > 0)
+  {
+    return true;
+  }
+
+  return false;
 } 
 
 Boolean CQLSelectStatementRep::isFilterable(const  CIMInstance& inst,
                                             PropertyNode* node)
 {
+  PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::isFilterable");
+  PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"instance = " + inst.getClassName().getString()); 
+  PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"scope = " + node->scope.getString()); 
+
   //
   // Determine if an instance is filterable for a scoped property (ie. its
   // type is the scoping class or a subclass of the scoping class where the
@@ -477,6 +608,7 @@ Boolean CQLSelectStatementRep::isFilterable(const  CIMInstance& inst,
   if (inst.getClassName() == node->scope)
   {
     // The instance's class is the same as the required scope
+    PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"instance matches scope");
     filterable = true;
   }
   else
@@ -486,6 +618,7 @@ Boolean CQLSelectStatementRep::isFilterable(const  CIMInstance& inst,
       if (_ctx->isSubClass(node->scope, inst.getClassName()))
       {
         // The instance's class is a subclass of the required scope.
+        PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"instance is subclass of scope");
         filterable = true;
       }
     }
@@ -498,19 +631,30 @@ Boolean CQLSelectStatementRep::isFilterable(const  CIMInstance& inst,
         // Just swallow this error because according to the
         // spec we should be putting NULL in the result column,
         // which means skipping the property on the instance.
-        ;
+        PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"scope class not in schema");
+      }
+      else
+      {
+        PEG_METHOD_EXIT();
+        throw ce;
       }
     }
   }
   
+  PEG_METHOD_EXIT();
   return filterable;
 } 
 
-void CQLSelectStatementRep::removeUnneededProperties(CIMInstance& inst, 
-                                                     Boolean& allPropsRequired,
-                                                     const CIMName& allPropsClass,
-                                                     Array<CIMName>& requiredProps)
+void CQLSelectStatementRep::filterInstance(CIMInstance& inst, 
+                                           Boolean& allPropsRequired,
+                                           const CIMName& allPropsClass,
+                                           Array<CIMName>& requiredProps,
+                                           Boolean& preserveProps)
 {
+  PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::removeUnneededProperties");
+  PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"instance = " + inst.getClassName().getString()); 
+  PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"allPropsClass = " + allPropsClass.getString()); 
+
   // Implementation note:
   // Scoping operator before a wildcard is not allowed:
   // Example:
@@ -531,6 +675,7 @@ void CQLSelectStatementRep::removeUnneededProperties(CIMInstance& inst,
   // This is either the FROM class or the class of an embedded instance.
   if (allPropsRequired)
   {
+    PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"all props required"); 
     requiredProps.clear();
     CIMClass cls = _ctx->getClass(allPropsClass);
     Array<CIMName> clsProps;
@@ -552,23 +697,31 @@ void CQLSelectStatementRep::removeUnneededProperties(CIMInstance& inst,
   {
     if (!containsProperty(requiredProps[i], supportedProps))
     {
-     MessageLoaderParms parms("CQL.CQLSelectStatementRep.PROJ_MISSING_PROP",
+      PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"missing:" + requiredProps[i].getString()); 
+      PEG_METHOD_EXIT();
+      MessageLoaderParms parms("CQL.CQLSelectStatementRep.PROJ_MISSING_PROP",
                                "The property $0 is missing on the instance of class $1.",
                                requiredProps[i].getString(), inst.getClassName().getString());
       throw CQLRuntimeException(parms);
     }
   }
 
-  // Remove the properties on the instance that are not required.
-  for (Uint32 i = 0; i < supportedProps.size(); i++)
+  // If requested, remove the properties on the instance that are not required.
+  if (!preserveProps)
   {
-    if (!containsProperty(supportedProps[i], requiredProps))
+    for (Uint32 i = 0; i < supportedProps.size(); i++)
     {
-      Uint32 index = inst.findProperty(supportedProps[i]);
-      PEGASUS_ASSERT(index != PEG_NOT_FOUND);
-      inst.removeProperty(index);
+      if (!containsProperty(supportedProps[i], requiredProps))
+      {
+        Uint32 index = inst.findProperty(supportedProps[i]);
+        PEGASUS_ASSERT(index != PEG_NOT_FOUND);
+        PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"removing:" + supportedProps[i].getString());
+        inst.removeProperty(index);
+      }
     }
   }
+
+  PEG_METHOD_EXIT();
 }
 
 //
@@ -577,7 +730,12 @@ void CQLSelectStatementRep::removeUnneededProperties(CIMInstance& inst,
 //
 void CQLSelectStatementRep::validate() throw(Exception)
 {
-  if(_ctx == NULL){
+  PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::validate");
+
+  if(_ctx == NULL)
+  {
+    PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"null QC");
+    PEG_METHOD_EXIT();
     MessageLoaderParms parms("CQL.CQLSelectStatementRep.QUERY_CONTEXT_IS_NULL",
                              "Trying to process a query with a NULL Query Context.");
     throw CQLValidationException(parms);
@@ -596,6 +754,8 @@ void CQLSelectStatementRep::validate() throw(Exception)
   {
     validateProperty(_whereIdentifiers[i]);
   }
+
+  PEG_METHOD_EXIT();
 }
 
 //
@@ -604,6 +764,8 @@ void CQLSelectStatementRep::validate() throw(Exception)
 //
 void CQLSelectStatementRep::validateProperty(QueryChainedIdentifier& chainId)
 {
+  PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::validateProperty");
+
   // Note: applyContext has been called beforehand
   
   Array<QueryIdentifier> ids = chainId.getSubIdentifiers();
@@ -635,7 +797,12 @@ void CQLSelectStatementRep::validateProperty(QueryChainedIdentifier& chainId)
       curContext = ids[0].getName();
     }
 
+    PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"current context: " +
+                       curContext.getString());
+
     // Get the class definition of the current class context
+    // Note: keep this code here so that class existence is always
+    // checked.  Eg. SELECT * FROM fromClass
     CIMClass classDef;
     try 
     {
@@ -643,6 +810,8 @@ void CQLSelectStatementRep::validateProperty(QueryChainedIdentifier& chainId)
     }
     catch (CIMException& ce)
     {
+      PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"repository error");
+      PEG_METHOD_EXIT();
       if (ce.getCode() == CIM_ERR_NOT_FOUND ||
           ce.getCode() == CIM_ERR_INVALID_CLASS)
       {
@@ -650,6 +819,10 @@ void CQLSelectStatementRep::validateProperty(QueryChainedIdentifier& chainId)
                                "The class $0 does not exist.",
                                 curContext.getString());
         throw CQLValidationException(parms);
+      }
+      else
+      {
+        throw ce;
       }
     }
 
@@ -670,6 +843,9 @@ void CQLSelectStatementRep::validateProperty(QueryChainedIdentifier& chainId)
       Uint32 propertyIndex = classDef.findProperty(ids[pos].getName());
       if (propertyIndex == PEG_NOT_FOUND)
       {
+        PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"prop not on context " +
+                          ids[pos].getName().getString());
+        PEG_METHOD_EXIT();
         MessageLoaderParms parms("CQL.CQLSelectStatementRep.VAL_PROP_NOT_ON_CLASS",
                                "The property $0 does not exist on class $1.",
                                 ids[pos].getName().getString(), classDef.getClassName().getString());
@@ -687,6 +863,9 @@ void CQLSelectStatementRep::validateProperty(QueryChainedIdentifier& chainId)
         // Check the class relationship between the scoping class and the FROM class.
         if (_ctx->getClassRelation(ids[0].getName(), curContext) == QueryContext::NOTRELATED)
         {
+          PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"scope violation for:"+
+                            ids[0].getName().getString());
+          PEG_METHOD_EXIT();
           MessageLoaderParms parms("CQL.CQLSelectStatementRep.VAL_SCOPE_VIOLATION",
                                "The class $0 is not a superclass, subclass, or the same class as $1.",
                                 curContext.getString(), ids[0].getName().getString());
@@ -702,6 +881,9 @@ void CQLSelectStatementRep::validateProperty(QueryChainedIdentifier& chainId)
         CIMName qual("EmbeddedObject");
         if (embObj.findQualifier(qual) == PEG_NOT_FOUND)
         {
+          PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"prop not emb " +
+                            embObj.getName().getString());
+          PEG_METHOD_EXIT();
           MessageLoaderParms parms("CQL.CQLSelectStatementRep.PROP_NOT_EMB",
                              "The property $0 must be an embedded object.",
                              embObj.getName().getString());
@@ -710,18 +892,28 @@ void CQLSelectStatementRep::validateProperty(QueryChainedIdentifier& chainId)
       }
     }
   }
+  
+  PEG_METHOD_EXIT();
 }
 
 CIMName CQLSelectStatementRep::lookupFromClass(const String&  lookup)
 {
+  PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::lookupFromClass");
+
   QueryIdentifier id = _ctx->findClass(lookup);
+
+  PEG_METHOD_EXIT();
 
   return id.getName();
 }
 
 Array<CIMObjectPath> CQLSelectStatementRep::getClassPathList()
 {
+  PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::getClassPathList");
+
   if(_ctx == NULL){
+    PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"null QC");
+    PEG_METHOD_EXIT();
     MessageLoaderParms parms("CQL.CQLSelectStatementRep.QUERY_CONTEXT_IS_NULL",
                              "Trying to process a query with a NULL Query Context.");
     throw CQLRuntimeException(parms);
@@ -736,21 +928,27 @@ Array<CIMObjectPath> CQLSelectStatementRep::getClassPathList()
   Array<CIMObjectPath> paths;
   paths.append(path);
 
+  PEG_METHOD_EXIT();
+
   return paths;
+
 }
 
 CIMPropertyList CQLSelectStatementRep::getPropertyList(const CIMObjectPath& inClassName)
 {
+  PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::getPropertyList");
   return getPropertyListInternal(inClassName, true, true);
 }
 
 CIMPropertyList CQLSelectStatementRep::getSelectPropertyList(const CIMObjectPath& inClassName)
 {
+  PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::getSelectPropertyList");
   return getPropertyListInternal(inClassName, true, false);
 }
 
 CIMPropertyList CQLSelectStatementRep::getWherePropertyList(const CIMObjectPath& inClassName)
 {
+  PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::getWherePropertyList");
   return getPropertyListInternal(inClassName, false, true);
 }
 
@@ -758,7 +956,12 @@ CIMPropertyList CQLSelectStatementRep::getPropertyListInternal(const CIMObjectPa
                                                                Boolean includeSelect,
                                                                Boolean includeWhere)
 {
-  if(_ctx == NULL){
+  PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::getPropertyListInternal");
+
+  if(_ctx == NULL)
+  {
+    PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"null QC");
+    PEG_METHOD_EXIT();
     MessageLoaderParms parms("CQL.CQLSelectStatementRep.QUERY_CONTEXT_IS_NULL",
                              "Trying to process a query with a NULL Query Context.");
     throw CQLRuntimeException(parms);
@@ -767,14 +970,33 @@ CIMPropertyList CQLSelectStatementRep::getPropertyListInternal(const CIMObjectPa
   if (!_contextApplied)
     applyContext();
 
-  // Get the classname.  Note: since wbem-uri is not supported yet,
+  // Get the FROM class.
+  CIMName fromClass = _ctx->getFromList()[0].getName(); 
+
+  // Get the classname passed in.  Note: since wbem-uri is not supported yet,
   // only use the classname part of the path. 
   CIMName className = inClassName.getClassName();
   if (className.isNull())
   {
     // If the caller passed in an empty className, then the 
     // FROM class is to be used.
-    className = _ctx->getFromList()[0].getName();
+    className = fromClass;
+  }
+  else
+  {
+    // The caller passed in some class name.  Verify that it is the FROM
+    // class or a subclass of the FROM class.
+    if(!(className == fromClass))
+    {
+      // Check if subclass of the FROM class
+      if(!_ctx->isSubClass(fromClass, className))
+      {
+        MessageLoaderParms parms("CQL.CQLSelectStatementRep.CLASS_NOT_FROM_LIST_CLASS",
+                    "Class $0 does not match the FROM class or any of its subclasses.",
+                    className.getString());
+        throw QueryException(parms);
+      }
+    }
   }
   
   Boolean isWildcard;
@@ -835,6 +1057,8 @@ CIMPropertyList CQLSelectStatementRep::getPropertyListInternal(const CIMObjectPa
   if (allProps)
   {
     // Return null property list to indicate all properties are required.
+    PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"all props req");
+    PEG_METHOD_EXIT();
     return CIMPropertyList();
   }
   else
@@ -842,6 +1066,7 @@ CIMPropertyList CQLSelectStatementRep::getPropertyListInternal(const CIMObjectPa
     // Return the required property list.  Note that it is possible to return
     // an empty list in the case of no required properties for the classname
     // passed in.  This can happen when the scoping operator is used.
+    PEG_METHOD_EXIT();
     return CIMPropertyList(reqProps);
   }
 }
@@ -852,6 +1077,8 @@ Boolean CQLSelectStatementRep::addRequiredProperty(Array<CIMName>& reqProps,
                                                    Array<CIMName>& matchedScopes,
                                                    Array<CIMName>& unmatchedScopes)
 {
+  PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::addRequiredProperty");
+
   //
   // Implementation notes:  
   // This function does not look for required properties on embedded objects.
@@ -866,8 +1093,11 @@ Boolean CQLSelectStatementRep::addRequiredProperty(Array<CIMName>& reqProps,
   if (ids.size() == 1)
   {
     // This identifier is not a property name
+    PEG_METHOD_EXIT();
     return false;
   }
+
+  PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"id[1] = " + ids[1].toString());
 
   if (ids[1].isSymbolicConstant())
   {
@@ -877,6 +1107,7 @@ Boolean CQLSelectStatementRep::addRequiredProperty(Array<CIMName>& reqProps,
     // implies that embobj is a required property, because 
     // embobj could be null, and that affects how the
     // identifier is evaluated.
+    PEG_METHOD_EXIT();
     return false;
   }
 
@@ -903,12 +1134,14 @@ Boolean CQLSelectStatementRep::addRequiredProperty(Array<CIMName>& reqProps,
     }
     else
     {
-      // The scoping class is not the same as the class passed. 
+      // The scoping class is not the same as the class passed in. 
       // Check if we already know that the scoping class is a subclass
       // of the class passed in
       if (containsProperty(scopingClass, unmatchedScopes))
       {
         // Scoping class is a subclass.
+        PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"scoping class is a subclass");
+        PEG_METHOD_EXIT();
         return false;
       }
         
@@ -924,6 +1157,8 @@ Boolean CQLSelectStatementRep::addRequiredProperty(Array<CIMName>& reqProps,
       // Check if the scoping class is a superclass of the class passed in
       if (isSuper || _ctx->isSubClass(scopingClass, className))
       {
+        PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"scoping class is a superclass");
+
         // Scoping class is a superclass of the class passed in.
         if (!isSuper)
         {
@@ -939,6 +1174,8 @@ Boolean CQLSelectStatementRep::addRequiredProperty(Array<CIMName>& reqProps,
       }
       else
       {
+        PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"scoping class is NOT a superclass");
+
         // Scoping class is not superclass of class passed in.
         // Save this information.
         unmatchedScopes.append(scopingClass);
@@ -957,6 +1194,8 @@ Boolean CQLSelectStatementRep::addRequiredProperty(Array<CIMName>& reqProps,
       CIMName fromClassName = _ctx->getFromList()[0].getName();
       if (fromClassName == className)
       {
+        PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"wildcard and = FROM");
+        PEG_METHOD_EXIT();
         return true;
       }
 
@@ -972,6 +1211,7 @@ Boolean CQLSelectStatementRep::addRequiredProperty(Array<CIMName>& reqProps,
         }        
       }
 
+      PEG_METHOD_EXIT();
       return false;
     }
 
@@ -991,20 +1231,30 @@ Boolean CQLSelectStatementRep::addRequiredProperty(Array<CIMName>& reqProps,
   }
   
   // Indicate the required property is not a wildcard
+  PEG_METHOD_EXIT();
   return false;
 }
 
 Array<CQLChainedIdentifier> CQLSelectStatementRep::getSelectChainedIdentifiers()
 {
+  PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::getSelectChainedIdentifiers");
+
   if (!_contextApplied)
     applyContext();
+
+  PEG_METHOD_EXIT();
 
   return _selectIdentifiers;
 }
 
 Array<CQLChainedIdentifier> CQLSelectStatementRep::getWhereChainedIdentifiers()
 {
-  if(_ctx == NULL){
+  PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::getWhereChainedIdentifiers");
+
+  if(_ctx == NULL)
+  {
+    PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"null QC");
+    PEG_METHOD_EXIT();
     MessageLoaderParms parms("CQL.CQLSelectStatementRep.QUERY_CONTEXT_IS_NULL",
                              "Trying to process a query with a NULL Query Context.");
     throw CQLRuntimeException(parms);
@@ -1027,62 +1277,92 @@ Array<CQLChainedIdentifier> CQLSelectStatementRep::getWhereChainedIdentifiers()
     cqlChainIds.append(cqlChainId);
   }
 
+  PEG_METHOD_EXIT();
+
   return cqlChainIds;
 }
 
 Boolean CQLSelectStatementRep::containsProperty(const CIMName& name,
                                                 const Array<CIMName>& props) 
 {
+  PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::containsProperty");
+
   for (Uint32 i = 0; i < props.size(); i++)
   {
     if (props[i] == name)
     {
+      PEG_METHOD_EXIT();
       return true;
     }
   }
 
+  PEG_METHOD_EXIT();
   return false;
 }
 
 void CQLSelectStatementRep::appendClassPath(const CQLIdentifier& inIdentifier)
 {
-  if(_ctx == NULL){
+  PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::appendClassPath");
+
+  if(_ctx == NULL)
+  {
+    PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"null QC");
+    PEG_METHOD_EXIT();
     MessageLoaderParms parms("CQL.CQLSelectStatementRep.QUERY_CONTEXT_IS_NULL",
                              "Trying to process a query with a NULL Query Context.");
     throw CQLValidationException(parms);
   }
   _ctx->insertClassPath(inIdentifier);
+
+  PEG_METHOD_EXIT();
 }
 
 void CQLSelectStatementRep::setPredicate(const CQLPredicate& inPredicate)
 {
+  PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::setPredicate");
   _predicate = inPredicate;
+  PEG_METHOD_EXIT();
 }
 
 CQLPredicate CQLSelectStatementRep::getPredicate() const
 {
+  PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::getPredicate");
   return _predicate;
 }
 
 void CQLSelectStatementRep::insertClassPathAlias(const CQLIdentifier& inIdentifier,
                                                  String inAlias)
 {
-  if(_ctx == NULL){
+  PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::insertClassPathAlias");
+
+  if(_ctx == NULL)
+  {
+    PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"null QC");
+    PEG_METHOD_EXIT();
     MessageLoaderParms parms("CQL.CQLSelectStatementRep.QUERY_CONTEXT_IS_NULL",
                              "Trying to process a query with a NULL Query Context.");
     throw CQLValidationException(parms);
   }
   _ctx->insertClassPath(inIdentifier,inAlias);
+
+  PEG_METHOD_EXIT();
 }
 
 void CQLSelectStatementRep::appendSelectIdentifier(const CQLChainedIdentifier& x)
 {
+  PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::appendSelectIdentifier");
   _selectIdentifiers.append(x);
+  PEG_METHOD_EXIT();  
 }
 
 void CQLSelectStatementRep::applyContext()
 {
-  if(_ctx == NULL){
+  PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::applyContext");
+
+  if(_ctx == NULL)
+  {
+    PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"null QC");
+    PEG_METHOD_EXIT();
     MessageLoaderParms parms("CQL.CQLSelectStatementRep.QUERY_CONTEXT_IS_NULL",
                              "Trying to process a query with a NULL Query Context.");
     throw CQLRuntimeException(parms);
@@ -1107,25 +1387,32 @@ void CQLSelectStatementRep::applyContext()
   }
 
   _contextApplied = true;
+  PEG_METHOD_EXIT();
 }
 
 void CQLSelectStatementRep::checkWellFormedIdentifier(const QueryChainedIdentifier& chainId,
                                                       Boolean isSelectListId)
 {
+  PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::checkWellFormedIdentifier");
+
   // This function assumes that applyContext has been called.
   Array<QueryIdentifier> ids = chainId.getSubIdentifiers();
 
   if (ids.size() == 0)
   {
+    PEG_METHOD_EXIT();
     MessageLoaderParms parms("CQL.CQLSelectStatementRep.EMPTY_CHAIN",
                              "An empty chained identifier was found.");
     throw CQLSyntaxErrorException(parms);
   }
 
+  PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"chain =" + chainId.toString());
+
   if (ids.size() == 1 && isSelectListId)
   {
     // Single element chain ids are not allow in the select list.
     // The select list can only have properties.
+    PEG_METHOD_EXIT();
     MessageLoaderParms parms("CQL.CQLSelectStatementRep.SINGLE_CHID_IN_SELECT",
                              "A property on the FROM class must be selected.");
     throw CQLSyntaxErrorException(parms);
@@ -1138,6 +1425,7 @@ void CQLSelectStatementRep::checkWellFormedIdentifier(const QueryChainedIdentifi
   {
     // The first identifier must be a classname (it could be the FROM class, or
     // some other class for the right side of ISA)
+    PEG_METHOD_EXIT();
     MessageLoaderParms parms("CQL.CQLSelectStatementRep.FIRST_ID_ILLEGAL",
                              "The chained identifier $0 is illegal.",
                              chainId.toString());
@@ -1149,6 +1437,7 @@ void CQLSelectStatementRep::checkWellFormedIdentifier(const QueryChainedIdentifi
   {  
     if (ids[pos].isArray() && isSelectListId)
     {
+      PEG_METHOD_EXIT();
       MessageLoaderParms parms("CQL.CQLSelectStatementRep.ARRAY_IN_SELECT",
                              "The identifier $0 of $1 in the SELECT list cannot use an array index.",
                              ids[pos].toString(), chainId.toString());
@@ -1157,6 +1446,7 @@ void CQLSelectStatementRep::checkWellFormedIdentifier(const QueryChainedIdentifi
 
     if (ids[pos].isSymbolicConstant() && isSelectListId)
     {
+      PEG_METHOD_EXIT();
       MessageLoaderParms parms("CQL.CQLSelectStatementRep.SYMCONST_IN_SELECT",
                              "The identifier $0 of $1 in the SELECT list cannot use a symbolic constant.",
                              ids[pos].toString(), chainId.toString());
@@ -1165,6 +1455,7 @@ void CQLSelectStatementRep::checkWellFormedIdentifier(const QueryChainedIdentifi
 
     if (ids[pos].isSymbolicConstant() && pos != (ids.size() -1))
     {
+      PEG_METHOD_EXIT();
       MessageLoaderParms parms("CQL.CQLSelectStatementRep.SYMCONST_NOT_LAST",
                              "The symbolic constant identifier $0 of $1 must be the last element.",
                              ids[pos].toString(), chainId.toString());
@@ -1175,6 +1466,7 @@ void CQLSelectStatementRep::checkWellFormedIdentifier(const QueryChainedIdentifi
     {
       if ( !isSelectListId)
       {
+        PEG_METHOD_EXIT();
         MessageLoaderParms parms("CQL.CQLSelectStatementRep.WILD_IN_WHERE",
                              "The identifier $0 of $1 in the WHERE list cannot use a wildcard.",
                              ids[pos].toString(), chainId.toString());
@@ -1183,6 +1475,7 @@ void CQLSelectStatementRep::checkWellFormedIdentifier(const QueryChainedIdentifi
 
       if ( pos != ids.size() - 1)
       {
+        PEG_METHOD_EXIT();
         MessageLoaderParms parms("CQL.CQLSelectStatementRep.WILD_NOT_END",
                              "The wildcard identifier $0 of $1 must be the last element.",
                              ids[pos].toString(), chainId.toString());
@@ -1194,6 +1487,7 @@ void CQLSelectStatementRep::checkWellFormedIdentifier(const QueryChainedIdentifi
     {
       if (!ids[pos].isScoped())
       {
+        PEG_METHOD_EXIT();
         MessageLoaderParms parms("CQL.CQLSelectStatementRep.EMB_PROP_NOT_SCOPED",
                              "The identifier $0 of $1 must use the scope operator.",
                              ids[pos].toString(), chainId.toString());
@@ -1201,10 +1495,14 @@ void CQLSelectStatementRep::checkWellFormedIdentifier(const QueryChainedIdentifi
       }
     }
   }
+
+  PEG_METHOD_EXIT();
 }
 
 void CQLSelectStatementRep::normalizeToDOC()
 {
+  PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::normalizeToDOC");
+
   if (!_contextApplied)
     applyContext();
 
@@ -1212,47 +1510,65 @@ void CQLSelectStatementRep::normalizeToDOC()
     Cql2Dnf DNFer(_predicate);
     _predicate = DNFer.getDnfPredicate(); 
   }
+
+  PEG_METHOD_EXIT();
 }
 
 String CQLSelectStatementRep::toString()
 {
-        if(_ctx == NULL){
-          MessageLoaderParms parms("CQL.CQLSelectStatementRep.QUERY_CONTEXT_IS_NULL",
-                                   "Trying to process a query with a NULL Query Context.");
-          throw CQLRuntimeException(parms);
-        }
+  PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::toString");
 
-        String s("SELECT ");
-        for(Uint32 i = 0; i < _selectIdentifiers.size(); i++){
-                if((i > 0) && (i < _selectIdentifiers.size())){
-                        s.append(",");
-                }
-                s.append(_selectIdentifiers[i].toString());
-        }       
+  if(_ctx == NULL)
+  {
+    PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"null QC");
+    PEG_METHOD_EXIT();
+    MessageLoaderParms parms("CQL.CQLSelectStatementRep.QUERY_CONTEXT_IS_NULL",
+                             "Trying to process a query with a NULL Query Context.");
+    throw CQLRuntimeException(parms);
+  }
 
-        s.append(" ");
-        s.append(_ctx->getFromString());
+  String s("SELECT ");
+  for(Uint32 i = 0; i < _selectIdentifiers.size(); i++){
+    if((i > 0) && (i < _selectIdentifiers.size()))
+    {
+      s.append(",");
+    }
+    s.append(_selectIdentifiers[i].toString());
+  }       
 
-        if(_hasWhereClause){
-                s.append(" WHERE ");
-                s.append(_predicate.toString());
-        }
-        return s;
+  s.append(" ");
+  s.append(_ctx->getFromString());
+
+  if(_hasWhereClause){
+    s.append(" WHERE ");
+    s.append(_predicate.toString());
+  }
+
+  PEG_METHOD_EXIT();
+  return s;
 }
 
 void CQLSelectStatementRep::setHasWhereClause()
 {
-        _hasWhereClause = true;
+  PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::setHasWhereClause");
+  _hasWhereClause = true;
+  PEG_METHOD_EXIT();
 }
 
 Boolean CQLSelectStatementRep::hasWhereClause()
 {
-        return _hasWhereClause;
+  PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::hasWhereClause");
+  return _hasWhereClause;
 }
 
 void  CQLSelectStatementRep::clear()
 {
-	if(_ctx == NULL){
+  PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::clear");
+
+	if(_ctx == NULL)
+   {
+     PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"null QC");
+     PEG_METHOD_EXIT();
      MessageLoaderParms parms("CQL.CQLSelectStatementRep.QUERY_CONTEXT_IS_NULL",
                               "Trying to process a query with a NULL Query Context.");
      throw CQLRuntimeException(parms);
@@ -1263,6 +1579,8 @@ void  CQLSelectStatementRep::clear()
    _contextApplied = false;
    _predicate = CQLPredicate();
    _selectIdentifiers.clear();
+
+   PEG_METHOD_EXIT();
 }
 
 PEGASUS_NAMESPACE_END

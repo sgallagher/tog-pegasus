@@ -96,13 +96,6 @@ CQLSelectStatement& CQLSelectStatement::operator=(const CQLSelectStatement& rhs)
   return *this;
 }
 
-void CQLSelectStatement::setQueryContext(QueryContext& inCtx)
-{
-  PEGASUS_ASSERT(_rep != NULL);
-
-  _rep->setQueryContext(inCtx);
-}
-
 Boolean CQLSelectStatement::evaluate(const CIMInstance& inCI)
 {
   PEGASUS_ASSERT(_rep != NULL);

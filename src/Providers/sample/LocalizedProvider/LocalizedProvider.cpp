@@ -93,11 +93,19 @@
 // l10n TODO
 // -- implement test providers for other provider types
 
+#include <Pegasus/Common/Config.h>
+#include <iostream>
+#include <cassert>
+#include <cstdlib>
+#include <fstream>
+
 // Globalization headers
 #include "LocalizedProvider.h"
 #include <Pegasus/Common/AcceptLanguages.h>
 #include <Pegasus/Common/ContentLanguages.h>
 #include <Pegasus/Common/MessageLoader.h>
+
+PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -170,7 +178,7 @@ static const Char16 roundTripChars[] =
 Char16 hangugo[] = {0xD55C, 0xAD6D, 0xC5B4,
 			0xdbc0,
 			0xdc01,
-                    'g','l','o','b','a','l',
+'g','l','o','b','a','l',
 			0x00};	
 
 // Constructor - initializes parameters for the MessageLoader that won't
@@ -299,19 +307,20 @@ void LocalizedProvider::enumerateInstances(
 
 	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
 	{
-                // Since this provider is supporting 2 classes, only return instances
-                // of the requested class.
-                if (classReference.getClassName() != _instanceNames[i].getClassName())
-                {
-                    continue;
-                }
+        // Since this provider is supporting 2 classes, only return instances
+        // of the requested class.
+        if (classReference.getClassName().getString() != 
+			_instanceNames[i].getClassName().getString())
+        {
+            continue;
+        }        
 
 		// Load the localized properties and figure out what content
 		// language to return for this instance, based on the design 
 		// mentioned above.
-                ContentLanguages rtnLangs = _loadLocalizedProps(clientAcceptLangs,
-                                                                _instanceLangs[i],
-                                                                _instances[i]);
+        ContentLanguages rtnLangs = _loadLocalizedProps(clientAcceptLangs,
+                                                        _instanceLangs[i],
+                                                        _instances[i]);
 
 		// Since we are returning more than one instance, and the 
 		// content language we are returning applies to all the instances,
@@ -747,13 +756,17 @@ void LocalizedProvider::_checkRoundTripString(const OperationContext & context,
     String roundTripStringProp; 
     instanceObject.getProperty(instanceObject.findProperty(ROUNDTRIPSTRING_PROP)).
             getValue().
-            get(roundTripStringProp);   
+            get(roundTripStringProp);  
+	
+	cout << "string is " << roundTripStringProp << endl;
 
     // Get the round trip char16 sent by the client
     Char16 roundTripCharProp; 
     instanceObject.getProperty(instanceObject.findProperty(ROUNDTRIPCHAR_PROP)).
             getValue().
-            get(roundTripCharProp);  	
+            get(roundTripCharProp); 
+	
+	cout << "string is " << roundTripCharProp << endl;
 
     // Now compare the string and char16 from the client to the ones we expect
     // This checks that Unicode chars were not lost

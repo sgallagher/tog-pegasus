@@ -15,7 +15,8 @@ DIRS = \
     wbemexec \
     wbemexec/tests \
     ToMofClient\
-    tomof
+    tomof \
+    CLITestClients
 
 #The following tests are NOT included as part of the standard
 #regession test.  The cimuser tests require PrivilegedUser

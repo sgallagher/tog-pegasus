@@ -22,50 +22,9 @@
 ###############################################################################
 
 include $(PEGASUS_ROOT)/mak/config.mak
+include $(PEGASUS_ROOT)/mak/commands.mak
 
-# There is a start command for cimserver but no stop today.  Because of problems with
-# the use of cimserver as a service, we simply used the start command to allow us to
-# get on with testing. I know of no CLI to stop a window started with start so that
-# field is blank.  ks 7 April 2002
-ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
-  CIMSERVER_START_SERVICE = cimserver -start
-  CIMSERVER_STOP_SERVICE = cimserver -stop
-  SLEEP =
-  REMOVE_PEGASUS_DIRECTORY = mu rmdirhier pegasus
-  MUEXE = mu.exe
-  MKDIR = $(MUEXE) mkdirhier
-  TESTS = prestarttests poststarttests
-endif
-
-ifeq ($(OS),HPUX)
-  CIMSERVER_START_SERVICE = cimserver
-  CIMSERVER_STOP_SERVICE = cimserver -s; true
-  SLEEP = sleep 5
-  REMOVE_PEGASUS_DIRECTORY = rm -Rf pegasus.old; mv pegasus pegasus.old
-  MUEXE = mu
-  MKDIR = $(MUEXE) mkdirhier
-  TESTS = prestarttests poststarttests
-endif
-
-ifeq ($(PEGASUS_PLATFORM),SOLARIS_SPARC_CC)
-  CIMSERVER_START_SERVICE = cimserver
-  CIMSERVER_STOP_SERVICE = /usr/bin/ps -ef | /usr/bin/grep cimserver | /usr/bin/grep -v grep | /usr/bin/awk '{print "kill -9 "$$2 |"/usr/bin/ksh"}'
-  SLEEP = sleep 5
-  REMOVE_PEGASUS_DIRECTORY = rm -Rf pegasus.old; mv pegasus pegasus.old
-  MUEXE = mu
-  MKDIR = $(MUEXE) mkdirhier
-  TESTS = prestarttests poststarttests
-endif
-
-ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
-  CIMSERVER_START_SERVICE = cimserver
-  CIMSERVER_STOP_SERVICE = /bin/ps -ef | /bin/grep cimserver | /bin/grep -v grep | /usr/bin/awk '{print "kill -9 "$$2 |"/bin/bash"}'
-  SLEEP = sleep 5
-  REMOVE_PEGASUS_DIRECTORY = rm -Rf pegasus.old; mv pegasus pegasus.old
-  MUEXE = mu
-  MKDIR = $(MUEXE) mkdirhier
-  TESTS = prestarttests poststarttests
-endif
+TESTS = prestarttests poststarttests
 
 ifeq ($(DYNAMIC_SOCKSIFY),TRUE)
   CVS = socksify cvs
@@ -78,7 +37,7 @@ error:
 
 buildmu:
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/utils/mu -f Makefile
-	$(MKDIR) $(BIN_DIR)
+	$(MKDIRHIER) $(BIN_DIR)
 
 cleanbuild: removeall recheckout buildmu all $(TESTS) 
 
@@ -111,16 +70,16 @@ clean:
 
 repositoryServer: 
 	$(CIMSERVER_STOP_SERVICE)
-	$(SLEEP)
+	$(SLEEP) 5
 	$(RMDIRHIER) $(REPOSITORY_ROOT)
 	$(CIMSERVER_START_SERVICE)
-	$(SLEEP)
+	$(SLEEP) 5
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repositoryServer
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile testrepositoryServer
 
 prestarttests: 
 	$(CIMSERVER_STOP_SERVICE)
-	$(SLEEP)
+	$(SLEEP) 5
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repository
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile testrepository
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile tests
@@ -131,27 +90,9 @@ poststarttests:
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Pegasus/Query/QueryExpression/tests/Queries -f Makefile clean
 	$(MAKE) --directory=$(PEGASUS_ROOT)/test/wetest -f Makefile clean
 	$(CIMSERVER_START_SERVICE)
-	$(SLEEP)
+	$(SLEEP) 5
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile poststarttests
 
-###############################################################################
-##  Test Suite Definitions
-###############################################################################
-
-###############################################################################
-##  OOP Test Suite 1: "Out-of-Process"(OOP) Provider Tests
-##
-##  Configuration Options: forceProviderProcesses=true
-##
-###############################################################################
-OOP_TS1_CONFIG_OPTIONS = forceProviderProcesses=true
-OOP_TS1_TEST_CMDS = \
-        TestClient
-
-run_OOP_TS1:
-	$(MAKE) -f $(PEGASUS_ROOT)/mak/commands.mak runTestSuite \
-            CIMSERVER_CONFIG_OPTIONS="$(OOP_TS1_CONFIG_OPTIONS)" \
-            TESTSUITE_CMDS="$(OOP_TS1_TEST_CMDS)"
 ###############################################################################
 
 tests: $(TESTS)

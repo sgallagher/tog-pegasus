@@ -1,14 +1,8 @@
 ifeq ($(PEGASUS_PLATFORM), WIN32_IX86_MSVC)
-    CIMSERVER_START_SERVICE =
-    CIMSERVER_STOP_SERVICE =
-    SLEEP = mu sleep 5
     STRIPCRS = stripcrs $(RESULTFILE) $(MASTERRESULTFILE)
     DIFF = mu compare
     REDIRECTERROR = 2>&1
 else
-    CIMSERVER_START_SERVICE = cimserver
-    CIMSERVER_STOP_SERVICE = /usr/bin/ps -ef | /usr/bin/grep cimserver | /usr/bin/grep -v grep | /usr/bin/awk '{print "kill -9 "$$2 |"/usr/bin/sh"}'
-    SLEEP = sleep 5
     STRIPCRS =
     DIFF = diff
     REDIRECTERROR = 2>&1
@@ -30,11 +24,3 @@ default:
 
 #l10n
 messages: $(ERROR)
-
-cimstop:
-	$(CIMSERVER_STOP_SERVICE)
-	$(SLEEP)
-
-cimstart:
-	$(CIMSERVER_START_SERVICE)
-	$(SLEEP)

@@ -100,13 +100,8 @@ WbemExecClient::WbemExecClient(Uint32 timeoutMilliseconds)
     //
     // Create Monitor and HTTPConnector
     //
-    #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
     _monitor.reset(new Monitor());
     _httpConnector.reset(new HTTPConnector(_monitor.get()));
-    #else
-    _monitor.reset(new monitor_2());
-    _httpConnector.reset(new HTTPConnector2(_monitor.get()));
-    #endif
 }
 
 WbemExecClient::~WbemExecClient()
@@ -131,20 +126,11 @@ void WbemExecClient::_connect(
     //
     //try
     //{
-#ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT 
     _httpConnection.reset(_httpConnector->connect(host,
                                                   portNumber, 
                                                   sslContext.get(), 
                                                   this));
     sslContext.release();
-#else 
-    _httpConnection.reset(_httpConnector->connect(host, 
-                                                  portNumber, 
-                                                  sslContext.get(), 
-                                                  this));
-    sslContext.release();
-    _monitor->set_session_dispatch(_httpConnection->connection_dispatch);//bug#1170
-#endif
 
     //}
     // Could catch CannotCreateSocketException, CannotConnectException,
@@ -404,11 +390,7 @@ Message* WbemExecClient::_doRequest(HTTPMessage * request)
 	//
 	// Wait until the timeout expires or an event occurs:
 	//
-  #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
 	_monitor->run(Uint32(stopMilliseconds - nowMilliseconds));
-  #else
-  _monitor->run();
-  #endif
 
 	//
 	// Check to see if incoming queue has a message

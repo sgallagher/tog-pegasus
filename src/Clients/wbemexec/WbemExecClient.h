@@ -207,15 +207,9 @@ private:
     String _getLocalHostName();
     String _promptForPassword();
 
-    #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
     AutoPtr<Monitor> _monitor;//PEP101
     AutoPtr<HTTPConnector> _httpConnector;//PEP101
     AutoPtr<HTTPConnection> _httpConnection;//PEP101
-    #else
-    AutoPtr<monitor_2> _monitor;//PEP101
-    AutoPtr<HTTPConnector2> _httpConnector;//PEP101
-    AutoPtr<HTTPConnection2> _httpConnection;//PEP101
-    #endif
     
     Uint32 _timeoutMilliseconds;
     Boolean _connected;

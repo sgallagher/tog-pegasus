@@ -32,9 +32,9 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
 //              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//
 //              Dan Gorey (djgorey@us.ibm.com)
 //				Seema Gupta (gseema@in.ibm.com) for PEP135
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -78,24 +78,6 @@ CIMExportClient::CIMExportClient(
     PEG_METHOD_EXIT();
 }
 
-CIMExportClient::CIMExportClient(
-   monitor_2* monitor2,
-   HTTPConnector2* httpConnector2,
-   Uint32 timeoutMilliseconds)
-   :
-   MessageQueue(PEGASUS_QUEUENAME_EXPORTCLIENT),
-   _monitor2(monitor2),
-   _httpConnector2(httpConnector2),
-   _httpConnection2(0),
-   _timeoutMilliseconds(timeoutMilliseconds),
-   _connected(false),
-   _responseDecoder(0),
-   _requestEncoder(0)
-{
-    PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportClient::CIMExportClient()");
-    PEG_METHOD_EXIT();
-}  
-
 CIMExportClient::~CIMExportClient()
 {
     PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportClient::~CIMExportClient()");
@@ -118,17 +100,10 @@ void CIMExportClient::_connect()
     
    try
    {
-   #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
       _httpConnection = _httpConnector->connect(_connectHost, 
                  _connectPortNumber, 
                  _connectSSLContext.get(),
                  _responseDecoder);
-   #else
-       _httpConnection2 = _httpConnector2->connect(_connectHost,
-                 _connectPortNumber,
-                 _connectSSLContext.get(),
-                 _responseDecoder);
-   #endif
    }
    catch (CannotCreateSocketException& e)
    {
@@ -159,13 +134,8 @@ void CIMExportClient::_connect()
        connectHost.append(portStr);
    }
 
-   #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
    _requestEncoder = new CIMExportRequestEncoder(
       _httpConnection, connectHost, &_authenticator);
-   #else
-   _requestEncoder = new CIMExportRequestEncoder(
-      _httpConnection2, connectHost, &_authenticator);
-   #endif
 
    _responseDecoder->setEncoderQueue(_requestEncoder);    
 
@@ -197,10 +167,6 @@ void CIMExportClient::_disconnect()
             _httpConnector->disconnect(_httpConnection);
             delete _httpConnection;
             _httpConnection = 0;
-        }else if (_httpConnector2) {
-            _httpConnector2->disconnect(_httpConnection2);
-            delete _httpConnection2;
-            _httpConnection2 = 0;
         }
           
 
@@ -385,11 +351,7 @@ Message* CIMExportClient::_doRequest(
 	//
 	// Wait until the timeout expires or an event occurs:
 	//
-       #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
-       _monitor->run(Uint32(stopMilliseconds - nowMilliseconds));
-       #else
-       _monitor2->run();
-       #endif
+        _monitor->run(Uint32(stopMilliseconds - nowMilliseconds));
        
 	//
 	// Check to see if incoming queue has a message

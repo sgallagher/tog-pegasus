@@ -28,7 +28,8 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By:  Jenny Yu (jenny_yu@hp.com)
-//               Nag Borananna (nagaraja.boranna@hp.com)
+//               Nag Boranna (nagaraja.boranna@hp.com)
+//               Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -136,61 +137,6 @@ class PEGASUS_COMMON_LINKAGE HTTPAcceptor : public MessageQueue
       Uint32  _portNumber;
       SSLContext * _sslcontext;
       Boolean _exportConnection;
-};
-
-class HTTPConnection2;
-
-class PEGASUS_COMMON_LINKAGE pegasus_acceptor 
-{
- public:
-
-  pegasus_acceptor(monitor_2* monitor, 
-		   MessageQueue* outputMessageQueue, 
-		   Boolean localConnection, 
-		   Uint32 portNumber,
-		   SSLContext* sslcontext);
-
-  ~pegasus_acceptor(void);
-  
-  void bind();
-
-      /** Unbind from the given port.
-       */
-  void unbind();
-
-      /** Close the connection socket.
-       */
-  void closeConnectionSocket();
-
-      /** Reopen the connection socket.
-       */
-  void reopenConnectionSocket();
-
-  /** Returns the number of outstanding requests
-   */
-  Uint32 getOutstandingRequestCount();
-  
-  Boolean operator ==(const pegasus_acceptor& );
-  Boolean operator ==(void*);
-  
-  static pegasus_acceptor* find_acceptor(Boolean local, Uint32 port);
-  static void accept_dispatch(monitor_2_entry*);
-  static void close_all_acceptors(void);
-  
- private:
-  pegasus_acceptor(void);
-  
-  monitor_2* _monitor;
-  MessageQueue* _outputMessageQueue;
-  
-  Boolean _localConnection;
-  Uint32  _portNumber;
-  SSLContext * _sslcontext;
-  pegasus_socket _listener;
-
-  AsyncDQueue<HTTPConnection2> connections;
-  static AsyncDQueue<pegasus_acceptor> acceptors;
-  
 };
 
 PEGASUS_NAMESPACE_END

@@ -33,6 +33,7 @@
 //         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
 //         Amit K Arora, IBM (amita@in.ibm.com) for Bug#1097, #2541
 //         David Dillard, VERITAS Software Corp.  (david.dillard@veritas.com)
+//         Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -234,74 +235,6 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueue
       friend class HTTPConnector;
 };
 
-class PEGASUS_COMMON_LINKAGE HTTPConnection2 : public MessageQueue
-{
-   public:
-      typedef MessageQueue Base;
-      
-      /** Constructor. */
-      HTTPConnection2( pegasus_socket socket,
-		      MessageQueue * outputMessageQueue);
-
-      /** Destructor. */
-      ~HTTPConnection2();
-
-      virtual void enqueue(Message *) throw(IPCException);
-
-      /** This method is called whenever a SocketMessage is enqueued
-	  on the input queue of the HTTPConnection2 object.
-      */ 
-      virtual void handleEnqueue(Message *);
-      
-      virtual void handleEnqueue();
-
-      /** Return socket this connection is using. */
-      Sint32 getSocket();
-      
-      /** Return the number of outstanding requests for all HTTPConnection2 
-	  instances.
-      */
-      Uint32 getRequestCount();
-
-
-      
-      AtomicInt refcount;
-
-      Boolean operator ==(const HTTPConnection2& );
-      Boolean operator ==(void*);
-      static void connection_dispatch(monitor_2_entry*);
-      
-   private:
-
-      void _clearIncoming();
-
-      void _getContentLengthAndContentOffset();
-
-      void _handleReadEvent(monitor_2_entry* );
-
-      void _close_connection(void);
-      
-      pegasus_socket _socket;
-      MessageQueue* _outputMessageQueue;
-
-      Sint32 _contentOffset; 
-      Sint32 _contentLength;
-      Array<char> _incomingBuffer;
-      AutoPtr<AuthenticationInfo> _authInfo;
-      AtomicInt _closed;
-      Mutex _reentry;
-
-      static AtomicInt _requestCount;
-
-      friend class monitor_2;
-      friend class HTTPAcceptor;
-};
-
-
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_HTTPConnection_h */
-
-
-
-// HINT: - you are not deleting the connection object !!!!! 

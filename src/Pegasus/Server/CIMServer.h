@@ -32,6 +32,7 @@
 //	   Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //	   Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //     Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//	   Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -75,9 +76,7 @@ class PEGASUS_SERVER_LINKAGE CIMServer
 public:
 
     enum Protocol { PROPRIETARY, STANDARD };
-    enum server_type {OLD, NEW };
-    
-    
+
     /** Constructor - Creates a CIMServer object.
         The CIM Server objects establishes a repository object,
         a dispatcher object, and creates a channnel factory and
@@ -86,8 +85,6 @@ public:
         @exception - ATTN
     */
     CIMServer(Monitor* monitor);
-    CIMServer(monitor_2* monitor2);
-    
 
     ~CIMServer();
 
@@ -116,16 +113,6 @@ public:
     void bind();
 
     void tickle_monitor();
-
-    /** routine to call when monitor_2 is idle 
-     */
-    static void _monitor_idle_routine(void* parm);
-    
-
-    /** allow other modules to stop my monitor_2 
-     */
-    monitor_2* get_monitor2(void);
-    
 
     /** runForever Main runloop for the server.
     */
@@ -201,12 +188,8 @@ private:
     BinaryMessageHandler *_binaryMessageHandler;
     AutoPtr<SSLContext> _sslcontext; //PEP101
     AutoPtr<SSLContext> _exportSSLContext; //PEP101
-    monitor_2* monitor2;
-    server_type _type;
     
     void _init(void);
-    
-    
 };
 
 PEGASUS_NAMESPACE_END

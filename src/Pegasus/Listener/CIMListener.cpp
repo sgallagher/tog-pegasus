@@ -29,6 +29,7 @@
 //
 // Modified By:   Dan Gorey (djgorey@us.ibm.com)
 //                Amit K Arora, IBM (amita@in.ibm.com) for PEP#183
+//                Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -104,13 +105,8 @@ public:
 private:
 	Uint32			_portNumber;
 	SSLContext* _sslContext;
-  #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
 	Monitor*				_monitor;
   HTTPAcceptor*   _acceptor;
-  #else
- 	monitor_2*				_monitor;
-  pegasus_acceptor*   _acceptor;
-  #endif 
 
   Boolean					_dieNow;
 
@@ -170,11 +166,7 @@ void CIMListenerService::init()
 {
 	PEG_METHOD_ENTER(TRC_LISTENER, "CIMListenerService::init");
 
-  #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
   _monitor = new Monitor(true);
-  #else
-  _monitor = new monitor_2();
-  #endif
   
 	//_dispatcher = new CIMListenerIndicationDispatcher();
 
@@ -183,7 +175,6 @@ void CIMListenerService::init()
 		_dispatcher,
 		_responseEncoder->getQueueId());
 
-  #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
   _acceptor = new HTTPAcceptor(
 		 _monitor, 
 		 _requestDecoder, 
@@ -191,13 +182,6 @@ void CIMListenerService::init()
 		 _portNumber, 
 		 _sslContext,
                  false);
-  #else
-  _acceptor = new pegasus_acceptor(_monitor,
-		   _requestDecoder,
-		   false,
-		   _portNumber,
-		   _sslContext);
-  #endif
 
   bind();
 
@@ -224,7 +208,6 @@ void CIMListenerService::runForever()
 
   if(!_dieNow)
     {
-#ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
       if(false == _monitor->run(500000)) 
 	{	
 	  modulator++;
@@ -248,9 +231,6 @@ void CIMListenerService::runForever()
 	handleShutdownSignal = false;
       }
 */
-#else
-      _monitor->run();
-#endif
     }
 }
 
@@ -259,9 +239,7 @@ void CIMListenerService::shutdown()
     PEG_METHOD_ENTER(TRC_LISTENER, "CIMListenerService::shutdown()");
 
     _dieNow = true;
-#ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
     _monitor->tickle();
-#endif
 
     PEG_METHOD_EXIT();
 }
@@ -281,11 +259,7 @@ void CIMListenerService::stopClientConnection()
     PEG_METHOD_ENTER(TRC_LISTENER, "CIMListenerService::stopClientConnection()");
 
     // tell Monitor to stop listening for client connections
-    #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
     _monitor->stopListeningForConnections(true);
-    #else
-    _monitor->stop();
-    #endif
 
     //
     // Wait 150 milliseconds to allow time for the Monitor to stop

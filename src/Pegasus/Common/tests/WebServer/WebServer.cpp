@@ -28,6 +28,7 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By:    Dan Gorey, IBM (djgorey@us.ibm.com)
+//                 Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -213,11 +214,7 @@ int main()
     {
 	// Create a monitor to watch for activity on sockets:
 
-  #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
-  Monitor* monitor = new Monitor;
-  #else
-  monitor_2* monitor = new monitor_2;
-  #endif
+        Monitor* monitor = new Monitor;
 
 	// Create a queue to receive incoming HTTP messages:
 
@@ -226,11 +223,8 @@ int main()
 	// Create an acceptor to wait for and accept connections on the
 	// server port.
 
-  #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
-  HTTPAcceptor* httpAcceptor = new HTTPAcceptor(monitor,webServerQueueue);
-  #else
-  pegasus_acceptor* httpAcceptor = new pegasus_acceptor(monitor,webServerQueueue);
-  #endif
+        HTTPAcceptor* httpAcceptor = new HTTPAcceptor(monitor,webServerQueueue);
+
 	// Bind the acceptor to listen on the given port:
 
 	const Uint32 PORT_NUMBER = 7777;
@@ -245,11 +239,7 @@ int main()
 	for (;;)
 	{
 	    // cout << "Loop..." << endl;
-      #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
 	    monitor->run(FIVE_SECONDS_MSEC);
-      #else
-      monitor->run();
-      #endif
 	}
     }
     catch (Exception& e)

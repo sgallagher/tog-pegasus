@@ -30,6 +30,7 @@
 // Modified By: Dave Rosckes (rosckes@us.ibm.com)
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //              Amit K Arora, IBM (amita@in.ibm.com) for Bug#1090
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -246,11 +247,6 @@ void ShutdownService::_shutdownCIMServer()
     //
     _cimserver->shutdown();
     
-    #ifndef PEGASUS_USE_23HTTPMONITOR_SERVER    
-    // stop the monitor
-    _cimserver->get_monitor2()->stop();    
-    #endif    
-
 //    MessageQueueService::force_shutdown();
 
     Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,

@@ -183,7 +183,7 @@ void CIMServer::shutdownSignal()
 
 
 CIMServer::CIMServer(Monitor* monitor)
-  : _dieNow(false), _monitor(monitor), monitor2(0), _type(OLD)
+  : _dieNow(false), _monitor(monitor)
 {
     PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::CIMServer()");
     _init();
@@ -191,20 +191,6 @@ CIMServer::CIMServer(Monitor* monitor)
     PEG_METHOD_EXIT();
 }
 
-
-CIMServer::CIMServer(monitor_2* m2)
-  : _dieNow(false), _monitor(0), monitor2(m2), _type(NEW)
-{
-    PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::CIMServer()");
-    _init();
-
-    monitor2->set_accept_dispatch(pegasus_acceptor::accept_dispatch);
-    monitor2->set_session_dispatch(HTTPConnection2::connection_dispatch);
-    monitor2->set_idle_dispatch(_monitor_idle_routine);
-    monitor2->set_idle_parm((void*)this);
-    
-    PEG_METHOD_EXIT();
-}
 
 void CIMServer::tickle_monitor(){
     _monitor->tickle();
@@ -476,12 +462,6 @@ CIMServer::~CIMServer()
         delete _providerRegistrationManager;
     }
 
-    if(_type != OLD)
-    {
-       pegasus_acceptor::close_all_acceptors();
-    }
-    
-
     PEG_METHOD_EXIT();
 }
 
@@ -491,7 +471,6 @@ void CIMServer::addAcceptor(
     Boolean useSSL,
     Boolean exportConnection)
 {
-  if(_type == OLD ){
     HTTPAcceptor* acceptor;
     if (exportConnection)
     {
@@ -516,91 +495,35 @@ void CIMServer::addAcceptor(
                                 exportConnection);
     }
     _acceptors.append(acceptor);
-  }
-  else {
-    pegasus_acceptor* acceptor =
-      new pegasus_acceptor(monitor2,
-			   _httpAuthenticatorDelegator,
-			   localConnection,
-			   portNumber,
-			   useSSL ? _getSSLContext() : 0);
-    acceptor->bind();
-  }
 }
 
 void CIMServer::bind()
 {
     PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::bind()");
 
-    if(_type == OLD) {
+    if (_acceptors.size() == 0)
+    {
+        MessageLoaderParms mlp = MessageLoaderParms(
+            "Server.CIMServer.BIND_FAILED",
+            "No CIM Server connections are enabled.");
 
-      if (_acceptors.size() == 0)
-	{
-	  // l10n
+        throw BindFailedException(mlp);
+    }
 
-	  // throw BindFailedException("No CIM Server connections are enabled.");
-
-	  MessageLoaderParms mlp = MessageLoaderParms("Server.CIMServer.BIND_FAILED","No CIM Server connections are enabled.");
-
-	  throw BindFailedException(mlp);
-	}
-
-      for (Uint32 i=0; i<_acceptors.size(); i++)
-	{
-	  _acceptors[i]->bind();
-	}
+    for (Uint32 i=0; i<_acceptors.size(); i++)
+    {
+        _acceptors[i]->bind();
     }
 
     PEG_METHOD_EXIT();
 }
 
-
-void CIMServer::_monitor_idle_routine(void *parm)
-{
-   CIMServer* myself = static_cast<CIMServer* >(parm);
-   
-   try
-   {
-      MessageQueueService::_check_idle_flag = 1;
-      MessageQueueService::_polling_sem.signal();
-      
-#ifdef PEGASUS_USE_23PROVIDER_MANAGER
-      ProviderManagerService::getProviderManager()->unload_idle_providers();
-#else
-      myself->_providerManager->unloadIdleProviders();
-#endif
-      
-   }
-   catch(...)
-   {
-   }
-   if (handleShutdownSignal)
-   {
-      Tracer::trace(TRC_SERVER, Tracer::LEVEL3,
-		    "CIMServer::runForever - signal received.  Shutting down.");
-      myself->monitor2->stop();
-      
-      ShutdownService::getInstance(myself)->shutdown(true, 10, false);
-//      MessageQueueService::force_shutdown(true);
-      
-      handleShutdownSignal = false;
-   }
-}
-
-monitor_2* CIMServer::get_monitor2(void)
-{
-   return monitor2;
-}
-
-
 void CIMServer::runForever()
 {
-  if(_type == OLD) {
-
     // Note: Trace code in this method will be invoked frequently.
 
     if(!_dieNow)
-      {
+    {
 #ifdef PEGASUS_ENABLE_SLP
 	// Note - this func prevents multiple starting of slp provider
 	startSLPProvider();
@@ -633,49 +556,40 @@ void CIMServer::runForever()
 	  // stopClientConnection.
 	  handleShutdownSignal = false;
 	}
-      }
-  }
-  else {
-    monitor2->run();
-//    MessageQueueService::force_shutdown(true);
-  }
-
+    }
 }
 
 void CIMServer::stopClientConnection()
 {
     PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::stopClientConnection()");
 
-    if(_type == OLD) 
+    // tell Monitor to stop listening for client connections
+    if (handleShutdownSignal)
+        // If shutting down, this is in the same thread as runForever.
+        // No need to wait for the thread to see the stop flag.
+        _monitor->stopListeningForConnections(false);
+    else
+        // If not shutting down, this is not in the same thread as runForever.
+        // Need to wait for the thread to see the stop flag.
+        _monitor->stopListeningForConnections(true);
+
+    //
+    // Wait 150 milliseconds to allow time for the Monitor to stop 
+    // listening for client connections.  
+    //
+    // This wait time is the timeout value for the select() call
+    // in the Monitor's run() method (currently set to 100 
+    // milliseconds) plus a delta of 50 milliseconds.  The reason
+    // for the wait here is to make sure that the Monitor entries
+    // are updated before closing the connection sockets.
+    //
+    // PEG_TRACE_STRING(TRC_SERVER, Tracer::LEVEL4, "Wait 150 milliseconds.");
+    //  pegasus_sleep(150);  not needed anymore due to the semaphore
+    // in the monitor
+
+    for (Uint32 i=0; i<_acceptors.size(); i++)
     {
-        // tell Monitor to stop listening for client connections
-        if (handleShutdownSignal)
-	  // If shutting down, this is in the same thread as runForever.
-	  // No need to wait for the thread to see the stop flag.
-	  _monitor->stopListeningForConnections(false);
-	else
-	  // If not shutting down, this is not in the same thread as runForever.
-	  // Need to wait for the thread to see the stop flag.
-	  _monitor->stopListeningForConnections(true);
-
-        //
-        // Wait 150 milliseconds to allow time for the Monitor to stop 
-        // listening for client connections.  
-        //
-        // This wait time is the timeout value for the select() call
-        // in the Monitor's run() method (currently set to 100 
-        // milliseconds) plus a delta of 50 milliseconds.  The reason
-        // for the wait here is to make sure that the Monitor entries
-        // are updated before closing the connection sockets.
-        //
-        // PEG_TRACE_STRING(TRC_SERVER, Tracer::LEVEL4, "Wait 150 milliseconds.");
-	//  pegasus_sleep(150);  not needed anymore due to the semaphore
-	// in the monitor
-
-        for (Uint32 i=0; i<_acceptors.size(); i++)
-	{
-	  _acceptors[i]->closeConnectionSocket();
-	}
+        _acceptors[i]->closeConnectionSocket();
     }
 
     PEG_METHOD_EXIT();
@@ -686,9 +600,7 @@ void CIMServer::shutdown()
     PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::shutdown()");
 
     _dieNow = true;
-    if(_type == OLD) {
-      _cimserver->tickle_monitor();
-    }
+    _cimserver->tickle_monitor();
 
     PEG_METHOD_EXIT();
 }
@@ -768,11 +680,9 @@ Uint32 CIMServer::getOutstandingRequestCount()
 
     Uint32 requestCount = 0;
 
-    if(_type == OLD) {
-      for (Uint32 i=0; i<_acceptors.size(); i++)
-	{
-	  requestCount += _acceptors[i]->getOutstandingRequestCount();
-	}
+    for (Uint32 i=0; i<_acceptors.size(); i++)
+    {
+        requestCount += _acceptors[i]->getOutstandingRequestCount();
     }
 
     PEG_METHOD_EXIT();

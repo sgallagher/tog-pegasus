@@ -30,6 +30,7 @@
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
 //              Dan Gorey, IBM (djgorey@us.ibm.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -46,7 +47,6 @@
 PEGASUS_NAMESPACE_BEGIN
 
 struct HTTPConnectorRep;
-struct HTTPConnector2Rep;
 
 class HTTPConnection;
 
@@ -70,8 +70,6 @@ class PEGASUS_COMMON_LINKAGE HTTPConnector : public MessageQueueService
 
       HTTPConnector(Monitor* monitor, SSLContext * sslcontext);
    
-      HTTPConnector(monitor_2* monitor, SSLContext * sslcontext);
-
       /** Destructor. */
       ~HTTPConnector();
 
@@ -132,91 +130,6 @@ class PEGASUS_COMMON_LINKAGE HTTPConnector : public MessageQueueService
 
       Monitor* _monitor;
       HTTPConnectorRep* _rep;
-    
-      SSLContext * _sslcontext;
-      int _entry_index;
-      
-};
-
-
-//****************************MONITOR2************************
-
-class PEGASUS_COMMON_LINKAGE HTTPConnector2 : public MessageQueueService
-{
-   public:
-   
-      typedef MessageQueueService Base;
-  
-      /** Constructor.
-	  @param monitor pointer to monitor object which this class uses to
-	  solicit SocketMessages on the server port (socket).
-	  @param outputMessageQueue ouptut message queue for connections
-	  created by this connector.
-      */
-      HTTPConnector2(monitor_2* monitor);
-
-      HTTPConnector2(monitor_2* monitor, SSLContext * sslcontext);
-
-      /** Destructor. */
-      ~HTTPConnector2();
-
-      /** This method is called whenever a SocketMessage is enqueued
-	  on the input queue of the HTTPConnector object.
-      */ 
-
-      virtual void handleEnqueue(Message *);
-      virtual void handleEnqueue();
-
-      /** Establishes a new connection and creates an HTTPConnection object
-	  to represent it.
-
-	  @param host indicates host to connect to
-	  @param portNumber indicates port number to use
-	  @param outputMessageQueue output message queue for the HTTPConnection
-	  that will be created.
-	  @exception InvalidLocatorException
-	  @exception CannotCreateSocketException
-	  @exception CannotConnectException
-      */
-      inline HTTPConnection2* connect(
-         const String& host, 
-         const Uint32 portNumber,
-	 MessageQueue* outputMessageQueue)
-      {
-          return connect(host, portNumber, NULL, outputMessageQueue);
-      }
-
-      /** Establishes a new connection and creates an HTTPConnection object
-	  to represent it.
-
-	  @param host indicates host to connect to
-	  @param portNumber indicates port number to use
-	  @param sslContext Specifies the SSL context to use for this connection
-	  @param outputMessageQueue output message queue for the HTTPConnection
-	  that will be created.
-	  @exception InvalidLocatorException
-	  @exception CannotCreateSocketException
-	  @exception CannotConnectException
-      */
-      HTTPConnection2* connect(
-         const String& host, 
-         const Uint32 portNumber,
-	 SSLContext * sslContext,
-	 MessageQueue* outputMessageQueue);
-
-      /** Destroys all the connections created by this connector. */
-      void destroyConnections();
-
-      /** Close the specified connection. */
-      void disconnect(HTTPConnection2* connection);
-
-   private:
-
-      /** Delete the specified connection. */
-      void _deleteConnection(HTTPConnection2* httpConnection);
-
-      monitor_2* _monitor;
-      HTTPConnector2Rep* _rep2;
     
       SSLContext * _sslcontext;
       int _entry_index;

@@ -32,6 +32,7 @@
 //              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //              Dan Gorey, IBM (djgorey@us.ibm.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -160,13 +161,8 @@ public:
             randFile = ConfigManager::getHomedPath(PEGASUS_SSLSERVER_RANDOMFILE);
 #endif
 
-            #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
             Monitor monitor;
             HTTPConnector httpConnector( &monitor);
-            #else
-            monitor_2 monitor;
-            HTTPConnector2 httpConnector( &monitor);
-            #endif
 
             CIMExportClient exportclient( &monitor, &httpConnector);
             Uint32 colon = dest.find (":");

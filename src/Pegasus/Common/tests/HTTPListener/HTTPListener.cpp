@@ -28,6 +28,7 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By:  Dan Gorey, IBM (djgorey@us.ibm.com)
+//               Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -61,13 +62,8 @@ int main()
 {
     try
     {
-  #ifdef PEGASUS_USE_23MONITOR
   Monitor* monitor = new Monitor;
 	HTTPAcceptor* httpAcceptor = new HTTPAcceptor(monitor, myQueue);
-  #else
-  monitor_2* monitor = new Monitor;
-	pegasus_acceptor* httpAcceptor = new pegasus_acceptor(monitor, myQueue);
-  #endif
 
   MyQueue* myQueue = new MyQueue;
 
@@ -79,11 +75,7 @@ int main()
 	for (;;)
 	{
 	    cout << "Loop..." << endl;
-      #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
 	    monitor->run(5000);
-      #else
-      monitor->run();
-      #endi
 	}
     }
     catch (Exception& e)

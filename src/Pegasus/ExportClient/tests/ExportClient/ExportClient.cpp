@@ -28,6 +28,7 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By:     Dan Gorey, IBM (djgorey@us.ibm.com)
+//                  Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -66,13 +67,8 @@ int main(int argc, char** argv)
 {
     try
     {
-  #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
 	Monitor* monitor = new Monitor;
 	HTTPConnector* httpConnector = new HTTPConnector(monitor);
-  #else
-  monitor_2* monitor = new Monitor;
-	HTTPConnector2* httpConnector = new HTTPConnector2(monitor);
-  #endif
 
 	CIMExportClient client(monitor, httpConnector);
 	client.connect("localhost", 5988);

@@ -66,12 +66,12 @@ const char* QUIT  = "QUIT\n\0";
 
 AtomicInt cmd_tx, cmd_rx, ready, domain_ready, accept_error;
 
+#if 0
 monitor_2 mon;
 void pipe_handler(int signum)
 {
    return;
 }
-
 
 
 void test_dispatch(monitor_2_entry* entry)
@@ -98,6 +98,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL remote_socket(void *parm)
    mon.run();
    return 0;
 }
+#endif
 
 # ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
 // << Thu Aug 14 15:01:10 2003 mdd >> domain sockets work
@@ -175,7 +176,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL domain_socket(void *parm)
 int main(int argc, char** argv)
 {
 
-#ifndef PEGASUS_USE_23HTTPMONITOR_SERVER
+#if 0
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
 #else
@@ -313,7 +314,7 @@ int main(int argc, char** argv)
 			
 #endif // domain socket
 
-#endif // PEGASUS_USE_23HTTPMONITOR_SERVER
+#endif // 0
 
    cout << argv[0] << " +++++ passed all tests" << endl;
    return 0;

@@ -902,11 +902,7 @@ int main(int argc, char** argv)
     // try loop to bind the address, and run the server
     try
     {
-	#ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
 	Monitor monitor(true);
-	#else
-	monitor_2 monitor();
-	#endif
 	CIMServer server(&monitor);
 
         if (enableHttpConnection)

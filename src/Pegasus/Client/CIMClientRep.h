@@ -31,6 +31,7 @@
 //				 Marek Szermutzky (MSzermutzky@de.ibm.com) for PEP#139 Stage1
 //               Robert Kieninger, IBM (kieningr@de.ibm.com) for Bug#667
 //               Amit K Arora, IBM (amita@in.ibm.com) for Bug#2040
+//               Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -304,15 +305,9 @@ private:
         const Uint32 expectedResponseMessageType);
 
     String _getLocalHostName();
-    #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
     AutoPtr<Monitor> _monitor;
     AutoPtr<HTTPConnector> _httpConnector;
     AutoPtr<HTTPConnection> _httpConnection;
-    #else
-    AutoPtr<monitor_2> _monitor;
-    AutoPtr<HTTPConnector2> _httpConnector;
-    AutoPtr<HTTPConnection2> _httpConnection;
-    #endif
 
 
     Uint32 _timeoutMilliseconds;

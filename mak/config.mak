@@ -237,17 +237,6 @@ ifdef PEGASUS_REMOVE_TRACE
     DEFINES += -DPEGASUS_REMOVE_TRACE
 endif
 
-# PEP 123 use monitor2 (the default) or not
-#ifdef PEGASUS_USE_23HTTPMONITOR_SERVER
-    DEFINES += -DPEGASUS_USE_23HTTPMONITOR_SERVER
-#endif
-
-#BUG 1170 Monitor2 Client Workaround
-#ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
-    DEFINES += -DPEGASUS_USE_23HTTPMONITOR_CLIENT
-#endif
-
-
 # PEP 161
 # Control whether utf-8 filenames are supported by the repository
 ifdef PEGASUS_SUPPORT_UTF8_FILENAME

@@ -1107,13 +1107,8 @@ MessageLoader::_useProcessLocale = false;
 
 
 
-#if defined(PEGASUS_USE_23HTTPMONITOR_SERVER) 
 	Monitor monitor(true);
 	CIMServer server(&monitor);
-#else
-	monitor_2 monitor;
-	CIMServer server(&monitor);
-#endif
 
 	CimserverHolder cimserverHolder( &server );
 

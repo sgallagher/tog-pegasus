@@ -34,6 +34,7 @@
 //         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
 //               Robert Kieninger, IBM (kieningr@de.ibm.com) for Bug#667
 //               Amit Arora (amita@in.ibm.com) for Bug#2040
+//               Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -70,13 +71,8 @@ CIMClientRep::CIMClientRep(Uint32 timeoutMilliseconds)
     //
     // Create Monitor and HTTPConnector
     //
-    #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
     _monitor.reset(new Monitor());
     _httpConnector.reset(new HTTPConnector(_monitor.get()));
-    #else
-    _monitor.reset(new monitor_2());
-    _httpConnector.reset(new HTTPConnector2(_monitor.get()));
-    #endif
 
 // l10n
     requestAcceptLanguages = AcceptLanguages::EMPTY;
@@ -153,19 +149,11 @@ void CIMClientRep::_connect()
     //
     // Attempt to establish a connection:
     //
-    #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
     AutoPtr<HTTPConnection> httpConnection(_httpConnector->connect(
                                               _connectHost,
                                               _connectPortNumber,
                                               _connectSSLContext.get(),
                                               responseDecoder.get()));
-    #else
-    AutoPtr<HTTPConnection> httpConnection(_httpConnector->connect(
-                                              _connectHost,
-                                              _connectPortNumber,
-                                              responseDecoder.get()));
-    _monitor->set_session_dispatch(httpConnection->connection_dispatch);
-    #endif
   
     //
     // Create request encoder:
@@ -1105,11 +1093,7 @@ Message* CIMClientRep::_doRequest(
         //
         // Wait until the timeout expires or an event occurs:
         //
-       #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
-       _monitor->run(Uint32(stopMilliseconds - nowMilliseconds));
-       #else
-       _monitor->run();
-       #endif
+        _monitor->run(Uint32(stopMilliseconds - nowMilliseconds));
 
         //
         // Check to see if incoming queue has a message

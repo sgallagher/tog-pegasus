@@ -83,7 +83,7 @@ PEGASUS_EXPORT int gethostbyname_r(const char *name,
 
 #endif
 
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_TRU64) || defined(PEGASUS_OS_AIX)
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_TRU64) || defined(PEGASUS_OS_AIX) || defined(PEGASUS_OS_OS400)
 
 PEGASUS_EXPORT int gethostbyname_r(const char *name, 
 		    struct hostent *resultbuf, 

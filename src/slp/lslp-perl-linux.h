@@ -54,6 +54,12 @@ extern "C" char *strtok_r(char *, const char *, char **);
 #elif defined (PEGASUS_OS_TRU64) || defined(PEGASUS_OS_AIX)
 # include <arpa/inet.h>
 # include <net/if.h>
+#elif defined (PEGASUS_OS_OS400)
+# include <unistd.cleinc>
+# include <sys/socket.h>  
+# include <strings.h>
+# include <arpa/inet.h>
+# include <net/if.h>  
 #else
 #include <linux/inet.h>
 #include <linux/if.h>
@@ -65,7 +71,11 @@ extern "C" char *strtok_r(char *, const char *, char **);
 #include <memory.h>
 #include <string.h>
 #include <ctype.h>
+
+#ifndef PEGASUS_OS_OS400
+// Not on OS/400
 #include <syslog.h>
+#endif
 
 PEGASUS_USING_STD;
 
@@ -91,7 +101,12 @@ typedef int BOOL;
 #define _LSLP_INIT_NETWORK()
 #define _LSLP_DEINIT_NETWORK()
 
+#ifndef PEGASUS_OS_OS40
 #define _LSLP_SET_TTL(s, t)  setsockopt((s), IPPROTO_IP, IP_MULTICAST_TTL, (const char *)&(t), sizeof((t))) 
+#else
+// Remove const for OS/400
+#define _LSLP_SET_TTL(s, t)  setsockopt((s), IPPROTO_IP, IP_MULTICAST_TTL, (char *)&(t), sizeof((t)))
+#endif
 
 #ifndef EINVAL
 #define EINVAL 0

@@ -1166,6 +1166,7 @@ private:
         const CIMName & alertClassName,
         const Array <CIMInstance> & subscriptions);
 
+#if 0
      /** 
 	  Asynchronous completion routine for _sendAlerts
       */
@@ -1185,6 +1186,7 @@ private:
     void _sendAlerts (
         const Array <CIMInstance> & subscriptions,
         /* const */ CIMInstance & alertInstance);
+#endif
       
      /** Async completion routine for _sendEnable */
 
@@ -1642,6 +1644,18 @@ private:
     static const char _MSG_INVALID_INSTANCES [];
     
     static const char _MSG_INVALID_INSTANCES_KEY [];
+
+    static const char _MSG_PROVIDER_NO_LONGER_SERVING [];
+
+    static const char _MSG_PROVIDER_NO_LONGER_SERVING_KEY [];
+
+    static const char _MSG_PROVIDER_NOW_SERVING [];
+
+    static const char _MSG_PROVIDER_NOW_SERVING_KEY [];
+
+    static const char _MSG_NO_PROVIDER [];
+
+    static const char _MSG_NO_PROVIDER_KEY [];
 };
 
 PEGASUS_NAMESPACE_END

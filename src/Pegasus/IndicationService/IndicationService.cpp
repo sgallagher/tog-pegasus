@@ -517,11 +517,12 @@ void IndicationService::_initialize (void)
     }  // for each active subscription
 
     //
-    //  Send alerts for any subscriptions for which there is no longer any
+    //  Log a message for any subscription for which there is no longer any
     //  provider
     //
     if (noProviderSubscriptions.size () > 0)
     {
+#if 0
         //
         //  Send NoProviderAlertIndication to handler instances
         //  ATTN: NoProviderAlertIndication must be defined
@@ -533,6 +534,16 @@ void IndicationService::_initialize (void)
             "Sending NoProvider Alert for %d subscriptions",
             noProviderSubscriptions.size ());
         _sendAlerts (noProviderSubscriptions, indicationInstance);
+#endif
+        //
+        //  Log a message for each subscription
+        //
+        for (Uint32 i = 0; i < noProviderSubscriptions.size (); i++)
+        {
+            Logger::put_l (Logger::STANDARD_LOG, System::CIMSERVER,
+                Logger::WARNING, _MSG_NO_PROVIDER_KEY, _MSG_NO_PROVIDER,
+                noProviderSubscriptions [i].getPath ().toString ());
+        }
     }
 
     //
@@ -564,6 +575,12 @@ void IndicationService::_terminate (void)
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE, "IndicationService::_terminate");
 
     //
+    //  A message is already logged that CIM Server is shutting down --
+    //  no need to log a message
+    //
+
+#if 0
+    //
     //  Get existing active subscriptions from hash table
     //
     activeSubscriptions = _getActiveSubscriptions ();
@@ -585,6 +602,7 @@ void IndicationService::_terminate (void)
             activeSubscriptions.size ());
         _sendAlerts (activeSubscriptions, indicationInstance);
     }
+#endif
 
     PEG_METHOD_EXIT ();
 }
@@ -2347,6 +2365,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                     _insertActiveSubscriptionsEntry (tableValue.subscription,
                         tableValue.providers);
                 }
+
             }  // subscription found in table
             else
             {
@@ -2358,6 +2377,30 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                 //  ATTN-CAKG-P3-20030403: Log a message
                 //
             }
+        }
+
+        //
+        //  NOTE: When a provider that was previously not serving a subscription
+        //  now serves the subscription due to a provider registration change, 
+        //  a log message is sent, even if there were previously other providers
+        //  serving the subscription
+        //
+
+        //
+        //  Log a message for each subscription
+        //
+        CIMClass providerClass = _repository->getClass 
+            (PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_PROVIDER);
+        CIMInstance providerCopy = provider.clone ();
+        CIMObjectPath path = providerCopy.buildPath (providerClass);
+        providerCopy.setPath (path);
+        for (Uint32 j = 0; j < newSubscriptions.size (); j++)
+        {
+            Logger::put_l (Logger::STANDARD_LOG, System::CIMSERVER,
+                Logger::WARNING, _MSG_PROVIDER_NOW_SERVING_KEY, 
+                _MSG_PROVIDER_NOW_SERVING,
+                providerCopy.getPath ().toString (),
+                newSubscriptions [j].getPath ().toString ());
         }
     }
 
@@ -2500,13 +2543,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
             }
         }
 
-        //
-        //  NOTE: When a provider that was previously serving a subscription 
-        //  no longer serves the subscription due to a provider registration 
-        //  change, an alert is always sent, even if there are still other 
-        //  providers serving the subscription
-        //
-
+#if 0
         //
         //  Create NoProviderAlertIndication instance
         //  ATTN: NoProviderAlertIndication must be defined
@@ -2521,6 +2558,31 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
             "Sending NoProvider Alert for %d subscriptions",
             formerSubscriptions.size ());
         _sendAlerts (formerSubscriptions, indicationInstance);
+#endif
+
+        //
+        //  NOTE: When a provider that was previously serving a subscription 
+        //  no longer serves the subscription due to a provider registration 
+        //  change, a log message is sent, even if there are still other 
+        //  providers serving the subscription
+        //
+
+        //
+        //  Log a message for each subscription
+        //
+        CIMClass providerClass = _repository->getClass 
+            (PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_PROVIDER);
+        CIMInstance providerCopy = provider.clone ();
+        CIMObjectPath path = providerCopy.buildPath (providerClass);
+        providerCopy.setPath (path);
+        for (Uint32 j = 0; j < formerSubscriptions.size (); j++)
+        {
+            Logger::put_l (Logger::STANDARD_LOG, System::CIMSERVER,
+                Logger::WARNING, _MSG_PROVIDER_NO_LONGER_SERVING_KEY, 
+                _MSG_PROVIDER_NO_LONGER_SERVING,
+                providerCopy.getPath ().toString (),
+                formerSubscriptions [j].getPath ().toString ());
+        }
     }
 
     PEG_METHOD_EXIT ();
@@ -2607,6 +2669,7 @@ void IndicationService::_handleNotifyProviderTerminationRequest
             //  serving the subscription
             //
         
+#if 0
             //
             //  Create ProviderTerminatedAlertIndication instance
             //  ATTN: ProviderTerminatedAlertIndication must be defined
@@ -2622,6 +2685,23 @@ void IndicationService::_handleNotifyProviderTerminationRequest
                 "Sending ProviderDisabled Alert for %d subscriptions",
                 providerSubscriptions.size ());
             _sendAlerts (providerSubscriptions, indicationInstance);
+#endif
+            //
+            //  Log a message for each subscription
+            //
+            CIMClass providerClass = _repository->getClass 
+                (PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_PROVIDER);
+            CIMInstance providerCopy = providers [i].clone ();
+            CIMObjectPath path = providerCopy.buildPath (providerClass);
+            providerCopy.setPath (path);
+            for (Uint32 j = 0; j < providerSubscriptions.size (); j++)
+            {
+                Logger::put_l (Logger::STANDARD_LOG, System::CIMSERVER,
+                    Logger::WARNING, _MSG_PROVIDER_NO_LONGER_SERVING_KEY,
+                    _MSG_PROVIDER_NO_LONGER_SERVING,
+                    providerCopy.getPath ().toString (),
+                    providerSubscriptions [j].getPath ().toString ());
+            }
         }
     }
 
@@ -5934,6 +6014,7 @@ CIMInstance IndicationService::_createAlertInstance (
 }
 
 
+#if 0
 void IndicationService::_sendAlertsCallBack(AsyncOpNode *op, 
 					    MessageQueue *q, 
 					    void *parm)
@@ -6066,6 +6147,7 @@ void IndicationService::_sendAlerts (
 
     PEG_METHOD_EXIT ();
 }
+#endif
 
 void IndicationService::_sendEnableCallBack(AsyncOpNode *op,
 					   MessageQueue *q,
@@ -6765,5 +6847,23 @@ const char IndicationService::_MSG_INVALID_INSTANCES [] =
 
 const char IndicationService::_MSG_INVALID_INSTANCES_KEY [] =
     "IndicationService.IndicationService.INVALID_SUBSCRIPTION_INSTANCES_IGNORED";
+
+const char IndicationService::_MSG_PROVIDER_NO_LONGER_SERVING [] =
+    "Provider ($0) is no longer serving subscription ($1)";
+
+const char IndicationService::_MSG_PROVIDER_NO_LONGER_SERVING_KEY [] =
+    "IndicationService.IndicationService._MSG_PROVIDER_NO_LONGER_SERVING";
+
+const char IndicationService::_MSG_PROVIDER_NOW_SERVING [] =
+    "Provider ($0) is now serving subscription ($1)";
+
+const char IndicationService::_MSG_PROVIDER_NOW_SERVING_KEY [] =
+    "IndicationService.IndicationService._MSG_PROVIDER_NOW_SERVING";
+
+const char IndicationService::_MSG_NO_PROVIDER [] =
+    "Subscription ($0) has no provider";
+
+const char IndicationService::_MSG_NO_PROVIDER_KEY [] =
+    "IndicationService.IndicationService._MSG_NO_PROVIDER";
 
 PEGASUS_NAMESPACE_END

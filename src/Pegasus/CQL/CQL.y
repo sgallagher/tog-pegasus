@@ -2,8 +2,9 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CommonUTF.h>
+#include <Pegasus/CQL/QueryException.h>
+#include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/CQL/CQLFactory.h>
-#include <Pegasus/Common/InternalException.h>
 #include "CQLObjects.h"
 #include <stdio.h>
 
@@ -219,6 +220,12 @@ literal_string : STRING_LITERAL
 		}else{
 		    sprintf(msg,"BISON::literal_string-> BAD UTF\n");
 		    printf_(msg);
+		    throw CQLSyntaxErrorException(
+					MessageLoaderParms(String("CQL.CQL_y.BAD_UTF8"),
+							   String("Bad UTF8 encountered parsing rule $0 in position $1."),
+							   String("literal_string"),
+							   globalParserState->currentTokenPos)
+						 );
 		}
              }
 ;
@@ -439,7 +446,12 @@ chain : literal
 	    }else{
 		/* error */
 		String _msg("chain-> chain DOT scoped_property : chain state not CQLIDENTIFIER or CQLCHAINEDIDENTIFIER");
-		throw ParseError(_msg);
+		throw CQLSyntaxErrorException(
+                                        MessageLoaderParms(String("CQL.CQL_y.NOT_CHAINID_OR_IDENTIFIER"),
+                                                           String("Chain state not a CQLIdentifier or a CQLChainedIdentifier while parsing rule $0 in position $1."),
+							   String("chain.scoped_property"),
+                                                           globalParserState->currentTokenPos)
+                                                 );
             }
 
             chain_state = CQLCHAINEDIDENTIFIER;
@@ -464,7 +476,12 @@ chain : literal
             }else{
                 /* error */
 		String _msg("chain-> chain DOT identifier : chain state not CQLIDENTIFIER or CQLCHAINEDIDENTIFIER");
-                throw ParseError(_msg);
+		throw CQLSyntaxErrorException(
+                                        MessageLoaderParms(String("CQL.CQL_y.NOT_CHAINID_OR_IDENTIFIER"),
+                                                           String("Chain state not a CQLIdentifier or a CQLChainedIdentifier while parsing rule $0 in position $1."),
+							   String("chain.identifier"),
+                                                           globalParserState->currentTokenPos)
+                                                 );
             }
 	    chain_state = CQLCHAINEDIDENTIFIER;
 
@@ -498,7 +515,12 @@ chain : literal
             }else{
                 /* error */
 		String _msg("chain->chain.identifier#literal_string : chain state not CQLIDENTIFIER or CQLCHAINEDIDENTIFIER");
-		throw ParseError(_msg);
+		throw CQLSyntaxErrorException(
+                                        MessageLoaderParms(String("CQL.CQL_y.NOT_CHAINID_OR_IDENTIFIER"),
+                                                           String("Chain state not a CQLIdentifier or a CQLChainedIdentifier while parsing rule $0 in position $1."),
+							   String("chain.identifier#literal_string"),
+                                                           globalParserState->currentTokenPos)
+                                                 );
             }
                                                                                                         
             chain_state = CQLCHAINEDIDENTIFIER;
@@ -537,7 +559,12 @@ chain : literal
 	    }else{
 		/* error */
 		String _msg("chain->chain[ array_index_list ] : chain state not CQLIDENTIFIER or CQLCHAINEDIDENTIFIER or CQLVALUE");
-                throw ParseError(_msg);
+		throw CQLSyntaxErrorException(
+                                        MessageLoaderParms(String("CQL.CQL_y.NOT_CHAINID_OR_IDENTIFIER_OR_VALUE"),
+                                                           String("Chain state not a CQLIdentifier or a CQLChainedIdentifier or a CQLValue while parsing rule $0 in position $1."),
+							   String("chain->chain[ array_index_list ]"),
+                                                           globalParserState->currentTokenPos)
+                                                 );
 	    }
         }
 ;
@@ -748,7 +775,12 @@ comp : arith
 	   }else{
 		/* error */
 		String _msg("comp->arith comp_op arith_or_value_symbol : $1 is not simple OR $3 is not simple");
-                throw ParseError(_msg);	 
+		throw CQLSyntaxErrorException(
+                                        MessageLoaderParms(String("CQL.CQL_y.NOT_SIMPLE"),
+                                                           String("The CQLSimplePredicate is not simple while parsing rule $0 in position $1."),
+							   String("comp->arith comp_op arith_or_value_symbol"),
+                                                           globalParserState->currentTokenPos)
+                                                 );
 	   }
        }
      | value_symbol comp_op arith
@@ -763,8 +795,14 @@ comp : arith
            	$$ = new CQLPredicate(_sp);
 	   }else{
 		/* error */
-		String _msg("comp->comp->value_symbol comp_op arith : $3 is not simple");
-                throw ParseError(_msg);
+		String _msg("comp->value_symbol comp_op arith : $3 is not simple");
+		throw CQLSyntaxErrorException(
+                                        MessageLoaderParms(String("CQL.CQL_y.NOT_SIMPLE"),
+                                                           String("The CQLSimplePredicate is not simple while parsing rule $0 in position $1."),
+                                                           String("comp->value_symbol comp_op arith"),
+                                                           globalParserState->currentTokenPos)
+                                                 );
+
 	   }
        }
      | value_symbol comp_op value_symbol
@@ -991,7 +1029,12 @@ selected_entry : expr
 		     }else{
 			/* error */
 			String _msg("selected_entry->expr : $1 is not a simple value");
-                	throw ParseError(_msg);
+		 	throw CQLSyntaxErrorException(
+                                        MessageLoaderParms(String("CQL.CQL_y.NOT_SIMPLE_VALUE"),
+                                                           String("The CQLPredicate is not a simple value while parsing rule $0 in position $1."),
+                                                           String("selected_entry->expr"),
+                                                           globalParserState->currentTokenPos)
+                                                 );	
 		     }
                  }
                | star_expr

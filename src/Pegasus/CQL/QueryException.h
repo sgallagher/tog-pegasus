@@ -67,6 +67,8 @@ class PEGASUS_CQL_LINKAGE CQLRuntimeException : public QueryException
                 static const char KEY[];
                 CQLRuntimeException(const String& msg):
 			QueryException(MessageLoaderParms(KEY,MSG,msg)){}
+		CQLRuntimeException(MessageLoaderParms parms):
+			QueryException(parms){}
 };
 
 class PEGASUS_CQL_LINKAGE CQLValidationException : public QueryException
@@ -76,6 +78,8 @@ class PEGASUS_CQL_LINKAGE CQLValidationException : public QueryException
                 static const char KEY[];
                 CQLValidationException(const String& msg):
 			QueryException(MessageLoaderParms(KEY,MSG,msg)){}
+		CQLValidationException(MessageLoaderParms parms):
+			QueryException(parms){}
 };
 
 class PEGASUS_CQL_LINKAGE CQLSyntaxErrorException : public CQLParseException
@@ -85,6 +89,8 @@ class PEGASUS_CQL_LINKAGE CQLSyntaxErrorException : public CQLParseException
                 static const char KEY[];
                 CQLSyntaxErrorException(const String& msg, Uint32 position):
 			CQLParseException(MessageLoaderParms(KEY,MSG,msg,position)){}
+		CQLSyntaxErrorException(MessageLoaderParms parms):
+                        CQLParseException(parms){}
 };
 
 class PEGASUS_CQL_LINKAGE CQLIdentifierParseException : public CQLParseException
@@ -94,6 +100,8 @@ class PEGASUS_CQL_LINKAGE CQLIdentifierParseException : public CQLParseException
                 static const char KEY[];
                 CQLIdentifierParseException(const String& msg):
 			CQLParseException(MessageLoaderParms(KEY,MSG,msg)){}
+		CQLIdentifierParseException(MessageLoaderParms parms):
+                        CQLParseException(parms){}
 };
 
 class PEGASUS_CQL_LINKAGE CQLChainedIdParseException : public CQLParseException
@@ -103,6 +111,8 @@ class PEGASUS_CQL_LINKAGE CQLChainedIdParseException : public CQLParseException
 		static const char KEY[];
                 CQLChainedIdParseException(const String& msg):
 			CQLParseException(MessageLoaderParms(KEY,MSG,msg)){}
+		CQLChainedIdParseException(MessageLoaderParms parms):
+                        CQLParseException(parms){}
 };
 
 PEGASUS_NAMESPACE_END

@@ -16,7 +16,15 @@ else
 FLAGS = -O2 -W -Wall -Wno-unused
 endif
 
-SYS_LIBS = -ldl -lpthread
+ifdef PEGASUS_CONCURRENT
+FLAGS += -D_REENTRANT
+endif
+
+SYS_LIBS = -ldl
+
+ifdef PEGASUS_CONCURRENT
+SYS_LIBS += -lpthread
+endif
 
 CXX = g++
 

@@ -104,6 +104,7 @@ public:
     */
     virtual void complete(void) = 0;
 
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
     /**
     Set the context for the results delivered to the CIM Server.
     <p>The <tt>setContext</tt> function is used by providers to
@@ -124,6 +125,7 @@ public:
     binary compatibility with previous releases of the CIMServer</p> 
     */
     void setContext(const OperationContext & context);
+#endif  // PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
 protected:
     

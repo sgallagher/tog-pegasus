@@ -40,6 +40,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Array.h>
 
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -181,5 +182,7 @@ private:
 #endif
 
 PEGASUS_NAMESPACE_END
+
+#endif  // PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
 #endif

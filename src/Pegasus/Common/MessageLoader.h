@@ -49,6 +49,8 @@
 #include <unicode/msgfmt.h>
 #endif
 
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+
 PEGASUS_NAMESPACE_BEGIN
 
 /**
@@ -285,7 +287,8 @@ private:
 	
 }; // end MessageLoader
 
-
 PEGASUS_NAMESPACE_END
+
+#endif  // PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
 #endif

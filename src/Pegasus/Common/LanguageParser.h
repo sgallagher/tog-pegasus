@@ -37,6 +37,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Array.h>
 
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -127,5 +128,7 @@ String convertPrivateLanguageTag(String language_tag);
 }; //end LanguageParser
 
 PEGASUS_NAMESPACE_END
+
+#endif  // PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
 #endif

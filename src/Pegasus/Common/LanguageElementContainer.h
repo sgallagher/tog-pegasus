@@ -41,6 +41,8 @@
 #include <Pegasus/Common/LanguageElement.h>
 #include <Pegasus/Common/LanguageParser.h>
 
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+
 PEGASUS_NAMESPACE_BEGIN
 
 //////////////////////////////////////////////////////////////
@@ -181,5 +183,7 @@ private:
 }; // end LanguageElementContainer
 
 PEGASUS_NAMESPACE_END
+
+#endif  // PEGASUS_USE_EXPERIMENTAL_INTERFACE
 
 #endif

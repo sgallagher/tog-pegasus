@@ -336,6 +336,8 @@ class PEGASUS_COMMON_LINKAGE TimeoutContainer : virtual public OperationContext:
 // Start - Containers used for globalization
 /////////////////////////////////////////////////////////////////////////////
 
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+
 class AcceptLanguageListContainerRep;
 
 class PEGASUS_COMMON_LINKAGE AcceptLanguageListContainer
@@ -421,6 +423,8 @@ protected:
    ContentLanguageListContainerRep* _rep;
 
 };
+
+#endif  // PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
 /////////////////////////////////////////////////////////////////////////////
 // End - Containers used for globalization

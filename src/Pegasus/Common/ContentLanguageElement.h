@@ -32,6 +32,8 @@
 
 #include <Pegasus/Common/LanguageElement.h>
 
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+
 PEGASUS_NAMESPACE_BEGIN
 
 //////////////////////////////////////////////////////////////
@@ -94,5 +96,7 @@ public:
 #endif
 
 PEGASUS_NAMESPACE_END
+
+#endif  // PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
 #endif

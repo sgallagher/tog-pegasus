@@ -35,8 +35,9 @@
 #include <Pegasus/Common/LanguageElementContainer.h>
 #include <Pegasus/Common/AcceptLanguageElement.h>
 
-PEGASUS_NAMESPACE_BEGIN
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
+PEGASUS_NAMESPACE_BEGIN
 
 //////////////////////////////////////////////////////////////
 //
@@ -172,7 +173,8 @@ private:
 	       
 }; // end AcceptLanguages
 
-
 PEGASUS_NAMESPACE_END
+
+#endif  // PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
 #endif

@@ -30,6 +30,8 @@
 #define Pegasus_CommonUTF_h
 #include <Pegasus/Common/Config.h>
 
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+
 PEGASUS_NAMESPACE_BEGIN
 
 #define FIRST_HIGH_SURROGATE  (Uint32)0xD800
@@ -92,4 +94,7 @@ int UTF8toUTF16 (const Uint8** srcHead,
 		 Uint16* tgtEnd);
 
 PEGASUS_NAMESPACE_END
+
+#endif  // PEGASUS_USE_EXPERIMENTAL_INTERFACES
+
 #endif

@@ -114,8 +114,12 @@ public:
     String(const Char16* str, Uint32 n);
 
     /// Initialize from a plain old C-String:
-    String(const char* str, const char*);
     String(const char* str);
+
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    /// Initialize from a plain old C-String, allowing UTF-8:
+    String(const char* str, const char* utfFlag);
+#endif
 
     /// Initialize from the first n characters of a plain old C-String:
     String(const char* str, Uint32 n);
@@ -363,11 +367,25 @@ public:
     */
     static Boolean equalNoCase(const String& str1, const String& str2);
 
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
     // UTF8 specific code:
-    String& assignUTF8(const char* str);
-    CString getCStringUTF8() const;
-    static Boolean isUTF8(const char*);
 
+    /** Assign this string with a C string that may contain UTF-8.
+	@param str The C string
+    */
+    String& assignUTF8(const char* str);
+
+    /** Create an 8-bit UTF-8 representation of this String object.
+        @return CString object that provides access to the 8-bit UTF-8 String
+        representation.
+    */
+    CString getCStringUTF8() const;
+
+    /** Tests whether a C string contains valid UTF-8 characters.
+	@param str The C string
+    */
+    static Boolean isUTF8(const char*);
+#endif
 
 private:
 

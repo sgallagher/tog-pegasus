@@ -108,6 +108,7 @@ public:
 		    const Formatter::Arg& arg9 = Formatter::Arg());
 
 // l10n
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
     /** put_l - Puts a localized message to the defined log file
 	@param logFileType - Type of log file (Trace, etc.)
 	@param systemId  - ID of the system generating the log entry within 
@@ -132,7 +133,7 @@ public:
     		LogFileType logFileType,
 		    const String& systemId,
 		    Uint32 logLevel,
-            const String& messageId,		    
+                    const String& messageId,		    
 		    const String& formatString,
 		    const Formatter::Arg& arg0 = Formatter::Arg(),
 		    const Formatter::Arg& arg1 = Formatter::Arg(),
@@ -144,6 +145,7 @@ public:
 		    const Formatter::Arg& arg7 = Formatter::Arg(),
 		    const Formatter::Arg& arg8 = Formatter::Arg(),
 		    const Formatter::Arg& arg9 = Formatter::Arg());
+#endif
 
 
     // _trace - puts a message to the define log.  Should only be used
@@ -166,13 +168,14 @@ public:
 
 
 // l10n
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
     // trace - puts a localized message to the log.  Should only be used
     // for trace type logs  
     static void trace_l(
 		       LogFileType logFileType,
 		       const String& systemId,
 		       const Uint32 logComponent,
-               const String& messageId,		       
+                       const String& messageId,		       
 		       const String& formatString,
 		       const Formatter::Arg& arg0 = Formatter::Arg(),
 		       const Formatter::Arg& arg1 = Formatter::Arg(),
@@ -184,6 +187,7 @@ public:
 		       const Formatter::Arg& arg7 = Formatter::Arg(),
 		       const Formatter::Arg& arg8 = Formatter::Arg(),
 		       const Formatter::Arg& arg9 = Formatter::Arg());
+#endif
 
 
     /** setHomeDirectory
@@ -218,7 +222,7 @@ private:
 		    const Uint32 logComponent,
 		    Uint32 logLevel,
 		    const String& formatString,
-            const String& messageId,  // l10n
+                    const String& messageId,  // l10n
 		    const Formatter::Arg& arg0 = Formatter::Arg(),
 		    const Formatter::Arg& arg1 = Formatter::Arg(),
 		    const Formatter::Arg& arg2 = Formatter::Arg(),

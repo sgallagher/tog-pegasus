@@ -34,6 +34,8 @@
 #include <Pegasus/Common/LanguageElementContainer.h>
 #include <Pegasus/Common/ContentLanguageElement.h>
 
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+
 PEGASUS_NAMESPACE_BEGIN
 
 //////////////////////////////////////////////////////////////
@@ -141,5 +143,7 @@ private:
 }; // end ContentLanguages
 
 PEGASUS_NAMESPACE_END
+
+#endif  // PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
 #endif

@@ -66,7 +66,9 @@ public:
     Exception(const Exception& exception);
 
 // l10n
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
     Exception(const MessageLoaderParms& msgParms);
+#endif
 
     ///
     virtual ~Exception();
@@ -75,9 +77,13 @@ public:
     virtual const String& getMessage() const;
     
 // l10n
-    virtual const ContentLanguages& getContentLanguages() const;
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    // Note: Rlse 2.3 - not virtual to preserve binary compatibility.
+    const ContentLanguages& getContentLanguages() const;
     
-	virtual void setContentLanguages(const ContentLanguages& langs);    
+    // Note: Rlse 2.3 - not virtual to preserve binary compatibility.
+    void setContentLanguages(const ContentLanguages& langs); 
+#endif   
 
 protected:
 
@@ -100,7 +106,9 @@ class PEGASUS_COMMON_LINKAGE AlreadyExistsException : public Exception
 public:
     ///
     AlreadyExistsException(const String& message);
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
     AlreadyExistsException(MessageLoaderParms& msgParms);
+#endif
 };
 
 ///
@@ -109,7 +117,9 @@ class PEGASUS_COMMON_LINKAGE InvalidNameException : public Exception
 public:
     ///
     InvalidNameException(const String& name);
-	InvalidNameException(MessageLoaderParms& msgParms);    
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    InvalidNameException(MessageLoaderParms& msgParms); 
+#endif   
 };
 
 ///
@@ -118,7 +128,9 @@ class PEGASUS_COMMON_LINKAGE InvalidNamespaceNameException : public Exception
 public:
     ///
     InvalidNamespaceNameException(const String& name);
-	InvalidNamespaceNameException(MessageLoaderParms& msgParms);    
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    InvalidNamespaceNameException(MessageLoaderParms& msgParms);
+#endif    
 };
 
 ///
@@ -163,7 +175,9 @@ class PEGASUS_COMMON_LINKAGE MalformedObjectNameException : public Exception
 public:
     ///
     MalformedObjectNameException(const String& objectName);
-	MalformedObjectNameException(MessageLoaderParms& msgParms);    
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    MalformedObjectNameException(MessageLoaderParms& msgParms); 
+#endif   
 };
 
 ///
@@ -172,7 +186,9 @@ class PEGASUS_COMMON_LINKAGE BindFailedException : public Exception
 public:
     ///
     BindFailedException(const String& message);
-	BindFailedException(MessageLoaderParms& msgParms);    
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    BindFailedException(MessageLoaderParms& msgParms);
+#endif    
 };
 
 ///
@@ -181,7 +197,9 @@ class PEGASUS_COMMON_LINKAGE InvalidLocatorException : public Exception
 public:
     ///
     InvalidLocatorException(const String& locator);
-	InvalidLocatorException(MessageLoaderParms& msgParms);   
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    InvalidLocatorException(MessageLoaderParms& msgParms); 
+#endif  
 };
 
 ///
@@ -198,7 +216,9 @@ class PEGASUS_COMMON_LINKAGE CannotConnectException : public Exception
 public:
     ///
     CannotConnectException(const String& message);
-	CannotConnectException(MessageLoaderParms& msgParms);   
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    CannotConnectException(MessageLoaderParms& msgParms); 
+#endif  
 };
 
 ///
@@ -231,7 +251,9 @@ class PEGASUS_COMMON_LINKAGE SSLException: public Exception
 public:
     ///
     SSLException(const String& message);
-	SSLException(MessageLoaderParms& msgParms);    
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    SSLException(MessageLoaderParms& msgParms); 
+#endif   
 };
 
 ///
@@ -240,7 +262,9 @@ class PEGASUS_COMMON_LINKAGE DateTimeOutOfRangeException : public Exception
 public:
     ///
     DateTimeOutOfRangeException(const String& message);
-	DateTimeOutOfRangeException(MessageLoaderParms& msgParms);     
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    DateTimeOutOfRangeException(MessageLoaderParms& msgParms);
+#endif     
 }; 
 
 /** The CIMException defines the CIM exceptions that are formally defined in
@@ -256,9 +280,11 @@ public:
 	const String& message = String::EMPTY);
 	
 // l10n	
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
     CIMException(
 	CIMStatusCode code,
-	const MessageLoaderParms& msgParms);	
+	const MessageLoaderParms& msgParms);
+#endif	
 
     ///
     CIMException(const CIMException & cimException);

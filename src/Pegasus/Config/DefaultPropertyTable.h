@@ -36,6 +36,8 @@
 #include "DefaultPropertyTableLinux.h"
 #elif PEGASUS_PLATFORM_HPUX_ACC
 #include "DefaultPropertyTableHpux.h"
+#elif defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
+#include "DefaultPropertyTableOS400.h"
 #else
     {"httpPort", "5988", 0, 0, 0, 1},
     {"httpsPort", "5989", 0, 0, 0, 1},

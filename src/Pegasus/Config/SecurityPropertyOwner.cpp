@@ -55,12 +55,19 @@ PEGASUS_NAMESPACE_BEGIN
 
 static struct ConfigPropertyRow properties[] =
 {
+#ifdef PEGASUS_OS_OS400
+    {"enableAuthentication", "true", 0, 0, 0, 1},
+#else
     {"enableAuthentication", "false", 0, 0, 0, 1},
+#endif
 #ifdef PEGASUS_OS_HPUX
     {"usePAMAuthentication", "true", 0, 0, 0, 0},
-    {"enableRemotePrivilegedUserAccess", "true", 0, 0, 0, 1},
 #else
     {"usePAMAuthentication", "false", 0, 0, 0, 1},
+#endif
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_OS400)
+    {"enableRemotePrivilegedUserAccess", "true", 0, 0, 0, 1},
+#else
     {"enableRemotePrivilegedUserAccess", "false", 0, 0, 0, 1},
 #endif
 #if defined(PEGASUS_OS_OS400) && defined(PEGASUS_KERBEROS_AUTHENTICATION)
@@ -76,7 +83,11 @@ static struct ConfigPropertyRow properties[] =
 #endif
     {"sslKeyFilePath", "file.pem", 0, 0, 0, 1}, 
     {"sslTrustFilePath", "client.pem", 0, 0, 0, 1}, 
+#ifdef PEGASUS_OS_OS400
+    {"enableNamespaceAuthorization", "true", 0, 0, 0, 1},
+#else
     {"enableNamespaceAuthorization", "false", 0, 0, 0, 1},
+#endif
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
     {"kerberosServiceName", "cimom", 0, 0, 0, 1},
 #endif

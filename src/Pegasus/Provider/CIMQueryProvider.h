@@ -46,28 +46,28 @@ NotSupported exception.
 class PEGASUS_PROVIDER_LINKAGE CIMQueryProvider : public virtual CIMBaseProvider
 {
 public:
-	CIMQueryProvider(void);
-	virtual ~CIMQueryProvider(void);
+    CIMQueryProvider(void);
+    virtual ~CIMQueryProvider(void);
 
-	/**
-	Instructs the provider to execute the specified query.
-	
-	@param contex contains security and locale information relevant for the lifetime
-	of this operation.
-	
-	@param queryLanguage
-	@param query
-	
-	@param handler asynchronusly processes the results of this operation.
-	
-	@exception NotSupported
-	@exception InvalidParameter
-	*/
-	virtual void executeQuery(
-		const OperationContext & context,
-		const String & queryLanguage,
-		const String & query,
-		ResponseHandler<CIMObject> & handler) = 0;
+    /**
+    Instructs the provider to execute the specified query.
+
+    @param contex contains security and locale information relevant for the lifetime
+    of this operation.
+
+    @param queryLanguage
+    @param query
+
+    @param handler asynchronusly processes the results of this operation.
+
+    @exception NotSupported
+    @exception InvalidParameter
+    */
+    virtual void executeQuery(
+	const OperationContext & context,
+	const String & queryLanguage,
+	const String & query,
+	ResponseHandler<CIMObject> & handler) = 0;
 };
 
 PEGASUS_NAMESPACE_END

@@ -47,106 +47,106 @@ NotSupported exception.
 class PEGASUS_PROVIDER_LINKAGE CIMAssociationProvider : public virtual CIMBaseProvider
 {
 public:
-	CIMAssociationProvider(void);
-	virtual ~CIMAssociationProvider(void);
+    CIMAssociationProvider(void);
+    virtual ~CIMAssociationProvider(void);
 
-	/**
-	
-	@param contex contains security and locale information relevant for the lifetime
-	of this operation.
+    /**
 
-	@param objectName
-	@param associationClass
-	@param resultClass
-	@param role
-	@param resultRole
-	@param flags
-	@param propertyList
-	
-	@param handler asynchronusly processes the results of this operation.
-	
-	@exception NotSupported
-	@exception InvalidParameter
-	*/
-	virtual void associators(
-		const OperationContext & context,
-		const CIMReference & objectName,
-		const String & associationClass,
-		const String & resultClass,
-		const String & role,
-		const String & resultRole,
-		const Uint32 flags,
-		const Array<String> & propertyList,
-		ResponseHandler<CIMObject> & handler) = 0;
+    @param contex contains security and locale information relevant for the lifetime
+    of this operation.
 
-	/**
-	@param contex contains security and locale information relevant for the lifetime
-	of this operation.
-	
-	@param objectName
-	@param associationClass
-	@param resultClass
-	@param role
-	@param resultRole
-	
-	@param handler asynchronusly processes the results of this operation.
-	
-	@exception NotSupported
-	@exception InvalidParameter
-	*/
-	virtual void associatorNames(
-		const OperationContext & context,
-		const CIMReference & objectName,
-		const String & associationClass,
-		const String & resultClass,
-		const String & role,
-		const String & resultRole,
-		ResponseHandler<CIMReference> & handler) = 0;
+    @param objectName
+    @param associationClass
+    @param resultClass
+    @param role
+    @param resultRole
+    @param flags
+    @param propertyList
 
-	/**
-	@param contex contains security and locale information relevant for the lifetime
-	of this operation.
-	
-	@param objectName
-	@param resultClass
-	@param role
-	@param resultRole
-	@param flags
-	@param propertyList
-	
-	@param handler asynchronusly processes the results of this operation.
-	
-	@exception NotSupported
-	@exception InvalidParameter
-	*/
-	virtual void references(
-		const OperationContext & context,
-		const CIMReference & objectName,
-		const String & resultClass,
-		const String & role,
-		const Uint32 flags,
-		const Array<String> & propertyList,
-		ResponseHandler<CIMObject> & handler) = 0;
+    @param handler asynchronusly processes the results of this operation.
 
-	/**
-	@param contex contains security and locale information relevant for the lifetime
-	of this operation.
-	
-	@param objectName
-	@param resultClass
-	@param role
-	
-	@param handler asynchronusly processes the results of this operation.
-	
-	@exception NotSupported
-	@exception InvalidParameter
-	*/
-	virtual void referenceNames(
-		const OperationContext & context,
-		const CIMReference & objectName,
-		const String & resultClass,
-		const String & role,
-		ResponseHandler<CIMReference> & handler) = 0;
+    @exception NotSupported
+    @exception InvalidParameter
+    */
+    virtual void associators(
+	const OperationContext & context,
+	const CIMReference & objectName,
+	const String & associationClass,
+	const String & resultClass,
+	const String & role,
+	const String & resultRole,
+	const Uint32 flags,
+	const Array<String> & propertyList,
+	ResponseHandler<CIMObject> & handler) = 0;
+
+    /**
+    @param contex contains security and locale information relevant for the lifetime
+    of this operation.
+
+    @param objectName
+    @param associationClass
+    @param resultClass
+    @param role
+    @param resultRole
+
+    @param handler asynchronusly processes the results of this operation.
+
+    @exception NotSupported
+    @exception InvalidParameter
+    */
+    virtual void associatorNames(
+	const OperationContext & context,
+	const CIMReference & objectName,
+	const String & associationClass,
+	const String & resultClass,
+	const String & role,
+	const String & resultRole,
+	ResponseHandler<CIMReference> & handler) = 0;
+
+    /**
+    @param contex contains security and locale information relevant for the lifetime
+    of this operation.
+
+    @param objectName
+    @param resultClass
+    @param role
+    @param resultRole
+    @param flags
+    @param propertyList
+
+    @param handler asynchronusly processes the results of this operation.
+
+    @exception NotSupported
+    @exception InvalidParameter
+    */
+    virtual void references(
+	const OperationContext & context,
+	const CIMReference & objectName,
+	const String & resultClass,
+	const String & role,
+	const Uint32 flags,
+	const Array<String> & propertyList,
+	ResponseHandler<CIMObject> & handler) = 0;
+
+    /**
+    @param contex contains security and locale information relevant for the lifetime
+    of this operation.
+
+    @param objectName
+    @param resultClass
+    @param role
+
+    @param handler asynchronusly processes the results of this operation.
+
+    @exception NotSupported
+    @exception InvalidParameter
+    */
+    virtual void referenceNames(
+	const OperationContext & context,
+	const CIMReference & objectName,
+	const String & resultClass,
+	const String & role,
+	ResponseHandler<CIMReference> & handler) = 0;
 };
 
 PEGASUS_NAMESPACE_END

@@ -42,35 +42,35 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_PROVIDER_LINKAGE CIMBaseProvider
 {
 public:
-	CIMBaseProvider(void);
-	virtual ~CIMBaseProvider(void);
+    CIMBaseProvider(void);
+    virtual ~CIMBaseProvider(void);
 
-	/**
-	The <TT>initialize</TT> method allows the provider to conduct the
-	necessary preparations to handle requests or generate indications.
-	It is called only once during the lifetime of the provider. This
-	method must complete before the CIMOM invokes any other method of
-	the provider, other than terminate.
+    /**
+    The <TT>initialize</TT> method allows the provider to conduct the
+    necessary preparations to handle requests or generate indications.
+    It is called only once during the lifetime of the provider. This
+    method must complete before the CIMOM invokes any other method of
+    the provider, other than terminate.
 
-	@param cimom represents an indirect handle to the local CIMOM. The
-	provider should save a copy of the handle and use it to communicate
-	with the CIMOM. This is useful when the provider requires information
-	managed in the repository or other providers. The provider may use
-	the handle immediately.
+    @param cimom represents an indirect handle to the local CIMOM. The
+    provider should save a copy of the handle and use it to communicate
+    with the CIMOM. This is useful when the provider requires information
+    managed in the repository or other providers. The provider may use
+    the handle immediately.
 
-	@exception None
-	*/
-	virtual void initialize(CIMOMHandle & cimom) = 0;
+    @exception None
+    */
+    virtual void initialize(CIMOMHandle & cimom) = 0;
 
-	/**
-	The <TT>terminate</TT> method allows the provider to conduct the
-	necessary preparations to prepare for unloading. This method may be called
-	at any time, including initialization. Once invoked, no other provider
-	methods are invoked without a call to initialize();
+    /**
+    The <TT>terminate</TT> method allows the provider to conduct the
+    necessary preparations to prepare for unloading. This method may be called
+    at any time, including initialization. Once invoked, no other provider
+    methods are invoked without a call to initialize();
 
-	@exception None
-	*/
-	virtual void terminate(void) = 0;
+    @exception None
+    */
+    virtual void terminate(void) = 0;
 
 };
 

@@ -45,30 +45,32 @@ implementation simply throw the NotSupported exception.
 class PEGASUS_PROVIDER_LINKAGE CIMIndicationConsumer : public virtual CIMBaseProvider
 {
 public:
-	CIMIndicationConsumer(void);
-	virtual ~CIMIndicationConsumer(void);
+    CIMIndicationConsumer(void);
+    virtual ~CIMIndicationConsumer(void);
 
-	/**
-	@param contex contains security and locale information relevant for the lifetime
-	of this operation.
-	
-	@param indication
-	
-	@param handler asynchronusly processes the results of this operation.
-	
-	@exception NotSupported
-	@exception InvalidParameter
-	*/
-	virtual void handleIndication(
-	    const OperationContext & context,
-	    const CIMInstance & indication,
-		ResponseHandler<CIMInstance> & handler) = 0;
+    /**
+    @param contex contains security and locale information relevant for the lifetime
+    of this operation.
 
-	// ATTN: The following method is only for testing purposes.
-	virtual void handleIndication(
-		const OperationContext & context,
-		const String & url,
-		const CIMInstance& indicationInstance) { }
+    @param indication
+
+    @param handler asynchronusly processes the results of this operation.
+
+    @exception NotSupported
+    @exception InvalidParameter
+    */
+    virtual void handleIndication(
+	const OperationContext & context,
+	const CIMInstance & indication,
+	ResponseHandler<CIMInstance> & handler) = 0;
+
+    // ATTN: The following method is only for testing purposes.
+    virtual void handleIndication(
+	const OperationContext & context,
+	const String & url,
+	const CIMInstance& indicationInstance)
+    {
+    }
 };
 
 PEGASUS_NAMESPACE_END

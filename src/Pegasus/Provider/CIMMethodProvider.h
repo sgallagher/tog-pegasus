@@ -48,40 +48,40 @@ NotSupported exception.
 class PEGASUS_PROVIDER_LINKAGE CIMMethodProvider : public virtual CIMBaseProvider
 {
 public:
-	CIMMethodProvider(void);
-	virtual ~CIMMethodProvider(void);
+    CIMMethodProvider(void);
+    virtual ~CIMMethodProvider(void);
 
-	/**
-	Instructs the provider to invoke method specified in the methodName parameter of the object
-	specified in the objectReference parameter.
-	
-	@param contex contains security and locale information relevant for the lifetime
-	of this operation.
-	
-	@param objectReference specifies the fully qualified object path of the class or
-	instance of interest.
-	
-	@param methodName specifies the name of the method of interest.
-	
-	@param inParameters specifies the input parameters of the method.
-	
-	@param outParameters specified the output parameter of the method.
+    /**
+    Instructs the provider to invoke method specified in the methodName parameter of the object
+    specified in the objectReference parameter.
 
-	@param handler asynchronusly processes the results of this operation.
-	
-	@exception NotSupported
-	@exception InvalidParameter
-	@exception ObjectNotFound
-	@exception AccessDenied
-	@exception OperationFailed
-	*/
-	virtual void invokeMethod(
-		const OperationContext & context,
-		const CIMReference & objectReference,
-		const String & methodName,
-		const Array<CIMParamValue> & inParameters,
-		Array<CIMParamValue> & outParameters,
-		ResponseHandler<CIMValue> & handler) = 0;
+    @param contex contains security and locale information relevant for the lifetime
+    of this operation.
+
+    @param objectReference specifies the fully qualified object path of the class or
+    instance of interest.
+
+    @param methodName specifies the name of the method of interest.
+
+    @param inParameters specifies the input parameters of the method.
+
+    @param outParameters specified the output parameter of the method.
+
+    @param handler asynchronusly processes the results of this operation.
+
+    @exception NotSupported
+    @exception InvalidParameter
+    @exception ObjectNotFound
+    @exception AccessDenied
+    @exception OperationFailed
+    */
+    virtual void invokeMethod(
+	const OperationContext & context,
+	const CIMReference & objectReference,
+	const String & methodName,
+	const Array<CIMParamValue> & inParameters,
+	Array<CIMParamValue> & outParameters,
+	ResponseHandler<CIMValue> & handler) = 0;
 
 };
 

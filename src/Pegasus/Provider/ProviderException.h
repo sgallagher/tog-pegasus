@@ -37,61 +37,81 @@ PEGASUS_NAMESPACE_BEGIN
 class OperationFailure : public CIMException
 {
 public:
-	OperationFailure(const Uint32 code, const String & message) : CIMException(CIM_ERR_FAILED, "", 0, message) { }
+    OperationFailure(const Uint32 code, const String & message) : CIMException(CIM_ERR_FAILED, "", 0, message)
+    {
+    }
 };
 
 class NotSupported : public OperationFailure
 {
 public:
-	NotSupported(const String & message) : OperationFailure(CIM_ERR_NOT_SUPPORTED, message) { }
+    NotSupported(const String & message) : OperationFailure(CIM_ERR_NOT_SUPPORTED, message)
+    {
+    }
 };
 
 class AccessDenied : public OperationFailure
 {
 public:
-	AccessDenied(const String & message) : OperationFailure(CIM_ERR_ACCESS_DENIED, message) { }
+    AccessDenied(const String & message) : OperationFailure(CIM_ERR_ACCESS_DENIED, message)
+    {
+    }
 };
 
 class InvalidParameter : public OperationFailure
 {
 public:
-	InvalidParameter(const String & message) : OperationFailure(CIM_ERR_INVALID_PARAMETER,  message) { }
+    InvalidParameter(const String & message) : OperationFailure(CIM_ERR_INVALID_PARAMETER,  message)
+    {
+    }
 };
 
 class InvalidClass : public OperationFailure
 {
 public:
-	InvalidClass(const String & message) : OperationFailure(CIM_ERR_INVALID_CLASS,  message) { }
+    InvalidClass(const String & message) : OperationFailure(CIM_ERR_INVALID_CLASS,  message)
+    {
+    }
 };
 
 class InvalidQuery : public OperationFailure
 {
 public:
-	InvalidQuery(const String & message) : OperationFailure(CIM_ERR_INVALID_QUERY, message) { }
+    InvalidQuery(const String & message) : OperationFailure(CIM_ERR_INVALID_QUERY, message)
+    {
+    }
 };
 
 class ObjectAlreadyExists : public OperationFailure
 {
 public:
-	ObjectAlreadyExists(const String & message) : OperationFailure(CIM_ERR_ALREADY_EXISTS, message) { }
+    ObjectAlreadyExists(const String & message) : OperationFailure(CIM_ERR_ALREADY_EXISTS, message)
+    {
+    }
 };
 
 class ObjectNotFound : public OperationFailure
 {
 public:
-	ObjectNotFound(const String & message) : OperationFailure(CIM_ERR_NOT_FOUND, message) { }
+    ObjectNotFound(const String & message) : OperationFailure(CIM_ERR_NOT_FOUND, message)
+    {
+    }
 };
 
 class MethodNotFound : public OperationFailure
 {
 public:
-	MethodNotFound(const String & message) : OperationFailure(CIM_ERR_METHOD_NOT_FOUND, message) { }
+    MethodNotFound(const String & message) : OperationFailure(CIM_ERR_METHOD_NOT_FOUND, message)
+    {
+    }
 };
 
 class PropertyNotFound : public OperationFailure
 {
 public:
-	PropertyNotFound(const String & message) : OperationFailure(CIM_ERR_NO_SUCH_PROPERTY, message) { }
+    PropertyNotFound(const String & message) : OperationFailure(CIM_ERR_NO_SUCH_PROPERTY, message)
+    {
+    }
 };
 
 PEGASUS_NAMESPACE_END

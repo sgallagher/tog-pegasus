@@ -47,116 +47,116 @@ NotSupported exception.
 class PEGASUS_PROVIDER_LINKAGE CIMClassProvider : public virtual CIMBaseProvider
 {
 public:
-	CIMClassProvider(void);
-	virtual ~CIMClassProvider(void);
+    CIMClassProvider(void);
+    virtual ~CIMClassProvider(void);
 
-	/**
-	
-	@param contex contains security and locale information relevant for the lifetime
-	of this operation.
-	
-	@param classReference
-	@param flags
-	@param propertyList
+    /**
 
-	@param handler asynchronusly processes the results of this operation.
-	
-	@exception NotSupported
-	@exception InvalidParameter
-	*/
-	virtual void getClass(
-		const OperationContext & context,
-		const CIMReference & classReference,
-		const Uint32 flags,
-		const Array<String> & propertyList,
-		ResponseHandler<CIMClass> & handler) = 0;
+    @param contex contains security and locale information relevant for the lifetime
+    of this operation.
 
-	/**
-	@param contex contains security and locale information relevant for the lifetime
-	of this operation.
-	
-	@param classReference
-	@param flags
-	
-	@param handler asynchronusly processes the results of this operation.
-	
-	@exception NotSupported
-	@exception InvalidParameter
-	*/
-	virtual void enumerateClasses(
-		const OperationContext & context,
-		const CIMReference & classReference,
-		const Uint32 flags,
-		ResponseHandler<CIMClass> & handler) = 0;
+    @param classReference
+    @param flags
+    @param propertyList
 
-	/**
-	@param contex contains security and locale information relevant for the lifetime
-	of this operation.
-	
-	@param classReference
-	@param flags
-	
-	@param handler asynchronusly processes the results of this operation.
-	
-	@exception NotSupported
-	@exception InvalidParameter
-	*/
-	virtual void enumerateClassNames(
-		const OperationContext & context,
-		const CIMReference & classReference,
-		const Uint32 flags,
-		ResponseHandler<CIMReference> & handler) = 0;
+    @param handler asynchronusly processes the results of this operation.
 
-	/**
-	@param contex contains security and locale information relevant for the lifetime
-	of this operation.
-	
-	@param classReference
-	@param classObject
-	
-	@param handler asynchronusly processes the results of this operation.
-	
-	@exception NotSupported
-	@exception InvalidParameter
-	*/
-	virtual void modifyClass(
-		const OperationContext & context,
-		const CIMReference & classReference,
-		const CIMClass & classObject,
-		ResponseHandler<CIMClass> & handler) = 0;
+    @exception NotSupported
+    @exception InvalidParameter
+    */
+    virtual void getClass(
+	const OperationContext & context,
+	const CIMReference & classReference,
+	const Uint32 flags,
+	const Array<String> & propertyList,
+	ResponseHandler<CIMClass> & handler) = 0;
 
-	/**
-	@param contex contains security and locale information relevant for the lifetime
-	of this operation.
-	
-	@param classReference
-	@param classObject
-	
-	@param handler asynchronusly processes the results of this operation.
-	
-	@exception NotSupported
-	@exception InvalidParameter
-	*/
-	virtual void createClass(
-		const OperationContext & context,
-		const CIMReference & classReference,
-		const CIMClass & classObject,
-		ResponseHandler<CIMClass> & handler) = 0;
+    /**
+    @param contex contains security and locale information relevant for the lifetime
+    of this operation.
 
-	/**
-	@param contex contains security and locale information relevant for the lifetime
-	of this operation.
-	
-	@param classReference
-	@param handler
-	
-	@exception NotImplemented
-	@exception InvalidArgument
-	*/
-	virtual void deleteClass(
-		const OperationContext & context,
-		const CIMReference & classReference,
-		ResponseHandler<CIMClass> & handler) = 0;
+    @param classReference
+    @param flags
+
+    @param handler asynchronusly processes the results of this operation.
+
+    @exception NotSupported
+    @exception InvalidParameter
+    */
+    virtual void enumerateClasses(
+	const OperationContext & context,
+	const CIMReference & classReference,
+	const Uint32 flags,
+	ResponseHandler<CIMClass> & handler) = 0;
+
+    /**
+    @param contex contains security and locale information relevant for the lifetime
+    of this operation.
+
+    @param classReference
+    @param flags
+
+    @param handler asynchronusly processes the results of this operation.
+
+    @exception NotSupported
+    @exception InvalidParameter
+    */
+    virtual void enumerateClassNames(
+	const OperationContext & context,
+	const CIMReference & classReference,
+	const Uint32 flags,
+	ResponseHandler<CIMReference> & handler) = 0;
+
+    /**
+    @param contex contains security and locale information relevant for the lifetime
+    of this operation.
+
+    @param classReference
+    @param classObject
+
+    @param handler asynchronusly processes the results of this operation.
+
+    @exception NotSupported
+    @exception InvalidParameter
+    */
+    virtual void modifyClass(
+	const OperationContext & context,
+	const CIMReference & classReference,
+	const CIMClass & classObject,
+	ResponseHandler<CIMClass> & handler) = 0;
+
+    /**
+    @param contex contains security and locale information relevant for the lifetime
+    of this operation.
+
+    @param classReference
+    @param classObject
+
+    @param handler asynchronusly processes the results of this operation.
+
+    @exception NotSupported
+    @exception InvalidParameter
+    */
+    virtual void createClass(
+	const OperationContext & context,
+	const CIMReference & classReference,
+	const CIMClass & classObject,
+	ResponseHandler<CIMClass> & handler) = 0;
+
+    /**
+    @param contex contains security and locale information relevant for the lifetime
+    of this operation.
+
+    @param classReference
+    @param handler
+
+    @exception NotImplemented
+    @exception InvalidArgument
+    */
+    virtual void deleteClass(
+	const OperationContext & context,
+	const CIMReference & classReference,
+	ResponseHandler<CIMClass> & handler) = 0;
 };
 
 PEGASUS_NAMESPACE_END

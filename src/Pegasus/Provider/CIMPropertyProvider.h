@@ -46,59 +46,59 @@ NotSupported exception.
 class PEGASUS_PROVIDER_LINKAGE CIMPropertyProvider : public virtual CIMBaseProvider
 {
 public:
-	CIMPropertyProvider(void);
-	virtual ~CIMPropertyProvider(void);
+    CIMPropertyProvider(void);
+    virtual ~CIMPropertyProvider(void);
 
-	/**
-	Instructs the provider to get the value specified by the propertyName parameter of the
-	instance specified by the instanceReference parameter.
-		
-	@param contex contains security and locale information relevant for the lifetime
-	of this operation.
+    /**
+    Instructs the provider to get the value specified by the propertyName parameter of the
+    instance specified by the instanceReference parameter.
 	
-	@param instanceReference specifies the fully qualified object path of the instance of interest.
-	
-	@param propertyName specifies the name of the property of interest.
+    @param contex contains security and locale information relevant for the lifetime
+    of this operation.
 
-	@param handler asynchronusly processes the results of this operation.
-	
-	@exception NotSupported
-	@exception InvalidParameter
-	@exception ObjectNotFound
-	@exception AccessDenied
-	@exception OperationFailed
-	*/
-	virtual void getProperty(
-		const OperationContext & context,
-		const CIMReference & instanceReference,
-		const String & propertyName,
-		ResponseHandler<CIMValue> & handler) = 0;
+    @param instanceReference specifies the fully qualified object path of the instance of interest.
 
-	/**
-	Instructs the provider to set the value specified by the propertyName parameter of the
-	instance specified by the instanceReference parameter.
+    @param propertyName specifies the name of the property of interest.
 
-	@param contex contains security and locale information relevant for the lifetime
-	of this operation.
-	
-	@param instanceReference specifies the fully qualified object path of the instance of interest.
+    @param handler asynchronusly processes the results of this operation.
 
-	@param propertyName specifies the name of the property of interest.
-	
-	@param handler asynchronusly processes the results of this operation.
-	
-	@exception NotSupported
-	@exception InvalidParameter
-	@exception ObjectNotFound
-	@exception AccessDenied
-	@exception OperationFailed
-	*/
-	virtual void setProperty(
-		const OperationContext & context,
-		const CIMReference & instanceReference,
-		const String & propertyName,
-		const CIMValue & newValue,
-		ResponseHandler<CIMValue> & handler) = 0;
+    @exception NotSupported
+    @exception InvalidParameter
+    @exception ObjectNotFound
+    @exception AccessDenied
+    @exception OperationFailed
+    */
+    virtual void getProperty(
+	const OperationContext & context,
+	const CIMReference & instanceReference,
+	const String & propertyName,
+	ResponseHandler<CIMValue> & handler) = 0;
+
+    /**
+    Instructs the provider to set the value specified by the propertyName parameter of the
+    instance specified by the instanceReference parameter.
+
+    @param contex contains security and locale information relevant for the lifetime
+    of this operation.
+
+    @param instanceReference specifies the fully qualified object path of the instance of interest.
+
+    @param propertyName specifies the name of the property of interest.
+
+    @param handler asynchronusly processes the results of this operation.
+
+    @exception NotSupported
+    @exception InvalidParameter
+    @exception ObjectNotFound
+    @exception AccessDenied
+    @exception OperationFailed
+    */
+    virtual void setProperty(
+	const OperationContext & context,
+	const CIMReference & instanceReference,
+	const String & propertyName,
+	const CIMValue & newValue,
+	ResponseHandler<CIMValue> & handler) = 0;
 
 };
 

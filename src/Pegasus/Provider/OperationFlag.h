@@ -33,27 +33,26 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-
 /** ATTN:
 */
 class PEGASUS_PROVIDER_LINKAGE OperationFlag
 {
 public:
-	static const Uint32 NONE;
-	static const Uint32 LOCAL_ONLY;
-	static const Uint32 INCLUDE_QUALIFIERS;
-	static const Uint32 INCLUDE_CLASS_ORIGIN;
-	static const Uint32 DEEP_INHERITANCE;
-	static const Uint32 PARTIAL_INSTANCE;
-	static const Uint32 REMOTE_ONLY;
+    static const Uint32 NONE;
+    static const Uint32 LOCAL_ONLY;
+    static const Uint32 INCLUDE_QUALIFIERS;
+    static const Uint32 INCLUDE_CLASS_ORIGIN;
+    static const Uint32 DEEP_INHERITANCE;
+    static const Uint32 PARTIAL_INSTANCE;
+    static const Uint32 REMOTE_ONLY;
 
-	static Uint32 convert(
-		const Boolean localOnly,
-		const Boolean includeQualifiers = false,
-		const Boolean includeClassOrigin = false,
-		const Boolean deepInheritance = false,
-		const Boolean partialInstance = false,
-		const Boolean remoteOnly = false);
+    static Uint32 convert(
+	const Boolean localOnly,
+	const Boolean includeQualifiers = false,
+	const Boolean includeClassOrigin = false,
+	const Boolean deepInheritance = false,
+	const Boolean partialInstance = false,
+	const Boolean remoteOnly = false);
 
 };
 
@@ -68,4 +67,3 @@ public:
 PEGASUS_NAMESPACE_END
 
 #endif
-	

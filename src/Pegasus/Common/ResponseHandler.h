@@ -32,7 +32,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Array.h>
-#include <Pegasus/Provider/Linkage.h>
+#include <Pegasus/Common/Linkage.h>
 
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/CIMObjectPath.h>

@@ -25,6 +25,7 @@
 // Modified By: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -41,7 +42,7 @@
 #include <Pegasus/Common/DeclContext.h>
 #include <Pegasus/Common/DeclContext.h>
 #include <Pegasus/Common/System.h>
-#include "CIMRepository.h"
+#include <Pegasus/Repository/CIMRepository.h>
 #include "RepositoryDeclContext.h"
 #include "InstanceIndexFile.h"
 #include "InstanceFile.h"
@@ -151,7 +152,8 @@ static String _MakeAssocClassPath(
 ////////////////////////////////////////////////////////////////////////////////
 
 CIMRepository::CIMRepository(const String& repositoryRoot)
-    : _repositoryRoot(repositoryRoot), _nameSpaceManager(repositoryRoot)
+   : _repositoryRoot(repositoryRoot), _nameSpaceManager(repositoryRoot),
+     _lock()
 {
     _context = new RepositoryDeclContext(this);
     _isDefaultInstanceProvider = (ConfigManager::getInstance()->getCurrentValue(
@@ -163,6 +165,27 @@ CIMRepository::CIMRepository(const String& repositoryRoot)
 CIMRepository::~CIMRepository()
 {
     delete _context;
+}
+
+
+void CIMRepository::read_lock(void) throw(IPCException)
+{
+   _lock.wait_read(pegasus_thread_self());
+}
+
+void CIMRepository::read_unlock(void)
+{
+   _lock.unlock_read(pegasus_thread_self());
+}
+
+void CIMRepository::write_lock(void) throw(IPCException)
+{
+   _lock.wait_write(pegasus_thread_self());
+}
+
+void CIMRepository::write_unlock(void)
+{
+   _lock.unlock_write(pegasus_thread_self());
 }
 
 CIMClass CIMRepository::getClass(

@@ -27,7 +27,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "RepositoryDeclContext.h"
-#include "CIMRepository.h"
+#include <Pegasus/Repository/CIMRepository.h>
 
 PEGASUS_USING_STD;
 

@@ -1,6 +1,6 @@
-ROOT = ../../..
+ROOT = ../../../..
 
-DIR = Pegasus/Repository
+DIR = Pegasus/Repositories/genericfile
 
 include $(ROOT)/mak/config.mak
 

@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -55,7 +55,7 @@ PEGASUS_USING_STD;
    Checks the specified value against the expected value and
    returns TRUE if valid, else FALSE.
  */
-Boolean OSTestClient::goodCSCreationClassName(const String &cs_ccn, 
+Boolean OSTestClient::goodCSCreationClassName(const String &cs_ccn,
                                               Boolean verbose)
 {
    // This assumes the only right answer is CIM_UnitaryComputerSystem
@@ -75,11 +75,11 @@ Boolean OSTestClient::goodCSCreationClassName(const String &cs_ccn,
 Boolean OSTestClient::goodCSName(const String &csname, Boolean verbose)
 {
    if (verbose)
-      cout<<"Checking " <<csname<< "against hostname " <<endl;
+      cout<<"Checking " <<csname<< " against hostname " <<endl;
    cout<<"- No check written for CSName " <<endl;
 
    // always returns success; replace with appropriate OS/Provider code
-   return true; 
+   return true;
 }
 
 /*
@@ -88,7 +88,7 @@ Boolean OSTestClient::goodCSName(const String &csname, Boolean verbose)
    Checks the specified value against the expected value and
    returns TRUE if the same, else FALSE
  */
-Boolean OSTestClient::goodCreationClassName(const String &ccn, 
+Boolean OSTestClient::goodCreationClassName(const String &ccn,
                                             Boolean verbose)
 {
    // This assumes the only right answer is CIM_OperatingSystem
@@ -109,9 +109,9 @@ Boolean OSTestClient::goodCreationClassName(const String &ccn,
 Boolean OSTestClient::goodName(const String &name, Boolean verbose)
 {
    if (verbose)
-      cout<<"Checking " << name << "against OS name "<<endl;
+      cout<<"Checking " << name << " against OS name "<<endl;
    cout<<"- No check written for Name " <<endl;
-   
+
    // always returns success; replace with appropriate OS/Provider code
    return true;
 
@@ -140,7 +140,7 @@ Boolean OSTestClient::goodCaption(const String &cap,
 Boolean OSTestClient::goodDescription(const String &desc,
                                       Boolean verbose)
 {
-   // has check against standard description 
+   // has check against standard description
    if (verbose)
       cout<<"Checking Description " << desc << endl;
    return (String::equalNoCase(desc,
@@ -159,7 +159,7 @@ Boolean OSTestClient::goodInstallDate(const CIMDateTime &idate,
                                       Boolean verbose)
 {
    if (verbose)
-      cout<<"Checking InstallDate " << idate.toString() << endl;    
+      cout<<"Checking InstallDate " << idate.toString() << endl;
    cout<<"- No check written for InstallDate " << endl;
    return true;
 }
@@ -199,7 +199,7 @@ Boolean OSTestClient::goodOtherTypeDescription(const String &otdesc,
    if (verbose)
       cout<<"Checking OtherTypeDescription " << otdesc << endl;
    return true;
-}  
+}
 
 Boolean OSTestClient::goodVersion(const String &version, Boolean verbose)
 {
@@ -238,7 +238,7 @@ Boolean OSTestClient::goodCurrentTimeZone(const Sint16 &tz, Boolean verbose)
 Boolean OSTestClient::goodNumberOfLicensedUsers(const Uint32 &nlusers,
                                                 Boolean verbose)
 {
-   if (verbose)  
+   if (verbose)
       cout<<"Checking NumberOfLicensedUsers " << nlusers << endl;
    cout<<"- No check written for NumberOfLicensedUsers " << endl;
    return true;
@@ -282,7 +282,7 @@ Boolean OSTestClient::goodTotalSwapSpaceSize(const Uint64 &totalswap,
 
 Boolean OSTestClient::goodTotalVirtualMemorySize(const Uint64 &totalvmem,
                                                  Boolean verbose)
-   
+
 {
    if (verbose)
       cout<<"Checking TotalVirtualMemorySize "  << endl;
@@ -376,5 +376,5 @@ Boolean OSTestClient::goodSystemUpTime(const Uint64 &uptime, Boolean verbose)
       cout<<"Checking SystemUpTime " << endl;
    cout<<"- No check written for SystemUpTime " << endl;
    return true;
-}           
+}
 

@@ -969,6 +969,10 @@ int main(int argc, char ** argv)
             cout << "IGNORING line " << lineNum << endl;
         }
       }
+		// while !eof behaves differently on HP-UX, seems like it takes an extra iteration to hit eof, this leaves "text" with
+		// the previous value from getline(..), which causes a duplicate parse of the last select statement in the query file, 
+		// FIX: we clear text before doing another getline(..)
+		text[0] = 0;
     } // end-while
     queryInputSource.close();
     if (statementsInError)

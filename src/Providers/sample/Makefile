@@ -8,6 +8,7 @@ DIRS = \
 	ProcessIndicationProvider \
 	AlertIndicationProvider \
 	RT_Indication \
-	FamilyProvider
+	FamilyProvider \
+	LocalizedProvider
 
 include $(PEGASUS_ROOT)/mak/recurse.mak

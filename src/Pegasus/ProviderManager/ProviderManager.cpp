@@ -116,12 +116,14 @@ Sint32 ProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
 	 }
 	 catch(...)
 	 {
-	    CIMNullProvider *dummy = new CIMNullProvider();
-	    if(dummy == 0)
-	    {
-	       throw NullPointer();
-	    }
-	    base = static_cast<CIMProvider *>(dummy);
+	    throw;
+	    
+// 	    CIMNullProvider *dummy = new CIMNullProvider();
+// 	    if(dummy == 0)
+// 	    {
+// 	       throw NullPointer();
+// 	    }
+// 	    base = static_cast<CIMProvider *>(dummy);
 	 }
 	 
 	 // create provider module
@@ -379,6 +381,7 @@ Sint32 ProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
 
 	 ProviderManager *myself = reinterpret_cast<ProviderManager *>(parm);
 	 Provider * provider;
+	 PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, "providers loaded: " + myself->_providers.size());
 	 if(myself->_providers.size())
 	 {
 	    try
@@ -415,28 +418,56 @@ Sint32 ProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
 				   provider->getName());
 		  struct timeval timeout = {0,0};
 		  provider->get_idle_timer(&timeout);
+		  PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+				   " provider->unload_ok() returns: " + 
+				   provider->unload_ok() ? "true" : "false" );
+
 		  if(provider->unload_ok() == true && 
 		     ( now.tv_sec - timeout.tv_sec) > ((Sint32)myself->_idle_timeout))
 		  {
-		     Boolean provider_removed = false;
-		     Boolean module_removed = false;
 		     
+		     PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+				      "Trying to Terminate Provider " + provider->getName());
+
+
+		     try 
+		     {
+			if(false == provider->tryTerminate())
+			{
+			   PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+					    "Provider Refused Termination " + provider->getName());
+			   
+			   continue;
+			}
+			else 
+			{
+			   PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+					    "Provider terminated: " +  provider->getName());
+			   Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+				       "ProviderManager::_provider_crtl -  Unload idle provider $0",
+				       provider->getName());
+
+			}
+		     }
+		     catch(...)
+		     {
+			PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+					 "Exception terminating " + 
+					 provider->getName());
+			i = myself->_providers.start();
+			continue;
+		     }
 
 		     PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 				      "Removing Provider " + provider->getName());
 
-	             Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-	                   	     "ProviderManager::_provider_crtl -  Unload idle provider $0",
-	       		              provider->getName());
-
 		     myself->_providers.remove(provider->_name);
-		     provider_removed = true;
-		     
+		  
+		     // Important = reset iterator to beginning of list. quantum value assures we do 
+                     // not inspect providers more than once even though we traverse them. 
 		     i = myself->_providers.start();
-
 		     PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 				      provider->_name + " Removed, looking at Module" );
-
 		     if(provider->_module != 0 )
 		     {
 			PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
@@ -445,49 +476,12 @@ Sint32 ProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
 			{
 			   PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 					    "Removing Module " + provider->_module->_fileName);
-
 			   _modules.remove(provider->_module->_fileName);
-			   module_removed = true;
-			   
-			   PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
-					    "Destroying Module " + provider->_module->_fileName);
+			   delete provider->_module;
 			   
 			}
 		     }
 
-		     PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
-				      "Terminating Provider " + provider->getName());
-		     try
-		     {
-			// terminate eventually tries to unload the module 
-			if(false == provider->tryTerminate())
-			{
-			   if(true == module_removed)
-			   {
-			      _modules.insert(provider->_module->getFileName(), provider->_module);
-			   }
-			   
-			   if(true == provider_removed)
-			   {
-			      _providers.insert(provider->_name, provider);
-			   }
-			   continue;
-			}
-			else
-			{
-			   if(true == module_removed)
-			      delete provider->_module;
-			}
-			
-		     }
-		     catch(...)
-		     {
-			PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
-					 "Exception terminating " + 
-					 provider->getName());
-			continue;
-		     }
-		  
 		     try 
 		     {
 			PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 

@@ -31,9 +31,6 @@
 #ifndef Pegasus_Config_h
 #define Pegasus_Config_h
 
-#include <iostream>
-#include <cstdlib>
-
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 # include <Pegasus/Common/Platform_WIN32_IX86_MSVC.h>
 #elif defined (PEGASUS_PLATFORM_LINUX_IX86_GNU)
@@ -53,6 +50,10 @@
 #else
 # error "<Pegasus/Common/Config.h>: Unsupported Platform"
 #endif
+
+#include <iostream>
+#include <cstdlib>
+
 
 #ifdef PEGASUS_HAVE_NAMESPACES
 # define PEGASUS_NAMESPACE_BEGIN namespace Pegasus {

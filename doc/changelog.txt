@@ -80,6 +80,11 @@ TAG: Version_1_09.
 12. (Denise Eckstein - HP) 12 Apr 2002 - Extended versioning strategy
     to allow platform-specific version strings.
 
+13. (Denise Eckstein - HP) 14 Apr 2002 - Renamed shared library for
+    ManagedSystem/OperatingSystem provider so that it would not
+    conflict with library name of generic/OperatingSystem provider. 
+
+
 ========================================================================
 
 Version 1.08 working towards 1.1 - Started 27 March 2002

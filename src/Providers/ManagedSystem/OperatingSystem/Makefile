@@ -40,7 +40,7 @@ DIR = Providers/ManagedSystem/OperatingSystem
 
 include $(ROOT)/mak/config.mak
 
-LIBRARY = OperatingSystemProvider
+LIBRARY = OSProvider
 
 EXTRA_INCLUDES = -I$(PROVIDERDATA_ROOT)/OperatingSystem \
 		-I$(PROVIDERDATA_ROOT)/Include \

@@ -227,14 +227,14 @@ binary_value : BINARY
                    sprintf(msg,"BISON::binary_value-> %s\n",CQL_lval.strValue); 
 		   printf_(msg);
 
-                   $$ = new CQLValue(CQL_lval.strValue, Binary); 
+                   $$ = new CQLValue(CQL_lval.strValue, CQLValue::Binary); 
                }
              | NEGATIVE_BINARY 
                { 
                    sprintf(msg,"BISON::binary_value-> %s\n",CQL_lval.strValue); 
 		   printf_(msg);
 
-                   $$ = new CQLValue(CQL_lval.strValue, Binary, false); 
+                   $$ = new CQLValue(CQL_lval.strValue, CQLValue::Binary, false); 
                }
 ;
 
@@ -244,14 +244,14 @@ hex_value : HEXADECIMAL
                 sprintf(msg,"BISON::hex_value-> %s\n",CQL_lval.strValue); 
 		printf_(msg);
 
-                $$ = new CQLValue(CQL_lval.strValue, Hex);
+                $$ = new CQLValue(CQL_lval.strValue, CQLValue::Hex);
             }
           | NEGATIVE_HEXADECIMAL 
             { 
                 sprintf(msg,"BISON::hex_value-> %s\n",CQL_lval.strValue); 
 		printf_(msg);
 
-                $$ = new CQLValue(CQL_lval.strValue, Hex, false);
+                $$ = new CQLValue(CQL_lval.strValue, CQLValue::Hex, false);
             }
 ;
 
@@ -261,14 +261,14 @@ decimal_value : INTEGER
                     sprintf(msg,"BISON::decimal_value-> %s\n",CQL_lval.strValue); 
 		    printf_(msg);
 
-                    $$ = new CQLValue(CQL_lval.strValue, Decimal); 
+                    $$ = new CQLValue(CQL_lval.strValue, CQLValue::Decimal); 
                 }
               | NEGATIVE_INTEGER 
                 { 
                     sprintf(msg,"BISON::decimal_value-> %s\n",CQL_lval.strValue); 
 		    printf_(msg);
 
-                    $$ = new CQLValue(CQL_lval.strValue, Decimal, false);
+                    $$ = new CQLValue(CQL_lval.strValue, CQLValue::Decimal, false);
                 }
 ;
 
@@ -277,13 +277,13 @@ real_value : REAL
              { 
                  sprintf(msg,"BISON::real_value-> %s\n",CQL_lval.strValue); 
 		 printf_(msg);
-                 $$ = new CQLValue(CQL_lval.strValue, Real);
+                 $$ = new CQLValue(CQL_lval.strValue, CQLValue::Real);
              }
            | NEGATIVE_REAL 
              { 
                  sprintf(msg,"BISON::real_value-> %s\n",CQL_lval.strValue); 
 		 printf_(msg);
-                 $$ = new CQLValue(CQL_lval.strValue, Real, false);
+                 $$ = new CQLValue(CQL_lval.strValue, CQLValue::Real, false);
              }
 ;
 

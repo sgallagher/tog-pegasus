@@ -39,6 +39,7 @@
 #include <Pegasus/CQL/Linkage.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/CQL/CQLValue.h>
+#include <Pegasus/CQL/CQLValueRep.h>
 #include <Pegasus/CQL/CQLChainedIdentifier.h>
 #include <Pegasus/CQL/CQLChainedIdentifierRep.h>
 //#include <Pegasus/CQL/CQLSelectStatement.h>

@@ -34,17 +34,19 @@
 
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/CQL/CQLValueRep.h>
+
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/CQL/QueryContext.h>
 #include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/CQL/CQLChainedIdentifier.h>
 #include <Pegasus/CQL/CQLScope.h>
+
 #include <Pegasus/CQL/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_CQL_LINKAGE CQLFactory;
+class PEGASUS_CQL_LINKAGE CQLValueRep;
 
 /** The CQLValue class encapulates a value
      that is a CQL value.  The possible CQLValue
@@ -80,6 +82,10 @@ class PEGASUS_CQL_LINKAGE CQLValue
   public:
     /**  Initializes object as a string.
        */
+  enum NumericType  { Hex, Binary,  Decimal, Real};
+  enum CQLValueType { Null_type, Sint64_type, Uint64_type, Real_type, String_type,
+		      CIMDateTime_type,  CIMReference_type, CQLIdentifier_type,
+		      CIMInstance_type, Boolean_type, CIMClass_type};
 
     CQLValue();
     ~CQLValue();

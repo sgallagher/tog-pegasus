@@ -40,16 +40,13 @@
 #include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/CQL/CQLChainedIdentifier.h>
 #include <Pegasus/CQL/CQLScope.h>
+#include <Pegasus/CQL/CQLValue.h>
 #include <Pegasus/CQL/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_CQL_LINKAGE CQLFactory;
-    enum NumericType { Hex, Binary,  Decimal, Real};
-    enum CQLValueType { Null_type, Sint64_type, Uint64_type, Real_type, String_type,
-                        CIMDateTime_type,  CIMReference_type, CQLIdentifier_type,
-                        CIMInstance_type, CQLIgnore_type, Boolean_type, 
-                        CIMClass_type};
 
+    
 /** The CQLValueRep class encapulates a value
      that is a CQL value.  The possible CQLValue
      types are the following:
@@ -82,37 +79,35 @@ class PEGASUS_CQL_LINKAGE CQLFactory;
 class PEGASUS_CQL_LINKAGE CQLValueRep
 {
   public:
-    /**  Initializes object as a string.
-       */
 
     CQLValueRep();
     ~CQLValueRep();
     CQLValueRep(const CQLValueRep* val);
-    CQLValueRep(String inString, NumericType inValueType,
+    CQLValueRep(const String & inString, CQLValue::NumericType inValueType,
         Boolean inSign = true);
 
     /**  Initializes object as a CQLIdentifier.
        */
-    CQLValueRep(CQLChainedIdentifier inCQLIdent);
+    CQLValueRep(const CQLChainedIdentifier& inCQLIdent);
 
    /**  Initializes object as a CIMObjectPath.
        */
-    CQLValueRep(CIMObjectPath inObjPath);
+    CQLValueRep(const CIMObjectPath& inObjPath);
 
    /**  Initializes object as a CIMDateTime.
        */
-    CQLValueRep(CIMDateTime inDateTime);
+    CQLValueRep(const CIMDateTime& inDateTime);
 
     /**  Initializes object as a literal string (non-numeric).
        */
-    CQLValueRep(String inString);
+    CQLValueRep(const String& inString);
 
-   CQLValueRep(Sint64 inSint);
-   CQLValueRep(Uint64 inUint);
-   CQLValueRep(Real64 inReal);
-   CQLValueRep(CIMInstance inInstance);
-   CQLValueRep(Boolean inBool);
-   CQLValueRep(CIMClass inClass);
+   CQLValueRep(const Sint64 inSint);
+   CQLValueRep(const Uint64 inUint);
+   CQLValueRep(const Real64 inReal);
+   CQLValueRep(const CIMInstance& inInstance);
+   CQLValueRep(const Boolean inBool);
+   CQLValueRep(const CIMClass& inClass);
 
     /**  This method is used to ask an identifier to resolve itself to 
            a number or string (primitive value).
@@ -127,7 +122,7 @@ class PEGASUS_CQL_LINKAGE CQLValueRep
            - class aliasing
      */
 
-    void resolve(CIMInstance CI, QueryContext& inQueryCtx);
+    void resolve(CIMInstance& CI, QueryContext& inQueryCtx);
 
     CQLValueRep& operator=(const CQLValueRep& rhs);
 
@@ -250,7 +245,7 @@ class PEGASUS_CQL_LINKAGE CQLValueRep
     TODO:  do we need this method?
       */
 
-    CQLValueType getValueType();
+    CQLValue::CQLValueType getValueType();
 
     /** Clears this object and sets its type to NULL_VALUE
       */
@@ -304,7 +299,7 @@ class PEGASUS_CQL_LINKAGE CQLValueRep
    friend class CQLFactory; 
    friend class CQLValue;
   private:
-   Boolean _areClassesInline(CIMClass c1,CIMClass c2, QueryContext& in);
+   Boolean _areClassesInline(const CIMClass& c1,const CIMClass& c2,QueryContext& in);
    Boolean _validate(const CQLValueRep& x);
    void CQLValueRep::_resolveSymbolicConstant(QueryContext& inQueryCtx);
    void _setValue(CIMValue cv, Uint64 Index = 0);
@@ -327,9 +322,9 @@ class PEGASUS_CQL_LINKAGE CQLValueRep
 
     Boolean _isResolved;
 
-    NumericType Num_Type;
+    CQLValue::NumericType Num_Type;
 
-   CQLValueType _valueType;
+    CQLValue::CQLValueType _valueType;
 
 
 

@@ -710,7 +710,7 @@ case 6:
                    sprintf(msg,"BISON::binary_value-> %s\n",CQL_lval.strValue); 
 		   printf_(msg);
 
-                   yyval._value = new CQLValue(CQL_lval.strValue, Binary); 
+                   yyval._value = new CQLValue(CQL_lval.strValue, CQLValue::Binary); 
                }
 break;
 case 7:
@@ -719,7 +719,7 @@ case 7:
                    sprintf(msg,"BISON::binary_value-> %s\n",CQL_lval.strValue); 
 		   printf_(msg);
 
-                   yyval._value = new CQLValue(CQL_lval.strValue, Binary, false); 
+                   yyval._value = new CQLValue(CQL_lval.strValue, CQLValue::Binary, false); 
                }
 break;
 case 8:
@@ -728,7 +728,7 @@ case 8:
                 sprintf(msg,"BISON::hex_value-> %s\n",CQL_lval.strValue); 
 		printf_(msg);
 
-                yyval._value = new CQLValue(CQL_lval.strValue, Hex);
+                yyval._value = new CQLValue(CQL_lval.strValue, CQLValue::Hex);
             }
 break;
 case 9:
@@ -737,7 +737,7 @@ case 9:
                 sprintf(msg,"BISON::hex_value-> %s\n",CQL_lval.strValue); 
 		printf_(msg);
 
-                yyval._value = new CQLValue(CQL_lval.strValue, Hex, false);
+                yyval._value = new CQLValue(CQL_lval.strValue, CQLValue::Hex, false);
             }
 break;
 case 10:
@@ -746,7 +746,7 @@ case 10:
                     sprintf(msg,"BISON::decimal_value-> %s\n",CQL_lval.strValue); 
 		    printf_(msg);
 
-                    yyval._value = new CQLValue(CQL_lval.strValue, Decimal); 
+                    yyval._value = new CQLValue(CQL_lval.strValue, CQLValue::Decimal); 
                 }
 break;
 case 11:
@@ -755,7 +755,7 @@ case 11:
                     sprintf(msg,"BISON::decimal_value-> %s\n",CQL_lval.strValue); 
 		    printf_(msg);
 
-                    yyval._value = new CQLValue(CQL_lval.strValue, Decimal, false);
+                    yyval._value = new CQLValue(CQL_lval.strValue, CQLValue::Decimal, false);
                 }
 break;
 case 12:
@@ -763,7 +763,7 @@ case 12:
 { 
                  sprintf(msg,"BISON::real_value-> %s\n",CQL_lval.strValue); 
 		 printf_(msg);
-                 yyval._value = new CQLValue(CQL_lval.strValue, Real);
+                 yyval._value = new CQLValue(CQL_lval.strValue, CQLValue::Real);
              }
 break;
 case 13:
@@ -771,7 +771,7 @@ case 13:
 { 
                  sprintf(msg,"BISON::real_value-> %s\n",CQL_lval.strValue); 
 		 printf_(msg);
-                 yyval._value = new CQLValue(CQL_lval.strValue, Real, false);
+                 yyval._value = new CQLValue(CQL_lval.strValue, CQLValue::Real, false);
              }
 break;
 case 14:

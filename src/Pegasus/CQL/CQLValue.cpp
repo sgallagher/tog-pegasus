@@ -202,7 +202,7 @@ CQLValue CQLValue::operator/(const CQLValue& x)
 }
 
 //##ModelId=40FC3F6F0302
-CQLValueType CQLValue::getValueType()
+CQLValue::CQLValueType CQLValue::getValueType()
 {
    return _rep->getValueType();
 }

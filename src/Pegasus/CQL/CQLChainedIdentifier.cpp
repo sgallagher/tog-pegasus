@@ -3,6 +3,10 @@
 #include <Pegasus/CQL/CQLFactory.h>
 PEGASUS_NAMESPACE_BEGIN
 
+#define PEGASUS_ARRAY_T CQLChainedIdentifier
+#include <Pegasus/Common/ArrayImpl.h>
+#undef PEGASUS_ARRAY_T
+
 CQLChainedIdentifier::CQLChainedIdentifier(){
 	_rep = new CQLChainedIdentifierRep();
 }

@@ -666,7 +666,7 @@ void Condition::unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE caller
 	 {
 	    waiter->signalled.time_wait(milliseconds);
 	 }
-	 catch(TimeOut & to)
+	 catch(TimeOut &)
 	 {
 	    _cond_mutex->lock(caller);
 	    throw;

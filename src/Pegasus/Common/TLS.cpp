@@ -437,17 +437,17 @@ Sint32 MP_Socket::write(const void * ptr, Uint32 size)
 
 void MP_Socket::close()
 {
-    return Socket::close(_socket);
+    Socket::close(_socket);
 }
 
 void MP_Socket::enableBlocking()
 {
-    return Socket::enableBlocking(_socket);
+    Socket::enableBlocking(_socket);
 }
 
 void MP_Socket::disableBlocking()
 {
-    return Socket::disableBlocking(_socket);
+    Socket::disableBlocking(_socket);
 }
 
 Sint32 MP_Socket::accept() { return 0; }

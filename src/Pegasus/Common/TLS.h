@@ -37,7 +37,10 @@
 #define SSL_CTX void
 #endif
 
-#include <unistd.h>
+#if defined(PEGASUS_OS_TYPE_UNIX)
+# include <unistd.h>
+#endif
+
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Exception.h>

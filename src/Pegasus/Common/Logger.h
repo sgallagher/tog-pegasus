@@ -23,7 +23,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Dave Rosckes (rosckes@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -43,6 +43,7 @@ class LoggerRep;
 /**
 
 */
+
 class PEGASUS_COMMON_LINKAGE Logger
 {
 public:
@@ -56,7 +57,7 @@ public:
     };
     enum { NUM_LOGS = 4 };
       
-    /** Log file Level - Defines the level of severity of the
+    /** Log file Level - Defines the loglevel of the
         log entry irrespective of which log file it goes into. This is 
         actually a bit mask as defined in logger.cpp.  Thus, it serves both
         as a level of indication of the seriousness and possibly as a mask
@@ -70,12 +71,13 @@ public:
     static const Uint32 SEVERE;
     static const Uint32 FATAL;
 
+
     /** put - Puts a message to the defined log file
 	@param logFileType - Type of log file (Trace, etc.)
 	@param systemId  - ID of the system generating the log entry within 
 	Pegasus. This is user defined but generally breaks down into major
 	Pegasus components.
-	@param level Level of severity of the log entry. To be used both t0
+	@param level logLevel of the log entry. To be used both t0
 	mark the log entry and tested against a mask to determine if log 
 	entry should be written.
 	@param formatString	Format definition string for the Log. See the 
@@ -88,20 +90,38 @@ public:
     </pre>
     */
     static void put(
-	LogFileType logFileType,
-	const String& systemId,
-	Uint32 severity,
-	const String& formatString,
-	const Formatter::Arg& arg0 = Formatter::Arg(),
-	const Formatter::Arg& arg1 = Formatter::Arg(),
-	const Formatter::Arg& arg2 = Formatter::Arg(),
-	const Formatter::Arg& arg3 = Formatter::Arg(),
-	const Formatter::Arg& arg4 = Formatter::Arg(),
-	const Formatter::Arg& arg5 = Formatter::Arg(),
-	const Formatter::Arg& arg6 = Formatter::Arg(),
-	const Formatter::Arg& arg7 = Formatter::Arg(),
-	const Formatter::Arg& arg8 = Formatter::Arg(),
-	const Formatter::Arg& arg9 = Formatter::Arg());
+		    LogFileType logFileType,
+		    const String& systemId,
+		    Uint32 logLevel,
+		    const String& formatString,
+		    const Formatter::Arg& arg0 = Formatter::Arg(),
+		    const Formatter::Arg& arg1 = Formatter::Arg(),
+		    const Formatter::Arg& arg2 = Formatter::Arg(),
+		    const Formatter::Arg& arg3 = Formatter::Arg(),
+		    const Formatter::Arg& arg4 = Formatter::Arg(),
+		    const Formatter::Arg& arg5 = Formatter::Arg(),
+		    const Formatter::Arg& arg6 = Formatter::Arg(),
+		    const Formatter::Arg& arg7 = Formatter::Arg(),
+		    const Formatter::Arg& arg8 = Formatter::Arg(),
+		    const Formatter::Arg& arg9 = Formatter::Arg());
+
+    // _trace - puts a message to the define log.  Should only be used
+    // for trace type logs  
+    static void trace(
+		       LogFileType logFileType,
+		       const String& systemId,
+		       const Uint32 logComponent,
+		       const String& formatString,
+		       const Formatter::Arg& arg0 = Formatter::Arg(),
+		       const Formatter::Arg& arg1 = Formatter::Arg(),
+		       const Formatter::Arg& arg2 = Formatter::Arg(),
+		       const Formatter::Arg& arg3 = Formatter::Arg(),
+		       const Formatter::Arg& arg4 = Formatter::Arg(),
+		       const Formatter::Arg& arg5 = Formatter::Arg(),
+		       const Formatter::Arg& arg6 = Formatter::Arg(),
+		       const Formatter::Arg& arg7 = Formatter::Arg(),
+		       const Formatter::Arg& arg8 = Formatter::Arg(),
+		       const Formatter::Arg& arg9 = Formatter::Arg());
 
     /** setHomeDirectory
     */
@@ -112,20 +132,45 @@ public:
     */
     static void clean(const String& directory);
 
-    /** setSeverityMask
+    /** setlogLevelMask
     */
-    static void setSeverityMask(const Uint32);
+    static void setlogLevelMask(const String logLevelList);
 
     /** setLogWriteControlMask
     */
     static void setLogWriteControlMask(const Uint32);
 
+    static Boolean isValidlogLevel(const String logLevel);
 private:
 
+  
     static LoggerRep* _rep;
     static String _homeDirectory;
     static Uint32 _severityMask;
     static Uint32 _writeControlMask;
+
+    static const char   _SEPARATOR;
+    static const Uint32 _NUM_LOGLEVEL;
+
+    static const Boolean _SUCCESS;
+    static const Boolean _FAILURE;
+    static void _putInternal(
+		    LogFileType logFileType,
+		    const String& systemId,
+		    const Uint32 logComponent,
+		    Uint32 logLevel,
+		    const String& formatString,
+		    const Formatter::Arg& arg0 = Formatter::Arg(),
+		    const Formatter::Arg& arg1 = Formatter::Arg(),
+		    const Formatter::Arg& arg2 = Formatter::Arg(),
+		    const Formatter::Arg& arg3 = Formatter::Arg(),
+		    const Formatter::Arg& arg4 = Formatter::Arg(),
+		    const Formatter::Arg& arg5 = Formatter::Arg(),
+		    const Formatter::Arg& arg6 = Formatter::Arg(),
+		    const Formatter::Arg& arg7 = Formatter::Arg(),
+		    const Formatter::Arg& arg8 = Formatter::Arg(),
+		    const Formatter::Arg& arg9 = Formatter::Arg());
+
 };
 
 PEGASUS_NAMESPACE_END

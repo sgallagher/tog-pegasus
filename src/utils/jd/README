@@ -1,0 +1,48 @@
+
+OVERVIEW
+========
+
+This utility emulates on NT the JDPATH behavior of the Unix C-Shell. Its use
+is trivial:
+
+    1.	Copy jdath.exe and jd.bat to a directory on your path.
+
+    2.	Set your JDPATH as you would on Unix (except use semicolons to
+    	delimit rather than colons).
+
+    3.	Set your HOME environment variable (used when jd is invoked without
+	arguments).
+
+    4.	Use jd to change to directories on the path. For example,
+
+	    C:\> jd fred
+
+    5.	You may change back to the previous directory with:
+
+	    C:\> jd -
+
+It is now possible to make an alias for the current directory as follows:
+
+    C:\> jd -a zz
+
+This saves the current working directory path in a file called:
+
+    C:\jdalias\zz
+
+You may later return to that directory as follows:
+
+    C:\> jd zz
+
+The JDPATH is used before checking an aliases.
+
+LIMITATIONS
+===========
+
+    "jd -" doesn't work immediately after another "jd -" was typed.
+
+BUILDING JDPATH.EXE
+===================
+
+    C:\> nmake -f makefile.nt
+
+That's all!

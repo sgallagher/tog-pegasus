@@ -12,6 +12,7 @@
 
     Now:
 
+    -	Add convenience functions: addProperty().
     -	Change CimException to CIMException
     -   Get ACE working on Tandem (or remove ACE from Pegasus).
     -   Port Pegasus to Tandem (look for Tandem machine at BMC).
@@ -32,6 +33,8 @@
 
 
     ------------------------------------------------------------------------
+
+    (A) Install shield install of Pegasus.
 
     (A)	Modify clear() methods on Array and String so that they don't
 	release the old resource (more efficient for GetLine()). Add

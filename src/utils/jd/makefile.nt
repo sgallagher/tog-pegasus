@@ -1,0 +1,5 @@
+all:
+	cl -GX -Fejdaux.exe jd.cpp
+
+clean:
+	del jd.obj jd.exe

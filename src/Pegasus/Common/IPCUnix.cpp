@@ -454,6 +454,52 @@ int Semaphore::count()
 
 
 
+#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
+#define PEGASUS_ATOMIC_INT_NATIVE = 1 // use native implementation
+
+AtomicInt::AtomicInt(): _rep(0) {}
+
+AtomicInt::AtomicInt( Uint32 initial) : _rep(initial) {}
+
+AtomicInt::~AtomicInt() {}
+
+AtomicInt::AtomicInt(const AtomicInt& original) 
+{
+  _rep = original._rep;
+}
+
+AtomicInt& AtomicInt::operator=( const AtomicInt& original)
+{
+  // don't worry about self-assignment in this implementation
+  if(this != &original)
+    _rep = original._rep;
+  return *this;
+}
+
+
+Uint32 AtomicInt::value(void)
+{
+  return((Uint32)_rep);
+}
+
+void AtomicInt::operator++(void) { _rep++; }
+
+void AtomicInt::operator--(void) { _rep--; }
+
+Uint32 AtomicInt::operator+(const AtomicInt& val) { return((Uint32)(_rep + val._rep));}
+Uint32 AtomicInt::operator+(Uint32 val) { return( (Uint32)(_rep + val)); }
+
+Uint32 AtomicInt::operator-(const AtomicInt& val) { return((Uint32)(_rep + val._rep));}
+Uint32 AtomicInt::operator-(Uint32 val) { return((Uint32)(_rep + val)); }
+
+AtomicInt& AtomicInt::operator+=(const AtomicInt& val) { _rep += val._rep; return *this; }
+AtomicInt& AtomicInt::operator+=(Uint32 val) { _rep += val; return *this; }
+
+AtomicInt& AtomicInt::operator-=(const AtomicInt& val) { _rep -= val._rep; return *this; }
+AtomicInt& AtomicInt::operator-=(Uint32 val) { _rep -= val; return *this; }
+
+
+#endif // linux x86 platform
 
 
 PEGASUS_NAMESPACE_END

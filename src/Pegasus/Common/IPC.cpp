@@ -174,4 +174,5 @@ AtomicInt& operator-=(Uint32 val)
 //}
 
 #endif // PEGASUS_ATOMIC_INT_NATIVE
+
 PEGASUS_NAMESPACE_END

@@ -42,7 +42,7 @@ class PEGASUS_EXPORT cleanup_handler
 
  public:
   cleanup_handler( void (*routine)(void *), void *arg  ) : _routine(routine), _arg(arg)  {}
-  ~cleanup_handler() ;
+  ~cleanup_handler()  {; }
 
  private:
   void execute(void) { _routine(_arg); } 
@@ -51,7 +51,7 @@ class PEGASUS_EXPORT cleanup_handler
   inline Boolean operator==(void *key) { if(key == (void *)_routine) return true; return false; }
   void *_arg; 
   PEGASUS_CLEANUP_HANDLE _cleanup_buffer;
-  friend class Dqueue;
+  template<class cleanup_handler> friend class DQueue;
   friend class Thread;
 };
 
@@ -175,6 +175,7 @@ class  PEGASUS_EXPORT thread_data
       _size = size;
       return(old_data);
     }
+
  private:
   inline Boolean operator ==(void *key) { if ( ! strcmp(_key, (Sint8 *)key)) return(true); return(false);  } 
   void (*_delete_func) (void *data) ;
@@ -183,7 +184,7 @@ class  PEGASUS_EXPORT thread_data
   Uint32 _size;
   Sint8 *_key;
   
-  friend class Dqueue;
+  template<class thread_data> friend class DQueue;
   friend class Thread;
 };
 
@@ -283,8 +284,19 @@ class PEGASUS_EXPORT Thread
 
   // create or re-initialize tsd associated with the key
   // if the tsd already exists, return the existing buffer
-  thread_data *put_tsd(Sint8 *key, void (*delete_func)(void *), Uint32 size, void *value) throw(IPCException);
+  thread_data *put_tsd(Sint8 *key, void (*delete_func)(void *), Uint32 size, void *value) throw(IPCException)
 
+{
+  PEGASUS_ASSERT(key != NULL);
+  PEGASUS_ASSERT(delete_func != NULL);
+  thread_data *tsd ;
+  tsd = _tsd.remove((void *)key);  // may throw an IPC exception 
+  thread_data *ntsd = new thread_data(key);
+  ntsd->put_data(delete_func, size, value);
+  try { _tsd.insert_first(ntsd); }
+  catch(IPCException& e) { delete ntsd; throw; }
+  return(tsd);
+}
   inline PEGASUS_THREAD_RETURN get_exit(void) { return _exit_code; }
   inline PEGASUS_THREAD_TYPE self(void) {return pegasus_thread_self(); }
 
@@ -307,9 +319,9 @@ class PEGASUS_EXPORT Thread
   // store the user parameter in _thread_parm 
 
   PEGASUS_THREAD_RETURN  ( PEGASUS_THREAD_CDECL *_start)(void *) ;
-
   DQueue<cleanup_handler> _cleanup;
   DQueue<thread_data> _tsd;
+
   void *_thread_parm;
   PEGASUS_THREAD_RETURN _exit_code;
   static Boolean _signals_blocked;

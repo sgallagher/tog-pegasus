@@ -70,11 +70,14 @@ SOURCES = \
     XmlParser.cpp \
     XmlReader.cpp \
     XmlWriter.cpp \
-    CGIQueryString.cpp
-
-ifeq ($(OS),linux)
-SOURCES += MT_MessageQueue.cpp IPC.cpp DQueue.cpp Thread.cpp
-endif
+    CGIQueryString.cpp \
+    MT_MessageQueue.cpp\
+    IPC.cpp\
+#    DQueue.cpp\
+    Thread.cpp
+#ifeq ($(OS),linux)
+#SOURCES +=  IPC.cpp DQueue.cpp Thread.cpp
+#endif
 
 SYS_LIBS = ws2_32.lib advapi32.lib
 

@@ -160,7 +160,7 @@ class AtomicInt
 
     AtomicInt(Uint32 initial);
 
-    ~AtomicInt();
+    ~AtomicInt() ;
 
     AtomicInt(const AtomicInt& original ) ; // copy 
 

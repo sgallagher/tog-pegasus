@@ -73,8 +73,8 @@ cp /usr/share/libtool/ltmain.sh $PEGASUS_ROOT/src/Unsupported/slp_client/
 BUILD COMMANDS
 ===========================
 
-1) Untar distribution tarball and cd into the ldap_slp directory. 
-2) type ./configure DEBUG=TRUE <Enter>
+1) Untar distribution tarball and cd into the slp_client directory. 
+2) type ./configure <Enter>
 3) type make <Enter>
 
 Binaries will be located in the same directories as thier source. The

@@ -29,6 +29,7 @@ Here is how the source tree is now organized:
 Initial directory = ldap_slp
 +---conf                     <-- contains the DA configuration file 
 +---doc                      <-- contains some internet-drafts
++---scripts		     <-- shell scripts that demonstrate functions
 +---src                      <-- source code
 |   +---cmd-utils            <-- command-line utilities
 |   |   +---slp_client       <-- slp client library
@@ -70,16 +71,4 @@ new platform you need to flesh out the placeholder for that platform
 in configure.ac. Then you need to implement the portability header and
 possibly a portability source file.
 
-Unfortunatly, the cmd-utils and kernel directory structures each have
-their own compatibility headers. That means there is one
-"lslp-linux.h" for the DA build and a totally separate version of the
-same file for the cmd-utils build. This is historical and I intend to
-clean it up. However, the DA is quite a bit more sophisticated than
-the cmd-utils so its compatibility files are more complicated. So it
-is not just a total duplication of code. 
-
-If you are only interested in the DA (lslp-kernel) or the SA
-(cmd-utils) but not both then you can choose to only implement one
-version of the compatibility files. The SA version is not as much
-work.
 

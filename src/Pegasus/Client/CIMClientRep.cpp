@@ -415,8 +415,17 @@ void CIMClientRep::connectLocal()
         const char* pegasusHome = getenv("PEGASUS_HOME");
 #endif
 
+#if defined(PEGASUS_OS_AIX)
+        String certpath = String::EMPTY;
+        certpath = getenv("PEGASUS_SSLTRUSTFILEPATH");
+        if (certpath == NULL) {
+          certpath = FileSystem::getAbsolutePath(
+                   pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
+        }
+#else
         String certpath = FileSystem::getAbsolutePath(
             pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
+#endif
 
         String randFile = String::EMPTY;
 

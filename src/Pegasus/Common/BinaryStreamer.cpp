@@ -1289,7 +1289,7 @@ CIMValue BinaryStreamer::extractValue(const Array<char>& in, Uint32 & pos)
             case CIMTYPE_SINT8:
 	      {
 	       Sint8 sint=0;
-	       memcpy( &b, ar + pos, sizeof(Sint8));
+	       memcpy( &sint, ar + pos, sizeof(Sint8));
                //val.set(*(Sint8*)(ar+pos));
 	       val.set(sint);
                pos++;

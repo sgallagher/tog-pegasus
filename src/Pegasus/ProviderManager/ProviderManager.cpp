@@ -59,16 +59,19 @@ Provider ProviderManager::getProvider(
     const String & fileName,
     const String & providerName)
 {
-    MutexLock lock(_mutex);
-
-    // check list for requested provider and return if found
-    for(Uint32 i = 0, n = _providers.size(); i < n; i++)
     {
-        if(String::equalNoCase(providerName, _providers[i].getName()))
+        MutexLock lock(_mutex);
+
+        // check list for requested provider and return if found
+        for(Uint32 i = 0, n = _providers.size(); i < n; i++)
         {
-            return(_providers[i]);
+            if(String::equalNoCase(providerName, _providers[i].getName()))
+            {
+                return(_providers[i]);
+            }
         }
     }
+
 
     loadProvider(fileName, providerName);
 
@@ -115,9 +118,11 @@ void ProviderManager::unloadProvider(
     {
         if(String::equalNoCase(providerName, _providers[i].getName()))
         {
-            _providers[i].terminate();
+            Provider provider(_providers[i]);
 
             _providers.remove(i);
+
+            provider.terminate();
         }
     }
 }

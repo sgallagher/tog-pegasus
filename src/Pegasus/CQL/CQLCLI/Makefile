@@ -35,8 +35,8 @@ repository:
 
 repositoryServer:
 	@ echo +++++ Loading CQL Test Schema into $(CQLTESTNS) namespace ...
-	@ cimmofl -R$(REPOSITORY_DIR) -n$(CQLTESTNS) CQLTestSchema.mof
-	@ cimmofl -n$(CQLTESTNS) CQLTestSchemaR.mof
+	@ cimmof -R$(REPOSITORY_DIR) -n$(CQLTESTNS) CQLTestSchema.mof
+	@ cimmof -n$(CQLTESTNS) CQLTestSchemaR.mof
 
 tests:
                                                                                 

@@ -266,16 +266,16 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 							      true);
 
    Uint32 validateSize= httpMessage->message.size();
-   Uint8  *validateContent = (Uint8*) httpMessage->message.getData();
+   Sint8  *validateContent = (Sint8 *)httpMessage->message.getData();
    Uint32 count;
 
-   // If the Content-Type header is missing we will assume a charset of ISO-8859-1
+   // If the Content-Type header is missing we will assume a charset of 7-bit ASCII
    if(!contentTypeHeaderFound)
    {
        // We will verify that the characters fall in the 7-bit ASCII range
        for(count = 0;count < validateSize; ++count)
        {
-	   if(validateContent[count] > 0x7F)
+	   if((Uint8)validateContent[count] > 0x7F)
 	   {
 	       sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "unsupported-Content-Type",
 			     String("8-bit characters detected, Content-Type value is required."));
@@ -299,7 +299,7 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
        while(count<validateSize)
        {
 	   UTF8_NEXT(validateContent,count,currentChar);
-	   if (!(String::isUTF8((const char *)&validateContent[count])))
+	   if (!(String::isUTF8((char *)&validateContent[count])))
 	   {
 	       sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "unsupported-Content-Type",
 			     String("Invalid UTF-8 character detected."));

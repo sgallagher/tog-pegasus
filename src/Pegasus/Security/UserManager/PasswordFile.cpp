@@ -76,7 +76,7 @@ PasswordFile::PasswordFile (const String& fileName)
 	PasswordTable pt;
         load(pt);
     }
-    catch( NoSuchFile& e )
+    catch(const NoSuchFile&)
     {
     	//l10n
         //Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
@@ -92,9 +92,9 @@ PasswordFile::PasswordFile (const String& fileName)
         PasswordTable pt;
         save(pt);
     }
-    catch ( Exception& e)
+    catch (const Exception&)
     {
-	throw e;
+	throw;
     }
     PEG_METHOD_EXIT();
 }

@@ -5,7 +5,7 @@ ROOT = ../../../..
 include $(ROOT)/mak/config.mak
 include $(ROOT)/test/config.mak
 
-XMLSCRIPTS = EnumerateClassNames20001 EnumerateClassNames20003 
+XMLSCRIPTS = EnumerateClassNames20001 EnumerateClassNames20003 EnumerateClassNames20006
 
 ifndef SECURITY_ENABLED
 XMLSCRIPTS += \

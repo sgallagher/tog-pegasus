@@ -330,7 +330,9 @@ NameSpaceManager::NameSpaceManager(const String& repositoryRoot)
 		throw e;
 	    }
 
-	    _rep->table.insert(nameSpaceName, nameSpace);
+            String lowercaseNamespaceName (nameSpaceName);
+            lowercaseNamespaceName.toLower ();
+	    _rep->table.insert(lowercaseNamespaceName, nameSpace);
 	}
     }
 }
@@ -346,7 +348,9 @@ NameSpaceManager::~NameSpaceManager()
 Boolean NameSpaceManager::nameSpaceExists(
     const CIMNamespaceName& nameSpaceName) const
 {
-    return _rep->table.contains(nameSpaceName.getString());
+    String lowercaseNamespaceName (nameSpaceName.getString ());
+    lowercaseNamespaceName.toLower ();
+    return _rep->table.contains(lowercaseNamespaceName);
 }
 
 void NameSpaceManager::createNameSpace(const CIMNamespaceName& nameSpaceName)
@@ -384,7 +388,9 @@ void NameSpaceManager::createNameSpace(const CIMNamespaceName& nameSpaceName)
 	throw e;
     }
 
-    _rep->table.insert(nameSpaceName.getString(), nameSpace);
+    String lowercaseNamespaceName (nameSpaceName.getString ());
+    lowercaseNamespaceName.toLower ();
+    _rep->table.insert(lowercaseNamespaceName, nameSpace);
 
     PEG_METHOD_EXIT();
 }
@@ -397,7 +403,9 @@ void NameSpaceManager::deleteNameSpace(const CIMNamespaceName& nameSpaceName)
 
     NameSpace* nameSpace = 0;
 
-    if (!_rep->table.lookup(nameSpaceName.getString(), nameSpace))
+    String lowercaseNamespaceName (nameSpaceName.getString ());
+    lowercaseNamespaceName.toLower ();
+    if (!_rep->table.lookup(lowercaseNamespaceName, nameSpace))
     {
         PEG_METHOD_EXIT();
 	throw PEGASUS_CIM_EXCEPTION
@@ -406,7 +414,8 @@ void NameSpaceManager::deleteNameSpace(const CIMNamespaceName& nameSpaceName)
 
     // Form namespace path:
 
-    String nameSpaceDirName = namespaceNameToDirName(nameSpaceName);
+    String nameSpaceDirName = namespaceNameToDirName
+        (nameSpace->getNameSpaceName());
     String nameSpacePath = _repositoryRoot + "/" + nameSpaceDirName;
 
     // Delete the entire namespace directory hierarchy:
@@ -425,7 +434,7 @@ void NameSpaceManager::deleteNameSpace(const CIMNamespaceName& nameSpaceName)
 
     // Remove and delete the namespace object:
 
-    Boolean success = _rep->table.remove(nameSpaceName.getString());
+    Boolean success = _rep->table.remove(lowercaseNamespaceName);
     PEGASUS_ASSERT(success);
     delete nameSpace;
 
@@ -448,7 +457,9 @@ String NameSpaceManager::getClassFilePath(
 
     NameSpace* nameSpace = 0;
 
-    if (!_rep->table.lookup(nameSpaceName.getString(), nameSpace))
+    String lowercaseNamespaceName (nameSpaceName.getString ());
+    lowercaseNamespaceName.toLower ();
+    if (!_rep->table.lookup(lowercaseNamespaceName, nameSpace))
     {
         PEG_METHOD_EXIT();
 	throw PEGASUS_CIM_EXCEPTION
@@ -467,7 +478,9 @@ String NameSpaceManager::getInstanceDataFileBase(
 
     NameSpace* nameSpace = 0;
 
-    if (!_rep->table.lookup(nameSpaceName.getString(), nameSpace))
+    String lowercaseNamespaceName (nameSpaceName.getString ());
+    lowercaseNamespaceName.toLower ();
+    if (!_rep->table.lookup(lowercaseNamespaceName, nameSpace))
     {
         PEG_METHOD_EXIT();
 	throw PEGASUS_CIM_EXCEPTION
@@ -486,7 +499,9 @@ String NameSpaceManager::getQualifierFilePath(
 
     NameSpace* nameSpace = 0;
 
-    if (!_rep->table.lookup(nameSpaceName.getString(), nameSpace))
+    String lowercaseNamespaceName (nameSpaceName.getString ());
+    lowercaseNamespaceName.toLower ();
+    if (!_rep->table.lookup(lowercaseNamespaceName, nameSpace))
     {
         PEG_METHOD_EXIT();
 	throw PEGASUS_CIM_EXCEPTION
@@ -507,7 +522,9 @@ void NameSpaceManager::deleteClass(
 
     NameSpace* nameSpace = 0;
 
-    if (!_rep->table.lookup(nameSpaceName.getString(), nameSpace))
+    String lowercaseNamespaceName (nameSpaceName.getString ());
+    lowercaseNamespaceName.toLower ();
+    if (!_rep->table.lookup(lowercaseNamespaceName, nameSpace))
     {
         PEG_METHOD_EXIT();
 	throw PEGASUS_CIM_EXCEPTION
@@ -556,7 +573,9 @@ void NameSpaceManager::createClass(
 
     NameSpace* nameSpace = 0;
 
-    if (!_rep->table.lookup(nameSpaceName.getString(), nameSpace))
+    String lowercaseNamespaceName (nameSpaceName.getString ());
+    lowercaseNamespaceName.toLower ();
+    if (!_rep->table.lookup(lowercaseNamespaceName, nameSpace))
     {
         PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4, "Invalid NameSpace.");
         PEG_METHOD_EXIT();
@@ -611,7 +630,9 @@ void NameSpaceManager::checkModify(
 
     NameSpace* nameSpace = 0;
 
-    if (!_rep->table.lookup(nameSpaceName.getString(), nameSpace))
+    String lowercaseNamespaceName (nameSpaceName.getString ());
+    lowercaseNamespaceName.toLower ();
+    if (!_rep->table.lookup(lowercaseNamespaceName, nameSpace))
     {
         PEG_METHOD_EXIT();
 	throw PEGASUS_CIM_EXCEPTION
@@ -670,7 +691,9 @@ void NameSpaceManager::getSubClassNames(
 
     NameSpace* nameSpace = 0;
 
-    if (!_rep->table.lookup(nameSpaceName.getString(), nameSpace))
+    String lowercaseNamespaceName (nameSpaceName.getString ());
+    lowercaseNamespaceName.toLower ();
+    if (!_rep->table.lookup(lowercaseNamespaceName, nameSpace))
     {
         PEG_METHOD_EXIT();
 	throw PEGASUS_CIM_EXCEPTION
@@ -700,7 +723,9 @@ void NameSpaceManager::getSuperClassNames(
 
     NameSpace* nameSpace = 0;
 
-    if (!_rep->table.lookup(nameSpaceName.getString(), nameSpace))
+    String lowercaseNamespaceName (nameSpaceName.getString ());
+    lowercaseNamespaceName.toLower ();
+    if (!_rep->table.lookup(lowercaseNamespaceName, nameSpace))
     {
         PEG_METHOD_EXIT();
 	throw PEGASUS_CIM_EXCEPTION
@@ -729,7 +754,9 @@ String NameSpaceManager::getQualifiersRoot(const CIMNamespaceName& nameSpaceName
 
     NameSpace* nameSpace = 0;
 
-    if (!_rep->table.lookup(nameSpaceName.getString(), nameSpace))
+    String lowercaseNamespaceName (nameSpaceName.getString ());
+    lowercaseNamespaceName.toLower ();
+    if (!_rep->table.lookup(lowercaseNamespaceName, nameSpace))
     {
         PEG_METHOD_EXIT();
 	throw PEGASUS_CIM_EXCEPTION

@@ -52,8 +52,10 @@ SELECT EmbObjBase.CQL_EmbeddedTestElement::TEArray.CQL_TestElement::InstanceId F
 SELECT EmbObjBase.CQL_EmbeddedTestElement::SomeClass.RequestedState FROM CQL_EmbeddedSubClass
 SELECT EmbObjBase.CQL_EmbeddedTestElement::SomeString.CQL_TestElement::InstanceId FROM CQL_EmbeddedSubClass
 #
-# Multiple projected properties to test the embedded object tree handling. Includes mixing in some wildcards.
+#
+# Multiple projected properties to test the embedded object tree handling.
 # The list of projected properties is given for each testcase below.
+#
 # 
 # This test projects all the nodes in the path to one leaf property (propertyReal64Array).
 # Projected Properties:
@@ -105,14 +107,45 @@ SELECT EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::EnabledState, 
 #
 SELECT EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::EnabledState, EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.*, EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestPropertyTypes::propertyString, EmbObjBase.CQL_EmbeddedTestElement::SomeString, EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT, EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestPropertyTypes::propertyReal64Array, EmbObjSub, EmbObjBase.CQL_EmbeddedTestElement::TE.CQL_TestElement::InstanceId, EmbObjSub.*, EmbObjSub.CQL_EmbeddedTestPropertyTypes::SomeUint8, EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::Description FROM CQL_EmbeddedSubClass
 #
-# Scoping operator tests for class relationships
-# Use the previous testcase, but mix up the scoping classes
-# ATTN - TODO
+# Mix up the scoping classes.
+# See '==>' below for details about which properties are projected, and which are not.
+# Projected Properties:
+# EmbObjSub.CQL_EmbeddedTestPropertyTypes::SomeUint8                       => scope matches, project
+# EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestElement::InstanceId => scope is superclass, project
+# EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestPropertyTypes::propertyString => scope matches, project
+# EmbObjBase.CQL_EmbeddedTestElement::SomeString                           => scope matches, project
+# EmbObjBase.CQL_EmbeddedTestElement::TE.CQL_TestPropertyTypes::InstanceId => scope is subclass, ignore  
+# EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_NonExistent::EnabledState     => scope doesn't exist, ignore
+# EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_Process::Description          => scope is unrelated, ignore 
+SELECT EmbObjBase.CQL_EmbeddedTestElement::TE.CQL_TestPropertyTypes::InstanceId, EmbObjSub.CQL_EmbeddedTestPropertyTypes::SomeUint8, EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_Process::Description, EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestPropertyTypes::propertyString, EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestElement::InstanceId, EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_NonExistent::EnabledState, EmbObjBase.CQL_EmbeddedTestElement::SomeString FROM CQL_EmbeddedSubClass FROM CQL_EmbeddedSubClass
 #
-# Missing required properties
-# Includes mixing in some wildcards
-# ATTN - TODO
 #
+# Missing required property.
+# The NotThere property is missing in this case.  Even though the property is not on its scoping
+# class, it is still missing with respect to the instance being projected.  Properties
+# missing with respect to the class definition are checked by validateProperties, not applyProjection.
+# 
+# Projected Properties:
+# EmbObjSub.CQL_EmbeddedTestPropertyTypes::SomeUint8                       => scope matches, project
+# EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestElement::InstanceId => scope is superclass, project
+# EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestPropertyTypes::NotThere => property is missing 
+# EmbObjBase.CQL_EmbeddedTestElement::SomeString                             => scope matches, project
+# EmbObjBase.CQL_EmbeddedTestElement::TE.CQL_TestPropertyTypes::InstanceId => scope is subclass, ignore  
+# EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_NonExistent::EnabledState     => scope doesn't exist, ignore
+# EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_Process::Description          => scope is unrelated, ignore 
+SELECT EmbObjBase.CQL_EmbeddedTestElement::TE.CQL_TestPropertyTypes::InstanceId, EmbObjSub.CQL_EmbeddedTestPropertyTypes::SomeUint8, EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_Process::Description, EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestPropertyTypes::NotThere, EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestElement::InstanceId, EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_NonExistent::EnabledState, EmbObjBase.CQL_EmbeddedTestElement::SomeString FROM CQL_EmbeddedSubClass FROM CQL_EmbeddedSubClass
+#
+# Missing required property, wildcard case.
+# 
+# Projected Properties:
+# EmbObjSub.CQL_EmbeddedTestPropertyTypes::SomeUint8                       => scope matches, project
+# EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestElement::InstanceId => scope is superclass, project
+# EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestPropertyTypes::propertyString => scope matches, project 
+# EmbObjBase.CQL_EmbeddedTestElement::SomeString                             => scope matches, project
+# EmbObjBase.CQL_EmbeddedTestElement::TE.CQL_TestPropertyTypes::InstanceId => scope is subclass, ignore  
+# EmbObjBase.CQL_EmbeddedTestElement::CS.*                                 => wildcard causes missing properties
+SELECT EmbObjBase.CQL_EmbeddedTestElement::TE.CQL_TestPropertyTypes::InstanceId, EmbObjSub.CQL_EmbeddedTestPropertyTypes::SomeUint8, EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestPropertyTypes::propertyString, EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestElement::InstanceId, EmbObjBase.CQL_EmbeddedTestElement::CS.*, EmbObjBase.CQL_EmbeddedTestElement::SomeString FROM CQL_EmbeddedSubClass FROM CQL_EmbeddedSubClass
+
 
 
 

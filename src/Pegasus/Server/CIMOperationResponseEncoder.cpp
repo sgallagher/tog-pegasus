@@ -65,12 +65,16 @@ void CIMOperationResponseEncoder::sendResponse(
     MessageQueue* queue = MessageQueue::lookup(queueId);
 
     if (queue)
+
     {
-	HTTPMessage* httpMessage = new HTTPMessage(message);
+      	HTTPMessage* httpMessage = new HTTPMessage(message);
+      	Tracer::traceBuffer(TRC_XML_IO, Tracer::LEVEL2, 
+		 httpMessage->message.getData(), httpMessage->message.size());
+
+
 	queue->enqueue(httpMessage);
 
-	Tracer::traceBuffer(TRC_XML_IO, Tracer::LEVEL2, 
-		 httpMessage->message.getData(),httpMessage->message.size());
+
 
 #ifdef PEGASUS_CCOVER
         cov_write();

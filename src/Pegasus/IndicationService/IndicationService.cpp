@@ -4312,16 +4312,16 @@ CIMName IndicationService::_getIndicationClassName (
       // l10n
 
         // String exceptionStr = _MSG_INVALID_CLASSNAME;
-      String exceptionStr = String("Invalid $0 class name ");
+	    String exceptionStr = String("Invalid indication class name ");
         // exceptionStr.append (indicationClassName.getString());
-        exceptionStr.append ("$1");
+        exceptionStr.append ("$0");
         // exceptionStr.append (_MSG_IN_FROM);
-        exceptionStr.append (" in $2 clause of ");
+        exceptionStr.append (" in $1 clause of ");
         // exceptionStr.append (PEGASUS_CLASSNAME_INDFILTER.getString());
-        exceptionStr.append ("$3");
+        exceptionStr.append ("$2");
         exceptionStr.append (" ");
         // exceptionStr.append (_PROPERTY_QUERY.getString());
-        exceptionStr.append ("$4");
+        exceptionStr.append ("$3");
         exceptionStr.append (_MSG_PROPERTY);
 
         PEG_METHOD_EXIT ();
@@ -4335,7 +4335,6 @@ CIMName IndicationService::_getIndicationClassName (
 				       MessageLoaderParms (
 				          _MSG_INVALID_CLASSNAME_IN_FROM_PROPERTY_KEY,
 				          exceptionStr, 
-				          "indication",
 				          indicationClassName.getString(), 
 				          "FROM",
 				          PEGASUS_CLASSNAME_INDFILTER.getString(), 

@@ -50,9 +50,7 @@
 
 class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiPropertyMI : virtual public CmpiBaseMI {
 public:
-   CmpiPropertyMI(const CmpiBroker &mbp, const CmpiContext& ctx) :
-   CmpiBaseMI (mbp,ctx) {
-   }
+   CmpiPropertyMI(const CmpiBroker &mbp, const CmpiContext& ctx);
 
    static CMPIStatus driveSetProperty
    (CMPIPropertyMI* mi, CMPIContext* eCtx, CMPIResult* eRslt,

@@ -42,66 +42,58 @@
 #include "CmpiObjectPath.h"
 #include "CmpiBroker.h"
 #include "CmpiBaseMI.h"
-#include "Linkage.h"
 
 /** This class wraps a CIMOM specific input and output arguments
     passed to methodInvocation functions.
 */
 
-class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiArgs : public CmpiObject {
+class CmpiArgs : public CmpiObject {
    friend class CmpiBroker;
    friend class CmpiMethodMI;
-protected:
+  protected:
 
    /** Protected constructor used by MIDrivers to encapsulate CMPIArgs.
    */
-   inline CmpiArgs(CMPIArgs* enc)
-   {
-      this->enc=enc;
-   }
+   CmpiArgs(CMPIArgs* enc);
 
    /** Gets the encapsulated CMPIArgs.
    */
-   inline CMPIArgs *getEnc() const
-   {
-      return (CMPIArgs*)enc;
-   }
+   CMPIArgs *getEnc() const;
+
    void *makeArgs(CMPIBroker* mb);
-private:
-public:
+  private:
+  public:
 
    /** Constructor - Empty argument container.
    */
-   inline CmpiArgs() {
-      enc=makeArgs(CmpiProviderBase::getBroker());
-   }
+   CmpiArgs();
 
-   /** getArgCount - Gets the number of arguments
-   defined for this argument container.
-   @return Number of arguments in this container.
-   */
+    /**	getArgCount - Gets the number of arguments
+	defined for this argument container.
+	@return	Number of arguments in this container.
+    */
    unsigned int getArgCount() const;
 
-   /** getArg - Gets the CmpiData object representing the value
-       associated with the argument  name
-   @param name argument name.
-   @return CmpiData value object associated with the argument.
-   */
+    /**	getArg - Gets the CmpiData object representing the value
+        associated with the argument  name
+	@param name argument name.
+	@return CmpiData value object associated with the argument.
+    */
    CmpiData getArg(const char* name) const;
 
-   /** getArgument - Gets the CmpiData object defined
-   by the input index parameter.
-   @param index Index into the argument array.
-   @param name Optional output parameter returning the argument name.
-   @return CmpiData value object corresponding to the index.
-   */
+    /**	getArgument - Gets the CmpiData object defined
+	by the input index parameter.
+	@param index Index into the argument array.
+	@param name Optional output parameter returning the argument name.
+	@return CmpiData value object corresponding to the index.
+    */
    CmpiData getArg(const int index, CmpiString *name=NULL) const;
 
-   /** setArg - adds/replaces an argument value defined by the input
-   parameter to the container.
-   @param name Property name.
-   @param data Type and Value to be added.
-   */
+    /**	setArg - adds/replaces an argument value defined by the input
+	parameter to the container.
+	@param name Property name.
+	@param data Type and Value to be added.
+    */
    void setArg(const char* name, const CmpiData& data);
 };
 

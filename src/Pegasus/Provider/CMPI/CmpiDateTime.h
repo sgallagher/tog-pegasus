@@ -57,39 +57,25 @@ public:
 
    /** Constructor from CMPI type
    */
-   inline CmpiDateTime(const CMPIDateTime* enc)
-   {
-      this->enc=(void*)enc;
-   }
-
+   CmpiDateTime(const CMPIDateTime* enc);
 
    /** Constructor - Return current time and date.
    */
-   inline CmpiDateTime() {
-      enc=makeDateTime(CmpiProviderBase::getBroker());
-   }
+   CmpiDateTime();
 
-   inline CmpiDateTime(const CmpiDateTime& original) : CmpiObject(0){
-      enc=makeDateTime(CmpiProviderBase::getBroker(),
-                       ((CmpiDateTime&)original).getDateTime(),
-                       ((CmpiDateTime&)original).isInterval());
-   }
+   CmpiDateTime(const CmpiDateTime& original);
 
    /** Constructor - Initialize time and date according to <utcTime>.
    @param utcTime Date/Time definition in UTC format
    */
-   inline CmpiDateTime(const char* utcTime) {
-      enc=makeDateTime(CmpiProviderBase::getBroker(),utcTime);
-   }
+   CmpiDateTime(const char* utcTime);
 
    /** Constructor - Initialize time and date according to <binTime>.
    @param binTime Date/Time definition in binary format in microsecods
         starting since 00:00:00 GMT, Jan 1,1970.
    @param interval defines Date/Time definition to be an interval value
    */
-   inline CmpiDateTime(const CMPIUint64 binTime, const CmpiBoolean interval) {
-      enc=makeDateTime(CmpiProviderBase::getBroker(),binTime,interval);
-   }
+   CmpiDateTime(const CMPIUint64 binTime, const CmpiBoolean interval);
 
    /** isInterval - Tests whether time is an interval value.
    @return CmpiBoolean true when time is an interval value.
@@ -104,10 +90,7 @@ public:
 
    /** Gets the encapsulated CMPIDateTime.
    */
-   inline CMPIDateTime *getEnc() const
-   {
-      return (CMPIDateTime*)enc;
-   }
+   CMPIDateTime *getEnc() const;
 };
 
 #endif

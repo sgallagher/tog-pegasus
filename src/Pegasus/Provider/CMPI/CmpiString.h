@@ -67,24 +67,17 @@ protected:
    void *enc;
    /** Constructor - Internal use only
    */
-   inline CmpiString(CMPIString* c) {
-      enc=c;
-   }
+   CmpiString(CMPIString* c);
 
    /** Gets the encapsulated CMPIString.
    */
-   inline CMPIString *getEnc() const
-   {
-      return (CMPIString*)enc;
-   }
+   CMPIString *getEnc() const;
+
 public:
 
    /** Constructor - Empty string
    */
-   CmpiString()
-   {
-      enc=NULL;
-   }
+   CmpiString();
 
    /** Constructor - Copy constructor
    */
@@ -92,35 +85,17 @@ public:
 
    /** charPtr - get pointer to char* representation
    */
-   inline const char* charPtr() const
-   {
-      if (getEnc())
-         return (const char*)getEnc()->hdl;
-      else
-         return NULL;
-   }
+   const char* charPtr() const;
 
    /** charPtr - Case sensitive compare
    */
-   inline CmpiBoolean equals(const char *str) const
-   {
-      return (strcmp(charPtr(),str)==0);
-   }
-   inline CmpiBoolean equals(const CmpiString& str) const
-   {
-      return (strcmp(charPtr(),str.charPtr())==0);
-   }
+   CmpiBoolean equals(const char *str) const;
+   CmpiBoolean equals(const CmpiString& str) const;
 
    /** charPtr - Case insensitive compare
    */
-   inline CmpiBoolean equalsIgnoreCase(const char *str) const
-   {
-      return (strcasecmp(charPtr(),str)==0);
-   }
-   inline CmpiBoolean equalsIgnoreCase(const CmpiString& str) const
-   {
-      return (strcasecmp(charPtr(),str.charPtr())==0);
-   }
+   CmpiBoolean equalsIgnoreCase(const char *str) const;
+   CmpiBoolean equalsIgnoreCase(const CmpiString& str) const;
 };
 
 #endif

@@ -55,23 +55,17 @@ protected:
 
    /** Constructor - Should not be called
    */
-   CmpiContext() {
-   }
+   CmpiContext();
 
 public:
 
    /** Constructor used by MIDrivers to encapsulate CMPIContext.
    */
-   inline CmpiContext(CMPIContext* c)
-         : CmpiObject((void*)c) {
-   }
+   CmpiContext(CMPIContext* c);
 
    /** getEnc - Gets the encapsulated CMPIContext.
    */
-   inline CMPIContext *getEnc() const
-   {
-      return (CMPIContext*)enc;
-   }
+   CMPIContext *getEnc() const;
 
    /** invocationFlags - InvocationFlags entry name.
    */

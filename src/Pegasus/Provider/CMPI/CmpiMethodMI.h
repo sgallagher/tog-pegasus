@@ -51,9 +51,7 @@
 
 class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiMethodMI : virtual public CmpiBaseMI {
 public:
-   CmpiMethodMI(const CmpiBroker &mbp, const CmpiContext& ctx) :
-   CmpiBaseMI (mbp,ctx) {
-   }
+   CmpiMethodMI(const CmpiBroker &mbp, const CmpiContext& ctx);
 
    static CMPIStatus driveInvokeMethod
    (CMPIMethodMI* mi, CMPIContext* eCtx, CMPIResult* eRslt,

@@ -60,34 +60,28 @@ protected:
    void *enc;
    /** Constructor - Do nothing
    */
-   CmpiObject() : enc(0) {
-   }
+   CmpiObject();
+
    /** Constructor - Normal base class constructor
    */
-   inline CmpiObject(const void* enc)
-   {
-      this->enc=(void*)enc;
-   }
+   CmpiObject(const void* enc);
+
    CmpiString doToString(CMPIBroker *mb);
+
    CmpiBoolean doIsA(CMPIBroker *mb, const char *typeName) const;
 private:
 public:
    /** isNull - Test for valid encapsualtion pointer
    */
-   inline CmpiBoolean isNull() const
-   {
-      return (enc==NULL);
-   }
-   /** toString - Produc;s CIMOM specific string representation of object
+   CmpiBoolean isNull() const;
+
+   /** toString - Produces CIMOM specific string representation of object
    */
-   inline CmpiString toString() {
-      return doToString(CmpiProviderBase::getBroker());
-   }
+   CmpiString toString();
+
    /** isA - checks this objects type   ;
    */
-   inline CmpiBoolean isA(const char *typeName) const  {
-      return doIsA(CmpiProviderBase::getBroker(),typeName);
-   }
+   CmpiBoolean isA(const char *typeName) const;
 };
 
 #endif

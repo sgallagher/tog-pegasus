@@ -49,11 +49,7 @@ public:
 
    /** Constructor - boolean as input.
    */
-   inline CmpiBooleanData(CMPIBoolean d)
-   {
-      data.value.boolean=d;
-      data.type=CMPI_boolean;
-   }
+   CmpiBooleanData(CMPIBoolean d);
 
 };
 

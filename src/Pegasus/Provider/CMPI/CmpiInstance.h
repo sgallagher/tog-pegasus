@@ -61,27 +61,22 @@ protected:
 
    /** Protected constructor used by MIDrivers to encapsulate CMPIInstance.
    */
-   inline CmpiInstance(const CMPIInstance* enc)
-   {
-      this->enc=(void*)enc;
-   }
+   CmpiInstance(const CMPIInstance* enc);
 
    /** Gets the encapsulated CMPIInstance.
    */
-   inline CMPIInstance *getEnc() const
-   {
-      return (CMPIInstance*)enc;
-   }
+   CMPIInstance *getEnc() const;
+
 private:
 
    /** Constructor - Should not be called
    */
-   CmpiInstance() {
-   }
+   CmpiInstance();
 
    /** Internal make function
    */
    void *CmpiInstance::makeInstance(CMPIBroker *mb, const CmpiObjectPath& cop);
+   
    CmpiBoolean doInstanceIsA(CMPIBroker *mb, const char *className);
 
 public:
@@ -90,17 +85,13 @@ public:
    @param op defining classname and namespace
    @return The new Instance object
    */
-   inline CmpiInstance(const CmpiObjectPath& op) {
-      enc=makeInstance(CmpiProviderBase::getBroker(),op);
-   }
+   CmpiInstance(const CmpiObjectPath& op);
 
    /** instanceIsA - Tests whether this CIM Instance is of type <className>.
    @param className CIM classname to be tested for.
    @return True or False
    */
-   inline CmpiBoolean instanceIsA(const char *className) {
-      return doInstanceIsA(CmpiProviderBase::getBroker(),className);
-   }
+   CmpiBoolean instanceIsA(const char *className);
 
    /** getPropertyCount - Gets the number of Properties
    defined for this Instance.

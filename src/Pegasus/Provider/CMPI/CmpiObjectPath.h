@@ -77,34 +77,23 @@ public:
    @param cls defining classname or NULL
    @return The new ObjectPath object
    */
-   inline CmpiObjectPath(const char *ns, const char *cls) {
-      enc=makeObjectPath(CmpiProviderBase::getBroker(),ns,cls);
-   }
-   CmpiObjectPath(const CmpiString &ns, const char *cls) {
-      enc=makeObjectPath(CmpiProviderBase::getBroker(),ns,cls);
-   }
+   CmpiObjectPath(const char *ns, const char *cls);
+   CmpiObjectPath(const CmpiString &ns, const char *cls);
 
    /** Constructor used by MIDrivers to encapsulate CMPIObjectPathes.
    */
-   inline CmpiObjectPath(CMPIObjectPath* c)
-         : CmpiObject((void*)c) {
-   }
+   CmpiObjectPath(CMPIObjectPath* c);
 
    /** Gets the encapsulated CMPIObjectPath.
    */
-   inline CMPIObjectPath *getEnc() const
-   {
-      return (CMPIObjectPath*)enc;
-   }
+   CMPIObjectPath *getEnc() const;
 
    /** classPathIsA - Tests whether this CIM ObjectPath is a reference
        to a CIM class is of type <className>.
    @param className CIM classname to be tested for.
    @return True or False
    */
-   inline CmpiBoolean classPathIsA(const char *className) const {
-      return doClassPathIsA(CmpiProviderBase::getBroker(),className);
-   }
+   CmpiBoolean classPathIsA(const char *className) const;
 
    /** getHostname - returns the hostname component of the
        ObjectPath
@@ -116,10 +105,7 @@ public:
        @param hn representing the hostname.
    */
    void setHostname(const char* hn);
-   inline void setHostname(CmpiString hn)
-   {
-      setHostname(hn.charPtr());
-   }
+   void setHostname(CmpiString hn);
 
    /** getNameSpace - returns the namespace component of the
        ObjectPath
@@ -131,10 +117,7 @@ public:
        @param ns representing the namespace.
    */
    void setNameSpace(const char* ns);
-   inline void setNameSpace(CmpiString ns)
-   {
-      setNameSpace(ns.charPtr());
-   }
+   void setNameSpace(CmpiString ns);
 
    /** getClassName - returns the classname component of the
        ObjectPath
@@ -146,10 +129,7 @@ public:
        @param hn representing the hostname.
    */
    void setClassName(const char* hn);
-   inline void setClassName(CmpiString hn)
-   {
-      setClassName(hn.charPtr());
-   }
+   void setClassName(CmpiString hn);
 
    /** getKeyCount - Gets the number of key properties
    defined for this ObjectPath.

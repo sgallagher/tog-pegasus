@@ -49,9 +49,7 @@
 
 class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiAssociationMI : virtual public CmpiBaseMI {
 public:
-   CmpiAssociationMI(const CmpiBroker &mbp, const CmpiContext& ctx) :
-   CmpiBaseMI (mbp,ctx) {
-   }
+   CmpiAssociationMI(const CmpiBroker &mbp, const CmpiContext& ctx);
 
    static CMPIStatus driveAssociators
    (CMPIAssociationMI* mi, CMPIContext* eCtx, CMPIResult* eRslt,

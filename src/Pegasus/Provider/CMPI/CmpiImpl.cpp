@@ -47,10 +47,6 @@
 #include "CmpiCharData.h"
 #include "CmpiBooleanData.h"
 
-#ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
-#include <pthread.h>
-#endif
-
 //---------------------------------------------------
 //--
 //	C to C++ base provider function drivers
@@ -73,15 +69,29 @@ CMPIStatus CmpiBaseMI::driveBaseCleanup
    CMPIInstanceMI *mi=( CMPIInstanceMI*)vi;
    CmpiContext ctx(eCtx);
    CmpiStatus rc(CMPI_RC_OK);
-   CmpiProviderBase::setBroker(((CmpiBaseMI*)mi->hdl)->broker->getEnc());
-   rc=((CmpiInstanceMI*)mi->hdl)->cleanup(ctx);
-   delete (CmpiInstanceMI*)mi->hdl;
+   CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*>(mi->hdl);
+   if (cmi->getProviderBase() && cmi->getProviderBase()->decUseCount()==0) {
+     cmi->setProviderBase(0);
+     rc=cmi->cleanup(ctx);
+     delete cmi;
+   }
    return rc.status();
   } catch (CmpiStatus& stat) {
     std::cerr << "caught status :" << stat.rc() << " "  << stat.msg() << std::endl;
 
     return stat.status();
   }
+}
+
+void CmpiBaseMI::setProviderBase(CmpiProviderBase* base)
+{
+  providerBase=base;
+  CmpiProviderBase::setBroker(broker->getEnc());
+}
+
+CmpiProviderBase* CmpiBaseMI::getProviderBase()
+{
+  return providerBase;
 }
 
 CmpiStatus CmpiBaseMI::initialize(const CmpiContext& ctx) {
@@ -107,9 +117,9 @@ CMPIStatus CmpiInstanceMI::driveEnumInstanceNames
    CmpiContext ctx(eCtx);
    CmpiResult rslt(eRslt);
    CmpiObjectPath cop(eCop);
-   CmpiProviderBase::setBroker(((CmpiInstanceMI*)mi->hdl)->broker->getEnc());
-   return ((CmpiInstanceMI*)mi->hdl)->enumInstanceNames
-      (ctx,rslt,cop).status();
+   CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*> (mi->hdl);
+   CmpiInstanceMI* imi = dynamic_cast<CmpiInstanceMI*>(cmi);
+   return imi->enumInstanceNames(ctx,rslt,cop).status();
   } catch (CmpiStatus& stat) {
     std::cerr << "caught status :" << stat.rc() << " "  << stat.msg() << std::endl;
     return stat.status();
@@ -124,8 +134,9 @@ CMPIStatus CmpiInstanceMI::driveEnumInstances
    CmpiContext ctx(eCtx);
    CmpiResult rslt(eRslt);
    CmpiObjectPath cop(eCop);
-   CmpiProviderBase::setBroker(((CmpiInstanceMI*)mi->hdl)->broker->getEnc());
-   return ((CmpiInstanceMI*)mi->hdl)->enumInstances
+   CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*> (mi->hdl);
+   CmpiInstanceMI* imi = dynamic_cast<CmpiInstanceMI*>(cmi);
+   return imi->enumInstances
       (ctx,rslt,cop,(const char**)properties).status();
   } catch (CmpiStatus& stat) {
     std::cerr << "caught status :" << stat.rc() << " "  << stat.msg() << std::endl;
@@ -141,8 +152,9 @@ CMPIStatus CmpiInstanceMI::driveGetInstance
    CmpiContext ctx(eCtx);
    CmpiResult rslt(eRslt);
    CmpiObjectPath cop(eCop);
-   CmpiProviderBase::setBroker(((CmpiInstanceMI*)mi->hdl)->broker->getEnc());
-   return ((CmpiInstanceMI*)mi->hdl)->getInstance
+   CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*> (mi->hdl);
+   CmpiInstanceMI* imi = dynamic_cast<CmpiInstanceMI*>(cmi);
+   return imi->getInstance
       (ctx,rslt,cop,(const char**)properties).status();
   } catch (CmpiStatus& stat) {
     std::cerr << "caught status :" << stat.rc() << " "  << stat.msg() << std::endl;
@@ -159,8 +171,9 @@ CMPIStatus CmpiInstanceMI::driveCreateInstance
    CmpiResult rslt(eRslt);
    CmpiObjectPath cop(eCop);
    CmpiInstance inst(eInst);
-   CmpiProviderBase::setBroker(((CmpiInstanceMI*)mi->hdl)->broker->getEnc());
-   return ((CmpiInstanceMI*)mi->hdl)->createInstance
+   CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*> (mi->hdl);
+   CmpiInstanceMI* imi = dynamic_cast<CmpiInstanceMI*>(cmi);
+   return imi->createInstance
       (ctx,rslt,cop,inst).status();
   } catch (CmpiStatus& stat) {
     std::cerr << "caught status :" << stat.rc() << " "  << stat.msg() << std::endl;
@@ -177,8 +190,9 @@ CMPIStatus CmpiInstanceMI::driveSetInstance
    CmpiResult rslt(eRslt);
    CmpiObjectPath cop(eCop);
    CmpiInstance inst(eInst);
-   CmpiProviderBase::setBroker(((CmpiInstanceMI*)mi->hdl)->broker->getEnc());
-   return ((CmpiInstanceMI*)mi->hdl)->setInstance
+   CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*> (mi->hdl);
+   CmpiInstanceMI* imi = dynamic_cast<CmpiInstanceMI*>(cmi);
+   return imi->setInstance
       (ctx,rslt,cop,inst,(const char**)properties).status();
   } catch (CmpiStatus& stat) {
     std::cerr << "caught status :" << stat.rc() << " "  << stat.msg() << std::endl;
@@ -194,8 +208,9 @@ CMPIStatus CmpiInstanceMI::driveDeleteInstance
    CmpiContext ctx(eCtx);
    CmpiResult rslt(eRslt);
    CmpiObjectPath cop(eCop);
-   CmpiProviderBase::setBroker(((CmpiInstanceMI*)mi->hdl)->broker->getEnc());
-   return ((CmpiInstanceMI*)mi->hdl)->deleteInstance
+   CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*> (mi->hdl);
+   CmpiInstanceMI* imi = dynamic_cast<CmpiInstanceMI*>(cmi);
+   return imi->deleteInstance
       (ctx,rslt,cop).status();
   } catch (CmpiStatus& stat) {
     std::cerr << "caught status :" << stat.rc() << " "  << stat.msg() << std::endl;
@@ -211,8 +226,9 @@ CMPIStatus CmpiInstanceMI::driveExecQuery
    CmpiContext ctx(eCtx);
    CmpiResult rslt(eRslt);
    CmpiObjectPath cop(eCop);
-   CmpiProviderBase::setBroker(((CmpiInstanceMI*)mi->hdl)->broker->getEnc());
-   return ((CmpiInstanceMI*)mi->hdl)->execQuery
+   CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*> (mi->hdl);
+   CmpiInstanceMI* imi = dynamic_cast<CmpiInstanceMI*>(cmi);
+   return imi->execQuery
     (ctx,rslt,cop,language,query).status();
   } catch (CmpiStatus& stat) {
     std::cerr << "caught status :" << stat.rc() << " "  << stat.msg() << std::endl;
@@ -226,6 +242,10 @@ CMPIStatus CmpiInstanceMI::driveExecQuery
 //	Default Instance provider functions
 //--
 //---------------------------------------------------
+
+CmpiInstanceMI::CmpiInstanceMI(const CmpiBroker &mbp, const CmpiContext& ctx)
+   : CmpiBaseMI (mbp,ctx) {
+}
 
 CmpiStatus CmpiInstanceMI::enumInstanceNames
               (const CmpiContext& ctx, CmpiResult& rslt, const CmpiObjectPath& cop) {
@@ -282,8 +302,9 @@ CMPIStatus CmpiAssociationMI::driveAssociators
    CmpiContext ctx(eCtx);
    CmpiResult rslt(eRslt);
    CmpiObjectPath cop(eOp);
-   CmpiProviderBase::setBroker(((CmpiAssociationMI*)mi->hdl)->broker->getEnc());
-   return ((CmpiAssociationMI*)mi->hdl)->associators
+   CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*> (mi->hdl);
+   CmpiAssociationMI* ami = dynamic_cast<CmpiAssociationMI*>(cmi);
+   return ami->associators
       (ctx,rslt,cop,
        (const char*)assocClass,resultClass,
        role,resultRole,(const char**)properties).status();
@@ -301,8 +322,9 @@ CMPIStatus CmpiAssociationMI::driveAssociatorNames
    CmpiContext ctx(eCtx);
    CmpiResult rslt(eRslt);
    CmpiObjectPath cop(eOp);
-   CmpiProviderBase::setBroker(((CmpiAssociationMI*)mi->hdl)->broker->getEnc());
-   return ((CmpiAssociationMI*)mi->hdl)->associatorNames
+   CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*> (mi->hdl);
+   CmpiAssociationMI* ami = dynamic_cast<CmpiAssociationMI*>(cmi);
+   return ami->associatorNames
       (ctx,rslt,cop,
        assocClass,resultClass,
        role,resultRole).status();
@@ -320,8 +342,9 @@ CMPIStatus CmpiAssociationMI::driveReferences
    CmpiContext ctx(eCtx);
    CmpiResult rslt(eRslt);
    CmpiObjectPath cop(eOp);
-   CmpiProviderBase::setBroker(((CmpiAssociationMI*)mi->hdl)->broker->getEnc());
-   return ((CmpiAssociationMI*)mi->hdl)->references
+   CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*> (mi->hdl);
+   CmpiAssociationMI* ami = dynamic_cast<CmpiAssociationMI*>(cmi);
+   return ami->references
       (ctx,rslt,cop,
        resultClass,role,(const char**)properties).status();
   } catch (CmpiStatus& stat) {
@@ -337,8 +360,9 @@ CMPIStatus CmpiAssociationMI::driveReferenceNames
    CmpiContext ctx(eCtx);
    CmpiResult rslt(eRslt);
    CmpiObjectPath cop(eOp);
-   CmpiProviderBase::setBroker(((CmpiAssociationMI*)mi->hdl)->broker->getEnc());
-   return ((CmpiAssociationMI*)mi->hdl)->referenceNames
+   CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*> (mi->hdl);
+   CmpiAssociationMI* ami = dynamic_cast<CmpiAssociationMI*>(cmi);
+   return ami->referenceNames
       (ctx,rslt,cop,
        resultClass,role).status();
   } catch (CmpiStatus& stat) {
@@ -353,6 +377,10 @@ CMPIStatus CmpiAssociationMI::driveReferenceNames
 //	Default Association provider functions
 //--
 //---------------------------------------------------
+
+CmpiAssociationMI::CmpiAssociationMI(const CmpiBroker &mbp, const CmpiContext& ctx)
+    : CmpiBaseMI (mbp,ctx) {
+}
 
 CmpiStatus CmpiAssociationMI::associators
       (const CmpiContext& ctx, CmpiResult& rslt,
@@ -399,8 +427,9 @@ CMPIStatus CmpiMethodMI::driveInvokeMethod
    const CmpiObjectPath cop(eCop);
    const CmpiArgs in(eIn);
    CmpiArgs out(eOut);
-   CmpiProviderBase::setBroker(((CmpiMethodMI*)mi->hdl)->broker->getEnc());
-   return ((CmpiMethodMI*)mi->hdl)->invokeMethod
+   CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*> (mi->hdl);
+   CmpiMethodMI* mmi = dynamic_cast<CmpiMethodMI*>(cmi);
+   return mmi->invokeMethod
       (ctx,rslt,cop,methodName,in,out).status();
   } catch (CmpiStatus& stat) {
     std::cerr << "caught status :" << stat.rc() << " "  << stat.msg() << std::endl;
@@ -414,6 +443,10 @@ CMPIStatus CmpiMethodMI::driveInvokeMethod
 //	Default Method provider functions
 //--
 //---------------------------------------------------
+
+CmpiMethodMI::CmpiMethodMI(const CmpiBroker &mbp, const CmpiContext& ctx)
+   : CmpiBaseMI (mbp,ctx) {
+}
 
 CmpiStatus CmpiMethodMI::invokeMethod
               (const CmpiContext& ctx, CmpiResult& rslt,
@@ -429,6 +462,10 @@ CmpiStatus CmpiMethodMI::invokeMethod
 //--
 //---------------------------------------------------
 
+CmpiPropertyMI::CmpiPropertyMI(const CmpiBroker &mbp, const CmpiContext& ctx)
+   : CmpiBaseMI (mbp,ctx) {
+}
+
 CMPIStatus CmpiPropertyMI::driveSetProperty
       (CMPIPropertyMI* mi, CMPIContext* eCtx, CMPIResult* eRslt,
        CMPIObjectPath* eCop, char* name, CMPIData eData) {
@@ -437,8 +474,9 @@ CMPIStatus CmpiPropertyMI::driveSetProperty
    CmpiResult rslt(eRslt);
    const CmpiObjectPath cop(eCop);
    const CmpiData data(eData);
-   CmpiProviderBase::setBroker(((CmpiPropertyMI*)mi->hdl)->broker->getEnc());
-   return ((CmpiPropertyMI*)mi->hdl)->setProperty
+   CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*> (mi->hdl);
+   CmpiPropertyMI* pmi = dynamic_cast<CmpiPropertyMI*>(cmi);
+   return pmi->setProperty
       (ctx,rslt,cop,name,data).status();
   } catch (CmpiStatus& stat) {
     std::cerr << "caught status :" << stat.rc() << " "  << stat.msg() << std::endl;
@@ -453,8 +491,9 @@ CMPIStatus CmpiPropertyMI::driveGetProperty
    const CmpiContext ctx(eCtx);
    CmpiResult rslt(eRslt);
    const CmpiObjectPath cop(eCop);
-   CmpiProviderBase::setBroker(((CmpiPropertyMI*)mi->hdl)->broker->getEnc());
-   return ((CmpiPropertyMI*)mi->hdl)->getProperty
+   CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*> (mi->hdl);
+   CmpiPropertyMI* pmi = dynamic_cast<CmpiPropertyMI*>(cmi);
+   return pmi->getProperty
       (ctx,rslt,cop,name).status();
   } catch (CmpiStatus& stat) {
     std::cerr << "caught status :" << stat.rc() << " "  << stat.msg() << std::endl;
@@ -488,6 +527,10 @@ CmpiStatus CmpiPropertyMI::getProperty
 //--
 //---------------------------------------------------
 
+CmpiIndicationMI::CmpiIndicationMI(const CmpiBroker &mbp, const CmpiContext& ctx)
+   : CmpiBaseMI (mbp,ctx) {
+}
+
 CMPIStatus CmpiIndicationMI::driveAuthorizeFilter
       (CMPIIndicationMI* mi, CMPIContext* eCtx, CMPIResult* eRslt,
        CMPISelectExp* eSe, char* ns, CMPIObjectPath* eCop, char* user){
@@ -496,8 +539,9 @@ CMPIStatus CmpiIndicationMI::driveAuthorizeFilter
    CmpiResult rslt(eRslt);
    const CmpiObjectPath cop(eCop);
    const CmpiSelectExp se(eSe);
-   CmpiProviderBase::setBroker(((CmpiIndicationMI*)mi->hdl)->broker->getEnc());
-   return ((CmpiIndicationMI*)mi->hdl)->authorizeFilter
+   CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*> (mi->hdl);
+   CmpiIndicationMI* nmi = dynamic_cast<CmpiIndicationMI*>(cmi);
+   return nmi->authorizeFilter
       (ctx,rslt,se,ns,cop,user).status();
   } catch (CmpiStatus& stat) {
     std::cerr << "caught status :" << stat.rc() << " "  << stat.msg() << std::endl;
@@ -513,8 +557,9 @@ CMPIStatus CmpiIndicationMI::driveMustPoll
    CmpiResult rslt(eRslt);
    const CmpiObjectPath cop(eCop);
    const CmpiSelectExp se(eSe);
-   CmpiProviderBase::setBroker(((CmpiIndicationMI*)mi->hdl)->broker->getEnc());
-   return ((CmpiIndicationMI*)mi->hdl)->mustPoll
+   CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*> (mi->hdl);
+   CmpiIndicationMI* nmi = dynamic_cast<CmpiIndicationMI*>(cmi);
+   return nmi->mustPoll
       (ctx,rslt,se,ns,cop).status();
   } catch (CmpiStatus& stat) {
     return stat.status();
@@ -530,8 +575,9 @@ CMPIStatus CmpiIndicationMI::driveActivateFilter
    CmpiResult rslt(eRslt);
    const CmpiObjectPath cop(eCop);
    const CmpiSelectExp se(eSe);
-   CmpiProviderBase::setBroker(((CmpiIndicationMI*)mi->hdl)->broker->getEnc());
-   return ((CmpiIndicationMI*)mi->hdl)->activateFilter
+   CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*> (mi->hdl);
+   CmpiIndicationMI* nmi = dynamic_cast<CmpiIndicationMI*>(cmi);
+   return nmi->activateFilter
       (ctx,rslt,se,ns,cop,first).status();
   } catch (CmpiStatus& stat) {
     return stat.status();
@@ -547,8 +593,9 @@ CMPIStatus CmpiIndicationMI::driveDeActivateFilter
    CmpiResult rslt(eRslt);
    const CmpiObjectPath cop(eCop);
    const CmpiSelectExp se(eSe);
-   CmpiProviderBase::setBroker(((CmpiIndicationMI*)mi->hdl)->broker->getEnc());
-   return ((CmpiIndicationMI*)mi->hdl)->deActivateFilter
+   CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*> (mi->hdl);
+   CmpiIndicationMI* nmi = dynamic_cast<CmpiIndicationMI*>(cmi);
+   return nmi->deActivateFilter
       (ctx,rslt,se,ns,cop,last).status();
   } catch (CmpiStatus& stat) {
     std::cerr << "caught status :" << stat.rc() << " "  << stat.msg() << std::endl;
@@ -600,6 +647,28 @@ CmpiStatus CmpiIndicationMI::deActivateFilter
 //--
 //---------------------------------------------------
 
+CMPIArray *CmpiArray::getEnc() const {
+   return (CMPIArray*)enc;
+}
+
+CmpiArray::CmpiArray(CMPIArray *arr) {
+   enc=arr;
+}
+
+CmpiArray::CmpiArray(CMPICount max, CMPIType type) {
+   enc=makeArray(CmpiProviderBase::getBroker(),max,type);
+}
+
+CmpiArray::CmpiArray() {
+}
+
+ void CmpiArray::operator=(int x) {
+ }
+
+CmpiArrayIdx CmpiArray::operator[](int idx) const {
+   return CmpiArrayIdx(*this,idx);
+}
+
 void *CmpiArray::makeArray(CMPIBroker *mb, CMPICount max, CMPIType type) {
    CMPIStatus rc={CMPI_RC_OK,NULL};
    void *array=mb->eft->newArray(mb,max,type,&rc);
@@ -620,6 +689,11 @@ CMPICount CmpiArray::size() const {
 //--
 //---------------------------------------------------
 
+
+CmpiArrayIdx::CmpiArrayIdx(const CmpiArray &a, CMPICount i)
+         : ar(a), idx(i)
+{
+}
 
 CmpiArrayIdx& CmpiArrayIdx::operator=(const CmpiData& v) {
    CMPIStatus rc={CMPI_RC_OK,NULL};
@@ -707,9 +781,206 @@ CmpiArrayIdx::operator CMPIReal64() const{
 //--
 //---------------------------------------------------
 
+CmpiData::CmpiData(CMPIData& data) {
+   this->data=data;
+}
+
+CmpiData::CmpiData() {
+}
+
+CmpiData::CmpiData(CMPISint8 d) {
+   data.value.sint8=d;
+   data.type=CMPI_sint8;
+}
+
+CmpiData::CmpiData(CMPISint16 d) {
+   data.value.sint16=d;
+   data.type=CMPI_sint16;
+}
+
+CmpiData::CmpiData(CMPISint32 d) {
+   data.value.sint32=d;
+   data.type=CMPI_sint32;
+}
+
+CmpiData::CmpiData(int d) {
+   data.value.sint32=d;
+   data.type=CMPI_sint32;
+}
+
+CmpiData::CmpiData(CMPISint64 d) {
+   data.value.sint64=d;
+   data.type=CMPI_sint64;
+}
+
+CmpiData::CmpiData(CMPIUint8 d) {
+   data.value.sint8=d;
+   data.type=CMPI_uint8;
+}
+
+CmpiData::CmpiData(CMPIUint16 d) {
+   data.value.sint16=d;
+   data.type=CMPI_uint16;
+}
+
+CmpiData::CmpiData(CMPIUint32 d) {
+   data.value.sint32=d;
+   data.type=CMPI_uint32;
+}
+
+CmpiData::CmpiData(unsigned int d) {
+   data.value.sint32=d;
+   data.type=CMPI_uint32;
+}
+
+CmpiData::CmpiData(CMPIUint64 d) {
+   data.value.sint64=d;
+   data.type=CMPI_uint64;
+}
+
+CmpiData::CmpiData(CMPIReal32 d) {
+   data.value.real32=d;
+   data.type=CMPI_real32;
+}
+
+CmpiData::CmpiData(CMPIReal64 d) {
+   data.value.real64=d;
+   data.type=CMPI_real64;
+}
+
+CmpiData::CmpiData(const CmpiString& d) {
+   data.value.chars=(char*)d.charPtr();
+   data.type=CMPI_chars;
+}
+
+CmpiData::CmpiData(const char* d) {
+   if (d)
+      data.value.chars=(char*)d;
+   else
+      data.value.chars="";
+   data.type=CMPI_chars;
+}
+
+CmpiData::CmpiData(const CmpiDateTime& d) {
+   data.value.dateTime=d.getEnc();
+   data.type=CMPI_dateTime;
+}
+
+CmpiData::CmpiData(const CmpiArray& d) {
+   data.value.array=d.getEnc();
+   data.type=((CMPIArrayFT*)d.getEnc()->ft)->getSimpleType(d.getEnc(),0) | CMPI_ARRAY;
+}
+
+CmpiData::operator CmpiString() const {
+   if (data.type!=CMPI_string)
+     throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
+   else
+      return CmpiString(data.value.string);
+}
+
+CmpiData::operator const char* () const {
+   if (data.type!=CMPI_string)
+      throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
+   else
+      return CmpiString(data.value.string).charPtr();
+}
+
+CmpiData::operator CmpiDateTime() const {
+   if (data.type!=CMPI_dateTime)
+      throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
+   else
+      return CmpiDateTime(data.value.dateTime);
+}
+
+CmpiData::operator CMPISint8() const {
+   if (data.type!=CMPI_sint8)
+      throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
+   else
+      return data.value.sint8;
+}
+CmpiData::operator CMPISint16() const {
+   if (data.type!=CMPI_sint16)
+      throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
+   else
+      return data.value.sint16;
+}
+
+CmpiData::operator CMPISint32() const {
+   if (data.type!=CMPI_sint32)
+      throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
+   else
+      return data.value.sint32;
+}
+CmpiData::operator int() const {
+   if (data.type!=CMPI_sint32)
+      throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
+   else
+      return data.value.sint32;
+}
+
+CmpiData::operator CMPISint64() const {
+   if (data.type!=CMPI_sint64)
+      throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
+   else
+      return data.value.sint64;
+}
+
+CmpiData::operator unsigned char() const {
+   if (data.type!=CMPI_uint8 && data.type!=CMPI_boolean)
+      throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
+   if (data.type==CMPI_uint8)
+      return data.value.uint8;
+   else
+      return data.value.boolean;
+}
+
+CmpiData::operator unsigned short() const {
+   if (data.type!=CMPI_uint16 && data.type!=CMPI_char16)
+      throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
+   if (data.type==CMPI_uint16)
+      return data.value.uint16;
+   else
+      return data.value.char16;
+}
+
+CmpiData::operator CMPIUint32() const {
+   if (data.type!=CMPI_uint32)
+      throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
+   else
+      return data.value.uint32;
+}
+
+CmpiData::operator unsigned int() const {
+   if (data.type!=CMPI_uint32)
+      throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
+   else
+      return data.value.uint32;
+}
+
+CmpiData::operator CMPIUint64() const {
+   if (data.type!=CMPI_uint64)
+      throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
+   else
+      return data.value.uint64;
+}
+
+CmpiData::operator CMPIReal32() const {
+   if (data.type!=CMPI_real32)
+      throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
+   else
+      return data.value.real32;
+}
+
+CmpiData::operator CMPIReal64() const {
+   if (data.type!=CMPI_real64)
+      throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
+   else
+      return data.value.real64;
+}
+
 CmpiData::CmpiData(const CmpiObjectPath& d) {
-  data.value.ref=(CMPIObjectPath*)d.getEnc(); 
-  data.type=CMPI_ref; 
+  data.value.ref=(CMPIObjectPath*)d.getEnc();
+  data.type=CMPI_ref;
 }
 
 CmpiData::operator CmpiInstance() const{
@@ -733,10 +1004,52 @@ CmpiData::operator CmpiArray() const {
 
 //---------------------------------------------------
 //--
+//	CmpiBooleanData member functions
+//--
+//---------------------------------------------------
+
+CmpiBooleanData::CmpiBooleanData(CMPIBoolean d) {
+   data.value.boolean=d;
+   data.type=CMPI_boolean;
+}
+
+
+//---------------------------------------------------
+//--
+//	CmpiCharData member functions
+//--
+//---------------------------------------------------
+
+CmpiCharData::CmpiCharData(CMPIChar16 d) {
+   data.value.char16=d;
+   data.type=CMPI_char16;
+}
+
+
+//---------------------------------------------------
+//--
 //	CmpiInstance member functions
 //--
 //---------------------------------------------------
 
+CmpiInstance::CmpiInstance(const CMPIInstance* enc) {
+   this->enc=(void*)enc;
+}
+
+CMPIInstance *CmpiInstance::getEnc() const {
+   return (CMPIInstance*)enc;
+}
+
+CmpiInstance::CmpiInstance() {
+}
+
+CmpiInstance::CmpiInstance(const CmpiObjectPath& op) {
+   enc=makeInstance(CmpiProviderBase::getBroker(),op);
+}
+
+CmpiBoolean CmpiInstance::instanceIsA(const char *className) {
+   return doInstanceIsA(CmpiProviderBase::getBroker(),className);
+}
 
 void *CmpiInstance::makeInstance(CMPIBroker *mb, const CmpiObjectPath& cop) {
    CMPIStatus rc={CMPI_RC_OK,NULL};
@@ -822,6 +1135,21 @@ CmpiObjectPath CmpiInstance::getObjectPath() const {
 //--
 //---------------------------------------------------
 
+CMPIStatus CmpiStatus::status() const {
+   return st;
+}
+CmpiStatus::CmpiStatus(const CMPIrc rcp, const char *msg) {
+   st.rc=rcp;
+   st.msg=CMNewString(CmpiProviderBase::getBroker(),(char*)msg,NULL);
+}
+
+CMPIrc CmpiStatus::rc() const {
+   return st.rc;
+}
+
+const char*  CmpiStatus::msg() {
+   return st.msg ? CMGetCharPtr(st.msg) : 0;
+}
 
 CmpiStatus::CmpiStatus() {
    st.rc=CMPI_RC_OK;
@@ -843,7 +1171,37 @@ CmpiStatus::CmpiStatus(CMPIStatus stat) {
 //--
 //---------------------------------------------------
 
+CmpiObjectPath::CmpiObjectPath(const char *ns, const char *cls) {
+   enc=makeObjectPath(CmpiProviderBase::getBroker(),ns,cls);
+}
 
+CmpiObjectPath::CmpiObjectPath(const CmpiString &ns, const char *cls) {
+   enc=makeObjectPath(CmpiProviderBase::getBroker(),ns,cls);
+}
+
+CmpiObjectPath::CmpiObjectPath(CMPIObjectPath* c)
+     : CmpiObject((void*)c) {
+}
+
+CMPIObjectPath *CmpiObjectPath::getEnc() const {
+   return (CMPIObjectPath*)enc;
+}
+
+CmpiBoolean CmpiObjectPath::classPathIsA(const char *className) const {
+   return doClassPathIsA(CmpiProviderBase::getBroker(),className);
+}
+
+void CmpiObjectPath::setHostname(CmpiString hn) {
+   setHostname(hn.charPtr());
+}
+
+void CmpiObjectPath::setNameSpace(CmpiString ns) {
+   setNameSpace(ns.charPtr());
+}
+
+void CmpiObjectPath::setClassName(CmpiString hn) {
+   setClassName(hn.charPtr());
+}
 
 void *CmpiObjectPath::makeObjectPath(CMPIBroker *mb, const char *ns, const char *cls) {
    CMPIStatus rc={CMPI_RC_OK,NULL};
@@ -943,7 +1301,16 @@ void CmpiObjectPath::setKey(const char* name, const CmpiData data) {
 //--
 //---------------------------------------------------
 
+CmpiResult::CmpiResult() {
+}
 
+CmpiResult::CmpiResult(CMPIResult* r)
+      : CmpiObject((void*)r) {
+}
+
+CMPIResult *CmpiResult::getEnc() const {
+   return (CMPIResult*)enc;
+}
 
 void CmpiResult::returnData(const CmpiData& d) {
    CMPIStatus rc=getEnc()->ft->returnData(getEnc(),&((CmpiData)d).data.value,d.data.type);
@@ -973,6 +1340,13 @@ void CmpiResult::returnDone() {
 //--
 //---------------------------------------------------
 
+CmpiBroker::CmpiBroker(CMPIBroker* b)
+         : CmpiObject((void*)b) {
+}
+
+CMPIBroker *CmpiBroker::getEnc() const {
+   return (CMPIBroker*)enc;
+}
 
 void CmpiBroker::deliverIndication(const CmpiContext& ctx, const char*,
                                    const CmpiInstance& inst)
@@ -1115,6 +1489,39 @@ CmpiString::CmpiString(const CmpiString& s) {
   enc=CMNewString(CmpiProviderBase::getBroker(),(char*)s.charPtr(),NULL);
 }
 
+CmpiString::CmpiString(CMPIString* c) {
+   enc=c;
+}
+
+CMPIString *CmpiString::getEnc() const {
+   return (CMPIString*)enc;
+}
+
+CmpiString::CmpiString() {
+   enc=NULL;
+}
+const char* CmpiString::charPtr() const {
+   if (getEnc())
+      return (const char*)getEnc()->hdl;
+   else
+      return NULL;
+}
+
+CmpiBoolean CmpiString::equals(const char *str) const {
+   return (strcmp(charPtr(),str)==0);
+}
+
+CmpiBoolean CmpiString::equals(const CmpiString& str) const {
+   return (strcmp(charPtr(),str.charPtr())==0);
+}
+
+CmpiBoolean CmpiString::equalsIgnoreCase(const char *str) const {
+   return (strcasecmp(charPtr(),str)==0);
+}
+
+CmpiBoolean CmpiString::equalsIgnoreCase(const CmpiString& str) const {
+   return (strcasecmp(charPtr(),str.charPtr())==0);
+}
 
 
 //---------------------------------------------------
@@ -1124,7 +1531,17 @@ CmpiString::CmpiString(const CmpiString& s) {
 //---------------------------------------------------
 
 
+CmpiArgs::CmpiArgs(CMPIArgs* enc) {
+   this->enc=enc;
+}
 
+CmpiArgs::CmpiArgs() {
+   enc=makeArgs(CmpiProviderBase::getBroker());
+}
+
+CMPIArgs *CmpiArgs::getEnc() const {
+   return (CMPIArgs*)enc;
+}
 
 void *CmpiArgs::makeArgs(CMPIBroker *mb) {
    CMPIStatus rc={CMPI_RC_OK,NULL};
@@ -1175,7 +1592,25 @@ unsigned int CmpiArgs::getArgCount() const {
 //---------------------------------------------------
 
 
+CmpiObject::CmpiObject()
+   : enc(0) {
+ }
 
+CmpiObject::CmpiObject(const void* enc) {
+   this->enc=(void*)enc;
+}
+
+CmpiBoolean CmpiObject::isNull() const {
+   return (enc==NULL);
+}
+
+CmpiString CmpiObject::toString() {
+   return doToString(CmpiProviderBase::getBroker());
+}
+
+CmpiBoolean CmpiObject::isA(const char *typeName) const  {
+   return doIsA(CmpiProviderBase::getBroker(),typeName);
+}
 
 CmpiString CmpiObject::doToString(CMPIBroker *mb) {
    CMPIStatus rc={CMPI_RC_OK,NULL};
@@ -1197,6 +1632,16 @@ CmpiBoolean CmpiObject::doIsA(CMPIBroker *mb, const char *typeName) const {
 //--
 //---------------------------------------------------
 
+CmpiEnumeration::CmpiEnumeration(CMPIEnumeration* enc) {
+   this->enc=enc;
+}
+
+CMPIEnumeration *CmpiEnumeration::getEnc() const {
+   return (CMPIEnumeration*)enc;
+}
+
+CmpiEnumeration::CmpiEnumeration() {
+}
 
 CmpiBoolean CmpiEnumeration::hasNext() {
    CMPIStatus rc={CMPI_RC_OK,NULL};
@@ -1230,12 +1675,42 @@ CmpiData CmpiEnumeration::toArray() {
 
 const char *CmpiContext::invocationFlags=CMPIInvocationFlags;
 
+CmpiContext::CmpiContext() {
+}
+
+CmpiContext::CmpiContext(CMPIContext* c)
+         : CmpiObject((void*)c) {
+}
+
+CMPIContext *CmpiContext::getEnc() const {
+   return (CMPIContext*)enc;
+}
+
 CmpiData CmpiContext::getEntry(const char* name) {
    CmpiData d;
    CMPIStatus rc={CMPI_RC_OK,NULL};
    d.data=getEnc()->ft->getEntry(getEnc(),name,&rc);
    if (rc.rc!=CMPI_RC_OK) throw CmpiStatus(rc);
    return d;
+}
+
+
+//---------------------------------------------------
+//--
+//	CmpiSelectExp member functions
+//--
+//---------------------------------------------------
+
+
+CmpiSelectExp::CmpiSelectExp(const CMPISelectExp* enc) {
+   this->enc=(void*)enc;
+}
+
+CMPISelectExp *CmpiSelectExp::getEnc() const {
+   return (CMPISelectExp*)enc;
+}
+
+CmpiSelectExp::CmpiSelectExp() {
 }
 
 
@@ -1246,6 +1721,34 @@ CmpiData CmpiContext::getEntry(const char* name) {
 //--
 //---------------------------------------------------
 
+   /** Constructor from CMPI type
+   */
+CmpiDateTime::CmpiDateTime(const CMPIDateTime* enc) {
+   this->enc=(void*)enc;
+}
+
+CmpiDateTime::CmpiDateTime() {
+   enc=makeDateTime(CmpiProviderBase::getBroker());
+}
+
+CmpiDateTime::CmpiDateTime(const CmpiDateTime& original)
+    : CmpiObject(0) {
+   enc=makeDateTime(CmpiProviderBase::getBroker(),
+                    ((CmpiDateTime&)original).getDateTime(),
+                    ((CmpiDateTime&)original).isInterval());
+}
+
+CmpiDateTime::CmpiDateTime(const char* utcTime) {
+   enc=makeDateTime(CmpiProviderBase::getBroker(),utcTime);
+}
+
+CmpiDateTime::CmpiDateTime(const CMPIUint64 binTime, const CmpiBoolean interval) {
+   enc=makeDateTime(CmpiProviderBase::getBroker(),binTime,interval);
+}
+
+CMPIDateTime *CmpiDateTime::getEnc() const {
+   return (CMPIDateTime*)enc;
+}
 
 void *CmpiDateTime::makeDateTime(CMPIBroker *mb) {
    CMPIStatus rc={CMPI_RC_OK,NULL};
@@ -1287,40 +1790,56 @@ CMPIUint64 CmpiDateTime::getDateTime() const{
 CmpiBooleanData CmpiTrue(true);
 CmpiBooleanData CmpiFalse(false);
 
-// this code segment has been deactivated for other than Linux platforms for the moment.
-// It will be reenabled when we have a platform indepedent solution
-
-#ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
 //-----------------------------------------------------------
 //--
-//      per thread support
+//      ProviderBase
 //--
 //-----------------------------------------------------------
 
-static pthread_once_t brokerOnce = PTHREAD_ONCE_INIT;
-static pthread_key_t brokerKey;
-static void init_key()
-{
-  pthread_key_create(&brokerKey,NULL);
+
+static CMPIBroker __providerBaseBroker = {0,0,0};
+
+CmpiProviderBase::CmpiProviderBase() {
+  useCount=0;
+  baseMI=0;
 }
-#endif
+
+void CmpiProviderBase::
+  incUseCount() 
+{
+  useCount++;
+}
+
+int CmpiProviderBase::
+  decUseCount() 
+{
+  return --useCount;
+}
+
+void CmpiProviderBase::
+  setBaseMI(CmpiBaseMI* aBaseMI) 
+{
+  baseMI = aBaseMI;
+}
+
+CmpiBaseMI* CmpiProviderBase::
+   getBaseMI()
+{
+  return baseMI;
+}
 
 CMPIBroker* CmpiProviderBase::
    getBroker()
 {
-#ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
-  return (CMPIBroker*) pthread_getspecific(brokerKey);
-#else
-  return 0;
-#endif
+  return &__providerBaseBroker;
 }
 
 void CmpiProviderBase::
     setBroker(const CMPIBroker *mb)
 {
-#ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
-  pthread_once(&brokerOnce,init_key);
-  pthread_setspecific(brokerKey,mb);
-#endif
+  if (mb) {
+    __providerBaseBroker.hdl = mb->hdl;
+    __providerBaseBroker.bft = mb->bft;
+    __providerBaseBroker.eft = mb->eft;
+  }
 }
-

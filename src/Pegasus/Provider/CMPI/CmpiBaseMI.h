@@ -53,14 +53,18 @@ public:
 
    CmpiBaseMI(const CmpiBroker &mbp, const CmpiContext& ctx);
 
-   static CMPIStatus driveBaseCleanup
-   (void* mi, CMPIContext* eCtx);
+   void setProviderBase(CmpiProviderBase* base);
+   CmpiProviderBase* getProviderBase();
+
+   static CMPIStatus driveBaseCleanup(void* mi, CMPIContext* eCtx);
 
    virtual CmpiStatus initialize(const CmpiContext& ctx);
    virtual CmpiStatus cleanup(CmpiContext& ctx);
 
 protected:
    CmpiBroker* broker;
+private:
+   CmpiProviderBase* providerBase;
 };
 
 #endif

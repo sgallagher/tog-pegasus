@@ -38,9 +38,7 @@
 
 class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiIndicationMI : virtual public CmpiBaseMI {
 public:
-   CmpiIndicationMI(const CmpiBroker &mbp, const CmpiContext& ctx) :
-   CmpiBaseMI (mbp,ctx) {
-   }
+   CmpiIndicationMI(const CmpiBroker &mbp, const CmpiContext& ctx);
 
    static CMPIStatus driveAuthorizeFilter
    (CMPIIndicationMI* mi, CMPIContext* eCtx, CMPIResult* eRslt,

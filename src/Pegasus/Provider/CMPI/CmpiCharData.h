@@ -49,11 +49,7 @@ class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiCharData : public CmpiData {
 public:
    /** Constructor - singed 8 bit as input.
    */
-   inline CmpiCharData(CMPIChar16 d)
-   {
-      data.value.char16=d;
-      data.type=CMPI_char16;
-   }
+   CmpiCharData(CMPIChar16 d);
 };
 
 #endif

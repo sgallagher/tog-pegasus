@@ -56,16 +56,11 @@ class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiBroker : public CmpiObject {
 public:
    /** constructor to encapsulate CMPIBroker.
    */
-   inline CmpiBroker(CMPIBroker* b)
-         : CmpiObject((void*)b) {
-   }
+   CmpiBroker(CMPIBroker* b);
 
    /** getEnc - Gets the encapsulated CMPIBroker.
    */
-   inline CMPIBroker *getEnc() const
-   {
-      return (CMPIBroker*)enc;
-   }
+   CMPIBroker *getEnc() const;
 
    /** This function prepares the CMPI run time system to accept
          a thread that will be using CMPI services. The returned
@@ -75,14 +70,14 @@ public:
    @return New Context object to be used by thread to be attached.
    */
    CmpiContext prepareAttachThread
-   (const CmpiContext& ctx);
+      (const CmpiContext& ctx);
 
    /** This function informs the CMPI run time system that the current
       thread with Context will begin using CMPI services.
    @param ctx Context object
    */
    void attachThread
-   (const CmpiContext& ctx);
+      (const CmpiContext& ctx);
 
    /** This function informs the CMPI run time system that the current thread
       will not be using CMPI services anymore. The Context object will be
@@ -90,7 +85,7 @@ public:
    @param ctx Context object
    */
    void detachThread
-   (const CmpiContext& ctx);
+     (const CmpiContext& ctx);
 
    // class 0 services
 
@@ -101,9 +96,7 @@ public:
    @param ind Indication Instance
    */
    void deliverIndication
-   (const CmpiContext& ctx, const char* ns,const CmpiInstance& ind);
-
-   // class 1 services
+      (const CmpiContext& ctx, const char* ns,const CmpiInstance& ind);
 
    /** Enumerate Instance Names of the class (and subclasses) defined by <op>.
    @param ctx Context object
@@ -111,7 +104,7 @@ public:
    @return Enumeration of ObjectPathes.
    */
    CmpiEnumeration enumInstanceNames
-   (const CmpiContext& ctx, const CmpiObjectPath& op);
+      (const CmpiContext& ctx, const CmpiObjectPath& op);
 
    /** Get Instance using <op> as reference. Instance structure can be
       controled using the CMPIInvocationFlags entry in <ctx>.
@@ -123,10 +116,8 @@ public:
    @return The Instance.
    */
    CmpiInstance getInstance
-   (const CmpiContext& ctx, const CmpiObjectPath& op,
-    const char** properties);
-
-   // class 2 services
+      (const CmpiContext& ctx, const CmpiObjectPath& op,
+       const char** properties);
 
    /** Create Instance from <inst> using <op> as reference.
    @param ctx Context object
@@ -135,8 +126,8 @@ public:
    @return The assigned instance reference.
    */
    CmpiObjectPath createInstance
-   (const CmpiContext& ctx, const CmpiObjectPath& op,
-    const CmpiInstance& inst);
+      (const CmpiContext& ctx, const CmpiObjectPath& op,
+       const CmpiInstance& inst);
 
    /** Replace an existing Instance from <inst> using <op> as reference.
    @param ctx Context object
@@ -144,15 +135,15 @@ public:
    @param inst Complete instance.
    */
    void setInstance
-   (const CmpiContext& ctx, const CmpiObjectPath& op,
-    const CmpiInstance& inst);
+      (const CmpiContext& ctx, const CmpiObjectPath& op,
+       const CmpiInstance& inst);
 
    /** Delete an existing Instance using <op> as reference.
    @param ctx Context object
    @param op ObjectPath containing namespace, classname and key components.
    */
    void deleteInstance
-   (const CmpiContext& ctx, const CmpiObjectPath& op);
+      (const CmpiContext& ctx, const CmpiObjectPath& op);
 
    /** Query the enumeration of instances of the class (and subclasses) defined
       by <op> using <query> expression.
@@ -163,8 +154,8 @@ public:
    @return Resulting eumeration of Instances.
    */
    CmpiEnumeration execQuery
-   (const CmpiContext& ctx, const CmpiObjectPath& op,
-    const char* query, const char* lang);
+      (const CmpiContext& ctx, const CmpiObjectPath& op,
+       const char* query, const char* lang);
 
    /** Enumerate Instances of the class (and subclasses) defined by <op>.
       Instance structure and inheritance scope can be controled using the
@@ -177,8 +168,8 @@ public:
    @return Enumeration of Instances.
    */
    CmpiEnumeration enumInstances
-   (const CmpiContext& ctx, const CmpiObjectPath& op,
-    const char** properties);
+      (const CmpiContext& ctx, const CmpiObjectPath& op,
+       const char** properties);
 
    /** Enumerate instances associated with the Instance defined by the <op>.
    @param ctx Context object
@@ -209,10 +200,10 @@ public:
    @return Enumeration of Instances.
    */
    CmpiEnumeration associators
-   (const CmpiContext& ctx, const CmpiObjectPath& op,
-    const char* assocClass, const char* resultClass,
-    const char* role, const char* resultRole,
-    const char** properties);
+      (const CmpiContext& ctx, const CmpiObjectPath& op,
+       const char* assocClass, const char* resultClass,
+       const char* role, const char* resultRole,
+       const char** properties);
 
    /** Enumerate ObjectPaths associated with the Instance defined by <op>.
    @param ctx Context object
@@ -240,9 +231,9 @@ public:
    @return Enumeration of ObjectPaths.
    */
    CmpiEnumeration associatorNames
-   (const CmpiContext& ctx, const CmpiObjectPath& op,
-    const char* assocClass, const char* resultClass,
-    const char* role, const char* resultRole);
+      (const CmpiContext& ctx, const CmpiObjectPath& op,
+       const char* assocClass, const char* resultClass,
+       const char* role, const char* resultRole);
 
    /** Enumerates the association instances that refer to the instance defined by
        <op>.
@@ -264,9 +255,9 @@ public:
    @return Enumeration of ObjectPaths.
    */
    CmpiEnumeration references
-   (const CmpiContext& ctx, const CmpiObjectPath& op,
-    const char* resultClass, const char* role,
-    const char** properties);
+      (const CmpiContext& ctx, const CmpiObjectPath& op,
+       const char* resultClass, const char* role,
+       const char** properties);
 
    /** Enumerates the association ObjectPaths that refer to the instance defined by
         <op>.
@@ -285,8 +276,8 @@ public:
    @return Enumeration of ObjectPaths.
    */
    CmpiEnumeration referenceNames
-   (const CmpiContext& ctx, const CmpiObjectPath& op,
-    const char* resultClass, const char* role);
+      (const CmpiContext& ctx, const CmpiObjectPath& op,
+       const char* resultClass, const char* role);
 
    /** Invoke a named, extrinsic method of an Instance
       defined by the <op> parameter.
@@ -298,8 +289,8 @@ public:
    @return Method return value.
    */
    CmpiData invokeMethod
-   (const CmpiContext& ctx, const CmpiObjectPath& op,
-    const char* method, const CmpiArgs& in, CmpiArgs& out);
+      (const CmpiContext& ctx, const CmpiObjectPath& op,
+       const char* method, const CmpiArgs& in, CmpiArgs& out);
 
    /** Set the named property value of an Instance defined by the <op> parameter.
    @param ctx Context object
@@ -308,8 +299,8 @@ public:
    @param data Property value.
    */
    void setProperty
-   (const CmpiContext& ctx, const CmpiObjectPath& op,
-    const char* name, const CmpiData& data);
+      (const CmpiContext& ctx, const CmpiObjectPath& op,
+       const char* name, const CmpiData& data);
 
    /** Get the named property value of an Instance defined by the <op> parameter.
    @param ctx Context object
@@ -318,8 +309,8 @@ public:
    @return Property value.
    */
    CmpiData getProperty
-   (const CmpiContext& ctx, const CmpiObjectPath& op,
-    const char* name);
+      (const CmpiContext& ctx, const CmpiObjectPath& op,
+       const char* name);
 };
 
 #endif

@@ -34,30 +34,31 @@
 #define _CmpiProviderBase_h_
 #include "Linkage.h"
 
+class CmpiBaseMI;
+
 class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiProviderBase {
-   static CmpiProviderBase *base;
-   int useCount;
 public:
+   CmpiProviderBase();
+   CmpiBaseMI* getBaseMI();
+   void setBaseMI(CmpiBaseMI* aBaseMI);
+   void incUseCount();
+   int decUseCount();
+private:
+   friend class CmpiArgs;
+   friend class CmpiArray;
+   friend class CmpiDateTime;
+   friend class CmpiInstance;
+   friend class CmpiObject;
+   friend class CmpiObjectPath;
+   friend class CmpiStatus;
+   friend class CmpiString;
+   friend class CmpiBaseMI;
+   // per provider CmpiBaseMI
+   CmpiBaseMI* baseMI;
+   int useCount;
+   // only for usage inside CMPI CPP library
    static CMPIBroker *getBroker();
    static void setBroker(const CMPIBroker *mb);
-
-   inline int init() {
-      useCount++;
-      if (useCount==1)
-         return 1;
-      else
-         return 0;
-   }
-   inline int term() {
-      useCount--;
-      if (base->useCount==0)
-         return 1;
-      else
-         return 0;
-   }
-   CmpiProviderBase() {
-      useCount=0;
-   }
 };
 
 #endif

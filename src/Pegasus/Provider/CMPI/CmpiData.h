@@ -75,125 +75,69 @@ protected:
 
    /** Constructor - Empty constructor.
    */
-   CmpiData(CMPIData& data)
-   {
-      this->data=data;
-   }
+   CmpiData(CMPIData& data);
 
 public:
 
    /** Constructor - Empty constructor.
    */
-   CmpiData() {
-   }
+   CmpiData();
 
    /** Constructor - singed 8 bit as input.
    */
-   inline CmpiData(CMPISint8 d)
-   {
-      data.value.sint8=d;
-      data.type=CMPI_sint8;
-   }
+   CmpiData(CMPISint8 d);
+
    /** Constructor - singed 16 bit as input.
    */
-   inline CmpiData(CMPISint16 d)
-   {
-      data.value.sint16=d;
-      data.type=CMPI_sint16;
-   }
+   CmpiData(CMPISint16 d);
+
    /** Constructor - singed 32 bit as input.
    */
-   inline CmpiData(CMPISint32 d)
-   {
-      data.value.sint32=d;
-      data.type=CMPI_sint32;
-   }
+   CmpiData(CMPISint32 d);
+
    /** Constructor - singed 32 bit as input.
    */
-   inline CmpiData(int d)
-   {
-      data.value.sint32=d;
-      data.type=CMPI_sint32;
-   }
+   CmpiData(int d);
+
    /** Constructor - singed 64 bit as input.
    */
-   inline CmpiData(CMPISint64 d)
-   {
-      data.value.sint64=d;
-      data.type=CMPI_sint64;
-   }
+   CmpiData(CMPISint64 d);
 
    /** Constructor - unsinged 8 bit as input.
    */
-   inline CmpiData(CMPIUint8 d)
-   {
-      data.value.sint8=d;
-      data.type=CMPI_uint8;
-   }
+   CmpiData(CMPIUint8 d);
+
    /** Constructor - unsinged 16 bit as input.
    */
-   inline CmpiData(CMPIUint16 d)
-   {
-      data.value.sint16=d;
-      data.type=CMPI_uint16;
-   }
+   CmpiData(CMPIUint16 d);
+
    /** Constructor - unsinged 32 bit as input.
    */
-   inline CmpiData(CMPIUint32 d)
-   {
-      data.value.sint32=d;
-      data.type=CMPI_uint32;
-   }
+   CmpiData(CMPIUint32 d);
+
    /** Constructor - unsinged 32 bit as input.
    */
-   inline CmpiData(unsigned int d)
-   {
-      data.value.sint32=d;
-      data.type=CMPI_uint32;
-   }
+   CmpiData(unsigned int d);
+
    /** Constructor - unsinged 64 bit as input.
    */
-   inline CmpiData(CMPIUint64 d)
-   {
-      data.value.sint64=d;
-      data.type=CMPI_uint64;
-   }
+   CmpiData(CMPIUint64 d);
 
    /** Constructor - 32 bit float as input.
    */
-   inline CmpiData(CMPIReal32 d)
-   {
-      data.value.real32=d;
-      data.type=CMPI_real32;
-   }
+   CmpiData(CMPIReal32 d);
 
    /** Constructor - 64 bit float as input.
    */
-   inline CmpiData(CMPIReal64 d)
-   {
-      data.value.real64=d;
-      data.type=CMPI_real64;
-   }
-
+   CmpiData(CMPIReal64 d);
 
    /** Constructor - String as input.
    */
-   inline CmpiData(const CmpiString& d)
-   {
-      data.value.chars=(char*)d.charPtr();
-      data.type=CMPI_chars;
-   }
+   CmpiData(const CmpiString& d);
 
    /** Constructor - char* as input.
    */
-   inline CmpiData(const char* d)
-   {
-      if (d)
-         data.value.chars=(char*)d;
-      else
-         data.value.chars="";
-      data.type=CMPI_chars;
-   }
+   CmpiData(const char* d);
 
    /** Constructor - ObjectPath as input.
    */
@@ -202,166 +146,70 @@ public:
 
    /** Constructor - DateTime as input.
    */
-   inline CmpiData(const CmpiDateTime& d)
-   {
-      data.value.dateTime=d.getEnc();
-      data.type=CMPI_dateTime;
-   }
-
+   CmpiData(const CmpiDateTime& d);
 
    /** Constructor - Array as input.
    */
-   inline CmpiData(const CmpiArray& d)
-   {
-      data.value.array=d.getEnc();
-      data.type=((CMPIArrayFT*)d.getEnc()->ft)->getSimpleType(d.getEnc(),0) | CMPI_ARRAY;
-   }
+   CmpiData(const CmpiArray& d);
 
    /** Extracting String.
    */
-   inline  operator CmpiString() const
-   {
-      if (data.type!=CMPI_string)
-         throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
-      else
-         return CmpiString(data.value.string);
-   }
+    operator CmpiString() const;
 
    /** Extracting const char *.
    */
-   inline  operator const char* () const
-   {
-      if (data.type!=CMPI_string)
-         throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
-      else
-         return CmpiString(data.value.string).charPtr();
-   }
+    operator const char* () const;
 
    /** Extracting CmpiDataTime.
    */
-   inline operator CmpiDateTime() const
-   {
-      if (data.type!=CMPI_dateTime)
-         throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
-      else
-         return CmpiDateTime(data.value.dateTime);
-   }
+   operator CmpiDateTime() const;
 
    /** Extracting signed 8 bit.
    */
-   inline operator CMPISint8() const
-   {
-      if (data.type!=CMPI_sint8)
-         throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
-      else
-         return data.value.sint8;
-   }
+   operator CMPISint8() const;
    /** Extracting signed 16 bit.
    */
-   inline operator CMPISint16() const
-   {
-      if (data.type!=CMPI_sint16)
-         throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
-      else
-         return data.value.sint16;
-   }
+   operator CMPISint16() const;
+
    /** Extracting signed 32 bit.
    */
-   inline operator CMPISint32() const
-   {
-      if (data.type!=CMPI_sint32)
-         throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
-      else
-         return data.value.sint32;
-   }
+   operator CMPISint32() const;
+
    /** Extracting signed 32 bit.
    */
-   inline operator int() const
-   {
-      if (data.type!=CMPI_sint32)
-         throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
-      else
-         return data.value.sint32;
-   }
+   operator int() const;
+
    /** Extracting signed 64 bit.
    */
-   inline operator CMPISint64() const
-   {
-      if (data.type!=CMPI_sint64)
-         throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
-      else
-         return data.value.sint64;
-   }
+   operator CMPISint64() const;
 
    /** Extracting unsigned 8 bit or boolean.
    */
-   inline operator unsigned char() const
-   {
-      if (data.type!=CMPI_uint8 && data.type!=CMPI_boolean)
-         throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
-      if (data.type==CMPI_uint8)
-         return data.value.uint8;
-      else
-         return data.value.boolean;
-   }
+   operator unsigned char() const;
+
    /** Extracting unsigned 16 bit or char16.
    */
-   inline operator unsigned short() const
-   {
-      if (data.type!=CMPI_uint16 && data.type!=CMPI_char16)
-         throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
-      if (data.type==CMPI_uint16)
-         return data.value.uint16;
-      else
-         return data.value.char16;
-   }
+   operator unsigned short() const;
+
    /** Extracting unsigned 32 bit.
    */
-   inline operator CMPIUint32() const
-   {
-      if (data.type!=CMPI_uint32)
-         throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
-      else
-         return data.value.uint32;
-   }
+   operator CMPIUint32() const;
+
    /** Extracting unsigned 32 bit.
    */
-   inline operator unsigned int() const
-   {
-      if (data.type!=CMPI_uint32)
-         throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
-      else
-         return data.value.uint32;
-   }
+   operator unsigned int() const;
+
    /** Extracting unsigned 64 bit.
    */
-   inline operator CMPIUint64() const
-   {
-      if (data.type!=CMPI_uint64)
-         throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
-      else
-         return data.value.uint64;
-   }
+   operator CMPIUint64() const;
 
    /** Extracting float 32 bit.
    */
-   inline operator CMPIReal32() const
-   {
-      if (data.type!=CMPI_real32)
-         throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
-      else
-         return data.value.real32;
-   }
+   operator CMPIReal32() const;
 
    /** Extracting float 64 bit.
    */
-   inline operator CMPIReal64() const
-   {
-      if (data.type!=CMPI_real64)
-         throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
-      else
-         return data.value.real64;
-   }
+   operator CMPIReal64() const;
 
    /** Extracting Array.
    */

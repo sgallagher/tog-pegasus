@@ -2207,12 +2207,16 @@ CMPIInstanceMI* CMInstanceMIFactory(chars cn, chars pn);
    fprintf(stderr,"--- _Create_InstanceMI() broker: %p\n",broker); \
    CmpiContext ctx(ctxp); \
    mi.ft=&instMIFT; \
-   CmpiInstanceMI *provider=new cn(CmpiBroker(broker),ctx); \
+   CmpiBaseMI *provider=base##pn.getBaseMI(); \
+   if (provider == 0) {\
+     provider = new cn(CmpiBroker(broker),ctx); \
+     provider->setProviderBase(&base##pn); \
+     provider->initialize(ctx); \
+     base##pn.setBaseMI(provider); \
+   } \
    mi.hdl=provider; \
-   if (base##pn.init()) { \
-       provider->initialize(ctx); \
-    } \
-    return &mi; \
+   base##pn.incUseCount(); \
+   return &mi; \
  }
 #endif
 
@@ -2248,12 +2252,16 @@ CMPIAssociationMI* CMAssociationMIFactory(chars cn, chars pn);
    fprintf(stderr,"--- _Create_AssociationMI() broker: %p\n",broker); \
    CmpiContext ctx(ctxp); \
    mi.ft=&assocMIFT; \
-   CmpiAssociationMI *provider=new cn(CmpiBroker(broker),ctx); \
+   CmpiBaseMI *provider=base##pn.getBaseMI(); \
+   if (provider == 0) {\
+     provider = new cn(CmpiBroker(broker),ctx); \
+     provider->setProviderBase(&base##pn); \
+     provider->initialize(ctx); \
+     base##pn.setBaseMI(provider); \
+   } \
    mi.hdl=provider; \
-   if (base##pn.init()) { \
-       provider->initialize(ctx); \
-    } \
-    return &mi; \
+   base##pn.incUseCount(); \
+   return &mi; \
  }
 #endif
 
@@ -2286,12 +2294,16 @@ CMPIMethodMI* CMMethodMIFactory(chars cn, chars pn);
    fprintf(stderr,"--- _Create_MethodMI() broker: %p\n",broker); \
    CmpiContext ctx(ctxp); \
    mi.ft=&methMIFT; \
-   CmpiMethodMI *provider=new cn(CmpiBroker(broker),ctx); \
+   CmpiBaseMI *provider=base##pn.getBaseMI(); \
+   if (provider == 0) {\
+     provider = new cn(CmpiBroker(broker),ctx); \
+     provider->setProviderBase(&base##pn); \
+     provider->initialize(ctx); \
+     base##pn.setBaseMI(provider); \
+   } \
    mi.hdl=provider; \
-   if (base##pn.init()) { \
-       provider->initialize(ctx); \
-    } \
-    return &mi; \
+   base##pn.incUseCount(); \
+   return &mi; \
  }
 #endif
 
@@ -2324,11 +2336,15 @@ CMPIPropertyMI* CMPropertyMIFactory(chars cn, chars pn):
    fprintf(stderr,"--- _Create_MethodMI() broker: %p\n",broker); \
    CmpiContext ctx(ctxp); \
    mi.ft=&propMIFT; \
-   CmpiPropertyMI *provider=new cn(CmpiBroker(broker),ctx); \
+   CmpiBaseMI *provider=base##pn.getBaseMI(); \
+   if (provider == 0) {\
+     provider = new cn(CmpiBroker(broker),ctx); \
+     provider->setProviderBase(&base##pn); \
+     provider->initialize(ctx); \
+     base##pn.setBaseMI(provider); \
+   } \
    mi.hdl=provider; \
-   if (base##pn.init()) { \
-       provider->initialize(ctx); \
-    } \
+   base##pn.incUseCount(); \
    return &mi; \
  }
 #endif
@@ -2374,12 +2390,16 @@ CMPIPropertyMI* CMPropertyMIFactory(chars cn, chars pn):
    fprintf(stderr,"--- _Create_IndicationMI() broker: %p\n",broker); \
    CmpiContext ctx(ctxp); \
    mi.ft=&indMIFT; \
-   CmpiIndicationMI *provider=new cn(CmpiBroker(broker),ctx); \
+   CmpiBaseMI *provider=base##pn.getBaseMI(); \
+   if (provider == 0) {\
+     provider = new cn(CmpiBroker(broker),ctx); \
+     provider->setProviderBase(&base##pn); \
+     provider->initialize(ctx); \
+     base##pn.setBaseMI(provider); \
+   } \
    mi.hdl=provider; \
-   if (base##pn.init()) { \
-       provider->initialize(ctx); \
-    } \
-  return &mi; \
+   base##pn.incUseCount(); \
+   return &mi; \
  }
 #endif
 

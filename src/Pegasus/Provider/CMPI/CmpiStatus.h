@@ -57,15 +57,14 @@ protected:
 
    /** status - Returns CMPIStatus struct, to be used by MI drivers only.
    */
-   inline CMPIStatus status() const
-   {
-      return st;
-   }
+   CMPIStatus status() const;
+
 private:
 
    /** Constructor - not to be used.
    */
    CmpiStatus();
+
 public:
 
    /** Aux Constructor - set from CMPIStatus.
@@ -82,24 +81,15 @@ public:
        @param rc The return code.
        @param msg Descriptive message.
    */
-   inline CmpiStatus(const CMPIrc rcp, const char *msg) {
-      st.rc=rcp;
-      st.msg=CMNewString(CmpiProviderBase::getBroker(),(char*)msg,NULL);
-   }
-   //   CmpiStatus(const CMPIrc rc, const char *msg);
+   CmpiStatus(const CMPIrc rcp, const char *msg);
+
    /** rc - get the rc value.
    */
-   inline CMPIrc rc() const
-   {
-      return st.rc;
-   }
+   CMPIrc rc() const;
 
    /** msg - get the msg component.
    */
-   inline const char*  msg()
-   {
-      return st.msg?CMGetCharPtr(st.msg):0;
-   }
+   const char*  msg();
 };
 
 #endif

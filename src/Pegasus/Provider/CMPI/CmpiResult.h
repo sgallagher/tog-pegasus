@@ -57,22 +57,17 @@ private:
 
    /** Constructor - Should not be called
    */
-   CmpiResult() {
-   }
+   CmpiResult();
 protected:
 
    /** Protected constructor used by MIDrivers to encapsulate CMPIResult.
    */
-   CmpiResult(CMPIResult* r)
-         : CmpiObject((void*)r) {
-   }
+   CmpiResult(CMPIResult* r);
 
    /** getEnc - Gets the encapsulated CMPIResult.
    */
-   inline CMPIResult *getEnc() const
-   {
-      return (CMPIResult*)enc;
-   }
+  CMPIResult *getEnc() const;
+  
 public:
 
    /** returnData - Return a CmpiData instance.

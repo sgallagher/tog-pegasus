@@ -51,9 +51,7 @@
 
 class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiInstanceMI : virtual public CmpiBaseMI {
 public:
-   CmpiInstanceMI(const CmpiBroker &mbp, const CmpiContext& ctx) :
-   CmpiBaseMI (mbp,ctx) {
-   }
+   CmpiInstanceMI(const CmpiBroker &mbp, const CmpiContext& ctx);
 
    static CMPIStatus driveEnumInstanceNames
    (CMPIInstanceMI* mi,CMPIContext* eCtx, CMPIResult* eRslt,

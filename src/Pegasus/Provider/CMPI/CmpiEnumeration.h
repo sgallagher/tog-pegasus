@@ -54,23 +54,18 @@ protected:
 
    /** Protected constructor used by MIDrivers to encapsulate CMPIEnumeration.
    */
-   inline CmpiEnumeration(CMPIEnumeration* enc)
-   {
-      this->enc=enc;
-   }
+   CmpiEnumeration(CMPIEnumeration* enc);
 
    /** getEnc - Gets the encapsulated CMPIEnumeration.
    */
-   inline CMPIEnumeration *getEnc() const
-   {
-      return (CMPIEnumeration*)enc;
-   }
+   CMPIEnumeration *getEnc() const;
+
 private:
 
    /** Constructor - Should not be called
    */
-   CmpiEnumeration() {
-   }
+   CmpiEnumeration();
+
 public:
 
    /** getNext - Gets next entry.

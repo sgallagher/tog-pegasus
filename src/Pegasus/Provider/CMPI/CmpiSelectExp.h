@@ -59,23 +59,17 @@ protected:
 
    /** Protected constructor used by MIDrivers to encapsulate CMPISelectExp.
    */
-   inline CmpiSelectExp(const CMPISelectExp* enc)
-   {
-      this->enc=(void*)enc;
-   }
+   CmpiSelectExp(const CMPISelectExp* enc);
 
    /** Gets the encapsulated CMPISelectExp.
    */
-   inline CMPISelectExp *getEnc() const
-   {
-      return (CMPISelectExp*)enc;
-   }
+   CMPISelectExp *getEnc() const;
+
 private:
 
    /** Constructor - Should not be called
    */
-   CmpiSelectExp() {
-   }
+   CmpiSelectExp();
 public:
 };
 

@@ -47,9 +47,7 @@ class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiArrayIdx {
    friend class CmpiArray;
    const CmpiArray &ar;
    CMPICount idx;
-   CmpiArrayIdx(const CmpiArray &a, CMPICount i)
-         : ar(a), idx(i) {
-   }
+   CmpiArrayIdx(const CmpiArray &a, CMPICount i);
 public:
    CmpiArrayIdx& operator=(const CmpiData&);
    CmpiData getData() const;
@@ -130,33 +128,23 @@ public:
  
        Type mismatches will be signalled by exceptions.
 */
+
 class CmpiArray : public CmpiObject {
    friend class CmpiArrayIdx;
    friend class CmpiData;
    friend class CmpiEnumeration;
-   void operator=(int x) {
-   }
+   void operator=(int x);
 
    /** Gets the encapsulated CMPIArray.
    */
-   inline CMPIArray *getEnc() const
-   {
-      return (CMPIArray*)enc;
-   }
+   CMPIArray *getEnc() const;
    void *makeArray(CMPIBroker *mb,CMPICount max, CMPIType type);
-   CmpiArray(CMPIArray *arr) {
-      enc=arr;
-   }
+   CmpiArray(CMPIArray *arr);
 public:
-   inline CmpiArray(CMPICount max, CMPIType type) {
-      enc=makeArray(CmpiProviderBase::getBroker(),max,type);
-   }
-   CmpiArray() {
-   }
+   CmpiArray(CMPICount max, CMPIType type);
+   CmpiArray();
    CMPICount size() const;
-   inline CmpiArrayIdx operator[](int idx) const {
-      return CmpiArrayIdx(*this,idx);
-   }
+   CmpiArrayIdx operator[](int idx) const;
 };
 
 #endif

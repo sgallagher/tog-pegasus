@@ -94,7 +94,7 @@ SOURCES = \
     ModuleController.cpp \
     Monitor.cpp \
     ObjectNormalizer.cpp \
-	OperationContext.cpp \
+    OperationContext.cpp \
     OperationContextInternal.cpp \
     OptionManager.cpp \
     pegasus_socket.cpp \
@@ -128,6 +128,14 @@ SOURCES = \
     MofWriter.cpp \
     peg_authorization.cpp \
     CommonUTF.cpp
+
+SOURCES_SLP = Attribute.cpp \
+    CIMServerDescription.cpp
+
+ifdef PEGASUS_ENABLE_SLP
+  SOURCES += $(SOURCES_SLP)
+endif
+
 
 ifeq ($(OS),linux)
   EXTRA_LIBRARIES += -lcrypt

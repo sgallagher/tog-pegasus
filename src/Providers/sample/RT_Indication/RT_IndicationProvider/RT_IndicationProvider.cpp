@@ -381,7 +381,14 @@ void RT_IndicationProvider::_checkOperationContext(const OperationContext& conte
       throw CIMOperationFailedException(funcName + "- empty filter query lang");
     }
 
-    //
+    CIMNamespaceName tst("root/SampleProvider");
+    if (!qContainer.getSourceNameSpace().equal(tst))
+    {
+      PEGASUS_STD(cout) << funcName << "- incorrect source namespace" << PEGASUS_STD(endl);
+      throw CIMOperationFailedException(funcName + "- incorrect source namespace");
+    }
+ 
+     //
     // Try to parse the filter query from the filter query container
     //
     try

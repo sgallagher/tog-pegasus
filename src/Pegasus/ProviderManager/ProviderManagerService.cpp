@@ -82,7 +82,7 @@ static struct timeval deadwait = { 1, 0};
 
 ProviderManagerService::ProviderManagerService(void)
     : MessageQueueService("Server::ProviderManagerService", MessageQueue::getNextQueueId()),
-    _threadPool(10, "ProviderManagerService", 5, 15, await, dwait, deadwait),
+    _threadPool(10, "ProviderManagerService", 1, 5, await, dwait, deadwait),
     _threadSemaphore(0)
 {
 }

@@ -169,7 +169,7 @@ Message * ProviderMessageFacade::_handleGetInstanceRequest(Message * message) th
 	Uint32 flags = OperationFlag::convert(false);
 
 	// ATTN: strip flags inappropriate for providers
-	flags = flags | ~OperationFlag::LOCAL_ONLY | ~OperationFlag::DEEP_INHERITANCE;
+	flags = flags & ~OperationFlag::LOCAL_ONLY & ~OperationFlag::DEEP_INHERITANCE;
 
 	CIMPropertyList propertyList(request->propertyList);
 
@@ -254,7 +254,7 @@ Message * ProviderMessageFacade::_handleEnumerateInstancesRequest(Message * mess
 	Uint32 flags = OperationFlag::convert(false);
 
 	// ATTN: strip flags inappropriate for providers
-	flags = flags | ~OperationFlag::LOCAL_ONLY | ~OperationFlag::DEEP_INHERITANCE;
+	flags = flags & ~OperationFlag::LOCAL_ONLY & ~OperationFlag::DEEP_INHERITANCE;
 
 	CIMPropertyList propertyList(request->propertyList);
 
@@ -487,7 +487,7 @@ Message * ProviderMessageFacade::_handleModifyInstanceRequest(Message * message)
 	Uint32 flags = OperationFlag::convert(false);
 
 	// ATTN: strip flags inappropriate for providers
-	flags = flags | ~OperationFlag::LOCAL_ONLY | ~OperationFlag::DEEP_INHERITANCE;
+	flags = flags & ~OperationFlag::LOCAL_ONLY & ~OperationFlag::DEEP_INHERITANCE;
 
 	CIMPropertyList propertyList(request->propertyList);
 

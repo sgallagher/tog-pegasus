@@ -103,6 +103,7 @@ class PEGASUS_EXPORT AsyncOpNodeLocal : public AsyncOpNode
 	 return false;
       }
       void make_orphan( AsyncOpNode *parent)
+	 throw(IPCException)
       {
 	 check_owner();
 	 if(parent == (AsyncOpNode *) _parent)

@@ -23,89 +23,156 @@
 //
 // Author: Markus Mueller (sedgewick_de@yahoo.de)
 //
-// Modified By:
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Thread.h>
+#include <Pegasus/Common/MessageQueue.h>
 #include <sys/types.h>
-#include <unistd.h>
 #include <cassert>
 #include <iostream>
-#include <Pegasus/Common/MessageQueue.h>
-
-#define D(X) /* empty */
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+# include <windows.h>
+#else
+# include <unistd.h>
+#endif
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-#define MY_CANCEL_TYPE 1000
+const Uint32 MY_CANCEL_TYPE=1000;
 
-typedef struct {
+Boolean verbose = false;
+
+// Fibonacci test parameter definition
+class parmdef
+{
+public:
+    parmdef()
+    {
+        th = NULL;
+        cond_start = new Condition();
+        mq = NULL;
+    }
+
+    ~parmdef()
+    {
+        delete cond_start;
+    }
+
     int first;
     int second;
     int count;
     Thread * th;
     Condition * cond_start;
     MessageQueue * mq;
-    AtomicInt * aiPtr;
-} parmdef;
-
-void * fibonacci(void * parm);
-void * deq(void * parm);
-
-static AtomicInt ai;
-
-static parmdef * setparm()
-{
-    parmdef * parm = new parmdef;
-    parm->first = 0;
-    parm->second = 1;
-    parm->count = 20;
-    parm->th = NULL;
-    parm->cond_start = new Condition();
-    parm->mq = NULL;
-    parm->aiPtr = &ai;
-    return parm;
 };
-    
-Boolean die = false;
 
 
-int main()
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL fibonacci(void * parm)
 {
-    void * retval;
-    int ai2,ai3;
+    Thread* my_thread = (Thread *)parm;
+    parmdef * Parm = (parmdef *)my_thread->get_parm();
+    int first = Parm->first;
+    int second = Parm->second;
+    int count = Parm->count;
+    Condition * condstart = Parm->cond_start;
+    MessageQueue * mq = Parm->mq;
+    
+    condstart->signal(my_thread->self());
 
-    Uint32 rn,rn2;
+    int add_to_type = 0;
+    if (count < 20)
+        add_to_type = 100;
 
+    for (int i=0; i < count; i++)
+    {
+        int sum = first + second;
+        first = second;
+        second = sum;
+        Message * message = new Message(i+add_to_type, 0, sum);
+        mq->enqueue(message);
+    }
+
+    if (!add_to_type)
+        Parm->th->thread_switch();
+
+    my_thread->exit_self(0);
+    return NULL;
+}
+
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL deq(void * parm)
+{
+    Thread* my_thread = (Thread *)parm;
+  
+    parmdef * Parm = (parmdef *)my_thread->get_parm();
+    Uint32 type, key;
+
+    int first = Parm->first;
+    int second = Parm->second;
+    int count = Parm->count;
+    Condition * condstart = Parm->cond_start;
+    MessageQueue * mq = Parm->mq;
+    
+    condstart->signal(my_thread->self());
+
+    Message * message;
+    type = 0;
+    key = 0;
+
+    while (type != MY_CANCEL_TYPE)
+    {
+        message = mq->dequeue();
+        while (!message) {
+            message = mq->dequeue();
+        }
+
+        key = message->getKey();
+        type = message->getType();
+        delete message;
+        if (type == 19)
+            assert(key == 10946);
+    }
+
+    if (verbose)
+        cout << "Received Cancel Message, " << pegasus_thread_self() <<
+            " about to end\n";
+
+    my_thread->exit_self(0);
+    return NULL;
+}
+
+// Test Thread, MessageQueue, and Condition
+int test01()
+{
     MessageQueue * mq = new MessageQueue("testQueue", true);
-
     parmdef * parm[4];
-
-    Thread * thr[4];
 
     for (int i = 0; i < 4;i++)
     {
-        parm[i] = setparm();
+        parm[i] = new parmdef();
         parm[i]->mq = mq;
     }
+
+    parm[0]->first = 0;
+    parm[0]->second = 1;
+    parm[0]->count = 20;
 
     parm[3]->first = 4;
     parm[3]->second = 6;
     parm[3]->count = 10;
 
-    thr[0] = new Thread(fibonacci,parm[0],false);
-    thr[1] = new Thread(deq,parm[1],false);
-    thr[2] = new Thread(deq,parm[2],false);
-    thr[3] = new Thread(fibonacci,parm[3],false);
+    parm[0]->th = new Thread(fibonacci,parm[0],false);
+    parm[1]->th = new Thread(deq,parm[1],false);
+    parm[2]->th = new Thread(deq,parm[2],false);
+    parm[3]->th = new Thread(fibonacci,parm[3],false);
 
     for (int i = 0; i < 4;i++)
     {
-       parm[i]->th = thr[i];
        parm[i]->cond_start->lock_object(pegasus_thread_self());
-       thr[i]->run();
+       parm[i]->th->run();
     }
 
     // Let the thread start and wait for Start Condition to be signaled
@@ -117,160 +184,101 @@ int main()
 
     // all fired up successfully
 
-    for (int i=0; i < 20; i++)
-    {
-        rn = (int) (4.0*rand()/(RAND_MAX+1.0)); 
-        rn2 = (int) (2.0*rand()/(RAND_MAX+1.0)); 
+    // Finish the enqueueing tasks
+    parm[0]->th->join();
+    parm[3]->th->join();
 
-	//        if (!rn2)
-	//            parm[rn]->th->suspend();
-	//        else 
-	//            parm[rn]->th->resume();
-
-
-	sched_yield();
-//        sleep(1);
-        cout << "+++++ passed test round " << i << endl; 
-
-        ai2=ai.value();ai++;ai3=ai.value()-1;
-        if (ai2 != ai3) cout << "thr 0: someone touched ai" << endl;
-    }
-
-    // Cancel the enqueueing tasks
-
-//    sometimes these threads die leaving a conditional object
-//    locked. kill them using our own means. 
-    die = true;
-
-//    parm[3]->th->cancel();
-//    parm[0]->th->cancel();
-//    parm[3]->th->cancel();
-//    parm[0]->th->cancel();
-
-    cout << "+++++ passed test round 20" << endl; 
-
-    Message * message = new Message(MY_CANCEL_TYPE,0); 
-    mq->enqueue(message);
-
-#ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU
-
-    // Enforce that the first dequeuing task receives the cancel message
-    // What happens if this thread holds a message queue lock ???
-    parm[2]->th->suspend();
-
-#endif
-
-
-    //sleep(1); 
-
+    // Tell one of the dequeueing tasks to finish
+    Message * message;
     message = new Message(MY_CANCEL_TYPE,0); 
     mq->enqueue(message);
     
-    cout << "+++++ passed test round 21" << endl; 
-
+    // Tell the other dequeueing task to finish
     message = new Message(MY_CANCEL_TYPE,0); 
     mq->enqueue(message);
 
-    cout << "+++++ passed test round 22" << endl; 
-#ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU
-    parm[2]->th->resume();
-#endif
-
-    cout << "+++++ passed all tests" << endl; 
-
-    // Make sure all threads end
-    for (int i = 0; i<4; i++) parm[i]->th->cancel();
-
-    parm[0]->th->join();
+    // Finish the dequeueing tasks
     parm[1]->th->join();
     parm[2]->th->join();
-    parm[3]->th->join();
+
+    // Clean up
+    for (int i = 0; i < 4; i++)
+    {
+        delete parm[i]->th;
+        delete parm[i];
+    }
+
+    delete mq;
+
     return 0;
 }
 
-void * fibonacci(void * parm)
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL atomicIncrement(void * parm)
 {
-  Thread* my_thread  = (Thread *)parm;
-  int ai2,ai3;
-  
-    parmdef * Parm = (parmdef *)my_thread->get_parm();
-    int first = Parm->first;
-    int second = Parm->second;
-    int count = Parm->count;
-    Condition * condstart = Parm->cond_start;
-    MessageQueue * mq = Parm->mq;
-    
-    //cout << "fibonacci: " << pthread_self() << endl;
+    Thread* my_thread  = (Thread *)parm;
+    AtomicInt * atom = (AtomicInt *)my_thread->get_parm();
 
-    condstart->signal( my_thread->self());
+    (*atom)++;
+    (*atom)-=2;
+    (*atom)+=4;
+    (*atom)--;
+    Boolean zero = atom->DecAndTestIfZero();
+    assert(zero == false);
 
-    int zw = 0;
-    int add_to_type = 0;
-    if (count < 20) add_to_type = 100;
-
-    Message * message;
-
-    while (die == false)
-    {
-        ai2=ai.value();ai++;ai3=ai.value()-1;
-        if (ai2 != ai3) cout << "thr fib: someone touched ai" << endl;
-
-        for (int i=0; i < count; i++)
-        {
-            zw = first + second;
-            first = second;
-            second = zw;
-            message = new Message(i+add_to_type,zw);
-            mq->enqueue(message);
-        }
-        zw = 0;
-        first = Parm->first;
-        second = Parm->second;
-        if (!add_to_type)
-            Parm->th->thread_switch();
-    }
-
-    return NULL;
+    my_thread->exit_self(0);
+    return 0;
 }
 
-void * deq(void * parm)
+// Test Thread and AtomicInt
+void test02()
 {
-  Thread* my_thread  = (Thread *)parm;
-  int ai2,ai3;
-  
-    parmdef * Parm = (parmdef *)my_thread->get_parm();
-    Uint32 type, key;
+    const Uint32 numThreads = 64;
+    AtomicInt * atom = new AtomicInt(0);
+    Thread* threads[numThreads];
 
-    int first = Parm->first;
-    int second = Parm->second;
-    int count = Parm->count;
-    Condition * condstart = Parm->cond_start;
-    MessageQueue * mq = Parm->mq;
-    
-    //cout << "deq: " << pthread_self() << endl;
+    (*atom)++;
+    Boolean zero = atom->DecAndTestIfZero();
+    assert(zero);
 
-    condstart->signal(my_thread->self());
-
-    Message * message;
-    type = 0;
-    key = 0;
-
-    while (type != MY_CANCEL_TYPE)
+    for (Uint32 i=0; i<numThreads; i++)
     {
-        ai2=ai.value();ai--;ai3=ai.value()+1;
-        if (ai2 != ai3) cout << "thr deq: someone touched ai" << endl;
-
-        message = mq->dequeue();
-        if (!message) {
-            break;
-        }
-
-        key = message->getKey();
-        type = message->getType();
-        delete message;
-        if (type == 19)
-            assert(key == 10946);
+        threads[i] = new Thread(atomicIncrement, atom, false);
     }
-    cout << "Received Cancel Message, " << pegasus_thread_self() << " about to end\n";
-    return NULL;
+
+    for (Uint32 i=0; i<numThreads; i++)
+    {
+        threads[i]->run();
+    }
+
+    for (Uint32 i=0; i<numThreads; i++)
+    {
+        threads[i]->join();
+        delete threads[i];
+    }
+
+    assert(atom->value() == numThreads);
+    delete atom;
+}
+
+int main()
+{
+    verbose = (getenv("PEGASUS_TEST_VERBOSE")) ? true : false;
+
+    for (Uint32 loop=0; loop<10; loop++)
+    {
+        test01();
+    }
+    if (verbose)
+        cout << "+++++ passed test 1" << endl; 
+
+    for (Uint32 loop=0; loop<10; loop++)
+    {
+        test02();
+    }
+    if (verbose)
+        cout << "+++++ passed test 2" << endl; 
+
+    cout << "+++++ passed all tests" << endl; 
+
+    return 0;
 }

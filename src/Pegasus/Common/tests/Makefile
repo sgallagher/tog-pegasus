@@ -18,6 +18,7 @@ DIRS = \
     FileSystem \
     Flavor \
     InstanceDecl \
+    IPC \
     Method \
     Object \
     Parameter \

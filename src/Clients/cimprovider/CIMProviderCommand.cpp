@@ -243,7 +243,7 @@ static const char   OPTION_STATUS                = 's';
 /**
     The option character used to specify no output to stdout or stderr.
 */
-     static const char OPTION_QUIET      = 'q';
+     static const char OPTION_QUIET_VALUE      = 'q';
 #endif
 
 
@@ -437,6 +437,13 @@ private:
     // The flag to indicate whether the status is set or not
     //
     Boolean	_statusSet;
+
+#ifdef PEGASUS_OS_OS400
+    //
+    // The flag to indicate whether standard output and standard error are suppressed
+    //
+    Boolean	_defaultQuietSet;
+#endif
 };
 
 /**
@@ -454,6 +461,9 @@ CIMProviderCommand::CIMProviderCommand ()
     _moduleSet 		= false;
     _providerSet	= false;
     _statusSet		= false;
+#ifdef PEGASUS_OS_OS400
+     _defaultQuietSet    = false;
+#endif
 
     /**
         Build the usage string for the config command.  
@@ -463,6 +473,24 @@ CIMProviderCommand::CIMProviderCommand ()
     usage.append(USAGE);
     usage.append(COMMAND_NAME);
 
+#ifdef PEGASUS_OS_OS400
+    usage.append(" -").append(OPTION_DISABLE);
+    usage.append(" -").append(OPTION_MODULE).append(" module ");
+    usage.append("[ -").append(OPTION_QUIET_VALUE).append(" ]\n");
+
+    usage.append("                   -").append(OPTION_ENABLE);
+    usage.append(" -").append(OPTION_MODULE).append(" module ");
+    usage.append("[ -").append(OPTION_QUIET_VALUE).append(" ]\n");
+
+    usage.append("                   -").append(OPTION_REMOVE);
+    usage.append(" -").append(OPTION_MODULE).append(" module");
+    usage.append(" [ -").append(OPTION_PROVIDER).append(" provider ] ");
+    usage.append("[ -").append(OPTION_QUIET_VALUE).append(" ]\n");
+
+    usage.append("                   -").append(OPTION_LIST);
+    usage.append(" [ -").append(OPTION_STATUS);
+    usage.append(" | -").append(OPTION_MODULE).append(" module ] \n");
+#else
     usage.append(" -").append(OPTION_DISABLE);
     usage.append(" -").append(OPTION_MODULE).append(" module \n");
 
@@ -476,10 +504,6 @@ CIMProviderCommand::CIMProviderCommand ()
     usage.append("                   -").append(OPTION_LIST);
     usage.append(" [ -").append(OPTION_STATUS);
     usage.append(" | -").append(OPTION_MODULE).append(" module ] \n");
-
-#ifdef PEGASUS_OS_OS400
-    usage.append("                   -").append(OPTION_QUIET);
-    usage.append("\n");
 #endif
 
     setUsage (usage);
@@ -504,6 +528,26 @@ void CIMProviderCommand::setCommand (
     //
     //  Construct optString
     //
+#ifdef PEGASUS_OS_OS400
+    optString.append(OPTION_DISABLE);
+    optString.append(OPTION_MODULE);
+    optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
+    optString.append(OPTION_QUIET_VALUE);
+    optString.append(OPTION_ENABLE);
+    optString.append(OPTION_MODULE);
+    optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
+    optString.append(OPTION_QUIET_VALUE);
+    optString.append(OPTION_REMOVE);
+    optString.append(OPTION_MODULE);
+    optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
+    optString.append(OPTION_PROVIDER);
+    optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
+    optString.append(OPTION_QUIET_VALUE);
+    optString.append(OPTION_LIST);
+    optString.append(OPTION_STATUS);
+    optString.append(OPTION_MODULE);
+    optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
+#else
     optString.append(OPTION_DISABLE);
     optString.append(OPTION_MODULE);
     optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
@@ -515,13 +559,11 @@ void CIMProviderCommand::setCommand (
     optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
     optString.append(OPTION_PROVIDER);
     optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
-#ifdef PEGASUS_OS_OS400
-    optString.append(OPTION_QUIET);
-#endif
     optString.append(OPTION_LIST);
     optString.append(OPTION_STATUS);
     optString.append(OPTION_MODULE);
     optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
+#endif
 
     //
     //  Initialize and parse options
@@ -538,20 +580,6 @@ void CIMProviderCommand::setCommand (
     }
     _operationType = OPERATION_TYPE_UNINITIALIZED;
 
-#ifdef PEGASUS_OS_OS400
-      // check for quiet option before processing the rest of the options
-     for (i =  options.first (); i <  options.last (); i++)
-     {
-        c = options [i].getopt () [0];
-	if( c == OPTION_QUIET )
-	{
-	   // Redirect to /dev/null.
-           // Works for both qshell and native modes.
-           freopen("/dev/null","w",stdout);
-           freopen("/dev/null","w",stderr);
-	}
-      }
-#endif
 
     //
     //  Get options and arguments from the command line
@@ -730,6 +758,14 @@ void CIMProviderCommand::setCommand (
 		    break;
 		}
 
+#ifdef PEGASUS_OS_OS400
+ 		case OPTION_QUIET_VALUE:
+ 	        {
+ 			_defaultQuietSet = true;
+ 			break;
+ 	        }
+ #endif
+
                 default:
 		{ 
 		    // 
@@ -801,6 +837,18 @@ void CIMProviderCommand::setCommand (
 	CommandFormatException e("Unexpected Option.");
 	throw e;
     }
+
+#ifdef PEGASUS_OS_OS400
+     if ( _operationType == OPERATION_TYPE_LIST && _defaultQuietSet )
+     {
+ 	//
+        // An invalid option was encountered
+        //
+        InvalidOptionException e (OPTION_QUIET_VALUE);
+        throw e;
+    }
+#endif
+
 }
 
 /**
@@ -817,6 +865,14 @@ Uint32 CIMProviderCommand::execute (
         //
         return 1;
     }
+
+#ifdef PEGASUS_OS_OS400
+    // disable standard out and standard error
+    if( _defaultQuietSet && (_operationType != OPERATION_TYPE_LIST) ){
+	freopen("/dev/null","w",stdout);
+        freopen("/dev/null","w",stderr);
+    }
+#endif
 
     // 
     // Get local host name

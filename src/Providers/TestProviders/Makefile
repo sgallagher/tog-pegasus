@@ -7,11 +7,12 @@ include $(ROOT)/mak/config.mak
 
 #Directories to recurse
 DIRS = \
-       PG_TestPropertyTypes \
-       DefaultInstanceProvider \
-       ClientProvider \
-       AlertIndicationProvider \
-       ProcessIndicationProvider \
-       MCCA_TestAssocProvider
+	PG_TestPropertyTypes \
+	DefaultInstanceProvider \
+	ClientProvider \
+	AlertIndicationProvider \
+	ProcessIndicationProvider \
+	MCCA_TestAssocProvider \
+	InstanceProvider
 
 include $(ROOT)/mak/recurse.mak

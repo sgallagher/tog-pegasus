@@ -46,6 +46,73 @@ PEGASUS_USING_STD;
 #define inline
 #endif
 
+
+//**********************************************************
+/*  Encode thanslates one six-bit pattern into a base-64 character.
+    Unsigned char is used to represent a six-bit stream of date.
+    
+*/
+inline PEGASUS_COMMON_LINKAGE char Base64::_Encode(Uint8 uc)
+{
+    if (uc < 26)
+        return 'A'+uc;
+
+    if (uc < 52)
+        return 'a'+(uc-26);
+
+    if (uc < 62)
+        return '0'+(uc-52);
+
+    if (uc == 62)
+        return '+';
+
+    return '/';
+};
+
+ //Helper function returns true is a character is a valid base-64 character and false otherwise.
+
+inline Boolean Base64::_IsBase64(char c)
+{
+
+    if (c >= 'A' && c <= 'Z')
+        return true;
+
+    if (c >= 'a' && c <= 'z')
+        return true;
+
+    if (c >= '0' && c <= '9')
+        return true;
+
+    if (c == '+')
+        return true;
+
+    if (c == '/')
+        return true;
+
+    if (c == '=')
+        return true;
+
+    return false;
+};
+ 
+ // Translate one base-64 character into a six bit pattern
+inline Uint8 Base64::_Decode(char c)
+{
+    if (c >= 'A' && c <= 'Z')
+        return c - 'A';
+    if (c >= 'a' && c <= 'z')
+        return c - 'a' + 26;
+
+    if (c >= '0' && c <= '9')
+        return c - '0' + 52;
+
+    if (c == '+')
+        return 62;
+
+    return 63;
+};
+
+
 //*************************************************************
 /*  Encode static method takes an array of 8-bit values and
     returns a base-64 stream.
@@ -188,71 +255,5 @@ Array<Uint8> Base64::decode(const Array<Sint8> strInput)
 
     return retArray;
 };
-
-//**********************************************************
-/*  Encode thanslates one six-bit pattern into a base-64 character.
-    Unsigned char is used to represent a six-bit stream of date.
-    
-*/
-inline PEGASUS_COMMON_LINKAGE char Base64::_Encode(Uint8 uc)
-{
-    if (uc < 26)
-        return 'A'+uc;
-
-    if (uc < 52)
-        return 'a'+(uc-26);
-
-    if (uc < 62)
-        return '0'+(uc-52);
-
-    if (uc == 62)
-        return '+';
-
-    return '/';
-};
-
- //Helper function returns true is a character is a valid base-64 character and false otherwise.
-
-inline Boolean Base64::_IsBase64(char c)
-{
-
-    if (c >= 'A' && c <= 'Z')
-        return true;
-
-    if (c >= 'a' && c <= 'z')
-        return true;
-
-    if (c >= '0' && c <= '9')
-        return true;
-
-    if (c == '+')
-        return true;
-
-    if (c == '/')
-        return true;
-
-    if (c == '=')
-        return true;
-
-    return false;
-};
- 
- // Translate one base-64 character into a six bit pattern
-inline Uint8 Base64::_Decode(char c)
-{
-    if (c >= 'A' && c <= 'Z')
-        return c - 'A';
-    if (c >= 'a' && c <= 'z')
-        return c - 'a' + 26;
-
-    if (c >= '0' && c <= '9')
-        return c - '0' + 52;
-
-    if (c == '+')
-        return 62;
-
-    return 63;
-};
-
 
 PEGASUS_NAMESPACE_END

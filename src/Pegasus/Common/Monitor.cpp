@@ -61,7 +61,7 @@ static AtomicInt _connections = 0;
 
 static struct timeval create_time = {0, 1};
 static struct timeval destroy_time = {15, 0};
-static struct timeval deadlock_time = {0, 0};
+static struct timeval deadlock_time = {300, 0};
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -205,15 +205,15 @@ Boolean Monitor::run(Uint32 milliseconds)
 	     if(q == 0)
 	     {
 		PEGASUS_STD(cout) << "Monitor:: found an empty connection slot" << PEGASUS_STD(endl);
-		try 
+		try
 		{
-		      _entries[indx]._status = _MonitorEntry::EMPTY;
+		   _entries[indx]._status = _MonitorEntry::EMPTY;
 		}
 		catch(...)
 		{
+
 		}
-		_entry_mut.unlock();
-		return true;
+		continue;
 	     }
 	     try 
 	     {

@@ -44,7 +44,7 @@ Char16 STAR = '*';
 Char16 HASH = '#';
 Char16 RBRKT = ']';
 Char16 LBRKT = '[';
-String SCOPE = "::";
+char* SCOPE = "::";
 
 QueryIdentifierRep::QueryIdentifierRep(): _isWildcard(false), _isSymbolicConstant(false)
 {

@@ -29,6 +29,9 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 //#define DDD(X) // X
 #define DDD(X) X
+
+static char * verbose;
+
 void test01()
 {
     {
@@ -178,14 +181,14 @@ void test02()
 }
 
 
-int main()
+int main(int argc, char** argv)
 {
     try
     {
 	test01();
 	test02();
 
-	cout << "+++++ passed all tests" << endl;
+        cout << argv[0] << " +++++ passed all tests" << endl;
     }
     catch (Exception& e)
     {

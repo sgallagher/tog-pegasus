@@ -29,19 +29,25 @@
 #include <iostream>
 #include <cassert>
 #include <Pegasus/Common/Stopwatch.h>
+#include <Pegasus/Common/Exception.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-int main()
+static char * verbose;
+int main(int argc, char** argv)
 {
+    verbose = getenv("PEGASUS_TEST_VERBOSE");
+
     Stopwatch sw;
     System::sleep(5);
-    // sw.printElapsed();
-    double elapsed = sw.getElapsed();
-    assert(elapsed >= 4.5 && elapsed <= 5.5);
+    if (verbose)
+        sw.printElapsed();
 
-    cout << "+++++ passed all tests" << endl;
+    double elapsed = sw.getElapsed();
+    ASSERTTEMP(elapsed >= 4.5 && elapsed <= 5.5);
+
+    cout << argv[0] << " +++++ passed all tests" << endl;
 
     return 0;
 }

@@ -34,22 +34,59 @@
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
-int main()
+static char * verbose;
+
+int main(int argc, char** argv)
 {
-    
+    verbose = getenv("PEGASUS_TEST_VERBOSE");
+
+    TimeValue tv0( 3, 100000);   // set to 3 sec, 100,000 microseconds
+    Uint32 ms = tv0.toMilliseconds();
+    if (verbose)
+    {
+        cout << "milliseconds=" << ms << endl;
+    }
+    assert(ms == (3 * 1000) + 100);
+
+    tv0.setSeconds(4);
+    tv0.setMicroseconds(200000);
+    ms = tv0.toMilliseconds();
+    assert(ms == (4 * 1000) + 200);
+
+    // Test the tomilliseconds function
+    TimeValue tvx(1,0);
+    assert(tvx.toMilliseconds() == 1 * 1000);
+    tvx.setSeconds(2);
+    assert(tvx.toMilliseconds() == 2 * 1000);
+    tvx.setMicroseconds(500000);
+    assert(tvx.toMilliseconds() == ((2 * 1000) + 500));
+
+
+
+    // Test time difference between two getCurrentTime calls.
     TimeValue tv1 = TimeValue::getCurrentTime();
     System::sleep(5);
     TimeValue tv2 = TimeValue::getCurrentTime();
 
+    if (verbose)
+    {
+        cout << "tv1 " << tv1.getSeconds() << " Seconds " << tv1.getMicroseconds()
+             << " microseconds " << tv1.toMilliseconds() << " total milliseconds" << endl;
+        cout << "tv2 " << tv2.getSeconds() << " Seconds " << tv2.getMicroseconds()
+             << " microseconds " << tv2.toMilliseconds() << " total milliseconds" <<  endl;
+    }
+
     Uint32 milliseconds = tv2.toMilliseconds() - tv1.toMilliseconds();
 
-    // cout << "milliseconds=" << milliseconds << endl;
+    if (verbose)
+        cout << "milliseconds=" << milliseconds << endl;
 
     assert(milliseconds >= 4500 && milliseconds <= 5500);
 
-    // cout << System::getCurrentASCIITime() << endl;
+    if (verbose)
+        cout << System::getCurrentASCIITime() << endl;
 
-    cout << "+++++ passed all tests" << endl;
+    cout << argv[0] << " +++++ passed all tests" << endl;
 
     return 0;
 }

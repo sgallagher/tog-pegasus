@@ -27,6 +27,8 @@
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
+static char * verbose;
+
 void test01()
 {
     typedef HashTable<String, Uint32, EqualFunc<String>, HashFunc<String> > HT;
@@ -43,8 +45,11 @@ void test01()
 
     for (; i; i++)
     {
-	// cout << "key[" << i.key() << "]" << endl;
-	// cout << "value[" << i.value() << "]" << endl;
+	if (verbose)
+        {
+            cout << "key[" << i.key() << "]" << endl;
+            cout << "value[" << i.value() << "]" << endl;
+        }
 	sum += i.value();
     }
 
@@ -54,8 +59,11 @@ void test01()
 
     for (HT::Iterator i = ht.start(); i; i++)
     {
-	// cout << "key[" << i.key() << "]" << endl;
-	// cout << "value[" << i.value() << "]" << endl;
+	if (verbose)
+        {
+            cout << "key[" << i.key() << "]" << endl;
+            cout << "value[" << i.value() << "]" << endl;
+        }
 	sum += i.value();
     }
 
@@ -119,13 +127,15 @@ void test03()
     assert(n == 0);
 }
 
-int main()
+int main(int argc, char** argv)
 {
+    verbose = getenv("PEGASUS_TEST_VERBOSE");
+
     test01();
     test02();
     test03();
 
-    cout << "+++++ passed all tests" << endl;
+    cout << argv[0] << " +++++ passed all tests" << endl;
 
     return 0;
 }

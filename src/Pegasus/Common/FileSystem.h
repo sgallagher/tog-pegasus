@@ -386,7 +386,7 @@ inline String FileSystem::getAbsolutePath(
 
 inline Boolean Open(PEGASUS_STD(ifstream)& is, const String& path)
 {
-#if defined(PEGASUS_OS_OS400) && defined(DAVES_CHANGES)
+#if defined(PEGASUS_OS_OS400)
     CString tempPath = path.getCString();
     const char * tmp = tempPath;
     AtoE((char *)tmp);
@@ -399,7 +399,7 @@ inline Boolean Open(PEGASUS_STD(ifstream)& is, const String& path)
 
 inline Boolean Open(PEGASUS_STD(ofstream)& os, const String& path)
 {
-#if defined(PEGASUS_OS_OS400) && defined(DAVES_CHANGES)
+#if defined(PEGASUS_OS_OS400)
     CString tempPath = path.getCString();
     const char * tmp = tempPath;
     AtoE((char *)tmp);
@@ -412,7 +412,7 @@ inline Boolean Open(PEGASUS_STD(ofstream)& os, const String& path)
 
 inline Boolean OpenAppend(PEGASUS_STD(ofstream)& os, const String& path)
 {
-#if defined(PEGASUS_OS_OS400) && defined(DAVES_CHANGES)
+#if defined(PEGASUS_OS_OS400)
     CString tempPath = path.getCString();
     const char * tmp = tempPath;
     AtoE((char *)tmp);

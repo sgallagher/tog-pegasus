@@ -54,6 +54,8 @@
 //
 // Modified By: Heather Sterling, IBM (hsterl@us.ibm.com) - PEP#197 CIMListener, PEP#222 Service Refactoring
 //
+// Modified By: Amit K Arora, IBM (amita@in.ibm.com) Bug#3028
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -746,7 +748,7 @@ MessageLoader::_useProcessLocale = false;
 //l10n
 
     // Get the parent's PID before forking
-    parentPid = System::getPID();
+    set_parent_pid(System::getPID());
 
     // do we need to run as a daemon ?
     if (daemonOption)

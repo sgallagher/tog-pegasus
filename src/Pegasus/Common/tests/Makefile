@@ -3,7 +3,6 @@ ROOT=../../../..
 include $(ROOT)/mak/config.mak
 
 DIRS = \
-    async_callback \
     Config \
     HashTable \
     Resolve \
@@ -20,7 +19,6 @@ DIRS = \
     FileSystem \
     InstanceDecl \
     Method \
-#    MessageQueueService \
     Parameter \
     Property \
     Qualifier \
@@ -45,10 +43,12 @@ DIRS = \
     DynLib \
     DynLoad \
     Logger \
-    WebServer \
     WebClient \
     ParamValue
 
+#    MessageQueueService \
+#    async_callback \
+#    WebServer \
 
 
 include $(ROOT)/mak/recurse.mak

@@ -66,7 +66,7 @@ protected:
 
     virtual void _handle_async_request(AsyncRequest *req);
 
-    Boolean handleEnqueue(Message *);
+    void handleEnqueue(Message *);
 
     AtomicInt dienow;
 

@@ -91,7 +91,7 @@ public:
 
     virtual ~IndicationService(void);
 
-    Boolean handleEnqueue(Message* message);
+    void handleEnqueue(Message* message);
 
     virtual void handleEnqueue(void); 
 

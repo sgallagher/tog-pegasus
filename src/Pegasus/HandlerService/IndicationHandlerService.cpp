@@ -65,17 +65,15 @@ void IndicationHandlerService::_handle_async_request(AsyncRequest *req)
     {
 	req->op->processing();
         Message *legacy = (static_cast<AsyncLegacyOperationStart *>(req)->act);
-        if (false == handleEnqueue(legacy))
-            _make_response(req, async_results::CIM_NAK);
+        handleEnqueue(legacy);
         return;
     }
     else
 	Base::_handle_async_request(req);
 }
 
-Boolean IndicationHandlerService::handleEnqueue(Message* message)
+void IndicationHandlerService::handleEnqueue(Message* message)
 {
-    Boolean ret = true;
 
     switch (message->getType())
     {
@@ -84,11 +82,9 @@ Boolean IndicationHandlerService::handleEnqueue(Message* message)
             break;
    
         default:
-            ret = false;
             break;
     }
     delete message;
-    return ret;
 }
 
 void IndicationHandlerService::handleEnqueue()

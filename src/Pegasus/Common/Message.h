@@ -174,6 +174,7 @@ class PEGASUS_COMMON_LINKAGE Message
       Message* _prev;
    protected:
       Message *_async;
+   public:
       Uint32 dest;
       
    private:

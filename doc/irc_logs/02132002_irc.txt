@@ -1,0 +1,223 @@
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- irc04.icq.com sets modes [#pegasus +nt]
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- irc04.icq.com sets modes [#pegasus +nt]
+ Registered Scripts:
+ Inbound Handlers:
+ Command Handlers:
+ Print Handlers:
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- irc05.icq.com sets modes [#pegasus +nt]
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- irc02.icq.com sets modes [#pegasus +nt]
+--> barbp (~BARB039@atlrel2.hp.com) has joined #pegasus
+<barbp> Is there going to be a teleconference today?  Barbara
+<-- barbp has quit (Client Exiting)
+* mdday is away: meeting
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- irc04.icq.com sets modes [#pegasus +nt]
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- irc04.icq.com sets modes [#pegasus +nt]
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- irc05.icq.com sets modes [#pegasus +nt]
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- irc03.icq.com sets modes [#pegasus +nt]
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- irc04.icq.com sets modes [#pegasus +nt]
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- irc05.icq.com sets modes [#pegasus +nt]
+--- Disconnected (Remote host closed socket).
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+<NIU> Mike...did you got a chance to look into mutex initialization problem?
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+<mdday> yes - I'm on a phone call right now but I found an uninitialized cimom handle and fixed it. 
+<mdday> I've amost got the cimop dispatcher to work asyncrhonously and we can use that as a template for getting the other services working. 
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--> kumpf (~kumpfr@atlwebproxy1.core.hp.com) has joined #pegasus
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+<-- NIU has quit (Client Exiting)
+--> barbp (~BARB039@palrel2.hp.com) has joined #pegasus
+<-- barbp has quit (Client Exiting)
+<mdday> Roger are you on the call?
+<mdday> oops - 1pm CENTRAL. dang. 
+<kumpf> Right.  That threw me at first, too.
+<mdday> Karl's email said "13:00" est
+<kumpf> It said "est" in the subject, and CENTRAL in the body.
+<mdday> Karl's "multitasking"
+<kumpf> I think he "multitasks" a lot.
+<mdday> He's a "multitasking" machine
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--> NIU (~NIU@cupwebproxy2.core.hp.com) has joined #pegasus
+<NIU> Mike... I know you are on call, but a question...?
+<mdday> not any more, go ahead
+<NIU> Do we need to change enqueue and handleEnqueue calls to SendWait in files like OpDispatcher, ExportDispatcher, IndicationService, Handler...?
+<NIU> or still we will be using handleEnqueue and queue->enqueue?
+<mdday> we're virtualizing enqueue, dequeue, and handleEnqueue to do that automatically. in MessageQueueService and derived classes we will have an intelligent version of these methods
+<NIU> Or all these services will communicate to meta-dispatcher with old fashion.
+<mdday> that will recognize messages that have an envelope. We put a protected backpointer in the Message class to refer to the AsyncLegacy envelope. 
+<NIU> See UID 97 and 99. Will they also change? I don't see any reason to change.
+<NIU> How can I pass a request from one service to another? Who will take care of it? How will get target queue id?
+<mdday> This will get the cimom working today or tommorow (hopefully) without very many changes. Specifically, we won't need to change all the existing message handlers. 
+<mdday> I will have the cimop dispatcher as an example later today. 
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--> Karl (~karl@slip32-106-67-130.mlv.fr.prserv.net) has joined #pegasus
+--> barbp (~BARB039@156.153.255.242) has joined #pegasus
+* kumpf is away: I'm busy
+* Karl is away: telecon 10 minutes
+<-- Karl has quit (Client Exiting)
+<-- barbp has quit (Client Exiting)
+<mdday> Roger - I have a build that is ready to test but I have a meeting to attend. Will update you. 
+* mdday is away: mtng. 
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+* kumpf is back (gone 01:49:09)
+<kumpf> Mike, bring it on!  Give me the word, and I'll pull down the bits and try them out.
+<mdday> Roger - I just ran test client to completion. I will check it in. 
+<kumpf> Wow, you are amazing!
+<kumpf> Should I pull it down now?
+<mdday> It's checked in. Here's the scoop. I built and ran it on linux with tracing enabled. It uses SendWait in when communicating with the configuration manager queue. 
+<mdday> everything works, the testclient runs just fine. I hope you can build it on windows. also, I have not tested it with no tracing, which is interesting because it changes the timing. 
+<mdday> Yes, pull it down !
+<kumpf> Okay, it's going.
+<mdday> good luck - I'm late !
+<kumpf> Take off if you need to.  I'll report back on the results.  Thanks for doing all this!
+<mdday> ok - I just ran it twice with no tracing and it works just fine. later
+--- Disconnected ().
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- irc03.icq.com sets modes [#pegasus +nt]
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- irc04.icq.com sets modes [#pegasus +nt]
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- irc05.icq.com sets modes [#pegasus +nt]
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- irc03.icq.com sets modes [#pegasus +nt]
+--> Chip (~cvincent@129.33.49.201) has joined #pegasus
+<mdday> Hi Chip
+<Chip> Hello. Obviously I'm online now
+<mdday> Right. let me try something... 
+--- Offering DCC CHAT to chip
+--- Chip is now known as cvincent
+ Usage:
+ 
+ /DCC GET <nick>          - receive an offered file
+ /DCC SEND <nick> <file>  - send a file to someone
+ /DCC LIST                - show DCC list
+ /DCC CHAT <nick>         - offer DCC CHAT to someone
+ /DCC CLOSE <type> <nick> <file>         example:
+          /dcc close send johnsmith file.tar.gz
+<-- cvincent has quit ()
+--> kumpf (~kumpfr@atlwebproxy2.core.hp.com) has joined #pegasus
+--> cvincent (~cvincent@129.33.49.201) has joined #pegasus
+<-- cvincent has quit (Remote closed the connection)
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--> cvincent (~cvincent@129.33.49.201) has joined #pegasus
+<-- cvincent has quit (Remote closed the connection)
+--> cvincent (~cvincent@129.33.49.201) has joined #pegasus
+<-- cvincent has quit (Remote closed the connection)
+--> cvincent (~cvincent@129.33.49.201) has joined #pegasus
+<kumpf> Are we having trouble staying connected?
+<cvincent> My client is flaky
+<kumpf> Mike's isn't all that consistent either.  How do you proxy your connection?
+<-- cvincent has quit (Remote closed the connection)
+--> cvincent (~cvincent@129.33.49.201) has joined #pegasus
+<cvincent> I'm using socks 5
+<kumpf> Have you tried using an HTTP proxy?
+<cvincent> Not yet, but we have one so I will try.
+<kumpf> It's worked great for me.
+<-- cvincent has quit ()
+--> cvincent (~cvincent@129.33.49.201) has joined #pegasus
+<cvincent> I'm not trying the proxy... we'll see.
+<cvincent> I mean I AM using the proxy
+<kumpf> Looks good so far.
+<cvincent> FYI, I'm working on the provider entry point change and testing the provider registration.
+<kumpf> Sounds good.  We changed a bunch of providers, and will check them in when you put that change in.
+<cvincent> I'll let you know when I'm done.
+<kumpf> Great, thanks.
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- Disconnected (Remote host closed socket).
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- Disconnected (Remote host closed socket).
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- Disconnected (Remote host closed socket).
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+<mdday> I'm baaaaaack  !!!
+<mdday> Chip are you using the http proxy?
+<-- cvincent has quit (Remote closed the connection)
+<mdday> I guess not!
+<mdday> our socks server closes the connection if there is no activity for ~ 40 seconds or so. 
+<kumpf> Chip said he was using the HTTP proxy, and it seemed to be working for a while.
+--> cvincent (~cvincent@ss8.bluebird.ibm.com) has joined #pegasus
+<mdday> but then it kicked him off. wait - he's back!
+<cvincent> Okay, the raleigh proxy is flaky
+<cvincent> I'm using a new one that may be more reliable
+<mdday> we'll see !
+<cvincent> Grrrr
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+<mdday> yahoo. 
+--- Disconnected (Remote host closed socket).
+--- Disconnected (Remote host closed socket).
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- Disconnected ().

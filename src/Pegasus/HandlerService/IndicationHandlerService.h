@@ -76,7 +76,7 @@ public:
       
     virtual void _handle_async_request(AsyncRequest *req);
 
-    Boolean handleEnqueue(Message *);
+    void handleEnqueue(Message *);
 
     virtual void handleEnqueue(void);
 

@@ -386,17 +386,15 @@ void IndicationService::_handle_async_request(AsyncRequest *req)
     {
         req->op->processing();
         Message *legacy = (static_cast<AsyncLegacyOperationStart *>(req)->act);
-        if (false == handleEnqueue(legacy))
-            _make_response(req, async_results::CIM_NAK);
+        handleEnqueue(legacy);
         return;
     }
     else
         Base::_handle_async_request(req);
 }
 
-Boolean IndicationService::handleEnqueue(Message* message)
+void IndicationService::handleEnqueue(Message* message)
 {
-    Boolean ret = true;
 
     switch(message->getType())
     {
@@ -438,12 +436,10 @@ Boolean IndicationService::handleEnqueue(Message* message)
 
 	default:
 	    // do nothing, unsupported message?
-            ret = false;
 	    break;
     }
 
     delete message;
-    return ret;
 }
 
 void IndicationService::handleEnqueue(void)

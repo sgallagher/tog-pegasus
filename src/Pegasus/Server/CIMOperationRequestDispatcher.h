@@ -62,8 +62,8 @@ public:
     CIMOperationRequestDispatcher(
 	CIMRepository* repository, CIMServer* server);
 
-    virtual ~CIMOperationRequestDispatcher();
-
+      virtual ~CIMOperationRequestDispatcher();
+      
       virtual void handleEnqueue();
 
     virtual const char* getQueueName() const;

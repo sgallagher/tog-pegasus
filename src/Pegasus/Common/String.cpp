@@ -646,7 +646,7 @@ CString String::getCStringUTF8() const
 
 	char* str1 = new char[strlen(str)+1];
 	strcpy(str1,str);
-	delete str;
+	delete [] str;
 
     return CString(str1);
 }
@@ -855,7 +855,7 @@ Boolean operator!=(const String& str1, const String& str2)
 
 PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const String& str)
 {
-/*
+
 #if defined(PEGASUS_OS_OS400)
     CString cstr = str.getCStringUTF8();
     const char* utf8str = cstr;
@@ -863,8 +863,6 @@ PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const String& str)
     os << utf8str;
 
 #elif defined(PEGASUS_HAS_ICU)
-*/
-#if defined(PEGASUS_HAS_ICU)
     char *buf = NULL;
     UnicodeString UniStr((const UChar *)str.getChar16Data(), (int32_t)str.size());
 
@@ -874,7 +872,7 @@ PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const String& str)
 
     os << buf;
 
-    delete buf;
+    delete [] buf;
 #else
 
 

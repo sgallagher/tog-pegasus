@@ -380,7 +380,9 @@ void HTTPAcceptor::closeConnectionSocket()
    if (_rep)
    {
       // unregister the socket
-      _monitor->unsolicitSocketMessages(_rep->socket);
+
+      // ATTN - comment out - see CIMServer::stopClientConnection()
+      //_monitor->unsolicitSocketMessages(_rep->socket);
 
       // close the socket
       Socket::close(_rep->socket);

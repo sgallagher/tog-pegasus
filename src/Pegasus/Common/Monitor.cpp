@@ -92,7 +92,7 @@ struct MonitorRep
 ////////////////////////////////////////////////////////////////////////////////
 
 Monitor::Monitor()
-   : _module_handle(0), _controller(0), _async(false)
+   : _module_handle(0), _controller(0), _async(false), _stopConnections(0)
 {
     Socket::initializeInterface();
     _rep = 0;
@@ -105,7 +105,7 @@ Monitor::Monitor()
 }
 
 Monitor::Monitor(Boolean async)
-   : _module_handle(0), _controller(0), _async(async)
+   : _module_handle(0), _controller(0), _async(async), _stopConnections(0)
 {
     Socket::initializeInterface();
     _rep = 0;
@@ -141,7 +141,7 @@ Monitor::~Monitor()
        delete _module_handle;
     }
     Tracer::trace(TRC_HTTP, Tracer::LEVEL4, "deleting rep");
-   
+
     Tracer::trace(TRC_HTTP, Tracer::LEVEL4, "uninitializing interface");
     Socket::uninitializeInterface();
     Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
@@ -187,6 +187,32 @@ Boolean Monitor::run(Uint32 milliseconds)
     FD_ZERO(&fdread);
     _entry_mut.lock(pegasus_thread_self());
     
+    // Check the stopConnections flag.  If set, clear the Acceptor monitor entries  
+    if (_stopConnections == 1) 
+    {
+        for ( int indx = 0; indx < (int)_entries.size(); indx++)
+        {
+            if (_entries[indx]._type == Monitor::ACCEPTOR)
+            {
+                if ( _entries[indx]._status.value() != _MonitorEntry::EMPTY)
+                {
+                   if ( _entries[indx]._status.value() == _MonitorEntry::IDLE ||
+                        _entries[indx]._status.value() == _MonitorEntry::DYING )
+                   {
+                       // remove the entry
+		       _entries[indx]._status = _MonitorEntry::EMPTY;
+                   }
+                   else
+                   {
+                       // set status to DYING
+                      _entries[indx]._status.value() == _MonitorEntry::DYING;
+                   }
+               }
+           }
+        }
+        _stopConnections = 0;
+    }
+    
     for( int indx = 0; indx < (int)_entries.size(); indx++)
     {
        if(_entries[indx]._status.value() == _MonitorEntry::IDLE)
@@ -194,8 +220,8 @@ Boolean Monitor::run(Uint32 milliseconds)
 	  FD_SET(_entries[indx].socket, &fdread);
        }
     }
-
     
+
     int events = select(FD_SETSIZE, &fdread, NULL, NULL, &tv);
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
@@ -263,6 +289,14 @@ Boolean Monitor::run(Uint32 milliseconds)
     return(handled_events);
 }
 
+void Monitor::stopListeningForConnections()
+{
+    PEG_METHOD_ENTER(TRC_HTTP, "Monitor::stopListeningForConnections()");
+
+    _stopConnections = 1;
+
+    PEG_METHOD_EXIT();
+}
 
 
 int  Monitor::solicitSocketMessages(
@@ -544,7 +578,7 @@ monitor_2::monitor_2(void)
     tickler.socket(PF_INET, SOCK_STREAM, 0);
     struct sockaddr_in _addr;
     memset(&_addr, 0, sizeof(_addr));
-#ifdef PEGASUS_OS_ZOS    
+#ifdef PEGASUS_OS_ZOS
     _addr.sin_addr.s_addr = inet_addr_ebcdic("127.0.0.1");
 #else
     _addr.sin_addr.s_addr = inet_addr("127.0.0.1");

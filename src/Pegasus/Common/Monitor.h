@@ -172,7 +172,7 @@ class PEGASUS_COMMON_LINKAGE Monitor
 public:
   enum Type 
     {
-      ACCEPTOR, CONNECTOR, CONNECTION
+      UNTYPED, ACCEPTOR, CONNECTOR, CONNECTION
     };
       
       
@@ -221,6 +221,10 @@ public:
   static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _dispatch(void *);
   int kill_idle_threads(void);
       
+  /** stop listening for client connections 
+   */
+  void stopListeningForConnections();
+
 private:
       
   Array<_MonitorEntry> _entries;
@@ -230,6 +234,7 @@ private:
   Boolean _async;
   ThreadPool *_thread_pool;
   Mutex _entry_mut;
+  AtomicInt _stopConnections;
   friend class HTTPConnection;
       
 };

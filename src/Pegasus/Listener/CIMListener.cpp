@@ -250,6 +250,21 @@ void CIMListenerService::stopClientConnection()
 {
     PEG_METHOD_ENTER(TRC_LISTENER, "CIMListenerService::stopClientConnection()");
 
+    // tell Monitor to stop listening for client connections
+    _monitor->stopListeningForConnections();
+
+    //
+    // Wait 150 milliseconds to allow time for the Monitor to stop
+    // listening for client connections.
+    //
+    // This wait time is the timeout value for the select() call
+    // in the Monitor's run() method (currently set to 100
+    // milliseconds) plus a delta of 50 milliseconds.  The reason
+    // for the wait here is to make sure that the Monitor entries
+    // are updated before closing the connection sockets.
+    //
+    pegasus_sleep(150);
+
     if(_acceptor!=NULL)
     _acceptor->closeConnectionSocket();
 

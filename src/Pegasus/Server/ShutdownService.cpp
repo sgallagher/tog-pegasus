@@ -119,7 +119,7 @@ void ShutdownService::shutdown(
     Uint32 timeout,
     Boolean requestPending)
 {
-    PEG_METHOD_ENTER(TRC_REPOSITORY, "ShutdownService::shutdown");
+    PEG_METHOD_ENTER(TRC_SHUTDOWN, "ShutdownService::shutdown");
 
     //
     // Initialize variables
@@ -177,18 +177,18 @@ void ShutdownService::shutdown(
     }
     catch(CIMException & e)
     {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        PEG_TRACE_STRING(TRC_SHUTDOWN, Tracer::LEVEL4,
             "Error occurred during CIMServer shutdown: " + e.getMessage());
     }
     catch(Exception & e)
     {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        PEG_TRACE_STRING(TRC_SHUTDOWN, Tracer::LEVEL4,
             "Error occurred during CIMServer shutdown: " + e.getMessage());
     }
 
     catch(...)
     {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        PEG_TRACE_STRING(TRC_SHUTDOWN, Tracer::LEVEL4,
             "Unexpected error occured during CIMServer shutdown. ");
     }
 
@@ -217,7 +217,7 @@ void ShutdownService::async_callback(Uint32 user_data,
 
 void ShutdownService::_shutdownCIMServer()
 {
-    PEG_METHOD_ENTER(TRC_REPOSITORY, "ShutdownService::_shutdownCIMServer");
+    PEG_METHOD_ENTER(TRC_SHUTDOWN, "ShutdownService::_shutdownCIMServer");
 
     //
     // Shutdown the providers
@@ -251,7 +251,7 @@ void ShutdownService::_shutdownCIMServer()
 
 void ShutdownService::_shutdownCimomServices()
 {
-    PEG_METHOD_ENTER(TRC_REPOSITORY, "ShutdownService::_shutdownCimomServices");
+    PEG_METHOD_ENTER(TRC_SHUTDOWN, "ShutdownService::_shutdownCimomServices");
 
     //
     // Shutdown the Indication Service
@@ -341,7 +341,7 @@ void ShutdownService::_sendShutdownRequestToService(const char * serviceName)
 
 void ShutdownService::_shutdownProviders()
 {
-    PEG_METHOD_ENTER(TRC_REPOSITORY, "ShutdownService::_shutdownProviders");
+    PEG_METHOD_ENTER(TRC_SHUTDOWN, "ShutdownService::_shutdownProviders");
 
     //
     // get provider manager service

@@ -438,14 +438,29 @@ void CIMServer::stopClientConnection()
 {
     PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::stopClientConnection()");
 
-    if(_type == OLD) {
+    if(_type == OLD) 
+    {
+        // tell Monitor to stop listening for client connections
+        _monitor->stopListeningForConnections();
 
-      for (Uint32 i=0; i<_acceptors.size(); i++)
+        //
+        // Wait 150 milliseconds to allow time for the Monitor to stop 
+        // listening for client connections.  
+        //
+        // This wait time is the timeout value for the select() call
+        // in the Monitor's run() method (currently set to 100 
+        // milliseconds) plus a delta of 50 milliseconds.  The reason
+        // for the wait here is to make sure that the Monitor entries
+        // are updated before closing the connection sockets.
+        //
+        PEG_TRACE_STRING(TRC_SERVER, Tracer::LEVEL4, "Wait 150 milliseconds.");
+        pegasus_sleep(150);
+
+        for (Uint32 i=0; i<_acceptors.size(); i++)
 	{
 	  _acceptors[i]->closeConnectionSocket();
 	}
     }
-
 
     PEG_METHOD_EXIT();
 }

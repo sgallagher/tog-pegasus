@@ -47,6 +47,7 @@ Provider::Provider(const String & name,
      _no_unload(0), _status(UNINITIALIZED)
 {
    _current_operations = 1;
+   _indications_enabled = false;
 }
 
 
@@ -116,13 +117,11 @@ void Provider::initialize(CIMOMHandle & cimom)
 	    // can be unloaded
 	    //
             _current_operations = 0;
-            _current_ind_operations = 0;
 	    throw;
         }
 
         _status = INITIALIZED;
         _current_operations = 0;
-        _current_ind_operations = 0;
     }
 }
 

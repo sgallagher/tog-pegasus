@@ -1160,6 +1160,8 @@ en:table {
 
         ProviderManager.ProviderManagerService.SET_MODULE_STATUS_FAILED:string {"PGS04005: Failed to update the provider module status."}
 
+        ProviderManager.ProviderManagerService.DISABLE_PROVIDER_FAILED:string {"PGS04006: Failed to disable the provider."}
+
 
         // ==========================================================
         // Messages for ProviderModule

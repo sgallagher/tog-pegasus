@@ -44,6 +44,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+PEGASUS_USING_STD;
+
 class op_counter
 {
    public:
@@ -518,8 +520,8 @@ void ProviderFacade::executeQuery(
 
 void ProviderFacade::enableIndications(IndicationResponseHandler & handler)
 {
-   _current_operations++;
-   op_counter ind_ops(&_current_ind_operations);
+   _indications_enabled = true;
+   op_counter ops(&_current_operations);
    
     CIMIndicationProvider * provider = getInterface<CIMIndicationProvider>(_provider);
 
@@ -529,11 +531,12 @@ void ProviderFacade::enableIndications(IndicationResponseHandler & handler)
 
 void ProviderFacade::disableIndications(void)
 {
+    op_counter ops(&_current_operations);
     CIMIndicationProvider * provider = getInterface<CIMIndicationProvider>(_provider);
 
     // forward request
     provider->disableIndications();
-    _current_operations--;
+   _indications_enabled = false;
 }
 
 void ProviderFacade::createSubscription(
@@ -543,8 +546,7 @@ void ProviderFacade::createSubscription(
     const CIMPropertyList & propertyList,
     const Uint16 repeatNotificationPolicy)
 {
-   op_counter ops(&_current_operations);
-   op_counter ind_ops(&_current_ind_operations);
+    op_counter ops(&_current_operations);
     CIMIndicationProvider * provider = getInterface<CIMIndicationProvider>(_provider);
 
     // forward request
@@ -563,8 +565,7 @@ void ProviderFacade::modifySubscription(
     const CIMPropertyList & propertyList,
     const Uint16 repeatNotificationPolicy)
 {
-   op_counter ops(&_current_operations);
-   op_counter ind_ops(&_current_ind_operations);
+    op_counter ops(&_current_operations);
     CIMIndicationProvider * provider = getInterface<CIMIndicationProvider>(_provider);
 
     // forward request
@@ -581,8 +582,7 @@ void ProviderFacade::deleteSubscription(
     const CIMObjectPath & subscriptionName,
     const Array<CIMObjectPath> & classNames)
 {
-   op_counter ops(&_current_operations);
-   op_counter ind_ops(&_current_ind_operations);
+    op_counter ops(&_current_operations);
     CIMIndicationProvider * provider = getInterface<CIMIndicationProvider>(_provider);
 
     // forward request

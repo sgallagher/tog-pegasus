@@ -2909,72 +2909,68 @@ void ProviderManagerService::handleDisableModuleRequest(AsyncOpNode *op, const M
             Triad<String, String, String> triad =
                 _getProviderRegPair(_pInstances[i], mInstance);
 
-            // It is an indication provider
-            if (_indicationProviders[i])
-            {
-                Sint16 ret_value = providerManager.disableIndicationProvider(
+            Sint16 ret_value = providerManager.disableProvider(
                                       triad.first, triad.second);
-                if (ret_value == 1)
+
+            if (ret_value == 0)
+	    {
+                // disable failed since there are pending requests, 
+                // update module status from Stopping to OK if 
+		// disableProviderOnly is not true
+                if (!disableProviderOnly)
                 {
-                    // remove the entry from the table since the indication
-                    // provider has been disabled
+            	    for(Uint32 j=0, m = operationalStatus.size(); j < m; j++)
+            	    {
+                        if (operationalStatus[j] == _MODULE_STOPPING)
+                        {
+                            operationalStatus.remove(j);
+                        }
+		    }
+
+                    operationalStatus.append(_MODULE_OK);
+
+                    if(_providerRegistrationManager->setProviderModuleStatus
+                        (moduleName, operationalStatus) == false)
+                    {
+                        throw PEGASUS_CIM_EXCEPTION_L(
+                            CIM_ERR_FAILED,
+                            MessageLoaderParms(
+                                "ProviderManager.ProviderManagerService."
+                                    "SET_MODULE_STATUS_FAILED",
+                                "set module status failed."));
+                    }
+                }
+	    }
+	    else if (ret_value == 1)
+	    {
+                // if It is an indication provider
+                // remove the entry from the table since the 
+                // provider has been disabled
+                if (_indicationProviders[i])
+		{
                     _removeEntry(_generateKey(triad.second, triad.first));
-                }
-                else if (ret_value == 0)
-                {
-                    // disable failed since there are pending requests, 
-                    // update module status from Stopping to OK
-                    {
-                        if (operationalStatus[i] == _MODULE_STOPPING)
-                        {
-                            operationalStatus.remove(i);
-                        }
-                    }
-
-                    operationalStatus.append(_MODULE_OK);
-
-                    if(_providerRegistrationManager->setProviderModuleStatus
-                        (moduleName, operationalStatus) == false)
-                    {
-                        throw PEGASUS_CIM_EXCEPTION_L(
-                            CIM_ERR_FAILED,
-                            MessageLoaderParms(
-                                "ProviderManager.ProviderManagerService."
-                                    "SET_MODULE_STATUS_FAILED",
-                                "set module status failed."));
-                    }
-                }
-                else // disable failed for other reason, throw exception
-                {
-// L10N TODO
-                    throw PEGASUS_CIM_EXCEPTION(
-                        CIM_ERR_FAILED,
-                        "Disable Indication Provider Failed.");
-                }
-            }
-            else // not an indication provider
+		}
+	    }
+            else
             {
-                if (providerManager.disableProvider(
-                        triad.first, triad.second) == 0)
+		// disable failed for other reason, throw exception
+                // update module status from Stopping to OK if 
+		// disableProviderOnly is not true
+                if (!disableProviderOnly)
                 {
-                    // disable failed since there are pending requests
-                    // update module status from Stopping to OK
-                    for(Uint32 i=0, n = operationalStatus.size(); i < n; i++)
-                    {
-                        if (operationalStatus[i] == _MODULE_STOPPING)
+            	    for(Uint32 j=0, m = operationalStatus.size(); j < m; j++)
+            	    {
+                        if (operationalStatus[j] == _MODULE_STOPPING)
                         {
-                            operationalStatus.remove(i);
+                            operationalStatus.remove(j);
                         }
-                    }
-  
+		    }
+
                     operationalStatus.append(_MODULE_OK);
 
                     if(_providerRegistrationManager->setProviderModuleStatus
                         (moduleName, operationalStatus) == false)
                     {
-                        //l10n
-                        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
-                        //"set module status failed.");
                         throw PEGASUS_CIM_EXCEPTION_L(
                             CIM_ERR_FAILED,
                             MessageLoaderParms(
@@ -2983,35 +2979,44 @@ void ProviderManagerService::handleDisableModuleRequest(AsyncOpNode *op, const M
                                 "set module status failed."));
                     }
                 }
+
+                throw PEGASUS_CIM_EXCEPTION_L(
+                    CIM_ERR_FAILED,
+                    MessageLoaderParms(
+                        "ProviderManager.ProviderManagerService."
+                            "DISABLE_PROVIDER_FAILED",
+                        "Failed to disable the provider."));
             }
         }
-
+        // disable succeed 
+        // update module status from Stopping to Stopped if 
+	// disableProviderOnly is not true
         if (!disableProviderOnly)
         {
             // update module status from Stopping to Stopped
-            for(Uint32 i=0, n = operationalStatus.size(); i < n; i++)
+            for(Uint32 j=0, m = operationalStatus.size(); j < m; j++)
             {
-                if (operationalStatus[i] == _MODULE_STOPPING)
+                if (operationalStatus[j] == _MODULE_STOPPING)
                 {
-                    operationalStatus.remove(i);
+                    operationalStatus.remove(j);
                     operationalStatus.append(_MODULE_STOPPED);
                 }
             }
 
             if(_providerRegistrationManager->setProviderModuleStatus
-                (moduleName, operationalStatus) == false)
+               (moduleName, operationalStatus) == false)
             {
                 //l10n
                 //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
                 //"set module status failed.");
                 throw PEGASUS_CIM_EXCEPTION_L(
-                    CIM_ERR_FAILED,
-                    MessageLoaderParms(
-                        "ProviderManager.ProviderManagerService."
-                            "SET_MODULE_STATUS_FAILED",
-                        "set module status failed."));
+                      CIM_ERR_FAILED,
+                      MessageLoaderParms(
+                      "ProviderManager.ProviderManagerService."
+                       "SET_MODULE_STATUS_FAILED",
+                       "set module status failed."));
             }
-        }
+       }
     }
     catch(CIMException & e)
     {

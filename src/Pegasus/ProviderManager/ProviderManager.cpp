@@ -41,6 +41,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+PEGASUS_USING_STD;
+
 ProviderManager *my_instance = 0;
 
 ProviderManager::ProviderManager(void)
@@ -306,10 +308,11 @@ Sint32 ProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
 		  
 		  provider->_quantum = quantum;
 		  
-		  // ATTN:  need to check for outstanding subscriptions for
-		  // indication providers
-		  //
-		  if( provider->_current_operations.value() ) 
+		  // if provider has pending requests or an indication 
+		  // provider needs to serve subscriptions, do not 
+		  // unload the provider
+		  if( provider->_current_operations.value() || 
+		      provider->_indications_enabled) 
 		  {
 		     PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 				      "Provider has pending operations: " + 
@@ -553,87 +556,6 @@ Sint16 ProviderManager::disableProvider(
    return (1);
 }
 
-Sint16 ProviderManager::disableIndicationProvider(
-    const String & fileName,
-    const String & providerName)
-{
-   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManager::disableIndicationProvider");
-  
-   Provider *pr = _lookupProvider(providerName);
-
-   if (pr->getStatus() == Provider::INITIALIZED)
-   {
-	//
-        // Check to see if there are pending requests. If there are pending
-        // requests and the disable timeout has not expired, loop and wait one
-        // second until either there are no pending requests or until timeout expires.
-        //
-        Uint32 waitTime = PROVIDER_DISABLE_TIMEOUT;
-        while ( pr->_current_ind_operations.value() > 0  &&  waitTime > 0)
-        {
-            System::sleep(1);
-            waitTime = waitTime - 1;
-        }
-
-        // If there are still pending requests, do not disable
-        if (pr->_current_ind_operations.value() > 0 )
-        {
-            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
-                     "Provider not disabled because there are pending requests." );
-            PEG_METHOD_EXIT();
-            return (0);
-        }
-   }
-   else
-   {
-	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                         "Provider " + providerName + " is not loaded.");
-   	PEG_METHOD_EXIT();
-	return (1);
-   }
-
-   PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
-                    "Disabling Provider " + pr->_name );
-
-   // lock the providerTable mutex
-   auto_mutex lock(&_providerTableMutex);
-
-   // lock the provider mutex
-   auto_mutex pr_lock(&pr->_statusMutex);
-
-   // terminate provider
-   try 
-   {
-       pr->disableIndications();
-       pr->terminate();
-   }
-   catch(...)
-   {
-       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
-                        "Disable failed." );
-       PEG_METHOD_EXIT();
-       return(-1);
-   }
-   PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
-                    "Destroying Provider's CIMOM Handle " + pr->_name );
-   delete pr->_cimom_handle;
-
-   PEGASUS_ASSERT(pr->_module != 0);
-
-   // unload provider module
-   pr->_module->unloadModule();
-
-   Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-               "ProviderManager::_provider_crtl -  Unload provider $0",
-               pr->_name);
-
-   // set provider status to UNINITIALIZED
-   pr->reset();
-
-   PEG_METHOD_EXIT();
-   return (1);
-}
-
 Provider* ProviderManager::_initProvider(
     Provider * provider,
     const String & moduleFileName,
@@ -692,9 +614,9 @@ Provider* ProviderManager::_initProvider(
 
             try
             {
-	       CIMOMHandle _ch(cimomHandle);
-	       
-	       provider->initialize(_ch);
+		CIMOMHandle _ch(cimomHandle);
+
+                provider->initialize(_ch);
                 undoModuleLoad = false;
             }
             catch(...)
@@ -747,6 +669,19 @@ void ProviderManager::_unloadProvider( Provider * provider)
 
         // lock the provider mutex
         auto_mutex pr_lock(&provider->_statusMutex);
+
+        try 
+        {
+	    if (provider->_indications_enabled)
+	    {
+		provider->disableIndications();
+	    }
+	}
+        catch(...)
+        {
+            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL3, 
+                             "Error occured disabling provider " + provider->_name );
+        }
 
         try 
         {

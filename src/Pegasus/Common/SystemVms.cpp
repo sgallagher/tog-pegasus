@@ -30,6 +30,7 @@
 //              Nag Boranna (nagaraja_boranna@hp.com)
 //              Dave Rosckes (rosckes@us.ibm.com)
 //              Sean Keenan (sean.keenan@hp.com)
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -56,7 +57,6 @@
 #include <cxx_exception.h>
 
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Config/ConfigManager.h>
 

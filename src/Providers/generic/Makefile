@@ -9,8 +9,9 @@ include $(ROOT)/mak/config.mak
 DIRS = \
 	ConfigSettingProvider \
 	UserManagerProvider \
-	PG_RegistrationProvider \
 	OperatingSystemProvider \
 	ShutdownProvider
+
+#	PG_RegistrationProvider \
 
 include $(ROOT)/mak/recurse.mak

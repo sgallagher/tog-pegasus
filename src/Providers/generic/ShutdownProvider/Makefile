@@ -10,7 +10,6 @@ LIBRARY = ShutdownProvider
 LIBRARIES = \
 	 pegcommon \
 	 pegprovider \
-	 pegprovider2 \
 	 pegrepository \
 	 pegserver
 	

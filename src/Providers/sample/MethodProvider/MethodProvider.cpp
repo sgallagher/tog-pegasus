@@ -66,7 +66,7 @@ void MethodProvider::invokeMethod(
 
 	if(objectReference == CIMReference("Sample_MethodProviderClass"))
 	{
-		if(String::equalNoCase(methodName, "SayHello")
+		if(String::equalNoCase(methodName, "SayHello"))
 		{
 			handler.deliver(CIMValue("Hello"));
 		}

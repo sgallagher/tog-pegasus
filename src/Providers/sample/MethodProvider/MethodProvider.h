@@ -34,11 +34,11 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class SampleMethodProvider : public CIMMethodProvider
+class MethodProvider : public CIMMethodProvider
 {
 public:
-	SampleMethodProvider(void);
-	virtual ~SampleMethodProvider(void);
+	MethodProvider(void);
+	virtual ~MethodProvider(void);
 
 	// CIMBaseProvider interface
 	virtual void initialize(CIMOMHandle & cimom);
@@ -58,3 +58,5 @@ protected:
 };
 
 PEGASUS_NAMESPACE_END
+
+#endif

@@ -9,7 +9,7 @@ LIBRARY = OperatingSystemProvider
 
 LIBRARIES = \
 	pegcommon \
-	pegprovider2
+	pegprovider
 
 SOURCES = \
 	OperatingSystem.cpp \

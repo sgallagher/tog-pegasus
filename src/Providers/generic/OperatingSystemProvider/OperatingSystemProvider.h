@@ -30,7 +30,7 @@
 #define Pegasus_OperatingSystemProvider_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Provider2/CIMInstanceProvider.h>
+#include <Pegasus/Provider/CIMInstanceProvider.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -58,7 +58,7 @@ public:
 		const CIMReference & ref,
 		const Uint32 flags,
 		const Array<String> & propertyList,
-		ResponseHandler<CIMNamedInstance> & handler);
+		ResponseHandler<CIMInstance> & handler);
 
 	virtual void enumerateInstanceNames(
 		const OperationContext & context,
@@ -85,7 +85,7 @@ public:
 		ResponseHandler<CIMInstance> & handler);
 
 protected:
-	Array<CIMNamedInstance> _enumerateInstances(
+	Array<CIMInstance> _enumerateInstances(
 		const OperationContext & context,
 		const CIMReference & classReference);
 	

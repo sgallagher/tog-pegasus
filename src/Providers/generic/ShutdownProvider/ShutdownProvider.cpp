@@ -23,7 +23,7 @@
 //
 // Author: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //
-// Modified By: 
+// Modified By:
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -33,7 +33,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Provider2/CIMMethodProvider.h>
+#include <Pegasus/Provider/CIMMethodProvider.h>
 #include <Pegasus/Server/ServiceCIMOMHandle.h>
 #include <Pegasus/Server/ShutdownService.h>
 
@@ -43,7 +43,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 /**
     The ShutdownProvider is a method provider that implements the shutdown
-    method in the PG_ShutdownService class.  It provides response to the 
+    method in the PG_ShutdownService class.  It provides response to the
     shutdown request from clients to shutdown cimom gracefully.
 */
 
@@ -65,7 +65,7 @@ public:
     void initialize(CIMOMHandle& cimomHandle)
     {
         //
-        // get an instance of Shutdown Service 
+        // get an instance of Shutdown Service
         //
         _shutdownService = ShutdownService::getInstance();
 
@@ -106,7 +106,7 @@ public:
         // Get the input parameter values
         //
         // ATTN: Currently the server only returns String values even
-        //       though the types of the parameters are not defined 
+        //       though the types of the parameters are not defined
         //       as String type.
         //
         for (Uint32 i = 0; i < inParameters.size(); i++)
@@ -115,20 +115,20 @@ public:
             if (String::equalNoCase(parmName, "force"))
             {
                 //
-                // get the force parameter 
+                // get the force parameter
                 //
                 inParameters[i].getValue().get(forceStr);
                 if (String::equalNoCase(forceStr, "TRUE"))
                 {
                     force = true;
                 }
-            } 
-            else 
+            }
+            else
             {
                 if (String::equalNoCase(parmName, "timeout"))
                 {
                     //
-                    // get the timeout value 
+                    // get the timeout value
                     //
                     inParameters[i].getValue().get(timeoutStr);
 
@@ -159,7 +159,7 @@ public:
  cout << "ShutdownProvider:  shutdown method failed." << endl;
             throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
         }
-    
+
         handler.deliver(CIMValue(0));
         handler.complete();
         return;

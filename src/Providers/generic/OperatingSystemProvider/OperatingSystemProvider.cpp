@@ -28,7 +28,7 @@
 
 #include <Pegasus/Common/Config.h>
 
-#include <Pegasus/Provider2/SimpleResponseHandler.cpp>
+#include <Pegasus/Provider/SimpleResponseHandler.cpp>
 
 #include "OperatingSystemProvider.h"
 #include "OperatingSystem.h"
@@ -67,9 +67,9 @@ void OperatingSystemProvider::getInstance(
 	{
 		if(instanceReference == cimReferences[i])
 		{
-			Array<CIMNamedInstance> cimInstances = _enumerateInstances(context, instanceReference);
+			Array<CIMInstance> cimInstances = _enumerateInstances(context, instanceReference);
 
-			handler.deliver(cimInstances[i].getInstance());
+			handler.deliver(cimInstances[i]);
 
 			break;
 		}
@@ -83,7 +83,7 @@ void OperatingSystemProvider::enumerateInstances(
 	const CIMReference & classReference,
 	const Uint32 flags,
 	const Array<String> & propertyList,
-	ResponseHandler<CIMNamedInstance> & handler)
+	ResponseHandler<CIMInstance> & handler)
 {
 	handler.processing();
 
@@ -140,7 +140,7 @@ void OperatingSystemProvider::enumerateInstances(
 		instanceName.setNameSpace(classReference.getNameSpace());
 
 		// deliver reference
-		handler.deliver(CIMNamedInstance(instanceName, cimInstance));
+		handler.deliver(cimInstance);
 	}
 
 	handler.complete();
@@ -164,12 +164,12 @@ void OperatingSystemProvider::enumerateInstanceNames(
 		false,
 		Array<String>());
 
-	Array<CIMNamedInstance> cimInstances = _enumerateInstances(context, classReference);
+	Array<CIMInstance> cimInstances = _enumerateInstances(context, classReference);
 	
 	// convert instances to references;
 	for(Uint32 i = 0, n = cimInstances.size(); i < n; i++)
 	{
-		CIMReference instanceReference = cimInstances[i].getInstance().getInstanceName(cimclass);
+		CIMReference instanceReference = cimInstances[i].getInstanceName(cimclass);
 
 		// ensure references are fully qualified
 		instanceReference.setHost(classReference.getHost());
@@ -211,11 +211,11 @@ void OperatingSystemProvider::deleteInstance(
 	throw NotSupported("OperatingSystem::deleteInstance");
 }
 
-Array<CIMNamedInstance> OperatingSystemProvider::_enumerateInstances(
+Array<CIMInstance> OperatingSystemProvider::_enumerateInstances(
 	const OperationContext & context,
 	const CIMReference & classReference)
 {
-	SimpleResponseHandler<CIMNamedInstance> handler;
+	SimpleResponseHandler<CIMInstance> handler;
 
 	enumerateInstances(context, classReference, 0xffffffff, Array<String>(), handler);
 

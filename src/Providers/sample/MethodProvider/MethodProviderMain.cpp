@@ -29,15 +29,15 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 
-#include "EverythingProvider.h"
+#include "MethodProvider.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
 extern "C" PEGASUS_EXPORT CIMBaseProvider * PegasusCreateProvider(const String & className)
 {
-	if(String::equalNoCase(className, "sample_kitchensink")) ||
+	if(String::equalNoCase(className, "sample_methodproviderclass"))
 	{
-		return(new EverythingProvider());
+		return(new MethodProvider());
 	}
 
 	return(0);

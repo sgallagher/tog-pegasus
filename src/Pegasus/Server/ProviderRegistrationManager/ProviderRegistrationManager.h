@@ -25,6 +25,7 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
+//              Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -206,24 +207,24 @@ public:
 	Boolean lookupInstanceProvider(
 		const CIMNamespaceName & nameSpace, 
 		const CIMName & className,
-	        CIMInstance & provider, 
+	    CIMInstance & provider, 
 		CIMInstance & providerModule,
-                Boolean is_assoc = false); 
+        Boolean is_assoc = false); 
 
 	Boolean lookupMethodProvider(
 		const CIMNamespaceName & nameSpace, 
 		const CIMName & className, 
-	        const CIMName & method, 
-	        CIMInstance & provider, 
+	    const CIMName & method, 
+	    CIMInstance & provider, 
 		CIMInstance & providerModule); 
 
 	Boolean lookupAssociationProvider(
 		const CIMNamespaceName & nameSpace, 
 		const CIMName & className,
-                const CIMName & assocClassName,
-                const CIMName & resultClassName,
-                Array<CIMInstance>& provider, 
-                Array<CIMInstance>& providerModule);
+        const CIMName & assocClassName,
+        const CIMName & resultClassName,
+        Array<CIMInstance>& provider, 
+        Array<CIMInstance>& providerModule);
 
 	Boolean getIndicationProviders(
 		const CIMNamespaceName & nameSpace, 
@@ -239,9 +240,9 @@ public:
 	Array<CIMObjectPath> enumerateInstanceNames(const CIMObjectPath & ref);
 
 	void modifyInstance(const CIMObjectPath & ref, 
-			    const CIMInstance & instance,
-			    const Boolean includeQualifiers,
-			    const Array<CIMName> & propertyList);
+		const CIMInstance & instance,
+		const Boolean includeQualifiers,
+		const Array<CIMName> & propertyList);
 
 	CIMObjectPath createInstance(const CIMObjectPath & ref, 
 		const CIMInstance & instance);

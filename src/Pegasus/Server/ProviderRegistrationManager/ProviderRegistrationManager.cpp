@@ -26,7 +26,7 @@
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
 //              Dave Rosckes (rosckes@us.ibm.com)
-//
+//              Karl Schopmeyer (k.schopmeyer@opengroup.org) - Fix assoc lookup//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "ProviderRegistrationManager.h"
@@ -373,7 +373,10 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
     return (true);
 }
 
-// ATTN-YZ-P1-20020301: Implement this interface
+// Lookup the association providers associated with a Class. Note that this
+// function returns an array but that should never happen until we reach
+// the point where we are registering multiple providers for the same
+// class
 Boolean ProviderRegistrationManager::lookupAssociationProvider(
     const CIMNamespaceName & nameSpace, 
     const CIMName & className,
@@ -402,25 +405,23 @@ Boolean ProviderRegistrationManager::lookupAssociationProvider(
     CIMInstance pmInstance;
     String providerName;
 
-    for(Uint32 i=0,n=classNames.size(); i<n; i++)
+    if (lookupInstanceProvider(
+        nameSpace, className, pInstance, pmInstance, true))
     {
-        if (lookupInstanceProvider(
-            nameSpace, classNames[i], pInstance, pmInstance, true))
+        // get the provider name
+        Uint32 pos = pInstance.findProperty(CIMName ("Name"));
+
+        if ( pos != PEG_NOT_FOUND )
         {
-            // get the provider name
-            Uint32 pos = pInstance.findProperty(CIMName ("Name"));
+            pInstance.getProperty(pos).getValue().get(providerName);
 
-            if ( pos != PEG_NOT_FOUND )
-            {
-                pInstance.getProperty(pos).getValue().get(providerName);
-
-                PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                             "providerName = " + providerName + " found.");
-                providers.append(pInstance);
-                providerModules.append(pmInstance);
-            }
+            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                         "providerName = " + providerName + " found.");
+            providers.append(pInstance);
+            providerModules.append(pmInstance);
         }
     }
+
     return (providers.size() > 0);
 }
 
@@ -1345,7 +1346,6 @@ void ProviderRegistrationManager::_initialRegistrationTable()
 			break;
 		    }
 
-		    // ATTN-YZ-P1-20020301: Implement this provider
 		    case _ASSOCIATION_PROVIDER:
 		    {
                         for (Uint32 k=0; k < namespaces.size(); k++)

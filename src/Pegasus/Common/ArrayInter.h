@@ -47,32 +47,42 @@ PEGASUS_TEMPLATE_SPECIALIZATION class PEGASUS_COMMON_LINKAGE Array<PEGASUS_ARRAY
 {
 public:
 
-    /// Default constructor.
+    /** Constructs an array object with null values (default constructor).
+	*/
     Array();
 
-    /// Copy Constructor.
+    /** Creates a new Array object using the parameters and values in the Array object.
+	@param x Specifies the new Array object name.
+	*/
     Array(const Array<PEGASUS_ARRAY_T>& x);
 
     /** Constructs an array with size elements. The elements are
         initialized with their copy constructor.
-        @param size defines the number of elements
+        @param size Defines the number of elements.
     */
     Array(Uint32 size);
 
     /** Constructs an array with size elements. The elements are
-        initialized with x.
+        initialized with array x.
+    	@param size Defines the number of elements.
+    	@param x Specifies the new array object name.
     */
     Array(Uint32 size, const PEGASUS_ARRAY_T& x);
 
     /** Constructs an array with size elements. The values come from
         the items pointer.
+    	@param items References the values of the specified array.
+    	@param size Uint32 representing how many elements are in the array.
     */
     Array(const PEGASUS_ARRAY_T* items, Uint32 size);
 
-    /// Destructs the objects, freeing any resources.
+    /**Destroys the objects, freeing any resources.
+    */
     ~Array();
 
-    /// Assignment operator.
+    /**The values of one array object are assigned to another (assignment operator).
+    	@param x Array object to assign the Array parameters to.	
+    */
     Array<PEGASUS_ARRAY_T>& operator=(const Array<PEGASUS_ARRAY_T>& x);
 
     /** Clears the contents of the array. After calling this, size()
@@ -86,30 +96,35 @@ public:
         capacity argument, this method has no effect. After calling
         reserveCapacity(), getCapacity() returns a value which is greater
         or equal to the capacity argument.
-        @param capacity defines the size that is to be reserved
+        @param capacity Defines the size that is to be reserved
     */
     void reserveCapacity(Uint32 capacity);
 
     /** Make the size of the array grow by size elements. The new size will 
         be size() + size. The new elements (there are size of them) are
         initialized with x.
-        @param size defines the number of elements by which the array is to
+        @param size Defines the number of elements by which the array is to
         grow.
     */
     void grow(Uint32 size, const PEGASUS_ARRAY_T& x);
 
-    /// Swaps the contents of two arrays.
+    /** Swaps the contents of two arrays.  Array x references the original values in the Array object (y) and the values of the Array object (y) reference the original values of Array x.
+    */
     void swap(Array<PEGASUS_ARRAY_T>& x);
 
     /** Returns the number of elements in the array.
-    @return The number of elements in the array.
+        @return The number of elements in the array.
     */
     Uint32 size() const;
 
-    /// Returns the capacity of the array.
+    /** Returns the capacity of the array.
+    	@return The capacity of the array.
+    */
     Uint32 getCapacity() const;
 
-    /// Returns a pointer to the first element of the array.
+    /** Returns a pointer to the first element of the array.
+	    @return A pointer to the first element of the array.
+	*/
     const PEGASUS_ARRAY_T* getData() const;
 
     /** Returns the element indicated by the index argument.
@@ -118,9 +133,9 @@ public:
     */
     PEGASUS_ARRAY_T& operator[](Uint32 index);
 
-    /** Same as the above method except that this is the version called
-        on const arrays. The return value cannot be modified since it
+    /** Returns the element in the const array specified as the index argument. The return value cannot be modified since it
         is constant.
+	    @return A reference to the element defined by index but the reference cannot be modified.
     */
     const PEGASUS_ARRAY_T& operator[](Uint32 index) const;
 
@@ -130,44 +145,54 @@ public:
     */
     void append(const PEGASUS_ARRAY_T& x);
 
-    /// Appends size elements at x to the end of this array.
+    /** Appends size elements at x to the end of this array.
+		@param size Uint32 value to append to the size of the array.
+	*/
     void append(const PEGASUS_ARRAY_T* x, Uint32 size);
 
     /** Appends one array to another. The size of this array grows by the
         size of the other.
-        @param Array to append.
+		@param x Array to add to the appended array.
     */
     void appendArray(const Array<PEGASUS_ARRAY_T>& x);
 
     /** Appends one element to the beginning of the array. This increases
         the size by one.
-        @param Element to prepend.
+        @param x The element to pre pend.
     */
     void prepend(const PEGASUS_ARRAY_T& x);
 
     /** Appends size elements to the array starting at the memory address
         given by x. The array grows by size elements.
+		@param size Uint32 size to add to the array at address x.
+		@param x Specifies where to begin increasing size elements of the array.
     */
     void prepend(const PEGASUS_ARRAY_T* x, Uint32 size);
 
     /** Inserts the element at the given index in the array. Subsequent
         elements are moved down. The size of the array grows by one.
+		@param x Specifies the element to add to the array.
     */
     void insert(Uint32 index, const PEGASUS_ARRAY_T& x);
 
     /** Inserts size elements at x into the array at the given index.
         Subsequent elements are moved down. The size of the array grows
         by size elements.
+		@param x Specifies where to begin adding elements in the array.
+		@param size Uint32 size to add to the array starting at element x.
     */
     void insert(Uint32 index, const PEGASUS_ARRAY_T* x, Uint32 size);
 
     /** Removes the element at the given index from the array. The
         size of the array shrinks by one.
+		@param index Specifies the array element to remove.
     */
     void remove(Uint32 index);
 
     /** Removes size elements starting at the given index. The size of
         the array shrinks by size elements.
+		@param index Specifies where in the array to begin removing elements.
+		@param size Uint32 size that specifies how many elements to remove from the array.
     */
     void remove(Uint32 index, Uint32 size);
 

@@ -30,6 +30,10 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Array_h
+/**
+This class provides a list of object types that are supported by the the ArrayInter object.
+The Array class contains parameter names for all Array objects.
+*/
 #define Pegasus_Array_h
 
 #include <Pegasus/Common/Config.h>

@@ -1,732 +1,927 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%////-*-c++-*-////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//==============================================================================
 //
-//////////////////////////////////////////////////////////////////////////
+// Author: Mike Day (mdday@us.ibm.com)
+//
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "MessageQueueService.h"
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/MessageLoader.h>
-
-PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
+ 
 cimom *MessageQueueService::_meta_dispatcher = 0;
-AtomicInt MessageQueueService::_service_count(0);
-Mutex MessageQueueService::_meta_dispatcher_mutex;
+AtomicInt MessageQueueService::_service_count = 0;
+AtomicInt MessageQueueService::_xid(1);
+Mutex MessageQueueService::_meta_dispatcher_mutex  = Mutex();
 
-static struct timeval deallocateWait = {300, 0};
 
-ThreadPool *MessageQueueService::_thread_pool = 0;
+MessageQueueService::MessageQueueService(const char *name, 
+					 Uint32 queueID, 
+					 Uint32 capabilities, 
+					 Uint32 mask) 
+   : Base(name, true,  queueID),
+     
+     _mask(mask),
+     _die(0),
+     _pending(true), 
+     _incoming(true, 1000),
+     _incoming_queue_shutdown(0),
+     _req_thread(_req_proc, this, false)
+{ 
+   _capabilities = (capabilities | module_capabilities::async);
+   
+   _default_op_timeout.tv_sec = 30;
+   _default_op_timeout.tv_usec = 100;
 
-MessageQueueService::PollingList* MessageQueueService::_polling_list;
-Mutex MessageQueueService::_polling_list_mutex;
+   _meta_dispatcher_mutex.lock(pegasus_thread_self());
+   
+   if( _meta_dispatcher == 0 )
+   {
+      PEGASUS_ASSERT( _service_count.value() == 0 );
+      _meta_dispatcher = new cimom();
+      if (_meta_dispatcher == NULL )
+      {
+	 _meta_dispatcher_mutex.unlock();
+	 
+	 throw NullPointer();
+      }
+      
+   }
+   _service_count++;
 
-Thread* MessageQueueService::_polling_thread = 0;
 
-ThreadPool *MessageQueueService::get_thread_pool()
-{
-   return _thread_pool;
-}
+   if( false == register_service(name, _capabilities, _mask) )
+   {
+      _meta_dispatcher_mutex.unlock();
+      throw BindFailed("MessageQueueService Base Unable to register with  Meta Dispatcher");
+   }
+   
+   _meta_dispatcher_mutex.unlock();
 
-//
-// MAX_THREADS_PER_SVC_QUEUE
-//
-// JR Wunderlich Jun 6, 2005
-//
-
-#define MAX_THREADS_PER_SVC_QUEUE_LIMIT 5000
-#define MAX_THREADS_PER_SVC_QUEUE_DEFAULT 5
-
-#ifndef MAX_THREADS_PER_SVC_QUEUE
-# define MAX_THREADS_PER_SVC_QUEUE MAX_THREADS_PER_SVC_QUEUE_DEFAULT
-#endif
-
-Uint32 max_threads_per_svc_queue;
-
-ThreadReturnType PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(
-    void* parm)
-{
-    Thread *myself = reinterpret_cast<Thread *>(parm);
-    MessageQueueService::PollingList *list =
-        reinterpret_cast<MessageQueueService::PollingList*>(myself->get_parm());
-
-    try
-    {
-        while (_stop_polling.get()  == 0)
-        {
-            _polling_sem.wait();
-
-            if (_stop_polling.get() != 0)
-            {
-                break;
-            }
-
-            // The polling_routine thread must hold the lock on the
-            // _polling_list while processing incoming messages.
-            // This lock is used to give this thread ownership of
-            // services on the _polling_routine list.
-
-            // This is necessary to avoid confict with other threads
-            // processing the _polling_list
-            // (e.g., MessageQueueServer::~MessageQueueService).
-
-            _polling_list_mutex.lock();
-            MessageQueueService *service = list->front();
-            ThreadStatus rtn = PEGASUS_THREAD_OK;
-            while (service != NULL)
-            {
-                if ((service->_incoming.count() > 0) &&
-                    (service->_die.get() == 0) &&
-                    (service->_threads.get() < max_threads_per_svc_queue))
-                {
-                    // The _threads count is used to track the
-                    // number of active threads that have been allocated
-                    // to process messages for this service.
-
-                    // The _threads count MUST be incremented while
-                    // the polling_routine owns the _polling_thread
-                    // lock and has ownership of the service object.
-
-                    service->_threads++;
-                    rtn = _thread_pool->allocate_and_awaken(
-                        service, _req_proc, &_polling_sem);
-                    // if no more threads available, break from processing loop
-                    if (rtn != PEGASUS_THREAD_OK )
-                    {
-                        service->_threads--;
-                        PEG_TRACE((TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL1,
-                            "Could not allocate thread for %s.  Queue has %d "
-                                "messages waiting and %d threads servicing."
-                                "Skipping the service for right now. ",
-                            service->getQueueName(),
-                            service->_incoming.count(),
-                            service->_threads.get()));
-
-                        Threads::yield();
-                        break;
-                    }
-                }
-                service = list->next_of(service);
-            }
-            _polling_list_mutex.unlock();
-        }
-    }
-    catch(const Exception &e)
-    {
-        PEG_TRACE((TRC_MESSAGEQUEUESERVICE,Tracer::LEVEL1,
-            "Exception caught in MessageQueueService::polling_routine : %s",
-                (const char*)e.getMessage().getCString()));
-    }
-    catch(const exception &e)
-    {
-        PEG_TRACE((TRC_MESSAGEQUEUESERVICE,Tracer::LEVEL1,
-            "Exception caught in MessageQueueService::polling_routine : %s",
-                e.what()));
-    }
-    catch(...)
-    {
-        PEG_TRACE_CSTRING(TRC_MESSAGEQUEUESERVICE,Tracer::LEVEL1,
-            "Unknown Exception caught in MessageQueueService::polling_routine");
-    }
-
-    PEGASUS_ASSERT(_stop_polling.get());
-
-    return ThreadReturnType(0);
+   _req_thread.run();
 }
 
 
-Semaphore MessageQueueService::_polling_sem(0);
-AtomicInt MessageQueueService::_stop_polling(0);
-
-
-MessageQueueService::MessageQueueService(
-    const char* name)
-    : Base(name),
-      _die(0),
-      _threads(0),
-      _incoming(),
-      _incoming_queue_shutdown(0)
+MessageQueueService::~MessageQueueService(void)
 {
-    _isRunning = true;
-
-    max_threads_per_svc_queue = MAX_THREADS_PER_SVC_QUEUE;
-
-    // if requested thread max is out of range, then set to
-    // MAX_THREADS_PER_SVC_QUEUE_LIMIT
-
-    if ((max_threads_per_svc_queue < 1) ||
-        (max_threads_per_svc_queue > MAX_THREADS_PER_SVC_QUEUE_LIMIT))
-    {
-        max_threads_per_svc_queue = MAX_THREADS_PER_SVC_QUEUE_LIMIT;
-    }
-
-    PEG_TRACE((TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL3,
-       "max_threads_per_svc_queue set to %u.", max_threads_per_svc_queue));
-
-    AutoMutex autoMut(_meta_dispatcher_mutex);
-
-    if (_meta_dispatcher == 0)
-    {
-        _stop_polling = 0;
-        PEGASUS_ASSERT(_service_count.get() == 0);
-        _meta_dispatcher = new cimom();
-
-        //  _thread_pool = new ThreadPool(initial_cnt, "MessageQueueService",
-        //   minimum_cnt, maximum_cnt, deallocateWait);
-        //
-        _thread_pool =
-            new ThreadPool(0, "MessageQueueService", 0, 0, deallocateWait);
-    }
-    _service_count++;
-
-    // Add to the polling list
-    if (!_polling_list)
-    {
-        _polling_list = new PollingList;
-    }
-    _polling_list->insert_back(this);
-   _meta_dispatcher->registerCIMService(this);
+   _die = 1;
+   if (_incoming_queue_shutdown.value() == 0 )
+   {
+       _incoming.shutdown_queue();
+       _req_thread.join();
+   }
+   
+   _meta_dispatcher_mutex.lock(pegasus_thread_self());
+   _service_count--;
+   if (_service_count.value() == 0 )
+   {
+      _meta_dispatcher->_shutdown_routed_queue();
+      delete _meta_dispatcher;
+   }
+   _meta_dispatcher_mutex.unlock();
+   
 }
 
 
-MessageQueueService::~MessageQueueService()
+
+void MessageQueueService::_shutdown_incoming_queue(void)
 {
+   
+   if (_incoming_queue_shutdown.value() > 0 )
+      return ;
+   
+   AsyncIoctl *msg = new AsyncIoctl(get_next_xid(),
+				    0, 
+				    _queueId, 
+				    _queueId, 
+				    true, 
+				    AsyncIoctl::IO_CLOSE, 
+				    0, 
+				    0);
 
-    // Close incoming queue.
-    if (_incoming_queue_shutdown.get() == 0)
-    {
-        AsyncIoClose *msg = new AsyncIoClose(
-            0,
-            _queueId);
+   msg->op = get_op();
+   msg->op->_request.insert_first(msg);
+   msg->op->_op_dest = this;
+   
+   _incoming.insert_last_wait(msg->op);
+   msg->op->_client_sem.wait();
+   
+   msg->op->lock();
+   AsyncReply * reply = static_cast<AsyncReply *>(msg->op->_response.remove_first());
+   reply->op = 0;
+   msg->op->unlock();
+   delete reply; 
+      
+   msg->op->_request.remove(msg);
+   msg->op->_state |= ASYNC_OPSTATE_RELEASED;
+   return_op(msg->op);
 
-        SendForget(msg);
-        // Wait until our queue has been shutdown.
-        while (_incoming_queue_shutdown.get() == 0)
-        {
-            Threads::yield();
-        }
-    }
-
-    // die now.
-    _die = 1;
-
-    _meta_dispatcher->deregisterCIMService(this);
-
-    // Wait until all threads processing the messages
-    // for this service have completed.
-    while (_threads.get() > 0)
-    {
-        Threads::yield();
-    }
-
-
-    // The polling_routine locks the _polling_list while
-    // processing the incoming messages for services on the
-    // list.  Deleting the service from the _polling_list
-    // prior to processing, avoids synchronization issues
-    // with the _polling_routine.
-    _removeFromPollingList(this);
-
-    {
-        AutoMutex autoMut(_meta_dispatcher_mutex);
-
-        _service_count--;
-        // If we are last service to die, delete metadispatcher.
-        if (_service_count.get() == 0)
-        {
-            _stop_polling++;
-            _polling_sem.signal();
-            if (_polling_thread)
-            {
-                _polling_thread->join();
-                delete _polling_thread;
-                _polling_thread = 0;
-            }
-            delete _meta_dispatcher;
-            _meta_dispatcher = 0;
-
-            delete _thread_pool;
-            _thread_pool = 0;
-        }
-    }
-
-    // Clean up any extra stuff on the queue.
-    AsyncOpNode* op = 0;
-    while ((op = _incoming.dequeue()))
-    {
-        delete op;
-    }
-}
-
-void MessageQueueService::enqueue(Message* msg)
-{
-    PEG_METHOD_ENTER(TRC_MESSAGEQUEUESERVICE, "MessageQueueService::enqueue()");
-
-    Base::enqueue(msg);
-
-    PEG_METHOD_EXIT();
+   msg->op = 0;
+   delete msg;
+   _req_thread.join();
+   
 }
 
 
-ThreadReturnType PEGASUS_THREAD_CDECL MessageQueueService::_req_proc(
-    void* parm)
+
+void MessageQueueService::enqueue(Message *msg) throw(IPCException)
 {
-    MessageQueueService* service =
-        reinterpret_cast<MessageQueueService*>(parm);
-    PEGASUS_ASSERT(service != 0);
-    try
-    {
-        if (service->_die.get() != 0)
-        {
-            service->_threads--;
-            return 0;
-        }
-        // pull messages off the incoming queue and dispatch them. then
-        // check pending messages that are non-blocking
-        AsyncOpNode *operation = 0;
+   PEG_METHOD_ENTER(TRC_MESSAGEQUEUESERVICE, "MessageQueueService::enqueue()");
 
-        // many operations may have been queued.
-        do
-        {
-            operation = service->_incoming.dequeue();
+   Base::enqueue(msg);
 
-            if (operation)
-            {
-               service->_handle_incoming_operation(operation);
-            }
-        } while (operation && !service->_incoming_queue_shutdown.get());
-    }
-    catch (const Exception& e)
-    {
-        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
-            "Caught exception: \"%s\".  Exiting _req_proc.",
-            (const char*)e.getMessage().getCString()));
-    }
-    catch (...)
-    {
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-            "Caught unrecognized exception.  Exiting _req_proc.");
-    }
-    service->_threads--;
-    return 0;
-}
+   PEG_METHOD_EXIT();
+   
+//    PEGASUS_ASSERT(msg != 0 );
+   
+//    cout << "inside overriden enqueue" << endl;
+//    if (!msg) 
+//     {
+//        Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL3,
+//         "MessageQueue::enqueue failure");
+//        throw NullPointer();
+//     }
 
-// callback function is responsible for cleaning up all resources
-// including op, op->_callback_node, and op->_callback_ptr
-void MessageQueueService::_handle_async_callback(AsyncOpNode* op)
-{
-    PEGASUS_ASSERT(op->_flags == ASYNC_OPFLAGS_CALLBACK);
-    // note that _callback_node may be different from op
-    // op->_callback_response_q is a "this" pointer we can use for
-    // static callback methods
-    op->_async_callback(
-        op->_callback_node, op->_callback_response_q, op->_callback_ptr);
+//     if (getenv("PEGASUS_TRACE"))
+//     {
+//        cout << "===== " << getQueueName() << ": ";
+//        msg->print(cout);
+//     }
+
+//    msg->dest = _queueId;
+   
+//    SendForget(msg);
+   
 }
 
 
-void MessageQueueService::_handle_incoming_operation(AsyncOpNode* operation)
+
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::_req_proc(void * parm)
 {
-    if (operation != 0)
-    {
-        Message *rq = operation->_request.get();
+   Thread *myself = reinterpret_cast<Thread *>(parm);
+   MessageQueueService *service = reinterpret_cast<MessageQueueService *>(myself->get_parm());
 
-// optimization <<< Thu Mar  7 21:04:05 2002 mdd >>>
-// move this to the bottom of the loop when the majority of
-// messages become async messages.
+   // pull messages off the incoming queue and dispatch them. then 
+   // check pending messages that are non-blocking
+   AsyncOpNode *operation = 0;
+   
+   while ( service->_die.value() == 0 ) 
+   {
+      try 
+      {
+	 operation = service->_incoming.remove_first_wait();
+      }
+      catch(ListClosed & )
+      {
+	 break;
+      }
+      if( operation )
+      {
+	 
+	 service->_handle_incoming_operation(operation, myself, service);
+      }
+   }
+   
+   myself->exit_self( (PEGASUS_THREAD_RETURN) 1 );
+   return(0);
+}
 
-        // divert legacy messages to handleEnqueue
-        if ((rq != 0) && (!(rq->getMask() & MessageMask::ha_async)))
-        {
-            operation->_request.release();
-            // delete the op node
-            return_op(operation);
-            handleEnqueue(rq);
-            return;
-        }
+void MessageQueueService::_handle_async_callback(AsyncOpNode *op)
+{
+   return_op(op);
+}
 
-        if ((operation->_flags & ASYNC_OPFLAGS_CALLBACK) &&
-            (operation->_state & ASYNC_OPSTATE_COMPLETE))
-        {
-            _handle_async_callback(operation);
-        }
-        else
-        {
-            PEGASUS_ASSERT(rq != 0);
-            _handle_async_request(static_cast<AsyncRequest *>(rq));
-        }
-    }
-    return;
+
+void MessageQueueService::_handle_incoming_operation(AsyncOpNode *operation, 
+						     Thread *thread, 
+						     MessageQueue *queue)
+{
+   if ( operation != 0 )
+   {
+
+// ATTN: optimization 
+// << Tue Feb 19 14:10:38 2002 mdd >>
+      operation->lock();
+      if ((operation->_state & ASYNC_OPFLAGS_CALLBACK) &&  
+	 (operation->_state & ASYNC_OPSTATE_COMPLETE))
+      {
+	 operation->unlock();
+	 _handle_async_callback(operation);
+      }
+      
+      Message *rq = operation->_request.next(0);
+      PEGASUS_ASSERT(rq != 0 );
+      
+      // divert "plain" legacy messages to handleEnqueue
+      if ( ! (rq->getMask() & message_mask::ha_async)  )
+      {
+	 rq = operation->_request.remove_first() ;
+	 operation->unlock();
+	 // delete the op node 
+	 delete operation;
+
+
+//	Attn:  change to handleEnqueue(msg) when we have that method in all messagequeueservices
+//             make handleEnqueue pure virtual !!!
+//      << Fri Feb 22 13:39:09 2002 mdd >>
+
+	 handleEnqueue(rq);
+	 return;
+      }
+
+      operation->unlock();
+      static_cast<AsyncMessage *>(rq)->_myself = thread;
+      static_cast<AsyncMessage *>(rq)->_service = queue;
+      _handle_async_request(static_cast<AsyncRequest *>(rq));
+   }
+   
+   return;
+   
 }
 
 void MessageQueueService::_handle_async_request(AsyncRequest *req)
 {
-    MessageType type = req->getType();
-    if (type == ASYNC_IOCLOSE)
-    {
-        handle_AsyncIoClose(static_cast<AsyncIoClose*>(req));
-    }
-    else if (type == ASYNC_CIMSERVICE_START)
-    {
-        handle_CimServiceStart(static_cast<CimServiceStart *>(req));
-    }
-    else if (type == ASYNC_CIMSERVICE_STOP)
-    {
-        handle_CimServiceStop(static_cast<CimServiceStop *>(req));
-    }
-    else
-    {
-        // we don't handle this request message
-        _make_response(req, async_results::CIM_NAK);
-    }
+   if ( req != 0 )
+   {
+      req->op->processing();
+   
+      Uint32 type = req->getType();
+      if( type == async_messages::HEARTBEAT )
+	 handle_heartbeat_request(req);
+      else if (type == async_messages::IOCTL)
+	 handle_AsyncIoctl(static_cast<AsyncIoctl *>(req));
+      else if (type == async_messages::CIMSERVICE_START)
+	 handle_CimServiceStart(static_cast<CimServiceStart *>(req));
+      else if (type == async_messages::CIMSERVICE_STOP)
+	 handle_CimServiceStop(static_cast<CimServiceStop *>(req));
+      else if (type == async_messages::CIMSERVICE_PAUSE)
+	 handle_CimServicePause(static_cast<CimServicePause *>(req));
+      else if (type == async_messages::CIMSERVICE_RESUME)
+	 handle_CimServiceResume(static_cast<CimServiceResume *>(req));
+      else if ( type == async_messages::ASYNC_OP_START)
+	 handle_AsyncOperationStart(static_cast<AsyncOperationStart *>(req));
+      else 
+      {
+	 // we don't handle this request message 
+	 _make_response(req, async_results::CIM_NAK );
+      }
+   }
 }
+
 
 Boolean MessageQueueService::_enqueueResponse(
-    Message* request,
-    Message* response)
+   Message* request, 
+   Message* response)
+   
 {
-    PEG_METHOD_ENTER(TRC_MESSAGEQUEUESERVICE,
-        "MessageQueueService::_enqueueResponse");
 
-    if (request->getMask() & MessageMask::ha_async)
-    {
-        if (response->getMask() & MessageMask::ha_async)
-        {
-            _completeAsyncResponse(
-                static_cast<AsyncRequest *>(request),
-                static_cast<AsyncReply *>(response));
-
-            PEG_METHOD_EXIT();
-            return true;
-        }
-    }
-
-    AsyncRequest* asyncRequest =
-        static_cast<AsyncRequest*>(request->get_async());
-
-    if (asyncRequest != 0)
-    {
-        PEGASUS_ASSERT(asyncRequest->getMask() &
-            (MessageMask::ha_async | MessageMask::ha_request));
-
-        AsyncOpNode* op = asyncRequest->op;
-
-        // the legacy request is going to be deleted by its handler
-        // remove it from the op node
-
-        static_cast<AsyncLegacyOperationStart *>(asyncRequest)->get_action();
-
-        AsyncLegacyOperationResult *async_result =
-            new AsyncLegacyOperationResult(
-                op,
-                response);
-        _completeAsyncResponse(
-            asyncRequest,
-            async_result);
-
-        PEG_METHOD_EXIT();
-        return true;
-    }
-
-    // ensure that the destination queue is in response->dest
-    PEG_METHOD_EXIT();
-    return SendForget(response);
+   if( request->getMask() & message_mask::ha_async)
+   {
+      if (response->getMask() & message_mask::ha_async )
+      {
+	 _completeAsyncResponse(static_cast<AsyncRequest *>(request), 
+				static_cast<AsyncReply *>(response), 
+				ASYNC_OPSTATE_COMPLETE, 0 );
+	 return true;
+      }
+   }
+   
+   if(request->_async != 0 )
+   {
+      Uint32 mask = request->_async->getMask();
+      PEGASUS_ASSERT(mask & (message_mask::ha_async | message_mask::ha_request ));
+      
+      AsyncRequest *async = static_cast<AsyncRequest *>(request->_async);
+      AsyncOpNode *op = async->op;
+      request->_async = 0;
+      // this request is probably going to be deleted !!
+      // remove it from the op node 
+      op->_request.remove(request);
+      
+      AsyncLegacyOperationResult *async_result = 
+	 new AsyncLegacyOperationResult( 
+	    async->getKey(),
+	    async->getRouting(),
+	    op,
+	    response);
+      _completeAsyncResponse(async,
+			     async_result,
+			     ASYNC_OPSTATE_COMPLETE, 
+			     0);
+      return true;
+   }
+   
+   // ensure that the destination queue is in response->dest
+   return SendForget(response);
+   
 }
 
-void MessageQueueService::_make_response(Message* req, Uint32 code)
+void MessageQueueService::_make_response(Message *req, Uint32 code)
 {
-    cimom::_make_response(req, code);
-}
-
-void MessageQueueService::_completeAsyncResponse(
-    AsyncRequest* request,
-    AsyncReply* reply)
-{
-    PEG_METHOD_ENTER(TRC_MESSAGEQUEUESERVICE,
-        "MessageQueueService::_completeAsyncResponse");
-
-    cimom::_completeAsyncResponse(request, reply);
-
-    PEG_METHOD_EXIT();
+   cimom::_make_response(req, code);
 }
 
 
-void MessageQueueService::_complete_op_node(
-    AsyncOpNode* op)
+void MessageQueueService::_completeAsyncResponse(AsyncRequest *request, 
+						AsyncReply *reply, 
+						Uint32 state, 
+						Uint32 flag)
 {
-    cimom::_complete_op_node(op);
+   cimom::_completeAsyncResponse(request, reply, state, flag);
 }
 
 
-Boolean MessageQueueService::accept_async(AsyncOpNode* op)
+
+Boolean MessageQueueService::accept_async(AsyncOpNode *op)
 {
-    if (!_isRunning)
-    {
-        // Don't accept any messages other than start.
-        if (op->_request.get()->getType() != ASYNC_CIMSERVICE_START)
-        {
-            return false;
-        }
-    }
-
-    if (_incoming_queue_shutdown.get() > 0)
-        return false;
-
-    if (_polling_thread == NULL)
-    {
-        PEGASUS_ASSERT(_polling_list);
-        _polling_thread = new Thread(
-            polling_routine,
-            reinterpret_cast<void *>(_polling_list),
-            false);
-        ThreadStatus tr = PEGASUS_THREAD_OK;
-        while ( (tr =_polling_thread->run()) != PEGASUS_THREAD_OK)
-        {
-            if (tr == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
-                Threads::yield();
-            else
-                throw Exception(MessageLoaderParms(
-                    "Common.MessageQueueService.NOT_ENOUGH_THREAD",
-                    "Could not allocate thread for the polling thread."));
-        }
-    }
-    if (_die.get() == 0)
-    {
-        if (_incoming.enqueue(op))
-        {
-            _polling_sem.signal();
-            return true;
-        }
-    }
-    return false;
+   if (_incoming_queue_shutdown.value() > 0 )
+      return false;
+   
+// ATTN optimization remove the message checking altogether in the base 
+// << Mon Feb 18 14:02:20 2002 mdd >>
+   op->lock();
+   Message *rq = op->_request.next(0);
+   Message *rp = op->_response.next(0);
+   op->unlock();
+   
+   if(  (rq != 0 && (true == messageOK(rq))) || (rp != 0 && ( true == messageOK(rp) )) &&  
+	_die.value() == 0  )
+   {
+      _incoming.insert_last_wait(op);
+      return true;
+   }
+   return false;
 }
 
-void MessageQueueService::handle_AsyncIoClose(AsyncIoClose *req)
+Boolean MessageQueueService::messageOK(const Message *msg)
 {
-    MessageQueueService *service =
-        static_cast<MessageQueueService*>(req->op->_op_dest);
-
-#ifdef MESSAGEQUEUESERVICE_DEBUG
-    PEGASUS_STD(cout) << service->getQueueName() <<
-        " Received AsyncIoClose " << PEGASUS_STD(endl);
-#endif
-    // set the closing flag, don't accept any more messages
-    service->_incoming_queue_shutdown = 1;
-    //Wait until no more threads are running in the service except ourself.
-    //Note that if we don't  wait for all threads to terminate here, deletion
-    //of this service later may destruct derived class members while still
-    //running threads in this service trying to access them.
-    while (service->_threads.get() > 1)
-    {
-        Threads::yield();
-        Threads::sleep(50);
-    }
-    // respond to this message. this is fire and forget, so we
-    // don't need to delete anything.
-    // this takes care of two problems that were being found
-    // << Thu Oct  9 10:52:48 2003 mdd >>
-    _make_response(req, async_results::OK);
+   if (_incoming_queue_shutdown.value() > 0 )
+      return false;
+   return true;
 }
 
-void MessageQueueService::handle_CimServiceStart(CimServiceStart* req)
+// void MessageQueueService::handleEnqueue(Message *msg)
+// {
+   
+   
+//    if ( msg )
+//       delete msg;
+// }
+
+
+// void MessageQueueService::handleEnqueue(void)
+// {
+//     Message *msg = dequeue();
+//     handleEnqueue(msg);
+// }
+
+void MessageQueueService::handle_heartbeat_request(AsyncRequest *req)
 {
-#ifdef MESSAGEQUEUESERVICE_DEBUG
-    PEGASUS_STD(cout) << getQueueName() << "received START" <<
-        PEGASUS_STD(endl);
-#endif
-    PEGASUS_ASSERT(!_isRunning);
-    _isRunning = true;
-    _make_response(req, async_results::OK);
+   // default action is to echo a heartbeat response 
+   
+   AsyncReply *reply = 
+      new AsyncReply(async_messages::HEARTBEAT,
+		     req->getKey(),
+		     req->getRouting(),
+		     0,
+		     req->op, 
+		     async_results::OK, 
+		     req->resp,
+		     false);
+   _completeAsyncResponse(req, reply, ASYNC_OPSTATE_COMPLETE, 0 );
 }
 
-void MessageQueueService::handle_CimServiceStop(CimServiceStop* req)
+
+void MessageQueueService::handle_heartbeat_reply(AsyncReply *rep)
+{ 
+   ;
+}
+      
+void MessageQueueService::handle_AsyncIoctl(AsyncIoctl *req)
 {
-#ifdef MESSAGEQUEUESERVICE_DEBUG
-    PEGASUS_STD(cout) << getQueueName() << "received STOP" << PEGASUS_STD(endl);
-#endif
-    PEGASUS_ASSERT(_isRunning);
-    _isRunning = false;
-    _make_response(req, async_results::CIM_SERVICE_STOPPED);
+   
+   switch( req->ctl )
+   {
+      case AsyncIoctl::IO_CLOSE:
+      {
+	 // save my bearings 
+	 Thread *myself = req->_myself;
+	 MessageQueueService *service = static_cast<MessageQueueService *>(req->_service);
+	 
+	 // respond to this message.
+	 _make_response(req, async_results::OK);
+	 // ensure we do not accept any further messages
+
+	 // ensure we don't recurse on IO_CLOSE
+	 if( _incoming_queue_shutdown.value() > 0 )
+	    break;
+	 
+	 // set the closing flag 
+	 service->_incoming_queue_shutdown = 1;
+	 // empty out the queue
+	 while( 1 )
+	 {
+	    AsyncOpNode *operation;
+	    try 
+	    {
+	       operation = service->_incoming.remove_first();
+	    }
+	    catch(IPCException & )
+	    {
+	       break;
+	    }
+	    if( operation )
+	    {
+	       service->_handle_incoming_operation(operation, myself, service);
+	    }
+	    else
+	       break;
+	 } // message processing loop
+
+	 // shutdown the AsyncDQueue
+	 service->_incoming.shutdown_queue();
+	 // exit the thread ! 
+	 myself->exit_self( (PEGASUS_THREAD_RETURN) 1 );
+	 return;
+      }
+
+      default:
+	 _make_response(req, async_results::CIM_NAK);
+   }
 }
 
-AsyncOpNode* MessageQueueService::get_op()
+void MessageQueueService::handle_CimServiceStart(CimServiceStart *req)
 {
-   AsyncOpNode* op = new AsyncOpNode();
+   // clear the stoped bit and update
+   _capabilities &= (~(module_capabilities::stopped));
+   _make_response(req, async_results::OK);
+   // now tell the meta dispatcher we are stopped 
+   update_service(_capabilities, _mask);
 
+}
+void MessageQueueService::handle_CimServiceStop(CimServiceStop *req)
+{
+   // set the stopeed bit and update
+   _capabilities |= module_capabilities::stopped;
+   _make_response(req, async_results::CIM_STOPPED);
+   // now tell the meta dispatcher we are stopped 
+   update_service(_capabilities, _mask);
+   
+}
+void MessageQueueService::handle_CimServicePause(CimServicePause *req)
+{
+   // set the paused bit and update
+   _capabilities |= module_capabilities::paused;
+   update_service(_capabilities, _mask);
+   _make_response(req, async_results::CIM_PAUSED);
+   // now tell the meta dispatcher we are stopped 
+}
+void MessageQueueService::handle_CimServiceResume(CimServiceResume *req)
+{
+   // clear the paused  bit and update
+   _capabilities &= (~(module_capabilities::paused));
+   update_service(_capabilities, _mask);
+   _make_response(req, async_results::OK);
+   // now tell the meta dispatcher we are stopped 
+}
+      
+void MessageQueueService::handle_AsyncOperationStart(AsyncOperationStart *req)
+{
+   _make_response(req, async_results::CIM_NAK);
+}
+
+void MessageQueueService::handle_AsyncOperationResult(AsyncOperationResult *req)
+{
+   ;
+}
+
+
+void MessageQueueService::handle_AsyncLegacyOperationStart(AsyncLegacyOperationStart *req)
+{
+   // remove the legacy message from the request and enqueue it to its destination
+   Uint32 result = async_results::CIM_NAK;
+   
+   Message *legacy = req->_act;
+   if ( legacy != 0 )
+   {
+      MessageQueue* queue = MessageQueue::lookup(req->_legacy_destination);
+      if( queue != 0 )
+      {
+	 if(queue->isAsync() == true )
+	 {
+	    (static_cast<MessageQueueService *>(queue))->handleEnqueue(legacy);
+	 }
+	 else 
+	 {
+	    // Enqueue the response:
+	    queue->enqueue(req->get_action());
+	 }
+	 
+	 result = async_results::OK;
+      }
+   }
+   _make_response(req, result);
+}
+
+void MessageQueueService::handle_AsyncLegacyOperationResult(AsyncLegacyOperationResult *rep)
+{
+   ;
+}
+
+AsyncOpNode *MessageQueueService::get_op(void)
+{
+   AsyncOpNode *op = new AsyncOpNode();
+   
    op->_state = ASYNC_OPSTATE_UNKNOWN;
-   op->_flags = ASYNC_OPFLAGS_UNKNOWN;
-
+   op->_flags = ASYNC_OPFLAGS_SINGLE | ASYNC_OPFLAGS_NORMAL;
+   
    return op;
 }
 
-void MessageQueueService::return_op(AsyncOpNode* op)
+void MessageQueueService::return_op(AsyncOpNode *op)
 {
-    delete op;
+   PEGASUS_ASSERT(op->read_state() & ASYNC_OPSTATE_RELEASED );
+   delete op;
 }
 
 
-Boolean MessageQueueService::SendAsync(
-    AsyncOpNode* op,
-    Uint32 destination,
-    void (*callback)(AsyncOpNode*, MessageQueue*, void*),
-    MessageQueue* callback_response_q,
-    void* callback_ptr)
+void MessageQueueService::ReplyAsync(AsyncOpNode *op, 
+		Uint32 destination)
 {
-    return _sendAsync(
-        op,
-        destination,
-        callback,
-        callback_response_q,
-        callback_ptr,
-        ASYNC_OPFLAGS_CALLBACK);
+   PEGASUS_ASSERT( op->_flags &  ASYNC_OPFLAGS_CALLBACK );
+   
 
-}
+   // get the queue handle for the destination
+   if ( 0 == (op->_op_dest = MessageQueue::lookup(destination)))
+   {
+      delete op;
+   }
+   
+   op->_response.next(0)->dest = destination;
+   
 
-Boolean MessageQueueService::_sendAsync(
-    AsyncOpNode* op,
-    Uint32 destination,
-    void (*callback)(AsyncOpNode*, MessageQueue*, void*),
-    MessageQueue* callback_response_q,
-    void* callback_ptr,
-    Uint32 flags)
-{
-    PEGASUS_ASSERT(op != 0);
-    PEGASUS_ASSERT((callback == 0) ==
-        (flags == ASYNC_OPFLAGS_PSEUDO_CALLBACK));
-
-    // destination of this message
-    op->_op_dest = MessageQueue::lookup(destination);
-    if (op->_op_dest == 0)
-    {
-        return false;
-    }
-    op->_flags = flags;
-    // initialize the callback data
-    // callback function to be executed by recpt. of response
-    op->_async_callback = callback;
-    // the op node
-    op->_callback_node = op;
-    // the queue that will receive the response
-    op->_callback_response_q = callback_response_q;
-    // user data for callback
-    op->_callback_ptr = callback_ptr;
-
-    return  _meta_dispatcher->route_async(op);
-}
-
-Boolean MessageQueueService::SendForget(Message* msg)
-{
-    AsyncOpNode* op = 0;
-    Uint32 mask = msg->getMask();
-
-    if (mask & MessageMask::ha_async)
-    {
-        op = (static_cast<AsyncMessage *>(msg))->op;
-    }
-
-    if (op == 0)
-    {
-        op = get_op();
-        op->_request.reset(msg);
-        if (mask & MessageMask::ha_async)
-        {
-            (static_cast<AsyncMessage *>(msg))->op = op;
-        }
-    }
-
-    PEGASUS_ASSERT(op->_flags == ASYNC_OPFLAGS_UNKNOWN);
-    PEGASUS_ASSERT(op->_state == ASYNC_OPSTATE_UNKNOWN);
-    op->_op_dest = MessageQueue::lookup(msg->dest);
-    if (op->_op_dest == 0)
-    {
-        return_op(op);
-        return false;
-    }
-
-    op->_flags = ASYNC_OPFLAGS_FIRE_AND_FORGET;
-
-    // now see if the meta dispatcher will take it
-    return  _meta_dispatcher->route_async(op);
+   op->_flags &= ~(ASYNC_OPFLAGS_FIRE_AND_FORGET);
+   op->_state |= ASYNC_OPSTATE_COMPLETE;
+   
+   if ( false == _meta_dispatcher->route_async(op) )
+      delete op;
+   return;
 }
 
 
-AsyncReply *MessageQueueService::SendWait(AsyncRequest* request)
-{
-    if (request == 0)
-        return 0;
-
-    Boolean destroy_op = false;
-
-    if (request->op == 0)
-    {
-        request->op = get_op();
-        request->op->_request.reset(request);
-        destroy_op = true;
-    }
-
-    PEGASUS_ASSERT(request->op->_flags == ASYNC_OPFLAGS_UNKNOWN);
-    PEGASUS_ASSERT(request->op->_state == ASYNC_OPSTATE_UNKNOWN);
-
-    _sendAsync(
-        request->op,
-        request->dest,
-        0,
-        0,
-        (void *)0,
-        ASYNC_OPFLAGS_PSEUDO_CALLBACK);
-
-    request->op->_client_sem.wait();
-
-    AsyncReply* rpl = static_cast<AsyncReply *>(request->op->removeResponse());
-    rpl->op = 0;
-
-    if (destroy_op == true)
-    {
-        request->op->_request.release();
-        return_op(request->op);
-        request->op = 0;
-    }
-    return rpl;
+Boolean MessageQueueService::SendAsync(AsyncOpNode *op, 
+				       Uint32 destination,
+				       void (*callback)(AsyncOpNode *, 
+							MessageQueue *, 
+							void *), 
+				       void * parm)
+{ 
+   PEGASUS_ASSERT( callback != 0 && op != 0 );
+      
+   op->_callback_ptr = parm;
+   
+   // get the queue handle for the destination
+   if ( 0 == (op->_op_dest = MessageQueue::lookup(destination)))
+      return false;
+   op->_request.next(0)->dest = destination;
+   
+   op->_flags |= ASYNC_OPFLAGS_CALLBACK;
+   op->_flags &= ~(ASYNC_OPFLAGS_FIRE_AND_FORGET);
+   op->_state &= ~ASYNC_OPSTATE_COMPLETE;
+   
+   return  _meta_dispatcher->route_async(op);
 }
 
-Uint32 MessageQueueService::find_service_qid(const char* name)
+void MessageQueueService::ForwardRequest(AsyncOpNode *op, MessageQueue *dest)
 {
-    MessageQueue* queue = MessageQueue::lookup(name);
-    PEGASUS_ASSERT(queue);
-    return queue->getQueueId();
+
+   Message *msg = op->_request.next(0);
+   if ( msg == 0 )
+   {
+      delete op;
+      return;
+   }
+   msg->_async = 0;
+   msg->dest = dest->getQueueId();
+   if(msg->getMask() & message_mask::ha_async)
+      (static_cast<AsyncMessage *>(msg))->op = 0;
+   
+   op->_flags |= ASYNC_OPFLAGS_FIRE_AND_FORGET;
+   op->_flags &= ~(ASYNC_OPFLAGS_CALLBACK | ASYNC_OPFLAGS_SIMPLE_STATUS);
+   op->_state &= ~ASYNC_OPSTATE_COMPLETE;
+   
+   op->_op_dest = dest;
+   
+   // now see if the meta dispatcher will take it
+   if( false == _meta_dispatcher->route_async(op))
+      delete op;
+   
+   return;
 }
 
-void MessageQueueService::_removeFromPollingList(MessageQueueService *service)
+
+void MessageQueueService::ForwardResponse(AsyncOpNode *op, MessageQueue *dest)
 {
-    _polling_list_mutex.lock();
-    _polling_list->remove(service);
-    _polling_list_mutex.unlock();
+
+   Message *msg = op->_response.next(0);
+   if ( msg == 0 || dest == 0 )
+   {
+      delete op;
+      return;
+   }
+   msg->_async = 0;
+   msg->dest = dest->getQueueId();
+   if(msg->getMask() & message_mask::ha_async)
+      (static_cast<AsyncMessage *>(msg))->op = 0;
+   
+   op->_flags |= ASYNC_OPFLAGS_FIRE_AND_FORGET;
+   op->_flags &= ~(ASYNC_OPFLAGS_CALLBACK | ASYNC_OPFLAGS_SIMPLE_STATUS);
+   op->_state &= ~ASYNC_OPSTATE_COMPLETE;
+   
+   op->_op_dest = dest;
+   
+   // now see if the meta dispatcher will take it
+   if( false == _meta_dispatcher->route_async(op))
+      delete op;
+   
+   return;
+}
+
+Boolean MessageQueueService::SendForget(Message *msg)
+{
+
+   
+   AsyncOpNode *op = 0;
+   Uint32 mask = msg->getMask();
+   
+   if (mask & message_mask::ha_async)
+   {
+      op = (static_cast<AsyncMessage *>(msg))->op ;
+   }
+
+   if( op == 0 )
+   {
+      op = get_op();
+      op->_request.insert_first(msg);
+      if (mask & message_mask::ha_async)
+	 (static_cast<AsyncMessage *>(msg))->op = op;
+      else 
+	 msg->_async = 0;
+   }
+   op->_flags |= ASYNC_OPFLAGS_FIRE_AND_FORGET;
+   op->_flags &= ~(ASYNC_OPFLAGS_CALLBACK | ASYNC_OPFLAGS_SIMPLE_STATUS);
+   op->_state &= ~ASYNC_OPSTATE_COMPLETE;
+   
+   // get the queue handle for the destination
+   if ( 0 == (op->_op_dest = MessageQueue::lookup(msg->dest)))
+   {
+      return false;
+   }
+   
+   // now see if the meta dispatcher will take it
+   Boolean return_code = _meta_dispatcher->route_async(op);
+   return  return_code;
+   
+
+}
+
+
+AsyncReply *MessageQueueService::SendWait(AsyncRequest *request)
+{
+   if ( request == 0 )
+      return 0 ;
+
+   Boolean destroy_op = false;
+   
+   if (request->op == false)
+   {
+      request->op = get_op();
+      request->op->_request.insert_first(request);
+      destroy_op = true;
+   }
+   
+   request->block = true;
+   request->op->_state &= ~ASYNC_OPSTATE_COMPLETE;
+   request->op->_flags &= ~ASYNC_OPFLAGS_CALLBACK; 
+   
+   // get the queue handle for the destination
+   if ( 0 == (request->op->_op_dest = MessageQueue::lookup(request->dest)))
+      return 0;
+   
+   
+   // now see if the meta dispatcher will take it
+
+   if (true == _meta_dispatcher->route_async(request->op))
+   {
+      request->op->_client_sem.wait();
+      PEGASUS_ASSERT(request->op->_state & ASYNC_OPSTATE_COMPLETE);
+      
+   }
+   
+   request->op->lock();
+   AsyncReply * rpl = static_cast<AsyncReply *>(request->op->_response.remove_first());
+   rpl->op = 0;
+   request->op->unlock();
+   
+   if( destroy_op == true)
+   {
+      request->op->lock();
+      request->op->_request.remove(request);
+      request->op->_state |= ASYNC_OPSTATE_RELEASED;
+      request->op->unlock();
+      
+      return_op(request->op);
+      request->op = 0;
+   }
+   
+   return rpl;
+}
+
+
+Boolean MessageQueueService::register_service(String name, 
+					      Uint32 capabilities, 
+					      Uint32 mask)
+
+{
+   RegisterCimService *msg = new RegisterCimService(get_next_xid(),
+						    0, 
+						    true, 
+						    name, 
+						    capabilities, 
+						    mask,
+						    _queueId);
+   Boolean registered = false;
+   AsyncReply *reply = static_cast<AsyncReply *>(SendWait( msg ));
+   
+   if ( reply != 0 )
+   {
+      if(reply->getMask() & message_mask:: ha_async)
+      {
+	 if(reply->getMask() & message_mask::ha_reply)
+	 {
+	    if(reply->result == async_results::OK || 
+	       reply->result == async_results::MODULE_ALREADY_REGISTERED )
+	       registered = true;
+	 }
+      }
+      
+      delete reply; 
+   }
+   delete msg;
+   return registered;
+}
+
+Boolean MessageQueueService::update_service(Uint32 capabilities, Uint32 mask)
+{
+   
+   
+   UpdateCimService *msg = new UpdateCimService(get_next_xid(), 
+						0, 
+						true, 
+						_queueId,
+						_capabilities, 
+						_mask);
+   Boolean registered = false;
+
+   AsyncMessage *reply = SendWait(msg);
+   if (reply)
+   {
+      if(reply->getMask() & message_mask:: ha_async)
+      {
+	 if(reply->getMask() & message_mask::ha_reply)
+	 {
+	    if(static_cast<AsyncReply *>(reply)->result == async_results::OK)
+	       registered = true;
+	 }
+      }
+      delete reply;
+   }
+   delete msg;
+   return registered;
+}
+
+
+Boolean MessageQueueService::deregister_service(void)
+{
+
+   _meta_dispatcher->deregister_module(_queueId);
+   return true;
+}
+
+
+void MessageQueueService::find_services(String name, 
+					Uint32 capabilities, 
+					Uint32 mask, 
+					Array<Uint32> *results)
+{
+   
+   if( results == 0 )
+      throw NullPointer();
+    
+   results->clear();
+   
+   FindServiceQueue *req = 
+      new FindServiceQueue(get_next_xid(), 
+			   0, 
+			   _queueId, 
+			   true, 
+			   name, 
+			   capabilities, 
+			   mask);
+   
+   AsyncMessage *reply = SendWait(req); 
+   if(reply)
+   {
+      if( reply->getMask() & message_mask::ha_async)
+      {
+	 if(reply->getMask() & message_mask::ha_reply)
+	 {
+	    if(reply->getType() == async_messages::FIND_SERVICE_Q_RESULT)
+	    {
+	       if( (static_cast<FindServiceQueueResult *>(reply))->result == async_results::OK )
+		  *results = (static_cast<FindServiceQueueResult *>(reply))->qids;
+	    }
+	 }
+      }
+      delete reply;
+   }
+   delete req;
+   return ;
+}
+
+void MessageQueueService::enumerate_service(Uint32 queue, message_module *result)
+{
+   if(result == 0)
+      throw NullPointer();
+   
+   EnumerateService *req 
+      = new EnumerateService(get_next_xid(),
+			     0, 
+			     _queueId, 
+			     true, 
+			     queue);
+   
+   AsyncMessage *reply = SendWait(req);
+   
+   if (reply)
+   {
+      Boolean found = false;
+      
+      if( reply->getMask() & message_mask::ha_async)
+      {
+	 if(reply->getMask() & message_mask::ha_reply)
+	 {
+	    if(reply->getType() == async_messages::ENUMERATE_SERVICE_RESULT)
+	    {
+	       if( (static_cast<EnumerateServiceResponse *>(reply))->result == async_results::OK )
+	       {
+		  if( found == false)
+		  {
+		     found = true;
+		     
+		     result->put_name( (static_cast<EnumerateServiceResponse *>(reply))->name);
+		     result->put_capabilities((static_cast<EnumerateServiceResponse *>(reply))->capabilities);
+		     result->put_mask((static_cast<EnumerateServiceResponse *>(reply))->mask);
+		     result->put_queue((static_cast<EnumerateServiceResponse *>(reply))->qid);
+		  }
+	       }
+	    }
+	 }
+      }
+      delete reply;
+   }
+   delete req;
+   
+   return;
+}
+
+Uint32 MessageQueueService::get_next_xid(void)
+{
+   _xid++;
+   return _xid.value();
 }
 
 PEGASUS_NAMESPACE_END

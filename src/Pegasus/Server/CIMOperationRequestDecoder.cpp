@@ -311,7 +311,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
        while(count<validateSize)
        {
 	   UTF8_NEXT(validateContent,count,currentChar);
-	   if (!(String::isUTF8(validateContent[count])))
+	   if (!(String::isUTF8((const char *)&validateContent[count])))
 	   {
 	       sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "unsupported-Content-Type",
 			     String("Invalid UTF-8 character detected."));

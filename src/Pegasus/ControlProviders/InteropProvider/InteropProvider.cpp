@@ -539,7 +539,7 @@ void _buildInstanceCommonKeys(CIMInstance& instance)
     String SystemCreationClassName = System::getSystemCreationClassName ();
     if (SystemCreationClassName == String::EMPTY)
     {
-        // This in place because global is often Empty
+        //Attn: Get this globally. For now This in place because global is often Empty
         SystemCreationClassName = "CIM_ComputerSystem";
     }
 
@@ -640,8 +640,12 @@ CIMInstance _buildInstancCIMObjectManagerCommunicationMechanism()
     return(instance);
 }
 
-
-CIMInstance _buildInstancCIMXMLCommunicationMechanism()
+/* build a single instance of the cimxmlcommunicationmechanism class
+   using the parameter provided as the name property
+   @parm name String representing the name to be used for this object.
+   @return CIMInstance of the class
+*/
+CIMInstance _buildInstancCIMXMLCommunicationMechanism(const String& name)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::_buildInstanceCIMXMLCommunicationMechanism()");
@@ -653,10 +657,9 @@ CIMInstance _buildInstancCIMXMLCommunicationMechanism()
     //CreationClassName
     instance.addProperty(
         (CIMProperty(CIM_NAMESPACE_PROPERTY_CREATIONCLASSNAME,
-            CIM_OBJECTMANAGERCOMMUNICATIONMECHANISM_CLASSNAME.getString() )));
+            CIM_CIMXMLCOMMUNICATIONMECHANISM_CLASSNAME.getString() )));
     
     //Name, this CommunicationMechanism.
-    String name = "PegasusCommunicationMechanism";
     instance.addProperty(
         (CIMProperty(CIM_NAMESPACE_PROPERTY_NAME,
                      name )));
@@ -1585,7 +1588,7 @@ void InteropProvider::getInstance(
 
         if (classEnum == CIM_CIMXMLCOMMUNICATIONMECHANISM)
         {
-            CIMInstance instance = _buildInstancCIMXMLCommunicationMechanism();
+            CIMInstance instance = _buildInstancCIMXMLCommunicationMechanism("PegasusCIMXMLCommunications");
             handler.deliver(instance);
             handler.complete();
             PEG_METHOD_EXIT();
@@ -1711,7 +1714,7 @@ void InteropProvider::enumerateInstances(
 
         if (classEnum == CIM_CIMXMLCOMMUNICATIONMECHANISM)
         {
-            CIMInstance instance = _buildInstancCIMXMLCommunicationMechanism();
+            CIMInstance instance = _buildInstancCIMXMLCommunicationMechanism("PegasusCIMXMLCommunications");
             handler.deliver(instance);
             handler.complete();
             PEG_METHOD_EXIT();
@@ -1829,7 +1832,7 @@ void InteropProvider::enumerateInstanceNames(
 
         if (classEnum == CIM_CIMXMLCOMMUNICATIONMECHANISM)
         {
-            CIMInstance instance = _buildInstancCIMXMLCommunicationMechanism();
+            CIMInstance instance = _buildInstancCIMXMLCommunicationMechanism("PegasusCIMXMLCommunications");
             CIMObjectPath ref = _buildInstancePath(CIMNamespaceName(),
                 CIM_CIMXMLCOMMUNICATIONMECHANISM_CLASSNAME, instance);
             handler.deliver(ref);

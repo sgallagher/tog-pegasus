@@ -271,22 +271,13 @@ void shutdownCIMOM(Boolean forceOption, Uint32 timeoutValue)
         Array<CIMParamValue> inParams;
         Array<CIMParamValue> outParams;
 
-        if (forceOption)
-        {
-            inParams.append(CIMParamValue(
-                CIMParameter("force", CIMType::STRING),
-                CIMValue("TRUE")));
-        }
-        else
-        {
-            inParams.append(CIMParamValue(
-                CIMParameter("force", CIMType::STRING),
-                CIMValue("FALSE")));
-        }
+        inParams.append(CIMParamValue(
+            CIMParameter("force", CIMType::BOOLEAN),
+            CIMValue(Boolean(forceOption))));
 
         inParams.append(CIMParamValue(
             CIMParameter("timeout", CIMType::UINT32),
-            CIMValue(timeoutValue)));
+            CIMValue(Uint32(timeoutValue))));
 
         CIMValue retValue = client.invokeMethod(
             NAMESPACE,

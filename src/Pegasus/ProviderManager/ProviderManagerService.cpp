@@ -753,34 +753,90 @@ void ProviderManagerService::handleSetPropertyRequest(const Message * message)
 
 void ProviderManagerService::handleInvokeMethodRequest(const Message * message)
 {
-	const CIMInvokeMethodRequestMessage * request =
-		(const CIMInvokeMethodRequestMessage *)message;
+        CIMValue cimValue(0);
+        Array<CIMParamValue> outParameters;
+        String methodName;
+        Status status;
+        CIMInstance cimInstance;
 
-	CIMValue cimValue;
-	Array<CIMParamValue> outParameters;
-	String methodName;
+        const CIMInvokeMethodRequestMessage * request =
+                (const CIMInvokeMethodRequestMessage *)message;
 
-	// create response message
-	CIMInvokeMethodResponseMessage * response =
-		new CIMInvokeMethodResponseMessage(
-		request->messageId,
-		CIM_ERR_FAILED,
-		"not implemented",
-		request->queueIds.copyAndPop(),
-		cimValue,
-		outParameters,
-		methodName);
+        try
+        {
+            // make class reference
+            CIMReference classReference(
+                    request->instanceName.getHost(),
+                    request->nameSpace,
+                    request->instanceName.getClassName());
 
-	// preserve message key
-	response->setKey(request->getKey());
+            // get the provider file name and logical name
+            Pair<String, String> pair = _lookupProviderForClass(classReference);
 
-	// lookup the message queue
-	MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
+            // get cached or load new provider module
+            ProviderModule module = providerManager.getProviderModule(pair.first, pair.second);
 
-	PEGASUS_ASSERT(queue != 0);
+            // encapsulate the physical provider in a facade
+            ProviderFacade facade(module.getProvider());
 
-	// enqueue the response
-	queue->enqueue(response);
+            // convert arguments
+            OperationContext context;
+            CIMReference instanceReference(request->instanceName);
+
+            // ATTN: propagate namespace
+            instanceReference.setNameSpace(request->nameSpace);
+
+            SimpleResponseHandler<CIMValue> handler;
+
+            // forward request
+            facade.invokeMethod(
+                    context,
+                    instanceReference,
+                    request->methodName,
+                    request->inParameters,
+                    outParameters,
+                    handler);
+
+            // error? provider claims success, but did not deliver an instance.
+            if(handler._objects.size() == 0)
+            {
+                throw CIMException(CIM_ERR_NOT_FOUND);
+            }
+        }
+        catch(CIMException & e)
+        {
+                status = Status(e.getCode(), e.getMessage());
+        }
+        catch(Exception & e)
+        {
+                status = Status(CIM_ERR_FAILED, e.getMessage());
+        }
+        catch(...)
+        {
+                status = Status(CIM_ERR_FAILED, "Unknown Error");
+        }
+
+        // create response message
+        CIMInvokeMethodResponseMessage * response =
+                new CIMInvokeMethodResponseMessage(
+                request->messageId,
+                CIMStatusCode(status.getCode()),
+                status.getMessage(),
+                request->queueIds.copyAndPop(),
+                cimValue,
+                outParameters,
+                methodName);
+
+        // preserve message key
+        response->setKey(request->getKey());
+
+        // lookup the message queue
+        MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
+
+        PEGASUS_ASSERT(queue != 0);
+
+        // enqueue the response
+        queue->enqueue(response);
 }
 
 void ProviderManagerService::handleEnableIndicationRequest(const Message * message)

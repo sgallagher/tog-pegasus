@@ -4,8 +4,7 @@ DIRS = \
     Lockable \
 	SafeQueue \
 	ProviderManager \
+	ProviderManagerModule \
 	ProviderManagerService
-
-#	ProviderManagerModule \
 
 include $(PEGASUS_ROOT)/mak/recurse.mak

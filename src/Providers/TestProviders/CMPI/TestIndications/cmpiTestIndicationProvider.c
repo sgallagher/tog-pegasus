@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdarg.h>
 
 #include <Pegasus/Provider/CMPI/cmpidt.h>
 #include <Pegasus/Provider/CMPI/cmpift.h>
@@ -25,9 +26,24 @@ static FILE *fd = NULL;
 
 /* ---------------------------------------------------------------------------*/
 /* private declarations                                                       */
-
-#define PROV_LOG(fmt, args...) if (!fd) fd=stderr; fprintf(fd, " "); fprintf(fd, fmt, ## args); fprintf(fd,"\n"); fflush(fd);
 /* ---------------------------------------------------------------------------*/
+
+void
+PROV_LOG (const char *fmt, ...)
+{
+
+  va_list ap;
+  if (!fd)
+    fd = stderr;
+
+  fprintf (fd, " ");
+  va_start (ap, fmt);
+  vfprintf (fd, fmt, ap);
+  va_end (ap);
+
+  fprintf (fd, "\n");
+  fflush (fd);
+}
 
 void
 PROV_LOG_CLOSE ()
@@ -59,7 +75,7 @@ PROV_LOG_OPEN (const char *file)
   path[env_len] = 0;
   strncat (path, _ProviderLocation, loc_len);
   for (i = 0; i < len; i++)
-    // Only use good names.
+    /* Only use good names. */
     if (isalpha (file[i]))
       {
         path[j + env_len + loc_len] = file[i];
@@ -69,7 +85,6 @@ PROV_LOG_OPEN (const char *file)
   strncat (path, _LogExtension, ext_len);
   path[j + env_len + loc_len + ext_len] = 0;
 
-  //fprintf(stderr,"File to log is %s\n", path); 
   fd = fopen (path, "a+");
   if (fd == NULL)
     fd = stderr;
@@ -313,7 +328,6 @@ make_ObjectPath (const char *ns, const char *class)
   PROV_LOG ("--- make_ObjectPath: CMNewObjectPath");
   objPath = CMNewObjectPath (_broker, ns, class, &rc);
 
-  //assert ( rc.rc == CMPI_RC_OK);
   PROV_LOG ("----- %s", strCMPIStatus (rc));
 
   return objPath;
@@ -401,7 +415,7 @@ TestCMPIIndicationProviderAuthorizeFilter (CMPIIndicationMI * mi,
 
   PROV_LOG ("--- %s CMPI AuthorizeFilter() called", _IndClassName);
   /* we don't object */
-  if (strcasecmp (ns, _IndClassName) == 0)
+  if (strcmp (ns, _IndClassName) == 0)
     {
       PROV_LOG ("--- %s Correct class", _IndClassName);
       CMReturnData (rslt, (CMPIValue *) & CMPI_true, CMPI_boolean);
@@ -455,16 +469,32 @@ TestCMPIIndicationProviderActivateFilter (CMPIIndicationMI * mi,
   CMPIStatus rc_Inst = { CMPI_RC_OK, NULL };
   CMPIStatus rc_Pred = { CMPI_RC_OK, NULL };
   CMPIStatus rc_Array = { CMPI_RC_OK, NULL };
+  CMPIStatus rc_CMGetPropertyAt = { CMPI_RC_OK, NULL };
+
   CMPIString *type = NULL;
   CMPISelectExp *clone = NULL;
   CMPIBoolean evalRes;
   CMPIInstance *inst = NULL;
   CMPIObjectPath *objPath = NULL;
-  unsigned int idx;
   CMPIString *name = NULL;
-  CMPIStatus rc_CMGetPropertyAt = { CMPI_RC_OK, NULL };
-  CMPIData prop_data;
+  CMPIData prop_data = { 0, CMPI_null, {0} };
+  CMPIData data = { 0, CMPI_null, {0} };
   CMPIArray **projection;
+  /* General purpose counters */
+  unsigned int idx;
+  CMPICount cnt;
+  /* Select Condition and sub conditions */
+  CMPISelectCond *cond = NULL;
+  int sub_type;
+  CMPISubCond *subcnd = NULL;
+  /* Predicate operations */
+  CMPICount pred_cnt;
+  unsigned int pred_idx;
+  CMPIPredicate *pred = NULL;
+  CMPIType pred_type;
+  CMPIPredOp pred_op;
+  CMPIString *left_side = NULL;
+  CMPIString *right_side = NULL;
 
   PROV_LOG_OPEN (_IndClassName);
 
@@ -473,39 +503,43 @@ TestCMPIIndicationProviderActivateFilter (CMPIIndicationMI * mi,
   PROV_LOG ("-- #1 Clone");
   clone = CMClone (se, &rc_Clone);
   PROV_LOG ("---- %s", strCMPIStatus (rc_Clone));
-  if (clone) CMRelease(clone);
+  if (clone)
+    CMRelease (clone);
 
-	/*
-	This functionality is not used in indication providers, but instead in
-	ExecQuery provider API (instance providers). But for the sake
-	of completness this functionality is also used here. */
+  /*
+     This functionality is not used in indication providers, but instead in
+     ExecQuery provider API (instance providers). But for the sake
+     of completness this functionality is also used here. */
 
   PROV_LOG ("-- #1.1 CMNewSelectExp");
   str = CMGetSelExpString (se, &rc);
-  clone = CMPI_CQL_NewSelectExp(_broker, CMGetCharPtr (str), "CIMxCQL", (const CMPIArray **)projection, &rc_Clone);
+  clone =
+    CMPI_CQL_NewSelectExp (_broker, CMGetCharPtr (str), "CIMxCQL",
+                           (const CMPIArray **) projection, &rc_Clone);
 
   PROV_LOG ("---- %s", strCMPIStatus (rc_Clone));
-  if (clone) {
-		PROV_LOG("--- Projection list is: ");
-	    CMPICount cnt = CMGetArrayCount(*projection, &rc_Array);
-        PROV_LOG ("---- %s", strCMPIStatus (rc_Array));
-		PROV_LOG ("---- CMGetArrayCount, %d", cnt);
-		for (idx = 0; idx < cnt; idx++)
-		{	
-			PROV_LOG("--- CMGetArrayElementAt");
-			CMPIData data = CMGetArrayElementAt(*projection, idx, &rc_Array);
-        	PROV_LOG ("---- %s", strCMPIStatus (rc_Array));
-			PROV_LOG ("---- tpye is : %d", data.type);
-			if (data.type == CMPI_chars)
-			{
-				PROV_LOG ("---- %s", data.value.chars);
-			}
-			if (data.type == CMPI_string)
-			{
-				PROV_LOG ("---- %s", CMGetCharPtr(data.value.string));
-			}
-		}
-  }
+  if (clone)
+    {
+      PROV_LOG ("--- Projection list is: ");
+      cnt = CMGetArrayCount (*projection, &rc_Array);
+      PROV_LOG ("---- %s", strCMPIStatus (rc_Array));
+      PROV_LOG ("---- CMGetArrayCount, %d", cnt);
+      for (idx = 0; idx < cnt; idx++)
+        {
+          PROV_LOG ("--- CMGetArrayElementAt");
+          data = CMGetArrayElementAt (*projection, idx, &rc_Array);
+          PROV_LOG ("---- %s", strCMPIStatus (rc_Array));
+          PROV_LOG ("---- tpye is : %d", data.type);
+          if (data.type == CMPI_chars)
+            {
+              PROV_LOG ("---- %s", data.value.chars);
+            }
+          if (data.type == CMPI_string)
+            {
+              PROV_LOG ("---- %s", CMGetCharPtr (data.value.string));
+            }
+        }
+    }
 
   PROV_LOG ("-- #2 MakeObjectPath");
   // Create instance
@@ -595,53 +629,46 @@ TestCMPIIndicationProviderActivateFilter (CMPIIndicationMI * mi,
 
   PROV_LOG ("-- #6 Continue evaluating using GetDOC");
   {
-    CMPISelectCond *cond = NULL;
     cond = CMGetDoc (se, &rc);
     PROV_LOG ("---- %s", strCMPIStatus (rc));
     if (cond != NULL)
       {
-        int type;
+
         PROV_LOG ("--- #6.1 CMGetSubCondCountAndType ");
-        CMPICount cnt = CMGetSubCondCountAndType (cond, &type, &rc);
+        cnt = CMGetSubCondCountAndType (cond, &sub_type, &rc);
         PROV_LOG ("---- %s", strCMPIStatus (rc));
 
-	    
+
         PROV_LOG ("---- Number of disjunctives: %d, Type: %X", cnt, type);
 
-        unsigned int idx;
-		/* Parsing the disjunctives */
+        /* Parsing the disjunctives */
         for (idx = 0; idx < cnt; idx++)
           {
             PROV_LOG ("--- #6.2 CMGetSubCondAt @ %d ", idx);
-            CMPISubCond *subcnd = CMGetSubCondAt (cond, idx, &rc);
+            subcnd = CMGetSubCondAt (cond, idx, &rc);
             PROV_LOG ("---- %s", strCMPIStatus (rc));
 
             PROV_LOG ("--- #6.3 CMGetPredicateCount");
-            CMPICount pred_cnd = CMGetPredicateCount (subcnd, &rc);
+            pred_cnt = CMGetPredicateCount (subcnd, &rc);
             PROV_LOG ("---- %s", strCMPIStatus (rc));
-		    PROV_LOG ("---- Number of predicates in the conjuctives: %d", pred_cnd);
+            PROV_LOG ("---- Number of predicates in the conjuctives: %d",
+                      pred_cnt);
 
-            unsigned int pred_idx;
-			/* Parsing throught conjuctives */
-            for (pred_idx = 0; pred_idx < pred_cnd; pred_idx++)
+            /* Parsing throught conjuctives */
+            for (pred_idx = 0; pred_idx < pred_cnt; pred_idx++)
               {
                 PROV_LOG ("--- #6.4 CMGetPredicateAt, %d", pred_idx);
-                CMPIPredicate *pred =
-                  CMGetPredicateAt (subcnd, pred_idx, &rc);
+                pred = CMGetPredicateAt (subcnd, pred_idx, &rc);
 
                 PROV_LOG ("---- %s", strCMPIStatus (rc));
-                CMPIType type;
-                CMPIPredOp pred_op;
-                CMPIString *left_side;
-                CMPIString *right_side;
                 PROV_LOG ("--- #6.4 CMGetPredicateData");
                 rc = CMGetPredicateData (pred,
-                                         &type,
+                                         &pred_type,
                                          &pred_op, &left_side, &right_side);
                 PROV_LOG ("---- %s", strCMPIStatus (rc));
 
                 PROV_LOG ("----- Type: %s , CMPIPredOp: %s, LS: %s, RS: %s",
-                          strCMPIType (type), strCMPIPredOp (pred_op),
+                          strCMPIType (pred_type), strCMPIPredOp (pred_op),
                           CMGetCharPtr (left_side),
                           CMGetCharPtr (right_side));
 
@@ -668,7 +695,7 @@ TestCMPIIndicationProviderActivateFilter (CMPIIndicationMI * mi,
   }
   PROV_LOG ("-- #7 GetCOD");
   {
-    CMPISelectCond *cond = CMGetCod (se, &rc);
+    cond = CMGetCod (se, &rc);
     PROV_LOG ("---- %s", strCMPIStatus (rc));
     /* Currently this is not supported in Pegasus. */
     if (cond != NULL)

@@ -12,5 +12,3 @@ tests:
 	$(RM) logs/*.log
 	$(PROGRAM)
 	$(RM) logs/*.log
-
-# $(RM) logs/*

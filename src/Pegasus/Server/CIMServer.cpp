@@ -27,11 +27,11 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <iostream>
 #include <cassert>
 #include <cstdio>
 #include <cctype>
 #include <time.h>
-
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/XmlParser.h>
@@ -46,11 +46,7 @@
 #include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/CIMMessage.h>
 
-//debugging
-
 #define DDD(X) // X
-
-#include <iostream>
 
 PEGASUS_USING_STD;
 
@@ -58,7 +54,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// Local routines:
+// Local definitions:
 //
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -75,21 +71,20 @@ static const Uint32 _POST_LEN = sizeof(_POST) - 1;
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// ServerHandler
-//
-//	This is a one-per-connection class.
+// ClientConnection
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-class ServerHandler : public Handler, public MessageQueue
+class ClientConnection : public Handler, public MessageQueue
 {
 public:
 
-    ServerHandler(Dispatcher* dispatcher) : _dispatcher(dispatcher), _channel(0)
+    ClientConnection(Dispatcher* dispatcher) 
+	: _dispatcher(dispatcher), _channel(0)
     {
     }
 
-    ~ServerHandler();
+    ~ClientConnection();
 
     virtual Boolean handleOpen(Channel* channel)
     {
@@ -123,7 +118,7 @@ public:
 	const String& messageId,
 	const String& nameSpace);
 
-    void handleResponse(
+    void handleGetClassResponse(
 	CIMGetClassResponseMessage* response);
 
     void handleGetInstanceRequest(
@@ -131,7 +126,7 @@ public:
 	const String& messageId,
 	const String& nameSpace);
 
-    void handleResponse(
+    void handleGetInstanceResponse(
 	CIMGetInstanceResponseMessage* response);
 
     //STUB{
@@ -165,6 +160,9 @@ public:
 	XmlParser& parser, 
 	const String& messageId,
 	const String& nameSpace);
+
+    void handleCreateInstanceResponse(
+	CIMCreateInstanceResponseMessage* response);
 
     void handleEnumerateInstanceNamesRequest(
 	XmlParser& parser, 
@@ -206,17 +204,23 @@ public:
 	const String& messageId,
 	const String& nameSpace);
 
+    void handleCreateClassResponse(
+	CIMCreateClassResponseMessage* response);
+
     void handleModifyClassRequest(
 	XmlParser& parser, 
 	const String& messageId,
 	const String& nameSpace);
+
+    void handleModifyClassResponse(
+	CIMModifyClassResponseMessage* response);
 
     void handleDeleteClassRequest(
 	XmlParser& parser, 
 	const String& messageId,
 	const String& nameSpace);
 
-    void handleResponse(
+    void handleDeleteClassResponse(
 	CIMDeleteClassResponseMessage* response);
 
     void handleDeleteInstanceRequest(
@@ -224,7 +228,7 @@ public:
 	const String& messageId,
 	const String& nameSpace);
 
-    void handleResponse(
+    void handleDeleteInstanceResponse(
 	CIMDeleteInstanceResponseMessage* response);
 
     void handleGetPropertyRequest(
@@ -259,7 +263,7 @@ private:
     and you cannot chose input or output.
     @Author: KS
 */
-void ServerHandler::sendMessage (Array<Sint8>& message)
+void ClientConnection::sendMessage (Array<Sint8>& message)
 {
     if (_messageTrace)
     {
@@ -285,18 +289,12 @@ void ServerHandler::sendMessage (Array<Sint8>& message)
     _channel->writeN(message.getData(), message.size());
 }
 
-ServerHandler::~ServerHandler()
+ClientConnection::~ClientConnection()
 {
 
 }
 
-//------------------------------------------------------------------------------
-//
-// ServerHandler::handleMessage()
-//
-//------------------------------------------------------------------------------
-
-int ServerHandler::handleMessage()
+int ClientConnection::handleMessage()
 {
     Handler::handleMessage();
     DDD(cout << "HandleMessage " << endl;)
@@ -345,18 +343,7 @@ int ServerHandler::handleMessage()
     return -1;
 }
 
-//------------------------------------------------------------------------------
-//
-// ServerHandler::handleGetRequest()
-//
-//------------------------------------------------------------------------------
-
-// ATTN-KS: The handleGetRequest is where we can begin to move in a WEB 
-//	server.
-// This is also where an external module can be really effective.  If the 
-// external module exists, it would do the WEB stuff.
-
-int ServerHandler::handleGetRequest()
+int ClientConnection::handleGetRequest()
 {
     const char* m = _message.getData();
     const char* p = m + _GET_LEN + 1;
@@ -420,35 +407,7 @@ int ServerHandler::handleGetRequest()
     return 0;
 }
 
-//------------------------------------------------------------------------------
-//
-// ServerHandler::handleMethodCall()
-//
-// <?xml version="1.0" encoding="utf-8"?>
-// <CIM CIMVERSION="2.0" DTDVERSION="2.0">
-//   <MESSAGE ID="1" PROTOCOLVERSION="1.0">
-//     <SIMPLEREQ>
-//       <IMETHODCALL NAME="GetClass">
-//         <LOCALNAMESPACEPATH>
-//           <NAMESPACE NAME="root"/>
-//           <NAMESPACE NAME="cimv2"/>
-//         </LOCALNAMESPACEPATH>
-//         <IPARAMVALUE NAME="ClassName">
-//           <CLASSNAME NAME="MyClass"/>
-//         </IPARAMVALUE>
-//         <IPARAMVALUE NAME="LocalOnly">
-//           <VALUE>
-//             FALSE
-//           </VALUE>
-//         </IPARAMVALUE>
-//       </IMETHODCALL>
-//     </SIMPLEREQ>
-//   </MESSAGE>
-// </CIM>
-//
-//------------------------------------------------------------------------------
-
-int ServerHandler::handleMethodCall()
+int ClientConnection::handleMethodCall()
 {
     //--------------------------------------------------------------------------
     // Create a parser:
@@ -596,7 +555,7 @@ int ServerHandler::handleMethodCall()
     return 0;
 }
 
-void ServerHandler::handleEnqueue()
+void ClientConnection::handleEnqueue()
 {
     Message* response = dequeue();
 
@@ -608,24 +567,36 @@ void ServerHandler::handleEnqueue()
     switch (response->getType())
     {
 	case CIM_GET_CLASS_RESPONSE_MESSAGE:
-	    handleResponse((CIMGetClassResponseMessage*)response);
+	    handleGetClassResponse((CIMGetClassResponseMessage*)response);
 	    break;
 
 	case CIM_GET_INSTANCE_RESPONSE_MESSAGE:
-	    handleResponse((CIMGetInstanceResponseMessage*)response);
+	    handleGetInstanceResponse((CIMGetInstanceResponseMessage*)response);
 	    break;
 
 	case CIM_DELETE_CLASS_RESPONSE_MESSAGE:
-	    handleResponse((CIMDeleteClassResponseMessage*)response);
+	    handleDeleteClassResponse((CIMDeleteClassResponseMessage*)response);
 	    break;
 
 	case CIM_DELETE_INSTANCE_RESPONSE_MESSAGE:
-	    handleResponse((CIMDeleteInstanceResponseMessage*)response);
+	    handleDeleteInstanceResponse(
+		(CIMDeleteInstanceResponseMessage*)response);
 	    break;
 
 	case CIM_CREATE_CLASS_RESPONSE_MESSAGE:
+	    handleCreateClassResponse((CIMCreateClassResponseMessage*)response);
+	    break;
+
 	case CIM_CREATE_INSTANCE_RESPONSE_MESSAGE:
+	    handleCreateInstanceResponse(
+		(CIMCreateInstanceResponseMessage*)response);
+	    break;
+
 	case CIM_MODIFY_CLASS_RESPONSE_MESSAGE:
+	    handleModifyClassResponse(
+		(CIMModifyClassResponseMessage*)response);
+	    break;
+
 	case CIM_MODIFY_INSTANCE_RESPONSE_MESSAGE:
 	case CIM_ENUMERATE_CLASSES_RESPONSE_MESSAGE:
 	case CIM_ENUMERATE_CLASS_NAMES_RESPONSE_MESSAGE:
@@ -647,13 +618,7 @@ void ServerHandler::handleEnqueue()
     }
 }
 
-//------------------------------------------------------------------------------
-//
-// ServerHandler::sendError()
-//
-//------------------------------------------------------------------------------
-
-void ServerHandler::sendError(
+void ClientConnection::sendError(
     const String& messageId,
     const char* methodName,
     CIMStatusCode code,
@@ -670,7 +635,7 @@ void ServerHandler::sendError(
     sendMessage(message);
 }
 
-void ServerHandler::sendError(
+void ClientConnection::sendError(
     CIMResponseMessage* m,
     const char* methodName)
 {
@@ -680,13 +645,7 @@ void ServerHandler::sendError(
 }
 
 //STUB{
-//------------------------------------------------------------------------------
-//
-// ServerHandler::handleEnumerateClassNamesRequest()
-//
-//------------------------------------------------------------------------------
-
-void ServerHandler::handleEnumerateClassNamesRequest(
+void ClientConnection::handleEnumerateClassNamesRequest(
     XmlParser& parser, 
     const String& messageId,
     const String& nameSpace)
@@ -745,13 +704,7 @@ void ServerHandler::handleEnumerateClassNamesRequest(
 }
 //STUB}
 
-//------------------------------------------------------------------------------
-//
-// ServerHandler::handleReferencesRequest()
-//
-//------------------------------------------------------------------------------
-
-void ServerHandler::handleReferencesRequest(
+void ClientConnection::handleReferencesRequest(
     XmlParser& parser, 
     const String& messageId,
     const String& nameSpace)
@@ -830,70 +783,7 @@ void ServerHandler::handleReferencesRequest(
     sendMessage(message);
 }
 
-//------------------------------------------------------------------------------
-//
-// ServerHandler::handleCreateInstanceRequest()
-//
-//------------------------------------------------------------------------------
-
-void ServerHandler::handleCreateInstanceRequest(
-    XmlParser& parser, 
-    const String& messageId,
-    const String& nameSpace)
-{
-    //--------------------------------------------------------------------------
-    // <!ELEMENT IPARAMVALUE (VALUE|VALUE.ARRAY|VALUE.REFERENCE
-    //     |INSTANCENAME|CLASSNAME|QUALIFIER.DECLARATION
-    //     |CLASS|INSTANCE|VALUE.NAMEDINSTANCE)?>
-    // <!ATTLIST IPARAMVALUE %CIMName;>
-    //--------------------------------------------------------------------------
-
-    CIMInstance cimInstance;
-
-    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
-    {
-	if (CompareNoCase(name, "NewInstance") == 0)
-	    XmlReader::getInstanceElement(parser, cimInstance);
-
-	XmlReader::expectEndTag(parser, "IPARAMVALUE");
-    }
-
-    try
-    {
-	_dispatcher->createInstance(nameSpace, cimInstance);
-    }
-    catch (CIMException& e)
-    {
-	sendError(messageId, "CreateInstance", 
-	    e.getCode(), CIMStatusCodeToString(e.getCode()));
-	return;
-    }
-    catch (Exception& e)
-    {
-	char* tmp = e.getMessage().allocateCString();
-
-	sendError(messageId, "CreateInstance", CIM_ERR_FAILED, tmp);
-	    // CIMStatusCodeToString(CIM_ERR_FAILED));
-
-	delete [] tmp;
-	return;
-    }
-
-    Array<Sint8> body;
-
-    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
-	"CreateInstance", messageId, body);
-
-    sendMessage(message);
-}
-
-//------------------------------------------------------------------------------
-//
-// ServerHandler::handleEnumerateInstanceNamesRequest()
-//
-//------------------------------------------------------------------------------
-
-void ServerHandler::handleEnumerateInstanceNamesRequest(
+void ClientConnection::handleEnumerateInstanceNamesRequest(
     XmlParser& parser, 
     const String& messageId,
     const String& nameSpace)
@@ -947,13 +837,7 @@ void ServerHandler::handleEnumerateInstanceNamesRequest(
     sendMessage(message);
 }
 
-//------------------------------------------------------------------------------
-//
-// ServerHandler::handleDeleteQualifierRequest()
-//
-//------------------------------------------------------------------------------
-
-void ServerHandler::handleDeleteQualifierRequest(
+void ClientConnection::handleDeleteQualifierRequest(
     XmlParser& parser, 
     const String& messageId,
     const String& nameSpace)
@@ -993,13 +877,7 @@ void ServerHandler::handleDeleteQualifierRequest(
     sendMessage(message);
 }
 
-//------------------------------------------------------------------------------
-//
-// ServerHandler::handleGetQualifierRequest()
-//
-//------------------------------------------------------------------------------
-
-void ServerHandler::handleGetQualifierRequest(
+void ClientConnection::handleGetQualifierRequest(
     XmlParser& parser, 
     const String& messageId,
     const String& nameSpace)
@@ -1043,13 +921,7 @@ void ServerHandler::handleGetQualifierRequest(
     sendMessage(message);
 }
 
-//------------------------------------------------------------------------------
-//
-// ServerHandler::handleSetQualifierRequest()
-//
-//------------------------------------------------------------------------------
-
-void ServerHandler::handleSetQualifierRequest(
+void ClientConnection::handleSetQualifierRequest(
     XmlParser& parser, 
     const String& messageId,
     const String& nameSpace)
@@ -1091,13 +963,7 @@ void ServerHandler::handleSetQualifierRequest(
     sendMessage(message);
 }
 
-//------------------------------------------------------------------------------
-//
-// ServerHandler::handleEnumerateQualifiersRequest()
-//
-//------------------------------------------------------------------------------
-
-void ServerHandler::handleEnumerateQualifiersRequest(
+void ClientConnection::handleEnumerateQualifiersRequest(
     XmlParser& parser, 
     const String& messageId,
     const String& nameSpace)
@@ -1135,13 +1001,7 @@ void ServerHandler::handleEnumerateQualifiersRequest(
     sendMessage(message);
 }
 
-//------------------------------------------------------------------------------
-//
-// ServerHandler::handleEnumerateClassesRequest()
-//
-//------------------------------------------------------------------------------
-
-void ServerHandler::handleEnumerateClassesRequest(
+void ClientConnection::handleEnumerateClassesRequest(
     XmlParser& parser, 
     const String& messageId,
     const String& nameSpace)
@@ -1211,13 +1071,7 @@ void ServerHandler::handleEnumerateClassesRequest(
     sendMessage(message);
 }
 
-//------------------------------------------------------------------------------
-//
-// ServerHandler::handleEnumerateClassesRequest()
-//
-//------------------------------------------------------------------------------
-
-void ServerHandler::handleEnumerateInstancesRequest(
+void ClientConnection::handleEnumerateInstancesRequest(
     XmlParser& parser, 
     const String& messageId,
     const String& nameSpace)
@@ -1289,124 +1143,7 @@ void ServerHandler::handleEnumerateInstancesRequest(
     sendMessage(message);
 }
 
-
-//------------------------------------------------------------------------------
-//
-// ServerHandler::handleCreateClassRequest()
-//
-//------------------------------------------------------------------------------
-
-void ServerHandler::handleCreateClassRequest(
-    XmlParser& parser, 
-    const String& messageId,
-    const String& nameSpace)
-{
-    //--------------------------------------------------------------------------
-    // <!ELEMENT IPARAMVALUE (VALUE|VALUE.ARRAY|VALUE.REFERENCE
-    //     |INSTANCENAME|CLASSNAME|QUALIFIER.DECLARATION
-    //     |CLASS|INSTANCE|VALUE.NAMEDINSTANCE)?>
-    // <!ATTLIST IPARAMVALUE %CIMName;>
-    //--------------------------------------------------------------------------
-
-    CIMClass cimClass;
-
-    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
-    {
-	if (CompareNoCase(name, "NewClass") == 0)
-	    XmlReader::getClassElement(parser, cimClass);
-
-	XmlReader::expectEndTag(parser, "IPARAMVALUE");
-    }
-
-    try
-    {
-	_dispatcher->createClass(nameSpace, cimClass);
-    }
-    catch (CIMException& e)
-    {
-	sendError(messageId, "CreateClass", 
-	    e.getCode(), CIMStatusCodeToString(e.getCode()));
-	return;
-    }
-    catch (Exception&)
-    {
-	sendError(messageId, "CreateClass", CIM_ERR_FAILED, 
-	    CIMStatusCodeToString(CIM_ERR_FAILED));
-	return;
-    }
-
-    Array<Sint8> body;
-
-    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
-	"CreateClass", messageId, body);
-
-    sendMessage(message);
-}
-
-//------------------------------------------------------------------------------
-//
-// ServerHandler::handleModifyClassRequest()
-//
-//------------------------------------------------------------------------------
-
-void ServerHandler::handleModifyClassRequest(
-    XmlParser& parser, 
-    const String& messageId,
-    const String& nameSpace)
-{
-    //--------------------------------------------------------------------------
-    // <!ELEMENT IPARAMVALUE (VALUE|VALUE.ARRAY|VALUE.REFERENCE
-    //     |INSTANCENAME|CLASSNAME|QUALIFIER.DECLARATION
-    //     |CLASS|INSTANCE|VALUE.NAMEDINSTANCE)?>
-    // <!ATTLIST IPARAMVALUE %CIMName;>
-    //--------------------------------------------------------------------------
-
-    CIMClass cimClass;
-
-    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
-    {
-	if (CompareNoCase(name, "ModifiedClass") == 0)
-	    XmlReader::getClassElement(parser, cimClass);
-
-	XmlReader::expectEndTag(parser, "IPARAMVALUE");
-    }
-
-    try
-    {
-	_dispatcher->modifyClass(nameSpace, cimClass);
-    }
-    catch (CIMException& e)
-    {
-	sendError(messageId, "ModifyClass", 
-	    e.getCode(), CIMStatusCodeToString(e.getCode()));
-	return;
-    }
-    catch (Exception&)
-    {
-	sendError(messageId, "ModifyClass", CIM_ERR_FAILED, 
-	    CIMStatusCodeToString(CIM_ERR_FAILED));
-	return;
-    }
-
-    Array<Sint8> body;
-
-    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
-	"ModifyClass", messageId, body);
-
-    sendMessage(message);
-}
-
-//------------------------------------------------------------------------------
-//
-// ServerHandler::handleGetProoperty()
-//
-// <!ELEMENT IPARAMVALUE (VALUE|VALUE.ARRAY|VALUE.REFERENCE
-//     |INSTANCENAME|CLASSNAME|QUALIFIER.DECLARATION
-//     |CLASS|INSTANCE|VALUE.NAMEDINSTANCE)?>
-// <!ATTLIST IPARAMVALUE %CIMName;>
-//------------------------------------------------------------------------------
-
-void ServerHandler::handleGetPropertyRequest(
+void ClientConnection::handleGetPropertyRequest(
     XmlParser& parser, 
     const String& messageId,
     const String& nameSpace)
@@ -1471,18 +1208,6 @@ void ServerHandler::handleGetPropertyRequest(
     // Lets assume that at this point we have cimvalue with
     // everything defined.  It will only be on the move back
     // through XML that we lose the typing.
-//<?xml version="1.0" encoding="utf-8" ?>
-//  <CIM CIMVERSION="2.0" DTDVERSION="2.0">
-//   <MESSAGE ID="87872" PROTOCOLVERSION="1.0">
-//    <SIMPLERSP>
-//     <IMETHODRESPONSE NAME="GetProperty">
-//      <IRETURNVALUE>
-//       <VALUE>6752332</VALUE>
-//      </IRETURNVALUE>
-//     </IMETHODRESPONSE>
-//    </SIMPLERSP>
-//   </MESSAGE>
-// </CIM>
 
     Array<Sint8> body;
 
@@ -1498,25 +1223,11 @@ void ServerHandler::handleGetPropertyRequest(
     sendMessage(message);
 }
 
-
-//------------------------------------------------------------------------------
-//
-// ServerHandler::handleSetPropertyRequest()
-//
-//------------------------------------------------------------------------------
-
-void ServerHandler::handleSetPropertyRequest(
+void ClientConnection::handleSetPropertyRequest(
     XmlParser& parser, 
     const String& messageId,
     const String& nameSpace)
 {
-    //--------------------------------------------------------------------------
-    // <!ELEMENT IPARAMVALUE (VALUE|VALUE.ARRAY|VALUE.REFERENCE
-    //     |INSTANCENAME|CLASSNAME|QUALIFIER.DECLARATION
-    //     |CLASS|INSTANCE|VALUE.NAMEDINSTANCE)?>
-    // <!ATTLIST IPARAMVALUE %CIMName;>
-    //--------------------------------------------------------------------------
-
     String className;
     Boolean deepInheritance = false;
 
@@ -1563,13 +1274,7 @@ void ServerHandler::handleSetPropertyRequest(
     sendMessage(message);
 }
 
-//------------------------------------------------------------------------------
-//
-// ServerHandler::handleAssociatorsRequest()
-//
-//------------------------------------------------------------------------------
-
-void ServerHandler::handleAssociatorsRequest(
+void ClientConnection::handleAssociatorsRequest(
     XmlParser& parser, 
     const String& messageId,
     const String& nameSpace)
@@ -1660,13 +1365,7 @@ void ServerHandler::handleAssociatorsRequest(
     sendMessage(message);
 }
 
-//------------------------------------------------------------------------------
-//
-// ServerHandler::handleAssociatorNamesRequest()
-//
-//------------------------------------------------------------------------------
-
-void ServerHandler::handleAssociatorNamesRequest(
+void ClientConnection::handleAssociatorNamesRequest(
     XmlParser& parser, 
     const String& messageId,
     const String& nameSpace)
@@ -1745,13 +1444,7 @@ void ServerHandler::handleAssociatorNamesRequest(
     sendMessage(message);
 }
 
-//------------------------------------------------------------------------------
-//
-// ServerHandler::handleReferenceNamesRequest()
-//
-//------------------------------------------------------------------------------
-
-void ServerHandler::handleReferenceNamesRequest(
+void ClientConnection::handleReferenceNamesRequest(
     XmlParser& parser, 
     const String& messageId,
     const String& nameSpace)
@@ -1821,119 +1514,8 @@ void ServerHandler::handleReferenceNamesRequest(
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-//
-// ServerHandlerFactory
-//
-////////////////////////////////////////////////////////////////////////////////
 
-class ServerHandlerFactory : public ChannelHandlerFactory
-{
-public:
-
-    ServerHandlerFactory(Dispatcher* dispatcher) : _dispatcher(dispatcher) { }
-
-    virtual ~ServerHandlerFactory() { }
-
-    virtual ChannelHandler* create() { return new ServerHandler(_dispatcher); }
-
-private:
-
-    Dispatcher* _dispatcher;
-};
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// CIMServer
-//
-////////////////////////////////////////////////////////////////////////////////
-
-const char REPOSITORY[] = "/repository";
-
-//------------------------------------------------------------------------------
-//
-// CIMServer::CIMServer()
-//
-//------------------------------------------------------------------------------
-
-CIMServer::CIMServer(
-    Selector* selector,
-    const String& rootPath) 
-    : _rootPath(rootPath), _dieNow(false)
-{
-    // -- Save the selector or create a new one:
-
-    _selector = selector;
-
-    // -- Create a repository:
-
-    if (!FileSystem::isDirectory(_rootPath))
-	throw NoSuchDirectory(_rootPath);
-
-    _repositoryRootPath = rootPath;
-    _repositoryRootPath.append(REPOSITORY);
-
-    if (!FileSystem::isDirectory(_repositoryRootPath))
-	throw NoSuchDirectory(_repositoryRootPath);
-
-    CIMRepository* repository = new CIMRepository(rootPath + "/repository");
-
-    // -- Create a dispatcher object:
-
-    Dispatcher* dispatcher = new Dispatcher(repository);
-
-    // -- Create a channel factory:
-
-    ServerHandlerFactory* factory = new ServerHandlerFactory(dispatcher);
-
-    // Create an acceptor:
-
-    _acceptor = new TCPChannelAcceptor(factory, _selector);
-}
-
-//------------------------------------------------------------------------------
-//
-// CIMServer::~CIMServer()
-//
-//------------------------------------------------------------------------------
-
-CIMServer::~CIMServer()
-{
-    // Note: do not delete the acceptor because it belongs to the Selector
-    // which takes care of disposing of it.
-}
-
-//------------------------------------------------------------------------------
-//
-// CIMServer::bind()
-//
-//------------------------------------------------------------------------------
-
-void CIMServer::bind(const char* address)
-{
-
-  // not the best place to build the service url, but it works for now
-  // because the address string is accessible  mdday
-
-  if (!_acceptor->bind(address))
-    throw CannotBindToAddress(address);
-  
-}
-
-//------------------------------------------------------------------------------
-//
-// CIMServer::runForever()
-//
-//------------------------------------------------------------------------------
-
-void CIMServer::runForever()
-{
-    if(!_dieNow)
-	_selector->select(100);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void ServerHandler::handleGetClassRequest(
+void ClientConnection::handleGetClassRequest(
     XmlParser& parser, 
     const String& messageId,
     const String& nameSpace)
@@ -1972,7 +1554,8 @@ void ServerHandler::handleGetClassRequest(
     _dispatcher->enqueue(request);
 }
 
-void ServerHandler::handleResponse(CIMGetClassResponseMessage* response)
+void ClientConnection::handleGetClassResponse(
+    CIMGetClassResponseMessage* response)
 {
     if (response->errorCode != CIM_ERR_SUCCESS)
     {
@@ -1991,7 +1574,7 @@ void ServerHandler::handleResponse(CIMGetClassResponseMessage* response)
     sendMessage(message);
 }
 
-void ServerHandler::handleGetInstanceRequest(
+void ClientConnection::handleGetInstanceRequest(
     XmlParser& parser, 
     const String& messageId,
     const String& nameSpace)
@@ -2030,7 +1613,8 @@ void ServerHandler::handleGetInstanceRequest(
     _dispatcher->enqueue(request);
 }
 
-void ServerHandler::handleResponse(CIMGetInstanceResponseMessage* response)
+void ClientConnection::handleGetInstanceResponse(
+    CIMGetInstanceResponseMessage* response)
 {
     if (response->errorCode != CIM_ERR_SUCCESS)
     {
@@ -2047,7 +1631,7 @@ void ServerHandler::handleResponse(CIMGetInstanceResponseMessage* response)
     sendMessage(message);
 }
 
-void ServerHandler::handleDeleteClassRequest(
+void ClientConnection::handleDeleteClassRequest(
     XmlParser& parser, 
     const String& messageId,
     const String& nameSpace)
@@ -2071,11 +1655,12 @@ void ServerHandler::handleDeleteClassRequest(
     _dispatcher->enqueue(request);
 }
 
-void ServerHandler::handleResponse(CIMDeleteClassResponseMessage* response)
+void ClientConnection::handleDeleteClassResponse(
+    CIMDeleteClassResponseMessage* response)
 {
     if (response->errorCode != CIM_ERR_SUCCESS)
     {
-	sendError(response, "GetClass");
+	sendError(response, "DeleteClass");
 	return;
     }
 
@@ -2088,7 +1673,7 @@ void ServerHandler::handleResponse(CIMDeleteClassResponseMessage* response)
 }
 
 
-void ServerHandler::handleDeleteInstanceRequest(
+void ClientConnection::handleDeleteInstanceRequest(
     XmlParser& parser, 
     const String& messageId,
     const String& nameSpace)
@@ -2112,7 +1697,8 @@ void ServerHandler::handleDeleteInstanceRequest(
     _dispatcher->enqueue(request);
 }
 
-void ServerHandler::handleResponse(CIMDeleteInstanceResponseMessage* response)
+void ClientConnection::handleDeleteInstanceResponse(
+    CIMDeleteInstanceResponseMessage* response)
 {
     if (response->errorCode != CIM_ERR_SUCCESS)
     {
@@ -2126,6 +1712,222 @@ void ServerHandler::handleResponse(CIMDeleteInstanceResponseMessage* response)
 	"DeleteInstance", response->messageId, body);
 
     sendMessage(message);
+}
+
+void ClientConnection::handleCreateClassRequest(
+    XmlParser& parser, 
+    const String& messageId,
+    const String& nameSpace)
+{
+    CIMClass newClass;
+
+    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+    {
+	if (CompareNoCase(name, "NewClass") == 0)
+	    XmlReader::getClassElement(parser, newClass);
+
+	XmlReader::expectEndTag(parser, "IPARAMVALUE");
+    }
+
+    CIMCreateClassRequestMessage* request = new CIMCreateClassRequestMessage(
+	messageId,
+	nameSpace,
+	newClass,
+	getQueueId());
+
+    _dispatcher->enqueue(request);
+}
+
+void ClientConnection::handleCreateClassResponse(
+    CIMCreateClassResponseMessage* response)
+{
+    if (response->errorCode != CIM_ERR_SUCCESS)
+    {
+	sendError(response, "CreateClass");
+	return;
+    }
+
+    Array<Sint8> body;
+
+    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
+	"CreateClass", response->messageId, body);
+
+    sendMessage(message);
+}
+
+void ClientConnection::handleCreateInstanceRequest(
+    XmlParser& parser, 
+    const String& messageId,
+    const String& nameSpace)
+{
+    CIMInstance newInstance;
+
+    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+    {
+	if (CompareNoCase(name, "NewInstance") == 0)
+	    XmlReader::getInstanceElement(parser, newInstance);
+
+	XmlReader::expectEndTag(parser, "IPARAMVALUE");
+    }
+
+    CIMCreateInstanceRequestMessage* request = 
+	new CIMCreateInstanceRequestMessage(
+	    messageId,
+	    nameSpace,
+	    newInstance,
+	    getQueueId());
+
+    _dispatcher->enqueue(request);
+}
+
+void ClientConnection::handleCreateInstanceResponse(
+    CIMCreateInstanceResponseMessage* response)
+{
+    if (response->errorCode != CIM_ERR_SUCCESS)
+    {
+	sendError(response, "CreateInstance");
+	return;
+    }
+
+    Array<Sint8> body;
+
+    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
+	"CreateInstance", response->messageId, body);
+
+    sendMessage(message);
+}
+
+void ClientConnection::handleModifyClassRequest(
+    XmlParser& parser, 
+    const String& messageId,
+    const String& nameSpace)
+{
+    CIMClass modifiedClass;
+
+    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+    {
+	if (CompareNoCase(name, "ModifiedClass") == 0)
+	    XmlReader::getClassElement(parser, modifiedClass);
+
+	XmlReader::expectEndTag(parser, "IPARAMVALUE");
+    }
+
+    CIMModifyClassRequestMessage* request = 
+	new CIMModifyClassRequestMessage(
+	    messageId,
+	    nameSpace,
+	    modifiedClass,
+	    getQueueId());
+
+    _dispatcher->enqueue(request);
+}
+
+void ClientConnection::handleModifyClassResponse(
+    CIMModifyClassResponseMessage* response)
+{
+    if (response->errorCode != CIM_ERR_SUCCESS)
+    {
+	sendError(response, "GetInstance");
+	return;
+    }
+
+    Array<Sint8> body;
+
+    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
+	"ModifyClass", response->messageId, body);
+
+    sendMessage(message);
+}
+
+//THE END
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// ClientConnectionFactory
+//
+////////////////////////////////////////////////////////////////////////////////
+
+class ClientConnectionFactory : public ChannelHandlerFactory
+{
+public:
+
+    ClientConnectionFactory(Dispatcher* dispatcher) 
+	: _dispatcher(dispatcher) { }
+
+    virtual ~ClientConnectionFactory() { }
+
+    virtual ChannelHandler* create() 
+	{ return new ClientConnection(_dispatcher); }
+
+private:
+
+    Dispatcher* _dispatcher;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// CIMServer
+//
+////////////////////////////////////////////////////////////////////////////////
+
+CIMServer::CIMServer(
+    Selector* selector,
+    const String& rootPath) 
+    : _rootPath(rootPath), _dieNow(false)
+{
+    static const char REPOSITORY[] = "/repository";
+
+    // -- Save the selector or create a new one:
+
+    _selector = selector;
+
+    // -- Create a repository:
+
+    if (!FileSystem::isDirectory(_rootPath))
+	throw NoSuchDirectory(_rootPath);
+
+    _repositoryRootPath = rootPath;
+    _repositoryRootPath.append(REPOSITORY);
+
+    if (!FileSystem::isDirectory(_repositoryRootPath))
+	throw NoSuchDirectory(_repositoryRootPath);
+
+    CIMRepository* repository = new CIMRepository(rootPath + "/repository");
+
+    // -- Create a dispatcher object:
+
+    Dispatcher* dispatcher = new Dispatcher(repository);
+
+    // -- Create a channel factory:
+
+    ClientConnectionFactory* factory = new ClientConnectionFactory(dispatcher);
+
+    // Create an acceptor:
+
+    _acceptor = new TCPChannelAcceptor(factory, _selector);
+}
+
+CIMServer::~CIMServer()
+{
+    // Note: do not delete the acceptor because it belongs to the Selector
+    // which takes care of disposing of it.
+}
+
+void CIMServer::bind(const char* address)
+{
+
+  // not the best place to build the service url, but it works for now
+  // because the address string is accessible  mdday
+
+  if (!_acceptor->bind(address))
+    throw CannotBindToAddress(address);
+  
+}
+
+void CIMServer::runForever()
+{
+    if(!_dieNow)
+	_selector->select(100);
 }
 
 PEGASUS_NAMESPACE_END

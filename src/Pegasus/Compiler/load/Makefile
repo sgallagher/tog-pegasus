@@ -23,6 +23,12 @@ repository:
 	@ echo +++++ Loading CIM_Schema25.mof into root/cimv2 namespace...
 	@ cimmof -I$(MOF_PATH) -nroot/cimv2 $(MOF_PATH)/CIM_Schema25.mof
 
+short:
+	@ echo +++++ Populating CIM repository - this will take a minute
+	$(RMDIRHIER) $(REPOSITORY_ROOT)
+	echo +++++ Loading CIM_Core.mof into root namespace...
+	cimmof -I$(MOF_PATH) -nroot/cimv2 $(MOF_PATH)/CIM_Core25.mof
+
 clean:
 
 depend:

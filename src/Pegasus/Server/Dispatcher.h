@@ -200,6 +200,12 @@ public:
 
     void handleDeleteInstanceRequest(CIMDeleteInstanceRequestMessage* request);
 
+    void handleCreateClassRequest(CIMCreateClassRequestMessage* request);
+
+    void handleCreateInstanceRequest(CIMCreateInstanceRequestMessage* request);
+
+    void handleModifyClassRequest(CIMModifyClassRequestMessage* request);
+
 protected:
 
     CIMProvider* _lookupProviderForClass(

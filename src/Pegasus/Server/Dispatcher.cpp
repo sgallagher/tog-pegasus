@@ -91,28 +91,24 @@ void Dispatcher::createClass(
     const String& nameSpace,
     const CIMClass& newClass)
 {
-    _repository->createClass(nameSpace, newClass);
+    // Obsolete!
+    PEGASUS_ASSERT(0);
 }
 
 void Dispatcher::createInstance(
     const String& nameSpace,
     const CIMInstance& newInstance)
 {
-    String className = newInstance.getClassName();
-    CIMProvider* provider = _lookupProviderForClass(nameSpace, className);
-    DDD(cout << _DISPATCHER << "createInstance of " << className << endl;)
-
-    if (provider)
-	provider->createInstance(nameSpace, newInstance);
-    else
-	_repository->createInstance(nameSpace, newInstance);
+    // Obsolete!
+    PEGASUS_ASSERT(0);
 }
 
 void Dispatcher::modifyClass(
     const String& nameSpace,
     const CIMClass& modifiedClass)
 {
-    _repository->modifyClass(nameSpace, modifiedClass);
+    // Obsolete!
+    PEGASUS_ASSERT(0);
 }
 
 void Dispatcher::modifyInstance(
@@ -439,8 +435,18 @@ void Dispatcher::handleEnqueue()
 	    break;
 
 	case CIM_CREATE_CLASS_REQUEST_MESSAGE:
+	    handleCreateClassRequest((CIMCreateClassRequestMessage*)request);
+	    break;
+
 	case CIM_CREATE_INSTANCE_REQUEST_MESSAGE:
+	    handleCreateInstanceRequest(
+		(CIMCreateInstanceRequestMessage*)request);
+	    break;
+
 	case CIM_MODIFY_CLASS_REQUEST_MESSAGE:
+	    handleModifyClassRequest((CIMModifyClassRequestMessage*)request);
+	    break;
+
 	case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
 	case CIM_ENUMERATE_CLASSES_REQUEST_MESSAGE:
 	case CIM_ENUMERATE_CLASS_NAMES_REQUEST_MESSAGE:
@@ -641,6 +647,120 @@ void Dispatcher::handleDeleteInstanceRequest(
 
     CIMDeleteInstanceResponseMessage* response = 
 	new CIMDeleteInstanceResponseMessage(
+	    request->messageId,
+	    errorCode,
+	    errorDescription);
+
+    enqueueResponse(request, response);
+
+    delete request;
+}
+
+void Dispatcher::handleCreateClassRequest(
+    CIMCreateClassRequestMessage* request)
+{
+    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+    String errorDescription;
+
+    try 
+    {
+	_repository->createClass(
+	    request->nameSpace,
+	    request->newClass);
+    }
+    catch (CIMException& exception)
+    {
+	errorCode = exception.getCode();
+	errorDescription = exception.getMessage();
+    }
+    catch (Exception& exception)
+    {
+	errorCode = CIM_ERR_FAILED;
+	errorDescription = exception.getMessage();
+    }
+
+    CIMCreateClassResponseMessage* response = 
+	new CIMCreateClassResponseMessage(
+	    request->messageId,
+	    errorCode,
+	    errorDescription);
+
+    enqueueResponse(request, response);
+
+    delete request;
+}
+
+void Dispatcher::handleCreateInstanceRequest(
+    CIMCreateInstanceRequestMessage* request)
+{
+    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+    String errorDescription;
+
+    try 
+    {
+	CIMProvider* provider = _lookupProviderForClass(
+	    request->nameSpace, request->newInstance.getClassName());
+
+	if (provider)
+	{
+	    provider->createInstance(
+		request->nameSpace,
+		request->newInstance);
+	}
+	else
+	{
+	    _repository->createInstance(
+		request->nameSpace,
+		request->newInstance);
+	}
+    }
+    catch (CIMException& exception)
+    {
+	errorCode = exception.getCode();
+	errorDescription = exception.getMessage();
+    }
+    catch (Exception& exception)
+    {
+	errorCode = CIM_ERR_FAILED;
+	errorDescription = exception.getMessage();
+    }
+
+    CIMCreateInstanceResponseMessage* response = 
+	new CIMCreateInstanceResponseMessage(
+	    request->messageId,
+	    errorCode,
+	    errorDescription);
+
+    enqueueResponse(request, response);
+
+    delete request;
+}
+
+void Dispatcher::handleModifyClassRequest(
+    CIMModifyClassRequestMessage* request)
+{
+    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+    String errorDescription;
+
+    try 
+    {
+	_repository->modifyClass(
+	    request->nameSpace,
+	    request->modifiedClass);
+    }
+    catch (CIMException& exception)
+    {
+	errorCode = exception.getCode();
+	errorDescription = exception.getMessage();
+    }
+    catch (Exception& exception)
+    {
+	errorCode = CIM_ERR_FAILED;
+	errorDescription = exception.getMessage();
+    }
+
+    CIMModifyClassResponseMessage* response = 
+	new CIMModifyClassResponseMessage(
 	    request->messageId,
 	    errorCode,
 	    errorDescription);

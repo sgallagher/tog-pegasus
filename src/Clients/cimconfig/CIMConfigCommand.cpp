@@ -43,6 +43,7 @@
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/XmlWriter.h>
 
+
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Config/ConfigFileHandler.h>
 #include "CIMConfigCommand.h"
@@ -54,6 +55,15 @@
 #endif
 
 PEGASUS_NAMESPACE_BEGIN
+
+//l10n
+/**
+ * The CLI message resource name
+ */
+
+static const char MSG_PATH [] 				= "pegasus/pegasusCLI";
+
+//l10n end
 
 /**
     The command name.
@@ -174,6 +184,127 @@ static const char INVALID_PROPERTY_VALUE []    =
 static const char PROPERTY_NOT_MODIFIED []     =
                         "Specified property can not be modified.";
 
+//l10n default messages and resource keys
+
+static const char OPTION_INVALID_CIM_RUNNING [] = 
+	"Option -$0 is not valid for this command when CIM server is not running.";
+
+static const char OPTION_INVALID_CIM_RUNNING_KEY [] = 
+	"Clients.CIMConfig.CIMConfigCommand.OPTION_INVALID_CIM_RUNNING";
+
+static const char CIMOM_NOT_RUNNING_KEY [] = 
+	"Clients.CIMConfig.CIMConfigCommand.CIMOM_NOT_RUNNING";
+
+static const char FILE_NOT_EXIST_KEY [] = 
+	"Clients.CIMConfig.CIMConfigCommand.FILE_NOT_EXIST";
+
+static const char FILE_NOT_READABLE_KEY [] = 
+	"Clients.CIMConfig.CIMConfigCommand.FILE_NOT_READABLE";
+
+static const char FAILED_TO_GET_PROPERTY_KEY [] = 
+	"Clients.CIMConfig.CIMConfigCommand.FAILED_TO_GET_PROPERTY";
+
+static const char FAILED_TO_SET_PROPERTY_KEY [] = 
+	"Clients.CIMConfig.CIMConfigCommand.FAILED_TO_SET_PROPERTY";
+
+static const char FAILED_TO_UNSET_PROPERTY_KEY [] = 
+	"Clients.CIMConfig.CIMConfigCommand.FAILED_TO_UNSET_PROPERTY";
+
+static const char FAILED_TO_LIST_PROPERTIES_KEY [] = 
+	"Clients.CIMConfig.CIMConfigCommand.FAILED_TO_LIST_PROPERTIES";
+
+static const char CONFIG_SCHEMA_NOT_LOADED_KEY [] = 
+	"Clients.CIMConfig.CIMConfigCommand.CONFIG_SCHEMA_NOT_LOADED";
+
+static const char PROPERTY_NOT_FOUND_KEY [] = 
+	"Clients.CIMConfig.CIMConfigCommand.PROPERTY_NOT_FOUND";
+
+static const char INVALID_PROPERTY_VALUE_KEY [] = 
+	"Clients.CIMConfig.CIMConfigCommand.INVALID_PROPERTY_VALUE";
+
+static const char PROPERTY_NOT_MODIFIED_KEY [] = 
+	"Clients.CIMConfig.CIMConfigCommand.PROPERTY_NOT_MODIFIED";
+                        
+static const char VALUE_OF_PROPERTY_IS [] = 
+	"$0 value for the property $1 is set to \"$2\" in CIMServer.";
+
+static const char VALUE_OF_PROPERTY_IS_KEY [] = 
+	"Clients.CIMConfig.CIMConfigCommand.VALUE_OF_PROPERTY_IS";
+
+static const char VALUE_OF_PROPERTY_CANNOT_BE_SET [] = 
+	"$0 value for the property '$1' can not be set because the CIM server is not running.";
+
+static const char VALUE_OF_PROPERTY_CANNOT_BE_SET_KEY [] = 
+	"Clients.CIMConfig.CIMConfigCommand.VALUE_OF_PROPERTY_CANNOT_BE_SET";
+
+static const char FAILED_UPDATE_OF_VALUE_IN_FILE [] = 
+	"Failed to update the $0 value of the Property '$1' in configuration file.";
+
+static const char FAILED_UPDATE_OF_VALUE_IN_FILE_KEY [] = 
+	"Clients.CIMConfig.CIMConfigCommand.FAILED_UPDATE_OF_VALUE_IN_FILE";
+
+static const char PROPERTY_UPDATED_IN_FILE [] = 
+	"Property '$0' updated in configuration file.";
+
+static const char PROPERTY_UPDATED_IN_FILE_KEY [] = 
+	"Clients.CIMConfig.CIMConfigCommand.PROPERTY_UPDATED_IN_FIL";
+
+static const char VALUE_IS [] = 
+	"$0 value: $1";
+
+static const char VALUE_IS_KEY [] = 
+	"Clients.CIMConfig.CIMConfigCommand.VALUE_IS";
+
+static const char CANNOT_DETERMINE_VALUE_CIM_RUNNING [] = 
+	"$0 value can not be determined because the CIM server is not running.";
+
+static const char CANNOT_DETERMINE_VALUE_CIM_RUNNING_KEY [] = 
+	"Clients.CIMConfig.CIMConfigCommand.CANNOT_DETERMINE_VALUE_CIM_RUNNING";
+                    								  
+static const char PROPERTY_VALUE_ALREADY_SET_TO [] = 
+	"The property '$0' value is already set to '$1'.";
+
+static const char PROPERTY_VALUE_ALREADY_SET_TO_KEY [] = 
+	"Clients.CIMConfig.CIMConfigCommand.PROPERTY_VALUE_ALREADY_SET_TO";
+
+static const char PROPERTY_SET_TO_DEFAULT [] = 
+	"$0 value for the property '$1' is set to default value in CIMServer.";
+                            
+static const char PROPERTY_SET_TO_DEFAULT_KEY [] = 
+	"Clients.CIMConfig.CIMConfigCommand.PROPERTY_SET_TO_DEFAULT";
+
+static const char PROPERTY_UNSET_IN_FILE [] = 
+	"Property '$0' is unset in the configuration file.";
+
+static const char PROPERTY_UNSET_IN_FILE_KEY [] = 
+	"Clients.CIMConfig.CIMConfigCommand.PROPERTY_UNSET_IN_FILE";
+
+static const char PROPERTY_CANNOT_BE_UNSET_CIM_NOT_RUNNING [] = 
+	"$0 value for the property '$1' can not be unset because the CIM server is not running.";
+
+static const char PROPERTY_CANNOT_BE_UNSET_CIM_NOT_RUNNING_KEY [] = 
+	"Clients.CIMConfig.CIMConfigCommand.PROPERTY_CANNOT_BE_UNSET_CIM_NOT_RUNNING";
+
+static const char PROPERTY_VALUE_ALREADY_UNSET [] = 
+	"The property '$0' value is already unset.";
+
+static const char PROPERTY_VALUE_ALREADY_UNSET_KEY [] = 
+	"Clients.CIMConfig.CIMConfigCommand.PROPERTY_VALUE_ALREADY_UNSET";
+
+static const char VALUES_CANNNOT_BE_LISTED_CIM_NOT_RUNNING [] = 
+	"$0 value of properties can not be listed because the CIM server is not running.";
+
+static const char VALUES_CANNNOT_BE_LISTED_CIM_NOT_RUNNING_KEY [] = 
+	"Clients.CIMConfig.CIMConfigCommand.VALUES_CANNNOT_BE_LISTED_CIM_NOT_RUNNING";
+
+static const char NO_PROPERTIES_FOUND_IN_FILE [] = 
+	"No configuration properties found in the configuration file.";
+
+static const char NO_PROPERTIES_FOUND_IN_FILE_KEY [] = 
+	"Clients.CIMConfig.CIMConfigCommand.NO_PROPERTIES_FOUND_IN_FILE";
+
+//l10n end default messages and keys
+
 /**
     The option character used to specify get config property.
 */
@@ -242,7 +373,14 @@ CIMConfigCommand::CIMConfigCommand ()
     */
     String usage;
     usage.reserveCapacity(200);
+    //l10n
+    //localize usage keyword:
+    //MessageLoaderParms parms("Clients.CLI.USAGE_STRING","usage: ");
+    //String USAGE_L = MessageLoader::getMessage(parms);
+    //usage.append(USAGE_L);
     usage.append(USAGE);
+    //l10n end
+    
     usage.append(COMMAND_NAME);
 #ifdef PEGASUS_OS_OS400
     usage.append(" -").append(OPTION_GET).append(" name");
@@ -659,7 +797,6 @@ Uint32 CIMConfigCommand::execute (
     Boolean   gotCurrentValue = false;
     Boolean   gotPlannedValue = false;
 
-
 #ifdef PEGASUS_OS_OS400
     // disable standard output and standard error
     if( _defaultQuietSet && (_operationType != OPERATION_TYPE_LIST) ){
@@ -709,7 +846,9 @@ Uint32 CIMConfigCommand::execute (
     }
     catch (FileNotReadable& fnr)
     {
-        errPrintWriter << FILE_NOT_READABLE << fnr.getMessage() << endl;
+    	//l10n
+        //errPrintWriter << FILE_NOT_READABLE << fnr.getMessage() << endl;
+        errPrintWriter << localizeMessage(MSG_PATH, FILE_NOT_READABLE_KEY, FILE_NOT_READABLE) << fnr.getMessage() << endl;
         return ( RC_ERROR );
     }
     catch (ConfigFileSyntaxError& cfse)
@@ -771,9 +910,14 @@ Uint32 CIMConfigCommand::execute (
                 {
                     if (_defaultValueSet)
                     {
-                        errPrintWriter << "Option -" << OPTION_DEFAULT_VALUE <<
-                           " is not valid for this command when" <<
-                           " CIM server is not running." << endl;
+                    	//l10n
+                        //errPrintWriter << "Option -" << OPTION_DEFAULT_VALUE <<
+                           //" is not valid for this command when" <<
+                           //" CIM server is not running." << endl;
+                        errPrintWriter << localizeMessage(MSG_PATH, 
+                        						OPTION_INVALID_CIM_RUNNING_KEY, 
+                        						OPTION_INVALID_CIM_RUNNING, 
+                        						OPTION_DEFAULT_VALUE) << endl;  
                         return ( RC_ERROR );
                     }
                     else 
@@ -792,26 +936,48 @@ Uint32 CIMConfigCommand::execute (
                 if (code == CIM_ERR_NOT_FOUND || 
                     code == CIM_ERR_FAILED)
                 {
-                    outPrintWriter << PROPERTY_NOT_FOUND << endl;
+                	//l10n
+                    //outPrintWriter << PROPERTY_NOT_FOUND << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+                    							PROPERTY_NOT_FOUND_KEY,
+                    							PROPERTY_NOT_FOUND)
+                    							 << endl;
 
                     errPrintWriter << e.getMessage() << endl;
                 }
                 else if (code == CIM_ERR_INVALID_CLASS)
                 {
-                    outPrintWriter << FAILED_TO_GET_PROPERTY << endl <<
-                        CONFIG_SCHEMA_NOT_LOADED << endl;
+                	//l10n
+                    //outPrintWriter << FAILED_TO_GET_PROPERTY << endl <<
+                        //CONFIG_SCHEMA_NOT_LOADED << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+                    							FAILED_TO_GET_PROPERTY_KEY,
+                    							FAILED_TO_GET_PROPERTY)
+                    							 << endl << 
+                    				  localizeMessage(MSG_PATH,
+                    				  			CONFIG_SCHEMA_NOT_LOADED_KEY,
+                    				  			CONFIG_SCHEMA_NOT_LOADED) << endl;
                 }
                 else
                 {
-                    errPrintWriter << FAILED_TO_GET_PROPERTY <<
-                        e.getMessage() << endl;
+                	//l10n
+                    //errPrintWriter << FAILED_TO_GET_PROPERTY <<
+                        //e.getMessage() << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,FAILED_TO_GET_PROPERTY_KEY,
+                    							      FAILED_TO_GET_PROPERTY) 
+                    			   << e.getMessage() << endl;
+                    			
                 }
                 return ( RC_ERROR );
             }
             catch (Exception& e)
             {
-                outPrintWriter << FAILED_TO_GET_PROPERTY << endl <<
-                    e.getMessage() << endl;
+            	//l10n
+                //outPrintWriter << FAILED_TO_GET_PROPERTY << endl <<
+                    //e.getMessage() << endl;
+                outPrintWriter << localizeMessage(MSG_PATH,FAILED_TO_GET_PROPERTY_KEY,
+                    							      FAILED_TO_GET_PROPERTY) << endl
+                    			   << e.getMessage() << endl;
                 return ( RC_ERROR );
             }
 
@@ -819,12 +985,23 @@ Uint32 CIMConfigCommand::execute (
             {
                 if (gotCurrentValue)
                 {
-                    outPrintWriter << "Current value: " << currentValue << endl;
+                	//l10n
+                    //outPrintWriter << "Current value: " << currentValue << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+                    							      VALUE_IS_KEY,
+                    								  VALUE_IS,
+                    								  "Current", 
+                    								  currentValue) << endl;
                 }
                 else
                 {
-                    outPrintWriter << "Current value can not be determined " <<
-                        "because the CIM server is not running." << endl;
+                	//l10n
+                    //outPrintWriter << "Current value can not be determined " <<
+                        //"because the CIM server is not running." << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+                    								  CANNOT_DETERMINE_VALUE_CIM_RUNNING_KEY,
+                    								  CANNOT_DETERMINE_VALUE_CIM_RUNNING,
+                    								  "Current") << endl;
                 }
             }
 
@@ -832,18 +1009,35 @@ Uint32 CIMConfigCommand::execute (
             {
                 if (gotPlannedValue)
                 {
-                    outPrintWriter << "Planned value: " << plannedValue << endl;
+                	//l10n
+                    //outPrintWriter << "Planned value: " << plannedValue << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+                    								  VALUE_IS_KEY,
+                    								  VALUE_IS,
+                    								  "Planned", 
+                    								  plannedValue) << endl;
                 }
                 else
                 {
-                    outPrintWriter << "Planned value can not be determined "
-                        "because the CIM server is not running." << endl;
+                	//l10n
+                    //outPrintWriter << "Planned value can not be determined "
+                        //"because the CIM server is not running." << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+                    								  CANNOT_DETERMINE_VALUE_CIM_RUNNING_KEY,
+                    								  CANNOT_DETERMINE_VALUE_CIM_RUNNING,
+                    								  "Planned") << endl;
                 }
             }
 
             if( _defaultValueSet )
             {
-                outPrintWriter << "Default value: " << defaultValue << endl;
+            	//l10n
+                //outPrintWriter << "Default value: " << defaultValue << endl;
+                outPrintWriter << localizeMessage(MSG_PATH,
+                								  VALUE_IS_KEY,
+                								  VALUE_IS,
+                    							  "Default", 
+                    							  defaultValue) << endl;
             }
             break; 
 
@@ -860,25 +1054,46 @@ Uint32 CIMConfigCommand::execute (
 
                     if ( _currentValueSet )
                     {
-                        outPrintWriter << CURRENT_VALUE_OF_PROPERTY
-                            << _propertyName << IS_SET_TO << "\"" 
-                            << _propertyValue << "\"" << IN_CIMSERVER << endl;
+                    	//l10n
+                        //outPrintWriter << CURRENT_VALUE_OF_PROPERTY
+                            //<< _propertyName << IS_SET_TO << "\"" 
+                            //<< _propertyValue << "\"" << IN_CIMSERVER << endl;
+                            
+                       outPrintWriter << localizeMessage(MSG_PATH,
+                       									 VALUE_OF_PROPERTY_IS_KEY,
+                       									 VALUE_OF_PROPERTY_IS,
+                       									 "Current",
+                       									 _propertyName.getString(),
+                       									 _propertyValue) << endl;
                     }
 
                     if ( _plannedValueSet )
                     {
-                        outPrintWriter << PLANNED_VALUE_OF_PROPERTY
-                            << _propertyName << IS_SET_TO << "\"" <<_propertyValue
-                            << "\"" << IN_CIMSERVER << endl;
+                    	//l10n
+                        //outPrintWriter << PLANNED_VALUE_OF_PROPERTY
+                            //<< _propertyName << IS_SET_TO << "\"" <<_propertyValue
+                            //<< "\"" << IN_CIMSERVER << endl;
+                        outPrintWriter << localizeMessage(MSG_PATH,
+                        								  VALUE_OF_PROPERTY_IS_KEY,
+                       									  VALUE_OF_PROPERTY_IS,
+                       									  String("Planned"),
+                       									  _propertyName.getString(),
+                       									  _propertyValue) << endl;
                     }
                 }
                 else
                 {
                     if (_currentValueSet)
                     {
-                        outPrintWriter << CURRENT_VALUE_OF_PROPERTY <<
-                            _propertyName <<"' can not be set " <<
-                            "because the CIM server is not running." << endl;
+                    	//l10n
+                        //outPrintWriter << CURRENT_VALUE_OF_PROPERTY <<
+                            //_propertyName <<"' can not be set " <<
+                            //"because the CIM server is not running." << endl;
+                        outPrintWriter << localizeMessage(MSG_PATH,
+                        								  VALUE_OF_PROPERTY_CANNOT_BE_SET_KEY,
+                        								  VALUE_OF_PROPERTY_CANNOT_BE_SET,
+                        								  "Current",
+                        								  _propertyName.getString()) << endl;
 
                         return ( RC_ERROR );
                     }
@@ -887,15 +1102,26 @@ Uint32 CIMConfigCommand::execute (
                         if ( !_configFileHandler->updatePlannedValue( 
                             _propertyName, _propertyValue, false ) )
                         {
-                            outPrintWriter << "Failed to update the planned" 
-                                << " value of the Property '" << _propertyName 
-                                << "'" << IN_CONFIG_FILE << endl;
+                        	//l10n
+                            //outPrintWriter << "Failed to update the planned" 
+                                //<< " value of the Property '" << _propertyName 
+                                //<< "'" << IN_CONFIG_FILE << endl;
+                            outPrintWriter << localizeMessage(MSG_PATH,
+                            								  FAILED_UPDATE_OF_VALUE_IN_FILE_KEY,
+                            								  FAILED_UPDATE_OF_VALUE_IN_FILE,
+                            								  "planned",
+                            								  _propertyName.getString()) << endl;
                             return ( RC_ERROR );
                         }
                     }
-
-                    outPrintWriter << "Property '" << _propertyName <<
-                        UPDATED_IN_FILE << endl;
+					//l10n
+                    //outPrintWriter << "Property '" << _propertyName <<
+                        //UPDATED_IN_FILE << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+                    								  PROPERTY_UPDATED_IN_FILE_KEY,
+                    								  PROPERTY_UPDATED_IN_FILE,
+                    								  _propertyName.getString()) << endl;
+                   
                 }
             }
             catch (CIMException& e)
@@ -904,39 +1130,71 @@ Uint32 CIMConfigCommand::execute (
 
                 if (code == CIM_ERR_TYPE_MISMATCH)
                 { 
-                    outPrintWriter << INVALID_PROPERTY_VALUE << endl;
+                	//l10n
+                    //outPrintWriter << INVALID_PROPERTY_VALUE << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+                    								  INVALID_PROPERTY_VALUE_KEY,
+                    								  INVALID_PROPERTY_VALUE) << endl;
 
                     errPrintWriter << e.getMessage() << endl;
                 }
                 else if (code == CIM_ERR_NOT_FOUND)
                 {
-                    outPrintWriter << PROPERTY_NOT_FOUND << endl;
-
+                	//l10n
+                    //outPrintWriter << PROPERTY_NOT_FOUND << endl;
+					outPrintWriter << localizeMessage(MSG_PATH,
+                    								  PROPERTY_NOT_FOUND_KEY,
+                    								  PROPERTY_NOT_FOUND) << endl;
+                    								  
                     errPrintWriter << e.getMessage() << endl;
                 }
                 else if (code == CIM_ERR_NOT_SUPPORTED)
                 {
-                    outPrintWriter << PROPERTY_NOT_MODIFIED << endl;
+                	//l10n
+                    //outPrintWriter << PROPERTY_NOT_MODIFIED << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+                    								  PROPERTY_NOT_MODIFIED_KEY,
+                    								  PROPERTY_NOT_MODIFIED) << endl;
 
                     errPrintWriter << e.getMessage() << endl;
                 }
                 else if (code == CIM_ERR_FAILED)
                 {
-                    outPrintWriter << FAILED_TO_SET_PROPERTY << 
-                        e.getMessage() << endl;
+                	//l10n
+                    //outPrintWriter << FAILED_TO_SET_PROPERTY << 
+                        //e.getMessage() << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+                    								  FAILED_TO_SET_PROPERTY_KEY,
+                    								  FAILED_TO_SET_PROPERTY) 
+                    								  << e.getMessage() << endl;
                 }
                 else if (code == CIM_ERR_ALREADY_EXISTS)
                 {
-                    outPrintWriter << "The property '" << _propertyName <<
-                        "' value is already set to '" << _propertyValue <<
-                        "'." << endl;
+                	//l10n
+                    //outPrintWriter << "The property '" << _propertyName <<
+                        //"' value is already set to '" << _propertyValue <<
+                        //"'." << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+                    								  PROPERTY_VALUE_ALREADY_SET_TO_KEY,
+                    								  PROPERTY_VALUE_ALREADY_SET_TO,
+                    								  _propertyName.getString(),
+                    								  _propertyValue) << endl;
 
                     errPrintWriter << e.getMessage() << endl;
                 }
                 else if (code == CIM_ERR_INVALID_CLASS)
                 {
-                    outPrintWriter << FAILED_TO_SET_PROPERTY << endl << 
-                        CONFIG_SCHEMA_NOT_LOADED << endl;
+                	//l10n
+                    //outPrintWriter << FAILED_TO_SET_PROPERTY << endl << 
+                        //CONFIG_SCHEMA_NOT_LOADED << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+                    								  FAILED_TO_SET_PROPERTY_KEY,
+                    								  FAILED_TO_SET_PROPERTY)
+                    								  << endl <<
+                    				  localizeMessage(MSG_PATH,
+                    				   				  CONFIG_SCHEMA_NOT_LOADED_KEY,
+                    				   				  CONFIG_SCHEMA_NOT_LOADED)
+                    				   				  << endl;
                 }
                 else
                 {
@@ -946,8 +1204,14 @@ Uint32 CIMConfigCommand::execute (
             }
             catch (Exception& e)
             {
-                outPrintWriter << FAILED_TO_SET_PROPERTY << endl << 
-                    e.getMessage() << endl;
+            	//l10n
+                //outPrintWriter << FAILED_TO_SET_PROPERTY << endl << 
+                    //e.getMessage() << endl;
+                outPrintWriter << localizeMessage(MSG_PATH,
+                								  FAILED_TO_SET_PROPERTY_KEY,
+                								  FAILED_TO_SET_PROPERTY) 
+                								  << endl 
+                								  << e.getMessage() << endl;
                 return ( RC_ERROR );
             }
             break;
@@ -967,24 +1231,46 @@ Uint32 CIMConfigCommand::execute (
 
                     if ( _currentValueSet )
                     {
-                        outPrintWriter << CURRENT_VALUE_OF_PROPERTY
-                            << _propertyName <<"' is set to default value"
-                            << IN_CIMSERVER << endl;
+                    	//l10n
+                        //outPrintWriter << CURRENT_VALUE_OF_PROPERTY
+                            //<< _propertyName <<"' is set to default value"
+                            //<< IN_CIMSERVER << endl;
+                        outPrintWriter << localizeMessage(MSG_PATH,
+                        							      PROPERTY_SET_TO_DEFAULT_KEY,
+                        							      PROPERTY_SET_TO_DEFAULT,
+                        							      "Current",
+                        							      _propertyName.getString()) 
+                        							      << endl;
+                            
                     }
 
                     if ( _plannedValueSet )
                     {
-                        outPrintWriter << "Property '" << _propertyName <<
-                       	    IS_UNSET_IN_FILE << endl;
+                    	//l10n
+                        //outPrintWriter << "Property '" << _propertyName <<
+                       	    //IS_UNSET_IN_FILE << endl;
+                       	outPrintWriter << localizeMessage(MSG_PATH,
+                       									  PROPERTY_UNSET_IN_FILE_KEY,
+                       									  PROPERTY_UNSET_IN_FILE,
+                       									  _propertyName.getString())
+                       									  << endl;
                     }
                 }
                 else
                 {
                     if (_currentValueSet)
                     {
-                        outPrintWriter << CURRENT_VALUE_OF_PROPERTY <<
-                            _propertyName <<"' can not be unset " <<
-                            "because the CIM server is not running." << endl;
+                    	//l10n
+                        //outPrintWriter << CURRENT_VALUE_OF_PROPERTY <<
+                            //_propertyName <<"' can not be unset " <<
+                            //"because the CIM server is not running." << endl;
+                        outPrintWriter << localizeMessage(MSG_PATH,
+                        								  PROPERTY_CANNOT_BE_UNSET_CIM_NOT_RUNNING_KEY,
+                        								  PROPERTY_CANNOT_BE_UNSET_CIM_NOT_RUNNING,
+                        								  "Current",
+                        								  _propertyName.getString())
+                        								  << endl;
+                        
 
                         return ( RC_ERROR );
                     }
@@ -994,9 +1280,15 @@ Uint32 CIMConfigCommand::execute (
                     {
                         return ( RC_ERROR );
                     }
-
-                    outPrintWriter << "Property '" << _propertyName <<
-                        IS_UNSET_IN_FILE << endl;
+			
+					//l10n
+                    //outPrintWriter << "Property '" << _propertyName <<
+                        //IS_UNSET_IN_FILE << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+                       								  PROPERTY_UNSET_IN_FILE_KEY,
+                       								  PROPERTY_UNSET_IN_FILE,
+                       								  _propertyName.getString())
+                       								  << endl;
                 }
 
             }
@@ -1006,38 +1298,73 @@ Uint32 CIMConfigCommand::execute (
 
                 if (code == CIM_ERR_TYPE_MISMATCH)
                 {
-                    outPrintWriter << INVALID_PROPERTY_VALUE << endl;
+                	//l10n
+                    //outPrintWriter << INVALID_PROPERTY_VALUE << endl;
+					outPrintWriter << localizeMessage(MSG_PATH,
+													  INVALID_PROPERTY_VALUE_KEY,
+													  INVALID_PROPERTY_VALUE)
+													  << endl;
 
                     errPrintWriter << e.getMessage() << endl;
                 }
                 else if (code == CIM_ERR_NOT_FOUND)
                 {
-                    outPrintWriter << PROPERTY_NOT_FOUND << endl;
+                	//l10n
+                    //outPrintWriter << PROPERTY_NOT_FOUND << endl;
+					outPrintWriter << localizeMessage(MSG_PATH,
+													  PROPERTY_NOT_FOUND_KEY,
+													  PROPERTY_NOT_FOUND)
+													  << endl;
 
                     errPrintWriter << e.getMessage() << endl;
                 }
                 else if (code == CIM_ERR_NOT_SUPPORTED)
                 {
-                    outPrintWriter << PROPERTY_NOT_MODIFIED << endl;
+                	//l10n
+                    //outPrintWriter << PROPERTY_NOT_MODIFIED << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+													  PROPERTY_NOT_MODIFIED_KEY,
+													  PROPERTY_NOT_MODIFIED)
+													  << endl;
 
                     errPrintWriter << e.getMessage() << endl;
                 }
                 else if (code == CIM_ERR_FAILED)
                 {
-                    outPrintWriter << FAILED_TO_UNSET_PROPERTY <<
-                        e.getMessage() << endl;
+                	//l10n
+                    //outPrintWriter << FAILED_TO_UNSET_PROPERTY <<
+                        //e.getMessage() << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+													  FAILED_TO_UNSET_PROPERTY_KEY,
+													  FAILED_TO_UNSET_PROPERTY)
+													  << e.getMessage() << endl;
                 }
                 else if (code == CIM_ERR_ALREADY_EXISTS)
                 {
-                    outPrintWriter << "The property '" << _propertyName <<
-                        "' value is already unset." << endl;
+                	//l10n
+                    //outPrintWriter << "The property '" << _propertyName <<
+                        //"' value is already unset." << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+                    								  PROPERTY_VALUE_ALREADY_UNSET_KEY,
+                    								  PROPERTY_VALUE_ALREADY_UNSET,
+                    								  _propertyName.getString())
+                    								  << endl;
 
                     errPrintWriter << e.getMessage() << endl;
                 }
                 else if (code == CIM_ERR_INVALID_CLASS)
                 {
-                    outPrintWriter << FAILED_TO_UNSET_PROPERTY << endl <<
-                        CONFIG_SCHEMA_NOT_LOADED << endl;
+                	//l10n
+                    //outPrintWriter << FAILED_TO_UNSET_PROPERTY << endl <<
+                        //CONFIG_SCHEMA_NOT_LOADED << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+                    								  FAILED_TO_UNSET_PROPERTY_KEY,
+                    								  FAILED_TO_UNSET_PROPERTY)
+                    								  << endl <<
+                        		      localizeMessage(MSG_PATH,
+                        		      				  CONFIG_SCHEMA_NOT_LOADED_KEY,
+                        		      				  CONFIG_SCHEMA_NOT_LOADED)
+                        		      				  << endl;
                 }
                 else
                 {
@@ -1047,8 +1374,13 @@ Uint32 CIMConfigCommand::execute (
             }
             catch (Exception& e)
             {
-                outPrintWriter << FAILED_TO_UNSET_PROPERTY << endl <<
-                    e.getMessage() << endl;
+            	//l10n
+                //outPrintWriter << FAILED_TO_UNSET_PROPERTY << endl <<
+                    //e.getMessage() << endl;
+                outPrintWriter << localizeMessage(MSG_PATH,
+                    							  FAILED_TO_UNSET_PROPERTY_KEY,
+                    							  FAILED_TO_UNSET_PROPERTY)
+                    							  << endl << e.getMessage() << endl;
                 return ( RC_ERROR );
             }
             break;
@@ -1077,8 +1409,14 @@ Uint32 CIMConfigCommand::execute (
                     }
                     else
                     {
-                        outPrintWriter << "Current value of properties can not be " <<
-                            "listed because the CIM server is not running." << endl;
+                    	//l10n
+                        //outPrintWriter << "Current value of properties can not be " <<
+                            //"listed because the CIM server is not running." << endl;
+                        outPrintWriter << localizeMessage(MSG_PATH,
+                        								  VALUES_CANNNOT_BE_LISTED_CIM_NOT_RUNNING_KEY,
+                        								  VALUES_CANNNOT_BE_LISTED_CIM_NOT_RUNNING,
+                        								  "Current")
+                        								  << endl;
                         break;
                     }
                 }
@@ -1088,8 +1426,13 @@ Uint32 CIMConfigCommand::execute (
 
                 if (namesSize == 0)
                 {
-                    outPrintWriter << "No configuration properties found"
-                        << " in the configuration file." << endl;
+                	//l10n
+                    //outPrintWriter << "No configuration properties found"
+                        //<< " in the configuration file." << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+                    								  NO_PROPERTIES_FOUND_IN_FILE_KEY,
+                    								  NO_PROPERTIES_FOUND_IN_FILE)
+                    								  << endl;
                     break;
                 }
 
@@ -1111,13 +1454,27 @@ Uint32 CIMConfigCommand::execute (
 
                 if (code == CIM_ERR_NOT_FOUND || code == CIM_ERR_INVALID_CLASS)
                 {
-                    outPrintWriter << FAILED_TO_LIST_PROPERTIES << endl <<
-                        CONFIG_SCHEMA_NOT_LOADED << endl;
+                	//l10n
+                    //outPrintWriter << FAILED_TO_LIST_PROPERTIES << endl <<
+                        //CONFIG_SCHEMA_NOT_LOADED << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+                    								  FAILED_TO_LIST_PROPERTIES_KEY,
+                    								  FAILED_TO_LIST_PROPERTIES)
+                    								  << endl <<
+                        			  localizeMessage(MSG_PATH,
+                        			  				  CONFIG_SCHEMA_NOT_LOADED_KEY,
+                        			  				  CONFIG_SCHEMA_NOT_LOADED)
+                        			  				  << endl;
                 }
                 else if (code == CIM_ERR_FAILED)
                 {
-                    outPrintWriter << FAILED_TO_LIST_PROPERTIES <<
-                        e.getMessage() << endl;
+                	//l10n
+                    //outPrintWriter << FAILED_TO_LIST_PROPERTIES <<
+                        //e.getMessage() << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+                    								  FAILED_TO_LIST_PROPERTIES_KEY,
+                    								  FAILED_TO_LIST_PROPERTIES)
+                    								  << e.getMessage() << endl;
                 }
                 else
                 {
@@ -1128,8 +1485,13 @@ Uint32 CIMConfigCommand::execute (
             }
             catch (Exception& e)
             {
-                outPrintWriter << FAILED_TO_LIST_PROPERTIES <<  endl <<
-                    e.getMessage() << endl;
+            	//l10n
+                //outPrintWriter << FAILED_TO_LIST_PROPERTIES <<  endl <<
+                    //e.getMessage() << endl;
+                outPrintWriter << localizeMessage(MSG_PATH,
+                    								  FAILED_TO_LIST_PROPERTIES_KEY,
+                    								  FAILED_TO_LIST_PROPERTIES)
+                    								  << endl << e.getMessage() << endl;
                 return ( RC_ERROR );
             }
 

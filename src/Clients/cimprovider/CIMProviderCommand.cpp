@@ -58,6 +58,15 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
+//l10n
+/**
+ * The CLI message resource name
+ */
+
+static const char MSG_PATH [] 				= "pegasus/pegasusCLI";
+
+//l10n end
+
 /**
     The command name.
 */
@@ -132,77 +141,159 @@ static const Uint32 OPERATION_TYPE_LIST           = 4;
 
 static const char NOT_PRIVILEGED_USER []         = 
                      "Error, you must have superuser privilege to run cimprovider."; 
+                     
+static const char NOT_PRIVILEGED_USER_KEY [] = 
+		"Clients.cimprovider.CIMProviderCommand.NOT_PRIVILEGED_USER";
+		                    
 static const char CIMOM_NOT_RUNNING []         = 
                         "The CIM server may not be running.";
+
+static const char CIMOM_NOT_RUNNING_KEY [] =
+		"Clients.cimprovider.CIMProviderCommand.CIMOM_NOT_RUNNING";
 
 static const char DELETE_PROVIDER_FAILURE []    = 
                         "Failed to delete...";
 
+static const char DELETE_PROVIDER_FAILURE_KEY []    =
+		"Clients.cimprovider.CIMProviderCommand.DELETE_PROVIDER_FAILURE";
+
+
 static const char START_PROVIDER_FAILURE []    = 
                         "Failed to enable provider module.";
+
+static const char START_PROVIDER_FAILURE_KEY []    =
+		"Clients.cimprovider.CIMProviderCommand.START_PROVIDER_FAILURE";
 
 static const char STOP_PROVIDER_FAILURE []  = 
                         "Failed to disable provider module.";
 
+static const char STOP_PROVIDER_FAILURE_KEY []  = 
+		"Clients.cimprovider.CIMProviderCommand.STOP_PROVIDER_FAILURE";
+
 static const char LIST_PROVIDERS_FAILURE [] = 
                         "Failed to list... ";
+
+static const char LIST_PROVIDERS_FAILURE_KEY [] =
+		"Clients.cimprovider.CIMProviderCommand.LIST_PROVIDERS_FAILURE";
 
 static const char DELETE_PROVIDER_MODULE_SUCCESS []    = 
                         "Provider module deleted successfully.";
 
+static const char DELETE_PROVIDER_MODULE_SUCCESS_KEY []    = 
+		"Clients.cimprovider.CIMProviderCommand.DELETE_PROVIDER_SUCCESS";		
+
 static const char DELETE_PROVIDER_SUCCESS []    = 
                         "Provider deleted successfully.";
+
+static const char DELETE_PROVIDER_SUCCESS_KEY []    = 
+		"Clients.cimprovider.CIMProviderCommand.DELETE_PROVIDER_SUCCESS";
 
 static const char START_PROVIDER_SUCCESS []  = 
                         "Provider module enabled successfully.";
 
+static const char START_PROVIDER_SUCCESS_KEY []  = 
+		"Clients.cimprovider.CIMProviderCommand.START_PROVIDER_SUCCESS";
+
 static const char STOP_PROVIDER_SUCCESS []  = 
                         "Provider module disabled successfully.";
+
+static const char STOP_PROVIDER_SUCCESS_KEY []  =
+		"Clients.cimprovider.CIMProviderCommand.STOP_PROVIDER_SUCCESS";
 
 static const char PROVIDER_ALREADY_STOPPED []  = 
                         "Provider module already disabled.";
 
+static const char PROVIDER_ALREADY_STOPPED_KEY []  =
+		"Clients.cimprovider.CIMProviderCommand.PROVIDER_ALREADY_STOPPED";
+
 static const char PROVIDER_ALREADY_STARTED []  = 
                         "Provider module already enabled.";
 
+static const char PROVIDER_ALREADY_STARTED_KEY []  = 
+		"Clients.cimprovider.CIMProviderCommand.PROVIDER_ALREADY_STARTED";
+
 static const char CANNOT_START_PROVIDER []  = 
                         "Provider module can not be enabled since it is disabling.";
+                        
+static const char CANNOT_START_PROVIDER_KEY []  =
+		"Clients.cimprovider.CIMProviderCommand.CANNOT_START_PROVIDER";
 
 static const char PROVIDER_NOT_REGISTERED[] =
 		"Specified provider was not registered.";
 
+static const char PROVIDER_NOT_REGISTERED_KEY [] =
+		"Clients.cimprovider.CIMProviderCommand.PROVIDER_NOT_REGISTERED";
+
 static const char DELETEING_PROVIDER_MODULE[] =
 			"Deleting provider module...";
+
+static const char DELETEING_PROVIDER_MODULE_KEY [] =
+		"Clients.cimprovider.CIMProviderCommand.DELETEING_PROVIDER_MODULE";
 
 static const char DELETEING_PROVIDER[] =
 			"Deleting provider...";
 
+static const char DELETEING_PROVIDER_KEY[] =
+		"Clients.cimprovider.CIMProviderCommand.DELETEING_PROVIDER";
+
 static const char STARTING_PROVIDER_MODULE[] =
 			"Enabling provider module...";
+			
+static const char STARTING_PROVIDER_MODULE_KEY[] =
+		"Clients.cimprovider.CIMProviderCommand.STARTING_PROVIDER_MODULE";
 
 static const char STOPING_PROVIDER_MODULE[] =
 			"Disabling provider module...";
 
+static const char STOPING_PROVIDER_MODULE_KEY[] =
+		"Clients.cimprovider.CIMProviderCommand.STOPING_PROVIDER_MODULE";
+
 static const char NO_MODULE_REGISTERED[] =
 			"No modules registered for listing.";
+
+static const char NO_MODULE_REGISTERED_KEY[] =
+		"Clients.cimprovider.CIMProviderCommand.NO_MODULE_REGISTERED";
 
 static const char ERR_OPTION_NOT_SUPPORTED[] =
 			"-p option was not supported.";
 
+static const char ERR_OPTION_NOT_SUPPORTED_KEY[] =
+		"Clients.cimprovider.CIMProviderCommand.ERR_OPTION_NOT_SUPPORTED";
+
 static const char ERR_MODULE_NOT_REGISTERED[] =
 			"Specified provider module was not registered.";
+
+static const char ERR_MODULE_NOT_REGISTERED_KEY[] =
+		"Clients.cimprovider.CIMProviderCommand.ERR_MODULE_NOT_REGISTERED";
 
 static const char ERR_PROVIDER_NOT_REGISTERED[] =
 			"Specified provider was not registered.";
 
+static const char ERR_PROVIDER_NOT_REGISTERED_KEY[] =
+		"Clients.cimprovider.CIMProviderCommand.ERR_PROVIDER_NOT_REGISTERED";
+
 static const char PG_PROVIDER_SCHEMA_NOT_LOADED []  =
     "Please make sure that the registration schema is loaded on the CIMOM.";
+
+static const char PG_PROVIDER_SCHEMA_NOT_LOADED_KEY []  =
+		"Clients.cimprovider.CIMProviderCommand.PG_PROVIDER_SCHEMA_NOT_LOADED";
 
 static const char REQUIRED_ARGS_MISSING []        =
 			"Required arguments missing.";
 
+static const char REQUIRED_ARGS_MISSING_KEY []        =
+		"Clients.cimprovider.CIMProviderCommand.REQUIRED_ARGS_MISSING";
+
 static const char INVALID_ARGS []        =
                         "Invalid arguments.";
+
+static const char INVALID_ARGS_KEY []        =
+		"Clients.cimprovider.CIMProviderCommand.INVALID_ARGS";
+		
+static const char UNEXPECTED_OPTION [] = "Unexpected Option.";
+
+static const char UNEXPECTED_OPTION_KEY [] = 
+	"Clients.cimprovider.CIMProviderCommand.UNEXPECTED_OPTION";
 
 /**
     The option character used to specify disable a provider module.
@@ -470,6 +561,11 @@ CIMProviderCommand::CIMProviderCommand ()
     */
     String usage;
     usage.reserveCapacity(200);
+    //l10n
+    //localize usage keyword:
+    //MessageLoaderParms parms("Clients.CLI.USAGE_STRING","usage: ");
+    //String USAGE_L = MessageLoader::getMessage(parms);
+    //usage.append(USAGE_L);
     usage.append(USAGE);
     usage.append(COMMAND_NAME);
 
@@ -794,7 +890,12 @@ void CIMProviderCommand::setCommand (
     {
 	if ( _providerSet )
 	{
-	    CommandFormatException e("Unexpected Option.");
+		//l10n						
+	    //CommandFormatException e("Unexpected Option.");
+	    
+	    CommandFormatException e(localizeMessage(MSG_PATH,
+	    										 UNEXPECTED_OPTION_KEY,
+	    										 UNEXPECTED_OPTION));
 	    throw e;
 	}
 
@@ -809,7 +910,11 @@ void CIMProviderCommand::setCommand (
     {
 	if ( _providerSet )
 	{
-	    CommandFormatException e("Unexpected Option.");
+		//l10n
+	    //CommandFormatException e("Unexpected Option.");
+	    CommandFormatException e(localizeMessage(MSG_PATH,
+	    										 UNEXPECTED_OPTION_KEY,
+	    										 UNEXPECTED_OPTION));
 	    throw e;
 	}
 
@@ -828,13 +933,21 @@ void CIMProviderCommand::setCommand (
 
     if ( _operationType == OPERATION_TYPE_LIST && _providerSet )
     {
-	CommandFormatException e("Unexpected Option.");
+    	//l10n
+	//CommandFormatException e("Unexpected Option.");
+	CommandFormatException e(localizeMessage(MSG_PATH,
+	    										 UNEXPECTED_OPTION_KEY,
+	    										 UNEXPECTED_OPTION));
 	throw e;
     }
 
     if ( _operationType == OPERATION_TYPE_LIST && _statusSet && _moduleSet)
     {
-	CommandFormatException e("Unexpected Option.");
+    	//l10n
+	//CommandFormatException e("Unexpected Option.");
+	CommandFormatException e(localizeMessage(MSG_PATH,
+	    										 UNEXPECTED_OPTION_KEY,
+	    										 UNEXPECTED_OPTION));
 	throw e;
     }
 
@@ -891,7 +1004,11 @@ Uint32 CIMProviderCommand::execute (
     }
     catch(Exception& e)
     {
-        outPrintWriter << CIMOM_NOT_RUNNING << endl;
+    	//l10n
+        //outPrintWriter << CIMOM_NOT_RUNNING << endl;
+        outPrintWriter << localizeMessage(MSG_PATH,
+        								  CIMOM_NOT_RUNNING_KEY,
+        								  CIMOM_NOT_RUNNING) << endl;
 	return 1;
     }
 
@@ -912,13 +1029,24 @@ Uint32 CIMProviderCommand::execute (
 
                 if (code == CIM_ERR_FAILED)
                 {
-		    outPrintWriter << DELETE_PROVIDER_FAILURE << endl;
+                	//l10n
+		    //outPrintWriter << DELETE_PROVIDER_FAILURE << endl;
+		    outPrintWriter << localizeMessage(MSG_PATH,
+        								  DELETE_PROVIDER_FAILURE_KEY,
+        								  DELETE_PROVIDER_FAILURE) << endl;
                     errPrintWriter << e.getMessage() << endl;
                 }
                 else if (code == CIM_ERR_INVALID_CLASS)
                 {
-		    outPrintWriter << DELETE_PROVIDER_FAILURE << endl;
-		    outPrintWriter << PG_PROVIDER_SCHEMA_NOT_LOADED << endl;
+                	//l10n
+		    //outPrintWriter << DELETE_PROVIDER_FAILURE << endl;
+		    //outPrintWriter << PG_PROVIDER_SCHEMA_NOT_LOADED << endl;
+		    outPrintWriter << localizeMessage(MSG_PATH,
+        								  DELETE_PROVIDER_FAILURE_KEY,
+        								  DELETE_PROVIDER_FAILURE) << endl;
+        	outPrintWriter << localizeMessage(MSG_PATH,
+        								  PG_PROVIDER_SCHEMA_NOT_LOADED_KEY,
+        								  PG_PROVIDER_SCHEMA_NOT_LOADED) << endl;							  
                 }
                 else
                 {
@@ -944,13 +1072,24 @@ Uint32 CIMProviderCommand::execute (
                 CIMStatusCode code = e.getCode();
                 if (code == CIM_ERR_FAILED)
                 {
-                    outPrintWriter << START_PROVIDER_FAILURE << endl;
+                	//l10n
+                    //outPrintWriter << START_PROVIDER_FAILURE << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+        								  START_PROVIDER_FAILURE_KEY,
+        								  START_PROVIDER_FAILURE) << endl;
                     errPrintWriter << e.getMessage() << endl;
                 }
                 else if (code == CIM_ERR_INVALID_CLASS)
                 {
-                    outPrintWriter << START_PROVIDER_FAILURE << endl;
-                    outPrintWriter << PG_PROVIDER_SCHEMA_NOT_LOADED << endl;
+                	//l10n
+                    //outPrintWriter << START_PROVIDER_FAILURE << endl;
+                    //outPrintWriter << PG_PROVIDER_SCHEMA_NOT_LOADED << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+        								  START_PROVIDER_FAILURE_KEY,
+        								  START_PROVIDER_FAILURE) << endl;
+        			outPrintWriter << localizeMessage(MSG_PATH,
+        								  PG_PROVIDER_SCHEMA_NOT_LOADED_KEY,
+        								  PG_PROVIDER_SCHEMA_NOT_LOADED) << endl;					  
                 }
                 else
                 {
@@ -976,13 +1115,24 @@ Uint32 CIMProviderCommand::execute (
                 CIMStatusCode code = e.getCode();
                 if (code == CIM_ERR_FAILED)
                 {
-                    outPrintWriter << STOP_PROVIDER_FAILURE << endl;
+                	//l10n
+                    //outPrintWriter << STOP_PROVIDER_FAILURE << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+        								  STOP_PROVIDER_FAILURE_KEY,
+        								  STOP_PROVIDER_FAILURE) << endl;
                     errPrintWriter << e.getMessage() << endl;
                 }
                 else if (code == CIM_ERR_INVALID_CLASS)
                 {
-                    outPrintWriter << STOP_PROVIDER_FAILURE << endl;
-                    outPrintWriter << PG_PROVIDER_SCHEMA_NOT_LOADED << endl;
+                	//l10n
+                    //outPrintWriter << STOP_PROVIDER_FAILURE << endl;
+                    //outPrintWriter << PG_PROVIDER_SCHEMA_NOT_LOADED << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+        								  STOP_PROVIDER_FAILURE_KEY,
+        								  STOP_PROVIDER_FAILURE) << endl;
+        			outPrintWriter << localizeMessage(MSG_PATH,
+        								  PG_PROVIDER_SCHEMA_NOT_LOADED,
+        								  PG_PROVIDER_SCHEMA_NOT_LOADED) << endl;					  
                 }
                 else
                 {
@@ -1009,13 +1159,25 @@ Uint32 CIMProviderCommand::execute (
                 CIMStatusCode code = e.getCode();
                 if (code == CIM_ERR_FAILED)
                 {
-                    outPrintWriter << LIST_PROVIDERS_FAILURE << endl;
+                	//l10n
+                    //outPrintWriter << LIST_PROVIDERS_FAILURE << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+        								  LIST_PROVIDERS_FAILURE_KEY,
+        								  LIST_PROVIDERS_FAILURE) << endl;
                     errPrintWriter << e.getMessage() << endl;
                 }
                 else if (code == CIM_ERR_INVALID_CLASS)
                 {
-                    outPrintWriter << LIST_PROVIDERS_FAILURE << endl;
-                    outPrintWriter << PG_PROVIDER_SCHEMA_NOT_LOADED << endl;
+                	//l10n
+                    //outPrintWriter << LIST_PROVIDERS_FAILURE << endl;
+                    //outPrintWriter << PG_PROVIDER_SCHEMA_NOT_LOADED << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+        								  LIST_PROVIDERS_FAILURE_KEY,
+        								  LIST_PROVIDERS_FAILURE) << endl;
+        			outPrintWriter << localizeMessage(MSG_PATH,
+        								  PG_PROVIDER_SCHEMA_NOT_LOADED_KEY,
+        								  PG_PROVIDER_SCHEMA_NOT_LOADED) << endl;					  
+        								  
                 }
                 else
                 {
@@ -1070,13 +1232,21 @@ void CIMProviderCommand::_deleteProvider
 	    keys.append(kb2);
 	    providerRef.setKeyBindings(keys);
 	
-	    outPrintWriter << DELETEING_PROVIDER << endl;
+	//l10n
+	    //outPrintWriter << DELETEING_PROVIDER << endl;
+	    outPrintWriter << localizeMessage(MSG_PATH,
+        								  DELETEING_PROVIDER_KEY,
+        								  DELETEING_PROVIDER) << endl;	
 
 	    _client->deleteInstance(
 		PEGASUS_NAMESPACENAME_PROVIDERREG,
 		providerRef);
 
-	    outPrintWriter << DELETE_PROVIDER_SUCCESS << endl;
+//l10n
+	    //outPrintWriter << DELETE_PROVIDER_SUCCESS << endl;
+	    outPrintWriter << localizeMessage(MSG_PATH,
+        								  DELETE_PROVIDER_SUCCESS_KEY,
+        								  DELETE_PROVIDER_SUCCESS) << endl;
 	  }
 	  else
 	  {
@@ -1094,14 +1264,21 @@ void CIMProviderCommand::_deleteProvider
 	    keys.append(kb1);
 
 	    moduleRef.setKeyBindings(keys);
+//l10n
+	    //outPrintWriter << DELETEING_PROVIDER_MODULE << endl;
+		outPrintWriter << localizeMessage(MSG_PATH,
+        								  DELETEING_PROVIDER_MODULE_KEY,
+        								  DELETEING_PROVIDER_MODULE) << endl;
 
-	    outPrintWriter << DELETEING_PROVIDER_MODULE << endl;
 
 	    _client->deleteInstance(
 		PEGASUS_NAMESPACENAME_PROVIDERREG,
 		moduleRef);
-
-	    outPrintWriter << DELETE_PROVIDER_MODULE_SUCCESS << endl;
+//l10n
+	    //outPrintWriter << DELETE_PROVIDER_MODULE_SUCCESS << endl;
+	    outPrintWriter << localizeMessage(MSG_PATH,
+        								  DELETE_PROVIDER_MODULE_SUCCESS_KEY,
+        								  DELETE_PROVIDER_MODULE_SUCCESS) << endl;
 	  }
 
         }
@@ -1147,8 +1324,11 @@ void CIMProviderCommand::_StartProvider
 	    moduleRef.setKeyBindings(keys);
 	    
 	    ref = moduleRef;
-
-	    outPrintWriter << STARTING_PROVIDER_MODULE << endl;
+//l10n
+	    //outPrintWriter << STARTING_PROVIDER_MODULE << endl;
+	    outPrintWriter << localizeMessage(MSG_PATH,
+        								  STARTING_PROVIDER_MODULE_KEY,
+        								  STARTING_PROVIDER_MODULE) << endl;
 	}
 
 	Array<CIMParamValue> inParams;
@@ -1165,19 +1345,35 @@ void CIMProviderCommand::_StartProvider
 	ret_value.get(retValue);
 	if (retValue == 1)
 	{
-   	    outPrintWriter << PROVIDER_ALREADY_STARTED << endl;
+		//l10n
+   	    //outPrintWriter << PROVIDER_ALREADY_STARTED << endl;
+   	    outPrintWriter << localizeMessage(MSG_PATH,
+        								  PROVIDER_ALREADY_STARTED_KEY,
+        								  PROVIDER_ALREADY_STARTED) << endl;
 	}
 	else if (retValue == 2)
 	{
-   	    outPrintWriter << CANNOT_START_PROVIDER << endl;
+		//l10n
+   	    //outPrintWriter << CANNOT_START_PROVIDER << endl;
+   	    outPrintWriter << localizeMessage(MSG_PATH,
+        								  CANNOT_START_PROVIDER_KEY,
+        								  CANNOT_START_PROVIDER) << endl;
 	}
 	else if (retValue == 0)
 	{
-   	    outPrintWriter << START_PROVIDER_SUCCESS << endl;
+		//l10n
+   	    //outPrintWriter << START_PROVIDER_SUCCESS << endl;
+   	    outPrintWriter << localizeMessage(MSG_PATH,
+        								  START_PROVIDER_SUCCESS_KEY,
+        								  START_PROVIDER_SUCCESS) << endl;
 	}
 	else
 	{
-	    outPrintWriter << START_PROVIDER_FAILURE << endl;
+		//l10n
+	    //outPrintWriter << START_PROVIDER_FAILURE << endl;
+	    outPrintWriter << localizeMessage(MSG_PATH,
+        								  START_PROVIDER_FAILURE_KEY,
+        								  START_PROVIDER_FAILURE) << endl;
 	}
     }
 
@@ -1220,8 +1416,11 @@ void CIMProviderCommand::_StopProvider
 	    moduleRef.setKeyBindings(keys);
 	    
 	    ref = moduleRef;
-
-	    outPrintWriter << STOPING_PROVIDER_MODULE << endl;
+//l10n
+	    //outPrintWriter << STOPING_PROVIDER_MODULE << endl;
+	    outPrintWriter << localizeMessage(MSG_PATH,
+        								  STOPING_PROVIDER_MODULE_KEY,
+        								  STOPING_PROVIDER_MODULE) << endl;
 	}
 	Array<CIMParamValue> inParams;
 	Array<CIMParamValue> outParams;
@@ -1237,15 +1436,27 @@ void CIMProviderCommand::_StopProvider
 	ret_value.get(retValue);
 	if (retValue == 1)
 	{
-   	    outPrintWriter << PROVIDER_ALREADY_STOPPED << endl;
+		//l10n
+   	    //outPrintWriter << PROVIDER_ALREADY_STOPPED << endl;
+   	    outPrintWriter << localizeMessage(MSG_PATH,
+        								  PROVIDER_ALREADY_STOPPED_KEY,
+        								  PROVIDER_ALREADY_STOPPED) << endl;
 	}
 	else if (retValue == 0)
 	{
-   	    outPrintWriter << STOP_PROVIDER_SUCCESS << endl;
+		//l10n
+   	    //outPrintWriter << STOP_PROVIDER_SUCCESS << endl;
+   	    outPrintWriter << localizeMessage(MSG_PATH,
+        								  PROVIDER_ALREADY_STOPPED_KEY,
+        								  PROVIDER_ALREADY_STOPPED) << endl;
 	}
 	else
 	{
-	    outPrintWriter << STOP_PROVIDER_FAILURE << endl;
+		//l10n
+	    //outPrintWriter << STOP_PROVIDER_FAILURE << endl;
+	    outPrintWriter << localizeMessage(MSG_PATH,
+        								  PROVIDER_ALREADY_STOPPED_KEY,
+        								  PROVIDER_ALREADY_STOPPED) << endl;
 	}
     }
 
@@ -1286,7 +1497,11 @@ void CIMProviderCommand::_ListProviders
 
 	    if ( instanceNames.size() == 0 )
 	    {
- 	  	cerr << ERR_PROVIDER_NOT_REGISTERED << endl;
+	    	//l10n
+ 	  	//cerr << ERR_PROVIDER_NOT_REGISTERED << endl;
+ 	  	cerr << localizeMessage(MSG_PATH,
+        								  ERR_PROVIDER_NOT_REGISTERED_KEY,
+        								  ERR_PROVIDER_NOT_REGISTERED) << endl;
 		exit(-1);	
 	    }
 	    else
@@ -1315,7 +1530,11 @@ void CIMProviderCommand::_ListProviders
 		
 		if (!moduleExist)
 		{
-		    cerr << ERR_PROVIDER_NOT_REGISTERED << endl;
+			//l10n
+		    //cerr << ERR_PROVIDER_NOT_REGISTERED << endl;
+		    cerr << localizeMessage(MSG_PATH,
+        								  ERR_PROVIDER_NOT_REGISTERED_KEY,
+        								  ERR_PROVIDER_NOT_REGISTERED) << endl;
 		    exit(-1);
 		}
 	    }
@@ -1328,7 +1547,11 @@ void CIMProviderCommand::_ListProviders
 				PEGASUS_CLASSNAME_PROVIDERMODULE);
 	    if ( moduleInstances.size() == 0 )
 	    {
- 	  	cerr << ERR_MODULE_NOT_REGISTERED << endl;
+	    	//l10n
+ 	  	//cerr << ERR_MODULE_NOT_REGISTERED << endl;
+ 	  	cerr << localizeMessage(MSG_PATH,
+        								  ERR_MODULE_NOT_REGISTERED_KEY,
+        								  ERR_MODULE_NOT_REGISTERED) << endl;
 		exit(-1);	
 	    }
 	    else
@@ -1376,13 +1599,21 @@ CIMInstance CIMProviderCommand::_getModuleInstance()
     catch (CIMException& exception)
     {
         // Provider module was not registered yet
- 	cerr << ERR_MODULE_NOT_REGISTERED << endl;
+        //l10n
+ 	//cerr << ERR_MODULE_NOT_REGISTERED << endl;
+ 	cerr << localizeMessage(MSG_PATH,
+        								  ERR_MODULE_NOT_REGISTERED_KEY,
+        								  ERR_MODULE_NOT_REGISTERED) << endl;
 	exit(-1);	
     }
     catch (Exception& exception)
     {
         // Provider module was not registered yet
- 	cerr << ERR_MODULE_NOT_REGISTERED << endl;
+        //l10n
+ 	//cerr << ERR_MODULE_NOT_REGISTERED << endl;
+ 	cerr << localizeMessage(MSG_PATH,
+        								  ERR_MODULE_NOT_REGISTERED_KEY,
+        								  ERR_MODULE_NOT_REGISTERED) << endl;
 	exit(-1);	
     }
     
@@ -1417,13 +1648,21 @@ CIMInstance CIMProviderCommand::_getProviderInstance()
     catch (CIMException& exception)
     {
         // Provider was not registered yet
-        cerr << ERR_PROVIDER_NOT_REGISTERED << endl;
+        //l10n
+        //cerr << ERR_PROVIDER_NOT_REGISTERED << endl;
+        cerr << localizeMessage(MSG_PATH,
+        								  ERR_PROVIDER_NOT_REGISTERED_KEY,
+        								  ERR_PROVIDER_NOT_REGISTERED) << endl;
 	exit(-1);	
     }
     catch (Exception& exception)
     {
         // Provider was not registered yet
-        cerr << ERR_PROVIDER_NOT_REGISTERED << endl;
+        //l10n
+        //cerr << ERR_PROVIDER_NOT_REGISTERED << endl;
+        cerr << localizeMessage(MSG_PATH,
+        								  ERR_PROVIDER_NOT_REGISTERED_KEY,
+        								  ERR_PROVIDER_NOT_REGISTERED) << endl;
 	exit(-1);	
     }
     

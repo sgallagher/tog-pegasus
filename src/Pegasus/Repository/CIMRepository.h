@@ -267,7 +267,8 @@ public:
         @param className - class whose subclass names will be gotten. If
             className is empty, all classnames are returned.
         @param deepInheritance - if true all descendent classes of class
-            are returned. If className is empty, only root classes are returned.        @param subClassNames - output argument to hold subclass names.
+            are returned. If className is empty, only root classes are returned.
+        @param subClassNames - output argument to hold subclass names.
         @exception CIMException(CIM_ERR_INVALID_CLASS)
     */
     virtual void getSubClassNames(

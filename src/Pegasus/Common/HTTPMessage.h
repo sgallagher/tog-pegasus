@@ -88,8 +88,6 @@ class PEGASUS_COMMON_LINKAGE HTTPMessage : public Message
 	 String& reasonPhrase);
 };
 
-PEGASUS_NAMESPACE_END
-
 /** This message is sent from the response decoder back to the client to turn
     it into an Exception.
 */
@@ -128,5 +126,7 @@ class PEGASUS_COMMON_LINKAGE HTTPErrorMessage : public Message
       const String cimError;
       const String pegasusError;
 };
+
+PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_HTTPMessage_h */

@@ -26,6 +26,7 @@
 // Author: Sushma Fernandes, Hewlett Packard Company (sushma_fernandes@hp.com)
 //
 // Modified By:
+//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -44,6 +45,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/IPC.h>
+#include <Pegasus/Common/AutoPtr.h>
 
 #include <Pegasus/Security/UserManager/PasswordFile.h>
 #include <Pegasus/Security/UserManager/Linkage.h>
@@ -96,12 +98,12 @@ private:
     //
     // Instance of the PasswordFile
     //
-    PasswordFile*      	          _passwordFile;
+    AutoPtr<PasswordFile>      	          _passwordFile; //PEP101
 
     //
     // Mutex variable for consistent Password File and cache updates
     //
-    Mutex*       	          _mutex;
+    AutoPtr<Mutex>       	          _mutex; //PEP101
 
     /**
     generate random salt key for password encryption

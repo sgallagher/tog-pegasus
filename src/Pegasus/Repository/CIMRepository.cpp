@@ -33,6 +33,7 @@
 //              Karl Schopmeyer(k.schopmeyer@opengroup.org) - extend ref function.
 //              Robert Kieninger, IBM (kieningr@de.ibm.com) - Bugzilla 383
 //              Seema Gupta (gseema@in.ibm.com) - Bugzilla 281, Bugzilla 1313
+//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -41,7 +42,6 @@
 #include <cstdio>
 #include <fstream>
 #include <Pegasus/Common/Pair.h>
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/XmlReader.h>

@@ -28,6 +28,7 @@
 // Modified By: Nag Boranna, Hewlett Packard Company (nagaraja_boranna@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -68,12 +69,12 @@ private:
     //
     // Instance of UserFileHandler
     //
-    UserFileHandler*	_userFileHandler;
+    AutoPtr<UserFileHandler>	_userFileHandler; //PEP101
 
     //
     // Instance of AuthorizationHandler
     //
-    AuthorizationHandler*       _authHandler;
+    AutoPtr<AuthorizationHandler>       _authHandler; //Pep101
 
     /** Constructor. */
     UserManager(CIMRepository* repository);

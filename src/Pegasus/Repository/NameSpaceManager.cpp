@@ -29,6 +29,7 @@
 //                (carolann_graves@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Adrian Schuur (schuur@de.ibm.com)
+//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -322,10 +323,11 @@ NameSpace *NameSpace::newNameSpace(int index, NameSpaceManager *nsm, String &rep
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpace::newNameSpace()");
 
-	NameSpace *nameSpace=0;
+	AutoPtr<NameSpace> nameSpace;
 
 	String nameSpaceName = _dirNameToNamespaceName((*nameSpaceNames)[index]);
-        if ((nameSpace=nsm->lookupNameSpace(nameSpaceName))!=NULL) return nameSpace;
+    nameSpace.reset(nsm->lookupNameSpace(nameSpaceName));
+        if ((nameSpace.get()) != 0) return nameSpace.release();
 
         parentNameSpace *pns=(*parentNames)[index];
 
@@ -338,17 +340,11 @@ NameSpace *NameSpace::newNameSpace(int index, NameSpaceManager *nsm, String &rep
         }
 	else if (pns) pns->parentSpace=NULL;
 
-	try {
-	   String nameSpacePath = repositoryRoot + "/" + (*nameSpaceNames)[index];
-	   nameSpace = new NameSpace(nameSpacePath, nameSpaceName,pns);
-	}
-	catch (Exception& e) {
-	   delete nameSpace;
-	   throw e;
-	}
-
-        nsm->_rep->table.insert(nameSpaceName, nameSpace);
-        return nameSpace;
+	String nameSpacePath = repositoryRoot + "/" + (*nameSpaceNames)[index];
+	nameSpace.reset(new NameSpace(nameSpacePath, nameSpaceName,pns));
+	
+    nsm->_rep->table.insert(nameSpaceName, nameSpace.get());
+    return nameSpace.release();
 }
 
 void NameSpace::modify(Boolean shareable, Boolean updatesAllowed, const String& nameSpacePath)
@@ -726,20 +722,11 @@ void NameSpaceManager::createNameSpace(const CIMNamespaceName& nameSpaceName,
 
     // Create NameSpace object and register it:
 
-    NameSpace* nameSpace = 0;
+    AutoPtr<NameSpace> nameSpace;
 
-    try
-    {
-	nameSpace = new NameSpace(nameSpacePath, nameSpaceName, &pns);
-    }
-    catch (Exception& e)
-    {
-	delete nameSpace;
-        PEG_METHOD_EXIT();
-	throw e;
-    }
-
-    _rep->table.insert(nameSpaceName.getString (), nameSpace);
+    nameSpace.reset(new NameSpace(nameSpacePath, nameSpaceName, &pns));
+    
+    _rep->table.insert(nameSpaceName.getString (), nameSpace.release());
 
     PEG_METHOD_EXIT();
 }
@@ -749,7 +736,7 @@ void NameSpaceManager::modifyNameSpace(const CIMNamespaceName& nameSpaceName,
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::modifyNameSpace()");
 
-    NameSpace* nameSpace = 0;
+    NameSpace* nameSpace;
 
     if (!_rep->table.lookup(nameSpaceName.getString (), nameSpace))
     {

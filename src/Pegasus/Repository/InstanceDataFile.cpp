@@ -33,6 +33,7 @@
 //
 //              Sushma Fernandes. Hewlett-Packard Company
 //                     sushma_fernandes@hp.com
+//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -41,7 +42,6 @@
 #include "InstanceDataFile.h"
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/FileSystem.h>
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/Tracer.h>
 #if defined(PEGASUS_OS_OS400)
 #include "OS400ConvertChar.h"

@@ -28,6 +28,7 @@
 // Modified By: Nag Boranna, Hewlett Packard Company (nagaraja_boranna@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -38,7 +39,6 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/PegasusVersion.h>
@@ -62,32 +62,12 @@ UserManager* UserManager::_instance = 0;
 UserManager::UserManager(CIMRepository* repository)
 {
     PEG_METHOD_ENTER(TRC_USER_MANAGER, "UserManager::UserManager");
-
-    try
-    {
-        _userFileHandler = 0;
-
+          
 #ifndef PEGASUS_NO_PASSWORDFILE
-        _userFileHandler = new UserFileHandler();
+    _userFileHandler.reset(new UserFileHandler());
 #endif
-        _authHandler = 0;
-        _authHandler = new AuthorizationHandler(repository);
-    }
-    catch (Exception& e)
-    {
-        if (_userFileHandler)
-        {
-            delete _userFileHandler;
-        }
-        if (_authHandler)
-        {
-            delete _authHandler;
-        }
-
-        PEG_METHOD_EXIT();
-        throw e;
-    }
-
+    _authHandler.reset(new AuthorizationHandler(repository));
+    
     PEG_METHOD_EXIT();
 }
 
@@ -97,15 +77,6 @@ UserManager::UserManager(CIMRepository* repository)
 UserManager::~UserManager()
 {
     PEG_METHOD_ENTER(TRC_USER_MANAGER, "UserManager::~UserManager");
-
-    if (_userFileHandler)
-    {
-        delete _userFileHandler;
-    }
-    if (_authHandler)
-    {
-        delete _authHandler;
-    }
 
     PEG_METHOD_EXIT();
 }

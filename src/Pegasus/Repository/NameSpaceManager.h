@@ -28,6 +28,7 @@
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -36,6 +37,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/HashTable.h>
+#include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Repository/InheritanceTree.h>
 #include <Pegasus/Repository/Linkage.h>
 #include <Pegasus/Common/MessageLoader.h> //l10n

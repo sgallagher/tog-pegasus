@@ -26,6 +26,7 @@
 // Author: Sushma Fernandes, Hewlett Packard Company (sushma_fernandes@hp.com)
 //
 // Modified By:
+//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -37,7 +38,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/FileSystem.h>
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Tracer.h>
@@ -121,7 +121,7 @@ UserFileHandler::UserFileHandler()
     //
     // Construct a PasswordFile object.
     //
-    _passwordFile   = new PasswordFile(passwdFile);
+    _passwordFile.reset(new PasswordFile(passwdFile));
 
     //
     // Load the user information in to the cache.
@@ -139,7 +139,7 @@ UserFileHandler::UserFileHandler()
     // Initialize the mutex, mutex lock needs to be held for any updates
     // to the password cache and password file.
     //
-    _mutex = new Mutex;
+    _mutex.reset(new Mutex);
 
     PEG_METHOD_EXIT();
 }
@@ -151,9 +151,6 @@ UserFileHandler::UserFileHandler()
 UserFileHandler::~UserFileHandler()
 {
     PEG_METHOD_ENTER(TRC_USER_MANAGER, "UserFileHandler::~UserFileHandler");
-
-    delete _passwordFile;
-    delete _mutex;
 
     PEG_METHOD_EXIT();
 }

@@ -30,7 +30,6 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cstring>
-#include <Pegasus/Common/Destroyer.h>
 
 
 // Using the general CIMOM TestClient as an example, developed an

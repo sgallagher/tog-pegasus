@@ -27,11 +27,11 @@
 //
 // Modified By:  Carol Ann Krug Graves, Hewlett-Packard Company
 //               (carolann_graves@hp.com)
+//               Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Destroyer.h>
 #include <iostream>
 #include <cstring>
 #include <cassert>

@@ -176,10 +176,11 @@ void InheritanceTreeNode::print(PEGASUS_STD(ostream)& os) const
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+
 struct InheritanceTreeRep
 {
     typedef HashTable<String, InheritanceTreeNode*, 
-	NoCaseEqualFunc, HashFunc<String> > Table;
+          NoCaseEqualFunc, HashFunc<String> > Table;
     Table table;
 };
 
@@ -196,6 +197,9 @@ InheritanceTree::InheritanceTree()
 
 InheritanceTree::~InheritanceTree()
 {
+    for (InheritanceTreeRep::Table::Iterator i = _rep->table.start(); i; i++)
+        delete i.value();
+
     delete _rep;
 }
 

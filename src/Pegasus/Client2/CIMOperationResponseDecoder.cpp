@@ -29,6 +29,7 @@
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
+//              Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -563,15 +564,18 @@ CIMEnumerateClassNamesResponseMessage* CIMOperationResponseDecoder::_decodeEnume
     {
 	Array<CIMName> classNames;
 
-	if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
-	{
-	    CIMName className;
-
-	    while (XmlReader::getClassNameElement(parser, className, false))
-	        classNames.append(className);
-
-	    XmlReader::expectEndTag(parser, "IRETURNVALUE");
-	}
+    // KS 20020931 - Addition to allow empty tag return.
+    // WBEMServices returns this tag wneh no instances exist.
+    if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
+	    if (entry.type != XmlEntry::EMPTY_TAG)
+    	{
+    	    CIMName className;
+    
+    	    while (XmlReader::getClassNameElement(parser, className, false))
+    	        classNames.append(className);
+    
+    	    XmlReader::expectEndTag(parser, "IRETURNVALUE");
+    	}
 
 	return(new CIMEnumerateClassNamesResponseMessage(
 	    messageId,
@@ -599,15 +603,18 @@ CIMEnumerateClassesResponseMessage* CIMOperationResponseDecoder::_decodeEnumerat
     {
 	Array<CIMClass> cimClasses;
 
-	if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
-	{
-	    CIMClass cimClass;
-
-	    while (XmlReader::getClassElement(parser, cimClass))
-	        cimClasses.append(cimClass);
-
-	    XmlReader::expectEndTag(parser, "IRETURNVALUE");
-	}
+    // KS 20020931 - Addition to allow empty tag return.
+    // WBEMServices returns this tag wneh no instances exist.
+    if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
+	    if (entry.type != XmlEntry::EMPTY_TAG)
+    	{
+    	    CIMClass cimClass;
+    
+    	    while (XmlReader::getClassElement(parser, cimClass))
+    	        cimClasses.append(cimClass);
+    
+    	    XmlReader::expectEndTag(parser, "IRETURNVALUE");
+    	}
 
 	return(new CIMEnumerateClassesResponseMessage(
 	    messageId,
@@ -762,24 +769,27 @@ CIMEnumerateInstanceNamesResponseMessage* CIMOperationResponseDecoder::_decodeEn
     {
 	Array<CIMObjectPath> instanceNames;
 
-	if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
-	{
-	    String className;
-	    Array<CIMKeyBinding> keyBindings;
-
-	    while (XmlReader::getInstanceNameElement(
-	        parser, className, keyBindings))
-	    {
-	        CIMObjectPath r(
-		    String::EMPTY,
-		    String::EMPTY,
-		    className,
-		    keyBindings);
-	        instanceNames.append(r);
-	    }
-
-	    XmlReader::expectEndTag(parser, "IRETURNVALUE");
-	}
+    // KS 20020931 - Addition to allow empty tag return.
+    // WBEMServices returns this tag wneh no instances exist.
+	if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
+	    if (entry.type != XmlEntry::EMPTY_TAG)
+    	{
+    	    String className;
+    	    Array<CIMKeyBinding> keyBindings;
+    
+    	    while (XmlReader::getInstanceNameElement(
+    	        parser, className, keyBindings))
+    	    {
+    	        CIMObjectPath r(
+    		    String::EMPTY,
+    		    String::EMPTY,
+    		    className,
+    		    keyBindings);
+    	        instanceNames.append(r);
+    	    }
+    
+    	    XmlReader::expectEndTag(parser, "IRETURNVALUE");
+    	}
 
 	return(new CIMEnumerateInstanceNamesResponseMessage(
 	    messageId,
@@ -806,8 +816,10 @@ CIMEnumerateInstancesResponseMessage* CIMOperationResponseDecoder::_decodeEnumer
     else
     {
 	Array<CIMInstance> namedInstances;
-    cout << "KSTEST instances " << endl;
-	if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
+    
+    // KS 20020931 - Addition to allow empty tag return.
+    // WBEMServices returns this tag wneh no instances exist.
+    if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
 	    if (entry.type != XmlEntry::EMPTY_TAG)
         {
     	    CIMInstance namedInstance;
@@ -999,15 +1011,18 @@ CIMEnumerateQualifiersResponseMessage* CIMOperationResponseDecoder::_decodeEnume
     {
 	Array<CIMQualifierDecl> qualifierDecls;
 
-	if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
-	{
-	    CIMQualifierDecl qualifierDecl;
-
-	    while (XmlReader::getQualifierDeclElement(parser, qualifierDecl))
-	        qualifierDecls.append(qualifierDecl);
-
-	    XmlReader::expectEndTag(parser, "IRETURNVALUE");
-	}
+    // KS 20020931 - Addition to allow empty tag return.
+    // WBEMServices returns this tag wneh no instances exist.
+    if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
+	    if (entry.type != XmlEntry::EMPTY_TAG)
+    	{
+    	    CIMQualifierDecl qualifierDecl;
+    
+    	    while (XmlReader::getQualifierDeclElement(parser, qualifierDecl))
+    	        qualifierDecls.append(qualifierDecl);
+    
+    	    XmlReader::expectEndTag(parser, "IRETURNVALUE");
+    	}
 
 	return(new CIMEnumerateQualifiersResponseMessage(
 	    messageId,
@@ -1064,15 +1079,18 @@ CIMReferenceNamesResponseMessage* CIMOperationResponseDecoder::_decodeReferenceN
     {
 	Array<CIMObjectPath> objectPaths;
 
-	if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
-	{
-	    CIMObjectPath objectPath;
-
-	    while (XmlReader::getObjectPathElement(parser, objectPath))
-	        objectPaths.append(objectPath);
-
-	    XmlReader::expectEndTag(parser, "IRETURNVALUE");
-	}
+    // KS 20020931 - Addition to allow empty tag return.
+    // WBEMServices returns this tag wneh no instances exist.
+    if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
+	    if (entry.type != XmlEntry::EMPTY_TAG)
+    	{
+    	    CIMObjectPath objectPath;
+    
+    	    while (XmlReader::getObjectPathElement(parser, objectPath))
+    	        objectPaths.append(objectPath);
+    
+    	    XmlReader::expectEndTag(parser, "IRETURNVALUE");
+    	}
 
 	return(new CIMReferenceNamesResponseMessage(
 	    messageId,
@@ -1100,15 +1118,19 @@ CIMReferencesResponseMessage* CIMOperationResponseDecoder::_decodeReferencesResp
     {
 	Array<CIMObject> objectWithPathArray;
 
-	if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
-	{
-	    CIMObject objectWithPath;
-
-	    while (XmlReader::getValueObjectWithPathElement(parser, objectWithPath))
-	        objectWithPathArray.append(objectWithPath);
-
-	    XmlReader::expectEndTag(parser, "IRETURNVALUE");
-	}
+    
+    // KS 20020931 - Addition to allow empty tag return.
+    // WBEMServices returns this tag wneh no instances exist.
+    if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
+	    if (entry.type != XmlEntry::EMPTY_TAG)
+    	{
+    	    CIMObject objectWithPath;
+    
+    	    while (XmlReader::getValueObjectWithPathElement(parser, objectWithPath))
+    	        objectWithPathArray.append(objectWithPath);
+    
+    	    XmlReader::expectEndTag(parser, "IRETURNVALUE");
+    	}
 
 	return(new CIMReferencesResponseMessage(
 	    messageId,
@@ -1136,15 +1158,18 @@ CIMAssociatorNamesResponseMessage* CIMOperationResponseDecoder::_decodeAssociato
     {
 	Array<CIMObjectPath> objectPaths;
 
-	if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
-	{
-	    CIMObjectPath objectPath;
-
-	    while (XmlReader::getObjectPathElement(parser, objectPath))
-	        objectPaths.append(objectPath);
-
-	    XmlReader::expectEndTag(parser, "IRETURNVALUE");
-	}
+    // KS 20020931 - Addition to allow empty tag return.
+    // WBEMServices returns this tag wneh no instances exist.
+    if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
+	    if (entry.type != XmlEntry::EMPTY_TAG)
+    	{
+    	    CIMObjectPath objectPath;
+    
+    	    while (XmlReader::getObjectPathElement(parser, objectPath))
+    	        objectPaths.append(objectPath);
+    
+    	    XmlReader::expectEndTag(parser, "IRETURNVALUE");
+    	}
 
 	return(new CIMAssociatorNamesResponseMessage(
 	    messageId,
@@ -1172,15 +1197,18 @@ CIMAssociatorsResponseMessage* CIMOperationResponseDecoder::_decodeAssociatorsRe
     {
 	Array<CIMObject> objectWithPathArray;
 
-	if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
-	{
-	    CIMObject objectWithPath;
-
-	    while (XmlReader::getValueObjectWithPathElement(parser, objectWithPath))
-	        objectWithPathArray.append(objectWithPath);
-
-	    XmlReader::expectEndTag(parser, "IRETURNVALUE");
-	}
+    // KS 20020931 - Addition to allow empty tag return.
+    // WBEMServices returns this tag wneh no instances exist.
+    if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
+	    if (entry.type != XmlEntry::EMPTY_TAG)
+    	{
+    	    CIMObject objectWithPath;
+    
+    	    while (XmlReader::getValueObjectWithPathElement(parser, objectWithPath))
+    	        objectWithPathArray.append(objectWithPath);
+    
+    	    XmlReader::expectEndTag(parser, "IRETURNVALUE");
+    	}
 
 	return(new CIMAssociatorsResponseMessage(
 	    messageId,

@@ -407,6 +407,31 @@ void HTTPAcceptor::_bind()
       throw BindFailedException(parms);
    }
 
+   //
+   //  Change permissions on Linux local domain socket to allow writes by others.
+   //
+#if defined(PEGASUS_LOCAL_DOMAIN_SOCKET) && defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+   if (_localConnection)
+   {
+     if (::chmod( PEGASUS_LOCAL_DOMAIN_SOCKET_PATH, 
+                  S_IRUSR | S_IWUSR | S_IXUSR | 
+                  S_IRGRP | S_IWGRP | S_IXGRP |
+                  S_IROTH | S_IWOTH | S_IXOTH ) < 0 )
+     {
+       Socket::close(_rep->socket);
+       delete _rep;
+       _rep = 0;
+       //l10n
+       //throw BindFailedException("Failed to bind socket");
+       MessageLoaderParms parms("Common.HTTPAcceptor.FAILED_BIND_SOCKET",
+ 			       "Failed to bind socket");
+       PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+              "HTTPAcceptor::_bind: Failed to set domain socket permissions.");
+       throw BindFailedException(parms);
+     }
+   }
+#endif
+
    // Set up listening on the given socket:
 
    //int const MAX_CONNECTION_QUEUE_LENGTH = 15;

@@ -636,11 +636,11 @@ void ProviderRegistrationProvider::invokeMethod(
     IdentityContainer container = context.get(CONTEXT_IDENTITY);
     String userName = container.getUserName();
 
-    if (!System::isPrivilegedUser(userName)) 
-    {
-	throw CIMException (CIM_ERR_ACCESS_DENIED,
-	    "You must have superuser privilege to disable or enable providers."); 	
-    }
+    // if (!System::isPrivilegedUser(userName)) 
+//     {
+// 	throw CIMException (CIM_ERR_ACCESS_DENIED,
+// 	    "You must have superuser privilege to disable or enable providers."); 	
+//     }
 
     if(!String::equalNoCase(objectReference.getNameSpace(), 
       	                    PEGASUS_NAMESPACENAME_INTEROP))
@@ -854,15 +854,6 @@ ProviderRegistrationProvider & ProviderRegistrationProvider::operator=(const Pro
     return(*this);
 }
 
-void ProviderRegistrationProvider::async_callback(Uint32 user_data,
-    Message *reply,
-    void *parm)
-{
-   callback_data *cb_data = reinterpret_cast<callback_data *>(parm);
-   cb_data->reply = reply;
-   cb_data->client_sem.signal();
-}
-
 Array<Uint16> ProviderRegistrationProvider::_sendDisableMessageToProviderManager(
         CIMDisableModuleRequestMessage * disable_req)
 {
@@ -879,49 +870,6 @@ Array<Uint16> ProviderRegistrationProvider::_sendDisableMessageToProviderManager
             _queueId,
             disable_req,
             _queueId);
-
-// ATTN-YZ-P2-05032002: Temporarily removed, until asyn_callback fixed
-/*
-    if( false  == _controller->ClientSendAsync(*_client_handle,
-                                               0,
-                                               _queueId,
-                                               asyncRequest,
-                                               ProviderRegistrationProvider::async_callback,
-                                               (void *)cb_data) )
-    {
-       delete asyncRequest;
-       delete cb_data;
-       throw CIMException(CIM_ERR_NOT_FOUND);
-
-    }
-
-    cb_data->client_sem.wait();
-    AsyncReply * asyncReply = static_cast<AsyncReply *>(cb_data->get_reply()) ;
-
-    CIMDisableModuleResponseMessage * response =
-	reinterpret_cast<CIMDisableModuleResponseMessage *>(
-             (static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
-    if (response->cimException.getCode() != CIM_ERR_SUCCESS)
-    {
-	CIMException e = response->cimException;
-
-        delete asyncRequest;
-        delete asyncReply;
-        delete response;
-        delete cb_data;
-
-        throw (e);
-    }
-
-    Array<Uint16> operationalStatus = response->operationalStatus; 
-
-    delete asyncRequest;
-    delete asyncReply;
-    delete response;
-    delete cb_data;
-*/
-
-// ATTN-YZ-P2-05032002: Temporarily use ClientSendWait, until asyn_callback fixed
 
     AsyncReply * asyncReply = _controller->ClientSendWait(*_client_handle,
 							  _queueId,
@@ -943,7 +891,7 @@ Array<Uint16> ProviderRegistrationProvider::_sendDisableMessageToProviderManager
     delete asyncRequest;
     delete asyncReply;
     delete response;
-    
+
     return(operationalStatus);
 }
 
@@ -964,47 +912,6 @@ Array<Uint16> ProviderRegistrationProvider::_sendEnableMessageToProviderManager(
             enable_req,
             _queueId);
 
-// ATTN-YZ-P2-05032002: Temporarily removed, until asyn_callback fixed
-/*
-    if( false  == _controller->ClientSendAsync(*_client_handle,
-                                               0,
-                                               _queueId,
-                                               asyncRequest,
-                                               ProviderRegistrationProvider::async_callback,
-                                               (void *)cb_data) )
-    {
-       delete asyncRequest;
-       delete cb_data;
-       throw CIMException(CIM_ERR_NOT_FOUND);
-
-    }
-
-    cb_data->client_sem.wait();
-    AsyncReply * asyncReply = static_cast<AsyncReply *>(cb_data->get_reply()) ;
-
-    CIMEnableModuleResponseMessage * response =
-	reinterpret_cast<CIMEnableModuleResponseMessage *>(
-             (static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
-    if (response->cimException.getCode() != CIM_ERR_SUCCESS)
-    {
-	CIMException e = response->cimException;
-        delete asyncRequest;
-        delete asyncReply;
-        delete response;
-        delete cb_data;
-	throw (e);
-    }
-
-    Array<Uint16> operationalStatus = response->operationalStatus; 
-
-    delete asyncRequest;
-    delete asyncReply;
-    delete response;
-    delete cb_data;
-*/
-
-// ATTN-YZ-P2-05032002: Temporarily use ClientSendWait, until asyn_callback fixed
-
     AsyncReply * asyncReply = _controller->ClientSendWait(*_client_handle,
 							  _queueId,
 							  asyncRequest);
@@ -1025,7 +932,7 @@ Array<Uint16> ProviderRegistrationProvider::_sendEnableMessageToProviderManager(
     delete asyncRequest;
     delete asyncReply;
     delete response;
-    
+
     return(operationalStatus);
 }
 

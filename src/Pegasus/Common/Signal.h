@@ -21,20 +21,17 @@
 //
 //==============================================================================
 //
-// Author: Markus Mueller (markus_mueller@de.ibm.com
+// Author: Markus Mueller (markus_mueller@de.ibm.com)
 //
-// Modified By: 
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#ifndef Pegasus_Signal_h
+#define Pegasus_Signal_h
 
-#ifndef Pegasus_SignalHandler_h
-#define Pegasus_SignalHandler_h
-
-// REVIEW: Where is this signal handling code used?
-
-// REVIEW: Is there an equivalent implementation for Windows?
-
+#include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/IPC.h>
 
 // // Ensure Unix 98
 // #ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU
@@ -48,33 +45,36 @@
 //    #define _XOPEN_SOURCE 600
 // #endif
 
-#include <signal.h>
+#ifdef PEGASUS_HAS_SIGNALS
+
+# include <signal.h>
+typedef siginfo_t PEGASUS_SIGINFO_T;
+# define PEGASUS_SIGHUP   SIGHUP
+# define PEGASUS_SIGABRT  SIGABRT
+# define PEGASUS_SIGPIPE  SIGPIPE
+
+#else // PEGASUS_HAS_SIGNALS
+
+typedef void PEGASUS_SIGINFO_T;
+# define PEGASUS_SIGHUP   1
+# define PEGASUS_SIGABRT  11
+# define PEGASUS_SIGPIPE  13
+
+#endif // PEGASUS_HAS_SIGNALS
+
 
 #if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
 extern "C" {
 #endif
 
-typedef void (* signal_handler)(int,siginfo_t *,void *);
-
-typedef struct {
-    int active;
-    signal_handler sh;
-    struct sigaction oldsa;
-} register_handler;
+typedef void (* signal_handler)(int, PEGASUS_SIGINFO_T *, void *);
 
 #if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
 }
 #endif
 
-#include <Pegasus/Common/Thread.h>
-#include <Pegasus/Common/DQueue.h>
-#include <Pegasus/Common/InternalException.h>
-#include <Pegasus/Common/Linkage.h>
-
-// used locally as standard response to stop the failing thread normally
-void sig_act(int s_n, siginfo_t * s_info, void * sig);
-// test routine, that just causes a segmentation fault
-void * segmentation_faulter(void * parm);
+// Sample signal handler for SIGABRT that stops the failing thread normally
+void sig_act(int s_n, PEGASUS_SIGINFO_T * s_info, void * sig);
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -101,10 +101,18 @@ class PEGASUS_COMMON_LINKAGE SignalHandler
 
    private:
 
+#ifdef PEGASUS_HAS_SIGNALS
+      typedef struct {
+          int active;
+          signal_handler sh;
+          struct sigaction oldsa;
+      } register_handler;
+
       register_handler reg_handler[32];
       Mutex reg_mutex;
 
       void deactivate_i(Uint32 signum);
+#endif
 
 };
 
@@ -112,4 +120,4 @@ SignalHandler * getSigHandle();
 
 PEGASUS_NAMESPACE_END
 
-#endif // Pegasus_SignalHandler_h
+#endif // Pegasus_Signal_h

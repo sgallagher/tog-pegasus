@@ -18,6 +18,8 @@ DEFINES += -DPEGASUS_DISABLE_KILLING_HUNG_THREADS
 
 DEFINES += -DPEGASUS_USE_SYSLOGS
 
+DEFINES += -DPEGASUS_HAS_SIGNALS
+
 #
 ## The following flags need to be set or unset
 ## to compile-in the code required for PAM authentication

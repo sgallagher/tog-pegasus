@@ -21,56 +21,41 @@
 //
 //==============================================================================
 //
-// Author: Markus Mueller (markus_mueller@de.ibm.com
+// Author: Markus Mueller (markus_mueller@de.ibm.com)
 //
-// Modified By: 
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <cstdio>
+#include <cstring>
+
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Signal.h>
-#include <Pegasus/Common/IPC.h>
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/InternalException.h>
-#include <cstdio>
-#if defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
-#include <unistd.cleinc>
-#else
-#include <unistd.h>
-#endif
 
-void sig_act(int s_n, siginfo_t * s_info, void * sig)
+PEGASUS_USING_PEGASUS;
+
+void sig_act(int s_n, PEGASUS_SIGINFO_T * s_info, void * sig)
 {
-    void * retval = NULL;
+    PEGASUS_THREAD_RETURN retval = 0;
 
-    printf("Received a segmentation fault\n");
-#if !defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
-    printf(" in address %p\n", s_info->si_addr);
+    if (s_n == PEGASUS_SIGABRT)
+    {
+        printf("Received an abort signal\n");
+#ifdef PEGASUS_HAS_SIGNALS
+        printf(" in address %p\n", s_info->si_addr);
 #endif
-    printf(" pid %d\n", getpid());
-    
-    // in general it is dangerous to call pthread call
-    // from within a signal handler, because
-    // they are not signal safe
 
-    pthread_exit(retval);
-}
-
-void * segmentation_faulter(void * parm)
-{
-#if !defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
-    int * dataspace;
-
-    printf("my pid is %d\n", getpid());
-    dataspace = (int *) sbrk(0);
-    dataspace++;
-    *dataspace = 16;
-#endif
-    return NULL;
+        // In general it is dangerous to call pthread from within a
+        // signal handler, because they are not signal safe
+        exit_thread(retval);
+    }
 }
 
 
 PEGASUS_NAMESPACE_BEGIN
+
+#ifdef PEGASUS_HAS_SIGNALS
 
 SignalHandler::SignalHandler() : reg_mutex()
 {
@@ -161,6 +146,25 @@ void SignalHandler::ignore(Uint32 signum)
     delete sig_acts;	
 #endif
 }
+
+#else // PEGASUS_HAS_SIGNALS
+
+SignalHandler::SignalHandler() { }
+
+SignalHandler::~SignalHandler() { }
+
+void SignalHandler::registerHandler(Uint32 signum, signal_handler _sighandler)
+{ }
+
+void SignalHandler::activate(Uint32 signum) { }
+
+void SignalHandler::deactivate(Uint32 signum) { }
+
+void SignalHandler::deactivateAll() { }
+
+void SignalHandler::ignore(Uint32 signum) { }
+
+#endif // PEGASUS_HAS_SIGNALS
 
 
 // export the global signal handling object

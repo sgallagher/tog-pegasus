@@ -13,11 +13,11 @@ include $(ROOT)/mak/config.mak
 # To Change the CIM Schema used, change the following two environment
 # variables.
 
-SCHEMA_VER=25
-SCHEMA_DIR=CIM25
+#SCHEMA_VER=25
+#SCHEMA_DIR=CIM25
 
-# SCHEMA_VER=26
-# SCHEMA_DIR=CIM26Prelim
+SCHEMA_VER=26
+SCHEMA_DIR=CIM26Prelim
 
 # Define Namespace in which the CIM Schemas are to be Loaded.
 # Note that by default, the CORE is also loaded into root.
@@ -30,6 +30,8 @@ all:
 # Delete and rebuild the repository using the MOF compiler.
 
 repository:
+	@ echo WARNING - This Makefile is deprecated and will be removed in the near future
+	@ echo Please use the equivalent makefile in Schemas
 	@ echo +++++ Removing existing repository named $(REPOSITORY_ROOT)
 	@ $(RMREPOSITORY) $(REPOSITORY_ROOT)
 	@ echo +++++ Populating CIM repository - this will take a while

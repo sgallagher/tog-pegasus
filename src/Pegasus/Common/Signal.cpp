@@ -29,6 +29,7 @@
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Amit K Arora, IBM (amita@in.ibm.com) for Bug#1090
+//              David Dillard, VERITAS Software Corp (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -65,13 +66,15 @@ PEGASUS_NAMESPACE_BEGIN
 
 #ifdef PEGASUS_HAS_SIGNALS
 
-SignalHandler::SignalHandler() : reg_mutex()
+SignalHandler::SignalHandler()
 {
-   for(Uint32 i=0;i < 32;i++)
+   for(Uint32 i=0;i <= PEGASUS_NSIG;i++)
    {
-       reg_handler[i].active = 0;
-       reg_handler[i].sh = NULL;
-       memset(&reg_handler[i].oldsa,0,sizeof(struct sigaction));
+       register_handler &rh = reg_handler[i];
+       rh.signum = i;
+       rh.active = 0;
+       rh.sh = NULL;
+       memset(&rh.oldsa,0,sizeof(struct sigaction));
    }
 }
 
@@ -80,21 +83,36 @@ SignalHandler::~SignalHandler()
    deactivateAll();
 }
 
+SignalHandler::register_handler &SignalHander::getHandler(Uint32 signum)
+{
+    if ( signum > PEGASUS_NSIG )
+    {
+        throw IndexOutOfBounds();
+    }
+
+    return(reg_handler[signum]);
+}
+
 void SignalHandler::registerHandler(Uint32 signum, signal_handler _sighandler)
 {
+    register_handler &rh = getHandler(signum);
     AutoMutex autoMut(reg_mutex);
-    deactivate_i(signum);
-    reg_handler[signum].sh = _sighandler;
+    deactivate_i(rh);
+    rh.sh = _sighandler;
 }
 
 void SignalHandler::activate(Uint32 signum)
 {
+    register_handler &rh = getHandler(signum);
     AutoMutex autoMut(reg_mutex);
-    if (reg_handler[signum].active) return; // throw exception
+    if (rh.active)
+    {
+        return; // throw exception
+    }
 
     struct sigaction * sig_acts = new struct sigaction;
 
-    sig_acts->sa_sigaction = reg_handler[signum].sh;
+    sig_acts->sa_sigaction = rh.sh;
     sigfillset(&(sig_acts->sa_mask));
 #if defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_PLATFORM_HPUX_ACC) || defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM) || defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC) || defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
     sig_acts->sa_flags = SA_SIGINFO | SA_RESETHAND;
@@ -105,37 +123,47 @@ void SignalHandler::activate(Uint32 signum)
 #endif
 #endif
 
-    sigaction(signum, sig_acts, &reg_handler[signum].oldsa);
+    sigaction(signum, sig_acts, &rh.oldsa);
 
-    reg_handler[signum].active = -1;
+    rh.active = -1;
 
     delete sig_acts;
 }
 
 void SignalHandler::deactivate(Uint32 signum)
 {
+    register_handle &rh = getHandler(signum);
     AutoMutex autoMut(reg_mutex);
-    deactivate_i(signum);
+    deactivate_i(rh);
 }
 
-void SignalHandler::deactivate_i(Uint32 signum)
+void SignalHandler::deactivate_i(register_handler &rh)
 {
-    if (reg_handler[signum].active)
+    if (rh.active)
     {
-        reg_handler[signum].active = 0;
-        sigaction(signum, &reg_handler[signum].oldsa, NULL);
+        rh.active = 0;
+        sigaction(rh.signum, &rh.oldsa, NULL);
     }
 }
 
 void SignalHandler::deactivateAll()
 {
     AutoMutex autoMut(reg_mutex);
-    for (Uint32 i=0; i < 32; i++)
-        if (reg_handler[i].active) deactivate_i(i);
+    for (Uint32 i=0; i <= PEGASUS_NSIG; i++)
+    {
+        register_handler &rh = reg_handler[i];
+        if (rh.active)
+        {
+            deactivate_i(rh);
+        }
+    }
 }
 
 void SignalHandler::ignore(Uint32 signum)
 {
+
+    register_handler &rg = getHandler(signum);
+
 #if !defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM) && !defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
     ::sigignore(signum);
 #else

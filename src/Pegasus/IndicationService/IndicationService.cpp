@@ -360,6 +360,18 @@ void IndicationService::handleEnqueue(Message* message)
 	 PEG_TRACE_STRING(TRC_INDICATION_SERVICE, Tracer::LEVEL3, 
 			  "IndicationService::handleEnqueue(msg *) rcv'd unsupported msg " 
 			  + String(MessageTypeToString(message->getType())));
+	 // Note: not setting Content-Language in the response
+        CIMRequestMessage* cimRequest =
+            dynamic_cast<CIMRequestMessage*>(message);
+        CIMResponseMessage* response = cimRequest->buildResponse();
+        response->cimException = PEGASUS_CIM_EXCEPTION_L(
+            CIM_ERR_NOT_SUPPORTED,
+            MessageLoaderParms( 
+              "IndicationService.IndicationService.UNSUPPORTED_OPERATION",
+              "The requested operation is not supported or not recognized "
+                "by the indication service.")),
+
+        Base::_enqueueResponse(cimRequest, response);
 	 break;
    }
 

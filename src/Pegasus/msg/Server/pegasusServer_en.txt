@@ -3209,6 +3209,12 @@ CIM server listening on HTTPS port {0}."}
 	*/
         IndicationService.IndicationService.UNKNOWN_ERROR:string {"PGS10221: Unknown error."}
 
+	/**
+	* @note  UNSUPPORTED_OPERATION
+      * @version 2.4
+	*/
+        IndicationService.IndicationService.UNSUPPORTED_OPERATION:string {"PGS10222: The requested operation is not supported by the indication service."}
+
         // ==========================================================
         // Messages for IndicationHandlerService
         //  Please use message prefix "PGS10400"

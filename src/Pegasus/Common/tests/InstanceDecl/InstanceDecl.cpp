@@ -1,3 +1,4 @@
+
 //%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
@@ -64,13 +65,56 @@ void test01()
 	    .addQualifier(CIMQualifier("description", "My Message")))
 	.addProperty(CIMProperty("ratio", Real32(1.5)));
 
+
+    // Test 
+    assert(class1.findProperty("count") != -1);
+    assert(class1.findProperty("message") != -1);
+    assert(class1.findProperty("ratio") != -1);
+
+    assert(class1.existsProperty("count"));
+    assert(class1.existsProperty("message"));
+    assert(class1.existsProperty("ratio"));
+
     class1.resolve(context, NAMESPACE);
     context->addClass(NAMESPACE, class1);
     // class1.print();
 
     CIMInstance instance1("MyClass");
     instance1.addProperty(CIMProperty("message", "Goodbye"));
+
+    assert(instance1.findProperty("message") != -1);
+    assert(instance1.existsProperty("message"));
+
+    assert(!instance1.existsProperty("count"));
+    assert(!instance1.existsProperty("ratio"));
+    assert(!instance1.existsProperty("nuts"));
+    assert(instance1.getPropertyCount() == 1);
+
     instance1.resolve(context, NAMESPACE);
+
+    // Now test for parameters after resolution.
+
+    assert(instance1.findProperty("message") != -1);
+    assert(instance1.existsProperty("message"));
+    assert(instance1.existsProperty("count"));
+    assert(instance1.existsProperty("ratio"));
+    assert(!instance1.existsProperty("nuts"));
+
+    assert(instance1.getPropertyCount() == 3);
+
+    // Now remove a property
+
+    Uint32 posProperty;
+    posProperty = instance1.findProperty("count");
+    instance1.removeProperty(posProperty);
+    
+    assert(instance1.existsProperty("message"));
+    assert(!instance1.existsProperty("count"));
+    assert(instance1.existsProperty("ratio"));
+    assert(!instance1.existsProperty("nuts"));
+
+    assert(instance1.getPropertyCount() == 2); 
+
 }
 
 void test02()
@@ -91,6 +135,21 @@ void test02()
     cimInstance.addProperty(CIMProperty("first", "John"));
     cimInstance.addProperty(CIMProperty("last", "Smith"));
     cimInstance.addProperty(CIMProperty("age", Uint8(101)));
+
+
+    assert(cimInstance.existsProperty("first"));
+    assert(cimInstance.existsProperty("last"));
+    assert(cimInstance.existsProperty("age"));
+
+    assert(cimInstance.getPropertyCount() == 3);
+
+
+
+
+    // ATTN: Should we be doing an instance qualifier add and test
+
+
+
 
     CIMReference instanceName 
 	= cimInstance.getInstanceName(CIMConstClass(cimClass));

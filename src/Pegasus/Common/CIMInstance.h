@@ -124,9 +124,9 @@ public:
     }
 
     /**	findQualifier - Searches the instance for the qualifier object
-        defined by the inputparameter.
-	@param String defining the qualifier to be found
-	@return - Index of the qualifier to be used in subsequent 
+        defined by the input parameter.
+	@param String defining the qualifier object to be found.
+	@return - Position of the qualifier to be used in subsequent 
 	operations or -1 if the qualifier is not found. 
     */ 
     Uint32 findQualifier(const String& name)
@@ -140,6 +140,27 @@ public:
 	_checkRep();
 	return _rep->findQualifier(name);
     }
+    /**	existsQualifier - Searches the instance for the qualifier object
+        defined by the input parameter.
+	@param String defining the qualifier object to be found.
+	@return - Returns True if  the qualifier object exists or false
+	if the qualifier is not found. 
+    */ 
+    Uint32 existsQualifier(const String& name)
+    {
+	_checkRep();
+	return _rep->existsQualifier(name);
+    }
+
+    Uint32 existsQualifier(const String& name) const
+    {
+	_checkRep();
+	return _rep->existsQualifier(name);
+    }
+
+
+
+
 
     /**	getQualifier - Retrieves the qualifier object defined by the
 	index input parameter.  @ index for the qualifier object.
@@ -220,6 +241,23 @@ public:
 	return _rep->findProperty(name);
     }
 
+    /** existsPropery - Determines if a property object with the
+	name defined by the input parameter exists in the class.
+	@parm String parameter with the property name.
+	@return True if the property object exists.
+    */
+    Boolean existsProperty(const String& name)
+    {
+	_checkRep();
+	return _rep->existsProperty(name);
+    }
+    Boolean existsProperty(const String& name) const
+    {
+       _checkRep();
+       return _rep->existsProperty(name);
+    }
+
+
     /**	getProperty - Gets the CIMproperty object in the CIMInstance defined 
 	by the input index parameter.
 	@param Index to the property object in the CIMInstance.
@@ -254,6 +292,18 @@ public:
     {
 	_checkRep();
 	return _rep->getProperty(pos);
+    }
+
+    /** removeProperty - Removes the property represented
+	by the position input parameter from the instance.
+	@param pos Index to the property to be removed from the
+	instance.  Normally this is obtained by getProperty();
+	@exception Throws OutofBounds if index is not a property object
+    */
+    void removeProperty(Uint32 pos)
+    {
+	_checkRep();
+	_rep->removeProperty(pos);
     }
 
     /**	getPropertyCount - Gets the numbercount of CIMProperty 

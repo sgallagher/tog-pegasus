@@ -191,7 +191,7 @@ public:
 	return _rep->findQualifier(name);
     }
 
-    /** CIMMethod existsQualifier - returns the position of the qualifier with
+    /** existsQualifier - returns the position of the qualifier with
 	the given name.
 	@param name Name of qualifier to be found.
 	@return index of the parameter if found; otherwise Uint32(-1).
@@ -228,7 +228,7 @@ public:
 	return _rep->getQualifier(pos);
     }
 
-    /** CIMMethod removeQualifier - Removes the CIMQualifier defined by the 
+    /** removeQualifier - Removes the CIMQualifier defined by the 
 	position input as a parameter.
 	@param Position of the qualifier requested.
 	@return CIMQualifier object or exception

@@ -42,25 +42,25 @@ PEGASUS_NAMESPACE_BEGIN
 class CIMConstProperty;
 class CIMInstanceRep;
 
-/** CIMProperty Class - ATTN:
+/** CIMProperty Class - Defines a single CIM Property.
 */
 class PEGASUS_COMMON_LINKAGE CIMProperty
 {
 public:
 
-    /// CIMMethod CIMProperty
+    /// CIMProperty
     CIMProperty() : _rep(0)
     {
 
     }
 
-    /// CIMMethod CIMProperty
+    /// CIMProperty
     CIMProperty(const CIMProperty& x)
     {
 	Inc(_rep = x._rep);
     }
 
-    /** CIMMethod CIMProperty
+    /** CIMProperty
 	@return
 	Throws IllegalName if name argument not legal CIM identifier.
     */
@@ -81,7 +81,7 @@ public:
 	Dec(_rep);
     }
 
-    /// CIMMethod
+    /// Operator =
     CIMProperty& operator=(const CIMProperty& x)
     {
 	if (x._rep != _rep)
@@ -92,15 +92,18 @@ public:
 	return *this;
     }
 
-    /// CIMMethod
+    /// getName
     const String& getName() const
     {
 	_checkRep();
 	return _rep->getName();
     }
 
-    /** CIMMethod setName - Set the property name. Throws IllegalName if name 
+    /** setName - Set the property name. Throws IllegalName if name 
         argument not legal CIM identifier.
+	@param - Name to set
+	@exception Throws "IllegalName" exception is name
+	is not legal syntax.
     */
     void setName(const String& name)
     {
@@ -108,63 +111,65 @@ public:
 	_rep->setName(name);
     }
 
-    /// CIMMethod getValue - ATTN:
+    /// getValue - ATTN:
     const CIMValue& getValue() const
     {
 	_checkRep();
 	return _rep->getValue();
     }
 
-    /// CIMMethod setValue - ATTN
+    /// setValue - ATTN
     void setValue(const CIMValue& value)
     {
 	_checkRep();
 	_rep->setValue(value);
     }
 
-    /// CIMMethod getArraySize - ATTN:
+    /// getArraySize - ATTN:
     Uint32 getArraySize() const
     {
 	_checkRep();
 	return _rep->getArraySize();
     }
 
-    /// CIMMethod getReferenceClassName - ATTN:
+    /**getReferenceClassName - ATTN:
+    */
     const String& getReferenceClassName() const
     {
 	_checkRep();
 	return _rep->getReferenceClassName();
     }
 
-    /// CIMMethod getClassOrigin - ATTN
+    /// getClassOrigin - ATTN
     const String& getClassOrigin() const
     {
 	_checkRep();
 	return _rep->getClassOrigin();
     }
 
-    /// CIMMethod setClassOrigin
+    /**setClassOrigin - Sets the Class Origin
+    */
     void setClassOrigin(const String& classOrigin)
     {
 	_checkRep();
 	_rep->setClassOrigin(classOrigin);
     }
 
-    /// CIMMethod getPropagated - ATTN
+    /// getPropagated - ATTN
     Boolean getPropagated() const
     {
 	_checkRep();
 	return _rep->getPropagated();
     }
 
-    /// CIMMethod setProgagated - ATTN
+    /// setProgagated - ATTN
     void setPropagated(Boolean propagated)
     {
 	_checkRep();
 	_rep->setPropagated(propagated);
     }
 
-    /** CIMMethod addQualifier - ATTN
+    /** addQualifier - ATTN
 	Throws AlreadyExists.
     */
     CIMProperty& addQualifier(const CIMQualifier& x)
@@ -174,7 +179,14 @@ public:
 	return *this;
     }
 
-    /// CIMMethod findQualifier - ATTN
+    /**findQualifier - Finds the qualifier object defined
+	by the name parameter if it is attached to this 
+	CIMProperty
+	@param name String parameter defining name of Qualifier
+	object.
+	@return Position of the qualifier object or -1 if not 
+	found
+    */
     Uint32 findQualifier(const String& name)
     {
 	_checkRep();
@@ -187,7 +199,34 @@ public:
 	return _rep->findQualifier(name);
     }
 
-    /// CIMMethod getQualifier - ATTN
+    /** existsQualifier - Determines if the qualifier object 
+        defined by the name parameter is attached to this 
+	CIMProperty.
+	@param name String parameter defining name of Qualifier
+	object.
+	@return Returns true if the qualifier is found, else 
+	returns false. 
+    */
+    Boolean existsQualifier(const String& name)
+    {
+	_checkRep();
+	return _rep->existsQualifier(name);
+    }
+
+    Boolean existsQualifier(const String& name) const
+    {
+	_checkRep();
+	return _rep->existsQualifier(name);
+    }
+
+    /** getQualifier - gets the Qualifier object specified by the
+	pos parameter.
+	@param pos Position parameter for the Qualifier object to be
+	retrieved
+	@return returns a CIMQualifier object.
+	@exception Throws OutOfBounds if pos is outside range
+	of Qualifiers in this property object.
+    */
     CIMQualifier getQualifier(Uint32 pos)
     {
 	_checkRep();
@@ -201,7 +240,24 @@ public:
 	return _rep->getQualifier(pos);
     }
 
-    /// CIMMethod getQualifier - ATTN
+    /** removeQualifier - Removes the CIMQualifier defined by the 
+	position input as a parameter.
+	@param Position of the qualifier requested.
+	@return CIMQualifier object or exception
+	@exception OutOfBounds exception if the index is outside the range of
+	parameters available from the CIMMethod.
+    */
+    void removeQualifier(Uint32 pos)
+    {
+	_checkRep();
+	_rep->removeQualifier(pos);
+    }
+    
+    /** getQualifierCount - Returns count of the number
+    	of qualifiers attached to the CIMProperty object.
+	@return Count of the number of CIMQualifier objects attached
+	to the CIMProperty object.
+    */
     Uint32 getQualifierCount() const
     {
 	_checkRep();
@@ -219,7 +275,7 @@ public:
 	_rep->resolve(declContext, nameSpace, isInstancePart, property);
     }
 
-    /// CIMMethod resolve - ATTN
+    /// resolve - ATTN
     void resolve(
 	DeclContext* declContext,
 	const String& nameSpace,
@@ -232,30 +288,44 @@ public:
     /// ATTN
     operator int() const { return _rep != 0; }
 
-    /// mthod toXML
+    /** toXML  - Converts the object to XML and puts the
+	resutl in the out parameter
+	@param out Parameter for XML output
+    */
     void toXml(Array<Sint8>& out) const
     {
 	_checkRep();
 	_rep->toXml(out);
     }
 
-    /// mthod print -ATTN
+    /** print - Converts the object to XML and output
+    	it to cout
+    */
     void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const
     {
 	_checkRep();
 	_rep->print(o);
     }
 
-    /// CIMMethod identical - ATTN
+    /**identical - compares the CIMProperty object with
+       another CIMProperty object defined by the input parameter.
+       @param x CIMPropery object for comparison
+       @return Returns true if the objects are identical
+    */
     Boolean identical(const CIMConstProperty& x) const;
 
+    /** isKey - Tests the CIMProperty to determine if any
+        qualifiers is a key indicating that this is a key
+	property
+	@return Returns true if this is a key property.
+    */
     Boolean isKey() const
     {
 	_checkRep();
 	return _rep->isKey();
     }
 
-    /// CIMMethod clone - ATTN
+    /// clone - ATTN
     CIMProperty clone() const
     {
 	return CIMProperty(_rep->clone());

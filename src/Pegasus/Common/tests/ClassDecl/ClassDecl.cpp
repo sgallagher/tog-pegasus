@@ -21,7 +21,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By:	Karl Schopmeyer(k.schopmeyer@opengroup.org)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -40,7 +40,7 @@ void test01()
     // }
 
     CIMClass class1("MyClass", "YourClass");
-    cout << "first" << endl;
+    
     class1
 	.addQualifier(CIMQualifier("association", true))
 	.addQualifier(CIMQualifier("q1", Uint32(55)))
@@ -53,63 +53,116 @@ void test01()
 
     // Test the method count function
     assert(class1.getMethodCount() ==1);
-    cout << "first 2" << endl;
 
     
     // Test the findMethod and isMethod functions
     assert(class1.findMethod("isActive") != -1);
     assert(class1.findMethod("DoesNotExist") == -1);
-    cout << "first 3" << endl;
 
     assert(class1.existsMethod("isActive"));
     assert(!class1.existsMethod("DoesNotExist"));
-
-    cout << "first 4" << endl;
 
     // Now add another method and reconfirm.
 
     class1.addMethod(CIMMethod("makeActive", CIMType::BOOLEAN)
 	.addParameter(CIMParameter("hostname", CIMType::STRING))
 	.addParameter(CIMParameter("port", CIMType::UINT32)));
-    cout << "first 5" << endl;
 
     assert(class1.getMethodCount() == 2);
-    cout << "first 6" << endl;
 
     // Test the findMethod and isMethod functions
     // with two methods defined
     assert(class1.findMethod("isActive") != -1);
     assert(class1.findMethod("makeActive") != -1);
-    cout << "first 7" << endl;
 
     assert(class1.findMethod("DoesNotExist") == -1);
     assert(class1.existsMethod("isActive"));
     assert(class1.existsMethod("makeActive"));
 
     assert(!class1.existsMethod("DoesNotExist"));
-    cout << "first 8" << endl;
 
 
     // Test RemoveMethod function
     Uint32 posMethod; 
     posMethod = class1.findMethod("isActive");
     assert(posMethod != -1);
-    cout << "first 9" << endl;
-
 
     class1.removeMethod(posMethod);
 
-    cout << "first 10" << endl;
-
     assert(class1.findMethod("isActive") == -1);
     assert(class1.getMethodCount() ==1);
-    cout << "first11" << endl;
        
     //ATTN: TODO add tests for different case names
 
-    //ATTN: TODO - Add qualifier manipulation tests
+    //Qualifier manipulation tests  (find, exists, remove)
 
-    //ATTN: TODO - Add the property manipulation tests.
+    assert(class1.findQualifier("q1") != -1);
+    assert(class1.findQualifier("q2") != -1);
+    assert(class1.findQualifier("qx") == -1);
+
+    assert(class1.existsQualifier("q1"));
+    assert(class1.existsQualifier("q2"));
+    assert(class1.existsQualifier("association"));
+    assert(class1.isAssociation());
+
+    // Remove middle Qualifier "q2"
+    Uint32 posQualifier;
+    posQualifier = class1.findQualifier("q2");
+
+    assert(class1.getQualifierCount() == 3);
+    assert(posQualifier <= class1.getQualifierCount());
+    class1.removeQualifier(posQualifier);
+    assert(class1.getQualifierCount() == 2);
+
+    assert(class1.findQualifier("q2") == -1);
+    assert(!class1.existsQualifier("q2"));
+    assert(class1.existsQualifier("q1"));
+    assert(class1.isAssociation());
+
+
+    // Remove the first parameter "q1"
+    posQualifier = class1.findQualifier("q1");
+    
+    assert(class1.getQualifierCount() == 2);
+    assert(posQualifier <= class1.getQualifierCount());
+    class1.removeQualifier(posQualifier);
+    assert(class1.getQualifierCount() == 1);
+
+    assert(class1.findQualifier("q1") == -1);
+    assert(!class1.existsQualifier("q1"));
+    assert(!class1.existsQualifier("q2"));
+    assert(class1.isAssociation());
+
+
+
+
+
+    // ATTH:Add tests for try block for outofbounds
+
+
+
+    //The property manipulation tests.
+
+    assert(class1.findProperty("count") != -1);
+    assert(class1.findProperty("message") != -1);
+
+    assert(class1.existsProperty("count"));
+    assert(class1.existsProperty("message"));
+
+    assert(class1.findProperty("isActive") == -1);
+    assert(!class1.existsProperty("isActive"));
+
+    assert(class1.getPropertyCount() == 2);
+
+ 
+    Uint32  posProperty;
+    posProperty = class1.findProperty("count");
+    class1.removeProperty(posProperty);
+    assert(class1.existsProperty("message"));
+    assert(!class1.existsProperty("count"));
+
+    assert(class1.getPropertyCount() == 1);
+
 
     // class1.print();
 }

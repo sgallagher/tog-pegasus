@@ -73,6 +73,12 @@ Uint32 CIMInstanceRep::findProperty(const String& name)
     return Uint32(-1);
 }
 
+Boolean CIMInstanceRep::existsProperty(const String& name)
+{
+    return (findProperty(name) != Uint32(-1)) ?
+		    true : false;
+}
+
 CIMProperty CIMInstanceRep::getProperty(Uint32 pos)
 {
     if (pos >= _properties.size())
@@ -80,6 +86,15 @@ CIMProperty CIMInstanceRep::getProperty(Uint32 pos)
 
     return _properties[pos];
 }
+
+void CIMInstanceRep::removeProperty(Uint32 pos)
+    {
+	if (pos >= _properties.size())
+	    throw OutOfBounds();
+    
+	_properties.remove(pos);
+    }
+
 
 Uint32 CIMInstanceRep::getPropertyCount() const
 {

@@ -75,7 +75,7 @@ public:
 
     Boolean existsQualifier(const String& name) const
     {
-	return (_qualifiers.find(name) != -1) ? true : false;
+	return ((_qualifiers.find(name) != -1) ? true : false);
     }
 
     CIMQualifier getQualifier(Uint32 pos)
@@ -92,6 +92,7 @@ public:
     {
 	return _qualifiers.getCount();
     }
+
     void removeQualifier(Uint32 pos)
     {
     _qualifiers.removeQualifier(pos);
@@ -99,7 +100,6 @@ public:
 
     void addProperty(const CIMProperty& x);
 
-    void removeProperty(Uint32 pos);
 
     Uint32 findProperty(const String& name);
 
@@ -113,8 +113,7 @@ public:
     Boolean existsProperty(const String& name) const
     {
 	return ((CIMClassRep*)this)->existsProperty(name);
-    }
-
+    } 
 
     CIMProperty getProperty(Uint32 pos);
 
@@ -122,6 +121,9 @@ public:
     {
 	return ((CIMClassRep*)this)->getProperty(pos);
     }
+
+    void removeProperty(Uint32 pos);
+
 
     Uint32 getPropertyCount() const;
 

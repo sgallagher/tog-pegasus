@@ -194,7 +194,11 @@ public:
 	_checkRep();
 	return _rep->findQualifier(name);
     }
-
+    /** existsQualifier - Returns true if the qualifier with the
+    specified name exists in the class
+    @param name String name of the qualifier object being tested.
+    @return True if the qualifier exits.  Otherwise false is returned.
+    */
     Boolean existsQualifier(const String& name)
     {
 	_checkRep();

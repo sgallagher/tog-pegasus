@@ -95,7 +95,7 @@ public:
     {
 	return _qualifiers.find(name);
     }
-    // ATTN: ks 19 May.  Should this be here on in CPP.
+    // ATTN:
     Boolean existsQualifier(const String& name) const
     {
 	return (findQualifier(name) != -1) ? true : false;
@@ -111,7 +111,7 @@ public:
     {
 	return _qualifiers.getQualifier(pos);
     }
-    // ks 18 may 2001
+    // 
     void removeQualifier(Uint32 pos)
     {
 	_qualifiers.removeQualifier(pos);

@@ -120,13 +120,6 @@ void CIMClassRep::addProperty(const CIMProperty& x)
     _properties.append(x);
 }
 
-void CIMClassRep::removeProperty(Uint32 pos)
-{
-    if (pos >= _properties.size())
-	throw OutOfBounds();
-
-    _properties.remove(pos);
-}
 
 Uint32 CIMClassRep::findProperty(const String& name)
 {
@@ -152,6 +145,15 @@ CIMProperty CIMClassRep::getProperty(Uint32 pos)
 
     return _properties[pos];
 }
+
+void CIMClassRep::removeProperty(Uint32 pos)
+{
+    if (pos >= _properties.size())
+	throw OutOfBounds();
+
+    _properties.remove(pos);
+}
+
 
 Uint32 CIMClassRep::getPropertyCount() const
 {

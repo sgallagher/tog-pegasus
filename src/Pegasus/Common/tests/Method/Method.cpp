@@ -37,12 +37,49 @@ int main()
     {
 	CIMMethod m1("getHostName", CIMType::STRING);
 	m1.addQualifier(CIMQualifier("stuff", true));
+	m1.addQualifier(CIMQualifier("stuff2", true));
 	m1.addParameter(CIMParameter("ipaddress", CIMType::STRING));
+
+
+	// Tests for Qualifiers
+	assert(m1.findQualifier("stuff") != -1);
+	assert(m1.findQualifier("stuff2") != -1);
+	assert(m1.findQualifier("stuff21") == -1);
+	assert(m1.findQualifier("stuf") == -1);
+	assert(m1.getQualifierCount() == 2);
+
+	assert(m1.existsQualifier("stuff"));
+	assert(m1.existsQualifier("stuff2"));
+
+	assert(!m1.existsQualifier("stuff21"));
+	assert(!m1.existsQualifier("stuf"));
+
+	Uint32 posQualifier;
+	posQualifier = m1.findQualifier("stuff");
+	assert(posQualifier >= 0);
+	assert(posQualifier < m1.getQualifierCount());
+
+	m1.removeQualifier(posQualifier);
+	assert(m1.getQualifierCount() == 1);
+	assert(!m1.existsQualifier("stuff"));
+	assert(m1.existsQualifier("stuff2"));
+
+
     }
     catch(Exception& e)
     {
 	cerr << "Exception: " << e.getMessage() << endl;
     }
+
+
+
+
+
+    // Test for add second qualifier with same name.
+    // Should do exception
+
+
+
 
     cout << "+++++ passed all tests" << endl;
 

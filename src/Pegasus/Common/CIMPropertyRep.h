@@ -109,6 +109,11 @@ public:
 	return _qualifiers.find(name);
     }
 
+    Boolean existsQualifier(const String& name) const
+    {
+	return (findQualifier(name) != -1) ? true : false;
+    }
+
     CIMQualifier getQualifier(Uint32 pos)
     {
 	return _qualifiers.getQualifier(pos);
@@ -117,6 +122,11 @@ public:
     CIMConstQualifier getQualifier(Uint32 pos) const
     {
 	return _qualifiers.getQualifier(pos);
+    }
+
+    void removeQualifier(Uint32 pos)
+    {
+	_qualifiers.removeQualifier(pos);
     }
 
     Uint32 getQualifierCount() const

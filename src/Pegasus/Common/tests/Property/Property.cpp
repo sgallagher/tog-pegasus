@@ -39,8 +39,35 @@ int main()
 
     CIMProperty p1("message", "Hi There");
     p1.addQualifier(CIMQualifier("Key", true));
+    p1.addQualifier(CIMQualifier("stuff", true));
+    p1.addQualifier(CIMQualifier("stuff2", true));
     p1.addQualifier(CIMQualifier("Description", "Blah Blah"));
     CIMConstProperty p2 = p1;
+
+
+    // Tests for Qualifiers
+	assert(p1.findQualifier("stuff") != -1);
+	assert(p1.findQualifier("stuff2") != -1);
+	assert(p1.findQualifier("stuff21") == -1);
+	assert(p1.findQualifier("stuf") == -1);
+	assert(p1.getQualifierCount() == 4);
+
+	assert(p1.existsQualifier("stuff"));
+	assert(p1.existsQualifier("stuff2"));
+
+	assert(!p1.existsQualifier("stuff21"));
+	assert(!p1.existsQualifier("stuf"));
+
+	Uint32 posQualifier;
+	posQualifier = p1.findQualifier("stuff");
+	assert(posQualifier >= 0);
+	assert(posQualifier < p1.getQualifierCount());
+
+	p1.removeQualifier(posQualifier);
+	assert(p1.getQualifierCount() == 3);
+	assert(!p1.existsQualifier("stuff"));
+	assert(p1.existsQualifier("stuff2"));
+
 
     cout << "+++++ passed all tests" << endl;
 

@@ -536,7 +536,7 @@ void ProviderManagerService::_handle_async_request(AsyncRequest * request)
         while (!_thread_pool->allocate_and_awaken(
                     (void *)this, ProviderManagerService::handleCimOperation))
         {
-            pegasus_yield();
+            pegasus_sleep(1);
         }
     }
     else
@@ -578,7 +578,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOper
 
     if(service->_incomingQueue.size() == 0)
     {
-       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+       PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2, 
 			"ProviderManagerService::handleCimOperation() called with no op node in queue" );
         // thread started with no message in queue.
         return(PEGASUS_THREAD_RETURN(1));

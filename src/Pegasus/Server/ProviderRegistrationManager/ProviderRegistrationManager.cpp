@@ -171,6 +171,8 @@ void ProviderRegistrationManager::initializeProviders(void)
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "ProviderRegistrationManager::initializeProviders");
 
+// Note: The PG_Provider AutoStart property is not yet supported
+#if 0
     Array<CIMInstance> instances;
 
     ReadLock lock(_registrationTableLock);
@@ -244,6 +246,7 @@ void ProviderRegistrationManager::initializeProviders(void)
 	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
 	    "Exception: Unknown");
     }
+#endif
 
     PEG_METHOD_EXIT();
 }
@@ -254,6 +257,8 @@ void ProviderRegistrationManager::initializeProviders(
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
 		     "ProviderRegistrationManager::initializeProviders");
 
+// Note: The PG_Provider AutoStart property is not yet supported
+#if 0
     // get provider module name
     String providerModuleName;
     providerModule.getProperty(providerModule.findProperty
@@ -318,6 +323,7 @@ void ProviderRegistrationManager::initializeProviders(
         PEG_METHOD_EXIT();
  	throw;
     }
+#endif
 
     PEG_METHOD_EXIT();
 }
@@ -2366,6 +2372,8 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
                 instances.append(instance);
                 _addInstancesToTable(_providerKey, instances);
 
+// Note: The PG_Provider AutoStart property is not yet supported
+#if 0
 		// if AutoStart property is set to true in the instance,
 		// send initialize provider request message to Provider
 		// Manager Service to load and initialize the provider
@@ -2405,7 +2413,7 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
                         }
 		    }
 		}
-
+#endif
 
                 PEG_METHOD_EXIT();
                 return (cimRef);

@@ -162,7 +162,7 @@ export PEGASUS_STAGING_DIR=$RPM_BUILD_ROOT
 
 make -f $PEGASUS_ROOT/Makefile.Release stage PEGASUS_STAGING_DIR=$PEGASUS_STAGING_DIR
 # End of section pegasus/rpm/tog-specfiles/tog-pegasus-install.spec
-[ "$PEGASUS_STAGING_DIR" != "/" ] && [ -d $PEGASUS_STAGING_DIR ] &&  [-d $PEGASUS_STAGING_DIR%PEGASUS_PEM_DIR] &&  rm -f $PEGASUS_STAGING_DIR/%PEGASUS_PEM_DIR/%PEGASUS_SSL_TRUSTSTORE  $PEGASUS_STAGING_DIR/%PEGASUS_PEM_DIR/%PEGASUS_SSL_CERT_FILE  $PEGASUS_STAGING_DIR/%PEGASUS_PEM_DIR/%PEGASUS_SSL_KEY_FILE;
+[ "$PEGASUS_STAGING_DIR" != "/" ] && [ -d $PEGASUS_STAGING_DIR ] &&  [ -d $PEGASUS_STAGING_DIR%PEGASUS_PEM_DIR ] &&  rm -f $PEGASUS_STAGING_DIR/%PEGASUS_PEM_DIR/%PEGASUS_SSL_TRUSTSTORE  $PEGASUS_STAGING_DIR/%PEGASUS_PEM_DIR/%PEGASUS_SSL_CERT_FILE  $PEGASUS_STAGING_DIR/%PEGASUS_PEM_DIR/%PEGASUS_SSL_KEY_FILE  $PEGASUS_STAGING_DIR/%PEGASUS_CONFIG_DIR/ssl.cnf;
 [ "$PEGASUS_HOME" != "/" ] && [ -d $PEGASUS_HOME ] && rm -rf $PEGASUS_HOME;
 
 %clean
@@ -468,11 +468,6 @@ fi
 %config(missingok) %attr(644,root,root) /var/opt/tog-pegasus/cimserver_current.conf
 %config %attr(500,root,root) /etc/init.d/tog-pegasus
 %config %attr(-,root,root) %PAM_CONFIG_DIR/wbem
-%config %attr(-,root,root) /etc/opt/tog-pegasus/ssl.cnf
-
-%attr(444,root,root) /etc/opt/tog-pegasus/client.pem
-%attr(400,root,root) /etc/opt/tog-pegasus/file.pem
-%attr(444,root,root) /etc/opt/tog-pegasus/server.pem
 
 %attr(500,root,root) /opt/tog-pegasus/sbin/cimauth
 %attr(500,root,root) /opt/tog-pegasus/sbin/cimconfig

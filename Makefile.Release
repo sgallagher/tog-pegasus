@@ -692,10 +692,11 @@ _append_installSectionToSpecFile: FORCE
 	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-install.spec >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "# End of section pegasus/rpm/tog-specfiles/tog-pegasus-install.spec" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "[ \"\044PEGASUS_STAGING_DIR\" != \"/\" ] && [ -d \044PEGASUS_STAGING_DIR ] && \
-                    [-d \044PEGASUS_STAGING_DIR%PEGASUS_PEM_DIR] && \
+                    [ -d \044PEGASUS_STAGING_DIR%PEGASUS_PEM_DIR ] && \
                     rm -f \044PEGASUS_STAGING_DIR/%PEGASUS_PEM_DIR/%PEGASUS_SSL_TRUSTSTORE \
                     \044PEGASUS_STAGING_DIR/%PEGASUS_PEM_DIR/%PEGASUS_SSL_CERT_FILE \
-                    \044PEGASUS_STAGING_DIR/%PEGASUS_PEM_DIR/%PEGASUS_SSL_KEY_FILE;" >> \
+                    \044PEGASUS_STAGING_DIR/%PEGASUS_PEM_DIR/%PEGASUS_SSL_KEY_FILE \
+                    \044PEGASUS_STAGING_DIR/%PEGASUS_CONFIG_DIR/ssl.cnf;" >> \
                     $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "[ \"\044PEGASUS_HOME\" != \"/\" ] && [ -d \044PEGASUS_HOME ] && rm -rf \044PEGASUS_HOME;" >> \
                     $(PEGASUS_RPM_SPEC_FILE_PATH)
@@ -810,11 +811,6 @@ _append_filesSectionToSpecFile: FORCE
 	@$(ECHO-E) "%config(missingok) %attr($(Prw_r__r__),root,root) $(PEGASUS_VARDATA_DIR)/$(PEGASUS_CURRENT_CONFIG_FILE)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%config %attr($(Pr_x______),root,root) /etc/init.d/tog-pegasus" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%config %attr(-,root,root) %PAM_CONFIG_DIR/wbem" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%config %attr(-,root,root) $(PEGASUS_CONFIG_DIR)/ssl.cnf" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%attr($(Pr__r__r__),root,root) $(PEGASUS_PEM_DIR)/$(PEGASUS_SSL_TRUSTSTORE)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%attr($(Pr________),root,root) $(PEGASUS_PEM_DIR)/$(PEGASUS_SSL_KEY_FILE)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%attr($(Pr__r__r__),root,root) $(PEGASUS_PEM_DIR)/$(PEGASUS_SSL_CERT_FILE)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(foreach i, $(PEGASUS_ADMIN_CMDS), \
                    $(ECHO-E) "%attr($(Pr_x______),root,root) $(PEGASUS_SBIN_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 

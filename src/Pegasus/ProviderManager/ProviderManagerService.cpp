@@ -385,7 +385,7 @@ void ProviderManagerService::handleGetInstanceRequest(const Message * message) t
 	{
 	}
 
-	virtual void complete(OperationContext & context)
+	virtual void complete(const OperationContext & context)
 	{
 	    if(getObjects().size() > 0)
 	    {
@@ -491,7 +491,7 @@ void ProviderManagerService::handleEnumerateInstancesRequest(const Message * mes
 	{
 	}
 
-	virtual void complete(OperationContext & context)
+	virtual void complete(const OperationContext & context)
 	{
 	    Array<CIMNamedInstance> cimInstances;
 
@@ -597,7 +597,7 @@ void ProviderManagerService::handleEnumerateInstanceNamesRequest(const Message *
 	{
 	}
 
-	virtual void complete(OperationContext & context)
+	virtual void complete(const OperationContext & context)
 	{
 	    ((CIMEnumerateInstanceNamesResponseMessage *)getResponse())->instanceNames = getObjects();
 	}
@@ -685,7 +685,7 @@ void ProviderManagerService::handleCreateInstanceRequest(const Message * message
 	{
 	}
 
-	virtual void complete(OperationContext & context)
+	virtual void complete(const OperationContext & context)
 	{
 	    if(getObjects().size() > 0)
 	    {
@@ -1124,7 +1124,7 @@ void ProviderManagerService::handleInvokeMethodRequest(const Message * message) 
 	{
 	}
 
-	virtual void complete(OperationContext & context)
+	virtual void complete(const OperationContext & context)
 	{
 	    // error? provider claims success, but did not deliver a CIMValue.
 	    if(getObjects().size() == 0)
@@ -1167,13 +1167,15 @@ void ProviderManagerService::handleInvokeMethodRequest(const Message * message) 
 	// ATTN: propagate namespace
 	instanceReference.setNameSpace(request->nameSpace);
 
+	Array<CIMParamValue> outParameters;
+
 	// forward request
 	provider.invokeMethod(
 	    context,
 	    instanceReference,
 	    request->methodName,
 	    request->inParameters,
-	    Array<CIMParamValue>(),
+	    outParameters,
 	    handler);
     }
     catch(CIMException & e)

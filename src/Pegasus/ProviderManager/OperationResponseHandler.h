@@ -49,7 +49,7 @@ public:
     CIMResponseMessage * getResponse(void) const;
 
     virtual void complete(void);
-    virtual void complete(OperationContext & context);
+    virtual void complete(const OperationContext & context);
 
     virtual void setStatus(const Uint32 code, const String & message = String::EMPTY);
 
@@ -85,11 +85,13 @@ inline CIMResponseMessage * OperationResponseHandler<T>::getResponse(void) const
 template<class T>
 inline void OperationResponseHandler<T>::complete(void)
 {
-    complete(OperationContext());
+    OperationContext context;
+
+    complete(context);
 }
 
 template<class T>
-inline void OperationResponseHandler<T>::complete(OperationContext & context)
+inline void OperationResponseHandler<T>::complete(const OperationContext & context)
 {
 }
 
@@ -99,82 +101,6 @@ inline void OperationResponseHandler<T>::setStatus(const Uint32 code, const Stri
     _response->errorCode = CIMStatusCode(code);
     _response->errorDescription = message;
 }
-
-/*
-class GetInstanceResponseHandler : public OperationResponseHandler<CIMInstance>
-{
-public:
-    GetInstanceResponseHandler(
-	CIMGetInstanceRequestMessage * request,
-	CIMGetInstanceResponseMessage * response);
-
-    virtual void complete(OperationContext & context);
-
-};
-
-class EnumerateInstancesResponseHandler : public OperationResponseHandler<CIMInstance>
-{
-public:
-    EnumerateInstancesResponseHandler(
-	CIMEnumerateInstancesRequestMessage * request,
-	CIMEnumerateInstancesResponseMessage * response);
-
-    virtual void complete(OperationContext & context);
-
-};
-
-class EnumerateInstanceNamesResponseHandler : public OperationResponseHandler<CIMReference>
-{
-public:
-    EnumerateInstanceNamesResponseHandler(
-	CIMEnumerateInstanceNamesRequestMessage * request,
-	CIMEnumerateInstanceNamesResponseMessage * response);
-
-    virtual void complete(OperationContext & context);
-
-};
-
-class CreateInstanceResponseHandler : public OperationResponseHandler<CIMReference>
-{
-public:
-    CreateInstanceResponseHandler(
-	CIMCreateInstanceRequestMessage * request,
-	CIMCreateInstanceResponseMessage * response);
-
-    virtual void complete(OperationContext & context);
-
-};
-
-class ModifyInstanceResponseHandler : public OperationResponseHandler<CIMInstance>
-{
-public:
-    ModifyInstanceResponseHandler(
-	CIMModifyInstanceRequestMessage * request,
-	CIMModifyInstanceResponseMessage * response);
-
-};
-
-class DeleteInstanceResponseHandler : public OperationResponseHandler<CIMInstance>
-{
-public:
-    DeleteInstanceResponseHandler(
-	CIMDeleteInstanceRequestMessage * request,
-	CIMDeleteInstanceResponseMessage * response);
-
-};
-*/
-
-class EnableIndicationsResponseHandler : public ResponseHandler<CIMIndication>
-{
-public:
-    EnableIndicationsResponseHandler(void);
-
-    virtual void deliver(const CIMIndication & cimIndication);
-    virtual void deliver(OperationContext & context, const CIMIndication & cimIndication);
-    virtual void deliver(const Array<CIMIndication> & cimIndications);
-    virtual void deliver(OperationContext & context, const Array<CIMIndication> & cimIndications);
-};
-
 
 PEGASUS_NAMESPACE_END
 

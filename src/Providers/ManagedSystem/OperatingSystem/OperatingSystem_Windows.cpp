@@ -274,7 +274,10 @@ Boolean OperatingSystem::getTotalVirtualMemorySize(Uint64& total)
 
    total = mem.dwTotalVirtual / 1024;
 
-   return(total);
+   if (total) 
+      return true;
+   else
+      return false;
 }
 
 Boolean OperatingSystem::getFreeVirtualMemory(Uint64& freeVirtualMemory)
@@ -329,8 +332,10 @@ Boolean OperatingSystem::getTotalVisibleMemorySize(Uint64& memory)
 
    memory = mem.dwAvailVirtual / 1024;
 
-   return(memory);
-
+   if (memory)
+      return true;
+   else
+      return false;
 }
 
 Boolean OperatingSystem::getSizeStoredInPagingFiles(Uint64& total)

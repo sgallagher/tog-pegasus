@@ -33,6 +33,9 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMDateTime.h>
 
+PEGASUS_USING_PEGASUS;
+PEGASUS_USING_STD;
+
 class OperatingSystem
 {
    public:

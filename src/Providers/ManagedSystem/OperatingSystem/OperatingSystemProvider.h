@@ -35,6 +35,9 @@
 #include <Pegasus/Common/OperationContext.h>
 #include <iostream>
 
+PEGASUS_USING_PEGASUS;
+PEGASUS_USING_STD;
+
 class OperatingSystemProvider: public CIMInstanceProvider,
                                public CIMMethodProvider
 {

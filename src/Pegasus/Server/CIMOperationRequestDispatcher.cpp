@@ -81,14 +81,7 @@ String CIMOperationRequestDispatcher::_lookupProviderForClass(
     q.getValue().get(providerId);
     DDD(cout << _DISPATCHER << "Provider " << providerId << endl;)
 
-	// translate the provider identifier into a file name
-	#ifdef PEGASUS_OS_TYPE_WINDOWS
-	String fileName = providerId + String(".dll");
-	#else
-    String fileName = getenv("PEGASUS_HOME") + String("/lib/lib") + providerId + String(".so");
-	#endif
-	
-	return(fileName);
+	return(providerId);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -291,12 +284,12 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
     {
 	// get provider for class
 	String className = request->instanceName.getClassName();
-	String fileName = _lookupProviderForClass(request->nameSpace, className);
+	String providerName = _lookupProviderForClass(request->nameSpace, className);
 
-	if(fileName.size() != 0)
+	if(providerName.size() != 0)
 	{
 		// attempt to load provider
-		ProviderHandle * provider = _providerManager.getProvider(fileName, className);
+		ProviderHandle * provider = _providerManager.getProvider(providerName, className);
 
 		cimInstance = provider->getInstance(
 		OperationContext(),
@@ -348,12 +341,12 @@ void CIMOperationRequestDispatcher::handleDeleteClassRequest(
     {
 	// get provider for class
 	String className = request->className;
-	String fileName = _lookupProviderForClass(request->nameSpace, className);
+	String providerName = _lookupProviderForClass(request->nameSpace, className);
 
-	if(fileName.size() != 0)
+	if(providerName.size() != 0)
 	{
 		// attempt to load provider
-		ProviderHandle * provider = _providerManager.getProvider(fileName, className);
+		ProviderHandle * provider = _providerManager.getProvider(providerName, className);
 
 		provider->deleteClass(
 		OperationContext(),
@@ -398,12 +391,12 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
     {
 	// get provider for class
 	String className = request->instanceName.getClassName();
-	String fileName = _lookupProviderForClass(request->nameSpace, className);
+	String providerName = _lookupProviderForClass(request->nameSpace, className);
 
-	if(fileName.size() != 0)
+	if(providerName.size() != 0)
 	{
 		// attempt to load provider
-		ProviderHandle * provider = _providerManager.getProvider(fileName, className);
+		ProviderHandle * provider = _providerManager.getProvider(providerName, className);
 	
 	    provider->deleteInstance(
 		OperationContext(),
@@ -481,12 +474,12 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
     {
 	// get provider for class
 	String className = request->newInstance.getClassName();
-	String fileName = _lookupProviderForClass(request->nameSpace, className);
+	String providerName = _lookupProviderForClass(request->nameSpace, className);
 
-	if(fileName.size() != 0)
+	if(providerName.size() != 0)
 	{
 		// attempt to load provider
-		ProviderHandle * provider = _providerManager.getProvider(fileName, className);
+		ProviderHandle * provider = _providerManager.getProvider(providerName, className);
 
 	    provider->createInstance(
 		OperationContext(),
@@ -564,12 +557,12 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
     {
 	// get provider for class
 	String className = request->modifiedInstance.getClassName();
-	String fileName = _lookupProviderForClass(request->nameSpace, className);
+	String providerName = _lookupProviderForClass(request->nameSpace, className);
 
-	if(fileName.size() != 0)
+	if(providerName.size() != 0)
 	{
 		// attempt to load provider
-		ProviderHandle * provider = _providerManager.getProvider(fileName, className);
+		ProviderHandle * provider = _providerManager.getProvider(providerName, className);
 
 	    provider->modifyInstance(
 		OperationContext(),
@@ -690,12 +683,12 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
     {
 	// get provider for class
 	String className = request->className;
-	String fileName = _lookupProviderForClass(request->nameSpace, className);
+	String providerName = _lookupProviderForClass(request->nameSpace, className);
 
-	if(fileName.size() != 0)
+	if(providerName.size() != 0)
 	{
 		// attempt to load provider
-		ProviderHandle * provider = _providerManager.getProvider(fileName, className);
+		ProviderHandle * provider = _providerManager.getProvider(providerName, className);
 
 	    cimInstances = provider->enumerateInstances(
 		OperationContext(),
@@ -752,12 +745,12 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
     {
 	// get provider for class
 	String className = request->className;
-	String fileName = _lookupProviderForClass(request->nameSpace, className);
+	String providerName = _lookupProviderForClass(request->nameSpace, className);
 
-	if(fileName.size() != 0)
+	if(providerName.size() != 0)
 	{
 		// attempt to load provider
-		ProviderHandle * provider = _providerManager.getProvider(fileName, className);
+		ProviderHandle * provider = _providerManager.getProvider(providerName, className);
 
 	    instanceNames = provider->enumerateInstanceNames(
 		OperationContext(),
@@ -804,12 +797,12 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
     {
 	// get provider for class
 	String className = request->objectName.getClassName();
-	String fileName = _lookupProviderForClass(request->nameSpace, className);
+	String providerName = _lookupProviderForClass(request->nameSpace, className);
 
-	if(fileName.size() != 0)
+	if(providerName.size() != 0)
 	{
 		// attempt to load provider
-		ProviderHandle * provider = _providerManager.getProvider(fileName, className);
+		ProviderHandle * provider = _providerManager.getProvider(providerName, className);
 
 	    cimObjects = provider->associators(
 		OperationContext(),
@@ -869,12 +862,12 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
     {
 	// get provider for class
 	String className = request->objectName.getClassName();
-	String fileName = _lookupProviderForClass(request->nameSpace, className);
+	String providerName = _lookupProviderForClass(request->nameSpace, className);
 
-	if(fileName.size() != 0)
+	if(providerName.size() != 0)
 	{
 		// attempt to load provider
-		ProviderHandle * provider = _providerManager.getProvider(fileName, className);
+		ProviderHandle * provider = _providerManager.getProvider(providerName, className);
 
 	    objectNames = provider->associatorNames(
 		OperationContext(),
@@ -928,12 +921,12 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
     {
 	// get provider for class
 	String className = request->objectName.getClassName();
-	String fileName = _lookupProviderForClass(request->nameSpace, className);
+	String providerName = _lookupProviderForClass(request->nameSpace, className);
 
-	if(fileName.size() != 0)
+	if(providerName.size() != 0)
 	{
 		// attempt to load provider
-		ProviderHandle * provider = _providerManager.getProvider(fileName, className);
+		ProviderHandle * provider = _providerManager.getProvider(providerName, className);
 
 	    cimObjects = provider->references(
 		OperationContext(),
@@ -989,12 +982,12 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
     {
 	// get provider for class
 	String className = request->objectName.getClassName();
-	String fileName = _lookupProviderForClass(request->nameSpace, className);
+	String providerName = _lookupProviderForClass(request->nameSpace, className);
 
-	if(fileName.size() != 0)
+	if(providerName.size() != 0)
 	{
 		// attempt to load provider
-		ProviderHandle * provider = _providerManager.getProvider(fileName, className);
+		ProviderHandle * provider = _providerManager.getProvider(providerName, className);
 
 	    objectNames = provider->referenceNames(
 		OperationContext(),
@@ -1186,12 +1179,12 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
     {
 	// get provider for class
 	String className = request->instanceName.getClassName();
-	String fileName = _lookupProviderForClass(request->nameSpace, className);
+	String providerName = _lookupProviderForClass(request->nameSpace, className);
 
-	if(fileName.size() != 0)
+	if(providerName.size() != 0)
 	{
 		// attempt to load provider
-		ProviderHandle * provider = _providerManager.getProvider(fileName, className);
+		ProviderHandle * provider = _providerManager.getProvider(providerName, className);
 
     	// converting Array<CIMargument> to Array<CIMvalue>
 		for (Uint8 i = 0; i < request->inParameters.size(); i++)

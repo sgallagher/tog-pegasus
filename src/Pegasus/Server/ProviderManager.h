@@ -23,6 +23,7 @@
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
 // Modified By:
+//              Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -46,12 +47,11 @@ public:
 	ProviderManager(MessageQueue * outputQueue, CIMRepository * repository);
 	virtual ~ProviderManager(void);
 
-	ProviderHandle * getProvider(const String & fileName, const String & className);
+	ProviderHandle * getProvider(const String & providerName, const String & className);
 
 protected:
 	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL monitorThread(void * arg);
 
-protected:	
 	CIMOMHandle _cimom;
 	Array<ProviderModule> _providers;
 

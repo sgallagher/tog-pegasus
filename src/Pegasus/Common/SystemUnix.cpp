@@ -24,6 +24,8 @@
 //
 // Modified By: Ben Heilbronn (ben_heilbronn@hp.com)
 //
+// Modified By: Nag Boranna (nagaraja_boranna@hp.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifdef PEGASUS_OS_HPUX
@@ -102,7 +104,7 @@ Boolean System::isDirectory(const char* path)
     struct stat st;
 
     if (stat(path, &st) != 0)
-	return false;
+        return false;
 
     return S_ISDIR(st.st_mode);
 }
@@ -122,7 +124,7 @@ Boolean System::getFileSize(const char* path, Uint32& size)
     struct stat st;
 
     if (stat(path, &st) != 0)
-	return false;
+        return false;
 
     size = st.st_size;
     return true;
@@ -130,18 +132,18 @@ Boolean System::getFileSize(const char* path, Uint32& size)
 
 Boolean System::removeDirectory(const char* path)
 {
-    return rmdir(path) == 0;	
+    return rmdir(path) == 0;
 }
 
 Boolean System::removeFile(const char* path)
 {
-    return unlink(path) == 0;	
+    return unlink(path) == 0;
 }
 
 Boolean System::renameFile(const char* oldPath, const char* newPath)
 {
     if (link(oldPath, newPath) != 0)
-	return false;
+        return false;
 
     return unlink(oldPath) == 0;
 }
@@ -152,38 +154,26 @@ DynamicLibraryHandle System::loadDynamicLibrary(const char* fileName)
 
     PEG_FUNC_ENTER(TRC_OS_ABSTRACTION, METHOD_NAME);
 
+    Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL2, 
+                  "Attempting to load library %s", fileName);
+
 #if defined(PEGASUS_OS_HPUX)
-    char* p = strcpy(new char[strlen(fileName) + 4], fileName);
-    char* dot = strrchr(p, '.');
-
-    if (!dot)
-	return 0;
-
-    *dot = '\0';
-    strcat(p, ".sl");
+    void* handle = shl_load(fileName, BIND_IMMEDIATE | DYNAMIC_PATH, 0L);
 
     Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL2, 
-		  "Attempting to load library %s", p);
-    void* handle = shl_load(p, BIND_IMMEDIATE | DYNAMIC_PATH, 0L);
-    Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL2, 
-		  "After loading lib %s, error code is %d", p, errno);
-    delete [] p;
+                  "After loading lib %s, error code is %d", fileName, errno);
 
     PEG_FUNC_EXIT(TRC_OS_ABSTRACTION, METHOD_NAME);
     return DynamicLibraryHandle(handle);
-#else
-
-# ifdef PEGASUS_OS_TRU64
+#elif defined(PEGASUS_OS_TRU64)
     PEG_FUNC_EXIT(TRC_OS_ABSTRACTION, METHOD_NAME);
     return DynamicLibraryHandle(dlopen(fileName, RTLD_NOW));
-# elif defined(PEGASUS_OS_ZOS)
+#elif defined(PEGASUS_OS_ZOS)
     PEG_FUNC_EXIT(TRC_OS_ABSTRACTION, METHOD_NAME);
     return DynamicLibraryHandle(dllload(fileName));
-# else
+#else
     PEG_FUNC_EXIT(TRC_OS_ABSTRACTION, METHOD_NAME);
     return DynamicLibraryHandle(dlopen(fileName, RTLD_NOW | RTLD_GLOBAL));
-# endif
-
 #endif
 
 }
@@ -223,7 +213,7 @@ DynamicSymbolHandle System::loadDynamicSymbol(
     void* proc = 0;
 
     if (shl_findsym((shl_t*)&libraryHandle, p, TYPE_UNDEFINED, &proc) == 0)
-	return DynamicSymbolHandle(proc);
+        return DynamicSymbolHandle(proc);
 
     p = strcpy(new char[strlen(symbolName) + 2], symbolName);
     strcpy(p, "_");
@@ -231,8 +221,8 @@ DynamicSymbolHandle System::loadDynamicSymbol(
 
     if (shl_findsym((shl_t*)libraryHandle, p, TYPE_UNDEFINED, &proc) == 0)
     {
-	delete [] p;
-	return DynamicSymbolHandle(proc);
+        delete [] p;
+        return DynamicSymbolHandle(proc);
     }
 
     return 0;

@@ -136,6 +136,12 @@ repository implementation.
     New changes collects the Message* as return value from the appropriate functions
     while parsing the Xml and sends on _outputQueue only when Xml is parsed successfully.
 
+27. (Nag Boranna - HP) 11 Oct 2001 - Modified ProviderModule.cpp to fix the problem with 
+    constructing provider name and loading the providers for unix platforms. Also moved 
+    the shared library name construction (appending .sl or .so) from 
+    CIMOperationRequestDispatcher.cpp/SystemUnix.cpp to ProviderModule.cpp and included 
+    it in a method that returns provider file path name.
+
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch
               Tagged as version_1_01 on 3 August 2001 (sorry should have been

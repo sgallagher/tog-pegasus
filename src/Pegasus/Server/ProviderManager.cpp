@@ -23,6 +23,7 @@
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
 // Modified By:
+//              Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -32,92 +33,92 @@ PEGASUS_NAMESPACE_BEGIN
 
 ProviderManager::ProviderManager(MessageQueue * outputQueue, CIMRepository * repository) : _cimom(outputQueue, repository)
 {
-	Thread * thread = new Thread(monitorThread, this, false);
+    Thread * thread = new Thread(monitorThread, this, false);
 
-	thread->run();
+    thread->run();
 }
 
-ProviderManager::~ProviderManager(void)	
+ProviderManager::~ProviderManager(void)    
 {
-	// terminate all providers
-	for(Uint32 i = 0, n = _providers.size(); i < n; i++)
-	{
-		ProviderHandle * provider = _providers[i].getProvider();
-		
-		if(provider != 0)
-		{
-			_providers[i].getProvider()->terminate();
-		}
-	}
+    // terminate all providers
+    for(Uint32 i = 0, n = _providers.size(); i < n; i++)
+    {
+        ProviderHandle * provider = _providers[i].getProvider();
+        
+        if(provider != 0)
+        {
+            _providers[i].getProvider()->terminate();
+        }
+    }
 }
 
-ProviderHandle * ProviderManager::getProvider(const String & fileName, const String & className)
+ProviderHandle * ProviderManager::getProvider(const String & providerName, const String & className)
 {
-	// check list for requested provider and return if found
-	for(Uint32 i = 0, n = _providers.size(); i < n; i++)
-	{
-		if(String::equalNoCase(fileName, _providers[i].getFileName()) &&
-		   String::equalNoCase(className, _providers[i].getClassName()))
-		{
-			return(_providers[i].getProvider());
-		}
-	}
-	
-	PEGASUS_STD(cout) << "loading provider for " << className << " in " << fileName << PEGASUS_STD(endl);
-	
-	// create provider module
-	ProviderModule module(fileName, className);
+    // check list for requested provider and return if found
+    for(Uint32 i = 0, n = _providers.size(); i < n; i++)
+    {
+        if(String::equalNoCase(providerName, _providers[i].getProviderName()) &&
+           String::equalNoCase(className, _providers[i].getClassName()))
+        {
+            return(_providers[i].getProvider());
+        }
+    }
+    
+    PEGASUS_STD(cout) << "loading provider for " << className << " in " << providerName << PEGASUS_STD(endl);
+    
+    // create provider module
+    ProviderModule module(providerName, className);
 
-	module.load();
-	
-	// get provider handle
-	ProviderHandle * provider = module.getProvider();
+    module.load();
+    
+    // get provider handle
+    ProviderHandle * provider = module.getProvider();
 
-	if(provider == 0)
-	{
-		throw ProviderFailure(fileName, className, "invalid provider handle.");
-	}
-	
-	// initialize provider
-	provider->initialize(_cimom);
-	
-	// add provider to list
-	_providers.append(module);
+    if(provider == 0)
+    {
+        throw ProviderFailure(providerName, className, "invalid provider handle.");
+    }
+    
+    // initialize provider
+    provider->initialize(_cimom);
+    
+    // add provider to list
+    _providers.append(module);
 
-	// recurse to get the provider as it resides in the array (rather than the local instance)
-	return(getProvider(fileName, className));
+    // recurse to get the provider as it resides in the array (rather than the local instance)
+    return(getProvider(providerName, className));
 }
-	
+    
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManager::monitorThread(void * arg)
 {
-	Thread * thread = reinterpret_cast<Thread *>(arg);
-	
-	ProviderManager * _this = reinterpret_cast<ProviderManager *>(thread->get_parm());
+    Thread * thread = reinterpret_cast<Thread *>(arg);
+    
+    ProviderManager * _this = reinterpret_cast<ProviderManager *>(thread->get_parm());
 
-	// check provider list every 30 seconds for providers to unload
-	for(Uint32 timeout = 0; true; timeout += 30)
-	{
-		thread->sleep(30000);
-		
-		// check each provider for timeouts less than the current timeout
-		for(Uint32 i = 0, n = _this->_providers.size(); i < n; i++)
-		{
-			// get provider timeout
-			Uint32 provider_timeout = 30;
+    // check provider list every 30 seconds for providers to unload
+    for(Uint32 timeout = 0; true; timeout += 30)
+    {
+        thread->sleep(30000);
+        
+        // check each provider for timeouts less than the current timeout
+        for(Uint32 i = 0, n = _this->_providers.size(); i < n; i++)
+        {
+            // get provider timeout
+            Uint32 provider_timeout = 30;
 
-			if((provider_timeout != 0xffffffff) && (provider_timeout <= timeout))
-			{
-				PEGASUS_STD(cout) << "unloading provider for " << _this->_providers[i].getClassName() << " in " << _this->_providers[i].getFileName() << PEGASUS_STD(endl);
+            if((provider_timeout != 0xffffffff) && (provider_timeout <= timeout))
+            {
+                PEGASUS_STD(cout) << "unloading provider for " << _this->_providers[i].getClassName() << " in " << _this->_providers[i].getProviderName() << PEGASUS_STD(endl);
 
-				_this->_providers[i].getProvider()->terminate();
-				_this->_providers.remove(i);
-			}
-		}
-	}
-	
-	PEGASUS_STD(cout) << "provider monitor stopped" << PEGASUS_STD(endl);
-	
-	return(0);
+                _this->_providers[i].getProvider()->terminate();
+                _this->_providers.remove(i);
+            }
+        }
+    }
+    
+    PEGASUS_STD(cout) << "provider monitor stopped" << PEGASUS_STD(endl);
+    
+    return(0);
 }
 
 PEGASUS_NAMESPACE_END

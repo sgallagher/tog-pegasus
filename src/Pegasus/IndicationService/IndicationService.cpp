@@ -4567,21 +4567,21 @@ void IndicationService::_sendModifyRequests
 	  new enableProviderList(indicationProviders[i], 
 				 subscription);
 
-        CIMModifySubscriptionRequestMessage * request =
-            new CIMModifySubscriptionRequestMessage
-                (XmlWriter::getNextMessageId (),
-                nameSpace,
-                subscription.getInstance (),
-                indicationProviders [i].classList,
-                indicationProviders [i].provider,
-                indicationProviders [i].providerModule,
-                propertyList,
-                repeatNotificationPolicy,
-                condition,
-                queryLanguage,
-                QueueIdStack (_providerManager, getQueueId ()),
-                authType,
-                userName);
+       CIMModifySubscriptionRequestMessage * request =
+	  new CIMModifySubscriptionRequestMessage(
+	     XmlWriter::getNextMessageId (),
+	     nameSpace,
+	     subscription.getInstance (),
+	     epl->pcl->classList, 
+	     epl->pcl->provider, 
+	     epl->pcl->providerModule,
+	     propertyList,
+	     repeatNotificationPolicy,
+	     condition,
+	     queryLanguage,
+	     QueueIdStack (_providerManager, getQueueId ()),
+	     authType,
+	     userName);
 
         AsyncOpNode* op = this->get_op();
 
@@ -4606,6 +4606,58 @@ void IndicationService::_sendModifyRequests
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
 }
 
+
+void IndicationService::_sendDisableRequestsCallBack(AsyncOpNode *op, 
+						     MessageQueue *q, 
+						     void *parm)
+{
+
+   IndicationService *service = 
+      static_cast<IndicationService *>(q);
+   struct enableProviderList *epl = 
+      reinterpret_cast<struct enableProviderList *>(parm);
+   
+   AsyncRequest *asyncRequest = static_cast<AsyncRequest *>(op->get_request());
+   AsyncReply *asyncReply = static_cast<AsyncReply *>(op->get_response());
+   CIMRequestMessage *request = reinterpret_cast<CIMRequestMessage *>
+      ((static_cast<AsyncLegacyOperationStart *>(asyncRequest))->get_action());
+
+   CIMDeleteSubscriptionResponseMessage * response =
+      reinterpret_cast
+      <CIMDeleteSubscriptionResponseMessage *>
+      ((static_cast <AsyncLegacyOperationResult *>
+	(asyncReply))->get_result());
+   
+
+        //  ATTN: Check for return value indicating invalid queue ID
+        //  If received, need to find Provider Manager Service queue ID
+        //  again
+   
+        //
+        //  ATTN-CAKG-P2-20020326: Do we need to look at the response?
+        //  I don't think there is any action to take if the disable is
+        //  rejected (perhaps log a message?)
+        //
+
+        //
+        //  Remove entry from subscription table 
+        //
+
+   String tableKey = service->_generateKey 
+      (*(epl->cni), epl->pcl->provider);
+   service->_subscriptionTable.remove (tableKey);
+      delete epl;
+
+   delete request;
+   delete response;
+   delete asyncRequest;
+   delete asyncReply;
+   op->release();
+   service->return_op(op);
+}
+
+
+
 void IndicationService::_sendDisableRequests
     (const Array <ProviderClassList> & indicationProviders,
      const String & nameSpace,
@@ -4622,18 +4674,23 @@ void IndicationService::_sendDisableRequests
     //
     for (Uint8 i = 0; i < indicationProviders.size (); i++)
     {
+
+       struct enableProviderList *epl = 
+	  new enableProviderList(indicationProviders[i], 
+				 subscription);
+
         CIMDeleteSubscriptionRequestMessage * request =
             new CIMDeleteSubscriptionRequestMessage
             (XmlWriter::getNextMessageId (),
             nameSpace,
             subscription.getInstance (),
-            indicationProviders [i].classList,
-            indicationProviders [i].provider,
-            indicationProviders [i].providerModule,
-            QueueIdStack (_providerManager, getQueueId ()),
-            authType,
-            userName);
-
+	     epl->pcl->classList,
+	     epl->pcl->provider, 
+	     epl->pcl->providerModule,
+	     QueueIdStack (_providerManager, getQueueId ()),
+	     authType,
+	     userName);
+	
         AsyncOpNode* op = this->get_op();
 
         AsyncLegacyOperationStart * async_req =
@@ -4643,36 +4700,17 @@ void IndicationService::_sendDisableRequests
                 _providerManager,
                 request,
                 _queueId);
+	
+	SendAsync(op, 
+		  _providerManager, 
+		  IndicationService::_sendDisableRequestsCallBack,
+		  this, 
+		  (void *)epl);
 
-        AsyncReply * async_reply = SendWait (async_req);
-
-        //
-        //  ATTN: Check for return value indicating invalid queue ID
-        //  If received, need to find Provider Manager Service queue ID
-        //  again
-        //
-
-        CIMDeleteSubscriptionResponseMessage * response =
-            reinterpret_cast
-            <CIMDeleteSubscriptionResponseMessage *>
-            ((static_cast <AsyncLegacyOperationResult *>
-            (async_reply))->get_result());
-
-        //
-        //  ATTN-CAKG-P2-20020326: Do we need to look at the response?
-        //  I don't think there is any action to take if the disable is
-        //  rejected (perhaps log a message?)
+	// <<< Fri Apr  5 06:05:55 2002 mdd >>>
+	//        AsyncReply * async_reply = SendWait (async_req);
         //
 
-        //
-        //  Remove entry from subscription table 
-        //
-        String tableKey = _generateKey 
-            (subscription, indicationProviders [i].provider);
-        _subscriptionTable.remove (tableKey);
-
-        delete async_req;
-        delete async_reply;
     }
 
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
@@ -4812,13 +4850,51 @@ CIMInstance IndicationService::_createAlertInstance (
     return indicationInstance;
 }
 
+
+void IndicationService::_sendAlertsCallBack(AsyncOpNode *op, 
+					    MessageQueue *q, 
+					    void *parm)
+{
+
+   IndicationService *service = 
+      static_cast<IndicationService *>(q);
+   CIMNamedInstance *_handler = 
+      reinterpret_cast<CIMNamedInstance *>(parm);
+   
+   AsyncRequest *asyncRequest = static_cast<AsyncRequest *>(op->get_request());
+   AsyncReply *asyncReply = static_cast<AsyncReply *>(op->get_response());
+   CIMRequestMessage *request = reinterpret_cast<CIMRequestMessage *>
+      ((static_cast<AsyncLegacyOperationStart *>(asyncRequest))->get_action());
+
+   CIMHandleIndicationResponseMessage* response = 
+      reinterpret_cast<CIMHandleIndicationResponseMessage *>
+      ((static_cast<AsyncLegacyOperationResult *>
+	(asyncReply))->get_result());
+
+   //
+   //  ATTN: Check for return value indicating invalid queue ID
+   //  If received, need to find Provider Manager Service queue ID
+   //  again
+   //
+
+   delete _handler;
+   delete request;
+   delete response;
+   delete asyncRequest;
+   delete asyncReply;
+   op->complete();
+   service->return_op(op);
+}
+
+
 void IndicationService::_sendAlerts (
     const Array <CIMNamedInstance> & subscriptions,
     /* const */ CIMInstance & alertInstance)
 {
     CIMNamedInstance current;
     Boolean duplicate;
-    Array <CIMNamedInstance> handlers;
+    Array <CIMNamedInstance> handlers; 
+    
     const char METHOD_NAME [] = "IndicationService::_sendAlerts";
 
     PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
@@ -4859,11 +4935,13 @@ void IndicationService::_sendAlerts (
     //
     for (Uint8 k = 0; k < handlers.size (); k++)
     {
+       CIMNamedInstance *_handler = new CIMNamedInstance(handlers[k]);
+       
         CIMHandleIndicationRequestMessage * handler_request =
             new CIMHandleIndicationRequestMessage (
                 XmlWriter::getNextMessageId (),
-                handlers [k].getInstanceName ().getNameSpace (),
-                handlers [k].getInstance (),
+                _handler->getInstanceName ().getNameSpace (),
+                _handler->getInstance (),
                 alertInstance,
                 QueueIdStack (_handlerService, getQueueId ()));
 
@@ -4872,26 +4950,24 @@ void IndicationService::_sendAlerts (
         AsyncLegacyOperationStart *async_req = 
             new AsyncLegacyOperationStart(
                 get_next_xid(),
+
                 op,
                 _handlerService,
                 handler_request,
                 _queueId);
 
-        AsyncReply *async_reply = SendWait(async_req);
+	SendAsync(op, 
+		  _handlerService, 
+		  IndicationService::_sendAlertsCallBack,
+		  this, 
+		  (void *)_handler);
+	
+		  
 
-        //
-        //  ATTN: Check for return value indicating invalid queue ID
-        //  If received, need to find Provider Manager Service queue ID
-        //  again
-        //
+        // <<< Fri Apr  5 06:24:14 2002 mdd >>>
+	//  AsyncReply *async_reply = SendWait(async_req);
 
-        CIMHandleIndicationResponseMessage* response = 
-            reinterpret_cast<CIMHandleIndicationResponseMessage *>
-            ((static_cast<AsyncLegacyOperationResult *>
-            (async_reply))->get_result());
 
-        delete async_req;
-        delete async_reply;
     }
 
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);

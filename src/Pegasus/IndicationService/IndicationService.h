@@ -734,6 +734,15 @@ private:
         const String & userName,
         const String & authType = String::EMPTY);
 
+
+      /** 
+	  Asynchronous completion routine for _sendDisableRequests. 
+      */
+
+      static void _sendDisableRequestsCallBack(AsyncOpNode *operation, 
+					       MessageQueue *callback_destination,
+					       void *parameter);
+
     /**
         Sends disable subscription request for the specified subscription
         to each provider in the list.
@@ -788,6 +797,17 @@ private:
     CIMInstance _createAlertInstance (
         const String & alertClassName,
         const Array <CIMNamedInstance> & subscriptions);
+
+
+
+      /** 
+	  Asynchronous completion routine for _sendAlerts
+      */
+
+      static void _sendAlertsCallBack(AsyncOpNode *operation, 
+				      MessageQueue *callback_destination, 
+				      void *parameter);
+      
 
     /**
         Sends specified alert to each unique handler instance for the

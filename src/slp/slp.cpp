@@ -40,6 +40,10 @@
 # include <netdb.h>
 #endif
 
+#if defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC)
+# include <sys/sockio.h>
+#endif
+
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
@@ -82,7 +86,6 @@ PEGASUS_EXPORT int gethostbyname_r(const char *name,
 }
 
 #endif
-
 #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_TRU64) || defined(PEGASUS_OS_AIX) || defined(PEGASUS_OS_OS400)
 
 PEGASUS_EXPORT int gethostbyname_r(const char *name, 
@@ -107,6 +110,12 @@ PEGASUS_EXPORT int gethostbyname_r(const char *name,
   } 
   return(0);
 }
+
+#endif
+#ifdef PEGASUS_OS_SOLARIS
+#define gethostbyname_r(name, resultbuf, buf, bufsize, result, errnop) \
+    (*result=gethostbyname_r(name, resultbuf, buf, bufsize, errnop),\
+    *errnop = *errnop)
 
 #endif
 
@@ -1612,7 +1621,7 @@ Sint32 slp_client::service_listener(SOCKET extra_sock )
   if( 0 < err ) {
     struct sockaddr_in remote;
 
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_TRU64)
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_TRU64) || ( defined PEGASUS_OS_SOLARIS && defined SUNOS_5_6)
     int size = sizeof(remote);
 #else
     socklen_t size = sizeof(remote);

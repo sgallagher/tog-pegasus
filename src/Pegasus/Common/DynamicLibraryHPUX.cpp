@@ -95,21 +95,21 @@ Boolean DynamicLibrary::load(void)
 {
     if(_handle == 0)
     {
+        // If library is not loaded, load it now
         CString cstr = _fileName.getCString();
 
         //_handle = shl_load(cstr, BIND_IMMEDIATE | DYNAMIC_PATH | BIND_VERBOSE, 0L);
         _handle = shl_load(cstr, BIND_IMMEDIATE | DYNAMIC_PATH, 0L);
+
+        if (_handle == 0)
+        {
+            return(false);
+        }
     }
 
-    if(_handle != 0)
-    {
-        // increment the handle reference count if not 0
-        _increment_handle(_handle);
+    _increment_handle(_handle);
 
-        return(true);
-    }
-
-    return(false);
+    return(true);
 }
 
 Boolean DynamicLibrary::unload(void)

@@ -31,7 +31,8 @@
 #define Pegasus_SecureLocalAuthenticator_h
 
 #include "LocalAuthenticator.h"
-#include "Linkage.h"
+
+#include <Pegasus/Security/Authentication/Linkage.h>
 
 
 PEGASUS_NAMESPACE_BEGIN

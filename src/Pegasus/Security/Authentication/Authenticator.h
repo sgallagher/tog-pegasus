@@ -36,7 +36,7 @@
 #include <Pegasus/Common/AuthenticationInfo.h>
 #include <Pegasus/Common/AuthenticationInfoRep.h>
 
-#include "Linkage.h"
+#include <Pegasus/Security/Authentication/Linkage.h>
 
 
 PEGASUS_NAMESPACE_BEGIN

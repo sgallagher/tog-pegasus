@@ -56,7 +56,8 @@
 #include <Pegasus/Repository/CIMRepository.h>
 
 #include "HandlerTable.h"
-#include "Linkage.h"
+
+#include <Pegasus/HandlerService/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

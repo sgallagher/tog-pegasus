@@ -34,7 +34,7 @@
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/Array.h>
 
-#include "Linkage.h"
+#include <Pegasus/Security/UserManager/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

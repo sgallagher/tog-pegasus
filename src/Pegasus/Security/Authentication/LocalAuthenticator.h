@@ -33,7 +33,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 
-#include "Linkage.h"
+#include <Pegasus/Security/Authentication/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

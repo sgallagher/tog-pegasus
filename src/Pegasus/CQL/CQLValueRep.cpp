@@ -2084,6 +2084,8 @@ void CQLValueRep::applyContext(QueryContext& _ctx,
    if(inCid.size() != 0 && _CQLChainId.size() == 1)
    {
       _CQLChainId[0].setName(inCid[inCid.size()-1].getName());
+      _CQLChainId[0].applyScope(inCid[inCid.size()-1].getName().getString());
+
       for(Sint32 i = inCid.size()-2; i >= 0; --i)
       {
          _CQLChainId.prepend(inCid[i]); 

@@ -95,6 +95,16 @@ Thread::Thread( PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *start )(void *),
 {
 
     pthread_attr_init(&_handle.thatt);
+
+#if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
+    size_t stacksize;
+    if (pthread_attr_getstacksize(&_handle.thatt, &stacksize) == 0)
+    {
+       int rc = pthread_attr_setstacksize(&_handle.thatt, stacksize*2);
+       PEGASUS_ASSERT(rc == 0);
+    }
+#endif
+
     _handle.thid = 0;
 }
 

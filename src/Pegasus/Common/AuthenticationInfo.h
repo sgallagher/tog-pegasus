@@ -41,8 +41,14 @@ PEGASUS_NAMESPACE_BEGIN
 /**
     This class keeps the authentication information of a connection 
     persistent until the connection is destroyed.
-*/
 
+    REVIEW: how is this information tied to the connection?
+
+    REVIEW: may not be general enough for implementing other authentication
+    schemes.
+
+    REVIEW: need explanation of how this class works.
+*/
 class PEGASUS_COMMON_LINKAGE AuthenticationInfo
 {
 public:
@@ -60,10 +66,15 @@ public:
     */
     Uint32 getAuthStatus() const { return _authStatus; }
 
+    // REVIEW: use Status type instead of Uint32.
+
     /**
     Set the authentication status of the request
     */
     void   setAuthStatus(Uint32 status);
+
+    // REVIEW: comments which just parrot the name of the method are not
+    // useful and should be removed.
 
     /**
     Get the authenticated user name
@@ -112,6 +123,8 @@ public:
 
 private:
 
+    // REVIEW: use Status type instead of Uint32.
+
     Uint32  _authStatus;
 
     String  _authUser;
@@ -121,7 +134,6 @@ private:
     String  _authSecret;
 
     Boolean _privileged;
-
 };
 
 PEGASUS_NAMESPACE_END

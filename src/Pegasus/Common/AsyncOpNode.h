@@ -68,6 +68,9 @@ PEGASUS_NAMESPACE_BEGIN
 #define ASYNC_OPSTATE_ORPHANED          0X00001000
 
 
+// REVIEW: Code documentation?
+
+// REVIEW: Coding/formatting standards?
 
 class PEGASUS_COMMON_LINKAGE AsyncOpNode
 {

@@ -39,11 +39,13 @@ PEGASUS_NAMESPACE_BEGIN
 # include "ArrayImpl.h"
 #undef PEGASUS_ARRAY_T
 
-// ATTN-C: Need methods for determining inequalities.
-// ATTN-C: Need methods for extracting components (e.g., minutes, hours)?
-// ATTN-KS: Need methods to get current datetime into this form
-// ATTN-KS: Needs tool to get and set components.
-// ATTN-KS: Needs constructor that creates from individual elements(year,...)
+// REVIEW: Need methods for determining inequalities.
+
+// REVIEW: Need methods for extracting components (e.g., minutes, hours)?
+
+// REVIEW: Need methods to get current datetime into this form.
+
+// REVIEW: Needs constructor that creates from individual elements(year,...)
 
 static const char _NULL_INTERVAL_TYPE_STRING[] = "00000000000000.000000:000";
 

@@ -89,8 +89,6 @@ PEGASUS_NAMESPACE_BEGIN
 	00000000000000.000000:000
 
     Instances can be tested for nullness with the isNull() method.
-
-    ATTN: Add inequalities.
 */
 class PEGASUS_COMMON_LINKAGE CIMDateTime
 {

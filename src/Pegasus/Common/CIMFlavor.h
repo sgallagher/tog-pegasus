@@ -26,12 +26,6 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-/*
-
- CIMFlavor.h -- This file declares qualifier flavor constants.
-
-*/
-
 #ifndef Pegasus_Flavor_h
 #define Pegasus_Flavor_h
 
@@ -40,20 +34,35 @@
 #include <Pegasus/Common/String.h>
 
 PEGASUS_NAMESPACE_BEGIN
-/**
-CIMQualifier flavor constants
+
+/** This structure defines flavor constants borne by CIMQualifier objects.
 */
 struct PEGASUS_COMMON_LINKAGE CIMFlavor
 {
+    /** Indicates that the qualifier has no flavors.
+    */
     static const Uint32 NONE;
+
+    /** Indicates that the qualifier may be overriden.
+    */
     static const Uint32 OVERRIDABLE;
+
+    /** Indicates that the qualifier is propagated to the qualifier in the
+	subclass with the same name.
+    */
     static const Uint32 TOSUBCLASS;
+
+    /** Indicates that the qualifier is propagated to the qualifier in the
+	instance with the same name.
+    */
     static const Uint32 TOINSTANCE;
+
+    /** Indicates whether qualifier is translatable (for internationalization).
+    */
     static const Uint32 TRANSLATABLE;
 
-    // These are the defaults according to the CIM DTD:
-    // OVERRIDABLE, TOSUBCLASS
-
+    /** Defaults according to the CIM DTD (OVERRIDABLE | TOSUBCLASS).
+    */
     static const Uint32 DEFAULTS;
 };
 
@@ -68,15 +77,16 @@ PEGASUS_COMMON_LINKAGE String FlavorToMof(Uint32 flavor);
     format and puts them into the variable out.
     @param out XML output stream into which the xml is places.
     @param flavor variable containing the flavor definition
-    <pre>
-    // Get flavorkeywords and test for any returned keywords
-    Uint32 flavor = CIMFlavor::DEFAULTS,
-    String flavorString;
-    flavorString = FlavorToMof(_flavor);
-    if (flavorString.size())
-	...           // code to execute if keywords exist
-    
-    </pre>
+
+	<pre>
+	// Get flavorkeywords and test for any returned keywords
+	Uint32 flavor = CIMFlavor::DEFAULTS,
+	String flavorString;
+	flavorString = FlavorToMof(_flavor);
+	if (flavorString.size())
+	    ...           // code to execute if keywords exist
+	
+	</pre>
 */
 PEGASUS_COMMON_LINKAGE void FlavorToXml(
     Array<Sint8>& out, 

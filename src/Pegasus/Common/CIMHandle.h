@@ -43,6 +43,13 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+// REVIEW: Need source documentation.
+
+// REVIEW: Why do we need this class and CIMOM handle?
+
+// REVIEW: Why do we need synchronous and asynchronous versions of each 
+// method?
+
 class PEGASUS_COMMON_LINKAGE CIMHandle : public Sharable
 {
 public:

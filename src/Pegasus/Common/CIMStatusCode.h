@@ -33,6 +33,9 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+/** CIM Status codes defined in the CIM/HTTP standard. These are the valid
+    codes which may be passed on the wire.
+*/
 enum CIMStatusCode
 {
     CIM_ERR_SUCCESS = 0,

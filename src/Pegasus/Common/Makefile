@@ -13,7 +13,6 @@ SOURCES = \
     AsyncOpNode.cpp \
     AuthenticationInfo.cpp \
     CGIQueryString.cpp \
-    Channel.cpp \
     Char16.cpp \
     CIMClass.cpp \
     CIMClassRep.cpp \
@@ -73,7 +72,6 @@ SOURCES = \
     OptionManager.cpp \
     Pair.cpp \
     Queue.cpp \
-    Selector.cpp \
     Service.cpp \
     Sharable.cpp \
     Socket.cpp \
@@ -81,7 +79,6 @@ SOURCES = \
     Stopwatch.cpp \
     String.cpp \
     System.cpp \
-    TCPChannel.cpp \
     TimeValue.cpp \
     TLS.cpp \
     TraceFileHandler.cpp \

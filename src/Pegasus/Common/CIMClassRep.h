@@ -40,6 +40,8 @@ class CIMClass;
 class CIMConstClass;
 class CIMInstanceRep;
 
+// REVIEW: document this class.
+
 class PEGASUS_COMMON_LINKAGE CIMClassRep : public CIMObjectRep
 {
 public:

@@ -32,6 +32,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+// REVIEW: Where is this class used?
+
 template<class L> class PEGASUS_COMMON_LINKAGE DQueue : virtual public unlocked_dq<L>
 {
    private: 

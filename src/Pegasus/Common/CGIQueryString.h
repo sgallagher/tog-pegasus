@@ -52,8 +52,9 @@ struct CGIQueryStringEntry
     and passed to the CGI program. The value of that environment variable
     may be passed to the constructor. Methods are provided for getting the
     names and values of each field.
-*/
 
+    For the format of a query string, see a book on CGI.
+*/
 class PEGASUS_COMMON_LINKAGE CGIQueryString
 {
 public:

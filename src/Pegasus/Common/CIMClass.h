@@ -39,6 +39,8 @@ class CIMConstClass;
 class CIMObject;
 class CIMConstObject;
 
+// REVIEW: redocument.
+
 /** The CIMClass class is used to represent CIM classes in Pegasus.  In CIM,
     a class object may be a class or an associator.  A CIM class must contain a
     name and may contain methods, properties, and qualifiers.  It is a template
@@ -90,7 +92,7 @@ public:
 	return *this;
     }
 
-    /**	 Constructor - Creates a Class from inputs of a classname and
+    /**	Constructor - Creates a Class from inputs of a classname and
 	SuperClassName
 	@param className String representing name of the class being created
 	@param superClassName String representing name of the SuperClass
@@ -226,8 +228,8 @@ public:
 	by the input parameter
 	@param pos defines the position of the qualifier in the class from the
 	findQualifier method
-	@return CIMQualifier object representing the qualifier found.
-	ATTN: what is error return here?
+	@return CIMQualifier object representing the qualifier found. On error,
+	    CIMQualifier handle will be null.
     */
     CIMQualifier getQualifier(Uint32 pos)
     {

@@ -34,6 +34,9 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+// REVIEW: delete this class. CIM indications are represented using
+// CIMInstance objects.
+
 class PEGASUS_COMMON_LINKAGE CIMIndication
 {
 public:

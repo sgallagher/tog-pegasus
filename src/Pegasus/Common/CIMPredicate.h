@@ -41,6 +41,8 @@
 //#include <iostream>
 
 PEGASUS_NAMESPACE_BEGIN
+
+// REVIEW: Where are these classes used?
    
 extern void PEGASUS_COMMON_LINKAGE _BubbleSort(Array<KeyBinding>& x);
 enum LogicalOperator { AND, NOT, OR };
@@ -572,7 +574,3 @@ class PEGASUS_COMMON_LINKAGE PredicateTree
 PEGASUS_NAMESPACE_END
 
 #endif // Predicate_h
-
-
-
-

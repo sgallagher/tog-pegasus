@@ -33,6 +33,11 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+/** This class provides an implementation of the boolean for compilers which
+    do not support "bool" as a type.
+
+    This class is not used by modern C++ compilers.
+*/
 class Boolean
 {
 public:

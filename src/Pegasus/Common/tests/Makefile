@@ -6,7 +6,6 @@ DIRS = \
     Config \
     HashTable \
     Resolve \
-    Acceptor \
     Formatter \
     Abstract \
     Array \

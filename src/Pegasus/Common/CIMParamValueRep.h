@@ -43,6 +43,17 @@ PEGASUS_NAMESPACE_BEGIN
 class DeclContext;
 class CIMConstParameter;
 
+// REVIEW: This class should be renamed to CIMParameterValueRep to be consistent
+// REVIEW: with the name of the CIMParameterRep class.
+
+// REVIEW: This class contains a CIMParameter but then repeats many of the
+// REVIEW: members that CIMParameter contains. The standard does not provide
+// REVIEW: a way of passing the type of the CIMParameter. However, CIMParameter
+// REVIEW: has a type tag. There is no way to get this information from the wire
+// REVIEW: and therefore this class is unworkable.
+// REVIEW: In any case, CIMParamValueRep should not repeat the _isArray,
+// REVIEW: _arraySize, _referenceClassName, and _qualifiers fields.
+
 class PEGASUS_COMMON_LINKAGE CIMParamValueRep : public Sharable
 {
 public:

@@ -42,6 +42,9 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+// REVIEW: there seems to be two of these. CIMHandle seems to do the
+// same thing.
+
 class PEGASUS_COMMON_LINKAGE CIMOMHandle : public CIMHandle
 {
 public:

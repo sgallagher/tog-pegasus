@@ -115,7 +115,7 @@ bool WMICollector::setup()
 								      RPC_C_AUTHN_LEVEL_DEFAULT,
 								      RPC_C_IMP_LEVEL_IMPERSONATE,
 								      NULL,
-								      EOAC_NONE,
+                                      EOAC_DYNAMIC_CLOAKING, 
 								      0);
         }
 	}
@@ -1591,7 +1591,8 @@ bool WMICollector::setProxySecurity(IUnknown * pProxy)
 			RPC_C_AUTHN_LEVEL_PKT,      // authentication Tracer::LEVEL
 			RPC_C_IMP_LEVEL_IMPERSONATE, // impersonation Tracer::LEVEL
 			NULL,                
-			EOAC_NONE);          // no special capabilities
+			EOAC_DYNAMIC_CLOAKING);     // enable dynamic cloaking, so 
+                                        // impersonation token is propagated to WMI
 	}
 	else
 	{
@@ -1619,7 +1620,9 @@ bool WMICollector::setProxySecurity(IUnknown * pProxy)
 				RPC_C_AUTHN_LEVEL_PKT,      // authentication Tracer::LEVEL
 				RPC_C_IMP_LEVEL_IMPERSONATE,    // impersonation Tracer::LEVEL
 				&authident, 
-				EOAC_NONE);          // no special capabilities
+			    EOAC_NONE); // EOAC_DYNAMIC_CLOAKING seems to fail on remote WMI calls,
+                            // or when COAUTHIDENTITY info is sent (as in this case),
+                            // so going back to EOC_NONE for this case only.
 	}
 
     Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,

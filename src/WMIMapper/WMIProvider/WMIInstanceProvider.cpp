@@ -861,7 +861,7 @@ CIMObjectPath WMIInstanceProvider::createInstance(
 	CComPtr<IWbemCallResult> pResult;
 
 	hr = pServices->PutInstance(pNewInstance, 
-		                        WBEM_FLAG_CREATE_ONLY, 
+		                        WBEM_FLAG_CREATE_ONLY | WBEM_FLAG_USE_AMENDED_QUALIFIERS, 
 								NULL, 
 								&pResult);
 

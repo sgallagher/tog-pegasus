@@ -3,7 +3,7 @@ ROOT = ../../../..
 include $(ROOT)/mak/config.mak
 
 DIRS = \
-	LoadProcessClass \
+#	LoadProcessClass \
 	SendMailIndicationDispatcher \
 	XmlIndicationDispatcher
 

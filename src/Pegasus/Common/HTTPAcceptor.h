@@ -53,9 +53,9 @@ class PEGASUS_COMMON_LINKAGE HTTPAcceptor : public MessageQueueService
 	  @param outputMessageQueue ouptut message queue for connections
 	  created by this acceptor.
       */
-      HTTPAcceptor(Monitor* monitor, MessageQueue* outputMessageQueue);
+      HTTPAcceptor(Monitor* monitor, MessageQueueService* outputMessageQueue);
 
-      HTTPAcceptor(Monitor* monitor, MessageQueue* outputMessageQueue, 
+      HTTPAcceptor(Monitor* monitor, MessageQueueService* outputMessageQueue, 
 		   SSLContext * sslcontext);
 
       /** Destructor. */
@@ -109,7 +109,7 @@ class PEGASUS_COMMON_LINKAGE HTTPAcceptor : public MessageQueueService
     
 
       Monitor* _monitor;
-      MessageQueue* _outputMessageQueue;
+      MessageQueueService* _outputMessageQueue;
       HTTPAcceptorRep* _rep;
 
       SSLContext * _sslcontext;

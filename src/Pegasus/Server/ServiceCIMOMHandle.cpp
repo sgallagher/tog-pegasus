@@ -42,7 +42,7 @@ ServiceCIMOMHandle::ServiceCIMOMHandle(void)
 }
 
 ServiceCIMOMHandle::ServiceCIMOMHandle(
-    MessageQueue* outputQueue,
+    MessageQueueService* outputQueue,
 	CIMServer * server,
     CIMRepository * repository)
 :

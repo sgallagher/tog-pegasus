@@ -51,7 +51,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
       typedef MessageQueueService Base;
     
       CIMOperationRequestDecoder(
-	 MessageQueue* outputQueue,
+	 MessageQueueService* outputQueue,
 	 Uint32 returnQueueId);
 
       ~CIMOperationRequestDecoder();
@@ -281,7 +281,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 
    private:
 
-      MessageQueue* _outputQueue;
+      MessageQueueService* _outputQueue;
 
       // Queue where responses should be enqueued.
       Uint32 _returnQueueId;

@@ -44,8 +44,8 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 CIMExportResponseDecoder::CIMExportResponseDecoder(
-   MessageQueue* outputQueue,
-   MessageQueue* encoderQueue,
+   MessageQueueService* outputQueue,
+   MessageQueueService* encoderQueue,
    ClientAuthenticator* authenticator)
    :
    Base("CIMExportResponseDecoder", MessageQueue::getNextQueueId()),
@@ -61,7 +61,7 @@ CIMExportResponseDecoder::~CIMExportResponseDecoder()
 
 }
 
-void  CIMExportResponseDecoder::setEncoderQueue(MessageQueue* encoderQueue)
+void  CIMExportResponseDecoder::setEncoderQueue(MessageQueueService* encoderQueue)
 {
    _encoderQueue = encoderQueue;
 }

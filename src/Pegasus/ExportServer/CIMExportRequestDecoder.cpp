@@ -45,7 +45,7 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 CIMExportRequestDecoder::CIMExportRequestDecoder(
-   MessageQueue* outputQueue,
+   MessageQueueService* outputQueue,
    Uint32 returnQueueId)
    :   
    Base("CIMExportRequestDecoder", MessageQueue::getNextQueueId()),

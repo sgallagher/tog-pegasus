@@ -316,6 +316,9 @@ Boolean MessageQueueService::_enqueueResponse(
       AsyncRequest *async = static_cast<AsyncRequest *>(request->_async);
       AsyncOpNode *op = async->op;
       request->_async = 0;
+      // this request is probably going to be deleted !!
+      // remove it from the op node 
+      op->_request.remove(request);
       
       AsyncLegacyOperationResult *async_result = 
 	 new AsyncLegacyOperationResult( 

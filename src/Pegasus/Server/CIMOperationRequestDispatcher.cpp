@@ -529,9 +529,14 @@ void CIMOperationRequestDispatcher::handleGetClassRequest(
    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
    String errorDescription;
    CIMClass cimClass;
-
+   
+   cout << "getting read lock on repository" << endl;
+   
    _repository->read_lock();
-
+ 
+   cout << " holding read lock on repository" << endl;
+   
+   
    try
    {
       cimClass = _repository->getClass(
@@ -904,8 +909,8 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
       _enqueueResponse(request, response);
          
       delete reply;
-      delete response;
-
+//      delete response;
+// << Tue Feb 26 18:41:38 2002 mdd >>
       delete req;
       return;
    }

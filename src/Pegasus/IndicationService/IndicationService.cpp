@@ -1149,13 +1149,34 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
         //
         //  Create instance in repository
         //
+	
         _repository->write_lock ();
-    
+	try 
+	{
+	   
         instanceRef = _repository->createInstance (request->nameSpace, 
-            instance);
-    
-        _repository->write_unlock ();
-    
+						   instance);
+	}
+	catch (Exception & exception)
+	{
+// ATTN: << Tue Feb 26 18:10:09 2002 mdd >>
+// Nitin - need to catch AlreadExists so you can unlock the repository 
+	   errorCode = CIM_ERR_FAILED;
+	   errorDescription = exception.getMessage ();
+	   _repository->write_unlock ();
+	   CIMCreateInstanceResponseMessage* response =
+	      new CIMCreateInstanceResponseMessage(
+		 request->messageId,
+		 errorCode,
+		 errorDescription,
+		 request->queueIds.copyAndPop(),
+		 instanceRef);
+
+	   _enqueueResponse(request, response);
+
+	   PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+	}
+
         //
         //  If the instance is of the CIM_IndicationSubscription class
         //  and subscription state is enabled, send enable request to 

@@ -50,7 +50,7 @@ public:
 
 	/** */
 	ServiceCIMOMHandle(
-		MessageQueue * outputQueue,
+		MessageQueueService * outputQueue,
 		CIMServer * cimserver,
 		CIMRepository * repository);
 

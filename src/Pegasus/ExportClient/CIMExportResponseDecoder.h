@@ -57,14 +57,14 @@ class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportResponseDecoder :  public MessageQu
 	  @param outputQueue queue to receive decoded HTTP messages.
       */
       CIMExportResponseDecoder(
-	 MessageQueue* outputQueue,
-	 MessageQueue* encoderQueue,
+	 MessageQueueService* outputQueue,
+	 MessageQueueService* encoderQueue,
 	 ClientAuthenticator* authenticator);
 
       /** Destructor. */
       ~CIMExportResponseDecoder();
 
-      void setEncoderQueue(MessageQueue* encoderQueue);
+      void setEncoderQueue(MessageQueueService* encoderQueue);
 
       /** This method is called when a message is enqueued on this queue. */
       virtual void handleEnqueue(Message *);
@@ -84,8 +84,8 @@ class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportResponseDecoder :  public MessageQu
       CIMExportIndicationResponseMessage* _decodeExportIndicationResponse(
 	 XmlParser& parser, const String& messageId);
 
-      MessageQueue*        _outputQueue;
-      MessageQueue*        _encoderQueue;
+      MessageQueueService*        _outputQueue;
+      MessageQueueService*        _encoderQueue;
       ClientAuthenticator* _authenticator;
 };
 

@@ -21,6 +21,7 @@
 #ifndef _OSTESTCLIENT_H
 #define _OSTESTCLIENT_H
 
+#include <Pegasus/Common/Config.h>
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/CIMDateTime.h>   // getCurrentDateTime
 

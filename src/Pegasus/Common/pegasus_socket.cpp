@@ -683,20 +683,20 @@ pegasus_socket::pegasus_socket(void)
 
 pegasus_socket::pegasus_socket(socket_factory *factory)
 {
-   _rep = factory->make_socket();
+    _rep = factory->make_socket();
 }
 
 pegasus_socket::pegasus_socket(const pegasus_socket& s)
 {
    if(this != &s)
    {
-      Inc(this->_rep = s._rep);
+     Inc(this->_rep = s._rep);
    }
 };
 
 pegasus_socket::pegasus_socket(abstract_socket* s)
 {
-   Inc(this->_rep = s);
+  _rep = s;
 }
 
 

@@ -658,7 +658,6 @@ template<class L> AsyncDQueue<L>::AsyncDQueue(Boolean head, Uint32 capacity )
       _actual_count = new AtomicInt(0);
       _disallow = new AtomicInt(0);
       _capacity = new AtomicInt(capacity);
-      
    }
    else
    {

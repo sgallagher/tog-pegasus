@@ -63,8 +63,7 @@ public:
 private:
     Sharable(const Sharable &s) : _ref(1) {assert(0);} 
     // we should never copy a counter, so we make this private - dte
-
-        AtomicInt _ref;
+    AtomicInt _ref;
 };
 
 inline void Inc(Sharable* x)

@@ -356,6 +356,7 @@ monitor_2_entry::monitor_2_entry(const monitor_2_entry& e)
 
 monitor_2_entry::~monitor_2_entry(void)
 {
+
 }
 
 monitor_2_entry& monitor_2_entry::operator=(const monitor_2_entry& e)
@@ -391,7 +392,7 @@ monitor_2_entry::operator pegasus_socket() const
 
 
 monitor_2::monitor_2(void)
-  : _session_dispatch(0), _listeners(true, 0),_ready(true),  _die(0)
+  : _session_dispatch(0), _listeners(true, 0), _ready(true),  _die(0)
 {
   try {
     
@@ -442,8 +443,16 @@ monitor_2::monitor_2(void)
 
 monitor_2::~monitor_2(void)
 {
- 
+  PEGASUS_STD(cout) << "monitor destructor" << PEGASUS_STD(endl);
   
+  try {
+    monitor_2_entry* temp = _listeners.remove_first();
+    while(temp){
+      delete temp;
+      temp = _listeners.remove_first();
+    }
+  }
+  catch(...){  }
 }
 
 
@@ -534,7 +543,6 @@ void monitor_2::_dispatch(void)
     }
     delete entry;
     entry = (monitor_2_entry*) _ready.remove_first();
-    
   }
 }
 

@@ -60,7 +60,7 @@ const char* CMD   = "COMMAND\n\0";
 const char* QUIT  = "QUIT\n\0";
 
 AtomicInt cmd_tx, cmd_rx, ready;
-
+monitor_2 mon;
 void pipe_handler(int signum)
 {
    return;
@@ -106,8 +106,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL remote_socket(void *parm)
    
    listener.bind((struct sockaddr *)&addr, sizeof(addr));
    listener.listen(15);
-
-   monitor_2 mon;
+ 
    mon.tickle();
    
    mon.add_entry(listener, LISTEN );
@@ -227,7 +226,7 @@ int main(int argc, char** argv)
 
    Thread th_listener(remote_socket, NULL, false);
    th_listener.run();
-     
+      
    // initialize the address
    struct sockaddr_in addr;
    memset(&addr, 0, sizeof(addr));
@@ -247,8 +246,6 @@ int main(int argc, char** argv)
      pegasus_sleep(10);
       
    }
-   
-
    connector.connect((struct sockaddr *)&peer, peer_size);
    cmd_tx = 0;
    
@@ -268,8 +265,6 @@ int main(int argc, char** argv)
 
    th_listener.cancel();
    th_listener.join();
-   
-
 
 # ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
 
@@ -314,12 +309,6 @@ int main(int argc, char** argv)
    th_domain.join();
 			 
 #endif // domain socket 
-
-
-
-   
-   
-
 
    cout << argv[0] << " +++++ passed all tests" << endl;
    return 0;

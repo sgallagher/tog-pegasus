@@ -357,7 +357,7 @@ void NameSpaceManager::deleteNameSpace(const String& nameSpaceName)
 	throw NonEmptyNameSpace(nameSpaceName);
 
     if (!FileSystem::removeDirectoryHier(nameSpacePath))
-	throw FailedToRemoveDirectory(nameSpacePath);
+	throw CannotRemoveDirectory(nameSpacePath);
 
     // Remove and delete the namespace object:
 
@@ -432,7 +432,7 @@ void NameSpaceManager::deleteClass(
     // -- Remove the file from disk:
 
     if (!FileSystem::removeFileNoCase(classFilePath))
-	throw FailedToRemoveFile(classFilePath);
+	throw CannotRemoveFile(classFilePath);
 }
 
 void NameSpaceManager::print(PEGASUS_STD(ostream)& os) const

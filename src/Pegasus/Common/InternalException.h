@@ -93,8 +93,6 @@ public:
     } while (0)
 
 
-// l10n TODO - finish the commented out constructors
-
 // ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE NullPointer : public Exception
 {

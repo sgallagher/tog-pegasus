@@ -3,6 +3,9 @@
 
     ------------------------------------------------------------------------
 
+    (A) Hide setPropagated() and setClassOrigin() methods (only the resolve
+        method should touch these).
+
     (A) Notice that there is a bug where you select Scope::REFERENCE and
 	and the validation routines still say the scope is wrong for
 	qualifiers applied actual references (they are checking for

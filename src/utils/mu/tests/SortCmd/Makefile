@@ -19,18 +19,35 @@ FORCE:
 local-clean:
 	$(RM) *.tmp
 
-tests: testsort testdiffsort
-	@ $(ECHO) +++++ all test passed	
+tests: testdiffsort testsort1 testsort2
+	@ $(ECHO) $(SORT) +++++ all test passed	
 
-testsort:
-	 $(SORT) file1_unsorted > file.tmp
-	 $(DIFF) file.tmp file1_sorted
-	 $(RM) file.tmp
-	@ $(ECHO) +++++ mu sort test passed	
+##
+## test that charecters are not added by sorting
+##
+testsort1:	
+	@ $(SORT) file1_unsorted.tmp > file11.tmp
+	@ $(SORT) file11.tmp > file12.tmp
+	@ $(SORT) file12.tmp > file13.tmp
+	@ $(SORT) file13.tmp > file14.tmp
+	@ $(DIFF) file11.tmp file14.tmp
+	@ $(RM) *.tmp
+	@ $(ECHO) $(SORT) +++++  test1 passed	
+##
+## test that sort order is correct by comparing to saved output file
+##
+testsort2:
+	@ $(SORT) file1_unsorted > file11.tmp
+	@ $(DIFF) file11.tmp file1_sorted
+	@ $(RM) *.tmp
+	@ $(ECHO) $(SORT) +++++  test2 passed
 
+##
+## test the diffsort macro
+## 
 testdiffsort:
-	 $(call DIFFSORT,file1_unsorted,file1_reverse_sorted)
-	@ $(ECHO) +++++ diffsort passed	
+	@ $(call DIFFSORT,file1_unsorted,file1_reverse_sorted)
+	@ $(ECHO) diffsort +++++ passed	
      
 
 poststarttests:

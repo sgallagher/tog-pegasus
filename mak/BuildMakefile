@@ -97,7 +97,11 @@ checkout:
 
 rebuild: clean buildmu all tests
 
+rebuild-notest: clean buildmu all
+
 build: all tests
+
+build-notest: all
 
 all: buildmu
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile depend

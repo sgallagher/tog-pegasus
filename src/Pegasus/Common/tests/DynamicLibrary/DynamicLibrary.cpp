@@ -36,39 +36,24 @@ PEGASUS_USING_PEGASUS;
 
 PEGASUS_USING_STD;
 
-void callme(void)
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
+static const String VALID_FILE_NAME = "DynLib.dll";
+static const String INVALID_FILE_NAME = "BADDynLib.dll";
+#else
+static const String VALID_FILE_NAME "libDynLib.so";
+static const String INVALID_FILE_NAME "libBADDynLib.so";
+#endif
+
+// load a valid module, export a symbol, call it, and unload module
+void Test1(void)
 {
-}
-
-int main(int argc, char** argv)
-{
-    const char * verbose = getenv("PEGASUS_TEST_VERBOSE");
-
-    #if defined(PEGASUS_OS_TYPE_WINDOWS)
-    String fileName = "DynLib.dll";
-    #elif defined(PEGASUS_OS_TYPE_UNIX)
-    String fileName = "libDynLib.so";
-    #endif
-
-    DynamicLibrary library(fileName);
+    DynamicLibrary library(VALID_FILE_NAME);
 
     if(library.load() == false)
     {
         cout << "failed to load " << library.getFileName() << endl;
 
-        return(-1);
-    }
-
-    {
-        // library is currently loaded (with a single call to load())
-
-        // copy constructor
-        DynamicLibrary library2(library);
-
-        // assignment operator
-        DynamicLibrary library3 = library2;
-
-        // library is currently loaded (should be able to unload() after these copies go out of scope)
+        throw 0;
     }
 
     Uint32 (* callme)(void) = (Uint32 (*)(void))library.getSymbol("callme");
@@ -79,7 +64,7 @@ int main(int argc, char** argv)
 
         cout << "failed to export callme() from " << library.getFileName() << endl;
 
-        return(-1);
+        throw 0;
     }
 
     cout << "callme() returned << " << hex << callme() << endl;
@@ -88,10 +73,55 @@ int main(int argc, char** argv)
     {
         cout << "failed to unload " << library.getFileName() << endl;
 
-        return(-1);
+        throw 0;
+    }
+}
+
+// load valid module, assignment
+void Test2(void)
+{
+    DynamicLibrary library(VALID_FILE_NAME);
+
+    library.load();
+
+    {
+        DynamicLibrary library2(library);
+
+        DynamicLibrary library3;
+
+        library3 = library2;
     }
 
-    cout << argv[0] << " +++++ passed all tests" << endl;
+    library.unload();
+}
 
-    return(0);
+// load an invalid module
+void Test3(void)
+{
+    DynamicLibrary library(INVALID_FILE_NAME);
+
+    if(library.load() == true)
+    {
+        cout << "failed by loading " << library.getFileName() << endl;
+
+        throw 0;
+    }
+
+    if(library.unload() == false)
+    {
+        cout << "failed by unloading " << library.getFileName() << endl;
+
+        throw 0;
+    }
+}
+
+int main(int argc, char** argv)
+{
+    const char * verbose = getenv("PEGASUS_TEST_VERBOSE");
+
+    Test1();
+    Test2();
+    Test3();
+
+    cout << argv[0] << " +++++ passed all tests" << endl;
 }

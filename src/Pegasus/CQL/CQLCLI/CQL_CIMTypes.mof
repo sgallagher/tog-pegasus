@@ -205,7 +205,7 @@ class CQL_TestPropertyTypesMissing:CQL_TestElement
       [Description (
           "An embedded object on the base class "), 
         EmbeddedObject]
-     string EmbObjSubClass;
+     string EmbObjSub;
    };
 
 

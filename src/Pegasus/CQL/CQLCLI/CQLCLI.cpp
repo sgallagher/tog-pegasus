@@ -605,9 +605,10 @@ int main(int argc, char ** argv)
 	}
 
    // Add the embedded object instances to the array
-   buildEmbeddedObjects(_ns,
-                        _instances,
-                        _rep);
+   // ATTN - uncomment when emb objs are available
+   //   buildEmbeddedObjects(_ns,
+   //                        _instances,
+   //                        _rep);
    
 	// demo setup
 	if(argc == 3 && strcmp(argv[2],"Demo") == 0){

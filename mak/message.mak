@@ -35,7 +35,11 @@ endif
 
 FILES_TO_CLEAN = $(MSG_BUNDLES)
 
+ifdef ICU_ROOT
 include $(ROOT)/mak/clean.mak
+else
+clean:
+endif
 
 ################################################################################
 ##

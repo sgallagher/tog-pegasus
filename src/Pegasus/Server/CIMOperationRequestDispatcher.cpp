@@ -477,7 +477,11 @@ Array<CIMName> CIMOperationRequestDispatcher::_getSubClassNames(
 //
 //////////////////////////////////////////////////////////////////////////
 
-/* local support for display of propertyLists.
+/* local support for display of propertyLists. Converts a property list
+   to a String for display. This function is only for diagnostic support.
+   Assumes that there is a propertylist and it is not empty or null.
+   @param pl CIMPropertyList to convert.
+   @return String representation of property list for display.
 */
 String _toStringPropertyList(const CIMPropertyList& pl)
 {
@@ -492,21 +496,25 @@ String _toStringPropertyList(const CIMPropertyList& pl)
 }
 
 /* _showPropertyList is local support for displaying the propertylist
+   For display only. Generates String with property list names
+   or "empty" or "NULL" if that is the case.
+   @param pl CIMPropertyList to convert
+   @return String containing the list of properties comma separated
+   or the keywords NULL or Empty.
 */
 String _showPropertyList(const CIMPropertyList& pl)
 {
     if (pl.isNull())
         return("NULL");
 
-    String tmp = " ";
-
-    tmp.append((pl.size() == 0) ? String("Empty") : _toStringPropertyList(pl));
-    return(tmp);
+    return((pl.size() == 0) ? String("EMPTY") : _toStringPropertyList(pl));
 }
 
 /** determine of the the input property is in the list.
-    @param property list
-    @param name of property to compare
+    @param pl property list
+    @param pn name of property to compare
+    @return Boolean true if the property pn is in the list.
+    Else returns false.
 */
 Boolean _containsProperty(const CIMPropertyList& pl, const CIMName& pn)
 {
@@ -528,6 +536,7 @@ Boolean _containsProperty(const CIMPropertyList& pl, const CIMName& pn)
 /*  Determine of the the input property is in the array.
     @param plA Array<CINMame> containing list of properties
     @param name of property to compare
+    @return Boolean true if the property is in the array. Else false
 */
 Boolean _containsPropertyArray(const Array<CIMName>& pl, const CIMName& pn)
 {
@@ -556,7 +565,7 @@ Boolean _containsPropertyArray(const Array<CIMName>& pl, const CIMName& pn)
     @return Array<CIMName> list containing the properties.
 */
 
-Array<CIMName> _buildPropertyList(const CIMClass cl, const Boolean localOnly)
+Array<CIMName> _buildPropertyList(const CIMClass& cl, const Boolean localOnly)
 {
     Array<CIMName> outputPropertyListArray;
     PEG_METHOD_ENTER(TRC_DISPATCHER,
@@ -624,15 +633,15 @@ Boolean _addPropertiesToArray(Array<CIMName>& pl, const CIMClass& cimClass)
     list as received.  The list is in the outputPropertyList parameter.
     @param CIMClass target class. Used to determine list of local properties
     for the propertylist.
-    @param Boolean localOnly parameter
-    @param CIMPropertyList pl, input propertyList object. This list is used
+    @param localOnlyBoolean indicating whether we do localOnly
+    @param plCIMPropertyList input propertyList object. This list is used
     to construct new list for output
-    @param reference to returned property list.
+    @param reference to returned property list as array of CIMNames.
     @return Boolean true if there is a propertylist returned
 */
 
-Boolean _mergePropertyLists(const CIMClass cl, const Boolean localOnly,
-    const CIMPropertyList pl, Array<CIMName>& outputPropertyListArray)
+Boolean _mergePropertyLists(const CIMClass& cl, const Boolean localOnly,
+    const CIMPropertyList& pl, Array<CIMName>& outputPropertyListArray)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
            "CIMOperationRequestDispatcher::_mergePropertyLists");

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: ClassDeclRep.cpp,v $
+// Revision 1.5  2001/01/26 23:26:53  mike
+// reworked CGI inteface
+//
 // Revision 1.4  2001/01/25 02:12:05  mike
 // Added meta-qualifiers to LoadRepository program.
 //
@@ -123,8 +126,10 @@ void ClassDeclRep::addProperty(const Property& x)
 	throw AddedReferenceToClass(_className);
 
     // Set the class origin:
+    // ATTN: put this check in other places:
 
-    Property(x).setClassOrigin(_className);
+    if (x.getClassOrigin().getLength() == 0)
+	Property(x).setClassOrigin(_className);
 
     // Add the property:
 

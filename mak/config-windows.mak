@@ -45,3 +45,5 @@ LIB_PREFIX =
 LIB_SUFFIX = .lib
 
 SHARED_LIB_SUFFIX = .dll
+
+COPY = mu copy

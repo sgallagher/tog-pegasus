@@ -2,7 +2,7 @@ ROOT = .
 
 include $(ROOT)/mak/config.mak
 
-DIRS = src
+DIRS = src cgi
 
 include $(ROOT)/mak/recurse.mak
 

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CGIClient.cpp,v $
+// Revision 1.2  2001/01/26 23:26:53  mike
+// reworked CGI inteface
+//
 // Revision 1.1  2001/01/20 21:45:14  karl
 // relocated this directory
 //
@@ -54,7 +57,7 @@ static void PrintHead(const String& title)
 
 static void PrintHeader(const String& title)
 {
-    String img = "http://localhost/icons/OpenGroupLogo.gif";
+    String img = "http://localhost/pegasus/icons/OpenGroupLogo.gif";
 
     cout << "<table width=\"100%\">\n";
     cout << "<tr>\n";
@@ -66,13 +69,13 @@ static void PrintHeader(const String& title)
     cout << "</table>\n";
 }
 
-void PrintMessage(const String& message)
+void ErrorExit(const String& message)
 {
     cout << "<html>\n";
     PrintHead("Message");
     PrintHeader("Error");
     PrintRule();
-    cout << "  <body>\n";
+    cout << "  <body bgcolor=\"#CCCCCC\">\n";
     cout << "    <h1>" << message << "</h1>\n";
     cout << "  </body>\n";
     cout << "</html>\n";
@@ -84,12 +87,12 @@ String GetNameSpaceQueryField(const CGIQueryString& qs)
     const char* tmp;
 
     if (!(tmp = qs.findValue("NameSpace")))
-	PrintMessage("Missing NameSpace field");
+	ErrorExit("Missing NameSpace field");
 
     String nameSpace = tmp;
 
     if (!nameSpace.getLength())
-	PrintMessage("NameSpace parameter is null");
+	ErrorExit("NameSpace parameter is null");
 
     return nameSpace;
 }
@@ -129,6 +132,19 @@ static void PrintTableHeader(const String& tableName)
     cout << "</tr>\n";
 }
 
+static void PrintPropertiesTableHeader(const String& tableName)
+{
+    cout << "<h2>" << tableName << "</h2>\n";
+    cout << "<table border=1 width=\"50%\">\n";
+    cout << "<tr>\n";
+    cout << "<th>Name</th>\n";
+    cout << "<th>Type</th>\n";
+    cout << "<th>Value</th>\n";
+    cout << "<th>ClassOrigin</th>\n";
+    cout << "<th>Propagated</th>\n";
+    cout << "</tr>\n";
+}
+
 static void PrintTableTrailer()
 {
     cout << "</table>\n";
@@ -155,7 +171,7 @@ static void PrintLogo()
 {
     cout << "<table border=2>\n";
     cout << "<tr>\n";
-    cout << "<td><img src=\"http://localhost/icons/OpenGroupLogo.gif\"></td>\n";
+    cout << "<td><img src=\"http://localhost/pegasus/icons/OpenGroupLogo.gif\"></td>\n";
     cout << "</tr>\n";
     cout << "</table>\n";
 }
@@ -178,14 +194,15 @@ void PrintClassProperties(
     const String& nameSpace,
     ClassDecl& classDecl)
 {
-    PrintTableHeader("Properties:");
+    PrintPropertiesTableHeader("Properties:");
 
     for (Uint32 i = 0, n = classDecl.getPropertyCount(); i < n; i++)
     {
 	Property property = classDecl.getProperty(i);
 	const Value& value = property.getValue();
 
-	String href = "/pegasus/cgi-bin/GetProperty.cgi?";
+	String href = "/pegasus/cgi-bin/CGIClient?";
+	href.append("Operation=GetProperty&");
 	href.append("NameSpace=");
 	href.append(EncodeQueryStringValue(nameSpace));
 	href.append("&");
@@ -207,6 +224,11 @@ void PrintClassProperties(
 	    cout << "<td>" << valueString << "</td>\n";
 	else
 	    cout << "<td>null</td>\n";
+
+	cout << "<td>" << property.getClassOrigin() << "</td>\n";
+
+	cout << "<td>" << (property.getPropagated() ? "true" : "false");
+	cout << "</td>\n";
 
 	cout << "<tr>\n";
     }
@@ -262,7 +284,7 @@ void PrintClass(
 {
     cout << "<html>\n";
     PrintHead("GetClass");
-    cout << "<body>\n";
+    cout << "<body bgcolor=\"#CCCCCC\">\n";
 
     PrintHeader(classDecl.getClassName());
     PrintRule();
@@ -279,7 +301,7 @@ void PrintProperty(Property& property)
 {
     cout << "<html>\n";
     PrintHead("GetProperty");
-    cout << "<body>\n";
+    cout << "<body bgcolor=\"#CCCCCC\">\n";
 
     PrintHeader(property.getName());
     PrintRule();
@@ -302,12 +324,12 @@ static void GetClass(const CGIQueryString& qs)
     const char* tmp;
 
     if (!(tmp = qs.findValue("ClassName")))
-	PrintMessage("Missing ClassName field");
+	ErrorExit("Missing ClassName field");
 
     String className = tmp;
 
     if (!className.getLength())
-	PrintMessage("ClassName parameter is null");
+	ErrorExit("ClassName parameter is null");
 
     // ATTN: handle these later!
 
@@ -327,7 +349,7 @@ static void GetClass(const CGIQueryString& qs)
     }
     catch(Exception& e)
     {
-	PrintMessage(e.getMessage());
+	ErrorExit(e.getMessage());
     }
 }
 
@@ -346,24 +368,24 @@ static void GetProperty(const CGIQueryString& qs)
     const char* tmp;
 
     if (!(tmp = qs.findValue("ClassName")))
-	PrintMessage("Missing ClassName field");
+	ErrorExit("Missing ClassName field");
 
     String className = tmp;
 
     if (!className.getLength())
-	PrintMessage("ClassName parameter is null");
+	ErrorExit("ClassName parameter is null");
 
     //--------------------------------------------------------------------------
     // Get PropertyName:
     //--------------------------------------------------------------------------
 
     if (!(tmp = qs.findValue("PropertyName")))
-	PrintMessage("Missing ClassName field");
+	ErrorExit("Missing ClassName field");
 
     String propertyName = tmp;
 
     if (!propertyName.getLength())
-	PrintMessage("PropertyName parameter is null");
+	ErrorExit("PropertyName parameter is null");
 
     //--------------------------------------------------------------------------
 
@@ -379,7 +401,7 @@ static void GetProperty(const CGIQueryString& qs)
 
 	if (pos == Uint32(-1))
 	{
-	    PrintMessage("No such property");
+	    ErrorExit("No such property");
 	    return;
 	}
 
@@ -389,7 +411,7 @@ static void GetProperty(const CGIQueryString& qs)
     }
     catch(Exception& e)
     {
-	PrintMessage(e.getMessage());
+	ErrorExit(e.getMessage());
     }
 }
 
@@ -399,7 +421,7 @@ static void PrintClassNames(
 {
     cout << "<html>\n";
     PrintHead("GetClassNames");
-    cout << "<body>\n";
+    cout << "<body bgcolor=\"#CCCCCC\">\n";
 
     PrintHeader("EnumerateClassNames Result");
     PrintRule();
@@ -411,8 +433,8 @@ static void PrintClassNames(
     {
 	cout << "<tr><td>\n";
 
-	String href = "/pegasus/cgi-bin/GetClass.cgi?";
-
+	String href = "/pegasus/cgi-bin/CGIClient?";
+	href.append("Operation=GetClass&");
 	href.append("NameSpace=");
 	href.append(EncodeQueryStringValue(nameSpace));
 	href.append("&");
@@ -477,7 +499,7 @@ static void EnumerateClassNames(const CGIQueryString& qs)
     }
     catch(Exception& e)
     {
-	PrintMessage(e.getMessage());
+	ErrorExit(e.getMessage());
     }
 }
 
@@ -492,12 +514,12 @@ static void DeleteClass(const CGIQueryString& qs)
     const char* tmp;
 
     if (!(tmp = qs.findValue("ClassName")))
-	PrintMessage("Missing ClassName field");
+	ErrorExit("Missing ClassName field");
 
     String className = tmp;
 
     if (!className.getLength())
-	PrintMessage("ClassName parameter is null");
+	ErrorExit("ClassName parameter is null");
 
     try
     {
@@ -509,11 +531,11 @@ static void DeleteClass(const CGIQueryString& qs)
 	String message = "Class \"";
 	message += className;
 	message.append("\" was deleted");
-	PrintMessage(message);
+	ErrorExit(message);
     }
     catch(Exception& e)
     {
-	PrintMessage(e.getMessage());
+	ErrorExit(e.getMessage());
     }
 }
 
@@ -523,7 +545,8 @@ void PrintQualifierRow(const String& nameSpace, const QualifierDecl& qd)
 
     const Value& value = qd.getValue();
 
-    String href = "/pegasus/cgi-bin/GetQualifier.cgi?";
+    String href = "/pegasus/cgi-bin/CGIClient?";
+    href.append("Operation=GetQualifier&");
     href += "NameSpace=";
     href += EncodeQueryStringValue(nameSpace);
     href += '&';
@@ -548,7 +571,7 @@ void PrintGetQualifier(
 {
     cout << "<html>\n";
     PrintHead("GetQualifier");
-    cout << "<body>\n";
+    cout << "<body bgcolor=\"#CCCCCC\">\n";
 
     PrintHeader("GetQualifier");
     PrintRule();
@@ -579,7 +602,7 @@ void PrintEnumerateQualifiers(
 {
     cout << "<html>\n";
     PrintHead("EnumerateQualifiers");
-    cout << "<body>\n";
+    cout << "<body bgcolor=\"#CCCCCC\">\n";
 
     PrintHeader("EnumerateQualifiers");
     PrintRule();
@@ -626,7 +649,7 @@ static void EnumerateQualifiers(const CGIQueryString& qs)
     }
     catch(Exception& e)
     {
-	PrintMessage(e.getMessage());
+	ErrorExit(e.getMessage());
     }
 }
 
@@ -641,12 +664,12 @@ static void GetQualifier(const CGIQueryString& qs)
     const char* tmp;
 
     if (!(tmp = qs.findValue("QualifierName")))
-	PrintMessage("Missing QualifierName field");
+	ErrorExit("Missing QualifierName field");
 
     String qualifierName = tmp;
 
     if (!qualifierName.getLength())
-	PrintMessage("QualifierName parameter is null");
+	ErrorExit("QualifierName parameter is null");
 
     try
     {
@@ -659,7 +682,7 @@ static void GetQualifier(const CGIQueryString& qs)
     }
     catch(Exception& e)
     {
-	PrintMessage(e.getMessage());
+	ErrorExit(e.getMessage());
     }
 }
 
@@ -667,43 +690,48 @@ int main(int argc, char** argv)
 {
     cout << "Content-type: text/html\r\n\r\n";
 
-    if (argc != 2)
-	PrintMessage("not enough arguments");
+    if (argc != 1)
+	ErrorExit("unexpected command line arguments");
 
     const char* tmp = getenv("QUERY_STRING");
 
     if (!tmp)
-	PrintMessage("QUERY_STRING environment variable missing");
-
-    char* queryString = strcpy(new char[strlen(tmp) + 1], tmp);
+	ErrorExit("QUERY_STRING environment variable missing");
 
     try
     {
+        char* queryString = strcpy(new char[strlen(tmp) + 1], tmp);
+
 	CGIQueryString qs(queryString);
 
-	if (strcmp(argv[1], "GetClass") == 0)
+        const char* operation = qs.findValue("Operation");
+
+	if (!operation)
+	    ErrorExit("Missing Operation field");
+
+	if (strcmp(operation, "GetClass") == 0)
 	    GetClass(qs);
-	else if (strcmp(argv[1], "EnumerateClassNames") == 0)
+	else if (strcmp(operation, "EnumerateClassNames") == 0)
 	    EnumerateClassNames(qs);
-	else if (strcmp(argv[1], "DeleteClass") == 0)
+	else if (strcmp(operation, "DeleteClass") == 0)
 	    DeleteClass(qs);
-	else if (strcmp(argv[1], "GetProperty") == 0)
+	else if (strcmp(operation, "GetProperty") == 0)
 	    GetProperty(qs);
-	else if (strcmp(argv[1], "EnumerateQualifiers") == 0)
+	else if (strcmp(operation, "EnumerateQualifiers") == 0)
 	    EnumerateQualifiers(qs);
-	else if (strcmp(argv[1], "GetQualifier") == 0)
+	else if (strcmp(operation, "GetQualifier") == 0)
 	    GetQualifier(qs);
 	else
 	{
-	    String message = "Unknown method: ";
-	    message.append(argv[1]);
-	    PrintMessage(message);
+	    String message = "Unknown operation: ";
+	    message.append(operation);
+	    ErrorExit(message);
 	}
     }
     catch (Exception& e)
     {
 	char* msg = e.getMessage().allocateCString();
-	PrintMessage(msg);
+	ErrorExit(msg);
     }
 
     return 0;

@@ -41,7 +41,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class BinaryStreamer : public ObjectStreamer {
+class PEGASUS_COMMON_LINKAGE BinaryStreamer : public ObjectStreamer {
 
 public:
 

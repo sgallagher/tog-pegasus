@@ -152,6 +152,23 @@ extern "C" {
       CMReturn(CMPI_RC_OK);
    }
 
+   static CMPIStatus resultReturnExecQuery(CMPIResult* eRes, CMPIInstance* eInst) {
+      ExecQueryResponseHandler* res=(ExecQueryResponseHandler*)eRes->hdl;
+      if ((res == NULL) || (eInst == NULL))
+		CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+
+	  if (!eInst->hdl)
+		CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+ 
+      if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0) {
+         res->processing();
+         ((CMPI_Result*)eRes)->flags|=RESULT_set;
+      }
+      CIMInstance& inst=*(CIMInstance*)(eInst->hdl);
+      CMPI_Result *xRes=(CMPI_Result*)eRes;
+      res->deliver(inst);
+      CMReturn(CMPI_RC_OK);
+   }
    static CMPIStatus resultReturnObjectPath(CMPIResult* eRes, CMPIObjectPath* eRef) {
       ObjectPathResponseHandler* res=(ObjectPathResponseHandler*)eRes->hdl;
 
@@ -219,6 +236,15 @@ extern "C" {
       ((CMPI_Result*)eRes)->flags|=(RESULT_done | RESULT_set);
       CMReturn(CMPI_RC_OK);
    }
+   static CMPIStatus resultReturnExecQueryDone(CMPIResult* eRes) {
+      ExecQueryResponseHandler* res=(ExecQueryResponseHandler*)eRes->hdl;
+	  if (!res)
+		CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+      if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0) res->processing();
+      res->complete();
+      ((CMPI_Result*)eRes)->flags|=(RESULT_done | RESULT_set);
+      CMReturn(CMPI_RC_OK);
+   }
 
    static CMPIStatus resultBadReturnData(CMPIResult* eRes, const CMPIValue* data, CMPIType type) {
       CMReturn(CMPI_RC_ERR_NOT_SUPPORTED);
@@ -252,6 +278,16 @@ static CMPIResultFT resultObjOnStack_FT={
      resultReturnObject,
      resultBadReturnObjectPath,
      resultReturnObjDone,
+};
+
+static CMPIResultFT resultExecQueryOnStack_FT={
+     CMPICurrentVersion,
+     NULL,
+     NULL,
+     resultBadReturnData,
+     resultReturnExecQuery,
+     resultBadReturnObjectPath,
+     resultReturnExecQueryDone,
 };
 
 static CMPIResultFT resultData_FT={
@@ -301,6 +337,7 @@ CMPIResultFT *CMPI_ResultInstOnStack_Ftab=&resultInstOnStack_FT;
 CMPIResultFT *CMPI_ResultObjOnStack_Ftab=&resultObjOnStack_FT;
 CMPIResultFT *CMPI_ResultRefOnStack_Ftab=&resultRefOnStack_FT;
 CMPIResultFT *CMPI_ResultResponseOnStack_Ftab=&resultResponseOnStack_FT;
+CMPIResultFT *CMPI_ResultExecQueryOnStack_Ftab=&resultExecQueryOnStack_FT;
 
 CMPI_ResultOnStack::CMPI_ResultOnStack(const ObjectPathResponseHandler & handler,
          CMPI_Broker *xMb) {
@@ -342,6 +379,14 @@ CMPI_ResultOnStack::CMPI_ResultOnStack(const ResponseHandler& handler,
       flags=RESULT_Response;
    }
 
+CMPI_ResultOnStack::CMPI_ResultOnStack(const ExecQueryResponseHandler& handler,
+         CMPI_Broker *xMb) {
+      hdl=(void*)&handler;
+      xBroker=xMb;
+      ft=CMPI_ResultExecQueryOnStack_Ftab;
+      flags=RESULT_Object;
+   }
+
 CMPI_ResultOnStack::~CMPI_ResultOnStack() {
       if ((flags & RESULT_set)==0)  {
          if (ft==CMPI_ResultRefOnStack_Ftab) ((ObjectPathResponseHandler*)hdl)->processing();
@@ -349,6 +394,7 @@ CMPI_ResultOnStack::~CMPI_ResultOnStack() {
          else if (ft==CMPI_ResultObjOnStack_Ftab) ((ObjectResponseHandler*)hdl)->processing();
          else if (ft==CMPI_ResultMethOnStack_Ftab) ((MethodResultResponseHandler*)hdl)->processing();
          else if (ft==CMPI_ResultResponseOnStack_Ftab) ((ResponseHandler*)hdl)->processing();
+         else if (ft==CMPI_ResultExecQueryOnStack_Ftab) ((ExecQueryResponseHandler*)hdl)->processing();
          else ((ResponseHandler*)hdl)->processing();  // shoul not get here
       }
       if ((flags & RESULT_done)==0) {
@@ -357,6 +403,7 @@ CMPI_ResultOnStack::~CMPI_ResultOnStack() {
          else if (ft==CMPI_ResultObjOnStack_Ftab) ((ObjectResponseHandler*)hdl)->complete();
          else if (ft==CMPI_ResultMethOnStack_Ftab) ((MethodResultResponseHandler*)hdl)->complete();
          else if (ft==CMPI_ResultResponseOnStack_Ftab) ((ResponseHandler*)hdl)->complete();
+         else if (ft==CMPI_ResultExecQueryOnStack_Ftab) ((ExecQueryResponseHandler*)hdl)->complete();
          else ((ResponseHandler*)hdl)->complete();  // shoul not get here
       }
   }

@@ -43,7 +43,7 @@
 #include "CMPI_Broker.h"
 
 #include <Pegasus/Common/ResponseHandler.h>
-
+#include <Pegasus/ProviderManager2/OperationResponseHandler.h>
 PEGASUS_NAMESPACE_BEGIN
 
 #define RESULT_Instance   1
@@ -75,6 +75,7 @@ struct CMPI_ResultOnStack : CMPIResult {
    CMPI_Object *next,*prev;
    long flags;
    CMPI_Broker *xBroker;
+   CMPI_ResultOnStack(const ExecQueryResponseHandler&,CMPI_Broker*);
    CMPI_ResultOnStack(const ObjectPathResponseHandler&,CMPI_Broker*);
    CMPI_ResultOnStack(const InstanceResponseHandler&,CMPI_Broker*);
    CMPI_ResultOnStack(const MethodResultResponseHandler&,CMPI_Broker*);

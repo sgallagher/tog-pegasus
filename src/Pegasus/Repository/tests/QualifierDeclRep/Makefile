@@ -3,6 +3,8 @@ DIR = Pegasus/Repository/tests/QualifierDeclRep
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
+
 PROGRAM = QualifierDeclRep
 SOURCES = QualifierDeclRep.cpp
 

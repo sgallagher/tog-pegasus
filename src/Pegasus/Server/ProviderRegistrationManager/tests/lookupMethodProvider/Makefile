@@ -5,6 +5,8 @@ include ../libraries.mak
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
+
 PROGRAM = lookupMethodProvider
 
 SOURCES = lookupMethodProvider.cpp 

@@ -3,6 +3,8 @@ DIR = Pegasus/Common/tests/FileSystem
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
+
 PROGRAM = TestFileSystem
 SOURCES = FileSystem.cpp
 

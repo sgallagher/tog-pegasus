@@ -5,6 +5,8 @@ DIR = Pegasus/Server/tests/Lockable
 LIBRARIES = \
 	pegcommon
 
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
+
 PROGRAM = TestLockable
 
 SOURCES = Lockable.cpp

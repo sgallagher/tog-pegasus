@@ -3,6 +3,8 @@ DIR = Pegasus/Common/tests/Base64
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
+
 PROGRAM = TestBase64
 SOURCES = Base64.cpp
 

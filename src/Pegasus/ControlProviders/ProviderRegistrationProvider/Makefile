@@ -5,7 +5,7 @@ DIR = Pegasus/ControlProviders/ProviderRegistrationProvider
 
 include $(ROOT)/mak/config.mak
 
-LOCAL_DEFINES = -DPEGASUS_PROVREGPROVIDER_INTERNAL
+LOCAL_DEFINES = -DPEGASUS_PROVREGPROVIDER_INTERNAL -DPEGASUS_INTERNALONLY
 
 LIBRARY = ProviderRegistrationProvider
 

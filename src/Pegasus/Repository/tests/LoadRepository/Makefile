@@ -3,6 +3,8 @@ DIR = Pegasus/Repository/LoadRepository
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
+
 PROGRAM = LoadRepository
 
 SOURCES = LoadRepository.cpp

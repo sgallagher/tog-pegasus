@@ -3,6 +3,8 @@ DIR = Pegasus/Repository/tests/Inst
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
+
 PROGRAM = Inst
 SOURCES = Inst.cpp
 

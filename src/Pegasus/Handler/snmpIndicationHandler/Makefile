@@ -4,7 +4,7 @@ DIR = Pegasus/Handler/snmpIndicationHandler
 
 include $(ROOT)/mak/config.mak
 
-LOCAL_DEFINES = -DPEGASUS_HANDLER_INTERNAL
+LOCAL_DEFINES = -DPEGASUS_HANDLER_INTERNAL -DPEGASUS_INTERNALONLY
 
 LIBRARIES = \
     pegcommon \

@@ -3,6 +3,8 @@ DIR = Pegasus/Repository/tests/ClassDeclRep
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
+
 PROGRAM = ClassDeclRep
 SOURCES = ClassDeclRep.cpp
 POST_LIBRARIES = -L$(ROOT)/src/PegasusRepository -lPegasusRepository

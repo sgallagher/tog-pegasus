@@ -4,7 +4,7 @@ DIR = Pegasus/Security/Authentication
 
 include $(ROOT)/mak/config.mak
 
-LOCAL_DEFINES = -DPEGASUS_SECURITY_INTERNAL
+LOCAL_DEFINES = -DPEGASUS_SECURITY_INTERNAL -DPEGASUS_INTERNALONLY
 
 LIBRARY = pegauthentication
 

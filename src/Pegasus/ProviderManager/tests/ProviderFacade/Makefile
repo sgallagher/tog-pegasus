@@ -7,6 +7,8 @@ LIBRARIES = \
 	pegprovider \
 	pegprovidermanager
 
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
+
 PROGRAM = TestProviderFacade
 
 SOURCES = ProviderFacade.cpp

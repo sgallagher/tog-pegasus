@@ -2,6 +2,8 @@ ROOT = ../../../../..
 DIR = Pegasus/Compiler/cmdline/cimmofl
 include $(ROOT)/mak/config.mak
 
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
+
 PROGRAM = cimmofl
 CIMMOF = $(BIN_DIR)/cimmof$(EXE)
 

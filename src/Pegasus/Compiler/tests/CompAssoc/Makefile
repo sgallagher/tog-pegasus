@@ -3,6 +3,8 @@ DIR = Pegasus/Compiler/tests/CompAssoc
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
+
 PROGRAM = CompAssoc
 SOURCES = CompAssoc.cpp
 

@@ -2,7 +2,7 @@ ROOT = ../../../../..
 DIR = Pegasus/Compiler/cmdline/cimmof
 include $(ROOT)/mak/config.mak
 
-LOCAL_DEFINES = -DPEGASUS_CMDLINE_INTERNAL
+LOCAL_DEFINES = -DPEGASUS_CMDLINE_INTERNAL -DPEGASUS_INTERNALONLY
 
 LIBRARIES = \
 	pegcommon \

@@ -137,27 +137,26 @@ public:
 	const String& fileName);
 
     /** Compare two file for content.
-    @param filename of first file
-    @param filename of second file
-    ATTN: are filenames local or global???
-    @return Return true if the two files are identical. 
-    
-    @exception Throws CannotOpenFile if either file cannot be opened.
+	@param filename of first file
+	@param filename of second file
+	ATTN: are filenames local or global???
+	@return Return true if the two files are identical. 
+	@exception Throws CannotOpenFile if either file cannot be opened.
     */
-
     static Boolean compare(
 	const String& fileName1,
 	const String& fileName2);
 
-    // Rename the given file to the new name:
-
+    /** Rename the given file to the new name. */
     static Boolean renameFile(
 	const String& oldFileName,
 	const String& newFileName);
 
-    // Translate backward slashes to forward slashes:
-
+    /** Translate backward slashes to forward slashes: */
     static void translateSlashes(String& path);
+
+    /** Returns true is the given directory is empty. */
+    static Boolean isDirectoryEmpty(const String& path);
 };
 
 PEGASUS_NAMESPACE_END

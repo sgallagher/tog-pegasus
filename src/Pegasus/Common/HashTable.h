@@ -458,6 +458,16 @@ public:
 	    H::hash(key), new _Bucket<K, V, E>(key, value), &key);
     }
 
+    /** Checks to see if hash table contains an entry with the given key.
+	@param key key to be searched for
+	@return true if hash table contains an entry with the given key.
+    */
+    Boolean contains(const K& key)
+    {
+	V value;
+	return lookup(key, value);
+    }
+
     /** Looks up the entry with the given key.
 	@param key key of entry to be located.
 	@param value output value.

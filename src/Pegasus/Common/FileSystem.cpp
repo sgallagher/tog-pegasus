@@ -339,4 +339,17 @@ void FileSystem::translateSlashes(String& path)
     }
 }
 
+Boolean FileSystem::isDirectoryEmpty(const String& path)
+{
+    for (Dir dir(path); dir.more(); dir.next())
+    {
+        const char* name = dir.getName();
+
+        if (strcmp(name, ".") != 0 && strcmp(name, "..") != 0)
+            return false;
+    }
+
+    return true;
+}
+
 PEGASUS_NAMESPACE_END

@@ -38,7 +38,7 @@ ifdef PEGASUS_HAS_SSL_NEED_ENABLE
 	@$(STRIPCRS)
 	$(COMPARERESULTS)
 	@$(ECHO) +++ Test passed +++
-        @$(RM) $(RESULTFILE)
+	@$(RM) $(RESULTFILE)
 endif
 
 poststarttests_ignoreerror:

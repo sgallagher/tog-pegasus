@@ -3,7 +3,7 @@
 <MESSAGE ID="54006" PROTOCOLVERSION="1.0">
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="ModifyInstance">
-<ERROR CODE="4" DESCRIPTION="CIM_ERR_INVALID_PARAMETER: One or more parameter values passed to the method were invalid: &quot;&quot;"/>
+<ERROR CODE="4" DESCRIPTION="CIM_ERR_INVALID_PARAMETER: One or more parameter values passed to the method were invalid"/>
 </IMETHODRESPONSE>
 </SIMPLERSP>
 </MESSAGE>

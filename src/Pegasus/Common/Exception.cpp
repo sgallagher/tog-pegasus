@@ -219,9 +219,12 @@ static String _makeCIMExceptionDescription(
 {
     String tmp;
     tmp.append(CIMStatusCodeToString(code));
-    tmp.append(": \"");
-    tmp.append(message);
-    tmp.append("\"");
+    if (message != String::EMPTY)
+    {
+        tmp.append(": \"");
+        tmp.append(message);
+        tmp.append("\"");
+    }
     return tmp;
 }
 
@@ -240,11 +243,7 @@ static String _makeCIMExceptionDescription(
     sprintf(buffer, "%d", line);
     tmp.append(buffer);
     tmp.append("): ");
-
-    tmp.append(CIMStatusCodeToString(code));
-    tmp.append(": \"");
-    tmp.append(message);
-    tmp.append("\"");
+    tmp.append(_makeCIMExceptionDescription(code, message));
     return tmp;
 }
 

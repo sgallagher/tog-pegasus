@@ -30,7 +30,6 @@ SOURCES = \
     ProviderManager.cpp \
     ProviderModule.cpp \
 	CIMBaseProviderFacade.cpp \
-	ProviderHandle.cpp \
     ServiceCIMOMHandle.cpp \
     ProviderBlockedEntry.cpp \
     ShutdownService.cpp \

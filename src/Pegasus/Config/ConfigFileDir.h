@@ -49,6 +49,10 @@ static char CURRENT_CONFIG_FILE [] = "cimserver_current.conf";
 */
 static char PLANNED_CONFIG_FILE [] = "cimserver_planned.conf";
 
+/**
+    Default file name for the cimserver startup file containing the PID.
+*/
+static char CIMSERVER_START_FILE [] = "/tmp/cimserver_start.conf";
 #endif
 
 #endif /* Pegasus_ConfigFileDir_h */

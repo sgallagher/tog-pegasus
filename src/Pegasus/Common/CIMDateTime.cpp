@@ -992,7 +992,7 @@ Uint64 CIMDateTime::toMicroSeconds()
 {    
      
     CIMDateTime un_norm;
-    un_norm._rep = new CIMDateTimeRep();
+    //un_norm._rep = new CIMDateTimeRep();
     un_norm._rep->copy(_rep);
 
     un_norm.convertToUTC();

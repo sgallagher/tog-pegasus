@@ -45,22 +45,35 @@ Boolean Thread::_signals_blocked = false;
 #ifndef PEGASUS_THREAD_CLEANUP_NATIVE 
 void Thread::cleanup_push( void (*routine)(void *), void *parm) throw(IPCException)
 {
-  cleanup_handler *cu = new cleanup_handler(routine, parm);
-  try { _cleanup.insert_first(cu); } 
-  catch(IPCException& e) { delete cu; throw; }
-  return;
+    cleanup_handler *cu = new cleanup_handler(routine, parm);
+    try 
+    {
+	_cleanup.insert_first(cu); 
+    } 
+    catch(IPCException& e) 
+    { 
+	delete cu; 
+	throw; 
+    }
+    return;
 }
-
+	  
 void Thread::cleanup_pop(Boolean execute = true) throw(IPCException)
 {
-  cleanup_handler *cu ;
-  try { cu = _cleanup.remove_first() ;}
-  catch(IPCException& e) { assert(0); }
-  if(execute == true)
-    cu->execute();
-  delete cu;
+    cleanup_handler *cu ;
+    try 
+    { 
+	cu = _cleanup.remove_first() ;
+    }
+    catch(IPCException& e) 
+    { 
+	assert(0); 
+    }
+    if(execute == true)
+	cu->execute();
+    delete cu;
 }
-
+		    
 #endif
 
 
@@ -70,16 +83,22 @@ void Thread::cleanup_pop(Boolean execute = true) throw(IPCException)
 #ifndef PEGASUS_THREAD_EXIT_NATIVE 
 void Thread::exit_self(PEGASUS_THREAD_RETURN exit_code) 
 { 
-  // execute the cleanup stack and then return 
-  while( _cleanup.count(); )
-  {
-    try { cleanup_pop(true); }
-    catch(IPCException& e) { PEGASUS_ASSERT(0) ; break; } 
-  }
-  _exit_code = exit_code;
+    // execute the cleanup stack and then return 
+   while( _cleanup.count() )
+   {
+       try 
+       { 
+	   cleanup_pop(true); 
+       }
+       catch(IPCException& e) 
+       { 
+	   PEGASUS_ASSERT(0); 
+	       break; 
+       } 
+   }
+       _exit_code = exit_code;
 }
 
 #endif
-
 
 PEGASUS_NAMESPACE_END

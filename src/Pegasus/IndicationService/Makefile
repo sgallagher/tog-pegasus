@@ -16,6 +16,8 @@ LIBRARIES = \
     pegrepository \
     pegprm \
     pegwql \
+    pegquerycommon \
+    pegqueryexpression \
     pegconfig
 
 SOURCES = \

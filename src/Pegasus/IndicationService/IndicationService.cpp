@@ -60,8 +60,9 @@
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
-#include <Pegasus/WQL/WQLParser.h>
-#include <Pegasus/WQL/WQLSelectStatement.h>
+#include <Pegasus/Query/QueryExpression/QueryExpression.h>
+#include <Pegasus/Query/QueryCommon/QueryException.h>
+#include <Pegasus/Repository/RepositoryQueryContext.h>
 
 #include "IndicationConstants.h"
 #include "IndicationMessageConstants.h"
@@ -95,7 +96,8 @@ IndicationService::IndicationService (
     ProviderRegistrationManager * providerRegManager)
     : MessageQueueService (PEGASUS_QUEUENAME_INDICATIONSERVICE,
             MessageQueue::getNextQueueId ()),
-         _providerRegManager (providerRegManager)
+      _providerRegManager (providerRegManager),
+      _cimRepository(repository)
 {
     _enableSubscriptionsForNonprivilegedUsers = false;
 
@@ -1366,10 +1368,14 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                     else
                     {
                         startTimeValue.get (startTime);
-                        if (startTime.equal
-                            (CIMDateTime (_ZERO_INTERVAL_STRING)))
+
+                        if (startTime.isInterval())
                         {
+                          if (startTime.equal
+                              (CIMDateTime (_ZERO_INTERVAL_STRING)))
+                          {
                             setStart = true;
+                          }
                         }
                     }
 
@@ -1789,8 +1795,6 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
     Array <CIMInstance> matchedSubscriptions;
     CIMInstance handlerNamedInstance;
 
-    WQLSelectStatement selectStatement;
-
     CIMInstance handler;
     CIMInstance indication = request->indicationInstance;
 
@@ -1799,9 +1803,6 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
 
     try
     {
-        WQLSimplePropertySource propertySource =
-            _getPropertySourceFromInstance (indication);
-
         //
         //  Check if property list contains all properties of class
         //  If so, set to null
@@ -1945,75 +1946,92 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
                 continue;
             }
 
+            String queryLanguage;
+            CIMNamespaceName sourceNamespace;
             _subscriptionRepository->getFilterProperties (
                 matchedSubscriptions[i],
                 matchedSubscriptions[i].getPath ().getNameSpace (),
-                filterQuery);
+                filterQuery,
+                sourceNamespace,
+                queryLanguage);
 
-            selectStatement = _getSelectStatement (filterQuery);
+            // ATTN: assumes a single namespace was on the request message
+            QueryExpression queryExpr = _getQueryExpression(filterQuery,
+                                                            queryLanguage,
+                                                            nameSpaces[0]);
 
-            if (selectStatement.hasWhereClause())
+
+#ifdef PEGASUS_INDICATION_PERFINST
+            stopWatch.reset ();
+#endif
+            if (!queryExpr.evaluate(indication))
             {
-#ifdef PEGASUS_INDICATION_PERFINST
-                stopWatch.reset ();
-#endif
-
-                if (!selectStatement.evaluateWhereClause(&propertySource))
-                {
-                    match = false;
-                }
-
-#ifdef PEGASUS_INDICATION_PERFINST
-                elapsed = stopWatch.getElapsed ();
-
-                Tracer::trace (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
-                    "%s: %.3f seconds",
-                    "Evaluate WHERE clause", elapsed);
-#endif
+              match = false;
             }
+#ifdef PEGASUS_INDICATION_PERFINST
+            elapsed = stopWatch.getElapsed ();
+
+            Tracer::trace (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
+                           "%s: %.3f seconds",
+                           "Evaluate WHERE clause", elapsed);
+#endif
 
             if (match)
             {
                 //
-                // Format indication
-                // Remove properties not listed in SELECT clause from
-                // indication as they are not required to be passed to consumer
-                // If SELECT includes all properties ("*"), it's still necessary
-                // to check, in case provider added properties not in the 
-                // indication class
+                // Format the indication
                 //
-                Array <CIMName> selectPropertyNames;
-                if (!selectStatement.getAllProperties ())
-                {
-                    CIMPropertyList selectPropertyList;
-
-                    //
-                    // Get properties listed in SELECT clause
-                    //
-                    selectPropertyList =
-                        selectStatement.getSelectPropertyList ();
-                    selectPropertyNames =
-                        selectPropertyList.getPropertyNameArray ();
-                }
-                else
-                {
-                    selectPropertyNames = indicationClassProperties;
-                }
-
+                // This is a two part process:
                 //
-                // Remove properties not listed in SELECT clause
-                // or properties not in the indication class 
-                // from indication
+                // 1) Call QueryExpression::applyProjection to remove properties
+                // not listed in the SELECT clause.  Note: for CQL, this will handle
+                // properties on embedded objects. 
+                // 
+                // QueryExpression::applyProjection throws an exception if
+                // the indication is missing a required property in the SELECT
+                // clause.  Although _getMatchingSubscriptions checked for
+                // the indication missing required properties, it would have 
+                // not detected missing required embedded object properties for CQL.
+                // So, we need to catch the missing property exception here.
+                //
+                // 2) Remove any properties that may be left on the indication
+                // that are not in the indication class.  These are properties
+                // added by the provider incorrectly.  It is possible that
+                // these properties will remain after applyProjection if the
+                // SELECT clause happens to have a property name not on the
+                // indication class, and the indication has that property.
+                // Note: If SELECT includes all properties ("*"), it's still 
+                // necessary to check, in case the provider added properties not in 
+                // the indication class.
+                //
+                try 
+                {
+                  queryExpr.applyProjection(formattedIndication);
+                }
+                catch (QueryRuntimePropertyException& re)
+                {
+                  // The indication was missing a required property.
+                  // We have checked for missing required properties on
+                  // the base indication object above, so this can only happen
+                  // for CQL with missing embedded object properties.
+                  // Since this is the same as the indication
+                  // not matching the subscription, just swallow the exception.
+                  PEG_TRACE_STRING (TRC_INDICATION_SERVICE, Tracer::LEVEL4,
+                                    "Apply Projection CQL error: " + re.getMessage());
+                }
+                
+                // Remove any remaining properties not in the indication class 
+                // from the indication.
                 //
                 for (Uint32 j = 0; j < propertyNames.size(); j++)
                 {
-                    if (!ContainsCIMName (selectPropertyNames,
-                                          propertyNames[j]))
-                    {
-                        formattedIndication.removeProperty(
-                            formattedIndication.findProperty
-                            (propertyNames[j]));
-                    }
+                  Uint32 rmIndex = formattedIndication.findProperty(propertyNames[j]);
+                  if (rmIndex != PEG_NOT_FOUND &&
+                      !ContainsCIMName (indicationClassProperties,
+                                        propertyNames[j]))
+                  {
+                    formattedIndication.removeProperty(rmIndex);
+                  }
                 }
 
                 handlerNamedInstance = _subscriptionRepository->getHandler
@@ -2996,11 +3014,16 @@ Boolean IndicationService::_canCreate (
             String queryLanguage;
             instance.getProperty (instance.findProperty
                 (_PROPERTY_QUERYLANGUAGE)).getValue ().get (queryLanguage);
-            if (queryLanguage != "WQL")
+
+#ifdef PEGASUS_DISABLE_CQL
+            // Special code to block CQL, if CQL is disabled
+            if (String::equalNoCase(queryLanguage, "cim:cql"))
             {
-                throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
-                                            queryLanguage);
+              // CQL is not allowed in this case
+              throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
+                                          queryLanguage);              
             }
+#endif
 
             //
             //  Default value for Source Namespace is the namespace of the
@@ -3017,90 +3040,51 @@ Boolean IndicationService::_canCreate (
             //
             String filterQuery = instance.getProperty (instance.findProperty
                 (_PROPERTY_QUERY)).getValue ().toString ();
-            WQLSelectStatement selectStatement =
-                _getSelectStatement (filterQuery);
+
+            QueryExpression queryExpression;
+            try
+            {
+              queryExpression =
+                _getQueryExpression (filterQuery, queryLanguage, sourceNameSpace);  
+            }
+            catch (QueryLanguageInvalidException&)
+            {
+              // The filter query had an invalid language name.
+              throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
+                                          queryLanguage);
+            }
+
             CIMName indicationClassName = _getIndicationClassName
-                (selectStatement, sourceNameSpace);
+                (queryExpression, sourceNameSpace);
 
             //
-            //  Validate properties in the WHERE clause
-            //  Properties referenced in the WQL WHERE clause may not be array
-            //  properties, and must exist in the indication class referenced
-            //  in the FROM clause
+            // Make sure that the FROM class exists in the repository.
             //
             CIMClass indicationClass = _subscriptionRepository->getClass
                 (sourceNameSpace, indicationClassName,
                 false, false, false, CIMPropertyList ());
-            Uint16 numWhereProperties =
-                selectStatement.getWherePropertyNameCount ();
-            for (Uint32 i = 0; i < numWhereProperties; i++)
-            {
-                CIMName wherePropertyName =
-                    selectStatement.getWherePropertyName (i);
-                Uint32 propertyPos = indicationClass.findProperty
-                    (wherePropertyName);
-                if (propertyPos != PEG_NOT_FOUND)
-                {
-                    //
-                    //  Property exists in class
-                    //  Verify it is not an array property
-                    //
-                    CIMProperty classProperty = indicationClass.getProperty
-                        (propertyPos);
-                    if (classProperty.isArray ())
-                    {
-                        String exceptionStr = _MSG_ARRAY_NOT_SUPPORTED_IN_WHERE;
-                        PEG_METHOD_EXIT ();
-                        throw PEGASUS_CIM_EXCEPTION_L
-                            (CIM_ERR_NOT_SUPPORTED, MessageLoaderParms
-                                (_MSG_ARRAY_NOT_SUPPORTED_IN_WHERE_KEY,
-                                exceptionStr,
-                                wherePropertyName.getString ()));
-                    }
-                }
-                else
-                {
-                    //
-                    //  Property does not exist in class
-                    //
-                    String exceptionStr = _MSG_WHERE_PROPERTY_NOT_FOUND;
-                    PEG_METHOD_EXIT ();
-                    throw PEGASUS_CIM_EXCEPTION_L
-                        (CIM_ERR_INVALID_PARAMETER, MessageLoaderParms
-                            (_MSG_WHERE_PROPERTY_NOT_FOUND_KEY,
-                            exceptionStr,
-                            wherePropertyName.getString (),
-                            indicationClassName.getString ()));
-                }
-            }
 
             //
-            //  Validate properties in the SELECT clause
-            //  Properties referenced in the WQL SELECT clause must exist in
-            //  the indication class referenced in the FROM clause
+            // Validate all the properties in the SELECT statement exist
+            // on their class context.
             //
-            Uint16 numSelectProperties =
-                selectStatement.getSelectPropertyNameCount ();
-            for (Uint32 j = 0; j < numSelectProperties; j++)
+            try
             {
-                CIMName selectPropertyName =
-                    selectStatement.getSelectPropertyName (j);
-                Uint32 propertyPos = indicationClass.findProperty
-                    (selectPropertyName);
-                if (propertyPos == PEG_NOT_FOUND)
-                {
-                    //
-                    //  Property does not exist in class
-                    //
-                    String exceptionStr = _MSG_SELECT_PROPERTY_NOT_FOUND;
-                    PEG_METHOD_EXIT ();
-                    throw PEGASUS_CIM_EXCEPTION_L
-                        (CIM_ERR_INVALID_PARAMETER, MessageLoaderParms
-                            (_MSG_SELECT_PROPERTY_NOT_FOUND_KEY,
-                            exceptionStr,
-                            selectPropertyName.getString (),
-                            indicationClassName.getString ()));
-                }
+              queryExpression.validate();
+            }
+            catch (QueryMissingPropertyException& qmp)
+            {
+              // A property does not exist on the class it is scoped to.
+              throw PEGASUS_CIM_EXCEPTION
+                (CIM_ERR_INVALID_PARAMETER, qmp.getMessage());   
+            }
+            catch (QueryValidationException& qv)
+            {
+              // Received some other validation error.
+              // This includes detecting an array property
+              // is in the WHERE list for WQL.
+              throw PEGASUS_CIM_EXCEPTION
+                (CIM_ERR_NOT_SUPPORTED, qv.getMessage());   
             }
         }
 
@@ -3988,7 +3972,7 @@ Array <CIMInstance> IndicationService::_getMatchingSubscriptions (
         if (!supportedProperties.isNull ())
         {
             String filterQuery;
-            WQLSelectStatement selectStatement;
+            String queryLanguage;
             CIMName indicationClassName;
             CIMNamespaceName sourceNameSpace;
             CIMPropertyList propertyList;
@@ -3999,21 +3983,39 @@ Array <CIMInstance> IndicationService::_getMatchingSubscriptions (
             _subscriptionRepository->getFilterProperties
                 (subscriptions [i],
                 subscriptions [i].getPath ().getNameSpace (),
-                filterQuery, sourceNameSpace);
-            selectStatement = _getSelectStatement (filterQuery);
+                filterQuery, sourceNameSpace,
+                 queryLanguage);
+
+            QueryExpression queryExpr = _getQueryExpression(filterQuery,
+                                                            queryLanguage,
+                                                            sourceNameSpace);
+            
 
             //
             //  Get indication class name from filter query
             //
             indicationClassName = _getIndicationClassName
-                (selectStatement, sourceNameSpace);
+                (queryExpr, sourceNameSpace);
 
             //
-            //  Get property list from filter query (FROM and
+            //  Get property list from filter query (SELECT and
             //  WHERE clauses)
             //
-            propertyList = _getPropertyList (selectStatement,
-                sourceNameSpace, indicationClassName);
+            //  Note that the supportedClass is passed in,
+            //  not the indicationClassName.
+            //  The supportedClass is the class of the indication
+            //  instance, while the indicationClassName is the FROM class. 
+            //  This is needed because CQL can have class scoping operators
+            //  on properties that may not be the same class
+            //  as the FROM class.  The required properties
+            //  for an indication are based on its class,
+            //  not the FROM class.
+            //
+            //  Also note that for CQL, this does not return
+            //  required embedded object properties.
+            propertyList = _getPropertyList (queryExpr,
+                                             sourceNameSpace,
+                                             supportedClass);
 
             //
             //  If the subscription requires all properties,
@@ -4125,7 +4127,7 @@ void IndicationService::_getModifiedSubscriptions (
     for (Uint32 n = 0; n < newList.size (); n++)
     {
         String filterQuery;
-        WQLSelectStatement selectStatement;
+        String queryLanguage;
         CIMName indicationClassName;
         CIMNamespaceName sourceNameSpace;
         CIMPropertyList requiredProperties;
@@ -4135,21 +4137,28 @@ void IndicationService::_getModifiedSubscriptions (
         //
         _subscriptionRepository->getFilterProperties (newList [n],
             newList [n].getPath ().getNameSpace (), filterQuery,
-            sourceNameSpace);
-        selectStatement = _getSelectStatement (filterQuery);
+            sourceNameSpace, queryLanguage);
+        QueryExpression queryExpression = _getQueryExpression(filterQuery,
+                                                              queryLanguage,
+                                                              sourceNameSpace);
 
         //
         //  Get indication class name from filter query (FROM clause)
         //
-        indicationClassName = _getIndicationClassName (selectStatement,
+        indicationClassName = _getIndicationClassName (queryExpression,
             sourceNameSpace);
 
         //
         //  Get property list from filter query (FROM and WHERE
         //  clauses)
         //
-        requiredProperties = _getPropertyList (selectStatement,
-            sourceNameSpace, indicationClassName);
+        //  Note: the supportedClass is passed to _getPropertyList
+        //  rather than the FROM class because CQL could have
+        //  class scoping operators that scope properties to
+        //  specific subclasses of the FROM.
+        //
+        requiredProperties = _getPropertyList (queryExpression,
+            sourceNameSpace, supportedClass);
 
         //
         //  Check if required properties are now supported
@@ -4178,7 +4187,7 @@ void IndicationService::_getModifiedSubscriptions (
     for (Uint32 b = 0; b < bothList.size (); b++)
     {
         String filterQuery;
-        WQLSelectStatement selectStatement;
+        String queryLanguage;
         CIMName indicationClassName;
         CIMNamespaceName sourceNameSpace;
         CIMPropertyList requiredProperties;
@@ -4190,21 +4199,28 @@ void IndicationService::_getModifiedSubscriptions (
         //
         _subscriptionRepository->getFilterProperties (bothList [b],
             bothList [b].getPath ().getNameSpace (), filterQuery,
-            sourceNameSpace);
-        selectStatement = _getSelectStatement (filterQuery);
+            sourceNameSpace, queryLanguage);
+        QueryExpression queryExpression = _getQueryExpression(filterQuery,
+                                                              queryLanguage,
+                                                              sourceNameSpace);
 
         //
         //  Get indication class name from filter query (FROM clause)
         //
-        indicationClassName = _getIndicationClassName (selectStatement,
+        indicationClassName = _getIndicationClassName (queryExpression,
             sourceNameSpace);
 
         //
         //  Get property list from filter query (FROM and WHERE
         //  clauses)
         //
-        requiredProperties = _getPropertyList (selectStatement,
-            sourceNameSpace, indicationClassName);
+        //  Note: the supportedClass is passed to _getPropertyList
+        //  rather than the FROM class because CQL could have
+        //  class scoping operators that scope properties to
+        //  specific subclasses of the FROM.
+        //
+        requiredProperties = _getPropertyList (queryExpression,
+            sourceNameSpace, supportedClass);
 
         //
         //  Check required properties
@@ -4278,45 +4294,46 @@ Boolean IndicationService::_inPropertyList (
     return true;
 }
 
-WQLSelectStatement IndicationService::_getSelectStatement (
-    const String & filterQuery) const
+QueryExpression IndicationService::_getQueryExpression (const String& filterQuery,
+                                                        const String& queryLanguage,
+                                                        const CIMNamespaceName ns) const
 {
-    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
-        "IndicationService::_getSelectStatement");
+  PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                    "IndicationService::_getQueryExpression");
 
-    WQLSelectStatement selectStatement;
-
-    try
-    {
-        selectStatement.clear ();
-
-        AutoMutex autoMut(_mutex);
-
-        WQLParser::parse (filterQuery, selectStatement);
-
-        
-    }
-    catch (ParseError & pe)
-    {
-        String exceptionStr = pe.getMessage ();
-        
-        PEG_METHOD_EXIT ();
-        throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, exceptionStr);
-    }
-    catch (MissingNullTerminator & mnt)
-    {
-        String exceptionStr = mnt.getMessage ();
-        
-        PEG_METHOD_EXIT ();
-        throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, exceptionStr);
-    }
-
+  try
+  {
+    RepositoryQueryContext ctx(ns, _cimRepository);
+    AutoMutex autoMut(_mutex);  // guards the WQL/CQL parser
+    QueryExpression queryExpression(queryLanguage, filterQuery, ctx);
     PEG_METHOD_EXIT ();
-    return selectStatement;
+    return queryExpression;
+  }
+  catch (QueryParseException & qpe)
+  {
+    String exceptionStr = qpe.getMessage ();
+        
+    PEG_METHOD_EXIT ();
+    throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, exceptionStr);
+  }
+  catch (ParseError & pe)
+  {
+    String exceptionStr = pe.getMessage ();
+        
+    PEG_METHOD_EXIT ();
+    throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, exceptionStr);
+  }
+  catch (MissingNullTerminator & mnt)
+  {
+    String exceptionStr = mnt.getMessage ();
+        
+    PEG_METHOD_EXIT ();
+    throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, exceptionStr);
+  }
 }
 
 CIMName IndicationService::_getIndicationClassName (
-    const WQLSelectStatement & selectStatement,
+    const QueryExpression & queryExpression,
     const CIMNamespaceName & nameSpaceName) const
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
@@ -4325,7 +4342,13 @@ CIMName IndicationService::_getIndicationClassName (
     CIMName indicationClassName;
     Array <CIMName> indicationSubclasses;
 
-    indicationClassName = selectStatement.getClassName ();
+    // Get the class paths in the FROM list.
+    // Note: neither WQL nor CQL support joins, so we can
+    // assume one class path.
+    // Note: neither WQL not CQL support wbem-uri for class paths,
+    // so we can ignore the parts of the path before the class name.
+    Array<CIMObjectPath> fromPaths = queryExpression.getClassPathList();
+    indicationClassName = fromPaths[0].getClassName();
 
     //
     //  Validate that class is an Indication class
@@ -4370,10 +4393,10 @@ CIMName IndicationService::_getIndicationClassName (
 }
 
 Array <ProviderClassList> IndicationService::_getIndicationProviders (
+    const QueryExpression & queryExpression,                                               
     const CIMNamespaceName & nameSpace,
     const CIMName & indicationClassName,
-    const Array <CIMName> & indicationSubclasses,
-    const CIMPropertyList & requiredPropertyList) const
+    const Array <CIMName> & indicationSubclasses) const
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "IndicationService::_getIndicationProviders");
@@ -4384,11 +4407,20 @@ Array <ProviderClassList> IndicationService::_getIndicationProviders (
     Array <CIMInstance> providerModuleInstances;
     Boolean duplicate = false;
 
+    CIMPropertyList requiredPropertyList;
+
     //
     //  For each indication subclass, get providers
     //
     for (Uint32 i = 0; i < indicationSubclasses.size (); i++)
     {
+        //  Get property list from filter query (FROM and WHERE
+        //  clauses) from this indication subclass,
+        //
+        requiredPropertyList = _getPropertyList (queryExpression,
+                                                 nameSpace,
+                                                 indicationSubclasses[i]);
+
         //
         //  Get providers that can serve the subscription
         //
@@ -4455,7 +4487,7 @@ Array <ProviderClassList> IndicationService::_getIndicationProviders (
 }
 
 CIMPropertyList IndicationService::_getPropertyList
-    (const WQLSelectStatement & selectStatement,
+    (const QueryExpression & queryExpression,
      const CIMNamespaceName & nameSpaceName,
      const CIMName & indicationClassName) const
 {
@@ -4464,10 +4496,28 @@ CIMPropertyList IndicationService::_getPropertyList
 
     CIMPropertyList propertyList;
 
-    //
     //  Get all the properties referenced in the projection list (SELECT clause)
+    //  and the WHERE clause.  
+    //  Note: for CQL, this only returns the properties directly on the
+    //  class name passed in, not any properties on embedded objects.
     //
-    propertyList = selectStatement.getSelectPropertyList ();
+    try
+    {
+      CIMObjectPath classPath (String::EMPTY,
+                               nameSpaceName,
+                               indicationClassName);
+      propertyList = queryExpression.getPropertyList (classPath);
+    }
+    catch (QueryException & qe)
+    {
+      // The class path was not the FROM class, or a subclass
+      // of the FROM class.
+      String exceptionStr = qe.getMessage ();
+        
+      PEG_METHOD_EXIT ();
+      throw PEGASUS_CIM_EXCEPTION (CIM_ERR_FAILED, exceptionStr);
+    }
+
     if (propertyList.isNull ())
     {
         //
@@ -4479,33 +4529,9 @@ CIMPropertyList IndicationService::_getPropertyList
     {
         Array <CIMName> propertyArray;
 
-        //
-        //  Get selected property names
+        //  Get the property names
         //
         propertyArray = propertyList.getPropertyNameArray ();
-
-        //
-        //  Get all the properties referenced in the condition (WHERE clause)
-        //
-        if (selectStatement.hasWhereClause ())
-        {
-            CIMPropertyList
-            wherePropertyList = selectStatement.getWherePropertyList ();
-
-            //
-            //  WHERE property list may not be NULL (may be empty)
-            //
-            for (Uint32 j = 0; j < wherePropertyList.size(); j++)
-            {
-                //
-                //  Add property name to the list if not already there
-                //
-                if (!ContainsCIMName (propertyArray, wherePropertyList[j]))
-                {
-                    propertyArray.append (wherePropertyList[j]);
-                }
-            }
-        }
 
         Array <CIMName> indicationClassProperties;
         return _checkPropertyList (propertyArray, nameSpaceName,
@@ -4915,7 +4941,6 @@ void IndicationService::_getCreateParams (
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "IndicationService::_getCreateParams");
 
-    WQLSelectStatement selectStatement;
     CIMName indicationClassName;
     condition = String::EMPTY;
     query = String::EMPTY;
@@ -4926,13 +4951,19 @@ void IndicationService::_getCreateParams (
     //
     _subscriptionRepository->getFilterProperties (subscriptionInstance,
         nameSpaceName, query, sourceNameSpace, queryLanguage);
-    selectStatement = _getSelectStatement (query);
+
+    //
+    //  Build the query expression from the filter query
+    //
+    QueryExpression queryExpression = _getQueryExpression(query,
+                                                         queryLanguage,
+                                                         sourceNameSpace);
 
     //
     //  Get indication class name from filter query (FROM clause)
     //
-    indicationClassName = _getIndicationClassName (selectStatement,
-        sourceNameSpace);
+    indicationClassName = _getIndicationClassName (queryExpression,
+                                                   sourceNameSpace);
 
     //
     //  Get list of subclass names for indication class
@@ -4940,29 +4971,19 @@ void IndicationService::_getCreateParams (
     indicationSubclasses = _subscriptionRepository->getIndicationSubclasses
         (sourceNameSpace, indicationClassName);
 
-    //
-    //  Get property list from filter query (FROM and WHERE
-    //  clauses)
-    //
-    propertyList = _getPropertyList (selectStatement,
-        sourceNameSpace, indicationClassName);
 
     //
     //  Get indication provider class lists
     //
-    indicationProviders = _getIndicationProviders
-        (sourceNameSpace, indicationClassName, indicationSubclasses,
-         propertyList);
+    indicationProviders = _getIndicationProviders(
+         queryExpression,
+         sourceNameSpace, 
+         indicationClassName, 
+         indicationSubclasses);
 
     if (indicationProviders.size () > 0)
     {
-        //
-        //  Get condition from filter query (WHERE clause)
-        //
-        if (selectStatement.hasWhereClause ())
-        {
-            condition = _getCondition (query);
-        }
+      condition = _getCondition (query);
     }
 
     PEG_METHOD_EXIT ();
@@ -4981,7 +5002,6 @@ void IndicationService::_getCreateParams (
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "IndicationService::_getCreateParams");
 
-    WQLSelectStatement selectStatement;
     condition = String::EMPTY;
     query = String::EMPTY;
     queryLanguage = String::EMPTY;
@@ -4991,30 +5011,23 @@ void IndicationService::_getCreateParams (
     //
     _subscriptionRepository->getFilterProperties (subscriptionInstance,
         nameSpaceName, query, sourceNameSpace, queryLanguage);
-    selectStatement = _getSelectStatement (query);
+    QueryExpression queryExpression = _getQueryExpression(query,
+                                                         queryLanguage,
+                                                         sourceNameSpace);
 
     //
     //  Get property list from filter query (FROM and WHERE
     //  clauses)
     //
-    CIMName indicationClassName = _getIndicationClassName (selectStatement,
-        sourceNameSpace);
-    propertyList = _getPropertyList (selectStatement,
+    CIMName indicationClassName = _getIndicationClassName (queryExpression,
+                                                           sourceNameSpace);
+    propertyList = _getPropertyList (queryExpression,
         sourceNameSpace, indicationClassName);
 
     //
     //  Get condition from filter query (WHERE clause)
     //
-    if (selectStatement.hasWhereClause ())
-    {
-        condition = _getCondition (query);
-    }
-
-    //
-    //  Get indication class name from filter query (FROM clause)
-    //
-    indicationClassName = _getIndicationClassName (selectStatement,
-        sourceNameSpace);
+    condition = _getCondition (query);
 
     //
     //  Get list of subclass names for indication class
@@ -5035,36 +5048,30 @@ Array <ProviderClassList> IndicationService::_getDeleteParams (
         "IndicationService::_getDeleteParams");
 
     String filterQuery;
-    WQLSelectStatement selectStatement;
+    String queryLanguage;
     CIMName indicationClassName;
-    CIMPropertyList propertyList;
     Array <ProviderClassList> indicationProviders;
 
     //
     //  Get filter properties
     //
     _subscriptionRepository->getFilterProperties (subscriptionInstance,
-        nameSpaceName, filterQuery, sourceNameSpace);
-    selectStatement = _getSelectStatement (filterQuery);
+        nameSpaceName, filterQuery, sourceNameSpace, queryLanguage);
+    QueryExpression queryExpression = _getQueryExpression(filterQuery,
+                                                         queryLanguage,
+                                                         sourceNameSpace);
 
     //
     //  Get indication class name from filter query (FROM clause)
     //
-    indicationClassName = _getIndicationClassName (selectStatement,
-        sourceNameSpace);
+    indicationClassName = _getIndicationClassName (queryExpression,
+                                                   sourceNameSpace);
 
     //
     //  Get list of subclass names for indication class
     //
     indicationSubclasses = _subscriptionRepository->getIndicationSubclasses
         (sourceNameSpace, indicationClassName);
-
-    //
-    //  Get property list from filter query (FROM and WHERE
-    //  clauses)
-    //
-    propertyList = _getPropertyList (selectStatement,
-        sourceNameSpace, indicationClassName);
 
     //
     //  Get indication provider class lists from Active Subscriptions table
@@ -6872,126 +6879,6 @@ void IndicationService::_sendDisable (
     }
 
     PEG_METHOD_EXIT ();
-}
-
-WQLSimplePropertySource IndicationService::_getPropertySourceFromInstance(
-    CIMInstance& indicationInstance)
-{
-    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
-        "IndicationService::_getPropertySourceFromInstance");
-
-    WQLSimplePropertySource source;
-
-    for (Uint32 i=0; i < indicationInstance.getPropertyCount(); i++)
-    {
-        CIMProperty property = indicationInstance.getProperty(i);
-        CIMValue propertyValue = property.getValue();
-        CIMType type = property.getType();
-        CIMName propertyName = property.getName();
-
-        if (propertyValue.isNull())
-        {
-            source.addValue(propertyName.getString(), WQLOperand());
-        }
-        else if (propertyValue.isArray())
-        {
-            // ATTN: How are arrays handled in WQL?  Ignore them for now.
-            // (See Bugzilla 1060)
-        }
-        else
-        {
-            switch (type)
-            {
-            case CIMTYPE_UINT8:
-                Uint8 propertyValueUint8;
-                propertyValue.get(propertyValueUint8);
-                source.addValue(propertyName.getString(),
-                    WQLOperand(propertyValueUint8, WQL_INTEGER_VALUE_TAG));
-                break;
-
-            case CIMTYPE_UINT16:
-                Uint16 propertyValueUint16;
-                propertyValue.get(propertyValueUint16);
-                source.addValue(propertyName.getString(),
-                    WQLOperand(propertyValueUint16, WQL_INTEGER_VALUE_TAG));
-                break;
-
-            case CIMTYPE_UINT32:
-                Uint32 propertyValueUint32;
-                propertyValue.get(propertyValueUint32);
-                source.addValue(propertyName.getString(),
-                    WQLOperand(propertyValueUint32, WQL_INTEGER_VALUE_TAG));
-                break;
-
-            case CIMTYPE_UINT64:
-                Uint64 propertyValueUint64;
-                propertyValue.get(propertyValueUint64);
-                source.addValue(propertyName.getString(),
-                    WQLOperand(propertyValueUint64, WQL_INTEGER_VALUE_TAG));
-                break;
-
-            case CIMTYPE_SINT8:
-                Sint8 propertyValueSint8;
-                propertyValue.get(propertyValueSint8);
-                source.addValue(propertyName.getString(),
-                    WQLOperand(propertyValueSint8, WQL_INTEGER_VALUE_TAG));
-                break;
-
-            case CIMTYPE_SINT16:
-                Sint16 propertyValueSint16;
-                propertyValue.get(propertyValueSint16);
-                source.addValue(propertyName.getString(),
-                    WQLOperand(propertyValueSint16, WQL_INTEGER_VALUE_TAG));
-                break;
-
-            case CIMTYPE_SINT32:
-                Sint32 propertyValueSint32;
-                propertyValue.get(propertyValueSint32);
-                source.addValue(propertyName.getString(),
-                    WQLOperand(propertyValueSint32, WQL_INTEGER_VALUE_TAG));
-                break;
-
-            case CIMTYPE_SINT64:
-                Sint64 propertyValueSint64;
-                propertyValue.get(propertyValueSint64);
-                source.addValue(propertyName.getString(),
-                    WQLOperand(propertyValueSint64, WQL_INTEGER_VALUE_TAG));
-                break;
-
-            case CIMTYPE_REAL32:
-                Real32 propertyValueReal32;
-                propertyValue.get(propertyValueReal32);
-                source.addValue(propertyName.getString(),
-                    WQLOperand(propertyValueReal32, WQL_DOUBLE_VALUE_TAG));
-                break;
-
-            case CIMTYPE_REAL64:
-                Real64 propertyValueReal64;
-                propertyValue.get(propertyValueReal64);
-                source.addValue(propertyName.getString(),
-                    WQLOperand(propertyValueReal64, WQL_DOUBLE_VALUE_TAG));
-                break;
-
-            case CIMTYPE_BOOLEAN :
-                Boolean booleanValue;
-                property.getValue().get(booleanValue);
-                source.addValue(propertyName.getString(),
-                    WQLOperand(booleanValue, WQL_BOOLEAN_VALUE_TAG));
-                break;
-
-            case CIMTYPE_CHAR16:
-            case CIMTYPE_DATETIME :
-            case CIMTYPE_STRING :
-                source.addValue(propertyName.getString(),
-                    WQLOperand(property.getValue().toString(),
-                    WQL_STRING_VALUE_TAG));
-                break;
-            }
-        }
-    }
-
-    PEG_METHOD_EXIT ();
-    return source;
 }
 
 Boolean IndicationService::_getCreator (

@@ -45,9 +45,7 @@
 #include <Pegasus/Common/ContentLanguages.h> // l10n
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 #include <Pegasus/Server/Linkage.h>
-#include <Pegasus/WQL/WQLParser.h>
-#include <Pegasus/WQL/WQLSelectStatement.h>
-#include <Pegasus/WQL/WQLSimplePropertySource.h>
+#include <Pegasus/Query/QueryExpression/QueryExpression.h>
 
 #include "ProviderClassList.h"
 #include "IndicationOperationAggregate.h"
@@ -461,60 +459,64 @@ private:
         const CIMPropertyList & supportedProperties);
 
     /**
-        Parses the filter query string, and returns the corresponding
-        WQLSelectStatement object.
+        Builds a QueryExpression from the filter query string,
+        the query language name, and the namespace in which the query
+        is to be run.
 
         @param   filterQuery           the filter query string
+        @param   queryLanguage         the query language name
+        @param   ns                    query namespace
 
-        @return  WQLSelectStatement representing the filter query
+        @return  QueryExpression representing the filter query
      */
-    WQLSelectStatement _getSelectStatement (
-        const String & filterQuery) const;
+    QueryExpression _getQueryExpression (const String& filterQuery,
+                                         const String& queryLanguage,
+                                         const CIMNamespaceName ns) const;
 
     /**
-        Extracts the indication class name from the specified WQL select
-        statement, and validates that the name represents a subclass of the
+        Extracts the indication class name from the specified query expression
+        (WQL or CQL), and validates that the name represents a subclass of the
         Indication class.
 
-        @param   selectStatement       the WQL select statement
+        @param   queryExpression       the query expression
         @param   nameSpaceName         the namespace
 
         @return  String containing the indication class name
      */
     CIMName _getIndicationClassName (
-        const WQLSelectStatement & selectStatement,
+        const QueryExpression & queryExpression,
         const CIMNamespaceName & nameSpaceName) const;
 
     /**
         Retrieves the list of indication providers that serve the specified
         indication subclasses.
 
-        @param   nameSpaceName         the namespace name
+        @param   queryExpression       the query expression
+        @param   nameSpace             the namespace name
         @param   indicationClassName   the indication class name
         @param   indicationSubclasses  the list of indication subclass names
-        @param   requiredPropertyList  the properties required
 
         @return  list of ProviderClassList structs
      */
     Array <ProviderClassList> _getIndicationProviders (
+        const QueryExpression & queryExpression,                                               
         const CIMNamespaceName & nameSpace,
         const CIMName & indicationClassName,
-        const Array <CIMName> & indicationSubclasses,
-        const CIMPropertyList & requiredPropertyList) const;
+        const Array <CIMName> & indicationSubclasses) const;
 
     /**
         Retrieves the list of properties referenced by the specified
-        filter query select statement.
+        filter query expression.
 
-        @param   selectStatement       the WQL select statement
+        @param   queryExpression       the query expression
         @param   nameSpaceName         the namespace
-        @param   indicationClassName   the indciation class name
+        @param   indicationClassName   the indication class name
 
         @return  CIMPropertyList of properties referenced by the filter query 
-                 select statement
+                 expression
      */
     CIMPropertyList _getPropertyList (
-        const WQLSelectStatement & selectStatement,
+        const QueryExpression & queryExpression,
         const CIMNamespaceName & nameSpaceName,
         const CIMName & indicationClassName) const;
 
@@ -980,9 +982,6 @@ private:
         (const Array <ProviderClassList> & disableProviders,
          const CIMRequestMessage * origRequest);
 
-    WQLSimplePropertySource _getPropertySourceFromInstance(
-        CIMInstance & indicationInstance);
-
     /**
         Gets the value of the Creator property from the specified Subscription
         instance.  If this function returns False, the value of the creator 
@@ -1068,6 +1067,11 @@ private:
         Handle to Provider Registration Manager
      */
     ProviderRegistrationManager * _providerRegManager;
+
+    /** 
+        Pointer to CIMRepository, for use in building QueryExpression.
+     */
+    CIMRepository* _cimRepository;
 
     /**
         Integer representing queue ID for accessing Provider Manager Service

@@ -25,6 +25,8 @@
 //
 // Modified By: Karl schopmeyer (k.schopmeyer@opengroup.org)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -305,13 +307,27 @@ public:
     void set(const Array<CIMObjectPath>& x);
 
     /** get - Gets the value of a CIMValue
-        @param Variable in which we return the value:
-        @return void
+
+        Note: Before using get, the caller should use getType () and isNull ()
+        to ensure that the value is not null, and is of the correct type.
+        If the CIMValue is null, the output parameter is not updated.
+
+        @param Variable in which we return the value
+
+        @exception TypeMismatchException If the CIMValue type is not compatible
+                   with the type of the output parameter
                 <pre>
                 Uint32 v;
                 CIMValue value(CIMValue::UINT32, UINT32(99));
                 value.get(v);
                 </pre>
+
+        <pre>
+        Uint32 v;
+        CIMValue value = property.getValue ();
+        if ((value.getType () == CIMTYPE_UINT32) && (!value.isNull ()))
+            value.get (v);
+        </pre>
     */
     void get(Boolean& x) const;
     ///

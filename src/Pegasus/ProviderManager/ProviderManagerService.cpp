@@ -97,6 +97,9 @@ Triad<String, String, String> _getProviderRegPair(
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "provider lookup failed.");
     }
 
+    //
+    //  ATTN-CAKG-P2-20020821: Check for null status?
+    //
     pmInstance.getProperty(pos).getValue().get(operationalStatus);
 
     for(Uint32 i = 0; i < operationalStatus.size(); i++)
@@ -2179,6 +2182,9 @@ void ProviderManagerService::handleDisableModuleRequest(AsyncOpNode *op, const M
 
     if (pos2 != PEG_NOT_FOUND)
     {
+        //
+        //  ATTN-CAKG-P2-20020821: Check for null status?
+        //
         mInstance.getProperty(pos2).getValue().get(operationalStatus);
     }
 
@@ -2267,6 +2273,9 @@ void ProviderManagerService::handleEnableModuleRequest(AsyncOpNode *op, const Me
 
     if (pos != PEG_NOT_FOUND)
     {
+        //
+        //  ATTN-CAKG-P2-20020821: Check for null status?
+        //
         mInstance.getProperty(pos).getValue().get(operationalStatus);
     }
 

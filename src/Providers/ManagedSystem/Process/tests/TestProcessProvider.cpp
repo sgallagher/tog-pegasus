@@ -328,7 +328,12 @@ int testClass(const String& className)
     if (p.getOtherExecutionDescription(sa))
     {
       if (processTestVerbose) cout << "    OtherExecutionDescription" << endl;
-      inst.getProperty(inst.findProperty("OtherExecutionDescription")).getValue().get(sb);
+      CIMValue oedVal = inst.getProperty
+          (inst.findProperty("OtherExecutionDescription")).getValue();
+      if (!oedVal.isNull())
+          oedVal.get(sb);
+      else
+         sb = String::EMPTY;
       if (sa != sb)
       {
         cout << "+++++ Error: property mismatch: OtherExecutionDescription" << endl;

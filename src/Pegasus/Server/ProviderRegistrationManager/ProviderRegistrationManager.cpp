@@ -1123,6 +1123,9 @@ Array<Uint16> ProviderRegistrationManager::getProviderModuleStatus(
     
     instances = _providerModule->getInstances();
 
+    //
+    //  ATTN-CAKG-P2-20020821: Check for null status?
+    //
     instances[0].getProperty(instances[0].findProperty
         (_PROPERTY_OPERATIONALSTATUS)).getValue().get(_providerModuleStatus);
 
@@ -1280,6 +1283,9 @@ void ProviderRegistrationManager::_initialRegistrationTable()
 	    
  	    if (pos != PEG_NOT_FOUND)
 	    {
+                //
+                //  ATTN-CAKG-P2-20020821: Check for null status?
+                //
 		instance.getProperty(pos).getValue().get(status);
 	    }
 

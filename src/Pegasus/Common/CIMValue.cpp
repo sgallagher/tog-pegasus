@@ -1125,7 +1125,8 @@ void CIMValue::get(Boolean& x) const
     if (_rep->_type != CIMTYPE_BOOLEAN || _rep->_isArray)
         throw TypeMismatchException();
 
-    x = _rep->_u._booleanValue != 0;
+    if (!_rep->_isNull)
+        x = _rep->_u._booleanValue != 0;
 }
 
 void CIMValue::get(Uint8& x) const
@@ -1133,7 +1134,8 @@ void CIMValue::get(Uint8& x) const
     if (_rep->_type != CIMTYPE_UINT8 || _rep->_isArray)
         throw TypeMismatchException();
 
-    x = _rep->_u._uint8Value;
+    if (!_rep->_isNull)
+        x = _rep->_u._uint8Value;
 }
 
 void CIMValue::get(Sint8& x) const
@@ -1141,7 +1143,8 @@ void CIMValue::get(Sint8& x) const
     if (_rep->_type != CIMTYPE_SINT8 || _rep->_isArray)
         throw TypeMismatchException();
 
-    x = _rep->_u._sint8Value;
+    if (!_rep->_isNull)
+        x = _rep->_u._sint8Value;
 }
 
 void CIMValue::get(Uint16& x) const
@@ -1149,7 +1152,8 @@ void CIMValue::get(Uint16& x) const
     if (_rep->_type != CIMTYPE_UINT16 || _rep->_isArray)
         throw TypeMismatchException();
 
-    x = _rep->_u._uint16Value;
+    if (!_rep->_isNull)
+        x = _rep->_u._uint16Value;
 }
 
 void CIMValue::get(Sint16& x) const
@@ -1157,7 +1161,8 @@ void CIMValue::get(Sint16& x) const
     if (_rep->_type != CIMTYPE_SINT16 || _rep->_isArray)
         throw TypeMismatchException();
 
-    x = _rep->_u._sint16Value;
+    if (!_rep->_isNull)
+        x = _rep->_u._sint16Value;
 }
 
 void CIMValue::get(Uint32& x) const
@@ -1165,7 +1170,8 @@ void CIMValue::get(Uint32& x) const
     if (_rep->_type != CIMTYPE_UINT32 || _rep->_isArray)
         throw TypeMismatchException();
 
-    x = _rep->_u._uint32Value;
+    if (!_rep->_isNull)
+        x = _rep->_u._uint32Value;
 }
 
 void CIMValue::get(Sint32& x) const
@@ -1173,7 +1179,8 @@ void CIMValue::get(Sint32& x) const
     if (_rep->_type != CIMTYPE_SINT32 || _rep->_isArray)
         throw TypeMismatchException();
 
-    x = _rep->_u._sint32Value;
+    if (!_rep->_isNull)
+        x = _rep->_u._sint32Value;
 }
 
 void CIMValue::get(Uint64& x) const
@@ -1181,7 +1188,8 @@ void CIMValue::get(Uint64& x) const
     if (_rep->_type != CIMTYPE_UINT64 || _rep->_isArray)
         throw TypeMismatchException();
 
-    x = _rep->_u._uint64Value;
+    if (!_rep->_isNull)
+        x = _rep->_u._uint64Value;
 }
 
 void CIMValue::get(Sint64& x) const
@@ -1189,7 +1197,8 @@ void CIMValue::get(Sint64& x) const
     if (_rep->_type != CIMTYPE_SINT64 || _rep->_isArray)
         throw TypeMismatchException();
 
-    x = _rep->_u._sint64Value;
+    if (!_rep->_isNull)
+        x = _rep->_u._sint64Value;
 }
 
 void CIMValue::get(Real32& x) const
@@ -1197,7 +1206,8 @@ void CIMValue::get(Real32& x) const
     if (_rep->_type != CIMTYPE_REAL32 || _rep->_isArray)
         throw TypeMismatchException();
 
-    x = _rep->_u._real32Value;
+    if (!_rep->_isNull)
+        x = _rep->_u._real32Value;
 }
 
 void CIMValue::get(Real64& x) const
@@ -1205,7 +1215,8 @@ void CIMValue::get(Real64& x) const
     if (_rep->_type != CIMTYPE_REAL64 || _rep->_isArray)
         throw TypeMismatchException();
 
-    x = _rep->_u._real64Value;
+    if (!_rep->_isNull)
+        x = _rep->_u._real64Value;
 }
 
 void CIMValue::get(Char16& x) const
@@ -1213,7 +1224,8 @@ void CIMValue::get(Char16& x) const
     if (_rep->_type != CIMTYPE_CHAR16 || _rep->_isArray)
         throw TypeMismatchException();
 
-    x = _rep->_u._char16Value;
+    if (!_rep->_isNull)
+        x = _rep->_u._char16Value;
 }
 
 void CIMValue::get(String& x) const
@@ -1221,7 +1233,8 @@ void CIMValue::get(String& x) const
     if (_rep->_type != CIMTYPE_STRING || _rep->_isArray)
         throw TypeMismatchException();
 
-    x = *_rep->_u._stringValue;
+    if (!_rep->_isNull)
+        x = *_rep->_u._stringValue;
 }
 
 void CIMValue::get(CIMDateTime& x) const
@@ -1229,7 +1242,8 @@ void CIMValue::get(CIMDateTime& x) const
     if (_rep->_type != CIMTYPE_DATETIME || _rep->_isArray)
         throw TypeMismatchException();
 
-    x = *_rep->_u._dateTimeValue;
+    if (!_rep->_isNull)
+        x = *_rep->_u._dateTimeValue;
 }
 
 void CIMValue::get(CIMObjectPath& x) const
@@ -1237,7 +1251,8 @@ void CIMValue::get(CIMObjectPath& x) const
     if (_rep->_type != CIMTYPE_REFERENCE || _rep->_isArray)
         throw TypeMismatchException();
 
-    x = *_rep->_u._referenceValue;
+    if (!_rep->_isNull)
+        x = *_rep->_u._referenceValue;
 }
 
 void CIMValue::get(Array<Boolean>& x) const
@@ -1245,7 +1260,8 @@ void CIMValue::get(Array<Boolean>& x) const
     if (_rep->_type != CIMTYPE_BOOLEAN || !_rep->_isArray)
         throw TypeMismatchException();
 
-    x = *_rep->_u._booleanArray;
+    if (!_rep->_isNull)
+        x = *_rep->_u._booleanArray;
 }
 
 void CIMValue::get(Array<Uint8>& x) const
@@ -1253,7 +1269,8 @@ void CIMValue::get(Array<Uint8>& x) const
     if (_rep->_type != CIMTYPE_UINT8 || !_rep->_isArray)
         throw TypeMismatchException();
 
-    x = *_rep->_u._uint8Array;
+    if (!_rep->_isNull)
+        x = *_rep->_u._uint8Array;
 }
 
 void CIMValue::get(Array<Sint8>& x) const
@@ -1261,7 +1278,8 @@ void CIMValue::get(Array<Sint8>& x) const
     if (_rep->_type != CIMTYPE_SINT8 || !_rep->_isArray)
         throw TypeMismatchException();
 
-    x = *_rep->_u._sint8Array;
+    if (!_rep->_isNull)
+        x = *_rep->_u._sint8Array;
 }
 
 void CIMValue::get(Array<Uint16>& x) const
@@ -1269,7 +1287,8 @@ void CIMValue::get(Array<Uint16>& x) const
     if (_rep->_type != CIMTYPE_UINT16 || !_rep->_isArray)
         throw TypeMismatchException();
 
-    x = *_rep->_u._uint16Array;
+    if (!_rep->_isNull)
+        x = *_rep->_u._uint16Array;
 }
 
 void CIMValue::get(Array<Sint16>& x) const
@@ -1277,7 +1296,8 @@ void CIMValue::get(Array<Sint16>& x) const
     if (_rep->_type != CIMTYPE_SINT16 || !_rep->_isArray)
         throw TypeMismatchException();
 
-    x = *_rep->_u._sint16Array;
+    if (!_rep->_isNull)
+        x = *_rep->_u._sint16Array;
 }
 
 void CIMValue::get(Array<Uint32>& x) const
@@ -1285,7 +1305,8 @@ void CIMValue::get(Array<Uint32>& x) const
     if (_rep->_type != CIMTYPE_UINT32 || !_rep->_isArray)
         throw TypeMismatchException();
 
-    x = *_rep->_u._uint32Array;
+    if (!_rep->_isNull)
+        x = *_rep->_u._uint32Array;
 }
 
 void CIMValue::get(Array<Sint32>& x) const
@@ -1293,7 +1314,8 @@ void CIMValue::get(Array<Sint32>& x) const
     if (_rep->_type != CIMTYPE_SINT32 || !_rep->_isArray)
         throw TypeMismatchException();
 
-    x = *_rep->_u._sint32Array;
+    if (!_rep->_isNull)
+        x = *_rep->_u._sint32Array;
 }
 
 void CIMValue::get(Array<Uint64>& x) const
@@ -1301,7 +1323,8 @@ void CIMValue::get(Array<Uint64>& x) const
     if (_rep->_type != CIMTYPE_UINT64 || !_rep->_isArray)
         throw TypeMismatchException();
 
-    x = *_rep->_u._uint64Array;
+    if (!_rep->_isNull)
+        x = *_rep->_u._uint64Array;
 }
 
 void CIMValue::get(Array<Sint64>& x) const
@@ -1309,7 +1332,8 @@ void CIMValue::get(Array<Sint64>& x) const
     if (_rep->_type != CIMTYPE_SINT64 || !_rep->_isArray)
         throw TypeMismatchException();
 
-    x = *_rep->_u._sint64Array;
+    if (!_rep->_isNull)
+        x = *_rep->_u._sint64Array;
 }
 
 void CIMValue::get(Array<Real32>& x) const
@@ -1317,7 +1341,8 @@ void CIMValue::get(Array<Real32>& x) const
     if (_rep->_type != CIMTYPE_REAL32 || !_rep->_isArray)
         throw TypeMismatchException();
 
-    x = *_rep->_u._real32Array;
+    if (!_rep->_isNull)
+        x = *_rep->_u._real32Array;
 }
 
 void CIMValue::get(Array<Real64>& x) const
@@ -1325,7 +1350,8 @@ void CIMValue::get(Array<Real64>& x) const
     if (_rep->_type != CIMTYPE_REAL64 || !_rep->_isArray)
         throw TypeMismatchException();
 
-    x = *_rep->_u._real64Array;
+    if (!_rep->_isNull)
+        x = *_rep->_u._real64Array;
 }
 
 void CIMValue::get(Array<Char16>& x) const
@@ -1333,7 +1359,8 @@ void CIMValue::get(Array<Char16>& x) const
     if (_rep->_type != CIMTYPE_CHAR16 || !_rep->_isArray)
         throw TypeMismatchException();
 
-    x = *_rep->_u._char16Array;
+    if (!_rep->_isNull)
+        x = *_rep->_u._char16Array;
 }
 
 void CIMValue::get(Array<String>& x) const
@@ -1341,17 +1368,17 @@ void CIMValue::get(Array<String>& x) const
     if (_rep->_type != CIMTYPE_STRING || !_rep->_isArray)
         throw TypeMismatchException();
 
-    x = *_rep->_u._stringArray;
+    if (!_rep->_isNull)
+        x = *_rep->_u._stringArray;
 }
 
 void CIMValue::get(Array<CIMDateTime>& x) const
 {
-// ATTN-RK-20020815: Use UninitializedObjectException here if CIMValue is null?
-
     if (_rep->_type != CIMTYPE_DATETIME || !_rep->_isArray)
         throw TypeMismatchException();
 
-    x = *_rep->_u._dateTimeArray;
+    if (!_rep->_isNull)
+        x = *_rep->_u._dateTimeArray;
 }
 
 void CIMValue::get(Array<CIMObjectPath>& x) const
@@ -1359,7 +1386,8 @@ void CIMValue::get(Array<CIMObjectPath>& x) const
     if (_rep->_type != CIMTYPE_REFERENCE || !_rep->_isArray)
         throw TypeMismatchException();
 
-    x = *_rep->_u._referenceArray;
+    if (!_rep->_isNull)
+        x = *_rep->_u._referenceArray;
 }
 
 Boolean CIMValue::equal(const CIMValue& x) const

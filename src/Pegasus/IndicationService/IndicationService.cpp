@@ -4062,7 +4062,8 @@ Array <CIMInstance> IndicationService::_getMatchingSubscriptions (
                     //  Get filter properties
                     //
                     _getFilterProperties (subscriptions [j],
-                        nameSpaces [i], filterQuery, sourceNameSpace);
+                        subscriptions [j].getPath ().getNameSpace (),
+                        filterQuery, sourceNameSpace);
                     selectStatement = _getSelectStatement (filterQuery);
             
                     //
@@ -4628,8 +4629,13 @@ void IndicationService::_getFilterProperties (
         filterInstance = _repository->getInstance (nameSpaceName, 
             filterReference);
     }
-    catch (Exception&)
+    catch (Exception & exception)
     {
+        PEG_TRACE_STRING (TRC_INDICATION_SERVICE, Tracer::LEVEL2, 
+            "Exception caught in getting filter instance (" +
+            filterReference.toString() + "): " +
+            exception.getMessage ());
+
         _repository->read_unlock ();
         PEG_METHOD_EXIT ();
         throw;
@@ -4675,8 +4681,13 @@ void IndicationService::_getFilterProperties (
         filterInstance = _repository->getInstance (nameSpaceName, 
             filterReference);
     }
-    catch (Exception&)
+    catch (Exception & exception)
     {
+        PEG_TRACE_STRING (TRC_INDICATION_SERVICE, Tracer::LEVEL2, 
+            "Exception caught in getting filter instance (" +
+            filterReference.toString() + "): " +
+            exception.getMessage ());
+
         _repository->read_unlock ();
         PEG_METHOD_EXIT ();
         throw;
@@ -4717,8 +4728,13 @@ void IndicationService::_getFilterProperties (
         filterInstance = _repository->getInstance (nameSpaceName, 
             filterReference);
     }
-    catch (Exception&)
+    catch (Exception & exception)
     {
+        PEG_TRACE_STRING (TRC_INDICATION_SERVICE, Tracer::LEVEL2, 
+            "Exception caught in getting filter instance (" +
+            filterReference.toString() + "): " +
+            exception.getMessage ());
+
         _repository->read_unlock ();
         PEG_METHOD_EXIT ();
         throw;
@@ -6441,6 +6457,20 @@ void IndicationService::_handleCreateResponseAggregation (
         //
         //  At least one provider accepted the subscription
         //
+
+        //
+        //  Check each provider to see if it is not yet in use by any 
+        //  subscription, and therefore must be enabled
+        //
+        Array <ProviderClassList> enableProviders;
+        for (Uint32 k = 0; k < acceptedProviders.size (); k++)
+        {
+            if (!_providerInUse (acceptedProviders [k].provider))
+            {
+                enableProviders.append (acceptedProviders [k]);
+            }
+        }
+
         if (operationAggregate->getOrigType () ==
             CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE)
         {
@@ -6471,6 +6501,13 @@ void IndicationService::_handleCreateResponseAggregation (
                     _insertActiveSubscriptionsEntry (tableValue.subscription, 
                         tableValue.providers);
                 }
+
+                //
+                //  Send Enable message to each provider that accepted 
+                //  subscription
+                //
+                _sendEnable (enableProviders, 
+                    operationAggregate->getOrigRequest ());
             }
             else
             {
@@ -6512,6 +6549,7 @@ void IndicationService::_handleCreateResponseAggregation (
                 }
             }
 
+
             //
             //  Update the entry in the active subscriptions hash table
             //
@@ -6528,6 +6566,13 @@ void IndicationService::_handleCreateResponseAggregation (
                     _insertActiveSubscriptionsEntry (tableValue.subscription, 
                         tableValue.providers);
                 }
+    
+                //
+                //  Send Enable message to each provider that accepted 
+                //  subscription
+                //
+                _sendEnable (enableProviders, 
+                    operationAggregate->getOrigRequest ());
             }
             else
             {
@@ -6572,19 +6617,6 @@ void IndicationService::_handleCreateResponseAggregation (
             if (cimException.getCode () == CIM_ERR_SUCCESS)
             {
                 //
-                //  Check each provider to see if it is not yet in use by any 
-                //  subscription, and therefore must be enabled
-                //
-                Array <ProviderClassList> enableProviders;
-                for (Uint32 j = 0; j < acceptedProviders.size (); j++)
-                {
-                    if (!_providerInUse (acceptedProviders [j].provider))
-                    {
-                        enableProviders.append (acceptedProviders [j]);
-                    }
-                }
-
-                //
                 //  Insert entries into the subscription hash tables
                 //
                 _insertToHashTables (instance, 
@@ -6605,19 +6637,6 @@ void IndicationService::_handleCreateResponseAggregation (
             PEGASUS_ASSERT ((operationAggregate->getOrigType () == 0) || 
                             (operationAggregate->getOrigType () ==
                              CIM_MODIFY_INSTANCE_REQUEST_MESSAGE));
-
-            //
-            //  Check each provider to see if it is not yet in use by any 
-            //  subscription, and therefore must be enabled
-            //
-            Array <ProviderClassList> enableProviders;
-            for (Uint32 k = 0; k < acceptedProviders.size (); k++)
-            {
-                if (!_providerInUse (acceptedProviders [k].provider))
-                {
-                    enableProviders.append (acceptedProviders [k]);
-                }
-            }
 
             //
             //  Insert entries into the subscription hash tables
@@ -7178,9 +7197,9 @@ Boolean IndicationService::_lockedLookupSubscriptionClassesEntry (
 
     ReadLock lock(_subscriptionClassesTableLock);
 
-    return (_subscriptionClassesTable.lookup (key, tableEntry));
-
     PEG_METHOD_EXIT ();
+
+    return (_subscriptionClassesTable.lookup (key, tableEntry));
 }
 
 void IndicationService::_lockedInsertSubscriptionClassesEntry (
@@ -7577,7 +7596,8 @@ void IndicationService::_sendEnable (
     else
     {
         //
-        //  Create Instance, Modify Instance, or Provider Registration Change
+        //  Create Instance, Modify Instance, Provider Registration Change,
+        //  or Provider Enable
         //
         switch (origRequest->getType ())
         {
@@ -7607,6 +7627,16 @@ void IndicationService::_sendEnable (
                     (CIMNotifyProviderRegistrationRequestMessage *) origRequest;
                 CIMNotifyProviderRegistrationRequestMessage * requestCopy =
                     new CIMNotifyProviderRegistrationRequestMessage (* request);
+                aggRequest = requestCopy;
+                break;
+            }
+
+            case CIM_NOTIFY_PROVIDER_ENABLE_REQUEST_MESSAGE:
+            {
+                CIMNotifyProviderEnableRequestMessage * request =
+                    (CIMNotifyProviderEnableRequestMessage *) origRequest;
+                CIMNotifyProviderEnableRequestMessage * requestCopy =
+                    new CIMNotifyProviderEnableRequestMessage (* request);
                 aggRequest = requestCopy;
                 break;
             }

@@ -30,6 +30,22 @@ poststarttests:
 	cimprovider -e -m ProcessIndicationProviderModule
 	@echo "TestDisableEnable delete"
 	@$(PROGRAM) delete
+	@echo "TestDisableEnable create"
+	@$(PROGRAM) create
+	@echo "TestDisableEnable create2"
+	@$(PROGRAM) create2
+	@echo "TestDisableEnable addProvider"
+	@$(PROGRAM) addProvider
+	@echo "TestDisableEnable modifyProvider1"
+	@$(PROGRAM) modifyProvider1
+	@echo "TestDisableEnable modifyProvider2"
+	@$(PROGRAM) modifyProvider2
+	@echo "TestDisableEnable deleteProvider"
+	@$(PROGRAM) deleteProvider
+	@echo "TestDisableEnable delete2"
+	@$(PROGRAM) delete2
+	@echo "TestDisableEnable delete"
+	@$(PROGRAM) delete
 	@echo "TestDisableEnable cleanup"
 	@$(PROGRAM) cleanup
 	@echo "+++++ TestDisableEnable passed all tests"

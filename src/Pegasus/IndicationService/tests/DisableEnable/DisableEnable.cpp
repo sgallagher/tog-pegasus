@@ -23,7 +23,8 @@
 //
 //==============================================================================
 //
-// Author: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+// Author: Carol Ann Krug Graves, Hewlett-Packard Company
+//             (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -76,7 +77,8 @@ void _createCapabilityInstance
      const String & providerModuleName,
      const String & providerName,
      const String & capabilityID,
-     const String & className)
+     const String & className,
+     const CIMPropertyList & supportedProperties)
 {
     Array <String> namespaces;
     Array <Uint16> providerType;
@@ -95,6 +97,16 @@ void _createCapabilityInstance
         namespaces));
     capabilityInstance.addProperty (CIMProperty (CIMName ("ProviderType"),
         CIMValue (providerType)));
+    if (!supportedProperties.isNull ())
+    {
+        Array <String> propertyNameStrings;
+        for (Uint32 i = 0; i < supportedProperties.size (); i++)
+        {
+            propertyNameStrings.append (supportedProperties [i].getString ());
+        }
+        capabilityInstance.addProperty (CIMProperty 
+            (CIMName ("supportedProperties"), CIMValue (propertyNameStrings)));
+    }
 
     CIMObjectPath path = client.createInstance (NAMESPACE, capabilityInstance);
 }
@@ -157,6 +169,47 @@ void _createSubscriptionInstance
         subscriptionInstance);
 }
 
+void _modifyCapabilityInstance 
+    (CIMClient & client, 
+     const String & providerModuleName,
+     const String & providerName,
+     const String & capabilityID,
+     const CIMPropertyList & supportedProperties)
+{
+    CIMInstance modifiedInstance (PEGASUS_CLASSNAME_PROVIDERCAPABILITIES);
+    modifiedInstance.addProperty (CIMProperty (CIMName ("ProviderModuleName"),
+        providerModuleName));
+    modifiedInstance.addProperty (CIMProperty (CIMName ("ProviderName"),
+        providerName));
+    modifiedInstance.addProperty (CIMProperty (CIMName ("CapabilityID"),
+        capabilityID));
+
+    Array<CIMKeyBinding> keyBindings;
+    keyBindings.append (CIMKeyBinding ("ProviderModuleName",
+        providerModuleName, CIMKeyBinding::STRING));
+    keyBindings.append (CIMKeyBinding ("ProviderName",
+        providerName, CIMKeyBinding::STRING));
+    keyBindings.append (CIMKeyBinding ("CapabilityID",
+        capabilityID, CIMKeyBinding::STRING));
+    CIMObjectPath path ("", CIMNamespaceName (),
+        CIMName ("PG_ProviderCapabilities"), keyBindings);
+    modifiedInstance.setPath (path);
+    if (!supportedProperties.isNull ())
+    {
+        Array <String> propertyNameStrings;
+        for (Uint32 i = 0; i < supportedProperties.size (); i++)
+        {
+            propertyNameStrings.append (supportedProperties [i].getString ());
+        }
+        modifiedInstance.addProperty (CIMProperty 
+            (CIMName ("supportedProperties"), CIMValue (propertyNameStrings)));
+    }
+    Array <CIMName> propertyNames;
+    propertyNames.append (CIMName ("SupportedProperties"));
+    client.modifyInstance (NAMESPACE, modifiedInstance, false, 
+        CIMPropertyList (propertyNames));
+}
+
 void _deleteSubscriptionInstance 
     (CIMClient & client, 
      const String & filterName,
@@ -192,10 +245,6 @@ void _deleteSubscriptionInstance
         filterPath.toString (), CIMKeyBinding::REFERENCE));
     subscriptionKeyBindings.append (CIMKeyBinding ("Handler",
         handlerPath.toString (), CIMKeyBinding::REFERENCE));
-    //subscriptionInstance.addProperty(CIMProperty(CIMName ("Filter"),
-        //filterRef, 0, PEGASUS_CLASSNAME_INDFILTER));
-    //subscriptionInstance.addProperty(CIMProperty(CIMName ("Handler"),
-        //handlerRef, 0, PEGASUS_CLASSNAME_INDHANDLER_CIMXML));
     CIMObjectPath subscriptionPath ("", CIMNamespaceName (),
         PEGASUS_CLASSNAME_INDSUBSCRIPTION, subscriptionKeyBindings);
     client.deleteInstance (NAMESPACE, subscriptionPath);
@@ -217,12 +266,7 @@ void _deleteHandlerInstance
         CIMKeyBinding::STRING));
     CIMObjectPath path ("", CIMNamespaceName (),
         PEGASUS_CLASSNAME_INDHANDLER_CIMXML, keyBindings);
-//cout << "path: " << path.toString () << endl;
-//cout << "out: " << "CIM_IndicationHandlerCIMXML.CreationClassName=\"CIM_IndicationHandlerCIMXML\",Name=\"DEHandler01\",SystemCreationClassName=\"CIM_UnitaryComputerSystem\",SystemName=\"server001.acme.com\""
-//<< endl;
-    client.deleteInstance (NAMESPACE, 
-        //CIMObjectPath ("CIM_IndicationHandlerCIMXML.CreationClassName=\"CIM_IndicationHandlerCIMXML\",Name=\"DEHandler01\",SystemCreationClassName=\"CIM_UnitaryComputerSystem\",SystemName=\"server001.acme.com\""));
-path);
+    client.deleteInstance (NAMESPACE, path);
 }
 
 void _deleteFilterInstance 
@@ -240,12 +284,7 @@ void _deleteFilterInstance
         CIMKeyBinding::STRING));
     CIMObjectPath path ("", CIMNamespaceName (),
         PEGASUS_CLASSNAME_INDFILTER, keyBindings);
-//cout << "path: " << path.toString () << endl;
-//cout << "out: " << "CIM_IndicationFilter.CreationClassName=\"CIM_IndicationFilter\",Name=\"DEFilter01\",SystemCreationClassName=\"CIM_UnitaryComputerSystem\",SystemName=\"server001.acme.com\""
-//<< endl;
-    client.deleteInstance (NAMESPACE, 
-        //CIMObjectPath ("CIM_IndicationFilter.CreationClassName=\"CIM_IndicationFilter\",Name=\"DEFilter01\",SystemCreationClassName=\"CIM_UnitaryComputerSystem\",SystemName=\"server001.acme.com\""));
-path);
+    client.deleteInstance (NAMESPACE, path);
 }
 
 void _deleteCapabilityInstance 
@@ -263,12 +302,7 @@ void _deleteCapabilityInstance
         capabilityID, CIMKeyBinding::STRING));
     CIMObjectPath path ("", CIMNamespaceName (),
         CIMName ("PG_ProviderCapabilities"), keyBindings);
-//cout << "path: " << path.toString () << endl;
-//cout << "out: " << "PG_ProviderCapabilities.CapabilityID=\"DECapability01\",ProviderModuleName=\"ProcessIndicationProviderModule\",ProviderName=\"ProcessIndicationProvider\""
-//<< endl;
-    client.deleteInstance (NAMESPACE, 
-        //CIMObjectPath ("PG_ProviderCapabilities.CapabilityID=\"DECapability01\",ProviderModuleName=\"ProcessIndicationProviderModule\",ProviderName=\"ProcessIndicationProvider\""));
-path);
+    client.deleteInstance (NAMESPACE, path);
 }
 
 void _deleteProviderInstance 
@@ -283,12 +317,7 @@ void _deleteProviderInstance
         providerModuleName, CIMKeyBinding::STRING));
     CIMObjectPath path ("", CIMNamespaceName (),
         CIMName ("PG_Provider"), keyBindings);
-//cout << "path: " << path.toString () << endl;
-//cout << "out: " << "PG_Provider.Name=\"ProcessIndicationProvider\",ProviderModuleName=\"ProcessIndicationProviderModule\""
-     //<< endl;
-    client.deleteInstance (NAMESPACE, 
-        //CIMObjectPath ("PG_Provider.Name=\"ProcessIndicationProvider\",ProviderModuleName=\"ProcessIndicationProviderModule\""));
-path);
+    client.deleteInstance (NAMESPACE, path);
 }
 
 void _deleteModuleInstance 
@@ -300,18 +329,15 @@ void _deleteModuleInstance
         name, CIMKeyBinding::STRING));
     CIMObjectPath path ("", CIMNamespaceName (),
         CIMName ("PG_ProviderModule"), keyBindings);
-//cout << "path: " << path.toString () << endl;
-//cout << "out: " << "PG_ProviderModule.Name=\"ProcessIndicationProviderModule\""
-     //<< endl;
-    client.deleteInstance (NAMESPACE, 
-        //CIMObjectPath ("PG_ProviderModule.Name=\"ProcessIndicationProviderModule\""));
-path);
+    client.deleteInstance (NAMESPACE, path);
 }
 
 void _usage ()
 {
     PEGASUS_STD (cerr) 
-        << "Usage: TestDisableEnable {setup | create | delete | cleanup}" 
+        << "Usage: TestDisableEnable "
+        << "{setup | create | delete | create2 | addProvider | modifyProvider1 "
+        << "| modifyProvider2 | deleteProvider | delete2 | cleanup}" 
         << PEGASUS_STD (endl);
 }
 
@@ -325,24 +351,29 @@ void _setup (CIMClient & client)
         _createProviderInstance (client, 
             String ("ProcessIndicationProvider"), 
             String ("ProcessIndicationProviderModule"));
+        Array <CIMName> propertyNames;
+        propertyNames.append (CIMName ("IndicationTime"));
+        propertyNames.append (CIMName ("IndicationIdentifier"));
+        CIMPropertyList supportedProperties (propertyNames);
         _createCapabilityInstance (client, 
             String ("ProcessIndicationProviderModule"), 
             String ("ProcessIndicationProvider"),
             String ("DECapability01"),
-            String ("CIM_ProcessIndication"));
+            String ("CIM_ProcessIndication"),
+            supportedProperties);
         _createFilterInstance (client, String ("DEFilter01"),
-            String ("SELECT * FROM CIM_ProcessIndication"));
+            String ("SELECT IndicationTime FROM CIM_ProcessIndication"));
         _createHandlerInstance (client, String ("DEHandler01"), 
             String ("localhost/CIMListener/test1"));
     }
     catch (Exception & e)
     {
-        PEGASUS_STD (cerr) << "_setup failed: " << e.getMessage ()
+        PEGASUS_STD (cerr) << "setup failed: " << e.getMessage ()
                            << PEGASUS_STD (endl);
         exit (-1);
     }
 
-    PEGASUS_STD (cout) << "+++++ _setup completed successfully"
+    PEGASUS_STD (cout) << "+++++ setup completed successfully"
                        << PEGASUS_STD (endl);
 }
 
@@ -350,7 +381,6 @@ void _create (CIMClient & client)
 {
     try
     {
-
         _createSubscriptionInstance (client, CIMObjectPath ("CIM_IndicationFilter.CreationClassName=\"CIM_IndicationFilter\",Name=\"DEFilter01\",SystemCreationClassName=\"CIM_UnitaryComputerSystem\",SystemName=\"server001.acme.com\""), 
             CIMObjectPath ("CIM_IndicationHandlerCIMXML.CreationClassName=\"CIM_IndicationHandlerCIMXML\",Name=\"DEHandler01\",SystemCreationClassName=\"CIM_UnitaryComputerSystem\",SystemName=\"server001.acme.com\""));
     }
@@ -362,6 +392,26 @@ void _create (CIMClient & client)
     }
 
     PEGASUS_STD (cout) << "+++++ create completed successfully"
+                       << PEGASUS_STD (endl);
+}
+
+void _create2 (CIMClient & client)
+{
+    try
+    {
+        _createFilterInstance (client, String ("DEFilter02"),
+            String ("SELECT IndicationTime, IndicationIdentifier FROM CIM_ProcessIndication"));
+        _createSubscriptionInstance (client, CIMObjectPath ("CIM_IndicationFilter.CreationClassName=\"CIM_IndicationFilter\",Name=\"DEFilter02\",SystemCreationClassName=\"CIM_UnitaryComputerSystem\",SystemName=\"server001.acme.com\""), 
+            CIMObjectPath ("CIM_IndicationHandlerCIMXML.CreationClassName=\"CIM_IndicationHandlerCIMXML\",Name=\"DEHandler01\",SystemCreationClassName=\"CIM_UnitaryComputerSystem\",SystemName=\"server001.acme.com\""));
+    }
+    catch (Exception & e)
+    {
+        PEGASUS_STD (cerr) << "create2 failed: " << e.getMessage ()
+                           << PEGASUS_STD (endl);
+        exit (-1);
+    }
+
+    PEGASUS_STD (cout) << "+++++ create2 completed successfully"
                        << PEGASUS_STD (endl);
 }
 
@@ -380,6 +430,25 @@ void _delete (CIMClient & client)
     }
 
     PEGASUS_STD (cout) << "+++++ delete completed successfully"
+                       << PEGASUS_STD (endl);
+}
+
+void _delete2 (CIMClient & client)
+{
+    try
+    {
+        _deleteSubscriptionInstance (client, String ("DEFilter02"),
+            String ("DEHandler01"));
+        _deleteFilterInstance (client, String ("DEFilter02"));
+    }
+    catch (Exception & e)
+    {
+        PEGASUS_STD (cerr) << "delete2 failed: " << e.getMessage ()
+                           << PEGASUS_STD (endl);
+        exit (-1);
+    }
+
+    PEGASUS_STD (cout) << "+++++ delete2 completed successfully"
                        << PEGASUS_STD (endl);
 }
 
@@ -410,10 +479,118 @@ void _cleanup (CIMClient & client)
                        << PEGASUS_STD (endl);
 }
 
+void _addProvider (CIMClient & client)
+{
+    try
+    {
+        _createProviderInstance (client, 
+            String ("ProcessIndicationProvider2"), 
+            String ("ProcessIndicationProviderModule"));
+        Array <CIMName> propertyNames;
+        propertyNames.append (CIMName ("IndicationTime"));
+        CIMPropertyList supportedProperties (propertyNames);
+        _createCapabilityInstance (client, 
+            String ("ProcessIndicationProviderModule"), 
+            String ("ProcessIndicationProvider2"),
+            String ("DECapability02"),
+            String ("CIM_ProcessIndication"),
+            supportedProperties);
+    }
+    catch (Exception & e)
+    {
+        PEGASUS_STD (cerr) << "addProvider failed: " << e.getMessage ()
+                           << PEGASUS_STD (endl);
+        exit (-1);
+    }
+
+    PEGASUS_STD (cout) << "+++++ addProvider completed successfully"
+                       << PEGASUS_STD (endl);
+}
+
+void _modifyProvider1 (CIMClient & client)
+{
+    try
+    {
+        Array <CIMName> propertyNames;
+        propertyNames.append (CIMName ("IndicationTime"));
+        propertyNames.append (CIMName ("IndicationIdentifier"));
+        CIMPropertyList supportedProperties (propertyNames);
+        _modifyCapabilityInstance (client, 
+            String ("ProcessIndicationProviderModule"), 
+            String ("ProcessIndicationProvider2"),
+            String ("DECapability02"),
+            supportedProperties);
+    }
+    catch (Exception & e)
+    {
+        PEGASUS_STD (cerr) << "modifyProvider1 failed: " << e.getMessage ()
+                           << PEGASUS_STD (endl);
+        exit (-1);
+    }
+
+    PEGASUS_STD (cout) << "+++++ modifyProvider1 completed successfully"
+                       << PEGASUS_STD (endl);
+}
+
+void _modifyProvider2 (CIMClient & client)
+{
+    try
+    {
+        Array <CIMName> propertyNames;
+        propertyNames.append (CIMName ("IndicationTime"));
+        CIMPropertyList supportedProperties (propertyNames);
+        _modifyCapabilityInstance (client, 
+            String ("ProcessIndicationProviderModule"), 
+            String ("ProcessIndicationProvider2"),
+            String ("DECapability02"),
+            supportedProperties);
+    }
+    catch (Exception & e)
+    {
+        PEGASUS_STD (cerr) << "modifyProvider2 failed: " << e.getMessage ()
+                           << PEGASUS_STD (endl);
+        exit (-1);
+    }
+
+    PEGASUS_STD (cout) << "+++++ modifyProvider2 completed successfully"
+                       << PEGASUS_STD (endl);
+}
+
+void _deleteProvider (CIMClient & client)
+{
+    try
+    {
+        _deleteCapabilityInstance (client, 
+            String ("ProcessIndicationProviderModule"), 
+            String ("ProcessIndicationProvider2"),
+            String ("DECapability02"));
+        _deleteProviderInstance (client, 
+            String ("ProcessIndicationProvider2"), 
+            String ("ProcessIndicationProviderModule"));
+    }
+    catch (Exception & e)
+    {
+        PEGASUS_STD (cerr) << "deleteProvider failed: " << e.getMessage ()
+                           << PEGASUS_STD (endl);
+        exit (-1);
+    }
+
+    PEGASUS_STD (cout) << "+++++ deleteProvider completed successfully"
+                       << PEGASUS_STD (endl);
+}
+
 int main (int argc, char** argv)
 {
     CIMClient client;
-    client.connectLocal ();
+    try
+    {
+        client.connectLocal ();
+    }
+    catch (Exception & e)
+    {
+        PEGASUS_STD (cerr) << e.getMessage () << PEGASUS_STD (endl);
+        exit (-1);
+    }
 
     if (argc != 2)
     {
@@ -433,9 +610,33 @@ int main (int argc, char** argv)
         {
             _create (client);
         }
+        else if (String::equalNoCase (opt, "create2"))
+        {
+            _create2 (client);
+        }
+        else if (String::equalNoCase (opt, "addProvider"))
+        {
+            _addProvider (client);
+        }
+        else if (String::equalNoCase (opt, "modifyProvider1"))
+        {
+            _modifyProvider1 (client);
+        }
+        else if (String::equalNoCase (opt, "modifyProvider2"))
+        {
+            _modifyProvider2 (client);
+        }
+        else if (String::equalNoCase (opt, "deleteProvider"))
+        {
+            _deleteProvider (client);
+        }
         else if (String::equalNoCase (opt, "delete"))
         {
             _delete (client);
+        }
+        else if (String::equalNoCase (opt, "delete2"))
+        {
+            _delete2 (client);
         }
         else if (String::equalNoCase (opt, "cleanup"))
         {

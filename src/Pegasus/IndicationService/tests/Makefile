@@ -7,6 +7,7 @@ DIRS = \
     CreateHandlers \
     CreateSubscriptions \
     IndicationProcess \
-    DisableEnable
+    DisableEnable \
+    DisableEnable2
 
 include $(ROOT)/mak/recurse.mak

@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: String.cpp,v $
-// Revision 1.1  2001/01/14 19:53:49  mike
-// Initial revision
+// Revision 1.2  2001/02/11 05:42:33  mike
+// new
+//
+// Revision 1.1.1.1  2001/01/14 19:53:49  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -123,6 +126,11 @@ int main()
 	s.remove(0, 1);
 	assert(s == "bc");
 	assert(s.getLength() == 2);
+
+	String t1 = "HELLO";
+	String t2 = ToLower(t1);
+	assert(t1 == "HELLO");
+	assert(t2 == "hello");
     }
 
     cout << "+++++ passed all tests" << endl;

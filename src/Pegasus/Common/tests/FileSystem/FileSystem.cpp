@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: FileSystem.cpp,v $
+// Revision 1.3  2001/02/11 05:42:33  mike
+// new
+//
 // Revision 1.2  2001/01/14 23:39:04  mike
 // fixed broken regression test
 //
@@ -54,7 +57,6 @@ int main()
     Array<String> paths;
     assert( FileSystem::getDirectoryContents("./testdir", paths) );
 
-
     for (Uint32 i = 0; i < paths.getSize(); i++)
     {
 	if (paths[i] == "CVS")
@@ -63,6 +65,14 @@ int main()
 	    break;
 	}
     }
+
+    String realName;
+    assert(FileSystem::existsIgnoreCase("filesystem.cpp", realName));
+    assert(realName == "FileSystem.cpp");
+
+    assert(FileSystem::existsIgnoreCase(
+	"../FileSystem/filesystem.cpp", realName));
+    assert(realName == "../FileSystem/FileSystem.cpp");
 
     BubbleSort(paths);
     assert(paths.getSize() == 3);

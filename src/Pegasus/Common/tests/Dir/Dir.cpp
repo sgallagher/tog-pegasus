@@ -22,42 +22,46 @@
 //
 // Author:
 //
-// $Log: ClassDecl.cpp,v $
-// Revision 1.2  2001/02/11 05:42:33  mike
+// $Log: Dir.cpp,v $
+// Revision 1.1  2001/02/11 05:46:52  mike
 // new
 //
-// Revision 1.1.1.1  2001/01/14 19:53:45  mike
+// Revision 1.2  2001/01/14 23:39:04  mike
+// fixed broken regression test
+//
+// Revision 1.1.1.1  2001/01/14 19:53:46  mike
 // Pegasus import
 //
 //
 //END_HISTORY
 
-#include <Pegasus/Common/ClassDecl.h>
-#include <Pegasus/Common/Name.h>
+#include <cassert>
+#include <iostream>
+#include <Pegasus/Common/Dir.h>
+#include <Pegasus/Common/Array.h>
 
 using namespace Pegasus;
 using namespace std;
 
 void test01()
 {
-    // class MyClass : YourClass
-    // {
-    //     string message = "Hello";
-    // }
+    Array<String> names;
 
-    ClassDecl class1("MyClass", "YourClass");
+    for (Dir dir("testdir"); dir.more(); dir.next())
+    {
+	String name = dir.getName();
 
-    class1
-	.addQualifier(Qualifier("association", true))
-	.addQualifier(Qualifier("q1", Uint32(55)))
-	.addQualifier(Qualifier("q2", "Hello"))
-	.addProperty(Property("message", "Hello"))
-	.addProperty(Property("count", Uint32(77)))
-	.addMethod(Method("isActive", Type::BOOLEAN)
-	    .addParameter(Parameter("hostname", Type::STRING))
-	    .addParameter(Parameter("port", Type::UINT32)));
+	if (name == "." || name == ".." || name == "CVS")
+	    continue;
 
-    // class1.print();
+	names.append(name);
+    }
+
+    BubbleSort(names);
+    assert(names.getSize() == 3);
+    assert(names[0] == "a");
+    assert(names[1] == "b");
+    assert(names[2] == "c");
 }
 
 int main()
@@ -68,10 +72,22 @@ int main()
     }
     catch (Exception& e)
     {
-	cout << "Exception: " << e.getMessage() << endl;
+	cout << e.getMessage() << endl;
+	exit(1);
     }
 
-    cout << "+++++ passed all tests" << endl;
+    try 
+    {
+	Dir dir("noSuchDirectory");
+    }
+    catch (CannotOpenDirectory& e)
+    {
+	cout << "+++++ passed all tests" << endl;
+	exit(0);
+    }
+
+    assert(0);
+    exit(1);
 
     return 0;
 }

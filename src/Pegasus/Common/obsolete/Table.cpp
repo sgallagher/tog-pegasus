@@ -22,56 +22,18 @@
 //
 // Author:
 //
-// $Log: ClassDecl.cpp,v $
-// Revision 1.2  2001/02/11 05:42:33  mike
+// $Log: Table.cpp,v $
+// Revision 1.1  2001/02/11 05:42:57  mike
 // new
 //
-// Revision 1.1.1.1  2001/01/14 19:53:45  mike
+// Revision 1.1.1.1  2001/01/14 19:50:23  mike
 // Pegasus import
 //
 //
 //END_HISTORY
 
-#include <Pegasus/Common/ClassDecl.h>
-#include <Pegasus/Common/Name.h>
+#include "Table.h"
 
-using namespace Pegasus;
-using namespace std;
+PEGASUS_NAMESPACE_BEGIN
 
-void test01()
-{
-    // class MyClass : YourClass
-    // {
-    //     string message = "Hello";
-    // }
-
-    ClassDecl class1("MyClass", "YourClass");
-
-    class1
-	.addQualifier(Qualifier("association", true))
-	.addQualifier(Qualifier("q1", Uint32(55)))
-	.addQualifier(Qualifier("q2", "Hello"))
-	.addProperty(Property("message", "Hello"))
-	.addProperty(Property("count", Uint32(77)))
-	.addMethod(Method("isActive", Type::BOOLEAN)
-	    .addParameter(Parameter("hostname", Type::STRING))
-	    .addParameter(Parameter("port", Type::UINT32)));
-
-    // class1.print();
-}
-
-int main()
-{
-    try
-    {
-	test01();
-    }
-    catch (Exception& e)
-    {
-	cout << "Exception: " << e.getMessage() << endl;
-    }
-
-    cout << "+++++ passed all tests" << endl;
-
-    return 0;
-}
+PEGASUS_NAMESPACE_END

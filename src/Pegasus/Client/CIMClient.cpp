@@ -151,7 +151,7 @@ CIMClass CIMClient::getClass(
     _requestEncoder->enqueue(request);
     
     Message* message = _waitForResponse(
-        CIM_GET_CLASS_RESPONSE_MESSAGE, messageId);
+        CIM_GET_CLASS_RESPONSE_MESSAGE, messageId, _timeOutMilliseconds);
 
     CIMGetClassResponseMessage* response = 
         (CIMGetClassResponseMessage*)message;
@@ -189,7 +189,7 @@ CIMInstance CIMClient::getInstance(
     _requestEncoder->enqueue(request);
     
     Message* message = _waitForResponse(
-        CIM_GET_INSTANCE_RESPONSE_MESSAGE, messageId);
+        CIM_GET_INSTANCE_RESPONSE_MESSAGE, messageId, _timeOutMilliseconds);
     
     CIMGetInstanceResponseMessage* response = 
         (CIMGetInstanceResponseMessage*)message;
@@ -219,7 +219,7 @@ void CIMClient::deleteClass(
     _requestEncoder->enqueue(request);
     
     Message* message = _waitForResponse(
-        CIM_DELETE_CLASS_RESPONSE_MESSAGE, messageId);
+        CIM_DELETE_CLASS_RESPONSE_MESSAGE, messageId, _timeOutMilliseconds);
     
     CIMDeleteClassResponseMessage* response = 
         (CIMDeleteClassResponseMessage*)message;
@@ -246,7 +246,7 @@ void CIMClient::deleteInstance(
     _requestEncoder->enqueue(request);
     
     Message* message = _waitForResponse(
-        CIM_DELETE_INSTANCE_RESPONSE_MESSAGE, messageId);
+        CIM_DELETE_INSTANCE_RESPONSE_MESSAGE, messageId, _timeOutMilliseconds);
     
     CIMDeleteInstanceResponseMessage* response = 
         (CIMDeleteInstanceResponseMessage*)message;
@@ -273,7 +273,7 @@ void CIMClient::createClass(
     _requestEncoder->enqueue(request);
     
     Message* message = _waitForResponse(
-        CIM_CREATE_CLASS_RESPONSE_MESSAGE, messageId);
+        CIM_CREATE_CLASS_RESPONSE_MESSAGE, messageId, _timeOutMilliseconds);
     
     CIMCreateClassResponseMessage* response = 
         (CIMCreateClassResponseMessage*)message;
@@ -300,7 +300,7 @@ CIMReference CIMClient::createInstance(
     _requestEncoder->enqueue(request);
     
     Message* message = _waitForResponse(
-        CIM_CREATE_INSTANCE_RESPONSE_MESSAGE, messageId);
+        CIM_CREATE_INSTANCE_RESPONSE_MESSAGE, messageId, _timeOutMilliseconds);
     
     CIMCreateInstanceResponseMessage* response = 
         (CIMCreateInstanceResponseMessage*)message;
@@ -329,7 +329,7 @@ void CIMClient::modifyClass(
     _requestEncoder->enqueue(request);
     
     Message* message = _waitForResponse(
-        CIM_MODIFY_CLASS_RESPONSE_MESSAGE, messageId);
+        CIM_MODIFY_CLASS_RESPONSE_MESSAGE, messageId, _timeOutMilliseconds);
     
     CIMModifyClassResponseMessage* response = 
         (CIMModifyClassResponseMessage*)message;
@@ -360,7 +360,7 @@ void CIMClient::modifyInstance(
     _requestEncoder->enqueue(request);
     
     Message* message = _waitForResponse(
-        CIM_MODIFY_INSTANCE_RESPONSE_MESSAGE, messageId);
+        CIM_MODIFY_INSTANCE_RESPONSE_MESSAGE, messageId, _timeOutMilliseconds);
     
     CIMModifyInstanceResponseMessage* response = 
         (CIMModifyInstanceResponseMessage*)message;
@@ -395,7 +395,8 @@ Array<CIMClass> CIMClient::enumerateClasses(
     _requestEncoder->enqueue(request);
     
     Message* message = _waitForResponse(
-        CIM_ENUMERATE_CLASSES_RESPONSE_MESSAGE, messageId);
+        CIM_ENUMERATE_CLASSES_RESPONSE_MESSAGE, messageId,
+        _timeOutMilliseconds);
     
     CIMEnumerateClassesResponseMessage* response = 
         (CIMEnumerateClassesResponseMessage*)message;
@@ -426,7 +427,8 @@ Array<String> CIMClient::enumerateClassNames(
     _requestEncoder->enqueue(request);
     
     Message* message = _waitForResponse(
-        CIM_ENUMERATE_CLASS_NAMES_RESPONSE_MESSAGE, messageId);
+        CIM_ENUMERATE_CLASS_NAMES_RESPONSE_MESSAGE, messageId,
+        _timeOutMilliseconds);
     
     CIMEnumerateClassNamesResponseMessage* response = 
         (CIMEnumerateClassNamesResponseMessage*)message;
@@ -465,7 +467,8 @@ Array<CIMNamedInstance> CIMClient::enumerateInstances(
     _requestEncoder->enqueue(request);
     
     Message* message = _waitForResponse(
-        CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE, messageId);
+        CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE, messageId,
+        _timeOutMilliseconds);
     
     CIMEnumerateInstancesResponseMessage* response = 
         (CIMEnumerateInstancesResponseMessage*)message;
@@ -494,7 +497,8 @@ Array<CIMReference> CIMClient::enumerateInstanceNames(
     _requestEncoder->enqueue(request);
     
     Message* message = _waitForResponse(
-        CIM_ENUMERATE_INSTANCE_NAMES_RESPONSE_MESSAGE, messageId);
+        CIM_ENUMERATE_INSTANCE_NAMES_RESPONSE_MESSAGE, messageId,
+        _timeOutMilliseconds);
     
     CIMEnumerateInstanceNamesResponseMessage* response = 
         (CIMEnumerateInstanceNamesResponseMessage*)message;
@@ -523,7 +527,7 @@ Array<CIMInstance> CIMClient::execQuery(
     _requestEncoder->enqueue(request);
     
     Message* message = _waitForResponse(
-        CIM_EXEC_QUERY_RESPONSE_MESSAGE, messageId);
+        CIM_EXEC_QUERY_RESPONSE_MESSAGE, messageId, _timeOutMilliseconds);
     
     CIMExecQueryResponseMessage* response = 
         (CIMExecQueryResponseMessage*)message;
@@ -566,7 +570,7 @@ Array<CIMObjectWithPath> CIMClient::associators(
     _requestEncoder->enqueue(request);
     
     Message* message = _waitForResponse(
-        CIM_ASSOCIATORS_RESPONSE_MESSAGE, messageId);
+        CIM_ASSOCIATORS_RESPONSE_MESSAGE, messageId, _timeOutMilliseconds);
     
     CIMAssociatorsResponseMessage* response = 
         (CIMAssociatorsResponseMessage*)message;
@@ -603,7 +607,7 @@ Array<CIMReference> CIMClient::associatorNames(
     _requestEncoder->enqueue(request);
     
     Message* message = _waitForResponse(
-        CIM_ASSOCIATOR_NAMES_RESPONSE_MESSAGE, messageId);
+        CIM_ASSOCIATOR_NAMES_RESPONSE_MESSAGE, messageId, _timeOutMilliseconds);
     
     CIMAssociatorNamesResponseMessage* response = 
         (CIMAssociatorNamesResponseMessage*)message;
@@ -642,7 +646,7 @@ Array<CIMObjectWithPath> CIMClient::references(
     _requestEncoder->enqueue(request);
     
     Message* message = _waitForResponse(
-        CIM_REFERENCES_RESPONSE_MESSAGE, messageId);
+        CIM_REFERENCES_RESPONSE_MESSAGE, messageId, _timeOutMilliseconds);
     
     CIMReferencesResponseMessage* response = 
         (CIMReferencesResponseMessage*)message;
@@ -675,7 +679,8 @@ Array<CIMReference> CIMClient::referenceNames(
     _requestEncoder->enqueue(request);
     
     Message* message = _waitForResponse(
-        CIM_REFERENCE_NAMES_RESPONSE_MESSAGE, messageId);
+        CIM_REFERENCE_NAMES_RESPONSE_MESSAGE, messageId,
+        _timeOutMilliseconds);
     
     CIMReferenceNamesResponseMessage* response = 
         (CIMReferenceNamesResponseMessage*)message;
@@ -706,7 +711,7 @@ CIMValue CIMClient::getProperty(
     _requestEncoder->enqueue(request);
     
     Message* message = _waitForResponse(
-        CIM_GET_PROPERTY_RESPONSE_MESSAGE, messageId);
+        CIM_GET_PROPERTY_RESPONSE_MESSAGE, messageId, _timeOutMilliseconds);
     
     CIMGetPropertyResponseMessage* response = 
         (CIMGetPropertyResponseMessage*)message;
@@ -739,7 +744,7 @@ void CIMClient::setProperty(
     _requestEncoder->enqueue(request);
     
     Message* message = _waitForResponse(
-        CIM_SET_PROPERTY_RESPONSE_MESSAGE, messageId);
+        CIM_SET_PROPERTY_RESPONSE_MESSAGE, messageId, _timeOutMilliseconds);
     
     CIMSetPropertyResponseMessage* response = 
         (CIMSetPropertyResponseMessage*)message;
@@ -766,7 +771,7 @@ CIMQualifierDecl CIMClient::getQualifier(
     _requestEncoder->enqueue(request);
     
     Message* message = _waitForResponse(
-        CIM_GET_QUALIFIER_RESPONSE_MESSAGE, messageId);
+        CIM_GET_QUALIFIER_RESPONSE_MESSAGE, messageId, _timeOutMilliseconds);
     
     CIMGetQualifierResponseMessage* response = 
         (CIMGetQualifierResponseMessage*)message;
@@ -795,7 +800,7 @@ void CIMClient::setQualifier(
     _requestEncoder->enqueue(request);
     
     Message* message = _waitForResponse(
-        CIM_SET_QUALIFIER_RESPONSE_MESSAGE, messageId);
+        CIM_SET_QUALIFIER_RESPONSE_MESSAGE, messageId, _timeOutMilliseconds);
     
     CIMSetQualifierResponseMessage* response = 
         (CIMSetQualifierResponseMessage*)message;
@@ -822,7 +827,7 @@ void CIMClient::deleteQualifier(
     _requestEncoder->enqueue(request);
     
     Message* message = _waitForResponse(
-        CIM_DELETE_QUALIFIER_RESPONSE_MESSAGE, messageId);
+        CIM_DELETE_QUALIFIER_RESPONSE_MESSAGE, messageId, _timeOutMilliseconds);
     
     CIMDeleteQualifierResponseMessage* response = 
         (CIMDeleteQualifierResponseMessage*)message;
@@ -847,7 +852,8 @@ Array<CIMQualifierDecl> CIMClient::enumerateQualifiers(
     _requestEncoder->enqueue(request);
     
     Message* message = _waitForResponse(
-        CIM_ENUMERATE_QUALIFIERS_RESPONSE_MESSAGE, messageId);
+        CIM_ENUMERATE_QUALIFIERS_RESPONSE_MESSAGE, messageId,
+        _timeOutMilliseconds);
     
     CIMEnumerateQualifiersResponseMessage* response = 
         (CIMEnumerateQualifiersResponseMessage*)message;
@@ -881,7 +887,7 @@ CIMValue CIMClient::invokeMethod(
     _requestEncoder->enqueue(request);
     
     Message* message = _waitForResponse(
-        CIM_INVOKE_METHOD_RESPONSE_MESSAGE, messageId);
+        CIM_INVOKE_METHOD_RESPONSE_MESSAGE, messageId, _timeOutMilliseconds);
     
     CIMInvokeMethodResponseMessage* response = 
         (CIMInvokeMethodResponseMessage*)message;

@@ -26,3 +26,6 @@ strip-headers: $(RECURSE_DEPENDS) $(ERROR)
 
 prepend-headers: $(RECURSE_DEPENDS) $(ERROR)
 	@ $(foreach i,$(CLEAN_DIRS),$(MAKESH) $(MAKE) -SC $(i) prepend-headers $(NL))
+
+docxx: $(RECURSE_DEPENDS) $(ERROR)
+	@ $(foreach i,$(CLEAN_DIRS),$(MAKESH) $(MAKE) -SC $(i) docxx $(NL))

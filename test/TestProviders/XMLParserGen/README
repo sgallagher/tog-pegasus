@@ -1,0 +1,9 @@
+ParserTestProvider Module
+--------------------------
+This test case tries to exercise the XML parser/generator code of the pegasus
+CIMOM.
+- The test provider implemented here uses a malformed string (with trailing
+NULLS, trailing spaces and other illegal characters) inside the provider
+methods.
+- The XML output should not be affected by any of these illegal strings that
+are manipulated by the provider. 

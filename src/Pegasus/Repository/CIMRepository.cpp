@@ -31,7 +31,7 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
 //              Karl Schopmeyer(k.schopmeyer@opengroup.org) - extend ref function.
-//              Robert Kieninger, IBM (kieningr@de.ibm.com) - Bugzilla 383,1508
+//              Robert Kieninger, IBM (kieningr@de.ibm.com) - Bugzilla 383,1508,1813
 //              Seema Gupta (gseema@in.ibm.com) - Bugzilla 281, Bugzilla 1313
 //              Adrian Schuur (schuur@de.ibm.com) - PEP 129 & 164
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
@@ -704,6 +704,17 @@ CIMInstance CIMRepository::_getInstance(
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_getInstance");
 
     //
+    // Validate namespace
+    //
+    if ((!instanceName.getNameSpace().isNull()) &&
+        (!instanceName.getNameSpace().equal(nameSpace)))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND,
+                                       instanceName.toString());
+    }
+
+    //
     // Get the index for this instance:
     //
 
@@ -853,6 +864,17 @@ void CIMRepository::deleteInstance(
     const CIMObjectPath& instanceName)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::deleteInstance");
+
+    //
+    // Validate namespace
+    //
+    if ((!instanceName.getNameSpace().isNull()) &&
+        (!instanceName.getNameSpace().equal(nameSpace)))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND,
+                                    instanceName.toString());
+    }
 
     WriteLock lock(_lock);
 

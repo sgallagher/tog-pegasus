@@ -5,3 +5,9 @@ class Sample_ProviderClass
 	read]
 	Uint8 Identifier;
 };
+
+class Sample_InstanceProviderClass : Sample_ProviderClass
+{
+	[read, write]
+	string Message;
+};

@@ -1,6 +1,20 @@
-[provider("SampleInstanceProvider")]
-class Sample_InstanceProviderClass : Sample_ProviderClass
+#pragma locale ("en_US")
+
+instance of CIM_Provider
 {
-	[read, write]
-	string Message;
+	Name = "SampleInstanceProvider";
+	Location = "SampleInstanceProvider";
+};
+
+instance of CIM_ProviderCapabilities
+{
+	InstanceID = "SampleInstanceProvider";
+	ClassName = "Sample_InstanceProviderClass";
+//	ProviderType = { "Instance" };
+};
+
+instance of CIM_ProviderElementCapabilities
+{
+	ManagedElement = "CIM_Provider.CreationClassName=\"\",Name=\"SampleInstanceProvider\",SystemCreationClassName=\"\",SystemName=\"\"";
+	Capabilities = "CIM_ProviderCapabilities.InstanceID=\"SampleInstanceProvider\"";
 };

@@ -69,4 +69,7 @@
 #include <features.h>
 #include <stdio.h>
 #include <stdlib.h>
+#ifndef min
+#define min(a,b) (((a)<(b))?(a):(b))
+#endif
 #endif /* Pegasus_Platform_LINUX_IA64_GNU_h */

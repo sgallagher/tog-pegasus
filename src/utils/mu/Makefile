@@ -12,7 +12,6 @@ ifeq ($(OS_TYPE),windows)
     DEFINES += -DOS_WINDOWS
     RM = del
     BACKWARD_SLASH = 1
-    LINK_FLAGS += /link /nodefaultlib:msvcrt
 else
     PLATFORM_SOURCES = FilesUnix.cpp
     OBJ_OUT = -o 
@@ -54,7 +53,7 @@ OBJECTS = $(SOURCES:.cpp=$(OBJ))
 
 
 $(FULL_PROGRAM): $(OBJECTS)
-	$(LINK_WRAPPER) $(CXX) $(FLAGS) $(EXE_OUTPUT) $(OBJECTS) $(FULL_LIBRARIES) $(SYS_LIB) $(LINK_FLAGS)
+	$(LINK_WRAPPER) $(CXX) $(FLAGS) $(EXE_OUTPUT) $(OBJECTS) $(FULL_LIBRARIES) $(SYS_LIB)
 	$(MKDIRHIER) $(BIN_DIR)
 	$(COPY) $(FULL_PROGRAM) $(BIN_DIR)/$(PROGRAM)$(EXE)
 

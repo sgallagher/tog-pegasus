@@ -32,7 +32,7 @@
 #ifndef _CMPI_Object_H_
 #define _CMPI_Object_H_
 
-#include "cmpidt.h"
+#include <Pegasus/Provider/CMPI/cmpidt.h>
 
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMInstance.h>

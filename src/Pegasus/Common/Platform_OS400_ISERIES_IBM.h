@@ -103,4 +103,6 @@
 // See ProviderManagerService.cpp
 #define ENABLE_DEFAULT_PROVIDER_MANAGER
 
+#define PEGASUS_MONITOR2
+
 #endif /* Pegasus_Platform_OS400_ISERIES_IBM_h */

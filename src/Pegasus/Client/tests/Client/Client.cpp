@@ -320,7 +320,7 @@ int main(int argc, char** argv)
     if ( argc > 1 )
     {
       char *temp = argv[1];
-      if ( ! strcasecmp (temp, "-ssl" ) )
+      if ( ! String::compareNoCase(temp, "-ssl") )
       {
         cout << "SSL Enabled " << endl;
         useSSL = true;

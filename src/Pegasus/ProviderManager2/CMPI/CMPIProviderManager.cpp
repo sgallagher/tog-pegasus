@@ -356,8 +356,9 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
         STAT_PMS_PROVIDEREND;
 
         if (rc.rc!=CMPI_RC_OK)
-	   throw CIMException((CIMStatusCode)rc.rc);
-    }   
+	   throw CIMException((CIMStatusCode)rc.rc,
+	       rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+    }
     HandlerCatch(handler);
     
     PEG_METHOD_EXIT();
@@ -437,7 +438,8 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
         STAT_PMS_PROVIDEREND;
 
         if (rc.rc!=CMPI_RC_OK)
-	   throw CIMException((CIMStatusCode)rc.rc);
+	   throw CIMException((CIMStatusCode)rc.rc,
+	       rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
 
         STAT_PMS_PROVIDEREND;
     }
@@ -511,7 +513,8 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
         STAT_PMS_PROVIDEREND;
 
         if (rc.rc!=CMPI_RC_OK)
-	   throw CIMException((CIMStatusCode)rc.rc);
+	   throw CIMException((CIMStatusCode)rc.rc,
+	       rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
     }
     HandlerCatch(handler);
     
@@ -589,7 +592,8 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * messa
         STAT_PMS_PROVIDEREND;
 
         if (rc.rc!=CMPI_RC_OK)
-	   throw CIMException((CIMStatusCode)rc.rc);
+	   throw CIMException((CIMStatusCode)rc.rc,
+	       rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
     }
     HandlerCatch(handler);
     
@@ -668,7 +672,8 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
         STAT_PMS_PROVIDEREND;
 
         if (rc.rc!=CMPI_RC_OK)
-	   throw CIMException((CIMStatusCode)rc.rc);
+	   throw CIMException((CIMStatusCode)rc.rc,
+	       rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
     }
     HandlerCatch(handler);
     
@@ -741,7 +746,8 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
         STAT_PMS_PROVIDEREND;
 
         if (rc.rc!=CMPI_RC_OK)
-	   throw CIMException((CIMStatusCode)rc.rc);
+	   throw CIMException((CIMStatusCode)rc.rc,
+	       rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
     }
     HandlerCatch(handler);
     
@@ -821,7 +827,8 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
         STAT_PMS_PROVIDEREND;
 
         if (rc.rc!=CMPI_RC_OK)
-	   throw CIMException((CIMStatusCode)rc.rc);
+	   throw CIMException((CIMStatusCode)rc.rc,
+	       rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
 
         STAT_PMS_PROVIDEREND;
     }
@@ -914,7 +921,8 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
         STAT_PMS_PROVIDEREND;
 
         if (rc.rc!=CMPI_RC_OK)
-	   throw CIMException((CIMStatusCode)rc.rc);
+	   throw CIMException((CIMStatusCode)rc.rc,
+	       rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
     }
     HandlerCatch(handler);
     
@@ -1001,7 +1009,8 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
         STAT_PMS_PROVIDEREND;
 
         if (rc.rc!=CMPI_RC_OK)
-	   throw CIMException((CIMStatusCode)rc.rc);
+	   throw CIMException((CIMStatusCode)rc.rc,
+	       rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
     }
     HandlerCatch(handler);
     
@@ -1090,7 +1099,8 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
         STAT_PMS_PROVIDEREND;
 
         if (rc.rc!=CMPI_RC_OK)
-	   throw CIMException((CIMStatusCode)rc.rc);
+	   throw CIMException((CIMStatusCode)rc.rc,
+	       rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
     }
     HandlerCatch(handler);
     
@@ -1174,7 +1184,8 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * messa
         STAT_PMS_PROVIDEREND;
 
         if (rc.rc!=CMPI_RC_OK)
-	   throw CIMException((CIMStatusCode)rc.rc);
+	   throw CIMException((CIMStatusCode)rc.rc,
+	       rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
     }
     HandlerCatch(handler);
     
@@ -1257,7 +1268,8 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
         STAT_PMS_PROVIDEREND;
 
         if (rc.rc!=CMPI_RC_OK)
-	   throw CIMException((CIMStatusCode)rc.rc);
+	   throw CIMException((CIMStatusCode)rc.rc,
+	       rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
 
        for (int i=0,s=outArgs.size(); i<s; i++)
            handler.deliverParamValue(outArgs[i]);
@@ -1411,7 +1423,8 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
        STAT_PMS_PROVIDEREND;
 
         if (rc.rc!=CMPI_RC_OK)
-	   throw CIMException((CIMStatusCode)rc.rc);
+	   throw CIMException((CIMStatusCode)rc.rc,
+	       rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
     }
     HandlerCatch(handler);
     
@@ -1498,7 +1511,8 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
        STAT_PMS_PROVIDEREND;
 
         if (rc.rc!=CMPI_RC_OK)
-	   throw CIMException((CIMStatusCode)rc.rc);
+	   throw CIMException((CIMStatusCode)rc.rc,
+	       rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
     }
     HandlerCatch(handler);
     

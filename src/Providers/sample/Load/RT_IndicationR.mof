@@ -7,8 +7,8 @@ instance of PG_ProviderModule
     Name = "RT_IndicationProviderModule";
     Vendor = "Pegasus";
     Version = "2.0.0";
-    InterfaceType = "PG_DefaultC++";
-    InterfaceVersion = "2.0.0";
+    InterfaceType = "C++Default";
+    InterfaceVersion = "2.2.0";
     Location = "RT_IndicationProvider";
 };
 

@@ -58,9 +58,9 @@ void TestCreateInstances(CIMClient& client)
     cimInstance.addProperty(CIMProperty(CIMName ("Vendor"), String("HP")));
     cimInstance.addProperty(CIMProperty(CIMName ("Version"), String("2.0")));
     cimInstance.addProperty(CIMProperty(CIMName ("InterfaceType"), 
-        String("PG_DefaultC++")));
+        String("C++Default")));
     cimInstance.addProperty(CIMProperty(CIMName ("InterfaceVersion"), 
-        String("2.0")));
+        String("2.1.0")));
     cimInstance.addProperty(CIMProperty(CIMName ("Location"), 
         String("/tmp/module1")));
 

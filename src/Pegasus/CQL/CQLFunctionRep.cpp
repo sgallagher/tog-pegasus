@@ -404,7 +404,9 @@ CQLValue CQLFunctionRep::dateTimeToMicrosecond(const CIMInstance& CI, const Quer
   }
 
   PEG_METHOD_EXIT();
-  return CQLValue(cqlVal.getDateTime().toMicroSeconds());  
+  // PEP 192 not there
+  //  return CQLValue(cqlVal.getDateTime().toMicroSeconds()); 
+  return CQLValue();  
 }
 
 CQLValue CQLFunctionRep::stringToUint(const CIMInstance& CI, const QueryContext& queryCtx) const
@@ -1248,7 +1250,10 @@ CQLValue CQLFunctionRep::microsecondToTimestamp(const CIMInstance& CI, const Que
     uIntVal = cqlVal.getUint();
 
   PEG_METHOD_EXIT();
-  return CQLValue(CIMDateTime(uIntVal, false));
+
+  // PEP 192 not there
+  //return CQLValue(CIMDateTime(uIntVal, false));
+  return CQLValue();
 }
 
 CQLValue CQLFunctionRep::microsecondToInterval(const CIMInstance& CI, const QueryContext& queryCtx) const
@@ -1300,7 +1305,9 @@ CQLValue CQLFunctionRep::microsecondToInterval(const CIMInstance& CI, const Quer
     uIntVal = cqlVal.getUint();
 
   PEG_METHOD_EXIT();
-  return CQLValue(CIMDateTime(uIntVal, true));  
+  // PEP 192 not there
+  //  return CQLValue(CIMDateTime(uIntVal, true));  
+  return CQLValue();  
 }
 
 PEGASUS_NAMESPACE_END

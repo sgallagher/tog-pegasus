@@ -47,8 +47,6 @@ PEGASUS_NAMESPACE_BEGIN
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
-#else
-PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 Array<PEGASUS_ARRAY_T>::Array()
 {
@@ -57,8 +55,6 @@ Array<PEGASUS_ARRAY_T>::Array()
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
-#else
-PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 Array<PEGASUS_ARRAY_T>::Array(const Array<PEGASUS_ARRAY_T>& x)
 {
@@ -67,8 +63,6 @@ Array<PEGASUS_ARRAY_T>::Array(const Array<PEGASUS_ARRAY_T>& x)
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
-#else
-PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 Array<PEGASUS_ARRAY_T>::Array(Uint32 size)
 {
@@ -78,8 +72,6 @@ Array<PEGASUS_ARRAY_T>::Array(Uint32 size)
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
-#else
-PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 Array<PEGASUS_ARRAY_T>::Array(Uint32 size, const PEGASUS_ARRAY_T& x)
 {
@@ -93,8 +85,6 @@ Array<PEGASUS_ARRAY_T>::Array(Uint32 size, const PEGASUS_ARRAY_T& x)
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
-#else
-PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 Array<PEGASUS_ARRAY_T>::Array(const PEGASUS_ARRAY_T* items, Uint32 size)
 {
@@ -104,8 +94,6 @@ Array<PEGASUS_ARRAY_T>::Array(const PEGASUS_ARRAY_T* items, Uint32 size)
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
-#else
-PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 Array<PEGASUS_ARRAY_T>::~Array()
 {
@@ -114,8 +102,6 @@ Array<PEGASUS_ARRAY_T>::~Array()
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
-#else
-PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 Array<PEGASUS_ARRAY_T>& Array<PEGASUS_ARRAY_T>::operator=(
     const Array<PEGASUS_ARRAY_T>& x)
@@ -131,8 +117,6 @@ Array<PEGASUS_ARRAY_T>& Array<PEGASUS_ARRAY_T>::operator=(
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
-#else
-PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 void Array<PEGASUS_ARRAY_T>::clear()
 {
@@ -142,8 +126,6 @@ void Array<PEGASUS_ARRAY_T>::clear()
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
-#else
-PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 void Array<PEGASUS_ARRAY_T>::reserve(Uint32 capacity)
 {
@@ -160,8 +142,6 @@ void Array<PEGASUS_ARRAY_T>::reserve(Uint32 capacity)
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
-#else
-PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 void Array<PEGASUS_ARRAY_T>::grow(Uint32 size, const PEGASUS_ARRAY_T& x)
 {
@@ -179,8 +159,6 @@ void Array<PEGASUS_ARRAY_T>::grow(Uint32 size, const PEGASUS_ARRAY_T& x)
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
-#else
-PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 void Array<PEGASUS_ARRAY_T>::swap(Array<PEGASUS_ARRAY_T>& x)
 {
@@ -191,8 +169,6 @@ void Array<PEGASUS_ARRAY_T>::swap(Array<PEGASUS_ARRAY_T>& x)
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
-#else
-PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 Uint32 Array<PEGASUS_ARRAY_T>::size() const
 {
@@ -201,8 +177,6 @@ Uint32 Array<PEGASUS_ARRAY_T>::size() const
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
-#else
-PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 Uint32 Array<PEGASUS_ARRAY_T>::getCapacity() const
 {
@@ -211,8 +185,6 @@ Uint32 Array<PEGASUS_ARRAY_T>::getCapacity() const
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
-#else
-PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 const PEGASUS_ARRAY_T* Array<PEGASUS_ARRAY_T>::getData() const
 {
@@ -221,8 +193,6 @@ const PEGASUS_ARRAY_T* Array<PEGASUS_ARRAY_T>::getData() const
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
-#else
-PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 PEGASUS_ARRAY_T& Array<PEGASUS_ARRAY_T>::operator[](Uint32 pos)
 {
@@ -234,8 +204,6 @@ PEGASUS_ARRAY_T& Array<PEGASUS_ARRAY_T>::operator[](Uint32 pos)
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
-#else
-PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 const PEGASUS_ARRAY_T& Array<PEGASUS_ARRAY_T>::operator[](Uint32 pos) const
 {
@@ -247,8 +215,6 @@ const PEGASUS_ARRAY_T& Array<PEGASUS_ARRAY_T>::operator[](Uint32 pos) const
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
-#else
-PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 void Array<PEGASUS_ARRAY_T>::append(const PEGASUS_ARRAY_T& x)
 {
@@ -259,8 +225,6 @@ void Array<PEGASUS_ARRAY_T>::append(const PEGASUS_ARRAY_T& x)
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
-#else
-PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 void Array<PEGASUS_ARRAY_T>::append(const PEGASUS_ARRAY_T* x, Uint32 size)
 {
@@ -271,8 +235,6 @@ void Array<PEGASUS_ARRAY_T>::append(const PEGASUS_ARRAY_T* x, Uint32 size)
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
-#else
-PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 void Array<PEGASUS_ARRAY_T>::appendArray(const Array<PEGASUS_ARRAY_T>& x)
 {
@@ -281,8 +243,6 @@ void Array<PEGASUS_ARRAY_T>::appendArray(const Array<PEGASUS_ARRAY_T>& x)
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
-#else
-PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 void Array<PEGASUS_ARRAY_T>::prepend(const PEGASUS_ARRAY_T& x)
 {
@@ -291,8 +251,6 @@ void Array<PEGASUS_ARRAY_T>::prepend(const PEGASUS_ARRAY_T& x)
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
-#else
-PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 void Array<PEGASUS_ARRAY_T>::prepend(const PEGASUS_ARRAY_T* x, Uint32 size)
 {
@@ -304,8 +262,6 @@ void Array<PEGASUS_ARRAY_T>::prepend(const PEGASUS_ARRAY_T* x, Uint32 size)
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
-#else
-PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 void Array<PEGASUS_ARRAY_T>::insert(Uint32 pos, const PEGASUS_ARRAY_T& x)
 {
@@ -314,8 +270,6 @@ void Array<PEGASUS_ARRAY_T>::insert(Uint32 pos, const PEGASUS_ARRAY_T& x)
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
-#else
-PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 void Array<PEGASUS_ARRAY_T>::insert(Uint32 pos, const PEGASUS_ARRAY_T* x, Uint32 size)
 {
@@ -336,8 +290,6 @@ void Array<PEGASUS_ARRAY_T>::insert(Uint32 pos, const PEGASUS_ARRAY_T* x, Uint32
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
-#else
-PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 void Array<PEGASUS_ARRAY_T>::remove(Uint32 pos)
 {
@@ -346,8 +298,6 @@ void Array<PEGASUS_ARRAY_T>::remove(Uint32 pos)
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
-#else
-PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 void Array<PEGASUS_ARRAY_T>::remove(Uint32 pos, Uint32 size)
 {
@@ -369,8 +319,6 @@ void Array<PEGASUS_ARRAY_T>::remove(Uint32 pos, Uint32 size)
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
-#else
-PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 void Array<PEGASUS_ARRAY_T>::etoa()
 {
@@ -381,8 +329,6 @@ void Array<PEGASUS_ARRAY_T>::etoa()
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
-#else
-PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 void Array<PEGASUS_ARRAY_T>::atoe()
 {
@@ -395,8 +341,6 @@ void Array<PEGASUS_ARRAY_T>::atoe()
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
-#else
-PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 PEGASUS_ARRAY_T* Array<PEGASUS_ARRAY_T>::begin()
 {
@@ -405,8 +349,6 @@ PEGASUS_ARRAY_T* Array<PEGASUS_ARRAY_T>::begin()
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
-#else
-PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 PEGASUS_ARRAY_T* Array<PEGASUS_ARRAY_T>::end()
 {
@@ -415,8 +357,6 @@ PEGASUS_ARRAY_T* Array<PEGASUS_ARRAY_T>::end()
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
-#else
-PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 const PEGASUS_ARRAY_T* Array<PEGASUS_ARRAY_T>::begin() const
 {
@@ -425,8 +365,6 @@ const PEGASUS_ARRAY_T* Array<PEGASUS_ARRAY_T>::begin() const
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
-#else
-PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 const PEGASUS_ARRAY_T* Array<PEGASUS_ARRAY_T>::end() const
 {
@@ -435,8 +373,6 @@ const PEGASUS_ARRAY_T* Array<PEGASUS_ARRAY_T>::end() const
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
-#else
-PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 PEGASUS_ARRAY_T* Array<PEGASUS_ARRAY_T>::_data() const
 {

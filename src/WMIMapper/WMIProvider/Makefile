@@ -34,6 +34,7 @@ SOURCES = \
    WMIQualifierSet.cpp \
    WMIDateTime.cpp \
    WMIObjectPath.cpp \
+   WMIMethod.cpp \
    StdAfx.cpp \
    MyString.cpp 
 

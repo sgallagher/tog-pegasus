@@ -27,6 +27,7 @@
 //
 // Modified By:	Barbara Packard (barbara_packard@hp.com)
 //              Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
+//              Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -100,7 +101,11 @@ WMIProperty::WMIProperty(const BSTR & name,
 	}
 
 	// build the property
-	String s = WMIString(bsName);
+	BSTR tmpBstr = (BSTR)bsName.Copy();
+	String s(_bstr_t(tmpBstr, FALSE));
+	SysFreeString(tmpBstr);
+    // old way -- memory leak?:
+	// String s = WMIString(bsName);
 	CIMName cimRef;
 	CIMName cimClsOrigin;
 
@@ -117,7 +122,7 @@ WMIProperty::WMIProperty(const BSTR & name,
 	*this = CIMProperty(CIMName(s), WMIValue(vValue, type), 0, cimRef,
 				cimClsOrigin, (classOrigin.size() != 0));
 
-	VariantClear(&vValue);
+	vValue.Clear();
 
 	// add the qualifiers
 	if (includeQualifiers)
@@ -138,9 +143,14 @@ WMIProperty::WMIProperty(const BSTR & name, const VARIANT & value, const CIMTYPE
 	CComVariant vValue = value;
 
 	// build the property
-	*this = CIMProperty(WMIString(bsName), WMIValue(vValue, type));
+	BSTR tmpBstr = (BSTR)bsName.Copy();
+	String s(_bstr_t(tmpBstr, FALSE));
+	SysFreeString(tmpBstr);
+    *this = CIMProperty(CIMName(s), WMIValue(vValue, type));
+    // old way -- memory leak?:
+	// *this = CIMProperty(WMIString(bsName), WMIValue(vValue, type));
 
-	VariantClear(&vValue);
+	vValue.Clear();
 }
 
 

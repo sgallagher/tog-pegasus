@@ -26,6 +26,7 @@
 // Author: Barbara Packard (barbara_packard@hp.com)
 //
 // Modified By: Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
+//              Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -201,7 +202,7 @@ CIMValue WMIMethodProvider::invokeMethod(
 
 			// Set parameter on the WMI
 			hr = pInInst->Put(bstrParamName, 0, &vParamValue, 0);
-			VariantClear(&vParamValue);
+			vParamValue.Clear();
 
 			if (FAILED(hr))
 			{
@@ -266,7 +267,7 @@ CIMValue WMIMethodProvider::invokeMethod(
 				if (pOutInst)
 					pOutInst.Release();
 
-				VariantClear(&vParamValue);
+				vParamValue.Clear();
 
 				throw CIMException(CIM_ERR_FAILED);
 			}
@@ -284,7 +285,7 @@ CIMValue WMIMethodProvider::invokeMethod(
 			else
 				outParameters.append(cimParamValue);
 
-			VariantClear(&vParamValue);
+			vParamValue.Clear();
 		}
 		hr = pOutInst->EndEnumeration();	
 	}

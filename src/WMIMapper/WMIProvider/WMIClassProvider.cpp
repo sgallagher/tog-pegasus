@@ -28,6 +28,7 @@
 // Modified By: Paulo Sehn (paulo_sehn@hp.com)
 //              Adriano Zanuz (adriano.zanuz@hp.com)
 //              Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
+//              Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 /// WMIClassProvider.cpp: implementation of the WMIClassProvider class.
@@ -102,6 +103,10 @@ CIMClass WMIClassProvider::getClass(
 
 	if (!m_bInitialized)
 	{
+		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+			"WMIClassProvider::getClass - m_bInitilized= %x, throw CIM_ERR_FAILED exception",  
+			m_bInitialized);
+
 		throw CIMException(CIM_ERR_FAILED);
 	}
 	
@@ -124,9 +129,14 @@ CIMClass WMIClassProvider::getClass(
 	}
 	catch (CIMException &e)
 	{
+		if (pClass) 
+			pClass.Release();
+
 		switch(e.getCode())
 		{
-			case CIM_ERR_INVALID_CLASS: throw CIMException(CIM_ERR_NOT_FOUND); break;
+			case CIM_ERR_INVALID_CLASS: 
+                throw CIMException(CIM_ERR_NOT_FOUND); 
+                break;
 			default: throw e;
 		}
 	}
@@ -190,6 +200,10 @@ Array<CIMClass> WMIClassProvider::enumerateClasses(
 	
 	if (!m_bInitialized)
 	{
+		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+			"WMIClassProvider::enumerateClasses - m_bInitilized= %x, throw CIM_ERR_FAILED exception",  
+			m_bInitialized);
+
 		throw CIMException(CIM_ERR_FAILED);
 	}
 
@@ -203,6 +217,10 @@ Array<CIMClass> WMIClassProvider::enumerateClasses(
 
 	// set proxy security on pClassEnum
 	bool bSecurity = _collector->setProxySecurity(pClassEnum);
+
+	//
+	//TODO:  What happens if bSecurity is false
+	//
 
 	// get the classes and append them to the array
 	hr = pClassEnum->Next(WBEM_INFINITE, 1, &pClass, &dwReturned);
@@ -284,6 +302,10 @@ Array<CIMName> WMIClassProvider::enumerateClassNames(
 	
 	if (!m_bInitialized)
 	{
+		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+			"WMIClassProvider::enueratClassNames - m_bInitilized= %x, throw CIM_ERR_FAILED exception",  
+			m_bInitialized);
+
 		throw CIMException(CIM_ERR_FAILED);
 	}
 
@@ -414,6 +436,10 @@ void WMIClassProvider::createClass(const String& nameSpace,
 
 	if (!m_bInitialized)
 	{
+		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+			"WMIClassProvider::createClass - m_bInitilized= %x, throw CIM_ERR_FAILED exception",  
+			m_bInitialized);
+
 		throw CIMException(CIM_ERR_FAILED);
 	}
 	
@@ -483,10 +509,8 @@ void WMIClassProvider::createClass(const String& nameSpace,
 	if (FAILED(hr))
 	{
 		CMyString msg;
-		String classname = newClass.getClassName().getString();
-
 		msg.Format("It is not possible to create the class [%s]. Error: 0x%X", 255, 
-					classname.getCString(), hr);
+					newClass.getClassName().getString(), hr);
 
 		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3, 
 						  "WMIClassProvider::createClass() - %s", (LPCTSTR)msg);
@@ -524,6 +548,10 @@ void WMIClassProvider::modifyClass(const String& nameSpace,
 
 	if (!m_bInitialized)
 	{
+		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+			"WMIClassProvider::modifyClass - m_bInitilized= %x, throw CIM_ERR_FAILED exception",  
+			m_bInitialized);
+
 		throw CIMException(CIM_ERR_FAILED);
 	}
 
@@ -643,6 +671,9 @@ void WMIClassProvider::performInitialCheck(const CIMClass& newClass,
 	// check if class already exists, just for createClass calls
 	if ((classAlreadyExists(newClass.getClassName().getString())) && (!updateClass))
 	{
+		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+			"WMIClassProvider::performInitialCheck - class already exists, throw CIM_ERR_ALREADY_EXISTS exception");
+
 		throw CIMException(CIM_ERR_ALREADY_EXISTS);
 	}
 
@@ -699,6 +730,9 @@ void WMIClassProvider::createClassNameAndClassQualifiers(const CIMClass& newClas
 
 		if (FAILED(hr))
 		{
+			if (pSuperClass)
+				pSuperClass.Release();
+
 			CMyString msg;
 			msg.Format("Failed to get a pointer to Superclass [%s]. Error: 0x%X", 255, tmp.getCString(), hr);
 
@@ -739,7 +773,7 @@ void WMIClassProvider::createClassNameAndClassQualifiers(const CIMClass& newClas
 	v = newClass.getClassName().getString().getCString();
 	hr = (*pNewClass)->Put(L"__CLASS", 0, &v, 0);
 	
-	VariantClear(&v);
+	v.Clear();
 
 	if (FAILED(hr))
 	{
@@ -769,6 +803,9 @@ void WMIClassProvider::createClassNameAndClassQualifiers(const CIMClass& newClas
 		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3, 
 			          "WMIClassProvider::createClassNameAndClassQualifiers() - %s", (LPCTSTR)msg);
 		
+		if (*pNewClass)
+			(*pNewClass)->Release();
+
 		if (pNewClassQualifier)
 			pNewClassQualifier.Release();
 
@@ -787,6 +824,9 @@ void WMIClassProvider::createClassNameAndClassQualifiers(const CIMClass& newClas
 		}
 		catch (CIMException &e)
 		{
+			if (*pNewClass)
+				(*pNewClass)->Release();
+
 			if (pNewClassQualifier)
 				pNewClassQualifier.Release();
 
@@ -889,7 +929,7 @@ void WMIClassProvider::createProperties(const CIMClass& newClass,
 		v = strClassorigin.getCString();
 		
 		hr = pQual->Put(L"CLASSORIGIN", &v, flavor.getAsWMIValue());
-		VariantClear(&v);
+		v.Clear();
 
 		if (pQual)
 			pQual.Release();
@@ -1016,7 +1056,7 @@ void WMIClassProvider::createQualifier (const WMIQualifier &qualifier,
 	{
 		hr = pQual->Put(bs, &v, flavor.getAsWMIValue());
 	}
-	VariantClear(&v);
+	v.Clear();
 	bs.Empty();
 
 	if (FAILED(hr))
@@ -1045,71 +1085,97 @@ void WMIClassProvider::createMethod (CIMConstMethod &method,
 	PEG_METHOD_ENTER(TRC_WMIPROVIDER, "WmiClassProvider::createMethod()");
 	
 	// the parameters
-	HRESULT hr;
+	HRESULT hr = S_OK;
 	CComPtr<IWbemClassObject> pinParameters;
 	CComPtr<IWbemClassObject> poutParameters;
 
-	// create the in parameters
+	// Get pointers to use for in & out params:
+    hr = pServices->GetObject(L"__PARAMETERS",
+					          NULL, 
+							  NULL, 
+							  &pinParameters, 
+							  NULL);
+	if (FAILED(hr))
+	{
+		CMyString msg;
+		msg.Format("Failed to get a paramter pointer while creating method: %s! Error: 0x%X",
+					255, method.getName().getString().getCString(), hr);
+		
+		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3, 
+					  "WMIClassProvider::createMethod() - %s", (LPCTSTR)msg);
+
+        if (pinParameters)
+            pinParameters.Release();
+        if (poutParameters)
+            poutParameters.Release();
+
+        throw CIMException(CIM_ERR_FAILED, (LPCTSTR)msg);
+	}
+
+	// Get pointers to use for in & out params:
+    hr = pServices->GetObject(L"__PARAMETERS",
+					          NULL, 
+							  NULL, 
+							  &poutParameters, 
+							  NULL);
+
+	if (FAILED(hr))
+	{
+		CMyString msg;
+		msg.Format("Failed to get a paramter pointer while creating method: %s! Error: 0x%X",
+					255, method.getName().getString().getCString(), hr);
+		
+		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3, 
+					  "WMIClassProvider::createMethod() - %s", (LPCTSTR)msg);
+
+        if (pinParameters)
+            pinParameters.Release();
+        if (poutParameters)
+            poutParameters.Release();
+
+        throw CIMException(CIM_ERR_FAILED, (LPCTSTR)msg);
+	}
+
+    // create the parameters
 	for (Uint32 i = 0; i < method.getParameterCount(); i++)
 	{
-		bool bIn = true;
-
 		CIMConstParameter param;
 		param = method.getParameter(i);
 
-		// process only the [in] parameters
+		// Is this an in or out parameter, or both?
 		if (param.findQualifier(CIMName("in")) != -1)
 		{
-			// gets a pointer to in parameters
-			hr = pServices->GetObject(L"__PARAMETERS",
-					                  NULL, 
-									  NULL, 
-									  &pinParameters, 
-									  NULL);
-		} 
-		else if (param.findQualifier(CIMName("out")) != -1)
-		{
-			// gets a pointer to in parameters
-			hr = pServices->GetObject(L"__PARAMETERS",
-					                  NULL, 
-									  NULL, 
-									  &pinParameters, 
-									  NULL);
-			bIn = false;
-		}
+            try 
+            {
+                createParam(param, pinParameters);
+            }
+            catch (CIMException &e)
+            {
+                if (pinParameters)
+                    pinParameters.Release();
+                if (poutParameters)
+                    poutParameters.Release();
 
-		if (FAILED(hr))
+                throw e;
+            }		
+        } 
+		
+        if (param.findQualifier(CIMName("out")) != -1)
 		{
-			CMyString msg;
-			msg.Format("It is not possible to get a pointer to add the %s parameter [%s]! Error: 0x%X", 
-						255, (bIn ? "input" : "output"), method.getName().getString().getCString(), hr);
-			
-			Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3, 
-						  "WMIClassProvider::createMethod() - %s", (LPCTSTR)msg);
+            try 
+            {
+                createParam(param, poutParameters);
+            }
+            catch (CIMException &e)
+            {
+                if (pinParameters)
+                    pinParameters.Release();
+                if (poutParameters)
+                    poutParameters.Release();
 
-			if (pinParameters)
-				pinParameters.Release();
-			
-			if (poutParameters)
-				poutParameters.Release();
-			
-			throw CIMException(CIM_ERR_FAILED, (LPCTSTR)msg);
-		}
-
-		try 
-		{
-			createParam(param, (bIn ? pinParameters : poutParameters));
-		}
-		catch (CIMException &e)
-		{
-			if (pinParameters)
-				pinParameters.Release();
-			
-			if (poutParameters)
-				poutParameters.Release();
-
-			throw e;
-		}
+                throw e;
+            }		
+        }
 	}
 
 	// create the method

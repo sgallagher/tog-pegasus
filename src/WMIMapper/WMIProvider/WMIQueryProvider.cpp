@@ -26,6 +26,7 @@
 // Author: Barbara Packard (barbara_packard@hp.com)
 //
 // Modified By: Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
+//              Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -43,6 +44,7 @@
 #include "WMIAssociatorProvider.h"
 #include "WMIQueryProvider.h"
 
+#include "WMIObjectPath.h"
 #include "WMIProperty.h"
 #include "WMIString.h"
 #include "WMIValue.h"
@@ -97,7 +99,6 @@ Array<CIMObject> WMIQueryProvider::execQuery(
 	CComPtr<IWbemClassObject>		pObject;
 
 	Array<CIMObject> objects;
-	CIMClass cimclass;
 	String className;
 
 	PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIQueryProvider::execQuery()");
@@ -132,30 +133,7 @@ Array<CIMObject> WMIQueryProvider::execQuery(
 	
 	while (SUCCEEDED(hr) && (1 == dwReturned))
 	{
-		CIMObject cimObj;
-		String className2 = _collector->getClassName(pObject);
-
-		if (!(String::equalNoCase(className, className2)))
-		{	// first time or
-			// changed classes on us, have to get new data...
-			// shouldn't happen very often (I hope!)
-			Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
-						  "WMIInstanceProvider::execQuery() - classname changed from %s to %s",
-						  className.getCString(), className2.getCString());
-
-			className = className2;
-
-			if (bInst)
-			{
-				cimclass = getCIMClass(
-					nameSpace,
-					userName,
-					password,
-					className);
-			}
-		}
-
-		// now collect the information
+		// collect the information about the current object
 		if (bInst)
 		{
 			CIMInstance tempInst(className);
@@ -167,45 +145,58 @@ Array<CIMObject> WMIQueryProvider::execQuery(
 			{
 				lCount++;
 
-				CIMObjectPath tempRef = tempInst.buildPath(cimclass);
-				tempInst.setPath(tempRef);
+			    // build the object path
+			    CComVariant v;
+			    hr = pObject->Get(L"__PATH", 
+				                    0,
+								    &v,
+								    NULL,
+								    NULL);
 
+			    WMIObjectPath tempRef(v.bstrVal);
+			    tempInst.setPath(tempRef);
+			    v.Clear();
+				
 				objects.append(CIMObject(tempInst));
 			}
 		}
 		else
 		{
 			// we are collecting a class
-			String superClass = _collector->getSuperClass(pObject);
+			CIMClass cimClass;
+            String superClass = _collector->getSuperClass(pObject);
 			CIMName objName = className;
 
-			cimclass = CIMClass(objName);
+			cimClass = CIMClass(objName);
 
 			if (0 != superClass.size())
 			{
 				CIMName superClassName = superClass;
-				cimclass.setSuperClassName(superClassName);
+				cimClass.setSuperClassName(superClassName);
 			}
 
-			cimObj = CIMObject(cimclass);
-
-			if (_collector->getCIMObject(pObject, 
-				                         cimObj,
-										 false, 
-										 includeQualifiers, 
-										 includeClassOrigin,
-										 propertyList))
-			{
+            if (_collector->getCIMClass(pObject, 
+				                        cimClass,
+				                        false,
+				                        includeQualifiers,
+				                        includeClassOrigin,
+				                        propertyList))
+            {
 				lCount++;
-				objects.append(cimObj);
-			}
+				objects.append(CIMObject(cimClass));
+            }
 		}
 
 		if (pObject)
 			pObject.Release();
 
 		hr = pObjEnum->Next(WBEM_INFINITE, 1, &pObject, &dwReturned);
-	}
+
+	    if (SUCCEEDED(hr) && (1 == dwReturned))
+	    {
+		    bInst = _collector->isInstance(pObject);
+	    }
+    }
 
 	if (pObjEnum)
 		pObjEnum.Release();

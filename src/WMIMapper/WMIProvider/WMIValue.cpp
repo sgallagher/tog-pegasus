@@ -29,6 +29,7 @@
 //              Paulo Sehn (paulo_sehn@hp.com)
 //              Adriano Zanuz (adriano.zanuz@hp.com)
 //              Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
+//              Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -328,7 +329,7 @@ WMIValue::WMIValue(const VARIANT & value, const CIMTYPE type)
 		}
 	}
 	
-	VariantClear(&vValue);
+	vValue.Clear();
 	*this = CIMValue(val);
 }
 
@@ -339,9 +340,10 @@ WMIValue::WMIValue(const VARIANT & value, const CIMTYPE type)
 // ///////////////////////////////////////////////////////////////////////////
 CIMValue WMIValue::getCIMValueFromVariant(VARTYPE vt, void *pVal, const CIMTYPE Type)
 {
+	PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIValue::getCIMValueFromVariant()");
+
 	CIMValue cimValue;
-	CComBSTR bs;
-	CMyString s;
+	String str;
 
 	switch (vt)
 	{
@@ -395,56 +397,61 @@ CIMValue WMIValue::getCIMValueFromVariant(VARTYPE vt, void *pVal, const CIMTYPE 
 			DATE date;
 			CIMDateTime tmp;
 			SYSTEMTIME sTime;
-
+			
 			date = *(DATE *)pVal;
 
 			if (VariantTimeToSystemTime(date, &sTime))
 			{
 				WBEMTime wTime(sTime);
-				bs = wTime.GetDMTF();
-				s = bs;
+				BSTR bs = wTime.GetDMTF();
+				str = (LPCTSTR)_bstr_t(bs, FALSE);
+                SysFreeString(bs);
+
 				Tracer::trace(TRC_WMIPROVIDER,Tracer::LEVEL3,
-					"WMIValue::getValue() - Date is %s", (LPCTSTR)s);
+					"WMIValue::getValue() - Date is %s", (LPCSTR)str.getCString());
 			}
 			else
 			{
-				////ATTN: just to have something for now
-				s = _NULL_INTERVAL_TYPE_STRING;
+				//ATTN: just to have something for now
+				str = _NULL_INTERVAL_TYPE_STRING;
 			}
 
-			bs.Empty();
-			tmp.set(String((LPCTSTR)s));
-			
+			tmp.set(str);
+
 			return CIMValue(tmp);
 		}
 		break;
 
 		case VT_BSTR:
+        {
+            BSTR bsTemp = *((BSTR *)pVal);
+            // Not making a copy when constructing the _bstr_t,
+            // For some reason, setting fCopy to TRUE causes a memory leak
+            // to be reported (even though the destructor is freeing the string!)
+            // This seems to work, but needs to be looked at closer some day:
+            _bstr_t bstr(bsTemp, FALSE);
+            str = (LPCTSTR)bstr;
 			
-			bs = *((BSTR *)pVal);
-						
 			//By Jair - Due to Windows automation limitations
 			//the 64 integer bit numbers and the datetime routine
 			//are being cast as strings. We must to handle this in 
 			//order to correctly answer the dispatcher.
 			if (CIM_SINT64 == Type)
 			{
-				return (CIMValue(Sint64(_wtoi64(bs))));
+				return (CIMValue(Sint64(_wtoi64(bstr))));
 			}
 			else if (CIM_UINT64 == Type)
 			{
-				return (CIMValue(Uint64(_wtoi64(bs))));
+				return (CIMValue(Uint64(_wtoi64(bstr))));
 			}
 			else if (CIM_DATETIME == Type)
 			{
 				CIMDateTime dt;
-				s = bs;
 				
 				//By Jair - Exchanging asterisks for zeros
-				String str = s;
 				Uint32 iCount = 0;
 
-				for (Uint32 i = 0; i < s.GetLength(); i++)
+				for (Uint32 i = 0; i < str.size(); i++)
 				{
 					if (str[i] == '*') 
 					{
@@ -454,30 +461,28 @@ CIMValue WMIValue::getCIMValueFromVariant(VARTYPE vt, void *pVal, const CIMTYPE 
 				}
 
 				//if there are only asterisks, then pass a NULL interval
-				if (iCount == s.GetLength() - 2)
+				if (iCount == str.size() - 2)
 				{
-					s = _NULL_INTERVAL_TYPE_STRING;
+					str = _NULL_INTERVAL_TYPE_STRING;
 				}
-				else s = str;
 
-				dt.set(String((LPCTSTR)s));
+				dt.set(str);
 
 				return (CIMValue(WMIDateTime(dt)));
 			}
 			else
 			{
-				if (0 == bs.Length())
+				if (0 == str.size())
 				{
 					return CIMValue(String(""));
 				}
 				else
 				{
-					s = bs;
-					return CIMValue(String((LPCTSTR)s));
+					return CIMValue(str);
 				}
 			}
-			
-			break;
+        }
+		break;
 
 		case VT_BOOL:
 			return ((*(VARIANT_BOOL *)pVal) ? CIMValue(true) : CIMValue(false));
@@ -770,7 +775,7 @@ VARIANT WMIValue::toVariant()
 	CComVariant cv;
 	VARIANT v;
 	cv.Detach(&v);
-	VariantClear(&cv);
+	cv.Clear();
 	return v;
 
 }
@@ -871,7 +876,7 @@ void WMIValue::getAsVariant(CComVariant *var)
 						SafeArrayDestroy(pSA);
 						throw CIMException (CIM_ERR_FAILED);
 					}
-					VariantClear(&vOut);
+					vOut.Clear();
 				}
 						  
 				// by Jair - due to WMI coercion rules
@@ -997,7 +1002,7 @@ void WMIValue::getAsVariant(CComVariant *var)
 						SafeArrayDestroy(pSA);
 						throw CIMException(CIM_ERR_FAILED);
 					}
-					VariantClear(&vOut);
+					vOut.Clear();
 				}
 
 				var->vt = VT_ARRAY | VT_BSTR;
@@ -1119,7 +1124,7 @@ void WMIValue::getAsVariant(CComVariant *var)
 						SafeArrayDestroy(pSA);
 						throw CIMException (CIM_ERR_FAILED);
 					}
-					VariantClear(&vOut);
+					vOut.Clear();
 				}
 			  
 				var->vt = VT_ARRAY | VT_BSTR;
@@ -1165,7 +1170,7 @@ void WMIValue::getAsVariant(CComVariant *var)
 						SafeArrayDestroy(pSA);
 						throw CIMException(CIM_ERR_FAILED);
 					}
-					VariantClear(&vOut);
+					vOut.Clear();
 				}
 			  
 				var->vt = VT_ARRAY | VT_BSTR;
@@ -1326,7 +1331,7 @@ void WMIValue::getAsVariant(CComVariant *var)
 						SafeArrayDestroy(pSA);
 						throw CIMException(CIM_ERR_FAILED);
 					}
-					VariantClear(&vOut);
+					vOut.Clear();
 				}
 			  
 				var->vt = VT_ARRAY | VT_BSTR;
@@ -1373,7 +1378,7 @@ void WMIValue::getAsVariant(CComVariant *var)
 						SafeArrayDestroy(pSA);
 						throw CIMException(CIM_ERR_FAILED);
 					}
-					VariantClear(&vOut);
+					vOut.Clear();
 				}
 			  
 				var->vt = VT_ARRAY | VT_BSTR;

@@ -28,6 +28,7 @@
 // Modified By: Adriano Zanuz (adriano.zanuz@hp.com)
 //              Mateus Baur (HPB)
 //              Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
+//              Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -66,13 +67,21 @@ PEGASUS_NAMESPACE_BEGIN
 //////////////////////////////////////////////////////////////////////
 WMIInstanceProvider::WMIInstanceProvider(void)
 {
-	_collector = NULL;
+	PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIInstanceProvider::constructor()");
+	
+    _collector = NULL;
 	m_bInitialized = false;
+
+	PEG_METHOD_EXIT();
 }
 
 WMIInstanceProvider::~WMIInstanceProvider(void)
 {
+	PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIInstanceProvider::destructor()");
+
 	cleanup();
+
+	PEG_METHOD_EXIT();
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -110,6 +119,10 @@ CIMInstance WMIInstanceProvider::getInstance(
 
 	if (!m_bInitialized)
 	{
+		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+			"WMIInstanceProvider::getInstance - m_bInitilized= %x, throw CIM_ERR_FAILED exception",  
+			m_bInitialized);
+
 		throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Collector initialation failed.");
 	}
 
@@ -186,6 +199,9 @@ Array<CIMInstance> WMIInstanceProvider::enumerateInstances(
 	
 	if (!m_bInitialized)
 	{
+		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+			"enumerateInstances - m_bInitialized is false; throw exception"); 
+
 		throw CIMException(CIM_ERR_FAILED);
 	}
 
@@ -200,11 +216,6 @@ Array<CIMInstance> WMIInstanceProvider::enumerateInstances(
 
 	// set proxy security on pInstEnum
 	bool bSecurity = _collector->setProxySecurity(pInstEnum);
-
-	CIMClass cimclass = getCIMClass(nameSpace, 
-		                            userName,
-									password,
-									className);
 
 	// Get the instances and append them to the array
 	hr = pInstEnum->Next(WBEM_INFINITE, 1, &pInstance, &dwReturned);
@@ -224,7 +235,6 @@ Array<CIMInstance> WMIInstanceProvider::enumerateInstances(
 			lCount++;
 
 			//build instance path
-			//CIMObjectPath tempRef = tempInst.buildPath(cimclass);			
 			CComVariant v;
 			hr = pInstance->Get(L"__PATH", 
 				                0,
@@ -235,7 +245,7 @@ Array<CIMInstance> WMIInstanceProvider::enumerateInstances(
 			WMIObjectPath tempRef(v.bstrVal);
 			tempInst.setPath(tempRef);
 			namedInstances.append(CIMInstance(tempInst));
-			VariantClear(&v);
+			v.Clear();
 		}
 
 		if (pInstance)
@@ -286,6 +296,10 @@ Array<CIMObjectPath> WMIInstanceProvider::enumerateInstanceNames(
 
 	if (!m_bInitialized)
 	{
+		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+			"WMIInstanceProvider::enumerateInstanceNames - m_bInitilized= %x, throw CIM_ERR_FAILED exception",  
+			m_bInitialized);
+
 		throw CIMException(CIM_ERR_FAILED);
 	}
 
@@ -300,11 +314,6 @@ Array<CIMObjectPath> WMIInstanceProvider::enumerateInstanceNames(
 
 	// set proxy security on pInstEnum
 	bool bSecurity = _collector->setProxySecurity(pInstEnum);
-
-	CIMClass cimclass = getCIMClass(nameSpace, 
-								    userName,
-									password,
-									className);
 
 	// Get the names of the instances and send to handler
 	hr = pInstEnum->Next(WBEM_INFINITE, 1, &pInstance, &dwReturned);
@@ -327,7 +336,7 @@ Array<CIMObjectPath> WMIInstanceProvider::enumerateInstanceNames(
 			
 			WMIObjectPath tempRef(v.bstrVal);
 			instanceNames.append(tempRef);
-			VariantClear(&v);
+			v.Clear();
 		}
 
 		if (pInstance)
@@ -446,6 +455,10 @@ void WMIInstanceProvider::setProperty(
 
 	if (!m_bInitialized)
 	{
+		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+			"WMIInstanceProvider::setProperty - m_bInitilized= %x, throw CIM_ERR_FAILED exception",  
+			m_bInitialized);
+
 		throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Collector initialization failed.");
 	}
 
@@ -496,11 +509,14 @@ void WMIInstanceProvider::setProperty(
 
 	//update property value
 	hr = pInstance->Put(bsPropName, 0, &vValue, 0);
-	VariantClear(&vValue);
+	vValue.Clear();
 
 	if (FAILED(hr))
 	{
-		switch(hr)
+		if (pInstance)
+			pInstance.Release();
+
+        switch(hr)
 		{
 			case WBEM_E_TYPE_MISMATCH:
 				throw CIMException(CIM_ERR_TYPE_MISMATCH);
@@ -572,6 +588,10 @@ void WMIInstanceProvider::modifyInstance(
 
 	if (!m_bInitialized)
 	{
+		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+			"WMIInstanceProvider::ModifyInstance - m_bInitilized= %x, throw CIM_ERR_FAILED exception",  
+			m_bInitialized);
+
 		throw CIMException(CIM_ERR_FAILED);
 	}
 
@@ -659,14 +679,14 @@ void WMIInstanceProvider::modifyInstance(
 				if (pInstance)
 					pInstance.Release();
 
-				VariantClear(&v);
+				v.Clear();
 
 				throw e;
 			}
 			
 			CComBSTR bs = sPropName.getCString();
 			hr = pInstance->Put(bs, 0, &v, 0);
-			VariantClear(&v);
+			v.Clear();
 		
 			// If we fail to set one property, we must assure 
 			// that the others will be processed
@@ -805,7 +825,7 @@ CIMObjectPath WMIInstanceProvider::createInstance(
 			if (pNewInstance)
 				pNewInstance.Release();
 
-			VariantClear(&v);
+			v.Clear();
 
 			throw e;
 		}
@@ -813,7 +833,7 @@ CIMObjectPath WMIInstanceProvider::createInstance(
 		bs.Empty();
 		bs = property.getName().getString().getCString();
 		hr = pNewInstance->Put(bs, 0, &v, 0);
-		VariantClear(&v);
+		v.Clear();
 
 		if(FAILED(hr))
 		{

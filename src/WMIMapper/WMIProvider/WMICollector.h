@@ -26,6 +26,7 @@
 // Author: Barbara Packard (barbara_packard@hp.com)
 //
 // Modified By:	Adriano Zanuz (adriano.zanuz@hp.com)
+//              Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -125,6 +126,20 @@ public:
 		const CComBSTR & bsName, 
 		const CComVariant & vValue,			// this will be NULL for class objects
 		CIMTYPE type, 
+		Boolean includeClassOrigin, 
+		Boolean includeQualifiers,
+		Boolean bPropagated);
+
+	bool getClassMethods(IWbemClassObject *pObject, 
+		CIMClass & cimClass,
+		Boolean localOnly,
+		Boolean includeQualifiers,
+		Boolean includeClassOrigin);
+
+	static CIMMethod getMethod(IWbemClassObject *pClass, 
+		const CComBSTR &bsName, 
+		const CComPtr<IWbemClassObject> &inParameters,
+		const CComPtr<IWbemClassObject> &outParameters,
 		Boolean includeClassOrigin, 
 		Boolean includeQualifiers,
 		Boolean bPropagated);

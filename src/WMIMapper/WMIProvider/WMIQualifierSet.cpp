@@ -27,6 +27,7 @@
 //
 // Modified By:	Barbara Packard (barbara_packard@hp.com)
 //              Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
+//              Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -50,9 +51,9 @@ WMIQualifierSet::WMIQualifierSet(IWbemQualifierSet * pObject)
 	HRESULT hr;
 	String	sMessage;
 
-	CComBSTR	 bsName = NULL;	// of the qualifier
-	CComVariant	 vValue;		// of the qualifier
-	long		 lFlavor;		// of the qualifier
+	CComBSTR	 bsName;	// of the qualifier
+	CComVariant	 vValue;	// of the qualifier
+	long		 lFlavor;	// of the qualifier
 	CIMQualifier qualifier;
 	
  	PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIQualifierSet::WMIQualifierSet");
@@ -81,19 +82,19 @@ WMIQualifierSet::WMIQualifierSet(IWbemQualifierSet * pObject)
 		catch (...)
 		{
 			bsName.Empty();
-			VariantClear(&vValue);
+			vValue.Clear();
 
 			throw CIMException(CIM_ERR_FAILED);
 		}
 
 		bsName.Empty();
-		VariantClear(&vValue);
+		vValue.Clear();
 
 		hr = pObject->Next(0, &bsName, &vValue, &lFlavor);
 	}
 	
 	bsName.Empty();
-	VariantClear(&vValue);
+	vValue.Clear();
 	pObject->EndEnumeration();
 
 	if (FAILED(hr))

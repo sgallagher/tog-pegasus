@@ -143,25 +143,62 @@ Message* MT_MessageQueue::dequeue()
 
 void MT_MessageQueue::remove(Message* message)
 {
+    _empty->lock_object(pegasus_thread_self());
+
+    _mqueue->remove(message);
+
+    if (_writers > 0)
+        _full->unlocked_signal(pegasus_thread_self());
+
+    _empty->unlock_object();
 }
 
 Message* MT_MessageQueue::findByType(Uint32 type)
 {
-    return NULL;
+    Message * message; 
+
+    _empty->lock_object(pegasus_thread_self());
+
+    message = _mqueue->findByType(type);
+
+    _empty->unlock_object();
+
+    return message;
 }
 
 Message* MT_MessageQueue::findByKey(Uint32 key)
 {
-    return NULL;
+    Message * message; 
+
+    _empty->lock_object(pegasus_thread_self());
+
+    message = _mqueue->findByType(key);
+
+    _empty->unlock_object();
+
+    return message;
 }
 
 void MT_MessageQueue::print(ostream& os) const
 {
+    _empty->lock_object(pegasus_thread_self());
+
+    _mqueue->print(os);
+
+    _empty->unlock_object();
 }
 
 Message* MT_MessageQueue::find(Uint32 type, Uint32 key)
 {
-    return NULL;
+    Message * message; 
+
+    _empty->lock_object(pegasus_thread_self());
+
+    message = _mqueue->find(type, key);
+
+    _empty->unlock_object();
+
+    return message;
 }
 
 void MT_MessageQueue::lock()

@@ -15,7 +15,7 @@ SOURCES = TestCIMQueryCap.cpp
 
 include $(ROOT)/mak/program.mak
 
-CIM_SCHEMA_DIR = $(ROOT)/Schemas/CIMPrelim29
+CIM_SCHEMA_DIR = $(ROOT)/Schemas/CIMPrelim291
 ALLOW_EXPERIMENTAL = -aE
 SAMPLE_PROVIDER_NS = root/SampleProvider
 

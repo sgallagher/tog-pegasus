@@ -48,6 +48,9 @@
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
+  // mutex for reading and writing proc 
+  static pthread_mutex_t proc_mutex;   
+
 
 Process::Process()
 {
@@ -456,7 +459,7 @@ NOTES             :
 */
 Boolean Process::getParameters(Array<String>& as) const
 {
-  int idx_new, idx_old=0;
+  int idx_new=0, idx_old=0;
   String p = pInfo.pst_cmd;
 
 
@@ -475,8 +478,8 @@ Boolean Process::getParameters(Array<String>& as) const
 	as.append(String(p));
 	return true;
     }
-    
   }
+  return true;
 }
 
 /*
@@ -523,8 +526,8 @@ NOTES             :
 */
 Boolean Process::getCPUTime(Uint32& i32) const
 {
-  // not supported
-  return false;
+  i32= pInfo.pst_pctcpu;
+  return true;
 }
 
 /*
@@ -907,6 +910,7 @@ Boolean Process::loadProcessInfo(int &pIndex)
 
   // If GET_PROC_BY_PID is set, get_proc will find the process by the pid
   // get_proc(&pInfo, pid, GET_PROC_BY_PID);
+  
   return get_proc(&pInfo, pIndex, GET_PROC_BY_INDEX);
 
   // get_proc returns true if it successfully located a process dir at the
@@ -932,7 +936,8 @@ Boolean Process::findProcess(const String& handle)
   // Convert handle to an integer
   int pid = atoi(handle.getCString());
 
-  return get_proc(&pInfo, pid, GET_PROC_BY_PID);
+   return get_proc(&pInfo, pid, GET_PROC_BY_PID);
+
 }
 
 
@@ -952,7 +957,7 @@ NOTES             :
 */
 
 int file2str(char *directory, char *myFile, char *ret, int cap) {
-    static char filename[80];
+    char filename[80];
     int fd, num_read;
 
     sprintf(filename, "%s/%s", directory, myFile);
@@ -1058,21 +1063,18 @@ void parseProcStatus (char* inputFileString, peg_proc_t* P) {
         &P->pst_pid,
         &P->pst_ppid
     );
-//    else cerr << "sscanf failed. PG_UnixProcess" << endl;
 
     tmp = strstr (inputFileString,"Uid:");
     if(tmp) sscanf (tmp,
         "Uid:\t%d",
         &P->pst_uid
     );
-//    else cerr << "sscanf failed. PG_UnixProcess" << endl;
 
     tmp = strstr (inputFileString,"Gid:");
     if(tmp) sscanf (tmp,
         "Gid:\t%d",
         &P->pst_gid
     );
-//    else cerr << "sscanf failed. PG_UnixProcess" << endl;
 
     tmp = strstr (inputFileString,"VmSize:");
     if(tmp) sscanf (tmp,
@@ -1104,14 +1106,17 @@ Boolean get_proc(peg_proc_t* P, int &pIndex , Boolean find_by_pid)
   static struct stat stat_buff;	
   static char path[32];
   static char buffer[512];
-  int  processId;
   int allocated = 0;
   DIR* procDir;
   int count;
 
+  pthread_mutex_lock( &proc_mutex );
   count = 0;
   if( ! (procDir = opendir("/proc")))
+  {
+    pthread_mutex_unlock( &proc_mutex );
     return false;
+  }
 
    // get rid of any .ZZZ files
    while( ( dir = readdir(procDir)) 
@@ -1124,6 +1129,7 @@ Boolean get_proc(peg_proc_t* P, int &pIndex , Boolean find_by_pid)
     if (*dir->d_name < '0' || *dir->d_name > '9')
     {
 	if (procDir) closedir(procDir);
+        pthread_mutex_unlock( &proc_mutex );
 	return false;
     }
 
@@ -1143,6 +1149,7 @@ Boolean get_proc(peg_proc_t* P, int &pIndex , Boolean find_by_pid)
   if (!dir || !dir->d_name)	// then we've finished lookin at all the procs
   {
     if (procDir) closedir(procDir);
+    pthread_mutex_unlock( &proc_mutex );
     return false;
   }
 
@@ -1152,17 +1159,20 @@ Boolean get_proc(peg_proc_t* P, int &pIndex , Boolean find_by_pid)
   if (stat(path, &stat_buff) == -1) 		// our process stopped running
   {
     if (procDir) closedir(procDir);
+    pthread_mutex_unlock( &proc_mutex );
     return false;
   }
 
   if ((file2str(path, "stat", buffer, sizeof buffer)) == -1)
   {
     if (procDir) closedir(procDir);
+    pthread_mutex_unlock( &proc_mutex );
     return false;
   }
   if( ! parseProcStat(buffer, P) )
   {
     if (procDir) closedir(procDir);
+    pthread_mutex_unlock( &proc_mutex );
     return false;
   }
 
@@ -1181,12 +1191,40 @@ Boolean get_proc(peg_proc_t* P, int &pIndex , Boolean find_by_pid)
 	  P->pst_cmd.assign(P->pst_ucomm);
   }
 
+  sprintf(path, "/proc/"); 
+  if ((file2str(path, "uptime", buffer, sizeof buffer)) != -1)
+  {
+	doPercentCPU(buffer,P);
+  }
+  else P->pst_pctcpu = 0;
+
   if (procDir) closedir(procDir);
 
 
-
-  pIndex = count + 1;   		// set pIndex to the next "reference"
+  pIndex = count;   		// set pIndex to the next "reference"
+  pthread_mutex_unlock( &proc_mutex );
   return true;
 }
+
+void doPercentCPU(char *inputFileString, peg_proc_t *P)
+{
+  // Need to get current time/ process uptime, and calc the rest.
+   
+   unsigned long seconds_since_boot, seconds;
+   time_t t_now, t_then;
+   struct tm tm_now;
+   unsigned long pcpu  = 0;
+   unsigned long total_time;
+
+   if( sscanf(inputFileString, " %lu.", &seconds_since_boot))
+   {
+     total_time = P->pst_utime + P->pst_stime +P->pst_cutime + P->pst_cstime;
+     seconds =seconds_since_boot - P->pst_start;
+     if(seconds) pcpu = total_time * 1000 / seconds;
+     P->pst_pctcpu = (pcpu > 999)? 999 : pcpu;
+   }
+   else P->pst_pctcpu = 0;
+}
+
 
 

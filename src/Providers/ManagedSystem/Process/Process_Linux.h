@@ -45,11 +45,11 @@
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Common/String.h>
 #include <dirent.h>
-#include <iostream>			// for cout
 #include <fcntl.h> 			// for O_RDONLY
 #include <stdio.h>			// for sprintf
 #include <unistd.h>			// for close, read and getpagesize
 #include <string.h>			// for strchr
+#include <pthread.h>			// for pthreads and spinlocks
 
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
@@ -96,6 +96,7 @@ void parseProcStatm(char* inputFileString, peg_proc_t* P);
 Boolean parseProcStat(char* inputFileString, peg_proc_t* P);
 void parseProcStatus (char* inputFileString, peg_proc_t* P);
 Boolean get_proc(peg_proc_t* P, int &pIndex , Boolean find_by_pid);
+void doPercentCPU(char *inputFileString, peg_proc_t *P);
 
 class Process
 {
@@ -197,6 +198,7 @@ public:
 private:
   peg_proc_t pInfo;
 };
+
 
 
 #endif  /* #ifndef PG_PROCESS_LINUX_H */

@@ -982,7 +982,13 @@ arg_list : {;}
 
 	       CQLIdentifier _id("*");
 	       CQLPredicate* _pred = (CQLPredicate*)(_factory.makeObject(&_id,Predicate));
-	       _arglist.append(*_pred);
+	       _arglist.append(*_pred); /* 
+					   since arg_list can loop back on itself, 
+					   we need to store away previous solutions 
+					   production.  We keep track of previous productions
+					   in the _arglist array and later pass that to CQLFunction
+					   as part of chain: identifier LPAR arg_list RPAR
+					*/
            }
          | expr
 	   {
@@ -990,7 +996,13 @@ arg_list : {;}
                    sprintf(msg,"BISON::arg_list_sub->expr\n");
                    printf_(msg);
 
-                   _arglist.append(*$1);
+                   _arglist.append(*$1);/*
+                                           since arg_list can loop back on itself,
+                                           we need to store away previous solutions
+                                           production.  We keep track of previous productions
+                                           in the _arglist array and later pass that to CQLFunction
+                                           as part of chain: identifier LPAR arg_list RPAR
+                                        */
            }
 /*
          | DISTINCT STAR

@@ -73,6 +73,14 @@ In the future, there may be support added for a set of indices (ranges).
 class PEGASUS_CQL_LINKAGE CQLIdentifier: public QueryIdentifier
 {
   public:
+    /**
+        Default constructor
+                                                                                                                                                             
+        @param  -  None.
+        @return - None.
+        @throws - None.
+        <I><B>Experimental Interface</B></I><BR>
+    */
     CQLIdentifier();
     
     /**  The constructor for a CQLIdentifier object
@@ -85,6 +93,7 @@ class PEGASUS_CQL_LINKAGE CQLIdentifier: public QueryIdentifier
          @param - identifier.  The raw string to be parsed into a CQLIdentifier
 	 @return - None.
 	 @throws - CQLIdentifierParseException
+         <I><B>Experimental Interface</B></I><BR>
       */
     CQLIdentifier(String identifier);
 
@@ -94,6 +103,7 @@ class PEGASUS_CQL_LINKAGE CQLIdentifier: public QueryIdentifier
     	@param - id.  The CQLIdentifier to copy construct from
         @return - None.
         @throws - None.
+        <I><B>Experimental Interface</B></I><BR>
     */
     CQLIdentifier(const CQLIdentifier& id);
 
@@ -103,11 +113,28 @@ class PEGASUS_CQL_LINKAGE CQLIdentifier: public QueryIdentifier
         @param - identifier.  The raw string to be parsed into a CQLIdentifier
         @return - None.
         @throws - None.
+        <I><B>Experimental Interface</B></I><BR>
     */
     CQLIdentifier(const QueryIdentifier& id);
 
+    /**
+        Destructor
+                                                                                                                                                             
+        @param  - None.
+        @return - None.
+        @throws - None.
+        <I><B>Experimental Interface</B></I><BR>
+    */
     ~CQLIdentifier();
 
+    /**
+        Assignement operator
+                                                                                                                                                             
+        @param  - rhs.  The right hand side of the assignment operator
+        @return - None.
+        @throws - None.
+        <I><B>Experimental Interface</B></I><BR>
+    */
     CQLIdentifier& operator=(const CQLIdentifier& rhs);
 
   private:

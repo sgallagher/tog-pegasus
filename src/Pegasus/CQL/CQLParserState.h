@@ -96,10 +96,22 @@ struct CQLParserState
 
     Array<char*> outstandingStrings;
 
+    //
+    // This tracks the current token position within the Select Statement being parsed
+    // This is incremented and cleared in CQL.l
+    //
     Uint32 currentTokenPos;
 
+    //
+    // This tracks the token number we are curently processing.
+    // This is incremented and cleared in CQL.l
+    //
     Uint32 tokenCount;
 
+    //
+    // This tracks the current rule in String format in the Select Statement we are currently parsing
+    // This is updated with each production in CQL.y
+    //
     String currentRule;
 
 };

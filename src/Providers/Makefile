@@ -9,7 +9,6 @@ include $(ROOT)/mak/config.mak
 DIRS = \
     generic \
     ManagedSystem \
-    statistic \
     sample \
     TestProviders \
     IndicationConsumer

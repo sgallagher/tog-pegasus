@@ -61,6 +61,11 @@ ifdef PEGASUS_ADVANCED_CIMCLIENT
 DIRS += \
 	ManagedClient
 endif
+
+ifdef PEGASUS_HAS_PERFINST
+DIRS += \
+	ControlProviders/Statistic
+endif
 	
 DIRS += \
 	Server \

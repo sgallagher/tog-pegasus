@@ -28,34 +28,46 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "Command.h"
+#ifndef Pegasus_WbemExecClientHandler_h
+#define Pegasus_WbemExecClientHandler_h
+
+#include <Pegasus/Common/TCPChannel.h>
+#include <Pegasus/Common/Selector.h>
+#include <Pegasus/Common/Array.h>
+#include <Pegasus/Protocol/Handler.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 /**
   
-    Gets command usage string.  Usage string may be retrieved and displayed
-    when a CommandFormatException is caught.
+    WbemExecClientHandler provides a generic handler for the wbemexec command 
+    line client.  WbemExecClientHandler is based on the ClientHandler class 
+    (in Client/CIMClient.cpp), but is generic, not CIM operation-specific.
   
-    @return  String containing the command usage message
+    @author  Hewlett-Packard Company
   
  */
-String& Command::getUsage ()
+class WbemExecClientHandler : public Handler 
 {
-    return _usage;
-}
+public:
 
-/**
-  
-    Sets command usage string.  Usage string should be set by Command
-    subclass constructor.
-  
-    @param    usageMessage    the command usage message
-  
- */
-void Command::setUsage (String& usageMessage)
-{
-    _usage = usageMessage;
-}
+    WbemExecClientHandler (Selector* selector, 
+                           ostream& os, 
+                           Boolean debugOutput);
+
+    virtual int handleMessage ();
+
+    Boolean waitForResponse (Uint32 timeOutMilliseconds);
+
+    void printContent ();
+
+private:
+    Boolean _blocked;
+    Selector* _selector;
+    ostream& _os;
+    Boolean _debugOutput;
+};
 
 PEGASUS_NAMESPACE_END
+
+#endif  /*  Pegasus_WbemExecClientHandler_h */

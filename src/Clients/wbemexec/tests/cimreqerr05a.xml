@@ -4,7 +4,7 @@
   <SIMPLEREQ>
    <IMETHODCALL NAME="EnumerateClassNames">
     <IPARAMVALUE NAME="ClassName">
-     <CLASSNAME NAME="WET_Statistics"/>
+     <CLASSNAME NAME="CIM_Statistics"/>
     </IPARAMVALUE>
     <IPARAMVALUE NAME="DeepInheritance">
      <VALUE> TRUE </VALUE>

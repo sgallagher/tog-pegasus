@@ -5,18 +5,18 @@
          <METHODCALL NAME="EnableDevice">
             <LOCALINSTANCEPATH>
                <LOCALNAMESPACEPATH>
-                  <NAMESPACE NAME="test"> </NAMESPACE>
-                  <NAMESPACE NAME="static"/>
+                  <NAMESPACE NAME="root"> </NAMESPACE>
+                  <NAMESPACE NAME="cimv2"/>
                </LOCALNAMESPACEPATH>
-               <INSTANCENAME CLASSNAME="WET_LogicalDisk">
+               <INSTANCENAME CLASSNAME="HPUX_LogicalDisk">
                   <KEYBINDING NAME="SystemCreationClassName">
-                     <KEYVALUE VALUETYPE="string"> WET_DiskGroup </KEYVALUE>
+                     <KEYVALUE VALUETYPE="string"> CIM_DiskGroup </KEYVALUE>
                   </KEYBINDING>
                   <KEYBINDING NAME="SystemName">
                      <KEYVALUE VALUETYPE="string"> hpserver1 </KEYVALUE>
                   </KEYBINDING>
                   <KEYBINDING NAME="CreationClassName">
-                     <KEYVALUE VALUETYPE="string"> WET_LogicalDisk </KEYVALUE>
+                     <KEYVALUE VALUETYPE="string"> HPUX_LogicalDisk </KEYVALUE>
                   </KEYBINDING>
                   <KEYBINDING NAME="DeviceID">
                      <KEYVALUE VALUETYPE="string"> /dev/vg00/lvol3 </KEYVALUE>

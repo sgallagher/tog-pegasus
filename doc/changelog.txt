@@ -19,6 +19,13 @@ Version 1.1 - July 2001 Development branch (Work in Progress)
    are Mutex, Condition, Semaphore, AtomicInt, ReadWriteSem, cleanup_handler
    and SimpleThread.
 
+3. (Carol Ann Krug Graves - HP)  Implementation of wbemexec CLI.  Please refer
+   to the man page in pegasus/src/Clients/wbemexec/doc/wbemexec.html for more 
+   information on using wbemexec.  A simple test script is included.  Please 
+   see pegasus/src/Clients/wbemexec/tests/readme for information on running the
+   test script.
+
+
 ---------------------------------------------------------------------------
 Version 0.99.x (Fixes to version 0.99) in Process
 NOTE: Please do not input anything to this branch except for critical

@@ -3,11 +3,10 @@
  <MESSAGE ID="7873" PROTOCOLVERSION="1.0">
    <IMETHODCALL NAME="EnumerateClassNames">
     <LOCALNAMESPACEPATH>
-     <NAMESPACE NAME="test"/>
-     <NAMESPACE NAME="static"/>
+     <NAMESPACE NAME="root"/>
     </LOCALNAMESPACEPATH>
     <IPARAMVALUE NAME="ClassName">
-     <CLASSNAME NAME="WET_Statistics"/>
+     <CLASSNAME NAME="CIM_Statistics"/>
     </IPARAMVALUE>
     <IPARAMVALUE NAME="DeepInheritance">
      <VALUE>

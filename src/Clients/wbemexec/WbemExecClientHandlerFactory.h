@@ -28,34 +28,42 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "Command.h"
+#ifndef Pegasus_WbemExecClientHandlerFactory_h
+#define Pegasus_WbemExecClientHandlerFactory_h
+
+#include <Pegasus/Common/Selector.h>
+#include <Pegasus/Common/Channel.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 /**
   
-    Gets command usage string.  Usage string may be retrieved and displayed
-    when a CommandFormatException is caught.
+    WbemExecClientHandlerFactory is a factory class for the
+    WbemExecClientHandler class.  It is based on the ClientHandlerFactory class
+    (in Client/CIMClient.cpp).
   
-    @return  String containing the command usage message
+    @author  Hewlett-Packard Company
   
  */
-String& Command::getUsage ()
+class WbemExecClientHandlerFactory : public ChannelHandlerFactory
 {
-    return _usage;
-}
+public:
 
-/**
-  
-    Sets command usage string.  Usage string should be set by Command
-    subclass constructor.
-  
-    @param    usageMessage    the command usage message
-  
- */
-void Command::setUsage (String& usageMessage)
-{
-    _usage = usageMessage;
-}
+    WbemExecClientHandlerFactory (Selector* selector, 
+                                  ostream& os, 
+                                  Boolean debugOutput);
+
+    virtual ~WbemExecClientHandlerFactory ();
+
+    virtual ChannelHandler* create ();
+
+private:
+
+    Selector* _selector;
+    ostream& _os;
+    Boolean _debugOutput;
+};
 
 PEGASUS_NAMESPACE_END
+
+#endif  /* Pegasus_WbemExecClientHandlerFactory_h */

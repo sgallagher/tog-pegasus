@@ -7,7 +7,7 @@
      <VALUE> True </VALUE>
     </LOCALNAMESPACEPATH>
     <IPARAMVALUE NAME="ClassName">
-     <CLASSNAME NAME="WET_Statistics"/>
+     <CLASSNAME NAME="CIM_Statistics"/>
     </IPARAMVALUE>
     <IPARAMVALUE NAME="DeepInheritance">
      <VALUE>

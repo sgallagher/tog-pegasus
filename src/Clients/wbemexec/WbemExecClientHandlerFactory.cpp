@@ -28,34 +28,33 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "Command.h"
+#include "WbemExecClientHandler.h"
+#include "WbemExecClientHandlerFactory.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
 /**
   
-    Gets command usage string.  Usage string may be retrieved and displayed
-    when a CommandFormatException is caught.
+    WbemExecClientHandlerFactory is a factory class for the 
+    WbemExecClientHandler class.  It is based on the ClientHandlerFactory class
+    (in Client/CIMClient.cpp).
   
-    @return  String containing the command usage message
+    @author  Hewlett-Packard Company
   
  */
-String& Command::getUsage ()
+WbemExecClientHandlerFactory::WbemExecClientHandlerFactory (Selector* selector,
+   ostream& os, Boolean debugOutput)
+    : _selector (selector), _os (os), _debugOutput (debugOutput) 
 {
-    return _usage;
 }
 
-/**
-  
-    Sets command usage string.  Usage string should be set by Command
-    subclass constructor.
-  
-    @param    usageMessage    the command usage message
-  
- */
-void Command::setUsage (String& usageMessage)
+WbemExecClientHandlerFactory::~WbemExecClientHandlerFactory () 
 {
-    _usage = usageMessage;
+}
+
+ChannelHandler* WbemExecClientHandlerFactory::create () 
+{
+    return new WbemExecClientHandler (_selector, _os, _debugOutput);
 }
 
 PEGASUS_NAMESPACE_END

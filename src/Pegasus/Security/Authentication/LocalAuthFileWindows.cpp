@@ -36,7 +36,7 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-LocalAuthFile::LocalAuthFile()
+LocalAuthFile::LocalAuthFile(String userName)
 {
     _user = userName.allocateCString();
     _user[strlen(_user)] = 0;
@@ -60,9 +60,9 @@ String LocalAuthFile::create()
 }
 
 /**
- * deletes the file that was created
+ * remove the file that was created
  */ 
-Boolean LocalAuthFile::delete()
+Boolean LocalAuthFile::remove()
 {
     return (true);
 }

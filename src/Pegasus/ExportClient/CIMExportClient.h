@@ -25,6 +25,8 @@
 //
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
+//              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Client_h
@@ -38,6 +40,7 @@
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/Exception.h>
+#include <Pegasus/Client/ClientAuthenticator.h>
 #include <Pegasus/ExportClient/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -85,6 +88,13 @@ public:
     ///
     void connect(const String& address);
 
+    //
+    // Connection used by local clients
+    //
+    void connectLocal(
+        const String& address,
+        const String& userName = String::EMPTY);
+
     ///
     virtual void exportIndication(
 	const String& nameSpace,
@@ -105,6 +115,7 @@ private:
     Boolean _connected;
     CIMExportResponseDecoder* _responseDecoder;
     CIMExportRequestEncoder* _requestEncoder;
+    ClientAuthenticator* _authenticator;
 };
 
 PEGASUS_NAMESPACE_END

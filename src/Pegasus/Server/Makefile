@@ -16,7 +16,9 @@ LIBRARIES = \
     $(LIB_DIR)/$(LIB_PREFIX)pegprotocol$(LIB_SUFFIX) \
     $(LIB_DIR)/$(LIB_PREFIX)pegprovider$(LIB_SUFFIX) \
     $(LIB_DIR)/$(LIB_PREFIX)pegprovider2$(LIB_SUFFIX) \
-    $(LIB_DIR)/$(LIB_PREFIX)pegexportserver$(LIB_SUFFIX)
+    $(LIB_DIR)/$(LIB_PREFIX)pegexportserver$(LIB_SUFFIX) \
+    $(LIB_DIR)/$(LIB_PREFIX)pegconfig$(LIB_SUFFIX) \
+    $(LIB_DIR)/$(LIB_PREFIX)peglocalauth$(LIB_SUFFIX)
 
 ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
 DYNAMIC_LIBRARIES = \
@@ -25,7 +27,9 @@ DYNAMIC_LIBRARIES = \
     $(LIB_DIR)/$(LIB_PREFIX)pegprotocol.x \
     $(LIB_DIR)/$(LIB_PREFIX)pegprovider.x \
     $(LIB_DIR)/$(LIB_PREFIX)pegprovider2.x \
-    $(LIB_DIR)/$(LIB_PREFIX)pegexportserver.x
+    $(LIB_DIR)/$(LIB_PREFIX)pegexportserver.x \
+    $(LIB_DIR)/$(LIB_PREFIX)pegconfig.x \
+    $(LIB_DIR)/$(LIB_PREFIX)peglocalauth.x
 else
 DYNAMIC_LIBRARIES = \
     -lpegcommon \
@@ -33,7 +37,9 @@ DYNAMIC_LIBRARIES = \
     -lpegprotocol \
     -lpegprovider \
     -lpegprovider2 \
-    -lpegexportserver
+    -lpegexportserver \
+    -lpegconfig \
+    -lpeglocalauth
 endif
 
 PRE_DEPEND_INCLUDES = -I./depends
@@ -42,6 +48,7 @@ SOURCES = \
     CIMOperationRequestDecoder.cpp \
     CIMOperationResponseEncoder.cpp \
     CIMOperationRequestDispatcher.cpp \
+    HTTPAuthenticatorDelegator.cpp \
     ProviderManager.cpp \
     ProviderModule.cpp \
     CIMServer.cpp

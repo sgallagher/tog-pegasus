@@ -23,49 +23,74 @@
 //
 //==============================================================================
 //
-// Author: Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
+// Author:  Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //
 // Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_SecureLocalAuthenticator_h
-#define Pegasus_SecureLocalAuthenticator_h
+#include "AuthenticationInfo.h"
 
-#include "LocalAuthenticator.h"
-#include "Linkage.h"
-
+PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-/**
-    Implements file based secure authentication mechanism. It extends the 
-    LocalAuthenticator and provides implementation.
-*/   
-class PEGASUS_SECURITY_LINKAGE SecureLocalAuthenticator : public LocalAuthenticator
+
+AuthenticationInfo::AuthenticationInfo()
+    : 
+    _authStatus(NEW_REQUEST), 
+    _authUser(String::EMPTY),
+    _authChallenge(String::EMPTY), 
+    _authSecret(String::EMPTY),
+    _privileged(false) 
+{ 
+
+}
+
+
+AuthenticationInfo::~AuthenticationInfo()
 {
-public:
 
-    /** constructor. */ 
-    SecureLocalAuthenticator();
+}
 
-    /** destructor. */ 
-    ~SecureLocalAuthenticator();
+//
+// Set the authentication status of the request
+//
+void   AuthenticationInfo::setAuthStatus(Uint32 status)
+{
+    _authStatus = status;
+}
 
-    /** authenticate. */ 
-    Boolean authenticate(String userName, String password);
+//
+// Set the authenticated user name
+//
+void   AuthenticationInfo::setAuthenticatedUser(String userName)
+{
+    _authUser = userName;
+}
 
-    /** authenticate. */ 
-    Boolean authenticate(
-        String userName, 
-        String secretReceived, 
-        String secretKept);
+//
+// Set the authentication challenge
+//
+void   AuthenticationInfo::setAuthChallenge(String challenge)
+{
+    _authChallenge = challenge;
+}
 
-    /** getAuthResponseHeader. */ 
-    String getAuthResponseHeader(String requestHeader, String& challenge);
-};
+//
+// Set the authentication secret
+//
+void   AuthenticationInfo::setAuthSecret(String secret)
+{
+    _authSecret = secret;
+}
 
+//
+// Set the privileged flag
+//
+void   AuthenticationInfo::setPrivileged(Boolean privileged)
+{
+    _privileged = privileged;
+}
 
 PEGASUS_NAMESPACE_END
-
-#endif /* Pegasus_SecureLocalAuthenticator_h */

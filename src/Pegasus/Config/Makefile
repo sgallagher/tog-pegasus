@@ -19,13 +19,14 @@ else
 endif
 
 SOURCES = \
-	ConfigPropertyOwner.cpp \
 	ConfigExceptions.cpp \
 	ConfigFile.cpp \
 	ConfigFileHandler.cpp \
 	ConfigManager.cpp \
+	ConfigPropertyOwner.cpp \
 	DefaultPropertyOwner.cpp \
 	LogPropertyOwner.cpp \
-	TracePropertyOwner.cpp
+	TracePropertyOwner.cpp \
+        SecurityPropertyOwner.cpp
 
 include $(ROOT)/mak/library.mak

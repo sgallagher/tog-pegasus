@@ -25,6 +25,8 @@
 //
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
+//              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
@@ -42,7 +44,13 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 CIMExportResponseDecoder::CIMExportResponseDecoder(
-    MessageQueue* outputQueue) : _outputQueue(outputQueue)
+    MessageQueue* outputQueue,
+    MessageQueue* encoderQueue,
+    ClientAuthenticator* authenticator)
+    :
+    _outputQueue(outputQueue),
+    _encoderQueue(encoderQueue),
+    _authenticator(authenticator)
 {
 
 }
@@ -50,6 +58,11 @@ CIMExportResponseDecoder::CIMExportResponseDecoder(
 CIMExportResponseDecoder::~CIMExportResponseDecoder()
 {
 
+}
+
+void  CIMExportResponseDecoder::setEncoderQueue(MessageQueue* encoderQueue)
+{
+    _encoderQueue = encoderQueue;
 }
 
 void CIMExportResponseDecoder::handleEnqueue()
@@ -93,6 +106,32 @@ void CIMExportResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     Uint32 contentLength;
 
     httpMessage->parse(startLine, headers, content, contentLength);
+
+    if (_authenticator->checkResponseHeaderForChallenge(headers))
+    {
+        //
+        // Get the original request, put that in the encoder's queue for
+        // re-sending with authentication challenge response.
+        //
+
+        Message* reqMessage = _authenticator->getRequestMessage();
+        _encoderQueue->enqueue(reqMessage);
+
+        return;
+    }
+    else
+    {
+        //
+        // Received a valid/error response from the server.
+        // We do not need the original request message anymore, hence delete
+        // the request message by getting the handle from the ClientAuthenticator.
+        //
+        Message* reqMessage = _authenticator->getRequestMessage();
+        if (reqMessage)
+        {
+            delete reqMessage;
+        }
+    }
 
     //
     // Search for "CIMOperation" header:

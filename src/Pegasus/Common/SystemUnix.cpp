@@ -24,8 +24,9 @@
 //
 // Modified By: Ben Heilbronn (ben_heilbronn@hp.com)
 //
-// Modified By: Nag Boranna (nagaraja_boranna@hp.com)
 //              Sushma Fernandes (sushma_fernandes@hp.com)
+//
+//              Nag Boranna (nagaraja_boranna@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -258,7 +259,32 @@ String System::getPassword(const char* prompt)
 
     password = String(getpass( prompt ));
 
-    return password; 
+    return password;
+}
+
+String System::getCurrentLoginName()
+{
+    String userName = String::EMPTY;
+    struct passwd*   pwd = NULL;
+
+    //
+    //  get the currently logged in user's UID.
+    //
+    pwd = getpwuid(getuid());
+    if ( pwd == NULL )
+    {
+        //ATTN: Log a message
+        // "User might have been removed just after login"
+    }
+    else
+    {
+        //
+        //  get the user name
+        //
+        userName.assign(pwd->pw_name);
+    }
+
+    return(userName);
 }
 
 PEGASUS_NAMESPACE_END

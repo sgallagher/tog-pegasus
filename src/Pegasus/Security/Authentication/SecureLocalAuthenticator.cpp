@@ -30,6 +30,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 
+#include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Security/Authentication/LocalAuthFile.h>
 #include "SecureLocalAuthenticator.h"
 
@@ -50,7 +51,9 @@ SecureLocalAuthenticator::~SecureLocalAuthenticator()
 
 Boolean SecureLocalAuthenticator::authenticate(String userName, String password) 
 {
-    // not supported for local authentication, so return false.
+    //
+    // not supported, so return false.
+    //
     return (false);
 }
 
@@ -59,7 +62,7 @@ Boolean SecureLocalAuthenticator::authenticate(String userName, String password)
 //
 Boolean SecureLocalAuthenticator::authenticate
 (
-   String userName, 
+   String filePath, 
    String secretReceived, 
    String secretKept
 )
@@ -75,10 +78,16 @@ Boolean SecureLocalAuthenticator::authenticate
         }
     }
 
-    // ATTN: Delete the authentication secret file
-    //if (!localAuthFile.deleteFile())
-    //{
-    //}
+    //
+    // remove the auth file created for this user request
+    //
+    if (FileSystem::exists(filePath))
+    {
+        if (!FileSystem::removeFile(filePath))
+        {
+           //ATTN: Log an error message 
+        }
+    }
 
     return (authenticated);
 }
@@ -90,7 +99,7 @@ String SecureLocalAuthenticator::getAuthResponseHeader(
     String userName, 
     String& challenge)
 {
-    String responseHeader = String::EMPTY;
+    String responseHeader = "WWW-Authenticate: Local \"";
 
     //
     // create a file using user name and write a random number in it.
@@ -101,12 +110,14 @@ String SecureLocalAuthenticator::getAuthResponseHeader(
     //
     // get the challenge string
     //
-    challenge = localAuthFile.getChallengeString();
+    String temp = localAuthFile.getChallengeString();
+    challenge = temp;
 
     // 
     // build response header with file path and challenge string.
     //
-    responseHeader.assign(filePath);
+    responseHeader.append(filePath);
+    responseHeader.append("\"");
 
     return (responseHeader);
 }

@@ -25,6 +25,8 @@
 //
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
+//              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -55,12 +57,15 @@ CIMExportClient::CIMExportClient(
     _responseDecoder(0),
     _requestEncoder(0)
 {
-    
+    //
+    // Create client authenticator
+    //
+    _authenticator = new ClientAuthenticator();
 }
 
 CIMExportClient::~CIMExportClient()
 {
-    
+    delete _authenticator;    
 }
 
 void CIMExportClient::handleEnqueue()
@@ -82,7 +87,8 @@ void CIMExportClient::connect(const String& address)
     
     // Create response decoder:
     
-    _responseDecoder = new CIMExportResponseDecoder(this);
+    _responseDecoder = new CIMExportResponseDecoder(
+        this, _requestEncoder, _authenticator);
     
     // Attempt to establish a connection:
     
@@ -100,9 +106,23 @@ void CIMExportClient::connect(const String& address)
     
     // Create request encoder:
     
-    _requestEncoder = new CIMExportRequestEncoder(httpConnection);
-    
+    _requestEncoder = new CIMExportRequestEncoder(
+        httpConnection, _authenticator);
+
+    _responseDecoder->setEncoderQueue(_requestEncoder);    
+
     _connected = true;
+}
+
+void CIMExportClient::connectLocal(const String& address, const String& userName)
+{
+    if (userName.size())
+    {
+        _authenticator->setUserName(userName);
+    }
+    _authenticator->setAuthType(ClientAuthenticator::LOCAL);
+
+    connect(address);
 }
 
 void CIMExportClient::exportIndication(
@@ -117,6 +137,8 @@ void CIMExportClient::exportIndication(
 	url,
 	instanceName,
 	QueueIdStack());
+
+    _authenticator->clearRequest();
 
     _requestEncoder->enqueue(request);
 

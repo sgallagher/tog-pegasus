@@ -49,6 +49,7 @@
 #include <Pegasus/Config/TracePropertyOwner.h>
 #include <Pegasus/Config/LogPropertyOwner.h>
 #include <Pegasus/Config/DefaultPropertyOwner.h>
+#include <Pegasus/Config/SecurityPropertyOwner.h>
 
 
 PEGASUS_NAMESPACE_BEGIN
@@ -151,6 +152,8 @@ public:
     static LogPropertyOwner*        logOwner; 
 
     static DefaultPropertyOwner*    defaultOwner;
+
+    static SecurityPropertyOwner*   securityOwner; 
 
     /**
     Property list

@@ -35,9 +35,8 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Security/Authentication/LocalAuthenticator.h>
-#include "Linkage.h"
 #include "Authenticator.h"
-
+#include "Linkage.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -60,12 +59,12 @@ public:
     /**
     Authenticate the request
     */
-    Boolean authenticate(String authHeader, String authInfo);
+    Boolean authenticate(String authHeader, AuthenticationInfo* authInfo);
     
     /**
     Construct and return the authentication response header
     */
-    String getAuthResponseHeader(String realm, String& challenge);    
+    String getAuthResponseHeader(String userName, AuthenticationInfo* authInfo);    
 
 private:
 

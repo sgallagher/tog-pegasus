@@ -24,6 +24,7 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By:
+//              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -38,6 +39,7 @@
 #include <Pegasus/Common/Message.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/Monitor.h>
+#include <Pegasus/Common/AuthenticationInfo.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -54,6 +56,7 @@ public:
 
     Array<Sint8> message;
     Uint32 queueId;
+    AuthenticationInfo* authInfo;
 
     void parse(
 	String& startLine,

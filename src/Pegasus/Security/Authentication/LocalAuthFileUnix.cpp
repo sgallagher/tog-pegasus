@@ -104,7 +104,6 @@ String LocalAuthFile::create()
     if ( !outfs )
     {
         // unable to create file
-        cout << "unable to create file: " << fileName << endl;
         return(filePath);
     }
 
@@ -122,12 +121,9 @@ String LocalAuthFile::create()
 
     _filePathName.assign(fileName);
 
-    cout << "File Path: " << _filePathName << endl;
-
     // return the name of the file
     return(_filePathName);
 }
-
 
 //
 //  Removes the file that was created

@@ -50,21 +50,21 @@ BasicAuthenticationHandler::~BasicAuthenticationHandler()
 
 Boolean BasicAuthenticationHandler::authenticate(    
     String authHeader,
-    String secretKept)
+    AuthenticationInfo* authInfo)
 {
     // ATTN: Add authentication code here
     return (true);
 }
 
 String BasicAuthenticationHandler::getAuthResponseHeader(
-    String reqHeader,
-    String& challenge)
+    String  realm,
+    AuthenticationInfo* authInfo)
 {
     String respHeader = String::EMPTY;
 
     // actual header "WWW-Authenticate: Basic \"" + realm + "\""
     respHeader.assign("WWW-Authenticate: Basic \"");
-    respHeader.append(reqHeader);
+    respHeader.append(realm);
     respHeader.append("\"");
 
     // ATTN: call the appropriate authenticator to obtain the header information.

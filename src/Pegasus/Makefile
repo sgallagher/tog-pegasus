@@ -21,6 +21,7 @@ DIRS = \
     Provider \
     Provider2 \
     ExportServer \
+    Security/Authentication \
     Server \
     Handler/CIMxmlIndicationHandler \
     Handler/sendmailIndicationHandler \

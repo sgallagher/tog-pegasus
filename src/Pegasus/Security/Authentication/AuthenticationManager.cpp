@@ -29,10 +29,10 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/System.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Config/ConfigManager.h>
-
 #include <Pegasus/Security/Authentication/LocalAuthenticationHandler.h>
 #include <Pegasus/Security/Authentication/BasicAuthenticationHandler.h>
 #include "AuthenticationManager.h"
@@ -41,172 +41,88 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-AuthenticationManager::AuthenticationManager(
-    MessageQueue* outputQueue,
-    Uint32 returnQueueId)
-    : 
-    _outputQueue(outputQueue),
-    _returnQueueId(returnQueueId)
+//
+// Constructor
+//
+AuthenticationManager::AuthenticationManager()
 {
-    // ATTN: Specify the right realm ?
-    _realm.assign("hostname:5589"); //"hostname" + ":" + "portNo";
+    //
+    // get authentication handler
+    //
+    _localAuthHandler = _getLocalAuthHandler();
 
-    _authChallenge = String::EMPTY;
+    _httpAuthHandler = _getHttpAuthHandler();
 
-    // ATTN: We will do Basic for now..
-    _authHandler = _getAuthHandler("Basic");
-}
+    _realm.assign(System::getHostName());
 
-AuthenticationManager::~AuthenticationManager()
-{
-
-}
-
-void AuthenticationManager::sendResponse(
-    Uint32 queueId, 
-    Array<Sint8>& message)
-{
-    MessageQueue* queue = MessageQueue::lookup(queueId);
-
-    if (queue)
-    {
-        HTTPMessage* httpMessage = new HTTPMessage(message);
-        // ATTN: Add this once integrated in to the build
-        //httpMessage->authChallenge = _authChallenge;
-        queue->enqueue(httpMessage);
-    }
-}
-
-void AuthenticationManager::sendChallenge(
-    Uint32 queueId, 
-    const String& authResponse) 
-{
-    // build unauthorized (401) response message
-
-    Array<Sint8> message;
-    //message = 
-    //    XmlWriter::formatUnauthorizedResponseHeader(authResponse);
-    
-    sendResponse(queueId, message);
-}
-
-void AuthenticationManager::sendError(
-    Uint32 queueId,
-    const String& messageId,
-    const String& cimMethodName,
-    CIMStatusCode code,
-    const String& description)
-{
-   //ATTN: TBD
-}
-
-void AuthenticationManager::handleEnqueue()
-{
-    Message* message = dequeue();
-
-    if (!message)
-    {
-        return;
-    }
-
-    switch (message->getType())
-    {
-        case HTTP_MESSAGE:
-            handleHTTPMessage((HTTPMessage*)message);
-            break;
-    }
-
-    delete message;
-}
-
-const char* AuthenticationManager::getQueueName() const
-{
-    return "AuthenticationManager";
-}
-
-// 
-//------------------------------------------------------------------------------
-
-void AuthenticationManager::handleHTTPMessage(HTTPMessage* httpMessage)
-{
-    Boolean authenticated = false;
-
-    // Save queueId:
-    Uint32 queueId = httpMessage->queueId;
-
-    // ATTN: Add this once integrated in to the build
-    //_authenticationInfo = httpMessage->authInfo;
-    _authenticationInfo = String::EMPTY;
-
-    // Parse the HTTP message:
-    String startLine;
-    Array<HTTPHeader> headers;
-    Sint8* content;
-    Uint32 contentLength;
-
-    httpMessage->parse(startLine, headers, content, contentLength);
-
-    // Parse the request line:
-    String methodName;
-    String requestUri;
-    String httpVersion;
-
-    HTTPMessage::parseRequestLine(
-        startLine, methodName, requestUri, httpVersion);
-
-    // Process M-POST and POST messages:
-
-    if (methodName == "M-POST" || methodName == "POST")
-    {
-        // Search for "Authorization" or "PegasusAuthorization" header:
-
-        String authorization;
-
-        if (HTTPMessage::lookupHeader(
-            headers, "Authorization", authorization, false))
-        {
-            // Do Http authentication
-            authenticated = _performHttpAuthentication(queueId, authorization);
-        }
-        else if (HTTPMessage::lookupHeader(
-            headers, "PegasusAuthorization", authorization, false))
-        {
-            // Do Local authentication
-            authenticated = _performLocalAuthentication(queueId, authorization);
-        }
-
-        //
-        // get the configured authentication flag
-        //
-        ConfigManager* configManager;
-        configManager = ConfigManager::getInstance();
-
-        String requireAuthentication = 
-            configManager->getCurrentValue("requireAuthentication");
-
-
-        if (!authenticated && String::equal(requireAuthentication, "true"))
-        {
-            // ATTN: Send authentication challenge
-            String authResp = 
-                _authHandler->getAuthResponseHeader(_realm, _authChallenge);    
-            sendChallenge(queueId, authResp);
-        }
-    }
-}
-
-
-Boolean AuthenticationManager::_performHttpAuthentication(
-    Uint32 queueId,
-    String authHeader)
-{
     //
     // get the configured authentication type
     //
-    ConfigManager* configManager;
-    configManager = ConfigManager::getInstance();
+    ConfigManager* configManager = ConfigManager::getInstance();
 
-    String authType = configManager->getCurrentValue("HttpAuthType");
+    String port = configManager->getCurrentValue("port");
+
+    _realm.append(":"); 
+    _realm.append(port); 
+
+    //_realm.append("hostname:5589"); //"hostname" + ":" + "portNo";
+}
+
+//
+// Destructor
+//
+AuthenticationManager::~AuthenticationManager()
+{
+    //
+    // delete authentication handler
+    //
+    if (_localAuthHandler)
+    {
+        delete _localAuthHandler;
+    }
+    if (_httpAuthHandler)
+    {
+        delete _httpAuthHandler;
+    }
+}
+
+//
+// Perform http authentication
+//
+Boolean AuthenticationManager::performHttpAuthentication
+(
+    String authHeader,
+    AuthenticationInfo* authInfo
+)
+{
+    Boolean authenticated = false;
+
+    String type = String::EMPTY;
+    String userName = String::EMPTY;
+    String cookie = String::EMPTY;
+
+    //
+    // Check whether the auth header has the authentication
+    // information or not and call authentication handlers
+    // authenticate method.
+    //
+    _parseAuthHeader(authHeader, type, userName, cookie);
+
+    //
+    // Check if the user is already authenticated
+    //
+    if (authInfo->isAuthenticated() &&
+        String::equal(userName, authInfo->getAuthenticatedUser()))
+    {
+        return true;
+    }
+
+    //
+    // get the configured authentication type
+    //
+    ConfigManager* configManager = ConfigManager::getInstance();
+
+    String authType = configManager->getCurrentValue("httpAuthType");
 
     //
     // Check whether the auth header has the authentication 
@@ -219,123 +135,213 @@ Boolean AuthenticationManager::_performHttpAuthentication(
         //
         if (!String::equalNoCase(authType, "Basic"))
         {
-            // ATTN: Log basic authentication not supported
-            return( false );
+            // ATTN: Log basic authentication not supported message
+            return ( authenticated );
         }
 
-        Uint32 pos = authHeader.find(authType);
+        Uint32 pos = authHeader.find("Basic");
 
-        String cookie = authHeader.subString(pos + 6);
+        if (authHeader.size() > (pos + 5))
+        {
+            cookie = authHeader.subString(pos + 6);
+        }
 
-        return (_authHandler->authenticate(cookie, _authenticationInfo));
+        authenticated = _httpAuthHandler->authenticate(cookie, authInfo);
     }
-    // else  ATTN: add support for digest authentication
+    // else  ATTN: add code for digest authentication
 
     // else  ATTN: Log authentication type not supported message
 
-    return ( false );
-}
-
-Boolean AuthenticationManager::_performLocalAuthentication(
-    Uint32 queueId,
-    String authHeader)
-{
-    Boolean authenticated = false;
-    Authenticator* localAuthenticator;
-
-    //
-    // Check whether the auth header has the authentication 
-    // information or not.
-    //
-    if (String::equalNoCase(authHeader, "Local"))
+    if (authenticated)
     {
-        Uint32 pos = authHeader.find("Local");
-
-        String cookie = authHeader.subString(pos + 6);
-
-        localAuthenticator = (Authenticator* ) new LocalAuthenticationHandler();
-
-        authenticated = 
-            localAuthenticator->authenticate(cookie, _authenticationInfo);
-
-        if (!authenticated)
-        {
-            // ATTN: Make sure we does not send unlimited 
-            // authentication challenges on the same connection and for the
-            // same user.
-            // 
-            String challenge = String::EMPTY;
-
-            String authResp = 
-                localAuthenticator->getAuthResponseHeader(cookie, challenge);
-            _authChallenge = challenge;
-
-            sendChallenge(queueId, authResp);
-        }
-    }
-    else if (String::equalNoCase(authHeader, "LocalPrivileged"))
-    {
-        String privillegedUser = "root";
-
-        Uint32 pos = authHeader.find("LocalPrivileged");
-
-        String cookie = authHeader.subString(pos + 16);
-
-        localAuthenticator = (Authenticator* ) new LocalAuthenticationHandler();
-
-        authenticated = 
-            localAuthenticator->authenticate(cookie, _authenticationInfo);
-
-        if (!authenticated)
-        {
-            // ATTN: Make sure we does not send unlimited 
-            // authentication challenges on the same connection and for the
-            // same user.
-            // 
-            String challenge = String::EMPTY;
-
-            //
-            // root user is the only privileged user
-            // ATTN: Can the privileged user taken from configuration?
-            //
-            cookie.assign("root");
-
-            String authResp = 
-                localAuthenticator->getAuthResponseHeader(cookie, challenge);
-            _authChallenge = challenge;
-
-            sendChallenge(queueId, authResp);
-        }
+        authInfo->setAuthStatus(AuthenticationInfo::AUTHENTICATED);
     }
 
     return ( authenticated );
 }
 
-/**
-Get an instance of an authentication handler module.
-*/
-Authenticator* AuthenticationManager::_getAuthHandler(String type)
+//
+// Perform pegasus sepcific local authentication
+//
+Boolean AuthenticationManager::performPegasusAuthentication
+(
+    String authHeader,
+    AuthenticationInfo* authInfo
+)
 {
-    Authenticator* handler;
+    Boolean authenticated = false;
 
-    if ( String::equalNoCase(type, "Local") ||
-         String::equalNoCase(type, "LocalPrivileged") ) 
+    String authType = String::EMPTY; 
+    String userName = String::EMPTY;
+    String cookie = String::EMPTY;
+
+    //
+    // Check whether the auth header has the authentication 
+    // information or not and call authentication handlers
+    // authenticate method.
+    //
+    _parseAuthHeader(authHeader, authType, userName, cookie);
+
+
+    //
+    // Check if the user is already authenticated
+    //
+    if (authInfo->isAuthenticated() &&
+        String::equal(userName, authInfo->getAuthenticatedUser()))
     {
-        handler = (Authenticator*) new LocalAuthenticationHandler( );
-        return ( handler );
+        return true;
     }
+
+    //
+    // Check if the authentication information is present
+    //
+    if (String::equal(cookie, String::EMPTY))
+    {
+        return false;
+    }
+
+    authenticated = 
+        _localAuthHandler->authenticate(cookie, authInfo);
+
+    if (authenticated)
+    {
+        authInfo->setAuthStatus(AuthenticationInfo::AUTHENTICATED);
+    }
+
+    return ( authenticated );
+}
+
+//
+// Get pegasus/local authentication response header
+//
+String AuthenticationManager::getPegasusAuthResponseHeader
+(
+    String authHeader,
+    AuthenticationInfo* authInfo
+)
+{
+    String authType = String::EMPTY;
+    String userName = String::EMPTY;
+    String cookie = String::EMPTY;
+
+    //
+    // Check whether the auth header has the authentication
+    // information or not and call authentication handlers
+    // authenticate method.
+    //
+    _parseAuthHeader(authHeader, authType, userName, cookie);
+
+    //
+    // Check if the authentication information is present
+    //
+    if (String::equal(userName, String::EMPTY))
+    {
+        //
+        // User name can not be empty 
+        //
+        // ATTN: throw an exception
+        return (String::EMPTY);
+    }
+
+    return(_localAuthHandler->getAuthResponseHeader(userName, authInfo));
+}
+
+//
+// Get HTTP authentication response header
+//
+String AuthenticationManager::getHttpAuthResponseHeader()
+{
+    return (_httpAuthHandler->getAuthResponseHeader(_realm));
+}
+
+//
+// parse the authentication header
+//
+void AuthenticationManager::_parseAuthHeader(
+    String authHeader, String& authType, String& userName, String& cookie)
+{
+    Uint32 pos;
+
+    if ( (pos = authHeader.find("LocalPrivileged")) == PEG_NOT_FOUND )
+    {
+        if ( (pos = authHeader.find("Local")) == PEG_NOT_FOUND )
+        {
+            //
+            //Invalid authorization header
+            //
+            //ATTN: throw exception
+            return;
+        }
+    }
+
+    Uint32 startQuote = authHeader.find(pos, '"');
+    if (startQuote == PEG_NOT_FOUND)
+    {
+        //
+        //Invalid authorization header
+        //
+        //ATTN: throw exception
+        return; 
+    }
+
+    Uint32 endQuote = authHeader.find(startQuote + 1, '"');
+    if (endQuote == PEG_NOT_FOUND)
+    {
+        //
+        //Invalid authorization header
+        //
+        //ATTN: throw exception
+        return;
+    }
+
+    authType = authHeader.subString(pos, (startQuote - pos) - 1);
+
+    String temp = authHeader.subString(
+        startQuote + 1, (endQuote - startQuote - 1));
+
+    Uint32 colonPos;
+
+    if ((colonPos = temp.find(0, ':')) == PEG_NOT_FOUND)
+    {
+        userName = temp;
+        return;
+    }
+    else
+    {
+        userName = temp.subString(0, colonPos);
+        cookie = temp;
+    }
+}
+
+//
+// Get local authentication handler
+//
+Authenticator* AuthenticationManager::_getLocalAuthHandler()
+{
+    //
+    // create and return a local authentication handler.
+    //
+    return (new LocalAuthenticationHandler());
+}
+
+
+//
+// Get Http authentication handler
+//
+Authenticator* AuthenticationManager::_getHttpAuthHandler()
+{
+    Authenticator* handler = 0;
 
     //
     // get the configured/default authentication type
     //
-    ConfigManager* configManager;
-    configManager = ConfigManager::getInstance();
+    ConfigManager* configManager = ConfigManager::getInstance();
 
-    String authType = configManager->getCurrentValue("HttpAuthType");
+    String authType = configManager->getCurrentValue("httpAuthType");
     
     //
     // If Basic authentication is configured then 
-    // create a basic auth handler.
+    // create a basic authentication handler.
     //
     if (String::equal(authType, "Basic"))
     {

@@ -29,6 +29,7 @@
 //
 //   Date      Release   Revisor           Revision
 //   04NOV01   1         Rudy Schuet       Initial creation
+//   16NOV01   1         Nag Boranna       Added get login name function
 //
 // ***************************************************************************
 //                                                                             
@@ -82,5 +83,7 @@ String System::getPassword(const char* prompt)
 
     return password;
 }
+
+String System::getCurrentLoginName() { return String(); }
 
 PEGASUS_NAMESPACE_END

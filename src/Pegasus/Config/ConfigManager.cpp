@@ -47,6 +47,7 @@
 #include "DefaultPropertyOwner.h"
 #include "TracePropertyOwner.h"
 #include "LogPropertyOwner.h"
+#include "SecurityPropertyOwner.h"
 
 
 PEGASUS_USING_STD;
@@ -77,6 +78,7 @@ struct OwnerTable
 TracePropertyOwner*      ConfigManager::traceOwner   = new TracePropertyOwner;
 LogPropertyOwner*        ConfigManager::logOwner     = new LogPropertyOwner;
 DefaultPropertyOwner*    ConfigManager::defaultOwner = new DefaultPropertyOwner;
+SecurityPropertyOwner*   ConfigManager::securityOwner= new SecurityPropertyOwner;
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -100,7 +102,9 @@ struct PropertyList ConfigManager::properties[] =
     {"daemon",              (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"install",             (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"remove",              (ConfigPropertyOwner* )ConfigManager::defaultOwner},
-    {"slp",                 (ConfigPropertyOwner* )ConfigManager::defaultOwner}
+    {"slp",                 (ConfigPropertyOwner* )ConfigManager::defaultOwner},
+    {"requireAuthentication", (ConfigPropertyOwner* )ConfigManager::securityOwner},
+    {"httpAuthType",        (ConfigPropertyOwner* )ConfigManager::securityOwner}
 };
 
 const Uint32 NUM_PROPERTIES = 
@@ -454,7 +458,7 @@ void ConfigManager::mergeCommandLine(int& argc, char**& argv)
     //
     //  Merge properties from the command line
     //
-    for (int i = 0; i < argc; )
+    for (Uint32 i = 0; i < argc; )
     {
         const char* arg = argv[i];
 

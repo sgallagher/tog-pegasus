@@ -30,7 +30,8 @@ PRE_DEPEND_INCLUDES = -I./depends
 SOURCES = \
     CIMClient.cpp \
     CIMOperationRequestEncoder.cpp \
-    CIMOperationResponseDecoder.cpp
+    CIMOperationResponseDecoder.cpp \
+    ClientAuthenticator.cpp
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 

@@ -24,6 +24,8 @@
 //
 // Modified By: Sushma Fernandes (sushma_fernandes@hp.com)
 //
+//              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "System.h"
@@ -179,4 +181,11 @@ String System::getPassword(const char* prompt)
     return password;
 }
 
+String System::getCurrentLoginName()
+{
+    //ATTN: Implement this method to get the current login user name
+    //      This is used in local authentication.
+
+    return String();
+}
 PEGASUS_NAMESPACE_END

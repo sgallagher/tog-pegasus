@@ -33,9 +33,6 @@
 #define Pegasus_AuthenticationManager_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/MessageQueue.h>
-#include <Pegasus/Common/CIMMessage.h>
-#include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Security/Authentication/Authenticator.h>
 #include "Linkage.h"
 
@@ -43,68 +40,45 @@
 PEGASUS_NAMESPACE_BEGIN
 
 /**
-    This class parses the HTTP header in the HTTPMessage passed to it and 
-    performs authentication based on the authentication specified in the 
-    configuration. It sends the challenge for unauthorized requests and
-    validates the response.
-
-    NOTE: This code is not integarated in to the main Makefile because the
-    dependent code is not implemented. 
 */
 
 class PEGASUS_SECURITY_LINKAGE AuthenticationManager
-    : public MessageQueue
 {
 public:
 
-    AuthenticationManager(
-        MessageQueue* outputQueue,
-        Uint32 returnQueueId);
+    AuthenticationManager();
 
     ~AuthenticationManager();
 
-    void sendResponse(
-        Uint32 queueId, 
-        Array<Sint8>& message);
+    Boolean performHttpAuthentication(
+        String authHeader,
+        AuthenticationInfo* authInfo);
 
-    void sendError(
-        Uint32 queueId,
-        const String& messageId,
-        const String& methodName,
-        CIMStatusCode code,
-        const String& description);
+    Boolean performPegasusAuthentication(
+        String authHeader,
+        AuthenticationInfo* authInfo);
 
-    void sendChallenge(
-        Uint32 queueId, 
-        const String& authResponse);
+    String getPegasusAuthResponseHeader(
+        String authHeader,
+        AuthenticationInfo* authInfo);
 
-    virtual void handleEnqueue();
-
-    virtual const char* getQueueName() const;
-
-    void handleHTTPMessage(HTTPMessage* httpMessage);
-
-    void handleMethodCall(
-        Uint32 queueId,
-        Sint8* content);
+    String getHttpAuthResponseHeader();
 
 private:
 
-    Boolean _performHttpAuthentication(Uint32 queueId, String authHeader);
+    String _realm;
 
-    Boolean _performLocalAuthentication(Uint32 queueId, String authHeader);
+    void _parseAuthHeader(
+        String authHeader, String& authType, String& userName, String& cookie);
 
-    Authenticator* _getAuthHandler(String type);
+    Authenticator* _localAuthHandler;
 
-    String         _realm;
-    String         _authChallenge;
-    String         _authenticationInfo;
+    Authenticator* _httpAuthHandler;
 
-    Authenticator* _authHandler;
-    MessageQueue*  _outputQueue;
+    Authenticator* _getLocalAuthHandler();
 
-    // Queue where responses should be enqueued.
-    Uint32         _returnQueueId;
+    Authenticator* _getHttpAuthHandler();
+
 };
 
 PEGASUS_NAMESPACE_END

@@ -667,7 +667,7 @@ Uint32 CIMConfigCommand::execute (
 
         address = addressStr.allocateCString ();
 
-        client.connect(address);
+        client.connectLocal(address);
 
         connected = true;
     }
@@ -1084,7 +1084,7 @@ void CIMConfigCommand::_getPropertiesFromCIMServer
         HTTPConnector* connector = new HTTPConnector(monitor);
         CIMClient client(monitor, connector);
 
-        client.connect(address);
+        client.connectLocal(address);
 
 
         kb.setName(PROPERTY_NAME);
@@ -1148,7 +1148,7 @@ void CIMConfigCommand::_updatePropertyInCIMServer
         HTTPConnector* connector = new HTTPConnector(monitor);
         CIMClient client(monitor, connector);
 
-        client.connect(address);
+        client.connectLocal(address);
 
 
         kb.setName(PROPERTY_NAME);
@@ -1220,7 +1220,7 @@ void CIMConfigCommand::_listAllPropertiesInCIMServer
         HTTPConnector* connector = new HTTPConnector(monitor);
         CIMClient client(monitor, connector);
         
-        client.connect(address);
+        client.connectLocal(address);
 
         if ( _currentValueSet ||  _plannedValueSet )
         {

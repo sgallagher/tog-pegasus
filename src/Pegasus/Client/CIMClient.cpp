@@ -27,6 +27,8 @@
 //
 // Modified By: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
+//              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -56,12 +58,15 @@ CIMClient::CIMClient(
     _responseDecoder(0),
     _requestEncoder(0)
 {
-    
+    //
+    // Create client authenticator
+    //
+    _authenticator = new ClientAuthenticator();    
 }
 
 CIMClient::~CIMClient()
 {
-    
+   delete _authenticator;
 }
 
 void CIMClient::handleEnqueue()
@@ -83,7 +88,8 @@ void CIMClient::connect(const String& address)
     
     // Create response decoder:
     
-    _responseDecoder = new CIMOperationResponseDecoder(this);
+    _responseDecoder = new CIMOperationResponseDecoder(
+        this, _requestEncoder, _authenticator);
     
     // Attempt to establish a connection:
     
@@ -101,9 +107,23 @@ void CIMClient::connect(const String& address)
     
     // Create request encoder:
     
-    _requestEncoder = new CIMOperationRequestEncoder(httpConnection);
+    _requestEncoder = new CIMOperationRequestEncoder(
+        httpConnection, _authenticator);
+
+    _responseDecoder->setEncoderQueue(_requestEncoder);
     
     _connected = true;
+}
+
+void CIMClient::connectLocal(const String& address, const String& userName)
+{
+    if (userName.size())
+    {
+        _authenticator->setUserName(userName);
+    }
+    _authenticator->setAuthType(ClientAuthenticator::LOCAL);
+
+    connect(address);
 }
 
 CIMClass CIMClient::getClass(
@@ -127,6 +147,8 @@ CIMClass CIMClient::getClass(
 	propertyList,
 	QueueIdStack());
     
+    _authenticator->clearRequest();
+
     _requestEncoder->enqueue(request);
     
     Message* message = _waitForResponse(
@@ -163,6 +185,8 @@ CIMInstance CIMClient::getInstance(
 	propertyList,
 	QueueIdStack());
     
+    _authenticator->clearRequest();
+
     _requestEncoder->enqueue(request);
     
     Message* message = _waitForResponse(
@@ -191,6 +215,8 @@ void CIMClient::deleteClass(
 	className,
 	QueueIdStack());
     
+    _authenticator->clearRequest();
+
     _requestEncoder->enqueue(request);
     
     Message* message = _waitForResponse(
@@ -216,6 +242,8 @@ void CIMClient::deleteInstance(
 	instanceName,
 	QueueIdStack());
     
+    _authenticator->clearRequest();
+
     _requestEncoder->enqueue(request);
     
     Message* message = _waitForResponse(
@@ -241,6 +269,8 @@ void CIMClient::createClass(
 	newClass,
 	QueueIdStack());
     
+    _authenticator->clearRequest();
+
     _requestEncoder->enqueue(request);
     
     Message* message = _waitForResponse(
@@ -266,6 +296,8 @@ CIMReference CIMClient::createInstance(
 	newInstance,
 	QueueIdStack());
     
+    _authenticator->clearRequest();
+
     _requestEncoder->enqueue(request);
     
     Message* message = _waitForResponse(
@@ -293,6 +325,8 @@ void CIMClient::modifyClass(
 	modifiedClass,
 	QueueIdStack());
     
+    _authenticator->clearRequest();
+
     _requestEncoder->enqueue(request);
     
     Message* message = _waitForResponse(
@@ -318,6 +352,8 @@ void CIMClient::modifyInstance(
 	modifiedInstance,
 	QueueIdStack());
     
+    _authenticator->clearRequest();
+
     _requestEncoder->enqueue(request);
     
     Message* message = _waitForResponse(
@@ -351,6 +387,8 @@ Array<CIMClass> CIMClient::enumerateClasses(
 	includeClassOrigin,
 	QueueIdStack());
     
+    _authenticator->clearRequest();
+
     _requestEncoder->enqueue(request);
     
     Message* message = _waitForResponse(
@@ -380,6 +418,8 @@ Array<String> CIMClient::enumerateClassNames(
 	deepInheritance,
 	QueueIdStack());
     
+    _authenticator->clearRequest();
+
     _requestEncoder->enqueue(request);
     
     Message* message = _waitForResponse(
@@ -417,6 +457,8 @@ Array<CIMInstance> CIMClient::enumerateInstances(
 	propertyList,
 	QueueIdStack());
     
+    _authenticator->clearRequest();
+
     _requestEncoder->enqueue(request);
     
     Message* message = _waitForResponse(
@@ -444,6 +486,8 @@ Array<CIMReference> CIMClient::enumerateInstanceNames(
 	className,
 	QueueIdStack());
     
+    _authenticator->clearRequest();
+
     _requestEncoder->enqueue(request);
     
     Message* message = _waitForResponse(
@@ -471,6 +515,8 @@ Array<CIMInstance> CIMClient::execQuery(
 	query,
 	QueueIdStack());
     
+    _authenticator->clearRequest();
+
     _requestEncoder->enqueue(request);
     
     Message* message = _waitForResponse(
@@ -512,6 +558,8 @@ Array<CIMObjectWithPath> CIMClient::associators(
 	propertyList,
 	QueueIdStack());
     
+    _authenticator->clearRequest();
+
     _requestEncoder->enqueue(request);
     
     Message* message = _waitForResponse(
@@ -547,6 +595,8 @@ Array<CIMReference> CIMClient::associatorNames(
 	resultRole,
 	QueueIdStack());
     
+    _authenticator->clearRequest();
+
     _requestEncoder->enqueue(request);
     
     Message* message = _waitForResponse(
@@ -584,6 +634,8 @@ Array<CIMObjectWithPath> CIMClient::references(
 	propertyList,
 	QueueIdStack());
     
+    _authenticator->clearRequest();
+
     _requestEncoder->enqueue(request);
     
     Message* message = _waitForResponse(
@@ -615,6 +667,8 @@ Array<CIMReference> CIMClient::referenceNames(
 	role,
 	QueueIdStack());
     
+    _authenticator->clearRequest();
+
     _requestEncoder->enqueue(request);
     
     Message* message = _waitForResponse(
@@ -644,6 +698,8 @@ CIMValue CIMClient::getProperty(
 	propertyName,
 	QueueIdStack());
     
+    _authenticator->clearRequest();
+
     _requestEncoder->enqueue(request);
     
     Message* message = _waitForResponse(
@@ -675,6 +731,8 @@ void CIMClient::setProperty(
 	newValue,
 	QueueIdStack());
     
+    _authenticator->clearRequest();
+
     _requestEncoder->enqueue(request);
     
     Message* message = _waitForResponse(
@@ -700,6 +758,8 @@ CIMQualifierDecl CIMClient::getQualifier(
 	qualifierName,
 	QueueIdStack());
     
+    _authenticator->clearRequest();
+
     _requestEncoder->enqueue(request);
     
     Message* message = _waitForResponse(
@@ -727,6 +787,8 @@ void CIMClient::setQualifier(
 	qualifierDeclaration,
 	QueueIdStack());
     
+    _authenticator->clearRequest();
+
     _requestEncoder->enqueue(request);
     
     Message* message = _waitForResponse(
@@ -752,6 +814,8 @@ void CIMClient::deleteQualifier(
 	qualifierName,
 	QueueIdStack());
     
+    _authenticator->clearRequest();
+
     _requestEncoder->enqueue(request);
     
     Message* message = _waitForResponse(
@@ -775,6 +839,8 @@ Array<CIMQualifierDecl> CIMClient::enumerateQualifiers(
 	nameSpace,
 	QueueIdStack());
     
+    _authenticator->clearRequest();
+
     _requestEncoder->enqueue(request);
     
     Message* message = _waitForResponse(
@@ -807,6 +873,8 @@ CIMValue CIMClient::invokeMethod(
 	inParameters,
 	QueueIdStack());
     
+    _authenticator->clearRequest();
+
     _requestEncoder->enqueue(request);
     
     Message* message = _waitForResponse(

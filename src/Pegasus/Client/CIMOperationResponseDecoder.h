@@ -25,6 +25,8 @@
 //
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
+//              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CIMOperationResponseDecoder_h
@@ -35,6 +37,7 @@
 #include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Common/CIMMessage.h>
+#include <Pegasus/Client/ClientAuthenticator.h>
 #include <Pegasus/Client/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -51,10 +54,16 @@ public:
     /** Constuctor.
 	@param outputQueue queue to receive decoded HTTP messages.
     */
-    CIMOperationResponseDecoder(MessageQueue* outputQueue);
+   CIMOperationResponseDecoder(
+        MessageQueue* outputQueue,
+        MessageQueue* encoderQueue,
+        ClientAuthenticator* authenticator);
 
     /** Destructor. */
     ~CIMOperationResponseDecoder();
+
+    /** Initializes the encoder queue */
+    void setEncoderQueue(MessageQueue* encoderQueue);
 
     /** This method is called when a message is enqueued on this queue. */
     virtual void handleEnqueue();
@@ -139,7 +148,11 @@ private:
     CIMInvokeMethodResponseMessage* _decodeInvokeMethodResponse(
 	XmlParser& parser, const String& messageId, const String& methodName);
 
-    MessageQueue* _outputQueue;
+    MessageQueue*        _outputQueue;
+
+    MessageQueue*        _encoderQueue;
+
+    ClientAuthenticator* _authenticator;
 };
 
 PEGASUS_NAMESPACE_END

@@ -13,6 +13,7 @@ SOURCES = \
     AsyncOpNode.cpp \
     AsyncOpNodeLocal.cpp \
     AsyncResponseHandler.cpp \
+    AuthenticationInfo.cpp \
     CGIQueryString.cpp \
     Channel.cpp \
     Char16.cpp \
@@ -61,7 +62,6 @@ SOURCES = \
     HTTPAcceptor.cpp \
     HTTPConnection.cpp \
     HTTPConnector.cpp  \
-    HTTPDelegator.cpp \
     HTTPMessage.cpp \
     Indentor.cpp \
     IPC.cpp \

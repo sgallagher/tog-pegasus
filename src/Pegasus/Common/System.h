@@ -22,7 +22,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By: 
+// Modified By:
+//              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -107,6 +108,8 @@ public:
 
     static String getHostName();
 
+    static String getCurrentLoginName();
+
     /**
     This function is used to input a password with echo disabled.
     The function reads up to a newline and returns a password of at most
@@ -114,7 +117,7 @@ public:
 
     @param  prompt      String containing the message prompt to be displayed
     @return             password obtained from the user
-    */ 
+    */
     static String getPassword(const char* prompt);
 };
 

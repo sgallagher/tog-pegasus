@@ -35,6 +35,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/AuthenticationInfo.h>
 #include "Linkage.h"
 
 
@@ -57,14 +58,17 @@ public:
     /**
     Authenticate the request
     */
-    virtual Boolean authenticate(String authHeader, String authInfo) = 0;
+    virtual Boolean authenticate(String authHeader, AuthenticationInfo* authInfo) = 0;
 
     /**
     Construct and return the authentication response header
     */
     virtual String getAuthResponseHeader(
         String requestHeader,
-        String& challenge ) = 0;
+        AuthenticationInfo* authInfo = 0) = 0;
 
 };
+
+PEGASUS_NAMESPACE_END
+
 #endif   /* Pegasus_Authenticator_h*/

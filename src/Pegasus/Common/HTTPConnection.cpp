@@ -24,6 +24,7 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By:
+//         Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -99,11 +100,13 @@ HTTPConnection::HTTPConnection(
     _contentLength(-1)
 {
     Socket::disableBlocking(_socket);
+    _authInfo = new AuthenticationInfo();
 }
 
 HTTPConnection::~HTTPConnection()
 {
     Socket::close(_socket);
+    delete _authInfo;
 }
 
 void HTTPConnection::handleEnqueue()
@@ -183,9 +186,14 @@ const char* HTTPConnection::getQueueName() const
 
 Boolean _IsBodylessMessage(const char* line)
 {
+    //ATTN: Make sure this is the right place to check for HTTP/1.1 and
+    //      HTTP/1.0 that is part of the authentication challenge header.
+    //
     const char* METHOD_NAMES[] =
     {
-	"GET"
+        "GET",
+        "HTTP/1.1 401",
+        "HTTP/1.0 401"
     };
 
     const Uint32 METHOD_NAMES_SIZE = sizeof(METHOD_NAMES) / sizeof(char*);
@@ -300,6 +308,8 @@ void HTTPConnection::_handleReadEvent()
 	(Sint32(_incomingBuffer.size()) >= _contentLength + _contentOffset))
     {
 	HTTPMessage* message = new HTTPMessage(_incomingBuffer, getQueueId());
+        message->authInfo = _authInfo;
+
 	_outputMessageQueue->enqueue(message);
 	_clearIncoming();
 

@@ -24,6 +24,7 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By:
+//         Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -38,6 +39,7 @@
 #include <Pegasus/Common/Message.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/Monitor.h>
+#include <Pegasus/Common/AuthenticationInfo.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -101,6 +103,7 @@ private:
     Sint32 _contentOffset;
     Sint32 _contentLength;
     Array<Sint8> _incomingBuffer;
+    AuthenticationInfo* _authInfo;
 };
 
 PEGASUS_NAMESPACE_END

@@ -26,6 +26,8 @@
 // Modified By: 
 //         Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
+//         Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_XmlWriter_h
@@ -88,6 +90,7 @@ public:
 	const char* cimOperation,
 	const char* cimMethod,
 	const String& cimObject,
+        const String& authenticationHeader,
 	const Array<Sint8>& content);
 
     static Array<Sint8> formatMethodResponseHeader(
@@ -200,6 +203,7 @@ public:
 	const String& nameSpace,
 	const char* iMethodName,
 	const String& messageId,
+        const String& authenticationHeader,
 	const Array<Sint8>& body);
 
     static Array<Sint8> formatSimpleRspMessage(
@@ -213,6 +217,7 @@ public:
 	const char* host,
     	const char* iMethodName,
 	const String& messageId,
+        const String& authenticationHeader,
     	const Array<Sint8>& body);
 
     static Array<Sint8> formatEMethodCallElement(
@@ -223,6 +228,7 @@ public:
     	const char* host,
     	const char* cimOperation,
     	const char* cimMethod,
+        const String& authenticationHeader,
     	const Array<Sint8>& content);
 
     static Array<Sint8> formatSimpleExportReqElement(
@@ -248,6 +254,7 @@ public:
 	const String& nameSpace,
 	const char* iMethodName,
 	const String& messageId,
+        const String& authenticationHeader,
 	const Array<Sint8>& body);
 
     static Array<Sint8> formatMethodCallElement(
@@ -276,6 +283,9 @@ public:
     
     static Array<Sint8> formatReturnValueElement(
 	const Array<Sint8>& body);
+
+    static Array<Sint8> formatUnauthorizedResponseHeader(
+        const String& content);
 
 private:
 

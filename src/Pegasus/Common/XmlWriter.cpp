@@ -25,6 +25,8 @@
 //
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
+//              Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cstdlib>
@@ -208,6 +210,7 @@ Array<Sint8> XmlWriter::formatMPostHeader(
     const char* cimOperation,
     const char* cimMethod,
     const String& cimObject,
+    const String& authenticationHeader,
     const Array<Sint8>& content)
 {
     Array<Sint8> out;
@@ -222,7 +225,12 @@ Array<Sint8> XmlWriter::formatMPostHeader(
     out << nn <<"\r\n";
     out << nn << "-CIMOperation: " << cimOperation << "\r\n";
     out << nn << "-CIMMethod: " << cimMethod << "\r\n";
-    out << nn << "-CIMObject: " << cimObject << "\r\n\r\n";
+    out << nn << "-CIMObject: " << cimObject << "\r\n";
+    if (authenticationHeader.size())
+    {
+        out << authenticationHeader << "\r\n";
+    }
+    out << "\r\n";
     out << content;
     return out;
 }
@@ -580,12 +588,10 @@ Array<Sint8>& XmlWriter::appendPropertyListParameter(
     Array<Sint8> tmp;
 
     tmp << "<VALUE.ARRAY>\n";
-
     for (Uint32 i = 0; i < propertyList.size(); i++)
     {
         tmp << "<VALUE>" << propertyList[i] << "</VALUE>\n"; 
     }
-
     tmp << "</VALUE.ARRAY>\n";
     return formatIParamValueElement(out, "PropertyList", tmp);
 }
@@ -808,6 +814,7 @@ Array<Sint8> XmlWriter::formatSimpleIMethodReqMessage(
     const String& nameSpace,
     const char* iMethodName,
     const String& messageId,
+    const String& authenticationHeader,
     const Array<Sint8>& body)
 {
     return XmlWriter::formatMPostHeader(
@@ -815,6 +822,7 @@ Array<Sint8> XmlWriter::formatSimpleIMethodReqMessage(
 	"MethodCall",
 	iMethodName,
 	nameSpace,
+        authenticationHeader,
 	XmlWriter::formatMessageElement(
 	    messageId,
 	    XmlWriter::formatSimpleReqElement(
@@ -914,12 +922,14 @@ Array<Sint8> XmlWriter::formatSimpleIndicationReqMessage(
     const char* host,
     const char* iMethodName,
     const String& messageId,
+    const String& authenticationHeader,
     const Array<Sint8>& body)
 {
     return XmlWriter::formatMPostIndicationHeader(
         host,
         "MethodRequest",
         iMethodName,
+        authenticationHeader,
         XmlWriter::formatMessageElement(
             messageId,
             XmlWriter::formatSimpleExportReqElement(
@@ -932,6 +942,7 @@ Array<Sint8> XmlWriter::formatMPostIndicationHeader(
     const char* host,
     const char* cimOperation,
     const char* cimMethod,
+    const String& authenticationHeader,
     const Array<Sint8>& content)
 {
     Array<Sint8> out;
@@ -945,7 +956,12 @@ Array<Sint8> XmlWriter::formatMPostIndicationHeader(
     out << "Man: http://www.hp.com; ns=";
     out << nn <<"\r\n";
     out << nn << "-CIMExport: " << cimOperation << "\r\n";
-    out << nn << "-CIMExportMethod: " << cimMethod << "\r\n\r\n";
+    out << nn << "-CIMExportMethod: " << cimMethod << "\r\n";
+    if (authenticationHeader.size())
+    {
+        out << authenticationHeader << "\r\n";
+    }
+    out << "\r\n";
     out << content;
     return out;
 }
@@ -1044,6 +1060,7 @@ Array<Sint8> XmlWriter::formatSimpleMethodReqMessage(
     const String& nameSpace,
     const char* iMethodName,
     const String& messageId,
+   const String& authenticationHeader,
     const Array<Sint8>& body)
 {
     return XmlWriter::formatMPostHeader(
@@ -1051,6 +1068,7 @@ Array<Sint8> XmlWriter::formatSimpleMethodReqMessage(
 	"MethodCall",
 	iMethodName,
 	nameSpace,
+        authenticationHeader,
 	XmlWriter::formatMessageElement(
 	    messageId,
 	    XmlWriter::formatSimpleReqElement(
@@ -1178,6 +1196,47 @@ Array<Sint8> XmlWriter::formatReturnValueElement(
 {
     Array<Sint8> out;
     return out << "<RETURNVALUE>\n" << body << "</RETURNVALUE>\n";
+}
+
+//------------------------------------------------------------------------------
+//
+// formatUnauthorizedResponseHeader()
+//
+//     Build HTTP authentication response header for unauthorized requests.
+//
+//     Returns unauthorized message in the following format:
+//
+//        HTTP/1.1 401 Unauthorized
+//        WWW-Authenticate: Basic "hostname:80"
+//        <HTML><HEAD>
+//        <TITLE>401 Unauthorized</TITLE>
+//        </HEAD><BODY BGCOLOR="#99cc99">
+//        <H2>TEST401 Unauthorized</H2>
+//        <HR>
+//        </BODY></HTML>
+//
+//------------------------------------------------------------------------------
+
+Array<Sint8> XmlWriter::formatUnauthorizedResponseHeader(
+    const String& content)
+{
+    Array<Sint8> out;
+    out.reserve(1024);
+
+    out << "HTTP/1.1 401 Unauthorized\r\n";
+    out << content << "\r\n";
+    out << "\r\n";
+
+//ATTN: We may need to include the following line, so that the browsers
+//      can display the error message.
+//    out << "<HTML><HEAD>\r\n";
+//    out << "<TITLE>" << "401 Unauthorized" <<  "</TITLE>\r\n";
+//    out << "</HEAD><BODY BGCOLOR=\"#99cc99\">\r\n";
+//    out << "<H2>TEST" << "401 Unauthorized" << "</H2>\r\n";
+//    out << "<HR>\r\n";
+//    out << "</BODY></HTML>\r\n";
+
+    return out;
 }
 
 PEGASUS_NAMESPACE_END

@@ -25,6 +25,8 @@
 //
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
+//              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
@@ -39,7 +41,10 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 CIMExportRequestEncoder::CIMExportRequestEncoder(
-    MessageQueue* outputQueue) : _outputQueue(outputQueue)
+    MessageQueue* outputQueue, ClientAuthenticator* authenticator)
+    :
+    _outputQueue(outputQueue),
+    _authenticator(authenticator)
 {
     String tmpHostName = System::getHostName();
     _hostName = tmpHostName.allocateCString();
@@ -57,6 +62,8 @@ void CIMExportRequestEncoder::handleEnqueue()
     if (!message)
 	return;
 
+    _authenticator->setRequestMessage(message);
+
     switch (message->getType())
     {
 	case CIM_EXPORT_INDICATION_REQUEST_MESSAGE:
@@ -64,7 +71,13 @@ void CIMExportRequestEncoder::handleEnqueue()
 	    break;
     }
 
-    delete message;
+    //ATTN: Do not delete the message here.
+    //
+    // ClientAuthenticator needs this message for resending the request on
+    // authentication challenge from the server. The message is deleted in
+    // the decoder after receiving the valid response from thr server.
+    //
+    //delete message;
 }
 
 const char* CIMExportRequestEncoder::getQueueName() const
@@ -84,6 +97,7 @@ void CIMExportRequestEncoder::_encodeExportIndicationRequest(
 	message->url.allocateCString(), 
 	"ExportIndication", 
 	message->messageId, 
+	_authenticator->buildRequestAuthHeader(), 
 	params);
 
     _outputQueue->enqueue(new HTTPMessage(buffer));

@@ -322,6 +322,13 @@ repository implementation.
     functionality is yet to be implemented. Added the function 
     String getPassword(char* prompt) to the System.h and cpp files.
 
+46. (Nag Boranna - HP) 20 Nov 2001 Implemented Authentication code on
+    the server to challenge the unauthorized requests, authenticate
+    the challenge responses, and verify the subsequent authorized requests.
+    Implemented authentication mechanism on the Client api to send
+    responses to the challenges from the server. Current implementation
+    supports only 'local' authentication mechanism.
+
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch
               Tagged as version_1_01 on 3 August 2001 (sorry should have been

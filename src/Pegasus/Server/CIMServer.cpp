@@ -26,6 +26,7 @@
 // Modified By:
 //         Mike Day (mdday@us.ibm.com)s
 //         Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+//         Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -48,6 +49,8 @@
 #include "CIMOperationRequestDispatcher.h"
 #include "CIMOperationResponseEncoder.h"
 #include "CIMOperationRequestDecoder.h"
+#include "HTTPAuthenticatorDelegator.h"
+
 
 #define DDD(X) // X
 
@@ -101,9 +104,9 @@ CIMServer::CIMServer(
 	_cimExportRequestDispatcher,
 	_cimExportResponseEncoder->getQueueId());
 
-    HTTPDelegator* serevrQueue = new HTTPDelegator(
-    	_cimOperationRequestDecoder,
-     	_cimExportRequestDecoder);
+    HTTPAuthenticatorDelegator* serevrQueue = new HTTPAuthenticatorDelegator(
+        _cimOperationRequestDecoder,
+        _cimExportRequestDecoder);
 
     _acceptor = new HTTPAcceptor(_monitor, serevrQueue);
 }

@@ -27,6 +27,8 @@
 //
 // Modified By: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
+//              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
@@ -44,7 +46,13 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 CIMOperationResponseDecoder::CIMOperationResponseDecoder(
-    MessageQueue* outputQueue) : _outputQueue(outputQueue)
+    MessageQueue* outputQueue,
+    MessageQueue* encoderQueue,
+    ClientAuthenticator* authenticator)
+    :
+    _outputQueue(outputQueue),
+    _encoderQueue(encoderQueue),
+    _authenticator(authenticator)
 {
 
 }
@@ -52,6 +60,11 @@ CIMOperationResponseDecoder::CIMOperationResponseDecoder(
 CIMOperationResponseDecoder::~CIMOperationResponseDecoder()
 {
 
+}
+
+void  CIMOperationResponseDecoder::setEncoderQueue(MessageQueue* encoderQueue)
+{
+    _encoderQueue = encoderQueue;
 }
 
 void CIMOperationResponseDecoder::handleEnqueue()
@@ -95,6 +108,33 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     Uint32 contentLength;
 
     httpMessage->parse(startLine, headers, content, contentLength);
+
+    if (_authenticator->checkResponseHeaderForChallenge(headers))
+    {
+        //
+        // Get the original request, put that in the encoder's queue for
+        // re-sending with authentication challenge response.
+        //
+
+        Message* reqMessage = _authenticator->getRequestMessage();
+        _encoderQueue->enqueue(reqMessage);
+
+        return;
+    }
+    else
+    {
+
+        //
+        // Received a valid/error response from the server.
+        // We do not need the original request message anymore, hence delete
+        // the request message by getting the handle from the ClientAuthenticator.
+        //
+        Message* reqMessage = _authenticator->getRequestMessage();
+        if (reqMessage)
+        {
+            delete reqMessage;
+        }
+    }
 
     //
     // Search for "CIMOperation" header:
@@ -207,7 +247,7 @@ void CIMOperationResponseDecoder::_handleMethodResponse(char* content)
 		response = _decodeCreateInstanceResponse(parser, messageId);
 	    else if (EqualNoCase(iMethodResponseName,"EnumerateInstanceNames"))
 		response = _decodeEnumerateInstanceNamesResponse(
-		    parser, messageId);
+                  parser, messageId);
 	    else if (EqualNoCase(iMethodResponseName,"EnumerateInstances"))
 		response = _decodeEnumerateInstancesResponse(parser, messageId);
 	    else if (EqualNoCase(iMethodResponseName, "GetProperty"))
@@ -236,15 +276,15 @@ void CIMOperationResponseDecoder::_handleMethodResponse(char* content)
 		response = _decodeDeleteInstanceResponse(parser, messageId);
 	    else
 	    {
-		// ATTN: This message is received due to InvokeMethod 
-		// from Serevr
+    	        // ATTN: This message is received due to InvokeMethod 
+	        // from Serevr
 
-		// We better return since response is unitialized if
-		// this is reached. For now we print a message:
-
-		cout << "INFORM: " << __FILE__ << "(" << __LINE__ << "): ";
-		cout << "Unexpected case" << endl;
-		return;
+	        // We better return since response is unitialized if
+	        // this is reached. For now we print a message:
+	
+	        cout << "INFORM: " << __FILE__ << "(" << __LINE__ << "): ";
+	        cout << "Unexpected case" << endl;
+	        return;
 	    }
 	
 	    //
@@ -257,7 +297,7 @@ void CIMOperationResponseDecoder::_handleMethodResponse(char* content)
 	    iMethodResponseName))
 	{
 	    response = _decodeInvokeMethodResponse(
-		parser, messageId, iMethodResponseName);
+              parser, messageId, iMethodResponseName);
 
 	    //
 	    // Handle end tags:

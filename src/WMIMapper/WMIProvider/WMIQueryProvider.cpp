@@ -103,7 +103,7 @@ Array<CIMObject> WMIQueryProvider::execQuery(
 	CComPtr<IWbemClassObject>		pObject;
 
 	Array<CIMObject> objects;
-	String className;
+	CIMName className;
 
 	PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIQueryProvider::execQuery()");
 
@@ -130,8 +130,21 @@ Array<CIMObject> WMIQueryProvider::execQuery(
 	hr = pObjEnum->Next(WBEM_INFINITE, 1, &pObject, &dwReturned);
 	
 	if (SUCCEEDED(hr) && (1 == dwReturned))
-	{
-		bInst = _collector->isInstance(pObject);
+	{	
+		bInst = _collector->isInstance(pObject);	
+
+        CComVariant mVar;
+        CComBSTR bs;
+        CMyString mstr;  
+	    
+        HRESULT hRes = pObject->Get(L"__CLASS", 0, &mVar, 0, 0);
+        if (SUCCEEDED(hRes)) {
+           bs = mVar.bstrVal;
+           mstr = bs;
+           className = CIMName((LPCTSTR)mstr);
+        }
+        mVar.Clear();
+
 	}
 
 	

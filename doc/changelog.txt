@@ -273,6 +273,9 @@ repository implementation.
     Added encoding and decoding of PropertyList parameters on all
     relevant intrinsic methods.
 
+39. (Markus Mueller - IBM) 09 Nov 2001 Added Associator calls to CIMBase
+    ProviderFacade.cpp; fixed Provider unloading in CIMProviderManager.cpp
+
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch
               Tagged as version_1_01 on 3 August 2001 (sorry should have been

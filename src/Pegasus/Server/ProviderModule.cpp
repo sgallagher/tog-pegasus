@@ -92,7 +92,9 @@ void ProviderModule::load(void)
 
     if(_library == 0)
     {
-        throw ProviderFailure(fileName, _className, "cannot load library.");
+        String errorString = "Cannot load library, error: " +
+             System::dynamicLoadError();
+        throw ProviderFailure(fileName, _className, errorString);
     }
         
     // CIMBaseProvider support

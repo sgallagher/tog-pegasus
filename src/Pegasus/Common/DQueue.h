@@ -25,144 +25,12 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-
 #ifndef Pegasus_DQueue_h
 #define Pegasus_DQueue_h
 
 #include <Pegasus/Common/IPC.h>
 
 PEGASUS_NAMESPACE_BEGIN
-
-
-template<class L> class PEGASUS_EXPORT unlocked_dq : virtual public internal_dq
-{
-public:
-      typedef internal_dq  Base;
-      
-      unlocked_dq(void) : Base(false) { }
-      unlocked_dq(Boolean head) : Base(head) { }
-      
-      virtual ~unlocked_dq() {  }
-
-      inline virtual void insert_first(L *element) 
-      {
-	 Base::insert_first(static_cast<void *>(element));
-      }
-
-      inline virtual void insert_last(L *element) 
-      {
-	 Base::insert_last(static_cast<void *>(element));
-      }
-      
-      inline virtual void empty_list( void ) 
-      {
-	 Base::empty_list();
-      }
-
-      inline virtual L *remove_first ( void ) 
-      { 
-	 return static_cast<L *>(Base::remove_first());
-      }
-
-      inline virtual L *remove_last ( void ) 
-      { 
-	 return static_cast<L *>(Base::remove_last());
-      }
-      
-      inline virtual L *remove_no_lock(void *key) 
-      {
-	 L *ret = static_cast<L *>(Base::next(0));
-	 while(ret != 0)
-	 {
-	    if(ret->operator==((L *)key))
-	       return static_cast<L *>(Base::remove(static_cast<void *>(ret)));
-	    ret = static_cast<L *>(Base::next(static_cast<void *>(ret)));
-	 }
-	 return 0;
-      }
-
-      inline virtual L *remove(void *key) 
-      {
-	 L *ret = 0;
-	 if( count() > 0 ) 
-	 {
-	    ret = unlocked_dq<L>::remove_no_lock(key);
-	 }
-	 return(ret);
-      }
-      
-      
-      
-      inline virtual L *reference(void *key) 
-      {
-	 if(Base::count() > 0 ) 
-	 {
-	    L *ret = static_cast<L *>(Base::next(0));
-	    while(ret != 0)
-	    {
-	       if(ret->operator==((L *)key))
-		  return ret;
-	       ret = static_cast<L *>(Base::next(static_cast<void *>(ret)));
-	    }
-	 }
-	 return(0);
-      }
-
-      inline virtual L *reference(L *key)
-      {
-	 if(Base::count() > 0 ) 
-	 {
-	    L *ret = static_cast<L *>(Base::next(0));
-	    while(ret != 0)
-	    {
-	       if(ret->operator==((L *)key))
-		  return ret;
-	       ret = static_cast<L *>(Base::next(static_cast<void *>(ret)));
-	    }
-	 }
-	 return(0);
-      }
-
-      inline virtual L *remove(L *key)
-      {
-	 L *ret = unlocked_dq::reference(key);
-	 if(ret != 0)
-	    ret =  static_cast<L *>(Base::remove(static_cast<void *>(ret)));
-	 return ret;
-      }
-
-      inline virtual L *next( void * ref) 
-      {
-	 return static_cast<L *>(Base::next( ref));
-      }
-      
-      inline virtual L *prev( void *ref) 
-      {
-	 return  static_cast<L *>(Base::prev(ref));
-      }
-
-      virtual Boolean exists(void *key) 
-      {
-	 Boolean ret = false;
-	 if(Base::count() > 0)
-	 {
-	    L *found = static_cast<L *>(Base::next(0));
-	    while(found != 0)
-	    {
-	       if(found->operator==((L *)key) == true)
-	       {
-		  ret = true;
-		  break;
-	       }
-	       found = static_cast<L *>(Base::next(static_cast<void *>(found)));
-	    }
-	 }
-	 return(ret);
-      }
-      
-      inline virtual Uint32 count(void) { return Base::count() ; }
-};
-
 
 template<class L> class PEGASUS_EXPORT DQueue : virtual public unlocked_dq<L>
 {
@@ -308,7 +176,7 @@ template<class L> class PEGASUS_EXPORT DQueue : virtual public unlocked_dq<L>
 
 template<class L> class PEGASUS_EXPORT AsyncDQueue: virtual public internal_dq
 {
-   private:
+   private: // asyncdqueue
 
       Mutex *_cond;
       Condition *_slot;

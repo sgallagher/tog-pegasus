@@ -29,100 +29,9 @@
 #ifndef IPC_UNIX_include
 #define IPC_UNIX_include
 
-// there is a bug in the headers on at least one Red Hat 7.1 release
-// that undefines some important environment variables for multi-threading
-
-/* POSIX spinlock data type.  */
-#ifndef pthread_spinlock_t
-typedef volatile int pthread_spinlock_t;
-#endif
-
-/* POSIX barrier. */
-#ifndef pthread_barrier_t
-typedef struct {
-  struct _pthread_fastlock __ba_lock; 
-  int __ba_required; 
-  int __ba_present;
-  _pthread_descr __ba_waiting;
-} pthread_barrier_t;
-#endif
-
-/* barrier attribute */
-#ifndef pthread_barrierattr_t
-typedef struct {
-  int __pshared;
-} pthread_barrierattr_t;
-#endif 
-
-#include <pthread.h>
-
-#ifndef pthread_yield
-extern int pthread_yield(void)
-   __THROW;
-#endif
-
-#ifndef pthread_spin_init
-extern int pthread_spin_init (pthread_spinlock_t *__lock, int __pshared)
-     __THROW;
-#endif
-
-#ifndef pthread_spin_destroy
-extern int pthread_spin_destroy (pthread_spinlock_t *__lock) 
-   __THROW;
-#endif
-
-#ifndef pthread_spin_lock
-extern int pthread_spin_lock (pthread_spinlock_t *__lock) 
-   __THROW;
-#endif
-
-#ifndef pthread_spin_trylock
-extern int pthread_spin_trylock (pthread_spinlock_t *__lock)
-   __THROW;
-#endif
-
-#ifndef pthread_spin_unlock
-extern int pthread_spin_unlock (pthread_spinlock_t *__lock) 
-   __THROW;
-#endif
-
-#ifndef pthread_mutexattr_settype
-extern int pthread_mutexattr_settype (pthread_mutexattr_t *__attr, int __kind)
-     __THROW;
-#endif
-
-#ifndef pthread_mutexattr_gettype
-extern int pthread_mutexattr_gettype (__const pthread_mutexattr_t *__restrict
-				      __attr, int *__restrict __kind) 
-   __THROW;
-#endif
-
-#ifndef _pthread_cleanup_push_defer
-extern void _pthread_cleanup_push_defer (struct _pthread_cleanup_buffer *__buffer,
-					 void (*__routine) (void *),
-					 void *__arg) __THROW;
-#endif 
-
-#ifndef _pthread_cleanup_pop_restore
-extern void _pthread_cleanup_pop_restore (struct _pthread_cleanup_buffer *__buffer,
-					  int __execute) __THROW;
-#endif
-
-
-#ifndef pthread_cleanup_push_defer_np
-# define pthread_cleanup_push_defer_np(routine,arg) \
-  { struct _pthread_cleanup_buffer _buffer;				      \
-    _pthread_cleanup_push_defer (&_buffer, (routine), (arg));
-#endif
-
-
-#ifndef pthread_cleanup_pop_restore_np
-# define pthread_cleanup_pop_restore_np(execute) \
-  _pthread_cleanup_pop_restore (&_buffer, (execute)); }
-#endif
-
 #include <sched.h>
 #include <semaphore.h>
+#include <pthread.h>
 #include <signal.h>
 #include <errno.h>
 #include <sys/time.h>
@@ -133,6 +42,8 @@ extern void _pthread_cleanup_pop_restore (struct _pthread_cleanup_buffer *__buff
 #if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
 #include <asm/atomic.h>
 #endif
+
+PEGASUS_NAMESPACE_BEGIN
 
 typedef pthread_spinlock_t PEGASUS_CRIT_TYPE;
 typedef sem_t PEGASUS_SEMAPHORE_TYPE;
@@ -258,7 +169,7 @@ typedef atomic_t PEGASUS_ATOMIC_TYPE ;
 
 //#endif // linux platform read/write type
 
-PEGASUS_NAMESPACE_BEGIN
+
 
 inline void pegasus_yield(void)
 {

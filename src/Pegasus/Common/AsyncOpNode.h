@@ -30,9 +30,9 @@
 #ifndef Pegasus_AsyncOpNode_h
 #define Pegasus_AsyncOpNode_h
 
-#include <Pegasus/Common/IPC.h>
-#include <Pegasus/Common/DQueue.h>
+
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/DQueue.h>
 #include <Pegasus/Common/Message.h>
 #include <Pegasus/Common/ResponseHandler.h>
 #include <Pegasus/Provider2/CIMBaseProviderHandle.h>

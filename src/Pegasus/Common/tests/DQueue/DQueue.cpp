@@ -27,7 +27,6 @@
 
 
 
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/DQueue.h>
 #include <Pegasus/Common/Thread.h>
 #include <sys/types.h>

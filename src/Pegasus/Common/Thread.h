@@ -29,7 +29,6 @@
 
 #ifndef Pegasus_Thread_h
 #define Pegasus_Thread_h
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/DQueue.h>

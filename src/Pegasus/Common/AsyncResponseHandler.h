@@ -30,11 +30,9 @@
 #ifndef Pegasus_AsyncResponse_h
 #define Pegasus_AsyncResponse_h
 
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/Exception.h>
-#include <Pegasus/Common/DQueue.h>
 #include <Pegasus/Common/ResponseHandler.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/AsyncOpNode.h>

@@ -29,12 +29,9 @@
 #ifndef Pegasus_OperationContext_h
 #define Pegasus_OperationContext_h
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/IPC.h>
-#include <Pegasus/Common/DQueue.h>
-
+#include <Pegasus/Common/internal_dq.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Provider/ProviderException.h>
-#include <sys/types.h>
 #include <stdio.h>
 
 PEGASUS_NAMESPACE_BEGIN

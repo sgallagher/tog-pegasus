@@ -2,8 +2,9 @@ ROOT = ../../../..
 
 include $(ROOT)/mak/config.mak
 
+#   Inst \
+
 DIRS = \
-#    Inst \
     Repository \
     Repository2 \
     NameSpace \

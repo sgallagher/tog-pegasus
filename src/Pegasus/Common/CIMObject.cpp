@@ -53,7 +53,10 @@ CIMObject& CIMObject::operator=(const CIMClass& x)
 {
     if (x._rep != _rep)
     {
-	Dec(_rep);
+        if (_rep)
+        {
+            Dec(_rep);
+        }
 	Inc(_rep = x._rep);
     }
     return *this;
@@ -63,7 +66,10 @@ CIMObject& CIMObject::operator=(const CIMInstance& x)
 {
     if (x._rep != _rep)
     {
-	Dec(_rep);
+        if (_rep)
+        {
+            Dec(_rep);
+        }
 	Inc(_rep = x._rep);
     }
     return *this;
@@ -106,7 +112,10 @@ CIMConstObject& CIMConstObject::operator=(const CIMClass& x)
 {
     if (x._rep != _rep)
     {
-	Dec(_rep);
+        if (_rep)
+        {
+            Dec(_rep);
+        }
 	Inc(_rep = x._rep);
     }
     return *this;
@@ -116,7 +125,10 @@ CIMConstObject& CIMConstObject::operator=(const CIMInstance& x)
 {
     if (x._rep != _rep)
     {
-	Dec(_rep);
+        if (_rep)
+        {
+            Dec(_rep);
+        }
 	Inc(_rep = x._rep);
     }
     return *this;
@@ -126,7 +138,10 @@ CIMConstObject& CIMConstObject::operator=(const CIMConstClass& x)
 {
     if (x._rep != _rep)
     {
-	Dec(_rep);
+        if (_rep)
+        {
+            Dec(_rep);
+        }
 	Inc(_rep = x._rep);
     }
     return *this;
@@ -136,7 +151,10 @@ CIMConstObject& CIMConstObject::operator=(const CIMConstInstance& x)
 {
     if (x._rep != _rep)
     {
-	Dec(_rep);
+        if (_rep)
+        {
+            Dec(_rep);
+        }
 	Inc(_rep = x._rep);
     }
     return *this;

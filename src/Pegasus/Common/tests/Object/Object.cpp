@@ -54,11 +54,10 @@ void test01()
     CIMObject oclass3(oclass2);
     CIMObject oclass4 = oclass3;
 
-     CIMClass cimClass2 = cimClass1;
-
-//      cimClass2 = cimClass1; 
-//      cimClass2 = CIMClass(oclass1);
-//      CIMClass cimClass3 = CIMClass(oclass1);
+    CIMClass cimClass2 = cimClass1;
+    cimClass2 = cimClass1; 
+    cimClass2 = CIMClass(oclass1);
+    CIMClass cimClass3 = CIMClass(oclass1);
 
     assert(oclass1.getClassName() == "MyClass");
     assert(oclass1.getPath() == CIMReference("//localhost/root/cimv2:MyClass"));

@@ -85,7 +85,10 @@ public:
     {
 	if (x._rep != _rep)
 	{
-	    Dec(_rep);
+            if (_rep)
+            {
+                Dec(_rep);
+            }
 	    Inc(_rep = x._rep);
 	}
 	return *this;
@@ -103,7 +106,10 @@ public:
     */
     ~CIMObject()
     {
-	Dec(_rep);
+        if (_rep)
+        {
+            Dec(_rep);
+        }
     }
 
     /**	Accessor for ClassName component of the object.
@@ -447,7 +453,10 @@ public:
     {
 	if (x._rep != _rep)
 	{
-	    Dec(_rep);
+            if (_rep)
+            {
+                Dec(_rep);
+            }
 	    Inc(_rep = x._rep);
 	}
 	return *this;
@@ -457,7 +466,10 @@ public:
     {
 	if (x._rep != _rep)
 	{
-	    Dec(_rep);
+            if (_rep)
+            {
+                Dec(_rep);
+            }
 	    Inc(_rep = x._rep);
 	}
 	return *this;
@@ -473,7 +485,10 @@ public:
 
     ~CIMConstObject()
     {
-	Dec(_rep);
+        if (_rep)
+        {
+            Dec(_rep);
+        }
     }
 
     const String& getClassName() const

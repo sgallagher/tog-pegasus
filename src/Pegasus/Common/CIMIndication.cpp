@@ -26,21 +26,16 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_CIMIndication_h
-#define Pegasus_CIMIndication_h
-
-#include <Pegasus/Common/Config.h>
+#include "CIMIndication.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_COMMON_LINKAGE CIMIndication
+CIMIndication::CIMIndication(void)
 {
-public:
-   CIMIndication(void);
-   virtual ~CIMIndication(void);
+}
 
-};
+CIMIndication::~CIMIndication(void)
+{
+}
 
 PEGASUS_NAMESPACE_END
-
-#endif

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CIMRepository.cpp,v $
+// Revision 1.7  2001/03/11 21:52:28  karl
+// Stub delete namespace
+//
 // Revision 1.6  2001/03/05 19:54:50  mike
 // Fixed earlier boo boo (renamed CimException to CIMException).
 //
@@ -1092,6 +1095,12 @@ Array<String> CIMRepository::enumerateNameSpaces() const
     }
 
     return result;
+}
+
+void CIMRepository::deleteNameSpace(const String& nameSpace)
+{
+    // ATTN: Temp code to allow function to be creates
+    throw NoSuchDirectory(nameSpace);
 }
 
 // Recall flavor defaults: TOSUBCLASS | OVERRIDABLE

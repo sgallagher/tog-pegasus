@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CIMRepository.h,v $
+// Revision 1.4  2001/03/11 21:52:28  karl
+// Stub delete namespace
+//
 // Revision 1.3  2001/03/05 19:54:50  mike
 // Fixed earlier boo boo (renamed CimException to CIMException).
 //
@@ -134,6 +137,7 @@ public:
 	const String& nameSpace,
 	CIMInstance& newInstance);
 
+    /// modifyClass
     virtual void modifyClass(
 	const String& nameSpace,
 	CIMClass& modifiedClass);
@@ -248,7 +252,7 @@ public:
     virtual Array<CIMQualifierDecl> enumerateQualifiers(
 	const String& nameSpace);
 
-    /// Virtual value
+    /// invokeMethod
     virtual CIMValue invokeMethod(
 	const String& nameSpace,
 	const CIMReference& instanceName,
@@ -258,8 +262,9 @@ public:
 
     /** CIMMethod createNameSpace - Creates a new namespace in the repository
 	@param String with the name of the namespace
-	@exception - ???
-	ATTN: What happens if the namespace already exists.
+	@exception - Throws "Already_Exists if the Namespace exits.
+	Throws "CannotCreateDirectory" if there are problems in the
+	creation.
     */
     void createNameSpace(const String& nameSpace);
 
@@ -268,6 +273,13 @@ public:
 	@return Array of strings with the namespaces
     */
     virtual Array<String> enumerateNameSpaces() const;
+
+    /** CIMMethod deleteNameSpace - Deletes a namespace in the repository
+	@param String with the name of the namespace
+	@exception - Throws NoSuchDirectory if 
+    */
+    void deleteNameSpace(const String& nameSpace);
+
 
     /** CIMMethod createMetaQualifiers - ATTN:
 	This method must be invoked to create the appropriate meta-qualifiers

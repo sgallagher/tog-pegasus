@@ -23,8 +23,8 @@
 // Author:
 //
 // $Log: CIMClient.cpp,v $
-// Revision 1.7  2001/04/13 21:52:44  karl
-// add get and set property
+// Revision 1.8  2001/04/13 22:35:51  mike
+// Fixed conflict
 //
 // Revision 1.6  2001/04/12 07:25:20  mike
 // Replaced ACE with new Channel implementation.
@@ -229,29 +229,6 @@ struct DeleteClassResult
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// GetPropertyResult
-//
-////////////////////////////////////////////////////////////////////////////////
-// ATTN: The following is not correct or complete yet
-struct GetPropertyResult
-{
-    CIMException::Code code;
-    CIMValue cimValue;
-};
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// SetPropertyResult
-//
-////////////////////////////////////////////////////////////////////////////////
-// ATTN: The following is not correct or complete yet.
-struct SetPropertyResult
-{
-    CIMException::Code code;
-};
-
-////////////////////////////////////////////////////////////////////////////////
-//
 // ClientHandler
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -302,11 +279,6 @@ public:
 
     int handleDeleteClassResponse(XmlParser& parser, Uint32 messageId);
 
-    int handleGetPropertyResponse(XmlParser& parser, Uint32 messageId);
-
-    int handleSetPropertyResponse(XmlParser& parser, Uint32 messageId);
-
-
 
     Boolean waitForResponse(Uint32 timeOutMilliseconds);
 
@@ -327,8 +299,6 @@ public:
 	CreateClassResult* _createClassResult;
 	ModifyClassResult* _modifyClassResult;
 	DeleteClassResult* _deleteClassResult;
-	GetPropertyResult* _getPropertyResult;
-	SetPropertyResult* _setPropertyResult; 
     };
 
 private:
@@ -478,11 +448,6 @@ int ClientHandler::handleMethodResponse()
 	handleModifyClassResponse(parser, messageId);
     else if (strcmp(iMethodResponseName, "DeleteClass") == 0)
 	handleDeleteClassResponse(parser, messageId);
-    else if (strcmp(iMethodResponseName, "GetProperty") == 0)
-	handleGetPropertyResponse(parser, messageId);
-    else if (strcmp(iMethodResponseName, "SetProperty") == 0)
-	handleSetPropertyResponse(parser, messageId);
-
 
     //BOOKMARK
 
@@ -1085,125 +1050,7 @@ int ClientHandler::handleDeleteClassResponse(
     }
 
     return 0;
-}// ATTN: NEW NEW NEW
-//------------------------------------------------------------------------------
-//
-// ClientHandler::handleGetPropertyResponse()
-//
-//     Expect (ERROR|IRETURNVALUE).!ELEMENT VALUE (#PCDATA)>
-//
-//	PropertyValue:
-//	<!ELEMENT VALUE>
-//
-//	<!ELEMENT VALUE.ARRAY (VALUE*)>
-//
-//	<!ELEMENT VALUE.REFERENCE (CLASSPATH|LOCALCLASSPATH|CLASSNAME|
-//                           INSTANCEPATH|LOCALINSTANCEPATH|INSTANCENAME)>
-//
-//   If the value is NULL then no element is returned.
-//
-//   <CIM CIMVERSION="2.0" DTDVERSION="2.0">
-//   <MESSAGE ID="87872" PROTOCOLVERSION="1.0">
-//    <SIMPLERSP>
-//     <IMETHODRESPONSE NAME="GetProperty">
-//      <IRETURNVALUE>
-//       <VALUE>6752332</VALUE>
-//      </IRETURNVALUE>
-//     </IMETHODRESPONSE>
-//    </SIMPLERSP>
-//   </MESSAGE>
-// </CIM>
-//----------------------------------------------------------------------------
-
-// ATTN: the following is not correct or complete.
-int ClientHandler::handleGetPropertyResponse(
-    XmlParser& parser, 
-    Uint32 messageId) 
-{
-    XmlEntry entry;
-    CIMException::Code code;
-    const char* description = 0;
-
-    if (XmlReader::getErrorElement(parser, code, description))
-    {
-	_getPropertyResult = new GetPropertyResult;
-	_getPropertyResult->code = code;
-	_blocked = false;
-	return 0;
-    }
-    else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
-    {
-	
-	// NOTE: We have not accounted for the reference here.
-	
-	CIMValue cimValue;
-	// Major Problem since we do not know type.
-	// This function can return VALUE, VALUE.ARRAY or VALUE.REFERENCE
-	// We need to handle all three.
-	// Handle them in getPropertyValuein XML Reader.
-	//CIMType type = CIMType::STRING;
-	//XmlReader::getValueElement(parser, type, cimValue);
-	// WHere is the boolean return on this???
-	XmlReader::getPropertyValue(parser,cimValue);
-
-	
-	XmlReader::testEndTag(parser, "IRETURNVALUE");
-
-	_getPropertyResult = new GetPropertyResult;
-	_getPropertyResult->code = CIMException::SUCCESS;
-	_blocked = false;
-	return 0;
-    }
-    else
-    {
-	throw XmlValidationError(parser.getLine(),
-	    "expected ERROR or IRETURNVALUE element");
-    }
-
-    return 0;
 }
-//------------------------------------------------------------------------------
-//
-// ClientHandler::handleSetPropertyResponse()
-//
-//     Expect (ERROR|IRETURNVALUE).
-//
-
-//------------------------------------------------------------------------------
-// ATTN: The following is not complete or correct
-int ClientHandler::handleSetPropertyResponse(
-    XmlParser& parser, 
-    Uint32 messageId) 
-{
-    XmlEntry entry;
-    CIMException::Code code;
-    const char* description = 0;
-
-    if (XmlReader::getErrorElement(parser, code, description))
-    {
-	_setPropertyResult = new SetPropertyResult;
-	_setPropertyResult->code = code;
-	_blocked = false;
-	return 0;
-    }
-    else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
-    {
-	XmlReader::testEndTag(parser, "IRETURNVALUE");
-
-	_setPropertyResult = new SetPropertyResult;
-	_setPropertyResult->code = CIMException::SUCCESS;
-	_blocked = false;
-	return 0;
-    }
-    else
-    {
-	throw XmlValidationError(parser.getLine(),
-	    "expected ERROR or IRETURNVALUE element");
-    }
-
-    return 0;
-}
-
 
 //------------------------------------------------------------------------------
 //
@@ -1246,14 +1093,7 @@ Boolean ClientHandler::waitForResponse(Uint32 timeOutMilliseconds)
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-typedef ACE_Connector<ClientHandler, ACE_SOCK_CONNECTOR> Connector;
-
-<<<<<<< CIMClient.cpp
-#if 0
-class Connector : public BaseConnector
-=======
 class ClientHandlerFactory : public ChannelHandlerFactory
->>>>>>> 1.6
 {
 public:
 
@@ -1784,27 +1624,7 @@ Array<CIMReference> CIMClient::referenceNames(
     return Array<CIMReference>();
 }
 
-/* ---------------------------------------------
-<?xml version="1.0" encoding="utf-8" ?>
- <CIM CIMVERSION="2.0" DTDVERSION="2.0">
-  <MESSAGE ID="87872" PROTOCOLVERSION="1.0">
-   <SIMPLEREQ>
-    <IMETHODCALL NAME="GetProperty">
-     <LOCALNAMESPACEPATH>
-      <NAMESPACE NAME="root"/>
-      <NAMESPACE NAME="myNamespace"/>
-     </LOCALNAMESPACEPATH>
-     <IPARAMVALUE NAME="InstanceName">
-      <INSTANCENAME CLASSNAME="MyDisk">
-       <KEYBINDING NAME="DeviceID"><KEYVALUE>C:</KEYVALUE></KEYBINDING>
-      </INSTANCENAME>
-     </IPARAMVALUE>
-     <IPARAMVALUE NAME="PropertyName"><VALUE>FreeSpace</VALUE></IPARAMVALUE>
-    </IMETHODCALL>
-   </SIMPLEREQ>
-  </MESSAGE>
- </CIM>
-------------------------------------------------*/
+
 CIMValue CIMClient::getProperty(
     const String& nameSpace,
     const CIMReference& instanceName,
@@ -1812,39 +1632,6 @@ CIMValue CIMClient::getProperty(
 {
     throw CIMException(CIMException::NOT_SUPPORTED);
     return CIMValue();
-    // taken from get instance
-    Uint32 messageId = XmlWriter::getNextMessageId();
-
-    Array<Sint8> parameters;
-
-    XmlWriter::appendInstanceNameParameter(
-	parameters, "InstanceName", instanceName);
-
-    Array<Sint8> message = XmlWriter::formatSimpleReqMessage(
-	((ClientHandler*)_handler)->getHostName(),
-	nameSpace, "GetInstance", parameters);
-
-    // -------- Append keybinding parameter here
-
-    ClientHandler* handler = (ClientHandler*)_handler;
-    handler->sendMessage(message);
-
-    if (!handler->waitForResponse(_timeOutMilliseconds))
-	throw TimedOut();
-
-    // Following changes to return value rather than instance
-    GetInstanceResult* result = handler->_getInstanceResult;
-    CIMInstance cimInstance = result->cimInstance;
-    CIMException::Code code = result->code;
-    delete result;
-    handler->_getInstanceResult = 0;
-
-    if (code != CIMException::SUCCESS)
-	throw CIMException(code);
-
-    return cimInstance;
-
-
 }
 
 

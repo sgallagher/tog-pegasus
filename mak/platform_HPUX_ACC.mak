@@ -8,6 +8,8 @@ else
    CXX = aCC
 endif
 
+CC = $(CXX) -Ae
+
 COMPILER = acc
 
 PLATFORM_VERSION_SUPPORTED = yes

@@ -239,7 +239,6 @@ void CIMReference::set(
    setNameSpace(nameSpace);
    setClassName(className);
    setKeyBindings(keyBindings);
-   _BubbleSort(_keyBindings);
 }
 
 void CIMReference::set(const String& objectName)

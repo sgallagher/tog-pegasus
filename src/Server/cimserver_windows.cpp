@@ -330,7 +330,7 @@ Uint32 cimserver_install_nt_service(String &pegasusHome )
 {
   SC_HANDLE service_handle, sc_manager;
   Uint32 ccode = 0;
-  pegasusHome += "\\bin\\cimserver.exe";
+  pegasusHome.append("\\bin\\cimserver.exe");
   LPCSTR path_name = pegasusHome.allocateCString() ;
   if(NULL != (sc_manager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS))) 
     {

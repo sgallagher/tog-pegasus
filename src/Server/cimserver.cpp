@@ -710,9 +710,9 @@ int main(int argc, char** argv)
         String serviceURL;
 	serviceURL.assign("service:cim.pegasus://");
 	String host_name = slp_get_host_name();
-	serviceURL += host_name;
-	serviceURL += ":";
-	serviceURL += address;
+	serviceURL.append(host_name);
+	serviceURL.append(":");
+	serviceURL.append(address);
 	char *url = serviceURL.allocateCString();
 	//	free(host_name);
 #endif

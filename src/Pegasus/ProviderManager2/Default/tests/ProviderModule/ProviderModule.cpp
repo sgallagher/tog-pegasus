@@ -37,9 +37,11 @@ PEGASUS_USING_PEGASUS;
 
 PEGASUS_USING_STD;
 
-void main(void)
+int main(int argc, char** argv)
 {
-	try
+    const char * verbose = getenv("PEGASUS_TEST_VERBOSE");
+	
+    try
 	{
 		LocalProviderManager providerManager;
 
@@ -55,4 +57,6 @@ void main(void)
 	{
 		cout << "failed" << endl;
 	}
+
+    return(0);
 }

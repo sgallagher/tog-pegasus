@@ -37,7 +37,11 @@ PEGASUS_USING_PEGASUS;
 
 PEGASUS_USING_STD;
 
-void main(void)
+int main(int argc, char** argv)
 {
+    const char * verbose = getenv("PEGASUS_TEST_VERBOSE");
+
     cout << "+++++passed all tests" << endl;
+
+    return(0);
 }

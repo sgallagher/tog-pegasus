@@ -120,6 +120,18 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueue
 	 return *_ownerMessageQueue;
       }
       
+      // ATTN-RK-P1-20020521: This is a major hack, required to get the CIM
+      // server and tests to run successfully.  The problem is that the
+      // HTTPAcceptor is deleting an HTTPConnection before all the threads
+      // that are queued up to run in that HTTPConnection instance have had
+      // a chance to finish.  This hack makes the HTTPAcceptor spin until
+      // the HTTPConnection event threads have completed, before deleting
+      // the HTTPConnection.  Note that this fix is not perfect, because
+      // there is a window between when the HTTPConnection queue lookup is
+      // done and when the refcount is incremented.  If the HTTPAcceptor
+      // deletes the HTTPConnection in that window, the soon-to-be-launched
+      // HTTPConnection event thread will fail (hard).
+      AtomicInt refcount;
 
    private:
 

@@ -97,20 +97,22 @@ Monitor::Monitor()
 
 Monitor::~Monitor()
 {
-   printf("deregistering with module controller\n");
+    Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+                  "deregistering with module controller");
 
-   if(_module_handle != NULL)
+    if(_module_handle != NULL)
     {
        _controller->deregister_module(PEGASUS_MODULENAME_MONITOR);
        _controller = 0;
        delete _module_handle;
     }
-   printf("deleting rep\n");
+    Tracer::trace(TRC_HTTP, Tracer::LEVEL4, "deleting rep");
    
     delete _rep;
-    printf("uninitializing interface \n");
+    Tracer::trace(TRC_HTTP, Tracer::LEVEL4, "uninitializing interface");
     Socket::uninitializeInterface();
-    printf("returning from monitor destructor\n");
+    Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+                  "returning from monitor destructor");
 }
 
 
@@ -224,7 +226,7 @@ Boolean Monitor::run(Uint32 milliseconds)
 		 Message* message= new CloseConnectionMessage(static_cast<HTTPConnection *>(q)->getSocket());
 		 message->dest = o.getQueueId();
 		 o.enqueue(message);
-		 i = 0;
+		 i--;
 		 n = _entries.size();
 		 continue;
 	      }
@@ -271,8 +273,11 @@ Boolean Monitor::run(Uint32 milliseconds)
 	    
 	    if(_entries[i]._type == Monitor::CONNECTION)
 	    {
+               static_cast<HTTPConnection *>(queue)->refcount++;
 	       if( false == static_cast<HTTPConnection *>(queue)->is_dying())
 		  _controller->async_thread_exec(*_module_handle, _dispatch, (void *)queue);
+               else
+                  static_cast<HTTPConnection *>(queue)->refcount--;
 	    }
 	    else 
 	    {
@@ -317,13 +322,11 @@ Boolean Monitor::solicitSocketMessages(
 	FD_SET(socket, &_rep->ex_fd_set);
 
     // Add the entry to the list:
-    
     _MonitorEntry entry(socket, queueId, type);
-    entry.dying = 0;
-    
     _entries.append(entry);
     
     // Success!
+    // ATTN-RK-P2-20020521: Why do we need this?
     ModuleController* controlService =
         new ModuleController(PEGASUS_QUEUENAME_CONTROLSERVICE);
     PEG_METHOD_EXIT();
@@ -345,6 +348,7 @@ Boolean Monitor::unsolicitSocketMessages(Sint32 socket)
 	    FD_CLR(socket, &_rep->wr_fd_set);
 	    FD_CLR(socket, &_rep->ex_fd_set);
 	    _entries.remove(i);
+            // ATTN-RK-P3-20020521: Need "Socket::close(socket);" here?
             PEG_METHOD_EXIT();
 	    return true;
 	}
@@ -369,10 +373,14 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL Monitor::_dispatch(void *parm)
 {
    HTTPConnection *dst = reinterpret_cast<HTTPConnection *>(parm);
    if( true == dst->is_dying())
+   {
+      dst->refcount--;
       return 0;
+   }
    dst->lock_connection();
    if( false == dst->is_dying())
       dst->run(1);
+   dst->refcount--;
    dst->unlock_connection();
 
    return 0;

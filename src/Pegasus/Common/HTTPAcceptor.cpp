@@ -148,7 +148,8 @@ void HTTPAcceptor::handleEnqueue(Message *message)
 	    {
 	       _monitor->unsolicitSocketMessages(socket);
 	       _rep->connections.remove(i);
-	       delete connection;
+               while (connection->refcount.value()) { }
+               delete connection;
 	       break;
 	    }
 	 }
@@ -348,6 +349,7 @@ void HTTPAcceptor::destroyConnections()
 
       // Destroy the connection (causing it to close):
 
+      while (connection->refcount.value()) { }
       delete connection;
    }
 

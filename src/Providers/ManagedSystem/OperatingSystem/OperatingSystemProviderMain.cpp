@@ -35,8 +35,6 @@
 
 #include "OperatingSystemProvider.h"
 
-PEGASUS_NAMESPACE_BEGIN
-
 #define DEBUG(X) // cout << "OS Provider" << X << endl;
 #define OPERATINGSYSTEMPROVIDERNAME "PG_OperatingSystemProvider" 
 
@@ -52,4 +50,3 @@ PEGASUS_EXPORT CIMBaseProvider* PegasusCreateProvider(const String& providerName
    return NULL;
 }
 
-PEGASUS_NAMESPACE_END

@@ -51,12 +51,12 @@ PEGASUS_USING_STD;
 Boolean OSTestClient::goodCSCreationClassName(const String &cs_ccn, 
                                               Boolean verbose)
 {
-   // This assumes the only right answer is CIM_ComputerSystem
+   // This assumes the only right answer is CIM_UnitaryComputerSystem
    // replace with approprate check for the given OS/Provider
 
    if (verbose)
-      cout<<"Checking " <<cs_ccn<< " against CIM_ComputerSystem"<<endl;
-   return (String::equalNoCase(cs_ccn, "CIM_ComputerSystem"));
+      cout<<"Checking " <<cs_ccn<< " against CIM_UnitaryComputerSystem"<<endl;
+   return (String::equalNoCase(cs_ccn, "CIM_UnitaryComputerSystem"));
 }
 
 /*
@@ -84,7 +84,7 @@ Boolean OSTestClient::goodCSName(const String &csname, Boolean verbose)
 Boolean OSTestClient::goodCreationClassName(const String &ccn, 
                                             Boolean verbose)
 {
-   // This assumes the only right answer is CIM_ComputerSystem
+   // This assumes the only right answer is CIM_OperatingSystem
    // replace with approprate check for the given OS/Provider
 
    if (verbose)

@@ -39,13 +39,11 @@
 
 PEGASUS_USING_STD;
 
-PEGASUS_NAMESPACE_BEGIN
-
 #define DEBUG(X) // cout << "OperatingSystemProvider" <<  X << endl;
 
 #define STANDARDOPERATINGSYSTEMCLASS "CIM_OperatingSystem"
 #define EXTENDEDOPERATINGSYSTEMCLASS "PG_OperatingSystem"
-#define CSCREATIONCLASSNAME "CIM_ComputerSystem"
+#define CSCREATIONCLASSNAME "CIM_UnitaryComputerSystem"
 
 OperatingSystemProvider::OperatingSystemProvider(void)
 {
@@ -456,7 +454,7 @@ OperatingSystemProvider::_fill_reference(const String &nameSpace,
     }
 
     keys.append(KeyBinding("CSCreationClassName",
- 	                   "CIM_ComputerSystem",
+ 	                   CSCREATIONCLASSNAME,
 			   KeyBinding::STRING));
     keys.append(KeyBinding("CSName", csName, KeyBinding::STRING));
     keys.append(KeyBinding("CreationClassName", STANDARDOPERATINGSYSTEMCLASS, 
@@ -478,6 +476,4 @@ void OperatingSystemProvider::invokeMethod(
     throw NotSupported("OperatingSystemProvider "
                        "does not support invokeMethod");
 }
-
-PEGASUS_NAMESPACE_END
 

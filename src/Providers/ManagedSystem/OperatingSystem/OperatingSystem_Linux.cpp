@@ -54,8 +54,6 @@
 
 PEGASUS_USING_STD;
 
-PEGASUS_NAMESPACE_BEGIN
-
 #define DEBUG(X) // Logger::put(Logger::DEBUG_LOG, "Linux OSProvider",Logger::INFORMATION, "$0", X)
 
 OperatingSystem::OperatingSystem(void)
@@ -847,6 +845,4 @@ Uint32 OperatingSystem::_shutdown()
    }
    return result;
 }
-
-PEGASUS_NAMESPACE_END
 

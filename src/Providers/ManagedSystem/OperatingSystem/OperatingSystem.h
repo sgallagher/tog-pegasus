@@ -33,8 +33,6 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMDateTime.h>
 
-PEGASUS_NAMESPACE_BEGIN
-
 class OperatingSystem
 {
    public:
@@ -89,7 +87,5 @@ class OperatingSystem
       Uint32 _reboot();
       Uint32 _shutdown();
 };
-
-PEGASUS_NAMESPACE_END
 
 #endif

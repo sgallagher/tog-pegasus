@@ -34,8 +34,6 @@
 #include <windows.h>
 
 
-PEGASUS_NAMESPACE_BEGIN
-
 OperatingSystem::OperatingSystem(void)
 {
 }
@@ -416,6 +414,4 @@ Uint32 OperatingSystem::_shutdown()
 {
    return false;
 }
-
-PEGASUS_NAMESPACE_END
 

@@ -69,8 +69,8 @@ Boolean OSTestClient::goodCSCreationClassName(const String &cs_ccn,
                                               Boolean verbose)
 {
    if (verbose)
-      cout<<"Checking " <<cs_ccn<< " against CIM_ComputerSystem"<<endl;
-   return (String::equalNoCase(cs_ccn, "CIM_ComputerSystem"));
+      cout<<"Checking " <<cs_ccn<< " against CIM_UnitaryComputerSystem"<<endl;
+   return (String::equalNoCase(cs_ccn, "CIM_UnitaryComputerSystem"));
 }
 
 /*
@@ -322,7 +322,6 @@ Boolean OSTestClient::goodLocalDateTime(const CIMDateTime &ltime,
 
    CIMDateTime currentDT = CIMDateTime::getCurrentDateTime();
    Sint64 raw_delta = CIMDateTime::getDifference(ltime, currentDT);
-printf("raw delta = %lld\n",raw_delta);
    Uint64 delta = labs(raw_delta);
    
    if (verbose) {

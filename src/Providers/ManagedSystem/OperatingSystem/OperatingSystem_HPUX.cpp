@@ -67,8 +67,6 @@ char padding[3];
 
 PEGASUS_USING_STD;
 
-PEGASUS_NAMESPACE_BEGIN
-
 OperatingSystem::OperatingSystem(void)
 {
 }
@@ -887,6 +885,4 @@ Uint32 OperatingSystem::_shutdown()
    }
    return result;
 }
-
-PEGASUS_NAMESPACE_END
 

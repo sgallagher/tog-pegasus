@@ -35,8 +35,6 @@
 #include <Pegasus/Common/OperationContext.h>
 #include <iostream>
 
-PEGASUS_NAMESPACE_BEGIN
-
 class OperatingSystemProvider: public CIMInstanceProvider,
                                public CIMMethodProvider
 {
@@ -111,7 +109,5 @@ class OperatingSystemProvider: public CIMInstanceProvider,
       CIMReference _fill_reference(const String &nameSpace, 
 			           const String &className);
 };
-
-PEGASUS_NAMESPACE_END
 
 #endif

@@ -115,7 +115,7 @@ void OSTestClient::_validateKeys(CIMReference &cimRef,
                keyBindings[j].getValue(),
                verboseTest) == false))) 
       {
-         errorExit ("CreationClassName not CIM_OperatingSystem");
+         errorExit ("CSCreationClassName not CIM_UnitaryComputerSystem");
       }
       else if ((String::equalNoCase(keyName,"CSName")) &&
                (goodCSName(keyBindings[j].getValue(),
@@ -162,7 +162,7 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
          if (goodCSCreationClassName(propertyValue,
              verboseTest) == false)
          { 
-            errorExit ("CSCreationClassName not CIM_ComputerSystem");
+            errorExit ("CSCreationClassName not CIM_UnitaryComputerSystem");
          }
       } // end if CSCreationClassName
 

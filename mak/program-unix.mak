@@ -2,7 +2,13 @@ INCLUDES = -I$(ROOT)/src $(EXTRA_INCLUDES)
 
 TMP_OBJECTS = $(foreach i,$(SOURCES),$(OBJ_DIR)/$i)
 
-OBJECTS = $(TMP_OBJECTS:.cpp=.o)
+ifeq ($(OS_TYPE),windows)
+CPP_OBJECTS = $(TMP_OBJECTS:.cpp=.obj)
+OBJECTS = $(CPP_OBJECTS:.c=.obj)
+else
+CPP_OBJECTS = $(TMP_OBJECTS:.cpp=.o)
+OBJECTS = $(CPP_OBJECTS:.c=.o)
+endif
 
 FULL_PROGRAM=$(BIN_DIR)/$(PROGRAM)$(EXE)
 

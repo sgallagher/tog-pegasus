@@ -190,7 +190,6 @@ public:
         _normalizer =
             ObjectNormalizer(
                 cimClass,
-                request->localOnly,
                 request->includeQualifiers,
                 request->includeClassOrigin);
         #endif
@@ -266,7 +265,6 @@ public:
         _normalizer =
             ObjectNormalizer(
                 cimClass,
-                request->localOnly,
                 request->includeQualifiers,
                 request->includeClassOrigin);
         #endif
@@ -329,7 +327,6 @@ public:
         _normalizer =
             ObjectNormalizer(
                 cimClass,
-                false,
                 false,
                 false);
         #endif

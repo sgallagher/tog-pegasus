@@ -172,20 +172,17 @@ static CIMProperty _processProperty(
 }
 
 ObjectNormalizer::ObjectNormalizer(void)
-    : _localOnly(false),
-    _includeQualifiers(false),
+    : _includeQualifiers(false),
     _includeClassOrigin(false)
 {
 }
 
 ObjectNormalizer::ObjectNormalizer(
     const CIMClass & cimClass,
-    const Boolean localOnly,
     const Boolean includeQualifiers,
     const Boolean includeClassOrigin)
     :
     _cimClass(cimClass),
-    _localOnly(localOnly),
     _includeQualifiers(includeQualifiers),
     _includeClassOrigin(includeClassOrigin)
 {
@@ -488,18 +485,14 @@ CIMInstance ObjectNormalizer::processInstance(const CIMInstance & cimInstance) c
         {
             CIMConstProperty referenceProperty = _cimClass.getProperty(pos);
 
-            // 4) if local only is true, only process properties defined in the class. otherwise, do all properties
-            if(!_localOnly || (_localOnly && _cimClass.getClassName().equal(referenceProperty.getClassOrigin())))
-            {
-                CIMProperty normalizedProperty =
-                    _processProperty(
-                        referenceProperty.clone(),
-                        cimProperty.clone(),
-                        _includeQualifiers,
-                        _includeClassOrigin);
+            CIMProperty normalizedProperty =
+                _processProperty(
+                    referenceProperty.clone(),
+                    cimProperty.clone(),
+                    _includeQualifiers,
+                    _includeClassOrigin);
 
-                normalizedInstance.addProperty(normalizedProperty);
-            }
+            normalizedInstance.addProperty(normalizedProperty);
         }
     }
 

@@ -154,62 +154,7 @@ void Test2(void)
     }
 
     {
-        Boolean localOnly = true;
-        Boolean includeQualifiers = false;
-        Boolean includeClassOrigin = false;
-
-        if(verbose)
-        {
-            cout << "localOnly = " << (localOnly ? "true" : "false") << endl;
-            cout << "includeQualifiers = " << (includeQualifiers ? "true" : "false") << endl;
-            cout << "includeClassOrigin = " << (includeClassOrigin ? "true" : "false") << endl;
-        }
-
-        for(Uint32 i = 0, n = cimInstanceNames.size(); i < n; i++)
-        {
-            if(verbose)
-            {
-                cout << (isValid(cimInstanceNames[i]) ? "GOOD" : "BAD") << ": " << cimInstanceNames[i].toString() << endl;
-            }
-
-            if(isValid(cimInstanceNames[i]))
-            {
-                try
-                {
-                    CIMInstance cimInstance =
-                        client.getInstance(
-                            NAMESPACE,
-                            cimInstanceNames[i],
-                            localOnly,
-                            includeQualifiers,
-                            includeClassOrigin,
-                            CIMPropertyList());
-
-                    if(verbose)
-                    {
-                        XmlWriter::printInstanceElement(cimInstance);
-                    }
-                }
-                catch(CIMException & e)
-                {
-                    if(verbose)
-                    {
-                        cout << "CIMException(" << e.getCode() << "): " << e.getMessage() << endl;
-                    }
-                }
-            }
-            else
-            {
-                if(verbose)
-                {
-                    cout << "skipping getInstance() because of bad class name (tolerated for now)." << endl << endl;
-                }
-            }
-        }
-    }
-
-    {
-        Boolean localOnly = true;
+        Boolean localOnly = false;
         Boolean includeQualifiers = true;
         Boolean includeClassOrigin = false;
 
@@ -264,7 +209,7 @@ void Test2(void)
     }
 
     {
-        Boolean localOnly = true;
+        Boolean localOnly = false;
         Boolean includeQualifiers = true;
         Boolean includeClassOrigin = true;
 
@@ -399,42 +344,7 @@ void Test3(void)
 
     {
         Boolean deepInheritance = true;
-        Boolean localOnly = true;
-        Boolean includeQualifiers = false;
-        Boolean includeClassOrigin = false;
-
-        if(verbose)
-        {
-            cout << "deepInheritance = " << (deepInheritance ? "true" : "false") << endl;
-            cout << "localOnly = " << (localOnly ? "true" : "false") << endl;
-            cout << "includeQualifiers = " << (includeQualifiers ? "true" : "false") << endl;
-            cout << "includeClassOrigin = " << (includeClassOrigin ? "true" : "false") << endl;
-        }
-
-        Array<CIMInstance> cimInstances =
-            client.enumerateInstances(
-                NAMESPACE,
-                CLASSNAME,
-                deepInheritance,
-                localOnly,
-                includeQualifiers,
-                includeClassOrigin,
-                CIMPropertyList());
-
-        for(Uint32 i = 0, n = cimInstances.size(); i < n; i++)
-        {
-            if(verbose)
-            {
-                cout << (isValid(cimInstances[i].getPath()) ? "GOOD" : "BAD") << ": " << cimInstances[i].getPath().toString() << endl;
-
-                XmlWriter::printInstanceElement(cimInstances[i]);
-            }
-        }
-    }
-
-    {
-        Boolean deepInheritance = true;
-        Boolean localOnly = true;
+        Boolean localOnly = false;
         Boolean includeQualifiers = true;
         Boolean includeClassOrigin = false;
 
@@ -469,7 +379,7 @@ void Test3(void)
 
     {
         Boolean deepInheritance = true;
-        Boolean localOnly = true;
+        Boolean localOnly = false;
         Boolean includeQualifiers = true;
         Boolean includeClassOrigin = true;
 

@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -64,7 +64,6 @@ void Test001a(void)
     ObjectNormalizer normalizer(
         cimClass,
         false,
-        false,
         false);
 
     normalizer.processClassObjectPath(CIMObjectPath());
@@ -81,7 +80,6 @@ void Test001b(void)
 
     ObjectNormalizer normalizer(
         CIMClass("CIM_ManagedElement"),
-        false,
         false,
         false);
 
@@ -145,7 +143,6 @@ void Test002a(void)
 
     ObjectNormalizer normalizer(
         cimClass,
-        localOnly,
         includeQualifiers,
         includeClassOrigin);
 
@@ -193,7 +190,6 @@ void Test002b(void)
 
     ObjectNormalizer normalizer(
         cimClass,
-        localOnly,
         includeQualifiers,
         includeClassOrigin);
 
@@ -243,7 +239,6 @@ void Test002c(void)
 
     ObjectNormalizer normalizer(
         cimClass,
-        localOnly,
         includeQualifiers,
         includeClassOrigin);
 
@@ -295,7 +290,6 @@ void Test002d(void)
 
     ObjectNormalizer normalizer(
         cimClass,
-        localOnly,
         includeQualifiers,
         includeClassOrigin);
 
@@ -351,7 +345,6 @@ void Test003a(void)
 
     ObjectNormalizer normalizer(
         cimClass,
-        localOnly,
         includeQualifiers,
         includeClassOrigin);
 
@@ -395,7 +388,6 @@ void Test003b(void)
 
     ObjectNormalizer normalizer(
         cimClass,
-        localOnly,
         includeQualifiers,
         includeClassOrigin);
 
@@ -444,7 +436,6 @@ void Test003c(void)
 
     ObjectNormalizer normalizer(
         cimClass,
-        localOnly,
         includeQualifiers,
         includeClassOrigin);
 
@@ -494,7 +485,6 @@ void Test003d(void)
 
     ObjectNormalizer normalizer(
         cimClass,
-        localOnly,
         includeQualifiers,
         includeClassOrigin);
 
@@ -544,7 +534,6 @@ void Test003e(void)
 
     ObjectNormalizer normalizer(
         cimClass,
-        localOnly,
         includeQualifiers,
         includeClassOrigin);
 
@@ -602,7 +591,6 @@ void Test004a(void)
 
     ObjectNormalizer normalizer(
         cimClass,
-        localOnly,
         includeQualifiers,
         includeClassOrigin);
 
@@ -654,7 +642,6 @@ void Test004b(void)
 
     ObjectNormalizer normalizer(
         cimClass,
-        localOnly,
         includeQualifiers,
         includeClassOrigin);
 
@@ -716,7 +703,6 @@ void Test005a(void)
 
     ObjectNormalizer normalizer(
         cimClass,
-        localOnly,
         includeQualifiers,
         includeClassOrigin);
 
@@ -767,7 +753,6 @@ void Test005b(void)
 
     ObjectNormalizer normalizer(
         cimClass,
-        localOnly,
         includeQualifiers,
         includeClassOrigin);
 
@@ -810,6 +795,9 @@ void Test005b(void)
     PRINT("*** " << _clock.getElapsed() << " milliseconds.");
 }
 
+/*
+ATTN: disabled test because localOnly is deprecated
+
 // instance with local properties only
 void Test005c(void)
 {
@@ -832,7 +820,6 @@ void Test005c(void)
 
     ObjectNormalizer normalizer(
         cimClass,
-        localOnly,
         includeQualifiers,
         includeClassOrigin);
 
@@ -874,6 +861,7 @@ void Test005c(void)
 
     PRINT("*** " << _clock.getElapsed() << " milliseconds.");
 }
+*/
 
 // include with properties containing class origin
 void Test005d(void)
@@ -897,7 +885,6 @@ void Test005d(void)
 
     ObjectNormalizer normalizer(
         cimClass,
-        localOnly,
         includeQualifiers,
         includeClassOrigin);
 
@@ -964,7 +951,6 @@ void Test100a(void)
 
     ObjectNormalizer normalizer(
         cimClass,
-        localOnly,
         includeQualifiers,
         includeClassOrigin);
 
@@ -1017,7 +1003,6 @@ void Test101a(void)
 
     ObjectNormalizer normalizer(
         cimClass,
-        localOnly,
         includeQualifiers,
         includeClassOrigin);
 
@@ -1083,7 +1068,6 @@ void Test101b(void)
 
     ObjectNormalizer normalizer(
         cimClass,
-        localOnly,
         includeQualifiers,
         includeClassOrigin);
 
@@ -1164,7 +1148,7 @@ int main(int argc, char** argv)
         // instance object successes
         Test005a();
         Test005b();
-        Test005c();
+        //Test005c();
         Test005d();
 
         // object path processing performance tests

@@ -25,8 +25,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_NameSpace_h
-#define Pegasus_NameSpace_h
+#ifndef Pegasus_NameSpaceManager_h
+#define Pegasus_NameSpace_Managerh
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Repository/InheritanceTree.h>
@@ -90,4 +90,4 @@ private:
 
 PEGASUS_NAMESPACE_END
 
-#endif /* Pegasus_NameSpace_h */
+#endif /* Pegasus_NameSpaceManager_h */

@@ -29,7 +29,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/Dir.h>
-#include "NameSpace.h"
+#include "NameSpaceManager.h"
 
 PEGASUS_NAMESPACE_BEGIN
 

@@ -31,8 +31,8 @@
 PEGASUS_NAMESPACE_BEGIN
    
 AsyncOpNode::AsyncOpNode(void) 
-   : _client_sem(1), _mut(), _request(0), _response(0), 
-     _state(0), _flags(0), _total_ops(0), _completed_ops(0), 
+   : _client_sem(1), _mut(), _request(true), _response(true), 
+     _state(0), _flags(0), _total_ops(0), _completed_ops(0),
      _parent(0), _children(true)
 {
    gettimeofday(&_start, NULL);
@@ -43,7 +43,7 @@ AsyncOpNode::AsyncOpNode(void)
 
 AsyncOpNode::~AsyncOpNode(void)
 {
-   delete _request;
+   _request.empty_list();
    _response.empty_list();
 }
 
@@ -58,8 +58,7 @@ void AsyncOpNode::_reset(unlocked_dq<AsyncOpNode> *dst_q)
    }
 
    _parent = 0;
-   delete _request;
-   _request = 0;
+   _request.empty_list();
    _response.empty_list();
    _operation_list.reset();
    _state = 0;

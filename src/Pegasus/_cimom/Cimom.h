@@ -92,10 +92,8 @@ class PEGASUS_CIMOM_LINKAGE cimom : public MessageQueue
 	   _modules(true), 
 	   _pending_ops(true, 100), 
 	   _completed_ops(true, 100),
-	   _internal_ops(true , 100), 
 	   _pending_thread( _pending_proc, this, false),
 	   _completed_thread( _completed_proc, this, false),
-	   _internal(_internal_proc, this, false),
 	   _die(0)
       { 
 	 pegasus_gettimeofday(&_last_module_change);
@@ -115,20 +113,20 @@ class PEGASUS_CIMOM_LINKAGE cimom : public MessageQueue
             
       void set_default_op_timeout(const struct timeval *buffer);
       void get_default_op_timeout(struct timeval *timeout) const ;
-      
 
       virtual void handleEnqueue();
-      void find_service_q(CimomFindServices *msg);
-      void enumerate_service(CimomEnumerateService *msg);
+      void register_module(RegisterCimService *msg);
+      void deregister_module(DeRegisterCimService *msg) ;
+      void update_module(UpdateCimService *msg );
+      void ioctl(AsyncIoctl *msg );
+
+      void find_service_q(FindServiceQueue *msg );
+      void enumerate_service(EnumerateService *msg );
       
-      void register_module(CimomRegisterService *msg);
-      void deregister_module(CimomDeregisterService *msg) ;
-      void update_module(CimomUpdateService *msg);
-      void ioctl( CimomIoctl *msg);
             
    protected:
       Uint32 get_module_q(const String & name);
-      void _enqueueResponse(Request *, Message *);
+      void _enqueueResponse(AsyncOpNode *op);
       
    private:
       struct timeval _default_op_timeout;
@@ -137,19 +135,26 @@ class PEGASUS_CIMOM_LINKAGE cimom : public MessageQueue
 
       DQueue<AsyncOpNode> _recycle;
       
+      // accepted - put on the pending q
+      // complete - put on the completed q
+      // released - processed by reply destination, put op node on the recycle queue
+
       AsyncDQueue<AsyncOpNode> _pending_ops;
       AsyncDQueue<AsyncOpNode> _completed_ops;
-      AsyncDQueue<Message> _internal_ops; 
       
       static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _pending_proc(void *);
       static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _completed_proc(void *);
-      static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _internal_proc(void *);
+
+      static Uint32 get_xid(void);
+      
       void _handle_cimom_msg(Message *msg);
       Uint32 _ioctl(Uint32, Uint32, void *);
       Thread _pending_thread;
       Thread _completed_thread;
-      Thread _internal;
+
       AtomicInt _die;
+      static AtomicInt _xid;
+      
       CIMOperationRequestDispatcher *_cim_dispatcher;
       CIMOperationResponseEncoder *_cim_encoder;
       CIMOperationRequestDecoder *_cim_decoder;
@@ -263,7 +268,6 @@ inline void cimom::cache_op(AsyncOpNode *op) throw(IPCException)
    }
    
 }
-
 
 inline void cimom::set_default_op_timeout(const struct timeval *buffer)
 {

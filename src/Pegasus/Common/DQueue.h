@@ -651,7 +651,6 @@ template<class L> class PEGASUS_COMMON_LINKAGE AsyncDQueue: virtual public inter
 	 }
 	 return(0);
       }
-      
 
   inline virtual Uint32 count(void) { return _actual_count->value() ; }
 };

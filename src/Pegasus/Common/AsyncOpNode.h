@@ -62,10 +62,10 @@ PEGASUS_NAMESPACE_BEGIN
 #define ASYNC_OPSTATE_TIMEOUT           0x00000080
 #define ASYNC_OPSTATE_CANCELLED         0x00000100
 #define ASYNC_OPSTATE_PAUSED            0x00000200
-#define ASYNC_OPSTATE_SUSPENDED         0x00000400o
+#define ASYNC_OPSTATE_SUSPENDED         0x00000400
 #define ASYNC_OPSTATE_RESUMED           0x00000800
 #define ASYNC_OPSTATE_ORPHANED          0x00001000
-#define ASYNC_OPSTATE_ACCEPTED          0x00002000
+#define ASYNC_OPSTATE_RELEASED          0x00002000
 
 class Cimom;
 
@@ -79,7 +79,7 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
       Boolean  operator == (const void *key) const;
       Boolean operator == (const AsyncOpNode & node) const;
 
-      void get_timeout_interval(struct timeval *buffer) const;
+      void get_timeout_interval(struct timeval *buffer) ;
       void set_timeout_interval(const struct timeval *interval);
       
       Boolean timeout(void)  ;
@@ -107,14 +107,15 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
       void processing(OperationContext *context) throw(IPCException);
       void complete(void) throw(IPCException) ;
       void complete(OperationContext *context) throw(IPCException);
+      void release(void);
       void wait(void);
       
       
    private:
       Semaphore _client_sem;
       Mutex _mut;
-      Message *_request;
-      DQueue<Message> _response; 
+      unlocked_dq<Message> _request;
+      unlocked_dq<Message> _response; 
       OperationContext _operation_list;
       Uint32 _state;
       Uint32 _flags;
@@ -133,7 +134,7 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
 
       // the lifetime member is for cache management by the cimom
       void _set_lifetime(struct timeval *lifetime) ;
-      Boolean _check_lifetime(void) const ;
+      Boolean _check_lifetime(void) ;
 
       Boolean _is_child(void) ;
       Uint32 _is_parent(void) ;
@@ -161,12 +162,14 @@ inline Boolean AsyncOpNode::operator == (const AsyncOpNode & node) const
 }
 
 
-inline void AsyncOpNode::get_timeout_interval(struct timeval *buffer) const
+inline void AsyncOpNode::get_timeout_interval(struct timeval *buffer) 
 {
    if(buffer != 0)
    {
+      _mut.lock( pegasus_thread_self() );
       buffer->tv_sec = _timeout_interval.tv_sec;
       buffer->tv_usec = _timeout_interval.tv_usec;
+      _mut.unlock();
    }
    return;
 }
@@ -175,10 +178,12 @@ inline void AsyncOpNode::set_timeout_interval(const struct timeval *interval)
 {
    if(interval != 0)
    {
+      _mut.lock(pegasus_thread_self());
       _timeout_interval.tv_sec = interval->tv_sec;
       _timeout_interval.tv_usec = interval->tv_usec;
+      gettimeofday(&_updated, NULL);
+      _mut.unlock();
    }
-   gettimeofday(&_updated, NULL);
 }
 
 
@@ -186,11 +191,13 @@ inline Boolean AsyncOpNode::timeout(void)
 {
    struct timeval now;
    gettimeofday(&now, NULL);
-   
+   Boolean ret = false;
+   _mut.lock(pegasus_thread_self());
    if((_updated.tv_sec + _timeout_interval.tv_sec ) <= now.tv_sec)
       if((_updated.tv_usec + _timeout_interval.tv_usec ) <= now.tv_usec)
-	 return true;
-   return false;
+	 ret =  true;
+   _mut.unlock();
+   return ret;
 }
 
 // context is now a locked list
@@ -198,56 +205,80 @@ inline OperationContext & AsyncOpNode::get_context(void)
 {
    gettimeofday(&_updated, NULL);
    return _operation_list;
-
 }
 
 inline  void AsyncOpNode::put_request(const Message *request) 
 {
+   _mut.lock(pegasus_thread_self());
    gettimeofday(&_updated, NULL);
-   _request = const_cast<Message *>(request);
-
+   if( false == _request.exists(reinterpret_cast<void *>(const_cast<Message *>(request))) )
+      _request.insert_last( const_cast<Message *>(request) ) ;
+   _mut.unlock();
 }
 
 inline const Message * AsyncOpNode::get_request(void) 
 {
+   Message *ret;
+   _mut.lock(pegasus_thread_self());
    gettimeofday(&_updated, NULL);
-   return _request ;
+   ret = _request.remove_first() ;
+   _mut.unlock();
+   return ret;
 }
 
 inline void AsyncOpNode::put_response(const Message *response) 
 {
+   _mut.lock(pegasus_thread_self());
    gettimeofday(&_updated, NULL);
-   _response.insert_last( const_cast<Message *>(response) );
+   if (false == _response.exists(reinterpret_cast<void *>(const_cast<Message *>(response))))
+      _response.insert_last( const_cast<Message *>(response) );
+   _mut.unlock();
 }
 
 inline const Message * AsyncOpNode::get_response(void) 
 {
+   Message *ret;
+
+   _mut.lock(pegasus_thread_self());
    gettimeofday(&_updated, NULL);
-   return  _response.remove_first();
+   ret = _response.remove_first();
+   _mut.unlock();
+   return ret;
 }
 
 inline Uint32 AsyncOpNode::read_state(void)
 {
+   _mut.lock(pegasus_thread_self());
    gettimeofday(&_updated, NULL);
-   return _state;
+   Uint32 ret = _state;
+   _mut.unlock();
+   return ret;
+   
 }
 
 inline void AsyncOpNode::write_state(Uint32 state)
 {
+   _mut.lock(pegasus_thread_self());
    gettimeofday(&_updated, NULL);
    _state = state;
+   _mut.unlock();
 }
 
 inline Uint32 AsyncOpNode::read_flags(void)
 {
+   _mut.lock(pegasus_thread_self());
    gettimeofday(&_updated, NULL);
-   return _flags;
+   Uint32 ret = _flags;
+   _mut.unlock();
+   return ret;
 }
 
 inline void AsyncOpNode::write_flags(Uint32 flags)
 {   
+   _mut.lock(pegasus_thread_self());
    gettimeofday(&_updated, NULL);
    _flags = flags;
+   _mut.unlock();
 }
 
 
@@ -329,7 +360,7 @@ inline void AsyncOpNode::complete(void)
    _flags |= ASYNC_OPSTATE_COMPLETE;
    gettimeofday(&_updated, NULL);
    _mut.unlock();
-   _client_sem.signal();
+
    return;
 }
 
@@ -346,7 +377,6 @@ inline void AsyncOpNode::complete(OperationContext *con)
       c = con->remove_context();
    }
    _mut.unlock();
-   _client_sem.signal();
 }
 
 inline void AsyncOpNode::wait(void)
@@ -354,15 +384,25 @@ inline void AsyncOpNode::wait(void)
    _client_sem.wait();
 }
 
-inline  void AsyncOpNode::_set_lifetime(struct timeval *lifetime) 
+inline void AsyncOpNode::release(void)
 {
-   _lifetime.tv_sec = lifetime->tv_sec;
-   _lifetime.tv_usec = lifetime->tv_usec;
+   _mut.lock(pegasus_thread_self());
+   _state |= ASYNC_OPSTATE_RELEASED;
+   _mut.unlock();
 }
 
-inline Boolean AsyncOpNode::_check_lifetime(void) const 
+inline  void AsyncOpNode::_set_lifetime(struct timeval *lifetime) 
+{
+   _mut.lock(pegasus_thread_self());
+   _lifetime.tv_sec = lifetime->tv_sec;
+   _lifetime.tv_usec = lifetime->tv_usec;
+   _mut.unlock();
+}
+
+inline Boolean AsyncOpNode::_check_lifetime(void) 
 {
    struct timeval now;
+   
    gettimeofday(&now, NULL);
    if((_start.tv_sec + _lifetime.tv_sec ) >= now.tv_sec)
       if((_start.tv_usec + _lifetime.tv_usec ) >= now.tv_usec)

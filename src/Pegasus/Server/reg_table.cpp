@@ -34,6 +34,7 @@
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Sharable.h>
+#include <Pegasus/Common/CIMName.h>
 #include "reg_table.h"
 
 
@@ -46,9 +47,12 @@ const DynamicRoutingTable _internal_routing_table;
 class reg_table_record
 {
    private:
+      reg_table_record(void);
+      
       reg_table_record(const CIMName & class_name, 
 		       const CIMNamespaceName & namespace_name, 
 		       Uint32 type, 
+		       Uint32 flags, 
 		       const MessageQueueService * destination_service);
 
       reg_table_record(const CIMName & class_name, 
@@ -74,17 +78,28 @@ class reg_table_record
       friend class DynamicRoutingTable;
 };
 
+reg_table_record::reg_table_record(void)
+   : class_name(String::EMPTY),
+     namespace_name(String::EMPTY),
+     type(0xffffffff),
+     extended_key(),
+     flags(0xffffffff),
+     extended_flags(),
+     service(0)
+{
+}
 
 reg_table_record::reg_table_record(
    const CIMName &_name, 
    const CIMNamespaceName &_ns, 
    Uint32 _type, 
+   Uint32 _flags,
    const MessageQueueService * _svce)
    : class_name(_name),
      namespace_name(_ns),
      type(_type),
      extended_key(),
-     flags(),
+     flags(_flags),
      extended_flags(),
      service(const_cast<MessageQueueService *>(_svce))
 {
@@ -154,20 +169,26 @@ class reg_table_rep : public Sharable
    private:
 
       // store a record 
-      void _insert(const reg_table_record & rec);
+      Boolean _insert(const reg_table_record & rec);
 
       // retrieve a pointer to the stored record
-      const reg_table_record * find(const reg_table_record &rec);
-      void find(const reg_table_record & rec, Array<reg_table_record *> *results);
-
+      const reg_table_record * find(const reg_table_record& rec);
+      const reg_table_record * find_extended(const reg_table_record& rec);
+      void find(const reg_table_record& rec, Array<reg_table_record *> *results);
+      void find_extended(const reg_table_record& rec, Array<reg_table_record *> *results);
+      
       // remove the record and retrieve a pointer to it 
-      reg_table_record *release(const reg_table_record &rec);
-      void release(const reg_table_record & rec, Array<reg_table_record *> *results);
+      reg_table_record *release(const reg_table_record& rec);
+      reg_table_record *release_extended(const reg_table_record& rec);
+      
+      void release(const reg_table_record& rec, Array<reg_table_record *> *results);
+      void release_extended(const reg_table_record& rec, Array<reg_table_record *> *results);
       
       // remove and destroy a record or records
-      void destroy(const reg_table_record & rec);
-      void destroy_all(const reg_table_record & rec);
-
+      void destroy(const reg_table_record& rec);
+      void destroy_extended(const reg_table_record& rec);
+      
+      void destroy_all(void);
 
       reg_table_rep(void) ;
       ~reg_table_rep(void) ;
@@ -190,6 +211,10 @@ class reg_table_rep : public Sharable
 		      Uint32 flags, 
 		      Array<reg_table_record *> *arr_ptr = 0);
       
+
+      Boolean _extended_match(const reg_table_record & rec_a, 
+			      const reg_table_record & rec_b) const;
+      
       namespace_table _table;
       Mutex _mutex;
 
@@ -204,7 +229,8 @@ const Uint32 reg_table_rep::EXTENDED =     0x00000010;
 
 
 // insert optimized for simplicity, not speed 
-void reg_table_rep::_insert(const reg_table_record &rec)
+Boolean
+reg_table_rep::_insert(const reg_table_record &rec)
 {
    // ipc synchronization 
    auto_mutex monitor(&_mutex);
@@ -225,13 +251,22 @@ void reg_table_rep::_insert(const reg_table_record &rec)
       tt->lookup(rec.type, rt);
    }
    
-   rt->insert(rec.class_name.getString(), new reg_table_record(rec));
+   return rt->insert(rec.class_name.getString(), new reg_table_record(rec));
 }
 
-const reg_table_record *reg_table_rep::find(const reg_table_record & rec)
+const reg_table_record *
+reg_table_rep::find(const reg_table_record & rec)
 {
    return _find(rec, FIND);
 }
+
+const reg_table_record *
+reg_table_rep::find_extended(const reg_table_record & rec)
+{
+   return _find(rec, FIND | EXTENDED);
+}
+
+
 
 void 
 reg_table_rep::find(const reg_table_record & rec, 
@@ -240,11 +275,24 @@ reg_table_rep::find(const reg_table_record & rec,
    _find(rec, (FIND | MULTIPLE), results);
 }
 
+void 
+reg_table_rep::find_extended(const reg_table_record & rec, 
+			     Array<reg_table_record *> *results)
+{
+   _find(rec, (FIND | MULTIPLE | EXTENDED), results);
+}
+
 
 reg_table_record *
 reg_table_rep::release(const reg_table_record &rec)
 {
    return _find(rec, (FIND | REMOVE) );
+}
+
+reg_table_record *
+reg_table_rep::release_extended(const reg_table_record &rec)
+{
+   return _find(rec, (FIND | REMOVE | EXTENDED) );
 }
 
 
@@ -257,17 +305,31 @@ reg_table_rep::release(const reg_table_record & rec,
 }
 
 void 
+reg_table_rep::release_extended(const reg_table_record & rec, 
+				Array<reg_table_record *> *results)
+{
+   _find(rec, 
+	 (FIND | MULTIPLE | REMOVE | EXTENDED), results);
+}
+
+void 
 reg_table_rep::destroy(const reg_table_record & rec)
 {
    _find(rec, (FIND | REMOVE | DESTROY));
 }
 
 void 
-reg_table_rep::destroy_all(const reg_table_record & rec)
+reg_table_rep::destroy_extended(const reg_table_record & rec)
 {
-   _find(rec, (FIND | REMOVE | DESTROY | MULTIPLE ));
+   _find(rec, (FIND | REMOVE | DESTROY | EXTENDED));
 }
 
+void 
+reg_table_rep::destroy_all(void)
+{
+   reg_table_record rec;
+   _find(rec, (FIND | REMOVE | DESTROY | MULTIPLE ));
+}
 
 
 reg_table_record * 
@@ -298,18 +360,15 @@ reg_table_rep::_find(const reg_table_record &rec,
 	    reg_table_record *record ;
 	    while(true == rt->lookup(rec.class_name.getString(), record))
 	    {
+	       // flags value of all foxes always matches 
+	       if(rec.flags != 0xffffffff)
+		  if(record->flags != rec.flags)
+		     continue;
+	       
 	       if(flags & EXTENDED)
 	       {
-		  if(rec.extended_key.size() != record->extended_key.size())
+		  if(false == _extended_match(rec, *record))
 		     continue;
-		  for(Uint32 i = 0; i < rec.extended_key.size(); i++)
-		  {
-		     if(rec.extended_key[i] == record->extended_key[i])
-			;
-		     else
-			continue;
-		  }
-		  
 	       }
 	       
 	       if(flags & REMOVE || flags & DESTROY)
@@ -369,6 +428,16 @@ reg_table_rep::_enumerate(const reg_table_record & rec,
 		     continue;
 	       }
 	       reg_table_record *tmp = x.value();
+	       // flags value of all foxes always matches 
+	       if(rec.flags != 0xffffffff)
+		  if(tmp->flags != rec.flags)
+		     continue;
+	       if(flags & EXTENDED)
+	       {
+		  if(false == _extended_match(rec, *tmp))
+		     continue;
+	       }
+	       
 	       if(flags & REMOVE || flags & DESTROY)
 	       {
 		  y.value()->remove(x.key());
@@ -385,6 +454,24 @@ reg_table_rep::_enumerate(const reg_table_record & rec,
 	 }
       }
    }
+}
+
+
+Boolean 
+reg_table_rep::_extended_match(const reg_table_record & rec_a, 
+			       const reg_table_record & rec_b) const
+{
+   Uint32 rec_size;
+   if((rec_size = rec_a.extended_key.size()) != rec_b.extended_key.size())
+      return false;
+
+   Uint32 i = 0;
+   do 
+   {
+      if(! (rec_a.extended_key[i] == rec_b.extended_key[i]) )
+	 return false;
+   }while (i < rec_size );
+   return true;
 }
 
 DynamicRoutingTable::DynamicRoutingTable(void)
@@ -427,35 +514,119 @@ DynamicRoutingTable::get_rw_routing_table(void)
    return DynamicRoutingTable(_internal_routing_table);
 }
 
+// get a single service that can route this spec. 
 
 MessageQueueService *
 DynamicRoutingTable::get_routing(const CIMName & classname, 
 				 const CIMNamespaceName & ns, 
-				 Uint32 type) const
+				 Uint32 type,
+				 Uint32 flags) const
 {
-   const reg_table_record rec(classname, ns, type, 0);
-   
+   reg_table_record rec(classname, ns, type, flags, 0);
    const reg_table_record *ret = _rep->find(rec);
-   return ret->service;
+   if(ret)
+      return ret->service;
+   return 0;
+   
 }
 
 // get a single service that can route this extended spec. 
 MessageQueueService *
-DynamicRoutingTable::get_routing(const CIMName & classname,
-				 const CIMNamespaceName & ns,
+DynamicRoutingTable::get_routing(const CIMName& classname,
+				 const CIMNamespaceName& ns,
 				 Uint32 type,
-				 const Array<Uint8> & extended_type,
+				 const Array<Uint8>& extended_type,
 				 Uint32 flags,
-				 const Array<Uint8> & extended_flags) const 
+				 const Array<Uint8>& extended_flags) const 
 {
-   const reg_table_record rec(classname, ns, type, 
-			      extended_type, 
-			      flags, 
-			      extended_flags, 
-			      0);
-   Array<reg_table_record *> set;
-   
+   reg_table_record rec(classname, ns, type, 
+			extended_type, 
+			flags, 
+			extended_flags, 
+			0);
+   const reg_table_record *ret = _rep->find_extended(rec);
+   if(ret)
+      return ret->service;
+   return 0;
 }
+
+
+
+// get an array of services that can route this spec 
+void
+DynamicRoutingTable::get_routing(const CIMName& classname, 
+				 const CIMNamespaceName& ns, 
+				 Uint32 type,
+				 Uint32 flags,
+				 Array<MessageQueueService*>& results) const
+{
+   reg_table_record rec(classname, ns, type, flags, 0);
+   Array<reg_table_record*> records;
+   _rep->find(rec, &records);
+   for(Uint32 i = 0; i < records.size(); ++i )
+   {
+      // do not include null service pointers in results
+      if(records[i]->service)
+	 results.append((records[i])->service);
+   }
+}
+
+
+// get an array of services that can route this extended spec. 
+void 
+DynamicRoutingTable::get_routing(const CIMName& classname,
+				 const CIMNamespaceName& ns,
+				 Uint32 type,
+				 const Array<Uint8>& extended_type,
+				 Uint32 flags,
+				 const Array<Uint8>& extended_flags, 
+				 Array<MessageQueueService*>& results) const 
+{
+   reg_table_record rec(classname, ns, type, 
+			extended_type, 
+			flags, 
+			extended_flags, 
+			0);
+   Array<reg_table_record*> records;
+   _rep->find_extended(rec, &records);
+   for(Uint32 i = 0; i < records.size(); ++i )
+   {
+      // do not include null service pointers in results
+      if(records[i]->service)
+	 results.append((records[i])->service);
+   }
+}
+
+
+Boolean 
+DynamicRoutingTable::insert_record(const CIMName& classname, 
+				   const CIMNamespaceName& ns, 
+				   Uint32 type,
+				   Uint32 flags,
+				   MessageQueueService* svce) 
+{
+   reg_table_record rec(classname, ns, type, flags, svce);
+   return (_rep->_insert(rec));
+}
+
+
+Boolean 
+DynamicRoutingTable::insert_record(const CIMName& classname, 
+				   const CIMNamespaceName& ns,
+				   Uint32 type,
+				   const Array<Uint8>& extended_type,
+				   Uint32 flags,
+				   const Array<Uint8>& extended_flags, 
+				   MessageQueueService* svce) 
+{
+   reg_table_record rec(classname, ns, type, 
+			extended_type, 
+			flags, 
+			extended_flags, 
+			svce);
+   return (_rep->_insert(rec));
+}
+
 
 
 PEGASUS_NAMESPACE_END

@@ -63,36 +63,76 @@ class PEGASUS_SERVER_LINKAGE DynamicRoutingTable
       static DynamicRoutingTable get_rw_routing_table(void);
       
       // get a single service that can route this spec. 
-      MessageQueueService *get_routing(const CIMName & classname, 
-				      const CIMNamespaceName & ns, 
-				      Uint32 type) const;
+      MessageQueueService *get_routing(const CIMName& classname, 
+				       const CIMNamespaceName& ns, 
+				       Uint32 type,
+				       Uint32 flags) const;
       
       // get a single service that can route this extended spec. 
-      MessageQueueService *get_routing(const CIMName & classname,
-				       const CIMNamespaceName & ns,
+      MessageQueueService *get_routing(const CIMName& classname,
+				       const CIMNamespaceName& ns,
 				       Uint32 type,
-				       const Array<Uint8> & extended_type,
+				       const Array<Uint8>& extended_type,
 				       Uint32 flags,
-				       const Array<Uint8> & extended_flags) const ;
+				       const Array<Uint8>& extended_flags) const ;
 
       // get an array of services that can route this spec. 
-      void get_routing(const CIMName & classname, 
-		       const CIMNamespaceName & ns, 
+      void get_routing(const CIMName& classname, 
+		       const CIMNamespaceName& ns, 
 		       Uint32 type,
-		       Array<MessageQueueService *> & results) const;
+		       Uint32 flags,
+		       Array<MessageQueueService *>& results) const;
       
       // get an array of services that can route this extended spec. 
-      void GetRouting(const CIMName & classname,
-		      const CIMNamespaceName & ns,
-		      Uint32 type,
-		      const Array<Uint8> & extended_type,
-		      Uint32 flags,
-		      const Array<Uint8> & extended_flags, 
-		      Array<MessageQueueService *> & results) const ;
+      void get_routing(const CIMName& classname,
+		       const CIMNamespaceName& ns,
+		       Uint32 type,
+		       const Array<Uint8>& extended_type,
+		       Uint32 flags,
+		       const Array<Uint8>& extended_flags, 
+		       Array<MessageQueueService *>& results) const ;
       
-   private:
+      Boolean insert_record(const CIMName& classname, 
+			    const CIMNamespaceName& ns, 
+			    Uint32 type,
+			    Uint32 flags,
+			    MessageQueueService* svce) ;
       
+      Boolean insert_record(const CIMName& classname, 
+			    const CIMNamespaceName& ns, 
+			    Uint32 type,
+			    const Array<Uint8>& extended_type,
+			    Uint32 flags,
+			    const Array<Uint8>& extended_flags, 
+			    MessageQueueService* svce) ;
 
+      MessageQueueService * remove_record(const CIMName& classname, 
+					   const CIMNamespaceName& ns, 
+					   Uint32 type,
+					   Uint32 flags);
+      
+      MessageQueueService * remove_record(const CIMName& classname, 
+					  const CIMNamespaceName& ns, 
+					  Uint32 type,
+					  const Array<Uint8>& extended_type,
+					  Uint32 flags,
+					  const Array<Uint8>& extended_flags);
+
+      Uint32 remove_multiple_records(const CIMName& classname, 
+				     const CIMNamespaceName& ns, 
+				     Uint32 type,
+				     Uint32 flags);
+      
+      Uint32 remove_multiple_records(const CIMName& classname, 
+				     const CIMNamespaceName& ns, 
+				     Uint32 type,
+				     const Array<Uint8>& extended_type,
+				     Uint32 flags,
+				     const Array<Uint8>& extended_flags);
+
+      Uint32 remove_router_records(const MessageQueueService* router);
+
+   private:
       reg_table_rep *_rep;
 };
 

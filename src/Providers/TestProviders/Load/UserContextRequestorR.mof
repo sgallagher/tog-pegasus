@@ -1,0 +1,32 @@
+#pragma locale ("en_US")
+
+instance of PG_ProviderModule
+{
+    Description = "Test Provider for Requestor UserContext";
+    Caption = "User Context Test";
+    Name = "UserContextRequestorModule";
+    Vendor = "Pegasus";
+    Version = "2.5.0";
+    InterfaceType = "C++Default";
+    InterfaceVersion = "2.5.0";
+    Location = "UserContextTestProvider";
+    UserContext = 2;    // Requestor
+};
+
+instance of PG_Provider
+{
+    ProviderModuleName = "UserContextRequestorModule";
+    Name = "UserContextRequestorProvider";
+};
+
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "UserContextRequestorModule";
+    ProviderName = "UserContextRequestorProvider";
+    CapabilityID = "UserContextRequestorCapability";
+    ClassName = "TST_UserContextRequestor";
+    Namespaces = { "test/TestProvider" };
+    ProviderType = { 2 };
+    SupportedProperties = NULL;
+    SupportedMethods = NULL;
+};

@@ -26,7 +26,7 @@ endif
 ifdef PEGASUS_SNIA_INTEROP_TEST
  DEFINES+= -DPEGASUS_SNIA_INTEROP_TEST
 endif
- 
+
 RM = mu rm
 
 RMDIRHIER = mu rmdirhier
@@ -81,3 +81,6 @@ INSTALL_SBIN_PROGRAM = echo Not supported.
 
 # Windows DLLs are installed in the $(PEGASUS_HOME)/bin directory
 PEGASUS_DEST_LIB_DIR = bin
+ 
+# The Provider User Context feature (PEP 197) is not supported on Windows
+PEGASUS_DISABLE_PROV_USERCTXT=1

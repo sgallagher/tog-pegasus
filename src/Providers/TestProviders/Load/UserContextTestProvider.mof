@@ -1,0 +1,28 @@
+[Version ("2.5.0")]
+class TST_UserContext
+{
+    [key]
+    uint16 Id;
+
+    string UserContext;
+};
+
+[Version ("2.5.0")]
+class TST_UserContextRequestor : TST_UserContext
+{
+};
+
+[Version ("2.5.0")]
+class TST_UserContextPrivileged : TST_UserContext
+{
+};
+
+[Version ("2.5.0")]
+class TST_UserContextDesignated : TST_UserContext
+{
+};
+
+[Version ("2.5.0")]
+class TST_UserContextCIMServer : TST_UserContext
+{
+};

@@ -1,0 +1,32 @@
+#pragma locale ("en_US")
+
+instance of PG_ProviderModule
+{
+    Description = "Test Provider for CIMServer UserContext";
+    Caption = "User Context Test";
+    Name = "UserContextCIMServerModule";
+    Vendor = "Pegasus";
+    Version = "2.5.0";
+    InterfaceType = "C++Default";
+    InterfaceVersion = "2.5.0";
+    Location = "UserContextTestProvider";
+    UserContext = 5;    // CIMServer
+};
+
+instance of PG_Provider
+{
+    ProviderModuleName = "UserContextCIMServerModule";
+    Name = "UserContextCIMServerProvider";
+};
+
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "UserContextCIMServerModule";
+    ProviderName = "UserContextCIMServerProvider";
+    CapabilityID = "UserContextCIMServerCapability";
+    ClassName = "TST_UserContextCIMServer";
+    Namespaces = { "test/TestProvider" };
+    ProviderType = { 2 };
+    SupportedProperties = NULL;
+    SupportedMethods = NULL;
+};

@@ -1,10 +1,10 @@
-# Makefile builds a test Provider Namepspace
+# Makefile builds a TestProvider Namespace
 # ATTN: Today this makefile is implementation dependent.
 #       It assumes that the repository is a set of directories
 #       that can be removed by removing the directories.
 #       This must be updated to an implementation independent repository
 #       remove function.
-#       Note that this is, in fact, the REMREPOSITORY function
+#       Note that this is, in fact, the RMREPOSITORY function
 #       which we should be able to replace with an executable
 #       making this probably implementation independent.
 
@@ -14,45 +14,64 @@ include $(ROOT)/mak/configschema.mak
 
 # Loads the sample MOF into a separate namespace.
 # The following variable determine the version of the Schema to
-# be loaded into the Sample Provider namespace.
+# be loaded into the TestProvider namespace.
 # Update the following variable to change the version.
 # The following variables determine the Namespace into which the
-# sample provider test classes and the sample provider classes
-# are to be loaded.
+# TestProvider classes are to be loaded.
 
-TESTPROVIDERNS=root/testassoc
-TESTPROVIDERNSDIRECTORY=$(REPOSITORY_ROOT)/root\#/testassoc
+TESTPROVIDERNS=test/TestProvider
+TESTPROVIDERNSDIRECTORY=$(REPOSITORY_ROOT)/test\#TestProvider
 
-# Load the sample MOF with the local compiler. Cleans the existing repository
-# before reloading.
+# Clean the existing repository and load the test MOF with cimmofl.
 repository:
 	@ $(ECHO) +++++ Removing existing repository named $(TESTPROVIDERNS)
 	@$(RMREPOSITORY) $(TESTPROVIDERNSDIRECTORY)
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-I$(CIM_SCHEMA_DIR)" "-n$(TESTPROVIDERNS)" $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
-	@ $(ECHO) +++++ Loading CIM_Events$(CIM_SCHEMA_VER) into $(TESTPROVIDERNS) namespace ...
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-I$(CIM_SCHEMA_DIR)" "-n$(TESTPROVIDERNS)" $(CIM_SCHEMA_DIR)/CIM_Event$(CIM_SCHEMA_VER).mof
-	@ $(ECHO) +++++ Loading AssociationTestProvider class definitions into $(TESTPROVIDERNS) namespace ...
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-n$(TESTPROVIDERNS)" AssociationTestProviderSchema.mof
-	@ $(ECHO) +++++ Loading TestInstanceProvider class definitions into $(TESTPROVIDERNS) namespace ...
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-n$(TESTPROVIDERNS)" TestInstanceProviderSchema.mof
+	@ $(ECHO) +++++ Loading Core$(CIM_SCHEMA_VER)_Qualifiers.mof into $(TESTPROVIDERNS) namespace ...
+	@ cimmofl "-R$(REPOSITORY_DIR)" -n$(TESTPROVIDERNS) $(CIM_SCHEMA_DIR)/Core$(CIM_SCHEMA_VER)_Qualifiers.mof
 
-#	@ $(ECHO) +++++ Registering AssociationTestProvider schema Providers  ...
-#	@ cimmofl "-R$(REPOSITORY_DIR)" "-n$(INTEROPNS)" AssociationTestProviderSchemaR.mof
-	@ $(ECHO) +++++ Registering TestInstanceProvider Providers  ...
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-n$(INTEROPNS)" TestInstanceProviderRegistration.mof
+ifndef PEGASUS_DISABLE_PROV_USERCTXT
+	@ $(ECHO) +++++ Loading UserContextTestProvider class definitions into $(TESTPROVIDERNS) namespace ...
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-n$(TESTPROVIDERNS)" UserContextTestProvider.mof
+
+	@ $(ECHO) +++++ Registering UserContextTestProvider ...
+ifndef PEGASUS_DISABLE_PROV_USERCTXT_REQUESTOR
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-n$(INTEROPNS)" UserContextRequestorR.mof
+endif
+ifndef PEGASUS_DISABLE_PROV_USERCTXT_PRIVILEGED
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-n$(INTEROPNS)" UserContextPrivilegedR.mof
+endif
+ifndef PEGASUS_DISABLE_PROV_USERCTXT_DESIGNATED
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-n$(INTEROPNS)" UserContextDesignatedR.mof
+endif
+ifndef PEGASUS_DISABLE_PROV_USERCTXT_CIMSERVER
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-n$(INTEROPNS)" UserContextCIMServerR.mof
+endif
+endif
 
 
-# Load the sample mofe through the Client interface compiler but do not
-# clean out the existing version.
+# Load the test MOF with cimmof.  (Do not remove the existing repository.)
 repositoryServer:
-	@ $(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(TESTPROVIDERNS) namespace ...
-	@ cimmof "-I$(CIM_MOF_PATH)" "-n$(TESTPROVIDERNS)" $(CIM_SCHEMA_VER)/CIM_Core$(CIM_SCHEMA_VER).mof
-	@ $(ECHO) +++++ Loading CIM_Events$(CIM_SCHEMA_VER) into $(TESTPROVIDERNS) namespace ...
-	@ cimmof "-I$(CIM_MOF_PATH)" "-n$(TESTPROVIDERNS)" $(CIM_SCHEMA_VER)/CIM_Events$(CIM_SCHEMA_VER).mof
-	@ $(ECHO) +++++ Loading AssociationTestProvider class definitions into $(TESTPROVIDERNS) namespace ...
+	@ $(ECHO) +++++ Loading Core$(CIM_SCHEMA_VER)_Qualifiers.mof into $(TESTPROVIDERNS) namespace ...
+	@ cimmof -n$(TESTPROVIDERNS) $(CIM_SCHEMA_DIR)/Core$(CIM_SCHEMA_VER)_Qualifiers.mof
 
-#	@ $(ECHO) +++++ Registering AssociationTestProvider schema Providers  ...
-#	@ cimmofl "-R$(REPOSITORY_DIR)" "-n$(INTEROPNS)" AssociationTestProviderSchemaR.mof
+ifndef PEGASUS_DISABLE_PROV_USERCTXT
+	@ $(ECHO) +++++ Loading UserContextTestProvider class definitions into $(TESTPROVIDERNS) namespace ...
+	@ cimmof "-n$(TESTPROVIDERNS)" UserContextTestProvider.mof
+
+	@ $(ECHO) +++++ Registering UserContextTestProvider ...
+ifndef PEGASUS_DISABLE_PROV_USERCTXT_REQUESTOR
+	@ cimmof "-n$(INTEROPNS)" UserContextRequestorR.mof
+endif
+ifndef PEGASUS_DISABLE_PROV_USERCTXT_PRIVILEGED
+	@ cimmof "-n$(INTEROPNS)" UserContextPrivilegedR.mof
+endif
+ifndef PEGASUS_DISABLE_PROV_USERCTXT_DESIGNATED
+	@ cimmof "-n$(INTEROPNS)" UserContextDesignatedR.mof
+endif
+ifndef PEGASUS_DISABLE_PROV_USERCTXT_CIMSERVER
+	@ cimmof "-n$(INTEROPNS)" UserContextCIMServerR.mof
+endif
+endif
 
 removerepository:
 	@ $(ECHO) +++++ Removing existing repository named $(TESTPROVIDERNS)
@@ -62,8 +81,20 @@ unregister:
 	$(MAKE) -i unregisterproviders
 
 unregisterproviders:
-	cimprovider -r -m AssociationTestProviderModule
-	cimprovider -r -m TestInstanceProviderModule
+ifndef PEGASUS_DISABLE_PROV_USERCTXT
+ifndef PEGASUS_DISABLE_PROV_USERCTXT_REQUESTOR
+	cimprovider -r -m UserContextRequestorModule
+endif
+ifndef PEGASUS_DISABLE_PROV_USERCTXT_PRIVILEGED
+	cimprovider -r -m UserContextPrivilegedModule
+endif
+ifndef PEGASUS_DISABLE_PROV_USERCTXT_DESIGNATED
+	cimprovider -r -m UserContextDesignatedModule
+endif
+ifndef PEGASUS_DISABLE_PROV_USERCTXT_CIMSERVER
+	cimprovider -r -m UserContextCIMServerModule
+endif
+endif
 
 depend:
 
@@ -79,28 +110,3 @@ general:
 
 clean:
 
-clitests:
-#		CLI rn TST_ClassA "-n $(TESTPROVIDERNS)"
-#		CLI rn TST_ClassA -rc TST_Assoc1 "-n $(TESTPROVIDERNS)"
-#		CLI rn TST_ClassA -rc TST_Assoc1 -rr from "-n $(TESTPROVIDERNS)"
-#		CLI rn TST_ClassA -rc TST_Assoc1 -rr to "-n $(TESTPROVIDERNS)"
-
-#		CLI rn TST_ClassB "-n $(TESTPROVIDERNS)"
-#		CLI rn TST_ClassB -rc TST_Assoc5 "-n $(TESTPROVIDERNS)"
-#		CLI rn TST_ClassB -rc TST_Assoc5 -rr from "-n $(TESTPROVIDERNS)"
-#		CLI rn TST_ClassB -rc TST_Assoc5 -rr to "-n $(TESTPROVIDERNS)"
-
-#		CLI rn TST_ClassC "-n $(TESTPROVIDERNS)"
-#		CLI rn TST_ClassC -rc TST_Assoc2 "-n $(TESTPROVIDERNS)"
-#		CLI rn TST_ClassC -rc TST_Assoc2 -rr from "-n $(TESTPROVIDERNS)"
-#		CLI rn TST_ClassC -rc TST_Assoc2 -rr to "-n $(TESTPROVIDERNS)"
-#		CLI rn TST_ClassC -rc TST_Assoc1 "-n $(TESTPROVIDERNS)"
-
-#		CLI rn TST_ClassD "-n $(TESTPROVIDERNS)"
-#		CLI rn TST_ClassD -rc TST_Assoc1 "-n $(TESTPROVIDERNS)"
-#		CLI rn TST_ClassD -rc TST_Assoc1 -rr from "-n $(TESTPROVIDERNS)"
-#		CLI rn TST_ClassD -rc TST_Assoc1 -rr to "-n $(TESTPROVIDERNS)"
-
-		CLI ni -n $(TESTPROVIDERNS) TST_Instance1
-		CLI ei -n $(TESTPROVIDERNS) TST_Instance1
-install:

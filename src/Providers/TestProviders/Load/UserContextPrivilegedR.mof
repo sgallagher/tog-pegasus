@@ -1,0 +1,32 @@
+#pragma locale ("en_US")
+
+instance of PG_ProviderModule
+{
+    Description = "Test Provider for Privileged UserContext";
+    Caption = "User Context Test";
+    Name = "UserContextPrivilegedModule";
+    Vendor = "Pegasus";
+    Version = "2.5.0";
+    InterfaceType = "C++Default";
+    InterfaceVersion = "2.5.0";
+    Location = "UserContextTestProvider";
+    UserContext = 4;    // Privileged
+};
+
+instance of PG_Provider
+{
+    ProviderModuleName = "UserContextPrivilegedModule";
+    Name = "UserContextPrivilegedProvider";
+};
+
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "UserContextPrivilegedModule";
+    ProviderName = "UserContextPrivilegedProvider";
+    CapabilityID = "UserContextPrivilegedCapability";
+    ClassName = "TST_UserContextPrivileged";
+    Namespaces = { "test/TestProvider" };
+    ProviderType = { 2 };
+    SupportedProperties = NULL;
+    SupportedMethods = NULL;
+};

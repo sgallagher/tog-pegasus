@@ -1,82 +1,77 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
+//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company 
+//                  (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_Repository_h
-#define Pegasus_Repository_h
+#ifndef PegasusRepository_Repository_h
+#define PegasusRepository_Repository_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/CIMPropertyList.h>
 #include <Pegasus/Common/CIMQualifierDecl.h>
-#include <Pegasus/Common/ReadWriteSem.h>
-
+#include <Pegasus/Common/CIMRepositoryBase.h>
 #include <Pegasus/Config/ConfigManager.h>
-
-#include <Pegasus/Repository/Linkage.h>
 #include <Pegasus/Repository/NameSpaceManager.h>
-#include <Pegasus/Repository/ObjectStreamer.h>
+#include <Pegasus/Repository/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 class RepositoryDeclContext;
-class compilerDeclContext;
 
 /** This class provides a simple implementation of a CIM repository.
-    Concurrent access is controlled by an internal lock.
 */
-class PEGASUS_REPOSITORY_LINKAGE CIMRepository
+class PEGASUS_REPOSITORY_LINKAGE CIMRepository : public CIMRepositoryBase
 {
 public:
 
-    enum CIMRepositoryMode
-    {
-        MODE_DEFAULT = 0,
-        MODE_XML = 1,
-        MODE_BIN = 2,
-        MODE_COMPRESSED = 4
-    };
-
     /// Constructor
-    CIMRepository(
-        const String& repositoryRoot,
-        Uint32 mode = CIMRepository::MODE_DEFAULT,
-        RepositoryDeclContext* declContext = 0);
+    CIMRepository(const String& repositoryRoot);
 
     /// Descructor
-    ~CIMRepository();
+    virtual ~CIMRepository();
 
-    /// getClass
-    CIMClass getClass(
+    // Repositories MUST Have a read/write lock 
+
+    virtual void read_lock(void) throw(IPCException);
+    virtual void read_unlock(void);
+    
+    virtual void write_lock(void) throw(IPCException);
+    virtual void write_unlock(void);
+    
+    /// virtual class CIMClass. From the operations class
+    virtual CIMClass getClass(
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
         Boolean localOnly = true,
@@ -84,53 +79,49 @@ public:
         Boolean includeClassOrigin = false,
         const CIMPropertyList& propertyList = CIMPropertyList());
 
-    // getFullConstClass
-    CIMConstClass getFullConstClass(
-        const CIMNamespaceName& nameSpace,
-        const CIMName& className);
-
     /// getInstance
-    CIMInstance getInstance(
+    virtual CIMInstance getInstance(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName,
+        Boolean localOnly = true,
         Boolean includeQualifiers = false,
         Boolean includeClassOrigin = false,
         const CIMPropertyList& propertyList = CIMPropertyList());
 
     /// deleteClass
-    void deleteClass(
+    virtual void deleteClass(
         const CIMNamespaceName& nameSpace,
         const CIMName& className);
 
     /// deleteInstance
-    void deleteInstance(
+    virtual void deleteInstance(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName);
 
     /// createClass
-    void createClass(
+    virtual void createClass(
         const CIMNamespaceName& nameSpace,
         const CIMClass& newClass);
 
     /// createInstance
-    CIMObjectPath createInstance(
+    virtual CIMObjectPath createInstance(
         const CIMNamespaceName& nameSpace,
         const CIMInstance& newInstance);
 
     /// modifyClass
-    void modifyClass(
+    virtual void modifyClass(
         const CIMNamespaceName& nameSpace,
         const CIMClass& modifiedClass);
 
     /// modifyInstance
-    void modifyInstance(
+    virtual void modifyInstance(
         const CIMNamespaceName& nameSpace,
         const CIMInstance& modifiedInstance,
         Boolean includeQualifiers = true,
         const CIMPropertyList& propertyList = CIMPropertyList());
 
     /// enumerateClasses
-    Array<CIMClass> enumerateClasses(
+    virtual Array<CIMClass> enumerateClasses(
         const CIMNamespaceName& nameSpace,
         const CIMName& className = CIMName(),
         Boolean deepInheritance = false,
@@ -139,107 +130,61 @@ public:
         Boolean includeClassOrigin = false);
 
     /// enumerateClassNames
-    Array<CIMName> enumerateClassNames(
+    virtual Array<CIMName> enumerateClassNames(
         const CIMNamespaceName& nameSpace,
         const CIMName& className = CIMName(),
         Boolean deepInheritance = false);
 
-    /**
-        Enumerates the instances of the specified class and its subclasses.
-        This method mimics the client behavior for the EnumerateInstances
-        operation, but of course it can only return the instances that reside
-        in the repository.  This method does not perform deepInheritance
-        filtering.
-
-        This method is useful mainly for testing purposes, and should not be
-        relied upon for complete results in a CIM Server environment.
-    */
-    Array<CIMInstance> enumerateInstancesForSubtree(
+    
+    virtual Array<CIMInstance> enumerateInstances(
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
+        Boolean deepInheritance = true,
+        Boolean localOnly = true,
         Boolean includeQualifiers = false,
         Boolean includeClassOrigin = false,
         const CIMPropertyList& propertyList = CIMPropertyList());
 
-    /**
-        Enumerates the instances of just the specified class.
-        This method mimics the provider behavior for the EnumerateInstances
-        operation.
+    /** enumerateInstances for a single Class. This and the forClass
+    // in enumerate instancenames are a temp hack to get a version
+    // that only gets for a single class until we can go through all
+    // code and put them back together again.
+    // This simply adds the includeInheritance property
     */
-    Array<CIMInstance> enumerateInstancesForClass(
+    virtual Array<CIMInstance> enumerateInstancesForClass(
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
+        Boolean deepInheritance = true,
+        Boolean localOnly = true,
         Boolean includeQualifiers = false,
         Boolean includeClassOrigin = false,
+	Boolean includeInheritance = false,
         const CIMPropertyList& propertyList = CIMPropertyList());
 
 
-    /**
-        Enumerates the names of the instances of the specified class and its
-        subclasses.  This method mimics the client behavior for the
-        EnumerateInstanceNames operation, but of course it can only return
-        the names of the instances that reside in the repository.
-
-        This method is useful mainly for testing purposes, and should not be
-        relied upon for complete results in a CIM Server environment.
-
-        @param nameSpace The namespace in which className resides.
-        @param className The name the class for which to retrieve the instance
-            names.
-        @return An Array of CIMObjectPath objects containing the names of the
-            instances of the specified class in the specified namespace.
-    */
-    Array<CIMObjectPath> enumerateInstanceNamesForSubtree(
+    /// enumerateInstanceNames
+    virtual Array<CIMObjectPath> enumerateInstanceNames(
         const CIMNamespaceName& nameSpace,
         const CIMName& className);
 
-    /**
-        Enumerates the names of the instances of just the specified class.
-        This method mimics the provider behavior for the EnumerateInstanceNames
-        operation.
-
-        @param nameSpace The namespace in which className resides.
-        @param className The name the class for which to retrieve the instance
-            names.
-        @return An Array of CIMObjectPath objects containing the names of the
-            instances of the specified class in the specified namespace.
+    /** enumerateInstanceNames for a single Class. This is a temporary
+    	hack and should eventually be merged with enumerateInstanceNames
+	This function allows you to either include the inheritance tree
+	or not with teh boolean includeInheritance.
     */
-    Array<CIMObjectPath> enumerateInstanceNamesForClass(
+    virtual Array<CIMObjectPath> enumerateInstanceNamesForClass(
         const CIMNamespaceName& nameSpace,
-        const CIMName& className);
+        const CIMName& className,
+	Boolean includeInheritance);
 
-    /**
-        Get the associated(reference) classes or instances for the
-        input ObjectName filtered by the assocClass,resultClass,
-        role and result role parameters. This is analogous to the
-        operation defined in the DMTF spec DSP200.
-        @param nameSpace CIMNamespaceName for the operation
-        @param objectName CIMObjectPath for the operation.  If this includes
-        ONLY a class in the object with no keys the return is CIMClasses. Else
-        it is CIMInstances. See bug 3302
-        @param assocClass CIMName with name of association class for which this
-        is to be filtered or Null if no filtering
-        @param resultClass CIMName with name of associated class for which
-        response is to be filtered or Null of no filtering.
-        @param role String defining role parameter from association class to
-        objectName
-        @param resultRole String defining role between association and
-        associated classes.
-        @param includeQualifiers Boolean to force inclusion of Qualifiers if
-        true and if this is a class request.
-        @param includeClassOrigin Boolean to force inclusion of ClassOrigin
-        information if true
-        @param propertyList CIMPropertyList (optional). if Null,
-        return all properties. If empty but not Null, return no
-        properties. Else return only properties in the list.
-        @return Array<CIMObject> containing either the classes or
-                instances requested.
-        @exception CIMException Error code CIM_ERR_INVALID_CLASS if the class
-            does not exist.
-        @exception - Throws NoSuchDirectory if the Namespace
-                       does not exist.
-    */
-    Array<CIMObject> associators(
+
+    /// execQuery
+    virtual Array<CIMInstance> execQuery(
+        const String& queryLanguage,
+        const String& query) ;
+
+    /// associators
+    virtual Array<CIMObject> associators(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
         const CIMName& assocClass = CIMName(),
@@ -250,31 +195,8 @@ public:
         Boolean includeClassOrigin = false,
         const CIMPropertyList& propertyList = CIMPropertyList());
 
-    /**
-        Get the associated class or instance object paths for the
-        input ObjectName filtered by the assocClass,resultClass,
-        role and result role parameters. This is analogous to the
-        operation defined in the DMTF spec DSP200.
-        @param nameSpace CIMNamespaceName for the operation
-        @param objectName CIMObjectPath for the operation.  If this includes
-        ONLY a class in the object with no keys the return is CIMClasses. Else
-        it is CIMInstances. See bug 3302
-        @param assocClass CIMName with name of association class for which this
-        is to be filtered or Null if no filtering
-        @param resultClass CIMName with name of associated class for which
-        response is to be filtered or Null of no filtering.
-        @param role String defining role parameter from association class to
-        objectName
-        @param resultRole String defining role between association and
-        associated classes.
-        @return Array<CIMObjectPath> containing  the path of either
-                classes or instances requested.
-        @exception CIMException Error code CIM_ERR_INVALID_CLASS if the class
-            does not exist.
-        @exception - Throws NoSuchDirectory if the Namespace
-                       does not exist.        
-    */
-    Array<CIMObjectPath> associatorNames(
+    /// associateNames
+    virtual Array<CIMObjectPath> associatorNames(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
         const CIMName& assocClass = CIMName(),
@@ -282,34 +204,8 @@ public:
         const String& role = String::EMPTY,
         const String& resultRole = String::EMPTY);
 
-    /**
-        Get the association classes or instances for the input
-        ObjectName filtered by the resultClass and role parameters.
-        This is analogous to the operation defined in the DMTF spec
-        DSP200.
-        @param nameSpace CIMNamespaceName for the operation
-        @param objectName CIMObjectPath for the operation.  If this includes
-        ONLY a class in the object with no keys the return is CIMClasses. Else
-        it is CIMInstances. See bug 3302
-        @param role String defining role parameter from association class to
-        objectName
-        @param resultRole String defining role between association and
-        associated classes.
-        @param includeQualifiers Boolean to force inclusion of Qualifiers if
-        true and if this is a class request.
-        @param includeClassOrigin Boolean to force inclusion of ClassOrigin
-        information if true
-        @param propertyList CIMPropertyList (optional). if Null,
-        return all properties. If empty but not Null, return no
-        properties. Else return only properties in the list.
-        @return Array<CIMObject> containing either the classes or
-                instances requested.
-        @exception CIMException Error code CIM_ERR_INVALID_CLASS if the class
-            does not exist.
-        @exception - Throws NoSuchDirectory if the Namespace does
-            not exist. 
-    */
-    Array<CIMObject> references(
+    /// references
+    virtual Array<CIMObject> references(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
         const CIMName& resultClass = CIMName(),
@@ -318,99 +214,84 @@ public:
         Boolean includeClassOrigin = false,
         const CIMPropertyList& propertyList = CIMPropertyList());
 
-    /**
-        Get the association class or instance object paths for the
-        input ObjectName filtered by the assocClass,resultClass,
-        role and result role parameters. This is analogous to the
-        operation defined in the DMTF spec DSP200.
-        @param nameSpace CIMNamespaceName for the operation
-        @param objectName CIMObjectPath for the operation.  If this includes
-        ONLY a class in the object with no keys the return is CIMClasses. Else
-        it is CIMInstances. See bug 3302
-        @param role String defining role parameter from association class to
-        objectName
-        @param resultRole String defining role between association and
-        associated classes.
-        @return Array<CIMObjectPath> containing  the path of either
-                classes or instances requested.
-        @exception CIMException Error code CIM_ERR_INVALID_CLASS if the class
-            does not exist.
-        @exception - Throws NoSuchDirectory if the Namespace
-                       does not exist.        
-    */
-    Array<CIMObjectPath> referenceNames(
+    /// referenceNames
+    virtual Array<CIMObjectPath> referenceNames(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
         const CIMName& resultClass = CIMName(),
         const String& role = String::EMPTY);
 
     /// getProperty
-    CIMValue getProperty(
+    virtual CIMValue getProperty(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName,
         const CIMName& propertyName);
 
     /// setProperty
-    void setProperty(
+    virtual void setProperty(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName,
         const CIMName& propertyName,
         const CIMValue& newValue = CIMValue());
 
     /// getQualifier
-    CIMQualifierDecl getQualifier(
+    virtual CIMQualifierDecl getQualifier(
         const CIMNamespaceName& nameSpace,
         const CIMName& qualifierName);
 
     /// setQualifier
-    void setQualifier(
+    virtual void setQualifier(
         const CIMNamespaceName& nameSpace,
         const CIMQualifierDecl& qualifierDecl);
 
-    /// deleteQualifier
-    void deleteQualifier(
+    /// virtual deleteQualifier
+    virtual void deleteQualifier(
         const CIMNamespaceName& nameSpace,
         const CIMName& qualifierName);
 
     /// enumerateQualifiers
-    Array<CIMQualifierDecl> enumerateQualifiers(
+    virtual Array<CIMQualifierDecl> enumerateQualifiers(
         const CIMNamespaceName& nameSpace);
 
-    typedef HashTable <String, String, EqualNoCaseFunc, HashLowerCaseFunc>
-        NameSpaceAttributes;
+    /** CIMMethod createNameSpace - Creates a new namespace in the repository
+        @param String with the name of the namespace
+        @exception - Throws "Already_Exists if the Namespace exits.
+        Throws "CannotCreateDirectory" if there are problems in the
+        creation.
+    */
+    virtual void createNameSpace(const CIMNamespaceName& nameSpace);
 
-    void createNameSpace(const CIMNamespaceName& nameSpace,
-        const NameSpaceAttributes& attributes = NameSpaceAttributes());
+    /** CIMMethod enumerateNameSpaces - Get all of the namespaces in the
+        repository. \Ref{NAMESPACE}
+        @return Array of strings with the namespaces
+    */
+    virtual Array<CIMNamespaceName> enumerateNameSpaces() const;
 
-    void modifyNameSpace(const CIMNamespaceName& nameSpace,
-        const NameSpaceAttributes& attributes = NameSpaceAttributes());
-
-    void modifyNameSpaceName(const CIMNamespaceName& nameSpace,
-        const CIMNamespaceName& newNameSpaceName);
-
-    Array<CIMNamespaceName> enumerateNameSpaces() const;
-
-    /** Deletes a namespace in the repository.
+    /** CIMMethod deleteNameSpace - Deletes a namespace in the repository.
         The deleteNameSpace method will only delete a namespace if there are
         no classed defined in the namespace.  Today this is a Pegasus
         characteristics and not defined as part of the DMTF standards.
         @param String with the name of the namespace
         @exception - Throws NoSuchDirectory if the Namespace does not exist.
     */
-    void deleteNameSpace(const CIMNamespaceName& nameSpace);
-
-    Boolean getNameSpaceAttributes(
-        const CIMNamespaceName& nameSpace,
-        NameSpaceAttributes& attributes);
-
-    Boolean nameSpaceExists(const CIMNamespaceName& nameSpaceName);
+    virtual void deleteNameSpace(const CIMNamespaceName& nameSpace);
 
     ////////////////////////////////////////////////////////////////////////////
+
+    /** CIMMethod setDeclContext - allows the Declaration Context set
+        by default in the CIMRepository constructor to be overridden.
+        This is useful, for example, when a compiler wants to check syntax
+        without actually adding to the repository.
+    */
+    void setDeclContext(RepositoryDeclContext *context);
 
     /** Indicates whether instance operations that do not have a provider
         registered should be served by this repository.
     */
-    Boolean isDefaultInstanceProvider();
+    Boolean isDefaultInstanceProvider()
+    {
+        return _isDefaultInstanceProvider;
+    }
 
     /** Get subclass names of the given class in the given namespace.
         @param nameSpaceName
@@ -421,100 +302,219 @@ public:
         @param subClassNames - output argument to hold subclass names.
         @exception CIMException(CIM_ERR_INVALID_CLASS)
     */
-    void getSubClassNames(
+    virtual void getSubClassNames(
         const CIMNamespaceName& nameSpaceName,
         const CIMName& className,
         Boolean deepInheritance,
-        Array<CIMName>& subClassNames) const;
+        Array<CIMName>& subClassNames) const
+    {
+        _nameSpaceManager.getSubClassNames(nameSpaceName,
+                                           className,
+                                           deepInheritance,
+                                           subClassNames);
+    }
 
     /** Get the names of all superclasses (direct and indirect) of this
         class.
     */
-    void getSuperClassNames(
+    virtual void getSuperClassNames(
         const CIMNamespaceName& nameSpaceName,
         const CIMName& className,
-        Array<CIMName>& subClassNames) const;
-
-    Boolean isRemoteNameSpace(
-        const CIMNamespaceName& nameSpaceName,
-        String& remoteInfo);
-
-#ifdef PEGASUS_DEBUG
-    void DisplayCacheStatistics();
-#endif
-
-protected:
-
-    // Internal getClass implementation that does not do access control
-    // If readOnlyClass is true, then the caller ensures that the returned
-    // class, will never be modified, which allows returning a reference to
-    // the one that is in the cache.
-    CIMClass _getClass(
+        Array<CIMName>& subClassNames) const
+    {
+        _nameSpaceManager.getSuperClassNames(nameSpaceName,
+                                             className,
+                                             subClassNames);
+    }
+    /** Get the names of the Reference Classes for the Target
+        Class.  Note that this is really a subfunction of the
+        ReferenceNames function except that it operates on class
+     * input and returns only class names. It is a toolto get
+     * information for the distribution of CIM associator operations
+     * to providers.
+    */
+    /*virtual Array<String> referenceClassNames(
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
-        Boolean localOnly,
-        Boolean includeQualifiers,
-        Boolean includeClassOrigin,
-        const CIMPropertyList& propertyList,
-        Boolean clone = true);
-
-    /// Internal getInstance implementation that does not do access control
-    CIMInstance _getInstance(
-        const CIMNamespaceName& nameSpace,
-        const CIMObjectPath& instanceName,
-        Boolean includeQualifiers,
-        Boolean includeClassOrigin,
-        const CIMPropertyList& propertyList,
-        Boolean resolveInstance);
-
-    /// Internal createClass implementation that does not do access control
-    void _createClass(
-        const CIMNamespaceName& nameSpace,
-        const CIMClass& newClass);
-
-    /// Internal createInstance implementation that does not do access control
-    CIMObjectPath _createInstance(
-        const CIMNamespaceName& nameSpace,
-        const CIMInstance& newInstance);
-
-    /// Internal modifyClass implementation that does not do access control
-    void _modifyClass(
-        const CIMNamespaceName& nameSpace,
-        const CIMClass& modifiedClass);
-
-    /// Internal associatorNames implementation that does not do access control
-    Array<CIMObjectPath> _associatorNames(
+        const CIMName& resultClass = CIMName(),
+        const String& role = String::EMPTY);
+    /*virtual Array<CIMObjectPath> referenceNames(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
-        const CIMName& assocClass,
-        const CIMName& resultClass,
-        const String& role,
-        const String& resultRole);
-
-    /// Internal referenceNames implementation that does not do access control
-    Array<CIMObjectPath> _referenceNames(
-        const CIMNamespaceName& nameSpace,
-        const CIMObjectPath& objectName,
-        const CIMName& resultClass,
-        const String& role);
-
-    /// Internal getQualifier implementation that does not do access control
-    CIMQualifierDecl _getQualifier(
-        const CIMNamespaceName& nameSpace,
-        const CIMName& qualifierName);
-
-    /// Internal setQualifier implementation that does not do access control
-    void _setQualifier(
-        const CIMNamespaceName& nameSpace,
-        const CIMQualifierDecl& qualifierDecl);
+        const CIMName& resultClass = CIMName(),
+        const String& role = String::EMPTY);*/
 
 private:
 
-    class CIMRepositoryRep* _rep;
-    friend class compilerDeclContext;
-    friend class RepositoryDeclContext;
+    void _createAssocInstEntries(
+        const CIMNamespaceName& nameSpace,
+        const CIMConstClass& cimClass,
+        const CIMInstance& cimInstance,
+        const CIMObjectPath& instanceName);
+
+    void _createAssocClassEntries(
+        const CIMNamespaceName& nameSpace,
+        const CIMConstClass& assocClass);
+
+    /** Returns the index (or byte location) and size of the instance
+        record in the instance file for a given instance.  Returns true
+        if successful.  Returns false if the instance cannot be found.
+
+        @param   nameSpace      the namespace of the instance
+        @param   instanceName   the name of the instance
+        @param   className      the name of the class
+        @param   size           the size of the instance record found
+        @param   index          the byte positon of the instance record found
+        @param   searchSuper    if true, search all superclasses 
+     
+        @return  true           if the instance is found
+                 false          if the instance cannot be found
+     */
+    Boolean _getInstanceIndex(
+        const CIMNamespaceName& nameSpace,
+        const CIMObjectPath& instanceName,
+        CIMName& className,
+        Uint32& size,
+        Uint32& index,
+        Boolean searchSuperClasses = false) const;
+
+    /** Returns the file path of the instance index file.
+
+        @param   nameSpace      the namespace of the instance
+        @param   className      the name of the class
+
+        @return  a string containing the index file path
+     */
+    String _getInstanceIndexFilePath(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className) const;
+
+    /** Returns the file path of the instance file.
+
+        @param   nameSpace      the namespace of the instance
+        @param   className      the name of the class
+
+        @return  a string containing the instance file path
+     */
+    String _getInstanceDataFilePath(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className) const;
+
+    /** Saves an instance object from memory to disk file.  The byte
+        position and the size of the newly inserted instance record are
+        returned.  Returns true on success.
+
+        @param   path      the file path of the instance file
+        @param   object    the CIMInstance object to be saved
+        @param   index     the byte positon of the saved instance record
+        @param   size      the size of the saved instance record
+
+        @return  true      if successful
+                 false     if an error occurs in saving the instance to file
+     */
+    Boolean _saveInstance(
+        const String& path,
+        const CIMInstance& object,
+        Uint32& index,
+        Uint32& size);
+
+    /** loads an instance object from disk to memory.  The caller passes 
+        the byte position and the size of the instance record to be loaded.
+        Returns true on success.
+
+        @param   path      the file path of the instance file
+        @param   object    the CIMInstance object to be returned
+        @param   index     the byte positon of the instance record
+        @param   size      the size of the instance record
+        @param   data      the buffer to hold the instance data
+
+        @return  true      if successful
+                 false     if an error occurs in loading the instance from file
+     */
+    Boolean _loadInstance(
+        const String& path,
+        CIMInstance& object,
+        Uint32 index,
+        Uint32 size);
+
+    /** loads all the instance objects from disk to memeory.  Returns true
+        on success.
+
+        @param   nameSpace      the namespace of the instances to be loaded 
+        @param   className      the class of the instances to be loaded
+        @param   namedInstances an array of CIMInstance objects to which
+                                the loaded instances are appended
+
+        @return  true      if successful
+                 false     if an error occurs in loading the instances
+     */
+    Boolean _loadAllInstances(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
+        Array<CIMInstance>& namedInstances);
+
+    /** Modifies an instance object saved in the disk file.  The byte position
+        and the size of the newly added instance record are returned.  Returns
+        true on success.
+
+        @param   path      the file path of the instance file
+        @param   object    the modified CIMInstance object
+        @param   oldIndex  the byte positon of the old instance record
+        @param   oldSize   the size of the old instance record
+        @param   newIndex  the byte positon of the new instance record
+        @param   newSize   the size of the new instance record
+
+        @return  true      if successful
+                 false     if an error occurs in modifying the instance
+     */
+    Boolean _modifyInstance(
+        const String& path,
+        const CIMInstance& object,
+        Uint32 oldIndex,
+        Uint32 oldSize,
+        Uint32& newIndex,
+        Uint32& newSize);
+
+    /** Renames the temporary instance and instance index files back to the
+        original files.  The temporary files were created for an insert,
+        remove, or modify operation (to avoid data inconsistency between
+        the two files in case of unexpected system termination or failure).
+        This method is called after a successful insert, remove, or modify
+        operation on BOTH the index file and the instance file.  Returns
+        true on success.
+
+        @param   indexFilePath   the file path of the instance index file
+        @param   instancePath    the file path of the instance file
+
+        @return  true      if successful
+                 false     if an error occurs in removing the original files
+                           or renaming the temporary files.
+     */
+    Boolean _renameTempInstanceAndIndexFiles(
+        const String& indexFilePath,
+        const String& instanceFilePath);
+
+    String _repositoryRoot;
+    NameSpaceManager _nameSpaceManager;
+
+    // This must be initialized in the constructor using values from the
+    // ConfigManager.
+    Boolean _isDefaultInstanceProvider;
+
+protected:
+
+    // Used by getInstance(); indicates whether instance should be resolved
+    // after it is retrieved from the file.
+
+    ReadWriteSem _lock;
+    RepositoryDeclContext* _context;
+    Boolean _resolveInstance;
 };
+
+String PEGASUS_REPOSITORY_LINKAGE namespaceNameToDirName(const CIMNamespaceName& namespaceName);
+String PEGASUS_REPOSITORY_LINKAGE dirNameToNamespaceName(const String& dirName);
 
 PEGASUS_NAMESPACE_END
 
-#endif /* Pegasus_Repository_h */
+#endif /* PegasusRepository_Repository_h */
+

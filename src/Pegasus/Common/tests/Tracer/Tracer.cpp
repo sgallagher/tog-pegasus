@@ -72,7 +72,7 @@ Uint32 compare(const char* fileName, const char* compareStr)
     Uint32 count=0;
     Uint32 retCode=0;
     fstream file;
-    Uint32 size=strlen(compareStr);
+    Uint32 size= static_cast<Uint32>(strlen(compareStr));
     AutoArrayPtr<char> readStr(new char[size+EOF_CHAR+1]);
 
     file.open(fileName,fstream::in);

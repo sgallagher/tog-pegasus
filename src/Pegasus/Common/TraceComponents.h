@@ -103,7 +103,8 @@ static char const* TRACE_COMPONENT_LIST[] =
     "Server",
     "IndicationService",
     "ConfigurationManager",
-    "MessageQueueService" 
+    "MessageQueueService",
+    "ProviderManager" 
 };
 
 /** Constants identifying the Trace components. These constants are used by 
@@ -145,7 +146,8 @@ enum TRACE_COMPONENT_ID
     TRC_SERVER,
     TRC_INDICATION_SERVICE,
     TRC_CONFIGURATION_MANAGER,
-    TRC_MESSAGEQUEUESERVICE
+    TRC_MESSAGEQUEUESERVICE,
+    TRC_PROVIDERMANAGER
 };
 
 PEGASUS_NAMESPACE_END

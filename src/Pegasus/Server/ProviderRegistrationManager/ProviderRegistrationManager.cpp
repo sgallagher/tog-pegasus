@@ -33,6 +33,7 @@
 #include <Pegasus/Common/CIMDateTime.h>
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/HashTable.h>
+#include <Pegasus/Common/Tracer.h>
 
 #include "ProviderRegistrationTable.h"
 
@@ -215,6 +216,9 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
     String providerName;
     String providerModuleName;
 
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+       "ProviderRegistrationManager::lookupInstanceProvider");
+
     ProviderRegistrationTable* providerCapability = 0;
     ProviderRegistrationTable* _provider= 0;
     ProviderRegistrationTable* _providerModule = 0;
@@ -223,6 +227,9 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
     // create the key by using nameSpace, className, and providerType
     //
     String capabilityKey = _generateKey(nameSpace, className, INS_PROVIDER);
+    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+                     "\nnameSpace = " + nameSpace + "; className = " + 
+                         className +  "; capabilityKey = " + capabilityKey);
 
     try
     {
@@ -282,12 +289,15 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
     }
     catch(CIMException & exception)
     {
+        Tracer::traceCIMException(TRC_PROVIDERMANAGER, Tracer::LEVEL4, exception);
+        PEG_METHOD_EXIT();
 	return (false);
     }
 
     Array<CIMInstance> providerModuleInstances = _providerModule->getInstances();
     providerModule = providerModuleInstances[0];
     
+    PEG_METHOD_EXIT();
     return (true);
 }
 
@@ -623,6 +633,9 @@ CIMInstance ProviderRegistrationManager::getInstance(
     String errorDescription;
     CIMInstance instance;
 
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+                     "ProviderRegistrationManager::getInstance");
+
     CIMReference localReference("", "",
 	instanceReference.getClassName(),
 	instanceReference.getKeyBindings());
@@ -637,15 +650,18 @@ CIMInstance ProviderRegistrationManager::getInstance(
     {
         errorCode = exception.getCode ();
         errorDescription = exception.getMessage ();
+        PEG_METHOD_EXIT();
 	throw (exception);
     }
     catch (Exception & exception)
     {
         errorCode = CIM_ERR_FAILED;
         errorDescription = exception.getMessage ();
+        PEG_METHOD_EXIT();
 	throw (exception);
     }
 
+    PEG_METHOD_EXIT();
     return (instance);
 }
 
@@ -656,6 +672,9 @@ Array<CIMNamedInstance> ProviderRegistrationManager::enumerateInstances(
     CIMStatusCode errorCode = CIM_ERR_SUCCESS;
     String errorDescription;
     CIMInstance instance;
+
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+       "ProviderRegistrationManager::enumerateInstances");
 
     Array<CIMNamedInstance> enumInstances;
 
@@ -669,15 +688,18 @@ Array<CIMNamedInstance> ProviderRegistrationManager::enumerateInstances(
     {
         errorCode = exception.getCode ();
         errorDescription = exception.getMessage ();
+        PEG_METHOD_EXIT();
 	throw (exception);
     }
     catch (Exception & exception)
     {
         errorCode = CIM_ERR_FAILED;
         errorDescription = exception.getMessage ();
+        PEG_METHOD_EXIT();
 	throw (exception);
     }
 
+    PEG_METHOD_EXIT();
     return (enumInstances);
 
 }
@@ -690,6 +712,9 @@ Array<CIMReference> ProviderRegistrationManager::enumerateInstanceNames(
     CIMStatusCode errorCode = CIM_ERR_SUCCESS;
     String errorDescription;
     CIMInstance instance;
+
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+                     "ProviderRegistrationManager::enumerateInstanceNames");
 
     Array<CIMReference> enumInstanceNames;
 
@@ -705,15 +730,18 @@ Array<CIMReference> ProviderRegistrationManager::enumerateInstanceNames(
     {
         errorCode = exception.getCode ();
         errorDescription = exception.getMessage ();
+        PEG_METHOD_EXIT();
 	throw (exception);
     }
     catch (Exception & exception)
     {
         errorCode = CIM_ERR_FAILED;
         errorDescription = exception.getMessage ();
+        PEG_METHOD_EXIT();
 	throw (exception);
     }
 
+    PEG_METHOD_EXIT();
     return (enumInstanceNames);
 }
 
@@ -729,6 +757,9 @@ CIMReference ProviderRegistrationManager::createInstance(
 
     String _providerModule;
     String _providerName;
+
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+                     "ProviderRegistrationManager::createInstance");
 
     String className = ref.getClassName();
 
@@ -755,6 +786,7 @@ CIMReference ProviderRegistrationManager::createInstance(
 	    instances.append(instance);
 	    _addInstancesToTable(_providerModule, instances);
 
+            PEG_METHOD_EXIT();
 	    return (cimRef);
 	}	
 
@@ -789,6 +821,7 @@ CIMReference ProviderRegistrationManager::createInstance(
 
 	        _addInstancesToTable(_providerName, instances);
 
+                PEG_METHOD_EXIT();
 	        return (cimRef);
 	    }
 	    else
@@ -1005,6 +1038,7 @@ CIMReference ProviderRegistrationManager::createInstance(
 		}
 
 	        cimRef = _repository->createInstance(INTEROPNAMESPACE, instance); 
+                PEG_METHOD_EXIT();
     		return (cimRef);
 	    }
 	    else
@@ -1020,15 +1054,18 @@ CIMReference ProviderRegistrationManager::createInstance(
     {
 	errorCode = exception.getCode ();
  	errorDescription = exception.getMessage ();
+        PEG_METHOD_EXIT();
 	throw (exception);
     }
     catch (Exception & exception)
     {
 	errorCode = CIM_ERR_FAILED;
 	errorDescription = exception.getMessage ();
+        PEG_METHOD_EXIT();
 	throw (exception);
     }
 
+PEG_METHOD_EXIT();
 }
 
 // Unregister a provider
@@ -1552,6 +1589,9 @@ void ProviderRegistrationManager::_initialRegistrationTable()
     Array<Uint16> providerType;
     Array<String> supportedMethods;
     Array<CIMNamedInstance> cimNamedInstances;
+
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+                     "ProviderRegistrationManager::_initialRegistrationTable()");
   
     try
     {
@@ -1771,12 +1811,17 @@ void ProviderRegistrationManager::_initialRegistrationTable()
         errorDescription = exception.getMessage();
     }
 
+    PEG_METHOD_EXIT();
 }
 
 void ProviderRegistrationManager::_addInstancesToTable(
     const String & key,
     const Array<CIMInstance> & instances)
 {
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+                     "ProviderRegistrationManager::_addInstancesToTable");
+    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, "key = " + key);
+
     ProviderRegistrationTable* elementInfo = 0;
 
     try
@@ -1787,14 +1832,18 @@ void ProviderRegistrationManager::_addInstancesToTable(
     catch (Exception& e)
     {
 	delete elementInfo;
+        PEG_METHOD_EXIT();
         throw e;
     } 
 
     if (!_registrationTable->table.insert(key,elementInfo))
     {
 	//ATTN-YZ-P3-20020301:Is this proper exception 
+        PEG_METHOD_EXIT();
         throw CIMException(CIM_ERR_FAILED, "can not insert element to the table ");
     }
+
+    PEG_METHOD_EXIT();
 }
 
 String ProviderRegistrationManager::_generateKey(

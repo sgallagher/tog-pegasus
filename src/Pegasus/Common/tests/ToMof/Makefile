@@ -1,5 +1,5 @@
 ROOT = ../../../../..
-DIR = Pegasus/Common/tests/Value
+DIR = Pegasus/Common/tests/ToMof
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 

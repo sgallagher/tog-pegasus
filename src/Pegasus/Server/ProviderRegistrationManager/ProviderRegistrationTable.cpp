@@ -29,6 +29,7 @@
 
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/FileSystem.h>
+#include <Pegasus/Common/Tracer.h>
 
 #include "ProviderRegistrationTable.h"
 
@@ -39,6 +40,15 @@ ProviderRegistrationTable::ProviderRegistrationTable(
     const Array<CIMInstance> & instances)
     : _instances(instances)
 {
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, 
+                     "ProviderRegistrationTable::ProviderRegistrationTable");
+
+    for (Uint32 i=0; i < _instances.size(); i++)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                         _instances[i].toString());
+    }
+    PEG_METHOD_EXIT();
 }
 
 ProviderRegistrationTable::~ProviderRegistrationTable(void)

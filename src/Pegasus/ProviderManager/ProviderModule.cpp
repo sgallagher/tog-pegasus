@@ -31,6 +31,7 @@
 
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/FileSystem.h>
+#include <Pegasus/Common/Tracer.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -38,6 +39,11 @@ PEGASUS_NAMESPACE_BEGIN
 ProviderModule::ProviderModule(const String & fileName, const String & providerName)
     : _fileName(fileName), _providerName(providerName), _library(0), _provider(0)
 {
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderModule::ProviderModule");
+    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+                     "providerName = " + providerName + "; fileName = " + 
+                         fileName);
+    PEG_METHOD_EXIT();
 }
 
 ProviderModule::~ProviderModule(void)

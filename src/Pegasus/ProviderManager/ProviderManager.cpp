@@ -26,6 +26,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Tracer.h>
 #include "ProviderManager.h"
 
 PEGASUS_NAMESPACE_BEGIN
@@ -54,11 +55,19 @@ Provider ProviderManager::getProvider(
 	const String & fileName,
 	const String & providerName)
 {
+	PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManager::getProvider");
+	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+	                 "fileName = " + fileName + "; providerName = " + 
+                         providerName);
+
 	// check list for requested provider and return if found
 	for(Uint32 i = 0, n = _providers.size(); i < n; i++)
 	{
+		PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+	           "_providers[i].getName = " + _providers[i].getName());
 		if(String::equalNoCase(providerName, _providers[i].getName()))
 		{
+			PEG_METHOD_EXIT();
 			return(_providers[i]);
 		}
 	}
@@ -77,17 +86,24 @@ Provider ProviderManager::getProvider(
 	_providers.append(provider);
 
 	// recurse to get the provider as it resides in the array (rather than the local instance)
+
+	PEG_METHOD_EXIT();
 	return(getProvider(fileName, providerName));
 }
 
 void ProviderManager::addProviderToTable(const String & providerName, Boolean BlockFlag)
 {
+	PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, 
+                         "ProviderManager::addProviderToTable");
+	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+                         "providerName = " + providerName);
 	/*
 	ProviderBlockedEntry providerInfo(providerName, BlockFlag);
 
 	// add providerInfo to provider block table
 	_providerBT.append(providerInfo);
 	*/
+        PEG_METHOD_EXIT();
 }
 
 void ProviderManager::removeProviderFromTable(const String & providerName)

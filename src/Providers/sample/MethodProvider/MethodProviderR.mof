@@ -1,0 +1,27 @@
+instance of PG_ProviderModule
+{
+   Name = "InvokeMethodProviderModule";
+   Location = "SampleMethodProvider";
+   Vendor = "Pegasus Community";
+   Version = "2.0.0";
+   InterfaceType = "C++Default";
+   InterfaceVersion = "2.0.0";
+};
+
+instance of PG_Provider
+{
+   ProviderModuleName = "InvokeMethodProviderModule";
+   Name = "sample_methodproviderclass";
+};
+
+instance of PG_ProviderCapabilities
+{
+   ProviderModuleName = "InvokeMethodProviderModule";
+   ProviderName = "sample_methodproviderclass";
+   CapabilityID = "1";
+   ClassName = "Sample_MethodProviderClass";
+   Namespaces[] = {"root/cimv2"};
+   ProviderType[] = { 2, 5 }; // Instance & Method
+   SupportedProperties[] = NULL; // All properties
+   SupportedMethods[] = NULL; // All methods
+};

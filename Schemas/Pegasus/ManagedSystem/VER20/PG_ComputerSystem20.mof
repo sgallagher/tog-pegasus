@@ -1,0 +1,63 @@
+// =============================================================================
+// Filename:           PG_ComputerSystem.mof
+// Date:               05/29/2001
+// Author:             Jim Metcalfe
+// Modified by:        Mike Glantz <michael_glantz@hp.com>
+// Description:        This file contains the PG_ComputerSystem class
+//                     definition.
+// =============================================================================
+
+// =============================================================================
+// PG_ComputerSystem
+// =============================================================================
+[
+    Description ("PG_ComputerSystem contains extension to "
+                 "CIM_UnitaryComputerSystem.")
+]
+
+class PG_ComputerSystem : CIM_UnitaryComputerSystem
+{  
+    [
+        Description ("The pager number of the primary system owner"
+                     "available if DMI is installed, else blank."),
+        MappingStrings {"MIF.DMTF|General Information|001.9"}
+    ]  
+    string PrimaryOwnerPager;
+
+    [
+        Description ("The name of the secondary owner of the system"
+                     "available if DMI is installed, else blank."),
+        MappingStrings {"MIF.DMTF|General Information|001.7"}
+    ] 
+    string SecondaryOwnerName;
+
+    [
+        Description ("The phone number of the secondary system owner,"
+                     "available if DMI is installed, else blank."),
+        MappingStrings {"MIF.DMTF|General Information|001.8"}
+    ]  
+    string SecondaryOwnerContact;
+
+    [Description ("The pager number of the secondary system owner,"
+                  "available if DMI is installed, else blank."),
+     MappingStrings {"MIF.DMTF|General Information|001.10"}
+    ]  
+    string SecondaryOwnerPager;
+
+    [Description ("The serial number of the system, fetched by the"
+                  "uname() system service."),
+     MappingStrings {"MIF.DMTF|General Information|001.13"}
+    ]  
+    string SerialNumber;
+
+    [Description ("The identification number of the system,"
+                  "currently blank."),
+     MappingStrings {"MIF.DMTF|General Information|001.13"}
+    ]  
+    string IdentificationNumber;
+};
+
+// =============================================================================
+// end of file
+// =============================================================================
+

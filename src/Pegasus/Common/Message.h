@@ -220,7 +220,9 @@ class PEGASUS_COMMON_LINKAGE Message
 	 return ret;
       }
 
-      virtual void print(PEGASUS_STD(ostream)& os) const;
+      virtual void print(
+	  PEGASUS_STD(ostream)& os, 
+	  Boolean printHeader = true) const;
 
       // << Thu Dec 27 10:46:04 2001 mdd >> for use with DQueue container
       // as used by AsyncOpNode

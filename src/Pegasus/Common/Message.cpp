@@ -67,9 +67,21 @@ Message::~Message()
 { 
 }
 
-void Message::print(ostream& os) const
+void Message::print(ostream& os, Boolean printHeader) const
 {
-    os << "[" << MessageTypeToString(_type) << ", " << _key << "]" << endl;
+    if (printHeader)
+    {
+	os << "Message\n";
+	os << "{";
+    }
+
+    os << "    messageType: " << MessageTypeToString(_type) << endl;
+    os << "    key: " << _key << endl;
+
+    if (printHeader)
+    {
+	os << "}";
+    }
 }
 
 static const char* _MESSAGE_TYPE_STRINGS[] =

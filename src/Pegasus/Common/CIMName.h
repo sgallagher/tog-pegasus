@@ -97,7 +97,7 @@ public:
 	@param - String to test
 	@return Returns true if the given name is legal.
     */
-    static Boolean legal(const String& name) throw();
+    static Boolean legal(const String& name);
 
 private:
     String cimName;
@@ -163,7 +163,7 @@ public:
 	@param - String to test
 	@return Returns true if the given name is legal.
     */
-    static Boolean legal(const String& name) throw();
+    static Boolean legal(const String& name);
 
 private:
     String cimNamespaceName;

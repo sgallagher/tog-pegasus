@@ -115,7 +115,7 @@ void CIMName::clear()
     cimName.clear();
 }
 
-Boolean CIMName::legal(const String& name) throw()
+Boolean CIMName::legal(const String& name)
 {
     Uint32 length = name.size();
 
@@ -139,13 +139,6 @@ Boolean CIMName::equal(const CIMName& name) const
 {
     return String::equalNoCase(cimName, name.cimName);
 }
-
-#if 0
-Boolean CIMName::equal(const String& name1, const String& name2) throw()
-{
-    return String::equalNoCase(name1, name2);
-}
-#endif
 
 Boolean operator==(const CIMName& name1, const CIMName& name2)
 {
@@ -234,7 +227,7 @@ void CIMNamespaceName::clear()
     cimNamespaceName.clear();
 }
 
-Boolean CIMNamespaceName::legal(const String& name) throw()
+Boolean CIMNamespaceName::legal(const String& name)
 {
     Uint32 length = name.size();
     if (length == 0) return true;    // ATTN: Cheap hack!
@@ -297,13 +290,6 @@ Boolean CIMNamespaceName::equal(const CIMNamespaceName& name) const
 {
     return String::equalNoCase(cimNamespaceName, name.cimNamespaceName);
 }
-
-#if 0
-Boolean CIMNamespaceName::equal(const String& name1, const String& name2) throw()
-{
-    return String::equalNoCase(name1, name2);
-}
-#endif
 
 Boolean operator==(const CIMNamespaceName& name1, const CIMNamespaceName& name2)
 {

@@ -219,7 +219,7 @@ DynamicLibraryHandle System::loadDynamicLibrary(const char* fileName)
 void System::unloadDynamicLibrary(DynamicLibraryHandle libraryHandle)
 {
     // ATTN: Should this method indicate success/failure?
-#ifdef PEGASUS_OS_LINUX
+#if defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_SOLARIS)
     dlclose(libraryHandle);
 #endif
 
@@ -351,11 +351,20 @@ Uint32 System::lookupPort(
     // Get wbem-local port from /etc/services
     //
 #if !defined(PEGASUS_OS_OS400)
+#ifdef PEGASUS_OS_SOLARIS
+#define SERV_BUFF_SIZE	1024
+    struct servent	serv_result;
+    char		buf[SERV_BUFF_SIZE];
+
+    if ( (serv = getservbyname_r(serviceName, TCP, &serv_result,
+				buf, SERV_BUFF_SIZE)) != NULL )
+#else // PEGASUS_OS_SOLARIS
     if ( (serv = getservbyname(serviceName, TCP)) != NULL )
-#else
+#endif // PEGASUS_OS_SOLARIS
+#else  // !PEGASUS_OS_OS400
     // Need to cast on OS/400
     if ( (serv = getservbyname((char *)serviceName, TCP)) != NULL )
-#endif
+#endif  // !PEGASUS_OS_OS400
     {
         localPort = htons((uint16_t)serv->s_port);
     }
@@ -385,10 +394,19 @@ String System::getEffectiveUserName()
     String userName = String::EMPTY;
     struct passwd*   pwd = NULL;
 
+#ifdef PEGASUS_OS_SOLARIS
+#define PWD_BUFF_SIZE	1024
+    struct passwd	local_pwd;
+    char		buf[PWD_BUFF_SIZE];
+    if(getpwuid_r(geteuid(), &local_pwd, buf, PWD_BUFF_SIZE, &pwd)) {
+	pwd = (struct passwd *)NULL;
+    }
+#else
     //
     //  get the currently logged in user's UID.
     //
     pwd = getpwuid(geteuid());
+#endif
     if ( pwd == NULL )
     {
         //ATTN: Log a message
@@ -417,10 +435,18 @@ String System::encryptPassword(const char* password, const char* salt)
 
 Boolean System::isSystemUser(const char* userName)
 {
+#ifdef PEGASUS_OS_SOLARIS
+    struct passwd   pwd;
+    struct passwd   *result;
+    char            pwdBuffer[1024];
+
+    if (getpwnam_r(userName, &pwd, pwdBuffer, 1024, &result) != 0)
+#else
     //
     //  get the password entry for the user
     //
     if  ( getpwnam(userName) == NULL )
+#endif
     {
 	return false;
     }
@@ -457,12 +483,19 @@ String System::getPrivilegedUserName()
     if (userName == String::EMPTY)
     {
         struct passwd*   pwd = NULL;
-
+#ifdef PEGASUS_OS_SOLARIS
+	struct passwd	local_pwd;
+	char		buf[PWD_BUFF_SIZE];
+	if(getpwuid_r(0, &local_pwd, buf, PWD_BUFF_SIZE, &pwd)) {
+		pwd = (struct passwd *)NULL;
+	}
+#else
         //
         //  get the privileged user's UID.
         //
 	//  (on OS/400, this is QSECOFR)
         pwd = getpwuid(0);
+#endif
         if ( pwd != NULL )
         {
             //

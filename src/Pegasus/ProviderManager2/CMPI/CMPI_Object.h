@@ -67,6 +67,8 @@ class CMPI_Object {
    CMPI_Object(CMPIData*);
    CMPI_Object(CMPI_Object*);
    CMPI_Object(CMPISelectCond*);
+   CMPI_Object(CMPISubCond*);
+   CMPI_Object(CMPIPredicate*);
    ~CMPI_Object();
    void unlinkAndDelete();
    void unlink();

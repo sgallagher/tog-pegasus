@@ -69,6 +69,8 @@ extern CMPIStringFT *CMPI_String_Ftab;
 
 extern CMPISelectExpFT *CMPI_SelectExp_Ftab;
 extern CMPISelectCondFT *CMPI_SelectCond_Ftab;
+extern CMPISubCondFT *CMPI_SubCond_Ftab;
+extern CMPIPredicateFT *CMPI_Predicate_Ftab;
 
 extern CMPIBrokerFT *CMPI_Broker_Ftab;
 extern CMPIBrokerEncFT *CMPI_BrokerEnc_Ftab;

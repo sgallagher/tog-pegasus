@@ -44,7 +44,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 struct CMPI_Predicate : CMPIPredicate {
    CMPI_Object *next,*prev;
-   const term_el* term;
+   void *priv;
    CMPI_Predicate(const term_el* t);
 };
 

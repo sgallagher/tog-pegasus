@@ -44,6 +44,11 @@ PEGASUS_NAMESPACE_BEGIN
 extern "C" {
 
    CMPIStatus prdRelease(CMPIPredicate* sc) {
+	  CMPI_Predicate *pred = (CMPI_Predicate*)sc->hdl;
+      if (pred) {
+         delete pred;
+         ((CMPI_Object*)sc)->unlinkAndDelete();
+      }
       CMReturn(CMPI_RC_OK);
    }
 
@@ -54,20 +59,30 @@ extern "C" {
 
    CMPIStatus prdGetData(CMPIPredicate* ePrd, CMPIType* type,
                   CMPIPredOp* op, CMPIString** lhs, CMPIString** rhs) {
-      CMPI_Predicate *prd=(CMPI_Predicate*)ePrd;
-      String o1,o2;
-      CMPIPredOp o;
-      CMPIType t;
-      prd->term->toStrings(t,o,o1,o2);
-      if (type) *type=t;
-      if (op) *op=o;
-      if (lhs) *lhs=string2CMPIString(o1);
-      if (rhs) *rhs=string2CMPIString(o2);
-      CMReturn(CMPI_RC_OK);
+      //CMPI_Predicate *prd=(CMPI_Predicate*)ePrd;
+	  CMPI_Object *obj=reinterpret_cast<CMPI_Object*>(ePrd);
+	  term_el *term =  (term_el *)obj->priv;
+	 
+      if (term) 
+	   { 
+      	String o1,o2;
+      	CMPIPredOp o;
+      	CMPIType t;
+      	term->toStrings(t,o,o1,o2);
+
+      	if (type) *type=t;
+      	if (op) *op=o;
+      	if (lhs) *lhs=string2CMPIString(o1);
+      	if (rhs) *rhs=string2CMPIString(o2);
+      	CMReturn(CMPI_RC_OK);
+	  }
+	  else
+		CMReturn(CMPI_RC_ERR_NOT_SUPPORTED);
    }
 
    int prdEvaluate(CMPIPredicate* pr, CMPIValue* value,
                   CMPIType type, CMPIStatus* rc) {
+		 if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_SUPPORTED);
          return 0;
    }
 
@@ -84,7 +99,7 @@ static CMPIPredicateFT prd_FT={
 CMPIPredicateFT *CMPI_Predicate_Ftab=&prd_FT;
 
 CMPI_Predicate::CMPI_Predicate(const term_el* t)
-  : term(t) {
+  : priv((void*)t) {
    ft=CMPI_Predicate_Ftab;
 }
 

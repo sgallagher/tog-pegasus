@@ -45,7 +45,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 struct CMPI_SubCond : CMPISubCond {
    CMPI_Object *next,*prev;
-   const TableauRow* row;
+   void* priv;
    CMPI_SubCond(const TableauRow* tblor);
 };
 

@@ -43,7 +43,16 @@ PEGASUS_NAMESPACE_BEGIN
 
 extern "C" {
 
-   CMPIStatus scndRelease(CMPISelectCond* sc) {
+   CMPIStatus scndRelease(CMPISelectCond* eSc) {
+	  CMPI_SelectCond *sc = (CMPI_SelectCond*)eSc->hdl;
+      if (sc) {
+		 CMPI_SelectCondData *data = (CMPI_SelectCondData *)sc->priv;
+		 if (data) 
+		 	delete data;
+         delete sc;
+         ((CMPI_Object*)eSc)->unlinkAndDelete();
+      }
+ 
       CMReturn(CMPI_RC_OK);
    }
 
@@ -53,21 +62,35 @@ extern "C" {
    }
 
    CMPICount scndGetCountAndType(CMPISelectCond* eSc, int* type, CMPIStatus* rc) {
-      CMPI_SelectCond *sc=(CMPI_SelectCond*)eSc;
-      if (type!=NULL) *type=sc->type;
-      if (rc) CMSetStatus(rc,CMPI_RC_OK);
-      return sc->tableau->size();
+
+	  CMPI_SelectCond *sc=(CMPI_SelectCond*)eSc;
+	  CMPI_SelectCondData *data = (CMPI_SelectCondData *)sc->priv;
+
+	  if (data)
+	   {
+      		if (type!=NULL) *type=data->type;
+      		if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      		return data->tableau->size();
+		}
+	  return 0;
    }
 
    CMPISubCond* scndGetSubCondAt(CMPISelectCond* eSc, unsigned int index, CMPIStatus* rc) {
       CMPI_SelectCond *sc=(CMPI_SelectCond*)eSc;
-      if (index<=sc->tableau->size()) {
-         const TableauRow *row=(sc->tableau->getData())+index;
-         CMPISubCond *sbc=(CMPISubCond*)new CMPI_SubCond(row);
-         if (rc) CMSetStatus(rc,CMPI_RC_OK);
-         return sbc;
-      }   
-      if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
+      CMPI_SelectCondData *data = (CMPI_SelectCondData *)sc->priv;
+	  if (data)
+		{
+      	  if (index<=data->tableau->size()) {
+         	const TableauRow *row=(data->tableau->getData())+index;
+
+         	CMPISubCond *sbc=(CMPISubCond*)new CMPI_SubCond(row);
+			CMPI_Object *obj = new CMPI_Object(sbc);
+			obj->priv = ((CMPI_SubCond *)(sbc))->priv;
+         	if (rc) CMSetStatus(rc,CMPI_RC_OK);
+         	return reinterpret_cast<CMPISubCond *>(obj);
+		}
+      } else  
+      	if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
       return NULL; 
    }
 
@@ -83,8 +106,12 @@ static CMPISelectCondFT scnd_FT={
 
 CMPISelectCondFT *CMPI_SelectCond_Ftab=&scnd_FT;
 
+CMPI_SelectCondData::CMPI_SelectCondData(Tableau *tblo, int t)
+  : tableau(tblo), type(t) { }
+
 CMPI_SelectCond::CMPI_SelectCond(Tableau* tblo, int t)
-  : tableau(tblo), type(t) {
+  {
+   priv = new CMPI_SelectCondData(tblo, t);
    ft=CMPI_SelectCond_Ftab;
 }
 

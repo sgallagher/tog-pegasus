@@ -43,10 +43,15 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+struct CMPI_SelectCondData {
+	CMPI_SelectCondData(Tableau *tblo, int t);
+	Tableau *tableau;
+	int type;
+};
+
 struct CMPI_SelectCond : CMPISelectCond {
    CMPI_Object *next,*prev;
-   Tableau* tableau;
-   int type;
+   void *priv;
    CMPI_SelectCond(Tableau* tblo, int t);
 };
 

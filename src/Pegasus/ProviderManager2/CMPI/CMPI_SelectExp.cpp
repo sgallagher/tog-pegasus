@@ -112,8 +112,11 @@ extern "C" {
          sx->tableau=sx->dnf->getTableau();
       }
       CMPISelectCond *sc=(CMPISelectCond*)new CMPI_SelectCond(sx->tableau,0);
+	  CMPI_Object *obj = new CMPI_Object(sc);
+      obj->priv = ((CMPI_SelectCond *)sc)->priv;
+
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
-      return sc;
+     return reinterpret_cast<CMPISelectCond *>(obj); 
    }
    /*
    static CMPISelectCond* selxGetCOD(CMPISelectExp* eSx, CMPIStatus* rc) {

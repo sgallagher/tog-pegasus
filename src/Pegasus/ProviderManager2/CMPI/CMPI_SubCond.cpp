@@ -44,6 +44,12 @@ PEGASUS_NAMESPACE_BEGIN
 extern "C" {
 
    CMPIStatus sbcRelease(CMPISubCond* sc) {
+	  CMPI_SubCond *sbc = (CMPI_SubCond*)sc->hdl;
+      if (sbc) {
+         delete sbc;
+         ((CMPI_Object*)sc)->unlinkAndDelete();
+      }
+
       CMReturn(CMPI_RC_OK);
    }
 
@@ -53,26 +59,41 @@ extern "C" {
    }
 
    CMPICount sbcGetCount(CMPISubCond* eSbc, CMPIStatus* rc) {
-      CMPI_SubCond *sbc=(CMPI_SubCond*)eSbc;
+      
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
-      return sbc->row->size();
+	  CMPI_Object *obj=reinterpret_cast<CMPI_Object*>(eSbc);
+	  TableauRow* row = (TableauRow* )obj->priv;
+	  if (row)	  
+      	return row->size();
+	  return 0;
    }
 
    CMPIPredicate* sbcGetPredicateAt(CMPISubCond* eSbc, unsigned int index, CMPIStatus* rc) {
-      CMPI_SubCond *sbc=(CMPI_SubCond*)eSbc;
-      if (index<=sbc->row->size()) {
-         const term_el *term=(sbc->row->getData())+index;
+
+	  CMPI_Object *obj=reinterpret_cast<CMPI_Object*>(eSbc);
+	  TableauRow* row = (TableauRow* )obj->priv;
+
+	  if (row)
+      	if (index<=row->size()) {
+         const term_el *term=(row->getData())+index;
 
          CMPIPredicate *prd=(CMPIPredicate*)new CMPI_Predicate(term);
+		 /* CMPI_Object puts in the hdl the pointer to the CMPI_Predicate. 
+			The sbcRelease will use that pointer to de-allocate the CMPI_Predicate
+			structure.  */
+		 CMPI_Object *obj = new CMPI_Object(prd);
+		 /* We add our private data - the row in the priv pointer */
+		 obj->priv = ((CMPI_Predicate *)prd)->priv;
+
          if (rc) CMSetStatus(rc,CMPI_RC_OK);
-         return prd;
+         return reinterpret_cast<CMPIPredicate*>(obj);
       }   
       if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
       return NULL; 
    }
 
    CMPIPredicate* sbcGetPredicate(CMPISubCond* eSbc, const char *name, CMPIStatus* rc) {
-      CMPI_SubCond *sc=(CMPI_SubCond*)eSbc;
+      //CMPI_SubCond *sc=(CMPI_SubCond*)eSbc;
       return NULL;
    }
 
@@ -90,7 +111,7 @@ static CMPISubCondFT scnd_FT={
 CMPISubCondFT *CMPI_SubCond_Ftab=&scnd_FT;
 
 CMPI_SubCond::CMPI_SubCond(const TableauRow* tblor)
-  : row(tblor) {
+  : priv((void*)tblor) {
    ft=CMPI_SubCond_Ftab;
 }
 

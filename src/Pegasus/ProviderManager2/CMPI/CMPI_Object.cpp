@@ -98,6 +98,17 @@ CMPI_Object::CMPI_Object(CMPISelectCond *dta) {
    ftab=CMPI_SelectCond_Ftab;
 }
 
+CMPI_Object::CMPI_Object(CMPISubCond *dta) {
+    CMPI_ThreadContext::addObject(this);
+    hdl=(void*)dta;
+    ftab=CMPI_SubCond_Ftab;
+}
+CMPI_Object::CMPI_Object(CMPIPredicate *dta) {
+   CMPI_ThreadContext::addObject(this);
+   hdl=(void*)dta;
+   ftab=CMPI_Predicate_Ftab;
+}
+
 CMPI_Object::~CMPI_Object() {
    if (ftab==CMPI_Instance_Ftab) {
       char **list=(char**)priv;

@@ -70,7 +70,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <Pegasus/Common/FileSystem.h>
-#include <Pegasus/Common/Selector.h>
+#include <Pegasus/Common/Monitor.h>
 #include <Pegasus/Server/CIMServer.h>
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Protocol/Handler.h>
@@ -435,12 +435,17 @@ int main(int argc, char** argv)
 	char *url = serviceURL.allocateCString();
 	//	free(host_name);
 
-	Selector selector;
-	CIMServer server(&selector, pegasusHome);
+	Monitor monitor;
+	CIMServer server(&monitor, pegasusHome);
 
 	// bind throws an exception of the bind fails
 	cout << "Binding to " << address << endl;
-	server.bind(address);
+
+	char* end = 0;
+	long portNumber = strtol(address, &end, 10);
+	assert(end != 0 && *end == '\0');
+	server.bind(portNumber);
+
 	delete [] address;
 
 	time_t last = 0;

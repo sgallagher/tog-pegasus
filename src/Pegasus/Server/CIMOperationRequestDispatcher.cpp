@@ -242,6 +242,8 @@ void CIMOperationRequestDispatcher::handleEnqueue()
 	case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
 	    break;
     }
+
+    delete request;
 }
 
 const char* CIMOperationRequestDispatcher::getQueueName() const
@@ -287,8 +289,6 @@ void CIMOperationRequestDispatcher::handleGetClassRequest(
 	cimClass);
 
     _enqueueResponse(request, response);
-
-    delete request;
 }
 
 void CIMOperationRequestDispatcher::handleGetInstanceRequest(
@@ -343,8 +343,6 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 	cimInstance);
 
     _enqueueResponse(request, response);
-
-    delete request;
 }
 
 void CIMOperationRequestDispatcher::handleDeleteClassRequest(
@@ -390,8 +388,6 @@ void CIMOperationRequestDispatcher::handleDeleteClassRequest(
 	    request->queueIds.copyAndPop());
 
     _enqueueResponse(request, response);
-
-    delete request;
 }
 
 void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
@@ -437,8 +433,6 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
 	    request->queueIds.copyAndPop());
 
     _enqueueResponse(request, response);
-
-    delete request;
 }
 
 void CIMOperationRequestDispatcher::handleCreateClassRequest(
@@ -472,8 +466,6 @@ void CIMOperationRequestDispatcher::handleCreateClassRequest(
 	    request->queueIds.copyAndPop());
 
     _enqueueResponse(request, response);
-
-    delete request;
 }
 
 void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
@@ -519,8 +511,6 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 	    request->queueIds.copyAndPop());
 
     _enqueueResponse(request, response);
-
-    delete request;
 }
 
 void CIMOperationRequestDispatcher::handleModifyClassRequest(
@@ -554,8 +544,6 @@ void CIMOperationRequestDispatcher::handleModifyClassRequest(
 	    request->queueIds.copyAndPop());
 
     _enqueueResponse(request, response);
-
-    delete request;
 }
 
 void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
@@ -603,8 +591,6 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
 	    request->queueIds.copyAndPop());
 
     _enqueueResponse(request, response);
-
-    delete request;
 }
 
 void CIMOperationRequestDispatcher::handleEnumerateClassesRequest(
@@ -644,8 +630,6 @@ void CIMOperationRequestDispatcher::handleEnumerateClassesRequest(
 	    cimClasses);
 
     _enqueueResponse(request, response);
-
-    delete request;
 }
 
 void CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest(
@@ -682,8 +666,6 @@ void CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest(
 	    classNames);
 
     _enqueueResponse(request, response);
-
-    delete request;
 }
 
 void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
@@ -741,8 +723,6 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 	    cimInstances);
 
     _enqueueResponse(request, response);
-
-    delete request;
 }
 
 void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
@@ -791,8 +771,6 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 	    instanceNames);
 
     _enqueueResponse(request, response);
-
-    delete request;
 }
 
 void CIMOperationRequestDispatcher::handleAssociatorsRequest(
@@ -835,8 +813,6 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
 	    cimObjects);
 
     _enqueueResponse(request, response);
-
-    delete request;
 }
 
 void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
@@ -876,8 +852,6 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
 	    objectNames);
 
     _enqueueResponse(request, response);
-
-    delete request;
 }
 
 void CIMOperationRequestDispatcher::handleReferencesRequest(
@@ -918,8 +892,6 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
 	    cimObjects);
 
     _enqueueResponse(request, response);
-
-    delete request;
 }
 
 void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
@@ -957,8 +929,6 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
 	    objectNames);
 
     _enqueueResponse(request, response);
-
-    delete request;
 }
 
 void CIMOperationRequestDispatcher::handleGetQualifierRequest(
@@ -994,8 +964,6 @@ void CIMOperationRequestDispatcher::handleGetQualifierRequest(
 	    cimQualifierDecl);
 
     _enqueueResponse(request, response);
-
-    delete request;
 }
 
 void CIMOperationRequestDispatcher::handleSetQualifierRequest(
@@ -1029,8 +997,6 @@ void CIMOperationRequestDispatcher::handleSetQualifierRequest(
 	    request->queueIds.copyAndPop());
 
     _enqueueResponse(request, response);
-
-    delete request;
 }
 
 void CIMOperationRequestDispatcher::handleDeleteQualifierRequest(
@@ -1064,8 +1030,6 @@ void CIMOperationRequestDispatcher::handleDeleteQualifierRequest(
 	    request->queueIds.copyAndPop());
 
     _enqueueResponse(request, response);
-
-    delete request;
 }
 
 void CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest(
@@ -1100,8 +1064,6 @@ void CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest(
 	    qualifierDeclarations);
 
     _enqueueResponse(request, response);
-
-    delete request;
 }
 
 PEGASUS_NAMESPACE_END

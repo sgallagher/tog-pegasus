@@ -121,11 +121,17 @@ PEGASUS_TRACE;
     try
     {
 PEGASUS_TRACE;
-	Selector selector;
+	Monitor monitor;
         
-       	CIMServer server(&selector, *runPath);
+       	CIMServer server(&monitor, *runPath);
 	server_windows = &server;
-	server_windows->bind(address);
+
+	char* end = 0;
+	long portNumber = strtol(address, &end, 10);
+	assert(end != 0 && *end == '\0');
+	server.bind(portNumber);
+	server_windows->bind(portNumber);
+
 	delete [] address;
 	server_windows->runForever();
 PEGASUS_TRACE;

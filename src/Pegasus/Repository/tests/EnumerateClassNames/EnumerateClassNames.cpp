@@ -55,33 +55,40 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-const CIMNamespaceName NAMESPACE = CIMNamespaceName ("/zzz");
+static char * verbose;
+
+const CIMNamespaceName NAMESPACE = CIMNamespaceName ("test/zzz");
 String repositoryRoot;
 
 void print(const Array<CIMName>& array)
 {
-#if 0
-    for (Uint32 i = 0, n = array.size(); i < n; i++)
-	cout << "array[" << i << "]: " << array[i] << endl;
-#endif
+    if (verbose)
+	{
+		for (Uint32 i = 0, n = array.size(); i < n; i++)
+		cout << "array[" << i << "]: " << array[i].getString() << endl;
+	}
 }
 
 void TestCase1()
 {
+	if (verbose)
+	{
+		cout << "TestCase1" << endl;
+	}
     CIMRepository r (repositoryRoot);
 
     // Enumerate the class names:
 
     Array<CIMName> classNames = r.enumerateClassNames(
-	NAMESPACE, String::EMPTY, false);
+			NAMESPACE, CIMName(), false);
 
     print(classNames);
-
-    Array<CIMName> tmp;
-    tmp.append(CIMName ("A"));
-    tmp.append(CIMName ("Class1"));
-    tmp.append(CIMName ("Class2"));
-
+    
+	Array<CIMName> tmp;
+    tmp.append(CIMName ("TST_A"));
+    tmp.append(CIMName ("TST_Class1"));
+    tmp.append(CIMName ("TST_Class2"));
+	
     BubbleSort(tmp);
     BubbleSort(classNames);
     assert(tmp.size() == 3);
@@ -92,30 +99,34 @@ void TestCase1()
 
 void TestCase2()
 {
+	if (verbose)
+	{
+		cout << "TestCase2" << endl;
+	}
     CIMRepository r (repositoryRoot);
 
     // Enumerate the class names:
 
-    const CIMNamespaceName NAMESPACE = CIMNamespaceName ("/zzz");
+    const CIMNamespaceName NAMESPACE = CIMNamespaceName ("test/zzz");
 
     Array<CIMName> classNames = r.enumerateClassNames(
-	NAMESPACE, String::EMPTY, true);
+	NAMESPACE, CIMName(), true);
 
     print(classNames);
 
     Array<CIMName> tmp;
-    tmp.append(CIMName ("A"));
-    tmp.append(CIMName ("Class1"));
-    tmp.append(CIMName ("Class2"));
-    tmp.append(CIMName ("X"));
-    tmp.append(CIMName ("Y"));
-    tmp.append(CIMName ("Z"));
-    tmp.append(CIMName ("M"));
-    tmp.append(CIMName ("N"));
-    tmp.append(CIMName ("Q"));
-    tmp.append(CIMName ("R"));
-    tmp.append(CIMName ("S"));
-    tmp.append(CIMName ("T"));
+    tmp.append(CIMName ("TST_A"));
+    tmp.append(CIMName ("TST_Class1"));
+    tmp.append(CIMName ("TST_Class2"));
+    tmp.append(CIMName ("TST_X"));
+    tmp.append(CIMName ("TST_Y"));
+    tmp.append(CIMName ("TST_Z"));
+    tmp.append(CIMName ("TST_M"));
+    tmp.append(CIMName ("TST_N"));
+    tmp.append(CIMName ("TST_Q"));
+    tmp.append(CIMName ("TST_R"));
+    tmp.append(CIMName ("TST_S"));
+    tmp.append(CIMName ("TST_T"));
 
     BubbleSort(tmp);
     BubbleSort(classNames);
@@ -124,20 +135,24 @@ void TestCase2()
 
 void TestCase3()
 {
+	if (verbose)
+	{
+		cout << "TestCase3" << endl;
+	}
     CIMRepository r (repositoryRoot);
 
     // Enumerate the class names:
 
-    const CIMNamespaceName NAMESPACE = CIMNamespaceName ("/zzz");
+    const CIMNamespaceName NAMESPACE = CIMNamespaceName ("test/zzz");
 
     Array<CIMName> classNames = r.enumerateClassNames(
-	NAMESPACE, CIMName ("X"), false);
+	NAMESPACE, CIMName ("TST_X"), false);
 
     print(classNames);
 
     Array<CIMName> tmp;
-    tmp.append(CIMName ("M"));
-    tmp.append(CIMName ("N"));
+    tmp.append(CIMName ("TST_M"));
+    tmp.append(CIMName ("TST_N"));
 
     BubbleSort(tmp);
     BubbleSort(classNames);
@@ -146,24 +161,28 @@ void TestCase3()
 
 void TestCase4()
 {
+	if (verbose)
+	{
+		cout << "TestCase4" << endl;
+	}
     CIMRepository r (repositoryRoot);
 
     // Enumerate the class names:
 
-    const CIMNamespaceName NAMESPACE = CIMNamespaceName ("/zzz");
+    const CIMNamespaceName NAMESPACE = CIMNamespaceName ("test/zzz");
 
     Array<CIMName> classNames = r.enumerateClassNames(
-	NAMESPACE, CIMName ("X"), true);
+	NAMESPACE, CIMName ("TST_X"), true);
 
     print(classNames);
 
     Array<CIMName> tmp;
-    tmp.append(CIMName ("M"));
-    tmp.append(CIMName ("N"));
-    tmp.append(CIMName ("Q"));
-    tmp.append(CIMName ("R"));
-    tmp.append(CIMName ("S"));
-    tmp.append(CIMName ("T"));
+    tmp.append(CIMName ("TST_M"));
+    tmp.append(CIMName ("TST_N"));
+    tmp.append(CIMName ("TST_Q"));
+    tmp.append(CIMName ("TST_R"));
+    tmp.append(CIMName ("TST_S"));
+    tmp.append(CIMName ("TST_T"));
 
     BubbleSort(tmp);
     BubbleSort(classNames);
@@ -173,7 +192,7 @@ void TestCase4()
 static void CreateClass(
     CIMRepository& r,
     const CIMName& className, 
-    const CIMName superClassName = String())
+    const CIMName superClassName = CIMName())
 {
     CIMClass c(className, superClassName);
     r.createClass(NAMESPACE, c);
@@ -181,7 +200,9 @@ static void CreateClass(
 
 int main(int argc, char** argv)
 {
-    const char* tmpDir;
+    verbose = getenv("PEGASUS_TEST_VERBOSE");
+    
+	const char* tmpDir;
     tmpDir = getenv ("PEGASUS_TMP");
     if (tmpDir == NULL)
     {
@@ -197,27 +218,28 @@ int main(int argc, char** argv)
 
     try 
     {
-	r.createNameSpace(NAMESPACE);
-	CreateClass(r, CIMName ("Class1"));
-	CreateClass(r, CIMName ("Class2"));
-	CreateClass(r, CIMName ("A"));
-	CreateClass(r, CIMName ("X"), CIMName ("A"));
-	CreateClass(r, CIMName ("Y"), CIMName ("A"));
-	CreateClass(r, CIMName ("Z"), CIMName ("A"));
-	CreateClass(r, CIMName ("M"), CIMName ("X"));
-	CreateClass(r, CIMName ("N"), CIMName ("X"));
-	CreateClass(r, CIMName ("Q"), CIMName ("M"));
-	CreateClass(r, CIMName ("R"), CIMName ("M"));
-	CreateClass(r, CIMName ("S"), CIMName ("N"));
-	CreateClass(r, CIMName ("T"), CIMName ("N"));
-	TestCase1();
-	TestCase2();
-	TestCase3();
-	TestCase4();
+		r.createNameSpace(NAMESPACE);
+		CreateClass(r, CIMName ("TST_Class1"));
+		CreateClass(r, CIMName ("TST_Class2"));
+		CreateClass(r, CIMName ("TST_A"));
+		CreateClass(r, CIMName ("TST_X"), CIMName ("TST_A"));
+		CreateClass(r, CIMName ("TST_Y"), CIMName ("TST_A"));
+		CreateClass(r, CIMName ("TST_Z"), CIMName ("TST_A"));
+		CreateClass(r, CIMName ("TST_M"), CIMName ("TST_X"));
+		CreateClass(r, CIMName ("TST_N"), CIMName ("TST_X"));
+		CreateClass(r, CIMName ("TST_Q"), CIMName ("TST_M"));
+		CreateClass(r, CIMName ("TST_R"), CIMName ("TST_M"));
+		CreateClass(r, CIMName ("TST_S"), CIMName ("TST_N"));
+		CreateClass(r, CIMName ("TST_T"), CIMName ("TST_N"));
+		TestCase1();
+		TestCase2();
+		TestCase3();
+		TestCase4();
     }
     catch (Exception& e)
     {
-	cout << e.getMessage() << endl;
+		cout << "Exception " << e.getMessage() << endl;
+		assert(false);
     }
 
     cout << argv[0] << "+++++ passed all tests" << endl;

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Reference.h,v $
+// Revision 1.6  2001/01/28 19:07:07  karl
+// add DOC++ comments
+//
 // Revision 1.5  2001/01/28 17:44:55  karl
 // Doc++ Comments
 //
@@ -170,7 +173,7 @@ public:
 	const Array<KeyBinding>& keyBindings = Array<KeyBinding>());
 
     virtual ~Reference();
-
+    /// Operator Overload =
     Reference& operator=(const Reference& x);
 
     // ATTN: figure out why this trick is necessary using MSVC 5.0.

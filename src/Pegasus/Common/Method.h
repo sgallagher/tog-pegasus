@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Method.h,v $
+// Revision 1.3  2001/01/28 19:07:07  karl
+// add DOC++ comments
+//
 // Revision 1.2  2001/01/15 04:31:44  mike
 // worked on resolve scheme
 //
@@ -32,6 +35,10 @@
 //
 //END_HISTORY
 
+/*
+ Method.h - This header file defines the method class.
+*/
+
 #ifndef Pegasus_Method_h
 #define Pegasus_Method_h
 
@@ -40,28 +47,28 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// Method
-//
-////////////////////////////////////////////////////////////////////////////////
 
 class ConstMethod;
+
+/** Class Method - Defines a CIM method
+*/
 
 class PEGASUS_COMMON_LINKAGE Method
 {
 public:
-
+    /// Creates and instantiates a CIM method.
     Method() : _rep(0)
     {
 
     }
-
+    /** Creates and instantiates a CIM method from another method instance
+    @return pointer to the new method 
+    */
     Method(const Method& x)
     {
 	Inc(_rep = x._rep);
     }
-
+    ///
     Method& operator=(const Method& x)
     {
 	if (x._rep != _rep)
@@ -71,9 +78,13 @@ public:
 	}
 	return *this;
     }
-
-    // Throws IllegalName if name argument not legal CIM identifier.
-
+    /**	 Creates a CIM method with the specified name, type, and classOrigin
+    @param name for the method
+    @param type ATTN
+    @param classOrigin
+    @param propagated
+    @return  Throws IllegalName if name argument not legal CIM identifier. 
+    */
     Method(
 	const String& name, 
 	Type type,
@@ -82,83 +93,98 @@ public:
     {
 	_rep = new MethodRep(name, type, classOrigin, propagated);
     }
-
+    /// Method desctructor
     ~Method()
     {
 	Dec(_rep);
     }
-
+    /** method getName - gets the name of the method
+    @return - ATTN
+    */
     const String& getName() const 
     { 
 	_checkRep();
 	return _rep->getName(); 
     }
 
-    // Throws IllegalName if name argument not legal CIM identifier.
-
+    /** Method setName - Set the method name
+    @parm name ATTN (make reference to name defintion here)
+    @return Throws IllegalName if name argument not legal CIM identifier.
+    */
     void setName(const String& name)
     {
 	_checkRep();
 	_rep->setName(name);
     }
+    /** method getType - gets the method type 
+    @return The CIM method type for this method.
+    */
 
     Type getType() const 
     {
 	_checkRep();
 	return _rep->getType();
     }
-
+    /** method setType - Sets the method type to the specified CIM method 
+    type as defined in Type /Ref{TYPE}
+    */
     void setType(Type type)
     { 
 	_checkRep();
 	_rep->setType(type);
     }
-
+    /** method getClassOrigin - Returns the class in which this method
+     was defined.
+    @return ATTN:
+    */
     const String& getClassOrigin() const
     {
 	_checkRep();
 	return _rep->getClassOrigin();
     }
-
+    /** method setClassOrigin - ATTN:
+    */
     void setClassOrigin(const String& classOrigin)
     {
 	_checkRep();
 	_rep->setClassOrigin(classOrigin);
     }
-
+    /// method getPropagated - ATTN:
     Boolean getPropagated() const 
     { 
 	_checkRep();
 	return _rep->getPropagated();
     }
-
+    /// method setPropagated - ATTN:
     void setPropagated(Boolean propagated) 
     { 
 	_checkRep();
 	_rep->setPropagated(propagated);
     }
-
-    // Throws AlreadyExists.
-
+    /** Method addQualifier - 
+    @parm Qualifier to add
+    @return Throws AlreadyExists excetpion if the qualifier already exists in 
+    the method
+    */
     Method& addQualifier(const Qualifier& x)
     {
 	_checkRep();
 	_rep->addQualifier(x);
 	return *this;
     }
-
+    /// mehtod findQualifier - TBD
     Uint32 findQualifier(const String& name)
     {
 	_checkRep();
 	return _rep->findQualifier(name);
     }
-
+    /// Method findQualifier - ATTN
     Uint32 findQualifier(const String& name) const
     {
 	_checkRep();
 	return _rep->findQualifier(name);
     }
-
+    /// method getQualifier - ATTN:
     Qualifier getQualifier(Uint32 pos)
     {
 	_checkRep();
@@ -170,20 +196,20 @@ public:
 	_checkRep();
 	return _rep->getQualifier(pos);
     }
-
+	/// method getQualifierCount - ATTN:
     Uint32 getQualifierCount() const
     {
 	_checkRep();
 	return _rep->getQualifierCount();
     }
-
+	/// method addParameter - ATTN:
     Method& addParameter(const Parameter& x)
     {
 	_checkRep();
 	_rep->addParameter(x);
 	return *this;
     }
-
+	/// method findParameter - ATTN:
     Uint32 findParameter(const String& name)
     {
 	_checkRep();
@@ -213,7 +239,7 @@ public:
 	_checkRep();
 	return _rep->getParameterCount();
     }
-
+    /// method resolve - ATTN:
     void resolve(
 	DeclContext* declContext, 
 	const String& nameSpace,
@@ -222,7 +248,7 @@ public:
 	_checkRep();
 	_rep->resolve(declContext, nameSpace, method);
     }
-
+    /// Method resolve
     void resolve(
 	DeclContext* declContext,
 	const String& nameSpace)
@@ -230,23 +256,23 @@ public:
 	_checkRep();
 	_rep->resolve(declContext, nameSpace);
     }
-
+    /// operator
     operator int() const { return _rep != 0; }
-
+    /// method toXML - ATTN:
     void toXml(Array<Sint8>& out) const
     {
 	_checkRep();
 	_rep->toXml(out);
     }
-
+    /// method print - ATTN:
     void print() const
     {
 	_checkRep();
 	_rep->print();
     }
-
+    /// Method identical - ATTN
     Boolean identical(const ConstMethod& x) const;
-
+    /// Method clone - ATTN
     Method clone() const
     {
 	return Method(_rep->clone());

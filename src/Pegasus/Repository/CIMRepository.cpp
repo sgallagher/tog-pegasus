@@ -155,7 +155,7 @@ static String _MakeAssocClassPath(
 
 CIMRepository::CIMRepository(const String& repositoryRoot)
    : _repositoryRoot(repositoryRoot), _nameSpaceManager(repositoryRoot),
-     _resolveInstance(true), _lock()
+     _lock(), _resolveInstance(true)
 {
     _context = new RepositoryDeclContext(this);
     _isDefaultInstanceProvider = (ConfigManager::getInstance()->getCurrentValue(

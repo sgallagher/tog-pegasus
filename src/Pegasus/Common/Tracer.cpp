@@ -156,7 +156,7 @@ void Tracer::_trace(
 		_STRLEN_MAX_UNSIGNED_INT + _STRLEN_MAX_PID_TID ];
             sprintf(
                message,
-               "[%d:%d:%s:%d]: ",
+               "[%d:%d:%s:%u]: ",
                System::getPID(),
                pegasus_thread_self(),
                fileName,
@@ -323,7 +323,7 @@ void Tracer::_traceEnter(
 	    _STRLEN_MAX_UNSIGNED_INT + _STRLEN_MAX_PID_TID ];
         sprintf(
            message,
-           "[%d:%d:%s:%d]: ",
+           "[%d:%d:%s:%u]: ",
            System::getPID(),
            pegasus_thread_self(),
            fileName,
@@ -360,7 +360,7 @@ void Tracer::_traceExit(
 	    _STRLEN_MAX_UNSIGNED_INT + _STRLEN_MAX_PID_TID ];
         sprintf(
            message,
-           "[%d:%d:%s:%d]: ",
+           "[%d:%d:%s:%u]: ",
            System::getPID(),
            pegasus_thread_self(),
            fileName,

@@ -494,11 +494,11 @@ SSLContext::~SSLContext() {}
 SSL_CTX * SSLContext::getContext() { return NULL; }
 
 MP_Socket::MP_Socket(Uint32 socket)
- : _isSecure(false), _socket(socket) {}
+ : _socket(socket), _isSecure(false) {}
 
 MP_Socket::MP_Socket(Uint32 socket, SSLContext * sslcontext)
    throw(SSL_Exception)
- : _isSecure(false), _socket(socket) {}
+ : _socket(socket), _isSecure(false) {}
 
 MP_Socket::~MP_Socket() {}
 

@@ -484,7 +484,7 @@ void ConfigManager::mergeCommandLine(int& argc, char**& argv)
     //
     //  Merge properties from the command line
     //
-    for (Uint32 i = 0; i < argc; )
+    for (Sint32 i = 0; i < argc; )
     {
         const char* arg = argv[i];
 

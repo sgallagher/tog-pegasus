@@ -54,11 +54,11 @@ PEGASUS_NAMESPACE_BEGIN
 
 CIMClient::CIMClient(Uint32 timeOutMilliseconds)
     : 
+    _httpConnection(0),
     _timeOutMilliseconds(timeOutMilliseconds),
     _connected(false),
     _responseDecoder(0),
-    _requestEncoder(0),
-    _httpConnection(0)
+    _requestEncoder(0)
 {
     //
     // Create Monitor and HTTPConnector

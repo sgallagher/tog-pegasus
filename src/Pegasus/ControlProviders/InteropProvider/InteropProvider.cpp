@@ -193,7 +193,7 @@ enum targetClass{
 //***************************************************************
 // Provider Utility Functions
 //***************************************************************
-
+/*
 void _removeQualifiers(CIMProperty& p)
 {
 
@@ -214,6 +214,7 @@ void _removeQualifiers(CIMInstance& cimInstance)
         _removeQualifiers(cimInstance.getProperty(i));
     }
 }
+*/
 
 /** get one string property from an instance.
     @param instance CIMInstance from which we get property value
@@ -861,7 +862,8 @@ CIMInstance InteropProvider::_getInstanceCIMNamespace(const CIMNamespaceName & n
         }
     }
     PEG_METHOD_EXIT();
-    return(CIMInstance());
+    CIMInstance nullInstance;
+    return(nullInstance);
 }
 
 /* generate one instance of the CIM_Namespace class with the

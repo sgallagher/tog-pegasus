@@ -431,8 +431,8 @@ void ProviderManagerService::handleGetInstanceRequest(const Message * message) t
 	// convert flags to bitmask
 	Uint32 flags = OperationFlag::convert(false);
 
-	// ATTN: strip flags inappropriate for providers
-	flags = flags | ~OperationFlag::LOCAL_ONLY | ~OperationFlag::DEEP_INHERITANCE;
+	// strip flags inappropriate for providers
+	flags = flags & ~OperationFlag::LOCAL_ONLY & ~OperationFlag::DEEP_INHERITANCE;
 
 	CIMPropertyList propertyList(request->propertyList);
 
@@ -538,8 +538,8 @@ void ProviderManagerService::handleEnumerateInstancesRequest(const Message * mes
 	// convert flags to bitmask
 	Uint32 flags = OperationFlag::convert(false);
 
-	// ATTN: strip flags inappropriate for providers
-	flags = flags | ~OperationFlag::LOCAL_ONLY | ~OperationFlag::DEEP_INHERITANCE;
+	// strip flags inappropriate for providers
+	flags = flags & ~OperationFlag::LOCAL_ONLY & ~OperationFlag::DEEP_INHERITANCE;
 
 	CIMPropertyList propertyList(request->propertyList);
 
@@ -786,8 +786,8 @@ void ProviderManagerService::handleModifyInstanceRequest(const Message * message
 	CIMObjectPath objectPath(
 	    System::getHostName(),
 	    request->nameSpace,
-	    request->modifiedInstance.getInstance().getPath().getClassName(),
-	    request->modifiedInstance.getInstance().getPath().getKeyBindings());
+	    request->modifiedInstance.getInstanceName().getClassName(),    //request->modifiedInstance.getInstance().getPath().getClassName(),
+	    request->modifiedInstance.getInstanceName().getKeyBindings()); //request->modifiedInstance.getInstance().getPath().getKeyBindings());
 
 	// get the provider file name and logical name
 	Pair<String, String> pair = _lookupProviderForClass(objectPath);
@@ -811,8 +811,8 @@ void ProviderManagerService::handleModifyInstanceRequest(const Message * message
 	// convert flags to bitmask
 	Uint32 flags = OperationFlag::convert(false);
 
-	// ATTN: strip flags inappropriate for providers
-	flags = flags | ~OperationFlag::LOCAL_ONLY | ~OperationFlag::DEEP_INHERITANCE;
+	// strip flags inappropriate for providers
+	flags = flags & ~OperationFlag::LOCAL_ONLY & ~OperationFlag::DEEP_INHERITANCE;
 
 	CIMPropertyList propertyList(request->propertyList);
 
@@ -940,6 +940,8 @@ void ProviderManagerService::handleExecuteQueryRequest(const Message * message) 
 	request->queueIds.copyAndPop(),
 	cimObjects);
 
+    PEGASUS_ASSERT(response != 0);
+
     // preserve message key
     response->setKey(request->getKey());
 
@@ -963,6 +965,8 @@ void ProviderManagerService::handleAssociatorsRequest(const Message * message) t
 	"not implemented",
 	request->queueIds.copyAndPop(),
 	cimObjects);
+
+    PEGASUS_ASSERT(response != 0);
 
     // preserve message key
     response->setKey(request->getKey());
@@ -988,6 +992,8 @@ void ProviderManagerService::handleAssociatorNamesRequest(const Message * messag
 	request->queueIds.copyAndPop(),
 	cimReferences);
 
+    PEGASUS_ASSERT(response != 0);
+
     // preserve message key
     response->setKey(request->getKey());
 
@@ -1011,6 +1017,8 @@ void ProviderManagerService::handleReferencesRequest(const Message * message) th
 	"not implemented",
 	request->queueIds.copyAndPop(),
 	cimObjects);
+
+    PEGASUS_ASSERT(response != 0);
 
     // preserve message key
     response->setKey(request->getKey());
@@ -1061,6 +1069,8 @@ void ProviderManagerService::handleGetPropertyRequest(const Message * message) t
 	request->queueIds.copyAndPop(),
 	cimValue);
 
+    PEGASUS_ASSERT(response != 0);
+
     // preserve message key
     response->setKey(request->getKey());
 
@@ -1082,6 +1092,8 @@ void ProviderManagerService::handleSetPropertyRequest(const Message * message) t
 	CIM_ERR_FAILED,
 	"not implemented",
 	request->queueIds.copyAndPop());
+
+    PEGASUS_ASSERT(response != 0);
 
     // preserve message key
     response->setKey(request->getKey());
@@ -1267,6 +1279,8 @@ void ProviderManagerService::handleEnableIndicationRequest(const Message * messa
 	status.getMessage(),
 	request->queueIds.copyAndPop());
 
+    PEGASUS_ASSERT(response != 0);
+
     // preserve message key
     response->setKey(request->getKey());
 
@@ -1289,6 +1303,8 @@ void ProviderManagerService::handleModifyIndicationRequest(const Message * messa
 	"not implemented",
 	request->queueIds.copyAndPop());
 
+    PEGASUS_ASSERT(response != 0);
+
     // preserve message key
     response->setKey(request->getKey());
 
@@ -1310,6 +1326,8 @@ void ProviderManagerService::handleDisableIndicationRequest(const Message * mess
 	CIM_ERR_FAILED,
 	"not implemented",
 	request->queueIds.copyAndPop());
+
+    PEGASUS_ASSERT(response != 0);
 
     // preserve message key
     response->setKey(request->getKey());
@@ -1394,10 +1412,10 @@ void ProviderManagerService::handleModifySubscriptionRequest(const Message * mes
 	"",
 	request->queueIds.copyAndPop());
 
+    PEGASUS_ASSERT(response != 0);
+
     // preserve message key
     response->setKey(request->getKey());
-
-    PEGASUS_ASSERT(response != 0);
 
     OperationResponseHandler<CIMIndication> handler(request, response);
 

@@ -495,7 +495,8 @@ void shutdownCIMOM(Uint32 timeoutValue)
 
         if (running)
         {
-            int kill_rc = cimserver_kill();
+	   int kill_rc = cimserver_kill();
+	   
 #ifdef PEGASUS_OS_OS400
 	    if(kill_rc == -1)
 		cimserver_exit(2);
@@ -1137,18 +1138,20 @@ MessageLoader::_useProcessLocale = false;
         serviceURL.append(slp_address);
 #endif
 
-#if defined(PEGASUS_OS_OS400)
-	monitor_2 monitor;
+
+
+
+#if defined(PEGASUS_OS_OS400) || defined(PEGASUS_MONITOR2) 
+	monitor_2* monitor = monitor_2::get_monitor2();
+	CIMServer server(monitor);
+	
+	
 #else
 
-#if defined(PEGASUS_MONITOR2)
-	monitor_2 monitor;
-#else
 	Monitor monitor(true);
+	CIMServer server(&monitor);
 #endif
 
-#endif
-	CIMServer server(&monitor);
 
         if (enableHttpConnection)
         {
@@ -1287,8 +1290,9 @@ MessageLoader::_useProcessLocale = false;
 	  }
 #endif
 	  server.runForever();
-	}
 
+	}
+	MessageQueueService::force_shutdown(true);
         //
         // normal termination
 	//

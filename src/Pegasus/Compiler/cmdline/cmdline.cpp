@@ -103,22 +103,22 @@ process_filelist(const String &filename, mofCompilerOptions &cmdlinedata)
 /* flag value, type, islong?, needsValue? */
 static struct optspec optspecs[] = 
 {
-    {"", FILESPEC, false, getoopt::NOARG},
-    {"h", HELPFLAG, false, getoopt::NOARG},
-    {"help", HELPFLAG, true, getoopt::NOARG},
-    {"f", FILELIST, false, getoopt::MUSTHAVE},
-    {"filelist", FILELIST, true, getoopt::MUSTHAVE},
-    {"n", NAMESPACE, false, getoopt::MUSTHAVE},
-    {"namespace", NAMESPACE, true, getoopt::MUSTHAVE}, 
-    {"I", INCLUDEPATH, false, getoopt::MUSTHAVE},
-    {"Include", INCLUDEPATH, true, getoopt::MUSTHAVE},
-    {"R", REPOSITORYNAME, false, getoopt::MUSTHAVE},
-    {"CIMRepository", REPOSITORYNAME, true, getoopt::MUSTHAVE},
-    {"E", SYNTAXFLAG, false, getoopt::NOARG}, 
-    {"w", SUPPRESSFLAG, false, getoopt::NOARG},
-    {"trace", TRACEFLAG, true, getoopt::OPTIONAL},
-    {"xml", XMLFLAG, true, getoopt::NOARG},
-    {"", OPTEND, false, getoopt::NOARG}
+    {(char*)"", FILESPEC, false, getoopt::NOARG},
+    {(char*)"h", HELPFLAG, false, getoopt::NOARG},
+    {(char*)"help", HELPFLAG, true, getoopt::NOARG},
+    {(char*)"f", FILELIST, false, getoopt::MUSTHAVE},
+    {(char*)"filelist", FILELIST, true, getoopt::MUSTHAVE},
+    {(char*)"n", NAMESPACE, false, getoopt::MUSTHAVE},
+    {(char*)"namespace", NAMESPACE, true, getoopt::MUSTHAVE}, 
+    {(char*)"I", INCLUDEPATH, false, getoopt::MUSTHAVE},
+    {(char*)"Include", INCLUDEPATH, true, getoopt::MUSTHAVE},
+    {(char*)"R", REPOSITORYNAME, false, getoopt::MUSTHAVE},
+    {(char*)"CIMRepository", REPOSITORYNAME, true, getoopt::MUSTHAVE},
+    {(char*)"E", SYNTAXFLAG, false, getoopt::NOARG}, 
+    {(char*)"w", SUPPRESSFLAG, false, getoopt::NOARG},
+    {(char*)"trace", TRACEFLAG, true, getoopt::OPTIONAL},
+    {(char*)"xml", XMLFLAG, true, getoopt::NOARG},
+    {(char*)"", OPTEND, false, getoopt::NOARG}
 };
 
 static void

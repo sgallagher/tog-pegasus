@@ -86,6 +86,29 @@ OperatingSystem::~OperatingSystem(void)
 {
 }
 
+//-- this table is used by getName and getVersion to load the distribution Name
+//   into osName and the Release into Version. The table documents distro specific
+//   configuration files that getName and getVersion will parse in /etc
+//   if the optional_string is NULL, otherwise the optional string will be used in osName.
+//
+
+static const struct
+{
+   const char *vendor_name;
+   const char *determining_filename;
+   const char *optional_string;
+} LINUX_VENDOR_INFO[] = {
+   { "Caldera",          "coas",               "Caldera Linux" },
+   { "Corel",            "environment.corel",  "Corel Linux"   },
+   { "Debian GNU/Linux", "debian_version",     NULL            },
+   { "Mandrake",         "mandrake-release",   NULL            },
+   { "Red Hat",          "redhat-release",     NULL            },
+   { "SuSE",             "SuSE-release",       NULL            },
+   { "Turbolinux",       "turbolinux-release", NULL            },
+   { NULL, NULL, NULL }
+};
+
+
 /**
    getName method of the Linux implementation for the OS Provider
 
@@ -94,19 +117,53 @@ OperatingSystem::~OperatingSystem(void)
   */
 Boolean OperatingSystem::getName(String& osName)
 {
-    struct utsname  unameInfo;
+   String s, buffer_s;
+   Uint32 buffer_index;	// rexex match index
+   char info_file[MAXPATHLEN];
+   char buffer[MAXPATHLEN];
+   struct stat statBuf;
+   FILE *vf;
 
-    // Call uname and check for any errors.
-    if (uname(&unameInfo) < 0)
-    {
-       return false;
-    }
+   s.clear();
+   for (int ii = 0; LINUX_VENDOR_INFO[ii].vendor_name != NULL ; ii++)
+   {
+      memset(info_file, 0, MAXPATHLEN);
+      strcat(info_file, "/etc/");
+      strcat(info_file, LINUX_VENDOR_INFO[ii].determining_filename);
 
-    osName.assign(unameInfo.sysname);
 
-    return true;
+      // If the file exists in /etc, we know what distro we're in
+      if (!stat(info_file, &statBuf))
+      {
+         s.assign(LINUX_VENDOR_INFO[ii].vendor_name);
+         s.append(" Distribution");
+         if (LINUX_VENDOR_INFO[ii].optional_string == NULL)
+         {
+	    // try to set s to a more descript value from the etc file
+            vf = fopen(info_file, "r");
+            if (vf)
+            {
+               if (fgets(buffer, MAXPATHLEN, vf) != NULL)
+	       {
+		  fclose(vf);
+                  buffer_s.assign(buffer);
+	    
+		  // parse the text to extract Distribution Name
+		  buffer_index = buffer_s.find(" release");
+		  if ( buffer_index != PEG_NOT_FOUND )
+		  {
+		     // then we have found a valid index into the config file
+		     s.assign(buffer_s.subString(0,buffer_index));
+		  }
+	       }
+	    }
+         }
+      }
+   }
+   osName.assign(s);
+   return true;
+
 }
-
 
 /**
    getUtilGetHostName method for the Linux implementation of the OS Provider
@@ -212,52 +269,8 @@ Boolean OperatingSystem::getStatus(String& status)
    */
 Boolean OperatingSystem::getVersion(String& osVersion)
 {
-
-    struct utsname  unameInfo;
-    char version[sizeof(unameInfo.release) + sizeof(unameInfo.version)];
-
-    // Call uname and check for any errors.
-
-    if (uname(&unameInfo) < 0)
-    {
-       return false;
-    }
-
-    sprintf(version, "%s %s", unameInfo.release, unameInfo.version);
-    osVersion.assign(version);
-
-    return true;
-}
-
-Boolean OperatingSystem::getOSType(Uint16& osType)
-{
-    osType = LINUX;
-    return true;
-}
-
-//-- this table indicates how to determine the distro in use;
-//   search for the determining_filename in /etc, and if the
-//   optional_string is NULL, read that file for distro info.
-//   otherwise, use the optional string.
-//
-static const struct
-{
-   const char *vendor_name;
-   const char *determining_filename;
-   const char *optional_string;
-} LINUX_VENDOR_INFO[] = {
-   { "Caldera",          "coas",               "Caldera Linux" },
-   { "Corel",            "environment.corel",  "Corel Linux"   },
-   { "Debian GNU/Linux", "debian_version",     NULL            },
-   { "Mandrake",         "mandrake-release",   NULL            },
-   { "Red Hat",          "redhat-release",     NULL            },
-   { "SuSE",             "SuSE-release",       NULL            },
-   { "Turbolinux",       "turbolinux-release", NULL            },
-   { NULL, NULL, NULL }
-};
-Boolean OperatingSystem::getOtherTypeDescription(String& otherTypeDescription)
-{
-   String s;
+   String s, buffer_s;
+   Uint32 buffer_index;	// regex match index
    char info_file[MAXPATHLEN];
    char buffer[MAXPATHLEN];
    struct stat statBuf;
@@ -270,29 +283,65 @@ Boolean OperatingSystem::getOtherTypeDescription(String& otherTypeDescription)
       strcat(info_file, "/etc/");
       strcat(info_file, LINUX_VENDOR_INFO[ii].determining_filename);
 
+      // If the file exists in /etc, we know what distro we're in
       if (!stat(info_file, &statBuf))
       {
-         s.assign(LINUX_VENDOR_INFO[ii].vendor_name);
-         s.append(" Distribution, ");
-         if (LINUX_VENDOR_INFO[ii].optional_string == NULL)
+	 // try to read the release number from the file
+         vf = fopen(info_file, "r");
+         if (vf)
          {
-            vf = fopen(info_file, "r");
-            if (vf)
-            {
-              if (fgets(buffer, MAXPATHLEN, vf) != NULL)
-                  s.append(buffer);
-               fclose(vf);
-            }
+           if (fgets(buffer, MAXPATHLEN, vf) != NULL)
+               buffer_s.assign(buffer);
+            fclose(vf);
          }
          else
-         {
-            s.append(LINUX_VENDOR_INFO[ii].optional_string);
+	 {
+	    return false;
          }
-         s.append(" Release");
+
+	 // parse the text to extract Distribution Name
+	 buffer_index = buffer_s.find("release ");
+	 if ( buffer_index != PEG_NOT_FOUND )
+	 {
+	    // then we have found a valid index into the config file
+	    s.assign(buffer_s.subString(buffer_index + 8));
+	 }
+	 else
+	 {
+	   // in the case of debian, this file only contains the release number/name
+	   // i.e. 3.0 or testing/unstable
+	    s.assign(buffer_s);
+	 }
       }
    }
-   otherTypeDescription.assign(s);
+   osVersion.assign(s);
    return true;
+
+}
+
+Boolean OperatingSystem::getOSType(Uint16& osType)
+{
+    osType = LINUX;
+    return true;
+}
+
+Boolean OperatingSystem::getOtherTypeDescription(String& otherTypeDescription)
+{
+
+    struct utsname  unameInfo;
+    char version[sizeof(unameInfo.release) + sizeof(unameInfo.version)];
+
+    // Call uname and check for any errors.
+
+    if (uname(&unameInfo) < 0)
+    {
+       return false;
+    }
+
+    sprintf(version, "%s %s", unameInfo.release, unameInfo.version);
+    otherTypeDescription.assign(version);
+
+    return true;
 }
 
 
@@ -771,10 +820,28 @@ Boolean OperatingSystem::getSystemUpTime(Uint64& mUpTime)
    return false;
 }
 
+/**
+   getOperatingSystemCapability handles a Pegasus extension of the DMTF defined
+   CIM_Operating System. This attribute is defined as a string either "64 bit"
+   or "32 bit". On the Linux side we will determine that by measuring the number
+   of bytes allocated for pointers because this implementation will change
+   based on the underlying processor architecture. 32-bit 64-bit... 128-bit
+  */
+
 Boolean OperatingSystem::getOperatingSystemCapability(String& scapability)
 {
-    return false;
+    char capability[80];
+    void *ptr;
+    int ptr_bits;
+
+    ptr_bits = 8*sizeof(ptr);
+
+    sprintf (capability, "%d bit", ptr_bits);
+
+    scapability.assign(capability);
+    return true;
 }
+
 /**
    _reboot method for Linux implementation of OS Provider
 
@@ -813,8 +880,10 @@ Uint32 OperatingSystem::_reboot()
             if (system(p) == 0)
                result = 0;
 
+            delete [] p;
             return result;
          }
+         delete [] p;
       }
    }
    return result;
@@ -857,8 +926,10 @@ Uint32 OperatingSystem::_shutdown()
             if (system(p) == 0)
                result = 0;
 
+            delete [] p;
             return result;
          }
+         delete [] p;
       }
    }
    return result;

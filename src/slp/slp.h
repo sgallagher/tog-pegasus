@@ -32,6 +32,7 @@
 
 #include <typeinfo>
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/String.h>
 
 #ifdef _WIN32
 #include "lslp-perl-windows.h"
@@ -58,7 +59,7 @@ PEGASUS_NAMESPACE_BEGIN
 /* typedef PEGASUS_SINT64 Sint64; */
 
 
-PEGASUS_EXPORT  Sint8 *slp_get_host_name(void) ;
+PEGASUS_EXPORT  String slp_get_host_name(void) ;
 
 #ifdef _WIN32
 PEGASUS_EXPORT int gethostbyname_r(const char *name, 
@@ -70,9 +71,9 @@ PEGASUS_EXPORT int gethostbyname_r(const char *name,
 #endif
 
 
-PEGASUS_EXPORT Sint8 *slp_get_addr_string_from_url(const Sint8 *url)  ;
+PEGASUS_EXPORT String slp_get_addr_string_from_url(const String & url)  ;
 
-PEGASUS_EXPORT Boolean get_addr_from_url(const Sint8 *url, struct sockaddr_in *addr ) ;
+PEGASUS_EXPORT Boolean get_addr_from_url(const String & url, struct sockaddr_in *addr ) ;
 
 
 #define DA_SRVTYPE "service:directory-agent:\0"
@@ -90,7 +91,7 @@ PEGASUS_EXPORT Boolean get_addr_from_url(const Sint8 *url, struct sockaddr_in *a
 template<class L> class PEGASUS_EXPORT slp2_list {
 
  private: 
-  struct list_rep;
+  //  struct list_rep;
   L *_rep;
   slp2_list *_next;
   slp2_list *_prev;
@@ -111,15 +112,19 @@ public:
   void insert(L *);
   void empty_list( void ) ;
   L *remove( void ) ;
+  L *remove(Sint8 *key) ;
   L *next( L * ); // poor man's iterators 
   L *prev( L * );
+  Boolean exists(Sint8 *key);
   int count(void);
 } ;
 
 struct PEGASUS_EXPORT da_list
 {
-  
   ~da_list();
+  da_list() : url(NULL), scope(NULL), attr(NULL), spi(NULL), auth(NULL) {}
+  Boolean operator ==(const Sint8 *key) const ; 
+  inline Boolean operator ==(const da_list & b) const { return (operator ==( b.url )); }
   Sint8 function;
   Uint16 err;
   Uint32 stateless_boot;
@@ -135,6 +140,9 @@ struct PEGASUS_EXPORT da_list
 struct PEGASUS_EXPORT rply_list
 {
   ~rply_list();
+  rply_list() : url(NULL), auth(NULL) {}
+  Boolean operator ==(const Sint8 *key ) const ;
+  inline Boolean operator ==(const rply_list & b ) const { return (operator ==(b.url)) ; }
   Sint8 function;
   Uint16 err;
   Uint16 lifetime;
@@ -142,6 +150,20 @@ struct PEGASUS_EXPORT rply_list
   Sint8 auth_blocks;
   Sint8 *auth;
   Sint8 remote[16];
+} ;
+
+
+struct PEGASUS_EXPORT reg_list
+{
+  ~reg_list();
+  reg_list() : url(NULL), attributes(NULL), service_type(NULL), scopes(NULL) {} 
+  Boolean operator ==(const Sint8 *key )const;
+  inline Boolean operator ==(const reg_list & b) const { return (operator ==(b.url) ) ; }
+  Sint8 *url;
+  Sint8 *attributes;
+  Sint8 *service_type;
+  Sint8 *scopes;
+  Sint16 lifetime;
 } ;
 
 
@@ -187,6 +209,7 @@ public:
 		   Sint8 *service_type,
 		   Sint8 *scopes,
 		   Sint16 lifetime) ;
+  Sint32 service_listener( void  ) ;
   
  private:
   Uint16 _pr_buf_len;
@@ -199,18 +222,23 @@ public:
   Sint8 *_spi;
   Sint8 *_pr_buf;
   Sint8 *_msg_buf;
+  Sint8 *_rcv_buf;
   Sint8 _err_buf[255];
+  Boolean _use_das;
+  time_t _last_da_cycle;
   struct timeval _tv;
   int _retries;
   int _ttl;
   int  _convergence;
   void *_crypto_context;
+  SOCKET _rcv_sock;
 #ifdef _WIN32
   static int _winsock_count ;
   static WSADATA _wsa_data;
 #endif
   slp2_list<da_list> das;
   slp2_list<rply_list> replies;
+  slp2_list<reg_list> regs;
 
   //  void free_list( template<class L>slp2_list &list ) ;
   void prepare_pr_buf(const Sint8 *address);
@@ -222,6 +250,8 @@ public:
   void decode_srvrply(struct sockaddr_in *remote) ;
   void decode_daadvert(struct sockaddr_in *remote) ;
   Boolean send_rcv_udp(void) ;
+  Sint32 service_listener(SOCKET );
+  Sint32 service_listener_wait(time_t, SOCKET, Boolean) ;
 } ;
 
 PEGASUS_NAMESPACE_END

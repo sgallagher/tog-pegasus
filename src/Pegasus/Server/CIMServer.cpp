@@ -1663,7 +1663,7 @@ void CIMServer::bind(const char* address)
 void CIMServer::runForever()
 {
   if( ! _dieNow )
-    _selector->select(5000);
+    _selector->select(100);
 }
 
 PEGASUS_NAMESPACE_END

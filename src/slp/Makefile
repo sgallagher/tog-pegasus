@@ -12,6 +12,9 @@ LIBRARY = slp
 
 PRE_DEPEND_INCLUDES = -I./depends
 
+LIBRARIES = \
+    $(LIB_DIR)/$(LIB_PREFIX)pegcommon$(LIB_SUFFIX) 
+
 SOURCES = slp.cpp
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))

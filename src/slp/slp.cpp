@@ -34,18 +34,15 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-PEGASUS_EXPORT Sint8 *slp_get_host_name(void)
+PEGASUS_EXPORT String slp_get_host_name(void)
 {
-  Sint8 *buf = (Sint8 *)malloc(255);
-  if(buf != NULL) {
-    if( 0 == gethostname(buf, 255)) {
-      buf = (Sint8 *)realloc(buf, strlen(buf) + 1);
-    } else {
-      free(buf);
-      buf = NULL;
-    }
-  }
-  return(buf);
+
+  String s = String();
+  Sint8 *buf = new Sint8[255];
+  if( 0 == gethostname(buf, 254) ) 
+    s += buf;
+  delete buf;
+  return(s);
 }
 
 
@@ -71,34 +68,30 @@ PEGASUS_EXPORT int gethostbyname_r(const char *name,
 
 #endif
 
-PEGASUS_EXPORT Sint8 *slp_get_addr_string_from_url(const Sint8 *url) 
+PEGASUS_EXPORT String slp_get_addr_string_from_url(const String & url) 
 {
+  String s = String();
   struct sockaddr_in addr;
   if( get_addr_from_url( url, &addr) ) {
-    Sint8 *name = (Sint8 *)malloc(255);
-    if(name != NULL) {
+    Sint8 *name = new Sint8[255];
 #ifdef _WIN32
-      _snprintf(name, 254, "%s:%d", inet_ntoa(addr.sin_addr), ntohs(addr.sin_port) );
+    _snprintf(name, 254, "%s:%d", inet_ntoa(addr.sin_addr), ntohs(addr.sin_port) );
 #else
-      snprintf(name, 254, "%s:%d", inet_ntoa(addr.sin_addr), ntohs(addr.sin_port) );
+    snprintf(name, 254, "%s:%d", inet_ntoa(addr.sin_addr), ntohs(addr.sin_port) );
 #endif
-      realloc(name, strlen(name) + 1);
-    }
-    return(name);
+    s += name;
+    delete [] name;
   }
-  return(NULL);
+  return(s);
 }
 
-PEGASUS_EXPORT Boolean get_addr_from_url(const Sint8 *url, struct sockaddr_in *addr )
+PEGASUS_EXPORT Boolean get_addr_from_url(const String & url, struct sockaddr_in *addr )
 {
   Sint8 *bptr, *url_dup;
   Boolean ccode = false;
-  assert(url != NULL && addr != NULL); 
-  if(url == NULL || addr == NULL)
-    return(false);
 
   // isolate the host field 
-  bptr = (url_dup = strdup(url));
+  bptr = (url_dup = url.allocateCString());
   if(bptr == NULL)
     return(false );
 
@@ -171,6 +164,80 @@ PEGASUS_EXPORT Boolean get_addr_from_url(const Sint8 *url, struct sockaddr_in *a
 }
  
 
+static Boolean  slp_join_multicast(SOCKET sock, struct in_addr *addr) 
+{
+  
+  // don't join on the loopback interface
+  if (addr->s_addr == inet_addr("127.0.0.1") )
+    return(false);
+
+  struct ip_mreq mreq;
+  mreq.imr_multiaddr.s_addr = inet_addr("239.255.255.253");
+  mreq.imr_interface.s_addr = addr->s_addr;
+  
+  if(SOCKET_ERROR == setsockopt(sock,IPPROTO_IP, IP_ADD_MEMBERSHIP, (const char *)&mreq, sizeof(mreq))) 
+    return(false);
+  return(true);
+}
+
+
+
+static int slp_join_multicast_all(SOCKET sock)
+{
+
+
+  int num_interfaces = 0;
+
+  String host_name = slp_get_host_name();
+
+  if( 0 < host_name.size() ) {
+    struct hostent hostbuf;
+    struct hostent *host ;
+    
+    int result = 0, err;
+    size_t hostbuf_len = 512;
+    Sint8 *hn = host_name.allocateCString( );
+    Sint8 *buf = (Sint8 *)malloc(hostbuf_len) ;
+    while( buf != NULL && ( result = gethostbyname_r( hn, 
+						      &hostbuf, 
+						      buf, 
+						      hostbuf_len, 
+						      &host, 
+						      &err) )  == ERANGE ) {
+      hostbuf_len *= 2;
+      buf = (Sint8 *)realloc(buf, hostbuf_len);
+    } // realloc buffer loop
+
+    if((host != NULL) && (result == 0)) {
+      struct in_addr *ptr;
+      while ( ( ptr = (struct in_addr *) *(host->h_addr_list)++ ) != NULL ) { 
+	if(true == slp_join_multicast(sock, ptr) )
+	  num_interfaces++ ;
+      } // traversing address list 
+      if(buf != NULL)
+	free(buf);
+    } // gethostnume succeeded
+    delete[] hn;
+  } // if allocated host buffer
+  return(num_interfaces);
+}
+
+
+static SOCKET  slp_open_listen_sock( void )
+{
+
+  SOCKET sock  = socket(AF_INET, SOCK_DGRAM, 0) ;
+  int err = 1;
+  setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&err, sizeof(err));
+  struct sockaddr_in local;
+  local.sin_family = AF_INET;
+  local.sin_port = htons(427);
+  local.sin_addr.s_addr  = INADDR_ANY;
+  bind(sock, (struct sockaddr *)&local, sizeof(local));
+  slp_join_multicast_all(sock);
+  return(sock);
+}
+
 
 // static class members (windows only )
 #ifdef _WIN32
@@ -178,14 +245,16 @@ PEGASUS_EXPORT Boolean get_addr_from_url(const Sint8 *url, struct sockaddr_in *a
  WSADATA slp_client::_wsa_data ;
 #endif 
 
-template<class L> void slp2_list<L>::insert(L *element) 
+
+// insert new node at the back of the list 
+template<class L> void slp2_list<L>::insert(L *element)
 {
   slp2_list *ins = new slp2_list(false);
   ins->_rep = element;
-  ins->_prev = this;
-  ins->_next = this->_next;
-  this->_next->_prev = ins;
-  this->_next = ins;
+  ins->_next = this;
+  ins->_prev = this->_prev;
+  this->_prev->_next = ins;
+  this->_prev = ins;
   _count++;
   return;
 }
@@ -245,30 +314,90 @@ template<class L> L *slp2_list<L>::remove( void )
   return(ret);
 }
 
-da_list::~da_list()
+
+template<class L> L *slp2_list<L>::remove(Sint8 *key)
 {
-  //  unlink();
-  if(url != NULL)
-    free(url);
-  if(scope != NULL)
-    free(scope);
-  if(attr != NULL)
-    free(attr);
-  if(spi != NULL)
-    free(spi);
-  if(auth != NULL)
-    free(auth);
+  L *ret = NULL;
+  if( _count > 0 ) {
+    slp2_list *temp = _next;
+    while ( temp->_isHead == false ) {
+      if( temp->_rep->operator==( key )) {
+	temp->unlink();
+	ret = temp->_rep;
+	temp->_rep = NULL;
+	delete temp;
+	_count--;
+	break;
+      }
+      temp = temp->_next;
+    }
+  }
+  return(ret);
 }
 
 
+template<class L> Boolean slp2_list<L>::exists(Sint8 *key)
+{
+  if( _count > 0) {
+    slp2_list *temp = _next;
+    while(temp->_isHead == false ) {
+      if( temp->_rep->operator==( key ))
+	return(true);
+      temp = temp->_next;
+    }
+  }
+  return(false);
+}
+
+
+da_list::~da_list()
+{
+  //  unlink();
+  delete[] url;
+  delete[] scope;
+  delete[] attr;
+  delete[] spi;
+  delete[] auth;
+}
+
+
+Boolean da_list::operator ==(const Sint8 *key) const
+{
+  if( ! strcasecmp(url, key) ) 
+    return(true);
+  return(false);
+}
 
 rply_list::~rply_list()
 {
   //  unlink();
-  if(url != NULL)
-    free(url);
-  if(auth != NULL)
-    free(auth);
+  delete[] url;
+  delete[] auth;
+}
+
+
+Boolean rply_list::operator ==(const Sint8 *key ) const 
+{
+  if (! strcasecmp(url, key) )
+    return(true);
+  return(false);
+}
+
+
+reg_list::~reg_list()
+{
+  delete[] url;
+  delete[] attributes;
+  delete[] service_type;
+  delete[] scopes;
+}
+
+
+Boolean reg_list::operator ==(const Sint8 *key ) const
+{
+  if( ! strcasecmp(url, key) )
+    return(true);
+  return(false);
 }
 
 
@@ -305,16 +434,18 @@ slp_client::slp_client(const Sint8 *target_addr,
 		       Uint16 target_port, 
 		       const Sint8 *spi )
 
-  : _pr_buf_len(0), _buf_len (LSLP_MTU), _version((Uint8)1), _xid(1),  _target_port(target_port),
-    _spi(NULL), _retries(3), _ttl(255),
-  _convergence(3), _crypto_context(NULL), das( ), replies( )
+  : _pr_buf_len(0), _buf_len (LSLP_MTU), _version((Uint8)1), 
+    _xid(1),  _target_port(target_port), _spi(NULL), _use_das(false),
+    _last_da_cycle(0), _retries(3), _ttl(255),  _convergence(1), 
+    _crypto_context(NULL), das( ), replies( ), regs( )
 
 {
   set_target_addr(target_addr);
   set_local_interface(local_addr);
   set_spi(spi);
-  _pr_buf = (Sint8 *)malloc(LSLP_MTU ) ;
-  _msg_buf = (Sint8 *)malloc(LSLP_MTU) ; 
+  _pr_buf = new Sint8[LSLP_MTU];
+  _msg_buf = new Sint8[LSLP_MTU] ; 
+  _rcv_buf = new Sint8[LSLP_MTU] ;
   _tv.tv_sec = 1;
   _tv.tv_usec = 0;
 #ifdef _WIN32
@@ -322,25 +453,33 @@ slp_client::slp_client(const Sint8 *target_addr,
     WSAStartup(0x0002, &_wsa_data);
   _winsock_count++;
 #endif 
-  
+
+  // initialize the recieve socket 
+  _rcv_sock = slp_open_listen_sock( );
 }
 
 
 slp_client::~slp_client()
 {
-  free(_pr_buf);
-  free(_msg_buf);
+  // close the receive socket 
+
+
+#ifdef _WIN32
+  _winsock_count--;
+  if(_winsock_count == 0)
+    WSACleanup();
+#endif 
+
+  delete _pr_buf;;
+  delete _msg_buf;
+  delete _rcv_buf;
   if(_spi != NULL)
     free(_spi);
   if(_crypto_context != NULL)
     free(_crypto_context);
   das.empty_list();
   replies.empty_list();
-#ifdef _WIN32
-  _winsock_count--;
-  if(_winsock_count == 0)
-    WSACleanup();
-#endif 
+
 }
 
 
@@ -476,7 +615,11 @@ int slp_client::find_das(const Sint8 *predicate,
 			 const Sint8 *scopes)
 {
   converge_srv_req(NULL, predicate, scopes);
-
+  time(&_last_da_cycle);
+  if(0 < das.count() )
+    _use_das = true;
+  else
+    _use_das = false;
   return( das.count( ) );
 }
 
@@ -486,11 +629,8 @@ int slp_client::converge_srv_req( const Sint8 *type,
 {
 
   Uint32 old_addr = _target_addr;
-  int old_convergence = _convergence;
   set_target_addr( "239.255.255.253" ) ;
-  set_convergence( 3 ) ;
   srv_req( type, predicate, scopes ) ;
-  _convergence = old_convergence;
   _target_addr = old_addr;
   
   return( replies.count( ) );
@@ -536,20 +676,21 @@ void slp_client::srv_req( const Sint8 *type,
 void slp_client::decode_reply( struct sockaddr_in *remote )
 {
   
-  if( _xid == _LSLP_GETXID( _msg_buf )) {
-    Sint8 function = _LSLP_GETFUNCTION( _msg_buf );
-    switch(function) {
-    case LSLP_DAADVERT:
-      decode_daadvert( remote );
-	return;		
-    case LSLP_SRVRPLY:
-      decode_srvrply( remote );
-	  return;
-    case LSLP_SRVACK:
-    default:
-      break;
-    }
-  } /* msg has expected xid */
+  if( _xid == _LSLP_GETXID( _rcv_buf ))
+    prepare_pr_buf( inet_ntoa(remote->sin_addr) );
+
+  Sint8 function = _LSLP_GETFUNCTION( _rcv_buf );
+  switch(function) {
+  case LSLP_DAADVERT:
+    decode_daadvert( remote );
+    return;		
+  case LSLP_SRVRPLY:
+    decode_srvrply( remote );
+    return;
+  case LSLP_SRVACK:
+  default:
+    break;
+  }
   return;
 }
 
@@ -560,7 +701,7 @@ void slp_client::decode_srvrply( struct sockaddr_in *remote )
   Sint16 str_len, err, count;
   Sint32 total_len, purported_len;
 
-  bptr = _msg_buf;
+  bptr = _rcv_buf;
   purported_len = _LSLP_GETLENGTH(bptr);
   bptr += (total_len = _LSLP_HDRLEN(bptr));
   if(total_len < purported_len) {
@@ -579,10 +720,9 @@ void slp_client::decode_srvrply( struct sockaddr_in *remote )
       if(total_len <= purported_len) {
 	Sint8 num_auths;
 	if(str_len > 0) {
-	  if(NULL != (reply->url = (Sint8 *)malloc(str_len + 1))) {
-	    memcpy(reply->url, bptr + 5, str_len);
-	    *((reply->url) + str_len) = 0x00;
-	  } else { abort(); }
+	  reply->url = new Sint8[str_len + 1];
+	  memcpy(reply->url, bptr + 5, str_len);
+	  *((reply->url) + str_len) = 0x00;
 	  bptr += (5 + str_len);
 	  reply->auth_blocks = (num_auths = _LSLP_GETBYTE(bptr, 0));
 	  total_len += 1;
@@ -594,8 +734,15 @@ void slp_client::decode_srvrply( struct sockaddr_in *remote )
 	    bptr += str_len;
 	    num_auths--;
 	  }
-	  strcpy(&(reply->remote[0]), inet_ntoa( remote->sin_addr )) ;
-	  replies.insert(reply);
+	  // handling duplicate responses is really inefficient, and we're 
+	  // not helping things out by checking for dupes this late in the game
+	  // however, in order to get to any further urls that may be in the
+	  // reply buffer we need to unstuff it anyway. So we are optimizing
+	  // for the case where there are no dupes. 
+	  if( false == replies.exists(reply->url) ) {
+	    strcpy(&(reply->remote[0]), inet_ntoa( remote->sin_addr )) ;
+	    replies.insert(reply);
+	  } else { delete reply ; }
 	  count--;
 	  if((total_len <= purported_len) && (count > 0) )
 	    reply = new rply_list( ); 
@@ -615,7 +762,7 @@ void slp_client::decode_daadvert(struct sockaddr_in *remote)
   Sint16 str_len;
   Sint32 total_len, purported_len;
 
-  bptr = _msg_buf;
+  bptr = _rcv_buf;
   purported_len = _LSLP_GETLENGTH(bptr);
   bptr += (total_len = _LSLP_HDRLEN(bptr));
   if(total_len < purported_len) {
@@ -628,52 +775,55 @@ void slp_client::decode_daadvert(struct sockaddr_in *remote)
     total_len += (8 + (str_len = _LSLP_GETSHORT(bptr, 6)));
     if(total_len < purported_len) {
       /* decode and capture the url  - note: this is a string, not a url-entry structure */
-      if(NULL != (adv->url = (Sint8 *)malloc(str_len + 1))) {
-	memcpy(adv->url, bptr + 8, str_len);
-	*((adv->url) + str_len) = 0x00;
-	/* advance the pointer past the url string */
-	bptr += (str_len + 8);
+      adv->url = new Sint8[str_len + 1] ;
+      memcpy(adv->url, bptr + 8, str_len);
+      *((adv->url) + str_len) = 0x00;
+      /* advance the pointer past the url string */
+      bptr += (str_len + 8);
+      total_len += (2 + (str_len = _LSLP_GETSHORT(bptr, 0)));
+      if(total_len < purported_len) {
+	if(str_len > 0) {
+	  adv->scope = new Sint8[str_len + 1] ;
+	  memcpy(adv->scope, bptr + 2, str_len);
+	  *((adv->scope) + str_len) = 0x00;
+	}
+	/* advance the pointer past the scope string  */
+	bptr += (str_len + 2);
 	total_len += (2 + (str_len = _LSLP_GETSHORT(bptr, 0)));
 	if(total_len < purported_len) {
 	  if(str_len > 0) {
-	    if(NULL != (adv->scope = (Sint8 *)malloc(str_len + 1))) {
-	      memcpy(adv->scope, bptr + 2, str_len);
-	      *((adv->scope) + str_len) = 0x00;
-	    } else { abort() ;}
+	    adv->attr = new Sint8[str_len + 1] ;
+	    memcpy(adv->attr, bptr + 2, str_len);
+	    *((adv->attr) + str_len) = 0x00;
 	  }
-	  /* advance the pointer past the scope string  */
+	  /* advance the pointer past the attr string */
 	  bptr += (str_len + 2);
 	  total_len += (2 + (str_len = _LSLP_GETSHORT(bptr, 0)));
 	  if(total_len < purported_len) {
-	    if(str_len > 0) {
-	      if(NULL != (adv->attr = (Sint8 *)malloc(str_len + 1))) {
-		memcpy(adv->attr, bptr + 2, str_len);
-		*((adv->attr) + str_len) = 0x00;
-	      } else { abort() ; }
-	    }
-	    /* advance the pointer past the attr string */
+	    if(str_len > 0 ) {
+	      adv->spi = new Sint8[str_len + 1];
+	      memcpy(adv->spi, bptr + 2, str_len);
+	      *((adv->spi) + str_len) = 0x00;
+	    } /*  if there is an spi  */
+		
+	    /* advance the pointer past the spi string  */
 	    bptr += (str_len + 2);
-	    total_len += (2 + (str_len = _LSLP_GETSHORT(bptr, 0)));
-	    if(total_len < purported_len) {
-	      if(str_len > 0 ) {
-		if(NULL != (adv->spi = (Sint8 *)malloc(str_len + 1))) {
-		  memcpy(adv->spi, bptr + 2, str_len);
-		  *((adv->spi) + str_len) = 0x00;
-		} else { abort(); }
-	      } /*  if there is an spi  */
-		
-		/* advance the pointer past the spi string  */
-	      bptr += (str_len + 2);
-	      adv->auth_blocks = _LSLP_GETBYTE(bptr, 0);
-		
-	      /* need code here to handle authenticated urls */
-	      strcpy(&(adv->remote[0]), inet_ntoa(remote->sin_addr)) ;
-	      das.insert(adv); 
-	      return;
-	    } /*  spi length field is consistent with hdr */
-	  } /* attr length field is consistent with hdr */
-	} /*  scope length field is consistent with hdr */
-      } else { abort() ; } /* allocated url buffer  */
+	    adv->auth_blocks = _LSLP_GETBYTE(bptr, 0);
+	    
+	    // if we already know about this da, remove the existing
+	    // entry from our cache and insert this new entry
+	    // maybe the stateless boot field changed or the da
+	    // supports new scopes, etc. 
+	    da_list * exists = das.remove(adv->url);
+	    delete exists;
+	      
+	    /* need code here to handle authenticated urls */
+	    strcpy(&(adv->remote[0]), inet_ntoa(remote->sin_addr)) ;
+	    das.insert(adv); 
+	    return;
+	  } /*  spi length field is consistent with hdr */
+	} /* attr length field is consistent with hdr */
+      } /*  scope length field is consistent with hdr */
     } 
   }
   return;
@@ -761,8 +911,8 @@ Boolean slp_client::srv_reg(Sint8 *url,
 	  /* set the length field in the header */
 	  _LSLP_SETLENGTH( _msg_buf, len );
 	  if(true == send_rcv_udp(  )) {
-	    if(LSLP_SRVACK == _LSLP_GETFUNCTION( _msg_buf )) {
-	      if(0x0000 == _LSLP_GETSHORT( _msg_buf, (_LSLP_HDRLEN( _msg_buf )))) {
+	    if(LSLP_SRVACK == _LSLP_GETFUNCTION( _rcv_buf )) {
+	      if(0x0000 == _LSLP_GETSHORT( _rcv_buf, (_LSLP_HDRLEN( _rcv_buf )))) {
 		memset(_msg_buf, 0x00, LSLP_MTU);
 		return(true); 
 	      }
@@ -791,8 +941,6 @@ Boolean slp_client::send_rcv_udp( void )
     local.sin_port = 0;
     local.sin_addr.s_addr = _local_addr;
     if(SOCKET_ERROR != bind(sock, (struct sockaddr *)&local, sizeof(local))) {
-      fd_set fds;
-      struct timeval tv;
       int bcast = ( (_LSLP_GETFLAGS(_msg_buf)) & LSLP_FLAGS_MCAST) ? 1 : 0 ;
       if(bcast) {
 	if( (SOCKET_ERROR ==  _LSLP_SET_TTL(sock, _ttl) )  ||  
@@ -821,33 +969,71 @@ Boolean slp_client::send_rcv_udp( void )
 	_LSLP_CLOSESOCKET(sock);
 	return(false);
       } /* oops - error sending data */
-      while(0 < err) {
-	FD_ZERO(&fds);
-	FD_SET(sock, &fds);
-	do {
-	  tv.tv_sec = _tv.tv_sec;
-	  tv.tv_usec = _tv.tv_usec;
-	  err = select(sock + 1, &fds, NULL, NULL, &tv);
-	} while( (err < 0) && (errno == EINTR));
-	
-	if( 0 < err ) {
-	  int size = sizeof(target);
-	  err = recvfrom(sock, _msg_buf, LSLP_MTU, 0, (struct sockaddr *)&target, (socklen_t *)&size);
-	  if(err && err != SOCKET_ERROR) {
-	    ccode = true;
-	    decode_reply( &target );
-	    if(bcast == 0)
-	      break;
-	    prepare_pr_buf( inet_ntoa(target.sin_addr) );
-	  } /* read a response  */
-	} /* socket has data  */
-      } /*  while selecting */
-    } /* socket bound */
+      if(bcast)
+	service_listener_wait(_convergence, sock, false) ;
+      else
+	service_listener_wait(_convergence, sock, true);
+    } // bound the socket 
     _LSLP_CLOSESOCKET(sock);
   } /*  got the socket */
   return(ccode);
 }
      
+// must be called regularly to process responses 
+
+Sint32 slp_client::service_listener(void)
+{
+  return service_listener((SOCKET) 0);
+}
+
+
+Sint32 slp_client::service_listener_wait(time_t wait, SOCKET extra_sock, Boolean one_only)
+{
+  Sint32 rcv = 0;
+  time_t now;
+  time_t start = time(NULL);
+
+  while( time(&now) && ((now - wait ) <= start )  ) {
+    rcv += service_listener(extra_sock);
+    if(rcv > 0)
+      if(one_only == true)
+	return(rcv);
+    _LSLP_SLEEP(10);
+  }
+  rcv += service_listener(extra_sock);
+  return(rcv);
+}
+
+Sint32 slp_client::service_listener(SOCKET extra_sock )
+{
+
+  fd_set fds;
+  struct timeval tv = {0, 10}; 
+  FD_ZERO(&fds);
+  FD_SET(_rcv_sock, &fds);
+  if(extra_sock)
+    FD_SET( extra_sock, &fds);
+  Sint32 err;
+  do { 
+    err = select(_rcv_sock > extra_sock ? _rcv_sock + 1: extra_sock + 1, &fds, NULL, NULL, &tv); 
+  } while ( (err < 0 )&& (errno == EINTR)) ;
+  if( 0 < err ) {
+    struct sockaddr_in remote;
+    int size = sizeof(remote);
+    if(extra_sock && FD_ISSET(extra_sock, &fds) ) {
+      err = recvfrom(extra_sock, _rcv_buf, LSLP_MTU, 0, (struct sockaddr *)&remote, (socklen_t *)&size);
+      if(err && err != SOCKET_ERROR)
+	decode_reply( &remote );
+    }
+    if(FD_ISSET(_rcv_sock, &fds)) {
+      err = recvfrom(_rcv_sock, _rcv_buf, LSLP_MTU, 0, (struct sockaddr *)&remote, (socklen_t *)&size);
+      if(err && err != SOCKET_ERROR)
+	decode_reply( &remote );
+    }
+  }
+  return(err);
+}
+
 int slp_client::srv_reg_all( Sint8 *url,
 			     Sint8 *attributes,
 			     Sint8 *service_type,

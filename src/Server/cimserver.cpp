@@ -347,14 +347,15 @@ int main(int argc, char** argv)
     // try loop to bind the address, and run the server
     try
     {
+      	slp_client *discovery = new slp_client() ;;
         String serviceURL;
 	serviceURL.assign("service:cim.pegasus://");
-	char *host_name = slp_get_host_name();
+	String host_name = slp_get_host_name();
 	serviceURL += host_name;
 	serviceURL += ":";
 	serviceURL += address;
 	char *url = serviceURL.allocateCString();
-	free(host_name);
+	//	free(host_name);
 
 	Selector selector;
 	CIMServer server(&selector, pegasusHome);
@@ -363,17 +364,13 @@ int main(int argc, char** argv)
 	server.bind(address);
 	delete [] address;
 
-	slp_client *discovery = NULL;
-	if(useSLP)
-	  discovery = new slp_client();
+
 
 	time_t last = 0;
 	while( 1 )
 	{
 	  if(useSLP  ) 
 	  {
-	    int success, failure;
-	    
 	    if(  (time(NULL) - last ) > 60 ) 
 	    {
 	      if( discovery != NULL && url != NULL )
@@ -381,9 +378,11 @@ int main(int argc, char** argv)
 				       "(namespace=root/cimv20)",
 				       "service:cim.pegasus", 
 				       "DEFAULT", 
-				       3600) ;
+				       70) ;
 	      time(&last);
 	    }
+	  
+	    discovery->service_listener();
 	  }
 	  server.runForever();
 	}

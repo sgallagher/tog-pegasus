@@ -59,6 +59,8 @@ repository you make world, make rebuild or make repository. ks
     Need to handle deleteInstance().
     (MEB)
 
+14. slp client code integrated as pegasus-style c++ library. (MDD)
+
 --------------------------------------------------------------------------------
 Version 0.97.3 - Released 5 June 2001
 

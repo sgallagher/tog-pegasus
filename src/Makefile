@@ -2,7 +2,7 @@ ROOT = ..
 
 include $(ROOT)/mak/config.mak
 
-DIRS = slp Pegasus Clients Providers Server
+DIRS =  Pegasus slp Clients Providers Server
 
 include $(ROOT)/mak/recurse.mak
 

@@ -5,6 +5,7 @@ ROOT = ../../../../..
 DIRS = \
    createInstances \
    lookupInstanceProvider \
+   lookupIndicationProvider \
    lookupMethodProvider
 
 

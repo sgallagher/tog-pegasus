@@ -193,7 +193,7 @@ int main(int argc, char** argv)
     catch(Exception& e)
     {
 	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
-	PEGASUS_STD (cout) << "+++++ create provider capability instances failed"
+	PEGASUS_STD (cout) << "+++++ lookup instance provider failed"
                            << PEGASUS_STD (endl);
 	exit(-1);
     }

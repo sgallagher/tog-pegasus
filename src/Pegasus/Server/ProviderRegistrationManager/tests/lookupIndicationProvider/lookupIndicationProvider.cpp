@@ -42,7 +42,7 @@ const String CLASSNAME = "PG_ProviderModule";
 const String CLASSNAME2 = "PG_Provider";
 const String CLASSNAME3 = "PG_ProviderCapabilities";
 
-Boolean TestLookupMethodProvider(ProviderRegistrationManager prmanager)
+void TestLookupIndicationProvider(ProviderRegistrationManager prmanager)
 {
 
     //
@@ -100,6 +100,29 @@ Boolean TestLookupMethodProvider(ProviderRegistrationManager prmanager)
         throw (e);
     }
 
+    CIMReference returnRef4;
+
+    CIMClass cimClass4(CLASSNAME2);
+
+    CIMInstance cimInstance4(CLASSNAME2);
+
+    cimInstance4.addProperty(CIMProperty("ProviderModuleName", "providersModule1"));
+    cimInstance4.addProperty(CIMProperty("Name", "PG_ProviderInstance2"));
+
+    CIMReference instanceName4 = cimInstance4.getInstanceName(cimClass4);
+
+    instanceName4.setNameSpace(NAMESPACE);
+    instanceName4.setClassName(CLASSNAME2);
+
+    try
+    {
+    	returnRef4 = prmanager.createInstance(instanceName4, cimInstance4);
+    }
+    catch(CIMException& e)
+    {
+        throw (e);
+    }
+
     //
     // create provider capability instances
     //
@@ -107,15 +130,21 @@ Boolean TestLookupMethodProvider(ProviderRegistrationManager prmanager)
     Array <String> namespaces;
     Array <Uint16> providerType;
     Array <String> supportedMethods;
+    Array <String> supportedProperties;
 
     namespaces.append("test_namespace1");
     namespaces.append("test_namespace2");
     
-    providerType.append(2);
-    providerType.append(5);
+    providerType.append(4);
 
     supportedMethods.append("test_method1");
     supportedMethods.append("test_method2");
+
+    supportedProperties.append("p1");
+    supportedProperties.append("p2");
+    supportedProperties.append("p3");
+    supportedProperties.append("p4");
+    supportedProperties.append("p5");
 
     CIMReference returnRef3;
 
@@ -130,6 +159,7 @@ Boolean TestLookupMethodProvider(ProviderRegistrationManager prmanager)
     cimInstance3.addProperty(CIMProperty("Namespaces", namespaces));
     cimInstance3.addProperty(CIMProperty("ProviderType", providerType));
     cimInstance3.addProperty(CIMProperty("SupportedMethods", supportedMethods));
+    cimInstance3.addProperty(CIMProperty("SupportedProperties", supportedProperties));
 
     CIMReference instanceName3 = cimInstance3.getInstanceName(cimClass3);
 
@@ -145,36 +175,69 @@ Boolean TestLookupMethodProvider(ProviderRegistrationManager prmanager)
         throw (e);
     }
 
-    //
-    // test lookupMethodProvider Interface
-    //
-    String _providerModuleName;
-    String _providerModuleName2;
+    Array <String> supportedProperties2;
 
-    CIMInstance providerIns;
+    supportedProperties2.append("p1");
+    supportedProperties2.append("p2");
+    supportedProperties2.append("p3");
+    supportedProperties2.append("p4");
+    supportedProperties2.append("p6");
+
+    CIMReference returnRef5;
+
+    CIMClass cimClass5(CLASSNAME3);
+
+    CIMInstance cimInstance5(CLASSNAME3);
+
+    cimInstance5.addProperty(CIMProperty("ProviderModuleName", "providersModule1"));
+    cimInstance5.addProperty(CIMProperty("ProviderName", "PG_ProviderInstance2"));
+    cimInstance5.addProperty(CIMProperty("CapabilityID", "capability2"));
+    cimInstance5.addProperty(CIMProperty("ClassName", "test_class1"));
+    cimInstance5.addProperty(CIMProperty("Namespaces", namespaces));
+    cimInstance5.addProperty(CIMProperty("ProviderType", providerType));
+    cimInstance5.addProperty(CIMProperty("SupportedProperties", supportedProperties2));
+
+    CIMReference instanceName5 = cimInstance5.getInstanceName(cimClass5);
+
+    instanceName5.setNameSpace(NAMESPACE);
+    instanceName5.setClassName(CLASSNAME3);
+
+    try 
+    {
+    	returnRef5 = prmanager.createInstance(instanceName5, cimInstance5);
+    }
+    catch(CIMException& e)
+    {
+        throw (e);
+    }
+
+    //
+    // test lookupIndicationProvider Interface
+    //
+    String _providerName;
+    String _providerModuleName2;
+    Array <String> requiredProperties;
+
+    Array <CIMInstance> providerIns;
     CIMInstance providerModuleIns;
 
-    if (prmanager.lookupMethodProvider("test_namespace1", "test_class1", 
-	"test_method2", providerIns, providerModuleIns))
-    {
-	providerIns.getProperty(providerIns.findProperty
-	    ("ProviderModuleName")).getValue().get(_providerModuleName);
+    requiredProperties.append("p1");
+    requiredProperties.append("p3");
+    requiredProperties.append("p4");
 
-	providerModuleIns.getProperty(providerModuleIns.findProperty("Name"))
-	    .getValue().get(_providerModuleName2);
+    providerIns = prmanager.getIndicationProviders("test_namespace1", 
+	"test_class1", requiredProperties);
 
-	if (String::equal(_providerModuleName, _providerModuleName2))
-	{
-	    return (true);
-	}
-	else
-	{
-	    return (false);
-	}
-    }
-    else
+    PEGASUS_STD (cout) << "+++++ Indication providers are +++++"
+                           << PEGASUS_STD (endl);
+
+    for (Uint32 i=0; i < providerIns.size(); i++)
     {
-	return (false);
+    	providerIns[i].getProperty(providerIns[i].findProperty
+	    ("Name")).getValue().get(_providerName);
+
+    	PEGASUS_STD (cout) << _providerName
+                           << PEGASUS_STD (endl);
     }
 }
 
@@ -185,17 +248,13 @@ int main(int argc, char** argv)
 
     try
     {
-	if (!TestLookupMethodProvider(prmanager))
-	{
-	    PEGASUS_STD(cerr) << "Error: lookupMethodProvider Failed" << PEGASUS_STD(endl);
-	    exit (-1);
-	}
+	TestLookupIndicationProvider(prmanager);
     }
 
     catch(Exception& e)
     {
 	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
-	PEGASUS_STD (cout) << "+++++ lookup method provider failed"
+	PEGASUS_STD (cout) << "+++++ lookup indication provider failed"
                            << PEGASUS_STD (endl);
 	exit(-1);
     }

@@ -444,7 +444,7 @@ Array <CIMInstance> ProviderRegistrationManager::getIndicationProviders(
     //
     // create the key by using nameSpace, className, and providerType
     //
-    String capabilityKey = _generateKey(nameSpace, className, INS_PROVIDER);
+    String capabilityKey = _generateKey(nameSpace, className, IND_PROVIDER);
 
     // 
     // get provider capability instances from the table

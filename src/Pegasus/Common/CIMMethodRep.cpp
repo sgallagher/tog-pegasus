@@ -29,6 +29,7 @@
 #include <Pegasus/Common/Config.h>
 #include <cassert>
 #include "CIMMethod.h"
+#include "CIMMethodRep.h"
 #include "Indentor.h"
 #include "CIMName.h"
 #include "CIMScope.h"
@@ -86,7 +87,7 @@ void CIMMethodRep::addParameter(const CIMParameter& x)
     _parameters.append(x);
 }
 
-Uint32 CIMMethodRep::findParameter(const String& name)
+Uint32 CIMMethodRep::findParameter(const String& name) const
 {
     for (Uint32 i = 0, n = _parameters.size(); i < n; i++)
     {

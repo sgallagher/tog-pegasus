@@ -40,7 +40,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class CIMMethod;
 class CIMConstMethod;
 class DeclContext;
 
@@ -91,12 +90,12 @@ public:
     {
 	_qualifiers.add(qualifier);
     }
-    // ATTN: ks 18 May.  Why no non-const version here
+
     Uint32 findQualifier(const String& name) const
     {
 	return _qualifiers.find(name);
     }
-    // ATTN:
+
     Boolean existsQualifier(const String& name) const
     {
 	return (findQualifier(name) != PEG_NOT_FOUND) ? true : false;
@@ -112,7 +111,7 @@ public:
     {
 	return _qualifiers.getQualifier(pos);
     }
-    //
+
     void removeQualifier(Uint32 pos)
     {
 	_qualifiers.removeQualifier(pos);
@@ -126,12 +125,7 @@ public:
 
     void addParameter(const CIMParameter& x);
 
-    Uint32 findParameter(const String& name);
-
-    Uint32 findParameter(const String& name) const
-    {
-	return ((CIMMethodRep*)this)->findParameter(name);
-    }
+    Uint32 findParameter(const String& name) const;
 
     CIMParameter getParameter(Uint32 pos);
 

@@ -22,7 +22,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -30,11 +30,16 @@
 #define Pegasus_Method_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/CIMMethodRep.h>
+#include <Pegasus/Common/String.h>
+#include <Pegasus/Common/CIMParameter.h>
+#include <Pegasus/Common/CIMQualifier.h>
+#include <Pegasus/Common/CIMType.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
+class DeclContext;
 class CIMConstMethod;
+class CIMMethodRep;
 
 /** Class CIMMethod - This class defines the operations associated with
     manipulation of the Pegasus implementation of the CIM CIMMethod. Within
@@ -48,29 +53,12 @@ class PEGASUS_COMMON_LINKAGE CIMMethod
 public:
 
     /** Creates and instantiates a CIM method. */
-    CIMMethod() : _rep(0)
-    {
-
-    }
+    CIMMethod();
 
     /** Creates and instantiates a CIM method from another method instance
 	@return pointer to the new method instance
     */
-    CIMMethod(const CIMMethod& x)
-    {
-	Inc(_rep = x._rep);
-    }
-
-    /** Assignment operator */
-    CIMMethod& operator=(const CIMMethod& x)
-    {
-	if (x._rep != _rep)
-	{
-	    Dec(_rep);
-	    Inc(_rep = x._rep);
-	}
-	return *this;
-    }
+    CIMMethod(const CIMMethod& x);
 
     /**	Creates a CIM method with the specified name, type, and classOrigin
 	@param name for the method
@@ -82,91 +70,56 @@ public:
     CIMMethod(
 	const String& name,
 	CIMType type,
-	const String& classOrigin = String(),
-	Boolean propagated = false)
-    {
-	_rep = new CIMMethodRep(name, type, classOrigin, propagated);
-    }
+	const String& classOrigin = String::EMPTY,
+	Boolean propagated = false);
 
     /** Desctructor. */
-    ~CIMMethod()
-    {
-	Dec(_rep);
-    }
+    ~CIMMethod();
+
+    /** Assignment operator */
+    CIMMethod& operator=(const CIMMethod& x);
 
     /** getName - Gets the name of the method
 	@return String with the name of the method
     */
-    const String& getName() const
-    {
-	_checkRep();
-	return _rep->getName();
-    }
+    const String& getName() const;
 
     /** setName - Set the method name
 	@param name
 	@exception IllegalName if name argument not legal CIM identifier.
     */
-    void setName(const String& name)
-    {
-	_checkRep();
-	_rep->setName(name);
-    }
+    void setName(const String& name);
 
     /** getType - gets the method type
 	@return The CIM method type for this method.
     */
-    CIMType getType() const
-    {
-	_checkRep();
-	return _rep->getType();
-    }
+    CIMType getType() const;
 
     /** setType - Sets the method type to the specified CIM method
 	type as defined in CIMType /Ref{TYPE}
     */
-    void setType(CIMType type)
-    {
-	_checkRep();
-	_rep->setType(type);
-    }
+    void setType(CIMType type);
 
     /** getClassOrigin - Returns the class in which this method
 	was defined.
 	@return String containing the classOrigin field. 
     */
-    const String& getClassOrigin() const
-    {
-	_checkRep();
-	return _rep->getClassOrigin();
-    }
+    const String& getClassOrigin() const;
 
     /** setClassOrigin - Set the ClassOrigin attribute with
-		the classname defined on input
-		@param classOrigin - String parameter defining the name
-		of the class origin
-	*/
-    void setClassOrigin(const String& classOrigin)
-    {
-	_checkRep();
-	_rep->setClassOrigin(classOrigin);
-    }
+	the classname defined on input
+	@param classOrigin - String parameter defining the name
+	of the class origin
+    */
+    void setClassOrigin(const String& classOrigin);
 
     /** getPropagated - Tests the propogated qualifier
         @return - returns True if method is propogated
-	*/
-    Boolean getPropagated() const
-    {
-	_checkRep();
-	return _rep->getPropagated();
-    }
+    */
+    Boolean getPropagated() const;
 
     /** setPropagated - Sets the Propagaged Qualifier */
-    void setPropagated(Boolean propagated)
-    {
-	_checkRep();
-	_rep->setPropagated(propagated);
-    }
+    void setPropagated(Boolean propagated);
 
     /** addQualifier - Adds a Qualifier to the method object.
 	@param CIMQualifier to be added
@@ -174,47 +127,21 @@ public:
 	in the method
 	@exception AlreadyExists exception
     */
-    CIMMethod& addQualifier(const CIMQualifier& x)
-    {
-	_checkRep();
-	_rep->addQualifier(x);
-	return *this;
-    }
+    CIMMethod& addQualifier(const CIMQualifier& x);
 
     /** findQualifier - returns the position of the qualifier with
 	the given name.
 	@param name Name of qualifier to be found.
 	@return index of the parameter if found; otherwise PEG_NOT_FOUND.
     */
-    Uint32 findQualifier(const String& name)
-    {
-	_checkRep();
-	return _rep->findQualifier(name);
-    }
-
-    Uint32 findQualifier(const String& name) const
-    {
-	_checkRep();
-	return _rep->findQualifier(name);
-    }
+    Uint32 findQualifier(const String& name) const;
 
     /** existsQualifier - returns the position of the qualifier with
 	the given name.
 	@param name Name of qualifier to be found.
 	@return index of the parameter if found; otherwise PEG_NOT_FOUND.
     */
-    Boolean existsQualifier(const String& name)
-    {
-	_checkRep();
-	return _rep->existsQualifier(name);
-    }
-
-    Boolean existsQualifier(const String& name) const
-    {
-	_checkRep();
-	return _rep->existsQualifier(name);
-    }
-
+    Boolean existsQualifier(const String& name) const;
 
     /** getQualifier - Gets the CIMQualifier defined by the index
 	input as a parameter.
@@ -223,17 +150,9 @@ public:
 	@exception OutOfBounds exception if the index is outside the range of
 	parameters available from the CIMMethod.
     */
-    CIMQualifier getQualifier(Uint32 pos)
-    {
-	_checkRep();
-	return _rep->getQualifier(pos);
-    }
+    CIMQualifier getQualifier(Uint32 pos);
 
-    CIMConstQualifier getQualifier(Uint32 pos) const
-    {
-	_checkRep();
-	return _rep->getQualifier(pos);
-    }
+    CIMConstQualifier getQualifier(Uint32 pos) const;
 
     /** removeQualifier - Removes the CIMQualifier defined by the
 	position input as a parameter.
@@ -242,56 +161,28 @@ public:
 	@exception OutOfBounds exception if the index is outside the range of
 	parameters available from the CIMMethod.
     */
-    void removeQualifier(Uint32 pos)
-    {
-	_checkRep();
-	_rep->removeQualifier(pos);
-    }
-
+    void removeQualifier(Uint32 pos);
 
     /** getQualifierCount - Returns the number of Qualifiers attached
-	to this CIMmethod object.
+	to this CIMMethod object.
 	@return integer representing number of Qualifiers.
     */
-    Uint32 getQualifierCount() const
-    {
-	_checkRep();
-	return _rep->getQualifierCount();
-    }
+    Uint32 getQualifierCount() const;
 
     /** addParameter - Adds the parameter defined by the input
 	to the CIMMethod
     */
-    CIMMethod& addParameter(const CIMParameter& x)
-    {
-	_checkRep();
-	_rep->addParameter(x);
-	return *this;
-    }
+    CIMMethod& addParameter(const CIMParameter& x);
 
     /** findParameter - Finds the parameter whose name is given
 	by the name parameter.
 	@param name Name of parameter to be found.
 	@return index of the parameter if found; otherwise PEG_NOT_FOUND.
     */
-    Uint32 findParameter(const String& name)
-    {
-	_checkRep();
-	return _rep->findParameter(name);
-    }
-
-    Uint32 findParameter(const String& name) const
-    {
-	_checkRep();
-	return _rep->findParameter(name);
-    }
+    Uint32 findParameter(const String& name) const;
 
     /** getParameter - ATTN: */
-    CIMParameter getParameter(Uint32 pos)
-    {
-	_checkRep();
-	return _rep->getParameter(pos);
-    }
+    CIMParameter getParameter(Uint32 pos);
 
     /** getParameter - Gets the parameter defined by the index
 	input as a parameter.
@@ -300,71 +191,42 @@ public:
 	@Exception OutOfBounds exception is thrown if the index is outside the
 	range of available parameters
     */
-    CIMConstParameter getParameter(Uint32 pos) const
-    {
-	_checkRep();
-	return _rep->getParameter(pos);
-    }
+    CIMConstParameter getParameter(Uint32 pos) const;
 
     /** getParameterCount - Gets the count of the numbeer of
 	Parameters attached to the CIMMethod.
 	@retrun - count of the number of parameters attached to the CIMMethod.
     */
-    Uint32 getParameterCount() const
-    {
-	_checkRep();
-	return _rep->getParameterCount();
-    }
+    Uint32 getParameterCount() const;
 
+#ifdef PEGASUS_INTERNALONLY
     /** resolve - resolves and completes the CIMMethod */
     void resolve(
 	DeclContext* declContext,
 	const String& nameSpace,
-	const CIMConstMethod& method)
-    {
-	_checkRep();
-	_rep->resolve(declContext, nameSpace, method);
-    }
+	const CIMConstMethod& method);
 
     /** resolve - Resolves and completes the CIMMethod */
     void resolve(
 	DeclContext* declContext,
-	const String& nameSpace)
-    {
-	_checkRep();
-	_rep->resolve(declContext, nameSpace);
-    }
+	const String& nameSpace);
 
     /** Returns zero if CIMMethod refers to a null pointer */
-    operator int() const
-    {
-	return _rep != 0;
-    }
+    operator int() const;
+#endif
 
     /** toXML - puts XML encoding of this CIMMethod object into out 
-	arguemnt. 
+	argument. 
     */
-    void toXml(Array<Sint8>& out) const
-    {
-	_checkRep();
-	_rep->toXml(out);
-    }
+    void toXml(Array<Sint8>& out) const;
 
     /** print - formats and prints this CIMmethod (in CIM XML encoded form). 
     */
-    void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const
-    {
-	_checkRep();
-	_rep->print(o);
-    }
+    void print(PEGASUS_STD(ostream)& o=PEGASUS_STD(cout)) const;
 
     /** toMof - puts MOF encoding of this object into out arguemnt. 
     */ 
-    void toMof(Array<Sint8>& out) const
-    {
-	_checkRep();
-	_rep->toMof(out);
-    }
+    void toMof(Array<Sint8>& out) const;
 
     /** identical - Returns true if this method is identical to the
 	one given by the argument x.
@@ -372,178 +234,78 @@ public:
     Boolean identical(const CIMConstMethod& x) const;
 
     /** CIMMethod clone - makes a distinct replica of this method */
-    CIMMethod clone() const
-    {
-	return CIMMethod(_rep->clone());
-    }
+    CIMMethod clone() const;
 
 private:
 
-    CIMMethod(CIMMethodRep* rep) : _rep(rep)
-    {
-    }
+    CIMMethod(CIMMethodRep* rep);
 
     PEGASUS_EXPLICIT CIMMethod(const CIMConstMethod& x);
 
-    void _checkRep() const
-    {
-	if (!_rep)
-	    ThrowUnitializedHandle();
-    }
+    void _checkRep() const;
 
     CIMMethodRep* _rep;
     friend class CIMConstMethod;
-    friend class CIMClassRep;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMConstMethod
 {
 public:
 
-    CIMConstMethod() : _rep(0)
-    {
+    CIMConstMethod();
 
-    }
+    CIMConstMethod(const CIMConstMethod& x);
 
-    CIMConstMethod(const CIMConstMethod& x)
-    {
-	Inc(_rep = x._rep);
-    }
-
-    CIMConstMethod(const CIMMethod& x)
-    {
-	Inc(_rep = x._rep);
-    }
-
-    CIMConstMethod& operator=(const CIMConstMethod& x)
-    {
-	if (x._rep != _rep)
-	{
-	    Dec(_rep);
-	    Inc(_rep = x._rep);
-	}
-	return *this;
-    }
-
-    CIMConstMethod& operator=(const CIMMethod& x)
-    {
-	if (x._rep != _rep)
-	{
-	    Dec(_rep);
-	    Inc(_rep = x._rep);
-	}
-	return *this;
-    }
+    CIMConstMethod(const CIMMethod& x);
 
     // Throws IllegalName if name argument not legal CIM identifier.
-
     CIMConstMethod(
 	const String& name,
 	CIMType type,
-	const String& classOrigin = String(),
-	Boolean propagated = false)
-    {
-	_rep = new CIMMethodRep(name, type, classOrigin, propagated);
-    }
+	const String& classOrigin = String::EMPTY,
+	Boolean propagated = false);
 
-    ~CIMConstMethod()
-    {
-	Dec(_rep);
-    }
+    ~CIMConstMethod();
 
-    const String& getName() const
-    {
-	_checkRep();
-	return _rep->getName();
-    }
+    CIMConstMethod& operator=(const CIMConstMethod& x);
 
-    CIMType getType() const
-    {
-	_checkRep();
-	return _rep->getType();
-    }
+    CIMConstMethod& operator=(const CIMMethod& x);
 
-    const String& getClassOrigin() const
-    {
-	_checkRep();
-	return _rep->getClassOrigin();
-    }
+    const String& getName() const;
 
-    Boolean getPropagated() const
-    {
-	_checkRep();
-	return _rep->getPropagated();
-    }
+    CIMType getType() const;
 
-    Uint32 findQualifier(const String& name) const
-    {
-	_checkRep();
-	return _rep->findQualifier(name);
-    }
+    const String& getClassOrigin() const;
 
-    Uint32 getQualifier(Uint32 pos) const
-    {
-	_checkRep();
-	return _rep->getQualifier(pos);
-    }
+    Boolean getPropagated() const;
 
-    Uint32 getQualifierCount() const
-    {
-	_checkRep();
-	return _rep->getQualifierCount();
-    }
+    Uint32 findQualifier(const String& name) const;
 
-    Uint32 findParameter(const String& name) const
-    {
-	_checkRep();
-	return _rep->findParameter(name);
-    }
+    Uint32 getQualifier(Uint32 pos) const;
 
-    CIMConstParameter getParameter(Uint32 pos) const
-    {
-	_checkRep();
-	return _rep->getParameter(pos);
-    }
+    Uint32 getQualifierCount() const;
 
-    Uint32 getParameterCount() const
-    {
-	_checkRep();
-	return _rep->getParameterCount();
-    }
+    Uint32 findParameter(const String& name) const;
 
-    operator int() const { return _rep != 0; }
+    CIMConstParameter getParameter(Uint32 pos) const;
 
-    void toXml(Array<Sint8>& out) const
-    {
-	_checkRep();
-	_rep->toXml(out);
-    }
+    Uint32 getParameterCount() const;
 
-    void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const
-    {
-	_checkRep();
-	_rep->print(o);
-    }
+#ifdef PEGASUS_INTERNALONLY
+    operator int() const;
 
-    Boolean identical(const CIMConstMethod& x) const
-    {
-	x._checkRep();
-	_checkRep();
-	return _rep->identical(x._rep);
-    }
+    void toXml(Array<Sint8>& out) const;
 
-    CIMMethod clone() const
-    {
-	return CIMMethod(_rep->clone());
-    }
+    void print(PEGASUS_STD(ostream)& o=PEGASUS_STD(cout)) const;
+#endif
+
+    Boolean identical(const CIMConstMethod& x) const;
+
+    CIMMethod clone() const;
 
 private:
 
-    void _checkRep() const
-    {
-	if (!_rep)
-	    ThrowUnitializedHandle();
-    }
+    void _checkRep() const;
 
     CIMMethodRep* _rep;
 

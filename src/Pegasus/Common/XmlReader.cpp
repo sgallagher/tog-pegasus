@@ -1443,9 +1443,10 @@ CIMFlavor XmlReader::getFlavor(
 CIMScope XmlReader::getOptionalScope(XmlParser& parser)
 {
     XmlEntry entry;
+    CIMScope scope;
 
     if (!parser.next(entry))
-	return false;
+	return scope;    // No SCOPE element found; return the empty scope
 
     Boolean isEmptyTag = entry.type == XmlEntry::EMPTY_TAG;
 
@@ -1453,12 +1454,12 @@ CIMScope XmlReader::getOptionalScope(XmlParser& parser)
 	entry.type != XmlEntry::START_TAG) ||
 	strcmp(entry.text, "SCOPE") != 0)
     {
+	// No SCOPE element found; return the empty scope
 	parser.putBack(entry);
-	return 0;
+	return scope;
     }
 
     Uint32 line = parser.getLine();
-    CIMScope scope = CIMScope ();
 
     if (getCimBooleanAttribute(line, entry, "SCOPE", "CLASS", false, false))
 	scope.addScope (CIMScope::CLASS);

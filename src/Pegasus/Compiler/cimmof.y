@@ -218,9 +218,9 @@ cimmof_error(const char *msg) {
 
 %type <modelpath> modelPath 
 %type <keybinding> keyValuePair
-%type <scope> scope
+%type <scope> scope metaElements metaElement
 %type <flavor> flavor defaultFlavor 
-%type <ival> array metaElements metaElement 
+%type <ival> array
 %type <ival> booleanValue keyValuePairList
 %type <pragma> compilerDirectivePragma
 %type <datatype> dataType intDataType realDataType parameterType objectRef
@@ -669,27 +669,27 @@ qualifierValue: TOK_COLON dataType array typedDefaultValue
     delete $4->value;
 } ;
 
-scope: scope_begin metaElements TOK_RIGHTPAREN { $$ = new CIMScope ($2); } ;
+scope: scope_begin metaElements TOK_RIGHTPAREN { $$ = $2; } ;
 
 scope_begin: TOK_COMMA TOK_SCOPE TOK_LEFTPAREN { 
     g_scope = CIMScope (CIMScope::NONE); } ;
 
 metaElements: metaElement { $$ = $1; }
             | metaElements TOK_COMMA metaElement
-	                  { $$ |= $3; } ;
+	                  { $$->addScope(*$3); } ;
 // ATTN:  2001 P3 defer There is not CIMScope::SCHEMA. Spec Limit KS
 
-metaElement: TOK_CLASS       { $$ = CIMScope::CLASS;        }
-//           | TOK_SCHEMA      { $$ = CIMScope::SCHEMA;       }
-           | TOK_SCHEMA        { $$ = CIMScope::CLASS; }
-           | TOK_ASSOCIATION { $$ = CIMScope::ASSOCIATION;  }
-           | TOK_INDICATION  { $$ = CIMScope::INDICATION;   }
-//           | TOK_QUALIFIER   { $$ = CIMScope::QUALIFIER; }
-           | TOK_PROPERTY    { $$ = CIMScope::PROPERTY;     }
-           | TOK_REFERENCE   { $$ = CIMScope::REFERENCE;    }
-           | TOK_METHOD      { $$ = CIMScope::METHOD;       }
-           | TOK_PARAMETER   { $$ = CIMScope::PARAMETER;    }
-           | TOK_ANY         { $$ = CIMScope::ANY;          } ;
+metaElement: TOK_CLASS       { $$ = new CIMScope(CIMScope::CLASS);        }
+//           | TOK_SCHEMA      { $$ = new CIMScope(CIMScope::SCHEMA);       }
+           | TOK_SCHEMA        { $$ = new CIMScope(CIMScope::CLASS); }
+           | TOK_ASSOCIATION { $$ = new CIMScope(CIMScope::ASSOCIATION);  }
+           | TOK_INDICATION  { $$ = new CIMScope(CIMScope::INDICATION);   }
+//           | TOK_QUALIFIER   { $$ = new CIMScope(CIMScope::QUALIFIER); }
+           | TOK_PROPERTY    { $$ = new CIMScope(CIMScope::PROPERTY);     }
+           | TOK_REFERENCE   { $$ = new CIMScope(CIMScope::REFERENCE);    }
+           | TOK_METHOD      { $$ = new CIMScope(CIMScope::METHOD);       }
+           | TOK_PARAMETER   { $$ = new CIMScope(CIMScope::PARAMETER);    }
+           | TOK_ANY         { $$ = new CIMScope(CIMScope::ANY);          } ;
 
 // Correction KS 4 march 2002 - Set the default if empty
 defaultFlavor: TOK_COMMA flavorHead explicitFlavors TOK_RIGHTPAREN
@@ -773,7 +773,7 @@ qualifier: qualifierName typedQualifierParameter flavor
 qualifierName: TOK_SIMPLE_IDENTIFIER { 
     g_flavor = CIMFlavor (CIMFlavor::NONE); }
              | metaElement { 
-                        $$ = new String(CIMScope ($1).toString ());
+                        $$ = new String((*$1).toString ());
                         g_flavor = CIMFlavor (CIMFlavor::NONE); } ;
 
 typedQualifierParameter: TOK_LEFTPAREN nonNullConstantValue TOK_RIGHTPAREN 

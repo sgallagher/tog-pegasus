@@ -1653,7 +1653,7 @@ case 102:
     break;}
 case 103:
 #line 672 "cimmof.y"
-{ yyval.scope = new CIMScope (yyvsp[-1].ival); ;
+{ yyval.scope = yyvsp[-1].scope; ;
     break;}
 case 104:
 #line 674 "cimmof.y"
@@ -1662,47 +1662,47 @@ case 104:
     break;}
 case 105:
 #line 677 "cimmof.y"
-{ yyval.ival = yyvsp[0].ival; ;
+{ yyval.scope = yyvsp[0].scope; ;
     break;}
 case 106:
 #line 679 "cimmof.y"
-{ yyval.ival |= yyvsp[0].ival; ;
+{ yyval.scope->addScope(*yyvsp[0].scope); ;
     break;}
 case 107:
 #line 682 "cimmof.y"
-{ yyval.ival = CIMScope::CLASS;        ;
+{ yyval.scope = new CIMScope(CIMScope::CLASS);        ;
     break;}
 case 108:
 #line 684 "cimmof.y"
-{ yyval.ival = CIMScope::CLASS; ;
+{ yyval.scope = new CIMScope(CIMScope::CLASS); ;
     break;}
 case 109:
 #line 685 "cimmof.y"
-{ yyval.ival = CIMScope::ASSOCIATION;  ;
+{ yyval.scope = new CIMScope(CIMScope::ASSOCIATION);  ;
     break;}
 case 110:
 #line 686 "cimmof.y"
-{ yyval.ival = CIMScope::INDICATION;   ;
+{ yyval.scope = new CIMScope(CIMScope::INDICATION);   ;
     break;}
 case 111:
 #line 688 "cimmof.y"
-{ yyval.ival = CIMScope::PROPERTY;     ;
+{ yyval.scope = new CIMScope(CIMScope::PROPERTY);     ;
     break;}
 case 112:
 #line 689 "cimmof.y"
-{ yyval.ival = CIMScope::REFERENCE;    ;
+{ yyval.scope = new CIMScope(CIMScope::REFERENCE);    ;
     break;}
 case 113:
 #line 690 "cimmof.y"
-{ yyval.ival = CIMScope::METHOD;       ;
+{ yyval.scope = new CIMScope(CIMScope::METHOD);       ;
     break;}
 case 114:
 #line 691 "cimmof.y"
-{ yyval.ival = CIMScope::PARAMETER;    ;
+{ yyval.scope = new CIMScope(CIMScope::PARAMETER);    ;
     break;}
 case 115:
 #line 692 "cimmof.y"
-{ yyval.ival = CIMScope::ANY;          ;
+{ yyval.scope = new CIMScope(CIMScope::ANY);          ;
     break;}
 case 116:
 #line 696 "cimmof.y"
@@ -1847,7 +1847,7 @@ case 152:
 case 153:
 #line 775 "cimmof.y"
 { 
-                        yyval.strval = new String(CIMScope (yyvsp[0].ival).toString ());
+                        yyval.strval = new String((*yyvsp[0].scope).toString ());
                         g_flavor = CIMFlavor (CIMFlavor::NONE); ;
     break;}
 case 154:

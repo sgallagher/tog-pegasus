@@ -25,6 +25,7 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -69,15 +70,6 @@ public:
     CIMScope (const CIMScope & scope);
 
     /**
-        Constructs a CIMScope object with the specified value.
-
-        @param   scope                 a Uint32 scope value
-
-        @exception InvalidScope  if the scope value is invalid
-     */
-    CIMScope (const Uint32 scope);
-
-    /**
         Assigns the value of one CIMScope object to another (assignment 
         operator).
 
@@ -86,18 +78,6 @@ public:
         @return  the CIMScope object
      */
     CIMScope & operator= (const CIMScope & scope);
-
-    /**
-        Determines if every value in the specified scope is included in the 
-        CIMScope object.
-
-        @param   scope                 a scope value
-
-        @return  True if every value in the scope is included in the CIMScope 
-                   object,
-                 False otherwise
-     */
-    Boolean hasScope (const Uint32 scope) const;
 
     /**
         Determines if every value in the specified CIMScope object is included 
@@ -118,7 +98,7 @@ public:
 
         @exception InvalidScope  if the scope value is invalid
      */
-    void addScope (const Uint32 scope);
+    void addScope (const CIMScope & scope);
 
     /** 
         Compares two CIMScope objects.
@@ -130,6 +110,16 @@ public:
      */
     Boolean equal (const CIMScope & scope) const;
 
+    /**
+        Combines two CIMScope objects.
+
+        @param   scope                 a CIMScope object to add
+
+        @return A new CIMScope object that represents the combination of this
+                scope with the specified scope.
+     */
+    CIMScope operator+ (const CIMScope & scope) const;
+
     /** 
         Returns a String representation of the CIMScope object.
         This method is for diagnostic purposes.  The format of the output
@@ -140,51 +130,58 @@ public:
     /** 
         Indicates that the CIMScope object has no value (is uninitialized)
      */
-    static const Uint32 NONE;
+    static const CIMScope NONE;
 
     /** 
         Indicates that the qualifier may be used with classes
      */
-    static const Uint32 CLASS;
+    static const CIMScope CLASS;
 
     /** 
         Indicates that the qualifier may be used with associations
      */
-    static const Uint32 ASSOCIATION;
+    static const CIMScope ASSOCIATION;
 
     /** 
         Indicates that the qualifier may be used with indications
      */
-    static const Uint32 INDICATION;
+    static const CIMScope INDICATION;
 
     /** 
         Indicates that the qualifier may be used with properties
      */
-    static const Uint32 PROPERTY;
+    static const CIMScope PROPERTY;
 
     /** 
         Indicates that the qualifier may be used with references
      */
-    static const Uint32 REFERENCE;
+    static const CIMScope REFERENCE;
 
     /** 
         Indicates that the qualifier may be used with methods
      */
-    static const Uint32 METHOD;
+    static const CIMScope METHOD;
 
     /** 
         Indicates that the qualifier may be used with parameters
      */
-    static const Uint32 PARAMETER;
+    static const CIMScope PARAMETER;
 
     /** 
         Indicates that the qualifier may be used with any of the types
         of objects (classes, associations, indications, properties, references,
         methods, parameters)
      */
-    static const Uint32 ANY;
+    static const CIMScope ANY;
 
 private:
+
+    /**
+        Constructs a CIMScope object with the specified value.
+
+        @param   scope                 a Uint32 scope value to initialize with
+     */
+    CIMScope (const Uint32 scope);
 
     Uint32 cimScope;
 };

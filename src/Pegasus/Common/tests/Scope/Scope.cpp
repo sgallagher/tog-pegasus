@@ -95,7 +95,7 @@ void test01 ()
     assert (s4.toString () == 
         "CLASS ASSOCIATION INDICATION PROPERTY REFERENCE METHOD PARAMETER");
 
-    CIMScope s5 = CIMScope (CIMScope::CLASS | CIMScope::ASSOCIATION);
+    CIMScope s5 = CIMScope (CIMScope::CLASS + CIMScope::ASSOCIATION);
 
     if (verbose)
     {
@@ -195,7 +195,7 @@ void test01 ()
     }
     assert (s0.toString () == "INDICATION PROPERTY");
 
-    s7.addScope (CIMScope::METHOD | CIMScope::PARAMETER | CIMScope::REFERENCE);
+    s7.addScope (CIMScope::METHOD + CIMScope::PARAMETER + CIMScope::REFERENCE);
 
     if (verbose)
     {
@@ -237,20 +237,20 @@ void test01 ()
     //  Test hasScope (Uint32) 
     //
     assert (s0.hasScope (CIMScope::INDICATION));
-    assert (s0.hasScope (CIMScope::INDICATION | CIMScope::PROPERTY));
+    assert (s0.hasScope (CIMScope::INDICATION + CIMScope::PROPERTY));
     assert (!(s0.hasScope (CIMScope::ASSOCIATION)));
-    assert (!(s0.hasScope (CIMScope::ASSOCIATION | CIMScope::CLASS)));
+    assert (!(s0.hasScope (CIMScope::ASSOCIATION + CIMScope::CLASS)));
     assert (!(s0.hasScope (CIMScope::ANY)));
 
     assert (s7.hasScope (CIMScope::PARAMETER));
-    assert (s7.hasScope (CIMScope::METHOD | CIMScope::PARAMETER));
+    assert (s7.hasScope (CIMScope::METHOD + CIMScope::PARAMETER));
     assert (!(s7.hasScope (CIMScope::PROPERTY)));
-    assert (!(s7.hasScope (CIMScope::PROPERTY | CIMScope::CLASS)));
+    assert (!(s7.hasScope (CIMScope::PROPERTY + CIMScope::CLASS)));
     assert (!(s7.hasScope (CIMScope::ANY)));
 
     assert (s4.hasScope (CIMScope::ANY));
     assert (s4.hasScope (CIMScope::CLASS));
-    assert (s4.hasScope (CIMScope::CLASS | CIMScope::PARAMETER));
+    assert (s4.hasScope (CIMScope::CLASS + CIMScope::PARAMETER));
 
     //
     //  Test hasScope (CIMScope) 
@@ -278,47 +278,6 @@ void test01 ()
         "CLASS ASSOCIATION INDICATION PROPERTY REFERENCE METHOD PARAMETER");
 }
 
-void test02 ()
-{
-    //
-    //  Error tests
-    //
-    Boolean invalidScope = false;
-    try
-    {
-        CIMScope es0 = CIMScope (128);
-    }
-    catch (InvalidScope & is)
-    {
-        if (verbose)
-        {
-	    PEGASUS_STD (cout) << "\n----------------------\n";
-            PEGASUS_STD (cout) << "Caught expected exception: " 
-                               << is.getMessage () << PEGASUS_STD (endl);
-        }
-        invalidScope = true;
-    }
-    assert (invalidScope);
-
-    invalidScope = false;
-    try
-    {
-        CIMScope es1 = CIMScope ();
-        es1.addScope (128);
-    }
-    catch (InvalidScope & is)
-    {
-        if (verbose)
-        {
-	    PEGASUS_STD (cout) << "\n----------------------\n";
-            PEGASUS_STD (cout) << "Caught expected exception: " 
-                               << is.getMessage () << PEGASUS_STD (endl);
-        }
-        invalidScope = true;
-    }
-    assert (invalidScope);
-}
-
 int main (int argc, char** argv)
 {
     verbose = getenv ("PEGASUS_TEST_VERBOSE");
@@ -326,7 +285,6 @@ int main (int argc, char** argv)
     try
     {
         test01 ();
-        test02 ();
 
         PEGASUS_STD (cout) << argv [0] << " +++++ passed all tests" 
                            << PEGASUS_STD (endl);

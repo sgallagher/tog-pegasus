@@ -25,6 +25,7 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,18 +35,21 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-const Uint32 CIMScope::NONE = 0;
-const Uint32 CIMScope::CLASS = 1;
-const Uint32 CIMScope::ASSOCIATION = 2;
-const Uint32 CIMScope::INDICATION = 4;
-const Uint32 CIMScope::PROPERTY = 8;
-const Uint32 CIMScope::REFERENCE = 16;
-const Uint32 CIMScope::METHOD = 32;
-const Uint32 CIMScope::PARAMETER = 64;
-const Uint32 CIMScope::ANY = (1 | 2 | 4 | 8 | 16 | 32 | 64);
+const CIMScope CIMScope::NONE = 0;
+const CIMScope CIMScope::CLASS = 1;
+const CIMScope CIMScope::ASSOCIATION = 2;
+const CIMScope CIMScope::INDICATION = 4;
+const CIMScope CIMScope::PROPERTY = 8;
+const CIMScope CIMScope::REFERENCE = 16;
+const CIMScope CIMScope::METHOD = 32;
+const CIMScope CIMScope::PARAMETER = 64;
+const CIMScope CIMScope::ANY = CIMScope::CLASS + CIMScope::ASSOCIATION +
+                               CIMScope::INDICATION + CIMScope::PROPERTY +
+                               CIMScope::REFERENCE + CIMScope::METHOD +
+                               CIMScope::PARAMETER;
 
 CIMScope::CIMScope ()
-    : cimScope (CIMScope::NONE)
+    : cimScope (CIMScope::NONE.cimScope)
 {
 }
 
@@ -57,17 +61,7 @@ CIMScope::CIMScope (const CIMScope & scope)
 CIMScope::CIMScope (const Uint32 scope)
     : cimScope (scope)
 {
-    if (scope > CIMScope::ANY)
-    {
-        //
-        //  Invalid scope value
-        //
-        String scopeString;
-        char buffer [32];
-        sprintf (buffer, "%lu", (unsigned long) scope);
-        scopeString = buffer;
-        throw InvalidScope (scopeString);
-    }
+    PEGASUS_ASSERT (scope < 128);
 }
 
 CIMScope & CIMScope::operator= (const CIMScope & scope)
@@ -76,33 +70,9 @@ CIMScope & CIMScope::operator= (const CIMScope & scope)
     return *this;
 }
 
-void CIMScope::addScope (const Uint32 scope)
+void CIMScope::addScope (const CIMScope & scope)
 {
-    if (scope > CIMScope::ANY)
-    {
-        //
-        //  Invalid scope value
-        //
-        String scopeString;
-        char buffer [32];
-        sprintf (buffer, "%lu", (unsigned long) scope);
-        scopeString = buffer;
-        throw InvalidScope (scopeString);
-    }
-
-    this->cimScope |= scope;
-}
-
-Boolean CIMScope::hasScope (const Uint32 scope) const
-{
-    if ((this->cimScope & scope) == scope)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    this->cimScope |= scope.cimScope;
 }
 
 Boolean CIMScope::hasScope (const CIMScope & scope) const
@@ -127,6 +97,11 @@ Boolean CIMScope::equal (const CIMScope & scope) const
     {
         return false;
     }
+}
+
+CIMScope CIMScope::operator+ (const CIMScope & scope) const
+{
+    return CIMScope(this->cimScope | scope.cimScope);
 }
 
 String CIMScope::toString () const

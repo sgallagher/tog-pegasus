@@ -124,7 +124,7 @@ static void TestQualifierOperations(CIMClient& client)
     CIMQualifierDecl qd1("qd1", false, CIMScope::CLASS, CIMFlavor::TOSUBCLASS);
     client.setQualifier(NAMESPACE, qd1);
 
-    CIMQualifierDecl qd2("qd2", String("Hello"), CIMScope::PROPERTY | CIMScope::CLASS, 
+    CIMQualifierDecl qd2("qd2", String("Hello"), CIMScope::PROPERTY + CIMScope::CLASS, 
 	CIMFlavor::OVERRIDABLE);
     client.setQualifier(NAMESPACE, qd2);
 

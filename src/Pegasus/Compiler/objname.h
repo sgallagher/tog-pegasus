@@ -68,7 +68,7 @@
 #define _PEGASUS_COMPILER_OBJNAME_H_
 
 
-#include <Pegasus/Common/CIMReference.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/String.h>
 
@@ -119,7 +119,7 @@ class PEGASUS_COMPILER_LINKAGE objectName {
   String _namespaceType;
   namespaceHandle *_namespaceHandle;
   modelPath *_modelPath;
-  CIMReference *_reference;
+  CIMObjectPath *_reference;
   CIMInstance *_instance;
   Array<KeyBinding> _empty;
 

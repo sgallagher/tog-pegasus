@@ -42,7 +42,7 @@
 
 #include <Pegasus/Common/CIMQualifierDecl.h>
 #include <Pegasus/Common/CIMQualifier.h>
-#include <Pegasus/Common/CIMReference.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/CIMProperty.h>
 #include <Pegasus/Common/CIMMethod.h>
 #include <Pegasus/Common/CIMClass.h>

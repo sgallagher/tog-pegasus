@@ -120,7 +120,7 @@ cimmof_error(const char *msg) {
   CIMClass *      mofclass;
   CIMQualifierDecl *   mofqualifier;
   CIMInstance *   instance;
-  CIMReference *  reference;
+  CIMObjectPath *  reference;
   modelPath *     modelpath;
   KeyBinding *    keybinding;
   TYPED_INITIALIZER_VALUE * typedinitializer;

@@ -325,6 +325,20 @@ en:table {
 
 	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.SUPERUSER_PRIVILEGE_REQUIRED_DISABLE_ENABLE_PROVIDERS:string {"You must have superuser privilege to disable or enable providers."}
 
+	ControlProviders.UserAuthProvider.MUST_BE_PRIVILEGED_USER:string {"Must be a privileged user to execute this CIM operation."}
+
+	ControlProviders.UserAuthProvider.UNABLE_TO_FIND_KEY_PROPERTY_USERNAME:string {"Unable to find Key Property Username"}
+
+	ControlProviders.UserAuthProvider.UNEXPECTED_KEY_PROPERTY:string {"Unexpected Key property"}
+
+	ControlProviders.UserAuthProvider.USERNAME_PROPERTY_CANNOT_BE_EMPTY:string {"Username property can not be empty."}
+
+	ControlProviders.UserAuthProvider.NAMESPACE_PROPERTY_CANNOT_BE_EMPTY:string {"Namespace property can not be empty."}
+
+	ControlProviders.UserAuthProvider.UNSUPPORTED_METHOD_NAME:string {"Unsupported method name, $0"}
+
+	ControlProviders.UserAuthProvider.INPUT_PARAMETERS_NOT_VALID:string {"Input parameters are not valid."}
+
 	Provider.CIMOMHandle.RECURSIVE_USE_CIMOMHANDLE:string {"Recursive Use of CIMOMHandle Attempted"}
 
 	Provider.CIMOMHandle.EMPTY_CIM_RESPONSE:string {"Empty CIM Response"}

@@ -98,16 +98,6 @@ template<class PEGASUS_ARRAY_T>
 #else
 PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
-Array<PEGASUS_ARRAY_T>::Array(ArrayRep<PEGASUS_ARRAY_T>* rep)
-{
-    _rep = rep->clone();
-}
-
-#ifndef PEGASUS_ARRAY_T
-template<class PEGASUS_ARRAY_T>
-#else
-PEGASUS_TEMPLATE_SPECIALIZATION
-#endif
 Array<PEGASUS_ARRAY_T>::~Array()
 {
     Rep::destroy(_rep);

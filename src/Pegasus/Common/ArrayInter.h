@@ -65,8 +65,6 @@ public:
     */
     Array(const PEGASUS_ARRAY_T* items, Uint32 size);
 
-    Array(ArrayRep<PEGASUS_ARRAY_T>* rep);
-
     /// Destructs the objects, freeing any resources.
     ~Array();
 

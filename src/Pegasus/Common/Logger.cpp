@@ -114,7 +114,7 @@ public:
 
     LoggerRep(const String& homeDirectory)
     {
-#if !defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)    
+#if !defined(PEGASUS_USE_SYSLOGS)    
 	// Add test for home directory set.
 
 	// If home directory does not exist, create it.

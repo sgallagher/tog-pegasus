@@ -29,11 +29,6 @@ repository:
 	@ $(ECHO) +++++ Loading CIM_Schema$(CIM_SCHEMA_VER).mof into $(NAMESPACE) namespace...
 	@ $(CIMMOFCLI) "-R$(REPOSITORY_DIR)" "-I$(CIM_SCHEMA_DIR)" "-n$(NAMESPACE)" $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Schema$(CIM_SCHEMA_VER).mof
 
-install:
-	$(MKDIRHIER) "$(LOCAL_STATE_PREFIX)"
-	$(MAKE) "REPOSITORY_DIR=$(LOCAL_STATE_PREFIX)" repository
-	$(MAKE) "--directory=Pegasus" "REPOSITORY_DIR=$(LOCAL_STATE_PREFIX)" repository
-
 # The following is a hangover from previous testing and simply loads the
 # core into the namespace defined by NAMESPACE.  It should probably be 
 # deleted since there is no use for it any more.

@@ -34,10 +34,6 @@ ifdef PEGASUS_ENABLE_SLP
 endif
 
 
-install:
-	$(MKDIRHIER) $(LOCAL_STATE_PREFIX)
-	$(MAKE) REPOSITORY_DIR=$(LOCAL_STATE_PREFIX) repository
-
 repositoryServer:
 	@ $(ECHO) +++++ Loading Core$(CIM_SCHEMA_VER)_Qualifiers.mof into $(INTERNALNS) namespace ...
 	@ cimmof -n$(INTERNALNS) $(CIM_SCHEMA_DIR)/Core$(CIM_SCHEMA_VER)_Qualifiers.mof

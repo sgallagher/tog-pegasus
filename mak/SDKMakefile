@@ -31,7 +31,14 @@ PROVIDER_SRCPATH2 = $(PEGASUS_ROOT)/src/Providers/sample
 PROVIDER_SRCPATH3 = $(PEGASUS_ROOT)/InterfaceArchive/v002001/tests/Providers
 PROVIDER_SRCPATH4 = $(PEGASUS_ROOT)/src/Providers/IndicationConsumer
 
-INCLUDEFILES = \
+INCLUDE_DIRS = \
+  Pegasus \
+  Pegasus/Client \
+  Pegasus/Common \
+  Pegasus/Consumer \
+  Pegasus/Provider
+
+INCLUDE_FILES = \
    Pegasus/Client/CIMClientException.h \
    Pegasus/Client/CIMClient.h \
    Pegasus/Client/Linkage.h \
@@ -77,7 +84,7 @@ INCLUDEFILES = \
    Pegasus/Provider/Linkage.h \
    Pegasus/Provider/ProviderException.h 
 
-INCLUDEFILES += \
+INCLUDE_FILES += \
    Pegasus/Common/AcceptLanguages.h \
    Pegasus/Common/MessageLoader.h \
    Pegasus/Common/ContentLanguages.h \
@@ -87,6 +94,20 @@ INCLUDEFILES += \
    Pegasus/Common/ContentLanguageElement.h \
    Pegasus/Common/LanguageElement.h  
 
+SAMPLES_DIRS = \
+   Clients \
+   Clients/DefaultC++ \
+   Clients/DefaultC++/EnumInstances \
+   Clients/DefaultC++/InvokeMethod \
+   Clients/DefaultC++/SendTestIndications \
+   Providers \
+   Providers/DefaultC++ \
+   Providers/DefaultC++/IndicationProvider \
+   Providers/DefaultC++/InstanceProvider \
+   Providers/DefaultC++/MethodProvider \
+   Providers/DefaultC++/SimpleDisplayConsumer \
+   Providers/Load \
+   mak
 
 CLIENTSRCPATH1FILES = \
    Makefile \
@@ -155,12 +176,8 @@ stageSDK:
 
 stageINCLUDE:
 	@$(RMDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_INCLUDE_DIR)
-	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_INCLUDE_DIR)/Pegasus/Common
-	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_INCLUDE_DIR)/Pegasus/Client
-	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_INCLUDE_DIR)/Pegasus/Provider
-	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_INCLUDE_DIR)/Pegasus/Handler
-	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_INCLUDE_DIR)/Pegasus/Consumer
-	@$(foreach i, $(INCLUDEFILES), $(COPY) $(INCLUDE_SRCPATH)/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_INCLUDE_DIR)/$(i);)
+	@$(foreach i, $(INCLUDE_DIRS), $(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_INCLUDE_DIR)/$(i);)
+	@$(foreach i, $(INCLUDE_FILES), $(COPY) $(INCLUDE_SRCPATH)/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_INCLUDE_DIR)/$(i);)
 
 createPlatformFile:
 	@$(ECHO) "ifndef PEGASUS_PROVIDER_LIB_DIR" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/$(PEGASUS_PLATFORM).mak
@@ -196,15 +213,8 @@ createConfigFile:
 
 stageSAMPLES:
 	@$(RMDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)
-	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak
-	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Clients/DefaultC++/EnumInstances
-	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Clients/DefaultC++/InvokeMethod
-	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Clients/DefaultC++/SendTestIndications
-	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Providers/Load
-	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Providers/DefaultC++/InstanceProvider
-	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Providers/DefaultC++/MethodProvider
-	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Providers/DefaultC++/IndicationProvider
-	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Providers/DefaultC++/SimpleDisplayConsumer
+	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)
+	@$(foreach i, $(SAMPLES_DIRS), $(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_INCLUDE_DIR)/$(i);)
 	@$(foreach i, $(CLIENTSRCPATH1FILES), $(COPY) $(CLIENT_SRCPATH1)/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/$(i);)
 	@$(foreach i, $(CLIENTSRCPATH2FILES), $(COPY) $(CLIENT_SRCPATH2)/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Clients/DefaultC++/$(i);)
 	@$(foreach i, $(CLIENTSRCPATH3FILES), $(COPY) $(CLIENT_SRCPATH3)/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Clients/DefaultC++/$(i);)
@@ -227,12 +237,16 @@ _append_filesSectionToSpecFile:
 	@$(ECHO-E) "# SDK Include Files"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "#"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%dir $(PEGASUS_INCLUDE_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(foreach i, $(INCLUDEFILES), $(ECHO-E) \
+	@$(foreach i, $(INCLUDE_DIRS), $(ECHO-E) \
+              "%dir $(PEGASUS_INCLUDE_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+	@$(foreach i, $(INCLUDE_FILES), $(ECHO-E) \
               "%attr(-,root,root) $(PEGASUS_INCLUDE_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "# SDK Sample Files"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "#"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%dir $(PEGASUS_SAMPLES_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(foreach i, $(SAMPLES_DIRS), $(ECHO-E) \
+              "%dir $(PEGASUS_SAMPLES_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
 	@$(foreach i, $(CLIENTSRCPATH1FILES), $(ECHO-E) \
               "%attr(-,root,root) $(PEGASUS_SAMPLES_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
 	@$(foreach i, $(CLIENTSRCPATH2FILES), $(ECHO-E) \

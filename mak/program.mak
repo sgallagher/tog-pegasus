@@ -30,4 +30,4 @@ include $(ROOT)/mak/build.mak
 
 include $(ROOT)/mak/variables.mak
 
-include $(ROOT)/mak/sub.mak
+include $(ROOT)/mak/misc.mak

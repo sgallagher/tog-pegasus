@@ -6,8 +6,6 @@ DIRS = \
 	MethodProvider \
 	IndicationProvider \
 	SNMPIndicationProvider \
-	ProcessIndicationProvider \
-	AlertIndicationProvider \
 	RT_Indication \
 	FamilyProvider \
 	FamilyProvider/tests \

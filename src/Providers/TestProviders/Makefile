@@ -9,6 +9,8 @@ include $(ROOT)/mak/config.mak
 DIRS = \
        PG_TestPropertyTypes \
        DefaultInstanceProvider \
-       ClientProvider
+       ClientProvider \
+       AlertIndicationProvider \
+       ProcessIndicationProvider
 
 include $(ROOT)/mak/recurse.mak

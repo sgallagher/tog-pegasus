@@ -1,6 +1,6 @@
 include $(PEGASUS_ROOT)/mak/config.mak
 
-DIR = Providers/sample/ProcessIndicationProvider
+DIR = Providers/TestProviders/ProcessIndicationProvider
 
 LIBRARY = ProcessIndicationProvider
 

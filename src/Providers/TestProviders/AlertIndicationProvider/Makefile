@@ -1,6 +1,6 @@
 include $(PEGASUS_ROOT)/mak/config.mak
 
-DIR = Providers/sample/AlertIndicationProvider
+DIR = Providers/TestProviders/AlertIndicationProvider
 
 LIBRARY = AlertIndicationProvider
 

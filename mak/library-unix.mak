@@ -12,9 +12,11 @@ ifeq ($(COMPILER),xlc)
 endif
 
 ifeq ($(COMPILER),acc)
-  LINK_COMMAND = $(CXX) -b -Wl,+hlib$(LIBRARY)$(LIB_SUFFIX) -Wl,-Bsymbolic
+  LINK_COMMAND = $(CXX) -b -Wl,+hlib$(LIBRARY)$(LIB_SUFFIX)
   ifeq ($(PEGASUS_PLATFORM), HPUX_IA64_ACC)
     LINK_COMMAND += +DD64 -mt
+  else
+    LINK_COMMAND += -Wl,-Bsymbolic
   endif
   ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
     ifdef PEGASUS_USE_RELEASE_DIRS

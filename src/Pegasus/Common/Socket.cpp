@@ -260,21 +260,6 @@ class PEGASUS_COMMON_LINKAGE abstract_socket : public Sharable
 };
 
 
-class PEGASUS_COMMON_LINKAGE socket_factory 
-{
-   public:
-      socket_factory(void)
-      {
-      }
-      
-      virtual ~socket_factory(void)
-      {
-      }
-      
-      virtual abstract_socket *make_socket(void) = 0;
-};
-
-
 
 /** 
  * null socket class - 
@@ -644,24 +629,19 @@ const char* bsd_socket_rep::get_err_string(void)
 }
 
 
-/**
- *  factory class for creating the bsd socket object 
- **/
-class PEGASUS_COMMON_LINKAGE bsd_socket_factory : public socket_factory
+bsd_socket_factory::bsd_socket_factory(void)
 {
-   public:
-      bsd_socket_factory(void)
-      {
-      }
-      ~bsd_socket_factory(void)
-      {
-      }
-      
-      abstract_socket *make_socket(void)
-      {
-	 return new bsd_socket_rep();
-      }
-};
+}
+
+bsd_socket_factory::~bsd_socket_factory(void)
+{
+}
+
+abstract_socket* bsd_socket_factory::make_socket(void)
+{
+   return new bsd_socket_rep();
+}
+
 
 
 
@@ -713,12 +693,6 @@ pegasus_socket& pegasus_socket::operator =(const pegasus_socket& s)
 pegasus_socket::operator Sint32() const
 {
    return _rep->operator Sint32();
-}
-
-
-int pegasus_socket::socket(int type, int style, int protocol)
-{
-   return _rep->socket(type, style, protocol);
 }
 
 int pegasus_socket::socket(int type, int style, int protocol, void *ssl_context)

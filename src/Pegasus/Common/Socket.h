@@ -127,7 +127,6 @@ class PEGASUS_COMMON_LINKAGE pegasus_socket
       pegasus_socket& operator=(const pegasus_socket& s);
       operator Sint32() const;
 
-      int socket(int type, int style, int protocol);
       int socket(int type, int style, int protocol, void *ssl_context = 0);
                 
       Sint32 read(void* ptr, Uint32 size);
@@ -166,9 +165,31 @@ class PEGASUS_COMMON_LINKAGE pegasus_socket
 };
 
 
+class PEGASUS_COMMON_LINKAGE socket_factory 
+{
+   public:
+      socket_factory(void)
+      {
+      }
+      
+      virtual ~socket_factory(void)
+      {
+      }
+      
+      virtual abstract_socket *make_socket(void) = 0;
+};
 
 
-
+/**
+ *  factory class for creating the bsd socket object 
+ **/
+class PEGASUS_COMMON_LINKAGE bsd_socket_factory : public socket_factory
+{
+   public:
+      bsd_socket_factory(void);
+      ~bsd_socket_factory(void);
+      abstract_socket *make_socket(void);
+};
 
 
 PEGASUS_NAMESPACE_END

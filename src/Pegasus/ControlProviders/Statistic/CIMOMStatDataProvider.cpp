@@ -232,7 +232,6 @@ CIMInstance CIMOMStatDataProvider::getInstance(Uint16 type, CIMObjectPath cimRef
    return requestedInstance;
 }
 
-
 CIMDateTime CIMOMStatDataProvider::toDateTime(Sint64 date)
 {
         //break millisecond value into days, hours, minutes, seconds and milliseconds
@@ -278,12 +277,23 @@ String dhms = dhm.append(String(buf_second));
         sprintf(buf_milsec,".%06d:000",(int)nmilsec);
 
 String dhmsm = dhms.append(String(buf_milsec));
-	CIMDateTime ans(dhmsm);
+    //cout << "String for datetime= " << dhmsm << endl;
+    CIMDateTime ans;
+    try
+    {
+        ans.set(dhmsm);
+    }
+    catch(Exception& e)
+    {
+        cout << "Error in string convert of " << dhmsm << " " << e.getMessage() << endl;;
+        ans.clear();
+    }
 //cout<<"this is being passed back for toDateTime" << ans.toString() << endl;
 
         return ans;
 
 }
+
 
 void CIMOMStatDataProvider::checkObjectManager()
 {

@@ -28,6 +28,7 @@ ifeq ($(OS),win32)
     CHMOD =
     CHOWN =
     CHGRP =
+    CURRENT_USER=Administrator
 endif
 
 ifeq ($(OS),HPUX)
@@ -79,6 +80,8 @@ ifeq ($(OS),HPUX)
     CHGRPDIRHIER = chgrp -R
 
     SYMBOLIC_LINK_CMD = ln -f -s
+
+    CURRENT_USER=`whoami`
 endif
 
 ifeq ($(OS),solaris)
@@ -297,5 +300,5 @@ mkdirhier_IgnoreError: CMDSFORCE
 
 runTestSuite: CMDSFORCE
 	$(CIMSERVER_START_SERVICE)
-	$(foreach i, $(TESTSUITE_CMDS), $(subst @@, ,$(i)))
+	$(foreach i, $(TESTSUITE_CMDS), $(subst @@, ,$(i));)
 	$(CIMSERVER_STOP_SERVICE)

@@ -4,80 +4,102 @@ DIR = Clients/ssltrustmgr/tests
 
 include $(ROOT)/mak/config.mak
 include $(ROOT)/mak/test.mak
+include $(ROOT)/mak/commands.mak
 
 RESULTFILE =  $(TMP_DIR)/result
 MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master
-
-# Set variables for stopping and starting the cimserver	
-# Note that the openssl exe must be in OPENSSL_HOME/bin and on the path for these tests to work, because the createtestcert.sh calls it.
-
-# For testing purposes, the username can be anything, as long as its a valid username
-ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
-CURRENT_USER=Administrator
-CIMSERVER_PATH=$(PEGASUS_HOME)/bin/
-else	
-CURRENT_USER=`whoami`
-endif
-
-# authentication and HTTPS are not enabled by default on windows
-CIMSERVER_CONFIG_OPTIONS=enableHttpsConnection=true enableAuthentication=true sslClientVerificationMode=optional sslTrustStoreUserName=$(CURRENT_USER)
-TESTCERT_HOME=$(PEGASUS_HOME)/src/Clients/ssltrustmgr/scripts
-
-include $(ROOT)/mak/commands.mak
+OPENSSL_CNF = openssl.cnf
 
 tests:
 
 clean:
 	@$(RM) $(RESULTFILE)
+	@$(RM) $(PEGASUS_HOME)/testdn1.cert
+	@$(RM) $(PEGASUS_HOME)/testdn1.key
+	@$(RM) $(PEGASUS_HOME)/testdn2.cert
+	@$(RM) $(PEGASUS_HOME)/testdn2.key
+	@$(RM) $(PEGASUS_HOME)/testdn3.cert
+	@$(RM) $(PEGASUS_HOME)/testdn3.key
+	@$(RM) $(PEGASUS_HOME)/testca1.cert
+	@$(RM) $(PEGASUS_HOME)/testca1.key
+	@$(RM) $(PEGASUS_HOME)/testca1.srl
+	@$(RM) $(PEGASUS_HOME)/testca1.crl
+	@$(RM) index.txt
+	@$(RM) index.txt.attr
+	@$(RM) index.txt.old
+	@$(RM) .rnd
 
-poststarttests:
+#
+# Create certificates and CRLs required for running the tests
+#
+test_setup:
+ifdef PEGASUS_HAS_SSL
+	@$(MAKE) -i -s clean
+	@#
+	@# Create a self-signed certificate
+	@#
+	@$(OPENSSL_COMMAND) genrsa -out $(PEGASUS_HOME)/testdn1.key 1024
+	@$(OPENSSL_COMMAND) req -config $(OPENSSL_CNF) -new -key $(PEGASUS_HOME)/testdn1.key -out $(PEGASUS_HOME)/testdn1.csr < testdn1.txt
+	@$(OPENSSL_COMMAND) x509 -in $(PEGASUS_HOME)/testdn1.csr -out $(PEGASUS_HOME)/testdn1.cert -req -signkey $(PEGASUS_HOME)/testdn1.key -days 356
+	@$(RM) $(PEGASUS_HOME)/testdn1.csr
+	@#
+	@# Create a self-signed CA
+	@#
+	@$(OPENSSL_COMMAND) genrsa -out $(PEGASUS_HOME)/testca1.key 1024
+	@$(OPENSSL_COMMAND) req -new -key $(PEGASUS_HOME)/testca1.key -x509 -config $(OPENSSL_CNF) -days 365 -out $(PEGASUS_HOME)/testca1.cert < testca1.txt
+	@#
+	@# Create a certificate signed by the CA
+	@#
+	@$(OPENSSL_COMMAND) genrsa -out $(PEGASUS_HOME)/testdn2.key 1024
+	@$(OPENSSL_COMMAND) req -config $(OPENSSL_CNF) -new -key $(PEGASUS_HOME)/testdn2.key -out $(PEGASUS_HOME)/testdn2.csr < testdn2.txt
+	@$(OPENSSL_COMMAND) x509 -req -days 365 -in $(PEGASUS_HOME)/testdn2.csr -CA $(PEGASUS_HOME)/testca1.cert -CAkey $(PEGASUS_HOME)/testca1.key -CAcreateserial -out $(PEGASUS_HOME)/testdn2.cert
+	@$(RM) $(PEGASUS_HOME)/testdn2.csr
+	@#
+	@# Create another test certificate signed by the CA
+	@#
+	@$(OPENSSL_COMMAND) genrsa -out $(PEGASUS_HOME)/testdn3.key 1024
+	@$(OPENSSL_COMMAND) req -config $(OPENSSL_CNF) -new -key $(PEGASUS_HOME)/testdn3.key -out $(PEGASUS_HOME)/testdn3.csr < testdn3.txt
+	@$(OPENSSL_COMMAND) x509 -req -days 365 -in $(PEGASUS_HOME)/testdn3.csr -CA $(PEGASUS_HOME)/testca1.cert -CAkey $(PEGASUS_HOME)/testca1.key -CAcreateserial -out $(PEGASUS_HOME)/testdn3.cert
+	@$(RM) $(PEGASUS_HOME)/testdn3.csr
+	@#
+	@# Create a CRL issued by the test CA
+	@#
+	@$(TOUCH) index.txt
+	@$(OPENSSL_COMMAND) ca -config $(OPENSSL_CNF) -gencrl -keyfile $(PEGASUS_HOME)/testca1.key -cert $(PEGASUS_HOME)/testca1.cert -out $(PEGASUS_HOME)/testca1.crl
+	@$(OPENSSL_COMMAND) ca -config $(OPENSSL_CNF) -revoke $(PEGASUS_HOME)/testdn2.cert -keyfile $(PEGASUS_HOME)/testca1.key -cert $(PEGASUS_HOME)/testca1.cert
+	@$(OPENSSL_COMMAND) ca -config $(OPENSSL_CNF) -gencrl -keyfile $(PEGASUS_HOME)/testca1.key -cert $(PEGASUS_HOME)/testca1.cert -out $(PEGASUS_HOME)/testca1.crl
+endif
+
+
+SSLCertificateTest1:
+ifdef PEGASUS_HAS_SSL
 	@$(RM) $(RESULTFILE)
-ifdef PEGASUS_HAS_SSL_NEED_ENABLE
-	@$(MAKE) -i -s poststarttests_ignoreerror
+	@$(MAKE) -i -s SSLCertificateTest1_ignoreerror
 	@$(STRIPCRS)
 	$(COMPARERESULTS)
 	@$(ECHO) +++ Test passed +++
 	@$(RM) $(RESULTFILE)
 endif
 
-poststarttests_ignoreerror:
-	
-# enable this once we finish verifying on all OS's
-ifdef PEGASUS_HAS_SSL_NEED_ENABLE
-	@$(ECHO) ++++ssltrustmgr test
-	
-	# stop the cimserver and restart with our configuration
-	$(TOUCH) $(PEGASUS_HOME)/cimserver_current.conf
-	$(COPY) $(PEGASUS_HOME)/cimserver_current.conf $(PEGASUS_HOME)/cimserver_current.conf.bkup
-	@$(ECHO) Stopping cimserver
-	cd $(PEGASUS_HOME)/bin && $(CIMSERVER_STOP_SERVICE)
-	@$(ECHO) Starting cimserver
-ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
-	@$(CIMSERVER_START_SERVICE)
-else
-	@cd $(PEGASUS_HOME)/bin && $(CIMSERVER_START_SERVICE)
-endif
-	
-	# create the certificates and crls for the tests
-	cd ../scripts && bash createtestcert.sh
-	@$(ECHO) Past scripts
 
-	@cd $(PEGASUS_HOME)/bin
+SSLCertificateTest1_ignoreerror:
+ifdef PEGASUS_HAS_SSL
+	@$(ECHO) ++++ssltrustmgr tests
 	
 	@$(ECHO) "Connect with an untrusted certificate -- should get a 401" >> $(RESULTFILE)
-	@TestCertClient $(TESTCERT_HOME)/testdn1.cert $(TESTCERT_HOME)/testdn1.key >> $(RESULTFILE) $(REDIRECTERROR)
+	@TestCertClient $(PEGASUS_HOME)/testdn1.cert $(PEGASUS_HOME)/testdn1.key >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 	
 	@$(ECHO) "Add the self-signed certificate to the truststore" >> $(RESULTFILE)
-	@ssltrustmgr -a -c $(CURRENT_USER) -f $(TESTCERT_HOME)/testdn1.cert >> $(RESULTFILE) $(REDIRECTERROR)
+	@ssltrustmgr -a -c $(CURRENT_USER) -f $(PEGASUS_HOME)/testdn1.cert >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 	
 	@$(ECHO) "Try to connect, this should be succeed" >> $(RESULTFILE)
-	@TestCertClient $(TESTCERT_HOME)/testdn1.cert $(TESTCERT_HOME)/testdn1.key >> $(RESULTFILE) $(REDIRECTERROR)
+	@TestCertClient $(PEGASUS_HOME)/testdn1.cert $(PEGASUS_HOME)/testdn1.key >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 	
 	@$(ECHO) "Attempt to add the same certificate, this should get a duplication error" >> $(RESULTFILE)
-	@ssltrustmgr -a -c $(CURRENT_USER) -f $(TESTCERT_HOME)/testdn1.cert >> $(RESULTFILE) $(REDIRECTERROR)
+	@ssltrustmgr -a -c $(CURRENT_USER) -f $(PEGASUS_HOME)/testdn1.cert >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 	
 	@$(ECHO) "Delete the self-signed certificate from the truststore" >> $(RESULTFILE)
@@ -85,7 +107,7 @@ endif
 	@$(ECHO) >> $(RESULTFILE)
 	
 	@$(ECHO) "Try to connect, this should fail and get 401'ed" >> $(RESULTFILE)
-	@TestCertClient $(TESTCERT_HOME)/testdn1.cert $(TESTCERT_HOME)/testdn1.key >> $(RESULTFILE) $(REDIRECTERROR)
+	@TestCertClient $(PEGASUS_HOME)/testdn1.cert $(PEGASUS_HOME)/testdn1.key >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 	
 	@$(ECHO) "Attempt to delete the certificate we just deleted, this should get a DNE error" >> $(RESULTFILE)
@@ -93,31 +115,31 @@ endif
 	@$(ECHO) >> $(RESULTFILE)
 	
 	@$(ECHO) "Add the CA certificate to the truststore" >> $(RESULTFILE)
-	@ssltrustmgr -a -c $(CURRENT_USER) -f $(TESTCERT_HOME)/testca1.cert >> $(RESULTFILE) $(REDIRECTERROR)
+	@ssltrustmgr -a -c $(CURRENT_USER) -f $(PEGASUS_HOME)/testca1.cert >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 	
 	@$(ECHO) "Try to connect with the 1st certificate issued by the CA, this should succeed" >> $(RESULTFILE)
-	@TestCertClient $(TESTCERT_HOME)/testdn2.cert $(TESTCERT_HOME)/testdn2.key >> $(RESULTFILE) $(REDIRECTERROR)
+	@TestCertClient $(PEGASUS_HOME)/testdn2.cert $(PEGASUS_HOME)/testdn2.key >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 	
 	@$(ECHO) "Try to connect with the 2nd certificate issued by the CA, this should succeed" >> $(RESULTFILE)
-	@TestCertClient $(TESTCERT_HOME)/testdn3.cert $(TESTCERT_HOME)/testdn3.key >> $(RESULTFILE) $(REDIRECTERROR)
+	@TestCertClient $(PEGASUS_HOME)/testdn3.cert $(PEGASUS_HOME)/testdn3.key >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 	
 	@$(ECHO) "Add the CA CRL to the truststore" >> $(RESULTFILE)
-	@ssltrustmgr -a -R -f $(TESTCERT_HOME)/testca1.crl >> $(RESULTFILE) $(REDIRECTERROR)
+	@ssltrustmgr -a -R -f $(PEGASUS_HOME)/testca1.crl >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 	
 	@$(ECHO) "Attempt to add the same CA CRL again, this should work since you can overwrite CRLs (a warning is sent to the systemlog)" >> $(RESULTFILE)
-	@ssltrustmgr -a -R -f $(TESTCERT_HOME)/testca1.crl >> $(RESULTFILE) $(REDIRECTERROR)
+	@ssltrustmgr -a -R -f $(PEGASUS_HOME)/testca1.crl >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 	
 	@$(ECHO) "Try to connect with the 1st certificate, this should fail with a connection failure" >> $(RESULTFILE)
-	@TestCertClient $(TESTCERT_HOME)/testdn2.cert $(TESTCERT_HOME)/testdn2.key >> $(RESULTFILE) $(REDIRECTERROR)
+	@TestCertClient $(PEGASUS_HOME)/testdn2.cert $(PEGASUS_HOME)/testdn2.key >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 	
 	@$(ECHO) "Try to connect with the 2nd certificate, this should succeed" >> $(RESULTFILE)
-	@TestCertClient $(TESTCERT_HOME)/testdn3.cert $(TESTCERT_HOME)/testdn3.key >> $(RESULTFILE) $(REDIRECTERROR)
+	@TestCertClient $(PEGASUS_HOME)/testdn3.cert $(PEGASUS_HOME)/testdn3.key >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 	
 	@$(ECHO) "Remove the CA CRL certificate" >> $(RESULTFILE)
@@ -126,44 +148,31 @@ endif
 	
 	# Commenting out until the CRL refresh fully works
 	#@$(ECHO) "Try to connect with the 1st certificate, this should succeed" >> $(RESULTFILE)
-	#@TestCertClient $(TESTCERT_HOME)/testdn2.cert $(TESTCERT_HOME)/testdn2.key >> $(RESULTFILE) $(REDIRECTERROR)
+	#@TestCertClient $(PEGASUS_HOME)/testdn2.cert $(PEGASUS_HOME)/testdn2.key >> $(RESULTFILE) $(REDIRECTERROR)
 	#@$(ECHO) >> $(RESULTFILE)
 	
 	#@$(ECHO) "Try to connect with the 2nd certificate, this should succeed" >> $(RESULTFILE)
-	#@TestCertClient $(TESTCERT_HOME)/testdn3.cert $(TESTCERT_HOME)/testdn3.key >> $(RESULTFILE) $(REDIRECTERROR)
+	#@TestCertClient $(PEGASUS_HOME)/testdn3.cert $(PEGASUS_HOME)/testdn3.key >> $(RESULTFILE) $(REDIRECTERROR)
 	#@$(ECHO) >> $(RESULTFILE)
- 
+	 
 	@$(ECHO) "Remove the CA CRL that we just removed, this should get a DNE error" >> $(RESULTFILE)
 	@ssltrustmgr -r -R -i /C=US/ST=WASHINGTON/L=Seattle/O=OpenGroup/OU=OpenPegasus/CN=TheMan/emailAddress=TestCA >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)       
 	
 	# Commenting out until the CRL refresh fully works
 	#@$(ECHO) "Try to connect with the 1st certificate, this should fail with a 401" >> $(RESULTFILE)
-	#@TestCertClient $(TESTCERT_HOME)/testdn2.cert $(TESTCERT_HOME)/testdn2.key >> $(RESULTFILE) $(REDIRECTERROR)
+	#@TestCertClient $(PEGASUS_HOME)/testdn2.cert $(PEGASUS_HOME)/testdn2.key >> $(RESULTFILE) $(REDIRECTERROR)
 	#@$(ECHO) >> $(RESULTFILE)
 	
 	#@$(ECHO) "Try to connect with the 2nd certificate, this should fail with a 401" >> $(RESULTFILE)
-	#@TestCertClient $(TESTCERT_HOME)/testdn3.cert $(TESTCERT_HOME)/testdn3.key >> $(RESULTFILE) $(REDIRECTERROR)
+	#@TestCertClient $(PEGASUS_HOME)/testdn3.cert $(PEGASUS_HOME)/testdn3.key >> $(RESULTFILE) $(REDIRECTERROR)
 	#@$(ECHO) >> $(RESULTFILE)
 	
 	@$(ECHO) "Remove the CA certificate from the truststore to clean everything up, this should succeed" >> $(RESULTFILE)
 	@ssltrustmgr -r -i /C=US/ST=WASHINGTON/L=Seattle/O=OpenGroup/OU=OpenPegasus/CN=TheMan/emailAddress=TestCA -n 0 >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
-
-	# stop the cimserver and restart using original configuration
-	@$(ECHO) Stopping cimserver
-	cd $(PEGASUS_HOME)/bin && $(CIMSERVER_STOP_SERVICE)
-	$(COPY) $(PEGASUS_HOME)/cimserver_current.conf.bkup $(PEGASUS_HOME)/cimserver_planned.conf
-	$(RMDIRHIER) $(PEGASUS_HOME)/truststore
-	$(RMDIRHIER) $(PEGASUS_HOME)/clientkeystore
-	@$(ECHO) Starting cimserver with previous configuration
-ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
-	@$(CIMSERVER_START_SERVICE)
-else
-	@cd $(PEGASUS_HOME)/bin && $(CIMSERVER_START_SERVICE)
-endif
-	@$(ECHO) Running.
-	@$(ECHO) ++++ssltrustmgr test completed
+	
+	@$(ECHO) ++++ssltrustmgr tests completed
 endif
 
 depend:

@@ -59,6 +59,7 @@ prestarttests:
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile testrepository
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile tests
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Server -f Makefile install_run
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Clients/ssltrustmgr/tests -f Makefile test_setup
 
 poststarttests:
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Pegasus/CQL/tests/Queries -f Makefile clean
@@ -95,6 +96,26 @@ run_OOP_TS1:
 	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
             CIMSERVER_CONFIG_OPTIONS="$(OOP_TS1_CONFIG_OPTIONS)" \
             TESTSUITE_CMDS="$(OOP_TS1_TEST_CMDS)"
+###############################################################################
+
+###############################################################################
+##  SSL Test Suite 1: SSL Tests
+##
+##  Configuration Options: enableAuthentication=true
+##                         enableHttpsConnection=true
+##                         sslClientVerificationMode=optional
+##                         sslTrustStoreUserName=$(CURRENT_USER)
+##
+###############################################################################
+SSL_TS1_CONFIG_OPTIONS = enableHttpsConnection=true enableAuthentication=true \
+       sslClientVerificationMode=optional sslTrustStoreUserName=$(CURRENT_USER)
+SSL_TS1_TEST_CMDS = \
+       $(MAKE)@@--directory=$(PEGASUS_ROOT)/src/Clients/ssltrustmgr/tests@@SSLCertificateTest1
+
+run_SSL_TS1:
+	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
+            CIMSERVER_CONFIG_OPTIONS="$(SSL_TS1_CONFIG_OPTIONS)" \
+            TESTSUITE_CMDS="$(SSL_TS1_TEST_CMDS)"
 ###############################################################################
 
 ###############################################################################

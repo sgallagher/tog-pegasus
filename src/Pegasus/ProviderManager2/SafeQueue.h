@@ -130,7 +130,7 @@ const T & SafeQueue<T>::back(void) const
 template<class T>
 Uint32 SafeQueue<T>::size(void) const
 {
-    //MutexLock lock(_mutex);
+    MutexLock lock(_mutex);
 
     return(_queue.size());
 }

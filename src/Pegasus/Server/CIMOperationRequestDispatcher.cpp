@@ -1913,6 +1913,8 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesResponseAggregation(
         (request->includeQualifiers == true ? "true" : "false"),
         (request->includeClassOrigin == true ? "true" : "false"));
 
+    #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
+
     Array<CIMInstance> normalizedInstances;
 
     // normalize responses
@@ -1973,6 +1975,8 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesResponseAggregation(
     }
 
     toResponse->cimNamedInstances = normalizedInstances;
+
+    #endif
 
     PEG_METHOD_EXIT();
 }

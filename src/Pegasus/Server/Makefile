@@ -20,6 +20,10 @@ LOCAL_DEFINES +=  -DPEGASUS_USE_23PROVIDER_MANAGER
 #LOCAL_DEFINES +=  -DENABLE_PROVIDER_MANAGER2
 endif
 
+ifndef PEGASUS_DISABLE_OBJECT_NORMALIZATION
+LOCAL_DEFINES += -DPEGASUS_ENABLE_OBJECT_NORMALIZATION
+endif
+
 LIBRARY = pegserver
 
 LIBRARIES = \
@@ -75,7 +79,7 @@ SOURCES = \
     BinaryMessageHandler.cpp \
     reg_table.cpp \
     QuerySupportRouter.cpp \
-    WQLOperationRequestDispatcher.cpp 
+    WQLOperationRequestDispatcher.cpp
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 

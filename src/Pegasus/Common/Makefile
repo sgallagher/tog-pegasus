@@ -29,7 +29,8 @@ SOURCES = \
     CIMName.cpp \
     CIMObject.cpp \
     CIMObjectRep.cpp \
-    Cimom.cpp \
+    CIMObjectPath.cpp \
+	Cimom.cpp \
     CimomMessage.cpp \
     CIMParameter.cpp \
     CIMParameterRep.cpp \

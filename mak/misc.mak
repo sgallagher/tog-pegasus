@@ -1,6 +1,6 @@
 
 misc:
-	stripcrs *.h *.cpp
+	bash $(ROOT)/mak/misc.sh
 
 strip-license:
 	mu strip //% //= *.h *.cpp

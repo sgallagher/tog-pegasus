@@ -245,6 +245,8 @@ int main(int argc, char** argv)
         testUserContextCIMServer();
 #endif
 
+// The "guest" tests are disabled.  See Bug 3043.
+#if 0
         // These tests must be run in a different user context
         if (!System::changeUserContext(alternateUserContext))
         {
@@ -269,6 +271,7 @@ int main(int argc, char** argv)
             testUserContextCIMServer();
 #endif
         }
+#endif
     }
     catch (Exception& e)
     {

@@ -57,7 +57,6 @@
 
 #include <Pegasus/ProviderManager2/ProviderManagerService.h>
 #include <Pegasus/ProviderManager2/ProviderType.h>
-#include <Pegasus/Query/QueryExpression/SubscriptionFilterQueryContainer.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

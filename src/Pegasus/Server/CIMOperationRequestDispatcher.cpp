@@ -327,8 +327,20 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
    _enableNormalization =
        String::equalNoCase(configManager->getCurrentValue("enableNormalization"), "true");
 
-   //_excludeModulesFromNormalization =
-   //    configManager->getCurrentValue("excludeModulesFromNormalization");
+   if(_enableNormalization)
+   {
+       String moduleList =
+           configManager->getCurrentValue("excludeModulesFromNormalization");
+
+       for(Uint32 pos = moduleList.find(','); moduleList.size() != 0; pos = moduleList.find(','))
+       {
+           String moduleName = moduleList.subString(0, pos);
+
+           _excludeModulesFromNormalization.append(moduleName);
+
+           moduleList.remove(0, (pos == PEG_NOT_FOUND ? pos : pos + 1));
+       }
+   }
    #endif
 
    _routing_table = DynamicRoutingTable::get_rw_routing_table();
@@ -3462,7 +3474,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
                 requestCopy->operationContext.insert(CachedClassDefinitionContainer(cimClass));
             }
             #endif
-            
+
             // if this is deep inheritance request and the original property list requested all
             // properties and it is localOnly, we must expand the property list for each subclass.
             if(request->deepInheritance && request->propertyList.isNull() && request->localOnly)
@@ -4596,7 +4608,7 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
         poA->_aggregationSN = cimOperationAggregationSN++;
         poA->setTotalIssued(providerCount+1);
 				// send the repository's results
-				_forwardRequestForAggregation(String(PEGASUS_QUEUENAME_OPREQDISPATCHER), 
+				_forwardRequestForAggregation(String(PEGASUS_QUEUENAME_OPREQDISPATCHER),
                     String(), new CIMReferencesRequestMessage(*request), poA, response);
 
         for (Uint32 i = 0; i < providerInfos.size(); i++)
@@ -5985,7 +5997,7 @@ CIMValue CIMOperationRequestDispatcher::_convertValueType(
 	 // CIM_ERR_INVALID_PARAMETER,
 	 // String("Malformed ") + cimTypeToString (type) + " value");
 
-	 throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER, 
+	 throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,
          MessageLoaderParms("Server.CIMOperationRequestDispatcher.CIM_ERR_INVALID_PARAMETER",
 			       "Malformed $0 value", cimTypeToString (type)));
 

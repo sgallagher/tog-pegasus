@@ -26,7 +26,7 @@
 // Author: Carol Ann Krug Graves, Hewlett-Packard Company
 //             (carolann_graves@hp.com)
 //
-// Modified By:
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -48,6 +48,9 @@ public:
     String cimMessage;  // Contains the message for the CIM error code
 // l10n
     ContentLanguages contentLanguages;  
+
+    // Allow subclass objects to be destructed properly
+    virtual ~ExceptionRep() {}
 };
 
 PEGASUS_NAMESPACE_END

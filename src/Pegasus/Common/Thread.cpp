@@ -58,7 +58,7 @@ void Thread::cleanup_push( void (*routine)(void *), void *parm) throw(IPCExcepti
     return;
 }
 	  
-void Thread::cleanup_pop(Boolean execute = true) throw(IPCException)
+void Thread::cleanup_pop(Boolean execute) throw(IPCException)
 {
     cleanup_handler *cu ;
     try 
@@ -67,7 +67,7 @@ void Thread::cleanup_pop(Boolean execute = true) throw(IPCException)
     }
     catch(IPCException& e) 
     { 
-	assert(0); 
+	PEGASUS_ASSERT(0); 
     }
     if(execute == true)
 	cu->execute();

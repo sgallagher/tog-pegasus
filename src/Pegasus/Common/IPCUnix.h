@@ -92,4 +92,9 @@ typedef sig_atomic_t PEGASUS_ATOMIC_TYPE ;
 #endif
 
 
+// ATTN - No clue what I'm doing here, but HP-UX has a sig_atomic_t type
+#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+#define PEGASUS_ATOMIC_INT_NATIVE = 1
+typedef sig_atomic_t PEGASUS_ATOMIC_TYPE ;
+#endif
 

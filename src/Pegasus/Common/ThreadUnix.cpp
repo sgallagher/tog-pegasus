@@ -221,7 +221,11 @@ void Thread::test_cancel()
 
 void Thread::thread_switch()
 {
+#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+  sched_yield();
+#else
   pthread_yield();
+#endif
 }
 
 void Thread::sleep(Uint32 msec)

@@ -118,7 +118,12 @@ public:
   catch(...) { delete ins; throw; }
 }
 
+#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+  // ATTN - Was this a mistake?
+  void insert_last(L *element) throw(IPCException)
+#else
   void insert_last(L *) throw(IPCException)
+#endif
 {
   DQueue *ins = new DQueue(false);
   ins->_rep = element;

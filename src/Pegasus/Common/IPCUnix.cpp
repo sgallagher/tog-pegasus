@@ -274,16 +274,22 @@ void ReadWriteSem::unlock(Uint32 mode, PEGASUS_THREAD_TYPE caller) throw(Permiss
 
 int ReadWriteSem::read_count()
 {
+#ifndef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+  // ATTN - HP-UX pthread_rwlock struct does not contain __rw_readers member
   PEGASUS_ASSERT(_readers.value() == (unsigned) _rwlock.rwlock.__rw_readers);
+#endif
   return( _readers.value() );
 }
 
 int ReadWriteSem::write_count()
 {
+#ifndef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+  // ATTN - HP-UX pthread_rwlock struct does not contain __rw_writer member
   if(_rwlock.rwlock.__rw_writer != NULL) 
   {
     PEGASUS_ASSERT(_writers.value() == 1); 
   }
+#endif
   return(_writers.value());
 }
 
@@ -292,8 +298,16 @@ int ReadWriteSem::write_count()
 /* Conditions are implemented as process-wide condition variables */
 Condition::Condition() 
 {
+#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+  // ATTN - HP-UX pthread library does not define PTHREAD_MUTEX_TIMED_NP
+  _cond_mutex = Mutex();
+#else
   _cond_mutex = Mutex(PTHREAD_MUTEX_TIMED_NP);
+#endif
+#ifndef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+  // ATTN - HP-UX can not deal with this assignment
   _condition = (PEGASUS_COND_TYPE) PTHREAD_COND_INITIALIZER;
+#endif
   _owner = 0;
 }
 
@@ -454,7 +468,7 @@ int Semaphore::count()
 
 
 
-#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
+#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
 #define PEGASUS_ATOMIC_INT_NATIVE = 1 // use native implementation
 
 AtomicInt::AtomicInt(): _rep(0) {}

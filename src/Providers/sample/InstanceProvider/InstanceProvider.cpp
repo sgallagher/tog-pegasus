@@ -174,7 +174,7 @@ void InstanceProvider::createInstance(
 	const OperationContext & context,
 	const CIMReference & instanceReference,
 	const CIMInstance & instanceObject,
-	ResponseHandler<CIMInstance> & handler)
+	ResponseHandler<CIMReference> & handler)
 {
 	throw NotImplemented("InstanceProvider::createInstance");
 }

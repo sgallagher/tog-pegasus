@@ -79,7 +79,7 @@ public:
 		const OperationContext & context,
 		const CIMReference & ref,
 		const CIMInstance & obj,
-		ResponseHandler<CIMInstance> & handler);
+		ResponseHandler<CIMReference> & handler);
 
 	virtual void deleteInstance(
 		const OperationContext & context,

@@ -269,7 +269,7 @@ void HelloWorldProvider::createInstance(
 	const OperationContext & context,
 	const CIMReference & instanceReference,
 	const CIMInstance & instanceObject,
-	ResponseHandler<CIMInstance> & handler)
+	ResponseHandler<CIMReference> & handler)
 {
 	// synchronously get references
 	Array<CIMReference> references = _enumerateInstanceNames(context, instanceReference);

@@ -1899,9 +1899,6 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesResponseAggregation(
     	{
             try
             {
-                CIMInstance cimInstance = fromResponse->cimNamedInstances[j];
-
-                /*
                 CIMInstance cimInstance =
                     _normalizer.normalizeInstance(
                         fromResponse->cimNamedInstances[j],
@@ -1909,9 +1906,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesResponseAggregation(
                         request->includeQualifiers,
                         request->includeClassOrigin,
                         request->propertyList);
-                */
 
-                //toResponse->cimNamedInstances.append(fromResponse->cimNamedInstances[j]);
                 toResponse->cimNamedInstances.append(cimInstance);
             }
             catch(...)
@@ -2419,7 +2414,7 @@ void CIMOperationRequestDispatcher::handleGetClassRequest(
               request->includeQualifiers,
               request->includeClassOrigin,
               request->propertyList);
-       */
+      */
    }
    catch(CIMException& exception)
    {
@@ -2541,7 +2536,7 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
                  request->includeQualifiers,
                  request->includeClassOrigin,
                  request->propertyList);
-        */
+         */
       }
       catch(CIMException& exception)
       {

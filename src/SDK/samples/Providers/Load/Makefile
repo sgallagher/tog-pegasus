@@ -10,7 +10,7 @@ INTEROPNS = root/PG_InterOp
 # be loaded into the Sample Provider namespace.
 # Update the following variable to change the version.
 
-CIM_SCHEMA_VER=27
+CIM_SCHEMA_VER=28
 CIM_SCHEMA_DIR=CIM$(CIM_SCHEMA_VER)
 
 SAMPLEPROVIDERNS=root/SampleProvider
@@ -18,25 +18,25 @@ SAMPLEPROVIDERNS=root/SampleProvider
 createrepository:
 	@ $(ECHO) +++++ Creating $(SAMPLEPROVIDERNS) namespace ...
 	@ $(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
-	@ cimmof "-I$(CIM_MOF_PATH)" "-n$(SAMPLEPROVIDERNS)" $(CIM_MOF_PATH)/CIM_Core$(CIM_SCHEMA_VER).mof
+	@ $(PEGASUS_BIN_DIR)/cimmof -I$(CIM_MOF_PATH)/$(CIM_SCHEMA_DIR) -n$(SAMPLEPROVIDERNS) $(CIM_MOF_PATH)/$(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
 	@ $(ECHO) +++++ Loading CIM_System$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
-	@ cimmof "-I$(CIM_MOF_PATH)" "-n$(SAMPLEPROVIDERNS)" $(CIM_MOF_PATH)/CIM_System$(CIM_SCHEMA_VER).mof
+	@ $(PEGASUS_BIN_DIR)/cimmof -I$(CIM_MOF_PATH)/$(CIM_SCHEMA_DIR) -n$(SAMPLEPROVIDERNS) $(CIM_MOF_PATH)/$(CIM_SCHEMA_DIR)/CIM_System$(CIM_SCHEMA_VER).mof
 	@ $(ECHO) +++++ Loading CIM_Event$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
-	@ cimmof "-I$(CIM_MOF_PATH)" "-n$(SAMPLEPROVIDERNS)" $(CIM_MOF_PATH)/CIM_Event$(CIM_SCHEMA_VER).mof
+	@ $(PEGASUS_BIN_DIR)/cimmof -I$(CIM_MOF_PATH)/$(CIM_SCHEMA_DIR) -n$(SAMPLEPROVIDERNS) $(CIM_MOF_PATH)/$(CIM_SCHEMA_DIR)/CIM_Event$(CIM_SCHEMA_VER).mof
 	@ $(ECHO) +++++ Loading class definitions into $(SAMPLEPROVIDERNS) namespace ...
-	@ cimmof "-n$(SAMPLEPROVIDERNS)" SampleProviderSchema.mof
-	@ cimmof "-n$(SAMPLEPROVIDERNS)" CWS_FilesAndDir.mof
+	@ $(PEGASUS_BIN_DIR)/cimmof -n$(SAMPLEPROVIDERNS) SampleProviderSchema.mof
+	@ $(PEGASUS_BIN_DIR)/cimmof -n$(SAMPLEPROVIDERNS) CWS_FilesAndDir.mof
 
 registerproviders:
 	@ $(ECHO) +++++ Registering providers for SampleProvider namespace  ...
-	@ cimmof "-n$(INTEROPNS)" InstanceProviderR.mof
-	@ cimmof "-n$(INTEROPNS)" MethodProviderR.mof
-	@ cimmof "-n$(INTEROPNS)" CWS_FilesAndDirR.mof
+	@ $(PEGASUS_BIN_DIR)/cimmof -n$(INTEROPNS) InstanceProviderR.mof
+	@ $(PEGASUS_BIN_DIR)/cimmof -n$(INTEROPNS) MethodProviderR.mof
+	@ $(PEGASUS_BIN_DIR)/cimmof -n$(INTEROPNS) CWS_FilesAndDirR.mof
 
 deregisterproviders:
 	@ $(ECHO) +++++ Deregistering SampleInstanceProvider ...
-	@ cimprovider -r -m SampleInstanceProviderModule
+	@ $(PEGASUS_BIN_DIR)/cimprovider -r -m SampleInstanceProviderModule
 	@ $(ECHO) +++++ Deregistering SampleMethodProvider ...
-	@ cimprovider -r -m SampleMethodProviderModule
-	@ $(ECHO) +++++ Deregistering SampleIndicationProvider ...
-	@ cimprovider -r -m FilesAndDirectoriesModule 
+	@ $(PEGASUS_BIN_DIR)/cimprovider -r -m SampleMethodProviderModule
+	@ $(ECHO) +++++ Deregistering FilesandDirectoryModule ...
+	@ $(PEGASUS_BIN_DIR)/cimprovider -r -m FilesAndDirectoriesModule 

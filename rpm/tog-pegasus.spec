@@ -139,6 +139,7 @@ mkdir -p $RPM_BUILD_ROOT/%PEGASUS_PROVIDER_LIB_DIR
 mkdir -p $RPM_BUILD_ROOT/%PEGASUS_CONFIG_DIR 
 mkdir -p $RPM_BUILD_ROOT/%PEGASUS_LOG_DIR
 mkdir -p $RPM_BUILD_ROOT/%PEGASUS_MAN_DIR/{man1,man8}
+mkdir -p $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/{CIM28,Pegasus}
 mkdir -p $RPM_BUILD_ROOT%PEGASUS_LOCAL_DOMAIN_SOCKET_DIR
 
 export PEGASUS_ROOT=$RPM_BUILD_DIR/$RPM_PACKAGE_NAME-$RPM_PACKAGE_VERSION
@@ -199,147 +200,147 @@ install -D -m 0755  $PEGASUS_HOME/lib/libProcessProvider.so.1    $RPM_BUILD_ROOT
 #
 # CIM schema
 #
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Application28_AppRuntime.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Application28_AppRuntime.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Application28_BIOS.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Application28_BIOS.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Application28_CheckAction.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Application28_CheckAction.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Application28_DeploymentModel.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Application28_DeploymentModel.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Application28_InstalledProduct.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Application28_InstalledProduct.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Application28_J2eeAppServer.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Application28_J2eeAppServer.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Application28_J2eeAppServerStats.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Application28_J2eeAppServerStats.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Application28_SystemSoftware.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Application28_SystemSoftware.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/CIM_Application28.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM_Application28.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/CIM_Core28.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM_Core28.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/CIM_Database28.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM_Database28.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/CIM_Device28.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM_Device28.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/CIM_Event28.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM_Event28.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/CIM_Interop28.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM_Interop28.mof 
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/CIM_IPsecPolicy28.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM_IPsecPolicy28.mof 
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/CIM_Metrics28.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM_Metrics28.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/CIM_Network28.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM_Network28.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/CIM_Physical28.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM_Physical28.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/CIM_Policy28.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM_Policy28.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/CIM_Schema28.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM_Schema28.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/CIM_Support28.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM_Support28.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/CIM_System28.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM_System28.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/CIM_User28.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM_User28.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Core28_Capabilities.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Core28_Capabilities.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Core28_Collection.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Core28_Collection.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Core28_CoreElements.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Core28_CoreElements.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Core28_Device.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Core28_Device.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Core28_MethodParms.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Core28_MethodParms.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Core28_Physical.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Core28_Physical.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Core28_PowerMgmt.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Core28_PowerMgmt.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Core28_ProductFRU.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Core28_ProductFRU.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Core28_Qualifiers.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Core28_Qualifiers.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Core28_Redundancy.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Core28_Redundancy.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Core28_Service.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Core28_Service.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Core28_Settings.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Core28_Settings.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Core28_Software.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Core28_Software.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Core28_Statistics.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Core28_Statistics.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Core28_StorageExtent.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Core28_StorageExtent.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Database28_Statistics.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Database28_Statistics.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Database28_Storage.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Database28_Storage.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Database28_System.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Database28_System.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Device28_Controller.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Device28_Controller.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Device28_CoolingAndPower.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Device28_CoolingAndPower.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Device28_DeviceElements.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Device28_DeviceElements.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Device28_DiskGroup.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Device28_DiskGroup.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Device28_FC.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Device28_FC.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Device28_IB.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Device28_IB.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Device28_Memory.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Device28_Memory.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Device28_Modems.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Device28_Modems.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Device28_NetworkAdapter.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Device28_NetworkAdapter.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Device28_Ports.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Device28_Ports.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Device28_Printing.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Device28_Printing.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Device28_Processor.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Device28_Processor.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Device28_ProtocolController.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Device28_ProtocolController.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Device28_SccExtents.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Device28_SccExtents.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Device28_Sensors.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Device28_Sensors.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Device28_StorageDevices.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Device28_StorageDevices.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Device28_StorageExtents.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Device28_StorageExtents.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Device28_StorageLib.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Device28_StorageLib.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Device28_StorageServices.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Device28_StorageServices.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Device28_USB.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Device28_USB.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Device28_UserDevices.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Device28_UserDevices.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Metrics28_BaseMetric.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Metrics28_BaseMetric.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Metrics28_UnitOfWork.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Metrics28_UnitOfWork.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Network28_BGP.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Network28_BGP.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Network28_Buffers.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Network28_Buffers.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Network28_Collections.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Network28_Collections.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Network28_Filtering.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Network28_Filtering.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Network28_IPsec.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Network28_IPsec.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Network28_OSPF.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Network28_OSPF.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Network28_Pipes.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Network28_Pipes.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Network28_ProtocolEndpoints.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Network28_ProtocolEndpoints.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Network28_QoS.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Network28_QoS.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Network28_Routes.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Network28_Routes.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Network28_RoutingForwarding.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Network28_RoutingForwarding.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Network28_SNMP.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Network28_SNMP.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Network28_SwitchingBridging.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Network28_SwitchingBridging.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Network28_Systems.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Network28_Systems.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Network28_VLAN.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Network28_VLAN.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Physical28_Component.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Physical28_Component.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Physical28_Connector.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Physical28_Connector.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Physical28_Link.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Physical28_Link.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Physical28_Misc.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Physical28_Misc.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Physical28_Package.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Physical28_Package.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Physical28_PhysicalMedia.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Physical28_PhysicalMedia.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Physical28_StoragePackage.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Physical28_StoragePackage.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/System28_Boot.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/System28_Boot.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/System28_Diagnostics.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/System28_Diagnostics.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/System28_FileElements.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/System28_FileElements.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/System28_Logs.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/System28_Logs.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/System28_OperatingSystem.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/System28_OperatingSystem.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/System28_Processing.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/System28_Processing.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/System28_SystemElements.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/System28_SystemElements.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/System28_SystemResources.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/System28_SystemResources.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/System28_Time.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/System28_Time.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/System28_Unix.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/System28_Unix.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/User28_AccessControl.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/User28_AccessControl.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/User28_Account.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/User28_Account.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/User28_AuthenticationReqmt.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/User28_AuthenticationReqmt.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/User28_Credential.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/User28_Credential.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/User28_Group.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/User28_Group.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/User28_Identity.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/User28_Identity.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/User28_Kerberos.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/User28_Kerberos.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/User28_Org.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/User28_Org.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/User28_PrivilegeManagementService.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/User28_PrivilegeManagementService.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/User28_Privilege.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/User28_Privilege.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/User28_PublicKey.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/User28_PublicKey.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/User28_Role.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/User28_Role.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/User28_SecurityLevel.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/User28_SecurityLevel.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/User28_SecurityServices.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/User28_SecurityServices.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/User28_SharedSecret.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/User28_SharedSecret.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/User28_StorageHardwareID.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/User28_StorageHardwareID.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/User28_UsersAccess.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/User28_UsersAccess.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Application28_AppRuntime.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Application28_AppRuntime.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Application28_BIOS.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Application28_BIOS.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Application28_CheckAction.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Application28_CheckAction.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Application28_DeploymentModel.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Application28_DeploymentModel.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Application28_InstalledProduct.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Application28_InstalledProduct.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Application28_J2eeAppServer.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Application28_J2eeAppServer.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Application28_J2eeAppServerStats.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Application28_J2eeAppServerStats.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Application28_SystemSoftware.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Application28_SystemSoftware.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/CIM_Application28.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/CIM_Application28.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/CIM_Core28.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/CIM_Core28.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/CIM_Database28.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/CIM_Database28.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/CIM_Device28.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/CIM_Device28.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/CIM_Event28.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/CIM_Event28.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/CIM_Interop28.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/CIM_Interop28.mof 
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/CIM_IPsecPolicy28.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/CIM_IPsecPolicy28.mof 
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/CIM_Metrics28.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/CIM_Metrics28.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/CIM_Network28.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/CIM_Network28.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/CIM_Physical28.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/CIM_Physical28.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/CIM_Policy28.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/CIM_Policy28.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/CIM_Schema28.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/CIM_Schema28.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/CIM_Support28.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/CIM_Support28.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/CIM_System28.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/CIM_System28.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/CIM_User28.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/CIM_User28.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Core28_Capabilities.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Core28_Capabilities.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Core28_Collection.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Core28_Collection.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Core28_CoreElements.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Core28_CoreElements.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Core28_Device.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Core28_Device.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Core28_MethodParms.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Core28_MethodParms.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Core28_Physical.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Core28_Physical.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Core28_PowerMgmt.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Core28_PowerMgmt.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Core28_ProductFRU.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Core28_ProductFRU.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Core28_Qualifiers.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Core28_Qualifiers.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Core28_Redundancy.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Core28_Redundancy.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Core28_Service.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Core28_Service.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Core28_Settings.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Core28_Settings.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Core28_Software.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Core28_Software.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Core28_Statistics.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Core28_Statistics.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Core28_StorageExtent.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Core28_StorageExtent.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Database28_Statistics.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Database28_Statistics.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Database28_Storage.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Database28_Storage.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Database28_System.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Database28_System.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Device28_Controller.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Device28_Controller.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Device28_CoolingAndPower.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Device28_CoolingAndPower.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Device28_DeviceElements.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Device28_DeviceElements.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Device28_DiskGroup.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Device28_DiskGroup.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Device28_FC.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Device28_FC.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Device28_IB.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Device28_IB.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Device28_Memory.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Device28_Memory.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Device28_Modems.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Device28_Modems.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Device28_NetworkAdapter.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Device28_NetworkAdapter.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Device28_Ports.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Device28_Ports.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Device28_Printing.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Device28_Printing.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Device28_Processor.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Device28_Processor.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Device28_ProtocolController.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Device28_ProtocolController.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Device28_SccExtents.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Device28_SccExtents.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Device28_Sensors.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Device28_Sensors.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Device28_StorageDevices.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Device28_StorageDevices.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Device28_StorageExtents.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Device28_StorageExtents.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Device28_StorageLib.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Device28_StorageLib.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Device28_StorageServices.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Device28_StorageServices.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Device28_USB.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Device28_USB.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Device28_UserDevices.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Device28_UserDevices.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Metrics28_BaseMetric.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Metrics28_BaseMetric.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Metrics28_UnitOfWork.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Metrics28_UnitOfWork.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Network28_BGP.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Network28_BGP.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Network28_Buffers.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Network28_Buffers.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Network28_Collections.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Network28_Collections.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Network28_Filtering.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Network28_Filtering.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Network28_IPsec.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Network28_IPsec.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Network28_OSPF.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Network28_OSPF.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Network28_Pipes.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Network28_Pipes.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Network28_ProtocolEndpoints.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Network28_ProtocolEndpoints.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Network28_QoS.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Network28_QoS.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Network28_Routes.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Network28_Routes.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Network28_RoutingForwarding.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Network28_RoutingForwarding.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Network28_SNMP.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Network28_SNMP.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Network28_SwitchingBridging.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Network28_SwitchingBridging.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Network28_Systems.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Network28_Systems.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Network28_VLAN.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Network28_VLAN.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Physical28_Component.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Physical28_Component.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Physical28_Connector.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Physical28_Connector.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Physical28_Link.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Physical28_Link.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Physical28_Misc.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Physical28_Misc.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Physical28_Package.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Physical28_Package.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Physical28_PhysicalMedia.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Physical28_PhysicalMedia.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/Physical28_StoragePackage.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/Physical28_StoragePackage.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/System28_Boot.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/System28_Boot.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/System28_Diagnostics.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/System28_Diagnostics.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/System28_FileElements.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/System28_FileElements.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/System28_Logs.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/System28_Logs.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/System28_OperatingSystem.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/System28_OperatingSystem.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/System28_Processing.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/System28_Processing.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/System28_SystemElements.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/System28_SystemElements.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/System28_SystemResources.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/System28_SystemResources.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/System28_Time.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/System28_Time.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/System28_Unix.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/System28_Unix.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/User28_AccessControl.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/User28_AccessControl.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/User28_Account.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/User28_Account.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/User28_AuthenticationReqmt.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/User28_AuthenticationReqmt.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/User28_Credential.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/User28_Credential.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/User28_Group.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/User28_Group.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/User28_Identity.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/User28_Identity.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/User28_Kerberos.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/User28_Kerberos.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/User28_Org.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/User28_Org.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/User28_PrivilegeManagementService.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/User28_PrivilegeManagementService.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/User28_Privilege.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/User28_Privilege.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/User28_PublicKey.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/User28_PublicKey.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/User28_Role.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/User28_Role.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/User28_SecurityLevel.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/User28_SecurityLevel.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/User28_SecurityServices.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/User28_SecurityServices.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/User28_SharedSecret.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/User28_SharedSecret.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/User28_StorageHardwareID.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/User28_StorageHardwareID.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/CIM28/User28_UsersAccess.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/CIM28/User28_UsersAccess.mof
 
 #
 # Pegasus' schema
 #
 
 # Internal:
-install -D -m 0644  $PEGASUS_ROOT/Schemas/Pegasus/Internal/VER20/PG_Authorization20.mof  $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/PG_Authorization20.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/Pegasus/Internal/VER20/PG_ConfigSetting20.mof  $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/PG_ConfigSetting20.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/Pegasus/Internal/VER20/PG_InternalSchema20.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/InternalSchema.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/Pegasus/Internal/VER20/PG_ShutdownService20.mof           $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/PG_ShutdownService20.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/Pegasus/Internal/VER20/PG_User20.mof           $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/PG_User20.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/Pegasus/Internal/VER20/PG_Authorization20.mof  $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Pegasus/PG_Authorization20.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/Pegasus/Internal/VER20/PG_ConfigSetting20.mof  $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Pegasus/PG_ConfigSetting20.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/Pegasus/Internal/VER20/PG_InternalSchema20.mof $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Pegasus/PG_InternalSchema20.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/Pegasus/Internal/VER20/PG_ShutdownService20.mof           $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Pegasus/PG_ShutdownService20.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/Pegasus/Internal/VER20/PG_User20.mof           $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Pegasus/PG_User20.mof
 
 # InterOp:
-install -D -m 0644  $PEGASUS_ROOT/Schemas/Pegasus/InterOp/VER20/PG_Events20.mof   $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/PG_Events20.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/Pegasus/InterOp/VER20/PG_InterOpSchema20.mof   $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/InterOpSchema.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/Pegasus/InterOp/VER20/PG_ProviderModule20.mof  $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/PG_ProviderModule20.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/Pegasus/InterOp/VER20/PG_Events20.mof   $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Pegasus/PG_Events20.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/Pegasus/InterOp/VER20/PG_InterOpSchema20.mof   $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Pegasus/PG_InterOpSchema20.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/Pegasus/InterOp/VER20/PG_ProviderModule20.mof  $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Pegasus/PG_ProviderModule20.mof
 
 #
 # Pegasus Default Providers' schema
 #
-install -D -m 0644  $PEGASUS_ROOT/Schemas/Pegasus/ManagedSystem/VER20/PG_ComputerSystem20.mof                               $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/PG_ComputerSystem20.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/Pegasus/ManagedSystem/VER20/PG_ComputerSystem20R.mof                               $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/PG_ComputerSystem20R.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/Pegasus/ManagedSystem/VER20/PG_ManagedSystemSchema20.mof                               $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/ManagedSystemSchema.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/Pegasus/ManagedSystem/VER20/PG_ManagedSystemSchema20R.mof                               $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/ManagedSystemSchemaR.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/Pegasus/ManagedSystem/VER20/PG_OperatingSystem20.mof                               $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/PG_OperatingSystem20.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/Pegasus/ManagedSystem/VER20/PG_OperatingSystem20R.mof                               $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/PG_OperatingSystem20R.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/Pegasus/ManagedSystem/VER20/PG_UnixProcess20.mof                               $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/PG_UnixProcess20.mof
-install -D -m 0644  $PEGASUS_ROOT/Schemas/Pegasus/ManagedSystem/VER20/PG_UnixProcess20R.mof                               $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/PG_UnixProcess20R.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/Pegasus/ManagedSystem/VER20/PG_ComputerSystem20.mof                               $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Pegasus/PG_ComputerSystem20.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/Pegasus/ManagedSystem/VER20/PG_ComputerSystem20R.mof                               $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Pegasus/PG_ComputerSystem20R.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/Pegasus/ManagedSystem/VER20/PG_ManagedSystemSchema20.mof                               $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Pegasus/PG_ManagedSystemSchema20.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/Pegasus/ManagedSystem/VER20/PG_ManagedSystemSchema20R.mof                               $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Pegasus/PG_ManagedSystemSchema20R.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/Pegasus/ManagedSystem/VER20/PG_OperatingSystem20.mof                               $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Pegasus/PG_OperatingSystem20.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/Pegasus/ManagedSystem/VER20/PG_OperatingSystem20R.mof                               $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Pegasus/PG_OperatingSystem20R.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/Pegasus/ManagedSystem/VER20/PG_UnixProcess20.mof                               $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Pegasus/PG_UnixProcess20.mof
+install -D -m 0644  $PEGASUS_ROOT/Schemas/Pegasus/ManagedSystem/VER20/PG_UnixProcess20R.mof                               $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/Pegasus/PG_UnixProcess20R.mof
 #
 # Initial Repository
 #
@@ -1931,7 +1932,12 @@ install -D -m 0644  $PEGASUS_ROOT/rpm/wbem $RPM_BUILD_ROOT%PAM_CONF/wbem
 #
 # repository install script
 #
-install -D -m 0544  $PEGASUS_ROOT/rpm/scripts/init_repository $RPM_BUILD_ROOT%PEGASUS_SBIN_DIR/init_repository
+echo "PEGASUS_MOF_DIR="%PEGASUS_MOF_DIR > initrepository.in
+echo "PEGASUS_REPOSITORY_DIR="%PEGASUS_REPOSITORY_DIR >> initrepository.in
+echo "PEGASUS_BIN_DIR="%PEGASUS_BIN_DIR >> initrepository.in
+echo "PEGASUS_CIM_SCHEMA=28" >> initrepository.in
+cat initrepository.in $PEGASUS_ROOT/installs/scripts/init_repository > $RPM_BUILD_ROOT%PEGASUS_SBIN_DIR/init_repository
+chmod 0544 $RPM_BUILD_ROOT%PEGASUS_SBIN_DIR/init_repository
 
 #
 # man pages
@@ -1995,7 +2001,6 @@ install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/Exception.h %INCLUDE_DE
 install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/Formatter.h %INCLUDE_DEST_PATH/Pegasus/Common/Formatter.h
 install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/LanguageElementContainer.h %INCLUDE_DEST_PATH/Pegasus/Common/LanguageElementContainer.h
 install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/LanguageElement.h %INCLUDE_DEST_PATH/Pegasus/Common/LanguageElement.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/LanguageParser.h %INCLUDE_DEST_PATH/Pegasus/Common/LanguageParser.h
 install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/Linkage.h %INCLUDE_DEST_PATH/Pegasus/Common/Linkage.h
 install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/MessageLoader.h %INCLUDE_DEST_PATH/Pegasus/Common/MessageLoader.h
 install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/OperationContext.h %INCLUDE_DEST_PATH/Pegasus/Common/OperationContext.h
@@ -2296,7 +2301,6 @@ install -D -m 0444 %SDK_STAGE_LOC/html/InvalidNameException.html %HTML_DEST_PATH
 install -D -m 0444 %SDK_STAGE_LOC/html/InvalidNamespaceNameException.html %HTML_DEST_PATH/InvalidNamespaceNameException.html
 install -D -m 0444 %SDK_STAGE_LOC/html/LanguageElementContainer.html %HTML_DEST_PATH/LanguageElementContainer.html
 install -D -m 0444 %SDK_STAGE_LOC/html/LanguageElement.html %HTML_DEST_PATH/LanguageElement.html
-install -D -m 0444 %SDK_STAGE_LOC/html/LanguageParser.html %HTML_DEST_PATH/LanguageParser.html
 install -D -m 0444 %SDK_STAGE_LOC/html/MalformedObjectNameException.html %HTML_DEST_PATH/MalformedObjectNameException.html
 install -D -m 0444 %SDK_STAGE_LOC/html/MessageLoaderParms.html %HTML_DEST_PATH/MessageLoaderParms.html
 install -D -m 0444 %SDK_STAGE_LOC/html/MethodResultResponseHandler.html %HTML_DEST_PATH/MethodResultResponseHandler.html
@@ -2556,135 +2560,135 @@ fi
 %doc %PEGASUS_MANADMIN_DIR/cimconfig.8.gz
 %doc %PEGASUS_MANADMIN_DIR/cimprovider.8.gz
 %doc %PEGASUS_MANADMIN_DIR/cimserver.8.gz
-%attr(-,root,root) %PEGASUS_MOF_DIR/CIM_Core28.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Core28_Qualifiers.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Core28_CoreElements.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Core28_Physical.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Core28_Software.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Core28_Device.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Core28_StorageExtent.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Core28_Collection.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Core28_Redundancy.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Core28_Service.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Core28_ProductFRU.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Core28_Statistics.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Core28_Capabilities.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Core28_Settings.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Core28_MethodParms.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Core28_PowerMgmt.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Application28_AppRuntime.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Application28_BIOS.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Application28_CheckAction.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Application28_DeploymentModel.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Application28_InstalledProduct.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Application28_J2eeAppServer.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Application28_J2eeAppServerStats.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Application28_SystemSoftware.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/CIM_Application28.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/CIM_Database28.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/CIM_Device28.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/CIM_Event28.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/CIM_Interop28.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/CIM_IPsecPolicy28.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/CIM_Metrics28.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/CIM_Network28.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/CIM_Physical28.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/CIM_Policy28.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/CIM_Schema28.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/CIM_Support28.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/CIM_System28.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/CIM_User28.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Database28_Statistics.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Database28_Storage.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Database28_System.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Device28_Controller.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Device28_CoolingAndPower.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Device28_DeviceElements.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Device28_DiskGroup.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Device28_FC.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Device28_IB.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Device28_Memory.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Device28_Modems.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Device28_NetworkAdapter.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Device28_Ports.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Device28_Printing.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Device28_Processor.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Device28_ProtocolController.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Device28_SccExtents.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Device28_Sensors.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Device28_StorageDevices.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Device28_StorageExtents.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Device28_StorageLib.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Device28_StorageServices.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Device28_USB.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Device28_UserDevices.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Metrics28_BaseMetric.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Metrics28_UnitOfWork.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Network28_BGP.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Network28_Buffers.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Network28_Collections.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Network28_Filtering.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Network28_IPsec.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Network28_OSPF.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Network28_Pipes.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Network28_ProtocolEndpoints.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Network28_QoS.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Network28_Routes.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Network28_RoutingForwarding.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Network28_SNMP.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Network28_SwitchingBridging.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Network28_Systems.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Network28_VLAN.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Physical28_Component.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Physical28_Connector.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Physical28_Link.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Physical28_Misc.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Physical28_Package.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Physical28_PhysicalMedia.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/Physical28_StoragePackage.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/System28_Boot.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/System28_Diagnostics.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/System28_FileElements.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/System28_Logs.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/System28_OperatingSystem.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/System28_Processing.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/System28_SystemElements.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/System28_SystemResources.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/System28_Time.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/System28_Unix.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/User28_AccessControl.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/User28_Account.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/User28_AuthenticationReqmt.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/User28_Credential.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/User28_Group.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/User28_Identity.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/User28_Kerberos.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/User28_Org.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/User28_Privilege.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/User28_PrivilegeManagementService.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/User28_PublicKey.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/User28_Role.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/User28_SecurityLevel.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/User28_SecurityServices.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/User28_SharedSecret.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/User28_StorageHardwareID.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/User28_UsersAccess.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/InterOpSchema.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/InternalSchema.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/ManagedSystemSchema.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/ManagedSystemSchemaR.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/PG_Authorization20.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/PG_ConfigSetting20.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/PG_ShutdownService20.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/PG_User20.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/PG_Events20.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/PG_ProviderModule20.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/PG_ComputerSystem20.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/PG_ComputerSystem20R.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/PG_OperatingSystem20.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/PG_OperatingSystem20R.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/PG_UnixProcess20.mof
-%attr(-,root,root) %PEGASUS_MOF_DIR/PG_UnixProcess20R.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/CIM_Core28.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Core28_Qualifiers.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Core28_CoreElements.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Core28_Physical.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Core28_Software.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Core28_Device.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Core28_StorageExtent.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Core28_Collection.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Core28_Redundancy.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Core28_Service.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Core28_ProductFRU.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Core28_Statistics.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Core28_Capabilities.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Core28_Settings.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Core28_MethodParms.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Core28_PowerMgmt.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Application28_AppRuntime.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Application28_BIOS.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Application28_CheckAction.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Application28_DeploymentModel.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Application28_InstalledProduct.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Application28_J2eeAppServer.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Application28_J2eeAppServerStats.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Application28_SystemSoftware.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/CIM_Application28.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/CIM_Database28.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/CIM_Device28.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/CIM_Event28.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/CIM_Interop28.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/CIM_IPsecPolicy28.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/CIM_Metrics28.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/CIM_Network28.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/CIM_Physical28.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/CIM_Policy28.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/CIM_Schema28.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/CIM_Support28.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/CIM_System28.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/CIM_User28.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Database28_Statistics.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Database28_Storage.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Database28_System.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Device28_Controller.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Device28_CoolingAndPower.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Device28_DeviceElements.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Device28_DiskGroup.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Device28_FC.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Device28_IB.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Device28_Memory.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Device28_Modems.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Device28_NetworkAdapter.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Device28_Ports.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Device28_Printing.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Device28_Processor.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Device28_ProtocolController.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Device28_SccExtents.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Device28_Sensors.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Device28_StorageDevices.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Device28_StorageExtents.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Device28_StorageLib.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Device28_StorageServices.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Device28_USB.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Device28_UserDevices.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Metrics28_BaseMetric.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Metrics28_UnitOfWork.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Network28_BGP.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Network28_Buffers.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Network28_Collections.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Network28_Filtering.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Network28_IPsec.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Network28_OSPF.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Network28_Pipes.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Network28_ProtocolEndpoints.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Network28_QoS.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Network28_Routes.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Network28_RoutingForwarding.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Network28_SNMP.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Network28_SwitchingBridging.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Network28_Systems.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Network28_VLAN.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Physical28_Component.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Physical28_Connector.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Physical28_Link.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Physical28_Misc.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Physical28_Package.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Physical28_PhysicalMedia.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/Physical28_StoragePackage.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/System28_Boot.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/System28_Diagnostics.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/System28_FileElements.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/System28_Logs.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/System28_OperatingSystem.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/System28_Processing.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/System28_SystemElements.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/System28_SystemResources.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/System28_Time.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/System28_Unix.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/User28_AccessControl.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/User28_Account.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/User28_AuthenticationReqmt.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/User28_Credential.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/User28_Group.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/User28_Identity.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/User28_Kerberos.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/User28_Org.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/User28_Privilege.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/User28_PrivilegeManagementService.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/User28_PublicKey.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/User28_Role.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/User28_SecurityLevel.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/User28_SecurityServices.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/User28_SharedSecret.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/User28_StorageHardwareID.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/CIM28/User28_UsersAccess.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/Pegasus/PG_InterOpSchema20.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/Pegasus/PG_InternalSchema20.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/Pegasus/PG_ManagedSystemSchema20.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/Pegasus/PG_ManagedSystemSchema20R.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/Pegasus/PG_Authorization20.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/Pegasus/PG_ConfigSetting20.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/Pegasus/PG_ShutdownService20.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/Pegasus/PG_User20.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/Pegasus/PG_Events20.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/Pegasus/PG_ProviderModule20.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/Pegasus/PG_ComputerSystem20.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/Pegasus/PG_ComputerSystem20R.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/Pegasus/PG_OperatingSystem20.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/Pegasus/PG_OperatingSystem20R.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/Pegasus/PG_UnixProcess20.mof
+%attr(-,root,root) %PEGASUS_MOF_DIR/Pegasus/PG_UnixProcess20R.mof
 %dir %attr(-,root,root) %PEGASUS_REPOSITORY_DIR/root
 %dir %attr(-,root,root) %PEGASUS_REPOSITORY_DIR/root/classes
 %dir %attr(-,root,root) %PEGASUS_REPOSITORY_DIR/root/instances
@@ -4338,7 +4342,6 @@ fi
 %attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/Formatter.h
 %attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/LanguageElementContainer.h
 %attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/LanguageElement.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/LanguageParser.h
 %attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/Linkage.h
 %attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/MessageLoader.h
 %attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/OperationContext.h
@@ -4639,7 +4642,6 @@ fi
 %attr(-,root,root) %PEGASUS_HTML_DEST_PATH/InvalidNamespaceNameException.html
 %attr(-,root,root) %PEGASUS_HTML_DEST_PATH/LanguageElementContainer.html
 %attr(-,root,root) %PEGASUS_HTML_DEST_PATH/LanguageElement.html
-%attr(-,root,root) %PEGASUS_HTML_DEST_PATH/LanguageParser.html
 %attr(-,root,root) %PEGASUS_HTML_DEST_PATH/MalformedObjectNameException.html
 %attr(-,root,root) %PEGASUS_HTML_DEST_PATH/MessageLoaderParms.html
 %attr(-,root,root) %PEGASUS_HTML_DEST_PATH/MethodResultResponseHandler.html

@@ -224,12 +224,11 @@ Boolean MessageQueueServer::messageOK(const Message *msg)
 {
    if(msg->getMask() & message_mask::ha_async)
    {
+      if( msg->getType() == 0x04100000 ||
+	  msg->getType() == async_messages::CIMSERVICE_STOP )
       return true;
    }
-   else
-   {
-      return false;
-   }
+   return false;
 }
 
 void MessageQueueServer::handle_test_request(AsyncRequest *msg)
@@ -278,6 +277,7 @@ Boolean MessageQueueClient::messageOK(const Message *msg)
 {
    if(msg->getMask() & message_mask::ha_async)
    {
+      if (msg->getType() == 0x04200000)
       return true;
    }
    return false;
@@ -297,7 +297,6 @@ void MessageQueueClient::send_test_request(char *greeting, Uint32 qid)
    AsyncMessage *response = SendWait(req);
    if( response != 0  )
    {
-//      cout << "rsp type " << response->getType() << "rsp code " << static_cast<AsyncReply *>(response)->result << endl;
       msg_count++; 
       delete response;
    }

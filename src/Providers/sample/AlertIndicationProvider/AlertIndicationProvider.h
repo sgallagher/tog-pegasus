@@ -32,7 +32,6 @@
 #define Pegasus_AlertIndicationProvider_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Provider/CIMBaseProvider.h>
 #include <Pegasus/Provider/CIMIndicationProvider.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -44,11 +43,11 @@ public:
     AlertIndicationProvider (void) throw ();
     virtual ~AlertIndicationProvider (void) throw ();
 
-    // CIMBaseProvider interface
+    // CIMProvider interface
     virtual void initialize (CIMOMHandle & cimom);
     virtual void terminate (void);
 
-    // CIMInstanceProvider interface
+    // CIMIndicationProvider interface
     virtual void enableIndications (IndicationResponseHandler & handler);
     virtual void disableIndications (void);
 

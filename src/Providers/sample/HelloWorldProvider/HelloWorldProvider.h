@@ -31,7 +31,6 @@
 #define Pegasus_HelloWorldProvider_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Provider/CIMBaseProvider.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Provider/CIMIndicationProvider.h>
 #include <Pegasus/Common/IPC.h>

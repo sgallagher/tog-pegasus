@@ -32,7 +32,6 @@
 #define Pegasus_RT_IndicationProvider_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Provider/CIMBaseProvider.h>
 #include <Pegasus/Provider/CIMIndicationProvider.h>
 #include <Pegasus/Provider/CIMMethodProvider.h>
 
@@ -46,7 +45,7 @@ public:
     RT_IndicationProvider (void) throw ();
     virtual ~RT_IndicationProvider (void) throw ();
 
-    // CIMBaseProvider interface
+    // CIMProvider interface
     virtual void initialize (CIMOMHandle & cimom);
     virtual void terminate (void);
 

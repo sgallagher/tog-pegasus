@@ -257,20 +257,20 @@ inline void Thread::exit_self(void *return_code) { pthread_exit(return_code) ; }
 #define PEGASUS_THREAD_CLEANUP_NATIVE 
 void Thread::cleanup_push( void (*routine)(void *), void *parm) throw(IPCException)
 {
-  cleanup_handler *cu = new cleanup_handler(routine, parm);
-  try { _cleanup.insert_first(cu); } 
-  catch(IPCException& e) { delete cu; throw; }
-  _pthread_cleanup_push(&(cu->_cleanup_buffer), routine, parm);
-  return;
+   cleanup_handler *cu = new cleanup_handler(routine, parm);
+   try { _cleanup.insert_first(cu); } 
+   catch(IPCException& e) { delete cu; throw; }
+   _pthread_cleanup_push(&(cu->_cleanup_buffer), routine, parm);
+   return;
 }
 
 void Thread::cleanup_pop(Boolean execute = true) throw(IPCException)
 {
-  cleanup_handler *cu ;
-  try { cu = _cleanup.remove_first() ;}
-  catch(IPCException& e) { PEGASUS_ASSERT(0); }
-  _pthread_cleanup_pop(&(cu->_cleanup_buffer), execute);
-  delete cu;
+   cleanup_handler *cu ;
+   try { cu = _cleanup.remove_first() ;}
+   catch(IPCException& e) { PEGASUS_ASSERT(0); }
+   _pthread_cleanup_pop(&(cu->_cleanup_buffer), execute);
+   delete cu;
 }
 
 

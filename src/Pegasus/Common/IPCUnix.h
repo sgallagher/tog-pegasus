@@ -144,5 +144,6 @@ typedef struct {
     pthread_t owner;
 } PEGASUS_RWLOCK_HANDLE;
 
-#endif // linux platform atomic type
+#endif // linux platform read/write type
+
 

@@ -38,9 +38,257 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-#if defined(PEGASUS_ATOMIC_INT_NATIVE)
 
-#else
+//-----------------------------------------------------------------
+/// Generic Implementation of read/write semaphore class
+//-----------------------------------------------------------------
+#ifndef PEGASUS_READWRITE_NATIVE 
+
+ReadWriteSem::ReadWriteSem(void) : _readers(0), _writers(0)
+{
+   _rwlock._internal_lock = Mutex();
+    _rwlock._wlock = Mutex();
+   _rwlock._rlock= Semaphore(10); // allow 10 concurrent readers 
+   _rwlock._owner = pegasus_thread_self();
+}
+
+ReadWriteSem::~ReadWriteSem(void)
+{
+   
+   _rwlock._internal_lock.~Mutex();
+   _rwlock._wlock.~Mutex();
+   _rwlock._rlock.~Semaphore();
+}
+
+//-----------------------------------------------------------------
+// if milliseconds == -1, wait indefinately
+// if milliseconds == 0, fast wait 
+//-----------------------------------------------------------------
+void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milliseconds) 
+   throw(TimeOut, Deadlock, Permission, WaitFailed, TooManyReaders)
+{
+
+//-----------------------------------------------------------------
+// Lock this object to maintain integrity while we decide 
+// exactly what to do next.
+//-----------------------------------------------------------------
+   if(milliseconds == 0)
+      _rwlock._internal_lock.lock(pegasus_thread_self()); 
+   else if(milliseconds == -1)
+      _rwlock._internal_lock.try_lock(pegasus_thread_self());
+   else
+      _rwlock._internal_lock.timed_lock(milliseconds, pegasus_thread_self());
+
+   if(mode == PEG_SEM_WRITE)
+   {
+//-----------------------------------------------------------------
+// Write Lock Step 1: lock the object and allow all the readers to exit
+//-----------------------------------------------------------------
+
+      if(milliseconds == 0) // fast wait
+      {
+	 if(_rwlock._rlock.count() > 0)
+	 {
+	    _rwlock._internal_lock.unlock();
+	    throw(WaitFailed(pegasus_thread_self()));
+	 }
+      }
+      else if(milliseconds == -1) // infinite wait
+      {
+	 while(_rwlock._rlock.count() > 0 )
+	    pegasus_yield();
+      }
+      else // timed wait 
+      {
+	 struct timeval start, now;
+	 pegasus_gettimeofday(&start);
+	 now.tv_sec = start.tv_sec;
+	 now.tv_usec = start.tv_usec;
+	 
+	 while(_rwlock._rlock.count() > 0)
+	 {
+	    if((now.tv_usec - start.tv_usec) > (1000 * milliseconds))
+	    {
+	       _rwlock._internal_lock.unlock();
+	       throw(TimeOut(pegasus_thread_self()));
+	    }
+	    pegasus_yield();
+	 }
+      }
+//-----------------------------------------------------------------
+// Write Lock Step 2: Obtain the Write Mutex
+//  Although there are no readers, there may be a writer
+//-----------------------------------------------------------------
+      if(milliseconds == 0) // fast wait
+      {
+	 try 
+	 {
+	    _rwlock._wlock.try_lock(pegasus_thread_self());
+	 }
+	 catch(IPCException e) 
+	 {
+	    _rwlock._internal_lock.unlock();
+	    throw;
+	 }
+      }
+      else if(milliseconds == -1) // infinite wait
+      {
+	 try 
+	 {
+	    _rwlock._wlock.lock(pegasus_thread_self());
+	 }
+	 catch (IPCException& e) 
+	 {
+	    _rwlock._internal_lock.unlock();
+	    throw;
+	 }
+      }
+
+      else // timed wait
+      {
+	 try
+	 {
+	    _rwlock._wlock.timed_lock(milliseconds, pegasus_thread_self());
+	 }
+	 catch(IPCException& e)
+	 {
+	    _rwlock._internal_lock.unlock();
+	 }
+      }
+      
+//-----------------------------------------------------------------      
+// Write Lock Step 3: set the writer count to one, unlock the object
+//   There are no readers and we are the only writer !
+//-----------------------------------------------------------------      
+      _writers = 1;
+      // set the owner
+      _rwlock._owner = pegasus_thread_self();
+      // unlock the object
+      _rwlock._internal_lock.unlock();
+   } // PEG_SEM_WRITE
+   else
+   {
+//-----------------------------------------------------------------
+// Read Lock Step 1: Wait for the existing writer (if any) to clear
+//-----------------------------------------------------------------
+      if(milliseconds == 0) // fast wait
+      {
+	 if(_writers > 0)
+	 {
+	    _rwlock._internal_lock.unlock();
+	    throw(WaitFailed(pegasus_thread_self()));
+	 }
+      }
+      else if(milliseconds == -1) // infinite wait
+      {
+	 while(_writers > 0)
+	    pegasus_yield(); 
+      }
+      else // timed wait
+      {
+	 struct timeval start, now;
+	 pegasus_gettimeofday(&start);
+	 now.tv_sec = start.tv_sec;
+	 now.tv_usec = start.tv_usec;
+	 
+	 while(_writers > 0)
+	 {
+	    if((now.tv_usec - start.tv_usec) > (1000 * milliseconds))
+	    {
+	       _rwlock._internal_lock.unlock();
+	       throw(TimeOut(pegasus_thread_self()));
+	    }
+	    pegasus_yield();
+	 }
+      }
+      
+//-----------------------------------------------------------------
+// Read Lock Step 2: wait for a reader slot to open up, then return
+//  At this point there are no writers, but there may be too many
+//  readers.
+//-----------------------------------------------------------------
+      if(milliseconds == 0) // fast wait
+      {
+	 try 
+	 {
+	    _rwlock._rlock.try_wait();  
+	 }
+	 catch(IPCException& e) 
+	 {
+	    // the wait failed, there must be too many readers already. 
+	    // unlock the object
+	    _rwlock._internal_lock.unlock();
+	    throw(TooManyReaders(pegasus_thread_self()));
+	 }
+      }
+      else if(milliseconds == -1) // infinite wait
+      {
+	 _rwlock._rlock.wait(); // does not throw an exception
+      }
+      else // timed wait
+      {
+	 try 
+	 {
+	    _rwlock._rlock.time_wait(milliseconds);
+	 }
+	 catch(IPCException& e)
+	 {
+	    _rwlock._internal_lock.unlock();
+	    throw;
+	 }
+      }
+      
+//-----------------------------------------------------------------      
+// Read Lock Step 3: increment the number of readers, unlock the object, 
+// return
+//-----------------------------------------------------------------
+      _readers++;
+      _rwlock._internal_lock.unlock();
+   }
+   return;
+}
+
+void ReadWriteSem::wait(Uint32 mode, PEGASUS_THREAD_TYPE caller) 
+   throw(Deadlock, Permission, WaitFailed, TooManyReaders)
+{
+   timed_wait(mode, caller, -1);
+}
+
+void ReadWriteSem::try_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller) 
+   throw(Deadlock, Permission, WaitFailed, TooManyReaders)
+{
+   timed_wait(mode, caller, 0);
+}
+
+void ReadWriteSem::unlock(Uint32 mode, PEGASUS_THREAD_TYPE caller) 
+   throw(Permission)
+{
+   if(mode == PEG_SEM_WRITE)
+   {
+      _writers = 0;
+      _rwlock._wlock.unlock();
+   }
+   else
+   {
+      _readers--;
+      _rwlock._rlock.signal();
+   }
+   
+}
+
+#endif // ! PEGASUS_READWRITE_NATIVE
+//-----------------------------------------------------------------
+// END of generic read/write semaphore implementaion
+//-----------------------------------------------------------------
+
+
+
+//-----------------------------------------------------------------
+/// Generic Implementation of Atomic Integer class
+//-----------------------------------------------------------------
+
+#ifndef PEGASUS_ATOMIC_INT_NATIVE
+
 AtomicInt::AtomicInt() {_rep._value = 0; _rep._mutex = Mutex(); }
 
 AtomicInt::AtomicInt(Uint32 initial) {_rep._value = initial;  _rep._mutex = Mutex() ; }
@@ -171,7 +419,12 @@ AtomicInt& AtomicInt::operator-=(Uint32 val)
     return *this;
 }
 
-#endif // PEGASUS_ATOMIC_INT_NATIVE
+#endif // ! PEGASUS_ATOMIC_INT_NATIVE
+//-----------------------------------------------------------------
+// END of generic atomic integer implementation
+//-----------------------------------------------------------------
+
+
 
 //Mutex * AtomicInt::getMutex()
 //{

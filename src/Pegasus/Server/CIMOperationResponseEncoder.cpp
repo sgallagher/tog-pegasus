@@ -688,10 +688,11 @@ void CIMOperationResponseEncoder::encodeInvokeMethodResponse(
 
     for (Uint8 i = 0; i < response->outParameters.size(); i++)
     {
+        // ATTN: Need to support non-String parameter values
 	XmlWriter::appendStringParameter(
 	    body, 
 	    response->outParameters[i].getParameter().getName().allocateCString(),
-	    response->outParameters[i].getValue().toXml());
+	    response->outParameters[i].getValue().toString());
     }
 
     Array<Sint8> message = XmlWriter::formatSimpleMethodRspMessage(

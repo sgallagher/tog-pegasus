@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,8 +29,9 @@
 //
 // Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
+// Modified By:
+//      David Dillard, VERITAS Software Corp.(david.dillard@veritas.com)
+//      Chip Vincent (cvincent@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -89,13 +90,13 @@ static const CIMName CIM_NAMESPACE_CLASSNAME  = CIMName ("CIM_Namespace");
 
 static const CIMName PG_NAMESPACE_CLASSNAME  = CIMName ("PG_Namespace");
 static const CIMName CIM_OBJECTMANAGER_CLASSNAME  = CIMName ("CIM_ObjectManager");
-static const CIMName CIM_OBJECTMANAGERCOMMUNICATIONMECHANISM_CLASSNAME  = 
+static const CIMName CIM_OBJECTMANAGERCOMMUNICATIONMECHANISM_CLASSNAME  =
         CIMName ("CIM_ObjectManagerCommunicationMechanism");
-static const CIMName PG_CIMXMLCOMMUNICATIONMECHANISM_CLASSNAME  = 
+static const CIMName PG_CIMXMLCOMMUNICATIONMECHANISM_CLASSNAME  =
         CIMName ("PG_CIMXMLCommunicationMechanism");
-static const CIMName CIM_COMMMECHANISMFORMANAGER_CLASSNAME  = 
+static const CIMName CIM_COMMMECHANISMFORMANAGER_CLASSNAME  =
         CIMName ("CIM_CommMechanismForManager");
-static const CIMName CIM_NAMESPACEINMANAGER_CLASSNAME  = 
+static const CIMName CIM_NAMESPACEINMANAGER_CLASSNAME  =
         CIMName ("CIM_NamespaceInManager");
 
 /* Class created to provide cover for all of the tests in this
@@ -144,9 +145,9 @@ public:
     Boolean getStatisticsPropertyState(CIMInstance & objMgrInstance);
     Boolean getStatisticsState();
     void showStatisticsState();
-    
+
     void testStatisticsEnable();
-    
+
     void testCommunicationClass();
     void testNameSpaceInObjectManagerAssocClass();
     void testCommMechinManagerAssocClass();
@@ -493,7 +494,7 @@ Array<CIMNamespaceName> InteropTest::_getNamespacesNew()
 
 /** get one string property from an instance. Note that these functions simply
     return the default value if the property cannot be found or is of the wrong
-    type thus, in reality being a maintenance problem since there is no 
+    type thus, in reality being a maintenance problem since there is no
     error indication.
     @param instance CIMInstance from which we get property value
     @param propertyName String name of the property containing the value
@@ -572,7 +573,7 @@ void InteropTest::_showNamespaceInfo(const String& title)
             else
             {
                 Boolean boolRtn = false;
-                _getPropertyValue(instances[i],"IsShareable", false, boolRtn); 
+                _getPropertyValue(instances[i],"IsShareable", false, boolRtn);
                 isSharable = boolRtn? "true" : "false";
 
             }
@@ -595,8 +596,8 @@ void InteropTest::_showNamespaceInfo(const String& title)
             }
 
         }
-        
-        printf("%-20s %-10s %-10s %-10s\n", (const char *)name.getCString(), 
+
+        printf("%-20s %-10s %-10s %-10s\n", (const char *)name.getCString(),
                                             (const char *)isSharable.getCString(),
                                             (const char *)updatesAllowed.getCString(),
                                             (const char *)parent.getCString());
@@ -907,7 +908,7 @@ Boolean InteropTest::testClassExists(const CIMName & className)
 
     catch(Exception& e)
     {
-        cerr << "Error: " << e.getMessage() << " Class " << className.getString() 
+        cerr << "Error: " << e.getMessage() << " Class " << className.getString()
             << " does not exist in Namespace " << PEGASUS_NAMESPACENAME_INTEROP.getString() << endl;
     }
     return(false);
@@ -928,118 +929,118 @@ void InteropTest::testNameSpacesManagement()
     assert(testClassExists(CIM_OBJECTMANAGERCOMMUNICATIONMECHANISM_CLASSNAME));
     assert(testClassExists(PG_CIMXMLCOMMUNICATIONMECHANISM_CLASSNAME));
     assert(testClassExists(CIM_COMMMECHANISMFORMANAGER_CLASSNAME));
-    
+
     // Test namespace usage with both __namespace and CIM_Namespace.
     // __namespace is called old
     // CIM_Namespace is called new for these tests.
     Array<CIMNamespaceName> nameListOld = _getNamespacesOld();
-    
+
     CDEBUG("Got Namespaces with __Namespace. Now Validate");
     if (!_validateNamespaces(nameListOld))
     {
         cout << "Error exit, Invalid namespace returned" << endl;
     }
-    
+
     nameListNew = _getNamespacesNew();
-    
+
     CDEBUG("Got Namespaces with CIM_Namespace. Now Validate");
     if (!_validateNamespaces(nameListNew))
     {
         cout << "Error exit, Invalid namespace returned" << endl;
     }
-    
+
     if(verbose)
     {
         _showNamespaceList(nameListNew, "From CIM_Namespace");
-    
+
         _showNamespaceList(nameListOld, "From __Namespace");
     }
-    
+
     assert(nameListNew.size() == nameListOld.size());
-    
+
     // Add assertion that they have the same items in the list
-    
+
     // Create a new namespace with new functions
-    
+
     CIMNamespaceName testNameNew = CIMNamespaceName("root/junk/interoptest/newtype");
     CIMNamespaceName testNameOldRoot = CIMNamespaceName("root");
     CIMNamespaceName testNameOldTail = CIMNamespaceName("junk/interoptest/oldtype");
     CIMNamespaceName testNameOldComplete = CIMNamespaceName("root/junk/interoptest/oldtype");
-    
+
     // Create the namespace with the CIM_Namespace class
     // Note that this is an assertion and, in fact, we should probably remove the names.
-    
+
     assert( ! _existsNew(testNameNew));
-    
+
     assert( ! _existsNew(testNameOldComplete));
-    
+
     CDEBUG("Now Create New Namespace with CIM_Namespace. Namespace name = " << testNameNew.getString() << ".");
     _namespaceCreateCIM_Namespace(CIMNamespaceName(testNameNew));
-    
+
     if (verbose)
     {
         _showNamespaceList(nameListNew, "CIM_Namespace response after add.");
     }
-    
+
     // The following code is temporary KS 2004
-    CDEBUG("Test for namespace created. Name = " << testNameNew.getString()); 
+    CDEBUG("Test for namespace created. Name = " << testNameNew.getString());
     assert(_existsNew(testNameNew));
-    
+
     assert(_namespaceDeleteCIM_Namespace(CIMNamespaceName(testNameNew)));
-    
-    CDEBUG("Test for Namespace existing = " << testNameOldComplete.getString()); 
+
+    CDEBUG("Test for Namespace existing = " << testNameOldComplete.getString());
     if(_existsNew(CIMNamespaceName(testNameOldComplete)))
        _namespaceDeleteCIM_Namespace(CIMNamespaceName(testNameOldComplete));
-    
-    CDEBUG("Test for Namespace NOT existing = " << testNameOldComplete.getString()); 
+
+    CDEBUG("Test for Namespace NOT existing = " << testNameOldComplete.getString());
     if(_existsNew(testNameOldComplete))
         cerr << "Problem deleting namespace" << testNameOldComplete.getString() <<endl;
-    
-    CDEBUG("Creating Old = " << testNameOldTail.getString()); 
+
+    CDEBUG("Creating Old = " << testNameOldTail.getString());
     _namespaceCreate__Namespace(CIMNamespaceName(testNameOldRoot), String(testNameOldTail.getString()));
-    
+
     assert(_existsNew(testNameOldComplete));
-    
+
     assert(_namespaceDeleteCIM_Namespace(CIMNamespaceName(testNameOldComplete)));
-    
+
     assert(!_existsNew(testNameOldComplete));
-    
+
     if (verbose)
     {
         _showNamespaceList(nameListNew, "Namespaces From CIM_Namespace after add.");
     }
-    
+
     _namespaceCreate__Namespace(CIMNamespaceName(testNameOldRoot), String(testNameOldTail.getString()));
-    
+
     // Note that this tries to delete the multiple levels all at the same time.
-    
+
     // ATTN: There is apparently a problem here with the following
     // delete.  Fix this and retest.  For the moment, we substituted
     // Deleting the new way.
     //_deleteNamespaceOld(String(testNameOldComplete.getString()));
-    
+
     _namespaceDeleteCIM_Namespace(testNameOldComplete);
-    
+
     if (verbose)
     {
         _showNamespaceList(nameListNew, "CIM_Namespace response after add.");
     }
     assert(!_existsNew(testNameOldComplete));
-    
+
     if(_existsNew(CIMNamespaceName(testNameOldComplete)))
        _namespaceDeleteCIM_Namespace(CIMNamespaceName(testNameOldComplete));
-    
+
     if(_existsNew(CIMNamespaceName(testNameOldComplete)))
         cerr << "Problem deleting namespace" << endl;
-    
+
     // Finally test to be sure that we have the same count of namespaces
     //as when we started.  Should also check to be sure it is exactly the
     //same set of namespaces.
-    
+
     Array<CIMNamespaceName> nameListTemp = _getNamespacesNew();
-    
+
     assert(nameListTemp.size() == nameListNew.size());
-    
+
     if (verbose)
         cout << "Basic Namespace Tests passed" << endl;
 }
@@ -1053,29 +1054,29 @@ void InteropTest::testSharedNameSpacesManagement()
     {
         CIMNamespaceName testNameSharable = CIMNamespaceName("root/junk/interoptest/sharable");
         CIMNamespaceName testNameShared = CIMNamespaceName("root/junk/interoptest/shared");
-    
+
         // Create a sharable namespace
         _namespaceCreatePG_Namespace(testNameSharable, true, false, String::EMPTY);
-    
+
         // create a namespace with the previous sharable as parent.
         _namespaceCreatePG_Namespace(testNameShared, false, false, testNameSharable.getString());
-    
+
         // Confirm that both exist
         assert(_existsNew(testNameSharable));
         assert(_existsNew(testNameShared));
-    
+
         if (verbose)
             _showNamespaceInfo("Namespaces with one shared and one sharable created");
-    
+
         // Should add test to confirm that these are really shared.
         // No. Not in this version.
         assert(_testPGNamespace(testNameSharable, true, false, String::EMPTY));
         assert(_testPGNamespace(testNameShared, false, false, testNameSharable.getString()));
-    
+
         // Now delete the two namespaces
         _namespaceDeleteCIM_Namespace(testNameSharable);
         _namespaceDeleteCIM_Namespace(testNameShared);
-    
+
         assert(!_existsNew(testNameSharable));
         assert(!_existsNew(testNameShared));
     }
@@ -1098,9 +1099,14 @@ void InteropTest::testSharedNameSpacesManagement()
 
 CIMInstance InteropTest::getInstanceObjMgr()
 {
-    CIMClass objectManager = _client.getClass(PEGASUS_NAMESPACENAME_INTEROP,
-                                        CIM_OBJECTMANAGER_CLASSNAME,
-                                        false,false,true);
+    CIMClass objectManager =
+        _client.getClass(
+            PEGASUS_NAMESPACENAME_INTEROP,
+            CIM_OBJECTMANAGER_CLASSNAME,
+            false,
+            true,
+            true);
+
     if (verbose)
     {
         cout << "Show the object manager Class element" << endl;
@@ -1140,23 +1146,23 @@ void InteropTest::testObjectManagerClass()
         }
         // Why am I building the path here rather than getting it from the instance?
         CIMObjectPath objectManagerPath = instanceObjectManager.buildPath(CIM_OBJECTMANAGER_CLASSNAME);
-    
+
         // test to confirm that both names and instances return same thing.
         Array<CIMObjectPath> pathsObjMgr = _client.enumerateInstanceNames(
                                                  PEGASUS_NAMESPACENAME_INTEROP,
                                                  CIM_OBJECTMANAGER_CLASSNAME);
-    
+
         assert(pathsObjMgr.size() == 1);
-    
+
         CIMObjectPath objectManagerPath1 = instanceObjectManager.getPath();
-    
+
         if (verbose)
         {
         cout << "Object Manager path from enumerateInstancesNames: " << pathsObjMgr[0].toString() << endl
              << "Object manager path from enumerateInstances bld : " << objectManagerPath.toString() << endl
              << "Object Manager path form enumerateInstances path: " << instanceObjectManager.getPath().toString() << endl   ;
         }
-    
+
         // Add code to compare paths, objects, etc. for object manager.
 
         // Right now this test failing.  not sure why.
@@ -1279,7 +1285,7 @@ void InteropTest::testStatisticsEnable()
                 cout <<" CIM_ObjectManager Test CIMException: " << e.getMessage() << endl;
                 throw e;
             }
-        
+
 
         CDEBUG("testStats. modified");
         // Get Object Manager instance and confirm property changed.
@@ -1492,12 +1498,12 @@ int main(int argc, char** argv)
     try
     {
         InteropTest it(client);
-    
-     /* There are three possible commands. 
+
+     /* There are three possible commands.
         on - Turns on the status monitor
         off - Turns off the status monitor
         Status - Shows the state of the status monitor
-    
+
         If no command is input, it reports the current statistics.
         Note that we do not protect against the user requesting statistics
         if the monitor is off.
@@ -1522,25 +1528,25 @@ int main(int argc, char** argv)
             }
             else
             {
-                cerr << pgmName << ". Error on command line. " 
+                cerr << pgmName << ". Error on command line. "
                     << " Expected on or off or status. Rcvd "<< cmd << endl;
                 exit(1);
             }
         }
         it.testNameSpacesManagement();
-    
+
         it.testSharedNameSpacesManagement();
-    
+
         it.testObjectManagerClass();
-    
+
         it.testStatisticsEnable();
-    
+
         it.testCommunicationClass();
-    
+
         it.testNameSpaceInObjectManagerAssocClass();
-    
+
         it.testCommMechinManagerAssocClass();
-    
+
         client.disconnect();
     }
 
@@ -1558,6 +1564,6 @@ int main(int argc, char** argv)
         TERMINATE(" Program Caught General Exception:");
     }
     cout << argv[0] << " +++++ passed all tests" << endl;
-    exit(0);
-}
 
+    return(0);
+}

@@ -26,6 +26,7 @@ rm -f $CERT_NAME3.key
 rm -f $CA_NAME1.cert
 rm -f $CA_NAME1.key
 rm -f $CA_NAME1.srl
+rm -f $CA_NAME1.crl
 rm -f index.txt
 
 #

@@ -61,7 +61,9 @@ CIMOMHandle& CIMOMHandle::operator=(const CIMOMHandle& handle)
 	}
 
 	_outputQueue = handle._outputQueue;
-	_inputQueue = handle._inputQueue;
+	
+	// do not assign a new input queue. each instance has its own
+	//_inputQueue = handle._inputQueue;
 
 	return(*this);
 }
@@ -1010,9 +1012,9 @@ Message * CIMOMHandle::_waitForResponse(
 	// a sleep retry mode until the
 	// timeout expires or a message of the requested type arrives. a timeout value of 0xffffffff represents
 	// infinity.
-	for(Uint32 i = 0; ((i < timeout) || (timeout == 0xffffffff)) && (message == 0); i += 100)
+	for(Uint32 i = 0; ((i < timeout) || (timeout == 0xffffffff)) && (message == 0); i++)
 	{
-		System::sleep(100);
+		System::sleep(1);
 		
 		message = _inputQueue->find(messageType, messageKey);
 	}

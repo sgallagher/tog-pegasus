@@ -816,10 +816,11 @@ static void TestAssociationOperations(CIMClient& client, Boolean
     }
     if (runTest)
     {
-        CIMObjectPath TST_PersonClass= "TST_Person";
-        CIMObjectPath TST_PersonInstance = "TST_Person.name=\"Mike\"";
-        CIMObjectPath TST_PersonDynamicClass = "TST_PersonDynamic";
-        CIMObjectPath TST_PersonDynamicInstance = "TST_PersonDynamic.name=\"Father\"";
+        
+        CIMObjectPath TST_PersonClass= CIMObjectPath("TST_Person");
+        CIMObjectPath TST_PersonInstance = CIMObjectPath( "TST_Person.name=\"Mike\"");
+        CIMObjectPath TST_PersonDynamicClass = CIMObjectPath("TST_PersonDynamic");
+        CIMObjectPath TST_PersonDynamicInstance = CIMObjectPath( "TST_PersonDynamic.name=\"Father\"");
         
         testRefandAssoc(client, nameSpace, TST_PersonClass , CIMName(), CIMName());
         testRefandAssoc(client, nameSpace, TST_PersonInstance , CIMName(), CIMName());

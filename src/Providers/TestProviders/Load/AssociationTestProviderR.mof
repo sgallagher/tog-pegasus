@@ -1,0 +1,140 @@
+#pragma locale ("en_US")
+
+instance of PG_ProviderModule
+{
+    Description = "The Pegasus Association Provider Module that implements Sample_InstanceProviderClass";
+    Caption = "Pegasus Association Test Provider Module";
+    Name = "AssociationTestProviderModule";
+    Vendor = "Pegasus";
+    Version = "2.0.0";
+    InterfaceType = "PG_DefaultC++";
+    InterfaceVersion = "2.0.0";
+    Location = "AssociationTestProvider";
+};
+
+instance of PG_Provider
+{
+    ProviderModuleName = "AssociationTestProviderModule";
+    Name = "AssociationTestProvider";
+};
+
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "AssociationTestProviderModule";
+    ProviderName = "AssociationTestProvider";
+    CapabilityID = "AssociationTestProviderClassA";
+    ClassName = "TST_ClassA";
+    Namespaces = { "root/teststatic" };
+    ProviderType = { 2 };
+    SupportedProperties = NULL;
+    SupportedMethods = NULL;
+};
+
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "AssociationTestProviderModule";
+    ProviderName = "AssociationTestProvider";
+    CapabilityID = "AssociationTestProviderClassB";
+    ClassName = "TST_ClassB";
+    Namespaces = { "root/teststatic" };
+    ProviderType = { 2 };
+    SupportedProperties = NULL;
+    SupportedMethods = NULL;
+};
+
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "AssociationTestProviderModule";
+    ProviderName = "AssociationTestProvider";
+    CapabilityID = "AssociationTestProviderClassC";
+    ClassName = "TST_ClassC";
+    Namespaces = { "root/teststatic" };
+    ProviderType = { 2 };
+    SupportedProperties = NULL;
+    SupportedMethods = NULL;
+};
+
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "AssociationTestProviderModule";
+    ProviderName = "AssociationTestProvider";
+    CapabilityID = "AssociationTestProviderClassD";
+    ClassName = "TST_ClassD";
+    Namespaces = { "root/teststatic" };
+    ProviderType = { 2 };
+    SupportedProperties = NULL;
+    SupportedMethods = NULL;
+};
+
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "AssociationTestProviderModule";
+    ProviderName = "AssociationTestProvider";
+    CapabilityID = "AssociationTestProviderAssoc1";
+    ClassName = "TST_Assoc1";
+    Namespaces = { "root/teststatic" };
+    ProviderType = { 3 };
+    SupportedProperties = NULL;
+    SupportedMethods = NULL;
+};
+
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "AssociationTestProviderModule";
+    ProviderName = "AssociationTestProvider";
+    CapabilityID = "AssociationTestProviderAssoc2";
+    ClassName = "TST_Assoc2";
+    Namespaces = { "root/teststatic" };
+    ProviderType = { 3 };
+    SupportedProperties = NULL;
+    SupportedMethods = NULL;
+};
+
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "AssociationTestProviderModule";
+    ProviderName = "AssociationTestProvider";
+    CapabilityID = "AssociationTestProviderAssoc3";
+    ClassName = "TST_Assoc3";
+    Namespaces = { "root/teststatic" };
+    ProviderType = { 3 };
+    SupportedProperties = NULL;
+    SupportedMethods = NULL;
+};
+
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "AssociationTestProviderModule";
+    ProviderName = "AssociationTestProvider";
+    CapabilityID = "AssociationTestProviderAssoc4";
+    ClassName = "TST_Assoc4";
+    Namespaces = { "root/teststatic" };
+    ProviderType = { 3 };
+    SupportedProperties = NULL;
+    SupportedMethods = NULL;
+};
+
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "AssociationTestProviderModule";
+    ProviderName = "AssociationTestProvider";
+    CapabilityID = "AssociationTestProviderAssoc5";
+    ClassName = "TST_Assoc5;
+    Namespaces = { "root/teststatic" };
+    ProviderType = { 3 };
+    SupportedProperties = NULL;
+    SupportedMethods = NULL;
+};
+
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "AssociationTestProviderModule";
+    ProviderName = "AssociationTestProvider";
+    CapabilityID = "AssociationTestProviderAssoc6";
+    ClassName = "TST_Assoc6;
+    Namespaces = { "root/teststatic" };
+    ProviderType = { 3 };
+    SupportedProperties = NULL;
+    SupportedMethods = NULL;
+};
+

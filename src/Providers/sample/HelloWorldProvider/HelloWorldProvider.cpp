@@ -197,11 +197,12 @@ void HelloWorldProvider::enumerateInstances(
 	// convert instances to references;
 	for(Uint32 i = 0; i < _instances.size(); i++)
 	{
-		CIMObjectPath tempRef = _instances[i].buildPath(cimclass);
+		// ATTN: The reference is not used at all.  Delete 20030311
+        //CIMObjectPath tempRef = _instances[i].buildPath(cimclass);
 
 		// ensure references are fully qualified
-		tempRef.setHost(ref.getHost());
-		tempRef.setNameSpace(ref.getNameSpace());
+		//tempRef.setHost(ref.getHost());
+		//tempRef.setNameSpace(ref.getNameSpace());
 
 		handler.deliver(_instances[i]);
 	}

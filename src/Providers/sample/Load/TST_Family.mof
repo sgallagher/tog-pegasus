@@ -114,24 +114,24 @@ instance of TST_Person { name = "Gabi"; };
 
 instance of TST_Lineage
 {
-    parent = "Person.name=\"Mike\"";
-    child = "Person.name=\"Sofi\"";
+    parent = "TST_Person.name=\"Mike\"";
+    child = "TST_Person.name=\"Sofi\"";
 };
 
 instance of TST_Lineage
 {
-    parent = "Person.name=\"Mike\"";
-    child = "Person.name=\"Gabi\"";
+    parent = "TST_Person.name=\"Mike\"";
+    child = "TST_Person.name=\"Gabi\"";
 };
 
 instance of TST_Lineage
 {
-    parent = "Person.name=\"Saara\"";
-    child = "Person.name=\"Sofi\"";
+    parent = "TST_Person.name=\"Saara\"";
+    child = "TST_Person.name=\"Sofi\"";
 };
 
 instance of TST_Lineage
 {
-    parent = "Person.name=\"Saara\"";
-    child = "Person.name=\"Gabi\"";
+    parent = "TST_Person.name=\"Saara\"";
+    child = "TST_Person.name=\"Gabi\"";
 };

@@ -2,3 +2,5 @@
 #pragma include ("MethodProviderR.mof")
 #pragma include ("IndicationProviderR.mof")
 #pragma include ("RT_IndicationR.mof")
+#pragma include ("AssociationProviderR.mof")
+

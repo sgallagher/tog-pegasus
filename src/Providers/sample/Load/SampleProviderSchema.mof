@@ -25,3 +25,13 @@ class Sample_IndicationProviderClass : CIM_Indication
 	[read]
 	datetime TimeStamp;
 };
+
+// A simple association that associates father and
+// child in the Sample_InstanceProviderClass
+
+[association] 
+class Sample_AssociationProviderClass
+{
+    [key] Sample_InstanceProviderClass ref parent;
+    [key] Sample_InstanceProviderClass ref child;
+};

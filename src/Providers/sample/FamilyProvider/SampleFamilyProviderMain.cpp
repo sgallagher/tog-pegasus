@@ -50,7 +50,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(const String & name)
 {
-    PEGASUS_STD(cout) << "KSTEST Create SampleFamilyProvider " << name << PEGASUS_STD(endl);
+    CDEBUG("Create SampleFamilyProvider " << name);
 	if(String::equalNoCase(name, "samplefamilyprovider") ||
 		String::equalNoCase(name, "samplefamilyprovider (PROVIDER)"))
 	{

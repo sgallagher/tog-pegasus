@@ -67,6 +67,9 @@ void CIMOperationRequestDecoder::sendResponse(
     Uint32 queueId, 
     Array<Sint8>& message)
 {
+    PEG_FUNC_ENTER(TRC_DISPATCHER,"CIMOperationRequestDecoder::"
+                                  "sendResponse()");
+
     MessageQueue* queue = MessageQueue::lookup(queueId);
 
     if (queue)
@@ -74,6 +77,9 @@ void CIMOperationRequestDecoder::sendResponse(
         HTTPMessage* httpMessage = new HTTPMessage(message);
         queue->enqueue(httpMessage);
     }
+
+    PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationRequestDecoder::"
+                                 "sendResponse()");
 }
 
 void CIMOperationRequestDecoder::sendError(
@@ -83,6 +89,9 @@ void CIMOperationRequestDecoder::sendError(
     CIMStatusCode code,
     const String& description) 
 {
+    PEG_FUNC_ENTER(TRC_DISPATCHER,"CIMOperationRequestDecoder::"
+                                  "sendError()");
+
     ArrayDestroyer<char> tmp1(cimMethodName.allocateCString());
     ArrayDestroyer<char> tmp2(description.allocateCString());
 
@@ -95,6 +104,9 @@ void CIMOperationRequestDecoder::sendError(
                     XmlWriter::formatErrorElement(code, tmp2.getPointer())))));
     
     sendResponse(queueId, message);
+
+    PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationRequestDecoder::"
+                                 "sendError()");
 }
 
 void CIMOperationRequestDecoder::handleEnqueue()
@@ -2043,6 +2055,9 @@ void CIMOperationRequestDecoder::sendMethodError(
     CIMStatusCode code,
     const String& description) 
 {
+    PEG_FUNC_ENTER(TRC_DISPATCHER,"CIMOperationRequestDecoder::"
+                                  "sendMethodError()");
+
     ArrayDestroyer<char> tmp1(cimMethodName.allocateCString());
     ArrayDestroyer<char> tmp2(description.allocateCString());
 
@@ -2055,6 +2070,9 @@ void CIMOperationRequestDecoder::sendMethodError(
                         XmlWriter::formatErrorElement(code, tmp2.getPointer())))));
     
     sendResponse(queueId, message);
+
+    PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationRequestDecoder::"
+                                 "sendMethodError()");
 }
 
 void CIMOperationRequestDecoder::setServerTerminating(Boolean flag)

@@ -28,6 +28,7 @@
 
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/IPC.h>
+#include <Pegasus/Common/Tracer.h>
 #include "MessageQueue.h"
 
 PEGASUS_USING_STD;
@@ -80,11 +81,16 @@ MessageQueue::MessageQueue(
     // Copy the name:
     //
 
+   PEG_FUNC_ENTER(TRC_DISPATCHER,"MessageQueue::MessageQueue()");
+
     if (!name)
 	name = "";
 
     _name = new char[strlen(name) + 1];
     strcpy(_name, name);
+
+    Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL3,
+        "MessageQueue::MessageQueue  name = %s, queueId = %i", name, queueId);
 
     //
     // Insert into queue table:
@@ -100,11 +106,19 @@ MessageQueue::MessageQueue(
     
     if(_async == true)
        _workThread.run();
+
+   PEG_FUNC_EXIT(TRC_DISPATCHER,"MessageQueue::MessageQueue()");
 }
 
 MessageQueue::~MessageQueue()
 {
     // ATTN-A: thread safety!
+
+    PEG_FUNC_ENTER(TRC_DISPATCHER,"MessageQueue::~MessageQueue()");
+
+    Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL3,
+        "MessageQueue::~MessageQueue queueId = %i, name = %s", _queueId, _name);
+
     q_table_mut.lock(pegasus_thread_self());
 
     _queueTable.remove(_queueId);
@@ -120,11 +134,16 @@ MessageQueue::~MessageQueue()
     // Free the name:
     
     delete [] _name;
+
+    PEG_FUNC_EXIT(TRC_DISPATCHER,"MessageQueue::~MessageQueue()");
 }
 
 
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueue::workThread(void * arg)
 {
+
+	PEG_FUNC_ENTER(TRC_DISPATCHER,"MessageQueue::workThread()");
+
 	// get thread from argument
 	Thread * thread = (Thread *)arg;
 
@@ -149,6 +168,10 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueue::workThread(void * arg)
 	   // ATTN: should check the thread cancel flag that is not yet exposed!
 	   if(MessageQueue::lookup(queue->_queueId) == 0)
 	   {
+             Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL3,
+                     "MessageQueue::workThread - ", 
+                     "Message queue, %i, for thread no longer exists",
+                     queue->_queueId);
 	      break;
 	   }
 	   
@@ -159,6 +182,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueue::workThread(void * arg)
 	   }
 	}
 
+	PEG_FUNC_EXIT(TRC_DISPATCHER,"MessageQueue::workThread()");
+
 	thread->exit_self(PEGASUS_THREAD_RETURN(0));
 	
 	return(0);
@@ -166,8 +191,13 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueue::workThread(void * arg)
 
 void MessageQueue::enqueue(Message* message) throw(IPCException)
 {
-    if (!message)
+
+    if (!message) 
+    {
+       Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL3,
+        "MessageQueue::enqueue failure");
        throw NullPointer();
+    }
 
     if (getenv("PEGASUS_TRACE"))
     {
@@ -203,6 +233,7 @@ void MessageQueue::enqueue(Message* message) throw(IPCException)
 
     if(_async == false )
        handleEnqueue();
+
 }
 
 
@@ -381,6 +412,7 @@ const char* MessageQueue::getQueueName() const
 
 MessageQueue* MessageQueue::lookup(Uint32 queueId) throw(IPCException)
 {
+
     MessageQueue* queue = 0;
     q_table_mut.lock(pegasus_thread_self());
 
@@ -394,12 +426,16 @@ MessageQueue* MessageQueue::lookup(Uint32 queueId) throw(IPCException)
 
     q_table_mut.unlock();
 
+    Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL3,
+        "MessageQueue::lookup failure queueId = %i", queueId);
+
     return 0;
 }
 
 
 MessageQueue* MessageQueue::lookup(const char *name) throw(IPCException)
 {
+
    if(name == NULL)
       throw NullPointer();
    q_table_mut.lock(pegasus_thread_self());
@@ -415,6 +451,9 @@ MessageQueue* MessageQueue::lookup(const char *name) throw(IPCException)
 
    }
    q_table_mut.unlock();
+
+   Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL3,
+        "MessageQueue::lookup failure - name = %s", name);
 
    return 0;
 }

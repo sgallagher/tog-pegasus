@@ -37,7 +37,7 @@
 # include <dll.h>
 #elif defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
 #  include <fcntl.h> 
-#  include <qycmutiltyUtility.H>
+#  include <qycmutilu2.H>
 #  include <unistd.cleinc>
 #  include "qycmmsgclsMessage.H" // ycmMessage class
 #  include "OS400SystemState.h"  // OS400LoadDynamicLibrary, etc

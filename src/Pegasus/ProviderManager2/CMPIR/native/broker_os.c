@@ -34,6 +34,7 @@
 #include "native.h"
 #include "debug.h"
 #include <stdlib.h>
+#include <Pegasus/Provider/CMPI/cmpipl.h>
 
 static char *resolveFileName (const char *filename)
 {

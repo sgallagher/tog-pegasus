@@ -32,7 +32,6 @@
 #ifndef _CMPIDT_H_
 #define _CMPIDT_H_
 
-#include "cmpipl.h"
 #include <stdio.h>
 
 #ifdef __cplusplus

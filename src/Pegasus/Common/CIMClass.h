@@ -63,9 +63,8 @@ public:
 
 	Use one of the other constructors to create an initiated new CIM class
 	object.
-	@exception Throws an exception "unitialized handle" if this
+	@exception "unitialized handle" if this
 	unitialized handle is used
-	/REF(HPEGASUS_HANDLES)
     */
     CIMClass();
 
@@ -76,11 +75,11 @@ public:
     PEGASUS_EXPLICIT CIMClass(const CIMObject& x)
         throw(DynamicCastFailed);
 
+    // ATTN define what makes up a legal CIM class name
     /**	Constructor - Creates a Class from inputs of a classname and
 	SuperClassName
 	@param className CIMObjectPath representing name of the class being created
 	@param superClassName String representing name of the SuperClass
-	ATTN: Define what makes up legal name.
 	@return Throws IllegalName if className argument illegal CIM identifier.
 	<pre>
 	    CIMClass NewCass("MyClass", "YourClass");
@@ -115,8 +114,8 @@ public:
     */
     Boolean isAbstract() const;
 
+    // ATTN: COMMENT. Why not just get name so we have common method for all.
     /** getClassName Gets the name of the class
-	ATTN: COMMENT. Why not just get name so we have common method for all.
 	@return Returns string with the class name.
     */
     const String& getClassName() const;
@@ -134,8 +133,9 @@ public:
     */
     const String& getSuperClassName() const;
 
+    // ATTN define what's a legal class name
     /**	setSuperClassName - Sets the name of the parent class from
-	the input parameter. \REF{CLASSNAME}. ATTN: Define legal classnames
+	the input parameter. \REF{CLASSNAME}.
 	@param String defining parent name.
 	@return Throws IllegalName if superClassName argument not legal CIM
 	identifier
@@ -205,7 +205,8 @@ public:
 
     /** getQualifierCount - Returns the number of qualifiers
 	in the class.
-	@return ATTN:
+	@return the number of qualifiers on the class definition (not
+	those on properties or methods)
     */
     Uint32 getQualifierCount() const;
 
@@ -229,12 +230,12 @@ public:
     */
     Boolean existsProperty(const String& name) const;
 
+    // ATTN: Should we not use something like handle for position???
+    // ATTN: what is error return?
     /** getProperty - Returns a property representing the property
 	defined by the input parameter
 	@param position for this property
-	ATTN: Should we not use something like handle for position???
 	@return CIMProperty object
-	ATTN: what is error return?
     */
     CIMProperty getProperty(Uint32 pos);
 
@@ -322,25 +323,25 @@ public:
     /** Makes a deep copy (clone) of the given object. */
     CIMClass clone() const;
 
+    // ATTN: Clarify exactly what identical means
     /** identical -  Compares with another class
-	ATTN: Clarify exactly what identical means
 	@param Class object for the class to be compared
 	@return True if the classes are identical
     */
     Boolean identical(const CIMConstClass& x) const;
 
 #ifdef PEGASUS_INTERNALONLY
+    // ATTN: explain why this here
     /** Resolve -  Resolve the class: inherit any properties and
 	qualifiers. Make sure the superClass really exists and is consistent
 	with this class. Also set the propagated flag class-origin for each
 	class feature.
-	ATTN: explain why this here
     */
     void resolve(
 	DeclContext* declContext,
 	const String& nameSpace);
 
-    /// isNull - ATTN:
+    // isNull - ATTN:
     Boolean isNull() const;
 #endif
 
@@ -363,8 +364,8 @@ private:
 #include <Pegasus/Common/ArrayInter.h>
 #undef PEGASUS_ARRAY_T
 
-/** CIMConstClass - ATTN: define this.
-
+// ATTN document this
+/** CIMConstClass
 */
 class PEGASUS_COMMON_LINKAGE CIMConstClass
 {

@@ -35,9 +35,35 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+/**
+Parent class for exceptions thrown by providers.
+
+<p>The <tt>OperationFailure</tt> class is an exception class,
+and the parent class from which exceptions that can be thrown
+by providers are derived. It may also be thrown directly by
+providers to signal a generic operation failure.</p>
+
+<p>Providers do not throw every possible exception that clients
+may received from the CIMOM. The exceptions which may be thrown
+by providers are a subset of the possible exceptions, and are
+described in their respective sections.</p>
+
+<p>All of the provider exceptions accept a <tt>message</tt>
+argument that allows the provider to send additional text
+in the string that will be returned to the client. While
+localization of text is not currently supported, it is
+recommended that text strings be structured in message
+catalogs to facilitate future localization.</p>
+*/
 class OperationFailure : public CIMException
 {
 public:
+    /**
+    Generic operation failure.
+    
+    <p>This exception will cause a <tt>CIM_ERR_FAILED</tt>
+    status code to be returned to the client.</p>
+    */
     OperationFailure(const String & message) : CIMException(CIM_ERR_FAILED, message)
     {
     }
@@ -48,6 +74,10 @@ protected:
     }
 };
 
+/**
+Cause a <tt>CIM_ERR_NOT_SUPPORTED</tt> status code to be
+returned to the client.
+*/
 class NotSupported : public OperationFailure
 {
 public:
@@ -56,6 +86,10 @@ public:
     }
 };
 
+/**
+Cause a <tt>CIM_ERR_ACCESS_DENIED</tt> status code to be
+returned to the client.
+*/
 class AccessDenied : public OperationFailure
 {
 public:
@@ -64,6 +98,10 @@ public:
     }
 };
 
+/**
+Cause a <tt>CIM_ERR_INVALID_PARAMETER</tt> status code to be
+returned to the client.
+*/
 class InvalidParameter : public OperationFailure
 {
 public:
@@ -72,6 +110,10 @@ public:
     }
 };
 
+/**
+Cause a <tt>CIM_ERR_INVALID_CLASS</tt> status code to be
+returned to the client.
+*/
 class InvalidClass : public OperationFailure
 {
 public:
@@ -80,6 +122,10 @@ public:
     }
 };
 
+/**
+Cause a <tt>CIM_ERR_INVALID_QUERY</tt> status code to be
+returned to the client.
+*/
 class InvalidQuery : public OperationFailure
 {
 public:
@@ -88,6 +134,10 @@ public:
     }
 };
 
+/**
+Cause a <tt>CIM_ERR_ALREADY_EXISTS</tt> status code to be
+returned to the client.
+*/
 class ObjectAlreadyExists : public OperationFailure
 {
 public:
@@ -96,6 +146,10 @@ public:
     }
 };
 
+/**
+Cause a <tt>CIM_ERR_NOT_FOUND</tt> status code to be
+returned to the client.
+*/
 class ObjectNotFound : public OperationFailure
 {
 public:
@@ -104,6 +158,10 @@ public:
     }
 };
 
+/**
+Cause a <tt>CIM_ERR_METHOD_NOT_FOUND</tt> status code to be
+returned to the client.
+*/
 class MethodNotFound : public OperationFailure
 {
 public:
@@ -112,6 +170,10 @@ public:
     }
 };
 
+/**
+Cause a <tt>CIM_ERR_NO_SUCH_PROPERTY</tt> status code to be
+returned to the client.
+*/
 class PropertyNotFound : public OperationFailure
 {
 public:

@@ -51,12 +51,12 @@ class CIMInstanceRep;
 class DeclContext;
 #endif
 
-/** CIMProperty Class - This C++ class implements the CIM Property 
-Object. It defines a single CIM Property and allows the manipulation of that 
-property. A CIM property is a value used to characterize an instance of a 
-class.
-ATTN : P3 KS 03/02/02Documentation This is a very poor definition for property class.
-ATTN: Define the property concept in more detail and ref property.
+// ATTN : P3 KS 03/02/02Documentation This is a very poor definition for property class.
+// ATTN: Define the property concept in more detail and ref property.
+
+/** CIMProperty Class - This C++ class implements a CIM Property 
+object. It defines a single CIM Property and allows the manipulation of that 
+property.
 */
 class PEGASUS_COMMON_LINKAGE CIMProperty
 {
@@ -77,7 +77,7 @@ public:
 		@param arraySize (optional) - Size of array if fixed array size.
 		@param referenceClassName (optional) String parameter that defines the 
         reference class name for the property. This parameter is required if
-		the property is type CIMObjectPath. /Ref{referenceClassName}
+		the property is type CIMObjectPath.
         @param classOrigin (optional) String parameter to define the class 
 		origin of the property /Ref{ClassOrigin} 
         @param propagated (optional) If true defines the property as 
@@ -109,12 +109,12 @@ public:
     */
     const String& getName() const;
 
-    /** setName - Set the property name. Throws IllegalName if name 
-        argument not legal CIM identifier.
-		@param - Name to set
-		@exception Throws "IllegalName" exception is name
-		ATTN: P3 please hide this. The only way a name should be
-		set is through a constructor.
+    // ATTN: P3 please hide this. The only way a name should be
+    // set is through a constructor.
+    /** setName - Set the property name.
+		@param Name to set
+		@exception IllegalName if name 
+        argument is not legal CIM identifier.
     */
     void setName(const String& name);
 
@@ -245,7 +245,7 @@ public:
     */
     Boolean isKey() const;
 
-    /// clone - ATTN: P3 Documentation
+    // clone - ATTN: P3 Documentation
     CIMProperty clone(Boolean propagateQualifiers) const;
 
 #ifdef PEGASUS_INTERNALONLY
@@ -257,12 +257,12 @@ public:
 	const CIMConstProperty& property,
 	Boolean propagateQualifiers);
 
-    /** resolve - Resolves the property. Resolution is the process of
+    //  ATTN: P3 03/02/02 KS Needs more documentation.
+    /* resolve - Resolves the property. Resolution is the process of
         intregating the property into the the context of a repository
         or other store.
         Note that this is an internal function and should not be made
         available to external users.
-        ATTN: P3 03/02/02 KS Needs more documentation.
         @param declContext Defines the context in which the property is
         to be resolved.  This provides the basis for other functions to
         get information from the context to use to resolve the property.
@@ -276,7 +276,7 @@ public:
 	Boolean isInstancePart,
 	Boolean propagateQualifiers);
 
-    /// ATTN: documentation
+    // ATTN: documentation
     Boolean isNull() const;
 #endif
 

@@ -37,6 +37,8 @@ PEGASUS_NAMESPACE_BEGIN
 
 /**
     The name class defines static methods for handling CIM names.
+    There is no public constructor, and no instances can be created.
+    <p>
     The names of classes, properties, qualifiers, and methods are all
     CIM names. A CIM name must match the following regular
     expression:
@@ -55,11 +57,12 @@ class PEGASUS_COMMON_LINKAGE CIMName
 {
 public:
 
+    //  ATTN: Define what is legal
     /** legal - Determine if the name string input is legal as
 	defnined in the CIMName class definition
-	ATTN: Define what is legal
 	@param - String to test
-	@return Returns true if the given name is legal. Throws
+	@return Returns true if the given name is legal.
+	@exception Throws
 	NullPointer exception if name argument is null.
     */
     static Boolean legal(const Char16* name) throw();

@@ -485,6 +485,8 @@ public:
     */
     void setKeyBindings(const Array<KeyBinding>& keyBindings);
 
+    //  ATTN: The form of the below string definition needs cleaning.
+
     /** Returns the object name represented by this reference. The returned
         string is formed from the hostname, namespace, classname
         and keybindings defined for this CIMObjectPath object.
@@ -496,7 +498,6 @@ public:
             </pre>
 
         The building includes the escaping of special characters.
-        ATTN: The form of the above string definition needs cleaning.
     */
     String toString(Boolean includeHost=true) const;
 

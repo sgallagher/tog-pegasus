@@ -116,7 +116,7 @@ public:
     /**	addQualifier - Adds the CIMQualifier object to the instance.
 	Thows an exception of the CIMQualifier already exists in the instance
 	@param CIMQualifier object to add to instance
-	@return ATTN:
+	@return the resulting object.
 	@exception Throws AlreadyExists.
     */
     CIMObject& addQualifier(const CIMQualifier& qualifier);
@@ -156,8 +156,6 @@ public:
 	@return: Returns qualifier object defined by index.
 	@exception Throws the OutOfBounds exception if the index
 	is out of bounds
-	ATTN: What is effect of out of range index???
-	ATTN: Is the above statement correct???
     */
     CIMConstQualifier getQualifier(Uint32 pos) const;
 
@@ -176,7 +174,7 @@ public:
 	parameter to the CIMObject
 	@param Property Object to be added.  See the CIM Property
 	class for definition of the property object
-	@return ATTN:
+	@return the resulting object.
 	@exception Throws the exception AlreadyExists if the property
 	already exists.
     */
@@ -208,8 +206,6 @@ public:
 	@return CIMProperty object corresponding to the index.
 	@exception Throws the OutOfBounds exception if the index
 	is out of bounds
-
-	ATTN: What is the effect of out of range?
     */
     CIMProperty getProperty(Uint32 pos);
 
@@ -222,8 +218,6 @@ public:
 	@return CIMProperty object corresponding to the index.
 	@exception Throws the OutOfBounds exception if the index
 	is out of bounds
-
-	ATTN: What is the effect of out of range?
     */
     CIMConstProperty getProperty(Uint32 pos) const;
 
@@ -255,7 +249,7 @@ public:
     Boolean identical(const CIMConstObject& x) const;
 
 #ifdef PEGASUS_INTERNALONLY
-    /**	isNull() - ATTN: */
+    /**	isNull() */
     Boolean isNull() const;
 #endif
 

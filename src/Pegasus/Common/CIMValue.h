@@ -62,12 +62,12 @@ public:
     */
     CIMValue(CIMType type, Boolean isArray, Uint32 arraySize = 0);
 
-    /** Constructor with the Value constructor and a value.  This constructs a
-        CIMValue object with the type defined by the value constructor and the value
+    // ATTN This needs an example
+    /** Constructor with the Value constructor and a value.
+        This constructs a
+        CIMValue object with the type defined by the value constructor
+        and the value
         installed
-        <pre>
-        ATTN: Add example
-        </pre> 
     */
     CIMValue(Boolean x);
 
@@ -176,9 +176,6 @@ public:
     void assign(const CIMValue& x);
 
     /** clear - Clears the attributes and value of the CIMValue object.
-    <pre>
-    ATTNDOC:
-    </pre>
     */
     void clear();
 
@@ -215,8 +212,7 @@ public:
     Uint32 getArraySize() const;
 
     /** getType - Gets the CIMType attribute for the CIMValue.
-        The CIMType is defined in ATTN:
-        @return Returns the CIMType value
+        @return the CIMType value
     */
     CIMType getType() const;
 
@@ -237,11 +233,11 @@ public:
     */
     void setNullValue(CIMType type, Boolean isArray, Uint32 arraySize = 0);
 
+    //  All of the CIMTypes defined in ATTN: and the Array types defined in
+    //  ATTN: may be set.
     /** set - Sets the type, Array attribute and puts the value provided
         into the value of the target CIMValue. This function sets the
         CIMValue to nonNull also. The result is a complete CIMValue object
-        All of the CIMTypes defined in ATTN: and the Array types defined in
-        ATTN: may be set.
         @param x Typed value (ex. Boolean(true).
         @return void
         <pre>

@@ -152,11 +152,12 @@ public:
     */
     Boolean isNull() const;
 
-    /** getString - Returns the string representing the DateTime value of the
-        CIMDateTime Object.
-        ATTN: P3 KS.  This simply returns a string whether the datetime is a
+    /*  ATTN: P3 KS.  This simply returns a string whether the datetime is a
         real value or the NULL value.  It is up to the user to test.  Should
         this be modified so we do something like an interupt on NULL?
+    */
+    /** getString - Returns the string representing the DateTime value of the
+        CIMDateTime Object.
     */
     const char* getString() const;
 
@@ -231,7 +232,8 @@ private:
     */
     static void formatDateTime(char* dateTime, tm* tm);
 
-    /** CIMDateTime - ATTN: Friend operator Test for CIMDateTime 
+    // ATTN
+    /** CIMDateTime - Friend operator Test for CIMDateTime 
 	equality
     */
     PEGASUS_COMMON_LINKAGE friend Boolean operator==(

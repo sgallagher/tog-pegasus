@@ -67,12 +67,13 @@ public:
 
     PEGASUS_EXPLICIT CIMInstance(const CIMObject& x) throw(DynamicCastFailed);
 
+    //  ATTN: Clarify the defintion of legal CIM identifier.
     /**	Constructor - Creates an Instance object with the classname
 	from the input parameters
 	@param - String className to be used with new instance object
 	@return The new instance object
 	@exception Throws IllegalName if className argument not legal CIM
-	identifier. ATTN: Clarify the defintion	of legal CIM identifier.
+	identifier.
     */
     CIMInstance(const String& className);
 
@@ -98,7 +99,7 @@ public:
     /**	addQualifier - Adds the CIMQualifier object to the instance.
 	Thows an exception of the CIMQualifier already exists in the instance
 	@param CIMQualifier object to add to instance
-	@return ATTN:
+	@return the resulting CIMInstance
 	@exception Throws AlreadyExists.
     */
     CIMInstance& addQualifier(const CIMQualifier& qualifier);
@@ -138,8 +139,6 @@ public:
 	@return: Returns qualifier object defined by index.
 	@exception Throws the OutOfBounds exception if the index
 	is out of bounds
-	ATTN: What is effect of out of range index???
-	ATTN: Is the above statement correct???
     */
     CIMConstQualifier getQualifier(Uint32 pos) const;
 
@@ -156,7 +155,7 @@ public:
 	parameter to the CIMInstance
 	@param Property Object to be added.  See the CIM Property
 	class for definition of the property object
-	@return ATTN:
+	@return the resulting CIMInstance.
 	@exception Throws the exception AlreadyExists if the property
 	already exists.
     */
@@ -188,8 +187,6 @@ public:
 	@return CIMProperty object corresponding to the index.
 	@exception Throws the OutOfBounds exception if the index
 	is out of bounds
-
-	ATTN: What is the effect of out of range?
     */
     CIMProperty getProperty(Uint32 pos) throw(OutOfBounds);
 
@@ -202,8 +199,6 @@ public:
 	@return CIMProperty object corresponding to the index.
 	@exception Throws the OutOfBounds exception if the index
 	is out of bounds
-
-	ATTN: What is the effect of out of range?
     */
     CIMConstProperty getProperty(Uint32 pos) const throw(OutOfBounds);
 
@@ -253,10 +248,10 @@ public:
     Boolean identical(const CIMConstInstance& x) const;
 
 #ifdef PEGASUS_INTERNALONLY
-    /**	isNull() - ATTN: */
+    /**	isNull() */
     Boolean isNull() const;
 
-    /**	resolve - ATTN: */
+    /**	resolve */
     void resolve(
 	DeclContext* declContext,
 	const String& nameSpace,

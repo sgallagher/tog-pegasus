@@ -91,7 +91,8 @@ public:
     /// Operator
     CIMQualifierDecl& operator=(const CIMQualifierDecl& x);
 
-    /** CIMMethod ATTN:
+    /**
+    Get the name of a CIMQualifierDecl object.
     */
     const String& getName() const;
 
@@ -103,16 +104,16 @@ public:
     */
     void setName(const String& name);
 
+    //  ATTN: P3 Documentation clean up
     /** getType - gets the Qualifier Declaration type which is the
         value type (boolean, etc. for this qualifier.
-        ATTN: P3 Documentation clean up
         @return Returns the type as CIMType
     */
     CIMType getType() const;
 
+    //  ATTN: P1 KS 04/17/02 Confirm this correspond to array type or fixed array?
     /** isArray - test if this qualifier declaration is an array type.
         @return Boolean true if this is array type.
-        ATTN: P1 KS 04/17/02 Confirm this correspond to array type or fixed array?
     */
     Boolean isArray() const;
 

@@ -37,6 +37,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+
 static const Uint32 CONTEXT_EMPTY =                     0;
 static const Uint32 CONTEXT_IDENTITY =                  1;
 static const Uint32 CONTEXT_AUTHENICATION =             2;
@@ -68,10 +69,14 @@ static const Uint32 OPERATION_COMPLETE =                0x00000200;
 class OperationContextRep;
 
 /**
-    This class represents a set of arbitrary information (stored in containers)
-    associated with a CIM operation request. As an example, each operation may
-    have an associated locale that can be represented as a container in the
-    context object.
+Context information from client.
+
+<p>The <tt>OperationContext</tt> class carries information about
+the context in which the client program issued the request.
+Currently, the identity of the user is the only supported
+information. Providers must use this to determine whether
+the requested operation should be permitted on behalf of
+the issuing user.</p>
 */
 class PEGASUS_COMMON_LINKAGE OperationContext
 {
@@ -79,9 +84,19 @@ public:
     class PEGASUS_COMMON_LINKAGE Container
     {
     public:
-        ///
+
+        /**
+        An element of client context information.
+        
+        <p>The <tt>Container</tt> object carries the information
+        that the provider may access. A key determines which
+        container is being references. Currently, only the
+        container carrying the user identity of the client
+        is available.</p>
+        */
         Container(const Uint32 key = CONTEXT_EMPTY);
 
+        ///
         virtual ~Container(void);
 
         ///

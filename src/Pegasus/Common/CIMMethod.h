@@ -42,12 +42,11 @@ class DeclContext;
 class CIMConstMethod;
 class CIMMethodRep;
 
+    // ATTN: remove the classOrigin and propagated parameters.
 /** Class CIMMethod - This class defines the operations associated with
     manipulation of the Pegasus implementation of the CIM CIMMethod. Within
     this class, methods are provides for creation, deletion, and manipulation
     of method declarations.
-
-    // ATTN: remove the classOrigin and propagated parameters.
 */
 class PEGASUS_COMMON_LINKAGE CIMMethod
 {
@@ -63,10 +62,10 @@ public:
 
     /**	Creates a CIM method with the specified name, type, and classOrigin
 	@param name for the method
-	@param type ATTN
+	@param type CIM data type of method to create
 	@param classOrigin
 	@param propagated
-	@return  Throws IllegalName if name argument not legal CIM identifier.
+	@return Throws IllegalName if name argument not legal CIM identifier.
     */
     CIMMethod(
 	const String& name,
@@ -182,9 +181,6 @@ public:
     */
     Uint32 findParameter(const String& name) const;
 
-    /** getParameter - ATTN: */
-    CIMParameter getParameter(Uint32 pos);
-
     /** getParameter - Gets the parameter defined by the index
 	input as a parameter.
 	@param index for the parameter to be returned.
@@ -192,6 +188,9 @@ public:
 	@Exception OutOfBounds exception is thrown if the index is outside the
 	range of available parameters
     */
+    CIMParameter getParameter(Uint32 pos);
+
+    /** getParameter - const form */
     CIMConstParameter getParameter(Uint32 pos) const;
 
     /** getParameterCount - Gets the count of the numbeer of

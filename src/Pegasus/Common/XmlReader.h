@@ -334,7 +334,7 @@ public:
 
     static Boolean getErrorElement(
 	XmlParser& parser, 
-	CIMException::Code& code,
+	CIMStatusCode& code,
 	const char*& description,
 	Boolean required = false);
 

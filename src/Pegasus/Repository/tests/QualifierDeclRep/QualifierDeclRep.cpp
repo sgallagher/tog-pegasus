@@ -65,7 +65,7 @@ void test()
     }
     catch (CIMException& e)
     {
-	assert(e.getCode() == CIMException::NOT_FOUND);
+	assert(e.getCode() == CIM_ERR_NOT_FOUND);
     }
 
     // Create two qualifiers:

@@ -52,7 +52,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 struct GetClassResult
 {
-    CIMException::Code code;
+    CIMStatusCode code;
     CIMClass cimClass;
 };
 
@@ -64,7 +64,7 @@ struct GetClassResult
 
 struct GetInstanceResult
 {
-    CIMException::Code code;
+    CIMStatusCode code;
     CIMInstance cimInstance;
 };
 
@@ -77,7 +77,7 @@ struct GetInstanceResult
 
 struct EnumerateClassNamesResult
 {
-    CIMException::Code code;
+    CIMStatusCode code;
     Array<String> classNames;
 };
 //STUB}
@@ -90,7 +90,7 @@ struct EnumerateClassNamesResult
 
 struct ReferencesResult
 {
-    CIMException::Code code;
+    CIMStatusCode code;
     Array<CIMObjectWithPath> objectWithPathArray;
 };
 
@@ -102,7 +102,7 @@ struct ReferencesResult
 
 struct ReferenceNamesResult
 {
-    CIMException::Code code;
+    CIMStatusCode code;
     Array<CIMReference> objectPaths;
 };
 
@@ -114,7 +114,7 @@ struct ReferenceNamesResult
 
 struct AssociatorNamesResult
 {
-    CIMException::Code code;
+    CIMStatusCode code;
     Array<CIMReference> objectPaths;
 };
 
@@ -126,7 +126,7 @@ struct AssociatorNamesResult
 
 struct AssociatorsResult
 {
-    CIMException::Code code;
+    CIMStatusCode code;
     Array<CIMObjectWithPath> objectWithPathArray;
 };
 
@@ -138,7 +138,7 @@ struct AssociatorsResult
 
 struct CreateInstanceResult
 {
-    CIMException::Code code;
+    CIMStatusCode code;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -149,7 +149,7 @@ struct CreateInstanceResult
 
 struct EnumerateInstanceNamesResult
 {
-    CIMException::Code code;
+    CIMStatusCode code;
     Array<CIMReference> instanceNames;
 };
 
@@ -161,7 +161,7 @@ struct EnumerateInstanceNamesResult
 
 struct DeleteQualifierResult
 {
-    CIMException::Code code;
+    CIMStatusCode code;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -172,7 +172,7 @@ struct DeleteQualifierResult
 
 struct GetQualifierResult
 {
-    CIMException::Code code;
+    CIMStatusCode code;
     CIMQualifierDecl qualifierDecl;
 };
 
@@ -184,7 +184,7 @@ struct GetQualifierResult
 
 struct SetQualifierResult
 {
-    CIMException::Code code;
+    CIMStatusCode code;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -195,7 +195,7 @@ struct SetQualifierResult
 
 struct EnumerateQualifiersResult
 {
-    CIMException::Code code;
+    CIMStatusCode code;
     Array<CIMQualifierDecl> qualifierDecls;
 };
 
@@ -207,7 +207,7 @@ struct EnumerateQualifiersResult
 
 struct EnumerateClassesResult
 {
-    CIMException::Code code;
+    CIMStatusCode code;
     Array<CIMClass> classDecls;
 };
 
@@ -219,7 +219,7 @@ struct EnumerateClassesResult
 
 struct CreateClassResult
 {
-    CIMException::Code code;
+    CIMStatusCode code;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -230,7 +230,7 @@ struct CreateClassResult
 
 struct ModifyClassResult
 {
-    CIMException::Code code;
+    CIMStatusCode code;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -241,7 +241,7 @@ struct ModifyClassResult
 
 struct DeleteClassResult
 {
-    CIMException::Code code;
+    CIMStatusCode code;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -252,7 +252,7 @@ struct DeleteClassResult
 // ATTN: The following is not correct or complete yet
 struct GetPropertyResult
 {
-    CIMException::Code code;
+    CIMStatusCode code;
     CIMValue cimValue;
 };
 
@@ -264,7 +264,7 @@ struct GetPropertyResult
 // ATTN: The following is not correct or complete yet.
 struct SetPropertyResult
 {
-    CIMException::Code code;
+    CIMStatusCode code;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -562,7 +562,7 @@ int ClientHandler::handleGetClassResponse(
     const String& messageId)
 {
     XmlEntry entry;
-    CIMException::Code code;
+    CIMStatusCode code;
     const char* description = 0;
 
     if (XmlReader::getErrorElement(parser, code, description))
@@ -582,7 +582,7 @@ int ClientHandler::handleGetClassResponse(
 	XmlReader::testEndTag(parser, "IRETURNVALUE");
 
 	_getClassResult = new GetClassResult;
-	_getClassResult->code = CIMException::SUCCESS;
+	_getClassResult->code = CIM_ERR_SUCCESS;
 	_getClassResult->cimClass = cimClass;
 	_blocked = false;
 	return 0;
@@ -609,7 +609,7 @@ int ClientHandler::handleGetInstanceResponse(
     const String& messageId)
 {
     XmlEntry entry;
-    CIMException::Code code;
+    CIMStatusCode code;
     const char* description = 0;
 
     if (XmlReader::getErrorElement(parser, code, description))
@@ -632,7 +632,7 @@ int ClientHandler::handleGetInstanceResponse(
 	XmlReader::testEndTag(parser, "IRETURNVALUE");
 
 	_getInstanceResult = new GetInstanceResult;
-	_getInstanceResult->code = CIMException::SUCCESS;
+	_getInstanceResult->code = CIM_ERR_SUCCESS;
 	_getInstanceResult->cimInstance = cimInstance;
 	_blocked = false;
 	return 0;
@@ -660,7 +660,7 @@ int ClientHandler::handleEnumerateClassNamesResponse(
     const String& messageId)
 {
     XmlEntry entry;
-    CIMException::Code code;
+    CIMStatusCode code;
     const char* description = 0;
 
     if (XmlReader::getErrorElement(parser, code, description))
@@ -681,7 +681,7 @@ int ClientHandler::handleEnumerateClassNamesResponse(
 	XmlReader::testEndTag(parser, "IRETURNVALUE");
 
 	_enumerateClassNamesResult = new EnumerateClassNamesResult;
-	_enumerateClassNamesResult->code = CIMException::SUCCESS;
+	_enumerateClassNamesResult->code = CIM_ERR_SUCCESS;
 	_enumerateClassNamesResult->classNames = classNames;
 	_blocked = false;
 	return 0;
@@ -710,7 +710,7 @@ int ClientHandler::handleReferencesResponse(
     const String& messageId)
 {
     XmlEntry entry;
-    CIMException::Code code = CIMException::SUCCESS;
+    CIMStatusCode code = CIM_ERR_SUCCESS;
     const char* description = 0;
 
     if (XmlReader::getErrorElement(parser, code, description))
@@ -758,7 +758,7 @@ int ClientHandler::handleReferenceNamesResponse(
     const String& messageId)
 {
     XmlEntry entry;
-    CIMException::Code code;
+    CIMStatusCode code;
     const char* description = 0;
 
     if (XmlReader::getErrorElement(parser, code, description))
@@ -779,7 +779,7 @@ int ClientHandler::handleReferenceNamesResponse(
 	XmlReader::testEndTag(parser, "IRETURNVALUE");
 
 	_referenceNamesResult = new ReferenceNamesResult;
-	_referenceNamesResult->code = CIMException::SUCCESS;
+	_referenceNamesResult->code = CIM_ERR_SUCCESS;
 	_referenceNamesResult->objectPaths = objectPaths;
 	_blocked = false;
 	return 0;
@@ -806,7 +806,7 @@ int ClientHandler::handleAssociatorNamesResponse(
     const String& messageId)
 {
     XmlEntry entry;
-    CIMException::Code code;
+    CIMStatusCode code;
     const char* description = 0;
 
     if (XmlReader::getErrorElement(parser, code, description))
@@ -827,7 +827,7 @@ int ClientHandler::handleAssociatorNamesResponse(
 	XmlReader::testEndTag(parser, "IRETURNVALUE");
 
 	_associatorNamesResult = new AssociatorNamesResult;
-	_associatorNamesResult->code = CIMException::SUCCESS;
+	_associatorNamesResult->code = CIM_ERR_SUCCESS;
 	_associatorNamesResult->objectPaths = objectPaths;
 	_blocked = false;
 	return 0;
@@ -855,7 +855,7 @@ int ClientHandler::handleAssociatorsResponse(
     const String& messageId)
 {
     XmlEntry entry;
-    CIMException::Code code = CIMException::SUCCESS;
+    CIMStatusCode code = CIM_ERR_SUCCESS;
     const char* description = 0;
 
     if (XmlReader::getErrorElement(parser, code, description))
@@ -903,7 +903,7 @@ int ClientHandler::handleCreateInstanceResponse(
     const String& messageId)
 {
     XmlEntry entry;
-    CIMException::Code code;
+    CIMStatusCode code;
     const char* description = 0;
 
     if (XmlReader::getErrorElement(parser, code, description))
@@ -918,7 +918,7 @@ int ClientHandler::handleCreateInstanceResponse(
 	XmlReader::testEndTag(parser, "IRETURNVALUE");
 
 	_createInstanceResult = new CreateInstanceResult;
-	_createInstanceResult->code = CIMException::SUCCESS;
+	_createInstanceResult->code = CIM_ERR_SUCCESS;
 	_blocked = false;
 	return 0;
     }
@@ -944,7 +944,7 @@ int ClientHandler::handleEnumerateInstanceNamesResponse(
     const String& messageId)
 {
     XmlEntry entry;
-    CIMException::Code code;
+    CIMStatusCode code;
     const char* description = 0;
 
     if (XmlReader::getErrorElement(parser, code, description))
@@ -974,7 +974,7 @@ int ClientHandler::handleEnumerateInstanceNamesResponse(
 	XmlReader::testEndTag(parser, "IRETURNVALUE");
 
 	_enumerateInstanceNamesResult = new EnumerateInstanceNamesResult;
-	_enumerateInstanceNamesResult->code = CIMException::SUCCESS;
+	_enumerateInstanceNamesResult->code = CIM_ERR_SUCCESS;
 	_enumerateInstanceNamesResult->instanceNames = instanceNames;
 	_blocked = false;
 	return 0;
@@ -1001,7 +1001,7 @@ int ClientHandler::handleDeleteQualifierResponse(
     const String& messageId)
 {
     XmlEntry entry;
-    CIMException::Code code;
+    CIMStatusCode code;
     const char* description = 0;
 
     if (XmlReader::getErrorElement(parser, code, description))
@@ -1016,7 +1016,7 @@ int ClientHandler::handleDeleteQualifierResponse(
 	XmlReader::testEndTag(parser, "IRETURNVALUE");
 
 	_deleteQualifierResult = new DeleteQualifierResult;
-	_deleteQualifierResult->code = CIMException::SUCCESS;
+	_deleteQualifierResult->code = CIM_ERR_SUCCESS;
 	_blocked = false;
 	return 0;
     }
@@ -1042,7 +1042,7 @@ int ClientHandler::handleGetQualifierResponse(
     const String& messageId)
 {
     XmlEntry entry;
-    CIMException::Code code;
+    CIMStatusCode code;
     const char* description = 0;
 
     if (XmlReader::getErrorElement(parser, code, description))
@@ -1060,7 +1060,7 @@ int ClientHandler::handleGetQualifierResponse(
 	XmlReader::testEndTag(parser, "IRETURNVALUE");
 
 	_getQualifierResult = new GetQualifierResult;
-	_getQualifierResult->code = CIMException::SUCCESS;
+	_getQualifierResult->code = CIM_ERR_SUCCESS;
 	_getQualifierResult->qualifierDecl = qualifierDecl;
 	_blocked = false;
 	return 0;
@@ -1087,7 +1087,7 @@ int ClientHandler::handleSetQualifierResponse(
     const String& messageId)
 {
     XmlEntry entry;
-    CIMException::Code code;
+    CIMStatusCode code;
     const char* description = 0;
 
     if (XmlReader::getErrorElement(parser, code, description))
@@ -1102,7 +1102,7 @@ int ClientHandler::handleSetQualifierResponse(
 	XmlReader::testEndTag(parser, "IRETURNVALUE");
 
 	_setQualifierResult = new SetQualifierResult;
-	_setQualifierResult->code = CIMException::SUCCESS;
+	_setQualifierResult->code = CIM_ERR_SUCCESS;
 	_blocked = false;
 	return 0;
     }
@@ -1128,7 +1128,7 @@ int ClientHandler::handleEnumerateQualifiersResponse(
     const String& messageId)
 {
     XmlEntry entry;
-    CIMException::Code code;
+    CIMStatusCode code;
     const char* description = 0;
 
     if (XmlReader::getErrorElement(parser, code, description))
@@ -1149,7 +1149,7 @@ int ClientHandler::handleEnumerateQualifiersResponse(
 	XmlReader::testEndTag(parser, "IRETURNVALUE");
 
 	_enumerateQualifiersResult = new EnumerateQualifiersResult;
-	_enumerateQualifiersResult->code = CIMException::SUCCESS;
+	_enumerateQualifiersResult->code = CIM_ERR_SUCCESS;
 	_enumerateQualifiersResult->qualifierDecls = qualifierDecls;
 	_blocked = false;
 	return 0;
@@ -1176,7 +1176,7 @@ int ClientHandler::handleEnumerateClassesResponse(
     const String& messageId)
 {
     XmlEntry entry;
-    CIMException::Code code;
+    CIMStatusCode code;
     const char* description = 0;
 
     if (XmlReader::getErrorElement(parser, code, description))
@@ -1197,7 +1197,7 @@ int ClientHandler::handleEnumerateClassesResponse(
 	XmlReader::testEndTag(parser, "IRETURNVALUE");
 
 	_enumerateClassesResult = new EnumerateClassesResult;
-	_enumerateClassesResult->code = CIMException::SUCCESS;
+	_enumerateClassesResult->code = CIM_ERR_SUCCESS;
 	_enumerateClassesResult->classDecls = classDecls;
 	_blocked = false;
 	return 0;
@@ -1224,7 +1224,7 @@ int ClientHandler::handleCreateClassResponse(
     const String& messageId)
 {
     XmlEntry entry;
-    CIMException::Code code;
+    CIMStatusCode code;
     const char* description = 0;
 
     if (XmlReader::getErrorElement(parser, code, description))
@@ -1239,7 +1239,7 @@ int ClientHandler::handleCreateClassResponse(
 	XmlReader::testEndTag(parser, "IRETURNVALUE");
 
 	_createClassResult = new CreateClassResult;
-	_createClassResult->code = CIMException::SUCCESS;
+	_createClassResult->code = CIM_ERR_SUCCESS;
 	_blocked = false;
 	return 0;
     }
@@ -1265,7 +1265,7 @@ int ClientHandler::handleModifyClassResponse(
     const String& messageId)
 {
     XmlEntry entry;
-    CIMException::Code code;
+    CIMStatusCode code;
     const char* description = 0;
 
     if (XmlReader::getErrorElement(parser, code, description))
@@ -1280,7 +1280,7 @@ int ClientHandler::handleModifyClassResponse(
 	XmlReader::testEndTag(parser, "IRETURNVALUE");
 
 	_modifyClassResult = new ModifyClassResult;
-	_modifyClassResult->code = CIMException::SUCCESS;
+	_modifyClassResult->code = CIM_ERR_SUCCESS;
 	_blocked = false;
 	return 0;
     }
@@ -1306,7 +1306,7 @@ int ClientHandler::handleDeleteClassResponse(
     const String& messageId)
 {
     XmlEntry entry;
-    CIMException::Code code;
+    CIMStatusCode code;
     const char* description = 0;
 
     if (XmlReader::getErrorElement(parser, code, description))
@@ -1321,7 +1321,7 @@ int ClientHandler::handleDeleteClassResponse(
 	XmlReader::testEndTag(parser, "IRETURNVALUE");
 
 	_deleteClassResult = new DeleteClassResult;
-	_deleteClassResult->code = CIMException::SUCCESS;
+	_deleteClassResult->code = CIM_ERR_SUCCESS;
 	_blocked = false;
 	return 0;
     }
@@ -1368,7 +1368,7 @@ int ClientHandler::handleGetPropertyResponse(
     const String& messageId)
 {
     XmlEntry entry;
-    CIMException::Code code;
+    CIMStatusCode code;
     const char* description = 0;
 
     cout << "DEBUG GetPropertyResponse "
@@ -1399,7 +1399,7 @@ int ClientHandler::handleGetPropertyResponse(
 	XmlReader::testEndTag(parser, "IRETURNVALUE");
 
 	_getPropertyResult = new GetPropertyResult;
-	_getPropertyResult->code = CIMException::SUCCESS;
+	_getPropertyResult->code = CIM_ERR_SUCCESS;
 	_blocked = false;
 	return 0;
     }
@@ -1425,7 +1425,7 @@ int ClientHandler::handleSetPropertyResponse(
     const String& messageId)
 {
     XmlEntry entry;
-    CIMException::Code code;
+    CIMStatusCode code;
     const char* description = 0;
 
     if (XmlReader::getErrorElement(parser, code, description))
@@ -1440,7 +1440,7 @@ int ClientHandler::handleSetPropertyResponse(
 	XmlReader::testEndTag(parser, "IRETURNVALUE");
 
 	_setPropertyResult = new SetPropertyResult;
-	_setPropertyResult->code = CIMException::SUCCESS;
+	_setPropertyResult->code = CIM_ERR_SUCCESS;
 	_blocked = false;
 	return 0;
     }
@@ -1635,11 +1635,11 @@ CIMClass CIMClient::getClass(
 
     GetClassResult* result = _getHandler()->_getClassResult;
     CIMClass cimClass = result->cimClass;
-    CIMException::Code code = result->code;
+    CIMStatusCode code = result->code;
     delete result;
     _getHandler()->_getClassResult = 0;
 
-    if (code != CIMException::SUCCESS)
+    if (code != CIM_ERR_SUCCESS)
 	throw CIMException(code);
 
     return cimClass;
@@ -1685,11 +1685,11 @@ CIMInstance CIMClient::getInstance(
 
     GetInstanceResult* result = _getHandler()->_getInstanceResult;
     CIMInstance cimInstance = result->cimInstance;
-    CIMException::Code code = result->code;
+    CIMStatusCode code = result->code;
     delete result;
     _getHandler()->_getInstanceResult = 0;
 
-    if (code != CIMException::SUCCESS)
+    if (code != CIM_ERR_SUCCESS)
 	throw CIMException(code);
 
     return cimInstance;
@@ -1716,11 +1716,11 @@ void CIMClient::deleteClass(
 	throw TimedOut();
 
     DeleteClassResult* result = _getHandler()->_deleteClassResult;
-    CIMException::Code code = result->code;
+    CIMStatusCode code = result->code;
     delete result;
     _getHandler()->_deleteClassResult = 0;
 
-    if (code != CIMException::SUCCESS)
+    if (code != CIM_ERR_SUCCESS)
 	throw CIMException(code);
 }
 
@@ -1728,7 +1728,7 @@ void CIMClient::deleteInstance(
     const String& nameSpace,
     const CIMReference& instanceName)
 {
-    throw CIMException(CIMException::NOT_SUPPORTED);
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 
@@ -1751,11 +1751,11 @@ void CIMClient::createClass(
 	throw TimedOut();
 
     CreateClassResult* result = _getHandler()->_createClassResult;
-    CIMException::Code code = result->code;
+    CIMStatusCode code = result->code;
     delete result;
     _getHandler()->_createClassResult = 0;
 
-    if (code != CIMException::SUCCESS)
+    if (code != CIM_ERR_SUCCESS)
 	throw CIMException(code);
 }
 
@@ -1780,11 +1780,11 @@ void CIMClient::createInstance(
 	throw TimedOut();
 
     CreateInstanceResult* result = _getHandler()->_createInstanceResult;
-    CIMException::Code code = result->code;
+    CIMStatusCode code = result->code;
     delete result;
     _getHandler()->_createInstanceResult = 0;
 
-    if (code != CIMException::SUCCESS)
+    if (code != CIM_ERR_SUCCESS)
 	throw CIMException(code);
 }
 
@@ -1807,11 +1807,11 @@ void CIMClient::modifyClass(
 	throw TimedOut();
 
     ModifyClassResult* result = _getHandler()->_modifyClassResult;
-    CIMException::Code code = result->code;
+    CIMStatusCode code = result->code;
     delete result;
     _getHandler()->_modifyClassResult = 0;
 
-    if (code != CIMException::SUCCESS)
+    if (code != CIM_ERR_SUCCESS)
 	throw CIMException(code);
 }
 
@@ -1820,7 +1820,7 @@ void CIMClient::modifyInstance(
     const String& nameSpace,
     const CIMInstance& modifiedInstance)
 {
-    throw CIMException(CIMException::NOT_SUPPORTED);
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 Array<CIMClass> CIMClient::enumerateClasses(
@@ -1863,11 +1863,11 @@ Array<CIMClass> CIMClient::enumerateClasses(
 
     EnumerateClassesResult* result = _getHandler()->_enumerateClassesResult;
     Array<CIMClass> classDecls = result->classDecls;
-    CIMException::Code code = result->code;
+    CIMStatusCode code = result->code;
     delete result;
     _getHandler()->_enumerateClassesResult = 0;
 
-    if (code != CIMException::SUCCESS)
+    if (code != CIM_ERR_SUCCESS)
 	throw CIMException(code);
 
     return classDecls;
@@ -1908,11 +1908,11 @@ Array<String> CIMClient::enumerateClassNames(
 	= _getHandler()->_enumerateClassNamesResult;
 
     Array<String> classNames = result->classNames;
-    CIMException::Code code = result->code;
+    CIMStatusCode code = result->code;
     delete result;
     _getHandler()->_enumerateClassNamesResult = 0;
 
-    if (code != CIMException::SUCCESS)
+    if (code != CIM_ERR_SUCCESS)
 	throw CIMException(code);
 
     return classNames;
@@ -1928,7 +1928,7 @@ Array<CIMInstance> CIMClient::enumerateInstances(
     Boolean includeClassOrigin,
     const Array<String>& propertyList)
 {
-    throw CIMException(CIMException::NOT_SUPPORTED);
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
     return Array<CIMInstance>();
 }
 
@@ -1954,11 +1954,11 @@ Array<CIMReference> CIMClient::enumerateInstanceNames(
     EnumerateInstanceNamesResult* result
 	= _getHandler()->_enumerateInstanceNamesResult;
     Array<CIMReference> instanceNames = result->instanceNames;
-    CIMException::Code code = result->code;
+    CIMStatusCode code = result->code;
     delete result;
     _getHandler()->_enumerateInstanceNamesResult = 0;
 
-    if (code != CIMException::SUCCESS)
+    if (code != CIM_ERR_SUCCESS)
 	throw CIMException(code);
 
     return instanceNames;
@@ -1968,7 +1968,7 @@ Array<CIMInstance> CIMClient::execQuery(
     const String& queryLanguage,
     const String& query)
 {
-    throw CIMException(CIMException::NOT_SUPPORTED);
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
     return Array<CIMInstance>();
 }
 
@@ -2029,11 +2029,11 @@ Array<CIMObjectWithPath> CIMClient::associators(
 
     AssociatorsResult* result = _getHandler()->_associatorsResult;
     Array<CIMObjectWithPath> objectWithPathArray = result->objectWithPathArray;
-    CIMException::Code code = result->code;
+    CIMStatusCode code = result->code;
     delete result;
     _getHandler()->_associatorsResult = 0;
 
-    if (code != CIMException::SUCCESS)
+    if (code != CIM_ERR_SUCCESS)
 	throw CIMException(code);
 
     return objectWithPathArray;
@@ -2077,11 +2077,11 @@ Array<CIMReference> CIMClient::associatorNames(
 
     AssociatorNamesResult* result = _getHandler()->_associatorNamesResult;
     Array<CIMReference> objectPaths = result->objectPaths;
-    CIMException::Code code = result->code;
+    CIMStatusCode code = result->code;
     delete result;
     _getHandler()->_associatorNamesResult = 0;
 
-    if (code != CIMException::SUCCESS)
+    if (code != CIM_ERR_SUCCESS)
 	throw CIMException(code);
 
     return objectPaths;
@@ -2133,11 +2133,11 @@ Array<CIMObjectWithPath> CIMClient::references(
 
     ReferencesResult* result = _getHandler()->_referencesResult;
     Array<CIMObjectWithPath> objectWithPathArray = result->objectWithPathArray;
-    CIMException::Code code = result->code;
+    CIMStatusCode code = result->code;
     delete result;
     _getHandler()->_referencesResult = 0;
 
-    if (code != CIMException::SUCCESS)
+    if (code != CIM_ERR_SUCCESS)
 	throw CIMException(code);
 
     return objectWithPathArray;
@@ -2172,11 +2172,11 @@ Array<CIMReference> CIMClient::referenceNames(
 
     ReferenceNamesResult* result = _getHandler()->_referenceNamesResult;
     Array<CIMReference> objectPaths = result->objectPaths;
-    CIMException::Code code = result->code;
+    CIMStatusCode code = result->code;
     delete result;
     _getHandler()->_referenceNamesResult = 0;
 
-    if (code != CIMException::SUCCESS)
+    if (code != CIM_ERR_SUCCESS)
 	throw CIMException(code);
 
     return objectPaths;
@@ -2211,7 +2211,7 @@ CIMValue CIMClient::getProperty(
     const CIMReference& instanceName,
     const String& propertyName)
 {
-    //throw CIMException(CIMException::NOT_SUPPORTED);
+    //throw CIMException(CIM_ERR_NOT_SUPPORTED);
     //return CIMValue();
     // taken from get instance
     String messageId = XmlWriter::getNextMessageId();
@@ -2240,11 +2240,11 @@ CIMValue CIMClient::getProperty(
     // Following changes to return value rather than instance
     GetPropertyResult* result = _getHandler()->_getPropertyResult;
     CIMValue cimValue = result->cimValue;
-    CIMException::Code code = result->code;
+    CIMStatusCode code = result->code;
     delete result;
     _getHandler()->_getPropertyResult = 0;
 
-    if (code != CIMException::SUCCESS)
+    if (code != CIM_ERR_SUCCESS)
 	throw CIMException(code);
 
     return cimValue;
@@ -2256,7 +2256,7 @@ void CIMClient::setProperty(
     const String& propertyName,
     const CIMValue& newValue)
 {
-    throw CIMException(CIMException::NOT_SUPPORTED);
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
 
 
     String messageId = XmlWriter::getNextMessageId();
@@ -2277,11 +2277,11 @@ void CIMClient::setProperty(
 	throw TimedOut();
 
     SetPropertyResult* result = _getHandler()->_setPropertyResult;
-    CIMException::Code code = result->code;
+    CIMStatusCode code = result->code;
     delete result;
     _getHandler()->_setPropertyResult = 0;
 
-    if (code != CIMException::SUCCESS)
+    if (code != CIM_ERR_SUCCESS)
 	throw CIMException(code);
 
 
@@ -2313,11 +2313,11 @@ CIMQualifierDecl CIMClient::getQualifier(
 
     GetQualifierResult* result = _getHandler()->_getQualifierResult;
     CIMQualifierDecl qualifierDecl = result->qualifierDecl;
-    CIMException::Code code = result->code;
+    CIMStatusCode code = result->code;
     delete result;
     _getHandler()->_getQualifierResult = 0;
 
-    if (code != CIMException::SUCCESS)
+    if (code != CIM_ERR_SUCCESS)
 	throw CIMException(code);
 
     return qualifierDecl;
@@ -2344,11 +2344,11 @@ void CIMClient::setQualifier(
 	throw TimedOut();
 
     SetQualifierResult* result = _getHandler()->_setQualifierResult;
-    CIMException::Code code = result->code;
+    CIMStatusCode code = result->code;
     delete result;
     _getHandler()->_setQualifierResult = 0;
 
-    if (code != CIMException::SUCCESS)
+    if (code != CIM_ERR_SUCCESS)
 	throw CIMException(code);
     }
 
@@ -2381,11 +2381,11 @@ void CIMClient::deleteQualifier(
 	throw TimedOut();
 
     DeleteQualifierResult* result = _getHandler()->_deleteQualifierResult;
-    CIMException::Code code = result->code;
+    CIMStatusCode code = result->code;
     delete result;
     _getHandler()->_deleteQualifierResult = 0;
 
-    if (code != CIMException::SUCCESS)
+    if (code != CIM_ERR_SUCCESS)
 	throw CIMException(code);
 }
 
@@ -2408,11 +2408,11 @@ Array<CIMQualifierDecl> CIMClient::enumerateQualifiers(
 	= _getHandler()->_enumerateQualifiersResult;
 
     Array<CIMQualifierDecl> qualifierDecls = result->qualifierDecls;
-    CIMException::Code code = result->code;
+    CIMStatusCode code = result->code;
     delete result;
     _getHandler()->_enumerateQualifiersResult = 0;
 
-    if (code != CIMException::SUCCESS)
+    if (code != CIM_ERR_SUCCESS)
 	throw CIMException(code);
 
     return qualifierDecls;
@@ -2425,7 +2425,7 @@ CIMValue CIMClient::invokeMethod(
     const Array<CIMValue>& inParameters,
     Array<CIMValue>& outParameters)
 {
-    throw CIMException(CIMException::NOT_SUPPORTED);
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
     return CIMValue();
 }
 

@@ -62,14 +62,14 @@ public:
 
     /** Creates the given namespace.
 	@param nameSpaceName name of namespace to be created.
-	@exception CIMException(CIMException::ALREADY_EXISTS)
+	@exception CIMException(CIM_ERR_ALREADY_EXISTS)
 	@exception CannotCreateDirectory
     */
     void createNameSpace(const String& nameSpaceName);
 
     /** Deletes the given namespace.
 	@param nameSpaceName name of namespace to be deleted.
-	@exception CIMException(CIMException::INVALID_NAMESPACE)
+	@exception CIMException(CIM_ERR_INVALID_NAMESPACE)
 	@exception NonEmptyNameSpace
 	@exception FailedToRemoveDirectory
     */
@@ -83,8 +83,8 @@ public:
     /** Get path to the class file for the given class. 
 	@param nameSpaceName name of the namespace.
 	@param className name of class.
-	@exception CIMException(CIMException::INVALID_NAMESPACE)
-	@exception CIMException(CIMException::INVALID_CLASS)
+	@exception CIMException(CIM_ERR_INVALID_NAMESPACE)
+	@exception CIMException(CIM_ERR_INVALID_CLASS)
     */
     String getClassFilePath(
 	const String& nameSpaceName,
@@ -93,8 +93,8 @@ public:
     /** Get path to the qualifier file for the given class. 
 	@param nameSpaceName name of the namespace.
 	@param qualifierName name of qualifier.
-	@exception CIMException(CIMException::INVALID_NAMESPACE)
-	@exception CIMException(CIMException::NOT_FOUND)
+	@exception CIMException(CIM_ERR_INVALID_NAMESPACE)
+	@exception CIMException(CIM_ERR_NOT_FOUND)
     */
     String getQualifierFilePath(
 	const String& nameSpaceName,
@@ -112,9 +112,9 @@ public:
     /** Deletes the class file for the given class.
 	@param nameSpaceName name of namespace.
 	@param className name of class.
-	@exception CIMException(CIMException::INVALID_NAMESPACE)
-	@exception CIMException(CIMException::INVALID_CLASS)
-	@exception CIMException(CIMException::CLASS_HAS_CHILDREN)
+	@exception CIMException(CIM_ERR_INVALID_NAMESPACE)
+	@exception CIMException(CIM_ERR_INVALID_CLASS)
+	@exception CIMException(CIM_ERR_CLASS_HAS_CHILDREN)
     */
     void deleteClass(
 	const String& nameSpaceName,
@@ -140,10 +140,10 @@ public:
 	@param className name of class being modified.
 	@param superClassName superclass of class being modified.
 	@param classFilePath full path to file containing class.
-	@exception CIMException(CIMException::INVALID_CLASS)
-	@exception CIMException(CIMException::FAILED) if there is an attempt
+	@exception CIMException(CIM_ERR_INVALID_CLASS)
+	@exception CIMException(CIM_ERR_FAILED) if there is an attempt
 	    to change the superclass of this class.
-	@exception CIMException(CIMException::CLASS_HAS_CHILDREN) if class
+	@exception CIMException(CIM_ERR_CLASS_HAS_CHILDREN) if class
 	    has any children.
     */
     void checkModify(
@@ -159,7 +159,7 @@ public:
 	@param deepInheritance - if true all descendent classes of class
 	    are returned. If className is empty, only root classes are returned.
 	@param subClassNames - output argument to hold subclass names.
-	@exception CIMException(CIMException::INVALID_CLASS)
+	@exception CIMException(CIM_ERR_INVALID_CLASS)
     */
     void getSubClassNames(
 	const String& nameSpaceName,

@@ -45,7 +45,7 @@ class RepositoryDeclContext;
     for manipulating classes and instances. The others throw this exception:
 
     <pre>
-	CIMException(CIMException::NOT_SUPPORTED)
+	CIMException(CIM_ERR_NOT_SUPPORTED)
     </pre>
 */
 

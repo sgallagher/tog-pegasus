@@ -85,7 +85,7 @@ void test02()
     }
     catch (CIMException& e)
     {
-	PEGASUS_ASSERT(e.getCode() == CIMException::ALREADY_EXISTS);
+	PEGASUS_ASSERT(e.getCode() == CIM_ERR_ALREADY_EXISTS);
 	// Ignore this!
     }
 

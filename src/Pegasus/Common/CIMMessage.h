@@ -34,6 +34,7 @@
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/CIMQualifierDecl.h>
+#include <Pegasus/Common/CIMObject.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -41,7 +42,6 @@ enum CIMMessageType
 {
     CIM_MESSAGE = 1000,
     CIM_REQUEST_MESSAGE,
-    CIM_RESPONSE_MESSAGE,
     CIM_GET_CLASS_REQUEST_MESSAGE,
     CIM_GET_INSTANCE_REQUEST_MESSAGE,
     CIM_DELETE_CLASS_REQUEST_MESSAGE,
@@ -53,7 +53,7 @@ enum CIMMessageType
     CIM_ENUMERATE_CLASSES_REQUEST_MESSAGE,
     CIM_ENUMERATE_CLASS_NAMES_REQUEST_MESSAGE,
     CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE,
-    CIM_ENUMERATE_INSTANCES_NAMES_REQUEST_MESSAGE,
+    CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE,
     CIM_EXEC_QUERY_REQUEST_MESSAGE,
     CIM_ASSOCIATORS_REQUEST_MESSAGE,
     CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE,
@@ -65,7 +65,32 @@ enum CIMMessageType
     CIM_SET_QUALIFIER_REQUEST_MESSAGE,
     CIM_DELETE_QUALIFIER_REQUEST_MESSAGE,
     CIM_ENUMERATE_QUALIFIERS_REQUEST_MESSAGE,
-    CIM_INVOKE_METHOD_REQUEST_MESSAGE
+    CIM_INVOKE_METHOD_REQUEST_MESSAGE,
+    CIM_RESPONSE_MESSAGE,
+    CIM_GET_CLASS_RESPONSE_MESSAGE,
+    CIM_GET_INSTANCE_RESPONSE_MESSAGE,
+    CIM_DELETE_CLASS_RESPONSE_MESSAGE,
+    CIM_DELETE_INSTANCE_RESPONSE_MESSAGE,
+    CIM_CREATE_CLASS_RESPONSE_MESSAGE,
+    CIM_CREATE_INSTANCE_RESPONSE_MESSAGE,
+    CIM_MODIFY_CLASS_RESPONSE_MESSAGE,
+    CIM_MODIFY_INSTANCE_RESPONSE_MESSAGE,
+    CIM_ENUMERATE_CLASSES_RESPONSE_MESSAGE,
+    CIM_ENUMERATE_CLASS_NAMES_RESPONSE_MESSAGE,
+    CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE,
+    CIM_ENUMERATE_INSTANCE_NAMES_RESPONSE_MESSAGE,
+    CIM_EXEC_QUERY_RESPONSE_MESSAGE,
+    CIM_ASSOCIATORS_RESPONSE_MESSAGE,
+    CIM_ASSOCIATOR_NAMES_RESPONSE_MESSAGE,
+    CIM_REFERENCES_RESPONSE_MESSAGE,
+    CIM_REFERENCE_NAMES_RESPONSE_MESSAGE,
+    CIM_GET_PROPERTY_RESPONSE_MESSAGE,
+    CIM_SET_PROPERTY_RESPONSE_MESSAGE,
+    CIM_GET_QUALIFIER_RESPONSE_MESSAGE,
+    CIM_SET_QUALIFIER_RESPONSE_MESSAGE,
+    CIM_DELETE_QUALIFIER_RESPONSE_MESSAGE,
+    CIM_ENUMERATE_QUALIFIERS_RESPONSE_MESSAGE,
+    CIM_INVOKE_METHOD_RESPONSE_MESSAGE
 };
 
 class CIMMessage : public Message
@@ -83,7 +108,10 @@ public:
 class CIMResponseMessage : public CIMMessage
 {
 public:
-    CIMResponseMessage(Uint32 type) : CIMMessage(type) { }
+    CIMResponseMessage(Uint32 type, CIMStatusCode code_) 
+	: CIMMessage(type), code(code_) { }
+
+    CIMStatusCode code;
 };
 
 class CIMGetClassRequestMessage : public CIMRequestMessage
@@ -615,7 +643,9 @@ class CIMEnumerateQualifiersRequestMessage : public CIMRequestMessage
 {
 public:
 
-    CIMEnumerateQualifiersRequestMessage(const String& nameSpace_) :
+    CIMEnumerateQualifiersRequestMessage(
+	const String& nameSpace_) 
+	:
 	CIMRequestMessage(CIM_ENUMERATE_QUALIFIERS_REQUEST_MESSAGE),
 	nameSpace(nameSpace_)
     {
@@ -650,10 +680,347 @@ public:
     Array<CIMValue> inParameters;
 };
 
-/*
-    virtual CIMValue invokeMethod(
+class CIMGetClassResponseMessage : public CIMResponseMessage
+{
+public:
 
-*/
+    CIMGetClassResponseMessage(
+	CIMStatusCode code_,
+	const CIMClass& cimClass_)
+	:
+	CIMResponseMessage(CIM_GET_CLASS_RESPONSE_MESSAGE, code_),
+	cimClass(cimClass_)
+    {
+    }
+
+    CIMClass cimClass;
+};
+
+class CIMGetInstanceResponseMessage : public CIMResponseMessage
+{
+public:
+
+    CIMGetInstanceResponseMessage(
+	CIMStatusCode code_,
+	const CIMInstance& cimInstance_)
+	:
+	CIMResponseMessage(CIM_GET_INSTANCE_RESPONSE_MESSAGE, code_),
+	cimInstance(cimInstance_)
+    {
+    }
+
+    CIMInstance cimInstance;
+};
+
+class CIMDeleteClassResponseMessage : public CIMResponseMessage
+{
+public:
+
+    CIMDeleteClassResponseMessage(CIMStatusCode code_)
+	: 
+	CIMResponseMessage(CIM_DELETE_CLASS_RESPONSE_MESSAGE, code_)
+    {
+    }
+};
+
+class CIMDeleteInstanceResponseMessage : public CIMResponseMessage
+{
+public:
+
+    CIMDeleteInstanceResponseMessage(CIMStatusCode code_)
+	: 
+	CIMResponseMessage(CIM_DELETE_INSTANCE_RESPONSE_MESSAGE, code_)
+    {
+    }
+};
+
+class CIMCreateClassResponseMessage : public CIMResponseMessage
+{
+public:
+
+    CIMCreateClassResponseMessage(CIMStatusCode code_)
+	: 
+	CIMResponseMessage(CIM_CREATE_CLASS_RESPONSE_MESSAGE, code_)
+    {
+    }
+};
+
+class CIMCreateInstanceResponseMessage : public CIMResponseMessage
+{
+public:
+
+    CIMCreateInstanceResponseMessage(CIMStatusCode code_)
+	: 
+	CIMResponseMessage(CIM_CREATE_INSTANCE_RESPONSE_MESSAGE, code_)
+    {
+    }
+};
+
+class CIMModifyClassResponseMessage : public CIMResponseMessage
+{
+public:
+
+    CIMModifyClassResponseMessage(CIMStatusCode code_)
+	: 
+	CIMResponseMessage(CIM_MODIFY_CLASS_RESPONSE_MESSAGE, code_)
+    {
+    }
+};
+
+class CIMModifyInstanceResponseMessage : public CIMResponseMessage
+{
+public:
+
+    CIMModifyInstanceResponseMessage(CIMStatusCode code_)
+	: 
+	CIMResponseMessage(CIM_MODIFY_INSTANCE_RESPONSE_MESSAGE, code_)
+    {
+    }
+};
+
+class CIMEnumerateClassesResponseMessage : public CIMResponseMessage
+{
+public:
+
+    CIMEnumerateClassesResponseMessage(
+        CIMStatusCode code_,
+        const Array<CIMClass>& cimClasses_)
+        :
+        CIMResponseMessage(CIM_ENUMERATE_CLASSES_RESPONSE_MESSAGE, code_),
+	cimClasses(cimClasses_)
+    {
+    }
+
+    Array<CIMClass> cimClasses;
+};
+
+class CIMEnumerateClassNameResponseMessage : public CIMResponseMessage
+{
+public:
+
+    CIMEnumerateClassNameResponseMessage(
+        CIMStatusCode code_,
+        const Array<String>& classNames_)
+        :
+        CIMResponseMessage(CIM_ENUMERATE_CLASS_NAMES_RESPONSE_MESSAGE, code_),
+	classNames(classNames_)
+    {
+    }
+
+    Array<String> classNames;
+};
+
+class CIMEnumerateInstancesResponseMessage : public CIMResponseMessage
+{
+public:
+
+    CIMEnumerateInstancesResponseMessage(
+        CIMStatusCode code_,
+        const Array<CIMInstance>& cimInstances_)
+        :
+        CIMResponseMessage(CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE, code_),
+	cimInstances(cimInstances_)
+    {
+    }
+
+    Array<CIMInstance> cimInstances;
+};
+
+class CIMEnumerateInstanceNameResponseMessage : public CIMResponseMessage
+{
+public:
+
+    CIMEnumerateInstanceNameResponseMessage(
+        CIMStatusCode code_,
+        const Array<CIMReference>& instanceNames_)
+        :
+        CIMResponseMessage(CIM_ENUMERATE_INSTANCE_NAMES_RESPONSE_MESSAGE,code_),
+	instanceNames(instanceNames_)
+    {
+    }
+
+    Array<CIMReference> instanceNames;
+};
+
+class CIMExecQueryResponseMessage : public CIMResponseMessage
+{
+public:
+
+    CIMExecQueryResponseMessage(
+        CIMStatusCode code_,
+        const Array<CIMInstance>& cimInstances_)
+        :
+        CIMResponseMessage(CIM_EXEC_QUERY_RESPONSE_MESSAGE, code_),
+        cimInstances(cimInstances_)
+    {
+    }
+
+    Array<CIMInstance> cimInstances;
+};
+
+class CIMAssociatorsResponseMessage : public CIMResponseMessage
+{
+public:
+
+    CIMAssociatorsResponseMessage(
+        CIMStatusCode code_,
+        const Array<CIMObjectWithPath>& cimObjects_)
+        :
+        CIMResponseMessage(CIM_ASSOCIATORS_RESPONSE_MESSAGE, code_),
+        cimObjects(cimObjects_)
+    {
+    }
+
+    Array<CIMObjectWithPath> cimObjects;
+};
+
+class CIMAssociatorNamesResponseMessage : public CIMResponseMessage
+{
+public:
+
+    CIMAssociatorNamesResponseMessage(
+        CIMStatusCode code_,
+        const Array<CIMReference>& objectNames_)
+        :
+        CIMResponseMessage(CIM_ASSOCIATOR_NAMES_RESPONSE_MESSAGE, code_),
+        objectNames(objectNames_)
+    {
+    }
+
+    Array<CIMReference> objectNames;
+};
+
+class CIMReferencesResponseMessage : public CIMResponseMessage
+{
+public:
+
+    CIMReferencesResponseMessage(
+        CIMStatusCode code_,
+        const Array<CIMObjectWithPath>& cimObjects_)
+        :
+        CIMResponseMessage(CIM_REFERENCES_RESPONSE_MESSAGE, code_),
+        cimObjects(cimObjects_)
+    {
+    }
+
+    Array<CIMObjectWithPath> cimObjects;
+};
+
+class CIMReferenceNamesResponseMessage : public CIMResponseMessage
+{
+public:
+
+    CIMReferenceNamesResponseMessage(
+        CIMStatusCode code_,
+        const Array<CIMReference>& objectNames_)
+        :
+        CIMResponseMessage(CIM_REFERENCE_NAMES_RESPONSE_MESSAGE, code_),
+        objectNames(objectNames_)
+    {
+    }
+
+    Array<CIMReference> objectNames;
+};
+
+class CIMGetPropertyResponseMessage : public CIMResponseMessage
+{
+public:
+
+    CIMGetPropertyResponseMessage(
+        CIMStatusCode code_,
+        const CIMValue& value_)
+        :
+        CIMResponseMessage(CIM_GET_PROPERTY_RESPONSE_MESSAGE, code_),
+        value(value_)
+    {
+    }
+
+    CIMValue value;
+};
+
+class CIMSetPropertyResponseMessage : public CIMResponseMessage
+{
+public:
+
+    CIMSetPropertyResponseMessage(CIMStatusCode code_)
+        : 
+	CIMResponseMessage(CIM_SET_PROPERTY_RESPONSE_MESSAGE, code_)
+    {
+    }
+};
+
+class CIMGetQualifierResponseMessage : public CIMResponseMessage
+{
+public:
+
+    CIMGetQualifierResponseMessage(
+        CIMStatusCode code_,
+        const CIMQualifierDecl& cimQualifierDecl_)
+        :
+        CIMResponseMessage(CIM_GET_QUALIFIER_RESPONSE_MESSAGE, code_),
+        cimQualifierDecl(cimQualifierDecl_)
+    {
+    }
+
+    CIMQualifierDecl cimQualifierDecl;
+};
+
+class CIMSetQualifierResponseMessage : public CIMResponseMessage
+{
+public:
+
+    CIMSetQualifierResponseMessage(CIMStatusCode code_)
+        : 
+	CIMResponseMessage(CIM_SET_QUALIFIER_RESPONSE_MESSAGE, code_)
+    {
+    }
+};
+
+class CIMDeleteQualifierResponseMessage : public CIMResponseMessage
+{
+public:
+
+    CIMDeleteQualifierResponseMessage(CIMStatusCode code_)
+        : 
+	CIMResponseMessage(CIM_DELETE_QUALIFIER_RESPONSE_MESSAGE, code_)
+    {
+    }
+};
+
+class CIMEnumerateQualifiersResponseMessage : public CIMResponseMessage
+{
+public:
+
+    CIMEnumerateQualifiersResponseMessage(
+        CIMStatusCode code_,
+        const Array<CIMQualifierDecl>& cimQualifierDecls_)
+        :
+        CIMResponseMessage(CIM_ENUMERATE_QUALIFIERS_RESPONSE_MESSAGE, code_),
+        cimQualifierDecls(cimQualifierDecls_)
+    {
+    }
+
+    Array<CIMQualifierDecl> cimQualifierDecls;
+};
+
+class CIMInvokeMethodResponseMessage : public CIMResponseMessage
+{
+public:
+
+    CIMInvokeMethodResponseMessage(
+        CIMStatusCode code_,
+	CIMValue& value_,
+        const Array<CIMValue>& outParameters_)
+        :
+        CIMResponseMessage(CIM_INVOKE_METHOD_RESPONSE_MESSAGE, code_),
+	value(value_),
+        outParameters(outParameters_)
+    {
+    }
+
+    CIMValue value;
+    Array<CIMValue> outParameters;
+};
 
 PEGASUS_NAMESPACE_END
 

@@ -399,7 +399,7 @@ Array<Sint8>& XmlWriter::formatIParamValueElement(
 //------------------------------------------------------------------------------
 
 Array<Sint8> XmlWriter::formatErrorElement(
-    CIMException::Code code,
+    CIMStatusCode code,
     const char* description)
 {
     Array<Sint8> out;

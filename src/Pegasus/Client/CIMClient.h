@@ -163,7 +163,7 @@ public:
 	const String& nameSpace,
 	const String& className);
 
-    ///
+    /// ATTN-A: this should return Array<CIMObject>
     virtual Array<CIMInstance> execQuery(
 	const String& queryLanguage,
 	const String& query) ;

@@ -156,7 +156,7 @@ void Dispatcher::modifyInstance(
     const String& nameSpace,
     const CIMInstance& modifiedInstance)
 {
-    throw CIMException(CIMException::NOT_SUPPORTED);
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 Array<CIMClass> Dispatcher::enumerateClasses(
@@ -236,7 +236,7 @@ Array<CIMInstance> Dispatcher::execQuery(
     const String& queryLanguage,
     const String& query)
 {
-    throw CIMException(CIMException::NOT_SUPPORTED);
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
     return Array<CIMInstance>();
 }
 
@@ -384,7 +384,7 @@ CIMProvider* Dispatcher::_lookupProviderForClass(
     DDD(cout << dptchr << "Lookup Provider for " << className << endl;)
 
     if (!cimClass)
-	throw CIMException(CIMException::INVALID_CLASS);
+	throw CIMException(CIM_ERR_INVALID_CLASS);
 
     // cimClass.print();
 
@@ -418,7 +418,7 @@ CIMProvider* Dispatcher::_lookupProviderForClass(
 	provider = _providerTable.loadProvider(providerId);
 
 	if (!provider)
-	    throw CIMException(CIMException::FAILED);
+	    throw CIMException(CIM_ERR_FAILED);
 
 	provider->initialize(*_repository);
     }

@@ -142,7 +142,7 @@ const String NameSpace::getClassFilePath(const String& className) const
     String superClassName;
 
     if (!_inheritanceTree.getSuperClass(className, superClassName))
-	throw PEGASUS_CIM_EXCEPTION(INVALID_CLASS, className);
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_CLASS, className);
 
     return _MakeClassFilePath(_nameSpacePath, className, superClassName);
 }
@@ -310,7 +310,7 @@ void NameSpaceManager::createNameSpace(const String& nameSpaceName)
     // Throw exception if namespace already exists:
 
     if (nameSpaceExists(nameSpaceName))
-	throw PEGASUS_CIM_EXCEPTION(ALREADY_EXISTS, nameSpaceName);
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ALREADY_EXISTS, nameSpaceName);
 
     // Attempt to create all the namespace diretories:
 
@@ -344,7 +344,7 @@ void NameSpaceManager::deleteNameSpace(const String& nameSpaceName)
     NameSpace* nameSpace = 0;
 
     if (!_rep->table.lookup(nameSpaceName, nameSpace))
-	throw PEGASUS_CIM_EXCEPTION(INVALID_NAMESPACE, nameSpaceName);
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_NAMESPACE, nameSpaceName);
 
     // Form namespace path:
 
@@ -382,7 +382,7 @@ String NameSpaceManager::getClassFilePath(
     NameSpace* nameSpace = 0;
 
     if (!_rep->table.lookup(nameSpaceName, nameSpace))
-	throw PEGASUS_CIM_EXCEPTION(INVALID_NAMESPACE, nameSpaceName);
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_NAMESPACE, nameSpaceName);
 
     return nameSpace->getClassFilePath(className);
 }
@@ -394,7 +394,7 @@ String NameSpaceManager::getInstanceFileBase(
     NameSpace* nameSpace = 0;
 
     if (!_rep->table.lookup(nameSpaceName, nameSpace))
-	throw PEGASUS_CIM_EXCEPTION(INVALID_NAMESPACE, nameSpaceName);
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_NAMESPACE, nameSpaceName);
 
     return nameSpace->getInstanceFileBase(className);
 }
@@ -406,7 +406,7 @@ String NameSpaceManager::getQualifierFilePath(
     NameSpace* nameSpace = 0;
 
     if (!_rep->table.lookup(nameSpaceName, nameSpace))
-	throw PEGASUS_CIM_EXCEPTION(INVALID_NAMESPACE, nameSpaceName);
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_NAMESPACE, nameSpaceName);
 
     return nameSpace->getQualifierFilePath(qualifierName);
 }
@@ -420,7 +420,7 @@ void NameSpaceManager::deleteClass(
     NameSpace* nameSpace = 0;
 
     if (!_rep->table.lookup(nameSpaceName, nameSpace))
-	throw PEGASUS_CIM_EXCEPTION(INVALID_NAMESPACE, nameSpaceName);
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_NAMESPACE, nameSpaceName);
 
     // -- Get path to class file:
 
@@ -458,19 +458,19 @@ void NameSpaceManager::createClass(
     NameSpace* nameSpace = 0;
 
     if (!_rep->table.lookup(nameSpaceName, nameSpace))
-	throw PEGASUS_CIM_EXCEPTION(INVALID_NAMESPACE, nameSpaceName);
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_NAMESPACE, nameSpaceName);
 
     InheritanceTree& it = nameSpace->getInheritanceTree();
 
     // -- Be certain class doesn't already exist:
 
     if (it.containsClass(className))
-	throw PEGASUS_CIM_EXCEPTION(ALREADY_EXISTS, className);
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ALREADY_EXISTS, className);
 
     // -- Be certain superclass exists:
 
     if (superClassName.size() && !it.containsClass(superClassName))
-	throw PEGASUS_CIM_EXCEPTION(INVALID_SUPERCLASS, superClassName);
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_SUPERCLASS, superClassName);
 
     // -- Insert the entry:
 
@@ -493,7 +493,7 @@ void NameSpaceManager::checkModify(
     NameSpace* nameSpace = 0;
 
     if (!_rep->table.lookup(nameSpaceName, nameSpace))
-	throw PEGASUS_CIM_EXCEPTION(INVALID_NAMESPACE, nameSpaceName);
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_NAMESPACE, nameSpaceName);
 
     InheritanceTree& it = nameSpace->getInheritanceTree();
 
@@ -502,10 +502,10 @@ void NameSpaceManager::checkModify(
     String oldSuperClassName;
 
     if (!it.getSuperClass(className, oldSuperClassName))
-	throw PEGASUS_CIM_EXCEPTION(INVALID_CLASS, className);
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_CLASS, className);
 
     if (superClassName != oldSuperClassName)
-	throw PEGASUS_CIM_EXCEPTION(FAILED, "attempt to change superclass");
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "attempt to change superclass");
 
     // -- Disallow modification of class with subclasses:
 
@@ -513,7 +513,7 @@ void NameSpaceManager::checkModify(
     it.hasSubClasses(className, hasSubClasses);
 
     if (hasSubClasses)
-	throw PEGASUS_CIM_EXCEPTION(CLASS_HAS_CHILDREN, className);
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_CLASS_HAS_CHILDREN, className);
 
     // -- Build the path to the class:
 
@@ -532,12 +532,12 @@ void NameSpaceManager::getSubClassNames(
     NameSpace* nameSpace = 0;
 
     if (!_rep->table.lookup(nameSpaceName, nameSpace))
-	throw PEGASUS_CIM_EXCEPTION(INVALID_NAMESPACE, nameSpaceName);
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_NAMESPACE, nameSpaceName);
 
     InheritanceTree& it = nameSpace->getInheritanceTree();
 
     if (!it.getSubClassNames(className, deepInheritance, subClassNames))
-	throw PEGASUS_CIM_EXCEPTION(INVALID_CLASS, className);
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_CLASS, className);
 }
 
 void NameSpaceManager::getSuperClassNames(
@@ -550,14 +550,14 @@ void NameSpaceManager::getSuperClassNames(
     NameSpace* nameSpace = 0;
 
     if (!_rep->table.lookup(nameSpaceName, nameSpace))
-	throw PEGASUS_CIM_EXCEPTION(INVALID_NAMESPACE, nameSpaceName);
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_NAMESPACE, nameSpaceName);
 
     InheritanceTree& it = nameSpace->getInheritanceTree();
 
     // -- Get names of all superclasses:
 
     if (!it.getSuperClassNames(className, subClassNames))
-	throw PEGASUS_CIM_EXCEPTION(INVALID_CLASS, className);
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_CLASS, className);
 }
 
 String NameSpaceManager::getQualifiersRoot(const String& nameSpaceName) const
@@ -567,7 +567,7 @@ String NameSpaceManager::getQualifiersRoot(const String& nameSpaceName) const
     NameSpace* nameSpace = 0;
 
     if (!_rep->table.lookup(nameSpaceName, nameSpace))
-	throw PEGASUS_CIM_EXCEPTION(INVALID_NAMESPACE, nameSpaceName);
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_NAMESPACE, nameSpaceName);
 
     return Cat(nameSpace->getNameSpacePath(), _QUALIFIERS_SUFFIX);
 }

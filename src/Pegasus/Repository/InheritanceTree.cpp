@@ -388,12 +388,12 @@ void InheritanceTree::remove(const String& className)
     InheritanceTreeNode* node = 0;	
 
     if (!_rep->table.lookup(className, node))
-	throw PEGASUS_CIM_EXCEPTION(INVALID_CLASS, className);
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_CLASS, className);
 
     // -- Disallow if is has any subclasses:
 
     if (node->subClasses)
-	throw PEGASUS_CIM_EXCEPTION(CLASS_HAS_CHILDREN, className);
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_CLASS_HAS_CHILDREN, className);
 
     // -- Remove as child of superclass:
 

@@ -130,13 +130,13 @@ cimmofParser::setRepository(void) {
       // same try block. 
       // MEB - you should look at this to be certain I commented out the right piece!! 
       // catch(CIMException& e) {
-    // 	  if (e.getCode() != CIMException::ALREADY_EXISTS)
+    // 	  if (e.getCode() != CIM_ERR_ALREADY_EXISTS)
     // 	      throw e;
     // 	// OK, that's what we expect
     //       } 
 
       catch(CIMException &e) {
-	if (e.getCode() == CIMException::ALREADY_EXISTS) {
+	if (e.getCode() == CIM_ERR_ALREADY_EXISTS) {
 	  // Not a problem.  Happens all the time.
 	} else {
     		throw e;
@@ -447,7 +447,7 @@ cimmofParser::addClass(CIMClass *classdecl)
 			       arglist);
     wlog(message);
   } catch (CIMException &e) {
-    if (e.getCode() == CIMException::ALREADY_EXISTS) {
+    if (e.getCode() == CIM_ERR_ALREADY_EXISTS) {
       cimmofMessages::getMessage(message, cimmofMessages::CLASS_EXISTS_WARNING,
 				 arglist);
       wlog(message);
@@ -522,7 +522,7 @@ cimmofParser::addInstance(CIMInstance *instance)
     _repository->addInstance(instance);
   } catch (CIMException &e) {
     arglist.append(e.getMessage());
-    if (e.getCode() == CIMException::ALREADY_EXISTS) {
+    if (e.getCode() == CIM_ERR_ALREADY_EXISTS) {
       // FIXME:  We should be able to modify the instance through the compiler
       cimmofMessages::getMessage(message,
 			       cimmofMessages::INSTANCE_EXISTS_WARNING,
@@ -600,7 +600,7 @@ cimmofParser::addQualifier(CIMQualifierDecl *qualifier)
     ret = _repository->addQualifier(qualifier);
   } catch(Exception e) {
     // FIXME:  at the time of writing, the Common code does not throw
-    // an ALREADY_EXISTS CIMException.  It might at any time.
+    // an CIM_ERR_ALREADY_EXISTS CIMException.  It might at any time.
     cimmofMessages::arglist arglist;
     arglist.append(qualifier->getName());
     arglist.append(e.getMessage());
@@ -749,7 +749,7 @@ cimmofParser::applyProperty(CIMInstance &i, CIMProperty &p)
       // yet.
     }
   } catch (CIMException &e) {
-    if (e.getCode() == CIMException::ALREADY_EXISTS) {
+    if (e.getCode() == CIM_ERR_ALREADY_EXISTS) {
       cimmofMessages::getMessage(message,
 			      cimmofMessages::INSTANCE_PROPERTY_EXISTS_WARNING,
 				arglist);

@@ -105,7 +105,7 @@ public:
     void sendError(
 	const String& messageId,
 	const char* methodName,
-	CIMException::Code code,
+	CIMStatusCode code,
 	const char* description);
 
     void handleGetClass(
@@ -540,11 +540,11 @@ int ServerHandler::handleMethodCall()
 	handleSetProperty(parser, messageId, nameSpace);
     else
     {
-	String msg = CIMException::codeToString(CIMException::FAILED);
+	String msg = CIMStatusCodeToString(CIM_ERR_FAILED);
 	msg += ": unknown intrinsic method: ";
 	msg += iMethodCallName;
 	char* tmp = msg.allocateCString();
-	sendError(messageId, iMethodCallName, CIMException::FAILED, tmp);
+	sendError(messageId, iMethodCallName, CIM_ERR_FAILED, tmp);
 	delete [] tmp;
 
 	cerr << msg << endl;
@@ -572,7 +572,7 @@ int ServerHandler::handleMethodCall()
 void ServerHandler::sendError(
     const String& messageId,
     const char* methodName,
-    CIMException::Code code,
+    CIMStatusCode code,
     const char* description) 
 {
     Array<Sint8> message = XmlWriter::formatMethodResponseHeader(
@@ -642,13 +642,13 @@ void ServerHandler::handleGetClass(
     catch (CIMException& e)
     {
 	sendError(
-	    messageId, "GetClass", e.getCode(), e.codeToString(e.getCode()));
+	    messageId, "GetClass", e.getCode(), CIMStatusCodeToString(e.getCode()));
 	return;
     }
     catch (Exception&)
     {
-	sendError(messageId, "GetClass", CIMException::FAILED, 
-	    CIMException::codeToString(CIMException::FAILED));
+	sendError(messageId, "GetClass", CIM_ERR_FAILED, 
+	    CIMStatusCodeToString(CIM_ERR_FAILED));
 	return;
     }
 
@@ -710,13 +710,13 @@ void ServerHandler::handleGetInstance(
     catch (CIMException& e)
     {
 	sendError(
-	    messageId, "GetInstance", e.getCode(), e.codeToString(e.getCode()));
+	    messageId, "GetInstance", e.getCode(), CIMStatusCodeToString(e.getCode()));
 	return;
     }
     catch (Exception&)
     {
-	sendError(messageId, "GetInstance", CIMException::FAILED, 
-	    CIMException::codeToString(CIMException::FAILED));
+	sendError(messageId, "GetInstance", CIM_ERR_FAILED, 
+	    CIMStatusCodeToString(CIM_ERR_FAILED));
 	return;
     }
 
@@ -773,13 +773,13 @@ void ServerHandler::handleEnumerateClassNames(
     catch (CIMException& e)
     {
 	sendError(messageId, "EnumerateClassNames", 
-	    e.getCode(), e.codeToString(e.getCode()));
+	    e.getCode(), CIMStatusCodeToString(e.getCode()));
 	return;
     }
     catch (Exception&)
     {
-	sendError(messageId, "EnumerateClassNames", CIMException::FAILED, 
-	    CIMException::codeToString(CIMException::FAILED));
+	sendError(messageId, "EnumerateClassNames", CIM_ERR_FAILED, 
+	    CIMStatusCodeToString(CIM_ERR_FAILED));
 	return;
     }
 
@@ -859,13 +859,13 @@ void ServerHandler::handleReferences(
     catch (CIMException& e)
     {
 	sendError(messageId, "References", 
-	    e.getCode(), e.codeToString(e.getCode()));
+	    e.getCode(), CIMStatusCodeToString(e.getCode()));
 	return;
     }
     catch (Exception&)
     {
-	sendError(messageId, "References", CIMException::FAILED, 
-	    CIMException::codeToString(CIMException::FAILED));
+	sendError(messageId, "References", CIM_ERR_FAILED, 
+	    CIMStatusCodeToString(CIM_ERR_FAILED));
 	return;
     }
 
@@ -915,15 +915,15 @@ void ServerHandler::handleCreateInstance(
     catch (CIMException& e)
     {
 	sendError(messageId, "CreateInstance", 
-	    e.getCode(), e.codeToString(e.getCode()));
+	    e.getCode(), CIMStatusCodeToString(e.getCode()));
 	return;
     }
     catch (Exception& e)
     {
 	char* tmp = e.getMessage().allocateCString();
 
-	sendError(messageId, "CreateInstance", CIMException::FAILED, tmp);
-	    // CIMException::codeToString(CIMException::FAILED));
+	sendError(messageId, "CreateInstance", CIM_ERR_FAILED, tmp);
+	    // CIMStatusCodeToString(CIM_ERR_FAILED));
 
 	delete [] tmp;
 	return;
@@ -976,13 +976,13 @@ void ServerHandler::handleEnumerateInstanceNames(
     catch (CIMException& e)
     {
 	sendError(messageId, "EnumerateInstanceNames", 
-	    e.getCode(), e.codeToString(e.getCode()));
+	    e.getCode(), CIMStatusCodeToString(e.getCode()));
 	return;
     }
     catch (Exception&)
     {
-	sendError(messageId, "EnumerateInstanceNames", CIMException::FAILED, 
-	    CIMException::codeToString(CIMException::FAILED));
+	sendError(messageId, "EnumerateInstanceNames", CIM_ERR_FAILED, 
+	    CIMStatusCodeToString(CIM_ERR_FAILED));
 	return;
     }
 
@@ -1025,13 +1025,13 @@ void ServerHandler::handleDeleteQualifier(
     catch (CIMException& e)
     {
 	sendError(messageId, "DeleteQualifier", 
-	    e.getCode(), e.codeToString(e.getCode()));
+	    e.getCode(), CIMStatusCodeToString(e.getCode()));
 	return;
     }
     catch (Exception&)
     {
-	sendError(messageId, "DeleteQualifier", CIMException::FAILED, 
-	    CIMException::codeToString(CIMException::FAILED));
+	sendError(messageId, "DeleteQualifier", CIM_ERR_FAILED, 
+	    CIMStatusCodeToString(CIM_ERR_FAILED));
 	return;
     }
 
@@ -1074,13 +1074,13 @@ void ServerHandler::handleGetQualifier(
     catch (CIMException& e)
     {
 	sendError(messageId, "GetQualifier", 
-	    e.getCode(), e.codeToString(e.getCode()));
+	    e.getCode(), CIMStatusCodeToString(e.getCode()));
 	return;
     }
     catch (Exception&)
     {
-	sendError(messageId, "GetQualifier", CIMException::FAILED, 
-	    CIMException::codeToString(CIMException::FAILED));
+	sendError(messageId, "GetQualifier", CIM_ERR_FAILED, 
+	    CIMStatusCodeToString(CIM_ERR_FAILED));
 	return;
     }
 
@@ -1123,13 +1123,13 @@ void ServerHandler::handleSetQualifier(
     catch (CIMException& e)
     {
 	sendError(messageId, "SetQualifier", 
-	    e.getCode(), e.codeToString(e.getCode()));
+	    e.getCode(), CIMStatusCodeToString(e.getCode()));
 	return;
     }
     catch (Exception&)
     {
-	sendError(messageId, "SetQualifier", CIMException::FAILED, 
-	    CIMException::codeToString(CIMException::FAILED));
+	sendError(messageId, "SetQualifier", CIM_ERR_FAILED, 
+	    CIMStatusCodeToString(CIM_ERR_FAILED));
 	return;
     }
 
@@ -1164,13 +1164,13 @@ void ServerHandler::handleEnumerateQualifiers(
     catch (CIMException& e)
     {
 	sendError(messageId, "EnumerateQualifiers", 
-	    e.getCode(), e.codeToString(e.getCode()));
+	    e.getCode(), CIMStatusCodeToString(e.getCode()));
 	return;
     }
     catch (Exception&)
     {
-	sendError(messageId, "EnumerateQualifiers", CIMException::FAILED, 
-	    CIMException::codeToString(CIMException::FAILED));
+	sendError(messageId, "EnumerateQualifiers", CIM_ERR_FAILED, 
+	    CIMStatusCodeToString(CIM_ERR_FAILED));
 	return;
     }
 
@@ -1240,13 +1240,13 @@ void ServerHandler::handleEnumerateClasses(
     catch (CIMException& e)
     {
 	sendError(messageId, "EnumerateClasses", 
-	    e.getCode(), e.codeToString(e.getCode()));
+	    e.getCode(), CIMStatusCodeToString(e.getCode()));
 	return;
     }
     catch (Exception&)
     {
-	sendError(messageId, "EnumerateClasses", CIMException::FAILED, 
-	    CIMException::codeToString(CIMException::FAILED));
+	sendError(messageId, "EnumerateClasses", CIM_ERR_FAILED, 
+	    CIMStatusCodeToString(CIM_ERR_FAILED));
 	return;
     }
 
@@ -1318,13 +1318,13 @@ void ServerHandler::handleEnumerateInstances(
     catch (CIMException& e)
     {
 	sendError(messageId, "EnumerateInstances", 
-	    e.getCode(), e.codeToString(e.getCode()));
+	    e.getCode(), CIMStatusCodeToString(e.getCode()));
 	return;
     }
     catch (Exception&)
     {
-	sendError(messageId, "EnumerateInstances", CIMException::FAILED, 
-	    CIMException::codeToString(CIMException::FAILED));
+	sendError(messageId, "EnumerateInstances", CIM_ERR_FAILED, 
+	    CIMStatusCodeToString(CIM_ERR_FAILED));
 	return;
     }
 
@@ -1375,13 +1375,13 @@ void ServerHandler::handleCreateClass(
     catch (CIMException& e)
     {
 	sendError(messageId, "CreateClass", 
-	    e.getCode(), e.codeToString(e.getCode()));
+	    e.getCode(), CIMStatusCodeToString(e.getCode()));
 	return;
     }
     catch (Exception&)
     {
-	sendError(messageId, "CreateClass", CIMException::FAILED, 
-	    CIMException::codeToString(CIMException::FAILED));
+	sendError(messageId, "CreateClass", CIM_ERR_FAILED, 
+	    CIMStatusCodeToString(CIM_ERR_FAILED));
 	return;
     }
 
@@ -1428,13 +1428,13 @@ void ServerHandler::handleModifyClass(
     catch (CIMException& e)
     {
 	sendError(messageId, "ModifyClass", 
-	    e.getCode(), e.codeToString(e.getCode()));
+	    e.getCode(), CIMStatusCodeToString(e.getCode()));
 	return;
     }
     catch (Exception&)
     {
-	sendError(messageId, "ModifyClass", CIMException::FAILED, 
-	    CIMException::codeToString(CIMException::FAILED));
+	sendError(messageId, "ModifyClass", CIM_ERR_FAILED, 
+	    CIMStatusCodeToString(CIM_ERR_FAILED));
 	return;
     }
 
@@ -1481,13 +1481,13 @@ void ServerHandler::handleDeleteClass(
     catch (CIMException& e)
     {
 	sendError(messageId, "DeleteClass", 
-	    e.getCode(), e.codeToString(e.getCode()));
+	    e.getCode(), CIMStatusCodeToString(e.getCode()));
 	return;
     }
     catch (Exception&)
     {
-	sendError(messageId, "DeleteClass", CIMException::FAILED, 
-	    CIMException::codeToString(CIMException::FAILED));
+	sendError(messageId, "DeleteClass", CIM_ERR_FAILED, 
+	    CIMStatusCodeToString(CIM_ERR_FAILED));
 	return;
     }
 
@@ -1556,13 +1556,13 @@ void ServerHandler::handleGetProperty(
     catch (CIMException& e)
     {
 	sendError(messageId, "GetProperty", 
-	    e.getCode(), e.codeToString(e.getCode()));
+	    e.getCode(), CIMStatusCodeToString(e.getCode()));
 	return;
     }
     catch (Exception&)
     {
-	sendError(messageId, "GetProperty", CIMException::FAILED, 
-	    CIMException::codeToString(CIMException::FAILED));
+	sendError(messageId, "GetProperty", CIM_ERR_FAILED, 
+	    CIMStatusCodeToString(CIM_ERR_FAILED));
 	return;
     }
 
@@ -1645,13 +1645,13 @@ void ServerHandler::handleSetProperty(
     catch (CIMException& e)
     {
 	sendError(messageId, "EnumerateClassNames", 
-	    e.getCode(), e.codeToString(e.getCode()));
+	    e.getCode(), CIMStatusCodeToString(e.getCode()));
 	return;
     }
     catch (Exception&)
     {
-	sendError(messageId, "EnumerateClassNames", CIMException::FAILED, 
-	    CIMException::codeToString(CIMException::FAILED));
+	sendError(messageId, "EnumerateClassNames", CIM_ERR_FAILED, 
+	    CIMStatusCodeToString(CIM_ERR_FAILED));
 	return;
     }
 
@@ -1742,13 +1742,13 @@ void ServerHandler::handleAssociators(
     catch (CIMException& e)
     {
 	sendError(messageId, "Associators", 
-	    e.getCode(), e.codeToString(e.getCode()));
+	    e.getCode(), CIMStatusCodeToString(e.getCode()));
 	return;
     }
     catch (Exception&)
     {
-	sendError(messageId, "Associators", CIMException::FAILED, 
-	    CIMException::codeToString(CIMException::FAILED));
+	sendError(messageId, "Associators", CIM_ERR_FAILED, 
+	    CIMStatusCodeToString(CIM_ERR_FAILED));
 	return;
     }
 
@@ -1823,13 +1823,13 @@ void ServerHandler::handleAssociatorNames(
     catch (CIMException& e)
     {
 	sendError(messageId, "AssociatorNames", 
-	    e.getCode(), e.codeToString(e.getCode()));
+	    e.getCode(), CIMStatusCodeToString(e.getCode()));
 	return;
     }
     catch (Exception&)
     {
-	sendError(messageId, "AssociatorNames", CIMException::FAILED, 
-	    CIMException::codeToString(CIMException::FAILED));
+	sendError(messageId, "AssociatorNames", CIM_ERR_FAILED, 
+	    CIMStatusCodeToString(CIM_ERR_FAILED));
 	return;
     }
 
@@ -1898,13 +1898,13 @@ void ServerHandler::handleReferenceNames(
     catch (CIMException& e)
     {
 	sendError(messageId, "ReferenceNames", 
-	    e.getCode(), e.codeToString(e.getCode()));
+	    e.getCode(), CIMStatusCodeToString(e.getCode()));
 	return;
     }
     catch (Exception&)
     {
-	sendError(messageId, "ReferenceNames", CIMException::FAILED, 
-	    CIMException::codeToString(CIMException::FAILED));
+	sendError(messageId, "ReferenceNames", CIM_ERR_FAILED, 
+	    CIMStatusCodeToString(CIM_ERR_FAILED));
 	return;
     }
 

@@ -2820,7 +2820,7 @@ Boolean XmlReader::getBooleanValueElement(
 
 Boolean XmlReader::getErrorElement(
     XmlParser& parser, 
-    CIMException::Code& code,
+    CIMStatusCode& code,
     const char*& description,
     Boolean required)
 {
@@ -2843,7 +2843,7 @@ Boolean XmlReader::getErrorElement(
 	throw XmlValidationError(
 	    parser.getLine(), "missing ERROR.CODE attribute");
 
-    code = CIMException::Code(tmpCode);
+    code = CIMStatusCode(tmpCode);
 
     // Get ERROR.DESCRIPTION:
 

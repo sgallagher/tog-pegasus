@@ -167,54 +167,8 @@ const char CorruptFile::MSG[] = "corrupt file: ";
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-static const char* _cimMessages[] =
-{
-    "SUCCESS: successful",
-
-    "FAILED: A general error occurred that is not covered by a more specific "
-    "error code",
-
-    "ACCESS_DENIED: Access to a CIM resource was not available to the client",
-
-    "INVALID_NAMESPACE: The target namespace does not exist",
-
-    "INVALID_PARAMETER: One or more parameter values passed to the method "
-    "were invalid",
-
-    "INVALID_CLASS: The specified class does not exist",
-
-    "NOT_FOUND: The requested object could not be found",
-
-    "NOT_SUPPORTED: The requested operation is not supported",
-
-    "CLASS_HAS_CHILDREN: Operation cannot be carried out on this class since "
-    "it has subclasses",
-
-    "CLASS_HAS_INSTANCES: Operation cannot be carried out on this class since "
-    "it has instances",
-
-    "INVALID_SUPERCLASS: Operation cannot be carried out since the specified "
-    "superclass does not exist",
-
-    "ALREADY_EXISTS: Operation cannot be carried out because an object already "
-    "exists",
-
-    "NO_SUCH_PROPERTY: The specified property does not exist",
-
-    "TYPE_MISMATCH: The value supplied is incompatible with the type",
-
-    "QUERY_LANGUAGE_NOT_SUPPORTED: The query language is not recognized or "
-    "supported",
-
-    "INVALID_QUERY: The query is not valid for the specified query language",
-
-    "METHOD_NOT_AVAILABLE: The extrinsic method could not be executed",
-
-    "METHOD_NOT_FOUND: The specified extrinsic method does not exist"
-};
-
 static String _makeCIMExceptionMessage(
-    CIMException::Code code, 
+    CIMStatusCode code, 
     const char* file,
     Uint32 line,
     const String& extraMessage)
@@ -226,7 +180,7 @@ static String _makeCIMExceptionMessage(
     tmp.append(buffer);
     tmp.append("): ");
 
-    tmp.append(_cimMessages[Uint32(code)]);
+    tmp.append(CIMStatusCodeToString(code));
     tmp.append(": \"");
     tmp.append(extraMessage);
     tmp.append("\"");
@@ -234,7 +188,7 @@ static String _makeCIMExceptionMessage(
 }
 
 CIMException::CIMException(
-    CIMException::Code code, 
+    CIMStatusCode code, 
     const char* file,
     Uint32 line,
     const String& extraMessage)
@@ -242,11 +196,6 @@ CIMException::CIMException(
     _code(code)
 {
 
-}
-
-const char* CIMException::codeToString(CIMException::Code code)
-{
-    return _cimMessages[Uint32(code)];
 }
 
 void ThrowUnitializedHandle()

@@ -221,8 +221,8 @@ public:
     Boolean containsClass(const String& className) const;
 
     /** Removes the given class from the class graph. 
-	@exception CIMException(CIMException::CLASS_HAS_CHILDREN)
-	@exception CIMException(CIMException::INVALID_CLASS)
+	@exception CIMException(CIM_ERR_CLASS_HAS_CHILDREN)
+	@exception CIMException(CIM_ERR_INVALID_CLASS)
     */
     void remove(const String& className);
 

@@ -48,7 +48,7 @@ CIMClass CIMProvider::getClass(
     Boolean includeClassOrigin,
     const Array<String>& propertyList)
 {
-    throw CIMException(CIMException::NOT_SUPPORTED);
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
     return CIMClass();
 }
 
@@ -60,7 +60,7 @@ CIMInstance CIMProvider::getInstance(
     Boolean includeClassOrigin,
     const Array<String>& propertyList)
 {
-    throw CIMException(CIMException::NOT_SUPPORTED);
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
     return CIMInstance();
 }
 
@@ -68,42 +68,42 @@ void CIMProvider::deleteClass(
     const String& nameSpace,
     const String& className)
 {
-    throw CIMException(CIMException::NOT_SUPPORTED);
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 void CIMProvider::deleteInstance(
     const String& nameSpace,
     const CIMReference& instanceName)
 {
-    throw CIMException(CIMException::NOT_SUPPORTED);
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 void CIMProvider::createClass(
     const String& nameSpace,
     const CIMClass& newClass)
 {
-    throw CIMException(CIMException::NOT_SUPPORTED);
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 void CIMProvider::createInstance(
     const String& nameSpace,
     const CIMInstance& newInstance)
 {
-    throw CIMException(CIMException::NOT_SUPPORTED);
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 void CIMProvider::modifyClass(
     const String& nameSpace,
     const CIMClass& modifiedClass)
 {
-    throw CIMException(CIMException::NOT_SUPPORTED);
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 void CIMProvider::modifyInstance(
     const String& nameSpace,
     const CIMInstance& modifiedInstance)
 {
-    throw CIMException(CIMException::NOT_SUPPORTED);
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 Array<CIMClass> CIMProvider::enumerateClasses(
@@ -114,7 +114,7 @@ Array<CIMClass> CIMProvider::enumerateClasses(
     Boolean includeQualifiers,
     Boolean includeClassOrigin)
 {
-    throw CIMException(CIMException::NOT_SUPPORTED);
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
     return Array<CIMClass>();
 }
 
@@ -123,7 +123,7 @@ Array<String> CIMProvider::enumerateClassNames(
     const String& className,
     Boolean deepInheritance)
 {
-    throw CIMException(CIMException::NOT_SUPPORTED);
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
     return Array<String>();
 }
 
@@ -136,7 +136,7 @@ Array<CIMInstance> CIMProvider::enumerateInstances(
     Boolean includeClassOrigin,
     const Array<String>& propertyList)
 {
-    throw CIMException(CIMException::NOT_SUPPORTED);
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
     return Array<CIMInstance>();
 }
 
@@ -144,7 +144,7 @@ Array<CIMReference> CIMProvider::enumerateInstanceNames(
     const String& nameSpace,
     const String& className)
 {
-    throw CIMException(CIMException::NOT_SUPPORTED);
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
     return Array<CIMReference>();
 }
 
@@ -152,7 +152,7 @@ Array<CIMInstance> CIMProvider::execQuery(
     const String& queryLanguage,
     const String& query)
 {
-    throw CIMException(CIMException::NOT_SUPPORTED);
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
     return Array<CIMInstance>();
 }
 
@@ -167,7 +167,7 @@ Array<CIMObjectWithPath> CIMProvider::associators(
     Boolean includeClassOrigin,
     const Array<String>& propertyList)
 {
-    throw CIMException(CIMException::NOT_SUPPORTED);
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
     return Array<CIMObjectWithPath>();
 }
 
@@ -179,7 +179,7 @@ Array<CIMReference> CIMProvider::associatorNames(
     const String& role,
     const String& resultRole)
 {
-    throw CIMException(CIMException::NOT_SUPPORTED);
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
     return Array<CIMReference>();
 }
 
@@ -192,7 +192,7 @@ Array<CIMObjectWithPath> CIMProvider::references(
     Boolean includeClassOrigin,
     const Array<String>& propertyList)
 {
-    throw CIMException(CIMException::NOT_SUPPORTED);
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
     return Array<CIMObjectWithPath>();
 }
 
@@ -202,7 +202,7 @@ Array<CIMReference> CIMProvider::referenceNames(
     const String& resultClass,
     const String& role)
 {
-    throw CIMException(CIMException::NOT_SUPPORTED);
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
     return Array<CIMReference>();
 }
 
@@ -211,7 +211,7 @@ CIMValue CIMProvider::getProperty(
     const CIMReference& instanceName,
     const String& propertyName)
 {
-    throw CIMException(CIMException::NOT_SUPPORTED);
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
     return CIMValue();
 }
 
@@ -221,14 +221,14 @@ void CIMProvider::setProperty(
     const String& propertyName,
     const CIMValue& newValue)
 {
-    throw CIMException(CIMException::NOT_SUPPORTED);
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 CIMQualifierDecl CIMProvider::getQualifier(
     const String& nameSpace,
     const String& qualifierName)
 {
-    throw CIMException(CIMException::NOT_SUPPORTED);
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
     return CIMQualifierDecl();
 }
 
@@ -236,20 +236,20 @@ void CIMProvider::setQualifier(
     const String& nameSpace,
     const CIMQualifierDecl& qualifierDecl)
 {
-    throw CIMException(CIMException::NOT_SUPPORTED);
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 void CIMProvider::deleteQualifier(
     const String& nameSpace,
     const String& qualifierName)
 {
-    throw CIMException(CIMException::NOT_SUPPORTED);
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 Array<CIMQualifierDecl> CIMProvider::enumerateQualifiers(
     const String& nameSpace)
 {
-    throw CIMException(CIMException::NOT_SUPPORTED);
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
     return Array<CIMQualifierDecl>();
 }
 
@@ -260,7 +260,7 @@ CIMValue CIMProvider::invokeMethod(
     const Array<CIMValue>& inParameters,
     Array<CIMValue>& outParameters)
 {
-    throw CIMException(CIMException::NOT_SUPPORTED);
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
     return CIMValue();
 }
 

@@ -103,14 +103,14 @@ public:
 	    Uint32 i = myInstance.findProperty("name");
 	    if (i == PEG_NOT_FOUND)
 		{
-		    throw CIMException(CIMException::INVALID_PARAMETER);
+		    throw CIMException(CIM_ERR_INVALID_PARAMETER);
 		    return;
 		}
 	    // ATTN: Only allow creation of namespaces if the current namespace
 	    // is root.  Is this important.  Have not thought this out but
 	    // seems logical. Wrong.  This must be corrected in the future.
 	    //if (nameSpace != "root")
-	    //        throw CIMException(CIMException::INVALID_NAMESPACE);
+	    //        throw CIMException(CIM_ERR_INVALID_NAMESPACE);
 	    //        return;
 
 	    // get property "name"
@@ -135,7 +135,7 @@ public:
 		cout <<"DEBUG Loop " << ns[i] << " " << n << " " << myName <<
 			endl;
 		 if (String::equal(ns[i], myName))
-			 throw CIMException(CIMException::ALREADY_EXISTS);
+			 throw CIMException(CIM_ERR_ALREADY_EXISTS);
 		}
 
 	    // create new namespace
@@ -162,7 +162,7 @@ public:
 	const CIMReference& instanceName)
     {
 	DDD(cout << "__NamespaceProvider::deleteInstance" << endl;)
-        throw CIMException(CIMException::NOT_SUPPORTED);
+        throw CIMException(CIM_ERR_NOT_SUPPORTED);
 	// _repository->deleteNameSpace();
 
     }

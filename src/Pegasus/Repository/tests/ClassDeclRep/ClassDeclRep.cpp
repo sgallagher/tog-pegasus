@@ -81,7 +81,7 @@ void Test01()
     }
     catch (CIMException& e)
     {
-	assert(e.getCode() == CIMException::CLASS_HAS_CHILDREN);
+	assert(e.getCode() == CIM_ERR_CLASS_HAS_CHILDREN);
     }
 
     // Delete all classes created here:

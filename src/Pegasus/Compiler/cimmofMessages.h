@@ -43,7 +43,7 @@ PEGASUS_USING_STD;
 class cimmofMessages {
  public:
   enum MsgCode {
-    SUCCESS = 0,
+    CIM_ERR_SUCCESS = 0,
     PARSER_SYNTAX_ERROR,
     APPLY_PARAMETER_ERROR,
     NEW_PARAMETER_ERROR,

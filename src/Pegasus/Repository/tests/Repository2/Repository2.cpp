@@ -202,7 +202,7 @@ void TestCreateClass()
     }
     catch (CIMException& e)
     {
-	assert(e.getCode() == CIMException::FAILED);
+	assert(e.getCode() == CIM_ERR_FAILED);
 	failed = true;
     }
 

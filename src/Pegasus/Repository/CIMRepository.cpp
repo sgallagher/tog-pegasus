@@ -243,7 +243,7 @@ CIMInstance CIMRepository::getInstance(
 
     if (!_getInstanceIndex(nameSpace, instanceName, className, index))
     {
-	throw PEGASUS_CIM_EXCEPTION(NOT_FOUND, "getInstance()");
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, "getInstance()");
     }
 
     // -- Load the instance from the file:
@@ -269,7 +269,7 @@ void CIMRepository::deleteClass(
     String realPath;
 
     if (FileSystem::existsNoCase(path, realPath))
-	throw PEGASUS_CIM_EXCEPTION(CLASS_HAS_INSTANCES, className);
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_CLASS_HAS_INSTANCES, className);
 
     // -- Delete the class (disallowed if there are subclasses):
 
@@ -298,7 +298,7 @@ void CIMRepository::deleteInstance(
     Uint32 index;
 
     if (!InstanceIndexFile::lookup(indexFilePath, instanceName, index))
-	throw PEGASUS_CIM_EXCEPTION(NOT_FOUND, instanceName.toString());
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, instanceName.toString());
 
     // -- Attempt to remove the instance file:
 
@@ -307,7 +307,7 @@ void CIMRepository::deleteInstance(
 
     if (!FileSystem::removeFileNoCase(instanceFilePath))
     {
-	throw PEGASUS_CIM_EXCEPTION(FAILED,
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
 	    "failed to remove file in CIMRepository::deleteInstance()");
     }
 
@@ -321,13 +321,13 @@ void CIMRepository::deleteInstance(
 
     if (!FileSystem::getFileSizeNoCase(indexFilePath, size))
     {
-	throw PEGASUS_CIM_EXCEPTION(FAILED,
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
 	    "unexpected failure in CIMRepository::deleteInstance()");
     }
 
     if (size == 0 && !FileSystem::removeFileNoCase(indexFilePath))
     {
-	throw PEGASUS_CIM_EXCEPTION(FAILED,
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
 	    "unexpected failure in CIMRepository::deleteInstance()");
     }
 
@@ -536,7 +536,7 @@ void CIMRepository::createInstance(
     {
 	String message = "class has no keys: ";
 	message += cimClass.getClassName();
-	throw PEGASUS_CIM_EXCEPTION(FAILED, message);
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, message);
     }
 
     // -- Be sure instance does not already exist:
@@ -546,7 +546,7 @@ void CIMRepository::createInstance(
 
     if (_getInstanceIndex(nameSpace, instanceName, className, dummyIndex, true))
     {
-	throw PEGASUS_CIM_EXCEPTION(ALREADY_EXISTS, instanceName.toString());
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ALREADY_EXISTS, instanceName.toString());
     }
 
     // -- Handle if association:
@@ -569,7 +569,7 @@ void CIMRepository::createInstance(
     Uint32 index;
 
     if (!InstanceIndexFile::insert(indexFilePath, instanceName, index))
-	throw PEGASUS_CIM_EXCEPTION(ALREADY_EXISTS, instanceName.toString());
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ALREADY_EXISTS, instanceName.toString());
 
     // -- Save instance to file:
 
@@ -599,7 +599,7 @@ void CIMRepository::modifyClass(
 
     if (!FileSystem::removeFileNoCase(classFilePath))
     {
-	throw PEGASUS_CIM_EXCEPTION(FAILED,
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
 	    "failed to remove file in CIMRepository::modifyClass()");
     }
 
@@ -628,7 +628,7 @@ void CIMRepository::modifyInstance(
     Uint32 index;
 
     if (!InstanceIndexFile::lookup(indexFilePath, instanceName, index))
-	throw PEGASUS_CIM_EXCEPTION(NOT_FOUND, instanceName.toString());
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, instanceName.toString());
 
     // -- Attempt to remove the instance file:
 
@@ -637,7 +637,7 @@ void CIMRepository::modifyInstance(
 
     if (!FileSystem::removeFileNoCase(instanceFilePath))
     {
-	throw PEGASUS_CIM_EXCEPTION(FAILED,
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
 	    "failed to remove file in CIMRepository::deleteInstance()");
     }
 
@@ -769,7 +769,7 @@ Array<CIMInstance> CIMRepository::execQuery(
     const String& queryLanguage,
     const String& query)
 {
-    throw PEGASUS_CIM_EXCEPTION(NOT_SUPPORTED, "execQuery()");
+    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "execQuery()");
 
     return Array<CIMInstance>();
 }
@@ -1022,7 +1022,7 @@ CIMValue CIMRepository::getProperty(
     Uint32 index;
 
     if (!_getInstanceIndex(nameSpace, instanceName, className, index))
-	throw PEGASUS_CIM_EXCEPTION(NOT_FOUND, "getProperty()");
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, "getProperty()");
 
     // -- Load the instance into memory:
 
@@ -1035,7 +1035,7 @@ CIMValue CIMRepository::getProperty(
     Uint32 pos = cimInstance.findProperty(propertyName);
 
     if (pos == PEGASUS_NOT_FOUND)
-	throw PEGASUS_CIM_EXCEPTION(NO_SUCH_PROPERTY, "getProperty()");
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NO_SUCH_PROPERTY, "getProperty()");
 
     CIMProperty prop = cimInstance.getProperty(pos);
 
@@ -1069,7 +1069,7 @@ void CIMRepository::setProperty(
     Uint32 pos = instance.findProperty(propertyName);
 
     if (pos == PEGASUS_NOT_FOUND)
-	throw PEGASUS_CIM_EXCEPTION(NO_SUCH_PROPERTY, "setProperty()");
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NO_SUCH_PROPERTY, "setProperty()");
 
     CIMProperty prop = instance.getProperty(pos);
 
@@ -1082,7 +1082,7 @@ void CIMRepository::setProperty(
 
     if (oldRef != newRef)
     {
-	throw PEGASUS_CIM_EXCEPTION(FAILED,
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
 	    "setProperty(): attempted to modify a key property");
     }
 
@@ -1128,7 +1128,7 @@ void CIMRepository::setQualifier(
     // -- If qualifier alread exists, throw exception:
 
     if (FileSystem::existsNoCase(qualifierFilePath))
-	throw PEGASUS_CIM_EXCEPTION(ALREADY_EXISTS, qualifierDecl.getName());
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ALREADY_EXISTS, qualifierDecl.getName());
 
     // -- Save qualifier:
 
@@ -1147,7 +1147,7 @@ void CIMRepository::deleteQualifier(
     // -- Delete qualifier:
 
     if (!FileSystem::removeFileNoCase(qualifierFilePath))
-	throw PEGASUS_CIM_EXCEPTION(NOT_FOUND, qualifierName);
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, qualifierName);
 }
 
 Array<CIMQualifierDecl> CIMRepository::enumerateQualifiers(
@@ -1159,7 +1159,7 @@ Array<CIMQualifierDecl> CIMRepository::enumerateQualifiers(
 
     if (!FileSystem::getDirectoryContents(qualifiersRoot, qualifierNames))
     {
-	throw PEGASUS_CIM_EXCEPTION(FAILED,
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
 	    "enumerateQualifiers(): internal error");
     }
 
@@ -1181,7 +1181,7 @@ CIMValue CIMRepository::invokeMethod(
     const Array<CIMValue>& inParameters,
     Array<CIMValue>& outParameters)
 {
-    throw PEGASUS_CIM_EXCEPTION(NOT_SUPPORTED, "invokeMethod()");
+    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "invokeMethod()");
     return CIMValue();
 }
 

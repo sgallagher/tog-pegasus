@@ -40,7 +40,7 @@ PEGASUS_USING_STD;
 const cimmofMessages::arglist cimmofMessages::EMPTYLIST;
 
 static String _cimmofMessages[] = {
-  "OK", //SUCCESS
+  "OK", //CIM_ERR_SUCCESS
   "%1:%2: %3 before '%4'", //PARSER_SYNTAX_ERROR
   "Error applying parameter %1 to method %2: %3", //APPLY_PARAMETER_ERROR
   "Error creating new CIMParameter object %1: %2", //NEW_PARAMETER_ERROR

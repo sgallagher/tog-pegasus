@@ -32,6 +32,7 @@
 #include <cstring>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/CIMStatusCode.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -447,109 +448,30 @@ public:
 };
 
 #define PEGASUS_CIM_EXCEPTION(CODE, EXTRA_MESSAGE) \
-    CIMException(CIMException::CODE, __FILE__, __LINE__, EXTRA_MESSAGE)
+    CIMException(CODE, __FILE__, __LINE__, EXTRA_MESSAGE)
 
 /** The CIMException defines the CIM exceptions that are formally defined in 
     the CIM Operations over HTTP specification.
     @example
     <PRE>
-	throw CIMException(CIMException::NOT_SUPPORTED);
+	throw CIMException(CIM_ERR_NOT_SUPPORTED);
     </PRE>
 */
 class PEGASUS_COMMON_LINKAGE CIMException : public Exception
 {
 public:
 
-    enum Code
-    {
-	SUCCESS = 0,
-
-	// A general error occurred that is not covered by a more
-	// specific error code.
-
-	FAILED = 1,
-
-	// Access to a CIM resource was not available to the client.
-
-	ACCESS_DENIED = 2,
-
-	// The target namespace does not exist.
-
-	INVALID_NAMESPACE = 3,
-
-	// One or more parameter values passed to the method were invalid.
-
-	INVALID_PARAMETER = 4,
-
-	// The specified class does not exist.
-
-	INVALID_CLASS = 5,
-
-	// The requested object could not be found.
-
-	NOT_FOUND = 6,
-
-	// The requested operation is not supported.
-
-	NOT_SUPPORTED = 7,
-
-	// Operation cannot be carried out on this class since it has
-	// subclasses.
-
-	CLASS_HAS_CHILDREN = 8,
-
-	// Operation cannot be carried out on this class since it has
-	// instances.
-
-	CLASS_HAS_INSTANCES = 9,
-
-	// Operation cannot be carried out since the specified superClass
-	// does not exist.
-
-	INVALID_SUPERCLASS = 10,
-
-	// Operation cannot be carried out because an object already exists.
-
-	ALREADY_EXISTS = 11,
-
-	// The specified property does not exist:
-
-	NO_SUCH_PROPERTY = 12,
-
-	// The value supplied is incompatible with the type.
-
-	TYPE_MISMATCH = 13,
-
-	// The query language is not recognized or supported.
-
-	QUERY_LANGUAGE_NOT_SUPPORTED = 14,
-
-	// The query is not valid for the specified query language.
-
-	INVALID_QUERY = 15,
-
-	// The extrinsic method could not be executed.
-
-	METHOD_NOT_AVAILABLE = 16,
-
-	// The specified extrinsic method does not exist.
-
-	METHOD_NOT_FOUND = 17
-    };
-
     CIMException(
-	Code code, 
+	CIMStatusCode code, 
 	const char* file = "",
 	Uint32 line = 0,
 	const String& extraMessage = String());
 
-    CIMException::Code getCode() const { return _code; }
-
-    static const char* codeToString(Code code);
+    CIMStatusCode getCode() const { return _code; }
 
 private:
 
-    Code _code;
+    CIMStatusCode _code;
 };
 
 class PEGASUS_COMMON_LINKAGE StackUnderflow : public Exception

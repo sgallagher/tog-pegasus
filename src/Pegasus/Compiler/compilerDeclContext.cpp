@@ -50,7 +50,7 @@ compilerDeclContext::lookupQualifierDecl(const String &nameSpace,
     try {
       return _repository->getQualifier(nameSpace, qualifierName);
     } catch (Exception &) {
-      // FIXME:  catch the NOT_FOUND condition.  Don't catch others.
+      // FIXME:  catch the CIM_ERR_NOT_FOUND condition.  Don't catch others.
       // ignore.  It either isn't there or something's broken.
     }
   }

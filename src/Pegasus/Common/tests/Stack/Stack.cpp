@@ -74,8 +74,10 @@ int main()
 	assert(s2.size() == stackSize);
 	for (Uint32 i = 0; i < stackSize; i++)
 	    s2.pop();
+#if 0
     	cout << "Stack file and empty of " << stackSize << " integers in " << 
 		sw.getElapsed() << " Seconds" << endl;
+#endif
 
 
     }

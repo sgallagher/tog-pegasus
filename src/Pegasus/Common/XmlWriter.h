@@ -119,7 +119,7 @@ public:
 	const Array<Sint8>& body);
 
     static Array<Sint8> formatErrorElement(
-	CIMException::Code code,
+	CIMStatusCode code,
 	const char* description);
 
     static Array<Sint8>& appendBooleanParameter(

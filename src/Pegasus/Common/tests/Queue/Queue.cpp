@@ -108,8 +108,10 @@ int main()
 	assert(q2.size() == queueSize);
 	for (Uint32 i = 0; i < queueSize; i++)
 	    q2.dequeue();
+#if 0
     	cout << "Queue fill and empty of " << queueSize << " integers in " << 
 		sw.getElapsed() << " Seconds" << endl;
+#endif
 	
 	// Performance test - Passing item through a queue.
 	{
@@ -124,9 +126,11 @@ int main()
 		 q3.enqueue(i);
 		 q3.dequeue();
 
+#if 0
 	   cout << "Queue transit. Queue size =  " << queueSize 
 	       << " integers. Transit of " << iterations << " in "
 		<< sw.getElapsed() << " Seconds" << endl;
+#endif
 
 	    
 	}

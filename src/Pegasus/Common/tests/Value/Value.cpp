@@ -33,6 +33,7 @@
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Dave Sudlik, IBM (dsudlik@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -49,6 +50,8 @@
 
 #include <cassert>
 #include <Pegasus/Common/CIMValue.h>
+#include <Pegasus/Common/DeclContext.h>
+#include <Pegasus/Common/Resolver.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/MofWriter.h>
 
@@ -103,6 +106,7 @@ void test01(const T& x)
 
         // Test toMof
         Array<Sint8> mofout;
+        mofout.clear();
         MofWriter::appendValueElement(mofout, v);
         mofout.append('\0');
 
@@ -309,6 +313,60 @@ int main(int argc, char** argv)
     test01(CIMDateTime("19991224120000.000000+360"));
     test01(CIMObjectPath("//host1:77/root/test:Class1.key1=\"key1Value\",key2=\"key2Value\""));
 
+    // Create and populate a declaration context:
+
+    const CIMNamespaceName NAMESPACE = CIMNamespaceName ("/zzz");
+
+    SimpleDeclContext* context = new SimpleDeclContext;
+
+    context->addQualifierDecl(
+	NAMESPACE, CIMQualifierDecl(CIMName ("counter"), false, 
+        CIMScope::PROPERTY));
+
+    context->addQualifierDecl(
+	NAMESPACE, CIMQualifierDecl(CIMName ("classcounter"), false, 
+        CIMScope::CLASS));
+
+    context->addQualifierDecl(
+	NAMESPACE, CIMQualifierDecl(CIMName ("min"), String(), 
+        CIMScope::PROPERTY));
+
+    context->addQualifierDecl(
+	NAMESPACE, CIMQualifierDecl(CIMName ("max"), String(), 
+        CIMScope::PROPERTY));
+
+    context->addQualifierDecl(NAMESPACE,
+	CIMQualifierDecl(CIMName ("Description"), String(), 
+        CIMScope::PROPERTY));
+
+    CIMClass class1(CIMName ("MyClass"));
+
+    class1
+	.addProperty(CIMProperty(CIMName ("count"), Uint32(55))
+	    .addQualifier(CIMQualifier(CIMName ("counter"), true))
+	    .addQualifier(CIMQualifier(CIMName ("min"), String("0")))
+	    .addQualifier(CIMQualifier(CIMName ("max"), String("1"))))
+	.addProperty(CIMProperty(CIMName ("message"), String("Hello"))
+	    .addQualifier(CIMQualifier(CIMName ("description"), 
+                String("My Message"))))
+	.addProperty(CIMProperty(CIMName ("ratio"), Real32(1.5)));
+    
+    Resolver::resolveClass (class1, context, NAMESPACE);
+    context->addClass(NAMESPACE, class1);
+
+    // Test a CIMObject that is a CIMClass
+    test01(CIMObject(class1));
+
+    // Test a CIMObject that is a CIMInstance
+    CIMInstance instance1(CIMName ("MyClass"));
+    instance1.addQualifier(CIMQualifier(CIMName ("classcounter"), true));
+    instance1.addProperty(CIMProperty(CIMName ("message"), String("Goodbye")));
+    
+    Resolver::resolveInstance (instance1, context, NAMESPACE, true);
+
+    test01(CIMObject(instance1));
+
+
     // Test CIMValue arrays
 
     Array<Uint8> arr1;
@@ -400,6 +458,24 @@ int main(int argc, char** argv)
     arr15.append(CIMObjectPath("//host2:88/root/static:Class2.keyA=\"keyAValue\",keyB=\"keyBValue\""));
     arr15.append(CIMObjectPath("//host3:99/root/test/static:Class3.keyX=\"keyXValue\",keyY=\"keyYValue\""));
     test02(arr15);
+
+
+    // Test an array of CIMObjects that are CIMInstances
+    CIMInstance instance2(CIMName ("MyClass"));
+    instance2.addQualifier(CIMQualifier(CIMName ("classcounter"), true));
+    instance2.addProperty(CIMProperty(CIMName ("message"), String("Adios")));
+    Resolver::resolveInstance (instance2, context, NAMESPACE, true);
+
+    CIMInstance instance3(CIMName ("MyClass"));
+    instance3.addQualifier(CIMQualifier(CIMName ("classcounter"), false));
+    instance3.addProperty(CIMProperty(CIMName ("message"), String("Au Revoir")));
+    Resolver::resolveInstance (instance3, context, NAMESPACE, true);
+
+    Array<CIMObject> arr16;
+    arr16.append(CIMObject(instance1));
+    arr16.append(CIMObject(instance2));
+    arr16.append(CIMObject(instance3));
+    test02(arr16);
 
     cout << argv[0] << " +++++ passed all tests" << endl;
 

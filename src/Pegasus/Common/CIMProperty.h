@@ -48,6 +48,8 @@ class CIMConstProperty;
 class CIMPropertyRep;
 class CIMClassRep;
 class CIMInstanceRep;
+class CIMQualifier;
+class CIMConstQualifier;
 class Resolver;
 
 /** The CIMProperty class is used to represent CIM properties in Pegasus. A CIM Property

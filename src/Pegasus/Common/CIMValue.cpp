@@ -32,6 +32,7 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
 //              Adriann Schuur (schuur@de.ibm.com) PEP 164
+//              Dave Sudlik, IBM (dsudlik@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -112,6 +113,11 @@ inline void _toString(Array<Sint8>& out, const CIMDateTime& x)
 }
 
 inline void _toString(Array<Sint8>& out, const CIMObjectPath& x)
+{
+    out << x.toString();
+}
+
+inline void _toString(Array<Sint8>& out, const CIMObject& x)
 {
     out << x.toString();
 }
@@ -234,6 +240,12 @@ CIMValue::CIMValue(const CIMObjectPath& x)
     set(x);
 }
 
+CIMValue::CIMValue(const CIMObject& x)
+{
+    _rep = new CIMValueRep();
+    set(x);
+}
+
 CIMValue::CIMValue(const Array<Boolean>& x)
 {
     _rep = new CIMValueRep();
@@ -319,6 +331,12 @@ CIMValue::CIMValue(const Array<CIMDateTime>& x)
 }
 
 CIMValue::CIMValue(const Array<CIMObjectPath>& x)
+{
+    _rep = new CIMValueRep();
+    set(x);
+}
+
+CIMValue::CIMValue(const Array<CIMObject>& x)
 {
     _rep = new CIMValueRep();
     set(x);
@@ -432,6 +450,11 @@ void CIMValue::assign(const CIMValue& x)
                     new Array<CIMObjectPath>(*(x._rep->_u._referenceArray));
                 break;
 
+        case CIMTYPE_OBJECT:
+                _rep->_u._objectArray =
+                    new Array<CIMObject>(*(x._rep->_u._objectArray));
+                break;
+
             default:
                 PEGASUS_ASSERT(false);
         }
@@ -502,6 +525,11 @@ void CIMValue::assign(const CIMValue& x)
                     new CIMObjectPath(*(x._rep->_u._referenceValue));
                 break;
             
+            case CIMTYPE_OBJECT:
+                _rep->_u._objectValue =
+                    new CIMObject(x._rep->_u._objectValue->clone());
+                break;
+
             // Should never get here. testing complete enum
             default:
                 PEGASUS_ASSERT(false);
@@ -575,6 +603,10 @@ void CIMValue::clear()
                 delete _rep->_u._referenceArray;
                 break;
 
+            case CIMTYPE_OBJECT:
+                delete _rep->_u._objectArray;
+                break;
+
             default:
                 PEGASUS_ASSERT(false);
         }
@@ -607,6 +639,10 @@ void CIMValue::clear()
 
             case CIMTYPE_REFERENCE:
                 delete _rep->_u._referenceValue;
+                break;
+
+            case CIMTYPE_OBJECT:
+                delete _rep->_u._objectValue;
                 break;
 
             default:
@@ -701,6 +737,10 @@ Uint32 CIMValue::getArraySize() const
             return _rep->_u._referenceArray->size();
             break;
 
+        case CIMTYPE_OBJECT:
+            return _rep->_u._objectArray->size();
+            break;
+
         //default:  // Handled below
     }
 
@@ -782,6 +822,10 @@ void CIMValue::setNullValue(CIMType type, Boolean isArray, Uint32 arraySize)
                 set(Array<CIMObjectPath>(arraySize));
                 break;
 
+            case CIMTYPE_OBJECT:
+                set(Array<CIMObject>(arraySize));
+                break;
+
             default:
                 throw TypeMismatchException();
         }
@@ -848,6 +892,10 @@ void CIMValue::setNullValue(CIMType type, Boolean isArray, Uint32 arraySize)
 
             case CIMTYPE_REFERENCE:
                 set(CIMObjectPath());
+                break;
+
+            case CIMTYPE_OBJECT:
+                set(CIMObject());
                 break;
 
             default:
@@ -978,6 +1026,21 @@ void CIMValue::set(const CIMObjectPath& x)
     clear();
     _rep->_u._referenceValue = new CIMObjectPath(x);
     _rep->_type = CIMTYPE_REFERENCE;
+    _rep->_isNull = false;
+}
+
+void CIMValue::set(const CIMObject& x)
+{
+    clear();
+    if (x.isUninitialized()) {
+        // Don't need to clone since null CIMObjects aren't shared when created.
+        // Doesn't work anyway, clone() throws an exception if null.
+        _rep->_u._objectValue = new CIMObject(x);
+    }
+    else {
+        _rep->_u._objectValue = new CIMObject(x.clone());
+    }
+    _rep->_type = CIMTYPE_OBJECT;
     _rep->_isNull = false;
 }
 
@@ -1112,6 +1175,15 @@ void CIMValue::set(const Array<CIMObjectPath>& x)
     clear();
     _rep->_u._referenceArray = new Array<CIMObjectPath>(x);
     _rep->_type = CIMTYPE_REFERENCE;
+    _rep->_isArray = true;
+    _rep->_isNull = false;
+}
+
+void CIMValue::set(const Array<CIMObject>& x)
+{
+    clear();
+    _rep->_u._objectArray = new Array<CIMObject>(x);
+    _rep->_type = CIMTYPE_OBJECT;
     _rep->_isArray = true;
     _rep->_isNull = false;
 }
@@ -1251,6 +1323,15 @@ void CIMValue::get(CIMObjectPath& x) const
         x = *_rep->_u._referenceValue;
 }
 
+void CIMValue::get(CIMObject& x) const
+{
+    if (_rep->_type != CIMTYPE_OBJECT || _rep->_isArray)
+        throw TypeMismatchException();
+
+    if (!_rep->_isNull)
+        x = *_rep->_u._objectValue;
+}
+
 void CIMValue::get(Array<Boolean>& x) const
 {
     if (_rep->_type != CIMTYPE_BOOLEAN || !_rep->_isArray)
@@ -1386,6 +1467,15 @@ void CIMValue::get(Array<CIMObjectPath>& x) const
         x = *_rep->_u._referenceArray;
 }
 
+void CIMValue::get(Array<CIMObject>& x) const
+{
+    if (_rep->_type != CIMTYPE_OBJECT || !_rep->_isArray)
+        throw TypeMismatchException();
+
+    if (!_rep->_isNull)
+        x = *_rep->_u._objectArray;
+}
+
 Boolean CIMValue::equal(const CIMValue& x) const
 {
     if (!typeCompatible(x))
@@ -1458,6 +1548,10 @@ Boolean CIMValue::equal(const CIMValue& x) const
                 return (*_rep->_u._referenceArray) ==
                     (*x._rep->_u._referenceArray);
 
+            case CIMTYPE_OBJECT:
+                return (*_rep->_u._objectArray) ==
+                    (*x._rep->_u._objectArray);
+
             default:
                 PEGASUS_ASSERT(false);
         }
@@ -1512,6 +1606,9 @@ Boolean CIMValue::equal(const CIMValue& x) const
             case CIMTYPE_REFERENCE:
                 return *_rep->_u._referenceValue ==
                     *x._rep->_u._referenceValue;
+
+            case CIMTYPE_OBJECT:
+                return (*_rep->_u._objectValue).identical((*x._rep->_u._objectValue));
 
             default:
                 PEGASUS_ASSERT(false);
@@ -1616,6 +1713,11 @@ String CIMValue::toString() const
                                _rep->_u._referenceArray->size());
                 break;
 
+            case CIMTYPE_OBJECT:
+                _toString(out, _rep->_u._objectArray->getData(),
+                               _rep->_u._objectArray->size());
+                break;
+
             default:
                 PEGASUS_ASSERT(false);
         }
@@ -1682,6 +1784,10 @@ String CIMValue::toString() const
 
             case CIMTYPE_REFERENCE:
                 _toString(out, *_rep->_u._referenceValue);
+                break;
+
+            case CIMTYPE_OBJECT:
+                _toString(out, *_rep->_u._objectValue);
                 break;
 
             default:

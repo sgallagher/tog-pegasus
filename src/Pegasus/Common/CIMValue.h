@@ -34,6 +34,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMType.h>
 #include <Pegasus/Common/CIMObjectPath.h>
+#include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/CIMDateTime.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/Array.h>
@@ -42,6 +43,7 @@
 PEGASUS_NAMESPACE_BEGIN
 
 class CIMValueRep;
+class CIMObject;
 
 /**
     The CIMValue class represents a value of any of the CIM data types
@@ -110,6 +112,9 @@ public:
     CIMValue(const CIMObjectPath& x);
 
     /// Constructor.
+    CIMValue(const CIMObject& x);
+
+    /// Constructor.
     CIMValue(const Array<Boolean>& x);
 
     /// Constructor.
@@ -153,6 +158,9 @@ public:
 
     /// Constructor.
     CIMValue(const Array<CIMObjectPath>& x);
+
+    /// Constructor.
+    CIMValue(const Array<CIMObject>& x);
 
     /// Constructor.
     CIMValue(const CIMValue& x);
@@ -258,6 +266,8 @@ public:
     ///
     void set(const CIMObjectPath& x);
     ///
+    void set(const CIMObject& x);
+    ///
     void set(const Array<Boolean>& x);
     ///
     void set(const Array<Uint8>& x);
@@ -287,6 +297,8 @@ public:
     void set(const Array<CIMDateTime>& x);
     ///
     void set(const Array<CIMObjectPath>& x);
+    ///
+    void set(const Array<CIMObject>& x);
 
     /** Gets the value of a CIMValue.
         Note: Before using get, the caller should use getType () and isNull ()
@@ -338,6 +350,8 @@ public:
     ///
     void get(CIMObjectPath& x) const;
     ///
+    void get(CIMObject& x) const;
+    ///
     void get(Array<Boolean>& x) const;
     ///
     void get(Array<Uint8>& x) const;
@@ -367,6 +381,8 @@ public:
     void get(Array<CIMDateTime>& x) const; 
     ///
     void get(Array<CIMObjectPath>& x) const; 
+    ///
+    void get(Array<CIMObject>& x) const; 
 
     /** Compares with another CIMValue object for equality.
         @param x - CIMValue to compare with.

@@ -46,6 +46,10 @@ class CIMClass;
 class CIMConstClass;
 class CIMInstance;
 class CIMConstInstance;
+class CIMProperty;
+class CIMConstProperty;
+class CIMQualifier;
+class CIMConstQualifier;
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -230,6 +234,16 @@ public:
      */
     Boolean isUninitialized() const;
 
+    /** Returns a string representing the value of the CIMObject.
+        With the inclusion of CIMObject as a CIMValue, the intent
+        of the toString() method is to produce a "human-readable" string
+        consistent with other CIMValue types. The string will be a MOF
+        representation of the object (ie. either CIMClass or CIMInstance)
+        using the _rep's toMof() method.
+        @return String representing the CIMObject value.
+    */
+    String toString () const;
+
     /** Determines if the object represents a CIMClass.
         @return  True if the object represents a CIMClass; otherwise, false.
      */
@@ -363,6 +377,16 @@ public:
     /** REVIEWERS: Insert description here.
     */
     Boolean isUninitialized() const;
+
+    /** Returns a string representing the value of the CIMObject.
+        With the inclusion of CIMObject as a CIMValue, the intent
+        of the toString() method is to produce a "human-readable" string
+        consistent with other CIMValue types. The string will be a MOF
+        representation of the object (ie. either CIMClass or CIMInstance)
+        using the _rep's toMof() method.
+        @return String representing the CIMObject value.
+    */
+    String toString () const;
 
     /** REVIEWERS: Insert description here.
     */

@@ -59,6 +59,7 @@ PEGASUS_NAMESPACE_BEGIN
 	    string	CIMTYPE_STRING		String
 	    datetime	CIMTYPE_DATETIME	CIMDateTime
 	    reference	CIMTYPE_REFERENCE	CIMObjectPath
+        object      CIMTYPE_OBJECT      CIMObject  (not a "real" CIM type -- see PEP 194)
     </pre>
 */
 
@@ -78,7 +79,8 @@ enum CIMType
     CIMTYPE_CHAR16,
     CIMTYPE_STRING,
     CIMTYPE_DATETIME,
-    CIMTYPE_REFERENCE
+    CIMTYPE_REFERENCE,
+    CIMTYPE_OBJECT
 };
 
 /** 

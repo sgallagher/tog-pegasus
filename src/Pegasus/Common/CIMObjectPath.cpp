@@ -30,7 +30,7 @@
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
-//              Dave Sudlik, IBM (dsudlik@us.ibm.com) for Bug#1462
+//              Dave Sudlik, IBM (dsudlik@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -218,6 +218,11 @@ CIMKeyBinding::CIMKeyBinding(const CIMName& name, const CIMValue& value)
     case CIMTYPE_REFERENCE:
         kbType = REFERENCE;
         break;
+    case CIMTYPE_OBJECT:
+        throw TypeMismatchException();
+        // From PEP 194:
+        // Open Issue for the DMTF: Are EmbeddedObject properties permitted to be keys? 
+        break;
     default:
         kbType = NUMERIC;
         break;
@@ -300,6 +305,11 @@ Boolean CIMKeyBinding::equal(CIMValue value)
             if (getType() != BOOLEAN) return false;
             kbValue = XmlReader::stringToValue(0, getValue().getCString(),
                                                value.getType());
+            break;
+        case CIMTYPE_OBJECT:
+            return false;
+            // From PEP 194:
+            // Open Issue for the DMTF: Are EmbeddedObject properties permitted to be keys? 
             break;
         default:  // Numerics
             if (getType() != NUMERIC) return false;

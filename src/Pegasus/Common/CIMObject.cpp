@@ -30,6 +30,7 @@
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
+//              Dave Sudlik, IBM (dsudlik@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -190,6 +191,16 @@ Boolean CIMObject::isUninitialized() const
     return (_rep == 0)? true : false;
 }
 
+String CIMObject::toString () const
+{
+    Array<Sint8> out;
+    
+    _checkRep();
+    _rep->toXml(out);
+
+    return out.getData();
+}
+
 Boolean CIMObject::isClass () const
 {
     try
@@ -342,6 +353,16 @@ Uint32 CIMConstObject::getPropertyCount() const
 Boolean CIMConstObject::isUninitialized() const
 {
     return (_rep == 0)? true : false;
+}
+
+String CIMConstObject::toString () const
+{
+    Array<Sint8> out;
+    
+    _checkRep();
+    _rep->toXml(out);
+
+    return out.getData();
 }
 
 Boolean CIMConstObject::isClass() const

@@ -30,6 +30,7 @@
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Dave Sudlik, IBM (dsudlik@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -41,7 +42,7 @@ static const char* _typeStrings[] =
 {
     "boolean", "uint8", "sint8", "uint16", "sint16", "uint32", "sint32",
     "uint64", "sint64", "real32", "real64", "char16", "string", "datetime",
-    "reference"
+    "reference", "object"
 };
 
 static const Uint32 _NUM_TYPES = sizeof(_typeStrings) / sizeof(_typeStrings[0]);

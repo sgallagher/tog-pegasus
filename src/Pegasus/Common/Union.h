@@ -28,6 +28,7 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Dave Sudlik, IBM (dsudlik@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -39,6 +40,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMDateTime.h>
 #include <Pegasus/Common/CIMObjectPath.h>
+#include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/Array.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -65,6 +67,7 @@ union Union
     String* _stringValue;
     CIMDateTime* _dateTimeValue;
     CIMObjectPath* _referenceValue;
+    CIMObject* _objectValue;
 
     Array<Boolean>* _booleanArray;
     Array<Uint8>* _uint8Array;
@@ -81,6 +84,7 @@ union Union
     Array<String>* _stringArray;
     Array<CIMDateTime>* _dateTimeArray;
     Array<CIMObjectPath>* _referenceArray;
+    Array<CIMObject>* _objectArray;
 };
 
 PEGASUS_NAMESPACE_END

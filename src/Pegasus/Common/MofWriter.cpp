@@ -29,6 +29,7 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Dave Sudlik, IBM (dsudlik@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -194,6 +195,11 @@ inline void _mofWriter_appendValue(Array<Sint8>& out, const CIMDateTime& x)
 }
 
 inline void _mofWriter_appendValue(Array<Sint8>& out, const CIMObjectPath& x)
+{
+    _mofWriter_appendValue(out, x.toString());
+}
+
+inline void _mofWriter_appendValue(Array<Sint8>& out, const CIMObject& x)
 {
     _mofWriter_appendValue(out, x.toString());
 }
@@ -365,6 +371,14 @@ void MofWriter::appendValueElement(
                 break;
             }
 
+            case CIMTYPE_OBJECT:
+            {
+                Array<CIMObject> a;
+                value.get(a);
+                _mofWriter_appendValueArrayMof(out, a.getData(), a.size());
+                break;
+            }
+
             default:
                 PEGASUS_ASSERT(false);
         }
@@ -488,6 +502,14 @@ void MofWriter::appendValueElement(
             case CIMTYPE_REFERENCE:
             {
                 CIMObjectPath v;
+                value.get(v);
+                _mofWriter_appendValue(out, v);
+                break;
+            }
+
+            case CIMTYPE_OBJECT:
+            {
+                CIMObject v;
                 value.get(v);
                 _mofWriter_appendValue(out, v);
                 break;

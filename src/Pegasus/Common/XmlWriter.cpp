@@ -36,6 +36,7 @@
 //         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
 //				 Willis White (whiwill@us.ibm.com) PEP 127 and 128
 //         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase2
+//              Dave Sudlik, IBM (dsudlik@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -871,6 +872,12 @@ inline void _xmlWritter_appendValue(Array<Sint8>& out, const CIMObjectPath& x)
     XmlWriter::appendValueReferenceElement(out, x, true);
 }
 
+// DJS -- temporary for testing until encode/decode issues resolved
+inline void _xmlWritter_appendValue(Array<Sint8>& out, const CIMObject& x)
+{
+    out << x.toString();
+}
+
 void _xmlWritter_appendValueArray(Array<Sint8>& out, const CIMObjectPath* p, Uint32 size)
 {
     out << "<VALUE.REFARRAY>\n";
@@ -1041,6 +1048,15 @@ void XmlWriter::appendValueElement(
                 break;
             }
 
+            // DJS -- temporary for testing until encode/decode issues resolved
+            case CIMTYPE_OBJECT:
+            {
+                Array<CIMObject> a;
+                value.get(a);
+                _xmlWritter_appendValueArray(out, a.getData(), a.size());
+                break;
+            }
+
             default:
                 PEGASUS_ASSERT(false);
         }
@@ -1165,6 +1181,15 @@ void XmlWriter::appendValueElement(
             case CIMTYPE_DATETIME:
             {
                 CIMDateTime v;
+                value.get(v);
+                _xmlWritter_appendValue(out, v);
+                break;
+            }
+
+            // DJS -- temporary for testing until encode/decode issues resolved
+            case CIMTYPE_OBJECT:
+            {
+                CIMObject v;
                 value.get(v);
                 _xmlWritter_appendValue(out, v);
                 break;

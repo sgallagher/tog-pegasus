@@ -32,7 +32,8 @@
 //                  (carolann_graves@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //		        Karl Schopmeyer (k.schopmeyer@opengroup.org)
-//		Adrian Schuur (schuur@de.ibm.com)
+//      		Adrian Schuur (schuur@de.ibm.com)
+//				Seema Gupta (gseema@in.ibm.com for PEP135)
 //
 //
 //%/////////////////////////////////////////////////////////////////////////////
@@ -47,7 +48,7 @@
 #include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/CIMObject.h>
-#include <Pegasus/Common/OperationContext.h>
+#include <Pegasus/Common/OperationContextInternal.h>  
 
 #include <Pegasus/Server/CIMServer.h>
 
@@ -106,6 +107,7 @@ String _serviceName;
 CIMName _className;
 Boolean _hasProvider,_hasNoQuery;
 CIMNamespaceName _nameSpace;
+ProviderIdContainer *_providerIdContainer;  
 
 private:
 Uint32 _magicNumber;
@@ -408,6 +410,7 @@ class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher : public MessageQueue
         const CIMName& className,
         String& serviceName,
         String& controlProviderName,
+		ProviderIdContainer **container,    
         Boolean *has_no_query = NULL);
 
 /*    String _lookupQueryProvider(
@@ -418,6 +421,7 @@ class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher : public MessageQueue
     String _lookupInstanceProvider(
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
+		ProviderIdContainer **container,    
         Boolean *has_no_query = NULL);
 
 /*   Array<ProviderInfo> _lookupAllQueryProviders(
@@ -442,14 +446,17 @@ class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher : public MessageQueue
         const CIMNamespaceName& nameSpace, 
         const CIMName& assocClass,
         String& serviceName,
-        String& controlProviderName);
+        String& controlProviderName,
+		ProviderIdContainer **container); 
     
     Array<String> _lookupAssociationProvider(
         const CIMNamespaceName& nameSpace,
-        const CIMName& assocClass);
+        const CIMName& assocClass,
+		ProviderIdContainer **container); 
 
       String _lookupMethodProvider(const CIMNamespaceName& nameSpace,
-    	const CIMName& className, const CIMName& methodName);
+    	const CIMName& className, const CIMName& methodName,
+		ProviderIdContainer **providerIdContainer); 
 
       void _forwardRequestToService(
         const String& serviceName,

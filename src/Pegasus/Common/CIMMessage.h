@@ -37,6 +37,7 @@
 //              Chip Vincent (cvincent@us.ibm.com)
 //              Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //              Adrian Schuur (schuur@de.ibm.com)
+//				Seema Gupta (gseema@in.ibm.com for PEP135
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -115,6 +116,7 @@ public:
     String messageId;
     ContentLanguages contentLanguages;
     AcceptLanguages acceptLanguages;
+	OperationContext operationContext;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMRequestMessage : public CIMMessage
@@ -150,7 +152,7 @@ public:
     }
 
     QueueIdStack queueIds;
-    OperationContext operationContext;
+    //OperationContext operationContext;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMResponseMessage : public CIMMessage

@@ -36,6 +36,7 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
 //              Dave Rosckes (rosckes@us.ibm.com)
+//				Seema Gupta (gseema@in.ibm.com for PEP135)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -1223,7 +1224,10 @@ void CIMOperationRequestDecoder::handleMethodCall(
 	if (cimmsg != NULL)
 	{
 		cimmsg->acceptLanguages = httpAcceptLanguages;
-		cimmsg->contentLanguages = httpContentLanguages;			
+		cimmsg->contentLanguages = httpContentLanguages;
+		cimmsg->operationContext.insert(IdentityContainer(userName));
+		cimmsg->operationContext.insert(AcceptLanguageListContainer(httpAcceptLanguages));
+		cimmsg->operationContext.insert(ContentLanguageListContainer(httpContentLanguages));
 	}
 	else
 	{

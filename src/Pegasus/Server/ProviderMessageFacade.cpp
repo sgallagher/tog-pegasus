@@ -37,6 +37,7 @@
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/Thread.h>
 // l10n
 #include <Pegasus/Common/MessageLoader.h>
 
@@ -63,6 +64,18 @@ ProviderMessageFacade::~ProviderMessageFacade(void)
 Message * ProviderMessageFacade::handleRequestMessage(Message * message) throw()
 {
    Message * response = 0;
+
+   CIMMessage * msg = dynamic_cast<CIMMessage *>(message);
+
+   if(msg != NULL)
+   {
+   	AcceptLanguages *langs = new AcceptLanguages(msg->acceptLanguages);
+   	Thread::setLanguages(langs);
+   }
+   else
+   {
+   	Thread::clearLanguages();
+   }
 
    try
    {

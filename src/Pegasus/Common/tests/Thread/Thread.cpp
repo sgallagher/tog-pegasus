@@ -164,11 +164,20 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL reading_thread(void *parm)
    {
       int i = 0;
       
+#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
       char *my_storage = (char *)calloc(256, sizeof(char));
+#else
+      char *my_storage = (char *)::operator new(256);
+#endif
       //    sprintf(my_storage, "%ld", myself + i);
       try 
       {
+#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 	 my_handle->put_tsd(keys[i % 4], free, 256, my_storage);
+#else
+         my_handle->put_tsd(keys[i % 4], ::operator delete,
+                            256, my_storage);              
+#endif
       }
       catch(IPCException& e)
       {

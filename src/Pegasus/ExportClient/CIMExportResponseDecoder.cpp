@@ -62,7 +62,7 @@ CIMExportResponseDecoder::~CIMExportResponseDecoder()
 
 }
 
-void  CIMExportResponseDecoder::setEncoderQueue(MessageQueueService* encoderQueue)
+void  CIMExportResponseDecoder::setEncoderQueue(MessageQueue* encoderQueue)
 {
    _encoderQueue = encoderQueue;
 }

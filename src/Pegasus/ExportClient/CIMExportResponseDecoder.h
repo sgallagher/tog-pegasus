@@ -64,7 +64,7 @@ class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportResponseDecoder :  public MessageQu
       /** Destructor. */
       ~CIMExportResponseDecoder();
 
-      void setEncoderQueue(MessageQueueService* encoderQueue);
+      void setEncoderQueue(MessageQueue* encoderQueue);
 
       /** This method is called when a message is enqueued on this queue. */
       virtual void handleEnqueue(Message *);

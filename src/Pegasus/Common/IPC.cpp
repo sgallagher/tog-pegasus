@@ -532,12 +532,12 @@ Condition::~Condition(void)
    _disallow = 1;
    _condition._spin.lock(pegasus_thread_self());
 
-   while(NULL != (lingerers = _condition._waiters.remove() ) )
+   while(NULL != (lingerers = static_cast<cond_waiter *>(_condition._waiters.remove_last())))
    {
       lingerers->signalled.signal();
    }
    _condition._spin.unlock();
-   while( _condition._waiters._count)   {
+   while( _condition._waiters.count())   {
       pegasus_yield();
    }
 }
@@ -656,11 +656,11 @@ void Condition::unlocked_signal(PEGASUS_THREAD_TYPE caller)
    _condition._spin.lock(caller);
    if (_condition._waiters.count() > 0) 
    {
-      internal_dq<cond_waiter> *waiters = _condition._waiters._next;
-      while( waiters->_isHead == false) 
+      cond_waiter *waiters = static_cast<cond_waiter *>(_condition._waiters.next(0));
+      while( waiters != 0) 
       {
-	 waiters->_rep->signalled.signal();
-	 waiters = waiters->_next;
+	 waiters->signalled.signal();
+	 waiters = static_cast<cond_waiter *>(_condition._waiters.next(waiters));
       }
    }
    _condition._spin.unlock();

@@ -38,6 +38,7 @@ class TST_Person
 {
     [key]
     string name;
+    string extraProperty = "defaultvalue";
 };
     [Version("1.0.0"), Description (" Sub Level Class that defines "
         "a person. We will use this in static assoociation "
@@ -45,7 +46,6 @@ class TST_Person
 class TST_PersonS : TST_Person
 {
     [key]
-    string name;
     string secondProperty = "empty";
     uint32 counter;
 };
@@ -67,6 +67,7 @@ class TST_PersonDynamic:TST_Person
         "See the SamplePerson Provider. ") ]
 class TST_PersonDynamicSubClass:TST_PersonDynamic
 {
+    string thirdProperty;
 };
 
 [Association, Version("1.0.0"), Description(" Lineage defines the "

@@ -113,8 +113,7 @@ void snmpDeliverTrap_emanate::initialize()
 
       throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
 				    MessageLoaderParms(_MSG_INITSUBAGENT_FAILED_KEY,
-						       _MSG_INITSUBAGENT_FAILED,
-						       _MSG_INITSUBAGENT));
+						       _MSG_INITSUBAGENT_FAILED));
 
     }
 }
@@ -156,8 +155,7 @@ void snmpDeliverTrap_emanate::deliverTrap(
 
       throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
 				    MessageLoaderParms(_MSG_INVALID_KEY,
-						       _MSG_INVALID_TRAPOID,
-						       _MSG_TRAPOID));
+						       _MSG_INVALID_TRAPOID));
     }
 
     // Destination : convert targetHost into Transport
@@ -204,10 +202,7 @@ void snmpDeliverTrap_emanate::deliverTrap(
 
 	  throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_NOT_SUPPORTED,
 					 MessageLoaderParms(_MSG_TARGETHOSTFORMAT_NOT_SUPPORTED_KEY,
-							    _MSG_TARGETHOSTFORMAT_NOT_SUPPORTED,
-							    _MSG_HOSTNAME,
-							    _MSG_IPV4,
-							    _MSG_TARGETHOSTFORMAT));
+							    _MSG_TARGETHOSTFORMAT_NOT_SUPPORTED));
 
 	    break;	    
 	}
@@ -240,8 +235,7 @@ void snmpDeliverTrap_emanate::deliverTrap(
 
       throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
 				    MessageLoaderParms(_MSG_INVALID_SECURITY_NAME_KEY,
-						       _MSG_INVALID_SECURITY_NAME,
-						       _MSG_SECURITY_NAME));
+						       _MSG_INVALID_SECURITY_NAME));
 						       
     }
 
@@ -291,8 +285,7 @@ void snmpDeliverTrap_emanate::deliverTrap(
 
       throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
 				    MessageLoaderParms(_MSG_CREATE_OCTET_FAILED_KEY,
-						       _MSG_CREATE_OCTET_FAILED,
-						       _MSG_OCTETSTRING));
+						       _MSG_CREATE_OCTET_FAILED));
 
     }
  
@@ -390,8 +383,7 @@ void snmpDeliverTrap_emanate::deliverTrap(
 
 	  throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
 					MessageLoaderParms(_MSG_INVALID_ENTERPRISEOID_KEY,
-							   _MSG_INVALID_ENTERPRISEOID,
-							   _MSG_ENTERPRISEOID));
+							   _MSG_INVALID_ENTERPRISEOID));
 	}
     }
 
@@ -411,9 +403,7 @@ void snmpDeliverTrap_emanate::deliverTrap(
 
 	  throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
 					MessageLoaderParms(_MSG_INVALID_PROPERTYOID_KEY,
-							   _MSG_INVALID_PROPERTYOID,
-							   _MSG_OID,
-							   _MSG_CIM));
+							   _MSG_INVALID_PROPERTYOID));
         } 
 
 	if (String::equalNoCase(vbTypes[i], "OctetString"))
@@ -431,8 +421,7 @@ void snmpDeliverTrap_emanate::deliverTrap(
 
        	         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
 					       MessageLoaderParms(_MSG_INVALID_PROPERTYVALUE_KEY,
-								  _MSG_INVALID_PROPERTYVALUE,
-								  _MSG_CIM));
+								  _MSG_INVALID_PROPERTYVALUE));
              }
 
              if ((vb = MakeVarBindWithValue(object, 
@@ -447,10 +436,8 @@ void snmpDeliverTrap_emanate::deliverTrap(
 	      //    _MSG_MAKE_VARBIND_FAILED_FOR_OCTET_PRIM_TYPE);
 
 	      throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-					    MessageLoaderParms(_MSG_MAKE_VARBIND_FAILED_KEY,
-							       _MSG_MAKE_VARBIND_FAILED,
-							       _MSG_VARBIND,
-							       _MSG_OCTET_PRIM_TYPE));
+					    MessageLoaderParms(_MSG_MAKE_VARBIND_FAILED_FOR_OCTET_PRIM_TYPE_KEY,
+							       _MSG_MAKE_VARBIND_FAILED_FOR_OCTET_PRIM_TYPE));
             }
     	}
 	else if (String::equalNoCase(vbTypes[i], "OID"))
@@ -465,8 +452,7 @@ void snmpDeliverTrap_emanate::deliverTrap(
 
 	      throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
 					    MessageLoaderParms(_MSG_INVALID_PROPERTYVALUE_KEY,
-							       _MSG_INVALID_PROPERTYVALUE,
-							       _MSG_CIM));
+							       _MSG_INVALID_PROPERTYVALUE));
 							       
             }
 
@@ -482,10 +468,8 @@ void snmpDeliverTrap_emanate::deliverTrap(
 	      //    _MSG_MAKE_VARBIND_FAILED_FOR_OBJECT_ID_TYPE);
 
 	      throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-					    MessageLoaderParms(_MSG_MAKE_VARBIND_FAILED_KEY,
-							       _MSG_MAKE_VARBIND_FAILED,
-							       _MSG_VARBIND,
-							       _MSG_OBJECT_ID_TYPE));
+					    MessageLoaderParms(_MSG_MAKE_VARBIND_FAILED_FOR_OBJECT_ID_TYPE_KEY,
+							       _MSG_MAKE_VARBIND_FAILED_FOR_OBJECT_ID_TYPE));
             }
 	}
 	else
@@ -503,8 +487,7 @@ void snmpDeliverTrap_emanate::deliverTrap(
 
 	      throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
 					    MessageLoaderParms(_MSG_INVALID_PROPERTYVALUE_KEY,
-							       _MSG_INVALID_PROPERTYVALUE,
-							       _MSG_CIM));
+							       _MSG_INVALID_PROPERTYVALUE));
             }
 
             if ((vb = MakeVarBindWithValue(object, 
@@ -519,10 +502,8 @@ void snmpDeliverTrap_emanate::deliverTrap(
 	      //    _MSG_MAKE_VARBIND_FAILED_FOR_INTEGER_TYPE);
 
 	      throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-					    MessageLoaderParms(_MSG_MAKE_VARBIND_FAILED_KEY,
-							       _MSG_MAKE_VARBIND_FAILED,
-							       _MSG_VARBIND,
-							       _MSG_INTEGER_TYPE));
+					    MessageLoaderParms(_MSG_MAKE_VARBIND_FAILED_FOR_INTEGER_TYPE_KEY,
+							       _MSG_MAKE_VARBIND_FAILED_FOR_INTEGER_TYPE));
             }
 	}
 
@@ -589,10 +570,7 @@ void snmpDeliverTrap_emanate::deliverTrap(
 
 	  throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED,	  
 					MessageLoaderParms(_MSG_VERSION_NOT_SUPPORTED_KEY,
-							   _MSG_VERSION_NOT_SUPPORTED,
-							   _MSG_SNMPv1,
-							   _MSG_SNMPv2C,
-							   _MSG_SNMPVersion));
+							   _MSG_VERSION_NOT_SUPPORTED));
 
 	  break;
 	}

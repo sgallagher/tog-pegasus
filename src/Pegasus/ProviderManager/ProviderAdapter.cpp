@@ -239,13 +239,10 @@ PROVIDERADAPTER_DEBUG( cerr << "ProviderAdapterManager::loadAdapter(): "<<
              //"Cannot load providerAdapter, error: " + System::dynamicLoadError();
         //throw Exception("AdapterLoadFailure (" +
               //adapterName + "):" + errorString);
-        String s0 = "AdapterLoadFailure";
-        String s2 = "providerAdapter";
+
         throw Exception(MessageLoaderParms("ProviderManager.ProviderAdapter.CANNOT_LOAD_PROVIDER_ADAPTER",
-        								   "$0 ($1):Cannot load $2, error: $3",
-        								   s0, 
+        								   "AdapterLoadFailure ($0):Cannot load providerAdapter, error: $1",
         								   adapterName, 
-        								   s2,
         								   System::dynamicLoadError()));
     }
     return library;
@@ -275,10 +272,8 @@ PROVIDERADAPTER_DEBUG( cerr << "ProviderAdapterManager::loadProvider(): "<<
             //String errorString = "entry point returned null\n";
             //throw Exception("AdapterLoadFailure (" +
                    //adapterName + "):" + errorString);
-            String s0 = "AdapterLoadFailure";
             throw Exception(MessageLoaderParms("ProviderManager.ProviderAdapter.ENTRY_POINT_RETURNED_NULL",
-            								   "$0 ($1):entry point returned null\n",
-            								   s0,
+            								   "AdapterLoadFailure ($0):entry point returned null\n",
             								   adapterName));
         }
 
@@ -290,13 +285,9 @@ PROVIDERADAPTER_DEBUG( cerr << "ProviderAdapterManager::loadProvider(): "<<
             //String errorString = "adapter is not a ProviderAdapter\n";
             //throw Exception("AdapterLoadFailure (" +
                    //adapterName + "):" + errorString);
-            String s0 = "AdapterLoadFailure";
-            String s2 = "ProviderAdapter";
-            throw Exception(MessageLoaderParms("ProviderManager.ProviderAdapter.ADAPTER_NOT",
-            								   "$0 ($1):adapter is not a $2\n",
-            								   s0,
-            								   adapterName,
-            								   s2));
+            throw Exception(MessageLoaderParms("ProviderManager.ProviderAdapter.ADAPTER_NOT_PA",
+            								   "AdapterLoadFailure ($0):adapter is not a ProviderAdapter\n",
+            								   adapterName));
         }
 
         // test secondary interface
@@ -307,13 +298,10 @@ PROVIDERADAPTER_DEBUG( cerr << "ProviderAdapterManager::loadProvider(): "<<
             //String errorString = "adapter is not a CIMProvider\n";
             //throw Exception("AdapterLoadFailure (" +
                    //adapterName + "):" + errorString);
-            String s0 = "AdapterLoadFailure";
-            String s2 = "CIMProvider";
-            throw Exception(MessageLoaderParms("ProviderManager.ProviderAdapter.ADAPTER_NOT",
-            								   "$0 ($1):adapter is not a $2\n",
-            								   s0,
-            								   adapterName,
-            								   s2));
+
+            throw Exception(MessageLoaderParms("ProviderManager.ProviderAdapter.ADAPTER_NOT_CP",
+            								   "AdapterLoadFailure ($0):adapter is not a CIMProvider\n",
+            								   adapterName));
         }
 
         // save library address to unload
@@ -325,13 +313,10 @@ PROVIDERADAPTER_DEBUG( cerr << "ProviderAdapterManager::loadProvider(): "<<
         //String errorString = "CreateProviderAdapter missing.";
        // throw Exception("AdapterLoadFailure (" +
                //adapterName + "):" + errorString);
-       String s0 = "AdapterLoadFailure";
-       String s2 = "CreateProviderAdapter";
+
        throw Exception(MessageLoaderParms("ProviderManager.ProviderAdapter.MISSING",
-       									  "$0 ($1):$2 missing.",
-       									  s0,
-       									  adapterName,
-       									  s2));
+       									  "AdapterLoadFailure ($0):CreateProviderAdapter missing.",
+       									  adapterName));
     }
 } 
 

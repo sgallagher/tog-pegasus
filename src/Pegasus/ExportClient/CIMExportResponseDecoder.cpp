@@ -267,7 +267,7 @@ void CIMExportResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
      // CIMClientMalformedHTTPException* malformedHTTPException = new
      //    CIMClientMalformedHTTPException("Missing CIMOperation HTTP header");
 
-      MessageLoaderParms mlParms("ExportClient.CIMExportResponseDecoder.MISSING_CIMOP_HEADER", "Missing $0 HTTP header", "CIMOperation");
+      MessageLoaderParms mlParms("ExportClient.CIMExportResponseDecoder.MISSING_CIMOP_HEADER", "Missing CIMOperation HTTP header");
       String mlString(MessageLoader::getMessage(mlParms));
 
      CIMClientMalformedHTTPException* malformedHTTPException = new
@@ -326,7 +326,7 @@ void CIMExportResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
      //         String("Received CIMOperation HTTP header value \"") +
      //         cimOperation + "\", expected \"MethodResponse\"");
 
-      MessageLoaderParms mlParms("ExportClient.CIMExportResponseDecoder.EXPECTED_METHODRESPONSE", "Received $0 HTTP header value \"$1\", expected \"$2\"", "CIMOperation", cimOperation, "MethodResponse");
+      MessageLoaderParms mlParms("ExportClient.CIMExportResponseDecoder.EXPECTED_METHODRESPONSE", "Received CIMOperation HTTP header value \"$0\", expected \"MethodResponse\"", cimOperation);
       String mlString(MessageLoader::getMessage(mlParms));
 
       CIMClientMalformedHTTPException* malformedHTTPException =
@@ -387,7 +387,7 @@ void CIMExportResponseDecoder::_handleMethodResponse(char* content)
 	// throw XmlValidationError(
 	// parser.getLine(), "expected MESSAGE element");
 	
-	MessageLoaderParms mlParms("ExportClient.CIMExportResponseDecoder.EXPECTED_ELEMENT", "expected $0 element", "MESSAGE");
+	MessageLoaderParms mlParms("ExportClient.CIMExportResponseDecoder.EXPECTED_MESSAGE_ELEMENT", "expected MESSAGE element");
 	String mlString(MessageLoader::getMessage(mlParms));
 	
 	throw XmlValidationError(parser.getLine(), mlString);
@@ -443,7 +443,7 @@ void CIMExportResponseDecoder::_handleMethodResponse(char* content)
 	    //	 String("Unrecognized IMethodResponse name \"") +
 	    //          iMethodResponseName + "\"");
 
-	    MessageLoaderParms mlParms("ExportClient.CIMExportResponseDecoder.UNRECOGNIZED_IMETH", "Unrecognized $0 name \"$1\"", "IMethodResponse", iMethodResponseName);
+	    MessageLoaderParms mlParms("ExportClient.CIMExportResponseDecoder.UNRECOGNIZED_IMETH", "Unrecognized IMethodResponse name \"$0\"", iMethodResponseName);
 	    String mlString(MessageLoader::getMessage(mlParms));
 	    
 	    throw XmlValidationError(parser.getLine(), mlString);
@@ -463,7 +463,7 @@ void CIMExportResponseDecoder::_handleMethodResponse(char* content)
 	  // throw XmlValidationError(parser.getLine(),
 	  //   "expected METHODRESPONSE or IMETHODRESPONSE element");
 	  
-	  MessageLoaderParms mlParms("ExportClient.CIMExportResponseDecoder.EXPECTED_ELEMENT_OR", "expected $0 or $1 element", "METHODRESPONSE", "IMETHODRESPONSE");
+	  MessageLoaderParms mlParms("ExportClient.CIMExportResponseDecoder.EXPECTED_METHODRESPONSE_OR_IMETHODRESPONSE_ELEMENT", "expected METHODRESPONSE or IMETHODRESPONSE element");
 	  String mlString(MessageLoader::getMessage(mlParms));
 	  
 	  throw XmlValidationError(parser.getLine(), mlString);

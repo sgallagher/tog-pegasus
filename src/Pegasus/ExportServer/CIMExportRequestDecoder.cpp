@@ -507,8 +507,7 @@ void CIMExportRequestDecoder::handleMethodRequest(
 	// parser.getLine(), "expected MESSAGE element");
 
 	 MessageLoaderParms mlParms("ExportServer.CIMExportRequestDecoder.EXPECTED_ELEMENT",
-				   "expected $0 element",
-				   "MESSAGE");
+				   "expected MESSAGE element");
 
 	 throw XmlValidationError(parser.getLine(), mlParms);
       }
@@ -559,8 +558,7 @@ void CIMExportRequestDecoder::handleMethodRequest(
 	//		  "expected EXPMETHODCALL element");
 
 	MessageLoaderParms mlParms("ExportServer.CIMExportRequestDecoder.EXPECTED_ELEMENT",
-				   "expected $0 element",
-				   "EXPMETHODCALL");
+				   "expected EXPMETHODCALL element");
 
 	 throw XmlValidationError(parser.getLine(), mlParms);
       }

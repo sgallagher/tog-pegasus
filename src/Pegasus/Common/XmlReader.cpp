@@ -86,8 +86,7 @@ void XmlReader::getXmlDeclaration(
       //   "Expected <?xml ... ?> style declaration");
 
       MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_XML_STYLE",
-				 "Expected $0 style declaration",
-				 "<?xml ... ?>");
+				 "Expected <?xml ... ?> style declaration");
 
       throw XmlValidationError(parser.getLine(), mlParms);
 
@@ -100,9 +99,8 @@ void XmlReader::getXmlDeclaration(
       // throw XmlValidationError(
       //   parser.getLine(), "missing xml.version attribute");
 
-      MessageLoaderParms mlParms("Common.XmlReader.MISSING_ATTRIBUTE",
-				 "missing $0 attribute",
-				 "xml.version");
+      MessageLoaderParms mlParms("Common.XmlReader.MISSING_XML_ATTRIBUTE",
+				 "missing xml.version attribute");
 
       throw XmlValidationError(parser.getLine(), mlParms);
     }
@@ -244,7 +242,7 @@ Boolean XmlReader::expectContentOrCData(
       //	       "Expected content of CDATA");
 
       MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_CDATA",
-				 "Expected content of $0", "CDATA");
+				 "Expected content of CDATA");
 
       throw XmlValidationError(parser.getLine(), mlParms);
 
@@ -366,9 +364,8 @@ void XmlReader::getCimStartTag(
       // throw XmlValidationError(
       //   parser.getLine(), "missing CIM.CIMVERSION attribute");
 
-      MessageLoaderParms mlParms("Common.XmlReader.MISSING_ATTRIBUTE",
-				 "missing $0 attribute",
-				 "CIM.CIMVERSION");
+      MessageLoaderParms mlParms("Common.XmlReader.MISSING_CIMVERSION_ATTRIBUTE",
+				 "missing CIM.CIMVERSION attribute");
 
       throw XmlValidationError(parser.getLine(), mlParms);
     }
@@ -380,9 +377,8 @@ void XmlReader::getCimStartTag(
       // throw XmlValidationError(
       //   parser.getLine(), "missing CIM.DTDVERSION attribute");
       
-      MessageLoaderParms mlParms("Common.XmlReader.MISSING_ATTRIBUTE",
-				 "missing $0 attribute",
-				 "CIM.DTDVERSION");
+      MessageLoaderParms mlParms("Common.XmlReader.MISSING_DTDVERSION_ATTRIBUTE",
+				 "missing CIM.DTDVERSION attribute");
       
       throw XmlValidationError(parser.getLine(), mlParms);
     }
@@ -935,8 +931,8 @@ String XmlReader::decodeURICharacters(String uriString)
 
 	      // throw ParseError("Invalid URI encoding");
 
-	      MessageLoaderParms mlParms("Common.XmlReader.INVALID_ENCODING",
-					 "Invalid $0 encoding", "URI");
+	      MessageLoaderParms mlParms("Common.XmlReader.INVALID_URI_ENCODING",
+					 "Invalid URI encoding");
 
 	      throw ParseError(MessageLoader::getMessage(mlParms));
 
@@ -950,8 +946,8 @@ String XmlReader::decodeURICharacters(String uriString)
 
 	      // throw ParseError("Invalid URI encoding");
 
-	      MessageLoaderParms mlParms("Common.XmlReader.INVALID_ENCODING",
-					 "Invalid $0 encoding", "URI");
+	      MessageLoaderParms mlParms("Common.XmlReader.INVALID_URI_ENCODING",
+					 "Invalid URI encoding");
 
 	      throw ParseError(MessageLoader::getMessage(mlParms));
             }
@@ -1226,9 +1222,8 @@ CIMValue XmlReader::stringToValue(
 	      //  throw XmlSemanticError(
 	      //	     lineNumber, "Invalid boolean value");
 
-	      MessageLoaderParms mlParms("Common.XmlReader.INVALID_VALUE",
-					 "Invalid $0 value",
-					 "boolean");
+	      MessageLoaderParms mlParms("Common.XmlReader.INVALID_BOOLEAN_VALUE",
+					 "Invalid boolean value");
 	      
 	      throw XmlSemanticError(lineNumber, mlParms);
 	      
@@ -1248,9 +1243,8 @@ CIMValue XmlReader::stringToValue(
 
 	    // throw XmlSemanticError(lineNumber, "Invalid char16 value");
 	    
-	    MessageLoaderParms mlParms("Common.XmlReader.INVALID_VALUE",
-				       "Invalid $0 value",
-				       "char16");
+	    MessageLoaderParms mlParms("Common.XmlReader.INVALID_CHAR16_VALUE",
+				       "Invalid char16 value");
 	    
 	    throw XmlSemanticError(lineNumber, mlParms);
 	  }
@@ -1273,9 +1267,8 @@ CIMValue XmlReader::stringToValue(
 	      // throw XmlSemanticError(
 	      //   lineNumber, "Invalid unsigned integer value");
 
-	      MessageLoaderParms mlParms("Common.XmlReader.INVALID_VALUE",
-					 "Invalid $0 value",
-					 "unsigned integer");
+	      MessageLoaderParms mlParms("Common.XmlReader.INVALID_UI_VALUE",
+					 "Invalid unsigned integer value");
 	      
 	      throw XmlSemanticError(lineNumber, mlParms);
 
@@ -1293,9 +1286,8 @@ CIMValue XmlReader::stringToValue(
 		      // throw XmlSemanticError(
 		      //   lineNumber, "Uint8 value out of range");
 		      
-		      MessageLoaderParms mlParms("Common.XmlReader.VALUE_OUT_OF_RANGE",
-						 "$0 value out of range",
-						 "Uint8");
+		      MessageLoaderParms mlParms("Common.XmlReader.U8_VALUE_OUT_OF_RANGE",
+						 "Uint8 value out of range");
 		      
 		      throw XmlSemanticError(lineNumber, mlParms);	
 		    }
@@ -1311,9 +1303,8 @@ CIMValue XmlReader::stringToValue(
 		      // throw XmlSemanticError(
 		      //	     lineNumber, "Uint16 value out of range");
 
-		      MessageLoaderParms mlParms("Common.XmlReader.VALUE_OUT_OF_RANGE",
-						 "$0 value out of range",
-						 "Uint16");
+		      MessageLoaderParms mlParms("Common.XmlReader.U16_VALUE_OUT_OF_RANGE",
+						 "Uint16 value out of range");
 		      
 		      throw XmlSemanticError(lineNumber, mlParms);	
 
@@ -1330,9 +1321,8 @@ CIMValue XmlReader::stringToValue(
 		      // throw XmlSemanticError(
 		      //   lineNumber, "Uint32 value out of range");
 
-		      MessageLoaderParms mlParms("Common.XmlReader.VALUE_OUT_OF_RANGE",
-						 "$0 value out of range",
-						 "Uint32");
+		      MessageLoaderParms mlParms("Common.XmlReader.U32_VALUE_OUT_OF_RANGE",
+						 "Uint32 value out of range");
 		      
 		      throw XmlSemanticError(lineNumber, mlParms);	
 		    }
@@ -1358,9 +1348,8 @@ CIMValue XmlReader::stringToValue(
 	      // throw XmlSemanticError(
 	      //   lineNumber, "Invalid signed integer value");
 
-	      MessageLoaderParms mlParms("Common.XmlReader.INVALID_VALUE",
-					 "Invalid $0 value",
-					 "signed integer");
+	      MessageLoaderParms mlParms("Common.XmlReader.INVALID_SI_VALUE",
+					 "Invalid signed integer value");
 	      
 	      throw XmlSemanticError(lineNumber, mlParms);
 
@@ -1378,9 +1367,8 @@ CIMValue XmlReader::stringToValue(
 		      // throw XmlSemanticError(
 		      //   lineNumber, "Sint8 value out of range");
 		      
-		      MessageLoaderParms mlParms("Common.XmlReader.VALUE_OUT_OF_RANGE",
-						 "$0 value out of range",
-						 "Sint8");
+		      MessageLoaderParms mlParms("Common.XmlReader.S8_VALUE_OUT_OF_RANGE",
+						 "Sint8 value out of range");
 		      
 		      throw XmlSemanticError(lineNumber, mlParms);	
 		    }
@@ -1396,9 +1384,8 @@ CIMValue XmlReader::stringToValue(
 		      // throw XmlSemanticError(
 		      //   lineNumber, "Sint16 value out of range");
 		      
-		      MessageLoaderParms mlParms("Common.XmlReader.VALUE_OUT_OF_RANGE",
-						 "$0 value out of range",
-						 "Sint16");
+		      MessageLoaderParms mlParms("Common.XmlReader.S16_VALUE_OUT_OF_RANGE",
+						 "Sint16 value out of range");
 		      
 		      throw XmlSemanticError(lineNumber, mlParms);	
 		    }
@@ -1414,9 +1401,8 @@ CIMValue XmlReader::stringToValue(
 		      // throw XmlSemanticError(
 		      //   lineNumber, "Sint32 value out of range");
 
-		      MessageLoaderParms mlParms("Common.XmlReader.VALUE_OUT_OF_RANGE",
-						 "$0 value out of range",
-						 "Sint32");
+		      MessageLoaderParms mlParms("Common.XmlReader.S32_VALUE_OUT_OF_RANGE",
+						 "Sint32 value out of range");
 		      
 		      throw XmlSemanticError(lineNumber, mlParms);	
 		    }
@@ -1449,9 +1435,8 @@ CIMValue XmlReader::stringToValue(
 
 	      // throw XmlSemanticError(lineNumber, "Invalid datetime value");
 
-	      MessageLoaderParms mlParms("Common.XmlReader.INVALID_VALUE",
-					 "Invalid $0 value",
-					 "datetime");
+	      MessageLoaderParms mlParms("Common.XmlReader.INVALID_DATETIME_VALUE",
+					 "Invalid datetime value");
 	      
 	      throw XmlSemanticError(lineNumber, mlParms);
 	    }
@@ -1469,9 +1454,8 @@ CIMValue XmlReader::stringToValue(
 
 	      // throw XmlSemanticError(lineNumber, "Invalid real number value");
 
-	      MessageLoaderParms mlParms("Common.XmlReader.INVALID_VALUE",
-					 "Invalid $0 value",
-					 "real number");
+	      MessageLoaderParms mlParms("Common.XmlReader.INVALID_RN_VALUE",
+					 "Invalid real number value");
 	      
 	      throw XmlSemanticError(lineNumber, mlParms);
 	    }
@@ -1488,9 +1472,8 @@ CIMValue XmlReader::stringToValue(
 
 	      // throw XmlSemanticError(lineNumber, "Invalid real number value");
 
-	      MessageLoaderParms mlParms("Common.XmlReader.INVALID_VALUE",
-					 "Invalid $0 value",
-					 "real number");
+	      MessageLoaderParms mlParms("Common.XmlReader.INVALID_RN_VALUE",
+					 "Invalid real number value");
 	      
 	      throw XmlSemanticError(lineNumber, mlParms);
 	    }
@@ -1580,8 +1563,8 @@ Boolean XmlReader::getStringValueElement(
 
 	// throw XmlValidationError(parser.getLine(),"Expected VALUE element");
 
-	MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
-				   "Expected $0 element", "VALUE");
+	MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_VALUE_ELEMENT",
+				   "Expected VALUE element");
 	
 	throw XmlValidationError(parser.getLine(), mlParms);
 	
@@ -2013,8 +1996,8 @@ void getQualifierElements(XmlParser& parser, CONTAINER& container)
 	  
 	  // throw XmlSemanticError(parser.getLine(), "duplicate qualifier");
 
-	  MessageLoaderParms mlParms("Common.XmlReader.DUPLICATE",
-				     "duplicate $0", "qualifier");
+	  MessageLoaderParms mlParms("Common.XmlReader.DUPLICATE_QUALIFIER",
+				     "duplicate qualifier");
 	  
 	  throw XmlSemanticError(parser.getLine(), mlParms);
 	}
@@ -2207,8 +2190,7 @@ Boolean XmlReader::getPropertyArrayElement(
 	      //   "ARRAYSIZE attribute and value-array size are different");
 
 	      MessageLoaderParms mlParms("Common.XmlReader.ARRAY_SIZE_DIFFERENT",
-					 "$0 attribute and $1 size are different",
-					 "ARRAYSIZE", "value-array");
+					 "ARRAYSIZE attribute and value-array size are different");
 	      
 	      throw XmlSemanticError(parser.getLine(), mlParms);
 	    }
@@ -2264,7 +2246,7 @@ Boolean XmlReader::getHostElement(
       //	       "expected content of HOST element");
 
       MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_CONTENT_ELEMENT",
-				 "expected content of $0 element", "HOST");
+				 "expected content of HOST element");
       
       throw XmlValidationError(parser.getLine(), mlParms);
 	
@@ -2342,8 +2324,7 @@ Boolean XmlReader::getLocalNameSpacePathElement(
       //   "LOCALNAMESPACEPATH element");
 
       MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_NAMESPACE_ELEMENTS",
-				 "Expected one or more $0 elements within $1 element", 
-				 "NAMESPACE", "LOCALNAMESPACEPATH");
+				 "Expected one or more NAMESPACE elements within LOCALNAMESPACEPATH element");
       
       throw XmlValidationError(parser.getLine(), mlParms);
 	
@@ -2381,8 +2362,8 @@ Boolean XmlReader::getNameSpacePathElement(
 
       // throw XmlValidationError(parser.getLine(), "expected HOST element");
 
-      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
-				 "expected $0 element", "HOST");
+      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_HOST_ELEMENT",
+				 "expected HOST element");
       
       throw XmlValidationError(parser.getLine(), mlParms);
     }
@@ -2395,8 +2376,8 @@ Boolean XmlReader::getNameSpacePathElement(
       // throw XmlValidationError(parser.getLine(), 
       //   "expected LOCALNAMESPACEPATH element");
 
-      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
-				 "expected $0 element", "LOCALNAMESPACEPATH");
+      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_LOCALNAMESPACEPATH_ELEMENT",
+				 "expected LOCALNAMESPACEPATH element");
       
       throw XmlValidationError(parser.getLine(), mlParms);
     }
@@ -2432,8 +2413,8 @@ Boolean XmlReader::getClassNameElement(
 	  // throw XmlValidationError(parser.getLine(),
 	  // "expected CLASSNAME element");
 
-	  MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
-				     "expected $0 element", "CLASSNAME");
+	  MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_CLASSNAME_ELEMENT",
+				     "expected CLASSNAME element");
 	  
 	  throw XmlValidationError(parser.getLine(), mlParms);
 	}
@@ -2490,8 +2471,7 @@ CIMKeyBinding::Type XmlReader::getValueTypeAttribute(
     sprintf(buffer, "%s.VALUETYPE", elementName);
     
     MessageLoaderParms mlParms("Common.XmlReader.ILLEGAL_VALUE_FOR_CIMVALUE_ATTRIBUTE",
-			       "Illegal value for $0 attribute; $1 must be one of $2, $3, or $4",
-			       buffer, "CIMValue", "\"string\"", "\"boolean\"", "\"numeric\"");
+			       "Illegal value for $0 attribute; CIMValue must be one of \"string\", \"boolean\", or \"numeric\"", buffer);
     
     throw XmlSemanticError(lineNumber, mlParms);
 
@@ -2575,8 +2555,8 @@ Boolean XmlReader::getKeyBindingElement(
 	  // throw XmlValidationError(parser.getLine(),
 	  //          "Expected KEYVALUE or VALUE.REFERENCE element");
 
-	  MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_OR_ELEMENT",
-				     "Expected $0 or $1 element", "KEYVALUE", "VALUE.REFERENCE");
+	  MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_KEYVALUE_OR_REFERENCE_ELEMENT",
+				     "Expected KEYVALUE or VALUE.REFERENCE element");
 	  
 	  throw XmlValidationError(parser.getLine(), mlParms);
         }
@@ -2694,8 +2674,8 @@ Boolean XmlReader::getInstancePathElement(
       // throw XmlValidationError(parser.getLine(),
       //   "expected NAMESPACEPATH element");
 
-      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
-				 "expected $0 element", "NAMESPACEPATH");
+      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_NAMESPACEPATH_ELEMENT",
+				 "expected NAMESPACEPATH element");
       
       throw XmlValidationError(parser.getLine(), mlParms);
 
@@ -2713,8 +2693,8 @@ Boolean XmlReader::getInstancePathElement(
       //   "expected INSTANCENAME element");
 
 
-      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
-				 "expected $0 element", "INSTANCENAME");
+      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_INSTANCENAME_ELEMENT",
+				 "expected INSTANCENAME element");
       
       throw XmlValidationError(parser.getLine(), mlParms);
 
@@ -2753,8 +2733,8 @@ Boolean XmlReader::getLocalInstancePathElement(
       // throw XmlValidationError(parser.getLine(),
       //   "expected LOCALNAMESPACEPATH element");
 
-      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
-				 "expected $0 element", "LOCALNAMESPACEPATH");
+      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_LOCALNAMESPACEPATH_ELEMENT",
+				 "expected LOCALNAMESPACEPATH element");
       
       throw XmlValidationError(parser.getLine(), mlParms);
 
@@ -2771,8 +2751,8 @@ Boolean XmlReader::getLocalInstancePathElement(
       // throw XmlValidationError(parser.getLine(), 
       //   "expected INSTANCENAME element");
 
-      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
-				 "expected $0 element", "INSTANCENAME");
+      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_INSTANCENAME_ELEMENT",
+				 "expected INSTANCENAME element");
       
       throw XmlValidationError(parser.getLine(), mlParms);
 
@@ -2812,8 +2792,8 @@ Boolean XmlReader::getClassPathElement(
       // throw XmlValidationError(parser.getLine(),
       //    "expected NAMESPACEPATH element");
 
-      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
-				 "expected $0 element", "NAMESPACEPATH");
+      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_NAMESPACEPATH_ELEMENT",
+				 "expected NAMESPACEPATH element");
       
       throw XmlValidationError(parser.getLine(), mlParms);
 
@@ -2829,8 +2809,8 @@ Boolean XmlReader::getClassPathElement(
       // throw XmlValidationError(parser.getLine(), 
       //   "expected CLASSNAME element");
 
-      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
-				 "expected $0 element", "CLASSNAME");
+      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_CLASSNAME_ELEMENT",
+				 "expected CLASSNAME element");
       
       throw XmlValidationError(parser.getLine(), mlParms);
 
@@ -2869,8 +2849,8 @@ Boolean XmlReader::getLocalClassPathElement(
       // throw XmlValidationError(parser.getLine(),
       //    "expected LOCALNAMESPACEPATH element");
 
-      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
-				 "expected $0 element", "LOCALNAMESPACEPATH");
+      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_LOCALNAMESPACEPATH_ELEMENT",
+				 "expected LOCALNAMESPACEPATH element");
       
       throw XmlValidationError(parser.getLine(), mlParms);
 
@@ -2886,8 +2866,8 @@ Boolean XmlReader::getLocalClassPathElement(
       // throw XmlValidationError(parser.getLine(), 
       //   "expected CLASSNAME element");
 
-      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
-				 "expected $0 element", "CLASSNAME");
+      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_CLASSNAME_ELEMENT",
+				 "expected CLASSNAME element");
       
       throw XmlValidationError(parser.getLine(), mlParms);
 
@@ -2934,7 +2914,7 @@ Boolean XmlReader::getValueReferenceElement(
       //    "LOCALINSTANCEPATH, INSTANCENAME");
 
       MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_START_TAGS",
-				 "Expected one of the following start tags: $0", "CLASSPATH, LOCALCLASSPATH, CLASSNAME, INSTANCEPATH, LOCALINSTANCEPATH, INSTANCENAME");
+				 "Expected one of the following start tags: CLASSPATH, LOCALCLASSPATH, CLASSNAME, INSTANCEPATH, LOCALINSTANCEPATH, INSTANCENAME");
       
       throw XmlValidationError(parser.getLine(), mlParms);
 
@@ -3111,8 +3091,8 @@ void GetPropertyElements(XmlParser& parser, CONTAINER& container)
 
 	  // throw XmlSemanticError(parser.getLine(), "duplicate property");
 
-	  MessageLoaderParms mlParms("Common.XmlReader.DUPLICATE",
-				     "duplicate $0", "property");
+	  MessageLoaderParms mlParms("Common.XmlReader.DUPLICATE_PROPERTY",
+				     "duplicate property");
 	  
 	  throw XmlSemanticError(parser.getLine(), mlParms);
 	}
@@ -3341,8 +3321,8 @@ void GetParameterElements(XmlParser& parser, CONTAINER& container)
 
 	  // throw XmlSemanticError(parser.getLine(), "duplicate parameter");
 
-	  MessageLoaderParms mlParms("Common.XmlReader.DUPLICATE",
-				     "duplicate $0", "parameter");
+	  MessageLoaderParms mlParms("Common.XmlReader.DUPLICATE_PARAMETER",
+				     "duplicate parameter");
 	  
 	  throw XmlSemanticError(parser.getLine(), mlParms);
 	}
@@ -3427,8 +3407,7 @@ Boolean XmlReader::getQualifierDeclElement(
 	      //    "ISARRAY attribute");
 
 	      MessageLoaderParms mlParms("Common.XmlReader.ARRAY_WITHOUT_ISARRAY",
-					 "$0 element encountered without $1 attribute",
-					 "VALUE.ARRAY", "ISARRAY");
+					 "VALUE.ARRAY element encountered without ISARRAY attribute");
 	      
 	      throw XmlSemanticError(parser.getLine(), mlParms);
 	    }
@@ -3443,8 +3422,7 @@ Boolean XmlReader::getQualifierDeclElement(
 	      //    "ARRAYSIZE attribute");
 
 	      MessageLoaderParms mlParms("Common.XmlReader.ARRAY_SIZE_NOT_SAME",
-					 "$0 size is not the same as $1 attribute",
-					 "VALUE.ARRAY", "ARRAYSIZE");
+					 "VALUE.ARRAY size is not the same as ARRAYSIZE attribute");
 	      
 	      throw XmlSemanticError(parser.getLine(), mlParms);
 	    }
@@ -3462,8 +3440,7 @@ Boolean XmlReader::getQualifierDeclElement(
 	      //    "ISARRAY attribute used but VALUE element encountered");
 
 	      MessageLoaderParms mlParms("Common.XmlReader.ARRAY_ATTRIBUTE_DIFFERENT",
-					 "$0 attribute used but $1 element encountered",
-					 "ISARRAY", "VALUE");
+					 "ISARRAY attribute used but VALUE element encountered");
 	      
 	      throw XmlSemanticError(parser.getLine(), mlParms);
 	    }
@@ -3649,8 +3626,8 @@ Boolean XmlReader::getNamedInstanceElement(
       // throw XmlValidationError(parser.getLine(), 
       //    "expected INSTANCENAME element");
 
-      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
-				 "expected $0 element", "INSTANCENAME");
+      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_INSTANCENAME_ELEMENT",
+				 "expected INSTANCENAME element");
       
       throw XmlValidationError(parser.getLine(), mlParms);
     }
@@ -3666,8 +3643,8 @@ Boolean XmlReader::getNamedInstanceElement(
       //   "expected INSTANCE element");
 
 
-      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
-				 "expected $0 element", "INSTANCE");
+      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_INSTANCE_ELEMENT",
+				 "expected INSTANCE element");
       
       throw XmlValidationError(parser.getLine(), mlParms);
     }
@@ -3697,8 +3674,8 @@ void XmlReader::getObject(XmlParser& parser, CIMClass& x)
       // throw XmlValidationError(parser.getLine(),
       //   "expected CLASS element");
 
-      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
-				 "expected $0 element", "CLASS");
+      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_CLASS_ELEMENT",
+				 "expected CLASS element");
       
       throw XmlValidationError(parser.getLine(), mlParms);
     }
@@ -3720,8 +3697,8 @@ void XmlReader::getObject(XmlParser& parser, CIMInstance& x)
       // throw XmlValidationError(parser.getLine(),
       //   "expected INSTANCE element");
 
-      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
-				 "expected $0 element", "INSTANCE");
+      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_INSTANCE_ELEMENT",
+				 "expected INSTANCE element");
       
       throw XmlValidationError(parser.getLine(), mlParms);
     }
@@ -3743,8 +3720,8 @@ void XmlReader::getObject(XmlParser& parser, CIMQualifierDecl& x)
       // throw XmlValidationError(parser.getLine(),
       //   "expected QUALIFIER.DECLARATION element");
 
-      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
-				 "expected $0 element", "QUALIFIER.DECLARATION");
+      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_QUALIFIER_DECLARATION_ELEMENT",
+				 "expected QUALIFIER.DECLARATION element");
       
       throw XmlValidationError(parser.getLine(), mlParms);
     }
@@ -3775,8 +3752,8 @@ Boolean XmlReader::getMessageStartTag(
       // throw XmlValidationError(parser.getLine(), 
       //   "Invalid or missing MESSAGE.ID attribute");
 
-      MessageLoaderParms mlParms("Common.XmlReader.INVALID_MISSING_ATTRIBUTE",
-				 "Invalid or missing $0 attribute", "MESSAGE.ID");
+      MessageLoaderParms mlParms("Common.XmlReader.INVALID_MISSING_MESSAGE_ID_ATTRIBUTE",
+				 "Invalid or missing MESSAGE.ID attribute");
       
       throw XmlValidationError(parser.getLine(), mlParms);
     }      
@@ -3791,8 +3768,8 @@ Boolean XmlReader::getMessageStartTag(
       // throw XmlValidationError(parser.getLine(),
       //   "Invalid or missing MESSAGE.PROTOCOLVERSION attribute");
 
-      MessageLoaderParms mlParms("Common.XmlReader.INVALID_MISSING_ATTRIBUTE",
-				 "Invalid or missing $0 attribute", "MESSAGE.PROTOCOLVERSION");
+      MessageLoaderParms mlParms("Common.XmlReader.INVALID_MISSING_PROTOCOLVERSION_ATTRIBUTE",
+				 "Invalid or missing MESSAGE.PROTOCOLVERSION attribute");
       
       throw XmlValidationError(parser.getLine(), mlParms);
     }
@@ -3825,9 +3802,8 @@ Boolean XmlReader::getIMethodCallStartTag(
       // throw XmlValidationError(parser.getLine(),
       //   "Missing IMETHODCALL.NAME attribute");
 
-      MessageLoaderParms mlParms("Common.XmlReader.MISSING_ATTRIBUTE",
-				 "Missing $0 attribute",
-				 "IMETHODCALL.NAME");
+      MessageLoaderParms mlParms("Common.XmlReader.MISSING_IMETHODCALL_ATTRIBUTE",
+				 "Missing IMETHODCALL.NAME attribute");
 
       throw XmlValidationError(parser.getLine(), mlParms);
     }
@@ -3860,9 +3836,8 @@ Boolean XmlReader::getIMethodResponseStartTag(
       // throw XmlValidationError(parser.getLine(),
       //   "Missing IMETHODRESPONSE.NAME attribute");
 
-      MessageLoaderParms mlParms("Common.XmlReader.MISSING_ATTRIBUTE",
-				 "Missing $0 attribute",
-				 "IMETHODRESPONSE.NAME");
+      MessageLoaderParms mlParms("Common.XmlReader.MISSING_IMETHODRESPONSE_ATTRIBUTE",
+				 "Missing IMETHODRESPONSE.NAME attribute");
 
       throw XmlValidationError(parser.getLine(), mlParms);
     }
@@ -3895,9 +3870,8 @@ Boolean XmlReader::getIParamValueTag(
       // throw XmlValidationError(parser.getLine(),
       //   "Missing IPARAMVALUE.NAME attribute");
 
-      MessageLoaderParms mlParms("Common.XmlReader.MISSING_ATTRIBUTE",
-				 "Missing $0 attribute",
-				 "IPARAMVALUE.NAME");
+      MessageLoaderParms mlParms("Common.XmlReader.MISSING_IPARAMVALUE_ATTRIBUTE",
+				 "Missing IPARAMVALUE.NAME attribute");
 
       throw XmlValidationError(parser.getLine(), mlParms);
     }
@@ -3930,8 +3904,8 @@ Boolean XmlReader::getBooleanValueElement(
 	  // throw XmlValidationError(parser.getLine(),
 	  // "Expected VALUE element");
 
-	  MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
-				     "Expected $0 element", "VALUE");
+	  MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_VALUE_ELEMENT",
+				     "Expected VALUE element");
 	  
 	  throw XmlValidationError(parser.getLine(), mlParms);
 	}
@@ -3952,8 +3926,7 @@ Boolean XmlReader::getBooleanValueElement(
       //   "Invalid value for VALUE element: must be \"TRUE\" or \"FALSE\"");
 
       MessageLoaderParms mlParms("Common.XmlReader.INVALID_VALUE_FOR_VALUE_ELEMENT",
-				 "Invalid value for $0 element: must be $1 or $2", 
-				 "VALUE", "\"TRUE\"", "\"FALSE\"");
+				 "Invalid value for VALUE element: must be \"TRUE\" or \"FALSE\"");
       
       throw XmlSemanticError(parser.getLine(), mlParms);
     }
@@ -3989,8 +3962,8 @@ Boolean XmlReader::getErrorElement(
 
 	// throw XmlValidationError(parser.getLine(),"Expected ERROR element");
 	
-	MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
-				   "Expected $0 element", "ERROR");
+	MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ERROR_ELEMENT",
+				   "Expected ERROR element");
 	
 	throw XmlValidationError(parser.getLine(), mlParms);
 	
@@ -4012,9 +3985,8 @@ Boolean XmlReader::getErrorElement(
       // throw XmlValidationError(
       //       parser.getLine(), "missing ERROR.CODE attribute");
 
-      MessageLoaderParms mlParms("Common.XmlReader.MISSING_ATTRIBUTE",
-				 "missing $0 attribute",
-				 "ERROR.CODE");
+      MessageLoaderParms mlParms("Common.XmlReader.MISSING_ERROR_CODE_ATTRIBUTE",
+				 "missing ERROR.CODE attribute");
       
       throw XmlValidationError(parser.getLine(), mlParms);
 
@@ -4069,8 +4041,8 @@ Boolean XmlReader::getValueObjectElement(
       // throw XmlValidationError(parser.getLine(),
       //   "Expected INSTANCE or CLASS element");
 
-      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_OR_ELEMENT",
-				 "Expected $0 or $1 element", "INSTANCE", "CLASS");
+      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_INSTANCE_OR_CLASS_ELEMENT",
+				 "Expected INSTANCE or CLASS element");
       
       throw XmlValidationError(parser.getLine(), mlParms);
 
@@ -4110,8 +4082,8 @@ Boolean XmlReader::getValueObjectWithPathElement(
       // throw XmlValidationError(parser.getLine(),
       //    "Expected INSTANCEPATH or CLASSPATH element");
 
-      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_OR_ELEMENT",
-				 "Expected $0 or $1 element", "INSTANCEPATH", "CLASSPATH");
+      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_INSTANCEPATH_OR_CLASSPATH_ELEMENT",
+				 "Expected INSTANCEPATH or CLASSPATH element", "INSTANCEPATH", "CLASSPATH");
       
       throw XmlValidationError(parser.getLine(), mlParms);
     }
@@ -4128,8 +4100,8 @@ Boolean XmlReader::getValueObjectWithPathElement(
 	  // throw XmlValidationError(parser.getLine(),
 	  //		   "Expected INSTANCE element");
 
-	  MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
-				     "Expected $0 element", "INSTANCE");
+	  MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_INSTANCE_ELEMENT",
+				     "Expected INSTANCE element");
 	  
 	  throw XmlValidationError(parser.getLine(), mlParms);
 	}
@@ -4148,8 +4120,8 @@ Boolean XmlReader::getValueObjectWithPathElement(
 	  // throw XmlValidationError(parser.getLine(),
 	  // "Expected CLASS element");
 
-	  MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
-				     "Expected $0 element", "CLASS");
+	  MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_CLASS_ELEMENT",
+				     "Expected CLASS element");
 	  
 	  throw XmlValidationError(parser.getLine(), mlParms);
 	}
@@ -4192,8 +4164,8 @@ Boolean XmlReader::getValueObjectWithLocalPathElement(
       // throw XmlValidationError(parser.getLine(),
       //   "Expected LOCALINSTANCEPATH or LOCALCLASSPATH element");
 
-      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_OR_ELEMENT",
-				 "Expected $0 or $1 element", "LOCALINSTANCEPATH", "LOCALCLASSPATH");
+      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_LOCALINSTANCEPATH_OR_LOCALCLASSPATH_ELEMENT",
+				 "Expected LOCALINSTANCEPATH or LOCALCLASSPATH element");
       
       throw XmlValidationError(parser.getLine(), mlParms);
 
@@ -4211,8 +4183,8 @@ Boolean XmlReader::getValueObjectWithLocalPathElement(
 	  // throw XmlValidationError(parser.getLine(),
 	  //		   "Expected INSTANCE element");
 
-	  MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
-				     "Expected $0 element", "INSTANCE");
+	  MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_INSTANCE_ELEMENT",
+				     "Expected INSTANCE element");
 	  
 	  throw XmlValidationError(parser.getLine(), mlParms);
 
@@ -4232,8 +4204,8 @@ Boolean XmlReader::getValueObjectWithLocalPathElement(
 	  // throw XmlValidationError(parser.getLine(),
 	  // "Expected CLASS element");
 
-	  MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
-				     "Expected $0 element", "CLASS");
+	  MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_CLASS_ELEMENT",
+				     "Expected CLASS element");
 	  
 	  throw XmlValidationError(parser.getLine(), mlParms);
 
@@ -4312,8 +4284,8 @@ Boolean XmlReader::getObjectNameElement(
       // throw XmlValidationError(parser.getLine(),
       //   "expected CLASSNAME or INSTANCENAME element");
 
-      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_OR_ELEMENT",
-				 "Expected $0 or $1 element", "CLASSNAME", "INSTANCENAME");
+      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_CLASSNAME_OR_INSTANCENAME_ELEMENT",
+				 "Expected CLASSNAME or INSTANCENAME element");
       
       throw XmlValidationError(parser.getLine(), mlParms);
       
@@ -4355,8 +4327,8 @@ Boolean XmlReader::getObjectPathElement(
       // throw XmlValidationError(parser.getLine(),
       //   "expected INSTANCEPATH or CLASSPATH element");
 
-      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_OR_ELEMENT",
-				 "expected $0 or $1 element", "INSTANCEPATH", "CLASSPATH");
+      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_INSTANCEPATH_OR_CLASSPATH_ELEMENT",
+				 "expected INSTANCEPATH or CLASSPATH element");
       
       throw XmlValidationError(parser.getLine(), mlParms);
     }
@@ -4389,9 +4361,8 @@ Boolean XmlReader::getEMethodCallStartTag(
 	// throw XmlValidationError(parser.getLine(),
 	// "Missing EXPMETHODCALL.NAME attribute");
 
-	MessageLoaderParms mlParms("Common.XmlReader.MISSING_ATTRIBUTE",
-				   "Missing $0 attribute",
-				   "EXPMETHODCALL.NAME");
+	MessageLoaderParms mlParms("Common.XmlReader.MISSING_EXPMETHODCALL_ATTRIBUTE",
+				   "Missing EXPMETHODCALL.NAME attribute");
 	
 	throw XmlValidationError(parser.getLine(), mlParms);
       }
@@ -4423,9 +4394,8 @@ Boolean XmlReader::getEMethodResponseStartTag(
 	// throw XmlValidationError(
 	//   parser.getLine(), "Missing EXPMETHODRESPONSE.NAME attribute");
 	
-	MessageLoaderParms mlParms("Common.XmlReader.MISSING_ATTRIBUTE",
-				   "Missing $0 attribute",
-				   "EXPMETHODRESPONSE.NAME");
+	MessageLoaderParms mlParms("Common.XmlReader.MISSING_EXPMETHODRESPONSE_ATTRIBUTE",
+				   "Missing EXPMETHODRESPONSE.NAME attribute");
 	
 	throw XmlValidationError(parser.getLine(), mlParms);
       }
@@ -4458,9 +4428,8 @@ Boolean XmlReader::getEParamValueTag(
       // throw XmlValidationError(parser.getLine(),
       //   "Missing EXPPARAMVALUE.NAME attribute");
 
-      MessageLoaderParms mlParms("Common.XmlReader.MISSING_ATTRIBUTE",
-				 "Missing $0 attribute",
-				 "EXPPARAMVALUE.NAME");
+      MessageLoaderParms mlParms("Common.XmlReader.MISSING_EXPPARAMVALUE_ATTRIBUTE",
+				 "Missing EXPPARAMVALUE.NAME attribute");
 
       throw XmlValidationError(parser.getLine(), mlParms);
     }
@@ -4495,9 +4464,8 @@ Boolean XmlReader::getMethodCallStartTag(
       // throw XmlValidationError(parser.getLine(),
       //	       "Missing METHODCALL.NAME attribute");
 
-      MessageLoaderParms mlParms("Common.XmlReader.MISSING_ATTRIBUTE",
-				 "Missing $0 attribute",
-				 "METHODCALL.NAME");
+      MessageLoaderParms mlParms("Common.XmlReader.MISSING_METHODCALL_ATTRIBUTE",
+				 "Missing METHODCALL.NAME attribute");
 
       throw XmlValidationError(parser.getLine(), mlParms);
     }
@@ -4531,9 +4499,8 @@ Boolean XmlReader::getMethodResponseStartTag(
       // throw XmlValidationError(parser.getLine(),
       //   "Missing METHODRESPONSE.NAME attribute");
 
-      MessageLoaderParms mlParms("Common.XmlReader.MISSING_ATTRIBUTE",
-				 "Missing $0 attribute",
-				 "METHODRESPONSE.NAME");
+      MessageLoaderParms mlParms("Common.XmlReader.MISSING_METHODRESPONSE_ATTRIBUTE",
+				 "Missing METHODRESPONSE.NAME attribute");
 
       throw XmlValidationError(parser.getLine(), mlParms);
     }
@@ -4575,9 +4542,8 @@ Boolean XmlReader::getParamValueElement(
       // throw XmlValidationError(parser.getLine(),
       //   "Missing PARAMVALUE.NAME attribute");
 
-      MessageLoaderParms mlParms("Common.XmlReader.MISSING_ATTRIBUTE",
-				 "Missing $0 attribute",
-				 "PARAMVALUE.NAME");
+      MessageLoaderParms mlParms("Common.XmlReader.MISSING_PARAMVALUE_ATTRIBUTE",
+				 "Missing PARAMVALUE.NAME attribute");
 
       throw XmlValidationError(parser.getLine(), mlParms);
     }
@@ -4682,8 +4648,8 @@ Boolean XmlReader::getReturnValueElement(
 	  // throw XmlValidationError(parser.getLine(),
 	  //   "expected VALUE.REFERENCE element");
 
-	  MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
-				     "expected $0 element", "VALUE.REFERENCE");
+	  MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_VALUE_REFERENCE_ELEMENT",
+				     "expected VALUE.REFERENCE element");
 	  
 	  throw XmlValidationError(parser.getLine(), mlParms);
         }
@@ -4706,8 +4672,8 @@ Boolean XmlReader::getReturnValueElement(
 	  // throw XmlValidationError(parser.getLine(),
 	  //   "expected VALUE element");
 
-	  MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
-				     "expected $0 element", "VALUE");
+	  MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_VALUE_ELEMENT",
+				     "expected VALUE element");
 	  
 	  throw XmlValidationError(parser.getLine(), mlParms);
         }

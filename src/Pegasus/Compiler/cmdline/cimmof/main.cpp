@@ -169,10 +169,8 @@ main(int argc, char ** argv) {
   } else {
   	//l10n
     //cerr << "Failed to set DefaultNamespacePath." << endl;
-    String s1 = "DefaultNamespacePath";
     parms.msg_id = "Compiler.cmdline.cimmof.main.FAILED_TO_SET";
-    parms.default_msg = "Failed to set $0.";
-    parms.arg0 = s1;
+    parms.default_msg = "Failed to set DefaultNamespacePath.";
     cerr << MessageLoader::getMessage(parms) << endl;
     // ATTN: P3 BB 2001 Did not set namespace.  We may need to log an error here.
     return ret;
@@ -184,19 +182,15 @@ main(int argc, char ** argv) {
 	  ret = p->parse();
 	} catch(ParserLexException &e) {
 		//l10n
-		String s1 = "Lexer";
-		parms.msg_id = "Compiler.cmdline.cimmof.main.ERROR";
-		parms.default_msg = "$0 error: ";
-		parms.arg0 = s1;
+		parms.msg_id = "Compiler.cmdline.cimmof.main.LEXER_ERROR";
+		parms.default_msg = "Lexer error: ";
 	    //msg_ = String("Lexer error: ").append(e.getMessage());
 	    msg_ = MessageLoader::getMessage(parms).append(e.getMessage());
 	    ret = -5;
 	} catch(Exception &e) {
 		//l10n
-		String s1 = "Parsing";
-		parms.msg_id = "Compiler.cmdline.cimmof.main.ERROR";
-		parms.default_msg = "$0 error: ";
-		parms.arg0 = s1;
+		parms.msg_id = "Compiler.cmdline.cimmof.main.PARSING_ERROR";
+		parms.default_msg = "Parsing error: ";
 	    //msg_ = String("Parsing error: ").append(e.getMessage());
 	    msg_ = MessageLoader::getMessage(parms).append(e.getMessage());
 	    ret = -6;
@@ -211,10 +205,8 @@ main(int argc, char ** argv) {
     int ret =  p->parse();
     } catch(ParserLexException &e) {
     	//l10n
-    	String s1 = "Lexer";
-    	parms.msg_id = "Compiler.cmdline.cimmof.main.ERROR";
-		parms.default_msg = "$0 error: ";
-		parms.arg0 = s1;
+    	parms.msg_id = "Compiler.cmdline.cimmof.main.LEXER_ERROR";
+	parms.default_msg = "Lexer error: ";
 	    //msg_ = String("Lexer error: ").append(e.getMessage());
 	    msg_ = MessageLoader::getMessage(parms).append(e.getMessage());
         ret = -5;

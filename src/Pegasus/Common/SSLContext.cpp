@@ -623,8 +623,7 @@ SSL_CTX * SSLContextRep::_makeSSLContext()
         //l10n
         //throw( SSLException("Could not get SSL CTX"));
         MessageLoaderParms parms("Common.SSLContext.COULD_NOT_GET",
-            					 "Could not get $0",
-            					 "SSL CTX");
+            					 "Could not get SSL CTX");
         throw( SSLException(parms));
     }
 

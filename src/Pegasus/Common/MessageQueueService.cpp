@@ -85,8 +85,7 @@ void MessageQueueService::force_shutdown(void)
 	//l10n
    //PEGASUS_STD(cout) << "Forcing shutdown of CIMOM Message Router" << PEGASUS_STD(endl);
    MessageLoaderParms parms("Common.MessageQueueService.FORCING_SHUTDOWN",
-   							"Forcing shutdown of $0",
-   							"CIMOM Message Router");
+			    "Forcing shutdown of CIMOM Message Router");
    PEGASUS_STD(cout) << MessageLoader::getMessage(parms) << PEGASUS_STD(endl);
    //MessageQueueService::_stop_polling = 1;
    MessageQueueService *svc;
@@ -218,9 +217,7 @@ MessageQueueService::MessageQueueService(const char *name,
       //l10n
       //throw BindFailedException("MessageQueueService Base Unable to register with  Meta Dispatcher");
       MessageLoaderParms parms("Common.MessageQueueService.UNABLE_TO_REGISTER",
-      						   "$0 Unable to register with  $1",
-      						   "MessageQueueService Base",
-      						   "Meta Dispatcher");
+			       "MessageQueueService Base Unable to register with  Meta Dispatcher");
       						   
       throw BindFailedException(parms);
    }

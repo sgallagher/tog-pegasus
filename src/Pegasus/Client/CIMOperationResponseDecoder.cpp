@@ -289,7 +289,7 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
       // CIMClientMalformedHTTPException* malformedHTTPException = new
       //   CIMClientMalformedHTTPException("Missing CIMOperation HTTP header");
 
-      MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.MISSING_CIMOP_HEADER", "Missing $0 HTTP header", "CIMOperation");
+      MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.MISSING_CIMOP_HEADER", "Missing CIMOperation HTTP header");
       String mlString(MessageLoader::getMessage(mlParms));
       
       CIMClientMalformedHTTPException* malformedHTTPException = new
@@ -384,7 +384,7 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
       //        cimOperation + "\", expected \"MethodResponse\"");
 
 
-      MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EXPECTED_METHODRESPONSE", "Received $0 HTTP header value \"$1\", expected \"$2\"", "CIMOperation", cimOperation, "MethodResponse");
+      MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EXPECTED_METHODRESPONSE", "Received CIMOperation HTTP header value \"$1\", expected \"MethodResponse\"", cimOperation);
       String mlString(MessageLoader::getMessage(mlParms));
 
       CIMClientMalformedHTTPException* malformedHTTPException =
@@ -448,8 +448,8 @@ void CIMOperationResponseDecoder::_handleMethodResponse(char* content,
 	  // throw XmlValidationError(
 	  // parser.getLine(), "expected MESSAGE element");
 
-	  MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EXPECTED_ELEMENT",
-				     "expected $0 element", "MESSAGE");
+	  MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EXPECTED_MESSAGE_ELEMENT",
+				     "expected MESSAGE element");
 
 	  throw XmlValidationError(parser.getLine(), mlParms);
 	}
@@ -554,7 +554,7 @@ void CIMOperationResponseDecoder::_handleMethodResponse(char* content,
 	      //        iMethodResponseName + "\"");
 
 	      MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.UNRECOGNIZED_NAME",
-					 "Unrecognized $0 name \"$1\"", "IMethodResponse", 
+					 "Unrecognized IMethodResponse name \"$0\"", 
 					 iMethodResponseName);
 	      
 	      throw XmlValidationError(parser.getLine(), mlParms);
@@ -584,8 +584,8 @@ void CIMOperationResponseDecoder::_handleMethodResponse(char* content,
 	  // throw XmlValidationError(parser.getLine(),
 	  //   "expected METHODRESPONSE or IMETHODRESPONSE element");
 
-	  MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EXPECTED_OR_ELEMENT",
-				     "expected $0 or $1 element", "METHODRESPONSE", "METHODRESPONSE");
+	  MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EXPECTED_METHODRESPONSE_OR_IMETHODRESPONSE_ELEMENT",
+				     "expected METHODRESPONSE or IMETHODRESPONSE element");
 
 	  throw XmlValidationError(parser.getLine(), mlParms);
 	}
@@ -705,8 +705,8 @@ CIMGetClassResponseMessage* CIMOperationResponseDecoder::_decodeGetClassResponse
 
 	  // throw XmlValidationError(parser.getLine(),"expected CLASS element");
 
-	  MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EXPECTED_ELEMENT",
-				     "expected $0 element", "CLASS");
+	  MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EXPECTED_CLASS_ELEMENT",
+				     "expected CLASS element");
 
 	  throw XmlValidationError(parser.getLine(), mlParms);
 	}
@@ -727,8 +727,8 @@ CIMGetClassResponseMessage* CIMOperationResponseDecoder::_decodeGetClassResponse
       // throw XmlValidationError(parser.getLine(),
       //   "expected ERROR or IRETURNVALUE element");
 
-      MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EXPECTED_OR_ELEMENT",
-				 "expected $0 or $1 element", "ERROR", "IRETURNVALUE");
+      MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EXPECTED_ERROR_OR_IRETURNVALUE_ELEMENT",
+				 "expected ERROR or IRETURNVALUE element");
       
       throw XmlValidationError(parser.getLine(), mlParms);
     }
@@ -907,8 +907,8 @@ CIMCreateInstanceResponseMessage* CIMOperationResponseDecoder::_decodeCreateInst
       // throw XmlValidationError(parser.getLine(),
       //   "expected ERROR or IRETURNVALUE element");
 
-      MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EXPECTED_OR_ELEMENT",
-				 "expected $0 or $1 element", "ERROR", "IRETURNVALUE");
+      MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EXPECTED_ERROR_OR_IRETURNVALUE_ELEMENT",
+				 "expected ERROR or IRETURNVALUE element");
       
       throw XmlValidationError(parser.getLine(), mlParms);
     }
@@ -941,8 +941,8 @@ CIMGetInstanceResponseMessage* CIMOperationResponseDecoder::_decodeGetInstanceRe
 	  // throw XmlValidationError(
 	  // parser.getLine(), "expected INSTANCE element");
 
-	  MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EXPECTED_ELEMENT",
-				     "expected $0 element", "INSTANCE");
+	  MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EXPECTED_INSTANCE_ELEMENT",
+				     "expected INSTANCE element");
 
 	  throw XmlValidationError(parser.getLine(), mlParms);
 	}
@@ -963,8 +963,8 @@ CIMGetInstanceResponseMessage* CIMOperationResponseDecoder::_decodeGetInstanceRe
       // throw XmlValidationError(parser.getLine(),
       //   "expected ERROR or IRETURNVALUE element");
 
-      MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EXPECTED_OR_ELEMENT",
-				 "expected $0 or $1 element", "ERROR", "IRETURNVALUE");
+      MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EXPECTED_ERROR_OR_IRETURNVALUE_ELEMENT",
+				 "expected ERROR or IRETURNVALUE element");
       
       throw XmlValidationError(parser.getLine(), mlParms);
     }
@@ -1258,8 +1258,8 @@ CIMGetQualifierResponseMessage* CIMOperationResponseDecoder::_decodeGetQualifier
       // throw XmlValidationError(parser.getLine(),
       //   "expected ERROR or IRETURNVALUE element");
 
-      MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EXPECTED_OR_ELEMENT",
-				 "expected $0 or $1 element", "ERROR", "IRETURNVALUE");
+      MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EXPECTED_ERROR_OR_IRETURNVALUE_ELEMENT",
+				 "expected ERROR or IRETURNVALUE element");
       
       throw XmlValidationError(parser.getLine(), mlParms);
     }
@@ -1580,8 +1580,8 @@ CIMInvokeMethodResponseMessage* CIMOperationResponseDecoder::_decodeInvokeMethod
 		  // throw XmlValidationError(parser.getLine(),
 		  //   "unexpected RETURNVALUE element");
 
-		  MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EXPECTED_ELEMENT",
-					     "expected $0 element", "RETURNVALUE");
+		  MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EXPECTED_RETURNVALUE_ELEMENT",
+					     "expected RETURNVALUE element");
 		  
 		  throw XmlValidationError(parser.getLine(), mlParms);
                 }

@@ -708,8 +708,7 @@ MessageLoader::_useProcessLocale = true;
                      //l10n
                       //cout << "\nPegasus installed as NT Service";
                       MessageLoaderParms parms("src.Server.cimserver.INSTALLED_NT_SERVICE",
-                        					   "\n$0 installed as NT Service",
-                        					   "Pegasus");
+					       "\nPegasus installed as NT Service");
                        
                       cout << MessageLoader::getMessage(parms) << endl;
                       exit(0);
@@ -734,8 +733,7 @@ MessageLoader::_useProcessLocale = true;
                       //l10n
                       //cout << "\nPegasus removed as NT Service";
                       MessageLoaderParms parms("src.Server.cimserver.REMOVED_NT_SERVICE",
-                        					   "\n$0 removed as NT Service",
-                        					   "Pegasus");
+					       "\nPegasus removed as NT Service");
                        
                       cout << MessageLoader::getMessage(parms) << endl;
                       exit(0);
@@ -761,8 +759,7 @@ MessageLoader::_useProcessLocale = true;
                       //l10n
                       //cout << "\nPegasus started as NT Service";
                       MessageLoaderParms parms("src.Server.cimserver.STARTED_NT_SERVICE",
-                        					   "\n$0 started as NT Service",
-                        					   "Pegasus");
+					       "\nPegasus started as NT Service");
                        
                       cout << MessageLoader::getMessage(parms) << endl;
                       exit(0);
@@ -787,8 +784,7 @@ MessageLoader::_useProcessLocale = true;
                       //l10n
                       //cout << "\nPegasus stopped as NT Service";
                       MessageLoaderParms parms("src.Server.cimserver.STOPPED_NT_SERVICE",
-                        					   "\n$0 stopped as NT Service",
-                        					   "Pegasus");
+					       "\nPegasus stopped as NT Service");
                        
                       cout << MessageLoader::getMessage(parms) << endl;
                       exit(0);
@@ -920,7 +916,7 @@ MessageLoader::_useProcessLocale = true;
 			//"CIM Server stopped.");  
 		Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::INFORMATION,
 			"src.Server.cimserver.SERVER_STOPPED",
-			"$0 Server stopped.", "CIM");
+			"CIM Server stopped.");
 #else
 			//l10n
             //cout << "CIM Server stopped." << endl;
@@ -1083,8 +1079,7 @@ MessageLoader::_useProcessLocale = false;
 		//cout << "Unable to start CIMServer." << endl;
 		//cout << "CIMServer is already running." << endl;
 		MessageLoaderParms parms("src.Server.cimserver.UNABLE_TO_START_SERVER_ALREADY_RUNNING",
-								 "Unable to start $0.\n$1 is already running.",
-								 "CIMServer","CIMServer");
+					 "Unable to start CIMServer.\nCIMServer is already running.");
 
 	//
         // notify parent process (if there is a parent process) to terminate
@@ -1129,8 +1124,8 @@ MessageLoader::_useProcessLocale = false;
                         //"Listening on HTTP port $0.", portNumberHttp);
                         
             Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
-            				"src.Server.cimserver.LISTENING_ON_PORT",
-                        	"Listening on $0 port $1.", "HTTP",portNumberHttp);
+            				"src.Server.cimserver.LISTENING_ON_HTTP_PORT",
+                        	"Listening on HTTP port $0.", portNumberHttp);
         }
         if (enableHttpsConnection)
         {
@@ -1139,8 +1134,8 @@ MessageLoader::_useProcessLocale = false;
             //Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
                         //"Listening on HTTPS port $0.", portNumberHttps);
             Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
-            				"src.Server.cimserver.LISTENING_ON_PORT",
-                        	"Listening on $0 port $1.", "HTTPS",portNumberHttps);
+            				"src.Server.cimserver.LISTENING_ON_HTTPS_PORT",
+                        	"Listening on HTTPS port $0.", portNumberHttps);
         }
 #ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
         server.addAcceptor(true, 0, false);
@@ -1148,8 +1143,8 @@ MessageLoader::_useProcessLocale = false;
         //Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
                     //"Listening on local connection socket.");
         Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
-            				"src.Server.cimserver.LISTENING_ON_LOCAL",
-                        	"Listening on local connection socket.");
+		      "src.Server.cimserver.LISTENING_ON_LOCAL",
+		      "Listening on local connection socket.");
 #endif
 
 #if !defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU) && !defined(PEGASUS_OS_OS400)
@@ -1157,23 +1152,23 @@ MessageLoader::_useProcessLocale = false;
         {
             //l10n
             //cout << "Listening on HTTP port " << portNumberHttp << endl;
-            MessageLoaderParms parms("src.Server.cimserver.LISTENING_ON_PORT",
-            						 "Listening on $0 port $1.", "HTTP",portNumberHttp);
+	  MessageLoaderParms parms("src.Server.cimserver.LISTENING_ON_HTTP_PORT",
+				   "Listening on HTTP port $0.", portNumberHttp);
            	cout << MessageLoader::getMessage(parms) << endl;
         }
         if (enableHttpsConnection)
         {
             //l10n
             //cout << "Listening on HTTPS port " << portNumberHttps << endl;
-            MessageLoaderParms parms("src.Server.cimserver.LISTENING_ON_PORT",
-            						 "Listening on $0 port $1.", "HTTPS",portNumberHttps);
+            MessageLoaderParms parms("src.Server.cimserver.LISTENING_ON_HTTPS_PORT",
+				     "Listening on HTTPS port $0.", portNumberHttps);
            	cout << MessageLoader::getMessage(parms) << endl;
         }
 # ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
         //l10n
         //cout << "Listening on local connection socket" << endl;
         MessageLoaderParms parms("src.Server.cimserver.LISTENING_ON_LOCAL",
-            					 "Listening on local connection socket.");
+				 "Listening on local connection socket.");
         cout << MessageLoader::getMessage(parms) << endl;
 # endif
 #endif

@@ -161,15 +161,10 @@ CIMProvider *ProviderModule::load(const String & providerName)
       	//l10n
 	//throw Exception("ProviderLoadFailure ("+providerName+
 			//"Provider is not a BaseProvider");
-			String s0 = "ProviderLoadFailure";
-			String s2 = "Provider";
-			String s3 = "BaseProvider";
-			throw Exception(MessageLoaderParms("ProviderManager.ProviderModule.IS_NOT_A"
-											   "$0 ($1$2 is not a $3)",
-											   s0,
-											   providerName,
-											   s2,
-											   s3));
+	throw Exception(MessageLoaderParms("ProviderManager.ProviderModule.IS_NOT_A",
+					   "ProviderLoadFailure ($0" \
+					   "Provider is not a BaseProvider",
+					   providerName));
         }
       _ref_count++;
       return provider;
@@ -189,10 +184,8 @@ CIMProvider *ProviderModule::load(const String & providerName)
 		//l10n
         //String errorString = "Cannot load library, error: " + System::dynamicLoadError();
         //throw Exception("ProviderLoadFailure (" + _fileName + ":" + providerName + "):" + errorString);
-        String s0 = "ProviderLoadFailure";
         throw Exception(MessageLoaderParms("ProviderManager.ProviderModule.CANNOT_LOAD_LIBRARY",
-        								   "$0 ($1:$2):Cannot load library, error: $3",
-        								   s0,
+        								   "ProviderLoadFailure ($0:$1):Cannot load library, error: $3",
         								   _fileName,
         								   providerName,
         								   System::dynamicLoadError()));
@@ -209,12 +202,11 @@ CIMProvider *ProviderModule::load(const String & providerName)
     	//l10n
         //String errorString = "entry point not found.";
         //throw Exception("ProviderLoadFailure (" + _fileName + ":" + providerName + "):" + errorString);
-        String s0 = "ProviderLoadFailure";
+
         throw Exception(MessageLoaderParms("ProviderManager.ProviderModule.ENTRY_POINT_NOT_FOUND",
-        								   "$0 ($1:$2):entry point not found.",
-        								   s0,
-        								   _fileName,
-        								   providerName));
+					   "ProviderLoadFailure ($0:$1):entry point not found.",
+					   _fileName,
+					   providerName));
     }
 
     // invoke the provider entry point
@@ -227,14 +219,10 @@ CIMProvider *ProviderModule::load(const String & providerName)
     	//l10n
            //String errorString = "provider is not a CIMProvider.";
         //throw Exception("ProviderLoadFailure (" + _fileName + ":" + providerName + "):" + errorString);
-        String s0 = "ProviderLoadFailure";
-        String s3 = "CIMProvider";
         throw Exception(MessageLoaderParms("ProviderManager.ProviderModule.PROVIDER_IS_NOT_A",
-        								   "$0 ($1:$2):provider is not a $3.",
-        								   s0,
+        								   "ProviderLoadFailure ($0:$1):provider is not a CIMProvider.",
         								   _fileName,
-        								   providerName,
-        								   s3));
+        								   providerName));
     }
     _ref_count++;
     return provider;

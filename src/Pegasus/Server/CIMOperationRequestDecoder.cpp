@@ -620,8 +620,8 @@ void CIMOperationRequestDecoder::handleMethodCall(
 	// throw XmlValidationError(
 	//  parser.getLine(), "expected MESSAGE element");
 
-	MessageLoaderParms mlParms("Server.CIMOperationRequestDecoder.EXPECTED_ELEMENT",
-				   "expected $0 element", "MESSAGE");
+	MessageLoaderParms mlParms("Server.CIMOperationRequestDecoder.EXPECTED_MESSAGE_ELEMENT",
+				   "expected MESSAGE element");
 
 	throw XmlValidationError(parser.getLine(), mlParms);
 				 
@@ -766,8 +766,8 @@ void CIMOperationRequestDecoder::handleMethodCall(
 	   // throw XmlValidationError(parser.getLine(), 
 	   // "expected LOCALNAMESPACEPATH element");
 
-	   MessageLoaderParms mlParms("Server.CIMOperationRequestDecoder.EXPECTED_ELEMENT",
-				      "expected $0 element", "LOCALNAMESPACEPATH");
+	   MessageLoaderParms mlParms("Server.CIMOperationRequestDecoder.EXPECTED_LOCALNAMESPACEPATH_ELEMENT",
+				      "expected LOCALNAMESPACEPATH element");
 
 	   throw XmlValidationError(parser.getLine(),mlParms);
 				    
@@ -1025,8 +1025,8 @@ void CIMOperationRequestDecoder::handleMethodCall(
 	      // throw XmlValidationError(parser.getLine(),
 	      // "expected LOCALINSTANCEPATH element");
 	      
-	      MessageLoaderParms mlParms("Server.CIMOperationRequestDecoder.EXPECTED_ELEMENT",
-					 "expected $0 element", "LOCALINSTANCEPATH");
+	      MessageLoaderParms mlParms("Server.CIMOperationRequestDecoder.EXPECTED_LOCALINSTANCEPATH_ELEMENT",
+					 "expected LOCALINSTANCEPATH element");
 
 	      throw XmlValidationError(parser.getLine(),mlParms);
 
@@ -1047,8 +1047,8 @@ void CIMOperationRequestDecoder::handleMethodCall(
 	      // throw XmlValidationError(parser.getLine(),
 	      // "expected LOCALCLASSPATH element");
 
-	      MessageLoaderParms mlParms("Server.CIMOperationRequestDecoder.EXPECTED_ELEMENT",
-					 "expected $0 element", "LOCALCLASSPATH");
+	      MessageLoaderParms mlParms("Server.CIMOperationRequestDecoder.EXPECTED_LOCALCLASSPATH_ELEMENT",
+					 "expected LOCALCLASSPATH element");
 
 	      throw XmlValidationError(parser.getLine(),mlParms);
 
@@ -1184,8 +1184,8 @@ void CIMOperationRequestDecoder::handleMethodCall(
 	// throw XmlValidationError(parser.getLine(), 
 	// "expected IMETHODCALL or METHODCALL element");
 
-	MessageLoaderParms mlParms("Server.CIMOperationRequestDecoder.EXPECTED_ELEMENT",
-				   "expected $0 element", "IMETHODCALL or METHODCALL");
+	MessageLoaderParms mlParms("Server.CIMOperationRequestDecoder.EXPECTED_IMETHODCALL_ELEMENT",
+				   "expected IMETHODCALL or METHODCALL element");
 
 	throw XmlValidationError(parser.getLine(),mlParms);
 			       

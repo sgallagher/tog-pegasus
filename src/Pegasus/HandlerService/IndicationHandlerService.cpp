@@ -186,7 +186,7 @@ void IndicationHandlerService::_handleIndication(const Message* message)
      //   PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String("Handler without destination"));
 
      cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, 
-					    MessageLoaderParms("HandlerService.IndicationHandlerService.HANDLER_WITHOUT_DESTINATION", "$0 without destination", "Handler"));
+					    MessageLoaderParms("HandlerService.IndicationHandlerService.HANDLER_WITHOUT_DESTINATION", "Handler without destination"));
    }
    else
    {
@@ -282,7 +282,7 @@ void IndicationHandlerService::_handleIndication(const Message* message)
 
              cimException =
                 PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, 
-					    MessageLoaderParms("HandlerService.IndicationHandlerService.FAILED_TO_LOAD", "Failed to load $0", "Handler"));
+					    MessageLoaderParms("HandlerService.IndicationHandlerService.FAILED_TO_LOAD", "Failed to load Handler"));
 
 	  }
        }

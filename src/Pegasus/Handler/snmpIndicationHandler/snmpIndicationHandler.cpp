@@ -192,8 +192,8 @@ void snmpIndicationHandler::handleIndication(
 		    // l10n
 	            // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Invalid MappingStrings Value");
 		    throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
-						   MessageLoaderParms("Handler.snmpIndicationHandler.snmpIndicationHandler.INVALID_VALUE",
-								       "Invalid $0 Value", "MappingStrings")); 
+						   MessageLoaderParms("Handler.snmpIndicationHandler.snmpIndicationHandler.INVALID_MS_VALUE",
+								       "Invalid MappingStrings Value")); 
 	        }
 	    }
 	    else
@@ -236,8 +236,8 @@ void snmpIndicationHandler::handleIndication(
       // "Invalid IndicationHandlerSNMPMapper instance");
 
       throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED, 
-				     MessageLoaderParms("Handler.snmpIndicationHandler.snmpIndicationHandler.INVALID_INSTANCE", 
-							"Invalid $0 instance", "IndicationHandlerSNMPMapper"));
+				     MessageLoaderParms("Handler.snmpIndicationHandler.snmpIndicationHandler.INVALID_SNMP_INSTANCE", 
+							"Invalid IndicationHandlerSNMPMapper instance"));
     }
 }
 

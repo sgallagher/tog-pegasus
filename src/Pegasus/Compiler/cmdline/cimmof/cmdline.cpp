@@ -359,9 +359,8 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
                   	//l10n
                       //throw ArgumentErrorsException(
                           //"Unknown value specified for option -u.");
-                      MessageLoaderParms parms("Compiler.cmdline.cimmof.UNKNOWN_VALUE_OPTION",
-                      					       "Unknown value specified for option -$0.",
-                      					       "u");
+                      MessageLoaderParms parms("Compiler.cmdline.cimmof.UNKNOWN_VALUE_OPTION_U",
+					       "Unknown value specified for option -u.");
                       throw ArgumentErrorsException(parms);
                   }
               }
@@ -371,9 +370,8 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
           	//l10n
             //throw ArgumentErrorsException(
               //  "Too many values specified for option -u.");
-            MessageLoaderParms parms("Compiler.cmdline.cimmof.TOO_MANY_VALUES_OPTION",
-                      					       "Too many values specified for option -$0.",
-                      					       "u");
+            MessageLoaderParms parms("Compiler.cmdline.cimmof.TOO_MANY_VALUES_OPTION_U",
+				     "Too many values specified for option -u.");
             throw ArgumentErrorsException(parms);
           }
         }
@@ -394,9 +392,8 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
                   	//l10n
                       //throw ArgumentErrorsException(
                           //"Unknown value specified for option -a.");
-                      MessageLoaderParms parms("Compiler.cmdline.cimmof.UNKNOWN_VALUE_OPTION",
-                      					       "Unknown value specified for option -$0.",
-                      					       "a");
+                      MessageLoaderParms parms("Compiler.cmdline.cimmof.UNKNOWN_VALUE_OPTION_A",
+					       "Unknown value specified for option -a.");
                       throw ArgumentErrorsException(parms);
                   }
               }
@@ -406,9 +403,8 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
           	//l10n
             //throw ArgumentErrorsException(
                 //"Too many values specified for option -a.");
-            MessageLoaderParms parms("Compiler.cmdline.cimmof.TOO_MANY_VALUES_OPTION",
-                      					       "Too many values specified for option -$0.",
-                      					       "a");
+            MessageLoaderParms parms("Compiler.cmdline.cimmof.TOO_MANY_VALUES_OPTION_A",
+				     "Too many values specified for option -a.");
             throw ArgumentErrorsException(parms);
           }
         }

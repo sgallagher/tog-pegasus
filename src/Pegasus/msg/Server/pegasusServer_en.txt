@@ -384,7 +384,7 @@ en:table {
 
 	ProviderManager.ProviderAdapter.ADAPTER_NOT_CP:string {"AdapterLoadFailure ({0}):The adapter is not a CIMProvider."}
 
-	ProviderManager.ProviderAdapter.MISSING:string {"AdapterLoadFailure ({1}):CreateProviderAdapter is missing."}
+	ProviderManager.ProviderAdapter.MISSING:string {"AdapterLoadFailure ({0}):CreateProviderAdapter is missing."}
 
 	ProviderManager.ProviderFacade.INVALID_PROVIDER_INTERFACE:string {"Invalid provider interface."}
 
@@ -675,7 +675,7 @@ en:table {
 
 	Common.LanguageParser.TOO_MANY_OR_NON_ALPHA_CHARACTERS_CL:string {"ContentLanguage contains too many characters or non-alpha characters"}
 
-	Common.LanguageParser.INVALID_QUALITY_VALUE:string {"{0} contains an invalid quality value"}
+	Common.LanguageParser.INVALID_QUALITY_VALUE:string {"AcceptLanguage contains an invalid quality value"}
 
 	Common.LanguageParser.DOES_NOT_CONTAIN_TERMINATING:string {"ContentLanguage does not contain terminating ) character"}
 
@@ -913,7 +913,9 @@ en:table {
 
 	src.Server.cimserver.UNABLE_TO_START_SERVER_ALREADY_RUNNING:string {"Unable to start CIMServer.\nCIMServer is already running."}
 
-	src.Server.cimserver.LISTENING_ON_PORT:string {"Listening on HTTP port {1}."}
+	src.Server.cimserver.LISTENING_ON_HTTP_PORT:string {"Listening on HTTP port {0}."}
+
+	src.Server.cimserver.LISTENING_ON_HTTPS_PORT:string {"Listening on HTTPS port {0}."}
 
 	src.Server.cimserver.LISTENING_ON_LOCAL:string {"Listening on local connection socket."}
 
@@ -1016,11 +1018,15 @@ en:table {
 
 	Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_INVALID_PROPERTY:string{"The value of the CIM property is invalid."}
 
-	Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_MAKE_VARBIND_FAILED_FOR_OCTET_PRIM_TYPE_KEY:string{"Failed to MakeVarBindWithValue for type OCTET_PRIM_TYPE."}
-	Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_MAKE_VARBIND_FAILED_FOR_OBJECT_ID_TYPE_KEY:string{"Failed to MakeVarBindWithValue for type OBJECT_ID_TYPE."}
-	Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_MAKE_VARBIND_FAILED_FOR_INTEGER_TYPE_KEY:string{"Failed to MakeVarBindWithValue for type INTEGER_TYPE."}
+	Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_MAKE_VARBIND_FAILED_FOR_OCTET_PRIM_TYPE:string{"Failed to MakeVarBindWithValue for type OCTET_PRIM_TYPE."}
+	Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_MAKE_VARBIND_FAILED_FOR_OBJECT_ID_TYPE:string{"Failed to MakeVarBindWithValue for type OBJECT_ID_TYPE."}
+	Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_MAKE_VARBIND_FAILED_FOR_INTEGER_TYPE:string{"Failed to MakeVarBindWithValue for type INTEGER_TYPE."}
 
 	Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_VERSION_NOT_SUPPORTED:string{"SNMPv1 Trap and SNMPv2C Trap are the only supported SNMPVersion values."}
+
+ 	ExportServer.CIMExportRequestDecoder.EXPECTED_MESSAGE_ELEMENT:string {"A MESSAGE element was expected."}
+
+ 	ExportServer.CIMExportRequestDecoder.EXPECTED_EXPMETHODCALL_ELEMENT:string {"A EXPMETHODCALL element was expected."}
 
 	ExportServer.CIMExportRequestDispatcher.INVALID_REGISTRATION:string {"The {0} registration data is invalid."}
 
@@ -1040,9 +1046,9 @@ en:table {
 
 	ExportClient.CIMExportResponseDecoder.AUTHENTICATION_FAILED:string {"The authentication failed."}
 
-	ExportClient.CIMExportResponseDecoder.MISSING_CIMOP_HEADER:string {"The {0} HTTP header is missing."}
+	ExportClient.CIMExportResponseDecoder.MISSING_CIMOP_HEADER:string {"The CIMOperation HTTP header is missing."}
 
-	ExportClient.CIMExportResponseDecoder.EXPECTED_METHODRESPONSE:string {"The client received a CIMOperation HTTP header value of \"{1}\" when it expected \"MethodResponse\"."}
+	ExportClient.CIMExportResponseDecoder.EXPECTED_METHODRESPONSE:string {"The client received a CIMOperation HTTP header value of \"{0}\" when it expected \"MethodResponse\"."}
 
 	ExportClient.CIMExportResponseDecoder.UNSUPPORTED_PROTOCOL:string {"The unsupported protocol version {0} was received, 1.0 was expected."}
 
@@ -1079,7 +1085,7 @@ en:table {
 
 	Client.CIMOperationResponseDecoder.MISSING_CIMOP_HEADER:string {"The CIMOperation HTTP header is missing."}
 
-	Client.CIMOperationResponseDecoder.EXPECTED_METHODRESPONSE:string {"The client received a CIMOperation HTTP header value of \"{1}\" when it expected \"MethodResponse\"."}
+	Client.CIMOperationResponseDecoder.EXPECTED_METHODRESPONSE:string {"The client received a CIMOperation HTTP header value of \"{0}\" when it expected \"MethodResponse\"."}
 
 	Client.CIMOperationResponseDecoder.UNSUPPORTED_PROTOCOL:string {"The unsupported protocol version {0} was received, 1.0 was expected."}
 

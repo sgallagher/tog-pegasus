@@ -89,10 +89,8 @@ Real32 LanguageParser::parseAcceptLanguageValue(String &language_tag, String & h
 			//l10n
 			//throw InvalidAcceptLanguageHeader(
 				//"AcceptLanguage contains too many characters or non-alpha characters");
-			String s0 = "AcceptLanguage";
-			MessageLoaderParms parms("Common.LanguageParser.TOO_MANY_OR_NON_ALPHA_CHARACTERS",
-									 "$0 contains too many characters or non-alpha characters",
-									 s0);
+			MessageLoaderParms parms("Common.LanguageParser.TOO_MANY_OR_NON_ALPHA_CHARACTERS_AL",
+									 "AcceptLanguage contains too many characters or non-alpha characters");
 			throw InvalidAcceptLanguageHeader(MessageLoader::getMessage(parms));
 		}
 		//validate quality 	
@@ -101,10 +99,8 @@ Real32 LanguageParser::parseAcceptLanguageValue(String &language_tag, String & h
 			//l10n
 			//throw InvalidAcceptLanguageHeader(
 				//"AcceptLanguage contains an invalid quality value");
-			String s0 = "AcceptLanguage";
 			MessageLoaderParms parms("Common.LanguageParser.INVALID_QUALITY_VALUE",
-									 "$0 contains an invalid quality value",
-									 s0);
+									 "AcceptLanguage contains an invalid quality value");
 			throw InvalidAcceptLanguageHeader(MessageLoader::getMessage(parms));
 		}
 	}
@@ -114,10 +110,8 @@ Real32 LanguageParser::parseAcceptLanguageValue(String &language_tag, String & h
 			//l10n
 			//throw InvalidAcceptLanguageHeader(
 				//"AcceptLanguage contains too many characters or non-alpha characters");
-			String s0 = "AcceptLanguage";
-			MessageLoaderParms parms("Common.LanguageParser.TOO_MANY_OR_NON_ALPHA_CHARACTERS",
-									 "$0 contains too many characters or non-alpha characters",
-									 s0);
+			MessageLoaderParms parms("Common.LanguageParser.TOO_MANY_OR_NON_ALPHA_CHARACTERS_AL",
+									 "AcceptLanguage contains too many characters or non-alpha characters");
 			throw InvalidAcceptLanguageHeader(MessageLoader::getMessage(parms));
 		}
 	}
@@ -140,10 +134,8 @@ String LanguageParser::parseContentLanguageValue(String & hdr){
 			//l10n
 			  //throw InvalidContentLanguageHeader(
 							//"ContentLanguage does not contain terminating ) character");
-			String s0 = "ContentLanguage";
 			MessageLoaderParms parms("Common.LanguageParser.DOES_NOT_CONTAIN_TERMINATING",
-									 "$0 does not contain terminating ) character",
-									 s0);
+									 "ContentLanguage does not contain terminating ) character");
 			throw InvalidContentLanguageHeader(MessageLoader::getMessage(parms));
 		}
 	}
@@ -155,10 +147,8 @@ String LanguageParser::parseContentLanguageValue(String & hdr){
 		//l10n
 		 //throw InvalidContentLanguageHeader(
 							//"ContentLanguage contains too many characters or non-alpha characters");
-		String s0 = "ContentLanguage";
-		MessageLoaderParms parms("Common.LanguageParser.TOO_MANY_OR_NON_ALPHA_CHARACTERS",
-								 "$0 contains too many characters or non-alpha characters",
-								 s0);
+		MessageLoaderParms parms("Common.LanguageParser.TOO_MANY_OR_NON_ALPHA_CHARACTERS_CL",
+								 "ContentLanguage contains too many characters or non-alpha characters");
 		throw InvalidContentLanguageHeader(MessageLoader::getMessage(parms));
 	
 	}

@@ -42,15 +42,15 @@ class ChannelHandler;
 /** The Channel class defines the interface used for exchanging raw messages
     between two communication end-points (ordinarily in separate processes).
     A pair of channels is created for each client/server communication pathway
-    (one in the client process and the other in the server process). A client 
-    process may connect to multiple server process in which case a channel is 
-    created in the client process for each connection. Similarly, a server may 
-    accept connections from multiple clients in which case a channel is created 
+    (one in the client process and the other in the server process). A client
+    process may connect to multiple server process in which case a channel is
+    created in the client process for each connection. Similarly, a server may
+    accept connections from multiple clients in which case a channel is created
     in the server process for each connection.
 
-    Channels are created automatically by the underlying ChannelConnector and 
-    ChannelAcceptor implementations. By convention, Channel implementations 
-    (derived classes of Channel) are hidden from the user (not visible through 
+    Channels are created automatically by the underlying ChannelConnector and
+    ChannelAcceptor implementations. By convention, Channel implementations
+    (derived classes of Channel) are hidden from the user (not visible through
     public header files).
 */
 class PEGASUS_COMMON_LINKAGE Channel
@@ -63,8 +63,8 @@ public:
 
     /** Method to read up to size bytes from the channel into the memory area
 	specified by the ptr argument
-	@param ptr - Pointer to memory area into which bytes are read.
-	@param size - The maximum number of byest to read.
+	@param ptr Pointer to memory area into which bytes are read.
+	@param size The maximum number of byest to read.
 	@return The number of bytes read or -1 on failure.  The return value may
 	be smaller that the size argument
     */
@@ -72,10 +72,10 @@ public:
 
     /** Method to write up to size bytes onto the channel from the memory
         area specified by the ptr argument.
-        @parm ptr - Pointer to memory area from which bytes are written to the
-        channel
-	@param size - Maximum number of bytes to write to the channel
-	@retrun - Thie method returns the number of bytes
+        @param ptr Pointer to memory area from which bytes are written to
+	the channel
+	@param size Maximum number of bytes to write to the channel
+	@retrun Thie method returns the number of bytes
 	written or negative one on failure. The return value may be smaller
 	than the size argument.
     */
@@ -83,19 +83,19 @@ public:
 
     /** Method to read size bytes from the channel into the memory area
 	specified by the ptr argument.
-	@param ptr - Pointer to memory area into which input bytes are placed.
-	@param size - Number of bytes to read into the memory area.
+	@param ptr Pointer to memory area into which input bytes are placed.
+	@param size Number of bytes to read into the memory area.
 	@return - This method will return the size argument or negative one on
 	failure.
-	COMMENT: Clafify issue if for some reason less than this received
+	COMMENT: Clarify issue if for some reason less than this received
     */
     virtual Sint32 readN(void* ptr, Uint32 size) = 0;
 
     /** Method to write size bytes onto the channel from the memory area
 	specified by the ptr argument.
-	@param ptr - Pointer to memory area from which data is written
-	@param size - Number of bytes to write.
-	@return - This method will return the size argument or negative one on
+	@param ptr Pointer to memory area from which data is written
+	@param size Number of bytes to write.
+	@return This method will return the size argument or negative one on
 	failure.
     */
     virtual Sint32 writeN(const void* ptr, Uint32 size) = 0;
@@ -352,7 +352,7 @@ public:
 	new ChannelHandler is invoked. The newly created channel is returned.
 	The channel connector is responsible for ultimately disposing of the
 	connection object. The caller MUST NOT dispose of the object.
-	@param address - specifies the address to connect to.
+	@param address Specifies the address to connect to.
 	@return - Pointer to the new created channel.
 	ATTN-A: need connection timeout here!
     */

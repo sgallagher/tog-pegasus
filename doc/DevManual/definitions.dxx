@@ -1,29 +1,52 @@
-/*
-	$Log: definitions.dxx,v $
-	Revision 1.6  2001/02/19 21:48:40  karl
-	CIMxx Class and file name chages
-	
-	Revision 1.5  2001/02/06 17:02:13  karl
-	rearrange documentation for interfaces
-	
-	Revision 1.4  2001/02/05 14:14:00  karl
-	doc++ extension for respository
-	
-	Revision 1.3  2001/02/02 18:48:20  karl
-	Doc++ expansion
-	
-	Revision 1.2  2001/01/30 23:38:18  karl
-	Add to documentation
-	
-	Revision 1.1  2001/01/24 14:18:49  karl
-	import Dev Doc Files
-	
-	$Author: karl $
+
+//%/////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the "Software"),
+// to deal in the Software without restriction, including without limitation
+// the rights to use, copy, modify, merge, publish, distribute, sublicense,
+// and/or sell copies of the Software, and to permit persons to whom the
+// Software is furnished to do so, subject to the following conditions:
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+// DEALINGS IN THE SOFTWARE.
+//
+//==============================================================================
+//
+// Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
+//
+// Modified By: Karl Schopmeyer (k.schopmeyer@opengroup.org)
+//
+//%/////////////////////////////////////////////////////////////////////////////
+
+/* This file contains the definition of terms used in the Pegasus implementation, the CIM defintions, and the Pegasus documentation.
+WARNING: Because of some limits with DOC++ today, the tags \Ref and @link
+do not work.  Therefore, references to these definitions can only be made with a direct URL as follows:
+
+\URL[Namespace]{DefinitionofTerms.html#NAMESPACE}
+
+Note that this implies the exact name of the file created from this document (DefinitionofTerms.html.  If you change the @name definition below that represents the lead section name, it will change the name of the file and everything else will fall apart.
+Note also that we have a standard form for all definitions
+<B>Namespace</B>\Label{NAMESPACE}
+So that each one has a Name and generates an HTML in page label.
+
 */
+/*
+TODO LIST
+Add classname definition  this is alreadyreferences as CLASSNAME
+*/
+
 /** @name Definition of Terms
 This section provides definitions of terms and concepts used in the specification of the  DMTF CIM and WBEM specifications and of the Pegasus Managability Services Broker and its implementation.
 
-<B>Namespace</B>\Label{NAMESPACE} - An object that defines a scope within which object keys must be unique. Multiple namespaces typically indicate the presence
+<B>Namespace</B>\Label{NAMESPACE} An object that defines a scope within which object keys must be unique. Multiple namespaces typically indicate the presence
 of multiple management spaces or multiple devices.
 
 The namespace pragma
@@ -33,11 +56,11 @@ The namespace pragma
 This pragma is used to specify a Namespace path. The syntax
 needs to conform to the following:
     <PRE>
-    	<namespacetype>://<namespacehandle>
+    	&lt;namespacetype&gt://&lt;namespacehandle&gt
     </PRE>
 
 
-<P>The contents of a MOF file are loaded into a namespace that provides a domain (in other words, a container), in which the instances of the classes are guaranteed to be unique per the KEY qualifier definitions. The term namespace is used to refer to an implementation that provides such a domain.
+<P>The contents of a MOF file are loaded into a Namespace that provides a domain (in other words, a container), in which the instances of the classes are guaranteed to be unique per the KEY qualifier definitions. The term namespace is used to refer to an implementation that provides such a domain.
 Namespaces can be used to:
 <UL>
     <LI>Define chunks of management information (objects and associations) to limit implementation resource requirements, such as database size.
@@ -45,7 +68,7 @@ Namespaces can be used to:
     <LI>Pre-structure groups of objects for optimized query speed.
  </UL>
 
-<B>CIMOM</B> \Label{CIMOM} = TBD Definition of a CIMOM
+<B>CIMOM</B> \Label{CIMOM}  A CIMOM (CIM Object Manager) is the the terminology used to define the implementation of the CIM_Server defined in the CIM Operations over HTTP specification.  Typically a CIMOM includes the functions of the CIM Server, repositories, providers and the tools to start, run, etc. the CIM server.  CIMOM is an implement term and is not clearly defined in the DMTF documents as opposed to CIM Server which has a clear definition.
 
 <B>Repository</B> \Label{} - The CIM Repository stores the CIM metaschema (class repository) and instance information (instance repository). TheRepository is provided as part of the reference implementation,  but is considered an independent service for the CIMOM. The interfaces to the respository are fixed but the supplied respository can be replaced with a different implementation.
 

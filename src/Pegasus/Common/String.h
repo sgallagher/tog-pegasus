@@ -40,7 +40,7 @@ PEGASUS_NAMESPACE_BEGIN
     The Pegasus String C++ Class implements the CIM string type.
     This class is based on the general handle/representation pattern
     defined for all the Pegasus objects.  However, it differes from
-    most in that it implements "copy on assign" all of the others implement 
+    most in that it implements "copy on assign" all of the others implement
     "no copy on assign" semantics. The string class uses the Array class and
     implements an array of characters.
 */
@@ -48,11 +48,11 @@ class PEGASUS_COMMON_LINKAGE String
 {
 public:
 
-    /** Default constructor without parameters. This constructor creates a 
+    /** Default constructor without parameters. This constructor creates a
 	null string
 	<pre>
 	    String test;
-	</pre> 
+	</pre>
     */
     String();
 
@@ -75,7 +75,7 @@ public:
     String(const char* x, Uint32 n);
 
     /// String destructor. Used by the representation of the String object
-    ~String() 
+    ~String()
     {
     }
 
@@ -117,7 +117,7 @@ public:
 	change the size of the string (size() returns what it did before).
 	If the capacity of the string is already greater or equal to the
 	capacity argument, this method has no effect. After calling reserve(),
-	getCapicty() returns a value which is greater or equal to the 
+	getCapicty() returns a value which is greater or equal to the
 	capacity argument.
 	@param capacity defines the capacity in characters to reserve.
     */
@@ -132,7 +132,7 @@ public:
     */
     Uint32 size() const { return _rep.size() - 1; }
 
-    /** Returns a pointer to the first character in the null-terminated string 
+    /** Returns a pointer to the first character in the null-terminated string
 	string.
 	@param
 	@return	Pointer to the first character of the String object
@@ -143,15 +143,15 @@ public:
     */
     const Char16* getData() const { return _rep.getData(); }
 
-    /** Allocates an 8 bit representation of this string. The user is 
-	responsible for freeing the result. If any characters are truncated, 
+    /** Allocates an 8 bit representation of this string. The user is
+	responsible for freeing the result. If any characters are truncated,
 	a TruncatedCharacter exception is thrown. This exception may
 	be suppressed by passing true as the noThrow argument. Extra
 	characters may be allocated at the end of the new string by
 	passing a non-zero value to the extraBytes argument.
-	@param extraBytes -  Defines the number of extra characters to be 
+	@param extraBytes Defines the number of extra characters to be
 	allocated at the end of the new string. Default is zero.
-	@param	noThrow - If true, no exception will be thrown if characters
+	@param	noThrow If true, no exception will be thrown if characters
 	are truncated
 	@return pointer to the new representation of the string
 	@exception Throws TruncatedCharacter exception if any characters are
@@ -164,8 +164,8 @@ public:
     char* allocateCString(Uint32 extraBytes = 0, Boolean noThrow = false) const;
 
     /** Append the given string to a C-string. If the length is not Uint32(-1),
-	then the lesser of the the length argument and the length of this 
-	string is truncated. Otherwise, the entire string is trunctated. The 
+	then the lesser of the the length argument and the length of this
+	string is truncated. Otherwise, the entire string is trunctated. The
 	TruncatedCharacter exception is thrown if any characters are truncated.
 	<pre>
 	    const char STR0[] = "one two three four";
@@ -195,7 +195,7 @@ public:
     /** Returns the Ith character of the String (const version).
 	@exception - Throws exception "OutofBounds" if the index
 	is outside the length of the string.
-    
+
     */
     const Char16 operator[](Uint32 i) const;
 
@@ -221,7 +221,7 @@ public:
     }
 
     /** Overload operator += appends the parameter String to this String.
-	@parm String to append.
+	@param String to append.
 	@return This String
 	<pre>
 	String test = "abc";
@@ -235,7 +235,8 @@ public:
     }
 
     /** Append the character given by c to this String object.
-	@param c - Single character
+	@param c Single character to be appended
+	@return String with appended character
     */
     String& operator+=(Char16 c)
     {
@@ -256,8 +257,8 @@ public:
 
     /** Remove size characters from the string starting at the given
 	position. If size is -1, then all characters after pos are removed.
-	@param pos - Position in string to start remove
-	@param size - Number of characters to remove. Default is -1 which 
+	@param pos Position in string to start remove
+	@param size Number of characters to remove. Default is -1 which
 	causes all characters after pos to be removed
 	<pre>
 	    String s;
@@ -274,10 +275,10 @@ public:
     */
     void remove(Uint32 pos, Uint32 size = Uint32(-1));
 
-    /** Return a new String which is initialzed with <TT>length</TT> 
-	characters from this string starting at <TT>pos</TT>. 
-	@param <TT>pos</TT> is the positon in string to start getting the 
-	substring. 
+    /** Return a new String which is initialzed with <TT>length</TT>
+	characters from this string starting at <TT>pos</TT>.
+	@param <TT>pos</TT> is the positon in string to start getting the
+	substring.
 	@param <TT>length</TT> is the number of characters to get. If length
 	is -1, then all characters after pos are added to the new string.
 	@return String with the defined substring.
@@ -291,17 +292,17 @@ public:
 
     /** Find the position of the first occurence of the character c.
 	If the character is not found, -1 is returned.
-	@param c -  Char to be found in the String
+	@param c Char to be found in the String
 	@return Position of the character in the string or -1 if not found.
     */
     Uint32 find(Char16 c) const;
 
-    /** Find the position of the first occurence of the string object. 
+    /** Find the position of the first occurence of the string object.
 	This function finds one string inside another
 	If the matching substring is not found, -1 is returned.
-	@param s -  String object to be found in the String
-	@return Position of the substring in the String or -1 if not 
-	found. 
+	@param s String object to be found in the String
+	@return Position of the substring in the String or -1 if not
+	found.
     */
     Uint32 find(const String& s) const;
 
@@ -315,13 +316,13 @@ public:
 	@param char* to substring
     */
     Uint32 find(const char* s) const;
- 
+
     /** Same as find() but start looking in reverse (last character first).
 	@Seealso find
 	@return Position of the character in the string or -1 if not found.
-	
-	NOTE: This function is defined only for char* input, not for 
-	String. 
+
+	NOTE: This function is defined only for char* input, not for
+	String.
     */
     Uint32 reverseFind(Char16 c) const;
 
@@ -333,30 +334,30 @@ public:
     */
     void translate(Char16 fromChar, Char16 toChar);
 
-    /** Compare the first n characters of the two strings. 
-    	@param s1 - First null-terminated string for the comparison
-	@param s2 - Second null-terminated string for the comparison
-	@param n - Number of characters to compare
+    /** Compare the first n characters of the two strings.
+    	@param s1 First null-terminated string for the comparison
+	@param s2 Second null-terminated string for the comparison
+	@param n Number of characters to compare
 	@return Return -1 if s1 is lexographically less than s2. If they
 	are equavalent return 0. Otherwise return 1.
     */
     static int compare(const Char16* s1, const Char16* s2, Uint32 n);
 
-    /** Compare two null-terminated strings. 
-    	@param s1 - First null-terminated string for the comparison
-	@param s2 - Second null-terminated string for the comparison
+    /** Compare two null-terminated strings.
+    	@param s1 First null-terminated string for the comparison
+	@param s2 Second null-terminated string for the comparison
 	@return If s1 is less than s2, return -1; if equal return 0;
 	otherwise, return 1.
-	
+
 	NOTE: Use the comparison operators <,<= > >= to compare
 	String objects.
     */
     static int compare(const Char16* s1, const Char16* s2);
 
     /** Compare two String objects for equality.
-	@param s1 - First <TT>String</TT> for comparison.
-	@param s2 - Second <TT>String</TT> for comparison.
-	
+	@param s1 First <TT>String</TT> for comparison.
+	@param s2 Second <TT>String</TT> for comparison.
+
 	@return Boolean true if the two strings are equal.
 	<pre>
 	    String s1 = "Hello World";
@@ -397,10 +398,10 @@ private:
     Array<Char16> _rep;
 };
 
-/** String operator ==. Test for equality between two strings of any of the 
+/** String operator ==. Test for equality between two strings of any of the
     types String or char*.
     @return Boolean - True if the strings are equal
-    
+
 */
 inline Boolean operator==(const String& x, const String& y)
 {
@@ -408,15 +409,15 @@ inline Boolean operator==(const String& x, const String& y)
 }
 
 /** String operator ==. Test for equality between two strings
-    
-*/ 
+
+*/
 inline Boolean operator==(const String& x, const char* y)
 {
     return String::equal(x, y);
 }
 
 /** String operator ==. Test for equality between two strings
-    
+
 */
 inline Boolean operator==(const char* x, const String& y)
 {
@@ -424,19 +425,19 @@ inline Boolean operator==(const char* x, const String& y)
 }
 
 /** String operator ==. Test for equality between two strings
-    
-*/  
+
+*/
 inline Boolean operator!=(const String& x, const String& y)
 {
     return !String::equal(x, y);
 }
 
 PEGASUS_COMMON_LINKAGE std::ostream& operator<<(
-    std::ostream& os, 
+    std::ostream& os,
     const String& x);
 
 /** overload operator +	 - Concatenates String objects.
-    
+
     <pre>
 	String t1 = "abc";
 	String t2;
@@ -586,15 +587,15 @@ inline String Cat(const S1& s1, const S2& s2, const S3& s3, const S4& s4)
 
 template<class S1, class S2, class S3, class S4, class S5>
 inline String Cat(
-    const S1& s1, 
-    const S2& s2, 
-    const S3& s3, 
-    const S4& s4, 
+    const S1& s1,
+    const S2& s2,
+    const S3& s3,
+    const S4& s4,
     const S5& s5)
 {
     String tmp;
 
-    tmp.reserve(_Length(s1) + _Length(s2) + _Length(s3) + _Length(s4) + 
+    tmp.reserve(_Length(s1) + _Length(s2) + _Length(s3) + _Length(s4) +
 	_Length(s5));
 
     tmp.append(s1);
@@ -608,16 +609,16 @@ inline String Cat(
 
 template<class S1, class S2, class S3, class S4, class S5, class S6>
 inline String Cat(
-    const S1& s1, 
-    const S2& s2, 
-    const S3& s3, 
-    const S4& s4, 
+    const S1& s1,
+    const S2& s2,
+    const S3& s3,
+    const S4& s4,
     const S5& s5,
     const S6& s6)
 {
     String tmp;
 
-    tmp.reserve(_Length(s1) + _Length(s2) + _Length(s3) + _Length(s4) + 
+    tmp.reserve(_Length(s1) + _Length(s2) + _Length(s3) + _Length(s4) +
 	_Length(s5) + _Length(s6));
 
     tmp.append(s1);

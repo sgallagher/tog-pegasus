@@ -100,10 +100,9 @@ public:
 	
 	WARNING: This differs significantly from the <TT>removeDirectory</TT>
 	function in that it removes both directories and files and
-	removes a complete hiearchy.  Use with caution.
-	
-	@parm path defines the high level directory to be removed
-	@return Boolean - ATTN.
+	removes a complete hiearchy.  Use with caution. 
+	@param path defines the high level directory to be removed
+	@return Boolean True if successful
 	@exception  - ATTN: Not sure if there is any exception
     */ 
     static Boolean removeDirectoryHier(const String& path);

@@ -237,7 +237,7 @@ public:
     /** Make the size of the array grow by size elements. Thenew size will 
 	be size() + size. The new elements (there are size of them) are
 	initialized with x.
-	@parm size defines the number of elements by which the array is to
+	@param size defines the number of elements by which the array is to
 	grow.
     */
     void grow(Uint32 size, const T& x);

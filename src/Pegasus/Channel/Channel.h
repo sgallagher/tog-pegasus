@@ -38,8 +38,8 @@ public:
 
     /** Method to read up to size bytes from the channel into the memory area
 	specified by the ptr argument
-	@param ptr - Pointer to memory area into which bytes are read.
-	@param size - The maximum number of byest to read.
+	@param ptr Pointer to memory area into which bytes are read.
+	@param size The maximum number of byest to read.
 	@return The number of bytes read or -1 on failure.  The return value may
 	be smaller that the size argument
     */
@@ -47,9 +47,9 @@ public:
 
     /** Method to write up to size bytes onto the channel from the memory
         area specified by the ptr argument.
-        @parm ptr - Pointer to memory area from which bytes are written to the
+        @param ptr Pointer to memory area from which bytes are written to the
         channel
-	@param size - Maximum number of bytes to write to the channel
+	@param size Maximum number of bytes to write to the channel
 	@retrun - Thie method returns the number of bytes
 	written or negative one on failure. The return value may be smaller
 	than the size argument.
@@ -58,9 +58,9 @@ public:
 
     /** Method to read size bytes from the channel into the memory area
 	specified by the ptr argument.
-	@param ptr - Pointer to memory area into which input bytes are placed.
-	@param size - Number of bytes to read into the memory area.
-	@return - This method will return the size argument or negative one on
+	@param ptr Pointer to memory area into which input bytes are placed.
+	@param size Number of bytes to read into the memory area.
+	@return This method will return the size argument or negative one on
 	failure.
 	COMMENT: Clafify issue if for some reason less than this received
     */
@@ -68,9 +68,9 @@ public:
 
     /** Method to write size bytes onto the channel from the memory area
 	specified by the ptr argument.
-	@param ptr - Pointer to memory area from which data is written
-	@param size - Number of bytes to write.
-	@return - This method will return the size argument or negative one on
+	@param ptr Pointer to memory area from which data is written
+	@param size Number of bytes to write.
+	@return This method will return the size argument or negative one on
 	failure.
     */
     virtual Sint32 writeN(const void* ptr, Uint32 size) = 0;

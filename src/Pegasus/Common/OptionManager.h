@@ -38,7 +38,7 @@ PEGASUS_NAMESPACE_BEGIN
 class Option;
 struct OptionRow;
 
-/** The OptionManager class manages a collection of program options. 
+/** The OptionManager class manages a collection of program options.
 
     <h4>Overview</h4>
 
@@ -49,8 +49,8 @@ struct OptionRow;
 	<li>On the command line</li>
     </ul>
 
-    This class provides methods for merging options from both of these 
-    sources into a single collection. The following example shows how to 
+    This class provides methods for merging options from both of these
+    sources into a single collection. The following example shows how to
     merge options from a command line into the option manager.
 
     <pre>
@@ -90,7 +90,7 @@ struct OptionRow;
     <pre>
 	OptionManager om;
 
-	Option* option = new Option("port", "80", false, 
+	Option* option = new Option("port", "80", false,
 	    Option::NATURAL_NUMBER, Array<String>(), "p");
 
 	om.registerOption(option);
@@ -101,13 +101,13 @@ struct OptionRow;
     is the name of the option argument on the command line (it would appear
     as "-p" on the command line).
 
-    Once options have been registered, the option values may be initialized 
-    using the merge methods described earlier. During merging, certain 
+    Once options have been registered, the option values may be initialized
+    using the merge methods described earlier. During merging, certain
     validation is done using the corresponding Option instance described above.
 
-    Once options have been merged, they may obtained by calling the 
+    Once options have been merged, they may obtained by calling the
     lookupOption() method like this:
-    
+
     <pre>
 	Option* option = om.lookupOption("port");
 	String port = option->getValue();
@@ -127,14 +127,14 @@ struct OptionRow;
     <pre>
 	om.mergeCommandLine(argc, argv);
     </pre>
-    
-    This method searches the command line for options that match the registered 
-    ones. It will extract those options from the command line (argc and argv 
+
+    This method searches the command line for options that match the registered
+    ones. It will extract those options from the command line (argc and argv
     will be modified accordingly).
 
     <h4>Configuration File Otpions</h4>
 
-    Options from a configuration file may be merged by calling the mergeFile() 
+    Options from a configuration file may be merged by calling the mergeFile()
     method like this:
 
     <pre>
@@ -146,7 +146,7 @@ struct OptionRow;
 
     <h4>Merge Validation</h4>
 
-    During merging, the option manager validates the following (using the 
+    During merging, the option manager validates the following (using the
     information optatined during option registration).
 
     <ul>
@@ -154,7 +154,7 @@ struct OptionRow;
 	    or string or whatever.</li>
 	<li>The domain of the option - whether the supplied option is a legal
 	    value for that otpion</li>
-	<li>User extended validation - whether the user overriden 
+	<li>User extended validation - whether the user overriden
 	    Option::isValid() returns true when the value is passed to it</li>
     </ul>
 
@@ -192,12 +192,12 @@ public:
     */
     void registerOptions(OptionRow* options, Uint32 numOptions);
 
-    /** Merge option values from the command line. Searches the command 
+    /** Merge option values from the command line. Searches the command
 	line for registered options whose names are given by the
 	Option::getCommandLineOptionName() method. Validation is performed
 	on each option value obtained by calling Option::isValid(). Valid
 	option values are set by calling Option::setValue(). The argc and
-	argv arguments are modified: the option and its argument are 
+	argv arguments are modified: the option and its argument are
 	stripped from the command line. The option and its argument have the
 	following form: -option-name argument. A space must be supplied
 	between the two. Boolean option arguments are an exception. They
@@ -213,8 +213,8 @@ public:
 
     /** Merge option values from a file. Searches file for registered options
 	whose names are given by the options which have been registered.
-	Validation is performed on each option value by calling 
-	Option::isValid(). Valid option values are set by calling 
+	Validation is performed on each option value by calling
+	Option::isValid(). Valid option values are set by calling
 	Option::setValue().
 
 	&param fileName name of file to be merged.
@@ -231,16 +231,16 @@ public:
     void checkRequiredOptions() const;
 
     /** Lookup the option with the given name.
-	@param - name provides the name of the option.
+	@param Name provides the name of the option.
 	@return 0 if no such option.
     */
     const Option* lookupOption(const String& name) const;
 
     /** Lookup value of an option.
-	@param - name provides the name of the option (ex. "port")
-	@param - String parameter contains the String that contains the
+	@param Name provides the name of the option (ex. "port")
+	@param String parameter contains the String that contains the
 	value for this parameter (in String format).
-	@return - Boolean return. True if the option found.
+	@return Boolean return. True if the option found.
     */
     Boolean lookupValue(const String& name, String& value) const;
 
@@ -266,19 +266,19 @@ class PEGASUS_COMMON_LINKAGE Option
 public:
 
     /** Valid value types. */
-    enum Type 
+    enum Type
     {
 	// (..., -3, -2, -1, 0, 1, 2, 3, ...)
-	INTEGER, 
+	INTEGER,
 
 	// (1, 2, 3, ...)
-	NATURAL_NUMBER, 
+	NATURAL_NUMBER,
 
 	// (0, 1, 2, 3, ...)
-	WHOLE_NUMBER, 
+	WHOLE_NUMBER,
 
 	// "true" or "false"
-	BOOLEAN, 
+	BOOLEAN,
 
 	// Anything
 	STRING
@@ -341,7 +341,7 @@ public:
         _defaultValue = defaultValue;
     }
 
-    /** Accessor 
+    /** Accessor
 	@return - Returns string representation of value
     */
     const String& getValue() const
@@ -404,12 +404,12 @@ public:
         _commandLineOptionName = commandLineOptionName;
     }
 
-    /** Accesor. Returns true if an option value was ever obtained for 
+    /** Accesor. Returns true if an option value was ever obtained for
 	this option.
     */
-    Boolean isResolved() const 
+    Boolean isResolved() const
     {
-	return _resolved; 
+	return _resolved;
     }
 
     /** Checks to see if the given value is valid or not. This method may be
@@ -463,7 +463,7 @@ private:
 	static const char* colors[] = { "red", "green", "blue" };
 	static const Uint32 NUM_COLORS = sizeof(colors) / sizeof(colors[0]);
 
-	static OptionRow options[] = 
+	static OptionRow options[] =
 	{
 	    { "color", "red", false, Option::STRING, colors, NUM_COLORS }
 	};

@@ -200,7 +200,7 @@ static String EncodeQueryStringValue(const String& x)
 }
 /** PrintA - Prints a single href
     @param href - the reference for building the href
-    @parm content - The content of the reference
+    @param content - The content of the reference
 */
 static void PrintA(const String& href, const String& content)
 {
@@ -333,7 +333,7 @@ property information.
 This is a template function so that it can be used with both instance
 and class definitions.
 @param nameSpace. Used to query for namespace value.  WHY???
-@parm object - Either the class or instance object address
+@param object Either the class or instance object address
 @param includeClassOrigin to be used to define tests on getting this field
 */
 template<class OBJECT>
@@ -552,7 +552,7 @@ static void GetClass(const CGIQueryString& qs)
 	HostInfo hostinfo;
 
 	char address[128];
-	sprintf(address, "%s:%d", 
+	sprintf(address, "%s:%d",
 	    hostinfo.getHostName(), hostinfo.getHostPort());
 	client.connect(address);
 
@@ -1183,7 +1183,7 @@ static void EnumerateInstances(const CGIQueryString& qs)
 
 	    PrintHTMLHead("GetProperty", "GetProperty Return");
 
-	    
+
 	    cout << "<B>Instance = </B> " <<
 		inputInstanceName << "\n";
 
@@ -1193,7 +1193,7 @@ static void EnumerateInstances(const CGIQueryString& qs)
 	    cout <<  TypeToString(value.getType()) << "\n\n";
 
 	    String valueString = value.toString();
-	    cout << "<B>Value = </B> "; 
+	    cout << "<B>Value = </B> ";
 
 	    if (valueString.size())
 	       cout << " " << valueString << " \n\n";

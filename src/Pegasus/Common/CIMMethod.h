@@ -36,8 +36,8 @@ PEGASUS_NAMESPACE_BEGIN
 class CIMConstMethod;
 
 /** Class CIMMethod - This class defines the operations associated with
-    manipulation of the Pegasus implementation of the CIM CIMMethod. Within 
-    this class, methods are provides for creation, deletion, and manipulation 
+    manipulation of the Pegasus implementation of the CIM CIMMethod. Within
+    this class, methods are provides for creation, deletion, and manipulation
     of method declarations.
 
     // ATTN: remove the classOrigin and propagated parameters.
@@ -131,7 +131,7 @@ public:
     }
 
     /** CIMMethod getClassOrigin - Returns the class in which this method
-	was defined.  
+	was defined.
 	@return ATTN:
     */
     const String& getClassOrigin() const
@@ -161,10 +161,9 @@ public:
 	_rep->setPropagated(propagated);
     }
 
-    /** CIMMethod addQualifier -
-	@parm CIMQualifier to add
+    /** CIMMethod addQualifier - Adds a Qualifier to the method object.
 	@param CIMQualifier to be added
-	@return Throws AlreadyExists excetpion if the qualifier already exists 
+	@return Throws AlreadyExists excetpion if the qualifier already exists
 	in the method
 	@exception AlreadyExists exception
     */
@@ -177,7 +176,7 @@ public:
 
     /** CIMMethod findQualifier - returns the position of the qualifier with
 	the given name.
-	@param name - name of qualifier to be found.
+	@param name Name of qualifier to be found.
 	@return index of the parameter if found; otherwise Uint32(-1).
     */
     Uint32 findQualifier(const String& name)
@@ -192,7 +191,7 @@ public:
 	return _rep->findQualifier(name);
     }
 
-    /** CIMMethod getQualifier - Gets the CIMQualifier defined by the index 
+    /** CIMMethod getQualifier - Gets the CIMQualifier defined by the index
 	input as a parameter.
 	@param Index of the qualifier requested.
 	@return CIMQualifier object or exception
@@ -221,7 +220,7 @@ public:
 	return _rep->getQualifierCount();
     }
 
-    /** CIMMethod addParameter - Adds the parameter defined by the input 
+    /** CIMMethod addParameter - Adds the parameter defined by the input
 	to the CIMMethod
     */
     CIMMethod& addParameter(const CIMParameter& x)
@@ -233,7 +232,7 @@ public:
 
     /** CIMMethod findParameter - Finds the parameter whose name is given
 	by the name parameter.
-	@param name - name of parameter to be found.
+	@param name Name of parameter to be found.
 	@return index of the parameter if found; otherwise Uint32(-1).
     */
     Uint32 findParameter(const String& name)
@@ -268,7 +267,7 @@ public:
 	return _rep->getParameter(pos);
     }
 
-    /** CIMMethod getParameterCount - Gets the count of the numbeer of 
+    /** CIMMethod getParameterCount - Gets the count of the numbeer of
 	Parameters attached to the CIMMethod.
 	@retrun - count of the number of parameters attached to the CIMMethod.
     */
@@ -298,9 +297,9 @@ public:
     }
 
     /** Returns zero if CIMMethod refers to a null pointer */
-    operator int() const 
-    { 
-	return _rep != 0; 
+    operator int() const
+    {
+	return _rep != 0;
     }
 
     /** method toXML - placing XML encoding of this object into out arguemnt. */

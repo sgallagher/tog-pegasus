@@ -39,7 +39,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 class CIMReference;
 
-/** The KeyBinding class associates a key name, value, and type. 
+/** The KeyBinding class associates a key name, value, and type.
     It is used by the reference class to represent key bindings.
     See the CIMReference class to see how they are used.
 */
@@ -65,43 +65,43 @@ public:
     KeyBinding& operator=(const KeyBinding& x);
 
     /** Accessor */
-    const String& getName() const 
+    const String& getName() const
     {
-	return _name; 
+	return _name;
     }
 
     /** Modifier */
-    void setName(const String& name) 
-    { 
-	_name = name; 
+    void setName(const String& name)
+    {
+	_name = name;
     }
 
     /** Accessor */
-    const String& getValue() const 
+    const String& getValue() const
     {
-	return _value; 
+	return _value;
     }
 
     /** Modifier */
-    void setValue(const String& value) 
-    { 
-	_value = value; 
+    void setValue(const String& value)
+    {
+	_value = value;
     }
 
     /** Accessor */
-    Type getType() const 
-    { 
-	return _type; 
+    Type getType() const
+    {
+	return _type;
     }
 
     /** Modifier */
-    void setType(Type type) 
-    { 
-	_type = type; 
+    void setType(Type type)
+    {
+	_type = type;
     }
 
-    /** Converts the given type to one of the following: 
-	"boolean", "string", or "numeric" 
+    /** Converts the given type to one of the following:
+	"boolean", "string", or "numeric"
     */
     static const char* typeToString(Type type);
 
@@ -117,9 +117,9 @@ private:
 
 inline Boolean operator==(const KeyBinding& x, const KeyBinding& y)
 {
-    return 
-	CIMName::equal(x._name, y._name) && 
-	String::equal(x._value, y._value) && 
+    return
+	CIMName::equal(x._name, y._name) &&
+	String::equal(x._value, y._value) &&
 	x._type == y._type;
 }
 
@@ -169,7 +169,7 @@ class XmlWriter;
     </pre>
 
     For example, suppose there is a host named "atp" with a CIM Server
-    listening on port 9999 which has a CIM repository with a namespace 
+    listening on port 9999 which has a CIM repository with a namespace
     called "root/cimv25". Then the namespace-path is given as:
 
     <pre>
@@ -181,7 +181,9 @@ class XmlWriter;
     specification) as follows:
 
     <pre>
-    &lt;Qualifyingclass&gt;.&lt;key-1&gt;=&lt;value-1&gt;[,&lt;key-n&gt;=&lt;value-n&gt;]*
+
+    &lt;Qualifyingclass&gt;.&lt;key-1&gt;=&lt;value-1&gt;[,&lt;key-n&gt;=
+    &lt;value-n&gt;]*
     </pre>
 
     For example:
@@ -220,7 +222,7 @@ class XmlWriter;
     CIMReference(
 	const String& host,
 	const String& nameSpace,
-	const String& className, 
+	const String& className,
 	const KeyBindingArray& keyBindings);
     </pre>
 
@@ -228,11 +230,11 @@ class XmlWriter;
     a CIMReference like this:
 
 	<pre>
-	CIMReference ref = 
+	CIMReference ref =
 	    "//atp:9999/root/cimv25:TennisPlayer.first="Patrick",last="Rafter";
 	</pre>
 
-    A CIMReference may also be initialized using the constituent elements 
+    A CIMReference may also be initialized using the constituent elements
     of the object name (sometimes the object name is not available as a string:
     this is the case with CIM XML encodings). The arguments shown in that
     constructor above correspond elements of the object name in the following
@@ -318,7 +320,7 @@ class XmlWriter;
 
     For reasons of efficiency, the key bindings are internally sorted
     during initialization. This allows the key bindings to be compared
-    more easily. This means that when the string is converted back to 
+    more easily. This means that when the string is converted back to
     string (by calling toString()) that the keys may have been rearranged.
 
     There are two forms an object name can take:
@@ -346,11 +348,11 @@ class XmlWriter;
     TennisPlayer.first="Patrick",last="Rafter"
     TennisPlayer
     </pre>
-    
-    In the second case--when it refers to a class--the key bindings are 
+
+    In the second case--when it refers to a class--the key bindings are
     omitted.
-*/ 
-class PEGASUS_COMMON_LINKAGE CIMReference 
+*/
+class PEGASUS_COMMON_LINKAGE CIMReference
 {
 public:
 
@@ -367,15 +369,15 @@ public:
     CIMReference(const char* objectName);
 
     /** Constructs a CIMReference from constituent elements.
-	@param host - name of host (e.g., "nemesis-8888").
-	@param nameSpace -  namespace (e.g., "root/cimv20").
-	@param className - name of a class (e.g., "MyClass").
-	@param keyBindings - an array of KeyBinding objects.
+	@param host Name of host (e.g., "nemesis-8888").
+	@param nameSpace Namespace (e.g., "root/cimv20").
+	@param className Name of a class (e.g., "MyClass").
+	@param keyBindings An array of KeyBinding objects.
     */
     CIMReference(
 	const String& host,
 	const String& nameSpace,
-	const String& className, 
+	const String& className,
 	const KeyBindingArray& keyBindings = KeyBindingArray());
 
     /** Destructor */
@@ -397,7 +399,7 @@ public:
     void set(
 	const String& host,
 	const String& nameSpace,
-	const String& className, 
+	const String& className,
 	const KeyBindingArray& keyBindings = KeyBindingArray());
 
     /** Set the reference from an object name . */
@@ -418,9 +420,9 @@ public:
     }
 
     /** Accessor. */
-    const String& getHost() const 
+    const String& getHost() const
     {
-	return _host; 
+	return _host;
     }
 
     /** Modifier. */
@@ -430,9 +432,9 @@ public:
     }
 
     /** Accessor */
-    const String& getNameSpace() const 
+    const String& getNameSpace() const
     {
-	return _nameSpace; 
+	return _nameSpace;
     }
 
     /** Sets the namespace component.
@@ -440,11 +442,11 @@ public:
 	@exception Throws IllegalName if form of the namespace is illegal.
     */
     void setNameSpace(const String& nameSpace);
-    
+
     /** Accessor. */
-    const String& getClassName() const 
+    const String& getClassName() const
     {
-	return _className; 
+	return _className;
     }
 
     /** Sets the class name component to the following string.
@@ -453,9 +455,9 @@ public:
     void setClassName(const String& className);
 
     /** Accessor. */
-    const Array<KeyBinding>& getKeyBindings() const 
+    const Array<KeyBinding>& getKeyBindings() const
     {
-	return _keyBindings; 
+	return _keyBindings;
     }
 
     /** Modifier. */
@@ -470,7 +472,7 @@ public:
     Boolean identical(const CIMReference& x) const;
 
     /** Encodes this object as XML.
-	@param out - argument to place resulting XML into.
+	@param out argument in which to place resutls
     */
     void toXml(Array<Sint8>& out) const;
 
@@ -521,3 +523,4 @@ inline std::ostream& operator<<(std::ostream& os, const CIMReference& x)
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_Reference_h */
+

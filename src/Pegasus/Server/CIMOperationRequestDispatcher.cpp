@@ -500,48 +500,63 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 
 	   return;
    }
-
-   CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-   String errorDescription;
-   CIMInstance cimInstance;
-
-   _repository->read_lock();
-
-   try
+   else if (_repository->isDefaultInstanceProvider())
    {
-      cimInstance = _repository->getInstance(
-	 request->nameSpace,
-	 request->instanceName,
-	 request->localOnly,
-	 request->includeQualifiers,
-	 request->includeClassOrigin,
-	 request->propertyList.getPropertyNameArray());
-   }
-   catch(CIMException& exception)
-   {
-      errorCode = exception.getCode();
-      errorDescription = exception.getMessage();
-   }
-   catch(Exception& exception)
-   {
-      errorCode = CIM_ERR_FAILED;
-      errorDescription = exception.getMessage();
-   }
-   catch(...)
-   {
-      errorCode = CIM_ERR_FAILED;
-   }
-	
-   _repository->read_unlock();
+      CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+      String errorDescription;
+      CIMInstance cimInstance;
 
-   CIMGetInstanceResponseMessage* response = new CIMGetInstanceResponseMessage(
-      request->messageId,
-      errorCode,
-      errorDescription,
-      request->queueIds.copyAndPop(),
-      cimInstance);
+      _repository->read_lock();
 
-   _enqueueResponse(request, response);
+      try
+      {
+         cimInstance = _repository->getInstance(
+	    request->nameSpace,
+	    request->instanceName,
+	    request->localOnly,
+	    request->includeQualifiers,
+	    request->includeClassOrigin,
+	    request->propertyList.getPropertyNameArray());
+      }
+      catch(CIMException& exception)
+      {
+         errorCode = exception.getCode();
+         errorDescription = exception.getMessage();
+      }
+      catch(Exception& exception)
+      {
+         errorCode = CIM_ERR_FAILED;
+         errorDescription = exception.getMessage();
+      }
+      catch(...)
+      {
+         errorCode = CIM_ERR_FAILED;
+      }
+
+      _repository->read_unlock();
+
+      CIMGetInstanceResponseMessage* response =
+         new CIMGetInstanceResponseMessage(
+            request->messageId,
+            errorCode,
+            errorDescription,
+            request->queueIds.copyAndPop(),
+            cimInstance);
+
+      _enqueueResponse(request, response);
+   }
+   else // No provider is registered and the repository isn't the default
+   {
+      CIMGetInstanceResponseMessage* response =
+         new CIMGetInstanceResponseMessage(
+            request->messageId,
+            CIM_ERR_NOT_SUPPORTED,
+            CIMException(CIM_ERR_NOT_SUPPORTED).getMessage(),
+            request->queueIds.copyAndPop(),
+            CIMInstance());
+
+      _enqueueResponse(request, response);
+   }
 }
 
 void CIMOperationRequestDispatcher::handleDeleteClassRequest(
@@ -679,43 +694,56 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
 
 	   return;
    }
-
-   CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-   String errorDescription;
-
-   _repository->write_lock();
-
-   try
+   else if (_repository->isDefaultInstanceProvider())
    {
-      _repository->deleteInstance(
-	 request->nameSpace,
-	 request->instanceName);
-   }
-   catch(CIMException& exception)
-   {
-      errorCode = exception.getCode();
-      errorDescription = exception.getMessage();
-   }
-   catch(Exception& exception)
-   {
-      errorCode = CIM_ERR_FAILED;
-      errorDescription = exception.getMessage();
-   }
-   catch(...)
-   {
-      errorCode = CIM_ERR_FAILED;
-   }
+      CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+      String errorDescription;
 
-   _repository->write_unlock();
+      _repository->write_lock();
 
-   CIMDeleteInstanceResponseMessage* response =
-      new CIMDeleteInstanceResponseMessage(
-	 request->messageId,
-	 errorCode,
-	 errorDescription,
-	 request->queueIds.copyAndPop());
+      try
+      {
+         _repository->deleteInstance(
+	    request->nameSpace,
+	    request->instanceName);
+      }
+      catch(CIMException& exception)
+      {
+         errorCode = exception.getCode();
+         errorDescription = exception.getMessage();
+      }
+      catch(Exception& exception)
+      {
+         errorCode = CIM_ERR_FAILED;
+         errorDescription = exception.getMessage();
+      }
+      catch(...)
+      {
+         errorCode = CIM_ERR_FAILED;
+      }
 
-   _enqueueResponse(request, response);
+      _repository->write_unlock();
+
+      CIMDeleteInstanceResponseMessage* response =
+         new CIMDeleteInstanceResponseMessage(
+	    request->messageId,
+	    errorCode,
+	    errorDescription,
+	    request->queueIds.copyAndPop());
+
+      _enqueueResponse(request, response);
+   }
+   else // No provider is registered and the repository isn't the default
+   {
+      CIMDeleteInstanceResponseMessage* response =
+         new CIMDeleteInstanceResponseMessage(
+            request->messageId,
+            CIM_ERR_NOT_SUPPORTED,
+            CIMException(CIM_ERR_NOT_SUPPORTED).getMessage(),
+            request->queueIds.copyAndPop());
+
+      _enqueueResponse(request, response);
+   }
 }
 
 void CIMOperationRequestDispatcher::handleCreateClassRequest(
@@ -894,45 +922,59 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 
 	   return;
    }
-
-   CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-   String errorDescription;
-   CIMReference instanceName;
-
-   _repository->write_lock();
-
-   try
+   else if (_repository->isDefaultInstanceProvider())
    {
-      instanceName = _repository->createInstance(
-	 request->nameSpace,
-	 request->newInstance);
-   }
-   catch(CIMException& exception)
-   {
-      errorCode = exception.getCode();
-      errorDescription = exception.getMessage();
-   }
-   catch(Exception& exception)
-   {
-      errorCode = CIM_ERR_FAILED;
-      errorDescription = exception.getMessage();
-   }
-   catch(...)
-   {
-      errorCode = CIM_ERR_FAILED;
-   }
+      CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+      String errorDescription;
+      CIMReference instanceName;
 
-   _repository->write_unlock();
+      _repository->write_lock();
 
-   CIMCreateInstanceResponseMessage* response =
-      new CIMCreateInstanceResponseMessage(
-	 request->messageId,
-	 errorCode,
-	 errorDescription,
-	 request->queueIds.copyAndPop(),
-	 instanceName);
+      try
+      {
+         instanceName = _repository->createInstance(
+	    request->nameSpace,
+	    request->newInstance);
+      }
+      catch(CIMException& exception)
+      {
+         errorCode = exception.getCode();
+         errorDescription = exception.getMessage();
+      }
+      catch(Exception& exception)
+      {
+         errorCode = CIM_ERR_FAILED;
+         errorDescription = exception.getMessage();
+      }
+      catch(...)
+      {
+         errorCode = CIM_ERR_FAILED;
+      }
 
-   _enqueueResponse(request, response);
+      _repository->write_unlock();
+
+      CIMCreateInstanceResponseMessage* response =
+         new CIMCreateInstanceResponseMessage(
+	    request->messageId,
+	    errorCode,
+	    errorDescription,
+	    request->queueIds.copyAndPop(),
+	    instanceName);
+
+      _enqueueResponse(request, response);
+   }
+   else // No provider is registered and the repository isn't the default
+   {
+      CIMCreateInstanceResponseMessage* response =
+         new CIMCreateInstanceResponseMessage(
+            request->messageId,
+            CIM_ERR_NOT_SUPPORTED,
+            CIMException(CIM_ERR_NOT_SUPPORTED).getMessage(),
+            request->queueIds.copyAndPop(),
+            CIMReference());
+
+      _enqueueResponse(request, response);
+   }
 }
 
 void CIMOperationRequestDispatcher::handleModifyClassRequest(
@@ -1073,45 +1115,58 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
 
 	   return;
    }
-
-   // translate and forward request to repository
-   CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-   String errorDescription;
-
-   _repository->write_lock();
-
-   try
+   else if (_repository->isDefaultInstanceProvider())
    {
-      _repository->modifyInstance(
-	 request->nameSpace,
-	 request->modifiedInstance,
-	 request->includeQualifiers,request->propertyList);
-   }
-   catch(CIMException& exception)
-   {
-      errorCode = exception.getCode();
-      errorDescription = exception.getMessage();
-   }
-   catch(Exception& exception)
-   {
-      errorCode = CIM_ERR_FAILED;
-      errorDescription = exception.getMessage();
-   }
-   catch(...)
-   {
-      errorCode = CIM_ERR_FAILED;
-   }
+      // translate and forward request to repository
+      CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+      String errorDescription;
 
-   _repository->write_unlock();
+      _repository->write_lock();
 
-   CIMModifyInstanceResponseMessage* response =
-      new CIMModifyInstanceResponseMessage(
-	 request->messageId,
-	 errorCode,
-	 errorDescription,
-	 request->queueIds.copyAndPop());
+      try
+      {
+         _repository->modifyInstance(
+	    request->nameSpace,
+	    request->modifiedInstance,
+	    request->includeQualifiers,request->propertyList);
+      }
+      catch(CIMException& exception)
+      {
+         errorCode = exception.getCode();
+         errorDescription = exception.getMessage();
+      }
+      catch(Exception& exception)
+      {
+         errorCode = CIM_ERR_FAILED;
+         errorDescription = exception.getMessage();
+      }
+      catch(...)
+      {
+         errorCode = CIM_ERR_FAILED;
+      }
 
-   _enqueueResponse(request, response);
+      _repository->write_unlock();
+
+      CIMModifyInstanceResponseMessage* response =
+         new CIMModifyInstanceResponseMessage(
+	    request->messageId,
+	    errorCode,
+	    errorDescription,
+	    request->queueIds.copyAndPop());
+
+      _enqueueResponse(request, response);
+   }
+   else // No provider is registered and the repository isn't the default
+   {
+      CIMModifyInstanceResponseMessage* response =
+         new CIMModifyInstanceResponseMessage(
+	    request->messageId,
+            CIM_ERR_NOT_SUPPORTED,
+            CIMException(CIM_ERR_NOT_SUPPORTED).getMessage(),
+	    request->queueIds.copyAndPop());
+
+      _enqueueResponse(request, response);
+   }
 }
 
 void CIMOperationRequestDispatcher::handleEnumerateClassesRequest(
@@ -1302,50 +1357,64 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 
 	   return;
    }
-
-   CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-   String errorDescription;
-   Array<CIMNamedInstance> cimNamedInstances;
-
-   _repository->read_lock();
-
-   try
+   else if (_repository->isDefaultInstanceProvider())
    {
-      cimNamedInstances = _repository->enumerateInstances(
-	 request->nameSpace,
-	 request->className,
-	 request->deepInheritance,
-	 request->localOnly,
-	 request->includeQualifiers,
-	 request->includeClassOrigin,
-	 request->propertyList.getPropertyNameArray());
-   }
-   catch(CIMException& exception)
-   {
-      errorCode = exception.getCode();
-      errorDescription = exception.getMessage();
-   }
-   catch(Exception& exception)
-   {
-      errorCode = CIM_ERR_FAILED;
-      errorDescription = exception.getMessage();
-   }
-   catch(...)
-   {
-      errorCode = CIM_ERR_FAILED;
-   }
+      CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+      String errorDescription;
+      Array<CIMNamedInstance> cimNamedInstances;
 
-   _repository->read_unlock();
+      _repository->read_lock();
 
-   CIMEnumerateInstancesResponseMessage* response =
-      new CIMEnumerateInstancesResponseMessage(
-	 request->messageId,
-	 errorCode,
-	 errorDescription,
-	 request->queueIds.copyAndPop(),
-	 cimNamedInstances);
+      try
+      {
+         cimNamedInstances = _repository->enumerateInstances(
+	    request->nameSpace,
+	    request->className,
+	    request->deepInheritance,
+	    request->localOnly,
+	    request->includeQualifiers,
+	    request->includeClassOrigin,
+	    request->propertyList.getPropertyNameArray());
+      }
+      catch(CIMException& exception)
+      {
+         errorCode = exception.getCode();
+         errorDescription = exception.getMessage();
+      }
+      catch(Exception& exception)
+      {
+         errorCode = CIM_ERR_FAILED;
+         errorDescription = exception.getMessage();
+      }
+      catch(...)
+      {
+         errorCode = CIM_ERR_FAILED;
+      }
 
-   _enqueueResponse(request, response);
+      _repository->read_unlock();
+
+      CIMEnumerateInstancesResponseMessage* response =
+         new CIMEnumerateInstancesResponseMessage(
+	    request->messageId,
+	    errorCode,
+	    errorDescription,
+	    request->queueIds.copyAndPop(),
+	    cimNamedInstances);
+
+      _enqueueResponse(request, response);
+   }
+   else // No provider is registered and the repository isn't the default
+   {
+      CIMEnumerateInstancesResponseMessage* response =
+         new CIMEnumerateInstancesResponseMessage(
+            request->messageId,
+            CIM_ERR_NOT_SUPPORTED,
+            CIMException(CIM_ERR_NOT_SUPPORTED).getMessage(),
+            request->queueIds.copyAndPop(),
+            Array<CIMNamedInstance>());
+
+      _enqueueResponse(request, response);
+   }
 }
 
 void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
@@ -1443,45 +1512,59 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 
 	   return;
    }
+   else if (_repository->isDefaultInstanceProvider())
+   {
+      CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+      String errorDescription;
+      Array<CIMReference> instanceNames;
+
+      _repository->read_lock();
 	
-   CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-   String errorDescription;
-   Array<CIMReference> instanceNames;
+      try
+      {
+         instanceNames = _repository->enumerateInstanceNames(
+	    request->nameSpace,
+	    request->className);
+      }
+      catch(CIMException& exception)
+      {
+         errorCode = exception.getCode();
+         errorDescription = exception.getMessage();
+      }
+      catch(Exception& exception)
+      {
+         errorCode = CIM_ERR_FAILED;
+         errorDescription = exception.getMessage();
+      }
+      catch(...)
+      {
+         errorCode = CIM_ERR_FAILED;
+      }
 
-   _repository->read_lock();
-	
-   try
-   {
-      instanceNames = _repository->enumerateInstanceNames(
-	 request->nameSpace,
-	 request->className);
-   }
-   catch(CIMException& exception)
-   {
-      errorCode = exception.getCode();
-      errorDescription = exception.getMessage();
-   }
-   catch(Exception& exception)
-   {
-      errorCode = CIM_ERR_FAILED;
-      errorDescription = exception.getMessage();
-   }
-   catch(...)
-   {
-      errorCode = CIM_ERR_FAILED;
-   }
+      _repository->read_unlock();
 
-   _repository->read_unlock();
+      CIMEnumerateInstanceNamesResponseMessage* response =
+         new CIMEnumerateInstanceNamesResponseMessage(
+	    request->messageId,
+	    errorCode,
+	    errorDescription,
+	    request->queueIds.copyAndPop(),
+	    instanceNames);
 
-   CIMEnumerateInstanceNamesResponseMessage* response =
-      new CIMEnumerateInstanceNamesResponseMessage(
-	 request->messageId,
-	 errorCode,
-	 errorDescription,
-	 request->queueIds.copyAndPop(),
-	 instanceNames);
+      _enqueueResponse(request, response);
+   }
+   else // No provider is registered and the repository isn't the default
+   {
+      CIMEnumerateInstanceNamesResponseMessage* response =
+         new CIMEnumerateInstanceNamesResponseMessage(
+            request->messageId,
+            CIM_ERR_NOT_SUPPORTED,
+            CIMException(CIM_ERR_NOT_SUPPORTED).getMessage(),
+            request->queueIds.copyAndPop(),
+            Array<CIMReference>());
 
-   _enqueueResponse(request, response);
+      _enqueueResponse(request, response);
+   }
 }
 
 void CIMOperationRequestDispatcher::handleAssociatorsRequest(
@@ -1527,52 +1610,66 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
 
 	   return;
    }
-
-   CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-   String errorDescription;
-   Array<CIMObjectWithPath> cimObjects;
-
-   _repository->read_lock();
-
-   try
+   else if (_repository->isDefaultInstanceProvider())
    {
-      cimObjects = _repository->associators(
-	 request->nameSpace,
-	 request->objectName,
-	 request->assocClass,
-	 request->resultClass,
-	 request->role,
-	 request->resultRole,
-	 request->includeQualifiers,
-	 request->includeClassOrigin,
-	 request->propertyList.getPropertyNameArray());
-   }
-   catch(CIMException& exception)
-   {
-      errorCode = exception.getCode();
-      errorDescription = exception.getMessage();
-   }
-   catch(Exception& exception)
-   {
-      errorCode = CIM_ERR_FAILED;
-      errorDescription = exception.getMessage();
-   }
-   catch(...)
-   {
-      errorCode = CIM_ERR_FAILED;
-   }
+      CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+      String errorDescription;
+      Array<CIMObjectWithPath> cimObjects;
 
-   _repository->read_unlock();
+      _repository->read_lock();
 
-   CIMAssociatorsResponseMessage* response =
-      new CIMAssociatorsResponseMessage(
-	 request->messageId,
-	 errorCode,
-	 errorDescription,
-	 request->queueIds.copyAndPop(),
-	 cimObjects);
+      try
+      {
+         cimObjects = _repository->associators(
+	    request->nameSpace,
+	    request->objectName,
+	    request->assocClass,
+	    request->resultClass,
+	    request->role,
+	    request->resultRole,
+	    request->includeQualifiers,
+	    request->includeClassOrigin,
+	    request->propertyList.getPropertyNameArray());
+      }
+      catch(CIMException& exception)
+      {
+         errorCode = exception.getCode();
+         errorDescription = exception.getMessage();
+      }
+      catch(Exception& exception)
+      {
+         errorCode = CIM_ERR_FAILED;
+         errorDescription = exception.getMessage();
+      }
+      catch(...)
+      {
+         errorCode = CIM_ERR_FAILED;
+      }
 
-   _enqueueResponse(request, response);
+      _repository->read_unlock();
+
+      CIMAssociatorsResponseMessage* response =
+         new CIMAssociatorsResponseMessage(
+	    request->messageId,
+	    errorCode,
+	    errorDescription,
+	    request->queueIds.copyAndPop(),
+	    cimObjects);
+
+      _enqueueResponse(request, response);
+   }
+   else // No provider is registered and the repository isn't the default
+   {
+      CIMAssociatorsResponseMessage* response =
+         new CIMAssociatorsResponseMessage(
+            request->messageId,
+            CIM_ERR_NOT_SUPPORTED,
+            CIMException(CIM_ERR_NOT_SUPPORTED).getMessage(),
+            request->queueIds.copyAndPop(),
+            Array<CIMObjectWithPath>());
+
+      _enqueueResponse(request, response);
+   }
 }
 
 void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
@@ -1618,49 +1715,63 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
 
 	   return;
    }
-
-   CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-   String errorDescription;
-   Array<CIMReference> objectNames;
-
-   _repository->read_lock();
-
-   try
+   else if (_repository->isDefaultInstanceProvider())
    {
-      objectNames = _repository->associatorNames(
-	 request->nameSpace,
-	 request->objectName,
-	 request->assocClass,
-	 request->resultClass,
-	 request->role,
-	 request->resultRole);
-   }
-   catch(CIMException& exception)
-   {
-      errorCode = exception.getCode();
-      errorDescription = exception.getMessage();
-   }
-   catch(Exception& exception)
-   {
-      errorCode = CIM_ERR_FAILED;
-      errorDescription = exception.getMessage();
-   }
-   catch(...)
-   {
-      errorCode = CIM_ERR_FAILED;
-   }
+      CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+      String errorDescription;
+      Array<CIMReference> objectNames;
 
-   _repository->read_unlock();
+      _repository->read_lock();
 
-   CIMAssociatorNamesResponseMessage* response =
-      new CIMAssociatorNamesResponseMessage(
-	 request->messageId,
-	 errorCode,
-	 errorDescription,
-	 request->queueIds.copyAndPop(),
-	 objectNames);
+      try
+      {
+         objectNames = _repository->associatorNames(
+	    request->nameSpace,
+	    request->objectName,
+	    request->assocClass,
+	    request->resultClass,
+	    request->role,
+	    request->resultRole);
+      }
+      catch(CIMException& exception)
+      {
+         errorCode = exception.getCode();
+         errorDescription = exception.getMessage();
+      }
+      catch(Exception& exception)
+      {
+         errorCode = CIM_ERR_FAILED;
+         errorDescription = exception.getMessage();
+      }
+      catch(...)
+      {
+         errorCode = CIM_ERR_FAILED;
+      }
 
-   _enqueueResponse(request, response);
+      _repository->read_unlock();
+
+      CIMAssociatorNamesResponseMessage* response =
+         new CIMAssociatorNamesResponseMessage(
+	    request->messageId,
+	    errorCode,
+	    errorDescription,
+	    request->queueIds.copyAndPop(),
+	    objectNames);
+
+      _enqueueResponse(request, response);
+   }
+   else // No provider is registered and the repository isn't the default
+   {
+      CIMAssociatorNamesResponseMessage* response =
+         new CIMAssociatorNamesResponseMessage(
+            request->messageId,
+            CIM_ERR_NOT_SUPPORTED,
+            CIMException(CIM_ERR_NOT_SUPPORTED).getMessage(),
+            request->queueIds.copyAndPop(),
+            Array<CIMReference>());
+
+      _enqueueResponse(request, response);
+   }
 }
 
 void CIMOperationRequestDispatcher::handleReferencesRequest(
@@ -1706,50 +1817,64 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
 
 	   return;
    }
-
-   CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-   String errorDescription;
-   Array<CIMObjectWithPath> cimObjects;
-
-   _repository->read_lock();
-
-   try
+   else if (_repository->isDefaultInstanceProvider())
    {
-      cimObjects = _repository->references(
-	 request->nameSpace,
-	 request->objectName,
-	 request->resultClass,
-	 request->role,
-	 request->includeQualifiers,
-	 request->includeClassOrigin,
-	 request->propertyList.getPropertyNameArray());
-   }
-   catch(CIMException& exception)
-   {
-      errorCode = exception.getCode();
-      errorDescription = exception.getMessage();
-   }
-   catch(Exception& exception)
-   {
-      errorCode = CIM_ERR_FAILED;
-      errorDescription = exception.getMessage();
-   }
-   catch(...)
-   {
-      errorCode = CIM_ERR_FAILED;
-   }
+      CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+      String errorDescription;
+      Array<CIMObjectWithPath> cimObjects;
 
-   _repository->read_unlock();
+      _repository->read_lock();
 
-   CIMReferencesResponseMessage* response =
-      new CIMReferencesResponseMessage(
-	 request->messageId,
-	 errorCode,
-	 errorDescription,
-	 request->queueIds.copyAndPop(),
-	 cimObjects);
+      try
+      {
+         cimObjects = _repository->references(
+	    request->nameSpace,
+	    request->objectName,
+	    request->resultClass,
+	    request->role,
+	    request->includeQualifiers,
+	    request->includeClassOrigin,
+	    request->propertyList.getPropertyNameArray());
+      }
+      catch(CIMException& exception)
+      {
+         errorCode = exception.getCode();
+         errorDescription = exception.getMessage();
+      }
+      catch(Exception& exception)
+      {
+         errorCode = CIM_ERR_FAILED;
+         errorDescription = exception.getMessage();
+      }
+      catch(...)
+      {
+         errorCode = CIM_ERR_FAILED;
+      }
 
-   _enqueueResponse(request, response);
+      _repository->read_unlock();
+
+      CIMReferencesResponseMessage* response =
+         new CIMReferencesResponseMessage(
+	    request->messageId,
+	    errorCode,
+	    errorDescription,
+	    request->queueIds.copyAndPop(),
+	    cimObjects);
+
+      _enqueueResponse(request, response);
+   }
+   else // No provider is registered and the repository isn't the default
+   {
+      CIMReferencesResponseMessage* response =
+         new CIMReferencesResponseMessage(
+            request->messageId,
+            CIM_ERR_NOT_SUPPORTED,
+            CIMException(CIM_ERR_NOT_SUPPORTED).getMessage(),
+            request->queueIds.copyAndPop(),
+            Array<CIMObjectWithPath>());
+
+      _enqueueResponse(request, response);
+   }
 }
 
 void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
@@ -1795,47 +1920,61 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
 
 	   return;
    }
-
-   CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-   String errorDescription;
-   Array<CIMReference> objectNames;
-
-   _repository->read_lock();
-
-   try
+   else if (_repository->isDefaultInstanceProvider())
    {
-      objectNames = _repository->referenceNames(
-	 request->nameSpace,
-	 request->objectName,
-	 request->resultClass,
-	 request->role);
-   }
-   catch(CIMException& exception)
-   {
-      errorCode = exception.getCode();
-      errorDescription = exception.getMessage();
-   }
-   catch(Exception& exception)
-   {
-      errorCode = CIM_ERR_FAILED;
-      errorDescription = exception.getMessage();
-   }
-   catch(...)
-   {
-      errorCode = CIM_ERR_FAILED;
-   }
+      CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+      String errorDescription;
+      Array<CIMReference> objectNames;
 
-   _repository->read_unlock();
+      _repository->read_lock();
 
-   CIMReferenceNamesResponseMessage* response =
-      new CIMReferenceNamesResponseMessage(
-	 request->messageId,
-	 errorCode,
-	 errorDescription,
-	 request->queueIds.copyAndPop(),
-	 objectNames);
+      try
+      {
+         objectNames = _repository->referenceNames(
+	    request->nameSpace,
+	    request->objectName,
+	    request->resultClass,
+	    request->role);
+      }
+      catch(CIMException& exception)
+      {
+         errorCode = exception.getCode();
+         errorDescription = exception.getMessage();
+      }
+      catch(Exception& exception)
+      {
+         errorCode = CIM_ERR_FAILED;
+         errorDescription = exception.getMessage();
+      }
+      catch(...)
+      {
+         errorCode = CIM_ERR_FAILED;
+      }
 
-   _enqueueResponse(request, response);
+      _repository->read_unlock();
+
+      CIMReferenceNamesResponseMessage* response =
+         new CIMReferenceNamesResponseMessage(
+	    request->messageId,
+	    errorCode,
+	    errorDescription,
+	    request->queueIds.copyAndPop(),
+	    objectNames);
+
+      _enqueueResponse(request, response);
+   }
+   else // No provider is registered and the repository isn't the default
+   {
+      CIMReferenceNamesResponseMessage* response =
+         new CIMReferenceNamesResponseMessage(
+            request->messageId,
+            CIM_ERR_NOT_SUPPORTED,
+            CIMException(CIM_ERR_NOT_SUPPORTED).getMessage(),
+            request->queueIds.copyAndPop(),
+            Array<CIMReference>());
+
+      _enqueueResponse(request, response);
+   }
 }
 
 void CIMOperationRequestDispatcher::handleGetPropertyRequest(
@@ -1881,52 +2020,99 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
 
 	   return;
    }
-	
-   CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-   String errorDescription;
-   CIMValue value;
+   else if (_repository->isDefaultInstanceProvider())
+   {
+      CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+      String errorDescription;
+      CIMValue value;
 
-   _repository->read_lock();
+      _repository->read_lock();
 	
-   try
-   {
-      value = _repository->getProperty(
-	 request->nameSpace,
-	 request->instanceName,
-	 request->propertyName);
-   }
-   catch(CIMException& exception)
-   {
-      errorCode = exception.getCode();
-      errorDescription = exception.getMessage();
-   }
-   catch(Exception& exception)
-   {
-      errorCode = CIM_ERR_FAILED;
-      errorDescription = exception.getMessage();
-   }
-   catch(...)
-   {
-      errorCode = CIM_ERR_FAILED;
-   }
-		
-   _repository->read_unlock();
-	
-   CIMGetPropertyResponseMessage* response =
-      new CIMGetPropertyResponseMessage(
-	 request->messageId,
-	 errorCode,
-	 errorDescription,
-	 request->queueIds.copyAndPop(),
-	 value);
+      try
+      {
+         value = _repository->getProperty(
+	    request->nameSpace,
+	    request->instanceName,
+	    request->propertyName);
+      }
+      catch(CIMException& exception)
+      {
+         errorCode = exception.getCode();
+         errorDescription = exception.getMessage();
+      }
+      catch(Exception& exception)
+      {
+         errorCode = CIM_ERR_FAILED;
+         errorDescription = exception.getMessage();
+      }
+      catch(...)
+      {
+         errorCode = CIM_ERR_FAILED;
+      }
 
-   _enqueueResponse(request, response);
+      _repository->read_unlock();
+	
+      CIMGetPropertyResponseMessage* response =
+         new CIMGetPropertyResponseMessage(
+	    request->messageId,
+	    errorCode,
+	    errorDescription,
+	    request->queueIds.copyAndPop(),
+	    value);
+
+      _enqueueResponse(request, response);
+   }
+   else // No provider is registered and the repository isn't the default
+   {
+      CIMGetPropertyResponseMessage* response =
+         new CIMGetPropertyResponseMessage(
+            request->messageId,
+            CIM_ERR_NOT_SUPPORTED,
+            CIMException(CIM_ERR_NOT_SUPPORTED).getMessage(),
+            request->queueIds.copyAndPop(),
+            CIMValue());
+
+      _enqueueResponse(request, response);
+   }
 }
 
 void CIMOperationRequestDispatcher::handleSetPropertyRequest(
    CIMSetPropertyRequestMessage* request)
 {
-   _fixSetPropertyValueType(request);
+   {
+      CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+      String errorDescription;
+      try
+      {
+         _fixSetPropertyValueType(request);
+      }
+      catch (CIMException& exception)
+      {
+         errorCode = exception.getCode();
+         errorDescription = exception.getMessage();
+      }
+      catch(Exception& exception)
+      {
+         errorCode = CIM_ERR_FAILED;
+         errorDescription = exception.getMessage();
+      }
+      catch(...)
+      {
+         errorCode = CIM_ERR_FAILED;
+      }
+
+      if (errorCode != CIM_ERR_SUCCESS)
+      {
+         CIMSetPropertyResponseMessage* response =
+            new CIMSetPropertyResponseMessage(
+               request->messageId,
+               errorCode,
+               errorDescription,
+               request->queueIds.copyAndPop());
+
+         _enqueueResponse(request, response);
+      }
+   }
 
    String className = request->instanceName.getClassName();
 	
@@ -1968,45 +2154,58 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
 
 	   return;
    }
-	
-   CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-   String errorDescription;
-
-   _repository->write_lock();
-
-   try
+   else if (_repository->isDefaultInstanceProvider())
    {
-      _repository->setProperty(
-	 request->nameSpace,
-	 request->instanceName,
-	 request->propertyName,
-	 request->newValue);
-   }
-   catch(CIMException& exception)
-   {
-      errorCode = exception.getCode();
-      errorDescription = exception.getMessage();
-   }
-   catch(Exception& exception)
-   {
-      errorCode = CIM_ERR_FAILED;
-      errorDescription = exception.getMessage();
-   }
-   catch(...)
-   {
-      errorCode = CIM_ERR_FAILED;
-   }
+      CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+      String errorDescription;
 
-   _repository->write_unlock();
+      _repository->write_lock();
 
-   CIMSetPropertyResponseMessage* response =
-      new CIMSetPropertyResponseMessage(
-	 request->messageId,
-	 errorCode,
-	 errorDescription,
-	 request->queueIds.copyAndPop());
+      try
+      {
+         _repository->setProperty(
+	    request->nameSpace,
+	    request->instanceName,
+	    request->propertyName,
+	    request->newValue);
+      }
+      catch(CIMException& exception)
+      {
+         errorCode = exception.getCode();
+         errorDescription = exception.getMessage();
+      }
+      catch(Exception& exception)
+      {
+         errorCode = CIM_ERR_FAILED;
+         errorDescription = exception.getMessage();
+      }
+      catch(...)
+      {
+         errorCode = CIM_ERR_FAILED;
+      }
 
-   _enqueueResponse(request, response);
+      _repository->write_unlock();
+
+      CIMSetPropertyResponseMessage* response =
+         new CIMSetPropertyResponseMessage(
+	    request->messageId,
+	    errorCode,
+	    errorDescription,
+	    request->queueIds.copyAndPop());
+
+      _enqueueResponse(request, response);
+   }
+   else // No provider is registered and the repository isn't the default
+   {
+      CIMSetPropertyResponseMessage* response =
+         new CIMSetPropertyResponseMessage(
+            request->messageId,
+            CIM_ERR_NOT_SUPPORTED,
+            CIMException(CIM_ERR_NOT_SUPPORTED).getMessage(),
+            request->queueIds.copyAndPop());
+
+      _enqueueResponse(request, response);
+   }
 }
 
 void CIMOperationRequestDispatcher::handleGetQualifierRequest(
@@ -2181,7 +2380,44 @@ void CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest(
 void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
    CIMInvokeMethodRequestMessage* request)
 {
-   _fixInvokeMethodParameterTypes(request);
+   {
+      CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+      String errorDescription;
+      try
+      {
+         _fixInvokeMethodParameterTypes(request);
+      }
+      catch (CIMException& exception)
+      {
+         errorCode = exception.getCode();
+         errorDescription = exception.getMessage();
+      }
+      catch(Exception& exception)
+      {
+         errorCode = CIM_ERR_FAILED;
+         errorDescription = exception.getMessage();
+      }
+      catch(...)
+      {
+         errorCode = CIM_ERR_FAILED;
+      }
+
+      if (errorCode != CIM_ERR_SUCCESS)
+      {
+         CIMInvokeMethodResponseMessage* response =
+            new CIMInvokeMethodResponseMessage(
+               request->messageId,
+               errorCode,
+               errorDescription,
+               request->queueIds.copyAndPop(),
+               CIMValue(),
+               Array<CIMParamValue>(),
+               request->methodName);
+
+         _enqueueResponse(request, response);
+      }
+   }
+
 
    String className = request->instanceName.getClassName();
 	
@@ -2526,7 +2762,7 @@ CIMValue CIMOperationRequestDispatcher::_convertValueType(
    Find the CIMParamValues in the InvokeMethod request whose types were
    not specified in the XML encoding, and convert them to the types
    specified in the method schema.
-      */
+*/
 void CIMOperationRequestDispatcher::_fixInvokeMethodParameterTypes(
    CIMInvokeMethodRequestMessage* request)
 {
@@ -2551,16 +2787,33 @@ void CIMOperationRequestDispatcher::_fixInvokeMethodParameterTypes(
                 //
                 // Get the class definition for this method
                 //
-                // ATTN-RK-P2-20020221: This will need to use the repository queue?
                 CIMClass cimClass;
                 _repository->read_lock();
-                cimClass = _repository->getClass(
-                    request->nameSpace,
-                    request->instanceName.getClassName(),
-                    false, //localOnly,
-                    false, //includeQualifiers,
-                    false, //includeClassOrigin,
-                    CIMPropertyList());
+                try
+                {
+                    cimClass = _repository->getClass(
+                        request->nameSpace,
+                        request->instanceName.getClassName(),
+                        false, //localOnly,
+                        false, //includeQualifiers,
+                        false, //includeClassOrigin,
+                        CIMPropertyList());
+                }
+                catch (CIMException& exception)
+                {
+                    _repository->read_unlock();
+                    throw exception;
+                }
+                catch (Exception& exception)
+                {
+                    _repository->read_unlock();
+                    throw exception;
+                }
+                catch (...)
+                {
+                    _repository->read_unlock();
+                    throw CIMException(CIM_ERR_FAILED);
+                }
                 _repository->read_unlock();
 
                 //
@@ -2640,16 +2893,33 @@ void CIMOperationRequestDispatcher::_fixSetPropertyValueType(
    //
    // Get the class definition for this property
    //
-   // ATTN-RK-P2-20020221: This will need to use the repository queue?
    CIMClass cimClass;
    _repository->read_lock();
-   cimClass = _repository->getClass(
-      request->nameSpace,
-      request->instanceName.getClassName(),
-      false, //localOnly,
-      false, //includeQualifiers,
-      false, //includeClassOrigin,
-      CIMPropertyList());
+   try
+   {
+      cimClass = _repository->getClass(
+         request->nameSpace,
+         request->instanceName.getClassName(),
+         false, //localOnly,
+         false, //includeQualifiers,
+         false, //includeClassOrigin,
+         CIMPropertyList());
+   }
+   catch (CIMException& exception)
+   {
+      _repository->read_unlock();
+      throw exception;
+   }
+   catch (Exception& exception)
+   {
+      _repository->read_unlock();
+      throw exception;
+   }
+   catch (...)
+   {
+      _repository->read_unlock();
+      throw CIMException(CIM_ERR_FAILED);
+   }
    _repository->read_unlock();
 
    //

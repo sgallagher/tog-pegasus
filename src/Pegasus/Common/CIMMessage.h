@@ -1674,7 +1674,7 @@ class CIMInvokeMethodResponseMessage : public CIMResponseMessage
 	 CIMStatusCode errorCode_,
 	 const String& errorDescription_,
 	 const QueueIdStack& queueIds_,
-	 CIMValue& retValue_,
+	 const CIMValue& retValue_,
 	 const Array<CIMParamValue>& outParameters_,
 	 const String& methodName_)
 	 :

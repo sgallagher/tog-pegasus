@@ -145,6 +145,8 @@ public:
       return(_cur->rep);
     }
 
+  inline void lock(void) throw(IPCException) { _mutex.lock(pegasus_thread_self()); }
+  inline void unlock(void) throw(IPCException) { _mutex.unlock() ; }
   Boolean exists(void *key) throw(IPCException) ;
   inline int count(void) { return _count ; }
 } ;

@@ -94,7 +94,7 @@ template<class L> L *DQueue<L>::reference(void *key) throw(IPCException)
 {
   // force thread to be owner of the list before it can reference
   // a node on the list 
-  if( pegasus_thread_self() != _mutex.get_owner)
+  if( pegasus_thread_self() != _mutex.get_owner())
     throw(Permission(pegasus_thread_self()));
   if( _count > 0 ) {
     DQueue *temp = _next;

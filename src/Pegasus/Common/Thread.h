@@ -140,32 +140,35 @@ class  PEGASUS_EXPORT thread_data
 
  public:
   thread_data( Sint8 *key ) : _delete_func(NULL) , _data(NULL), _size(0)
-    {
-      _key = strdup(key) ; 
-    }
+  {
+    _key = strdup(key) ; 
+  }
   
-  thread_data(Sint8 *key, int size) 
-    {
-      _delete_func = default_delete;
-      _data = new char [size];
-    }
+  thread_data(Sint8 *key, int size)
+  {
+    _delete_func = default_delete;
+    _data = new char [size];
+    _size = size;
+  }
 
   thread_data(Sint8 *key, int size, void *data)
-    {
-      _delete_func = default_delete;
-      _data = new char [size];
-      memcpy(_data, data, size);
-    }
+  {
+    _delete_func = default_delete;
+    _data = new char [size];
+    memcpy(_data, data, size);
+    _size = size;
+  }
 
   ~thread_data() { if( _data != NULL) _delete_func( _data ); }  
 
   void *get_data(void );
-  Uint32 get_data_size(void);
-  void *put_data(Sint8 *key, void (*delete_func) (void *), Uint32 size, void *data  )
+  Uint32 get_size(void);
+  void *put_data(void (*delete_func) (void *), Uint32 size, void *data  )
     {
       void *old_data = data;
       _delete_func = delete_func;
       _data = data;
+      _size = size;
       return(old_data);
     }
  private:
@@ -175,6 +178,7 @@ class  PEGASUS_EXPORT thread_data
   void *_data;
   Uint32 _size;
   Sint8 *_key;
+  
   friend class Dqueue;
   friend class Thread;
 };
@@ -194,7 +198,7 @@ class PEGASUS_EXPORT Thread
   void run(void);
 
   // get the user parameter 
-  void *get_parm(void);
+  inline void *get_parm(void) { return _thread_parm; }
 
   // send the thread a signal -- may not be appropriate due to Windows 
   //  void kill(int signum); 
@@ -228,39 +232,65 @@ class PEGASUS_EXPORT Thread
   // block the calling thread until this thread terminates
   void join(void );
 
+  // thread routine needs to call this function when
+  // it is ready to exit
+  void exit_self(PEGASUS_THREAD_RETURN return_code) ;
 
   // stack of functions to be called when thread terminates
   // will be called last in first out (LIFO)
   void cleanup_push( void (*routine) (void *), void *parm ) throw(IPCException);
   void cleanup_pop(Boolean execute = true) throw(IPCException);
 
-  // thread specific data (thread_data object methods)
-
-  // create an empty tsd and index it according to <key>
-  void create_tsd(void *key );
-
-  // create an empty tsd with a pre-allocated buffer of <size>
-  void create_tsd(void *key, int size) ;
-  
   // create and initialize a tsd
-  void create_tsd(void *key, int size, void *buffer);
+  inline void create_tsd(Sint8 *key, int size, void *buffer) throw(IPCException)
+  {
+    thread_data *tsd = new thread_data(key, size, buffer);
+       try { _tsd.insert_first(tsd); }
+    catch(IPCException& e) { delete tsd; throw; }
+  }
 
   // get the buffer associated with the key
-  void *get_tsd(void *key);
+  // NOTE: this call leaves the tsd LOCKED !!!! 
+  inline void *reference_tsd(Sint8 *key) throw(IPCException)
+  {
+    _tsd.lock(); 
+    thread_data *tsd = _tsd.reference((void *)key);
+    if(tsd != NULL)
+      return( (void *)(tsd->_data) );
+    else
+      return(NULL);
+  }
+
+  // release the lock held on the tsd
+  // NOTE: assumes a corresponding and prior call to reference_tsd() !!!
+  inline void dereference_tsd(void) throw(IPCException)
+  {
+     _tsd.unlock();
+  }
 
   // delete the tsd associated with the key
-  void delete_tsd(void *key);
+  inline void delete_tsd(Sint8 *key) throw(IPCException)
+  {
+    thread_data *tsd = _tsd.remove((void *)key);
+    if(tsd != NULL)
+      delete tsd;
+  }
 
   // create or re-initialize tsd associated with the key
   // if the tsd already exists, return the existing buffer
-  void * put_tsd(void *key, void (*delete_func)(void *), Uint32 size, void *value);
+  thread_data *put_tsd(Sint8 *key, void (*delete_func)(void *), Uint32 size, void *value) throw(IPCException);
 
   inline PEGASUS_THREAD_RETURN get_exit(void) { return _exit_code; }
-  inline PEGASUS_THREAD_TYPE self(void) {return _handle.thid; }
+  inline PEGASUS_THREAD_TYPE self(void) {return pegasus_thread_self(); }
 
  private:
   Thread();
-
+  inline void create_tsd(Sint8 *key ) throw(IPCException)
+  {
+    thread_data *tsd = new thread_data(key);
+    try { _tsd.insert_first(tsd); }
+    catch(IPCException& e) { delete tsd; throw; }
+  }
   PEGASUS_THREAD_HANDLE _handle;
   Boolean _is_detached;
   Boolean _cancel_enabled;
@@ -276,7 +306,6 @@ class PEGASUS_EXPORT Thread
   DQueue<cleanup_handler> _cleanup;
   DQueue<thread_data> _tsd;
   void *_thread_parm;
-
   PEGASUS_THREAD_RETURN _exit_code;
 
 } ;

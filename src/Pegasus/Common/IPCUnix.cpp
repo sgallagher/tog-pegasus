@@ -55,8 +55,15 @@ Mutex::Mutex(int mutex_type)
 
 Mutex::~Mutex()
 {
-    pthread_mutex_destroy(&_mutex.mut);
-    pthread_mutexattr_destroy(&_mutex.mutatt);
+  while( EBUSY == pthread_mutex_destroy(&_mutex.mut))
+    {
+#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+    sched_yield();
+#else
+    pthread_yield();
+#endif
+    }
+  pthread_mutexattr_destroy(&_mutex.mutatt);
 }
 
 // block until gaining the lock - throw a deadlock 
@@ -142,7 +149,15 @@ ReadWriteSem::ReadWriteSem(void) :  _readers(0), _writers(0)
     
 ReadWriteSem::~ReadWriteSem()
 {
-    pthread_rwlock_destroy(&_rwlock.rwlock);
+
+  while( EBUSY == pthread_rwlock_destroy(&_rwlock.rwlock))
+  {
+#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+    sched_yield();
+#else
+    pthread_yield();
+#endif
+  }
 }
 
 
@@ -284,8 +299,15 @@ Condition::Condition()
 
 Condition::~Condition()
 {
-    pthread_cond_destroy(&_condition);
-   _cond_mutex.~Mutex();
+  while(EBUSY == pthread_cond_destroy(&_condition))
+  {
+#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+    sched_yield();
+#else
+    pthread_yield();
+#endif
+  }
+  _cond_mutex.~Mutex();
 }
 
 // block until this semaphore is in a signalled state 
@@ -373,7 +395,14 @@ Semaphore::Semaphore(Uint32 initial)
 
 Semaphore::~Semaphore()
 {
-    sem_destroy(&_semaphore.sem);
+  while( EBUSY == sem_destroy(&_semaphore.sem))
+    {
+#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+    sched_yield();
+#else
+    pthread_yield();
+#endif
+    }
 }
 
 // block until this semaphore is in a signalled state

@@ -162,13 +162,15 @@ Thread::Thread( PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *start )(void *),
     pthread_attr_init(&_handle.thatt);
     // set cancel state to enabled
     // set cancel type to deferred 
+    // block all signals
+
 
     _handle.thid = 0;
 }
 
 Thread::~Thread()
 {
-    if (!_is_detached)
+    if (!_is_detached && _handle.thid != 0 )
         pthread_join(_handle.thid,NULL);
 }
 
@@ -179,50 +181,40 @@ void Thread::run()
     pthread_create(&_handle.thid, &_handle.thatt, _start, this);
 }
 
-void * Thread::get_parm(void)
-{
-    return _thread_parm;
-}
-
-// void Thread::kill(int signum)
-// {
-  //    pthread_kill(_handle.thid, signum);
-  //}
 
 void Thread::cancel()
 {
-    pthread_cancel(_handle.thid);
+  
+  pthread_cancel(_handle.thid);
 }
 
 void Thread::test_cancel()
 {
-    pthread_testcancel();
+  pthread_testcancel();
 }
 
 void Thread::thread_switch()
 {
-    pthread_yield();
+  pthread_yield();
 }
-
-// void Thread::suspend()
-// {
-// }
-
-// void Thread::resume()
-// {
-// }
 
 void Thread::sleep(Uint32 msec)
 {
-    struct timespec timeout;
-    timeout.tv_sec = msec / 1000;
-    timeout.tv_nsec = (msec & 1000) * 1000;
-    nanosleep(&timeout,NULL);
+  struct timespec timeout;
+  timeout.tv_sec = msec / 1000;
+  timeout.tv_nsec = (msec & 1000) * 1000;
+  nanosleep(&timeout,NULL);
 }
 
 void Thread::join(void) { pthread_join(_handle.thid, &_exit_code) ; }
 
 
+// *****----- native thread exit routine -----***** //
+
+#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
+#define PEGASUS_THREAD_CLEANUP_NATIVE 
+inline void Thread::exit_self(void *return_code) { pthread_exit(return_code) ; }
+#endif
 
 // *****----- native cleanup routines -----***** //
 #if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)

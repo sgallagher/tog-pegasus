@@ -20,9 +20,9 @@
 //
 //==============================================================================
 //
-// Author: Markus Mueller (sedgewick_de@yahoo.de)
+// Author: Mike Day (mdday@us.ibm.com)
 //
-// Modified By: Mike Day (mdday@us.ibm.com)
+// Modified By: 
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -59,6 +59,33 @@ void Thread::cleanup_pop(Boolean execute = true) throw(IPCException)
   delete cu;
 }
 
+thread_data *Thread::put_tsd(Sint8 *key, void (*delete_func)(void *), Uint32 size, void *value) throw(IPCException)
+{
+  PEGASUS_ASSERT(key != NULL);
+  PEGASUS_ASSERT(delete_func != NULL);
+  thread_data *tsd ;
+  tsd = _tsd.remove((void *)key);  // may throw an IPC exception 
+  thread_data *ntsd = new thread_data(key);
+  ntsd->put_data(delete_func, size, value);
+  try { _tsd.insert_first(ntsd); }
+  catch(IPCException& e) { delete ntsd; throw; }
+  return(tsd);
+}
+
 #endif
+
+#ifndef PEGASUS_THREAD_CLEANUP_NATIVE 
+void Thread::exit_self(PEGASUS_THREAD_RETURN exit_code) 
+{ 
+  // execute the cleanup stack and then return 
+  while( _cleanup.count(); )
+  {
+    try { cleanup_pop(true); }
+    catch(IPCException& e) { PEGASUS_ASSERT(0) ; break; } 
+  }
+  _exit_code = exit_code;
+}
+#endif
+
 
 PEGASUS_NAMESPACE_END

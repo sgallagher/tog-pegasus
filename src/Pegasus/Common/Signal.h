@@ -72,13 +72,13 @@ typedef void PEGASUS_SIGINFO_T;
 #endif // PEGASUS_HAS_SIGNALS
 
 
-#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || (PEGASUS_OS_SOLARIS)
 extern "C" {
 #endif
 
 typedef void (* signal_handler)(int, PEGASUS_SIGINFO_T *, void *);
 
-#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || (PEGASUS_OS_SOLARIS)
 }
 #endif
 

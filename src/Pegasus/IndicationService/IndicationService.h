@@ -486,7 +486,7 @@ private:
         const CIMName & supportedClass,
         const Array <CIMNamespaceName> nameSpaces,
         const CIMPropertyList & supportedProperties,
-        const Boolean checkProvider = FALSE,
+        const Boolean checkProvider = false,
         const CIMInstance & provider = CIMInstance ());
 
     /**

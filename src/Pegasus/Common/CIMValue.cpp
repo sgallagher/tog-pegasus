@@ -190,29 +190,37 @@ inline void _integerToString(Array<Sint8>& out, const T& x)
     out << (char*)buffer;
 }
 
-inline void _toString(Array<Sint8>& out, Uint8 x) { _integerToString(out, x); }
-inline void _toXml(Array<Sint8>& out, Uint8 x) { _integerToString(out, x); }
-inline void _toMof(Array<Sint8>& out, Uint8 x) { _integerToString(out, x); }
+template<class T>
+inline void _unsignedIntegerToString(Array<Sint8>& out, const T& x)
+{
+    char buffer[32];
+    sprintf(buffer, "%u", Uint32(x));
+    out << (char*)buffer;
+}
+
+inline void _toString(Array<Sint8>& out, Uint8 x) { _unsignedIntegerToString(out, x); }
+inline void _toXml(Array<Sint8>& out, Uint8 x) { _toString(out, x); }
+inline void _toMof(Array<Sint8>& out, Uint8 x) { _toString(out, x); }
 
 inline void _toString(Array<Sint8>& out, Sint8 x) { _integerToString(out, x); }
-inline void _toXml(Array<Sint8>& out, Sint8 x) { _integerToString(out, x); }
-inline void _toMof(Array<Sint8>& out, Sint8 x) { _integerToString(out, x); }
+inline void _toXml(Array<Sint8>& out, Sint8 x) { _toString(out, x); }
+inline void _toMof(Array<Sint8>& out, Sint8 x) { _toString(out, x); }
 
-inline void _toString(Array<Sint8>& out, Uint16 x) { _integerToString(out, x); }
-inline void _toXml(Array<Sint8>& out, Uint16 x) { _integerToString(out, x); }
-inline void _toMof(Array<Sint8>& out, Uint16 x) { _integerToString(out, x); }
+inline void _toString(Array<Sint8>& out, Uint16 x) { _unsignedIntegerToString(out, x); }
+inline void _toXml(Array<Sint8>& out, Uint16 x) { _toString(out, x); }
+inline void _toMof(Array<Sint8>& out, Uint16 x) { _toString(out, x); }
 
 inline void _toString(Array<Sint8>& out, Sint16 x) { _integerToString(out, x); }
-inline void _toXml(Array<Sint8>& out, Sint16 x) { _integerToString(out, x); }
-inline void _toMof(Array<Sint8>& out, Sint16 x) { _integerToString(out, x); }
+inline void _toXml(Array<Sint8>& out, Sint16 x) { _toString(out, x); }
+inline void _toMof(Array<Sint8>& out, Sint16 x) { _toString(out, x); }
 
-inline void _toString(Array<Sint8>& out, Uint32 x) { _integerToString(out, x); }
-inline void _toXml(Array<Sint8>& out, Uint32 x) { _integerToString(out, x); }
-inline void _toMof(Array<Sint8>& out, Uint32 x) { _integerToString(out, x); }
+inline void _toString(Array<Sint8>& out, Uint32 x) { _unsignedIntegerToString(out, x); }
+inline void _toXml(Array<Sint8>& out, Uint32 x) { _toString(out, x); }
+inline void _toMof(Array<Sint8>& out, Uint32 x) { _toString(out, x); }
 
 inline void _toString(Array<Sint8>& out, Sint32 x) { _integerToString(out, x); }
-inline void _toXml(Array<Sint8>& out, Sint32 x) { _integerToString(out, x); }
-inline void _toMof(Array<Sint8>& out, Sint32 x) { _integerToString(out, x); }
+inline void _toXml(Array<Sint8>& out, Sint32 x) { _toString(out, x); }
+inline void _toMof(Array<Sint8>& out, Sint32 x) { _toString(out, x); }
 
 inline void _toString(Array<Sint8>& out, Uint64 x)
 {

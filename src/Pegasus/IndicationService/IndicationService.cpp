@@ -4260,7 +4260,13 @@ CIMName IndicationService::_getIndicationClassName (
 
     try
     {
-        theClass = _repository->getClass (nameSpaceName, indicationClassName);
+        theClass = _repository->getClass (
+            nameSpaceName,
+            indicationClassName,
+            false,
+            true,
+            false,
+            CIMPropertyList());
     }
     catch (Exception e)
     {

@@ -11,7 +11,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -37,6 +37,10 @@ ProviderManagerModule::ProviderManagerModule(void)
 {
 }
 
+ProviderManagerModule::ProviderManagerModule(const ProviderManagerModule & module) : DynamicLibrary(module)
+{
+}
+
 ProviderManagerModule::ProviderManagerModule(const String & fileName) : DynamicLibrary(fileName)
 {
 }
@@ -45,21 +49,39 @@ ProviderManagerModule::~ProviderManagerModule(void)
 {
 }
 
-Boolean ProviderManagerModule::load(void)
+ProviderManagerModule & ProviderManagerModule::operator=(const ProviderManagerModule & module)
 {
-    DynamicLibrary::load();
-
-    // export entry points
-    _createProviderManager = (CREATE_PROVIDER_MANAGER_FUNCTION)getSymbol("PegasusCreateProviderManager");
-
-    if(_createProviderManager == 0)
+    if(this == &module)
     {
-        unload();
-
-        return(false);
+        return(*this);
     }
 
-    return(true);
+    DynamicLibrary::operator=(module);
+
+    return(*this);
+}
+
+Boolean ProviderManagerModule::load(void)
+{
+    if(DynamicLibrary::load())
+    {
+        // export entry points
+        _createProviderManager = (CREATE_PROVIDER_MANAGER_FUNCTION)getSymbol("PegasusCreateProviderManager");
+
+        if(_createProviderManager != 0)
+        {
+            return(true);
+        }
+
+        DynamicLibrary::unload();
+    }
+
+    return(false);
+}
+
+Boolean ProviderManagerModule::unload(void)
+{
+    return(DynamicLibrary::unload());
 }
 
 ProviderManager * ProviderManagerModule::getProviderManager(const String & s) const

@@ -473,7 +473,7 @@ ProviderManager* ProviderManagerService::locateProviderManager(const Message *me
             PEGASUS_ASSERT(p != 0);
 
             nameSpace = p->nameSpace.getString();
-            className = p->instanceName.getClassName();
+            className = p->instanceName.getClassName().getString();
         }
 
         break;
@@ -506,7 +506,7 @@ ProviderManager* ProviderManagerService::locateProviderManager(const Message *me
             PEGASUS_ASSERT(p != 0);
 
             nameSpace = p->nameSpace.getString();
-            className = p->newInstance.getClassName();
+            className = p->newInstance.getClassName().getString();
         }
 
         break;
@@ -517,7 +517,7 @@ ProviderManager* ProviderManagerService::locateProviderManager(const Message *me
             PEGASUS_ASSERT(p != 0);
 
             nameSpace = p->nameSpace.getString();
-            className = p->modifiedInstance.getClassName();
+            className = p->modifiedInstance.getClassName().getString();
         }
 
         break;
@@ -528,7 +528,7 @@ ProviderManager* ProviderManagerService::locateProviderManager(const Message *me
             PEGASUS_ASSERT(p != 0);
 
             nameSpace = p->nameSpace.getString();
-            className = p->instanceName.getClassName();
+            className = p->instanceName.getClassName().getString();
         }
 
         break;
@@ -609,7 +609,7 @@ ProviderManager* ProviderManagerService::locateProviderManager(const Message *me
 
         break;
     default:
-        asm("int $3");
+        //asm("int $3");
         break;
     }
 

@@ -11,7 +11,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -49,10 +49,14 @@ public:
 
 public:
     ProviderManagerModule(void);
-    ProviderManagerModule(const String & fileName);
+    ProviderManagerModule(const ProviderManagerModule & module);
+    explicit ProviderManagerModule(const String & fileName);
     virtual ~ProviderManagerModule(void);
 
+    ProviderManagerModule & operator=(const ProviderManagerModule & module);
+
     virtual Boolean load(void);
+    virtual Boolean unload(void);
 
     ProviderManager * getProviderManager(const String & s) const;
 

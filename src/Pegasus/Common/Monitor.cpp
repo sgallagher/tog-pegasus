@@ -612,7 +612,13 @@ monitor_2::monitor_2(void)
 #ifdef PEGASUS_OS_ZOS
     _tickle_addr.sin_addr.s_addr = inet_addr_ebcdic("127.0.0.1");
 #else
+#ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
+#pragma convert(37)
+#endif
     _tickle_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+#ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
+#pragma convert(0)
+#endif
 #endif
     _tickle_addr.sin_family = PF_INET;
     _tickle_addr.sin_port = 0;

@@ -1,0 +1,178 @@
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- irc05.icq.com sets mode +n #pegasus
+--- irc05.icq.com sets mode +t #pegasus
+--> mdday_nt (~mdday@129.33.49.204) has joined #pegasus
+<mdday_nt> helo
+<-- mdday_nt has quit (Client Exiting)
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- irc04.icq.com sets modes [#pegasus +nt]
+--> Karl (~karl@32.106.67.205) has joined #pegasus
+<mdday> Hi Karl
+<Karl> Hi Mike.  Guess we are on line at this point.  
+<mdday> yup.
+<Karl> I am going to be throughly out of focus tonight/today since plane to paris 4 hours late
+<Karl> By the way, good choice. Youu are right, ICQ is PC oriented. Only advantage is seeing who is online
+<mdday> yeah, this is pretty good stuff
+<mdday> I'm on a call right now and may be a few  minutes late to the pegasus call 12 est
+<mdday> karl - has the call started ?
+<Karl> OUr call is in a couple of hous, not 12.  I HOPE
+<Karl> Just looked.  It is a 1:00 pm cst or 2:00 est.
+<Karl> I am in another call now.
+<mdday> oops - your'e right. sorry
+<Karl> No problem.  Been a long time since I used IRC and have to relearn
+<mdday> try /help
+--> kumpf (~kumpfr@atlwebproxy1.core.hp.com) has joined #pegasus
+<mdday> what client are you using?
+<mdday> Hi Roger
+<kumpf> Hello!
+<kumpf> I actually got this thing to work!
+<mdday> right on 
+<kumpf> I thought I was at an impasse, because I don't have a socks license on my Windows machine, and it didn't compile on HP-UX...
+<kumpf> But fortunately I was able to route through the HTTP proxy server and avoid socks.
+<mdday> nice job Roger
+<kumpf> Anyway, what's new?
+<mdday> starting to dice and slice the dispatcher
+<mdday> you know that Chip is out this week, right? 
+<kumpf> Excellent!  Hey, did you have time to put anything on paper regarding how the other modules need to change?  We are anxious to start making the necessary code changes, but we're not sure we know enough.
+<kumpf> Nope, I had no idea Chip wouldn't be around.  Or at least I forgot.  That's a bummer.
+<mdday> I'm still working on the documentation. Should have it today. I apologize it is late. I anticipate the changes will be small to existing modules. 
+<mdday> Chip's dad is critically ill and Chip is visiting him in Va. His Dad is 82 yrs. old. 
+<kumpf> Oh, that's a shame.
+<mdday> Yup. He almost had to go visit the week before the Anahiem mtng. but His dad recovered temporarilly. 
+<kumpf> Let's hope for another recovery.
+<kumpf> Hey, we dpm
+<kumpf> sorry...
+<kumpf> We don't need fancy documentation.  Do you have anything half done we could look at?
+<mdday> I make sure we have something for the call today, not fancy. Hopefully enough to proceed. 
+<kumpf> Cool.
+<kumpf> One other thing...Do we expect the modules in the "Communications" box (connection, encoder/decoder, authenticator) to need to change?
+<mdday> No, I don't anticipate they need to change. 
+<kumpf> Great.  Glad to hear it.
+<mdday> I figured that would be good.
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+<kumpf> Yep.  I'm trying to figure out what needs to happen with the authorizor.  It needs to talk to the user/authorization manager, so it will have to use the new queueing stuff...
+<kumpf> But it also needs to send errors back up to the encoder, so it will have to do some things in the "old" style as well...
+<kumpf> I'm guessing that the "Communications" queues will not use the new message dispatcher, right?
+<mdday> I see. That will work. 
+<mdday> Old style queues can talk to asynchronous queue. We should talk about how that could work today. 
+<kumpf> What I don't know is if the Authorizor should use the new message dispatcher to talk to some other components, and then pass the message on to the operations processor, or whether the authorizer should actually become part of the operations processor.  (The code in the authorization queue is quite small, because it is mostly contained in the extensible authorization utility code.)
+<kumpf> Yes, I would like to talk about that.
+<mdday> It would be cleaner for the authorizer to become part of the operations processor. But then would it be pluggable?
+<kumpf> Yes, because most of it is like utility code anyway...
+<kumpf> There is an interface that one may use to plug in their own authorization model.  The stuff that's in the queue now just calls that.
+<kumpf> Which brings me to another point...
+<mdday> Great. That works out nicely. What's your other point?
+<kumpf> We have several things that need to be utility-like in that they need to be around really early in the start-up process, and several/many modules need to access them...
+<kumpf> An example is the (our) configuration manager.  The CIM server uses it to determine which port to listen on, for example, and the configuration "service" (integrated with the control services function soon) needs to manage it dynamically.
+<mdday> I see. We need a start up order. Or we need a service (configuration ?) that ensures other services are started and available. 
+<kumpf> Is there a concern with having these utiliy-like things floating around?
+<mdday> No, not at all. We just need to ensure dependencies don't become circular. 
+<kumpf> Other examples are the user manager and the provider registration.  Talking to these through messages all the time might be a kit if overhead.
+<kumpf> As for the start-up order, I think we're okay with how things work now.  The CIM server code instantiates the "utility" portion and then gives the pointer to the "service" portion.  So the timing is built in.
+<kumpf> Sorry...just read my previous post...I meant a "lot of" overhead.
+<mdday> I see. Utility modules I presume means that they implement helper functions and are called by other modules ; they don't initiate any activity. 
+<kumpf> Yes, what I call a utility module does not directly instrument any schema.
+<kumpf> It may, however, be the "lower level resource" that the schema describes, which is actually instrumented by a control service or somesuch.
+<mdday> Then if it is thread safe it can export a directly called api no problem. However if a utility uses the message queue system there could be a deadlock.
+<kumpf> Right.  I really should define my terms before I go around using them.  What I call a utility also does NOT have a queue interface.  It would always be a direct API call.
+<mdday> does a utility enqueue any messages on any message queue?
+<mdday> Or does it call the repository today? 
+<kumpf> Nope.
+<kumpf> Hmmm...I think they do use the repository, come to think of it.
+<mdday> That's what I thought. If a queue-based module calls a utility, which then calls the repository through a queue, and the utility is _not_ queue based, there could be deadlock. 
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+<mdday> I understand what you need. It is no problem if the utility uses the meta dispatcher to talk to other asynchronous modules. There is very little overhead to do so. 
+* mdday is away: working on docs
+<-- kumpf has quit (Client Exiting)
+* Karl is away: I'm busy
+* Karl is away: Another Call
+* Karl is back (gone 00:10:33)
+--- Disconnected (Remote host closed socket).
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+<mdday> proxy server dropping me 
+* mdday is away: back to docs...
+--> kumpf (~kumpfr@atlwebproxy2.core.hp.com) has joined #pegasus
+<Karl> hi
+<kumpf> Hey, what's up?
+* mdday is away: call starting?
+<mdday> Karl GET ON THE CALL :-)
+<Karl> Trying really hard.  Everything busy
+* mdday is away: let's see if this changes a number
+* mdday is away: I guess not
+<Karl> Am on the call now finally
+<mdday> Hi karl
+ 
+ Commands Available:
+ 
+   ADDBUTTON ALLCHAN   ALLSERV   AWAY      BAN
+   UNBAN     CLEAR     CLOSE     CTCP      COUNTRY
+   CYCLE     DCC       DELBUTTON DEHOP     DEOP
+   DEVOICE   DISCON    DNS       ECHO      EXEC
+   EXECKILL  EXECSTOP  EXECCONT  EXECWRITE FLUSHQ
+   GATE      HELP      HOP       IGNORE    INVITE
+   JOIN      KICK      KICKBAN   LAGCHECK  LASTLOG
+   LIST      LISTDLL   LOAD      LOADDLL   MDEHOP
+   MDEOP     MKICK     MKICKB    ME        MSG
+   NAMES     NCTCP     NEWSERVER NICK      NOTICE
+   NOTIFY    OP        PART      PING      QUERY
+   QUIT      QUOTE     RECONNECT RMDLL     SAY
+   SCPINFO   SET       SETTAB    SERVCHAN  SERVER
+   TIMER     TOPIC     UNIGNORE  UNLOADALL USERLIST
+   WALLCHOP  WALLCHAN  VOICE     
+ 
+ Type /HELP <command> for more information, or /HELP -l
+ 
+ User defined commands:
+ 
+   ACTION    ALIAS     BANLIST   CHAT      DIALOG
+   DMSG      EXIT      J         KILL      LEAVE
+   M         ONOTICE   RAW       SERVHELP  SV
+   UMODE     UPTIME    VER       VERSION   WALLOPS
+   WII       
+ Usage:
+ /AWAY [<reason>], sets you away
+* mdday is back (gone 00:16:17)
+--> mk (~mk@host217-35-3-72.in-addr.btopenworld.com) has joined #pegasus
+<mdday> HI martin
+<mk> Just thought I'd exerience the full reality!!
+<mdday> welcome to groundhog day
+* mdday is away: I need to be away for 15 minutes
+<kumpf> Mike, do you have the script from our earlier discussion?  Could you mail it to me?  I seem to have lost it.
+<mdday> I have it and will save it 
+<-- mk (~mk@host217-35-3-72.in-addr.btopenworld.com) has left #pegasus
+* kumpf is away: I'll be back in a couple hours
+<mdday> Karl you still there ?
+* mdday is back (gone 00:34:42)
+* mdday is away: I'm busy
+* mdday is back (gone 00:00:05)
+<mdday> Roger -the numbers and buttons above the user list are as follows:
+<Karl> mike.  We finished but would like to talk to you about dispatcher, etc.
+<Karl> Cane do another call now??
+<mdday> OK
+<mdday> a green dot means the user is the channel operator
+<mdday> a yellow dot means the user can participate in a moderated channel
+<mdday> the number on the right is (as you guessed) the total number of users. 
+<Karl> Lets use the TOG number 
+<mdday> Karl - Call ok now, I'll call the TOG number. 
+<Karl> I will play moderator so give me a minute.
+<mdday> let me know when you're on
+<mdday> Karl - is this the number ending in 8686 ?
+<Karl> I am on now with the Evoke number and the id 5807486
+<mdday> OK be right on
+<mdday> whoah you are breaking up !!
+<Karl> wonderful telephone
+<Karl> would you call me directly
+<Karl> I can hear you perfect but 
+<Karl> WOuld you call me directly at 331 5382 4038
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+<Karl> Will talk to you in the morning
+<mdday> Later !
+<Karl> I think I understand what we want in CIM Operation processor (old dispatcher)
+<-- Karl has quit (Client Exiting)

@@ -24,6 +24,8 @@
 // Author: Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //
 // Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
+//              Sushma Fernandes, Hewlett-Packard Company
+//                  (sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -31,6 +33,7 @@
 #define Pegasus_PAMBasicAuthenticator_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/IPC.h>
 #include "BasicAuthenticator.h"
 
 #include <Pegasus/Security/Authentication/Linkage.h>
@@ -84,6 +87,10 @@ public:
         void *appdata_ptr);
 
 private:
+    /**
+        A mutex to serialize authentication calls.
+    */
+    static Mutex  _authSerializeMutex; 
 
     String        _realm;
 

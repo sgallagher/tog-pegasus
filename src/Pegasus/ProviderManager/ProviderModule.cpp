@@ -105,6 +105,7 @@ ProviderModule::~ProviderModule(void)
 void ProviderModule::load(void)
 {
     // get the interface adapter library first
+    _adapter = 0;
     if (_interfaceFilename.size() > 0)
     {
         _adapter = ProviderAdapterManager::get_pamgr()->addAdapter(

@@ -101,7 +101,7 @@ int cimserver_fork(void)
      std::string srvName = cppServ;
      std::string replacementData = errCode + srvName;
 
-     ycmMessage message(msgCPDDF01,
+     ycmMessage message(msgCPDDF80,
                         CPDprefix,
                         replacementData,
                         "cimserver_os400::cimserver_fork()",
@@ -241,7 +241,7 @@ int cimserver_kill(void)
       std::string srvName = cppServ;
       std::string replacementData = errCode + srvName;
 
-      ycmMessage message(msgCPDDF02,
+      ycmMessage message(msgCPDDF81,
                          CPDprefix,
                          replacementData,
                          "cimserver_os400::cimserver_kill()",

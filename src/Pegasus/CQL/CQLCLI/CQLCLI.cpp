@@ -724,7 +724,6 @@ int main(int argc, char ** argv)
 		}
       catch(Exception& e)
       {
-        cout << "here" << endl;
         cout << endl << endl << "Exception: Invalid namespace/class: " << e.getMessage() << endl << endl;
         return 1;
       }
@@ -747,13 +746,12 @@ int main(int argc, char ** argv)
 		_instances.appendArray(_rep->enumerateInstances( _ns, _testclassDEMO ));
 		_instances.remove(6,6);
 	}
-for(Uint32 i = 0; i < _instances.size(); i++){
-	CIMObjectPath op = _instances[i].getPath();
-cout << "here" << endl;
-          op.setHost("cimmortal.us.ibm.com");
-cout << "here" << endl;
-          _instances[i].setPath(op);
-}	
+
+	for(Uint32 i = 0; i < _instances.size(); i++){
+	   CIMObjectPath op = _instances[i].getPath();
+           op.setHost("somesystem.somecountry.somecompany.com");
+           _instances[i].setPath(op);
+	}	
 	// setup input stream
 	if(argc >= 2){
 		ifstream queryInputSource(argv[1]);

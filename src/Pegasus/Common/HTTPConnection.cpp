@@ -138,6 +138,8 @@ HTTPConnection::HTTPConnection(
    //Socket::disableBlocking(_socket);
    _socket->disableBlocking();
    _authInfo = new AuthenticationInfo(true);
+   _responsePending = false;
+   _connectionRequestCount = 0;
 
    PEG_METHOD_EXIT();
 }
@@ -357,11 +359,15 @@ void HTTPConnection::handleEnqueue(Message *message)
 	 // decrement request count
 	 //
 	 _requestCount--;
+         _responsePending = false;
 	 _socket->disableBlocking();
 
          Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-            "Total bytes written = %d; Buffer Size = %d; _requestCount = %d",
-             totalBytesWritten,  buffer.size(), _requestCount.value());
+            "A response has been sent (%d of %d bytes have been writtten).\n"
+            "There are %d requests pending within the CIM Server.\n" 
+            "A total of %d requests have been processed on this connection.",
+            totalBytesWritten,  buffer.size(), _requestCount.value(),
+            _connectionRequestCount);
 
 	 break;
       }
@@ -489,6 +495,19 @@ void HTTPConnection::_closeConnection()
    // let the monitor dispatch function do the cleanup. 
    PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection::_closeConnection");
    _connectionClosePending = true; 
+
+   if (_responsePending)
+   {
+       Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+         "HTTPConnection::_closeConnection - Connection being closed with response still pending.");
+   }
+
+   if (_connectionRequestCount == 0)
+   {
+       Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+         "HTTPConnection::_closeConnection - Connection being closed without receiving any requests.");
+   }
+
    PEG_METHOD_EXIT();
 
 //     Message* message= new CloseConnectionMessage(_socket->getSocket));
@@ -563,7 +582,12 @@ void HTTPConnection::_handleReadEvent()
         //
         // increment request count 
         //
-        _requestCount++;
+        if (bytesRead > 0)
+        {
+           _requestCount++;
+           _connectionRequestCount++;
+           _responsePending = true;
+        }
         Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
           "_requestCount = %d", _requestCount.value());
 	message->dest = _outputMessageQueue->getQueueId();
@@ -593,7 +617,6 @@ void HTTPConnection::_handleReadEvent()
 	   //
 	   // decrement request count
 	   //
-	   _requestCount--;
 	   Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
 			 "_requestCount = %d", _requestCount.value());
 	   
@@ -647,6 +670,8 @@ Boolean HTTPConnection::run(Uint32 milliseconds)
 	    }
 	    catch(...)
 	    {
+              Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                  "HTTPConnection::run handleEnqueue(msg) failure");
 	       return true;
 	    }
 	    handled_events = true;

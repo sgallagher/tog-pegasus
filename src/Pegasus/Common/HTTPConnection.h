@@ -170,6 +170,21 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueue
       Array<Sint8> _incomingBuffer;
       AuthenticationInfo* _authInfo;
       static AtomicInt _requestCount;
+
+      // _connectionRequestCount contains the number of
+      // requests that have been received on this connection.
+      Uint32 _connectionRequestCount;
+
+      // The _responsePending flag has been added to help 
+      // isolate "client connection" problems. When the
+      // HTTPConnection object is created, this flag is
+      // initialized to false.  It is set to true when a
+      // request is received on the connection and set to
+      // false when a response is sent. If _responsePending
+      // is true when a close connection request is processed,
+      // a "DISCARDED_DATA" trace entry will be written.
+      Boolean _responsePending;
+
       Mutex _connection_mut;
 
       // ATTN-DE-P2-20030926::TODO::Recommend that the _dying

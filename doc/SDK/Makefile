@@ -31,6 +31,7 @@ PROVIDER_INTERFACE_HEAD = ProviderInterface.dxx
 CONSUMER_INTERFACE_HEAD = IndicationConsumerInterface.dxx
 COMMON_INTERFACE_HEAD = CommonInterface.dxx
 CMPI_INTERFACE_HEAD = CMPIInterface.dxx
+CMPI_C_INTERFACE_HEAD = CMPI_C_Interface.dxx
 
 buildDoc:
 	@$(RMDIRHIER) $(INTERFACE_OUTPUT)
@@ -43,14 +44,21 @@ buildDoc:
 	@sed -e "s/Hierarchy of Classes/Hierarchy of CIM Indication Consumer Classes/" $(INTERFACE_OUTPUT)/HIER.html >  $(INTERFACE_OUTPUT)/IndicationConsumerClassHier.html
 	@$(DOCXX) --config doc++.conf --dir $(INTERFACE_OUTPUT) --verbose -H $(COMMON_INTERFACE_HEAD)
 	@sed -e "s/Hierarchy of Classes/Hierarchy of CIM Comon Classes/" $(INTERFACE_OUTPUT)/HIER.html >  $(INTERFACE_OUTPUT)/CommonClassHier.html
+
+
 	@$(DOCXX) --config doc++.conf --dir $(INTERFACE_OUTPUT) --verbose -H $(CMPI_INTERFACE_HEAD)
 	@sed -e "s/Hierarchy of Classes/Hierarchy of CMPI Classes/" $(INTERFACE_OUTPUT)/HIER.html >  $(INTERFACE_OUTPUT)/CMPIClassHier.html
+
+	@$(MAKE) --directory=$(PEGASUS_ROOT)/src/Pegasus/Provider/CMPI/docs -f Makefile doc
+	@$(DOCXX) --config doc++.conf --dir $(INTERFACE_OUTPUT) --verbose -H $(CMPI_C_INTERFACE_HEAD)
+	@sed -e "s/Hierarchy of Classes/Hierarchy of CMPI C macros, types and definitions/" $(INTERFACE_OUTPUT)/HIER.html >  $(INTERFACE_OUTPUT)/CMPI_C_Hier.html
+
 	@$(DOCXX) --config doc++.conf --dir $(INTERFACE_OUTPUT) --verbose -H Interface.dxx
 	@$(COPY) CIMClassHier.html $(INTERFACE_OUTPUT)/CIMClassHier.html
 
 clean:
 	$(RMDIRHIER) $(INTERFACE_OUTPUT)
-
+	@$(MAKE) --directory=$(PEGASUS_ROOT)/src/Pegasus/Provider/CMPI/docs -f Makefile clean
 depend:
 
 tests:

@@ -1,7 +1,4 @@
   //@{
-    //@Include: ../../src/Pegasus/Provider/CMPI/cmpidt.h
-    //@Include: ../../src/Pegasus/Provider/CMPI/cmpift.h
-    //@Include: ../../src/Pegasus/Provider/CMPI/cmpimacs.h
     //@Include: ../../src/Pegasus/Provider/CMPI/CmpiArgs.h
     //@Include: ../../src/Pegasus/Provider/CMPI/CmpiArray.h
     //@Include: ../../src/Pegasus/Provider/CMPI/CmpiAssociationMI.h

@@ -1,0 +1,5 @@
+  //@{
+    //@Include: ../../src/Pegasus/Provider/CMPI/docs/cmpimacs.h
+    //@Include: ../../src/Pegasus/Provider/CMPI/cmpift.h
+    //@Include: ../../src/Pegasus/Provider/CMPI/cmpidt.h
+  //@}

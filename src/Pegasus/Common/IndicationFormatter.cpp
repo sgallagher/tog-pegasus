@@ -1615,6 +1615,8 @@ String IndicationFormatter::_getBooleanStr(
     }
 }
 
+#ifdef PEGASUS_HAS_ICU
+
 Boolean IndicationFormatter::_canLocalize(
     const ContentLanguages & contentLangs,
     Locale & locale)
@@ -1770,5 +1772,6 @@ String IndicationFormatter::_localizeBooleanStr(
         return (MessageLoader::getMessage(parms));
     }
 }
+#endif
 
 PEGASUS_NAMESPACE_END

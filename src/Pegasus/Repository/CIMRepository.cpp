@@ -138,38 +138,6 @@ void _SaveObject(const String& path, Array<Sint8>& objectXml)
     PEG_METHOD_EXIT();
 }
 
-static String _MakeAssocInstPath(
-    const CIMNamespaceName& nameSpace,
-    const String& repositoryRoot)
-{
-    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_MakeAssocInstPath");
-
-    String tmp = namespaceNameToDirName(nameSpace);
-    String returnString(repositoryRoot);
-    returnString.append('/');
-    returnString.append(tmp);
-    returnString.append("/instances/associations");
-
-    PEG_METHOD_EXIT();
-    return returnString;
-}
-
-static String _MakeAssocClassPath(
-    const CIMNamespaceName& nameSpace,
-    const String& repositoryRoot)
-{
-    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_MakeAssocClassPath");
-
-    String tmp = namespaceNameToDirName(nameSpace);
-    String returnString(repositoryRoot);
-    returnString.append('/');
-    returnString.append(tmp);
-    returnString.append("/classes/associations");
-
-    PEG_METHOD_EXIT();
-    return returnString;
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 // CIMRepository
@@ -448,7 +416,7 @@ void CIMRepository::deleteClass(
 
     if (isAssociation)
     {
-        String assocFileName = _MakeAssocClassPath(nameSpace, _repositoryRoot);
+        String assocFileName = _nameSpaceManager.getAssocClassPath(nameSpace);
 
         if (FileSystem::exists(assocFileName))
             AssocClassTable::deleteAssociation(assocFileName, className);
@@ -607,7 +575,7 @@ void CIMRepository::deleteInstance(
     // Delete from assocation table (if an assocation).
     //
 
-    String assocFileName = _MakeAssocInstPath(nameSpace, _repositoryRoot);
+    String assocFileName = _nameSpaceManager.getAssocInstPath(nameSpace);
 
     if (FileSystem::exists(assocFileName))
         AssocInstTable::deleteAssociation(assocFileName, instanceName);
@@ -624,7 +592,7 @@ void CIMRepository::_createAssocClassEntries(
     // Open input file:
 
 
-    String assocFileName = _MakeAssocClassPath(nameSpace, _repositoryRoot);
+    String assocFileName = _nameSpaceManager.getAssocClassPath(nameSpace);
     ofstream os;
 
     if (!OpenAppend(os, assocFileName))
@@ -747,7 +715,7 @@ void CIMRepository::_createAssocInstEntries(
 
     // Open input file:
 
-    String assocFileName = _MakeAssocInstPath(nameSpace, _repositoryRoot);
+    String assocFileName = _nameSpaceManager.getAssocInstPath(nameSpace);
     ofstream os;
 
     if (!OpenAppend(os, assocFileName))
@@ -1830,7 +1798,7 @@ Array<CIMObjectPath> CIMRepository::associatorNames(
     //
     if (objectName.getKeyBindings ().size () == 0)
     {
-        String assocFileName = _MakeAssocClassPath(nameSpace, _repositoryRoot);
+        String assocFileName = _nameSpaceManager.getAssocClassPath(nameSpace);
 
         AssocClassTable::getAssociatorNames(
             assocFileName,
@@ -1843,7 +1811,7 @@ Array<CIMObjectPath> CIMRepository::associatorNames(
     }
     else
     {
-        String assocFileName = _MakeAssocInstPath(nameSpace, _repositoryRoot);
+        String assocFileName = _nameSpaceManager.getAssocInstPath(nameSpace);
 
         AssocInstTable::getAssociatorNames(
             assocFileName,
@@ -1973,7 +1941,7 @@ Array<CIMObjectPath> CIMRepository::referenceNames(
     //
     if (objectName.getKeyBindings ().size () == 0)
     {
-        String assocFileName = _MakeAssocClassPath(nameSpace, _repositoryRoot);
+        String assocFileName = _nameSpaceManager.getAssocClassPath(nameSpace);
 
         if (!AssocClassTable::getReferenceNames(
             assocFileName,
@@ -1987,7 +1955,7 @@ Array<CIMObjectPath> CIMRepository::referenceNames(
     }
     else
     {
-        String assocFileName = _MakeAssocInstPath(nameSpace, _repositoryRoot);
+        String assocFileName = _nameSpaceManager.getAssocInstPath(nameSpace);
 
         if (!AssocInstTable::getReferenceNames(
             assocFileName,
@@ -2036,7 +2004,7 @@ Array<CIMName> CIMRepository::referencedClassNames(
 
     // ATTN: KS 20030428 - Apparently getSuperClassNames returning toplevel twice.
 
-        String assocFileName = _MakeAssocClassPath(nameSpace, _repositoryRoot);
+        String assocFileName = _nameSpaceManager.getAssocClassPath(nameSpace);
 
         if (!AssocClassTable::getReferencedClassNames(
             assocFileName,
@@ -2368,40 +2336,6 @@ void CIMRepository::setDeclContext(RepositoryDeclContext *context)
     _context = context;
 
     PEG_METHOD_EXIT();
-}
-
-String namespaceNameToDirName(const CIMNamespaceName& namespaceName)
-{
-    String dirName = namespaceName.getString();
-    
-    // Fix for bugzilla 383. Associations do not work for mixed case
-    // namespaces on Unix type platforms
-    dirName.toLower();
-
-    for (Uint32 i=0; i<dirName.size(); i++)
-    {
-        if (dirName[i] == '/')
-        {
-            dirName[i] = '#';
-        }
-    }
-
-    return dirName;
-}
-
-String dirNameToNamespaceName(const String& dirName)
-{
-    String namespaceName = dirName;
-
-    for (Uint32 i=0; i<namespaceName.size(); i++)
-    {
-        if (namespaceName[i] == '#')
-        {
-            namespaceName[i] = '/';
-        }
-    }
-
-    return namespaceName;
 }
 
 PEGASUS_NAMESPACE_END

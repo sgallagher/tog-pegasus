@@ -255,32 +255,7 @@ class PEGASUS_COMMON_LINKAGE Message
           return ret;
       }
 
-      static CIMOperationType convertMessageTypetoCIMOpType(const Uint32 type)
-      {
-          Uint32 in_type, enum_type;
-          CIMOperationType cT;
-
-
-          in_type = type%38;      /* groups request/response message by type ie. getClassRequestMessage 
-                                (type = 1) gives the same result as getClassResponseMessage (type = 39)*/
-
-          if (in_type < 3) {
-             enum_type = in_type;
-             }
-          else if((3 < in_type) && (in_type < 25)){
-             enum_type = in_type -1;
-             }
-         else if (in_type == 25) {
-            enum_type = 0;
-            }
-         else{
-            return ((CIMOperationType)40); //error condition
-            }   
-
-        cT = (CIMOperationType)enum_type;
-        return cT;
-        }
-
+      static CIMOperationType convertMessageTypetoCIMOpType(const Uint32 type);
 
       virtual void print(
 	  PEGASUS_STD(ostream)& os, 

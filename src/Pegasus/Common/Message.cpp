@@ -231,36 +231,31 @@ const char* MessageTypeToString(Uint32 messageType)
 }
 
 
-#if 0
-static CIMOperationType Message::convertMessageTypetoCIMOpType(const Uint32 type)
-{
-    Uint32 in_type, enum_type;
-    CIMOperationType cT;
+CIMOperationType Message::convertMessageTypetoCIMOpType(Uint32 type)
+      {
+          Uint32 in_type, enum_type;
+          CIMOperationType cT;
 
 
-    /* groups request/response message by type ie. getClassRequestMessage 
-    ** (type = 1) gives the same result as getClassResponseMessage (type = 41)
-    */
-    in_type = type%40;      
+          in_type = type%40;      /* groups request/response message by type ie. getClassRequestMessage 
+                                (type = 1) gives the same result as getClassResponseMessage (type = 41)*/
 
-    if (in_type < 3) {
-        enum_type = in_type;
-    }
-    else if((3 < in_type) && (in_type < 25)){
-        enum_type = in_type -1;
-    }
-    else if (in_type == 25) {
-        enum_type = 0;
-    }
-    else{
-        return 41; //error condition
-    }   
+         if (in_type < 3) {
+             enum_type = in_type;
+         }
+         else if((3 < in_type) && (in_type < 25)){
+             enum_type = in_type -1;
+         }
+         else if (in_type == 25) {
+            enum_type = 0;
+         }
+         else {
+            return ((CIMOperationType)40); //error condition
+         }   
 
-    cT = (CIMOperationType)enum_type;
-    return cT;
-
-}
-#endif
+        cT = (CIMOperationType)enum_type;
+        return cT;
+     }
 
 
 #ifndef PEGASUS_DISABLE_PERFINST

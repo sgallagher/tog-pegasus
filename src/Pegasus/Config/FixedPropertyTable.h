@@ -38,6 +38,8 @@
 #include "FixedPropertyTableHpux.h"
 #elif defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
 #include "FixedPropertyTableOS400.h"
+#elif defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
+#include "FixedPropertyTableAix.h"
 #else
     {"bogus", "MyBogusValue"} // Remove this line if others are added
 #endif

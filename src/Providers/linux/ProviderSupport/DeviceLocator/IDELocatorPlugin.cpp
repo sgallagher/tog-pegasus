@@ -31,6 +31,7 @@
 // Modified By: David Kennedy       <dkennedy@linuxcare.com>
 //              Christopher Neufeld <neufeld@linuxcare.com>
 //              Al Stone            <ahs3@fc.hp.com>
+//              Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
 //
 //%////////////////////////////////////////////////////////////////////////////
 //
@@ -80,14 +81,7 @@ static struct {
 
 
 IDELocatorPlugin::IDELocatorPlugin(){
-	fileReader=NULL;
-}
-
-IDELocatorPlugin::~IDELocatorPlugin(){
-	if(fileReader){
-		delete fileReader;
-		fileReader=NULL;
-	}
+	fileReader.reset();
 }
 
 /* Sets the device search criteria.
@@ -110,13 +104,9 @@ int IDELocatorPlugin::setDeviceSearchCriteria(Uint16 base_class, Uint16 sub_clas
 		return -1;
 	}
 
-	/* Delete the old file reader */
-	if(fileReader){
-		delete fileReader;
-		fileReader=NULL;
-	}
 	/* Create a new file reader */
-	if((fileReader=new FileReader)==NULL){
+    fileReader.reset(new FileReader);
+	if(fileReader.get()==NULL){
 		return -1;
 	}
 
@@ -136,7 +126,7 @@ DeviceInformation *IDELocatorPlugin::getNextDevice(void){
   String roleString;
 
   /* Check to see if we have been set up correctly */
-  if(!fileReader) return NULL;
+  if(!fileReader.get()) return NULL;
 
   /* We are looking for (another) file.  If we find a file then we grab the 
    * device name from that */
@@ -180,8 +170,7 @@ DeviceInformation *IDELocatorPlugin::getNextDevice(void){
   	capacity=String::EMPTY;
   	media=String::EMPTY;
   	model=String::EMPTY;
-	delete fileReader;
-	fileReader=NULL;
+	fileReader.reset();
   	return curDeviceInformation;
   }
   return NULL;
@@ -210,7 +199,7 @@ void IDELocatorPlugin::setOption(int dirIndex){
 
 
 MediaAccessDeviceInformation *IDELocatorPlugin::createDevice(void){
-	MediaAccessDeviceInformation *curDeviceInformation=new MediaAccessDeviceInformation();
+    AutoPtr<MediaAccessDeviceInformation> curDeviceInformation(new MediaAccessDeviceInformation()); 
         int i;
 	/* Media */
 	for(i=0;i<N_IN_ARRAY(lookup_info);i++){
@@ -240,10 +229,9 @@ MediaAccessDeviceInformation *IDELocatorPlugin::createDevice(void){
 
 	/* Now see if the user actually wants this type of device */
 	if((subClass!=WILDCARD_DEVICE)&&(curDeviceInformation->getSubClass()!=subClass)){
-		delete curDeviceInformation;
 		return NULL;
 	}
-	return curDeviceInformation;
+	return curDeviceInformation.get();
 }
 
 PEGASUS_NAMESPACE_END

@@ -27,11 +27,10 @@
 //
 // Author: Yi Zhou (yi_zhou@hp.com)
 //
-// Modified By:
+// Modified By: Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Tracer.h>
 

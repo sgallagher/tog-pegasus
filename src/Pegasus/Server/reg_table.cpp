@@ -27,7 +27,7 @@
 //
 // Author: Mike Day (mdday@us.ibm.com)
 //
-// Modified By: 
+// Modified By: Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -37,6 +37,7 @@
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Sharable.h>
 #include <Pegasus/Common/CIMName.h>
+#include <Pegasus/Common/AutoPtr.h>
 #include "reg_table.h"
 
 
@@ -371,8 +372,9 @@ reg_table_rep::_insert(const reg_table_record &rec)
    
    if(false ==  _table.lookup(rec.namespace_name.getString(), tt))
    {
-      type_table *temp = new type_table();
-      _table.insert(rec.namespace_name.getString(), temp);
+      AutoPtr<type_table> temp(new type_table()); 
+      _table.insert(rec.namespace_name.getString(), temp.get());
+      temp.release();
       if(false ==  _table.lookup(rec.namespace_name.getString(), tt))
 	 return false;
       
@@ -382,8 +384,9 @@ reg_table_rep::_insert(const reg_table_record &rec)
    
    if(false == tt->lookup(rec.type, rt))
    {
-      routing_table *temp = new routing_table();
-      tt->insert(rec.type, temp);
+      AutoPtr<routing_table> temp(new routing_table()); 
+      tt->insert(rec.type, temp.get());
+      temp.release();
       if(false == tt->lookup(rec.type, rt))
 	 return false;
    }

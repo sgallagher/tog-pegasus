@@ -31,6 +31,7 @@
 // Modified By: David Kennedy       <dkennedy@linuxcare.com>
 //              Christopher Neufeld <neufeld@linuxcare.com>
 //              Al Stone            <ahs3@fc.hp.com>
+//              Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -50,6 +51,7 @@
 #include "DeviceLocatorPlugin.h"
 #include "MediaAccessDeviceInformation.h"
 #include "FileReader.h"
+#include <Pegasus/Common/AutoPtr.h>
 
 /* Device list */
 
@@ -80,7 +82,7 @@ private:
 	Uint16 subClass;
 	Uint16 progIF;
 
-	FileReader *fileReader;
+    AutoPtr<FileReader> fileReader; 
 
 	String curDevice;
 	String model;

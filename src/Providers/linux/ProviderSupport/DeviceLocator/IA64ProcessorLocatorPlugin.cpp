@@ -31,6 +31,7 @@
 // Modified By: David Kennedy       <dkennedy@linuxcare.com>
 //              Christopher Neufeld <neufeld@linuxcare.com>
 //              Al Stone            <ahs3@fc.hp.com>
+//              Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101 
 //
 //%////////////////////////////////////////////////////////////////////////////
 //
@@ -210,14 +211,7 @@ static struct {
 
 
 IA64ProcessorLocatorPlugin::IA64ProcessorLocatorPlugin(){
-	fileReader=NULL;
-}
-
-IA64ProcessorLocatorPlugin::~IA64ProcessorLocatorPlugin(){
-	if(fileReader){
-		delete fileReader;
-		fileReader=NULL;
-	}
+	fileReader.reset();
 }
 
 /* Sets the device search criteria.
@@ -240,13 +234,9 @@ int IA64ProcessorLocatorPlugin::setDeviceSearchCriteria(Uint16 base_class, Uint1
 		return -1;
 	}
 
-	/* Delete the old file reader */
-	if(fileReader){
-		delete fileReader;
-		fileReader=NULL;
-	}
 	/* Create a new file reader */
-	if((fileReader=new FileReader)==NULL){
+    fileReader.reset(new FileReader);
+	if(fileReader.get()==NULL){
 		return -1;
 	}
 
@@ -288,12 +278,12 @@ DeviceInformation *IA64ProcessorLocatorPlugin::getNextDevice(void){
   int index;
   String line;
   vector<String> matches;
-  ProcessorInformation *curDevice=NULL;
+  AutoPtr<ProcessorInformation> curDevice; 
   String roleString;
   int found_ia64_processor=0;
 
   /* Check to see if we have been set up correctly */
-  if(!fileReader) return NULL;
+  if(!fileReader.get()) return NULL;
 
   while (fileReader->GetNextMatchingLine(line, &index, matches) != -1) {
 
@@ -301,19 +291,12 @@ DeviceInformation *IA64ProcessorLocatorPlugin::getNextDevice(void){
     case MATCH_CPU_FAMILY:
       /* Check to ensure that the CPU family is IA-64 */
       if(matches[1]!="IA-64"){
-        if(curDevice){
-          delete curDevice;
-        }
         return NULL;
       }
       found_ia64_processor=1;
       break;
     case MATCH_PROCESSOR_BEGIN:
-      if(curDevice!=NULL){
-        delete curDevice;
-        curDevice=NULL;
-      }
-      curDevice=new ProcessorInformation();
+      curDevice.reset(new ProcessorInformation());
       roleString="Processor ";
       roleString.append(matches[1]);
       curDevice->setRole(roleString);
@@ -324,7 +307,7 @@ DeviceInformation *IA64ProcessorLocatorPlugin::getNextDevice(void){
       curDevice->setCPUStatus(1);
       break;
     case MATCH_CPU_MODEL_NAME:
-      if(curDevice){
+      if(curDevice.get()){
       	if(matches[1]=="Itanium"){
 		curDevice->setFamily(130); /* Itanium */
 	}
@@ -336,28 +319,24 @@ DeviceInformation *IA64ProcessorLocatorPlugin::getNextDevice(void){
       break;
     case MATCH_PROCESSOR_END:
       if(found_ia64_processor){
-        return curDevice;
-      }
-      if(curDevice){
-        delete curDevice;
-	curDevice = NULL;   // just in case...
+        return curDevice.release();
       }
       return NULL;
       break;
     case MATCH_CPU_MANUFACTURER:
-      if(curDevice){
+      if(curDevice.get()){
         curDevice->setManufacturerString(matches[1]);
       }
       break;
     case MATCH_CPU_STEPPING:
-      if(curDevice){
+      if(curDevice.get()){
         unsigned long ul;
         ul = strtoul(matches[1].getCString(), NULL, 10);
 	curDevice->setStepping(ul);
       }
       break;
     case MATCH_CPU_SPEED:
-      if(curDevice){
+      if(curDevice.get()){
         unsigned long ul;
         ul = strtoul(matches[1].getCString(), NULL, 10);
 	curDevice->setMaxClockSpeed(ul);

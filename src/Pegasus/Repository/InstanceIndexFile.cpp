@@ -37,6 +37,7 @@
 //                     sushma_fernandes@hp.com
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -46,7 +47,6 @@
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Tracer.h>
 #include "InstanceIndexFile.h"

@@ -31,6 +31,7 @@
 // Modified By: David Kennedy       <dkennedy@linuxcare.com>
 //              Christopher Neufeld <neufeld@linuxcare.com>
 //              Al Stone            <ahs3@fc.hp.com>
+//              Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -39,6 +40,7 @@
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/AutoPtr.h>
 
 #include "NetworkAdapterProvider.h"
 #include "network_defines.h"
@@ -352,12 +354,12 @@ LinuxNetworkAdapterProvider::build_instance(const CIMName& className,
 NetworkAdapterData*
 LinuxNetworkAdapterProvider::LocateInterface(String const &name) const
 {
-   NetworkAdapterData* retval;
+   AutoPtr<NetworkAdapterData> retval; 
  
-   retval = new NetworkAdapterData(name);
+   retval.reset(new NetworkAdapterData(name));
    if (retval->initialize() != 0)
    {
-      delete retval;
+      //delete retval;
       return NULL;
    }
  
@@ -366,11 +368,11 @@ LinuxNetworkAdapterProvider::LocateInterface(String const &name) const
     * located object and reload it from the appropriate derived class. */
    switch(retval->data_type()) {
    case NETWORK_ADAPTER_ETHERNET:
-      delete retval;
-      retval = new EthernetAdapterData(name);
+      //delete retval;
+      retval.reset(new EthernetAdapterData(name));
       if (retval->initialize() != 0)
       {
-         delete retval;
+         //delete retval;
          return NULL;
       }
       break;
@@ -380,7 +382,7 @@ LinuxNetworkAdapterProvider::LocateInterface(String const &name) const
       break;
    }
  
-   return retval;
+   return retval.release();
 }
 
 

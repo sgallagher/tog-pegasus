@@ -1,6 +1,8 @@
-DEPEND_MAK_TMP = $(OBJ_DIR)/depend.mak
 
-DEPEND_MAK = $(subst /,\\,$(DEPEND_MAK_TMP))
+#DEPEND_MAK_TMP = $(OBJ_DIR)/depend.mak
+#DEPEND_MAK = $(subst /,\\,$(DEPEND_MAK_TMP))
+
+DEPEND_MAK = $(OBJ_DIR)/depend.mak
 
 ##
 ## Notice that the system includes are excluded. That is because this

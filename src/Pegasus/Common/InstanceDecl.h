@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: InstanceDecl.h,v $
+// Revision 1.4  2001/02/13 07:00:18  mike
+// Added partial createInstance() method to repository.
+//
 // Revision 1.3  2001/01/30 23:39:00  karl
 // Add doc++ Documentation to header files
 //
@@ -246,7 +249,7 @@ public:
 
     /**	Method
 
-   */
+    */
     void toXml(Array<Sint8>& out) const
     {
 	_checkRep();

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Repository.cpp,v $
+// Revision 1.6  2001/02/13 07:00:18  mike
+// Added partial createInstance() method to repository.
+//
 // Revision 1.5  2001/02/11 05:45:33  mike
 // Added case insensitive logic for files in Repository
 //
@@ -51,7 +54,9 @@
 #include <Pegasus/Common/XmlReader.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/DeclContext.h>
+#include <Pegasus/Common/DeclContext.h>
 #include "Repository.h"
+#include "InstanceIndexFile.h"
 
 #define INDENT_XML_FILES
 
@@ -244,9 +249,47 @@ static void _MakeQualfierPath(
     if (!FileSystem::isDirectory(path))
 	throw CimException(CimException::INVALID_NAMESPACE);
 
-    path.append('/');
     path.append(QUALIFIERS);
     path.append(qualifierName);
+}
+
+static void _MakeInstanceIndexPath(
+    const String& root,
+    const String& nameSpace,
+    const String& className,
+    String& path)
+{
+    const char INSTANCES[] = "/instances/";
+    _MakeNameSpacePath(root, nameSpace, path);
+
+    if (!FileSystem::isDirectory(path))
+	throw CimException(CimException::INVALID_NAMESPACE);
+
+    path.append(INSTANCES);
+    path.append(className);
+    path.append(".idx");
+}
+
+static void _MakeInstancePath(
+    const String& root,
+    const String& nameSpace,
+    const String& className,
+    Uint32 index,
+    String& path)
+{
+    const char INSTANCES[] = "/instances/";
+    _MakeNameSpacePath(root, nameSpace, path);
+
+    if (!FileSystem::isDirectory(path))
+	throw CimException(CimException::INVALID_NAMESPACE);
+
+    path.append(INSTANCES);
+    path.append(className);
+    path.append('.');
+
+    char buffer[32];
+    sprintf(buffer, "%d", index);
+    path.append(buffer);
 }
 
 template<class Object>
@@ -583,9 +626,43 @@ void Repository::createClass(
 
 void Repository::createInstance(
     const String& nameSpace,
-    const InstanceDecl& newInstance) 
-{ 
-    throw CimException(CimException::NOT_SUPPORTED);
+    InstanceDecl& newInstance) 
+{
+    // Form the reference to this instance:
+
+    String instanceName;
+
+#if 0
+    // ATTN: fix this:
+    Reference::referenceToInstanceName(
+	newInstance.makeReference(), instanceName);
+#else
+    instanceName = "MyClass.key1=123456";
+#endif
+
+    // Get the instance-name and create an entry
+
+    String indexPath;
+
+    _MakeInstanceIndexPath(
+	_root, nameSpace, newInstance.getClassName(), indexPath);
+
+    Uint32 index;
+
+    if (!InstanceIndexFile::insert(indexPath, instanceName, index))
+	throw CimException(CimException::FAILED);
+
+    // Save the instance to file:
+
+    String path;
+
+    _MakeInstancePath(
+	_root, nameSpace, newInstance.getClassName(), index, path);
+
+    newInstance.resolve(_context, nameSpace);
+
+    std::cout << "path: " << path << std::endl;
+    _SaveObject(path, newInstance);
 }
 
 void Repository::modifyClass(

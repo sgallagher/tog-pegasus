@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Repository.h,v $
+// Revision 1.7  2001/02/13 07:00:18  mike
+// Added partial createInstance() method to repository.
+//
 // Revision 1.6  2001/02/11 05:45:33  mike
 // Added case insensitive logic for files in Repository
 //
@@ -46,15 +49,6 @@
 //
 //END_HISTORY
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// Repository.h
-//
-//	This interface contains a method for each operation defined in
-// 	the "Specification for CIM Operations over HTTP".
-//
-////////////////////////////////////////////////////////////////////////////////
-
 #ifndef PegasusRepository_Repository_h
 #define PegasusRepository_Repository_h
 
@@ -67,9 +61,14 @@
 PEGASUS_NAMESPACE_BEGIN
 
 class RepositoryDeclContext;
-/** Class Repository - This class represents the repository interfaces.
-This class is derived from the Pegasus Operations interface adding certain
-methods specifically required for the repository.
+
+/** This class derives from the Operations class and provides a simple
+    implementation of a CIM repository. It only implements the methods
+    for manipulating classes and instances. The others throw this exception:
+
+    <pre>
+	CimException(CimException::NOT_SUPPORTED)
+    </pre>
 */
 
 class PEGASUS_REPOSITORY_LINKAGE Repository : public Operations
@@ -118,7 +117,7 @@ public:
     /// createInstance
     virtual void createInstance(
 	const String& nameSpace,
-	const InstanceDecl& newInstance);
+	InstanceDecl& newInstance);
 
     virtual void modifyClass(
 	const String& nameSpace,
@@ -263,11 +262,6 @@ public:
     void createMetaQualifiers(const String& nameSpace);
 
 private:
-
-    static Array<String> _getStringArray()
-    {
-	return Array<String>();
-    }
 
     String _root;
     RepositoryDeclContext* _context;

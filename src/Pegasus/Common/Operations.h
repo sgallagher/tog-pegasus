@@ -23,6 +23,9 @@
 // Author: Mike Brasher
 //
 // $Log: Operations.h,v $
+// Revision 1.11  2001/02/13 07:00:18  mike
+// Added partial createInstance() method to repository.
+//
 // Revision 1.10  2001/02/11 05:42:33  mike
 // new
 //
@@ -457,8 +460,8 @@ public:
     </UL>
     */
     virtual void createInstance(
-		const String& nameSpace,
-		const InstanceDecl& newInstance) = 0;
+	const String& nameSpace,
+	InstanceDecl& newInstance) = 0;
 
 
     /** The <TT>modifyClass</TT> method modifies an existing CIM Class in the

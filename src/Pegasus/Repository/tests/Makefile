@@ -4,9 +4,9 @@ include $(ROOT)/mak/config.mak
 
 XDIRS = \
     TestClasses \
+    LoadRepository \
 
 DIRS = \
-    LoadRepository \
     Repository \
     QualifierDeclRep \
     NameSpace \

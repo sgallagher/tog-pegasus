@@ -12,6 +12,8 @@ LIBRARIES = $(LIB_DIR)/$(LIB_PREFIX)pegcommon$(LIB_SUFFIX)
 
 LIBRARY = pegrepository
 
-SOURCES = Repository.cpp 
+SOURCES = \
+    InstanceIndexFile.cpp \
+    Repository.cpp 
 
 include $(ROOT)/mak/library.mak

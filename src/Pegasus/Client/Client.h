@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Client.h,v $
+// Revision 1.4  2001/02/13 07:00:18  mike
+// Added partial createInstance() method to repository.
+//
 // Revision 1.3  2001/02/06 17:04:03  karl
 // add documentation
 //
@@ -117,7 +120,7 @@ public:
     ///
     virtual void createInstance(
 	const String& nameSpace,
-	const InstanceDecl& newInstance) ;
+	InstanceDecl& newInstance) ;
     ///
     virtual void modifyClass(
 	const String& nameSpace,

@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: Repository.cpp,v $
-// Revision 1.1  2001/01/14 19:53:59  mike
-// Initial revision
+// Revision 1.2  2001/02/13 07:00:18  mike
+// Added partial createInstance() method to repository.
+//
+// Revision 1.1.1.1  2001/01/14 19:53:59  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -35,7 +38,7 @@
 using namespace Pegasus;
 using namespace std;
 
-void test()
+void test01()
 {
     Repository r(".");
 
@@ -47,13 +50,18 @@ void test()
     }
     catch (AlreadyExists&)
     {
-	cout << "ignored already exists exception" << endl;
+	// Ignore this!
     }
 
     ClassDecl c("MyClass");
-    c.addProperty(Property("count", Uint32(0)));
-    c.addProperty(Property("ratio", Real32(1.5)));
-    c.addProperty(Property("message", "Hello World"));
+
+    r.setQualifier(NAMESPACE, QualifierDecl("key", true, Scope::PROPERTY));
+
+    c.addProperty(
+	Property("key", Uint32(0))
+	    .addQualifier(Qualifier("key", true)))
+	.addProperty(Property("ratio", Real32(1.5)))
+	.addProperty(Property("message", "Hello World"));
 
     r.createClass(NAMESPACE, c);
 
@@ -66,13 +74,35 @@ void test()
     // cc.print();
 }
 
+void test02()
+{
+    Repository r(".");
+
+    const String NAMESPACE = "aa/bb";
+
+    try
+    {
+	r.createNameSpace(NAMESPACE);
+    }
+    catch (AlreadyExists&)
+    {
+	// Ignore this!
+    }
+
+    InstanceDecl inst("MyClass");
+    inst.addProperty(Property("key", Uint32(0)));
+
+    r.createInstance(NAMESPACE, inst);
+}
+
 int main()
 {
     Repository r(".");
 
     try 
     {
-	test();
+	test01();
+	test02();
     }
     catch (Exception& e)
     {

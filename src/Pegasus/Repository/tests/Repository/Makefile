@@ -11,4 +11,5 @@ include $(ROOT)/mak/program.mak
 tests:
 	$(RMDIRHIER) repository
 	$(PROGRAM)
-	$(RMDIRHIER) repository
+
+#	$(RMDIRHIER) repository

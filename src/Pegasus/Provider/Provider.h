@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Provider.h,v $
+// Revision 1.4  2001/02/13 07:00:18  mike
+// Added partial createInstance() method to repository.
+//
 // Revision 1.3  2001/01/31 08:20:51  mike
 // Added dispatcher framework.
 // Added enumerateInstanceNames.
@@ -84,7 +87,7 @@ public:
 	ClassDecl& newClass);
 
     virtual void createInstance(
-	const String& nameSpace,
+	String& nameSpace,
 	const InstanceDecl& newInstance) ;
 
     virtual void modifyClass(

@@ -32,6 +32,7 @@
 #include <Pegasus/Common/DQueue.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/pegasus_socket.h>
+#include <Pegasus/Common/Monitor.h>
 #include <sys/types.h>
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 #else
@@ -58,11 +59,25 @@ const char* OK    = "ACK\n\0";
 const char* CMD   = "COMMAND\n\0";
 const char* QUIT  = "QUIT\n\0";
 
-AtomicInt cmd_tx, cmd_rx;
+AtomicInt cmd_tx, cmd_rx, ready;
 
 void pipe_handler(int signum)
 {
    return;
+}
+
+
+
+void test_dispatch(pegasus_socket& s)
+{
+  unsigned char buf[256];
+  memset(&buf, 0, 256);
+  Sint32 bytes = s.read((void *)&buf, 255);
+  bytes = s.write(&OK, 4);
+  cmd_rx++;
+  
+  //  if(! strncmp(QUIT, (const char *)buf, 5))
+    
 }
 
 
@@ -74,7 +89,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL remote_socket(void *parm)
 #else
    signal(SIGPIPE, SIG_IGN);
 #endif
-   static bsd_socket_factory sf;
+
+   bsd_socket_factory sf;
    pegasus_socket listener(&sf);
    
    // create the underlying socket
@@ -90,39 +106,43 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL remote_socket(void *parm)
    
    listener.bind((struct sockaddr *)&addr, sizeof(addr));
    listener.listen(15);
-   
-   // initialize select loop
 
-   fd_set fd_listen;
-   FD_ZERO(&fd_listen);
-   FD_SET( (Sint32)listener, &fd_listen );
+   monitor_2 mon;
+   mon.tickle();
    
-   int events = select(FD_SETSIZE, &fd_listen, NULL, NULL, NULL);
-   
-   struct sockaddr peer;
-   PEGASUS_SOCKLEN_SIZE peer_size = sizeof(peer);
-   
-   pegasus_socket connected = listener.accept(&peer, &peer_size);
-   
-   while(1)
-   {
-      FD_ZERO(&fd_listen);
-      FD_SET((Sint32)connected, &fd_listen);
-      
-      events = select(FD_SETSIZE, &fd_listen, NULL, NULL, NULL);
+   mon.add_entry(listener, LISTEN );
 
-      unsigned char buf[256];
-      memset(&buf, 0, 256);
-      Sint32 bytes = connected.read((void *)&buf, 255);
-      bytes = connected.write(&OK, 4);
-      cmd_rx++;
-      
-      if(! strncmp(QUIT, (const char *)buf, 5))
-	 break;
-   }
+   mon.set_session_dispatch(&test_dispatch);
+   ready = 1;
    
-   connected.shutdown(2);
-   connected.close();
+   mon.run();
+
+
+//    // initialize select loop
+
+//    fd_set fd_listen;
+//    FD_ZERO(&fd_listen);
+//    FD_SET( (Sint32)listener, &fd_listen );
+   
+//    int events = select(FD_SETSIZE, &fd_listen, NULL, NULL, NULL);
+   
+//    struct sockaddr peer;
+//    PEGASUS_SOCKLEN_SIZE peer_size = sizeof(peer);
+   
+//    pegasus_socket connected = listener.accept(&peer, &peer_size);
+   
+//    while(1)
+//    {
+//       FD_ZERO(&fd_listen);
+//       FD_SET((Sint32)connected, &fd_listen);
+      
+//       events = select(FD_SETSIZE, &fd_listen, NULL, NULL, NULL);
+
+
+//    }
+   
+//   connected.shutdown(2);
+//   connected.close();
 //   my_handle->exit_self( (PEGASUS_THREAD_RETURN) 1 );
    return 0;
 }
@@ -197,17 +217,17 @@ int main(int argc, char** argv)
 #else
    signal(SIGPIPE, SIG_IGN);
 #endif
-   Thread th_listener(remote_socket, NULL, false);
-   th_listener.run();
-   
 
-   static bsd_socket_factory sf;
+   // monitor_2 tests 
+
+   bsd_socket_factory sf;
    pegasus_socket connector(&sf);
-   
    // create the underlying socket
    connector.socket(PF_INET, SOCK_STREAM, 0);
 
-   
+   Thread th_listener(remote_socket, NULL, false);
+   th_listener.run();
+     
    // initialize the address
    struct sockaddr_in addr;
    memset(&addr, 0, sizeof(addr));
@@ -223,6 +243,11 @@ int main(int argc, char** argv)
    peer.sin_addr.s_addr = inet_addr("127.0.0.1");
    peer.sin_family= AF_INET;
    peer.sin_port = htons(PORTNO);
+   while(ready.value() == 0){
+     pegasus_sleep(10);
+      
+   }
+   
 
    connector.connect((struct sockaddr *)&peer, peer_size);
    cmd_tx = 0;
@@ -289,6 +314,12 @@ int main(int argc, char** argv)
    th_domain.join();
 			 
 #endif // domain socket 
+
+
+
+   
+   
+
 
    cout << argv[0] << " +++++ passed all tests" << endl;
    return 0;

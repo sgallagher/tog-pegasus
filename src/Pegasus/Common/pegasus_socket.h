@@ -99,68 +99,71 @@ class socket_factory;
 class PEGASUS_COMMON_LINKAGE pegasus_socket 
 {
 
-   public:
-      pegasus_socket(void);
-      pegasus_socket(socket_factory *);
-      pegasus_socket(abstract_socket *);
-      pegasus_socket(const pegasus_socket& s);
-      ~pegasus_socket(void);
+public:
+  
+  pegasus_socket(void);
+  pegasus_socket(socket_factory *);
+  pegasus_socket(abstract_socket *);
+  pegasus_socket(const pegasus_socket& s);
+  ~pegasus_socket(void);
       
-      pegasus_socket& operator=(const pegasus_socket& s);
-      operator Sint32() const;
+  pegasus_socket& operator=(const pegasus_socket& s);
+  Boolean operator==(const pegasus_socket& s);
+  
+  operator Sint32() const;
 
-      int socket(int type, int style, int protocol, void *ssl_context = 0);
+  int socket(int type, int style, int protocol, void *ssl_context = 0);
                 
-      Sint32 read(void* ptr, Uint32 size);
-      Sint32 write(const void* ptr, Uint32 size);
-      int close(void);
-      int enableBlocking(void);
-      int disableBlocking(void);
+  Sint32 read(void* ptr, Uint32 size);
+  Sint32 write(const void* ptr, Uint32 size);
+  int close(void);
+  int enableBlocking(void);
+  int disableBlocking(void);
 
-      int getsockname (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE *length_ptr);
-      int bind (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE length);
+  int getsockname (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE *length_ptr);
+  int bind (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE length);
      
-      // change size_t to size_t for ZOS and windows
-      pegasus_socket accept(struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE *length_ptr);
-      int connect (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE length);
-      int shutdown(int how);
-      int listen(int q);
-      int getpeername (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE *length_ptr);
-      int send (void *buffer, PEGASUS_SOCKLEN_SIZE size, int flags);
-      int recv (void *buffer, PEGASUS_SOCKLEN_SIZE size, int flags);
-      int sendto(void *buffer, PEGASUS_SOCKLEN_SIZE size, int flags, struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE length);
-      int recvfrom(void *buffer, PEGASUS_SOCKLEN_SIZE size, int flags, struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE *length_ptr);
-      int setsockopt (int level, int optname, void *optval, PEGASUS_SOCKLEN_SIZE optlen);
-      int getsockopt (int level, int optname, void *optval, PEGASUS_SOCKLEN_SIZE *optlen_ptr);
+  // change size_t to size_t for ZOS and windows
+  pegasus_socket accept(struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE *length_ptr);
+  int connect (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE length);
+  int shutdown(int how);
+  int listen(int q);
+  int getpeername (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE *length_ptr);
+  int send (void *buffer, PEGASUS_SOCKLEN_SIZE size, int flags);
+  int recv (void *buffer, PEGASUS_SOCKLEN_SIZE size, int flags);
+  int sendto(void *buffer, PEGASUS_SOCKLEN_SIZE size, int flags, struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE length);
+  int recvfrom(void *buffer, PEGASUS_SOCKLEN_SIZE size, int flags, struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE *length_ptr);
+  int setsockopt (int level, int optname, void *optval, PEGASUS_SOCKLEN_SIZE optlen);
+  int getsockopt (int level, int optname, void *optval, PEGASUS_SOCKLEN_SIZE *optlen_ptr);
 
 
-      Boolean incompleteReadOccurred(Sint32 retCode);
-      Boolean is_secure(void);
-      void set_close_on_exec(void);
+  Boolean incompleteReadOccurred(Sint32 retCode);
+  Boolean is_secure(void);
+  void set_close_on_exec(void);
       
-      const char* get_err_string(void);
-      
-   private:
+  const char* get_err_string(void);
+  
+private:
 
-      abstract_socket * _rep;
+  abstract_socket * _rep;
 
 };
 
 
 class PEGASUS_COMMON_LINKAGE socket_factory 
 {
-   public:
-      socket_factory(void)
-      {
-      }
+public:
+  socket_factory(void)
+  {
+  }
       
-      virtual ~socket_factory(void)
-      {
-      }
+  virtual ~socket_factory(void)
+  {
+  }
       
-      virtual abstract_socket *make_socket(void) = 0;
+  virtual abstract_socket *make_socket(void) = 0;
 #ifdef PEGASUS_HAS_SSL
-      virtual abstract_socket *make_socket(SSLContext *) = 0;
+  virtual abstract_socket *make_socket(SSLContext *) = 0;
 #endif
 };
 
@@ -171,12 +174,12 @@ class PEGASUS_COMMON_LINKAGE socket_factory
  **/
 class PEGASUS_COMMON_LINKAGE bsd_socket_factory : public socket_factory
 {
-   public:
-      bsd_socket_factory(void);
-      ~bsd_socket_factory(void);
-      abstract_socket *make_socket(void);
+public:
+  bsd_socket_factory(void);
+  ~bsd_socket_factory(void);
+  abstract_socket *make_socket(void);
 #ifdef PEGASUS_HAS_SSL
-      abstract_socket *make_socket(SSLContext* );
+  abstract_socket *make_socket(SSLContext* );
 #endif
 };
 
@@ -187,11 +190,11 @@ class PEGASUS_COMMON_LINKAGE bsd_socket_factory : public socket_factory
 class PEGASUS_COMMON_LINKAGE ssl_socket_factory : public socket_factory
 {
 
-   public:
-      ssl_socket_factory(void);
-      ~ssl_socket_factory(void);
-      abstract_socket* make_socket(void);
-      abstract_socket* make_socket(SSLContext* );
+public:
+  ssl_socket_factory(void);
+  ~ssl_socket_factory(void);
+  abstract_socket* make_socket(void);
+  abstract_socket* make_socket(SSLContext* );
 };
 
 
@@ -203,10 +206,10 @@ class PEGASUS_COMMON_LINKAGE ssl_socket_factory : public socket_factory
 // << Thu Aug 14 15:01:30 2003 mdd >> domain sockets work 
 class PEGASUS_COMMON_LINKAGE unix_socket_factory : public socket_factory
 {
-   public:
-      unix_socket_factory(void);
-      ~unix_socket_factory(void);
-      abstract_socket* make_socket(void);
+public:
+  unix_socket_factory(void);
+  ~unix_socket_factory(void);
+  abstract_socket* make_socket(void);
 };
 
 

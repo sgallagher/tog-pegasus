@@ -35,63 +35,66 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Message.h>
 #include <Pegasus/Common/ModuleController.h>
+#include <Pegasus/Common/pegasus_socket.h>
+#include <Pegasus/Common/internal_dq.h>
+#include <Pegasus/Common/DQueue.h>
 #include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 class PEGASUS_COMMON_LINKAGE _MonitorEntry
 {
-   public:
-      Sint32 socket;
-      Uint32 queueId;
-      AtomicInt _status;
-      int _type;
+public:
+  Sint32 socket;
+  Uint32 queueId;
+  AtomicInt _status;
+  int _type;
       
-      _MonitorEntry(Sint32 sock, Uint32 q, int Type)
-	 : socket(sock), queueId(q), _status(EMPTY), _type(Type)
+  _MonitorEntry(Sint32 sock, Uint32 q, int Type)
+    : socket(sock), queueId(q), _status(EMPTY), _type(Type)
 	   
-      {
-      }
+  {
+  }
 
-      _MonitorEntry() : socket(0), queueId(0), _status(EMPTY), _type(0)
-      {
-      }
+  _MonitorEntry() : socket(0), queueId(0), _status(EMPTY), _type(0)
+  {
+  }
       
-      Boolean operator ==(const void *key) const 
-      {
-	 if(key != 0 && 
-	    (socket == (reinterpret_cast<_MonitorEntry *>(const_cast<void *>(key)))->socket))
-	    return true;
-	 return false;
-      }
+  Boolean operator ==(const void *key) const 
+  {
+    if(key != 0 && 
+       (socket == (reinterpret_cast<_MonitorEntry *>(const_cast<void *>(key)))->socket))
+      return true;
+    return false;
+  }
       
-      Boolean operator ==(const _MonitorEntry & key) const
-      {
-	 if(key.socket == socket)
-	    return true;
-	 return false;
-      }
+  Boolean operator ==(const _MonitorEntry & key) const
+  {
+    if(key.socket == socket)
+      return true;
+    return false;
+  }
 
-      _MonitorEntry & operator =(const _MonitorEntry & entry)
+  _MonitorEntry & operator =(const _MonitorEntry & entry)
+  {
+    if( this != &entry )
       {
-	 if( this != &entry )
-	 {
-	    this->socket = entry.socket;
-	    this->queueId = entry.queueId;
-	    this->_status = entry._status;
-	    this->_type = entry._type;
-	 }
+	this->socket = entry.socket;
+	this->queueId = entry.queueId;
+	this->_status = entry._status;
+	this->_type = entry._type;
+      }
 	 
-	 return *this;
-      }
+    return *this;
+  }
       
-      enum entry_status 
-      {
-	 IDLE,
-	 BUSY,
-	 DYING,
-	 EMPTY
-      };
+  enum entry_status 
+    {
+      IDLE,
+      BUSY,
+      DYING,
+      EMPTY
+    };
 };
 
 struct MonitorRep;
@@ -101,16 +104,16 @@ class SocketMessage : public Message
 {
 public:
 
-    enum Events { READ = 1, WRITE = 2, EXCEPTION = 4 };
+  enum Events { READ = 1, WRITE = 2, EXCEPTION = 4 };
       
 
-    SocketMessage(Sint32 socket_, Uint32 events_) :
-	Message(SOCKET_MESSAGE), socket(socket_), events(events_)
-    {
-    }
+  SocketMessage(Sint32 socket_, Uint32 events_) :
+    Message(SOCKET_MESSAGE), socket(socket_), events(events_)
+  {
+  }
 
-    Sint32 socket;
-    Uint32 events;
+  Sint32 socket;
+  Uint32 events;
 };
 
 /** This class monitors system-level events and notifies its clients of these
@@ -119,29 +122,29 @@ public:
     The monitor generates following message types:
 
     <ul>
-	<li> SocketMessage - occurs when activity on a socket </li>
+    <li> SocketMessage - occurs when activity on a socket </li>
     </ul>
 
     Clients solicit these messages by calling one of the following methods:
 
     <ul>
-	<li> solicitSocketMessages() </li>
+    <li> solicitSocketMessages() </li>
     </ul>
 
     The following example shows how to solicit socket messages:
 
     <pre>
-	Monitor monitor;
-	Sint32 socket;
-	Uint32 queueId;
+    Monitor monitor;
+    Sint32 socket;
+    Uint32 queueId;
 
 
-	...
+    ...
 
-	monitor.solicitSocketMessages(
-	    socket, 
-	    SocketMessage::READ | SocketMessage::WRITE, 
-	    queueId);
+    monitor.solicitSocketMessages(
+    socket, 
+    SocketMessage::READ | SocketMessage::WRITE, 
+    queueId);
     </pre>
 
     Each time activity occurs on the given socket, a SocketMessage is
@@ -151,12 +154,12 @@ public:
     the run() method as shown below:
 
     <pre>
-	Monitor monitor;
+    Monitor monitor;
 
-	...
+    ...
 
-	Uint32 milliseconds = 5000;
-	monitor.run(milliseconds);
+    Uint32 milliseconds = 5000;
+    monitor.run(milliseconds);
     </pre>
 
     In this example, the monitor is run for five seconds. The run method
@@ -165,70 +168,124 @@ public:
 */
 class PEGASUS_COMMON_LINKAGE Monitor
 {
-   public:
-      enum Type 
-      {
-	 ACCEPTOR, CONNECTOR, CONNECTION
-      };
+public:
+  enum Type 
+    {
+      ACCEPTOR, CONNECTOR, CONNECTION
+    };
       
       
-    /** Default constructor. */
-    Monitor();
-    Monitor(Boolean async);
+  /** Default constructor. */
+  Monitor();
+  Monitor(Boolean async);
     
 
-    /** This destruct deletes all handlers which were installed. */
-    ~Monitor();
+  /** This destruct deletes all handlers which were installed. */
+  ~Monitor();
 
-    /** Monitor system-level for the given number of milliseconds. Post a
-	message to the corresponding queue when such an event occurs.
-	Return after the time has elapsed or a single event has occurred,
-	whichever occurs first.
+  /** Monitor system-level for the given number of milliseconds. Post a
+      message to the corresponding queue when such an event occurs.
+      Return after the time has elapsed or a single event has occurred,
+      whichever occurs first.
 
-	@param timeoutMsec the number of milliseconds to wait for an event.
-	@return true if an event occured.
-    */
-    Boolean run(Uint32 timeoutMsec);
+      @param timeoutMsec the number of milliseconds to wait for an event.
+      @return true if an event occured.
+  */
+  Boolean run(Uint32 timeoutMsec);
 
-    /** Solicit interest in SocketMessages. Note that there may only 
-	be one solicitor per socket.
+  /** Solicit interest in SocketMessages. Note that there may only 
+      be one solicitor per socket.
 
-	@param socket the socket to monitor for activity.
-	@param events socket events to monitor (see the SocketMessage::Events
-	    enumeration for details).
-	@param queueId of queue on which to post socket messages.
-	@return false if messages have already been solicited on this socket.
-    */
-    int solicitSocketMessages(
-	Sint32 socket, 
-	Uint32 events,
-	Uint32 queueId,
-	int type);
+      @param socket the socket to monitor for activity.
+      @param events socket events to monitor (see the SocketMessage::Events
+      enumeration for details).
+      @param queueId of queue on which to post socket messages.
+      @return false if messages have already been solicited on this socket.
+  */
+  int solicitSocketMessages(
+			    Sint32 socket, 
+			    Uint32 events,
+			    Uint32 queueId,
+			    int type);
 
-    /** Unsolicit messages on the given socket.
+  /** Unsolicit messages on the given socket.
 
-	@param socket on which to unsolicit messages.
-	@return false if no such solicitation has been made on the given socket.
-    */
-      void unsolicitSocketMessages(Sint32);
+  @param socket on which to unsolicit messages.
+  @return false if no such solicitation has been made on the given socket.
+  */
+  void unsolicitSocketMessages(Sint32);
 
-      /** dispatch a message to the cimom on an independent thread 
-       */
-      static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _dispatch(void *);
-      int kill_idle_threads(void);
+  /** dispatch a message to the cimom on an independent thread 
+   */
+  static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _dispatch(void *);
+  int kill_idle_threads(void);
       
 private:
       
-      Array<_MonitorEntry> _entries;
-      MonitorRep* _rep;
-      pegasus_module * _module_handle;
-      ModuleController * _controller;
-      Boolean _async;
-      ThreadPool *_thread_pool;
-      Mutex _entry_mut;
-      friend class HTTPConnection;
+  Array<_MonitorEntry> _entries;
+  MonitorRep* _rep;
+  pegasus_module * _module_handle;
+  ModuleController * _controller;
+  Boolean _async;
+  ThreadPool *_thread_pool;
+  Mutex _entry_mut;
+  friend class HTTPConnection;
       
 };
+
+enum monitor_2_entry_type { UNTYPED, INTERNAL, LISTEN, CONNECT, SESSION };
+
+class PEGASUS_COMMON_LINKAGE monitor_2_entry
+{
+public:
+ 
+  monitor_2_entry(void);
+  monitor_2_entry(pegasus_socket&, monitor_2_entry_type _type);
+  monitor_2_entry(const monitor_2_entry&);
+  ~monitor_2_entry(void);
+
+  monitor_2_entry& operator=(const monitor_2_entry&);
+  Boolean operator ==(const monitor_2_entry& );
+  Boolean operator ==(void*);
+  operator pegasus_socket() const;
+
+  monitor_2_entry_type type;
+  pegasus_socket psock;
+};
+
+
+class PEGASUS_COMMON_LINKAGE monitor_2 
+{
+
+public:
+  
+  monitor_2(void);
+  ~monitor_2(void);
+  Boolean add_entry(pegasus_socket& , monitor_2_entry_type);
+  Boolean remove_entry(Sint32 );
+  void tickle(void);
+  void run(void);
+  void stop(void);
+  
+  void* set_session_dispatch( void (*)(pegasus_socket& ));
+  
+  
+private:
+
+  void _dispatch(void);
+  void (*_session_dispatch)(pegasus_socket& );
+  
+  AsyncDQueue<monitor_2_entry> _listeners;
+  internal_dq _ready;
+  
+  monitor_2_entry _tickler;
+  struct sockaddr_in _tickle_addr;
+  AtomicInt _die;
+  fd_set rd_fd_set;  
+};
+
+
+
 
 PEGASUS_NAMESPACE_END
 

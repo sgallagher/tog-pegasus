@@ -715,6 +715,17 @@ pegasus_socket& pegasus_socket::operator =(const pegasus_socket& s)
    return *this;
 }
 
+
+Boolean pegasus_socket::operator==(const pegasus_socket& s)
+{
+  if( this == &s )
+    return true;
+  if( _rep->operator Sint32()  == (Sint32)s )
+    return true;
+  return false;
+}
+
+
 pegasus_socket::operator Sint32() const
 {
    return _rep->operator Sint32();

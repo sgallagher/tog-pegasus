@@ -412,10 +412,6 @@ public:
 
 private:
 
-    // ATTN-RK-P2-20020719: For debugging only; remove before API release.
-    // Use CIMValue(const String&) instead.
-    PEGASUS_EXPLICIT CIMValue(const char* x) {}
-
     CIMValueRep* _rep;
 
     friend class CIMMethodRep;

@@ -129,14 +129,10 @@ ArrayRep<T>* PEGASUS_STATIC_CDECL ArrayRep<T>::create(Uint32 size)
 
     // Create object:
 
-#ifdef PEGASUS_OS_OS400
-    // use Terraspace for allocation, 
-    // bypass 16mb single allocation limit imposed by single store memory model on OS400
-    ArrayRep<T>* rep = (ArrayRep<T>*)_C_TS_malloc(sizeof(ArrayRep<T>) + sizeof(T) * initialCapacity);
-#else
+
     ArrayRep<T>* rep = (ArrayRep<T>*)operator new(
         sizeof(ArrayRep<T>) + sizeof(T) * initialCapacity);
-#endif
+
     rep->size = size;
     rep->capacity = initialCapacity;
 
@@ -149,11 +145,9 @@ void PEGASUS_STATIC_CDECL ArrayRep<T>::destroy(ArrayRep<T>* rep)
     if (rep)
     {
         Destroy(rep->data(), rep->size);
-#ifdef PEGASUS_OS_OS400
-    	_C_TS_free(rep);  // Terraspace deallocation
-#else
+
         operator delete(rep);
-#endif
+
         return;
     }
 }

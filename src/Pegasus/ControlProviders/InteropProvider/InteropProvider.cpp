@@ -113,14 +113,6 @@ PEGASUS_NAMESPACE_BEGIN
 #define LDEBUG()
 //#define CDEBUG(X) PEGASUS_STD(cout) << "InteropProvider " << X << PEGASUS_STD(endl)
 //#define LDEBUG(X) Logger::put (Logger::DEBUG_LOG, "InteropProvider", Logger::INFORMATION, "$0", X)
-// The following is attempt to use the tracer for CDEBUG.  Not working. 1 sept 2004
-//#include <cstring>
-//#include <stdcxx/stream/strstream>
-// This one sucks because not applicable to separate executables.
-// looks like we use trace for the externals.
-// requires using PEGASUS_USING_PEGASUS
-//#define CDEBUG(X) {ostrstream os; os << X; char* tmp = os.str(); PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, String(tmp));delete tmp;} 
-//#define CDEBUG(X) {stringstream os; os << X;string os_str = os.str(); const char* tmp = os_str.c_str(); PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, String(tmp); }
 
 //**************************************************************************
 //
@@ -380,6 +372,7 @@ Boolean _validateProperties(const CIMObjectPath& path)
 {
     return true;
 }
+
 Boolean _validateProperties(const CIMInstance& instance)
 {
     return true;
@@ -465,6 +458,7 @@ Boolean _validateRequiredProperty(const CIMInstance& instance,
     PEG_METHOD_EXIT();
     return(true);
 }
+
 Boolean _validateRequiredProperty(const CIMObjectPath& objectPath,
                           const CIMName& propertyName,
                           const String value)
@@ -886,7 +880,6 @@ Boolean InteropProvider::_getInstanceFromRepositoryCIMObjectManager(
     }
 }
 
-
 /** build an instance of the CIM_ObjectManager class filling out
     the required properties if one does not already exist in the
     repository. This function will either return an instance
@@ -960,6 +953,7 @@ CIMInstance InteropProvider::_getInstanceCIMObjectManager(
         // Add the instance path to this if necessary ATTN ATTN:
         try
         {
+            CDEBUG("Create Instance for CIM_ObjectManager");
             instancePath = _repository->createInstance(_operationNamespace,
                            instance );
         }
@@ -1020,7 +1014,6 @@ CIMInstance InteropProvider::_getInstanceCIMNamespace(const CIMNamespaceName & n
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::_getInstancesCIMNamespace()");
 
-    CDEBUG("_getinstanceCIMNamespace Gets ONE only from Namespace=" << nameSpace.getString());
     Array<CIMInstance> instances = _getInstancesCIMNamespace(true, true, CIMPropertyList());
 
     // search the instances for one with the name property value = input parameter.
@@ -1143,8 +1136,8 @@ CIMInstance InteropProvider::_buildInstancePGNamespace(const CIMNamespaceName & 
     //  Everything above was commmon to CIM Namespace.  The following is PG_Namespace Properties
     //
     // ATTN: KS Get the correct values for these entities from repository interface.
-    CDEBUG("_buildPGNS Instance get namespace attributes for namespace= " << nameSpace.getString()); 
-	CIMRepository::NameSpaceAttributes attributes;
+
+    CIMRepository::NameSpaceAttributes attributes;
     _repository->getNameSpaceAttributes(nameSpace.getString(), attributes);
     String parent="";
 	String name = "";
@@ -1154,7 +1147,7 @@ CIMInstance InteropProvider::_buildInstancePGNamespace(const CIMNamespaceName & 
     {
        String key=i.key();
        String value = i.value();
-       CDEBUG("Show Attributes. key= " << key << " value= " << value);
+
        if (String::equalNoCase(key,"shareable"))
 	   {
           if (String::equalNoCase(value,"true"))
@@ -1966,42 +1959,43 @@ void InteropProvider::modifyObjectManagerInstance(const OperationContext & conte
     // the only allowed modification is this one property, statistical data
     if (modifiedIns.findProperty(OM_GATHERSTATISTICALDATA) != PEG_NOT_FOUND)
     {
-        // ATTN: This function is a design problem.
-        // ATTN: Should the ifdef include everything????
         // the following is a temporary hack to set the value of the statistics
         // gathering function dynamically.  We simply get the  value from input
         // and call the internal method to set it each time this object is
         // built.
 #ifndef PEGASUS_DISABLE_PERFINST
-        StatisticalData* sd = StatisticalData::current();
         Boolean statisticsFlag = _getPropertyValue(modifiedIns, OM_GATHERSTATISTICALDATA, false);  
-        sd->setCopyGSD(statisticsFlag);
         CIMInstance instance;
         instance = _getInstanceCIMObjectManager(true, true, CIMPropertyList());
 
-        _setPropertyValue(instance, OM_GATHERSTATISTICALDATA, statisticsFlag);  
-
-        // Modify the object on disk
-        try
+        if (statisticsFlag != _getPropertyValue(instance,  OM_GATHERSTATISTICALDATA, false))
         {
-            _repository->modifyInstance(_operationNamespace,
-                           instance );
+            // set the changed property into the 
+            _setPropertyValue(instance, OM_GATHERSTATISTICALDATA, statisticsFlag);
+            // Modify the object on disk
+            try
+            {
+                _repository->modifyInstance(_operationNamespace,
+                               instance );
+            }
+            catch(CIMException& e)
+            {
+                // ATTN: KS generate log error if this not possible
+                PEG_METHOD_EXIT();
+                throw e;
+            }
+            catch(Exception& e)
+            {
+                // ATTN: Generate log error.
+                PEG_METHOD_EXIT();
+                throw e;
+            }
+            Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
+                "Interop Provider Set Statistics gathering in CIM_ObjectManager: $0",
+                (statisticsFlag? "true" : "false"));
+            StatisticalData* sd = StatisticalData::current();
+            sd->setCopyGSD(statisticsFlag);
         }
-        catch(CIMException& e)
-        {
-            // ATTN: KS generate log error if this not possible
-            PEG_METHOD_EXIT();
-            throw e;
-        }
-        catch(Exception& e)
-        {
-            // ATTN: Generate log error.
-            PEG_METHOD_EXIT();
-            throw e;
-        }
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
-            "Interop Provider Set Statistics gathering in CIM_ObjectManager: $0",
-            (statisticsFlag? "true" : "false"));
         return;
 #endif
 

@@ -60,6 +60,11 @@ static const char COMMAND_NAME []              = "cimprovider";
 static const char _PROPERTY_PROVIDERMODULE_NAME []                 = "Name";
 
 /**
+   The name of the operational status property
+*/
+static const char _PROPERTY_OPERATIONALSTATUS [] = "OperationalStatus";
+
+/**
    The name of the provider module name  property for PG_Provider class
 */
 static const char _PROPERTY_PROVIDERMODULENAME [] = "ProviderModuleName";
@@ -216,6 +221,11 @@ static const char   OPTION_PROVIDER           = 'p';
 static const char   OPTION_LIST                = 'l';
 
 /**
+    The option character used to specify get module status.
+*/
+static const char   OPTION_STATUS                = 's';
+
+/**
     The name of the Method that implements stop provider or module
 */
 static const char   STOP_METHOD[]            = "stop";
@@ -342,11 +352,29 @@ private:
 	ostream&                errPrintWriter
     );
 
+    //
+    // Get module status
+    //
+    // @param ostream          The stream to which command output is written.
+    // @param ostream          The stream to which command errors are written.
+    //
+    // @exception CIMException  if failed to get module status
+    //
+    void _GetStatus
+        (
+        ostream&                outPrintWriter,
+        ostream&                errPrintWriter
+        );
+
     // Get namedInstance for the provider module
     CIMNamedInstance _getModuleInstance();
 
     // Get namedInstance for the provider
     CIMNamedInstance _getProviderInstance();
+
+    // Print out registered modules and status
+    void _printList(Array<String> & moduleNames, Array<CIMInstance> & instances,
+		    ostream& outPrintWriter, ostream& errPrintWriter);
 
     //
     // The CIM Client reference
@@ -382,6 +410,11 @@ private:
     // The flag to indicate whether the provider is set or not
     //
     Boolean	_providerSet;
+
+    //
+    // The flag to indicate whether the status is set or not
+    //
+    Boolean	_statusSet;
 };
 
 /**
@@ -398,6 +431,7 @@ CIMProviderCommand::CIMProviderCommand ()
     _providerName	= String::EMPTY;
     _moduleSet 		= false;
     _providerSet	= false;
+    _statusSet		= false;
 
     /**
         Build the usage string for the config command.  
@@ -418,7 +452,8 @@ CIMProviderCommand::CIMProviderCommand ()
     usage.append(" [ -").append(OPTION_PROVIDER).append(" provider ] \n");
 
     usage.append("                   -").append(OPTION_LIST);
-    usage.append(" [ -").append(OPTION_MODULE).append(" module ] \n");
+    usage.append(" [ -").append(OPTION_STATUS);
+    usage.append(" | -").append(OPTION_MODULE).append(" module ] \n");
 
     setUsage (usage);
 }
@@ -454,6 +489,7 @@ void CIMProviderCommand::setCommand (
     optString.append(OPTION_PROVIDER);
     optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
     optString.append(OPTION_LIST);
+    optString.append(OPTION_STATUS);
     optString.append(OPTION_MODULE);
     optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
 
@@ -633,6 +669,22 @@ void CIMProviderCommand::setCommand (
 		    break;
 		}
 
+                case OPTION_STATUS:
+                {
+                    if (options.isSet (OPTION_STATUS) > 1)
+                    {
+                        //
+                        // More than one status option was found
+                        //
+                        DuplicateOptionException e (OPTION_STATUS);
+                        throw e;
+                    }
+
+		    _statusSet = true;
+
+		    break;
+		}
+
                 default:
 		{ 
 		    // 
@@ -694,6 +746,12 @@ void CIMProviderCommand::setCommand (
     }
 
     if ( _operationType == OPERATION_TYPE_LIST && _providerSet )
+    {
+	CommandFormatException e("Unexpected Option.");
+	throw e;
+    }
+
+    if ( _operationType == OPERATION_TYPE_LIST && _statusSet && _moduleSet)
     {
 	CommandFormatException e("Unexpected Option.");
 	throw e;
@@ -1092,7 +1150,7 @@ void CIMProviderCommand::_StopProvider
 
 
 /**
-    get a list of all registered provider modules or providers.
+    get a list of all registered provider modules or their status or providers.
  */
 void CIMProviderCommand::_ListProviders
     ( 
@@ -1107,6 +1165,8 @@ void CIMProviderCommand::_ListProviders
     	Array<CIMNamedInstance> providerInstances;
     	String moduleName;
     	String providerName;
+	Array<String> moduleNames;
+	Array<CIMInstance> instances;
 
 	if ( _moduleSet )
 	{
@@ -1150,14 +1210,36 @@ void CIMProviderCommand::_ListProviders
 	    }
 	    else
 	    {
+/*
+	      if (_statusSet)
+	      {
+	        // List all the registered modules and status 
+String test;
+test = "MODULE";
+for (Uint32 i=0; i <10; i++)
+{
+    test.append(" ");
+}
+test.append("STATUS");
+outPrintWriter << test << endl;
+		//outPrintWriter << "MODULE						STATUS" << endl;
+	      }
+	      else
+	      {
+*/
 	        // List all the registered provider modules 
 	        for (Uint32 i = 0; i < moduleInstances.size(); i++)
 	        {
 		    CIMInstance& instance = moduleInstances[i].getInstance();
 		    instance.getProperty(
 			instance.findProperty(_PROPERTY_PROVIDERMODULE_NAME)).getValue().get(moduleName);
-		    outPrintWriter << moduleName << endl;;
+		    moduleNames.append(moduleName);
+		    instances.append(instance);
+
+	//	    outPrintWriter << moduleName << endl;
 	        }  
+
+		_printList(moduleNames, instances, outPrintWriter, errPrintWriter);
 	    }
 	}
     }
@@ -1242,6 +1324,167 @@ CIMNamedInstance CIMProviderCommand::_getProviderInstance()
     
 }
 
+// Print out registered modules and status
+void CIMProviderCommand::_printList(Array<String> & moduleNames, 
+				    Array<CIMInstance> & instances,
+				    ostream& outPrintWriter, 
+				    ostream& errPrintWriter)
+{
+    Uint32 maxLength=0;
+    Uint32 length=0;
+    Array<Uint16> _status;
+    String output;
+    String statusValue;
+
+    if (_statusSet)
+    {
+	// get max length of module name
+	for (Uint32 i=0; i < moduleNames.size(); i++)
+	{
+	    if (maxLength < moduleNames[i].size())
+	    {
+		maxLength = moduleNames[i].size();
+	    }
+	}
+	
+	output = "MODULE";
+
+	for (Uint32 i = 0; i < maxLength; i++)
+	{
+	    output.append(" ");
+	}
+
+	output.append("STATUS");
+	outPrintWriter << output << endl;
+
+	for (Uint32 i =0; i < instances.size(); i++)
+	{
+	    output = moduleNames[i]; 
+	    length = maxLength +6 - moduleNames[i].size();
+
+	    for (Uint32 j = 0; j < length; j++)
+            {
+            	output.append(" ");
+            }
+
+	    Uint32 pos = instances[i].findProperty(_PROPERTY_OPERATIONALSTATUS);
+	    if (pos == PEG_NOT_FOUND)
+	    {
+		_status.append(0);		
+	    }
+	    else
+	    {
+		instances[i].getProperty(pos).getValue().get(_status);
+	    }
+
+	    for (Uint32 j=0; j < _status.size(); j++)
+	    {
+		switch ( _status[j])
+		{
+		    case 0:
+		    {
+			statusValue = "Unknown";
+			break;
+		    }
+
+		    case 1:
+		    {
+			statusValue = "Other";
+			break;
+		    }
+
+		    case 2:
+		    {
+			statusValue = "OK";
+			break;
+		    }
+
+		    case 3:
+		    {
+			statusValue = "Degraded";
+			break;
+		    }
+
+		    case 4:
+		    {
+			statusValue = "Stressed";
+			break;
+		    }
+
+		    case 5:
+		    {
+			statusValue = "Predictive Failure";
+			break;
+		    }
+
+		    case 6:
+		    {
+			statusValue = "Error";
+			break;
+		    }
+
+		    case 7:
+		    {
+			statusValue = "Non-Recoverable Error";
+			break;
+		    }
+
+		    case 8:
+		    {
+			statusValue = "Starting";
+			break;
+		    }
+
+		    case 9:
+		    {
+			statusValue = "Stopping";
+			break;
+		    }
+
+		    case 10:
+		    {
+			statusValue = "Stopped";
+			break;
+		    }
+
+		    case 11:
+		    {
+			statusValue = "In Service";
+			break;
+		    }
+
+		    case 12:
+		    {
+			statusValue = "No Contact";
+			break;
+		    }
+
+		    case 13:
+		    {
+			statusValue = "Lost Communication";
+			break;
+		    }
+
+		    default:
+			statusValue = "Not Support";
+			break;
+		}
+	        output.append(statusValue);
+		output.append(" ");
+	    }
+	    outPrintWriter << output << endl;
+	}
+	
+    }
+    else
+    {
+	for (Uint32 i=0; i < moduleNames.size(); i++)
+	{
+	    outPrintWriter << moduleNames[i] << endl;
+	}
+    }
+}
+
 PEGASUS_NAMESPACE_END
 
 //
@@ -1264,15 +1507,6 @@ int main (int argc, char* argv [])
     CIMProviderCommand*      command;
     Uint32               retCode;
 
-    //
-    // Check if root is issuing the command
-    //
-    if ( !System::isPrivilegedUser() )
-    {
-	cerr << NOT_PRIVILEGED_USER << endl;
-	return 1;
-    }
-	 
     command  = new CIMProviderCommand ();
 
     try 

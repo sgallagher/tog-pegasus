@@ -15,7 +15,7 @@ cimprovider</h3>
 <h4>
 Name</h4>
 
-<blockquote><b>cimprovider</b> - disable, enable, remove or list registered providers or provider  modules.</blockquote>
+<blockquote><b>cimprovider</b> - disable, enable, remove or list registered providers or provider  modules and module status.</blockquote>
 
 <h4>
 Synopsis</h4>
@@ -23,13 +23,13 @@ Synopsis</h4>
 <blockquote><tt><b>cimprovider</b> -d -m <i>module</i> </tt>
 <p><tt><b>cimprovider</b> -e -m <i>module</i> </tt>
 <p><tt><b>cimprovider</b> -r -m <i>module</i> [ -p <i>provider</i> ] </tt>
-<p><tt><b>cimprovider</b> -l [ -m <i>module</i> ]</tt></blockquote>
+<p><tt><b>cimprovider</b> -l [ -s | -m <i>module</i> ]</tt></blockquote>
 
 <h4>
 Remarks</h4>
 
 <dl>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; This command
-can be executed by privileged user(s) only.
+can be executed by privileged user(s) only, except -l option.
 <br>&nbsp;
 <dt>
 <b>Limitations</b></dt>
@@ -53,7 +53,7 @@ specified provider module is ready to accept new requestes.
 <p>The third form of cimprovider allows to remove all the instances which have same 
 provider module name as the specified provider module or all the instances which have
 same provider module name and provider name as specified.
-<p>The last form of this command allows for all the registered provider modules to be listed or all the providers which are in the specified provider module to be listed.
+<p>The last form of this command allows for all the registered provider modules and module status to be listed or all the providers which are in the specified provider module to be listed.
 <p>Specifying no options with the cimprovider command will display the command
 usage.</blockquote>
 
@@ -72,6 +72,8 @@ Indicates that all the instances which contains the specified provider module ar
 Indicates that all the instances which contains the specified provider module and provider are to be removed.
 <p><tt>-l </tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 Displays all the registered provider modules.
+<p><tt>-l -s</tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Displays all the registered provider modules and their status.
 <p><tt>-l -m</tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 Displays all the registered providers which are in the specified provider module.</blockquote>
 
@@ -108,6 +110,10 @@ Examples</h4>
 <blockquote>The following command displays the list of registered provider modules.</blockquote>
 
 <blockquote><tt><b>cimprovider</b> -l </tt></blockquote>
+
+<blockquote>The following command displays the list of registered provider modules and their status.</blockquote>
+
+<blockquote><tt><b>cimprovider</b> -l -s </tt></blockquote>
 
 <blockquote>The following command displays the list of registered providers which are in the "OperatingSystemProvider" provider module.</blockquote>
 

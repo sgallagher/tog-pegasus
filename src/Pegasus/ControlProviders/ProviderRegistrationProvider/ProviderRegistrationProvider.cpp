@@ -38,21 +38,6 @@
 PEGASUS_NAMESPACE_BEGIN
 
 /**
-   The name of the PG_Provider class
-*/
-static const char _CLASS_PG_PROVIDER [] = "PG_Provider";
-
-/**
-   The name of the provider capabilities class
-*/
-static const char _CLASS_PROVIDER_CAPABILITIES [] = "PG_ProviderCapabilities";
-
-/**
-   The name of the provider module class
-*/
-static const char _CLASS_PROVIDER_MODULE [] = "PG_ProviderModule";
-
-/**
    The name of the operational status property
 */
 static const char _PROPERTY_OPERATIONALSTATUS [] = "OperationalStatus";
@@ -160,9 +145,11 @@ static const char _START_PROVIDER[]   = "Start";
 /**
    Provider status
 */
-static const Uint16 _PROVIDER_OK        = 2;
+static const Uint16 _MODULE_UNKNOWN     = 0;
 
-static const Uint16 _PROVIDER_STOPPED   = 10;
+static const Uint16 _MODULE_OK        = 2;
+
+static const Uint16 _MODULE_STOPPED   = 10;
 
 ProviderRegistrationProvider::ProviderRegistrationProvider(
     ProviderRegistrationManager * providerRegistrationManager)	
@@ -208,14 +195,20 @@ void ProviderRegistrationProvider::getInstance(
     ResponseHandler<CIMInstance> & handler)
 {
 
+    if(!String::equalNoCase(instanceReference.getNameSpace(), 
+      	                    PEGASUS_NAMESPACENAME_INTEROP))
+    {
+	throw CIMException (CIM_ERR_NOT_SUPPORTED);
+    }
+
     // ensure the class existing in the specified namespace
     String className = instanceReference.getClassName();
 
-    if(!String::equalNoCase(className, _CLASS_PG_PROVIDER) &&
-       !String::equalNoCase(className, _CLASS_PROVIDER_CAPABILITIES) &&
-       !String::equalNoCase(className, _CLASS_PROVIDER_MODULE))
+    if(!String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDER) &&
+       !String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDERCAPABILITIES) &&
+       !String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDERMODULE))
     {
-	throw CIMException(CIM_ERR_INVALID_CLASS);
+	throw CIMException(CIM_ERR_NOT_SUPPORTED);
     }
 
     // begin processing the request
@@ -246,14 +239,20 @@ void ProviderRegistrationProvider::enumerateInstances(
     const CIMPropertyList & propertyList,
     ResponseHandler<CIMInstance> & handler)
 {
+    if(!String::equalNoCase(classReference.getNameSpace(), 
+      	                    PEGASUS_NAMESPACENAME_INTEROP))
+    {
+	throw CIMException (CIM_ERR_NOT_SUPPORTED);
+    }
+
     // ensure the class existing in the specified namespace
     String className = classReference.getClassName();
 
-    if(!String::equalNoCase(className, _CLASS_PG_PROVIDER) &&
-       !String::equalNoCase(className, _CLASS_PROVIDER_CAPABILITIES) &&
-       !String::equalNoCase(className, _CLASS_PROVIDER_MODULE))
+    if(!String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDER) &&
+       !String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDERCAPABILITIES) &&
+       !String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDERMODULE))
     {
-	throw CIMException(CIM_ERR_INVALID_CLASS);
+	throw CIMException(CIM_ERR_NOT_SUPPORTED);
     }
 
     // begin processing the request
@@ -286,14 +285,20 @@ void ProviderRegistrationProvider::enumerateInstanceNames(
     const CIMReference & classReference,
     ResponseHandler<CIMReference> & handler)
 {
+    if(!String::equalNoCase(classReference.getNameSpace(), 
+      	                    PEGASUS_NAMESPACENAME_INTEROP))
+    {
+	throw CIMException (CIM_ERR_NOT_SUPPORTED);
+    }
+
     // ensure the class existing in the specified namespace
     String className = classReference.getClassName();
 
-    if(!String::equalNoCase(className, _CLASS_PG_PROVIDER) &&
-       !String::equalNoCase(className, _CLASS_PROVIDER_CAPABILITIES) &&
-       !String::equalNoCase(className, _CLASS_PROVIDER_MODULE))
+    if(!String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDER) &&
+       !String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDERCAPABILITIES) &&
+       !String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDERMODULE))
     {
-	throw CIMException(CIM_ERR_INVALID_CLASS);
+	throw CIMException(CIM_ERR_NOT_SUPPORTED);
     }
 
     // begin processing the request
@@ -329,11 +334,17 @@ void ProviderRegistrationProvider::modifyInstance(
         const CIMPropertyList & propertyList,
         ResponseHandler<CIMInstance> & handler)
 {
+    if(!String::equalNoCase(instanceReference.getNameSpace(), 
+      	                    PEGASUS_NAMESPACENAME_INTEROP))
+    {
+	throw CIMException (CIM_ERR_NOT_SUPPORTED);
+    }
+
     //
     // only support to modify the instance of PG_ProviderCapabilities
     //
     if (!String::equalNoCase(instanceReference.getClassName(), 
-			     _CLASS_PROVIDER_CAPABILITIES))
+			     PEGASUS_CLASSNAME_PROVIDERCAPABILITIES))
     {
 	throw CIMException (CIM_ERR_NOT_SUPPORTED);
     }
@@ -389,18 +400,23 @@ void ProviderRegistrationProvider::createInstance(
 
     CIMInstance instance = instanceObject;
 
-    // ensure the class existing in the specified namespace
-    if(!String::equalNoCase(className, _CLASS_PG_PROVIDER) &&
-       !String::equalNoCase(className, _CLASS_PROVIDER_CAPABILITIES) &&
-       !String::equalNoCase(className, _CLASS_PROVIDER_MODULE))
+    if(!String::equalNoCase(nameSpace, PEGASUS_NAMESPACENAME_INTEROP))
     {
-	throw CIMException(CIM_ERR_INVALID_CLASS);
+	throw CIMException (CIM_ERR_NOT_SUPPORTED);
+    }
+
+    // ensure the class existing in the specified namespace
+    if(!String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDER) &&
+       !String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDERCAPABILITIES) &&
+       !String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDERMODULE))
+    {
+	throw CIMException(CIM_ERR_NOT_SUPPORTED);
     }
 
     //
     // Check all required properties are set
     //
-    if(String::equalNoCase(className, _CLASS_PROVIDER_MODULE))
+    if(String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDERMODULE))
     {
 	//
 	// Name, Version, InterfaceType, InterfaceVersion, and Location
@@ -435,12 +451,12 @@ void ProviderRegistrationProvider::createInstance(
 	if (!instanceObject.existsProperty(_PROPERTY_OPERATIONALSTATUS))
 	{
 	    Array<Uint16> _operationalStatus;
-	    _operationalStatus.append(_PROVIDER_OK);
+	    _operationalStatus.append(_MODULE_UNKNOWN);
 	    instance.addProperty (CIMProperty
 		(_PROPERTY_OPERATIONALSTATUS, _operationalStatus));
 	}
     }
-    else if(String::equalNoCase(className, _CLASS_PROVIDER_CAPABILITIES))
+    else if(String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDERCAPABILITIES))
     {
 	//
 	// ProviderModuleName, ProviderName, InstanceID, ClassName,
@@ -477,7 +493,7 @@ void ProviderRegistrationProvider::createInstance(
 	    throw CIMException (CIM_ERR_INVALID_PARAMETER);
 	}
     }
-    else // _CLASS_PG_PROVIDER
+    else // PEGASUS_CLASSNAME_PROVIDER
     {
 	//
 	// Name and ProviderModuleName properties must be set
@@ -518,14 +534,20 @@ void ProviderRegistrationProvider::deleteInstance(
     const CIMReference & instanceReference,
     ResponseHandler<CIMInstance> & handler)
 {
+    if(!String::equalNoCase(instanceReference.getNameSpace(), 
+      	                    PEGASUS_NAMESPACENAME_INTEROP))
+    {
+	throw CIMException (CIM_ERR_NOT_SUPPORTED);
+    }
+
     String className = instanceReference.getClassName();
 
     // ensure the class existing in the specified namespace
-    if(!String::equalNoCase(className, _CLASS_PG_PROVIDER) &&
-       !String::equalNoCase(className, _CLASS_PROVIDER_CAPABILITIES) &&
-       !String::equalNoCase(className, _CLASS_PROVIDER_MODULE))
+    if(!String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDER) &&
+       !String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDERCAPABILITIES) &&
+       !String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDERMODULE))
     {
-	throw CIMException(CIM_ERR_INVALID_CLASS);
+	throw CIMException(CIM_ERR_NOT_SUPPORTED);
     }
 
     // begin processing the request
@@ -556,6 +578,12 @@ void ProviderRegistrationProvider::invokeMethod(
     Array<CIMParamValue> & outParameters,
     ResponseHandler<CIMValue> & handler)
 {
+    if(!String::equalNoCase(objectReference.getNameSpace(), 
+      	                    PEGASUS_NAMESPACENAME_INTEROP))
+    {
+	throw CIMException (CIM_ERR_NOT_SUPPORTED);
+    }
+
     String moduleName;
     Boolean moduleFound = false;
 
@@ -593,7 +621,7 @@ void ProviderRegistrationProvider::invokeMethod(
 	for (Uint32 i = 0; i<_OperationalStatus.size(); i++)
 	{
 	    // retValue equals 1 if module is already disabled
-	    if (_OperationalStatus[i] == _PROVIDER_STOPPED)
+	    if (_OperationalStatus[i] == _MODULE_STOPPED)
 	    {
 		ret_value = 1;
 		CIMValue retValue(ret_value);
@@ -648,7 +676,7 @@ void ProviderRegistrationProvider::invokeMethod(
 
 	for (Uint32 i = 0; i<_opStatus.size(); i++)
 	{
-	    if (_opStatus[i] == _PROVIDER_STOPPED)
+	    if (_opStatus[i] == _MODULE_STOPPED)
 	    {
 		// module was disabled successfully
 		ret_value = 0;
@@ -674,7 +702,7 @@ void ProviderRegistrationProvider::invokeMethod(
 	for (Uint32 i = 0; i<_OperationalStatus.size(); i++)
 	{
 	    // retValue equals 1 if module is already enabled
-	    if (_OperationalStatus[i] == _PROVIDER_OK)
+	    if (_OperationalStatus[i] == _MODULE_OK)
 	    {
 		ret_value = 1;
 		CIMValue retValue(ret_value);
@@ -701,7 +729,7 @@ void ProviderRegistrationProvider::invokeMethod(
 
 	for (Uint32 i = 0; i<_opStatus.size(); i++)
 	{
-	    if (_opStatus[i] == _PROVIDER_OK)
+	    if (_opStatus[i] == _MODULE_OK)
 	    {
 		// module was enabled successfully
 		ret_value = 0;
@@ -816,8 +844,8 @@ Array<Uint16> ProviderRegistrationProvider::_sendDisableMessageToProviderManager
     AsyncReply * asyncReply = _controller->ClientSendWait(*_client_handle,
 							  _queueId,
 							  asyncRequest);
-    CIMEnableModuleResponseMessage * response =
-	reinterpret_cast<CIMEnableModuleResponseMessage *>(
+    CIMDisableModuleResponseMessage * response =
+	reinterpret_cast<CIMDisableModuleResponseMessage *>(
              (static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
     if (response->cimException.getCode() != CIM_ERR_SUCCESS)
     {

@@ -558,18 +558,17 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
 	//
 	// get supported properties
 	//
+	Boolean suppPropIsNull = true;
 	Uint32 pos = instances[i].findProperty(_PROPERTY_SUPPORTEDPROPERTIES);
-    	if (pos == PEG_NOT_FOUND)
+    	if (pos != PEG_NOT_FOUND)
     	{
-            PEG_METHOD_EXIT();
-	    throw CIMException(CIM_ERR_INVALID_PARAMETER);
+	    value = instances[i].getProperty(pos).getValue();
+	    if (!value.isNull())
+	    {
+		suppPropIsNull = false;
+	        value.get(_supportedProperties);
+	    }
     	}
-
-	value = instances[i].getProperty(pos).getValue();
-	if (!value.isNull())
-	{
-	    value.get(_supportedProperties);
-	}
 
 	//
 	// get provider name
@@ -603,7 +602,7 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
 	//
 	String _moduleKey = _generateKey(providerModuleName, MODULE_KEY);
 
-	if (value.isNull())
+	if (suppPropIsNull)
 	{
 	    //
 	    // provider supportes all the properties
@@ -1437,20 +1436,22 @@ void ProviderRegistrationManager::_initialRegistrationTable()
 			// get supported methods
 			//
 			Uint32 pos;
+			Boolean suppMethodIsNull = true;
+			CIMValue value;
+			Uint32 methodsCount;
+
 			pos = instance.findProperty(_PROPERTY_SUPPORTEDMETHODS);
 			if (pos != PEG_NOT_FOUND)
 			{
-			    instance.getProperty(pos).getValue().get(supportedMethods);
-			}
-			else
-			{
-                            PEG_METHOD_EXIT();
-			    throw CIMException(CIM_ERR_INVALID_PARAMETER);
+			    value = instance.getProperty(pos).getValue();
+			    if (!value.isNull())
+            		    {
+				suppMethodIsNull = false;
+				value.get(supportedMethods);
+				methodsCount = supportedMethods.size();
+			    }
 			}
 
-                        // ATTN-RK-P2-20020506: Check for null vs. empty array
-			Uint32 methodsCount = supportedMethods.size();
-			
 			for (Uint32 k=0; k < namespaces.size(); k++)
 			{
 			    // 
@@ -1458,7 +1459,7 @@ void ProviderRegistrationManager::_initialRegistrationTable()
 			    // method name and providerType
 			    //
 
-			    if (methodsCount == 0)
+			    if (suppMethodIsNull)
 			    {
 	    		        Array<CIMInstance> instances;
 
@@ -1832,26 +1833,23 @@ CIMReference ProviderRegistrationManager::_createInstance(
 
 			case _METHOD_PROVIDER:
 			{
+			    CIMValue value;
+			    Uint32 methodsCount;
+			    Boolean suppMethodIsNull = true;
+
 			    //
 			    // get supportedMethods
 			    //
 			    Uint32 pos = instance.findProperty(_PROPERTY_SUPPORTEDMETHODS);
-			    CIMValue value;
-			    Uint32 methodsCount;
-
 			    if (pos != PEG_NOT_FOUND)
 			    {
 				value = instance.getProperty(pos).getValue();
 				if (!value.isNull())
 				{
+				    suppMethodIsNull = false;
 				    value.get(_supportedMethods);	
 			    	    methodsCount = _supportedMethods.size();
 				}
-			    }
-			    else
-			    {
-		                PEG_METHOD_EXIT();
-				throw CIMException(CIM_ERR_INVALID_PARAMETER);
 			    }
 
 			    for (Uint32 j=0; j < _namespaces.size(); j++)
@@ -1862,7 +1860,7 @@ CIMReference ProviderRegistrationManager::_createInstance(
 				// instance to the table 
 				//
 
-				if ( value.isNull() )
+				if ( suppMethodIsNull )
 				{
 				    //
 				    // null value means all methods

@@ -631,8 +631,11 @@ String OMConfigFileSyntaxError::_formatMessage(
 {
     char buffer[32];
     sprintf(buffer, "%d", line);
-
-    String result = "Syntax error in configuration file: ";
+	 //l10n
+	 MessageLoaderParms parms("Common.OptionManager.SYNTAX_ERR_CONFIG_FILE",
+	 								 "Syntax error in configuration file: ");
+	 String result = MessageLoader::getMessage(parms);
+    //String result = "Syntax error in configuration file: ";
     result.append(file);
     result.append("(");
     result.append(buffer);

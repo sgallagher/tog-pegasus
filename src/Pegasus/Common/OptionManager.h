@@ -47,6 +47,7 @@
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/MessageLoader.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -613,8 +614,13 @@ class OMMissingCommandLineOptionArgument : public Exception
 {
 public:
 
-    OMMissingCommandLineOptionArgument(const String& optionName)
-	: Exception("Missing command line option argument: " + optionName) { }
+	//l10n
+    //OMMissingCommandLineOptionArgument(const String& optionName)
+	//: Exception("Missing command line option argument: " + optionName) { }
+	OMMissingCommandLineOptionArgument(const String& optionName)
+	: Exception(MessageLoaderParms("Common.OptionManager.MISSING_CMD_LINE_OPTION",
+											 "Missing command line option argument: ",
+											 optionName)) { }
 };
 
 /** Exception class */
@@ -622,17 +628,27 @@ class OMInvalidOptionValue : public Exception
 {
 public:
 
-    OMInvalidOptionValue(const String& name, const String& value)
-	: Exception("Invalid option value: " + name + "=\"" + value + "\"") { }
+	//l10n
+    //OMInvalidOptionValue(const String& name, const String& value)
+	//: Exception("Invalid option value: " + name + "=\"" + value + "\"") { }
+	OMInvalidOptionValue(const String& name, const String& value)
+	: Exception(MessageLoaderParms("Common.OptionManager.INVALID_OPTION_VALUE",
+											 "Invalid option value: $0=\"$1\"",
+											 name,
+											 value)) { }
 };
 
 /** Exception class */
 class OMDuplicateOption : public Exception
 {
 public:
-
-    OMDuplicateOption(const String& name)
-	: Exception("Duplicate option: " + name) { }
+//l10n
+    //OMDuplicateOption(const String& name)
+	//: Exception("Duplicate option: " + name) { }
+	OMDuplicateOption(const String& name)
+	: Exception(MessageLoaderParms("Common.OptionManager.DUPLICATE_OPTION",
+											 "Duplicate option: $0",
+											 name)) { }
 };
 
 /** Exception class */
@@ -650,27 +666,39 @@ public:
 class OMUnrecognizedConfigFileOption : public Exception
 {
 public:
-
-    OMUnrecognizedConfigFileOption(const String& name)
-	: Exception("Unrecognized config file option: " + name) { }
+//l10n
+    //OMUnrecognizedConfigFileOption(const String& name)
+	//: Exception("Unrecognized config file option: " + name) { }
+	OMUnrecognizedConfigFileOption(const String& name)
+	: Exception(MessageLoaderParms("Common.OptionManager.UNRECOGNIZED_CONFIG_FILE_OPTION",
+											 "Unrecognized config file option: $0",
+											 name)) { }
 };
 
 /** Exception class */
 class OMMissingRequiredOptionValue : public Exception
 {
 public:
-
-    OMMissingRequiredOptionValue(const String& name)
-	: Exception("Missing required option value: " + name) { }
+//l10n
+    //OMMissingRequiredOptionValue(const String& name)
+	//: Exception("Missing required option value: " + name) { }
+	OMMissingRequiredOptionValue(const String& name)
+	: Exception(MessageLoaderParms("Common.OptionManager.MISSING_REQUIRED_OPTION",
+											 "Missing required option value: $0",
+											 name)) { }
 };
 
 /** Exception class */
 class OMMBadCmdLineOption : public Exception
 {
 public:
-
-    OMMBadCmdLineOption(const String& name)
-	: Exception("Parameter not Valid: " + name) { }
+//l10n
+   // OMMBadCmdLineOption(const String& name)
+	//: Exception("Parameter not Valid: " + name) { }
+	OMMBadCmdLineOption(const String& name)
+	: Exception(MessageLoaderParms("Common.OptionManager.PARAMETER_NOT_VALID",
+											 "Parameter not Valid: $0",
+											 name)) { }
 };
 
 

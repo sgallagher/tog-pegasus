@@ -49,18 +49,21 @@ typedef struct
     long file;
     struct _finddata_t findData;
 } DirRep;
-#elif defined(PEGASUS_OS_TYPE_UNIX)
-#ifdef PEGASUS_OS_SOLARIS
+#elif defined(PEGASUS_OS_SOLARIS)
 #include <sys/param.h>
-#endif
+#elif defined(PEGASUS_OS_VMS)
 #include <dirent.h>
+#endif
 
 // ATTN: If a platform is found that does not have the readdir_r interface,
 // this next line should be conditionally compiled out for that platform.
 // Otherwise, the old readdir code can be removed.
-#define PEGASUS_HAS_READDIR_R
 
-struct DirRep
+#ifndef PEGASUS_OS_VMS
+#define PEGASUS_HAS_READDIR_R
+#endif
+
+typedef struct
 {
     DIR* dir;
 #ifdef PEGASUS_OS_OS400
@@ -69,10 +72,10 @@ struct DirRep
     struct dirent* entry;
 #endif
 #ifdef PEGASUS_HAS_READDIR_R
-#ifdef PEGASUS_OS_OS400
+ #ifdef PEGASUS_OS_OS400
     struct dirent_lg buffer;
-#else
-#ifdef PEGASUS_OS_SOLARIS
+ #else
+  #ifdef PEGASUS_OS_SOLARIS
 private:
         char buf[sizeof(dirent) + MAXNAMELEN];
 public:
@@ -80,13 +83,12 @@ public:
         inline DirRep()
                 : buffer(*reinterpret_cast<struct dirent *>(buf))
         { }
-#else
+  #else
     struct dirent buffer;
+  #endif
+ #endif
 #endif
-#endif
-#endif
-};
-#endif
+} DirRep;
 
 /** The Dir class provides a platform independent way of iterating the
     files in a directory.

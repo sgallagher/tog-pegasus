@@ -252,7 +252,8 @@ public:
 	by repeatedly calling registerOption above. See documentation for
 	OptionRow for details on how to use them.
     */
-    void registerOptions(OptionRow* options, Uint32 numOptions);
+    void registerOptions(OptionRow* options, Uint32 numOptions)
+	throw (NullPointer);
 
     /** Merge option values from the command line. Searches the command
 	line for registered options whose names are given by the

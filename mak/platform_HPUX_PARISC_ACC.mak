@@ -61,22 +61,15 @@ ifdef LOCK_CONNECTION_ENABLED
 endif
 
 ##
-## The following two flags need to be set or unset together
+## The following flags need to be set or unset 
 ## to compile-in the code required for PAM authentication
 ## and compile-out the code that uses the password file.
 ##
 
 ifdef PEGASUS_PAM_AUTHENTICATION
- DEFINES += -DPEGASUS_PAM_AUTHENTICATION
+ DEFINES += -DPEGASUS_PAM_AUTHENTICATION -DPEGASUS_NO_PASSWORDFILE
 endif
 
-## 
-## Flag to compile-out the code that uses the password file.
-## 
-
-ifdef PEGASUS_NO_PASSWORDFILE
- DEFINES += -DPEGASUS_NO_PASSWORDFILE
-endif
 
 DEPEND_INCLUDES =
 

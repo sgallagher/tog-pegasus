@@ -29,9 +29,9 @@
 
 #include "DynamicLibrary.h"
 
-#if defined(PEGASUS_PLATFORM_IX86_LINUX_GNU)
+#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
 #include <dlfcn.h>
-#el#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+#elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
 #include <dll.h>
 #elif defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
 #include <fcntl.h>
@@ -41,6 +41,9 @@
 #include "OS400SystemState.h"  // OS400LoadDynamicLibrary, etc
 #include "OS400ConvertChar.h"
 #endif
+
+#include <iostream>
+using namespace std;
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -52,14 +55,11 @@ DynamicLibrary::DynamicLibrary(const DynamicLibrary & library) : _handle(0)
 {
     if(library._handle != 0)
     {
-        // increment the library handle's reference count by loading the library again
-        CString cstr = library._fileName;
-
-        _handle = ::dlopen(cstr, RTLD_NOW);
+        load();
     }
 }
 
-DynamicLibrary::DynamicLibrary(const wstring & path) : _fileName(path), _handle(0)
+DynamicLibrary::DynamicLibrary(const String & path) : _fileName(path), _handle(0)
 {
 }
 
@@ -77,7 +77,7 @@ DynamicLibrary & DynamicLibrary::operator=(const DynamicLibrary & library)
     if(library._handle != 0)
     {
         // increment the library handle's reference count by loading the library again
-        CString cstr = library._fileName;
+        CString cstr = library._fileName.getCString();
 
         _handle = ::dlopen(cstr, RTLD_NOW);
     }
@@ -90,6 +90,8 @@ bool DynamicLibrary::load(void)
     if(_handle == 0)
     {
         CString cstr = _fileName.getCString();
+
+        cout << "trying to load " << cstr << endl;
 
         #if defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_SOLARIS) || defined(PEGASUS_OS_AIX)
         _handle = ::dlopen(cstr, RTLD_NOW);
@@ -107,6 +109,7 @@ bool DynamicLibrary::load(void)
         return(true);
     }
 
+    cout << "failure message: " << ::dlerror() << endl;
     return(false);
 }
 
@@ -126,7 +129,7 @@ bool DynamicLibrary::unload(void)
     return(true);
 }
 
-wstring DynamicLibrary::getFileName(void) const
+String DynamicLibrary::getFileName(void) const
 {
     return(_fileName);
 }

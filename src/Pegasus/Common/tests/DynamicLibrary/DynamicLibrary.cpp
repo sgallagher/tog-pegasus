@@ -40,7 +40,13 @@ int main(int argc, char** argv)
 {
     const char * verbose = getenv("PEGASUS_TEST_VERBOSE");
 
-    DynamicLibrary library("DynLib");
+    #if defined(PEGASUS_OS_WINDOWS)
+    String fileName = "DynLib.dll";
+    #else
+    String fileName = "libDynLib.so";
+    #endif
+
+    DynamicLibrary library(fileName);
 
     if(library.load() == false)
     {

@@ -67,6 +67,7 @@ SOURCES = \
     Destroyer.cpp \
     Dir.cpp \
     DQueue.cpp \
+    DynamicLibrary.cpp \
     Exception.cpp \
     InternalException.cpp \
     FileSystem.cpp \

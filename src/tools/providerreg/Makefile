@@ -1,6 +1,6 @@
 ROOT = ../../..
 
-DIR = Pegasus/Clients/CGIClient
+DIR = tools/providerreg
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 

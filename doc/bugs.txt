@@ -1,0 +1,87 @@
+
+
+================================================================================
+Bug Report (Markus on SNIA interoperability testing)
+================================================================================
+
+Thanks for effort.  Will put patches in over next day or so.
+
+Karl
+Thanks for your message at 12:26 PM 4/9/2001 +0200. Your message was:
+>Markus M129ller wrote:
+> >
+> > Hi
+> >
+> > while trying to get the SNIA browser working with Pegasus, I found some
+> > minor inconsistencies:
+> >
+> > - XmlWriter doesn't honor message ids:
+> > I extended the method 'formatSimpleRspMessage' to return the given
+> > MessageId and adapted the CIMServer.cpp accordingly
+> >
+> > - Handler.cpp gets confused about case insensitivity. getFieldValue
+> > should use strncasecmp instead of strncmp; the SNIA browser sends
+> > 'Content-length' instead of 'Content-Length'.
+> >
+> > - In addition to M-POST, POST should be supported, so I check for POST 
+> or M-POST in this 'if'-statement.
+> >
+> >
+>Hi, this morning I managed to get the SNIA browser working together with
+>Pegasus. In addition to the fix proposals mentioned above, the following
+>fixes should be applied.
+>
+>- Common/XmlParser.cpp
+>XmlSemanticError issues VALIDATION_ERROR instead of SEMANTIC_ERROR
+>
+>- Server/CIMServer.cpp
+>substitute strcmp with strcasecmp in all method call like "enumerate
+>class"; the method names are case-insensitive.
+>
+>
+>In the SNIA code I had to include
+>- in org/snia/wbem/cim/CIMParameter.java the following lines (after line
+># 104)
+>
+>             String refstr=qnode.getAttribute("TYPE");
+>             if (refstr.equalsIgnoreCase("reference")) {
+>                 paramToken=XMLNode.XML_ELEMENT_PARAMETER_REFERENCE;
+>             }
+>
+>because Pegasus erroneously marks reference parameters within methods as
+><PARAMETER .. TYPE="reference"  instead of <PARAMETER.REFERENCE ...
+>which is a bug according to the CIM XML specs.
+>
+>- in org/snia/wbem/cim/CIMValue.java the line following lines (after
+>line #256)
+>
+>cop.setObjectName(node.mustGetAttribute("NAME"));
+>
+>has to be substituted with code that accepts constructs like
+><VALUE.REFERENCE><CLASSNAME NAME=""/></VALUE.REFERENCE> which gives an
+>empty name. So in the case of VALUE.REFERENCE (=token 4003) we have to
+>use node.GetAttribute("Name") and except returned null pointers.
+>I guess but don't know that this empty string is a reference to the
+>local name space, i.e. root/cimv20.
+>
+>
+>
+>I would like to see comments and I hope that this message helps to get
+>the Pegasus code fixed.
+>
+>
+>
+>Kind regards
+>
+>Markus Mueller
+>Linux Technology Council (IBM)
+>
+>_________________________________________________________
+>Do You Yahoo!?
+>Get your free @yahoo.com address at http://mail.yahoo.com
+
+Karl Schopmeyer                   Inova Europe Inc.
+305 Spring Creek Village, Suite 475 -  Dallas TX, 75248 USA
+EMAIL: k.schopmeyer@attglobal.net       FAX: 1-214-853-5493
+USA Phone: 1-972-239-0466,          Cell Phone 1-972-814-5581
+France: Phone  +33 (0)1 4181 0443,    Mobile:  +33 (0)6 0798 4927

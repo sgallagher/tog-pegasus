@@ -40,6 +40,9 @@
 #include <Pegasus/Common/Tracer.h>
 #include "CIMOperationRequestAuthorizer.h"
 
+// l10n
+#include <Pegasus/Common/MessageLoader.h>
+
 PEGASUS_NAMESPACE_BEGIN
 
 PEGASUS_USING_STD;
@@ -400,28 +403,54 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
          if ( !userManager || !userManager->verifyAuthorization(
                  userName, nameSpace, cimMethodName) )
          {
-            String description = "Not authorized to run ";
-            description.append(cimMethodName);
-            description.append(" in the namespace ");
-            description.append(nameSpace.getString());
+
+	   // l10n
+	   
+           // String description = "Not authorized to run ";
+           // description.append(cimMethodName);
+           // description.append(" in the namespace ");
+           // description.append(nameSpace.getString());
 
             if (cimMethodName == "InvokeMethod")
             {
-               sendMethodError(
+	      // l10n
+	      sendMethodError(
                   queueId,
                   request->getHttpMethod(),
                   ((CIMRequestMessage*)request)->messageId,
                   ((CIMInvokeMethodRequestMessage*)request)->methodName,
-                  PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, description));
+                  PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED, 
+					MessageLoaderParms(
+					 "Server.CIMOperationRequestAuthorizer.NOT_AUTHORIZED", 
+					 "Not authorized to run $0 in the namespace $1", 
+					   cimMethodName, nameSpace.getString())));
+               // sendMethodError(
+	       // queueId,
+	       // request->getHttpMethod(),
+	       // ((CIMRequestMessage*)request)->messageId,
+	       // ((CIMInvokeMethodRequestMessage*)request)->methodName,
+	       // PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, description));
             }
             else
             {
-               sendIMethodError(
-                  queueId,
-                  request->getHttpMethod(),
-                  ((CIMRequestMessage*)request)->messageId,
-                  cimMethodName,
-                  PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, description));
+	      // l10n
+	      sendIMethodError(
+			       queueId,
+			       request->getHttpMethod(),
+			       ((CIMRequestMessage*)request)->messageId,
+			       cimMethodName,
+			       PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED, 
+					MessageLoaderParms(
+					 "Server.CIMOperationRequestAuthorizer.NOT_AUTHORIZED", 
+					 "Not authorized to run $0 in the namespace $1", 
+					   cimMethodName, nameSpace.getString())));
+
+	      // sendIMethodError(
+	      //  queueId,
+	      //  request->getHttpMethod(),
+	      //  ((CIMRequestMessage*)request)->messageId,
+	      //  cimMethodName,
+	      //  PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, description));
             }
 
             PEG_METHOD_EXIT();
@@ -441,26 +470,45 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
            configManager->getCurrentValue("enableRemotePrivilegedUserAccess"),
            "true") )
    {
-      String description =
-	 "Remote privileged user access is not enabled.";
 
       if (cimMethodName == "InvokeMethod")
       {
+
+	// l10n
+
          sendMethodError(
             queueId,
             request->getHttpMethod(),
             ((CIMRequestMessage*)request)->messageId,
             ((CIMInvokeMethodRequestMessage*)request)->methodName,
-            PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, description));
+            PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED, MessageLoaderParms(
+                                 "Server.CIMOperationRequestAuthorizer.REMOTE_NOT_ENABLED", "Remote privileged user access is not enabled.")));
+
+         // sendMethodError(
+	 //  queueId,
+	 //  request->getHttpMethod(),
+	 //  ((CIMRequestMessage*)request)->messageId,
+	 //  ((CIMInvokeMethodRequestMessage*)request)->methodName,
+	 //  PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, "Remote privileged user access is not enabled."));
       }
       else
       {
+	// l10n
+
          sendIMethodError(
             queueId,
             request->getHttpMethod(),
             ((CIMRequestMessage*)request)->messageId,
             cimMethodName,
-            PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, description));
+            PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED, MessageLoaderParms(
+                                 "Server.CIMOperationRequestAuthorizer.REMOTE_NOT_ENABLED", "Remote privileged user access is not enabled.")));
+
+         // sendIMethodError(
+	 // queueId,
+	 //  request->getHttpMethod(),
+	 //  ((CIMRequestMessage*)request)->messageId,
+	 //  cimMethodName,
+	 //  PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, "Remote privileged user access is not enabled."));
       }
 
       PEG_METHOD_EXIT();

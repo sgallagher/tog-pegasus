@@ -313,6 +313,11 @@ void CIMProviderHandle::modifyInstance(
     Boolean includeQualifiers,
     const CIMPropertyList& propertyList)
 {
+	if (!includeQualifiers || !propertyList.isNull())
+	{
+	    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+	}
+
 	_provider->modifyInstance(
 		nameSpace,
 		modifiedInstance.getInstance());

@@ -52,63 +52,19 @@ class PEGASUS_COMMON_LINKAGE pegasus_module
       pegasus_module(ModuleController *controller, 
 		     const String &id, 
 		     void *module_address,
-		     void (*_async_callback)(Uint32, Message *)) 
-      {
-	 
-      }
+		     void (*_async_callback)(Uint32, Message *)) ;
       
-      pegasus_module(const pegasus_module & mod)
-      {
-	 (mod._rep->_reference_count)++;
-	 _rep = mod._rep;
-      }
-      
-      virtual ~pegasus_module()
-      {
-	 if( 0 == (_rep->_reference_count.value()))
-	    delete _rep;
-	 
-      }
-      
-      pegasus_module & pegasus_module::operator= (const pegasus_module & mod)
-      {
-	 (mod._rep->_reference_count)++;
-	 if ( ((rep->_reference_count)--) == 0 )
-	    delete rep;
-	 _rep = mod._rep;
-	 return *this;
-      }
-      
-      
-      Boolean operator == (const pegasus_module *mod) const
-      {
-	 if(mod->_rep == _rep)
-	    return true;
-	 return false;
-      }
-      
-      Boolean operator == (const String &  mod) const 
-      {
-	 if(_rep->_name == mod)
-	    return true;
-	 return false;
-      }
-      
-      Boolean operator == (const pegasus_module & mod) const 
-      {
-	 if( mod._rep == _rep )
-	    return true;
-	 return false;
-	 
-      }
-      
-      Boolean operator == (const void *mod) const
-      {
-	 if ( (reinterpret_cast<pegasus_module *>(mod))->_rep == _rep)
-	    return true;
-	 return false;
-      }
-      
+      pegasus_module(const pegasus_module & mod);
+
+
+      virtual ~pegasus_module();
+            
+      pegasus_module & operator= (const pegasus_module & mod);
+      Boolean operator == (const pegasus_module *mod) const;
+      Boolean operator == (const pegasus_module & mod) const ; 
+      Boolean operator == (const String &  mod) const;
+      Boolean operator == (const void *mod) const;
+
       const String & get_name(void);
             
       // introspection interface
@@ -152,6 +108,7 @@ class PEGASUS_COMMON_LINKAGE pegasus_module::module_rep
 
       }
       
+
       Boolean operator == (const module_rep *rep) const
       {
 	 if (rep == this )
@@ -173,6 +130,8 @@ class PEGASUS_COMMON_LINKAGE pegasus_module::module_rep
 	 return false;
       }
       
+
+
 
    private: 
       module_rep(void);
@@ -250,7 +209,72 @@ class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
 };
 
 
+pegasus_module(const pegasus_module & mod)
+{
+   (mod._rep->_reference_count)++;
+   _rep = mod._rep;
+}
+
+virtual ~pegasus_module()
+{
+   if( 0 == (_rep->_reference_count.value()))
+      delete _rep;
+   
+}
+
+
+pegasus_module & pegasus_module::operator= (const pegasus_module & mod)
+{
+   (mod._rep->_reference_count)++;
+   if ( ((rep->_reference_count)--) == 0 )
+      delete rep;
+   _rep = mod._rep;
+   return *this;
+}
+
+Boolean pegasus_module::operator== (const pegasus_module *mod) const
+{
+   if(mod->_rep == _rep)
+      return true;
+   return false;
+}
+
+
+Boolean pegasus_module::operator== (const pegasus_module & mod) const 
+{
+   if( mod._rep == _rep )
+      return true;
+   return false;
+   
+}
+      
+Boolean pegasus_module::operator == (const String &  mod) const 
+{
+   if(_rep->_name == mod)
+      return true;
+   return false;
+}
+
+
+Boolean pegasus_module::operator == (const void *mod) const
+{
+   if ( (reinterpret_cast<pegasus_module *>(mod))->_rep == _rep)
+      return true;
+   return false;
+}
+
+Boolean pegasus_module::operator == (const void *mod) const
+{
+   if ( (reinterpret_cast<pegasus_module *>(mod))->_rep == _rep)
+      return true;
+   return false;
+}
+      
+
+
+
+
 PEGASUS_NAMESPACE_END
 
 
-#endif // Pegasus_Module_Controller_h
+#endif // Pegasus_Module_Controller_H

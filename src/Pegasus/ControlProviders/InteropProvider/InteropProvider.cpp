@@ -291,21 +291,17 @@ Boolean _getPropertyValue(const CIMInstance& instance, const CIMName& propertyNa
     it is not.
 */
 String _getHostAddress(String hostName)
-{
-  // set default address
-  String ipAddress("127.0.0.1");
+{  
+  String ipAddress;
   
   if (hostName == String::EMPTY)
     	hostName = System::getHostName();
 
-  struct hostent * phostent;
-  struct in_addr   inaddr;
-  
-  if ((phostent = ::gethostbyname((const char *)hostName.getCString())) != NULL)
-    {
-     ::memcpy( &inaddr, phostent->h_addr,4);
-      ipAddress = ::inet_ntoa( inaddr );
-    }
+  if ((ipAddress = System::getHostIP(hostName)) == String::EMPTY)
+  {
+      // set default address if everything else failed
+      ipAddress = String("127.0.0.1");
+  }
   return ipAddress;
 }
 

@@ -607,7 +607,7 @@ errcode = WSAGetLastError();
       // now store the addresses
       interface_counter = interfaces;
 
-      *list  = (uint32 *)calloc( sizeof(uint32), interfaces + 2 );
+            *list  = (uint32 *)calloc( interfaces + 2, sizeof(uint32) );
       this_addr = *list;
       r = conf.ifc_req;
       addr = (SOCKADDR_IN *)&r->ifr_addr;
@@ -717,6 +717,7 @@ void prepare_pr_buf(struct slp_client *client, const int8 *address)
 void make_srv_ack(struct slp_client *client, SOCKADDR_IN *remote, int8 response, int16 code )
 {
   int8 *bptr;
+    uint32 local_address;
   if(TRUE == ( ((_LSLP_GETFLAGS( client->_rcv_buf )) & (LSLP_FLAGS_MCAST) ) ? FALSE : TRUE   ) ) {
     SOCKETD sock;  //jeb
 
@@ -732,6 +733,14 @@ void make_srv_ack(struct slp_client *client, SOCKADDR_IN *remote, int8 response,
     _LSLP_SETSHORT(bptr, code, 0 );
     bptr += 2;
     _LSLP_SETLENGTH(client->_msg_buf, bptr - client->_msg_buf);
+        local_address = client->_local_addr;
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+        uint32* ptr_addr;
+        ptr_addr = client->_local_addr_list;
+
+        while (*ptr_addr != INADDR_ANY) {
+            local_address = *ptr_addr;
+#endif
     if(INVALID_SOCKET != (sock = _LSLP_SOCKET(AF_INET, SOCK_DGRAM, 0))) {
       SOCKADDR_IN local;
       int err = 1;
@@ -740,14 +749,18 @@ void make_srv_ack(struct slp_client *client, SOCKADDR_IN *remote, int8 response,
 #endif
       local.sin_family = AF_INET;
       local.sin_port = client->_target_port ;
-      local.sin_addr.s_addr = client->_local_addr;
+            local.sin_addr.s_addr = local_address;
       if(SOCKET_ERROR != _LSLP_BIND(sock, &local, sizeof(local))) {
 	_LSLP_SENDTO(sock, client->_msg_buf, _LSLP_GETLENGTH(client->_msg_buf), 0,
 		     remote, sizeof(SOCKADDR_IN )) ;
       } // successfully bound this socket
       _LSLP_CLOSESOCKET(sock);
     } // successfully opened this socket
-  }
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+            ptr_addr++;
+        } // end of while loop around all local network interfaces
+#endif            
+    }
 }
 
 
@@ -1834,6 +1847,7 @@ void decode_srvreq(struct slp_client *client, SOCKADDR_IN *remote )
   int8 *bptr, *bptrSave;
   int32 total_len, purported_len;
   BOOL mcast;
+    uint32 local_address;
   struct lslp_srv_rply_out *rp_out = NULL;
   struct lslp_srv_req *rq = NULL;
   int16 str_len, buf_len, err = LSLP_PARSE_ERROR ;
@@ -2011,6 +2025,14 @@ void decode_srvreq(struct slp_client *client, SOCKADDR_IN *remote )
       _LSLP_SET3BYTES(client->_scratch, 0x00000000, 2);
       // client->_msg_buf is stuffed with the service reply. now we need
       // to allocate a socket and send it back to the requesting node
+        local_address = client->_local_addr;
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+        uint32* ptr_addr;
+        ptr_addr = client->_local_addr_list;
+
+        while (*ptr_addr != INADDR_ANY) {
+            local_address = *ptr_addr;
+#endif
 
       if(INVALID_SOCKET != (sock = _LSLP_SOCKET(AF_INET, SOCK_DGRAM, 0))) {
 	SOCKADDR_IN local;
@@ -2020,7 +2042,7 @@ void decode_srvreq(struct slp_client *client, SOCKADDR_IN *remote )
 #endif	
 	local.sin_family = AF_INET;
 	local.sin_port = client->_target_port ;
-	local.sin_addr.s_addr = client->_local_addr;
+	local.sin_addr.s_addr = local_address;
 	if(SOCKET_ERROR != _LSLP_BIND(sock, &local, sizeof(local))) {
 	  if(mcast == TRUE ) {
 	    _LSLP_SLEEP(rand() % 30 );
@@ -2030,6 +2052,10 @@ void decode_srvreq(struct slp_client *client, SOCKADDR_IN *remote )
 	} // successfully bound this socket
 	_LSLP_CLOSESOCKET(sock);
       } // successfully opened this socket
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+            ptr_addr++;
+        } // end of while loop around all local network interfaces
+#endif            
     } // we must respond to this request
 
     /* free resources */
@@ -2183,16 +2209,34 @@ BOOL send_rcv_udp( struct slp_client *client, BOOL retry)
     if(SOCKET_ERROR != _LSLP_BIND(sock, &local, sizeof(local))) {
       int bcast = ( (_LSLP_GETFLAGS(client->_msg_buf)) & LSLP_FLAGS_MCAST) ? 1 : 0 ;
       if(bcast) {
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+         int ttl = 0;
+         int sockopt = 0;
+         unsigned char my_ttl = 128;
+         ttl = _LSLP_SET_TTL(sock, my_ttl);
+         sockopt = _LSLP_SETSOCKOPT(sock, SOL_SOCKET, SO_BROADCAST, (const int8 *) &bcast, sizeof(bcast));
+         if ( (SOCKET_ERROR ==  ttl )  || (SOCKET_ERROR == sockopt ) ) {
+#else
 	if( (SOCKET_ERROR ==  _LSLP_SET_TTL(sock, client->_ttl) )  ||
 	    (SOCKET_ERROR == _LSLP_SETSOCKOPT(sock, SOL_SOCKET, SO_BROADCAST, (const int8 *)&bcast, sizeof(bcast)))) {
+#endif
 	  _LSLP_CLOSESOCKET(sock);
 	  return(FALSE);
 	}
 	if(client->_local_addr != INADDR_ANY ) {
+//#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+        struct in_addr ma;
+        memset(&ma, 0x00, sizeof(ma));
+        ma.s_addr = client->_local_addr;
+        if ( (SOCKET_ERROR == _LSLP_SETSOCKOPT(sock, IPPROTO_IP, IP_MULTICAST_IF, (const char *)&ma, sizeof(ma))) ) {
+/*
+#else
 	  SOCKADDR_IN ma;
 	  memset(&ma, 0x00, sizeof(ma));
 	  ma.sin_addr.s_addr = client->_local_addr;
 	  if( (SOCKET_ERROR == _LSLP_SETSOCKOPT(sock, IPPROTO_IP, IP_MULTICAST_IF, (const char *)&ma, sizeof(SOCKADDR_IN))) ) {
+#endif
+*/
 	    _LSLP_CLOSESOCKET(sock);
 	    return(FALSE);
 	  }
@@ -2870,6 +2914,7 @@ void decode_attrreq(struct slp_client *client, SOCKADDR_IN *remote)
 
   int16 str_len, buf_len, err = 0, parse_err;
   int32 total_len, purported_len;
+  uint32 local_address;
 
   /* read the length from the slp header */
   bptr = client->_rcv_buf;
@@ -2977,6 +3022,13 @@ void decode_attrreq(struct slp_client *client, SOCKADDR_IN *remote)
 
 		/* only send the response if there is an attribute or if this is a unicast */
 //		if(attr_tags != NULL || ! (_LSLP_GETFLAGS(client->_rcv_buf) & LSLP_FLAGS_MCAST)) {
+        local_address = client->_local_addr;
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+        uint32* ptr_addr;
+        ptr_addr = client->_local_addr_list;
+        while (*ptr_addr != INADDR_ANY) {
+            local_address = *ptr_addr;
+#endif
 		  if(INVALID_SOCKET != (sock = _LSLP_SOCKET(AF_INET, SOCK_DGRAM, 0))) {
 		    SOCKADDR_IN local;
 		    int err = 1;
@@ -2985,7 +3037,7 @@ void decode_attrreq(struct slp_client *client, SOCKADDR_IN *remote)
 #endif		
 		    local.sin_family = AF_INET;
 		    local.sin_port = client->_target_port ;
-		    local.sin_addr.s_addr = client->_local_addr;
+		    local.sin_addr.s_addr = local_address;
 		    if(SOCKET_ERROR != _LSLP_BIND(sock, &local, sizeof(local))) {
 		      _LSLP_SENDTO(sock, client->_msg_buf, total_len , 0,
 				   (remote), sizeof(SOCKADDR_IN )) ;
@@ -2994,6 +3046,10 @@ void decode_attrreq(struct slp_client *client, SOCKADDR_IN *remote)
 		  } /* successfully opened this socket */
 //		}
 		
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+            ptr_addr++;
+        } // end of while loop around all local network interfaces
+#endif            
 		if(attr_tags)
 		  lslpFreeAttrList(attr_tags, TRUE);
 	       } /* scopes intersect */

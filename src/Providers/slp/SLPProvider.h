@@ -104,7 +104,7 @@ class SLPProvider: public CIMInstanceProvider, public CIMMethodProvider
             MethodResultResponseHandler & handler);
 	
 	protected:
-        CIMInstance SLPProvider::_buildInstanceSkeleton(const CIMName& className);
+        CIMInstance _buildInstanceSkeleton(const CIMName& className);
 
         void deregisterSLP();
 
@@ -122,7 +122,7 @@ class SLPProvider: public CIMInstanceProvider, public CIMMethodProvider
             const String& value,
             const String& instancePropertyName = String::EMPTY);
 
-        void SLPProvider::populateTemplateField(CIMInstance& instance, 
+        void populateTemplateField(CIMInstance& instance, 
             const String& attributeFieldName,
             const Array<String>& value,
             const String& instancePropertyName);

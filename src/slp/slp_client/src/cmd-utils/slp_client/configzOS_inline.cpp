@@ -39,13 +39,17 @@
 
 extern "C" in_addr_t inet_addr_in_ebcdic(const char * ip_inptr)
 {
-    int array_size = 0;
     in_addr_t return_addr;
-    while (ip_inptr[array_size] != 0) array_size++;
-    char * ip_ptr2 = (char *)malloc(array_size);
-    memcpy(ip_ptr2,ip_inptr,array_size);
-    __atoe_l(ip_ptr2,array_size);
+	char* ip_ptr2 = strdup(ip_inptr);
+    __atoe(ip_ptr2);
     return_addr = inet_addr(ip_ptr2);
     free(ip_ptr2);
     return return_addr;
+}
+             
+extern "C" char* inet_ntoa_in_ebcdic(const struct in_addr &input)
+{
+    char* ip_string = inet_ntoa(input);
+    __etoa(ip_string);
+    return ip_string;
 }

@@ -940,11 +940,16 @@ Boolean SLPProvider::issueSLPRegistrations()
     Boolean getByAssociator = false;
     CDEBUG("issueSLPRegistrations. Get object manager from namespace= " 
                 << PEGASUS_NAMESPACENAME_INTEROP.getString());
-    Array<CIMInstance> instancesObjMgr = _cimomHandle.enumerateInstances(
+    Array<CIMInstance> instancesObjMgr;
+    try {
+            instancesObjMgr = _cimomHandle.enumerateInstances(
                                              OperationContext(),
                                              PEGASUS_NAMESPACENAME_INTEROP,
                                              CIMName(CIMObjectManagerClassName),
                                              false, false, false,false, CIMPropertyList());
+    } catch(Exception& e) {
+        CDEBUG("Exception caught on enumerateInstances(CIM_ObjectManager):=" << e.getMessage());
+    }
     // Try to get the objmgrcommmech via the association first
     CDEBUG("Registration found Obj Mgr. No Instance = " << instancesObjMgr.size());
     /*

@@ -147,6 +147,7 @@ public:
     static String getHostName();
     static String getFullyQualifiedHostName ();
     static String getSystemCreationClassName ();
+    static String getHostIP(const String &hostName);
 
     static Uint32 _acquireIP(const char* hostname);
 

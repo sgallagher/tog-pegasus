@@ -159,6 +159,29 @@ char *System::extract_file_path(const char *fullpath, char *dirname)
   return dirname;
 }
 
+String System::getHostIP(const String &hostName)
+{
+    struct hostent * phostent;
+    struct in_addr   inaddr;
+    String ipAddress = String::EMPTY;
+
+    if ((phostent = ::gethostbyname((const char *)hostName.getCString())) != NULL)
+    {
+        ::memcpy( &inaddr, phostent->h_addr,4);
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+        char * gottenIPAdress = NULL;
+        gottenIPAdress = ::inet_ntoa( inaddr );
+        __etoa(gottenIPAdress);
+        if (gottenIPAdress != NULL)
+        {
+            ipAddress.assign(gottenIPAdress);
+        }
+#else
+        ipAddress = ::inet_ntoa( inaddr );
+#endif
+    }
+    return ipAddress;
+}
 
 // ------------------------------------------------------------------------
 // Convert a hostname into a a single host unique integer representation

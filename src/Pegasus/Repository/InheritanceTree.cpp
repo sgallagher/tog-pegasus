@@ -19,7 +19,7 @@
 //
 //==============================================================================
 //
-// Author:
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By:
 //
@@ -121,12 +121,10 @@ void InheritanceTreeNode::print(std::ostream& os) const
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-typedef HashTable<String, InheritanceTreeNode*, IgnoreCaseEqualFunc> 
-    InheritanceTable;
-
 struct InheritanceTreeRep
 {
-    InheritanceTable _table;
+    typedef HashTable<String, InheritanceTreeNode*, IgnoreCaseEqualFunc> Table;
+    Table table;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -156,20 +154,20 @@ void InheritanceTree::insert(
     InheritanceTreeNode* superClassNode = 0;
 
     if (superClassName.getLength() &&
-	!_rep->_table.lookup(superClassName, superClassNode))
+	!_rep->table.lookup(superClassName, superClassNode))
     {
 	superClassNode = new InheritanceTreeNode(superClassName);
-	_rep->_table.insert(superClassName, superClassNode);
+	_rep->table.insert(superClassName, superClassNode);
     }
 
     // -- Insert class:
     
     InheritanceTreeNode* classNode = 0;
 
-    if (!_rep->_table.lookup(className, classNode))
+    if (!_rep->table.lookup(className, classNode))
     {
 	classNode = new InheritanceTreeNode(className);
-	_rep->_table.insert(className, classNode);
+	_rep->table.insert(className, classNode);
     }
 
     classNode->provisional = false;
@@ -210,7 +208,7 @@ void InheritanceTree::insertFromPath(const String& path)
 
 void InheritanceTree::check() const
 {
-    for (InheritanceTable::Iterator i = _rep->_table.start(); i; i++)
+    for (InheritanceTreeRep::Table::Iterator i = _rep->table.start(); i; i++)
     {
 	if (i.value()->provisional)
 	    throw InvalidInheritanceTree(i.value()->className);
@@ -227,7 +225,7 @@ Boolean InheritanceTree::getSubClassNames(
 
     if (!className.getLength())
     {
-	for (InheritanceTable::Iterator i = _rep->_table.start(); i; i++)
+	for (InheritanceTreeRep::Table::Iterator i = _rep->table.start();i;i++)
 	{
 	    if (deepInheritance)
 	    {
@@ -249,7 +247,7 @@ Boolean InheritanceTree::getSubClassNames(
     // -- Case 2: className non-empty: get names of classes descendent from
     // -- the given class.
 
-    for (InheritanceTable::Iterator i = _rep->_table.start(); i; i++)
+    for (InheritanceTreeRep::Table::Iterator i = _rep->table.start(); i; i++)
     {
 	if (String::equalIgnoreCase(className, i.key()))
 	{
@@ -262,9 +260,22 @@ Boolean InheritanceTree::getSubClassNames(
     return false;
 }
 
+Boolean InheritanceTree::hasSubClasses(
+    const String& className,
+    Boolean& hasSubClasses) const
+{
+    InheritanceTreeNode* node = 0;	
+
+    if (!_rep->table.lookup(className, node))
+	return false;
+
+    hasSubClasses = node->subClasses != 0;
+    return true;
+}
+
 void InheritanceTree::print(std::ostream& os) const
 {
-    for (InheritanceTable::Iterator i = _rep->_table.start(); i; i++)
+    for (InheritanceTreeRep::Table::Iterator i = _rep->table.start(); i; i++)
 	i.value()->print(os);
 }
 

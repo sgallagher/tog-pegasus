@@ -179,9 +179,6 @@ public:
     */
     void check() const;
 
-    /** Prints the class */
-    void print(std::ostream& os) const;
-
     /** Get subclass names of the given class.
 	@param className - class whose subclass names will be gotten. If
 	    className is empty, all classnames are returned.
@@ -195,7 +192,19 @@ public:
 	Boolean deepInheritance,
 	Array<String>& subClassNames) const;
 
+    /** Returns true if the given class has sub-classes. */
+    Boolean hasSubClasses(
+	const String& className,
+	Boolean& hasSubClasses) const;
+
+    /** Prints the class */
+    void print(std::ostream& os) const;
+
 private:
+
+    InheritanceTree(const InheritanceTree&) { }
+
+    InheritanceTree& operator=(const InheritanceTree&) { return *this; }
 
     InheritanceTreeRep* _rep;
 };

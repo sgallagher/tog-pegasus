@@ -112,6 +112,13 @@ int main()
 	exit(1);
     }
 
+#if 0
+    InheritanceTree it;
+    it.insertFromPath("e:/tog/pegasus_home/repository/root#cimv20/classes");
+    it.check();
+    it.print(cout);
+#endif
+
     cout << "+++++ passed all tests" << endl;
 
     return 0;

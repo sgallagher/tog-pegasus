@@ -25,15 +25,13 @@
 //
 // Author:      Markus Mueller (sedgewick_de@yahoo.de)
 //
-// Modified By: Adrian Schuur, schuur@de.ibm.com
+// Modified By: Humberto Rivero (hurivero@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 
-//#include "CMPI_Version.h"
 #include "Cql2Dnf.h"
 #include <Pegasus/Common/Stack.h>
-//#include <Pegasus/WQL/WQLParser.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -70,65 +68,7 @@ void term_el::negate()
         default: break;
     }
 };
-/*
-String opnd2string(const WQLOperand &o) {
-    switch (o.getType()) {
-    case WQLOperand::PROPERTY_NAME:
-       return o.getPropertyName();
-    case WQLOperand::STRING_VALUE:
-       return o.getStringValue();
-    case WQLOperand::INTEGER_VALUE:
-       return Formatter::format("$0",o.getIntegerValue());
-    case WQLOperand::DOUBLE_VALUE:
-       return Formatter::format("$0",o.getDoubleValue());
-    case WQLOperand::BOOLEAN_VALUE:
-       return Formatter::format("$0",o.getBooleanValue());
-    default: ;
-   }
-   return "NULL_VALUE";
-}
 
-*/
-/*
-CMPIPredOp mapOperation(WQLOperation op) {
-   static CMPIPredOp ops[]={(CMPIPredOp)0,(CMPIPredOp)0,(CMPIPredOp)0,
-      CMPI_PredOp_Equals,
-      CMPI_PredOp_NotEquals,
-      CMPI_PredOp_LessThan,
-      CMPI_PredOp_LessThanOrEquals,
-      CMPI_PredOp_GreaterThan,
-      CMPI_PredOp_GreaterThanOrEquals,
-      (CMPIPredOp)0,(CMPIPredOp)0,(CMPIPredOp)0,(CMPIPredOp)0,(CMPIPredOp)0,(CMPIPredOp)0};
-   return ops[(int)op];
-}
-
-CMPIType mapType(WQLOperand::Type typ) {
-   switch (typ) {
-    case WQLOperand::PROPERTY_NAME:
-       return CMPI_nameString;
-    case WQLOperand::STRING_VALUE:
-       return CMPI_charString;
-    case WQLOperand::INTEGER_VALUE:
-       return CMPI_integerString;
-    case WQLOperand::DOUBLE_VALUE:
-       return CMPI_realString;
-    case WQLOperand::BOOLEAN_VALUE:
-       return CMPI_booleanString;
-    case WQLOperand::NULL_VALUE:
-       return CMPI_null;
-  }
-  return CMPI_null;
-}
-
-int term_el::toStrings(CMPIType &typ, CMPIPredOp &opr, String &o1, String &o2) const {
-   opr=mapOperation(op);
-   o1=opnd2string(opn1);
-   o2=opnd2string(opn2);
-   if (opn1.getType()==WQLOperand::PROPERTY_NAME) typ=mapType(opn2.getType());
-   else typ=mapType(opn1.getType());
-   return 0;
-}
-*/
 //
 // Evaluation heap element methods
 //
@@ -187,151 +127,19 @@ void eval_el::order(void)
         }
 }
 
-//
-// Helper function copied from WQLSelectStatement
-// 
-/*
-template<class T>
-inline static Boolean _Compare(const T& x, const T& y, WQLOperation op)
-{
-    switch (op)
-    {
-        case WQL_EQ: 
-            return x == y;
-
-        case WQL_NE: 
-            return x != y;
-
-        case WQL_LT: 
-            return x < y;
-        case WQL_LE: 
-            return x <= y;
-
-        case WQL_GT: 
-            return x > y;
-
-        case WQL_GE: 
-            return x >= y;
-
-        default:
-            PEGASUS_ASSERT(0);
-    }
-
-    return false;
-}
-
-static bool operator==(const WQLOperand& x, const WQLOperand& y)
-{
-   if (x.getType()==y.getType()) switch (x.getType()) {
-   case WQLOperand::PROPERTY_NAME:
-      return x.getPropertyName()==y.getPropertyName();
-   case WQLOperand::INTEGER_VALUE:
-      return x.getIntegerValue()==y.getIntegerValue();
-   case WQLOperand::DOUBLE_VALUE:
-      return x.getDoubleValue()==y.getDoubleValue();
-   case WQLOperand::BOOLEAN_VALUE:
-      return x.getBooleanValue()==y.getBooleanValue();
-   case WQLOperand::STRING_VALUE:
-      return x.getStringValue()==y.getStringValue();
-   case WQLOperand::NULL_VALUE: 
-      return true;
-   }
-   return false;
-}
-*/
 static bool operator==(const term_el& x, const term_el& y)
 {
 	return x._simplePredicate == y._simplePredicate; 
 }
-/*
-static void addIfNotExists(TableauRow &tr, const term_el& el)
-{
-   for (int i=0,m=tr.size(); i<m; i++) {
-      if (tr[i]==el) return;
-   }
-   tr.append(el);
-}
-*/
-/*
-static Boolean _Evaluate(
-    const WQLOperand& lhs, 
-    const WQLOperand& rhs, 
-    WQLOperation op)
-{
-    switch (lhs.getType())
-    {
-        case WQLOperand::NULL_VALUE:
-        {
-            // This cannot happen since expressions of the form
-            // OPERAND OPERATOR NULL are converted to unary form.
-            // For example: "count IS NULL" is treated as a unary
-            // operation in which IS_NULL is the unary operation
-            // and count is the the unary operand.
-
-            PEGASUS_ASSERT(0);
-            break;
-        }
-
-        case WQLOperand::INTEGER_VALUE:
-        {
-            return _Compare(
-                lhs.getIntegerValue(),
-                rhs.getIntegerValue(),
-                op);
-        }
-
-        case WQLOperand::DOUBLE_VALUE:
-        {
-            return _Compare(
-                lhs.getDoubleValue(),
-                rhs.getDoubleValue(),
-                op);
-        }
-
-        case WQLOperand::BOOLEAN_VALUE:
-        {
-            return _Compare(
-                lhs.getBooleanValue(),
-                rhs.getBooleanValue(),
-                op);
-        }
-
-        case WQLOperand::STRING_VALUE:
-        {
-            return _Compare(
-                lhs.getStringValue(),
-                rhs.getStringValue(),
-                op);
-        }
-
-        default:
-            PEGASUS_ASSERT(0);
-    }
-
-    return false;
-}
-*/
 
 //
 // CQL Compiler methods
 //
     
-/*
-Cql2Dnf::Cql2Dnf(const String condition, const String pref) 
-{
-    WQLSelectStatement wqs;
-    WQLParser::parse(pref+condition,wqs);
-    eval_heap.reserveCapacity(16);
-    terminal_heap.reserveCapacity(16);
-    _tableau.clear();
-    compile(&wqs);
-}
-*/
 Cql2Dnf::Cql2Dnf() 
 {
     eval_heap.reserveCapacity(16);
     terminal_heap.reserveCapacity(16);
-    //_tableau.clear();
 }
 
 Cql2Dnf::Cql2Dnf(CQLSelectStatement & cqs)
@@ -363,133 +171,20 @@ void Cql2Dnf::compile(CQLSelectStatement * cqs){
 
 void Cql2Dnf::compile(CQLPredicate& topLevel)
 {
-    //if (!cqs->hasWhereClause()) return;
-
     _strip_ops_operands(topLevel);
     _buildEvalHeap();
     _pushNOTDown();
     _factoring();
-    _construct(); // rebuild the statement
-/*
-    Array<stack_el> disj;
-    _gatherDisj(disj);
-    if (disj.size() == 0)
-        if (terminal_heap.size() > 0)
-           // point to the remaining terminal element
-            disj.append(stack_el(0,true));
-
-    for (Uint32 i=0, n =disj.size(); i< n; i++)
-    {
-        TableauRow tr;
-        Array<stack_el> conj;
-
-        if (!disj[i].is_terminal)
-        {
-           _gatherConj(conj, disj[i]);
-            for( Uint32 j=0, m = conj.size(); j < m; j++)
-	        addIfNotExists(tr,terminal_heap[conj[j].opn]);
-//                tr.append(terminal_heap[conj[j].opn]);
-        }
-        else
-	   addIfNotExists(tr,terminal_heap[disj[i].opn]);
-//	   tr.append(terminal_heap[disj[i].opn]);
-        _tableau.append(tr);
-    }
-*/
+    _construct();
     eval_heap.clear();
-       
-    //print();
-    //printTableau();
-    //_sortTableau();
 }
-/*
-Boolean CMPI_Wql2Dnf::evaluate(WQLPropertySource * source) const
-{
-   Boolean b = false;
-   WQLOperand lhs, rhs;
 
-   for(Uint32 i=0,n = _tableau.size(); i < n; i++)
-   {
-       TableauRow tr = _tableau[i];
-       for(Uint32 j=0,m = tr.size(); j < m; j++)
-       {
-           lhs = tr[j].opn1;
-           CMPI_Wql2Dnf::_ResolveProperty(lhs,source);
-           rhs = tr[j].opn2;
-           CMPI_Wql2Dnf::_ResolveProperty(rhs,source);
-
-           if (rhs.getType() != lhs.getType())
-               throw TypeMismatchException();
-
-           if (!_Evaluate(lhs, rhs, tr[j].op))
-           {
-               b = false;
-               break;
-           }
-           else
-               b = true;
-       }
-       if (b) return true;
-   }
-   return false;
-}
-*/
-/*
-void Cql2Dnf::print(void)
-{
-for (Uint32 i=0, n=eval_heap.size();i < n;i++) {
-    WQLOperation wop = eval_heap[i].op;
-    if (wop == WQL_IS_TRUE) continue;
-    cout << "Eval element " << i << ": ";
-    if (eval_heap[i].is_terminal1) cout << "T(";
-    else cout << "E(";
-    cout << eval_heap[i].opn1 << ") ";
-    cout << WQLOperationToString(eval_heap[i].op);
-    if (eval_heap[i].is_terminal2) cout << " T(";
-    else cout << " E(";
-    cout << eval_heap[i].opn2 << ")" << endl;
-}
-for (Uint32 i=0, n=terminal_heap.size();i < n;i++) {
-    cout << "Terminal expression " << i << ": ";
-    cout << terminal_heap[i].opn1.toString() << " ";
-    cout << WQLOperationToString(terminal_heap[i].op) << " "
-         << terminal_heap[i].opn2.toString() << endl;
-}
-}
-*/
-/*
-void CMPI_Wql2Dnf::printTableau(void)
-{
-   for(Uint32 i=0,n = _tableau.size(); i < n; i++)
-   {
-       cout << "Tableau " << i << endl;
-       TableauRow tr = _tableau[i];
-       for(Uint32 j=0,m = tr.size(); j < m; j++)
-       {
-           cout << tr[j].opn1.toString() << " ";
-           cout << WQLOperationToString(tr[j].op) << " "
-                << tr[j].opn2.toString() << endl;
-       }
-
-   }
-
-}
-*/
 void Cql2Dnf::_buildEvalHeap()
 {
-
-    //WQLSelectStatement* that = (WQLSelectStatement*)wqs;
-
     Stack<stack_el> stack;
 
-    // Operation conversion variable from OperationType enum to ExpressionOpType enum
-    ExpressionOpType expOp;
-
     // Counter for Operands
-
     Uint32 j = 0;
-
-    //cerr << "Build eval heap\n";
 
     for (Uint32 i = 0, n = _operations.size(); i < n; i++)
     {
@@ -545,21 +240,13 @@ void Cql2Dnf::_buildEvalHeap()
                 CQLExpression rhs = _operands[j++];
 
 		CQLSimplePredicate sp(lhs,rhs,_convertOpType(op));
-printf("****** pushing simplepredicate on terminal heap %s\n",(const char*)sp.toString().getCString());
                 terminal_heap.push(term_el(false, sp));
 
                 stack.push(stack_el(terminal_heap.size()-1, true));
 
                 break;
             }
-/*
-            case WQL_IS_TRUE:
-            case WQL_IS_NOT_FALSE:
-            {
-                PEGASUS_ASSERT(stack.size() >= 1);
-                break;
-            }
-*/
+
             case CQL_IS_NULL:
             {
                 PEGASUS_ASSERT(_operands.size() >= 1);
@@ -765,67 +452,7 @@ void Cql2Dnf::_factoring(void)
         i++; // increase pointer
     }
 }
-/*
-void Cql2Dnf::_gatherDisj(Array<stack_el>& stk)
-{
-    _gather(stk, stack_el(0,true), true);
-}
 
-void Cql2Dnf::_gatherConj(Array<stack_el>& stk, stack_el sel)
-{
-    _gather(stk, sel, false);
-}
-
-void Cql2Dnf::_gather(Array<stack_el>& stk, stack_el sel, Boolean or_flag)
-{
-    Uint32 i = 0;
-
-    stk.clear();
-    stk.reserveCapacity(16);
-
-    if ((i = eval_heap.size()) == 0) return;
-
-    while (eval_heap[i-1].op == WQL_IS_TRUE)
-    {
-        eval_heap.remove(i-1);
-        i--;
-        if (i == 0) return;
-    }
-    //if (i == 0) return;
-
-    if (or_flag)
-        stk.append(stack_el(i-1,false));
-    else
-    {
-       if (sel.is_terminal) return;
-       stk.append(sel);
-    }
-
-    i = 0;
-
-    while (i<stk.size())
-    {
-        int k = stk[i].opn;
-
-        if ((k < 0) || (stk[i].is_terminal))
-           i++;
-        else
-        {
-            if ( ((eval_heap[k].op != WQL_OR) && (or_flag)) ||
-                 ((eval_heap[k].op != WQL_AND) && (!or_flag))  )
-                i++;
-            else
-            {
-                // replace the element with disjunction
-                stk[i] = eval_heap[k].getSecond();
-                stk.insert(i, eval_heap[k].getFirst());
-                if (or_flag)
-                    eval_heap[k].op = WQL_IS_TRUE;
-            }
-        }
-    }
-}
-*/
 void Cql2Dnf::_strip_ops_operands(CQLPredicate& topLevel)
 {
 	//
@@ -833,6 +460,9 @@ void Cql2Dnf::_strip_ops_operands(CQLPredicate& topLevel)
 	// extract operations and operands and store in respective arrays for later processing
 	//
 	_destruct(topLevel);
+	if(topLevel.getInverted()){
+        	_operations.append(CQL_NOT);
+        }
 }
 
 OperationType Cql2Dnf::_convertOpType(ExpressionOpType op){
@@ -859,10 +489,11 @@ ExpressionOpType Cql2Dnf::_convertOpType(OperationType op){
                 case CQL_LT: return LT;
                 case CQL_GE: return GE;
                 case CQL_LE: return LE;
-                case CQL_IS_NULL: return IS_NULL;
-                case CQL_IS_NOT_NULL: return IS_NOT_NULL;
-                default: break;
+                case CQL_IS_NULL: return IS_NULL; // should never get here
+                case CQL_IS_NOT_NULL: return IS_NOT_NULL; // should never get here
+                default: return EQ; // should never get here
         }
+	return EQ; // should never get here
 }
 
 void Cql2Dnf::_destruct(CQLPredicate& _p){
@@ -930,9 +561,8 @@ void Cql2Dnf::_construct(){
 	//
 
 	if(eval_heap.size() > 0){
-printf("**** eval_heap.size = %d\n",eval_heap.size());
-printf("**** terminal_heap.size = %d\n",terminal_heap.size());
 	   Array<CQLPredicate> _preds;
+	   CQLPredicate pred;
 	   for(Uint32 i=0;i<eval_heap.size();i++){
 		eval_el eval = eval_heap[i];
 		if(eval.is_terminal1 && eval.is_terminal2){
@@ -993,16 +623,16 @@ printf("**** terminal_heap.size = %d\n",terminal_heap.size());
                                 {
 					CQLPredicate p;
                                         CQLPredicate p1(terminal_heap[eval.opn1]._simplePredicate,false);
-                                        p.appendPredicate(_preds[eval.opn2]);
+					p = _preds[eval.opn2];
                                         p.appendPredicate(p1,AND);
-                                        _preds.append(p);
+					_preds.append(p);
                                         break;
                                 }
                                 case CQL_OR:
                                 {
 					CQLPredicate p;
                                         CQLPredicate p1(terminal_heap[eval.opn1]._simplePredicate,false);
-                                        p.appendPredicate(_preds[eval.opn2]);
+					p = _preds[eval.opn2];
                                         p.appendPredicate(p1,OR);
                                         _preds.append(p);
                                         break;
@@ -1035,7 +665,7 @@ printf("**** terminal_heap.size = %d\n",terminal_heap.size());
                                 {
 					CQLPredicate p;
                                         CQLPredicate p1(terminal_heap[eval.opn2]._simplePredicate,false);
-                                        p.appendPredicate(_preds[eval.opn1]);
+					p = _preds[eval.opn1];
                                         p.appendPredicate(p1,AND);
                                         _preds.append(p);
                                         break;
@@ -1044,7 +674,7 @@ printf("**** terminal_heap.size = %d\n",terminal_heap.size());
                                 {
 					CQLPredicate p;
                                         CQLPredicate p1(terminal_heap[eval.opn2]._simplePredicate,false);
-                                        p.appendPredicate(_preds[eval.opn1]);
+					p = _preds[eval.opn1];
                                         p.appendPredicate(p1,OR);
                                         _preds.append(p);
                                         break;
@@ -1076,14 +706,14 @@ printf("**** terminal_heap.size = %d\n",terminal_heap.size());
                                 case CQL_AND:
                                 {
 					CQLPredicate p = _preds[eval.opn2];
-                                        p.appendPredicate(_preds[eval.opn1],AND);
+                                        _flattenANDappend(p,AND,_preds[eval.opn1]);
                                         _preds.append(p);
                                         break;
                                 }
                                 case CQL_OR:
                                 {
 					CQLPredicate p = _preds[eval.opn2];
-                                        p.appendPredicate(_preds[eval.opn1],OR);
+                                        _flattenANDappend(p,OR,_preds[eval.opn1]);
                                         _preds.append(p);
                                         break;
                                 }
@@ -1112,6 +742,37 @@ printf("**** terminal_heap.size = %d\n",terminal_heap.size());
 
 CQLPredicate Cql2Dnf::getDnfPredicate(){
 	return _dnfPredicate;
+}
+
+CQLPredicate Cql2Dnf::_flattenANDappend(CQLPredicate& topLevel, BooleanOpType op, CQLPredicate& p){
+	//
+	// this is to prevent appending complex predicates to the top level predicate
+	// the final DNFed predicate must only have simple predicates inside its predicate array
+	//
+	// example:
+	// say P(top level) = A AND B
+	// say P1 = C AND D
+	// say we need to OR them together
+	// we cant call P.appendPredicate(P1,OR) because this creates one more complex predicate layer
+	// instead we would:
+	// -> get P1s predicates (which should all be simple)
+	// -> append its first predicate to P along with the operator passed into us
+	// -> at this point we have P = A AND B OR C
+	// -> then go through P1s remaining predicates and append them and P1s operators to P
+	// -> when finished, we have P = A AND B OR C AND D INSTEAD of having P = A AND B OR P1 where P1 is a complex predicate
+	//
+
+	if(!p.isSimple()){
+		Array<CQLPredicate> preds = p.getPredicates();
+		Array<BooleanOpType> ops = p.getOperators();
+		for(Uint32 i=0;i<preds.size();i++){
+			if(i==0) topLevel.appendPredicate(preds[i],op);
+			else topLevel.appendPredicate(preds[i],ops[i-1]);
+		}
+	}else{
+		topLevel.appendPredicate(p,op);
+	}
+	return topLevel;
 }
 
 PEGASUS_NAMESPACE_END

@@ -208,13 +208,29 @@ protected:
         //
     void _construct();
 
+	//
+	// _flattenANDappend()
+	//
+        // this is to prevent appending complex predicates to the top level predicate
+        // the final DNFed predicate must only have simple predicates inside its predicate array
+        //
+        // example:
+        // say P = A AND B
+        // say P1 = C AND D
+        // say we need to OR them together
+        // we cant call P.appendPredicate(P1,OR) because this creates one more complex predicate layer
+        // instead we would:
+        // -> get P1s predicates (which should all be simple)
+        // -> append its first predicate to P along with the operator passed into us
+        // -> so conceptually at this point we have P = A AND B OR C
+        // -> then go through P1s remaining predicates and append them and P1s operators to P
+        // -> when done we have P = A AND B OR C AND D INSTEAD of having P = A AND B OR P1 where P1 is a complex predicate
+        //
+    CQLPredicate _flattenANDappend(CQLPredicate& topLevel, BooleanOpType op, CQLPredicate& p);
+
     OperationType _convertOpType(ExpressionOpType op);
+
     ExpressionOpType _convertOpType(OperationType op);
-    void _gatherDisj(Array<stack_el>& stk);
-
-    void _gatherConj(Array<stack_el>& stk, stack_el sel);
-
-    void _gather(Array<stack_el>& stk, stack_el sel, Boolean or_flag);
     
 private:
 
@@ -228,10 +244,11 @@ private:
 
     Array<eval_el> eval_heap;
 
-    Array<CQLExpression> _operands;
-    Array<OperationType> _operations;
-    CQLPredicate _dnfPredicate;
-    //friend WQLSelectStatement;
+    Array<CQLExpression> _operands;  // contains all the operands from the original top level predicate
+
+    Array<OperationType> _operations; // contains all the operations from the original top level predicate
+
+    CQLPredicate _dnfPredicate; // the final DNFed predicate
 };
 
 

@@ -3,18 +3,18 @@
 // Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to 
-// deal in the Software without restriction, including without limitation the 
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
-// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+//
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
-// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
-// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
-// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
@@ -22,7 +22,7 @@
 //
 // Author: Mike Day (mdday@us.ibm.com)
 //
-// Modified By: 
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -62,7 +62,7 @@ PEGASUS_NAMESPACE_BEGIN
 #define ASYNC_OPSTATE_DECLINED          0x00000002
 #define ASYNC_OPSTATE_STARTED           0x00000004
 #define ASYNC_OPSTATE_PROCESSING        0x00000008
-#define ASYNC_OPSTATE_DELIVER           0x00000010 
+#define ASYNC_OPSTATE_DELIVER           0x00000010
 #define ASYNC_OPSTATE_RESERVE           0x00000020
 #define ASYNC_OPSTATE_COMPLETE          0x00000040
 #define ASYNC_OPSTATE_TIMEOUT           0x00000080
@@ -90,29 +90,29 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
 
       AsyncOpNode(void);
       ~AsyncOpNode(void);
-            
+
       Boolean  operator == (const void *key) const;
       Boolean operator == (const AsyncOpNode & node) const;
 
       void get_timeout_interval(struct timeval *buffer) ;
       void set_timeout_interval(const struct timeval *interval);
-      
+
       Boolean timeout(void)  ;
 
       OperationContext & get_context(void) ;
 
       void put_request(const Message *request) ;
       Message *get_request(void) ;
-      
+
       void put_response(const Message *response) ;
       Message *get_response(void) ;
-      
+
       Uint32 read_state(void) ;
       void write_state(Uint32) ;
-      
+
       Uint32 read_flags(void);
       void write_flags(Uint32);
-      
+
       void lock(void)  throw(IPCException);
       void unlock(void) throw(IPCException);
       void udpate(void) throw(IPCException);
@@ -124,14 +124,14 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
       void complete(OperationContext *context) throw(IPCException);
       void release(void);
       void wait(void);
-      
-      
+
+
    private:
       Semaphore _client_sem;
       Mutex _mut;
       unlocked_dq<Message> _request;
-      unlocked_dq<Message> _response; 
-      
+      unlocked_dq<Message> _response;
+
       OperationContext _operation_list;
       Uint32 _state;
       Uint32 _flags;
@@ -141,7 +141,7 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
       Uint32 _user_data;
       Uint32 _completion_code;
       MessageQueue *_op_dest;
-            
+
       struct timeval _start;
       struct timeval _lifetime;
       struct timeval _updated;
@@ -162,29 +162,29 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
       void _make_orphan( AsyncOpNode & parent) ;
       void _adopt_child(AsyncOpNode *child) ;
       void _disown_child(AsyncOpNode *child) ;
-      void (*_async_callback)(AsyncOpNode *, 
-			      MessageQueue *, 
+      void (*_async_callback)(AsyncOpNode *,
+			      MessageQueue *,
 			      void *);
       void (*__async_callback)(Message *, void *, void *);
       // << Tue Mar 12 14:44:51 2002 mdd >>
-      // pointers for async callbacks  - don't use 
+      // pointers for async callbacks  - don't use
       AsyncOpNode *_callback_node;
       MessageQueue *_callback_response_q;
       void *_callback_ptr;
       void *_callback_parameter;
       void *_callback_handle;
       Condition *_callback_notify;
-      
+
       MessageQueue *_callback_request_q;
       //      << Tue Mar 12 14:44:53 2002 mdd >>
-      // pointers to help static class message handlers - don't use 
+      // pointers to help static class message handlers - don't use
       MessageQueue *_service_ptr;
       Thread *_thread_ptr;
-            
+
       friend class cimom;
       friend class MessageQueueService;
       friend class ProviderManagerService;
-      
+
 };
 
 
@@ -201,7 +201,7 @@ inline Boolean AsyncOpNode::operator == (const AsyncOpNode & node) const
 }
 
 
-inline void AsyncOpNode::get_timeout_interval(struct timeval *buffer) 
+inline void AsyncOpNode::get_timeout_interval(struct timeval *buffer)
 {
    if(buffer != 0)
    {
@@ -226,7 +226,7 @@ inline void AsyncOpNode::set_timeout_interval(const struct timeval *interval)
 }
 
 
-inline Boolean AsyncOpNode::timeout(void) 
+inline Boolean AsyncOpNode::timeout(void)
 {
    struct timeval now;
    gettimeofday(&now, NULL);
@@ -247,7 +247,7 @@ inline OperationContext & AsyncOpNode::get_context(void)
 }
 
 
-inline  void AsyncOpNode::put_request(const Message *request) 
+inline  void AsyncOpNode::put_request(const Message *request)
 {
    _mut.lock(pegasus_thread_self());
    gettimeofday(&_updated, NULL);
@@ -255,23 +255,23 @@ inline  void AsyncOpNode::put_request(const Message *request)
    _request.insert_last( const_cast<Message *>(request) ) ;
 
 //   _request = const_cast<Message *>(request);
-   
+
    _mut.unlock();
 }
 
-inline Message * AsyncOpNode::get_request(void) 
+inline Message * AsyncOpNode::get_request(void)
 {
    Message *ret;
    _mut.lock(pegasus_thread_self());
    gettimeofday(&_updated, NULL);
    ret = _request.remove_first() ;
 //   ret = _request;
-   
+
    _mut.unlock();
    return ret;
 }
 
-inline void AsyncOpNode::put_response(const Message *response) 
+inline void AsyncOpNode::put_response(const Message *response)
 {
    _mut.lock(pegasus_thread_self());
    gettimeofday(&_updated, NULL);
@@ -279,11 +279,11 @@ inline void AsyncOpNode::put_response(const Message *response)
    _response.insert_last( const_cast<Message *>(response) );
 
 //   _response = const_cast<Message *>(response);
-   
+
    _mut.unlock();
 }
 
-inline Message * AsyncOpNode::get_response(void) 
+inline Message * AsyncOpNode::get_response(void)
 {
    Message *ret;
 
@@ -291,7 +291,7 @@ inline Message * AsyncOpNode::get_response(void)
 //   gettimeofday(&_updated, NULL);
    ret = _response.remove_first();
 //   ret = _response;
-   
+
    _mut.unlock();
    return ret;
 }
@@ -303,7 +303,7 @@ inline Uint32 AsyncOpNode::read_state(void)
    Uint32 ret = _state;
    _mut.unlock();
    return ret;
-   
+
 }
 
 inline void AsyncOpNode::write_state(Uint32 state)
@@ -324,7 +324,7 @@ inline Uint32 AsyncOpNode::read_flags(void)
 }
 
 inline void AsyncOpNode::write_flags(Uint32 flags)
-{   
+{
    _mut.lock(pegasus_thread_self());
    gettimeofday(&_updated, NULL);
    _flags = flags;
@@ -332,14 +332,14 @@ inline void AsyncOpNode::write_flags(Uint32 flags)
 }
 
 
-inline  void AsyncOpNode::lock(void)  
-   throw(IPCException) 
+inline  void AsyncOpNode::lock(void)
+   throw(IPCException)
 {
    _mut.lock(pegasus_thread_self());
 }
 
-inline void AsyncOpNode::unlock(void) 
-   throw(IPCException) 
+inline void AsyncOpNode::unlock(void)
+   throw(IPCException)
 {
    _mut.unlock();
 }
@@ -353,7 +353,7 @@ inline void AsyncOpNode::udpate(void)
    return;
 }
 
-inline void AsyncOpNode::deliver(const Uint32 count) 
+inline void AsyncOpNode::deliver(const Uint32 count)
    throw(IPCException)
 {
    _mut.lock(pegasus_thread_self());
@@ -375,7 +375,7 @@ inline void AsyncOpNode::reserve(const Uint32 size)
    return;
 }
 
-inline void AsyncOpNode::processing(void) 
+inline void AsyncOpNode::processing(void)
    throw(IPCException)
 {
    _mut.lock(pegasus_thread_self());
@@ -386,24 +386,26 @@ inline void AsyncOpNode::processing(void)
 }
 
 // con will be empty upon return of this member function
-inline void AsyncOpNode::processing(OperationContext *con) 
+inline void AsyncOpNode::processing(OperationContext *con)
    throw(IPCException)
 {
    _mut.lock(pegasus_thread_self());
    _state |= ASYNC_OPSTATE_PROCESSING;
    gettimeofday(&_updated, NULL);
-   
+
+   /*
    context *c = con->remove_context();
    while(c != 0)
    {
       _operation_list.add_context(c);
       c = con->remove_context();
    }
+   */
    _mut.unlock();
    return;
 }
 
-inline void AsyncOpNode::complete(void) 
+inline void AsyncOpNode::complete(void)
    throw(IPCException)
 {
    _mut.lock(pegasus_thread_self());
@@ -420,12 +422,14 @@ inline void AsyncOpNode::complete(OperationContext *con)
    _mut.lock(pegasus_thread_self());
    _state |= ASYNC_OPSTATE_COMPLETE;
    gettimeofday(&_updated, NULL);
+   /*
    context *c = con->remove_context();
    while(c != 0)
    {
       _operation_list.add_context(c);
       c = con->remove_context();
    }
+   */
    _mut.unlock();
 }
 
@@ -441,7 +445,7 @@ inline void AsyncOpNode::release(void)
    _mut.unlock();
 }
 
-inline  void AsyncOpNode::_set_lifetime(struct timeval *lifetime) 
+inline  void AsyncOpNode::_set_lifetime(struct timeval *lifetime)
 {
    _mut.lock(pegasus_thread_self());
    _lifetime.tv_sec = lifetime->tv_sec;
@@ -449,10 +453,10 @@ inline  void AsyncOpNode::_set_lifetime(struct timeval *lifetime)
    _mut.unlock();
 }
 
-inline Boolean AsyncOpNode::_check_lifetime(void) 
+inline Boolean AsyncOpNode::_check_lifetime(void)
 {
    struct timeval now;
-   
+
    gettimeofday(&now, NULL);
    if((_start.tv_sec + _lifetime.tv_sec ) >= now.tv_sec)
       if((_start.tv_usec + _lifetime.tv_usec ) >= now.tv_usec)
@@ -473,13 +477,13 @@ inline Uint32 AsyncOpNode::_is_parent(void)
 }
 
 inline Boolean AsyncOpNode::_is_my_child(const AsyncOpNode & caller) const
-{ 
+{
    if ( _parent == &caller )
       return true;
    return false;
 }
 
-inline void AsyncOpNode::_make_orphan( AsyncOpNode & parent) 
+inline void AsyncOpNode::_make_orphan( AsyncOpNode & parent)
 {
    if( _parent == &parent )
    {
@@ -490,7 +494,7 @@ inline void AsyncOpNode::_make_orphan( AsyncOpNode & parent)
       throw Permission(pegasus_thread_self());
 }
 
-inline void AsyncOpNode::_adopt_child(AsyncOpNode *child) 
+inline void AsyncOpNode::_adopt_child(AsyncOpNode *child)
 {
    if(child == NULL)
       throw NullPointer();
@@ -499,7 +503,7 @@ inline void AsyncOpNode::_adopt_child(AsyncOpNode *child)
    child->_parent = this;
    _children.insert_last(child);
 }
-      
+
 inline void AsyncOpNode::_disown_child(AsyncOpNode *child)
 {
    if(child == NULL)
@@ -508,7 +512,7 @@ inline void AsyncOpNode::_disown_child(AsyncOpNode *child)
       throw Permission(pegasus_thread_self());
    child->_make_orphan( *this );
    _children.remove(child);
-} 
+}
 
 PEGASUS_NAMESPACE_END
 

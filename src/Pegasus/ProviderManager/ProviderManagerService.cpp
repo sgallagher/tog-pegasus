@@ -546,14 +546,7 @@ void ProviderManagerService::handleGetInstanceRequest(AsyncOpNode *op, const Mes
 	OperationContext context;
 
 	// add the user name to the context
-	context.add_context(
-	    sizeof(String *),
-	    const_cast<String *>(&(request->userName)),
-	    0,
-	    0,
-	    CONTEXT_IDENTITY,
-	    0,
-	    0);
+	context.insert(IdentityContainer(request->userName));
 
 	// convert flags to bitmask
 	Uint32 flags = OperationFlag::convert(false);
@@ -640,14 +633,7 @@ void ProviderManagerService::handleEnumerateInstancesRequest(AsyncOpNode *op, co
 	OperationContext context;
 
 	// add the user name to the context
-	context.add_context(
-	    sizeof(String *),
-	    const_cast<String *>(&(request->userName)),
-	    0,
-	    0,
-	    CONTEXT_IDENTITY,
-	    0,
-	    0);
+	context.insert(IdentityContainer(request->userName));
 
 	// convert flags to bitmask
 	Uint32 flags = OperationFlag::convert(false);
@@ -734,14 +720,7 @@ void ProviderManagerService::handleEnumerateInstanceNamesRequest(AsyncOpNode *op
 	OperationContext context;
 
 	// add the user name to the context
-	context.add_context(
-	    sizeof(String *),
-	    const_cast<String *>(&(request->userName)),
-	    0,
-	    0,
-	    CONTEXT_IDENTITY,
-	    0,
-	    0);
+	context.insert(IdentityContainer(request->userName));
 
         STAT_GETSTARTTIME;
 
@@ -819,13 +798,7 @@ void ProviderManagerService::handleCreateInstanceRequest(AsyncOpNode *op, const 
 	OperationContext context;
 
 	// add the user name to the context
-	context.add_context(sizeof(String *),
-	    const_cast<String *>(&(request->userName)),
-	    0,
-	    0,
-	    CONTEXT_IDENTITY,
-	    0,
-	    0);
+	context.insert(IdentityContainer(request->userName));
 
 	// forward request
 
@@ -904,14 +877,7 @@ void ProviderManagerService::handleModifyInstanceRequest(AsyncOpNode *op, const 
 	OperationContext context;
 
 	// add the user name to the context
-	context.add_context(
-	    sizeof(String *),
-	    const_cast<String *>(&(request->userName)),
-	    0,
-	    0,
-	    CONTEXT_IDENTITY,
-	    0,
-	    0);
+	context.insert(IdentityContainer(request->userName));
 
 	// convert flags to bitmask
 	Uint32 flags = OperationFlag::convert(false);
@@ -999,14 +965,7 @@ void ProviderManagerService::handleDeleteInstanceRequest(AsyncOpNode *op, const 
 	// convert arguments
 	OperationContext context;
 
-	context.add_context(
-	    sizeof(String *),
-	    const_cast<String *>(&(request->userName)),
-	    0,
-	    0,
-	    CONTEXT_IDENTITY,
-	    0,
-	    0);
+	context.insert(IdentityContainer(request->userName));
 
 	// forward request
         STAT_GETSTARTTIME;
@@ -1165,13 +1124,7 @@ void ProviderManagerService::handleAssociatorNamesRequest(AsyncOpNode *op, const
             OperationContext context;
 
             // add the user name to the context
-            context.add_context(sizeof(String *),
-                const_cast<String *>(&(request->userName)),
-                0,
-                0,
-                CONTEXT_IDENTITY,
-                0,
-                0);
+            context.insert(IdentityContainer(request->userName));
 
             // convert flags to bitmask
             Uint32 flags = OperationFlag::convert(false);
@@ -1275,13 +1228,7 @@ void ProviderManagerService::handleReferencesRequest(AsyncOpNode *op, const Mess
             OperationContext context;
 
             // add the user name to the context
-            context.add_context(sizeof(String *),
-                const_cast<String *>(&(request->userName)),
-                0,
-                0,
-                CONTEXT_IDENTITY,
-                0,
-                0);
+            context.insert(IdentityContainer(request->userName));
 
             // convert flags to bitmask
             Uint32 flags = OperationFlag::convert(false);
@@ -1388,13 +1335,7 @@ void ProviderManagerService::handleReferenceNamesRequest(AsyncOpNode *op, const 
             OperationContext context;
 
             // add the user name to the context
-            context.add_context(sizeof(String *),
-                const_cast<String *>(&(request->userName)),
-                0,
-                0,
-                CONTEXT_IDENTITY,
-                0,
-                0);
+            context.insert(IdentityContainer(request->userName));
 
             // convert flags to bitmask
             Uint32 flags = OperationFlag::convert(false);
@@ -1486,14 +1427,7 @@ void ProviderManagerService::handleGetPropertyRequest(AsyncOpNode *op, const Mes
 	OperationContext context;
 
 	// add the user name to the context
-	context.add_context(
-	    sizeof(String *),
-	    const_cast<String *>(&(request->userName)),
-	    0,
-	    0,
-	    CONTEXT_IDENTITY,
-	    0,
-	    0);
+	context.insert(IdentityContainer(request->userName));
 
 	// convert flags to bitmask
 	Uint32 flags = 0;
@@ -1579,14 +1513,7 @@ void ProviderManagerService::handleSetPropertyRequest(AsyncOpNode *op, const Mes
 	OperationContext context;
 
 	// add the user name to the context
-	context.add_context(
-	    sizeof(String *),
-	    const_cast<String *>(&(request->userName)),
-	    0,
-	    0,
-	    CONTEXT_IDENTITY,
-	    0,
-	    0);
+	context.insert(IdentityContainer(request->userName));
 
 	// convert flags to bitmask
 	Uint32 flags = 0;
@@ -1681,13 +1608,7 @@ void ProviderManagerService::handleInvokeMethodRequest(AsyncOpNode *op, const Me
 	OperationContext context;
 
 	// add the user name to the context
-	context.add_context(sizeof(String *),
-	    const_cast<String *>(&(request->userName)),
-	    0,
-	    0,
-	    CONTEXT_IDENTITY,
-	    0,
-	    0);
+	context.insert(IdentityContainer(request->userName));
 
 	CIMObjectPath instanceReference(request->instanceName);
 
@@ -1770,14 +1691,7 @@ void ProviderManagerService::handleCreateSubscriptionRequest(AsyncOpNode *op, co
 	// convert arguments
 	OperationContext context;
 
-	context.add_context(
-	    sizeof(String *),
-	    const_cast<String *>(&(request->userName)),
-	    0,
-	    0,
-	    CONTEXT_IDENTITY,
-	    0,
-	    0);
+	context.insert(IdentityContainer(request->userName));
 	
 	CIMReference subscriptionName = request->subscriptionInstance.getPath();
 	
@@ -1860,14 +1774,7 @@ void ProviderManagerService::handleModifySubscriptionRequest(AsyncOpNode *op, co
 	// convert arguments
 	OperationContext context;
 
-	context.add_context(
-	    sizeof(String *),
-	    const_cast<String *>(&(request->userName)),
-	    0,
-	    0,
-	    CONTEXT_IDENTITY,
-	    0,
-	    0);
+	context.insert(IdentityContainer(request->userName));
 	
 	CIMReference subscriptionName = request->subscriptionInstance.getPath();
 	
@@ -1950,14 +1857,7 @@ void ProviderManagerService::handleDeleteSubscriptionRequest(AsyncOpNode *op, co
 	// convert arguments
 	OperationContext context;
 
-	context.add_context(
-	    sizeof(String *),
-	    const_cast<String *>(&(request->userName)),
-	    0,
-	    0,
-	    CONTEXT_IDENTITY,
-	    0,
-	    0);
+	context.insert(IdentityContainer(request->userName));
 	
 	CIMReference subscriptionName = request->subscriptionInstance.getPath();
 	

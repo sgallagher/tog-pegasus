@@ -47,9 +47,9 @@ ProviderMessageFacade::~ProviderMessageFacade(void)
 
 Message * ProviderMessageFacade::handleRequestMessage(Message * message) throw()
 {
-   try 
+   try
    {
-      
+
     // pass the request message to a handler method based on message type
     switch(message->getType())
     {
@@ -67,16 +67,16 @@ Message * ProviderMessageFacade::handleRequestMessage(Message * message) throw()
 	break;
        case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
        {
-	  
+	
        cout << " ProviderMessageFacade::handleRequestMessage " << endl;
-       
+
        Message *ret = _handleModifyInstanceRequest(message);
        cout << " modify instance response " << "type " << ret->getType() << " dest " << ret->dest << endl;
-       
+
        cout << " leaving ProviderMessageFacade::handleRequestMessage " << endl;
        return ret;
        }
-       
+
        break;
 
     case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
@@ -117,12 +117,12 @@ Message * ProviderMessageFacade::handleRequestMessage(Message * message) throw()
 	break;
     }
    }
-   catch( ... ) 
+   catch( ... )
    {
       cout << "caught exception in ProviderMessageFacade::handleRequestMessage" << endl;
       ;
    }
-   
+
     return(0);
 }
 
@@ -149,13 +149,7 @@ Message * ProviderMessageFacade::_handleGetInstanceRequest(Message * message) th
 	OperationContext context;
 
 	// add the user name to the context
-	context.add_context(sizeof(String *),
-	    const_cast<String *>(&(request->userName)),
-	    0,
-	    0,
-	    CONTEXT_IDENTITY,
-	    0,
-	    0);
+	context.insert(IdentityContainer(request->userName));
 
 	// convert flags to bitmask
 	Uint32 flags = OperationFlag::convert(false);
@@ -235,13 +229,7 @@ Message * ProviderMessageFacade::_handleEnumerateInstancesRequest(Message * mess
 	OperationContext context;
 
 	// add the user name to the context
-	context.add_context(sizeof(String *),
-	    const_cast<String *>(&(request->userName)),
-	    0,
-	    0,
-	    CONTEXT_IDENTITY,
-	    0,
-	    0);
+	context.insert(IdentityContainer(request->userName));
 
 	// convert flags to bitmask
 	Uint32 flags = OperationFlag::convert(false);
@@ -317,13 +305,7 @@ Message * ProviderMessageFacade::_handleEnumerateInstanceNamesRequest(Message * 
 	OperationContext context;
 
 	// add the user name to the context
-	context.add_context(sizeof(String *),
-	    const_cast<String *>(&(request->userName)),
-	    0,
-	    0,
-	    CONTEXT_IDENTITY,
-	    0,
-	    0);
+	context.insert(IdentityContainer(request->userName));
 
 	SimpleResponseHandler<CIMReference> handler;
 
@@ -386,13 +368,7 @@ Message * ProviderMessageFacade::_handleCreateInstanceRequest(Message * message)
 	OperationContext context;
 
 	// add the user name to the context
-	context.add_context(sizeof(String *),
-	    const_cast<String *>(&(request->userName)),
-	    0,
-	    0,
-	    CONTEXT_IDENTITY,
-	    0,
-	    0);
+	context.insert(IdentityContainer(request->userName));
 
 	SimpleResponseHandler<CIMReference> handler;
 
@@ -453,7 +429,7 @@ Message * ProviderMessageFacade::_handleModifyInstanceRequest(Message * message)
     CIMReference instanceName;
 
     cout << "ProviderMessageFaced::_handleModifyInstanceRequest" << endl;
-    
+
 
     try
     {
@@ -472,13 +448,7 @@ Message * ProviderMessageFacade::_handleModifyInstanceRequest(Message * message)
 	OperationContext context;
 
 	// add the user name to the context
-	context.add_context(sizeof(String *),
-	    const_cast<String *>(&(request->userName)),
-	    0,
-	    0,
-	    CONTEXT_IDENTITY,
-	    0,
-	    0);
+	context.insert(IdentityContainer(request->userName));
 
 	// convert flags to bitmask
 	Uint32 flags = OperationFlag::convert(false);
@@ -546,13 +516,7 @@ Message * ProviderMessageFacade::_handleDeleteInstanceRequest(Message * message)
 	// convert arguments
 	OperationContext context;
 
-	context.add_context(sizeof(String *),
-	    const_cast<String *>(&(request->userName)),
-	    0,
-	    0,
-	    CONTEXT_IDENTITY,
-	    0,
-	    0);
+	context.insert(IdentityContainer(request->userName));
 
 	SimpleResponseHandler<CIMInstance> handler;
 
@@ -765,13 +729,7 @@ Message * ProviderMessageFacade::_handleInvokeMethodRequest(Message * message) t
 	OperationContext context;
 
 	// add the user name to the context
-	context.add_context(sizeof(String *),
-	    const_cast<String *>(&(request->userName)),
-	    0,
-	    0,
-	    CONTEXT_IDENTITY,
-	    0,
-	    0);
+	context.insert(IdentityContainer(request->userName));
 
 	CIMObjectPath instanceReference(request->instanceName);
 

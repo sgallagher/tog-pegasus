@@ -30,113 +30,103 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-void default_serialize(Sint8 *dst, Uint32 dst_sz) throw(BufferTooSmall, NotSupported)
+OperationContext::OperationContext(void)
 {
-   throw NotSupported("no serialization routine present") ;
 }
 
-void default_delete(void * data) 
-{ 
-   if( data != NULL)
-      ::operator delete(data); 
-}
-
-void stringize_uid(void *uid, Sint8 **dest, size_t *size) throw (NullPointer, BufferTooSmall)
+OperationContext::~OperationContext(void)
 {
-   Sint8 *ptr;
-   
-   if(uid == NULL || dest == NULL || *dest == NULL || size == NULL)
-      throw NullPointer();
-   
-   if( *size < 37 )
-      throw BufferTooSmall(37);
- 
-   ptr = (Sint8 *)uid;
-   sprintf(*dest,
-	   "%.2d%.2d%.2d%.2d-%.2d%.2d-%.2d%.2d-%.2d%.2d-%.2d%.2d%.2d%.2d%.2d%.2d",
-	   *ptr, *(ptr + 1), *(ptr + 2), *(ptr + 3),*(ptr + 4), *(ptr + 5),
-	   *(ptr + 6), *(ptr + 7), *(ptr + 8), *(ptr + 9), *(ptr + 10),
-	   *(ptr + 11), *(ptr + 12),*(ptr + 13),*(ptr + 14),*(ptr + 15) );
-   *dest += 37;
-   *size -= 37;
-   return;
 }
 
-
-void binaryize_uid(Sint8 *uid, void *dest, size_t size) throw(NullPointer, BufferTooSmall)
+void OperationContext::clear(void)
 {
-
-   if(uid == NULL || dest == NULL)
-      throw NullPointer();
-   if(size < 16)
-      throw(BufferTooSmall(16));   
-   Sint8 *src = uid;
-   Sint8 *dst = (Sint8 *)dest;
-   
-   int i = 0;
-   Sint8 temp;
-   
-   while( i < 16 )
-   {
-      temp = *(src + 2);
-      *(src + 2) = 0x00;
-      *(dst + i) = (Sint8)atoi(src);
-      *(src + 2) = temp;
-      i++;
-      src += 2;
-      if(*src == '-')
-	 src++;
-   }
+    _containers.clear();
 }
 
-
-context::context(Uint32 data_size,
-		 void *data, 
-		 void (*del)(void *), 
-		 Uint32 uint_val ,
-		 Uint32 key , 
-		 Uint32 flag ,
-		 Uint8 *uid)
-   : _size(data_size), _uint_val(uint_val), _key(key), _flag(flag)
-     
+const OperationContext::Container OperationContext::get(const Uint32 key) const
 {
-   if(uid != 0)
-      memcpy(_uid, uid, 16);
-   else
-      memset(_uid, 0x00, 16);
-   
-   if(flag & CONTEXT_POINTER)
-      _data = data;
-   else if (flag & CONTEXT_COPY_MEMORY)
-   {
-      if(data != 0)
-      {
-	 _data = ::operator new(_size);
-	 memcpy(_data, data, _size);
-      }
-      
-   }
+    for(Uint32 i = 0, n = _containers.size(); i < n; i++)
+    {
+        if(key == _containers[i].getKey())
+        {
+            return(_containers[i]);
+        }
+    }
 
-   if(flag & CONTEXT_DELETE_MEMORY)
-   {
-      if(del != 0)
-	 _delete_func = del;
-      else 
-	 _delete_func =  default_delete;
-   }
+    throw Exception("object not found");
 }
 
-context::~context(void)
+void OperationContext::set(const OperationContext::Container & container)
 {
-   if(_flag & CONTEXT_DELETE_MEMORY)
-   {
-      if(_delete_func != 0)
-	 _delete_func(_data);
-      else
-	 default_delete(_data);
-   }
-   
+    for(Uint32 i = 0, n = _containers.size(); i < n; i++)
+    {
+        if(container.getKey() == _containers[i].getKey())
+        {
+            // delete previous container
+            _containers.remove(i);
+
+            // append current container
+            _containers.append(container);
+
+            return;
+        }
+    }
+
+    throw Exception("object not found");
 }
 
+void OperationContext::insert(const OperationContext::Container & container)
+{
+    for(Uint32 i = 0, n = _containers.size(); i < n; i++)
+    {
+        if(container.getKey() == _containers[i].getKey())
+        {
+            throw Exception("object already exists.");
+        }
+    }
+
+    _containers.append(container);
+}
+
+void OperationContext::remove(const Uint32 key)
+{
+    for(Uint32 i = 0, n = _containers.size(); i < n; i++)
+    {
+        if(key == _containers[i].getKey())
+        {
+            _containers.remove(i);
+
+            return;
+        }
+    }
+
+    throw Exception("object not found");
+}
+
+OperationContext::Container::Container(const Uint32 key) : _key(key)
+{
+}
+
+OperationContext::Container::~Container(void)
+{
+}
+
+IdentityContainer::IdentityContainer(const String & userName)
+    : OperationContext::Container(CONTEXT_IDENTITY), _userName(userName)
+{
+}
+
+IdentityContainer::~IdentityContainer(void)
+{
+}
+
+LocaleContainer::LocaleContainer(const String & languageId)
+    : OperationContext::Container(CONTEXT_LOCALE), _languageId(languageId)
+{
+}
+
+LocaleContainer::~LocaleContainer(void)
+{
+}
 
 PEGASUS_NAMESPACE_END

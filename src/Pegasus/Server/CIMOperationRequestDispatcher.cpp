@@ -1,4 +1,4 @@
-///%/////////////////////////////////////////////////////////////////////////////
+///%//////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
 // The Open Group, Tivoli Systems
@@ -67,7 +67,14 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
 {
 
    PEG_METHOD_ENTER(TRC_DISPATCHER,
-		    "CIMOperationRequestDispatcher::CIMOperationRequestDispatcher");
+         "CIMOperationRequestDispatcher::CIMOperationRequestDispatcher");
+
+   // Check whether or not AssociationTraversal is supported.
+   //
+   ConfigManager* configManager = ConfigManager::getInstance();
+   _enableAssociationTraversal = String::equal(
+        configManager->getCurrentValue("enableAssociationTraversal"), "true");
+
    PEG_METHOD_EXIT();
 }
 
@@ -2749,6 +2756,26 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDispatcher::handleAssociatorsRequest");
 
+   if (!_enableAssociationTraversal)
+   {
+       CIMException cimException =
+           PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "Associators");
+       Array<CIMObject> cimObjects;
+
+       CIMAssociatorsResponseMessage* response =
+           new CIMAssociatorsResponseMessage(
+               request->messageId,
+	       cimException,
+	       request->queueIds.copyAndPop(),
+	       cimObjects);
+
+       STAT_COPYDISPATCHER
+
+       _enqueueResponse(request, response);
+
+       PEG_METHOD_EXIT();
+   }
+
    String className = request->objectName.getClassName();
    String assocClassName = request->assocClass;
    String resultClassName = request->resultClass;
@@ -2844,6 +2871,26 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDispatcher::handleAssociatorNamesRequest");
 
+   if (!_enableAssociationTraversal)
+   {
+       CIMException cimException =
+           PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "AssociatorNames");
+       Array<CIMObjectPath> cimObjects;
+
+       CIMAssociatorNamesResponseMessage* response =
+           new CIMAssociatorNamesResponseMessage(
+               request->messageId,
+	       cimException,
+	       request->queueIds.copyAndPop(),
+	       cimObjects);
+
+       STAT_COPYDISPATCHER
+
+       _enqueueResponse(request, response);
+
+       PEG_METHOD_EXIT();
+   }
+
    String className = request->objectName.getClassName();
    String resultClassName = request->resultClass;
    CIMResponseMessage * response;
@@ -2934,6 +2981,26 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDispatcher::handleReferencesRequest");
 
+   if (!_enableAssociationTraversal)
+   {
+       CIMException cimException =
+           PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "References");
+       Array<CIMObject> cimObjects;
+
+       CIMReferencesResponseMessage* response =
+           new CIMReferencesResponseMessage(
+               request->messageId,
+	       cimException,
+	       request->queueIds.copyAndPop(),
+	       cimObjects);
+
+       STAT_COPYDISPATCHER
+
+       _enqueueResponse(request, response);
+
+       PEG_METHOD_EXIT();
+   }
+
    String className = request->objectName.getClassName();
    CIMResponseMessage * response;
 
@@ -3023,6 +3090,26 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDispatcher::handleReferenceNamesRequest");
+
+   if (!_enableAssociationTraversal)
+   {
+       CIMException cimException =
+           PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "ReferenceNames");
+       Array<CIMObjectPath> cimObjects;
+
+       CIMReferenceNamesResponseMessage* response =
+           new CIMReferenceNamesResponseMessage(
+               request->messageId,
+	       cimException,
+	       request->queueIds.copyAndPop(),
+	       cimObjects);
+
+       STAT_COPYDISPATCHER
+
+       _enqueueResponse(request, response);
+
+       PEG_METHOD_EXIT();
+   }
 
    String className = request->objectName.getClassName();
    CIMResponseMessage * response;

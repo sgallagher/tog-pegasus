@@ -46,9 +46,13 @@ const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/PG_InterOp");
 CIMObjectPath CreateHandler1Instance (CIMClient& client)
 {
     Array <String> mailTo;
-    mailTo.append(System::getEffectiveUserName());
-    mailTo.append("@");
-    mailTo.append(System::getFullyQualifiedHostName());
+
+    String mailAddr1;
+    mailAddr1.append(System::getEffectiveUserName());
+    mailAddr1.append("@");
+    mailAddr1.append(System::getFullyQualifiedHostName());
+
+    mailTo.append(mailAddr1);
 
     CIMInstance handlerInstance(PEGASUS_CLASSNAME_LSTNRDST_EMAIL);
     handlerInstance.addProperty (CIMProperty (CIMName

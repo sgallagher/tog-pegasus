@@ -454,7 +454,7 @@ void drive_resolve_specialChars()
       CQLValue a5(ci5);
       CQLValue a6(ci6);
       CQLValue a7(ci7);
-
+      
       a1.resolve(_i1, _query);
       a2.resolve(_i1, _query);
       a3.resolve(_i1, _query);
@@ -473,7 +473,7 @@ void drive_resolve_specialChars()
       }
 
       assert(a1 == CQLValue(Uint64(11)));
-      assert(a2.getValueType() == CQLIgnore_type);
+      assert(a2 == CQLValue(Uint64(36)));
       assert(a3 == CQLValue(String("Degraded")));
 
       assert(a6 == CQLValue(Uint64(2)));

@@ -26,7 +26,7 @@ include $(ROOT)/mak/library.mak
 #endif
 
 ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
-SYS_LIBS = ws2_32.lib advapi32.lib
+SYS_LIBS = ole32.lib ws2_32.lib advapi32.lib
 endif
 
 

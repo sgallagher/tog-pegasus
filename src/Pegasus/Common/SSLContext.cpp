@@ -547,7 +547,8 @@ void SSLContextRep::_randomInit(const String& randomFile)
                 //l10n
                 //throw( SSLException("Not enough seed data in random seed file."));
                 MessageLoaderParms parms("Common.SSLContext.NOT_ENOUGH_SEED_DATA_IN_FILE",
-            						     "Not enough seed data in random seed file.");
+            						     "Not enough seed data in random seed file.",
+            						     randomFile);
             	throw( SSLException(parms));
             }
         }

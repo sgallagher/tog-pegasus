@@ -185,7 +185,7 @@ CIMProvider *ProviderModule::load(const String & providerName)
         //String errorString = "Cannot load library, error: " + System::dynamicLoadError();
         //throw Exception("ProviderLoadFailure (" + _fileName + ":" + providerName + "):" + errorString);
         throw Exception(MessageLoaderParms("ProviderManager.ProviderModule.CANNOT_LOAD_LIBRARY",
-        								   "ProviderLoadFailure ($0:$1):Cannot load library, error: $3",
+        								   "ProviderLoadFailure ($0:$1):Cannot load library, error: $2",
         								   _fileName,
         								   providerName,
         								   System::dynamicLoadError()));

@@ -411,6 +411,7 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 		//cout << "INITPEGASUSMSGHOME:" << endl;
 		#ifdef PEGASUS_OS_OS400
 			pegasus_MSG_HOME = OS400_DEFAULT_MESSAGE_SOURCE;
+			pegasus_MSG_HOME.append('/');
 		#else
 			const char* env = getenv("PEGASUS_HOME");
     		if (env != NULL){

@@ -502,13 +502,13 @@ CIMConfigCommand::CIMConfigCommand ()
 	
 	#ifdef PEGASUS_OS_OS400
 		
-		MessageLoaderParms menuparms("Clients.CIMConfig.CIMConfigComand.MENU.PEGASUS_OS_OS400",usage);
+		MessageLoaderParms menuparms("Clients.CIMConfig.CIMConfigCommand.MENU.PEGASUS_OS_OS400",usage);
 		menuparms.msg_src_path = MSG_PATH;
 		usage = MessageLoader::getMessage(menuparms);
 	
 	#else
 		
-		MessageLoaderParms menuparms("Clients.CIMConfig.CIMConfigComand.MENU.STANDARD",usage);
+		MessageLoaderParms menuparms("Clients.CIMConfig.CIMConfigCommand.MENU.STANDARD",usage);
 		menuparms.msg_src_path = MSG_PATH;
 		usage = MessageLoader::getMessage(menuparms);
 		

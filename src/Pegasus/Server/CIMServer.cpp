@@ -108,11 +108,19 @@ CIMServer::CIMServer(
 
     // -- Create a repository:
 
+#ifdef DO_NOT_CREATE_REPOSITORY_ON_STARTUP
+    // If this code is enable, the CIMServer will fail to start
+    // if the repository directory does not exit. If called,
+    // the Repository will create an empty repository.
+
+    // This check has been disabled to allow cimmof to call 
+    // the CIMServer to build the initial repository.
     if (!FileSystem::isDirectory(repositoryRootPath))
     {
         PEG_METHOD_EXIT();
 	throw NoSuchDirectory(repositoryRootPath);
     }
+#endif
 
     _repository = new CIMRepository(repositoryRootPath);
 

@@ -90,7 +90,7 @@ void NamespaceProvider::createInstance(
 
 	KeyBinding        kb;
         String            keyName;
-        String            keyValue;
+        String            keyValueString;
        //
        // check if the class name requested is correct
        //
@@ -100,10 +100,11 @@ void NamespaceProvider::createInstance(
 	   throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
 				       instanceReference.getClassName());
        }
-
+#ifdef NEVER
        //
        // validate key bindings
        //
+
        Array<KeyBinding> kbArray = instanceReference.getKeyBindings();
        if ( (kbArray.size() != 1) ||
 	    (!String::equalNoCase(kbArray[0].getName(), NAMESPACE_NAME)) )
@@ -122,10 +123,34 @@ void NamespaceProvider::createInstance(
 
        // Get the name property from the object
        keyValue.assign(kbArray[0].getValue());
+#else
+       try
+       {
+           Uint32 pos = myInstance.findProperty(NAMESPACE_NAME);
+           if (pos == PEG_NOT_FOUND)
+           {
+	      PEG_METHOD_EXIT();
+	      throw PropertyNotFound(NAMESPACE_NAME);
+           }
+           const CIMValue& keyValue = myInstance.getProperty(pos).getValue();
+           if (keyValue.getType() != CIMType::STRING)
+           {
+	      PEG_METHOD_EXIT();
+	      throw InvalidParameter("Invalid type for property " 
+                                         + String(NAMESPACE_NAME));
+           }
+           keyValueString = keyValue.toString();
+       }
+       catch (Exception& e)
+       {
+	   PEG_METHOD_EXIT();
+           throw InvalidParameter("Invalid property " 
+                                         + String(NAMESPACE_NAME));
+       }
+#endif
        Array<String> namespaceNames;
        try
        {
-
 	   namespaceNames = _repository->enumerateNameSpaces();
        }
        catch(Exception& e)
@@ -136,23 +161,23 @@ void NamespaceProvider::createInstance(
        }
        // Determine if this namespace exists.
        // Cound not use Contains since this is equalNoCase
+
        Boolean found = false;
        for(Uint32 i = 0; i < namespaceNames.size(); i++)
        {
-	   if(String::equalNoCase(namespaceNames[i], keyValue))
+	   if(String::equalNoCase(namespaceNames[i], keyValueString))
 	   {
 	       found = true;
 	       continue;
 	   }
        }
-
        // If found, put out error that cannot create twice.
        if(found)
        {
 	       PEG_METHOD_EXIT();
 	       throw PEGASUS_CIM_EXCEPTION(
 		       CIM_ERR_ALREADY_EXISTS,
-		       String("Namespace \"") + keyValue + "\"");
+		       String("Namespace \"") + keyValueString + "\"");
        }
 
        // begin processing the request
@@ -161,7 +186,7 @@ void NamespaceProvider::createInstance(
        // try to create the new namespace
        try
        {
-	   _repository->createNameSpace(keyValue);
+	   _repository->createNameSpace(keyValueString);
        }
        catch(Exception& e)
        {
@@ -169,7 +194,7 @@ void NamespaceProvider::createInstance(
            throw PEGASUS_CIM_EXCEPTION(
                    CIM_ERR_FAILED, e.getMessage());
 
-            //       String("Namespace \"") + keyValue + "\"" + " creation error");
+            //       String("Namespace \"") + keyValueString + "\"" + " creation error");
        }
 
        handler.deliver(instanceReference);

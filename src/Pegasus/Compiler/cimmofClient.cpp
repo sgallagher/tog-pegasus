@@ -35,6 +35,10 @@
 
 PEGASUS_USING_PEGASUS;
 
+static const char INTEROP_NAMESPACE [] = "root/PG_InterOp";
+static const char NAMESPACE_CLASS [] = "__NameSpace";
+static const char NAMESPACE_PROPERTY_NAME [] = "Name";
+
 cimmofClient::cimmofClient() :
   _ot(compilerCommonDefs::USE_REPOSITORY),
   _client(0)
@@ -105,5 +109,8 @@ cimmofClient::getClass(const String &nameSpace,
 void
 cimmofClient::createNameSpace(const String &nameSpace) const
 {
-  //_client->createNameSpace(nameSpace);
+    CIMInstance newInstance(NAMESPACE_CLASS);
+    newInstance.addProperty(
+              CIMProperty(NAMESPACE_PROPERTY_NAME, nameSpace));
+    _client->createInstance(INTEROP_NAMESPACE, newInstance);
 }

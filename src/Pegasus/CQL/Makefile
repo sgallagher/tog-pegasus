@@ -48,6 +48,7 @@ SOURCES = \
    CQLValue.cpp \
    CQLValueRep.cpp \
    QueryException.cpp \
+   CQLRegularExpression.cpp \
    CQLUtilities.cpp
 
 include $(ROOT)/mak/library.mak

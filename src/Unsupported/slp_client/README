@@ -1,11 +1,7 @@
 Copyright 1999 - 2003 Michael Day
 
-LDAP_SLP is an implementation of the rfc2608 Service Location Protocol
-
-LSLP-KERNEL
-=============
-lslp-kernel is a Mesh-enhanced Directory Agent. It is designed to be
-very fast and fully featured. 
+mdday@us.ibm.com
+md@soft-hackle.net
 
 CMD-UTILS
 ===========
@@ -19,8 +15,7 @@ SLP User Agent
 State of the Source Tree
 =======================
 As of Mon May 12 2003 the Windows build is broken. The Linux build is
-working on at least two linux platforms. The build is broken unless
-you define DEBUG=true when you configure the environment. 
+working on at least two linux platforms. 
 
 The source tree has undergone significant reorgination lately. I have
 converted from really ugly kludged makefiles to using the GNU autoconf
@@ -39,7 +34,6 @@ Initial directory = ldap_slp
 |   |   +---slp_client       <-- slp client library
 |   |   +---slp_query        <-- command-line slp user agent 
 |   |   +---slp_srvreg       <-- command-line and daemon slp service agent
-|   +---kernel               <-- slp directory agent (daemon)
 
 
 Windows Build
@@ -89,28 +83,3 @@ If you are only interested in the DA (lslp-kernel) or the SA
 version of the compatibility files. The SA version is not as much
 work.
 
-ALPHA Code 
-========== 
-
-This is alpha code, although the cmd-utils tree is beta and quality
-for linux. There are some pretty significant things to fix in the DA
-code.
-
-- Thread management. Right now thread destruction is
-incorrect. This is a termination issue because threads in the DA are
-not supposed to terminate. 
-
-- Memory suballocater. There are a couple of bugs in the memory
-suballocator that can cause a core in the DA. That's why the source
-will only build under debug right now. 
-
-- TCP connection handling. This needs to be modified so connections
-can persist across transactions. Everything is enabled but part of the
-connection handling. (i.e., reading/writing, checking, etc.)
-
-BUG Reports
-=============
-Please send bug reports to lslp-bugs@lists.sourceforge.net
-
-Mike Day
-mday@users.sourceforge.net

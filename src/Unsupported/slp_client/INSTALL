@@ -9,12 +9,12 @@ The source code is organized as follows:
 Initial directory = ldap_slp
 +---conf                     <-- contains the DA configuration file 
 +---doc                      <-- contains some internet-drafts
++---scripts		     <-- shell scripts that demonstrate functions
 +---src                      <-- source code
 |   +---cmd-utils            <-- command-line utilities
 |   |   +---slp_client       <-- slp client library
 |   |   +---slp_query        <-- command-line slp user agent 
 |   |   +---slp_srvreg       <-- command-line and daemon slp service agent
-|   +---kernel               <-- slp directory agent (daemon)
 
 
 BUILD REQUIREMENTS
@@ -22,6 +22,52 @@ BUILD REQUIREMENTS
 
 To build the source tree, you must have Bash, Gnu Make, Gnu Autoconf,
 and Gnu Libtool, and a C compiler and linker. 
+
+Information on downloading, installing, and using Autoconf and Libtool
+is in the file README.AUTOCONF. 
+
+
+COPYING GNU SHELL SCRIPTS TO BULD DIRECTORY
+============================================
+
+There are four shell scripts that you may need to copy to the build
+directory in order for the build to be successful. These scripts are
+generated and installed as part of the Autoconf and Libtool
+installation procedures (see README.AUTOCONF). 
+
+
+1) config.guess
+
+This shell script determines the build platform. It will be
+located in one of the libtool directories, but will probably be
+located in multiple directores on your system if you have done a lot
+of building products from source (as opposed to RPM packages). Here is
+how I copied it on my RedHat 7.3 system: 
+
+cp /usr/share/libtool/config.guess $PEGASUS_ROOT/src/Unsupported/slp_client/
+
+2) config.sub
+
+This shell script contains subroutines used by Autoconf. Here is now I
+copied it on my RedHat 7.3 system:
+
+cp /usr/share/automake-1.5/config.sub $PEGASUS_ROOT/src/Unsupported/slp_client/
+
+3) install-sh
+
+This shell script performs library installation for Libtool. Here is
+how I copied it on my RedHat 7.3 system:
+
+cp /usr/share/automake-1.5/install-sh $PEGASUS_ROOT/src/Unsupported/slp_client/
+
+
+4) ltmain.sh
+
+This is a template for generating the libtool script for your specific
+platform. Here is how I copied it on my RedHat 7.3 system:
+
+
+cp /usr/share/libtool/ltmain.sh $PEGASUS_ROOT/src/Unsupported/slp_client/
 
 
 BUILD COMMANDS
@@ -44,14 +90,5 @@ INSTALLATION
 
 To install, su to root and type make install <Enter>
 
-Currently make install only works for the cmd-utils directory tree. 
-This allows you to install the shared library, SA (slp_srvreg), and UA
-(slp_query) tools. 
 
-To install the DA, simply copy it to a directory in your search
-path. Ensure that the configuration file (slp.conf) is in a known
-location and use the -f command-line parameter to load the
-configuratin file. e.g., 
-
-lslp-kernel -f/etc/slp.conf
 

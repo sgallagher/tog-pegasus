@@ -1,0 +1,51 @@
+Autoconf and Libtool are Gnu utilities that automate the building and
+installation of software libraries and executables. They abstract
+platform differences and provide a toolkit of macros and shell scripts
+that solve platform interoperability issues.
+
+Building slp_client library requires Autoconf and Libtool. However,
+these tools are licensed under the Gnu Public License and therefore
+they are not included in the Pegasus CVS repository. 
+
+You need to obtain Autoconf and Libtool and install them on your
+platform prior to rebuilding the slp_client library. Most Unix
+platforms have versions of Autoconf and Libtool
+pre-installed. However, you should still update your platform to the
+latest versions. 
+
+
+Obtaining Autoconf
+====================
+
+The following web page contains information on downloading and using
+Autoconf:
+
+http://www.gnu.org/software/autoconf/
+
+Obtaining Libtool
+=================
+
+The following web page contains information on downloading and using
+Libtool:
+
+ http://www.gnu.org/directory/libtool.html
+
+Autoconf Manual
+===============
+
+There is an up-to-date Autoconf manual at:
+
+http://www.gnu.org/manual/autoconf/html_mono/autoconf.html
+
+
+Online Book on Autoconf and Libtool
+====================================
+
+You may be interested in a book on Autoconf, Automake (another Gnu
+tool), and Libtool that was published commercially and is now
+available on-line:
+
+http://sources.redhat.com/autobook/
+
+This book is out of date but nevertheless contains a lot of very
+useful information about using Autoconf and Libtool. 

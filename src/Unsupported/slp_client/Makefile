@@ -8,14 +8,14 @@ INSTALL = install
 ## capture the appropriate environment variables to 
 ## control the build process
 ##
-export BUILD_ROOT := /home/mdday/my-programs/ldap_slp
+export BUILD_ROOT := /home/mdday/my-programs/pegasus/src/Unsupported/slp_client
 export SRC_DIR := $(BUILD_ROOT)/src
 export BUILD_DIR := $(shell pwd)
 export WORDS_BIG_ENDIAN := @WORDS_BIG_ENDIAN@
 export PACKAGE := slp
 export PACKAGE_VERSION := 0.8 
-export DEBUG := true
-export LIBTOOL := /home/mdday/my-programs/ldap_slp/libtool
+export DEBUG := 
+export LIBTOOL := /home/mdday/my-programs/pegasus/src/Unsupported/slp_client/libtool
 export OBJ := .lo
 export IGNORE := -
 export LIB_PATH := -rpath
@@ -45,11 +45,11 @@ export DLL_SUFFIX := @DLL_SUFFIX@
 export EXE_OUT := -o
 export OBJ_OUT := -o
 export LIB_INCLUDE_FLAG := -l
-export CFLAGS := -g -Wall -Dlinux -DDEBUG_ALLOC
-export LDFLAGS := -g
+export CFLAGS := -O -Wall -Dlinux
+export LDFLAGS := -s
 export DLL_LIB_FLAG := 
-export LFLAGS := -p -v -d 
-export YFLAGS := -v -d
+export LFLAGS := -f -w
+export YFLAGS := -l
 export bindir := /bin
 export sbindir := /sbin
 export libexecdir := /lib

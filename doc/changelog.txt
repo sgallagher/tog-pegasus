@@ -16,20 +16,23 @@ Functions added include:
 	   prints these things out.  However, format not to beautiful.
 	d. Eliminate a couple of messages coming from __Namespace provider.
 	e. Extend the Clients\testclient so he does tests on Namespace.
-2. Extended Log to show time, severity.
-3. Added getCurrentASCIITime functions to System.x
-4. Extended options on CIMServer including 1. option to determine where logs
+2. (KS)Extended Log to show time, severity.
+3. (KS)Added getCurrentASCIITime functions to System.x
+4. (KS)Extended options on CIMServer including 1. option to determine where
+logs
 are put
-5. Added TestClient that executes a series of tests against a server.  This is
-a preliminary version.
-6. Corrected problem with acceptor.bind where failure was being lost. Now
+5. (KS)Added TestClient that executes a series of tests against a server.
+This is a preliminary version.
+6. (KS)Corrected problem with acceptor.bind where failure was being lost. Now
 throws CannotBind exception.
-7. Added logger entry to XMLParser for errors.  NOTE: At this point it may not
+7. (KS)Added logger entry to XMLParser for errors.  NOTE: At this point it may
+not
 print out all of the message.  At the least it prints out the error message
 and components of the message causing the problem.
-8. Added clean option to server but temprarily disabled.
-9. Fixed problem where logs were not created unless logs directory already
+8. (KS)Added clean option to server but temprarily disabled.
+9. (KS)Fixed problem where logs were not created unless logs directory already
 existed.
+
 ----------------------------------------------------------------
 Version 0.97.2
 
@@ -82,6 +85,7 @@ with the complete unit test and client/server test successfully.
 29 May 2001
 
 1.  Implemented CIMRepository::setProperty() and CIMRepository::getProperty().
+
 
 
 

@@ -69,9 +69,9 @@ static const char* _toString(Boolean x)
     TOSUBCLASS        = "tosubclass"
 
     TRANSLATABLE      = "translatable"
-      </pre>
-      The keyword toinstance is not in the CIMspecification and so is not
-      included in out output..
+   </pre>
+   The keyword toinstance is not in the CIMspecification and so is not
+   included in out output..
 */
 String FlavorToMof(Uint32 flavor)
 {
@@ -82,7 +82,11 @@ String FlavorToMof(Uint32 flavor)
 
     String tmp;
 
-    if (!overridable)
+    tmp = "";
+
+    if (overridable)
+        tmp += "EnableOverride, ";
+    else
 	tmp += "DisableOverride, ";
 
     if (!toSubClass)
@@ -90,7 +94,7 @@ String FlavorToMof(Uint32 flavor)
 
     /* this is not a legal MOF flavor
     if (toInstance)
-	tmp += "TOINSTANCE, ";
+	tmp += "TOINSTANCE ";
     */
 
     if (translatable)

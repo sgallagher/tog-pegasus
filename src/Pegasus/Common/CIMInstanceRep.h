@@ -55,6 +55,8 @@ public:
 
     virtual void toXml(Array<Sint8>& out) const;
 
+    virtual void toMof(Array<Sint8>& out) const;
+
     virtual void print(PEGASUS_STD(ostream)& os = PEGASUS_STD(cout)) const;
 
     virtual CIMObjectRep* clone() const

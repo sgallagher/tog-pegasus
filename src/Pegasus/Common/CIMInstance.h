@@ -359,6 +359,15 @@ public:
 	_rep->print(o);
     }
 
+    /**	toMof - Creates an MOF transformation of the CIMInstance
+	compatiblewith the DMTF specification.
+	@return
+    */
+    void toMof(Array<Sint8>& out) const
+    {
+	_checkRep();
+	_rep->toMof(out);
+    }
     /**	identical - Compares the CIMInstance with another CIMInstance
 	defined by the input parameter for equality of all components.
 	@param CIMInstance to be compared

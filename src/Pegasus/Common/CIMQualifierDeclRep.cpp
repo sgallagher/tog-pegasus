@@ -110,7 +110,9 @@ void CIMQualifierDeclRep::toXml(Array<Sint8>& out) const
 }
 
 /** toMof - Generate the MOF output for the Qualifier Declaration object.
+    
     The BNF for this output is:
+    <pre>
     qualifierDeclaration   = 	QUALIFIER qualifierName qualifierType scope
 				[ defaultFlavor ] ";"
 
@@ -120,6 +122,7 @@ void CIMQualifierDeclRep::toXml(Array<Sint8>& out) const
 
     scope 		   = 	"," SCOPE "(" metaElement *( "," metaElement )
     ")"
+    </pre>
 */
 void CIMQualifierDeclRep::toMof(Array<Sint8>& out) const
 {
@@ -145,27 +148,30 @@ void CIMQualifierDeclRep::toMof(Array<Sint8>& out) const
     }
 
     Boolean hasValueField = false;
-    if (!_value.isNull() || !(_value.getType() == CIMType::BOOLEAN) )
-    {
-	out << " (";
+    // KS think through the following test
+    //if (!_value.isNull() || !(_value.getType() == CIMType::BOOLEAN) )
+    //{
+        // KS With CIM Qualifier, this should be =
+	out << " =";
 	hasValueField = true;
 	_value.toMof(out);
-    }
+    //}
 
+    // Output Scope Information
     String scopeString;
-    scopeString = ScopeToString(_flavor);
-    if (scopeString.size())
-    {
-	out << " Scope( " << scopeString << ")";
-    }
-    //FlavorToXml(out, _flavor);
+    scopeString = ScopeToString(_scope);
+    //if (scopeString.size())
+    //{
+	out << ", Scope(" << scopeString << ")";
+    //}
+    // Output Flavor Information
     String flavorString;
     flavorString = FlavorToMof(_flavor);
     if (flavorString.size())
     {
-    out << " Flavor( " << flavorString << ")";
+    out << ", Flavor(" << flavorString << ")";
     }
-
+    // End each qualifier declaration with newline
     out << ";\n";
 }
 

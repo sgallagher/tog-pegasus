@@ -3537,7 +3537,7 @@ Boolean IndicationService::_getActiveSubscriptionsFromRepository (
     return warningLogged;
 }
 
-Array <CIMInstance> IndicationService::_getActiveSubscriptions () const
+Array <CIMInstance> IndicationService::_getActiveSubscriptions ()
 {
     Array <CIMInstance> activeSubscriptions;
 
@@ -3545,7 +3545,7 @@ Array <CIMInstance> IndicationService::_getActiveSubscriptions () const
                       "IndicationService::_getActiveSubscriptions");
 
     // Do not call any other methods that need _activeSubscriptionsTableLock
-    ReadLock lock(ReadWriteSem(_activeSubscriptionsTableLock));
+    ReadLock lock(_activeSubscriptionsTableLock);
 
     //
     //  Iterate through the subscription table

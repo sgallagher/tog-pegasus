@@ -461,7 +461,7 @@ private:
 
         @return   list of CIMInstance subscriptions
      */
-    Array <CIMInstance> _getActiveSubscriptions () const;
+    Array <CIMInstance> _getActiveSubscriptions ();
 
     /**
         Retrieves list of enabled subscription instances in all namespaces,
@@ -1102,7 +1102,7 @@ private:
         const CIMObjectPath & subscriptionRef);
 
     /**
-        Locks the _subscriptionClassesTableLock for write access and looks
+        Locks the _subscriptionClassesTableLock for read access and looks
         up an entry in the Active Subscriptions table.
 
         @param   key                   the hash table key

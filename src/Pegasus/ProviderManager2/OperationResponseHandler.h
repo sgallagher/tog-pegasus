@@ -111,10 +111,9 @@ protected:
 		// validate whatever is necessary before the transfer
 		virtual void validate() {}
 
-	  virtual const String& getClass() const
+	  virtual String getClass() const
 	  { 
-			static const String n("OperationResponseHandler");
-			return n;
+			return String ("OperationResponseHandler");
 		}
 
    	Uint32 getResponseObjectTotal() const { return _responseObjectTotal; }
@@ -145,8 +144,7 @@ c ## ResponseHandler(CIM ## c ## RequestMessage *request,                     \
 
 #define PEGASUS_RESPONSE_HANDLER_DERIVED_INIT(c, b)                           \
 PEGASUS_RESPONSE_HANDLER_DERIVED_CONSTRUCT(c, b)                              \
-virtual const String& getClass() const                                        \
-{ static const String n(#c "ResponseHandler"); return n; }
+virtual String getClass() const { return String (#c "ResponseHandler"); }
 
 class GetInstanceResponseHandler:  public OperationResponseHandler, public SimpleInstanceResponseHandler
 {

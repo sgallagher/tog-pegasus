@@ -57,7 +57,15 @@ PEGASUS_SUBALLOC_LINKAGE void pegasus_free(void * dead, int type, Sint8 *classna
 }
 
 PEGASUS_NAMESPACE_END
-void * operator new(size_t size) throw()
+
+PEGASUS_USING_PEGASUS;
+
+void * operator new(size_t size)
+#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+    throw(PEGASUS_STD(bad_alloc))
+#else
+    throw()
+#endif
 {
    
    if( size == 0 )
@@ -66,8 +74,8 @@ void * operator new(size_t size) throw()
    
    while(1)
    {
-      p = Pegasus::internal_allocator.vs_malloc(size, 
-				       &(Pegasus::internal_allocator.get_handle()),
+      p = internal_allocator.vs_malloc(size, 
+				       &(internal_allocator.get_handle()),
 				       NORMAL, 
 				       "BUILTIN NEW", 
 				       __FILE__, __LINE__) ;
@@ -88,11 +96,16 @@ void operator delete(void *dead, size_t size) throw()
    if( dead == 0 )
       return;
    
-   Pegasus::internal_allocator.vs_free(dead);
+   internal_allocator.vs_free(dead);
    return;
 }
 
-void * operator new [] (size_t size) throw()
+void * operator new [] (size_t size)
+#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+    throw(PEGASUS_STD(bad_alloc))
+#else
+    throw()
+#endif
 {
 
    if( size == 0 )
@@ -101,8 +114,8 @@ void * operator new [] (size_t size) throw()
    
    while(1)
    {
-      p = Pegasus::internal_allocator.vs_malloc(size, 
-				       &(Pegasus::internal_allocator.get_handle()), 
+      p = internal_allocator.vs_malloc(size, 
+				       &(internal_allocator.get_handle()), 
 				       ARRAY) ;
       if( p )
 	 return p;
@@ -119,7 +132,7 @@ void operator delete [] (void *dead) throw()
 {
    if( dead == 0 )
       return;
-   Pegasus::internal_allocator.vs_free(dead, ARRAY, NULL, NULL, 0);
+   internal_allocator.vs_free(dead, ARRAY, NULL, NULL, 0);
    return;
 }
 

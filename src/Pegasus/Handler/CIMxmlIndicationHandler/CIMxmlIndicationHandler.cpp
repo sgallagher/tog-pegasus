@@ -96,9 +96,11 @@ public:
 	
 	try
         {
-	    Monitor* monitor = new Monitor;
-	    HTTPConnector* httpConnector = new HTTPConnector(monitor);
-	    CIMExportClient exportclient(monitor, httpConnector);
+		// Bug #349. Changing allocation from heap to stack since
+                // we don't use the monitor, httpConnector later on.
+	    Monitor monitor;
+	    HTTPConnector httpConnector (&monitor);
+	    CIMExportClient exportclient (&monitor, &httpConnector);
             Uint32 colon = dest.find (":");
             Uint32 slash = dest.find ("/");
             Uint32 portNumber = 0;

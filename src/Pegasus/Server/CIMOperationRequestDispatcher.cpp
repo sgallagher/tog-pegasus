@@ -214,7 +214,7 @@ String CIMOperationRequestDispatcher::_lookupIndicationProvider(
    const String& nameSpace,
    const String& className)
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "CIMOperationRequestDispatcher::_lookupIndicationProvider()");
 
     PEG_METHOD_EXIT();
@@ -226,7 +226,7 @@ String CIMOperationRequestDispatcher::_lookupAssociationProvider(
    const String& nameSpace,
    const String& className)
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "CIMOperationRequestDispatcher::_lookupAssociationProvider()");
 
     PEG_METHOD_EXIT();
@@ -1366,10 +1366,15 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
    // Check for class provided by an internal provider
    if (_lookupInternalProvider("", className, service, provider))
    {
+       PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
+           "Found internal provider; service = " + service);
+
        Array<Uint32> serviceIds;
 
        find_services(service, 0, 0, &serviceIds);
 
+       Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4, "Found %u service ID(s)",
+                     serviceIds.size());
        PEGASUS_ASSERT(serviceIds.size() != 0);
 
        AsyncOpNode * op = this->get_op();

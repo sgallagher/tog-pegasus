@@ -122,10 +122,10 @@ int main(int argc, char** argv)
         cout << "Finish date time is : " << finishTime << endl;
     }
 
-#ifndef PEGASUS_PLATFORM_LINUX_IX86_GNU
-    assert ( differenceInMicroseconds == -10800000000 );
-#else
+#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
     assert ( differenceInMicroseconds == -10800000000LL );
+#else
+    assert ( differenceInMicroseconds == -10800000000 );
 #endif
 
     //
@@ -156,10 +156,10 @@ int main(int argc, char** argv)
         cout << "Finish date time is : " << finishTime << endl;
     }
 
-#ifndef PEGASUS_PLATFORM_LINUX_IX86_GNU
-    assert (differenceInMicroseconds == 10800000003);
-#else
+#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
     assert (differenceInMicroseconds == 10800000003LL);
+#else
+    assert (differenceInMicroseconds == 10800000003);
 #endif
 
     // Set the start and finish times
@@ -186,10 +186,10 @@ int main(int argc, char** argv)
         cout << "Start date time is  : " << startTime << endl;
         cout << "Finish date time is : " << finishTime << endl;
     }
-#ifndef PEGASUS_PLATFORM_LINUX_IX86_GNU
-    assert (differenceInMicroseconds == 10799999997);
-#else
+#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
     assert (differenceInMicroseconds == 10799999997LL);
+#else
+    assert (differenceInMicroseconds == 10799999997);
 #endif
 
     // Set the start and finish times
@@ -217,10 +217,10 @@ int main(int argc, char** argv)
         cout << "Finish date time is : " << finishTime << endl;
     }
 
-#ifndef PEGASUS_PLATFORM_LINUX_IX86_GNU
-    assert ( differenceInMicroseconds == 10800000000 );
-#else
+#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
     assert ( differenceInMicroseconds == 10800000000LL );
+#else
+    assert ( differenceInMicroseconds == 10800000000 );
 #endif
 
     // Set the start and finish times
@@ -248,10 +248,10 @@ int main(int argc, char** argv)
         cout << "Finish date time is : " << finishTime << endl;
     }
 
-#ifndef PEGASUS_PLATFORM_LINUX_IX86_GNU
-    assert ( differenceInMicroseconds == 48600000000 );
-#else
+#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
     assert ( differenceInMicroseconds == 48600000000LL );
+#else
+    assert ( differenceInMicroseconds == 48600000000 );
 #endif
 
     // Set the start and finish times
@@ -279,10 +279,10 @@ int main(int argc, char** argv)
         cout << "Finish date time is : " << finishTime << endl;
     }
 
-#ifndef PEGASUS_PLATFORM_LINUX_IX86_GNU
-    assert ( differenceInMicroseconds == -48600000000 );
-#else
+#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
     assert ( differenceInMicroseconds == -48600000000LL );
+#else
+    assert ( differenceInMicroseconds == -48600000000 );
 #endif
 
     // Check for interval
@@ -323,10 +323,10 @@ int main(int argc, char** argv)
                                      (startInterval, finishInterval);
 
     assert ( startInterval.isInterval() == true );
-#ifndef PEGASUS_PLATFORM_LINUX_IX86_GNU
-    assert ( intervalDifferenceInMicroseconds == 8639999999999999999 );
-#else
+#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
     assert ( intervalDifferenceInMicroseconds == 8639999999999999999LL );
+#else
+    assert ( intervalDifferenceInMicroseconds == 8639999999999999999 );
 #endif
 
     try 

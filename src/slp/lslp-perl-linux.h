@@ -47,6 +47,7 @@
 #include <string.h>
 
 #ifdef PEGASUS_OS_HPUX
+extern char *strtok_r(char *, const char *, char **);
 # include <arpa/inet.h>
 # include <net/if.h>
 #else

@@ -11,6 +11,9 @@ Version 0.98.0 - Work in progress
 2. (Jenny Yu - HP) Fixed problem in CGIClient.cpp to handle double quotes
    in the HTML URL reference for passing instance names.
 
+3. (Denise E. - HP) HP-UX specific changes to lslp-perl-linux,h and slp.h to
+   allow slp to compile.
+
 ------------------------------------------------------------------------------
 --
 

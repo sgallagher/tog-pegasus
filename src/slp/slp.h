@@ -42,10 +42,6 @@
 #include "lslp-perl-linux.h"
 #endif
 
-#ifdef PEGASUS_OS_HPUX
-typedef int socklen_t;
-#endif
-
 #include "lslp-perl.h"
 
 PEGASUS_NAMESPACE_BEGIN

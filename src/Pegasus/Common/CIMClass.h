@@ -487,7 +487,8 @@ public:
     {
 	return CIMClass(_rep->clone());
     }
-
+    /** getKeyNames - ATTN
+    */
     void getKeyNames(Array<String>& keyNames) const
     {
 	_checkRep();

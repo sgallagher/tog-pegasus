@@ -40,7 +40,48 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-struct DirRep;
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
+#include <io.h>
+typedef struct 
+{
+    long file;
+    struct _finddata_t findData;
+} DirRep;
+#elif defined(PEGASUS_OS_TYPE_UNIX)
+#include <dirent.h>
+
+// ATTN: If a platform is found that does not have the readdir_r interface,
+// this next line should be conditionally compiled out for that platform.
+// Otherwise, the old readdir code can be removed.
+#define PEGASUS_HAS_READDIR_R
+
+typedef struct
+{
+    DIR* dir;
+#ifdef PEGASUS_OS_OS400
+    struct dirent_lg* entry;
+#else
+    struct dirent* entry;
+#endif
+#ifdef PEGASUS_HAS_READDIR_R
+#ifdef PEGASUS_OS_OS400
+    struct dirent_lg buffer;
+#else
+#ifdef PEGASUS_OS_SOLARIS
+private:
+        char buf[sizeof(dirent) + MAXNAMELEN];
+public:
+        struct dirent &buffer;
+        inline DirRep()
+                : buffer(*reinterpret_cast<struct dirent *>(buf))
+        { }
+#else
+    struct dirent buffer;
+#endif
+#endif
+#endif
+} DirRep;
+#endif
 
 /** The Dir class provides a platform independent way of iterating the
     files in a directory.
@@ -88,7 +129,7 @@ private:
     Boolean _more;
     Boolean _isValid;
     String _path;
-    AutoPtr<DirRep> _rep;
+    DirRep _dirRep;
 };
 
 PEGASUS_NAMESPACE_END

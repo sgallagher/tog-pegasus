@@ -34,25 +34,16 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-#include <io.h>
 #include <direct.h>
 
-struct DirRep
-{
-    long file;
-    struct _finddata_t findData;
-};
 
-Dir::Dir(const String& path) :
-       _rep(new DirRep)
+Dir::Dir(const String& path)
 {
-    _rep->file = _findfirst((path+"/*").getCString(), &_rep->findData);
+    _dirRep.file = _findfirst((path+"/*").getCString(), &_dirRep.findData);
 
-    if (_rep->file == -1)
+    if (_dirRep.file == -1)
     {
 	_more = false;
-        //delete _rep; 
-        _rep.reset();
 	throw CannotOpenDirectory(path);
     }
     else
@@ -61,16 +52,14 @@ Dir::Dir(const String& path) :
 
 Dir::~Dir()
 {
-    if (_rep->file != -1)
-	_findclose(_rep->file);
+    if (_dirRep.file != -1)
+	_findclose(_dirRep.file);
 
-   
-    _rep.reset();
 }
 
 const char* Dir::getName() const
 {
-    return _rep->findData.name;
+    return _dirRep.findData.name;
 }
 
 void Dir::next()
@@ -78,7 +67,7 @@ void Dir::next()
     if (!_more)
 	return;
 
-    _more = _findnext(_rep->file, &_rep->findData) == 0;
+    _more = _findnext(_dirRep.file, &_dirRep.findData) == 0;
 }
 
 PEGASUS_NAMESPACE_END

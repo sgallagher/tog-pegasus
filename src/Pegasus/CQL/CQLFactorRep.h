@@ -1,8 +1,8 @@
-#ifndef Pegasus_CQLFactorRep_h
-#define Pegasus_CQLFactorRep_h
 //%2003////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L. P.;
+// Copyright (c) 2000, 2001, 2002  BMC Software, Hewlett-Packard Development
+// Company, L. P., IBM Corp., The Open Group, Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L. P.;
 // IBM Corp.; EMC Corporation, The Open Group.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -28,6 +28,9 @@
 // Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
+
+#ifndef Pegasus_CQLFactorRep_h
+#define Pegasus_CQLFactorRep_h
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/CQL/Linkage.h>

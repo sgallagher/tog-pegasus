@@ -1,8 +1,8 @@
-#ifndef CQLFACTOR_H_HEADER
-#define CQLFACTOR_H_HEADER
 //%2003////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L. P.;
+// Copyright (c) 2000, 2001, 2002  BMC Software, Hewlett-Packard Development
+// Company, L. P., IBM Corp., The Open Group, Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L. P.;
 // IBM Corp.; EMC Corporation, The Open Group.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -28,6 +28,9 @@
 // Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
+
+#ifndef CQLFACTOR_H_HEADER
+#define CQLFACTOR_H_HEADER
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMInstance.h>

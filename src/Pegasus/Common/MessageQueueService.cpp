@@ -707,6 +707,12 @@ void MessageQueueService::handle_AsyncIoctl(AsyncIoctl *req)
 
 	 // shutdown the AsyncDQueue
 	 service->_incoming.shutdown_queue();
+	 AsyncOpNode *op = req->op;
+	 op->_request.remove_first();
+	 op->release();
+	 return_op(op);
+	 delete req;
+	 
 	 // exit the thread ! 
 //	 myself->exit_self( (PEGASUS_THREAD_RETURN) 1 );
 	 return;

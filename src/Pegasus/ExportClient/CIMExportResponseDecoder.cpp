@@ -294,6 +294,14 @@ CIMExportIndicationResponseMessage* CIMExportResponseDecoder::_decodeExportIndic
    }
    else
    {
+      if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
+      {
+         if (entry.type != XmlEntry::EMPTY_TAG)
+         {
+            XmlReader::expectEndTag(parser, "IRETURNVALUE");
+         }
+      }
+
       return(new CIMExportIndicationResponseMessage(
 		messageId,
 		cimException,

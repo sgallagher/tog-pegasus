@@ -1,177 +1,216 @@
-//%LICENSE////////////////////////////////////////////////////////////////
-//
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
-//
-//%/////////////////////////////////////////////////////////////////////////////
-
 #ifndef Pegasus_CQLSelectStatementRep_h
 #define Pegasus_CQLSelectStatementRep_h
 
-#include <Pegasus/Query/QueryCommon/SelectStatementRep.h>
-#include <Pegasus/Query/QueryCommon/QueryChainedIdentifier.h>
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/CQL/SelectStatementRep.h>
 #include <Pegasus/CQL/CQLChainedIdentifier.h>
+#include <Pegasus/CQL/CQLIdentifier.h>
+
 #include <Pegasus/CQL/Linkage.h>
+
 
 PEGASUS_NAMESPACE_BEGIN
 
-struct PropertyNode;
+/**  
+This class is derived from the SelectStatement base class.  
+The purpose of this class is to perform the select statement operations for
+CIM Query Language (CQL). 
 
-class CQLSelectStatementRep : public SelectStatementRep
+Notes on CQLSelectStatement class:
+
+(A) Contains a CQLPredicate for the WHERE clause
+(B) Contains an array of CQLIdentifiers for the SELECT projection
+(C) Contains an array of classpaths from the FROM clause
+
+
+   */
+class PEGASUS_CQL_LINKAGE CQLSelectStatementRep : public SelectStatementRep
 {
   public:
 
-    CQLSelectStatementRep();
-
+    CQLSelectStatementRep(){}
+    /**  This is the constructor for the CQLSelectStatement object.  
+           The ctor requires 3 parameters:   
+                 query language (qlang) which is CQL,  
+                 the query itself, 
+                 and the name of the CIM namespace.
+       */
     CQLSelectStatementRep(
-        const String& inQlang,
-        const String& inQuery,
-        const QueryContext& inCtx);
+        /**  The query language is needed so the
+              base class can retrieve the query language.
+              The class member variable where this data
+              is stored is located in the base SelectStatement
+              class.
+           */
+        String inQlang, 
+        /**  input parameter containing the query string.
+           */
+        String inQuery, 
+        
+        QueryContext& inCtx);
 
-    CQLSelectStatementRep(
-        const String& inQlang,
-        const String& inQuery);
+    /**  Implements the evaluate method from the
+          base SelectStatement class.
+    
+       */
+    Boolean evaluate(
+        /**  The CIM instance that will be evaluated.
+               The CIMInstance object is not modified by this method.
+           */
+        CIMInstance const inCI);
 
-    CQLSelectStatementRep(const CQLSelectStatementRep& rep);
+    /**  Implements the executeQuery method from the
+          base SelectStatement class.
+       */
+    Array<CIMInstance> executeQuery(
+        /** Input parameter that is an array of CIM Instance objects on which
+             to execute the query.
+           */
+        Array<CIMInstance> inCIMInstanceArray) throw(Exception);
 
-    ~CQLSelectStatementRep();
+    /**  Implements the applyProjection method from the
+          base SelectStatement class.
+       */
+    CIMInstance applyProjection(
+        /**  Input the CIMInstance object in which to apply the
+              projection.
+           */
+        CIMInstance inCI) throw(Exception);
 
-    CQLSelectStatementRep& operator=(const CQLSelectStatementRep& cqlss);
+    /**  Implements the validatedClass method from the
+          base SelectStatement class.
+       */
+    void validateClass(const CIMObjectPath& inClassName) throw(Exception);
 
-    Boolean evaluate(const CIMInstance& inCI);
+    /**  Implements the validatedProperties method from the
+          base SelectStatement class.
+       */
+    void validateProperties() throw(Exception);
 
-    void applyProjection(
-        CIMInstance& inCI,
-        Boolean allowMissing);
+    /** Returns an array of CIMObjectPath objects that are the 
+          class paths from the select statement in the FROM list.
+     */
+    Array<CIMObjectPath> const getClassPathList();
 
-    void validate();
+    /** Returns the required properties from the combined SELECT and WHERE
+         clauses for the classname passed in.
+    
+         If all the properties for the input classname are required, a null
+         CIMPropertyList is returned.
+       */
+    CIMPropertyList getPropertyList(
+        /**  The input parameter className is one of the
+              classes from the FROM list.
+           */
+        const CIMObjectPath& inClassName);
 
-    Array<CIMObjectPath> getClassPathList() const;
+    /** Modifier. This method should not be called by the user (only by the
+            parser).
+         Appends a CQLIdentifier to an array of CIMObjectPaths from the FROM
+    statement.
+        */
+    void appendClassPath(
+        /**  
+           */
+        const CQLIdentifier& inIdentifier);
 
-    CIMPropertyList getPropertyList(const CIMObjectPath& inClassName);
+    /** Sets a predicate into this object. This method should only
+            be called by Bison.
+        */
+    void setPredicate(
+        // CQLOperation is an enum similar to the WQLOperation enum in CVS:
+        // enum CQLOperation
+        // {
+        //     <,
+        //     >,
+        //     =,
+        //    >=,
+        //    <=,
+        //     +,
+        //     -,
+        //     *,
+        //     /,
+        //     CQL_IS_NULL,
+        //     CQL_IS_NOT_NULL,
+        //     CQL_IS_A,
+        //     CQL_LIKE
+        // };
+        CQLPredicate inPredicate);
 
-    CIMPropertyList getSelectPropertyList(const CIMObjectPath& inClassName);
-
-    CIMPropertyList getWherePropertyList(const CIMObjectPath& inClassName);
-
-    Array<CQLChainedIdentifier> getSelectChainedIdentifiers();
-
-    Array<CQLChainedIdentifier> getWhereChainedIdentifiers();
-
-    void appendClassPath(const CQLIdentifier& inIdentifier);
-
-    void setPredicate(const CQLPredicate& inPredicate);
-
-    CQLPredicate getPredicate() const;
-
+    /**  This method calls QueryContext::insertClassPathAlias()  to insert a
+    classpath-alias pair
+          into the hash table.  The record is keyed by the class alias.
+    
+         This method is used by Bison.
+    
+        TODO:  think about exceptions such as duplicate key.
+     */
     void insertClassPathAlias(
-        const CQLIdentifier& inIdentifier,
-        const String& inAlias);
+        /**  The CQLIdentifier object that contains the class path.
+           */
+        const CQLIdentifier& inIdentifier, 
+        /**  The alias for the class.
+           */
+        String inAlias);
 
+    /** Appends a CQL chained identifier to the CQL identifier list. The user
+    should
+            not call this method; it should only be called by the Bison.
+        */
     void appendSelectIdentifier(const CQLChainedIdentifier& x);
 
-    void applyContext();
-
-    void normalizeToDOC();
-
-    String toString() const;
-
-    void setHasWhereClause();
-
-    Boolean hasWhereClause() const;
-
-    void clear();
+    /** Appends a CQL Identifier to the where CQL identifier list. The user
+    should not call this method; it should only be called by Bison.
+    
+            @param x  the CQL identifier.
+            @return false if that identifier already exists.
+    
+    
+        Since the identifiers in the WHERE clause must be distinct,
+        a boolean is returned indicating if the identifier is not distinct.
+    
+     TODO:  THIS MAY BE NEEDED IN A FUTURE RELEASE.
+       NOT IMPLEMENTED IN PEGASUS V2.5
+        */
+    Boolean appendWhereIdentifier(
+        /**  Input the chained CQL identifiers to append. 
+           */
+        const CQLChainedIdentifier& x);
 
   protected:
+    /** 
+        // The list of CQL identifiers being selected. For example, see
+    "firstName",
+        // and "lastName" below.
+        //
+        //     SELECT firstName, lastName 
+        //     FROM TargetClass
+        //     WHERE ...
+        //
+        // NOTE: duplicate identifiers are not removed from the select list 
+        // (e.g. SELECT firstName, firstName FROM...) results in a list of 
+        // two identifiers
+        //
+    
+        */
+    Array<CQLIdentifier> _selectIdentifiers;
 
-    Array<CQLChainedIdentifier> _selectIdentifiers;
-
-    Boolean _hasWhereClause;
+    /** 
+        // The unique list of CQL query identifiers appearing in the WHERE clause.
+        // Although a property may occur many times in the WHERE clause, it will
+        // only appear once in this list.
+        //
+    
+       TODO:  THIS MAY BE NEEDED IN A FUTURE RELEASE.
+       NOT IMPLEMENTED IN PEGASUS V2.5
+       */
+    Array<CQLIdentifier> _whereIdentifiers;
 
   private:
-
-    Boolean applyProjection(
-        PropertyNode* node,
-        CIMProperty& nodeProp,
-        Boolean& preservePropsForParent,
-        Boolean allowMissing) const;
-
-    void validateProperty(const QueryChainedIdentifier& chainId) const;
-
-    CIMName lookupFromClass(const String& lookup) const;
-
-    CIMPropertyList getPropertyListInternal(
-        const CIMObjectPath& inClassName,
-        Boolean includeSelect,
-        Boolean includeWhere);
-
-    Boolean addRequiredProperty(
-        Array<CIMName>& reqProps,
-        const CIMName& className,
-        const QueryChainedIdentifier& chainId,
-        Array<CIMName>& matchedScopes,
-        Array<CIMName>& unmatchedScopes) const;
-
-    Boolean isFilterable(
-        const CIMInstance& inst,
-        PropertyNode* node) const;
-
-    void filterInstance(
-        CIMInstance& inst,
-        Boolean& allPropsRequired,
-        const CIMName& allPropsClass,
-        Array<CIMName>& requiredProps,
-        Boolean& preserveProps,
-        Boolean allowMissing) const;
-
-    static Boolean containsProperty(
-        const CIMName& name,
-        const Array<CIMName>& props);
-
-    Boolean isFromChild(const CIMName& className) const;
-
-    void checkWellFormedIdentifier(const QueryChainedIdentifier& chainId,
-                                   Boolean isSelectListId);
-
-    void reportNullContext() const;
-
-    void CheckQueryContext() const
-    {
-        if (0 == _ctx)
-        {
-            reportNullContext();
-        }
-    }
-
     CQLPredicate _predicate;
 
-    Boolean _contextApplied;
 };
 
 PEGASUS_NAMESPACE_END
 
-#endif
+#endif 

@@ -1,5 +1,5 @@
-#ifndef Pegasus_SelectStatement_h 
-#define Pegasus_SelectStatement_h
+#ifndef Pegasus_SelectStatementRep_h 
+#define Pegasus_SelectStatementRep_h
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
@@ -12,9 +12,6 @@
 
 
 PEGASUS_NAMESPACE_BEGIN
-
-class PEGASUS_CQL_LINKAGE SelectStatementRep;
-
 /** This class is an abstract base class for the query language (e,g. WQL or
 CQL) select statement. 
 
@@ -36,17 +33,18 @@ statement.
 language
     select statement.
 */
-class PEGASUS_CQL_LINKAGE SelectStatement
+class PEGASUS_CQL_LINKAGE SelectStatementRep
 {
   public:
-    SelectStatement(){};
+    SelectStatementRep(){}
+
     /**  This is the constructor for the SelectStatement object.  
            The ctor requires 3 parameters:   
                  query language (qlang) which is either WQL or CQL,
     the query itself, 
                  and the name of the CIM namespace.
        */
-    SelectStatement(
+    SelectStatementRep(
         /** input parameter containing the type of
              query language to use in processing
              the query string.
@@ -66,8 +64,6 @@ class PEGASUS_CQL_LINKAGE SelectStatement
              data in the repository.
            */
         QueryContext& inCtx);
-
-    ~SelectStatement();
 
     /** 
        Returns the query language (WQL or CQL).
@@ -167,8 +163,19 @@ class PEGASUS_CQL_LINKAGE SelectStatement
         const CIMObjectPath& inClassName);
 
   protected:
+    /**   The query language to be used for processing this query
+           (e.g. WQL or CQL).
+       */
+    String _qlang;
 
-  	SelectStatementRep* _rep;
+    /**  The query string to be processed.
+       */
+    String _query;
+
+    /**  This member variable contains a pointer to the
+           QueryContext object to use for processing the query.
+       */
+    QueryContext* _ctx;
 
 };
 

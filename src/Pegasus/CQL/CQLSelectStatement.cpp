@@ -1,71 +1,76 @@
 #include "CQLSelectStatement.h"
+#include "CQLSelectStatementRep.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-CQLSelectStatement::CQLSelectStatement(String inQlang, String inQuery, QueryContext& inCtx):
-SelectStatement(inQlang, inQuery, inCtx)
+CQLSelectStatement::CQLSelectStatement(String inQlang, String inQuery, QueryContext& inCtx)
 {
+	_rep = new CQLSelectStatementRep(inQlang,inQuery,inCtx);
+}
+
+CQLSelectStatement::~CQLSelectStatement(){
+	if(_rep)
+		delete _rep;
 }
 
 Boolean CQLSelectStatement::evaluate(CIMInstance const inCI)
 {
-   return false;
+   return _rep->evaluate(inCI);
 }
 
 Array<CIMInstance> CQLSelectStatement::executeQuery(Array<CIMInstance> inCIMInstanceArray) throw(Exception)
 {
-   Array<CIMInstance> arr;
-   return arr;
+   return _rep->executeQuery(inCIMInstanceArray);
 }
 
 CIMInstance CQLSelectStatement::applyProjection(CIMInstance inCI) throw(Exception)
 {
-   CIMInstance arr;
-   return arr;
+   return _rep->applyProjection(inCI);
 }
 
 void CQLSelectStatement::validateClass(const CIMObjectPath& inClassName) throw(Exception)
 {
+	_rep->validateClass(inClassName);
 }
 
 void CQLSelectStatement::validateProperties() throw(Exception)
 {
+	_rep->validateProperties();
 }
 
 Array<CIMObjectPath> const CQLSelectStatement::getClassPathList()
 {
-   Array<CIMObjectPath> arr;
-   return arr;
+ 	return _rep->getClassPathList();
 }
 
 CIMPropertyList CQLSelectStatement::getPropertyList(const CIMObjectPath& inClassName)
 {
-   CIMPropertyList arr;
-   return arr;
+   return _rep->getPropertyList(inClassName);
 }
 
 void CQLSelectStatement::appendClassPath(const CQLIdentifier& inIdentifier)
 {
-	_ctx->insertClassPath(inIdentifier);
+	_rep->appendClassPath(inIdentifier);
 }
 
 void CQLSelectStatement::setPredicate(CQLPredicate inPredicate)
 {
-	_predicate = inPredicate;
+	_rep->setPredicate(inPredicate);
 }
 
 void CQLSelectStatement::insertClassPathAlias(const CQLIdentifier& inIdentifier, String inAlias)
 {
-	_ctx->insertClassPath(inIdentifier,inAlias);
+	_rep->insertClassPathAlias(inIdentifier,inAlias);
 }
 
 void CQLSelectStatement::appendSelectIdentifier(const CQLChainedIdentifier& x)
 {
+	_rep->appendSelectIdentifier(x);
 }
 
 Boolean CQLSelectStatement::appendWhereIdentifier(const CQLChainedIdentifier& x)
 {
-   return false;
+   return _rep->appendWhereIdentifier(x);
 }
 
 PEGASUS_NAMESPACE_END

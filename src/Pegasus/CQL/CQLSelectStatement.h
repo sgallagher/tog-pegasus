@@ -11,6 +11,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+class PEGASUS_CQL_LINKAGE CQLSelectStatementRep;
+
 /**  
 This class is derived from the SelectStatement base class.  
 The purpose of this class is to perform the select statement operations for
@@ -27,6 +29,8 @@ Notes on CQLSelectStatement class:
 class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
 {
   public:
+    CQLSelectStatement():_rep(0){}
+
     /**  This is the constructor for the CQLSelectStatement object.  
            The ctor requires 3 parameters:   
                  query language (qlang) which is CQL,  
@@ -46,6 +50,8 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
         String inQuery, 
         
         QueryContext& inCtx);
+
+	~CQLSelectStatement();
 
     /**  Implements the evaluate method from the
           base SelectStatement class.
@@ -170,43 +176,13 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
      TODO:  THIS MAY BE NEEDED IN A FUTURE RELEASE.
        NOT IMPLEMENTED IN PEGASUS V2.5
         */
-    //##ModelId=40F42AED028E
     Boolean appendWhereIdentifier(
         /**  Input the chained CQL identifiers to append. 
            */
         const CQLChainedIdentifier& x);
 
-  protected:
-    /** 
-        // The list of CQL identifiers being selected. For example, see
-    "firstName",
-        // and "lastName" below.
-        //
-        //     SELECT firstName, lastName 
-        //     FROM TargetClass
-        //     WHERE ...
-        //
-        // NOTE: duplicate identifiers are not removed from the select list 
-        // (e.g. SELECT firstName, firstName FROM...) results in a list of 
-        // two identifiers
-        //
-    
-        */
-    Array<CQLIdentifier> _selectIdentifiers;
-
-    /** 
-        // The unique list of CQL query identifiers appearing in the WHERE clause.
-        // Although a property may occur many times in the WHERE clause, it will
-        // only appear once in this list.
-        //
-    
-       TODO:  THIS MAY BE NEEDED IN A FUTURE RELEASE.
-       NOT IMPLEMENTED IN PEGASUS V2.5
-       */
-    Array<CQLIdentifier> _whereIdentifiers;
-
   private:
-    CQLPredicate _predicate;
+	CQLSelectStatementRep* _rep;
 
 };
 

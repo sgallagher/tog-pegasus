@@ -43,7 +43,9 @@ SOURCES = \
    CQLScope.cpp \
    CQLFactory.cpp \
    CQLSelectStatement.cpp \
+   CQLSelectStatementRep.cpp \
    SelectStatement.cpp \
+   SelectStatementRep.cpp \
    CQLValue.cpp 
 
 include $(ROOT)/mak/library.mak

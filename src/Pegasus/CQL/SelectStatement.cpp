@@ -4,19 +4,16 @@ PEGASUS_NAMESPACE_BEGIN
 
 SelectStatement::SelectStatement(String inQlang, String inQuery, QueryContext& inCtx)
 {
-	_qlang = inQlang;
-	_query = inQuery;
-	_ctx = &inCtx;
 }
 
 String SelectStatement::getQueryLanguage()
 {
-   return _qlang;
+   return String::EMPTY;
 }
 
 String SelectStatement::getQuery()
 {
-   return _query;
+   return String::EMPTY;
 }
 
 Boolean SelectStatement::evaluate(const CIMInstance inCI)
@@ -51,6 +48,7 @@ const Array<CIMObjectPath> SelectStatement::getClassPathList()
 
 CIMPropertyList SelectStatement::getPropertyList(const CIMObjectPath& inClassName)
 {
+	return CIMPropertyList();
 }
 
 PEGASUS_NAMESPACE_END

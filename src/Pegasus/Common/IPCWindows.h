@@ -33,19 +33,7 @@
 #include <sys/timeb.h> 
 #include <errno.h>
 
-struct timeval 
-{
-      long int tv_sec;      long int tv_usec;
-};
-
-struct timezone
-{
-      int tz_minuteswest;
-      int tz_dsttime;
-};
-
 int PEGASUS_EXPORT gettimeofday(struct timeval *tv, struct timezone *tz);
-
 
 typedef CRITICAL_SECTION  PEGASUS_CRIT_TYPE;
 typedef HANDLE  PEGASUS_SEMAPHORE_TYPE;
@@ -107,4 +95,14 @@ typedef LONG  PEGASUS_ATOMIC_TYPE ;
 
 #endif // platform read/write type
 
+struct timeval 
+{
+      long int tv_sec;      long int tv_usec;
+};
+
+struct timezone
+{
+      int tz_minuteswest;
+      int tz_dsttime;
+};
 

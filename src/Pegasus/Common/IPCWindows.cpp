@@ -32,16 +32,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-struct timeval 
-{
-      long int tv_sec;      long int tv_usec;
-};
-
-struct timezone
-{
-      int tz_minuteswest;
-      int tz_dsttime;
-};
 
 
 static int pegasus_gettimeofday(struct timeval *tv)

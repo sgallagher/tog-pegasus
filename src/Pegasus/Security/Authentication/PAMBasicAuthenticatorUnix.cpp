@@ -159,7 +159,6 @@ Boolean PAMBasicAuthenticator::authenticate(
     //
     Tracer::trace(TRC_AUTHENTICATION, Tracer::LEVEL4,
         "Authentication Mutex lock.");
-    _authSerializeMutex.lock(pegasus_thread_self());
     AutoMutex lock(_authSerializeMutex);
 
     if (_usePAM)

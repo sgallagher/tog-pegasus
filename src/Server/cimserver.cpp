@@ -240,7 +240,7 @@ void PrintHelp(const char* arg0)
     usage.append ("    -v              - displays CIM Server version number\n");
     usage.append ("    -h              - prints this help message\n");
     usage.append ("    -s              - shuts down CIM Server\n");
-#if !defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
+#if !defined(PEGASUS_USE_RELEASE_DIRS)
     usage.append ("    -D [home]       - sets pegasus home directory\n");
 #endif
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
@@ -277,9 +277,8 @@ void PrintHelp(const char* arg0)
     usage.append ("    -v              - displays CIM Server version number\n");
     usage.append ("    -h              - prints this help message\n");
     usage.append ("    -s              - shuts down CIM Server\n");
-#if !defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
-    //usage.append ("    -D [home]       - sets pegasus home directory\n");
-    usage.append("$0");
+#if !defined(PEGASUS_USE_RELEASE_DIRS)
+    usage.append ("    -D [home]       - sets pegasus home directory\n");
 #endif
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
     usage.append ("    -install [name] - installs pegasus as a Windows NT Service\n");
@@ -308,12 +307,11 @@ void PrintHelp(const char* arg0)
     
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
     MessageLoaderParms parms("src.Server.cimserver.MENU.WINDOWS", usage);
-#elif defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
-	MessageLoaderParms parms("src.Server.cimserver.MENU.HPUXLINUXIA64GNU", usage);
+#elif defined(PEGASUS_OS_USE_RELEASE_DIRS)
+    MessageLoaderParms parms("src.Server.cimserver.MENU.HPUXLINUXIA64GNU", usage);
 #else
-	MessageLoaderParms parms("src.Server.cimserver.MENU.STANDARD", usage);
+    MessageLoaderParms parms("src.Server.cimserver.MENU.STANDARD", usage);
 #endif
-    //cout << usage << endl;
     cout << MessageLoader::getMessage(parms) << endl;
 }
 
@@ -585,7 +583,7 @@ MessageLoader::_useProcessLocale = true;
 #else
   #if defined(PEGASUS_OS_AIX) && defined(PEGASUS_USE_RELEASE_DIRS)
     pegasusHome = AIX_RELEASE_PEGASUS_HOME;
-  #else
+  #elif !defined(PEGASUS_USE_RELEASE_DIRS)
     const char* tmp = getenv("PEGASUS_HOME");
 
     if (tmp)
@@ -636,7 +634,7 @@ MessageLoader::_useProcessLocale = true;
                     PrintHelp(argv[0]);
                     exit(0);
                 }
-#if !defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
+#if !defined(PEGASUS_USE_RELEASE_DIRS)
                 else if (*option == OPTION_HOME &&
                         (strlen(option) == 1))
                 {

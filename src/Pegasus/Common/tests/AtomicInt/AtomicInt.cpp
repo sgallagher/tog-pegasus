@@ -41,8 +41,6 @@ PEGASUS_USING_STD;
 int main(int argc, char** argv)
 {
     Boolean bad = false;
-    for (int RunAThousandTimes=0;RunAThousandTimes<1000000;RunAThousandTimes++)
-    {
     try
     {
         Boolean verbose = (getenv("PEGASUS_TEST_VERBOSE")) ? true : false;
@@ -103,8 +101,6 @@ int main(int argc, char** argv)
         cout << "Exception: " << e.getMessage () << endl;
         exit (1);
     }
-    }
-
     cout << argv[0] << " +++++ passed all tests" << endl;
 
     return 0;

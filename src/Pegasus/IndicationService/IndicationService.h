@@ -224,6 +224,7 @@ private:
         @param   defaultValue          default value for property
         @param   otherValue            "Other" value for property
         @param   validValues           set of valid values for property
+        @param   supportedValues       set of supported values for property
 
         @throw   CIM_ERR_INVALID_PARAMETER  if value of property or Other___ 
                                             property is invalid
@@ -234,7 +235,8 @@ private:
         const CIMName & otherPropertyName,
         const Uint16 defaultValue,
         const Uint16 otherValue,
-        const Array <Uint16> & validValues);
+        const Array <Uint16> & validValues,
+        const Array <Uint16> & supportedValues);
 
     /**
         Validates the specified property in the instance.
@@ -989,10 +991,29 @@ private:
      */
     Boolean _enableSubscriptionsForNonprivilegedUsers;
 
+    /**
+        Arrays of valid and supported property values
+
+        Notes: 
+        Valid values are defined by the CIM Event Schema MOF
+        Supported values are a subset of the valid values
+        Some valid values, as defined in the MOF, are not currently supported
+            by the Pegasus IndicationService
+
+        Supported Values 
+        SubscriptionState: Enabled, Disabled
+        RepeatNotificationPolicy: Unknown, Other, None, Suppress, Delay
+        OnFatalErrorPolicy: Ignore, Disable, Remove
+        PersistenceType: Permanent, Transient
+     */
     Array <Uint16> _validStates;
     Array <Uint16> _validRepeatPolicies;
     Array <Uint16> _validErrorPolicies;
     Array <Uint16> _validPersistenceTypes;
+    Array <Uint16> _supportedStates;
+    Array <Uint16> _supportedRepeatPolicies;
+    Array <Uint16> _supportedErrorPolicies;
+    Array <Uint16> _supportedPersistenceTypes;
 };
 
 PEGASUS_NAMESPACE_END

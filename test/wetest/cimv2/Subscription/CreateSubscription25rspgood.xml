@@ -3,7 +3,7 @@
 <MESSAGE ID="030025" PROTOCOLVERSION="1.0">
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="CreateInstance">
-<ERROR CODE="4" DESCRIPTION="CIM_ERR_INVALID_PARAMETER: One or more parameter values passed to the method were invalid: &quot;Missing required OtherOnFatalErrorPolicy property&quot;"/>
+<ERROR CODE="7" DESCRIPTION="CIM_ERR_NOT_SUPPORTED: The requested operation is not supported: &quot;Unsupported value 1 for property OnFatalErrorPolicy&quot;"/>
 </IMETHODRESPONSE>
 </SIMPLERSP>
 </MESSAGE>

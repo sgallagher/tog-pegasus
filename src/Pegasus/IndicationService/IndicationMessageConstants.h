@@ -102,12 +102,17 @@ static const char _MSG_INVALID_VALUE [] = "Invalid value ";
 
 static const char _MSG_INVALID_TYPE [] = "Invalid type ";
 
+static const char _MSG_UNSUPPORTED_VALUE [] = "Unsupported value ";
+
 static const char _MSG_FOR_PROPERTY [] = " for property ";
 
 static const char _MSG_ARRAY_OF [] = " array of ";
 
 static const char _MSG_INVALID_VALUE_FOR_PROPERTY_KEY [] =
     "IndicationService.IndicationService._MSG_INVALID_VALUE_FOR_PROPERTY";
+
+static const char _MSG_UNSUPPORTED_VALUE_FOR_PROPERTY_KEY [] =
+    "IndicationService.IndicationService._MSG_UNSUPPORTED_VALUE_FOR_PROPERTY";
 
 static const char _MSG_CLASS_NOT_SERVED [] =
     "The specified class is not served by the Indication Service";

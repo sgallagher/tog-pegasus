@@ -408,25 +408,42 @@ void IndicationService::_initialize (void)
     _handlerService = hmservices [0];
 
     //
-    //  Set arrays of valid property values
+    //  Set arrays of valid and supported property values
+    //
+    //  Note: Valid values are defined by the CIM Event Schema MOF
+    //  Supported values are a subset of the valid values
+    //  Some valid values, as defined in the MOF, are not currently supported 
+    //  by the Pegasus IndicationService
     //
     _validStates.append (_STATE_UNKNOWN);
     _validStates.append (_STATE_OTHER);
     _validStates.append (_STATE_ENABLED);
     _validStates.append (_STATE_ENABLEDDEGRADED);
     _validStates.append (_STATE_DISABLED);
+    _supportedStates.append (_STATE_ENABLED);
+    _supportedStates.append (_STATE_DISABLED);
     _validRepeatPolicies.append (_POLICY_UNKNOWN);
     _validRepeatPolicies.append (_POLICY_OTHER);
     _validRepeatPolicies.append (_POLICY_NONE);
     _validRepeatPolicies.append (_POLICY_SUPPRESS);
     _validRepeatPolicies.append (_POLICY_DELAY);
+    _supportedRepeatPolicies.append (_POLICY_UNKNOWN);
+    _supportedRepeatPolicies.append (_POLICY_OTHER);
+    _supportedRepeatPolicies.append (_POLICY_NONE);
+    _supportedRepeatPolicies.append (_POLICY_SUPPRESS);
+    _supportedRepeatPolicies.append (_POLICY_DELAY);
     _validErrorPolicies.append (_ERRORPOLICY_OTHER);
     _validErrorPolicies.append (_ERRORPOLICY_IGNORE);
     _validErrorPolicies.append (_ERRORPOLICY_DISABLE);
     _validErrorPolicies.append (_ERRORPOLICY_REMOVE);
+    _supportedErrorPolicies.append (_ERRORPOLICY_IGNORE);
+    _supportedErrorPolicies.append (_ERRORPOLICY_DISABLE);
+    _supportedErrorPolicies.append (_ERRORPOLICY_REMOVE);
     _validPersistenceTypes.append (_PERSISTENCE_OTHER);
     _validPersistenceTypes.append (_PERSISTENCE_PERMANENT);
     _validPersistenceTypes.append (_PERSISTENCE_TRANSIENT);
+    _supportedPersistenceTypes.append (_PERSISTENCE_PERMANENT);
+    _supportedPersistenceTypes.append (_PERSISTENCE_TRANSIENT);
 
     //
     //  Get existing active subscriptions from each namespace in the repository
@@ -1040,15 +1057,15 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
 		}
 		else
 		{	
-			if (aggregatedLangs == String::EMPTY)
-			{
-				aggregatedLangs = contentLangs;				
-			}
-			else if (aggregatedLangs != contentLangs)
-			{
-				langMismatch = true;
-				aggregatedLangs = String::EMPTY;							
-			}
+                    if (aggregatedLangs == String::EMPTY)
+                    {
+                        aggregatedLangs = contentLangs;				
+                    }
+                    else if (aggregatedLangs != contentLangs)
+                    {
+                        langMismatch = true;
+                        aggregatedLangs = String::EMPTY;							
+                    }
 		}	
 	    }	
 // l10n end			
@@ -2817,15 +2834,17 @@ Boolean IndicationService::_canCreate (
         //
         _checkPropertyWithOther (instance, _PROPERTY_STATE, 
             _PROPERTY_OTHERSTATE, (Uint16) _STATE_ENABLED, 
-            (Uint16) _STATE_OTHER, _validStates);
+            (Uint16) _STATE_OTHER, _validStates, _supportedStates);
 
         _checkPropertyWithOther (instance, _PROPERTY_REPEATNOTIFICATIONPOLICY,
             _PROPERTY_OTHERREPEATNOTIFICATIONPOLICY, (Uint16) _POLICY_NONE,
-            (Uint16) _POLICY_OTHER, _validRepeatPolicies);
+            (Uint16) _POLICY_OTHER, _validRepeatPolicies, 
+            _supportedRepeatPolicies);
 
         _checkPropertyWithOther (instance, _PROPERTY_ONFATALERRORPOLICY, 
             _PROPERTY_OTHERONFATALERRORPOLICY, (Uint16) _ERRORPOLICY_IGNORE, 
-            (Uint16) _ERRORPOLICY_OTHER, _validErrorPolicies);
+            (Uint16) _ERRORPOLICY_OTHER, _validErrorPolicies, 
+            _supportedErrorPolicies);
     } 
     else  // Filter or Handler
     {
@@ -2901,7 +2920,8 @@ Boolean IndicationService::_canCreate (
         {
             _checkPropertyWithOther (instance, _PROPERTY_PERSISTENCETYPE,
                 _PROPERTY_OTHERPERSISTENCETYPE, (Uint16) _PERSISTENCE_PERMANENT,
-                (Uint16) _PERSISTENCE_OTHER, _validPersistenceTypes);
+                (Uint16) _PERSISTENCE_OTHER, _validPersistenceTypes, 
+                _supportedPersistenceTypes);
 
             if (instance.getClassName ().equal 
                 (PEGASUS_CLASSNAME_INDHANDLER_CIMXML) || 
@@ -3037,7 +3057,8 @@ void IndicationService::_checkPropertyWithOther (
     const CIMName & otherPropertyName,
     const Uint16 defaultValue,
     const Uint16 otherValue,
-    const Array <Uint16> & validValues)
+    const Array <Uint16> & validValues,
+    const Array <Uint16> & supportedValues)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "IndicationService::_checkPropertyWithOther");
@@ -3071,22 +3092,23 @@ void IndicationService::_checkPropertyWithOther (
         	String exceptionStr;
             if (theValue.isArray ())
             {
-				MessageLoaderParms parms(
-						"IndicationService.IndicationService._MSG_INVALID_TYPE_ARRAY_OF_FOR_PROPERTY", 
-						"Invalid type array of $0 for property $1",
-						cimTypeToString(theValue.getType()),
-						propertyName.getString());
+                MessageLoaderParms parms(
+                "IndicationService.IndicationService._MSG_INVALID_TYPE_ARRAY_OF_FOR_PROPERTY", 
+                "Invalid type array of $0 for property $1",
+                cimTypeToString(theValue.getType()),
+                propertyName.getString());
  
-				exceptionStr.append(MessageLoader::getMessage(parms));
+                exceptionStr.append(MessageLoader::getMessage(parms));
             }
-            else{
+            else
+            {
             	MessageLoaderParms parms(
-						"IndicationService.IndicationService._MSG_INVALID_TYPE_FOR_PROPERTY", 
-						"Invalid type $0 for property $1",
-						cimTypeToString(theValue.getType()),
-						propertyName.getString());
+                "IndicationService.IndicationService._MSG_INVALID_TYPE_FOR_PROPERTY", 
+                "Invalid type $0 for property $1",
+                cimTypeToString(theValue.getType()),
+                propertyName.getString());
  
-				exceptionStr.append(MessageLoader::getMessage(parms));		
+                exceptionStr.append(MessageLoader::getMessage(parms));
             }
             PEG_METHOD_EXIT ();
             throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER,
@@ -3107,6 +3129,8 @@ void IndicationService::_checkPropertyWithOther (
             //
             //  Validate the value
             //
+            //  Note: Valid values are defined by the CIM Event Schema MOF
+            //
             if (!Contains (validValues, result))
             {
 	      // l10n
@@ -3124,8 +3148,31 @@ void IndicationService::_checkPropertyWithOther (
 		//    exceptionStr);
 
                 throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_INVALID_PARAMETER,
-                    MessageLoaderParms(_MSG_INVALID_VALUE_FOR_PROPERTY_KEY, exceptionStr,
-				       theValue.toString(), propertyName.getString()));
+                    MessageLoaderParms(_MSG_INVALID_VALUE_FOR_PROPERTY_KEY, 
+                    exceptionStr,
+                    theValue.toString(), propertyName.getString()));
+            }
+
+            //
+            //  Check for valid values that are not supported
+            //
+            //  Note: Supported values are a subset of the valid values
+            //  Some valid values, as defined in the MOF, are not currently 
+            //  supported by the Pegasus IndicationService
+            //
+            if (!Contains (supportedValues, result))
+            {
+                String exceptionStr = _MSG_UNSUPPORTED_VALUE;
+                exceptionStr.append ("$0");
+                exceptionStr.append (_MSG_FOR_PROPERTY);
+                exceptionStr.append ("$1");
+
+                PEG_METHOD_EXIT ();
+
+                throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_NOT_SUPPORTED,
+                    MessageLoaderParms (_MSG_UNSUPPORTED_VALUE_FOR_PROPERTY_KEY,
+                    exceptionStr,
+                    theValue.toString (), propertyName.getString ()));
             }
         }
 
@@ -3152,10 +3199,9 @@ void IndicationService::_checkPropertyWithOther (
 	      //		   exceptionStr);
 
 	      throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_INVALID_PARAMETER,
-					     MessageLoaderParms(_MSG_PROPERTY_KEY, 
-								exceptionStr,
-								otherPropertyName.getString()));
-
+                  MessageLoaderParms(_MSG_PROPERTY_KEY, 
+                  exceptionStr,
+                  otherPropertyName.getString()));
             }
             else
             {
@@ -3178,9 +3224,9 @@ void IndicationService::_checkPropertyWithOther (
 		    //  exceptionStr);
 
 		    throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_INVALID_PARAMETER,
-					     MessageLoaderParms(_MSG_PROPERTY_KEY, 
-								exceptionStr,
-								otherPropertyName.getString()));
+                        MessageLoaderParms(_MSG_PROPERTY_KEY, 
+                        exceptionStr,
+                        otherPropertyName.getString()));
                 }
             }
         }
@@ -3215,11 +3261,11 @@ void IndicationService::_checkPropertyWithOther (
 		//  exceptionStr);
 
 		throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_INVALID_PARAMETER,
-			     MessageLoaderParms(_MSG_PROPERTY_PRESENT_BUT_VALUE_NOT_KEY, 
-						exceptionStr,
-						otherPropertyName.getString(),
-						propertyName.getString(),
-						CIMValue (otherValue).toString ()));
+                    MessageLoaderParms(_MSG_PROPERTY_PRESENT_BUT_VALUE_NOT_KEY, 
+                    exceptionStr,
+                    otherPropertyName.getString(),
+                    propertyName.getString(),
+                    CIMValue (otherValue).toString ()));
             }
         }
     }
@@ -3332,7 +3378,7 @@ Boolean IndicationService::_canModify (
     //
     _checkPropertyWithOther (modifiedInstance, _PROPERTY_STATE, 
         _PROPERTY_OTHERSTATE, (Uint16) _STATE_ENABLED, (Uint16) _STATE_OTHER, 
-        _validStates);
+        _validStates, _supportedStates);
 
     //
     //  Get creator from instance

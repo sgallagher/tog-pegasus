@@ -122,7 +122,7 @@ CQLTerm& CQLTerm::operator=(const CQLTerm& rhs)
 
 Boolean CQLTerm::operator==(const CQLTerm& rhs)const
 {
-  return (_rep == rhs._rep);
+  return (*_rep == *(rhs._rep));
 }
 Boolean CQLTerm::operator!=(const CQLTerm& rhs)const
 {

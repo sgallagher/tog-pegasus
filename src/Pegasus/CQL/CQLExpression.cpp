@@ -116,7 +116,7 @@ CQLExpression& CQLExpression::operator=(const CQLExpression& rhs)
 }
 Boolean CQLExpression::operator==(const CQLExpression& expr)const
 {
-	return _rep == expr._rep;
+	return *_rep == *(expr._rep);
 }
 
 Boolean CQLExpression::operator!=(const CQLExpression& expr)const

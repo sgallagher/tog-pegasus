@@ -135,7 +135,7 @@ CQLFactor& CQLFactor::operator=(const CQLFactor& rhs)
 
 Boolean CQLFactor::operator==(const CQLFactor& factor)const
 {
-  return (_rep == factor._rep);
+  return (*_rep == *(factor._rep));
 }
 Boolean CQLFactor::operator!=(const CQLFactor& factor)const
 {

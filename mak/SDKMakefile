@@ -116,7 +116,7 @@ CLIENTSRCPATH1FILES = \
    Clients/Makefile \
    Clients/DefaultC++/Makefile \
    Clients/DefaultC++/EnumInstances/Makefile \
-   Clients/DefaultC++/InvokeMethod/Makefile  
+   Clients/DefaultC++/InvokeMethod/Makefile 
 
 CLIENTSRCPATH2FILES = \
    EnumInstances/EnumInstances.cpp \
@@ -127,7 +127,9 @@ PROVIDERSRCPATH1FILES = \
    Load/Makefile \
    DefaultC++/Makefile \
    DefaultC++/InstanceProvider/Makefile \
-   DefaultC++/MethodProvider/Makefile
+   DefaultC++/MethodProvider/Makefile \
+   CMPI/Makefile \
+   CMPI/FilesAndDirectories/Makefile 
    
 PROVIDERSRCPATH2FILES = \
    Load/CWS_FilesAndDir.mof \
@@ -138,6 +140,29 @@ PROVIDERSRCPATH2FILES = \
    Load/MethodProviderR.mof \
    Load/SimpleDisplayConsumerR.mof \
    Load/SampleProviderSchema.mof \
+   CMPI/FilesAndDirectories/tests/AssocDirNames12001.xml \
+   CMPI/FilesAndDirectories/tests/AssocDirNames12001rspgood.xml \
+   CMPI/FilesAndDirectories/tests/DeleteDirInstance10003.xml \
+   CMPI/FilesAndDirectories/tests/DeleteDirInstance10003rspgood.xml \
+   CMPI/FilesAndDirectories/tests/EnumerateDir10001.xml \
+   CMPI/FilesAndDirectories/tests/EnumerateDir10001rspgood.xml \
+   CMPI/FilesAndDirectories/tests/EnumerateDirNames10000.xml \
+   CMPI/FilesAndDirectories/tests/EnumerateDirNames10000rspgood.xml \
+   CMPI/FilesAndDirectories/tests/GetDirInstance10002.xml \
+   CMPI/FilesAndDirectories/tests/GetDirInstance10002rspgood.xml \
+   CMPI/FilesAndDirectories/tests/PlainFileMethodCall11001.xml \
+   CMPI/FilesAndDirectories/tests/PlainFileMethodCall11001rspgood.xml \
+   CMPI/FilesAndDirectories/tests/ReferenceDirNames12002.xml \
+   CMPI/FilesAndDirectories/tests/ReferenceDirNames12002rspgood.xml \
+   CMPI/FilesAndDirectories/CWS_Directory.c \
+   CMPI/FilesAndDirectories/CWS_DirectoryContainsFile.c \
+   CMPI/FilesAndDirectories/CWS_FileUtils.c \
+   CMPI/FilesAndDirectories/CWS_FileUtils.h \
+   CMPI/FilesAndDirectories/CWS_PlainFile.c \
+   CMPI/FilesAndDirectories/cwssimdata.c \
+   CMPI/FilesAndDirectories/cwstest.c \
+   CMPI/FilesAndDirectories/cwsutil.c \
+   CMPI/FilesAndDirectories/cwsutil.h
 
 PROVIDERSRCPATH3FILES = \
    InstanceProvider/InstanceProvider.cpp \
@@ -178,6 +203,7 @@ stageSAMPLES:
 	@$(MKDIRHIER) $(SAMPLE_DESTPATH)/samples/Providers/Load
 	@$(MKDIRHIER) $(SAMPLE_DESTPATH)/samples/Providers/DefaultC++/InstanceProvider
 	@$(MKDIRHIER) $(SAMPLE_DESTPATH)/samples/Providers/DefaultC++/MethodProvider
+	@$(MKDIRHIER) $(SAMPLE_DESTPATH)/samples/Providers/CMPI/FilesAndDirectories/tests
 	@$(foreach i, $(CLIENTSRCPATH1FILES), $(CP) $(CLIENT_SRCPATH1)/$(i) $(SAMPLE_DESTPATH)/samples/$(i);)
 	@$(foreach i, $(CLIENTSRCPATH2FILES), $(CP) $(CLIENT_SRCPATH2)/$(i) $(SAMPLE_DESTPATH)/samples/Clients/DefaultC++/$(i);)
 	@$(foreach i, $(PROVIDERSRCPATH1FILES), $(CP) $(PROVIDER_SRCPATH1)/$(i) $(SAMPLE_DESTPATH)/samples/Providers/$(i);)

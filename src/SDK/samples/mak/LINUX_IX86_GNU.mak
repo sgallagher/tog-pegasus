@@ -16,7 +16,7 @@ ifndef PEGASUS_INCLUDES
   PEGASUS_INCLUDES = -I /usr/include
 endif
 
-fndef SAMPLES_DIR
+ifndef SAMPLES_DIR
   SAMPLES_DIR = /usr/share/doc/packages/pegasus-wbem-devel/samples
 endif
 
@@ -54,4 +54,5 @@ LIBRARY_LINK_COMMAND = $(COMPILE_COMMAND) -shared
 PROGRAM_LINK_COMMAND = $(COMPILE_COMMAND)
 
 LINK_OUT = -o
-~                  
+
+          

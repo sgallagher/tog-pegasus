@@ -94,7 +94,7 @@ int _testnum = 0;
 void TestThreadPool2()
 {
    int done = 0;
-	while( done < 100 )
+	while( done < 10000 )
 	{
 		printf( "ThreadPool crash test, iteration:  %d\n", ++done );
 		TestThreadPool();

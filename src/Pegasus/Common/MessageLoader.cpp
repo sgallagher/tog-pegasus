@@ -55,6 +55,7 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 		if(_useDefaultMsg) return formatDefaultMessage(parms);	 
 		
 		#ifdef PEGASUS_HAS_ICU
+			//cout << "PEGASUS_HAS_ICU" << endl;
 			msg = loadICUMessage(parms);
 			if(msg.size() == 0){ // we didnt get a message from ICU for some reason, return the default message
 				//cout << "didnt get a message from ICU, using default message" << endl;
@@ -81,20 +82,29 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 		String msg;
 		UResourceBundle* resbundl;
 		UErrorCode status = U_ZERO_ERROR;
-		String resbundl_path_ICU; 
+		//String resbundl_path_ICU; 
+		CString resbundl_path_ICU;
 		
 		// the static AcceptLangauges takes precedence over what parms.acceptlangauges has
 		AcceptLanguages acceptlanguages;
 		acceptlanguages = (_acceptlanguages.size() > 0) ? _acceptlanguages : parms.acceptlanguages;
 		
 		// get the correct path to the resource bundles
-		resbundl_path_ICU = getQualifiedMsgPath(parms.msg_src_path);		
+		resbundl_path_ICU = getQualifiedMsgPath(parms.msg_src_path).getCString();	
+			
 		//cout << "USING PACKAGE PATH: " << resbundl_path_ICU << endl;
 		
 		if(_useProcessLocale || (acceptlanguages.size() == 0 && parms.useProcessLocale)){ // use the system default resource bundle
-			resbundl = ures_open((const char*)resbundl_path_ICU.getCString(), NULL, &status);
+			resbundl = ures_open((const char*)resbundl_path_ICU, uloc_getDefault() , &status);
+			
+			UErrorCode cout_status = U_ZERO_ERROR;
+			//cout << "PROCESS_LOCALE = " << ures_getLocale(resbundl, &cout_status) << endl; 
+			
 			if(U_SUCCESS(status)) {
 				//cout << "PROCESS_LOCALE: opened resource bundle" << endl;
+				if(status == U_USING_FALLBACK_WARNING || status == U_USING_DEFAULT_WARNING){
+					//cout << "PROCESS_LOCALE: using fallback or default" << endl;	
+				}
     			msg = extractICUMessage(resbundl,parms);
     			parms.contentlanguages.append(ContentLanguageElement(String(ures_getLocale(resbundl,&status))));
     			ures_close(resbundl); 
@@ -108,13 +118,12 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 			if(al != NULL){			
 				acceptlanguages = *al;
 				//cout << "THREAD_LOCALE: got acceptlanguages from thread" << endl;	
-			}else { //cout << "THREAD_LOCALE: thread returned NULL for acceptlanguages" << endl;
-
-				 }
-			
+			}else { 
+				//cout << "THREAD_LOCALE: thread returned NULL for acceptlanguages" << endl;
+			 }		
 		}
 				
-		int size_locale_ICU = 50;
+		const int size_locale_ICU = 50;
 		char locale_ICU[size_locale_ICU];
 		AcceptLanguageElement language_element = AcceptLanguageElement::EMPTY;
 		
@@ -124,9 +133,10 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 		while((language_element = acceptlanguages.itrNext()) != AcceptLanguageElement::EMPTY_REF){
 			
 			uloc_getName((const char*)(language_element.getTag()).getCString(), locale_ICU, size_locale_ICU, &status);	
-					
+			//cout << "locale_ICU = " << locale_ICU << endl;	
 			// TODO: check to see if we have previously cached the resource bundle
-			resbundl = ures_open((const char*)resbundl_path_ICU.getCString(), locale_ICU, &status);
+			
+			resbundl = ures_open((const char*)resbundl_path_ICU, locale_ICU, &status);
 			
 			if(U_SUCCESS(status)) {
 				//cout << "ACCEPTLANGUAGES LOOP: opened resource bundle with " << language_element.getTag() << endl;
@@ -142,7 +152,7 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 					}	
 				}
 				else{  // we found an exact resource bundle match, extract, and set ContentLanguage 
-					//cout << "ACCEPTLANGUAGES LOOP: found and EXACT resource bundle MATCH" << endl;
+					//cout << "ACCEPTLANGUAGES LOOP: found an EXACT resource bundle MATCH" << endl;
 					msg = extractICUMessage(resbundl,parms);
 					parms.contentlanguages.append(ContentLanguageElement(language_element.getTag()));	
     				ures_close(resbundl); 
@@ -150,24 +160,25 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 				}	
 			} else { // possible errors, ex: message path incorrect
     			// for now do nothing, let the while loop continue
-    			//cout << "ACCEPTLANGUAGES LOOP: could NOT open a resource for: " << language_element.getTag() << endl;
-				 	   	
+    			//cout << "ACCEPTLANGUAGES LOOP: could NOT open a resource for: " << language_element.getTag() << endl;			 	   	
 			}
 			status = U_ZERO_ERROR;  // reset status
 		}
 		// now if we DIDNT get a message, we want to enable ICU fallback for the highest priority language
 		if(msg.size() == 0 && acceptlanguages.size() > 0){
+			//cout << "USING ICU FALLBACK" << endl;
 			language_element = acceptlanguages.getLanguageElement(0);
 			uloc_getName((const char*)(language_element.getTag()).getCString(), locale_ICU, size_locale_ICU, &status);	
-			resbundl = ures_open((const char*)resbundl_path_ICU.getCString(), locale_ICU, &status);
-			msg = extractICUMessage(resbundl,parms); 
+			//cout << "locale_ICU in fallback = " << locale_ICU << endl;
+			resbundl = ures_open((const char*)resbundl_path_ICU, locale_ICU, &status);
+			msg = extractICUMessage(resbundl,parms);
 			//parms.contentlanguages.append(ContentLanguageElement(String(ures_getLocale(resbundl,&status))));
 			ures_close(resbundl);
 		}
-		else if(msg.size() == 0){ // else if no message, load message from root bundle explicitly
+		else if(msg.size() == 0){ 			// else if no message, load message from root bundle explicitly
 			//cout << "EXHAUSTED ACCEPTLANGUAGES: using root bundle to extract message" << endl;
-			status = U_ZERO_ERROR;
-			resbundl = ures_open((const char*)resbundl_path_ICU.getCString(), "", &status);
+			status = U_ZERO_ERROR;	
+			resbundl = ures_open((const char*)resbundl_path_ICU, "", &status);
 			if(U_SUCCESS(status)){
 				//cout << "EXHAUSTED ACCEPTLANGUAGES: opened root resource bundle" << endl;
 				msg = extractICUMessage(resbundl,parms);
@@ -212,7 +223,7 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 		UnicodeString msg_pattern(msg, msg_len);
 		UnicodeString msg_formatted;
 		UErrorCode status = U_ZERO_ERROR;
-		int arg_count = 10;
+		const int arg_count = 10;
 		char * locale;
 		if(resbundl == NULL)
 			 locale = ULOC_US;
@@ -245,13 +256,13 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 		Formatter::Arg arg_arr[10] = {parms.arg0,parms.arg1,parms.arg2,parms.arg3,parms.arg4,parms.arg5,
 								 	  parms.arg6,parms.arg7,parms.arg8,parms.arg9};
 		//cout << "XFERFORMATTABLES" << endl;
-		for(int i = 0; i < 10; i++){ 
+		for(int i = 0; i < 10; i++){  
 			//cout << "arg" << i << " = " << arg_arr[i].toString() << endl;
 			switch (arg_arr[i]._type)
     		{
-				case Formatter::Arg::INTEGER:   formattables[i] = (int)arg_arr[i]._integer;break;
-				case Formatter::Arg::UINTEGER:  formattables[i] = (int)arg_arr[i]._uinteger;break;
-				case Formatter::Arg::BOOLEAN:   formattables[i] = (bool)arg_arr[i]._boolean;break;
+				case Formatter::Arg::INTEGER:   formattables[i] = (int32_t)arg_arr[i]._integer;break;
+				case Formatter::Arg::UINTEGER:  formattables[i] = (int32_t)arg_arr[i]._uinteger;break;
+				case Formatter::Arg::BOOLEAN:   formattables[i] = (int32_t)arg_arr[i]._boolean;break;
 				case Formatter::Arg::REAL:      formattables[i] = (float)arg_arr[i]._real;break;
 				case Formatter::Arg::LINTEGER:  formattables[i] = (double)arg_arr[i]._lInteger;break;
 				case Formatter::Arg::ULINTEGER: formattables[i] = (double)arg_arr[i]._lUInteger;break;
@@ -274,7 +285,7 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 		//cout << "using locale INSENSITIVE formatting" << endl;
 		parms.contentlanguages.clear(); // this could have previously been set by ICU
 		//cout << parms.toString() << endl;
-	
+		//cout << "ml:" << parms.default_msg << endl;
 		return Formatter::format(parms.default_msg,
 		 						 	parms.arg0,
 								 	parms.arg1,

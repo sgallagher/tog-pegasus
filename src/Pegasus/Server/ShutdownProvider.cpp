@@ -48,6 +48,8 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
+static const CIMName METHOD_NAME_SHUTDOWN = CIMName ("shutdown");
+
 //
 // Invoke method used to shutdown cimom.
 //
@@ -59,6 +61,37 @@ void ShutdownProvider::invokeMethod(
     MethodResultResponseHandler & handler)
 {
     PEG_METHOD_ENTER(TRC_SHUTDOWN, "ShutdownProvider::invokeMethod()");
+
+    // Check to see if the method name is correct
+    if (!methodName.equal(METHOD_NAME_SHUTDOWN))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_METHOD_NOT_AVAILABLE, String::EMPTY);
+    }
+
+    // Get user name
+    String userName;
+    try
+    {
+        IdentityContainer container = context.get(IdentityContainer::NAME);
+        userName = container.getUserName();
+    }
+    catch (...)
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
+    }
+
+    // Only privileged user can execute this operation
+    if ((userName != String::EMPTY) && !System::isPrivilegedUser(userName))
+    {
+        PEG_METHOD_EXIT();
+        // l10n
+        MessageLoaderParms parms(
+            "ControlProviders.UserAuthProvider.MUST_BE_PRIVILEGED_USER",
+            "Must be a privileged user to execute this CIM operation.");
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED, parms);
+    }
 
     // Begin processing the request
     handler.processing();

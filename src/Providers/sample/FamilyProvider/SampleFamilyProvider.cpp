@@ -720,9 +720,10 @@ void SampleFamilyProvider::associators(
                     {
                         throw CIMException(CIM_ERR_INVALID_PARAMETER);
                     }
-                    CIMValue v = p.getValue();
                     CIMObjectPath path;
-                    v.get(path);
+                    p.getValue().get(path);
+                    //CIMValue v = p.getValue();
+                    //v.get(path);
                     // Note that this may be hack to set host names.  Not sure
                     // what is general solution to compare these objects.
                     //path.setHost(host);

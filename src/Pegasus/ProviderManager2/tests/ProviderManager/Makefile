@@ -19,6 +19,7 @@ SOURCES = \
 	TestProviderManagerMain.cpp \
 	TestProviderManager.cpp
 
+include $(ROOT)/mak/library.mak
+
 install:
 
-include $(ROOT)/mak/library.mak

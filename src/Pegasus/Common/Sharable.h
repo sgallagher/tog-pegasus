@@ -23,7 +23,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -32,6 +32,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/IPC.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -52,7 +53,7 @@ public:
 
     virtual ~Sharable();
 
-    Uint32 getRef() const { return _ref; }
+    Uint32 getRef() const { return _ref.value(); }
 
     friend void Inc(const Sharable* sharable);
 
@@ -60,7 +61,7 @@ public:
 
 private:
 
-    Uint32 _ref;
+    AtomicInt _ref;
 };
 
 inline void Inc(const Sharable* x)
@@ -71,7 +72,7 @@ inline void Inc(const Sharable* x)
 
 inline void Dec(const Sharable* x)
 {
-    if (x && --((Sharable*)x)->_ref == 0)
+    if (x && ((Sharable*)x)->_ref.DecAndTestIfZero())
 	delete (Sharable*)x;
 }
 

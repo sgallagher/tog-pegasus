@@ -110,7 +110,7 @@ void _SaveObject(const String& path, const Object& object)
 // RepositoryDeclContext
 //
 //	This context is used by the resolve() methods to lookup dependent
-//	object during resolution.
+//	objects during resolution.
 //
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -296,7 +296,7 @@ CIMInstance CIMRepository::getInstance(
 	throw PEGASUS_CIM_EXCEPTION(NOT_FOUND, "getInstance()");
     }
 
-    // Load the instance file:
+    // -- Load the instance from the file:
 
     String path = _getInstanceFilePath(nameSpace, className, index);
     CIMInstance cimInstance;
@@ -462,10 +462,6 @@ void CIMRepository::modifyInstance(
     const String& nameSpace,
     CIMInstance& modifiedInstance) 
 {
-    // Note that the keys must be the same (otherwise it would be 
-    // impossible to determine which instance was being modified).
-    // So it suffices to replaces the instance with the same instance name.
-
     // -- Resolve the instance (looks up the class):
 
     CIMConstClass cimClass;
@@ -682,8 +678,32 @@ CIMValue CIMRepository::getProperty(
     const CIMReference& instanceName,
     const String& propertyName) 
 {
-    throw PEGASUS_CIM_EXCEPTION(NOT_SUPPORTED, "getProperty()");
-    return CIMValue();
+    // -- Get the index for this instance:
+
+    String className;
+    Uint32 index;
+
+    if (!_getInstanceIndex(nameSpace, instanceName, className, index))
+	throw PEGASUS_CIM_EXCEPTION(NOT_FOUND, "getProperty()");
+
+    // -- Load the instance into memory:
+
+    String path = _getInstanceFilePath(nameSpace, className, index);
+    CIMInstance cimInstance;
+    _LoadObject(path, cimInstance);
+
+    // -- Grab the property from the instance:
+
+    Uint32 pos = cimInstance.findProperty(propertyName);
+
+    if (pos == PEGASUS_NOT_FOUND)
+	throw PEGASUS_CIM_EXCEPTION(NO_SUCH_PROPERTY, "getProperty()");
+
+    CIMProperty prop = cimInstance.getProperty(pos);
+
+    // -- Return the value:
+
+    return prop.getValue();
 }
 
 void CIMRepository::setProperty(
@@ -691,8 +711,32 @@ void CIMRepository::setProperty(
     const CIMReference& instanceName,
     const String& propertyName,
     const CIMValue& newValue)
-{ 
-    throw PEGASUS_CIM_EXCEPTION(NOT_SUPPORTED, "setProperty()");
+{
+    // -- Load the instance:
+
+    CIMInstance instance = getInstance(
+	nameSpace, instanceName, false, true);
+
+    // -- Modify the property (disallow if property is a key):
+
+    Uint32 pos = instance.findProperty(propertyName);
+
+    if (pos == PEGASUS_NOT_FOUND)
+	throw PEGASUS_CIM_EXCEPTION(NO_SUCH_PROPERTY, "setProperty()");
+
+    CIMProperty prop = instance.getProperty(pos);
+
+    if (prop.isKey())
+    {
+	throw PEGASUS_CIM_EXCEPTION(FAILED, 
+	    "setProperty(): attempted to modify a key property");
+    }
+
+    prop.setValue(newValue);
+
+    // -- Modify the instance:
+
+    modifyInstance(nameSpace, instance);
 }
 
 CIMQualifierDecl CIMRepository::getQualifier(

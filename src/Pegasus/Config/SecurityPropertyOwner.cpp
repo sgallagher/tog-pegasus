@@ -597,18 +597,18 @@ Boolean SecurityPropertyOwner::isValid(const String& name, const String& value)
             return false;
         }
 
-	//
+	    //
         // Check if the file path is a directory
-	//
+	    //
         FileSystem::translateSlashes(fileName);
         if (FileSystem::isDirectory(fileName))
         {
             return false;
         }
 
-	//
+	    //
         // Check if the file exists and is readable
-	//
+	    //
         if (FileSystem::exists(fileName))
         {
             if (FileSystem::canRead(fileName))

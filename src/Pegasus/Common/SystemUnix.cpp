@@ -40,7 +40,7 @@
 #  include <qycmutiltyUtility.H>
 #  include <unistd.cleinc>
 #  include "qycmmsgclsMessage.H" // ycmMessage class
-#  include <Pegasus/Common/OS400SystemState.h>  // OS400LoadDynamicLibrary, etc (not in CVS)
+#  include "OS400SystemState.h"  // OS400LoadDynamicLibrary, etc 
 #else
 # include <dlfcn.h>
 #endif

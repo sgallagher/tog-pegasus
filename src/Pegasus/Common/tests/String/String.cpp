@@ -316,11 +316,10 @@ int main(int argc, char** argv)
 
         Uint32 count = 0;
 	Uint32 size = sizeof(utf8chr);
-	char currentChar;
 	while(count<size)
 	{
 	  	assert(String::isUTF8(&utf8chr[count]) == true);
-	   	UTF8_NEXT(utf8chr,count,currentChar);
+	   	UTF8_NEXT(utf8chr,count);
        	}
 
 	count = 0;
@@ -328,7 +327,7 @@ int main(int argc, char** argv)
 	while(count<size)
 	{
 	  	assert(String::isUTF8(&utf8bad[count]) == false);
-	   	UTF8_NEXT(utf8bad,count,currentChar);
+	   	UTF8_NEXT(utf8bad,count);
        	}    
     }
                              

@@ -65,24 +65,10 @@ static const char trailingBytesForUTF8[256] = {
 
 #define UTF_8_COUNT_TRAIL_BYTES(leadByte) (trailingBytesForUTF8[(Uint8)leadByte])
 
-#define UTF_8_MASK_LEAD_BYTE(leadByte, countTrailBytes) ((leadByte)&=(1<<(6-(countTrailBytes)))-1)
+#define UTF8_NEXT(s, i) { \
+    (i)=((i) + UTF_8_COUNT_TRAIL_BYTES((s)[(i)]) + 1); \
+} 
 
-#define UTF8_NEXT(s, i, c) { \
-    (c)=(s)[(i)++]; \
-    if((Uint8)((c)-0xc0)<0x35) { \
-        Uint8 __count=UTF_8_COUNT_TRAIL_BYTES(c); \
-        UTF_8_MASK_LEAD_BYTE(c, __count); \
-        switch(__count) { \
-        case 3: \
-            (c)=((c)<<6)|((s)[(i)++]&0x3f); \
-        case 2: \
-            (c)=((c)<<6)|((s)[(i)++]&0x3f); \
-        case 1: \
-            (c)=((c)<<6)|((s)[(i)++]&0x3f); \
-            break; \
-        } \
-    } \
-}
 
 int isValid_U8(const Uint8 *src,int size);
 int UTF16toUTF8(const Uint16** srcHead,

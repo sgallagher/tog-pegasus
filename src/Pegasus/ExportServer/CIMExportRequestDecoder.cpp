@@ -384,7 +384,6 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    else
    {
        Uint32 count = 0;
-       char currentChar;
        while(count<contentLength)
        {
 	   if (!(String::isUTF8((char *)&content[count])))
@@ -393,7 +392,7 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
                        "Invalid UTF-8 character detected.");
 	       return; 
 	   }
-	   UTF8_NEXT(content,count,currentChar);
+	   UTF8_NEXT(content,count);
        }
    }
 

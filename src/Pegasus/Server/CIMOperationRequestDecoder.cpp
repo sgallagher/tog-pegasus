@@ -457,7 +457,6 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    // (required to be complaint with section C12 of Unicode 4.0 spec, chapter 3.)
    else
    {
-       char currentChar;
        Uint32 count = 0;
        while(count<contentLength)
        {
@@ -474,7 +473,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 	       PEG_METHOD_EXIT();
 	       return; 
 	   }
-	   UTF8_NEXT(content,count,currentChar);
+	   UTF8_NEXT(content,count);
        }
    }
 

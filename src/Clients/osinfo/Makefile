@@ -8,7 +8,6 @@ include $(ROOT)/src/Clients/libraries.mak
 
 PROGRAM = osinfo
 SOURCES = OSInfo.cpp
-FLAGS = -g
 
 include $(ROOT)/mak/program.mak
 

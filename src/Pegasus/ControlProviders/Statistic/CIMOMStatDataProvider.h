@@ -95,7 +95,7 @@ public:
 
    protected:
       CIMObjectPath _references[StatisticalData::NUMBER_OF_TYPES];
-	  CIMDateTime toDateTime(__int64 date);
+	  CIMDateTime toDateTime(Sint64 date);
 
 };
 

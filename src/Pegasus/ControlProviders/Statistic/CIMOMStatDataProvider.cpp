@@ -80,10 +80,8 @@ void CIMOMStatDataProvider::getInstance(
 	{ // cout << "loop" << endl;
 		if(localReference == _references[i])
 		{
-				printf("in getInstances before call\n");
 			// deliver requested instance
 			handler.deliver(getInstance(i));
-				printf("in getInstances after call\n");
 			break;
 		}
 	}
@@ -106,10 +104,8 @@ void CIMOMStatDataProvider::enumerateInstances(
 	// instance index corresponds to reference index
 	for(Uint32 i = 0; i < StatisticalData::NUMBER_OF_TYPES; i++)
 	{
-		printf("in enumerateInstances before call\n");
 	   // deliver instance
 		handler.deliver(getInstance(i));
-			printf("in enumerateInstances after call\n");
 	}
 
 	// complete processing the request
@@ -171,10 +167,6 @@ CIMInstance CIMOMStatDataProvider::getInstance(Uint16 type)
 
    CIMDateTime cimom_time = toDateTime(sd->cimomTime[type]);
    CIMDateTime provider_time = toDateTime(sd->providerTime[type]);
-/*   String cim_str = cimom_time.toString();
-   String pro_str = provider_time.toString();
-   printf("these are the values being sent to CIMValue %s ans %s\n",\
-	   cim_str.getCString(),pro_str.getCString());*/
 
 
    CIMInstance requestedInstance("CIM_CIMOMStatisticalData");
@@ -199,42 +191,37 @@ CIMInstance CIMOMStatDataProvider::getInstance(Uint16 type)
    requestedInstance.addProperty(CIMProperty("Caption",
       CIMValue(String("CIMOM performance statistics for CIM request type <reqx>"))));
    
-   
-   
-   
-
- 
 
    return requestedInstance;
 }
 
 
-CIMDateTime CIMOMStatDataProvider::toDateTime(__int64 date)
+CIMDateTime CIMOMStatDataProvider::toDateTime(Sint64 date)
 {
           
 	//break millisecond value into days, hours, minutes, seconds and milliseconds
 	//turn each number into a string and append them to each other
 
-	__int64 ndays = floor ((long double)date/86400000000);	//one day = 8.64*10^10 millisecond
-	__int64 rem = date % 86400000000;		//rem_1 is remander of above operation
+	Sint64 ndays = floor (date/86400000000);	//one day = 8.64*10^10 millisecond
+	Sint64 rem = date % 86400000000;		//rem_1 is remander of above operation
 	char buf_day[8];
 	sprintf(buf_day,"%08d",ndays);
 
-	__int64 nhour = floor ((long double)rem/3600000000);	//one hour = 3.6*10^9 milliseconds
-	__int64 rem_2 = rem%3600000000;		//rem_2 is remander of above operation
+	Sint64 nhour = floor (rem/3600000000);	//one hour = 3.6*10^9 milliseconds
+	Sint64 rem_2 = rem%3600000000;		//rem_2 is remander of above operation
 	char buf_hour[2];
 	sprintf(buf_hour,"%02d",nhour);
 
-	__int64 nmin = floor ((long double)rem_2/60000000);  // one minute = 6*10^7
-	__int64 rem_3 = rem_2%60000000;
+	Sint64 nmin = floor (rem_2/60000000);  // one minute = 6*10^7
+	Sint64 rem_3 = rem_2%60000000;
 	char buf_minute[2];
 	sprintf(buf_minute,"%02d",nmin);
 
-	__int64 nsecond = floor ((long double)rem_3/1000000);	//one second = 10^6 milliseconds 
+	Sint64 nsecond = floor (rem_3/1000000);	//one second = 10^6 milliseconds 
 	char buf_second[2];
 	sprintf(buf_second,"%02d",nsecond);
 
-	__int64 nmilsec = rem_3%1000000;
+	Sint64 nmilsec = rem_3%1000000;
 	char buf_milsec[6];
 	sprintf(buf_milsec,"%06d",nmilsec);
 	

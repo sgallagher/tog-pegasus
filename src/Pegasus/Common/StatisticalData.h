@@ -49,7 +49,7 @@ PEGASUS_NAMESPACE_BEGIN
 #ifdef PEGASUS_HAS_PERFINST
 
 #define STAT_GETSTARTTIME \
-CIMDateTime startTime = CIMDateTime::getCurrentDateTime();
+CIMDateTime startTime = CIMDateTime::getCurrentDateTime();\
 
 
 #define STAT_PMS_PROVIDEREND \
@@ -66,14 +66,7 @@ request->setStartServerTime(startTime);
 response->endServer();\
 Uint32 statType = (response->getType() >= CIM_GET_CLASS_RESPONSE_MESSAGE)? \
     response->getType() - CIM_GET_CLASS_RESPONSE_MESSAGE:response->getType() - 1;\
-StatisticalData::current()->addToValue(message.size(), statType, StatisticalData::BYTES_SENT);\
-printf("SERVEREND\n");\
-StatisticalData::current()->addToValue(StatisticalData::current()->requSize, statType,\
-	StatisticalData::BYTES_READ);\
-	cout <<"cim_get_class_resopons_message= "<< CIM_GET_CLASS_RESPONSE_MESSAGE\
-	<<"and gettype = "<< response->getType() << endl;
-
-
+StatisticalData::current()->addToValue(message.size(), statType, StatisticalData::BYTES_SENT);
 
 #define STAT_SERVEREND_ERROR \
 response->endServer();
@@ -86,11 +79,8 @@ request->startProvider();
 #define STAT_PROVIDEREND   \
 request->endProvider();
 
-
 #define STAT_COPYDISPATCHER \
 response->setStartServerTime(request->getStartServerTime());
-
-
 
 
 
@@ -175,14 +165,14 @@ class PEGASUS_COMMON_LINKAGE StatisticalData
 
       timeval timestamp;
 
-      Uint64 numCalls[NUMBER_OF_TYPES];
-      __int64 cimomTime[NUMBER_OF_TYPES];
-      __int64 providerTime[NUMBER_OF_TYPES];
-      Uint64 responseSize[NUMBER_OF_TYPES];
-      Uint64 requestSize[NUMBER_OF_TYPES];
-	  Uint64 requSize;						//tempory storage for requestSize vlaue
+      Sint64 numCalls[NUMBER_OF_TYPES];
+      Sint64 cimomTime[NUMBER_OF_TYPES];
+      Sint64 providerTime[NUMBER_OF_TYPES];
+      Sint64 responseSize[NUMBER_OF_TYPES];
+      Sint64 requestSize[NUMBER_OF_TYPES];
+	  Sint64 requSize;						//tempory storage for requestSize vlaue
       static StatisticalData* cur;
-      void addToValue(Uint64 value, Uint16 type, Uint32 t);
+      void addToValue(Sint64 value, Uint16 type, Uint32 t);
       static String requestName[];
 
    protected:

@@ -82,7 +82,7 @@ StatisticalData::StatisticalData(){
    }
 }
 
-void StatisticalData::addToValue(Uint64 value, Uint16 type, Uint32 t){
+void StatisticalData::addToValue(Sint64 value, Uint16 type, Uint32 t){
    _mutex.lock( pegasus_thread_self() );
    switch(t){
 	  case SERVER:   	numCalls[type] += 1;

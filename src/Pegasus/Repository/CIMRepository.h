@@ -489,12 +489,6 @@ private:
         const String& indexFilePath,
         const String& instanceFilePath);
 
-	/** Check to see if the specified property is in the property list
-	    @param prop the specified property
-	    @param propertyList the property list
-	    @return true	if the property is in the list otherwise false.
-	*/
-	Boolean _containsProperty(CIMProperty& prop, const CIMPropertyList& propertyList);
 
     String _repositoryRoot;
     NameSpaceManager _nameSpaceManager;
@@ -502,15 +496,6 @@ private:
     // This must be initialized in the constructor using values from the
     // ConfigManager.
     Boolean _isDefaultInstanceProvider;
-	
-	/* Remove all of the qualifers from a class
-	*/
-	void _removeAllQualifiers(CIMClass cimClass);
-	
-	/* remove all of the qualifiers that are propagated
-	*/
-	void _removePropagatedQualifiers(CIMClass cimClass);
-
 
 protected:
 

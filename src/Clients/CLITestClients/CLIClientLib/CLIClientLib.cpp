@@ -460,13 +460,6 @@ int enumerateInstances(CIMClient& client, Options& opts)
     {
       String s = "instances of class";
         _displaySummary(instances.size(), s, opts.className.getString(),opts);    
-        /*
-        cout << instances.size() << " instances of class " << opts.className << " returned. ";
-            if (opts.repeat > 0)
-                cout << opts.repeat;
-            if(opts.time && opts.repeat)
-                cout << " " << opts.saveElapsedTime;
-        cout << endl;*/
     }
     else
     {

@@ -6,7 +6,7 @@ Author: Mike Brasher, Karl Schopmeyer
 Tagline: OpenPegasus is an object manager for DMTF CIM objects written in C++
          and supported by The Open Group
 
-STATUS: Revised June 2003 to match Pegasus release 2.2
+STATUS: Revised October 2003 to match Pegasus release 2.3
 Contents:
 =========
 
@@ -215,24 +215,54 @@ Pegasus                     Pegasus Root directory
     DevManual               Source and build files for developers' manual
     mak                     General make files (used by other makes)
     src                     All Pegasus Source Files
-        ACEExample          Test directrory with examples of the use of ACE
+        ACEExample          Test directrory with examples of the use of ACE (obsolete). 
         Clients             Source for various test clients and client SDK
             CGICLIENT       Pegasus test client that uses a WEB browser
+        JAVA                Java Client support modules
         Pegasus
             Client          Pegasus Client API Tests
                 depends
                 tests
             Common          Pegasus Common Functions (C++ source and headers
                 tests       Test programs for the common functions
+            Compiler        Pegasus MOF compiler
+            Config          TBD
+            Consumer        TBD
+            ControlProvidersImplementation of Pegasus internal providers
+            ExportClient    TBD
+            ExportServer    TBD
+            Handler         TBD
+            HandlerService  TBD
+            IndicationService TBD
+            Listener        TBD
             Protocol        Pegasus Client HTTP/XML Protocol Modules
                 depends
             Provider        Pegasus Provider interface functions
+            ProviderManager Provider Manager service that manages providers
+            ProviderManager2Pluggable Provider Manager service
             Repository      Pegasus Repository Interfaces and Simple Repository
                 tests       Tests for Repository Functions
+            Security        TBD
             Server          Pegasus Server Modules
+            WQL             TBD
         Providers           Pegasus test and required providers
-
-        Utils
+            generic         TBD this and following
+            IndicationConsumer
+            Linux
+            ManaedSystem
+            slp
+            statistic
+            sample
+            testproviders
+            
+        Server              Pegasus executable build
+        slp
+        StandardIncludes
+        tools               MU and other utilities written for Pegasus support
+        Unsupported         Code that is made available but is not supported or included
+                            in the normal make.
+        WMIMapper           Pegasus implementation that implements mapping to Microsoft
+                            WMI objects.
 
 Runtime Directories
      $PEGASUS_HOME$         Home directory for runtime.  All compiler, linker

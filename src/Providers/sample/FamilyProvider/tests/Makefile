@@ -28,6 +28,7 @@ misc:
 
 tests:
 
+messages:
 
 poststarttests:
 

@@ -3122,6 +3122,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
         return;
     }
 
+    // LocalOnly and PropertyList processing
     // localonly and property list - local properties filtered with
     //     propertylist
     // !localOnly and property list - all properties filtered with
@@ -3138,6 +3139,8 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
         _showPropertyList(request->propertyList));
     Boolean rtn;
 
+    // Create a propertyList that represents the combination
+    // of the propertyList and the localOnly attribute.
     rtn = _mergePropertyLists(cimClass, 
                               request->localOnly,
                               request->propertyList, 
@@ -3152,6 +3155,9 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
    
     CDEBUG("CIMOP ei propertyList1= " <<
         _showPropertyList(request->propertyList));
+    
+    // if new propertyList built, reset it into the 
+    // request propertylist.
     if (rtn)
     {
         CIMPropertyList pl(localPropertyListArray);
@@ -3160,19 +3166,15 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
     CDEBUG("CIMOP ei propertyList2= " <<
         _showPropertyList(request->propertyList));
    
-
-    // NOTE: See the piece below that puts it into the PoA
-    // Note that we are not making use of the rtn.
-    // Need to cover deepInheritance
     //
     // Get names of descendent classes:
     //
     CIMException cimException;
     Array<ProviderInfo> providerInfos;
-    //CIMPropertyList plLocal = request->pl;
-    // Note that we modify this in the function.
+    
     Uint32 providerCount;
 
+    // Get list of providers.
     try
     {
         CDEBUG("Looking up Instance Providers");
@@ -3340,6 +3342,9 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
         }
     }
 
+    // This is last to assure that we have issued all other requests before we
+    // go to the repository so that we can clearly mark the return packet and
+    // call the aggregator correctly if necessary.
     if (_repository->isDefaultInstanceProvider())
     {
         // Loop through providerInfos, forwarding requests to repository

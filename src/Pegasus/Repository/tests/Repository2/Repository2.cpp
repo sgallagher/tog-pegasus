@@ -29,6 +29,7 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
 //              Karl Schopmeyer - Add tests for getclass options
+//                      enumerateinstances, etc.
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -228,8 +229,6 @@ void TestCreateClass()
 	p1 = cc2.getProperty(pos);
 	assert(p1.getClassOrigin() == CIMName());
 	
-
-
 	// Test for propertylist set
 	// NOTE: Expand this test to cover empty propertylist, etc.
 	//
@@ -282,13 +281,17 @@ void TestCreateClass()
     inst0.setPath (CIMObjectPath ("SuperClass.key=111"));
     inst1.setPath (CIMObjectPath ("SubClass.key=222"));
 
+
     // -- Enumerate instances:
 
     Array<CIMInstance> namedInstances = r.enumerateInstances(NS, 
-        CIMName ("SuperClass"));
+        CIMName ("SuperClass"),true,false, true, true);
 
     assert(namedInstances.size() == 2);
 
+	//XmlWriter::printInstanceElement(namedInstances[0], cout);
+	//XmlWriter::printInstanceElement(inst0, cout);
+    //XmlWriter::printInstanceElement(inst1, cout);
     assert(
 	namedInstances[0].identical(inst0) ||
 	namedInstances[0].identical(inst1));
@@ -296,6 +299,144 @@ void TestCreateClass()
     assert(
 	namedInstances[1].identical(inst0) ||
 	namedInstances[1].identical(inst1));
+
+    
+    // Repeat the above tests for the enumerateInstancesFor Class function
+
+    namedInstances = r.enumerateInstancesForClass(NS, 
+        CIMName ("SuperClass"),true,false, true, true);
+
+    assert(namedInstances.size() == 1);
+
+	//XmlWriter::printInstanceElement(namedInstances[0], cout);
+	//XmlWriter::printInstanceElement(inst0, cout);
+    //XmlWriter::printInstanceElement(inst1, cout);
+    assert( namedInstances[0].identical(inst0));
+
+    namedInstances = r.enumerateInstancesForClass(NS, 
+        CIMName ("SubClass"),true,false, true, true);
+
+    assert(namedInstances.size() == 1);
+
+    assert(namedInstances[0].identical(inst1));
+    
+    // Test enumerating with classOrigin false
+
+    namedInstances = r.enumerateInstances(NS, 
+        CIMName ("SuperClass"),true,false, true, false);
+
+    assert(namedInstances.size() == 2);
+
+    for (Uint32 i = 0 ; i < namedInstances.size() ; i++)
+    {
+        // Check all properties for classorigin
+        for (Uint32 j = 0 ; j < namedInstances[i].getPropertyCount() ; j++)
+        {
+            CIMProperty p = namedInstances[i].getProperty(j);
+        }
+        
+    }
+
+    // Repeat the above for enumerateinstancesInClass
+
+    namedInstances = r.enumerateInstancesForClass(NS, 
+        CIMName ("SuperClass"),true,false, true, false);
+
+    assert(namedInstances.size() == 1);
+
+    for (Uint32 i = 0 ; i < namedInstances.size() ; i++)
+    {
+        // Check all properties for classorigin
+        for (Uint32 j = 0 ; j < namedInstances[i].getPropertyCount() ; j++)
+        {
+            CIMProperty p = namedInstances[i].getProperty(j);
+        }
+    }
+
+    // Test for qualifier removal from enumerateinstances
+    
+    namedInstances = r.enumerateInstances(NS, 
+        CIMName ("SuperClass"),true,false, false, false);
+
+    assert(namedInstances.size() == 2);
+
+    for (Uint32 i = 0 ; i < namedInstances.size() ; i++)
+    {
+        assert(namedInstances[i].getQualifierCount() == 0);
+        // Check all properties for qualifiers
+        for (Uint32 j = 0 ; j < namedInstances[i].getPropertyCount() ; j++)
+        {
+            CIMProperty p = namedInstances[i].getProperty(j);
+            assert(p.getQualifierCount() == 0);
+        }
+    }
+
+    // Repeat the above for the enumerateinstancesFor Class
+    namedInstances = r.enumerateInstancesForClass(NS, 
+        CIMName ("SuperClass"),true,false, false, false);
+
+    assert(namedInstances.size() == 1);
+
+    for (Uint32 i = 0 ; i < namedInstances.size() ; i++)
+    {
+        assert(namedInstances[i].getQualifierCount() == 0);
+        // Check all properties for qualifiers
+        for (Uint32 j = 0 ; j < namedInstances[i].getPropertyCount() ; j++)
+        {
+            CIMProperty p = namedInstances[i].getProperty(j);
+            assert(p.getQualifierCount() == 0);
+        }
+        
+    }
+
+    // Test for property filtering
+
+    // test with property list with property "ratio"
+    Array<CIMName> pls1;
+    pls.append(CIMName("ratio"));
+    CIMPropertyList pl1(pls1);
+
+    namedInstances = r.enumerateInstances(NS,
+        CIMName ("SuperClass"),true,false, false, false, pl1);
+
+    assert(namedInstances.size() == 2);
+
+
+    for (Uint32 i = 0 ; i < namedInstances.size() ; i++)
+    {
+        // Check all properties for qualifiers
+        for (Uint32 j = 0 ; j < namedInstances[i].getPropertyCount() ; j++)
+        {
+            assert(cc2.findProperty("key") == PEG_NOT_FOUND);
+            assert(cc2.findProperty("ratio") != PEG_NOT_FOUND);
+            assert(cc2.findProperty("message") == PEG_NOT_FOUND);
+        }
+    }
+
+    // test with propertylist empty
+
+    // Set the propertyList to empty by putting an empty array in it.
+    Array<CIMName> pls2;
+    CIMPropertyList pl2(pls2);
+
+    namedInstances = r.enumerateInstances(NS,
+        CIMName ("SuperClass"),true,false, false, false, pl2);
+
+    assert(namedInstances.size() == 2);
+
+
+    for (Uint32 i = 0 ; i < namedInstances.size() ; i++)
+    {
+        // Check all properties for qualifiers
+        assert(namedInstances[i].getPropertyCount() == 0);
+    }
+
+    // retest with propertylist null
+
+    // test with localonly set vs. not set
+
+    // test with deepinheritance set.
+
 
     // -- Modify one of the instances:
 

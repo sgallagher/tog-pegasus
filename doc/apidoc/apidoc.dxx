@@ -1,3 +1,4 @@
+/// @name Pegasus API Documentation
 /* api.dxx - Top Level file for Developer api Documentation.
 This file defines the document strucuture and provides the introduction
 
@@ -17,7 +18,7 @@ Pegasus is an open source implementation of the manageability environment define
 
 
 <P>This is a working document that contains the interfaces for the Pegasus 
-CIM Server implementation.  This is being created by the OpenGroup 
+CIM Server implementation.  This is created by the OpenGroup 
 Enterprise Management Program Group.  
 
 <p>In addition to this documentation, Pegasus has a Users' Guide that 
@@ -27,7 +28,8 @@ aide you in when working with Pegasus and its documentation.</p>
 
 <p>Within this document, you will find the following:</p>
 <UL>
-<LI>A definition of the public APIs defined for the current version of Pegasus including the client, CIMOM, and provider APIs.
+<LI>A definition of the public APIs defined for the current version of Pegasus including
+the client, CIMOM, and provider APIs.
 <LI>Information on the status of these APIs (frozen, experimental, etc.).
 <LI> Usage examples of the APIs with the defintions.
 </UL>
@@ -54,8 +56,8 @@ CONNIE: We might get by with this experimental list but it will change for each
 TBD: Pegasus API version information
 */
 
-/** @name Pegasus CIM Objects and Common Function APIs
-	This section defines the Pegasus C++ Class that represent
+/** @name Pegasus CIM Objects and Common Function APIs.
+	This section defines the Pegasus C++ Classes that represent
         the CIM objects and the common functions used by Pegasus 
 */
             
@@ -90,7 +92,7 @@ TBD: Pegasus API version information
 		//@Include: ../../src/Pegasus/Common/String.h
 		//@Include: ../../src/Pegasus/Common/CIMIndication.h
 	    //@}
-        /// @name Classes General Functionality
+        /// @name General Server Functionality Classes
            //@{ 
 		//@Include: ../../src/Pegasus/Common/OperationContext.h
 		//@Include: ../../src/Pegasus/Common/ResponseHandler.h
@@ -101,7 +103,7 @@ TBD: Pegasus API version information
         	//@Include: ../../src/Pegasus/Common/Exception.h
             //@}
        //@}
-    /// @name ClientInterfaces
+    /// @name Client Interfaces
        //@{
 	    /** @name Pegasus Operations
 	    NOTE That this section should probably go away
@@ -125,7 +127,7 @@ TBD: Pegasus API version information
 		    //@Include: ../../src/Pegasus/Listener/CIMListener.h
 		//@}
        //@}
-   /// @name Pegasus Provider Interfaces
+   /// @name C++ Provider Interfaces
 	//@{
 	    /// Pegasus CIM Provider Types and Interfaces
 	        //@{
@@ -150,23 +152,22 @@ TBD: Pegasus API version information
                 //@Include: ../../src/Pegasus/Consumer/CIMIndicationConsumer.h
         //@}  	 
 
-/** @name References and Glossary
-This section contains common definitions, glossary information, etc.
-*/ 
-     //@{
-        //@Include: ../DevManual/references.dxx
-     //@}
+/// @name General Information on the APIs
+        //@{
+                //@Include: Commondefinitions.dxx
+        //@}
+//@Include: definitions.dxx
 
 /** @name Document References
 
 This section will contain references to external documents.
 
-NOTE: documents we must reference include:
+NOTE: Documents we must reference include:
+	<UL>
+	<LI>CIM Operations Spec.
+	<LI>CIM Spec.
+	</UL>
+*/ 
 
-<UL>
-	<LI>DMTF Specifications
-	<LI>
-</UL/
-*/    
  
 

@@ -554,26 +554,36 @@ int main(int argc, char** argv)
             << " Object= " << opts.inputObjectName 
              << "\n" << e.getMessage()
              << endl;
-        exit(1);
+        opts.termCondition = 1;
     }
     catch(Exception& e)
     {
         PEGASUS_STD(cerr) << argv[0] << " Pegasus Exception: " << e.getMessage() 
                 <<  ". Cmd = " << opts.cimCmd << " Object = " << opts.inputObjectName << PEGASUS_STD(endl);
-            exit(1);
+            opts.termCondition = 1;
     }
     catch(...)
     {
         cerr << argv[0] << " Caught General Exception:" << endl;
-        exit(1);
+        opts.termCondition = 1;
+    }
+    if (opts.time)
+    {
+        // if abnormal term, dump all times
+        if (opts.termCondition == 1)
+        {
+            cout << "Prev Time " << opts.saveElapsedTime << " Seconds" << endl;
+            opts.saveElapsedTime = opts.elapsedTime.getElapsed();
+            cout << "Last Time " << opts.saveElapsedTime << " Seconds" << endl;
+            cout << "Total Time " << totalTime << " for " 
+                << repeatCount << " operations. Avg.= " << totalTime/repeatCount
+                << " min= " << minTime << " max= " << maxTime << endl; 
+        }
+        cout << "Total Elapsed Time= " << totalElapsedExecutionTime.getElapsed() << " Terminated at " << System::getCurrentASCIITime() << endl;
     }
     if (opts.delay != 0)
     {
         pegasus_sleep(opts.delay * 1000);
-    }
-    if (opts.time)
-    {
-        cout << "Total Elapsed Time= " << totalElapsedExecutionTime.getElapsed() << endl;
     }
     return(opts.termCondition);
 }

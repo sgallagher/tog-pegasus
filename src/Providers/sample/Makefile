@@ -9,6 +9,7 @@ DIRS = \
 	AlertIndicationProvider \
 	RT_Indication \
 	FamilyProvider \
+	FamilyProvider/tests \
 	LocalizedProvider \
 	LocalizedProvider/msg
 

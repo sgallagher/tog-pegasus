@@ -54,22 +54,85 @@ class CIMClassRep;
 class CIMInstanceRep;
 class Resolver;
 
-/** The CIMProperty class is used to represent CIM properties in Pegasus.
+/** The CIMProperty class is used to represent CIM properties in Pegasus. A CIM Property
+    consists of the following entities;
+    
+    <ul>
+        <li>Name of the property, a CIMName. Functions are provided to manipulate the name.
+        The name must be a legal name for a CIMProperty {@link CIMName}. 
+        <li>CIMType of the value of the property, a CIMType.
+        <li>CIMValue - The value of the property corresponding to the Type defined.  Properties
+        can have either single values or arrays of values. Functions are provided to
+        allow definition and query of the characteristics of the value (isArray(),
+        getArraySize()).
+    
+        <li>Optional CIMQualifiers for the property. A property can contain zero or
+        more CIMQualifiers and functions are provided to manipulate the
+        list of CIMQualifiers
+    </ul>
+    In addition, internally, there are the following additional attributes
+    that are part of a CIMProperty.
+    <ul>
+        <li>propagated - attributed defining whether this CIMMethod is 
+        propagated from a superclass.  Note that this is normally set as part of 
+        completing the definition of objects (resolving) when they are placed in a 
+        repository and is NOT automatically set when creating a local object.  It 
+        is part of the context of the object within the repository.  It can only 
+        logically be set in context of the superclass of which this CIMProperty is 
+        defined.  
+        <li>ClassOrigin - attribute defining the superclass in which this 
+        CIMProperty was originally defined.  This is normally set as part of 
+        resolving Class and instances in the context of other objects (i.e.  a 
+        repository).  This attribute is available from objects retrieved from the 
+        repository, for example and indicates the Class/Instance in the hiearchy 
+        (this object or a superclass or instance of a superclass)was originally 
+        defined.  Together the propagated and ClassOrigin attributes can be used 
+        to determine if methods originated with the current object or were 
+        inherited from higher levels in the hiearchy.  
+    </ul>
+    Normally CIMProperties are defined in the context of CIMClasses and CIMInstances.
+    A CIMClass or CIMInstance can include zero or more CIMProperties.
+    CIMProperty is a shared class so that assignment and copy operators do not
+    create new copies of the data representing a CIMMethod object but point
+    back to the original object and the lifecycle of the original object is
+    controlled by the accumulative lifecycle of any copies and assigned
+    objects.
+    {@link Shared Classes}
+    @see CIMConstProperty
+    @see CIMQualifiers
+    @see CIMType
 */
 class PEGASUS_COMMON_LINKAGE CIMProperty
 {
 public:
 
-    /** Creates a CIMProperty object with null values (default contstructor). 
+    /** Creates a new Null CIMProperty object. CIMProperites created with
+        this constructor are have no information the only operation that can
+        be performed on them is to copy another object into the new object.
+        @exception throws UninitializedObjectException() if any method except the copy
+        function is executed against.
+        @see CIMConstProperty()
+        @see Unitialized()
     */
     CIMProperty();
 
     /** Constructs a CIMPropery object from another 
-        CIMProperty object.
+        CIMProperty object. This method assigns the new object to the representation
+        in the parameter and increments the representation count.  It does NOT
+        create a new independent object be creates a reference from the assigned object
+        to the representation of the object being assigned.
+        @param x CIMProperty object from which to create newCIMProperty object.
+        <pre>
+            CIMProperty p1(CIMName ("name"), CIMTYPE_STRING);
+            const CIMProperty cp1(p1);
+        </pre>
     */
     CIMProperty(const CIMProperty& x);
 
-    /** Constructs a CIMProperty with the specified attributes.
+    /** Constructs a CIMProperty with the specified attributes. Note that all attributes
+        are optional except for the name and value.
+        @param name Specifies the name of the  CIMproperty. This must be a legal CIMProperty
+        name.
         @param value Specifies the name of the CIMValue property.
         @param arraySize Specifies the size of array, if fixed array size (optional).
         @param referenceClassName CIMName parameter that defines the 
@@ -94,7 +157,7 @@ public:
     ~CIMProperty();
 
     /** REVIEWERS: Insert description here.
-    @param x REVIEWERS: Insert description here.
+        @param x REVIEWERS: Insert description here.
     */
     CIMProperty& operator=(const CIMProperty& x);
 

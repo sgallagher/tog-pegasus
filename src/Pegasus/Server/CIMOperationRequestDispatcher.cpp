@@ -85,198 +85,83 @@ void CIMOperationRequestDispatcher::_handle_async_request(AsyncRequest *req)
 	Base::_handle_async_request(req);
 }
 
-// ATTN: this needs to return an array of names if it is possible
-// to have more than one provider per class.
-String CIMOperationRequestDispatcher::_lookupProviderForClass(
+String CIMOperationRequestDispatcher::_lookupInstanceProvider(
    const String& nameSpace,
    const String& className)
 {
-   MessageQueue * queue = MessageQueue::lookup("Server::ConfigurationManagerQueue");
+    CIMInstance pInstance;
+    CIMInstance pmInstance;
+    String providerName;
 
-   PEGASUS_ASSERT(queue != 0);
+    if (_providerRegistrationManager.lookupInstanceProvider(
+	nameSpace, className, pInstance, pmInstance))
+    {
+	// get the provder name
+	Uint32 pos = pInstance.findProperty("Name");
 
-   Uint32 targetQueueId = queue->getQueueId();
-   Uint32 sourceQueueId = this->getQueueId();
-	
-   // get all CIM_ProviderElementCapabilities instances
-   Array<CIMInstance> providerElementCapabilitiesInstances;
-	
-   {
-      // create request
-      CIMRequestMessage * request = new CIMEnumerateInstancesRequestMessage(
-	 "golden snitch",
-	 nameSpace,
-	 "CIM_ProviderElementCapabilities",
-	 false,
-	 false,
-	 false,
-	 false,
-	 Array<String>(),
-	 QueueIdStack(targetQueueId, sourceQueueId));
+	if ( pos != PEG_NOT_FOUND )
+	{
+	    pInstance.getProperty(pos).getValue().get(providerName);
 
-      // save the message key because the lifetime of the message is not known.
-      Uint32 messageKey = request->getKey();
+	    return (providerName);
+	}
+	else
+	{
+   	    return(String::EMPTY);
+	}
+    }
+    else
+    {
+   	return(String::EMPTY);
+    }
+}
 
-      //	<< Tue Feb 12 08:29:38 2002 mdd >> example of conversion to meta dispatcher
-      // automatically initializes backpointer
-      AsyncLegacyOperationStart * async_req = new AsyncLegacyOperationStart(
-	 get_next_xid(),
-	 0,
-	 targetQueueId,
-	 request,
-	 sourceQueueId);
+String CIMOperationRequestDispatcher::_lookupMethodProvider(
+   const String& nameSpace,
+   const String& className,
+   const String& methodName)
+{
+    CIMInstance pInstance;
+    CIMInstance pmInstance;
+    String providerName;
 
-      // send request and wait for response
-      AsyncReply * async_reply = SendWait(async_req);
+    if (_providerRegistrationManager.lookupMethodProvider(
+	nameSpace, className, methodName, pInstance, pmInstance))
+    {
+	// get the provder name
+	Uint32 pos = pInstance.findProperty("Name");
 
-      CIMEnumerateInstancesResponseMessage * response =
-	 reinterpret_cast<CIMEnumerateInstancesResponseMessage *>
-	 ((static_cast<AsyncLegacyOperationResult *>(async_reply))->get_result());
+	if ( pos != PEG_NOT_FOUND )
+	{
+	    pInstance.getProperty(pos).getValue().get(providerName);
 
-      delete async_req;
-      delete async_reply;
+	    return (providerName);
+	}
+	else
+	{
+   	    return(String::EMPTY);
+	}
+    }
+    else
+    {
+   	return(String::EMPTY);
+    }
+}
 
-      // ATTN: temporary fix until CIMNamedInstance is removed
-      for(Uint32 i = 0, n = response->cimNamedInstances.size(); i < n; i++)
-      {
-	 providerElementCapabilitiesInstances.append(response->cimNamedInstances[i].getInstance());
-      }
-   }
-	
-   for(Uint32 i = 0, n = providerElementCapabilitiesInstances.size(); i < n; i++)
-   {
-      // get the associated CIM_ProviderCapabilities instance
-      CIMInstance providerCapabilitiesInstance;
-	
-      {
-	 // the object path of the associated instance is in the 'Capabilities' property
-	 Uint32 pos = providerElementCapabilitiesInstances[i].findProperty("Capabilities");
-			
-	 PEGASUS_ASSERT(pos != PEG_NOT_FOUND);
-			
-	 CIMReference cimReference = providerElementCapabilitiesInstances[i].getProperty(pos).getValue().toString();
-			
-	 //PEGASUS_STD(cout) << cimReference << PEGASUS_STD(endl);
+// ATTN-YZ-P1-20020305: Implement this interface 
+String CIMOperationRequestDispatcher::_lookupIndicationProvider(
+   const String& nameSpace,
+   const String& className)
+{
+    return(String::EMPTY);
+}
 
-	 // create request
-	 CIMRequestMessage * request = new CIMGetInstanceRequestMessage(
-	    "golden snitch",
-	    nameSpace,
-	    cimReference,
-	    false,
-	    false,
-	    false,
-	    Array<String>(),
-	    QueueIdStack(targetQueueId, sourceQueueId));
-
-	 // save the message key because the lifetime of the message is not known.
-	 Uint32 messageKey = request->getKey();
-
-	 //	<< Tue Feb 12 08:29:38 2002 mdd >> example of conversion to meta dispatcher
-	 // automatically initializes backpointer
-	 AsyncLegacyOperationStart * async_req = new AsyncLegacyOperationStart(
-	    get_next_xid(),
-	    0,
-	    targetQueueId,
-	    request,
-	    sourceQueueId);
-
-	 // send request and wait for response
-	 AsyncReply * async_reply = SendWait(async_req);
-
-	 CIMGetInstanceResponseMessage * response =
-	    reinterpret_cast<CIMGetInstanceResponseMessage *>
-	    ((static_cast<AsyncLegacyOperationResult *>(async_reply))->get_result());
-
-	 delete async_req;
-	 delete async_reply;
-
-	 providerCapabilitiesInstance = response->cimInstance;
-      }
-
-      try
-      {
-	 // get the ClassName property value from the instance
-	 Uint32 pos = providerCapabilitiesInstance.findProperty("ClassName");
-
-	 PEGASUS_ASSERT(pos != PEG_NOT_FOUND);
-
-	 // compare the property value with the requested class name
-	 if(!String::equalNoCase(className, providerCapabilitiesInstance.getProperty(pos).getValue().toString()))
-	 {
-	    // go to the next CIM_ProviderCapabilities instance
-	    continue;
-	 }
-      }
-      catch(...)
-      {
-	 // instance or property error, use different technique
-	 break;
-      }
-			
-      // get the associated CIM_Provider instance
-      CIMInstance providerInstance;
-
-      {
-	 // the object path of the associated instance is in the 'ManagedElement' property
-	 Uint32 pos = providerElementCapabilitiesInstances[i].findProperty("ManagedElement");
-			
-	 PEGASUS_ASSERT(pos != PEG_NOT_FOUND);
-			
-	 CIMReference cimReference = providerElementCapabilitiesInstances[i].getProperty(pos).getValue().toString();
-			
-	 //PEGASUS_STD(cout) << cimReference << PEGASUS_STD(endl);
-			
-	 // create request
-	 CIMRequestMessage * request = new CIMGetInstanceRequestMessage(
-	    "golden snitch",
-	    nameSpace,
-	    cimReference,
-	    false,
-	    false,
-	    false,
-	    Array<String>(),
-	    QueueIdStack(targetQueueId, sourceQueueId));
-
-	 // save the message key because the lifetime of the message is not known.
-	 Uint32 messageKey = request->getKey();
-
-	 //	<< Tue Feb 12 08:29:38 2002 mdd >> example of conversion to meta dispatcher
-	 // automatically initializes backpointer
-	 AsyncLegacyOperationStart * async_req = new AsyncLegacyOperationStart(
-	    get_next_xid(),
-	    0,
-	    targetQueueId,
-	    request,
-	    sourceQueueId);
-
-	 // send request and wait for response
-	 AsyncReply * async_reply = SendWait(async_req);
-
-	 CIMGetInstanceResponseMessage * response =
-	    reinterpret_cast<CIMGetInstanceResponseMessage *>
-	    ((static_cast<AsyncLegacyOperationResult *>(async_reply))->get_result());
-
-	 delete async_req;
-	 delete async_reply;
-
-	 providerInstance = response->cimInstance;
-      }
-		
-      // extract provider information
-      String providerName = providerInstance.getProperty(providerInstance.findProperty("Name")).getValue().toString();
-      String providerLocation = providerInstance.getProperty(providerInstance.findProperty("Location")).getValue().toString();
-				
-      if((providerName.size() != 0) && (providerLocation.size() != 0))
-      {
-	 return(providerName);
-      }
-
-      // provider information error, use different technique
-      break;
-   }
-	
-   return(String::EMPTY);
+// ATTN-YZ-P1-20020305: Implement this interface 
+String CIMOperationRequestDispatcher::_lookupAssociationProvider(
+   const String& nameSpace,
+   const String& className)
+{
+    return(String::EMPTY);
 }
 
 void CIMOperationRequestDispatcher::_enqueueResponse(
@@ -578,7 +463,7 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
     }
 
    // get provider for class
-   String providerName = _lookupProviderForClass(request->nameSpace, className);
+   String providerName = _lookupInstanceProvider(request->nameSpace, className);
 
    if(providerName.size() != 0)
    {
@@ -757,7 +642,7 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
         return;
     }
 
-   String providerName = _lookupProviderForClass(request->nameSpace, className);
+   String providerName = _lookupInstanceProvider(request->nameSpace, className);
 
    if(providerName.size() != 0)
    {
@@ -973,8 +858,7 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
    }
    // End test block
 
-   String providerName = _lookupProviderForClass(request->nameSpace, className);
-
+   String providerName = _lookupInstanceProvider(request->nameSpace, className);
    if(providerName.size() != 0)
    {
 	   Array<Uint32> serviceQueueIds;
@@ -1152,7 +1036,7 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
     }
 
    // check the class name for an "external provider"
-   String providerName = _lookupProviderForClass(request->nameSpace, className);
+   String providerName = _lookupInstanceProvider(request->nameSpace, className);
 
    if(providerName.size() != 0)
    {
@@ -1381,7 +1265,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
     }
 
    // check the class name for an "external provider"
-   String providerName = _lookupProviderForClass(request->nameSpace, className);
+   String providerName = _lookupInstanceProvider(request->nameSpace, className);
 
    if(providerName.size() != 0)
    {
@@ -1522,7 +1406,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
     }
 
    // check the class name for an "external provider"
-   String providerName = _lookupProviderForClass(request->nameSpace, className);
+   String providerName = _lookupInstanceProvider(request->nameSpace, className);
 
    if(providerName.size() != 0)
    {
@@ -1606,7 +1490,7 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
    String className = request->objectName.getClassName();
 	
    // check the class name for an "external provider"
-   String providerName = _lookupProviderForClass(request->nameSpace, className);
+   String providerName = _lookupAssociationProvider(request->nameSpace, className);
 
    if(providerName.size() != 0)
    {
@@ -1697,7 +1581,7 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
    String className = request->objectName.getClassName();
 	
    // check the class name for an "external provider"
-   String providerName = _lookupProviderForClass(request->nameSpace, className);
+   String providerName = _lookupAssociationProvider(request->nameSpace, className);
 
    if(providerName.size() != 0)
    {
@@ -1785,7 +1669,7 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
    String className = request->objectName.getClassName();
 	
    // check the class name for an "external provider"
-   String providerName = _lookupProviderForClass(request->nameSpace, className);
+   String providerName = _lookupAssociationProvider(request->nameSpace, className);
 
    if(providerName.size() != 0)
    {
@@ -1874,7 +1758,7 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
    String className = request->objectName.getClassName();
 	
    // check the class name for an "external provider"
-   String providerName = _lookupProviderForClass(request->nameSpace, className);
+   String providerName = _lookupAssociationProvider(request->nameSpace, className);
 
    if(providerName.size() != 0)
    {
@@ -1960,7 +1844,7 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
    String className = request->instanceName.getClassName();
 	
    // check the class name for an "external provider"
-   String providerName = _lookupProviderForClass(request->nameSpace, className);
+   String providerName = _lookupInstanceProvider(request->nameSpace, className);
 
    if(providerName.size() != 0)
    {
@@ -2047,7 +1931,7 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
    String className = request->instanceName.getClassName();
 	
    // check the class name for an "external provider"
-   String providerName = _lookupProviderForClass(request->nameSpace, className);
+   String providerName = _lookupInstanceProvider(request->nameSpace, className);
 
    if(providerName.size() != 0)
    {
@@ -2302,7 +2186,8 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
    String className = request->instanceName.getClassName();
 	
    // check the class name for an "external provider"
-   String providerName = _lookupProviderForClass(request->nameSpace, className);
+   String providerName = _lookupMethodProvider(request->nameSpace, 
+			 className, request->methodName);
 
    if(providerName.size() != 0)
    {
@@ -2364,7 +2249,7 @@ void CIMOperationRequestDispatcher::handleEnableIndicationSubscriptionRequest(
    //
    // check the class name for an "external provider"
    //
-   String providerName = _lookupProviderForClass(
+   String providerName = _lookupIndicationProvider(
       request->nameSpace, request->classNames[0]);
 
    if(providerName.size() != 0)
@@ -2425,7 +2310,7 @@ void CIMOperationRequestDispatcher::handleModifyIndicationSubscriptionRequest(
    //
    // check the class name for an "external provider"
    //
-   String providerName = _lookupProviderForClass(
+   String providerName = _lookupIndicationProvider(
       request->nameSpace, request->classNames[0]);
 
    if(providerName.size() != 0)
@@ -2486,7 +2371,7 @@ void CIMOperationRequestDispatcher::handleDisableIndicationSubscriptionRequest(
    //
    // check the class name for an "external provider"
    //
-   String providerName = _lookupProviderForClass(
+   String providerName = _lookupIndicationProvider(
       request->nameSpace, request->classNames[0]);
 
    if(providerName.size() != 0)

@@ -156,8 +156,17 @@ public:
 
 protected:
 
-      String _lookupProviderForClass(
-	 const String& nameSpace, const String& className);
+      String _lookupInstanceProvider(
+	const String& nameSpace, const String& className);
+
+      String _lookupAssociationProvider(
+	const String& nameSpace, const String& className);
+
+      String _lookupMethodProvider(const String& nameSpace,
+	const String& className, const String& methodName);
+
+      String _lookupIndicationProvider(
+	const String& nameSpace, const String& className);
 
       void _enqueueResponse(
 	 CIMRequestMessage* request, CIMResponseMessage* response);

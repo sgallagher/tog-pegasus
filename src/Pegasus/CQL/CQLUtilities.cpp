@@ -357,7 +357,7 @@ Real64 CQLUtilities::stringToReal64(const String &stringNum)
       Uint64 num = stringToUint64(stringNum);
       Sint64 half = num / 2;
       x = half;
-      x == half;
+      x += half;
       if (num % 2)  // if odd, then add the lost remainder
         x += 1;
     }

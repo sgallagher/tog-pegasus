@@ -22,7 +22,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -35,7 +35,6 @@
 #ifdef PEGASUS_HAS_EBCDIC
 #include <unistd.h>
 #endif
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/CIMType.h>
 #include <Pegasus/Common/Char16.h>
 #include <Pegasus/Common/Memory.h>
@@ -43,8 +42,8 @@
 PEGASUS_NAMESPACE_BEGIN
 
 /*  ArrayRep<T>
-    The ArrayRep object represents the array size, capacity, reference
-    count and elements in one contiguous chunk of memory. The elements
+    The ArrayRep object represents the array size, capacity,
+    and elements in one contiguous chunk of memory. The elements
     follow immediately after the end of the ArrayRep structure in memory.
     The union is used to force 64 bit alignment of these elements. This is
     a private class and should not be accessed directly by the user.
@@ -52,9 +51,7 @@ PEGASUS_NAMESPACE_BEGIN
 template<class T>
 struct ArrayRep
 {
-    Mutex mut;
     Uint32 size;
-    Uint32 capacity;
 
     /* This union forces the first element (which follows this structure
 	in memory) to be aligned on a 64 bit boundary. It is a requirement
@@ -64,7 +61,7 @@ struct ArrayRep
     */
     union
     {
-	Uint32 ref;
+        Uint32 capacity;
 	Uint64 alignment;
     };
 
@@ -74,32 +71,19 @@ struct ArrayRep
     // Same as method above but returns a constant pointer.
     const T* data() const { return (const T*)(void*)(this + 1); }
 
-    /* Creates a clone of the current object and sets the reference
-	count to one.
-    */
+    /* Creates a clone of the current */
     ArrayRep<T>* clone() const;
 
-    /* Create and initialize a ArrayRep instance. Set the reference count
-	to one so the caller need not bother incrementing it. Note that the
+    /* Create and initialize a ArrayRep instance. Note that the
 	memory for the elements is unitialized and must be initialized by
 	the caller.
     */
 
     static ArrayRep<T>* PEGASUS_STATIC_CDECL create(Uint32 size);
 
-    // Increments the reference count of this object.
-    static void PEGASUS_STATIC_CDECL inc(const ArrayRep<T>* rep_);
-
-
-    /* Decrements the reference count of this object. If the reference count
-	falls to zero, the object is disposed of.
+    /* Disposes of the object.
     */
-    static void PEGASUS_STATIC_CDECL dec(const ArrayRep<T>* rep_);
-
-    /* Gets a pointer to a single instance which is created for each class
-	to represent an empty array (zero-size).
-    */
-    static ArrayRep<T>* PEGASUS_STATIC_CDECL getNullRep();
+    static void PEGASUS_STATIC_CDECL destroy(ArrayRep<T>* rep);
 };
 
 template<class T>
@@ -130,35 +114,17 @@ ArrayRep<T>* PEGASUS_STATIC_CDECL ArrayRep<T>::create(Uint32 size)
     ArrayRep<T>* rep =
 	(ArrayRep<T>*)operator new(sizeof(ArrayRep<T>) + sizeof(T) * capacity);
 
-    new(&rep->mut) Mutex();
     rep->size = size;
     rep->capacity = capacity;
-    rep->ref = 1;
 
     return rep;
 }
 
 template<class T>
-void PEGASUS_STATIC_CDECL ArrayRep<T>::inc(const ArrayRep<T>* rep)
+void PEGASUS_STATIC_CDECL ArrayRep<T>::destroy(ArrayRep<T>* rep)
 {
     if (rep)
     {
-	((ArrayRep<T>*)rep)->mut.lock(pegasus_thread_self());
-	((ArrayRep<T>*)rep)->ref++;
-	((ArrayRep<T>*)rep)->mut.unlock();
-    }
-}
-
-template<class T>
-void PEGASUS_STATIC_CDECL ArrayRep<T>::dec(const ArrayRep<T>* rep_)
-{
-    ArrayRep<T>* rep = (ArrayRep<T>*)rep_;
-
-    if (rep)
-    {
-      ((ArrayRep<T>*)rep)->mut.lock(pegasus_thread_self());
-      if (--rep->ref == 0)
-      {
 // ATTN-RK-P1-20020509: PLATFORM PORT: This change fixes memory leaks for me.
 // Should you make these changes on your platform?  (See also ArrayImpl.h)
 #if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
@@ -167,30 +133,9 @@ void PEGASUS_STATIC_CDECL ArrayRep<T>::dec(const ArrayRep<T>* rep_)
 	Destroy(rep->data(), rep->size);
 #endif
 
-        ((ArrayRep<T>*)rep)->mut.unlock();
-        rep->mut.~Mutex();
         operator delete(rep);
         return;
-      }
-      ((ArrayRep<T>*)rep)->mut.unlock();
     }
-}
-
-template<class T>
-ArrayRep<T>* PEGASUS_STATIC_CDECL ArrayRep<T>::getNullRep()
-{
-    static ArrayRep<T>* nullRep = 0;
-
-    if (!nullRep)
-    {
-        // Create sets the reference count to 1 so that it will be one
-        // greater than the callers ask for and so it will never be deleted.
-	nullRep = ArrayRep<T>::create(0);
-    }
-
-    // Increment reference count on behalf of caller.
-    ArrayRep<T>::inc(nullRep);
-    return nullRep;
 }
 
 class CIMValue;

@@ -61,21 +61,21 @@ union Union
     CIMDateTime* _dateTimeValue;
     CIMObjectPath* _referenceValue;
 
-    ArrayRep<Boolean>* _booleanArray;
-    ArrayRep<Uint8>* _uint8Array;
-    ArrayRep<Sint8>* _sint8Array;
-    ArrayRep<Uint16>* _uint16Array;
-    ArrayRep<Sint16>* _sint16Array;
-    ArrayRep<Uint32>* _uint32Array;
-    ArrayRep<Sint32>* _sint32Array;
-    ArrayRep<Uint64>* _uint64Array;
-    ArrayRep<Sint64>* _sint64Array;
-    ArrayRep<Real32>* _real32Array;
-    ArrayRep<Real64>* _real64Array;
-    ArrayRep<Char16>* _char16Array;
-    ArrayRep<String>* _stringArray;
-    ArrayRep<CIMDateTime>* _dateTimeArray;
-    ArrayRep<CIMObjectPath>* _referenceArray;
+    Array<Boolean>* _booleanArray;
+    Array<Uint8>* _uint8Array;
+    Array<Sint8>* _sint8Array;
+    Array<Uint16>* _uint16Array;
+    Array<Sint16>* _sint16Array;
+    Array<Uint32>* _uint32Array;
+    Array<Sint32>* _sint32Array;
+    Array<Uint64>* _uint64Array;
+    Array<Sint64>* _sint64Array;
+    Array<Real32>* _real32Array;
+    Array<Real64>* _real64Array;
+    Array<Char16>* _char16Array;
+    Array<String>* _stringArray;
+    Array<CIMDateTime>* _dateTimeArray;
+    Array<CIMObjectPath>* _referenceArray;
 
     void* _voidPtr;
 };

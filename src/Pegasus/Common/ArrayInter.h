@@ -22,7 +22,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -65,10 +65,7 @@ public:
     */
     Array(const PEGASUS_ARRAY_T* items, Uint32 size);
 
-    Array(ArrayRep<PEGASUS_ARRAY_T>* rep)
-    {
-	Rep::inc(_rep = rep);
-    }
+    Array(ArrayRep<PEGASUS_ARRAY_T>* rep);
 
     /// Destructs the objects, freeing any resources.
     ~Array();
@@ -89,11 +86,7 @@ public:
 	capacity argument.
 	@param capacity defines the size that is to be reserved
     */
-    void reserve(Uint32 capacity)
-    {
-	if (capacity > _rep->capacity)
-	    _reserveAux(capacity);
-    }
+    void reserve(Uint32 capacity);
 
     /** Make the size of the array grow by size elements. Thenew size will 
 	be size() + size. The new elements (there are size of them) are
@@ -109,16 +102,13 @@ public:
     /** Returns the number of elements in the array.
     @return The number of elements in the array.
     */
-    Uint32 size() const { return _rep->size; }
+    Uint32 size() const;
 
     /// Returns the capacity of the array.
-    Uint32 getCapacity() const { return _rep->capacity; }
+    Uint32 getCapacity() const;
 
     /// Returns a pointer to the first element of the array.
-    const PEGASUS_ARRAY_T* getData() const
-    {
-	return _rep->data();
-    }
+    const PEGASUS_ARRAY_T* getData() const;
 
     /** Returns the element at the index given by the pos argument.
 	@return A reference to the elementdefined by index so that it may be
@@ -145,10 +135,7 @@ public:
 	size of the other.
 	@param Array to append.
     */
-    void appendArray(const Array<PEGASUS_ARRAY_T>& x)
-    {
-	append(x.getData(), x.size());
-    }
+    void appendArray(const Array<PEGASUS_ARRAY_T>& x);
 
     /** Appends one element to the beginning of the array. This increases
 	the size by one.
@@ -192,32 +179,21 @@ public:
 
     typedef const PEGASUS_ARRAY_T* const_iterator;
 
-    iterator begin() { return _rep->data(); }
+    iterator begin();
 
-    iterator end() { return _rep->data() + size(); }
+    iterator end();
 
-    const_iterator begin() const { return getData(); }
+    const_iterator begin() const;
 
-    const_iterator end() const { return getData() + size(); }
+    const_iterator end() const;
 
 private:
 
-    void set(ArrayRep<PEGASUS_ARRAY_T>* rep)
-    {
-	if (_rep != rep)
-	{
-	    Rep::dec(_rep);
-	    Rep::inc(_rep = rep);
-	}
-    }
+    void set(ArrayRep<PEGASUS_ARRAY_T>* rep);
 
-    void _reserveAux(Uint32 capacity);
-
-    PEGASUS_ARRAY_T* _data() const { return _rep->data(); }
+    PEGASUS_ARRAY_T* _data() const;
 
     typedef ArrayRep<PEGASUS_ARRAY_T> Rep;
-
-    void _copyOnWrite();
 
     Rep* _rep;
 
@@ -229,40 +205,8 @@ template<class PEGASUS_ARRAY_T>
 #else
 PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
-inline Boolean operator==(
+Boolean operator==(
     const Array<PEGASUS_ARRAY_T>& x,
-    const Array<PEGASUS_ARRAY_T>& y)
-{
-    return Equal(x, y);
-}
-
-#ifndef PEGASUS_ARRAY_T
-template<class PEGASUS_ARRAY_T>
-#else
-PEGASUS_TEMPLATE_SPECIALIZATION
-#endif
-inline PEGASUS_ARRAY_T& Array<PEGASUS_ARRAY_T>::operator[](Uint32 pos)
-{
-    if (pos >= size())
-	ThrowOutOfBounds();
-
-    _copyOnWrite();
-
-    return _rep->data()[pos];
-}
-
-#ifndef PEGASUS_ARRAY_T
-template<class PEGASUS_ARRAY_T>
-#else
-PEGASUS_TEMPLATE_SPECIALIZATION
-#endif
-inline const PEGASUS_ARRAY_T& Array<PEGASUS_ARRAY_T>::operator[](
-    Uint32 pos) const
-{
-    if (pos >= size())
-	ThrowOutOfBounds();
-
-    return _rep->data()[pos];
-}
+    const Array<PEGASUS_ARRAY_T>& y);
 
 #endif /*defined(PEGASUS_EXPLICIT_INSTANTIATION) || !defined(PEGASUS_ARRAY_T)*/

@@ -263,6 +263,10 @@ TAG: Version_1_09.
     CIMClient.cpp for local connection and modified the CLIs to not to pass 
     SSLContext to the client api. 
 
+44. (Roger Kumpf - HP) 16 May 2002 - Reworked the Array template so that
+    each array has its own ArrayRep copy rather than Arrays sharing
+    ArrayReps and reference counting.
+
 ========================================================================
 
 Version 1.08 working towards 1.1 - Started 27 March 2002

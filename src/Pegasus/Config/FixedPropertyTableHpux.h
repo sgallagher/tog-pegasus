@@ -42,6 +42,7 @@
     {"install",             "false"},
     {"remove",              "false"},
     {"slp",                 "false"},
+    {"SSL",                 "true"},
     {"enableAuthentication", "true"},
     {"enableAssociationTraversal", "false"},
     {"enableIndicationService", "false"},

@@ -3023,7 +3023,7 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
            CIMName className = request->objectName.getClassName();
            CIMResponseMessage * response;
         
-           cout << "Dispatcher References ClassName = " << className.getString() << endl;
+           cout << "KSTEST Dispatcher References ClassName = " << className.getString() << endl;
         
            // Get the list of classes we want to process.
     
@@ -3033,9 +3033,9 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
            // Who did we get back in providerName array.
            if (providerNames.size() > 0)
                for (Uint32 i = 0; i < providerNames.size(); i++)
-                   cout << "AssocProviderNames = " << i << " : "<< providerNames[i] << endl;
+                   cout << "KSTEST Dispatcher, AssocProviderNames = " << i << " : "<< providerNames[i] << endl;
            else
-               cout << "No AssocProvider Names" << endl;
+               cout << "KSTEST DispatcherNo AssocProvider Names" << endl;
         
            if(providerNames.size() != 0)
            {

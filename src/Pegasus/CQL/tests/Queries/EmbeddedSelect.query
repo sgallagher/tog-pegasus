@@ -16,9 +16,12 @@ SELECT EmbObjBase.CQL_EmbeddedTestElement::CS.* FROM CQL_EmbeddedSubClass
 SELECT EmbObjBase.CQL_EmbeddedTestElement::TEArray[1].* FROM CQL_EmbeddedSubClass
 SELECT EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.* FROM CQL_EmbeddedSubClass
 SELECT EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPTArray[1].* FROM CQL_EmbeddedSubClass
-// next ones are illegal
+# Next ones are illegal:
+# needs array index on TEArray
 SELECT EmbObjBase.CQL_EmbeddedTestElement::TEArray.* FROM CQL_EmbeddedSubClass
+# not allowed to project properties on classes
 SELECT EmbObjBase.CQL_EmbeddedTestElement::SomeClass.* FROM CQL_EmbeddedSubClass
+# SomeString is not an embedded object
 SELECT EmbObjBase.CQL_EmbeddedTestElement::SomeString.* FROM CQL_EmbeddedSubClass
 #
 # Selected properties at the first level
@@ -47,9 +50,12 @@ SELECT EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::EnabledState F
 SELECT EmbObjBase.CQL_EmbeddedTestElement::TEArray[0].CQL_TestElement::InstanceId FROM CQL_EmbeddedSubClass
 SELECT EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestPropertyTypes::propertyReal64Array FROM CQL_EmbeddedSubClass
 SELECT EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPTArray[0].CQL_TestPropertyTypes::propertyDatetimeArray FROM CQL_EmbeddedSubClass
-# next ones are illegal
+# Next ones are illegal:
+# needs index on TEArray
 SELECT EmbObjBase.CQL_EmbeddedTestElement::TEArray.CQL_TestElement::InstanceId FROM CQL_EmbeddedSubClass
-SELECT EmbObjBase.CQL_EmbeddedTestElement::SomeClass.RequestedState FROM CQL_EmbeddedSubClass
+# not allowed to project properties on classes
+SELECT EmbObjBase.CQL_EmbeddedTestElement::SomeClass.CIM_Process::RequestedState FROM CQL_EmbeddedSubClass
+# SomeString is not an embedded object
 SELECT EmbObjBase.CQL_EmbeddedTestElement::SomeString.CQL_TestElement::InstanceId FROM CQL_EmbeddedSubClass
 #
 #

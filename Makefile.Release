@@ -38,6 +38,7 @@ install: FORCE
 	$(MAKE) -f $(ROOT)/Makefile.Release copyPegasusFiles 
 	$(MAKE) -f $(ROOT)/Makefile.Release createPegasusFiles 
 	$(MAKE) -f $(ROOT)/mak/SDKMakefile stageSDK
+	$(MAKE) -f $(ROOT)/Makefile.ReleaseTest stageTEST
 
 PEGASUS_LICENSE = \
    license.txt

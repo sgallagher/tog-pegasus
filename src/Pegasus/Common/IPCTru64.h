@@ -139,8 +139,7 @@ inline void pegasus_sleep(int msec)
 {
     struct timespec wait;
     wait.tv_sec = msec / 1000;
-    msec -= wait.tv_sec * 1000;  // What is this line for?
-    wait.tv_nsec = (msec & 1000) * 1000000;
+    wait.tv_nsec = (msec % 1000) * 1000000;
     nanosleep(&wait, NULL);
 }
 

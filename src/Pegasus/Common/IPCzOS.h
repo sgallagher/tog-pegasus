@@ -139,8 +139,7 @@ inline void pegasus_sleep(int msec)
    pthread_cond_init (&sleep_cond, NULL);
    pthread_mutex_lock(&sleep_mut);
    wait.tv_sec = msec / 1000;
-   msec -= wait.tv_sec * 1000;
-   wait.tv_nsec =  (msec & 1000) * 1000000;
+   wait.tv_nsec = (msec % 1000) * 1000000;
    pthread_cond_timedwait(&sleep_cond,&sleep_mut,&wait);
    pthread_mutex_unlock(&sleep_mut);
    pthread_cond_destroy(&sleep_cond);

@@ -167,6 +167,9 @@ ifeq ($(OS),HPUX)
 endif
 
 ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
+  ifdef PEGASUS_HAS_SSL
+    EXTRA_LIBRARIES += $(OPENSSL_HOME)/lib/ssleay32.lib $(OPENSSL_HOME)/lib/libeay32.lib
+  endif
   SYS_LIBS = ws2_32.lib advapi32.lib
 endif
 

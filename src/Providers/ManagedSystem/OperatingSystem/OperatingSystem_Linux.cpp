@@ -880,10 +880,8 @@ Uint32 OperatingSystem::_reboot()
             if (system(p) == 0)
                result = 0;
 
-            delete [] p;
             return result;
          }
-         delete [] p;
       }
    }
    return result;
@@ -926,10 +924,8 @@ Uint32 OperatingSystem::_shutdown()
             if (system(p) == 0)
                result = 0;
 
-            delete [] p;
             return result;
          }
-         delete [] p;
       }
    }
    return result;

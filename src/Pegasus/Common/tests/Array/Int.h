@@ -31,7 +31,6 @@
 
 #include <iostream>
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Array.h>
 
 class Int
 {
@@ -61,9 +60,5 @@ inline PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const Int& y)
 {
     return os << y._value;
 }
-
-#define PEGASUS_ARRAY_T Int
-#include <Pegasus/Common/ArrayInter.h>
-#undef PEGASUS_ARRAY_T
 
 #endif /* Y_h */

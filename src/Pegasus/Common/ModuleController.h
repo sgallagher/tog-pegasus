@@ -304,6 +304,9 @@ class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
 			     void *parm) throw(Permission, Deadlock, IPCException);
       Boolean verify_handle(pegasus_module *);
    protected:
+      // ATTN-RK-P2-20010322:  These methods are pure virtual in superclass
+      virtual void handleEnqueue(void) {}
+      virtual void handleEnqueue(Message *) {}
 
    private:
       

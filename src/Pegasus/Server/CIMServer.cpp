@@ -308,6 +308,7 @@ void CIMServer::_init(void)
         _cimExportRequestDecoder->getQueueId());
 
     _sslcontext = 0;
+    _exportSSLContext = 0;
 
     // IMPORTANT-NU-20020513: Indication service must start after ExportService
     // otherwise HandlerService started by indicationService will never
@@ -347,6 +348,11 @@ CIMServer::~CIMServer()
     if (_sslcontext)
 	delete _sslcontext;
 
+    if (_exportSSLContext)
+    {
+        delete _exportSSLContext;
+    }
+
     if(_type != OLD)
     {
        pegasus_acceptor::close_all_acceptors();
@@ -359,16 +365,33 @@ CIMServer::~CIMServer()
 void CIMServer::addAcceptor(
     Boolean localConnection,
     Uint32 portNumber,
-    Boolean useSSL)
+    Boolean useSSL,
+    Boolean exportConnection)
 {
   if(_type == OLD ){
     HTTPAcceptor* acceptor;
-    acceptor = new HTTPAcceptor(_monitor,
+    if (exportConnection)
+    {
+      //
+      // On export connection, create SSLContext with a indication
+      // trust store.
+      //
+      acceptor = new HTTPAcceptor(_monitor,
                                 _httpAuthenticatorDelegator,
                                 localConnection,
                                 portNumber,
-                                useSSL ? _getSSLContext() : 0);
-
+                                useSSL ? _getExportSSLContext() : 0,
+                                exportConnection);
+    }
+    else
+    {
+      acceptor = new HTTPAcceptor(_monitor,
+                                _httpAuthenticatorDelegator,
+                                localConnection,
+                                portNumber,
+                                useSSL ? _getSSLContext() : 0,
+                                exportConnection);
+    }
     _acceptors.append(acceptor);
   }
   else {
@@ -802,6 +825,60 @@ SSLContext* CIMServer::_getSSLContext()
     }
 
     return _sslcontext;
+}
+
+SSLContext* CIMServer::_getExportSSLContext()
+{
+    PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::_getExportSSLContext()");
+
+    static const String PROPERTY_NAME__EXPORT_SSLTRUST_STORE = "exportSSLTrustStore";
+    static const String PROPERTY_NAME__SSLCERT_FILEPATH = "sslCertificateFilePath";
+    static const String PROPERTY_NAME__SSLKEY_FILEPATH  = "sslKeyFilePath";
+
+    if (_exportSSLContext == 0)
+    {
+        //
+        // Get the exportSSLTrustStore property from the Config Manager.
+        //
+        String trustPath = String::EMPTY;
+        trustPath = ConfigManager::getInstance()->getCurrentValue(
+                                      PROPERTY_NAME__EXPORT_SSLTRUST_STORE);
+        PEG_TRACE_STRING(TRC_SERVER, Tracer::LEVEL2,
+            "Using the export trust store : " + trustPath);
+
+        //
+        // Get the sslCertificateFilePath property from the Config Manager.
+        //
+        String certPath = String::EMPTY;
+        certPath = ConfigManager::getInstance()->getCurrentValue(
+                                      PROPERTY_NAME__SSLCERT_FILEPATH);
+
+        //
+        // Get the sslKeyFilePath property from the Config Manager.
+        //
+        String keyPath = String::EMPTY;
+        keyPath = ConfigManager::getInstance()->getCurrentValue(
+                                      PROPERTY_NAME__SSLKEY_FILEPATH);
+
+        String randFile = String::EMPTY;
+
+#ifdef PEGASUS_SSL_RANDOMFILE
+        // NOTE: It is technically not necessary to set up a random file on
+        // the server side, but it is easier to use a consistent interface
+        // on the client and server than to optimize out the random file on
+        // the server side.
+        randFile = ConfigManager::getHomedPath(PEGASUS_SSLSERVER_RANDOMFILE);
+#endif
+
+        //
+        // Note: Trust store is used by default on Export connections,
+        // verification callback function is not used.
+        //
+        _exportSSLContext = new SSLContext(trustPath, certPath, keyPath, 0, randFile);
+    }
+
+    PEG_METHOD_EXIT();
+    return _exportSSLContext;
 }
 
 PEGASUS_NAMESPACE_END

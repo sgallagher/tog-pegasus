@@ -50,7 +50,8 @@ AuthenticationInfoRep::AuthenticationInfoRep(Boolean flag)
     _privileged(false),
     _authType(String::EMPTY),
     _authStatus(NEW_REQUEST),
-    _peerCertificate(0)
+    _peerCertificate(0),
+    _exportConnection(false)
 { 
     PEG_METHOD_ENTER(
         TRC_AUTHENTICATION, "AuthenticationInfoRep::AuthenticationInfoRep");
@@ -158,6 +159,16 @@ void   AuthenticationInfoRep::setPeerCertificate(SSLCertificateInfo* peerCertifi
                     TRC_AUTHENTICATION, "AuthenticationInfoRep::setPeerCertificate");
 
     _peerCertificate = peerCertificate;
+
+    PEG_METHOD_EXIT();
+}
+
+void   AuthenticationInfoRep::setExportConnection(Boolean exportConnection)
+{
+    PEG_METHOD_ENTER(TRC_AUTHENTICATION,
+        "AuthenticationInfoRep::setExportConnection");
+
+    _exportConnection = exportConnection;
 
     PEG_METHOD_EXIT();
 }

@@ -22,7 +22,7 @@
               <VALUE> Pegasus_RT_TestHandler01 </VALUE>
             </PROPERTY>
             <PROPERTY NAME="Destination" TYPE="string"> 
-              <VALUE>https://sequoia:8189/cimom/Pegasus_RT_IndicationConsumer</VALUE>
+              <VALUE>https://localhost:5990/CIMListener/Pegasus_SimpleDisplayConsumer</VALUE>
             </PROPERTY>
           </INSTANCE>
         </IPARAMVALUE>

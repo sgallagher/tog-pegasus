@@ -85,7 +85,8 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueue
 	 //Sint32 socket, 
 	 AutoPtr<MP_Socket>& socket, 
 	 MessageQueue * ownerMessageQueue,
-	 MessageQueue * outputMessageQueue);
+	 MessageQueue * outputMessageQueue,
+         Boolean exportConnection);
             
 
       /** Destructor. */

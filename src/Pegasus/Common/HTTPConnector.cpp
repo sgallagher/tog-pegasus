@@ -333,7 +333,7 @@ HTTPConnection* HTTPConnector::connect(
 
    // Create HTTPConnection object:
 
-   AutoPtr<MP_Socket> mp_socket(new MP_Socket(socket, sslContext));
+   AutoPtr<MP_Socket> mp_socket(new MP_Socket(socket, sslContext, false));
    if (mp_socket->connect() < 0) {
       char portStr [32];
       sprintf (portStr, "%u", portNumber);
@@ -347,7 +347,7 @@ HTTPConnection* HTTPConnector::connect(
    }
     
    HTTPConnection* connection = new HTTPConnection(_monitor, mp_socket,
-						   this, static_cast<MessageQueueService *>(outputMessageQueue));
+        this, static_cast<MessageQueueService *>(outputMessageQueue), false);
 
    // Solicit events on this new connection's socket:
 

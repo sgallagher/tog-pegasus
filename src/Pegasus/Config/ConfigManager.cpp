@@ -143,6 +143,7 @@ static struct OwnerEntry _properties[] =
     {"sslCertificateFilePath", (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"sslKeyFilePath",      (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"sslTrustStore",      (ConfigPropertyOwner* )ConfigManager::securityOwner},
+    {"exportSSLTrustStore",      (ConfigPropertyOwner* )ConfigManager::securityOwner},
 #ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
     {"sslClientVerificationMode", (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"enableSSLTrustStoreAutoUpdate", (ConfigPropertyOwner* )ConfigManager::securityOwner},
@@ -157,6 +158,7 @@ static struct OwnerEntry _properties[] =
     {"providerDir",         (ConfigPropertyOwner* )ConfigManager::providerDirOwner},
     {"enableRemotePrivilegedUserAccess", (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"enableSubscriptionsForNonprivilegedUsers", (ConfigPropertyOwner* )ConfigManager::securityOwner},
+    {"enableSSLExportClientVerification", (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"messageDir",          (ConfigPropertyOwner* )ConfigManager::fileSystemOwner},
     {"enableProviderProcesses", (ConfigPropertyOwner* )ConfigManager::defaultOwner},
 };

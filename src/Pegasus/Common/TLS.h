@@ -64,7 +64,8 @@ class PEGASUS_COMMON_LINKAGE SSLSocket
 {
 public:
 
-    SSLSocket(Sint32 socket, SSLContext * sslcontext)
+    SSLSocket(Sint32 socket, SSLContext * sslcontext,
+        Boolean exportConnection = false)
         throw(SSLException);
 
     ~SSLSocket();
@@ -106,7 +107,8 @@ private:
     SSLContext * _SSLContext;
 
     SSLCertificateInfo *   _SSLCertificate;
-	Boolean _certificateVerified;
+    Boolean _certificateVerified;
+    Boolean _exportConnection;
 };
 #else
 
@@ -125,8 +127,9 @@ class MP_Socket {
 public:
     MP_Socket(Uint32 socket);                          // "normal" socket
 
-    MP_Socket(Uint32 socket, SSLContext * sslcontext)
-         throw(SSLException);                          // secure socket
+    MP_Socket(Uint32 socket, SSLContext * sslcontext,
+        Boolean exportConnection = false)
+        throw(SSLException);                          // secure socket
 
     ~MP_Socket();
 

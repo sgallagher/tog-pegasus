@@ -122,7 +122,8 @@ HTTPAcceptor::HTTPAcceptor(Monitor* monitor,
                            MessageQueue* outputMessageQueue,
                            Boolean localConnection,
                            Uint32 portNumber,
-                           SSLContext * sslcontext)
+                           SSLContext * sslcontext,
+                           Boolean exportConnection)
    : Base(PEGASUS_QUEUENAME_HTTPACCEPTOR),  // ATTN: Need unique names?
      _monitor(monitor),
      _outputMessageQueue(outputMessageQueue),
@@ -130,7 +131,8 @@ HTTPAcceptor::HTTPAcceptor(Monitor* monitor,
      _entry_index(-1),
      _localConnection(localConnection),
      _portNumber(portNumber),
-     _sslcontext(sslcontext)
+     _sslcontext(sslcontext),
+     _exportConnection(exportConnection)
 {
    Socket::initializeInterface();
 }
@@ -587,7 +589,7 @@ void HTTPAcceptor::_acceptConnection()
 
    // Create a new conection and add it to the connection list:
 
-   AutoPtr<MP_Socket> mp_socket(new MP_Socket(socket, _sslcontext));
+   AutoPtr<MP_Socket> mp_socket(new MP_Socket(socket, _sslcontext, _exportConnection));
    if (mp_socket->accept() < 0) 
    {
        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
@@ -595,8 +597,8 @@ void HTTPAcceptor::_acceptConnection()
       return;
    }
 
-   HTTPConnection* connection = new HTTPConnection(
-      _monitor, mp_socket, this, static_cast<MessageQueue *>(_outputMessageQueue));
+   HTTPConnection* connection = new HTTPConnection(_monitor, mp_socket, 
+       this, static_cast<MessageQueue *>(_outputMessageQueue), _exportConnection);
 
    // Solicit events on this new connection's socket:
    int index;

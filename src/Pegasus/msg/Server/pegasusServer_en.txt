@@ -2946,19 +2946,32 @@ CIM server listening on HTTPS port {0}."}
         */
         src.Server.cimserver.LISTENING_ON_HTTPS_PORT:string {"PGS10026:  The CIM server is listening on HTTPS port {0}."}
 
-        src.Server.cimserver.LISTENING_ON_LOCAL:string {"PGS10027: The CIM server is listening on the local connection socket."}
+        /**
+        * @note  PGS10027:  Substitution {0} is the port number (an integer)
+        */
+        src.Server.cimserver.LISTENING_ON_EXPORT_HTTPS_PORT:string {"PGS10027:  The CIM server is listening on Export HTTPS port {0}."}
 
         /**
-        * @note  PGS10028:
+        * @note  PGS10028:  Substitution {0} is the port number (an integer)
+        */
+        src.Server.cimserver.LISTENING_ON_LOCAL:string {"PGS10028: The CIM server is listening on the local connection socket."}
+
+        /**
+        * @note  PGS10029:
+        */
+        src.Server.cimserver.EXPORT_HTTPS_PORT_NOT_DEFINED:string {"PGS10029: Port not defined for the service wbem-exp-https. CIMServer will not be started."}
+
+        /**
+        * @note  PGS10030:
         *    Substitution {0} is a string containing the Pegasus CIM server name
         *    Substitution {1} is a string containing the version of the Pegasus CIMOM
         */
-        src.Server.cimserver.STARTED_VERSION:string {"PGS10028:  Started {0} version {1}."}
+        src.Server.cimserver.STARTED_VERSION:string {"PGS10030:  Started {0} version {1}."}
 
         /**
-        * @note  PGS10029: Substitution {0} is a string containing the Pegasus CIM server name
+        * @note  PGS10031: Substitution {0} is a string containing the Pegasus CIM server name
         */
-        src.Server.cimserver.STOPPED:string {"PGS10029: CIM server {0} stopped."}
+        src.Server.cimserver.STOPPED:string {"PGS10031: CIM server {0} stopped."}
 
 
         /**
@@ -3022,17 +3035,17 @@ CIM server listening on HTTPS port {0}."}
         }
 
         /**
-        * @note PGS10030:
+        * @note PGS10032:
         *     Do not translate the word 'Accept-Language' since it is a standard HTTP request header field
         */
-        src.Server.cimserver.FAILED_TO_SET_PROCESS_LOCALE:string {"PGS10030: Cannot convert the system process locale into a valid Accept-Language format."} //485
+        src.Server.cimserver.FAILED_TO_SET_PROCESS_LOCALE:string {"PGS10032: Cannot convert the system process locale into a valid Accept-Language format."} //485
 
 
         /**
-        * @note PGS10031:
+        * @note PGS10033:
         *    Substitution {0} is a string containing the Exception message
         */
-        src.Server.cimserver.SERVER_NOT_STARTED:string {"PGS10031: cimserver not started : {0}"}
+        src.Server.cimserver.SERVER_NOT_STARTED:string {"PGS10033: cimserver not started : {0}"}
 
 
         // ==========================================================
@@ -3707,4 +3720,9 @@ CIM server listening on HTTPS port {0}."}
         */
 	Pegasus.Server.HTTPAuthenticatorDelegator.AUTHORIZATION_HEADER_ERROR:string{"PGS13001:  Authorization header error."}
 
+	/**
+        * @note HTTPAuthenticatorDelegator:
+        * @version 2.4
+        */
+	Pegasus.Server.HTTPAuthenticatorDelegator.CIMOPERATIONS_NOT_SUPPORTED:string{"PGS13002:  CIMOperation request not supported on this port."}
 }

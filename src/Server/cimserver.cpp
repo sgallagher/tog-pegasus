@@ -815,6 +815,7 @@ int cimserver_run( int argc, char** argv, Boolean shutdownOption )
     // one of the variables is true.    
     Boolean enableHttpConnection = false;
     Boolean enableHttpsConnection = false;
+    Boolean enableSSLExportClientVerification = false;
 
     if (os400StartupOption == false)
     {
@@ -822,12 +823,16 @@ int cimserver_run( int argc, char** argv, Boolean shutdownOption )
           configManager->getCurrentValue("enableHttpConnection"), "true");
       enableHttpsConnection = String::equal(
           configManager->getCurrentValue("enableHttpsConnection"), "true");
+      enableSSLExportClientVerification = String::equal(
+          configManager->getCurrentValue("enableSSLExportClientVerification"), "true");
     }
 #else
     Boolean enableHttpConnection = String::equal(
         configManager->getCurrentValue("enableHttpConnection"), "true");
     Boolean enableHttpsConnection = String::equal(
         configManager->getCurrentValue("enableHttpsConnection"), "true");
+    Boolean enableSSLExportClientVerification = String::equal(
+        configManager->getCurrentValue("enableSSLExportClientVerification"), "true");
 #endif
 
     // Make sure at least one connection is enabled
@@ -950,6 +955,7 @@ int cimserver_run( int argc, char** argv, Boolean shutdownOption )
 
     Uint32 portNumberHttps;
     Uint32 portNumberHttp;
+    Uint32 portNumberExportHttps;
 
     if (enableHttpsConnection)
     {
@@ -979,6 +985,32 @@ int cimserver_run( int argc, char** argv, Boolean shutdownOption )
         portNumberHttp = System::lookupPort(WBEM_HTTP_SERVICE_NAME, port);
     }
 
+    if (enableSSLExportClientVerification)
+    {
+        //
+        // No config property is looked up to get the default port number.
+        // Lookup the port defined in /etc/services for the service name
+        // wbem-exp-https and bind to that port. If the service is  not defined
+        // then log a warning message and do not start the cimserver.
+        //
+        Uint32 port = 0;
+
+        portNumberExportHttps = System::lookupPort(WBEM_EXPORT_HTTPS_SERVICE_NAME, port);
+
+        if (portNumberExportHttps == 0)
+        {
+            Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
+                "src.Server.cimserver.EXPORT_HTTPS_PORT_NOT_DEFINED",
+                "Port not defined for the service wbem-exp-https. CIMServer will not be started.");
+
+            MessageLoaderParms parms("src.Server.cimserver.EXPORT_HTTPS_PORT_NOT_DEFINED",
+                "Port not defined for the service wbem-exp-https. CIMServer will not be started.");
+
+            cerr << MessageLoader::getMessage(parms) << endl;
+
+            return(1);
+        }
+    }
     // Put out startup up message.
 #if !defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU) && \
 !defined(PEGASUS_OS_OS400)
@@ -1105,7 +1137,7 @@ MessageLoader::_useProcessLocale = false;
 
         if (enableHttpConnection)
         {
-            server.addAcceptor(false, portNumberHttp, false);
+            server.addAcceptor(false, portNumberHttp, false, false);
             //l10n
             //Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
                         //"Listening on HTTP port $0.", portNumberHttp);
@@ -1116,7 +1148,7 @@ MessageLoader::_useProcessLocale = false;
         }
         if (enableHttpsConnection)
         {
-            server.addAcceptor(false, portNumberHttps, true);
+            server.addAcceptor(false, portNumberHttps, true, false);
             //l10n
             //Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
                         //"Listening on HTTPS port $0.", portNumberHttps);
@@ -1124,8 +1156,17 @@ MessageLoader::_useProcessLocale = false;
             				"src.Server.cimserver.LISTENING_ON_HTTPS_PORT",
                         	"Listening on HTTPS port $0.", portNumberHttps);
         }
+        if (enableSSLExportClientVerification)
+        {
+            server.addAcceptor(false, portNumberExportHttps, true, true);
+
+            Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
+                "src.Server.cimserver.LISTENING_ON_EXPORT_HTTPS_PORT",
+                "Listening on Export HTTPS port $0.", portNumberExportHttps);
+        }
+
 #ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
-        server.addAcceptor(true, 0, false);
+        server.addAcceptor(true, 0, false, false);
         //l10n
         //Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
                     //"Listening on local connection socket.");
@@ -1151,6 +1192,14 @@ MessageLoader::_useProcessLocale = false;
 				     "Listening on HTTPS port $0.", portNumberHttps);
            	cout << MessageLoader::getMessage(parms) << endl;
         }
+        if (enableSSLExportClientVerification)
+        {
+            MessageLoaderParms parms("src.Server.cimserver.LISTENING_ON_EXPORT_HTTPS_PORT",
+                "Listening on Export HTTPS port $0.", portNumberExportHttps);
+
+            cout << MessageLoader::getMessage(parms) << endl;
+        }
+
 # ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
         //l10n
         //cout << "Listening on local connection socket" << endl;

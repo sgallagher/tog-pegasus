@@ -75,6 +75,7 @@ static struct ConfigPropertyRow properties[] =
 #endif
     {"sslKeyFilePath", "file.pem", 0, 0, 0, 1}, 
     {"sslTrustStore", "none", 0, 0, 0, 1}, 
+    {"exportSSLTrustStore", "indication_trust.pem", 0, 0, 0, 1},
 #ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
     {"sslClientVerificationMode", "disabled", 0, 0, 0, 1},
     {"enableSSLTrustStoreAutoUpdate", "false", 0, 0, 0, 1},
@@ -90,6 +91,7 @@ static struct ConfigPropertyRow properties[] =
 #endif
     {"enableSubscriptionsForNonprivilegedUsers", "true", 0, 0, 0, 0},
     {"enableRemotePrivilegedUserAccess", "true", 0, 0, 0, 1},
+    {"enableSSLExportClientVerification", "false", 0, 0, 0, 1}
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
@@ -105,6 +107,7 @@ SecurityPropertyOwner::SecurityPropertyOwner()
     _certificateFilePath = new ConfigProperty();
     _keyFilePath = new ConfigProperty();
     _trustStore = new ConfigProperty();
+    _exportSSLTrustStore = new ConfigProperty();
 #ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
     _sslClientVerificationMode = new ConfigProperty();
     _enableSSLTrustStoreAutoUpdate = new ConfigProperty();
@@ -112,6 +115,7 @@ SecurityPropertyOwner::SecurityPropertyOwner()
 #endif
     _enableRemotePrivilegedUserAccess = new ConfigProperty();
     _enableSubscriptionsForNonprivilegedUsers = new ConfigProperty();
+    _enableSSLExportClientVerification = new ConfigProperty();
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
         _kerberosServiceName = new ConfigProperty();
 #endif
@@ -127,6 +131,7 @@ SecurityPropertyOwner::~SecurityPropertyOwner()
     delete _certificateFilePath;
     delete _keyFilePath;
     delete _trustStore;
+    delete _exportSSLTrustStore;
 #ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
     delete _sslClientVerificationMode;
     delete _enableSSLTrustStoreAutoUpdate;
@@ -134,6 +139,7 @@ SecurityPropertyOwner::~SecurityPropertyOwner()
 #endif
     delete _enableRemotePrivilegedUserAccess;
     delete _enableSubscriptionsForNonprivilegedUsers;
+    delete _enableSSLExportClientVerification;
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
      delete _kerberosServiceName;
 #endif
@@ -266,6 +272,28 @@ void SecurityPropertyOwner::initialize()
             // do not initialize trustpath; a truststore is not required for SSL handshakes
             // a server may wish to connect on HTTPS but not verify clients
         } 
+        else if (String::equalNoCase(
+                            properties[i].propertyName,
+                            "exportSSLTrustStore"))
+        {
+            _exportSSLTrustStore->propertyName = properties[i].propertyName;
+            _exportSSLTrustStore->defaultValue = properties[i].defaultValue;
+            _exportSSLTrustStore->plannedValue = properties[i].defaultValue;
+            _exportSSLTrustStore->dynamic = properties[i].dynamic;
+            _exportSSLTrustStore->domain = properties[i].domain;
+            _exportSSLTrustStore->domainSize = properties[i].domainSize;
+            _exportSSLTrustStore->externallyVisible = properties[i].externallyVisible;
+
+            //
+            // Initialize SSL trust file path to $PEGASUS_HOME/indication_trust.pem
+            //
+            if ( _exportSSLTrustStore->currentValue == String::EMPTY )
+            {
+                _exportSSLTrustStore->currentValue.append(ConfigManager::getPegasusHome());
+                _exportSSLTrustStore->currentValue.append("/");
+                _exportSSLTrustStore->currentValue.append(_exportSSLTrustStore->defaultValue);
+            }
+        }
 #ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
         else if (String::equalNoCase(
             properties[i].propertyName, "sslClientVerificationMode")) 
@@ -328,6 +356,18 @@ void SecurityPropertyOwner::initialize()
             _enableSubscriptionsForNonprivilegedUsers->domainSize = properties[i].domainSize;
             _enableSubscriptionsForNonprivilegedUsers->externallyVisible = properties[i].externallyVisible;
         }
+        else if (String::equalNoCase(
+            properties[i].propertyName, "enableSSLExportClientVerification"))
+        {
+            _enableSSLExportClientVerification->propertyName = properties[i].propertyName;
+            _enableSSLExportClientVerification->defaultValue = properties[i].defaultValue;
+            _enableSSLExportClientVerification->currentValue = properties[i].defaultValue;
+            _enableSSLExportClientVerification->plannedValue = properties[i].defaultValue;
+            _enableSSLExportClientVerification->dynamic = properties[i].dynamic;
+            _enableSSLExportClientVerification->domain = properties[i].domain;
+            _enableSSLExportClientVerification->domainSize = properties[i].domainSize;
+            _enableSSLExportClientVerification->externallyVisible = properties[i].externallyVisible;
+        }
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
         else if (String::equalNoCase(properties[i].propertyName, "kerberosServiceName"))
         {
@@ -376,6 +416,10 @@ struct ConfigProperty* SecurityPropertyOwner::_lookupConfigProperty(
     {  
         return _trustStore;
     }
+    else if (String::equalNoCase(_exportSSLTrustStore->propertyName, name))
+    {
+        return _exportSSLTrustStore;
+    }
 #ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
     else if (String::equalNoCase(
                  _sslClientVerificationMode->propertyName, name))
@@ -402,6 +446,11 @@ struct ConfigProperty* SecurityPropertyOwner::_lookupConfigProperty(
                  _enableSubscriptionsForNonprivilegedUsers->propertyName, name))
     {
         return _enableSubscriptionsForNonprivilegedUsers;
+    }
+    else if (String::equalNoCase(
+                 _enableSSLExportClientVerification->propertyName, name))
+    {
+        return _enableSSLExportClientVerification;
     }
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
     else if (String::equalNoCase(_kerberosServiceName->propertyName, name))
@@ -649,8 +698,46 @@ Boolean SecurityPropertyOwner::isValid(const String& name, const String& value)
         }
     }
     else if (String::equalNoCase(_certificateFilePath->propertyName, name) ||
-             String::equalNoCase(_keyFilePath->propertyName, name) ||
-             String::equalNoCase(_trustStore->propertyName, name))
+             String::equalNoCase(_keyFilePath->propertyName, name))
+    {
+	String fileName(value);
+
+        //
+        // Check if the file path is empty
+        //
+        if (fileName == String::EMPTY || fileName== "")
+        {
+            return false;
+        }
+
+        //
+        // Check if the file path is a directory
+        //
+        FileSystem::translateSlashes(fileName);
+        if (FileSystem::isDirectory(fileName))
+        {
+            return false;
+        }
+
+        //
+        // Check if the file exists and is readable and is not empty.
+        //
+        if (FileSystem::exists(fileName) && FileSystem::canRead(fileName))
+        {
+            Uint32 size;
+            if (FileSystem::getFileSize(fileName, size))
+            {
+                if (size > 0)
+                {
+                    return true;
+                }
+            }
+        }
+
+         return false;
+    }
+    else if (String::equalNoCase(_trustStore->propertyName, name) ||
+             String::equalNoCase(_exportSSLTrustStore->propertyName, name))
     {
 	    String fileName(value);
 
@@ -662,7 +749,7 @@ Boolean SecurityPropertyOwner::isValid(const String& name, const String& value)
             return false;
         }
 
-	    //
+        //
         // Truststore can be set to none
         //
         if (String::equalNoCase(_trustStore->propertyName, name) && String::equal(value, "none"))
@@ -670,39 +757,37 @@ Boolean SecurityPropertyOwner::isValid(const String& name, const String& value)
             return true;
         }               
                   
-	    //
+        //
         // Check if the file path is a directory
-	    //
+        //
         FileSystem::translateSlashes(fileName);
         if (FileSystem::isDirectory(fileName))
         {
             //
             // Truststore can be a directory, congruent with OpenSSL standards
+            // Check if the directoy has read and write permissions
             //
-            if (String::equalNoCase(_trustStore->propertyName, name) && FileSystem::canRead(fileName) && FileSystem::canWrite(fileName)) 
+            if (FileSystem::canRead(fileName) && FileSystem::canWrite(fileName)) 
             {
                 return true;  
             } 
-
-            return false;
         }
-
-	    //
+        //
         // Check if the file exists and is readable and is not empty
-	    //
-        if (FileSystem::exists(fileName) && FileSystem::canRead(fileName))
+        //
+        else if (FileSystem::exists(fileName) && FileSystem::canRead(fileName))
         {
             Uint32 size;
             if (FileSystem::getFileSize(fileName, size))
             {
                 if (size > 0)
                 {
-                return true;
+                    return true;
+                }
             }
-         }
         }
 
-         return false;
+        return false;
     }
 #ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
     else if (String::equalNoCase(_sslClientVerificationMode->propertyName, name))
@@ -735,6 +820,13 @@ Boolean SecurityPropertyOwner::isValid(const String& name, const String& value)
         }
     }
     else if (String::equalNoCase(_enableSubscriptionsForNonprivilegedUsers->propertyName, name))
+    {
+        if(String::equal(value, "true") || String::equal(value, "false"))
+        {
+            retVal = true;
+        }
+    }
+    else if (String::equalNoCase(_enableSSLExportClientVerification->propertyName, name))
     {
         if(String::equal(value, "true") || String::equal(value, "false"))
         {

@@ -118,7 +118,8 @@ HTTPConnection::HTTPConnection(
     //Sint32 socket, 
     AutoPtr<MP_Socket>& socket, 
     MessageQueue* ownerMessageQueue,
-    MessageQueue* outputMessageQueue)
+    MessageQueue* outputMessageQueue,
+    Boolean exportConnection)
     : 
    Base(PEGASUS_QUEUENAME_HTTPCONNECTION), 
    _monitor(monitor),
@@ -136,12 +137,24 @@ HTTPConnection::HTTPConnection(
    _authInfo = new AuthenticationInfo(true);
 
    // Add SSL verification information to the authentication information
-   if (_socket->isSecure() && _socket->isPeerVerificationEnabled()) 
+   if (_socket->isSecure()) 
    {
-       _authInfo->setPeerCertificate(_socket->getPeerCertificate());
-       if (_socket->isCertificateVerified())
+       //
+       // Set the flag to indicate that the request was received on
+       // export Connection
+       //
+       if (exportConnection)
        {
-           _authInfo->setAuthStatus(AuthenticationInfoRep::AUTHENTICATED);
+          _authInfo->setExportConnection(exportConnection);
+       }
+
+       if (_socket->isPeerVerificationEnabled()) 
+       {
+           _authInfo->setPeerCertificate(_socket->getPeerCertificate());
+           if (_socket->isCertificateVerified())
+           {
+               _authInfo->setAuthStatus(AuthenticationInfoRep::AUTHENTICATED);
+           }
        }
    }
 

@@ -190,6 +190,10 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_USER          =
 #define HTTP_REASONPHRASE_UNAUTHORIZED "Unauthorized"
 #define HTTP_STATUS_UNAUTHORIZED "401 Unauthorized"
 
+#define HTTP_STATUSCODE_FORBIDDEN    403
+#define HTTP_REASONPHRASE_FORBIDDEN    "Forbidden"
+#define HTTP_STATUS_FORBIDDEN    "403 Forbidden"
+
 #define HTTP_STATUSCODE_REQUEST_TOO_LARGE 413
 #define HTTP_REASONPHRASE_REQUEST_TOO_LARGE "Request Entity Too Large"
 #define HTTP_STATUS_REQUEST_TOO_LARGE "413 Request Entity Too Large"
@@ -226,10 +230,12 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_USER          =
 #pragma convert(37)
 #define WBEM_HTTP_SERVICE_NAME "wbem-http"
 #define WBEM_HTTPS_SERVICE_NAME "wbem-https"
+#define WBEM_EXPORT_HTTPS_SERVICE_NAME "wbem-exp-https"
 #pragma convert(0)
 #else
 #define WBEM_HTTP_SERVICE_NAME "wbem-http"
 #define WBEM_HTTPS_SERVICE_NAME "wbem-https"
+#define WBEM_EXPORT_HTTPS_SERVICE_NAME "wbem-exp-https"
 #endif
 
 

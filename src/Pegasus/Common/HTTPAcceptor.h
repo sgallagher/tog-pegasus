@@ -26,6 +26,7 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By:  Jenny Yu (jenny_yu@hp.com)
+//               Nag Borananna (nagaraja.boranna@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -67,12 +68,17 @@ class PEGASUS_COMMON_LINKAGE HTTPAcceptor : public MessageQueue
 	  @param sslcontext If null, this acceptor does not create SSL
 	  connections.  If non-null, the argument specifies an SSL context to
 	  use for connections established by this acceptor.
+          @param exportConnection Boolean indicating whether this acceptor is
+          is only for export connections. If true, client SSL certificate 
+          verification is enabled on the connection created by this acceptor.
+          Ignored when sslcontext is null.
       */
       HTTPAcceptor(Monitor* monitor,
                    MessageQueue* outputMessageQueue,
                    Boolean localConnection,
                    Uint32 portNumber,
-                   SSLContext * sslcontext);
+                   SSLContext * sslcontext,
+                   Boolean exportConnection);
 
       /** Destructor. */
       ~HTTPAcceptor();
@@ -127,6 +133,7 @@ class PEGASUS_COMMON_LINKAGE HTTPAcceptor : public MessageQueue
       Boolean _localConnection;
       Uint32  _portNumber;
       SSLContext * _sslcontext;
+      Boolean _exportConnection;
 };
 
 class HTTPConnection2;

@@ -60,6 +60,7 @@
     {"sslCertificateFilePath", "/etc/opt/hp/sslshare/cert.pem"},
     {"sslKeyFilePath",      "/etc/opt/hp/sslshare/file.pem"},
     {"sslTrustStore",      "/etc/opt/hp/sslshare/client.pem"},
+    {"exportSSLTrustStore",   "/etc/opt/hp/sslshare/indication_trust.pem"},
     {"repositoryDir",       "/var/opt/wbem/repository"},
     {"providerDir",         "/opt/wbem/providers/lib"},
 #endif

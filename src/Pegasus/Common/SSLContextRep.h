@@ -147,7 +147,7 @@ private:
 
     SSL_CTX * _makeSSLContext();
     void _randomInit(const String& randomFile);
-    Boolean _verifyPrivateKey(SSL_CTX *ctx, const char *keyFilePath);
+    Boolean _verifyPrivateKey(SSL_CTX *ctx, const String& keyPath);
 
     String _trustStore;
     String _certPath;

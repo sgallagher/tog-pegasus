@@ -800,118 +800,157 @@ SSL_CTX * SSLContextRep::_makeSSLContext()
     if (_verifyPeer)
     {
         //ATTN: We might still need a flag to specify SSL_VERIFY_FAIL_IF_NO_PEER_CERT
-        // If SSL_VERIFY_FAIL_IF_NO_PEER_CERT is ON, SSL will immediately be terminated if the client sends no certificate
-        // or sends an untrusted certificate.  The callback function is not called in this case; the handshake is simply terminated.
+        // If SSL_VERIFY_FAIL_IF_NO_PEER_CERT is ON, SSL will immediately be terminated 
+        // if the client sends no certificate or sends an untrusted certificate.  The 
+        // callback function is not called in this case; the handshake is simply terminated.
         // This value has NO effect in from a client perspective
 
         if (verify_certificate != NULL)
         {
-			SSL_CTX_set_verify(sslContext, SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, prepareForCallback);
-		}
+            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, 
+                "---> SSL: certificate verification callback specified");
+            SSL_CTX_set_verify(sslContext, 
+                SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, prepareForCallback);
+        }
         else
         {
-            SSL_CTX_set_verify(sslContext, SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, prepareForCallback);
+            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: Trust Store specified");
+            SSL_CTX_set_verify(sslContext, 
+                SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, 
+                prepareForCallback);
         }
     }
     else
     {
-	    SSL_CTX_set_verify(sslContext, SSL_VERIFY_NONE, NULL);
+        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3,
+            "---> SSL: Trust Store and certificate verification callback are NOT specified");
+        SSL_CTX_set_verify(sslContext, SSL_VERIFY_NONE, NULL);
     }
 
     //
-	// Convert SSL paths to C strings for OpenSSL APIs
-	//
-	CString trustStore_cstr = _trustStore.getCString();
-    CString certPath_cstr = _certPath.getCString();
-	CString keyPath_cstr = _keyPath.getCString();
-
+    // Check if there is CA certificate file or directory specified. If specified,
+    // and is not empty, load the certificates from the Trust store.
     //
-    // Check if there is CA certificate file specified. If specified,
-    // load the certificates from the file in to the CA trust store.
-    //
-    if (!String::equal(_trustStore, String::EMPTY) && !String::equal(_trustStore, String::EMPTY))
+    if (_trustStore != String::EMPTY)
     {
         //
         // The truststore may be a single file of CA certificates OR
         // a directory containing multiple CA certificates.
         // Check which one it is, and call the load_verify_locations function 
         // with the appropriate parameter.  Note: It is possible to have both
-        // options, in which the CA file takes precedence over the CA path.  
+        // options, in which case the CA file takes precedence over the CA path.  
         // However, since there is currently only one trust parameter to the
         // SSL functions, only allow one choice here.  
-        const char* CA_Directory = NULL;
-        const char* CA_File = NULL;
-
-        if (FileSystem::isDirectory((const char*)trustStore_cstr))
-        {
-            CA_Directory = trustStore_cstr;
-            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,"Truststore is a directory");
-
-        } else if (FileSystem::exists((const char*)trustStore_cstr)) 
-        {
-            CA_File = trustStore_cstr;
-            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,"Truststore is a file");
-        }
-
         //
-        // load certificates in to trust store
-        //
-        if ((!SSL_CTX_load_verify_locations(sslContext, CA_File, CA_Directory)) ||
-            (!SSL_CTX_set_default_verify_paths(sslContext)))
+        if (FileSystem::isDirectory(_trustStore))
         {
-            PEG_METHOD_EXIT();
-            //l10n
-            //throw( SSLException("Could not load certificates in to trust store."));
-            MessageLoaderParms parms("Common.SSLContext.COULD_NOT_LOAD_CERTIFICATES",
-            					     "Could not load certificates in to trust store.");
-            throw SSLException(parms);
+            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, 
+                            "---> SSL: Truststore is a directory");
+            //
+            // load certificates from the trust store
+            //
+            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL2,
+                "---> SSL: Loading certificates from the trust store: " + _trustStore);
+
+            if ((!SSL_CTX_load_verify_locations(sslContext, NULL, _trustStore.getCString())) ||
+                (!SSL_CTX_set_default_verify_paths(sslContext)))
+            {
+                PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL2,
+                    "---> SSL: Could not load certificates from the trust store: " + _trustStore);
+                //l10n
+                MessageLoaderParms parms("Common.SSLContext.COULD_NOT_LOAD_CERTIFICATES",
+                    "Could not load certificates in to trust store.");
+                PEG_METHOD_EXIT();
+                throw SSLException(parms);
+            }
+
+        } 
+        else if (FileSystem::exists(_trustStore))
+        {
+            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, 
+                            "---> SSL: Truststore is a file");
+            //
+            // Get size of the trust store file:
+            //
+            Uint32 fileSize = 0;
+
+            FileSystem::getFileSize(_trustStore, fileSize);
+
+            if (fileSize > 0)
+            {
+                //
+                // load certificates from the trust store
+                //
+                PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL2,
+                    "---> SSL: Loading certificates from the trust store: " + _trustStore);
+
+                if ((!SSL_CTX_load_verify_locations(sslContext, _trustStore.getCString(), NULL)) ||
+                    (!SSL_CTX_set_default_verify_paths(sslContext)))
+                {
+                    PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL2,
+                        "---> SSL: Could not load certificates from the trust store: " + _trustStore);
+                    //l10n
+                    MessageLoaderParms parms("Common.SSLContext.COULD_NOT_LOAD_CERTIFICATES",
+                        "Could not load certificates in to trust store.");
+                    PEG_METHOD_EXIT();
+                    throw SSLException(parms);
+                }
+            }
+            else
+            {
+                //
+                // no certificates found in the trust store
+                //
+                PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL2,
+                    "---> SSL: No certificates to load from the trust store: " + _trustStore);
+            }
         }
     }
 
     Boolean keyLoaded = false;
+
     //
     // Check if there is a certificate file (file containing server 
     // certificate) specified. If specified, validate and load the 
     // certificate.
     //
-    if (!String::equal(_certPath, String::EMPTY) && !String::equal(_certPath, String::EMPTY))
+    if (_certPath != String::EMPTY)
     {
         //
         // load the specified server certificates
         //
+        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL2,
+            "---> SSL: Loading server certificate from: " + _certPath);
 
-        if (SSL_CTX_use_certificate_file(sslContext, certPath_cstr, SSL_FILETYPE_PEM) <=0)
+        if (SSL_CTX_use_certificate_file(sslContext, 
+            _certPath.getCString(), SSL_FILETYPE_PEM) <=0)
         {
-            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
-                "---> SSL: no certificate found in " + _certPath);
-            PEG_METHOD_EXIT();
-            //l10n
-            //throw( SSLException("Could not get server certificate."));
+            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL2,
+                "---> SSL: No server certificate found in " + _certPath);
             MessageLoaderParms parms("Common.SSLContext.COULD_NOT_GET_SERVER_CERTIFICATE",
             					     "Could not get server certificate.");
+            PEG_METHOD_EXIT();
             throw SSLException(parms);
         }
 
         //
         // If there is no key file (file containing server
         // private key) specified, then try loading the key from the certificate file.
-		// As of 2.4, if a keyfile is specified, its location is verified during server
-		// startup and will throw an error if the path is invalid.
+        // As of 2.4, if a keyfile is specified, its location is verified during server
+        // startup and will throw an error if the path is invalid.
         //
-        if (String::equal(_keyPath, String::EMPTY) || String::equal(_keyPath, ""))
+        if (_keyPath == String::EMPTY)
         {
-            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3,
-                "---> SSL: loading key from" + _certPath);
+            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL2,
+                "---> SSL: loading private key from: " + _certPath);
             //
             // load the private key and check for validity
             //
-            if (!_verifyPrivateKey(sslContext, certPath_cstr))
+            if (!_verifyPrivateKey(sslContext, _certPath))
             {
-                PEG_METHOD_EXIT();
-                //l10n
-                //throw( SSLException("Could not get private key."));
                 MessageLoaderParms parms("Common.SSLContext.COULD_NOT_GET_PRIVATE_KEY",
             					         "Could not get private key.");
+                PEG_METHOD_EXIT();
             	throw SSLException(parms);
             }
             keyLoaded = true;
@@ -923,20 +962,18 @@ SSL_CTX * SSLContextRep::_makeSSLContext()
     // private key) specified and the key was not already loaded.
     // If specified, validate and load the key.
     //
-    if (!String::equal(_keyPath, String::EMPTY) && !String::equal(_keyPath, String::EMPTY) && !keyLoaded)
+    if (_keyPath != String::EMPTY && !keyLoaded)
     {
-        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3,
-            "---> SSL: loading key from" + _keyPath);
+        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL2,
+            "---> SSL: loading private key from: " + _keyPath);
         //
         // load given private key and check for validity
         //
-        if (!_verifyPrivateKey(sslContext, keyPath_cstr))
+        if (!_verifyPrivateKey(sslContext, _keyPath))
         {
-            PEG_METHOD_EXIT();
-            //l10n
-            //throw( SSLException("Could not get private key."));
             MessageLoaderParms parms("Common.SSLContext.COULD_NOT_GET_PRIVATE_KEY",
             					         "Could not get private key.");
+            PEG_METHOD_EXIT();
             throw SSLException(parms);
         }
         keyLoaded = true;
@@ -946,13 +983,13 @@ SSL_CTX * SSLContextRep::_makeSSLContext()
     return sslContext;
 }
 
-Boolean SSLContextRep::_verifyPrivateKey(SSL_CTX *ctx, const char *keyPath)
+Boolean SSLContextRep::_verifyPrivateKey(SSL_CTX *ctx, const String& keyPath)
 {
     PEG_METHOD_ENTER(TRC_SSL, "_verifyPrivateKey()");
 
-    if (SSL_CTX_use_PrivateKey_file(ctx, keyPath, SSL_FILETYPE_PEM) <= 0)
+    if (SSL_CTX_use_PrivateKey_file(ctx, keyPath.getCString(), SSL_FILETYPE_PEM) <= 0)
     {
-        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
+        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL2,
             "---> SSL: no private key found in " + String(keyPath));
         PEG_METHOD_EXIT();
         return false;
@@ -960,7 +997,7 @@ Boolean SSLContextRep::_verifyPrivateKey(SSL_CTX *ctx, const char *keyPath)
 
     if (!SSL_CTX_check_private_key(ctx))
     {
-        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
+        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL2,
             "---> SSL: Private and public key do not match");
         PEG_METHOD_EXIT();
         return false;
@@ -1033,8 +1070,8 @@ SSLContextRep::~SSLContextRep() {}
 
 SSL_CTX * SSLContextRep::_makeSSLContext() { return 0; }
 
-Boolean SSLContextRep::_verifyPrivateKey(SSL_CTX *ctx,
-                                         const char *keyPath) { return false; }
+Boolean SSLContextRep::_verifyPrivateKey(SSL_CTX *ctx, 
+                                         const String& keyPath) { return false; }
 
 SSL_CTX * SSLContextRep::getContext() const { return 0; }
 

@@ -54,13 +54,14 @@ PEGASUS_NAMESPACE_BEGIN
 // Basic SSL socket
 //
 
-SSLSocket::SSLSocket(Sint32 socket, SSLContext * sslcontext)
+SSLSocket::SSLSocket(Sint32 socket, SSLContext * sslcontext, Boolean exportConnection)
    throw(SSLException) :
    _SSLCertificate(0),
    _SSLConnection(0),
    _socket(socket),
    _SSLContext(sslcontext),
-   _certificateVerified(false)
+   _certificateVerified(false),
+   _exportConnection(exportConnection)
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLSocket::SSLSocket()");
 
@@ -222,27 +223,50 @@ redo_accept:
     }
     PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: Accepted");
 
-    if (_SSLContext->isPeerVerificationEnabled()) 
+    //
+    // If peer certificate verification is enabled or request received on
+    // export connection, get the peer certificate and verify the trust 
+    // store validation result.
+    //
+    if (_SSLContext->isPeerVerificationEnabled() || _exportConnection)
     {
         PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "Attempting to certify client");
 
+        //
         // get client's certificate
+        //
         X509 * client_cert = SSL_get_peer_certificate(_SSLConnection);
         if (client_cert != NULL)
         {
+            //
+            // get certificate verification result
+            //
             int verifyResult = SSL_get_verify_result(_SSLConnection);
             Tracer::trace(TRC_SSL, Tracer::LEVEL3, "Verification Result:  %d", verifyResult );
             
             if (verifyResult == X509_V_OK)
             {
-                PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, 
+                PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL2, 
                     "---> SSL: Client Certificate verified.");
-				_certificateVerified = true;
+                //
+                // set flag to indicate that the certificate was verified in
+                // the trust store.
+                //
+                _certificateVerified = true;
             }
             else
             {
-                PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, 
+                PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL2, 
                      "---> SSL: Client Certificate not verified");    
+                //
+                // On export connection, do not continue if the
+                // certificate is not verified.
+                //
+                if (_exportConnection)
+                {
+                    PEG_METHOD_EXIT();
+                    return -1;
+                }
             }
 
             // create the certificate object
@@ -276,16 +300,19 @@ redo_accept:
             //int depth = 1;  // how do we get depth from certificate??
 
             //errorCode
-            int errorCode = verifyResult; //this should contain the verification error still, since it did not get reset in callback
+            int errorCode = verifyResult; //this should contain the verification error still, 
+                                          //since it did not get reset in callback
 
             //errorString
             String errorStr = String(X509_verify_cert_error_string(errorCode));
 
             //respCode
-            int respCode = _certificateVerified;  //this holds the eventual result from the verification process
+            int respCode = _certificateVerified;  //this holds the eventual result from the 
+                                                  //verification process
 
 
-            //ATTN: Expand to use private constructor once we figure out the best way to get the remaining parameters
+            //ATTN: Expand to use private constructor once we figure out the best way to get 
+            //the remaining parameters
             _SSLCertificate = new SSLCertificateInfo(subjectName, 
                                                      issuerName, 
                                                      1, 
@@ -296,12 +323,22 @@ redo_accept:
         }
         else
         {
-            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: Client not certified, no certificate received");
+            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, 
+                "---> SSL: Client not certified, no certificate received");
+            //
+            // On export connection, do not continue if peer certificate 
+            // is not received
+            //
+            if (_exportConnection)
+            {
+                PEG_METHOD_EXIT();
+                return -1;
+            }
         }
     }
     else
     {
-	    PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: Client certification disabled");
+        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: Client certification disabled");
     }
 
     PEG_METHOD_EXIT();
@@ -528,14 +565,14 @@ Boolean SSLSocket::addTrustedClient(const char* username)
 MP_Socket::MP_Socket(Uint32 socket) 
  : _isSecure(false), _socket(socket) {}
 
-MP_Socket::MP_Socket(Uint32 socket, SSLContext * sslcontext)
+MP_Socket::MP_Socket(Uint32 socket, SSLContext * sslcontext, Boolean exportConnection)
    throw(SSLException)
 {
     PEG_METHOD_ENTER(TRC_SSL, "MP_Socket::MP_Socket()");
     if (sslcontext != NULL)
     {
         _isSecure = true;
-        _sslsock = new SSLSocket(socket, sslcontext);
+        _sslsock = new SSLSocket(socket, sslcontext, exportConnection);
     }
     else 
     {
@@ -684,7 +721,8 @@ PEGASUS_NAMESPACE_BEGIN
 MP_Socket::MP_Socket(Uint32 socket)
  : _socket(socket), _isSecure(false) {}
 
-MP_Socket::MP_Socket(Uint32 socket, SSLContext * sslcontext)
+MP_Socket::MP_Socket(Uint32 socket, SSLContext * sslcontext,
+   Boolean exportConnection)
    throw(SSLException)
  : _socket(socket), _isSecure(false) {}
 

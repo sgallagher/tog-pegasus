@@ -53,6 +53,7 @@
     {"sslCertificateFilePath", "/etc/pegasus/server.pem"},
     {"sslKeyFilePath",      "/etc/pegasus/file.pem"},
     {"sslTrustStore",      "/etc/pegasus/client.pem"},
+    {"exportSSLTrustStore", "/etc/pegasus/indication_trust.pem"},
     {"repositoryDir",       "/var/lib/pegasus/repository"},
     {"providerDir",         "/usr/lib/pegasus/providers"},
 #endif

@@ -224,6 +224,8 @@ private:
 
     struct ConfigProperty*      _trustStore;
 
+    struct ConfigProperty*      _exportSSLTrustStore;
+
 #ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
     struct ConfigProperty*      _sslClientVerificationMode;
     struct ConfigProperty*      _enableSSLTrustStoreAutoUpdate;
@@ -231,6 +233,8 @@ private:
 #endif
 
     struct ConfigProperty*      _enableSubscriptionsForNonprivilegedUsers;
+
+    struct ConfigProperty*      _enableSSLExportClientVerification;
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
     struct ConfigProperty*      _kerberosServiceName;

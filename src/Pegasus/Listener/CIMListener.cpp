@@ -186,7 +186,8 @@ void CIMListenerService::init()
 		 _requestDecoder, 
 		 false, 
 		 _portNumber, 
-		 _sslContext);
+		 _sslContext,
+                 false);
   #else
   _acceptor = new pegasus_acceptor(_monitor,
 		   _requestDecoder,

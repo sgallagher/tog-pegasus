@@ -95,11 +95,16 @@ public:
                This parameter is ignored if localConnection=true.
         @param useSSL Boolean specifying whether SSL should be used for
                connections created by this acceptor.
+        @param exportConnection Boolean indicating whether this acceptor is
+               only for export connections. If true, client SSL certificate
+               verification is enabled on the export connection created by
+               this acceptor. Ignored when useSSL is false.
     */
     void addAcceptor(
         Boolean localConnection,
         Uint32 portNumber,
-        Boolean useSSL);
+        Boolean useSSL,
+        Boolean exportConnection);
 
     /** Bind the acceptors to the specified listen sockets.
 	@exception - This function may receive exceptions from
@@ -154,6 +159,7 @@ public:
 private:
 
     SSLContext* _getSSLContext();
+    SSLContext* _getExportSSLContext();
 
     Boolean _dieNow;
 
@@ -179,6 +185,7 @@ private:
     ProviderRegistrationManager* _providerRegistrationManager;
     BinaryMessageHandler *_binaryMessageHandler;
     SSLContext* _sslcontext;
+    SSLContext* _exportSSLContext;
     monitor_2* monitor2;
     server_type _type;
     

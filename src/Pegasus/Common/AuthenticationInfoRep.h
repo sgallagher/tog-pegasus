@@ -130,6 +130,13 @@ public:
 
     void setPeerCertificate(SSLCertificateInfo* peerCertificate);
 
+    Boolean isExportConnection() const
+    {
+        return _exportConnection;
+    }
+
+    void setExportConnection(Boolean exportConnection);
+
 private:
 
     /** Constructors  */
@@ -151,7 +158,7 @@ private:
 #endif
 
     SSLCertificateInfo* _peerCertificate; //PEP165
-
+    Boolean _exportConnection;
 };
 
 PEGASUS_NAMESPACE_END

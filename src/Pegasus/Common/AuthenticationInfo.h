@@ -311,6 +311,22 @@ public:
         _rep->setPeerCertificate(peerCertificate);
     }
 
+    /** Indicate whether the export connection flag is set or not
+    */
+    Boolean isExportConnection() const
+    {
+        _checkRep();
+        return _rep->isExportConnection();
+    }
+
+    /** Set the export connection flag
+    */
+    void setExportConnection(Boolean exportConnection)
+    {
+        _checkRep();
+        _rep->setExportConnection(exportConnection);
+    }
+
 private:
 
     AuthenticationInfo(AuthenticationInfoRep* rep) : _rep(rep)

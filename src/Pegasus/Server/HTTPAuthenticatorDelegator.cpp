@@ -357,7 +357,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 			//PEP187
 			String trustStore = configManager->getCurrentValue("sslTrustStore");
 
-			if (FileSystem::isDirectory(trustStore)) 
+			if (FileSystem::isDirectory(ConfigManager::getHomedPath(trustStore))) 
 			{
 				//get the authenticated client certificate
 				SSLCertificateInfo* clientCertificate = httpMessage->authInfo->getClientCertificate();

@@ -34,10 +34,10 @@
 
 #include <Pegasus/Common/Config.h>
 #include <sys/types.h>
-#if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
-#else
-#include <unistd.h>
-#endif 
+//#if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+//#else
+//#include <unistd.h>
+//#endif 
 #include <iostream>
 #include <stdio.h>
 #include <string.h>

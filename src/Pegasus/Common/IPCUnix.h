@@ -38,7 +38,7 @@
 #include <sys/time.h>
 #include <time.h>
 #include <sys/timex.h>
-#include <unistd.h>
+//#include <unistd.h>
 
 #if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
 

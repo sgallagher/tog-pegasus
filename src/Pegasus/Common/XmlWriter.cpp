@@ -259,7 +259,7 @@ inline void _xmlWritter_appendSpecialChar(Array<char>& out, const Char16& c)
 
 inline void _xmlWritter_appendSpecialChar(Array<char>& out, char c)
 {
-    if ( ((c < Char16(0x20)) && (c >= Char16(0x00))) || (c == Char16(0x7f)) )
+	if ( ((c < 0x20) && (c >= 0)) || (c == 0x7f) )
     {
         char charref[7];
         sprintf(charref, "&#%u;", (Uint8)c);
@@ -298,7 +298,7 @@ inline void _xmlWritter_appendSpecialChar(Array<char>& out, char c)
 
 inline void _xmlWritter_appendSpecialChar(PEGASUS_STD(ostream)& os, char c)
 {
-    if ( (c < Char16(0x20)) || (c == Char16(0x7f)) )
+    if ( ((c < 0x20) && (c >= 0)) || (c == 0x7f) )
     {
         char charref[7];
         sprintf(charref, "&#%u;", (Uint8)c);

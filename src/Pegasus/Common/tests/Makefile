@@ -52,6 +52,7 @@ DIRS = \
     WebClient \
     ParamValue \
     L10N \
+    L10N/msg \
     OperationContext
 
 #    MessageQueueService \

@@ -298,12 +298,25 @@ class PEGASUS_COMMON_LINKAGE Thread
       
       inline void empty_tsd(void) throw(IPCException)
       {
-         thread_data* tsd;
-         while (0 != (tsd = _tsd.remove_first()))
-         {
-            delete tsd;
-         }
-	 //_tsd.empty_list();
+         
+	 try 
+	 {
+	    
+	    _tsd.try_lock();
+	 }
+	 catch(IPCException&)
+	 {
+	    return;
+	 }
+	 
+	 thread_data* tsd = _tsd.next(0);
+	 while(tsd)
+	 {
+	    _tsd.remove_no_lock(tsd);
+	    delete tsd;
+	    tsd = _tsd.next(0);
+	 }
+	 _tsd.unlock();
       }
       
       // create or re-initialize tsd associated with the key

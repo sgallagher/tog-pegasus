@@ -74,11 +74,16 @@ Mutex::Mutex(const Mutex& mutex)
 
 Mutex::~Mutex()
 {
-   while( EBUSY == pthread_mutex_destroy(&_mutex.mut))
-   {
-      pegasus_yield();
-   }
-   pthread_mutexattr_destroy(&_mutex.mutatt);
+//   while( EBUSY == pthread_mutex_destroy(&_mutex.mut))
+   //  {
+//      pegasus_yield();
+//   }
+   // <<< Fri Oct 17 10:34:42 2003 mdd >>>
+   // 
+   // don't hang if some thread exited without releasing
+   // a semaphore. 
+   if(0 == pthread_mutex_destroy(&_mutex.mut))
+      pthread_mutexattr_destroy(&_mutex.mutatt);
 }
 
 

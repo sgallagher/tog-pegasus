@@ -241,6 +241,44 @@ void Thread::clearLanguages() //l10n
 }
 // l10n end      
 
+
+
+// two special synchronization classes for ThreadPool
+// 
+
+class timed_mutex 
+{
+   public:
+      timed_mutex(Mutex* mut, int msec)
+	 :_mut(mut)
+      {
+	 _mut->timed_lock(msec, pegasus_thread_self());
+      }
+      ~timed_mutex(void)
+      {
+	 _mut->unlock();
+      }
+      Mutex* _mut;
+};
+
+
+class try_mutex
+{
+   public:
+      try_mutex(Mutex* mut)
+	 :_mut(mut)
+      {
+	 _mut->try_lock(pegasus_thread_self());
+      }
+      ~try_mutex(void)
+      {
+	 _mut->unlock();
+      }
+      
+      Mutex* _mut;
+};
+
+
 DQueue<ThreadPool> ThreadPool::_pools(true);
 
 
@@ -305,104 +343,103 @@ ThreadPool::ThreadPool(Sint16 initial_size,
 }
 
 
+// Note:   <<< Fri Oct 17 09:19:03 2003 mdd >>>
+// the pegasus_yield() calls that preceed each th->join() are to 
+// give a thread on the running list a chance to reach a cancellation
+// point before the join 
 
 ThreadPool::~ThreadPool(void)
 {
-   
    try 
    {      
+      // set the dying flag so all thread know the destructor has been entered
       {
 	 auto_mutex(&(this->_monitor));
 	 _dying++;
       }
-      
+      // remove from the global pools list 
       _pools.remove(this);
+
+      // start with idle threads. 
       Thread *th = 0;
       th = _pool.remove_first();
+      Semaphore* sleep_sem;
+      
       while(th != 0)
       {
-	 Semaphore *sleep_sem = (Semaphore *)th->reference_tsd("sleep sem");
-	 
+	 sleep_sem = (Semaphore *)th->reference_tsd("sleep sem");
 	 if(sleep_sem == 0)
 	 {
 	    th->dereference_tsd();
 	    throw NullPointer();
 	 }
-
+	 
 	 // Signal to get the thread out of the work loop.
 	 sleep_sem->signal();
+
 	 // Signal to get the thread past the end. See the comment
 	 // "wait to be awakend by the thread pool destructor"
 	 // Note: the current implementation of Thread for Windows
 	 // does not implement "pthread" cancelation points so this
 	 // is needed.
 	 sleep_sem->signal();
-
 	 th->dereference_tsd();
-	 // signal the thread's sleep semaphore
 	 th->cancel();
 	 th->join();
-	 th->empty_tsd();
 	 delete th;
 	 th = _pool.remove_first();
       }
-
       th = _dead.remove_first();
       while(th != 0)
       {
-	 Semaphore *sleep_sem = (Semaphore *)th->reference_tsd("sleep sem");
-	 
+	 sleep_sem = (Semaphore *)th->reference_tsd("sleep sem");
+
 	 if(sleep_sem == 0)
 	 {
 	    th->dereference_tsd();
 	    throw NullPointer();
 	 }
 	 
-
-	 sleep_sem->signal();
-	 th->dereference_tsd();
-	 
 	 // signal the thread's sleep semaphore
+	 sleep_sem->signal();
+	 sleep_sem->signal();
+	 th->dereference_tsd();	 
 	 th->cancel();
 	 th->join();
-	 th->empty_tsd();
 	 delete th;
 	 th = _dead.remove_first();
       }
-      {
-	 
-	 auto_mutex(&(this->_monitor));
-      th = _running.remove_first();
-      while(th != 0)
-      {	 
-	 // signal the thread's sleep semaphore
-	 Semaphore *sleep_sem = (Semaphore *)th->reference_tsd("sleep sem");
-	 if(sleep_sem == 0 )
-	 {
-	    th->dereference_tsd();
-	    throw NullPointer();
-	 }
-	 
-	 sleep_sem->signal();
-	 th->dereference_tsd();
-	 
-	 th->cancel();
 
-	 // ensure that th->run() has a chance to execute so that the join will not
-	 // block
-	 th->join();
-	 th->empty_tsd();
-	 delete th;
+      {
 	 th = _running.remove_first();
-      }
+	 while(th != 0)
+	 {	 
+	    // signal the thread's sleep semaphore
+
+	    sleep_sem = (Semaphore *)th->reference_tsd("sleep sem");
+	    if(sleep_sem == 0 )
+	    {
+	       th->dereference_tsd();
+	       throw NullPointer();
+	    }
+	    
+	    sleep_sem->signal();
+	    sleep_sem->signal();
+	    th->dereference_tsd();
+	    th->cancel();
+	    pegasus_yield();
+	    
+	    th->join();
+	    delete th;
+	    th = _running.remove_first();
+	 }
       }
       
    }
-
+   
    catch(...)
    {
    }
-
 }
 
 // make this static to the class
@@ -428,7 +465,12 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
       PEG_METHOD_EXIT();
       throw NullPointer();
    }
-
+   if(pool->_dying.value())
+   {
+      PEG_METHOD_EXIT();
+      return((PEGASUS_THREAD_RETURN)0);
+   }
+   
    Semaphore *sleep_sem = 0;
    Semaphore *blocking_sem = 0;
    
@@ -441,29 +483,38 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
       deadlock_timer = (struct timeval *)myself->reference_tsd("deadlock timer");
       myself->dereference_tsd(); 
    }
-   catch(IPCException &)
-   {
-      PEG_METHOD_EXIT();
-      return(0);
-   }
+
    catch(...)
    {
       PEG_METHOD_EXIT();
-      return(0);
+      return((PEGASUS_THREAD_RETURN)0);
    }
    
    if(sleep_sem == 0 || deadlock_timer == 0)
    {
       PEG_METHOD_EXIT();
-      throw NullPointer();
+      return((PEGASUS_THREAD_RETURN)0);
    }
 
    while(pool->_dying.value() < 1)
    {
-      sleep_sem->wait();
-        
+      try 
+      {
+	 sleep_sem->wait();
+      }
+      catch(IPCException& )
+      {
+	 PEG_METHOD_EXIT();
+	 return((PEGASUS_THREAD_RETURN)0);
+      }
+      
       // when we awaken we reside on the running queue, not the pool queue
-
+      if(pool->_dying.value())
+      {
+	 PEG_METHOD_EXIT();
+	 return((PEGASUS_THREAD_RETURN)0);
+      }
+      
       
       PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *_work)(void *) = 0;
       void *parm = 0;
@@ -482,9 +533,9 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
       catch(IPCException &)
       {
 	 PEG_METHOD_EXIT();
-	 return(0);
+	 return((PEGASUS_THREAD_RETURN)0);
       }
-
+      
       if(_work == 0)
       {
          PEG_METHOD_EXIT();
@@ -501,10 +552,10 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
       try 
       {
 	 {
-	    auto_mutex(&(pool->_monitor));
+	    timed_mutex(&(pool->_monitor), 1000);
 	    if(pool->_dying.value())
 	    {
-	       break;
+	       _undertaker(parm);
 	    }
 	 }
 	 _work(parm);
@@ -514,12 +565,10 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
 	 return((PEGASUS_THREAD_RETURN)0);
       }
       
-
-      
       // put myself back onto the available list
       try
       {
-	 auto_mutex(&(pool->_monitor));
+	 timed_mutex(&(pool->_monitor), 1000);
 	 if(pool->_dying.value() == 0)
 	 {
 	    gettimeofday(deadlock_timer, NULL);
@@ -535,13 +584,9 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
 	    return((PEGASUS_THREAD_RETURN)0);
 	 }
       }
-      catch(IPCException &)
-      {
-	 PEG_METHOD_EXIT();
-	 return((PEGASUS_THREAD_RETURN)0);
-      }
       catch(...)
       {
+	 PEG_METHOD_EXIT();
 	 return((PEGASUS_THREAD_RETURN)0);
       }
       
@@ -554,7 +599,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
    myself->test_cancel();
 
    PEG_METHOD_EXIT();
-   myself->exit_self(0);
    return((PEGASUS_THREAD_RETURN)0);
 }
 
@@ -572,7 +616,7 @@ void ThreadPool::allocate_and_awaken(void *parm,
    
    try 
    {
-      auto_mutex(&(this->_monitor));
+      timed_mutex(&(this->_monitor), 1000);
       if(_dying.value())
       {
 	 return;
@@ -600,7 +644,7 @@ void ThreadPool::allocate_and_awaken(void *parm,
       pegasus_yield();
       try
       {
-	 auto_mutex(&(this->_monitor));
+	 timed_mutex(&(this->_monitor), 1000);
 	 if(_dying.value())
 	 {
 	    return;
@@ -631,7 +675,7 @@ void ThreadPool::allocate_and_awaken(void *parm,
 	 th->put_tsd("blocking sem", NULL, sizeof(Semaphore *), blocking);
       try 
       {
-	 auto_mutex(&(this->_monitor));
+	 timed_mutex(&(this->_monitor), 1000);
 	 if(_dying.value())
 	 {
 	    th->cancel();
@@ -688,7 +732,7 @@ Uint32 ThreadPool::kill_dead_threads(void)
    // first go thread the dead q and clean it up as much as possible
    try 
    {
-      auto_mutex(&(this->_monitor));
+      timed_mutex(&(this->_monitor), 1000);
       if(_dying.value() )
       {
 	 return 0;
@@ -739,7 +783,15 @@ Uint32 ThreadPool::kill_dead_threads(void)
    for( ; i < 2; i++)
 #endif
    {
-      auto_mutex(&(this->_monitor)); 
+      try 
+      {
+	 try_mutex(&(this->_monitor)); 
+      }
+      catch(IPCException&)
+      {
+	 return bodies;
+      }
+      
       q = map[i];
       if(q->count() > 0 )
       {
@@ -850,7 +902,7 @@ Uint32 ThreadPool::kill_dead_threads(void)
 	       }
 	    }
 	    th = q->next(th);
-	    pegasus_sleep(1);
+	    pegasus_yield();
 	 }
 	 q->unlock();
       }
@@ -954,7 +1006,7 @@ PEGASUS_THREAD_RETURN ThreadPool::_undertaker( void *parm )
    try 
    {
       
-      auto_mutex(&(this->_monitor));
+      timed_mutex(&(this->_monitor), 1000);
       if(_dying.value())
       {
 	 th->cancel();

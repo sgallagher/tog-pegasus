@@ -73,7 +73,6 @@ Uint32 _selectStringItem(const Array<String>& selectList, const String& what)
     return (rtn - 1);
 }
 
-
 /** Allow user to select one instance name. Enumerates names given className and
     requests input of one index
     @param
@@ -1818,15 +1817,23 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
        }
     }
 
+    // Evaluate connectiontimeout option.
+    opts.connectionTimeout = 0;
+    if(!om.lookupIntegerValue("connecttimeout", opts.connectionTimeout))
+    {
+            opts.connectionTimeout = 0;
+    }
+
+    if (verboseTest && debug && opts.connectionTimeout != 0)
+    {
+        cout << "Connection Timeout= " << opts.connectionTimeout << " Seconds" << endl;
+    }
+
     if(!om.lookupIntegerValue("delay", opts.delay))
     {
             opts.delay = 0;
     }
 
-    if(!om.lookupIntegerValue("connectiontimeout", opts.connectionTimeout))
-    {
-            opts.connectionTimeout = 0;
-    }
     if (verboseTest && debug && opts.delay != 0)
     {
         cout << "delay= " << opts.delay << " Seconds" << endl;

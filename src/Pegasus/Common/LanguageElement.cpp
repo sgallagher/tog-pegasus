@@ -49,9 +49,9 @@ const LanguageElement LanguageElement::EMPTY = LanguageElement();
 LanguageElement LanguageElement::EMPTY_REF = LanguageElement();
  
 LanguageElement::LanguageElement(){
-	language = String::EMPTY;
-	country = String::EMPTY;
-	variant = String::EMPTY;
+	language = String();
+	country = String();
+	variant = String();
 }
 
 LanguageElement::LanguageElement(String language, 

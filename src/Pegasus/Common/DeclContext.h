@@ -32,7 +32,7 @@
 #define Pegasus_DeclContext_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Array.h>
+#include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/Pair.h>
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMClass.h>

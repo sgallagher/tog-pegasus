@@ -31,7 +31,7 @@
 #define Pegasus_WQLSelectStatement_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Array.h>
+#include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/WQL/WQLOperation.h>
 #include <Pegasus/WQL/WQLOperand.h>

@@ -37,9 +37,6 @@
 PEGASUS_NAMESPACE_BEGIN
 
 #include <Pegasus/Common/ArrayInter.h>
-#ifdef PEGASUS_INTERNALONLY
-#include <Pegasus/Common/ArrayImpl.h>
-#endif
 
 #define PEGASUS_ARRAY_T Boolean
 #include <Pegasus/Common/ArrayInter.h>
@@ -92,86 +89,6 @@ PEGASUS_NAMESPACE_BEGIN
 #define PEGASUS_ARRAY_T String
 #include <Pegasus/Common/ArrayInter.h>
 #undef PEGASUS_ARRAY_T
-
-
-template<class PEGASUS_ARRAY_T>
-Boolean operator==(
-    const Array<PEGASUS_ARRAY_T>& x,
-    const Array<PEGASUS_ARRAY_T>& y)
-{
-    if (x.size() != y.size())
-        return false;
-
-    for (Uint32 i = 0, n = x.size(); i < n; i++)
-    {
-        if (!(x[i] == y[i]))
-            return false;
-    }
-
-    return true;
-}
-
-#ifdef PEGASUS_INTERNALONLY
-template<class PEGASUS_ARRAY_T>
-Boolean Contains(const Array<PEGASUS_ARRAY_T>& a, const PEGASUS_ARRAY_T& x)
-{
-    Uint32 n = a.size();
-
-    for (Uint32 i = 0; i < n; i++)
-    {
-        if (a[i] == x)
-            return true;
-    }
-
-    return false;
-}
-
-template<class PEGASUS_ARRAY_T>
-void BubbleSort(Array<PEGASUS_ARRAY_T>& x) 
-{
-    Uint32 n = x.size();
-
-    if (n < 2)
-        return;
-
-    for (Uint32 i = 0; i < n - 1; i++)
-    {
-        for (Uint32 j = 0; j < n - 1; j++)
-        {
-            if (x[j] > x[j+1])
-            {
-                PEGASUS_ARRAY_T t = x[j];
-                x[j] = x[j+1];
-                x[j+1] = t;
-            }
-        }
-    }
-}
-#endif
-
-#if 0
-// Determine need for these functions
-template<class PEGASUS_ARRAY_T>
-void Unique(Array<PEGASUS_ARRAY_T>& x) 
-{
-    Array<PEGASUS_ARRAY_T> result;
-
-    for (Uint32 i = 0, n = x.size(); i < n; i++)
-    {
-        if (i == 0 || x[i] != x[i-1])
-            result.append(x[i]);
-    }
-
-    x.swap(result);
-}
-
-template<class PEGASUS_ARRAY_T>
-void Print(Array<PEGASUS_ARRAY_T>& x)
-{
-    for (Uint32 i = 0, n = x.size(); i < n; i++)
-        PEGASUS_STD(cout) << x[i] << PEGASUS_STD(endl);
-}
-#endif
 
 PEGASUS_NAMESPACE_END
 

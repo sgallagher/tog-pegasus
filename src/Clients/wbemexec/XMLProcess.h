@@ -34,7 +34,7 @@
 #ifndef Pegasus_XMLProcess_h
 #define Pegasus_XMLProcess_h
 
-#include <Pegasus/Common/Array.h>
+#include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/XmlParser.h>
 #include "WbemExecException.h"
 

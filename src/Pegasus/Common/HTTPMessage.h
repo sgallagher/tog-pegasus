@@ -37,7 +37,7 @@
 #include <Pegasus/Common/Pair.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Message.h>
-#include <Pegasus/Common/Array.h>
+#include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/AuthenticationInfo.h>
 #include <Pegasus/Common/Linkage.h>
 

@@ -30,7 +30,7 @@
 #include <cassert>
 #include <iostream>
 #include <Pegasus/Common/Dir.h>
-#include <Pegasus/Common/Array.h>
+#include <Pegasus/Common/ArrayInternal.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;

@@ -54,7 +54,7 @@
 #define _MOFCOMPILEROPTIONS_H_
 
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Common/Array.h>
+#include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Compiler/compilerCommonDefs.h>
 #include <Pegasus/Compiler/Linkage.h>
 #include <iostream>

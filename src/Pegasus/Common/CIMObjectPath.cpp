@@ -39,7 +39,7 @@
 #include "Destroyer.h"
 #include "XmlWriter.h"
 #include "XmlReader.h"
-#include "Array.h"
+#include "ArrayInternal.h"
 #include "CIMOMPort.h"
 
 PEGASUS_NAMESPACE_BEGIN

@@ -30,7 +30,7 @@
 #include <strstream>
 #include <string>
 #include "Base64.h"
-#include <Pegasus/Common/Array.h>
+#include <Pegasus/Common/ArrayInternal.h>
 
 PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;

@@ -31,7 +31,7 @@
 #define Pegasus_WQLParser_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Array.h>
+#include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/WQL/Linkage.h>
 #include <Pegasus/WQL/WQLSelectStatement.h>
 

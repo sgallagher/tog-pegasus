@@ -31,7 +31,7 @@
 #define Pegasus_HandlerTable_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Array.h>
+#include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Handler/CIMHandler.h>
 #include <Pegasus/ExportServer/Linkage.h>

@@ -38,7 +38,7 @@
 #include <iostream>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/InternalException.h>
-#include <Pegasus/Common/Array.h>
+#include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Indentor.h>
 #include <Pegasus/Common/CIMObject.h>

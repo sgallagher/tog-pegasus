@@ -51,7 +51,7 @@
 #include "NamespaceProvider.h"
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/System.h>
-#include <Pegasus/Common/Array.h>
+#include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMType.h>
 #include <Pegasus/Common/CIMInstance.h>

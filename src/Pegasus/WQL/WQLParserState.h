@@ -31,7 +31,7 @@
 #define Pegasus_WQLParserState_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Array.h>
+#include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/WQL/WQLSelectStatement.h>
 
 PEGASUS_NAMESPACE_BEGIN

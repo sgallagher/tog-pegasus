@@ -32,7 +32,7 @@
 
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/HashTable.h>
-#include <Pegasus/Common/Array.h>
+#include <Pegasus/Common/ArrayInternal.h>
 
 #include <Pegasus/Security/UserManager/Linkage.h>
 

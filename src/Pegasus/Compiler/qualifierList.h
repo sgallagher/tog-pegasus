@@ -42,7 +42,7 @@
 #define _QUALIFIERLIST_H_
 
 #include <Pegasus/Common/CIMQualifier.h>
-#include <Pegasus/Common/Array.h>
+#include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Compiler/Linkage.h>
 #include "memobjs.h"
 

@@ -34,7 +34,7 @@
 #include <iostream>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/InternalException.h>
-#include <Pegasus/Common/Array.h>
+#include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/CIMProperty.h>

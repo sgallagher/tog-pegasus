@@ -31,7 +31,7 @@
 #define Pegasus_XmlParser_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Array.h>
+#include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/Stack.h>
 #include <Pegasus/Common/Linkage.h>

@@ -30,6 +30,7 @@
 
 #include "ProviderRegistrationManager.h"
 
+#include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/CIMDateTime.h>
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/HashTable.h>

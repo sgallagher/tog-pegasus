@@ -30,7 +30,7 @@
 #define NEED_STRING_EQUAL
 
 #include <cassert>
-#include <Pegasus/Common/Array.h>
+#include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/String.h>
 #include "Str.h"

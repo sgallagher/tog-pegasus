@@ -34,7 +34,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Common/Array.h>
+#include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/ModuleController.h>
 #include <Pegasus/Server/CIMServer.h>

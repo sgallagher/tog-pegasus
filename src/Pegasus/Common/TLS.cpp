@@ -189,9 +189,7 @@ redo_accept:
     if (ssl_rc < 0)
     {
        ssl_rsn = SSL_get_error(_SSLConnection, ssl_rc);
-       char msg[ 64 ];
-       sprintf( msg, "---> SSL: Not accepted %d", ssl_rsn );
-       PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, msg );
+	   Tracer::trace(TRC_SSL, Tracer::LEVEL3, "---> SSL: Not accepted %d", ssl_rsn );
 
        if ((ssl_rsn == SSL_ERROR_WANT_READ) ||
            (ssl_rsn == SSL_ERROR_WANT_WRITE))
@@ -208,9 +206,7 @@ redo_accept:
     {
        ssl_rsn = SSL_get_error(_SSLConnection, ssl_rc);
        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "Shutdown SSL_accept()");
-       char msg[ 64 ];
-       sprintf( msg, "Error Code:  %d", ssl_rsn );
-       PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, msg );
+	   Tracer::trace(TRC_SSL, Tracer::LEVEL4, "Error Code:  %d", ssl_rsn );
        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, 
            "Error string: " + String(ERR_error_string(ssl_rc, NULL)));
 

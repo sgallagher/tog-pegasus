@@ -730,25 +730,5 @@
 	string Property0028;
 	string Property0029;
 	string Property0030;
-	string Property0031;
-	string Property0032;
-	string Property0033;
-	string Property0034;
-	string Property0035;
-	string Property0036;
-	string Property0037;
-	string Property0038;
-	string Property0039;
-	string Property0040;
-	string Property0041;
-	string Property0042;
-	string Property0043;
-	string Property0044;
-	string Property0045;
-	string Property0046;
-	string Property0047;
-	string Property0048;
-	string Property0049;
-	string Property0050;
 };
 

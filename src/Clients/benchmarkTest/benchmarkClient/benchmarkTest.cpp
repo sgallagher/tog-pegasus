@@ -898,7 +898,7 @@ CIMObjectPath benchmarkTestCommand::_buildObjectPath(
 {
     Array<CIMKeyBinding> keys;
 
-    keys.append(CIMKeyBinding("Idenitifier", Identifier.toString(), 
+    keys.append(CIMKeyBinding("Identifier", Identifier.toString(), 
                               CIMKeyBinding::NUMERIC));
 
     return CIMObjectPath(String(), CIMNamespaceName(NAMESPACE), className, keys);

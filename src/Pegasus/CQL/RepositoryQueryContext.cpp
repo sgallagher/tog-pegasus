@@ -49,6 +49,10 @@ RepositoryQueryContext::RepositoryQueryContext(const RepositoryQueryContext& ctx
  
 }  
 
+RepositoryQueryContext::~RepositoryQueryContext()
+{
+}
+
 RepositoryQueryContext& RepositoryQueryContext::operator=(const RepositoryQueryContext& rhs)
 {
   if (this == &rhs)

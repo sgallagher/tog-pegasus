@@ -1,0 +1,213 @@
+
+    -	Migrate to use of Linkage.h files.
+
+    -   Document that lex and yacc are no longer a requirement to build
+	Pegasus.
+
+    -	Figure out how to handle very large CIM respones and possibly
+	requests too.
+
+    -   Integrate client/server tests into make system somehow.
+
+    -   Note that it is possible to remove an class and still have association
+	classes which refer to it.
+
+    -   Class inheritance not taken into consideration when resolving the
+	AssocClass
+
+    -   It seems that associatios() will fail when AssocClass is a super
+	class of the class which is in the association instance table.
+
+    -   Should there be a single associations table for the entire repository
+	or should there be one per namespace as there is now?
+
+    -   If it is the case that a reference may only refer to an instance,
+	then we must derive new types for representing object paths.
+
+    -   Many CIM operations interfaces are incorrect: GetInstance() for example
+	takes a namespace and a CIMReference (which also may contain the 
+	namespace). According to the standard, it should take an "InstanceName".
+
+    -   Need way of signaling the cimserver so that it will reload the
+	class inheritance table (after a MOF compile).
+    
+    -   Revisit use of namespace v.s. objectName in all CIM operations.
+
+    -   What do we do when getInstance() is called and the nameSpace is
+	provided both as an argument and as part of the instance name?
+
+    -   ReferenceNames should return classes not just instances?
+
+    -   Remove final const from const methods in non-const CIM element classes.
+
+    -   Null vs. empty CIM/HTTP parameters.
+
+    -   Resolve constness problems. (get rid or Const classes?)
+
+    -	Change CIMReference to CIMObjectPath?
+
+    -	Finish associations.
+
+    -	Provide CIMOM Context.
+
+    -	Complete conventions document.
+
+    -   The CIMServer.exe program should probably create the logs directory
+	under PEGASUS_HOME.
+
+    -   Clean up exceptions.
+
+    -   Resolve redundancy in which the namespace is passed to certain methods
+	(getClass) and the CIMReference itself may contain a namespace arguent.
+
+    -	Implement consistency and constraint checking on classes and instances.
+
+    -   Implement filtering (using includeQualifiers, localOnly, etc.)
+
+    -	Consider eliminating const CIM element classes.
+
+    -   Support for NULL property lists (in interface and protocol).
+
+    -   Rename tests (prepend "Test" to each test).
+
+    -   Fix bug with cimserver.exe causing it to fail to start without te
+	"-l" option.
+
+    -   Resolve whether the backslash should be permitted in namespaces.
+
+    -   Create CIMOMContext (interface to CIMOM used b the provider).
+
+    -	Define Encoding module interface.
+
+    - 	Develop XMLEncodings module.
+
+    - 	Develop BinaryEncodings module.
+
+    - 	Develop MOFEncodings module.
+
+    -	Employ BinaryEncodings module in repository (reduce disk usage).
+
+    -   Combine repository instances, classes, and qualifiers  into their
+	respective files (to reduce the number of files).
+
+    -	Employ an efficient indexing scheme in repository (B-trees or hashing).
+
+    -	Develop module manager: interface, lookup scheme, and loading scheme.
+
+    -   Package Encodings classes as a module.
+
+    -   Finalize repository assocations.
+
+    -   Add association CIM/HTTP operations.
+
+    -   Design association provider infrastructure.
+
+    -	Implement missing CIM protocol operations.
+
+    -   Implement good observer module interface which allows different levels:
+
+	-   Observation of client/CIMMOM connections/disconnection.
+
+	-   Observation of client/CIMOM communication.
+
+	-   Observation of CIMOM/repository communication.
+
+	-   Observation of CIMOM/provider communication.
+
+	-   Observation of CIMOM state transitions.
+
+    -	Pegasus providers for Sun WBEM Services.
+
+    -	Pegasus providers for WMI.
+
+    -	Sun WBEM Services providers for Pegasus.
+
+    -   CIM/HTTP Proxy for WMI.
+
+    -   Web Server/Pegasus Integration (use HTTP protocol capabilities of
+	web server rather than Pegasus).
+
+    -   Add CIMRepository::namespaceExists() method.
+
+    - 	Change HTTP message id's to this format: "YYYY.MM.DD.HH.MM.SS.NNNNN".
+
+    - 	GetInstances() and GetClasses() need to use iterators on
+	provider and repository end. Otherwise, all classes or instance
+	to be enumerated, must be sucked into memory.
+
+    -   Template bloat reduction.
+
+    - 	Need a tool to say which features are supported by a compiler.
+
+    -   Support unloading of dynamic libraries (presently only load() is
+	supported).
+
+    -	Clean up and consolidate exception classes.
+
+    -	Asynchronous socket writes in the CIMOM (need write enabled flags).
+
+    -	Handle PARAMETER.REFARRAY in Procotol?
+
+    -	Implemented stream oriented XML parsing.
+
+    -	Ignore extraneous XML elements (implement "loose validation" concept).
+
+    -	Add methods to get objects by their names, in addition to index. For
+	example:
+
+	    CIMProperty CIMClass::getProperty(const String& name);
+
+    -	Distinguish between private and public classes (otherwise, users may
+	come to depend on classes with unstable interfaces).
+
+    -	Walk through all code to expose consistency/aesthetic issues.
+
+    -	Provide ACE Channel implementation (for porting purposes)?
+
+    -	Expand datatime (setCurrentTime() and comparison and increment 
+	functions).
+
+    -	Write Pegasus Architecture Paper.
+
+    -	Implement MOF provider registration scheme (according to the
+	standard).
+
+    -	WBEM Query Language and integration.
+
+    -   Threading
+
+    -	Package up pegasus in Install Shield application.
+
+    -	Internationalization: Handle UCS2 characters in XML 
+	(parsing and writing).
+
+    -	Export of repository to MOF.
+
+    -   Change CompareNoCase() to String::compareNoCase().
+
+    -	Figure out how to handle CIM NULL values.
+
+    -	Figure out how inheritance of keys works.
+
+    -	Investigage weak associations.
+
+    -	Enforce constraint qualifiers.
+
+    -	Disallow resetting size of fixed length arrays.
+
+    -	Shrink object sizes.
+
+    -	Use lighter I/O system (than C++ streams).
+
+    -	Run Purify on all sources (port to Sun first).
+
+    -	Optimize clear method on arrays (to not release memory).
+
+    -	Provide conversions between DateTime and time_t.
+
+    -	Port to Solaris
+
+    -   Support multiple providers of the extact same class.
+	DiskController example and LanController.
+
+    -   SLP - Eliminate lib directory.

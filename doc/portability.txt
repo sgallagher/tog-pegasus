@@ -44,3 +44,4 @@
 		enum { COLOR = 225 };
 	    };
 
+    3.	Explain use of Linkage.h files and linkage directives.

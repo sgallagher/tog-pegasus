@@ -283,6 +283,14 @@ private:
         SSLCertificateVerifyFunction* verifyCert,
         const String& randomFile);
 
+#ifndef PEGASUS_REMOVE_DEPRECATED
+    SSLContext(
+        const String& certPath,
+        const String& certKeyPath,
+        SSLCertificateVerifyFunction* verifyCert,
+        const String& randomFile);
+#endif
+
     SSLContext();
 
     SSLContextRep* _rep;

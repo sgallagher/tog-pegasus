@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: ConfigUnix.h,v $
+// Revision 1.5  2001/04/11 00:39:18  mike
+// More porting
+//
 // Revision 1.4  2001/03/04 21:59:39  bob
 // Added PEGASUS_CMDLINE_LINKAGE macro
 //
@@ -54,7 +57,6 @@
 
 #define PEGASUS_MACHINE_IX86
 #define PEGASUS_OS_UNIX
-// #define PEGASUS_OS_TYPE_UNIX
 #define PEGASUS_COMPILER_GCC
 
 #define PEGASUS_NAMESPACE_BEGIN namespace Pegasus {

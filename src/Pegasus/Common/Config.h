@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: Config.h,v $
-// Revision 1.1  2001/01/14 19:50:39  mike
-// Initial revision
+// Revision 1.2  2001/04/11 00:39:18  mike
+// More porting
+//
+// Revision 1.1.1.1  2001/01/14 19:50:39  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -38,10 +41,12 @@
 #ifndef Pegasus_Config_h
 #define Pegasus_Config_h
 
-#ifdef PEGASUS_OS_TYPE_WINDOWS
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
 # include <Pegasus/Common/ConfigWindows.h>
-#else
+#elif defined(PEGASUS_OS_TYPE_UNIX)
 # include <Pegasus/Common/ConfigUnix.h>
+#else
+# error "Unsupported platform"
 #endif
 
 #endif  /* Pegasus_Config_h */

@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: LoadProcessClass.cpp,v $
-// Revision 1.7  2001/02/18 19:00:55  mike
-// fixed overwrite of LoadProcessClass
+// Revision 1.8  2001/02/18 19:13:56  mike
+// okay
+//
+// Revision 1.6  2001/02/18 14:55:36  karl
+// Add __NameSpace Class creation
 //
 // Revision 1.5  2001/02/16 18:17:11  mike
 // new
@@ -49,6 +52,7 @@ using namespace Pegasus;
 using namespace std;
 
 const char NAMESPACE[] = "root/cimv20";
+const char ROOTNAMESPACE[] = "root";
 
 int main(int argc, char** argv)
 {
@@ -82,6 +86,38 @@ int main(int argc, char** argv)
 	c.addProperty(CIMProperty("age", Uint32(0)));
 
 	r.createClass(NAMESPACE, c);
+
+
+	cout << "Created Process class with MyProvider Qualifier" <<endl;
+
+	// Create the __NameSpace Class in /root namespace
+	//delete the class if it exists
+	try
+	{
+	    r.deleteClass(ROOTNAMESPACE, "__Namespace");
+	}
+	catch (Exception&)
+	{
+	    // Ignore no such class error
+	}
+
+	// Now create the __Namespace class
+	// with name property key.
+	// Note that this requires qualifier definition in Root
+	
+	CIMClass cn("__Namespace");
+
+	cn.addQualifier(CIMQualifier("provider", "__NamespaceProvider"));
+	cn.addQualifier(CIMQualifier("Description", 
+				     "Namespace manipulation"));
+
+	cn.addProperty(CIMProperty("name", "")
+	    .addQualifier(CIMQualifier("key", true))
+	     .addQualifier(CIMQualifier("Description", 
+					"Namespace Name")));
+
+	r.createClass(ROOTNAMESPACE, cn);
+	cout << "Created __Namespace class with Provider Qualfier" << endl;
     }
     catch(Exception& e)
     {

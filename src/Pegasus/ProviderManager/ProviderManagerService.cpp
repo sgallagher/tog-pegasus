@@ -2784,7 +2784,7 @@ void ProviderManagerService::handleDisableIndicationsRequest(AsyncOpNode *op, co
 			 "Removing and Destroying indication handler for " + 
 			 ph.GetProvider().getName());
 	
-	delete _removeEntry(_generateKey(ph.GetProvider()));
+	_removeEntry(_generateKey(ph.GetProvider()));
     }
 
     catch(CIMException & e)
@@ -3206,16 +3206,19 @@ void ProviderManagerService::_insertEntry (
 }
 
 
-EnableIndicationsResponseHandler * ProviderManagerService::_removeEntry(
+void ProviderManagerService::_removeEntry(
    const String & key)
 {
    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
 		     "ProviderManagerService::_removeEntry");
    EnableIndicationsResponseHandler *ret = 0;
    
-   _responseTable.lookup(key, ret);
+   if (_responseTable.lookup(key, ret))
+   {
+	delete ret;
+	_responseTable.remove(key);
+   }
    PEG_METHOD_EXIT ();
-   return ret;
 }
 
 

@@ -159,12 +159,11 @@ protected:
 
         @param   provider              the provider instance
 
-        @return  the generated key
+	@return  the generated key
      */
 
 
-      EnableIndicationsResponseHandler * _removeEntry(
-	 const String & key);
+      void _removeEntry(const String & key);
       
       
 

@@ -26,11 +26,11 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By:
-//         Mike Day (mdday@us.ibm.com)
+//     Mike Day (mdday@us.ibm.com)
 //	   Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //	   Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//
 //     Dan Gorey (djgorey@us.ibm.com)
+//     Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -62,18 +62,18 @@ class HTTPAcceptor;
 class CIMRepository;
 
 class ModuleController;
-/*
 class IndicationHandlerService;
 class IndicationService;
 class ProviderManagerService;
 class ProviderRegistrationManager;
-*/
+class BinaryMessageHandler;
 
 class PEGASUS_SERVER_LINKAGE CIMServer
 {
 public:
 
     enum Protocol { PROPRIETARY, STANDARD };
+    enum server_type {OLD, NEW };
 
     /** Constructor - Creates a CIMServer object.
         The CIM Server objects establishes a repository object,
@@ -82,9 +82,7 @@ public:
         @param monitor	  monitor object for the server.
         @exception - ATTN
     */
-    
     CIMServer(Monitor* monitor);
-    
     CIMServer(monitor_2* monitor);
 
     ~CIMServer();
@@ -96,17 +94,32 @@ public:
                This parameter is ignored if localConnection=true.
         @param useSSL Boolean specifying whether SSL should be used for
                connections created by this acceptor.
+        @param exportConnection Boolean indicating whether this acceptor is 
+               only for export connections. If true, client SSL certificate 
+               verification is enabled on the export connection created by 
+               this acceptor. Ignored when useSSL is false. 
     */
     void addAcceptor(
         Boolean localConnection,
         Uint32 portNumber,
-        Boolean useSSL);
+        Boolean useSSL,
+        Boolean exportConnection);
 
     /** Bind the acceptors to the specified listen sockets.
 	@exception - This function may receive exceptions from
 	Channel specific subfunctions.
     */
     void bind();
+
+    /** routine to call when monitor_2 is idle 
+     */
+    static void _monitor_idle_routine(void* parm);
+    
+
+    /** allow other modules to stop my monitor_2 
+     */
+    monitor_2* get_monitor2(void);
+    
 
     /** runForever Main runloop for the server.
     */
@@ -138,14 +151,21 @@ public:
 
     Uint32 getOutstandingRequestCount();
 
+    /** Signal to shutdown
+    */
+    void shutdownSignal();
+
 private:
+    void _init(void);
 
     SSLContext* _getSSLContext();
+    SSLContext* _getExportSSLContext();
 
     Boolean _dieNow;
 
     Monitor* _monitor;
     monitor_2* _monitor2;
+
     CIMRepository* _repository;
     CIMOperationRequestDispatcher* _cimOperationRequestDispatcher;
     CIMOperationResponseEncoder* _cimOperationResponseEncoder;
@@ -161,14 +181,16 @@ private:
     CIMServerState* _serverState;
 
     ModuleController* _controlService;
-    /*
 	IndicationHandlerService* _handlerService;
     IndicationService* _indicationService;
     ProviderManagerService* _providerManager;
     ProviderRegistrationManager* _providerRegistrationManager;
-	*/
-
+    BinaryMessageHandler *_binaryMessageHandler;
+    
     SSLContext* _sslcontext;
+    SSLContext* _exportSSLContext;
+    server_type _type;
+
 };
 
 PEGASUS_NAMESPACE_END

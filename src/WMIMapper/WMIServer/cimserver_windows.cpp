@@ -113,6 +113,8 @@ static void __cdecl cimserver_windows_thread(void *parm)
     configManager->getCurrentValue("enableHttpConnection"), "true");
   Boolean enableHttpsConnection = String::equal(
     configManager->getCurrentValue("enableHttpsConnection"), "true");
+  Boolean enableSSLExportClientVerification = String::equal(
+    configManager->getCurrentValue("enableSSLExportClientVerification"), "true");
 
   if (!enableHttpConnection && !enableHttpsConnection)
   {
@@ -128,6 +130,7 @@ static void __cdecl cimserver_windows_thread(void *parm)
 
   Uint32 portNumberHttps;
   Uint32 portNumberHttp;
+  Uint32 portNumberExportHttps;
 
   if (enableHttpsConnection)
   {
@@ -157,6 +160,31 @@ static void __cdecl cimserver_windows_thread(void *parm)
     portNumberHttp = System::lookupPort(WBEM_HTTP_SERVICE_NAME, port);
   }
 
+  if (enableSSLExportClientVerification) 
+  { 
+       // 
+       // No config property is looked up to get the default port number. 
+       // Lookup the port defined in /etc/services for the service name 
+       // wbem-exp-https and bind to that port. If the service is  not defined 
+       // then log a warning message and do not start the cimserver. 
+       // 
+       Uint32 port = 0; 
+
+       portNumberExportHttps = System::lookupPort(WBEM_EXPORT_HTTPS_SERVICE_NAME, port); 
+
+       if (portNumberExportHttps == 0) 
+       { 
+           Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING, 
+               "src.Server.cimserver.EXPORT_HTTPS_PORT_NOT_DEFINED", 
+               "Port not defined for the service wbem-exp-https. CIMServer will not be started."); 
+
+           MessageLoaderParms parms("src.Server.cimserver.EXPORT_HTTPS_PORT_NOT_DEFINED", 
+               "Port not defined for the service wbem-exp-https. CIMServer will not be started."); 
+
+           cerr << MessageLoader::getMessage(parms) << endl; 
+       } 
+  } 
+
   // Set up the Logger
   String logsDirectory = String::EMPTY;
   logsDirectory = configManager->getCurrentValue("logdir");
@@ -182,15 +210,21 @@ static void __cdecl cimserver_windows_thread(void *parm)
 
     if (enableHttpConnection)
     {
-      server_windows->addAcceptor(false, portNumberHttp, false);
+      server_windows->addAcceptor(false, portNumberHttp, false, false);
       Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
                   "Listening on HTTP port $0.", portNumberHttp);
     }
     if (enableHttpsConnection)
     {
-      server_windows->addAcceptor(false, portNumberHttps, true);
+      server_windows->addAcceptor(false, portNumberHttps, true, false);
       Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
                   "Listening on HTTPS port $0.", portNumberHttps);
+    }
+    if (enableSSLExportClientVerification)
+    {
+      server_windows->addAcceptor(false, portNumberExportHttps, true, true);
+      Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
+                  "Listening on HTTPS port $0.", portNumberExportHttps);
     }
 
     server_windows->bind();

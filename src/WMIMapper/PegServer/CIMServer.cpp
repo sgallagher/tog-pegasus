@@ -67,8 +67,15 @@
 /*
 #include <Pegasus/HandlerService/IndicationHandlerService.h>
 #include <Pegasus/IndicationService/IndicationService.h>
+
+#ifdef PEGASUS_USE_23PROVIDER_MANAGER
 #include <Pegasus/ProviderManager/ProviderManagerService.h>
+#include <Pegasus/ProviderManager/ProviderManager.h>
+#else
+#include <Pegasus/ProviderManager2/ProviderManagerService.h>
+#endif
 */
+
 #include "CIMServer.h"
 #include "CIMOperationRequestDispatcher.h"
 #include "CIMOperationResponseEncoder.h"
@@ -84,7 +91,6 @@
 #include <Pegasus/ControlProviders/UserAuthProvider/UserAuthProvider.h>
 #include <Pegasus/ControlProviders/ProviderRegistrationProvider/ProviderRegistrationProvider.h>
 #include <Pegasus/ControlProviders/NamespaceProvider/NamespaceProvider.h>
-#include <Pegasus/ProviderManager/ProviderManager.h>
 */
 
 // l10n
@@ -93,6 +99,7 @@
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
+
 /*
 // Need a static method to act as a callback for the control provider.
 // This doesn't belong here, but I don't have a better place to put it.
@@ -105,7 +112,6 @@ static Message * controlProviderReceiveMessageCallback(
     return mpf->handleRequestMessage(message);
 }
 
-Boolean handleShutdownSignal = false;
 void shutdownSignalHandler(int s_n, PEGASUS_SIGINFO_T * s_info, void * sig)
 {
     PEG_METHOD_ENTER(TRC_SERVER, "shutdownSignalHandler");
@@ -117,19 +123,50 @@ void shutdownSignalHandler(int s_n, PEGASUS_SIGINFO_T * s_info, void * sig)
 }
 */
 
+Boolean handleShutdownSignal = false;
+void CIMServer::shutdownSignal()
+{
+    PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::shutdownSignal()");
+    handleShutdownSignal = true;
+    PEG_METHOD_EXIT();
+}
+
+
 CIMServer::CIMServer(Monitor* monitor)
-   : _dieNow(false)
+   : _dieNow(false), _monitor(monitor), _monitor2(0), _type(OLD)
 {
     PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::CIMServer()");
+    _init();
+
+    PEG_METHOD_EXIT();
+}
+
+CIMServer::CIMServer(monitor_2* m2)
+   : _dieNow(false), _monitor(0), _monitor2(m2), _type(NEW)
+{
+    PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::CIMServer()");
+    _init();
+
+    _monitor2->set_accept_dispatch(pegasus_acceptor::accept_dispatch);
+    _monitor2->set_session_dispatch(HTTPConnection2::connection_dispatch);
+    _monitor2->set_idle_dispatch(_monitor_idle_routine);
+    _monitor2->set_idle_parm((void*)this);
+    
+    PEG_METHOD_EXIT();
+}
+
+void CIMServer::_init(void)
+{
 
     String repositoryRootPath = String::EMPTY;
 
-    // -- Save the monitor or create a new one:
-    
-    _monitor = monitor;
 
+#if defined(PEGASUS_OS_HPUX) && defined(PEGASUS_USE_RELEASE_DIRS)
+    chdir( PEGASUS_CORE_DIR );
+#endif
+    // -- Save the monitor or create a new one:
     repositoryRootPath =
-	    ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("repositoryDir"));
+            ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("repositoryDir"));
 
     // -- Create a repository:
 
@@ -139,17 +176,16 @@ CIMServer::CIMServer(Monitor* monitor)
     // if the repository directory does not exit. If called,
     // the Repository will create an empty repository.
 
-    // This check has been disabled to allow cimmof to call 
+    // This check has been disabled to allow cimmof to call
     // the CIMServer to build the initial repository.
     if (!FileSystem::isDirectory(repositoryRootPath))
     {
         PEG_METHOD_EXIT();
-	throw NoSuchDirectory(repositoryRootPath);
+        throw NoSuchDirectory(repositoryRootPath);
 
     }
 #endif
 */
-
     _repository = new CIMRepository(repositoryRootPath);
 
     // -- Create a UserManager object:
@@ -164,7 +200,12 @@ CIMServer::CIMServer(Monitor* monitor)
     _providerRegistrationManager = new ProviderRegistrationManager(_repository);
 
     // -- Create queue inter-connections:
+
+#ifdef PEGASUS_USE_23PROVIDER_MANAGER
     _providerManager = new ProviderManagerService(_providerRegistrationManager);
+#else
+    _providerManager = new ProviderManagerService(_providerRegistrationManager,_repository);
+#endif
     _handlerService = new IndicationHandlerService(_repository);
 
     // Create the control service
@@ -216,17 +257,14 @@ CIMServer::CIMServer(Monitor* monitor)
                                        0, 0);
 
     _cimOperationRequestDispatcher
-	= new CIMOperationRequestDispatcher(_repository,
+        = new CIMOperationRequestDispatcher(_repository,
                                             _providerRegistrationManager);
-    _binaryMessageHandler = 
+    _binaryMessageHandler =
        new BinaryMessageHandler(_cimOperationRequestDispatcher);
 */
-        
-    _cimOperationRequestDispatcher = 
-		new CIMOperationRequestDispatcher;
-	
-	_cimOperationResponseEncoder
-		= new CIMOperationResponseEncoder;
+
+    _cimOperationResponseEncoder
+        = new CIMOperationResponseEncoder;
 
     //
     // get the configured authentication and authorization flags
@@ -264,20 +302,21 @@ CIMServer::CIMServer(Monitor* monitor)
     }
 
     _cimExportRequestDispatcher
-	= new CIMExportRequestDispatcher();
+        = new CIMExportRequestDispatcher();
 
     _cimExportResponseEncoder
-	= new CIMExportResponseEncoder;
+        = new CIMExportResponseEncoder;
 
     _cimExportRequestDecoder = new CIMExportRequestDecoder(
-	_cimExportRequestDispatcher,
-	_cimExportResponseEncoder->getQueueId());
+        _cimExportRequestDispatcher,
+        _cimExportResponseEncoder->getQueueId());
 
     _httpAuthenticatorDelegator = new HTTPAuthenticatorDelegator(
         _cimOperationRequestDecoder->getQueueId(),
         _cimExportRequestDecoder->getQueueId());
 
     _sslcontext = 0;
+    _exportSSLContext = 0;
 
     // IMPORTANT-NU-20020513: Indication service must start after ExportService
     // otherwise HandlerService started by indicationService will never
@@ -298,99 +337,9 @@ CIMServer::CIMServer(Monitor* monitor)
     getSigHandle()->registerHandler(PEGASUS_SIGTERM, shutdownSignalHandler);
     getSigHandle()->activate(PEGASUS_SIGTERM);
 */
-
-    PEG_METHOD_EXIT();
 }
 
-CIMServer::CIMServer(monitor_2* monitor)
-   : _dieNow(false)
-{
-    PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::CIMServer()");
 
-    String repositoryRootPath = String::EMPTY;
-
-    // -- Save the monitor or create a new one:
-
-    _monitor2 = monitor;
-
-    repositoryRootPath =
-	    ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("repositoryDir"));
-
-    // -- Create a repository:
-
-    _repository = new CIMRepository(repositoryRootPath);
-
-    // -- Create a UserManager object:
-
-    UserManager* userManager = UserManager::getInstance(_repository);
-
-    // -- Create a CIMServerState object:
-
-    _serverState = new CIMServerState();
-
-    _cimOperationRequestDispatcher =
-		new CIMOperationRequestDispatcher;
-
-	_cimOperationResponseEncoder
-		= new CIMOperationResponseEncoder;
-
-    //
-    // get the configured authentication and authorization flags
-    //
-    ConfigManager* configManager = ConfigManager::getInstance();
-
-    Boolean enableAuthentication = false;
-
-    if (String::equalNoCase(
-        configManager->getCurrentValue("enableAuthentication"), "true"))
-    {
-        enableAuthentication = true;
-    }
-
-    //
-    // Create Authorization queue only if authentication is enabled
-    //
-    if ( enableAuthentication )
-    {
-        _cimOperationRequestAuthorizer = new CIMOperationRequestAuthorizer(
-            _cimOperationRequestDispatcher);
-
-        _cimOperationRequestDecoder = new CIMOperationRequestDecoder(
-            _cimOperationRequestAuthorizer,
-            _cimOperationResponseEncoder->getQueueId());
-    }
-    else
-    {
-        _cimOperationRequestAuthorizer = 0;
-
-        _cimOperationRequestDecoder = new CIMOperationRequestDecoder(
-            _cimOperationRequestDispatcher,
-            _cimOperationResponseEncoder->getQueueId());
-
-    }
-
-    _cimExportRequestDispatcher
-	= new CIMExportRequestDispatcher();
-
-    _cimExportResponseEncoder
-	= new CIMExportResponseEncoder;
-
-    _cimExportRequestDecoder = new CIMExportRequestDecoder(
-	_cimExportRequestDispatcher,
-	_cimExportResponseEncoder->getQueueId());
-
-    _httpAuthenticatorDelegator = new HTTPAuthenticatorDelegator(
-        _cimOperationRequestDecoder->getQueueId(),
-        _cimExportRequestDecoder->getQueueId());
-
-    _sslcontext = 0;
-
-    // IMPORTANT-NU-20020513: Indication service must start after ExportService
-    // otherwise HandlerService started by indicationService will never
-    // get ExportQueue to export indications for existing subscriptions
-
-    PEG_METHOD_EXIT();
-}
 
 CIMServer::~CIMServer()
 {
@@ -407,7 +356,17 @@ CIMServer::~CIMServer()
 */
 
     if (_sslcontext)
-	delete _sslcontext;
+        delete _sslcontext;
+
+    if (_exportSSLContext) 
+    { 
+        delete _exportSSLContext; 
+    } 
+
+    if (_type != OLD)
+    {
+       pegasus_acceptor::close_all_acceptors();
+    }
 
     PEG_METHOD_EXIT();
 }
@@ -415,100 +374,196 @@ CIMServer::~CIMServer()
 void CIMServer::addAcceptor(
     Boolean localConnection,
     Uint32 portNumber,
-    Boolean useSSL)
+    Boolean useSSL,
+    Boolean exportConnection)
 {
-    #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
+    if(_type == OLD ){
     HTTPAcceptor* acceptor;
-    acceptor = new HTTPAcceptor(_monitor,
+    if (exportConnection)
+    {
+      //
+      // On export connection, create SSLContext with a indication
+      // trust store.
+      //
+      acceptor = new HTTPAcceptor(_monitor,
                                 _httpAuthenticatorDelegator,
                                 localConnection,
                                 portNumber,
-                                useSSL ? _getSSLContext() : 0);
-
-    _acceptors.append(acceptor);
-    #else
-    pegasus_acceptor* acceptor;
-    acceptor = new pegasus_acceptor(_monitor2,
+                                useSSL ? _getExportSSLContext() : 0,
+                                exportConnection);
+    }
+    else
+    {
+      acceptor = new HTTPAcceptor(_monitor,
                                 _httpAuthenticatorDelegator,
                                 localConnection,
                                 portNumber,
-                                useSSL ? _getSSLContext() : 0);
-
+                                useSSL ? _getSSLContext() : 0,
+                                exportConnection);
+    }
     _acceptors.append(acceptor);
-    #endif
-    
+  }
+  else {
+    pegasus_acceptor* acceptor =
+      new pegasus_acceptor(_monitor2,
+                           _httpAuthenticatorDelegator,
+                           localConnection,
+                           portNumber,
+                           useSSL ? _getSSLContext() : 0);
+    acceptor->bind();
+  }
 }
 
 void CIMServer::bind()
 {
     PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::bind()");
 
-    if (_acceptors.size() == 0)
-    {
-      // l10n
-      
-      // throw BindFailedException("No CIM Server connections are enabled.");
+    if(_type == OLD) {
 
-      MessageLoaderParms mlp = MessageLoaderParms("Server.CIMServer.BIND_FAILED","No CIM Server connections are enabled.");
-      
-      throw BindFailedException(mlp);
-    }
+      if (_acceptors.size() == 0)
+        {
+          // l10n
 
-    for (Uint32 i=0; i<_acceptors.size(); i++)
-    {
-        _acceptors[i]->bind();
+          // throw BindFailedException("No CIM Server connections are enabled.");
+
+          MessageLoaderParms mlp = MessageLoaderParms("Server.CIMServer.BIND_FAILED","No CIM Server connections are enabled.");
+
+          throw BindFailedException(mlp);
+        }
+
+      for (Uint32 i=0; i<_acceptors.size(); i++)
+        {
+          _acceptors[i]->bind();
+        }
     }
 
     PEG_METHOD_EXIT();
 }
 
+
+void CIMServer::_monitor_idle_routine(void *parm)
+{
+   CIMServer* myself = static_cast<CIMServer* >(parm);
+   
+   try
+   {
+      MessageQueueService::_check_idle_flag = 1;
+      MessageQueueService::_polling_sem.signal();
+      
+/*
+#ifdef PEGASUS_USE_23PROVIDER_MANAGER
+      ProviderManagerService::getProviderManager()->unload_idle_providers();
+#else
+      myself->_providerManager->unload_idle_providers();
+#endif
+*/
+      
+   }
+   catch(...)
+   {
+   }
+   if (handleShutdownSignal)
+   {
+      Tracer::trace(TRC_SERVER, Tracer::LEVEL3,
+                    "CIMServer::runForever - signal received.  Shutting down.");
+      myself->_monitor2->stop();
+      
+/*
+      ShutdownService::getInstance(myself)->shutdown(true, 10, false);
+*/
+//      MessageQueueService::force_shutdown(true);
+      
+      handleShutdownSignal = false;
+   }
+}
+
+monitor_2* CIMServer::get_monitor2(void)
+{
+   return _monitor2;
+}
+
+
 void CIMServer::runForever()
 {
-	// Note: Trace code in this method will be invoked frequently.
-	static int modulator = 0;
-   
-	if(!_dieNow)
-	{
-		if(false == _monitor->run(100))
-		{
-			modulator++;
-			if(!(modulator % 5000))
-			{
-				try 
-				{
-					MessageQueueService::_check_idle_flag = 1;
-					MessageQueueService::_polling_sem.signal();
-					//ProviderManagerService::getProviderManager()->unload_idle_providers();
-				}
-				catch(...)
-				{
-					Tracer::trace(TRC_SERVER, Tracer::LEVEL3, "problems");
-				}
-			}
-		}
+ if(_type == OLD) {
 
-      /*
-	  if (handleShutdownSignal)
+    // Note: Trace code in this method will be invoked frequently.
+
+    static int modulator = 0;
+
+    if(!_dieNow)
       {
-         Tracer::trace(TRC_SERVER, Tracer::LEVEL3,
-		       "CIMServer::runForever - signal received.  Shutting down.");
-	 
-         ShutdownService::getInstance(this)->shutdown(true, 10, false);
-         handleShutdownSignal = false;
+        if(false == _monitor->run(100))
+          {
+            modulator++;
+            if( ! (modulator % 5000) )
+              {
+                try
+                  {
+                    MessageQueueService::_check_idle_flag = 1;
+                    MessageQueueService::_polling_sem.signal();
+
+/*                    
+                #ifdef PEGASUS_USE_23PROVIDER_MANAGER
+                    ProviderManagerService::getProviderManager()->unload_idle_providers();
+                #else
+                    _providerManager->unload_idle_providers();
+                #endif
+*/
+
+                  }
+                catch(...)
+                  {
+                  }
+              }
+          }
+
+/*
+        if (handleShutdownSignal)
+          {
+            Tracer::trace(TRC_SERVER, Tracer::LEVEL3,
+                          "CIMServer::runForever - signal received.  Shutting down.");
+        
+            ShutdownService::getInstance(this)->shutdown(true, 10, false);
+            handleShutdownSignal = false;
+          }
+*/
       }
-	  */
-	} else {
-    _monitor2->run();
   }
+  else {
+    _monitor2->run();
+//    MessageQueueService::force_shutdown(true);
+  }
+
 }
+
 
 void CIMServer::stopClientConnection()
 {
     PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::stopClientConnection()");
 
-    for (Uint32 i=0; i<_acceptors.size(); i++)
+    if(_type == OLD) 
     {
-        _acceptors[i]->closeConnectionSocket();
+        // tell Monitor to stop listening for client connections
+        _monitor->stopListeningForConnections();
+
+        //
+        // Wait 150 milliseconds to allow time for the Monitor to stop 
+        // listening for client connections.  
+        //
+        // This wait time is the timeout value for the select() call
+        // in the Monitor's run() method (currently set to 100 
+        // milliseconds) plus a delta of 50 milliseconds.  The reason
+        // for the wait here is to make sure that the Monitor entries
+        // are updated before closing the connection sockets.
+        //
+        PEG_TRACE_STRING(TRC_SERVER, Tracer::LEVEL4, "Wait 150 milliseconds.");
+        pegasus_sleep(150);
+
+        for (Uint32 i=0; i<_acceptors.size(); i++)
+        {
+          _acceptors[i]->closeConnectionSocket();
+        }
     }
 
     PEG_METHOD_EXIT();
@@ -597,9 +652,12 @@ Uint32 CIMServer::getOutstandingRequestCount()
     PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::getOutstandingRequestCount()");
 
     Uint32 requestCount = 0;
-    for (Uint32 i=0; i<_acceptors.size(); i++)
-    {
-        requestCount += _acceptors[i]->getOutstandingRequestCount();
+
+    if(_type == OLD) {
+      for (Uint32 i=0; i<_acceptors.size(); i++)
+        {
+          requestCount += _acceptors[i]->getOutstandingRequestCount();
+        }
     }
 
     PEG_METHOD_EXIT();
@@ -643,5 +701,60 @@ SSLContext* CIMServer::_getSSLContext()
 
     return _sslcontext;
 }
+
+SSLContext* CIMServer::_getExportSSLContext()
+{
+    PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::_getExportSSLContext()");
+
+    static const String PROPERTY_NAME__EXPORT_SSLTRUST_STORE = "exportSSLTrustStore";
+    static const String PROPERTY_NAME__SSLCERT_FILEPATH = "sslCertificateFilePath";
+    static const String PROPERTY_NAME__SSLKEY_FILEPATH  = "sslKeyFilePath";
+
+    if (_exportSSLContext == 0)
+    {
+        //
+        // Get the exportSSLTrustStore property from the Config Manager.
+        //
+        String trustPath = String::EMPTY;
+        trustPath = ConfigManager::getInstance()->getCurrentValue(
+                                      PROPERTY_NAME__EXPORT_SSLTRUST_STORE);
+        PEG_TRACE_STRING(TRC_SERVER, Tracer::LEVEL2,
+            "Using the export trust store : " + trustPath);
+
+        //
+        // Get the sslCertificateFilePath property from the Config Manager.
+        //
+        String certPath = String::EMPTY;
+        certPath = ConfigManager::getInstance()->getCurrentValue(
+                                      PROPERTY_NAME__SSLCERT_FILEPATH);
+
+        //
+        // Get the sslKeyFilePath property from the Config Manager.
+        //
+        String keyPath = String::EMPTY;
+        keyPath = ConfigManager::getInstance()->getCurrentValue(
+                                      PROPERTY_NAME__SSLKEY_FILEPATH);
+
+        String randFile = String::EMPTY;
+
+#ifdef PEGASUS_SSL_RANDOMFILE
+        // NOTE: It is technically not necessary to set up a random file on
+        // the server side, but it is easier to use a consistent interface
+        // on the client and server than to optimize out the random file on
+        // the server side.
+        randFile = ConfigManager::getHomedPath(PEGASUS_SSLSERVER_RANDOMFILE);
+#endif
+
+        //
+        // Note: Trust store is used by default on Export connections,
+        // verification callback function is not used.
+        //
+        _exportSSLContext = new SSLContext(trustPath, certPath, keyPath, 0, randFile);
+    }
+
+    PEG_METHOD_EXIT();
+    return _exportSSLContext;
+}
+
 
 PEGASUS_NAMESPACE_END

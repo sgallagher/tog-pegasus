@@ -411,7 +411,6 @@ Z [Zz]
 		break;
 	s.remove(index,1);
     }
-    printf("%s\n",(const char*)s.getCString());
     CString cstr = s.getCString();
     const char* string = (const char*)cstr;
 

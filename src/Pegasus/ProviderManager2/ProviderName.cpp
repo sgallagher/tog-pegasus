@@ -96,7 +96,7 @@ ProviderName::ProviderName(
     const String & physicalName,
     const String & interfaceName,
     const Uint32 capabilities)
-    : _capabilities(0)
+    : _capabilities(capabilities)
 {
     // ATTN: validate arguments ???
     _objectName = objectName;
@@ -125,7 +125,7 @@ String ProviderName::toString(void) const
     //s.append("::");
     //s.append(CIMValue(_capabilities).toString());
 
-    return(s);
+    return(s); 
 }
 
 

@@ -42,6 +42,7 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/Destroyer.h>
+#include <Pegasus/ProviderManager/OperationResponseHandler.h>
 
 #include <Pegasus/Config/ConfigManager.h>
 
@@ -287,49 +288,6 @@ void ProviderManagerService::_handle_async_request(AsyncRequest * request)
     return;
 }
 
-/*
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleServiceOperation(void * arg) throw()
-{
-    // get the service from argument
-    ProviderManagerService * service = reinterpret_cast<ProviderManagerService *>(arg);
-
-    PEGASUS_ASSERT(service != 0);
-
-    // get message from service queue
-    Message * message = service->_incomingQueue.dequeue();
-
-    PEGASUS_ASSERT(message != 0);
-
-    if(service->_incomingQueue.size() == 0)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "ProviderManagerService::handleCimOperation() called with no op node in queue" );
-
-        PEG_METHOD_EXIT();
-
-        // thread started with no message in queue.
-        return(PEGASUS_THREAD_RETURN(1));
-    }
-
-    AsyncOpNode * op = service->_incomingQueue.dequeue();
-
-    PEGASUS_ASSERT(op != 0 );
-
-    if(op->_request.count() == 0)
-    {
-        MessageQueue * queue = MessageQueue::lookup(op->_source_queue);
-
-        PEGASUS_ASSERT(queue != 0);
-
-        PEG_METHOD_EXIT();
-
-        // no request in op node
-        return(PEGASUS_THREAD_RETURN(1));
-    }
-
-    return(0);
-}
-*/
 
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOperation(void * arg) throw()
 {
@@ -430,18 +388,25 @@ void ProviderManagerService::handleCimRequest(AsyncOpNode * op, const Message * 
     PEGASUS_ASSERT((request != 0) && (async != 0));
 
     Message * response = 0;
-
+    String ifc;
+   
     // get the responsible provider Manager
-    ProviderManager * pm = locateProviderManager(message);
+    ProviderManager * pm = locateProviderManager(message,ifc);
 
-    if(pm)
-    {
+    if(pm) {
         response = pm->processMessage(request);
     }
     else
     {
-       // no provider manager found ...
-    }
+        CIMRequestMessage * req =
+           dynamic_cast<CIMRequestMessage *>(const_cast<Message *>(message));
+       CIMResponseMessage  *resp=new CIMResponseMessage(0,req->messageId,CIMException(),
+             req->queueIds.copyAndPop());
+       response=resp;
+       resp->synch_response(req);
+       OperationResponseHandler handler(req, resp);
+       handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
+   }
 
     // preserve message key
     response->setKey(request->getKey());
@@ -461,195 +426,56 @@ void ProviderManagerService::handleCimRequest(AsyncOpNode * op, const Message * 
     PEG_METHOD_EXIT();
 }
 
-ProviderManager* ProviderManagerService::locateProviderManager(const Message *message)
+ProviderManager* ProviderManagerService::locateProviderManager(const Message *message, 
+             String & it)
 {
     String nameSpace;
     String className;
-    Uint32 type = ProviderType::INSTANCE;
 
-    switch(message->getType())
-    {
-    case CIM_GET_INSTANCE_REQUEST_MESSAGE:
-        {
-            const CIMGetInstanceRequestMessage * p = dynamic_cast<const CIMGetInstanceRequestMessage *>(message);
+    const CIMOperationRequestMessage * p =
+       dynamic_cast<const CIMOperationRequestMessage *>(message);
 
-            PEGASUS_ASSERT(p != 0);
-
-            nameSpace = p->nameSpace.getString();
-            className = p->instanceName.getClassName().getString();
-        }
-
-        break;
-    case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
-        {
-            const CIMEnumerateInstancesRequestMessage * p = dynamic_cast<const CIMEnumerateInstancesRequestMessage *>(message);
-
-            PEGASUS_ASSERT(p != 0);
-
-            nameSpace = p->nameSpace.getString();
-            className = p->className.getString();
-        }
-
-        break;
-    case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE:
-        {
-            const CIMEnumerateInstanceNamesRequestMessage * p = dynamic_cast<const CIMEnumerateInstanceNamesRequestMessage *>(message);
-
-            PEGASUS_ASSERT(p != 0);
-
-            nameSpace = p->nameSpace.getString();
-            className = p->className.getString();
-        }
-
-        break;
-    case CIM_CREATE_INSTANCE_REQUEST_MESSAGE:
-        {
-            const CIMCreateInstanceRequestMessage * p = dynamic_cast<const CIMCreateInstanceRequestMessage *>(message);
-
-            PEGASUS_ASSERT(p != 0);
-
-            nameSpace = p->nameSpace.getString();
-            className = p->newInstance.getClassName().getString();
-        }
-
-        break;
-    case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
-        {
-            const CIMModifyInstanceRequestMessage * p = dynamic_cast<const CIMModifyInstanceRequestMessage *>(message);
-
-            PEGASUS_ASSERT(p != 0);
-
-            nameSpace = p->nameSpace.getString();
-            className = p->modifiedInstance.getClassName().getString();
-        }
-
-        break;
-    case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
-        {
-            const CIMDeleteInstanceRequestMessage * p = dynamic_cast<const CIMDeleteInstanceRequestMessage *>(message);
-
-            PEGASUS_ASSERT(p != 0);
-
-            nameSpace = p->nameSpace.getString();
-            className = p->instanceName.getClassName().getString();
-        }
-
-        break;
-    case CIM_EXEC_QUERY_REQUEST_MESSAGE:
-        break;
-    case CIM_ASSOCIATORS_REQUEST_MESSAGE:
-        {
-            const CIMAssociatorsRequestMessage * p = dynamic_cast<const CIMAssociatorsRequestMessage *>(message);
-
-            PEGASUS_ASSERT(p != 0);
-
-            nameSpace = p->nameSpace.getString();
-            className = p->assocClass.getString();
- 	
-            type = ProviderType::ASSOCIATION;
-        }
-
-        break;
-    case CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE:
-        {
-            const CIMAssociatorNamesRequestMessage * p = dynamic_cast<const CIMAssociatorNamesRequestMessage *>(message);
-
-            PEGASUS_ASSERT(p != 0);
-
-            nameSpace = p->nameSpace.getString();
-            className = p->assocClass.getString();
-
-            std::cout<<"--- className: "<<className<<std::endl;
- 	
-            type = ProviderType::ASSOCIATION;
-        }
-
-        break;
-    case CIM_REFERENCES_REQUEST_MESSAGE:
-        {
-            const CIMReferencesRequestMessage * p = dynamic_cast<const CIMReferencesRequestMessage *>(message);
-
-            PEGASUS_ASSERT(p != 0);
-
-            nameSpace = p->nameSpace.getString();
-            className = p->resultClass.getString();
-  	
-            type = ProviderType::ASSOCIATION;
-       }
-
-        break;
-    case CIM_REFERENCE_NAMES_REQUEST_MESSAGE:
-        {
-            const CIMReferenceNamesRequestMessage * p = dynamic_cast<const CIMReferenceNamesRequestMessage *>(message);
-
-            PEGASUS_ASSERT(p != 0);
-
-            nameSpace = p->nameSpace.getString();
-            className = p->resultClass.getString();
- 	
-            type = ProviderType::ASSOCIATION;
-       }
-
-        break;
-   case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
-        {
-            const CIMInvokeMethodRequestMessage * p = dynamic_cast<const CIMInvokeMethodRequestMessage *>(message);
-
-            PEGASUS_ASSERT(p != 0);
-
-            nameSpace = p->nameSpace.getString();
-            className = p->instanceName.getClassName().getString();
-	
-            type = ProviderType::METHOD;
-        }
-
-        break;
-
-     case CIM_CREATE_SUBSCRIPTION_REQUEST_MESSAGE:
-        {
-            const CIMCreateSubscriptionRequestMessage * p = dynamic_cast<const CIMCreateSubscriptionRequestMessage *>(message);
-
-            PEGASUS_ASSERT(p != 0);
-            nameSpace = p->nameSpace.getString();
-
-            std::cout<<"--- nameSpace: "<<nameSpace<<std::endl;
-
-            className = p->classNames[0].getString();
-	
-            std::cout<<"--- className: "<<className<<std::endl;
-
-            type = ProviderType::INDICATION;
-        }
-
-        break;
-    default:
-        //asm("int $3");
-        break;
+    if (p) {
+       nameSpace=p->nameSpace;
+       if (p->providerType==ProviderType::ASSOCIATION)
+          className=((CIMAssociatorsRequestMessage*)p)->assocClass;
+       else className=p->className;
+        
+       ProviderName name(
+           CIMObjectPath(String::EMPTY, nameSpace, className).toString(),
+           String::EMPTY,
+           String::EMPTY,
+           String::EMPTY,
+           p->providerType);
+       // find provider manager
+       name = ProviderRegistrar().findProvider(name);
+       it=name.getInterfaceName();
     }
 
-    ProviderName name(
-        CIMObjectPath(String::EMPTY, nameSpace, className).toString(),
-        String::EMPTY,
-        String::EMPTY,
-        String::EMPTY,
-        type);
-
-	std::cout<<"--- name: "<<name.toString()<<std::endl;
-
-    // find provider manager
-    name = ProviderRegistrar().findProvider(name);
-
-    std::cout<<"--- name.getInterfaceName(): "<<name.getInterfaceName()<<std::endl;
+    else {
+       const CIMIndicationRequestMessage * p =
+          dynamic_cast<const CIMIndicationRequestMessage *>(message);
+       if (p) {
+          CIMIndicationRequestMessage *m=(CIMIndicationRequestMessage*)message;
+          it=m->providerModule.getProperty (m->providerModule.findProperty
+                ("InterfaceType")).getValue ().toString ();
+       }
+       else {
+          it=String::EMPTY;
+	  return NULL;
+       }
+    }
 
     // find provider manager for provider interface
     for(Uint32 i = 0, n = _providerManagers.size(); i < n; i++)
     {
-        if (String::equalNoCase(name.getInterfaceName(), _providerManagers[i]->getInterfaceName())) {
+        if (String::equalNoCase(it,_providerManagers[i]->getInterfaceName())) {
            ProviderManagerContainer *pmc=_providerManagers[i];
 	   return pmc->getProviderManager();
         }
     }
-    return NULL;
+    ProviderManagerContainer *pmc=_providerManagers[0];
+    return pmc->getProviderManager();
 }
 
 void ProviderManagerService::unload_idle_providers(void)

@@ -36,6 +36,7 @@
 #include <Pegasus/Common/Pair.h>
 
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
+#include <Pegasus/ProviderManager2/ProviderType.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -211,9 +212,42 @@ ProviderName ProviderRegistrar::findProvider(const ProviderName & providerName)
     {
         throw Exception("Invalid argument.");
     }
-
-    ProviderName temp = _lookupProvider(objectName);
-
+    
+    CIMInstance provider;
+    CIMInstance providerModule;
+    ProviderName temp;
+   
+   switch (flags) {
+       case 2: //ProviderType::INSTANCE
+          if (_prm->lookupInstanceProvider(objectName.getNameSpace(),objectName.getClassName(),
+                provider,providerModule,0)) {
+	      return ProviderName(providerName.getObjectName(),
+	            provider.getProperty(providerModule.findProperty
+                       ("Name")).getValue ().toString (),
+		    providerModule.getProperty(providerModule.findProperty
+                       ("Location")).getValue().toString(),
+	            providerModule.getProperty(providerModule.findProperty
+                       ("InterfaceType")).getValue().toString(),
+		    ProviderType::INSTANCE);
+          }
+          break;
+       case 5: //ProviderType::ASSOCIATION
+          if (_prm->lookupInstanceProvider(objectName.getNameSpace(),objectName.getClassName(),
+                provider,providerModule,1)) {
+	      return ProviderName(providerName.getObjectName(),
+	            provider.getProperty(providerModule.findProperty
+                       ("Name")).getValue ().toString (),
+		    providerModule.getProperty(providerModule.findProperty
+                       ("Location")).getValue().toString(),
+	            providerModule.getProperty(providerModule.findProperty
+                       ("InterfaceType")).getValue().toString(),
+		    ProviderType::ASSOCIATION);
+          }
+          break;
+       default:
+          temp = _lookupProvider(objectName);
+    }
+    
     return(temp);
 }
 

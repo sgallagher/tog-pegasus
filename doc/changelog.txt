@@ -43,6 +43,7 @@ see the current test programs (e.g. pegasus/src/Pegasus/Repository/tests/*).
      instead of a CIMObjectPath
    - Changed the CIMName::equal method to be non-static
 
+5. (Ramnath Ravindran - HP) 15 August 2002 - Added the Tru64 platform to an existing        ifdef to prevent compilation errors.
 
 -----------------------------------------------------------------
 Version 1.09 - Started 5 April 2002

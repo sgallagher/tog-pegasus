@@ -700,7 +700,6 @@ Boolean InstanceIndexFile::_lookupEntry(
         entryOffset = fs.tellp();
     #else
         entryOffset = getOffset(fs.tellp());
-        cout << "Current reading position in InstanceIndexFile (start) = " << entryOffset << endl;
     #endif
     }
 

@@ -434,8 +434,8 @@ static bool _setRegInfo(const char *lpchKeyword, const char *lpchValue)
 void setHome(String & home)
 {
   // Determine the absolute path to the running program
-  char exe_pathname[_MAX_PATH];
-  char home_pathname[_MAX_PATH];
+  char exe_pathname[_MAX_PATH] = {0};
+  char home_pathname[_MAX_PATH] = {0};
   GetModuleFileName(NULL, exe_pathname, sizeof(exe_pathname));
 
   // Pegasus home search rules:
@@ -443,11 +443,26 @@ void setHome(String & home)
   // - if not found, look in PEGASUS_HOME (if set)
   // - if not found, use exe directory minus one level
 
-  if (_getRegInfo("home", home_pathname))
+  bool found_reg = _getRegInfo("home", home_pathname);
+  if (found_reg == true)
     {
-      home = home_pathname;
+      // Make sure home matches
+      String current_home(home_pathname);
+      String current_exe(exe_pathname);
+      current_home.toLower();
+      current_exe.toLower();
+
+      Uint32 pos = current_exe.find(current_home);
+      if (pos != PEG_NOT_FOUND)
+        {
+          home = home_pathname;
+        }
+      else
+        {
+          found_reg = false;
+        }
     }
-  else
+  if (found_reg == false)
     {
       const char* tmp = getenv("PEGASUS_HOME");
       if (tmp)

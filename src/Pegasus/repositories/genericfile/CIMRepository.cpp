@@ -144,7 +144,7 @@ static String _MakeAssocClassPath(
 //         CIMRepository::referencesNames()
 //         CIMRepository::invokeMethod()
 //
-//     Note that invokeMethod() will not never implemented since it is not
+//     Note that invokeMethod() will never implemented since it is not
 //     meaningful for a repository.
 //
 //     ATTN: make operations on files non-case-sensitive.

@@ -30,8 +30,9 @@ all:
 # Delete and rebuild the repository using the MOF compiler.
 
 repository:
-	@ echo +++++ Populating CIM repository - this will take a minute
-	@ $(RMDIRHIER) $(REPOSITORY_ROOT)
+	@ echo +++++ Removing existing repository named $(REPOSITORY_ROOT)
+	@ $(RMREPOSITORY) $(REPOSITORY_ROOT)
+	@ echo +++++ Populating CIM repository - this will take a while
 	@ echo +++++ Loading CIM_Core$(SCHEMA_VER).mof into root namespace...
 	@ cimmof -I$(MOF_PATH) -nroot $(MOF_PATH)/CIM_Core$(SCHEMA_VER).mof
 	@ echo +++++ Loading CIM_Schema$(SCHEMA_VER).mof into $(NAMESPACE) namespace...
@@ -42,13 +43,13 @@ repository:
 # deleted since there is no use for it any more.
 short:
 	@ echo +++++ Populating CIM repository - this will take a minute
-	$(RMDIRHIER) $(REPOSITORY_ROOT)
+	$(RMREPOSITORY) $(REPOSITORY_ROOT)
 	echo +++++ Loading CIM_Core.mof into root namespace...
 	cimmof -I$(MOF_PATH) -n$(NAMESPACE) $(MOF_PATH)/CIM_Core$(SCHEMA_VER).mof
 
 clean:
-	@ echo +++++ Deleting CIM Repository at $(REPOSITORY_ROOT)
-	@ $(RMDIRHIER) $(REPOSITORY_ROOT)
+	@ echo +++++ Removing existing CIM Repository named $(REPOSITORY_ROOT)
+	@ $(RMREPOSITORY) $(REPOSITORY_ROOT)
 
 
 depend:

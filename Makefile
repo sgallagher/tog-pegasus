@@ -9,12 +9,14 @@ ROOT = .
 
 include $(ROOT)/mak/config.mak
 
+# This is a recurse make file
 # Defines subdirectorys to go to recursively
 
 # DIRS = src cgi
 DIRS = src
 
-# This is a recurse make file
+# Define the inclusion of the recurse.mak file to execute the next
+# level of makefiles defined by the DIRS variable
 
 include $(ROOT)/mak/recurse.mak
 

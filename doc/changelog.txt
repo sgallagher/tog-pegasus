@@ -5,6 +5,16 @@ Version 1.06 working towards 1.1 Started 13 December 2001
        in the future with releases in side branches. Special side developments
        may temporarily be in side branches.
        Changed cimversion to 1.06.  We will do 1.1 based on functionality.
+       
+2. (Karl) 18 December 2001 - Added new directory repositories where repository 
+	implementations will be kept to separate them from the 
+	repository interface defintion. Initial implementation is genericfile
+	which is the current file based repository.
+	
+	Added new build variable RMREPOSITORY which is a generic MAKE command
+	to remove an existing repository.  It simply substitutes for the RMDIRHIER
+	command at this point but we will make this a generic part of system
+	in the future.
 
 -------------------------------------------------------------------------
 

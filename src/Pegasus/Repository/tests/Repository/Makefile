@@ -9,6 +9,6 @@ SOURCES = Repository.cpp
 include $(ROOT)/mak/program.mak
 
 tests:
-	$(RMDIRHIER) repository
+	$(RMREPOSITORY) repository
 	$(PROGRAM)
-	$(RMDIRHIER) repository
+	$(RMREPOSITORY) repository

@@ -37,6 +37,9 @@ endif
 OBJ_DIR = $(HOME_DIR)/obj/$(DIR)
 BIN_DIR = $(HOME_DIR)/bin
 LIB_DIR = $(HOME_DIR)/lib
+
+# define the location for the repository
+
 REPOSITORY_ROOT = $(HOME_DIR)/repository
 
 LEX = flex
@@ -94,3 +97,18 @@ pegasus_unknown_platform:
 	    the following: $(VALID_PLATFORMS)
 	@ exit 1
 endif
+
+
+############################################################
+#
+# Set up other Make Variables that depend on platform config files
+#
+############################################################
+
+# This is temporary until we end up with a better place to
+# put this variable
+# Makefiles can do directory remove with
+# $(RMREPOSITORY) repositoryname
+#
+RMREPOSITORY = $(RMDIRHIER)
+

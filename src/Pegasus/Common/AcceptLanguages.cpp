@@ -49,13 +49,13 @@ AcceptLanguages::AcceptLanguages(): LanguageElementContainer()
 AcceptLanguages::AcceptLanguages(String hdr): LanguageElementContainer(){
    //TODO: remove temporary fix to constructing with String::EMPTY
 	PEG_METHOD_ENTER(TRC_L10N, "AcceptLanguages::AcceptLanguages(String)");
-	//if(hdr.size() > 0){
+	if(hdr.size() > 0){
 		Array<String> values;
 		LanguageParser lp;
 		lp.parseHdr(values,hdr);
 		buildLanguageElements(values);
 		prioritize();
-	//}
+	}
 	PEG_METHOD_EXIT();
 }
 

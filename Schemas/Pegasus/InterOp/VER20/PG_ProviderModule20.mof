@@ -100,7 +100,7 @@ class PG_ProviderModule : CIM_LogicalElement {
 // ==================================================================
 // PG_Provider
 // ==================================================================
-        [Version("2.2.0"), Description ( "A Provider is an indivisible "
+        [Version("2.4.0"), Description ( "A Provider is an indivisible "
          "unit that functions as an intermediary between the CIM Object "
          "Manager and one or more managed resources. A Provider operates "
          "at the request of the CIM_ObjectManager. ") ]

@@ -4,6 +4,22 @@ CMPI Providers in a nutshell
 Viktor Mihajlovski <mihajlov@de.ibm.com>
 Nov 14th 2003
 
+Pegasus 2.4 *NEWS*
+------------------
+
+The CMPI header files are being standardized and will be (or by the time you 
+read this, already are) frozen.  However, the Pegasus 2.4 release is done 
+earlier than the anticipated date for freezing the CMPI standard. 
+Hence to not provide the developer with a possibly not-frozen interface, 
+the CMPI header files are not shipped as part of the SDK (openwbem-devel RPM). 
+But they are part of the CVS and source tarball. Please visit
+http://cvs.opengroup.org/cgi-bin/viewcvs.cgi/pegasus/src/Pegasus/Provider/CMPI/
+to retrieve the frozen CMPI files.
+
+
+Build CMPI from sources
+-----------------------
+
 The Common Manageability Programming Interface (CMPI) has been integrated into
 Pegasus as a pluggable provider manager.
 
@@ -12,12 +28,19 @@ For CMPI enablement, set the following environment variables prior to make:
 
    PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER=1
 
+
+Using CMPI
+----------
 If you plan to write your own CMPI providers you are kindly referred to the
 WBEMSource homepage where the draft specification document for CMPI resides.
 You can find at http://www.wbemsource.org/doc.tpl?CALLER=index.tpl&gdid=3712 .
 If you are looking for samples you should have a look at the SBLIM project.
 The packages prefixed by the string sblim-cmpi contain CMPI providers for
 various classes. See http://www-124.ibm.com/developerworks/projects/sblim .
+
+
+Registering CMPI providers with Pegasus
+---------------------------------------
 
 Once you have a CMPI provider library you want to register it with Pegasus.
 How? Well it's almost the same as for C++ providers. The only difference is

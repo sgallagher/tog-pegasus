@@ -424,6 +424,92 @@ public:
         return *this;
     }
 
+    static Boolean isValidHostname(const String& hostname)
+    {
+        //------------------------------------------------------------------
+        // Validate the hostname.  The hostname value may or may not be a
+        // fully-qualified domain name (e.g., xyz.company.com) or may be an
+        // IP address.  A port number may follow the hostname.
+        // Hostnames must match one of the following regular expressions:
+        // ^([A-Za-z][A-Za-z0-9-]*)(\.[A-Za-z][A-Za-z0-9-]*)*(:[0-9]*)?$
+        // ^([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*)(:[0-9]*)?$
+        //------------------------------------------------------------------
+
+        Uint32 i = 0;
+
+        if (isdigit(hostname[0]))
+        {
+            // Validate an IP address
+
+            for (Uint32 octet=1; octet<=4; octet++)
+            {
+                Uint32 octetValue = 0;
+
+                if (!isdigit(hostname[i]))
+                {
+                    return false;
+                }
+
+                while (isdigit(hostname[i]))
+                {
+                    octetValue = octetValue*10 + (hostname[i] - '0');
+                    i++;
+                }
+
+                if (octetValue > 255)
+                {
+                    return false;
+                }
+
+                if ((octet != 4) && (hostname[i++] != '.'))
+                {
+                    return false;
+                }
+            }
+        }
+        else
+        {
+            // Validate a hostname
+
+            Boolean expectHostSegment = true;
+
+            while (expectHostSegment == true)
+            {
+                expectHostSegment = false;
+
+                if (!isalpha(hostname[i++]))
+                {
+                    return false;
+                }
+
+                while (isalnum(hostname[i]) || (hostname[i] == '-'))
+                {
+                    i++;
+                }
+
+                if (hostname[i] == '.')
+                {
+                    i++;
+                    expectHostSegment = true;
+                }
+            }
+        }
+
+        // Check for a port number:
+
+        if (hostname[i] == ':')
+        {
+            if (!isdigit(hostname[++i]))
+            {
+                return false;
+            }
+        
+            while (isdigit(hostname[++i]));
+        }
+
+        return (hostname[i] == char(0));
+    }
+
     //
     // Contains port as well (e.g., myhost:1234).
     //
@@ -514,65 +600,21 @@ Boolean _parseHostElement(
 
     p += 2;
 
-    //----------------------------------------------------------------------
-    // Validate the hostname. A domain is allowed after the hostname.
-    // Eg. xyz.company.com
-    // Hostnames must match the following regular expression: 
-    // ^([A-Za-z][A-Za-z0-9-]*)(\.[A-Za-z][A-Za-z0-9-]*)*$
-    //----------------------------------------------------------------------
-
-    char* q = p;
-
-    Boolean foundDot = true;
-    while (foundDot == true)
+    char* slash = strchr(p, '/');
+    if (!slash)
     {
-        foundDot = false;
-
-        if (!isalpha(*q))
-            throw MalformedObjectNameException(objectName);
-
-        q++;
-
-        while (isalnum(*q) || *q == '-')
-        {
-            q++;
-        }
-
-        if (*q == '.')
-        {
-            q++;
-            foundDot = true;
-        }
-     }
-
-    // Check for a port:
-
-    if (*q == ':')
-    {
-        q++;
-        // Check for a port number:
-
-        if (!isdigit(*q))
-            throw MalformedObjectNameException(objectName);
-        
-        while (isdigit(*q))
-            q++;
-    }
-
-    // Finally, assign the host name:
-
-    host.assign(p, q - p);
-
-    // Check for slash terminating the entire sequence:
-
-    if (*q != '/')
-    {
-        host.clear();
         throw MalformedObjectNameException(objectName);
     }
 
+    String hostname = String(p, (Uint32)(slash - p));
+    if (!CIMObjectPathRep::isValidHostname(hostname))
+    {
+        throw MalformedObjectNameException(objectName);
+    }
+    host = hostname;
+
     // Do not step past the '/'; it will be consumed by the namespace parser
-    p = q;
+    p = slash;
 
     return true;
 }

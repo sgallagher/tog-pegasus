@@ -480,9 +480,12 @@ CIMCreateClassResponseMessage* CIMOperationResponseDecoder::_decodeCreateClassRe
     }
     else
     {
-	if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+	if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
 	{
-	    XmlReader::expectEndTag(parser, "IRETURNVALUE");
+	    if (entry.type != XmlEntry::EMPTY_TAG)
+	    {
+	        XmlReader::expectEndTag(parser, "IRETURNVALUE");
+	    }
 	}
 
 	return(new CIMCreateClassResponseMessage(
@@ -506,14 +509,17 @@ CIMGetClassResponseMessage* CIMOperationResponseDecoder::_decodeGetClassResponse
 	    QueueIdStack(),
 	    CIMClass()));
     }
-    else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+    else if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
     {
 	CIMClass cimClass;
 
-	if (!XmlReader::getClassElement(parser, cimClass))
+	if ((entry.type == XmlEntry::EMPTY_TAG) ||
+	    !XmlReader::getClassElement(parser, cimClass))
+	{
 	    throw XmlValidationError(parser.getLine(),"expected CLASS element");
+	}
 
-	XmlReader::testEndTag(parser, "IRETURNVALUE");
+	XmlReader::expectEndTag(parser, "IRETURNVALUE");
 
 	return(new CIMGetClassResponseMessage(
 	    messageId,
@@ -543,9 +549,12 @@ CIMModifyClassResponseMessage* CIMOperationResponseDecoder::_decodeModifyClassRe
     }
     else
     {
-	if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+	if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
 	{
-	    XmlReader::expectEndTag(parser, "IRETURNVALUE");
+	    if (entry.type != XmlEntry::EMPTY_TAG)
+	    {
+	        XmlReader::expectEndTag(parser, "IRETURNVALUE");
+	    }
 	}
 
 	return(new CIMModifyClassResponseMessage(
@@ -573,14 +582,17 @@ CIMEnumerateClassNamesResponseMessage* CIMOperationResponseDecoder::_decodeEnume
     {
 	Array<CIMName> classNames;
 
-	if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+	if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
 	{
-	    CIMName className;
+	    if (entry.type != XmlEntry::EMPTY_TAG)
+	    {
+	        CIMName className;
 
-	    while (XmlReader::getClassNameElement(parser, className, false))
-	        classNames.append(className);
+	        while (XmlReader::getClassNameElement(parser, className, false))
+	            classNames.append(className);
 
-	    XmlReader::expectEndTag(parser, "IRETURNVALUE");
+	        XmlReader::expectEndTag(parser, "IRETURNVALUE");
+	    }
 	}
 
 	return(new CIMEnumerateClassNamesResponseMessage(
@@ -609,14 +621,17 @@ CIMEnumerateClassesResponseMessage* CIMOperationResponseDecoder::_decodeEnumerat
     {
 	Array<CIMClass> cimClasses;
 
-	if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+	if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
 	{
-	    CIMClass cimClass;
+	    if (entry.type != XmlEntry::EMPTY_TAG)
+	    {
+	        CIMClass cimClass;
 
-	    while (XmlReader::getClassElement(parser, cimClass))
-	        cimClasses.append(cimClass);
+	        while (XmlReader::getClassElement(parser, cimClass))
+	            cimClasses.append(cimClass);
 
-	    XmlReader::expectEndTag(parser, "IRETURNVALUE");
+	        XmlReader::expectEndTag(parser, "IRETURNVALUE");
+	    }
 	}
 
 	return(new CIMEnumerateClassesResponseMessage(
@@ -642,9 +657,12 @@ CIMDeleteClassResponseMessage* CIMOperationResponseDecoder::_decodeDeleteClassRe
     }
     else
     {
-	if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+	if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
 	{
-	    XmlReader::expectEndTag(parser, "IRETURNVALUE");
+	    if (entry.type != XmlEntry::EMPTY_TAG)
+	    {
+	        XmlReader::expectEndTag(parser, "IRETURNVALUE");
+	    }
 	}
 
 	return(new CIMDeleteClassResponseMessage(
@@ -673,7 +691,7 @@ CIMCreateInstanceResponseMessage* CIMOperationResponseDecoder::_decodeCreateInst
 	CIMObjectPath instanceName;
 	XmlReader::getInstanceNameElement(parser, instanceName);
 
-	XmlReader::testEndTag(parser, "IRETURNVALUE");
+	XmlReader::expectEndTag(parser, "IRETURNVALUE");
 
 	return(new CIMCreateInstanceResponseMessage(
 	    messageId,
@@ -702,17 +720,18 @@ CIMGetInstanceResponseMessage* CIMOperationResponseDecoder::_decodeGetInstanceRe
 	    QueueIdStack(),
 	    CIMInstance()));
     }
-    else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+    else if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
     {
 	CIMInstance cimInstance;
 
-	if (!XmlReader::getInstanceElement(parser, cimInstance))
+	if ((entry.type == XmlEntry::EMPTY_TAG) ||
+	    !XmlReader::getInstanceElement(parser, cimInstance))
 	{
 	    throw XmlValidationError(
 		parser.getLine(), "expected INSTANCE element");
 	}
 
-	XmlReader::testEndTag(parser, "IRETURNVALUE");
+	XmlReader::expectEndTag(parser, "IRETURNVALUE");
 
 	return(new CIMGetInstanceResponseMessage(
 	    messageId,
@@ -742,9 +761,12 @@ CIMModifyInstanceResponseMessage* CIMOperationResponseDecoder::_decodeModifyInst
     }
     else
     {
-	if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+	if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
 	{
-	    XmlReader::expectEndTag(parser, "IRETURNVALUE");
+	    if (entry.type != XmlEntry::EMPTY_TAG)
+	    {
+	        XmlReader::expectEndTag(parser, "IRETURNVALUE");
+	    }
 	}
 
 	return(new CIMModifyInstanceResponseMessage(
@@ -772,23 +794,26 @@ CIMEnumerateInstanceNamesResponseMessage* CIMOperationResponseDecoder::_decodeEn
     {
 	Array<CIMObjectPath> instanceNames;
 
-	if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+	if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
 	{
-	    String className;
-	    Array<CIMKeyBinding> keyBindings;
-
-	    while (XmlReader::getInstanceNameElement(
-	        parser, className, keyBindings))
+	    if (entry.type != XmlEntry::EMPTY_TAG)
 	    {
-	        CIMObjectPath r(
-		    String::EMPTY,
-		    String::EMPTY,
-		    className,
-		    keyBindings);
-	        instanceNames.append(r);
-	    }
+	        String className;
+	        Array<CIMKeyBinding> keyBindings;
 
-	    XmlReader::expectEndTag(parser, "IRETURNVALUE");
+	        while (XmlReader::getInstanceNameElement(
+	            parser, className, keyBindings))
+	        {
+	            CIMObjectPath r(
+		        String::EMPTY,
+		        String::EMPTY,
+		        className,
+		        keyBindings);
+	            instanceNames.append(r);
+	        }
+
+	        XmlReader::expectEndTag(parser, "IRETURNVALUE");
+	    }
 	}
 
 	return(new CIMEnumerateInstanceNamesResponseMessage(
@@ -817,14 +842,20 @@ CIMEnumerateInstancesResponseMessage* CIMOperationResponseDecoder::_decodeEnumer
     {
 	Array<CIMInstance> namedInstances;
 
-	if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+	if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
 	{
-	    CIMInstance namedInstance;
+	    if (entry.type != XmlEntry::EMPTY_TAG)
+	    {
+	        CIMInstance namedInstance;
 
-	    while (XmlReader::getNamedInstanceElement(parser, namedInstance))
-	        namedInstances.append(namedInstance);
+	        while (XmlReader::getNamedInstanceElement(
+	                   parser, namedInstance))
+	        {
+	            namedInstances.append(namedInstance);
+	        }
 
-	    XmlReader::expectEndTag(parser, "IRETURNVALUE");
+	        XmlReader::expectEndTag(parser, "IRETURNVALUE");
+	    }
 	}
 
 	return(new CIMEnumerateInstancesResponseMessage(
@@ -850,9 +881,12 @@ CIMDeleteInstanceResponseMessage* CIMOperationResponseDecoder::_decodeDeleteInst
     }
     else
     {
-	if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+	if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
 	{
-	    XmlReader::expectEndTag(parser, "IRETURNVALUE");
+	    if (entry.type != XmlEntry::EMPTY_TAG)
+	    {
+	        XmlReader::expectEndTag(parser, "IRETURNVALUE");
+	    }
 	}
 
 	return(new CIMDeleteInstanceResponseMessage(
@@ -880,14 +914,17 @@ CIMGetPropertyResponseMessage* CIMOperationResponseDecoder::_decodeGetPropertyRe
     {
 	CIMValue cimValue(CIMTYPE_STRING, false);
 
-	if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+	if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
 	{
-	    if (!XmlReader::getPropertyValue(parser, cimValue))
+	    if (entry.type != XmlEntry::EMPTY_TAG)
 	    {
-                // No value given; just return a null String value
-	    }
+	        if (!XmlReader::getPropertyValue(parser, cimValue))
+	        {
+                    // No value given; just return a null String value
+	        }
 
-	    XmlReader::expectEndTag(parser, "IRETURNVALUE");
+	        XmlReader::expectEndTag(parser, "IRETURNVALUE");
+	    }
 	}
 	else
 	{
@@ -917,9 +954,12 @@ CIMSetPropertyResponseMessage* CIMOperationResponseDecoder::_decodeSetPropertyRe
     }
     else
     {
-	if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+	if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
 	{
-	    XmlReader::expectEndTag(parser, "IRETURNVALUE");
+	    if (entry.type != XmlEntry::EMPTY_TAG)
+	    {
+	        XmlReader::expectEndTag(parser, "IRETURNVALUE");
+	    }
 	}
 
 	return(new CIMSetPropertyResponseMessage(
@@ -944,9 +984,12 @@ CIMSetQualifierResponseMessage* CIMOperationResponseDecoder::_decodeSetQualifier
     }
     else
     {
-	if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+	if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
 	{
-	    XmlReader::expectEndTag(parser, "IRETURNVALUE");
+	    if (entry.type != XmlEntry::EMPTY_TAG)
+	    {
+	        XmlReader::expectEndTag(parser, "IRETURNVALUE");
+	    }
 	}
 
 	return(new CIMSetQualifierResponseMessage(
@@ -975,7 +1018,7 @@ CIMGetQualifierResponseMessage* CIMOperationResponseDecoder::_decodeGetQualifier
 	CIMQualifierDecl qualifierDecl;
 	XmlReader::getQualifierDeclElement(parser, qualifierDecl);
 
-	XmlReader::testEndTag(parser, "IRETURNVALUE");
+	XmlReader::expectEndTag(parser, "IRETURNVALUE");
 
 	return(new CIMGetQualifierResponseMessage(
 	    messageId,
@@ -1008,14 +1051,20 @@ CIMEnumerateQualifiersResponseMessage* CIMOperationResponseDecoder::_decodeEnume
     {
 	Array<CIMQualifierDecl> qualifierDecls;
 
-	if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+	if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
 	{
-	    CIMQualifierDecl qualifierDecl;
+	    if (entry.type != XmlEntry::EMPTY_TAG)
+	    {
+	        CIMQualifierDecl qualifierDecl;
 
-	    while (XmlReader::getQualifierDeclElement(parser, qualifierDecl))
-	        qualifierDecls.append(qualifierDecl);
+	        while (XmlReader::getQualifierDeclElement(
+	                   parser, qualifierDecl))
+	        {
+	            qualifierDecls.append(qualifierDecl);
+	        }
 
-	    XmlReader::expectEndTag(parser, "IRETURNVALUE");
+	        XmlReader::expectEndTag(parser, "IRETURNVALUE");
+	    }
 	}
 
 	return(new CIMEnumerateQualifiersResponseMessage(
@@ -1041,9 +1090,12 @@ CIMDeleteQualifierResponseMessage* CIMOperationResponseDecoder::_decodeDeleteQua
     }
     else
     {
-	if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+	if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
 	{
-	    XmlReader::expectEndTag(parser, "IRETURNVALUE");
+	    if (entry.type != XmlEntry::EMPTY_TAG)
+	    {
+	        XmlReader::expectEndTag(parser, "IRETURNVALUE");
+	    }
 	}
 
 	return(new CIMDeleteQualifierResponseMessage(
@@ -1073,14 +1125,17 @@ CIMReferenceNamesResponseMessage* CIMOperationResponseDecoder::_decodeReferenceN
     {
 	Array<CIMObjectPath> objectPaths;
 
-	if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+	if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
 	{
-	    CIMObjectPath objectPath;
+	    if (entry.type != XmlEntry::EMPTY_TAG)
+	    {
+	        CIMObjectPath objectPath;
 
-	    while (XmlReader::getObjectPathElement(parser, objectPath))
-	        objectPaths.append(objectPath);
+	        while (XmlReader::getObjectPathElement(parser, objectPath))
+	            objectPaths.append(objectPath);
 
-	    XmlReader::expectEndTag(parser, "IRETURNVALUE");
+	        XmlReader::expectEndTag(parser, "IRETURNVALUE");
+	    }
 	}
 
 	return(new CIMReferenceNamesResponseMessage(
@@ -1109,14 +1164,20 @@ CIMReferencesResponseMessage* CIMOperationResponseDecoder::_decodeReferencesResp
     {
 	Array<CIMObject> objectWithPathArray;
 
-	if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+	if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
 	{
-	    CIMObject objectWithPath;
+	    if (entry.type != XmlEntry::EMPTY_TAG)
+	    {
+	        CIMObject objectWithPath;
 
-	    while (XmlReader::getValueObjectWithPathElement(parser, objectWithPath))
-	        objectWithPathArray.append(objectWithPath);
+	        while (XmlReader::getValueObjectWithPathElement(
+	                   parser, objectWithPath))
+	        {
+	            objectWithPathArray.append(objectWithPath);
+	        }
 
-	    XmlReader::expectEndTag(parser, "IRETURNVALUE");
+	        XmlReader::expectEndTag(parser, "IRETURNVALUE");
+	    }
 	}
 
 	return(new CIMReferencesResponseMessage(
@@ -1145,14 +1206,17 @@ CIMAssociatorNamesResponseMessage* CIMOperationResponseDecoder::_decodeAssociato
     {
 	Array<CIMObjectPath> objectPaths;
 
-	if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+	if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
 	{
-	    CIMObjectPath objectPath;
+	    if (entry.type != XmlEntry::EMPTY_TAG)
+	    {
+	        CIMObjectPath objectPath;
 
-	    while (XmlReader::getObjectPathElement(parser, objectPath))
-	        objectPaths.append(objectPath);
+	        while (XmlReader::getObjectPathElement(parser, objectPath))
+	            objectPaths.append(objectPath);
 
-	    XmlReader::expectEndTag(parser, "IRETURNVALUE");
+	        XmlReader::expectEndTag(parser, "IRETURNVALUE");
+	    }
 	}
 
 	return(new CIMAssociatorNamesResponseMessage(
@@ -1181,14 +1245,20 @@ CIMAssociatorsResponseMessage* CIMOperationResponseDecoder::_decodeAssociatorsRe
     {
 	Array<CIMObject> objectWithPathArray;
 
-	if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+	if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
 	{
-	    CIMObject objectWithPath;
+	    if (entry.type != XmlEntry::EMPTY_TAG)
+	    {
+	        CIMObject objectWithPath;
 
-	    while (XmlReader::getValueObjectWithPathElement(parser, objectWithPath))
-	        objectWithPathArray.append(objectWithPath);
+	        while (XmlReader::getValueObjectWithPathElement(
+	                   parser, objectWithPath))
+	        {
+	            objectWithPathArray.append(objectWithPath);
+	        }
 
-	    XmlReader::expectEndTag(parser, "IRETURNVALUE");
+	        XmlReader::expectEndTag(parser, "IRETURNVALUE");
+	    }
 	}
 
 	return(new CIMAssociatorsResponseMessage(
@@ -1217,11 +1287,14 @@ CIMExecQueryResponseMessage* CIMOperationResponseDecoder::_decodeExecQueryRespon
     {
 	Array<CIMObject> objectWithPathArray;
 
-	if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+	if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
 	{
-            XmlReader::getObjectArray(parser, objectWithPathArray);
+	    if (entry.type != XmlEntry::EMPTY_TAG)
+	    {
+                XmlReader::getObjectArray(parser, objectWithPathArray);
 
-	    XmlReader::expectEndTag(parser, "IRETURNVALUE");
+	        XmlReader::expectEndTag(parser, "IRETURNVALUE");
+	    }
 	}
 
 	return(new CIMExecQueryResponseMessage(

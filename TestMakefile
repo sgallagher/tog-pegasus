@@ -67,6 +67,7 @@ poststarttests:
 	$(CIMSERVER_START_SERVICE)
 	$(SLEEP) 5
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile poststarttests
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_OOP_TS1
 
 tests: $(TESTS)
@@ -91,7 +92,7 @@ OOP_TS1_TEST_CMDS = \
         TestClient
 
 run_OOP_TS1:
-	$(MAKE) -f $(PEGASUS_ROOT)/mak/commands.mak runTestSuite \
+	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
             CIMSERVER_CONFIG_OPTIONS="$(OOP_TS1_CONFIG_OPTIONS)" \
             TESTSUITE_CMDS="$(OOP_TS1_TEST_CMDS)"
 ###############################################################################

@@ -13,7 +13,6 @@ PROGRAM = TestCQLChainedIdentifier
 LIBRARIES = \
    pegcommon \
    pegquerycommon \
-   pegprovider \
    pegcql
 
 

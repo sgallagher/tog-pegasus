@@ -30,6 +30,7 @@
 
 #define _MULTI_THREADED  // must be before pthread.h
 
+#include <limits.h>      // has SEM_VALUE_MAX
 #include <sched.h>
 #include <semaphore.h>
 #include <pthread.h>
@@ -40,7 +41,7 @@
 //#include <sys/timex.h>
 #include <unistd.h>
 
-//#define SEM_VALUE_MAX 0xffffffff - defined in limits.cleinc
+//#define SEM_VALUE_MAX 0xffffffff - defined in limits.h
 
 PEGASUS_NAMESPACE_BEGIN
 

@@ -147,7 +147,7 @@ void GetOptions(
 		    "Removes Pegasus as a Windows NT Service "},
 	{"debug", "false", false, Option::BOOLEAN, 0, 0, "d", 
 	                "Not Used "},
-	{"slp", "true", false, Option::BOOLEAN, 0, 0, "slp", 
+	{"slp", "false", false, Option::BOOLEAN, 0, 0, "slp", 
 			"Register Pegasus as a Service with SLP"}
     };
     const Uint32 NUM_OPTIONS = sizeof(optionsTable) / sizeof(optionsTable[0]);
@@ -303,9 +303,15 @@ int main(int argc, char** argv)
 	Logger::clean(logsDirectory);;
     }
 
+    // Option to Display the options table.  Primarily
+    // a diagnostic tool.
+    if (om.valueEquals("options", "true"))
+	om.print();
+
     // Leave this in until people get familiar with the logs.
     cout << "Logs Directory = " << logsDirectory << endl;
 
+    Boolean useSLP = (om.valueEquals("slp", "true")) ? true: false;
 
     char* address = portOption.allocateCString();
 
@@ -316,18 +322,12 @@ int main(int argc, char** argv)
     cout <<"Started..."
 	 << (pegasusIOTrace ? " Tracing to Display ": " ") 
          << (pegasusIOLog ? " Tracing to Log ": " ")
+	 << (useSLP ? " SLP reg. " : " No SLP ")
 	<< endl;
-
-    // Option to Display the options table.  Primarily
-    // a diagnostic tool.
-    if (om.valueEquals("options", "true"))
-	om.print();
-
-    Boolean useSLP = (om.valueEquals("slp", "true")) ? true: false;
 
     // Put server start message to the logger
     Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
-	"Start $0 $1 port $2 $3 ",
+	"Start $0 $1 port $2 $3 $4",
 		PEGASUS_NAME, 
 		PEGASUS_VERSION,
 		address,

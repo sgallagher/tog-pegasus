@@ -537,12 +537,10 @@ public:
         declares a non-existent or incorrect superclass)
       <LI>CIM_ERR_CLASS_HAS_CHILDREN (the modification could
         not be performed because it was not possible to update the subclasses of
-        the
-        Class in a consistent fashion)
+        the Class in a consistent fashion)
       <LI>CIM_ERR_CLASS_HAS_INSTANCES (the modification could
         not be performed because it was not possible to update
-        the instances of
-        the Class in a consistent fashion)
+        the instances of the Class in a consistent fashion)
       <LI>CIM_ERR_FAILED (some other unspecified error occurred)
      </LI></UL>
     */

@@ -77,16 +77,9 @@ void TraceFileHandler::handleMessage(
         } 	
 
         //
-        // Set permissions on the trace file to 0400
-		// for z/OS, as Pegasus is intended to run as restricted user (not root), 
-        // Set permissions on the trace file to 0400
+        // Set permissions on the trace file to 0600
         //
-        //
-#ifndef PEGASUS_OS_ZOS
-        if ( !FileSystem::changeFilePermissions(String(_fileName), S_IRUSR) )
-#else
         if ( !FileSystem::changeFilePermissions(String(_fileName), (S_IRUSR|S_IWUSR)) )
-#endif
         {
             Logger::put_l(Logger::DEBUG_LOG,"Tracer",Logger::WARNING,
                "Common.TraceFileHandlerUnix.FAILED_TO_SET_FILE_PERMISSIONS",

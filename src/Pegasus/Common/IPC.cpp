@@ -328,6 +328,7 @@ void ReadWriteSem::try_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller)
    timed_wait(mode, caller, 0);
 }
 
+
 void ReadWriteSem::unlock(Uint32 mode, PEGASUS_THREAD_TYPE caller) 
    throw(Permission)
 {

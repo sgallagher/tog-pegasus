@@ -391,51 +391,6 @@ class PEGASUS_EXPORT Thread
       PEGASUS_THREAD_RETURN _exit_code;
       static Boolean _signals_blocked;
 } ;
-
-
-#if 0
-class PEGASUS_EXPORT Aggregator {
-
-   public:
-
-      Aggregator();
-      ~Aggregator();
-
-      void started(void);
-      void completed(void);
-      void remaining(int operations);
-      void put_result(CIMReference *ref);
-
-   private: 
-      int _reference_count;
-
-      // keep track of the thread running this operation so we can kill
-      // it if necessary 
-      Thread _owner;
-
-      // this is a phased aggregate. when it is complete is will
-      // be streamed to the client regardless of the state of 
-      // siblings 
-      Boolean _is_phased;
-
-      int _total_values;
-      int _completed_values;
-      int _total_child_values;
-      int _completed_child_values;
-      int _completion_state;
-      struct timeval _last_update; 
-      time_t lifetime;
-      Aggregator *_parent;
-      // children may be phased or not phased
-      DQueue _children;
-      // empty results that are filled by provider
-      DQueue _results;
-      // array of predicates for events and 
-      // stored queries (cursors)
-      Array _filter;
-} ;
-#endif
-
 PEGASUS_NAMESPACE_END
 
 #endif // Pegasus_Thread_h

@@ -123,13 +123,53 @@ typedef struct {
 /// Conditionals to support native or generic read/write semaphores
 //-----------------------------------------------------------------
 
-#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) 
-#define PEGASUS_READWRITE_NATIVE = 1
 
-typedef struct {
-    pthread_rwlock_t rwlock;
-    pthread_t owner;
-} PEGASUS_RWLOCK_HANDLE;
+//-----------------------------------------------------------------
+// NOTE: Tue Oct  9 13:36:53 2001 mdday
+//
+//  I put some read/write counting into the Thread test program to see
+//  how native r/w performance compares to generic r/w on linux. 
+//  For RH linux 7.1, the generic r/w lock in IPC.cpp performs 
+//  much better than the pthreads native implementation.
+//  
+//  Here are the data:
+// 
+//  Generic  read operations  3186
+//           write operations  739
+//
+//  Native   read operations   348
+//           write operations 2032
+//
+//
+//  Comments -
+// 
+// The native implementation prefers writers, which slows the entire
+// test down because write operations take longer than read operations.
+// Moreover, as soon as one writer gains the lock, the next owner will 
+// always be a writer until there are no further writers. Readers are 
+// blocked out until all writers are sleeping. 
+//
+// In the test there are 4 readers for every writer. However, the 
+// native r/w lock severely skews resources toward writers.
+// 
+// The generic implementation has no preference among readers and writers. 
+// Therefore whichever thread is ready to read or write will gain the lock
+// with no dependence on whether the predecessor is a reader or writer. 
+// This results in higher throughput in the test program for linux.
+//
+// I would encourage all the platform maintainers to run their own tests
+// so we can decide which implementation to use for production builds. 
+//
+//-----------------------------------------------------------------
+
+
+#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) 
+// #define PEGASUS_READWRITE_NATIVE = 1
+
+// typedef struct {
+//     pthread_rwlock_t rwlock;
+//     pthread_t owner;
+// } PEGASUS_RWLOCK_HANDLE;
 
 #endif // linux platform read/write type
 

@@ -49,19 +49,24 @@ Boolean die = false;
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL reading_thread(void *parm);
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL writing_thread(void *parm);
 
+
+AtomicInt read_count ;
+AtomicInt write_count ;
+
 int main(int argc, char **argv)
 {
    ReadWriteSem *rw = new ReadWriteSem();
    Thread *readers[40];
    Thread *writers[10];
+   int i;
    
-   for(int i = 0; i < 40; i++)
+   for(i = 0; i < 40; i++)
    {
       readers[i] = new Thread(reading_thread, rw, false);
       readers[i]->run();
    }
    
-   for( int i = 0; i < 10; i++)
+   for( i = 0; i < 10; i++)
    {
       writers[i] = new Thread(writing_thread, rw, false);
       writers[i]->run();
@@ -69,23 +74,59 @@ int main(int argc, char **argv)
    sleep(20000); 
    die = true;
   
-   for(int i = 0; i < 40; i++)
+   for(i = 0; i < 40; i++)
    {
       cout << " joining reader thread " << i << endl;
       readers[i]->join();
       delete readers[i];
    }
 
-   for(int i = 0; i < 10; i++)
+   for(i = 0; i < 10; i++)
    {
       cout << " joining writer thread " << i << endl;
       writers[i]->join();
       delete writers[i];
    }
+
    delete rw; 
+   
+   cout << "read operations: " << read_count.value() << endl;
+   cout << "write operations: " << write_count.value() << endl;
+
    return(0);
 }
 
+
+void deref(void *parm)
+{
+   
+   Thread *my_handle = (Thread *)parm;
+   try 
+   {
+      my_handle->dereference_tsd();
+   }
+   catch(IPCException& e)
+   {
+      e = e;
+      cout << "exception dereferencing the tsd " << endl;
+      abort();
+   }
+   return;
+}
+
+void exit_one(void *parm)
+{
+   
+   Thread *my_handle = (Thread *)parm;
+   cout << "cleanup level 1 from %ld: " << my_handle->self() << endl;
+}
+
+void exit_two(void *parm)
+{
+   
+   Thread *my_handle = (Thread *)parm;
+   cout << "cleanup level 2 from %ld: " << my_handle->self() << endl;
+}
 
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL reading_thread(void *parm)
 {
@@ -96,30 +137,128 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL reading_thread(void *parm)
    
    cout << endl << "r";
    
+   char *keys[] = 
+      {
+	 "one", "two", "three", "four"
+      };
+   
+   try
+   {
+      my_handle->cleanup_push(exit_one , my_handle );
+   }
+   catch(IPCException& e)
+   {
+      e = e;
+      cout << "Exception while trying to push cleanup handler" << endl;
+      abort();
+   }
+   
+   try
+   {
+      my_handle->cleanup_push(exit_two , my_handle );
+   }
+   
+   catch(IPCException& e)
+   {
+      e = e;
+      cout << "Exception while trying to push cleanup handler" << endl;
+      abort();
+   }
+   
    while(die == false) 
    {
+      int i = 0;
+      
+      char *my_storage = (char *)calloc(256, sizeof(char));
+      sprintf(my_storage, "%ld", myself + i);
+      cout << "creating thread local storage: " << myself << endl;
+      try 
+      {
+	 my_handle->put_tsd(keys[i % 4], free, 256, my_storage);
+      }
+      catch(IPCException& e)
+      {
+      e = e;
+      cout << "Exception while trying to put local storage: " << myself << endl;
+      abort();
+      }
+
+
       try 
       {
 	 my_parm->wait_read(myself);
       }
       catch(IPCException& e)
       {
+	 e = e;
 	 cout << "Exception while trying to get a read lock" << endl;
 	 abort();
       }
       
       cout << "R";
-      my_handle->sleep(1);
+      read_count++;
       
+      my_handle->sleep(1);
+
+      cout << "referencing local storage" << myself <<endl;
+
+      try
+      {
+	 my_handle->cleanup_push(deref , my_handle );
+      }
+      catch(IPCException& e)
+      {
+	 e = e;
+	 cout << "Exception while trying to push cleanup handler" << endl;
+	 abort();
+      }
+
+      try 
+      {
+	 my_handle->reference_tsd(keys[i % 4]);
+      }
+      
+      catch(IPCException& e)
+      {
+	 e = e;
+	 cout << "Exception while trying to reference local storage" << endl;
+	 abort();
+      }
+      
+      try
+      {
+	 my_handle->cleanup_pop(true);
+      }
+            catch(IPCException& e)
+      {
+	 e = e;
+	 cout << "Exception while trying to pop cleanup handler" << endl;
+	 abort();
+      }
       try 
       {
 	 my_parm->unlock_read(myself);
       }
       catch(IPCException& e)
 	{
+	 e = e;
 	 cout << "Exception while trying to release a read lock" << endl;
 	 abort();
       }
+
+      cout << "deleting local storage: " << myself << endl;
+      
+      try 
+      {
+	 my_handle->delete_tsd(keys[i % 4]);
+      }
+      catch(IPCException& e)
+      {
+	 e = e;
+	 cout << "Exception while trying to delete local storage: " << myself << endl;
+	 abort();
+      }
+      i++;
    }
    my_handle->exit_self((PEGASUS_THREAD_RETURN)1);
    return(0);
@@ -144,10 +283,12 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL writing_thread(void *parm)
       }
       catch(IPCException& e)
       {
+	 e = e;
 	 cout << "Exception while trying to get a write lock" << endl;
 	 abort();
       }
       cout << "W";
+      write_count++;
       my_handle->sleep(1);
       try 
       {
@@ -155,48 +296,12 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL writing_thread(void *parm)
       }
       catch(IPCException& e)
       {
+	 e = e;
 	 cout << "Exception while trying to release a write  lock" << endl;
 	 abort();
       }
    }
 
-   my_handle->exit_self((PEGASUS_THREAD_RETURN)1);
-   return(0);
-}
-
-
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL tsd_thread(void *parm)
-{
-   Thread *my_handle = (Thread *)parm;
-   PEGASUS_THREAD_TYPE myself = pegasus_thread_self();
-   
-   char *my_storage = (char *)calloc(256, sizeof(char));
-   sprintf(my_storage, "%ld", myself);
-
-   cout << "creating thread local storage: " << myself << endl;
-   
-   try 
-   {
-      my_handle->put_tsd(my_storage, free, 256, my_storage);
-   }
-   catch(IPCException& e)
-   {
-      cout << "Exception while trying to put local storage: " << myself << endl;
-      abort();
-   }
-   
-   cout << "deleting local storage: " << myself << endl;
-   
-   try 
-   {
-      my_handle->delete_tsd(my_storage);
-   }
-   catch(IPCException& e)
-   {
-      cout << "Exception while trying to delete local storage: " << myself << endl;
-      abort();
-   }
-   cout << "dying .." << myself << endl;
    my_handle->exit_self((PEGASUS_THREAD_RETURN)1);
    return(0);
 }

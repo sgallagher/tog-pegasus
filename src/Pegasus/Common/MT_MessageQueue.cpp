@@ -26,6 +26,10 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+//
+// This code doesn't work under Windows !!!
+// 
+
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/MessageQueue.h>
@@ -48,10 +52,16 @@ MT_MessageQueue::MT_MessageQueue()
     // has to be rewritten to use the lockable QueueTable !!!
     _mqueue = new MessageQueue();
 
-    // the message queue MAY only be changed, if both locks held !
+    // the message queue MAY only be changed with lock _sharedMutex held
+
     _sharedMutex = new Mutex();
+#if PEGASUS_OS_UNIX
     _full = new Condition(*_sharedMutex);
     _empty= new Condition(*_sharedMutex);
+#else
+    _full = new Condition();
+    _empty= new Condition();
+#endif
 
     _lowWaterMark = PEGASUS_DEFAULT_LOWWATERMARK;
     _highWaterMark = PEGASUS_DEFAULT_HIGHWATERMARK;

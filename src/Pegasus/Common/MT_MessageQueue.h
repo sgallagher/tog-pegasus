@@ -149,6 +149,8 @@ public:
     */
     virtual void handleEnqueue();
 
+    MessageQueue * getQueue() { return _mqueue;}
+
     /** Lookup a message queue from a queue id. */
     static MessageQueue* lookup(Uint32 queueId);
 
@@ -159,8 +161,12 @@ private:
     MessageQueue * _mqueue;
 
     // Both condition mutexes together protect the queue
+    Mutex * _sharedMutex;
     Condition * _full;
     Condition * _empty;
+
+    AtomicInt _readers;
+    AtomicInt _writers;
 
     Boolean _preferReader;
 

@@ -35,6 +35,7 @@
 #include <iostream>
 //#include "CQLIdentifier.h"
 #include "CQLIdentifierRep.h"
+#include "QueryException.h"
 #include <ctype.h>
 #include <cstdlib>
 PEGASUS_NAMESPACE_BEGIN
@@ -215,8 +216,11 @@ void CQLIdentifierRep::parse(String identifier){
 			((index = identifier.find(LBRKT)) != PEG_NOT_FOUND))	
 		{
 			//error
-			printf("CQLIdentifier::parse(), error\n");
-			return;
+			throw CQLIdentifierParseException(
+                                        MessageLoaderParms(String("CQL.CQLIdentifier.HASH_ARRAY_SYMBOL_MISMATCH"),
+                                                           String("The identifier contains a mismatched symbolic constant symbol and an array symbol: $0"),
+							   identifier)
+					 );
 		}
 	}
 
@@ -242,8 +246,11 @@ void CQLIdentifierRep::parse(String identifier){
 		  identifier = identifier.subString(0,identifier.find(LBRKT));
 		}else{
 		  // error
-			 printf("CQLIdentifier::parse(), error\n");
-			return;
+			throw CQLIdentifierParseException(
+                                        MessageLoaderParms(String("CQL.CQLIdentifier.ARRAY_SYMBOL_MISMATCH"),
+                                                           String("The identifier contains a mismatched array symbol: $0"),
+							   identifier)
+                                          );
 		}
 	}else if((index = identifier.find(STAR)) != PEG_NOT_FOUND){
 		// wildcard
@@ -266,7 +273,11 @@ void CQLIdentifierRep::parse(String identifier){
 				_name = CIMName(identifier);
 		}catch(Exception e){
 			// throw invalid name exception ?
-			printf("CQLIdentifier::parse(), error\n");
+			throw CQLIdentifierParseException(
+                                        MessageLoaderParms(String("CQL.CQLIdentifier.INVALID_CIMNAME"),
+                                                           String("The identifier contains an invalid CIMName: $0."),
+							   identifier)
+                                          );
 			return;
 		}
 	}

@@ -36,6 +36,7 @@
 #include "CQLChainedIdentifierRep.h"
 #include <Pegasus/CQL/CQLFactory.h>
 #include <Pegasus/CQL/QueryContext.h>
+#include "QueryException.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -136,7 +137,10 @@ void CQLChainedIdentifierRep::applyContext(QueryContext& inContext)
       _subIdentifiers[0].getName().getString().size() == 0 &&
       _subIdentifiers[0].isSymbolicConstant())
   {
-    throw Exception("TEMP MSG: CQLChainedIdentifierRep::applyContext - standalone symb const");
+    throw CQLValidationException(
+                                        MessageLoaderParms(String("CQL.CQLChainedIdentifier.STAND_ALONE_SYMBOLIC_CONSTANT"),
+                                                           String("The stand alone chained identifier should have had the context applied already."))
+                                         );
   }
 
   CQLIdentifier firstId = _subIdentifiers[0];
@@ -235,6 +239,10 @@ void CQLChainedIdentifierRep::applyContext(QueryContext& inContext)
                 // ATTN may just want to throw the CIMException rather than
                 // CQL exception
                 throw Exception("TEMP MSG - CQLChainId::applyContext - FROM class does not exist");
+		throw CQLValidationException(
+                                        MessageLoaderParms(String("CQL.CQLChainedIdentifier.FROM_CLASS_DOES_NOT_EXIST"),
+                                                           String("The FROM class does not exist while applying context."))
+                                         );
               }
             }
           }

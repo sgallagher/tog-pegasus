@@ -34,9 +34,9 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Provider/SimpleResponseHandler.h>
-#include "CIMBaseProviderFacade.h"
 #include "CIMOperationRequestDispatcher.h"
+
+#include <Pegasus/Provider/SimpleResponseHandler.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -474,14 +474,14 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 	    return;
 	}
 
-	// 
+	//
 	// check the class name for subscription, filter and handler
 	//
 	if(String::equalNoCase(className, "CIM_IndicationProvider") ||
 	    String::equalNoCase(className, "CIM_IndicationHandlerCIMXML") ||
 	    String::equalNoCase(className, "CIM_IndicationFilter"))
 	{
-	    // 
+	    //
 	    // Send to the indication service. It will generate the
 	    // appropriate response message.
 	    //
@@ -604,14 +604,14 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
 		return;
 	}
 
-	// 
+	//
 	// check the class name for subscription, filter and handler
 	//
 	if(String::equalNoCase(className, "CIM_IndicationProvider") ||
 	    String::equalNoCase(className, "CIM_IndicationHandlerCIMXML") ||
 	    String::equalNoCase(className, "CIM_IndicationFilter"))
 	{
-	    // 
+	    //
 	    // Send to the indication service. It will generate the
 	    // appropriate response message.
 	    //
@@ -728,7 +728,7 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 	    return;
 	}
 
-	// 
+	//
 	// check the class name for subscription, filter and handler
 	//
 
@@ -736,7 +736,7 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 	    String::equalNoCase(className, "CIM_IndicationHandlerCIMXML") ||
 	    String::equalNoCase(className, "CIM_IndicationFilter"))
 	{
-	    // 
+	    //
 	    // Send to the indication service. It will generate the
 	    // appropriate response message.
 	    //
@@ -857,14 +857,14 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
 		return;
 	}
 
-	// 
+	//
 	// check the class name for subscription, filter and handler
 	//
 	if(String::equalNoCase(className, "CIM_IndicationProvider") ||
 	    String::equalNoCase(className, "CIM_IndicationHandlerCIMXML") ||
 	    String::equalNoCase(className, "CIM_IndicationFilter"))
 	{
-	    // 
+	    //
 	    // Send to the indication service. It will generate the
 	    // appropriate response message.
 	    //
@@ -1035,14 +1035,14 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 		return;
 	}
 
-	// 
+	//
 	// check the class name for subscription, filter and handler
 	//
 	if(String::equalNoCase(className, "CIM_IndicationProvider") ||
 	    String::equalNoCase(className, "CIM_IndicationHandlerCIMXML") ||
 	    String::equalNoCase(className, "CIM_IndicationFilter"))
 	{
-	    // 
+	    //
 	    // Send to the indication service. It will generate the
 	    // appropriate response message.
 	    //
@@ -1139,7 +1139,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
             _indicationService.enqueue(new CIMEnumerateInstanceNamesRequestMessage(*request));
 
             return;
-        } 
+        }
 
 	// check the class name for an "external provider"
 	//String providerName = _lookupProviderForClass(request->nameSpace, className);
@@ -1758,7 +1758,7 @@ void CIMOperationRequestDispatcher::handleEnableIndicationSubscriptionRequest(
 
     try
     {
-	// 
+	//
 	// check the class name for an "external provider"
 	//
 	String providerName = _lookupProviderForClass(
@@ -1766,7 +1766,7 @@ void CIMOperationRequestDispatcher::handleEnableIndicationSubscriptionRequest(
 
 	if(providerName.size() != 0)
 	{
-	    // 
+	    //
 	    // forward request to the provider manager
 	    //
 	    _providerManager.enqueue(
@@ -1822,13 +1822,14 @@ void CIMOperationRequestDispatcher::handleModifyIndicationSubscriptionRequest(
 	//  Currently, the first class name in the list is passed to
 	//  getProvider.  It shouldn't matter which class name is passed in.
 	//
-        ProviderModule module = _providerManager.getProviderModule(
-	    request->classNames[0]);
-
-	CIMBaseProviderFacade facade(module.getProvider());
-
 	try
-	{
+	{	
+		/*
+		ProviderModule module = _providerManager.getProviderModule(
+	    request->classNames[0]);
+		
+		CIMBaseProviderFacade facade(module.getProvider());
+
 	    SimpleResponseHandler<CIMInstance> responseHandler;
 
 	    //
@@ -1850,6 +1851,7 @@ void CIMOperationRequestDispatcher::handleModifyIndicationSubscriptionRequest(
 		request->queryLanguage,
 		request->subscription,
 		responseHandler);
+		*/
 	}
 	catch (...)
 	{
@@ -1900,15 +1902,16 @@ void CIMOperationRequestDispatcher::handleDisableIndicationSubscriptionRequest(
 	//  Currently, the first class name in the list is passed to
 	//  getProvider.  It shouldn't matter which class name is passed in.
 	//
-	ProviderModule module = _providerManager.getProviderModule(
-	    request->classNames[0]);
-
-	CIMBaseProviderFacade facade(module.getProvider());
-
-	SimpleResponseHandler<CIMInstance> responseHandler;
-
 	try
 	{
+		/*
+		ProviderModule module = _providerManager.getProviderModule(
+			request->classNames[0]);
+
+		CIMBaseProviderFacade facade(module.getProvider());
+
+		SimpleResponseHandler<CIMInstance> responseHandler;
+
 	    //
 	    //  ATTN: pass thresholding parameter values in
 	    //  operation context
@@ -1920,6 +1923,7 @@ void CIMOperationRequestDispatcher::handleDisableIndicationSubscriptionRequest(
 		request->providerName,
 		request->subscription,
 		responseHandler);
+		*/
 	    }
 	catch(...)
 	{
@@ -1955,8 +1959,8 @@ void CIMOperationRequestDispatcher::handleDisableIndicationSubscriptionRequest(
 void CIMOperationRequestDispatcher::handleProcessIndicationRequest(
         CIMProcessIndicationRequestMessage* request)
 {
-   
-    // 
+
+    //
     // forward request to IndicationService. IndicartionService will take care
     // of response to this request.
     //
@@ -2008,4 +2012,3 @@ void CIMOperationRequestDispatcher::loadRegisteredProviders(void)
 */
 
 PEGASUS_NAMESPACE_END
-	

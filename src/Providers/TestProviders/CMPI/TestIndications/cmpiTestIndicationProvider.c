@@ -573,23 +573,27 @@ TestCMPIIndicationProviderActivateFilter (CMPIIndicationMI * mi,
         CMPICount cnt = CMGetSubCondCountAndType (cond, &type, &rc);
         PROV_LOG ("---- %s", strCMPIStatus (rc));
 
-        PROV_LOG ("---- Count: %d, Type: %X", cnt, type);
+	    
+        PROV_LOG ("---- Number of disjunctives: %d, Type: %X", cnt, type);
 
         unsigned int idx;
+		/* Parsing the disjunctives */
         for (idx = 0; idx < cnt; idx++)
           {
-            PROV_LOG ("--- #6.2 CMGetSubCondAt ");
+            PROV_LOG ("--- #6.2 CMGetSubCondAt @ %d ", idx);
             CMPISubCond *subcnd = CMGetSubCondAt (cond, idx, &rc);
             PROV_LOG ("---- %s", strCMPIStatus (rc));
 
             PROV_LOG ("--- #6.3 CMGetPredicateCount");
             CMPICount pred_cnd = CMGetPredicateCount (subcnd, &rc);
             PROV_LOG ("---- %s", strCMPIStatus (rc));
+		    PROV_LOG ("---- Number of predicates in the conjuctives: %d", pred_cnd);
 
             unsigned int pred_idx;
+			/* Parsing throught conjuctives */
             for (pred_idx = 0; pred_idx < pred_cnd; pred_idx++)
               {
-                PROV_LOG ("--- #6.4 CMGetPredicateAt");
+                PROV_LOG ("--- #6.4 CMGetPredicateAt, %d", pred_idx);
                 CMPIPredicate *pred =
                   CMGetPredicateAt (subcnd, pred_idx, &rc);
 

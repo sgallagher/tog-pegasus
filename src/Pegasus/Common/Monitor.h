@@ -1,179 +1,64 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to 
+// deal in the Software without restriction, including without limitation the 
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_Monitor_h
-#define Pegasus_Monitor_h
+#ifndef Pegasus_Monitor_h 
+#define Pegasus_Monitor_h 
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/ArrayInternal.h>
+#include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Common/Message.h>
-#include <Pegasus/Common/ModuleController.h>
-#include <Pegasus/Common/Socket.h>
-#include <Pegasus/Common/Sharable.h>
-#include <Pegasus/Common/Linkage.h>
-#include <Pegasus/Common/AutoPtr.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_COMMON_LINKAGE MonitorEntry
+struct _MonitorEntry
 {
-public:
-    enum Status
-    {
-        STATUS_IDLE,
-        STATUS_BUSY,
-        STATUS_DYING,
-        STATUS_EMPTY
-    };
-
-    enum Type
-    {
-        TYPE_ACCEPTOR,
-        TYPE_CONNECTION,
-        TYPE_TICKLER
-    };
-
-    MonitorEntry()
-    {
-        reset();
-    }
-
-    MonitorEntry(
-        SocketHandle socket_,
-        Uint32 queueId_,
-        Uint32 status_,
-        Uint32 type_)
-        : socket(socket_),
-          queueId(queueId_),
-          status(status_),
-          type(type_)
-    {
-    }
-
-    // NOTE: Using the default implementation of the copy constructor and
-    // assignment operator.
-
-    void reset()
-    {
-        socket = PEGASUS_INVALID_SOCKET;
-        queueId = 0;
-        status = STATUS_EMPTY;
-        type = TYPE_TICKLER;
-    }
-
-    SocketHandle socket;
+    Sint32 socket;
     Uint32 queueId;
-    Uint32 status;
-    Uint32 type;
 };
 
+struct MonitorRep;
+
 /** This message occurs when there is activity on a socket. */
-class SocketMessage : public Message
+class SocketMessage
 {
 public:
+
+    SocketMessage(Events events_, Uint32 socket_) :
+	Message(SOCKET_MESSAGE), 
+	events(events_), socket(socket_) 
+    {
+    }
 
     enum Events { READ = 1, WRITE = 2, EXCEPTION = 4 };
 
-    SocketMessage(SocketHandle socket_, Uint32 events_)
-        : Message(SOCKET_MESSAGE), socket(socket_), events(events_)
-    {
-    }
-
-    SocketHandle socket;
     Uint32 events;
-};
 
-/**
-    This message is sent to a connection owner (HTTPAcceptor) so it can do
-    any necessary cleanup of the connection.
-*/
-class CloseConnectionMessage : public Message
-{
-public:
-
-    CloseConnectionMessage(SocketHandle socket_)
-        : Message(CLOSE_CONNECTION_MESSAGE), socket(socket_)
-    {
-    }
-
-    SocketHandle socket;
-};
-
-/**
-    The Tickler class provides a loopback socket connection that can be
-    included in a select() socket array to allow the select() call to return
-    on demand.
-*/
-class Tickler
-{
-public:
-    /**
-        Constructs a Tickler object and initializes its connection.
-        @exception Exception if the initialization fails.
-    */
-    Tickler();
-
-    ~Tickler();
-
-    /**
-        Causes a read event on the tickle socket.
-    */
-    void notify();
-
-    /**
-        Consumes all read events on the tickle socket.
-    */
-    void reset();
-
-    SocketHandle getReadHandle()
-    {
-        return _serverSocket;
-    }
-
-private:
-    /**
-        Initializes the Tickler connection.
-        @exception Exception if the initialization fails.
-    */
-    void _initialize();
-
-    /**
-        Uninitializes the Tickler connection.
-    */
-    void _uninitialize();
-
-    SocketHandle _listenSocket;
-    SocketHandle _clientSocket;
-    SocketHandle _serverSocket;
+    Uint32 socket;
 };
 
 /** This class monitors system-level events and notifies its clients of these
@@ -182,29 +67,28 @@ private:
     The monitor generates following message types:
 
     <ul>
-    <li> SocketMessage - occurs when activity on a socket </li>
+	<li> SocketMessage - occurs when activity on a socket </li>
     </ul>
 
     Clients solicit these messages by calling one of the following methods:
 
     <ul>
-    <li> solicitSocketMessages() </li>
+	<li> solicitSocketMessages() </li>
     </ul>
 
     The following example shows how to solicit socket messages:
 
     <pre>
-    Monitor monitor;
-    Sint32 socket;
-    Uint32 queueId;
+	Monitor monitor;
+	Uint32 socket;
+	Uint32 queueId;
 
+	...
 
-    ...
-
-    monitor.solicitSocketMessages(
-    socket,
-    SocketMessage::READ | SocketMessage::WRITE,
-    queueId);
+	monitor.solicitSocketMessages(
+	    socket, 
+	    SocketMessage::READ | SocketMessage::WRITE, 
+	    queueId);
     </pre>
 
     Each time activity occurs on the given socket, a SocketMessage is
@@ -214,12 +98,12 @@ private:
     the run() method as shown below:
 
     <pre>
-    Monitor monitor;
+	Monitor monitor;
 
-    ...
+	...
 
-    Uint32 milliseconds = 5000;
-    monitor.run(milliseconds);
+	Uint32 milliseconds = 5000;
+	monitor.run(milliseconds);
     </pre>
 
     In this example, the monitor is run for five seconds. The run method
@@ -229,70 +113,56 @@ private:
 class PEGASUS_COMMON_LINKAGE Monitor
 {
 public:
+
     /** Default constructor. */
     Monitor();
 
     /** This destruct deletes all handlers which were installed. */
     ~Monitor();
 
-    /** Sets the state of the monitor entry to the specified state.
-        This is used to synchronize the monitor and the worker
-        thread. Bug# 2057 */
-    void setState(
-        Uint32 index,
-        MonitorEntry::Status status);
-
-    void tickle();
-
     /** Monitor system-level for the given number of milliseconds. Post a
-        message to the corresponding queue when such an event occurs.
-        Return after the time has elapsed or a single event has occurred,
-        whichever occurs first.
+	message to the corresponding queue when such an event occurs.
+	Return after the time has elapsed or a single event has occurred,
+	whichever occurs first.
 
-        @param timeoutMsec the number of milliseconds to wait for an event.
+	@param timeoutMsec the number of milliseconds to wait for an event.
+
+	@return true if an event occured.
     */
-    void run(Uint32 timeoutMsec);
+    Boolean run(Uint32 timeoutMsec);
 
-    /** Solicit interest in SocketMessages. Note that there may only
-        be one solicitor per socket.
+    /** Solicit interest in SocketMessages. Note that there may only 
+	be one solicitor per socket.
 
-        @param socket the socket to monitor for activity.
-        @param queueId of queue on which to post socket messages.
-        @return false if messages have already been solicited on this socket.
+	@param socket the socket to monitor for activity.
+
+	@param events socket events to monitor (see the SocketMessage::Events
+	    enumeration for details).
+
+	@param queueId of queue on which to post socket messages.
+
+	@return false if messages have already been solicited on this socket.
     */
-    int solicitSocketMessages(
-        SocketHandle socket,
-        Uint32 queueId,
-        Uint32 type);
+    Boolean solicitSocketMessages(
+	Sint32 socket, 
+	Uint32 events,
+	Uint32 queueId);
 
     /** Unsolicit messages on the given socket.
-
-        @param socket on which to unsolicit messages.
-        @return false if no such solicitation has been made on the given socket.
+	@param socket on which to unsolicit messages.
+	@return false if no such solicitation has been made on the given socket.
     */
-    void unsolicitSocketMessages(SocketHandle);
-
-    /** stop listening for client connections
-     */
-    void stopListeningForConnections(Boolean wait);
+    Boolean unolicitSocketMessages(Sint32 socket);
 
 private:
 
+    Uint32 _findEntry(Sint32 socket) const;
+
     Array<MonitorEntry> _entries;
-    /**
-        This mutex must be locked when accessing the _entries array or any
-        of its MonitorEntry objects.
-    */
-    Mutex _entriesMutex;
-
-    AtomicInt _stopConnections;
-    Semaphore _stopConnectionsSem;
-
-    /** tracks how many times solicitSocketCount() has been called */
-    Uint32 _solicitSocketCount;
-
-    Tickler _tickler;
+    MonitorRep* _rep;
 };
+
+PEGASUS_MEMORY_FUNCTIONS(MonitorEntry)
 
 PEGASUS_NAMESPACE_END
 

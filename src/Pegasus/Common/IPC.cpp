@@ -38,7 +38,10 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-
+const Uint32 PEG_SEM_READ = 1 ;
+const Uint32 PEG_SEM_WRITE = 2 ;
+const int PEG_DQUEUE_FIRST = 0;
+const int PEG_DQUEUE_LAST = 1;
 //-----------------------------------------------------------------
 /// Generic Implementation of read/write semaphore class
 //-----------------------------------------------------------------
@@ -55,9 +58,28 @@ ReadWriteSem::ReadWriteSem(void) : _readers(0), _writers(0)
 ReadWriteSem::~ReadWriteSem(void)
 {
    
-   _rwlock._internal_lock.~Mutex();
+   // lock everyone out of this object
+   try 
+   {
+      _rwlock._internal_lock.lock(pegasus_thread_self());
+   }
+   catch(Deadlock& d) 
+   {
+      // no problem - we own the lock, which is what we want
+   }
+   catch(IPCException& e) 
+   {
+      // oops - this is really bad
+      PEGASUS_ASSERT(0);
+   }
+   while(_readers > 0 || _writers > 0) 
+   {
+      pegasus_yield();
+   }
    _rwlock._wlock.~Mutex();
    _rwlock._rlock.~Semaphore();
+   _rwlock._internal_lock.unlock();
+   _rwlock._internal_lock.~Mutex();
 }
 
 //-----------------------------------------------------------------
@@ -426,16 +448,19 @@ AtomicInt& AtomicInt::operator-=(Uint32 val)
 
 
 
-//Mutex * AtomicInt::getMutex()
-//{
-//    return &_mutex;
-//}
+//-----------------------------------------------------------------
+// Generic implementation of conditional semaphore object 
+//-----------------------------------------------------------------
+#ifndef PEGASUS_CONDITIONAL_NATIVE
 
 
 
-#if defined( PEGASUS_CONDITIONAL_NATIVE)
+#endif // PEGASUS_CONDITIONAL_NATIVE
+//-----------------------------------------------------------------
+// END of generic implementation of conditional semaphore object 
+//-----------------------------------------------------------------
 
-#else
+PEGASUS_NAMESPACE_END
 
 // waiter: 
 // get the mutex
@@ -500,8 +525,3 @@ AtomicInt& AtomicInt::operator-=(Uint32 val)
 //      }
 //      pthread_mutex_unlock(&mut);
 //
-
-
-#endif // PEGASUS_CONDITIONAL_NATIVE
-
-PEGASUS_NAMESPACE_END

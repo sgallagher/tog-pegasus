@@ -72,6 +72,7 @@ extern int sem_timedwait(
 #include <sys/time.h>
 #include <time.h>
 
+typedef sem_t PEGASUS_SEMAPHORE_TYPE;
 typedef pthread_t PEGASUS_THREAD_TYPE;
 typedef pthread_mutex_t PEGASUS_MUTEX_TYPE;
 

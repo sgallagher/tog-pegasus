@@ -43,7 +43,8 @@
 #include <Pegasus/Common/Exception.h>
 
 PEGASUS_NAMESPACE_BEGIN
-
+extern const Uint32 PEG_SEM_READ;
+extern const Uint32 PEG_SEM_WRITE;
 
 //%//////// -------- IPC Exception Classes -------- ///////////////////////////////
 
@@ -109,6 +110,7 @@ class PEGASUS_EXPORT TooManyReaders: public IPCException
 
 
 
+
 //%///////////////// ----- IPC related functions ------- //////////////////////
 
 PEGASUS_THREAD_TYPE pegasus_thread_self(void);
@@ -141,13 +143,12 @@ class PEGASUS_EXPORT Mutex
       // unlock the semaphore
       void unlock(void) throw(Permission);
 
-      inline PEGASUS_MUTEX_TYPE* getMutex() { return(&_mutex.mut); }
+//      inline PEGASUS_MUTEX_TYPE* getMutex() { return(&_mutex.mut); }
       inline PEGASUS_THREAD_TYPE get_owner() { return(_mutex.owner); }
 
-   private:
-  
+   protected:
       PEGASUS_MUTEX_HANDLE _mutex;
-
+      friend class Condition;
 } ;
 
 
@@ -267,9 +268,6 @@ typedef struct {
 
 #endif
 
-const Uint32 PEG_SEM_READ = 1 ;
-const Uint32 PEG_SEM_WRITE = 2 ;
-
 class PEGASUS_EXPORT ReadWriteSem
 {
  
@@ -346,16 +344,16 @@ class PEGASUS_EXPORT ReadWriteSem
 //-----------------------------------------------------------------
 
 
-#if defined(PEGASUS_CONDITIONAL_NATIVE)
+#ifndef PEGASUS_CONDITIONAL_NATIVE
 
-#else  
-typedef PEGASUS_MUTEX_TYPE PEGASUS_COND_TYPE;
+// typedef PEGASUS_SEMAPHORE_TYPE PEGASUS_COND_TYPE;
 
 typedef struct {
-      PEGASUS_COND_TYPE _cond;
-      PEGASUS_THREAD_TYPE _owner;
-      PEGASUS_MUTEX_TYPE _internal_mut;
-} PEGASUS_COND_HANDLE;
+      PEGASUS_THREAD_TYPE _owner; 
+      Mutex _internal_mutex;
+      Semaphore _cond_sem;
+      int _waiters;
+} PEGASUS_COND_TYPE;
 
 #endif 
 
@@ -365,33 +363,39 @@ class PEGASUS_EXPORT Condition
    public:
     
       // create the condition variable
-      Condition()  ;
-      ~Condition();
+      Condition(void)  ;
+      ~Condition(void);
 
       // block until this condition is in a signalled state 
       void wait(PEGASUS_THREAD_TYPE caller) throw(Deadlock, WaitFailed);
 
       // wait for milliseconds and throw an exception
       // if wait times out without being signaled
-      void time_wait( Uint32 milliseconds, PEGASUS_THREAD_TYPE caller ) throw(TimeOut, Deadlock, WaitFailed);
+      void time_wait( Uint32 milliseconds, PEGASUS_THREAD_TYPE caller ) 
+	 throw(TimeOut, Deadlock, WaitFailed);
 
       // signal the condition variable
       void signal(PEGASUS_THREAD_TYPE caller) throw(Deadlock, WaitFailed);
+      void lock_object(PEGASUS_THREAD_TYPE caller) 
+	 throw(Deadlock, WaitFailed);
+      void try_lock_object(PEGASUS_THREAD_TYPE caller)
+	 throw(Deadlock, AlreadyLocked, WaitFailed);
+      void wait_lock_object(PEGASUS_THREAD_TYPE caller, int milliseconds)
+	 throw(Deadlock, TimeOut, WaitFailed);
+            
+      void unlock_object(void);
+      
 
-      // lock the accompanying Mutex
-      // this is useful when synchronizing thread startus
-
-      inline Mutex* getMutex(void) {return(&_cond_mutex) ;}
-  
       // without pthread_mutex_lock/unlock
       void unlocked_wait(PEGASUS_THREAD_TYPE caller)  ;
       void unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE caller) throw(TimeOut);
       void unlocked_signal(PEGASUS_THREAD_TYPE caller) ;
 
    private:
-      PEGASUS_THREAD_TYPE _owner;
-      PEGASUS_COND_TYPE _condition;
-      Mutex _cond_mutex;
+      PEGASUS_THREAD_TYPE _owner; // owner of the conditional mutex
+      PEGASUS_COND_TYPE _condition; // special type to control execution flow
+      Mutex _cond_mutex; // the conditional mutex
+      
 };
 
 PEGASUS_NAMESPACE_END

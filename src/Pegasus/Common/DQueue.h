@@ -31,11 +31,11 @@
 
 
 #include <Pegasus/Common/Config.h>
-
+#include <Pegasus/Common/IPC.h>
 PEGASUS_NAMESPACE_BEGIN
 
-const int PEG_DQUEUE_FIRST = 0;
-const int PEG_DQUEUE_LAST = 1;
+extern const int PEG_DQUEUE_FIRST;
+extern const int PEG_DQUEUE_LAST;
 
 template<class L> class PEGASUS_EXPORT DQueue {
    private: 

@@ -133,7 +133,8 @@ void Mutex::try_lock(PEGASUS_THREAD_TYPE caller) throw(Deadlock, AlreadyLocked, 
 // wait for milliseconds and throw an exception then return if the wait
 // expires without gaining the lock. Otherwise return without throwing an
 // exception. 
-void Mutex::timed_lock( Uint32 milliseconds , PEGASUS_THREAD_TYPE caller) throw(Deadlock, TimeOut, WaitFailed)
+void Mutex::timed_lock( Uint32 milliseconds , PEGASUS_THREAD_TYPE caller) 
+   throw(Deadlock, TimeOut, WaitFailed)
 {
 
    struct timeval now;
@@ -331,6 +332,12 @@ int ReadWriteSem::write_count()
 
 
 
+//-----------------------------------------------------------------
+// Native implementation of Conditional semaphore object
+//-----------------------------------------------------------------
+
+#ifdef PEGASUS_CONDITIONAL_NATIVE
+
 /// Conditions are implemented as process-wide condition variables
 Condition::Condition() 
 {
@@ -355,6 +362,7 @@ Condition::~Condition()
 {
    while(EBUSY == pthread_cond_destroy(&_condition))
    {
+      unlocked_signal(pegasus_thread_self());
       pegasus_yield();
    }
    
@@ -367,7 +375,7 @@ void Condition::wait(PEGASUS_THREAD_TYPE caller) throw(Deadlock, WaitFailed)
    try { _cond_mutex.lock(caller); }
    catch(...) { throw; }
 
-   pthread_cond_wait(&_condition, _cond_mutex.getMutex());
+   pthread_cond_wait(&_condition, &_cond_mutex._mutex.mut);
    _cond_mutex.unlock();
 }
 
@@ -395,7 +403,7 @@ void Condition::time_wait( Uint32 milliseconds, PEGASUS_THREAD_TYPE caller ) thr
       pegasus_gettimeofday(&now);
       timeout.tv_sec = now.tv_sec;
       timeout.tv_nsec += now.tv_usec * 1000 + milliseconds; 
-      retcode = pthread_cond_timedwait(&_condition, _cond_mutex.getMutex(), &timeout);
+      retcode = pthread_cond_timedwait(&_condition, &_cond_mutex._mutex.mut, &timeout);
    } while( retcode == EINTR ) ;
     
    _cond_mutex.unlock();
@@ -403,10 +411,40 @@ void Condition::time_wait( Uint32 milliseconds, PEGASUS_THREAD_TYPE caller ) thr
       throw(TimeOut(caller)) ;
 }
 
+void Condition::unlocked_signal(PEGASUS_THREAD_TYPE caller) 
+{
+   pthread_cond_broadcast(&_condition);
+}
+
+
+void Condition::lock_object(PEGASUS_THREAD_TYPE caller)
+   throw(Deadlock, WaitFailed)
+{
+   _cond_mutex.lock(caller);
+}
+
+void Condition::try_lock_object(PEGASUS_THREAD_TYPE caller)
+   throw(Deadlock, AlreadyLocked, WaitFailed)
+{
+   _cond_mutex.try_lock(caller);
+}
+
+void Condition::wait_lock_object(PEGASUS_THREAD_TYPE caller, int milliseconds)
+   throw(Deadlock, TimeOut, WaitFailed)
+{
+   _cond_mutex.timed_lock(milliseconds, caller);
+}
+
+void Condition::unlock_object(void)
+{
+   _cond_mutex.unlock();
+}
+
+
 // block until this semaphore is in a signalled state 
 void Condition::unlocked_wait(PEGASUS_THREAD_TYPE caller) 
 {
-   pthread_cond_wait(&_condition, _cond_mutex.getMutex());
+   pthread_cond_wait(&_condition, &_cond_mutex._mutex.mut);
 }
 
 // block until this semaphore is in a signalled state 
@@ -422,19 +460,18 @@ void Condition::unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE caller
       pegasus_gettimeofday(&now);
       timeout.tv_sec = now.tv_sec;
       timeout.tv_nsec += now.tv_usec * 1000 + milliseconds; 
-      retcode = pthread_cond_timedwait(&_condition, _cond_mutex.getMutex(), &timeout) ;
+      retcode = pthread_cond_timedwait(&_condition, &_cond_mutex._mutex.mut, &timeout) ;
    } while ( retcode == EINTR ) ;
    if(retcode)
       throw(TimeOut(caller));
 }
 
-void Condition::unlocked_signal(PEGASUS_THREAD_TYPE caller) 
-{
-   // force the caller to own the conditional mutex 
-   pthread_cond_broadcast(&_condition);
-}
 
-//-----------------------------------------------------------------//
+
+#endif
+//-----------------------------------------------------------------
+// END of native conditional semaphore implementation
+//-----------------------------------------------------------------
 
 Semaphore::Semaphore(Uint32 initial) 
 {

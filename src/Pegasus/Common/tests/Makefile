@@ -6,7 +6,6 @@ DIRS = \
     Config \
     HashTable \
     Resolve \
-    Logger \
     Acceptor \
     Connector \
     Formatter \
@@ -38,7 +37,7 @@ DIRS = \
     XmlPrint \
     Reference \
     DynLib \
-    DynLoad
+    DynLoad \
 
 XDIRS = \
     ValidateClass \

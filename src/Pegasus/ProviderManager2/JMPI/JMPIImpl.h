@@ -84,7 +84,7 @@ class JMPIjvm {
    static JNIEnv* attachThread(JvmVector **jvp);
    static void detachThread();
    static jobject getProvider(JNIEnv *env, const char *cn, jclass *cls) ;
-   static jobject getProvider(JNIEnv *env, String jar, String cls, const char *cn, jclass *cls) ;
+   static jobject getProvider(JNIEnv *env, String jar, String cln, const char *cn, jclass *cls) ;
    static void checkException(JNIEnv *env);
    static jstring NewPlatformString(JNIEnv *env,char *s);
    static jobjectArray NewPlatformStringArray(JNIEnv *env,char **strv, int strc);

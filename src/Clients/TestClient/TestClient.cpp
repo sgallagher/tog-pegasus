@@ -853,7 +853,7 @@ int main(int argc, char** argv)
 	Uint32 repeatTestCount;
 	if (om.lookupValue("repeat", repeats))
         {
-		const char* repeatsStr = repeats.allocateCString();
+		char* repeatsStr = repeats.allocateCString();
 		repeatTestCount = atol(repeatsStr);
 		delete [] repeatsStr;
         }

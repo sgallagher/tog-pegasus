@@ -1,0 +1,187 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Language" content="en-us">
+<meta name="GENERATOR" content="Microsoft FrontPage 5.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<title>PEP</title>
+</head>
+
+<body>
+
+<p align="center"><b><font size="4">PEGASUS Enhancement Proposal (PEP)</font></b></p>
+<p><b>PEP #:</b> 1</p>
+<p><b>TITLE:</b> Pegasus Project Enhancement Proposals - Guidelines and the Approval 
+Process</p>
+<p><b>Version:</b> $Revision: 1.1 $</p>
+<p><b>Authors:</b> Karl Schopmeyer, Mike Day, Denise Eckstein</p>
+<p><b>State: </b>Draft</p>
+<p><b>Type: </b>Process</p>
+<p><b>Vote:</b></p>
+<p><b>Created: </b>27 July 2002</p>
+<p><b>Version History:</b></p>
+<p>1.0 Draft 27 July 2002 K. Schopmeyer</p>
+<p>1.1 Draft 7 August 2002, K. Schopmeyer - Clean up comments from earlier 
+discussions.</p>
+<h2>Abstract: </h2>
+<p>This document describes the requirements for a Pegasus Enahncement Proposal (PEP) 
+document including the format requirements, editorial process, and review 
+process to get these documents approved.</p>
+<h2>What is a PEP?</h2>
+<p>A Pegasus Enhancement Proposal is the core document for implementation of changes in 
+the Pegasus environment. It defines the request for an enhancement/change to 
+Pegasus and provides the place where the status of 
+the approval and implementation of the change can be recorded.</p>
+<p>This is the single point where changes are defined, approved, and recorded 
+for Pegasus except for bugs.&nbsp; It is the objective of the Pegasus steering committee that 
+all changes to Pegasus be controlled by either 1) PEP or 2) Bugzilla number for 
+bug fixes in the future.&nbsp; In the future, each new version of Pegasus is 
+really a list of PEPs.</p>
+<h2>Types of PEP Documents</h2>
+<p>We envision three types of documents:</p>
+<ol>
+  <li>Project definition PEP that define a new or significantly updated feature or 
+  implementation of Pegasus.&nbsp; A PEP is not the design documentation for the 
+  project.&nbsp; It provides information necessary to allow adequate review of 
+  the proposed project and make decisions about its integration, time frame, 
+  priority , etc.&nbsp; It allows the project to be approved and for the 
+  integration of the project into the pegasus development.</li>
+  <li>An informative PEP that describes a design issue, or provides general 
+  guidelines or information to the Pegasus community.</li>
+  <li>Process PEP defines Pegasus process, process changes, etc.&nbsp; The 
+  definitions in this type of PEP can be mandatory on the community as defined 
+  in the document (example, this document).</li>
+</ol>
+<h2>The Project LifeCycle for a PEP</h2>
+<p>The project for a feature change goes through three stages: approval, 
+implementation, and integration.</p>
+<p>A project starts when a PEP is submitted to the Pegasus project. Proposals are submitted by emailing 
+PEPsto the Pegasus PEP Editor. Whoever 
+proposes a project is responsible for making sure it is properly implemented. A 
+proposal without a committed implementer cannot be approved.</p>
+<p>The Editor is responsible for numbering them, marking them with draft status, 
+putting them into the CVS and announcing the availability of the document on the 
+Pegasus mailing list with a definition of the review period defined and the date 
+for steering committee review and vote</p>
+<p>Project approval is done through community review and the approval of the 
+Pegasus steering committee. The approval of the steering committee is the final 
+authority on the disposition of all PEPs. A review schedule will be maintained 
+for PEPs in the approval process and a means for communicating comments.</p>
+<p>The second phase of a project is implementation. The proposer is responsible 
+for the implementation, either doing it himself/herself or arranging for someone 
+else to do it. The implementation may be done either as part of the trunk CVS or 
+separately depending on the characteristics of the change and the possible 
+impact on other components of the prjoect</p>
+<p>The third phase of a project is integrating the results back into the 
+official Pegasus CVS release.&nbsp; This is a two step process, 1) 
+integrating the change back into the repository, 2) validating the change on ALL 
+maintained Pegasus platforms.</p>
+<p>For Pegasus approved developers with direct write access to the Pegasus CVS 
+repository this is done by submitting the changes to CVS and documenting the 
+commit with a commit message to the CVS COMMIT Mailing list.&nbsp; This commit 
+message must include:</p>
+<p>1. The PEP number.</p>
+<p>2. The Modules Changed.</p>
+<p>3. Definition of the testing performed.&nbsp; At the least ALL changes must 
+be completely tested on one platform before they are submitted to CVS. 
+Completely testing is defined as executing the complete test suite defined in 
+the Pegasus Test Suite defined through the PEGASUSCOMPLETETEST option of the top 
+level Pegasus make file.&nbsp; Please do not submit changes to CVS until they 
+have been through this set of changes.</p>
+<p>We understand that not all developers have access to all Pegasus platfroms. 
+Therefore, there is a second step to the integration process, testing by the 
+platform maintainers.&nbsp; Part of the role of being a Pegasus platform 
+maintainer will be to regularly test Pegasus using the PEGASUSCOMPLETETEST and 
+to submit the results of those tests to the Pegasus test results maintainer so 
+that an up-to-date state of the operational status of the Pegasus platform can 
+be maintained.</p>
+<h2>PEP Status</h2>
+<p>The status field in the PEP document defines the current status of a PEP.&nbsp; 
+This field will be maintained by the PEP editor as the status changes.&nbsp; The 
+defined status today are: </p>
+<ol>
+  <li> <i>Draft</i> - Document in draft but not yet submitted to the community 
+  or steering committee.</li>
+  <li> <i>Active</i> - Documented in the process of review and approval</li>
+  <li> <i>Accepted - </i>Project accepted by the steering committee</li>
+  <li> <i>Deferred - </i>Project deferred for future review by the steering 
+  committee</li>
+  <li> <i>Final - </i>Approved project. At this point, the PEP should include 
+  not only the definition of the project but planning information such as dates 
+  for completion and an indication which version of Pegasus it will be 
+  integrated into.</li>
+  <li> <i>Rejected - P</i>roject rejected by the steering committee.&nbsp; Note 
+  that rejected projects may be resubmitted at some future time if the 
+  conditions for the project or the objectives of Pegasus were interested in the 
+  project.</li>
+  <li> <i>Withdrawn</i> - Project withdrawn from the approval process. It may be 
+  submitted later.</li>
+</ol>
+<h2>Maintaining Viewing and Commenting on PEP Documents</h2>
+<p>The PEP is a public document maintained in public space on the Pegasus 
+development web site. </p>
+<p>The actual PEP documents will be maintained in the Pegasus CVS project and 
+CVS will be used to provide revision control, distribution and viewing of the 
+documents. The Changes proposals will be maintained in the pegasus/doc/PEP 
+directory.</p>
+<h2>PEP Format</h2>
+<p>PEP documents are to be written in HTML with the general format defined 
+below:</p>
+<p><i>PEP Number</i> - This is a number assigned by the PEP editor when the 
+document is first submitted.</p>
+<p><i>Title </i>-&nbsp; a short descriptive title for the document</p>
+<p><i>Version</i> -&nbsp; This will be maintained by CVS and displayed in the 
+document using the CVS $Revision: 1.1 $ variable</p>
+<p><i>Author(s)</i> - Names and Email address of authors</p>
+<p><i>Type</i> - Defines the type of the PEP (project, informational, process)</p>
+<p><i>State</i> - Defines the current status of the document. Allowed values are 
+Draft, Active, Accepted, Deferred, Final, Rejected and Withdrawn. This list will 
+be influenced by the finalization of the workflow definition for PEPs.</p>
+<p><i>Vote</i> - The current state of voting for the PEP. Allowed values are <i>
+Pending</i>, <i>In progress</i>, <i>Done</i> and <i>No voting</i>. The latter is 
+used to indicate a PEP which doesn't require a vote, for example and 
+informational PEP. This information will be provided by the PEP editor.</p>
+<p><i>Documentation References:</i>&nbsp;&nbsp; Reference to design and other 
+documentation on the project. Note that this documentation will normally not 
+exist when the original documentation is submitted but throughout the life of 
+the proposed change.</p>
+<p><i>Definition of the Project</i> -&nbsp; This is the meat of any PEP. Project definition 
+PEPs should describe the objectives, and characteristics and schedule of any&nbsp; 
+feature. The definition of the project should be detailed enough to allow adequate 
+discussion and review of the proposal. The objective is to provide a project 
+management level of information, not the complete design documentation on the 
+project.<br>
+<br>
+<i>Rationale</i> - The rationale fleshes out the specification by describing 
+what motivated the design and why particular design decisions were made. It 
+should describe alternate designs that were considered and related work.&nbsp; 
+The rationale should provide evidence of consensus within the community and 
+discuss important objections or concerns raised during discussion.</p>
+<p><i>Discussion</i> - Additional information from discussions, decisions of the 
+steering committee, etc. can be recorded here.</p>
+<p>Please use the PEPOutline.htm document defined in the Pegasus PEP archive as 
+the template for all PEP documents.&nbsp; This will help with the automation of 
+indexing, status changes, etc. as the process develops.</p>
+<p>NOTE: There is a single document maintained in the Pegasus CVS (pegasus/doc/PEPS/PEPOutline.htm) 
+that is a template for PEPs to make preparation easier.</p>
+<h2>Documentation References</h2>
+<p>A number of other open source projects including Apache, TCL, Python have 
+adopted similar documentation schemes and these were used as part of the basis 
+for this definition.</p>
+<p>See:</p>
+<ul>
+  <li>The Aparche web site - http://www.apache.org</li>
+  <li>TCL TIPS site at <a href="http://www.tcl.tk/cgi-bin.tct/tip/">
+  http://www.tcl.tk/cgi-bin/tct/tip</a>/</li>
+  <li>Python project management web site at
+  <a href="http://www.python.org/peps/">http://www.python.org/peps/</a></li>
+</ul>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+</body>
+
+</html>

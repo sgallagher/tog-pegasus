@@ -145,6 +145,7 @@ public:
     */
     virtual void processing(void)
     {
+      if (_rep)  // Allow ResponseHandler<void> to use empty processing() method
         getRep()->processing();
     }
 
@@ -156,6 +157,7 @@ public:
     */
     virtual void complete(void)
     {
+      if (_rep)  // Allow ResponseHandler<void> to use empty complete() method
         getRep()->complete();
     }
 

@@ -3,7 +3,7 @@
 <MESSAGE ID="52101" PROTOCOLVERSION="1.0">
 <SIMPLERSP>
 <METHODRESPONSE NAME="BogusMethod">
-<ERROR CODE="1" DESCRIPTION="CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: &quot;Provider not available&quot;"/>
+<ERROR CODE="16" DESCRIPTION="CIM_ERR_METHOD_NOT_AVAILABLE: The extrinsic method could not be executed: &quot;BogusMethod&quot;"/>
 </METHODRESPONSE>
 </SIMPLERSP>
 </MESSAGE>

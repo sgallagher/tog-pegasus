@@ -700,6 +700,7 @@ wbemexec ./cimreqerr01b.xml
  
 HTTP/1.1 501 Not Implemented
 CIMError: unsupported-cim-version
+
  
  
 Invalid XML input: invalid DTDVERSION attribute
@@ -707,6 +708,7 @@ wbemexec ./cimreqerr01c.xml
  
 HTTP/1.1 501 Not Implemented
 CIMError: unsupported-dtd-version
+
  
  
 Invalid XML input: missing CIMVERSION attribute

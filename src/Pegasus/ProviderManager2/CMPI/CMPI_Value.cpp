@@ -32,6 +32,7 @@
 #include "CMPI_Version.h"
 
 #include "CMPI_String.h"
+#include "CMPI_Value.h"
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -53,6 +54,12 @@ CIMValue value2CIMValue(CMPIValue* data, CMPIType type, CMPIrc *rc) {
    if (rc) *rc=CMPI_RC_OK;
 
    if (type & CMPI_ARRAY) {
+
+      if (data==NULL || data->array==NULL) {
+         CMPIType aType=type&~CMPI_ARRAY;
+         return CIMValue(type2CIMType(aType),true);
+      }
+
       CMPIArray *ar=data->array;
       CMPIData *aData=(CMPIData*)ar->hdl;
       CMPIType aType=aData->type&~CMPI_ARRAY;
@@ -301,6 +308,34 @@ CMPIType type2CMPIType(CIMType pt, int array) {
     if (array) t|=CMPI_ARRAY;
     return (CMPIType)t;
 }
+
+CIMType type2CIMType(CMPIType pt) {
+   switch (pt) {
+   case CMPI_null:      return (CIMType)0;
+   case CMPI_boolean:   return CIMTYPE_BOOLEAN;
+   case CMPI_char16:    return CIMTYPE_CHAR16;
+
+   case CMPI_real32:    return CIMTYPE_REAL32;
+   case CMPI_real64:    return CIMTYPE_REAL64;
+
+   case CMPI_uint8:     return CIMTYPE_UINT8;
+   case CMPI_uint16:    return CIMTYPE_UINT16;
+   case CMPI_uint32:    return CIMTYPE_UINT32;
+   case CMPI_uint64:    return CIMTYPE_UINT64;
+
+   case CMPI_sint8:     return CIMTYPE_SINT8;
+   case CMPI_sint16:    return CIMTYPE_SINT16;
+   case CMPI_sint32:    return CIMTYPE_SINT32;
+   case CMPI_sint64:    return CIMTYPE_SINT64;
+
+   case CMPI_string:    return CIMTYPE_STRING;
+   case CMPI_chars:     return CIMTYPE_STRING;
+   case CMPI_dateTime:  return CIMTYPE_DATETIME;
+   case CMPI_ref:       return CIMTYPE_REFERENCE;
+
+   default:             return (CIMType)0;
+   }
+ }
 
 CMPIrc key2CMPIData(const String& v, CIMKeyBinding::Type t, CMPIData *data) {
    data->state=CMPI_keyValue;

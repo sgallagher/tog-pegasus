@@ -34,6 +34,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/XmlStreamer.h>
 #include <cassert>
 #include <Pegasus/Repository/CIMRepository.h>
 
@@ -42,7 +43,21 @@ PEGASUS_USING_STD;
 static char * verbose;
 
 String repositoryRoot;
-bool trace = true;
+bool trace = false;
+size_t failures = 0;
+
+void PutClass(const char* filename, const CIMClass& cimClass)
+{
+    Array<Sint8> out;
+    XmlStreamer stream;
+    stream.encode(out, cimClass);
+    out.append('\0');
+
+    FILE* fp = fopen(filename, "wb");
+    assert(fp != NULL);
+    fputs(out.getData(), fp);
+    fclose(fp);
+}
 
 void CompareClasses(
     CIMRepository& r1,
@@ -59,10 +74,22 @@ void CompareClasses(
     {
 	CIMClass class1 = r1.getClass(namespaceName, classNames1[i]);
 	CIMClass class2 = r2.getClass(namespaceName, classNames2[i]);
-	assert(class1.identical(class2));
 
-	cout << "class " << namespaceName.getString() << "/";
-	cout << classNames1[i].getString() << "..." << endl;
+	if (trace)
+	{
+	    cout << "testing class " << namespaceName.getString() << "/";
+	    cout << classNames1[i].getString() << "..." << endl;
+	}
+
+	if (!class1.identical(class2))
+	{
+	    PutClass("file1", class1);
+	    PutClass("file2", class2);
+
+	    fprintf(stderr, "ERROR: not identical!\n");
+	    system("diff file1 file2");
+	    failures++;
+	}
     }
 }
 
@@ -91,10 +118,14 @@ void CompareInstances(
 	{
 	    CIMInstance inst1 = r1.getInstance(namespaceName, objectPaths1[i]);
 	    CIMInstance inst2 = r2.getInstance(namespaceName, objectPaths2[i]);
-	    assert(inst1.identical(inst2));
 
-	    cout << "instance " << namespaceName.getString() << "/";
-	    cout << objectPaths1[i].toString() << "..." << endl;
+	    if (trace)
+	    {
+		cout << "testing instance " << namespaceName.getString() << "/";
+		cout << objectPaths1[i].toString() << "..." << endl;
+	    }
+
+	    assert(inst1.identical(inst2));
 	}
     }
 }
@@ -110,9 +141,13 @@ void CompareQualifiers(
 
     for (size_t i = 0; i < quals2.size(); i++)
     {
+	if (trace)
+	{
+	    cout << "testing qualifier " << namespaceName.getString() << "/";
+	    cout << quals2[i].getName().getString() << "..." << endl;
+	}
+
 	assert(quals1[i].identical(quals2[i]));
-	cout << "qualifier " << namespaceName.getString() << "/";
-	cout << quals2[i].getName().getString() << "..." << endl;
     }
 }
 
@@ -176,7 +211,10 @@ int main(int argc, char** argv)
 	exit(1);
     }
 
-    cout << "+++++ passed all tests" << endl;
+    if (!failures)
+	cout << "+++++ passed all tests" << endl;
+    else
+	cerr << "There were " << failures << " failures" << endl;
 
     return 0;
 }

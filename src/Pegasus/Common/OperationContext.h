@@ -166,7 +166,11 @@ protected:
 class IdentityContainerRep;
 
 class PEGASUS_COMMON_LINKAGE IdentityContainer
-    : virtual public OperationContext::Container
+    :
+#ifdef PEGASUS_REMOVE_DEPRECATED  // include if NOT using deprecated API
+      virtual
+#endif
+              public OperationContext::Container
 {
 public:
     static const String NAME;

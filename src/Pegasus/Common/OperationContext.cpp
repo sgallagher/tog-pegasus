@@ -220,6 +220,9 @@ public:
 const String IdentityContainer::NAME = "IdentityContainer";
 
 IdentityContainer::IdentityContainer(const OperationContext::Container & container)
+#ifndef PEGASUS_REMOVE_DEPRECATED
+    : OperationContext::Container(container.getKey())
+#endif
 {
     const IdentityContainer * p = dynamic_cast<const IdentityContainer *>(&container);
 

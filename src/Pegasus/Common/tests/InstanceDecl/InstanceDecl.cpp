@@ -251,12 +251,31 @@ void test02()
 
     // ATTN: Should we be doing an instance qualifier add and test
 
-	CIMObjectPath instanceName
-	= cimInstance.buildPath(CIMConstClass(cimClass));
+    CIMObjectPath instanceName =
+        cimInstance.buildPath(CIMConstClass(cimClass));
 
     CIMObjectPath tmp("myclass.age=101,first=\"John\",last=\"Smith\"");
 
     assert(tmp.makeHashCode() == instanceName.makeHashCode());
+
+    // Test CIMInstance::buildPath with incomplete keys in the instance
+
+    Boolean caughtNoSuchPropertyException = false;
+
+    try
+    {
+        CIMInstance badInstance(CIMName("MyClass"));
+        badInstance.addProperty(CIMProperty(CIMName("first"), String("John")));
+        badInstance.addProperty(CIMProperty(CIMName("last"), String("Smith")));
+        CIMObjectPath instanceName =
+            badInstance.buildPath(CIMConstClass(cimClass));
+    }
+    catch (const NoSuchProperty&)
+    {
+        caughtNoSuchPropertyException = true;
+    }
+
+    assert(caughtNoSuchPropertyException);
 }
 
 // Build the instance of an association class and test the build path functions.

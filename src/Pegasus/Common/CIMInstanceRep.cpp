@@ -308,7 +308,10 @@ CIMObjectPath CIMInstanceRep::buildPath(
 	const CIMName& keyName = keyNames[i];
 
 	Uint32 index = findProperty(keyName);
-	PEGASUS_ASSERT(index != PEG_NOT_FOUND);
+        if (index == PEG_NOT_FOUND)
+        {
+            throw NoSuchProperty(keyName.getString());
+        }
 
 	CIMConstProperty tmp = getProperty(index);
 

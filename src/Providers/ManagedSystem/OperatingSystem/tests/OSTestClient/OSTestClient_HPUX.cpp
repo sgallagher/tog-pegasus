@@ -672,7 +672,7 @@ Boolean OSTestClient::goodFreePhysicalMemory(const Uint64 &freepmem,
    }
  
    if (verbose)
-      cout<<" Should be close to "  << psd.psd_free << endl;
+      cout<<" Should be close to "  << Sint32(psd.psd_free) << endl;
 
    Sint32 raw_delta = (freepmem - psd.psd_free);
    Uint32 delta = abs(raw_delta);

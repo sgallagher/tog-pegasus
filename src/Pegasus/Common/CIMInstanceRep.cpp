@@ -321,7 +321,9 @@ CIMObjectPath CIMInstanceRep::buildPath(
     return CIMObjectPath(String(), CIMNamespaceName(), className, keyBindings);
 }
 
-
+// KS Mar 05 - The following removal functions are very inefficient and should
+// be optimized to avoid the multiple memory moves.  Actually, the remove
+// qualifiers should be added as a function and optimized that once.
 void CIMInstanceRep::filter(Boolean includeQualifiers, Boolean includeClassOrigin,
                         const CIMPropertyList& propertyList)
 {
@@ -346,6 +348,14 @@ void CIMInstanceRep::filter(Boolean includeQualifiers, Boolean includeClassOrigi
             if (!includeClassOrigin)
             {
                 _properties[i].setClassOrigin(CIMName());
+            }
+            // remove qualifiers if required.
+            if (!includeQualifiers && _properties[i].getQualifierCount() > 0)
+            {
+                while( _properties[i].getQualifierCount() > 0 )
+                {
+                    _properties[i].removeQualifier(0);
+                }
             }
         }
         else

@@ -326,6 +326,18 @@ void test03()
     assert(px.identical(assocInstancePath));
 
 }
+
+
+Boolean _propertyIdentical(CIMName& propertyName, CIMInstance& instance1,
+                   CIMInstance& instance2)
+{
+    Uint32 pos = instance1.findProperty(propertyName);
+    CIMConstProperty p1 = instance1.getProperty(pos);
+    pos = instance2.findProperty(propertyName);
+    CIMConstProperty p2 = instance2.getProperty(pos);
+    return (p1.identical(p2));
+}
+
 //
 // Test of the Instance creation and instance filtering
 //
@@ -500,6 +512,7 @@ void test04()
     	}
         assert(filterInstance.getPropertyCount() == 1);
         assert(filterInstance.findProperty("ratio") != PEG_NOT_FOUND);
+        assert(_propertyIdentical(CIMName("ratio"), filterInstance, tstInstance));
         assert(filterInstance.getQualifierCount() ==
                 tstInstance.getQualifierCount());
     }
@@ -521,6 +534,7 @@ void test04()
     	}
         assert(filterInstance.getPropertyCount() == 1);
         assert(filterInstance.findProperty("message") != PEG_NOT_FOUND);
+        assert(_propertyIdentical(CIMName("message"), filterInstance, tstInstance));
         assert(filterInstance.getQualifierCount() ==
                 tstInstance.getQualifierCount());
     }
@@ -561,11 +575,53 @@ void test04()
         assert(filterInstance.getQualifierCount() ==
                 tstInstance.getQualifierCount());
     }
+
     //
-    // Filter to two no qualifiers
+    // Filter to two properties
+    //
+    {
+        if (verbose){cout << "Test5" << endl;}
+        Array<CIMName> pl1Array;
+        pl1Array.append("count");
+        pl1Array.append("message");
+        CIMPropertyList pl1(pl1Array);
+
+        CIMInstance filterInstance = tstInstance.clone();
+        filterInstance.filter(true, true, pl1);
+
+        assert(filterInstance.getPropertyCount() == 2);
+        assert(filterInstance.findProperty("ratio") == PEG_NOT_FOUND);
+        assert(filterInstance.findProperty("message") != PEG_NOT_FOUND);
+        assert(_propertyIdentical(CIMName("message"), filterInstance, tstInstance));
+        assert(filterInstance.findProperty("count") != PEG_NOT_FOUND);
+        assert(_propertyIdentical(CIMName("count"), filterInstance, tstInstance));
+        assert(filterInstance.getQualifierCount() ==
+                tstInstance.getQualifierCount());
+    }
+    //
+    // Filter to no qualifiers and all properties.
     //
     {
         if (verbose){cout << "Test6" << endl;}
+        CIMInstance filterInstance = tstInstance.clone();
+        filterInstance.filter(false, true, CIMPropertyList());
+
+        assert(filterInstance.getPropertyCount() == 3);
+        assert(filterInstance.findProperty("ratio") != PEG_NOT_FOUND);
+        assert(filterInstance.getQualifierCount() == 0);
+        for (Uint32 i = 0; i < filterInstance.getPropertyCount() ; i++)
+        {
+            CIMConstProperty p = filterInstance.getProperty(i);
+            assert(p.getQualifierCount() == 0);
+        }
+    }
+
+
+    //
+    // Filter to no qualifiers and no properties.
+    //
+    {
+        if (verbose){cout << "Test6a" << endl;}
         Array<CIMName> pl1Array;
         CIMPropertyList pl1(pl1Array);
 
@@ -576,7 +632,6 @@ void test04()
         assert(filterInstance.findProperty("ratio") == PEG_NOT_FOUND);
         assert(filterInstance.getQualifierCount() == 0);
     }
-
     //
     // Test Class Origin Filter
     //

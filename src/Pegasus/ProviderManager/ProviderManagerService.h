@@ -84,7 +84,7 @@ protected:
 	Pair<String, String> _lookupProviderForClass(const CIMObjectPath & objectPath);
 
 protected:	
-	void handleOperation(void);
+	void handleOperation(void) throw();
 
 	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleGetInstanceRequest(void *) throw();
 	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleEnumerateInstancesRequest(void *) throw();

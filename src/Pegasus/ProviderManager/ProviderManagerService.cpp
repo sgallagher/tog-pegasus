@@ -451,8 +451,10 @@ void ProviderManagerService::_handle_async_request(AsyncRequest * request)
 	MessageQueueService::_handle_async_request(request);
 }
 
-void ProviderManagerService::handleOperation(void)
+void ProviderManagerService::handleOperation(void) throw()
 {
+	// peek at the message in fron of the queue. a specialized handler method will
+	// remove the message once processing begins.
 	const Message * message = messageQueue.front();
 
 	PEGASUS_ASSERT(message != 0);
@@ -604,6 +606,7 @@ void ProviderManagerService::handleOperation(void)
 
 		break;
 	default:
+		// unsupported messages are ignored
 		break;
 	}
 }
@@ -1547,8 +1550,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleEnableI
 	// notify the service that the request has been accepted
 	service->_threadSemaphore.signal();
 
-	CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-	String errorDescription = String::EMPTY;
+	Status status;
 
 	try
 	{
@@ -1558,9 +1560,13 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleEnableI
 			request->nameSpace,
 			request->classNames[0]);
 
-		// ATTN: this needs to be message based
+		// get the provider file name and logical name
 		Pair<String, String> pair = service->_lookupProviderForClass(classReference);
+
+		// get cached or load new provider module
 		ProviderModule module = providerManager.getProviderModule(pair.first, pair.second);
+
+		// encapsulate the physical provider in a facade
 		ProviderFacade facade(module.getProvider());
 
 		SimpleResponseHandler<CIMInstance> handler;
@@ -1589,30 +1595,27 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleEnableI
 		}
 		catch(...)
 		{
-			errorCode = CIM_ERR_FAILED;
-			errorDescription = "Provider not available";
+			status = Status(CIM_ERR_FAILED, "Provider not available");
 		}
 	}
-	catch(CIMException& exception)
+	catch(CIMException & e)
 	{
-		errorCode = exception.getCode ();
-		errorDescription = exception.getMessage ();
+		status = Status(e.getCode(), e.getMessage());
 	}
-	catch(Exception& exception)
+	catch(Exception & e)
 	{
-		errorCode = CIM_ERR_FAILED;
-		errorDescription = exception.getMessage ();
+		status = Status(CIM_ERR_FAILED, e.getMessage());
 	}
 	catch(...)
 	{
-		errorCode = CIM_ERR_FAILED;
+		status = Status(CIM_ERR_FAILED, "Unknown Error");
 	}
 
 	CIMEnableIndicationSubscriptionResponseMessage * response =
 		new CIMEnableIndicationSubscriptionResponseMessage(
 			request->messageId,
-			errorCode,
-			errorDescription,
+			CIMStatusCode(status.getCode()),
+			status.getMessage(),
 			request->queueIds.copyAndPop());
 
 	// preserve message key

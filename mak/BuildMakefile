@@ -21,23 +21,25 @@
 ##
 ###############################################################################
 
-ROOT = ..
-
-include $(ROOT)/mak/test.mak
-
 ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
+  CIMSERVER_START_SERVICE =
+  CIMSERVER_STOP_SERVICE =
+  SLEEP =
   REMOVE_PEGASUS_DIRECTORY = mu rmdirhier pegasus
   MUEXE = mu.exe
-  COPYMU = copy $(ROOT)\src\utils\mu\$(MUEXE) /y $(MUEXE)
-  MKDIR = $(ROOT)/src/utils/mu/mu mkdirhier
+  COPYMU = copy pegasus\src\utils\mu\$(MUEXE) /y $(MUEXE)
+  MKDIR = pegasus/src/utils/mu/mu mkdirhier
   TESTS = prestarttests
 endif
 
 ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
-  REMOVE_PEGASUS_DIRECTORY = rm -Rf $(ROOT)/../pegasus.old; mv $(ROOT)/../pegasus $(ROOT)/../pegasus.old
+  CIMSERVER_START_SERVICE = cimserver -d
+  CIMSERVER_STOP_SERVICE = /usr/bin/ps -ef | /usr/bin/grep cimserver | /usr/bin/grep -v grep | /usr/bin/awk '{print "kill -9 "$$2 |"/usr/bin/sh"}'
+  SLEEP = sleep 5
+  REMOVE_PEGASUS_DIRECTORY = rm -Rf pegasus.old; mv pegasus pegasus.old
   MUEXE = mu
-  COPYMU = cp -f $(ROOT)/src/utils/mu/$(MUEXE) /usr/local/bin/$(MUEXE)
-  MKDIR = $(ROOT)/src/utils/mu/mu mkdirhier
+  COPYMU = cp -f pegasus/src/utils/mu/$(MUEXE) /usr/local/bin/$(MUEXE)
+  MKDIR = pegasus/src/utils/mu/mu mkdirhier
   TESTS = prestarttests poststarttests
 endif
 
@@ -45,7 +47,7 @@ error:
 	@ echo "Specify desired makefile option (i.e., cleanbuild, rebuild)"
 
 buildmu:
-	$(MAKE) --directory=$(ROOT)/src/utils/mu -f Makefile
+	$(MAKE) --directory=pegasus/src/utils/mu -f Makefile
 	$(COPYMU)
 	
 cleanbuild: removeall recheckout buildmu all $(TESTS) 
@@ -53,7 +55,6 @@ cleanbuild: removeall recheckout buildmu all $(TESTS)
 recheckout: removeall checkout
 
 removeall:
-	$(MAKE) -f BuildMakefile -i cimstop 
 	$(REMOVE_PEGASUS_DIRECTORY)
 
 checkout:
@@ -62,32 +63,31 @@ checkout:
 rebuild: clean buildmu all tests
 
 all: buildmu
-	$(MAKE) --directory=$(ROOT) -f Makefile depend
-	$(MAKE) --directory=$(ROOT) -f Makefile all
+	$(MAKE) --directory=pegasus -f Makefile depend
+	$(MAKE) --directory=pegasus -f Makefile all
 
 clean:
-	$(MAKE) --directory=$(ROOT) -f Makefile clean
+	$(MAKE) --directory=pegasus -f Makefile clean
 
 		
 prestarttests: 
-	$(MAKE) -f BuildMakefile -i cimstop 
-	$(MAKE) --directory=$(ROOT) -f Makefile repository
-	$(MAKE) --directory=$(ROOT) -f Makefile config
-	$(MAKE) --directory=$(ROOT) -f Makefile user
-	$(MAKE) --directory=$(ROOT) -f Makefile shutdownService
-	$(MAKE) --directory=$(ROOT) -f Makefile registration
-	$(MAKE) --directory=$(ROOT) -f Makefile tests
-	$(MAKE) --directory=$(ROOT)/src/Server -f Makefile install
-	$(MAKE) --directory=$(ROOT)/test -f Makefile clean
+	$(MAKE) --directory=pegasus -f Makefile repository
+	$(MAKE) --directory=pegasus -f Makefile config
+	$(MAKE) --directory=pegasus -f Makefile user
+	$(MAKE) --directory=pegasus -f Makefile shutdownService
+	$(MAKE) --directory=pegasus -f Makefile registration
+	$(MAKE) --directory=pegasus -f Makefile tests
+	$(MAKE) --directory=pegasus/src/Server -f Makefile install
+	$(MAKE) --directory=pegasus/test -f Makefile clean
 
 poststarttests:
-	$(MAKE) -f BuildMakefile -i cimstop 
-	$(MAKE) -f BuildMakefile -i cimstart 
+	$(CIMSERVER_START_SERVICE)
+	$(SLEEP)
 	TestClient
 	Client
-	$(MAKE) --directory=$(ROOT)/test -f Makefile tests
+	$(MAKE) --directory=pegasus/test -f Makefile tests
 	@ echo Terminating cimserver...
-	$(MAKE) -f BuildMakefile -i cimstop 
+	@ $(CIMSERVER_STOP_SERVICE)
 
 tests: $(TESTS)
 	@ echo Finished Tests

@@ -86,20 +86,24 @@ void test01()
 	    kbArray = r3.getKeyBindings();
 	    for (Uint32 i = 0; i < kbArray.size(); i++)
 	    {
-		if ( kbArray[i].getName() == "x" )
+			cout << "keyName= " <<  kbArray[i].getName() << " Value= " 
+				 << kbArray[i].getValue() << endl;
+		if ( kbArray[i].getName() == "B" )
 		{
 		    keyValue = kbArray[i].getValue();
 		    if(keyValue != "TRUE")
-		    {
 			found = true;    
-		    }
 		}
 	    }
 	    if(!found)
 	    {
-		cerr << "Key Binding Test error " << endl; 
-		    exit(1);
+			cerr << "Key Binding Test error " << endl; 
+				exit(1);
 	    }
+		//ATTN: KS 12 May 2002 P3 DEFER - keybinding manipulation. too simplistic
+		// This code demonstrates that it is not easy to manipulate and
+		// test keybindings.  Needs better tool both in CIMReference and
+		// separate.
 	}
     }
 

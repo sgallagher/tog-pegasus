@@ -450,23 +450,23 @@ String XMLProcess::_escapeSpecialCharacters (const String& str)
         switch (str [i])
         {
             case '\n':
-                result += "\\n";
+                result.append("\\n");
                 break;
 
             case '\r':
-                result += "\\r";
+                result.append("\\r");
                 break;
 
             case '\t':
-                result += "\\t";
+                result.append("\\t");
                 break;
 
             case '"':
-                result += "\\\"";
+                result.append("\\\"");
                 break;
 
             default:
-                result += str [i];
+                result.append(str [i]);
         }
     }
 

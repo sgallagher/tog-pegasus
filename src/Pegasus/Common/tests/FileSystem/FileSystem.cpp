@@ -109,15 +109,15 @@ int main(int argc, char** argv)
     // Creates directories and files and deletes them.
     {
         String t (tmpDir);
-        t += "/TestDirectory";
+        t.append("/TestDirectory");
         String t1 (tmpDir);
-        t1 += "/TestDirectory2";
+        t1.append("/TestDirectory2");
         String tf (tmpDir);
-        tf += "/TestFile.txt";
+        tf.append("/TestFile.txt");
         ArrayDestroyer <char> tfd (tf.allocateCString ());
         const char* f = tfd.getPointer ();
         String tf1 (tmpDir);
-        tf1 += "/TestFile1.txt";
+        tf1.append("/TestFile1.txt");
         ArrayDestroyer <char> tf1d (tf1.allocateCString ());
         const char* f1 = tf1d.getPointer ();
 
@@ -176,11 +176,11 @@ int main(int argc, char** argv)
     // Test renameFile:
     {
         String rf1 (tmpDir);
-        rf1 += "/file1.txt";
+        rf1.append("/file1.txt");
         ArrayDestroyer <char> rf1d (rf1.allocateCString ());
         const char* FILE1 = rf1d.getPointer ();
         String rf2 (tmpDir);
-        rf2 += "/file2.txt";
+        rf2.append("/file2.txt");
         ArrayDestroyer <char> rf2d (rf2.allocateCString ());
         const char* FILE2 = rf2d.getPointer ();
 

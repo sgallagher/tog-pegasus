@@ -59,8 +59,8 @@ int main()
             currentFile = tmpDir;
             plannedFile = tmpDir;
         }
-        currentFile += "/cimserver_current.conf";
-        plannedFile += "/cimserver_planned.conf";
+        currentFile.append("/cimserver_current.conf");
+        plannedFile.append("/cimserver_planned.conf");
 
 	ConfigFileHandler _config (currentFile, plannedFile, true);
 

@@ -79,8 +79,8 @@ DebianSoftwareElementProvider::getInstance(
    more_junk = "ldsep-> key is ";
    while (i < keys.size())
    {
-      more_junk += keys[i].getName() + "=";
-      more_junk += keys[i].getValue() + ",";
+      more_junk.append(keys[i].getName() + "=");
+      more_junk.append(keys[i].getValue() + ",");
 
       if (keys[i].getName() == "Name")
  	 packageName=keys[i].getValue();
@@ -273,7 +273,7 @@ DebianSoftwareElementProvider::fill_reference(const String& nameSpace,
 			  KeyBinding::STRING));
    String junk;
    junk = "ldsep-> fill_ref to " + ptr->GetName();
-   junk += ", version " + ptr->GetVersion();
+   junk.append(", version " + ptr->GetVersion());
    DEBUG(junk);
    keys.append(KeyBinding("SoftwareElementState", 
 	                  ptr->GetSoftwareElementState(),

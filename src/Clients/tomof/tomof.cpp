@@ -535,7 +535,7 @@ int main(int argc, char** argv)
     else
     {
         rt = clientRepositoryInterface::REPOSITORY_INTERFACE_LOCAL;
-        location += "/repository";
+        location.append("/repository");
         location = location;
     }
 

@@ -91,7 +91,7 @@ void ParseURL(const String& url, String& host, String& document)
     host = rem.subString(0, slash);
 
     if (host.find(':') == PEG_NOT_FOUND)
-	host += ":80";
+	host.append(":80");
 
     if (slash == PEG_NOT_FOUND)
 	document = "/";

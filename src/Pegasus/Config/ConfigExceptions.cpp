@@ -39,10 +39,10 @@ String ConfigFileSyntaxError::_formatMessage(
     sprintf(buffer, "%d", line);
 
     String result = "Syntax error in configuration file: ";
-    result += file;
-    result += "(";
-    result += buffer;
-    result += ")";
+    result.append(file);
+    result.append("(");
+    result.append(buffer);
+    result.append(")");
     return result;
 }
 

@@ -144,9 +144,9 @@ void SecurityPropertyOwner::initialize()
             //
 	    if ( _passwordFilePath->currentValue == String::EMPTY )
 	    {
-                _passwordFilePath->currentValue += ConfigManager::getPegasusHome();
+                _passwordFilePath->currentValue.append(ConfigManager::getPegasusHome());
                 _passwordFilePath->currentValue.append("/");
-                _passwordFilePath->currentValue += _passwordFilePath->defaultValue;
+                _passwordFilePath->currentValue.append(_passwordFilePath->defaultValue);
             }
         }
         else if (String::equalNoCase(
@@ -165,9 +165,9 @@ void SecurityPropertyOwner::initialize()
             //
 	    if ( _certificateFilePath->currentValue == String::EMPTY )
 	    {
-                _certificateFilePath->currentValue += ConfigManager::getPegasusHome();
+                _certificateFilePath->currentValue.append(ConfigManager::getPegasusHome());
                 _certificateFilePath->currentValue.append("/");
-                _certificateFilePath->currentValue += _certificateFilePath->defaultValue;
+                _certificateFilePath->currentValue.append(_certificateFilePath->defaultValue);
             }
         } 
         else if (String::equalNoCase(

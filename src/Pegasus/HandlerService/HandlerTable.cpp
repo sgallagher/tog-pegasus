@@ -62,12 +62,12 @@ CIMHandler* HandlerTable::loadHandler(const String& handlerId)
 #else
     String unixLibName = 
               ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-    unixLibName += "/lib";
-    unixLibName += handlerId;
+    unixLibName.append("/lib");
+    unixLibName.append(handlerId);
 #ifdef PEGASUS_OS_HPUX
-    unixLibName += ".sl";
+    unixLibName.append(".sl");
 #else
-    unixLibName += ".so";
+    unixLibName.append(".so");
 #endif
     ArrayDestroyer<char> libraryName = unixLibName.allocateCString();
 #endif

@@ -64,27 +64,27 @@ static String _Escape(const String& str)
 	switch (c)
 	{
 	    case '\n':
-		result += "\\n";
+		result.append("\\n");
 		break;
 
 	    case '\r':
-		result += "\\r";
+		result.append("\\r");
 		break;
 
 	    case '\t':
-		result += "\\t";
+		result.append("\\t");
 		break;
 
 	    case '\f':
-		result += "\\f";
+		result.append("\\f");
 		break;
 
 	    case '\\':
-		result += "\\\\";
+		result.append("\\\\");
 		break;
 
 	    default:
-		result += c;
+		result.append(c);
 	}
     }
 
@@ -109,29 +109,29 @@ static String _Unescape(const String& str)
 	    switch (c)
 	    {
 		case 'n':
-		    result += "\n";
+		    result.append("\n");
 		    break;
 
 		case 'r':
-		    result += "\r";
+		    result.append("\r");
 		    break;
 
 		case 't':
-		    result += "\t";
+		    result.append("\t");
 		    break;
 
 		case 'f':
-		    result += "\f";
+		    result.append("\f");
 		    break;
 
 		default:
-		    result += c;
+		    result.append(c);
 	    }
 
 	    i++;
 	}
 	else
-	    result += c;
+	    result.append(c);
     }
 
     return result;

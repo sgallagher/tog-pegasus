@@ -62,8 +62,8 @@ void test01()
         if (_nameSpaceNames[j] != "root")
         {
             String dir (repositoryRoot);
-            dir += "/";
-            dir += _nameSpaceNames [j];
+            dir.append("/");
+            dir.append(_nameSpaceNames [j]);
 
             FileSystem::removeDirectoryHier (dir);
 
@@ -92,7 +92,7 @@ void test01()
     nsm.createClass ("aa/bb", "MyClass", "", outPath);
     String classFilePath = nsm.getClassFilePath("aa/bb", "MyClass");
     String cfp (repositoryRoot);
-    cfp += "/aa#bb/classes/MyClass.#";
+    cfp.append("/aa#bb/classes/MyClass.#");
     assert (classFilePath == cfp);
 }
 
@@ -107,7 +107,7 @@ int main()
     {
         repositoryRoot = tmpDir;
     }
-    repositoryRoot += "/repository";
+    repositoryRoot.append("/repository");
 
     try 
     {

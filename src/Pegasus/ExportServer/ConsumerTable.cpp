@@ -114,11 +114,11 @@ ConsumerTable::ConsumerTable()
         //
         String name = String::EMPTY;
 
-        name += *p++;
+        name.append(*p++);
 
         while (isalnum(*p) || *p == '_' || *p == '/')
         {
-            name += *p++;
+            name.append(*p++);
         }
 
         //
@@ -146,7 +146,7 @@ ConsumerTable::ConsumerTable()
 
         while (*p)
         {
-            value += *p++;
+            value.append(*p++);
         }
 
         //
@@ -271,12 +271,12 @@ CIMIndicationConsumer* ConsumerTable::loadConsumer(const String& consumerId)
 	ArrayDestroyer<char> libraryName = consumerName.allocateCString();
 #else
         String unixLibName = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-	unixLibName += "/lib";
-	unixLibName += consumerName;
+	unixLibName.append("/lib");
+	unixLibName.append(consumerName);
 #ifdef PEGASUS_OS_HPUX
-	unixLibName += ".sl";
+	unixLibName.append(".sl");
 #else
-	unixLibName += ".so";
+	unixLibName.append(".so");
 #endif
 	ArrayDestroyer<char> libraryName = unixLibName.allocateCString();
 #endif

@@ -273,22 +273,22 @@ Boolean OperatingSystem::getOtherTypeDescription(String& otherTypeDescription)
       if (!stat(info_file, &statBuf))
       {
          s.assign(LINUX_VENDOR_INFO[ii].vendor_name);
-         s += " Distribution, ";
+         s.append(" Distribution, ");
          if (LINUX_VENDOR_INFO[ii].optional_string == NULL)
          {
             vf = fopen(info_file, "r");
             if (vf)
             {
               if (fgets(buffer, MAXPATHLEN, vf) != NULL)
-                  s += buffer;
+                  s.append(buffer);
                fclose(vf);
             }
          }
          else
          {
-            s += LINUX_VENDOR_INFO[ii].optional_string;
+            s.append(LINUX_VENDOR_INFO[ii].optional_string);
          }
-         s += " Release";
+         s.append(" Release");
       }
    }
    otherTypeDescription.assign(s);
@@ -804,8 +804,8 @@ Uint32 OperatingSystem::_reboot()
       for (int jj = 0; reboot[jj]; jj++)
       {
          fname = paths[ii];
-         fname += "/";
-         fname += reboot[jj];
+         fname.append("/");
+         fname.append(reboot[jj]);
          p = fname.allocateCString();
          if (stat(p, &sbuf) == 0 && (sbuf.st_mode & S_IXUSR))
          {
@@ -850,8 +850,8 @@ Uint32 OperatingSystem::_shutdown()
       for (int jj = 0; poweroff[jj]; jj++)
       {
          fname = paths[ii];
-         fname += "/";
-         fname += poweroff[jj];
+         fname.append("/");
+         fname.append(poweroff[jj]);
          p = fname.allocateCString();
          if (stat(p, &sbuf) == 0 && (sbuf.st_mode & S_IXUSR))
          {

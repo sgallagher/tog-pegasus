@@ -267,7 +267,7 @@ int main(int argc, char **argv)
         tmpDir = ".";
     }
     String traceFile (tmpDir);
-    traceFile += "/dq_memory_trace";
+    traceFile.append("/dq_memory_trace");
     ArrayDestroyer <char> traceFileD (traceFile.allocateCString ());
     const char* DQTraceFile = traceFileD.getPointer ();
 

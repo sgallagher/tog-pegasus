@@ -103,14 +103,14 @@ String WQLOperand::toString() const
 	case PROPERTY_NAME:
 	{
 	    result = "PROPERTY_NAME: ";
-	    result += *((String*)_propertyName);
+	    result.append(*((String*)_propertyName));
 	    break;
 	}
 
 	case STRING_VALUE:
 	{
 	    result = "STRING_VALUE: ";
-	    result += *((String*)_stringValue);
+	    result.append(*((String*)_stringValue));
 	    break;
 	}
 
@@ -119,7 +119,7 @@ String WQLOperand::toString() const
 	    result = "INTEGER_VALUE: ";
 	    char buffer[32];
 	    sprintf(buffer, "%d", _integerValue);
-	    result += buffer;
+	    result.append(buffer);
 	    break;
 	}
 
@@ -128,7 +128,7 @@ String WQLOperand::toString() const
 	    result = "DOUBLE_VALUE: ";
 	    char buffer[32];
 	    sprintf(buffer, "%f", _doubleValue);
-	    result += buffer;
+	    result.append(buffer);
 	    break;
 	} 
 
@@ -137,9 +137,9 @@ String WQLOperand::toString() const
 	    result = "BOOLEAN_VALUE: ";
 
 	    if (_booleanValue)
-		result += "TRUE";
+		result.append("TRUE");
 	    else
-		result += "FALSE";
+		result.append("FALSE");
 
 	    break;
 	}

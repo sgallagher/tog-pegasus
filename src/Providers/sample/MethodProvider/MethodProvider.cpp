@@ -79,7 +79,7 @@ void MethodProvider::invokeMethod(
 		      paramVal.get( replyName );
 		      if( replyName != String::EMPTY )
 			{
-			  outString +=  ", " + replyName + "!";
+			  outString.append(", " + replyName + "!");
 			}
 		      outParameters.append( CIMParamValue( "Place", CIMValue( 
 					     String("From Neverland") ) ) );

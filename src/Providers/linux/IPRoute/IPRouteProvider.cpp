@@ -72,7 +72,7 @@ LinuxIPRouteProvider::getInstance(const OperationContext& context,
    {
       if (keys[i].getName() == "IPDestinationAddress")
       {
-         in_addr += keys[i].getValue();
+         in_addr.append(keys[i].getValue());
          break;
       }
    }
@@ -81,7 +81,7 @@ LinuxIPRouteProvider::getInstance(const OperationContext& context,
    {
       if (keys[i].getName() == "IPDestinationMask")
       {
-         in_mask += keys[i].getValue();
+         in_mask.append(keys[i].getValue());
          break;
       }
    }
@@ -90,7 +90,7 @@ LinuxIPRouteProvider::getInstance(const OperationContext& context,
    {
       if (keys[i].getName() == "NextHop")
       {
-         in_hop += keys[i].getValue();
+         in_hop.append(keys[i].getValue());
          break;
       }
    }
@@ -99,7 +99,7 @@ LinuxIPRouteProvider::getInstance(const OperationContext& context,
    {
       if (keys[i].getName() == "AddressType")
       {
-         in_type += keys[i].getValue();
+         in_type.append(keys[i].getValue());
          break;
       }
    }

@@ -43,7 +43,7 @@ static const char* tmpDir;
 void _Test01()
 {
     String indexPath (tmpDir);
-    indexPath += "/X.idx";
+    indexPath.append("/X.idx");
     ArrayDestroyer <char> ipd (indexPath.allocateCString ());
     const char* PATH = ipd.getPointer ();
     Uint32 index;
@@ -174,7 +174,7 @@ void _Test01()
 void _Test02()
 {
     String instancesPath (tmpDir);
-    instancesPath += "/X.instances";
+    instancesPath.append("/X.instances");
     ArrayDestroyer <char> ipd (instancesPath.allocateCString ());
     const char* PATH = ipd.getPointer ();
 

@@ -211,11 +211,11 @@ void PasswordFile::load (PasswordTable& passwordTable)
         //
         String userName = String::EMPTY;
 
-        userName += *p++;
+        userName.append(*p++);
 
         while (isalnum(*p))
         {
-            userName += *p++;
+            userName.append(*p++);
         }
 
         //
@@ -256,7 +256,7 @@ void PasswordFile::load (PasswordTable& passwordTable)
 
         while (*p)
         {
-            password += *p++;
+            password.append(*p++);
         }
 
         //

@@ -864,8 +864,7 @@ CIMObjectPath CIMRepository::createInstance(
 
     if (!cimClass.hasKeys())
     {
-        errMessage = "class has no keys: ";
-        errMessage += cimClass.getClassName();
+        errMessage = "class has no keys: " + cimClass.getClassName();
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, errMessage);
     }

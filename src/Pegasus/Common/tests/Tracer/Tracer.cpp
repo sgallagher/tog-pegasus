@@ -596,19 +596,19 @@ int main(int argc, char** argv)
         tmpDir = ".";
     }
     String f1 (tmpDir);
-    f1 += "/testtracer1.trace";
+    f1.append("/testtracer1.trace");
     ArrayDestroyer <char> f1d (f1.allocateCString ());
     FILE1 = f1d.getPointer ();
     String f2 (tmpDir);
-    f2 += "/testtracer2.trace";
+    f2.append("/testtracer2.trace");
     ArrayDestroyer <char> f2d (f2.allocateCString ());
     FILE2 = f2d.getPointer ();
     String f3 (tmpDir);
-    f3 += "/testtracer3.trace";
+    f3.append("/testtracer3.trace");
     ArrayDestroyer <char> f3d (f3.allocateCString ());
     FILE3 = f3d.getPointer ();
     String f4 (tmpDir);
-    f4 += "/testtracer4.trace";
+    f4.append("/testtracer4.trace");
     ArrayDestroyer <char> f4d (f4.allocateCString ());
     FILE4 = f4d.getPointer ();
 

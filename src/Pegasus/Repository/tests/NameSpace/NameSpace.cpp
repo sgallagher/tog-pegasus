@@ -59,7 +59,7 @@ void test()
     {
         repositoryRoot = tmpDir;
     }
-    repositoryRoot += "/repository";
+    repositoryRoot.append("/repository");
 
     CIMRepository r (repositoryRoot);
 

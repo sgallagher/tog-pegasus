@@ -95,25 +95,25 @@ String CIMScope::toString () const
     String tmp;
 
     if (this->hasScope (CIMScope::CLASS))
-	tmp += "CLASS ";
+	tmp.append("CLASS ");
 
     if (this->hasScope (CIMScope::ASSOCIATION))
-	tmp += "ASSOCIATION ";
+	tmp.append("ASSOCIATION ");
 
     if (this->hasScope (CIMScope::INDICATION))
-	tmp += "INDICATION ";
+	tmp.append("INDICATION ");
 
     if (this->hasScope (CIMScope::PROPERTY))
-	tmp += "PROPERTY ";
+	tmp.append("PROPERTY ");
 
     if (this->hasScope (CIMScope::REFERENCE))
-	tmp += "REFERENCE ";
+	tmp.append("REFERENCE ");
 
     if (this->hasScope (CIMScope::METHOD))
-	tmp += "METHOD ";
+	tmp.append("METHOD ");
 
     if (this->hasScope (CIMScope::PARAMETER))
-	tmp += "PARAMETER ";
+	tmp.append("PARAMETER ");
 
     if (tmp.size())
 	tmp.remove(tmp.size() - 1);

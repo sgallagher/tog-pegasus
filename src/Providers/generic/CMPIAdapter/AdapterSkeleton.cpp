@@ -83,13 +83,13 @@ void CMPIAdapter::initialize(CIMOMHandle& cimomHandle)
     #elif defined(PEGASUS_OS_HPUX)
     _libraryName = ConfigManager::getHomedPath(
         ConfigManager::getInstance()->getCurrentValue("providerDir"));
-    _libraryName += 
-        String("/lib") + _providerName + String(".sl");
+    _libraryName.append(
+        String("/lib") + _providerName + String(".sl"));
     #else
     _libraryName = ConfigManager::getHomedPath(
         ConfigManager::getInstance()->getCurrentValue("providerDir"));
-    _libraryName += 
-        String("/lib") + _providerName + String(".so");
+    _libraryName.append(
+        String("/lib") + _providerName + String(".so"));
     #endif
 
     cerr << "try to load file " << _libraryName << endl;

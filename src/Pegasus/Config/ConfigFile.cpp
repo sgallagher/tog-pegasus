@@ -184,11 +184,11 @@ void ConfigFile::load (ConfigTable* confTable)
             throw ConfigFileSyntaxError(_configFile, lineNumber);
         }
 
-        name += *p++;
+        name.append(*p++);
 
         while (isalnum(*p) || *p == '_')
         {
-            name += *p++;
+            name.append(*p++);
         }
 
         //
@@ -225,7 +225,7 @@ void ConfigFile::load (ConfigTable* confTable)
 
         while (*p)
         {
-            value += *p++;
+            value.append(*p++);
         }
 
         //

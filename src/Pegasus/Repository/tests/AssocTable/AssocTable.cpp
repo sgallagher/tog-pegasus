@@ -47,7 +47,7 @@ int main(int argc, char** argv)
     {
         assocTablePath = tmpDir;
     }
-    assocTablePath += "/associations.tbl";
+    assocTablePath.append("/associations.tbl");
 
     //
     // create class association

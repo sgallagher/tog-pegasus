@@ -659,17 +659,17 @@ String MofWriter::getQualifierFlavor(const CIMFlavor & flavor)
     String tmp = "";
 
     if (!(flavor.hasFlavor (CIMFlavor::OVERRIDABLE)))
-        tmp += "DisableOverride, ";
+        tmp.append("DisableOverride, ");
 
     if (!(flavor.hasFlavor (CIMFlavor::TOSUBCLASS)))
-        tmp += "Restricted, ";
+        tmp.append("Restricted, ");
 
     // ATTN-RK-P3-20020515: FUTURE: Need to check toInstance flavor?
     //if (!(flavor.hasFlavor (CIMFlavor::TOINSTANCE)))
-    //    tmp += "Restricted, ";
+    //    tmp.append("Restricted, ");
 
     if (flavor.hasFlavor (CIMFlavor::TRANSLATABLE))
-        tmp += "Translatable, ";
+        tmp.append("Translatable, ");
 
     if (tmp.size())
         tmp.remove(tmp.size() - 2);

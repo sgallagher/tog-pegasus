@@ -162,7 +162,7 @@ int main(int argc, char** argv)
     {
         repositoryRoot = tmpDir;
     }
-    repositoryRoot += "/repository";
+    repositoryRoot.append("/repository");
 
 
     CIMRepository r (repositoryRoot) ;

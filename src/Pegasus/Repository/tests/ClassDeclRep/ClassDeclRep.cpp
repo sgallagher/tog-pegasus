@@ -50,7 +50,7 @@ void Test01()
         repositoryRoot = tmpDir;
     }
 
-    repositoryRoot += "/repository";
+    repositoryRoot.append("/repository");
 
     CIMRepository r (repositoryRoot);
 
@@ -111,7 +111,7 @@ void Test01()
 
     Array<String> tmp;
     String classesDir (repositoryRoot);
-    classesDir += "/#zzz/classes";
+    classesDir.append("/#zzz/classes");
     assert(FileSystem::getDirectoryContents (classesDir, tmp));
     assert(tmp.size() == 0);
 }

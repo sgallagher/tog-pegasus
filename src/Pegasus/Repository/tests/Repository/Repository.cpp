@@ -195,7 +195,7 @@ void test03()
     }
 
     String repositoryRoot = home;
-    repositoryRoot += "/repository";
+    repositoryRoot.append("/repository");
     CIMRepository r(repositoryRoot);
 
     Array<CIMObjectPath> names = r.associatorNames(
@@ -219,7 +219,7 @@ int main()
     {
         repositoryRoot = tmpDir;
     }
-    repositoryRoot += "/repository";
+    repositoryRoot.append("/repository");
 
     try 
     {

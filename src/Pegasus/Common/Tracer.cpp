@@ -483,7 +483,7 @@ Boolean Tracer::isValidComponents(
         }
 
         // Append _COMPONENT_SEPARATOR to the end of the traceComponents
-        componentStr += _COMPONENT_SEPARATOR;
+        componentStr.append(_COMPONENT_SEPARATOR);
 
         while (componentStr != String::EMPTY)
         {
@@ -518,8 +518,8 @@ Boolean Tracer::isValidComponents(
 
 	    if ( !validComponent )
 	    {
-		invalidComponents += componentName;
-		invalidComponents += _COMPONENT_SEPARATOR;
+		invalidComponents.append(componentName);
+		invalidComponents.append(_COMPONENT_SEPARATOR);
             }
         }
     }
@@ -623,7 +623,7 @@ void Tracer::setTraceComponents( const String traceComponents )
 	        _getInstance()->_traceComponentMask[index++] = false);
 
  	// Append _COMPONENT_SEPARATOR to the end of the traceComponents
-        componentStr += _COMPONENT_SEPARATOR;
+        componentStr.append(_COMPONENT_SEPARATOR);
 
         while (componentStr != String::EMPTY)
         {

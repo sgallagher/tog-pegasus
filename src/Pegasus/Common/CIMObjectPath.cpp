@@ -77,23 +77,23 @@ static String _escapeSpecialCharacters(const String& str)
         switch (str[i])
         {
             case '\n':
-                result += "\\n";
+                result.append("\\n");
                 break;
 
             case '\r':
-                result += "\\r";
+                result.append("\\r");
                 break;
 
             case '\t':
-                result += "\\t";
+                result.append("\\t");
                 break;
 
             case '"':
-                result += "\\\"";
+                result.append("\\\"");
                 break;
 
             default:
-                result += str[i];
+                result.append(str[i]);
         }
     }
 
@@ -765,16 +765,16 @@ String CIMObjectPath::toString(Boolean includeHost) const
     if (_rep->_host.size() && includeHost)
     {
         objectName = "//";
-        objectName += _rep->_host;
-        objectName += "/";
+        objectName.append(_rep->_host);
+        objectName.append("/");
     }
 
     // Get the namespace (if we have a host name, we must write namespace):
 
     if (!_rep->_nameSpace.isNull() || _rep->_host.size())
     {
-        objectName += _rep->_nameSpace;
-        objectName += ":";
+        objectName.append(_rep->_nameSpace);
+        objectName.append(":");
     }
 
     // Get the class name:

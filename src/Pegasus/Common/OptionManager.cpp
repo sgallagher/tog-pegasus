@@ -272,10 +272,10 @@ void OptionManager::mergeFile(const String& fileName)
 	if (!(isalpha(*p) || *p == '_'))
 	    throw OMConfigFileSyntaxError(fileName, lineNumber);
 
-	ident += *p++;
+	ident.append(*p++);
 
 	while (isalnum(*p) || *p == '_')
-	    ident += *p++;
+	    ident.append(*p++);
 
 	// Skip whitespace after identifier:
 
@@ -312,35 +312,35 @@ void OptionManager::mergeFile(const String& fileName)
 		switch (*p)
 		{
 		    case 'n': 
-			value += '\n'; 
+			value.append('\n'); 
 			break;
 		    
 		    case 'r':
-			value += '\r';
+			value.append('\r');
 			break;
 
 		    case 't':
-			value += '\t';
+			value.append('\t');
 			break;
 
 		    case 'f':
-			value += '\f';
+			value.append('\f');
 			break;
 
 		    case '"':
-			value += '"';
+			value.append('"');
 			break;
 
 		    case '\0':
 			throw OMConfigFileSyntaxError(fileName, lineNumber);
 
 		    default:
-			value += *p;
+			value.append(*p);
 		}
 		p++;
 	    }
 	    else
-		value += *p++;
+		value.append(*p++);
 	}
 
 
@@ -639,10 +639,10 @@ String OMConfigFileSyntaxError::_formatMessage(
     sprintf(buffer, "%d", line);
 
     String result = "Syntax error in configuration file: ";
-    result += file;
-    result += "(";
-    result += buffer;
-    result += ")";
+    result.append(file);
+    result.append("(");
+    result.append(buffer);
+    result.append(")");
     return result;
 }
 

@@ -109,8 +109,8 @@ Boolean FileSystem::existsNoCase(const String& path, String& realPath)
 	    else
 	    {
 		realPath = dirPath;
-		realPath += '/';
-		realPath += dir.getName();
+		realPath.append('/');
+		realPath.append(dir.getName());
 	    }
 	    return true;
 	}

@@ -169,10 +169,10 @@ Triad<String, String, String> _getProviderRegPair(
     fileName = location + String(".dll");
     #elif defined(PEGASUS_OS_HPUX)
     fileName = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-    fileName += String("/lib") + location + String(".0");
+    fileName.append(String("/lib") + location + String(".0"));
     #else
     fileName = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-    fileName += String("/lib") + location + String(".so");
+    fileName.append(String("/lib") + location + String(".so"));
     #endif
 
     PEG_METHOD_EXIT();
@@ -257,10 +257,10 @@ void ProviderManagerService::_lookupProviderForAssocClass(
         fileName = Location + String(".dll");
         #elif defined(PEGASUS_OS_HPUX)
         fileName = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-        fileName += String("/lib") + Location + String(".sl");
+        fileName.append(String("/lib") + Location + String(".sl"));
         #else
         fileName = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-        fileName += String("/lib") + Location + String(".so");
+        fileName.append(String("/lib") + Location + String(".so"));
         #endif
 
         providerNames.append(providerName);

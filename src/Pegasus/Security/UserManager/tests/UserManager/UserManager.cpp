@@ -65,7 +65,7 @@ int main()
     {
         repositoryPath = tmpDir;
     }
-    repositoryPath += "/repository";
+    repositoryPath.append("/repository");
 
     FileSystem::isDirectory(repositoryPath);
 

@@ -64,8 +64,8 @@ const String &
 namespaceHandle::namespaceHandleComponentsToRep() {
   _Stringrep = _host;
   if (!String::equal(_host, String::EMPTY))
-    _Stringrep += ":"; 
-  _Stringrep +=  _path;
+    _Stringrep.append(":"); 
+  _Stringrep.append(_path);
   return _Stringrep;
 }
 
@@ -150,9 +150,9 @@ modelPath::modelPathComponentsToRep() {
   String stringrep = _className;
   Uint32 numkeys = _KeyBindings.size();
   if (numkeys) {
-    stringrep += ".";
+    stringrep.append(".");
   }
-  stringrep += KeyBindingsToKeyString();
+  stringrep.append(KeyBindingsToKeyString());
   _Stringrep = stringrep;
   return _Stringrep;
 }
@@ -193,7 +193,7 @@ modelPath::modelPathRepToComponents(const String &rep) {
       break;
     case INKEYNAME:
       if (c == '=') {
-        _keyString += keyname;
+        _keyString.append(keyname);
 	state = KEYVALBEGIN;
       } else {
 	if (!WHITESPACE(c)) {
@@ -230,7 +230,7 @@ modelPath::modelPathRepToComponents(const String &rep) {
     case INNUMERICKEYVAL:
     case INBOOLEANKEYVAL:
       if (WHITESPACE(c) || c == ',') {
-	  _keyString += keyvalue;
+	  _keyString.append(keyvalue);
 	  kb.setName(keyname);
 	  kb.setValue(keyvalue);
 	  kb.setType(kbtype);
@@ -242,7 +242,7 @@ modelPath::modelPathRepToComponents(const String &rep) {
       break;
     case ENDINGKEYVAL: // (applies only to String value)
       if (c == ',') {
-	_keyString += keyvalue;
+	_keyString.append(keyvalue);
 	kb.setName(keyname);
 	kb.setValue(keyvalue);
 	kb.setType(kbtype);
@@ -256,7 +256,7 @@ modelPath::modelPathRepToComponents(const String &rep) {
   } // end for length of input
   if (state == ENDINGKEYVAL || state == INSTRINGKEYVAL 
     || state == INNUMERICKEYVAL || state == INBOOLEANKEYVAL) {
-    _keyString += keyvalue;
+    _keyString.append(keyvalue);
     kb.setName(keyname);
     kb.setValue(keyvalue);
     kb.setType(kbtype);
@@ -275,10 +275,11 @@ modelPath::KeyBindingsToKeyString()
     KeyBinding::Type keytype = kb.getType();
     const String &keyvalue = kb.getValue();
     if (i)
-      stringrep += ",";
-    stringrep += keyname + "=" + (keytype == KeyBinding::STRING ? "\"" : "") +
-				   keyvalue + 
-				   (keytype == KeyBinding::STRING ? "\"" : "");
+      stringrep.append(",");
+    stringrep.append(keyname + "=" +
+                     (keytype == KeyBinding::STRING ? "\"" : "") +
+		     keyvalue + 
+		     (keytype == KeyBinding::STRING ? "\"" : ""));
   }
   _keyString = stringrep;
   return _keyString;

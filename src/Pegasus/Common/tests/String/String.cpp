@@ -88,33 +88,6 @@ int main(int argc, char** argv)
 	delete [] tmp;
     }
 
-// This method has been removed from the String class
-#if 0
-    {
-	// Test appendToCString 
-	const char STR0[] = "one two three four";
-	String s = STR0;
-	const char STR1[] = "zero ";
-	char* tmp = new char[strlen(STR1) + s.size() + 1];
-	strcpy(tmp, STR1);
-	s.appendToCString(tmp);
-	assert(strcmp(tmp, "zero one two three four") == 0);
-	delete [] tmp;
-    }
-
-    {
-	// Test appendToCString	with length parameter
-	const char STR0[] = "one two three four";
-	String s = STR0;
-	const char STR1[] = "zero ";
-	char* tmp = new char[strlen(STR1) + s.size() + 1];
-	strcpy(tmp, STR1);
-	s.appendToCString(tmp, 7);
-	assert(strcmp(tmp, "zero one two") == 0);
-	delete [] tmp;
-    }
-#endif
-
     {
 	// Test remove
 	String s = "abcdefg";
@@ -154,25 +127,25 @@ int main(int argc, char** argv)
 	assert(String::equal(t2, "hello"));
     }
 
-    // Test of the different overload operators
     {
-	// test the append  overload operator +=;
+	// another test of the append method
 	String t1 = "one";
-	t1 += " two";
+	t1.append(" two");
     	assert(String::equal(t1, "one two"));
-	t1 += ' ';
-	t1 += 't';
-	t1 += 'h';
-	t1 += 'r';
-	t1 += "ee";
+	t1.append(' ');
+	t1.append('t');
+	t1.append('h');
+	t1.append('r');
+	t1.append("ee");
 	assert(String::equal(t1,"one two three"));
 	
 	// used as example in Doc.
 	String test = "abc";
-	test += "def";
+	test.append("def");
 	assert(test == "abcdef");
     }
 
+    // Test of the different overload operators
     {
 	// Test the == overload operator
 	String t1 = "one";

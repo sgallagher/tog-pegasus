@@ -713,7 +713,7 @@ Boolean InstanceIndexFile::compact(
 
     fstream tmpFs;
     String tmpPath = path;
-    tmpPath += ".tmp";
+    tmpPath.append(".tmp");
 
     FileSystem::removeFileNoCase(tmpPath);
 
@@ -837,7 +837,7 @@ Boolean InstanceIndexFile::beginTransaction(const String& path)
     //
 
     String rollbackPath = path;
-    rollbackPath += ".rollback";
+    rollbackPath.append(".rollback");
 
     // ATTN-SF-P3-20020517: FUTURE: Need to look in to this. Empty rollback 
     // files are getting created in some error conditions. 
@@ -893,7 +893,7 @@ Boolean InstanceIndexFile::commitTransaction(const String& path)
     //
 
     String rollbackPath = path;
-    rollbackPath += ".rollback";
+    rollbackPath.append(".rollback");
 
     PEG_METHOD_EXIT();
     return FileSystem::removeFileNoCase(rollbackPath);

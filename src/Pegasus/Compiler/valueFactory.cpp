@@ -56,16 +56,16 @@ valueFactory::Stoi(const String &val) {
   String s;
   for (unsigned int i = 0; i < end; i++) {
     switch(val[i]) {
-    case '1': s += "1"; break;
-    case '2': s += "2"; break;
-    case '3': s += "3"; break;
-    case '4': s += "4"; break;
-    case '5': s += "5"; break;
-    case '6': s += "6"; break;
-    case '7': s += "7"; break;
-    case '8': s += "8"; break;
-    case '9': s += "9"; break;
-    case '0': s += "0"; break;
+    case '1': s.append("1"); break;
+    case '2': s.append("2"); break;
+    case '3': s.append("3"); break;
+    case '4': s.append("4"); break;
+    case '5': s.append("5"); break;
+    case '6': s.append("6"); break;
+    case '7': s.append("7"); break;
+    case '8': s.append("8"); break;
+    case '9': s.append("9"); break;
+    case '0': s.append("0"); break;
     }
   }
   return atol(_CString(s));
@@ -87,19 +87,19 @@ Stof(const String &val) {
   String s;
   for (unsigned int i = 0; i < end; i++) {
     switch(val[i]) {
-    case '1': s += "1"; break;
-    case '2': s += "2"; break;
-    case '3': s += "3"; break;
-    case '4': s += "4"; break;
-    case '5': s += "5"; break;
-    case '6': s += "6"; break;
-    case '7': s += "7"; break;
-    case '8': s += "8"; break;
-    case '9': s += "9"; break;
-    case '0': s += "0"; break;
-    case '.': s += "."; break;
+    case '1': s.append("1"); break;
+    case '2': s.append("2"); break;
+    case '3': s.append("3"); break;
+    case '4': s.append("4"); break;
+    case '5': s.append("5"); break;
+    case '6': s.append("6"); break;
+    case '7': s.append("7"); break;
+    case '8': s.append("8"); break;
+    case '9': s.append("9"); break;
+    case '0': s.append("0"); break;
+    case '.': s.append("."); break;
     case 'E':
-    case 'e': s += "E"; break;
+    case 'e': s.append("E"); break;
     }
   }
   return atof(_CString(s));
@@ -111,19 +111,19 @@ StoDT(const String &val, CIMDateTime &dt) {
   String s;
   for (unsigned int i = 0; i < end; i++) {
     switch(val[i]) {
-    case '1': s += "1"; break;
-    case '2': s += "2"; break;
-    case '3': s += "3"; break;
-    case '4': s += "4"; break;
-    case '5': s += "5"; break;
-    case '6': s += "6"; break;
-    case '7': s += "7"; break;
-    case '8': s += "8"; break;
-    case '9': s += "9"; break;
-    case '0': s += "0"; break;
-    case '.': s += "."; break;
-    case '+': s += "+"; break;
-    case '-': s += "-"; break;
+    case '1': s.append("1"); break;
+    case '2': s.append("2"); break;
+    case '3': s.append("3"); break;
+    case '4': s.append("4"); break;
+    case '5': s.append("5"); break;
+    case '6': s.append("6"); break;
+    case '7': s.append("7"); break;
+    case '8': s.append("8"); break;
+    case '9': s.append("9"); break;
+    case '0': s.append("0"); break;
+    case '.': s.append("."); break;
+    case '+': s.append("+"); break;
+    case '-': s.append("-"); break;
     }
   }
   if (s != "") {
@@ -166,12 +166,12 @@ nextcsv(const String &csv, int sep, const Uint32 start,
         if (idxchar == sep)
            return idx + 1;
         else
-	  value += idxchar;
+	  value.append(idxchar);
 	break;
       }
       break;
     case INSQUOTE:
-      value += idxchar;
+      value.append(idxchar);
       state = NOTINQUOTE;
       break;
     case INDQUOTE:
@@ -180,7 +180,7 @@ nextcsv(const String &csv, int sep, const Uint32 start,
 	state = NOTINQUOTE;
 	break;
       default:
-	value += idxchar;
+	value.append(idxchar);
 	break;
       }
     }

@@ -345,11 +345,11 @@ String CIMInstanceRep::toString() const
     if (object.getHost().size() && !object.getNameSpace().isNull())
     {
         objectName = "//";
-        objectName += object.getHost();
-        objectName += "/";
+        objectName.append(object.getHost());
+        objectName.append("/");
 
-        objectName += object.getNameSpace();
-        objectName += ":";
+        objectName.append(object.getNameSpace());
+        objectName.append(":");
     }
 
     // Get the class name:

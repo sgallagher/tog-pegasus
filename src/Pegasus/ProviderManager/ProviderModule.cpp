@@ -74,13 +74,13 @@ ProviderModule::ProviderModule(const String & fileName,
             #elif defined(PEGASUS_OS_HPUX)
             _interfaceFilename = ConfigManager::getHomedPath(
                 ConfigManager::getInstance()->getCurrentValue("providerDir"));
-            _interfaceFilename +=
-                String("/lib") + _interfaceName + String(".sl");
+            _interfaceFilename.append(
+                String("/lib") + _interfaceName + String(".sl"));
             #else
             _interfaceFilename = ConfigManager::getHomedPath(
                 ConfigManager::getInstance()->getCurrentValue("providerDir"));
-            _interfaceFilename +=
-                String("/lib") + _interfaceName + String(".so");
+            _interfaceFilename.append(
+                String("/lib") + _interfaceName + String(".so"));
             #endif
         }
 }

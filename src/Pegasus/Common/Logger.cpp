@@ -87,9 +87,9 @@ static char* _allocLogFileName(
 
     String result;
     result.reserveCapacity(homeDirectory.size() + 1 + strlen(logFileName));
-    result += homeDirectory;
-    result += '/';
-    result += logFileName;
+    result.append(homeDirectory);
+    result.append('/');
+    result.append(logFileName);
     return result.allocateCString();
 }
 

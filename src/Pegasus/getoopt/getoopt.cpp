@@ -679,7 +679,7 @@ getoopt::printErrors(ostream &os) const {
 void
 getoopt::printErrors(String &s) const {
   for (Uint32 i = 0; i < _errorStrings.size(); i++) {
-    s += "> " + _errorStrings[i] + "\n";
+    s.append("> " + _errorStrings[i] + "\n");
   }
 }
 

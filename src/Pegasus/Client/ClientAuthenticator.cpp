@@ -469,7 +469,7 @@ String ClientAuthenticator::_getSubStringUptoMarker(
     }
     else
     {
-        result.assign(strdup(*line));
+        result.assign(*line);
 
         *line += strlen(*line);
     }

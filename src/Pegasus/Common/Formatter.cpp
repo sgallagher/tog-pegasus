@@ -114,25 +114,25 @@ String Formatter::format(
 
 	    switch (c)
 	    {
-		case '0': result += arg0.toString(); break;
-		case '1': result += arg1.toString(); break;
-		case '2': result += arg2.toString(); break;
-		case '3': result += arg3.toString(); break;
-		case '4': result += arg4.toString(); break;
-		case '5': result += arg5.toString(); break;
-		case '6': result += arg6.toString(); break;
-		case '7': result += arg7.toString(); break;
-		case '8': result += arg8.toString(); break;
-		case '9': result += arg9.toString(); break;
+		case '0': result.append(arg0.toString()); break;
+		case '1': result.append(arg1.toString()); break;
+		case '2': result.append(arg2.toString()); break;
+		case '3': result.append(arg3.toString()); break;
+		case '4': result.append(arg4.toString()); break;
+		case '5': result.append(arg5.toString()); break;
+		case '6': result.append(arg6.toString()); break;
+		case '7': result.append(arg7.toString()); break;
+		case '8': result.append(arg8.toString()); break;
+		case '9': result.append(arg9.toString()); break;
 		default: break;
 	    }
 	}
 	else if (formatString[i] == '\\')
 	{
-	    result += formatString[++i];
+	    result.append(formatString[++i]);
 	}
 	else
-	    result += formatString[i];
+	    result.append(formatString[i]);
     }
 
     return result;

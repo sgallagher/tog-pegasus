@@ -332,7 +332,7 @@ referenceDeclaration: qualifierList referencedObject TOK_REF referenceName
 {
   String s(*$2);
   if (!String::equal(*$5, String::EMPTY))
-    s += "." + *$5;
+    s.append("." + *$5);
   CIMValue *v = valueFactory::createValue(CIMTYPE_REFERENCE, -1, true, &s);
   //KS add the isArray and arraysize parameters. 8 mar 2002
   $$ = cimmofParser::Instance()->newProperty(*$4, *v, false,0, *$2);
@@ -432,8 +432,8 @@ typedInitializer: nonNullConstantValue
 constantValues: constantValue { $$ = $1; }
               | constantValues TOK_COMMA constantValue 
                               {
-                                *$$ += ","; 
-                                *$$ += *$3;
+                                (*$$).append(","); 
+                                (*$$).append(*$3);
 				delete $3;
                               } ;
 
@@ -467,7 +467,7 @@ booleanValue: TOK_FALSE { $$ = 0; }
 stringValues: stringValue { $$ = $1; }
             | stringValues stringValue 
               { 
-                *$$ += *$2;  delete $2;
+                (*$$).append(*$2);  delete $2;
               } ;
 
 stringValue: TOK_STRING_VALUE 
@@ -489,7 +489,7 @@ stringValue: TOK_STRING_VALUE
      if (s[len - 2] == '\\') {  // if it is quoted
        if (len > 3)
 	 s1 = s.subString(1, len-3);
-       s1 += '\"';
+       s1.append('\"');
        cimmof_yy_less(len-1);
      } else { // This is the normal case:  real quotes on both end
        s1 = s.subString(1, len - 2) ;
@@ -513,9 +513,9 @@ objectHandle: TOK_DQUOTE namespaceHandleRef modelPath TOK_DQUOTE
   // and reassembled here for later parsing in creation of an objname instance 
   String *s = new String(*$2);
   if (!String::equal(*s, String::EMPTY) && $3)
-    *s += ":";
+    (*s).append(":");
   if ($3) {
-    *s += $3->Stringrep();
+    (*s).append($3->Stringrep());
   }
   $$ = s;
   delete $2;

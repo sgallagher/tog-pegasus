@@ -941,8 +941,8 @@ Uint32 OperatingSystem::_reboot()
       for (int jj = 0; reboot[jj]; jj++)
       {
 	 fname = paths[ii];
-	 fname += "/";
-	 fname += reboot[jj];
+	 fname.append("/");
+	 fname.append(reboot[jj]);
 	 p = fname.allocateCString();
 	 if (stat(p, &sbuf) == 0 && (sbuf.st_mode & S_IXUSR))
 	 {
@@ -976,8 +976,8 @@ Uint32 OperatingSystem::_shutdown()
       for (int jj = 0; poweroff[jj]; jj++)
       {
 	 fname = paths[ii];
-	 fname += "/";
-	 fname += poweroff[jj];
+	 fname.append("/");
+	 fname.append(poweroff[jj]);
 	 p = fname.allocateCString();
 	 if (stat(p, &sbuf) == 0 && (sbuf.st_mode & S_IXUSR))
 	 {

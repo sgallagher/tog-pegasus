@@ -145,7 +145,7 @@ public:
     Uint32 size() const;
 
     /** getData Returns a pointer to the first character in the 
-	null-terminated string string of the String object.
+	null-terminated string of the String object.
 	@return	Pointer to the first character of the String object
     	<pre>
 	    String t1 = "abc";
@@ -183,8 +183,8 @@ public:
     char* allocateCString(Uint32 extraBytes = 0) const;
 
     /** Returns the Ith character of the String object.
-	@exception - Throws exception "OutofBounds" if the index
-	is outside the length of the string.
+	@exception IndexOutOfBoundsException if the index
+	is outside the bounds of the string.
 	<pre>
 	    String t1 = "abc;
 	    Char16 c = t1[1];	// character b
@@ -199,45 +199,30 @@ public:
     */
     const Char16 operator[](Uint32 i) const;
 
-    /** Append the given character to the string.
-        <pre>
-	     String s4 = "Hello";
-	    s4.append(Char16(0x0000))
+    /** Append the given character to this String.
+	@param c Character to append.
+	@return This String
+	<pre>
+	    String t1 = "abc";
+	    t1 += Char16('d')
+	    assert(t1 == "abcd");
 	</pre>
     */
     String& append(const Char16& c);
 
-    /// Append n characters from str to this String object.
+    /// Append n characters from str to this String.
     String& append(const Char16* str, Uint32 n);
 
-    /// Append the characters of str to this String object.
-    String& append(const String& str);
-
-    /** Overload operator += appends the parameter String to this String.
-	@param String to append.
+    /** Append the given String to this String.
+	@param str String to append.
 	@return This String
 	<pre>
 	String test = "abc";
-	test += "def";
+	test.append("def");
 	assert(test == "abcdef");
 	</pre>
     */
-    String& operator+=(const String& str);
-
-    /** Append the character given by c to this String object.
-	@param c Single character to be appended
-	@return String with appended character
-    */
-    String& operator+=(Char16 c);
-
-    /** Append the character given by c to this string.
-	<pre>
-	    String t1 = "abc";
-	    t1 += 'd'
-	    assert(t1 == "abcd");
-	</pre>
-    */
-    String& operator+=(char c);
+    String& append(const String& str);
 
     /** Remove size characters from the string starting at the given
 	position. If size is PEG_NOT_FOUND, then all characters after pos are

@@ -930,7 +930,7 @@ static void DeleteClass(const CGIQueryString& qs)
 	client.deleteClass(nameSpace, className);
 
 	String message = "Class \"";
-	message += className;
+	message.append(className);
 	message.append("\" was deleted");
 	PrintHTMLHead("DeleteClass", "Delete Class Result");
         cout << "    <h1>" << message << "</h1>\n";
@@ -952,8 +952,8 @@ void PrintQualifierRow(const String& nameSpace,
 
     String href = 
         BuildOperationHref("GetQualifier", EncodeQueryStringValue(nameSpace));
-    href += "QualifierName=";
-    href += qd.getName();
+    href.append("QualifierName=");
+    href.append(qd.getName());
     href.append("&");
 
     cout << "<td>";
@@ -1163,15 +1163,15 @@ static void PrintObjectNames(
             switch (instanceName[j])
             {
                 case '-':
-                    nameString += ".";
+                    nameString.append(".");
                     break;
 
                 case '"':
-                    nameString += "%22";
+                    nameString.append("%22");
                     break;
 
                 default:
-                    nameString += instanceName[j];
+                    nameString.append(instanceName[j]);
             }
         }
 

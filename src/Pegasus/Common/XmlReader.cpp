@@ -1845,9 +1845,9 @@ Boolean XmlReader::getLocalNameSpacePathElement(
     while (getNameSpaceElement(parser, nameSpaceComponent))
     {
 	if (nameSpace.size())
-	    nameSpace += '/';
+	    nameSpace.append('/');
 
-	nameSpace += nameSpaceComponent;
+	nameSpace.append(nameSpaceComponent);
     }
 
     if (!nameSpace.size())

@@ -298,21 +298,6 @@ String& String::append(const String& str)
     return append(str.getData(), str.size());
 }
 
-String& String::operator+=(const String& str)
-{
-    return append(str);
-}
-
-String& String::operator+=(Char16 c)
-{
-    return append(c);
-}
-
-String& String::operator+=(char c)
-{
-    return append(Char16(c));
-}
-
 void String::remove(Uint32 pos, Uint32 size)
 {
     if (size == PEG_NOT_FOUND)

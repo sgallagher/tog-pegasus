@@ -97,7 +97,7 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
    private: 
       void handleEnqueue();
       DQueue<AsyncOpNode> _pending;
-      DQueue<AsyncOpNode> _incoming;
+      AsyncDQueue<AsyncOpNode> _incoming;
       
       static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _req_proc(void *);
       Thread _req_thread;

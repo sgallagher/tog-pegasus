@@ -1,6 +1,6 @@
 //%///-*-c++-*-/////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM, 
 // The Open Group, Tivoli Systems 
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -333,10 +333,10 @@ int main(int argc, char **argv)
    cimom *Q_server = new cimom();
    
 
-   server.run();
+//   server.run();
    client.run();
-   another.run();
-   a_third.run();
+//   another.run();
+//   a_third.run();
    
    
    while( msg_count.value() < 1500 ) 

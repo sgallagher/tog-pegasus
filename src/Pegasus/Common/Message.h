@@ -152,12 +152,8 @@ class PEGASUS_COMMON_LINKAGE Message
       // as used by AsyncOpNode 
       Boolean operator == (void *msg )
       {
-	 if( this == reinterpret_cast<Message *>(msg) )
+	 if (reinterpret_cast<void *>(this) == msg )
 	    return true;
-	 if( _key == (reinterpret_cast<Message *>(msg))->_key )
-	    if(_type == (reinterpret_cast<Message *>(msg))->_type )
-	       if(_mask == (reinterpret_cast<Message *>(msg))->_mask )
-		  return true;
 	 return false;
       }
       

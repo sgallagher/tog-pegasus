@@ -140,7 +140,7 @@ class PEGASUS_COMMON_LINKAGE cimom : public MessageQueue
 
       DQueue<AsyncOpNode> _recycle;
       
-      DQueue<AsyncOpNode> _routed_ops;
+      AsyncDQueue<AsyncOpNode> _routed_ops;
       DQueue<AsyncOpNode> _internal_ops;
       
       static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _routing_proc(void *);

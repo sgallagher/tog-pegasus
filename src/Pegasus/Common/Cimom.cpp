@@ -101,7 +101,7 @@ Boolean cimom::route_async(AsyncOpNode *op)
 
    if( _die.value()  )
       return false;
-   _routed_ops.insert_last(op);
+   _routed_ops.insert_last_wait(op);
    
    return true;
 
@@ -114,23 +114,19 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
    Thread *myself = reinterpret_cast<Thread *>(parm);
    cimom *dispatcher = reinterpret_cast<cimom *>(myself->get_parm());
 
-   while( dispatcher->_die.value()  == 0 ||
-	  dispatcher->_routed_ops.count() )
+   while( dispatcher->_die.value()  == 0 )
    {
-      if ( dispatcher->_routed_ops.count() == 0 )
-      {
-	 pegasus_yield();
-	 continue;
-	 
-      }
+       
+      AsyncOpNode *op = dispatcher->_routed_ops.remove_first_wait();
+      if (op == 0 )
+	 break;
       
-      AsyncOpNode *op = dispatcher->_routed_ops.remove_first();
-      cout << " cimom routing " << op->get_request()->getRouting() << endl;
-      AsyncRequest *request = static_cast<AsyncRequest *>(op->_request);
-      PEGASUS_ASSERT(request->getMask() & message_mask::ha_async);
-
+      op->lock();
+      AsyncRequest *request = static_cast<AsyncRequest *>(op->_request.next(0));
+      PEGASUS_ASSERT(request && (request->getMask() & message_mask::ha_async));
       Uint32 dest = request->dest;
-
+      op->unlock();
+      
       Boolean accepted = false;
 
       if(dest == CIMOM_Q_ID )
@@ -189,7 +185,7 @@ cimom::cimom(void)
    : MessageQueue("cimom", false, CIMOM_Q_ID),
      _modules(true),
      _recycle(true),
-     _routed_ops(true), 
+     _routed_ops(true, 1000), 
      _internal_ops(true),
      _routing_thread( _routing_proc, this, false),
      _die(0)
@@ -214,6 +210,7 @@ cimom::~cimom(void)
 // send STOP messages to all modules
 // shutdown legacy queues; e.g., cim operation dispatcher etc.
    _die++;
+   _routed_ops.shutdown_queue();
    _routing_thread.join();
    _modules.empty_list();
    
@@ -230,17 +227,17 @@ void cimom::_completeAsyncResponse(AsyncRequest *request,
    PEGASUS_ASSERT(request != 0  && reply != 0 );
 
    AsyncOpNode *op = request->op;
-   cout << " cimom COMPLETE  " << op->get_request()->getRouting() << endl;
+   cout << " cimom COMPLETE  " << endl;
    op->lock();
-//   if (false == op->_response.exists(reply))
-//      op->_response.insert_last(reply);
-   op->_response = reply;
 
    op->_state |= state ;
    op->_flags |= flag;
    gettimeofday(&(op->_updated), NULL);
+   if ( false == op->_request.exists(reinterpret_cast<void *>(reply)) )
+      op->_request.insert_last(reply);
    op->unlock();
    op->_client_sem.signal();
+
    
 }
 
@@ -261,8 +258,10 @@ void cimom::_handle_cimom_op(AsyncOpNode *op)
 {
    if(op == 0)
       return;
-
-   Message *msg = op->get_request();
+   op->lock();
+   Message *msg = op->_request.next(0);
+   op->unlock();
+   
    if ( msg == 0 )
       return;
 
@@ -302,7 +301,6 @@ void cimom::_handle_cimom_op(AsyncOpNode *op)
 			     reply,
 			     ASYNC_OPSTATE_COMPLETE,
 			     0);
-      cout << " cimom NAK " << op->get_request()->getRouting() << endl;
    }
 
 }

@@ -39,7 +39,7 @@ MessageQueueService::MessageQueueService(const char *name,
      _mask(mask),
      _die(0),
      _pending(true), 
-     _incoming(true),
+     _incoming(true, 1000),
      _req_thread(_req_proc, this, false)
 { 
    _default_op_timeout.tv_sec = 30;
@@ -55,7 +55,8 @@ MessageQueueService::MessageQueueService(const char *name,
 MessageQueueService::~MessageQueueService(void)
 {
    _die = 1;
-
+   _incoming.shutdown_queue();
+   
    _req_thread.join();
 
 }
@@ -71,17 +72,12 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::_req_proc(void *
    // pull messages off the incoming queue and dispatch them. then 
    // check pending messages that are non-blocking
 
-   while ( service->_die.value() == 0  || 
-	   service->_incoming.count() > 0  )
+   while ( service->_die.value() == 0 ) 
    {
-      if ( service->_incoming.count() == 0 )
-      {
-	 pegasus_yield();
-	 continue;
-	 
-      }
+      AsyncOpNode *operation = service->_incoming.remove_first_wait();
+      if ( operation == 0 )
+	 break;
       
-      AsyncOpNode *operation = service->_incoming.remove_first();
       service->_handle_incoming_operation(operation);
    }
    
@@ -94,7 +90,10 @@ void MessageQueueService::_handle_incoming_operation(AsyncOpNode *operation)
 {
    if ( operation != 0 )
    {
-      Message *rq = operation->get_request();
+      operation->lock();
+      Message *rq = operation->_request.next(0);
+      operation->unlock();
+      
       PEGASUS_ASSERT(rq != 0 );
       PEGASUS_ASSERT(rq->getMask() & message_mask::ha_async );
       PEGASUS_ASSERT(rq->getMask() & message_mask::ha_request);
@@ -158,13 +157,15 @@ void MessageQueueService::_completeAsyncResponse(AsyncRequest *request,
    
    AsyncOpNode *op = request->op;
    op->lock();
-   op->_response = reply;
-   
    op->_state |= state ;
    op->_flags |= flag;
    gettimeofday(&(op->_updated), NULL);
+   if ( false == op->_request.exists(reinterpret_cast<void *>(reply)) )
+      op->_request.insert_last(reply);
    op->unlock();
+
    op->_client_sem.signal();
+
    
 }
 
@@ -172,10 +173,13 @@ void MessageQueueService::_completeAsyncResponse(AsyncRequest *request,
 
 Boolean MessageQueueService::accept_async(AsyncOpNode *op)
 {
-   Message *rq = op->get_request();
+   op->lock();
+   Message *rq = op->_request.next(0);
+   op->unlock();
+   
    if( true == messageOK(rq) &&  _die.value() == 0  )
    {
-      _incoming.insert_last(op);
+      _incoming.insert_last_wait(op);
       return true;
    }
    return false;
@@ -302,14 +306,26 @@ AsyncReply *MessageQueueService::SendWait(AsyncRequest *request)
    if (true == _meta_dispatcher->route_async(request->op))
    {
       request->op->_client_sem.wait();
+      PEGASUS_ASSERT(request->op->_state & ASYNC_OPSTATE_COMPLETE);
+      
    }
    
-   AsyncReply * rpl = static_cast<AsyncReply *>(request->op->get_response());
+   request->op->lock();
+   AsyncReply * rpl = static_cast<AsyncReply *>(request->op->_response.remove_first());
+   rpl->op = 0;
+   request->op->unlock();
+   
    if( destroy_op == true)
    {
-      request->op->release();
-      delete request->op;
-      request->op = 0;
+      request->op->lock();
+      request->op->_request.remove(request);
+      request->op->_state |= ASYNC_OPSTATE_RELEASED;
+      request->op->unlock();
+      
+      return_op(request->op);
+      
+//      delete request->op;
+//      request->op = 0;
    }
    
    return rpl;

@@ -245,86 +245,163 @@ class PEGASUS_COMMON_LINKAGE internal_dq {
 } ;
 
 
-template<class L> class PEGASUS_COMMON_LINKAGE unlocked_dq : virtual public internal_dq
+template<class L> class PEGASUS_COMMON_LINKAGE unlocked_dq
 {
-public:
-      typedef internal_dq  Base;
+   private:
+      L *_rep;
+      unlocked_dq<L> *_next;
+      unlocked_dq<L>  *_prev;
+      unlocked_dq<L> *_cur;
+      Boolean _isHead ;
+      int _count;
+
+      // unlink this node from whichever list it is on
+      inline void unlink( void  ) 
+      { 
+	 _prev->_next = _next; 
+	 _next->_prev = _prev; 
+	 _next = _prev = 0;
+      }
+    
+      inline void insert_first(unlocked_dq<L> *head)
+      { 
+	 _prev = head; 
+	 _next = head->_next; 
+	 head->_next->_prev = this; 
+	 head->_next = this;   
+	 (head->_count)++; 
+      }
+
+      inline void insert_last(unlocked_dq<L> *head) 
+      {
+	 _next = head;
+	 _prev = head->_prev;
+	 head->_prev->_next = this;
+	 head->_prev = this;
+	 (head->_count)++;
+      }
+
+      inline L *remove( int code )
+      {
+	 L *ret = NULL;
+	
+	 if( _count > 0 ) {
+	    unlocked_dq<L> *temp = NULL;
+	    if(code == PEG_DQUEUE_FIRST )
+	       temp = _next;
+	    else
+	       temp = _prev;
+	    
+	    temp->unlink();
+	    ret = temp->_rep;
+	    // unhinge ret from temp so it doesn't get destroyed 
+	    temp->_rep = NULL ;
+	    delete temp;
+	    _count--;
+	 }
+	 return(ret);
+      }
+
+   public:
       
-      unlocked_dq(void) : Base(false) { }
-      unlocked_dq(Boolean head) : Base(head) { }
+      unlocked_dq() : _rep(0), _isHead(false), _count(0)
+      {
+	 _next = this;
+	 _prev = this;
+	 _cur = this;
+      }
       
-      virtual ~unlocked_dq() {  }
+      unlocked_dq(Boolean head ) : _rep(NULL), _isHead(head), _count(0)
+      {
+	 _next = this;
+	 _prev = this;
+	 _cur = this;
+      }
+            
+      virtual ~unlocked_dq() 
+      {  
+	 if ( _isHead )
+	    empty_list();
+      }
+
 
       inline virtual void insert_first(L *element) 
       {
 	 if( element == 0 )
 	    return;
-	 
-	 Base::insert_first(static_cast<void *>(element));
+	 unlocked_dq<L> *ins = new unlocked_dq<L>();
+	 ins->_rep = element;
+	 ins->insert_first(this);
       }
 
       inline virtual void insert_last(L *element) 
       {
 	 if( element == 0 )
 	    return;
-	 Base::insert_last(static_cast<void *>(element));
+	 unlocked_dq<L> *ins = new unlocked_dq<L>();
+	 ins->_rep = element;
+	 ins->insert_first(this);
       }
       
       inline virtual void empty_list( void ) 
       {
-	 Base::empty_list();
-      }
 
-      inline virtual L *remove_first ( void ) 
-      { 
-	 return static_cast<L *>(Base::remove_first());
-      }
-
-      inline virtual L *remove_last ( void ) 
-      { 
-	 return static_cast<L *>(Base::remove_last());
-      }
-      
-      inline virtual L *remove_no_lock(L *key)
-      {
-	 if(key == 0)
-	    return 0;
-	 
-	 L *ret = static_cast<L *>(Base::next(0));
-	 while(ret != 0)
+	 if ( _isHead == true ) 
 	 {
-	    if(ret->operator==(key))
-	       return static_cast<L *>(Base::remove(static_cast<void *>(ret)));
-	    ret = static_cast<L *>(Base::next(static_cast<void *>(ret)));
+	    while( _count > 0 ) {
+	       unlocked_dq<L> *temp = _next;
+	       temp->unlink();
+	       delete temp->_rep;
+	       delete temp;
+	       _count--;
+	    }
 	 }
-	 return 0;
+	 
+	 return;
       }
+
+      inline L *remove_first ( void ) { return(remove(PEG_DQUEUE_FIRST) );}
+      inline L *remove_last ( void ) { return(remove(PEG_DQUEUE_LAST) );}
+
             
-      inline virtual L *remove_no_lock(void *key) 
-      {
-	 if(key == 0)
-	    return 0;
-	 
-	 L *ret = static_cast<L *>(Base::next(0));
-	 while(ret != 0)
-	 {
-	    if(ret->operator==(key))
-	       return static_cast<L *>(Base::remove(static_cast<void *>(ret)));
-	    ret = static_cast<L *>(Base::next(static_cast<void *>(ret)));
-	 }
-	 return 0;
-      }
-
-      inline virtual L *remove(void *key) 
+      inline virtual L *remove(L *key)
       {
 	 if(key == 0)
 	    return 0;
 	 L *ret = 0;
-	 if( count() > 0 ) 
+	 
+	 if(_count > 0)
 	 {
-	    ret = unlocked_dq<L>::remove_no_lock(key);
+	    unlocked_dq<L> *temp = _next;
+	    if(_cur->_rep == key)
+	    {
+	       temp  = _cur;
+	       _cur = _cur->_next;
+	       
+	    }
+	    
+	    while ( temp->_isHead == false ) {
+	       if( temp->_rep == key ) {
+		  temp->unlink();
+		  ret = temp->_rep;
+		  temp->_rep = NULL;
+		  delete temp;
+		  _count--;
+		  break;
+	       }
+	       temp = temp->_next;
+	    }
 	 }
-	 return(ret);
+	 return(ret); 
+      }
+      
+
+      inline virtual L *remove(void *key) 
+      {
+
+	 if(key == 0)
+	    return 0;
+	 return unlocked_dq<L>::remove(reinterpret_cast<L *>(key));
       }
       
       inline virtual L *reference(void *key) 
@@ -332,14 +409,14 @@ public:
 	 if( key == 0 )
 	    return 0;
 	 
-	 if(Base::count() > 0 ) 
+	 if(_count > 0 ) 
 	 {
-	    L *ret = static_cast<L *>(Base::next(0));
+	    L *ret = next(0);
 	    while(ret != 0)
 	    {
 	       if(ret->operator==(key))
 		  return ret;
-	       ret = static_cast<L *>(Base::next(static_cast<void *>(ret)));
+	       ret = next(ret);
 	    }
 	 }
 	 return(0);
@@ -350,37 +427,41 @@ public:
 	 if(key == 0)
 	    return 0;
 	 
-	 if(Base::count() > 0 ) 
+	 if(_count > 0 ) 
 	 {
-	    L *ret = static_cast<L *>(Base::next(0));
+	    L *ret = next(0);
 	    while(ret != 0)
 	    {
 	       if(ret->operator==(key))
 		  return ret;
-	       ret = static_cast<L *>(Base::next(static_cast<void *>(ret)));
+	       ret = next(ret);
 	    }
 	 }
 	 return(0);
       }
 
-      inline virtual L *remove(L *key)
+      
+      inline virtual L *next(void *ref) 
       {
-	 if(key == 0)
-	    return 0;
-	 L *ret = unlocked_dq::reference(key);
-	 if(ret != 0)
-	    ret =  static_cast<L *>(Base::remove(static_cast<void *>(ret)));
-	 return ret;
-      }
-
-      inline virtual L *next( void * ref) 
-      {
-	 return static_cast<L *>(Base::next( ref));
+	 PEGASUS_ASSERT(this->_isHead);
+	 
+	 if( ref == 0)
+	    _cur = _next;
+	 else {
+	    _cur = _cur->_next;
+	 }
+	 return(_cur->_rep);
       }
       
-      inline virtual L *prev( void *ref) 
+      inline virtual L *prev(void *ref) 
       {
-	 return  static_cast<L *>(Base::prev(ref));
+	 PEGASUS_ASSERT(this->_isHead);
+	 if( ref == 0 )
+	    _cur = _prev;
+	 else {
+	    _cur = _cur->_prev;
+	 }
+	 return(_cur->_rep);
       }
 
       virtual Boolean exists(void *key) 
@@ -389,9 +470,9 @@ public:
 	    return false;
 	 
 	 Boolean ret = false;
-	 if(Base::count() > 0)
+	 if(_count > 0)
 	 {
-	    L *found = static_cast<L *>(Base::next(0));
+	    L *found = next(0);
 	    while(found != 0)
 	    {
 	       if(found->operator==(key) == true)
@@ -399,13 +480,13 @@ public:
 		  ret = true;
 		  break;
 	       }
-	       found = static_cast<L *>(Base::next(static_cast<void *>(found)));
+	       found = next(found);
 	    }
 	 }
 	 return(ret);
       }
       
-      inline virtual Uint32 count(void) { return Base::count() ; }
+      inline virtual Uint32 count(void) { return _count ; }
 };
 
 PEGASUS_NAMESPACE_END

@@ -117,10 +117,10 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
    private:
       Semaphore _client_sem;
       Mutex _mut;
-//      unlocked_dq<Message> _request;
-//      unlocked_dq<Message> _response; 
-      Message *_request;
-      Message *_response;
+      unlocked_dq<Message> _request;
+      unlocked_dq<Message> _response; 
+//      Message *_request;
+//      Message *_response;
       
       OperationContext _operation_list;
       Uint32 _state;
@@ -215,14 +215,15 @@ inline OperationContext & AsyncOpNode::get_context(void)
    return _operation_list;
 }
 
+
 inline  void AsyncOpNode::put_request(const Message *request) 
 {
    _mut.lock(pegasus_thread_self());
    gettimeofday(&_updated, NULL);
 //   if( false == _request.exists(reinterpret_cast<void *>(const_cast<Message *>(request))) )
-//      _request.insert_last( const_cast<Message *>(request) ) ;
+   _request.insert_last( const_cast<Message *>(request) ) ;
 
-   _request = const_cast<Message *>(request);
+//   _request = const_cast<Message *>(request);
    
    _mut.unlock();
 }
@@ -232,8 +233,8 @@ inline Message * AsyncOpNode::get_request(void)
    Message *ret;
    _mut.lock(pegasus_thread_self());
    gettimeofday(&_updated, NULL);
-//   ret = _request.remove_first() ;
-   ret = _request;
+   ret = _request.remove_first() ;
+//   ret = _request;
    
    _mut.unlock();
    return ret;
@@ -244,9 +245,9 @@ inline void AsyncOpNode::put_response(const Message *response)
    _mut.lock(pegasus_thread_self());
    gettimeofday(&_updated, NULL);
 //   if (false == _response.exists(reinterpret_cast<void *>(const_cast<Message *>(response))))
-//      _response.insert_last( const_cast<Message *>(response) );
+   _response.insert_last( const_cast<Message *>(response) );
 
-   _response = const_cast<Message *>(response);
+//   _response = const_cast<Message *>(response);
    
    _mut.unlock();
 }
@@ -257,8 +258,8 @@ inline Message * AsyncOpNode::get_response(void)
 
    _mut.lock(pegasus_thread_self());
 //   gettimeofday(&_updated, NULL);
-//   ret = _response.remove_first();
-   ret = _response;
+   ret = _response.remove_first();
+//   ret = _response;
    
    _mut.unlock();
    return ret;

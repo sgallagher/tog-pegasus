@@ -39,7 +39,6 @@ template<class L> class PEGASUS_COMMON_LINKAGE DQueue : virtual public unlocked_
       Mutex *_mutex;
 
    public:
-      typedef internal_dq Internal;
       typedef unlocked_dq<L> Base;
       DQueue(void) : Base(false)
       { 
@@ -97,7 +96,7 @@ template<class L> class PEGASUS_COMMON_LINKAGE DQueue : virtual public unlocked_
       
       inline virtual void empty_list( void ) throw(IPCException) 
       {
-	 if( Internal::count() > 0) {
+	 if( Base::count() > 0) {
 	    _mutex->lock(pegasus_thread_self()); 
 	    Base::empty_list();
 	    _mutex->unlock();
@@ -129,7 +128,7 @@ template<class L> class PEGASUS_COMMON_LINKAGE DQueue : virtual public unlocked_
 	 
 	 if( pegasus_thread_self() != _mutex->get_owner())
 	    throw Permission(pegasus_thread_self());
-	 return Base::remove_no_lock(key);
+	 return Base::remove(key);
       }
 
       virtual L *remove_no_lock(L *key) throw(IPCException)
@@ -139,7 +138,7 @@ template<class L> class PEGASUS_COMMON_LINKAGE DQueue : virtual public unlocked_
 	 
 	 if( pegasus_thread_self() != _mutex->get_owner())
 	    throw Permission(pegasus_thread_self());
-	 return Base::remove_no_lock(key);
+	 return Base::remove(key);
       }
       
       virtual L *remove(void *key) throw(IPCException)
@@ -148,9 +147,9 @@ template<class L> class PEGASUS_COMMON_LINKAGE DQueue : virtual public unlocked_
 	    return 0;
 	 
 	 L *ret = 0;
-	 if( Internal::count() > 0 ) {
+	 if( Base::count() > 0 ) {
 	    _mutex->lock(pegasus_thread_self());
-	    ret = DQueue< L >::remove_no_lock(key);
+	    ret = Base::remove(key);
 	    _mutex->unlock() ;
 	 }
 	 return(ret);
@@ -180,7 +179,7 @@ template<class L> class PEGASUS_COMMON_LINKAGE DQueue : virtual public unlocked_
 	    return 0;
 	 
 	 L *ret = 0;
-	 if( Internal::count() > 0 ) {
+	 if( Base::count() > 0 ) {
 	    _mutex->lock(pegasus_thread_self());
 	    ret = Base::remove(key);
 	    _mutex->unlock() ;
@@ -203,6 +202,7 @@ template<class L> class PEGASUS_COMMON_LINKAGE DQueue : virtual public unlocked_
 	 
       }
 
+
       inline virtual void lock(void) throw(IPCException) { _mutex->lock(pegasus_thread_self()); }
       inline virtual void unlock(void) throw(IPCException) { _mutex->unlock() ; }
       inline virtual void try_lock(void) throw(IPCException) {  _mutex->try_lock(pegasus_thread_self()); }
@@ -213,7 +213,7 @@ template<class L> class PEGASUS_COMMON_LINKAGE DQueue : virtual public unlocked_
 	    return false;
 	 
 	 Boolean ret = false;
-	 if(Internal::count() > 0)
+	 if(Base::count() > 0)
 	 {
 	    _mutex->lock(pegasus_thread_self());
 	    ret = Base::exists(key);
@@ -221,7 +221,7 @@ template<class L> class PEGASUS_COMMON_LINKAGE DQueue : virtual public unlocked_
 	 }
 	 return(ret);
       }
-      inline virtual Uint32 count(void) { return Internal::count() ; }
+      inline virtual Uint32 count(void) { return Base::count() ; }
 } ;
 
 

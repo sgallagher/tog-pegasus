@@ -313,4 +313,5 @@ private:
 #endif
 
 PEGASUS_NAMESPACE_END
+
 #endif /* Pegasus_Tracer_h */

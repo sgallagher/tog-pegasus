@@ -48,8 +48,10 @@ public:
     /** Constructor.
 	@param monitor pointer to monitor object which this class uses to
 	    solicit SocketMessages on the server port (socket).
+	@param outputMessageQueue ouptut message queue for connections
+	    created by this acceptor.
     */
-    HTTPAcceptor(Monitor* monitor);
+    HTTPAcceptor(Monitor* monitor, MessageQueue* outputMessageQueue);
 
     /** Destructor. */
     ~HTTPAcceptor();
@@ -81,6 +83,7 @@ private:
     void _acceptConnection();
 
     Monitor* _monitor;
+    MessageQueue* _outputMessageQueue;
     HTTPAcceptorRep* _rep;
 };
 

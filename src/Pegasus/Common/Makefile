@@ -8,7 +8,7 @@ LOCAL_DEFINES = -DPEGASUS_COMMON_INTERNAL
 
 LIBRARY = pegcommon
 
-TNEW_SOURCES = \
+NEW_SOURCES = \
     Monitor.cpp \
     HTTPAcceptor.cpp \
     HTTPConnection.cpp
@@ -79,12 +79,11 @@ SOURCES = \
     XmlParser.cpp \
     XmlReader.cpp \
     XmlWriter.cpp \
-    CGIQueryString.cpp \
+    CGIQueryString.cpp
 
 ##
 ## Took these out again. They broke the NT build.
 ##
-
 ifeq ($(OS),linux)
 SOURCES +=  IPC.cpp DQueue.cpp Thread.cpp MT_MessageQueue.cpp
 endif

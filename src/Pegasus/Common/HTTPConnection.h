@@ -32,9 +32,9 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/MessageQueue.h>
-#include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Message.h>
+#include <Pegasus/Common/Array.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -54,6 +54,19 @@ public:
     Sint32 socket;
 };
 
+/** This message is sent from a connection to its output queue when
+    a complete HTTP is received.
+*/
+class HTTPMessage : public Message
+{
+public:
+
+    HTTPMessage(const Array<Sint8>& message_) 
+	: Message(HTTP_MESSAGE), message(message_) { }
+
+    Array<Sint8> message;
+};
+
 /** This class represents an HTTP listener.
 */
 class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueue
@@ -61,7 +74,10 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueue
 public:
 
     /** Constructor. */
-    HTTPConnection(Sint32 socket, MessageQueue* ownerMessageQueue);
+    HTTPConnection(
+	Sint32 socket, 
+	MessageQueue* ownerMessageQueue,
+	MessageQueue* outputMessageQueue);
 
     /** Destructor. */
     ~HTTPConnection();
@@ -76,8 +92,23 @@ public:
 
 private:
 
-    MessageQueue* _ownerMessageQueue;
+    void _clearIncoming();
+
+    void _getContentLengthAndContentOffset();
+
+    void _closeConnection();
+
+    void _handleReadEvent();
+
     Sint32 _socket;
+    MessageQueue* _ownerMessageQueue;
+    MessageQueue* _outputMessageQueue;
+
+    Sint32 _contentOffset;
+    Sint32 _contentLength;
+    Array<Sint8> _incomingBuffer;
+
+    Array<Sint8> _outgoingBuffer;
 };
 
 PEGASUS_NAMESPACE_END

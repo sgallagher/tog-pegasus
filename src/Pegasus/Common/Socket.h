@@ -38,6 +38,11 @@ class Socket
 {
 public:
 
+
+    static Sint32 read(Sint32 socket, void* ptr, Uint32 size);
+
+    static Sint32 write(Sint32 socket, void* ptr, Uint32 size);
+
     static void close(Sint32 socket);
 
     static void enableBlocking(Sint32 socket);

@@ -47,6 +47,24 @@ PEGASUS_NAMESPACE_BEGIN
 
 extern Uint32 _socketInterfaceRefCount = 0;
 
+Sint32 Socket::read(Sint32 socket, void* ptr, Uint32 size)
+{
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+    return ::recv(socket, (char*)ptr, size, 0);
+#else
+    return ::read(socket, (char*)ptr, size);
+#endif
+}
+
+Sint32 Socket::write(Sint32 socket, void* ptr, Uint32 size)
+{
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+    return ::send(socket, (const char*)ptr, size, 0);
+#else
+    return ::write(socket, (char*)ptr, size);
+#endif
+}
+
 void Socket::close(Sint32 socket)
 {
 #ifdef PEGASUS_OS_TYPE_WINDOWS

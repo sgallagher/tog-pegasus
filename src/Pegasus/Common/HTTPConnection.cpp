@@ -27,9 +27,14 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <iostream>
+#include <cctype>
+#include <cassert>
+#include <cstdlib>
 #include "HTTPConnection.h"
 #include "MessageQueue.h"
 #include "Socket.h"
+#include "Monitor.h"
 
 PEGASUS_USING_STD;
 
@@ -37,14 +42,51 @@ PEGASUS_NAMESPACE_BEGIN
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+// Local routines:
+//
+////////////////////////////////////////////////////////////////////////////////
+
+static char* _FindSeparator(const char* data, Uint32 size)
+{
+    const char* p = data;
+    const char* end = p + size;
+
+    while (p != end)
+    {
+	if (*p == '\r')
+	{
+	    Uint32 n = end - p;
+
+	    if (n >= 2 && p[1] == '\n')
+		return (char*)p;
+	}
+	else if (*p == '\n')
+	    return (char*)p;
+
+	p++;
+    }
+
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
 // HTTPConnection
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-HTTPConnection::HTTPConnection(Sint32 socket, MessageQueue* ownerMessageQueue) 
-    : _socket(socket), _ownerMessageQueue(ownerMessageQueue)
+HTTPConnection::HTTPConnection(
+    Sint32 socket, 
+    MessageQueue* ownerMessageQueue,
+    MessageQueue* outputMessageQueue)
+    : 
+    _socket(socket), 
+    _ownerMessageQueue(ownerMessageQueue),
+    _outputMessageQueue(outputMessageQueue),
+    _contentOffset(-1),
+    _contentLength(-1)
 {
-
+    Socket::disableBlocking(_socket);
 }
 
 HTTPConnection::~HTTPConnection()
@@ -68,6 +110,11 @@ void HTTPConnection::handleEnqueue()
     {
 	case SOCKET_MESSAGE:
 	{
+	    SocketMessage* socketMessage = (SocketMessage*)message;
+
+	    if (socketMessage->events & SocketMessage::READ)
+		_handleReadEvent();
+
 	    break;
 	}
 
@@ -77,6 +124,106 @@ void HTTPConnection::handleEnqueue()
     };
 
     delete message;
+}
+
+void HTTPConnection::_getContentLengthAndContentOffset()
+{
+    char* data = (char*)_incomingBuffer.getData();
+    Uint32 size = _incomingBuffer.size();
+    char* line = (char*)data;
+    char* sep;
+
+    while ((sep = _FindSeparator(line, size - (line - data))))
+    {
+	char save = *sep;
+	*sep = '\0';
+
+	// Did we find the double separator which terminates the headers?
+
+	if (*line == '\0')
+	{
+	    *sep = save;
+	    line = sep + ((save == '\r') ? 2 : 1);
+	    _contentOffset = line - _incomingBuffer.getData();
+	    return;
+	}
+
+	// Look for the content-length if not already found:
+
+	char* colon = strchr(line, ':');
+
+	if (colon)
+	{
+	    *colon  = '\0';
+
+	    if (String::compareNoCase(line, "content-length") == 0)
+		_contentLength = atoi(colon + 1);
+
+	    *colon = ':';
+	}
+
+	*sep = save;
+	line = sep + ((save == '\r') ? 2 : 1);
+    }
+}
+
+void HTTPConnection::_clearIncoming()
+{
+    _contentOffset = -1;
+    _contentLength = -1;
+    _incomingBuffer.clear();
+}
+
+void HTTPConnection::_closeConnection()
+{
+    Message* message = new CloseConnectionMessage(_socket);
+    _ownerMessageQueue->enqueue(message);
+}
+
+void HTTPConnection::_handleReadEvent()
+{
+    // -- Append all data waiting on socket to incoming buffer:
+
+    Sint32 bytesRead = 0;
+
+    for (;;)
+    {
+	char buffer[4096];
+	Sint32 n = Socket::read(_socket, buffer, sizeof(buffer));
+
+	if (n <= 0)
+	    break;
+
+	_incomingBuffer.append(buffer, n);
+	bytesRead += n;
+    }
+
+    // -- If still waiting for beginning of content!
+
+    if (_contentOffset == -1)
+	_getContentLengthAndContentOffset();
+
+    // -- See if the end of the message was reached (some peers signal end of 
+    // -- the message by closing the connection; others use the content length
+    // -- HTTP header).
+
+PEGASUS_OUT(_contentOffset);
+PEGASUS_OUT(_contentLength);
+
+    if (bytesRead == 0 || 
+	_contentLength != -1 && 
+	(_incomingBuffer.size() > _contentLength + _contentOffset))
+    {
+	HTTPMessage* message = new HTTPMessage(_incomingBuffer);
+	_outputMessageQueue->enqueue(message);
+	_clearIncoming();
+
+	if (bytesRead == 0)
+	{
+	    _closeConnection();
+	    return;
+	}
+    }
 }
 
 PEGASUS_NAMESPACE_END

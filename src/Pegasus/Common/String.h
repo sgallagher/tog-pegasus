@@ -376,6 +376,8 @@ public:
     */
     static int compareNoCase(const char* s1, const char* s2, Uint32 n);
 
+    static int compareNoCase(const char* s1, const char* s2);
+
     /** Compare two null-terminated strings.
     	@param s1 First null-terminated string for the comparison.
 	@param s2 Second null-terminated string for the comparison.

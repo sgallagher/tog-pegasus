@@ -29,17 +29,36 @@
 #include <cassert>
 #include <iostream>
 #include <Pegasus/Common/HTTPAcceptor.h>
+#include <Pegasus/Common/HTTPConnection.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
+
+class MyQueue : public MessageQueue
+{
+public:
+
+    virtual void handleEnqueue()
+    {
+	Message* message = dequeue();
+	assert(message != 0);
+
+	if (message->getType() == HTTP_MESSAGE)
+	{
+	    HTTPMessage* httpMessage = (HTTPMessage*)message;
+
+	    PEGASUS_OUT(httpMessage->message.getData());
+	}
+    }
+};
 
 int main()
 {
     try
     {
 	Monitor* monitor = new Monitor;
-
-	HTTPAcceptor* httpAcceptor = new HTTPAcceptor(monitor);
+	MyQueue* myQueue = new MyQueue;
+	HTTPAcceptor* httpAcceptor = new HTTPAcceptor(monitor, myQueue);
 
 	const Uint32 PORT_NUMBER = 7777;
 	httpAcceptor->bind(PORT_NUMBER);

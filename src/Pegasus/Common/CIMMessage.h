@@ -1263,13 +1263,13 @@ class CIMHandleIndicationRequestMessage : public CIMRequestMessage
    public:
 
       CIMHandleIndicationRequestMessage(
-	 const String& messageId_,
-	 const String & nameSpace_,
-	 const CIMInstance& handlerInstance_,
-	 const CIMInstance& indicationInstance_,
-	 QueueIdStack queueIds_,
-	 const String& authType_ = String::EMPTY,
-	 const String& userName_ = String::EMPTY)
+	  const String& messageId_,
+	  const String & nameSpace_,
+	  const CIMInstance& handlerInstance_,
+	  const CIMInstance& indicationInstance_,
+	  QueueIdStack queueIds_,
+	  const String& authType_ = String::EMPTY,
+	  const String& userName_ = String::EMPTY)
 	 :
 	 CIMRequestMessage(
 	    CIM_HANDLE_INDICATION_REQUEST_MESSAGE, messageId_, queueIds_),
@@ -1289,21 +1289,30 @@ class CIMHandleIndicationRequestMessage : public CIMRequestMessage
       String userName;
 };
 
-/*
 class CIMCreateSubscriptionRequestMessage : public CIMRequestMessage
 {
    public:
 
       CIMCreateSubscriptionRequestMessage(
-	 const String& messageId_,
-	 CIMStatusCode errorCode_,
-	 const String& errorDescription_,
-	 const QueueIdStack& queueIds_)
+	  const String& messageId_,
+	  const String & nameSpace_,
+	  const CIMInstance & subscriptionInstance_,
+	  const Array<String> & classNames_,
+	  QueueIdStack queueIds_)
 	 :
-	 CIMResponseMessage(CIM_CREATE_SUBSCRIPTION_REQUEST_MESSAGE,
-			    messageId_, errorCode_, errorDescription_, queueIds_)
+	 CIMRequestMessage(
+	     CIM_CREATE_SUBSCRIPTION_REQUEST_MESSAGE,
+	     messageId_,
+	     queueIds_),
+	 nameSpace(nameSpace_),
+	 subscriptionInstance(subscriptionInstance_),
+	 classNames(classNames_)
       {
       }
+
+      String nameSpace;
+      CIMInstance subscriptionInstance;
+      Array<String> classNames;
 };
 
 class CIMModifySubscriptionRequestMessage : public CIMRequestMessage
@@ -1311,15 +1320,25 @@ class CIMModifySubscriptionRequestMessage : public CIMRequestMessage
    public:
 
       CIMModifySubscriptionRequestMessage(
-	 const String& messageId_,
-	 CIMStatusCode errorCode_,
-	 const String& errorDescription_,
-	 const QueueIdStack& queueIds_)
+	  const String& messageId_,
+	  const String & nameSpace_,
+	  const CIMInstance & subscriptionInstance_,
+	  const Array<String> & classNames_,
+	  QueueIdStack queueIds_)
 	 :
-	 CIMResponseMessage(CIM_MODIFY_SUBSCRIPTION_REQUEST_MESSAGE,
-			    messageId_, errorCode_, errorDescription_, queueIds_)
+	 CIMRequestMessage(
+             CIM_MODIFY_SUBSCRIPTION_REQUEST_MESSAGE,
+	     messageId_,
+	     queueIds_),
+	 nameSpace(nameSpace_),
+	 subscriptionInstance(subscriptionInstance_),
+	 classNames(classNames_)
       {
       }
+
+      String nameSpace;
+      CIMInstance subscriptionInstance;
+      Array<String> classNames;
 };
 
 class CIMDeleteSubscriptionRequestMessage : public CIMRequestMessage
@@ -1327,17 +1346,26 @@ class CIMDeleteSubscriptionRequestMessage : public CIMRequestMessage
    public:
 
       CIMDeleteSubscriptionRequestMessage(
-	 const String& messageId_,
-	 CIMStatusCode errorCode_,
-	 const String& errorDescription_,
-	 const QueueIdStack& queueIds_)
+	  const String& messageId_,
+	  const String & nameSpace_,
+	  const CIMInstance & subscriptionInstance_,
+	  const Array<String> & classNames_,
+	  QueueIdStack queueIds_)
 	 :
-	 CIMResponseMessage(CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE,
-			    messageId_, errorCode_, errorDescription_, queueIds_)
+	 CIMRequestMessage(
+             CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE,
+	     messageId_,
+	     queueIds_),
+	 nameSpace(nameSpace_),
+	 subscriptionInstance(subscriptionInstance_),
+	 classNames(classNames_)
       {
       }
+
+      String nameSpace;
+      CIMInstance subscriptionInstance;
+      Array<String> classNames;
 };
-*/
 
 class PEGASUS_COMMON_LINKAGE CIMGetClassResponseMessage
    : public CIMResponseMessage
@@ -1894,7 +1922,6 @@ class CIMHandleIndicationResponseMessage : public CIMResponseMessage
       }
 };
 
-/*
 class CIMCreateSubscriptionResponseMessage : public CIMResponseMessage
 {
    public:
@@ -1905,8 +1932,12 @@ class CIMCreateSubscriptionResponseMessage : public CIMResponseMessage
 	 const String& errorDescription_,
 	 const QueueIdStack& queueIds_)
 	 :
-	 CIMResponseMessage(CIM_CREATE_SUBSCRIPTION_RESPONSE_MESSAGE,
-			    messageId_, errorCode_, errorDescription_, queueIds_)
+	 CIMResponseMessage(
+	     CIM_CREATE_SUBSCRIPTION_RESPONSE_MESSAGE,
+             messageId_,
+	     errorCode_,
+	     errorDescription_,
+	     queueIds_)
       {
       }
 };
@@ -1921,8 +1952,12 @@ class CIMModifySubscriptionResponseMessage : public CIMResponseMessage
 	 const String& errorDescription_,
 	 const QueueIdStack& queueIds_)
 	 :
-	 CIMResponseMessage(CIM_MODIFY_SUBSCRIPTION_RESPONSE_MESSAGE,
-			    messageId_, errorCode_, errorDescription_, queueIds_)
+	 CIMResponseMessage(
+	     CIM_MODIFY_SUBSCRIPTION_RESPONSE_MESSAGE,
+             messageId_,
+	     errorCode_,
+	     errorDescription_,
+	     queueIds_)
       {
       }
 };
@@ -1937,12 +1972,15 @@ class CIMDeleteSubscriptionResponseMessage : public CIMResponseMessage
 	 const String& errorDescription_,
 	 const QueueIdStack& queueIds_)
 	 :
-	 CIMResponseMessage(CIM_DELETE_SUBSCRIPTION_RESPONSE_MESSAGE,
-			    messageId_, errorCode_, errorDescription_, queueIds_)
+	 CIMResponseMessage(
+	     CIM_DELETE_SUBSCRIPTION_RESPONSE_MESSAGE,
+             messageId_,
+	     errorCode_,
+	     errorDescription_,
+	     queueIds_)
       {
       }
 };
-*/
 
 PEGASUS_NAMESPACE_END
 

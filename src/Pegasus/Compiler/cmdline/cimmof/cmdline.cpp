@@ -542,7 +542,20 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
       }*/
 #endif
 #ifdef PEGASUS_OS_OS400
-      case QUIETFLAG: cmdlinedata.set_quiet();
+      // If quiet mode is chosen then shut down stdout and stderr.
+      // This is used during product installation and PTF application.
+      // We must be absolutely quiet to avoid a terminal being
+      // activated in native mode.
+      case QUIETFLAG: 
+        cmdlinedata.set_quiet();
+        // Redirect to /dev/null.
+        // Works for both qshell and native modes.
+        freopen("/dev/null","w",stdout);
+        freopen("/dev/null","w",stderr);
+
+        // Set the stderr stream to buffered with 32k.
+        // Allows utf-8 to be sent to stderr (P9A66750).
+        setvbuf(stderr, new char[32768], _IOLBF, 32768);
 	break;
 #endif
       case FILESPEC: cmdlinedata.add_filespecs(arg.optarg());

@@ -75,6 +75,11 @@ extern "C++" ostream& help(ostream& os, int progtype);
 extern "C++" ostream& cimmofl_warning(ostream& os);
 #endif
 
+#ifdef PEGASUS_OS_OS400
+// Escape message generator for os400, reports errors that cimmofl encounters.
+void os400_return_msg(int ret, String msg_, Boolean qsh);
+#endif
+
 #define NAMESPACE_ROOT "root/cimv2"
 
 int
@@ -103,7 +108,11 @@ main(int argc, char ** argv) {
 	EtoA(argv[i]);
     }
 
-  // check what environment we are running in, native or qsh
+    // Set the stderr stream to buffered with 32k.
+    // Allows utf-8 to be sent to stderr (P9A66750).
+    setvbuf(stderr, new char[32768], _IOLBF, 32768);
+
+    // check what environment we are running in, native or qsh
     Boolean qsh = false;
     if( getenv(
 #pragma convert(37)
@@ -174,6 +183,11 @@ main(int argc, char ** argv) {
       parms.default_msg = "Compilation terminating.";
       cerr << MessageLoader::getMessage(parms) << endl;
     }
+
+#ifdef PEGASUS_OS_OS400
+    os400_return_msg(ret, msg_, qsh);
+#endif
+
     return ret;
   }
 
@@ -185,20 +199,6 @@ main(int argc, char ** argv) {
 #endif
 
   const Array<String>& filespecs = cmdline.get_filespec_list();
-
-#ifdef PEGASUS_OS_OS400
-  // If quiet mode is chosen then shut down stdout and stderr.
-  // This is used during product installation and PTF application.
-  // We must be absolutely quiet to avoid a terminal being
-  // activated in native mode.
-  if (cmdline.quiet())
-  {
-      // Redirect to /dev/null.
-      // Works for both qshell and native modes.
-      freopen("/dev/null","w",stdout);
-      freopen("/dev/null","w",stderr);
-  } 	
-#endif
 
   // For most options, a real repository is required.  If we can't
   // create one and we need to, bail. 
@@ -214,39 +214,42 @@ main(int argc, char ** argv) {
     cerr << MessageLoader::getMessage(parms) << endl;
     // ATTN: P3 BB 2001 Did not set namespace.  We may need to log an error here.
 	ret = PEGASUS_CIMMOF_NO_DEFAULTNAMESPACEPATH;
+#ifdef PEGASUS_OS_OS400
+    os400_return_msg(ret, msg_, qsh);
+#endif
     return ret;
   }
   if (filespecs.size())    // user specified command line args
     for (unsigned int i = 0; i < filespecs.size(); i++) {
       if (p->setInputBufferFromName((const String &)filespecs[i]) == 0) {
-	try {
-	  ret = p->parse();
-	} catch(ParserLexException &e) {
-		//l10n
-		parms.msg_id = "Compiler.cmdline.cimmof.main.LEXER_ERROR";
-		parms.default_msg = "Lexer error: ";
-	    //msg_ = String("Lexer error: ").append(e.getMessage());
-	    msg_ = MessageLoader::getMessage(parms).append(e.getMessage());
-	    ret = PEGASUS_CIMMOF_PARSER_LEXER_ERROR ;
-	} catch(Exception &e) {
-		//l10n
-		parms.msg_id = "Compiler.cmdline.cimmof.main.PARSING_ERROR";
-		parms.default_msg = "Parsing error: ";
-	    //msg_ = String("Parsing error: ").append(e.getMessage());
-	    msg_ = MessageLoader::getMessage(parms).append(e.getMessage());
-	    ret = PEGASUS_CIMMOF_PARSING_ERROR;
-	}
+        try {
+          ret = p->parse();
+        } catch(ParserLexException &e) {
+          //l10n
+          parms.msg_id = "Compiler.cmdline.cimmof.main.LEXER_ERROR";
+          parms.default_msg = "Lexer error: ";
+          //msg_ = String("Lexer error: ").append(e.getMessage());
+          msg_ = MessageLoader::getMessage(parms).append(e.getMessage());
+          ret = PEGASUS_CIMMOF_PARSER_LEXER_ERROR ;
+        } catch(Exception &e) {
+          //l10n
+          parms.msg_id = "Compiler.cmdline.cimmof.main.PARSING_ERROR";
+          parms.default_msg = "Parsing error: ";
+          //msg_ = String("Parsing error: ").append(e.getMessage());
+          msg_ = MessageLoader::getMessage(parms).append(e.getMessage());
+          ret = PEGASUS_CIMMOF_PARSING_ERROR;
+        }
       } else {
-	  //l10n
-// l10n TODO - this path was not localized by the msg freeze for R2.3.  So, use an
-// internal exception msg for now.  But, need to replace this with
-// a new cimmof msg in release 2.4.
-	  parms.msg_id = "Common.InternalException.CANNOT_OPEN_FILE";
-	  parms.default_msg = "Can't open file $0";
-          parms.arg0 = filespecs[i];
-	  //msg_ = String("Can't open file ").append(filespecs[i]);
-	  msg_ = MessageLoader::getMessage(parms);
-          ret = PEGASUS_CIMMOF_BAD_FILENAME;
+        //l10n
+        // ATTN: l10n TODO - this path was not localized by the msg freeze for R2.3.  So, use an
+        // internal exception msg for now.  But, need to replace this with
+        // a new cimmof msg in release 2.4.
+        parms.msg_id = "Common.InternalException.CANNOT_OPEN_FILE";
+        parms.default_msg = "Can't open file $0";
+        parms.arg0 = filespecs[i];
+        //msg_ = String("Can't open file ").append(filespecs[i]);
+        msg_ = MessageLoader::getMessage(parms);
+        ret = PEGASUS_CIMMOF_BAD_FILENAME;
       }
     }
   else {
@@ -255,7 +258,7 @@ main(int argc, char ** argv) {
     } catch(ParserLexException &e) {
     	//l10n
     	parms.msg_id = "Compiler.cmdline.cimmof.main.LEXER_ERROR";
-	parms.default_msg = "Lexer error: ";
+        parms.default_msg = "Lexer error: ";
 	    //msg_ = String("Lexer error: ").append(e.getMessage());
 	    msg_ = MessageLoader::getMessage(parms).append(e.getMessage());
         ret = PEGASUS_CIMMOF_PARSER_LEXER_ERROR ;
@@ -271,13 +274,29 @@ main(int argc, char ** argv) {
   cerr << msg_ << endl;
 
 #ifdef PEGASUS_OS_OS400
+  os400_return_msg(ret, msg_, qsh);
+#endif
+
+  return ret;
+}
+
+// os400_return_msg:  creates an escape message for the os400, reports any 
+//                    severe errors that cimmofl encounters.
+// @ret:  the (unix) return status.
+// @msg_:  The general error message. 
+// @qsh:  shell status (QSHELL or Native mode).
+#ifdef PEGASUS_OS_OS400
+void
+os400_return_msg(int ret, String msg_, Boolean qsh)
+{
   // Send good completion message to stdout if the compile worked.
   // Callers of QYCMMOFL *PGM from the native command line will want to see this.
   // Note: in PTF mode the quiet option should be used.
-  if (ret == 0)
+  if (ret == 0 && !cmdline.quiet())  // chuck2
   {
       //l10n
       //cout << "Compile completed successfully." << endl;
+      MessageLoaderParms parms;
       parms.msg_id = "Compiler.cmdline.cimmof.main.COMPILE_SUCCESSFUL";
       parms.default_msg = "Compile completed successfully.";
       cout << MessageLoader::getMessage(parms) << endl;
@@ -291,8 +310,8 @@ main(int argc, char ** argv) {
       message_t    message_;	// Message information
       cmd_msg_t    cmdMSG;
       memset((char *)&cmdMSG, ' ', sizeof(cmd_msg_t) ); // init to blanks
-      memcpy(cmdMSG.commandName, "QYCMMOFL", 7);  // must be in utf-8
-      CString utf8 = msg_.getCString();
+      memcpy(cmdMSG.commandName, "QYCMMOFL", 8);  // must be in utf-8
+      CString utf8 = msg_.getCStringUTF8();
       if (strlen((const char *)utf8) <= 200)            // max repl data is 200 chars  
 	  memcpy(cmdMSG.message, utf8, strlen((const char *)utf8));
       else
@@ -303,7 +322,7 @@ main(int argc, char ** argv) {
       message_.MsgLen = sizeof(cmd_msg_t);
       memcpy(message_.MsgType, "*DIAG     ", 10); 
       ycmSend_Message(&message_,
-		      "*PGMBDY   ",
+		      "*CTLBDY   ",
 		      1,
 		      true);                     // repl data is utf-8 
 
@@ -314,7 +333,5 @@ main(int argc, char ** argv) {
 			     1);
 #pragma convert(0)
   }
-#endif
-
-  return ret;
 }
+#endif

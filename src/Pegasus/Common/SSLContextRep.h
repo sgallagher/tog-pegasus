@@ -23,7 +23,8 @@
 //
 // Author: Nag Boranna, Hewlett-Packard Company ( nagaraja_boranna@hp.com )
 //
-// Modified By:
+// Modified By: Sushma Fernandes, Hewlett-Packard Company
+//                  sushma_fernandes@hp.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -36,6 +37,7 @@
 #endif
 #include <Pegasus/Common/SSLContext.h>
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/IPC.h>
 
 #ifndef Pegasus_SSLContextRep_h
 #define Pegasus_SSLContextRep_h
@@ -46,6 +48,24 @@ PEGASUS_NAMESPACE_BEGIN
 
 class PEGASUS_COMMON_LINKAGE SSLContextRep
 {
+    /*
+    SSL locking callback function. It is needed to perform locking on 
+    shared data structures.
+
+    This function needs access to variable ssl_locks.
+    Declare it as a friend of class SSLContextRep.
+
+    @param mode 	Specifies whether to lock/unlock.
+    @param type	Type of lock.
+    @param file      File name of the function setting the lock.
+    @param line      Line number of the function setting the lock.
+    */
+    friend void pegasus_locking_callback(
+                      int       mode,
+                      int       type,
+                      const     char* file,
+                      int       line);
+
 public:
 
     /** Constructor for a SSLContextRep object.
@@ -70,6 +90,18 @@ public:
 
     SSL_CTX * getContext() const;
 
+    /*
+    Initialize the SSL locking environment. 
+         
+    This function sets the locking callback functions.
+    */
+    static void init_ssl();
+
+    /*
+    Cleanup the SSL locking environment.
+    */
+    static void free_ssl();
+
 private:
 
     SSL_CTX * _makeSSLContext();
@@ -80,6 +112,22 @@ private:
     CString _certKeyPath;
     String _randomFile;
     SSL_CTX * _sslContext;
+
+    /*
+       Mutex containing the SSL locks.
+    */
+    static Mutex* _sslLocks;
+
+    /*
+       Count for instances of this class. This is used to initialize and free
+       SSL locking objects.
+    */
+    static int _countRep;
+
+    /*
+       Mutex for countRep.
+    */
+    static Mutex _countRepMutex;
 };
 
 PEGASUS_NAMESPACE_END

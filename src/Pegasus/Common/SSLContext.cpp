@@ -25,6 +25,8 @@
 //
 // Modified By: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Sushma Fernandes,
+//                  Hewlett-Packard Company (sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -58,6 +60,15 @@ PEGASUS_NAMESPACE_BEGIN
 
 // ATTN-RK-20020905: This global variable is unsafe with multiple SSL contexts
 SSLCertificateVerifyFunction* verify_certificate;
+
+// Mutex for SSL locks.
+Mutex* SSLContextRep::_sslLocks = 0;
+
+// Mutex for _countRep.
+Mutex SSLContextRep::_countRepMutex;
+
+// Initialise _count for SSLContextRep objects.
+int SSLContextRep::_countRep = 0;
 
 static int prepareForCallback(int preverifyOk, X509_STORE_CTX *ctx)
 {
@@ -127,6 +138,65 @@ static int prepareForCallback(int preverifyOk, X509_STORE_CTX *ctx)
     return(preverifyOk);
 }
 
+//
+// Implement OpenSSL locking callback.
+//
+void pegasus_locking_callback( int 		mode, 
+                               int 		type, 
+                               const char* 	file, 
+                               int 		line)
+{
+    // Check whether the mode is lock or unlock.
+
+    if ( mode & CRYPTO_LOCK )
+    {
+        Tracer::trace(TRC_SSL, Tracer::LEVEL4,
+                "Now locking for %d", pegasus_thread_self());
+        SSLContextRep::_sslLocks[type].lock( pegasus_thread_self() );
+    }
+    else
+    {
+        Tracer::trace(TRC_SSL, Tracer::LEVEL4,
+                "Now unlocking for %d", pegasus_thread_self());
+        SSLContextRep::_sslLocks[type].unlock( );
+    }
+}
+
+//
+// Initialize OpenSSL Locking and id callbacks.
+//
+void SSLContextRep::init_ssl()
+{
+     // Allocate Memory for _sslLocks. SSL locks needs to be able to handle
+     // up to CRYPTO_num_locks() different mutex locks.
+     PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
+           "Initialized SSL callback.");
+
+     _sslLocks= new Mutex[CRYPTO_num_locks()];
+
+     // Set the ID callback. The ID callback returns a thread ID.
+
+     CRYPTO_set_id_callback((unsigned long (*)())pegasus_thread_self);
+
+     // Set the locking callback to pegasus_locking_callback.
+
+     CRYPTO_set_locking_callback((void (*)(int,int,const char *,int))pegasus_locking_callback);
+
+}
+
+// Free OpenSSL Locking and id callbacks.
+void SSLContextRep::free_ssl()
+{
+    // Cleanup _sslLocks and set locking & id callback to NULL.
+
+    CRYPTO_set_locking_callback(NULL);
+    CRYPTO_set_id_callback     (NULL);
+    PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
+             "Freed SSL callback.");
+
+    delete []_sslLocks;
+}
+
 
 //
 // SSL context area
@@ -147,11 +217,46 @@ SSLContextRep::SSLContextRep(const String& certPath,
 
     verify_certificate = verifyCert;
 
-    //
-    // load SSL library
-    //
-    SSL_load_error_strings();
-    SSL_library_init();
+
+    // Initialiaze SSL callbacks and increment the SSLContextRep object _counter.
+    _countRepMutex.lock(pegasus_thread_self());
+
+    try
+    {
+        Tracer::trace(TRC_SSL, Tracer::LEVEL4,
+                "Value of Countrep in constructor %d", _countRep);
+        if ( _countRep == 0 )
+        {
+            init_ssl();
+
+            //
+            // load SSL library
+            //
+            Tracer::trace(TRC_SSL, Tracer::LEVEL4,
+                "Before calling SSL_load_error_strings %d", pegasus_thread_self());
+
+            SSL_load_error_strings();
+
+            Tracer::trace(TRC_SSL, Tracer::LEVEL4,
+                "After calling SSL_load_error_strings %d", pegasus_thread_self());
+
+            Tracer::trace(TRC_SSL, Tracer::LEVEL4,
+                "Before calling SSL_library_init %d", pegasus_thread_self());
+
+            SSL_library_init();
+
+            Tracer::trace(TRC_SSL, Tracer::LEVEL4,
+                "After calling SSL_library_init %d", pegasus_thread_self());
+
+        } 
+    }
+    catch(...)
+    {
+        _countRepMutex.unlock();
+        throw;
+    }
+    _countRep++;
+    _countRepMutex.unlock();
 
     _randomInit(randomFile);
 
@@ -168,8 +273,27 @@ SSLContextRep::SSLContextRep(const SSLContextRep& sslContextRep)
     _certKeyPath = sslContextRep._certKeyPath;
     // ATTN: verify_certificate is set implicitly in global variable
     _randomFile = sslContextRep._randomFile;
-    _sslContext = _makeSSLContext();
 
+    // Initialiaze SSL callbacks and increment the SSLContextRep object _counter.
+    _countRepMutex.lock(pegasus_thread_self());
+    try
+    {
+        Tracer::trace(TRC_SSL, Tracer::LEVEL4,
+             "Value of Countrep in copy constructor %d", _countRep);
+        if ( _countRep == 0 )
+        {
+            init_ssl();
+        } 
+    }
+    catch(...)
+    {
+        _countRepMutex.unlock();
+        throw;
+    }
+    _countRep++;
+    _countRepMutex.unlock();
+
+    _sslContext = _makeSSLContext();
     PEG_METHOD_EXIT();
 }
 
@@ -183,6 +307,25 @@ SSLContextRep::~SSLContextRep()
 
     SSL_CTX_free(_sslContext);
 
+    // Decrement the SSLContextRep object _counter.
+    _countRepMutex.lock(pegasus_thread_self());
+    _countRep--;
+    // Free SSL locks if no instances of SSLContextRep exist.
+    try
+    {
+        Tracer::trace(TRC_SSL, Tracer::LEVEL4,
+                "Value of Countrep in destructor %d", _countRep);
+        if ( _countRep == 0 )
+        {
+            free_ssl();
+        }
+    }
+    catch(...)
+    {
+        _countRepMutex.unlock();
+        throw;
+    }
+    _countRepMutex.unlock();
     PEG_METHOD_EXIT();
 }
 
@@ -195,9 +338,8 @@ void SSLContextRep::_randomInit(const String& randomFile)
 
     Boolean ret;
     int retVal = 0;
-    int seeded = 0;
 
-    const int DEV_RANDOM_BYTES = 64;            /* how many bytes to read */
+    const int DEV_RANDOM_BYTES = 64;	        /* how many bytes to read */
     const String devRandom = "/dev/random";     /* random device name */
     const String devUrandom = "/dev/urandom";   /* pseudo-random device name */
 
@@ -208,11 +350,11 @@ void SSLContextRep::_randomInit(const String& randomFile)
         while ( RAND_status() == 0 )
         {
             //
-            // Always attempt to seed from good entropy sources, first 
+            // Always attempt to seed from good entropy sources, first
             // try /dev/random
             //
             retVal = RAND_load_file(devRandom.getCString(), DEV_RANDOM_BYTES);
-            if (retVal < 0)
+            if (retVal <= 0)
             {
                 break;
             }
@@ -227,7 +369,7 @@ void SSLContextRep::_randomInit(const String& randomFile)
             // If there isn't /dev/random try /dev/urandom
             //
             retVal = RAND_load_file(devUrandom.getCString(), DEV_RANDOM_BYTES);
-            if (retVal < 0)
+            if (retVal <= 0)
             {
                 break;
             }
@@ -256,7 +398,7 @@ void SSLContextRep::_randomInit(const String& randomFile)
         ret = FileSystem::exists(randomFile);
         if( ret )
         {
-            retVal = RAND_load_file(randomFile.getCString(), -1);
+            retVal = RAND_load_file(randomFile.getCString(), -1); 
             if ( retVal < 0 )
             {
                 PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
@@ -280,8 +422,8 @@ void SSLContextRep::_randomInit(const String& randomFile)
             if ( seedRet == 0 )
             {
                 PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
-                    "Not enough seed data in random seed file, RAND_status = " + 
-                    seedRet );
+                    "Not enough seed data in random seed file, RAND_status = " +
+                    seedRet);
                 PEG_METHOD_EXIT();
                 throw( SSLException("Not enough seed data in random seed file."));
             }
@@ -338,7 +480,7 @@ SSL_CTX * SSLContextRep::_makeSSLContext()
     }
     else
     {
-        SSL_CTX_set_verify(sslContext, SSL_VERIFY_NONE, NULL);
+	SSL_CTX_set_verify(sslContext, SSL_VERIFY_NONE, NULL);
     }
 
     //
@@ -360,8 +502,8 @@ SSL_CTX * SSLContextRep::_makeSSLContext()
     }
 
     //
-    // Check if there is a certificate key file (file containing server
-    // certificate and private key) specified. If specified, validate the
+    // Check if there is a certificate key file (file containing server 
+    // certificate and private key) specified. If specified, validate the 
     // certificate and the private key, and load them.
     //
     if (strncmp(_certKeyPath, "", 1) != 0)
@@ -443,6 +585,10 @@ Boolean SSLContextRep::_verifyPrivateKey(SSL_CTX *ctx,
                                          const char *keyFilePath) { return false; }
 
 SSL_CTX * SSLContextRep::getContext() const { return 0; }
+
+void SSLContextRep::init_ssl() {}
+
+void SSLContextRep::free_ssl() {}
 
 #endif // end of PEGASUS_HAS_SSL
 

@@ -33,6 +33,7 @@
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/pegasus_socket.h>
 #include <Pegasus/Common/Monitor.h>
+#include <Pegasus/Common/HTTPAcceptor.h>
 #include <sys/types.h>
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 #else
@@ -68,81 +69,29 @@ void pipe_handler(int signum)
 
 
 
-void test_dispatch(pegasus_socket& s)
+void test_dispatch(monitor_2_entry* entry)
 {
   unsigned char buf[256];
   memset(&buf, 0, 256);
-  Sint32 bytes = s.read((void *)&buf, 255);
-  bytes = s.write(&OK, 4);
+  Sint32 bytes = entry->get_sock().read((void *)&buf, 255);
+  bytes = entry->get_sock().write(&OK, 4);
   cmd_rx++;
+  cout << " accept " << entry->get_accept() << endl;
+  cout << " dispatch " << entry->get_dispatch() << endl;
+  entry->set_accept((void*)cmd_rx.value());
+  entry->set_dispatch((void*)cmd_rx.value());
   
-  //  if(! strncmp(QUIT, (const char *)buf, 5))
-    
+  if(! strncmp(QUIT, (const char *)buf, 5)) {
+    // close the socket 
+  }
 }
 
 
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL remote_socket(void *parm)
 {
    Thread * my_handle = reinterpret_cast<Thread *>(parm);
-   
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-#else
-   signal(SIGPIPE, SIG_IGN);
-#endif
-
-   bsd_socket_factory sf;
-   pegasus_socket listener(&sf);
-   
-   // create the underlying socket
-   listener.socket(PF_INET, SOCK_STREAM, 0);
-
-   
-   // initialize the address
-   struct sockaddr_in addr;
-   memset(&addr, 0, sizeof(addr));
-   addr.sin_addr.s_addr = INADDR_ANY;
-   addr.sin_family = AF_INET;
-   addr.sin_port = htons(PORTNO);
-   
-   listener.bind((struct sockaddr *)&addr, sizeof(addr));
-   listener.listen(15);
- 
-   mon.tickle();
-   
-   mon.add_entry(listener, LISTEN );
-
-   mon.set_session_dispatch(&test_dispatch);
-   ready = 1;
-   
+   ready = 1;  
    mon.run();
-
-
-//    // initialize select loop
-
-//    fd_set fd_listen;
-//    FD_ZERO(&fd_listen);
-//    FD_SET( (Sint32)listener, &fd_listen );
-   
-//    int events = select(FD_SETSIZE, &fd_listen, NULL, NULL, NULL);
-   
-//    struct sockaddr peer;
-//    PEGASUS_SOCKLEN_SIZE peer_size = sizeof(peer);
-   
-//    pegasus_socket connected = listener.accept(&peer, &peer_size);
-   
-//    while(1)
-//    {
-//       FD_ZERO(&fd_listen);
-//       FD_SET((Sint32)connected, &fd_listen);
-      
-//       events = select(FD_SETSIZE, &fd_listen, NULL, NULL, NULL);
-
-
-//    }
-   
-//   connected.shutdown(2);
-//   connected.close();
-//   my_handle->exit_self( (PEGASUS_THREAD_RETURN) 1 );
    return 0;
 }
 
@@ -217,15 +166,28 @@ int main(int argc, char** argv)
    signal(SIGPIPE, SIG_IGN);
 #endif
 
-   // monitor_2 tests 
+   
+   // set up the monitor and acceptor, start the service thread 
+   #ifdef PEGASUS_OS_TYPE_WINDOWS
+#else
+   signal(SIGPIPE, SIG_IGN);
+#endif
+   mon.set_session_dispatch(&test_dispatch);
+   MessageQueue* output_queue = 0;
+   pegasus_acceptor accept(&mon, output_queue, false, PORTNO, 0);
+   accept.bind();
 
+   pegasus_acceptor* found = pegasus_acceptor::find_acceptor(false, PORTNO);
+
+   Thread th_listener(remote_socket, NULL, false);
+   th_listener.run();
+
+
+   // set up my connecting socket 
    bsd_socket_factory sf;
    pegasus_socket connector(&sf);
    // create the underlying socket
    connector.socket(PF_INET, SOCK_STREAM, 0);
-
-   Thread th_listener(remote_socket, NULL, false);
-   th_listener.run();
       
    // initialize the address
    struct sockaddr_in addr;
@@ -238,14 +200,16 @@ int main(int argc, char** argv)
    struct sockaddr_in peer;
    PEGASUS_SOCKLEN_SIZE peer_size = sizeof(peer);
    memset(&peer, 0, peer_size);
-
-   peer.sin_addr.s_addr = inet_addr("127.0.0.1");
+    peer.sin_addr.s_addr = inet_addr("127.0.0.1");
    peer.sin_family= AF_INET;
    peer.sin_port = htons(PORTNO);
+
+
+   //    wait for the monitor to start running 
    while(ready.value() == 0){
      pegasus_sleep(10);
-      
    }
+   
    connector.connect((struct sockaddr *)&peer, peer_size);
    cmd_tx = 0;
    
@@ -263,9 +227,11 @@ int main(int argc, char** argv)
    while( cmd_rx.value() < cmd_tx.value() )
       pegasus_sleep(1);
 
+   mon.stop();
+   
    th_listener.cancel();
    th_listener.join();
-
+   
 # ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
 
    Thread th_domain(domain_socket, NULL, false);

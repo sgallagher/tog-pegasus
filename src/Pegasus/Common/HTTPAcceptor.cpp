@@ -145,7 +145,7 @@ void HTTPAcceptor::handleEnqueue(Message *message)
       case SOCKET_MESSAGE:
       {
 	 SocketMessage* socketMessage = (SocketMessage*)message;
-	 
+ 	 
 	 // If this is a connection request:
 
 	 if (socketMessage->socket == _rep->socket &&
@@ -567,5 +567,203 @@ void HTTPAcceptor::_acceptConnection()
    _rep->connections.append(connection);
    _rep->_connection_mut.unlock();
 }
+
+AsyncDQueue<pegasus_acceptor> pegasus_acceptor::acceptors(true, 0);
+
+pegasus_acceptor::pegasus_acceptor(monitor_2* monitor, 
+				   MessageQueue* outputMessageQueue, 
+				   Boolean localConnection, 
+				   Uint32 portNumber,
+				   SSLContext* sslcontext)
+  : _monitor(monitor), _outputMessageQueue(outputMessageQueue),
+    _localConnection(localConnection), _portNumber(portNumber),
+    _sslcontext(sslcontext), connections(true, 0)
+{
+  
+     Socket::initializeInterface();
+     try {
+       acceptors.insert_first(this);
+     }
+     catch(...){
+     }
+     
+}
+
+pegasus_acceptor::~pegasus_acceptor(void)
+{
+   unbind();
+   Socket::uninitializeInterface();
+   try {
+     acceptors.remove(this);
+   }
+   catch(...){
+   }
+   
+}
+
+
+void pegasus_acceptor::bind()
+{
+
+  PEGASUS_SOCKLEN_SIZE addr_size;
+  struct sockaddr *addr;
+  struct sockaddr_in addr_in;
+# ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
+  struct sockaddr_un addr_un;
+#endif 
+
+  memset(&addr_in, 0, sizeof(addr_in));
+  addr_in.sin_addr.s_addr = INADDR_ANY;
+  addr_in.sin_family = AF_INET;
+  addr_in.sin_port = htons(_portNumber);
+  addr = (struct sockaddr*) &addr_in;
+  addr_size = sizeof(addr_in);
+  
+  // first step: determine which kind of socket factory to initialize, 
+  // then create the socket and bind it to an address
+  if(_localConnection == true){
+#ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
+    unix_socket_factory sf;
+    pegasus_socket temp(&sf);
+    _listener = temp;
+    
+    memset(&addr_un, 0, sizeof(addr_un));
+    addr.sun_family = AF_UNIX;
+    strcpy(addr.sun_path, PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);
+    addr = (struct sockaddr*) &addr_un;
+    addr_size = sizeof(addr_un);
+    _listener.socket(AF_UNIX, SOCK_STREAM, 0);
+#else 
+    bsd_socket_factory sf;
+    pegasus_socket temp(&sf);
+    _listener = temp;
+    _listener.socket(AF_UNIX, SOCK_STREAM, 0);
+#endif 
+  }
+  else if( _sslcontext != 0 ) {
+#ifdef PEGASUS_HAS_SSL
+    ssl_socket_factory sf;
+#else
+    bsd_socket_factory sf;
+#endif
+    pegasus_socket temp(&sf);
+    _listener = temp;
+    _listener.socket(PF_INET, SOCK_STREAM, 0);
+  }
+  else {
+    bsd_socket_factory sf;
+    pegasus_socket temp(&sf);
+    _listener = temp;
+    _listener.socket(PF_INET, SOCK_STREAM, 0);
+  }
+  
+  _listener.bind((struct sockaddr*)addr, addr_size);
+    
+  // second step: listen on the socket 
+
+  _listener.listen(5);
+  
+  // third step: add this listening socket to the monitor
+
+   _monitor->tickle();
+   _monitor->add_entry(_listener, LISTEN, this, this);
+}
+
+
+/** Unbind from the given port.
+ */
+void pegasus_acceptor::unbind()
+{
+  // remove the socket from the monitor
+  _monitor->remove_entry((Sint32)_listener);
+  
+  // close the socket
+  _listener.close();
+}
+
+
+      /** Close the connection socket.
+       */
+void pegasus_acceptor::closeConnectionSocket()
+{
+  unbind();
+}
+
+
+      /** Reopen the connection socket.
+       */
+void pegasus_acceptor::reopenConnectionSocket()
+{
+  bind();
+}
+
+
+  /** Returns the number of outstanding requests
+   */
+Uint32 pegasus_acceptor::getOutstandingRequestCount()
+{
+  return _monitor->getOutstandingRequestCount();
+}
+
+Boolean pegasus_acceptor::operator ==(const pegasus_acceptor& pa)
+{
+  if(this == &pa)
+    return true;
+  return false;
+}
+
+Boolean pegasus_acceptor::operator ==(void* pa)
+{
+  if((void*)this == pa)
+    return true;
+  return false;
+}
+
+
+pegasus_acceptor* pegasus_acceptor::find_acceptor(Boolean local, Uint32 port)
+{
+  pegasus_acceptor* temp = 0;
+  
+  try {
+    acceptors.try_lock(pegasus_thread_self());
+    temp = acceptors.next(temp);
+    while(temp){
+      if( local == true ){
+	if(temp->_localConnection){
+	  acceptors.unlock();
+	  return temp;
+	}
+      }
+      if(temp->_localConnection == local && temp->_portNumber ==port){
+	acceptors.unlock();
+	return temp;
+      }
+      temp = acceptors.next(temp);
+    }
+    acceptors.unlock();
+  }
+  catch(...){
+  }
+  return temp;
+}
+
+class m2e_rep;
+
+void pegasus_acceptor::accept_dispatch(monitor_2_entry *entry)
+{
+  pegasus_acceptor* myself = (pegasus_acceptor*)entry->get_accept();
+  
+  HTTPConnection2* connection = new HTTPConnection2(entry->_rep->psock, myself->_outputMessageQueue);
+  
+  // set the entry's dispatch parameter to point to the connection object
+  entry->set_dispatch ((void*)connection);
+
+  try {
+    myself->connections.insert_first(connection);
+  }
+  catch(...){
+  }
+}
+
 
 PEGASUS_NAMESPACE_END

@@ -43,6 +43,7 @@
 #include <Pegasus/Common/AuthenticationInfo.h>
 #include <Pegasus/Common/TLS.h>
 #include <Pegasus/Common/HTTPAcceptor.h>
+#include <Pegasus/Common/pegasus_socket.h>
 #include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -50,6 +51,7 @@ PEGASUS_NAMESPACE_BEGIN
 class HTTPConnector;
 
 class MessageQueueService;
+
 struct HTTPConnectionRep;
 
 /** This message is sent from a connection to its owner (so that the
@@ -174,6 +176,90 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueue
       friend class HTTPAcceptor;
       friend class HTTPConnector;
 };
+
+class PEGASUS_COMMON_LINKAGE HTTPConnection2 : public MessageQueue
+{
+   public:
+      typedef MessageQueue Base;
+      
+      /** Constructor. */
+      HTTPConnection2( pegasus_socket socket,
+		      MessageQueue * outputMessageQueue);
+
+      /** Destructor. */
+      ~HTTPConnection2();
+
+      /** This method is called whenever a SocketMessage is enqueued
+	  on the input queue of the HTTPConnection2 object.
+      */ 
+      virtual void handleEnqueue(Message *);
+      
+      virtual void handleEnqueue();
+
+      /** Return socket this connection is using. */
+      Sint32 getSocket();
+      
+      /** Return the number of outstanding requests for all HTTPConnection2 
+	  instances.
+      */
+      Uint32 getRequestCount();
+
+
+      void lock_connection(void)
+      {
+         Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+            "HTTPConnection2::lock_connection - LOCK REQUESTED");
+	 _connection_mut.lock(pegasus_thread_self());
+         Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+            "HTTPConnection2::lock_connection - LOCK ACQUIRED");
+      }
+      
+      void unlock_connection(void)
+      {
+	 _connection_mut.unlock();
+         Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+            "HTTPConnection2::unlock_connection - LOCK RELEASED");
+      } 
+      
+      Boolean is_dying(void)
+      {
+	 if( _dying.value() > 0 )
+	    return true;
+	 return false;
+      }
+      
+      AtomicInt refcount;
+
+      Boolean operator ==(const HTTPConnection2& );
+      Boolean operator ==(void*);
+      
+   private:
+
+      void _clearIncoming();
+
+      void _getContentLengthAndContentOffset();
+
+      void _closeConnection();
+
+      void _handleReadEvent();
+
+      pegasus_socket _socket;
+      MessageQueue* _outputMessageQueue;
+
+      Sint32 _contentOffset; 
+      Sint32 _contentLength;
+      Array<Sint8> _incomingBuffer;
+      AuthenticationInfo* _authInfo;
+      static AtomicInt _requestCount;
+      Mutex _connection_mut;
+      AtomicInt _dying;
+      int _entry_index;
+      
+      friend class Monitor;
+      friend class HTTPAcceptor;
+      friend class HTTPConnector;
+};
+
 
 PEGASUS_NAMESPACE_END
 

@@ -32,6 +32,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/MessageQueue.h>
+#include <Pegasus/Common/HTTPConnection.h>
 #include <Pegasus/Common/Monitor.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/TLS.h>
@@ -124,6 +125,61 @@ class PEGASUS_COMMON_LINKAGE HTTPAcceptor : public MessageQueue
       Boolean _localConnection;
       Uint32  _portNumber;
       SSLContext * _sslcontext;
+};
+
+class HTTPConnection2;
+
+class PEGASUS_COMMON_LINKAGE pegasus_acceptor 
+{
+ public:
+
+  pegasus_acceptor(monitor_2* monitor, 
+		   MessageQueue* outputMessageQueue, 
+		   Boolean localConnection, 
+		   Uint32 portNumber,
+		   SSLContext* sslcontext);
+
+  ~pegasus_acceptor(void);
+  
+  void bind();
+
+      /** Unbind from the given port.
+       */
+  void unbind();
+
+      /** Close the connection socket.
+       */
+  void closeConnectionSocket();
+
+      /** Reopen the connection socket.
+       */
+  void reopenConnectionSocket();
+
+  /** Returns the number of outstanding requests
+   */
+  Uint32 getOutstandingRequestCount();
+  
+  Boolean operator ==(const pegasus_acceptor& );
+  Boolean operator ==(void*);
+  
+  static pegasus_acceptor* find_acceptor(Boolean local, Uint32 port);
+  static void accept_dispatch(monitor_2_entry*);
+  
+ private:
+  pegasus_acceptor(void);
+  
+  monitor_2* _monitor;
+  MessageQueue* _outputMessageQueue;
+  
+  Boolean _localConnection;
+  Uint32  _portNumber;
+  SSLContext * _sslcontext;
+  pegasus_socket _listener;
+
+  // change to a dqueue
+  AsyncDQueue<HTTPConnection2> connections;
+  static AsyncDQueue<pegasus_acceptor> acceptors;
+  
 };
 
 PEGASUS_NAMESPACE_END

@@ -378,7 +378,7 @@ int bsd_socket_rep::connect (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE length)
 {
    int ccode = ::connect(_socket, addr, length);
    if(ccode == -1)
-      _errno = errno;
+       _errno = errno;
    return ccode;
 }
 
@@ -922,7 +922,7 @@ unix_socket_rep::~unix_socket_rep(void)
 int unix_socket_rep::close(void)
 {
    int ccode = Base::close();
-//   ::unlink(PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);
+   ::unlink(PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);
    return ccode;
 }
 

@@ -38,7 +38,8 @@
 #include <Pegasus/Common/pegasus_socket.h>
 #include <Pegasus/Common/internal_dq.h>
 #include <Pegasus/Common/DQueue.h>
-#include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/Sharable.h>
+#include <Pegasus/Common/Linkage.h> 
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -235,22 +236,61 @@ private:
 
 enum monitor_2_entry_type { UNTYPED, INTERNAL, LISTEN, CONNECT, SESSION };
 
+
+class PEGASUS_COMMON_LINKAGE m2e_rep : public Sharable
+{
+public:
+  typedef Sharable Base;
+  
+  m2e_rep();
+  m2e_rep(monitor_2_entry_type, pegasus_socket, void*, void*);
+  ~m2e_rep();
+  m2e_rep(const m2e_rep& );
+  m2e_rep& operator =(const m2e_rep& );
+  Boolean operator ==(const m2e_rep& );
+  Boolean operator ==(void*);
+  operator pegasus_socket() const;
+    
+
+  monitor_2_entry_type type;
+  pegasus_socket psock;
+  void* accept_parm;
+  void* dispatch_parm;
+};
+
+
+
 class PEGASUS_COMMON_LINKAGE monitor_2_entry
 {
 public:
  
   monitor_2_entry(void);
-  monitor_2_entry(pegasus_socket&, monitor_2_entry_type _type);
+  monitor_2_entry(pegasus_socket&, monitor_2_entry_type _type, void* accept, void* dispatch);
   monitor_2_entry(const monitor_2_entry&);
+  monitor_2_entry(m2e_rep* );
+  
   ~monitor_2_entry(void);
 
   monitor_2_entry& operator=(const monitor_2_entry&);
-  Boolean operator ==(const monitor_2_entry& );
-  Boolean operator ==(void*);
-  operator pegasus_socket() const;
+  Boolean operator ==(const monitor_2_entry& ) const;
+  Boolean operator ==(void*) const;
+   
+  
+  monitor_2_entry_type get_type() const;
+  void set_type(monitor_2_entry_type);
+  
+  pegasus_socket get_sock(void) const;
+  
+  void set_sock(pegasus_socket&);
 
-  monitor_2_entry_type type;
-  pegasus_socket psock;
+  void* get_accept(void) const;
+  void set_accept(void*);
+   
+  void* get_dispatch(void) const;
+  void set_dispatch(void*);
+  
+  m2e_rep* _rep;
+  
 };
 
 
@@ -261,20 +301,23 @@ public:
   
   monitor_2(void);
   ~monitor_2(void);
-  Boolean add_entry(pegasus_socket& , monitor_2_entry_type);
+  monitor_2_entry* add_entry(pegasus_socket& , monitor_2_entry_type, void*, void*);
   Boolean remove_entry(Sint32 );
   void tickle(void);
   void run(void);
   void stop(void);
   
-  void* set_session_dispatch( void (*)(pegasus_socket& ));
+  void* set_session_dispatch( void (*)(monitor_2_entry*));
+  void* set_accept_dispatch( void (*)(monitor_2_entry*));
+  
+  Uint32 getOutstandingRequestCount(void);
   
   
 private:
 
   void _dispatch(void);
-  void (*_session_dispatch)(pegasus_socket& );
-  
+  void (*_session_dispatch)(monitor_2_entry*);
+  void (*_accept_dispatch)(monitor_2_entry*);
   AsyncDQueue<monitor_2_entry> _listeners;
   internal_dq _ready;
   
@@ -282,6 +325,7 @@ private:
   struct sockaddr_in _tickle_addr;
   AtomicInt _die;
   fd_set rd_fd_set;  
+  AtomicInt _requestCount;
 };
 
 

@@ -139,7 +139,7 @@ public:
 
   Boolean incompleteReadOccurred(Sint32 retCode);
   Boolean is_secure(void);
-  void set_close_on_exec(void);
+    void set_close_on_exec(void);
       
   const char* get_err_string(void);
   

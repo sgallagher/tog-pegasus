@@ -613,4 +613,429 @@ Boolean HTTPConnection::run(Uint32 milliseconds)
    return handled_events;
 }
 
+
+AtomicInt HTTPConnection2::_requestCount(0);
+
+
+HTTPConnection2::HTTPConnection2(pegasus_socket socket,
+				 MessageQueue* outputMessageQueue)
+    : 
+   Base(PEGASUS_QUEUENAME_HTTPCONNECTION), 
+   _socket(socket), 
+   _outputMessageQueue(outputMessageQueue),
+   _contentOffset(-1),
+   _contentLength(-1)
+{
+   PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection2::HTTPConnection2");
+
+   _authInfo = new AuthenticationInfo(true);
+
+   PEG_METHOD_EXIT();
+}
+
+HTTPConnection2::~HTTPConnection2()
+{
+   PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection2::~HTTPConnection2");
+
+    delete _authInfo;
+
+   PEG_METHOD_EXIT();
+}
+
+
+void HTTPConnection2::handleEnqueue(Message *message)
+{
+   PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection2::handleEnqueue");
+
+   if( ! message || _dying.value() > 0 )
+   {
+      PEG_METHOD_EXIT();
+      return;
+   }
+
+   
+   Boolean LockAcquired = false;
+
+  if (pegasus_thread_self() != _connection_mut.get_owner())
+  {
+     _connection_mut.lock(pegasus_thread_self());  // Use lock_connection() ?
+     LockAcquired = true;
+  }
+
+   switch (message->getType())
+   {
+      case SOCKET_MESSAGE:
+      {
+
+         Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+            "HTTPConnection2::handleEnqueue - SOCKET_MESSAGE");
+	 
+	 SocketMessage* socketMessage = (SocketMessage*)message;
+
+	 if (socketMessage->events & SocketMessage::READ)
+	    _handleReadEvent();
+
+	 break;
+      }
+
+      case HTTP_MESSAGE:
+      {
+         Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+            "HTTPConnection2::handleEnqueue - HTTP_MESSAGE");
+	 
+	 HTTPMessage* httpMessage = (HTTPMessage*)message;
+
+#ifdef PEGASUS_KERBEROS_AUTHENTICATION
+         // TODO::KERBEROS complete and verify code
+         CIMKerberosSecurityAssociation *sa = _authInfo->getSecurityAssociation();
+         // Determine if message came from CIMOperationResponseEncoder and Kerberos is being used.
+         if ((int)httpMessage->authInfo == 99 && sa)
+         {
+             char* outmessage = NULL;
+             Uint64   outlength = 0;
+             Array<Sint8> final_buffer;
+             final_buffer.clear();
+             Array<Sint8> header_buffer;
+             header_buffer.clear();
+             Array<Sint8> unwrapped_content_buffer;
+             unwrapped_content_buffer.clear();
+             if (sa->getClientAuthenticated())
+             { 
+                 // TODO::KERBEROS Question - will parse be able to distinguish headers from 
+                 //     contents when the contents is wrapped??? I am thinking we are okay
+                 //     because the code breaks out of the loop as soon as it finds the 
+                 //     double separator that terminates the headers.
+                 // Parse the HTTP message:
+                 String startLine;
+                 Array<HTTPHeader> headers;
+                 Uint32 contentLength;
+                 httpMessage->parse(startLine, headers, contentLength);
+
+                 for (Uint64 i = 0; i < (httpMessage->message.size()-contentLength); i++)
+                 {
+                     header_buffer.append(httpMessage->message[i]);
+                 }
+
+                 for (Uint64 i = (httpMessage->message.size()-contentLength); i < httpMessage->message.size(); i++)
+                 {
+                      unwrapped_content_buffer.append(outmessage[i]);
+                 }
+
+                 if (sa->wrap_message((const char*)unwrapped_content_buffer.getData(),
+                                      (Uint64)unwrapped_content_buffer.size(),
+                                       outmessage,
+                                       outlength))
+                 {
+                         // build a bad request
+                         final_buffer = XmlWriter::formatHttpErrorRspMessage(HTTP_STATUS_BADREQUEST);
+                 }
+             }
+             //  Note:  wrap_message can result in the client no longer being authenticated so the 
+             //  flag needs to be checked.  
+             if (!sa->getClientAuthenticated())
+             {
+                  if (final_buffer.size() == 0)
+                  {
+                      // set authenticated flag in _authInfo to not authenticated because the
+                      // wrap resulted in an expired token or credential.
+                      _authInfo->setAuthStatus(AuthenticationInfoRep::CHALLENGE_SENT);
+                      // build a 401 response 
+                      // do we need to add a token here or just restart the negotiate again???
+                      // authResponse.append(sa->getServerToken());
+                      XmlWriter::appendUnauthorizedResponseHeader(final_buffer, KERBEROS_CHALLENGE_HEADER);
+                  }
+             }
+             else
+             {
+                  if (final_buffer.size() == 0 && outlength > 0)
+                  {
+                      Array<Sint8> wrapped_content_buffer;
+                      wrapped_content_buffer.clear();
+                      for (Uint64 i = 0; i < outlength; i++)
+                      {
+                          wrapped_content_buffer.append(outmessage[i]);
+                      }
+                      final_buffer.appendArray(header_buffer);
+                      final_buffer.appendArray(wrapped_content_buffer);
+                  }
+             }
+
+             if (outmessage)
+                 delete [] outmessage;  // outmessage is no longer needed
+
+             if (final_buffer.size())
+             {
+                 httpMessage->message.clear();
+                 httpMessage->message = final_buffer;
+             }
+         }
+#endif
+
+	 // ATTN: convert over to asynchronous write scheme:
+
+	 // Send response message to the client (use synchronous I/O for now:
+
+
+	 const Array<Sint8>& buffer = httpMessage->message;
+ 
+	 const Uint32 CHUNK_SIZE = 16 * 1024;
+
+	 SignalHandler::ignore(PEGASUS_SIGPIPE);
+
+	 // use the next four lines to test the SIGABRT handler
+	 //getSigHandle()->registerHandler(PEGASUS_SIGABRT, sig_act);
+	 //getSigHandle()->activate(PEGASUS_SIGABRT);
+	 //Thread t(sigabrt_generator, NULL, false);
+	 //t.run();
+
+         Uint32 totalBytesWritten = 0;
+	 for (Uint32 bytesRemaining = buffer.size(); bytesRemaining > 0; )
+	 {
+	    Uint32 bytesToWrite = _Min(bytesRemaining, CHUNK_SIZE);
+
+	    Sint32 bytesWritten = _socket.write(
+	       buffer.getData() + buffer.size() - bytesRemaining, 
+	       bytesToWrite);
+
+	    if (bytesWritten < 0)
+	       break;
+	    //throw ConnectionBroken();
+
+            totalBytesWritten += bytesWritten;
+	    bytesRemaining -= bytesWritten;
+	 }
+	 //
+	 // decrement request count
+	 //
+	 _requestCount--;
+
+         Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+            "Total bytes written = %d; Buffer Size = %d; _requestCount = %d",
+             totalBytesWritten,  buffer.size(), _requestCount.value());
+
+	 break;
+      }
+
+      default:
+	 // ATTN: need unexpected message error!
+	 break;
+   }
+
+   delete message;
+
+   if (LockAcquired)
+   {
+      _connection_mut.unlock();  // Use unlock_connection() ?
+   }
+   PEG_METHOD_EXIT();
+}
+
+
+void HTTPConnection2::handleEnqueue()
+{
+   Message* message = dequeue();
+
+    if (!message)
+        return;
+    handleEnqueue(message);
+}
+
+void HTTPConnection2::_getContentLengthAndContentOffset()
+{
+    char* data = (char*)_incomingBuffer.getData();
+    Uint32 size = _incomingBuffer.size();
+    char* line = (char*)data;
+    char* sep;
+    Uint32 lineNum = 0;
+    Boolean bodylessMessage = false;
+
+    while ((sep = _FindSeparator(line, size - (line - data))))
+    {
+	char save = *sep;
+	*sep = '\0';
+
+	// Did we find the double separator which terminates the headers?
+
+	if (line == sep)
+	{
+	    *sep = save;
+	    line = sep + ((save == '\r') ? 2 : 1);
+	    _contentOffset = line - _incomingBuffer.getData();
+	    break;
+	}
+
+	// If this is one of the bodyless methods, then we can assume the
+	// message is complete when the "\r\n\r\n" is encountered.
+
+	if (lineNum == 0 && _IsBodylessMessage(line))
+	    bodylessMessage = true;
+
+	// Look for the content-length if not already found:
+
+	char* colon = strchr(line, ':');
+
+	if (colon)
+	{
+	    *colon  = '\0';
+
+	    if (System::strcasecmp(line, "content-length") == 0)
+		_contentLength = atoi(colon + 1);
+
+	    *colon = ':';
+	}
+
+	*sep = save;
+	line = sep + ((save == '\r') ? 2 : 1);
+	lineNum++;
+    }
+
+    if (_contentOffset != -1 && bodylessMessage)
+	_contentLength = 0;
+}
+
+void HTTPConnection2::_clearIncoming()
+{
+    _contentOffset = -1;
+    _contentLength = -1;
+    _incomingBuffer.clear();
+}
+
+void HTTPConnection2::_closeConnection()
+{
+   // return - don't send the close connection message. 
+   // let the monitor dispatch function do the cleanup. 
+   PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection2::_closeConnection");
+   _dying = 1;
+   PEG_METHOD_EXIT();
+
+}
+
+void HTTPConnection2::_handleReadEvent()
+{
+    PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection2::_handleReadEvent");
+
+    // -- Append all data waiting on socket to incoming buffer:
+
+#ifdef LOCK_CONNECTION_ENABLED
+    lock_connection();
+#endif
+
+    Sint32 bytesRead = 0;
+    Boolean incompleteSecureReadOccurred = false;
+    for (;;)
+    {
+	char buffer[4096];
+        Sint32 n = _socket.read(buffer, sizeof(buffer));
+
+	if (n <= 0)
+	{
+	    if (_socket.is_secure() && bytesRead == 0)
+            {
+	       // It is possible that SSL_read was not able to 
+	       // read the entire SSL record.  This could happen
+	       // if the record was send in multiple packets
+	       // over the network and only some of the packets
+	       // are available.  Since SSL requires the entire
+	       // record to successfully decrypt, the SSL_read
+	       // operation will return "0 bytes" read.
+	       // Once all the bytes of the SSL record have been read,
+	       // SSL_read will return the entire record.
+	       // The following test was added to allow
+	       // handleReadEvent to distinguish between a 
+	       // disconnect and partial read of an SSL record.
+	       //
+               incompleteSecureReadOccurred = !_socket.incompleteReadOccurred(n);
+            }
+
+	    break;
+	}
+
+	_incomingBuffer.append(buffer, n);
+	bytesRead += n;
+    }
+    Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+     "_socket.read bytesRead = %d", bytesRead);
+   
+    // -- If still waiting for beginning of content!
+
+    if (_contentOffset == -1)
+	_getContentLengthAndContentOffset();
+
+    // -- See if the end of the message was reached (some peers signal end of 
+    // -- the message by closing the connection; others use the content length
+    // -- HTTP header and then there are those messages which have no bodies
+    // -- at all).
+
+    if ((bytesRead == 0 && !incompleteSecureReadOccurred) ||  
+	_contentLength != -1 && 
+	(Sint32(_incomingBuffer.size()) >= _contentLength + _contentOffset))
+    {
+	HTTPMessage* message = new HTTPMessage(_incomingBuffer, getQueueId());
+        message->authInfo = _authInfo;
+
+        //
+        // increment request count 
+        //
+        _requestCount++;
+        Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+          "_requestCount = %d", _requestCount.value());
+	message->dest = _outputMessageQueue->getQueueId();
+//	SendForget(message);
+	
+#ifndef LOCK_CONNECTION_ENABLED
+	_outputMessageQueue->enqueue(message);
+#endif
+	_clearIncoming();
+
+#ifdef LOCK_CONNECTION_ENABLED
+        unlock_connection();
+
+	if (bytesRead > 0)
+        {
+	   _outputMessageQueue->enqueue(message);
+        }
+        else 
+#else
+	if (bytesRead == 0)
+#endif
+	{
+	   Tracer::trace(TRC_HTTP, Tracer::LEVEL3,
+			 "HTTPConnection2::_handleReadEvent - bytesRead == 0 - Conection being closed.");
+	   _closeConnection();
+	   
+	   //
+	   // decrement request count
+	   //
+	   _requestCount--;
+	   Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+			 "_requestCount = %d", _requestCount.value());
+	   
+	   PEG_METHOD_EXIT();
+	   return;
+	}
+    }
+    PEG_METHOD_EXIT();
+}
+
+Uint32 HTTPConnection2::getRequestCount()
+{
+    return(_requestCount.value());
+}
+
+
+Boolean HTTPConnection2::operator ==(const HTTPConnection2& h2)
+{
+  if(this == &h2)
+    return true;
+  return false;
+}
+
+Boolean HTTPConnection2::operator ==(void* h2)
+{
+  if((void *)this == h2)
+    return true;
+  return false;
+}
+
+
 PEGASUS_NAMESPACE_END

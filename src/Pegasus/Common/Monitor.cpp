@@ -335,49 +335,109 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL Monitor::_dispatch(void *parm)
 ////************************* monitor 2 *****************************////
 
 
-monitor_2_entry::monitor_2_entry(void)
-  : type(UNTYPED)
+m2e_rep::m2e_rep(void)
+  :Base()
 {
 }
 
-monitor_2_entry::monitor_2_entry(pegasus_socket& _psock, monitor_2_entry_type _type)
-  : type(_type), psock(_psock)
+m2e_rep::m2e_rep(monitor_2_entry_type _type, 
+		 pegasus_socket _sock, 
+		 void* _accept, 
+		 void* _dispatch)
+  : Base(), type(_type), psock(_sock), 
+    accept_parm(_accept), dispatch_parm(_dispatch)
 {
+  
+}
 
+m2e_rep::~m2e_rep(void)
+{
+}
+
+m2e_rep::m2e_rep(const m2e_rep& r)
+  : Base()
+{
+  if(this != &r){
+    type = r.type;
+    psock = r.psock;
+    accept_parm = r.accept_parm;
+    dispatch_parm = r.dispatch_parm;
+  }
+}
+
+
+m2e_rep& m2e_rep::operator =(const m2e_rep& r)
+{
+  if(this != &r) {
+    type = r.type;
+    psock = r.psock;
+    accept_parm = r.accept_parm;
+    dispatch_parm = r.dispatch_parm;
+  }
+  return *this;
+}
+
+Boolean m2e_rep::operator ==(const m2e_rep& r)
+{
+  if(this == &r)
+    return true;
+  return false;
+}
+
+Boolean m2e_rep::operator ==(void* r)
+{
+  if((void*)this == r)
+    return true;
+  return false;
+}
+
+m2e_rep::operator pegasus_socket() const 
+{
+  return psock;
+}
+
+
+monitor_2_entry::monitor_2_entry(void)
+{
+  _rep = new m2e_rep();
+}
+
+monitor_2_entry::monitor_2_entry(pegasus_socket& _psock, 
+				 monitor_2_entry_type _type, 
+				 void* _accept_parm, void* _dispatch_parm)
+{
+  _rep = new m2e_rep(_type, _psock, _accept_parm, _dispatch_parm);
 }
 
 monitor_2_entry::monitor_2_entry(const monitor_2_entry& e)
 {
   if(this != &e){
-    psock = e.psock;
-    type = e.type;
+    Inc(this->_rep = e._rep);
   }
 }
 
 monitor_2_entry::~monitor_2_entry(void)
 {
-
+  Dec(_rep);
 }
 
 monitor_2_entry& monitor_2_entry::operator=(const monitor_2_entry& e)
 {
   if(this != &e){
-    psock = e.psock;
-    type = e.type;
+    Dec(_rep);
+    Inc(this->_rep = e._rep);
   }
   return *this;
 }
 
-Boolean monitor_2_entry::operator ==(const monitor_2_entry& me)
+Boolean monitor_2_entry::operator ==(const monitor_2_entry& me) const
 {
   if(this == &me)
-    return true;
-  if((Sint32)this->psock == (Sint32)me.psock)
     return true;
   return false;
 }
 
-Boolean monitor_2_entry::operator ==(void* k)
+Boolean monitor_2_entry::operator ==(void* k) const
 {
   if((void *)this == k)
     return true;
@@ -385,14 +445,54 @@ Boolean monitor_2_entry::operator ==(void* k)
 }
 
 
-monitor_2_entry::operator pegasus_socket() const
+monitor_2_entry_type monitor_2_entry::get_type(void) const
 {
-  return psock;
+  return _rep->type;
+}
+
+void monitor_2_entry::set_type(monitor_2_entry_type t)
+{
+  _rep->type = t;
+}
+
+
+void* monitor_2_entry::get_accept(void) const
+{
+  return _rep->accept_parm;
+}
+
+void monitor_2_entry::set_accept(void* a)
+{
+  _rep->accept_parm = a;
+}
+
+
+void* monitor_2_entry::get_dispatch(void) const
+{
+  return _rep->dispatch_parm;
+}
+
+void monitor_2_entry::set_dispatch(void* a)
+{
+  _rep->dispatch_parm = a;
+}
+
+pegasus_socket monitor_2_entry::get_sock(void) const
+{
+  return _rep->psock;
+}
+
+
+void monitor_2_entry::set_sock(pegasus_socket& s)
+{
+  _rep->psock = s;
+  
 }
 
 
 monitor_2::monitor_2(void)
-  : _session_dispatch(0), _listeners(true, 0), _ready(true),  _die(0)
+  : _session_dispatch(0), _accept_dispatch(0), _listeners(true, 0), 
+    _ready(true),  _die(0), _requestCount(0)
 {
   try {
     
@@ -426,15 +526,15 @@ monitor_2::monitor_2(void)
     tickler.bind((struct sockaddr*)&_addr, sizeof(_addr));
     tickler.connect((struct sockaddr*)&_tickle_addr, sizeof(_tickle_addr));
 
-    _tickler.psock = tickler;
-    _tickler.type = INTERNAL;
+    _tickler.set_sock(tickler);
+    _tickler.set_type(INTERNAL);
 
     struct sockaddr_in peer;
     memset(&peer, 0, sizeof(peer));
     PEGASUS_SOCKLEN_SIZE peer_size = sizeof(peer);
 
     pegasus_socket accepted = temp.accept((struct sockaddr*)&peer, &peer_size);
-    monitor_2_entry* _tickle = new monitor_2_entry(accepted, INTERNAL);
+    monitor_2_entry* _tickle = new monitor_2_entry(accepted, INTERNAL, 0, 0);
     _listeners.insert_first(_tickle);
 
   }
@@ -443,11 +543,14 @@ monitor_2::monitor_2(void)
 
 monitor_2::~monitor_2(void)
 {
+
   PEGASUS_STD(cout) << "monitor destructor" << PEGASUS_STD(endl);
   
   try {
     monitor_2_entry* temp = _listeners.remove_first();
     while(temp){
+      PEGASUS_STD(cout) << " removing listener" << PEGASUS_STD(endl);
+      
       delete temp;
       temp = _listeners.remove_first();
     }
@@ -468,7 +571,7 @@ void monitor_2::run(void)
       _listeners.lock(pegasus_thread_self());
       temp = _listeners.next(0);
       while(temp != 0 ){
-	FD_SET((Sint32)temp->psock, &rd_fd_set);
+	FD_SET((Sint32) temp->get_sock()  , &rd_fd_set);
 	temp = _listeners.next(temp);
       }
       _listeners.unlock();
@@ -476,17 +579,22 @@ void monitor_2::run(void)
     catch(...){
       return;
     }
+    // important -  the dispatch routine has pointers to all the 
+    // entries that are readable. These entries can be changed but 
+    // the pointer must not be tampered with. 
 
     int events = select(FD_SETSIZE, &rd_fd_set, NULL, NULL, NULL);
     try {
       _listeners.lock(pegasus_thread_self());
-     
       temp = _listeners.next(0);
       while(temp != 0 ){
-	if(FD_ISSET((Sint32)temp->psock, &rd_fd_set)) {
-	  FD_CLR((Sint32)temp->psock,  &rd_fd_set);
-	  monitor_2_entry* entry = new monitor_2_entry(*temp);
-	  _ready.insert_first((void*)entry);
+	Sint32 fd = (Sint32) temp->get_sock();
+	
+	if(FD_ISSET(fd, &rd_fd_set)) {
+	  FD_CLR(fd,  &rd_fd_set);
+	  monitor_2_entry* ready = new monitor_2_entry(*temp);
+	  _ready.insert_first((void*)ready);
+	  _requestCount++;
 	}
 	temp = _listeners.next(temp);
       }
@@ -495,57 +603,67 @@ void monitor_2::run(void)
     catch(...){
       return;
     }
-
     // now handle the sockets that are ready to read 
     _dispatch();
   } // while alive 
 }
 
-void* monitor_2::set_session_dispatch(void (*dp)(pegasus_socket&))
+void* monitor_2::set_session_dispatch(void (*dp)(monitor_2_entry*))
 {
-  void* old = (void*)_session_dispatch;
+  void* old = (void *)_session_dispatch;
   _session_dispatch = dp;
   return old;
 }
 
+void* monitor_2::set_accept_dispatch(void (*dp)(monitor_2_entry*))
+{
+  void* old = (void*)_accept_dispatch;
+  _accept_dispatch = dp;
+  return old;
+  
+}
 
+
+// important -  the dispatch routine has pointers to all the 
+// entries that are readable. These entries can be changed but 
+// the pointer must not be tampered with. 
 void monitor_2::_dispatch(void)
 {
   monitor_2_entry* entry = (monitor_2_entry*) _ready.remove_first();
   while(entry != 0 ){
-    switch(entry->type) {
+    switch(entry->get_type()) {
     case INTERNAL:
       static char buffer[2];
-      entry->psock.read(&buffer, 2);
+      entry->get_sock().read(&buffer, 2);
       break;
     case LISTEN:
       {
 	static struct sockaddr peer;
 	static PEGASUS_SOCKLEN_SIZE peer_size = sizeof(peer);
-	pegasus_socket connected = entry->psock.accept(&peer, &peer_size);
-	add_entry(connected, SESSION);
+	pegasus_socket connected = entry->get_sock().accept(&peer, &peer_size);
+	monitor_2_entry *temp = add_entry(connected, SESSION, entry->get_accept(), entry->get_dispatch());
+	if(temp && _accept_dispatch != 0)
+	  _accept_dispatch(temp);
       }
       break;
     case SESSION:
       if(_session_dispatch != 0 )
-	_session_dispatch(entry->psock);
+	_session_dispatch(entry);
       else {
 	static char buffer[4096];
-	int bytes = entry->psock.read(&buffer, 4096);
+	int bytes = entry->get_sock().read(&buffer, 4096);
       }
     
       break;
-    
     case UNTYPED:
     default:
       break;
-    
     }
+    _requestCount--;
     delete entry;
     entry = (monitor_2_entry*) _ready.remove_first();
   }
 }
-
 
 void monitor_2::stop(void)
 {
@@ -553,7 +671,7 @@ void monitor_2::stop(void)
   tickle();
   
   // shut down the listener list, free the list nodes
-  _tickler.psock.close();
+  _tickler.get_sock().close();
   _listeners.shutdown_queue();
 }
 
@@ -564,23 +682,26 @@ void monitor_2::tickle(void)
       '0','0'
     };
   
-  _tickler.psock.write(&_buffer, 2);
+  _tickler.get_sock().write(&_buffer, 2);
 }
 
 
-Boolean monitor_2::add_entry(pegasus_socket& ps, monitor_2_entry_type type)
+monitor_2_entry*  monitor_2::add_entry(pegasus_socket& ps, 
+				       monitor_2_entry_type type,
+				       void* accept_parm, 
+				       void* dispatch_parm)
 {
-  monitor_2_entry* m2e = new monitor_2_entry(ps, type);
+  monitor_2_entry* m2e = new monitor_2_entry(ps, type, accept_parm, dispatch_parm);
   
   try{
     _listeners.insert_first(m2e);
   }
   catch(...){
     delete m2e;
-    return false;
+    return 0;
   }
   tickle();
-  return true;
+  return m2e;
 }
 
 Boolean monitor_2::remove_entry(Sint32 s)
@@ -590,7 +711,7 @@ Boolean monitor_2::remove_entry(Sint32 s)
     _listeners.try_lock(pegasus_thread_self());
     temp = _listeners.next(0);
     while(temp != 0){
-      if(s == (Sint32)temp->psock ){
+      if(s == (Sint32)temp->_rep->psock ){
 	temp = _listeners.remove_no_lock(temp);
 	delete temp;
 	_listeners.unlock();
@@ -605,6 +726,11 @@ Boolean monitor_2::remove_entry(Sint32 s)
   return false;
 }
 
+Uint32 monitor_2::getOutstandingRequestCount(void)
+{
+  return _requestCount.value();
+  
+}
 
 
 PEGASUS_NAMESPACE_END

@@ -9,9 +9,6 @@ endef
 all: $(RECURSE_DEPENDS) $(ERROR)
 	@ $(foreach i, $(DIRS), $(MAKESH) $(MAKE) -SC $(i) $(NL) )
 
-install: $(RECURSE_DEPENDS) $(ERROR)
-	@ $(foreach i, $(DIRS), $(MAKESH) $(MAKE) -SC $(i) install $(NL) )
-
 depend: $(RECURSE_DEPENDS) $(ERROR)
 	@ $(foreach i, $(DIRS), $(MAKESH) $(MAKE) -SC $(i) depend $(NL) )
 

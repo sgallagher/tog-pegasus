@@ -21,7 +21,7 @@ CL_MAJOR_VERSION := $(word 1, $(subst .,  , $(CL_VERSION)))
 #
 # The flags set here should be valid for VC 6.
 #
-VERSION_FLAGS := -Gx
+VERSION_FLAGS := -GX
 VERSION_DEBUG_FLAGS :=
 VERSION_RELEASE_FLAGS :=
 
@@ -30,7 +30,7 @@ VERSION_RELEASE_FLAGS :=
 # CL_MAJOR_VERSION 13 is VC 7
 #
 ifeq ($(CL_MAJOR_VERSION), 13)
-    VERSION_FLAGS := -Wp64 -Gx -EHs
+    VERSION_FLAGS := -Wp64 -EHsc
     VERSION_DEBUG_FLAGS := -Gs
     VERSION_RELEASE_FLAGS := -Gs -GF
 endif

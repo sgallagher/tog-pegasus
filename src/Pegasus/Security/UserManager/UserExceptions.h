@@ -138,6 +138,17 @@ public:
 
 };
 
+/**
+CannotCreateUserManagerInstance Exception class
+*/
+class PEGASUS_USERMANAGER_LINKAGE CannotCreateUserManagerInstance: public Exception
+{
+public:
+    CannotCreateUserManagerInstance()
+        : Exception("Cannot create UserManager instance, repository handle passed may be invalid.") { }
+
+};
+
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_UserExceptions_h */

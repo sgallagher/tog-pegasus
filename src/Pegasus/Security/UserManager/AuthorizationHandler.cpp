@@ -53,27 +53,34 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 
-/**
-    This constant represents the  User name property in the schema
-*/
+//
+// This constant represents the  User name property in the schema
+//
 static const char PROPERTY_NAME_USERNAME []       = "Username";
 
-/**
-    This constant represents the Namespace property in the schema
-*/
+//
+// This constant represents the Namespace property in the schema
+//
 static const char PROPERTY_NAME_NAMESPACE []      = "Namespace";
 
-/**
-    This constant represents the Authorizations property in the schema
-*/
+//
+// This constant represents the Authorizations property in the schema
+//
 static const char PROPERTY_NAME_AUTHORIZATION []  = "Authorization";
 
 
-/**
-    List of CIM Operations
-*/
-//ATTN: Make sure to include all the CIM operations here.
+//
+// List of all the CIM Operations
+//
+// Note: The following tables contain all the existing CIM Operations.
+//       Any new CIM Operations created must be included in one of these tables, 
+//       otherwise no CIM requests will have authorization to execute those 
+//       new operations.
+//     
 
+//
+// List of read only CIM Operations
+//
 static const char* READ_OPERATIONS []    = {
     "GetClass",
     "GetInstance",
@@ -90,6 +97,9 @@ static const char* READ_OPERATIONS []    = {
     "ExecQuery",
     "GetProperty" };
     
+//
+// List of write CIM Operations
+//
 static const char* WRITE_OPERATIONS []    = {
     "CreateClass",
     "CreateInstance",
@@ -111,9 +121,8 @@ static const char* WRITE_OPERATIONS []    = {
 //
 AuthorizationHandler::AuthorizationHandler(CIMRepository* repository)
 {
-    const char METHOD_NAME[] = "AuthorizationHandler::AuthorizationHandler()";
-
-    PEG_FUNC_ENTER(TRC_AUTHORIZATION, METHOD_NAME);
+    PEG_METHOD_ENTER(
+        TRC_AUTHORIZATION, "AuthorizationHandler::AuthorizationHandler()");
 
     _repository = repository;
 
@@ -123,14 +132,14 @@ AuthorizationHandler::AuthorizationHandler(CIMRepository* repository)
     }
     catch(Exception& e)
     {
-	//ATTN: 
+	//ATTN-NB-03-20020402: Should this exception be thrown or ignored ?
+        //throw e;
+
 	cerr << PEGASUS_CLASSNAME_AUTHORIZATION << " class not loaded, ";
 	cerr << "No authorizations configured." << endl;
-
-        //throw e;
     }
 
-    PEG_FUNC_EXIT(TRC_AUTHORIZATION, METHOD_NAME);
+    PEG_METHOD_EXIT();
 }
 
 //
@@ -138,11 +147,10 @@ AuthorizationHandler::AuthorizationHandler(CIMRepository* repository)
 //
 AuthorizationHandler::~AuthorizationHandler()
 {
-    const char METHOD_NAME[] = "AuthorizationHandler::~AuthorizationHandler()";
+    PEG_METHOD_ENTER(
+        TRC_AUTHORIZATION, "AuthorizationHandler::~AuthorizationHandler()");
 
-    PEG_FUNC_ENTER(TRC_AUTHORIZATION, METHOD_NAME);
-
-    PEG_FUNC_EXIT(TRC_AUTHORIZATION, METHOD_NAME);
+    PEG_METHOD_EXIT();
 }
 
 //
@@ -150,9 +158,8 @@ AuthorizationHandler::~AuthorizationHandler()
 //
 Boolean AuthorizationHandler::verifyNamespace( const String& nameSpace )
 {
-    const char METHOD_NAME[] = "AuthorizationHandler::verifyNamespace()";
-
-    PEG_FUNC_ENTER(TRC_AUTHORIZATION, METHOD_NAME);
+    PEG_METHOD_ENTER(
+        TRC_AUTHORIZATION, "AuthorizationHandler::verifyNamespace()");
 
     try
     {
@@ -172,18 +179,18 @@ Boolean AuthorizationHandler::verifyNamespace( const String& nameSpace )
         {
              if (String::equal(nameSpace, namespaceNames[i]))
              {
-                 PEG_FUNC_EXIT(TRC_AUTHORIZATION, METHOD_NAME);
+                 PEG_METHOD_EXIT();
                  return true;
              }
         }
     }
     catch (Exception& e)
     {
-        PEG_FUNC_EXIT(TRC_AUTHORIZATION, METHOD_NAME);
+        PEG_METHOD_EXIT();
 	throw InvalidNamespace(nameSpace + e.getMessage());
     }
 
-    PEG_FUNC_EXIT(TRC_AUTHORIZATION, METHOD_NAME);
+    PEG_METHOD_EXIT();
 
     return false;
 }
@@ -193,9 +200,8 @@ Boolean AuthorizationHandler::verifyNamespace( const String& nameSpace )
 //
 void AuthorizationHandler::_loadAllAuthorizations()
 {
-    const char METHOD_NAME[] = "AuthorizationHandler::_loadAllAuthorizations()";
-
-    PEG_FUNC_ENTER(TRC_AUTHORIZATION, METHOD_NAME);
+    PEG_METHOD_ENTER(
+        TRC_AUTHORIZATION, "AuthorizationHandler::_loadAllAuthorizations()");
 
     Array<CIMNamedInstance> namedInstances;
 
@@ -245,11 +251,11 @@ void AuthorizationHandler::_loadAllAuthorizations()
     }
     catch(Exception& e)
     {
-        PEG_FUNC_EXIT(TRC_AUTHORIZATION, METHOD_NAME);
+        PEG_METHOD_EXIT();
         throw e;
     }
 
-    PEG_FUNC_EXIT(TRC_AUTHORIZATION, METHOD_NAME);
+    PEG_METHOD_EXIT();
 }
 
 void AuthorizationHandler::setAuthorization(
@@ -257,9 +263,8 @@ void AuthorizationHandler::setAuthorization(
                             const String& nameSpace,
 			    const String& auth)
 {
-    const char METHOD_NAME[] = "AuthorizationHandler::setAuthorization()";
-
-    PEG_FUNC_ENTER(TRC_AUTHORIZATION, METHOD_NAME);
+    PEG_METHOD_ENTER(
+        TRC_AUTHORIZATION, "AuthorizationHandler::setAuthorization()");
 
     //
     // Remove auth if it already exists
@@ -271,39 +276,37 @@ void AuthorizationHandler::setAuthorization(
     //
     if (!_authTable.insert(userName + nameSpace, auth))
     {
-        PEG_FUNC_EXIT(TRC_AUTHORIZATION, METHOD_NAME);
+        PEG_METHOD_EXIT();
         throw AuthorizationCacheError();
     }
 
-    PEG_FUNC_EXIT(TRC_AUTHORIZATION, METHOD_NAME);
+    PEG_METHOD_EXIT();
 }
 
 void AuthorizationHandler::removeAuthorization(
                             const String& userName,
                             const String& nameSpace)
 {
-    const char METHOD_NAME[] = "AuthorizationHandler::removeAuthorization()";
-
-    PEG_FUNC_ENTER(TRC_AUTHORIZATION, METHOD_NAME);
+    PEG_METHOD_ENTER(
+        TRC_AUTHORIZATION, "AuthorizationHandler::removeAuthorization()");
 
     //
     // Remove the specified authorization
     //
     if (!_authTable.remove(userName + nameSpace))
     {
-        PEG_FUNC_EXIT(TRC_AUTHORIZATION, METHOD_NAME);
+        PEG_METHOD_EXIT();
         throw AuthorizationEntryNotFound(userName, nameSpace);
     }
-    PEG_FUNC_EXIT(TRC_AUTHORIZATION, METHOD_NAME);
+    PEG_METHOD_EXIT();
 }
 
 String AuthorizationHandler::getAuthorization(
                             const String& userName,
                             const String& nameSpace)
 {
-    const char METHOD_NAME[] = "AuthorizationHandler::getAuthorization()";
-
-    PEG_FUNC_ENTER(TRC_AUTHORIZATION, METHOD_NAME);
+    PEG_METHOD_ENTER(
+        TRC_AUTHORIZATION, "AuthorizationHandler::getAuthorization()");
 
     String auth;
 
@@ -312,11 +315,11 @@ String AuthorizationHandler::getAuthorization(
     //
     if (!_authTable.lookup(userName + nameSpace, auth))
     {
-        PEG_FUNC_EXIT(TRC_AUTHORIZATION, METHOD_NAME);
+        PEG_METHOD_EXIT();
         throw AuthorizationEntryNotFound(userName, nameSpace);
     }
 
-    PEG_FUNC_EXIT(TRC_AUTHORIZATION, METHOD_NAME);
+    PEG_METHOD_EXIT();
 
     return auth;
 }
@@ -330,9 +333,8 @@ Boolean AuthorizationHandler::verifyAuthorization(
                             const String& nameSpace,
                             const String& cimMethodName)
 {
-    const char METHOD_NAME[] = "AuthorizationHandler::verifyAuthorization()";
-
-    PEG_FUNC_ENTER(TRC_AUTHORIZATION, METHOD_NAME);
+    PEG_METHOD_ENTER(
+        TRC_AUTHORIZATION, "AuthorizationHandler::verifyAuthorization()");
 
     Boolean authorized = false;
     Boolean readOperation = false;
@@ -372,7 +374,7 @@ Boolean AuthorizationHandler::verifyAuthorization(
     }
     catch (Exception& e)
     {
-        PEG_FUNC_EXIT(TRC_AUTHORIZATION, METHOD_NAME);
+        PEG_METHOD_EXIT();
         return authorized;
     }
 
@@ -390,7 +392,7 @@ Boolean AuthorizationHandler::verifyAuthorization(
         authorized = true;
     }
 
-    PEG_FUNC_EXIT(TRC_AUTHORIZATION, METHOD_NAME);
+    PEG_METHOD_EXIT();
 
     return authorized;
 }

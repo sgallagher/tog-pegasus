@@ -169,37 +169,48 @@ public:
 				 const String& userName,
 				 const String& password );
 
-    //
-    //
-    //
+    /** Verify whether the spcefied namespace is a valid namespace.
+    @param myNamespace   string containing the namespace name.
+    @return true if the specified name space is valid and exists, false otherwise.
+    */
     Boolean verifyNamespace( const String& myNamespace );
 
-    //
-    // verify user authorization for the specified operation
-    //
+    /** Verify whether the specified operation has authorization to be performed
+    by the specified user.
+    @param userName    string containing the user name.
+    @param nameSpace   string containing the namespace name.
+    @param cimMethodName  string containing the cim method name.
+    @return true if the specified user has authorizations to run the specified 
+    CIM operation on the specified namespace, false otherwise.
+    */
     Boolean verifyAuthorization(
                             const String& userName,
                             const String& nameSpace,
                             const String& cimMethodName);
 
-    //
-    //
-    //
+    /** Set the authorization to the specified user on the specified namespace.
+    @param userName   string containing the user name.
+    @param myNamespace  string containing the namespace name.
+    @param auth string containing the authorizations.
+    */
     void setAuthorization(
                             const String& userName,
                             const String& myNamespace,
                             const String& auth);
 
-    //
-    //
-    //
+    /** Remove the authorizations of the specified user on the specified namespace.
+    @param userName   string containing the user name.
+    @param myNamespace  string containing the namespace name.
+    */
     void removeAuthorization(
                             const String& userName,
                             const String& myNamespace);
 
-    //
-    //
-    //
+    /** Get the authorizations of the specified user on the specified namespace.
+    @param userName   string containing the user name.
+    @param myNamespace  string containing the namespace name. 
+    @return a string containing the authorizations.        
+    */
     String getAuthorization(
                             const String& userName,
                             const String& myNamespace);

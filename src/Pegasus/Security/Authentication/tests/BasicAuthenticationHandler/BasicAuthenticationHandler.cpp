@@ -32,9 +32,12 @@
 #include <cassert>
 #include <iostream>
 #include <Pegasus/Common/System.h>
+#include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Base64.h>
 #include <Pegasus/Common/AuthenticationInfo.h>
 #include <Pegasus/Config/ConfigManager.h>
+#include <Pegasus/Repository/CIMRepository.h>
+#include <Pegasus/Security/UserManager/UserManager.h>
 #include <Pegasus/Security/Authentication/BasicAuthenticationHandler.h>
 
 //
@@ -296,12 +299,24 @@ int main()
             ConfigManager::setPegasusHome(pegHome);
 
 #ifdef DEBUG
-        cout << "Peg Home : " << ConfigManager::getPegasusHome();
+        cout << "Peg Home : " << ConfigManager::getPegasusHome() << endl;
 #endif
 
 #ifdef DEBUG
         cout << "Doing testAuthHeader()...." << endl;
 #endif
+
+        // -- Create a test repository:
+
+        String repositoryPath = "./repository";
+
+        PEGASUS_ASSERT(FileSystem::isDirectory(repositoryPath));
+
+        CIMRepository* repository = new CIMRepository(repositoryPath);
+
+        // -- Create a UserManager object:
+
+        UserManager* userManager = UserManager::getInstance(repository);
 
         testAuthHeader();
 

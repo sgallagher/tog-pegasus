@@ -36,6 +36,7 @@
 #include <Pegasus/Common/AuthenticationInfo.h>
 #include <Pegasus/Common/Base64.h>
 #include <Pegasus/Config/ConfigManager.h>
+#include <Pegasus/Security/UserManager/UserManager.h>
 #include <Pegasus/Security/Authentication/AuthenticationManager.h>
 
 //
@@ -325,6 +326,19 @@ int main()
 #ifdef DEBUG
         cout << "Doing testHttpAuthHeader()...." << endl;
 #endif
+
+        // -- Create a repository:
+
+        String repositoryPath = "./repository";
+
+        FileSystem::isDirectory(repositoryPath);
+
+        CIMRepository* repository = new CIMRepository(repositoryPath);
+
+        // -- Create a UserManager object:
+
+        UserManager* userManager = UserManager::getInstance(repository
+);
 
         testHttpAuthHeader();
 

@@ -55,10 +55,7 @@ UserManager* UserManager::_instance = 0;
 //
 UserManager::UserManager(CIMRepository* repository)
 {
-    const char METHOD_NAME[] = "UserManager::UserManager";
-
-    PEG_FUNC_ENTER(TRC_USER_MANAGER, METHOD_NAME);
-    PEG_FUNC_ENTER(TRC_AUTHORIZATION, METHOD_NAME);
+    PEG_METHOD_ENTER(TRC_USER_MANAGER, "UserManager::UserManager");
 
     try
     {
@@ -66,10 +63,7 @@ UserManager::UserManager(CIMRepository* repository)
         _userFileHandler = new UserFileHandler();
 
         _authHandler = 0;
-        if (repository)
-        {
-            _authHandler = new AuthorizationHandler(repository);
-        }
+        _authHandler = new AuthorizationHandler(repository);
     }
     catch (Exception& e)
     {
@@ -82,12 +76,11 @@ UserManager::UserManager(CIMRepository* repository)
             delete _authHandler;
         }
 
-        PEG_FUNC_EXIT(TRC_USER_MANAGER, METHOD_NAME);
+        PEG_METHOD_EXIT();
         throw e;
     }
 
-    PEG_FUNC_EXIT(TRC_USER_MANAGER, METHOD_NAME);
-    PEG_FUNC_EXIT(TRC_AUTHORIZATION, METHOD_NAME);
+    PEG_METHOD_EXIT();
 }
 
 //
@@ -95,10 +88,7 @@ UserManager::UserManager(CIMRepository* repository)
 //
 UserManager::~UserManager()
 {
-    const char METHOD_NAME[] = "UserManager::~UserManager";
-     
-    PEG_FUNC_ENTER(TRC_USER_MANAGER, METHOD_NAME);
-    PEG_FUNC_ENTER(TRC_AUTHORIZATION, METHOD_NAME);
+    PEG_METHOD_ENTER(TRC_USER_MANAGER, "UserManager::~UserManager");
 
     if (_userFileHandler)
     {
@@ -109,8 +99,7 @@ UserManager::~UserManager()
         delete _authHandler;
     }
 
-    PEG_FUNC_EXIT(TRC_USER_MANAGER, METHOD_NAME);
-    PEG_FUNC_EXIT(TRC_AUTHORIZATION, METHOD_NAME);
+    PEG_METHOD_EXIT();
 }
 
 //
@@ -119,18 +108,20 @@ UserManager::~UserManager()
 //
 UserManager* UserManager::getInstance(CIMRepository* repository)
 {
-    const char METHOD_NAME[] = "UserManager::getInstance";
+    PEG_METHOD_ENTER(TRC_USER_MANAGER, "UserManager::getInstance");
 
-    PEG_FUNC_ENTER(TRC_USER_MANAGER, METHOD_NAME);
-    PEG_FUNC_ENTER(TRC_AUTHORIZATION, METHOD_NAME);
+    if (!_instance && !repository)
+    {
+        PEG_METHOD_EXIT();
+        throw CannotCreateUserManagerInstance();
+    }
 
     if (!_instance)
     {
         _instance = new UserManager(repository);
     }
 
-    PEG_FUNC_EXIT(TRC_USER_MANAGER, METHOD_NAME);
-    PEG_FUNC_EXIT(TRC_AUTHORIZATION, METHOD_NAME);
+    PEG_METHOD_EXIT();
 
     return _instance;
 }
@@ -140,10 +131,7 @@ UserManager* UserManager::getInstance(CIMRepository* repository)
 //
 void UserManager::addUser(const String& userName, const String& password)
 {
-    
-    const char METHOD_NAME[] = "UserManager::addUser";
-
-    PEG_FUNC_ENTER( TRC_USER_MANAGER, METHOD_NAME );
+    PEG_METHOD_ENTER(TRC_USER_MANAGER, "UserManager::addUser");
 
     //
     // Check if the user is a valid system user
@@ -151,7 +139,7 @@ void UserManager::addUser(const String& userName, const String& password)
     ArrayDestroyer<char> un(userName.allocateCString());
     if ( !System::isSystemUser( un.getPointer() ) )
     {
-        PEG_FUNC_EXIT( TRC_USER_MANAGER, METHOD_NAME ); 
+        PEG_METHOD_EXIT();
 	throw InvalidSystemUser(userName); 
     }
 
@@ -164,11 +152,11 @@ void UserManager::addUser(const String& userName, const String& password)
     }
     catch (Exception& e)
     {
-        PEG_FUNC_EXIT( TRC_USER_MANAGER, METHOD_NAME ); 
+        PEG_METHOD_EXIT();
 	throw e;
     }
 
-    PEG_FUNC_EXIT( TRC_USER_MANAGER, METHOD_NAME ); 
+    PEG_METHOD_EXIT();
 }
 
 //
@@ -179,9 +167,7 @@ void UserManager::modifyUser(
 	       const String& password,
 	       const String& newPassword )
 {
-    const char METHOD_NAME[] = "UserManager::modifyUser";
-
-    PEG_FUNC_ENTER( TRC_USER_MANAGER, METHOD_NAME );
+    PEG_METHOD_ENTER(TRC_USER_MANAGER, "UserManager::modifyUser");
 
     try
     {
@@ -189,10 +175,10 @@ void UserManager::modifyUser(
     }
     catch (Exception& e)
     {
-        PEG_FUNC_EXIT( TRC_USER_MANAGER, METHOD_NAME ); 
+        PEG_METHOD_EXIT();
 	throw e;
     }
-    PEG_FUNC_EXIT( TRC_USER_MANAGER, METHOD_NAME ); 
+    PEG_METHOD_EXIT();
 }
 
 // 
@@ -200,19 +186,18 @@ void UserManager::modifyUser(
 //
 void UserManager::removeUser(const String& userName)
 {
-    const char METHOD_NAME[] = "UserManager::removeUser";
-    PEG_FUNC_ENTER( TRC_USER_MANAGER, METHOD_NAME );
+    PEG_METHOD_ENTER(TRC_USER_MANAGER, "UserManager::removeUser");
     try
     {
         _userFileHandler->removeUserEntry(userName);
     }
     catch (Exception& e)
     {
-        PEG_FUNC_EXIT( TRC_USER_MANAGER, METHOD_NAME ); 
+        PEG_METHOD_EXIT();
 	throw e;
     }
 
-    PEG_FUNC_EXIT( TRC_USER_MANAGER, METHOD_NAME );
+    PEG_METHOD_EXIT();
 }
 
 
@@ -221,20 +206,19 @@ void UserManager::removeUser(const String& userName)
 //
 void UserManager::getAllUserNames(Array<String>& userNames)
 {
-    const char METHOD_NAME[] = "UserManager::getAllUserNames";
-    PEG_FUNC_ENTER( TRC_USER_MANAGER, METHOD_NAME );
+    PEG_METHOD_ENTER(TRC_USER_MANAGER, "UserManager::getAllUserNames");
 
     try
     {
         _userFileHandler->getAllUserNames( userNames );
-        PEG_FUNC_EXIT( TRC_USER_MANAGER, METHOD_NAME );
+        PEG_METHOD_EXIT();
     }
     catch (Exception& e)
     {
 	throw e;
     }
 
-    PEG_FUNC_EXIT( TRC_USER_MANAGER, METHOD_NAME );
+    PEG_METHOD_EXIT();
 }
 
 //
@@ -242,30 +226,29 @@ void UserManager::getAllUserNames(Array<String>& userNames)
 //
 Boolean UserManager::verifyCIMUser (const String& userName)
 {
-    const char METHOD_NAME[] = "UserManager::verifyCIMUser";
-    PEG_FUNC_ENTER( TRC_USER_MANAGER, METHOD_NAME );
+    PEG_METHOD_ENTER(TRC_USER_MANAGER, "UserManager::verifyCIMUser");
 
     try
     {
         if ( _userFileHandler->verifyCIMUser( userName ))
 	{
-            PEG_FUNC_EXIT( TRC_USER_MANAGER, METHOD_NAME );
+            PEG_METHOD_EXIT();
 	    return true;
         }
 	else
 	{
-            PEG_FUNC_EXIT( TRC_USER_MANAGER, METHOD_NAME );
+            PEG_METHOD_EXIT();
 	    return false;
         }
     }
     catch (InvalidUser& iu)
     {
-        PEG_FUNC_EXIT( TRC_USER_MANAGER, METHOD_NAME );
+        PEG_METHOD_EXIT();
 	throw iu;
     }
     catch (Exception& e)
     {
-        PEG_FUNC_EXIT( TRC_USER_MANAGER, METHOD_NAME );
+        PEG_METHOD_EXIT();
 	throw e;
     }
 }
@@ -277,30 +260,29 @@ Boolean UserManager::verifyCIMUserPassword (
 			   const String& userName, 
 			   const String& password)
 {
-    const char METHOD_NAME[] = "UserManager::verifyCIMUserPassword";
-    PEG_FUNC_ENTER( TRC_USER_MANAGER, METHOD_NAME );
+    PEG_METHOD_ENTER(TRC_USER_MANAGER, "UserManager::verifyCIMUserPassword");
 
     try
     {
         if ( _userFileHandler->verifyCIMUserPassword( userName, password ))
 	{
-            PEG_FUNC_EXIT( TRC_USER_MANAGER, METHOD_NAME );
+            PEG_METHOD_EXIT();
 	    return true;
         }
 	else
 	{
-            PEG_FUNC_EXIT( TRC_USER_MANAGER, METHOD_NAME );
+            PEG_METHOD_EXIT();
 	    return false;
         }
     }
     catch (InvalidUser& iu)
     {
-        PEG_FUNC_EXIT( TRC_USER_MANAGER, METHOD_NAME );
+        PEG_METHOD_EXIT();
 	throw iu;
     }
     catch (Exception& e)
     {
-        PEG_FUNC_EXIT( TRC_USER_MANAGER, METHOD_NAME );
+        PEG_METHOD_EXIT();
 	throw e;
     }
 }
@@ -310,26 +292,24 @@ Boolean UserManager::verifyCIMUserPassword (
 //
 Boolean UserManager::verifyNamespace( const String& myNamespace )
 {
-    const char METHOD_NAME[] = "UserManager::verifyNamespace";
-
-    PEG_FUNC_ENTER(TRC_AUTHORIZATION, METHOD_NAME );
+    PEG_METHOD_ENTER(TRC_AUTHORIZATION, "UserManager::verifyNamespace");
 
     try
     {
         if ( _authHandler->verifyNamespace( myNamespace ))
         {
-            PEG_FUNC_EXIT(TRC_AUTHORIZATION, METHOD_NAME );
+            PEG_METHOD_EXIT();
             return true;
         }
         else
         {
-            PEG_FUNC_EXIT(TRC_AUTHORIZATION, METHOD_NAME );
+            PEG_METHOD_EXIT();
             return false;
         }
     }
     catch (Exception& e)
     {
-        PEG_FUNC_EXIT(TRC_AUTHORIZATION, METHOD_NAME );
+        PEG_METHOD_EXIT();
         throw e;
     }
 }
@@ -343,27 +323,25 @@ Boolean UserManager::verifyAuthorization(
                             const String& nameSpace,
                             const String& cimMethodName)
 {
-    const char METHOD_NAME[] = "UserManager::verifyAuthorization";
-
-    PEG_FUNC_ENTER(TRC_AUTHORIZATION, METHOD_NAME );
+    PEG_METHOD_ENTER(TRC_AUTHORIZATION, "UserManager::verifyAuthorization");
 
     try
     {
         if ( _authHandler->verifyAuthorization(
             userName, nameSpace, cimMethodName ) )
         {
-            PEG_FUNC_EXIT(TRC_AUTHORIZATION, METHOD_NAME );
+            PEG_METHOD_EXIT();
             return true;
         }
         else
         {
-            PEG_FUNC_EXIT(TRC_AUTHORIZATION, METHOD_NAME );
+            PEG_METHOD_EXIT();
             return false;
         }
     }
     catch (Exception& e)
     {
-        PEG_FUNC_EXIT(TRC_AUTHORIZATION, METHOD_NAME );
+        PEG_METHOD_EXIT();
         throw e;
     }
 }
@@ -376,9 +354,7 @@ void UserManager::setAuthorization(
                             const String& myNamespace,
                             const String& auth)
 {
-    const char METHOD_NAME[] = "UserManager::setAuthorization";
-
-    PEG_FUNC_ENTER(TRC_AUTHORIZATION, METHOD_NAME );
+    PEG_METHOD_ENTER(TRC_AUTHORIZATION, "UserManager::setAuthorization");
 
     try
     {
@@ -386,11 +362,11 @@ void UserManager::setAuthorization(
     }
     catch (Exception& e)
     {
-        PEG_FUNC_EXIT(TRC_AUTHORIZATION, METHOD_NAME );
+        PEG_METHOD_EXIT();
         throw e;
     }
 
-    PEG_FUNC_EXIT(TRC_AUTHORIZATION, METHOD_NAME );
+    PEG_METHOD_EXIT();
 }
 
 //
@@ -400,9 +376,7 @@ void UserManager::removeAuthorization(
                             const String& userName,
                             const String& myNamespace)
 {
-    const char METHOD_NAME[] = "UserManager::removeAuthorization";
-
-    PEG_FUNC_ENTER(TRC_AUTHORIZATION, METHOD_NAME );
+    PEG_METHOD_ENTER(TRC_AUTHORIZATION, "UserManager::removeAuthorization");
 
     try
     {
@@ -410,11 +384,11 @@ void UserManager::removeAuthorization(
     }
     catch (Exception& e)
     {
-        PEG_FUNC_EXIT( TRC_AUTHORIZATION, METHOD_NAME );
+        PEG_METHOD_EXIT();
         throw e;
     }
 
-    PEG_FUNC_EXIT( TRC_AUTHORIZATION, METHOD_NAME );
+    PEG_METHOD_EXIT();
 }
 
 
@@ -425,9 +399,7 @@ String UserManager::getAuthorization(
                             const String& userName,
                             const String& myNamespace)
 {
-    const char METHOD_NAME[] = "UserManager::getAuthorization";
-
-    PEG_FUNC_ENTER(TRC_AUTHORIZATION, METHOD_NAME );
+    PEG_METHOD_ENTER(TRC_AUTHORIZATION, "UserManager::getAuthorization");
 
     String auth = String::EMPTY;
 
@@ -437,11 +409,11 @@ String UserManager::getAuthorization(
     }
     catch (Exception& e)
     {
-        PEG_FUNC_EXIT(TRC_AUTHORIZATION, METHOD_NAME );
+        PEG_METHOD_EXIT();
         throw e;
     }
 
-    PEG_FUNC_EXIT(TRC_AUTHORIZATION, METHOD_NAME );
+    PEG_METHOD_EXIT();
 
     return auth;
 }

@@ -13,7 +13,9 @@ SOURCES = UserManager.cpp
 include $(ROOT)/mak/program.mak
 
 tests:
+	$(MKDIRHIER) ./repository
 	$(PROGRAM)
+	$(RMDIRHIER) ./repository
 	$(RM) *.passwd
 
 poststarttests:

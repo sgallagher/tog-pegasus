@@ -35,6 +35,7 @@
 #include <iostream>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/System.h>
+#include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Security/UserManager/UserManager.h>
 #include <Pegasus/Security/UserManager/UserExceptions.h>
 
@@ -51,7 +52,17 @@ static const String BAD_USER        = "nosuchuser";
 int main()
 {
 #ifdef PEGASUS_OS_HPUX
-    UserManager* 	userManager = UserManager::getInstance(); 
+    // -- Create a test repository:
+
+    String repositoryPath = "./repository";
+
+    FileSystem::isDirectory(repositoryPath);
+
+    CIMRepository* repository = new CIMRepository(repositoryPath);
+
+    // -- Create a UserManager object:
+
+    UserManager*        userManager = UserManager::getInstance(repository);
     Boolean      	exceptionFlag = false;
     Array<String> 	userNames;
 

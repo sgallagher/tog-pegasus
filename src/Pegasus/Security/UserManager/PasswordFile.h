@@ -66,11 +66,6 @@ private:
     //
     String    _passwordBackupFile;
 
-    //
-    // Contains the full path name of the new password file
-    //
-    String    _passwordNewFile;
-
 public:
 
     /** 

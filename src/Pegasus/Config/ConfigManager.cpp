@@ -114,7 +114,8 @@ struct PropertyList ConfigManager::properties[] =
     {"repositoryIsDefaultInstanceProvider", (ConfigPropertyOwner* )ConfigManager::repositoryOwner},
     {"repositoryProviderName", (ConfigPropertyOwner* )ConfigManager::repositoryOwner},
     {"operationTimeout",    (ConfigPropertyOwner* )ConfigManager::shutdownOwner},
-    {"shutdownTimeout",     (ConfigPropertyOwner* )ConfigManager::shutdownOwner}
+    {"shutdownTimeout",     (ConfigPropertyOwner* )ConfigManager::shutdownOwner},
+    {"passwordFilePath",    (ConfigPropertyOwner* )ConfigManager::securityOwner}
 };
 
 const Uint32 NUM_PROPERTIES = 

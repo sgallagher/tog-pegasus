@@ -40,6 +40,8 @@
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Tracer.h>
 
+#include <Pegasus/Config/ConfigManager.h>
+
 #include <Pegasus/Security/UserManager/UserFileHandler.h>
 #include <Pegasus/Security/UserManager/UserExceptions.h>
 
@@ -47,10 +49,14 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-const char       UserFileHandler::_PASSWD_FILE[]    = "/cimserver.passwd";
-
 const unsigned char   UserFileHandler::_SALT_STRING[] =         
             "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+const String UserFileHandler::_PROPERTY_NAME_PASSWORD_FILEPATH = 
+	    "passwordFilePath"; 
+
+// Initialize the mutex timeout to 5000 ms.
+const Uint32 UserFileHandler::_MUTEX_TIMEOUT = 5000;
 
 //
 // Generate random salt key for password encryption refer to crypt(3C)
@@ -94,28 +100,27 @@ UserFileHandler::UserFileHandler()
 
     PEG_FUNC_ENTER(TRC_USER_MANAGER,METHOD_NAME);
 
-    // Get the value of environment variable PEGASUS_HOME 
-    // The password file location is <$PEGASUS_HOME/cimserver.passwd>
-    const char* tmp = getenv("PEGASUS_HOME");
-
-    _passwordFileExists = false;
-    _passwdFileName = String(tmp);
-    _passwdFileName.append(String(_PASSWD_FILE));
-
-    _passwordFile   = new PasswordFile(_passwdFileName);
+    //
+    // Get an instance of the ConfigManager.
+    //
+    ConfigManager*  configManager;
+    configManager = ConfigManager::getInstance();
 
     //
-    // check whether the password file is readable
+    // Get the PasswordFilePath property from the Config Manager.
     //
+    String passwdFile;
+    passwdFile = configManager->getCurrentValue(
+                       _PROPERTY_NAME_PASSWORD_FILEPATH);
 
-    if (!FileSystem::canRead(_passwdFileName))
-    {
-        // ATTN: Deal with this
-	//delete _passwordFile;
-        //throw FileNotReadable(_passwdFileName);
-    }
-    _passwordFileExists = true;
+    //
+    // Construct a PasswordFile object.
+    //
+    _passwordFile   = new PasswordFile(passwdFile);
 
+    //
+    // Load the user information in to the cache.
+    //
     try
     {
         _loadAllUsers();
@@ -124,6 +129,12 @@ UserFileHandler::UserFileHandler()
     {
 	throw e;
     }
+
+    //
+    // Initialize the mutex, mutex lock needs to be held for any updates
+    // to the password cache and password file.
+    //
+    _mutex = new Mutex;
 
     PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
 }
@@ -139,6 +150,7 @@ UserFileHandler::~UserFileHandler()
     PEG_FUNC_ENTER(TRC_USER_MANAGER,METHOD_NAME);
 
     delete _passwordFile;
+    delete _mutex;
 
     PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
 }
@@ -165,6 +177,116 @@ void UserFileHandler::_loadAllUsers ()
     }
     PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
 }
+
+void UserFileHandler::_Update(
+			   char operation,
+			   const String& userName,
+			   const String& password)
+{
+    const char  METHOD_NAME[] = "UserFileHandler::_Update";
+
+    PEG_FUNC_ENTER(TRC_USER_MANAGER,METHOD_NAME);
+
+    //
+    // Hold the mutex lock.
+    // This will allow any one of the update operations to be performed
+    // at any given time
+    //
+
+    try
+    {
+        _mutex->timed_lock(_MUTEX_TIMEOUT, pegasus_thread_self());
+    }
+    catch (TimeOut e)
+    {
+	throw CIMException( CIM_ERR_FAILED, 
+	"Timed out trying to perform requested operation."
+	"Please re-try the operation again.");
+    }
+    catch (WaitFailed e)
+    {
+	throw CIMException( CIM_ERR_FAILED, 
+	"Timed out trying to perform requested operation."
+	"Please re-try the operation again.");
+    }
+    catch (Deadlock e)
+    {
+	throw CIMException( CIM_ERR_FAILED, 
+	"Deak lock encountered trying to perform requested operation."
+	"Please re-try the operation again.");
+    }
+
+    switch (operation)
+    {
+	case ADD_USER:
+                if (!_passwordTable.insert(userName,password))
+                {
+                    _mutex->unlock();
+                    PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
+                    throw PasswordCacheError();
+                }
+		break; 
+
+	case MODIFY_USER:
+                if (!_passwordTable.remove(userName))
+                {
+                    _mutex->unlock();
+                    PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
+                    throw PasswordCacheError();
+                }
+                if (!_passwordTable.insert(userName,password))
+                {
+                    _mutex->unlock();
+                    Logger::put(Logger::ERROR_LOG, "UserManager", 
+			Logger::SEVERE, 
+			"Error updating user information for : $0.",userName);
+                    PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
+                    throw PasswordCacheError();
+                }
+	        break; 
+
+	case REMOVE_USER:
+
+                //Remove the existing user name and password from the table
+                if (!_passwordTable.remove(userName))
+                {
+                    _mutex->unlock();
+                    PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
+                    throw InvalidUser(userName);
+                }
+	        break; 
+        
+	default:
+		// Should never get here
+		break;
+    }
+    
+    // Store the entry in the password file
+    try
+    {
+        _passwordFile->save(_passwordTable);
+    }
+    catch (CannotOpenFile& e)
+    {
+        _mutex->unlock();
+        PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
+        throw e;
+    }
+    catch (CannotRenameFile& e)
+    {
+        //
+        // reload password hash table from file
+        //
+        _loadAllUsers();
+
+        _mutex->unlock();
+        PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
+        throw e;
+    }
+    _mutex->unlock();
+    PEG_FUNC_ENTER(TRC_USER_MANAGER,METHOD_NAME);
+}
+
 
 // 
 // Add user entry to file
@@ -193,36 +315,9 @@ void UserFileHandler::addUserEntry(
 
     encryptedPassword = System::encryptPassword(pw.getPointer(),salt);
 
-    if (!_passwordTable.insert(userName,encryptedPassword))
-    {
-        PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
-        throw PasswordCacheError();
-    }
+    // add the user to the cache and password file
+    _Update(ADD_USER,userName, encryptedPassword);
 
-    // Store the new entry in the password file
-    try
-    {
-        _passwordFile->save(_passwordTable);
-    }
-    catch (CannotOpenFile& e)
-    {
-        PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
-	throw e;
-    }
-    catch (CannotRenameFile& e)
-    {
-	//
-	// reload password hash table from file
-	//
-	_loadAllUsers();
-
-        //
-        // creation of backup file failed
-        //
-
-        PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
-        throw e;
-    }
     PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
 }
 
@@ -264,41 +359,8 @@ void UserFileHandler::modifyUserEntry(
 
     encryptedPassword = System::encryptPassword(npw.getPointer(),salt);
 
-    if (!_passwordTable.remove(userName))
-    {
-        PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
-	throw PasswordCacheError();
-    }
+    _Update(MODIFY_USER, userName, encryptedPassword);
 
-    if (!_passwordTable.insert(userName,encryptedPassword))
-    {
-        PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
-	throw PasswordCacheError();
-    }
-
-    // Store the modified entry in the password file
-    try 
-    {
-	_passwordFile->save(_passwordTable);
-    }
-    catch (CannotOpenFile& e)
-    {
-        PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
-	throw e;
-    }
-    catch (CannotRenameFile& e)
-    {
-	//
-	// reload password hash table from file
-	//
-	_loadAllUsers();
-
-	// 
-	// creation of backup file failed
-	//
-        PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
-        throw e;
-    }
     PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
 }
 
@@ -311,35 +373,8 @@ void UserFileHandler::removeUserEntry(const String& userName)
 
     PEG_FUNC_ENTER(TRC_USER_MANAGER,METHOD_NAME);
 
-    //Remove the existing user name and password from the table
-    if (!_passwordTable.remove(userName))
-    {
-        PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
-        throw InvalidUser(userName);
-    }
+    _Update(REMOVE_USER, userName);
 
-    // Store the removed entry in the password file
-    try
-    {
-        _passwordFile->save(_passwordTable);
-    }
-    catch (CannotOpenFile& e)
-    {
-        PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
-	throw e;
-    }
-    catch (CannotRenameFile& e)
-    {
-	//
-	// reload password hash table from file
-	//
-	_loadAllUsers();
-
-        //
-        // creation of backup file failed
-        PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
-        throw e;
-    }
     PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
 }
 

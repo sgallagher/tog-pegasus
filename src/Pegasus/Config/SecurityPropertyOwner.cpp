@@ -23,7 +23,8 @@
 //
 // Author:  Nag Boranna,   Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //
-// Modified By:
+// Modified By: 
+//       Sushma Fernandes, Hewlett-Packard Company(sushma_fernandes@hp.com)
 //
 //
 //%/////////////////////////////////////////////////////////////////////////////
@@ -36,6 +37,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "SecurityPropertyOwner.h"
+#include <Pegasus/Common/FileSystem.h>
 
 
 PEGASUS_USING_STD;
@@ -50,7 +52,8 @@ static struct ConfigPropertyRow properties[] =
 {
     {"requireAuthentication", "false", 0, 0, 0},
     {"requireAuthorization", "false", 0, 0, 0},
-    {"httpAuthType", "Basic", 0, 0, 0}
+    {"httpAuthType", "Basic", 0, 0, 0},
+    {"passwordFilePath", "cimserver.passwd", 0, 0, 0}
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
@@ -62,6 +65,7 @@ SecurityPropertyOwner::SecurityPropertyOwner()
     _requireAuthentication = new ConfigProperty;
     _requireAuthorization = new ConfigProperty;
     _httpAuthType = new ConfigProperty;
+    _passwordFilePath = new ConfigProperty();
 }
 
 /** Destructor  */
@@ -70,6 +74,7 @@ SecurityPropertyOwner::~SecurityPropertyOwner()
     delete _requireAuthentication;
     delete _requireAuthorization;
     delete _httpAuthType;
+    delete _passwordFilePath;
 }
 
 
@@ -115,7 +120,30 @@ void SecurityPropertyOwner::initialize()
             _httpAuthType->domain = properties[i].domain;
             _httpAuthType->domainSize = properties[i].domainSize;
         }
+        else if (String::equalNoCase(
+			    properties[i].propertyName, 
+			    "passwordFilePath"))
+        {
+            _passwordFilePath->propertyName = properties[i].propertyName;
+            _passwordFilePath->defaultValue = properties[i].defaultValue;
+            _passwordFilePath->plannedValue = properties[i].defaultValue;
+            _passwordFilePath->dynamic = properties[i].dynamic;
+            _passwordFilePath->domain = properties[i].domain;
+            _passwordFilePath->domainSize = properties[i].domainSize;
+
+            // 
+            // Initialize passsword file path to $PEGASUS_HOME/cimserver.passwd
+            //
+	    if ( _passwordFilePath->currentValue == String::EMPTY )
+	    {
+                char* tmp = getenv("PEGASUS_HOME");
+                _passwordFilePath->currentValue += tmp;
+                _passwordFilePath->currentValue.append("/");
+                _passwordFilePath->currentValue += _passwordFilePath->defaultValue;
+            }
+        }
     }
+
 }
 
 /** 
@@ -172,6 +200,21 @@ void SecurityPropertyOwner::getPropertyInfo(
             propertyInfo.append(STRING_FALSE);
         }
     }
+    else if (String::equalNoCase(_passwordFilePath->propertyName, name))
+    {
+        propertyInfo.append(_passwordFilePath->propertyName);
+        propertyInfo.append(_passwordFilePath->defaultValue);
+        propertyInfo.append(_passwordFilePath->currentValue);
+        propertyInfo.append(_passwordFilePath->plannedValue);
+        if (_passwordFilePath->dynamic)
+        {
+            propertyInfo.append(STRING_TRUE);
+        }
+        else
+        {
+            propertyInfo.append(STRING_FALSE);
+        }
+    }
     else
     {
         throw UnrecognizedConfigProperty(name);
@@ -194,6 +237,10 @@ const String SecurityPropertyOwner::getDefaultValue(const String& name)
     else if (String::equalNoCase(_httpAuthType->propertyName, name))
     {
         return (_httpAuthType->defaultValue);
+    }
+    else if (String::equalNoCase(_passwordFilePath->propertyName, name))
+    {
+        return (_passwordFilePath->defaultValue);
     }
     else
     {
@@ -218,6 +265,10 @@ const String SecurityPropertyOwner::getCurrentValue(const String& name)
     {
         return (_httpAuthType->currentValue);
     }
+    else if (String::equalNoCase(_passwordFilePath->propertyName, name))
+    {
+        return (_passwordFilePath->currentValue);
+    }
     else
     {
         throw UnrecognizedConfigProperty(name);
@@ -240,6 +291,10 @@ const String SecurityPropertyOwner::getPlannedValue(const String& name)
     else if (String::equalNoCase(_httpAuthType->propertyName, name))
     {
         return (_httpAuthType->plannedValue);
+    }
+    else if (String::equalNoCase(_passwordFilePath->propertyName, name))
+    {
+        return (_passwordFilePath->plannedValue);
     }
     else
     {
@@ -273,6 +328,10 @@ void SecurityPropertyOwner::initCurrentValue(
     {
         _httpAuthType->currentValue = value;
     }
+    else if (String::equalNoCase(_passwordFilePath->propertyName, name))
+    {
+        _passwordFilePath->currentValue = value;
+    }
     else
     {
         throw UnrecognizedConfigProperty(name);
@@ -304,6 +363,10 @@ void SecurityPropertyOwner::initPlannedValue(
     {
         _httpAuthType->plannedValue= value;
     }
+    else if (String::equalNoCase(_passwordFilePath->propertyName, name))
+    {
+        _passwordFilePath->plannedValue= value;
+    }
     else
     {
         throw UnrecognizedConfigProperty(name);
@@ -318,6 +381,14 @@ void SecurityPropertyOwner::updateCurrentValue(
     const String& value) 
 {
     //
+    // Validate the specified value 
+    //
+    if (!isValid(name, value))
+    {
+        throw InvalidPropertyValue(name, value);
+    }
+
+    //
     // make sure the property is dynamic before updating the value.
     //
     if (!isDynamic(name))
@@ -325,12 +396,25 @@ void SecurityPropertyOwner::updateCurrentValue(
         throw NonDynamicConfigProperty(name); 
     }
 
-    //
-    // Validate the specified value and call initPlannedValue
-    //
-    if (isValid(name, value))
+    if (String::equalNoCase(_requireAuthentication->propertyName, name))
     {
-        initCurrentValue(name, value);
+        _requireAuthentication->currentValue = value;
+    }
+    else if (String::equalNoCase(_requireAuthorization->propertyName, name))
+    {
+        _requireAuthorization->currentValue = value;
+    }
+    else if (String::equalNoCase(_httpAuthType->propertyName, name))
+    {
+        _httpAuthType->currentValue = value;
+    }
+    else if (String::equalNoCase(_passwordFilePath->propertyName, name))
+    {
+        _passwordFilePath->currentValue = value;
+    }
+    else
+    {
+        throw UnrecognizedConfigProperty(name);
     }
 }
 
@@ -343,11 +427,32 @@ void SecurityPropertyOwner::updatePlannedValue(
     const String& value)
 {
     //
-    // Validate the specified value and call initPlannedValue
+    // Validate the specified value 
     //
-    if (isValid(name, value))
+    if (!isValid(name, value))
     {
-        initPlannedValue(name, value);
+        throw InvalidPropertyValue(name, value);
+    }
+
+    if (String::equalNoCase(_requireAuthentication->propertyName, name))
+    {
+        _requireAuthentication->plannedValue = value;
+    }
+    else if (String::equalNoCase(_requireAuthorization->propertyName, name))
+    {
+        _requireAuthorization->plannedValue = value;
+    }
+    else if (String::equalNoCase(_httpAuthType->propertyName, name))
+    {
+        _httpAuthType->plannedValue = value;
+    }
+    else if (String::equalNoCase(_passwordFilePath->propertyName, name))
+    {
+        _passwordFilePath->plannedValue = value;
+    }
+    else
+    {
+        throw UnrecognizedConfigProperty(name);
     }
 }
 
@@ -357,6 +462,11 @@ Checks to see if the given value is valid or not.
 Boolean SecurityPropertyOwner::isValid(const String& name, const String& value)
 {
     Boolean retVal = false;
+
+    if (String::equal(value, EMPTY_VALUE))
+    {
+        throw InvalidPropertyValue(name, value);
+    }
 
     //
     // Validate the specified value
@@ -382,6 +492,79 @@ Boolean SecurityPropertyOwner::isValid(const String& name, const String& value)
             retVal = true;
         }
     }
+    else if (String::equalNoCase(_passwordFilePath->propertyName, name))
+    {
+	String fileName(value);
+
+	//
+        // Check if the file path is a directory
+	//
+        FileSystem::translateSlashes(fileName);
+        if (FileSystem::isDirectory(fileName))
+        {
+            return false;
+        }
+
+	//
+        // Check if the file exists and is writable
+	//
+        if (FileSystem::exists(fileName))
+        {
+            if (!FileSystem::canWrite(fileName))
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+        else
+        {
+	    //
+            // Check if directory is writable
+	    // 
+            String dirSeparator("/");
+
+            Uint32 pos = fileName.reverseFind(*(dirSeparator.getData()));
+
+            if (pos != PEG_NOT_FOUND)
+            {
+                String dirName = fileName.subString(0,pos);
+                if (!FileSystem::isDirectory(dirName))
+                {
+                    return false;
+                }
+                if (!FileSystem::canWrite(dirName) )
+                {
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                String currentDir;
+
+		//
+                // Check if there is permission to write in the	
+                // current working directory
+		//
+                FileSystem::getCurrentDirectory(currentDir);
+
+                if (!FileSystem::canWrite(currentDir))
+                {
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+        }
+    }
     else
     {
         throw UnrecognizedConfigProperty(name);
@@ -405,6 +588,10 @@ Boolean SecurityPropertyOwner::isDynamic(const String& name)
     else if (String::equalNoCase(_httpAuthType->propertyName, name))
     {
         return (_httpAuthType->dynamic);
+    }
+    else if (String::equalNoCase(_passwordFilePath->propertyName, name))
+    {
+        return (_passwordFilePath->dynamic);
     }
     else
     {

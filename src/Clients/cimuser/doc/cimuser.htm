@@ -32,13 +32,20 @@ Remarks</h4>
 <dl>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; This command
 can be executed by privileged user(s) only.
 <br>&nbsp;
+<dt>
+<b>Limitations</b></dt>
+
+<blockquote>This command can be executed to add/remove/modify one user
+at a time.</blockquote>
 </dl>
 
 <h4>
 Description</h4>
 
 <blockquote>The cimuser command provides a command line interface to manage
-CIM users. The location of the CIM password file is, &lt;$PEGASUS_HOME>/cimserver.passwd.
+CIM users. The default location of the CIM password file is, &lt;$PEGASUS_HOME>/cimserver.passwd.
+The location of the password file can be configured by setting the passwordFilePath
+property.
 <p>The first form of cimuser allows addition of a new CIM user. CIM users
 must be valid users on the local system. If the password is not specified
 at the command line, the user will be prompted for it. If more than 8 characters
@@ -87,12 +94,6 @@ Successful completion.
 <blockquote>When an error occurs, an explanatory error message is written
 to stderr and an error value 1 is returned.</blockquote>
 
-<dt>
-<b>Limitations</b></dt>
-
-<blockquote>This command can be executed to add/remove/modify one user
-at a time.</blockquote>
-
 <h4>
 Examples</h4>
 
@@ -127,7 +128,7 @@ Author</h4>
 <h4>
 See Also</h4>
 
-<blockquote><font size=+1>cimauth (1M)</font></blockquote>
+<blockquote><font size=+1>cimauth (1M) cimconfig(1M)</font></blockquote>
 
 </body>
 </html>

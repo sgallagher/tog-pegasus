@@ -245,12 +245,12 @@ static const char   MODIFY_METHOD[]            = "modifyPassword";
 /**
     The input parameter name for old password 
 */
-static const char   OLD_PASS_PARAM[]             = "oldPassword";
+static const char   OLD_PASS_PARAM[]             = "OldPassword";
 
 /**
     The input parameter name for new password 
 */
-static const char   NEW_PASS_PARAM[]             = "newPassword";
+static const char   NEW_PASS_PARAM[]             = "NewPassword";
 
 
 static const char   PASSWORD_PROMPT []  =
@@ -721,20 +721,6 @@ void CIMUserCommand::setCommand (
     // 
     // Some more validations
     //
-    if ( _operationType == OPERATION_TYPE_UNINITIALIZED  && 
-	 ( _userNameSet || _passwordSet || _newpasswordSet ) )
-    {
-        CommandFormatException e ( REQUIRED_ARGS_MISSING );
-        throw e;
-    }
-	
-    if ( _operationType == OPERATION_TYPE_LIST  && 
-	 ( _userNameSet || _passwordSet || _newpasswordSet ) )
-    {
-        CommandFormatException e ( INVALID_ARGS );
-        throw e;
-    }
-	
     if ( _operationType == OPERATION_TYPE_UNINITIALIZED )
     {
         //
@@ -744,7 +730,14 @@ void CIMUserCommand::setCommand (
         CommandFormatException e ( REQUIRED_ARGS_MISSING );
         throw e;
     }
-
+	
+    if ( _operationType == OPERATION_TYPE_LIST  && 
+	 ( _userNameSet || _passwordSet || _newpasswordSet ) )
+    {
+        CommandFormatException e("Unexpected Option.");	
+        throw e;
+    }
+	
     if (_operationType == OPERATION_TYPE_ADD)
     {
 	if ( _newpasswordSet )
@@ -752,7 +745,7 @@ void CIMUserCommand::setCommand (
             //
             // An invalid option was encountered
             //
-            CommandFormatException e (INVALID_ARGS);
+            UnexpectedOptionException e( OPTION_NEW_PASSWORD );
             throw e;
         }
         if ( !_userNameSet )
@@ -760,7 +753,7 @@ void CIMUserCommand::setCommand (
             //
             // An invalid option was encountered
             //
-            CommandFormatException e (USERNAME_REQUIRED);
+            MissingOptionException e (OPTION_USER_NAME);
             throw e;
         }
         if ( !_passwordSet )
@@ -798,7 +791,7 @@ void CIMUserCommand::setCommand (
             //
             // An invalid option was encountered
             //
-            CommandFormatException e (USERNAME_REQUIRED);
+            MissingOptionException e (OPTION_USER_NAME);
             throw e;
         }
 	if ( _passwordSet && _newpasswordSet )
@@ -867,7 +860,7 @@ void CIMUserCommand::setCommand (
             //
             // An invalid option was encountered
             //
-            CommandFormatException e (USERNAME_REQUIRED);
+            MissingOptionException e (OPTION_USER_NAME);
             throw e;
         }
         if ( _passwordSet )
@@ -875,7 +868,15 @@ void CIMUserCommand::setCommand (
             //
             // An invalid option was encountered
             //
-            CommandFormatException e ( "Invalid option");
+            UnexpectedOptionException e ( OPTION_PASSWORD );
+            throw e;
+        }
+        if ( _newpasswordSet )
+        {
+            //
+            // An invalid option was encountered
+            //
+            UnexpectedOptionException e ( OPTION_NEW_PASSWORD );
             throw e;
         }
     }
@@ -966,7 +967,7 @@ Uint32 CIMUserCommand::execute (
         //
         Monitor* monitor = new Monitor;
         HTTPConnector* connector = new HTTPConnector(monitor);
-        CIMClient client(monitor, connector);
+        _client = new CIMClient(monitor, connector);
 
         addressStr.append(_hostName);
         addressStr.append(":");
@@ -974,14 +975,14 @@ Uint32 CIMUserCommand::execute (
 
         address = addressStr.allocateCString ();
 
-        client.connectLocal(address);
+        _client->connectLocal(address);
 
         connected = true;
     }
     catch(Exception& e)
     {
         outPrintWriter << CIMOM_NOT_RUNNING << endl;
-        connected = false;
+	return 1;
     }
 
     //
@@ -1181,15 +1182,6 @@ void CIMUserCommand::_AddUser
     
     try
     {
-        //
-        // Open connection with CIMSever
-        //
-        Monitor* monitor = new Monitor;
-        HTTPConnector* connector = new HTTPConnector(monitor);
-        CIMClient client(monitor, connector);
-
-        client.connectLocal(address);
-
         CIMInstance newInstance( PG_USER_CLASS );
 	newInstance.addProperty ( 
 			  CIMProperty( PROPERTY_NAME_USER_NAME, _userName ) );
@@ -1197,7 +1189,7 @@ void CIMUserCommand::_AddUser
 			  CIMProperty( PROPERTY_NAME_PASSWORD , _password ) );
 
 	outPrintWriter << ADDING_USER << endl;
-	client.createInstance( PROPERTY_NAME_NAMESPACE, newInstance );
+	_client->createInstance( PROPERTY_NAME_NAMESPACE, newInstance );
 	outPrintWriter << ADD_USER_SUCCESS << endl;
 
     }
@@ -1223,22 +1215,9 @@ void CIMUserCommand::_ModifyUser
 	Array<CIMParamValue>   inParams;
 	Array<CIMParamValue>   outParams;
 
-        //
-        // Open connection with CIMSever
-        //
-        Monitor* monitor = new Monitor;
-        HTTPConnector* connector = new HTTPConnector(monitor);
-        CIMClient client(monitor, connector);
-
-        client.connectLocal(address);
-
 	//
 	// Build the input params
 	//
-	inParams.append ( CIMParamValue (
-			     CIMParameter ( OLD_PASS_PARAM,
-					    CIMType::STRING ),
-                             CIMValue ( _userName )));
 	inParams.append ( CIMParamValue (
 			     CIMParameter ( OLD_PASS_PARAM,
 					    CIMType::STRING ),
@@ -1261,14 +1240,20 @@ void CIMUserCommand::_ModifyUser
 	// Call the invokeMethod with the input parameters
 	// 
 	outPrintWriter << MODIFYING_USER << endl;
-	CIMValue retValue = client.invokeMethod (
+
+	//
+	// Not checking for return code as all error conditions will
+	// throw exceptions and will be handled by the catch block. If new 
+	// return codes are added in future, they need to be handled here.  
+	//
+	CIMValue retValue = _client->invokeMethod (
 		                       PROPERTY_NAME_NAMESPACE,
 		                       reference,
 		                       MODIFY_METHOD,
 		                       inParams,
 		                       outParams );
-        outPrintWriter << CHANGE_PASSWORD_SUCCESS << endl;
 
+        outPrintWriter << CHANGE_PASSWORD_SUCCESS << endl;
     }
     catch (CIMException& e)
     {
@@ -1290,15 +1275,6 @@ void CIMUserCommand::_RemoveUser
         Array<KeyBinding> kbArray;
         KeyBinding        kb;
 
-        //
-        // Open connection with CIMSever
-        //
-        Monitor* monitor = new Monitor;
-        HTTPConnector* connector = new HTTPConnector(monitor);
-        CIMClient client(monitor, connector);
-
-        client.connectLocal(address);
-
         kb.setName(PROPERTY_NAME_USER_NAME);
         kb.setValue(_userName);
         kb.setType(KeyBinding::STRING);
@@ -1309,7 +1285,7 @@ void CIMUserCommand::_RemoveUser
             _hostName, PROPERTY_NAME_NAMESPACE, PG_USER_CLASS, kbArray);
 
         outPrintWriter << REMOVING_USER << endl;
-        client.deleteInstance(PROPERTY_NAME_NAMESPACE, reference);
+        _client->deleteInstance(PROPERTY_NAME_NAMESPACE, reference);
 	outPrintWriter << REMOVE_USER_SUCCESS << endl;
 
     }
@@ -1332,20 +1308,13 @@ void CIMUserCommand::_ListUsers
     try
     {
         //
-        // Open connection with CIMSever
-        //
-        Monitor* monitor = new Monitor;
-        HTTPConnector* connector = new HTTPConnector(monitor);
-        CIMClient client(monitor, connector);
-        
-        client.connectLocal(address);
-
-        //
         // get all the instances of class PG_User
         //
 	outPrintWriter << LISTING_USERS << endl;
         Array<CIMReference> instanceNames =
-            client.enumerateInstanceNames(PROPERTY_NAME_NAMESPACE, PG_USER_CLASS);
+            _client->enumerateInstanceNames(
+	       PROPERTY_NAME_NAMESPACE, 
+	       PG_USER_CLASS);
 
         if ( instanceNames.size() == 0 )
         {

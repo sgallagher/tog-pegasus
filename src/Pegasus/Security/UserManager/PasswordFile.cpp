@@ -96,15 +96,24 @@ PasswordFile::PasswordFile (const String& fileName)
 
     _passwordBackupFile = fileName + ".bak";
 
-    _passwordNewFile    = fileName + ".new";
-
-    // ATTN: Temporary hack to work when the password file is absent
-    if (!FileSystem::exists(_passwordFile))
+    try
     {
+	PasswordTable pt;
+        load(pt);
+    }
+    catch( NoSuchFile& e )
+    {
+        Logger::put(Logger::ERROR_LOG, "UserManager", Logger::SEVERE,
+            "Password file not found : $0.", _passwordFile);
+        Logger::put(Logger::ERROR_LOG, "UserManager", Logger::INFORMATION,
+            "Creating blank password file.");
         PasswordTable pt;
         save(pt);
     }
-
+    catch ( Exception& e)
+    {
+	throw e;
+    }
     PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
 }
 
@@ -129,6 +138,35 @@ void PasswordFile::load (PasswordTable& passwordTable)
 
     PEG_FUNC_ENTER(TRC_USER_MANAGER,METHOD_NAME);
 
+    // 
+    // Check if the backup file exists, if it does use the backup file
+    // If not try to use the password file
+    //
+    if (FileSystem::exists(_passwordBackupFile))
+    {
+	if (FileSystem::exists(_passwordFile))
+	{
+	    if (! FileSystem::removeFile(_passwordFile))
+	    {
+		throw CannotRemoveFile(_passwordFile);
+            }
+        }
+        Logger::put(Logger::ERROR_LOG, "UserManager", Logger::INFORMATION,
+            "Trying to use the backup file : $0.", _passwordBackupFile);
+	if (! FileSystem::renameFile(_passwordBackupFile, _passwordFile))
+	{
+            Logger::put(Logger::ERROR_LOG, "UserManager", Logger::INFORMATION,
+            "Unable to use the backup file : $0.", _passwordBackupFile);
+	    throw CannotRenameFile(_passwordBackupFile);
+        }
+        Logger::put(Logger::ERROR_LOG, "UserManager", Logger::INFORMATION,
+            "Recovered using the backup file : $0.", _passwordBackupFile);
+    }
+    if (! FileSystem::exists(_passwordFile))
+    {
+	throw NoSuchFile(_passwordFile);
+    }
+
     //
     // Open the password file
     //
@@ -136,8 +174,9 @@ void PasswordFile::load (PasswordTable& passwordTable)
     ifstream ifs(p.getPointer());
     if (!ifs)
     {
-        PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
-	throw CannotOpenFile(getFileName());
+        Logger::put(Logger::ERROR_LOG, "UserManager", Logger::SEVERE,
+            "Error opening password file : $0.", _passwordFile);
+        return;
     }
 
     //
@@ -199,7 +238,7 @@ void PasswordFile::load (PasswordTable& passwordTable)
 	    // Did not find Colon, log a message and skip entry
             //
             Logger::put(Logger::ERROR_LOG, "CIMPassword", Logger::INFORMATION,
-            "Error in reading password entry for : $0, .", userName);
+            "Error in reading password entry for : $0.", userName);
 	    continue;
         }
 
@@ -232,7 +271,7 @@ void PasswordFile::load (PasswordTable& passwordTable)
             // Duplicate entry for user, ignore the new entry.
             //
             Logger::put(Logger::ERROR_LOG, "CIMPassword", Logger::INFORMATION,
-            "Duplicate user: $0, .", userName);
+            "Duplicate user: $0.", userName);
         }
     }
 
@@ -251,33 +290,38 @@ void PasswordFile::save (PasswordTable& passwordTable)
     PEG_FUNC_ENTER(TRC_USER_MANAGER, METHOD_NAME);
 
     //
-    // Delete the backup password file
+    // Check if backup password file exists, if it does remove the password file
+    // If it does not rename the password file to password backup file
     //
     if (FileSystem::exists(_passwordBackupFile))
     {
-        if ( ! FileSystem::removeFile(_passwordBackupFile))
+	if ( FileSystem::exists(_passwordFile))
 	{
-            Logger::put(Logger::ERROR_LOG, "CIMPassword", Logger::INFORMATION,
-            "Cannot remove backup password file : $0, .", _passwordBackupFile);
+            if ( ! FileSystem::removeFile(_passwordFile))
+	    {
+                Logger::put(Logger::ERROR_LOG, "CIMPassword", Logger::SEVERE,
+                "Cannot remove password file : $0.", _passwordFile);
+	        throw CannotRemoveFile(_passwordFile);
+            }
         }
     }
-
-    //
-    // Delete the new password file
-    //
-    if (FileSystem::exists(_passwordNewFile))
+    else
     {
-        if ( ! FileSystem::removeFile(_passwordNewFile))
+	if ( FileSystem::exists(_passwordFile))
 	{
-            Logger::put(Logger::ERROR_LOG, "CIMPassword", Logger::INFORMATION,
-            "Cannot remove new password file : $0, .", _passwordNewFile);
+            if ( ! FileSystem::renameFile(_passwordFile, _passwordBackupFile))
+	    {
+                Logger::put(Logger::ERROR_LOG, "CIMPassword", Logger::SEVERE,
+                "Cannot rename password file : $0.", _passwordFile);
+	        throw CannotRenameFile(_passwordFile);
+            }
         }
     }
 
     //
-    // Open the new password file for writing
+    // Open the password file for writing
     //
-    ArrayDestroyer<char> p(_passwordNewFile.allocateCString());
+    ArrayDestroyer<char> p(_passwordFile.allocateCString());
     ofstream ofs(p.getPointer());
     if (!ofs)
     {
@@ -308,31 +352,15 @@ void PasswordFile::save (PasswordTable& passwordTable)
 
     ofs.close();
 
-    //
-    // Rename the current password file as the backup file
-    //
-    if (FileSystem::exists(_passwordFile))
+    if ( FileSystem::exists(_passwordBackupFile))
     {
-        if (!FileSystem::renameFile(_passwordFile, _passwordBackupFile))
-        {
-            throw CannotRenameFile(_passwordFile);
-        }
-    }
-
-    //
-    // Rename the new password file as the password file
-    //
-    if (FileSystem::exists(_passwordNewFile))
-    {
-        if (!FileSystem::renameFile(_passwordNewFile, _passwordFile))
-        {
-	    FileSystem::renameFile(_passwordBackupFile, _passwordFile);
-            throw CannotRenameFile(_passwordNewFile);
-        }
-        if ( ! FileSystem::removeFile(_passwordBackupFile))
+	if ( ! FileSystem::removeFile(_passwordBackupFile))
 	{
-            Logger::put(Logger::ERROR_LOG, "CIMPassword", Logger::INFORMATION,
-            "Cannot remove backup password file : $0, .", _passwordBackupFile);
+            Logger::put(Logger::ERROR_LOG, "CIMPassword", 
+	    Logger::SEVERE,
+            "Cannot remove backup password file : $0.",
+	    _passwordBackupFile);
+	    throw CannotRemoveFile(_passwordBackupFile);
         }
     }
     PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);

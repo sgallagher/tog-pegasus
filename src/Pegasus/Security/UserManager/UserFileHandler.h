@@ -41,6 +41,7 @@
 #include <fstream>
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/IPC.h>
 
 #include <Pegasus/Security/UserManager/PasswordFile.h>
 #include <Pegasus/Security/UserManager/Linkage.h>
@@ -57,19 +58,29 @@ class PEGASUS_USERMANAGER_LINKAGE UserFileHandler
 private:
 
     //
-    // Contains the password file name
+    // Contains the property name for password filepath
     //
-    static const char    	  _PASSWD_FILE[];
+    static const String    	  _PROPERTY_NAME_PASSWORD_FILEPATH;
 
     //
     // Contains the salt string for password encryption
     //
     static const unsigned char    _SALT_STRING[];
 
-    // 
-    // Contains the password file name with the full path
     //
-    String               	  _passwdFileName;
+    // Denotes the types of update operations
+    //
+    enum UpdateOperations
+    {
+	 ADD_USER,
+	 MODIFY_USER,
+	 REMOVE_USER
+    };
+
+    //
+    // Contains the mutex timeout value
+    //
+    static const Uint32    	  _MUTEX_TIMEOUT;
 
     //
     // Flag to indicate whether password file exists
@@ -83,7 +94,12 @@ private:
     //
     // Instance of the PasswordFile
     //
-    PasswordFile       	          *_passwordFile;
+    PasswordFile*      	          _passwordFile;
+
+    //
+    // Mutex variable for consistent Password File and cache updates
+    //
+    Mutex*       	          _mutex;
 
     /**
     generate random salt key for password encryption
@@ -91,6 +107,15 @@ private:
     @param salt  A array of 3 characters
     */
     void _GetSalt (char* salt);
+
+    /**
+    Update the password hash table and write to password file
+    */
+    void _Update(
+	    char operation, 
+	    const String& userName, 
+	    const String& password = String::EMPTY);
+
 
 protected:
 
@@ -109,6 +134,7 @@ public:
 
     /** Destructor. */
     ~UserFileHandler();
+
 
     /** 
     Add user entry to file

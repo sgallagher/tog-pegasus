@@ -206,6 +206,8 @@ private:
 
     struct ConfigProperty*      _httpAuthType;
 
+    struct ConfigProperty*      _passwordFilePath;
+
 };
 
 PEGASUS_NAMESPACE_END

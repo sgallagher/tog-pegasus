@@ -193,6 +193,10 @@ public:
 	Boolean deepInheritance,
 	Array<String>& subClassNames) const;
 
+    /** Returns true if class1 is a subclass of class2.
+    */
+    Boolean isSubClass(const String& class1, const String& class2);
+
     /** Get the names of all superclasses of this class (direct and indirect).
     */
     Boolean getSuperClassNames(

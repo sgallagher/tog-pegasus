@@ -71,6 +71,8 @@ struct InheritanceTreeNode
 
     void print(PEGASUS_STD(ostream)& os) const;
 
+    Boolean isSubClass(const String& className);
+
     String className;
     InheritanceTreeNode* superClass;
     InheritanceTreeNode* sibling;
@@ -128,6 +130,20 @@ void InheritanceTreeNode::getSubClassNames(
 	    p->getSubClassNames(subClassNames, true);
 	}
     }
+}
+
+Boolean InheritanceTreeNode::isSubClass(const String& className_)
+{
+    if (String::equalNoCase(className, className_))
+	return true;
+
+    for (InheritanceTreeNode* p = subClasses; p; p = p->sibling)
+    {
+	if (String::equalNoCase(p->className, className_))
+	    return true;
+    }
+
+    return false;
 }
 
 void InheritanceTreeNode::getSuperClassNames(Array<String>& superClassNames)
@@ -297,6 +313,16 @@ Boolean InheritanceTree::getSubClassNames(
 
     // Not found!
     return false;
+}
+
+Boolean InheritanceTree::isSubClass(const String& class1, const String& class2)
+{
+    InheritanceTreeNode* node = 0;	
+
+    if (!_rep->table.lookup(class1, node))
+	return false;
+
+    return node->isSubClass(class2);
 }
 
 Boolean InheritanceTree::getSuperClassNames(

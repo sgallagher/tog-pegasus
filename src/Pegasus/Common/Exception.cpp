@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Exception.cpp,v $
+// Revision 1.9  2001/04/25 20:43:31  mike
+// better
+//
 // Revision 1.8  2001/03/05 04:29:01  mike
 // renamed CimException to CIMException
 //
@@ -172,7 +175,7 @@ const char IncompatibleTypes::MSG[] = "incompatible types";
 
 const char BadlyFormedCGIQueryString::MSG[] = "badly formed CGI query string";
 
-const char BadInstanceName::MSG[] = "bad instance name: ";
+const char IllformedObjectPath::MSG[] = "illformed object path: ";
 
 const char DynamicLoadFailed::MSG[] = "load of dynamic library failed: ";
 

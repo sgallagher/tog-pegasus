@@ -167,7 +167,7 @@ class XmlWriter;
     called "root/cimv25". Then the namespace-path is given as:
 
 	<pre>
-	//atp-9999/root/cimv25
+	//atp:9999/root/cimv25
 	</pre>
 
     As for the model-path mentioned above, its form is defined by the CIM
@@ -200,8 +200,7 @@ class XmlWriter;
     Now the namespace-type and model-path are combined in the following
     string object name.
 
-	//atp-9999/root/cimv25:TennisPlayer.first="Patrick",last="Rafter"
-
+	//atp:9999/root/cimv25:TennisPlayer.first="Patrick",last="Rafter"
 
     Now suppose we wish to create a CIMReference from this above string. There
     are two constructors provided: one which takes the above string and the
@@ -224,7 +223,7 @@ class XmlWriter;
 
 	<pre>
 	CIMReference ref = 
-	    "//atp-9999/root/cimv25:TennisPlayer.first="Patrick",last="Rafter";
+	    "//atp:9999/root/cimv25:TennisPlayer.first="Patrick",last="Rafter";
 	</pre>
 
     A CIMReference may also be initialized using the constituent elements 
@@ -234,7 +233,7 @@ class XmlWriter;
     way:
 
 	<ul>
-	<li>host = "atp-9999"</li>
+	<li>host = "atp:9999"</li>
 	<li>nameSpace = "root/cimv25"</li>
 	<li>className = "TennisPlayer"</li>
 	<li>keyBindings = "first=\"Patrick\",last=\"Rafter\""</li>
@@ -320,7 +319,10 @@ public:
     /** Copy constructor. */
     CIMReference(const CIMReference& x);
 
-    /** Constructs a CIM Object Path from the constituent elements.
+    /** Initializes this object from a CIM object path. */
+    CIMReference(const String& objectPath);
+
+    /** Constructs a CIMReference from constituent elements.
 	@param host - name of host (e.g., "nemesis-8888").
 	@param nameSpace -  namespace (e.g., "root/cimv20").
 	@param className - name of a class (e.g., "MyClass").

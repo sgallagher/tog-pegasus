@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Exception.h,v $
+// Revision 1.10  2001/04/25 20:43:31  mike
+// better
+//
 // Revision 1.9  2001/03/05 19:54:49  mike
 // Fixed earlier boo boo (renamed CimException to CIMException).
 //
@@ -612,13 +615,13 @@ public:
     BadlyFormedCGIQueryString() : Exception(MSG) { }
 };
 
-class PEGASUS_COMMON_LINKAGE BadInstanceName : public Exception
+class PEGASUS_COMMON_LINKAGE IllformedObjectPath : public Exception
 {
 public:
 
     static const char MSG[];
 
-    BadInstanceName(const String& instanceName)
+    IllformedObjectPath(const String& instanceName)
 	: Exception(MSG + instanceName) { }
 };
 

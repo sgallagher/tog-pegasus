@@ -142,6 +142,173 @@ CIMReference::CIMReference(const CIMReference& x)
     _BubbleSort(_keyBindings);
 }
 
+CIMReference::CIMReference(const String& objectPath)
+{
+    //--------------------------------------------------------------------------
+    // We will extract components from an object path. Here is an sample
+    // object path: 
+    //
+    //     //atp:9999/root/cimv25:TennisPlayer.first="Patrick",last="Rafter"
+    //--------------------------------------------------------------------------
+
+    // Convert to a C String first:
+
+    char* p = objectPath.allocateCString();
+    ArrayDestroyer<char> destroyer(p);
+
+    // See if there is a host name (true if it begins with "//"):
+    // Host is of the from <hostname>-<port> and begins with "//"
+    // and ends with "/":
+
+    if (p[0] == '/' && p[1] == '/')
+    {
+	p += 2;
+
+	//----------------------------------------------------------------------
+	// Validate the hostname. Hostnames must match the following
+	// regular expression: "[A-Za-z][A-Za-z0-9-]*"
+	//----------------------------------------------------------------------
+
+	char* q = p;
+
+	if (!isalpha(*q))
+	    throw IllformedObjectPath(objectPath);
+
+	q++;
+
+	while (isalnum(*q) || *q == '-')
+	    q++;
+
+	// We now expect a colon (before the port):
+
+	if (*q != ':')
+	    throw IllformedObjectPath(objectPath);
+
+	q++;
+
+	// Check for a port number:
+
+	if (!isdigit(*q))
+	    throw IllformedObjectPath(objectPath);
+	    
+	while (isdigit(*q))
+	    q++;
+
+	// Check for slash terminating the entire sequence:
+
+	if (*q != '/')
+	    throw IllformedObjectPath(objectPath);
+
+	// Finally, assign the host name:
+
+	_host.assign(p, q - p);
+
+	p = ++q;
+    }
+
+OUT(_host);
+
+#if 0
+    // Extract the class name:
+
+    char* dot = strchr(p, '.');
+
+    if (!dot)
+	throw IllformedObjectPath(objectPath);
+
+    String className(p, dot - p);
+
+    // Advance past dot:
+
+    p = dot + 1;
+
+    // Get the key-value pairs:
+
+    Array<KeyBinding> keyBindings;
+
+    for (p = strtok(p, ","); p; p = strtok(NULL, ","))
+    {
+	// Split about the equal sign:
+
+	char* equal = strchr(p, '=');
+
+	if (!equal)
+	    throw IllformedObjectPath(objectPath);
+
+	*equal = '\0';
+
+	// Get key part:
+
+	String keyString(p);
+
+	if (!CIMName::legal(keyString))
+	    throw IllformedObjectPath(objectPath);
+
+	// Get the value part:
+
+	String valueString;
+	char* q = equal + 1;
+	KeyBinding::CIMType type;
+
+	if (*q == '"')
+	{
+	    q++;
+
+	    type = KeyBinding::STRING;
+
+	    while (*q && *q != '"')
+	    {
+		// ATTN: need to handle special characters here:
+
+		if (*q == '\\')
+		    *q++;
+
+		valueString.append(*q++);
+	    }
+
+	    if (*q++ != '"')
+		throw IllformedObjectPath(objectPath);
+
+	    if (*q)
+		throw IllformedObjectPath(objectPath);
+	}
+	else if (toupper(*q) == 'T' || toupper(*q) == 'F')
+	{
+	    type = KeyBinding::BOOLEAN;
+
+	    char* r = q;
+
+	    while (*r)
+	    {
+		*r = toupper(*r);
+		r++;
+	    }
+
+	    if (strcmp(q, "TRUE") != 0 && strcmp(q, "FALSE") != 0)
+		throw IllformedObjectPath(objectPath);
+
+	    valueString.assign(q);
+	}
+	else
+	{
+	    type = KeyBinding::NUMERIC;
+
+	    Sint64 x;
+
+	    if (!XmlReader::stringToSignedInteger(q, x))
+		throw IllformedObjectPath(objectPath);
+
+	    valueString.assign(q);
+	}
+
+	keyBindings.append(KeyBinding(keyString, valueString, type));
+    }
+
+    reference.set(String(), String(), className, keyBindings);
+
+#endif
+}
+
 CIMReference::CIMReference(
     const String& host,
     const String& nameSpace,
@@ -366,7 +533,7 @@ void CIMReference::instanceNameToReference(
     char* dot = strchr(p, '.');
 
     if (!dot)
-	throw BadInstanceName(instanceName);
+	throw IllformedObjectPath(instanceName);
 
     String className(p, dot - p);
 
@@ -385,7 +552,7 @@ void CIMReference::instanceNameToReference(
 	char* equal = strchr(p, '=');
 
 	if (!equal)
-	    throw BadInstanceName(instanceName);
+	    throw IllformedObjectPath(instanceName);
 
 	*equal = '\0';
 
@@ -394,7 +561,7 @@ void CIMReference::instanceNameToReference(
 	String keyString(p);
 
 	if (!CIMName::legal(keyString))
-	    throw BadInstanceName(instanceName);
+	    throw IllformedObjectPath(instanceName);
 
 	// Get the value part:
 
@@ -419,10 +586,10 @@ void CIMReference::instanceNameToReference(
 	    }
 
 	    if (*q++ != '"')
-		throw BadInstanceName(instanceName);
+		throw IllformedObjectPath(instanceName);
 
 	    if (*q)
-		throw BadInstanceName(instanceName);
+		throw IllformedObjectPath(instanceName);
 	}
 	else if (toupper(*q) == 'T' || toupper(*q) == 'F')
 	{
@@ -437,7 +604,7 @@ void CIMReference::instanceNameToReference(
 	    }
 
 	    if (strcmp(q, "TRUE") != 0 && strcmp(q, "FALSE") != 0)
-		throw BadInstanceName(instanceName);
+		throw IllformedObjectPath(instanceName);
 
 	    valueString.assign(q);
 	}
@@ -448,7 +615,7 @@ void CIMReference::instanceNameToReference(
 	    Sint64 x;
 
 	    if (!XmlReader::stringToSignedInteger(q, x))
-		throw BadInstanceName(instanceName);
+		throw IllformedObjectPath(instanceName);
 
 	    valueString.assign(q);
 	}

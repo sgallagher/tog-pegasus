@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Method.h,v $
+// Revision 1.5  2001/02/16 00:34:17  mike
+// added ATTN
+//
 // Revision 1.4  2001/02/06 17:04:03  karl
 // add documentation
 //
@@ -86,6 +89,8 @@ public:
 	return *this;
     }
 
+    // ATTN: remove the classOrigin and propagated parameters.
+
     /**	 Creates a CIM method with the specified name, type, and classOrigin
     @param name for the method
     @param type ATTN
@@ -101,6 +106,7 @@ public:
     {
 	_rep = new MethodRep(name, type, classOrigin, propagated);
     }
+
     /// Method desctructor
     ~Method()
     {

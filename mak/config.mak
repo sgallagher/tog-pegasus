@@ -128,8 +128,8 @@ ifdef PEGASUS_CIM_SCHEMA
        CIM_SCHEMA_VER=$(patsubst CIM%,%,$(patsubst CIMPrelim%,%,$(PEGASUS_CIM_SCHEMA)))
     endif
 else
-    CIM_SCHEMA_DIR=$(PEGASUS_ROOT)/Schemas/CIM28
-    CIM_SCHEMA_VER=28
+    CIM_SCHEMA_DIR=$(PEGASUS_ROOT)/Schemas/CIM29
+    CIM_SCHEMA_VER=
 endif
 
 ifneq (, $(findstring Prelim, $(CIM_SCHEMA_DIR)))

@@ -246,8 +246,8 @@ static CMPIBrokerExtFT brokerExt_FT={
 
      newCondition,
      destroyCondition,
-     timedCondWait,
      condWait,
+     timedCondWait,
      NULL                       // Signal not supported yet
 };
 

@@ -59,6 +59,7 @@
 typedef struct _managed_thread managed_thread;
 
 #include <dlfcn.h>
+#include <sys/types.h>
 
 //! Per-Thread management structure.
 /*!

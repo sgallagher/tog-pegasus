@@ -140,9 +140,13 @@ static CMPIBoolean __beft_classPathIsA ( CMPIBroker * broker,
 					 const char * type,
 					 CMPIStatus * rc )
 {
+
+     CMPIString *clsn;
+
      if (rc) CMSetStatus(rc,CMPI_RC_OK);
 
-     CMPIString *clsn=CMGetClassName(cop,NULL);
+     clsn=CMGetClassName(cop,NULL);
+
      if (clsn && clsn->hdl) {
         if (strcasecmp(type,(char*)clsn->hdl)==0) return 1;
      }

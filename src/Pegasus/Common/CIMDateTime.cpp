@@ -210,7 +210,7 @@ Uint16 CIMDateTimeRep::set_microSec(const String & mS)
 void CIMDateTimeRep::set_data(const String & value, Uint32 index, Uint32 size)
 {
     for (Uint32 i=0; i < size; i++) {
-        data[index+i] = value[i];
+        data[index+i] = (char) value[i];
     } 
 }
 
@@ -386,7 +386,7 @@ check to make sure
     
     send string to set()                            
  */                               
-CIMDateTime::CIMDateTime(const Uint64 microSec, Boolean interval)
+CIMDateTime::CIMDateTime(Uint64 microSec, Boolean interval)
 {                                         
     if (microSec >= _TEN_THOUSAND_YEARS && !interval) { //time stamps must be less then number of micro Seconds in 10,000 years
         MessageLoaderParms parmsTS("Common.Exception.DATETIME_OUT_OF_RANGE_EXCEPTION",
@@ -403,7 +403,7 @@ CIMDateTime::CIMDateTime(const Uint64 microSec, Boolean interval)
     //Set of Strings that hold part parts of datetime    100,000,000
     String year, ye_mo, ye_mo_da, ye_mo_da_ho, ye_mo_da_ho_mn, ye_mo_da_ho_mn_se, final;
 
-    Uint32 day_sub1 = microSec/_ONE_DAY;
+    Uint32 day_sub1 = (Uint32)(microSec/_ONE_DAY);
     Uint32 days_in400 = 146097;
 
     if (!interval) {
@@ -552,8 +552,8 @@ CIMDateTime::CIMDateTime(const Uint64 microSec, Boolean interval)
     //get hours, minutes, seconds and microseconds 
     Uint64 after_ymd = microSec%_ONE_DAY;
 
-    Uint32 hour_num = after_ymd/_ONE_HOUR;
-    Uint32 after_ymdh = after_ymd%_ONE_HOUR;
+    Uint32 hour_num = (Uint32)(after_ymd/_ONE_HOUR);
+    Uint32 after_ymdh = (Uint32)(after_ymd%_ONE_HOUR);
 
     Uint32 min_num = after_ymdh/_ONE_MINUTE;
     Uint32 after_ymdhm = after_ymdh%_ONE_MINUTE;
@@ -918,6 +918,7 @@ Boolean CIMDateTime::_set(const String & dateTimeStr)
         return false;           // seconds field has both wildcards and digits
     }
 
+
     else if (ans == ONLY_DIGITS) {          // minutes field has only digits
         long seconds = atoi(buffer.getCString());
         if (seconds > 59){
@@ -1207,8 +1208,8 @@ void CIMDateTime::convertToUTC()
 
     Uint64 un_normNum = this->_toMicroSeconds();
 
-    Uint32 unnor = un_normNum/PEGASUS_UINT64_LITERAL(1000000000);
-    Uint32 runnor = un_normNum%PEGASUS_UINT64_LITERAL(1000000000);
+   // Uint32 unnor = un_normNum/PEGASUS_UINT64_LITERAL(1000000000);
+   // Uint32 runnor = un_normNum%PEGASUS_UINT64_LITERAL(1000000000);
    
     // get UTC offSet and change it in microseconds
     String utcOS = _rep->utcOffSet.subString(1,3);
@@ -1231,7 +1232,6 @@ void CIMDateTime::convertToUTC()
         if ( sign == '-' ) {  
             if (_TEN_THOUSAND_YEARS < (un_normNum + (offSet_hor + offSet_min))){
                 cout << " this is value " << this->toString() << endl;
-                cout << "number back form: " << unnor << " rema: " << runnor << endl;
                 throw DateTimeOutOfRangeException(parmsOv);
             }
             normNum = un_normNum + (offSet_hor + offSet_min);

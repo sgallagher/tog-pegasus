@@ -76,7 +76,7 @@ DNSAdminDomainProvider::getInstance(
     String className;
     String dname;
     className = instanceReference.getClassName();
-    Array<KeyBinding> keys;
+    Array<CIMKeyBinding> keys;
     CIMInstance instance;
 
     //-- make sure we're working on the right class
@@ -256,7 +256,7 @@ DNSAdminDomainProvider::terminate(void)
 CIMInstance
 DNSAdminDomainProvider::_build_instance(const String & className,
                                         const String & nameSpace,
-                                        const Array<KeyBinding> keys)
+                                        const Array<CIMKeyBinding> keys)
 {
     CIMInstance instance(className);
     String dname;
@@ -317,18 +317,18 @@ CIMObjectPath
 DNSAdminDomainProvider::_fill_reference(const String &nameSpace,
                                         const String &className)
 {
-    Array<KeyBinding> keys;
+    Array<CIMKeyBinding> keys;
     DNSAdminDomain dns;
     String csName;
 
-    keys.append(KeyBinding(PROPERTY_CREATION_CLASS_NAME, CLASS_HPUX_DNSADMINDOMAIN,
-                           KeyBinding::STRING));
+    keys.append(CIMKeyBinding(PROPERTY_CREATION_CLASS_NAME, CLASS_HPUX_DNSADMINDOMAIN,
+                           CIMKeyBinding::STRING));
 
     if(!dns.getName(csName)) 
         throw CIMOperationFailedException("DNSProvider "
                   "can't determine name property");
         
-       keys.append(KeyBinding(PROPERTY_NAME, csName, KeyBinding::STRING));
+       keys.append(CIMKeyBinding(PROPERTY_NAME, csName, CIMKeyBinding::STRING));
 
     return CIMObjectPath("localhost", nameSpace, className, keys);
 }

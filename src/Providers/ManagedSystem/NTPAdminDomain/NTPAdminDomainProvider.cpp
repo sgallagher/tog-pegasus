@@ -79,7 +79,7 @@ NTPAdminDomainProvider::getInstance(const OperationContext & context,
                                    const CIMPropertyList & propertyList,
                                    InstanceResponseHandler & handler)
 {
-    Array<KeyBinding> keys;
+    Array<CIMKeyBinding> keys;
     CIMInstance instance;
     String className;
     
@@ -277,7 +277,7 @@ NTPAdminDomainProvider::terminate(void)
 CIMInstance
 NTPAdminDomainProvider::_build_instance(const String & className,
                                         const String & nameSpace,
-                                        const Array<KeyBinding> keys) {
+                                        const Array<CIMKeyBinding> keys) {
     CIMInstance instance(className);
     String strValue;
     String hostName;
@@ -341,7 +341,7 @@ CIMObjectPath
 NTPAdminDomainProvider::_fill_reference(const String &nameSpace,
                                          const String &className)
 {
-    Array<KeyBinding> keys;
+    Array<CIMKeyBinding> keys;
     String hostName;
     String param;
     
@@ -349,11 +349,11 @@ NTPAdminDomainProvider::_fill_reference(const String &nameSpace,
         throw CIMOperationFailedException("NTPAdminDomainProvider "
             "can't determine CreationClassName property");
 
-    keys.append(KeyBinding(PROPERTY_CREATION_CLASS_NAME, param, KeyBinding::STRING));
+    keys.append(CIMKeyBinding(PROPERTY_CREATION_CLASS_NAME, param, CIMKeyBinding::STRING));
 
     ntp->getName(param);
 
-    keys.append(KeyBinding(PROPERTY_NAME, param, KeyBinding::STRING));
+    keys.append(CIMKeyBinding(PROPERTY_NAME, param, CIMKeyBinding::STRING));
 
 
     if(!ntp->getLocalHostName(hostName))

@@ -128,6 +128,6 @@ class NTPAdminDomainProvider: public CIMInstanceProvider,
           // Builds a filled-in instance.
         CIMInstance    _build_instance(const String & classname,
                                     const String & nameSpace,
-                                    const Array<KeyBinding> keys);
+                                    const Array<CIMKeyBinding> keys);
 };
 #endif

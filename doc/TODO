@@ -7,8 +7,13 @@
       Also, resolve() fails when instance has properties of difference
       case.
 
+    - Super class name does not seem to be set in enumerateClasses operation.
+
 
     ------------------------------------------------------------------------
+
+    -	Remove "std::" qualifiers and use a macro and use #define for
+	PEGASUS_NAMESPACE_STD.
 
     -  	Change getLength() to length() or size()?
 

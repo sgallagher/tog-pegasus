@@ -144,3 +144,6 @@
 
     -   Support multiple providers of the extact same class.
 	DiskController example and LanController.
+
+    -   SLP
+	    - Eliminate lib directory.

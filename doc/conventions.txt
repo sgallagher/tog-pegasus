@@ -1,3 +1,4 @@
+(Preliminary; still need to be modified and voted on).
 
 Development Conventions
 =======================
@@ -87,3 +88,29 @@ Development Conventions
     platform.
 
 22. No binaries may be committed to repository.
+
+24. Don't separate return type onto its own line:
+
+    Avoid this:
+
+	int
+	f()
+	{
+	}
+	
+
+25. All code must be reachable (built) from master makefile. Otherwise
+    it will not be reached when doing mass substitutions, testings of
+    builds, and license changes.
+
+26. Prepend '_' to private members (including methods).
+
+27. Use /** */ rather than /// for DOC++.
+
+29. Always write a regression test for everything.
+
+30. Always build and run all regression tests before committing.
+
+31. Be mindful that the tests must run on all supported platforms and
+    that a commit may break another platform.
+

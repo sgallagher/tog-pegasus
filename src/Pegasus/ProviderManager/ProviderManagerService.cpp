@@ -650,6 +650,15 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleGetInst
 
 		// convert arguments
 		OperationContext context;
+		context.add_context( sizeof(String *),
+				     const_cast<String *>(&(request->userName)),
+				     0, 
+				     0, 
+				     CONTEXT_IDENTITY,
+				     0, 
+				     0);
+
+		
 		CIMReference instanceReference(request->instanceName);
 
 		// ATTN: propagate namespace
@@ -750,6 +759,13 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleEnumera
 
 		// convert arguments
 		OperationContext context;
+		context.add_context( sizeof(String *),
+				     const_cast<String *>(&(request->userName)),
+				     0, 
+				     0, 
+				     CONTEXT_IDENTITY,
+				     0, 
+				     0);
 
 		// ATTN: propagate namespace
 		classReference.setNameSpace(request->nameSpace);
@@ -847,6 +863,13 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleEnumera
 
 		// convert arguments
 		OperationContext context;
+		context.add_context( sizeof(String *),
+				     const_cast<String *>(&(request->userName)),
+				     0, 
+				     0, 
+				     CONTEXT_IDENTITY,
+				     0, 
+				     0);
 
 		// ATTN: propagate namespace
 		classReference.setNameSpace(request->nameSpace);
@@ -935,6 +958,13 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCreateI
 
 	   // convert arguments
 	   OperationContext context;
+		context.add_context( sizeof(String *),
+				     const_cast<String *>(&(request->userName)),
+				     0, 
+				     0, 
+				     CONTEXT_IDENTITY,
+				     0, 
+				     0);
 
 	   CIMReference instanceReference;
 
@@ -1037,6 +1067,13 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleModifyI
 
 	   // convert arguments
 	   OperationContext context;
+		context.add_context( sizeof(String *),
+				     const_cast<String *>(&(request->userName)),
+				     0, 
+				     0, 
+				     CONTEXT_IDENTITY,
+				     0, 
+				     0);
 
 	   // ATTN: convert flags to bitmask
 	   Uint32 flags = OperationFlag::convert(false);
@@ -1124,7 +1161,13 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleDeleteI
 
 	   // convert arguments
 	   OperationContext context;
-
+		context.add_context( sizeof(String *),
+				     const_cast<String *>(&(request->userName)),
+				     0, 
+				     0, 
+				     CONTEXT_IDENTITY,
+				     0, 
+				     0);
 	   SimpleResponseHandler<CIMInstance> handler;
 
 	   // forward request
@@ -1475,6 +1518,14 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleInvokeM
 
 		// convert arguments
 		OperationContext context;
+		context.add_context( sizeof(String *),
+				     const_cast<String *>(&(request->userName)),
+				     0, 
+				     0, 
+				     CONTEXT_IDENTITY,
+				     0, 
+				     0);
+
 		CIMReference instanceReference(request->instanceName);
 
 		// ATTN: propagate namespace
@@ -1577,8 +1628,18 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleEnableI
 			//  ATTN: pass thresholding parameter values in
 			//  operation context
 			//
+		   OperationContext context;
+		   
+		context.add_context( sizeof(String *),
+				     const_cast<String *>(&(request->userName)),
+				     0, 
+				     0, 
+				     CONTEXT_IDENTITY,
+				     0, 
+				     0);
+
 			facade.enableIndication(
-				OperationContext(),
+				context,
 				request->nameSpace,
 				request->classNames,
 				request->providerName,

@@ -610,7 +610,7 @@ static void formatCIMDateTime (const char* cimString, char* dateTime)
       default : { strcpy(dateTime, cimString); return; }
    }
 
-   sprintf(dateTime, "%s %d, %d  %d:%d:%d (%03d%02d)",
+   sprintf(dateTime, "%s %d, %d  %d:%02d:%02d (%03d%02d)",
            monthString, day, year, hour, minute, second,
            timezone/60, timezone%60);
 

@@ -70,10 +70,15 @@
     22.	Revise licensing headers on all files.
 
     23. Add $Log: CodeReviewNotes.txt,v $
+    23. Add Revision 1.10  2001/12/27 21:08:30  mike
+    23. Add new
+    23. Add
     23. Add Revision 1.9  2001/12/27 20:32:55  mike
     23. Add Added review comments and did minor reformatting.
     23. Add CVS directives to each file.
 
     24. Avoid inlining of large functions.
 
-    25.	FInd decent code formatter.
+    25.	Find decent code formatter.
+
+    26. Revisit use of bit masks in provider interfaces.

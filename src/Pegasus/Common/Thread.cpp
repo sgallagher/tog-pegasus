@@ -44,6 +44,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+
 void thread_data::default_delete(void * data)
 {
    if( data != NULL)

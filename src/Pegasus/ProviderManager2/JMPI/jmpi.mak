@@ -13,16 +13,17 @@ LOCAL_DEFINES = -DPEGASUS_SERVER_INTERNAL -DPEGASUS_INTERNALONLY
 LIBRARY = JMPIProviderManager
 
 LIBRARIES = \
-    pegcommon \
-	pegprovider \
-	pegprovidermanager
+        pegcommon \
+        pegprovider \
+        pegprovidermanager \
+        CMPIProviderManager
 
 SOURCES = \
-	JMPIProviderManagerMain.cpp \
-	JMPIProviderManager.cpp \
-	JMPILocalProviderManager.cpp \
-	JMPIProviderModule.cpp \
-	JMPIProvider.cpp \
-	JMPIImpl.cpp
+        JMPIProviderManagerMain.cpp \
+        JMPIProviderManager.cpp \
+        JMPILocalProviderManager.cpp \
+        JMPIProviderModule.cpp \
+        JMPIProvider.cpp \
+        JMPIImpl.cpp
 
 include $(ROOT)/mak/library.mak

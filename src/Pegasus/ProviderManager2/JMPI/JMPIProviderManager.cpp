@@ -48,6 +48,8 @@
 #include <Pegasus/ProviderManager2/JMPI/JMPIProvider.h>
 #include <Pegasus/ProviderManager2/ProviderManagerService.h>
 
+#include <Pegasus/ProviderManager2/CMPI/CMPI_SelectExp.h>
+
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -71,7 +73,7 @@ JMPIProviderManager::~JMPIProviderManager(void)
 {
 }
 
-Boolean JMPIProviderManager::insertProvider(const ProviderName & name, 
+Boolean JMPIProviderManager::insertProvider(const ProviderName & name,
             const String &ns, const String &cn)
 {
     String key(ns+String("::")+cn+String("::")+CIMValue(name.getCapabilitiesMask()).toString());
@@ -137,14 +139,14 @@ Message * JMPIProviderManager::processMessage(Message * request) throw()
         response = handleInvokeMethodRequest(request);
 
         break;
-/*    case CIM_CREATE_SUBSCRIPTION_REQUEST_MESSAGE:
+    case CIM_CREATE_SUBSCRIPTION_REQUEST_MESSAGE:
         response = handleCreateSubscriptionRequest(request);
 
         break;
-    case CIM_MODIFY_SUBSCRIPTION_REQUEST_MESSAGE:
+/*    case CIM_MODIFY_SUBSCRIPTION_REQUEST_MESSAGE:
         response = handleModifySubscriptionRequest(request);
-
         break;
+*/
     case CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE:
         response = handleDeleteSubscriptionRequest(request);
 
@@ -157,10 +159,10 @@ Message * JMPIProviderManager::processMessage(Message * request) throw()
         response = handleDisableIndicationsRequest(request);
 
         break;
-    case CIM_EXPORT_INDICATION_REQUEST_MESSAGE:
+/*    case CIM_EXPORT_INDICATION_REQUEST_MESSAGE:
         response = handleExportIndicationRequest(request);
         break;
-
+*/
     case CIM_DISABLE_MODULE_REQUEST_MESSAGE:
         response = handleDisableModuleRequest(request);
 
@@ -172,7 +174,7 @@ Message * JMPIProviderManager::processMessage(Message * request) throw()
     case CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE:
         response = handleStopAllProvidersRequest(request);
 
-        break; */
+        break;
     case CIM_INITIALIZE_PROVIDER_REQUEST_MESSAGE:
 	response = handleInitializeProviderRequest(request);
 
@@ -374,41 +376,41 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
             providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(),
                String::EMPTY);
 
-	// convert arguments
+        // convert arguments
         OperationContext context;
 
-		context.insert(request->operationContext.get(IdentityContainer::NAME));
-		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
-	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
+        context.insert(request->operationContext.get(IdentityContainer::NAME));
+        context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME));
+        context.insert(request->operationContext.get(ContentLanguageListContainer::NAME));
 
         CIMPropertyList propertyList(request->propertyList);
 
         // forward request
-	JMPIProvider & pr=ph.GetProvider();
+        JMPIProvider & pr=ph.GetProvider();
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.enumerateInstances: " + pr.getName());
 
         DDD(cerr<<"--- JMPIProviderManager::enumerateInstances"<<endl);
 
-        
-	JvmVector *jv;
+
+        JvmVector *jv;
         env=JMPIjvm::attachThread(&jv);
 
         jobject jRef=env->NewObject(jv->CIMObjectPathClassRef,
-	               jv->CIMObjectPathNewI,(jint)&objectPath);        
-	JMPIjvm::checkException(env);
-	
+                       jv->CIMObjectPathNewI,(jint)&objectPath);
+        JMPIjvm::checkException(env);
+
         CIMClass cls=pr._cimom_handle->getClass(context,request->nameSpace,
-	                       request->className,
+                               request->className,
                                false,true,true,CIMPropertyList());
-	JMPIjvm::checkException(env);
+        JMPIjvm::checkException(env);
         jobject jCc=env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewI,(jint)&cls);
         JMPIjvm::checkException(env);
 
-	JMPIProvider::pm_service_op_lock op_lock(&pr);
+        JMPIProvider::pm_service_op_lock op_lock(&pr);
 
-	STAT_GETSTARTTIME;
+        STAT_GETSTARTTIME;
 
         jmethodID id=env->GetMethodID((jclass)pr.jProviderClass,"enumInstances",
            "(Lorg/pegasus/jmpi/CIMObjectPath;ZLorg/pegasus/jmpi/CIMClass;Z)Ljava/util/Vector;");
@@ -416,32 +418,32 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
 
         jobject jVec=env->CallObjectMethod((jobject)pr.jProvider,id,jRef,false,jCc,true);
         JMPIjvm::checkException(env);
-        
+
         STAT_PMS_PROVIDEREND;
-	
-        handler.processing();       
-	if (jVec) {
-	   for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize); i<m; i++) {
+
+        handler.processing();
+        if (jVec) {
+           for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize); i<m; i++) {
               JMPIjvm::checkException(env);
 	      jobject jInst=env->CallObjectMethod(jVec,JMPIjvm::jv.VectorElementAt,i);
               JMPIjvm::checkException(env);
               CIMInstance inst=*((CIMInstance*)env->CallIntMethod(jInst,JMPIjvm::jv.CIMInstanceCInst));
               JMPIjvm::checkException(env);
-	      
+
    //           const CIMObjectPath& op=inst.getPath();
    //           CIMObjectPath iop=inst.buildPath(cls);
    //           iop.setNameSpace(op.getNameSpace());
    //           inst.setPath(iop);
-   
+
               handler.deliver(inst);
  	   }
         }
         handler.complete();
     }
     HandlerCatch(handler);
-    
+
     if (env) JMPIjvm::detachThread();
-    
+
     PEG_METHOD_EXIT();
 
     return(response);
@@ -489,14 +491,14 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
 
         DDD(cerr<<"--- JMPIProviderManager::enumerateInstanceNames"<<endl);
 
-        
+
 	JvmVector *jv;
         env=JMPIjvm::attachThread(&jv);
 
         jobject jRef=env->NewObject(jv->CIMObjectPathClassRef,
 	               jv->CIMObjectPathNewI,(jint)&objectPath);        
 	JMPIjvm::checkException(env);
-	
+
         CIMClass cls=pr._cimom_handle->getClass(context,request->nameSpace,
 	                       request->className,
                                false,true,true,CIMPropertyList());
@@ -586,7 +588,7 @@ Message * JMPIProviderManager::handleCreateInstanceRequest(const Message * messa
             ph.GetProvider().getName());
 
         DDD(cerr<<"--- JMPIProviderManager::createInstances"<<endl);
-        
+
 	JvmVector *jv;
         env=JMPIjvm::attachThread(&jv);
 
@@ -676,7 +678,7 @@ Message * JMPIProviderManager::handleModifyInstanceRequest(const Message * messa
         env=JMPIjvm::attachThread(&jv);
 
         jobject jRef=env->NewObject(jv->CIMObjectPathClassRef,
-	               jv->CIMObjectPathNewI,(jint)&objectPath);        
+	               jv->CIMObjectPathNewI,(jint)&objectPath);
 	JMPIjvm::checkException(env);
         jobject jInst=env->NewObject(jv->CIMInstanceClassRef,
 	               jv->CIMInstanceNewI,(jint)&request->modifiedInstance);        
@@ -839,7 +841,7 @@ Message * JMPIProviderManager::handleAssociatorsRequest(const Message * message)
         env=JMPIjvm::attachThread(&jv);
 
         jobject jRef=env->NewObject(jv->CIMObjectPathClassRef,
-	               jv->CIMObjectPathNewI,(jint)&objectPath);        
+	               jv->CIMObjectPathNewI,(jint)&objectPath);
 	JMPIjvm::checkException(env);
 
         jstring rClass=env->NewStringUTF(request->resultClass.getString().getCString());
@@ -854,7 +856,7 @@ Message * JMPIProviderManager::handleAssociatorsRequest(const Message * message)
         jmethodID id=env->GetMethodID((jclass)pr.jProviderClass,"associators",
            "(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;Ljava/lang/String;"
 	   "Ljava/lang/String;ZZ[Ljava/lang/String;)Ljava/util/Vector;");
-	   
+
         JMPIjvm::checkException(env);
 
         jobject jVec=env->CallObjectMethod((jobject)pr.jProvider,id,jRef,
@@ -863,7 +865,7 @@ Message * JMPIProviderManager::handleAssociatorsRequest(const Message * message)
 
         STAT_PMS_PROVIDEREND;
 
-        handler.processing();       
+        handler.processing();
 	if (jVec) {
 	   for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize); i<m; i++) {
               JMPIjvm::checkException(env);
@@ -991,9 +993,9 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
         handler.complete();
     }
     HandlerCatch(handler);
-    
+
     if (env) JMPIjvm::detachThread();	
-    
+
     PEG_METHOD_EXIT();
 
     return(response);
@@ -1039,28 +1041,28 @@ Message * JMPIProviderManager::handleReferencesRequest(const Message * message) 
         // convert arguments
         OperationContext context;
 
-		context.insert(request->operationContext.get(IdentityContainer::NAME));
-		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
-	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
+        context.insert(request->operationContext.get(IdentityContainer::NAME));
+        context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME));
+        context.insert(request->operationContext.get(ContentLanguageListContainer::NAME));
 
         // forward request
- 	JMPIProvider & pr=ph.GetProvider();
+        JMPIProvider & pr=ph.GetProvider();
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.references: " + pr.getName());
 
         DDD(cerr<<"--- JMPIProviderManager::references"<<" role: >"<<request->role<<"< aCls "<<
-	   request->resultClass<<endl);
+           request->resultClass<<endl);
 
-	JvmVector *jv;
+        JvmVector *jv;
         env=JMPIjvm::attachThread(&jv);
 
         jobject jRef=env->NewObject(jv->CIMObjectPathClassRef,
-	               jv->CIMObjectPathNewI,(jint)&objectPath);
-	JMPIjvm::checkException(env);
+                       jv->CIMObjectPathNewI,(jint)&objectPath);
+        JMPIjvm::checkException(env);
 
         jstring rRole=env->NewStringUTF(request->role.getCString());
-	JMPIjvm::checkException(env);
+        JMPIjvm::checkException(env);
 
         JMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -1068,41 +1070,41 @@ Message * JMPIProviderManager::handleReferencesRequest(const Message * message) 
 
         jmethodID id=env->GetMethodID((jclass)pr.jProviderClass,"references",
            "(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;"
-	   "ZZ[Ljava/lang/String;)Ljava/util/Vector;");
-	   
+           "ZZ[Ljava/lang/String;)Ljava/util/Vector;");
+
         JMPIjvm::checkException(env);
 
         jobject jVec=env->CallObjectMethod((jobject)pr.jProvider,id,jRef,
-	                 rRole,false,false,NULL);
+                         rRole,false,false,NULL);
         JMPIjvm::checkException(env);
 
         STAT_PMS_PROVIDEREND;
 
-        handler.processing();       
-	if (jVec) {
-	   for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize); i<m; i++) {
+        handler.processing();
+        if (jVec) {
+           for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize); i<m; i++) {
               JMPIjvm::checkException(env);
-	      jobject jInst=env->CallObjectMethod(jVec,JMPIjvm::jv.VectorElementAt,i);
+              jobject jInst=env->CallObjectMethod(jVec,JMPIjvm::jv.VectorElementAt,i);
               JMPIjvm::checkException(env);
-              CIMInstance inst=*((CIMInstance*)env->CallIntMethod(jInst,JMPIjvm::jv.CIMInstanceCInst)); 
+              CIMInstance inst=*((CIMInstance*)env->CallIntMethod(jInst,JMPIjvm::jv.CIMInstanceCInst));
               JMPIjvm::checkException(env);
-	      
-	      CIMClass cls=pr._cimom_handle->getClass(context,request->nameSpace,
-	             inst.getClassName(),false,true,true,CIMPropertyList());
+
+              CIMClass cls=pr._cimom_handle->getClass(context,request->nameSpace,
+                     inst.getClassName(),false,true,true,CIMPropertyList());
               const CIMObjectPath& op=inst.getPath();
               CIMObjectPath iop=inst.buildPath(cls);
               iop.setNameSpace(op.getNameSpace());
               inst.setPath(iop);
-   
+
               handler.deliver(inst);
- 	   }
+           }
         }
         handler.complete();
     }
     HandlerCatch(handler);
-    
-    if (env) JMPIjvm::detachThread();	
-    
+
+    if (env) JMPIjvm::detachThread();
+
     PEG_METHOD_EXIT();
 
     return(response);
@@ -1157,7 +1159,7 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(const Message * messa
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.referenceNames: " + pr.getName());
 
-	                 
+
         DDD(cerr<<"--- JMPIProviderManager::referenceNames"<<" role: >"<<request->role<<"< aCls "<<
 	   request->resultClass<<endl);
 
@@ -1312,26 +1314,7 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(const Message * message
 
     return(response);
 }
-/*
-struct indProvRecord {
-   indProvRecord() : enabled(false), count(1), handler(NULL) {}
-   Boolean enabled;
-   int count;
-   EnableIndicationsResponseHandler* handler;
-};
-
-struct indSelectRecord {
-   indSelectRecord() : eSelx(NULL) {}
-   CMPI_SelectExp *eSelx;
-};
-
-
-typedef HashTable<String,indProvRecord*,EqualFunc<String>,HashFunc<String> > IndProvTab;
-typedef HashTable<String,indSelectRecord*,EqualFunc<String>,HashFunc<String> > IndSelectTab;
-
-IndProvTab provTab;
-IndSelectTab selxTab;
-*//*
+ 
 int LocateIndicationProviderNames(const CIMInstance& pInstance, const CIMInstance& pmInstance,
                                   String& providerName, String& location)
 {
@@ -1349,16 +1332,16 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
 
     HandlerIntroInd(CreateSubscription,message,request,response,
                  handler);
+    JNIEnv *env=NULL;
     try {
         const CIMObjectPath &x=request->subscriptionInstance.getPath();
 
-	String providerName,providerLocation;
-	CIMInstance req_provider, req_providerModule;
-	ProviderIdContainer pidc = (ProviderIdContainer)request->operationContext.get(ProviderIdContainer::NAME);
-	req_provider = pidc.getProvider();
-	req_providerModule = pidc.getModule();
-	LocateIndicationProviderNames(req_provider, req_providerModule,
-	   providerName,providerLocation);
+        String providerName,providerLocation;
+        CIMInstance req_provider, req_providerModule;
+        ProviderIdContainer pidc = (ProviderIdContainer)request->operationContext.get(ProviderIdContainer::NAME);
+        req_provider = pidc.getProvider();
+        req_providerModule = pidc.getModule();
+        LocateIndicationProviderNames(req_provider, req_providerModule,providerName,providerLocation);
 
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
             "JMPIProviderManager::handleCreateSubscriptionRequest - Host name: $0  Name space: $1  Provider name(s): $2",
@@ -1373,38 +1356,41 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
             providerManager.getProvider(fileName, providerName, String::EMPTY);
 
         indProvRecord *prec=NULL;
-	provTab.lookup(providerName,prec);
-	if (prec) prec->count++;
+        provTab.lookup(providerName,prec);
+        if (prec) prec->count++;
         else {
-	   prec=new indProvRecord();
-	   provTab.insert(providerName,prec);
-	}
+           prec=new indProvRecord();
+           provTab.insert(providerName,prec);
+        }
 
         indSelectRecord *srec=new indSelectRecord();
         const CIMObjectPath &sPath=request->subscriptionInstance.getPath();
-	selxTab.insert(sPath.toString(),srec);
+        selxTab.insert(sPath.toString(),srec);
 
         // convert arguments
         OperationContext *context=new OperationContext();
 
-		context.insert(request->operationContext.get(IdentityContainer::NAME));
-		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
-	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
-	    context.insert(request->operationContext.get(SubscriptionInstanceContainer::NAME));
-	    context.insert(request->operationContext.get(SubscriptionLanguageListContainer::NAME));
-	    context.insert(request->operationContext.get(SubscriptionFilterConditionContainer::NAME));
+	if (prec->ctx==NULL) {
+           prec->ctx=context;
+	}
+
+        context->insert(request->operationContext.get(IdentityContainer::NAME));
+        context->insert(request->operationContext.get(AcceptLanguageListContainer::NAME));
+        context->insert(request->operationContext.get(ContentLanguageListContainer::NAME));
+        context->insert(request->operationContext.get(SubscriptionInstanceContainer::NAME));
+        context->insert(request->operationContext.get(SubscriptionLanguageListContainer::NAME));
+        context->insert(request->operationContext.get(SubscriptionFilterConditionContainer::NAME));
 
         CIMObjectPath subscriptionName = request->subscriptionInstance.getPath();
 
-  	JMPIProvider & pr=ph.GetProvider();
+        SubscriptionFilterConditionContainer sub_cntr =  request->operationContext.get
+                (SubscriptionFilterConditionContainer::NAME);
 
-	CMPIStatus rc={CMPI_RC_OK,NULL};
-        CMPI_ContextOnStack eCtx(*context);
-        CMPI_SelectExp *eSelx=new CMPI_SelectExp(*context,
-	   request->query,
-	   request->queryLanguage);
-	srec->eSelx=eSelx;
-        CMPI_ThreadContext thr(&pr.broker,&eCtx);
+        CMPI_SelectExp *eSelx=new CMPI_SelectExp(*context,request->query,
+                sub_cntr.getQueryLanguage());
+        srec->eSelx=eSelx;
+
+        JMPIProvider & pr=ph.GetProvider();
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.createSubscriptionRequest: " + pr.getName());
@@ -1418,10 +1404,9 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
                 request->classNames[i]);
             eSelx->classNames.append(className);
         }
-        CMPI_ObjectPathOnStack eRef(eSelx->classNames[0]);
 
         CIMPropertyList propertyList = request->propertyList;
-	if (!propertyList.isNull()) {
+        if (!propertyList.isNull()) {
            Array<CIMName> p=propertyList.getPropertyNameArray();
            int pCount=p.size();
            eSelx->props=(const char**)malloc((1+pCount)*sizeof(char*));
@@ -1431,23 +1416,38 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
            eSelx->props[pCount]=NULL;
         }
 
-        Uint16 repeatNotificationPolicy = request->repeatNotificationPolicy;
+	JvmVector *jv;
+        env=JMPIjvm::attachThread(&jv);
+
+        jobject jSel=env->NewObject(jv->SelectExpClassRef,
+	               jv->SelectExpNewI,(jint)eSelx);
+	JMPIjvm::checkException(env);
+
+        jobject jRef=env->NewObject(jv->CIMObjectPathClassRef,
+	               jv->CIMObjectPathNewI,(jint)&eSelx->classNames[0]);
+	JMPIjvm::checkException(env);
+
+        jstring jType=env->NewStringUTF(request->nameSpace.getString().getCString());
+	JMPIjvm::checkException(env);
 
         JMPIProvider::pm_service_op_lock op_lock(&pr);
 
         STAT_GETSTARTTIME;
 
-        rc=pr.miVector.indMI->ft->activateFilter(
-           pr.miVector.indMI,&eCtx,NULL,eSelx,
-           CHARS(request->nameSpace.getString().getCString()),&eRef,false);
+        jmethodID id=env->GetMethodID((jclass)pr.jProviderClass,"activateFilter",
+           "(Lorg/pegasus/jmpi/SelectExp;Ljava/lang/String;"
+	    "Lorg/pegasus/jmpi/CIMObjectPath;Z)V");
+        JMPIjvm::checkException(env);
+
+        env->CallVoidMethod((jobject)pr.jProvider,id,jSel,jType,
+	   jRef,(jboolean)0);
+        JMPIjvm::checkException(env);
 
        STAT_PMS_PROVIDEREND;
 
-        if (rc.rc!=CMPI_RC_OK)
-	   throw CIMException((CIMStatusCode)rc.rc);
     }
     HandlerCatch(handler);
-    
+
     PEG_METHOD_EXIT();
 
     return(response);
@@ -1459,15 +1459,16 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
 
     HandlerIntroInd(DeleteSubscription,message,request,response,
                  handler);
+    JNIEnv *env=NULL;
     try {
-	String providerName,providerLocation;
-	CIMInstance req_provider, req_providerModule;
-	ProviderIdContainer pidc = (ProviderIdContainer)request->operationContext.get(ProviderIdContainer::NAME);
-	req_provider = pidc.getProvider();
-	req_providerModule = pidc.getModule();
+        String providerName,providerLocation;
+        CIMInstance req_provider, req_providerModule;
+        ProviderIdContainer pidc = (ProviderIdContainer)request->operationContext.get(ProviderIdContainer::NAME);
+        req_provider = pidc.getProvider();
+        req_providerModule = pidc.getModule();
 
-	LocateIndicationProviderNames(req_provider, req_providerModule,
-	   providerName,providerLocation);
+        LocateIndicationProviderNames(req_provider, req_providerModule,
+           providerName,providerLocation);
 
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
             "JMPIProviderManager::handleDeleteSubscriptionRequest - Host name: $0  Name space: $1  Provider name(s): $2",
@@ -1483,60 +1484,72 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
 
 
         indProvRecord *prec=NULL;
-	provTab.lookup(providerName,prec);
-	if (--prec->count<=0) {
-	   provTab.remove(providerName);
-	   prec=NULL;
-	}
+        provTab.lookup(providerName,prec);
+        if (--prec->count<=0) {
+           provTab.remove(providerName);
+           prec=NULL;
+        }
 
         indSelectRecord *srec=NULL;
         const CIMObjectPath &sPath=request->subscriptionInstance.getPath();
-	String sPathString=sPath.toString();
-	selxTab.lookup(sPathString,srec);
+        String sPathString=sPath.toString();
+        selxTab.lookup(sPathString,srec);
 
         CMPI_SelectExp *eSelx=srec->eSelx;
-        CMPI_ObjectPathOnStack eRef(eSelx->classNames[0]);
-	selxTab.remove(sPathString);
+        selxTab.remove(sPathString);
 
-	// convert arguments
+        // convert arguments
         OperationContext context;
 
-		context.insert(request->operationContext.get(IdentityContainer::NAME));
-		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
-	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
-	    context.insert(request->operationContext.get(SubscriptionInstanceContainer::NAME));
-	    context.insert(request->operationContext.get(SubscriptionLanguageListContainer::NAME));
-	    
+        context.insert(request->operationContext.get(IdentityContainer::NAME));
+        context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME));
+        context.insert(request->operationContext.get(ContentLanguageListContainer::NAME));
+        context.insert(request->operationContext.get(SubscriptionInstanceContainer::NAME));
+        context.insert(request->operationContext.get(SubscriptionLanguageListContainer::NAME));
+
         CIMObjectPath subscriptionName = request->subscriptionInstance.getPath();
 
-  	JMPIProvider & pr=ph.GetProvider();
-
-	CMPIStatus rc={CMPI_RC_OK,NULL};
-        CMPI_ContextOnStack eCtx(context);
-        CMPI_ThreadContext thr(&pr.broker,&eCtx);
+        JMPIProvider & pr=ph.GetProvider();
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.deleteSubscriptionRequest: " + pr.getName());
 
         DDD(cerr<<"--- JMPIProviderManager::deleteSubscriptionRequest"<<endl);
 
+	JvmVector *jv;
+        env=JMPIjvm::attachThread(&jv);
+
+        jobject jSel=env->NewObject(jv->SelectExpClassRef,
+	               jv->SelectExpNewI,(jint)eSelx);
+	JMPIjvm::checkException(env);
+
+        jobject jRef=env->NewObject(jv->CIMObjectPathClassRef,
+	               jv->CIMObjectPathNewI,(jint)&eSelx->classNames[0]);
+	JMPIjvm::checkException(env);
+
+        jstring jType=env->NewStringUTF(request->nameSpace.getString().getCString());
+	JMPIjvm::checkException(env);
+
         JMPIProvider::pm_service_op_lock op_lock(&pr);
 
         STAT_GETSTARTTIME;
 
-        rc=pr.miVector.indMI->ft->deActivateFilter(
-           pr.miVector.indMI,&eCtx,NULL,eSelx,
-           CHARS(request->nameSpace.getString().getCString()),&eRef,prec==NULL);
+        jmethodID id=env->GetMethodID((jclass)pr.jProviderClass,"deActivateFilter",
+           "(Lorg/pegasus/jmpi/SelectExp;Ljava/lang/String;"
+	    "Lorg/pegasus/jmpi/CIMObjectPath;Z)V");
+        JMPIjvm::checkException(env);
 
-       delete eSelx;
+        env->CallVoidMethod((jobject)pr.jProvider,id,jSel,jType,
+	   jRef,(jboolean)(prec==NULL));
+        JMPIjvm::checkException(env);
 
        STAT_PMS_PROVIDEREND;
 
-        if (rc.rc!=CMPI_RC_OK)
-	   throw CIMException((CIMStatusCode)rc.rc);
+       delete eSelx;
+
     }
     HandlerCatch(handler);
-    
+
     PEG_METHOD_EXIT();
 
     return(response);
@@ -1562,7 +1575,7 @@ Message * JMPIProviderManager::handleEnableIndicationsRequest(const Message * me
         if (provTab.lookup(providerName,provRec)) {
            provRec->enabled=true;
            provRec->handler=new EnableIndicationsResponseHandler(
-               request, response, request->provider, _indicationCallback);
+               request, response, req_provider, _indicationCallback);
         }
 
         String fileName = resolveFileName(providerLocation);
@@ -1571,34 +1584,9 @@ Message * JMPIProviderManager::handleEnableIndicationsRequest(const Message * me
         JMPIProvider::OpProviderHolder ph =
             providerManager.getProvider(fileName, providerName, String::EMPTY);
 
-        // convert arguments
-        OperationContext context;
-
-		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
-	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
-
-  	JMPIProvider & pr=ph.GetProvider();
-
-	CMPIStatus rc={CMPI_RC_OK,NULL};
-        CMPI_ContextOnStack eCtx(context);
-        CMPI_ThreadContext thr(&pr.broker,&eCtx);
-
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Calling provider.EnableIndicationRequest: " + pr.getName());
-
-        DDD(cerr<<"--- JMPIProviderManager::enableIndicationRequest"<<endl);
-
-        JMPIProvider::pm_service_op_lock op_lock(&pr);
-
-        STAT_GETSTARTTIME;
-
-        pr.miVector.indMI->ft->enableIndications(
-           pr.miVector.indMI);
-
-       STAT_PMS_PROVIDEREND;
     }
     HandlerCatch(handler);
-    
+
     PEG_METHOD_EXIT();
 
     return(response);
@@ -1633,39 +1621,13 @@ Message * JMPIProviderManager::handleDisableIndicationsRequest(const Message * m
         // get cached or load new provider module
         JMPIProvider::OpProviderHolder ph =
             providerManager.getProvider(fileName, providerName, String::EMPTY);
-
-        // convert arguments
-        OperationContext context;
-
-		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
-	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
-
-  	JMPIProvider & pr=ph.GetProvider();
-
-	CMPIStatus rc={CMPI_RC_OK,NULL};
-        CMPI_ContextOnStack eCtx(context);
-        CMPI_ThreadContext thr(&pr.broker,&eCtx);
-
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Calling provider.DisableIndicationRequest: " + pr.getName());
-
-        DDD(cerr<<"--- JMPIProviderManager::disableIndicationRequest"<<endl);
-
-        JMPIProvider::pm_service_op_lock op_lock(&pr);
-
-        STAT_GETSTARTTIME;
-
-        pr.miVector.indMI->ft->disableIndications(
-           pr.miVector.indMI);
-
-       STAT_PMS_PROVIDEREND;
     }
     HandlerCatch(handler);
-    
+
     PEG_METHOD_EXIT();
 
     return(response);
-}*/
+}
 
 Message * JMPIProviderManager::handleDisableModuleRequest(const Message * message) throw()
 {
@@ -1696,17 +1658,6 @@ Message * JMPIProviderManager::handleDisableModuleRequest(const Message * messag
     // Unload providers
     //
     Array<CIMInstance> _pInstances = request->providers;
-
-    for(Uint32 i = 0, n = _pInstances.size(); i < n; i++)
-    {
-        /* temp disabled by Chip
-        // get the provider file name and logical name
-        Triad<String, String, String> triad =
-            getProviderRegistrar()->_getProviderRegPair(_pInstances[i], mInstance);
-
-        providerManager.unloadProvider(triad.first, triad.second);
-        */
-    }
 
     CIMDisableModuleResponseMessage * response =
         new CIMDisableModuleResponseMessage(

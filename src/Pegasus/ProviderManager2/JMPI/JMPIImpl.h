@@ -89,6 +89,7 @@ class JMPIjvm {
    static jstring NewPlatformString(JNIEnv *env,char *s);
    static jobjectArray NewPlatformStringArray(JNIEnv *env,char **strv, int strc);
    static int cacheIDs(JNIEnv *env);
+   static int destroyJVM();
  private:
    static jclass getGlobalClassRef(JNIEnv *env, const char* name);
    static int initJVM();
@@ -180,6 +181,7 @@ class _dataType {
 #define CIMValueClassRef 	classRefs[19]
 #define CIMObjectClassRef 	classRefs[20]
 #define ThrowableClassRef 	classRefs[21]
+#define SelectExpClassRef 	classRefs[25]
 
 #define VectorNew 		instMethodIDs[0]
 #define VectorAddElement 	instMethodIDs[15]
@@ -200,6 +202,7 @@ class _dataType {
 #define VectorRemoveElementAt   instMethodIDs[31]
 #define CIMPropertyNewI		instMethodIDs[14]
 #define CIMValueCInst		instMethodIDs[32]
+#define SelectExpNewI		instMethodIDs[35]
 
 //extern "C" JNIEnv* attachThread(JvmVector**);
 //extern "C" void detachThread();

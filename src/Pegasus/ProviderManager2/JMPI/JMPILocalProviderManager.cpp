@@ -247,8 +247,10 @@ Sint32 JMPILocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret
         }
 
     case UNLOAD_ALL_PROVIDERS:
-        { 
-	    break;
+        {
+           JMPIjvm::destroyJVM();
+
+	   break;
         }
 	
     case UNLOAD_IDLE_PROVIDERS:

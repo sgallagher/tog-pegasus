@@ -71,11 +71,13 @@ public:
     virtual void unloadIdleProviders();
     
    struct indProvRecord {
-      indProvRecord() : enabled(false), count(1), handler(NULL) {}
+      indProvRecord() : enabled(false), count(1), handler(NULL), ctx(NULL) {}
       Boolean enabled;
       int count;
       EnableIndicationsResponseHandler* handler;
+      OperationContext* ctx;
    };
+
 
    struct indSelectRecord {
       indSelectRecord() : eSelx(NULL) {}
@@ -114,13 +116,13 @@ protected:
     Message * handleSetPropertyRequest(const Message * message) throw();
 */
     Message * handleInvokeMethodRequest(const Message * message) throw();
-/*
+
     Message * handleCreateSubscriptionRequest(const Message * message) throw();
 //    Message * handleModifySubscriptionRequest(const Message * message) throw();
     Message * handleDeleteSubscriptionRequest(const Message * message) throw();
     Message * handleEnableIndicationsRequest(const Message * message) throw();
     Message * handleDisableIndicationsRequest(const Message * message) throw();
-*/
+
 //  Not supported by CMPI
 //    Message * handleExportIndicationRequest(const Message * message) throw();
 

@@ -94,12 +94,19 @@ void JMPIProvider::initialize(CIMOMHandle& cimom)
     JvmVector *jv;
     if (JMPIjvm::trace)
        cerr<<"--- JMPIProvider::Initialize()"<<endl;
+
     JNIEnv *env=JMPIjvm::attachThread(&jv);
+    
     jmethodID id=env->GetMethodID((jclass)jProviderClass,"initialize",
        "(Lorg/pegasus/jmpi/CIMOMHandle;)V");
     JMPIjvm::checkException(env);
-    jobject hdl=env->NewObject(jv->CIMOMHandleClassRef,jv->CIMOMHandleNewI,(jint)&cimom);
+
+    jstring jName=env->NewStringUTF(_name.getCString());
+    JMPIjvm::checkException(env);
+
+    jobject hdl=env->NewObject(jv->CIMOMHandleClassRef,jv->CIMOMHandleNewI,(jint)&cimom,jName);
     env->CallVoidMethod((jobject)jProvider,id,hdl);
+
     JMPIjvm::detachThread();
 
     _status = INITIALIZED;

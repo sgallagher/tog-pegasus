@@ -62,8 +62,8 @@ class PEGASUS_COMMON_LINKAGE SSLContextRep
     This function needs access to variable ssl_locks.
     Declare it as a friend of class SSLContextRep.
 
-    @param mode 	Specifies whether to lock/unlock.
-    @param type	Type of lock.
+    @param mode     Specifies whether to lock/unlock.
+    @param type Type of lock.
     @param file      File name of the function setting the lock.
     @param line      Line number of the function setting the lock.
     */
@@ -90,7 +90,7 @@ public:
         const String& trustStore,
         const String& certPath = String::EMPTY,
         const String& keyPath = String::EMPTY,
-		const String& crlPath = String::EMPTY,
+        const String& crlPath = String::EMPTY,
         SSLCertificateVerifyFunction* verifyCert = NULL,
         const String& randomFile = String::EMPTY);
 
@@ -106,9 +106,11 @@ public:
 
     String getKeyPath() const;
 
-	String getCRLPath() const;
+    String getCRLPath() const;
 
-	X509_STORE* getCRLStore() const;
+    X509_STORE* getCRLStore() const;
+
+    void setCRLStore(X509_STORE* store);
 
     Boolean isPeerVerificationEnabled() const;
 
@@ -135,7 +137,7 @@ private:
     String _trustStore;
     String _certPath;
     String _keyPath;
-	String _crlPath;
+    String _crlPath;
     String _randomFile;
     SSL_CTX * _sslContext;
 
@@ -143,7 +145,7 @@ private:
 
     SSLCertificateVerifyFunction* _certificateVerifyFunction;
 
-	X509_STORE* _crlStore;
+    X509_STORE* _crlStore;
 
     /*
        Mutex containing the SSL locks.

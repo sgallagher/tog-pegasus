@@ -334,6 +334,12 @@ public:
     */
     X509_STORE* getCRLStore() const;
 
+    //PEP187 ATTN: This should probably be private and only accessible by SSLContextManager
+    /** Sets the certificate revocation store of the SSLContext object.
+    @param store the new CRL store (necessary for updates and deletions)
+    */
+    void setCRLStore(X509_STORE* store);
+
     /** Returns whether peer verification is ON of OFF
     Corresponds to what the SSL_CTX_set_verify is set to
     @return true if verification is on; false otherwise

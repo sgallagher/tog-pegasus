@@ -615,7 +615,7 @@ SSLContextRep::SSLContextRep(const SSLContextRep& sslContextRep)
     _certPath = sslContextRep._certPath;
     _keyPath = sslContextRep._keyPath;
     _crlPath = sslContextRep._crlPath;
-	_crlStore = sslContextRep._crlStore;
+    _crlStore = sslContextRep._crlStore;
     _verifyPeer = sslContextRep._verifyPeer;
     _certificateVerifyFunction = sslContextRep._certificateVerifyFunction;
     _randomFile = sslContextRep._randomFile;
@@ -814,11 +814,11 @@ SSL_CTX * SSLContextRep::_makeSSLContext()
     SSL_CTX_set_mode(sslContext, SSL_MODE_AUTO_RETRY);
     SSL_CTX_set_session_cache_mode(sslContext, SSL_SESS_CACHE_OFF);
 
-	int options = SSL_OP_ALL;
+    int options = SSL_OP_ALL;
 #ifndef PEGASUS_ENABLE_SSLV2 //SSLv2 is disabled by default
-	options |= SSL_OP_NO_SSLv2;
+    options |= SSL_OP_NO_SSLv2;
 #endif
-	SSL_CTX_set_options(sslContext, options);
+    SSL_CTX_set_options(sslContext, options);
 
     if (_verifyPeer)
     {
@@ -1108,6 +1108,11 @@ X509_STORE* SSLContextRep::getCRLStore() const
     return _crlStore;
 }
 
+void SSLContextRep::setCRLStore(X509_STORE* store)
+{
+    _crlStore = store;
+}
+
 Boolean SSLContextRep::isPeerVerificationEnabled() const
 {
     return _verifyPeer;
@@ -1152,6 +1157,8 @@ String SSLContextRep::getKeyPath() const { return String::EMPTY; }
 String SSLContextRep::getCRLPath() const { return String::EMPTY; }
 
 X509_STORE* SSLContextRep::getCRLStore() const { return NULL; }
+
+void SSLContextRep::setCRLStore(X509_STORE* store) { }
 
 Boolean SSLContextRep::isPeerVerificationEnabled() const { return false; }
 
@@ -1238,6 +1245,11 @@ String SSLContext::getCRLPath() const
 X509_STORE* SSLContext::getCRLStore() const
 {
     return (_rep->getCRLStore()); 
+}
+
+void SSLContext::setCRLStore(X509_STORE* store)
+{
+    _rep->setCRLStore(store);
 }
 
 Boolean SSLContext::isPeerVerificationEnabled() const

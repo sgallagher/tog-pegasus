@@ -233,9 +233,9 @@ void SSLContextManager::reloadCRLStore()
         throw SSLException(parms);
     }
 
-    String crlStore = _sslContext->getCRLPath();
+    String crlPath = _sslContext->getCRLPath();
 
-    if (crlStore == String::EMPTY)
+    if (crlPath == String::EMPTY)
     {
         PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
             "Could not reload the crl store, the crl store is not configured.");
@@ -247,25 +247,20 @@ void SSLContextManager::reloadCRLStore()
         throw SSLException(parms);
     }
 
-    X509_STORE* newStore = _getNewX509Store(crlStore);
+    PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "CRL store path is " + crlPath);
 
-    //
-    // Acquire write lock to Context objects and then overwrite the
-    // crl store cache for both the cimContext and exportContext
-    //
+    //update the CRL store for both the server and the export server since they share the same CRL store
+    X509_STORE* crlStore;
+    
     {
         WriteLock contextLock(_sslContextObjectLock);
-
         if (_sslContext)
         {
-            SSL_CTX_set_cert_store(
-                _sslContext->_rep->getContext(), newStore);
+            _sslContext->setCRLStore(_getNewX509Store(crlPath));
         }
-
         if (_exportSSLContext)
         {
-            SSL_CTX_set_cert_store(
-                _exportSSLContext->_rep->getContext(), newStore);
+            _exportSSLContext->setCRLStore(_getNewX509Store(crlPath));
         }
     }
 

@@ -140,7 +140,7 @@ PEGASUS_COMMON_LINKAGE Boolean operator==(
 # include <Pegasus/Common/ArrayInter.h>
 #undef PEGASUS_ARRAY_T
 
-#ifndef PEGASUS_REMOVE_DEPRECATED
+#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
 typedef CIMKeyBinding KeyBinding;
 typedef Array<CIMKeyBinding> KeyBindingArray;
 #endif
@@ -545,7 +545,7 @@ PEGASUS_COMMON_LINKAGE Boolean operator!=(
     const CIMObjectPath& x,
     const CIMObjectPath& y);
 
-#ifndef PEGASUS_REMOVE_DEPRECATED
+#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
 PEGASUS_COMMON_LINKAGE PEGASUS_STD(ostream)& operator<<(
     PEGASUS_STD(ostream)& os,
     const CIMObjectPath& x);

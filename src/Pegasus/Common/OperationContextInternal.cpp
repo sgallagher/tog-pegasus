@@ -52,7 +52,7 @@ LocaleContainer::LocaleContainer(const OperationContext::Container & container)
 }
 
 LocaleContainer::LocaleContainer(const String & languageId)
-#ifndef PEGASUS_REMOVE_DEPRECATED
+#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
     : OperationContext::Container(CONTEXT_LOCALE)
 #endif
 {
@@ -102,7 +102,7 @@ ProviderIdContainer::ProviderIdContainer(const OperationContext::Container & con
 }
 
 ProviderIdContainer::ProviderIdContainer(const CIMInstance & module, const CIMInstance & provider)
-#ifndef PEGASUS_REMOVE_DEPRECATED
+#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
     : OperationContext::Container(CONTEXT_PROVIDERID)
 #endif
 {

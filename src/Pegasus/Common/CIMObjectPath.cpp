@@ -1114,7 +1114,7 @@ Boolean operator!=(const CIMObjectPath& x, const CIMObjectPath& y)
     return !operator==(x, y);
 }
 
-#ifndef PEGASUS_REMOVE_DEPRECATED
+#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
 PEGASUS_STD(ostream)& operator<<(
     PEGASUS_STD(ostream)& os,
     const CIMObjectPath& x)

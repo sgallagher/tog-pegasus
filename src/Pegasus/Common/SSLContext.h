@@ -252,7 +252,7 @@ public:
         SSLCertificateVerifyFunction* verifyCert,
         const String& randomFile = String::EMPTY);
 
-#ifndef PEGASUS_REMOVE_DEPRECATED
+#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
     SSLContext(
         const String& certPath,
         SSLCertificateVerifyFunction* verifyCert,
@@ -286,7 +286,7 @@ private:
         SSLCertificateVerifyFunction* verifyCert,
         const String& randomFile);
 
-#ifndef PEGASUS_REMOVE_DEPRECATED
+#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
     SSLContext(
         const String& certPath,
         const String& certKeyPath,

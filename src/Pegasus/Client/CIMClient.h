@@ -187,7 +187,7 @@ public:
         const String& password
     );
 
-#ifndef PEGASUS_REMOVE_DEPRECATED
+#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
     /** connect - Creates an HTTP connection with the server
         defined by the URL in address.
         @param address - Specifies the server as a String that the client connects to.  

@@ -45,7 +45,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-#ifndef PEGASUS_REMOVE_DEPRECATED
+#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
 static const Uint32 CONTEXT_EMPTY =                     0;
 static const Uint32 CONTEXT_IDENTITY =                  1;
 static const Uint32 CONTEXT_AUTHENICATION =             2;
@@ -73,7 +73,7 @@ static const Uint32 OPERATION_DELIVER =                 0x00000040;
 static const Uint32 OPERATION_RESERVE =                 0x00000080;
 static const Uint32 OPERATION_PROCESSING =              0x00000100;
 static const Uint32 OPERATION_COMPLETE =                0x00000200;
-#endif  // !PEGASUS_REMOVE_DEPRECATED
+#endif  // PEGASUS_USE_DEPRECATED_INTERFACES
 
 class OperationContextRep;
 
@@ -112,7 +112,7 @@ public:
     class PEGASUS_COMMON_LINKAGE Container
     {
     public:
-#ifndef PEGASUS_REMOVE_DEPRECATED
+#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
         Container(const Uint32 key = CONTEXT_EMPTY);
 #endif
 
@@ -125,7 +125,7 @@ public:
         */
         virtual String getName(void) const = 0;
 
-#ifndef PEGASUS_REMOVE_DEPRECATED
+#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
         const Uint32 & getKey(void) const;
 #endif
 
@@ -141,7 +141,7 @@ public:
         */
         virtual void destroy(void) = 0;
 
-#ifndef PEGASUS_REMOVE_DEPRECATED
+#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
     protected:
         Uint32 _key;
 #endif
@@ -176,7 +176,7 @@ public:
     
     const Container & get(const String& containerName) const;
 
-#ifndef PEGASUS_REMOVE_DEPRECATED
+#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
     const Container & get(const Uint32 key) const;
 #endif
 
@@ -196,7 +196,7 @@ public:
     */
     void remove(const String& containerName);
 
-#ifndef PEGASUS_REMOVE_DEPRECATED
+#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
     void remove(const Uint32 key);
 #endif
 
@@ -211,7 +211,7 @@ class IdentityContainerRep;
 /// Insert description here. 
 class PEGASUS_COMMON_LINKAGE IdentityContainer
     :
-#ifdef PEGASUS_REMOVE_DEPRECATED  // include if NOT using deprecated API
+#ifndef PEGASUS_USE_DEPRECATED_INTERFACES // include if NOT using deprecated API
       virtual
 #endif
               public OperationContext::Container

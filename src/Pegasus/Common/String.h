@@ -536,7 +536,7 @@ PEGASUS_COMMON_LINKAGE Boolean operator>=(
     const String& str1,
     const String& str2);
 
-#ifndef PEGASUS_REMOVE_DEPRECATED
+#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
 /** Compares two strings but ignores any case differences.
     @param s1 REVIEWERS: Insert description here.
     @param s2 REVIEWERS: Insert description here.

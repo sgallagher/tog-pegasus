@@ -86,7 +86,7 @@ CIMName& CIMName::operator=(const String& name)
     return *this;
 }
 
-#ifndef PEGASUS_REMOVE_DEPRECATED
+#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
 CIMName& CIMName::operator=(const char* name)
 {
     cimName=name;
@@ -99,7 +99,7 @@ const String& CIMName::getString() const
     return cimName;
 }
 
-#ifndef PEGASUS_REMOVE_DEPRECATED
+#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
 CIMName::operator String() const
 {
     return cimName;
@@ -216,7 +216,7 @@ CIMNamespaceName& CIMNamespaceName::operator=(const String& name)
     return *this;
 }
 
-#ifndef PEGASUS_REMOVE_DEPRECATED
+#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
 CIMNamespaceName& CIMNamespaceName::operator=(const char* name)
 {
     cimNamespaceName=name;
@@ -229,7 +229,7 @@ const String& CIMNamespaceName::getString() const
     return cimNamespaceName;
 }
 
-#ifndef PEGASUS_REMOVE_DEPRECATED
+#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
 CIMNamespaceName::operator String() const
 {
     return cimNamespaceName;

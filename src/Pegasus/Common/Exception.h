@@ -151,7 +151,7 @@ public:
     TypeMismatchException();
 };
 
-#ifndef PEGASUS_REMOVE_DEPRECATED
+#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
 typedef TypeMismatchException InvalidTypeException;
 #endif
 

@@ -113,7 +113,7 @@ public:
 	*/
     CIMName& operator=(const String& name);
 
-#ifndef PEGASUS_REMOVE_DEPRECATED
+#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
     CIMName& operator=(const char* name);
 #endif
 
@@ -127,7 +127,7 @@ public:
 	*/
     const String& getString() const;
 
-#ifndef PEGASUS_REMOVE_DEPRECATED
+#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
     operator String() const;
 #endif
 
@@ -261,7 +261,7 @@ public:
 	*/
     CIMNamespaceName& operator=(const String& name);
 
-#ifndef PEGASUS_REMOVE_DEPRECATED
+#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
     CIMNamespaceName& operator=(const char* name);
 #endif
 
@@ -275,7 +275,7 @@ public:
 	*/
     const String& getString() const;
 
-#ifndef PEGASUS_REMOVE_DEPRECATED
+#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
     operator String() const;
 #endif
 

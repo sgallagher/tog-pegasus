@@ -90,6 +90,16 @@ ifdef USE_CONNECTLOCAL
  FLAGS += -DUSE_CONNECTLOCAL
 endif
 
+# Warning: Setting the PEGASUS_USE_DEPRECATED_INTERFACES flag exposes
+# deprecated interfaces in externally-facing header files.  The deprecated
+# interfaces may not be compatible with subsequent Pegasus releases.
+# This flag should be used only for transitionary compatibility with
+# existing code and not for new development.
+
+ifdef PEGASUS_USE_DEPRECATED_INTERFACES
+  DEFINES += =DPEGASUS_USE_DEPRECATED_INTERFACES
+endif
+
 # l10n
 ifdef PEGASUS_HAS_MESSAGES
   DEFINES += -DPEGASUS_HAS_MESSAGES

@@ -96,7 +96,7 @@ void CIMClient::connect(
     _rep->connect(host, portNumber, sslContext, userName, password);
 }
 
-#ifndef PEGASUS_REMOVE_DEPRECATED
+#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
 void CIMClient::connect(
     const String& address,
     const String& userName,

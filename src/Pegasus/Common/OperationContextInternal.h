@@ -43,7 +43,7 @@ PEGASUS_NAMESPACE_BEGIN
 // support is added to Pegasus and this class definition is firm.
 class PEGASUS_COMMON_LINKAGE LocaleContainer
     :
-#ifdef PEGASUS_REMOVE_DEPRECATED  // include if NOT using deprecated API
+#ifndef PEGASUS_USE_DEPRECATED_INTERFACES // include if NOT using deprecated API
       virtual
 #endif
               public OperationContext::Container
@@ -68,7 +68,7 @@ protected:
 
 class PEGASUS_COMMON_LINKAGE ProviderIdContainer
     :
-#ifdef PEGASUS_REMOVE_DEPRECATED  // include if NOT using deprecated API
+#ifndef PEGASUS_USE_DEPRECATED_INTERFACES // include if NOT using deprecated API
       virtual
 #endif
               public OperationContext::Container

@@ -840,7 +840,7 @@ SSLContext::SSLContext(
     _rep = new SSLContextRep(trustPath, String::EMPTY, String::EMPTY,  verifyCert, randomFile);
 }
 
-#ifndef PEGASUS_REMOVE_DEPRECATED
+#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
 SSLContext::SSLContext(
     const String& certPath,
     SSLCertificateVerifyFunction* verifyCert,

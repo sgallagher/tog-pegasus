@@ -5199,6 +5199,11 @@ CIMValue CIMOperationRequestDispatcher::_convertValueType(
       }
       catch (XmlSemanticError e)
       {
+         for (Uint32 k=0; k<charPtrArray.size(); k++)
+         {
+            free(charPtrArray[k]);
+         }
+
          PEG_METHOD_EXIT();
 
 	 // l10n 
@@ -5211,10 +5216,20 @@ CIMValue CIMOperationRequestDispatcher::_convertValueType(
 									"Malformed $0 value", cimTypeToString (type)));
 
       }
+      catch (...)
+      {
+         for (Uint32 k=0; k<charPtrArray.size(); k++)
+         {
+            free(charPtrArray[k]);
+         }
+
+         PEG_METHOD_EXIT();
+         throw;
+      }
 
       for (Uint32 k=0; k<charPtrArray.size(); k++)
       {
-	 delete charPtrArray[k];
+	 free(charPtrArray[k]);
       }
    }
    else

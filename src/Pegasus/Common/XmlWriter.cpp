@@ -572,7 +572,7 @@ void XmlWriter::appendLocalNameSpacePathElement(
     {
 	out << "<NAMESPACE NAME=\"" << p << "\"/>\n";
     }
-    delete nameSpaceCopy;
+    free(nameSpaceCopy);
 
     out << "</LOCALNAMESPACEPATH>\n";
 }

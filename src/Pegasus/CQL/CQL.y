@@ -274,6 +274,13 @@ array_index : expr
                   /* drill down expr and check its _value to make sure it is an unsigned int */
                   /* if yes, then grab the value and toString() and assign $$ to it */
                   /* else error */
+		  CQLValue tmp = _factory.getValue((CQLPredicate*)$1);
+		  if(tmp.getValueType() == String_type){
+			$$ = new String(tmp.toString());
+		  }else{
+			/* error */
+		  }
+		  
               }
 ;
 

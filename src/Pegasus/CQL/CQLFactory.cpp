@@ -94,8 +94,42 @@ void* CQLFactory::makeObject(CQLSimplePredicate* obj, FactoryType target){
                 return NULL;
                 break;
         }
-
 }
 
+CQLValue CQLFactory::getValue(CQLFactor* obj){
+	if(obj->isSimpleValue()){
+		return obj->getValue();
+	}
+	return CQLValue();
+}
+
+CQLValue CQLFactory::getValue(CQLTerm* obj){
+	if(obj->isSimpleValue()){
+		 _factor = obj->getFactors()[0];
+		return getValue(&_factor);
+	}
+	return CQLValue();
+}
+
+CQLValue CQLFactory::getValue(CQLExpression* obj){
+        if(obj->isSimpleValue()){
+		 _term = (obj->getTerms())[0];
+		return getValue(&_term);
+	}
+	return CQLValue();
+}
+
+CQLValue CQLFactory::getValue(CQLSimplePredicate* obj){
+	_expression = obj->getLeftExpression();
+	return getValue(&_expression);
+}
+
+CQLValue CQLFactory::getValue(CQLPredicate* obj){
+        if(obj->isSimple()){
+		_simplePredicate = obj->getSimplePredicate();
+		return getValue(&_simplePredicate);
+	}
+	return CQLValue();
+}
 
 PEGASUS_NAMESPACE_END

@@ -30,7 +30,17 @@ class PEGASUS_CQL_LINKAGE CQLFactory
   void* makeObject(CQLTerm* obj, FactoryType target);
   void* makeObject(CQLExpression* obj, FactoryType target);
   void* makeObject(CQLSimplePredicate* obj, FactoryType target);
-  
+  CQLValue getValue(CQLFactor* obj);
+  CQLValue getValue(CQLTerm* obj);
+  CQLValue getValue(CQLExpression* obj);
+  CQLValue getValue(CQLSimplePredicate* obj);
+  CQLValue getValue(CQLPredicate* obj);
+private:
+  CQLPredicate _predicate;
+  CQLSimplePredicate _simplePredicate;
+  CQLExpression _expression;
+  CQLTerm _term;
+  CQLFactor _factor;
 };                                                                          
 PEGASUS_NAMESPACE_END
 #endif

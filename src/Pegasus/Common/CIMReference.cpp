@@ -41,11 +41,11 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-#define PEGASUS_ARRAY_T CIMReference
+#define PEGASUS_ARRAY_T KeyBinding
 # include "ArrayImpl.h"
 #undef PEGASUS_ARRAY_T
 
-#define PEGASUS_ARRAY_T KeyBinding
+#define PEGASUS_ARRAY_T CIMReference
 # include "ArrayImpl.h"
 #undef PEGASUS_ARRAY_T
 
@@ -123,23 +123,22 @@ static void _BubbleSort(Array<KeyBinding>& x)
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-KeyBinding::KeyBinding() { }
+KeyBinding::KeyBinding()
+{
+}
 
 KeyBinding::KeyBinding(const KeyBinding& x)
     : _name(x._name), _value(x._value), _type(x._type)
 {
-
 }
 
 KeyBinding::KeyBinding(const String& name, const String& value, Type type)
     : _name(name), _value(value), _type(type)
 {
-
 }
 
 KeyBinding::~KeyBinding()
 {
-
 }
 
 KeyBinding& KeyBinding::operator=(const KeyBinding& x)
@@ -150,6 +149,66 @@ KeyBinding& KeyBinding::operator=(const KeyBinding& x)
     return *this;
 }
 
+const String& KeyBinding::getName() const
+{
+    return _name;
+}
+
+void KeyBinding::setName(const String& name)
+{
+    _name = name;
+}
+
+const String& KeyBinding::getValue() const
+{
+    return _value;
+}
+
+void KeyBinding::setValue(const String& value)
+{
+    _value = value;
+}
+
+KeyBinding::Type KeyBinding::getType() const
+{
+    return _type;
+}
+
+void KeyBinding::setType(KeyBinding::Type type)
+{
+    _type = type;
+}
+
+const char* KeyBinding::typeToString(KeyBinding::Type type)
+{
+    switch (type)
+    {
+	case KeyBinding::BOOLEAN:
+	    return "boolean";
+
+	case KeyBinding::STRING:
+	    return "string";
+
+	case KeyBinding::NUMERIC:
+	    return "numeric";
+
+        case KeyBinding::REFERENCE:
+        default:
+            PEGASUS_ASSERT(false);
+    }
+
+    return "unknown";
+}
+
+Boolean operator==(const KeyBinding& x, const KeyBinding& y)
+{
+    return
+        CIMName::equal(x.getName(), y.getName()) &&
+        String::equal(x.getValue(), y.getValue()) &&
+        x.getType() == y.getType();
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // CIMReference
@@ -158,7 +217,6 @@ KeyBinding& KeyBinding::operator=(const KeyBinding& x)
 
 CIMReference::CIMReference()
 {
-
 }
 
 CIMReference::CIMReference(const CIMReference& x)
@@ -190,7 +248,6 @@ CIMReference::CIMReference(
 
 CIMReference::~CIMReference()
 {
-
 }
 
 CIMReference& CIMReference::operator=(const CIMReference& x)
@@ -601,6 +658,33 @@ void CIMReference::set(const String& objectName)
     _parseKeyBindingPairs(objectName, p, _keyBindings);
 }
 
+CIMReference& CIMReference::operator=(const String& objectName)
+{
+    set(objectName);
+    return *this;
+}
+
+CIMReference& CIMReference::operator=(const char* objectName)
+{
+    set(objectName);
+    return *this;
+}
+
+const String& CIMReference::getHost() const
+{
+    return _host;
+}
+
+void CIMReference::setHost(const String& host)
+{
+    _host = host;
+}
+
+const String& CIMReference::getNameSpace() const
+{
+    return _nameSpace;
+}
+
 void CIMReference::setNameSpace(const String& nameSpace)
 {
     String temp;
@@ -625,9 +709,14 @@ void CIMReference::setNameSpace(const String& nameSpace)
    _nameSpace = nameSpace;
 }
 
+const String& CIMReference::getClassName() const
+{
+    return _className;
+}
+
 const Boolean CIMReference::equalClassName(const String& classname) const
 {
-	return (String::equalNoCase(classname, CIMReference::getClassName()));
+    return (String::equalNoCase(classname, CIMReference::getClassName()));
 }
 
 void CIMReference::setClassName(const String& className)  throw(IllegalName)
@@ -636,6 +725,11 @@ void CIMReference::setClassName(const String& className)  throw(IllegalName)
 	throw IllegalName();
 
     _className = className;
+}
+
+const Array<KeyBinding>& CIMReference::getKeyBindings() const
+{
+    return _keyBindings;
 }
 
 void CIMReference::setKeyBindings(const Array<KeyBinding>& keyBindings)
@@ -713,7 +807,9 @@ String CIMReference::toStringCanonical(Boolean includeHost) const
     ref._className.toLower();
 
     for (Uint32 i = 0, n = ref._keyBindings.size(); i < n; i++)
-	ref._keyBindings[i]._name.toLower();
+    {
+        ref._keyBindings[i]._name.toLower();
+    }
 
     return ref.toString(includeHost);
 }
@@ -766,6 +862,7 @@ void CIMReference::toXml(Array<Sint8>& out, Boolean putValueWrapper) const
 	out << "</VALUE.REFERENCE>\n";
 }
 
+#ifdef PEGASUS_INTERNALONLY
 //ATTNKS: At this point, I simply created the function
 void CIMReference::toMof(Array<Sint8>& out, Boolean putValueWrapper) const
 {
@@ -805,33 +902,13 @@ void CIMReference::toMof(Array<Sint8>& out, Boolean putValueWrapper) const
     if (putValueWrapper)
 	out << "</VALUE.REFERENCE Mof>\n";
 }
+#endif
 
 void CIMReference::print(PEGASUS_STD(ostream)& os) const
 {
     Array<Sint8> tmp;
     toXml(tmp);
     XmlWriter::indentedPrint(os, tmp.getData());
-}
-
-const char* KeyBinding::typeToString(Type type)
-{
-    switch (type)
-    {
-	case KeyBinding::BOOLEAN:
-	    return "boolean";
-
-	case KeyBinding::STRING:
-	    return "string";
-
-	case KeyBinding::NUMERIC:
-	    return "numeric";
-
-        case KeyBinding::REFERENCE:
-        default:
-            PEGASUS_ASSERT(false);
-    }
-
-    return "unknown";
 }
 
 Uint32 CIMReference::makeHashCode() const
@@ -846,9 +923,32 @@ Uint32 CIMReference::makeHashCode() const
     return HashFunc<String>::hash(ref.toString());
 }
 
+Boolean CIMReference::isInstanceName() const
+{
+    return _keyBindings.size() != 0;
+}
+
 KeyBindingArray CIMReference::getKeyBindingArray()
 {
     return KeyBindingArray();
+}
+
+
+Boolean operator==(const CIMReference& x, const CIMReference& y)
+{
+    return x.identical(y);
+}
+
+Boolean operator!=(const CIMReference& x, const CIMReference& y)
+{
+    return !operator==(x, y);
+}
+
+PEGASUS_STD(ostream)& operator<<(
+    PEGASUS_STD(ostream)& os,
+    const CIMReference& x)
+{
+    return os << x.toString();
 }
 
 PEGASUS_NAMESPACE_END

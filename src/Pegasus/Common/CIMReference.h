@@ -74,45 +74,29 @@ public:
 
     /** Accessor
     */
-    const String& getName() const
-    {
-	return _name;
-    }
+    const String& getName() const;
 
     /** Modifier */
-    void setName(const String& name)
-    {
-	_name = name;
-    }
+    void setName(const String& name);
 
     /** Accessor */
-    const String& getValue() const
-    {
-	return _value;
-    }
+    const String& getValue() const;
 
     /** Modifier */
-    void setValue(const String& value)
-    {
-	_value = value;
-    }
+    void setValue(const String& value);
 
     /** Accessor */
-    Type getType() const
-    {
-	return _type;
-    }
+    Type getType() const;
 
     /** Modifier */
-    void setType(Type type)
-    {
-	_type = type;
-    }
+    void setType(Type type);
 
+#ifdef PEGASUS_INTERNALONLY
     /** Converts the given type to one of the following:
 	"boolean", "string", or "numeric"
     */
     static const char* typeToString(Type type);
+#endif
 
 private:
 
@@ -120,17 +104,12 @@ private:
     String _value;
     Type _type;
 
-    friend Boolean operator==(const KeyBinding& x, const KeyBinding& y);
     friend class CIMReference;
 };
 
-inline Boolean operator==(const KeyBinding& x, const KeyBinding& y)
-{
-    return
-	CIMName::equal(x._name, y._name) &&
-	String::equal(x._value, y._value) &&
-	x._type == y._type;
-}
+PEGASUS_COMMON_LINKAGE Boolean operator==(
+    const KeyBinding& x,
+    const KeyBinding& y);
 
 #define PEGASUS_ARRAY_T KeyBinding
 # include "ArrayInter.h"
@@ -436,52 +415,35 @@ public:
       void set(const String& objectName);
 
     /** Same as set() above except that it is an assignment operator */
-    CIMReference& operator=(const String& objectName)
-    {
-	set(objectName);
-	return *this;
-    }
+    CIMReference& operator=(const String& objectName);
 
     /** Same as set() above except that it is an assignment operator */
-    CIMReference& operator=(const char* objectName)
-    {
-	set(objectName);
-	return *this;
-    }
+    CIMReference& operator=(const char* objectName);
 
     /** getHost - returns the hostname component of the
         CIMReference
-        @return String contianing hostname.
+        @return String containing hostname.
         <pre>
 
         </pre>
     */
-    const String& getHost() const
-    {
-	return _host;
-    }
+    const String& getHost() const;
 
     /** setHost Sets the hostname component of the CIMReference
         object to the input parameter
         @param host String parameter with the hostname
         <PRE>
         CIMReference r1;
-        r1.sethost("fred-5988");
+        r1.setHost("fred:5988");
         </PRE>
         Note that Pegasus does no checking on valid host names.
     */
-    void setHost(const String& host)
-    {
-	_host = host;
-    }
+    void setHost(const String& host);
 
     /** getNameSpace - returns the namespace component of the
         CIMReference as a String.
     */
-    const String& getNameSpace() const
-    {
-	return _nameSpace;
-    }
+    const String& getNameSpace() const;
 
     /** Sets the namespace component.
 	@param String representing the Namespace. The functions tests for
@@ -494,10 +456,7 @@ public:
     /** Accessor for className attribute.
 	@return String containing the classname.
      */
-    const String& getClassName() const
-    {
-	return _className;
-    }
+    const String& getClassName() const;
 
     /** equalClassName - Tests the classname component against the
 	String provided.  Note that classnames are case independent.
@@ -523,10 +482,7 @@ public:
 	@return Array of KeyBinding objects from the CIMReference.
 	ATTN
     */
-    const Array<KeyBinding>& getKeyBindings() const
-    {
-	return _keyBindings;
-    }
+    const Array<KeyBinding>& getKeyBindings() const;
 
     /** setKeyBindings - Sets the key/value pairs in the CIMReference
         from an array of keybindings defined by the input parameter
@@ -573,10 +529,12 @@ public:
     */
     void toXml(Array<Sint8>& out, Boolean putValueWrapper = true) const;
 
+#ifdef PEGASUS_INTERNALONLY
     /** Encodes this CIMreference object as MOF.
 	@param out argument in which to place results
     */
     void toMof(Array<Sint8>& out, Boolean putValueWrapper = true) const;
+#endif
 
     /** Prints the XML encoding of this object.
     */
@@ -592,10 +550,7 @@ public:
     /** Check whether this reference refers to an instance (if it does, the
 	class must have key bindings).
     */
-    Boolean isInstanceName() const
-    {
-	return _keyBindings.size() != 0;
-    }
+    Boolean isInstanceName() const;
 
     /** Check whether this reference refers to an class (if not it is an
 	instance).
@@ -630,26 +585,19 @@ private:
     String _nameSpace;
     String _className;
     Array<KeyBinding> _keyBindings;
-
-    friend class XmlWriter;
 };
 
-inline Boolean operator==(const CIMReference& x, const CIMReference& y)
-{
-    return x.identical(y);
-}
+PEGASUS_COMMON_LINKAGE Boolean operator==(
+    const CIMReference& x,
+    const CIMReference& y);
 
-inline Boolean operator!=(const CIMReference& x, const CIMReference& y)
-{
-    return !operator==(x, y);
-}
+PEGASUS_COMMON_LINKAGE Boolean operator!=(
+    const CIMReference& x,
+    const CIMReference& y);
 
-inline PEGASUS_STD(ostream)& operator<<(
+PEGASUS_COMMON_LINKAGE PEGASUS_STD(ostream)& operator<<(
     PEGASUS_STD(ostream)& os,
-    const CIMReference& x)
-{
-    return os << x.toString();
-}
+    const CIMReference& x);
 
 #define PEGASUS_ARRAY_T CIMReference
 # include "ArrayInter.h"

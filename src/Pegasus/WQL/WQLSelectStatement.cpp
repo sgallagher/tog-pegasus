@@ -236,7 +236,6 @@ Boolean WQLSelectStatement::evaluateWhereClause(
     if (!hasWhereClause())
 	return true;
 
-    WQLSelectStatement* that = (WQLSelectStatement*)this;
     Stack<Boolean> stack;
     stack.reserveCapacity(16);
 
@@ -298,14 +297,15 @@ Boolean WQLSelectStatement::evaluateWhereClause(
 	    case WQL_GT:
 	    case WQL_GE:
 	    {
-		PEGASUS_ASSERT(_operands.size() >= 2);
+		Array<WQLOperand> whereOperands(_operands);
+		PEGASUS_ASSERT(whereOperands.size() >= 2);
 
 		//
 		// Resolve the left-hand-side to a value (if not already
 		// a value).
 		//
 
-		WQLOperand& lhs = that->_operands[j++];
+		WQLOperand& lhs = whereOperands[j++];
 		_ResolveProperty(lhs, source);
 
 		//
@@ -313,7 +313,7 @@ Boolean WQLSelectStatement::evaluateWhereClause(
 		// a value).
 		//
 
-		WQLOperand& rhs = that->_operands[j++];
+		WQLOperand& rhs = whereOperands[j++];
 		_ResolveProperty(rhs, source);
 
 		//
@@ -352,8 +352,9 @@ Boolean WQLSelectStatement::evaluateWhereClause(
 
 	    case WQL_IS_NULL:
 	    {
-		PEGASUS_ASSERT(_operands.size() >= 1);
-		WQLOperand& op = that->_operands[j++];
+		Array<WQLOperand> whereOperands(_operands);
+		PEGASUS_ASSERT(whereOperands.size() >= 1);
+		WQLOperand& op = whereOperands[j++];
 		_ResolveProperty(op, source);
 		stack.push(op.getType() == WQLOperand::NULL_VALUE);
 		break;
@@ -361,8 +362,9 @@ Boolean WQLSelectStatement::evaluateWhereClause(
 
 	    case WQL_IS_NOT_NULL:
 	    {
-		PEGASUS_ASSERT(_operands.size() >= 1);
-		WQLOperand& op = that->_operands[j++];
+		Array<WQLOperand> whereOperands(_operands);
+		PEGASUS_ASSERT(whereOperands.size() >= 1);
+		WQLOperand& op = whereOperands[j++];
 		_ResolveProperty(op, source);
 		stack.push(op.getType() != WQLOperand::NULL_VALUE);
 		break;

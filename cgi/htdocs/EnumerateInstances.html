@@ -26,14 +26,14 @@
 	       name of the Class
 	       for which instance names are to be retrieved.&nbsp; This must be a legal
 	       class in the repository
-	       <p><b>LocalOnly</b> <INPUT TYPE="checkbox" NAME="LocalOnly" VALUE="true" checked>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	       If true only CIM Elements overridden within definition of class are
-	       returned.
-	       <p><b>IncludeQualifiers</b> <INPUT TYPE="checkbox" NAME="IncludeQualifiers" VALUE="true">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	       If checked, show Qualifiers for class and returned Properties, Methods,
+	       <p><b>LocalOnly</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+           <INPUT TYPE="checkbox" NAME="LocalOnly" VALUE="true" checked>&nbsp;&nbsp;&nbsp;&nbsp;
+           If checked (true) only CIM Elements overridden within definition of class are
+	       returned. Default is true
+	       <p><b>IncludeQualifiers</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <INPUT TYPE="checkbox" NAME="IncludeQualifiers" VALUE="true">&nbsp;&nbsp;&nbsp;&nbsp;If
+           checked (true), show Qualifiers for class and returned Properties, Methods,
 	       and Method Parameters.
-	       <p><b>IncludeClassOrigins</b> <INPUT TYPE="checkbox" NAME="IncludeClassOrigins" VALUE="true">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	       If checked (TRUE), CLASSORIGIN attribute will be returned for all
+	       <p><b>IncludeClassOrigins</b> <INPUT TYPE="checkbox" NAME="IncludeClassOrigins" VALUE="true">&nbsp;&nbsp;&nbsp;If checked (TRUE), CLASSORIGIN attribute will be returned for all
 	       appropriate elements<p><b>PropertyList </b> <INPUT TYPE="text" NAME="PropertyList" SIZE=30 VALUE="NULL">
 	       NOTE: <b> NOT IMPLEMENTED </b>Null or array of property names to filter
 	       request. <a href="#PropertyList">See below</a>.
@@ -60,13 +60,6 @@
      Server-side mechanism to filter certain elements of the returned object
      based on whether or not they have been propagated from the parent
      Class (as defined by the <TT>PROPAGATED</TT> attribute).&nbsp;
-     <p><b>DeepInheritance</b> If the <TT>DeepInheritance</TT> input
-     parameter is <TT>true</TT>, this specifies that, for each
-     returned Instance of the Class, all properties of the Instance MUST
-     be present (subject to constraints imposed by the other
-     parameters), including any which were added by subclassing the specified
-     Class. If <TT>false</TT>, each returned Instance includes only
-     properties defined for the specified Class.&nbsp;</p>
      <p><b>IncludeQualifiers</b> If the <TT>IncludeQualifiers</TT> input
      parameter is <TT>true</TT>, this specifies that all Qualifiers
      for each Instance (including Qualifiers on the Instance
@@ -129,7 +122,6 @@
      virtual Array<InstanceDecl> enumerateInstances(
          const String&amp; nameSpace,
          const String&amp; className,
-         Boolean deepInheritance = true,
          Boolean localOnly = true,
          Boolean includeQualifiers = false,
          Boolean includeClassOrigin = false,

@@ -37,7 +37,7 @@
       appropriate elements
 
       <p><b><a href="#PropertyList">PropertyList</a> </b> <INPUT TYPE="text" NAME="PropertyList" SIZE=30 VALUE="NULL">
-      NOTE: <b> NOT IMPLEMENTED</b>. Null or array of property names to filter
+      Null or array of property names to filter
       request. <a href="#PropertyList">See below</a>.
 
       <p><INPUT TYPE="submit" VALUE="Submit Request"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -113,14 +113,14 @@
     <hr>
       <h2>C++ Pegasus API</h2>
 
-    <pre>
-    virtual CIMInstance getInstance(
-	    const String&amp; nameSpace,
-	    const CIMReference&amp; instanceName,
-	    Boolean localOnly = true,
-	    Boolean includeQualifiers = false,
-	    Boolean includeClassOrigin = false,
-	    const Array<String>&amp; propertyList = StringArray()) = 0;
+    <pre>virtual CIMInstance getInstance(
+	const String&amp; nameSpace,
+	const CIMReference&amp; instanceName,
+	Boolean localOnly = true,
+	Boolean includeQualifiers = false,
+	Boolean includeClassOrigin = false,
+	const CIMPropertyList&amp; propertyList = CIMPropertyList());
+
     </pre>
   <hr><p style="margin-top: 0; margin-bottom: 0"> <font size="2">Demonstration
      Prepared by the OpenGroup Manageability Work Group Pegasus Development Team</font>
@@ -129,7 +129,7 @@
      for more information on Pegasus</font>
 
      <p style="margin-top: 0; margin-bottom: 0"> <font size="1">Last Modified <!--webbot bot="Timestamp" S-Type="EDITED"
-    S-Format="%A, %B %d, %Y %I:%M:%S %p" startspan -->Friday, June 29, 2001 06:42:17 PM<!--webbot bot="Timestamp" i-CheckSum="55037" endspan -->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    S-Format="%A, %B %d, %Y %I:%M:%S %p" startspan -->Wednesday, January 30, 2002 12:57:05 PM<!--webbot bot="Timestamp" i-CheckSum="19833" endspan -->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
      Copyright @ The Open Group 2001&nbsp;</font>
 
       <p>

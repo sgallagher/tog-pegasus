@@ -17,7 +17,7 @@
 
     <a name="TOP"></a>
 
-    The <TT>enumerateInstances</TT> method enumerates instances of a CIM
+    The <TT>enumerateInstances</TT> CIM Operation enumerates instances of a CIM
     Class in the target Namespace.
       <p><b><a href="#NameSpace">NameSpace</a></b>
         <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root/cimv2">&nbsp; String that defines the target namespace. See <a href="getnamespaces.html">NameSpace
@@ -26,17 +26,6 @@
       name of the Class
       for which instance names are to be retrieved.&nbsp; This must be a legal
       class in the repository
-      <p><b>LocalOnly</b> <INPUT TYPE="checkbox" NAME="LocalOnly" VALUE="true" checked>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      If true only CIM Elements overridden within definition of class are
-      returned.
-      <p><b>IncludeQualifiers</b> <INPUT TYPE="checkbox" NAME="IncludeQualifiers" VALUE="true">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      If checked, show Qualifiers for class and returned Properties, Methods,
-      and Method Parameters.
-      <p><b>IncludeClassOrigins</b> <INPUT TYPE="checkbox" NAME="IncludeClassOrigins" VALUE="true">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      If checked (TRUE), CLASSORIGIN attribute will be returned for all
-      appropriate elements<p><b>PropertyList </b> <INPUT TYPE="text" NAME="PropertyList" SIZE=30 VALUE="NULL">
-      NOTE: <b> NOT IMPLEMENTED </b>Null or array of property names to filter
-      request. <a href="#PropertyList">See below</a>.
       <p><INPUT TYPE="submit" VALUE="Submit Request">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       <INPUT TYPE="reset" VALUE="Reset">
     </form>
@@ -71,62 +60,6 @@
     ClassName</a></b> The ClassName input parameter defines the Class that is the
     basis for the enumeration. The ClassName input must be in the
     repository&nbsp;
-    <p><a name="LocalOnly"><b>
-
-    LocalOnly</b></a>&nbsp; If the <TT>LocalOnly</TT> input parameter is
-    <TT>true</TT>, this specifies that, for each returned Instance,
-    only elements (properties and qualifiers) overridden within&nbsp;the
-    definition of that Instance are included. If <TT>false</TT>,
-    all elements are returned. This parameter therefore effects a CIM
-    Server-side mechanism to filter certain elements of the returned object
-    based on whether or not they have been propagated from the parent
-    Class (as defined by the <TT>PROPAGATED</TT> attribute).
-
-    <p><a name="DeepInheritance"><b>DeepInheritance</b></a> If the <TT>DeepInheritance</TT> input
-    parameter&nbsp;is <TT>true</TT>, this specifies that, for each
-    returned Instance of the Class, all properties of the Instance MUST
-    be present (subject to constraints imposed by the other
-    parameters), including any which were added by subclassing the specified
-    Class.&nbsp;If <TT>false</TT>, each returned Instance includes only
-    properties defined for the&nbsp;specified Class.
-
-    <p><a name="IncludeQualifiers"><b>IncludeQualifiers</b></a> If the <TT>IncludeQualifiers</TT> input
-    parameter is <TT>true</TT>, this specifies that all Qualifiers
-    for each Instance (including Qualifiers on the Instance
-    and on any returned Properties) MUST be included as
-    <TT>QUALIFIER</TT> elements in the response. If false no
-    <TT>QUALIFIER</TT> elements are present in each
-    returned Instance.
-
-    <p><b><a name="IncludeClassOrigin">IncludeClassOrigin</a></b>&nbsp; If the <TT>IncludeClassOrigin</TT> input
-    parameter is <TT>true</TT>, this specifies that the
-    <TT>CLASSORIGIN</TTT> attribute MUST be present on all appropriate
-    elements in&nbsp;each returned Instance. If false, no
-    <TT>CLASSORIGIN</TT> attributes are present in each returned
-    Instance.</tt>
-
-    <p>PropertyList If the <TT>PropertyList</TT> input parameter is not
-    <TT>NULL</TT>, the members of the array define one or more Property
-    names.&nbsp;&nbsp;Each returned&nbsp;Instance MUST NOT include elements
-    for any Properties&nbsp;missing from this list.&nbsp; Note that if
-    <TT>LocalOnly</TT> is specified as <TT>true</TT> (or
-    <TT>DeepInheritance</TT> is specified as <TT>false</TT>) this acts as an
-    additional filter on the&nbsp;set of Properties returned (for example,
-    if&nbsp;Property <TT>A</TT> is included&nbsp;in the
-    <TT>PropertyList</TT> but <TT>LocalOnly</TT> is set to true and
-    <TT>A</TT> is not local to a returned&nbsp;Instance, then it will not be
-    included in that Instance). If the <TT>PropertyList</TT> input parameter
-    is an empty array this signifies that no Properties are included in each
-    returned Instance.&nbsp;If the <TT>PropertyList</TT> input parameter is
-    NULL this specifies that all Properties (subject to the conditions
-    expressed by the other parameters) are included in each&nbsp;returned
-    Instance.
-
-    If&nbsp;the&nbsp;<TT>PropertyList</TT>&nbsp;contains duplicate elements,
-    the Server MUST ignore the duplicates but otherwise process the request
-    normally.&nbsp; If the <TT>PropertyList</TT> contains elements which are
-    invalid Property names for any&nbsp;target Instance, the Server MUST
-    ignore such entries but otherwise process the request normally.
 
 
 
@@ -136,14 +69,9 @@
     <h2>C++ Call</h2>
 
     <PRE>
-    virtual Array<InstanceDecl> enumerateInstances(
+    virtual Array<InstanceDecl> enumerateInstanceNames(
         const String&amp; nameSpace,
-        const String&amp; className,
-        Boolean deepInheritance = true,
-        Boolean localOnly = true,
-        Boolean includeQualifiers = false,
-        Boolean includeClassOrigin = false,
-	const Array<String>&amp; propertyList = _getStringArray()) = 0;
+        const String&amp; className;
 </PRE>
   <hr><p style="margin-top: 0; margin-bottom: 0"> <font size="2">Demonstration
      Prepared by the OpenGroup Manageability Work Group Pegasus Development Team</font>
@@ -152,7 +80,7 @@
      for more information on Pegasus</font>
 
      <p style="margin-top: 0; margin-bottom: 0"> <font size="1">Last Modified <!--webbot bot="Timestamp" S-Type="EDITED"
-    S-Format="%A, %B %d, %Y %I:%M:%S %p" startspan -->Monday, March 26, 2001 05:01:59 PM<!--webbot bot="Timestamp" i-CheckSum="50769" endspan -->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    S-Format="%A, %B %d, %Y %I:%M:%S %p" startspan -->Wednesday, January 30, 2002 07:31:56 AM<!--webbot bot="Timestamp" i-CheckSum="19263" endspan -->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
      Copyright @ The Open Group 2001&nbsp;</font>
    <script>
        document.EnumerateInstanceNames.hostaddress.value = top.hostAddress;

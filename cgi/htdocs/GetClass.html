@@ -14,53 +14,53 @@
       <INPUT TYPE="hidden" NAME="hostaddress" VALUE="localhost:5988">
       <INPUT TYPE="hidden" NAME="debug" VALUE="">
 
-      <p>The <TT>GetClass</TT> method returns a single CIM Class from the target Namespace
+      <p>The <TT>GetClass</TT> CIM Operation returns a single CIM Class from the target Namespace
       where the ClassName input parameter defines the name of the class to be retrieved.
       <p><b>NameSpace</b> <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root/cimv2">
       String that defines the target namespace. See <a href="getnamespaces.html">NameSpace
       Operations</a> for more information<p><b>ClassName</b> <INPUT TYPE="text" NAME="ClassName" SIZE=30>
       Defines the name of the Class to be retrieved. See <a href="EnumerateClassNames.html">Enumerate
-      Class Names</a> for a list of classes
-      <p><b>LocalOnly</b> <INPUT TYPE="checkbox" NAME="LocalOnly" VALUE="true" checked>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      If true only CIM Elements overridden within definition of class are
-      returned.
-      <p><b>IncludeQualifiers</b> <INPUT TYPE="checkbox" NAME="IncludeQualifiers" VALUE="true">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      If checked, show Qualifiers for class and returned Properties, Methods,
-      and Method Parameters.
+      Class Names</a> for a list of classes.
+      
+      <p><b>LocalOnly</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <INPUT TYPE="checkbox" NAME="LocalOnly" VALUE="true" checked>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If true only CIM Elements overridden within definition of class are
+      returned. Default is true.
+      
+      <p><b>IncludeQualifiers</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <INPUT TYPE="checkbox" NAME="IncludeQualifiers" VALUE="true">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If checked, show Qualifiers for class and returned Properties, Methods,
+      and Method Parameters. Default is false.
+      
       <p><b>IncludeClassOrigins</b> <INPUT TYPE="checkbox" NAME="IncludeClassOrigins" VALUE="true">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       If checked (TRUE), CLASSORIGIN attribute will be returned for all
-      appropriate elements
-      <p>ShowMof&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      <input type="checkbox" name="ShowMof" value="ON">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      If checked, the output shows the MOF reconstruction of the class also.<p><b>PropertyList </b> <INPUT TYPE="text" NAME="PropertyList" SIZE=30 VALUE="NULL">
-      NOTE: <b> NOT IMPLEMENTED </b>Null or array of property names to filter
+      appropriate elements. Default is false.
+      
+      <p><b>PropertyList </b> <INPUT TYPE="text" NAME="PropertyList" SIZE=30>
+      Null or array of property names to filter
       request. <a href="#PropertyList">See below</a>.
+      
       <p><INPUT TYPE="submit" VALUE="Submit Request">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       <INPUT TYPE="reset" VALUE="Reset Form">
 	</form>
     <hr>
-      <h2>RETURN Results</h2>
+<h2>RETURN Results</h2>
       <p>If successful, the return value is a single CIM Class.If unsuccessful, one of the
       CIM status codes show below MUST be returned by this method,
 	where the first applicable error in the list (starting with the first element of the list,
 	and working down) is the error returned. Any additional method-specific interpretation of
 	the error in is given in parentheses.&nbsp;
 	<UL>
-	<LI>CIM_ERR_INVALID_NAMESPACE
-	<LI>CIM_ERR_INVALID_PARAMETER (including missing, duplicate,
-	    unrecognized or otherwise incorrect parameters)
-	<LI>CIM_ERR_ACCESS_DENIED
-	<LI>CIM_ERR_INVALID_CLASS (the CIM Class does not exist in the
-	    specified namespace)
-	<LI>CIM_ERR_NOT_FOUND (the CIM Class does exist, but the
-	requested 	CIM Instance does not exist in the specified namespace)
-	<LI>CIM_ERR_FAILED (some other unspecified error occurred)
+		<LI>CIM_ERR_INVALID_NAMESPACE
+		<LI>CIM_ERR_INVALID_PARAMETER (including missing, duplicate,
+			unrecognized or otherwise incorrect parameters)
+		<LI>CIM_ERR_ACCESS_DENIED
+		<LI>CIM_ERR_INVALID_CLASS (the CIM Class does not exist in the
+			specified namespace)
+		<LI>CIM_ERR_NOT_FOUND (the CIM Class does exist, but the
+		requested 	CIM Instance does not exist in the specified namespace)
+		<LI>CIM_ERR_FAILED (some other unspecified error occurred)
 	</LI>
-    </UL>
+    </UL><hr>
 
-    <hr>
-
-      <h2>ADDITIONAL Description of Fields</h2>
+<h2>ADDITIONAL Description of Fields</h2>
       <p><a name="LocalOnly"><b>LocalOnly</b></a> -
       If the <TT>LocalOnly</TT> input parameter is true, this specifies that only CIM
       Elements (properties, methods and qualifiers) overriden within the definition of
@@ -96,13 +96,13 @@
       <h2>C++ Pegasus API
     </h2>
       <pre>
-          virtual CIMClass getClass(
-	    const String&amp; nameSpace,
-	    const String&amp; className,
-	    Boolean localOnly = true,
-	    Boolean includeQualifiers = true,
-	    Boolean includeClassOrigin = false,
-	    const Array<String>&amp; propertyList = StringArray()) = 0;
+    virtual CIMClass getClass(
+		const String&amp; nameSpace,
+		const String&amp; className,
+		Boolean localOnly = true,
+		Boolean includeQualifiers = true,
+		Boolean includeClassOrigin = false,
+		const CIMPropertyList&amp; propertyList = CIMPropertyList());
 	    </pre>
   <hr>
 
@@ -113,7 +113,7 @@
      for more information on Pegasus</font>
 
      <p style="margin-top: 0; margin-bottom: 0"> <font size="1">Last Modified <!--webbot bot="Timestamp" S-Type="EDITED"
-    S-Format="%A, %B %d, %Y %I:%M:%S %p" startspan -->Friday, July 27, 2001 04:56:27 PM<!--webbot bot="Timestamp" i-CheckSum="54839" endspan -->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    S-Format="%A, %B %d, %Y %I:%M:%S %p" startspan -->Wednesday, January 30, 2002 12:55:08 PM<!--webbot bot="Timestamp" i-CheckSum="19855" endspan -->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
      Copyright @ The Open Group 2001&nbsp;</font>
       <p>
 	</form>

@@ -2179,11 +2179,10 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
    // No provider is registered and the repository isn't the default. Error response
    // ATTN: KS 28 May 2002 - Rethink this error. What if there are simply no instances
    // Is this what we generate?
-   if ((ps == 0) && (_repository->isDefaultInstanceProvider()))
+   if ((ps == 0) && !(_repository->isDefaultInstanceProvider()))
    {         
        PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4, 
-                        "No providers for  " + className +
-                        " and subclasses."); 
+                        "No provider for " + className + " and subclasses."); 
 
        CIMEnumerateInstancesResponseMessage* response =
           new CIMEnumerateInstancesResponseMessage(
@@ -2431,8 +2430,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
    if ((ps == 0) && !(_repository->isDefaultInstanceProvider()))
    {         
        PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4, 
-                        "No providers for  " + className +
-                        " and subclasses."); 
+                        "No provider for " + className + " and subclasses."); 
 
        CIMEnumerateInstanceNamesResponseMessage* response =
          new CIMEnumerateInstanceNamesResponseMessage(

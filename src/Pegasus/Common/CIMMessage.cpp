@@ -48,637 +48,473 @@ void CIMResponseMessage::syncAttributes(CIMRequestMessage* request)
 
 CIMResponseMessage* CIMGetClassRequestMessage::buildResponse()
 {
-    CIMGetClassResponseMessage* response;
-    response = new CIMGetClassResponseMessage(
-        messageId,
-        CIMException(),
-        queueIds.copyAndPop(),
-        CIMClass());
-    AutoPtr<CIMGetClassResponseMessage> responsePtr(response);
-
+    AutoPtr<CIMGetClassResponseMessage> response(
+        new CIMGetClassResponseMessage(
+            messageId,
+            CIMException(),
+            queueIds.copyAndPop(),
+            CIMClass()));
     response->syncAttributes(this);
-
-    responsePtr.release();
-    return response;
+    return response.release();
 }
 
 CIMResponseMessage* CIMGetInstanceRequestMessage::buildResponse()
 {
-    CIMGetInstanceResponseMessage* response;
-    response = new CIMGetInstanceResponseMessage(
-        messageId,
-        CIMException(),
-        queueIds.copyAndPop(),
-        CIMInstance());
-    AutoPtr<CIMGetInstanceResponseMessage> responsePtr(response);
-
+    AutoPtr<CIMGetInstanceResponseMessage> response(
+        new CIMGetInstanceResponseMessage(
+            messageId,
+            CIMException(),
+            queueIds.copyAndPop(),
+            CIMInstance()));
     response->syncAttributes(this);
-
-    responsePtr.release();
-    return response;
+    return response.release();
 }
 
 CIMResponseMessage* CIMExportIndicationRequestMessage::buildResponse()
 {
-    CIMExportIndicationResponseMessage* response;
-    response = new CIMExportIndicationResponseMessage(
-        messageId,
-        CIMException(),
-        queueIds.copyAndPop());
-    AutoPtr<CIMExportIndicationResponseMessage> responsePtr(response);
-
+    AutoPtr<CIMExportIndicationResponseMessage> response(
+        new CIMExportIndicationResponseMessage(
+            messageId,
+            CIMException(),
+            queueIds.copyAndPop()));
     response->syncAttributes(this);
-
-    responsePtr.release();
-    return response;
+    return response.release();
 }
 
 CIMResponseMessage* CIMDeleteClassRequestMessage::buildResponse()
 {
-    CIMDeleteClassResponseMessage* response;
-    response = new CIMDeleteClassResponseMessage(
-        messageId,
-        CIMException(),
-        queueIds.copyAndPop());
-    AutoPtr<CIMDeleteClassResponseMessage> responsePtr(response);
-
+    AutoPtr<CIMDeleteClassResponseMessage> response(
+        new CIMDeleteClassResponseMessage(
+            messageId,
+            CIMException(),
+            queueIds.copyAndPop()));
     response->syncAttributes(this);
-
-    responsePtr.release();
-    return response;
+    return response.release();
 }
 
 CIMResponseMessage* CIMDeleteInstanceRequestMessage::buildResponse()
 {
-    CIMDeleteInstanceResponseMessage* response;
-    response = new CIMDeleteInstanceResponseMessage(
-        messageId,
-        CIMException(),
-        queueIds.copyAndPop());
-    AutoPtr<CIMDeleteInstanceResponseMessage> responsePtr(response);
-
+    AutoPtr<CIMDeleteInstanceResponseMessage> response(
+        new CIMDeleteInstanceResponseMessage(
+            messageId,
+            CIMException(),
+            queueIds.copyAndPop()));
     response->syncAttributes(this);
-
-    responsePtr.release();
-    return response;
+    return response.release();
 }
 
 CIMResponseMessage* CIMCreateClassRequestMessage::buildResponse()
 {
-    CIMCreateClassResponseMessage* response;
-    response = new CIMCreateClassResponseMessage(
-        messageId,
-        CIMException(),
-        queueIds.copyAndPop());
-    AutoPtr<CIMCreateClassResponseMessage> responsePtr(response);
-
+    AutoPtr<CIMCreateClassResponseMessage> response(
+        new CIMCreateClassResponseMessage(
+            messageId,
+            CIMException(),
+            queueIds.copyAndPop()));
     response->syncAttributes(this);
-
-    responsePtr.release();
-    return response;
+    return response.release();
 }
 
 CIMResponseMessage* CIMCreateInstanceRequestMessage::buildResponse()
 {
-    CIMCreateInstanceResponseMessage* response;
-    response = new CIMCreateInstanceResponseMessage(
-        messageId,
-        CIMException(),
-        queueIds.copyAndPop(),
-        CIMObjectPath());
-    AutoPtr<CIMCreateInstanceResponseMessage> responsePtr(response);
-
+    AutoPtr<CIMCreateInstanceResponseMessage> response(
+        new CIMCreateInstanceResponseMessage(
+            messageId,
+            CIMException(),
+            queueIds.copyAndPop(),
+            CIMObjectPath()));
     response->syncAttributes(this);
-
-    responsePtr.release();
-    return response;
+    return response.release();
 }
 
 CIMResponseMessage* CIMModifyClassRequestMessage::buildResponse()
 {
-    CIMModifyClassResponseMessage* response;
-    response = new CIMModifyClassResponseMessage(
-        messageId,
-        CIMException(),
-        queueIds.copyAndPop());
-    AutoPtr<CIMModifyClassResponseMessage> responsePtr(response);
-
+    AutoPtr<CIMModifyClassResponseMessage> response(
+        new CIMModifyClassResponseMessage(
+            messageId,
+            CIMException(),
+            queueIds.copyAndPop()));
     response->syncAttributes(this);
-
-    responsePtr.release();
-    return response;
+    return response.release();
 }
 
 CIMResponseMessage* CIMModifyInstanceRequestMessage::buildResponse()
 {
-    CIMModifyInstanceResponseMessage* response;
-    response = new CIMModifyInstanceResponseMessage(
-        messageId,
-        CIMException(),
-        queueIds.copyAndPop());
-    AutoPtr<CIMModifyInstanceResponseMessage> responsePtr(response);
-
+    AutoPtr<CIMModifyInstanceResponseMessage> response(
+        new CIMModifyInstanceResponseMessage(
+            messageId,
+            CIMException(),
+            queueIds.copyAndPop()));
     response->syncAttributes(this);
-
-    responsePtr.release();
-    return response;
+    return response.release();
 }
 
 CIMResponseMessage* CIMEnumerateClassesRequestMessage::buildResponse()
 {
-    CIMEnumerateClassesResponseMessage* response;
-    response = new CIMEnumerateClassesResponseMessage(
-        messageId,
-        CIMException(),
-        queueIds.copyAndPop(),
-        Array<CIMClass>());
-    AutoPtr<CIMEnumerateClassesResponseMessage> responsePtr(response);
-
+    AutoPtr<CIMEnumerateClassesResponseMessage> response(
+        new CIMEnumerateClassesResponseMessage(
+            messageId,
+            CIMException(),
+            queueIds.copyAndPop(),
+            Array<CIMClass>()));
     response->syncAttributes(this);
-
-    responsePtr.release();
-    return response;
+    return response.release();
 }
 
 CIMResponseMessage* CIMEnumerateClassNamesRequestMessage::buildResponse()
 {
-    CIMEnumerateClassNamesResponseMessage* response;
-    response = new CIMEnumerateClassNamesResponseMessage(
-        messageId,
-        CIMException(),
-        queueIds.copyAndPop(),
-        Array<CIMName>());
-    AutoPtr<CIMEnumerateClassNamesResponseMessage> responsePtr(response);
-
+    AutoPtr<CIMEnumerateClassNamesResponseMessage> response(
+        new CIMEnumerateClassNamesResponseMessage(
+            messageId,
+            CIMException(),
+            queueIds.copyAndPop(),
+            Array<CIMName>()));
     response->syncAttributes(this);
-
-    responsePtr.release();
-    return response;
+    return response.release();
 }
 
 CIMResponseMessage* CIMEnumerateInstancesRequestMessage::buildResponse()
 {
-    CIMEnumerateInstancesResponseMessage* response;
-    response = new CIMEnumerateInstancesResponseMessage(
-        messageId,
-        CIMException(),
-        queueIds.copyAndPop(),
-        Array<CIMInstance>());
-    AutoPtr<CIMEnumerateInstancesResponseMessage> responsePtr(response);
-
+    AutoPtr<CIMEnumerateInstancesResponseMessage> response(
+        new CIMEnumerateInstancesResponseMessage(
+            messageId,
+            CIMException(),
+            queueIds.copyAndPop(),
+            Array<CIMInstance>()));
     response->syncAttributes(this);
-
-    responsePtr.release();
-    return response;
+    return response.release();
 }
 
 CIMResponseMessage* CIMEnumerateInstanceNamesRequestMessage::buildResponse()
 {
-    CIMEnumerateInstanceNamesResponseMessage* response;
-    response = new CIMEnumerateInstanceNamesResponseMessage(
-        messageId,
-        CIMException(),
-        queueIds.copyAndPop(),
-        Array<CIMObjectPath>());
-    AutoPtr<CIMEnumerateInstanceNamesResponseMessage> responsePtr(response);
-
+    AutoPtr<CIMEnumerateInstanceNamesResponseMessage> response(
+        new CIMEnumerateInstanceNamesResponseMessage(
+            messageId,
+            CIMException(),
+            queueIds.copyAndPop(),
+            Array<CIMObjectPath>()));
     response->syncAttributes(this);
-
-    responsePtr.release();
-    return response;
+    return response.release();
 }
 
 CIMResponseMessage* CIMExecQueryRequestMessage::buildResponse()
 {
-    CIMExecQueryResponseMessage* response;
-    response = new CIMExecQueryResponseMessage(
-        messageId,
-        CIMException(),
-        queueIds.copyAndPop(),
-        Array<CIMObject>());
-    AutoPtr<CIMExecQueryResponseMessage> responsePtr(response);
-
+    AutoPtr<CIMExecQueryResponseMessage> response(
+        new CIMExecQueryResponseMessage(
+            messageId,
+            CIMException(),
+            queueIds.copyAndPop(),
+            Array<CIMObject>()));
     response->syncAttributes(this);
-
-    responsePtr.release();
-    return response;
+    return response.release();
 }
 
 CIMResponseMessage* CIMAssociatorsRequestMessage::buildResponse()
 {
-    CIMAssociatorsResponseMessage* response;
-    response = new CIMAssociatorsResponseMessage(
-        messageId,
-        CIMException(),
-        queueIds.copyAndPop(),
-        Array<CIMObject>());
-    AutoPtr<CIMAssociatorsResponseMessage> responsePtr(response);
-
+    AutoPtr<CIMAssociatorsResponseMessage> response(
+        new CIMAssociatorsResponseMessage(
+            messageId,
+            CIMException(),
+            queueIds.copyAndPop(),
+            Array<CIMObject>()));
     response->syncAttributes(this);
-
-    responsePtr.release();
-    return response;
+    return response.release();
 }
 
 CIMResponseMessage* CIMAssociatorNamesRequestMessage::buildResponse()
 {
-    CIMAssociatorNamesResponseMessage* response;
-    response = new CIMAssociatorNamesResponseMessage(
-        messageId,
-        CIMException(),
-        queueIds.copyAndPop(),
-        Array<CIMObjectPath>());
-    AutoPtr<CIMAssociatorNamesResponseMessage> responsePtr(response);
-
+    AutoPtr<CIMAssociatorNamesResponseMessage> response(
+        new CIMAssociatorNamesResponseMessage(
+            messageId,
+            CIMException(),
+            queueIds.copyAndPop(),
+            Array<CIMObjectPath>()));
     response->syncAttributes(this);
-
-    responsePtr.release();
-    return response;
+    return response.release();
 }
 
 CIMResponseMessage* CIMReferencesRequestMessage::buildResponse()
 {
-    CIMReferencesResponseMessage* response;
-    response = new CIMReferencesResponseMessage(
-        messageId,
-        CIMException(),
-        queueIds.copyAndPop(),
-        Array<CIMObject>());
-    AutoPtr<CIMReferencesResponseMessage> responsePtr(response);
-
+    AutoPtr<CIMReferencesResponseMessage> response(
+        new CIMReferencesResponseMessage(
+            messageId,
+            CIMException(),
+            queueIds.copyAndPop(),
+            Array<CIMObject>()));
     response->syncAttributes(this);
-
-    responsePtr.release();
-    return response;
+    return response.release();
 }
 
 CIMResponseMessage* CIMReferenceNamesRequestMessage::buildResponse()
 {
-    CIMReferenceNamesResponseMessage* response;
-    response = new CIMReferenceNamesResponseMessage(
-        messageId,
-        CIMException(),
-        queueIds.copyAndPop(),
-        Array<CIMObjectPath>());
-    AutoPtr<CIMReferenceNamesResponseMessage> responsePtr(response);
-
+    AutoPtr<CIMReferenceNamesResponseMessage> response(
+        new CIMReferenceNamesResponseMessage(
+            messageId,
+            CIMException(),
+            queueIds.copyAndPop(),
+            Array<CIMObjectPath>()));
     response->syncAttributes(this);
-
-    responsePtr.release();
-    return response;
+    return response.release();
 }
 
 CIMResponseMessage* CIMGetPropertyRequestMessage::buildResponse()
 {
-    CIMGetPropertyResponseMessage* response;
-    response = new CIMGetPropertyResponseMessage(
-        messageId,
-        CIMException(),
-        queueIds.copyAndPop(),
-        CIMValue());
-    AutoPtr<CIMGetPropertyResponseMessage> responsePtr(response);
-
+    AutoPtr<CIMGetPropertyResponseMessage> response(
+        new CIMGetPropertyResponseMessage(
+            messageId,
+            CIMException(),
+            queueIds.copyAndPop(),
+            CIMValue()));
     response->syncAttributes(this);
-
-    responsePtr.release();
-    return response;
+    return response.release();
 }
 
 CIMResponseMessage* CIMSetPropertyRequestMessage::buildResponse()
 {
-    CIMSetPropertyResponseMessage* response;
-    response = new CIMSetPropertyResponseMessage(
-        messageId,
-        CIMException(),
-        queueIds.copyAndPop());
-    AutoPtr<CIMSetPropertyResponseMessage> responsePtr(response);
-
+    AutoPtr<CIMSetPropertyResponseMessage> response(
+        new CIMSetPropertyResponseMessage(
+            messageId,
+            CIMException(),
+            queueIds.copyAndPop()));
     response->syncAttributes(this);
-
-    responsePtr.release();
-    return response;
+    return response.release();
 }
 
 CIMResponseMessage* CIMGetQualifierRequestMessage::buildResponse()
 {
-    CIMGetQualifierResponseMessage* response;
-    response = new CIMGetQualifierResponseMessage(
-        messageId,
-        CIMException(),
-        queueIds.copyAndPop(),
-        CIMQualifierDecl());
-    AutoPtr<CIMGetQualifierResponseMessage> responsePtr(response);
-
+    AutoPtr<CIMGetQualifierResponseMessage> response(
+        new CIMGetQualifierResponseMessage(
+            messageId,
+            CIMException(),
+            queueIds.copyAndPop(),
+            CIMQualifierDecl()));
     response->syncAttributes(this);
-
-    responsePtr.release();
-    return response;
+    return response.release();
 }
 
 CIMResponseMessage* CIMSetQualifierRequestMessage::buildResponse()
 {
-    CIMSetQualifierResponseMessage* response;
-    response = new CIMSetQualifierResponseMessage(
-        messageId,
-        CIMException(),
-        queueIds.copyAndPop());
-    AutoPtr<CIMSetQualifierResponseMessage> responsePtr(response);
-
+    AutoPtr<CIMSetQualifierResponseMessage> response(
+        new CIMSetQualifierResponseMessage(
+            messageId,
+            CIMException(),
+            queueIds.copyAndPop()));
     response->syncAttributes(this);
-
-    responsePtr.release();
-    return response;
+    return response.release();
 }
 
 CIMResponseMessage* CIMDeleteQualifierRequestMessage::buildResponse()
 {
-    CIMDeleteQualifierResponseMessage* response;
-    response = new CIMDeleteQualifierResponseMessage(
-        messageId,
-        CIMException(),
-        queueIds.copyAndPop());
-    AutoPtr<CIMDeleteQualifierResponseMessage> responsePtr(response);
-
+    AutoPtr<CIMDeleteQualifierResponseMessage> response(
+        new CIMDeleteQualifierResponseMessage(
+            messageId,
+            CIMException(),
+            queueIds.copyAndPop()));
     response->syncAttributes(this);
-
-    responsePtr.release();
-    return response;
+    return response.release();
 }
 
 CIMResponseMessage* CIMEnumerateQualifiersRequestMessage::buildResponse()
 {
-    CIMEnumerateQualifiersResponseMessage* response;
-    response = new CIMEnumerateQualifiersResponseMessage(
-        messageId,
-        CIMException(),
-        queueIds.copyAndPop(),
-        Array<CIMQualifierDecl>());
-    AutoPtr<CIMEnumerateQualifiersResponseMessage> responsePtr(response);
-
+    AutoPtr<CIMEnumerateQualifiersResponseMessage> response(
+        new CIMEnumerateQualifiersResponseMessage(
+            messageId,
+            CIMException(),
+            queueIds.copyAndPop(),
+            Array<CIMQualifierDecl>()));
     response->syncAttributes(this);
-
-    responsePtr.release();
-    return response;
+    return response.release();
 }
 
 CIMResponseMessage* CIMInvokeMethodRequestMessage::buildResponse()
 {
-    CIMInvokeMethodResponseMessage* response;
-    response = new CIMInvokeMethodResponseMessage(
-        messageId,
-        CIMException(),
-        queueIds.copyAndPop(),
-        CIMValue(),
-        Array<CIMParamValue>(),
-        methodName);
-    AutoPtr<CIMInvokeMethodResponseMessage> responsePtr(response);
-
+    AutoPtr<CIMInvokeMethodResponseMessage> response(
+        new CIMInvokeMethodResponseMessage(
+            messageId,
+            CIMException(),
+            queueIds.copyAndPop(),
+            CIMValue(),
+            Array<CIMParamValue>(),
+            methodName));
     response->syncAttributes(this);
-
-    responsePtr.release();
-    return response;
+    return response.release();
 }
 
 CIMResponseMessage* CIMProcessIndicationRequestMessage::buildResponse()
 {
-    CIMProcessIndicationResponseMessage* response;
-    response = new CIMProcessIndicationResponseMessage(
-        messageId,
-        CIMException(),
-        queueIds.copyAndPop());
-    AutoPtr<CIMProcessIndicationResponseMessage> responsePtr(response);
-
+    AutoPtr<CIMProcessIndicationResponseMessage> response(
+        new CIMProcessIndicationResponseMessage(
+            messageId,
+            CIMException(),
+            queueIds.copyAndPop()));
     response->syncAttributes(this);
-
-    responsePtr.release();
-    return response;
+    return response.release();
 }
 
 CIMResponseMessage* CIMEnableIndicationsRequestMessage::buildResponse()
 {
-    CIMEnableIndicationsResponseMessage* response;
-    response = new CIMEnableIndicationsResponseMessage(
-        messageId,
-        CIMException(),
-        queueIds.copyAndPop());
-    AutoPtr<CIMEnableIndicationsResponseMessage> responsePtr(response);
-
+    AutoPtr<CIMEnableIndicationsResponseMessage> response(
+        new CIMEnableIndicationsResponseMessage(
+            messageId,
+            CIMException(),
+            queueIds.copyAndPop()));
     response->syncAttributes(this);
-
-    responsePtr.release();
-    return response;
+    return response.release();
 }
 
 CIMResponseMessage* CIMDisableIndicationsRequestMessage::buildResponse()
 {
-    CIMDisableIndicationsResponseMessage* response;
-    response = new CIMDisableIndicationsResponseMessage(
-        messageId,
-        CIMException(),
-        queueIds.copyAndPop());
-    AutoPtr<CIMDisableIndicationsResponseMessage> responsePtr(response);
-
+    AutoPtr<CIMDisableIndicationsResponseMessage> response(
+        new CIMDisableIndicationsResponseMessage(
+            messageId,
+            CIMException(),
+            queueIds.copyAndPop()));
     response->syncAttributes(this);
-
-    responsePtr.release();
-    return response;
+    return response.release();
 }
 
 CIMResponseMessage* CIMNotifyProviderRegistrationRequestMessage::buildResponse()
 {
-    CIMNotifyProviderRegistrationResponseMessage* response;
-    response = new CIMNotifyProviderRegistrationResponseMessage(
-        messageId,
-        CIMException(),
-        queueIds.copyAndPop());
-    AutoPtr<CIMNotifyProviderRegistrationResponseMessage> responsePtr(response);
-
+    AutoPtr<CIMNotifyProviderRegistrationResponseMessage> response(
+        new CIMNotifyProviderRegistrationResponseMessage(
+            messageId,
+            CIMException(),
+            queueIds.copyAndPop()));
     response->syncAttributes(this);
-
-    responsePtr.release();
-    return response;
+    return response.release();
 }
 
 CIMResponseMessage* CIMNotifyProviderTerminationRequestMessage::buildResponse()
 {
-    CIMNotifyProviderTerminationResponseMessage* response;
-    response = new CIMNotifyProviderTerminationResponseMessage(
-        messageId,
-        CIMException(),
-        queueIds.copyAndPop());
-    AutoPtr<CIMNotifyProviderTerminationResponseMessage> responsePtr(response);
-
+    AutoPtr<CIMNotifyProviderTerminationResponseMessage> response(
+        new CIMNotifyProviderTerminationResponseMessage(
+            messageId,
+            CIMException(),
+            queueIds.copyAndPop()));
     response->syncAttributes(this);
-
-    responsePtr.release();
-    return response;
+    return response.release();
 }
 
 CIMResponseMessage* CIMHandleIndicationRequestMessage::buildResponse()
 {
-    CIMHandleIndicationResponseMessage* response;
-    response = new CIMHandleIndicationResponseMessage(
-        messageId,
-        CIMException(),
-        queueIds.copyAndPop());
-    AutoPtr<CIMHandleIndicationResponseMessage> responsePtr(response);
-
+    AutoPtr<CIMHandleIndicationResponseMessage> response(
+        new CIMHandleIndicationResponseMessage(
+            messageId,
+            CIMException(),
+            queueIds.copyAndPop()));
     response->syncAttributes(this);
-
-    responsePtr.release();
-    return response;
+    return response.release();
 }
 
 CIMResponseMessage* CIMCreateSubscriptionRequestMessage::buildResponse()
 {
-    CIMCreateSubscriptionResponseMessage* response;
-    response = new CIMCreateSubscriptionResponseMessage(
-        messageId,
-        CIMException(),
-        queueIds.copyAndPop());
-    AutoPtr<CIMCreateSubscriptionResponseMessage> responsePtr(response);
-
+    AutoPtr<CIMCreateSubscriptionResponseMessage> response(
+        new CIMCreateSubscriptionResponseMessage(
+            messageId,
+            CIMException(),
+            queueIds.copyAndPop()));
     response->syncAttributes(this);
-
-    responsePtr.release();
-    return response;
+    return response.release();
 }
 
 CIMResponseMessage* CIMModifySubscriptionRequestMessage::buildResponse()
 {
-    CIMModifySubscriptionResponseMessage* response;
-    response = new CIMModifySubscriptionResponseMessage(
-        messageId,
-        CIMException(),
-        queueIds.copyAndPop());
-    AutoPtr<CIMModifySubscriptionResponseMessage> responsePtr(response);
-
+    AutoPtr<CIMModifySubscriptionResponseMessage> response(
+        new CIMModifySubscriptionResponseMessage(
+            messageId,
+            CIMException(),
+            queueIds.copyAndPop()));
     response->syncAttributes(this);
-
-    responsePtr.release();
-    return response;
+    return response.release();
 }
 
 CIMResponseMessage* CIMDeleteSubscriptionRequestMessage::buildResponse()
 {
-    CIMDeleteSubscriptionResponseMessage* response;
-    response = new CIMDeleteSubscriptionResponseMessage(
-        messageId,
-        CIMException(),
-        queueIds.copyAndPop());
-    AutoPtr<CIMDeleteSubscriptionResponseMessage> responsePtr(response);
-
+    AutoPtr<CIMDeleteSubscriptionResponseMessage> response(
+        new CIMDeleteSubscriptionResponseMessage(
+            messageId,
+            CIMException(),
+            queueIds.copyAndPop()));
     response->syncAttributes(this);
-
-    responsePtr.release();
-    return response;
+    return response.release();
 }
 
 CIMResponseMessage* CIMDisableModuleRequestMessage::buildResponse()
 {
-    CIMDisableModuleResponseMessage* response;
-    response = new CIMDisableModuleResponseMessage(
-        messageId,
-        CIMException(),
-        queueIds.copyAndPop(),
-        Array<Uint16>());
-    AutoPtr<CIMDisableModuleResponseMessage> responsePtr(response);
-
+    AutoPtr<CIMDisableModuleResponseMessage> response(
+        new CIMDisableModuleResponseMessage(
+            messageId,
+            CIMException(),
+            queueIds.copyAndPop(),
+            Array<Uint16>()));
     response->syncAttributes(this);
-
-    responsePtr.release();
-    return response;
+    return response.release();
 }
 
 CIMResponseMessage* CIMEnableModuleRequestMessage::buildResponse()
 {
-    CIMEnableModuleResponseMessage* response;
-    response = new CIMEnableModuleResponseMessage(
-        messageId,
-        CIMException(),
-        queueIds.copyAndPop(),
-        Array<Uint16>());
-    AutoPtr<CIMEnableModuleResponseMessage> responsePtr(response);
-
+    AutoPtr<CIMEnableModuleResponseMessage> response(
+        new CIMEnableModuleResponseMessage(
+            messageId,
+            CIMException(),
+            queueIds.copyAndPop(),
+            Array<Uint16>()));
     response->syncAttributes(this);
-
-    responsePtr.release();
-    return response;
+    return response.release();
 }
 
 CIMResponseMessage* CIMNotifyProviderEnableRequestMessage::buildResponse()
 {
-    CIMNotifyProviderEnableResponseMessage* response;
-    response = new CIMNotifyProviderEnableResponseMessage(
-        messageId,
-        CIMException(),
-        queueIds.copyAndPop());
-    AutoPtr<CIMNotifyProviderEnableResponseMessage> responsePtr(response);
-
+    AutoPtr<CIMNotifyProviderEnableResponseMessage> response(
+        new CIMNotifyProviderEnableResponseMessage(
+            messageId,
+            CIMException(),
+            queueIds.copyAndPop()));
     response->syncAttributes(this);
-
-    responsePtr.release();
-    return response;
+    return response.release();
 }
 
 CIMResponseMessage* CIMStopAllProvidersRequestMessage::buildResponse()
 {
-    CIMStopAllProvidersResponseMessage* response;
-    response = new CIMStopAllProvidersResponseMessage(
-        messageId,
-        CIMException(),
-        queueIds.copyAndPop());
-    AutoPtr<CIMStopAllProvidersResponseMessage> responsePtr(response);
-
+    AutoPtr<CIMStopAllProvidersResponseMessage> response(
+        new CIMStopAllProvidersResponseMessage(
+            messageId,
+            CIMException(),
+            queueIds.copyAndPop()));
     response->syncAttributes(this);
-
-    responsePtr.release();
-    return response;
+    return response.release();
 }
 
 CIMResponseMessage* CIMInitializeProviderRequestMessage::buildResponse()
 {
-    CIMInitializeProviderResponseMessage* response;
-    response = new CIMInitializeProviderResponseMessage(
-        messageId,
-        CIMException(),
-        queueIds.copyAndPop());
-    AutoPtr<CIMInitializeProviderResponseMessage> responsePtr(response);
-
+    AutoPtr<CIMInitializeProviderResponseMessage> response(
+        new CIMInitializeProviderResponseMessage(
+            messageId,
+            CIMException(),
+            queueIds.copyAndPop()));
     response->syncAttributes(this);
-
-    responsePtr.release();
-    return response;
+    return response.release();
 }
 
 CIMResponseMessage* CIMInitializeProviderAgentRequestMessage::buildResponse()
 {
-    CIMInitializeProviderAgentResponseMessage* response;
-    response = new CIMInitializeProviderAgentResponseMessage(
-        messageId,
-        CIMException(),
-        queueIds.copyAndPop());
-    AutoPtr<CIMInitializeProviderAgentResponseMessage> responsePtr(response);
-
+    AutoPtr<CIMInitializeProviderAgentResponseMessage> response(
+        new CIMInitializeProviderAgentResponseMessage(
+            messageId,
+            CIMException(),
+            queueIds.copyAndPop()));
     response->syncAttributes(this);
-
-    responsePtr.release();
-    return response;
+    return response.release();
 }
 
 CIMResponseMessage* CIMNotifyConfigChangeRequestMessage::buildResponse()
 {
-    CIMNotifyConfigChangeResponseMessage* response;
-    response = new CIMNotifyConfigChangeResponseMessage(
-        messageId,
-        CIMException(),
-        queueIds.copyAndPop());
-    AutoPtr<CIMNotifyConfigChangeResponseMessage> responsePtr(response);
-
+    AutoPtr<CIMNotifyConfigChangeResponseMessage> response(
+        new CIMNotifyConfigChangeResponseMessage(
+            messageId,
+            CIMException(),
+            queueIds.copyAndPop()));
     response->syncAttributes(this);
-
-    responsePtr.release();
-    return response;
+    return response.release();
 }
 
 PEGASUS_NAMESPACE_END

@@ -54,6 +54,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 TraceFileHandler::TraceFileHandler () 
 {
+    _fileName = 0;
     _fileHandle = 0;
     _wroteToLog = false;
 }
@@ -69,7 +70,10 @@ TraceFileHandler::~TraceFileHandler ()
     {
         fclose(_fileHandle);
     }
-    delete []_fileName;
+    if (_fileName)
+    {
+        delete []_fileName;
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -100,6 +104,10 @@ Uint32 TraceFileHandler::setFileName(const char* fileName)
     }
     else
     {
+        if (_fileName)
+        {
+            delete [] _fileName;
+        }
         _fileName = new char [strlen(fileName)+1];
         strcpy (_fileName,fileName);
     }

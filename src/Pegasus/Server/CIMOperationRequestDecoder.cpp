@@ -617,6 +617,9 @@ CIMGetClassRequestMessage* CIMOperationRequestDecoder::decodeGetClassRequest(
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
     {
 	if (CompareNoCase(name, "ClassName") == 0)
+            /*ATTN: Should be getStrngValueElement(parser, quaLIFIERnAME,TRUE)
+              nOTE THAT THIS COULD TRIP UP THE CLIENT
+            */
 	    XmlReader::getClassNameElement(parser, className, true);
 	else if (CompareNoCase(name, "LocalOnly") == 0)
 	    XmlReader::getBooleanValueElement(parser, localOnly, true);

@@ -53,8 +53,9 @@ void ProcessFile(const char* fileName)
 
     if (!is)
     {
-	cerr << arg0 << ": failed to open \"" << fileName << "\"" << endl;
-	exit(1);
+	cerr << arg0 << "warning: failed to open \"" << fileName << "\"";
+	cerr << endl;
+	return;
     }
 
     const char TEMP_FILE_NAME[] = "stripcrs.tmp";

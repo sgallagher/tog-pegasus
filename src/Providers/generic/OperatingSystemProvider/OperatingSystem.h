@@ -37,7 +37,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMDateTime.h>
 
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) && !defined(PEGASUS_OS_LSB)
 #include <sys/sysinfo.h>
 #include <sys/utsname.h>
 #include <unistd.h>
@@ -98,7 +98,7 @@ public:
    Uint64 GetMaxProcessMemorySize(void) const;
    Boolean GetDistributed(void) const;
 
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) && !defined(PEGASUS_OS_LSB)
 private:
     struct utsname m_uts;
     struct sysinfo m_si;

@@ -48,6 +48,12 @@ typedef unsigned long mode_t;
 #endif
 #endif
 
+#if defined(PEGASUS_OS_LSB)
+#if !defined(MAXHOSTNAMELEN)
+#define MAXHOSTNAMELEN 64
+#endif
+#endif
+
 //
 // Protocal Type
 //

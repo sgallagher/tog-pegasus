@@ -46,7 +46,10 @@
 #include <sys/param.h>			// for MAXPATHLEN
 #include <netinet/in.h>
 #include <netdb.h>
-
+#include <sys/stat.h>                   // for struct stat
+#ifndef MAXHOSTNAMELEN
+#define MAXHOSTNAMELEN 64
+#endif
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 

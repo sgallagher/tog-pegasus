@@ -49,7 +49,13 @@ Mutex::Mutex()
    pthread_mutexattr_settype(&_mutex.mutatt, PTHREAD_MUTEX_ERRORCHECK);
    pthread_mutex_init(&_mutex.mut, &_mutex.mutatt);
 #elif defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+
+#if defined(PEGASUS_OS_LSB)
+   pthread_mutexattr_settype(&_mutex.mutatt, PTHREAD_MUTEX_ERRORCHECK);
+#else
    pthread_mutexattr_settype(&_mutex.mutatt, PTHREAD_MUTEX_ERRORCHECK_NP);
+#endif 
+
    pthread_mutex_init(&_mutex.mut, &_mutex.mutatt);
 #else
    pthread_mutex_init(&_mutex.mut, NULL);

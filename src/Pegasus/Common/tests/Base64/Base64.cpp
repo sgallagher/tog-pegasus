@@ -37,7 +37,6 @@
 
 
 #include <cassert>
-#include <strstream>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Base64.h>
 #include <Pegasus/Common/ArrayInternal.h>

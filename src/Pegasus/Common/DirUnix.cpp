@@ -33,7 +33,7 @@
 #include "InternalException.h"
 
 #include <dirent.h>
-#include <iostream.h>
+#include <iostream>
 
 #ifdef PEGASUS_OS_OS400
 typedef struct os400_pnstruct

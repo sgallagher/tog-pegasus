@@ -42,7 +42,6 @@
 #if !defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
 #include <sys/timex.h>
 #endif
-//#include <unistd.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -52,7 +51,7 @@ int timeval_subtract (struct timeval *result,
 
 
 #ifdef PEGASUS_NEED_CRITICAL_TYPE
-#if !defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+#if !defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU) 
 typedef pthread_spinlock_t PEGASUS_CRIT_TYPE;
 #else
 typedef pthread_mutex_t PEGASUS_CRIT_TYPE;
@@ -132,9 +131,9 @@ typedef struct {
 // Other unix platforms HPUX, AIX, may have different types
 // implementors should use the native type for faster operations
 
-#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
+#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) && !defined(PEGASUS_OS_LSB)
 #define PEGASUS_ATOMIC_INT_NATIVE
-  typedef pthread_spinlock_t PEGASUS_ATOMIC_TYPE ;
+  typedef pthread_spinlock_t PEGASUS_ATOMIC_TYPE;
 #endif
 
 //-----------------------------------------------------------------
@@ -286,7 +285,7 @@ inline void destroy_crit(PEGASUS_CRIT_TYPE *crit)
 //  posix glibc implementation does not return microseconds.
 //  mdday Wed Aug  1 16:05:26 2001
 //-----------------------------------------------------------------
-#if !defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+#if !defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU) && !defined(PEGASUS_OS_LSB)
 inline static int pegasus_gettimeofday(struct timeval *tv)
 {
    struct ntptimeval ntp;

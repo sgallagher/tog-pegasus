@@ -1018,12 +1018,14 @@ Uint32 WbemExecCommand::execute (ostream& outPrintWriter,
 	   e.getMessage() << endl;
         return (RC_ERROR);
     }
+#if !defined(PEGASUS_OS_LSB)
     catch (exception& e)
     {
         errPrintWriter << WbemExecCommand::COMMAND_NAME << ": " << 
 	   e.what() << endl;
         return (RC_ERROR);
     }
+#endif
     catch (...)
     {
         errPrintWriter << WbemExecCommand::COMMAND_NAME << ": " << 

@@ -39,7 +39,7 @@
 #include <Pegasus/Common/Logger.h> // for Logger
 #include <Pegasus/Common/FileSystem.h> // for FileSystem.renameFile
 #include <Pegasus/Config/ConfigManager.h>     // for getHomedPath
-#include <iostream.h>
+#include <iostream>
 #include <stdlib.h>		// for getenv
 #include <unistd.h>
 #include <netinet/in.h>

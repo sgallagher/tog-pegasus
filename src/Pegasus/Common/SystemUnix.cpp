@@ -86,6 +86,13 @@
 #include "DynamicLibraryzOS_inline.h"
 #endif
 
+#if defined(PEGASUS_OS_LSB)
+#include <netinet/in.h>
+#include <termios.h>
+#include <stdio.h>
+#include <stdlib.h>
+#endif
+
 PEGASUS_NAMESPACE_BEGIN
 
 #ifdef PEGASUS_OS_OS400
@@ -635,6 +642,49 @@ Uint32 System::lookupPort(
 
     return localPort;
 }
+#if defined(PEGASUS_OS_LSB)
+/*
+   getpass equivalent. 
+   Adapted from example implementation described in GLIBC documentation
+   (http://www.dusek.ch/manual/glibc/libc_32.html) and 
+   "Advanced Programming in the UNIX Environment" by Richard Stevens,
+   pg. 350.
+ 
+*/
+#define MAX_PASS_LEN 1024
+char *getpassword(const char *prompt)
+{
+  static char buf[MAX_PASS_LEN];
+  struct termios old, new_val;
+  char *ptr;
+  int c;
+
+  buf[0] = 0;
+
+  /* Turn echoing off and fail if we can't. */
+  if (tcgetattr (fileno (stdin), &old) != 0)
+    return buf;
+  new_val = old;
+  new_val.c_lflag &= ~(ECHO | ECHOE | ECHOK | ECHONL);
+  if (tcsetattr (fileno (stdin), TCSAFLUSH, &new_val) != 0)
+    return buf;
+     
+  /* Read the password. */
+  fputs (prompt, stdin);
+  ptr = buf;
+  while ( (c = getc(stdin)) != EOF && c != '\n') {
+    if (ptr < &buf[MAX_PASS_LEN])
+      *ptr++ = c;
+  }
+  *ptr = 0;
+  putc('\n', stdin);
+
+  /* Restore terminal. */
+  (void) tcsetattr (fileno (stdin), TCSAFLUSH, &old);
+  fclose(stdin);
+  return buf;
+}
+#endif
 
 String System::getPassword(const char* prompt)
 {
@@ -643,7 +693,13 @@ String System::getPassword(const char* prompt)
 
 #if !defined(PEGASUS_OS_OS400)
     // Not supported on OS/400, and we don't need it.
+    // 'getpass' is DEPRECATED
+  #if !defined(PEGASUS_OS_LSB)
     password = String(getpass( prompt ));
+  #else
+    password = String(getpassword( prompt ));
+  #endif
+
 #endif
 
     return password;
@@ -914,8 +970,14 @@ Boolean System::isGroupMember(const char* userName, const char* groupName)
     // Search supplemental groups.
     // Get a user group entry
     //
+#if defined(PEGASUS_OS_LSB)
+    if ( getgrnam_r((char *)groupName, &grp,
+              grpBuffer, GRP_BUFF_SIZE, &grpresult) != 0 )
+#else
     if ( getgrnam_r(groupName, &grp,
               grpBuffer, GRP_BUFF_SIZE, &grpresult) != 0 )
+
+#endif
     {
         String errorMsg = String("getgrnam_r failure : ") +
                             String(strerror(errno));

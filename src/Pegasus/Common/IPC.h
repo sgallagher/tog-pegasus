@@ -32,7 +32,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef PEGASUS_OS_SOLARIS
+#if !defined(PEGASUS_OS_SOLARIS) && !defined(PEGASUS_OS_LSB)
 #define PEGASUS_NEED_CRITICAL_TYPE
 #endif
 

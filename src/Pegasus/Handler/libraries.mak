@@ -10,4 +10,4 @@ DYNAMIC_LIBRARIES = \
     -lpegrepository \
     -lpegprotocol \
     -lpegexportclient \
-~
+

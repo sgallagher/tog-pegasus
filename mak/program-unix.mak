@@ -43,11 +43,19 @@ ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
         ifdef PEGASUS_HAS_MESSAGES  
           ifdef ICU_ROOT
             ifdef ICU_INSTALL
+              ifdef  PEGASUS_USE_RELEASE_CONFIG_OPTIONS
+		$(LINK_WRAPPER) $(CXX) $(FLAGS) -Xlinker -rpath-link -Xlinker $(LIB_DIR) -Xlinker -rpath -Xlinker ${ICU_INSTALL}/lib -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS)
+              else
 		$(LINK_WRAPPER) $(CXX) $(FLAGS) -Xlinker -rpath -Xlinker $(LIB_DIR) -Xlinker -rpath -Xlinker ${ICU_INSTALL}/lib -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS)
+              endif
             endif
           endif
         else
-	  $(LINK_WRAPPER) $(CXX) $(FLAGS) -Xlinker -rpath -Xlinker $(LIB_DIR) -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS)
+          ifdef  PEGASUS_USE_RELEASE_CONFIG_OPTIONS
+	    $(LINK_WRAPPER) $(CXX) $(FLAGS) -Xlinker -rpath-link -Xlinker $(LIB_DIR) -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS)
+          else
+	    $(LINK_WRAPPER) $(CXX) $(FLAGS) -Xlinker -rpath -Xlinker $(LIB_DIR) -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS)
+          endif
         endif
       else
        ifeq ($(PEGASUS_PLATFORM),AIX_RS_IBMCXX)

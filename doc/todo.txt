@@ -1,4 +1,12 @@
 
+    -	Do we need strings to represent NULL and empty (what if the standard
+	adds something where a string parameter can be null distinguished from
+	an empty value).
+
+    -	Expose repository inheritance tree.
+
+    -   Look at not passing HTTP header to CIM request decoder queue.
+
     -	Propagate message key for all messages pertaining to a particular 
 	request.
 

@@ -44,30 +44,76 @@ int main()
 
      // test for Uint32 expressions.
 
-    Uint32 test = 99;
-    Uint32 big = 32999;
+     {
+	Uint32 test = 99;
+	Uint32 big = 32999;
+	
+	String str2 = Formatter::format("test $0 big $1", test, big);
+	DDD(cout << "str2[" << str2 << "]" << endl;)
+	
+	assert(Formatter::format("[TRUE$0]", test) == "[TRUE99]");
 
-    String str2 = Formatter::format("test $0 big $1", test, big);
-    DDD(cout << "str2[" << str2 << "]" << endl;)
-
-    assert(Formatter::format("[TRUE$0]", test) == "[TRUE99]");
-
+     }
     // Test for booleans.
-    Boolean flag = true;
-    Boolean flag2 = false;
+    {
+	Boolean flag = true;
+	Boolean flag2 = false;
+    
+	String str = Formatter::format(" TRUE $0 FALSE $1 FALSE $2",
+					 flag, !flag, flag2);
 
-    String str3 = Formatter::format(" TRUE $0 FALSE $1 FALSE $2",
-				     flag, !flag, flag2);
+	DDD(cout << "str[" << str << "]" << endl;)
+    
+	assert(Formatter::format("TRUE$0", flag ) == "TRUEtrue");
+	assert(Formatter::format("FALSE$0", flag2 ) == "FALSEfalse");
+    }
 
-    assert(Formatter::format("TRUE$0", flag ) == "TRUEtrue");
-    assert(Formatter::format("FALSE$0", flag2 ) == "FALSEfalse");
+    // Tests for Uint32 and Sint32
+    {
+	Uint32 test1 = 9999;
+	Sint32 test2 = 9999;
+	String str = Formatter::format("\\$test1 $0 \\$test2 $1", test1, 
+		    test2);
 
-    DDD(cout << "str3[" << str3 << "]" << endl;)
+	DDD(cout << "str[" << str << "]" << endl;)
+
+	assert(Formatter::format("[TRUE$0]", test1 ) == "[TRUE9999]");
+	assert(Formatter::format("[TRUE$0]", test2 ) == "[TRUE9999]");
+    }
 
     // Test for 64 bit integer
     {
-	 Sint64 big = 32999;
+	 Sint64 test1 = 999999;
+	 Uint64 test2 = 9999999;
+	 String str = Formatter::format("test1 $0 test2 $1", test1, test2);
 
+	 DDD(cout << "str[" << str << "]" << endl;)
+
+	 assert(Formatter::format("[TRUE$0]", test1 ) == "[TRUE999999]");
+	 assert(Formatter::format("[TRUE$0]", test2 ) == "[TRUE9999999]");
+    }
+
+    // Test for all  10 parameters in the string
+    {
+	Uint32 t0 = 1;
+	Uint32 t1 = 1;
+	Uint32 t2 = 2;
+	Uint32 t3 = 3;
+	Uint32 t4 = 4;
+	Uint32 t5 = 5;
+	Uint32 t6 = 6;
+	Uint32 t7 = 7;
+	Uint32 t8 = 8;
+	Uint32 t9 = 9;
+	
+	String str = Formatter::format("[$0$1$2$3$4$5$6$7$8$9]",
+				       t0,t1,t2,t3,t4,t5,t6,t7,t8,t9);
+	
+	DDD(cout << "str[" << str << "]" << endl;)
+	
+	assert(Formatter::format("[$0$1$2$3$4$5$6$7$8$9]",
+				       t0,t1,t2,t3,t4,t5,t6,t7,t8,t9)
+					== "[1123456789]");
     }
 
     cout << "+++++ passed all tests" << endl;

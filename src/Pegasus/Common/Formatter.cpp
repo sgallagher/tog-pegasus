@@ -64,6 +64,20 @@ String Formatter::Arg::toString() const
 	    return buffer;
 	}
 
+	case LINTEGER:
+	{
+	    char buffer[32];
+	    sprintf(buffer, "%ld", _lInteger);
+	    return buffer;
+	}
+	
+	case ULINTEGER:
+	{
+	    char buffer[32];
+	    sprintf(buffer, "%lu", _lUInteger);
+	    return buffer;
+	}
+
 	case STRING:
 	    return _string;
 

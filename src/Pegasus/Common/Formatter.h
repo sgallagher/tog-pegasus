@@ -41,7 +41,7 @@ PEGASUS_NAMESPACE_BEGIN
     
     where <int> is a single digit integer (0 - 9).
     
-    The variable subsituted my be String, Boolean Integer, Unsigned Integer
+    The variable subsituted may be String, Boolean Integer, Unsigned Integer
     or  real.
     
     The format subsitution may be escaped by preceding the
@@ -74,7 +74,8 @@ public:
     {
     public:
 
-	enum Type { VOID, STRING, BOOLEAN, INTEGER, UINTEGER, REAL };
+	enum Type { VOID, STRING, BOOLEAN, INTEGER, UINTEGER, LINTEGER, 
+			ULINTEGER, REAL };
 
 	Arg() : _type(VOID)
 	{
@@ -100,7 +101,13 @@ public:
 	{
 	}
 
+	Arg(Sint64 x) : _lInteger(x), _type(LINTEGER)
+	{
+	}
 
+	Arg(Uint64 x) : _lUInteger(x), _type(ULINTEGER)
+	{
+	}
 	Arg(Real64 x) : _real(x), _type(REAL)
 	{
 	}
@@ -117,6 +124,8 @@ public:
 	    Uint32 _uinteger;
 	    Real64 _real;
 	    Boolean _boolean;
+	    Sint64 _lInteger;
+	    Uint64 _lUInteger;
 	};
 
 	Type _type;

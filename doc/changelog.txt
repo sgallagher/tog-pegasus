@@ -3,7 +3,7 @@ CHANGE LOG FOR PEGASUS
 ------------------------------------------------------------------------------
 --
 
-Version 0.97.4 - In Process.
+Version 0.97.4 - Tag Created for 0.97.4 and snapshot 7 July 2001
 
 1. Deamonizaiton added to CIMServer.cpp by Mike Day.  This includes code bothe
 for NT and Linux platforms.
@@ -85,6 +85,9 @@ variables.
     lists of dynamic library specs and putting them in the Makefile
     and libraries.mak files that build the actual targets (lots of
     these now have DYNAMIC_LIBRARIES defined).
+
+20. (Karl) added basic Queue function to common (based on array) and added
+    tests for stack and queue.
     
 ------------------------------------------------------------------------------
 --

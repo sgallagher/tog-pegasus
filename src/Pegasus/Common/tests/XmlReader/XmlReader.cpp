@@ -50,7 +50,7 @@ static void testGetErrorElement()
     FileSystem::loadFileToMemory(text, "./getErrorElement.xml");
     text.append('\0');
 
-    Uint32 errorCode = 12;
+    CIMStatusCode errorCode =  CIM_ERR_NO_SUCH_PROPERTY;
     String errorDescription = " The specified Property does not exist.";
 
     XmlParser parser((char*)text.getData());

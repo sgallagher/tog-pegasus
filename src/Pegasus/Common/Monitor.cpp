@@ -179,7 +179,10 @@ void Monitor::initializeTickler(){
     // get a socket for the server side
     if((_tickle_server_socket = ::socket(PF_INET, SOCK_STREAM, 0)) < 0){
 	//handle error
-	throw Exception("Monitor::initializeTickler(), create socket failed on tickle server.");
+	MessageLoaderParms parms("Common.Monitor.TICKLE_CREATE",
+				 "Received error number $0 while creating the internal socket.",
+				 errno);
+	throw Exception(parms);
     }
 
     // initialize the address
@@ -197,26 +200,39 @@ void Monitor::initializeTickler(){
 #endif
     _tickle_server_addr.sin_family = PF_INET;
     _tickle_server_addr.sin_port = 0;
-                                                                                                                             
+
     PEGASUS_SOCKLEN_SIZE _addr_size = sizeof(_tickle_server_addr);
 
     // bind server side to socket
-    if((::bind(_tickle_server_socket,(struct sockaddr *)&_tickle_server_addr, sizeof(_tickle_server_addr))) < 0){
+    if((::bind(_tickle_server_socket,
+	       (struct sockaddr *)&_tickle_server_addr, 
+	       sizeof(_tickle_server_addr))) < 0){
 	// handle error
-	throw Exception("Monitor::initializeTickler(), bind failed on tickle server socket.");
+	MessageLoaderParms parms("Common.Monitor.TICKLE_BIND",
+				 "Received error number $0 while binding the internal socket.",
+				 errno);
+	throw Exception(parms);
     }
 
     // tell the kernel we are a server
     if((::listen(_tickle_server_socket,3)) < 0){
 	// handle error
-	throw Exception("Monitor::initializeTickler(), listen failed on tickle server socket");
+	MessageLoaderParms parms("Common.Monitor.TICKLE_LISTEN",
+			 "Received error number $0 while listening to the internal socket.",
+				 errno);
+	throw Exception(parms);
     }
     
     // make sure we have the correct socket for our server
-    int sock = ::getsockname(_tickle_server_socket,(struct sockaddr*)&_tickle_server_addr, &_addr_size); 
+    int sock = ::getsockname(_tickle_server_socket,
+			     (struct sockaddr*)&_tickle_server_addr,
+			     &_addr_size); 
     if(sock < 0){
 	// handle error
-	throw Exception("Monitor::initializeTickler(), getsockname failed on tickle server socket");
+	MessageLoaderParms parms("Common.Monitor.TICKLE_SOCKNAME",
+			 "Received error number $0 while getting the internal socket name.",
+				 errno);
+	throw Exception(parms);
     }
 
     /* set up the tickle client/connector */
@@ -224,7 +240,10 @@ void Monitor::initializeTickler(){
     // get a socket for our tickle client
     if((_tickle_client_socket = ::socket(PF_INET, SOCK_STREAM, 0)) < 0){
 	// handle error
-        throw Exception("Monitor::initializeTickler(), create socket failed on tickle client.");
+	MessageLoaderParms parms("Common.Monitor.TICKLE_CLIENT_CREATE",
+			 "Received error number $0 while creating the internal client socket.",
+				 errno);
+	throw Exception(parms);
     }
 
     // setup the address of the client
@@ -244,15 +263,25 @@ void Monitor::initializeTickler(){
     _tickle_client_addr.sin_port = 0;
 
     // bind socket to client side
-    if((::bind(_tickle_client_socket,(struct sockaddr*)&_tickle_client_addr, sizeof(_tickle_client_addr))) < 0){
+    if((::bind(_tickle_client_socket,
+	       (struct sockaddr*)&_tickle_client_addr,
+	       sizeof(_tickle_client_addr))) < 0){
 	// handle error
-	throw Exception("Monitor::initializeTickler(), bind failed on tickle client socket.");
+	MessageLoaderParms parms("Common.Monitor.TICKLE_CLIENT_BIND",
+			 "Received error number $0 while binding the internal client socket.",
+				 errno);
+	throw Exception(parms);
     }
 
     // connect to server side
-    if((::connect(_tickle_client_socket,(struct sockaddr*)&_tickle_server_addr, sizeof(_tickle_server_addr))) < 0){
+    if((::connect(_tickle_client_socket,
+		  (struct sockaddr*)&_tickle_server_addr,
+		  sizeof(_tickle_server_addr))) < 0){
 	// handle error
-	throw Exception("Monitor::initializeTickler(), connect failed between tickle client and tickle server.");
+	MessageLoaderParms parms("Common.Monitor.TICKLE_CLIENT_CONNECT",
+			 "Received error number $0 while connecting the internal client socket.",
+				 errno);
+	throw Exception(parms);
     }
 
     /* set up the slave connection */
@@ -261,21 +290,28 @@ void Monitor::initializeTickler(){
     pegasus_sleep(1); 
 
     // this call may fail, we will try a max of 20 times to establish this peer connection
-    if((_tickle_peer_socket = ::accept(_tickle_server_socket,(struct sockaddr*)&_tickle_peer_addr, &peer_size)) < 0){
+    if((_tickle_peer_socket = ::accept(_tickle_server_socket,
+				       (struct sockaddr*)&_tickle_peer_addr,
+				       &peer_size)) < 0){
         if(_tickle_peer_socket == -1 && errno == EAGAIN)
         {
           int retries = 0;                                                                        
           do
           {
             pegasus_sleep(1);
-            _tickle_peer_socket = ::accept(_tickle_server_socket,(struct sockaddr*)&_tickle_peer_addr, &peer_size);
+            _tickle_peer_socket = ::accept(_tickle_server_socket,
+					   (struct sockaddr*)&_tickle_peer_addr,
+					   &peer_size);
             retries++;
           } while(_tickle_peer_socket == -1 && errno == EAGAIN && retries < 20);
         }
     }
     if(_tickle_peer_socket == -1){
 	// handle error
-	throw Exception("Monitor::initializeTickler(), accept failed, peer socket connection not established.");
+	MessageLoaderParms parms("Common.Monitor.TICKLE_ACCEPT",
+			 "Received error number $0 while accepting the internal socket connection.",
+				 errno);
+	throw Exception(parms);
     }
     // add the tickler to the list of entries to be monitored and set to IDLE because Monitor only
     // checks entries with IDLE state for events
@@ -290,7 +326,7 @@ void Monitor::tickle(void)
     {
       '0','0'
     };
-                                                                                                                             
+             
   Socket::disableBlocking(_tickle_client_socket);    
   Socket::write(_tickle_client_socket,&_buffer, 2);
   Socket::enableBlocking(_tickle_client_socket); 
@@ -300,14 +336,13 @@ Boolean Monitor::run(Uint32 milliseconds)
 {
 
     Boolean handled_events = false;
-     int i = 0;
-   // #if defined(PEGASUS_OS_OS400) || defined(PEGASUS_OS_HPUX)
+    int i = 0;
+     
     struct timeval tv = {milliseconds/1000, milliseconds%1000*1000};
-//#else
-  //  struct timeval tv = {0, 1};
-//#endif
+
     fd_set fdread;
     FD_ZERO(&fdread);
+
     _entry_mut.lock(pegasus_thread_self());
     
     // Check the stopConnections flag.  If set, clear the Acceptor monitor entries  
@@ -393,19 +428,7 @@ Boolean Monitor::run(Uint32 milliseconds)
     */
     maxSocketCurrentPass++;
 
-    // Fixed in monitor_2 but added because Monitor is still the default monitor.
-    // When _idleEntries is 0 don't immediately return, otherwise this loops out of control
-    // kicking off kill idle thread threads.  E.g. There is nothing to select on when the cimserver
-    // is shutting down.
-    /*if( _idleEntries == 0 )
-    {
-        Thread::sleep( milliseconds );
-        _entry_mut.unlock();
-        return false;
-    }*/
-   
     _entry_mut.unlock(); 
-    //int events = select(FD_SETSIZE, &fdread, NULL, NULL, &tv);
     int events = select(maxSocketCurrentPass, &fdread, NULL, NULL, &tv);
    _entry_mut.lock(pegasus_thread_self());
 
@@ -451,7 +474,7 @@ Boolean Monitor::run(Uint32 milliseconds)
 		   static_cast<HTTPConnection *>(q)->_entry_index = indx;
 		   _entries[indx]._status = _MonitorEntry::BUSY;
                    // If allocate_and_awaken failure, retry on next iteration
-/*
+/* Removed for PEP 183.
                    if (!MessageQueueService::get_thread_pool()->allocate_and_awaken(
                            (void *)q, _dispatch))
                    {
@@ -462,7 +485,7 @@ Boolean Monitor::run(Uint32 milliseconds)
                       return true;
                    }
 */
-// begin hack
+// Added for PEP 183
 		   HTTPConnection *dst = reinterpret_cast<HTTPConnection *>(q);
   			 Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
                          "Monitor::_dispatch: entering run() for indx  = %d, queueId = %d, q = %p",
@@ -478,23 +501,21 @@ Boolean Monitor::run(Uint32 milliseconds)
    		   }
    		   Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
                    "Monitor::_dispatch: exited run() for index %d", dst->_entry_index);
-                                                                                                                                                             
-   		   PEGASUS_ASSERT(dst->_monitor->_entries[dst->_entry_index]._status.value() == _MonitorEntry::BUSY);
-                                                                                                                                                             
-   // Once the HTTPConnection thread has set the status value to either
-   // Monitor::DYING or Monitor::IDLE, it has returned control of the connection
-   // to the Monitor.  It is no longer permissible to access the connection
-   // or the entry in the _entries table.
-   		if (dst->_connectionClosePending)
-   		{
-      			dst->_monitor->_entries[dst->_entry_index]._status = _MonitorEntry::DYING;
-   		}
-   		else
-   		{
-      			dst->_monitor->_entries[dst->_entry_index]._status = _MonitorEntry::IDLE;
-  		}	
 
-// end hack
+   		   PEGASUS_ASSERT(dst->_monitor->_entries[dst->_entry_index]._status.value() == _MonitorEntry::BUSY);                                                         
+		   // Once the HTTPConnection thread has set the status value to either
+		   // Monitor::DYING or Monitor::IDLE, it has returned control of the connection
+		   // to the Monitor.  It is no longer permissible to access the connection
+		   // or the entry in the _entries table.
+		   if (dst->_connectionClosePending)
+		   {  
+		     dst->_monitor->_entries[dst->_entry_index]._status = _MonitorEntry::DYING;
+		   }
+		   else
+		   {
+		     dst->_monitor->_entries[dst->_entry_index]._status = _MonitorEntry::IDLE;
+		   }	
+// end Added for PEP 183
 		}
 	        else if( _entries[indx]._type == Monitor::INTERNAL){
 			// set ourself to BUSY, 
@@ -564,8 +585,7 @@ int  Monitor::solicitSocketMessages(
     Uint32 queueId, 
     int type)
 {
-     PEG_METHOD_ENTER(TRC_HTTP, "Monitor::solicitSocketMessages");
-                                                                                                                                                             
+   PEG_METHOD_ENTER(TRC_HTTP, "Monitor::solicitSocketMessages");                                        
    _entry_mut.lock(pegasus_thread_self());
    // Check to see if we need to dynamically grow the _entries array
    // We always want the _entries array to 2 bigger than the
@@ -578,7 +598,7 @@ int  Monitor::solicitSocketMessages(
                 _entries.append(entry);
         }
    }
-                                                                                                                                                             
+
    int index;
    for(index = 1; index < (int)_entries.size(); index++)
    {
@@ -591,14 +611,13 @@ int  Monitor::solicitSocketMessages(
             _entries[index]._type = type;
             _entries[index]._status = _MonitorEntry::IDLE;
             _entry_mut.unlock();
-                                                                                                                                                             
+                                    
             return index;
          }
       }
       catch(...)
       {
       }
-                                                                                                                                                             
    }
    _solicitSocketCount--;  // decrease the count, if we are here we didnt do anything meaningful
    _entry_mut.unlock();
@@ -646,6 +665,7 @@ void Monitor::unsolicitSocketMessages(Sint32 socket)
     PEG_METHOD_EXIT();
 }
 
+// Note: this is no longer called with PEP 183.
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL Monitor::_dispatch(void *parm)
 {
    HTTPConnection *dst = reinterpret_cast<HTTPConnection *>(parm);

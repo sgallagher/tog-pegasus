@@ -71,16 +71,6 @@ public:
     CIMFlavor (const CIMFlavor & flavor);
 
     /**
-        Constructs a CIMFlavor object with the specified set of values.
-
-        @param   flavor                a Uint32 representing the set of flavor 
-                                       values
-
-        @exception InvalidFlavor  if the set of flavor values is invalid
-     */
-    CIMFlavor (const Uint32 flavor);
-
-    /**
         Assigns the value of one CIMFlavor object to another (assignment 
         operator).
 
@@ -89,16 +79,6 @@ public:
         @return  the CIMFlavor object
      */
     CIMFlavor & operator= (const CIMFlavor & flavor);
-
-    /**
-        Adds the specified set of flavor values to the CIMFlavor object.
-
-        @param   flavor                a Uint32 representing the set of flavor 
-                                       values
-
-        @exception InvalidFlavor  if the set of flavor values is invalid
-     */
-    void addFlavor (const Uint32 flavor);
 
     /**
         Adds the set of flavor values of the specified CIMFlavor object to this
@@ -111,25 +91,10 @@ public:
     /**
         Removes the specified set of flavor values from the CIMFlavor object.
 
-        @param   flavor                a Uint32 representing the set of flavor 
-                                       values
-
-        @exception InvalidFlavor  if the set of flavor values is invalid
+        @param   flavor                a CIMFlavor representing the set of
+                                       flavor values to remove
      */
-    void removeFlavor (const Uint32 flavor);
-
-    /**
-        Determines if every value in the specified set of flavor values is 
-        included in the CIMFlavor object.
-
-        @param   flavor                a Uint32 representing a set of flavor 
-                                       values
-
-        @return  True if every value in the set of flavor values is included in
-                   the CIMFlavor object,
-                 False otherwise
-     */
-    Boolean hasFlavor (const Uint32 flavor) const;
+    void removeFlavor (const CIMFlavor & flavor);
 
     /**
         Determines if every value in the specified CIMFlavor object is included 
@@ -154,6 +119,16 @@ public:
     Boolean equal (const CIMFlavor & flavor) const;
 
     /** 
+        Combines two CIMFlavor objects.
+
+        @param   flavor                a CIMFlavor object to add
+
+        @return A new CIMFlavor object that represents the combination of this
+                flavor with the specified flavor.
+     */
+    CIMFlavor operator+ (const CIMFlavor & flavor) const;
+
+    /** 
         Returns a String representation of the CIMFlavor object.
         This method is for diagnostic purposes.  The format of the output
         is subject to change.
@@ -163,52 +138,52 @@ public:
     /** 
         Indicates that the qualifier has no flavors
      */
-    static const Uint32 NONE;
+    static const CIMFlavor NONE;
 
     /** 
         Indicates that the qualifier may be overridden
      */
-    static const Uint32 OVERRIDABLE;
-    static const Uint32 ENABLEOVERRIDE;
+    static const CIMFlavor OVERRIDABLE;
+    static const CIMFlavor ENABLEOVERRIDE;
 
     /** 
         Indicates that the qualifier may not be overridden
      */
-    static const Uint32 DISABLEOVERRIDE;
+    static const CIMFlavor DISABLEOVERRIDE;
 
     /** 
         Indicates that the qualifier is propagated to the qualifier in the
 	subclass with the same name
      */
-    static const Uint32 TOSUBCLASS;
+    static const CIMFlavor TOSUBCLASS;
 
     /** 
         Indicates that the qualifier is not propagated to the qualifier in the
 	subclass with the same name; it applies only to the class in which it 
         is declared
      */
-    static const Uint32 RESTRICTED;
+    static const CIMFlavor RESTRICTED;
 
     /** 
         Indicates that the qualifier is propagated to the qualifier in the
 	instance with the same name
      */
-    static const Uint32 TOINSTANCE;
+    static const CIMFlavor TOINSTANCE;
 
     /** 
         Indicates that the qualifier is translatable (for internationalization)
      */
-    static const Uint32 TRANSLATABLE;
+    static const CIMFlavor TRANSLATABLE;
 
     /** 
         Indicates default flavor setting (OVERRIDABLE | TOSUBCLASS)
      */
-    static const Uint32 DEFAULTS;
+    static const CIMFlavor DEFAULTS;
 
     /** 
         Indicates both toSubclass and toInstance (TOSUBCLASS | TOINSTANCE)
      */
-    static const Uint32 TOSUBELEMENTS;
+    static const CIMFlavor TOSUBELEMENTS;
 
     /** 
         Indicates the set of all possible flavor values: OVERRIDABLE, 
@@ -217,11 +192,17 @@ public:
         thus CIMFlavor:ALL does not represent a valid qualifier flavor object
         It may be used, for example, to clear the flavor settings
      */
-    static const Uint32 ALL;
+    static const CIMFlavor ALL;
 
 private:
 
-    void _checkFlavor (Uint32 flavor);
+    /**
+        Constructs a CIMFlavor object with the specified set of values.
+
+        @param   flavor                a Uint32 representing the set of flavor 
+                                       values to initialize with
+     */
+    CIMFlavor (const Uint32 flavor);
 
     Uint32 cimFlavor;
 };

@@ -126,7 +126,7 @@ void CIMQualifier::setFlavor(const CIMFlavor & flavor)
     _rep->setFlavor(flavor);
 }
 
-void CIMQualifier::unsetFlavor(Uint32 flavor)
+void CIMQualifier::unsetFlavor(const CIMFlavor & flavor)
 {
     _checkRep();
     _rep->unsetFlavor(flavor);

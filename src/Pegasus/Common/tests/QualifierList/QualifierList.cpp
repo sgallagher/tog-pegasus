@@ -58,7 +58,7 @@ int main(int argc, char** argv)
 	    String(), CIMScope::CLASS, CIMFlavor::OVERRIDABLE));
 
 	context.addQualifierDecl(NAMESPACE, CIMQualifierDecl("q1", 
-	    false, CIMScope::CLASS, CIMFlavor::OVERRIDABLE | CIMFlavor::TOSUBCLASS));
+	    false, CIMScope::CLASS, CIMFlavor::OVERRIDABLE + CIMFlavor::TOSUBCLASS));
 
 	context.addQualifierDecl(NAMESPACE, CIMQualifierDecl("q2", 
 	    false, CIMScope::CLASS, CIMFlavor::TOSUBCLASS));

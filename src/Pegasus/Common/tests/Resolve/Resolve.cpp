@@ -117,11 +117,11 @@ void test01()
 
 	// Flavor should be tosubclass and overridable
     CIMQualifierDecl q4("q4",String(),CIMScope::CLASS, 
-		CIMFlavor::TOSUBCLASS | CIMFlavor::ENABLEOVERRIDE);
+		CIMFlavor::TOSUBCLASS + CIMFlavor::ENABLEOVERRIDE);
 
 	// Flavor should be tosubclass and overridable
     CIMQualifierDecl q5("q5",String("Declaration"),CIMScope::CLASS, 
-		CIMFlavor::TOSUBCLASS | CIMFlavor::ENABLEOVERRIDE);
+		CIMFlavor::TOSUBCLASS + CIMFlavor::ENABLEOVERRIDE);
 
 	if(verbose)
 	{
@@ -252,7 +252,7 @@ void test02()
 
 	  // flavors for this one should be disable override, restricted.
       CIMQualifierDecl abstract("Abstract", Boolean(true), CIMScope::CLASS , 
-		  CIMFlavor::RESTRICTED | CIMFlavor::DISABLEOVERRIDE);
+		  CIMFlavor::RESTRICTED + CIMFlavor::DISABLEOVERRIDE);
 
       // flavors for this one should be disableoverride, but tosubclass 
 	  CIMQualifierDecl key("key",Boolean(true),
@@ -262,7 +262,7 @@ void test02()
 	  // Flavors are not to subclass and not overridable
 	  CIMQualifierDecl notToSubclass("notToSubclass", Boolean(),
 		  (CIMScope::PROPERTY + CIMScope::CLASS),
-		  CIMFlavor::RESTRICTED | CIMFlavor::DISABLEOVERRIDE);
+		  CIMFlavor::RESTRICTED + CIMFlavor::DISABLEOVERRIDE);
 	  // same qualities as association qualifier. DisableOverride 
 	  CIMQualifierDecl association("associat", Boolean(false),
 		  (CIMScope::ASSOCIATION + CIMScope::CLASS),

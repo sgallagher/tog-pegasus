@@ -148,7 +148,7 @@ public:
         for the Qualifier Object with the input.
         @param flavor - Uint32 defines the flavor bits to be unset.
     */
-    void unsetFlavor(Uint32 flavor);
+    void unsetFlavor(const CIMFlavor & flavor);
 
     /**	getFlavor - Gets the Flavor field from a Qualifier
 	@return - CIMFlavor object 

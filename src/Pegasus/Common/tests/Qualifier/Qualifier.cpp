@@ -125,10 +125,10 @@ int main(int argc, char** argv)
 	// ATTN: KS P1 24 March 2002Add test for resolveFlavor here
 	q2.unsetFlavor(CIMFlavor::ALL);
 
-	q2.setFlavor (CIMFlavor::TOSUBCLASS | CIMFlavor::ENABLEOVERRIDE);
+	q2.setFlavor (CIMFlavor::TOSUBCLASS + CIMFlavor::ENABLEOVERRIDE);
 
 	Resolver::resolveQualifierFlavor (q2, CIMFlavor 
-            (CIMFlavor::DISABLEOVERRIDE | CIMFlavor::RESTRICTED), false);
+            (CIMFlavor::DISABLEOVERRIDE + CIMFlavor::RESTRICTED), false);
 	assert( q2.getFlavor ().hasFlavor(CIMFlavor::DISABLEOVERRIDE));
 	assert(!q2.getFlavor ().hasFlavor(CIMFlavor::ENABLEOVERRIDE));
 	assert(!q2.getFlavor ().hasFlavor(CIMFlavor::TOSUBCLASS));

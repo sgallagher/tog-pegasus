@@ -34,25 +34,25 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-const Uint32 CIMFlavor::NONE = 0;
-const Uint32 CIMFlavor::OVERRIDABLE = 1;
-const Uint32 CIMFlavor::ENABLEOVERRIDE = 1;
-const Uint32 CIMFlavor::TOSUBCLASS = 2;
-const Uint32 CIMFlavor::TOINSTANCE = 4;
-const Uint32 CIMFlavor::TRANSLATABLE = 8;
-const Uint32 CIMFlavor::TOSUBELEMENTS = TOSUBCLASS | TOINSTANCE;
-const Uint32 CIMFlavor::DISABLEOVERRIDE = 16;
-const Uint32 CIMFlavor::RESTRICTED = 32;
-const Uint32 CIMFlavor::DEFAULTS = OVERRIDABLE | TOSUBCLASS;
+const CIMFlavor CIMFlavor::NONE = 0;
+const CIMFlavor CIMFlavor::OVERRIDABLE = 1;
+const CIMFlavor CIMFlavor::ENABLEOVERRIDE = 1;
+const CIMFlavor CIMFlavor::TOSUBCLASS = 2;
+const CIMFlavor CIMFlavor::TOINSTANCE = 4;
+const CIMFlavor CIMFlavor::TRANSLATABLE = 8;
+const CIMFlavor CIMFlavor::TOSUBELEMENTS = TOSUBCLASS + TOINSTANCE;
+const CIMFlavor CIMFlavor::DISABLEOVERRIDE = 16;
+const CIMFlavor CIMFlavor::RESTRICTED = 32;
+const CIMFlavor CIMFlavor::DEFAULTS = OVERRIDABLE + TOSUBCLASS;
 // ATTN: P1 KS 24 March 2002 Change here to make TOINSTANCE part of the defaults
-//const Uint32 CIMFlavor::DEFAULTS = OVERRIDABLE | TOSUBCLASS| TOINSTANCE;
-const Uint32 CIMFlavor::ALL = 
-                 OVERRIDABLE | TOSUBCLASS | TOINSTANCE | TRANSLATABLE |
-                 DISABLEOVERRIDE | RESTRICTED;
+//const CIMFlavor CIMFlavor::DEFAULTS = OVERRIDABLE + TOSUBCLASS + TOINSTANCE;
+const CIMFlavor CIMFlavor::ALL = 
+                 OVERRIDABLE + TOSUBCLASS + TOINSTANCE + TRANSLATABLE +
+                 DISABLEOVERRIDE + RESTRICTED;
 
 
 CIMFlavor::CIMFlavor ()
-    : cimFlavor (CIMFlavor::NONE)
+    : cimFlavor (CIMFlavor::NONE.cimFlavor)
 {
 }
 
@@ -64,7 +64,17 @@ CIMFlavor::CIMFlavor (const CIMFlavor & flavor)
 CIMFlavor::CIMFlavor (const Uint32 flavor)
     : cimFlavor (flavor)
 {
-    _checkFlavor (flavor);
+    //
+    //  Test that no undefined bits are set 
+    //
+    //  Note that conflicting bits may be set in the Uint32 flavor
+    //  For example, OVERRIDABLE and DISABLEOVERRIDE may both be set
+    //  or TOSUBCLASS and RESTRICTED may both be set
+    //  Currently, the flavor is not checked for these conflicts
+    //  That is corrected later when a CIMQualifierDecl object is constructed 
+    //  with the CIMFlavor object
+    //
+    PEGASUS_ASSERT (flavor < 64);
 }
 
 CIMFlavor & CIMFlavor::operator= (const CIMFlavor & flavor)
@@ -73,26 +83,14 @@ CIMFlavor & CIMFlavor::operator= (const CIMFlavor & flavor)
     return *this;
 }
 
-void CIMFlavor::addFlavor (const Uint32 flavor)
-{
-    _checkFlavor (flavor);
-    this->cimFlavor |= flavor;
-}
-
 void CIMFlavor::addFlavor (const CIMFlavor & flavor)
 {
     this->cimFlavor |= flavor.cimFlavor;
 }
 
-void CIMFlavor::removeFlavor (const Uint32 flavor)
+void CIMFlavor::removeFlavor (const CIMFlavor & flavor)
 {
-    _checkFlavor (flavor);
-    this->cimFlavor &= (~flavor);
-}
-
-Boolean CIMFlavor::hasFlavor (const Uint32 flavor) const
-{
-    return ((this->cimFlavor & flavor) == flavor) ? true : false;
+    this->cimFlavor &= (~flavor.cimFlavor);
 }
 
 Boolean CIMFlavor::hasFlavor (const CIMFlavor & flavor) const
@@ -104,6 +102,11 @@ Boolean CIMFlavor::hasFlavor (const CIMFlavor & flavor) const
 Boolean CIMFlavor::equal (const CIMFlavor & flavor) const
 {
     return (this->cimFlavor == flavor.cimFlavor) ? true : false;
+}
+
+CIMFlavor CIMFlavor::operator+ (const CIMFlavor & flavor) const
+{
+    return CIMFlavor(this->cimFlavor | flavor.cimFlavor);
 }
 
 String CIMFlavor::toString () const
@@ -132,31 +135,6 @@ String CIMFlavor::toString () const
 	tmp.remove (tmp.size () - 1);
 
     return tmp;
-}
-
-void CIMFlavor::_checkFlavor (Uint32 flavor)
-{
-    //
-    //  Test that no undefined bits are set 
-    //
-    //  Note that conflicting bits may be set in the Uint32 flavor
-    //  For example, OVERRIDABLE and DISABLEOVERRIDE may both be set
-    //  or TOSUBCLASS and RESTRICTED may both be set
-    //  Currently, the flavor is not checked for these conflicts
-    //  That is corrected later when a CIMQualifierDecl object is constructed 
-    //  with the CIMFlavor object
-    //
-    if (flavor > CIMFlavor::ALL)
-    {
-        //
-        //  Invalid flavor value
-        //
-        String flavorString;
-        char buffer [32];
-        sprintf (buffer, "%lu", (unsigned long) flavor);
-        flavorString = buffer;
-        throw InvalidFlavor (flavorString);
-    }
 }
 
 PEGASUS_NAMESPACE_END

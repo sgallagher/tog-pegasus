@@ -92,7 +92,7 @@ public:
 	_flavor = flavor; 
     }
 
-    void unsetFlavor(Uint32 flavor) 
+    void unsetFlavor(const CIMFlavor & flavor) 
     {
         _flavor.removeFlavor (flavor);
     }

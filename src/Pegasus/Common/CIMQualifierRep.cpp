@@ -81,7 +81,8 @@ void CIMQualifierRep::resolveFlavor (
     // if the turnoff flags set, reset the flavor bits
     if (inheritedFlavor.hasFlavor (CIMFlavor::RESTRICTED)) 
     {
-        _flavor.removeFlavor (CIMFlavor::TOSUBCLASS | CIMFlavor::TOINSTANCE);
+        _flavor.removeFlavor (CIMFlavor::TOSUBCLASS);
+        _flavor.removeFlavor (CIMFlavor::TOINSTANCE);
     }
     if (inheritedFlavor.hasFlavor (CIMFlavor::DISABLEOVERRIDE)) 
     {

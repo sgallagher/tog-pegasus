@@ -96,7 +96,7 @@ void test01 ()
    "OVERRIDABLE TOSUBCLASS TOINSTANCE TRANSLATABLE DISABLEOVERRIDE RESTRICTED");
 
     CIMFlavor f5 = CIMFlavor 
-        (CIMFlavor::DISABLEOVERRIDE | CIMFlavor::RESTRICTED);
+        (CIMFlavor::DISABLEOVERRIDE + CIMFlavor::RESTRICTED);
 
     if (verbose)
     {
@@ -197,7 +197,7 @@ void test01 ()
     assert (f0.toString () == "TRANSLATABLE DISABLEOVERRIDE");
 
     f7.addFlavor 
-        (CIMFlavor::TOSUBCLASS | CIMFlavor::TOINSTANCE | 
+        (CIMFlavor::TOSUBCLASS + CIMFlavor::TOINSTANCE + 
          CIMFlavor::TRANSLATABLE);
 
     if (verbose)
@@ -241,21 +241,21 @@ void test01 ()
     //
     assert (f0.hasFlavor (CIMFlavor::TRANSLATABLE));
     assert (f0.hasFlavor 
-        (CIMFlavor::TRANSLATABLE | CIMFlavor::DISABLEOVERRIDE));
+        (CIMFlavor::TRANSLATABLE + CIMFlavor::DISABLEOVERRIDE));
     assert (!(f0.hasFlavor (CIMFlavor::OVERRIDABLE)));
-    assert (!(f0.hasFlavor (CIMFlavor::OVERRIDABLE | CIMFlavor::TOINSTANCE)));
+    assert (!(f0.hasFlavor (CIMFlavor::OVERRIDABLE + CIMFlavor::TOINSTANCE)));
     assert (!(f0.hasFlavor (CIMFlavor::ALL)));
 
     assert (f7.hasFlavor (CIMFlavor::TOSUBCLASS));
-    assert (f7.hasFlavor (CIMFlavor::TOSUBCLASS | CIMFlavor::TOINSTANCE));
+    assert (f7.hasFlavor (CIMFlavor::TOSUBCLASS + CIMFlavor::TOINSTANCE));
     assert (!(f7.hasFlavor (CIMFlavor::RESTRICTED)));
     assert (!(f7.hasFlavor 
-        (CIMFlavor::RESTRICTED | CIMFlavor::DISABLEOVERRIDE)));
+        (CIMFlavor::RESTRICTED + CIMFlavor::DISABLEOVERRIDE)));
     assert (!(f7.hasFlavor (CIMFlavor::ALL)));
 
     assert (f4.hasFlavor (CIMFlavor::ALL));
     assert (f4.hasFlavor (CIMFlavor::OVERRIDABLE));
-    assert (f4.hasFlavor (CIMFlavor::OVERRIDABLE | CIMFlavor::TOSUBCLASS));
+    assert (f4.hasFlavor (CIMFlavor::OVERRIDABLE + CIMFlavor::TOSUBCLASS));
 
     //
     //  Test hasFlavor (CIMFlavor) 
@@ -303,7 +303,7 @@ void test01 ()
     assert (f2.toString () == 
         "OVERRIDABLE TOSUBCLASS TRANSLATABLE DISABLEOVERRIDE RESTRICTED");
 
-    f2.removeFlavor (CIMFlavor::DISABLEOVERRIDE | CIMFlavor::RESTRICTED);
+    f2.removeFlavor (CIMFlavor::DISABLEOVERRIDE + CIMFlavor::RESTRICTED);
     if (verbose)
     {
 	PEGASUS_STD (cout) << "\n----------------------\n";
@@ -341,49 +341,8 @@ void test01 ()
     assert (sf7 == "TOSUBCLASS TOINSTANCE TRANSLATABLE");
 
     String sf4 = f4.toString ();
-    assert (sf4 == 
-   "OVERRIDABLE TOSUBCLASS TOINSTANCE TRANSLATABLE DISABLEOVERRIDE RESTRICTED");
-}
-
-void test02 ()
-{
-    //
-    //  Error tests
-    //
-    Boolean invalidFlavor = false;
-    try
-    {
-        CIMFlavor ef0 = CIMFlavor (64);
-    }
-    catch (InvalidFlavor & is)
-    {
-        if (verbose)
-        {
-	    PEGASUS_STD (cout) << "\n----------------------\n";
-            PEGASUS_STD (cout) << "Caught expected exception: " 
-                               << is.getMessage () << PEGASUS_STD (endl);
-        }
-        invalidFlavor = true;
-    }
-    assert (invalidFlavor);
-
-    invalidFlavor = false;
-    try
-    {
-        CIMFlavor ef1 = CIMFlavor ();
-        ef1.addFlavor (64);
-    }
-    catch (InvalidFlavor & is)
-    {
-        if (verbose)
-        {
-	    PEGASUS_STD (cout) << "\n----------------------\n";
-            PEGASUS_STD (cout) << "Caught expected exception: " 
-                               << is.getMessage () << PEGASUS_STD (endl);
-        }
-        invalidFlavor = true;
-    }
-    assert (invalidFlavor);
+    assert (sf4 == "OVERRIDABLE TOSUBCLASS TOINSTANCE TRANSLATABLE "
+                       "DISABLEOVERRIDE RESTRICTED");
 }
 
 int main (int argc, char** argv)
@@ -393,7 +352,6 @@ int main (int argc, char** argv)
     try
     {
         test01 ();
-        test02 ();
 
         PEGASUS_STD (cout) << argv [0] << " +++++ passed all tests" 
                            << PEGASUS_STD (endl);

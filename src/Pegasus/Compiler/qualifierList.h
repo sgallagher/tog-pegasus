@@ -29,14 +29,12 @@
 
 
 //
-// Header for a class to generate CIMValue objects from String values
-//
-//
 // class to encapsulate a qualifier list construct in the MOF grammer
 // Since qualifier lists can appear before a lot of different metaelements, 
 // we have to collect them before we know where they go; then apply
 // them to the metaelement one at a time.
-//
+// NOTE: KS. Sept 2003. Most of this could be replaced by CIMQualifierList.
+// The one function that is unique is the applyQualifierList template.
 
 #ifndef _QUALIFIERLIST_H_
 #define _QUALIFIERLIST_H_
@@ -51,26 +49,44 @@ PEGASUS_USING_STD;
 
 typedef Array<CIMQualifier *> qplist;
 
+/**	Class to create and add to a qualifierList
+*/
 class PEGASUS_COMPILER_LINKAGE qualifierList {
  public:
   qplist *_pv;
   unsigned int _initsize;
  public:
-  qualifierList(unsigned int vsize = 10) : _pv(0), _initsize(vsize) 
-   {init(vsize);}
-  
-  ~qualifierList();
-  
-  void init(int size = 0);
-
-  void add(CIMQualifier *q);
+	 /** constructor - creates instance of list with size
+	     @param - optional parameter to set size
+	 */
+	 qualifierList(unsigned int vsize = 10) : _pv(0), _initsize(vsize) 
+	{init(vsize);}
+	
+	~qualifierList();
+	/** init function sets list size
+	    @param size to set. Default is zero
+	*/
+	void init(int size = 0);
+	/** add a qualifier to the list
+		@param - pointer to CIMQualifer object to add to list.
+	*/
+	void add(CIMQualifier *q);
 };
 
-// The efficacy of this template depends on each metaelement
-// (class, instance, method, etc., supporting an addQualifier()
-// method.  So far, they all do.
+/** applyQualifierList applies the qualifier list in the
+    first parameter to the object defined in the second
+    parameter. Applies each qualifier in the list to the
+    object with an addQualifier function.
+    @param - pointer to qualifierList object that containes
+    the qualifier list to be applied
+    @param - pointer to object to which it is to be applied.
+  	This is a template.
+    The efficacy of this template depends on each metaelement
+    (class, instance, method, etc., supporting an addQualifier()
+    method.
+*/
 template <class T> 
-void apply(qualifierList* that, T *c)
+void applyQualifierList(qualifierList* that, T *c)
 {
   if (that->_pv) {
     for (Uint32 i = 0;

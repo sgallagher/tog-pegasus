@@ -50,6 +50,22 @@
 #include "qualifierList.h"
 #include "objname.h"
 
+/* Debugging the parser.  Debugging is provided through
+   1. debug functions in Bison that are controlled by a compile time
+      flag (YYDEBUG) and a runtime flag (yydebug) which is redefined
+      to cimmof_debug.
+   2. Debug functions defined through YACCTRACE, a macro defined
+      in cimmofparser.h and turned on and off manually.
+   All debugging must be turned on manually at this point by
+   setting the YYDEBUG compile flag and also setting YACCTRACE.
+   ATTN: TODO: automate the debug information flags.
+*/
+// Enable this define to compie Bison/Yacc tracing
+// ATTN: p3 03092003 ks Enabling this flag currently causes a compile error
+
+//#define YYDEBUG
+static int cimmof_debug;
+
 //extern cimmofParser g_cimmofParser;
 
 extern int cimmof_lex(void);
@@ -67,8 +83,8 @@ extern void cimmof_yy_less(int n);
 /* ------------------------------------------------------------------- */
   CIMFlavor g_flavor = CIMFlavor (CIMFlavor::NONE);
   CIMScope g_scope = CIMScope ();
-  //ATTN: BB 2001 BB P1 - Fixed size qualifier list max 10. Make larger or var
-  qualifierList g_qualifierList(10);
+  //ATTN: BB 2001 BB P1 - Fixed size qualifier list max 20. Make larger or var
+  qualifierList g_qualifierList(20);
   CIMMethod *g_currentMethod = 0;
   CIMClass *g_currentClass = 0;
   CIMInstance *g_currentInstance = 0;
@@ -216,23 +232,43 @@ cimmof_error(const char *msg) {
 %type <typedinitializer> typedInitializer typedDefaultValue 
 %type <typedinitializer> typedQualifierParameter
 
-%type <modelpath> modelPath 
+%type <modelpath> modelPath
+
 %type <keybinding> keyValuePair
+
 %type <scope> scope metaElements metaElement
+
 %type <flavor> flavor defaultFlavor 
+
 %type <ival> array
 %type <ival> booleanValue keyValuePairList
+
 %type <pragma> compilerDirectivePragma
+
 %type <datatype> dataType intDataType realDataType parameterType objectRef
+
 %type <value> qualifierValue
+
 %type <qualifier> qualifier
+
 %type <property> propertyBody propertyDeclaration referenceDeclaration
-%type <method> methodStart methodDeclaration
+
+%type <method> methodHead methodDeclaration
+
 %type <mofclass> classHead classDeclaration
+
 %type <mofqualifier> qualifierDeclaration
+
 %type <instance> instanceHead instanceDeclaration 
 
 %%
+/*
+**------------------------------------------------------------------------------
+**
+**   Production rules section
+**
+**------------------------------------------------------------------------------
+*/
 mofSpec: mofProductions ;
 
 mofProductions: mofProduction mofProductions
@@ -246,23 +282,37 @@ mofProduction: compilerDirective { /* FIXME: Where do we put directives? */ }
              | instanceDeclaration 
                  { cimmofParser::Instance()->addInstance($1); } ;
 
+/*
+**------------------------------------------------------------------------------
+**
+**   class Declaration productions and processing
+**
+**------------------------------------------------------------------------------
+*/
 classDeclaration: classHead  classBody
 {
-  if (g_currentAlias != String::EMPTY)
+    YACCTRACE("classDeclaration");
+    if (g_currentAlias != String::EMPTY)
     cimmofParser::Instance()->addClassAlias(g_currentAlias, $$, false);
 } ;
 
 classHead: qualifierList TOK_CLASS className alias superClass
 {
-  $$ = cimmofParser::Instance()->newClassDecl(*$3, *$5);
-  apply(&g_qualifierList, $$);
-  g_currentAlias = *$4;
-  if (g_currentClass)
-    delete g_currentClass;
-  g_currentClass = $$;
-  delete $3;
-  delete $4;
-  delete $5;
+    // create new instance of class with className and superclassName
+    // put returned class object on stack
+    YACCTRACE("classHead:");
+    $$ = cimmofParser::Instance()->newClassDecl(*$3, *$5);
+    
+    // put list of qualifiers into class
+    applyQualifierList(&g_qualifierList, $$);
+    
+    g_currentAlias = *$4;
+    if (g_currentClass)
+        delete g_currentClass;
+    g_currentClass = $$;
+    delete $3;
+    delete $4;
+    delete $5;
 } ;
 
 className: TOK_SIMPLE_IDENTIFIER {  } ;
@@ -277,25 +327,47 @@ classFeatures: classFeature
              | classFeatures classFeature ;
 
 classFeature: propertyDeclaration  {
+  YACCTRACE("classFeature:applyProperty");
   cimmofParser::Instance()->applyProperty(*g_currentClass, *$1); delete $1; } 
             | methodDeclaration {
+  YACCTRACE("classFeature:applyMethod");
   cimmofParser::Instance()->applyMethod(*g_currentClass, *$1); }
             | referenceDeclaration {
+  YACCTRACE("classFeature:applyProperty");
   cimmofParser::Instance()->applyProperty(*g_currentClass, *$1); delete $1; }; 
 
-methodDeclaration: qualifierList methodStart methodBody methodEnd 
+/*
+**------------------------------------------------------------------------------
+**
+** method Declaration productions and processing.
+**
+**------------------------------------------------------------------------------
+*/
+
+methodDeclaration: qualifierList methodHead methodBody methodEnd 
 {
+  YACCTRACE("methodDeclaration");
   $$ = $2;
-  apply(&g_qualifierList, $$);
 } ;
 
-methodStart: dataType methodName 
+// methodHead processes the datatype and methodName and puts qualifierList.
+// BUG 366. qualifier list was originally placed on in methoddeclaration
+// which meant it might be overwritten by parameter qualifier lists.
+methodHead: dataType methodName 
 {
-  if (g_currentMethod)
+    YACCTRACE("methodHead");
+    if (g_currentMethod)
     delete g_currentMethod;
-  g_currentMethod = 
-                 cimmofParser::Instance()->newMethod(*$2, $1) ;
+
+  // create new method instance with pointer to method name and datatype
+  g_currentMethod = cimmofParser::Instance()->newMethod(*$2, $1) ;
+  
+  // put new method on stack
   $$ = g_currentMethod;
+
+  // apply the method qualifier list.
+  applyQualifierList(&g_qualifierList, $$);
+
   delete $2;
 } ;
 
@@ -303,13 +375,63 @@ methodBody: TOK_LEFTPAREN parameters TOK_RIGHTPAREN ;
 
 methodEnd: TOK_SEMICOLON ;
 
-propertyDeclaration: qualifierList propertyBody propertyEnd 
-{
-   $$ = $2;
-  apply(&g_qualifierList, $$);
+methodName: TOK_SIMPLE_IDENTIFIER { $$ = new CIMName(*$1); } ;
+
+//
+//  Productions for method parameters
+//
+parameters : parameter
+           | parameters TOK_COMMA parameter
+           | /* empty */ ;
+
+parameter: qualifierList parameterType parameterName array 
+{ 
+  // ATTN: P2 2002 Question Need to create default value including type?
+  
+  YACCTRACE("parameter:");
+  CIMParameter *p = 0;
+  cimmofParser *cp = cimmofParser::Instance();
+
+  // Create new parameter with name, type, isArray, array, referenceClassName
+  if ($4 == -1) {
+    p = cp->newParameter(*$3, $2, false, 0, g_referenceClassName);
+  } else {
+    p = cp->newParameter(*$3, $2, true, $4, g_referenceClassName);
+  }
+
+  g_referenceClassName = CIMName();
+
+  YACCTRACE("parameter:applyQualifierList");
+  applyQualifierList(&g_qualifierList, p);
+
+  cp->applyParameter(*g_currentMethod, *p);
+  delete p;
+  delete $3;
 } ;
 
-// KS 8 March 2002 - Extended to pass isArray and arraySize
+parameterType: dataType { $$ = $1; }
+             | objectRef { $$ = CIMTYPE_REFERENCE; } ;
+
+/*
+**------------------------------------------------------------------------------
+**
+**   property Declaration productions and processing
+**
+**------------------------------------------------------------------------------
+*/
+propertyDeclaration: qualifierList propertyBody propertyEnd 
+{
+    // set body to stack and apply qualifier list
+    // ATTN: the apply qualifer only works here because
+    // there are not lower level qualifiers.  We do productions
+    // that might have lower level qualifiers differently by
+    // setting up a xxxHead production where qualifiers are 
+    // applied.
+    YACCTRACE("propertyDeclaration:");
+    $$ = $2;
+    applyQualifierList(&g_qualifierList, $$);
+} ;
+
 propertyBody: dataType propertyName array typedDefaultValue
 {
   CIMValue *v = valueFactory::createValue($1, $3, 
@@ -326,6 +448,13 @@ propertyBody: dataType propertyName array typedDefaultValue
 } ;
 
 propertyEnd: TOK_SEMICOLON ;
+/*
+**------------------------------------------------------------------------------
+**
+**    reference Declaration productions and processing
+**
+**------------------------------------------------------------------------------
+*/
 
 referenceDeclaration: qualifierList referencedObject TOK_REF referenceName
                       referencePath TOK_SEMICOLON 
@@ -336,7 +465,7 @@ referenceDeclaration: qualifierList referencedObject TOK_REF referenceName
   CIMValue *v = valueFactory::createValue(CIMTYPE_REFERENCE, -1, true, &s);
   //KS add the isArray and arraysize parameters. 8 mar 2002
   $$ = cimmofParser::Instance()->newProperty(*$4, *v, false,0, *$2);
-  apply(&g_qualifierList, $$);
+  applyQualifierList(&g_qualifierList, $$);
   delete $2;
   delete $4;
   delete $5; 
@@ -349,31 +478,6 @@ referenceName: TOK_SIMPLE_IDENTIFIER { $$ = $1; };
 
 referencePath: TOK_EQUAL stringValue { $$ = $2; }
                | /* empty */ { $$ = new String(String::EMPTY); } ;
-
-methodName: TOK_SIMPLE_IDENTIFIER { $$ = new CIMName(*$1); } ;
-
-parameters : parameter
-           | parameters TOK_COMMA parameter
-           | /* empty */ ;
-
-parameter: qualifierList parameterType parameterName array 
-{ // ATTN: P2 2002 Question Need to create default value including type?
-  CIMParameter *p = 0;
-  cimmofParser *cp = cimmofParser::Instance();
-  if ($4 == -1) {
-    p = cp->newParameter(*$3, $2, false, 0, g_referenceClassName);
-  } else {
-    p = cp->newParameter(*$3, $2, true, $4, g_referenceClassName);
-  }
-  g_referenceClassName = CIMName();
-  apply(&g_qualifierList, p);
-  cp->applyParameter(*g_currentMethod, *p);
-  delete p;
-  delete $3;
-} ;
-
-parameterType: dataType { $$ = $1; }
-             | objectRef { $$ = CIMTYPE_REFERENCE; } ;
 
 objectRef: className TOK_REF {  
                           g_referenceClassName = *$1; } ;
@@ -557,6 +661,14 @@ alias: TOK_AS aliasIdentifier { $$ = $2; }
 
 aliasIdentifier: TOK_ALIAS_IDENTIFIER ;
 
+/*
+**------------------------------------------------------------------------------
+**
+**   Instance Declaration productions and processing
+**
+**------------------------------------------------------------------------------
+*/
+
 instanceDeclaration: instanceHead instanceBody
 { 
   $$ = g_currentInstance; 
@@ -570,8 +682,9 @@ instanceHead: qualifierList TOK_INSTANCE TOK_OF className alias
     delete g_currentInstance;
   g_currentAlias = *$5;
   g_currentInstance = cimmofParser::Instance()->newInstance(*$4);
+  // apply the qualifierlist to the current instance
   $$ = g_currentInstance;
-  apply(&g_qualifierList, $$);
+  applyQualifierList(&g_qualifierList, $$);
   delete $4;
   delete $5;
 } ;
@@ -615,8 +728,10 @@ valueInitializer: qualifierList TOK_SIMPLE_IDENTIFIER TOK_EQUAL
 
   //   4. create a clone property with the new value
   CIMProperty *newprop = cp->copyPropertyWithNewValue(*oldprop, *v);
+
   //   5. apply the qualifiers; 
-  apply(&g_qualifierList, newprop);
+  applyQualifierList(&g_qualifierList, newprop);
+
   //   6. and apply the CIMProperty to g_currentInstance.
   cp->applyProperty(*g_currentInstance, *newprop);
   delete $2;
@@ -626,6 +741,14 @@ valueInitializer: qualifierList TOK_SIMPLE_IDENTIFIER TOK_EQUAL
   delete v;
   delete newprop;
 } ;
+
+/*
+**------------------------------------------------------------------------------
+**
+** Compiler directive productions and processing
+**
+**------------------------------------------------------------------------------
+*/
 
 compilerDirective: compilerDirectiveInclude
 {
@@ -651,6 +774,14 @@ compilerDirectivePragma: TOK_PRAGMA pragmaName
 		   delete $2;
 		   delete $4;
 		   };
+
+/*
+**------------------------------------------------------------------------------
+**
+**  qualifier Declaration productions and processing
+**
+**------------------------------------------------------------------------------
+*/
 
 qualifierDeclaration: TOK_QUALIFIER qualifierName qualifierValue scope
                        defaultFlavor TOK_SEMICOLON 
@@ -706,7 +837,7 @@ explicitFlavors: explicitFlavor
                | explicitFlavors TOK_COMMA explicitFlavor ;
 
 
-// ATTN:KS-26/03/02 P2 This accumulates the flavor defintions.  However, it allows multiple instances
+// ATTN:KS-26/03/02 P2 This accumulates the flavor definitions.  However, it allows multiple instances
 // of any keyword.  Note also that each entity simply sets a bit so that you may
 // set disable and enable and we will not know which overrides the other.
 // We need to create the function to insure that you cannot enable then disable or
@@ -747,10 +878,20 @@ intDataType: TOK_DT_UINT8  { $$ = CIMTYPE_UINT8;  }
 realDataType: TOK_DT_REAL32 { $$ =CIMTYPE_REAL32; }
             | TOK_DT_REAL64 { $$ =CIMTYPE_REAL64; };
 
+
+/*
+**------------------------------------------------------------------------------
+**
+**   Qualifier list and qualifier processing
+**
+**------------------------------------------------------------------------------
+*/
 qualifierList: qualifierListBegin qualifiers TOK_RIGHTSQUAREBRACKET 
              | /* empty */ { };
 
-qualifierListBegin: TOK_LEFTSQUAREBRACKET { g_qualifierList.init(); } ;
+qualifierListBegin: TOK_LEFTSQUAREBRACKET { 
+    YACCTRACE("qualifierListbegin");
+    g_qualifierList.init(); } ;
 
 qualifiers: qualifier { }
           | qualifiers TOK_COMMA qualifier { } ;
@@ -769,7 +910,6 @@ qualifier: qualifierName typedQualifierParameter flavor
   delete v;
  } ;
 
-// KS 4 march change g_flavor to set defaults
 qualifierName: TOK_SIMPLE_IDENTIFIER { 
     g_flavor = CIMFlavor (CIMFlavor::NONE); }
              | metaElement { 

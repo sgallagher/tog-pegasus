@@ -29,11 +29,10 @@
 
 
 //
-// implementation of valueFactory 
-//
 //
 // implements class qualifierList
-//
+// NOTE: This could be replaced as some point by the common function 
+// CIMQualifier list but that would require modifications elsewhere.
 
 #include "qualifierList.h"
 

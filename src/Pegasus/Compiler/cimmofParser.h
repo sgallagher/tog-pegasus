@@ -64,6 +64,17 @@
 #include "memobjs.h"
 #include "objname.h"
 
+// Diagnostics that can be used to display flow.
+// This is manually turned on be selecting the proper define
+// below.  
+#define YACCTRACE(X)
+//#define YACCTRACE(X) {if (yydebug) cerr << X << endl;}
+// The following is used for the moment to set the trace because
+// there is a bug when YYDEBUG set and yydebug needs to be connected
+// to the commof compile flags.
+//#define YACCTRACE(X) {cerr << X << endl;}
+
+
 extern int cimmof_parse(); // the yacc parser entry point
 
 //class cimmofRepository;

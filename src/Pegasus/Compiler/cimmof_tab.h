@@ -20,9 +20,6 @@ typedef union {
   CIMKeyBinding *    keybinding;
   TYPED_INITIALIZER_VALUE * typedinitializer;
 } YYSTYPE;
-#ifndef YYERRCODE
-#define YYERRCODE 256
-#endif
 #define	TOK_LEFTCURLYBRACE	257
 #define	TOK_RIGHTCURLYBRACE	258
 #define	TOK_RIGHTSQUAREBRACKET	259

@@ -55,13 +55,24 @@ class PEGASUS_CQL_LINKAGE CIMOMHandleQueryContext: public QueryContext
 
 	~ CIMOMHandleQueryContext();
 
+	QueryContext* clone();
+
 	CIMOMHandleQueryContext& operator=(const CIMOMHandleQueryContext& rhs);
 
-        CIMClass getClass (const CIMName& inClassName)const;
+        CIMClass getClass (const CIMName& inClassName);
 
 	Array<CIMName> enumerateClassNames(const CIMName& inClassName);
 
-	QueryContext* clone();
+        // Returns true if the derived class is a subclass of the base class.
+        // Note: this will return false if the classes are the same.
+        // Note: the default namespace of the query is used.
+        Boolean isSubClass(const CIMName& baseClass,
+                           const CIMName& derivedClass);
+
+        // Returns the relationship between the anchor class and the related
+        // class in the class schema of the query's default name space.
+        ClassRelation getClassRelation(const CIMName& anchorClass,
+                                       const CIMName& relatedClass);
        
   private:  
 	CIMOMHandleQueryContext();

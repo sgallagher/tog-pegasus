@@ -64,7 +64,7 @@ CIMOMHandleQueryContext& CIMOMHandleQueryContext::operator=(const CIMOMHandleQue
   return *this;
 }
 
-CIMClass CIMOMHandleQueryContext::getClass(const CIMName& inClassName) const
+CIMClass CIMOMHandleQueryContext::getClass(const CIMName& inClassName)
 {
   /* Hardcoded defaults */
   Boolean localOnly = false;
@@ -92,6 +92,47 @@ Array<CIMName> CIMOMHandleQueryContext::enumerateClassNames(const CIMName& inCla
 				  getNamespace(),
 				  inClassName,
 				  true);          // deepInheritance
+}
+
+Boolean CIMOMHandleQueryContext::isSubClass(const CIMName& baseClass,
+                                            const CIMName& derivedClass)
+{
+  if (baseClass == derivedClass)
+  {
+    return false;
+  }
+
+  Array<CIMName> subClasses = enumerateClassNames(baseClass);
+  for (Uint32 i = 0; i < subClasses.size(); i++)
+  {
+    if (subClasses[i] == derivedClass)
+    {
+      return true;
+    }   
+  }
+  
+  return false;  
+}
+
+QueryContext::ClassRelation CIMOMHandleQueryContext::getClassRelation(const CIMName& anchorClass,
+                                                                      const CIMName& relatedClass)
+{
+  if (anchorClass == relatedClass)
+  {
+    return SAMECLASS;
+  }
+
+  if (isSubClass(anchorClass, relatedClass))
+  {
+    return SUBCLASS;
+  }
+
+  if (isSubClass(relatedClass, anchorClass))
+  {
+    return SUPERCLASS;
+  }
+
+  return NOTRELATED;  
 }
 
 QueryContext* CIMOMHandleQueryContext::clone()

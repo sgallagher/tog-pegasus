@@ -65,7 +65,7 @@ RepositoryQueryContext& RepositoryQueryContext::operator=(const RepositoryQueryC
   return *this;
 }
 
-CIMClass RepositoryQueryContext::getClass(const CIMName& inClassName) const
+CIMClass RepositoryQueryContext::getClass(const CIMName& inClassName)
 {
   /* Hardcoded defaults */
   Boolean localOnly = false;
@@ -88,6 +88,47 @@ Array<CIMName> RepositoryQueryContext::enumerateClassNames(const CIMName& inClas
   return _CIMRep->enumerateClassNames(getNamespace(),
 				      inClassName,
 				      true);          // deepInheritance
+}
+
+Boolean RepositoryQueryContext::isSubClass(const CIMName& baseClass,
+                                           const CIMName& derivedClass)
+{
+  if (baseClass == derivedClass)
+  {
+    return false;
+  }
+
+  Array<CIMName> subClasses = enumerateClassNames(baseClass);
+  for (Uint32 i = 0; i < subClasses.size(); i++)
+  {
+    if (subClasses[i] == derivedClass)
+    {
+      return true;
+    }   
+  }
+  
+  return false;  
+}
+
+QueryContext::ClassRelation RepositoryQueryContext::getClassRelation(const CIMName& anchorClass,
+                                                                     const CIMName& relatedClass)
+{
+  if (anchorClass == relatedClass)
+  {
+    return SAMECLASS;
+  }
+
+  if (isSubClass(anchorClass, relatedClass))
+  {
+    return SUBCLASS;
+  }
+
+  if (isSubClass(relatedClass, anchorClass))
+  {
+    return SUPERCLASS;
+  }
+
+  return NOTRELATED;  
 }
 
 QueryContext* RepositoryQueryContext::clone()

@@ -108,6 +108,10 @@ static const CIMName PEGASUS_CLASSNAME_PROVIDERMODULE       =
     CIMName ("PG_ProviderModule");
 static const CIMName PEGASUS_CLASSNAME_PROVIDER             = 
     CIMName ("PG_Provider");
+static const CIMName PEGASUS_CLASSNAME_CAPABILITIESREGISTRATION =
+    CIMName ("PG_CapabilitiesRegistration");
+static const CIMName PEGASUS_CLASSNAME_CONSUMERCAPABILITIES =
+    CIMName ("PG_ConsumerCapabilities");
 static const CIMName PEGASUS_CLASSNAME_PROVIDERCAPABILITIES = 
     CIMName ("PG_ProviderCapabilities");
 static const CIMName PEGASUS_CLASSNAME_INDSUBSCRIPTION      = 

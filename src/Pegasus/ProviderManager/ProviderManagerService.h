@@ -77,7 +77,7 @@ protected:
 
 protected:
     virtual Triad<String, String, String> 
-      _lookupConsumerProvider(const CIMObjectPath & objectPath);
+      _lookupConsumerProvider(const String & destinationPath);
  
     virtual Triad<String, String, String>
         _lookupProviderForClass(const CIMObjectPath & objectPath);
@@ -139,7 +139,7 @@ protected:
     void handleDisableModuleRequest(AsyncOpNode *op, const Message *message) throw();
     void handleEnableModuleRequest(AsyncOpNode *op, const Message *message) throw();
     void handleStopAllProvidersRequest(AsyncOpNode *op, const Message *message) throw();
-    void handleConsumeIndicationRequest(AsyncOpNode *op, 
+    void handleExportIndicationRequest(AsyncOpNode *op, 
 					const Message *message) throw();
     
 

@@ -652,6 +652,8 @@ CIMExportIndicationRequestMessage* CIMExportRequestDecoder::decodeExportIndicati
 {
    CIMInstance instanceName;
 
+   String destStr = requestUri.subString(requestUri.find ("/CIMListener") + 12, PEG_NOT_FOUND);
+
    for (const char* name; XmlReader::getEParamValueTag(parser, name);)
    {
       if (System::strcasecmp(name, "NewIndication") == 0)
@@ -662,7 +664,7 @@ CIMExportIndicationRequestMessage* CIMExportRequestDecoder::decodeExportIndicati
     
    CIMExportIndicationRequestMessage* request = new CIMExportIndicationRequestMessage(
       messageId,  
-      requestUri,
+      destStr,
       instanceName,
       QueueIdStack(queueId, _returnQueueId));
     

@@ -268,6 +268,15 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
 				      PEGASUS_MODULENAME_PROVREGPROVIDER,
 				      PEGASUS_QUEUENAME_CONTROLSERVICE);
 
+	 _routing_table.insert_record(PEGASUS_CLASSNAME_CONSUMERCAPABILITIES,
+				      PEGASUS_NAMESPACENAME_PROVIDERREG,
+				      DynamicRoutingTable::INTERNAL,
+				      0,
+				      static_cast<MessageQueueService *>
+				      (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
+				      PEGASUS_MODULENAME_PROVREGPROVIDER,
+				      PEGASUS_QUEUENAME_CONTROLSERVICE);
+
 
 	 if (_enableIndicationService)
 	 {

@@ -1,0 +1,28 @@
+#pragma locale ("en_US")
+
+instance of PG_ProviderModule
+{
+    Description = "Simple Display Consumer Provider";
+    Caption = "Simple Display Consumer Provider";
+    Name = "SimpleDisplayConsumerModule";
+    Vendor = "Pegasus";
+    Version = "2.0.0";
+    InterfaceType = "C++Default";
+    InterfaceVersion = "2.3.0";
+    Location = "SimpleDisplayConsumer";
+};
+
+instance of PG_Provider
+{
+    ProviderModuleName = "SimpleDisplayConsumerModule";
+    Name = "SimpleDisplayConsumer";
+};
+
+instance of PG_ConsumerCapabilities
+{
+    ProviderModuleName = "SimpleDisplayConsumerModule";
+    ProviderName = "SimpleDisplayConsumer";
+    CapabilityID = "1";
+    ProviderType = { 6 };  // Consumer
+    Destinations = {"/Pegasus_SimpleDisplayConsumer"};
+};

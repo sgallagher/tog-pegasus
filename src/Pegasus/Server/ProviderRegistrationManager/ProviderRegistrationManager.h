@@ -134,9 +134,19 @@ static const CIMName _PROPERTY_SUPPORTEDMETHODS = CIMName ("SupportedMethods");
 static const CIMName _PROPERTY_PROVIDER_NAME = CIMName ("Name");
 
 /**
+   The name of the Destinations property for PG_ConsumerCapabilities class
+*/
+static const CIMName _PROPERTY_INDICATIONDESTINATIONS = CIMName ("Destinations");
+
+/**
    Registered instance provider 
 */
 static const char INS_PROVIDER [] = "Instance";
+
+/**
+   Registered consumer provider 
+*/
+static const char CON_PROVIDER [] = "Consumer";
 
 /**
    Registered Association provider 
@@ -164,6 +174,8 @@ static const char PROVIDER_NOT_FOUND [] = " Can not find the provider.";
 static const char PROVIDER_NOT_FOUND_KEY [] = "Server.ProviderRegistrationManager.ProviderRegistrationManager.PROVIDER_NOT_FOUND";
 static const char CAPABILITY_NOT_REGISTERED [] = " Provider capability has not been registered yet.";
 static const char CAPABILITY_NOT_REGISTERED_KEY [] = "Server.ProviderRegistrationManager.ProviderRegistrationManager.CAPABILITY_NOT_REGISTERED";
+//L10N TODO
+static const char CONSUMER_NOT_REGISTERED [] = " Consumer capability has not been registered yet.";
 
 /**
    Registered instance provider type
@@ -228,6 +240,11 @@ public:
         const CIMName & resultClassName,
         Array<CIMInstance>& provider, 
         Array<CIMInstance>& providerModule);
+
+	Boolean lookupIndicationConsumer(
+		const String & destinationPath,
+	    	CIMInstance & provider, 
+		CIMInstance & providerModule);
 
 	Boolean getIndicationProviders(
 		const CIMNamespaceName & nameSpace, 

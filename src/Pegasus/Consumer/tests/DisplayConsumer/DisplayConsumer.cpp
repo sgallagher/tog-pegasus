@@ -23,20 +23,20 @@
 //
 // Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
-// Modified By:
+// Modified By: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
 #include <iostream>
-#include <Pegasus/Consumer/CIMIndicationConsumer.h>
+#include <Pegasus/Provider/CIMIndicationConsumerProvider.h>
 #include <Pegasus/Common/XmlWriter.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 PEGASUS_USING_STD;
 
-class PEGASUS_CONSUMER_LINKAGE DisplayConsumer : public CIMIndicationConsumer
+class PEGASUS_PROVIDER_LINKAGE DisplayConsumer : public CIMIndicationConsumerProvider
 {
 public:
 
@@ -50,7 +50,7 @@ public:
 
     }
 
-    void initialize()
+    void initialize(CIMOMHandle& handle)
     {
 	
     }
@@ -60,7 +60,7 @@ public:
 
     }
 
-    void handleIndication(
+    void consumeIndication(
 	const OperationContext & context,
 	const String& url,
 	const CIMInstance& indicationInstance)
@@ -76,9 +76,14 @@ public:
 // to form a symbol name. This function is called by the HandlerTable
 // to load this handler.
 
-extern "C" PEGASUS_EXPORT CIMIndicationConsumer*
-    PegasusCreateIndicationConsumer_DisplayConsumer() {
-    return new DisplayConsumer;
+extern "C"
+PEGASUS_EXPORT CIMProvider* PegasusCreateProvider(const String& providerName)
+{
+    if (String::equalNoCase(providerName, "DisplayConsumer"))
+    {
+         return(new DisplayConsumer());
+    }
+    return 0;
 }
 
 PEGASUS_NAMESPACE_END

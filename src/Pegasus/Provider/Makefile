@@ -19,7 +19,7 @@ SOURCES = \
     CIMClassProvider.cpp \
     CIMMethodProvider.cpp \
     CIMIndicationProvider.cpp \
-    CIMIndicationConsumer.cpp \
+    CIMIndicationConsumerProvider.cpp \
     CIMPropertyProvider.cpp \
     CIMQueryProvider.cpp \
     CIMAssociationProvider.cpp \

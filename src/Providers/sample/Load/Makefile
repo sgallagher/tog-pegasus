@@ -65,6 +65,7 @@ unregisterproviders:
 	cimprovider -r -m SampleMethodProviderModule
 	cimprovider -r -m RT_IndicationProviderModule
 	cimprovider -r -m SampleLocalizedProviderModule
+	cimprovider -r -m SimpleDisplayConsumerModule
 
 depend:
 

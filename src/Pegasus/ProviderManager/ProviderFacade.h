@@ -26,6 +26,7 @@
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //              Mike Day, IBM (mdday@us.ibm.com)
+//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -42,7 +43,7 @@
 #include <Pegasus/Provider/CIMMethodProvider.h>
 #include <Pegasus/Provider/CIMQueryProvider.h>
 #include <Pegasus/Provider/CIMIndicationProvider.h>
-#include <Pegasus/Provider/CIMIndicationConsumer.h>
+#include <Pegasus/Provider/CIMIndicationConsumerProvider.h>
 #include <Pegasus/Server/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -60,7 +61,7 @@ class PEGASUS_SERVER_LINKAGE ProviderFacade :
     public CIMMethodProvider,
     public CIMQueryProvider,
     public CIMIndicationProvider,
-    public CIMIndicationConsumer
+    public CIMIndicationConsumerProvider
 {
 public:
     ProviderFacade(CIMProvider * provider);
@@ -249,15 +250,10 @@ public:
         const CIMObjectPath & subscriptionName,
         const Array<CIMObjectPath> & classNames);
 
-    // CIMIndicationConsumer interface
-    virtual void handleIndication(
+    // CIMIndicationConsumerProvider interface
+    virtual void consumeIndication(
         const OperationContext & context,
-        const CIMInstance & indication,
-        IndicationResponseHandler & handler);
-    
-    virtual void handleIndication(
-        const OperationContext & context,
-        const String & url,
+        const String & destinationPath,
         const CIMInstance& indicationInstance);
     
 protected:

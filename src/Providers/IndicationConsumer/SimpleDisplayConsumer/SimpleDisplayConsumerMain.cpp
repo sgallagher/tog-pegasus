@@ -29,15 +29,20 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Consumer/CIMIndicationConsumer.h>
+#include <Pegasus/Provider/CIMIndicationConsumerProvider.h>
 
 #include "SimpleDisplayConsumer.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-extern "C" PEGASUS_EXPORT CIMIndicationConsumer*
-    PegasusCreateIndicationConsumer_SimpleDisplayConsumer() {
-    return new SimpleDisplayConsumer;
+extern "C"
+PEGASUS_EXPORT CIMProvider* PegasusCreateProvider(const String& providerName)
+{
+    if (String::equalNoCase(providerName, "SimpleDisplayConsumer"))
+    {
+         return(new SimpleDisplayConsumer());
+    }
+    return 0;
 }
 
 PEGASUS_NAMESPACE_END

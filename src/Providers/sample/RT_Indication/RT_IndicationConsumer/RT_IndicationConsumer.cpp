@@ -23,12 +23,12 @@
 //
 // Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
-// Modified By:
+// Modified By: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Consumer/CIMIndicationConsumer.h>
+#include <Pegasus/Provider/CIMIndicationConsumerProvider.h>
 
 #include "RT_IndicationConsumer.h"
 
@@ -45,7 +45,7 @@ RT_IndicationConsumer::~RT_IndicationConsumer()
 {
 }
 
-void RT_IndicationConsumer::initialize()
+void RT_IndicationConsumer::initialize(CIMOMHandle& handle)
 {
 }
 
@@ -53,7 +53,7 @@ void RT_IndicationConsumer::terminate()
 {
 }
 
-void RT_IndicationConsumer::handleIndication(
+void RT_IndicationConsumer::consumeIndication(
    const OperationContext & context,
    const String& url,
    const CIMInstance& indicationInstance)

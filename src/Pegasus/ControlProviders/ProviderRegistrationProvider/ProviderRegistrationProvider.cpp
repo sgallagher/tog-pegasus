@@ -125,6 +125,7 @@ void ProviderRegistrationProvider::getInstance(
 
     if(!className.equal (PEGASUS_CLASSNAME_PROVIDER) &&
        !className.equal (PEGASUS_CLASSNAME_PROVIDERCAPABILITIES) &&
+       !className.equal (PEGASUS_CLASSNAME_CONSUMERCAPABILITIES) &&
        !className.equal (PEGASUS_CLASSNAME_PROVIDERMODULE))
     {
 	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, 
@@ -171,6 +172,7 @@ void ProviderRegistrationProvider::enumerateInstances(
 
     if(!className.equal (PEGASUS_CLASSNAME_PROVIDER) &&
        !className.equal (PEGASUS_CLASSNAME_PROVIDERCAPABILITIES) &&
+       !className.equal (PEGASUS_CLASSNAME_CONSUMERCAPABILITIES) &&
        !className.equal (PEGASUS_CLASSNAME_PROVIDERMODULE))
     {
 	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, 
@@ -214,6 +216,7 @@ void ProviderRegistrationProvider::enumerateInstanceNames(
 
     if(!className.equal (PEGASUS_CLASSNAME_PROVIDER) &&
        !className.equal (PEGASUS_CLASSNAME_PROVIDERCAPABILITIES) &&
+       !className.equal (PEGASUS_CLASSNAME_CONSUMERCAPABILITIES) &&
        !className.equal (PEGASUS_CLASSNAME_PROVIDERMODULE))
     {
 	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, 
@@ -367,6 +370,7 @@ void ProviderRegistrationProvider::createInstance(
     // ensure the class existing in the specified namespace
     if(!className.equal (PEGASUS_CLASSNAME_PROVIDER) &&
        !className.equal (PEGASUS_CLASSNAME_PROVIDERCAPABILITIES) &&
+       !className.equal (PEGASUS_CLASSNAME_CONSUMERCAPABILITIES) &&
        !className.equal (PEGASUS_CLASSNAME_PROVIDERMODULE))
     {
 	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, 
@@ -430,7 +434,8 @@ void ProviderRegistrationProvider::createInstance(
         instanceObject.getProperty(ifcVersionIndex).getValue().
             get(ifcVersionString);
         if ((ifcVersionString != "2.1.0") &&
-            (ifcVersionString != "2.2.0"))
+            (ifcVersionString != "2.2.0") &&
+	    (ifcVersionString != "2.3.0"))
 	{
 	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
 		"Unsupported InterfaceVersion value: \"" + ifcVersionString +
@@ -496,6 +501,52 @@ void ProviderRegistrationProvider::createInstance(
 	{
 	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
 		"Missing ProviderType which is required property in PG_ProviderCapabilities class.");
+	}
+    }
+    else if (className.equal (PEGASUS_CLASSNAME_CONSUMERCAPABILITIES))
+    {
+	//
+	// ProviderModuleName, ProviderName, CapabilityID, ProviderType,
+ 	// and Destinations properties must be set
+	//
+
+	if (instanceObject.findProperty(_PROPERTY_PROVIDERMODULENAME) ==
+            PEG_NOT_FOUND)
+	{
+//L10N_TODO
+	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+		"Missing ProviderModuleName which is required property in PG_ConsumerCapabilities class.");
+	}
+
+	if (instanceObject.findProperty(_PROPERTY_PROVIDERNAME) == 
+            PEG_NOT_FOUND)
+	{
+//L10N_TODO
+	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+		"Missing ProviderName which is required property in PG_ConsumerCapabilities class.");
+	}
+
+	if (instanceObject.findProperty(_PROPERTY_CAPABILITYID) == 
+            PEG_NOT_FOUND)
+	{
+//L10N_TODO
+	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+		"Missing CapabilityID which is required property in PG_ConsumerCapabilities class.");
+	}
+
+	if (instanceObject.findProperty(_PROPERTY_PROVIDERTYPE) == PEG_NOT_FOUND)
+	{
+//L10N_TODO
+	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+		"Missing ProviderType which is required property in PG_ConsumerCapabilities class.");
+	}
+
+	if (instanceObject.findProperty(_PROPERTY_INDICATIONDESTINATIONS) == 
+	    PEG_NOT_FOUND)
+	{
+//L10N_TODO
+	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+		"Missing Destinations which is required property in PG_ConsumerCapabilities class.");
 	}
     }
     else // PEGASUS_CLASSNAME_PROVIDER
@@ -571,6 +622,7 @@ void ProviderRegistrationProvider::deleteInstance(
     // ensure the class existing in the specified namespace
     if(!className.equal (PEGASUS_CLASSNAME_PROVIDER) &&
        !className.equal (PEGASUS_CLASSNAME_PROVIDERCAPABILITIES) &&
+       !className.equal (PEGASUS_CLASSNAME_CONSUMERCAPABILITIES) &&
        !className.equal (PEGASUS_CLASSNAME_PROVIDERMODULE))
     {
 	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, 

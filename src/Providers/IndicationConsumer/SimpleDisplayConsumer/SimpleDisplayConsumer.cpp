@@ -43,7 +43,7 @@ SimpleDisplayConsumer::~SimpleDisplayConsumer()
 {
 }
 
-void SimpleDisplayConsumer::initialize()
+void SimpleDisplayConsumer::initialize(CIMOMHandle& handle)
 {
 }
 
@@ -59,7 +59,7 @@ void SimpleDisplayConsumer::terminate()
 // PEGASUS_DISPLAYCONSUMER_DIR is set to "console", the output will 
 // be written to stdout. 
 //
-void SimpleDisplayConsumer::handleIndication(
+void SimpleDisplayConsumer::consumeIndication(
    const OperationContext & context,
    const String& url,
    const CIMInstance& indicationInstance)

@@ -241,7 +241,7 @@ class CIMExportIndicationRequestMessage : public CIMRequestMessage
 public:
     CIMExportIndicationRequestMessage(
         const String& messageId_,
-        const String& url_,
+        const String& destinationPath_,
         const CIMInstance& indicationInstance_,
         QueueIdStack queueIds_,
         const String& authType_ = String::EMPTY,
@@ -251,14 +251,14 @@ public:
     : CIMRequestMessage(
         CIM_EXPORT_INDICATION_REQUEST_MESSAGE, messageId_, queueIds_,
 	 contentLanguages_, acceptLanguages_),
-        url(url_),
+        destinationPath(destinationPath_),
         indicationInstance(indicationInstance_),
         authType(authType_),
         userName(userName_)
     {
     }
 
-    String url;
+    String destinationPath;
     CIMInstance indicationInstance;
     String authType;
     String userName;

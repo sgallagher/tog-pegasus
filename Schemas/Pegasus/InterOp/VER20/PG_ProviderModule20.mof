@@ -89,22 +89,39 @@ class PG_Provider : CIM_LogicalElement {
 };
 
 // ==================================================================
-// PG_ProviderCapabilities
+// PG_CapabilitiesRegistration
 // ==================================================================
-        [Version ("2.0.0"), Description ("An instance of "
-         "ProviderCapabilities describes a set of PG_Provider "
-         "capabilities. ") ]
-class PG_ProviderCapabilities : CIM_ManagedElement {
+        [Abstract,
+	 Version ("2.3.0"), Description ("PG_CapabilitiesRegistration is an "
+	 "abstract superclass which contains required properties for both "
+	 "provider and consumer.")]
+class PG_CapabilitiesRegistration : CIM_ManagedElement {
       [Key, Propagated ("PG_Provider.ProviderModuleName"), 
        Description ("The scoping PG_ProviderModule name.") ]
    string ProviderModuleName;
       [Key, Propagated ("PG_Provider.Name"), 
-       Description ("The scoping PG_ProviderModule name.") ]
+       Description ("The scoping PG_Provider name.") ]
    string ProviderName;
       [Key, Description ("A value that uniquely identifies "
-       "this Capabilities within the set of Capabilities for "
-       "the designated Provider.") ]
+       "this Capabilities instance within the set of Capabilities for "
+       "the designated Provider or consumer.") ]
    string CapabilityID;
+      [Required, Description (
+       "ProviderType enumerates the kind of provider "
+       "capabilities defined for the associated Provider. "),
+       ArrayType ("Indexed"),
+       ValueMap { "2", "3", "4" , "5" , "6" },
+       Values {"Instance", "Association", "Indication" , "Method", "IndicationConsumer"}]
+    uint16 ProviderType[];
+};
+
+// ==================================================================
+// PG_ProviderCapabilities
+// ==================================================================
+        [Version ("2.3.0"), Description ("An instance of "
+         "ProviderCapabilities describes a set of PG_Provider "
+         "capabilities. ") ]
+class PG_ProviderCapabilities : PG_CapabilitiesRegistration {
       [Description (
        "The ClassName describes the class for which the associated "
        "Provider supplies instances, associations or indications "
@@ -113,13 +130,6 @@ class PG_ProviderCapabilities : CIM_ManagedElement {
       [Description ("Namespaces describes the namespaces that are "
        "supported by the Provider for ClassName.")] 
    string Namespaces[];
-      [Description (
-       "ProviderType enumerates the kind of provider"
-       "capabilities defined for the associated Provider. "),
-       ArrayType ("Indexed"),
-       ValueMap { "2", "3", "4" , "5" },
-       Values {"Instance", "Association", "Indication" , "Method"}]
-    uint16 ProviderType[];
       [Description (
        "SupportedProperties lists the properties supported "
        "by this provider.  If this array is empty, the provider "
@@ -142,6 +152,21 @@ class PG_ProviderCapabilities : CIM_ManagedElement {
 
 
 // ==================================================================
+// PG_ConsumerCapabilities
+// ==================================================================
+        [Version ("2.3.0"), Description ("An instance of "
+         "ConsumerCapabilities describes a set of PG_Provider "
+         "consumer capabilities. ") ]
+class PG_ConsumerCapabilities : PG_CapabilitiesRegistration {
+      [Required, Description ("Destinations describes the "
+       "destinations for which indications will be delivered to "
+       "this consumer. An indication destination corresponds to the "
+       "path portion of the destination URL specified in a "
+       "CIM_IndicationHandlerCIMXML instance.")] 
+   string Destinations[];
+};
+
+// ==================================================================
 // PG_ProviderCapabilitiesElements
 // ==================================================================
 
@@ -154,7 +179,7 @@ class PG_ProviderCapabilitiesElements : CIM_Dependency {
     PG_Provider REF Antecedent;
       [Override ("Dependent"), Weak,
        Description ("The Capability of the CIM_Provider.")]
-    PG_ProviderCapabilities REF Dependent;
+    PG_RegistrationCapabilities REF Dependent;
 };
 
 

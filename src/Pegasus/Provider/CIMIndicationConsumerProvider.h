@@ -1,6 +1,6 @@
 //%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
+// Copyright (c) 2000, 2001, 2002, 2003 BMC Software, Hewlett-Packard Company, IBM,
 // The Open Group, Tivoli Systems
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -9,7 +9,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -21,32 +21,35 @@
 //
 //==============================================================================
 //
-// Author: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+// Author: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com) 
 //
 // Modified By: 
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Provider/CIMIndicationConsumerProvider.h>
+#ifndef Pegasus_CIMIndicationConsumerProvider_h
+#define Pegasus_CIMIndicationConsumerProvider_h
+
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/Provider/CIMProvider.h>
+#include <Pegasus/Consumer/CIMIndicationConsumer.h>
+
+#include <Pegasus/Provider/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-PEGASUS_USING_STD;
-
-class SimpleDisplayConsumer : public CIMIndicationConsumerProvider
+/**
+This class defines the set of methods implemented by an indication consumer provider.
+A provider that derives from this class must implement all methods. The minimal method
+implementation simply throw the NotSupported exception.
+*/
+class PEGASUS_PROVIDER_LINKAGE CIMIndicationConsumerProvider : public virtual CIMProvider, public virtual CIMIndicationConsumer
 {
 public:
-
-    SimpleDisplayConsumer(void);
-    virtual ~SimpleDisplayConsumer(void);
-
-    void initialize(CIMOMHandle& handle);
-    void terminate(void);
-
-    void consumeIndication(
-	const OperationContext & context,
-	const String& url,
-	const CIMInstance& indicationInstance);
+    CIMIndicationConsumerProvider(void);
+    virtual ~CIMIndicationConsumerProvider(void);
 };
 
 PEGASUS_NAMESPACE_END
+
+#endif

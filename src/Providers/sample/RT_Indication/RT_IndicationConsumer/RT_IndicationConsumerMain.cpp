@@ -24,21 +24,26 @@
 // Author: Carol Ann Krug Graves, Hewlett-Packard Company
 //         (carolann_graves@hp.com)
 //
-// Modified By:
+// Modified By: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Consumer/CIMIndicationConsumer.h>
+#include <Pegasus/Provider/CIMIndicationConsumerProvider.h>
 
 #include "RT_IndicationConsumer.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-extern "C" PEGASUS_EXPORT CIMIndicationConsumer*
-    PegasusCreateIndicationConsumer_RT_IndicationConsumer() {
-    return new RT_IndicationConsumer;
+extern "C" 
+PEGASUS_EXPORT CIMProvider* PegasusCreateProvider(const String& providerName)
+{
+    if (String::equalNoCase(providerName, "RT_IndicationConsumer"))
+    {
+         return(new RT_IndicationConsumer());
+    }
+    return 0;
 }
 
 PEGASUS_NAMESPACE_END

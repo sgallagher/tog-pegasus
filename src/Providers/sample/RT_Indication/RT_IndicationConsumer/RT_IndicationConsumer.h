@@ -23,12 +23,12 @@
 //
 // Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
-// Modified By:
+// Modified By: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Consumer/CIMIndicationConsumer.h>
+#include <Pegasus/Provider/CIMIndicationConsumerProvider.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -39,17 +39,17 @@ static const char UNKNOWN [] = "Unknown";
 
 PEGASUS_USING_STD;
 
-class RT_IndicationConsumer : public CIMIndicationConsumer
+class RT_IndicationConsumer : public CIMIndicationConsumerProvider
 {
 public:
 
     RT_IndicationConsumer(void);
     virtual ~RT_IndicationConsumer(void);
 
-    void initialize(void);
+    void initialize(CIMOMHandle& handle);
     void terminate(void);
 
-    void handleIndication(
+    void consumeIndication(
 	const OperationContext & context,
 	const String& url,
 	const CIMInstance& indicationInstance);

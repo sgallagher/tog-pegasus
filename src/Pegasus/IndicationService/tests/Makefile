@@ -5,6 +5,7 @@ include $(ROOT)/mak/config.mak
 DIRS = \
     CreateFilters \
     CreateHandlers \
-    CreateSubscriptions
+    CreateSubscriptions \
+    IndicationProcess
 
 include $(ROOT)/mak/recurse.mak

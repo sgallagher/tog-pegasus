@@ -24,6 +24,7 @@
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+// 		Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -51,8 +52,6 @@ public:
 
     virtual ~CIMIndicationConsumer(void) { };
 
-    virtual void initialize() { };
-
     /**
     @param contex contains security and locale information relevant for the lifetime
     of this operation.
@@ -61,12 +60,8 @@ public:
     
     @param indicationInstance
     */
-    //virtual void handleIndication(
-    //    const OperationContext & context,
-    //    const CIMInstance & indication,
-    //    ResponseHandler<CIMInstance> & handler) = 0;
 
-    virtual void handleIndication(
+    virtual void consumeIndication(
 	    const OperationContext & context,
 	    const String & url,
 	    const CIMInstance& indicationInstance) = 0;

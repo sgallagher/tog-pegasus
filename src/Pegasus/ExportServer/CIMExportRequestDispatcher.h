@@ -24,6 +24,7 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+// 	        Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -35,10 +36,7 @@
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMObject.h>
-#include <Pegasus/Consumer/CIMIndicationConsumer.h>
 #include <Pegasus/ExportServer/Linkage.h>
-
-#include "ConsumerTable.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -54,15 +52,17 @@ class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportRequestDispatcher
       CIMExportRequestDispatcher();
 
       CIMExportRequestDispatcher(
-	 Boolean dynamicReg,
-	 Boolean staticConsumers,
-	 Boolean persistence);
+         Boolean dynamicReg,
+         Boolean staticConsumers,
+         Boolean persistence);
 
       virtual ~CIMExportRequestDispatcher();
 
-   protected:
+      static void _forwardRequestCallback(AsyncOpNode *,
+                                            MessageQueue *,
+                                            void *);
 
-      CIMIndicationConsumer* _lookupConsumer(const String& url);
+   protected:
 
       virtual void _handle_async_request(AsyncRequest *req);
 
@@ -76,8 +76,6 @@ class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportRequestDispatcher
 
       void _handleExportIndicationRequest(
 	 CIMExportIndicationRequestMessage* request);
-
-      ConsumerTable _consumerTable;
 
       Boolean _dynamicReg;
       Boolean _staticConsumers;

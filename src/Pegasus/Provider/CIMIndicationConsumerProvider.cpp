@@ -1,6 +1,6 @@
 //%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
+// Copyright (c) 2000, 2001, 2002, 2003 BMC Software, Hewlett-Packard Company, IBM,
 // The Open Group, Tivoli Systems
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -21,9 +21,9 @@
 //
 //==============================================================================
 //
-// Author: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+// Author: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com) 
 //
-// Modified By: 
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -31,22 +31,12 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-PEGASUS_USING_STD;
-
-class SimpleDisplayConsumer : public CIMIndicationConsumerProvider
+CIMIndicationConsumerProvider::CIMIndicationConsumerProvider(void)
 {
-public:
+}
 
-    SimpleDisplayConsumer(void);
-    virtual ~SimpleDisplayConsumer(void);
-
-    void initialize(CIMOMHandle& handle);
-    void terminate(void);
-
-    void consumeIndication(
-	const OperationContext & context,
-	const String& url,
-	const CIMInstance& indicationInstance);
-};
+CIMIndicationConsumerProvider::~CIMIndicationConsumerProvider(void)	
+{
+}
 
 PEGASUS_NAMESPACE_END

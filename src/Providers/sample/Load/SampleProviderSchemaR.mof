@@ -4,4 +4,5 @@
 #pragma include ("RT_IndicationR.mof")
 #pragma include ("AssociationProviderR.mof")
 #pragma include ("LocalizedProviderR.mof")
+#pragma include ("SimpleDisplayConsumerR.mof")
 

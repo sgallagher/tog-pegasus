@@ -184,8 +184,12 @@ void IndicationHandlerService::_handleIndication(const Message* message)
            cimException = 
                PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String("invalid destination"));
        }
+       //
+       // if the URL has format (localhost/CIMListener/...), send message to
+       // ExportServer
+       //	
        else if ((className.equal (PEGASUS_CLASSNAME_INDHANDLER_CIMXML)) &&
-           (destination.subString(0, 9) == String("localhost")))
+                (destination.subString(0, 9) == String("localhost")))
        {
           Array<Uint32> exportServer;
 
@@ -196,7 +200,7 @@ void IndicationHandlerService::_handleIndication(const Message* message)
           CIMExportIndicationRequestMessage* exportmessage =
 	     new CIMExportIndicationRequestMessage(
 	        "1234",
-	        destination.subString(15), //taking localhost:5988 portion out from reg
+	        destination.subString(21), //taking localhost/CIMListener portion out from reg
 	        indication,
 	        QueueIdStack(exportServer[0], getQueueId()),
 	        String::EMPTY,

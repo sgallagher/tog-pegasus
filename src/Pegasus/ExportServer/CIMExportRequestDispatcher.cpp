@@ -26,6 +26,7 @@
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -35,6 +36,8 @@
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Provider/CIMOMHandle.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/MessageQueueService.h>
+#include <Pegasus/Server/CIMOperationRequestDispatcher.h>
 
 #include "CIMExportRequestDispatcher.h"
 
@@ -51,7 +54,6 @@ CIMExportRequestDispatcher::CIMExportRequestDispatcher(
 {
    PEG_METHOD_ENTER(TRC_EXP_REQUEST_DISP,
       "CIMExportRequestDispatcher::CIMExportRequestDispatcher");
-   _consumerTable.set(_dynamicReg, _staticConsumers, _persistence);
    PEG_METHOD_EXIT();
 }
 
@@ -104,6 +106,60 @@ void CIMExportRequestDispatcher::_handle_async_request(AsyncRequest *req)
     PEG_METHOD_EXIT();
 }
 
+void CIMExportRequestDispatcher::_forwardRequestCallback(AsyncOpNode *op, 
+							 MessageQueue *q, 
+							 void *parm)
+{
+   CIMExportRequestDispatcher *service = 
+      static_cast<CIMExportRequestDispatcher *>(q);
+
+   AsyncRequest *asyncRequest = static_cast<AsyncRequest *>(op->get_request());
+   AsyncReply *asyncReply = static_cast<AsyncReply *>(op->get_response());
+
+   CIMResponseMessage *response;
+
+   Uint32 msgType =  asyncReply->getType();
+
+    if(msgType == async_messages::ASYNC_LEGACY_OP_RESULT)
+    {
+        response = reinterpret_cast<CIMResponseMessage *>
+            ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result())
+;
+    }
+    else if(msgType == async_messages::ASYNC_MODULE_OP_RESULT)
+    {
+        response = reinterpret_cast<CIMResponseMessage *>
+            ((static_cast<AsyncModuleOperationResult *>(asyncReply))->get_result())
+;
+    }
+    else
+    {
+        // Error
+    }
+
+   PEGASUS_ASSERT(response != 0);
+   // ensure that the destination queue is in response->dest
+#ifdef PEGASUS_ARCHITECTURE_IA64   
+   response->dest = (Uint64)parm;
+#elif PEGASUS_PLATFORM_AIX_RS_IBMCXX
+   // We cast to unsigned long
+   // because sizeof(void *) == sizeof(unsigned long)
+   response->dest = (unsigned long)parm;
+#else
+   response->dest = (Uint32)parm;
+#endif
+
+   if(parm != 0 )
+        service->SendForget(response);
+    else
+        delete response;
+
+    delete asyncRequest;
+    delete asyncReply;
+    op->release();
+    service->return_op(op);
+}
+
 void CIMExportRequestDispatcher::handleEnqueue(Message* message)
 {
    PEG_METHOD_ENTER(TRC_EXP_REQUEST_DISP,
@@ -154,75 +210,31 @@ void CIMExportRequestDispatcher::_handleExportIndicationRequest(
 
     CIMException cimException;
 
-    if (request->indicationInstance.getClassName().equal 
-	(CIMName ("PG_IndicationConsumerRegistration")))
-    {
-	CIMInstance instance = request->indicationInstance;
-	if ((instance.findProperty(CIMName ("ConsumerId")) != PEG_NOT_FOUND) &&
-	    (instance.findProperty(CIMName ("Location")) != PEG_NOT_FOUND) &&
-	    (instance.findProperty(CIMName ("ActionType")) != PEG_NOT_FOUND))
-	{
-            String errorDescription;
-	    CIMStatusCode errorCode = _consumerTable.registerConsumer(
-		instance.getProperty(instance.findProperty
-                    (CIMName ("ConsumerId"))).getValue().toString(),
-		instance.getProperty(instance.findProperty
-                    (CIMName ("Location"))).getValue().toString(),
-		instance.getProperty(instance.findProperty
-                    (CIMName ("ActionType"))).getValue().toString(),
-		errorDescription);
+    Array<Uint32> serviceIds;
+    find_services(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP, 0, 0, &serviceIds);
+    PEGASUS_ASSERT(serviceIds.size() != 0);
 
-            cimException = PEGASUS_CIM_EXCEPTION(errorCode, errorDescription);
-	}
-	else
-	{
-            cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-                "Invalid Consumer registration data");
-	}
-    }
-    else
-    {
-       Boolean caught_exception = false;
-       
-       CIMIndicationConsumer* consumer;
-       try
-       {
-	  consumer = _lookupConsumer(request->url);
-       }
-       catch (Exception & )
-       {
-	  caught_exception = true;
-	  cimException = 
-	     PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-				   "No consumer is registered for this location.");
-       }
-       if( caught_exception == false) 
-       {
-// l10n - this code will change with PEP67 to go through the 
-// provider manager, so no need to change it now.  Also, watch what
-// happens with PEP76.  This request message
-// has the content language.  Need to make sure that provider manager
-// service puts the content-language into the OperationContext       	
-	  if (consumer)
-	  {
-	     consumer->handleIndication(
-		context,
-		request->url,
-		request->indicationInstance);
-	  }
-	  else
-	  {
-	     cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-						  "No consumer is registered for this location.");
-	  }
-       }
-    }
+    CIMExportIndicationRequestMessage* request_copy =
+	new CIMExportIndicationRequestMessage(*request);
+ 
+    AsyncOpNode * op = this->get_op();
 
-    CIMExportIndicationResponseMessage* response =
-	new CIMExportIndicationResponseMessage(
-	request->messageId,
-	cimException,
-	request->queueIds.copyAndPop());
+    AsyncLegacyOperationStart * asyncRequest =
+        new AsyncLegacyOperationStart(
+	    get_next_xid(),
+	    op,
+	    serviceIds[0],
+	    request_copy,
+	    this->getQueueId());
+
+    asyncRequest->dest = serviceIds[0];
+
+    SendAsync(op,
+	      serviceIds[0],
+	      CIMExportRequestDispatcher::_forwardRequestCallback,
+	      this,
+	      (void *)request->queueIds.top());
+
 
     //
     //  Set response destination
@@ -232,48 +244,8 @@ void CIMExportRequestDispatcher::_handleExportIndicationRequest(
 		     ((MessageQueue::lookup(request->queueIds.top())) ? 
 		      String( ((MessageQueue::lookup(request->queueIds.top()))->getQueueName()) ) : 
 		      String("BAD queue name")));
-		     
     
-    response->dest = request->queueIds.top();
-
-    _enqueueResponse(request, response);
-
     PEG_METHOD_EXIT();
-}
-
-// REVIEW: Why must consumer be dynamically loaded? It makes sense in
-// the case in which they are provider (then let the provider manager do it).
-
-CIMIndicationConsumer* CIMExportRequestDispatcher::_lookupConsumer(
-    const String& url)
-{
-    PEG_METHOD_ENTER(TRC_EXP_REQUEST_DISP,
-      "CIMExportRequestDispatcher::_lookupConsumer");
-
-    PEG_TRACE_STRING(TRC_EXP_REQUEST_DISP, Tracer::LEVEL4, 
-       "_lookupConsumer url = " + url);
-
-    CIMIndicationConsumer* consumer =
-        _consumerTable.lookupConsumer(url);
-
-    if (!consumer)
-    {
-	consumer = _consumerTable.loadConsumer(url);
-
-// << Mon Apr 29 12:49:49 2002 mdd >>
-//	if (!consumer)
-//	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
-
-	//ATTN: How will get this handle? Defining just to proceed further.
-	//CIMOMHandle cimom;
-
-	//consumer->initialize(cimom);
-	if(consumer)
-	   consumer->initialize();
-    }
-
-    PEG_METHOD_EXIT();
-    return consumer;
 }
 
 PEGASUS_NAMESPACE_END

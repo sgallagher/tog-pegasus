@@ -220,9 +220,7 @@ void ProviderManager::shutdownAllProviders(void)
 	}
 	catch(...)
 	{
-            Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
-                "Error occurred while terminating provider $0.",
-                _providers[0].getName());
+            // may want to log to Pegasus log in the future
 	}
     }
 }

@@ -607,7 +607,7 @@ void ConfigManager::mergeCommandLine(int& argc, char**& argv)
             else
 #endif
             {
-                throw UnrecognizedConfigProperty(arg);
+                throw UnrecognizedCommandLineOption();
             }
         }
         else 

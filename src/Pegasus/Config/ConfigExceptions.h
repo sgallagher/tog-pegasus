@@ -52,6 +52,17 @@ public:
         : Exception("Missing command line option argument: " + optionName) { }
 };
 
+/** 
+UnrecognizedCommandLineOption Exception class 
+*/
+class UnrecognizedCommandLineOption : public Exception
+{
+public:
+    //UnrecognizedCommandLineOption(const String& optionName)
+    UnrecognizedCommandLineOption()
+        : Exception("Unrecognized command line option. ") { }
+};
+
 
 /** 
 InvalidPropertyValue Exception class 

@@ -47,11 +47,11 @@ PEGASUS_NAMESPACE_BEGIN
 
 */
 
-class PEGASUS_SERVER_LINKAGE HTTPAuthenticatorDelegator : public MessageQueue
+class PEGASUS_SERVER_LINKAGE HTTPAuthenticatorDelegator : public MessageQueueService
 {
    public:
 
-      typedef MessageQueue Base;
+      typedef MessageQueueService Base;
   
 
       /** Constructor. */

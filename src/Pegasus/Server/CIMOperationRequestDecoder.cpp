@@ -53,7 +53,7 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 CIMOperationRequestDecoder::CIMOperationRequestDecoder(
-   MessageQueue* outputQueue,
+   MessageQueueService* outputQueue,
    Uint32 returnQueueId)
    :  Base(PEGASUS_QUEUENAME_OPREQDECODER),
       _outputQueue(outputQueue),

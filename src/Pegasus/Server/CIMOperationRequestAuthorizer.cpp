@@ -43,7 +43,7 @@ PEGASUS_USING_STD;
 
 
 CIMOperationRequestAuthorizer::CIMOperationRequestAuthorizer(
-   MessageQueue* outputQueue)
+   MessageQueueService* outputQueue)
    :
    Base(PEGASUS_QUEUENAME_OPREQAUTHORIZER),
    _outputQueue(outputQueue),

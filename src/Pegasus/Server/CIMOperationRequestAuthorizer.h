@@ -38,14 +38,14 @@
 PEGASUS_NAMESPACE_BEGIN
 
 
-class PEGASUS_SERVER_LINKAGE CIMOperationRequestAuthorizer : public MessageQueue
+class PEGASUS_SERVER_LINKAGE CIMOperationRequestAuthorizer : public MessageQueueService
 {
    public:
   
-      typedef MessageQueue Base;
+      typedef MessageQueueService Base;
 
       CIMOperationRequestAuthorizer(
-	 MessageQueue* outputQueue);
+	 MessageQueueService* outputQueue);
       
       ~CIMOperationRequestAuthorizer();
       
@@ -70,7 +70,7 @@ class PEGASUS_SERVER_LINKAGE CIMOperationRequestAuthorizer : public MessageQueue
 
    private:
 
-      MessageQueue* _outputQueue;
+      MessageQueueService* _outputQueue;
 
       // Flag to indicate whether or not the CIMServer is shutting down.
       Boolean _serverTerminating;

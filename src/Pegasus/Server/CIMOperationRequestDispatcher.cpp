@@ -2239,7 +2239,8 @@ CIMValue CIMOperationRequestDispatcher::_convertValueType(
     if (value.isArray())
     {
         Array<String> stringArray;
-        Array<const char*> charPtrArray;
+        Array<char*> charPtrArray;
+        Array<const char*> constCharPtrArray;
 
         //
         // Convert the value to Array<const char*> to send to conversion method
@@ -2250,7 +2251,12 @@ CIMValue CIMOperationRequestDispatcher::_convertValueType(
 
         for (Uint32 k=0; k<stringArray.size(); k++)
         {
-            charPtrArray.append(stringArray[k].allocateCString());
+            // Need to build an Array<const char*> to send to the conversion
+            // routine, but also need to keep track of them pointers as char*
+            // because Windows won't let me delete a const char*.
+            char* charPtr = stringArray[k].allocateCString();
+            charPtrArray.append(charPtr);
+            constCharPtrArray.append(charPtr);
         }
 
         //
@@ -2258,7 +2264,7 @@ CIMValue CIMOperationRequestDispatcher::_convertValueType(
         //
         try
         {
-            newValue = XmlReader::stringArrayToValue(0, charPtrArray, type);
+            newValue = XmlReader::stringArrayToValue(0, constCharPtrArray, type);
         }
         catch (XmlSemanticError e)
         {
@@ -2270,8 +2276,7 @@ CIMValue CIMOperationRequestDispatcher::_convertValueType(
 
         for (Uint32 k=0; k<charPtrArray.size(); k++)
         {
-            // ATTN: How to delete a const char* ?
-            //delete charPtrArray[k];
+            delete charPtrArray[k];
         }
     }
     else

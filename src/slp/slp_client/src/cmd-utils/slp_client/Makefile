@@ -12,7 +12,7 @@ ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
 FLAGS += -x c 
 endif
 
-LIBRARY = slp_client
+LIBRARY = pegslp_client
 
 SOURCES = \
     slp_client.cpp \

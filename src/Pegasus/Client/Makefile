@@ -22,7 +22,7 @@ LIBRARIES = \
 
 ifdef PEGASUS_ENABLE_SLP
 ifneq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
-LIBRARIES += slp_client
+LIBRARIES += pegslp_client
 endif
 endif
 
@@ -54,7 +54,7 @@ $(SOURCES): slp_client
 slp_client :
 	@ $(MAKE) -SC $(ROOT)/src/slp/slp_client
 ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
-SYS_LIBS = $(PEGASUS_HOME)/lib/slp_client.lib ws2_32.lib advapi32.lib
+SYS_LIBS = $(PEGASUS_HOME)/lib/pegslp_client.lib ws2_32.lib advapi32.lib
 endif
 endif
 

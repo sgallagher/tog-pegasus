@@ -36,6 +36,7 @@
 #include <errno.h>
 #include <sys/time.h>
 #include <time.h>
+PEGASUS_NAMESPACE_BEGIN
 
 typedef sem_t PEGASUS_SEMAPHORE_TYPE;
 typedef pthread_t PEGASUS_THREAD_TYPE;
@@ -109,7 +110,7 @@ typedef struct {
 } PEGASUS_RWLOCK_HANDLE;
 
 
-PEGASUS_NAMESPACE_BEGIN
+//PEGASUS_NAMESPACE_BEGIN
 inline void pegasus_yield(void)
 {
       sched_yield();

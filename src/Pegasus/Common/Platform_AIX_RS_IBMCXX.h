@@ -42,7 +42,7 @@
 
 #define PEGASUS_SINT64 long long
 
-// #define PEGASUS_HAVE_NAMESPACES
+#define PEGASUS_HAVE_NAMESPACES
 
 // #define PEGASUS_HAVE_EXPLICIT
 

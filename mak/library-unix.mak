@@ -1,6 +1,6 @@
 
 ifeq ($(COMPILER),xlc)
-  LINK_COMMAND = makeC++SharedLib
+  LINK_COMMAND = makeC++SharedLib_r
   LINK_ARGUMENTS = -p 0
   LINK_OUT = -o
 endif
@@ -43,8 +43,6 @@ FULL_LIB=$(LIB_DIR)/lib$(LIBRARY)$(LIB_SUFFIX)
 ## Rule for all UNIX library builds
 $(FULL_LIB): $(LIB_DIR)/target $(OBJ_DIR)/target $(OBJECTS) $(FULL_LIBRARIES) \
     $(ERROR)
-ifneq ($(COMPILER),xlc)
-  ## Actions for all UNIX compilers except xlc
   ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
     ## To generate shared libraries which will cause dynamic
     ## search of other shared libraries which they reference,
@@ -63,11 +61,6 @@ ifneq ($(COMPILER),xlc)
   else
 	$(LINK_COMMAND) $(LINK_ARGUMENTS) $(LINK_OUT) $(FULL_LIB) $(OBJECTS) $(FULL_LIBRARIES)
   endif
-else
-	ar crv $(PEGASUS_PLATFORM).lib $(OBJECTS) $(FULL_LIBRARIES)
-	$(LINK_COMMAND) $(LINK_ARGUMENTS) $(LINK_OUT)$(FULL_LIB) $(PEGASUS_PLATFORM).lib
-	rm -f $(PEGASUS_PLATFORM).lib
-endif
 	$(TOUCH) $(FULL_LIB)
 	@ $(ECHO)
 

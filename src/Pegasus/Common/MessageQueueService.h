@@ -40,7 +40,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-
+class cimom;
 class message_module;
 
 class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue

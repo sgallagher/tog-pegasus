@@ -6,10 +6,10 @@ ARCHITECTURE = rs
 
 COMPILER = xlc
 
-SYS_INCLUDES = \
-    -I$(ROOT)/src/stdcxx/alloc \
-    -I$(ROOT)/src/stdcxx/stream \
-    -I$(ROOT)/src/stdcxx/cwrappers
+SYS_INCLUDES = 
+    #-I$(ROOT)/src/stdcxx/alloc \
+    #-I$(ROOT)/src/stdcxx/stream \
+    #-I$(ROOT)/src/stdcxx/cwrappers
 
 DEFINES = -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM)
 
@@ -21,9 +21,11 @@ else
 FLAGS = -O2
 endif
 
-SYS_LIBS = -ldl
+FLAGS += -qrtti=dyna
 
-CXX = xlC
+SYS_LIBS = -ldl 
+
+CXX = xlC_r
 
 SH = sh
 

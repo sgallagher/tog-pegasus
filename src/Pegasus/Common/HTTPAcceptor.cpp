@@ -335,7 +335,7 @@ void HTTPAcceptor::_acceptConnection()
 
     sockaddr_in address;
 
-#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
     size_t n = sizeof(address);
 #else
     int n = sizeof(address);

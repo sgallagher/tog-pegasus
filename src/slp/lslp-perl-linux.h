@@ -50,7 +50,7 @@
 extern "C" char *strtok_r(char *, const char *, char **);
 # include <arpa/inet.h>
 # include <net/if.h>
-#elif defined (PEGASUS_OS_TRU64)
+#elif defined (PEGASUS_OS_TRU64) || defined(PEGASUS_OS_AIX)
 # include <arpa/inet.h>
 # include <net/if.h>
 #else

@@ -284,7 +284,6 @@ Uint32 test10()
 {
     const char* METHOD_NAME = "test10";
     Tracer::setTraceComponents("ALL");
-    PEG_FUNC_EXIT((TRC_IND_DELIVERY+1),METHOD_NAME);
     PEG_FUNC_EXIT(-1,METHOD_NAME);
     return(compare(FILE2,"Test Message for Level3 in test9"));
 }
@@ -435,11 +434,60 @@ Uint32 test16()
 Uint32 test17()
 {
     const char* METHOD_NAME = "test17";
-    Tracer::setTraceComponents("Config,InvalidComp");
+    Tracer::setTraceComponents("InvalidComp");
     Tracer::setTraceLevel(Tracer::LEVEL4);
     Tracer::trace(__FILE__,__LINE__,TRC_CONFIG,Tracer::LEVEL4,"%s %s",
 	"This Message should not appear in",METHOD_NAME);
     return(compare(FILE3,"Test Message for Level4 in test15"));
+}
+//
+// Description:
+// calls the _traceBuffer call
+// should log a trace message
+//
+// Type:
+// Positive
+//
+// return 0 if the test passed
+// return 1 if the test failed
+//
+
+Uint32 test18()
+{
+    const char* METHOD_NAME = "test18";
+    Tracer::setTraceComponents("Config,InvalidComp");
+    Tracer::setTraceLevel(Tracer::LEVEL4);
+    Tracer::traceBuffer(__FILE__,__LINE__,TRC_CONFIG,Tracer::LEVEL4,
+        "This Message should appear in",4);
+    Tracer::traceBuffer(TRC_CONFIG,Tracer::LEVEL4,
+        "This Message should appear in",4);
+    return(compare(FILE3,"This"));
+}
+
+//
+// Description:
+// calls the isValid call 
+// should not log a trace message
+//
+// Type:
+// Positive
+//
+// return 0 if the test passed
+// return 1 if the test failed
+//
+
+Uint32 test19()
+{
+    const char* METHOD_NAME = "test19";
+    String components = "InvalidComp,Config";
+    Tracer::isValid(components);
+    Tracer::setTraceComponents("InvalidComp");
+    Tracer::setTraceLevel(Tracer::LEVEL4);
+    Tracer::traceBuffer(__FILE__,__LINE__,TRC_CONFIG,Tracer::LEVEL1,
+        "This Message should appear in",3);
+    Tracer::traceBuffer(TRC_CONFIG,Tracer::LEVEL1,
+        "This Message should appear in",3);
+    return(compare(FILE3,"This"));
 }
 
 int main()
@@ -532,6 +580,21 @@ int main()
     if (test16() != 0)
     {
        cout << "Tracer test (test16) failed" << endl;
+       exit(1);
+    }
+    if (test17() != 0)
+    {
+       cout << "Tracer test (test17) failed" << endl;
+       exit(1);
+    }
+    if (test18() != 0)
+    {
+       cout << "Tracer test (test18) failed" << endl;
+       exit(1);
+    }
+    if (test19() != 0)
+    {
+       cout << "Tracer test (test19) failed" << endl;
        exit(1);
     }
     cout << "+++++ passed all tests" << endl;

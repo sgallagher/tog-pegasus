@@ -32,6 +32,7 @@ DIRS = \
     Thread \
     ThreadPool \
     TimeValue \
+    Tracer \
     ValidateClass \
     Value \
     XmlDump \
@@ -46,6 +47,5 @@ DIRS = \
     ParamValue
 
 
-#    Tracer \
 
 include $(ROOT)/mak/recurse.mak

@@ -157,7 +157,7 @@ int main(int argc, char** argv)
 	assert(qualifiers2.isTrue("q1"));
 
 	assert(qualifiers2.exists("q2"));
-	assert(qualifiers2.isTrue("q2"));
+	assert(!qualifiers2.isTrue("q2"));
 
     }
     catch (Exception& e)

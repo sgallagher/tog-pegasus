@@ -118,8 +118,11 @@ void Test2(void)
 
             if(isValid(cimInstanceNames[i]))
             {
-                CIMInstance cimInstance =
-                    client.getInstance(
+                CIMInstance cimInstance;
+
+                try
+                {
+                    cimInstance = client.getInstance(
                         NAMESPACE,
                         cimInstanceNames[i],
                         localOnly,
@@ -127,9 +130,17 @@ void Test2(void)
                         includeClassOrigin,
                         CIMPropertyList());
 
-                if(verbose)
+                    if(verbose)
+                    {
+                        XmlWriter::printInstanceElement(cimInstance);
+                    }
+                }
+                catch(CIMException & e)
                 {
-                    XmlWriter::printInstanceElement(cimInstance);
+                    if(verbose)
+                    {
+                        cout << "CIMException(" << e.getCode() << "): " << e.getMessage() << endl;
+                    }
                 }
             }
             else
@@ -163,18 +174,28 @@ void Test2(void)
 
             if(isValid(cimInstanceNames[i]))
             {
-                CIMInstance cimInstance =
-                    client.getInstance(
-                        NAMESPACE,
-                        cimInstanceNames[i],
-                        localOnly,
-                        includeQualifiers,
-                        includeClassOrigin,
-                        CIMPropertyList());
-
-                if(verbose)
+                try
                 {
-                    XmlWriter::printInstanceElement(cimInstance);
+                    CIMInstance cimInstance =
+                        client.getInstance(
+                            NAMESPACE,
+                            cimInstanceNames[i],
+                            localOnly,
+                            includeQualifiers,
+                            includeClassOrigin,
+                            CIMPropertyList());
+
+                    if(verbose)
+                    {
+                        XmlWriter::printInstanceElement(cimInstance);
+                    }
+                }
+                catch(CIMException & e)
+                {
+                    if(verbose)
+                    {
+                        cout << "CIMException(" << e.getCode() << "): " << e.getMessage() << endl;
+                    }
                 }
             }
             else
@@ -208,18 +229,28 @@ void Test2(void)
 
             if(isValid(cimInstanceNames[i]))
             {
-                CIMInstance cimInstance =
-                    client.getInstance(
-                        NAMESPACE,
-                        cimInstanceNames[i],
-                        localOnly,
-                        includeQualifiers,
-                        includeClassOrigin,
-                        CIMPropertyList());
-
-                if(verbose)
+                try
                 {
-                    XmlWriter::printInstanceElement(cimInstance);
+                    CIMInstance cimInstance =
+                        client.getInstance(
+                            NAMESPACE,
+                            cimInstanceNames[i],
+                            localOnly,
+                            includeQualifiers,
+                            includeClassOrigin,
+                            CIMPropertyList());
+
+                    if(verbose)
+                    {
+                        XmlWriter::printInstanceElement(cimInstance);
+                    }
+                }
+                catch(CIMException & e)
+                {
+                    if(verbose)
+                    {
+                        cout << "CIMException(" << e.getCode() << "): " << e.getMessage() << endl;
+                    }
                 }
             }
             else
@@ -253,18 +284,28 @@ void Test2(void)
 
             if(isValid(cimInstanceNames[i]))
             {
-                CIMInstance cimInstance =
-                    client.getInstance(
-                        NAMESPACE,
-                        cimInstanceNames[i],
-                        localOnly,
-                        includeQualifiers,
-                        includeClassOrigin,
-                        CIMPropertyList());
-
-                if(verbose)
+                try
                 {
-                    XmlWriter::printInstanceElement(cimInstance);
+                    CIMInstance cimInstance =
+                        client.getInstance(
+                            NAMESPACE,
+                            cimInstanceNames[i],
+                            localOnly,
+                            includeQualifiers,
+                            includeClassOrigin,
+                            CIMPropertyList());
+
+                    if(verbose)
+                    {
+                        XmlWriter::printInstanceElement(cimInstance);
+                    }
+                }
+                catch(CIMException & e)
+                {
+                    if(verbose)
+                    {
+                        cout << "CIMException(" << e.getCode() << "): " << e.getMessage() << endl;
+                    }
                 }
             }
             else

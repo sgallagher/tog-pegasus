@@ -1,6 +1,9 @@
 /* PegasusDoc.dxx - Top Level file for Developer Documentation.
 This file defines the document strucuture and provides the introduction
 	$Log: PegasusDoc.dxx,v $
+	Revision 1.14  2001/02/25 18:04:45  karl
+	extend programing deffinitions
+	
 	Revision 1.13  2001/02/25 15:01:40  karl
 	Add frames to manual
 	
@@ -133,9 +136,11 @@ This version of the Pegasus User Manual was created at \today
     	//@Include: PegasusProviders.dxx
     	//@Include: MOFCompiler.dxx    
         //@}
-    //@Include: CIMOBJECTS.dxx
+    //@Include: programming.dxx
         //@{
-	   //@Include: CIMOBJECTTable.dxx 
+	   //@Include: CIMObjects.dxx
+	   //@Include: CIMOBJECTTable.dxx
+	   //@Include: Classes.dxx
            //@{ 
     		//@Include: ..\..\src\Pegasus\Common\Array.h
     		//@Include: ..\..\src\Pegasus\Common\CIMClass.h

@@ -107,7 +107,7 @@ static int yygrowstack();
 #define YYSTACKSIZE 2000
 
 #include <cstdlib>
-#if !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && !defined(__OS400__)
+#if !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && !defined(__OS400__) && !defined(PEGASUS_OS_VMS)
 #if defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
 #include <sys/malloc.h>
 #else
@@ -1346,8 +1346,8 @@ case 78:
 {
         /* convert somehow from alias to a CIM object name*/
         yyerror("'alias' is not yet supported (see bugzilla 14).");
-        YYABORT;
         delete yyvsp[0].strval;
+        YYABORT;
         }
 break;
 case 79:
@@ -1391,8 +1391,8 @@ case 87:
 #line 739 "cimmof.y"
 { 
               yyerror("'alias' is not yet supported (see bugzilla 14).");
-              YYABORT;
               yyval.strval = yyvsp[0].strval;
+              YYABORT;
               }
 break;
 case 88:

@@ -17,6 +17,8 @@ SOURCES = cimserver.cpp
 
 include $(ROOT)/mak/program.mak
 
+SYS_LIBS = ws2_32.lib advapi32.lib
+
 tests:
 
 install:

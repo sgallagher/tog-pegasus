@@ -20,10 +20,6 @@ if test -z $PEGASUS_ROOT; then
   exit
 fi
 #
-if test "$PEGASUS_CONCURRENT" != "yes" ; then
-  echo "Please set PEGASUS_CONCURRENT to yes"
-  exit
-fi
 #
 PEGASUS_BASE=`basename $PEGASUS_ROOT`
 if test "$PEGASUS_BASE" != "pegasus-1.0"; then
@@ -68,6 +64,14 @@ else
   exit
 fi
 #
+#
+chmod +x rpm/buildincludes
+if cp rpm/buildincludes /var/tmp; then
+  echo "Copied buildincludes script"
+else
+  echo "buildincludes script missing ???"
+  exit
+fi
 #
 #
 echo "Start building ...."

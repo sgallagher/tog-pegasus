@@ -1,3 +1,4 @@
+#include <Pegasus/Common/Config.h>
 #include <iostream>
 #include <cassert>
 #include <Pegasus/Repository/InheritanceTree.h>

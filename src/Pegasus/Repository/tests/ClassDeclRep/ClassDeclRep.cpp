@@ -26,6 +26,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Config.h>
 #include <cassert>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Common/FileSystem.h>

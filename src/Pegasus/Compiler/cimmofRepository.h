@@ -35,6 +35,7 @@
 #ifndef _CIMMOFREPOSITORY_H_
 #define _CIMMOFREPOSITORY_H_
 
+#include <Pegasus/Common/Config.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Compiler/cimmofParser.h>

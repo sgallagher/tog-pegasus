@@ -25,6 +25,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Config.h>
 #include <Pegasus/Repository/AssocTable.h>
 
 PEGASUS_USING_PEGASUS;

@@ -31,7 +31,7 @@
 // implementation of valueFactory 
 //
 
-
+#include <Pegasus/Common/Config.h>
 #include "valueFactory.h"
 #include "objname.h"
 #include "cimmofParser.h"  /* unfortunately.  Now that valueFactory needs

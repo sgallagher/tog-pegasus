@@ -1,3 +1,4 @@
+#include <Pegasus/Common/Config.h>
 #include <cassert>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Compiler/cimmofParser.h>

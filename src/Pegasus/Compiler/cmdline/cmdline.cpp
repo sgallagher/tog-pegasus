@@ -33,6 +33,7 @@
 // the include path list and the other options
 //
 
+#include <Pegasus/Common/Config.h>
 #include <fstream>
 #include <cstdlib>
 #include <iostream>

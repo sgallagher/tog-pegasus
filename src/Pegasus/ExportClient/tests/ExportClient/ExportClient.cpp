@@ -26,6 +26,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Config.h>
 #include <cassert>
 #include <Pegasus/Common/Monitor.h>
 #include <Pegasus/Common/HTTPConnector.h>

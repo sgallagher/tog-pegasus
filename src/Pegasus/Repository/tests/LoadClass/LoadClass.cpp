@@ -26,6 +26,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Config.h>
 #include <Pegasus/Repository/CIMRepository.h>
 
 PEGASUS_USING_PEGASUS;

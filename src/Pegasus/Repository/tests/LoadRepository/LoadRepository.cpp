@@ -1,3 +1,4 @@
+#include <Pegasus/Common/Config.h>
 #include <fstream>
 #include <iostream>
 #include <cassert>

@@ -35,6 +35,7 @@
 // Implementation of methods of cimmofParser class
 //
 //
+#include <Pegasus/Common/Config.h>
 #include "cimmofParser.h"
 #include <cstring>
 #include <Pegasus/Common/String.h>

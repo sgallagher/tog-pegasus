@@ -29,6 +29,7 @@
 
 // A main for the cimmof_parser.  It can be embedded elsewhere, too. 
 
+#include <Pegasus/Common/Config.h>
 #include <iostream>
 #include "../mofCompilerOptions.h"
 #include "cmdlineExceptions.h"

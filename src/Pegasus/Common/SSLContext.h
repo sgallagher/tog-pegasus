@@ -50,6 +50,41 @@ class SSLContext;
 class SSLSocket;
 class CIMServer;
 class CIMxmlIndicationHandler;
+class SSLCertificateInfo;
+
+// Pegasus-defined SSL certificate verification callback
+typedef Boolean (SSLCertificateVerifyFunction) (SSLCertificateInfo &certInfo);
+
+// index to the application-specific data in the SSL connection object
+static const int SSL_CALLBACK_INDEX = 0;
+
+/** This class provides information that is used during the SSL verification callback.
+    We pass a pointer to this object to the SSL_set_ex_data function.  We can then use SSL_get_ex_data
+    from within the callback and cast the void* back to this object.  In this case, we store a pointer 
+    to the Pegasus-defined callback function set in the SSLContext.  We also store a pointer to a 
+    certificate object which we construct during the callback.  Some of the certificate information is 
+    inaccessible outside the callback, so we need to retrieve the data within the function.
+    Each SSL connection object will have the same callback function, but each connection will have its
+    own certificate.  Therefore, this class is constructed on a per-connection basis in SSLSocket.
+*/ 
+class PEGASUS_COMMON_LINKAGE SSLCallbackInfo
+{
+public:
+    
+    SSLCallbackInfo(SSLCertificateVerifyFunction* verifyCert);  
+
+    ~SSLCallbackInfo(); 
+
+private:
+
+    SSLCertificateVerifyFunction* verifyCertificateCallback;
+
+    SSLCertificateInfo* _peerCertificate;
+
+    friend class SSLSocket;
+
+    friend int prepareForCallback(int, X509_STORE_CTX*);
+};
 
 
 /** This class provides the interface that a client gets as argument
@@ -189,6 +224,11 @@ public:
     */
     void setResponseCode(const int respCode);
 
+    /** Returns a string representation of this object
+    @return a string containing the certificate fields
+    */
+    String toString() const;
+
 private:
 
     /** Constructor for a SSLCertificateInfo object.
@@ -229,9 +269,6 @@ private:
 
     friend int prepareForCallback(int, X509_STORE_CTX*);
 };
-
-
-typedef Boolean (SSLCertificateVerifyFunction) (SSLCertificateInfo &certInfo);
 
 /** This class provides the interface that a client uses to create
     SSL context.
@@ -304,6 +341,12 @@ public:
 	@return the username associated with the truststore or String::EMPTY if not applicable
 	*/
 	String getTrustStoreUserName() const;
+
+    /** Returns the verification callback associated with this context.  This may be NULL.
+    @return the verification callback function 
+    */
+    SSLCertificateVerifyFunction* getSSLCertificateVerifyFunction() const;
+
 
 #ifndef PEGASUS_USE_SSL_CLIENT_VERIFICATION
 private:

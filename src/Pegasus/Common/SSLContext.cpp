@@ -74,13 +74,6 @@ PEGASUS_NAMESPACE_BEGIN
 // 
 #ifdef PEGASUS_HAS_SSL
 
-//
-// certificate handling routine
-//
-
-// ATTN-RK-20020905: This global variable is unsafe with multiple SSL contexts
-SSLCertificateVerifyFunction* verify_certificate;
-
 // Mutex for SSL locks.
 Mutex* SSLContextRep::_sslLocks = 0;
 
@@ -168,12 +161,21 @@ int prepareForCallback(int preVerifyOk, X509_STORE_CTX *ctx)
 
     char   buf[256];
     X509   *currentCert;
+    SSL    *ssl;
     int    verifyError = X509_V_OK;
 
+    //
+    // get the verification callback info specific to each SSL connection
+    //
+    ssl = (SSL*) X509_STORE_CTX_get_ex_data(ctx, SSL_get_ex_data_X509_STORE_CTX_idx());
+    SSLCallbackInfo* exData = (SSLCallbackInfo*) SSL_get_ex_data(ssl, SSL_CALLBACK_INDEX);
+
+    //
     // If the SSLContext does not have an additional callback
     // simply return the preverification error.
     // We do not need to go through the additional steps.
-    if (verify_certificate == NULL)
+    //
+    if (exData->verifyCertificateCallback == NULL)
     {
         return (preVerifyOk);
     }
@@ -192,10 +194,6 @@ int prepareForCallback(int preVerifyOk, X509_STORE_CTX *ctx)
     // get the depth of certificate chain
     //
     int depth = X509_STORE_CTX_get_error_depth(ctx);
-
-    //FUTURE: Not sure what to do with these...?
-    //ssl = X509_STORE_CTX_get_ex_data(ctx, SSL_get_ex_data_X509_STORE_CTX_idx());
-    //mydata = SSL_get_ex_data(ssl, mydata_index);
 
     //
     // get the version on the certificate
@@ -247,68 +245,34 @@ int prepareForCallback(int preVerifyOk, X509_STORE_CTX *ctx)
     }
     String issuerName = String(buf);
 
-    //
-    // Call the verify_certificate() application callback
-    //
-    SSLCertificateInfo certInfo(subjectName, issuerName, version, serialNumber,
+//    SSLCertificateInfo certInfo(subjectName, issuerName, version, serialNumber,
+//        notBefore, notAfter, depth, errorCode, errorStr, preVerifyOk);
+
+    exData->_peerCertificate = new SSLCertificateInfo(subjectName, issuerName, version, serialNumber,
         notBefore, notAfter, depth, errorCode, errorStr, preVerifyOk);
 
-    if (verify_certificate(certInfo))
+    //
+    // Call the application callback.
+    // Note that the verification result does not automatically get set to X509_V_OK if the callback is successful.
+    // This is because OpenSSL retains the original default error in case we want to use it later.
+    // To set the error, we could use X509_STORE_CTX_set_error(ctx, verifyError); but there is no real benefit to doing that here.
+    //
+    if (exData->verifyCertificateCallback(*exData->_peerCertificate))//certInfo)) 
     {
-#ifndef PEGASUS_USE_SSL_CLIENT_VERIFICATION
-        verifyError = X509_V_OK;
-#endif
-        preVerifyOk = 1;
         Tracer::trace(TRC_SSL, Tracer::LEVEL4,
-            "--> SSL: verify_certificate() returned X509_V_OK");
+            "--> SSL: verifyCertificateCallback() returned X509_V_OK");
+
+        PEG_METHOD_EXIT();
+        return 1;
     }
-    else
+    else // verification failed, handshake will be immediately terminated
     {
-#ifndef PEGASUS_USE_SSL_CLIENT_VERIFICATION
-        verifyError = certInfo.getErrorCode();
-#endif
-        preVerifyOk = 0;
         Tracer::trace(TRC_SSL, Tracer::LEVEL4,
-            "--> SSL: verify_certificate() returned error %d", verifyError);
+            "--> SSL: verifyCertificateCallback() returned error %d", exData->_peerCertificate->getErrorCode());
+      
+        PEG_METHOD_EXIT();
+        return 0; 
     }
-
-    // We need a way for the server to retain the verification result,
-    // so that in 'optional' settings, we can still continue the connection.
-    // We can then give the verification result to a consumer and let them 
-    // decide whether to accept or reject the request.
-    //
-    // The problem is that if we don't reset the error, the server verification
-    // gets messed up on the client side.
-    //
-    // If SSL client verification is disabled, do things the old way,
-    // since the server will never even use the callback.
-    // 
-    // If SSL client verification is enabled, do not set the error code explicitly.
-    // Instead, require the client to set the error code within its callback.
-    // i.e.
-    // Boolean verifyCertificate(SSLCertificateInfo cert)
-    // {
-    //    cert.setErrorCode(SSLCertificateInfo::V_OK);
-    //    return true;
-    // }
-    //
-    // If clients do not do this w/ PEGASUS_USE_SSL_CLIENT_VERIFICATION enabled,
-    // the server verification will fail because the error code will be the original result.
-    // This is sort of a kluge, but I cannot figure out a better way to do this w/o
-    // some storage tactic.  
-    //
-    // This will definitely be fixed in 2.4.  For 2.3.2, it shouldn't matter since we
-    // are not using server verification.
-
-#ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
-    X509_STORE_CTX_set_error(ctx, certInfo.getErrorCode()); 
-#else
-    X509_STORE_CTX_set_error(ctx, verifyError);
-#endif
-
-    PEG_METHOD_EXIT();
-
-    return(preVerifyOk);
 }
 
 //
@@ -391,14 +355,15 @@ SSLContextRep::SSLContextRep(const String& trustStore,
 
     _keyPath = keyPath;
 
-	//ATTN: This cannot be global now that there are multiple SSLContexts.
-    verify_certificate = verifyCert;
+    _certificateVerifyFunction = verifyCert;
 
 	_trustStoreAutoUpdate = false;
 
 	_trustStoreUserName = String::EMPTY;
 
+    //
     // If a truststore and/or peer verification function is specified, enable peer verification
+    //
     if (trustStore != String::EMPTY || verifyCert != NULL)
     {
         _verifyPeer = true;
@@ -408,7 +373,9 @@ SSLContextRep::SSLContextRep(const String& trustStore,
         _verifyPeer = false;
     }
 
-    // Initialiaze SSL callbacks and increment the SSLContextRep object _counter.
+    //
+    // Initialize SSL callbacks and increment the SSLContextRep object _counter.
+    //
     _countRepMutex.lock(pegasus_thread_self());
 
     try
@@ -473,14 +440,15 @@ SSLContextRep::SSLContextRep(
 
     _keyPath = keyPath;
 
-	//ATTN: This cannot be global now that there are multiple SSLContexts.
-    verify_certificate = verifyCert;
+    _certificateVerifyFunction = verifyCert;
 
     _trustStoreAutoUpdate = trustStoreAutoUpdate;
 
 	_trustStoreUserName = trustStoreUserName;
 
+    //
     // If a truststore and/or peer verification function is specified, enable peer verification
+    //
     if (trustStore != String::EMPTY || verifyCert != NULL)
     {
         _verifyPeer = true;
@@ -490,7 +458,9 @@ SSLContextRep::SSLContextRep(
         _verifyPeer = false;
     }
 
+    //
     // Initialiaze SSL callbacks and increment the SSLContextRep object _counter.
+    //
     _countRepMutex.lock(pegasus_thread_self());
 
     try
@@ -548,8 +518,7 @@ SSLContextRep::SSLContextRep(const SSLContextRep& sslContextRep)
     _verifyPeer = sslContextRep._verifyPeer;
     _trustStoreAutoUpdate = sslContextRep._trustStoreAutoUpdate;
 	_trustStoreUserName = sslContextRep._trustStoreUserName;
-
-    // ATTN: verify_certificate is set implicitly in global variable
+    _certificateVerifyFunction = sslContextRep._certificateVerifyFunction;
     _randomFile = sslContextRep._randomFile;
 
     // Initialiaze SSL callbacks and increment the SSLContextRep object _counter.
@@ -805,7 +774,7 @@ SSL_CTX * SSLContextRep::_makeSSLContext()
         // callback function is not called in this case; the handshake is simply terminated.
         // This value has NO effect in from a client perspective
 
-        if (verify_certificate != NULL)
+        if (_certificateVerifyFunction != NULL)
         {
             PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, 
                 "---> SSL: certificate verification callback specified");
@@ -1042,6 +1011,11 @@ String SSLContextRep::getTrustStoreUserName() const
 	return _trustStoreUserName;
 }
 
+SSLCertificateVerifyFunction* SSLContextRep::getSSLCertificateVerifyFunction() const
+{
+    return _certificateVerifyFunction;
+}
+
 #else 
 
 //
@@ -1086,6 +1060,8 @@ Boolean SSLContextRep::isPeerVerificationEnabled() const { return false; }
 Boolean SSLContextRep::isTrustStoreAutoUpdateEnabled() const { return false; }
 
 String SSLContextRep::getTrustStoreUserName() const { return String::EMPTY; }
+
+SSLCertificateVerifyFunction* SSLContextRep::getSSLCertificateVerifyFunction() const { return NULL; }
 
 void SSLContextRep::init_ssl() {}
 
@@ -1212,6 +1188,11 @@ Boolean SSLContext::isTrustStoreAutoUpdateEnabled() const
 String SSLContext::getTrustStoreUserName() const
 {
 	return (_rep->getTrustStoreUserName());
+}
+
+SSLCertificateVerifyFunction* SSLContext::getSSLCertificateVerifyFunction() const
+{
+    return (_rep->getSSLCertificateVerifyFunction());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1403,6 +1384,64 @@ Uint32 SSLCertificateInfo::getResponseCode()  const
 void SSLCertificateInfo::setResponseCode(const int respCode)
 {
     _rep->respCode = respCode;
+}
+
+String SSLCertificateInfo::toString() const
+{
+    char buf[1024];
+    
+    String s;
+
+    s.append("Subject Name:\n\t");
+    s.append(_rep->subjectName);
+    s.append("\n");
+    
+    s.append("Issuer Name:\n\t");
+    s.append(_rep->issuerName);
+    s.append("\n");
+    
+    sprintf(buf, "Depth: %d\n", _rep->depth);
+    s.append(buf);
+    
+    sprintf(buf, "Error code: %d\n", _rep->errorCode);
+    s.append(buf);
+    
+    sprintf(buf, "Response (preverify) code: %d\n", _rep->respCode);
+    s.append(buf);
+
+    s.append("Error string: ");
+    s.append(_rep->errorString);
+    s.append("\n");
+    
+    sprintf(buf, "Version number: %d\n", _rep->versionNumber);
+    s.append(buf);
+
+    sprintf(buf, "Serial number: %ld\n", _rep->serialNumber);
+    s.append(buf);
+    
+    s.append("Not before date: ");
+    s.append((_rep->notBefore).toString());
+    s.append("\n");
+
+    s.append("Not after date: ");
+    s.append((_rep->notAfter).toString());
+    s.append("\n");
+
+    return s;
+}
+
+SSLCallbackInfo::SSLCallbackInfo(SSLCertificateVerifyFunction* verifyCert)
+{
+    verifyCertificateCallback = verifyCert;
+    _peerCertificate = NULL;  
+}
+
+SSLCallbackInfo::~SSLCallbackInfo()
+{
+    if (_peerCertificate) 
+    {
+        delete _peerCertificate;
+    }
 }
 
 PEGASUS_NAMESPACE_END

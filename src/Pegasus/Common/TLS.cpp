@@ -37,6 +37,7 @@
 #include <Pegasus/Common/Socket.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/SSLContextRep.h>
+#include <Pegasus/Common/SSLContext.h>
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/MessageLoader.h> //l10n
 #include <Pegasus/Common/FileSystem.h>    
@@ -56,12 +57,12 @@ PEGASUS_NAMESPACE_BEGIN
 
 SSLSocket::SSLSocket(Sint32 socket, SSLContext * sslcontext, Boolean exportConnection)
    throw(SSLException) :
-   _SSLCertificate(0),
    _SSLConnection(0),
    _socket(socket),
    _SSLContext(sslcontext),
    _certificateVerified(false),
-   _exportConnection(exportConnection)
+   _exportConnection(exportConnection),
+   _SSLCallbackInfo(0)
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLSocket::SSLSocket()");
 
@@ -76,6 +77,27 @@ SSLSocket::SSLSocket(Sint32 socket, SSLContext * sslcontext, Boolean exportConne
         MessageLoaderParms parms("Common.TLS.COULD_NOT_GET_SSL_CONNECTION_AREA",
             					 "Could not get SSL Connection Area");
         throw SSLException(parms);
+    }
+
+    //
+    // set the verification callback data
+    //
+        
+    //we are only storing one set of data, so we can just use index 0, this is defined in SSLContext.h
+    //int index = SSL_get_ex_new_index(0, (void*)"pegasus", NULL, NULL, NULL);
+
+    // 
+    // Create a new callback info for each new connection
+    // 
+    _SSLCallbackInfo = new SSLCallbackInfo(_SSLContext->getSSLCertificateVerifyFunction());
+
+    if (SSL_set_ex_data(_SSLConnection, SSL_CALLBACK_INDEX, _SSLCallbackInfo)) 
+    {
+        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "--->SSL: Set callback info");
+    }
+    else
+    {
+		PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "--->SSL: Error setting callback info");
     }
 
     //
@@ -102,9 +124,9 @@ SSLSocket::~SSLSocket()
 
     SSL_free(_SSLConnection);
 
-    if (_SSLCertificate) 
+    if (_SSLCallbackInfo) 
     {
-        delete _SSLCertificate;
+        delete _SSLCallbackInfo;
     }
 
     PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: Deleted SSL socket");
@@ -269,56 +291,6 @@ redo_accept:
                 }
             }
 
-            // create the certificate object
-            // this should be sent in the operation context so the consumer may use it
-            // to further determine to accept or reject the request
-            // ATTN: Need to either add to IdentityContainer, create a new Container, or create 
-            // a super IdentityContainer which holds multiple forms of ID
-            char buf[256];
-
-            //subject name
-            X509_NAME_oneline(X509_get_subject_name(client_cert), buf, 256);
-            String subjectName = String(buf);
-
-            //issuer name
-            X509_NAME_oneline(X509_get_issuer_name(client_cert), buf, 256);
-            String issuerName = String(buf);
-
-            //version number
-            //long version = X509_get_version(client_cert);
-
-            //serial number
-            //long serialNumber = ASN1_INTEGER_get(X509_get_serialNumber(client_cert));
-
-            //notBefore
-            //CIMDateTime notBefore(); // = getDateTime(X509_get_notBefore(client_cert));
-
-            //notAfter
-            //CIMDateTime notAfter(); // = getDateTime(X509_get_notAfter(client_cert));
-
-            //depth
-            //int depth = 1;  // how do we get depth from certificate??
-
-            //errorCode
-            int errorCode = verifyResult; //this should contain the verification error still, 
-                                          //since it did not get reset in callback
-
-            //errorString
-            String errorStr = String(X509_verify_cert_error_string(errorCode));
-
-            //respCode
-            int respCode = _certificateVerified;  //this holds the eventual result from the 
-                                                  //verification process
-
-
-            //ATTN: Expand to use private constructor once we figure out the best way to get 
-            //the remaining parameters
-            _SSLCertificate = new SSLCertificateInfo(subjectName, 
-                                                     issuerName, 
-                                                     1, 
-                                                     errorCode,
-                                                     respCode);   
-
             X509_free(client_cert);
         }
         else
@@ -390,16 +362,20 @@ redo_connect:
         X509 * server_cert = SSL_get_peer_certificate(_SSLConnection);
         if (server_cert != NULL)
         {
+            //
+            // Do not check the verification result using SSL_get_verify_result here to see whether or not to continue.
+            // The prepareForCallback does not reset the verification result, so it will still contain the original error.
+            // If the client chose to override the default error in the callback and return true, we got here and 
+            // should proceed with the transaction.  Otherwise, the handshake was already terminated.
+            //
+            
             if (SSL_get_verify_result(_SSLConnection) == X509_V_OK)
             {
                  PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "--->SSL: Server Certificate verified.");
             }
             else
             {
-                X509_free (server_cert);
-                PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "--->SSL: Server Certificate not verified.");    
-                PEG_METHOD_EXIT();
-                return -1;
+                PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "--->SSL: Server Certificate not verified, but the callback overrode the default error.");
             }
 
             X509_free (server_cert);
@@ -427,7 +403,12 @@ Boolean SSLSocket::isPeerVerificationEnabled()
 
 SSLCertificateInfo* SSLSocket::getPeerCertificate() 
 { 
-    return _SSLCertificate; 
+    if (_SSLCallbackInfo) 
+    {
+        return (_SSLCallbackInfo->_peerCertificate);
+    }
+
+    return NULL;
 }
 
 Boolean SSLSocket::isCertificateVerified()

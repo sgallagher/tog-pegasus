@@ -131,6 +131,8 @@ public:
 
 	String getTrustStoreUserName() const;
 
+    SSLCertificateVerifyFunction* getSSLCertificateVerifyFunction() const;
+
     /*
     Initialize the SSL locking environment. 
          
@@ -158,6 +160,8 @@ private:
     Boolean _verifyPeer;
     Boolean _trustStoreAutoUpdate;
 	String _trustStoreUserName;
+
+    SSLCertificateVerifyFunction* _certificateVerifyFunction;
 
     /*
        Mutex containing the SSL locks.

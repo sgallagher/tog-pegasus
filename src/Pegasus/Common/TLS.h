@@ -106,7 +106,7 @@ private:
     Sint32 _socket;
     SSLContext * _SSLContext;
 
-    SSLCertificateInfo *   _SSLCertificate;
+	SSLCallbackInfo* _SSLCallbackInfo;
     Boolean _certificateVerified;
     Boolean _exportConnection;
 };

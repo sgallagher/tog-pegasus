@@ -75,7 +75,7 @@ public:
     */
     void unbind();
 
-    /** Destroys all the connections this acceptor is responsible for. */
+    /** Destroys all the connections created by this acceptor. */
     void destroyConnections();
 
 private:

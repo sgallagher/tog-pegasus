@@ -11,7 +11,8 @@ LIBRARY = pegcommon
 NEW_SOURCES = \
     Monitor.cpp \
     HTTPAcceptor.cpp \
-    HTTPConnection.cpp
+    HTTPConnection.cpp \
+    HTTPConnector.cpp 
 
 SOURCES = \
     $(NEW_SOURCES) \

@@ -599,6 +599,41 @@ public:
     BindFailed(const String& message) : Exception(MSG + message) { }
 };
 
+class PEGASUS_COMMON_LINKAGE InvalidLocator : public Exception
+{
+public:
+
+    static const char MSG[];
+
+    InvalidLocator(const String& locator) : Exception(MSG + locator) { }
+};
+
+class PEGASUS_COMMON_LINKAGE CannotCreateSocket : public Exception
+{
+public:
+
+    static const char MSG[];
+
+    CannotCreateSocket() : Exception(MSG) { }
+};
+
+class PEGASUS_COMMON_LINKAGE CannotConnect : public Exception
+{
+public:
+
+    static const char MSG[];
+
+    CannotConnect(const String& locator) : Exception(MSG + locator) { }
+};
+
+class PEGASUS_COMMON_LINKAGE UnexpectedFailure : public Exception
+{
+public:
+
+    static const char MSG[];
+
+    UnexpectedFailure() : Exception(MSG) { }
+};
 
 PEGASUS_COMMON_LINKAGE void ThrowUnitializedHandle();
 

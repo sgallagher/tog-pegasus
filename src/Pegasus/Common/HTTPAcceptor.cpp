@@ -75,14 +75,13 @@ struct HTTPAcceptorRep
 HTTPAcceptor::HTTPAcceptor(Monitor* monitor, MessageQueue* outputMessageQueue)
     : _monitor(monitor), _outputMessageQueue(outputMessageQueue), _rep(0)
 {
-    // Note: we are counting on the monitor to initialize the socket
-    // interface (in Windows you have to call WSAInitialize() and
-    // WSAShutDown()).
+    Socket::initializeInterface();
 }
 
 HTTPAcceptor::~HTTPAcceptor()
 {
     unbind();
+    Socket::uninitializeInterface();
 }
 
 void HTTPAcceptor::handleEnqueue()
@@ -273,7 +272,7 @@ void HTTPAcceptor::_acceptConnection()
     HTTPConnection* connection = new HTTPConnection(
 	_monitor, socket, this, _outputMessageQueue);
 
-    // Solicit events on this new connection socket:
+    // Solicit events on this new connection's socket:
 
     if (!_monitor->solicitSocketMessages(
 	socket,

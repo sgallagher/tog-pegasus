@@ -167,6 +167,14 @@ const char CorruptFile::MSG[] = "corrupt file: ";
 
 const char BindFailed::MSG[] = "Bind failed: ";
 
+const char InvalidLocator::MSG[] = "Invalid locator: ";
+
+const char CannotCreateSocket::MSG[] = "Cannot create socket";
+
+const char CannotConnect::MSG[] = "Cannot connect to: ";
+
+const char UnexpectedFailure::MSG[] = "Unexpected failure";
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // CIMException

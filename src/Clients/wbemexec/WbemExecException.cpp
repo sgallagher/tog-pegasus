@@ -157,7 +157,7 @@ const char*  WbemExecException::_messageStrings [] =
     "Unable to use requested input file: file is not readable ",
     "Unable to use requested input file: file cannot be opened ",
     "No input ",
-    "Failed to connect to cimom ",
+    "Failed to connect to CIM server: ",
     "Timed out waiting for response ",
     "Invalid XML request: ",
     "Invalid input: expected XML request, or HTTP M-POST or POST method request",

@@ -5962,7 +5962,7 @@ void IndicationService::_handleCreateResponseAggregation (
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "IndicationService::_handleCreateResponseAggregation");
 
-    Array <ProviderClassList> enableProviders;
+    Array <ProviderClassList> acceptedProviders;
     CIMObjectPath instanceRef;
     CIMException cimException;
 
@@ -5974,7 +5974,7 @@ void IndicationService::_handleCreateResponseAggregation (
     {
         //
         //  If response is SUCCESS, provider accepted the subscription
-        //  Add provider to list of providers to enable
+        //  Add provider to list of providers that accepted subscription
         //
         CIMResponseMessage * response = operationAggregate->getResponse (i);
         ProviderClassList provider = operationAggregate->findProvider 
@@ -5985,7 +5985,7 @@ void IndicationService::_handleCreateResponseAggregation (
             //  Find provider from which response was sent
             //
             accepted++;
-            enableProviders.append (provider);
+            acceptedProviders.append (provider);
         }
         else
         {
@@ -6138,10 +6138,23 @@ void IndicationService::_handleCreateResponseAggregation (
             if (cimException.getCode () == CIM_ERR_SUCCESS)
             {
                 //
+                //  Check each provider to see if it is not yet in use by any 
+                //  subscription, and therefore must be enabled
+                //
+                Array <ProviderClassList> enableProviders;
+                for (Uint32 j = 0; j < acceptedProviders.size (); j++)
+                {
+                    if (!_providerInUse (acceptedProviders [j].provider))
+                    {
+                        enableProviders.append (acceptedProviders [j]);
+                    }
+                }
+
+                //
                 //  Insert entries into the subscription hash tables
                 //
                 _insertToHashTables (instance, 
-                    enableProviders,
+                    acceptedProviders,
                     operationAggregate->getIndicationSubclasses (), 
                     request->nameSpace);
 
@@ -6160,10 +6173,23 @@ void IndicationService::_handleCreateResponseAggregation (
                              CIM_MODIFY_INSTANCE_REQUEST_MESSAGE));
 
             //
+            //  Check each provider to see if it is not yet in use by any 
+            //  subscription, and therefore must be enabled
+            //
+            Array <ProviderClassList> enableProviders;
+            for (Uint32 k = 0; k < acceptedProviders.size (); k++)
+            {
+                if (!_providerInUse (acceptedProviders [k].provider))
+                {
+                    enableProviders.append (acceptedProviders [k]);
+                }
+            }
+
+            //
             //  Insert entries into the subscription hash tables
             //
             _insertToHashTables (request->subscriptionInstance, 
-                enableProviders,
+                acceptedProviders,
                 operationAggregate->getIndicationSubclasses (), 
                 request->nameSpace);
 

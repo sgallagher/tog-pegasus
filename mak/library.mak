@@ -22,8 +22,12 @@ endif
 
 ifeq ($(OS_TYPE),windows)
 include $(ROOT)/mak/library-windows.mak
-else
+endif
+ifeq ($(OS_TYPE),unix)
 include $(ROOT)/mak/library-unix.mak
+endif
+ifeq ($(OS_TYPE),nsk)
+include $(ROOT)/mak/library-nsk.mak
 endif
 
 ################################################################################

@@ -665,7 +665,7 @@ slp_client::slp_client(const Sint8 *target_addr,
 		       const Sint8 *spi, 
 		       const Sint8 *scopes )
 
-  : _pr_buf_len(0), _buf_len (LSLP_MTU), _version((Uint8)1), 
+  : _pr_buf_len(0), _buf_len (LSLP_MTU), _version((Uint8)1),
     _xid(1),  _target_port(htons(target_port)), _local_addr_list(NULL), 
     _spi(NULL), _scopes(NULL),  _use_das(false), _last_da_cycle(0), _retries(3), 
     _ttl(255),  _convergence(5), _crypto_context(NULL), das( ), 

@@ -12,3 +12,4 @@ SOURCES = Client.cpp
 include $(ROOT)/mak/program.mak
 
 tests:
+	cimmof test.mof

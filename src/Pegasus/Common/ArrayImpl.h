@@ -328,4 +328,34 @@ void Array<PEGASUS_ARRAY_T>::remove(Uint32 pos, Uint32 size)
     _rep->size -= size;
 }
 
+#ifdef PEGASUS_HAS_EBCDIC
+
+#ifndef PEGASUS_ARRAY_T
+template<class PEGASUS_ARRAY_T>
+#else
+PEGASUS_TEMPLATE_SPECIALIZATION
+#endif
+void Array<PEGASUS_ARRAY_T>::etoa()
+{
+#if PEGASUS_ARRAY_T == Sint8
+    _copyOnWrite();
+    __etoa_l((char *)_data(),_rep->size);
+#endif
+}
+
+#ifndef PEGASUS_ARRAY_T
+template<class PEGASUS_ARRAY_T>
+#else
+PEGASUS_TEMPLATE_SPECIALIZATION
+#endif
+void Array<PEGASUS_ARRAY_T>::atoe()
+{
+#if PEGASUS_ARRAY_T == Sint8
+    _copyOnWrite();
+    __atoe_l((char *)_data(),_rep->size);
+#endif
+}
+
+#endif
+
 #endif /*defined(PEGASUS_EXPLICIT_INSTANTIATION) || !defined(PEGASUS_ARRAY_T)*/

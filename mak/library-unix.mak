@@ -13,6 +13,9 @@ ifeq ($(COMPILER),acc)
   ifdef PEGASUS_DEBUG
     LINK_COMMAND += -g
   endif
+  ifdef PEGASUS_CCOVER
+    LIBRARIES += $(CCOVER_LIB)/libcov-PIC.a
+  endif
   LINK_ARGUMENTS =
   LINK_OUT = -o
 endif
@@ -25,6 +28,12 @@ endif
 
 ifeq ($(COMPILER),deccxx)
   LINK_COMMAND = cxx -shared
+  LINK_ARGUMENTS =
+  LINK_OUT = -o
+endif
+
+ifeq ($(COMPILER),ibm)
+  LINK_COMMAND = c++ -W l,dll -W c,dll,expo
   LINK_ARGUMENTS =
   LINK_OUT = -o
 endif
@@ -44,6 +53,13 @@ ifneq ($(COMPILER),xlc)
     ## libraries.mak file that includes this file
     ##
 	$(LINK_COMMAND) $(LINK_ARGUMENTS) -L$(LIB_DIR) $(LINK_OUT)$(FULL_LIB) $(OBJECTS) $(DYNAMIC_LIBRARIES)
+
+    ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
+      ## z/OS needs side definition files to link executables to
+      ## dynamic libraries, so we have to copy them into the lib_dir
+	$(COPY) $(ROOT)/src/$(DIR)/*.x $(LIB_DIR)
+    endif
+
   else
 	$(LINK_COMMAND) $(LINK_ARGUMENTS) $(LINK_OUT) $(FULL_LIB) $(OBJECTS) $(LIBRARIES)
   endif

@@ -31,6 +31,9 @@
 
 #include <new>
 #include <cstring>
+#ifdef PEGASUS_HAS_EBCDIC
+#include <unistd.h>
+#endif
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMType.h>
 #include <Pegasus/Common/Char16.h>

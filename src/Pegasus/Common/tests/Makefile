@@ -7,7 +7,6 @@ DIRS = \
     HashTable \
     Resolve \
     Acceptor \
-    Connector \
     Formatter \
     Abstract \
     Array \
@@ -16,6 +15,7 @@ DIRS = \
     Compare \
     DateTime \
     Dir \
+    DQueue \
     FileSystem \
     InstanceDecl \
     Method \
@@ -30,6 +30,8 @@ DIRS = \
     String \
     String \
     StrToInstName \
+    Thread \
+    ThreadPool \
     TimeValue \
     ValidateClass \
     Value \
@@ -40,10 +42,11 @@ DIRS = \
     DynLib \
     DynLoad \
     Logger \
-    OptionManager
+    WebServer \
+    WebClient \
+    ParamValue
 
-XDIRS = \
-    ValidateClass \
-    Resolve \
+
+#    Tracer \
 
 include $(ROOT)/mak/recurse.mak

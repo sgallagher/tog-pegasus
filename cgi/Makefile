@@ -12,7 +12,13 @@ else
 endif
 
 clean:
-	$(RM) cgi-bin/*
+ifeq ($(OS_TYPE),windows)
+	$(RM) cgi-bin/CGIClient.exe
+	$(RM) cgi-bin/*.dll
+else
+	$(RM) cgi-bin/CGIClient
+	$(RM) cgi-bin/*$(LIB_SUFFIX)
+endif
 
 depend:
 

@@ -437,6 +437,59 @@ void CIMClassRep::toXml(Array<Sint8>& out) const
 
     out << "</CLASS>\n";
 }
+/** toMof prepares an 8-bit string with the MOF for the class.
+    The BNF for this is:
+    <pre>
+    classDeclaration 	=    [ qualifierList ]
+			     CLASS className [ alias ] [ superClass ]
+			     "{" *classFeature "}" ";"
+			     
+    superClass 		=    :" className
+
+    classFeature 	=    propertyDeclaration | methodDeclaration
+
+*/
+
+void CIMClassRep::toMof(Array<Sint8>& out) const
+{
+    // Get and format the class qualifiers
+    out << "\n//    Class " << _className;
+    if (_qualifiers.getCount())
+	out << "\n";
+    _qualifiers.toMof(out);
+
+    // Separate qualifiers from Class Name
+    out << "\n";
+
+    // output class statement
+    out << "class " << _className;
+
+    if (_superClassName.size())
+	out << " : " << _superClassName;
+    
+    out << "\n{";
+
+    // format the Properties:
+    for (Uint32 i = 0, n = _properties.size(); i < n; i++)
+    {
+	// Generate MOF if this property not propogated
+	// Note that the test is required only because
+	// there is an error in getclass that does not
+	// test the localOnly flag.
+	if (!_properties[i].getPropagated())
+	    _properties[i].toMof(out);
+    }
+
+    // Format the Methods:  for non-propagated methods
+    for (Uint32 i = 0, n = _methods.size(); i < n; i++)
+    {
+	if (!_methods[i].getPropagated())
+	_methods[i].toMof(out);
+    }
+
+    // Class closing element:
+    out << "\n};\n";
+}
 
 void CIMClassRep::print(PEGASUS_STD(ostream) &os) const
 {
@@ -446,6 +499,15 @@ void CIMClassRep::print(PEGASUS_STD(ostream) &os) const
     XmlWriter::indentedPrint(os, tmp.getData(), 4);
     // cout << tmp.getData() << endl;
 }
+
+void CIMClassRep::printMof(PEGASUS_STD(ostream) &os) const
+{
+    Array<Sint8> tmp;
+    toMof(tmp);
+    tmp.append('\0');
+    os << tmp.getData() << PEGASUS_STD(endl);
+}
+
 
 CIMClassRep::CIMClassRep()
 {

@@ -171,6 +171,15 @@ public:
     */
     Boolean isArray() const { return _isArray; }
 
+    /** Returns whether the CIMvalue object is null. 
+	Null is the specific condition where no value has
+	yet been set into the value.
+	If a CIMValue object is Null, any get on that object
+	will create an exception.
+	@return Returns True if the CIMValue object is Null
+    */
+    Boolean isNull() const { return _isNull; }
+
     /** CIMMethod getArraySize
 	@return The number of entries in the array
     */
@@ -305,10 +314,18 @@ public:
 
     void get(Array<CIMDateTime>& x) const; 
 
-    /** CIMMethod toXML
-    
+    /** toXML - Converts a CIMValue object to XML.
+	@out Sint8 Array to hold the XML representation
+	@return Returns the XML representation of the CIMValue
+	object in the input parameter out. 
     */
     void toXml(Array<Sint8>& out) const;
+
+    /** toXML - Converts a CIMValue object to XML.
+	@return Returns the XML representation of the CIMValue
+	object in String form.
+    */
+    String toXml() const;
 
     /** CIMMethod print - Format and print the Value to std output
     	stream
@@ -321,13 +338,23 @@ public:
     */
     void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const;
 
-    /** toString - Converts the CIMvalue to a string
+    /** toMof - Converts a CIMValueObject to Mof.
+	@out Sint8 Array to hold the Mof representation
+	@return Returns the Mof representation of the CIMValue
+	object in the input parameter out. 
+    */
+    void toMof(Array<Sint8>& out) const;
+
+
+    /** toString - Converts the CIMvalue to a string.  Should only be
+            used for output purposes.  To get an actual String value, use
+            get(String &).
 	@return - String output for CIMValue.
 	<PRE>
 	Example:
 	    String test;
 	    CIMValue value(Boolean(true));
-	    test = value.toString();	  // puts "true" into test
+	    test = value.toString();	  // puts "TRUE" into test
 	</PRE>
 	*/
     String toString() const;
@@ -338,6 +365,7 @@ private:
 
     CIMType _type;
     Boolean _isArray;
+    Boolean _isNull;
     Union _u;
 
     friend class CIMMethodRep;

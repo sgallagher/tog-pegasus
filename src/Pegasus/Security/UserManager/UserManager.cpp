@@ -1,0 +1,404 @@
+//%////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM, 
+// The Open Group, Tivoli Systems
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to 
+// deal in the Software without restriction, including without limitation the 
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+//=============================================================================
+//
+// Author: Sushma Fernandes, Hewlett Packard Company (sushma_fernandes@hp.com)
+//
+// Modified By: Nag Boranna, Hewlett Packard Company (nagaraja_boranna@hp.com)
+//
+//%////////////////////////////////////////////////////////////////////////////
+
+
+///////////////////////////////////////////////////////////////////////////////
+// 
+// User Manager
+//
+///////////////////////////////////////////////////////////////////////////////
+
+#include <Pegasus/Common/Destroyer.h>
+#include <Pegasus/Common/System.h>
+#include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Security/UserManager/UserManager.h>
+#include <Pegasus/Security/UserManager/UserExceptions.h>
+
+
+PEGASUS_USING_STD;
+
+PEGASUS_NAMESPACE_BEGIN
+
+/**
+Initialize UserManager instance
+*/
+UserManager* UserManager::_instance = 0;
+
+//
+// Constructor
+//
+UserManager::UserManager(CIMRepository* repository)
+{
+    const char METHOD_NAME[] = "UserManager::UserManager";
+
+    PEG_FUNC_ENTER(TRC_USER_MANAGER, METHOD_NAME);
+
+    try
+    {
+        _userFileHandler = 0;
+        _userFileHandler = new UserFileHandler();
+
+        _authHandler = 0;
+        _authHandler = new AuthorizationHandler(repository);
+    }
+    catch (Exception& e)
+    {
+        if (_userFileHandler)
+        {
+            delete _userFileHandler;
+        }
+        if (_authHandler)
+        {
+            delete _authHandler;
+        }
+
+        PEG_FUNC_EXIT(TRC_USER_MANAGER, METHOD_NAME);
+        throw e;
+    }
+
+    PEG_FUNC_EXIT(TRC_USER_MANAGER, METHOD_NAME);
+}
+
+//
+// Destructor
+//
+UserManager::~UserManager()
+{
+    const char METHOD_NAME[] = "UserManager::~UserManager";
+     
+    PEG_FUNC_ENTER(TRC_USER_MANAGER, METHOD_NAME);
+
+    delete _userFileHandler;
+
+    delete _authHandler;
+
+    PEG_FUNC_EXIT(TRC_USER_MANAGER, METHOD_NAME);
+}
+
+//
+// Construct the singleton instance of the UserManager and return a
+// pointer to that instance.
+//
+UserManager* UserManager::getInstance(CIMRepository* repository)
+{
+    const char METHOD_NAME[] = "UserManager::getInstance";
+
+    PEG_FUNC_ENTER(TRC_USER_MANAGER, METHOD_NAME);
+
+    if (!_instance && repository)
+    {
+        _instance = new UserManager(repository);
+    }
+
+    PEG_FUNC_EXIT(TRC_USER_MANAGER, METHOD_NAME);
+
+    return _instance;
+}
+
+// 
+// Add a user
+//
+void UserManager::addUser(const String& userName, const String& password)
+{
+    
+    const char METHOD_NAME[] = "UserManager::addUser";
+
+    PEG_FUNC_ENTER( TRC_USER_MANAGER, METHOD_NAME );
+
+    //
+    // Check if the user is a valid system user
+    //
+    ArrayDestroyer<char> un(userName.allocateCString());
+    if ( !System::isSystemUser( un.getPointer() ) )
+    {
+        PEG_FUNC_EXIT( TRC_USER_MANAGER, METHOD_NAME ); 
+	throw InvalidSystemUser(userName); 
+    }
+
+    // 
+    // Add the user to the password file
+    //
+    try
+    {
+        _userFileHandler->addUserEntry(userName,password);
+    }
+    catch (Exception& e)
+    {
+        PEG_FUNC_EXIT( TRC_USER_MANAGER, METHOD_NAME ); 
+	throw e;
+    }
+
+    PEG_FUNC_EXIT( TRC_USER_MANAGER, METHOD_NAME ); 
+}
+
+//
+// Modify user's password
+//
+void UserManager::modifyUser(
+               const String& userName,
+	       const String& password,
+	       const String& newPassword )
+{
+    const char METHOD_NAME[] = "UserManager::modifyUser";
+
+    PEG_FUNC_ENTER( TRC_USER_MANAGER, METHOD_NAME );
+
+    try
+    {
+        _userFileHandler->modifyUserEntry(userName, password, newPassword);
+    }
+    catch (Exception& e)
+    {
+        PEG_FUNC_EXIT( TRC_USER_MANAGER, METHOD_NAME ); 
+	throw e;
+    }
+    PEG_FUNC_EXIT( TRC_USER_MANAGER, METHOD_NAME ); 
+}
+
+// 
+// Remove a user
+//
+void UserManager::removeUser(const String& userName)
+{
+    const char METHOD_NAME[] = "UserManager::removeUser";
+    PEG_FUNC_ENTER( TRC_USER_MANAGER, METHOD_NAME );
+    try
+    {
+        _userFileHandler->removeUserEntry(userName);
+    }
+    catch (Exception& e)
+    {
+        PEG_FUNC_EXIT( TRC_USER_MANAGER, METHOD_NAME ); 
+	throw e;
+    }
+
+    PEG_FUNC_EXIT( TRC_USER_MANAGER, METHOD_NAME );
+}
+
+
+//
+// Get a list of all the user names.
+//
+void UserManager::getAllUserNames(Array<String>& userNames)
+{
+    const char METHOD_NAME[] = "UserManager::getAllUserNames";
+    PEG_FUNC_ENTER( TRC_USER_MANAGER, METHOD_NAME );
+
+    try
+    {
+        _userFileHandler->getAllUserNames( userNames );
+        PEG_FUNC_EXIT( TRC_USER_MANAGER, METHOD_NAME );
+    }
+    catch (Exception& e)
+    {
+	throw e;
+    }
+
+    PEG_FUNC_EXIT( TRC_USER_MANAGER, METHOD_NAME );
+}
+
+//
+// Verify whether the specified CIM user is valid
+//
+Boolean UserManager::verifyCIMUser (const String& userName)
+{
+    const char METHOD_NAME[] = "UserManager::verifyCIMUser";
+    PEG_FUNC_ENTER( TRC_USER_MANAGER, METHOD_NAME );
+
+    try
+    {
+        if ( _userFileHandler->verifyCIMUser( userName ))
+	{
+            PEG_FUNC_EXIT( TRC_USER_MANAGER, METHOD_NAME );
+	    return true;
+        }
+	else
+	{
+            PEG_FUNC_EXIT( TRC_USER_MANAGER, METHOD_NAME );
+	    return false;
+        }
+    }
+    catch (Exception& e)
+    {
+        PEG_FUNC_EXIT( TRC_USER_MANAGER, METHOD_NAME );
+	throw e;
+    }
+}
+
+//
+// Verify whether the specified user's password is valid
+//
+Boolean UserManager::verifyCIMUserPassword (
+			   const String& userName, 
+			   const String& password)
+{
+    const char METHOD_NAME[] = "UserManager::verifyCIMUserPassword";
+    PEG_FUNC_ENTER( TRC_USER_MANAGER, METHOD_NAME );
+
+    try
+    {
+        if ( _userFileHandler->verifyCIMUserPassword( userName, password ))
+	{
+            PEG_FUNC_EXIT( TRC_USER_MANAGER, METHOD_NAME );
+	    return true;
+        }
+	else
+	{
+            PEG_FUNC_EXIT( TRC_USER_MANAGER, METHOD_NAME );
+	    return false;
+        }
+    }
+    catch (Exception& e)
+    {
+        PEG_FUNC_EXIT( TRC_USER_MANAGER, METHOD_NAME );
+	throw e;
+    }
+}
+
+//
+// Verify whether the specified namespace is valid
+//
+Boolean UserManager::verifyNamespace( const String& myNamespace )
+{
+    const char METHOD_NAME[] = "UserManager::verifyNamespace";
+    PEG_FUNC_ENTER( TRC_USER_MANAGER, METHOD_NAME );
+
+    try
+    {
+        if ( _authHandler->verifyNamespace( myNamespace ))
+        {
+            PEG_FUNC_EXIT( TRC_USER_MANAGER, METHOD_NAME );
+            return true;
+        }
+        else
+        {
+            PEG_FUNC_EXIT( TRC_USER_MANAGER, METHOD_NAME );
+            return false;
+        }
+    }
+    catch (Exception& e)
+    {
+        PEG_FUNC_EXIT( TRC_USER_MANAGER, METHOD_NAME );
+        throw e;
+    }
+}
+
+//
+// Verify whether the specified operation has authorization
+// to be performed by the specified user.
+//
+Boolean UserManager::verifyAuthorization(
+                            const String& userName,
+                            const String& nameSpace,
+                            const String& cimMethodName)
+{
+    const char METHOD_NAME[] = "UserManager::verifyAuthorization";
+    PEG_FUNC_ENTER( TRC_USER_MANAGER, METHOD_NAME );
+
+    try
+    {
+        if ( _authHandler->verifyAuthorization(
+            userName, nameSpace, cimMethodName ) )
+        {
+            PEG_FUNC_EXIT( TRC_USER_MANAGER, METHOD_NAME );
+            return true;
+        }
+        else
+        {
+            PEG_FUNC_EXIT( TRC_USER_MANAGER, METHOD_NAME );
+            return false;
+        }
+    }
+    catch (Exception& e)
+    {
+        PEG_FUNC_EXIT( TRC_USER_MANAGER, METHOD_NAME );
+        throw e;
+    }
+}
+
+//
+// Set the authorizations
+//
+void UserManager::setAuthorization(
+                            const String& userName,
+                            const String& myNamespace,
+                            const String& auth)
+{
+    try
+    {
+        _authHandler->setAuthorization( userName, myNamespace, auth );
+    }
+    catch (Exception& e)
+    {
+        throw e;
+    }
+}
+
+//
+// Remove the authorizations for the specified user and namespace
+//
+void UserManager::removeAuthorization(
+                            const String& userName,
+                            const String& myNamespace)
+{
+    try
+    {
+        _authHandler->removeAuthorization( userName, myNamespace);
+    }
+    catch (Exception& e)
+    {
+        throw e;
+    }
+}
+
+
+//
+// Get the authorizations for the specified user and namespace
+//
+String UserManager::getAuthorization(
+                            const String& userName,
+                            const String& myNamespace)
+{
+    String auth = String::EMPTY;
+
+    try
+    {
+        auth = _authHandler->getAuthorization( userName, myNamespace);
+    }
+    catch (Exception& e)
+    {
+        throw e;
+    }
+
+    return auth;
+}
+
+PEGASUS_NAMESPACE_END
+
+

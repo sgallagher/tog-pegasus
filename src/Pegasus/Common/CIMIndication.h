@@ -22,7 +22,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Chip Vincent (cvincent@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -30,14 +30,19 @@
 #define Pegasus_CIMIndication_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/String.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 class PEGASUS_COMMON_LINKAGE CIMIndication
 {
 public:
-   CIMIndication(void);
-   virtual ~CIMIndication(void);
+	CIMIndication(void);
+	CIMIndication(const String & name);
+	virtual ~CIMIndication(void);
+
+protected:
+	String _name;
 
 };
 

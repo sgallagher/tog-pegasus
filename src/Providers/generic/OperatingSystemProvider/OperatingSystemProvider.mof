@@ -1,6 +1,7 @@
 [provider("OperatingSystemProvider")]
-class Pegasus_OperatingSystem	: CIM_OperatingSystem
+class Pegasus_OperatingSystem
 {
+	[key]
 	string CSCreationClassName;
 	string CSName;
 	string CreationClassName;

@@ -75,10 +75,10 @@ public:
     {
     public:
 
-	enum Type { VOID, STRING, BOOLEAN, INTEGER, UINTEGER, LINTEGER, 
+	enum Type { VOIDT, STRING, BOOLEAN, INTEGER, UINTEGER, LINTEGER, 
 			ULINTEGER, REAL };
 
-	Arg() : _type(VOID)
+	Arg() : _type(VOIDT)
 	{
 	}
 

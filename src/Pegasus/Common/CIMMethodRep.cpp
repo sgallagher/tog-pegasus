@@ -198,6 +198,42 @@ void CIMMethodRep::print(PEGASUS_STD(ostream) &os) const
     os << tmp.getData() << PEGASUS_STD(endl);
 }
 
+/**
+    The BNF for this is;
+    methodDeclaration 	=  [ qualifierList ] dataType methodName
+			   "(" [ parameterList ] ")" ";"
+
+    parameterList 	=  parameter *( "," parameter )
+    Format with qualifiers on one line and declaration on another. Start
+    with newline but none at the end.
+*/
+void CIMMethodRep::toMof(Array<Sint8>& out) const   //ATTNKS:
+{
+    // Output the qualifier list starting on new line
+    if (_qualifiers.getCount())
+	out << "\n";
+
+    _qualifiers.toMof(out);
+
+    // output the type,	MethodName and ParmeterList left enclosure
+    out << "\n" << TypeToString(_type) << " " << _name << "(";
+
+    // output the param list separated by commas.
+    
+    for (Uint32 i = 0, n = _parameters.size(); i < n; i++)
+    {
+	// If not first, output comma separator
+	if (i)
+	    out << ", ";
+
+	_parameters[i].toMof(out);
+    }
+
+    // output the parameterlist and method terminator
+    out << ");";
+}
+
+
 CIMMethodRep::CIMMethodRep()
 {
 

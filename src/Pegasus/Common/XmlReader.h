@@ -1,6 +1,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to 
@@ -22,7 +23,10 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
+//              Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -45,7 +49,9 @@ class CIMProperty;
 class CIMParameter;
 class CIMMethod;
 class CIMObject;
+class CIMNamedInstance;
 class CIMObjectWithPath;
+class CIMParamValue;
 
 class PEGASUS_COMMON_LINKAGE XmlReader
 {
@@ -73,6 +79,10 @@ public:
 	XmlParser& parser, 
 	XmlEntry& entry);
 
+    static Boolean testXmlDeclaration (
+      XmlParser& parser,
+      XmlEntry& entry);
+
     static Boolean testStartTag(
 	XmlParser& parser, 
 	XmlEntry& entry,
@@ -92,12 +102,6 @@ public:
 	XmlEntry& entry);
 
     static void testCimStartTag(XmlParser& parser);
-
-    static Boolean getIsArrayAttribute(
-	Uint32 lineNumber,
-	const XmlEntry& entry,
-	const char* tagName,
-	Boolean& value);
 
     static String getCimNameAttribute(
 	Uint32 lineNumber, 
@@ -300,6 +304,10 @@ public:
 	XmlParser& parser, 
 	CIMInstance& cimInstance);
 
+    static Boolean getNamedInstanceElement(
+	XmlParser& parser, 
+	CIMNamedInstance& namedInstance);
+
     static void getObject(XmlParser& parser, CIMClass& x);
 
     static void getObject(XmlParser& parser, CIMInstance& x);
@@ -349,6 +357,26 @@ public:
     static Boolean getObjectPathElement(
 	XmlParser& parser, 
 	CIMReference& objectPath);
+
+    static Boolean getEMethodCallStartTag(
+	XmlParser& parser, 
+	const char*& name);
+
+    static Boolean getEMethodResponseStartTag(
+	XmlParser& parser, 
+	const char*& name);
+
+    static Boolean getMethodCallStartTag(
+	XmlParser& parser, 
+	const char*& name);
+
+    static Boolean getMethodResponseStartTag(
+	XmlParser& parser, 
+	const char*& name);
+
+    static Boolean getParamValueTag(
+	XmlParser& parser, 
+	const char*& name);
 
 private:
 

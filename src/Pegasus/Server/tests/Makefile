@@ -2,8 +2,11 @@ ROOT = ../../../..
 
 include $(ROOT)/mak/config.mak
 
-DIRS = ClientServer ProviderTable MyProvider LoadProcessClass
-
-# ProviderTable MyProvider LoadProcessClass
+DIRS = \
+	MyProvider \
+	LoadProcessClass \
+	SendMailIndicationDispatcher \
+	XmlIndicationDispatcher \
+	DisplayConsumer
 
 include $(ROOT)/mak/recurse.mak

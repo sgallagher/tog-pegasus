@@ -1,0 +1,434 @@
+// ==================================================================
+// Title:       System MOF Specification Additions 2.6
+// Filename:    CIM_System26_Add1.MOF
+// Version:     2.6
+// Date:        06/12/2001
+// Release:     Preliminary
+// Description: The object classes below are new to the version stated 
+//              above and are being evaluated in premliminary release 
+//              status.
+// ===================================================================
+// Copyright "2001" Distributed Management Task Force, Inc. (DMTF).
+// All rights reserved.  
+// DMTF is a not-for-profit association of industry members dedicated 
+// to promoting enterprise and systems management and interoperability. 
+// DMTF specifications and documents may be reproduced for uses
+// consistent with this purpose by members and non-members, 
+// provided that correct attribution is given. 
+// As DMTF specifications may be revised from time to time, 
+// the particular version and release cited should always be noted.
+// ===================================================================
+// Author:      DMTF System and Devices Working Group
+// ==================================================================
+//  Date 05/25/2001 - Version 2.6
+//    CR583d     - Added SystemBootOptions as a subclass of SystemSetting
+//               - Added the following classes as subclasses of 
+//                 SystemBootOptions:  SystemBootOptionCollection,
+//                 SysBootOptMonitorOptions, SysBootOptLockDevices,
+//                 SysBootOptCommand, and SysBootOptConfigData.
+//               - Added the BootOptionForComputerSystem as subclass 
+//                 of ElementSetting
+//    CR607      - Added TimeZone class
+//    CR612      - Added IBSubnetManager class
+//
+// ================================================================== 
+
+
+// ===================================================================
+//
+//  Services and SAPS
+//
+// ===================================================================
+
+
+// ===================================================================
+// CIM_IBSubnetManager
+// =================================================================== 
+   [Description (
+     "An Infiniband Subnet Manager (SM) is an entity responsible "
+     "for configuring and managing an IB subnet. It uses Subnet "
+     "Management Agents (SMA) to access and manage individual "
+     "nodes. The SM is hosted in the context of a specific "
+     "computer system (i.e., hosted by an instance of "
+     "UnitaryComputerSystem), as described by the HostedService "
+     "association. Note that there may be multiple SMs operating "
+     "in a subnet, but only the elected master is allowed to "
+     "perform configuration functions.") ]
+class CIM_IBSubnetManager : CIM_Service {
+      [Description (
+        "Administratively assigned priority for this SM, used to "
+        "establish the master. A higher number indicates a higher "
+        "priority and likelihood of becoming the master. The property "
+        "value can be reset by the master SM."),
+       Write,
+       MappingStrings {"MAD.IBTA | SMInfo | Priority"} ]
+    uint8 Priority;
+      [Description (
+        "Enumerated value that indicates the Subnet Manager's State. "
+        "The values are fairly self-explanatory except for \"Not "
+        "Active\". This value indicates that the SM is available to "
+        "participate in the subnet, but has not been given "
+        "permission.  A value \"Unknown\" (0) is also defined."),
+       Values {"Unknown", "Not Active", "Discovering", "Standby", 
+               "Master"},
+       MappingStrings {"MAD.IBTA | SMInfo | SMState"} ]
+    uint16 State;
+};
+
+
+// ===================================================================
+//
+//  System Settings
+//
+// ===================================================================
+
+
+// ==================================================================
+// SystemBootOptions
+// ==================================================================
+   [Description (
+     "CIM_SystemBootOptions specify the settings for a pre-boot agent " 
+     "of a system when the system reboots after a reset, power on or " 
+     "power cycle. Boot options such as device to boot from, verbosity " 
+     "of the messages displayed on both local and remote display during " 
+     "boot process, status of devices that take user input such as "
+     "keyboard etc.") ] 
+class CIM_SystemBootOptions : CIM_SystemSetting {
+      [Description ("This flag indicates whether this Boot option is "
+        "an aggregated boot option") ]
+    boolean AggregatedOption;
+};
+  
+
+// ================================================================== 
+// SystemBootOptionCollection 
+// ================================================================== 
+   [Association, Aggregation, Description ( 
+     "CIM_SystemBootOptionCollection is an aggregation of CIM_System"
+     "BootOptions and classes derived from SystemBootOptions specify "
+     "boot options for a pre-boot agent on a system") ]
+class CIM_SystemBootOptionCollection { 
+      [Aggregate, Description ( 
+        "The Boot option that contains and/or aggregates other " 
+        "boot options or classes derived from CIM_SystemBoot"
+        "Options.") ]
+    CIM_SystemBootOptions REF GroupComponent; 
+      [Description ("The contained (Sub) Boot options.") ] 
+    CIM_SystemBootOptions REF PartComponent; 
+}; 
+
+
+// ================================================================== 
+// SysBootMonitorOptions 
+// ================================================================== 
+   [Description ( 
+     "CIM_SysBootMonitorOptions specify the settings for local and " 
+     "remote display for the pre-boot agent") ]
+class CIM_SysBootMonitorOptions : CIM_SystemBootOptions { 
+      [Description ( 
+        "LocalDisplay when set to TRUE indicate that the SysBoot"
+        "MonitorOptions are for local display and when set to FALSE "
+        "indicate that the option is for remote display"), 
+       Read] 
+    boolean LocalDisplay; 
+      [Description( 
+        "SupportedVerbosityLevels is an array of verbosity levels "
+        "supported by the pre-boot agent. A value of 0 'Unknown' is "
+        "self explanatory, a value of 1'Not Supported' indicates "
+        "pre-boot agent does not have an option of setting verbosity "
+        "levels, a value of 2 'Disabled' indicates that pre-boot "
+        "agent does support options of setting different verbosity "
+        "levels, but the option is temporarily disabled. A value of "
+        "4 'None' indicates that no messages are to be displayed by "
+        "the pre-boot agent. A value of 7 'Custom' indicates that "
+        "pre-boot agent supports custom verbosity levels"), 
+       Values {"Unknown", "Not Supported", "Disabled", 
+               "System Default", "None", "Quiet", "Verbose", 
+               "Custom"}, 
+       Read ]
+    uint16 SupportedVerbosityLevels[]; 
+      [Description( 
+       "SelectedVerbosityLevel specifies the verbosity level setting "
+       "for pre-boot agent. SelectedVerbosityLevel is chosen from "
+       "SupportedVerbosityLevels"),
+       ModelCorrespondence{
+        "CIM_SysBootMonitorOptions.SupportedVerbosityLevels"} ]
+    uint16 SelectedVerbosityLevel; 
+      [Description("The values can be any arbitrary string. " 
+       "For example - Debug, Checkpoint, Config, " 
+       "Errors, Warnings, Statistics") ]
+    string AvailableCustomVerbosityLevels[]; 
+      [Description( 
+        "SelectedCustomVerbosityLevels is an array of value chosen "
+        "from AvailableCustomVerbosityLevels."), 
+       ModelCorrespondence{
+        "CIM_SysBootMonitorOptions.AvailableCustomVerbosityLevels"} ]
+    string SelectedCustomVerbosityLevels[]; 
+}; 
+
+  
+
+// ================================================================== 
+// SysBootOptLockDevices 
+// ================================================================== 
+   [Description ( 
+     "A system boot can be initiated from a central management "
+     "station to run diagnostics or other system maintenance tasks. "
+     "Under such cases the remote user may lock the keyboard, reset "
+     "button etc. to prevent the local user from interacting with the "
+     "'system. CIM_SysBootOptLockDevices is boot option setting for "
+     "pre-boot agent to lock keyboard, reset, power button etc.") ]
+class CIM_SysBootOptLockDevices:CIM_SystemBootOptions { 
+      [Description( 
+        "Indicates if the keyboard is locked/unlocked after the "
+        "system boot."), 
+       Values {"Unknown", "Lock", "UnLock", "Not Supported"} ]
+    uint16 KeyboardLock; 
+      [Description( 
+        "Indicates if the Power Button is locked/unlocked after "
+        "the system boot."), 
+       Values {"Unknown", "Lock", "UnLock", "Not Supported"} ]
+    uint16 PowerButtonLock; 
+      [Description( 
+        "Indicates if the Reset Button is locked/unlocked after "
+        "the system boot."), 
+       Values {"Unknown", "Lock", "UnLock", "Not Supported"} ]
+    uint16 ResetButtonLock; 
+      [Description( 
+        "Indicates if the Sleep Button is locked/unlocked after "
+        "the system boot."), 
+       Values {"Unknown", "Lock", "UnLock", "Not Supported"} ]
+    uint16 SleepButtonLock; 
+}; 
+
+
+// ================================================================== 
+// SysBootOptCommand 
+// ================================================================== 
+   [Description ( 
+     "Pre-boot agent on a system, like BIOS, may accept certain commands" 
+     "like the boot partition to boot from, or run diagnostics etc." 
+     "CIM_SysBootOptCommand specifies the command the pre-boot agent" 
+     "should execute after the pre-boot agent completes its tasks") ]
+class CIM_SysBootOptCommand : CIM_SystemBootOptions { 
+      [MaxLen (256), Description( 
+        "An array of any arbitrary strings. For example - 'Force "
+        "PXE boot', 'Force Hard-drive boot', 'Force Hard-drive "
+        "safemode boot' etc."), 
+       ArrayType ("Indexed") ]
+    string AvailableBootCommands[ ]; 
+      [Description( 
+        "An array of strings that provide a more detailed description" 
+        "of the boot commands"), 
+       ArrayType ("Indexed"), 
+       ModelCorrespondence {
+        "CIM_SysBootOptCommand.AvailableBootCommands"} ]
+    string BootCommandDescription[ ]; 
+      [MaxLen (256), Description( 
+        "SelectedBootCommand specifies the selected boot command for the" 
+        "pre-boot agent to execute"), 
+       ModelCorrespondence {
+        "CIM_SysBootOptCommand.AvailableBootCommands"} ]
+    string SelectedBootCommand; 
+      [Description( 
+        "Boot commands have parameters to augment their functionality." 
+        "For example one may specify to boot from hard-drive as a boot" 
+        "command and specify primary or secondary hard-drive as a" 
+        "boot command parameter. A value of NULL always indicates default" 
+        "command parameter. In example cited here, it may mean primary" 
+        "hard-drive") ] 
+    uint16 BootCommandParameter; 
+};
+
+ 
+
+// ================================================================== 
+// SysBootOptConfigData
+// ================================================================== 
+   [Description ( 
+     "CIM_SysBootOptConfigData specify setting for system's non-"
+     "volatile configuration data before re-booting the system") ]
+class CIM_SysBootOptConfigData : CIM_SystemBootOptions {
+      [Description (
+        "This flag when set resets computer systems non-volatile"
+        "configuration data to the system's Setup defaults prior"
+        "to booting the system") ]
+    boolean ResetConfigurationData;
+};
+ 
+
+// ================================================================== 
+// BootOptionsForComputerSystem 
+// ==================================================================
+   [Association, Description ( 
+     "This is an association class to relate boot settings with " 
+     "Computer System.") ]
+class CIM_BootOptionsForComputerSystem : CIM_ElementSetting {
+      [Override("Element"), Description ( 
+        "The Computer System for which the boot options apply.") ]
+    CIM_ComputerSystem REF Element; 
+      [Override("Setting"), Description ( 
+        "The Boot options for the Computer System.") ]
+    CIM_SystemBootOptions REF Setting; 
+};
+
+
+// ===================================================================
+// CIM_TimeZone
+// =================================================================== 
+   [Description (
+     "A TimeZone is a presentation of the properties used to describe "
+     "a time zone.  These properties include the concepts of daylight "
+     "savings.") ]
+class CIM_TimeZone : CIM_Setting {
+      [Key,
+       Description(
+        "Full name of the time zone (e.g. Eastern Standard "
+        "Time) of the standard time name suitable for "
+        "presentation to the user in the default locale.") ]
+   string StandardName;
+      [Key,
+       Description(
+        "CreationClassName indicates the name of the class or the "
+        "subclass used in the creation of an instance. When used "
+        "with the other Key properties of this class, this property "
+        "allows all instances of this class and its subclasses to "
+        "be uniquely identified.")]
+   string CreationClassName;
+      [Override ("Caption"),
+       Description (
+        "Short name of the standard name of the time "
+        "zone (e.g. PST) suitable for presentation to "
+        "the user in the default locale.")]
+   string Caption;
+      [Description (
+        "The number of minutes by which this"
+        "time zone differs from GMT regardless of"
+        "daylight savings time."), 
+       Units ("Minutes")]
+   sint32 Offset;
+      [Description (
+        "The first year in which this particular daylight savings "
+        "period became/will be effective. Set to 0 if this "
+        "time zone does not observe daylight savings time.")] 
+   uint16 DaylightStartYear;
+      [Description (
+        "The month in which daylight savings time ends. "
+        "Specify 0 for January, 1 for February, and so on."),
+       Values {"January", "February", "March", "April",
+               "May", "June", "July", "August", "September",
+               "October", "November", "December" },
+       ModelCorrespondence {"CIM_TimeZone.StandardDay" }]
+   uint8 StandardMonth;
+      [MinValue (-31), MaxValue (31),
+       Description (
+        "The day-of-week-in-month on which daylight "
+        "savings time ends. Specify a positive or "
+        "negative integer to indicate whether "
+        "the StandardDayOfWeek should be calculated "
+        "from the beginning of the month or the end of the "
+        "month. If StandardDay is 1 and StandardDayOfWeek "
+        "is SUNDAY, then this indicates the first Sunday "
+        "in the StandardMonth. If StandardDay of -1 and "
+        "StandardDayOfWeek is SUNDAY, then this indicates "
+        "the last Sunday. To specify StandardDayOfWeek "
+        "occurring on or before an exact day of the month, "
+        "make the StandardDay and StandardDayOfWeek both "
+        "negative. For example, a StandardDay of -21 and "
+        "StandardDayOfWeek of -WEDNESDAY indicates the last "
+        "Wednesday on or before the 21st day of the start month. " 
+        "To specify a StandardDayOfWeek occurring on or after "
+        "an exact day of the month, make the StandardDay "
+        "positive and the StandardDayOfWeek negative. "
+        "For example, a StandardDay of 21 and StandardDayOfWeek "
+        "of -WEDNESDAY indicates the first Wednesday on or after "
+        "the 21st day of StandardMonth."),
+       ModelCorrespondence {"CIM_TimeZone.StandardDayOfWeek" }]
+   sint8 StandardDay;
+      [Description (
+        "The day-of-week-in-month in which daylight "
+        "savings time ends. See DaylightDayOfWeek for "
+        "a complete description."),
+       ValueMap {"-6", "-5", "-4", "-3", "-2", "-1",
+                 "0", "1", "2", "3", "4", "5", "6" },
+       Values {"-Monday", "-Tuesday", "-Wednesday",
+               "-Thursday", "-Friday", "-Saturday",
+               "Sunday", "Monday", "Tuesday", "Wednesday",
+               "Thursday", "Friday", "Saturday" },
+       ModelCorrespondence {"CIM_TimeZone.StandardDay" }]
+   sint8 StandardDayOfWeek;
+      [Description (
+        "The time interval after midnight when daylight "
+        "savings time ends.")]
+   datetime StandardStartInterval;
+      [Description (
+        "Full name of the time zone (e.g. Pacific Daylight "
+        "Time) of the daylight savings time name "
+        "in a format suitable for presentation "
+        "to the user in the default locale.")]
+   string DaylightName;
+      [Description (
+        "Short name of the time zone (e.g. PDT) "
+        "of the daylight savings time name "
+        "in a format suitable for presentation "
+        "to the user in the default locale. ")]
+   string DaylightCaption;
+      [Description (
+        "The month in which daylight savings time "
+        "starts. Specify 0 for January, 1 for "
+        "February, and so on."),
+       Values {"January", "February", "March", "April",
+               "May", "June", "July", "August", "September",
+               "October", "November", "December" },
+      ModelCorrespondence {"CIM_TimeZone.DaylightDay" }]
+   uint8 DaylightMonth;
+      [MinValue (-31), MaxValue(31),
+       Description (
+        "The day-of-week-in-month on which daylight "
+        "savings time starts. Specify a positive or "
+        "negative integer to indicate whether "
+        "the DaylightDayOfWeek should be calculated "
+        "from the beginning of the month or the end of the "
+        "month. If DaylightDay is 1 and DaylightDayOfWeek "
+        "is SUNDAY, then this indicates the first Sunday "
+        "in the DaylightMonth. If DaylightDay of -1 and "
+        "DaylightDayOfWeek is SUNDAY, then this indicates "
+        "the last Sunday. To specify DaylightDayOfWeek "
+        "occurring on or before an exact day of the month, "
+        "make the DaylightDay and DaylightDayOfWeek both "
+        "negative. For example, a DaylightDay of -21 and "
+        "DaylightDayOfWeek of -WEDNESDAY indicates the last "
+        "Wednesday on or before the 21st day of the start month. " 
+        "To specify a DaylightDayOfWeek occurring on or after "
+        "an exact day of the month, make the DaylightDay "
+        "positive and the DaylightDayOfWeek negative. "
+        "For example, a DaylightDay of 21 and DaylightDayOfWeek "
+        "of -WEDNESDAY indicates the first Wednesday on or after "
+        "the 21st day of DaylightMonth."),
+      ModelCorrespondence {"CIM_TimeZone.DaylightDayOfWeek" }]
+   sint8 DaylightDay;
+      [Description (
+        "Positive or negative integer used in conjunction "
+        "with DaylightDay to indicate the day of the week "
+        "on which daylight savings time starts. Set DaylightDay "
+        "to 0 to indicate an exact day of month, such as March 1. "
+        "A negative integer indicates a DaylightDayOfWeek "
+        "occurring on or after an exact day of the month. A "
+        "positive integer indicates a DaylightDayOfWeek "
+        "occurring on or before an exact day of the month. "),
+       ValueMap {"-6", "-5", "-4", "-3", "-2", "-1",
+                 "0", "1", "2", "3", "4", "5", "6" },
+       Values {"-Monday", "-Tuesday", "-Wednesday",
+               "-Thursday", "-Friday", "-Saturday",
+               "Sunday", "Monday", "Tuesday", "Wednesday",
+               "Thursday", "Friday", "Saturday" },
+       ModelCorrespondence {"CIM_TimeZone.DaylightDay" }]
+   sint8 DaylightDayOfWeek;
+      [Description (
+        "The time interval after midnight"
+        "when daylight savings time takes effect.")]
+   datetime DaylightStartInterval;
+};  
+// ===================================================================
+// end of file
+// ===================================================================

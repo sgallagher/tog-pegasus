@@ -1,4 +1,4 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////-*-c++-*-//////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
@@ -21,6 +21,8 @@
 //==============================================================================
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
+//
+// Modified By: Nag Boranna (nagaraja_boranna@hp.com)
 //
 // Modified By:
 //
@@ -110,7 +112,7 @@ public:
 class PEGASUS_COMMON_LINKAGE AlreadyExists : public Exception
 {
 public:
-
+  
     static const char MSG[];
 
     AlreadyExists(const String& x = String()) : Exception(MSG + x) { }
@@ -344,6 +346,17 @@ public:
 
     NoSuchFile(const String& fileName) : Exception(MSG + fileName) { }
 };
+
+/// ATTN:
+class PEGASUS_COMMON_LINKAGE FileNotReadable : public Exception
+{
+public:
+
+    static const char MSG[];
+
+    FileNotReadable(const String& fileName) : Exception(MSG + fileName) { }
+};
+
 class PEGASUS_COMMON_LINKAGE CannotBindToAddress : public Exception
 {
 public:
@@ -483,6 +496,15 @@ public:
     StackUnderflow() : Exception(MSG) { }
 };
 
+class PEGASUS_COMMON_LINKAGE StackOverflow : public Exception
+{
+public:
+
+    static const char MSG[];
+
+    StackOverflow() : Exception(MSG) { }
+};
+
 class PEGASUS_COMMON_LINKAGE QueueUnderflow : public Exception
 {
 public:
@@ -575,6 +597,135 @@ public:
     static const char MSG[];
 
     CorruptFile(const String& path) : Exception(MSG + path) { }
+};
+
+class PEGASUS_COMMON_LINKAGE BindFailed : public Exception
+{
+public:
+
+    static const char MSG[];
+
+    BindFailed(const String& message) : Exception(MSG + message) { }
+};
+
+class PEGASUS_COMMON_LINKAGE InvalidLocator : public Exception
+{
+public:
+
+    static const char MSG[];
+
+    InvalidLocator(const String& locator) : Exception(MSG + locator) { }
+};
+
+class PEGASUS_COMMON_LINKAGE CannotCreateSocket : public Exception
+{
+public:
+
+    static const char MSG[];
+
+    CannotCreateSocket() : Exception(MSG) { }
+};
+
+class PEGASUS_COMMON_LINKAGE CannotConnect : public Exception
+{
+public:
+
+    static const char MSG[];
+
+    CannotConnect(const String& locator) : Exception(MSG + locator) { }
+};
+
+class PEGASUS_COMMON_LINKAGE UnexpectedFailure : public Exception
+{
+public:
+
+    static const char MSG[];
+
+    UnexpectedFailure() : Exception(MSG) { }
+};
+
+class PEGASUS_COMMON_LINKAGE FailedToConnect : public Exception
+{
+public:
+
+    static const char MSG[];
+
+    FailedToConnect() : Exception(MSG) { }
+};
+
+class PEGASUS_COMMON_LINKAGE AlreadyConnected: public Exception
+{
+public:
+
+    static const char MSG[];
+
+    AlreadyConnected() : Exception(MSG) { }
+};
+
+class PEGASUS_COMMON_LINKAGE NotConnected: public Exception
+{
+public:
+
+    static const char MSG[];
+
+    NotConnected() : Exception(MSG) { }
+};
+
+class PEGASUS_COMMON_LINKAGE TimedOut: public Exception
+{
+public:
+
+    static const char MSG[];
+
+    TimedOut() : Exception(MSG) { }
+};
+
+// ATTN: this exception should derive from the Exception class to define
+// the standard message interface. Try blocks which catch the class
+// Exception will miss this one.
+
+class PEGASUS_COMMON_LINKAGE BufferTooSmall
+{
+public:
+
+    BufferTooSmall(Uint32 needed)  
+    {
+	required_size = needed;
+    }
+
+    Uint32 required_size;
+      
+private:
+
+    BufferTooSmall(void);
+};
+
+class PEGASUS_COMMON_LINKAGE ParseError : public Exception
+{
+public:
+
+    static const char MSG[];
+
+    ParseError(const String& message) : Exception(MSG + message) { }
+};
+
+class PEGASUS_COMMON_LINKAGE MissingNullTerminator : public Exception
+{
+public:
+
+    static const char MSG[];
+
+    MissingNullTerminator() : Exception(MSG) { }
+};
+
+class PEGASUS_COMMON_LINKAGE SSL_Exception: public Exception
+{
+public:
+
+    static const char MSG[];
+
+    SSL_Exception(const String& message)
+       : Exception(MSG + message) { }
 };
 
 PEGASUS_COMMON_LINKAGE void ThrowUnitializedHandle();

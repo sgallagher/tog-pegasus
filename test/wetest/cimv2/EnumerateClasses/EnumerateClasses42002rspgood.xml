@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CIM CIMVERSION="2.0" DTDVERSION="2.0">
+<MESSAGE ID="42002" PROTOCOLVERSION="1.0">
+<SIMPLERSP>
+<IMETHODRESPONSE NAME="EnumerateClasses">
+<ERROR CODE="5" DESCRIPTION="NameSpaceManager.cpp(540): CIM_ERR_INVALID_CLASS: The specified class does not exist: &quot;NonExistentClass&quot;"/>
+</IMETHODRESPONSE>
+</SIMPLERSP>
+</MESSAGE>
+</CIM>

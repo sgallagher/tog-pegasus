@@ -26,9 +26,11 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Config.h>
 #include <cassert>
 #include <Pegasus/Client/CIMClient.h>
-#include <Pegasus/Common/Selector.h>
+#include <Pegasus/Common/Monitor.h>
+#include <Pegasus/Common/HTTPConnector.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -39,8 +41,9 @@ int main(int argc, char** argv)
 {
     try
     {
-	Selector selector;
-	CIMClient client(&selector);
+	Monitor* monitor = new Monitor;
+	HTTPConnector* httpConnector = new HTTPConnector(monitor);
+	CIMClient client(monitor, httpConnector);
 	client.connect("localhost:5988");
 
 	String instanceName = "Process.pid=123456";

@@ -103,6 +103,56 @@ void CIMQualifierRep::print(PEGASUS_STD(ostream) &os) const
     os << tmp.getData() << PEGASUS_STD(endl);
 }
 
+/** toMof Generates MOF output for a qualifier.
+    The BNF for this is:
+    <pre>
+    qualifier 	       = qualifierName [ qualifierParameter ] [ ":" 1*flavor]
+
+    qualifierParameter = "(" constantValue ")" | arrayInitializer
+
+    arrayInitializer   = "{" constantValue*( "," constantValue)"}"
+    </pre>
+*/
+void CIMQualifierRep::toMof(Array<Sint8>& out) const   //ATTNKS:
+{
+    // Output Qualifier name
+    out << _name;
+
+    /* If the qualifier is Boolean, we do not put out a value. This is
+       the way MOF is shown.  Note that we should really be checking
+       the qualifierdecl to compare with the default but the defaults
+       on the current ones are all false so the existence of the qualifier
+       implies true.
+       Also if the value is Null, we do not put out a value because
+       no value has been set.  Assumes that qualifiers are built
+       with NULL set if no value has been placed in the qualifier.
+    */
+    Boolean hasValueField = false;
+    if (!_value.isNull() || !(_value.getType() == CIMType::BOOLEAN) )
+    {
+	out << " (";
+	hasValueField = true;
+	_value.toMof(out);
+    }
+
+    // output the flavors
+    // ATTNKS: This is a poor test to see if flavor output exists
+    String flavorString;
+    flavorString = FlavorToMof(_flavor);
+    if (flavorString.size())
+    {
+	if (hasValueField == false)
+	    out << " (";
+	out << " : ";
+	out << flavorString;
+	hasValueField = true;
+	//FlavorToMof(out, _flavor);
+    }
+
+    if (hasValueField)
+	out << ")"; 
+}
+
 CIMQualifierRep::CIMQualifierRep()
 {
 

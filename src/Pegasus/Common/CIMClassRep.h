@@ -164,6 +164,10 @@ public:
 
     void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const;
 
+    void toMof(Array<Sint8>& out) const;
+
+    void printMof(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const;
+
     Boolean identical(const CIMClassRep* x) const;
 
     CIMClassRep* clone() const

@@ -3,8 +3,27 @@
 // Title:       Application MOF specification 2.5
 // Filename:    CIM_Application25.mof
 // Version:     2.5
-// Release:     0
-// Date:        12/19/2000
+// Status:      Final
+// Date:        06/12/2001
+// ===================================================================
+// Copyright "2001" Distributed Management Task Force, Inc. (DMTF).
+// All rights reserved.  
+// DMTF is a not-for-profit association of industry members dedicated 
+// to promoting enterprise and systems management and interoperability. 
+// DMTF specifications and documents may be reproduced for uses
+// consistent with this purpose by members and non-members, 
+// provided that correct attribution is given. 
+// As DMTF specifications may be revised from time to time, 
+// the particular version and release cited should always be noted.
+// Description: These object classes define the user and security 
+//              model for CIM and includes classes needed to represent
+//              users, groups and organizational entities as well as 
+//              security services and authentication and authorization 
+//              information.
+//              The object classes below are listed in an order that
+//              avoids forward references. Required objects, defined 
+//		    by other working groups, are omitted. 
+// ===================================================================
 // Description: The object classes below are listed in an order that
 //              avoids forward references. Required objects, defined 
 //	        by other working groups, are omitted.

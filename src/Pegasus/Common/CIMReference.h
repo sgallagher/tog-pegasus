@@ -1,4 +1,4 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%/////////-*-c++-*-//////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
@@ -48,7 +48,7 @@ class PEGASUS_COMMON_LINKAGE KeyBinding
 {
 public:
 
-    enum Type { BOOLEAN, STRING, NUMERIC };
+    enum Type { BOOLEAN, STRING, NUMERIC, REFERENCE };
 
     /** Default constructor */
     KeyBinding();
@@ -432,7 +432,7 @@ public:
 	const KeyBindingArray& keyBindings = getKeyBindingArray());
 
     /** Set the reference from an object name . */
-    void set(const String& objectName);
+      void set(const String& objectName);
 
     /** Same as set() above except that it is an assignment operator */
     CIMReference& operator=(const String& objectName)
@@ -558,10 +558,26 @@ public:
     */
     Boolean identical(const CIMReference& x) const;
 
-    /** Encodes this object as XML.
-	@param out argument in which to place resutls
+    /** Encodes this CIMReference object as XML.
+	@param out argument in which to place results
     */
     void toXml(Array<Sint8>& out, Boolean putValueWrapper = true) const;
+
+    /** Encodes this CIMReference object as XML.  Ignores the host and
+        namespace.
+	@param out argument in which to place results
+    */
+    void instanceNameToXml(Array<Sint8>& out) const;
+
+    /** Encodes this CIMReference object as XML. Ignores the host.
+	@param out argument in which to place results
+    */
+    void localObjectPathtoXml(Array<Sint8>& out) const;
+
+    /** Encodes this CIMreference object as MOF.
+	@param out argument in which to place results
+    */
+    void toMof(Array<Sint8>& out, Boolean putValueWrapper = true) const;
 
     /** Prints the XML encoding of this object.
     */
@@ -595,8 +611,6 @@ private:
     void nameSpaceToXml(Array<Sint8>& out) const;
 
     void localNameSpaceToXml(Array<Sint8>& out) const;
-
-    void instanceNameToXml(Array<Sint8>& out) const;
 
     void classNameToXml(Array<Sint8>& out) const;
 

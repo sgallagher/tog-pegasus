@@ -115,9 +115,9 @@ int PrependCmd(const vector<string>& args)
 
     // -- For each matching file:
 
-    for (size_t i = 0; i < fileNames.size(); i++)
+    for (size_t j = 0; j < fileNames.size(); j++)
     {
-	int result = _Prepend(args[0], args[1], fileNames[i]);
+	int result = _Prepend(args[0], args[1], fileNames[j]);
 
 	if (result != 0)
 	    return result;

@@ -71,6 +71,7 @@ void test01()
 	CIMReference r2 ("//atp:77/root/cimv25:TennisPlayer.");
 	//cout << "r1 " << r1.toString() << endl;
 	//cout << "r2 " << r2.toString() << endl;
+
 	assert(r1 == r2);
 	assert(r1.toString() == r2.toString());
 
@@ -107,11 +108,72 @@ void test01()
 
 }
 
+void test02()
+{
+    // test cases with commas in the key value string
+
+    CIMReference testr1 = "MyClass.z=true,y=1234,x=\"Hello,World\"";
+
+    CIMReference testr2 = "MyClass.z=true,y=1234,x=\"Hello World,\"";
+
+    CIMReference testr3 = "MyClass.z=true,y=1234,x=\"Hello,,World\"";
+
+    CIMReference testr4 = "//atp:77/root/cimv25:test.last=\"Rafter,Smith.Jones long_name:any*char=any123%#@!<>?+^\",first=\"Patrick\"";
+
+    // test error cases
+
+    Boolean errorDetected = false;
+    try
+    {
+       CIMReference testerr1 = "myclass.X=\"Hello World\"Z=trueY=1234";
+    }
+    catch (Exception& e)
+    {
+        errorDetected = true;
+    }
+    assert(errorDetected);
+
+    errorDetected = false;
+    try
+    {
+       CIMReference testerr2 = "myclass.XYZ";
+    }
+    catch (Exception& e)
+    {
+        errorDetected = true;
+    }
+    assert(errorDetected);
+
+    errorDetected = false;
+    try
+    {
+       CIMReference testerr3 = "MyClass.z=true,y=1234abc,x=\"Hello World\"";
+    }
+    catch (Exception& e)
+    {
+        errorDetected = true;
+    }
+    assert(errorDetected);
+
+    errorDetected = false;
+    try
+    {
+       CIMReference testerr4 = "MyClass.z=nottrue,y=1234,x=\"Hello World\"";
+    }
+    catch (Exception& e)
+    {
+        errorDetected = true;
+    }
+    assert(errorDetected);
+}
+
+
 int main()
 {
     try
     {
 	test01();
+	test02();
 
 	cout << "+++++ passed all tests" << endl;
     }

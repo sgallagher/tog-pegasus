@@ -26,11 +26,11 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Config.h>
 #include <iostream>
 #include <cctype>
 #include <cassert>
 #include <cstdlib>
-#include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/XmlParser.h>
 #include <Pegasus/Common/XmlWriter.h>

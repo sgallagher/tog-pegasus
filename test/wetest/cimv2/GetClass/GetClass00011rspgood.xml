@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CIM CIMVERSION="2.0" DTDVERSION="2.0">
+<MESSAGE ID="00011" PROTOCOLVERSION="1.0">
+<SIMPLERSP>
+<IMETHODRESPONSE NAME="GetClass">
+<IRETURNVALUE>
+<CLASS NAME="CIM_InstalledProductImage">
+<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false" TOSUBCLASS="false">
+<VALUE>
+TRUE
+</VALUE>
+</QUALIFIER>
+<QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
+<VALUE>
+The InstalledProductImage association identifies the InstalledProduct instance representing the collection of installed features and elements for a particular product&apos;s installed instance.
+</VALUE>
+</QUALIFIER>
+<PROPERTY.REFERENCE NAME="Product" REFERENCECLASS="CIM_Product" CLASSORIGIN="CIM_InstalledProductImage">
+<QUALIFIER NAME="Min" TYPE="uint32" OVERRIDABLE="false" TOSUBCLASS="false">
+<VALUE>
+1
+</VALUE>
+</QUALIFIER>
+<QUALIFIER NAME="Max" TYPE="uint32" OVERRIDABLE="false" TOSUBCLASS="false">
+<VALUE>
+1
+</VALUE>
+</QUALIFIER>
+<QUALIFIER NAME="Aggregate" TYPE="boolean" OVERRIDABLE="false" TOSUBCLASS="false">
+<VALUE>
+TRUE
+</VALUE>
+</QUALIFIER>
+<QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
+<VALUE>
+The product that has been installed and created the software features and software elements on the system.
+</VALUE>
+</QUALIFIER>
+<VALUE.REFERENCE>
+<CLASSNAME NAME="CIM_Product"/>
+</VALUE.REFERENCE>
+</PROPERTY.REFERENCE>
+<PROPERTY.REFERENCE NAME="Collection" REFERENCECLASS="CIM_InstalledProduct" CLASSORIGIN="CIM_InstalledProductImage">
+<QUALIFIER NAME="Weak" TYPE="boolean" OVERRIDABLE="false" TOSUBCLASS="false">
+<VALUE>
+TRUE
+</VALUE>
+</QUALIFIER>
+<QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
+<VALUE>
+The collection representing the set of software features and elements that are the result of one product installation.
+</VALUE>
+</QUALIFIER>
+<VALUE.REFERENCE>
+<CLASSNAME NAME="CIM_InstalledProduct"/>
+</VALUE.REFERENCE>
+</PROPERTY.REFERENCE>
+</CLASS>
+</IRETURNVALUE>
+</IMETHODRESPONSE>
+</SIMPLERSP>
+</MESSAGE>
+</CIM>

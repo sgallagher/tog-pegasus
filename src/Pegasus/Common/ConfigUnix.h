@@ -1,6 +1,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to 
@@ -22,7 +23,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: 
+//         Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -41,10 +43,10 @@
 #define PEGASUS_REPOSITORY_LINKAGE /* empty */
 #define PEGASUS_PROTOCOL_LINKAGE /* empty */
 #define PEGASUS_SERVER_LINKAGE /* empty */
-#define PEGASUS_CLIENT_LINKAGE /* empty */
 #define PEGASUS_COMPILER_LINKAGE /* empty */
 #define PEGASUS_GETOOPT_LINKAGE /* empty */
 #define PEGASUS_PROVIDER_LINKAGE /* empty */
 #define PEGASUS_CMDLINE_LINKAGE /* empty */
-
+#define PEGASUS_HANDLER_LINKAGE /* empty */
+#define PEGASUS_CIMOM_LINKAGE /* empty */
 #endif  /* Pegasus_ConfigUnix_h */

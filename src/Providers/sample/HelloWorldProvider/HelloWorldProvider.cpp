@@ -22,7 +22,7 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -30,17 +30,74 @@
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Provider2/CIMInstanceProvider.h>
 #include <Pegasus/Provider2/SimpleResponseHandler.h>
-#include <Pegasus/Provider2/CIMProviderStub.h>
+#include <Pegasus/Provider2/OperationFlag.h>
+
+#include <Pegasus/Common/CIMDateTime.h>
+#include <Pegasus/Common/IPC.h>
+#include <Pegasus/Common/Thread.h>
 
 #include "HelloWorldProvider.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-static HelloWorldProvider provider;
-
-extern "C" PEGASUS_EXPORT CIMProvider* PegasusCreateProvider_HelloWorldProvider()
+class IndicationThread : public Thread
 {
-   return(new CIMProviderStub((CIMInstanceProvider *)&provider));
+public:
+	IndicationThread(void);
+	virtual ~IndicationThread(void);
+
+	void start(const Uint32 frequency, const String & message);
+	void stop(void);
+
+	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL run(void *);
+
+protected:
+	Uint32 _frequency;
+	String _message;
+
+};
+
+IndicationThread::IndicationThread(void) :
+	Thread(run, 0, false)
+{
+}
+
+IndicationThread::~IndicationThread(void)
+{
+}
+
+void IndicationThread::start(const Uint32 frequency, const String & message)
+{
+	_frequency = frequency;
+	_message = message;
+
+	run(this);
+}
+
+void IndicationThread::stop(void)
+{
+}
+
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL IndicationThread::run(void * pv)
+{
+	IndicationThread * pThread = (IndicationThread *)pv;
+	
+	while(true)
+	{
+		// create indication
+		CIMClass indication("Sample_HelloWorldIndication");
+
+		// add message to indication
+		//indication.addProperty(CIMProperty("Message", pThread->getMessage()));
+		
+		// add timestamp to indication
+		//indication.addProperty(CIMProperty("TimeStamp", CIMDateTime()));
+
+		// send indication
+		//_handler->deliver(indication);
+		
+		//pThread->sleep(pThread->getFrequency());
+	}
 }
 
 HelloWorldProvider::HelloWorldProvider(void)
@@ -53,33 +110,33 @@ HelloWorldProvider::~HelloWorldProvider(void)
 
 void HelloWorldProvider::initialize(CIMOMHandle& cimom)
 {
-   // save cimom handle
-   _cimom = cimom;
+	// save cimom handle
+	_cimom = cimom;
 
-   // create default instances
-   CIMInstance instance1("HelloWorld");
+	// create default instances
+	CIMInstance instance1("HelloWorld");
 
-   instance1.addProperty(CIMProperty("Identifier", Uint32(1)));   // key
-   instance1.addProperty(CIMProperty("TimeStamp", CIMDateTime()));
-   instance1.addProperty(CIMProperty("Message", String("Hello World")));
+	instance1.addProperty(CIMProperty("Identifier", Uint8(1)));   // key
+	instance1.addProperty(CIMProperty("Frequency", Uint16(5)));
+	instance1.addProperty(CIMProperty("Message", String("Hello World")));
 
-   _instances.append(instance1);
+	_instances.append(instance1);
 
-   CIMInstance instance2("HelloWorld");
+	CIMInstance instance2("HelloWorld");
 
-   instance2.addProperty(CIMProperty("Identifier", Uint32(2)));   // key
-   instance2.addProperty(CIMProperty("TimeStamp", CIMDateTime()));
-   instance2.addProperty(CIMProperty("Message", String("Hey Planet")));
+	instance2.addProperty(CIMProperty("Identifier", Uint8(2)));   // key
+	instance2.addProperty(CIMProperty("Frequency", Uint16(5)));
+	instance2.addProperty(CIMProperty("Message", String("Hey Planet")));
 
-   _instances.append(instance2);
+	_instances.append(instance2);
 
-   CIMInstance instance3("HelloWorld");
+	CIMInstance instance3("HelloWorld");
 
-   instance3.addProperty(CIMProperty("Identifier", Uint32(3)));   // key
-   instance3.addProperty(CIMProperty("TimeStamp", CIMDateTime()));
-   instance3.addProperty(CIMProperty("Message", String("Yo Earth")));
+	instance3.addProperty(CIMProperty("Identifier", Uint8(3)));   // key
+	instance3.addProperty(CIMProperty("Frequency", Uint16(5)));
+	instance3.addProperty(CIMProperty("Message", String("Yo Earth")));
 
-   _instances.append(instance3);
+	_instances.append(instance3);
 }
 
 void HelloWorldProvider::terminate(void)
@@ -87,189 +144,273 @@ void HelloWorldProvider::terminate(void)
 }
 
 void HelloWorldProvider::getInstance(
-   const OperationContext & context,
-   const CIMReference & ref,
-   const Uint32 flags,
-   const Array<String> & propertyList,
-   ResponseHandler<CIMInstance> & handler)
+	const OperationContext & context,
+	const CIMReference & instanceReference,
+	const Uint32 flags,
+	const Array<String> & propertyList,
+	ResponseHandler<CIMInstance> & handler)
 {
-   handler.setStatus(PROCESSING);
+	// synchronously get references
+	Array<CIMReference> references = _enumerateInstanceNames(context, instanceReference);
 
-   // get references
-   Array<CIMReference> references;
+	// ensure the request object exists
+	if(Contains<CIMReference>(references, instanceReference) == false)
+	{
+		throw CIMException(CIM_ERR_NOT_FOUND);
+	}
 
-   try {
-      SimpleResponseHandler<CIMReference> handler;
+	// begin processing the request
+	handler.processing();
 
-      enumerateInstanceNames(context, ref, handler);
+	// instance index corresponds to reference index
+	for(Uint32 i = 0; i < references.size(); i++)
+	{
+		if(instanceReference == references[i])
+		{
+			handler.deliver(_instances[i]);
+		}
+	}
 
-      references = handler._objects;
-   }
-   catch(...) {
-   }
-
-   handler.setStatus(PROCESSING);
-
-   // instance index corresponds to reference index
-   for(Uint32 i = 0; i < references.size(); i++) {
-      if(references[i] == ref) {
-         handler.putObject(_instances[i]);
-
-         handler.setStatus(COMPLETE);
-
-         return;
-      }
-   }
-
-   throw CIMException(CIM_ERR_NOT_FOUND);
+	// complete processing the request
+	handler.complete();
 }
 
 void HelloWorldProvider::enumerateInstances(
-   const OperationContext & context,
-   const CIMReference & ref,
-   const Uint32 flags,
-   const Array<String> & propertyList,
-   ResponseHandler<CIMInstance> & handler)
+	const OperationContext & context,
+	const CIMReference & ref,
+	const Uint32 flags,
+	const Array<String> & propertyList,
+	ResponseHandler<CIMNamedInstance> & handler)
 {
-   handler.setStatus(PROCESSING);
+	// begin processing the request
+	handler.processing();
 
-   for(Uint32 i = 0; i < _instances.size(); i++) {
-      handler.putObject(_instances[i]);
-   }
+        // NOTE: It would be more efficient to remember the instance names
 
-   handler.setStatus(COMPLETE);
+	// get class definition from repository
+	CIMClass cimclass = _cimom.getClass(
+		OperationContext(),
+		ref.getNameSpace(),
+		ref.getClassName(),
+		false,
+		false,
+		false,
+		Array<String>());
+
+	// convert instances to references;
+	for(Uint32 i = 0; i < _instances.size(); i++)
+	{
+		CIMReference tempRef = _instances[i].getInstanceName(cimclass);
+
+		// ensure references are fully qualified
+		tempRef.setHost(ref.getHost());
+		tempRef.setNameSpace(ref.getNameSpace());
+
+		handler.deliver(CIMNamedInstance(tempRef, _instances[i]));
+	}
+
+	// complete processing the request
+	handler.complete();
 }
 
 void HelloWorldProvider::enumerateInstanceNames(
-   const OperationContext & context,
-   const CIMReference & ref,
-   ResponseHandler<CIMReference> & handler)
+	const OperationContext & context,
+	const CIMReference & classReference,
+	ResponseHandler<CIMReference> & handler)
 {
-   handler.setStatus(PROCESSING);
+	// begin processing the request
+	handler.processing();
 
-   // get class definition from repository
-   CIMClass cimclass = _cimom.getClass(ref.getNameSpace(), ref.getClassName());
+	// get class definition from repository
+	CIMClass cimclass = _cimom.getClass(
+		OperationContext(),
+		classReference.getNameSpace(),
+		classReference.getClassName(),
+		false,
+		false,
+		false,
+		Array<String>());
 
-   // convert instances to references;
-   for(Uint32 i = 0; i < _instances.size(); i++) {
-      CIMReference tempRef = _instances[i].getInstanceName(cimclass);
+	// convert instances to references;
+	for(Uint32 i = 0; i < _instances.size(); i++)
+	{
+		CIMReference tempRef = _instances[i].getInstanceName(cimclass);
 
-      // make references fully qualified
-      tempRef.setHost(ref.getHost());
-      tempRef.setNameSpace(ref.getNameSpace());
+		// ensure references are fully qualified
+		tempRef.setHost(classReference.getHost());
+		tempRef.setNameSpace(classReference.getNameSpace());
 
-      handler.putObject(tempRef);
-   }
+		handler.deliver(tempRef);
+	}
 
-   handler.setStatus(COMPLETE);
+	// complete processing the request
+	handler.complete();
 }
 
 void HelloWorldProvider::modifyInstance(
-   const OperationContext & context,
-   const CIMReference & ref,
-   const CIMInstance & obj,
-   ResponseHandler<CIMInstance> & handler)
+	const OperationContext & context,
+	const CIMReference & instanceReference,
+	const CIMInstance & instanceObject,
+	const Uint32 flags,
+	const Array<String> & propertyList,
+	ResponseHandler<CIMInstance> & handler)
 {
-   handler.setStatus(PROCESSING);
+        // ATTN: Partial modification is not yet supported by this provider
+        if ((flags & OperationFlag::PARTIAL_INSTANCE) ||
+            !(flags & OperationFlag::INCLUDE_QUALIFIERS))
+        {
+            throw CIMException(CIM_ERR_NOT_SUPPORTED);
+        }
 
-   // get references
-   Array<CIMReference> references;
+	// synchronously get references
+	Array<CIMReference> references = _enumerateInstanceNames(context, instanceReference);
 
-   try {
-      SimpleResponseHandler<CIMReference> handler;
+	// ensure the request object exists
+	if(Contains<CIMReference>(references, instanceReference) == false)
+	{
+		throw CIMException(CIM_ERR_NOT_FOUND);
+	}
 
-      enumerateInstanceNames(context, ref, handler);
+	// begin processing the request
+	handler.processing();
 
-      references = handler._objects;
-   }
-   catch(...) {
-   }
+	Uint32 index = 0;
 
-   handler.setStatus(PROCESSING);
+	// find instance index (corresponds to reference index)
+	for(; (index < references.size()) && (instanceReference == references[index]); index++);
 
-   for(Uint32 i = 0; i < references.size(); i++) {
-      if(ref == references[i]) {
-         _instances.remove(i);
-         _instances.insert(i, obj);
+	// remove old instance and add new one
+	_instances.remove(index);
+	_instances.insert(index, instanceObject);
+	
+	// complete processing the request
+	handler.complete();
 
-         handler.setStatus(COMPLETE);
-
-         return;
-      }
-   }
-
-   throw CIMException(CIM_ERR_NOT_FOUND);
+	/*
+	// stop the thread for the old instance
+	_monitors[index].cancel();
+	_monitors.remove(index);
+	
+	// start a new thread for the modified instance
+	_monitors.append(IndicationThread());
+	_monitors[index].run(0);	
+	*/
 }
 
 void HelloWorldProvider::createInstance(
-   const OperationContext & context,
-   const CIMReference & ref,
-   const CIMInstance & obj,
-   ResponseHandler<CIMInstance> & handler)
+	const OperationContext & context,
+	const CIMReference & instanceReference,
+	const CIMInstance & instanceObject,
+	ResponseHandler<CIMReference> & handler)
 {
-   handler.setStatus(PROCESSING);
+	// synchronously get references
+	Array<CIMReference> references = _enumerateInstanceNames(context, instanceReference);
 
-   // get references
-   Array<CIMReference> references;
+	// ensure the requested object do not exist
+	if(Contains<CIMReference>(references, instanceReference) == true)
+	{
+		throw CIMException(CIM_ERR_ALREADY_EXISTS);
+	}
 
-   try {
-      SimpleResponseHandler<CIMReference> handler;
+	// begin processing the request
+	handler.processing();
 
-      enumerateInstanceNames(context, ref, handler);
+	// add the new instance to the end of the list
+	_instances.append(instanceObject);
 
-      references = handler._objects;
-   }
-   catch(...) {
-   }
+	// complete processing request
+	handler.complete();
 
-   handler.setStatus(PROCESSING);
-
-   for(Uint32 i = 0; i < references.size(); i++) {
-      if(ref == references[i]) {
-         throw CIMException(CIM_ERR_ALREADY_EXISTS);
-      }
-   }
-
-   _instances.append(obj);
-
-   handler.setStatus(COMPLETE);
-
-   return;
+	/*
+	// add a new monitoring thread to the end of the list
+	_monitors.append(IndicationThread());
+	
+	// start the last monitor
+	_monitors[_monitors.size() - 1].run(0);
+	*/
 }
 
 void HelloWorldProvider::deleteInstance(
-   const OperationContext & context,
-   const CIMReference & ref,
-   ResponseHandler<CIMInstance> & handler)
+	const OperationContext & context,
+	const CIMReference & instanceReference,
+	ResponseHandler<CIMInstance> & handler)
 {
-   handler.setStatus(PROCESSING);
+	// synchronously get references
+	Array<CIMReference> references = _enumerateInstanceNames(context, instanceReference);
 
-   // get references
-   Array<CIMReference> references;
+	// ensure the requested object exists
+	if(Contains<CIMReference>(references, instanceReference) == false)
+	{
+		throw CIMException(CIM_ERR_NOT_FOUND);
+	}
 
-   try {
-      SimpleResponseHandler<CIMReference> handler;
+	// begin processing the request
+	handler.processing();
 
-      enumerateInstanceNames(context, ref, handler);
+	Uint32 index = 0;
+	
+	for(; (index < references.size()) && (instanceReference == references[index]); index++);
 
-      references = handler._objects;
-   }
-   catch(...) {
-   }
+	_instances.remove(index);
+	
+	// complete processing the request
+	handler.complete();
 
-   handler.setStatus(PROCESSING);
+	/*
+	// stop the thread for the old instance
+	_monitors[index].cancel();
+	_monitors.remove(index);
+	*/
+}
 
-   for(Uint32 i = 0; i < references.size(); i++) {
-      if(ref == references[i]) {
-         _instances.remove(i);
+void HelloWorldProvider::provideIndication(
+	const OperationContext & context,
+	const CIMReference & classReference,
+	const CIMDateTime & minimumInterval,
+	const CIMDateTime & maximumInterval,
+	const Array<String> & propertyList,
+	ResponseHandler<CIMIndication> & handler)
+{
+	handler.processing();
+}
 
-         handler.setStatus(COMPLETE);
+void HelloWorldProvider::updateIndication(
+	const OperationContext & context,
+	const CIMReference & classReference,
+	const CIMDateTime & minimumInterval,
+	const CIMDateTime & maximumInterval,
+	const Array<String> & propertyList,
+	ResponseHandler<CIMIndication> & handler)
+{
+	handler.processing();
+}
 
-         return;
-      }
-   }
+void HelloWorldProvider::cancelIndication(
+	const OperationContext & context,
+	const CIMReference & classReference,
+	ResponseHandler<CIMIndication> & handler)
+{
+	handler.complete();
+}
+	
+void HelloWorldProvider::checkIndication(
+	const OperationContext & context,
+	const CIMReference & classReference,
+	const Array<String> & propertyList,
+	ResponseHandler<CIMIndication> & handler)
+{
+	throw NotSupported("HelloWorldProvider::checkIndication");
+}
 
-   throw CIMException(CIM_ERR_NOT_FOUND);
+Array<CIMReference> HelloWorldProvider::_enumerateInstanceNames(
+	const OperationContext & context,
+	const CIMReference & classReference)
+{
+	SimpleResponseHandler<CIMReference> handler;
+
+	enumerateInstanceNames(context, classReference, handler);
+
+	return(handler._objects);
 }
 
 PEGASUS_NAMESPACE_END

@@ -6,7 +6,7 @@ XDIRS = \
     TestClasses \
 
 DIRS = \
-    LoadClass \
+   # LoadClass \
     ClassDeclRep \
     QualifierDeclRep \
     EnumerateClassNames \

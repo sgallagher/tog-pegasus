@@ -1,6 +1,7 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%///-*-c++-*-/////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to 
@@ -22,17 +23,54 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company 
+//              (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Message_h
 #define Pegasus_Message_h
 
-#include <iostream>
 #include <Pegasus/Common/Config.h>
+#include <iostream>
+#include <cstring>
+#include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/IPC.h>
 
 PEGASUS_NAMESPACE_BEGIN
+
+class PEGASUS_COMMON_LINKAGE message_mask 
+{
+   public:
+      static Uint32 type_legacy;
+      static Uint32 type_CIMClass;
+      static Uint32 type_CIMInstance;
+      static Uint32 type_CIMIndication;
+      static Uint32 type_CIMQualifier;
+      static Uint32 type_CIMSubscription;
+      static Uint32 type_socket;
+      static Uint32 type_connection;
+      static Uint32 type_http;
+      static Uint32 type_cimom;
+      
+      static Uint32 no_delete;
+      
+      static Uint32 type_request;
+      static Uint32 type_reply;
+      static Uint32 type_control;
+
+// more for documentation than for use 
+      inline Uint32 get_classification(Uint32 flags)
+      {
+	 return (flags & 0x000fffff);
+      }
+
+      inline Uint32 get_handling(Uint32 flags)
+      {
+	 return( flags & 0xfff00000);
+      }
+};
 
 class MessageQueue;
 
@@ -51,8 +89,19 @@ class PEGASUS_COMMON_LINKAGE Message
 {
 public:
 
-    Message(Uint32 type, Uint32 key = getNextKey()) 
-	: _type(type), _key(key), _next(0), _prev(0) { }
+    Message(
+	Uint32 type, 
+	Uint32 key = getNextKey(), 
+	Uint32 mask = message_mask::type_legacy) 
+	: 
+	_type(type), 
+	_key(key), 
+	_mask(mask), 
+	_next(0), 
+	_prev(0) 
+    { 
+
+    }
 
     virtual ~Message(); 
 
@@ -64,6 +113,17 @@ public:
 
     void setKey(Uint32 key) { _key = key; }
 
+      Uint32 getMask() const 
+      {
+	 return _mask;
+      }
+      
+      void setMask(Uint32 mask) 
+      {
+	 _mask = mask;
+      }
+      
+
     Message* getNext() { return _next; }
 
     const Message* getNext() const { return _next; }
@@ -72,19 +132,54 @@ public:
 
     const Message* getPrevious() const { return _prev; }
 
-    static Uint32 getNextKey() { return ++_nextKey; }
-
+    static Uint32 getNextKey() 
+      { 
+	 
+	 _mut.lock( pegasus_thread_self() ) ; 
+	 Uint32 ret = _nextKey++;
+	 _mut.unlock();
+	 return ret;
+      }
+      
     virtual void print(PEGASUS_STD(ostream)& os) const;
 
 private:
-    Uint32 _type;
-    Uint32 _key;
-    Message* _next;
-    Message* _prev;
-    MessageQueue* _owner;
-    static Uint32 _nextKey;
-    friend class MessageQueue;
+      Uint32 _type;
+      Uint32 _key;
+      Uint32 _mask;
+      Message* _next;
+      Message* _prev;
+      MessageQueue* _owner;
+      static Uint32 _nextKey;
+      static Mutex _mut;
+      friend class MessageQueue;
 };
+
+
+// each component needs to support a set of these messgaes and pass that array
+// to the dispatcher so the dispatcher can route messages at the first level
+// i.e., client will not accept request messages.
+// every message should have a response
+
+// dispatcher supports full cim api set (as below)
+// repository needs to be a peer to the provider manager
+// 
+
+// mkdir _dispatcher
+// mkdir _providermanager
+// mkdir _server (http incoming, front end)
+// mkdir _repositorymanager
+//       _subscriptionprocessor
+//       _indicationprocessor
+//       _configurationmanager 
+//       _cimom (loads and links everyone, hooks up queues)
+
+// fundamental messages:
+
+// start, stop, pause, resume
+// handshaking: interrogate (as in windows service api)
+//              message class support
+//              message namespace support ???
 
 enum MessageType
 {
@@ -94,6 +189,7 @@ enum MessageType
 
     CIM_GET_CLASS_REQUEST_MESSAGE,
     CIM_GET_INSTANCE_REQUEST_MESSAGE,
+    CIM_EXPORT_INDICATION_REQUEST_MESSAGE,
     CIM_DELETE_CLASS_REQUEST_MESSAGE,
     CIM_DELETE_INSTANCE_REQUEST_MESSAGE,
     CIM_CREATE_CLASS_REQUEST_MESSAGE,
@@ -116,8 +212,12 @@ enum MessageType
     CIM_DELETE_QUALIFIER_REQUEST_MESSAGE,
     CIM_ENUMERATE_QUALIFIERS_REQUEST_MESSAGE,
     CIM_INVOKE_METHOD_REQUEST_MESSAGE,
+    CIM_ENABLE_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE,
+    CIM_MODIFY_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE,
+    CIM_DISABLE_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE,
     CIM_GET_CLASS_RESPONSE_MESSAGE,
     CIM_GET_INSTANCE_RESPONSE_MESSAGE,
+    CIM_EXPORT_INDICATION_RESPONSE_MESSAGE,
     CIM_DELETE_CLASS_RESPONSE_MESSAGE,
     CIM_DELETE_INSTANCE_RESPONSE_MESSAGE,
     CIM_CREATE_CLASS_RESPONSE_MESSAGE,
@@ -140,11 +240,127 @@ enum MessageType
     CIM_DELETE_QUALIFIER_RESPONSE_MESSAGE,
     CIM_ENUMERATE_QUALIFIERS_RESPONSE_MESSAGE,
     CIM_INVOKE_METHOD_RESPONSE_MESSAGE,
+    CIM_ENABLE_INDICATION_SUBSCRIPTION_RESPONSE_MESSAGE,
+    CIM_MODIFY_INDICATION_SUBSCRIPTION_RESPONSE_MESSAGE,
+    CIM_DISABLE_INDICATION_SUBSCRIPTION_RESPONSE_MESSAGE,
+
+    // Monitor-related messages:
+
+    SOCKET_MESSAGE,
+
+    // Connection-oriented messages:
+
+    CLOSE_CONNECTION_MESSAGE,
+
+    // HTTP messages:
+
+    HTTP_MESSAGE,
 
     NUMBER_OF_MESSAGES
 };
 
 PEGASUS_COMMON_LINKAGE const char* MessageTypeToString(Uint32 messageType);
+
+/** This class implements a stack of queue-ids. Many messages must keep a
+    stack of queue-ids of queues which they must be returned to. This provides
+    a light efficient stack for this purpose.
+*/
+class QueueIdStack
+{
+public:
+
+    QueueIdStack() : _size(0) 
+    { 
+    }
+
+    QueueIdStack(const QueueIdStack& x) : _size(x._size) 
+    {
+	memcpy(_items, x._items, sizeof(_items));
+    }
+
+    PEGASUS_EXPLICIT QueueIdStack(Uint32 x) : _size(0) 
+    { 
+	push(x); 
+    }
+
+    PEGASUS_EXPLICIT QueueIdStack(Uint32 x1, Uint32 x2) : _size(0) 
+    {
+	push(x1); 
+	push(x2); 
+    }
+
+    ~QueueIdStack() 
+    { 
+    }
+
+    QueueIdStack& operator=(const QueueIdStack& x) 
+    {
+	if (this != &x)
+	{
+	    memcpy(_items, x._items, sizeof(_items));
+	    _size = x._size;
+	}
+	return *this;
+    }
+
+    Uint32 size() const 
+    { 
+	return _size; 
+    }
+
+    Boolean isEmpty() const 
+    { 
+	return _size == 0; 
+    }
+
+    void push(Uint32 x) 
+    {
+	if (_size == MAX_SIZE)
+	    throw StackOverflow();
+
+	_items[_size++] = x;
+    }
+
+    Uint32& top()
+    {
+	if (_size == 0)
+	    throw StackUnderflow();
+
+	return _items[_size-1];
+    }
+
+    Uint32 top() const 
+    {
+	return ((QueueIdStack*)this)->top(); 
+    }
+
+    void pop() 
+    {
+	if (_size == 0)
+	    throw StackUnderflow();
+
+	_size--;
+    }
+
+    /** Make a copy of this stack and then pop the top element. */
+    QueueIdStack copyAndPop() const
+    {
+	return QueueIdStack(*this, 0);
+    }
+
+private:
+
+    // Copy the given stack but then pop the top element:
+    QueueIdStack(const QueueIdStack& x, int) : _size(x._size) 
+    {
+	memcpy(_items, x._items, sizeof(_items));
+	pop();
+    }
+
+    enum { MAX_SIZE = 5 };
+    Uint32 _items[MAX_SIZE];
+    Uint32 _size;
+};
 
 PEGASUS_NAMESPACE_END
 

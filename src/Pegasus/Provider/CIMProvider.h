@@ -22,7 +22,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Yi Zhou (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -30,14 +30,13 @@
 #define PegasusProvider_Provider_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/CIMOperations.h>
-#include <Pegasus/Repository/CIMOMHandle.h>
+#include <Pegasus/Common/CIMOMHandle.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 class CIMRepository;
 
-class PEGASUS_PROVIDER_LINKAGE CIMProvider : public CIMOperations
+class PEGASUS_PROVIDER_LINKAGE CIMProvider
 {
 public:
 
@@ -73,7 +72,7 @@ public:
 	const String& nameSpace,
 	const CIMClass& newClass);
 
-    virtual void createInstance(
+    virtual CIMReference createInstance(
 	const String& nameSpace,
 	const CIMInstance& newInstance);
 
@@ -179,8 +178,8 @@ public:
        const String& nameSpace,
        const CIMReference& instanceName,
        const String& methodName,
-       const Array<CIMValue>& inParameters,
-       Array<CIMValue>& outParameters);
+       const Array<CIMParamValue>& inParameters,
+       Array<CIMParamValue>& outParameters);
 
     /**
        This method is invoked to initialize the provider. Eventually we
@@ -189,6 +188,7 @@ public:
     */
 
     virtual void initialize(CIMOMHandle& cimomHandle);
+	virtual void terminate(void);
 };
 
 PEGASUS_NAMESPACE_END

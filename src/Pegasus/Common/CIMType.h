@@ -46,7 +46,7 @@ PEGASUS_NAMESPACE_BEGIN
     representation type.
 
     <pre>
-	    CIM CIMType	Constant	C++ CIMType
+	    CIM CIMType	Constant	        C++ CIMType
 	    -------------------------------------------------------
 	    boolean	CIMType::BOOLEAN	Boolean
 	    uint8	CIMType::UINT8		Uint8

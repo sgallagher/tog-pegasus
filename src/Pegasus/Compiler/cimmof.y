@@ -618,6 +618,8 @@ explicitFlavors: explicitFlavor
 
                | explicitFlavors TOK_COMMA explicitFlavor ;
 
+// ATTN: it seems that TOINSTANCE is incorrectly set here!
+
 explicitFlavor: TOK_ENABLEOVERRIDE  { g_flavor |= CIMFlavor::OVERRIDABLE; }
               | TOK_DISABLEOVERRIDE { g_flavor &= ~(CIMFlavor::OVERRIDABLE); } 
               | TOK_RESTRICTED      { g_flavor |= CIMFlavor::TOINSTANCE; }

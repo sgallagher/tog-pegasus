@@ -1,0 +1,198 @@
+//%////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM, 
+// The Open Group, Tivoli Systems
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to 
+// deal in the Software without restriction, including without limitation the 
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+//=============================================================================
+//
+// Author: Sushma Fernandes, Hewlett Packard Company (sushma_fernandes@hp.com)
+//
+// Modified By:
+//
+//%////////////////////////////////////////////////////////////////////////////
+
+
+///////////////////////////////////////////////////////////////////////////////
+// 
+// This file implements the functionality required to manage password file. 
+//
+///////////////////////////////////////////////////////////////////////////////
+
+#ifndef Pegasus_UserFileHandler_h
+#define Pegasus_UserFileHandler_h
+
+#include <cctype>
+#include <fstream>
+
+#include <Pegasus/Common/Config.h>
+
+#include <Pegasus/Security/UserManager/PasswordFile.h>
+#include <Pegasus/Security/UserManager/Linkage.h>
+
+PEGASUS_NAMESPACE_BEGIN
+
+/**
+  This class implements the functionality required to manage password file. 
+*/
+
+class PEGASUS_USERMANAGER_LINKAGE UserFileHandler
+{
+
+private:
+
+    //
+    // Contains the password file name
+    //
+    static const char    	  _PASSWD_FILE[];
+
+    //
+    // Contains the salt string for password encryption
+    //
+    static const unsigned char    _SALT_STRING[];
+
+    // 
+    // Contains the password file name with the full path
+    //
+    String               	  _passwdFileName;
+
+    //
+    // Flag to indicate whether password file exists
+    Boolean              	  _passwordFileExists;
+
+    //
+    // Password cache
+    //
+    PasswordTable       	  _passwordTable;
+
+    //
+    // Instance of the PasswordFile
+    //
+    PasswordFile       	          *_passwordFile;
+
+    /**
+    generate random salt key for password encryption
+
+    @param salt  A array of 3 characters
+    */
+    void _GetSalt (char* salt);
+
+protected:
+
+    /**
+    Load the user information from the password file.
+
+    @exception PasswordFileSyntaxError if password file contains a syntax error.
+    @exception CannotRenameFile if password file cannot be renamed.
+    */
+    void _loadAllUsers ();
+
+public:
+
+    /** Constructor. */
+    UserFileHandler();
+
+    /** Destructor. */
+    ~UserFileHandler();
+
+    /** 
+    Add user entry to file
+
+    @param  userName  The name of the user to add. 
+    @param  password  The password for the user.
+
+    @exception FileNotReadable    if unable to read password file
+    @exception DuplicateUser      if the user is already exists
+    @exception PasswordCacheError if there is an error processing 
+				  password hashtable
+    @exception CannotRenameFile if password file cannot be renamed.
+    */
+    void addUserEntry(const String& userName, const String& passWord);
+
+    /** 
+    Modify user entry in file 
+
+    @param  userName       The name of the user to modify. 
+    @param  password       User's old password. 
+    @param  newPassword    User's new password.
+
+    @exception InvalidUser        if the user does not exist.
+    @exception PasswordMismatch   if the specified password does not match
+				  user's current password.
+    @exception PasswordCacheError if there is an error processing 
+				  password hashtable
+    @exception CannotRenameFile   if password file cannot be renamed.
+
+    */
+    void modifyUserEntry(
+			     const String& userName,
+			     const String& password,
+			     const String& newPassword );
+
+    /** 
+    Remove user entry from file 
+
+    @param  userName  The name of the user to add. 
+
+    @exception FileNotReadable    if unable to read password file
+    @exception InvalidUser        if the user is does not exist
+    @exception PasswordCacheError if there is an error processing 
+				  password hashtable
+    @exception CannotRenameFile if password file cannot be renamed.
+    */
+    void removeUserEntry(const String& userName);
+
+
+    /**
+    Get a list of all the user names.
+
+    @param userNames  List containing all the user names.
+
+    @exception FileNotReadable    if unable to read password file
+    */
+    void getAllUserNames(Array<String>& userNames);
+
+    /**
+    Verify user exists in the cimserver password file
+
+    @param userName  Name of the user to be verified
+    @return true if the user exists, else false
+
+    @exception FileNotReadable    if unable to read password file
+    */
+    Boolean verifyCIMUser(const String& userName);
+
+    /**
+    Verify user's password matches specified password 
+
+    @param userName  Name of the user to be verified
+    @param password  password to be verified
+    @return true if the user's password matches existing password, else false
+
+    @exception FileNotReadable    if unable to read password file
+    @exception InvalidUser        if the specified user does not exist 
+    */
+    Boolean verifyCIMUserPassword(
+                            const String& userName,
+                            const String& password );
+};
+
+PEGASUS_NAMESPACE_END
+
+#endif /* Pegasus_UserFileHandler_h */
+

@@ -8,9 +8,22 @@ COMPILER = acc
 
 SYS_INCLUDES = -I$(ROOT)/src/stdcxx/stream
 
+ifdef PEGASUS_CCOVER
+ SYS_INCLUDES += -I/opt/ccover11/include
+endif
+
 DEFINES = -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM)
 
+ifdef PEGASUS_AGENT
+ DEFINES += -DHPUX_EMANATE
+endif
+
+ifdef PEGASUS_CCOVER
+ DEFINES += -DPEGASUS_CCOVER
+endif
+
 DEPEND_INCLUDES =
+
 
 ## Flags:
 ##     +Z - produces position independent code (PIC).
@@ -22,15 +35,23 @@ DEPEND_INCLUDES =
 ##       +b enables dynamic search in the specified directory(ies)
 ##
 
-FLAGS = +Z +DAportable
+IAFLAGS =
+
+ifeq ($(HPUX_IA64_VERSION), yes)
+  IAFLAGS =  -AP 
+else
+  IAFLAGS =  +DAportable 
+endif
+
+FLAGS = +Z $(IAFLAGS) -D_POSIX_C_SOURCE=199506L -D_HPUX_SOURCE
 ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
-  FLAGS += -Wl,+b/usr/lib -Wl,+s
+  FLAGS += -Wl,+b/usr/lib -Wl,+s 
 endif
 ifdef PEGASUS_DEBUG
   FLAGS += -g
 endif
 
-SYS_LIBS =
+SYS_LIBS = -lpthread -lrt
 
 CXX = aCC
 

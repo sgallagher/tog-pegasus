@@ -1,0 +1,211 @@
+//%////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM, 
+// The Open Group, Tivoli Systems
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to 
+// deal in the Software without restriction, including without limitation the 
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+//=============================================================================
+//
+// Author: Sushma Fernandes, Hewlett Packard Company (sushma_fernandes@hp.com)
+//
+// Modified By: Nag Boranna, Hewlett Packard Company (nagaraja_boranna@hp.com)
+//
+//%////////////////////////////////////////////////////////////////////////////
+
+
+///////////////////////////////////////////////////////////////////////////////
+// 
+// This file implements the functionality required to manage users. 
+//
+///////////////////////////////////////////////////////////////////////////////
+
+#ifndef Pegasus_UserManager_h
+#define Pegasus_UserManager_h
+
+#include <cctype>
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/String.h>
+#include <Pegasus/Security/UserManager/UserFileHandler.h>
+#include <Pegasus/Security/UserManager/AuthorizationHandler.h>
+#include <Pegasus/Security/UserManager/Linkage.h>
+
+PEGASUS_NAMESPACE_BEGIN
+
+/**
+  This class interfaces with UserFileHandler for creating, removing and listing users. 
+*/
+
+class PEGASUS_USERMANAGER_LINKAGE UserManager
+{
+
+private:
+
+    //
+    // Singleton instance of UserManager, the constructor
+    // and the destructor are made private
+    //
+    static UserManager* _instance;
+
+    //
+    // Instance of UserFileHandler
+    //
+    UserFileHandler*	_userFileHandler;
+
+    //
+    // Instance of AuthorizationHandler
+    //
+    AuthorizationHandler*       _authHandler;
+
+    /** Constructor. */
+    UserManager(CIMRepository* repository);
+
+
+    /** Destructor. */
+    ~UserManager();
+
+public:
+
+    /** 
+    Construct the singleton instance of the UserManager and return a 
+    pointer to that instance.
+    */
+    static UserManager* getInstance(CIMRepository* repository = 0);
+
+    /** 
+    Add a user.
+
+    @param  userName  The name of the user to add. 
+    @param  password  The password for the user.
+
+    @exception InvalidSystemUser  if the user is not a system user
+    @exception FileNotReadable    if unable to read password file
+    @exception DuplicateUser      if the user already exists
+    @exception PasswordCacheError if there is an error processing
+                                  password hashtable
+    @exception CannotRenameFile   if password file cannot be renamed.
+    */
+    void addUser(const String& userName, const String& passWord);
+
+    /** 
+    Modify user's password.
+
+    @param  userName       The name of the user to modify. 
+    @param  password       User's old password. 
+    @param  newPassword    User's new password.
+
+    @exception InvalidUser        if the user does not exist
+    @exception PasswordMismatch   if the specified password does not match
+                                  user's current password.
+    @exception PasswordCacheError if there is an error processing
+                                  password hashtable
+    @exception CannotRenameFile   if password file cannot be renamed.
+    */
+    void modifyUser(
+		     const String& userName,
+		     const String& password,
+		     const String& newPassword );
+
+    /** 
+    Remove a user. 
+
+    @param  userName  The name of the user to remove. 
+
+    @exception FileNotReadable    if unable to read password file
+    @exception InvalidUser        if the user does not exist
+    @exception PasswordCacheError if there is an error processing
+                                  password hashtable
+    @exception CannotRenameFile   if password file cannot be renamed.
+    */
+    void removeUser(const String& userName);
+
+
+    /**
+    Get a list of all the user names.
+
+    @param userNames  List containing all the user names.
+
+    @exception FileNotReadable    if unable to read password file
+    */
+    void getAllUserNames(Array<String>& userNames);
+
+    /**
+    Verify user exists in the cimserver password file
+
+    @param userName  Name of the user to be verified
+
+    @return true if the user exists, else false
+
+    @exception FileNotReadable    if unable to read password file
+    */
+    Boolean verifyCIMUser(const String& userName);
+
+    /**
+    Verify user's password matches specified password
+
+    @param userName  Name of the user to be verified
+    @param password  password to be verified
+
+    @return true if the user's password matches existing password , else false
+
+    @exception FileNotReadable    if unable to read password file
+    @exception InvalidUser        if the specified user does not exist
+    */
+    Boolean verifyCIMUserPassword(
+				 const String& userName,
+				 const String& password );
+
+    //
+    // 
+    //
+    Boolean verifyNamespace( const String& myNamespace );
+
+    //
+    // verify user authorization for the specified operation
+    //
+    Boolean verifyAuthorization(
+                            const String& userName,
+                            const String& nameSpace,
+                            const String& cimMethodName);
+
+    //
+    // 
+    //
+    void setAuthorization(
+                            const String& userName,
+                            const String& myNamespace,
+                            const String& auth);
+
+    //
+    // 
+    //
+    void removeAuthorization(
+                            const String& userName,
+                            const String& myNamespace);
+
+    //
+    // 
+    //
+    String getAuthorization(
+                            const String& userName,
+                            const String& myNamespace);
+};
+
+PEGASUS_NAMESPACE_END
+
+#endif /* Pegasus_UserManager_h */
+

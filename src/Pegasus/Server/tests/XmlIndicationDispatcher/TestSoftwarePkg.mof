@@ -1,0 +1,62 @@
+// ===================================================================
+// TestSoftwarePkg
+// ===================================================================
+//        [Description ("TestSoftwarePkg MIB Information in MOF") , provider (
+//        "TestSoftwarePkg") ] 
+
+        [Description ("TestSoftwarePkg MIB Information in MOF") 
+        ] 
+class TestSoftwarePkg
+{
+        [MappingStrings {"OID.IETF | SNMP.1.3.6.1.4.1.11.2.3.1.6 | OctetString", "OidMappings"}] 
+    string enterprise ;
+
+        [Required, Key] 
+    string trapOid ;
+
+	  [MappingStrings {"OID.IETF | SNMP.1.3.6.1.4.1.11.2.3.1.6.3.1.1.4.1.1.1 | Integer32", "OidMappings"}]
+    uint32 PkgIndex ;
+ 
+	  [MappingStrings {"OID.IETF | SNMP.1.3.6.1.4.1.11.2.3.1.6.3.1.1.4.1.1.2 | OctetString", "OidMappings"}]
+    string PkgName ;
+
+    string PkgNameAdminName ;
+
+	  [MappingStrings {"OID.IETF | SNMP.1.3.6.1.4.1.11.2.3.1.6.3.1.1.4.1.1.3 | OctetString", "OidMappings"}]
+    string PkgDescr ;
+ 
+	  [MappingStrings {"OID.IETF | SNMP.1.3.6.1.4.1.11.2.3.1.6.3.1.1.4.1.1.4 | Integer32", "OidMappings"}]
+    uint32 PkgStatus ;
+
+	  [MappingStrings {"OID.IETF | SNMP.1.3.6.1.4.1.11.2.3.1.6.3.1.1.4.1.1.5 | OctetString", "OidMappings"}]
+    string PkgCurrNode ;
+
+	  [MappingStrings {"OID.IETF | SNMP.1.3.6.1.4.1.11.2.3.1.6.3.1.1.4.1.1.6 | INTEGER", "OidMappings"}]
+    uint32 PkgLastEvent ;
+
+    uint32 PkgMaxNodeSize ;
+
+	  [MappingStrings {"OID.IETF | SNMP.1.3.6.1.4.1.11.2.3.1.6.3.1.1.4.1.1.7 | OctetString", "OidMappings"}]
+    string PkgLastEventTime ;
+
+	  [MappingStrings {"OID.IETF | SNMP.1.3.6.1.4.1.11.2.3.1.6.3.1.1.4.1.1.8 | OctetString", "OidMappings"}]
+    string PkgRunScriptPath ;
+
+	  [MappingStrings {"OID.IETF | SNMP.1.3.6.1.4.1.11.2.3.1.6.3.1.1.4.1.1.9 | OctetString", "OidMappings"}]
+    string PkgHaltScriptPath ;
+
+    string PkgDebugScriptNamePath ;
+
+	  [MappingStrings {"OID.IETF | SNMP.1.3.6.1.4.1.11.2.3.1.6.3.1.1.4.1.1.10 | Integer32", "OidMappings"}]
+    uint32 PkgRunScriptTimeout ;
+
+	  [MappingStrings {"OID.IETF | SNMP.1.3.6.1.4.1.11.2.3.1.6.3.1.1.4.1.1.11 | Integer32", "OidMappings"}]
+    uint32 PkgHaltScriptTimeout ;
+
+    string computerName ;
+
+    string osName ;
+
+    string version ;
+};
+     

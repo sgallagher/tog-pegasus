@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CIM CIMVERSION="2.0" DTDVERSION="2.0">
+<MESSAGE ID="30001" PROTOCOLVERSION="1.0">
+<SIMPLERSP>
+<IMETHODRESPONSE NAME="AssociatorNames">
+<ERROR CODE="3" DESCRIPTION="NameSpaceManager.cpp(385): CIM_ERR_INVALID_NAMESPACE: The target namespace does not exist: &quot;test/NotANamespace&quot;"/>
+</IMETHODRESPONSE>
+</SIMPLERSP>
+</MESSAGE>
+</CIM>

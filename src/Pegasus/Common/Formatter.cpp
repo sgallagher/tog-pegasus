@@ -84,7 +84,7 @@ String Formatter::Arg::toString() const
 	case STRING:
 	    return _string;
 
-	case VOID:
+	case VOIDT:
 	default:
 	    return String();
     }

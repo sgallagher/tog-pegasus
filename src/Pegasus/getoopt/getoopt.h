@@ -22,7 +22,8 @@
 //
 // Author: Bob Blair (bblair@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company 
+//              (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -46,10 +47,12 @@
 #ifndef _GETOOPT_H_
 #define _GETOOPT_H_
 
+#include <stdio.h>
 #include <iostream>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Exception.h>
 
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
@@ -123,13 +126,17 @@ class PEGASUS_GETOOPT_LINKAGE Optarg {
   const String &Value() const;  // return the value as a String
   const String &optarg() const; // ditto, in getopt() terminology
   void Value(String &v) const ; // Fill in a String with the Value
-  void Value(int &v) const ;    // Fill in an int with the value
-  void Value(unsigned int &v) const;  // ditto an unsigned int
+  void Value(int &v) const throw (IncompatibleTypes);  // Fill in an int with
+                                                       // the value
+  void Value(unsigned int &v) const throw (IncompatibleTypes);  // ditto an 
+                                                                // unsigned int
   void Value(long &v) const ;   // ditto a long
   void Value(unsigned long &v) const;  // ditto an unsigned long
   void Value(double &d) const;  // ditto a double
   ostream &print(ostream &os) const;  // print the members (for debug)
 };
+
+
 
 //
 //  class getoopt (a portamentau of "getopt" and "oo") is a container
@@ -173,6 +180,13 @@ class PEGASUS_GETOOPT_LINKAGE getoopt {
   typedef Array<flagspec> Flagspec_List;
   typedef Array<String>   Error_List;
   typedef Array<Optarg>   Arg_List;
+
+  /**
+      In the valid option definition string, following an option,
+      indicates that the preceding option takes a required argument.
+   */
+  static const char GETOPT_ARGUMENT_DESIGNATOR;
+
  private:
   Flagspec_List  _flagspecs;
   Error_List     _errorStrings;

@@ -1,7 +1,7 @@
 ROOT = ../../../../..
 include ../libraries.mak
 
-DIR = Pegasus/Provider/tests/DynLib
+DIR = Pegasus/Common/tests/DynLib
 
 include $(ROOT)/mak/config.mak
 

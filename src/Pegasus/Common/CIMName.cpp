@@ -44,7 +44,11 @@ Boolean CIMName::legal(const Char16* name)
 
     for (p++; *p; p++)
     {
+#ifdef PEGASUS_HAS_EBCDIC
+	if (*p > 255)
+#else
 	if (*p > 127)
+#endif
 	    return false;
 
 	if (!(isalnum(*p) || *p == '_'))

@@ -258,13 +258,17 @@ Building Pegasus:
 4.  Now change to the root of the Pegasus distrubution and type "make"
     (where make referes to GNU make).
 
-5.  To test the build type "make tests".
+5.  Then create the repository, which is needed for some test cases -
+    "make repository"
+
+6.  To test the build type "make tests".
 
 The following make targets are supported:
 
     <default> - Build everything.
     clean - Clean out all objects, libs, and executables.
     depend - Create the dependencies.
+    repository - Create the repository in $PEGASUS_HOME/repository
     tests  - Execute all tests (except client server tests).
     rebuild - clean, depend, <default>
     world - depend, <default>

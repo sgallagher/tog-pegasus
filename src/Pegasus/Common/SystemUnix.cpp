@@ -3,18 +3,18 @@
 // Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to 
-// deal in the Software without restriction, including without limitation the 
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
-// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+//
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
-// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
-// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
-// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
@@ -22,23 +22,36 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Ben Heilbronn (ben_heilbronn@hp.com)
+//
+//              Sushma Fernandes (sushma_fernandes@hp.com)
+//
+//              Nag Boranna (nagaraja_boranna@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifdef PEGASUS_OS_HPUX
 # include <dl.h>
+#elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+# include <dll.h>
 #else
 # include <dlfcn.h>
 #endif
 
-# include <unistd.h>
+#include <unistd.h>
 #include <dirent.h>
+#include <pwd.h>
+#include <crypt.h>
 #include "System.h"
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <cstdio>
 #include <time.h>
+#include <Pegasus/Common/Tracer.h>
+
+#ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU
+#include <pwd.h>
+#endif
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -99,7 +112,7 @@ Boolean System::isDirectory(const char* path)
     struct stat st;
 
     if (stat(path, &st) != 0)
-	return false;
+        return false;
 
     return S_ISDIR(st.st_mode);
 }
@@ -119,7 +132,7 @@ Boolean System::getFileSize(const char* path, Uint32& size)
     struct stat st;
 
     if (stat(path, &st) != 0)
-	return false;
+        return false;
 
     size = st.st_size;
     return true;
@@ -127,51 +140,73 @@ Boolean System::getFileSize(const char* path, Uint32& size)
 
 Boolean System::removeDirectory(const char* path)
 {
-    return rmdir(path) == 0;	
+    return rmdir(path) == 0;
 }
 
 Boolean System::removeFile(const char* path)
 {
-    return unlink(path) == 0;	
+    return unlink(path) == 0;
 }
 
 Boolean System::renameFile(const char* oldPath, const char* newPath)
 {
     if (link(oldPath, newPath) != 0)
-	return false;
+        return false;
 
     return unlink(oldPath) == 0;
 }
 
 DynamicLibraryHandle System::loadDynamicLibrary(const char* fileName)
 {
+    const char METHOD_NAME[] = "System::loadDynamicLibrary()";
+
+    PEG_FUNC_ENTER(TRC_OS_ABSTRACTION, METHOD_NAME);
+
+    Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL2, 
+                  "Attempting to load library %s", fileName);
+
 #if defined(PEGASUS_OS_HPUX)
-    char* p = strcpy(new char[strlen(fileName) + 4], fileName);
-    char* dot = strrchr(p, '.');
+    void* handle = shl_load(fileName, BIND_IMMEDIATE | DYNAMIC_PATH, 0L);
 
-    if (!dot)
-	return 0;
+    Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL2, 
+                  "After loading lib %s, error code is %d", fileName, errno);
 
-    *dot = '\0';
-    strcat(p, ".sl");
-
-    void* handle = shl_load(p, BIND_IMMEDIATE | DYNAMIC_PATH, 0L);
-    delete [] p;
-
+    PEG_FUNC_EXIT(TRC_OS_ABSTRACTION, METHOD_NAME);
     return DynamicLibraryHandle(handle);
-#else
-
-# ifdef PEGASUS_OS_TRU64
+#elif defined(PEGASUS_OS_TRU64)
+    PEG_FUNC_EXIT(TRC_OS_ABSTRACTION, METHOD_NAME);
     return DynamicLibraryHandle(dlopen(fileName, RTLD_NOW));
-# else
+#elif defined(PEGASUS_OS_ZOS)
+    PEG_FUNC_EXIT(TRC_OS_ABSTRACTION, METHOD_NAME);
+    return DynamicLibraryHandle(dllload(fileName));
+#else
+    PEG_FUNC_EXIT(TRC_OS_ABSTRACTION, METHOD_NAME);
     return DynamicLibraryHandle(dlopen(fileName, RTLD_NOW | RTLD_GLOBAL));
-# endif
+#endif
 
+}
+
+void System::unloadDynamicLibrary(DynamicLibraryHandle libraryHandle)
+{
+    // ATTN: Should this method indicate success/failure?
+#ifdef PEGASUS_OS_LINUX
+    dlclose(libraryHandle);
+#endif
+
+#ifdef PEGASUS_OS_HPUX
+    // Note: shl_unload will unload the library even if it has been loaded
+    // multiple times.  No reference count is kept.
+    int ignored = shl_unload(shl_t(libraryHandle));
 #endif
 }
 
 String System::dynamicLoadError() {
+    // ATTN: Is this safe in a multi-threaded process?  Should this string
+    // be returned from loadDynamicLibrary?
 #ifdef PEGASUS_OS_HPUX
+    // ATTN: If shl_load() returns NULL, this value should be strerror(errno)
+    return String();
+#elif defined(PEGASUS_OS_ZOS)
     return String();
 #else
     String dlerr = dlerror();
@@ -189,7 +224,7 @@ DynamicSymbolHandle System::loadDynamicSymbol(
     void* proc = 0;
 
     if (shl_findsym((shl_t*)&libraryHandle, p, TYPE_UNDEFINED, &proc) == 0)
-	return DynamicSymbolHandle(proc);
+        return DynamicSymbolHandle(proc);
 
     p = strcpy(new char[strlen(symbolName) + 2], symbolName);
     strcpy(p, "_");
@@ -197,12 +232,15 @@ DynamicSymbolHandle System::loadDynamicSymbol(
 
     if (shl_findsym((shl_t*)libraryHandle, p, TYPE_UNDEFINED, &proc) == 0)
     {
-	delete [] p;
-	return DynamicSymbolHandle(proc);
+        delete [] p;
+        return DynamicSymbolHandle(proc);
     }
 
     return 0;
 
+#elif defined(PEGASUS_OS_ZOS)
+    return DynamicSymbolHandle(dllqueryfn((dllhandle *)libraryHandle,
+                               (char*)symbolName));
 #else
 
     return DynamicSymbolHandle(dlsym(libraryHandle, (char*)symbolName));
@@ -220,4 +258,68 @@ String System::getHostName()
     return hostname;
 }
 
+String System::getPassword(const char* prompt)
+{
+
+    String password;
+
+    password = String(getpass( prompt ));
+
+    return password;
+}
+
+String System::getCurrentLoginName()
+{
+    String userName = String::EMPTY;
+    struct passwd*   pwd = NULL;
+
+    //
+    //  get the currently logged in user's UID.
+    //
+    pwd = getpwuid(getuid());
+    if ( pwd == NULL )
+    {
+        //ATTN: Log a message
+        // "User might have been removed just after login"
+    }
+    else
+    {
+        //
+        //  get the user name
+        //
+        userName.assign(pwd->pw_name);
+    }
+
+    return(userName);
+}
+
+String System::encryptPassword(const char* password, const char* salt)
+{
+    return ( String(crypt( password,salt)) );
+}
+
+Boolean System::isSystemUser(char* userName)
+{
+    //
+    //  get the password entry for the user
+    //
+    if  ( getpwnam(userName) == NULL )
+    {
+	return false;
+    }
+    return true;
+}
+
+Boolean System::isPrivilegedUser()
+{
+    //
+    // Get the effective UID for the user 
+    //
+    if ( geteuid() != 0 )
+    {
+	return false;
+    }
+    return true;
+}
+    
 PEGASUS_NAMESPACE_END

@@ -199,7 +199,7 @@ public:
     */
     operator int() const { return _rep != 0; }
 
-    /**	CIMMethod
+    /**	toXml- Converts the CIMQualifier object to XML.
     
     */
     void toXml(Array<Sint8>& out) const
@@ -208,7 +208,8 @@ public:
 	_rep->toXml(out);
     }
 
-    /**	CIMMethod
+    /**	print - Converts the CIMQualifier object to XML and 
+        sends it to cout.
 
    */
     void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const
@@ -217,8 +218,17 @@ public:
 	_rep->print(o);
     }
 
-    /**	CIMMethod
+    /**	toXml- Converts the CIMQualifier object to MOF.
+    
+    */
+    void toMof(Array<Sint8>& out) const
+    {
+	_checkRep();
+	_rep->toMof(out);
+    }
 
+    /**	identical - compares two CIMQualifier objects.
+        @return - True if the objects are identical.
    */
     Boolean identical(const CIMConstQualifier& x) const;
 

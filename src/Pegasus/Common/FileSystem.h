@@ -3,18 +3,18 @@
 // Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to 
-// deal in the Software without restriction, including without limitation the 
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
-// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+//
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
-// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
-// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
-// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
@@ -29,11 +29,11 @@
 #ifndef Pegasus_FileSystem_h
 #define Pegasus_FileSystem_h
 
-#include <fstream>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/Exception.h>
+#include <fstream>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -48,7 +48,7 @@ PEGASUS_NAMESPACE_BEGIN
 	<li>Loading files into memory.</li>
     </ul>
 
-    The methods of this class are all static. So there is no need to 
+    The methods of this class are all static. So there is no need to
     instantiate this class to use it. In fact, instantiation is precluded
     by a private default constructor.
 
@@ -58,14 +58,14 @@ PEGASUS_NAMESPACE_BEGIN
     located. For example, suppose there is a file called "File1". Then
     canReadNoCase("file1") finds the file called "File1" and returns true (of
     course there is a possibility that there really is a file called "file1"
-    in the same directory in which case the behavior of this method is 
-    undefined). Notice that Windows does this anyway. These methods were 
+    in the same directory in which case the behavior of this method is
+    undefined). Notice that Windows does this anyway. These methods were
     developed primarily for Unix which is case sensitive with respect to file
     names. It should be noted that the no-case methods are slower (since they
     must stat the directory and look at the file names).
 
     The no-case variations are used by the repository which--according to
-    CIM--must treat two classes names with different case characterisits, but 
+    CIM--must treat two classes names with different case characterisits, but
     othererwise similar, as identical. For example, "MyClass", "myclass", and
     "MYCLASS" all refer to the same class. Since the default repository
     implementation uses disk file names to represent class names (e.g., there
@@ -150,7 +150,7 @@ public:
 	carriage-return-line-feed sequences on Windows).
 	@param array set to the contents of the file upon return.
 	@param fileName name of file to be loaded.
-	@exception CannotOpenFile 
+	@exception CannotOpenFile
     */
     static void loadFileToMemory(
 	Array<Sint8>& array,
@@ -196,13 +196,13 @@ public:
     */
     static Boolean changeDirectory(const String& path);
 
-    /** Creates a directory. 
+    /** Creates a directory.
 	@param path path of directory to be created.
 	@return true on success.
     */
     static Boolean makeDirectory(const String& path);
 
-    /** Get the path of the current working Directory. 
+    /** Get the path of the current working Directory.
 	@param path set to current working directory upon return.
 	@return true on success (operation may fail if the current
 	    working directory becomes stale; this can happen on
@@ -222,10 +222,10 @@ public:
     /** Remove a directory and all files and directories under it.
 	WARNING: This differs significantly from the <tt>removeDirectory</tt>
 	function in that it removes both directories and files and
-	removes a complete hiearchy.  Use with caution. 
+	removes a complete hiearchy.  Use with caution.
 	@param path path of directory to be removed.
 	@return true on success.
-    */ 
+    */
     static Boolean removeDirectoryHier(const String& path);
 
     /** Gets names of all entries (files and directories) of a directory.
@@ -246,7 +246,7 @@ public:
     */
     static Boolean isDirectoryEmpty(const String& path);
 
-    /** Translate backward slashes to forward slashes. 
+    /** Translate backward slashes to forward slashes.
 	@param path to be translated.
     */
     static void translateSlashes(String& path);

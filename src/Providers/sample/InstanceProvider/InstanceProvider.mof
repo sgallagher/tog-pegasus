@@ -1,0 +1,10 @@
+[provider("SampleInstanceProvider")]
+class Sample_DummyInstance
+{
+   [key,
+	read]
+   Uint8 Identifier;
+	
+	[read, write]
+	string Message;
+};

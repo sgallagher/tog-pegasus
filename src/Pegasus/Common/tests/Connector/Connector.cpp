@@ -37,6 +37,10 @@ PEGASUS_USING_STD;
 #define D(X) /* empty */
 
 const char LONG_MESSAGE[] = 
+"Blah blah blah\r\n"
+"Size: 1234\r\n"
+"content-length: 100\r\n"
+"\r\n"
 "    This is line 0 of a very long message\n"
 "    This is line 1 of a very long message\n"
 "    This is line 2 of a very long message\n"
@@ -550,32 +554,6 @@ const char LONG_MESSAGE[] =
 "    This is line 510 of a very long message\n"
 "    This is line 511 of a very long message\n"
 "    This is line 512 of a very long message\n"
-"    This is line 513 of a very long message\n"
-"    This is line 514 of a very long message\n"
-"    This is line 515 of a very long message\n"
-"    This is line 516 of a very long message\n"
-"    This is line 517 of a very long message\n"
-"    This is line 518 of a very long message\n"
-"    This is line 519 of a very long message\n"
-"    This is line 520 of a very long message\n"
-"    This is line 521 of a very long message\n"
-"    This is line 522 of a very long message\n"
-"    This is line 523 of a very long message\n"
-"    This is line 524 of a very long message\n"
-"    This is line 525 of a very long message\n"
-"    This is line 526 of a very long message\n"
-"    This is line 527 of a very long message\n"
-"    This is line 528 of a very long message\n"
-"    This is line 529 of a very long message\n"
-"    This is line 530 of a very long message\n"
-"    This is line 531 of a very long message\n"
-"    This is line 532 of a very long message\n"
-"    This is line 533 of a very long message\n"
-"    This is line 534 of a very long message\n"
-"    This is line 535 of a very long message\n"
-"    This is line 536 of a very long message\n"
-"    This is line 537 of a very long message\n"
-"    This is line 538 of a very long message\n"
 "    This is line 539 of a very long message\n"
 "    This is line 540 of a very long message\n"
 "    This is line 541 of a very long message\n"
@@ -792,6 +770,7 @@ public:
     virtual void handleClose(Channel* channel)
     {
 	cout << "MyChannelHandler::handleClose()" << endl;
+	exit(0);
     }
 
 private:

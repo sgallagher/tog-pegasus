@@ -440,7 +440,7 @@ public:
 
 private:
 
-    static Uint32 PEG_min(Uint32 x, Uint32 y) { return x < y ? x : y; }
+    static Uint32 _pegasusMin(Uint32 x, Uint32 y) { return x < y ? x : y; }
 
     Array<Char16> _rep;
 };

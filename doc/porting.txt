@@ -19,3 +19,17 @@ Notes on xlC on AIX (IBM C++):
 
     Be sure makeC++SharedLib is on your path.
     Ignore the "WARNING: Duplicat system: ..." messages from linker.
+
+Notes on IBM compiler on z/OS:
+    same Compiler restrictions as on AIX
+
+    the grammar for the Compiler has to be rebuilt because of EBCDIC encoding.
+
+    to be able to build Pegasus, the gnu utilities (for os/390) bison, flex
+    make and makedepend are necessary
+
+    the current implementation assumes a server working with an EBCDIC code page
+    and a client in an ASCII environment.
+
+    CAVEAT: Since dynamic_cast isn't supported, Provider2 cannot be compiled at
+            the moment !

@@ -96,11 +96,14 @@ template<class L> class PEGASUS_EXPORT slp2_list {
   // unlink this node from whichever list it is on
   inline void unlink( void  ) { _prev->_next = _next; _next->_prev = _prev; }
   // insert this node into list owned by head 
-  inline void insert(slp2_list & head) {  _prev = head; 
-                      _next = head._next; 
-		     head._next->_prev = this; 
-		     head._next = this;   
-                     head._count++; }
+  inline void insert(slp2_list & head) 
+    {  
+      _prev = &head; 
+      _next = head._next; 
+      head._next->_prev = this; 
+      head._next = this;   
+      head._count++; 
+    }
 public:
   slp2_list(Boolean head = true) :  _rep(NULL), _isHead(head), _count(0) { _next = this; _prev = this; _cur = this;}
   ~slp2_list() { empty_list() ; }

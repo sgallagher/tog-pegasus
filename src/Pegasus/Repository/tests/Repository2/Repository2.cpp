@@ -22,7 +22,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Roger Kumpf (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -154,24 +154,25 @@ void TestCreateClass()
 
     // -- Enumerate instances:
 
-    Array<CIMInstance> instances = r.enumerateInstances(NS, "MyClass");
+    Array<CIMNamedInstance> namedInstances = r.enumerateInstances(NS, "MyClass");
 
-    assert(instances.size() == 2);
-
-    assert(
-	instances[0].identical(inst0) ||
-	instances[0].identical(inst1));
+    assert(namedInstances.size() == 2);
 
     assert(
-	instances[1].identical(inst0) ||
-	instances[1].identical(inst1));
+	namedInstances[0].getInstance().identical(inst0) ||
+	namedInstances[0].getInstance().identical(inst1));
+
+    assert(
+	namedInstances[1].getInstance().identical(inst0) ||
+	namedInstances[1].getInstance().identical(inst1));
 
     // -- Modify one of the instances:
 
     CIMInstance modifiedInst0("MyClass");
     modifiedInst0.addProperty(CIMProperty("key", Uint32(111)));
     modifiedInst0.addProperty(CIMProperty("message", "Goodbye World"));
-    r.modifyInstance(NS, modifiedInst0);
+    CIMNamedInstance namedInst0(instanceNames[0], modifiedInst0);
+    r.modifyInstance(NS, namedInst0);
 
     // -- Get instance back and see that it is the same as modified one:
 

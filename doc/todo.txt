@@ -1,4 +1,47 @@
 
+    -	Propagate message key for all messages pertaining to a particular 
+	request.
+
+    -	Run Purify on all sources (port to Sun first).
+
+    -	Rework Pegasus to use asynchronous I/O.
+
+    -	Finalize export client/server:
+
+	    -	Covert GetClass operation to DeliverIndication operation.
+
+	    -   Rework export-client to asynchronously process responses 
+		(instead of the RPC style used now).
+
+	    -	Need meta-export-client (with connection management).
+
+	    -	Implement disconnect() logic.
+
+    -	Remove keys from messages?
+
+    -   Get rid of unused source code (dealing with channels and TCP).
+
+    -   Rethink the useage of queue-ids in messages and how requests and
+	responses are matched up. Queue-ids are only used on the server
+	side. Perhaps a more general mechanism can be found.
+
+    -   Fix bug in which the messageId is calculated inside the XmlWriter.
+	It should be calculated by the caller.
+
+    -	Delete CIMOperations.h.
+
+    -	Get rid of message keys? They don't seem to be used.
+
+    -	Fix bug in src/Pegasus/Client/tests/Client in which associators()
+	fails and says class does not exist (seems to happen in debug mode
+	only). Disappears when I/O is enabled.
+
+    -	Replace old headers with new ones (co-ordinate with team).
+
+    -	Get rid of usage of System (use since it
+
+    -	Migrate to use of Linkage.h files.
+
     -   Document that lex and yacc are no longer a requirement to build
 	Pegasus.
 
@@ -196,8 +239,6 @@
     -	Shrink object sizes.
 
     -	Use lighter I/O system (than C++ streams).
-
-    -	Run Purify on all sources (port to Sun first).
 
     -	Optimize clear method on arrays (to not release memory).
 

@@ -340,6 +340,8 @@ Boolean TCPChannelAcceptor::handle(Sint32 desc, Uint32 reasons)
 
 #if defined(PEGASUS_OS_SOLARIS)
     int n;
+#elif defined (PEGASUS_OS_ZOS)
+    size_t n;
 #elif defined (PEGASUS_OS_LINUX)
     unsigned int n;
 #elif defined (PEGASUS_OS_AIX)

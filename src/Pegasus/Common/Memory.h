@@ -50,6 +50,7 @@
 #include <Pegasus/Common/CIMType.h>
 #include <Pegasus/Common/Char16.h>
 
+
 PEGASUS_NAMESPACE_BEGIN
 
 template<class T>

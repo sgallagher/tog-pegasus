@@ -368,13 +368,9 @@ CIMReference CIMInstanceRep::getInstanceName(
 		    break;
 
 		case CIMType::REFERENCE:
-		{
-		    kbType = KeyBinding::STRING;
-
-		    CIMReference tmpRef = value.toString();
-		    valueStr = tmpRef.toStringCanonical();
+		    kbType = KeyBinding::REFERENCE;
+		    valueStr = value.toString();
 		    break;
-		}
 
 		case CIMType::REAL32:
 		case CIMType::REAL64:

@@ -26,8 +26,32 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Config.h>
+#include <iostream>
 #include "CIMMessage.h"
 
+PEGASUS_USING_STD;
+
 PEGASUS_NAMESPACE_BEGIN
+
+CIMMessage::~CIMMessage()
+{
+}
+
+CIMRequestMessage::~CIMRequestMessage()
+{
+}
+
+CIMResponseMessage::~CIMResponseMessage()
+{
+}
+
+CIMGetClassRequestMessage::~CIMGetClassRequestMessage()
+{
+}
+
+CIMGetClassResponseMessage::~CIMGetClassResponseMessage()
+{
+}
 
 PEGASUS_NAMESPACE_END

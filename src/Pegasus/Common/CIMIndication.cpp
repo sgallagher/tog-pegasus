@@ -22,7 +22,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Chip Vincent (cvincent@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,7 +34,11 @@ CIMIndication::CIMIndication(void)
 {
 }
 
-CIMIndication::~CIMIndication(void)
+CIMIndication::CIMIndication(const String & name) : _name(name)
+{
+}
+
+CIMIndication::~CIMIndication(void)	
 {
 }
 

@@ -47,11 +47,10 @@ VOID WINAPI cimserver_service_ctrl_handler(DWORD );
 DWORD cimserver_initialization(DWORD, LPTSTR *, DWORD *) ;
 
 void GetOptions(
-    OptionManager& om,
+    ConfigManager* cm,
     int& argc,
     char** argv,
-    const String& pegasusHome) ;
-
+    const String& pegasusHome);
 
 void cim_server_service(int argc, char **argv ) { cimserver_windows_main(argc, argv); exit(0); }
 int cimserver_fork( ) { return(0); }
@@ -63,41 +62,60 @@ static void __cdecl cimserver_windows_thread(void *parm)
     // removes corresponding options and their arguments fromt he command
     // line.
 
-    OptionManager om;
+PEGASUS_TRACE;
+    ConfigManager* configManager = ConfigManager::getInstance();
     int dummy = 0;
     String pegasusHome;
+
+PEGASUS_TRACE;
     try
     {
-	GetOptions(om, dummy, NULL, pegasusHome);
-	// om.print();
+PEGASUS_TRACE;
+	GetOptions(configManager, dummy, NULL, pegasusHome);
+PEGASUS_TRACE;
     }
     catch (Exception&)
     {
       exit(1);
     }
+PEGASUS_TRACE;
 
+    //
     // Check the trace options and set global variable
+    //
     Boolean pegasusIOTrace = false;
-    if (om.valueEquals("trace", "true"))
+
+    if (String::equal(configManager->getCurrentValue("trace"), "true"))
     {
-         Handler::setMessageTrace(true);
-	 pegasusIOTrace = true;
+        Handler::setMessageTrace(true);
+        pegasusIOTrace = true;
     }
 
+    //
+    // Check the log trace options and set global variable
+    //
     Boolean pegasusIOLog = false;
-    if (om.valueEquals("logtrace", "true"))
+
+    if (String::equal(configManager->getCurrentValue("logtrace"), "true"))
     {
-	Handler::setMessageLogTrace(true);
-	 pegasusIOLog = true;
+        Handler::setMessageLogTrace(true);
+        pegasusIOLog = true;
     }
+    Boolean useSSL = false;
+    
+    if (String::equal(configManager->getCurrentValue("SSL"), "true"))
+    {
+       useSSL =  true;
+    }
+
+PEGASUS_TRACE;
     
     // Grab the port otpion:
 
-    String portOption;
-    om.lookupValue("port", portOption);
-
+    String portOption = configManager->getCurrentValue("port");
     char* address = portOption.allocateCString();
 
+PEGASUS_TRACE;
     // Set up the Logger
     Logger::setHomeDirectory("./logs");
 
@@ -108,19 +126,28 @@ static void __cdecl cimserver_windows_thread(void *parm)
      // try loop to bind the address, and run the server
     try
     {
-	Selector selector;
+PEGASUS_TRACE;
+	Monitor monitor;
         
-       	CIMServer server(&selector, *runPath);
+       	CIMServer server(&monitor, *runPath, useSSL);
 	server_windows = &server;
-	server_windows->bind(address);
+
+	char* end = 0;
+	long portNumber = strtol(address, &end, 10);
+	assert(end != 0 && *end == '\0');
+	server.bind(portNumber);
+	server_windows->bind(portNumber);
+
 	delete [] address;
 	server_windows->runForever();
+PEGASUS_TRACE;
     }
     catch(Exception& e)
     {
 	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
     }
 
+PEGASUS_TRACE;
     _endthreadex(NULL);
 }
 
@@ -134,6 +161,7 @@ static void __cdecl cimserver_windows_thread(void *parm)
 
 VOID WINAPI  cimserver_windows_main(int argc, char **argv) 
 {
+PEGASUS_TRACE;
   int ccode;
   SERVICE_TABLE_ENTRY dispatch_table[] = 
   {
@@ -252,7 +280,7 @@ VOID WINAPI cimserver_service_start(DWORD argc, LPTSTR *argv)
   if(!SetServiceStatus(pegasus_status_handle, &pegasus_status)) 
     {
       if(server_windows != NULL)
-	server_windows->killServer();
+	server_windows->shutdown();
     }
 
   return;
@@ -265,7 +293,7 @@ VOID WINAPI cimserver_service_ctrl_handler(DWORD opcode)
   case SERVICE_CONTROL_STOP:
   case SERVICE_CONTROL_SHUTDOWN:
     if(server_windows != NULL)
-      server_windows->killServer();
+      server_windows->shutdown();
     pegasus_status.dwCurrentState = SERVICE_STOPPED;
     pegasus_status.dwCheckPoint = 0;
     pegasus_status.dwWaitHint = 0;

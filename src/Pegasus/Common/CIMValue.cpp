@@ -3,18 +3,18 @@
 // Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to 
-// deal in the Software without restriction, including without limitation the 
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
-// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+//
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
-// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
-// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
-// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
@@ -22,7 +22,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -170,67 +170,109 @@ static void _UnsignedIntToStr(Uint64 x, char* result)
 
 //------------------------------------------------------------------------------
 //
-// _toXml() routines:
+// _toString, _toXml(), and _toMof routines:
 //
 //------------------------------------------------------------------------------
 
-inline void _toXml(Array<Sint8>& out, Boolean x)
+inline void _toString(Array<Sint8>& out, Boolean x)
 {
     out << (x ? "TRUE" : "FALSE");
 }
 
+inline void _toXml(Array<Sint8>& out, Boolean x) { _toString(out, x); }
+inline void _toMof(Array<Sint8>& out, Boolean x) { _toString(out, x); }
+
 template<class T>
-inline void _integerToXml(Array<Sint8>& out, const T& x)
+inline void _integerToString(Array<Sint8>& out, const T& x)
 {
     char buffer[32];
     sprintf(buffer, "%d", x);
     out << (char*)buffer;
 }
 
-inline void _toXml(Array<Sint8>& out, Uint8 x) { _integerToXml(out, x); }
+inline void _toString(Array<Sint8>& out, Uint8 x) { _integerToString(out, x); }
+inline void _toXml(Array<Sint8>& out, Uint8 x) { _integerToString(out, x); }
+inline void _toMof(Array<Sint8>& out, Uint8 x) { _integerToString(out, x); }
 
-inline void _toXml(Array<Sint8>& out, Sint8 x) { _integerToXml(out, x); }
+inline void _toString(Array<Sint8>& out, Sint8 x) { _integerToString(out, x); }
+inline void _toXml(Array<Sint8>& out, Sint8 x) { _integerToString(out, x); }
+inline void _toMof(Array<Sint8>& out, Sint8 x) { _integerToString(out, x); }
 
-inline void _toXml(Array<Sint8>& out, Uint16 x) { _integerToXml(out, x); }
+inline void _toString(Array<Sint8>& out, Uint16 x) { _integerToString(out, x); }
+inline void _toXml(Array<Sint8>& out, Uint16 x) { _integerToString(out, x); }
+inline void _toMof(Array<Sint8>& out, Uint16 x) { _integerToString(out, x); }
 
-inline void _toXml(Array<Sint8>& out, Sint16 x) { _integerToXml(out, x); }
+inline void _toString(Array<Sint8>& out, Sint16 x) { _integerToString(out, x); }
+inline void _toXml(Array<Sint8>& out, Sint16 x) { _integerToString(out, x); }
+inline void _toMof(Array<Sint8>& out, Sint16 x) { _integerToString(out, x); }
 
-inline void _toXml(Array<Sint8>& out, Uint32 x) { _integerToXml(out, x); }
+inline void _toString(Array<Sint8>& out, Uint32 x) { _integerToString(out, x); }
+inline void _toXml(Array<Sint8>& out, Uint32 x) { _integerToString(out, x); }
+inline void _toMof(Array<Sint8>& out, Uint32 x) { _integerToString(out, x); }
 
-inline void _toXml(Array<Sint8>& out, Sint32 x) { _integerToXml(out, x); }
+inline void _toString(Array<Sint8>& out, Sint32 x) { _integerToString(out, x); }
+inline void _toXml(Array<Sint8>& out, Sint32 x) { _integerToString(out, x); }
+inline void _toMof(Array<Sint8>& out, Sint32 x) { _integerToString(out, x); }
 
-inline void _toXml(Array<Sint8>& out, Uint64 x) 
-{ 
+inline void _toString(Array<Sint8>& out, Uint64 x)
+{
     char buffer[128];
     _UnsignedIntToStr(x, buffer);
     out << buffer;
 }
 
-inline void _toXml(Array<Sint8>& out, Sint64 x) 
+inline void _toXml(Array<Sint8>& out, Uint64 x) { _toString(out, x); }
+inline void _toMof(Array<Sint8>& out, Uint64 x) { _toString(out, x); }
+
+inline void _toString(Array<Sint8>& out, Sint64 x)
 {
     char buffer[128];
     _SignedIntToStr(x, buffer);
     out << buffer;
 }
 
-void _toXml(Array<Sint8>& out, Real32 x)
+inline void _toXml(Array<Sint8>& out, Sint64 x) { _toString(out, x); }
+inline void _toMof(Array<Sint8>& out, Sint64 x) { _toString(out, x); }
+
+void _toString(Array<Sint8>& out, Real32 x)
 {
+    char buffer[128];
     // ATTN: Does this format match the CIM/XML format?
-    char buffer[128];
     sprintf(buffer, "%f", x);
     out << buffer;
 }
 
-void _toXml(Array<Sint8>& out, Real64 x)
+inline void _toXml(Array<Sint8>& out, Real32 x) { _toString(out, x); }
+inline void _toMof(Array<Sint8>& out, Real32 x) { _toString(out, x); }
+
+void _toString(Array<Sint8>& out, Real64 x)
 {
     char buffer[128];
+    // ATTN: Does this format match the CIM/XML format?
     sprintf(buffer, "%f", x);
     out << buffer;
 }
 
+inline void _toXml(Array<Sint8>& out, Real64 x) { _toString(out, x); }
+inline void _toMof(Array<Sint8>& out, Real64 x) { _toString(out, x); }
+
+inline void _toString(Array<Sint8>& out, Char16 x)
+{
+    // ATTN: How to convert 16-bit characters to printable form?
+    out.append(Sint8(x));
+}
 inline void _toXml(Array<Sint8>& out, Char16 x)
 {
     XmlWriter::appendSpecial(out, x);
+}
+inline void _toMof(Array<Sint8>& out, Char16 x)
+{
+    XmlWriter::appendSpecial(out, x);
+}
+
+inline void _toString(Array<Sint8>& out, const String& x)
+{
+    out << x;
 }
 
 inline void _toXml(Array<Sint8>& out, const String& x)
@@ -238,9 +280,87 @@ inline void _toXml(Array<Sint8>& out, const String& x)
     XmlWriter::appendSpecial(out, x);
 }
 
-inline void _toXml(Array<Sint8>& out, const CIMDateTime& x)
+/** _toMof Internal function to convert the string back
+    to MOF format and output it.
+    The conversions are:
+    \b // \x0008: backspace BS
+    \t // \x0009: horizontal tab HT
+    \n // \x000A: linefeed LF
+    \f // \x000C: form feed FF
+    \r // \x000D: carriage return CR
+    \" // \x0022: double quote "
+    \’ // \x0027: single quote '
+    \\ // \x005C: backslash \
+    \x<hex> // where <hex> is one to four hex digits
+    \X<hex> // where <hex> is one to four hex digits
+*/
+/* ATTN:KS - We need to account for characters greater than x'7f
+*/
+inline void _toMof(Array<Sint8>& out, const String& x)
+{
+    out << "\"";
+    const Char16* tmp = x.getData();
+    char c;
+    while ((c = *tmp++))
+    {
+	switch (c)
+	{
+	case '\\':
+		out.append("\\\\",2);
+		break;
+
+	    case '\b':
+		out.append("\\b",2);
+		break;
+
+	    case '\t':
+		out.append("\\t",2);
+		break;
+
+	    case '\n':
+		out.append("\\n",2);
+		break;
+
+	    case '\f':
+		out.append("\\f",2);
+		break;
+
+	    case '\r':
+		out.append("\\r",2);
+		break;
+
+	   /* case '\'':
+		out.append("\\'", 2);
+		break;*/
+
+	    case '"':
+		out.append("\\\"", 2);
+		break;
+
+	    default:
+		out.append(Sint8(c));
+	}
+
+    }
+    out << "\"";
+}
+
+inline void _toString(Array<Sint8>& out, const CIMDateTime& x)
 {
     out << x.getString();
+}
+
+inline void _toXml(Array<Sint8>& out, const CIMDateTime& x) { _toString(out, x); }
+inline void _toMof(Array<Sint8>& out, const CIMDateTime& x) { _toString(out, x); }
+
+template<class T>
+void _toString(Array<Sint8>& out, const T* p, Uint32 size)
+{
+    while (size--)
+    {
+	_toString(out, *p++);
+	out << " ";
+    }
 }
 
 template<class T>
@@ -255,14 +375,30 @@ void _toXml(Array<Sint8>& out, const T* p, Uint32 size)
 	out << "</VALUE>\n";
     }
 }
+/** _toMof Array -
+    arrayInitializer  = "{" constantValue*( "," constantValue)"}"
 
+*/
 template<class T>
-void _toStr(Array<Sint8>& out, const T* p, Uint32 size)
+void _toMof(Array<Sint8>& out, const T* p, Uint32 size)
 {
-    while (size--)
+    Boolean isFirstEntry = true;
+    // if there are any entries in the array output them
+    if (size)
     {
-	_toXml(out, *p++);
-	out << " ";
+	out << "{";
+	while (size--)
+	{
+	    // Put comma on all but first entry.
+	    if (!isFirstEntry)
+	    {
+		out << ", ";
+	    }
+	    isFirstEntry = false;
+	    _toMof(out, *p++);
+	}
+	out << "}";
+
     }
 }
 
@@ -277,10 +413,10 @@ CIMValue::CIMValue()
     _init();
 }
 
-CIMValue::CIMValue(const CIMValue& x) 
-{ 
-    _init(); 
-    assign(x); 
+CIMValue::CIMValue(const CIMValue& x)
+{
+    _init();
+    assign(x);
 }
 
 CIMValue::~CIMValue()
@@ -297,6 +433,7 @@ void CIMValue::assign(const CIMValue& x)
 
     _type = x._type;
     _isArray = x._isArray;
+    _isNull = x._isNull;
     _u._voidPtr = 0;
 
     if (_isArray)
@@ -416,7 +553,7 @@ void CIMValue::assign(const CIMValue& x)
 		break;
 
 	    case CIMType::STRING:
-		_u._stringValue = new String(*(x._u._stringValue));
+		new(_u._stringValue) String(*((String*)x._u._stringValue));
 		break;
 
 	    case CIMType::DATETIME:
@@ -424,7 +561,7 @@ void CIMValue::assign(const CIMValue& x)
 		break;
 
 	    case CIMType::REFERENCE:
-		_u._referenceValue 
+		_u._referenceValue
 		    = new CIMReference(*(x._u._referenceValue));
 		break;
 	}
@@ -503,6 +640,7 @@ Uint32 CIMValue::getArraySize() const
     }
 
     // Unreachable!
+    PEGASUS_ASSERT(false);
     return 0;
 }
 
@@ -588,7 +726,7 @@ void CIMValue::clear()
 		break;
 
 	    case CIMType::STRING:
-		delete _u._stringValue;
+		((String*)_u._stringValue)->~String();
 		break;
 
 	    case CIMType::DATETIME:
@@ -737,7 +875,7 @@ void CIMValue::toXml(Array<Sint8>& out) const
 		break;
 
 	    case CIMType::STRING:
-		_toXml(out, *_u._stringValue);
+		_toXml(out, *((String*)_u._stringValue));
 		break;
 
 	    case CIMType::DATETIME:
@@ -748,6 +886,149 @@ void CIMValue::toXml(Array<Sint8>& out) const
 	out << "</VALUE>\n";
     }
 }
+
+String CIMValue::toXml() const
+{
+    Array<Sint8> out;
+    toXml(out);
+    out.append('\0');
+    return String(out.getData());
+}
+
+void CIMValue::toMof(Array<Sint8>& out) const	 //ATTNKS:
+{
+    if (_isArray)
+    {
+	switch (_type)
+	{
+	    case CIMType::BOOLEAN:
+	    {
+		for (Uint32 i = 0, n = _u._booleanArray->size; i < n; i++)
+		{
+		    _toMof(out, Boolean(_u._booleanArray->data()[i]));
+		}
+		break;
+	    }
+	    case CIMType::UINT8:
+		_toMof(out, _u._uint8Array->data(), _u._uint8Array->size);
+		break;
+
+	    case CIMType::SINT8:
+		_toMof(out, _u._sint8Array->data(), _u._sint8Array->size);
+		break;
+
+	    case CIMType::UINT16:
+		_toMof(out, _u._uint16Array->data(), _u._uint16Array->size);
+		break;
+
+	    case CIMType::SINT16:
+		_toMof(out, _u._sint16Array->data(), _u._sint16Array->size);
+		break;
+
+	    case CIMType::UINT32:
+		_toMof(out, _u._uint32Array->data(), _u._uint32Array->size);
+		break;
+
+	    case CIMType::SINT32:
+		_toMof(out, _u._sint32Array->data(), _u._sint32Array->size);
+		break;
+
+	    case CIMType::UINT64:
+		_toMof(out, _u._uint64Array->data(), _u._uint64Array->size);
+		break;
+
+	    case CIMType::SINT64:
+		_toMof(out, _u._sint64Array->data(), _u._sint64Array->size);
+		break;
+
+	    case CIMType::REAL32:
+		_toMof(out, _u._real32Array->data(), _u._real32Array->size);
+		break;
+
+	    case CIMType::REAL64:
+		_toMof(out, _u._real64Array->data(), _u._real64Array->size);
+		break;
+
+	    case CIMType::CHAR16:
+		_toMof(out, _u._char16Array->data(), _u._char16Array->size);
+		break;
+
+	    case CIMType::STRING:
+		_toMof(out, _u._stringArray->data(), _u._stringArray->size);
+		break;
+
+	    case CIMType::DATETIME:
+		_toMof(out, _u._dateTimeArray->data(),
+			    _u._dateTimeArray->size); break;
+	}
+    }
+    else if (_type == CIMType::REFERENCE)
+    {
+	_u._referenceValue->toMof(out);
+    }
+    else
+    {
+	switch (_type)
+	{
+	    case CIMType::BOOLEAN:
+		_toMof(out, Boolean(_u._booleanValue != 0));
+		break;
+
+	    case CIMType::UINT8:
+		_toMof(out, _u._uint8Value);
+		break;
+
+	    case CIMType::SINT8:
+		_toMof(out, _u._sint8Value);
+		break;
+
+	    case CIMType::UINT16:
+		_toMof(out, _u._uint16Value);
+		break;
+
+	    case CIMType::SINT16:
+		_toMof(out, _u._sint16Value);
+		break;
+
+	    case CIMType::UINT32:
+		_toMof(out, _u._uint32Value);
+		break;
+
+	    case CIMType::SINT32:
+		_toMof(out, _u._sint32Value);
+		break;
+
+	    case CIMType::UINT64:
+		_toMof(out, _u._uint64Value);
+		break;
+
+	    case CIMType::SINT64:
+		_toMof(out, _u._sint64Value);
+		break;
+
+	    case CIMType::REAL32:
+		_toMof(out, _u._real32Value);
+		break;
+
+	    case CIMType::REAL64:
+		_toMof(out, _u._real64Value);
+		break;
+
+	    case CIMType::CHAR16:
+		_toMof(out, Char16(_u._char16Value));
+		break;
+
+	    case CIMType::STRING:
+		_toMof(out, *((String*)_u._stringValue));
+		break;
+
+	    case CIMType::DATETIME:
+		_toMof(out, *_u._dateTimeValue);
+		break;
+	}
+    }
+}
+
 
 void CIMValue::print(PEGASUS_STD(ostream) &os) const
 {
@@ -844,13 +1125,13 @@ void CIMValue::set(const Char16& x)
 void CIMValue::set(const String& x)
 {
     clear();
-    _u._stringValue = new String(x);
+    new(_u._stringValue) String(x);
     _type = CIMType::STRING;
 }
 
-void CIMValue::set(const char* x) 
-{ 
-    set(String(x)); 
+void CIMValue::set(const char* x)
+{
+    set(String(x));
 }
 
 void CIMValue::set(const CIMDateTime& x)
@@ -873,6 +1154,7 @@ void CIMValue::set(const Array<Boolean>& x)
     _Inc(_u._booleanArray = x._rep);
     _type = CIMType::BOOLEAN;
     _isArray = true;
+    _isNull = false;
 }
 
 void CIMValue::set(const Array<Uint8>& x)
@@ -881,6 +1163,7 @@ void CIMValue::set(const Array<Uint8>& x)
     _Inc(_u._uint8Array = x._rep);
     _type = CIMType::UINT8;
     _isArray = true;
+    _isNull = false;
 }
 
 void CIMValue::set(const Array<Sint8>& x)
@@ -889,6 +1172,7 @@ void CIMValue::set(const Array<Sint8>& x)
     _Inc(_u._sint8Array = x._rep);
     _type = CIMType::SINT8;
     _isArray = true;
+    _isNull = false;
 }
 
 void CIMValue::set(const Array<Uint16>& x)
@@ -897,6 +1181,7 @@ void CIMValue::set(const Array<Uint16>& x)
     _Inc(_u._uint16Array = x._rep);
     _type = CIMType::UINT16;
     _isArray = true;
+    _isNull = false;
 }
 
 void CIMValue::set(const Array<Sint16>& x)
@@ -905,6 +1190,7 @@ void CIMValue::set(const Array<Sint16>& x)
     _Inc(_u._sint16Array = x._rep);
     _type = CIMType::SINT16;
     _isArray = true;
+    _isNull = false;
 }
 
 void CIMValue::set(const Array<Uint32>& x)
@@ -913,6 +1199,7 @@ void CIMValue::set(const Array<Uint32>& x)
     _Inc(_u._uint32Array = x._rep);
     _type = CIMType::UINT32;
     _isArray = true;
+    _isNull = false;
 }
 
 void CIMValue::set(const Array<Sint32>& x)
@@ -921,6 +1208,7 @@ void CIMValue::set(const Array<Sint32>& x)
     _Inc(_u._sint32Array = x._rep);
     _type = CIMType::SINT32;
     _isArray = true;
+    _isNull = false;
 }
 
 void CIMValue::set(const Array<Uint64>& x)
@@ -929,6 +1217,7 @@ void CIMValue::set(const Array<Uint64>& x)
     _Inc(_u._uint64Array = x._rep);
     _type = CIMType::UINT64;
     _isArray = true;
+    _isNull = false;
 }
 
 void CIMValue::set(const Array<Sint64>& x)
@@ -937,6 +1226,7 @@ void CIMValue::set(const Array<Sint64>& x)
     _Inc(_u._sint64Array = x._rep);
     _type = CIMType::SINT64;
     _isArray = true;
+    _isNull = false;
 }
 
 void CIMValue::set(const Array<Real32>& x)
@@ -945,6 +1235,7 @@ void CIMValue::set(const Array<Real32>& x)
     _Inc(_u._real32Array = x._rep);
     _type = CIMType::REAL32;
     _isArray = true;
+    _isNull = false;
 }
 
 void CIMValue::set(const Array<Real64>& x)
@@ -953,6 +1244,7 @@ void CIMValue::set(const Array<Real64>& x)
     _Inc(_u._real64Array = x._rep);
     _type = CIMType::REAL64;
     _isArray = true;
+    _isNull = false;
 }
 
 void CIMValue::set(const Array<Char16>& x)
@@ -961,6 +1253,7 @@ void CIMValue::set(const Array<Char16>& x)
     _Inc(_u._char16Array = x._rep);
     _type = CIMType::CHAR16;
     _isArray = true;
+    _isNull = false;
 }
 
 void CIMValue::set(const Array<String>& x)
@@ -969,7 +1262,8 @@ void CIMValue::set(const Array<String>& x)
     _Inc(_u._stringArray = x._rep);
     _type = CIMType::STRING;
     _isArray = true;
-} 
+    _isNull = false;
+}
 
 void CIMValue::set(const Array<CIMDateTime>& x)
 {
@@ -977,6 +1271,7 @@ void CIMValue::set(const Array<CIMDateTime>& x)
     _Inc(_u._dateTimeArray = x._rep);
     _type = CIMType::DATETIME;
     _isArray = true;
+    _isNull = false;
 }
 
 void CIMValue::get(Boolean& x) const
@@ -1080,7 +1375,7 @@ void CIMValue::get(String& x) const
     if (_type != CIMType::STRING || _isArray)
 	throw TypeMismatch();
 
-    x = *_u._stringValue;
+    x = *((String*)_u._stringValue);
 }
 
 void CIMValue::get(CIMDateTime& x) const
@@ -1215,6 +1510,7 @@ void CIMValue::_init()
 {
     _type = CIMType::NONE;
     _isArray = false;
+    _isNull = true;
     _u._voidPtr = 0;
 }
 
@@ -1325,7 +1621,9 @@ Boolean operator==(const CIMValue& x, const CIMValue& y)
 		return x._u._char16Value == y._u._char16Value;
 
 	    case CIMType::STRING:
-		return String::equal(*x._u._stringValue, *y._u._stringValue);
+		return String::equal(
+		    *((String*)x._u._stringValue), 
+		    *((String*)y._u._stringValue));
 
 	    case CIMType::DATETIME:
 		return *x._u._dateTimeValue == *y._u._dateTimeValue;
@@ -1341,6 +1639,8 @@ Boolean operator==(const CIMValue& x, const CIMValue& y)
 
 void CIMValue::setNullValue(CIMType type, Boolean isArray, Uint32 arraySize)
 {
+    _isNull = true;
+
     clear();
 
     if (isArray)
@@ -1481,65 +1781,66 @@ String CIMValue::toString() const
 	{
 	    case CIMType::BOOLEAN:
 	    {
-		for (Uint32 i = 0, n = _u._booleanArray->size; i < n; i++)
+		int size = _u._booleanArray->size;
+		bool *p = _u._booleanArray->data();
+		for (Uint32 i = 0; i < _u._booleanArray->size; i++)
 		{
-		    _toXml(out, Boolean(_u._booleanArray->data()[i]));
-
+		    _toString(out, Boolean(_u._booleanArray->data()[i]));
 		    out << " ";
 		}
 		break;
 	    }
 
 	    case CIMType::UINT8:
-		_toStr(out, _u._uint8Array->data(), _u._uint8Array->size);
+		_toString(out, _u._uint8Array->data(), _u._uint8Array->size);
 		break;
 
 	    case CIMType::SINT8:
-		_toStr(out, _u._sint8Array->data(), _u._sint8Array->size);
+		_toString(out, _u._sint8Array->data(), _u._sint8Array->size);
 		break;
 
 	    case CIMType::UINT16:
-		_toStr(out, _u._uint16Array->data(), _u._uint16Array->size);
+		_toString(out, _u._uint16Array->data(), _u._uint16Array->size);
 		break;
 
 	    case CIMType::SINT16:
-		_toStr(out, _u._sint16Array->data(), _u._sint16Array->size);
+		_toString(out, _u._sint16Array->data(), _u._sint16Array->size);
 		break;
 
 	    case CIMType::UINT32:
-		_toStr(out, _u._uint32Array->data(), _u._uint32Array->size);
+		_toString(out, _u._uint32Array->data(), _u._uint32Array->size);
 		break;
 
 	    case CIMType::SINT32:
-		_toStr(out, _u._sint32Array->data(), _u._sint32Array->size);
+		_toString(out, _u._sint32Array->data(), _u._sint32Array->size);
 		break;
 
 	    case CIMType::UINT64:
-		_toStr(out, _u._uint64Array->data(), _u._uint64Array->size);
+		_toString(out, _u._uint64Array->data(), _u._uint64Array->size);
 		break;
 
 	    case CIMType::SINT64:
-		_toStr(out, _u._sint64Array->data(), _u._sint64Array->size);
+		_toString(out, _u._sint64Array->data(), _u._sint64Array->size);
 		break;
 
 	    case CIMType::REAL32:
-		_toStr(out, _u._real32Array->data(), _u._real32Array->size);
+		_toString(out, _u._real32Array->data(), _u._real32Array->size);
 		break;
 
 	    case CIMType::REAL64:
-		_toStr(out, _u._real64Array->data(), _u._real64Array->size);
+		_toString(out, _u._real64Array->data(), _u._real64Array->size);
 		break;
 
 	    case CIMType::CHAR16:
-		_toStr(out, _u._char16Array->data(), _u._char16Array->size);
+		_toString(out, _u._char16Array->data(), _u._char16Array->size);
 		break;
 
 	    case CIMType::STRING:
-		_toStr(out, _u._stringArray->data(), _u._stringArray->size);
+		_toString(out, _u._stringArray->data(), _u._stringArray->size);
 		break;
 
 	    case CIMType::DATETIME:
-		_toStr(out, _u._dateTimeArray->data(), _u._dateTimeArray->size);
+		_toString(out, _u._dateTimeArray->data(), _u._dateTimeArray->size);
 		break;
 	}
     }
@@ -1552,59 +1853,59 @@ String CIMValue::toString() const
 	switch (_type)
 	{
 	    case CIMType::BOOLEAN:
-		_toXml(out, Boolean(_u._booleanValue != 0));
+		_toString(out, Boolean(_u._booleanValue != 0));
 		break;
 
 	    case CIMType::UINT8:
-		_toXml(out, _u._uint8Value);
+		_toString(out, _u._uint8Value);
 		break;
 
 	    case CIMType::SINT8:
-		_toXml(out, _u._sint8Value);
+		_toString(out, _u._sint8Value);
 		break;
 
 	    case CIMType::UINT16:
-		_toXml(out, _u._uint16Value);
+		_toString(out, _u._uint16Value);
 		break;
 
 	    case CIMType::SINT16:
-		_toXml(out, _u._sint16Value);
+		_toString(out, _u._sint16Value);
 		break;
 
 	    case CIMType::UINT32:
-		_toXml(out, _u._uint32Value);
+		_toString(out, _u._uint32Value);
 		break;
 
 	    case CIMType::SINT32:
-		_toXml(out, _u._sint32Value);
+		_toString(out, _u._sint32Value);
 		break;
 
 	    case CIMType::UINT64:
-		_toXml(out, _u._uint64Value);
+		_toString(out, _u._uint64Value);
 		break;
 
 	    case CIMType::SINT64:
-		_toXml(out, _u._sint64Value);
+		_toString(out, _u._sint64Value);
 		break;
 
 	    case CIMType::REAL32:
-		_toXml(out, _u._real32Value);
+		_toString(out, _u._real32Value);
 		break;
 
 	    case CIMType::REAL64:
-		_toXml(out, _u._real64Value);
+		_toString(out, _u._real64Value);
 		break;
 
 	    case CIMType::CHAR16:
-		_toXml(out, Char16(_u._char16Value));
+		_toString(out, Char16(_u._char16Value));
 		break;
 
 	    case CIMType::STRING:
-		_toXml(out, *_u._stringValue);
+		_toString(out, *((String*)_u._stringValue));
 		break;
 
 	    case CIMType::DATETIME:
-		_toXml(out, *_u._dateTimeValue);
+		_toString(out, *_u._dateTimeValue);
 		break;
 	}
     }

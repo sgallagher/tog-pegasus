@@ -3,18 +3,18 @@
 // Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to 
-// deal in the Software without restriction, including without limitation the 
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
-// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+//
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
-// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
-// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
-// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
@@ -22,7 +22,9 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Sushma Fernandes (sushma_fernandes@hp.com)
+//
+//              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -141,6 +143,11 @@ DynamicLibraryHandle System::loadDynamicLibrary(const char* fileName)
     return DynamicLibraryHandle(LoadLibrary(fileName));
 }
 
+void System::unloadDynamicLibrary(DynamicLibraryHandle libraryHandle)
+{
+	FreeLibrary(HINSTANCE(libraryHandle));
+}
+
 String System::dynamicLoadError(void) {
 return String();
 }
@@ -163,4 +170,43 @@ String System::getHostName()
     return hostname;
 }
 
+String System::getPassword(const char* prompt)
+{
+    //ATTN: Implement this method to get password from User with no echo
+    //      This is used in cimuser CLI
+    String password("dummy");
+
+    return password;
+}
+
+String System::getCurrentLoginName()
+{
+    //ATTN: Implement this method to get the current login user name
+    //      This is used in local authentication.
+
+    return String();
+}
+
+String System::encryptPassword(const char* password, const char* salt)
+{
+    //ATTN: Implement this method to encrypt the password
+    //      This is used in User Manager
+    return (String("dummy"));
+}
+
+Boolean System::isSystemUser(char* userName)
+{
+    //ATTN: Implement this method to verify if user is vaild on the local system
+    //      This is used in User Manager
+    return true;
+}
+
+Boolean System::isPrivilegedUser()
+{
+    // ATTN: Implement this method to verify if user executing the current
+    //       command is a priviliged user
+    //       This is used in cimuser CLI
+    return true;
+}
+    
 PEGASUS_NAMESPACE_END

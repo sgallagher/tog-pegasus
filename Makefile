@@ -21,10 +21,10 @@ include $(ROOT)/mak/recurse.mak
 # rebuild target cleans, setup dependencies, compiles all and builds 
 # repository
 
-rebuild: clean depend all repository
+rebuild: clean depend all repository config
 	@ $(MAKE) -s tests
 
-world: depend all repository
+world: depend all repository config
 	@ $(MAKE) -s tests
 
 # The repository Target removes and rebuilds the CIM repository
@@ -32,3 +32,14 @@ world: depend all repository
 repository:
 	@ $(MAKE) -SC src/Pegasus/Compiler/load repository
 
+config:
+	@ $(MAKE) -SC src/Providers/generic/ConfigSettingProvider/load config
+
+user:
+	@ $(MAKE) -SC src/Providers/generic/UserManagerProvider/load user
+
+registration:
+	@ $(MAKE) -SC src/Providers/generic/PG_RegistrationProvider/load registration
+
+shutdownService:
+	@ $(MAKE) -SC src/Providers/generic/ShutdownProvider/load shutdownService

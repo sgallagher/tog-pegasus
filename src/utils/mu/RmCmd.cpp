@@ -45,10 +45,10 @@ int RmCmd(const vector<string>& args)
     // Remove the files:
     // Calls RemoveFile to remove individual files
 
-    for (size_t i = 0; i < filenames.size(); i++)
+    for (size_t j = 0; j < filenames.size(); j++)
     {
-	// cout << "RemoveFile: " << filenames[i] << endl;
-	RemoveFile(filenames[i], false);
+	// cout << "RemoveFile: " << filenames[j] << endl;
+	RemoveFile(filenames[j], false);
     }
 
     return 0;

@@ -41,6 +41,7 @@
 #include <Pegasus/Common/CIMScope.h>
 #include <Pegasus/Compiler/compilerCommonDefs.h>
 #include <iostream>
+#include <Pegasus/Common/PegasusVersion.h>
 #include "valueFactory.h"
 #include "cimmofMessages.h"
 
@@ -56,7 +57,6 @@ extern void *get_cimmof__current_buffer_wrapper();
 extern int switch_to_buffer_wrapper(void *buffstate);
 extern void *create_cimmof_buffer_wrapper(const FILE *f, int size);
 
-const char ParseError::MSG[] = "";
 const char LexerError::MSG[] = "";
 
 cimmofParser *cimmofParser::_instance = 0;
@@ -295,7 +295,39 @@ cimmofParser::wrapCurrentBuffer()
 //--------------------------------------------------------------------
 int
 cimmofParser::parse()
-{ return cimmof_parse(); }
+{ 
+    int ret;
+    if (_cmdline)
+    {
+      	// ATTN: KS added the following 7 Aug 2001 to put header and trailer
+	// lines on xml output from the parser.
+	// If xml_output put the XML headers and trailers around the output
+      if (_cmdline->xml_output() ) 
+      {
+	  cout << "<?xml version=\"1.0\"?>" << endl;
+	  cout << "<!-- Open Group Pegasus CIM Compiler V "
+	       << PEGASUS_VERSION << " Built " << __DATE__
+	       << " -->" << endl; 
+	  cout << "<CIM CIMVERSION=\"2.0\" DTDVERSION=\"2.0\">" << endl;
+	  cout << "<DECLARATION>" << endl;
+	  cout << "<DECLGROUP>" << endl;
+      }
+    }
+    ret =  cimmof_parse();
+    if (_cmdline)
+    {
+
+      if (_cmdline->xml_output() ) 
+      {
+	  cout << "</DECLGROUP>" << endl;
+	  cout << "</DECLARATION>" << endl;
+          cout << "</CIM>" << endl;
+      }
+    }
+
+
+    return ret;
+}
 
 //----------------------------------------------------------------------
 // Override the default parser error routine to enable I18n
@@ -445,9 +477,15 @@ cimmofParser::addClass(CIMClass *classdecl)
   cimmofMessages::arglist arglist;
   arglist.append(classdecl->getClassName());
   if (_cmdline) {
-    if (_cmdline->xml_output() ) {
+    if (_cmdline->xml_output() ) 
+    {
       if (classdecl)
+      {
+        cout << "<VALUE.OBJECT>" << endl;
 	classdecl->print(PEGASUS_STD(cout));
+        cout << "</VALUE.OBJECT>" << endl;
+        cout << endl;
+      }
       return ret;
     } else if (_cmdline->trace() ) {
       String header;
@@ -530,11 +568,21 @@ cimmofParser::addInstance(CIMInstance *instance)
   String message;
   int ret = 0;
   Boolean err_out = false;
-  if (_cmdline) {
-    if (_cmdline->xml_output()) {
-      instance->print(PEGASUS_STD(cout));
+  if (_cmdline) 
+  {
+    if (_cmdline->xml_output()) 
+    {
+      if (instance)
+      {
+	cout << "<VALUE.OBJECT>" << endl;
+	instance->print(PEGASUS_STD(cout));
+	cout << "</VALUE.OBJECT>" << endl;
+	cout << endl;
+      }
       return ret;
-    } else if (_cmdline->trace()) {
+    }
+    else if (_cmdline->trace()) 
+    {
       String header;
       cimmofMessages::getMessage(header, cimmofMessages::ADD_INSTANCE);
       trace(header, "");
@@ -618,10 +666,19 @@ cimmofParser::addQualifier(CIMQualifierDecl *qualifier)
     arglist.append(qualifier->getName());
   String message;
   if (_cmdline) {
-    if (_cmdline->xml_output()) {
-      if (qualifier)
+    if (_cmdline->xml_output()) 
+    {
+      if (qualifier) 
+      {
+	cout << "<VALUE.OBJECT>" << endl;
 	qualifier->print(PEGASUS_STD(cout));
-    } else if (_cmdline->trace()) {
+	cout << "</VALUE.OBJECT>" << endl;
+	cout << endl;
+      }
+      return ret;
+    } 
+    else if (_cmdline->trace()) 
+    {
       String header;
       cimmofMessages::getMessage(header, cimmofMessages::ADD_QUALIFIER);
       trace(header, "");

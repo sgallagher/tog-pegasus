@@ -1,0 +1,4 @@
+
+
+    -	Conditionally include SLP by platform (doesn't build on some
+	platforms).

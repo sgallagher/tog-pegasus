@@ -1,6 +1,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to 
@@ -22,7 +23,9 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+//              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -207,6 +210,7 @@ Array<Sint8> XmlWriter::formatMPostHeader(
     const char* cimOperation,
     const char* cimMethod,
     const String& cimObject,
+    const String& authenticationHeader,
     const Array<Sint8>& content)
 {
     Array<Sint8> out;
@@ -221,7 +225,12 @@ Array<Sint8> XmlWriter::formatMPostHeader(
     out << nn <<"\r\n";
     out << nn << "-CIMOperation: " << cimOperation << "\r\n";
     out << nn << "-CIMMethod: " << cimMethod << "\r\n";
-    out << nn << "-CIMObject: " << cimObject << "\r\n\r\n";
+    out << nn << "-CIMObject: " << cimObject << "\r\n";
+    if (authenticationHeader.size())
+    {
+        out << authenticationHeader << "\r\n";
+    }
+    out << "\r\n";
     out << content;
     return out;
 }
@@ -429,11 +438,11 @@ Array<Sint8>& XmlWriter::appendBooleanParameter(
 
 //------------------------------------------------------------------------------
 //
-// appendStringParameter()
+// appendStringIParameter()
 //
 //------------------------------------------------------------------------------
 
-Array<Sint8>& XmlWriter::appendStringParameter(
+Array<Sint8>& XmlWriter::appendStringIParameter(
     Array<Sint8>& out,
     const char* name,
     const String& str)
@@ -533,6 +542,22 @@ Array<Sint8>& XmlWriter::appendInstanceParameter(
     return formatIParamValueElement(out, parameterName, tmp);
 }
 
+//------------------------------------------------------------------------------
+//
+// appendNamedInstanceParameter()
+//
+//------------------------------------------------------------------------------
+
+Array<Sint8>& XmlWriter::appendNamedInstanceParameter(
+    Array<Sint8>& out,
+    const char* parameterName,
+    const CIMNamedInstance& namedInstance)
+{
+    Array<Sint8> tmp;
+    namedInstance.toXml(tmp);
+    return formatIParamValueElement(out, parameterName, tmp);
+}
+
 //----------------------------------------------------------
 //
 //  appendPropertyNameParameter()
@@ -552,7 +577,44 @@ Array<Sint8>& XmlWriter::appendPropertyNameParameter(
 
 //------------------------------------------------------------------------------
 //
-// appendClassParameter()
+// appendPropertyValueParameter()
+//
+//------------------------------------------------------------------------------
+
+Array<Sint8>& XmlWriter::appendPropertyValueParameter(
+    Array<Sint8>& out,
+    const char* parameterName,
+    const CIMValue& value)
+{
+    Array<Sint8> tmp;
+    value.toXml(tmp);
+    return formatIParamValueElement(out, parameterName, tmp);
+}
+
+//------------------------------------------------------------------------------
+//
+// appendPropertyListParameter()
+//
+//------------------------------------------------------------------------------
+
+Array<Sint8>& XmlWriter::appendPropertyListParameter(
+    Array<Sint8>& out,
+    const CIMPropertyList& propertyList)
+{
+    Array<Sint8> tmp;
+
+    tmp << "<VALUE.ARRAY>\n";
+    for (Uint32 i = 0; i < propertyList.getNumProperties(); i++)
+    {
+        tmp << "<VALUE>" << propertyList.getPropertyName(i) << "</VALUE>\n"; 
+    }
+    tmp << "</VALUE.ARRAY>\n";
+    return formatIParamValueElement(out, "PropertyList", tmp);
+}
+
+//------------------------------------------------------------------------------
+//
+// appendQualifierDeclarationParameter()
 //
 //------------------------------------------------------------------------------
 
@@ -759,14 +821,16 @@ String XmlWriter::getNextMessageId()
 
 //------------------------------------------------------------------------------
 //
-// XmlWriter::formatSimpleReqMessage()
+// XmlWriter::formatSimpleIMethodReqMessage()
 //
 //------------------------------------------------------------------------------
 
-Array<Sint8> XmlWriter::formatSimpleReqMessage(
+Array<Sint8> XmlWriter::formatSimpleIMethodReqMessage(
     const char* host,
     const String& nameSpace,
     const char* iMethodName,
+    const String& messageId,
+    const String& authenticationHeader,
     const Array<Sint8>& body)
 {
     return XmlWriter::formatMPostHeader(
@@ -774,8 +838,9 @@ Array<Sint8> XmlWriter::formatSimpleReqMessage(
 	"MethodCall",
 	iMethodName,
 	nameSpace,
+        authenticationHeader,
 	XmlWriter::formatMessageElement(
-	    XmlWriter::getNextMessageId(),
+	    messageId,
 	    XmlWriter::formatSimpleReqElement(
 		XmlWriter::formatIMethodCallElement(
 		    iMethodName,
@@ -854,6 +919,338 @@ Array<Sint8>& XmlWriter::appendObjectNameParameter(
 	XmlWriter::appendInstanceNameParameter(
 	    out, name, objectName);
     }
+
+    return out;
+}
+
+Array<Sint8> XmlWriter::formatEMethodCallElement(
+    const char* name,
+    const Array<Sint8>& iParamValues)
+{
+    Array<Sint8> out;
+    out << "<EXPMETHODCALL NAME=\"" << name << "\">\n";
+    out << iParamValues;
+    out << "</EXPMETHODCALL>\n";
+    return out;
+}
+
+Array<Sint8> XmlWriter::formatSimpleIndicationReqMessage(
+    const char* host,
+    const char* iMethodName,
+    const String& messageId,
+    const String& authenticationHeader,
+    const Array<Sint8>& body)
+{
+    return XmlWriter::formatMPostIndicationHeader(
+        host,
+        "MethodRequest",
+        iMethodName,
+        authenticationHeader,
+        XmlWriter::formatMessageElement(
+            messageId,
+            XmlWriter::formatSimpleExportReqElement(
+                XmlWriter::formatEMethodCallElement(
+                    iMethodName,
+                    body))));
+}
+
+Array<Sint8> XmlWriter::formatMPostIndicationHeader(
+    const char* host,
+    const char* cimOperation,
+    const char* cimMethod,
+    const String& authenticationHeader,
+    const Array<Sint8>& content)
+{
+    Array<Sint8> out;
+    out.reserve(1024);
+    char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
+
+    out << "M-POST /cimom HTTP/1.1\r\n";
+    out << "HOST: " << host << "\r\n";
+    out << "Content-CIMType: application/xml; charset=\"utf-8\"\r\n";
+    out << "Content-Length: " << content.size() << "\r\n";
+    out << "Man: http://www.hp.com; ns=";
+    out << nn <<"\r\n";
+    out << nn << "-CIMExport: " << cimOperation << "\r\n";
+    out << nn << "-CIMExportMethod: " << cimMethod << "\r\n";
+    if (authenticationHeader.size())
+    {
+        out << authenticationHeader << "\r\n";
+    }
+    out << "\r\n";
+    out << content;
+    return out;
+}
+
+Array<Sint8> XmlWriter::formatSimpleExportReqElement(
+    const Array<Sint8>& body)
+{
+    Array<Sint8> out;
+    return out << "<SIMPLEEXPREQ>\n" << body << "</SIMPLEEXPREQ>\n";
+}
+
+Array<Sint8> XmlWriter::formatSimpleIndicationRspMessage(
+    const char* iMethodName,
+    const String& messageId,
+    const Array<Sint8>& body)
+{
+    return XmlWriter::formatEMethodResponseHeader(
+        XmlWriter::formatMessageElement(
+	    messageId,
+            XmlWriter::formatSimpleExportRspElement(
+                XmlWriter::formatEMethodResponseElement(
+                    iMethodName,
+                    XmlWriter::formatIReturnValueElement(body)))));
+}
+
+//------------------------------------------------------------------------------
+//
+// formatSimpleExportRspElement()
+//
+//     <!ELEMENT SIMPLEEXPRSP (METHODRESPONSE|EXPMETHODRESPONSE)>
+//
+//------------------------------------------------------------------------------
+
+Array<Sint8> XmlWriter::formatSimpleExportRspElement(
+    const Array<Sint8>& body)
+{
+    Array<Sint8> out;
+    return out << "<SIMPLEEXPRSP>\n" << body << "</SIMPLEEXPRSP>\n";
+}
+
+//------------------------------------------------------------------------------
+//
+// formatIMethodResponseElement()
+//
+//     <!ELEMENT EXPMETHODRESPONSE (ERROR|IRETURNVALUE?)>
+//     <!ATTLIST EXPMETHODRESPONSE %CIMName;>
+//
+//------------------------------------------------------------------------------
+
+Array<Sint8> XmlWriter::formatEMethodResponseElement(
+    const char* name,
+    const Array<Sint8>& body)
+{
+    Array<Sint8> out;
+    out << "<EXPMETHODRESPONSE NAME=\"" << name << "\">\n";
+    out << body;
+    out << "</EXPMETHODRESPONSE>\n";
+    return out;
+}
+
+//------------------------------------------------------------------------------
+//
+// formatMethodResponseHeader()
+//
+//     Build HTTP response header.
+//
+//------------------------------------------------------------------------------
+
+Array<Sint8> XmlWriter::formatEMethodResponseHeader(
+    const Array<Sint8>& content)
+{
+    Array<Sint8> out;
+    out.reserve(1024);
+    char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
+
+    out << "HTTP/1.1 200 OK\r\n";
+    out << "Content-CIMType: application/xml; charset=\"utf-8\"\r\n";
+    out << "Content-Length: " << content.size() << "\r\n";
+    out << "Ext:\r\n";
+    out << "Cache-Control: no-cache\r\n";
+    out << "Man:  http://www.dmtf.org/cim/mapping/http/v1.0; ns=";
+    out << nn <<"\r\n";
+    out << nn << "-CIMExport: MethodResponse\r\n\r\n";
+    out << content;
+    return out;
+}
+
+//------------------------------------------------------------------------------
+//
+// XmlWriter::formatSimpleMethodReqMessage()
+//
+//------------------------------------------------------------------------------
+
+Array<Sint8> XmlWriter::formatSimpleMethodReqMessage(
+    const char* host,
+    const String& nameSpace,
+    const char* iMethodName,
+    const String& messageId,
+   const String& authenticationHeader,
+    const Array<Sint8>& body)
+{
+    return XmlWriter::formatMPostHeader(
+	host,
+	"MethodCall",
+	iMethodName,
+	nameSpace,
+        authenticationHeader,
+	XmlWriter::formatMessageElement(
+	    messageId,
+	    XmlWriter::formatSimpleReqElement(
+		XmlWriter::formatMethodCallElement(
+		    iMethodName,
+		    nameSpace, 
+		    body))));
+}
+
+//------------------------------------------------------------------------------
+//
+// formatMethodCallElement()
+//
+//     <!ELEMENT METHODCALL (LOCALNAMESPACEPATH,IPARAMVALUE*)>
+//     <!ATTLIST METHODCALL %CIMName;>
+//
+//------------------------------------------------------------------------------
+
+Array<Sint8> XmlWriter::formatMethodCallElement(
+    const char* name,
+    const String& nameSpace,
+    const Array<Sint8>& iParamValues)
+{
+    Array<Sint8> out;
+    out << "<METHODCALL NAME=\"" << name << "\">\n";
+    out << iParamValues;
+    out << "</METHODCALL>\n";
+    return out;
+}
+
+Array<Sint8> XmlWriter::formatSimpleMethodRspMessage(
+    const char* iMethodName,
+    const String& messageId,
+    const Array<Sint8>& body)
+{
+    /*return XmlWriter::formatMethodResponseHeader(
+        XmlWriter::formatMessageElement(
+	    messageId,
+            XmlWriter::formatSimpleRspElement(
+                XmlWriter::formatMethodResponseElement(
+                    iMethodName,
+                    XmlWriter::formatReturnValueElement(body)))));*/
+    return XmlWriter::formatMethodResponseHeader(
+        XmlWriter::formatMessageElement(
+	    messageId,
+            XmlWriter::formatSimpleRspElement(
+                XmlWriter::formatMethodResponseElement(
+                    iMethodName,
+                    body))));
+}
+
+//------------------------------------------------------------------------------
+//
+// formatMethodResponseElement()
+//
+//     <!ELEMENT METHODRESPONSE (ERROR|IRETURNVALUE?)>
+//     <!ATTLIST METHODRESPONSE %CIMName;>
+//
+//------------------------------------------------------------------------------
+
+Array<Sint8> XmlWriter::formatMethodResponseElement(
+    const char* name,
+    const Array<Sint8>& body)
+{
+    Array<Sint8> out;
+    out << "<METHODRESPONSE NAME=\"" << name << "\">\n";
+    out << body;
+    out << "</METHODRESPONSE>\n";
+    return out;
+}
+
+//------------------------------------------------------------------------------
+//
+// appendStringParameter()
+//
+//------------------------------------------------------------------------------
+
+Array<Sint8>& XmlWriter::appendStringParameter(
+    Array<Sint8>& out,
+    const char* name,
+    const String& str)
+{
+    Array<Sint8> tmp;
+    tmp << "<VALUE>";
+    appendSpecial(tmp, str);
+    tmp << "</VALUE>\n";
+    return formatParamValueElement(out, name, tmp);
+}
+
+//------------------------------------------------------------------------------
+//
+// formatParamValueElement()
+//
+//     <!ELEMENT PARAMVALUE (VALUE|VALUE.ARRAY|VALUE.REFERENCE
+//         |INSTANCENAME|CLASSNAME|QUALIFIER.DECLARATION
+//         |CLASS|INSTANCE|VALUE.NAMEDINSTANCE)?>
+//     <!ATTLIST PARAMVALUE %CIMName;>
+//
+//------------------------------------------------------------------------------
+
+Array<Sint8>& XmlWriter::formatParamValueElement(
+    Array<Sint8>& out,
+    const char* name,
+    const Array<Sint8>& body)
+{
+    out << "<PARAMVALUE NAME=\"" << name << "\">\n";
+    out << body;
+    out << "</PARAMVALUE>\n";
+    return out;
+}
+
+//------------------------------------------------------------------------------
+//
+// formatReturnValueElement()
+//
+//      <!ELEMENT RETURNVALUE (CLASSNAME*|INSTANCENAME*|VALUE*|
+//          VALUE.OBJECTWITHPATH*|VALUE.OBJECTWITHLOCALPATH*|VALUE.OBJECT*|
+//          OBJECTPATH*|QUALIFIER.DECLARATION*|VALUE.ARRAY?|VALUE.REFERENCE?|
+//          CLASS*|INSTANCE*|VALUE.NAMEDINSTANCE*)>
+//
+//------------------------------------------------------------------------------
+
+Array<Sint8> XmlWriter::formatReturnValueElement(
+    const Array<Sint8>& body)
+{
+    Array<Sint8> out;
+    return out << "<RETURNVALUE>\n" << body << "</RETURNVALUE>\n";
+}
+
+//------------------------------------------------------------------------------
+//
+// formatUnauthorizedResponseHeader()
+//
+//     Build HTTP authentication response header for unauthorized requests.
+//
+//     Returns unauthorized message in the following format:
+//
+//        HTTP/1.1 401 Unauthorized
+//        WWW-Authenticate: Basic "hostname:80"
+//        <HTML><HEAD>
+//        <TITLE>401 Unauthorized</TITLE>
+//        </HEAD><BODY BGCOLOR="#99cc99">
+//        <H2>TEST401 Unauthorized</H2>
+//        <HR>
+//        </BODY></HTML>
+//
+//------------------------------------------------------------------------------
+
+Array<Sint8> XmlWriter::formatUnauthorizedResponseHeader(
+    const String& content)
+{
+    Array<Sint8> out;
+    out.reserve(1024);
+
+    out << "HTTP/1.1 401 Unauthorized\r\n";
+    out << content << "\r\n";
+    out << "\r\n";
+
+//ATTN: We may need to include the following line, so that the browsers
+//      can display the error message.
+//    out << "<HTML><HEAD>\r\n";
+//    out << "<TITLE>" << "401 Unauthorized" <<  "</TITLE>\r\n";
+//    out << "</HEAD><BODY BGCOLOR=\"#99cc99\">\r\n";
+//    out << "<H2>TEST" << "401 Unauthorized" << "</H2>\r\n";
+//    out << "<HR>\r\n";
+//    out << "</BODY></HTML>\r\n";
 
     return out;
 }

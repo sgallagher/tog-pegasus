@@ -67,9 +67,15 @@ public:
 
 private:
 
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+    Destroyer(const Destroyer<T>&) { }
+
+    Destroyer<T>& operator=(const Destroyer<T>&) { return *this; }
+#else
     Destroyer(const Destroyer&) { }
 
     Destroyer& operator=(const Destroyer&) { return *this; }
+#endif
 
     T* _ptr;
 };

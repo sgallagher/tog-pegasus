@@ -1,23 +1,30 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
+// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
-// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-// DEALINGS IN THE SOFTWARE.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
+//==============================================================================
+//
+// Author: Chip Vincent (cvincent@us.ibm.com)
+//
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//
+//%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_OperatingSystemProvider_h
 #define Pegasus_OperatingSystemProvider_h
@@ -27,22 +34,67 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class OperatingSystemProvider: public CIMInstanceProvider {
+class OperatingSystemProvider :
+	public CIMInstanceProvider
+{
 public:
-   OperatingSystemProvider(void);
-   virtual ~OperatingSystemProvider(void);
+	OperatingSystemProvider(void);
+	virtual ~OperatingSystemProvider(void);
 
-   // CIMBaseProvider interface
-   virtual void initialize(CIMOMHandle& cimomHandle);
-   virtual void terminate(void);
+	// CIMBaseProvider interface
+	virtual void initialize(CIMOMHandle & cimom);
+	virtual void terminate(void);
 
-   // CIMInstanceProvider interface
-   virtual CIMInstance getInstance(const OperationContext & context, const CIMReference & ref, const Uint32 flags = 0, const Array<String> & propertyList = EmptyStringArray());
-   virtual Array<CIMInstance> enumerateInstances(const OperationContext & context, const CIMReference & ref, const Uint32 flags = 0, const Array<String> & propertyList = EmptyStringArray());
-   virtual Array<CIMReference> enumerateInstanceNames(const OperationContext & context, const CIMReference & ref);
+	// CIMInstanceProvider interface
+	virtual void getInstance(
+		const OperationContext & context,
+		const CIMReference & ref,
+		const Uint32 flags,
+		const Array<String> & propertyList,
+		ResponseHandler<CIMInstance> & handler);
+
+	virtual void enumerateInstances(
+		const OperationContext & context,
+		const CIMReference & ref,
+		const Uint32 flags,
+		const Array<String> & propertyList,
+		ResponseHandler<CIMNamedInstance> & handler);
+
+	virtual void enumerateInstanceNames(
+		const OperationContext & context,
+		const CIMReference & ref,
+		ResponseHandler<CIMReference> & handler);
+
+	virtual void modifyInstance(
+		const OperationContext & context,
+		const CIMReference & ref,
+		const CIMInstance & obj,
+		const Uint32 flags,
+		const Array<String> & propertyList,
+		ResponseHandler<CIMInstance> & handler);
+
+	virtual void createInstance(
+		const OperationContext & context,
+		const CIMReference & ref,
+		const CIMInstance & obj,
+		ResponseHandler<CIMReference> & handler);
+
+	virtual void deleteInstance(
+		const OperationContext & context,
+		const CIMReference & ref,
+		ResponseHandler<CIMInstance> & handler);
 
 protected:
-   CIMRepository *      _pRepository;
+	Array<CIMNamedInstance> _enumerateInstances(
+		const OperationContext & context,
+		const CIMReference & classReference);
+	
+	Array<CIMReference> _enumerateInstanceNames(
+		const OperationContext & context,
+		const CIMReference & classReference);
+
+protected:
+	CIMOMHandle _cimom;
 
 };
 

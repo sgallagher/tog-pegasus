@@ -19,6 +19,11 @@ ifeq ($(PEGASUS_PLATFORM),TRU64_ALPHA_DECCXX)
 OS=tru64
 endif
 
+ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
+OS=hpux
+IAFLAGS =
+endif
+
 # Set Parameters for OS type
 ifeq ($(OS),compaq_oss)
     CXX = c89
@@ -70,6 +75,25 @@ ifeq ($(OS),tru64)
     PLATFORM_SOURCES = FilesUnix.cpp
 endif
 
+ifeq ($(OS),hpux)
+    ifeq ($(HPUX_IA64_VERSION), yes)
+      IAFLAGS =  -AP
+    else
+      IAFLAGS =  +DAportable
+    endif
+    FLAGS = +Z -D_POSIX_C_SOURCE=199506L -D_HPUX_SOURCE -DPEGASUS_PLATFORM_HPUX_PARISC_ACC
+    INCLUDES = -I../../stdcxx/stream
+    CXX = aCC
+    LXX = $(CXX)
+    CXXFLAGS = $(FLAGS) $(IAFLAGS) $(INCLUDES)
+    DEFINES = -DOS_UNIX
+    PROGRAM = mu
+    EXE_OUT = -o
+    RM = rm -f
+    OBJ = .o
+    PLATFORM_SOURCES = FilesUnix.cpp
+endif
+
 SOURCES = \
     $(PLATFORM_SOURCES) \
     DependCmd.cpp \
@@ -106,7 +130,7 @@ HEADERS = \
 OBJECTS=$(SOURCES:.cpp=$(OBJ))
 
 $(PROGRAM): $(OBJECTS)
-	$(LXX) $(LIBFLAGS) $(SRLFLAGS) $(EXE_OUT) $(PROGRAM) $(OBJECTS)
+	$(LXX) $(CXXFLAGS) $(LIBFLAGS) $(SRLFLAGS) $(EXE_OUT)$(PROGRAM) $(OBJECTS)
 
 %$(OBJ) : %.cpp
 	$(CXX) -c $(CXXFLAGS) $(DEFINES) $*.cpp

@@ -3,7 +3,27 @@
 // Filename:    CIM_Network25.mof
 // Version:     2.5
 // Release:     0
-// Date:        12/19/2000
+// Status:      Final
+// Date:        06/12/2001
+// ===================================================================
+// Copyright "2001" Distributed Management Task Force, Inc. (DMTF).
+// All rights reserved.  
+// DMTF is a not-for-profit association of industry members dedicated 
+// to promoting enterprise and systems management and interoperability. 
+// DMTF specifications and documents may be reproduced for uses
+// consistent with this purpose by members and non-members, 
+// provided that correct attribution is given. 
+// As DMTF specifications may be revised from time to time, 
+// the particular version and release cited should always be noted.
+// Description: These object classes define the user and security 
+//              model for CIM and includes classes needed to represent
+//              users, groups and organizational entities as well as 
+//              security services and authentication and authorization 
+//              information.
+//              The object classes below are listed in an order that
+//              avoids forward references. Required objects, defined 
+//		    by other working groups, are omitted. 
+// ===================================================================
 // Description: The object classes below are listed in an order that
 //              avoids forward references. Required objects, defined 
 //		    by other working groups, are omitted. 
@@ -90,6 +110,25 @@
 //                       association references, to generalize them
 //                      CR509 added Override qualifier which was 
 //                       missing on three associations  
+//
+//          1/20/2001 - CR552 (Add ProtocolType enum to ProtocolEndpoint)
+//                      CR553 (Add NextHopRouting, subclass IPRoute from
+//                             it and update)
+//                      CR554 (Misc changes in descriptions for FilterEntry
+//                             and AdministrativeDistance)
+//                      CR556 (Update Descriptions for
+//                             TransparentBridgingService,
+//                             SpanningTreeService and SoureRouteService)
+//                      CR559a (Errata-Use of SQL reserved word in 
+//                              CIM_RouteCalculationService (Type) )
+//                      CR561 (Need to add Override qualifiers to the 
+//                             CollectedBufferPool association)
+//                      CR564 (Move AdminDomain to the Core Model, change
+//                             to concrete, and update description)
+//                      CR565 (Update description for BridgeAddress property
+//                             of SwitchService to be more generic)
+//                      CR566 (ERRATA - Align with IETF DiffServ Mode)
+//                      CR567 (Update FilterList.Direction)
 //
 // ===================================================================
 // Generic Pragmas
@@ -494,16 +533,17 @@ class CIM_ProtocolEndpoint : CIM_ServiceAccessPoint
          "ProtocolType is an enumeration that provides additional "
          "information that can be used to help categorize and "
          "classify different instances of this class."),
-         ValueMap { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
+          ValueMap { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
                    "10", "11", "12", "13", "14", "15", "16", "17", 
-                   "18"},
-         Values { "Unknown", "Other", "IPv4", "IPv6",
-                 "IPX", "AppleTalk", "DECnet", "SNA", "CONP",
-                 "CLNP", "VINES", "XNS", "ATM", "Frame Relay",
+                   "18", "19", "20", "21"},
+         Values { "Unknown", "Other", "IPv4", "IPv6", "IPX", 
+                 "AppleTalk", "DECnet", "SNA", "CONP", "CLNP",
+                 "VINES", "XNS", "ATM", "Frame Relay",
                  "Ethernet", "TokenRing", "FDDI", "Infiniband", 
-                 "Fibre Channel" },
-	   ModelCorrespondence {
-          "CIM_ProtocolEndpoint.OtherTypeDescription"} ]
+                 "Fibre Channel", "ISDN BRI Endpoint",
+                 "ISDN B Channel Endpoint", "ISDN D Channel Endpoint" },
+          ModelCorrespondence {
+                 "CIM_ProtocolEndpoint.OtherTypeDescription"} ]
     string ProtocolType;
         [MaxLen(64), Description (
          "A string describing the type of ProtocolEndpoint that this "
@@ -969,56 +1009,167 @@ class CIM_IPXNetwork : CIM_LogicalNetwork
 };
 
 
+// ================================================================== 
+//     NextHopRouting
+// ==================================================================
+
+        [Abstract, Description (
+         "NextHopRouting relates a destination address to the "
+         "address or interface through which the remote address "
+         "may be reached.  An instance of this class can represent "
+         "either static or dynamic routing, and may represent a routing "
+         "table entry (but it is not required that all NextHopRoutes be "
+         "in a routing table).  Static routes are distinguished by "
+         "setting the IsStatic boolean property to TRUE. \n"
+         "\n"
+         "Subclasses of NextHopRouting provide specific protocol "
+         "and Key information. For example, the IPRoute subclass "
+         "contains an AddressType property as part of its key "
+         "structure. This property is not required for next hop "
+         "information defined for Infiniband. \n"
+         "\n"
+         "NextHopRoutes are dependent on at least one "
+         "ForwardingService to execute them. This is conveyed by the "
+         "CIM_NextHopForwardedByService association.")]
+
+class CIM_NextHopRouting : CIM_LogicalElement
+{
+        [Description (
+         "The address which serves as the destination to be "
+         "reached.")]
+    string DestinationAddress;
+
+        [Description (
+         "The mask for the DestinationAddress.")]
+    string DestinationMask;
+
+        [Description (
+         "This contains either the address of the next-hop router, "
+         "or the interface used to reach the destination.") ]
+    string NextHop;
+
+        [Description (
+         "TRUE indicates that this is a static route, and FALSE "
+         "indicates a dynamically-learned route.") ]
+    boolean IsStatic;
+};
+
+
+// ==================================================================
+//    RouteForwardedByService
+// ==================================================================
+
+        [Association, Description (
+         "This assocation makes explicit the next hops that are "
+         "forwarded by a specific ForwardingService, to reach the "
+         "destination. Every ForwardingService can have its own "
+         "unique set of routing destinations and next hops.") ]
+
+class CIM_RouteForwardedByService : CIM_Dependency
+{
+        [Override ("Antecedent"), Min (1)]
+    CIM_ForwardingService REF Antecedent;
+
+        [Override ("Dependent")]
+    CIM_NextHopRouting REF Dependent;
+
+        [Description (
+         "This property contains the current administrative distance "
+         "of this route, for the ForwardingService. Note that this "
+         "property indicates current, specific values - whereas an "
+         "instance of the CIM_AdministrativeDistance class "
+         "defines default distances.") ]
+    uint16 AdminDistance;
+
+        [Description (
+         "PathMetric provides a numeric indication as to the "
+         "preference of this route compared to other routes that "
+         "reach the same destination.") ]
+    uint16 PathMetric;
+};
+
+
 // ==================================================================
 //     IPRoute
 // ==================================================================
-        [Abstract, Description (
-         "An IPRoute relates a remote IP address (destination) to a "
-         "local IP address (source) through which the remote address "
-         "may be reached. The local and remote addresses may be "
-         "either specific IP endpoints or IP subnets. This class may "
-         "used to represent a generic routing table entry.") ]
 
-class CIM_IPRoute : CIM_LogicalElement
+        [Abstract, Description (
+         "An IPRoute relates a destination address to the "
+         "address or interface through which the remote address "
+         "may be reached. The destination address may be a "
+         "specific IP endpoint or a subnet, dependent on the mask. "
+         "An instance of this class represents either static or "
+         "dynamic routing. Static routes are distinguished by "
+         "setting the IsStatic boolean property to TRUE. \n"
+         "\n"
+         "Since many routes between endpoints can "
+         "be defined (using different route calculation algorithms), "
+         "the CIM_IPRoute class is defined as Abstract.  This "
+         "forces subclassing (for example, see CIM_BGPIPRoute) "
+         "and allows the instances of its subclasses to be "
+         "distinguished based on their CreationClassName key "
+         "property.")]
+
+class CIM_IPRoute : CIM_NextHopRouting
 {
         [Propagated("CIM_System.CreationClassName"), 
          Key, MaxLen (256), Description (
           "The scoping System's CreationClassName.") ]
     string SystemCreationClassName;
+
         [Propagated("CIM_System.Name"), Key, MaxLen (256),
          Description (
           "The scoping System's Name.") ]
     string SystemName;
+
         [Propagated("CIM_Service.CreationClassName"), 
          Key, MaxLen (256), Description (
-          "The scoping Service's CreationClassName.") ]
+          "The scoping ForwardingService's CreationClassName.") ]
     string ServiceCreationClassName;
+
         [Propagated("CIM_Service.Name"), Key, MaxLen (256),
          Description (
-          "The scoping Service's Name.") ]
+          "The scoping ForwardingService's Name.") ]
     string ServiceName;
+
         [Key, MaxLen (256), Description (
-	   "CreationClassName indicates the name of the class or the "
-	   "subclass used in the creation of an instance. When used "
-	   "with the other key properties of this class, this property "
-	   "allows all instances of this class and its subclasses to "
-	   "be uniquely identified.") ]
+         "CreationClassName indicates the name of the class or the "
+         "subclass used in the creation of an instance. When used "
+         "with the other key properties of this class, this property "
+         "allows all instances of this class and its subclasses to "
+         "be uniquely identified.") ]
     string CreationClassName;
+
         [Key, Description (
          "The IP address which serves as the destination of the "
          "traffic, formatted according to the appropriate convention "
-         "as defined in the AddressType property of this class.") ] 
+         "as defined in the AddressType property of this class. \n"
+         "\n"
+         "This property has the same semantics as DestinationAddress "
+         "inherited from the NextHopRouting superclass, but a different "
+         "property name. This is because this property and class were "
+         "defined before NextHopRouting and are Key properties. They "
+         "cannot be removed. ModelCorrespondence indicates that they "
+         "should be set to equivalent values for consistency and "
+         "ease of query."), 
+         ModelCorrespondence {"CIM_IPRoute.DestinationAddress"} ] 
     string IPDestinationAddress;
+
         [Key, Description (
          "The mask for the destination IP address, formatted "
          "according to the appropriate convention as defined in the "
-         "AddressType property of this class.") ] 
+         "AddressType property of this class. \n"
+         "\n"
+         "This property has the same semantics as DestinationMask "
+         "inherited from the NextHopRouting superclass, but a different "
+         "property name. This is because this property and class were "
+         "defined before NextHopRouting and are Key properties. They "
+         "cannot be removed. ModelCorrespondence indicates that they "
+         "should be set to equivalent values for consistency and "
+         "ease of query."), 
+         ModelCorrespondence {"CIM_IPRoute.DestinationMask"} ] 
     string IPDestinationMask;
-        [Key, Description (
-         "This contains either the address of the directly connected "
-         "interface of the next-hop router or the address of the "
-         "interface to which the destination is connected to.") ]
-    string NextHop;
+
         [Key, Description (
          "An enumeration that describes the format of the address "
          "property. Addresses that can be formatted in IPv4 format, "
@@ -1031,39 +1182,35 @@ class CIM_IPRoute : CIM_LogicalElement
         ValueMap { "0", "1", "2" },
         Values { "Unknown", "IPv4", "IPv6" } ]
     uint16 AddressType;
-        [Description (
-         "TRUE indicates that this ProtocolEndpoint represents a "
-         "static route, and FALSE means that it represents a "
-         "dynamically-learned route.") ]
-    boolean IsStatic;
+
+        [Override ("DestinationAddress"),
+         ModelCorrespondence {"CIM_IPRoute.IPDestinationAddress"} ]
+    string DestinationAddress;
+
+        [Override ("DestinationMask"),
+         ModelCorrespondence {"CIM_IPRoute.IPDestinationMask"} ]
+    string DestinationMask;
 };
+ 
 
 // ==================================================================
 //    ForwardedRoutes
 // ==================================================================
-        [Association, Description (
-         "This assocation makes explicit the routes that are used by "
-         "a specific ForwardingService. Thus, every ForwardingService "
-         "can have its own unique set of routing destinations.") ]
 
-class CIM_ForwardedRoutes : CIM_Dependency
+        [Association, Description (
+         "This assocation makes explicit the IP routes that are defined "
+         "in the context of a specific ForwardingService. Every "
+         "ForwardingService can have its own unique set of IP routing "
+         "destinations.") ]
+
+class CIM_ForwardedRoutes : CIM_RouteForwardedByService
+
 {
-        [Override ("Antecedent"), Min (1), Max (1) ]
-    CIM_ForwardingService REF Antecedent;
         [Override ("Dependent"), Weak ]
     CIM_IPRoute REF Dependent;
-        [Description (
-         "This property contains the current administrative distance "
-         "of this route. Note that the AdministrativeDistance class "
-         "contains the default values, not the current values, of "
-         "administrative distances that are to be used with routes.") ]
-    uint16 AdminDistance;
-        [Description (
-         "This contains an integer which provides an indication as to "
-         "the preference of this route compared to other routes that "
-         "reach the same destination.") ]
-    uint16 PathMetric;
 };
+
+
 
 // ==================================================================
 //    BindsTo
@@ -1395,12 +1542,11 @@ class CIM_RouteCalculationService : CIM_NetworkService
     string RouterID;
         [Description (
          "This is an enumerated value that defines the routing "
-         "algorithm used that this route calculation is being "
-         "performed for."),
+         "algorithm used in this route calculation."),
         ValueMap { "0", "1", "2", "3", "4", "5", "6", "7", "8" },
         Values { "Unknown", "RIPv1", "RIPv2", "OSPFv1", "OSPFv2",
          "BGPv1", "BGPv2", "BGPv3", "BGPv4" } ]
-    uint16 Type;
+    uint16 AlgorithmType;
 };
 
 // ==================================================================
@@ -1846,20 +1992,58 @@ class CIM_FilterList : CIM_LogicalElement
 	   MaxLen (256), Description (
          "The scoping ComputerSystem's CreationClassName. ") ] 
     string SystemCreationClassName;
+
         [Propagated ("CIM_ComputerSystem.Name"), Key, MaxLen (256),
          Description ("The scoping ComputerSystem's Name.") ] 
     string SystemName;
+
         [Key, Description (
          "The type of class that this instance is.") ]
     string CreationClassName;
         [Key, MaxLen(256), Description (
          "This is the name of the FilterList.") ]
     string Name;
+
         [Description (
-         "This defines whether this FilterList is used for input, "
-         "output, or both input and output filtering."),
-        ValueMap { "1", "2", "3" },
-        Values { "Input", "Output", "Both" } ]
+         "This defines whether the FilterList is used "
+         "for input, output, or both input and output "
+         "filtering. All values are used with respect to "
+         "the interface for which the FilterList applies. "
+         "\n\n" 
+         "\"Not Applicable\" (0) is used when there is no "
+         "direction applicable to the FilterList.\n"
+         "\"Input\" (1) is used when the FilterList applies "
+         "to packets that are inbound on the related "
+         "interface.\n"
+         "\"Output\" (2) is used when the FilterList applies "
+         "to packets that are outbound on the related "
+         "interface.\n"
+         "\"Both\" (3) is used to indicate that "
+         "the direction is immaterial, e.g., to filter on "
+         "a source subnet regardless of whether the flow is "
+         "inbound or outbound.\n"
+         "\"Mirrored\" (4) is also applicable to "
+         "both inbound and outbound flow processing, but "
+         "indicates that the filter criteria are applied "
+         "asymmetrically to traffic in both directions "
+         "and, thus, specifies the reversal of source and "
+         "destination criteria (as opposed to the equality "
+         "of these criteria as indicated by \"Both\"). "
+         "The match conditions in the aggregated "
+         "FilterEntryBase subclass instances are defined "
+         "from the perspective of outbound flows and applied "
+         "to inbound flows as well by reversing the source "
+         "and destination criteria. So, for example, "
+         "consider a FilterList with 3 FilterEntries "
+         "indicating destination port = 80, and source and "
+         "destination addresses of a and b, respectively. "
+         "Then, for the outbound direction, the filter "
+         "entries match as specified and the ‘mirror’ (for "
+         "the inbound direction) matches on source "
+         "port = 80 and source and destination addresses "
+         "of b and a, respectively."),
+         Values {"Not Applicable", "Input", "Output",
+               "Both", "Mirrored" } ]
     uint16 Direction;
 };
 
@@ -2108,12 +2292,16 @@ class CIM_BGPPeerGroupService : CIM_Dependency
 // AdministrativeDistance
 // ==================================================================
         [Description (
-         "This class is used to control the choosing of which "
-         "protocol to give preference over when two protocols learn "
-         "the same route. This preference parameter is called the "
-         "distance of the protocol. The lower the distance, the "
-         "higher the preference for that protocol. This table "
-         "affects ALL routes. "
+         "Information in this class affects the choice of one "
+         "protocol over another, when two protocols learn "
+         "the same route. Properties define the preference of "
+         "a protocol, called its distance. The lower the "
+         "distance, the higher the preference for that protocol. "
+         "This class affects ALL routes and contains the "
+         "default distances. Specific administrative "
+         "distances relative to an individual route and Forwarding"
+         "Service are defined in the NextHopForwardedByService "
+         "association, its AdminDistance property."
          "\n\n"
          "AdministrativeDistance, being a global object, is weak to "
          "the AdminDomain that contains it. Hence, the AdminDomain "
@@ -2736,30 +2924,34 @@ class CIM_BGPServiceAttributes : CIM_Component
 
 class CIM_SwitchService : CIM_ForwardingService
 {
-         [MaxLen(12), Description (
-          "MAC address used by this switch service when it must be "
-          "uniquely identified. When concatenated with a "
+         [MaxLen(32), Description (
+          "Address used by this SwitchService when it must be "
+          "uniquely identified. For an ethernet bridge, the MAC "
+          "Address serves as the BridgeAddress.  When concatenated with a "
           "SpanningTreeService Priority, a unique bridge identifier "
           "results. The MAC address is formatted as twelve "
           "hexadecimal digits (e.g., \"010203040506\"), with each "
           "pair representing one of the six octets of the MAC address "
-          "in \"canonical\" bit order according to RFC 2469."),
-        Mappingstrings {
-         "MIB.IETF|RFC1493- MIB.dot1dBaseBridgeAddress"}  ]
-    string BridgeAddress ;
+          "in \"canonical\" bit order according to RFC 2469."
+          "In other scenarios, like Ipv6, the address is formatted as "
+          "\"ffff:ffff:ffff:ffff\"." ),
+        ModelCorrespondence {"CIM_SwitchService.BridgeAddressType"},
+        Mappingstrings { 
+         "MIB.IETF|RFC1493- MIB.dot1dBaseBridgeAddress"}  ] 
+    string BridgeAddress; 
+ 
          [Description (
           "The number of switch ports controlled by this "
           "switching service.") , 
         Mappingstrings {"MIB.IETF|RFC1493-MIB.dot1dBaseNumPorts"} ] 
     uint16 NumPorts ;
+
          [Description (
-          "Indicates what type of switching service can be "
-          "performed."), 
-       ValueMap {"1", "2", "3", "4"},
-        Values {"unknown", "transparent-only", "sourceroute-only",
-                "srt"},
-       Mappingstrings {"MIB.IETF|RFC1493-MIB.dot1dBaseType"} ] 
-    uint8 BridgeType ;
+          "BridgeAddressType defines the type of addressing scheme used "
+          "for this Bridge. Note that the MappingStrings is ONLY valid "
+          "for canonical 802 addresses." ),
+         ModelCorrespondence {"CIM_SwitchingService.BridgeAddress"} ]
+    uint16 BridgeAddressType;
 };
 
 // ===================================================================
@@ -3274,9 +3466,14 @@ class CIM_SwitchServiceSpanningTree : CIM_ServiceComponent
 //     SourceRoutingService
 // ===================================================================
       [Description (
-       "This service class represents the capability of a switch "
+       "SourceRoutingService represents the capability of a switch "
        "to participate in the source routing of frames received "
-       "at its ports.") ]
+       "at its ports. It is a system-level Service that provides "
+       "and supports local switching only. For this reason, it is "
+       "not defined as a subclass of NetworkService. Instead, Source"
+       "RoutingService is aggregated into a higher level Network/"
+       "Forwarding/SwitchService through the SwitchServiceSource"
+       "Routing association.")]
 
 class CIM_SourceRoutingService : CIM_Service
 {
@@ -4597,12 +4794,14 @@ class CIM_AverageRateMeterService: CIM_MeterService
          "conformance or not."),
          Units ("KiloBits per Second") ]
     real32 AverageRate;
-        [Description (
-         "This property is a 32-bit real number that defines the "
-         "time period over which the average measurement should "
-         "be taken."),
-         Units ("MicroSeconds") ]
-    real32 DeltaInterval;
+
+        
+       [Description ( 
+        "This property is a 64-bit unsigned integer that defines " 
+        "the time period over which the average measurement should " 
+        "be taken."), 
+       Units ("NanoSeconds") ] 
+    uint64 DeltaInterval; 
 };
 
 // ===================================================================
@@ -4632,15 +4831,17 @@ class CIM_EWMAMeterService: CIM_MeterService
          "non-conforming."), 
          Units ("KiloBits Per Second") ]
     real32 AverageRate;
-        [Description (
-         "This property is a 32-bit real number that defines the "
-         "sampling interval used to measure the arrival rate in "
-         "bytes. The calculated rate is averaged over this interval "
-         "and checked against the AverageRate property. All "
-         "packets whose computed average arrival rate is "
-         "less than the AverageRate are deemed conforming."),
-         Units ("MicroSeconds") ]
-    real32 DeltaInterval;
+
+       [Description ( 
+        "This property is a 64-bit unsigned integer that defines " 
+        "the sampling interval used to measure the arrival rate in " 
+        "bytes. The calculated rate is averaged over this interval " 
+        "and checked against the AverageRate property. All " 
+        "packets whose computed average arrival rate is " 
+        "less than the AverageRate are deemed conforming."), 
+       Units ("NanoSeconds") ] 
+  uint64 DeltaInterval;
+
         [Description (
          "This property is a 32-bit real number that defines the time "
          "constant (e.g. frequency response) of what is essentially a "
@@ -5413,13 +5614,6 @@ class CIM_WeightedRoundRobinPacketSchedulingService :
     uint16 Priority;
 };
 
-// ==================================================================
-// Pragmas for new classes in premliminary release status
-// ==================================================================
-
-#pragma include ("CIM_Network25_Add.mof")
-
- 
 // ===================================================================
 // end of file
 // ===================================================================

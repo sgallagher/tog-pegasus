@@ -22,7 +22,7 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -31,58 +31,100 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Provider2/CIMInstanceProvider.h>
+#include <Pegasus/Provider2/CIMIndicationProvider.h>
+#include <Pegasus/Common/IPC.h>
+#include <Pegasus/Common/Thread.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class HelloWorldProvider : public CIMInstanceProvider {
+class HelloWorldProvider :
+	public CIMInstanceProvider,
+	public CIMIndicationProvider
+{
 public:
-   HelloWorldProvider(void);
-   virtual ~HelloWorldProvider(void);
+	HelloWorldProvider(void);
+	virtual ~HelloWorldProvider(void);
 
-   // CIMBaseProvider interface
-   virtual void initialize(CIMOMHandle & cimom);
-   virtual void terminate(void);
+	// CIMBaseProvider interface
+	virtual void initialize(CIMOMHandle & cimom);
+	virtual void terminate(void);
 
-   // CIMInstanceProvider interface
-   virtual void getInstance(
-      const OperationContext & context,
-      const CIMReference & ref,
-      const Uint32 flags,
-      const Array<String> & propertyList,
-      ResponseHandler<CIMInstance> & handler);
+	// CIMInstanceProvider interface
+	virtual void getInstance(
+		const OperationContext & context,
+		const CIMReference & ref,
+		const Uint32 flags,
+		const Array<String> & propertyList,
+		ResponseHandler<CIMInstance> & handler);
 
-   virtual void enumerateInstances(
-      const OperationContext & context,
-      const CIMReference & ref,
-      const Uint32 flags,
-      const Array<String> & propertyList,
-      ResponseHandler<CIMInstance> & handler);
+	virtual void enumerateInstances(
+		const OperationContext & context,
+		const CIMReference & ref,
+		const Uint32 flags,
+		const Array<String> & propertyList,
+		ResponseHandler<CIMNamedInstance> & handler);
 
-   virtual void enumerateInstanceNames(
-      const OperationContext & context,
-      const CIMReference & ref,
-      ResponseHandler<CIMReference> & handler);
+	virtual void enumerateInstanceNames(
+		const OperationContext & context,
+		const CIMReference & ref,
+		ResponseHandler<CIMReference> & handler);
 
-   virtual void modifyInstance(
-      const OperationContext & context,
-      const CIMReference & ref,
-      const CIMInstance & obj,
-      ResponseHandler<CIMInstance> & handler);
+	virtual void modifyInstance(
+		const OperationContext & context,
+		const CIMReference & ref,
+		const CIMInstance & obj,
+		const Uint32 flags,
+		const Array<String> & propertyList,
+		ResponseHandler<CIMInstance> & handler);
 
-   virtual void createInstance(
-      const OperationContext & context,
-      const CIMReference & ref,
-      const CIMInstance & obj,
-      ResponseHandler<CIMInstance> & handler);
+	virtual void createInstance(
+		const OperationContext & context,
+		const CIMReference & ref,
+		const CIMInstance & obj,
+		ResponseHandler<CIMReference> & handler);
 
-   virtual void deleteInstance(
-      const OperationContext & context,
-      const CIMReference & ref,
-      ResponseHandler<CIMInstance> & handler);
+	virtual void deleteInstance(
+		const OperationContext & context,
+		const CIMReference & ref,
+		ResponseHandler<CIMInstance> & handler);
+
+	// CIMIndicationProvider interface
+	virtual void provideIndication(
+		const OperationContext & context,
+		const CIMReference & classReference,
+		const CIMDateTime & minimumInterval,
+		const CIMDateTime & maximumInterval,
+		const Array<String> & propertyList,
+		ResponseHandler<CIMIndication> & handler);
+
+	virtual void updateIndication(
+		const OperationContext & context,
+		const CIMReference & classReference,
+		const CIMDateTime & minimumInterval,
+		const CIMDateTime & maximumInterval,
+		const Array<String> & propertyList,
+		ResponseHandler<CIMIndication> & handler);
+
+	virtual void cancelIndication(
+		const OperationContext & context,
+		const CIMReference & classReference,
+		ResponseHandler<CIMIndication> & handler);
+
+	virtual void checkIndication(
+		const OperationContext & context,
+		const CIMReference & classReference,
+		const Array<String> & propertyList,
+		ResponseHandler<CIMIndication> & handler);
 
 protected:
-   CIMOMHandle          _cimom;
-   Array<CIMInstance>   _instances;
+	Array<CIMReference> _enumerateInstanceNames(
+		const OperationContext & context,
+		const CIMReference & classReference);
+
+protected:
+	CIMOMHandle         _cimom;
+	
+	Array<CIMInstance>	_instances;
 
 };
 

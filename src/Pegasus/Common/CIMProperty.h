@@ -191,7 +191,9 @@ public:
 	_rep->setClassOrigin(classOrigin);
     }
 
-    /// getPropagated - ATTN
+    /** getPropagated - Tests if this property is propogated.
+	@return - Returns true if the class is propogated.
+    */
     Boolean getPropagated() const
     {
 	_checkRep();
@@ -341,6 +343,16 @@ public:
     {
 	_checkRep();
 	_rep->print(o);
+    }
+
+    /** toMof  - Converts the object to Mof and puts the
+	resutl in the out parameter
+	@param out Parameter for Mof output
+    */
+    void toMof(Array<Sint8>& out) const
+    {
+	_checkRep();
+	_rep->toMof(out);
     }
 
     /**identical - compares the CIMProperty object with
@@ -526,6 +538,12 @@ public:
     {
 	_checkRep();
 	_rep->print(o);
+    }
+
+    void toMof(Array<Sint8>& out) const
+    {
+	_checkRep();
+	_rep->toMof(out);
     }
 
     Boolean identical(const CIMConstProperty& x) const

@@ -1,35 +1,40 @@
 /* PegasusDoc.dxx - Top Level file for Developer Documentation.
 This file defines the document strucuture and provides the introduction
+
+        Fixed file name case for use on GNU/Linux:
+            Header file "StopWatch.h" is actually "Stopwatch.h"
+            "objectives.dxx" is actually "Objectives.dxx"
+            "Architecture.dxx" is actually "architecture.dxx"
+            "Components.dxx" is actually "components.dxx"
+            "installation.dxx" is actually "Installation.dxx"
+            "MOFCompiler.dxx" is actually "MOFcompiler.dxx"
+            "CIMObjects.dxx" is actually "cimobjects.dxx"
+            "CIMOBJECTTable.dxx" is actually "CIMobjectTable.dxx"
+            "Classes.dxx" is actually "classes.dxx"
+            "Interfaces.dxx" is actually "interfaces.dxx"
+            "FAQ.dxx" is actually "FAQ.DXX"
+
 	$Log: PegasusDoc.dxx,v $
+	Revision 1.20  2001/12/13 14:53:21  mike
+	Merged dev branch into main trunk.
+	
+	Revision 1.19.2.3  2001/10/05 21:16:41  kumpf
+	HP-RK Fix case for platforms with case-sensitive file names.
+	
+	Revision 1.19.2.2  2001/09/21 05:47:58  karl
+	doc change to TOG formats
+	
+	Revision 1.19.2.1  2001/09/13 21:29:24  karl
+	Update to no Frame work
+	
 	Revision 1.19  2001/05/27 10:11:50  karl
 	Clean up object tables
 	
 	Revision 1.18  2001/05/21 17:33:33  karl
 	Update version number
 	
-	Revision 1.17  2001/05/05 10:07:23  karl
 	
-	no Change
-	
-	Revision 1.16  2001/03/29 16:41:38  karl
-	Add Class Tree Stuff
-	
-	Revision 1.15  2001/03/23 13:16:33  karl
-	minor corrections
-	
-	Revision 1.14  2001/02/25 18:04:45  karl
-	extend programing deffinitions
-	
-	Revision 1.13  2001/02/25 15:01:40  karl
-	Add frames to manual
-	
-	
-	
-	Revision 1.1  2001/01/24 14:18:48  karl
-	import Dev Doc Files
-	
-	
-	$Author: karl $
+	$Author: mike $
 */
 /* do not change the following Name.  Used in the Frame definition.
 If you change it, the HTML Frame must also be changed.
@@ -39,7 +44,7 @@ If you change it, the HTML Frame must also be changed.
 <CENTER><FONT Size=+4>Welcome to PEGASUS</FONT></CENTER>
 
 <P><B><CENTER>DRAFT FOR REVIEW</CENTER></B>
-<SMALL><CENTER>version 0.97.2</CENTER></SMALL>
+<SMALL><CENTER>version 1.01 13 September 2001</CENTER></SMALL>
 
 Pegasus is an open source implementation of the manageability environment defined by the DMTF WBEM standards.
 
@@ -75,25 +80,25 @@ This version of the Pegasus User Manual was created at \today
    references here and text in the individual files.
 */
 
-    //@Include: objectives.dxx
+    //@Include: Objectives.dxx
     //@Include: overview.dxx
     //@Include: credits.dxx
-    //@Include: Architecture.dxx
-    //@Include: Components.dxx
+    //@Include: architecture.dxx
+    //@Include: components.dxx
     //@Include: Utilization.dxx
         //@{	    
     	//@Include: availability.dxx
-    	//@Include: installation.dxx
+    	//@Include: Installation.dxx
     	//@Include: operation.dxx
     	//@Include: CIMClients.dxx
     	//@Include: PegasusProviders.dxx
-    	//@Include: MOFCompiler.dxx    
+    	//@Include: MOFcompiler.dxx    
         //@}
     //@Include: programming.dxx
         //@{
-	   //@Include: CIMObjects.dxx
-	   //@Include: CIMOBJECTTable.dxx
-	   //@Include: Classes.dxx
+	   //@Include: cimobjects.dxx
+	   //@Include: CIMobjectTable.dxx
+	   //@Include: classes.dxx
            //@{ 
     		//@Include: ..\..\src\Pegasus\Common\Array.h
     		//@Include: ..\..\src\Pegasus\Common\CIMClass.h
@@ -117,7 +122,7 @@ This version of the Pegasus User Manual was created at \today
         	//@Include: ..\..\src\Pegasus\Common\DeclContext.h
          	//@Include: ..\..\src\Pegasus\Common\Stack.h 
          	//@Include: ..\..\src\Pegasus\Common\CIMName.h 
-             	//@Include: ..\..\src\Pegasus\Common\StopWatch.h 
+             	//@Include: ..\..\src\Pegasus\Common\Stopwatch.h 
          	//@Include: ..\..\src\Pegasus\Common\TimeValue.h 
 
 
@@ -128,11 +133,11 @@ This version of the Pegasus User Manual was created at \today
             //@}
         	
 	//@}
-    //@Include: Interfaces.dxx
+    //@Include: interfaces.dxx
        //@{
 	    //@Include: CIMOperations.dxx
 	        //@{
-		    //@Include: ..\..\src\Pegasus\Common\CIMOperations.h
+		    //@Include: ..\..\doc\CIMOperations.h
 		//@}
 	    //@Include: ClientInterfaces.dxx   
 		//@{    
@@ -158,6 +163,6 @@ This version of the Pegasus User Manual was created at \today
      		//@Include: ExamplesProvider.dxx  
     	//@}
     //@Include: references.dxx
-    //@Include: FAQ.dxx
+    //@Include: FAQ.DXX
  
 

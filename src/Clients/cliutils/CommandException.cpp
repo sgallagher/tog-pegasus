@@ -1,0 +1,315 @@
+//%/////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM, 
+// The Open Group, Tivoli Systems
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to 
+// deal in the Software without restriction, including without limitation the 
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+//==============================================================================
+//
+// Author: Carol Ann Krug Graves, Hewlett-Packard Company 
+//         (carolann_graves@hp.com)
+//
+// Modified By:
+//
+//%/////////////////////////////////////////////////////////////////////////////
+
+#include <Pegasus/Common/Config.h>
+#include "CommandException.h"
+
+PEGASUS_NAMESPACE_BEGIN
+
+/**
+  
+    Constructs a CommandException with the specified message.
+  
+    @param  exceptionMessage  a string containing the exception message
+  
+ */
+CommandException::CommandException (const String& exceptionMessage) : Exception 
+    (exceptionMessage)
+{
+}
+
+/**
+
+    Constructs a CommandFormatException with the specified message.
+
+    @param  exceptionMessage  a string containing the exception message
+
+ */
+CommandFormatException::CommandFormatException (const String& exceptionMessage)
+   : CommandException (exceptionMessage)
+{
+}
+
+/**
+
+    First part of exception message string indicating a duplicate option
+    appeared in the command line.
+
+ */
+const char DuplicateOptionException::_MESSAGE_DUPLICATE_OPTION1 [] = 
+    "duplicate \"-";
+
+/**
+
+    Second part of exception message string indicating a duplicate option
+    appeared in the command line.
+
+ */
+const char DuplicateOptionException::_MESSAGE_DUPLICATE_OPTION2 [] = 
+    "\" option";
+
+/**
+
+    Constructs a DuplicateOptionException using the value of the duplicate
+    option character.
+
+    @param  duplicateOption  the character representing the duplicate option
+
+ */
+DuplicateOptionException::DuplicateOptionException (char duplicateOption) :
+    CommandFormatException (String ())
+{
+    _message = _MESSAGE_DUPLICATE_OPTION1;
+    _message.append (duplicateOption);
+    _message.append (_MESSAGE_DUPLICATE_OPTION2);
+
+}
+
+/**
+
+    First part of exception message string indicating an invalid option
+    argument appeared in the command line.
+
+ */
+const char InvalidOptionArgumentException::_MESSAGE_INVALID_ARG1 [] =
+    "argument \"";
+
+/**
+
+    Second part of exception message string indicating an invalid option
+    argument appeared in the command line.
+
+ */
+const char InvalidOptionArgumentException::_MESSAGE_INVALID_ARG2 [] =
+    "\" is not valid for option \"-";
+
+/**
+
+    Third part of exception message string indicating an invalid option
+    argument appeared in the command line.
+
+ */
+const char InvalidOptionArgumentException::_MESSAGE_INVALID_ARG3 [] = "\"";
+
+/**
+
+    Constructs an InvalidOptionArgumentException using the values of the
+    invalid option argument string and the option character.
+
+    @param  invalidArgument  the string containing the invalid option
+                             argument
+
+    @param  option           the character representing the option
+
+ */
+InvalidOptionArgumentException::InvalidOptionArgumentException
+    (const String& invalidArgument, char option) : CommandFormatException
+        (String ())
+{
+    _message = _MESSAGE_INVALID_ARG1;
+    _message.append (invalidArgument);
+    _message.append (_MESSAGE_INVALID_ARG2);
+    _message.append (option);
+    _message.append (_MESSAGE_INVALID_ARG3);
+
+}
+
+/**
+
+    First part of exception message string indicating an invalid option
+    appeared in the command line.
+
+ */
+const char InvalidOptionException::_MESSAGE_INVALID_OPTION1 [] = "option \"-";
+
+/**
+
+    Second part of exception message string indicating an invalid option
+    appeared in the command line.
+
+ */
+const char InvalidOptionException::_MESSAGE_INVALID_OPTION2 [] = 
+    "\" is not valid for this command";
+
+/**
+
+    Constructs an InvalidOptionException using the value of the invalid
+    option character.
+
+    @param  invalidOption  the character representing the invalid option
+
+ */
+InvalidOptionException::InvalidOptionException (char invalidOption) :
+    CommandFormatException (String ())
+{
+    _message = _MESSAGE_INVALID_OPTION1;
+    _message.append (invalidOption);
+    _message.append (_MESSAGE_INVALID_OPTION2);
+}
+
+/**
+
+    First part of exception message string indicating a required option
+    argument missing from the command line.
+
+ */
+const char MissingOptionArgumentException::_MESSAGE_MISSING_OPTARG1 [] = 
+    "missing argument value for \"-";
+
+/**
+
+    Second part of exception message string indicating a required option
+    argument missing from the command line.
+
+ */
+const char MissingOptionArgumentException::_MESSAGE_MISSING_OPTARG2 [] = 
+    "\" option";
+
+/**
+
+    Constructs a MissingOptionArgumentException using the value of the
+    option character whose argument is missing.
+
+    @param  option  the character representing the option whose argument is
+                    missing
+
+ */
+MissingOptionArgumentException::MissingOptionArgumentException (char option) :
+    CommandFormatException (String ())
+{
+    _message = _MESSAGE_MISSING_OPTARG1;
+    _message.append (option);
+    _message.append (_MESSAGE_MISSING_OPTARG2);
+}
+
+/**
+
+    First part of exception message string indicating a required option
+    is missing from the command line.
+
+ */
+const char MissingOptionException::_MESSAGE_MISSING_OPTION1 [] = "the \"-";
+
+/**
+
+    Second part of exception message string indicating a required option
+    is missing from the command line.
+
+ */
+const char MissingOptionException::_MESSAGE_MISSING_OPTION2 [] = 
+    "\" option is required";
+
+/**
+
+    Constructs a MissingOptionException using the value of the missing
+    required option character.
+
+    @param  missingOption  the character representing the missing required
+                           option
+
+ */
+MissingOptionException::MissingOptionException (char missingOption) :
+    CommandFormatException (String ())
+{
+    _message = _MESSAGE_MISSING_OPTION1;
+    _message.append (missingOption);
+    _message.append (_MESSAGE_MISSING_OPTION2);
+}
+
+/**
+
+    First part of exception message string indicating an unexpected
+    argument appeared in the command line.
+
+ */
+const char UnexpectedArgumentException::_MESSAGE_UNEXPECTED_ARG1 [] = 
+    "argument \"";
+
+/**
+
+    Second part of exception message string indicating an unexpected
+    argument appeared in the command line.
+
+ */
+const char UnexpectedArgumentException::_MESSAGE_UNEXPECTED_ARG2 [] = 
+    "\" was unexpected";
+
+/**
+
+    Constructs an UnexpectedArgumentException using the value of the
+    argument string.
+
+    @param  argumentValue  the string containing the unexpected argument
+
+ */
+UnexpectedArgumentException::UnexpectedArgumentException
+    (const String& argumentValue) : CommandFormatException (String ())
+{
+    _message = _MESSAGE_UNEXPECTED_ARG1;
+    _message.append (argumentValue);
+    _message.append (_MESSAGE_UNEXPECTED_ARG2);
+}
+
+/**
+
+    First part of exception message string indicating an unexpected option
+    appeared in the command line.
+
+ */
+const char UnexpectedOptionException::_MESSAGE_UNEXPECTED_OPT1 [] = 
+    "option \"-";
+
+/**
+
+    Second part of exception message string indicating an unexpected option
+    appeared in the command line.
+
+ */
+const char UnexpectedOptionException::_MESSAGE_UNEXPECTED_OPT2 [] = 
+    "\" was unexpected";
+
+/**
+
+    Constructs an UnexpectedOptionException using the value of the
+    unexpected option character.
+
+    @param  optionValue  the character representing the option that was
+                         unexpected
+
+ */
+UnexpectedOptionException::UnexpectedOptionException (char optionValue) :
+    CommandFormatException (String ())
+{
+    _message = _MESSAGE_UNEXPECTED_OPT1;
+    _message.append (optionValue);
+    _message.append (_MESSAGE_UNEXPECTED_OPT2);
+}
+
+PEGASUS_NAMESPACE_END

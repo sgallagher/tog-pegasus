@@ -11,7 +11,7 @@
 	Do not use this macro in .cpp files. Instead put the following
 	at the beginning of the file:
 
-	    PEGASUS_USING_STD
+	    PEGASUS_USING_STD;
 
     2.	The following does not compile with some compilers.
 
@@ -31,20 +31,11 @@
 		static const Uint32 COLOR;
 	    };
 
-	Change to this:
-
-	    class X
-	    {
-	    public:
-
-		static const Uint32 COLOR;
-	    };
-
 	And place this in the .cpp file:
 
 	    const Uint32 X::COLOR = 255;
 
-	Or use enumerated type:
+	Or use enumerated types:
 
 	    class X
 	    {
@@ -53,3 +44,4 @@
 		enum { COLOR = 225 };
 	    };
 
+    3.	Explain use of Linkage.h files and linkage directives.

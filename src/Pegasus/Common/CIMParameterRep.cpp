@@ -129,14 +129,22 @@ void CIMParameterRep::toXml(Array<Sint8>& out) const
 
 	out << "</PARAMETER.ARRAY>\n";
     }
+    else if (_type == CIMType::REFERENCE)
+    {
+	out << "<PARAMETER.REFERENCE";
+	out << " NAME=\"" << _name << "\" ";
+	out << " REFERENCECLASS=\"" << _referenceClassName << "\"";
+	out << ">\n";
+
+	_qualifiers.toXml(out);
+
+	out << "</PARAMETER.REFERENCE>\n";
+    }
     else
     {
 	out << "<PARAMETER";
-
 	out << " NAME=\"" << _name << "\" ";
-
 	out << " TYPE=\"" << TypeToString(_type) << "\"";
-
 	out << ">\n";
 
 	_qualifiers.toXml(out);
@@ -144,6 +152,46 @@ void CIMParameterRep::toXml(Array<Sint8>& out) const
 	out << "</PARAMETER>\n";
     }
 }
+
+/** toMof - puts the Mof representation of teh Parameter object to
+    the output parameter array
+    The BNF for this conversion is:
+    parameterList    = 	parameter *( "," parameter )
+
+	parameter    = 	[ qualifierList ] (dataType|objectRef) parameterName
+				[ array ]
+
+	parameterName= 	IDENTIFIER
+	
+	array 	     = 	"[" [positiveDecimalValue] "]"
+	
+    Format on a single line.
+    */
+void CIMParameterRep::toMof(Array<Sint8>& out) const
+{
+    // Output the qualifiers for the parameter
+    _qualifiers.toMof(out);
+
+    if (_qualifiers.getCount())
+	out << " ";
+
+    // Output the data type and name
+    out << TypeToString(_type) << " " <<  _name;
+
+    if (_isArray)
+    {
+	//Output the array indicator "[ [arraysize] ]"
+	if (_arraySize)
+	{
+	    char buffer[32];
+	    sprintf(buffer, "[%d]", _arraySize);
+	    out << buffer;
+	}
+	else
+	    out << "[]";
+    }
+}
+
 
 void CIMParameterRep::print(PEGASUS_STD(ostream) &os) const 
 {

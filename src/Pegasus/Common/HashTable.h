@@ -179,7 +179,7 @@ public:
 	@param key void pointer to key.
 	@return pointer to bucket with that key or zero otherwise.
     */
-    const _BucketBase* lookup(Uint32 hashCode, const void* key);
+    const _BucketBase* lookup(Uint32 hashCode, const void* key) const;
 
     /*- Removes the bucket with the given key. This method uses the
 	_BucketBase::equal() method to compare keys.
@@ -463,7 +463,7 @@ public:
 	@param key key to be searched for
 	@return true if hash table contains an entry with the given key.
     */
-    Boolean contains(const K& key)
+    Boolean contains(const K& key) const
     {
 	V value;
 	return lookup(key, value);
@@ -474,7 +474,7 @@ public:
 	@param value output value.
 	@return true if found; false otherwise.
     */
-    Boolean lookup(const K& key, V& value);
+    Boolean lookup(const K& key, V& value) const;
 
     /** Removes the entry with the given key.
 	@param key key of entry to be removed.
@@ -498,7 +498,7 @@ private:
 };
 
 template<class K, class V, class E, class H>
-inline Boolean HashTable<K, V, E, H>::lookup(const K& key, V& value)
+inline Boolean HashTable<K, V, E, H>::lookup(const K& key, V& value) const
 {
     _Bucket<K, V, E>* bucket 
 	= (_Bucket<K, V, E>*)_rep.lookup(H::hash(key), &key);

@@ -177,6 +177,13 @@ public:
 	_rep->toXml(out);
     }
 
+    void toMof(Array<Sint8>& out) const
+    {
+	_checkRep();
+	_rep->toMof(out);
+    }
+
+
     void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const
     {
 	_checkRep();

@@ -27,6 +27,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/HashTable.h>
+#include <Pegasus/Common/IPC.h>
 #include "MessageQueue.h"
 
 PEGASUS_USING_STD;
@@ -37,38 +38,81 @@ typedef HashTable<Uint32, MessageQueue*, EqualFunc<Uint32>, HashFunc<Uint32> >
     QueueTable;
 
 static QueueTable _queueTable(128);
+static Mutex q_table_mut = Mutex();
 
-static Uint32 _GetNextQueueId()
+static Uint32 _GetNextQueueId() throw(IPCException)
 {
-    static Uint32 _queueId = 1;
-
-    // Handle wrap-around!
-
-    if (_queueId == 0)
-	_queueId++;
-    
-    return _queueId++;
+   
+   static Uint32 _queueId = 2;
+   static Mutex _id_mut = Mutex();
+   
+   _id_mut.lock(pegasus_thread_self());
+   
+   // Handle wrap-around!
+   if (_queueId == 0)
+      _queueId = MessageQueue::_CIMOM_Q_ID;
+   Uint32 ret = _queueId++;
+   _id_mut.unlock();
+   
+   return ret;
 }
 
-MessageQueue::MessageQueue() : _count(0), _front(0), _back(0)
+Uint32 MessageQueue::_CIMOM_Q_ID = 1;
+
+MessageQueue::MessageQueue() : _mut( ), _count(0), _front(0), _back(0)
 {
     // ATTN-A: thread safety!
+   q_table_mut.lock(pegasus_thread_self());
 
+   memset(_name, 0x00, 26);
+   
     while (!_queueTable.insert(_queueId = _GetNextQueueId(), this))
 	;
+    q_table_mut.unlock();
 }
+
+MessageQueue::MessageQueue(char *name) : _mut( ), _count(0), _front(0), _back(0)
+{
+   if(name != NULL)
+   {
+      strncpy(_name, name, 25);
+      _name[25] = 0x00;
+   }
+   
+   else
+      memset(_name, 0x00,25);
+
+   q_table_mut.lock(pegasus_thread_self());
+   
+    while (!_queueTable.insert(_queueId = _GetNextQueueId(), this))
+       ;
+    q_table_mut.unlock();
+    
+}
+
 
 MessageQueue::~MessageQueue()
 {
     // ATTN-A: thread safety!
-
+   q_table_mut.lock(pegasus_thread_self());
+   
     _queueTable.remove(_queueId);
+    q_table_mut.unlock();
+    
 }
 
-void MessageQueue::enqueue(Message* message)
+void MessageQueue::enqueue(Message* message) throw(IPCException)
 {
     if (!message)
 	throw NullPointer();
+
+    _mut.lock(pegasus_thread_self());
+
+    if (getenv("PEGASUS_TRACE"))
+    {
+	cout << "===== " << getQueueName() << ": ";
+	message->print(cout);
+    }
 
     if (_back)
     {
@@ -86,12 +130,14 @@ void MessageQueue::enqueue(Message* message)
     }
     message->_owner = this;
     _count++;
+    _mut.unlock();
 
     handleEnqueue();
 }
 
-Message* MessageQueue::dequeue()
+Message* MessageQueue::dequeue() throw(IPCException)
 {
+   _mut.lock(pegasus_thread_self());
     if (_front)
     {
 	Message* message = _front;
@@ -101,17 +147,18 @@ Message* MessageQueue::dequeue()
 
 	if (_back == message)
 	    _back = 0;
-	
+	_count--;
+	_mut.unlock();
 	message->_next = 0;
 	message->_prev = 0;
 	message->_owner = 0;
-	_count--;
 	return message;
     }
+    _mut.unlock();
     return 0;
 }
 
-void MessageQueue::remove(Message* message)
+void MessageQueue::remove(Message* message) throw(IPCException)
 {
     if (!message)
 	throw NullPointer();
@@ -119,6 +166,8 @@ void MessageQueue::remove(Message* message)
     if (message->_owner != this)
 	throw NoSuchMessageOnQueue();
 
+    _mut.lock(pegasus_thread_self());
+    
     if (message->_next)
 	message->_next->_prev = message->_prev;
     else
@@ -129,71 +178,130 @@ void MessageQueue::remove(Message* message)
     else
 	_front = message->_next;
 
+    _count--;
+    _mut.unlock();
+    
     message->_prev = 0;
     message->_next = 0;
     message->_owner = 0;
-    _count--;
 }
 
-Message* MessageQueue::findByType(Uint32 type)
+Message* MessageQueue::findByType(Uint32 type) throw(IPCException)
 {
+   _mut.lock(pegasus_thread_self());
+   
     for (Message* m = front(); m; m = m->getNext())
     {
-	if (m->getType() == type)
-	    return m;
+       if (m->getType() == type)
+       {
+	  _mut.unlock();
+	  return m;
+       }
     }
-
+    _mut.unlock();
     return 0;
 }
 
-Message* MessageQueue::findByKey(Uint32 key)
+Message* MessageQueue::findByKey(Uint32 key) throw(IPCException)
 {
+   _mut.lock(pegasus_thread_self());
+   
     for (Message* m = front(); m; m = m->getNext())
     {
-	if (m->getKey() == key)
-	    return m;
+       if (m->getKey() == key)
+       {
+	  _mut.unlock();
+	  return m;
+       }
+       
     }
-
+    _mut.unlock();
     return 0;
 }
 
-void MessageQueue::print(ostream& os) const
+void MessageQueue::print(ostream& os) const throw(IPCException)
 {
-    for (const Message* m = front(); m; m = m->getNext())
+   const_cast<MessageQueue *>(this)->_mut.lock(pegasus_thread_self());
+   
+   for (const Message* m = front(); m; m = m->getNext())
 	m->print(os);
+   const_cast<MessageQueue *>(this)->_mut.unlock();
 }
 
-Message* MessageQueue::find(Uint32 type, Uint32 key)
+Message* MessageQueue::find(Uint32 type, Uint32 key) throw(IPCException)
 {
+   _mut.lock(pegasus_thread_self());
+   
     for (Message* m = front(); m; m = m->getNext())
     {
-	if (m->getType() == type && m->getKey() == key)
-	    return m;
+       if (m->getType() == type && m->getKey() == key)
+       {
+	  _mut.unlock();
+	  return m;
+       }
     }
+    _mut.unlock();
 
     return 0;
 }
 
-void MessageQueue::lock()
+void MessageQueue::lock() throw(IPCException)
 {
-
+   _mut.lock(pegasus_thread_self());
 }
 
-void MessageQueue::unlock()
+void MessageQueue::unlock() 
 {
-
+   _mut.unlock();
 }
 
-MessageQueue* MessageQueue::lookup(Uint32 queueId)
+const char* MessageQueue::getQueueName() const
+{
+   if(_name[0] != 0x00)
+      return _name;
+   return "unknown";
+}
+
+MessageQueue* MessageQueue::lookup(Uint32 queueId) throw(IPCException)
 {
     MessageQueue* queue = 0;
-
+    q_table_mut.lock(pegasus_thread_self());
+    
     if (_queueTable.lookup(queueId, queue))
-	return queue;
-
+    {
+       q_table_mut.unlock();
+       return queue;
+    }
+    
     // Not found!
+
+    q_table_mut.unlock();
+    
     return 0;
 }
+
+
+MessageQueue* MessageQueue::lookup(const char *name) throw(IPCException)
+{
+   if(name == NULL)
+      throw NullPointer();
+   q_table_mut.lock(pegasus_thread_self());
+   
+   for(QueueTable::Iterator i = _queueTable.start(); i; i++)
+   {
+        // ATTN: Need to decide how many characters to compare in queue names
+      if(! strncmp( ((MessageQueue *)i.value())->getQueueName(), name, 25) )
+      {
+	 q_table_mut.unlock();
+	 return( (MessageQueue *)i.value());
+      }
+      
+   }
+   q_table_mut.unlock();
+      
+   return 0;
+}
+
 
 void MessageQueue::handleEnqueue()
 {

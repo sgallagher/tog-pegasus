@@ -22,7 +22,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -204,6 +204,7 @@ CIMReference::CIMReference(
     const String& nameSpace,
     const String& className,
     const Array<KeyBinding>& keyBindings)
+
 {
    set(host, nameSpace, className, keyBindings);
 }
@@ -245,6 +246,63 @@ void CIMReference::set(
    setKeyBindings(keyBindings);
 }
 
+/**
+    ATTN: RK - Association classes have keys whose types are
+    references.  These reference values must be treated specially
+    in the XML encoding, using the VALUE.REFERENCE tag structure.
+
+    Pegasus had been passing reference values simply as String
+    values.  For example, EnumerateInstanceNames returned
+    KEYVALUEs of string type rather than VALUE.REFERENCEs.
+
+    I've modified the XmlReader::getKeyBindingElement() and
+    CIMReference::instanceNameToXml() methods to read and write
+    the XML in the proper format.  However, making that change
+    required that a CIMReference object be able to distinguish
+    between a key of String type and a key of reference type.
+
+    I've modified the String format of CIMReferences slightly to
+    allow efficient processing of references whose keys are also
+    of reference type.  The "official" form uses the same
+    encoding for key values of String type and of reference type,
+    and so it would be necessary to retrieve the class definition
+    and look up the types of the key properties to determine how
+    to treat the key values.  This is clearly too inefficient for
+    internal transformations between CIMReferences and String
+    values.
+
+    The workaround is to encode a 'R' at the beginning of the
+    value for a key of reference type (before the opening '"').
+    This allows the parser to know a priori whether the key is of
+    String or reference type.
+
+    In this example:
+
+        MyClass.Key1="StringValue",Key2=R"RefClass.KeyA="StringA",KeyB=10"
+
+    Property Key1 of class MyClass is of String type, and so it
+    gets the usual encoding.  Key2 is a reference property, so
+    the extra 'R' is inserted before its encoded value.  Note
+    that this algorithm is recursive, such that RefClass could
+    include KeyC of reference type, which would also get encoded
+    with the 'R' notation.
+
+    The toString() method inserts the 'R' to provide symmetry.  A
+    new KeyBinding type (REFERENCE) has been defined to denote
+    keys in a CIMReference that are of reference type.  This
+    KeyBinding type must be used appropriately for
+    CIMReference::toString() to behave correctly.
+
+    A result of this change is that instances names in the
+    instance repository will include this extra 'R' character.
+    Note that for user-facing uses of the String encoding of
+    instance names (such as might appear in MOF for static
+    association instances or in the CGI client), this solution
+    is non-standard and therefore unacceptable.  It is likely
+    that these points will need to process the more expensive
+    operation of retrieving the class definition to determine
+    the key property types.
+*/
 void CIMReference::set(const String& objectName)
 {
     _host.clear();
@@ -261,8 +319,11 @@ void CIMReference::set(const String& objectName)
 
     // Convert to a C String first:
 
-    char* p = objectName.allocateCString();
+    char* p = objectName.allocateCString(1);
     ArrayDestroyer<char> destroyer(p);
+
+    // null terminate the C String
+    p[objectName.size() + 1]= '\0';
 
     // See if there is a host name (true if it begins with "//"):
     // Host is of the from <hostname>-<port> and begins with "//"
@@ -361,8 +422,10 @@ void CIMReference::set(const String& objectName)
 
     if (!dot)
     {
-	if (!CIMName::legal(p))
+	if (!CIMName::legal(p)) 
+        {
 	    throw IllformedObjectName(objectName);
+        }
 
 	// ATTN: remove this later: a reference should only be able to hold
 	// an instance name.
@@ -379,20 +442,18 @@ void CIMReference::set(const String& objectName)
 
     // Get the key-value pairs:
 
-    for (p = strtok(p, ","); p; p = strtok(NULL, ","))
+    while (*p)
     {
-	// Split about the equal sign:
+        // Get key part:
 
-	char* equal = strchr(p, '=');
+        char* key = strtok(p, "=");
 
-	if (!equal)
+	if (!key)
+        {
 	    throw IllformedObjectName(objectName);
+        }
 
-	*equal = '\0';
-
-	// Get key part:
-
-	String keyString(p);
+	String keyString(key);
 
 	if (!CIMName::legal(keyString))
 	    throw IllformedObjectName(objectName);
@@ -400,62 +461,116 @@ void CIMReference::set(const String& objectName)
 	// Get the value part:
 
 	String valueString;
-	char* q = equal + 1;
+        p = p + strlen(key) + 1;
 	KeyBinding::Type type;
 
-	if (*q == '"')
+	if (*p == 'R')
 	{
-	    q++;
+	    p++;
 
-	    type = KeyBinding::STRING;
+	    type = KeyBinding::REFERENCE;
 
-	    while (*q && *q != '"')
+	    if (*p++ != '"')
+		throw IllformedObjectName(objectName);
+
+	    while (*p && *p != '"')
 	    {
 		// ATTN: need to handle special characters here:
 
-		if (*q == '\\')
-		    *q++;
+		if (*p == '\\')
+		    *p++;
 
-		valueString.append(*q++);
+		valueString.append(*p++);
 	    }
 
-	    if (*q++ != '"')
-		throw IllformedObjectName(objectName);
-
-	    if (*q)
+	    if (*p++ != '"')
 		throw IllformedObjectName(objectName);
 	}
-	else if (toupper(*q) == 'T' || toupper(*q) == 'F')
+	else if (*p == '"')
+	{
+	    p++;
+
+	    type = KeyBinding::STRING;
+
+	    while (*p && *p != '"')
+	    {
+		// ATTN: need to handle special characters here:
+
+		if (*p == '\\')
+		    *p++;
+
+		valueString.append(*p++);
+	    }
+
+	    if (*p++ != '"')
+		throw IllformedObjectName(objectName);
+	}
+	else if (toupper(*p) == 'T' || toupper(*p) == 'F')
 	{
 	    type = KeyBinding::BOOLEAN;
 
-	    char* r = q;
+            char* r = p;
+            Uint32 n = 0;
 
-	    while (*r)
+	    while (*r && *r != ',')
 	    {
 		*r = toupper(*r);
-		r++;
+                r++;
+                n++;
 	    }
 
-	    if (strcmp(q, "TRUE") != 0 && strcmp(q, "FALSE") != 0)
+	    if (strncmp(p, "TRUE", n) != 0 && strncmp(p, "FALSE", n) != 0)
 		throw IllformedObjectName(objectName);
 
-	    valueString.assign(q);
+	    valueString.assign(p, n);
+
+            p = p + n;
 	}
 	else
 	{
 	    type = KeyBinding::NUMERIC;
 
+            char* r = p;
+            Uint32 n = 0;
+
+	    while (*r && *r != ',')
+	    {
+                r++;
+                n++;
+	    }
+          
+            Boolean isComma = false;
+            if (*r)
+            {
+                *r = '\0';
+                isComma = true;
+            }
+
 	    Sint64 x;
 
-	    if (!XmlReader::stringToSignedInteger(q, x))
+	    if (!XmlReader::stringToSignedInteger(p, x))
 		throw IllformedObjectName(objectName);
 
-	    valueString.assign(q);
+            valueString.assign(p, n);
+
+            if (isComma)
+            {
+                *r = ',';
+            }
+
+            p = p + n;
 	}
 
 	_keyBindings.append(KeyBinding(keyString, valueString, type));
-    }
+
+        if (*p)
+        {
+            if (*p++ != ',')
+            {
+                throw IllformedObjectName(objectName);
+            }
+        }
+    }  
 
     _BubbleSort(_keyBindings);
 }
@@ -538,12 +653,15 @@ String CIMReference::toString() const
 
 	KeyBinding::Type type = keyBindings[i].getType();
 	
-	if (type == KeyBinding::STRING)
+	if (type == KeyBinding::REFERENCE)
+	    objectName.append('R');
+
+	if (type == KeyBinding::STRING || type == KeyBinding::REFERENCE)
 	    objectName.append('"');
 
 	objectName.append(value);
 
-	if (type == KeyBinding::STRING)
+	if (type == KeyBinding::STRING || type == KeyBinding::REFERENCE)
 	    objectName.append('"');
 
 	if (i + 1 != n)
@@ -569,7 +687,7 @@ Boolean CIMReference::identical(const CIMReference& x) const
 {
     return
 	String::equal(_host, x._host) &&
-	String::equal(_nameSpace, x._nameSpace) &&
+	CIMName::equal(_nameSpace, x._nameSpace) &&
 	CIMName::equal(_className, x._className) &&
 	_keyBindings == x._keyBindings;
 }
@@ -617,12 +735,21 @@ void CIMReference::instanceNameToXml(Array<Sint8>& out) const
     {
 	out << "<KEYBINDING NAME=\"" << _keyBindings[i].getName() << "\">\n";
 
-	out << "<KEYVALUE VALUETYPE=\"";
-	out << KeyBinding::typeToString(_keyBindings[i].getType());
-	out << "\">";
+        if (_keyBindings[i].getType() == KeyBinding::REFERENCE)
+        {
+            CIMReference ref = _keyBindings[i].getValue();
+            ref.toXml(out, true);
+        }
+        else {
+	    out << "<KEYVALUE VALUETYPE=\"";
+	    out << KeyBinding::typeToString(_keyBindings[i].getType());
+	    out << "\">";
 
-	out << _keyBindings[i].getValue();
-	out << "</KEYVALUE>\n";
+	    // fixed the special character problem - Markus
+
+            XmlWriter::appendSpecial(out, _keyBindings[i].getValue());
+	    out << "</KEYVALUE>\n";
+        }
 
 	out << "</KEYBINDING>\n";
     }
@@ -669,7 +796,7 @@ void CIMReference::toXml(Array<Sint8>& out, Boolean putValueWrapper) const
 	else if (_nameSpace.size())
 	{
 	    out << "<LOCALCLASSPATH>\n";
-	    nameSpaceToXml(out);
+	    localNameSpaceToXml(out);
 	    classNameToXml(out);
 	    out << "</LOCALCLASSPATH>";
 	}
@@ -679,6 +806,83 @@ void CIMReference::toXml(Array<Sint8>& out, Boolean putValueWrapper) const
 
     if (putValueWrapper)
 	out << "</VALUE.REFERENCE>\n";
+}
+
+
+//
+// InvokeMethod requires that the hostname be ignored
+//
+void CIMReference::localObjectPathtoXml(Array<Sint8>& out) const
+{
+    // See if it is a class or instance reference (instance references have
+    // key-bindings; class references do not).
+
+    if (_keyBindings.size())
+    {
+        out << "<LOCALINSTANCEPATH>\n";
+        localNameSpaceToXml(out);
+        instanceNameToXml(out);
+        out << "</LOCALINSTANCEPATH>\n";
+    }
+    else
+    {
+        out << "<LOCALCLASSPATH>\n";
+        localNameSpaceToXml(out);
+        classNameToXml(out);
+        out << "</LOCALCLASSPATH>";
+    }
+}
+
+//ATTNKS: At this point, I simply created the function
+void CIMReference::toMof(Array<Sint8>& out, Boolean putValueWrapper) const
+{
+    if (putValueWrapper)
+	out << "<VALUE.REFERENCE Mof>\n";
+
+    // See if it is a class or instance reference (instance references have
+    // key-bindings; class references do not).
+
+    if (_keyBindings.size())
+    {
+	if (_host.size())
+	{
+	    out << "<INSTANCEPATHMof>\n";
+	    nameSpaceToXml(out);
+	    instanceNameToXml(out);
+	    out << "</INSTANCEPATHMof>\n";
+	}
+	else if (_nameSpace.size())
+	{
+	    out << "<LOCALINSTANCEPATHMof>\n";
+	    localNameSpaceToXml(out);
+	    instanceNameToXml(out);
+	    out << "</LOCALINSTANCEPATHMof>\n";
+	}
+	else
+	    instanceNameToXml(out);
+    }
+    else
+    {
+	if (_host.size())
+	{
+	    out << "<CLASSPATHMof>\n";
+	    nameSpaceToXml(out);
+	    classNameToXml(out);
+	    out << "</CLASSPATHMof>";
+	}
+	else if (_nameSpace.size())
+	{
+	    out << "<LOCALCLASSPATHMof>\n";
+	    nameSpaceToXml(out);
+	    classNameToXml(out);
+	    out << "</LOCALCLASSPATHMof>";
+	}
+	else
+	    classNameToXml(out);
+    }
+
+    if (putValueWrapper)
+	out << "</VALUE.REFERENCE Mof>\n";
 }
 
 void CIMReference::print(PEGASUS_STD(ostream)& os) const
@@ -700,6 +904,10 @@ const char* KeyBinding::typeToString(Type type)
 
 	case KeyBinding::NUMERIC:
 	    return "numeric";
+
+        case KeyBinding::REFERENCE:
+        default:
+            PEGASUS_ASSERT(false);
     }
 
     return "unknown";

@@ -1,9 +1,9 @@
 // ===================================================================
 // Title:       User-Security MOF specification 2.5
-// Filename:    CIM_UserSec25.mof
+// Filename:    CIM_UserSec25a.mof
 // Version:     2.5
 // Release:     0
-// Date:        12/19/2000
+// Date:        01/23/2001
 // Description: These object classes define the user and security 
 //              model for CIM and includes classes needed to represent
 //              users, groups and organizational entities as well as 
@@ -14,7 +14,8 @@
 //		    by other working groups, are omitted. 
 // ===================================================================
 // Author:      DMTF User and Security Working Group
-// Date:  14 March 2000 - Version 2.3
+//
+// 14 Mar 2000  - Version 2.3
 //
 // 09 Jun 2000  - ERRATA to Version 2.3 creating V2.4
 //		- CR493a, Correction of Antecedent/Dependent references
@@ -97,6 +98,9 @@
 //          - CR560, ERRATA renames KerberosTicket.Type to 
 //                KerberosTicket.TicketType and changes it from an
 //                array to a scalar property 
+// 23 Jan 2001  - ERRATA to Version 2.5 creating V2.6
+//          - CR591, Corrections to PROPAGATE qualifiers on 
+//			Credential Subclasses
 //
 // ===================================================================
 
@@ -1662,10 +1666,10 @@ class CIM_Credential:CIM_ManagedElement
          "X.509 standard as an example of such certificates.") ]
 class CIM_PublicKeyCertificate:CIM_Credential
 {
-         [Propagated ("CIM_System.CreationClassName"), 
+         [Propagated ("CIM_CertificateAuthority.SystemCreationClassName"), 
           Key, MaxLen (256), Description ("Scoping System")]
      string SystemCreationClassName;
-         [Propagated ("CIM_System.Name"), 
+         [Propagated ("CIM_CertificateAuthority.SystemName"), 
           Key, MaxLen (256),Description ("Scoping System")]
      string SystemName;
          [Propagated ("CIM_CertificateAuthority.CreationClassName"),
@@ -1695,10 +1699,9 @@ class CIM_PublicKeyCertificate:CIM_Credential
          "Certificate Authority.") ]
 class CIM_UnsignedPublicKey:CIM_Credential
 {
-         [Propagated ("CIM_System.CreationClassName"), 
-          Key, MaxLen (256), Description ("Scoping System")]
+         [Key, MaxLen (256), Description ("Scoping System"), Propagated 	   ("CIM_PublicKeyManagementService.SystemCreationClassName")]          
      string SystemCreationClassName;
-         [Propagated ("CIM_System.Name"), 
+         [Propagated ("CIM_PublicKeyManagementService.SystemName"), 
           Key, MaxLen (256),Description ("Scoping System")]
      string SystemName;
          [Propagated ("CIM_PublicKeyManagementService.CreationClassName"),
@@ -1747,11 +1750,11 @@ class CIM_UnsignedPublicKey:CIM_Credential
           ) ]
 class CIM_KerberosTicket:CIM_Credential
 {
-         [Propagated ("CIM_System.CreationClassName"), Key, 
-         MaxLen (256), Description ("Scoping System")]
+         [Key, MaxLen (256), Description ("Scoping System"), Propagated
+	   ("CIM_KerberosKeyDistributionCenter.SystemCreationClassName")]
      	string SystemCreationClassName;
-         [Propagated ("CIM_System.Name"), Key, 
-         MaxLen (256),Description ("Scoping System")]
+         [Propagated ("CIM_KerberosKeyDistributionCenter.SystemName"), 
+	   Key, MaxLen (256),Description ("Scoping System")]
      	string SystemName;
          [Key, MaxLen (256), Propagated 
          ("CIM_KerberosKeyDistributionCenter.CreationClassName"), 
@@ -1801,10 +1804,10 @@ class CIM_KerberosTicket:CIM_Credential
          "security service.")]
 class CIM_SharedSecret:CIM_Credential
 {
-         [Propagated ("CIM_System.CreationClassName"), Key, 
-          MaxLen (256), Description ("Scoping System")]
+         [Propagated ("CIM_SharedSecretService.SystemCreationClassName"), 
+	    Key, MaxLen (256), Description ("Scoping System")]
      string SystemCreationClassName;
-         [Propagated ("CIM_System.Name"), Key, 
+         [Propagated ("CIM_SharedSecretService.SystemName"), Key, 
           MaxLen (256),Description ("Scoping System")]
      string SystemName;
          [Key, MaxLen (256), Propagated 
@@ -1845,10 +1848,10 @@ class CIM_SharedSecret:CIM_Credential
          "used SharedSecretService to reference the secret.") ]
 class CIM_NamedSharedIKESecret:CIM_Credential
 {
-         [Propagated ("CIM_System.CreationClassName"), 
+         [Propagated ("CIM_SharedSecretService.SystemCreationClassName"), 
           Key, MaxLen (256), Description ("Scoping System")]
      string SystemCreationClassName;
-         [Propagated ("CIM_System.Name"), 
+         [Propagated ("CIM_SharedSecretService.SystemName"), 
           Key, MaxLen (256),Description ("Scoping System")]
      string SystemName;
          [Propagated ("CIM_SharedSecretService.CreationClassName"),

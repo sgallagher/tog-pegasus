@@ -1,6 +1,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -22,7 +23,10 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+//              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -31,23 +35,27 @@
 
 #include <fstream>
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/CIMOperations.h>
+#include <Pegasus/Common/String.h>
+#include <Pegasus/Common/Monitor.h>
+#include <Pegasus/Common/HTTPConnector.h>
+#include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/CIMObject.h>
-#include <Pegasus/Client/ClientException.h>
+#include <Pegasus/Common/CIMNamedInstance.h>
+#include <Pegasus/Common/CIMPropertyList.h>
+#include <Pegasus/Common/Exception.h>
+#include <Pegasus/Client/ClientAuthenticator.h>
+#include <Pegasus/Client/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class ClientHandler;
-class Selector;
-class Channel;
+class Monitor;
+class CIMOperationResponseDecoder;
+class CIMOperationRequestEncoder;
 
-/** Class CIMClient - This class defines the client interfaces for Pegasus.
-    These are the interfaces that could be used by a CIM CIMClient written in
-    C++. These interfaces are based completely on the operations interfaces
-    defined in the Pegasus CIMOperations.h file with some extensions for the
-    client interface. @see "The CIMOperations Class"
+/** This class provides the interface that a client uses to communicate
+    with a CIMOM.
 */
-class PEGASUS_CLIENT_LINKAGE CIMClient : public CIMOperations
+class PEGASUS_CLIENT_LINKAGE CIMClient : public MessageQueue
 {
 public:
 
@@ -55,11 +63,18 @@ public:
 
     ///
     CIMClient(
-	Selector* selector,
+	Monitor* monitor,
+	HTTPConnector* httpConnector,
 	Uint32 timeOutMilliseconds = DEFAULT_TIMEOUT_MILLISECONDS);
 
     ///
     ~CIMClient();
+
+    ///
+    virtual void handleEnqueue();
+
+    /** Returns the queue name. */
+    virtual const char* getQueueName() const;
 
     ///
     Uint32 getTimeOut() const
@@ -73,17 +88,25 @@ public:
 	_timeOutMilliseconds = timeOutMilliseconds;
     }
 
-    ///
-    void connect(const char* address);
+    /** connect - Creates an HTTP connection with the server
+        defined by the URL in address.
+        @param address - String defining the URL of the server
+        to which the client should connect
+        @return - No return defined. Failure to connect throws an exception
+        @exception AlreadyConnected if connection already established
+        @exception InvalidLocator
+        @exception CannotCreateSocket
+        @exception CannotConnect
+        @exception UnexpectedFailure
+    */
+    void connect(const String& address);
 
-    ///
-    void get(const char* document) const;
-
-    ///
-    void runOnce();
-
-    ///
-    void runForever();
+    //
+    // Connection used by local clients
+    //
+    void connectLocal(
+        const String& address,
+        const String& userName = String::EMPTY);
 
     ///
     virtual CIMClass getClass(
@@ -92,7 +115,7 @@ public:
 	Boolean localOnly = true,
 	Boolean includeQualifiers = true,
 	Boolean includeClassOrigin = false,
-	const Array<String>& propertyList = EmptyStringArray());
+	const CIMPropertyList& propertyList = CIMPropertyList());
 
     ///
     virtual CIMInstance getInstance(
@@ -101,7 +124,7 @@ public:
 	Boolean localOnly = true,
 	Boolean includeQualifiers = false,
 	Boolean includeClassOrigin = false,
-	const Array<String>& propertyList = EmptyStringArray());
+	const CIMPropertyList& propertyList = CIMPropertyList());
 
     ///
     virtual void deleteClass(
@@ -118,12 +141,11 @@ public:
 	const String& nameSpace,
 	const CIMClass& newClass);
 
-    /// ATTN: should return an <instanceName>!
-    virtual void createInstance(
+    virtual CIMReference createInstance(
 	const String& nameSpace,
 	const CIMInstance& newInstance);
 
-    /// ModifiedClass argument should be a <namedInstance>!
+    ///
     virtual void modifyClass(
 	const String& nameSpace,
 	const CIMClass& modifiedClass);
@@ -131,7 +153,9 @@ public:
     ///
     virtual void modifyInstance(
 	const String& nameSpace,
-	const CIMInstance& modifiedInstance);
+	const CIMNamedInstance& modifiedInstance,
+	Boolean includeQualifiers = true,
+	const CIMPropertyList& propertyList = CIMPropertyList());
 
     ///
     virtual Array<CIMClass> enumerateClasses(
@@ -139,7 +163,7 @@ public:
 	const String& className = String::EMPTY,
 	Boolean deepInheritance = false,
 	Boolean localOnly = true,
-	Boolean includeQualifiers  = true,
+	Boolean includeQualifiers = true,
 	Boolean includeClassOrigin = false);
 
     ///
@@ -148,15 +172,15 @@ public:
 	const String& className = String::EMPTY,
 	Boolean deepInheritance = false);
 
-    /// ATTN: should return array of <namedInstance>!
-    virtual Array<CIMInstance> enumerateInstances(
+    ///
+    virtual Array<CIMNamedInstance> enumerateInstances(
 	const String& nameSpace,
 	const String& className,
 	Boolean deepInheritance = true,
 	Boolean localOnly = true,
 	Boolean includeQualifiers = false,
 	Boolean includeClassOrigin = false,
-	const Array<String>& propertyList = EmptyStringArray());
+	const CIMPropertyList& propertyList = CIMPropertyList());
 
     ///
     virtual Array<CIMReference> enumerateInstanceNames(
@@ -178,7 +202,7 @@ public:
 	const String& resultRole = String::EMPTY,
 	Boolean includeQualifiers = false,
 	Boolean includeClassOrigin = false,
-	const Array<String>& propertyList = EmptyStringArray());
+	const CIMPropertyList& propertyList = CIMPropertyList());
 
     ///
     virtual Array<CIMReference> associatorNames(
@@ -196,7 +220,7 @@ public:
 	const String& role = String::EMPTY,
 	Boolean includeQualifiers = false,
 	Boolean includeClassOrigin = false,
-	const Array<String>& propertyList = EmptyStringArray());
+	const CIMPropertyList& propertyList = CIMPropertyList());
 
     ///
     virtual Array<CIMReference> referenceNames(
@@ -242,22 +266,25 @@ public:
 	const String& nameSpace,
 	const CIMReference& instanceName,
 	const String& methodName,
-	const Array<CIMValue>& inParameters,
-	Array<CIMValue>& outParameters);
+	const Array<CIMParamValue>& inParameters,
+	Array<CIMParamValue>& outParameters);
 
 private:
 
-    ClientHandler* _getHandler();
+    Message* _waitForResponse(
+	const Uint32 messageType,
+	const String& messageId,
+	const Uint32 timeOutMilliseconds = DEFAULT_TIMEOUT_MILLISECONDS);
 
-    void _sendMessage(const Array<Sint8>& message);
+    void _checkError(const CIMResponseMessage* responseMessage);
 
-    // ATTN-A: supply the real hostname here!
-
-    const char* _getHostName() const { return "localhost"; }
-
-    Selector* _selector;
-    Channel* _channel;
+    Monitor* _monitor;
+    HTTPConnector* _httpConnector;
     Uint32 _timeOutMilliseconds;
+    Boolean _connected;
+    CIMOperationResponseDecoder* _responseDecoder;
+    CIMOperationRequestEncoder* _requestEncoder;
+    ClientAuthenticator* _authenticator;
 };
 
 PEGASUS_NAMESPACE_END

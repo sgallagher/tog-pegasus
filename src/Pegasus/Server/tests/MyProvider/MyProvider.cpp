@@ -32,8 +32,8 @@ instances on receipt of the instance requests.  It is not intended to ever
 become a real provider.
 
 */
-#include <iostream>
 #include <Pegasus/Common/Config.h>
+#include <iostream>
 #include <Pegasus/Provider/CIMProvider.h>
 
 

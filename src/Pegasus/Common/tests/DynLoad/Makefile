@@ -12,5 +12,5 @@ tests:
 ifeq ($(OS_TYPE),windows)
 	$(PROGRAM) $(HOME_DIR)/bin/DynLib.dll
 else
-	$(PROGRAM) $(HOME_DIR)/lib/libDynLib.so
+	$(PROGRAM) $(HOME_DIR)/lib/libDynLib$(LIB_SUFFIX)
 endif

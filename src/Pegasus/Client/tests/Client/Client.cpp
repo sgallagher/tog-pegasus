@@ -22,12 +22,14 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Yi Zhou (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Config.h>
 #include <cassert>
-#include <Pegasus/Common/Selector.h>
+#include <Pegasus/Common/Monitor.h>
+#include <Pegasus/Common/HTTPConnector.h>
 #include <Pegasus/Client/CIMClient.h>
 
 PEGASUS_USING_PEGASUS;
@@ -182,7 +184,7 @@ static void TestInstanceOperations(CIMClient& client)
     cimInstance.addProperty(CIMProperty("first", "John"));
     cimInstance.addProperty(CIMProperty("age", Uint8(101)));
     CIMReference instanceName = cimInstance.getInstanceName(cimClass);
-    client.createInstance(NAMESPACE, cimInstance);
+    CIMReference createdinstanceName = client.createInstance(NAMESPACE, cimInstance);
 
     // Get the instance and compare with created one:
 
@@ -310,8 +312,13 @@ int main(int argc, char** argv)
 {
     try
     {
-	Selector selector;
-	CIMClient client(&selector);
+	Monitor* monitor = new Monitor;
+	//HTTPConnector* httpConnector = new HTTPConnector(monitor);
+        // Test SSL
+        String certpath("~/src/pegasus");
+        SSLContext * sslcontext = new SSLContext(certpath);
+	HTTPConnector* httpConnector = new HTTPConnector(monitor,sslcontext);
+	CIMClient client(monitor, httpConnector);
 
 	client.connect("localhost:5988");
 

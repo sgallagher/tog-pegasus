@@ -1,6 +1,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
+// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM,
+// Compaq Computer Corporation
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to 
@@ -22,15 +23,13 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Rudy Schuet (rudy.schuet@compaq.com) 11/25/01
+//              added NSK platform support and PEGASUS_HAVE_NO_STD option
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Config_h
 #define Pegasus_Config_h
-
-#include <iostream>
-#include <cstdlib>
 
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 # include <Pegasus/Common/Platform_WIN32_IX86_MSVC.h>
@@ -44,15 +43,29 @@
 # include <Pegasus/Common/Platform_TRU64_ALPHA_DECCXX.h>
 #elif defined (PEGASUS_PLATFORM_SOLARIS_SPARC_GNU)
 # include <Pegasus/Common/Platform_SOLARIS_SPARC_GNU.h>
+#elif defined (PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+# include <Pegasus/Common/Platform_ZOS_ZSERIES_IBM.h>
+#elif defined (PEGASUS_PLATFORM_NSK_NONSTOP_NMCPLUS)
+# include <Pegasus/Common/Platform_NSK_NONSTOP_NMCPLUS.h>
 #else
 # error "<Pegasus/Common/Config.h>: Unsupported Platform"
 #endif
 
+#include <iostream>
+#include <cstdlib>
+
+
 #ifdef PEGASUS_HAVE_NAMESPACES
 # define PEGASUS_NAMESPACE_BEGIN namespace Pegasus {
 # define PEGASUS_NAMESPACE_END }
+
+#ifndef PEGASUS_HAVE_NO_STD
 # define PEGASUS_STD(X) std::X
 # define PEGASUS_USING_STD using namespace std
+#else
+# define PEGASUS_STD(X) X
+# define PEGASUS_USING_STD
+#endif
 # define PEGASUS_USING_PEGASUS using namespace Pegasus
 #else
 # define PEGASUS_NAMESPACE_BEGIN /* empty */

@@ -107,7 +107,7 @@ String::String(const char* str)
 
 String::String(const char* str, Uint32 n_)
 {
-    Uint32 n = PEG_min(strlen(str), n_);
+    Uint32 n = _pegasusMin(strlen(str), n_);
     reserve(n + 1);
 
     while (n--)
@@ -126,7 +126,7 @@ String& String::assign(const Char16* x)
 String& String::assign(const Char16* str, Uint32 n)
 {
     _rep.clear();
-    Uint32 m = PEG_min(StrLen(str), n);
+    Uint32 m = _pegasusMin(StrLen(str), n);
     _rep.append(str, m);
     _rep.append('\0');
     return *this;
@@ -150,7 +150,7 @@ String& String::assign(const char* x, Uint32 n_)
 {
     _rep.clear();
 
-    Uint32 n = PEG_min(strlen(x), n_);
+    Uint32 n = _pegasusMin(strlen(x), n_);
     _rep.reserve(n + 1);
 
     while (n--)
@@ -188,7 +188,7 @@ void String::appendToCString(
     if (!str)
 	throw NullPointer();
 
-    Uint32 n = PEG_min(size(), length);
+    Uint32 n = _pegasusMin(size(), length);
 
     char* p = str + strlen(str);
     const Char16* q = getData();
@@ -223,7 +223,7 @@ const Char16 String::operator[](Uint32 i) const
 
 String& String::append(const Char16* str, Uint32 n)
 {
-    Uint32 m = PEG_min(StrLen(str), n);
+    Uint32 m = _pegasusMin(StrLen(str), n);
     _rep.reserve(_rep.size() + m);
     _rep.remove(_rep.size() - 1);
     _rep.append(str, m);

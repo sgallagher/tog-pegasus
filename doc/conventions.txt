@@ -119,3 +119,39 @@ Development Conventions
 34. Avoid use of condiational compilation for obscuring platrform
     differences. Use (or put) routines in appropriate platform files
     or in the System*.cpp files in Common.
+
+--------------------------------------------------------------------------------
+
+34. Use this comment style for DOC++ comments:
+
+    class X
+    {
+    public:
+
+	/** Creates widgets.
+	    @param numWidgets the number of widgets to create.
+	    @return true on success.
+	*/
+	void createWidgets(Uint32 numWidgets);
+    };
+
+35. Never use full quotes in includes in header files. Use the angle brackets
+    and hence use the fully qualified path.
+
+	#include <Pegasus/MyModule/Erp.h>
+
+    Not
+
+	#include "Erp.h"
+
+34. Explain use of Linkage.h files
+
+35. Don't use ultostr(), use sprintf().
+
+36. main() must return something (for NT).
+
+37. Don't use this construct:
+
+	void f() throw TooBad;
+
+    Not supported on many platforms.

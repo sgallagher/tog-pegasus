@@ -22,7 +22,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Yi Zhou (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -85,11 +85,12 @@ void CIMProvider::createClass(
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
-void CIMProvider::createInstance(
+CIMReference CIMProvider::createInstance(
     const String& nameSpace,
     const CIMInstance& newInstance)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
+    return CIMReference();
 }
 
 void CIMProvider::modifyClass(
@@ -257,8 +258,8 @@ CIMValue CIMProvider::invokeMethod(
     const String& nameSpace,
     const CIMReference& instanceName,
     const String& methodName,
-    const Array<CIMValue>& inParameters,
-    Array<CIMValue>& outParameters)
+    const Array<CIMParamValue>& inParameters,
+    Array<CIMParamValue>& outParameters)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
     return CIMValue();
@@ -266,7 +267,10 @@ CIMValue CIMProvider::invokeMethod(
 
 void CIMProvider::initialize(CIMOMHandle& cimom)
 {
+}
 
+void CIMProvider::terminate(void)
+{
 }
 
 PEGASUS_NAMESPACE_END

@@ -80,6 +80,9 @@ public:
 
     void toXml(Array<Sint8>& out) const;
 
+    void toMof(Array<Sint8>& out) const;
+
+
     void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const;
 
     Boolean identical(const CIMQualifierList& x) const;

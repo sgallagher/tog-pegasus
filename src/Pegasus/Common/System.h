@@ -3,18 +3,18 @@
 // Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to 
-// deal in the Software without restriction, including without limitation the 
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
-// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+//
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
-// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
-// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
-// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
@@ -23,6 +23,7 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By:
+//              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -44,7 +45,7 @@ typedef struct DynamicLibraryHandle_* DynamicLibraryHandle;
     Values of this type may be casted to the appropriate target type.
 */
 typedef struct DynamicSymbolHandle_* DynamicSymbolHandle;
-    
+
 
 /** The System class defines wrappers for operating system related calls.
     These are only placed here if they are extremely light. These are
@@ -61,7 +62,7 @@ public:
     @return The value is returned in the parameters.
     The time returned is as defined in number of seconds and milliseconds
     since 00:00 Coordinated Universal Time (UTC), January 1, 1970,
-    
+
     */
     static void getCurrentTime(Uint32& seconds, Uint32& milliseconds);
 
@@ -97,6 +98,8 @@ public:
 
     static DynamicLibraryHandle loadDynamicLibrary(const char* fileName);
 
+	static void unloadDynamicLibrary(DynamicLibraryHandle libraryHandle);
+
     static String dynamicLoadError(void);
 
     static DynamicSymbolHandle loadDynamicSymbol(
@@ -104,6 +107,51 @@ public:
 	const char* symbolName);
 
     static String getHostName();
+
+    static String getCurrentLoginName();
+
+    /**
+    This function is used to input a password with echo disabled.
+    The function reads up to a newline and returns a password of at most
+    8 characters.
+
+    @param  prompt      String containing the message prompt to be displayed
+    @return             password obtained from the user
+    */
+    static String getPassword(const char* prompt);
+
+    /**
+    This function is used to encrypt the user's password. 
+    The encryption is compatible with Apache's  password file (generated using
+    the htpasswd command )
+
+    @param password     Password to be encrypted.
+    @param salt         Two character string chosen from the set [a-zA-Z0-9./].
+
+    @return             Encrypted password.
+    */
+    static String encryptPassword(const char* password, const char* salt);
+
+    /**
+    This function is used to verify whether specified user is a user 
+    on the local system.
+
+    @param userName     User name to be verified.
+
+    @return             true if the username is valid, else false
+    */
+    static Boolean isSystemUser(char* userName);
+
+    /**
+    This function is used to check whether the user running the command is
+    a privileged user. On Unix implementation it checks whether the user
+    is a root user.
+
+    @return             true if the user running the command is a 
+			privileged user, else false
+    */
+    static Boolean isPrivilegedUser();
+
 };
 
 PEGASUS_NAMESPACE_END

@@ -242,7 +242,7 @@ Boolean _HashTableRep::insert(
 
 const _BucketBase* _HashTableRep::lookup(
     Uint32 hashCode, 
-    const void* key)
+    const void* key) const
 {
     Uint32 i = hashCode % _numChains;
 

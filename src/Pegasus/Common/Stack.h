@@ -45,51 +45,58 @@ class Stack
 {
 public:
 
-    /** */
+    /** Default constructor. */
     Stack() { }
 
-    /** */
+    /** Copy constructor. */
     Stack(const Stack<T>& x) : _rep(x._rep) { }
 
-    /** */
+    /** This constructor was added to provide a fast way of creating a stack
+	with a single element on it. This constructor is necessary to realize
+	the return-value compiler optimization which permits objects used in
+	return/constructor expressions to be initialized only once.
+
+	Notice that this constructor is explicit to avoid implicit 
+	initialization of a stack with the type of T.
+	which 
+    */
+    PEGASUS_EXPLICIT Stack(const T& x) { _rep.append(x); }
+
+    /** Destructor. */
     ~Stack() { }
 
-    /** */
+    /** Assignment operator. */
     Stack<T>& operator=(const Stack<T>& x) { _rep = x._rep; return *this; }
 
-    /** isEmpty Tests to determine that the stack is empty
-    */
+    /** Returns size of stack. */
+    Uint32 size() const { return _rep.size(); }
+
+    /** Tests whether stack is empty. */
     Boolean isEmpty() const { return _rep.size() == 0; }
 
-    /**push adds one new entry to the stack
-    */
+    /** Pushes entry onto the stack. */
     void push(const T& x) { _rep.append(x); }
 
-    /** Top - Return the top entry on the stack. However, the entry is not
-        removed from the stack.	 This is a peek at the top entry.
+    /** Returns reference to the top element on the stack.
+	@return reference to top element on stack.
+	@exception throws StackUnderflow if stack is empty.
     */
     T& top();
 
-    /** Top - Return the top entry on the stack. However, the entry is not
-        removed from the stack
+    /** Const version of top() method.
     */
     const T& top() const { return ((Stack<T>*)this)->top(); }
 
-    /** Remove the top entry from the stack.
-    */
+    /** Pops top entry from stack. */
     void pop();
 
-    /** size returns the number of entries in the stack
-     */
-    Uint32 size() const { return _rep.size(); }
-
-    /** The [] operator provides a way to treat the stack as an
-        array so that entries within the stack can be manipulated.
-    */
+    /** Provides indexing for stack. */
     T& operator[](Uint32 i) { return _rep[i]; }
 
-    /** */
+    /** Const version of indxing operator. */
     const T& operator[](Uint32 i) const { return _rep[i]; }
+    
+    void reserve(Uint32 capacity) { _rep.reserve(capacity); }
 
 private:
 
@@ -99,19 +106,16 @@ private:
 template<class T>
 T& Stack<T>::top()
 {
-    if (!isEmpty())
-	return _rep[_rep.size() - 1];
-    else
-    {
-	static T dummy = T();
-	return dummy;
-    }
+    if (isEmpty())
+	throw StackUnderflow();
+
+    return _rep[_rep.size() - 1];
 }
 
 template<class T>
 void Stack<T>::pop()
 {
-    if (_rep.size() == 0)
+    if (isEmpty())
 	throw StackUnderflow();
 
     _rep.remove(_rep.size() - 1);

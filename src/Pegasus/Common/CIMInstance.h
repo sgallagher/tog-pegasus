@@ -142,6 +142,7 @@ public:
 	_checkRep();
 	return _rep->findQualifier(name);
     }
+
     /**	existsQualifier - Searches the instance for the qualifier object
         defined by the input parameter.
 	@param String defining the qualifier object to be found.
@@ -159,10 +160,6 @@ public:
 	_checkRep();
 	return _rep->existsQualifier(name);
     }
-
-
-
-
 
     /**	getQualifier - Retrieves the qualifier object defined by the
 	index input parameter.  @ index for the qualifier object.
@@ -254,12 +251,12 @@ public:
 	_checkRep();
 	return _rep->existsProperty(name);
     }
+
     Boolean existsProperty(const String& name) const
     {
        _checkRep();
        return _rep->existsProperty(name);
     }
-
 
     /**	getProperty - Gets the CIMproperty object in the CIMInstance defined
 	by the input index parameter.

@@ -20,6 +20,11 @@ if test -z $PEGASUS_ROOT; then
   exit
 fi
 #
+if test "$PEGASUS_CONCURRENT" != "yes" ; then
+  echo "Please set PEGASUS_CONCURRENT to yes"
+  exit
+fi
+#
 PEGASUS_BASE=`basename $PEGASUS_ROOT`
 if test "$PEGASUS_BASE" != "pegasus-1.0"; then
   echo "I'm going to make sure that pegasus is found in */pegasus-1.0/ "

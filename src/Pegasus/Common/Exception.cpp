@@ -22,6 +22,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
+// Modified By: Nag Boranna (nagaraja_boranna@hp.com)
+//
 // Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
@@ -118,6 +120,8 @@ const char TypeMismatch::MSG[] = "type mismatch";
 
 const char NoSuchFile::MSG[] = "no such file: ";
 
+const char FileNotReadable::MSG[] = "file not readable: ";
+
 const char CannotBindToAddress::MSG[] = "cannot bind to address: ";
 
 const char NoSuchDirectory::MSG[] = "no such directory: ";
@@ -138,7 +142,9 @@ const char CannotRemoveFile::MSG[] = "cannot remove file: ";
 
 const char CannotRenameFile::MSG[] = "cannot rename file: ";
 
-const char StackUnderflow::MSG[] = "stack Underflow";
+const char StackUnderflow::MSG[] = "stack underflow";
+
+const char StackOverflow::MSG[] = "stack overflow";
 
 const char QueueUnderflow::MSG[] = "queue Underflow";
 
@@ -160,6 +166,30 @@ const char DynamicLookupFailed::MSG[] =
 const char CannotOpenDirectory::MSG[] = "cannot open directory: ";
 
 const char CorruptFile::MSG[] = "corrupt file: ";
+
+const char BindFailed::MSG[] = "Bind failed: ";
+
+const char InvalidLocator::MSG[] = "Invalid locator: ";
+
+const char CannotCreateSocket::MSG[] = "Cannot create socket";
+
+const char CannotConnect::MSG[] = "Cannot connect to: ";
+
+const char UnexpectedFailure::MSG[] = "Unexpected failure";
+
+const char FailedToConnect::MSG[] = "failed to connect";
+
+const char AlreadyConnected::MSG[] = "already connected";
+
+const char NotConnected::MSG[] = "not connected";
+
+const char TimedOut::MSG[] = "timed out";
+
+const char ParseError::MSG[] = "parse error: ";
+
+const char MissingNullTerminator::MSG[] = "missing null terminator: ";
+
+const char SSL_Exception::MSG[] = "SSL Exception ";
 
 ////////////////////////////////////////////////////////////////////////////////
 //

@@ -240,6 +240,65 @@ void CIMPropertyRep::print(PEGASUS_STD(ostream) &os) const
     os << tmp.getData() << PEGASUS_STD(endl);
 }
 
+/** toMof - returns the MOF for the CIM Property Object in the parameter.
+    The BNF for the property MOF is:
+    <pre>
+    propertyDeclaration     = 	[ qualifierList ] dataType propertyName
+				[ array ] [ defaultValue ] ";"
+   
+    array 		    = 	"[" [positiveDecimalValue] "]"
+    
+    defaultValue 	    = 	"=" initializer
+    </pre>
+    Format with qualifiers on one line and declaration on another. Start
+    with newline but none at the end.
+*/
+void CIMPropertyRep::toMof(Array<Sint8>& out) const  //ATTNKS:
+{
+    //Output the qualifier list
+    if (_qualifiers.getCount())
+	out << "\n"; 
+    _qualifiers.toMof(out);
+
+    // Output the Type and name on a new line
+    out << "\n" << TypeToString(_value.getType()) << " " << _name;
+
+    // If array put the Array indicator "[]" and possible size after name.
+    if (_value.isArray())
+    {
+	if (_arraySize)
+	{
+	    char buffer[32];
+	    sprintf(buffer, "[%d]", _arraySize);
+	    out << buffer;
+	}
+	else
+	    out << "[]";
+    }
+
+    // If the property value is not Null, add value after "="
+    if (!_value.isNull())
+    {
+	out << " = "; 
+	if (_value.isArray())
+	{ 
+	    // Insert any property values
+	    _value.toMof(out);
+	}
+	else if (_value.getType() == CIMType::REFERENCE)
+	{
+	    _value.toMof(out);
+	}
+	else
+	{ 
+	    _value.toMof(out);
+	}
+    }
+    // Close the property MOF
+    out << ";";
+
+}
+
 Boolean CIMPropertyRep::identical(const CIMPropertyRep* x) const
 {
     if (_name != x->_name)

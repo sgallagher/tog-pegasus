@@ -24,16 +24,22 @@
 //
 // Modified By:
 //         Mike Day (mdday@us.ibm.com)
+//         Jenny Yu (jenny_yu@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Config.h>
 #include <cassert>
-#include <Pegasus/Common/Selector.h>
+#include <Pegasus/Common/Monitor.h>
+#include <Pegasus/Common/TLS.h>
+#include <Pegasus/Common/HTTPConnector.h>
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/OptionManager.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Stopwatch.h>
+#ifndef PEGASUS_OS_ZOS
 #include <slp/slp.h>
+#endif
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -303,11 +309,18 @@ static void TestInstanceGetOperations(CIMClient& client, Boolean activeTest,
 
     for (Uint32 i = 0; i < classNames.size(); i++)
     {
-       instanceNames = client.enumerateInstanceNames(NAMESPACE,classNames[i]);
-       if (instanceNames.size() > 0)
+       if (classNames[i] == "PG_ShutdownService")
+       {
+           // Skip the PG_ObjectManager class.  It currently has no 
+           // instance provider and no instances.  
+       }
+       else
+       {
+           instanceNames = client.enumerateInstanceNames(NAMESPACE,classNames[i]);
+           if (instanceNames.size() > 0)
 		   cout << "Class " << classNames[i] << " " 
  		        << instanceNames.size() << " Instances" << endl;
-
+       }
     }
     /*
     virtual Array<CIMReference> enumerateInstanceNames(
@@ -417,7 +430,9 @@ void GetOptions(
 		 {"debug", "false", false, Option::BOOLEAN, 0, 0, "d", 
 		              "Not Used "},
 		 {"slp", "false", false, Option::BOOLEAN, 0, 0, "slp", 
-		 		 		 "use SLP to find cim servers to test"}
+		 		 		 "use SLP to find cim servers to test"},
+		 {"ssl", "false", false, Option::BOOLEAN, 0, 0, "ssl", 
+		 		 		 "use SSL"}
     };
     const Uint32 NUM_OPTIONS = sizeof(optionsTable) / sizeof(optionsTable[0]);
 
@@ -459,7 +474,6 @@ int main(int argc, char** argv)
   // char connection[50] = "localhost:5988";
   char *address_string = NULL;
   
-
     Uint32 repetitions = 1;
 
     // Get environment variables:
@@ -532,6 +546,7 @@ int main(int argc, char** argv)
     if(useSLP == false && argc < 2)
       connectionList.append("localhost:5988");
 
+#ifndef PEGASUS_OS_ZOS
     if( useSLP )
     {
       slp_client discovery = slp_client();
@@ -549,6 +564,8 @@ int main(int argc, char** argv)
 		   replies = discovery.get_response( ) ;
 		 }
     }
+#endif
+    Boolean useSSL =  (om.valueEquals("ssl", "true"))? true: false;
     
 
     cout << "Connection List size " << connectionList.size() << endl;
@@ -561,51 +578,63 @@ int main(int argc, char** argv)
     {
 
       try
-		 {
-		   Stopwatch elapsedTime;
-		   Selector selector;
-		   CIMClient client(&selector, 60 * 1000);
+      {
+	   Stopwatch elapsedTime;
+	   Monitor* monitor = new Monitor;
+	   //HTTPConnector* connector = new HTTPConnector(monitor);
 
-		   char * connection = connectionList[i].allocateCString();
-		   cout << "connecting to " << connection << endl;
-		   client.connect(connection);
-		   delete [] connection;
+	   HTTPConnector* connector;
+           if (useSSL)
+           {
+               String certpath("/home/markus/src/pegasus/server.pem");
+               SSLContext * sslcontext = new SSLContext(certpath);
+	       connector = new HTTPConnector(monitor, sslcontext);
+           }
+           else
+	       connector = new HTTPConnector(monitor);
 
-		   testStatus("Test NameSpace Operations");
+	   CIMClient client(monitor, connector, 60 * 1000);
 
-		   TestNameSpaceOperations(client, activeTest, verboseTest);
-		   cout << " in " << elapsedTime.getElapsed() << " Seconds\n";
+	   char * connection = connectionList[i].allocateCString();
+	   cout << "connecting to " << connection << endl;
+	   client.connect(connection);
+	   delete [] connection;
+
+	   testStatus("Test NameSpace Operations");
+
+	   TestNameSpaceOperations(client, activeTest, verboseTest);
+	   cout << " in " << elapsedTime.getElapsed() << " Seconds\n";
 		   
-		   testStatus("Test Qualifier Operations");
-		   elapsedTime.reset();
-		   TestQualifierOperations(client,activeTest,verboseTest);
-		   cout << " in " << elapsedTime.getElapsed() << " Seconds\n";
+	   testStatus("Test Qualifier Operations");
+	   elapsedTime.reset();
+	   TestQualifierOperations(client,activeTest,verboseTest);
+	   cout << " in " << elapsedTime.getElapsed() << " Seconds\n";
 
-		   testStatus("Test EnumerateClassNames");
-		   elapsedTime.reset();
-		   TestEnumerateClassNames(client,activeTest,verboseTest);
-		   cout << " in " << elapsedTime.getElapsed() << " Seconds\n";
+	   testStatus("Test EnumerateClassNames");
+	   elapsedTime.reset();
+	   TestEnumerateClassNames(client,activeTest,verboseTest);
+	   cout << " in " << elapsedTime.getElapsed() << " Seconds\n";
 
 
-		   testStatus("Test Class Operations");
-		   elapsedTime.reset();
-		   TestClassOperations(client,activeTest,verboseTest);
-		   cout << " in " << elapsedTime.getElapsed() << " Seconds\n";
-		   elapsedTime.printElapsed();
+	   testStatus("Test Class Operations");
+	   elapsedTime.reset();
+	   TestClassOperations(client,activeTest,verboseTest);
+	   cout << " in " << elapsedTime.getElapsed() << " Seconds\n";
+	   elapsedTime.printElapsed();
 
-		   testStatus("Test Instance Get Operations");
-		   elapsedTime.reset();
-		   TestInstanceGetOperations(client,activeTest,verboseTest);
-		   cout << " in " << elapsedTime.getElapsed() << " Seconds\n";
+	   testStatus("Test Instance Get Operations");
+	   elapsedTime.reset();
+	   TestInstanceGetOperations(client,activeTest,verboseTest);
+	   cout << " in " << elapsedTime.getElapsed() << " Seconds\n";
 
-		   testStatus("Test Instance Modification Operations");
-		   elapsedTime.reset();
-		   TestInstanceModifyOperations(client, activeTest, verboseTest);
-		   cout << " in " << elapsedTime.getElapsed() << " Seconds\n";
+	   testStatus("Test Instance Modification Operations");
+	   elapsedTime.reset();
+	   TestInstanceModifyOperations(client, activeTest, verboseTest);
+	   cout << " in " << elapsedTime.getElapsed() << " Seconds\n";
 
-		   testStatus("Test Associations");
+	   testStatus("Test Associations");
 		   
-		 }
+      }
       catch(Exception& e)
 		 {
 		   PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);

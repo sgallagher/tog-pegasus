@@ -117,6 +117,21 @@ void TestMessageQueue3()
     assert(q.getCount() == 0);
 }
 
+
+void TestMessageQueue4()
+{
+   MessageQueue q("a queue");
+   MessageQueue r("another q");
+   
+   MessageQueue *found = MessageQueue::lookup("a queue");
+   assert(found);
+//   cout << found->getQueueName() << endl;
+   found = MessageQueue::lookup("another q");
+   assert(found);
+//   cout << found->getQueueName() << endl;
+}
+
+
 int main()
 {
     try
@@ -124,6 +139,7 @@ int main()
 	TestMessageQueue1();
 	TestMessageQueue2();
 	TestMessageQueue3();
+	TestMessageQueue4();
 	cout << "+++++ passed all tests" << endl;
     }
     catch (Exception& e)

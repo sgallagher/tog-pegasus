@@ -4,6 +4,12 @@ ROOT = ../../..
 
 include $(ROOT)/mak/config.mak
 
-DIRS = __NamespaceProvider
+DIRS = \
+	__NamespaceProvider \
+	ConfigSettingProvider \
+	UserManagerProvider \
+	PG_RegistrationProvider \
+	OperatingSystemProvider \
+	ShutdownProvider
 
 include $(ROOT)/mak/recurse.mak

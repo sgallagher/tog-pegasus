@@ -10,6 +10,5 @@ include $(ROOT)/mak/program.mak
 
 tests:
 	$(RM) X.idx
-	$(TOUCH) X.idx
 	Inst
 	$(RM) X.idx

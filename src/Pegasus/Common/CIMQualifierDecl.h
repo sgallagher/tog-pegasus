@@ -174,28 +174,37 @@ public:
     */
 
     operator int() const { return _rep != 0; }
-    /** CIMMethod
+    
+    /** toXml  Generates XML output for the Qualifier Declaration object.
     
     */
-
     void toXml(Array<Sint8>& out) const
     {
 	_checkRep();
 	_rep->toXml(out);
     }
-    /** CIMMethod
+
+    /** toMof  Generates MOF output for the Qualifier Declaration object.
     
     */
+    void toMof(Array<Sint8>& out) const
+    {
+	_checkRep();
+	_rep->toMof(out);
+    }
 
+    /** print Output the XML for the Qualifier Declaration object to stdout.
+    
+    */
     void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const
     {
 	_checkRep();
 	_rep->print(o);
     }
-    /** CIMMethod
+    /** identical Compares two qualifier declarations
+    @return Returns true if they are identical
     
-    */
-
+    */ 
     Boolean identical(const CIMConstQualifierDecl& x) const;
     /** CIMMethod
     

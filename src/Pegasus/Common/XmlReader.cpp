@@ -1,5 +1,7 @@
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to 
@@ -21,7 +23,10 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
+//              Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -37,7 +42,10 @@
 #include "CIMClass.h"
 #include "CIMInstance.h"
 #include "CIMObject.h"
+#include "CIMNamedInstance.h"
+#include "CIMParamValue.h"
 
+PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 static const Uint32 MESSAGE_SIZE = 128;
@@ -59,6 +67,27 @@ void XmlReader::expectXmlDeclaration(
 	throw XmlValidationError(parser.getLine(),
 	    "Expected <?xml ... ?> style declaration");
     }
+}
+
+//------------------------------------------------------------------------------
+//
+//  testXmlDeclaration ()
+//
+//------------------------------------------------------------------------------
+
+Boolean XmlReader::testXmlDeclaration (
+    XmlParser& parser,
+    XmlEntry& entry)
+{
+    if (!parser.next (entry) ||
+        entry.type != XmlEntry::XML_DECLARATION ||
+        strcmp (entry.text, "xml") != 0)
+    {
+        parser.putBack (entry);
+        return false;
+    }
+
+    return true;
 }
 
 //------------------------------------------------------------------------------
@@ -273,40 +302,6 @@ void XmlReader::testCimStartTag(XmlParser& parser)
 
 //------------------------------------------------------------------------------
 //
-// getIsArrayAttribute()
-//
-//------------------------------------------------------------------------------
-
-Boolean XmlReader::getIsArrayAttribute(
-    Uint32 lineNumber,
-    const XmlEntry& entry,
-    const char* tagName,
-    Boolean& value)
-{
-    const char* tmp;
-
-    if (!entry.getAttributeValue("ISARRAY", tmp))
-	return false;
-
-    if (strcmp(tmp, "true") == 0)
-    {
-	value = true;
-	return true;
-    }
-    else if (strcmp(tmp, "false") == 0)
-    {
-	value = false;
-	return true;
-    }
-
-    char buffer[62];
-    sprintf(buffer, "Bad %s.%s attribute value", "ISARRAY", tagName);
-    throw XmlSemanticError(lineNumber, buffer);
-    return false;
-}
-
-//------------------------------------------------------------------------------
-//
 // getCimNameAttribute()
 //
 //     <!ENTITY % CIMName "NAME CDATA #REQUIRED">
@@ -514,11 +509,6 @@ CIMType XmlReader::getCimTypeAttribute(
 	type = CIMType::REAL32;
     else if (strcmp(typeName, "real64") == 0)
 	type = CIMType::REAL64;
-    else if (strcmp(typeName, "reference") == 0)
-	type = CIMType::REFERENCE;
-
-    // ATTN: "reference" is not legal according to the DTD; however, it is
-    // used by the XML version of the CIM schema.
 
     if (type == CIMType::NONE)
     {
@@ -1002,7 +992,7 @@ Boolean XmlReader::getPropertyValue(
     XmlParser& parser, 
     CIMValue& cimValue)
 {
-    //Test for Element value type
+    //ATTN: Test for Element value type
     CIMType type = CIMType::STRING;
 
     if (XmlReader::getValueElement(parser, type, cimValue))
@@ -1017,13 +1007,12 @@ Boolean XmlReader::getPropertyValue(
        return true;
 
     // Test for Value.reference type
-    // ATTN:This returns a different type (CIMReference)
-    // ATTN: Possibly change to simply return result after
-    // we figure out the type differences.
-
-   CIMReference reference;
-   if(XmlReader::getValueReferenceElement(parser, reference))
-      return true;
+    CIMReference reference;
+    if(XmlReader::getValueReferenceElement(parser, reference))
+    {
+        cimValue.set(reference);
+        return true;
+    }
 
    return false;
 }
@@ -1766,8 +1755,6 @@ KeyBinding::Type XmlReader::getValueTypeAttribute(
 //     <!ATTLIST KEYVALUE
 //         VALUETYPE (string|boolean|numeric)  'string'>
 //
-// ATTN-B: VALUE.REFERENCE ignored above; can't understand why it is needed!
-//
 //------------------------------------------------------------------------------
 
 Boolean XmlReader::getKeyValueElement(
@@ -1810,8 +1797,6 @@ Boolean XmlReader::getKeyValueElement(
 //     <!ATTLIST KEYBINDING
 //         %CIMName;>
 //
-// ATTN-B: VALUE.REFERENCE ignored above; can't understand why it is needed!
-//
 //------------------------------------------------------------------------------
 
 Boolean XmlReader::getKeyBindingElement(
@@ -1828,7 +1813,18 @@ Boolean XmlReader::getKeyBindingElement(
     name = getCimNameAttribute(parser.getLine(), entry, "KEYBINDING");
 
     if (!getKeyValueElement(parser, type, value))
-	throw XmlValidationError(parser.getLine(), "Expected KEYVALUE element");
+    {
+        CIMReference reference;
+
+        if (!getValueReferenceElement(parser, reference))
+        {
+	    throw XmlValidationError(parser.getLine(),
+                      "Expected KEYVALUE or VALUE.REFERENCE element");
+        }
+
+        type = KeyBinding::REFERENCE;
+        value = reference.toString();
+    }
 
     expectEndTag(parser, "KEYBINDING");
     return true;
@@ -1842,7 +1838,8 @@ Boolean XmlReader::getKeyBindingElement(
 //     <!ATTLIST INSTANCENAME
 //         %ClassName;>
 //
-// ATTN-B: VALUE.REFERENCE sub-element not accepted yet.
+// Note: An empty key name is used in the keyBinding when the INSTANCENAME is
+// specified using a KEYVALUE or a VALUE.REFERENCE.
 //
 //------------------------------------------------------------------------------
 
@@ -1863,18 +1860,35 @@ Boolean XmlReader::getInstanceNameElement(
 
     className = getClassNameAttribute(parser.getLine(), entry, "INSTANCENAME");
 
-    if (!empty)
+    if (empty)
     {
-	String name;
-	KeyBinding::Type type;
-	String value;
+        return true;
+    }
 
+    String name;
+    KeyBinding::Type type;
+    String value;
+    CIMReference reference;
+
+    if (getKeyValueElement(parser, type, value))
+    {
+        // Use empty key name because none was specified
+        keyBindings.append(KeyBinding(name, value, type));
+    }
+    else if (getValueReferenceElement(parser, reference))
+    {
+        // Use empty key name because none was specified
+        type = KeyBinding::REFERENCE;
+        value = reference.toString();
+        keyBindings.append(KeyBinding(name, value, type));
+    }
+    else
+    {
 	while (getKeyBindingElement(parser, name, value, type))
 	    keyBindings.append(KeyBinding(name, value, type));
-
-	if (!empty)
-	    expectEndTag(parser, "INSTANCENAME");
     }
+
+    expectEndTag(parser, "INSTANCENAME");
 
     return true;
 }
@@ -2420,9 +2434,9 @@ Boolean XmlReader::getQualifierDeclElement(
 
     // Get ISARRAY attribute:
 
-    Boolean isArray = false;
-    getIsArrayAttribute(
-	parser.getLine(), entry, "QUALIFIER.DECLARATION", isArray); 
+    Boolean isArray = getCimBooleanAttribute(
+        parser.getLine(), entry, "QUALIFIER.DECLARATION", "ISARRAY",
+        false, false); 
 
     // Get ARRAYSIZE attribute:
 
@@ -2620,6 +2634,51 @@ Boolean XmlReader::getInstanceElement(
 }
 
 //------------------------------------------------------------------------------
+// getNamedInstanceElement()
+//
+//     <!ELEMENT VALUE.NAMEDINSTANCE (INSTANCENAME,INSTANCE)>
+//
+//------------------------------------------------------------------------------
+
+Boolean XmlReader::getNamedInstanceElement(
+    XmlParser& parser, 
+    CIMNamedInstance& namedInstance)
+{
+    XmlEntry entry;
+
+    if (!testStartTag(parser, entry, "VALUE.NAMEDINSTANCE"))
+	return false;
+
+    CIMReference instanceName;
+
+    // Get INSTANCENAME elements:
+
+    if (!getInstanceNameElement(parser, instanceName))
+    {
+	throw XmlValidationError(parser.getLine(), 
+	    "expected INSTANCENAME element");
+    }
+
+    CIMInstance instance;
+
+    // Get INSTANCE elements:
+
+    if (!getInstanceElement(parser, instance))
+    {
+	throw XmlValidationError(parser.getLine(),
+	    "expected INSTANCE element");
+    }
+
+    // Get VALUE.NAMEDINSTANCE end tag:
+
+    expectEndTag(parser, "VALUE.NAMEDINSTANCE");
+
+    namedInstance.set(instanceName, instance);
+
+    return true;
+}
+
+//------------------------------------------------------------------------------
 //
 // getObject()
 //
@@ -2794,9 +2853,9 @@ Boolean XmlReader::getBooleanValueElement(
 
     expectContentOrCData(parser, entry);
 
-    if (strcmp(entry.text, "TRUE") == 0)
+    if (CompareNoCase(entry.text, "TRUE") == 0)
 	result = true;
-    else if (strcmp(entry.text, "FALSE") == 0)
+    else if (CompareNoCase(entry.text, "FALSE") == 0)
 	result = false;
     else
 	throw XmlSemanticError(parser.getLine(), 
@@ -2923,7 +2982,6 @@ Boolean XmlReader::getObjectNameElement(
     CIMReference& objectName)
 {
     String className;
-    CIMReference instanceName;
 
     if (getClassNameElement(parser, className, false))
     {
@@ -2973,6 +3031,126 @@ Boolean XmlReader::getObjectPathElement(
     }
 
     PEGASUS_UNREACHABLE ( return false; )
+}
+
+//------------------------------------------------------------------------------
+//
+// getEMethodCallStartTag()
+//
+//------------------------------------------------------------------------------
+
+Boolean XmlReader::getEMethodCallStartTag(
+    XmlParser& parser, 
+    const char*& name)
+{
+    XmlEntry entry;
+
+    if (!testStartTag(parser, entry, "EXPMETHODCALL"))
+	return false;
+
+    // Get EXPMETHODCALL.NAME attribute:
+
+    if (!entry.getAttributeValue("NAME", name))
+	throw XmlValidationError(parser.getLine(),
+	    "Missing EXPMETHODCALL.NAME attribute");
+
+    return true;
+}
+
+//------------------------------------------------------------------------------
+//
+// getEMethodResponseStartTag()
+//
+//------------------------------------------------------------------------------
+
+Boolean XmlReader::getEMethodResponseStartTag(
+    XmlParser& parser, 
+    const char*& name)
+{
+    XmlEntry entry;
+
+    if (!testStartTag(parser, entry, "EXPMETHODRESPONSE"))
+	return false;
+
+    // Get EXPMETHODRESPONSE.NAME attribute:
+
+    if (!entry.getAttributeValue("NAME", name))
+	throw XmlValidationError(parser.getLine(),
+	    "Missing EXPMETHODRESPONSE.NAME attribute");
+
+    return true;
+}
+
+//------------------------------------------------------------------------------
+//
+// getMethodCallStartTag()
+//
+//------------------------------------------------------------------------------
+
+Boolean XmlReader::getMethodCallStartTag(
+    XmlParser& parser, 
+    const char*& name)
+{
+    XmlEntry entry;
+
+    if (!testStartTag(parser, entry, "METHODCALL"))
+	return false;
+
+    // Get METHODCALL.NAME attribute:
+
+    if (!entry.getAttributeValue("NAME", name))
+	throw XmlValidationError(parser.getLine(),
+	    "Missing METHODCALL.NAME attribute");
+
+    return true;
+}
+
+//------------------------------------------------------------------------------
+//
+// getMethodResponseStartTag()
+//
+//------------------------------------------------------------------------------
+
+Boolean XmlReader::getMethodResponseStartTag(
+    XmlParser& parser, 
+    const char*& name)
+{
+    XmlEntry entry;
+
+    if (!testStartTag(parser, entry, "METHODRESPONSE"))
+	return false;
+
+    // Get METHODRESPONSE.NAME attribute:
+
+    if (!entry.getAttributeValue("NAME", name))
+	throw XmlValidationError(parser.getLine(),
+	    "Missing METHODRESPONSE.NAME attribute");
+
+    return true;
+}
+
+//------------------------------------------------------------------------------
+//
+// getParamValueTag()
+//
+//------------------------------------------------------------------------------
+
+Boolean XmlReader::getParamValueTag(
+    XmlParser& parser, 
+    const char*& name)
+{
+    XmlEntry entry;
+
+    if (!testStartTag(parser, entry, "PARAMVALUE"))
+	return false;
+
+    // Get IPARAMVALUE.NAME attribute:
+
+    if (!entry.getAttributeValue("NAME", name))
+	throw XmlValidationError(parser.getLine(),
+	    "Missing PARAMVALUE.NAME attribute");
+
+    return true;
 }
 
 PEGASUS_NAMESPACE_END

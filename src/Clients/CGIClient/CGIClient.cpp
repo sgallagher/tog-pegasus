@@ -42,13 +42,15 @@ This Program was intended to be a test and demonstration tool for
 Pegasus.
 */
 
+#include <Pegasus/Common/Config.h>
 #include <cassert>
 #include <cstdlib>
 #include <cstdio>
 #include <Pegasus/Common/CGIQueryString.h>
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/Stopwatch.h>
-#include <Pegasus/Common/Selector.h>
+#include <Pegasus/Common/Monitor.h>
+#include <Pegasus/Common/HTTPConnector.h>
 #include <Pegasus/Common/Logger.h>
 
 PEGASUS_USING_PEGASUS;
@@ -108,7 +110,7 @@ const char* HostInfo::getAddress()
     char* queryString = strcpy(new char[strlen(tmp) + 1], tmp);
     CGIQueryString qs(queryString);
 
-    if (tmp = qs.findValue("hostaddress"))
+    if ((tmp = qs.findValue("hostaddress")))
 	return tmp; 
     else 
 	return("localhost:5988");
@@ -441,6 +443,54 @@ void PrintQualifiers(OBJECT& object)
     and type of the CIMMethod in each entry
     @param cimClass - Class for which methods to be output
 */
+
+void mofFormat(
+    PEGASUS_STD(ostream)& os, 
+    const char* text, 
+    Uint32 indentChars)
+{
+    char* tmp = strcpy(new char[strlen(text) + 1], text);
+    //const char* tmp = x.getData();
+    Uint32 count = 0;
+    Uint32 indent = 0;
+    Boolean quoteState = false;
+    char c;
+    while ((c = *tmp++))
+    {
+	count++;
+	switch (c)
+	{
+	    case '\n':
+		os << Sint8(c);
+		count = 0;
+		indent = 0;
+		break;
+
+	    case '\"':	 // quote 
+		os <<Sint8(c);
+		quoteState = !quoteState;
+		break;
+
+	    case ' ':
+		os <<Sint8(c);
+		if (count > 70)
+		{
+		    if (quoteState)
+			os <<"\"\n    \"";
+		    else
+			os <<"\n    ";
+		    count = 0 - indent;
+		}
+		break;
+
+	    default:
+		os <<Sint8(c);
+	}
+
+    }
+}
+
+
 void PrintClassMethods(CIMClass& cimClass)
 {
     // ATTN:If there are no methods.  State that rather than empty table
@@ -479,13 +529,15 @@ void PrintClassMethods(CIMClass& cimClass)
     @param localOnly
     @param includeQualifiers
     @param includClassOrigin
+    @param showMof
 */
 void PrintClass(
     const String& nameSpace,
     CIMClass& cimClass,
     Boolean localOnly,
     Boolean includeQualifiers,
-    Boolean includeClassOrigin)
+    Boolean includeClassOrigin,
+    Boolean showMof)
 {
     //ATTN: Should say GetClass and then classname
     //Aregument for combining to one parm
@@ -506,7 +558,19 @@ void PrintClass(
 	cout << "\n\nQualifier Parameters Not Requested" << endl;
     PrintObjectProperties(nameSpace, cimClass,includeClassOrigin);
     PrintClassMethods(cimClass);
+    if (showMof)
+    {
+	cout << "<h2>Display of MOF equivalent</h2>";
+	cout << "<pre>";
+	Array<Sint8> x;
+	cimClass.toMof(x);
+	x.append('\0');
 
+	mofFormat(cout, x.getData(), 4);
+
+	//cimClass.printMof();
+	cout << "/pre>";
+    }
     cout << "</body>\n" << "</html>\n";
 }
 
@@ -572,6 +636,7 @@ static void GetClass(const CGIQueryString& qs)
     Boolean localOnly = true;
     Boolean includeQualifiers = true;
     Boolean includeClassOrigin = false;
+    Boolean showMof = false;
 
     // Process possible input fields
     // Wierd because the form entry only sends info if
@@ -582,11 +647,16 @@ static void GetClass(const CGIQueryString& qs)
 	includeQualifiers = false;
     if ((tmp = qs.findValue("IncludeClassOrigin")))
 	includeClassOrigin = true;
+    if ((tmp = qs.findValue("ShowMof")))
+	showMof = true;
+    
 
     try
     {
-	Selector selector;
-	CIMClient client(&selector);
+	Monitor* monitor = new Monitor;
+	HTTPConnector* connector = new HTTPConnector(monitor);
+	CIMClient client(monitor, connector);
+
 	HostInfo hostinfo;
 	client.connect(hostinfo.getAddress());
 
@@ -594,7 +664,7 @@ static void GetClass(const CGIQueryString& qs)
 	    localOnly, includeQualifiers, includeClassOrigin);
 
 	PrintClass(nameSpace, cimClass,localOnly, includeQualifiers,
-	    includeClassOrigin);
+	    includeClassOrigin, showMof);
     }
      catch(Exception& e)
     {
@@ -639,8 +709,9 @@ static void GetPropertyDeclaration(const CGIQueryString& qs)
 
     try
     {
-	Selector selector;
-	CIMClient client(&selector);
+	Monitor* monitor = new Monitor;
+	HTTPConnector* connector = new HTTPConnector(monitor);
+	CIMClient client(monitor, connector);
 	HostInfo hostinfo;
 	client.connect(hostinfo.getAddress());
 
@@ -737,8 +808,9 @@ static void EnumerateClassNames(const CGIQueryString& qs)
 	Stopwatch elapsedTime;
 
 	// Make the Connection
-	Selector selector;
-	CIMClient client(&selector);
+	Monitor* monitor = new Monitor;
+	HTTPConnector* connector = new HTTPConnector(monitor);
+	CIMClient client(monitor, connector);
 	HostInfo hostinfo;
 	client.connect(hostinfo.getAddress());
 
@@ -778,8 +850,9 @@ static void DeleteClass(const CGIQueryString& qs)
 
     try
     {
-	Selector selector;
-	CIMClient client(&selector);
+	Monitor* monitor = new Monitor;
+	HTTPConnector* connector = new HTTPConnector(monitor);
+	CIMClient client(monitor, connector);
 	HostInfo hostinfo;
 	client.connect(hostinfo.getAddress());
 
@@ -826,7 +899,7 @@ void PrintQualifierRow(const String& nameSpace,
     cout << "<td>" << TypeToString(value.getType()) << "</td>\n";
     cout << "<td>" << value.toString() << "</td>\n";
     cout << "<td>" << ScopeToString(qd.getScope()) << "</td>\n";
-    cout << "<td>" << FlavorToString(qd.getFlavor()) << "</td>\n";
+    cout << "<td>" << FlavorToMof(qd.getFlavor()) << "</td>\n";
     cout << "<td>" << qd.getArraySize() << "</td>\n";
 
     cout << "</tr>\n";
@@ -908,8 +981,9 @@ static void EnumerateQualifiers(const CGIQueryString& qs)
 
     try
     {
-	Selector selector;
-	CIMClient client(&selector);
+	Monitor* monitor = new Monitor;
+	HTTPConnector* connector = new HTTPConnector(monitor);
+	CIMClient client(monitor, connector);
 	HostInfo hostinfo;
 	client.connect(hostinfo.getAddress());
 
@@ -946,8 +1020,9 @@ static void GetQualifier(const CGIQueryString& qs)
 
     try
     {
-	Selector selector;
-	CIMClient client(&selector);
+	Monitor* monitor = new Monitor;
+	HTTPConnector* connector = new HTTPConnector(monitor);
+	CIMClient client(monitor, connector);
 	HostInfo hostinfo;
 	client.connect(hostinfo.getAddress());
 
@@ -1082,8 +1157,9 @@ static void EnumerateInstanceNames(const CGIQueryString& qs)
 	// Time the connection
 	Stopwatch elapsedTime;
 
-	Selector selector;
-	CIMClient client(&selector);
+	Monitor* monitor = new Monitor;
+	HTTPConnector* connector = new HTTPConnector(monitor);
+	CIMClient client(monitor, connector);
 	HostInfo hostinfo;
 	client.connect(hostinfo.getAddress());
 
@@ -1145,8 +1221,9 @@ static void GetInstance(const CGIQueryString& qs)
 
     try
     {
-	Selector selector;
-	CIMClient client(&selector);
+	Monitor* monitor = new Monitor;
+	HTTPConnector* connector = new HTTPConnector(monitor);
+	CIMClient client(monitor, connector);
 	HostInfo hostinfo;
 	client.connect(hostinfo.getAddress());
 
@@ -1236,8 +1313,9 @@ static void EnumerateInstances(const CGIQueryString& qs)
 
     try
 	{
-	    Selector selector;
-	    CIMClient client(&selector);
+	    Monitor* monitor = new Monitor;
+	    HTTPConnector* connector = new HTTPConnector(monitor);
+	    CIMClient client(monitor, connector);
 	    HostInfo hostinfo;
 	    client.connect(hostinfo.getAddress());
 
@@ -1339,8 +1417,9 @@ static void CreateNameSpace(const CGIQueryString& qs)
 	// Time the connection
 	Stopwatch elapsedTime;
 
-	Selector selector;
-	CIMClient client(&selector);
+	Monitor* monitor = new Monitor;
+	HTTPConnector* connector = new HTTPConnector(monitor);
+	CIMClient client(monitor, connector);
 	HostInfo hostinfo;
 	client.connect(hostinfo.getAddress());
 
@@ -1399,8 +1478,9 @@ static void DeleteNameSpace(const CGIQueryString& qs)
 	// Time the connection
 	Stopwatch elapsedTime;
 
-	Selector selector;
-	CIMClient client(&selector);
+	Monitor* monitor = new Monitor;
+	HTTPConnector* connector = new HTTPConnector(monitor);
+	CIMClient client(monitor, connector);
 	HostInfo hostinfo;
 	client.connect(hostinfo.getAddress());
 
@@ -1441,8 +1521,9 @@ static void EnumerateNameSpaces(const CGIQueryString& qs)
 	// Time the connection
 	Stopwatch elapsedTime;
 
-	Selector selector;
-	CIMClient client(&selector);
+	Monitor* monitor = new Monitor;
+	HTTPConnector* connector = new HTTPConnector(monitor);
+	CIMClient client(monitor, connector);
 	HostInfo hostinfo;
 	client.connect(hostinfo.getAddress());
 
@@ -1658,8 +1739,9 @@ static void ClassInheritance(const CGIQueryString& qs)
 	Boolean includeClassOrigin = true;
 
 
-	Selector selector;
-	CIMClient client(&selector);
+	Monitor* monitor = new Monitor;
+	HTTPConnector* connector = new HTTPConnector(monitor);
+	CIMClient client(monitor, connector);
 	HostInfo hostinfo;
 	client.connect(hostinfo.getAddress());
 	client.setTimeOut(timeOut);
@@ -1748,8 +1830,9 @@ static void ClassTree(const CGIQueryString& qs)
 	Boolean deepInheritance = true;
 	String className = "";
 
-	Selector selector;
-	CIMClient client(&selector);
+	Monitor* monitor = new Monitor;
+	HTTPConnector* connector = new HTTPConnector(monitor);
+	CIMClient client(monitor, connector);
 	HostInfo hostinfo;
 	client.connect(hostinfo.getAddress());
 
@@ -1829,8 +1912,9 @@ static void ReferenceNames(const CGIQueryString& qs)
 	// Time the connection
 	Stopwatch elapsedTime;
 
-	Selector selector;
-	CIMClient client(&selector);
+	Monitor* monitor = new Monitor;
+	HTTPConnector* connector = new HTTPConnector(monitor);
+	CIMClient client(monitor, connector);
 	HostInfo hostinfo;
 	client.connect(hostinfo.getAddress());
 
@@ -1893,8 +1977,9 @@ static void AssociatorNames(const CGIQueryString& qs)
 	// Time the connection
 	Stopwatch elapsedTime;
 
-	Selector selector;
-	CIMClient client(&selector);
+	Monitor* monitor = new Monitor;
+	HTTPConnector* connector = new HTTPConnector(monitor);
+	CIMClient client(monitor, connector);
 	HostInfo hostinfo;
 	client.connect(hostinfo.getAddress());
 

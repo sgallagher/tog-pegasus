@@ -155,6 +155,8 @@ public:
 
     virtual void print(PEGASUS_STD(ostream)& os = PEGASUS_STD(cout)) const;
 
+    void toMof(Array<Sint8>& out) const;
+
     Boolean identical(const CIMMethodRep* x) const;
 
     CIMMethodRep* clone() const

@@ -123,7 +123,10 @@ public:
 	return _rep->isAssociation();
     }
 
-    ///	 CIMMethod isAbstract
+    /** isAbstract Test if the CIMClass is abstract.
+	@return - True if the CIMClass Object is abstract
+	SeeAlso: Abstract
+    */
     Boolean isAbstract() const
     {
 	_checkRep();
@@ -140,7 +143,7 @@ public:
 	return _rep->getClassName();
     }
 
-    /** CIMMethod getSuperClassName - Gets the name of the Parent
+    /** getSuperClassName - Gets the name of the Parent
 	@return String with parent class name.
     */
     const String& getSuperClassName() const
@@ -149,7 +152,7 @@ public:
 	return _rep->getSuperClassName();
     }
 
-    /**	CIMMethod setSuperClassName - Sets the name of the parent class from
+    /**	setSuperClassName - Sets the name of the parent class from
 	the input parameter. \REF{CLASSNAME}. ATTN: Define legal classnames
 	@param String defining parent name.
 	@return Throws IllegalName if superClassName argument not legal CIM
@@ -268,7 +271,7 @@ public:
 
 
 
-    /** CIMMethod findProperty - Finds the property object with the
+    /** findProperty - Finds the property object with the
 	name defined by the input parameter in the class.
 	@param String parameter with the property name.
 	@return position representing the property object found or
@@ -402,8 +405,8 @@ public:
 
     /** getMethod - Gets the method object defined by the
 	input parameter.
-	@param pos Index to the CIMMethod object to get
-	@return Returns handle of the CIMMethod requested
+	@param pos Index to the method object to get
+	@return Returns handle of the method requested
 	@exception Throws OutofBounds if the index represented by pos is greater
 	than the number of methods defined in the class object
     */
@@ -436,7 +439,7 @@ public:
 	_rep->removeMethod(pos);
     }
 
-    /** CIMMethod getMethodCount - Count of the number of methods in the class
+    /** getMethodCount - Count of the number of methods in the class
 	@return integer representing the number of methods in the class object.
     */
     Uint32 getMethodCount() const
@@ -462,21 +465,43 @@ public:
     /// operator - ATTN:
     operator int() const { return _rep != 0; }
 
-    /// CIMMethod toXML
+    /** toXML  - prepares an XML representation of the CIMClass object
+    	in the provided Sint8 variable.
+	@param out Sint8 array for the XML representation
+    */
     void toXml(Array<Sint8>& out) const
     {
 	_checkRep();
 	_rep->toXml(out);
     }
 
-    /// CIMMethod print
+    /** print -  Prints the toXML output to cout
+    */
     void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const
     {
 	_checkRep();
 	_rep->print(o);
     }
 
-    /** CIMMethod identical -  Compares with another class
+    /** toMof  - prepares a MOF representation of the CIMClass object
+    	in the provided Sint8 variable.
+	@param out Sint8 array for the XML representation
+    */
+    void toMof(Array<Sint8>& out) const
+    {
+	_checkRep();
+	_rep->toMof(out);
+    }
+    /** printMof -  Prints the toMof output to cout
+    */
+    void printMof(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const
+    {
+	_checkRep();
+	_rep->printMof(o);
+    }
+
+
+    /** identical -  Compares with another class
 	ATTN: Clarify exactly what identical means
 	@param Class object for the class to be compared
 	@return True if the classes are identical

@@ -1,6 +1,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM, 
+// The Open Group, Tivoli Systems
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to 
@@ -22,7 +23,10 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: 
+//         Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+//         Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//         Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -36,6 +40,8 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Indentor.h>
 #include <Pegasus/Common/CIMReference.h>
+#include <Pegasus/Common/CIMPropertyList.h>
+#include <Pegasus/Common/CIMNamedInstance.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -86,6 +92,7 @@ public:
 	const char* cimOperation,
 	const char* cimMethod,
 	const String& cimObject,
+        const String& authenticationHeader,
 	const Array<Sint8>& content);
 
     static Array<Sint8> formatMethodResponseHeader(
@@ -127,7 +134,7 @@ public:
 	const char* parameterName,
 	Boolean flag);
 
-    static Array<Sint8>& appendStringParameter(
+    static Array<Sint8>& appendStringIParameter(
 	Array<Sint8>& out,
 	const char* parameterName,
 	const String& str);
@@ -157,6 +164,11 @@ public:
 	const char* parameterName,
 	const CIMConstInstance& instance);
 
+    static Array<Sint8>& appendNamedInstanceParameter(
+	Array<Sint8>& out,
+	const char* parameterName,
+	const CIMNamedInstance& namedInstance);
+
     static Array<Sint8>& appendQualifierDeclarationParameter(
 	Array<Sint8>& out,
 	const char* parameterName,
@@ -174,6 +186,15 @@ public:
 	Array<Sint8>& out,
 	const String& propertyName);
 
+    static Array<Sint8>& appendPropertyValueParameter(
+	Array<Sint8>& out,
+	const char* parameterName,
+	const CIMValue& value);
+
+    static Array<Sint8>& appendPropertyListParameter(
+	Array<Sint8>& out,
+	const CIMPropertyList& propertyList);
+
     static Array<Sint8>& appendObjectNameParameter(
 	Array<Sint8>& out,
 	const char* name,
@@ -184,10 +205,12 @@ public:
 	const char* text, 
 	Uint32 indentChars = 2);
 
-    static Array<Sint8> formatSimpleReqMessage(
+    static Array<Sint8> formatSimpleIMethodReqMessage(
 	const char* host,
 	const String& nameSpace,
 	const char* iMethodName,
+	const String& messageId,
+        const String& authenticationHeader,
 	const Array<Sint8>& body);
 
     static Array<Sint8> formatSimpleRspMessage(
@@ -196,6 +219,80 @@ public:
 	const Array<Sint8>& body);
 
     static String getNextMessageId();
+
+    static Array<Sint8> formatSimpleIndicationReqMessage(
+	const char* host,
+    	const char* iMethodName,
+	const String& messageId,
+        const String& authenticationHeader,
+    	const Array<Sint8>& body);
+
+    static Array<Sint8> formatEMethodCallElement(
+    	const char* name,
+    	const Array<Sint8>& iParamValues);
+
+    static Array<Sint8> formatMPostIndicationHeader(
+    	const char* host,
+    	const char* cimOperation,
+    	const char* cimMethod,
+        const String& authenticationHeader,
+    	const Array<Sint8>& content);
+
+    static Array<Sint8> formatSimpleExportReqElement(
+    	const Array<Sint8>& body);
+
+    static Array<Sint8> formatSimpleExportRspElement(
+	const Array<Sint8>& body);
+
+    static Array<Sint8> formatSimpleIndicationRspMessage(
+	const char* iMethodName,
+        const String& messageId,
+	const Array<Sint8>& body);
+
+    static Array<Sint8> formatEMethodResponseElement(
+	const char* name,
+	const Array<Sint8>& iParamValues);
+
+    static Array<Sint8> formatEMethodResponseHeader(
+	const Array<Sint8>& content);
+
+    static Array<Sint8> formatSimpleMethodReqMessage(
+	const char* host,
+	const String& nameSpace,
+	const char* iMethodName,
+	const String& messageId,
+        const String& authenticationHeader,
+	const Array<Sint8>& body);
+
+    static Array<Sint8> formatMethodCallElement(
+	const char* name,
+	const String& nameSpace,
+	const Array<Sint8>& iParamValues);
+
+    static Array<Sint8> formatSimpleMethodRspMessage(
+	const char* iMethodName,
+        const String& messageId,
+	const Array<Sint8>& body);
+
+    static Array<Sint8> formatMethodResponseElement(
+	const char* name,
+	const Array<Sint8>& iParamValues);
+
+    static Array<Sint8>& appendStringParameter(
+	Array<Sint8>& out,
+	const char* parameterName,
+	const String& str);
+
+    static Array<Sint8>& formatParamValueElement(
+	Array<Sint8>& out,
+	const char* name,
+	const Array<Sint8>& body);
+    
+    static Array<Sint8> formatReturnValueElement(
+	const Array<Sint8>& body);
+
+    static Array<Sint8> formatUnauthorizedResponseHeader(
+        const String& content);
 
 private:
 

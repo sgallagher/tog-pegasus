@@ -46,8 +46,8 @@ int MoveCmd(const vector<string>& args)
 	return 1;
     }
 
-    for (size_t i = 1; i < args.size() - 1; i++)
-	RemoveFile(args[i]);
+    for (size_t j = 1; j < args.size() - 1; j++)
+	RemoveFile(args[j]);
 
     return 0;
 }

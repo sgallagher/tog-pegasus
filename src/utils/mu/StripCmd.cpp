@@ -126,9 +126,9 @@ int StripCmd(const vector<string>& args)
     for (size_t i = 3; i < args.size(); i++)
 	Glob(args[i], fileNames);
 
-    for (size_t i = 0; i < fileNames.size(); i++)
+    for (size_t j = 0; j < fileNames.size(); j++)
     {
-	int result = _Strip(args[0], args[1], args[2], fileNames[i]);
+	int result = _Strip(args[0], args[1], args[2], fileNames[j]);
 
 	if (result != 0)
 	    return result;

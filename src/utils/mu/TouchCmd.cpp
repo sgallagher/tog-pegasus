@@ -44,11 +44,11 @@ int TouchCmd(const vector<string>& args)
 
     // Touch the files:
 
-    for (size_t i = 0; i < filenames.size(); i++)
+    for (size_t j = 0; j < filenames.size(); j++)
     {
-	if (!TouchFile(filenames[i]))
+	if (!TouchFile(filenames[j]))
 	{
-	    cerr << args[0] << ": cannot touch: " << filenames[i] << endl;
+	    cerr << args[0] << ": cannot touch: " << filenames[j] << endl;
 	    return 1;
 	}
     }

@@ -72,7 +72,7 @@ public:
 	return *this;
     }
 
-    /**	 Creates a CIM method with the specified name, type, and classOrigin
+    /**	Creates a CIM method with the specified name, type, and classOrigin
 	@param name for the method
 	@param type ATTN
 	@param classOrigin
@@ -94,7 +94,7 @@ public:
 	Dec(_rep);
     }
 
-    /** CIMMethod getName - Gets the name of the method
+    /** getName - Gets the name of the method
 	@return String with the name of the method
     */
     const String& getName() const
@@ -103,7 +103,7 @@ public:
 	return _rep->getName();
     }
 
-    /** CIMMethod setName - Set the method name
+    /** setName - Set the method name
 	@param name
 	@exception IllegalName if name argument not legal CIM identifier.
     */
@@ -113,7 +113,7 @@ public:
 	_rep->setName(name);
     }
 
-    /** CIMMethod getType - gets the method type
+    /** getType - gets the method type
 	@return The CIM method type for this method.
     */
     CIMType getType() const
@@ -122,7 +122,7 @@ public:
 	return _rep->getType();
     }
 
-    /** CIMMethod setType - Sets the method type to the specified CIM method
+    /** setType - Sets the method type to the specified CIM method
 	type as defined in CIMType /Ref{TYPE}
     */
     void setType(CIMType type)
@@ -131,7 +131,7 @@ public:
 	_rep->setType(type);
     }
 
-    /** CIMMethod getClassOrigin - Returns the class in which this method
+    /** getClassOrigin - Returns the class in which this method
 	was defined.
 	@return ATTN:
     */
@@ -141,28 +141,30 @@ public:
 	return _rep->getClassOrigin();
     }
 
-    /** CIMMethod setClassOrigin - ATTN: */
+    /** setClassOrigin - ATTN: */
     void setClassOrigin(const String& classOrigin)
     {
 	_checkRep();
 	_rep->setClassOrigin(classOrigin);
     }
 
-    /** method getPropagated - ATTN: */
+    /** getPropagated - Tests the propogated qualifier
+        @return - returns True if method is propogated
+	*/
     Boolean getPropagated() const
     {
 	_checkRep();
 	return _rep->getPropagated();
     }
 
-    /** method setPropagated - ATTN: */
+    /** setPropagated - Sets the Propagaged Qualifier */
     void setPropagated(Boolean propagated)
     {
 	_checkRep();
 	_rep->setPropagated(propagated);
     }
 
-    /** CIMMethod addQualifier - Adds a Qualifier to the method object.
+    /** addQualifier - Adds a Qualifier to the method object.
 	@param CIMQualifier to be added
 	@return Throws AlreadyExists excetpion if the qualifier already exists
 	in the method
@@ -175,7 +177,7 @@ public:
 	return *this;
     }
 
-    /** CIMMethod findQualifier - returns the position of the qualifier with
+    /** findQualifier - returns the position of the qualifier with
 	the given name.
 	@param name Name of qualifier to be found.
 	@return index of the parameter if found; otherwise PEG_NOT_FOUND.
@@ -210,7 +212,7 @@ public:
     }
 
 
-    /** CIMMethod getQualifier - Gets the CIMQualifier defined by the index
+    /** getQualifier - Gets the CIMQualifier defined by the index
 	input as a parameter.
 	@param Index of the qualifier requested.
 	@return CIMQualifier object or exception
@@ -243,8 +245,8 @@ public:
     }
 
 
-    /** CIMMethod getQualifierCount - Returns the number of Qualifiers attached
-	to this method.
+    /** getQualifierCount - Returns the number of Qualifiers attached
+	to this CIMmethod object.
 	@return integer representing number of Qualifiers.
     */
     Uint32 getQualifierCount() const
@@ -253,7 +255,7 @@ public:
 	return _rep->getQualifierCount();
     }
 
-    /** CIMMethod addParameter - Adds the parameter defined by the input
+    /** addParameter - Adds the parameter defined by the input
 	to the CIMMethod
     */
     CIMMethod& addParameter(const CIMParameter& x)
@@ -263,7 +265,7 @@ public:
 	return *this;
     }
 
-    /** CIMMethod findParameter - Finds the parameter whose name is given
+    /** findParameter - Finds the parameter whose name is given
 	by the name parameter.
 	@param name Name of parameter to be found.
 	@return index of the parameter if found; otherwise PEG_NOT_FOUND.
@@ -280,14 +282,14 @@ public:
 	return _rep->findParameter(name);
     }
 
-    /** CIMMethod getParameter - ATTN: */
+    /** getParameter - ATTN: */
     CIMParameter getParameter(Uint32 pos)
     {
 	_checkRep();
 	return _rep->getParameter(pos);
     }
 
-    /** CIMMethod getParameter - Gets the parameter defined by the index
+    /** getParameter - Gets the parameter defined by the index
 	input as a parameter.
 	@param index for the parameter to be returned.
 	@return CIMParameter requested.
@@ -300,7 +302,7 @@ public:
 	return _rep->getParameter(pos);
     }
 
-    /** CIMMethod getParameterCount - Gets the count of the numbeer of
+    /** getParameterCount - Gets the count of the numbeer of
 	Parameters attached to the CIMMethod.
 	@retrun - count of the number of parameters attached to the CIMMethod.
     */
@@ -310,7 +312,7 @@ public:
 	return _rep->getParameterCount();
     }
 
-    /** method resolve - ATTN: */
+    /** resolve - resolves and completes the CIMMethod */
     void resolve(
 	DeclContext* declContext,
 	const String& nameSpace,
@@ -320,7 +322,7 @@ public:
 	_rep->resolve(declContext, nameSpace, method);
     }
 
-    /** CIMMethod resolve */
+    /** resolve - Resolves and completes the CIMMethod */
     void resolve(
 	DeclContext* declContext,
 	const String& nameSpace)
@@ -335,21 +337,32 @@ public:
 	return _rep != 0;
     }
 
-    /** method toXML - placing XML encoding of this object into out arguemnt. */
+    /** toXML - puts XML encoding of this CIMMethod object into out 
+	arguemnt. 
+    */
     void toXml(Array<Sint8>& out) const
     {
 	_checkRep();
 	_rep->toXml(out);
     }
 
-    /** method print - prints this method (in CIM encoded form). */
+    /** print - formats and prints this CIMmethod (in CIM XML encoded form). 
+    */
     void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const
     {
 	_checkRep();
 	_rep->print(o);
     }
 
-    /** CIMMethod identical - Returns true if this method is identical to the
+    /** toMof - puts MOF encoding of this object into out arguemnt. 
+    */ 
+    void toMof(Array<Sint8>& out) const
+    {
+	_checkRep();
+	_rep->toMof(out);
+    }
+
+    /** identical - Returns true if this method is identical to the
 	one given by the argument x.
     */
     Boolean identical(const CIMConstMethod& x) const;

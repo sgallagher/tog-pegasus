@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CIM CIMVERSION="2.0" DTDVERSION="2.0">
+<MESSAGE ID="34005" PROTOCOLVERSION="1.0">
+<SIMPLERSP>
+<IMETHODRESPONSE NAME="CreateClass">
+<ERROR CODE="10" DESCRIPTION="CIMClassRep.cpp(238): CIM_ERR_INVALID_SUPERCLASS: Operation cannot be carried out since the specified superclass does not exist: &quot;CIM_NonExistentClass&quot;"/>
+</IMETHODRESPONSE>
+</SIMPLERSP>
+</MESSAGE>
+</CIM>

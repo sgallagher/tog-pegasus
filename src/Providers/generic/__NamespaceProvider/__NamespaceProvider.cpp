@@ -22,7 +22,7 @@
 //
 // Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
-// Modified By:
+// Modified By: Yi Zhou (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -40,8 +40,8 @@
     removed.
 */
 
-#include <iostream>
 #include <Pegasus/Common/Config.h>
+#include <iostream>
 #include <Pegasus/Provider/CIMProvider.h>
 #include <Pegasus/Repository/CIMRepository.h>
 
@@ -93,7 +93,7 @@ public:
 
     /** createInstance -- Creates a new namespace
     */
-    virtual void createInstance(
+    virtual CIMReference createInstance(
 	const String& nameSpace,
 	const CIMInstance& myInstance)
 	{
@@ -104,7 +104,6 @@ public:
 	    if (i == PEG_NOT_FOUND)
 		{
 		    throw CIMException(CIM_ERR_INVALID_PARAMETER);
-		    return;
 		}
 	    // ATTN: Only allow creation of namespaces if the current namespace
 	    // is root.  Is this important.  Have not thought this out but
@@ -124,6 +123,10 @@ public:
 	    String myName;
 	    myValue.get(myName);
 	    //PEGASUS_ASSERT (myType == CimSTRING);
+
+	    // get instance name
+	    const String& className = myInstance.getClassName();
+	    CIMReference instanceName = myInstance.getInstanceName(className);
 
 	    // check if namespace already exists
 	    Array<String> ns;
@@ -150,7 +153,7 @@ public:
 		cout << e.getMessage() <<  endl;
 	    }
 
-	    return;
+	    return(instanceName);
 	}
 
     /** deleteInstance - Deletes the Namespace represented

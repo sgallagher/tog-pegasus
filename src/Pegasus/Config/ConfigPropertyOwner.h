@@ -269,14 +269,12 @@ struct ConfigPropertyRow
 
 ///////////////////////////////////////////////////////////////////////////////
 /**
-    Definition of commonly use constant string literals 
+    Definition of commonly used constant string literals 
 */
 ///////////////////////////////////////////////////////////////////////////////
 
-const static char* STRING_TRUE = "true";
-
-const static char* STRING_FALSE = "false";
-
+PEGASUS_CONFIG_LINKAGE extern const char* STRING_TRUE;
+PEGASUS_CONFIG_LINKAGE extern const char* STRING_FALSE;
 
 PEGASUS_NAMESPACE_END
 

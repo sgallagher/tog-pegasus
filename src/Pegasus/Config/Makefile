@@ -19,6 +19,7 @@ else
 endif
 
 SOURCES = \
+	ConfigPropertyOwner.cpp \
 	ConfigExceptions.cpp \
 	ConfigFile.cpp \
 	ConfigFileHandler.cpp \

@@ -35,17 +35,19 @@
 #include <Pegasus/Common/Monitor.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/TLS.h>
-
+#if defined(PEGASUS_HAS_SSL)
+#include <SSLContext.h>
+#endif
 PEGASUS_NAMESPACE_BEGIN
 
 struct HTTPAcceptorRep;
 
 /** Instances of this class listen on a port and accept conections.
 */
-class PEGASUS_COMMON_LINKAGE HTTPAcceptor : public MessageQueueService
+class PEGASUS_COMMON_LINKAGE HTTPAcceptor : public MessageQueue
 {
    public:
-      typedef MessageQueueService Base;
+      typedef MessageQueue Base;
   
       /** Constructor.
 	  @param monitor pointer to monitor object which this class uses to

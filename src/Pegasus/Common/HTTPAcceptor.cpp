@@ -95,7 +95,8 @@ HTTPAcceptor::HTTPAcceptor(Monitor* monitor, MessageQueueService* outputMessageQ
 HTTPAcceptor::HTTPAcceptor(Monitor* monitor, MessageQueueService* outputMessageQueue,
                            SSLContext * sslcontext)
    :       Base(PEGASUS_QUEUENAME_HTTPACCEPTOR), 
-	   _monitor(monitor), _outputMessageQueue(outputMessageQueue), _rep(0),
+	   _monitor(monitor), _outputMessageQueue(outputMessageQueue), 
+	   _rep(0),
 	   _sslcontext(sslcontext)
 {
    Socket::initializeInterface();
@@ -117,7 +118,7 @@ void HTTPAcceptor::handleEnqueue(Message *message)
       case SOCKET_MESSAGE:
       {
 	 SocketMessage* socketMessage = (SocketMessage*)message;
-
+	 
 	 // If this is a connection request:
 
 	 if (socketMessage->socket == _rep->socket &&
@@ -269,7 +270,8 @@ void HTTPAcceptor::_bind()
    if (!_monitor->solicitSocketMessages(
 	  _rep->socket,
 	  SocketMessage::READ | SocketMessage::EXCEPTION,
-	  getQueueId()))
+	  getQueueId(), 
+	  Monitor::ACCEPTOR))
    {
       Socket::close(_rep->socket);
       delete _rep;
@@ -397,14 +399,14 @@ void HTTPAcceptor::_acceptConnection()
    }
 
    HTTPConnection* connection = new HTTPConnection(
-      _monitor, mp_socket, this, static_cast<MessageQueueService *>(_outputMessageQueue));
+      _monitor, mp_socket, this, static_cast<MessageQueue *>(_outputMessageQueue));
 
    // Solicit events on this new connection's socket:
 
    if (!_monitor->solicitSocketMessages(
 	  socket,
 	  SocketMessage::READ | SocketMessage::EXCEPTION,
-	  connection->getQueueId()))
+	  connection->getQueueId(), Monitor::CONNECTION))
    {
       delete connection;
       Socket::close(socket);

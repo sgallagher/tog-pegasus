@@ -338,7 +338,7 @@ CIMClientRep::~CIMClientRep()
 {
    disconnect();
    delete _httpConnector;
-   delete _monitor;
+//   delete _monitor;
 }
 
 void CIMClientRep::handleEnqueue()
@@ -1186,8 +1186,8 @@ Message* CIMClientRep::_doRequest(
 	// Wait until the timeout expires or an event occurs:
 	//
 
-	_monitor->run(Uint32(stopMilliseconds - nowMilliseconds));
-
+       _monitor->run(Uint32(stopMilliseconds - nowMilliseconds));
+       
 	//
 	// Check to see if incoming queue has a message
 	//
@@ -1239,6 +1239,7 @@ Message* CIMClientRep::_doRequest(
 	}
 
         nowMilliseconds = TimeValue::getCurrentTime().toMilliseconds();
+	pegasus_yield();
     }
 
     //

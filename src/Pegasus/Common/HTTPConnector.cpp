@@ -180,8 +180,10 @@ void HTTPConnector::handleEnqueue(Message *message)
 
 	    if (socket == closeConnectionMessage->socket)
 	    {
+	       printf("closing socket\n");
 	       _monitor->unsolicitSocketMessages(socket);
 	       _rep->connections.remove(i);
+
 	       delete connection;
 	       break;
 	    }
@@ -298,7 +300,7 @@ HTTPConnection* HTTPConnector::connect(
    if (!_monitor->solicitSocketMessages(
 	  socket,
 	  SocketMessage::READ | SocketMessage::EXCEPTION,
-	  connection->getQueueId()))
+	  connection->getQueueId(), Monitor::CONNECTOR))
    {
       delete connection;
       Socket::close(socket);

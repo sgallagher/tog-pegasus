@@ -104,8 +104,8 @@ HTTPConnection::HTTPConnection(
     Monitor* monitor,
     //Sint32 socket, 
     MP_Socket* socket, 
-    MessageQueueService* ownerMessageQueue,
-    MessageQueueService* outputMessageQueue)
+    MessageQueue* ownerMessageQueue,
+    MessageQueue* outputMessageQueue)
     : 
    Base(PEGASUS_QUEUENAME_HTTPCONNECTION), 
    _monitor(monitor),
@@ -140,7 +140,7 @@ void HTTPConnection::handleEnqueue(Message *message)
 {
    PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection::handleEnqueue");
 
-   if( ! message)
+   if( ! message || _dying.value() > 0 )
    {
       PEG_METHOD_EXIT();
       return;
@@ -149,8 +149,8 @@ void HTTPConnection::handleEnqueue(Message *message)
    
 // #ifdef ENABLETIMEOUTWORKAROUNDHACK
 // << Wed Mar  6 12:30:38 2002 mdd >>
-   static Mutex handleEnqueue_mut = Mutex();
-   Boolean LockAcquired = false;
+    static Mutex handleEnqueue_mut = Mutex();
+    Boolean LockAcquired = false;
 // #endif
 
 
@@ -221,6 +221,7 @@ void HTTPConnection::handleEnqueue(Message *message)
             Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
                 "Socket Write: bytesWritten = %d, bytesRemaining = %d, data = %s ",
                 bytesWritten, bytesRemaining, buffer.getData());
+	    
 	 }
 	 //
 	 // decrement request count
@@ -239,18 +240,17 @@ void HTTPConnection::handleEnqueue(Message *message)
       default:
 	 // ATTN: need unexpected message error!
 	 break;
-   };
+   }
 
    delete message;
 
 // #ifdef ENABLETIMEOUTWORKAROUNDHACK
 // << Wed Mar  6 12:31:03 2002 mdd >>
-   if (LockAcquired)
+    if (LockAcquired)
    {
       handleEnqueue_mut.unlock();
    }
 // #endif
-   
    PEG_METHOD_EXIT();
 }
 
@@ -355,15 +355,17 @@ void HTTPConnection::_clearIncoming()
 
 void HTTPConnection::_closeConnection()
 {
-    PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection::_closeConnection");
+   // return - don't send the close connection message. 
+   // let the monitor dispatch function do the cleanup. 
+   PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection::_closeConnection");
+   _dying = 1;
+   _monitor->_entries[_monitor->_findEntry(getSocket())].dying = 1;
+   PEG_METHOD_EXIT();
 
-    Message* message= new CloseConnectionMessage(_socket->getSocket());
-    message->dest = _ownerMessageQueue->getQueueId();
+//     Message* message= new CloseConnectionMessage(_socket->getSocket());
+//     message->dest = _ownerMessageQueue->getQueueId();
 //    SendForget(message);
-    
-    _ownerMessageQueue->enqueue(message);
-
-    PEG_METHOD_EXIT();
+//    _ownerMessageQueue->enqueue(message);
 }
 
 void HTTPConnection::_handleReadEvent()
@@ -373,7 +375,6 @@ void HTTPConnection::_handleReadEvent()
     // -- Append all data waiting on socket to incoming buffer:
 
     Sint32 bytesRead = 0;
-
     for (;;)
     {
 	char buffer[4096];
@@ -385,7 +386,7 @@ void HTTPConnection::_handleReadEvent()
 	_incomingBuffer.append(buffer, n);
 	bytesRead += n;
     }
-   Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+    Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
      "_socket->read bytesRead = %d", bytesRead);
    
     // -- If still waiting for beginning of content!
@@ -420,20 +421,19 @@ void HTTPConnection::_handleReadEvent()
 
 	if (bytesRead == 0)
 	{
-            Tracer::trace(TRC_HTTP, Tracer::LEVEL3,
-               "HTTPConnection::_handleReadEvent - bytesRead == 0 - Conection being closed.");
-	    
-	    _closeConnection();
-
-            //
-            // decrement request count
-            //
-            _requestCount--;
-            Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-               "_requestCount = %d", _requestCount.value());
-	    
-            PEG_METHOD_EXIT();
-	    return;
+	   Tracer::trace(TRC_HTTP, Tracer::LEVEL3,
+			 "HTTPConnection::_handleReadEvent - bytesRead == 0 - Conection being closed.");
+	   _closeConnection();
+	   
+	   //
+	   // decrement request count
+	   //
+	   _requestCount--;
+	   Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+			 "_requestCount = %d", _requestCount.value());
+	   
+	   PEG_METHOD_EXIT();
+	   return;
 	}
     }
     PEG_METHOD_EXIT();
@@ -444,5 +444,38 @@ Uint32 HTTPConnection::getRequestCount()
     return(_requestCount.value());
 }
 
+
+Boolean HTTPConnection::run(Uint32 milliseconds)
+{
+   if( _dying.value() > 0)
+      return false;
+   
+   fd_set fdread, fdwrite;
+      
+   struct timeval tv = { 0, 0 };
+   FD_ZERO(&fdread);
+   FD_ZERO(&fdwrite);
+   FD_SET(getSocket(), &fdread);
+   FD_SET(getSocket(), &fdwrite);
+   int events = select(FD_SETSIZE, &fdread, &fdwrite, NULL, &tv);
+   if(events && events != SOCKET_ERROR && _dying.value() == 0 )
+   {
+      events = 0;
+      if( FD_ISSET(getSocket(), &fdread))
+      {
+	 events |= SocketMessage::READ;
+      }
+      
+      if (FD_ISSET(getSocket(), &fdwrite))
+      {
+	 events |= SocketMessage::WRITE;
+      }
+      Message *msg = new SocketMessage(getSocket(), events);
+      handleEnqueue(msg);
+      
+      return true;
+   }
+   return false;
+}
 
 PEGASUS_NAMESPACE_END

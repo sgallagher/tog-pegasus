@@ -109,7 +109,7 @@ CIMServer::CIMServer(
     String repositoryRootPath = String::EMPTY;
 
     // -- Save the monitor or create a new one:
-
+    
     _monitor = monitor;
 
     repositoryRootPath =
@@ -318,10 +318,13 @@ void CIMServer::bind(Uint32 port)
 void CIMServer::runForever()
 {
     //ATTN: Do not add Trace code in this method.
-    if(!_dieNow)
-	_monitor->run(100);
+   if(!_dieNow)
+   {
+      if(false == _monitor->run(100) )
+	 pegasus_yield();
+   }
+   
 }
-
 void CIMServer::stopClientConnection()
 {
     PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::stopClientConnection()");

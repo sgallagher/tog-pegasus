@@ -487,7 +487,7 @@ void CIMOperationRequestDispatcher::_forwardToModuleCallBack(AsyncOpNode *op,
    //cout << "KSTEST provider callback" << endl;
    CIMOperationRequestDispatcher *service =
       static_cast<CIMOperationRequestDispatcher *>(q);
-   AsyncRequest *asyncRequest = static_cast<AsyncRequest *>(op->get_request());
+//   AsyncRequest *asyncRequest = static_cast<AsyncRequest *>(op->get_request());
    AsyncReply *asyncReply = static_cast<AsyncReply *>(op->get_response());
 // ATTN-RK-P2-20020517: This writes to memory freed by ProviderMessageFacade
 //    CIMRequestMessage *request = reinterpret_cast<CIMRequestMessage *>
@@ -519,10 +519,10 @@ void CIMOperationRequestDispatcher::_forwardToModuleCallBack(AsyncOpNode *op,
 	 delete response;
    }
    
-   delete asyncRequest;
+//   delete asyncRequest;
    delete asyncReply ;
    op->release();
-   service->return_op(op);
+//   service->return_op(op);
 
    PEG_METHOD_EXIT();
 }

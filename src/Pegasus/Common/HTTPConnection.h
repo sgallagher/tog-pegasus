@@ -74,8 +74,9 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueue
 	 Monitor* monitor,
 	 //Sint32 socket, 
 	 MP_Socket * socket, 
-	 MessageQueueService* ownerMessageQueue,
-	 MessageQueueService* outputMessageQueue);
+	 MessageQueue * ownerMessageQueue,
+	 MessageQueue * outputMessageQueue);
+            
 
       /** Destructor. */
       ~HTTPConnection();
@@ -94,7 +95,32 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueue
 	  instances.
       */
       Uint32 getRequestCount();
+
+      Boolean run(Uint32 milliseconds);
+
+      void lock_connection(void)
+      {
+	 _connection_mut.lock(pegasus_thread_self());
+      }
       
+      void unlock_connection(void)
+      {
+	 _connection_mut.unlock();
+      } 
+      
+      Boolean is_dying(void)
+      {
+	 if( _dying.value() > 0 )
+	    return true;
+	 return false;
+      }
+      
+      MessageQueue & get_owner(void)
+      {
+	 return *_ownerMessageQueue;
+      }
+      
+
    private:
 
       void _clearIncoming();
@@ -109,17 +135,16 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueue
 
       //Sint32 _socket;
       MP_Socket* _socket;
-      MessageQueueService* _ownerMessageQueue;
-      MessageQueueService* _outputMessageQueue;
+      MessageQueue* _ownerMessageQueue;
+      MessageQueue* _outputMessageQueue;
 
       Sint32 _contentOffset; 
       Sint32 _contentLength;
       Array<Sint8> _incomingBuffer;
       AuthenticationInfo* _authInfo;
-
       static AtomicInt _requestCount;
-      AtomicInt _sync;
-      
+      Mutex _connection_mut;
+      AtomicInt _dying;
 };
 
 PEGASUS_NAMESPACE_END

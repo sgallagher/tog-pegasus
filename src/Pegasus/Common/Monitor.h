@@ -42,9 +42,13 @@ class  _MonitorEntry
    public:
       Sint32 socket;
       Uint32 queueId;
-      AtomicInt busy;
-      _MonitorEntry(Sint32 sock, Uint32 q)
-	 : socket(sock), queueId(q), busy(0)
+      AtomicInt dying;
+      int _type;
+      
+      
+      _MonitorEntry(Sint32 sock, Uint32 q, int Type)
+	 : socket(sock), queueId(q), dying(0), _type(Type)
+	   
       {
       }
       
@@ -58,6 +62,7 @@ class SocketMessage : public Message
 public:
 
     enum Events { READ = 1, WRITE = 2, EXCEPTION = 4 };
+      
 
     SocketMessage(Sint32 socket_, Uint32 events_) :
 	Message(SOCKET_MESSAGE), socket(socket_), events(events_)
@@ -121,7 +126,12 @@ public:
 class PEGASUS_COMMON_LINKAGE Monitor
 {
 public:
-
+enum Type 
+      {
+	 ACCEPTOR, CONNECTOR, CONNECTION
+      };
+      
+      
     /** Default constructor. */
     Monitor();
 
@@ -150,7 +160,8 @@ public:
     Boolean solicitSocketMessages(
 	Sint32 socket, 
 	Uint32 events,
-	Uint32 queueId);
+	Uint32 queueId,
+	int type);
 
     /** Unsolicit messages on the given socket.
 
@@ -163,50 +174,17 @@ public:
        */
       static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _dispatch(void *);
 
-      class monitor_dispatch 
-      {
-	 public:
-	    Monitor *_myself;
-	    MessageQueue *_decoder;
-	    Uint32 _entry;
-	    Sint32 _socket;
-	    Uint32 _events;
-	    
-	    
-	    monitor_dispatch(Monitor *myself, 
-			     MessageQueue *decoder,
-			     Uint32 entry, 
-			     Sint32 socket,
-			     Uint32 events)
-	       : _myself(myself),  
-		 _decoder(decoder),
-		 _entry(entry),
-		 _socket(socket),
-		 _events(events)
-	    {
-	       
-	    }
-	    
-	    ~monitor_dispatch(void) 
-	    {
-	    }
-	    
-	 private:
-	    monitor_dispatch(void);
-	    monitor_dispatch(const monitor_dispatch &);
-	    monitor_dispatch & operator = (const monitor_dispatch &);
-      };
-      void set_async(Boolean async);
-
 private:
-
-    Uint32 _findEntry(Sint32 socket) const;
+      
+      Uint32  _findEntry(Sint32 socket) ;
 
       Array<_MonitorEntry> _entries;
       MonitorRep* _rep;
       pegasus_module * _module_handle;
       ModuleController * _controller;
       Boolean _async;
+      Mutex _connection_mutex;
+      friend class HTTPConnection;
       
 };
 

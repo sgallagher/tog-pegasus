@@ -199,6 +199,7 @@ inline void _appendValue(Array<Sint8>& out, const CIMObjectPath& x)
     arrayInitializer = "{" constantValue*( "," constantValue)"}"
 */
 template<class T>
+
 void _appendValueArrayMof(Array<Sint8>& out, const T* p, Uint32 size)
 {
     Boolean isFirstEntry = true;

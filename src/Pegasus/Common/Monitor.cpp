@@ -97,8 +97,19 @@ Monitor::Monitor()
 
 Monitor::~Monitor()
 {
+   printf("deregistering with module controller\n");
+   
+   if(_module_handle != NULL)
+    {
+       _controller->deregister_module(PEGASUS_MODULENAME_MONITOR);
+       _controller = 0;
+    }
+   printf("deleting rep\n");
+   
     delete _rep;
+    printf("uninitializing interface \n");
     Socket::uninitializeInterface();
+    printf("returning from monitor destructor\n");
 }
 
 
@@ -118,6 +129,7 @@ Boolean Monitor::run(Uint32 milliseconds)
    // <<< Wed May 15 09:52:16 2002 mdd >>>
    while(_module_handle == NULL)
    {
+      
       try 
       {
 	 
@@ -128,14 +140,16 @@ Boolean Monitor::run(Uint32 milliseconds)
 							   0,
 							   0,
 							   &_module_handle));
-      }
-      catch(AlreadyExists & )
-      {
 	 break;
+	 
       }
-   } 
+      catch( ... )
+      {
+	 ;
+      }
+   }
    
-     
+
 #ifdef PEGASUS_OS_TYPE_WINDOWS
 
     // Windows select() has a strange little bug. It returns immediately if
@@ -150,7 +164,7 @@ Boolean Monitor::run(Uint32 milliseconds)
     // Check for events on the selected file descriptors. Only do this if
     // there were no undispatched events from last time.
 
-    static int count = 0;
+    int count = 0;
 
     if (count == 0)
     {
@@ -170,7 +184,12 @@ Boolean Monitor::run(Uint32 milliseconds)
 	    &tv);
 
 	if (count == 0)
-	    return false;
+	{
+	   Sleep(milliseconds);
+	   
+	   return false;
+	}
+	
 #ifdef PEGASUS_OS_TYPE_WINDOWS
 	else if (count == SOCKET_ERROR)
 #else
@@ -178,6 +197,8 @@ Boolean Monitor::run(Uint32 milliseconds)
 #endif
 	{
 	    count = 0;
+	    Sleep(milliseconds);
+	    
 	    return false;
 	}
     }
@@ -186,6 +207,28 @@ Boolean Monitor::run(Uint32 milliseconds)
     {
 	Sint32 socket = _entries[i].socket;
 	Uint32 events = 0;
+
+	if(_entries[i].dying.value() > 0 )
+	{
+	   if(_entries[i]._type == Monitor::CONNECTION)
+	   {
+	      
+	      MessageQueue *q = MessageQueue::lookup(_entries[i].queueId);
+	      if(q && static_cast<HTTPConnection *>(q)->is_dying())
+	      {
+		 static_cast<HTTPConnection *>(q)->lock_connection();
+		 static_cast<HTTPConnection *>(q)->unlock_connection();
+		 
+		 MessageQueue & o = static_cast<HTTPConnection *>(q)->get_owner();
+		 Message* message= new CloseConnectionMessage(static_cast<HTTPConnection *>(q)->getSocket());
+		 message->dest = o.getQueueId();
+		 o.enqueue(message);
+		 i = 0;
+		 n = _entries.size();
+		 continue;
+	      }
+	   }
+	}
 
 	if (FD_ISSET(socket, &_rep->active_rd_fd_set))
 	    events |= SocketMessage::READ;
@@ -200,63 +243,59 @@ Boolean Monitor::run(Uint32 milliseconds)
 	{
             Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
                "Monitor::run - Socket Event Detected events = %d", events);
-
-              
-	    MessageQueue* queue = MessageQueue::lookup(_entries[i].queueId);
-	    
-	    if (!_async)
+	    if (events & SocketMessage::WRITE)
 	    {
-	       if( ! queue )
-		  unsolicitSocketMessages(_entries[i].queueId);
-	       Message* message = new SocketMessage(socket, events);
-	       queue->enqueue(message);
-	       
-		if (events & SocketMessage::WRITE)
-		{
-		   FD_CLR(socket, &_rep->active_wr_fd_set);
-		   Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-				 "Monitor::run FD_CLR WRITE");
-		}
-		
-		if (events & SocketMessage::EXCEPTION)
-		{
-		   FD_CLR(socket, &_rep->active_ex_fd_set);
-		   Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-			      "Monitor::run FD_CLR EXECEPTION");
-		}
-		
-		if (events & SocketMessage::READ)
-		{
-		   FD_CLR(socket, &_rep->active_rd_fd_set);
-		   Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-				 "Monitor::run FD_CLR READ");
-		}
-
+	       FD_CLR(socket, &_rep->active_wr_fd_set);
+	       Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+			     "Monitor::run FD_CLR WRITE");
+	    }
+	    if (events & SocketMessage::EXCEPTION)
+	    {
+  	       FD_CLR(socket, &_rep->active_ex_fd_set);
+	       Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+			     "Monitor::run FD_CLR EXECEPTION");
+	    }
+	    if (events & SocketMessage::READ)
+	    {
+	       FD_CLR(socket, &_rep->active_rd_fd_set);
+	       Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+			     "Monitor::run FD_CLR READ");
+	    }
+	    MessageQueue* queue = MessageQueue::lookup(_entries[i].queueId);
+	    if( ! queue )
+	    {
+	       unsolicitSocketMessages(socket);
+	       break;
+	    }
+	    
+	    if(_entries[i]._type == Monitor::CONNECTION)
+	    {
+	       if( false == static_cast<HTTPConnection *>(queue)->is_dying())
+		  _controller->async_thread_exec(*_module_handle, _dispatch, (void *)queue);
 	    }
 	    else 
 	    {
-
-	       monitor_dispatch *parms = 
-		  new monitor_dispatch(this, queue, i, socket, events);
-	       _controller->async_thread_exec(*_module_handle, _dispatch, (void *)parms);
+	       Message* message = new SocketMessage(socket, events);
+	       queue->enqueue(message);
 	    }
  	    count--;
 	    return true;
 	}
     }
-
+    Sleep(milliseconds);
+    
     return false;
 }
 
 Boolean Monitor::solicitSocketMessages(
     Sint32 socket, 
     Uint32 events,
-    Uint32 queueId)
+    Uint32 queueId, 
+    int type)
 {
     PEG_METHOD_ENTER(TRC_HTTP, "Monitor::solictSocketMessage");
 
     // See whether a handler is already registered for this one:
-
     Uint32 pos = _findEntry(socket);
 
     if (pos != PEGASUS_NOT_FOUND)
@@ -278,11 +317,11 @@ Boolean Monitor::solicitSocketMessages(
 
     // Add the entry to the list:
     
-//    _MonitorEntry entry = { socket, queueId };
-    _MonitorEntry entry(socket, queueId);
+    _MonitorEntry entry(socket, queueId, type);
+    entry.dying = 0;
     
     _entries.append(entry);
-
+    
     // Success!
     ModuleController* controlService =
         new ModuleController(PEGASUS_QUEUENAME_CONTROLSERVICE);
@@ -309,12 +348,11 @@ Boolean Monitor::unsolicitSocketMessages(Sint32 socket)
 	    return true;
 	}
     }
-
     PEG_METHOD_EXIT();
     return false;
 }
 
-Uint32 Monitor::_findEntry(Sint32 socket) const
+Uint32 Monitor::_findEntry(Sint32 socket) 
 {
    for (Uint32 i = 0, n = _entries.size(); i < n; i++)
     {
@@ -328,48 +366,16 @@ Uint32 Monitor::_findEntry(Sint32 socket) const
 
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL Monitor::_dispatch(void *parm)
 {
+   HTTPConnection *dst = reinterpret_cast<HTTPConnection *>(parm);
+   if( true == dst->is_dying())
+      return 0;
+   dst->lock_connection();
+   if( false == dst->is_dying())
+      dst->run(1);
+   dst->unlock_connection();
 
-   Monitor::monitor_dispatch *parms = reinterpret_cast<Monitor::monitor_dispatch *>(parm);
-   
-   if (! parms->_decoder)
-   {
-      
-      parms->_myself->unsolicitSocketMessages(parms->_myself->_entries[parms->_entry].queueId);
-      return(0);
-   }
-   
-   Message* message = new SocketMessage(parms->_socket, parms->_events);
-   parms->_decoder->enqueue(message);
-   
-   if (parms->_events & SocketMessage::WRITE)
-   {
-      FD_CLR(parms->_socket, &(parms->_myself->_rep->active_wr_fd_set));
-      Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-		    "Monitor::run FD_CLR WRITE");
-   }
-   
-   if (parms->_events & SocketMessage::EXCEPTION)
-   {
-      FD_CLR(parms->_socket, &(parms->_myself->_rep->active_ex_fd_set));
-      Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-		    "Monitor::run FD_CLR EXECEPTION");
-   }
-   
-   if (parms->_events & SocketMessage::READ)
-   {
-      FD_CLR(parms->_socket, &(parms->_myself->_rep->active_rd_fd_set));
-      Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-		    "Monitor::run FD_CLR READ");
-   }
-
-   delete parms;
-   return(0);
+   return 0;
 }
 
-
-void Monitor::set_async(Boolean async)
-{
-   _async = async;
-}
 
 PEGASUS_NAMESPACE_END

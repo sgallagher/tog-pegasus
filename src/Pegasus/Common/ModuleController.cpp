@@ -457,7 +457,7 @@ Boolean ModuleController::deregister_module(const String & module_name)
    {
       if( module->get_name() == module_name)
       {
-	 _modules.remove(module);
+	 _modules.remove_no_lock(module);
 	 ret = true;
 	 break;
       }

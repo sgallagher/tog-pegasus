@@ -20,9 +20,12 @@
 //END_LICENSE
 //BEGIN_HISTORY
 //
-// Author:
+// Author: Karl Schopmeyer k.schopmeyer@opengroup.org
 //
 // $Log: __NamespaceProvider.cpp,v $
+// Revision 1.3  2001/02/26 10:24:56  karl
+// import
+//
 // Revision 1.2  2001/02/26 04:33:30  mike
 // Fixed many places where cim names were be compared with operator==(String,String).
 // Changed all of these to use CIMName::equal()
@@ -57,6 +60,17 @@
 //
 //END_HISTORY
 /* __Namespace CIMProvider
+The __Namespace Provider provides responses to the CIM Operations defined in 
+the DMTF docuument CIM Operations over HTTP (Section 2.5),
+This provider implements 3 functions:
+Create namespace when it receives a create __Namespace instance.
+Delete namesapce when it receives a delete __Namespace instance
+Enumerate namespace when it recieves an enumerate __Namespaces or 
+    enumerate __Namespace names
+    
+NOTE: It is the intention of the DMTF to depricate the __Namespace
+functions so that eventually this provider will be depricated and 
+removed 
 
 */
 
@@ -109,23 +123,25 @@ public:
        return instance;
    }
 
-
-    virtual void createInstance(
+virtual void createInstance(
      const String& nameSpace,
      CIMInstance& myInstance)
     {
 	cout << "Create namespace called" << endl;
 	// find property "name"
-	// How do I throw exception here.???
 	Uint32 i = myInstance.findProperty("name");
 	if (i == -1)
 	    {
-	    cout << "Property name not found" << endl;
-	    return;
+	        throw CimException(CimException::INVALID_PARAMETER);
+		return;
 	    }
 	// ATTN: Only allow creation of namespaces if the current namespace
 	// is root.  Is this important.  Have not thought this out but 
 	// seems logical
+
+	if (nameSpace != "root")
+	        throw CimException(CimException::INVALID_NAMESPACE);
+		return;
 
 	// get property "name"
 	CIMProperty myProperty = myInstance.getProperty(i);
@@ -138,14 +154,10 @@ public:
 
 	String myName;
 	myValue.get(myName);
+ 	//PEGASUS_ASSERT (myType == CimSTRING);
 
-	// QUESTION: Is there a display for CIMType
-	cout << myType << " " << myName << endl;
-	//PEGASUS_ASSERT (myType == CimSTRING);
 	// check if namespace already exists
-
-
-	Array<String> ns;
+        Array<String> ns;
 
 	// ATTN: Does this throw an exception?
 	ns = _repository->enumerateNameSpaces();
@@ -155,16 +167,16 @@ public:
 		if (String::equal(ns[i], myName))
 		     throw CimException(CimException::ALREADY_EXISTS);
 	    }
-
-
+ 
 	// create new namespace
-	cout << "Here create new Namespace " << myName << endl;
 	_repository->createNameSpace(myName);
 
 	return;
     }
 
-
+   /** enumerateInstanceNames - Enumerates all of the
+       namespace names in the repository
+   */
    Array<CIMReference> enumerateInstanceNames(
        const String& nameSpace,
        const String& className) 
@@ -198,7 +210,8 @@ public:
        }
        catch(Exception& e)
        {
-           cout << "__Namespace Provider Exception ";
+           // ATTN: Not sure how to handle this error
+	   cout << "__Namespace Provider Exception ";
 	   cout << e.getMessage() <<  endl; 
        }
 
@@ -208,13 +221,13 @@ public:
        return instanceRefs;
    }
 
-/** initialize - Standard initialization funciton for the
-   provider.  This is required for each provider.
-   
-   NOTE: For the moment, the pointer to the repository is provided
-   with the call.  This will be changed in the future for the provider
-   interface.  However, this is really a service extension and therefore
-   needs this information.
+    /** initialize - Standard initialization function for the
+       provider.  This is required for each provider.
+       
+       NOTE: For the moment, the pointer to the repository is provided
+       with the call.  This will be changed in the future for the provider
+       interface.  However, this is really a service extension and therefore
+       needs this information.
    */
    void initialize(CIMRepository& repository)
    {

@@ -159,7 +159,12 @@ void CMPIProvider::initialize(CIMOMHandle & cimom)
 
     if(_status == UNINITIALIZED)
   {
-      String compoundName=_location+":"+_name;
+      String compoundName;
+      if (_location.size() == 0)
+      	  compoundName=_name;
+      else
+      	  compoundName=_location+":"+_name;
+
       try {
 	 // yield before a potentially lengthy operation.
         pegasus_yield();

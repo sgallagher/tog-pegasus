@@ -34,7 +34,7 @@
 //
 //%////////////////////////////////////////////////////////////////////////////
 
-#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+#ifdef PEGASUS_PLATFORM_HPUX_ACC
 #include "Processor_HPUX.cpp"
 #else
 #include "Processor_Stub.cpp"

@@ -37,7 +37,7 @@
 #ifndef PG_PROCESSOR_PLATFORM_H
 #define PG_PROCESSOR_PLATFORM_H
 
-#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+#ifdef PEGASUS_PLATFORM_HPUX_ACC
 #include "Processor_HPUX.h"
 #else
 #include "Processor_Stub.h"

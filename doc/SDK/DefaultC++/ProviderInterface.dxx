@@ -1,0 +1,10 @@
+  //@{
+    //@Include: ../../../src/Pegasus/Provider/CIMAssociationProvider.h
+    //@Include: ../../../src/Pegasus/Provider/CIMIndicationConsumerProvider.h
+    //@Include: ../../../src/Pegasus/Provider/CIMIndicationProvider.h
+    //@Include: ../../../src/Pegasus/Provider/CIMInstanceProvider.h
+    //@Include: ../../../src/Pegasus/Provider/CIMMethodProvider.h
+    //@Include: ../../../src/Pegasus/Provider/CIMOMHandle.h
+    //@Include: ../../../src/Pegasus/Provider/CIMProvider.h
+    //@Include: ../../../src/Pegasus/Provider/ProviderException.h
+  //@}

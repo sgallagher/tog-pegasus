@@ -1,0 +1,4 @@
+  //@{
+    //@Include: ../../../src/Pegasus/Client/CIMClient.h
+    //@Include: ../../../src/Pegasus/Client/CIMClientException.h
+  //@}

@@ -32,8 +32,10 @@
 #ifndef _CMPIMACS_H_
 #define _CMPIMACS_H_
 
+#ifndef DOC_ONLY
 #include "cmpidt.h"
 #include "cmpift.h"
+#endif
 
 #ifdef DOC_ONLY
 #define CMPI_INLINE

@@ -43,6 +43,7 @@ ifeq ($(OS),HPUX)
   COPY = cp
   TOUCH = touch
   CAT = cat
+  DOCXX = doc++
 
   GENERATE_RANDSEED = randseed
   OPENSSL_COMMAND = openssl
@@ -110,6 +111,7 @@ ifeq ($(OS),linux)
   COPY = cp
   TOUCH = touch
   CAT = cat
+  DOCXX = doc++
 
   OPENSSL_COMMAND = openssl
   GET_HOSTNAME = `hostname`

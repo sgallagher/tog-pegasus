@@ -141,9 +141,9 @@ Uint32 CIMQualifierDecl::getArraySize() const
     return _rep->getArraySize();
 }
 
-CIMQualifierDecl::operator int() const
+Boolean CIMQualifierDecl::isNull() const
 {
-    return (_rep != 0);
+    return (_rep == 0)? true : false;
 }
 
 void CIMQualifierDecl::toXml(Array<Sint8>& out) const
@@ -290,9 +290,9 @@ Uint32 CIMConstQualifierDecl::getArraySize() const
     return _rep->getArraySize();
 }
 
-CIMConstQualifierDecl::operator int() const
+Boolean CIMConstQualifierDecl::isNull() const
 {
-    return (_rep != 0);
+    return (_rep == 0)? true : false;
 }
 
 void CIMConstQualifierDecl::toXml(Array<Sint8>& out) const

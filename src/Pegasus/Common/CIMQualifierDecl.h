@@ -153,7 +153,7 @@ public:
 #ifdef PEGASUS_INTERNALONLY
     /** CIMMethod
     */
-    operator int() const;
+    Boolean isNull() const;
 #endif
     
     /** toXml  Generates XML output for the Qualifier Declaration object.
@@ -257,7 +257,7 @@ public:
 
 #ifdef PEGASUS_INTERNALONLY
     ///
-    operator int() const;
+    Boolean isNull() const;
 
     ///
     void toXml(Array<Sint8>& out) const;

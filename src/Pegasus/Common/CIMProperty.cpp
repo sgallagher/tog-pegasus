@@ -229,9 +229,9 @@ void CIMProperty::resolve(
         declContext, nameSpace, isInstancePart, propagateQualifiers);
 }
 
-CIMProperty::operator int() const
+Boolean CIMProperty::isNull() const
 {
-    return (_rep != 0);
+    return (_rep == 0)? true : false;
 }
 
 void CIMProperty::toXml(Array<Sint8>& out) const
@@ -402,9 +402,9 @@ Uint32 CIMConstProperty::getQualifierCount() const
     return _rep->getQualifierCount();
 }
 
-CIMConstProperty::operator int() const
+Boolean CIMConstProperty::isNull() const
 {
-    return (_rep != 0);
+    return (_rep == 0)? true : false;
 }
 
 void CIMConstProperty::toXml(Array<Sint8>& out) const

@@ -117,7 +117,7 @@ void CIMClassRep::setSuperClassName(const String& superClassName)
 
 void CIMClassRep::addProperty(const CIMProperty& x)
 {
-    if (!x)
+    if (x.isNull())
 	throw UninitializedHandle();
 
     // Reject addition of duplicate property name:
@@ -143,7 +143,7 @@ void CIMClassRep::addProperty(const CIMProperty& x)
 
 void CIMClassRep::addMethod(const CIMMethod& x)
 {
-    if (!x)
+    if (x.isNull())
 	throw UninitializedHandle();
 
     // Reject duplicate method names:
@@ -220,7 +220,7 @@ void CIMClassRep::resolve(
 		CIMConstClass superClass
 			= context->lookupClass(nameSpace, _superClassName);
 	
-		if (!superClass)
+		if (superClass.isNull())
 			throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_SUPERCLASS,_superClassName);
 	
 #if 0

@@ -95,9 +95,9 @@ void test01()
     try
     {
         CIMQualifier q1 = oinstance1.getQualifier(posQualifier);
-        assert(q1);
+        assert(!q1.isNull());
         CIMConstQualifier cq1 = oinstance1.getQualifier(posQualifier);
-        assert(cq1);
+        assert(!cq1.isNull());
     }
     catch(OutOfBounds& e)
     {

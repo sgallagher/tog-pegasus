@@ -158,9 +158,9 @@ void CIMQualifier::setPropagated(Boolean propagated)
     _rep->setPropagated(propagated);
 }
 
-CIMQualifier::operator int() const
+Boolean CIMQualifier::isNull() const
 {
-    return (_rep != 0);
+    return (_rep == 0)? true : false;
 }
 
 void CIMQualifier::toXml(Array<Sint8>& out) const
@@ -319,9 +319,9 @@ const Uint32 CIMConstQualifier::getPropagated() const
     return _rep->getPropagated();
 }
 
-CIMConstQualifier::operator int() const
+Boolean CIMConstQualifier::isNull() const
 {
-    return (_rep != 0);
+    return (_rep == 0)? true : false;
 }
 
 void CIMConstQualifier::toXml(Array<Sint8>& out) const

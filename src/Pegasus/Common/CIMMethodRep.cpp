@@ -78,7 +78,7 @@ void CIMMethodRep::setClassOrigin(const String& classOrigin)
 
 void CIMMethodRep::addParameter(const CIMParameter& x)
 {
-    if (!x)
+    if (x.isNull())
 	throw UninitializedHandle();
 
     if (findParameter(x.getName()) != PEG_NOT_FOUND)
@@ -121,7 +121,7 @@ void CIMMethodRep::resolve(
 
     // Check for type mismatch between return types.
 
-    assert (inheritedMethod);
+    assert (!inheritedMethod.isNull());
 
     // Validate the qualifiers of the method (according to
     // superClass's method with the same name). This method

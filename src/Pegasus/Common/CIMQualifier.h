@@ -187,7 +187,7 @@ public:
 #ifdef PEGASUS_INTERNALONLY
     /**	CIMMethod
     */
-    operator int() const;
+    Boolean isNull() const;
 #endif
 
     /**	toXml- Converts the CIMQualifier object to XML.
@@ -286,7 +286,7 @@ public:
     const Uint32 getPropagated() const;
 
 #ifdef PEGASUS_INTERNALONLY
-    operator int() const;
+    Boolean isNull() const;
 #endif
 
     void toXml(Array<Sint8>& out) const;

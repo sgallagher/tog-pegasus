@@ -270,9 +270,9 @@ void CIMClass::resolve(
     _rep->resolve(declContext, nameSpace);
 }
 
-CIMClass::operator int() const
+Boolean CIMClass::isNull() const
 {
-    return (_rep != 0);
+    return (_rep == 0)? true : false;
 }
 
 void CIMClass::toXml(Array<Sint8>& out) const
@@ -493,9 +493,9 @@ Uint32 CIMConstClass::getMethodCount() const
     return _rep->getMethodCount();
 }
 
-CIMConstClass::operator int() const
+Boolean CIMConstClass::isNull() const
 {
-    return (_rep != 0);
+    return (_rep == 0)? true : false;
 }
 
 void CIMConstClass::toXml(Array<Sint8>& out) const

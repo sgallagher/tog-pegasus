@@ -49,7 +49,7 @@ CIMQualifierList::~CIMQualifierList()
 
 CIMQualifierList& CIMQualifierList::add(const CIMQualifier& qualifier)
 {
-    if (!qualifier)
+    if (qualifier.isNull())
 	throw UninitializedHandle();
 
     if (find(qualifier.getName()) != PEG_NOT_FOUND)
@@ -145,7 +145,7 @@ void CIMQualifierList::resolve(
 		CIMQualifierDecl qd = declContext->lookupQualifierDecl(
 			nameSpace, q.getName());
 	
-		if (!qd)
+		if (qd.isNull())
 			throw UndeclaredQualifier(q.getName());
 	
 		//----------------------------------------------------------------------

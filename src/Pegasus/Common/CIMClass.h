@@ -358,8 +358,8 @@ public:
 	DeclContext* declContext,
 	const String& nameSpace);
 
-    /// operator - ATTN:
-    operator int() const;
+    /// isNull - ATTN:
+    Boolean isNull() const;
 
     /** printMof -  Prints the toMof output to cout
     */
@@ -456,7 +456,7 @@ public:
     Boolean identical(const CIMConstClass& x) const;
 
 #ifdef PEGASUS_INTERNALONLY
-    operator int() const;
+    Boolean isNull() const;
 
     void toXml(Array<Sint8>& out) const;
 

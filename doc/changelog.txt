@@ -232,6 +232,16 @@ TAG: Version_1_09.
     circular header file dependency (Array.h->IPC.h->internal_dq.h->
     Exception.h->String.h->Array.h).
 
+39. (Roger Kumpf - HP) 13 May 2002 - Removed operator int() methods from
+    all CIM* classes.  These methods had been causing a number of difficult
+    to find defects, including the use of the wrong versions of the methods
+    in Memory.h by the Array template (leading to major memory leaks).
+
+    In general, it is dangerous to define a casting operator method that
+    loses so much information, because the compiler will apply the cast
+    at will in an effort to match types.  I've replaced all instances of
+    the int cast operator with isNull() methods.
+
 ========================================================================
 
 Version 1.08 working towards 1.1 - Started 27 March 2002

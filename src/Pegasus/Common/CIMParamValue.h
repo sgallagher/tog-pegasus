@@ -76,7 +76,7 @@ public:
     CIMParamValue clone() const;
 
 #ifdef PEGASUS_INTERNALONLY
-    operator int() const;
+    Boolean isNull() const;
 
     void toXml(Array<Sint8>& out) const;
 

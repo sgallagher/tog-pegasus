@@ -111,9 +111,9 @@ void CIMParamValue::setIsTyped(Boolean isTyped)
     _rep->setIsTyped(isTyped);
 }
 
-CIMParamValue::operator int() const
+Boolean CIMParamValue::isNull() const
 {
-    return (_rep != 0);
+    return (_rep == 0)? true : false;
 }
 
 void CIMParamValue::toXml(Array<Sint8>& out) const

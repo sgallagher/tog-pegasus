@@ -268,8 +268,8 @@ public:
     void print(PEGASUS_STD(ostream)& o=PEGASUS_STD(cout)) const;
 
 #ifdef PEGASUS_INTERNALONLY
-    /**	operator int() - ATTN: */
-    operator int() const;
+    /**	isNull() - ATTN: */
+    Boolean isNull() const;
 
     /**	resolve - ATTN: */
     void resolve(
@@ -357,7 +357,7 @@ public:
     Boolean identical(const CIMConstInstance& x) const;
 
 #ifdef PEGASUS_INTERNALONLY
-    operator int() const;
+    Boolean isNull() const;
 
     void toXml(Array<Sint8>& out) const;
 
@@ -378,6 +378,10 @@ private:
     friend class CIMConstObject;
 #endif
 };
+
+PEGASUS_COMMON_LINKAGE Boolean operator==(
+    const CIMInstance& x,
+    const CIMInstance& y);
 
 #define PEGASUS_ARRAY_T CIMInstance
 # include "ArrayInter.h"

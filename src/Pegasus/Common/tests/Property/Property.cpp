@@ -38,7 +38,7 @@ void test01()
 {
     CIMProperty pnull;
 
-    assert(!pnull);
+    assert(pnull.isNull());
 
     CIMProperty p1("message", "Hi There");
     p1.addQualifier(CIMQualifier("Key", true));

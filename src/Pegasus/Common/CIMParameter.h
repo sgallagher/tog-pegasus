@@ -94,7 +94,7 @@ public:
 #ifdef PEGASUS_INTERNALONLY
     void resolve(DeclContext* declContext, const String& nameSpace);
 
-    operator int() const;
+    Boolean isNull() const;
 #endif
 
     void toXml(Array<Sint8>& out) const;
@@ -164,7 +164,7 @@ public:
     Uint32 getQualifierCount() const;
 
 #ifdef PEGASUS_INTERNALONLY
-    operator int() const;
+    Boolean isNull() const;
 
     void toXml(Array<Sint8>& out) const;
 

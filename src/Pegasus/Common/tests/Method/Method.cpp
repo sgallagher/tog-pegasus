@@ -134,8 +134,8 @@ int main(int argc, char** argv)
         cm1.toXml(out);
         cm1.toMof(out);
 
-        Uint32 i = cm1; 
-	assert(i != 0);
+        Boolean nullMethod = cm1.isNull(); 
+	assert(!nullMethod);
 
         CIMMethod m3 = m2.clone();
         m3 = cm1.clone();
@@ -172,8 +172,8 @@ int main(int argc, char** argv)
         assert(ccm1.findQualifier("stuff") == PEG_NOT_FOUND);
         assert(ccm1.findParameter("ipaddress") == PEG_NOT_FOUND);
         
-        i = ccm1;
-        assert( i != 0 );
+        nullMethod = ccm1.isNull();
+        assert(!nullMethod);
 
         // throws OutOfBounds
         try
@@ -187,7 +187,7 @@ int main(int argc, char** argv)
         // throws OutOfBounds
         try
         {
-            Uint32 q = ccm1.getQualifier(0);
+            CIMConstQualifier q = ccm1.getQualifier(0);
         }
         catch(OutOfBounds& e)
         {

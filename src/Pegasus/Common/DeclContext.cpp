@@ -53,7 +53,7 @@ void SimpleDeclContext::addQualifierDecl(
     const String& nameSpace,
     const CIMQualifierDecl& x)
 {
-    if (lookupQualifierDecl(nameSpace, x.getName()))
+    if (!lookupQualifierDecl(nameSpace, x.getName()).isNull())
 	throw AlreadyExists();
 
     _qualifierDeclarations.append(QPair(nameSpace, x));
@@ -63,7 +63,7 @@ void SimpleDeclContext::addClass(
     const String& nameSpace,
     const CIMClass& x)
 {
-    if (lookupClass(nameSpace, x.getClassName()))
+    if (!lookupClass(nameSpace, x.getClassName()).isNull())
 	throw AlreadyExists();
 
     _classDeclarations.append(CPair(nameSpace, x));

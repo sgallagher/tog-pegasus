@@ -211,8 +211,8 @@ public:
 	DeclContext* declContext,
 	const String& nameSpace);
 
-    /** Returns zero if CIMMethod refers to a null pointer */
-    operator int() const;
+    /** Returns true if CIMMethod refers to a null pointer */
+    Boolean isNull() const;
 #endif
 
     /** toXML - puts XML encoding of this CIMMethod object into out 
@@ -281,7 +281,7 @@ public:
 
     Uint32 findQualifier(const String& name) const;
 
-    Uint32 getQualifier(Uint32 pos) const;
+    CIMConstQualifier getQualifier(Uint32 pos) const;
 
     Uint32 getQualifierCount() const;
 
@@ -292,7 +292,7 @@ public:
     Uint32 getParameterCount() const;
 
 #ifdef PEGASUS_INTERNALONLY
-    operator int() const;
+    Boolean isNull() const;
 
     void toXml(Array<Sint8>& out) const;
 

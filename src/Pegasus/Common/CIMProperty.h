@@ -276,7 +276,7 @@ public:
 	Boolean propagateQualifiers);
 
     /// ATTN: documentation
-    operator int() const;
+    Boolean isNull() const;
 
     /** toXML  - Converts the object to XML and puts the
 	resutl in the out parameter
@@ -377,7 +377,7 @@ public:
     CIMProperty clone(Boolean propagateQualifiers) const;
 
 #ifdef PEGASUS_INTERNALONLY
-    operator int() const;
+    Boolean isNull() const;
 
     void toXml(Array<Sint8>& out) const;
 

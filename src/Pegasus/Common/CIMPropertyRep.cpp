@@ -106,7 +106,7 @@ void CIMPropertyRep::resolve(
     const CIMConstProperty& inheritedProperty,
     Boolean propagateQualifiers)
 {
-    assert (inheritedProperty);
+    assert (!inheritedProperty.isNull());
 
     // Check the type:
 

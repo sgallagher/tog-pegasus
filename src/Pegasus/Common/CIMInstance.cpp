@@ -188,9 +188,9 @@ Uint32 CIMInstance::getPropertyCount() const
     return _rep->getPropertyCount();
 }
 
-CIMInstance::operator int() const
+Boolean CIMInstance::isNull() const
 {
-    return (_rep != 0);
+    return (_rep == 0)? true : false;
 }
 
 Boolean CIMInstance::identical(const CIMConstInstance& x) const
@@ -381,9 +381,9 @@ Uint32 CIMConstInstance::getPropertyCount() const
     return _rep->getPropertyCount();
 }
 
-CIMConstInstance::operator int() const
+Boolean CIMConstInstance::isNull() const
 {
-    return (_rep != 0);
+    return (_rep == 0)? true : false;
 }
 
 void CIMConstInstance::toXml(Array<Sint8>& out) const
@@ -426,6 +426,12 @@ void CIMConstInstance::_checkRep() const
 {
     if (!_rep)
         ThrowUninitializedHandle();
+}
+
+
+Boolean operator==(const CIMInstance& x, const CIMInstance& y)
+{
+    return x.identical(y);
 }
 
 PEGASUS_NAMESPACE_END

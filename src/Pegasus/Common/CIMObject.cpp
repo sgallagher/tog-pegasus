@@ -206,9 +206,9 @@ Uint32 CIMObject::getPropertyCount() const
     return _rep->getPropertyCount();
 }
 
-CIMObject::operator int() const
+Boolean CIMObject::isNull() const
 {
-    return (_rep != 0);
+    return (_rep == 0)? true : false;
 }
 
 Boolean CIMObject::identical(const CIMConstObject& x) const
@@ -390,9 +390,9 @@ Uint32 CIMConstObject::getPropertyCount() const
     return _rep->getPropertyCount();
 }
 
-CIMConstObject::operator int() const
+Boolean CIMConstObject::isNull() const
 {
-    return (_rep != 0);
+    return (_rep == 0)? true : false;
 }
 
 void CIMConstObject::toXml(Array<Sint8>& out) const

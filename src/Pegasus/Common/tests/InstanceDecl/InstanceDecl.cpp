@@ -197,8 +197,7 @@ void test01()
   
     cinstance1.getInstanceName(class1);
  
-    Uint32 i = cinstance1;
-    assert( cinstance1 != 0 );
+    assert( !cinstance1.isNull() );
 
     delete context;
 }

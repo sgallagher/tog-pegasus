@@ -224,9 +224,9 @@ void CIMMethod::resolve(
     _rep->resolve(declContext, nameSpace);
 }
 
-CIMMethod::operator int() const
+Boolean CIMMethod::isNull() const
 {
-    return (_rep != 0);
+    return (_rep == 0)? true : false;
 }
 
 void CIMMethod::toXml(Array<Sint8>& out) const
@@ -351,7 +351,7 @@ Uint32 CIMConstMethod::findQualifier(const String& name) const
     return _rep->findQualifier(name);
 }
 
-Uint32 CIMConstMethod::getQualifier(Uint32 pos) const
+CIMConstQualifier CIMConstMethod::getQualifier(Uint32 pos) const
 {
     _checkRep();
     return _rep->getQualifier(pos);
@@ -381,9 +381,9 @@ Uint32 CIMConstMethod::getParameterCount() const
     return _rep->getParameterCount();
 }
 
-CIMConstMethod::operator int() const
+Boolean CIMConstMethod::isNull() const
 {
-    return (_rep != 0);
+    return (_rep == 0)? true : false;
 }
 
 void CIMConstMethod::toXml(Array<Sint8>& out) const

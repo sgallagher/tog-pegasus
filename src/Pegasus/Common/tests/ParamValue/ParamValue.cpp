@@ -38,7 +38,7 @@ static char * verbose;
 void test01()
 {
     CIMParamValue pv;
-    assert(!pv);
+    assert(pv.isNull());
 
     String p1("message");
     CIMValue v1("argument_Test");

@@ -98,7 +98,7 @@ void test01()
     // Test clone
     //
     CIMQualifierDecl qualclone = qual1.clone();
-    assert(qualclone == qual1);
+    assert(qualclone.identical(qual1));
 
     //
     // Test toMof 
@@ -162,7 +162,6 @@ void test02()
     // Test clone
     //
     CIMConstQualifierDecl cqclone = cq1.clone();
-    assert(cqclone == cq1);
 
     //
     // Test identical

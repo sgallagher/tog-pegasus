@@ -161,9 +161,9 @@ void CIMParameter::resolve(DeclContext* declContext, const String& nameSpace)
     _rep->resolve(declContext, nameSpace);
 }
 
-CIMParameter::operator int() const
+Boolean CIMParameter::isNull() const
 {
-    return (_rep != 0);
+    return (_rep == 0)? true : false;
 }
 
 void CIMParameter::toXml(Array<Sint8>& out) const
@@ -308,9 +308,9 @@ Uint32 CIMConstParameter::getQualifierCount() const
     return _rep->getQualifierCount();
 }
 
-CIMConstParameter::operator int() const
+Boolean CIMConstParameter::isNull() const
 {
-    return (_rep != 0);
+    return (_rep == 0)? true : false;
 }
 
 void CIMConstParameter::toXml(Array<Sint8>& out) const

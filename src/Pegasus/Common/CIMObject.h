@@ -257,8 +257,8 @@ public:
     Boolean identical(const CIMConstObject& x) const;
 
 #ifdef PEGASUS_INTERNALONLY
-    /**	operator int() - ATTN: */
-    operator int() const;
+    /**	isNull() - ATTN: */
+    Boolean isNull() const;
 
     /** Convert object to XML format.
     */
@@ -349,7 +349,7 @@ public:
     Boolean identical(const CIMConstObject& x) const;
 
 #ifdef PEGASUS_INTERNALONLY
-    operator int() const;
+    Boolean isNull() const;
 
     void toXml(Array<Sint8>& out) const;
 

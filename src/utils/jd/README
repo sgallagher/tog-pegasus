@@ -2,7 +2,7 @@
 OVERVIEW
 ========
 
-This utility emulates on NT the JDPATH behavior of the Unix C-Shell. Its use
+This utility emulates on NT the CDPATH behavior of the Unix C-Shell. Its use
 is trivial:
 
     1.	Copy jdath.exe and jd.bat to a directory on your path.

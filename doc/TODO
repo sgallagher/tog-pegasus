@@ -1,6 +1,6 @@
 
-				TO-DO List
-				==========
+Topical To-Do List
+==================
 
 -   Instances:
 
@@ -190,3 +190,8 @@
 
     -   Run CIM/XML test suite.
 
+-   Server
+
+    -   Use Service class in cimserver
+
+    -   Implement Service class on Unix (daemonization from Comer book).

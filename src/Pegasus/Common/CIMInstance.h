@@ -131,12 +131,6 @@ public:
 	return _rep->findQualifier(name);
     }
 
-    /**	findQualifier - Searches the instance for the qualifier object
-        defined by the input parameter.
-	@param String defining the qualifier to be found
-	@return - Index of the qualifier to be used in subsequent 
-	operations or -1 if the qualifier is not found. 
-    */ 
     Uint32 findQualifier(const String& name) const
     {
 	_checkRep();
@@ -219,13 +213,6 @@ public:
 	return _rep->findProperty(name);
     }
 
-    /**	findProperty - Searches the property objects installed in the 
-	CIMInstance for property objects with the name defined by the
-	input
-	@param String with the name of the property object to be found
-	@return Index in the CIM Instance to the property object if found or 
-	-1 if no property object found with the name defined by the input. 
-    */  
     Uint32 findProperty(const String& name) const
     {
 	_checkRep();

@@ -27,6 +27,7 @@
 
 #include <cctype>
 #include <cstring>
+#include "HashTable.h"
 #include "CIMReference.h"
 #include "Indentor.h"
 #include "CIMName.h"
@@ -614,16 +615,6 @@ const char* KeyBinding::typeToString(Type type)
     return "unknown";
 }
 
-static inline Uint32 _Hash(const String& str)
-{
-    Uint32 h = 0;
-
-    for (Uint32 i = 0, n = str.getLength(); i < n; i++)
-	h = 5 * h + str[i];
-
-    return h;
-}
-
 Uint32 CIMReference::makeHashCode() const
 {
     CIMReference ref = *this;
@@ -633,7 +624,7 @@ Uint32 CIMReference::makeHashCode() const
     for (Uint32 i = 0, n = ref._keyBindings.getSize(); i < n; i++)
 	ref._keyBindings[i]._name.toLower();
 
-    return _Hash(ref.toString());
+    return Hash(ref.toString());
 }
 
 PEGASUS_NAMESPACE_END

@@ -252,7 +252,9 @@ private:
 	advent of the MOF compiler/loader. The XML Schema had no qualifiers
 	included in it so the XML loader needed a way to create them.
     */
+#if 0
     void _createMetaQualifiers(const String& nameSpace);
+#endif
 
     String _root;
     RepositoryDeclContext* _context;

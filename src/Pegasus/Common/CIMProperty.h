@@ -181,7 +181,6 @@ public:
 	return _rep->findQualifier(name);
     }
 
-    /// CIMMethod findQualifier - ATTN
     Uint32 findQualifier(const String& name) const
     {
 	_checkRep();

@@ -183,10 +183,6 @@ public:
 	return _rep->findQualifier(name);
     }
 
-    /** CIMMethod FindQualifier - ATTN:
-	@param name of the qualifier to be found
-	@return ATTN: Define this
-    */
     Uint32 findQualifier(const String& name) const
     {
 	_checkRep();
@@ -257,7 +253,6 @@ public:
 	return _rep->findProperty(name);
     }
 
-    /// CIMMethod findProperty
     Uint32 findProperty(const String& name) const
     {
 	_checkRep();
@@ -318,7 +313,6 @@ public:
 	return _rep->findMethod(name);
     }
 
-    /// CIMMethod findMethod - ATTN:
     Uint32 findMethod(const String& name) const
     {
 	_checkRep();

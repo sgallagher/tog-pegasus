@@ -650,6 +650,8 @@ void CIMRepository::createInstance(
     CIMReference instanceName = newInstance.getInstanceName(cimClass);
     Uint32 index;
 
+    // ATTN: Should throw "object already exists" exception!
+
     if (!InstanceIndexFile::insert(indexFilePath, instanceName, index))
 	throw CIMException(CIMException::FAILED);
 
@@ -1072,6 +1074,8 @@ void CIMRepository::deleteNameSpace(const String& nameSpace)
 
 // Recall flavor defaults: TOSUBCLASS | OVERRIDABLE
 
+#if 0
+
 void CIMRepository::_createMetaQualifiers(const String& nameSpace)
 {
     // CIMQualifier CimType : string = null, 
@@ -1462,5 +1466,7 @@ void CIMRepository::_createMetaQualifiers(const String& nameSpace)
     setQualifier(nameSpace, CIMQualifierDecl("write", false,
 	CIMScope::PROPERTY));
 }
+
+#endif
 
 PEGASUS_NAMESPACE_END

@@ -291,8 +291,10 @@ int main ()
             PEGASUS_ASSERT (response->messageId == String ("00000002"));
             PEGASUS_ASSERT (response->cimException.getCode () == 
                 CIM_ERR_FAILED);
-            PEGASUS_ASSERT (((ContentLanguageListContainer)response->operationContext.
-					get(ContentLanguageListContainer::NAME)).getLanguages()==ContentLanguages::EMPTY);
+            PEGASUS_ASSERT (((ContentLanguageListContainer)
+                response->operationContext.get
+                (ContentLanguageListContainer::NAME)).getLanguages () ==
+                ContentLanguages::EMPTY);
         }
         else
         {
@@ -333,6 +335,17 @@ int main ()
         pipeToChild->closeWriteHandle ();
         pipeFromChild->closeReadHandle ();
         pipeFromChild->closeReadHandle ();
+
+        //
+        //  Try to read or write after handles have been closed
+        //
+        writeBufferStatus = pipeToChild->writeBuffer 
+            ((const char *) &bufferLength, sizeof (Uint32));
+        PEGASUS_ASSERT (writeBufferStatus == AnonymousPipe::STATUS_CLOSED);
+
+        readBufferStatus = pipeFromChild->readBuffer ((char *) &bufferLength, 
+            sizeof (Uint32));
+        PEGASUS_ASSERT (readBufferStatus == AnonymousPipe::STATUS_CLOSED);
     }
     catch (Exception & e)
     {

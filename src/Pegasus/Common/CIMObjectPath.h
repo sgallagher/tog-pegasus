@@ -573,7 +573,7 @@ PEGASUS_COMMON_LINKAGE PEGASUS_STD(ostream)& operator<<(
     const CIMObjectPath& x);
 
 #define PEGASUS_ARRAY_T CIMObjectPath
-# include "ArrayInter.h"
+# include <Pegasus/Common/ArrayInter.h>
 #undef PEGASUS_ARRAY_T
 
 PEGASUS_NAMESPACE_END

@@ -39,10 +39,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-#define PEGASUS_ARRAY_T DynamicLibraryHandle
-#include <Pegasus/Common/ArrayInter.h>
-#undef PEGASUS_ARRAY_T
-
 // 
 // the ProviderAdapter serves as a coupling between a
 // CIMBaseProvider and an arbitrary file
@@ -75,11 +71,6 @@ protected:
 //
 // this class manages all adapters
 //
-
-//#define PEGASUS_ARRAY_T ProviderAdapter * 
-//#include <Pegasus/Common/ArrayInter.h>
-//#undef PEGASUS_ARRAY_T
-
 
 class PEGASUS_SERVER_LINKAGE ProviderAdapterManager
 {

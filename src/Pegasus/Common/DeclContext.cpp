@@ -31,14 +31,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-#define PEGASUS_ARRAY_T QPair
-# include "ArrayImpl.h"
-#undef PEGASUS_ARRAY_T
-
-#define PEGASUS_ARRAY_T CPair
-# include "ArrayImpl.h"
-#undef PEGASUS_ARRAY_T
-
 DeclContext::~DeclContext()
 {
 

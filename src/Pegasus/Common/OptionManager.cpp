@@ -40,10 +40,6 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-#define PEGASUS_ARRAY_T OptionPtr
-# include "ArrayImpl.h"
-#undef PEGASUS_ARRAY_T
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 // TODO: expand variables in the configuration file. For example:

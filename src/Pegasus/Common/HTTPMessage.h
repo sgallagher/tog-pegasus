@@ -44,10 +44,6 @@ PEGASUS_NAMESPACE_BEGIN
 
 typedef Pair<String, String> HTTPHeader;
 
-#define PEGASUS_ARRAY_T HTTPHeader
-#include <Pegasus/Common/ArrayInter.h>
-#undef PEGASUS_ARRAY_T
-
 /** This message is sent from a connection to its output queue when
     a complete HTTP message is received.
 */

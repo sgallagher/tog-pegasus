@@ -43,10 +43,6 @@ struct CGIQueryStringEntry
     ~CGIQueryStringEntry() { }
 };
 
-#define PEGASUS_ARRAY_T CGIQueryStringEntry
-# include <Pegasus/Common/ArrayInter.h>
-#undef PEGASUS_ARRAY_T
-
 /** The CGIQueryString class is used to parse and extract the fields from
     the CGI QUERY_STRING environment variable which is set by the Web Server
     and passed to the CGI program. The value of that environment variable

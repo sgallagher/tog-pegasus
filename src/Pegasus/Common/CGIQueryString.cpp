@@ -34,10 +34,6 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-#define PEGASUS_ARRAY_T CGIQueryStringEntry
-# include "ArrayImpl.h"
-#undef PEGASUS_ARRAY_T
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 // CGIQueryString:

@@ -547,45 +547,38 @@ void CIMServer::runForever()
 
     // Note: Trace code in this method will be invoked frequently.
 
-    static int modulator = 0;
-
     if(!_dieNow)
       {
-	if(false == _monitor->run(500000))
-	  {
-      if (modulator++ == 0)
-      {
-        #ifdef PEGASUS_ENABLE_SLP
-                        startSLPProvider();
-        #endif
-      }
-//	    if( ! (modulator % 5000) )
-//	      {
-		try
-		  {
-		    MessageQueueService::_check_idle_flag = 1;
-		    MessageQueueService::_polling_sem.signal();
-		
-            #ifdef PEGASUS_USE_23PROVIDER_MANAGER
-            ProviderManagerService::getProviderManager()->unload_idle_providers();
-	    #else
-            _providerManager->unloadIdleProviders();
-            #endif
+#ifdef PEGASUS_ENABLE_SLP
+	// Note - this func prevents multiple starting of slp provider
+	startSLPProvider();
+#endif
 
-		  }
-		catch(...)
-		  {
-		  }
-//	      }
+	if(false == _monitor->run(500000))
+	{
+	  try
+	  {
+	    MessageQueueService::_check_idle_flag = 1;
+	    MessageQueueService::_polling_sem.signal();
+		
+#ifdef PEGASUS_USE_23PROVIDER_MANAGER
+	    ProviderManagerService::getProviderManager()->unload_idle_providers();
+#else
+	    _providerManager->unloadIdleProviders();
+#endif
 	  }
+	  catch(...)
+	  {
+	  }
+	}
 
 	if (handleShutdownSignal)
-	  {
-	    Tracer::trace(TRC_SERVER, Tracer::LEVEL3,
-			  "CIMServer::runForever - signal received.  Shutting down.");
-	    ShutdownService::getInstance(this)->shutdown(true, 10, false);
-	    handleShutdownSignal = false;
-	  }
+	{
+	  Tracer::trace(TRC_SERVER, Tracer::LEVEL3,
+			"CIMServer::runForever - signal received.  Shutting down.");
+	  ShutdownService::getInstance(this)->shutdown(true, 10, false);
+	  handleShutdownSignal = false;
+	}
       }
   }
   else {
@@ -594,10 +587,6 @@ void CIMServer::runForever()
   }
 
 }
-
-
-
-
 
 void CIMServer::stopClientConnection()
 {
@@ -618,8 +607,9 @@ void CIMServer::stopClientConnection()
         // for the wait here is to make sure that the Monitor entries
         // are updated before closing the connection sockets.
         //
-        PEG_TRACE_STRING(TRC_SERVER, Tracer::LEVEL4, "Wait 150 milliseconds.");
-        pegasus_sleep(150);
+        // PEG_TRACE_STRING(TRC_SERVER, Tracer::LEVEL4, "Wait 150 milliseconds.");
+	//  pegasus_sleep(150);  not needed anymore due to the semaphore
+	// in the monitor
 
         for (Uint32 i=0; i<_acceptors.size(); i++)
 	{
@@ -635,6 +625,9 @@ void CIMServer::shutdown()
     PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::shutdown()");
 
     _dieNow = true;
+    if(_type == OLD) {
+      _cimserver->tickle_monitor();
+    }
 
     PEG_METHOD_EXIT();
 }

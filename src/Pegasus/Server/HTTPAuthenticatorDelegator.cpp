@@ -76,6 +76,11 @@ HTTPAuthenticatorDelegator::~HTTPAuthenticatorDelegator()
     PEG_METHOD_EXIT();
 }
 
+void HTTPAuthenticatorDelegator::enqueue(Message* message) throw(IPCException)
+{
+    handleEnqueue(message);
+}
+
 void HTTPAuthenticatorDelegator::_sendResponse(
     Uint32 queueId,
     Array<Sint8>& message)
@@ -89,7 +94,7 @@ void HTTPAuthenticatorDelegator::_sendResponse(
     {
         HTTPMessage* httpMessage = new HTTPMessage(message);
 	httpMessage->dest = queue->getQueueId();
-	
+
         queue->enqueue(httpMessage);
     }
 

@@ -63,6 +63,12 @@ class PEGASUS_SERVER_LINKAGE HTTPAuthenticatorDelegator : public MessageQueueSer
       /** Destructor. */
       ~HTTPAuthenticatorDelegator();
 
+      /**
+          This method is overridden here to force the message to be handled
+          by the same thread that enqueues it.  See Bugzilla 641 for details.
+       */
+      virtual void enqueue(Message* message) throw(IPCException);
+
       virtual void handleEnqueue(Message *);
       virtual void handleEnqueue();
 

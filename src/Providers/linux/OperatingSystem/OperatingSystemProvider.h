@@ -48,6 +48,7 @@
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/CIMInstance.h>
 
@@ -128,7 +129,7 @@ class OperatingSystemProvider: public CIMInstanceProvider,
       CIMInstance _build_instance(const String &className);
 
       /** Builds a reference (a set of Key,Value pairs) */
-      CIMObjectPath _fill_reference(const String &nameSpace, 
+      CIMObjectPath _fill_reference(const CIMNamespaceName &nameSpace, 
 			           const String &className);
     
       /** Get the values needed */

@@ -76,14 +76,14 @@ OperatingSystemProvider::getInstance(const OperationContext& context,
    DEBUG("losp-> starting up getInstance");
 
    //-- make sure we're working on the right class
-   if (!String::equal(ref.getClassName(), OPERATINGSYSTEMCLASSNAME))
+   if (ref.getClassName().equal(OPERATINGSYSTEMCLASSNAME))
       throw CIMException(CIM_ERR_INVALID_PARAMETER);
 
    DEBUG("losp-> getInstance right class name");
 
    //-- make sure we're the right instance
    int keyCount;
-   String keyName;
+   CIMName keyName;
 
    keyCount = 4;
    keys = ref.getKeyBindings();
@@ -97,22 +97,22 @@ OperatingSystemProvider::getInstance(const OperationContext& context,
    {
       keyName = keys[ii].getName();
 
-      if (String::equal(keyName, "CSCreationClassName") &&
+      if (keyName.equal("CSCreationClassName") &&
 	  String::equal(keys[ii].getValue(), "CIM_UnitaryComputerSystem"))
       {
          keyCount--;
       }
-      else if (String::equal(keyName, "CSName") &&
+      else if (keyName.equal("CSName") &&
 	       String::equal(keys[ii].getValue(), _hostName()))
       {
          keyCount--;
       }
-      else if (String::equal(keyName, "CreationClassName") &&
+      else if (keyName.equal("CreationClassName") &&
 	       String::equal(keys[ii].getValue(), OPERATINGSYSTEMCLASSNAME))
       {
          keyCount--;
       }
-      else if (String::equal(keyName, "Name") &&
+      else if (keyName.equal("Name") &&
 	       String::equal(keys[ii].getValue(), _osName()))
       {
          keyCount--;
@@ -277,7 +277,7 @@ OperatingSystemProvider::_build_instance(const String &className)
 }
 
 CIMObjectPath 
-OperatingSystemProvider::_fill_reference(const String &nameSpace,
+OperatingSystemProvider::_fill_reference(const CIMNamespaceName &nameSpace,
 				         const String &className)
 {
    Array<CIMKeyBinding> keys;

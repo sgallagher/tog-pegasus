@@ -43,7 +43,7 @@
     {"slp", "false", 0, 0, 0},
     {"enableAssociationTraversal", "false", 0, 0, 0},
     {"enableIndicationService", "true", 0, 0, 0},
-    {"maximumEnumerationBreadth", "50", 0, 0, 0},
+    // Removed because unresolved PEP 66 KS{"maximumEnumerationBreadth", "50", 0, 0, 0},
     {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, 0, 0, 0},
     {"enableClientCertification", "false", 0, 0, 0}
 #else

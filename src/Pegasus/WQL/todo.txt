@@ -1,14 +1,9 @@
 
-    A	Extensive testing.
 
-    A	Implement CIMInstancePropertySource.
+    A	Source documentation.
+
+    A	Extensive testing.
 
     B	Support qualified property names (e.g., x.y.z).
 
     B	Support the ISA operator (e.g., ClassNameA ISA ClassNameB).
-
-    B	Implement function notation.
-
-    B	Reject MOF reserved words in SQL expressions?
-
-    B	Handle 16 bit strings (with embedded \Xe098 type characters).

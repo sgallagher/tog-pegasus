@@ -68,6 +68,6 @@ else
 	$(YACC) -vd -oWQLtemp -p WQL_ WQL.y
 	$(COPY) WQLtemp WQLYACC.cpp
 	$(COPY) WQLtemp.h WQLYACC.h
-	$(RM) WQLtemp WQLtemp.h WQLtemp.output
+	$(RM) WQLtemp WQLtemp.h WQLtemp.output wqltemp.out
 	$(TOUCH) WQLYACC.cpp WQLYACC.h
 endif

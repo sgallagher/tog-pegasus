@@ -30,8 +30,7 @@
 //         Warren Otsuka (warren_otsuka@hp.com)
 //         Sushma Fernandes, Hewlett-Packard Company
 //         (sushma_fernandes@hp.com)
-//	       David Eger (dteger@us.ibm.com)
-//         Amit K Arora (amita@in.ibm.com) for PEP-101
+//	   David Eger (dteger@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -50,7 +49,6 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/SSLContext.h>
-#include <Pegasus/Common/AutoPtr.h>
 
 #include <Pegasus/getoopt/getoopt.h>
 #include <Clients/cliutils/CommandException.h>
@@ -277,7 +275,9 @@ WbemExecCommand::WbemExecCommand ()
 	    randFile = FileSystem::getAbsolutePath(
                 pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
 #endif
-        AutoPtr<SSLContext> sslcontext(new SSLContext(certpath, verifyCertificate, randFile));
+            SSLContext * sslcontext =
+                new SSLContext(certpath, verifyCertificate, randFile);
+
 	    client.connect(host, portNumber, sslcontext,  _userName, _password );
 	}
       }

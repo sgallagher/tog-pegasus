@@ -179,11 +179,11 @@ protected:
 
       CIMRepository * _repository;
 
+      ProviderRegistrationManager _providerRegistrationManager;
+
       ServiceCIMOMHandle _cimom;
 
       ConfigurationManagerQueue _configurationManager;
-
-      ProviderRegistrationManager _providerRegistrationManager;
 
       AtomicInt _dying;
 

@@ -53,8 +53,8 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
       :
       Base("CIMOpRequestDispatcher", MessageQueue::getNextQueueId()),
       _repository(repository),
-      _cimom(this, server, repository),
       _providerRegistrationManager(repository),
+      _cimom(this, server, repository),
       _configurationManager(_cimom)
 {
    DDD(cout << _DISPATCHER << endl;)
@@ -148,7 +148,7 @@ String CIMOperationRequestDispatcher::_lookupMethodProvider(
     }
 }
 
-// ATTN-YZ-P1-20020305: Implement this interface 
+// ATTN-YZ-P1-20020305: Implement this interface
 String CIMOperationRequestDispatcher::_lookupIndicationProvider(
    const String& nameSpace,
    const String& className)
@@ -156,7 +156,7 @@ String CIMOperationRequestDispatcher::_lookupIndicationProvider(
     return(String::EMPTY);
 }
 
-// ATTN-YZ-P1-20020305: Implement this interface 
+// ATTN-YZ-P1-20020305: Implement this interface
 String CIMOperationRequestDispatcher::_lookupAssociationProvider(
    const String& nameSpace,
    const String& className)
@@ -355,7 +355,7 @@ const char* CIMOperationRequestDispatcher::getQueueName() const
 void CIMOperationRequestDispatcher::handleGetClassRequest(
    CIMGetClassRequestMessage* request)
 {
-   PEG_METHOD_ENTER(TRC_DISPATCHER, 
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDispatcher::handleGetClassRequest()");
 
    // ATTN: Need code here to expand partial class!
@@ -632,11 +632,11 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
         AsyncReply* reply = SendWait (req);
         CIMDeleteInstanceResponseMessage * response =
             reinterpret_cast <CIMDeleteInstanceResponseMessage *>
-            ((static_cast <AsyncLegacyOperationResult *> 
+            ((static_cast <AsyncLegacyOperationResult *>
             (reply))->get_result ());
 
         _enqueueResponse (request, response);
-         
+
         delete reply;
         delete req;
         return;
@@ -1025,11 +1025,11 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
         AsyncReply* reply = SendWait (req);
         CIMModifyInstanceResponseMessage * response =
             reinterpret_cast <CIMModifyInstanceResponseMessage *>
-            ((static_cast <AsyncLegacyOperationResult *> 
+            ((static_cast <AsyncLegacyOperationResult *>
             (reply))->get_result ());
 
         _enqueueResponse (request, response);
-         
+
         delete reply;
         delete req;
         return;
@@ -1254,11 +1254,11 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
         AsyncReply* reply = SendWait (req);
         CIMEnumerateInstancesResponseMessage * response =
             reinterpret_cast <CIMEnumerateInstancesResponseMessage *>
-            ((static_cast <AsyncLegacyOperationResult *> 
+            ((static_cast <AsyncLegacyOperationResult *>
             (reply))->get_result ());
 
         _enqueueResponse (request, response);
-         
+
         delete reply;
         delete req;
         return;
@@ -1395,11 +1395,11 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
         AsyncReply* reply = SendWait (req);
         CIMEnumerateInstanceNamesResponseMessage * response =
             reinterpret_cast <CIMEnumerateInstanceNamesResponseMessage *>
-            ((static_cast <AsyncLegacyOperationResult *> 
+            ((static_cast <AsyncLegacyOperationResult *>
             (reply))->get_result ());
 
         _enqueueResponse (request, response);
-         
+
         delete reply;
         delete req;
         return;
@@ -2186,7 +2186,7 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
    String className = request->instanceName.getClassName();
 	
    // check the class name for an "external provider"
-   String providerName = _lookupMethodProvider(request->nameSpace, 
+   String providerName = _lookupMethodProvider(request->nameSpace,
 			 className, request->methodName);
 
    if(providerName.size() != 0)

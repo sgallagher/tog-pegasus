@@ -82,10 +82,17 @@ public:
 
     static void printMessage(PEGASUS_STD(ostream)& os, const Array<Sint8>& message);
 
+    static void sethandlerTrace(const Boolean flag)
+    {
+	_handlerTrace = flag;
+    }
+    ;
+
 private:
 
     enum State { WAITING, LINES, CONTENT, DONE };
     State _state;
+    static Boolean _handlerTrace;
 
 protected:
 

@@ -40,6 +40,9 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 #define D(X) // X
+//#define D(X) X
+
+Boolean Handler::_handlerTrace = false;
 
 Handler::Handler()
 {
@@ -334,7 +337,7 @@ int Handler::handleMessage()
 {
     // D( cout << "Handler::handleMessage()" << endl; )
 
-    if (getenv("PEGASUS_TRACE_PROTOCOL"))
+    if (_handlerTrace)
     {
 	cout << "========== RECEIVED ==========" << endl;
 	print();

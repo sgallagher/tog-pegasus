@@ -613,48 +613,7 @@ int main(int argc, char** argv)
             cout << "differenceInMicroseconds : " << buffer << endl;
         }
     
-        
-
-        /**************** this test is no longer valid
-    
-        //
-        // Test for Out of Range dates on HP-UX, since mktime on HP-UX only
-        // allows dates within a certain range. mktime (3C) man page on HP-UX
-        // does not document the allowed ranges. 
-        //
-        // Set the start and finish times
-        //
-        startTime.set ("19000101000000.000000-000");
-        finishTime.set("19000102000000.000000-000");
-    
-        //
-        // Call getDifference
-        //
-        bad = false;
-        try
-        {
-            differenceInMicroseconds = CIMDateTime::getDifference
-                (startTime,finishTime);
-        }
-        catch (const DateTimeOutOfRangeException&)
-        {
-            bad = true;
-        }
-        
-
-#if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
-        assert(bad);
-#endif
-
-        if (verbose)
-        {
-            cout << "Format              : yyyymmddhhmmss.mmmmmmsutc" << endl;
-            cout << "Start date time is  : " << startTime << endl;
-            cout << "Finish date time is : " << finishTime << endl;
-        }  */
-
-
-    
+            
         //
         // Set the start and finish times
         //
@@ -676,87 +635,6 @@ int main(int argc, char** argv)
     
         assert (differenceInMicroseconds == 
             PEGASUS_SINT64_LITERAL(86400000000));
-
-
-        /*   *************  these tests are no longer valid - mktime is not used
-    
-        //
-        // Test for Out of Range dates on HP-UX, since mktime on HP-UX only 
-        // allows dates within a certain range. mktime (3C) man page on HP-UX
-        // does not document the allowed ranges. 
-        //
-        // Set the start and finish times
-        //
-        startTime.set ("20380120000000.000000-000");
-        finishTime.set("20380121000000.000000-000");
-    
-        //
-        // Call getDifference
-        //
-        bad = false;
-        try
-        {
-            differenceInMicroseconds = CIMDateTime::getDifference
-                (startTime,finishTime);
-        }
-        catch (const DateTimeOutOfRangeException&)
-        {
-            bad = true;
-        }
-#if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
-        assert(bad);
-#endif
-    
-        if (verbose)
-        {
-            cout << "Format              : yyyymmddhhmmss.mmmmmmsutc" << endl;
-            cout << "Start date time is  : " << startTime << endl;
-            cout << "Finish date time is : " << finishTime << endl;
-        }
-    
-        //
-        // Test for Out of Range dates on HP-UX, since mktime on HP-UX only 
-        // allows dates within a certain range. mktime (3C) man page on HP-UX
-        // does not document the allowed ranges. 
-        //
-        // Test maximum date difference
-        //
-        // Set the start and finish times
-        //
-   
-        startTime.set("00010101000000.000000-000");
-        finishTime.set("99991231235959.999999-000");
-    
-        //
-        // Call getDifference
-        //
-        //bad = false;
-        try
-        {
-            differenceInMicroseconds = CIMDateTime::getDifference
-                (startTime,finishTime);
-        }
-        catch (const DateTimeOutOfRangeException&)
-        {
-            bad = true;
-        }
-#if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
-        assert(bad);
-#endif
-        catch (InvalidDateTimeFormatException e)
-            {
-            cout << "Error: " << e.getMessage() << endl;
-            exit(1);
-           }
-
-
-        if (verbose)
-        {
-            cout << "Format              : yyyymmddhhmmss.mmmmmmsutc" << endl;
-            cout << "Start date time is  : " << startTime << endl;
-            cout << "Finish date time is : " << finishTime << endl;
-        }        */
-
 
     
         // Check for interval

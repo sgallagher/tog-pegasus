@@ -142,7 +142,7 @@ void SetEnvironmentVariables(
     char* tmp = str.allocateCString();
     putenv(tmp);
 
-    // Note: don't delete tmp! putenv ()uses it.
+    // Note: don't delete tmp! putenv() uses it.
 }
 
 /** GetOptions function - This function defines the Options Table

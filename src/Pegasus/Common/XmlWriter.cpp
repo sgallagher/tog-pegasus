@@ -736,7 +736,7 @@ void XmlWriter::appendValueElement(
             }
 
             default:
-                throw CIMValueInvalidTypeException();
+                PEGASUS_ASSERT(false);
         }
     }
     else if (value.getType() == CIMTYPE_REFERENCE)
@@ -865,7 +865,7 @@ void XmlWriter::appendValueElement(
             }
 
             default:
-                throw CIMValueInvalidTypeException();
+                PEGASUS_ASSERT(false);
         }
 
         out << "</VALUE>\n";

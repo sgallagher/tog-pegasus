@@ -362,7 +362,7 @@ void MofWriter::appendValueElement(
             }
 
             default:
-                throw CIMValueInvalidTypeException();
+                PEGASUS_ASSERT(false);
         }
     }
     else
@@ -490,7 +490,7 @@ void MofWriter::appendValueElement(
             }
 
             default:
-                throw CIMValueInvalidTypeException();
+                PEGASUS_ASSERT(false);
         }
     }
 }

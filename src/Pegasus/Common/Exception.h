@@ -104,20 +104,6 @@ public:
 };
 
 // ATTN: P3  KS documentation Required
-class PEGASUS_COMMON_LINKAGE ExpectedReferenceValueException : public Exception
-{
-public:
-    ExpectedReferenceValueException();
-};
-
-// ATTN: P3  KS documentation Required
-class PEGASUS_COMMON_LINKAGE MissingReferenceClassNameException : public Exception
-{
-public:
-    MissingReferenceClassNameException();
-};
-
-// ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE TypeMismatchException : public Exception
 {
 public:
@@ -125,10 +111,10 @@ public:
 };
 
 // ATTN: P3  KS documentation Required
-class PEGASUS_COMMON_LINKAGE CIMValueInvalidTypeException : public Exception
+class PEGASUS_COMMON_LINKAGE InvalidTypeException : public Exception
 {
 public:
-    CIMValueInvalidTypeException();
+    InvalidTypeException();
 };
 
 // ATTN: P3  KS documentation Required
@@ -142,12 +128,6 @@ class PEGASUS_COMMON_LINKAGE InvalidDateTimeFormatException : public Exception
 {
 public:
     InvalidDateTimeFormatException();
-};
-
-class PEGASUS_COMMON_LINKAGE IncompatibleTypesException : public Exception
-{
-public:
-    IncompatibleTypesException();
 };
 
 class PEGASUS_COMMON_LINKAGE MalformedObjectNameException : public Exception

@@ -77,24 +77,13 @@ UninitializedObjectException::UninitializedObjectException()
 {
 }
 
-ExpectedReferenceValueException::ExpectedReferenceValueException()
-    : Exception("Expected CIMValue object to be of type reference "
-                    "in this context")
-{
-}
-
-MissingReferenceClassNameException::MissingReferenceClassNameException()
-    : Exception("missing reference class name")
-{
-}
-
 TypeMismatchException::TypeMismatchException()
     : Exception("type mismatch")
 {
 }
 
-CIMValueInvalidTypeException::CIMValueInvalidTypeException()
-    : Exception("invalid CIMValue type")
+InvalidTypeException::InvalidTypeException()
+    : Exception("invalid CIM type")
 {
 }
 
@@ -105,11 +94,6 @@ DynamicCastFailedException::DynamicCastFailedException()
 
 InvalidDateTimeFormatException::InvalidDateTimeFormatException()
     : Exception("invalid datetime format")
-{
-}
-
-IncompatibleTypesException::IncompatibleTypesException()
-    : Exception("incompatible types")
 {
 }
 

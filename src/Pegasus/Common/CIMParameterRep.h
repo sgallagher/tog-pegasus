@@ -85,8 +85,6 @@ public:
 	return _type; 
     }
 
-    void setType(CIMType type);
-
     void addQualifier(const CIMQualifier& qualifier)
     {
 	_qualifiers.add(qualifier);

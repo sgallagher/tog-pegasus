@@ -404,6 +404,13 @@ public:
     UnauthorizedAccess() : Exception(MSG) { }
 };
 
+class PEGASUS_COMMON_LINKAGE IncompatibleTypesException : public Exception
+{
+public:
+    IncompatibleTypesException();
+};
+
+
 /** The CIMException defines the CIM exceptions that are formally defined in
     the CIM Operations over HTTP specification.  TraceableCIMException allows
     file name and line number information to be added for diagnostic purposes.

@@ -81,8 +81,6 @@ public:
 
     CIMType getType() const ;
 
-    void setType(const CIMType type);
-
     // Throws AlreadyExistsException.
     CIMParameter& addQualifier(const CIMQualifier& x);
 

@@ -50,13 +50,13 @@ CIMParameterRep::CIMParameterRep(
     _referenceClassName(referenceClassName)
 {
     if (_arraySize && !_isArray)
-	throw IncompatibleTypesException();
+	throw TypeMismatchException();
 
     if (!referenceClassName.isNull())
     {
 	if (_type != CIMTYPE_REFERENCE)
 	{
-	    throw ExpectedReferenceValueException();
+	    throw TypeMismatchException();
 	}
     }
     else
@@ -64,7 +64,7 @@ CIMParameterRep::CIMParameterRep(
         // ATTN: revisit this later!
 #if 0
 	if (_type == CIMTYPE_REFERENCE)
-	    throw MissingReferenceClassNameException();
+	    throw TypeMismatchException();
 #endif
     }
 }
@@ -224,16 +224,6 @@ CIMParameterRep::CIMParameterRep(const CIMParameterRep& x) :
     _referenceClassName(x._referenceClassName)
 {
     x._qualifiers.cloneTo(_qualifiers);
-}
-
-void CIMParameterRep::setType(CIMType type)
-{ 
-    _type = type;
-
-    if (_referenceClassName.isNull() && _type == CIMTYPE_REFERENCE)
-    {
-	throw MissingReferenceClassNameException();
-    }
 }
 
 PEGASUS_NAMESPACE_END

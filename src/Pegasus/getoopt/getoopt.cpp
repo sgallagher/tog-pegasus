@@ -113,7 +113,7 @@ void
 Optarg::Value(String &s) const { s = _value; }
 
 //  Fill in a caller-provided int with the integer conversion of the value.
-void Optarg::Value (int &i) const  throw (IncompatibleTypesException)
+void Optarg::Value (int &i) const  throw (TypeMismatchException)
 {
     CString cs = _value.getCString();
     const char* s = cs;
@@ -132,17 +132,17 @@ void Optarg::Value (int &i) const  throw (IncompatibleTypesException)
     {
         if (!(sscanf (s, "%d", &i)))
         {
-            throw IncompatibleTypesException ();
+            throw TypeMismatchException ();
         }
     }
     else
     {
-        throw IncompatibleTypesException ();
+        throw TypeMismatchException ();
     }
 }
 
 //  Fill in a caller-provided unsigned int
-void Optarg::Value (unsigned int &i) const throw (IncompatibleTypesException)
+void Optarg::Value (unsigned int &i) const throw (TypeMismatchException)
 {
     CString cs = _value.getCString();
     const char* s = cs;
@@ -161,12 +161,12 @@ void Optarg::Value (unsigned int &i) const throw (IncompatibleTypesException)
     {
         if (!(sscanf (s, "%u", &i)))
         {
-            throw IncompatibleTypesException ();
+            throw TypeMismatchException ();
         }
     }
     else
     {
-        throw IncompatibleTypesException ();
+        throw TypeMismatchException ();
     }
 }
 

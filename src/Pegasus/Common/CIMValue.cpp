@@ -435,8 +435,9 @@ void CIMValue::assign(const CIMValue& x)
                 _rep->_u._referenceArray =
                     new Array<CIMObjectPath>(*(x._rep->_u._referenceArray));
                 break;
+
             default:
-                throw CIMValueInvalidTypeException();
+                PEGASUS_ASSERT(false);
         }
     }
     else
@@ -507,14 +508,11 @@ void CIMValue::assign(const CIMValue& x)
             
             // Should never get here. testing complete enum
             default:
-                throw CIMValueInvalidTypeException();
+                PEGASUS_ASSERT(false);
         }
     }
 }
 
-//ATTN: P1  KS Problem with Compiler when I added the defaults to clear, the compiler
-// gets an exception very early.  Disabled the exceptions to keep compiler running for
-// the minute. Note that the case statement is not complete. None missing.
 void CIMValue::clear()
 {
     if (_rep->_isArray)
@@ -581,8 +579,8 @@ void CIMValue::clear()
                 delete _rep->_u._referenceArray;
                 break;
 
-            //default:
-                //throw CIMValueInvalidTypeException();
+            default:
+                PEGASUS_ASSERT(false);
         }
     }
     else
@@ -614,8 +612,9 @@ void CIMValue::clear()
             case CIMTYPE_REFERENCE:
                 delete _rep->_u._referenceValue;
                 break;
-            //default:
-                //throw CIMValueInvalidTypeException();
+
+            default:
+                PEGASUS_ASSERT(false);
         }
     }
 
@@ -705,9 +704,8 @@ Uint32 CIMValue::getArraySize() const
         case CIMTYPE_REFERENCE:
             return _rep->_u._referenceArray->size();
             break;
-        // Should never get here. switch on complete enum
-        default:
-            throw CIMValueInvalidTypeException();
+
+        //default:  // Handled below
     }
 
     // Unreachable!
@@ -787,8 +785,9 @@ void CIMValue::setNullValue(CIMType type, Boolean isArray, Uint32 arraySize)
             case CIMTYPE_REFERENCE:
                 set(Array<CIMObjectPath>(arraySize));
                 break;
+
             default:
-                throw CIMValueInvalidTypeException();
+                throw InvalidTypeException();
         }
     }
     else
@@ -854,8 +853,9 @@ void CIMValue::setNullValue(CIMType type, Boolean isArray, Uint32 arraySize)
             case CIMTYPE_REFERENCE:
                 set(CIMObjectPath());
                 break;
+
             default:
-                throw CIMValueInvalidTypeException();
+                throw InvalidTypeException();
         }
     }
 
@@ -1461,8 +1461,9 @@ Boolean CIMValue::equal(const CIMValue& x) const
             case CIMTYPE_REFERENCE:
                 return (*_rep->_u._referenceArray) ==
                     (*x._rep->_u._referenceArray);
+
             default:
-                throw CIMValueInvalidTypeException();
+                PEGASUS_ASSERT(false);
         }
     }
     else
@@ -1517,7 +1518,7 @@ Boolean CIMValue::equal(const CIMValue& x) const
                     *x._rep->_u._referenceValue;
 
             default:
-                throw CIMValueInvalidTypeException();
+                PEGASUS_ASSERT(false);
         }
     }
 
@@ -1620,7 +1621,7 @@ String CIMValue::toString() const
                 break;
 
             default:
-                throw CIMValueInvalidTypeException();
+                PEGASUS_ASSERT(false);
         }
     }
     else
@@ -1688,7 +1689,7 @@ String CIMValue::toString() const
                 break;
 
             default:
-                throw CIMValueInvalidTypeException();
+                PEGASUS_ASSERT(false);
         }
     }
 

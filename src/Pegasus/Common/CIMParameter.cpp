@@ -121,12 +121,6 @@ CIMType CIMParameter::getType() const
     return _rep->getType();
 }
 
-void CIMParameter::setType(const CIMType type)
-{
-    _checkRep();
-    _rep->setType(type);
-}
-
 CIMParameter& CIMParameter::addQualifier(const CIMQualifier& x)
 {
     _checkRep();

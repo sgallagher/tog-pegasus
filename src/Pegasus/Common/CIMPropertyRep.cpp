@@ -53,18 +53,18 @@ CIMPropertyRep::CIMPropertyRep(
     _propagated(propagated)
 {
     if (arraySize && (!value.isArray() || value.getArraySize() != arraySize))
-		throw IncompatibleTypesException();
+        throw TypeMismatchException();
 
-    // If referenceClassName exists, must be legal namd and CIMType REFERENCE.
+    // If referenceClassName exists, must be CIMType REFERENCE.
     if (!referenceClassName.isNull())
     {
         if (_value.getType() != CIMTYPE_REFERENCE)
-            throw ExpectedReferenceValueException();
+            throw TypeMismatchException();
     }
     else
     {
         if (_value.getType() == CIMTYPE_REFERENCE)
-            throw MissingReferenceClassNameException();
+            throw TypeMismatchException();
     }
 }
 
@@ -328,10 +328,10 @@ void CIMPropertyRep::setValue(const CIMValue& value)
     // CIMType of value is immutable:
 
     if (!value.typeCompatible(_value))
-	throw IncompatibleTypesException();
+	throw TypeMismatchException();
 
     if (_arraySize && _arraySize != value.getArraySize())
-	throw IncompatibleTypesException();
+	throw TypeMismatchException();
 
     _value = value;
 }

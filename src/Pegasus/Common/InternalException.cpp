@@ -124,6 +124,11 @@ const char InvalidAuthHeader::MSG[] = "Invalid Authorization header";
 
 const char UnauthorizedAccess::MSG[] = "Unauthorized access";
 
+IncompatibleTypesException::IncompatibleTypesException()
+    : Exception("incompatible types")
+{
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //

@@ -707,7 +707,14 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
 
     try
     {
-        _checkNonprivilegedAuthorization(request->userName);
+		String userName = ((IdentityContainer)request->operationContext.
+			                                             get(IdentityContainer :: NAME)).getUserName();
+        _checkNonprivilegedAuthorization(userName);
+
+		AcceptLanguages acceptLangs = ((AcceptLanguageListContainer)request->operationContext.
+			                                    get(AcceptLanguageListContainer::NAME)).getLanguages();
+		ContentLanguages contentLangs =((ContentLanguageListContainer)request->operationContext.
+			                                    get(ContentLanguageListContainer::NAME)).getLanguages();
 
         if (_canCreate (instance, request->nameSpace))
         {
@@ -772,11 +779,11 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
                     _sendCreateRequests (indicationProviders, 
                         sourceNameSpace, requiredProperties, condition, 
                         queryLanguage, instance,
-                        request->acceptLanguages,
-                        request->contentLanguages,   
-                        request,
+  						acceptLangs, 
+						contentLangs,
+						request,
                         indicationSubclasses,
-                        request->userName, request->authType);
+                        userName, request->authType); 
 
                     //
                     //  Response is sent from _aggregationCallBack 
@@ -789,8 +796,8 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
                     //  Create instance for disabled subscription
                     //
                     instanceRef = _subscriptionRepository->createInstance 
-                        (instance, request->nameSpace, request->userName,
-                        request->acceptLanguages, request->contentLanguages,
+                        (instance, request->nameSpace, userName, 
+                         acceptLangs, contentLangs, 
                         false);
                 }
             }
@@ -800,8 +807,8 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
                 //  Create instance for filter or handler
                 //
                 instanceRef = _subscriptionRepository->createInstance 
-                    (instance, request->nameSpace, request->userName,
-                    request->acceptLanguages, request->contentLanguages,
+                    (instance, request->nameSpace, userName, 
+                     acceptLangs, contentLangs, 
                     false);
             }
         }
@@ -864,7 +871,9 @@ void IndicationService::_handleGetInstanceRequest (const Message* message)
 
     try
     {
-        _checkNonprivilegedAuthorization(request->userName);
+		 String userName = ((IdentityContainer)request->operationContext.
+			                                             get(IdentityContainer :: NAME)).getUserName();
+        _checkNonprivilegedAuthorization(userName );
 
         //
         //  Add Creator to property list, if not null
@@ -1003,7 +1012,9 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
 
     try
     {
-        _checkNonprivilegedAuthorization(request->userName);
+		String userName = ((IdentityContainer)request->operationContext.
+			                                             get(IdentityContainer :: NAME)).getUserName();
+        _checkNonprivilegedAuthorization(userName);
 
         //
         //  Add Creator to property list, if not null
@@ -1163,7 +1174,9 @@ void IndicationService::_handleEnumerateInstanceNamesRequest
 
     try
     {
-        _checkNonprivilegedAuthorization(request->userName);
+		String userName = ((IdentityContainer)request->operationContext.
+			                                             get(IdentityContainer :: NAME)).getUserName();
+		_checkNonprivilegedAuthorization(userName);
 
         enumInstanceNames = 
             _subscriptionRepository->enumerateInstanceNamesForClass
@@ -1221,7 +1234,9 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
     
     try
     {
-        _checkNonprivilegedAuthorization(request->userName);
+		String userName = ((IdentityContainer)request->operationContext.
+			                                             get(IdentityContainer :: NAME)).getUserName();
+        _checkNonprivilegedAuthorization(userName);
 
         //
         //  Get the instance name
@@ -1393,12 +1408,14 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                 // Add the language properties to the modified instance.
     	        // Note:  These came from the Accept-Language and Content-Language
        	        // headers in the HTTP messages, and may be empty.
-                AcceptLanguages acceptLangs = request->acceptLanguages;
+				AcceptLanguages acceptLangs = ((AcceptLanguageListContainer)request->operationContext.
+			                                    get(AcceptLanguageListContainer::NAME)).getLanguages();
                 modifiedInstance.addProperty (CIMProperty 
                     (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS, 
                     acceptLangs.toString()));
 
-	        ContentLanguages contentLangs = request->contentLanguages;
+				ContentLanguages contentLangs =((ContentLanguageListContainer)request->operationContext.
+			                                    get(ContentLanguageListContainer::NAME)).getLanguages();
                 modifiedInstance.addProperty (CIMProperty 
                     (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS, 
                     contentLangs.toString()));
@@ -1526,11 +1543,11 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                         sourceNameSpace, requiredProperties, condition, 
                         queryLanguage,
                         instance,
-                        request->acceptLanguages,
-                        request->contentLanguages,  
+                        acceptLangs, 
+                        contentLangs,  
                         request,
                         indicationSubclasses,
-                        request->userName, request->authType);
+                        userName, request->authType);
 
                     //
                     //  Response is sent from _aggregationCallBack
@@ -1560,11 +1577,11 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                         _sendDeleteRequests (indicationProviders, 
                             sourceNameSpace,
                             instance,
-	                    request->acceptLanguages,
-    		            request->contentLanguages,  
+                            acceptLangs, 
+                            contentLangs,  
                             request,
                             indicationSubclasses,
-                            request->userName, request->authType);
+                            userName, request->authType);
 
                         //
                         //  Response is sent from _aggregationCallBack
@@ -1632,14 +1649,16 @@ void IndicationService::_handleDeleteInstanceRequest (const Message* message)
 
     try
     {
-        _checkNonprivilegedAuthorization(request->userName);
+		 String userName = ((IdentityContainer)request->operationContext.
+			                                             get(IdentityContainer :: NAME)).getUserName();
+        _checkNonprivilegedAuthorization(userName);
 
         //
         //  Check if instance may be deleted -- a filter or handler instance 
         //  referenced by a subscription instance may not be deleted
         //
         if (_canDelete (request->instanceName, request->nameSpace,
-            request->userName))
+             userName))
         {
             //
             //  If a subscription, get the instance from the repository
@@ -1742,11 +1761,13 @@ void IndicationService::_handleDeleteInstanceRequest (const Message* message)
 // l10n                
                         _sendDeleteRequests (indicationProviders,
                             sourceNamespaceName, subscriptionInstance,
-                            request->acceptLanguages,
-                            request->contentLanguages,
+                            ((AcceptLanguageListContainer)request->operationContext.
+			                                    get(AcceptLanguageListContainer::NAME)).getLanguages(),
+						    ((ContentLanguageListContainer)request->operationContext.
+			                                    get(ContentLanguageListContainer::NAME)).getLanguages(),
                             request,
                             indicationSubclasses,
-                            request->userName, request->authType);
+                            userName, request->authType);
 
                         //
                         //  Response is sent from _aggregationCallBack
@@ -3726,7 +3747,8 @@ Boolean IndicationService::_canModify (
     //  If creator is String::EMPTY, anyone may modify or delete the 
     //  instance
     //
-    String currentUser = request->userName;
+    String currentUser = ((IdentityContainer)request->operationContext.                                 
+			                                             get(IdentityContainer :: NAME)).getUserName();
     if ((creator != String::EMPTY) &&
         (!System::isPrivilegedUser (currentUser)) && 
         (currentUser != creator))
@@ -5169,7 +5191,9 @@ void IndicationService::_sendCreateRequests
 
         requestCopy->operationContext.insert(ProviderIdContainer (indicationProviders [i].providerModule,
 			                                                           indicationProviders [i].provider)); 
-
+		requestCopy->operationContext.insert(SubscriptionInstanceContainer(subscription));
+        requestCopy->operationContext.insert(SubscriptionFilterConditionContainer(condition,queryLanguage));
+        requestCopy->operationContext.insert(SubscriptionLanguageListContainer(acceptLangs));
         AsyncOpNode * op = this->get_op (); 
 
         AsyncLegacyOperationStart * async_req =
@@ -5296,6 +5320,10 @@ void IndicationService::_sendModifyRequests
 
 		requestCopy->operationContext.insert(ProviderIdContainer (indicationProviders [i].providerModule,
 																	   indicationProviders [i].provider));
+		requestCopy->operationContext.insert(SubscriptionInstanceContainer(subscription));
+        requestCopy->operationContext.insert(SubscriptionFilterConditionContainer(condition,queryLanguage));
+		
+        requestCopy->operationContext.insert(SubscriptionLanguageListContainer(acceptLangs));
 		AsyncOpNode * op = this->get_op ();
 
         AsyncLegacyOperationStart * async_req =
@@ -5432,6 +5460,9 @@ void IndicationService::_sendDeleteRequests
 
 		requestCopy->operationContext.insert(ProviderIdContainer (indicationProviders [i].providerModule,
 																		indicationProviders [i].provider)); 
+		requestCopy->operationContext.insert(SubscriptionInstanceContainer(subscription));
+        requestCopy->operationContext.insert(SubscriptionLanguageListContainer(acceptLangs));
+
 
         AsyncOpNode * op = this->get_op ();
 

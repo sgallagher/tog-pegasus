@@ -3023,7 +3023,7 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
            CIMName className = request->objectName.getClassName();
            CIMResponseMessage * response;
         
-           cout << "References ClassName = " << className.getString() << endl;
+           cout << "Dispatcher References ClassName = " << className.getString() << endl;
         
            // Get the list of classes we want to process.
     
@@ -3161,7 +3161,7 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
        
        // Determine if there is an "external provider"
        Array<String> providerNames = _lookupAssociationProvider(request->nameSpace, className);
-    
+       cout << "KSTEST refname provider " << providerNames.size() << endl;
        if(providerNames.size() != 0)
        {
           CIMReferenceNamesRequestMessage* requestCopy =
@@ -3178,7 +3178,7 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
    if (isClassRequest || _repository->isDefaultInstanceProvider())
    {
        CIMException cimException;
-
+      cout << "KSTEST class or rep " << isClassRequest << endl;
       STAT_PROVIDERSTART
 
       Array<CIMObjectPath> objectPaths;

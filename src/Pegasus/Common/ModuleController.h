@@ -348,6 +348,12 @@ class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
 						  client_handle **handle)
 	 throw(IncompatibleTypes);
 
+      static ModuleController & get_client_handle(char *controller,
+						  const pegasus_identity & id, 
+						  client_handle **handle)
+	 throw(IncompatibleTypes);
+      						  
+
       void return_client_handle(client_handle *handle);
       
       // send a message to another service

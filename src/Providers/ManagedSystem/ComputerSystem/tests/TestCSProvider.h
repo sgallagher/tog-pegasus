@@ -33,7 +33,6 @@
 // ==========================================================================
 
 #include "../ComputerSystem.h"
-
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 

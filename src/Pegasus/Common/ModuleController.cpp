@@ -401,7 +401,7 @@ ModuleController & ModuleController::register_module(const String & controller_n
       new RegisteredModule(controller->get_next_xid(),
 			   0, 
 			   true, 
-			   CIMOM_Q_ID,
+			   controller->getQueueId(),
 			   module_name);
 
    request->dest = CIMOM_Q_ID;
@@ -663,7 +663,6 @@ void ModuleController::_async_handleEnqueue(AsyncOpNode *op,
       delete rp;
    }
 
-
    callback_handle *cb = reinterpret_cast<callback_handle *>(parm);
    
    cb->_module->_send_async_callback(request->getRouting(), response, cb->_parm);
@@ -860,8 +859,6 @@ void ModuleController::_handle_async_request(AsyncRequest *rq)
       
       if(module_result == NULL)
       {
-	 cout << "NAK response in ModuleController.cpp " << endl;
-	 
 	 module_result = new AsyncReply(async_messages::REPLY, 
 					static_cast<AsyncModuleOperationStart *>(rq)->_act->getKey(),
 					static_cast<AsyncModuleOperationStart *>(rq)->_act->getRouting(),
@@ -893,10 +890,20 @@ void ModuleController::_handle_async_callback(AsyncOpNode *op)
    
 }
 
+ModuleController & ModuleController::get_client_handle(const pegasus_identity & id,
+						       client_handle **handle)
+   throw(IncompatibleTypes)
+{
+   return get_client_handle(PEGASUS_QUEUENAME_CONTROLSERVICE,
+			    id, 
+			    handle);
+}
+
 
 // called by a non-module client to get the interface and authorization to use the controller
 
-ModuleController & ModuleController::get_client_handle(const pegasus_identity & id, 
+ModuleController & ModuleController::get_client_handle(char *controller,
+						       const pegasus_identity & id, 
 						       client_handle **handle) 
    throw(IncompatibleTypes)
 {
@@ -905,8 +912,7 @@ ModuleController & ModuleController::get_client_handle(const pegasus_identity & 
       throw NullPointer();
       
    Array<Uint32> services;
-   
-   MessageQueue *message_queue = MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE);
+   MessageQueue *message_queue = MessageQueue::lookup(controller);
    
    if ((message_queue == NULL) || ( false == message_queue->isAsync() ))
    {
@@ -919,13 +925,13 @@ ModuleController & ModuleController::get_client_handle(const pegasus_identity & 
       throw IncompatibleTypes();
    }
 
-   ModuleController *controller = static_cast<ModuleController *>(service);
+   ModuleController *_controller = static_cast<ModuleController *>(service);
    if(true == const_cast<pegasus_identity &>(id).authenticate())
       *handle = new client_handle(id);
    else
       *handle = NULL;
    
-   return *controller;
+   return *_controller;
 }
 
 

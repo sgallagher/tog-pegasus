@@ -74,7 +74,6 @@ MessageQueueService::MessageQueueService(const char *name,
    }
    _service_count++;
 
-
    if( false == register_service(name, _capabilities, _mask) )
    {
       _meta_dispatcher_mutex.unlock();

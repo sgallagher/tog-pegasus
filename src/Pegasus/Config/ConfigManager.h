@@ -41,6 +41,7 @@
 #define Pegasus_ConfigManager_h
 
 #include <cctype>
+#include <stdlib.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Array.h>

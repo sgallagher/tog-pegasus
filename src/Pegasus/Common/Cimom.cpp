@@ -100,8 +100,6 @@ Boolean message_module::operator == (const void *key) const
    return operator == ( (*(reinterpret_cast<const message_module *>(key) ) ) );
 }
 
-
-
 AtomicInt cimom::_xid(0);
 
 Boolean cimom::route_async(AsyncOpNode *op)
@@ -1018,7 +1016,6 @@ void cimom::_find_module_in_service(FindModuleInService *msg)
 				      msg->block,
 				      q_id);
 	    
-   msg->op->_response.insert_first(response);
    _complete_op_node(msg->op, 
 		     ASYNC_OPSTATE_COMPLETE, 
 		     0, 

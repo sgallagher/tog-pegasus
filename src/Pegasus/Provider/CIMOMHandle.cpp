@@ -570,7 +570,7 @@ Array<CIMObjectPath> CIMOMHandle::enumerateInstanceNames(
     // send request and wait for response
     // <<< Wed Apr 10 20:30:31 2002 mdd >>>
     // AsyncReply * asyncReply = _service->SendWait(asyncRequest);
-
+    cb_data->client_sem.wait();
     AsyncReply * asyncReply = static_cast<AsyncReply *>(cb_data->get_reply());
     // decode response
     CIMEnumerateInstanceNamesResponseMessage * response =

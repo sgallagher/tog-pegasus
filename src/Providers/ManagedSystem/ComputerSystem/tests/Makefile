@@ -52,7 +52,8 @@ SOURCES = \
 
 LIBRARIES = \
 	pegcommon \
-	pegclient
+	pegclient \
+	pegconfig
 
 include $(ROOT)/mak/program.mak
 

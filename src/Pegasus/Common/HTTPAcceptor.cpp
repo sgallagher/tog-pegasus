@@ -38,6 +38,7 @@
 //         Amit Arora, IBM (amita@in.ibm.com) for Bug#2541
 //         Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //         Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
+//         Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#2065
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -206,7 +207,7 @@ void HTTPAcceptor::handleEnqueue(Message *message)
 	 // If this is a connection request:
 
 	 if (socketMessage->socket == _rep->socket &&
-	     socketMessage->events | SocketMessage::READ)
+	     socketMessage->events & SocketMessage::READ)
 	 {
 	    _acceptConnection();
 	 }

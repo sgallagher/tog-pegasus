@@ -53,12 +53,10 @@ ConsumerTable::ConsumerTable()
     //
     // Get environment variable
     //
-    String consumerFile;
-    String plannedFile;
-
     consumerDir = ConfigManager::getPegasusHome();
 
     FileSystem::translateSlashes(consumerDir);
+    consumerFile.clear();
     consumerFile.append(consumerDir + "/" + CONSUMER_LIST_FILE);
 
     String line;
@@ -118,7 +116,7 @@ ConsumerTable::ConsumerTable()
 
         name += *p++;
 
-        while (isalnum(*p) || *p == '_')
+        while (isalnum(*p) || *p == '_' || *p == '/')
         {
             name += *p++;
         }
@@ -154,6 +152,7 @@ ConsumerTable::ConsumerTable()
         //
         // Store the property name and value in the table
         //
+
 	regConsumers.consumerId = name;
 	regConsumers.consumerLocation = value;
 	_consumerList.append(regConsumers);
@@ -215,20 +214,40 @@ CIMStatusCode ConsumerTable::registerConsumer(
        // ATTN-DME-P1-20020504: path needs to be appended to consumerLocation
        // for this test to work.
 
-//	if (FileSystem::existsNoCase(consumerLocation))
-//	{
+	//if (FileSystem::existsNoCase(consumerLocation))
+	//{
 	    ConsumerList newConsumer;
 	    newConsumer.consumerId = consumerId;
 	    newConsumer.consumerLocation = consumerLocation;
 	    _consumerList.append(newConsumer);
-//	}
-//	else
-//	{
-//	    errorCode = CIM_ERR_FAILED;
-//	    errorDescription = "Invalid Consumer Path or Library Name";
-//          PEG_METHOD_EXIT();
-//	    return errorCode;
-//	}
+
+	    //
+	    // Open the config file
+	    //
+            ArrayDestroyer<char> p(consumerFile.allocateCString());
+            ofstream ofs(p.getPointer());
+
+            if (!ofs)
+	    {
+                errorCode = CIM_ERR_FAILED;
+                errorDescription = "Unable to open/generate consumer_list.dat file";
+                PEG_METHOD_EXIT();
+                return errorCode;
+	    }
+
+            ofs << consumerId;
+            ofs << " = ";
+            ofs << consumerLocation << endl;
+
+	    ofs.close();
+	//}
+	//else
+	//{
+	//    errorCode = CIM_ERR_FAILED;
+	//    errorDescription = "Invalid Consumer Path or Library Name";
+        //    PEG_METHOD_EXIT();
+	//    return errorCode;
+	//}
     }
 
     PEG_METHOD_EXIT();

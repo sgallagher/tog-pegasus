@@ -4913,8 +4913,6 @@ void IndicationService::_sendEnableCallBack(AsyncOpNode *op,
    IndicationService *service = 
       static_cast<IndicationService *>(q);
    
-   cout << " send enable callback " << endl;
-   
    AsyncRequest *asyncRequest = static_cast<AsyncRequest *>(op->get_request());
    AsyncReply *asyncReply = static_cast<AsyncReply *>(op->get_response());
    CIMEnableIndicationsRequestMessage *request = 

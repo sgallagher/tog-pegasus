@@ -77,6 +77,8 @@ public:
 	const String& action,
 	String& errorDescription);
 
+    String consumerFile;
+
 private:
 
     struct ConsumerList

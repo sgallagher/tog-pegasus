@@ -37,10 +37,6 @@
 #include "snmpDeliverTrap_emanate.h"
 #include "prnt_lib.h"
 
-PEGASUS_NAMESPACE_BEGIN
-
-PEGASUS_USING_STD;
-
 static char *sr_filename = __FILE__;
 
 IPCFunctionP IPCfp;  /* IPC functions pointer  */
@@ -69,6 +65,10 @@ int k_initialize()
 {
    return 1;
 }
+
+PEGASUS_NAMESPACE_BEGIN
+
+PEGASUS_USING_STD;
 
 snmpDeliverTrap_emanate::snmpDeliverTrap_emanate()
 {

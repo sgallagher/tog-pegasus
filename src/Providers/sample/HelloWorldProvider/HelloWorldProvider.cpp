@@ -22,7 +22,7 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -30,6 +30,7 @@
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Provider2/CIMInstanceProvider.h>
 #include <Pegasus/Provider2/SimpleResponseHandler.h>
+#include <Pegasus/Provider2/OperationFlag.h>
 
 #include <Pegasus/Common/CIMDateTime.h>
 #include <Pegasus/Common/IPC.h>
@@ -179,12 +180,34 @@ void HelloWorldProvider::enumerateInstances(
 	const CIMReference & ref,
 	const Uint32 flags,
 	const Array<String> & propertyList,
-	ResponseHandler<CIMInstance> & handler)
+	ResponseHandler<CIMNamedInstance> & handler)
 {
 	// begin processing the request
 	handler.processing();
 
-	handler.deliver(_instances);
+        // NOTE: It would be more efficient to remember the instance names
+
+	// get class definition from repository
+	CIMClass cimclass = _cimom.getClass(
+		OperationContext(),
+		ref.getNameSpace(),
+		ref.getClassName(),
+		false,
+		false,
+		false,
+		Array<String>());
+
+	// convert instances to references;
+	for(Uint32 i = 0; i < _instances.size(); i++)
+	{
+		CIMReference tempRef = _instances[i].getInstanceName(cimclass);
+
+		// ensure references are fully qualified
+		tempRef.setHost(ref.getHost());
+		tempRef.setNameSpace(ref.getNameSpace());
+
+		handler.deliver(CIMNamedInstance(tempRef, _instances[i]));
+	}
 
 	// complete processing the request
 	handler.complete();
@@ -228,8 +251,17 @@ void HelloWorldProvider::modifyInstance(
 	const OperationContext & context,
 	const CIMReference & instanceReference,
 	const CIMInstance & instanceObject,
+	const Uint32 flags,
+	const Array<String> & propertyList,
 	ResponseHandler<CIMInstance> & handler)
 {
+        // ATTN: Partial modification is not yet supported by this provider
+        if ((flags & OperationFlag::PARTIAL_INSTANCE) ||
+            !(flags & OperationFlag::INCLUDE_QUALIFIERS))
+        {
+            throw CIMException(CIM_ERR_NOT_SUPPORTED);
+        }
+
 	// synchronously get references
 	Array<CIMReference> references = _enumerateInstanceNames(context, instanceReference);
 

@@ -23,7 +23,7 @@
 //
 // Author: Yi Zhou (yi_zhou@hp.com)
 //
-// Modified By:
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -31,9 +31,11 @@
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Provider2/CIMInstanceProvider.h>
 #include <Pegasus/Provider2/SimpleResponseHandler.h>
+#include <Pegasus/Provider2/OperationFlag.h>
 
 #include <Pegasus/Common/CIMDateTime.h>
 #include <Pegasus/Common/CIMProperty.h>
+#include <Pegasus/Common/CIMPropertyList.h>
 
 #include "PG_TestPropertyTypes.h"
 
@@ -174,7 +176,7 @@ void PG_TestPropertyTypes::enumerateInstances(
 	const CIMReference & ref,
 	const Uint32 flags,
 	const Array<String> & propertyList,
-	ResponseHandler<CIMInstance> & handler)
+	ResponseHandler<CIMNamedInstance> & handler)
 {
 
 	// ensure the Namespace is valid
@@ -192,7 +194,22 @@ void PG_TestPropertyTypes::enumerateInstances(
 	// begin processing the request
 	handler.processing();
 
-	handler.deliver(_instances);
+        // NOTE: It would be much more efficient to remember the instance names
+
+	// get class definition from repository
+	CIMClass cimclass = _cimom.getClass(context, ref.getNameSpace(), ref.getClassName(), false, true, true, CIMPropertyList());
+
+	// convert instances to references;
+	for(Uint32 i = 0; i < _instances.size(); i++)
+	{
+		CIMReference tempRef = _instances[i].getInstanceName(cimclass);
+
+		// ensure references are fully qualified
+		tempRef.setHost(ref.getHost());
+		tempRef.setNameSpace(ref.getNameSpace());
+
+		handler.deliver(CIMNamedInstance(tempRef, _instances[i]));
+	}
 
 	// complete processing the request
 	handler.complete();
@@ -220,9 +237,7 @@ void PG_TestPropertyTypes::enumerateInstanceNames(
 	handler.processing();
 
 	// get class definition from repository
-        // ATTN: RK - Hacked to build with CIMOMHandle changes.
-        Array<String> emptyPropertyList;
-	CIMClass cimclass = _cimom.getClass(context, classReference.getNameSpace(), classReference.getClassName(), false, true, true, emptyPropertyList);
+	CIMClass cimclass = _cimom.getClass(context, classReference.getNameSpace(), classReference.getClassName(), false, true, true, CIMPropertyList());
 
 	// convert instances to references;
 	for(Uint32 i = 0; i < _instances.size(); i++)
@@ -244,8 +259,16 @@ void PG_TestPropertyTypes::modifyInstance(
 	const OperationContext & context,
 	const CIMReference & instanceReference,
 	const CIMInstance & instanceObject,
+	const Uint32 flags,
+	const Array<String> & propertyList,
 	ResponseHandler<CIMInstance> & handler)
 {
+	// ATTN: This provider does not yet support partial modification
+	if (flags & OperationFlag::PARTIAL_INSTANCE)
+	{
+	    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+	}
+
 	// synchronously get references
 	Array<CIMReference> references = _enumerateInstanceNames(context, instanceReference);
 

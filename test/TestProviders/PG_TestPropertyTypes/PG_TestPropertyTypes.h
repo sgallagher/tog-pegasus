@@ -59,7 +59,7 @@ public:
 		const CIMReference & ref,
 		const Uint32 flags,
 		const Array<String> & propertyList,
-		ResponseHandler<CIMInstance> & handler);
+		ResponseHandler<CIMNamedInstance> & handler);
 
 	virtual void enumerateInstanceNames(
 		const OperationContext & context,
@@ -70,6 +70,8 @@ public:
 		const OperationContext & context,
 		const CIMReference & ref,
 		const CIMInstance & obj,
+		const Uint32 flags,
+		const Array<String> & propertyList,
 		ResponseHandler<CIMInstance> & handler);
 
 	virtual void createInstance(

@@ -22,7 +22,7 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -67,9 +67,9 @@ void OperatingSystemProvider::getInstance(
 	{
 		if(instanceReference == cimReferences[i])
 		{
-			Array<CIMInstance> cimInstances = _enumerateInstances(context, instanceReference);
+			Array<CIMNamedInstance> cimInstances = _enumerateInstances(context, instanceReference);
 
-			handler.deliver(cimInstances[i]);
+			handler.deliver(cimInstances[i].getInstance());
 
 			break;
 		}
@@ -83,7 +83,7 @@ void OperatingSystemProvider::enumerateInstances(
 	const CIMReference & classReference,
 	const Uint32 flags,
 	const Array<String> & propertyList,
-	ResponseHandler<CIMInstance> & handler)
+	ResponseHandler<CIMNamedInstance> & handler)
 {
 	handler.processing();
 
@@ -118,7 +118,29 @@ void OperatingSystemProvider::enumerateInstances(
 		cimInstance.addProperty(CIMProperty("MaxProcessMemorySize", os.GetMaxProcessMemorySize()));
 		cimInstance.addProperty(CIMProperty("Distributed", os.GetDistributed()));
 
-		handler.deliver(cimInstance);
+		//
+		// Construct the instance name to return
+		// This could be done more efficiently by creating from scratch
+		//
+
+		// get class definition from repository
+		CIMClass cimclass = _cimom.getClass(
+			OperationContext(),
+			classReference.getNameSpace(),
+			classReference.getClassName(),
+			false,
+			false,
+			false,
+			Array<String>());
+
+		CIMReference instanceName = cimInstance.getInstanceName(cimclass);
+
+		// ensure references are fully qualified
+		instanceName.setHost(classReference.getHost());
+		instanceName.setNameSpace(classReference.getNameSpace());
+
+		// deliver reference
+		handler.deliver(CIMNamedInstance(instanceName, cimInstance));
 	}
 
 	handler.complete();
@@ -142,12 +164,12 @@ void OperatingSystemProvider::enumerateInstanceNames(
 		false,
 		Array<String>());
 
-	Array<CIMInstance> cimInstances = _enumerateInstances(context, classReference);
+	Array<CIMNamedInstance> cimInstances = _enumerateInstances(context, classReference);
 	
 	// convert instances to references;
 	for(Uint32 i = 0, n = cimInstances.size(); i < n; i++)
 	{
-		CIMReference instanceReference = cimInstances[i].getInstanceName(cimclass);
+		CIMReference instanceReference = cimInstances[i].getInstance().getInstanceName(cimclass);
 
 		// ensure references are fully qualified
 		instanceReference.setHost(classReference.getHost());
@@ -165,6 +187,8 @@ void OperatingSystemProvider::modifyInstance(
 	const OperationContext & context,
 	const CIMReference & instanceReference,
 	const CIMInstance & instanceObject,
+	const Uint32 flags,
+	const Array<String> & propertyList,
 	ResponseHandler<CIMInstance> & handler)
 {
 	throw NotSupported("OperatingSystem::modifyInstance");
@@ -187,11 +211,11 @@ void OperatingSystemProvider::deleteInstance(
 	throw NotSupported("OperatingSystem::deleteInstance");
 }
 
-Array<CIMInstance> OperatingSystemProvider::_enumerateInstances(
+Array<CIMNamedInstance> OperatingSystemProvider::_enumerateInstances(
 	const OperationContext & context,
 	const CIMReference & classReference)
 {
-	SimpleResponseHandler<CIMInstance> handler;
+	SimpleResponseHandler<CIMNamedInstance> handler;
 
 	enumerateInstances(context, classReference, 0xffffffff, Array<String>(), handler);
 

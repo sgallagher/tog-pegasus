@@ -288,7 +288,7 @@ void Tracer::_traceCIMException(
         if ( _isTraceEnabled( traceComponent, traceLevel ) )
         {
             // get the CIMException trace message string
-            String traceMsg = cimException.getTraceMessage();
+            String traceMsg = cimException.getTraceDescription();
 
             // trace the string
             _traceString(traceComponent, traceLevel, traceMsg);

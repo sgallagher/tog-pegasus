@@ -534,19 +534,18 @@ public:
 
     CIMException(
 	CIMStatusCode code = CIM_ERR_SUCCESS,
-	const String& description = String::EMPTY,
+	const String& message = String::EMPTY,
 	const char* file = "",
 	Uint32 line = 0);
     CIMException(const CIMException& cimException);
 
     CIMStatusCode getCode() const { return _code; }
-    String getDescription() const { return _description; }
-    String getTraceMessage() const;
+    String getDescription() const;
+    String getTraceDescription() const;
 
 private:
 
     CIMStatusCode  _code;
-    String         _description;
     const char*    _file;
     Uint32         _line;
 };

@@ -209,26 +209,26 @@ const char InvalidAuthHeader::MSG[] = "Invalid Authorization header";
 ////////////////////////////////////////////////////////////////////////////////
 
 //
-// Creates a message without source file name and line number.
+// Creates a description without source file name and line number.
 //
-static String _makeCIMExceptionMessage(
+static String _makeCIMExceptionDescription(
     CIMStatusCode code,
-    const String& description)
+    const String& message)
 {
     String tmp;
     tmp.append(CIMStatusCodeToString(code));
     tmp.append(": \"");
-    tmp.append(description);
+    tmp.append(message);
     tmp.append("\"");
     return tmp;
 }
 
 //
-// Creates a message with source file name and line number.
+// Creates a description with source file name and line number.
 //
-static String _makeCIMExceptionMessage(
+static String _makeCIMExceptionDescription(
     CIMStatusCode code, 
-    const String& description,
+    const String& message,
     const char* file,
     Uint32 line)
 {
@@ -241,35 +241,19 @@ static String _makeCIMExceptionMessage(
 
     tmp.append(CIMStatusCodeToString(code));
     tmp.append(": \"");
-    tmp.append(description);
+    tmp.append(message);
     tmp.append("\"");
     return tmp;
 }
 
-//
-// Returns a message string specifically for tracing. 
-//
-String CIMException::getTraceMessage() const
-{
-    String traceMsg =
-        _makeCIMExceptionMessage(_code, _description, _file, _line);
-    
-    return traceMsg;
-}
-
 CIMException::CIMException(
     CIMStatusCode code, 
-    const String& description,
+    const String& message,
     const char* file,
     Uint32 line)
     : 
-#ifdef DEBUG_CIMEXCEPTION
-    Exception(_makeCIMExceptionMessage(code, description, file, line)),
-#else
-    Exception(_makeCIMExceptionMessage(code, description)),
-#endif
+    Exception(message),
     _code(code),
-    _description(description),
     _file(file),
     _line(line)
 {
@@ -279,10 +263,33 @@ CIMException::CIMException(
 CIMException::CIMException(const CIMException& cimException)
     : Exception(cimException.getMessage()),
     _code(cimException._code),
-    _description(cimException._description),
     _file(cimException._file),
     _line(cimException._line)
 {
+}
+
+//
+// Returns a description string fit for human consumption
+//
+String CIMException::getDescription() const
+{
+#ifdef DEBUG_CIMEXCEPTION
+    return getTraceDescription();
+#else
+    return _makeCIMExceptionDescription(_code, getMessage());
+#endif
+}
+
+//
+// Returns a description string with filename and line number information
+// specifically for tracing. 
+//
+String CIMException::getTraceDescription() const
+{
+    String traceDescription =
+        _makeCIMExceptionDescription(_code, getMessage(), _file, _line);
+    
+    return traceDescription;
 }
 
 void ThrowUnitializedHandle()

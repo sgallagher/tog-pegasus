@@ -10,7 +10,8 @@ DIRS = \
     generic \
     ManagedSystem \
     statistic \
-	sample
+    sample \
+    TestProviders
 
 # ATTN: Comment this out: it was breaking the build:
 # DIRS = generic windows unix

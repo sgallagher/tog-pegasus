@@ -27,6 +27,7 @@
 //
 // Modified By: Mike Day (monitor_2) mdday@us.ibm.com 
 //              Amit K Arora (Bug#1153) amita@in.ibm.com
+//              Alagaraja Ramasubramanian (alags_raj@in.ibm.com) for Bug#1090
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -624,7 +625,7 @@ int  Monitor::solicitSocketMessages(
     int type)
 {
    PEG_METHOD_ENTER(TRC_HTTP, "Monitor::solicitSocketMessages");                                        
-   _entry_mut.lock(pegasus_thread_self());
+   AutoMutex autoMut(_entry_mut);
    // Check to see if we need to dynamically grow the _entries array
    // We always want the _entries array to 2 bigger than the
    // current connections requested
@@ -648,8 +649,7 @@ int  Monitor::solicitSocketMessages(
             _entries[index].queueId  = queueId;
             _entries[index]._type = type;
             _entries[index]._status = _MonitorEntry::IDLE;
-            _entry_mut.unlock();
-                                    
+                                       
             return index;
          }
       }
@@ -658,7 +658,6 @@ int  Monitor::solicitSocketMessages(
       }
    }
    _solicitSocketCount--;  // decrease the count, if we are here we didnt do anything meaningful
-   _entry_mut.unlock();
    PEG_METHOD_EXIT();
    return -1;
 
@@ -668,7 +667,7 @@ void Monitor::unsolicitSocketMessages(Sint32 socket)
 {
 
     PEG_METHOD_ENTER(TRC_HTTP, "Monitor::unsolicitSocketMessages");
-    _entry_mut.lock(pegasus_thread_self());
+    AutoMutex autoMut(_entry_mut);
 
     /*
         Start at index = 1 because _entries[0] is the tickle entry which never needs
@@ -699,7 +698,6 @@ void Monitor::unsolicitSocketMessages(Sint32 socket)
 	index--;
     }
 
-    _entry_mut.unlock();
     PEG_METHOD_EXIT();
 }
 
@@ -1170,7 +1168,7 @@ int  monitor_2::solicitSocketMessages(
 
    PEG_METHOD_ENTER(TRC_HTTP, "monitor_2::solicitSocketMessages");
 
-   _entry_mut.lock(pegasus_thread_self());
+   AutoMutex autoMut(_entry_mut);
 
    for(int index = 0; index < (int)_entries.size(); index++)
    {
@@ -1182,7 +1180,6 @@ int  monitor_2::solicitSocketMessages(
 	    //_entries[index].queueId  = queueId;
 	    //_entries[index]._type = type;
 	    _entries[index]._status = IDLE;
-	    _entry_mut.unlock();
 
 	    return index;
 	 }
@@ -1192,7 +1189,6 @@ int  monitor_2::solicitSocketMessages(
       }
 
    }
-   _entry_mut.unlock();
    PEG_METHOD_EXIT();
    return -1;
 }
@@ -1202,7 +1198,7 @@ void monitor_2::unsolicitSocketMessages(Sint32 socket)
 {
 
     PEG_METHOD_ENTER(TRC_HTTP, "monitor_2::unsolicitSocketMessages");
-    _entry2_mut.lock(pegasus_thread_self());
+    AutoMutex autoMut(_entry2_mut);
 
     for(int index = 0; index < (int)_entries2.size(); index++)
     {
@@ -1213,7 +1209,6 @@ void monitor_2::unsolicitSocketMessages(Sint32 socket)
 	  break;
        }
     }
-    _entry2_mut.unlock();
     PEG_METHOD_EXIT();
 }
 

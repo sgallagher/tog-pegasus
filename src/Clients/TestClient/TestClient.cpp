@@ -58,7 +58,7 @@ PEGASUS_USING_STD;
 CIMNamespaceName globalNamespace = CIMNamespaceName ("root/cimv2");
 static const CIMNamespaceName __NAMESPACE_NAMESPACE = CIMNamespaceName ("root");
 
-static char* programVersion =  "2.0";
+static const char* programVersion =  "2.0";
 
 /** ErrorExit - Print out the error message as an
     and get out.
@@ -805,7 +805,8 @@ static void TestAssociationOperations(CIMClient& client, Boolean
         }
         catch(CIMException& e)
         {
-              if (e.getCode() == CIM_ERR_INVALID_NAMESPACE && e.getCode() == CIM_ERR_INVALID_CLASS)
+              if (e.getCode() == CIM_ERR_INVALID_NAMESPACE ||
+                  e.getCode() == CIM_ERR_INVALID_CLASS)
               {
                  runTest = false;
               }

@@ -249,42 +249,6 @@ void printHelpMsg(const char* pgmName, const char* usage, const char* extraHelp,
 }
 
 
-Uint64  dateToInt(CIMDateTime date)
-{
-//debug code
-//printf("we are in the DateTimetomicrosec function\n");
-
-    String date_str = date.toString();
-    String day_str = date_str.subString(0,8);
-    String hour_str = date_str.subString(8,2);
-    String min_str = date_str.subString(10,2);
-    String sec_str = date_str.subString(12,2);
-    String mil_str = date_str.subString(15,6);
-
-
-
-    Uint64 day_int = (Uint64) atoi(day_str.getCString());
-//  printf("this is day as a integer %d \n",day_int);
-    Uint64 hour_int = (Uint64) atoi(hour_str.getCString());
-//  printf("this is hour as a integer %d \n",hour_int);
-    Uint64 min_int = (Uint64) atoi(min_str.getCString());
-//  printf("this is minute as a integer %d \n",min_int);
-    Uint64 sec_int = (Uint64) atoi(sec_str.getCString());
-//  printf("this is second as a integer %d \n",sec_int);
-    Uint64 mil_int = (Uint64) atoi(mil_str.getCString());
-//  printf("this is millisec as a integer %d \n",mil_int);
-
-
-    const Uint64 ndays = day_int*static_cast<Uint64>(864)*100000000;     //one day = 8.64*10^10 millisecond
-    const Uint64 nhour = hour_int*static_cast<Uint64>(36)*100000000;     //one hour = 3.6*10^9 milliseconds
-    const Uint64 nmin = min_int*60000000;            // one minute = 6*10^7
-    const Uint64 nsecond = sec_int*1000000;          //one second = 10^6 milliseconds
-    const Uint64 milTime = ndays+nhour+nmin+nsecond+mil_int;
-
-//  printf("this is what is being passed back %d",milTime);
-
-return milTime;
-}
 
 
 int main(int argc, char** argv)
@@ -312,28 +276,10 @@ int main(int argc, char** argv)
          exit(1);
     }
 
-        /* this does nothing
-    :
-    if (om.valueEquals("verbose", "true"))
-    {
-                printHelpMsg(argv[0], usage, extra, om);
-        exit(0);
-    }       */
 
     // Establish the namespace from the input parameters
     String nameSpace = "root/cimv2";
 
-    /* if flag is taken out this section of code should be taken out
-    if(om.lookupValue("namespace", nameSpace))
-    {
-       cout << "Namespace = " << nameSpace << endl;
-
-    }  */
-
-   /*      this code serves no purpose
-    Boolean verboseTest = (om.valueEquals("verbose", "true")) ? true :false;
-
-    Boolean debug = (om.valueEquals("debug", "true")) ? true :false; */
 
     // Check to see if user asked for help (-h or --help otpion)
     if (om.valueEquals("help", "true") || om.valueEquals("help1", "true"))
@@ -374,12 +320,7 @@ int main(int argc, char** argv)
         cout << "user name equals " << userN << endl;
 
     om.lookupValue("pass word", passW);
-   /* if (passW == String::EMPTY) {
-        cout << "no pass word given" << endl;
-    }
-    else
-        cout << "pass word equals equals " << passW << endl;
-    */
+
 
  /****************************************************
  The next sectoin of code connects to the server and enumerates all the instances of the
@@ -392,7 +333,6 @@ int main(int argc, char** argv)
     String className = "CIM_CIMOMStatisticalData";
     CIMClient client;
 
-    //printf("this is right before connect\n");
     try
     {
         client.connect(location, port, userN, passW);
@@ -404,22 +344,8 @@ int main(int argc, char** argv)
       cerr << e.getMessage() << endl;
       exit(1);
     }
-   /* CIMClass performanceClass;
-    try
-    {
-        performanceClass = client.getClass(nameSpace,
-                                           className,
-                                           false,
-                                           false,
-                                           false);
-    }
 
-    catch(Exception& e)
-    {
-      cerr << argv[0] << "Exception getClass : " << className
-           << e.getMessage() << endl;
-      exit(1);
-    }   this getClass call does not appear to be needed as per BUG#2124  */
+
     try
     {
     //  printf("right befoe enumerateInstances\n");
@@ -446,6 +372,7 @@ int main(int argc, char** argv)
                "Operation", "Requests", "Time", "Time", "Size", "Size");
 
 
+
   /*****************************************************************************
   This section of code loops through all the instances of CIM_CIMOMStatisticalData
   (one for each intrinsic request type) and gathers the NumberofOperations, CIMOMElapsedTime,
@@ -453,7 +380,6 @@ int main(int argc, char** argv)
    be dividing times and sizes by NumberofOperatons.
   */
 
-    //  printf("right before for loop\n");
 
 
         for (Uint32 inst = 0; inst < instances.size(); inst++)
@@ -468,8 +394,6 @@ int main(int argc, char** argv)
             String statName;
             CIMValue v;
 
-//debug code
-    //      printf("this is right before the first if statment\n");
 
             if ((pos = instance.findProperty("ElementName")) != PEG_NOT_FOUND)
             {
@@ -479,9 +403,7 @@ int main(int argc, char** argv)
                 {
                     v.get(statName);
 
-                    //***********debug
-            //      printf("in ElementName getType\n");
-
+            
                 }
             }
             else
@@ -489,9 +411,7 @@ int main(int argc, char** argv)
                 statName = "UNKNOWN";
             }
 
-            //debug code
-    //      printf("this is before Number of Operations check\n");
-
+ 
             //get number of requests property - "NumberofOperations"
             Uint64 numberOfRequests = 0;
             if ((pos = instance.findProperty("NumberOfOperations")) != PEG_NOT_FOUND)
@@ -525,12 +445,12 @@ int main(int argc, char** argv)
                 v = p.getValue();
 
                 //debug code
-        //      printf("this is the CimomElapsedTime outer loop\n");
+            //printf("this is the CimomElapsedTime outer loop\n");
 
                 if (v.getType() == CIMTYPE_DATETIME)
                 {
                     v.get(totalCimomTime);
-                    totalCT = dateToInt(totalCimomTime);
+                    totalCT = totalCimomTime.toMicroSeconds();
 
                     //***********debug
             //      printf("this is the CimomElapsedTime inner loop\n");
@@ -541,16 +461,7 @@ int main(int argc, char** argv)
             else
                 cerr << "Error Property " << "CimomElapsedTime" << endl;
 
-            /* this can be taken out
-
-            // look in C++ class StatisticalData and get CIMOMElapsedTime in integer format
-            // get the average and then use toCIMDateTime function of the statsicaldata class
-            // (not sure if this is needed)to convert the average into a CIMDateTime format
-
-       //   StatisticalData* statd = StatisticalData::current();  this
-
-        //  printf("this is after getting statd and befor division\n");     */
-
+            
             if ((totalCT == 0) || (numberOfRequests == 0))
             {
                 averageCimomTime =0;
@@ -566,7 +477,7 @@ int main(int argc, char** argv)
             Uint64 averageProviderTime = 0;
             Uint64 totalPT=0;
 
-//          printf("this is after figuring averageCimomTime and before provider Elapsed time\n");
+         //printf("this is after figuring averageCimomTime and before provider Elapsed time\n");
 
             if ((pos = instance.findProperty("ProviderElapsedTime")) != PEG_NOT_FOUND)
             {
@@ -575,7 +486,7 @@ int main(int argc, char** argv)
                                 if (v.getType() == CIMTYPE_DATETIME)
                                 {
                     v.get(totalProviderTime);
-                    totalPT = dateToInt(totalProviderTime);
+                    totalPT = totalProviderTime.toMicroSeconds();
 
                     //***********debug
                 //  printf("the providerElapsed time inner loop\n");
@@ -587,17 +498,10 @@ int main(int argc, char** argv)
             else
                 cerr << "Error Property " << "ProviderElapsedTime" << endl;
 
-            // look in C++ class StatisticalData and get ProviderElapsedTime in integer format
-            // get the average and then use toCIMDateTime function of the statsicaldata class
-            // (not sure if this is needed)to convert the average into a CIMDateTime format
-
-                            //I think this comment should be taken out
-
 
             if ((totalPT == 0) || (numberOfRequests == 0))
             {
                 averageProviderTime = 0;
-        //      printf("one of the values equal 0 for provider time\n");
             }
             else
             averageProviderTime = totalPT/numberOfRequests;
@@ -608,7 +512,6 @@ int main(int argc, char** argv)
             Uint64 totalResponseSize = 0;
             Uint64 averageResponseSize = 0;
 
-    //      printf("this is before Response Size\n");
 
             if ((pos = instance.findProperty("ResponseSize")) != PEG_NOT_FOUND)
             {
@@ -633,10 +536,11 @@ int main(int argc, char** argv)
 
 
                 //***********debug
-//              printf("the averageResponseSize is %d\n",averageResponseSize);
+              //printf("the averageResponseSize is %d\n",averageResponseSize);
             }
             else
-                totalResponseSize = 0;
+  
+            totalResponseSize = 0;
             //Get the total request size property "RequestSize"
 
             Uint64 totalRequestSize = 0;
@@ -661,12 +565,12 @@ int main(int argc, char** argv)
             else
                 cerr << "Could not find RequestSize property" << endl;
 
-            if (totalRequestSize != 0)
+            if (numberOfRequests != 0)
             {
                 averageRequestSize = totalRequestSize / numberOfRequests;
 
             //***********debug
-            //      printf("the elementName is %d",averageRequestSize);
+                 // printf("the elementName is %d",averageRequestSize);
             }
 
 

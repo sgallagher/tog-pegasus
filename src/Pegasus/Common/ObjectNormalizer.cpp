@@ -147,8 +147,6 @@ static CIMProperty _processProperty(
             {
                 CIMConstQualifier cimQualifier = cimProperty.getQualifier(pos);
 
-                std::cout << "cimQualifier: " << cimQualifier.getName().getString() << std::endl;
-
                 CIMQualifier normalizedQualifier =
                     _processQualifier(
                         referenceQualifier,
@@ -158,8 +156,6 @@ static CIMProperty _processProperty(
             }
             else
             {
-                std::cout << "using reference qualifier." << std::endl;
-
                 normalizedProperty.addQualifier(referenceQualifier.clone());
             }
         }

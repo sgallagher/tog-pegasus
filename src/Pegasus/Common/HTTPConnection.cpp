@@ -149,18 +149,18 @@ void HTTPConnection::handleEnqueue(Message *message)
    
 // #ifdef ENABLETIMEOUTWORKAROUNDHACK
 // << Wed Mar  6 12:30:38 2002 mdd >>
-//    static Mutex handleEnqueue_mut = Mutex();
-//    Boolean LockAcquired = false;
+   static Mutex handleEnqueue_mut = Mutex();
+   Boolean LockAcquired = false;
 // #endif
 
 
 // #ifdef ENABLETIMEOUTWORKAROUNDHACK
 // << Wed Mar  6 12:30:48 2002 mdd >>
-//   if (pegasus_thread_self() != handleEnqueue_mut.get_owner())
-//   {
-//      handleEnqueue_mut.lock(pegasus_thread_self());
-//      LockAcquired = true;
-//   }
+  if (pegasus_thread_self() != handleEnqueue_mut.get_owner())
+  {
+     handleEnqueue_mut.lock(pegasus_thread_self());
+     LockAcquired = true;
+  }
 // #endif
 
    switch (message->getType())
@@ -252,10 +252,10 @@ void HTTPConnection::handleEnqueue(Message *message)
 
 // #ifdef ENABLETIMEOUTWORKAROUNDHACK
 // << Wed Mar  6 12:31:03 2002 mdd >>
-//    if (LockAcquired)
-//    {
-//       handleEnqueue_mut.unlock();
-//    }
+   if (LockAcquired)
+   {
+      handleEnqueue_mut.unlock();
+   }
 // #endif
    PEG_METHOD_EXIT();
 }
@@ -477,7 +477,6 @@ Boolean HTTPConnection::run(Uint32 milliseconds)
    fd_set fdread, fdwrite;
    do 
    {
-      
       struct timeval tv = { 0, 0 };
       
       FD_ZERO(&fdread);
@@ -507,7 +506,7 @@ Boolean HTTPConnection::run(Uint32 milliseconds)
       }
       else
 	 break;
-   } while(events != 0 );
+   } while(events != 0 && _dying.value() == 0);
    return handled_events;
 }
 

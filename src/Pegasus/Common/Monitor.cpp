@@ -168,44 +168,40 @@ Boolean Monitor::run(Uint32 milliseconds)
 
     int count = 0;
 
+
+    memcpy(&_rep->active_rd_fd_set, &_rep->rd_fd_set, sizeof(fd_set));
+    memcpy(&_rep->active_wr_fd_set, &_rep->wr_fd_set, sizeof(fd_set));
+    memcpy(&_rep->active_ex_fd_set, &_rep->ex_fd_set, sizeof(fd_set));
+    
+    const Uint32 SECONDS = milliseconds / 1000;
+    const Uint32 MICROSECONDS = (milliseconds % 1000) * 1000;
+    struct timeval tv = { SECONDS, MICROSECONDS };
+    
+    count = select(
+       FD_SETSIZE,
+       &_rep->active_rd_fd_set,
+       &_rep->active_wr_fd_set,
+       &_rep->active_ex_fd_set,
+       &tv);
     if (count == 0)
     {
-	memcpy(&_rep->active_rd_fd_set, &_rep->rd_fd_set, sizeof(fd_set));
-	memcpy(&_rep->active_wr_fd_set, &_rep->wr_fd_set, sizeof(fd_set));
-	memcpy(&_rep->active_ex_fd_set, &_rep->ex_fd_set, sizeof(fd_set));
-
-	const Uint32 SECONDS = milliseconds / 1000;
-	const Uint32 MICROSECONDS = (milliseconds % 1000) * 1000;
-	struct timeval tv = { SECONDS, MICROSECONDS };
-
-	count = select(
-	    FD_SETSIZE,
-	    &_rep->active_rd_fd_set,
-	    &_rep->active_wr_fd_set,
-	    &_rep->active_ex_fd_set,
-	    &tv);
-
-	if (count == 0)
-	{
-	   pegasus_sleep(milliseconds);
-	   
-	   return false;
-	}
-	
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-	else if (count == SOCKET_ERROR)
-#else
-	else if (count == -1)
-#endif
-	{
-	    count = 0;
-	    pegasus_sleep(milliseconds);
-	    
-	    return false;
-	}
+       pegasus_sleep(milliseconds);
+       
+       return false;
     }
-
-    for (Uint32 i = 0, n = _entries.size(); i < n; i++)
+    
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+    else if (count == SOCKET_ERROR)
+#else
+    else if (count == -1)
+#endif
+    {
+       pegasus_sleep(milliseconds);
+       return false;
+    }
+    
+    Boolean handled_events = false;
+    for (Uint32 i = 0, n = _entries.size(); i < _entries.size(); i++)
     {
 	Sint32 socket = _entries[i].socket;
 	Uint32 events = 0;
@@ -228,7 +224,6 @@ Boolean Monitor::run(Uint32 milliseconds)
 		 o.enqueue(message);
 		 i--;
 		 n = _entries.size();
-		 continue;
 	      }
 	   }
 	}
@@ -273,7 +268,7 @@ Boolean Monitor::run(Uint32 milliseconds)
 	    
 	    if(_entries[i]._type == Monitor::CONNECTION)
 	    {
-	       if( 0 == static_cast<HTTPConnection *>(queue)->refcount.value())
+	       if( static_cast<HTTPConnection *>(queue)->refcount.value() == 0 )
 	       {
 		  static_cast<HTTPConnection *>(queue)->refcount++;
 		  if( false == static_cast<HTTPConnection *>(queue)->is_dying())
@@ -288,12 +283,10 @@ Boolean Monitor::run(Uint32 milliseconds)
 	       queue->enqueue(message);
 	    }
 	    count--;
-	    return true;
 	}
+	handled_events = true;
     }
-    pegasus_sleep(milliseconds);
-    
-    return false;
+    return(handled_events);
 }
 
 Boolean Monitor::solicitSocketMessages(

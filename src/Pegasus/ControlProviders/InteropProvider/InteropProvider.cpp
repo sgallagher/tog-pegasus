@@ -824,8 +824,6 @@ Boolean InteropProvider::_getInstanceCIMObjectManager(
                       CIM_OBJECTMANAGER_CLASSNAME, true, false, includeQualifiers,
                         includeClassOrigin, propertyList);
     
-        CDEBUG("_buildInstanceCIMOBJMGR Found Instance in repository " << instances.size() );
-    
         if (instances.size() >= 1)
         {
             // set this instance into global variable.
@@ -932,7 +930,7 @@ CIMInstance InteropProvider::_buildInstanceCIMObjectManager(
     sd->setCopyGSD(gatherStatDataFlag);
 #endif
 
-    // write the instance to the repository
+    // write instance to the repository
     CIMObjectPath instancePath;
     // Add the instance path to this if necessary ATTN ATTN:
     try
@@ -956,8 +954,9 @@ CIMInstance InteropProvider::_buildInstanceCIMObjectManager(
     CDEBUG("CIMObjectMgr path = " << instancePath.toString());
     // Save this instance for other requests
     instanceOfCIMObjectManager = instance;
+    instance.filter(includeQualifiers, includeClassOrigin, propertyList);
     PEG_METHOD_EXIT();
-    return(instanceOfCIMObjectManager);
+    return(instance);
 }
 
 /** Get the instances of CIM_Namespace. Gets all instances of the namespace from
@@ -1875,7 +1874,6 @@ void InteropProvider::enumerateInstances(
             PEG_METHOD_EXIT();
             return;
         }
-
 
         if (classEnum == CIM_NAMESPACEINMANAGER)
         {

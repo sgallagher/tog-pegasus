@@ -34,6 +34,7 @@
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/PegasusVersion.h>
+#include <Pegasus/Common/MessageQueueService.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

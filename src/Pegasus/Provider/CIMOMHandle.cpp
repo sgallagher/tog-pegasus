@@ -81,6 +81,9 @@ class CIMOMHandle::_cimom_handle_rep : public MessageQueue, public Sharable
 
       struct timeval _idle_timeout;
 
+      Uint32 _providerUnloadProtect;
+      Mutex _providerUnloadProtectMutex;
+
    public: 
       typedef MessageQueue Base;
       
@@ -93,6 +96,8 @@ class CIMOMHandle::_cimom_handle_rep : public MessageQueue, public Sharable
       Uint32 get_operation_timeout(void);
       void set_operation_timeout(Uint32);
       Boolean pending_operation(void);
+      void disallowProviderUnload();
+      void allowProviderUnload();
       Boolean unload_ok(void);
 
       Uint32 get_output_qid(void);
@@ -174,7 +179,8 @@ CIMOMHandle::_cimom_handle_rep::_cimom_handle_rep(void)
      _msg_avail(0),
      _response(true,0),
      _op_timeout(0),
-     _pending_operation(0)
+     _pending_operation(0),
+     _providerUnloadProtect(0)
 {
    // initialize the qids
    // output queue defaults to CIMOPRequestDispatcher
@@ -198,7 +204,8 @@ CIMOMHandle::_cimom_handle_rep::_cimom_handle_rep(Uint32 out_qid, Uint32 ret_qid
      _msg_avail(0),
      _response(true,0),
      _op_timeout(0),
-     _pending_operation(0)
+     _pending_operation(0),
+     _providerUnloadProtect(0)
 {
    if(0 == q_exists(_output_qid) )
       _output_qid = _queueId;
@@ -254,11 +261,66 @@ Boolean CIMOMHandle::_cimom_handle_rep::pending_operation(void)
    return false;
 }
 
+void CIMOMHandle::_cimom_handle_rep::disallowProviderUnload()
+{
+   PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
+                    "CIMOMHandle::_cimom_handle_rep::disallowProviderUnload()");
+
+   try
+   {
+      _providerUnloadProtectMutex.lock(pegasus_thread_self());
+      _providerUnloadProtect++;
+      _providerUnloadProtectMutex.unlock();
+   }
+   catch(...)
+   {
+      // There's not much a provider could do with this exception.  Since
+      // this is just a hint, our best bet is to just ignore it.
+      PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL3,
+                       "Caught unexpected exception");
+   }
+
+   PEG_METHOD_EXIT();
+}
+
+void CIMOMHandle::_cimom_handle_rep::allowProviderUnload()
+{
+   PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
+                    "CIMOMHandle::_cimom_handle_rep::allowProviderUnload()");
+
+   try
+   {
+      _providerUnloadProtectMutex.lock(pegasus_thread_self());
+      if (_providerUnloadProtect > 0)
+      {
+          _providerUnloadProtect--;
+      }
+      _providerUnloadProtectMutex.unlock();
+   }
+   catch(...)
+   {
+      // There's not much a provider could do with this exception.  Since
+      // this is just a hint, our best bet is to just ignore it.
+      PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL3,
+                       "Caught unexpected exception");
+   }
+
+   PEG_METHOD_EXIT();
+}
+
 Boolean CIMOMHandle::_cimom_handle_rep::unload_ok(void)
 {
    if( _pending_operation.value() )
       return false;
-   return true;
+
+   Boolean unloadable = true;
+   _providerUnloadProtectMutex.lock(pegasus_thread_self());
+   if (_providerUnloadProtect > 0)
+   {
+      unloadable = false;
+   }
+   _providerUnloadProtectMutex.unlock();
+   return (unloadable);
 }
 
 Uint32 CIMOMHandle::_cimom_handle_rep::get_output_qid(void)
@@ -325,7 +387,7 @@ Uint32 CIMOMHandle::_cimom_handle_rep::get_qid(void)
 void CIMOMHandle::_cimom_handle_rep::handleEnqueue(void)
 {
    PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
-                    "CIMOMHandle::_cimom_handle_rep::handleEnqueue(Message *)");
+                    "CIMOMHandle::_cimom_handle_rep::handleEnqueue(void)");
 
    Message *message = dequeue();
 
@@ -377,16 +439,15 @@ void CIMOMHandle::_cimom_handle_rep::handleEnqueue(Message *message)
 	 }
 	 catch(...)
 	 {
-	    PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
-			  "CIMOMHandle::_cimom_handle_rep::handleEnqueue(Message *) - IPC Exception");
-	        delete message;
+            PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL3, "IPC Exception");
+            delete message;
 	 }
 	 break;
 	 
       default:
       {
-	 PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
-			  "CIMOMHandle::_cimom_handle_rep::handleEnqueue(Message *) - unexpected message");
+         PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL3,
+                          "unexpected message");
 	 delete message;
       }
    }
@@ -1990,6 +2051,16 @@ Boolean CIMOMHandle::pending_operation(void)
    if(_rep->_pending_operation.value())
       return true;
    return false;
+}
+
+void CIMOMHandle::disallowProviderUnload()
+{
+   return _rep->disallowProviderUnload();
+}
+
+void CIMOMHandle::allowProviderUnload()
+{
+   return _rep->allowProviderUnload();
 }
 
 Boolean CIMOMHandle::unload_ok(void)

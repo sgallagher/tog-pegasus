@@ -90,11 +90,12 @@ void ProviderFacade::initialize(CIMOMHandle & cimom)
     _provider->initialize(cimom);
 }
 
+#ifdef PEGASUS_PRESERVE_TRYTERMINATE
 Boolean ProviderFacade::tryTerminate(void)
 {
    return _provider->tryTerminate();
 }
-
+#endif
 
 void ProviderFacade::terminate(void)
 {

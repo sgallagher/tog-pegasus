@@ -35,7 +35,6 @@
 #define Pegasus_CIMOMHandle_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/ModuleController.h>
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/CIMObjectPath.h>
@@ -54,7 +53,6 @@ class cimom_handle_op_semaphore;
 
 class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
 {
-
    public:
 
       /** */
@@ -62,7 +60,7 @@ class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
       CIMOMHandle(const CIMOMHandle &);
 
       /** */
-      virtual ~CIMOMHandle(void);
+      ~CIMOMHandle(void);
 
       CIMOMHandle & operator =(const CIMOMHandle & handle);
       
@@ -212,21 +210,40 @@ class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
 	 const Array<CIMParamValue>& inParameters,
 	 Array<CIMParamValue>& outParameters);
 
+      /**
+          Provides a hint to the CIM Server that the provider calling this
+          method prefers not to be unloaded.  This hint applies in
+          situations where a provider unload is not necessary, such as
+          when the CIM Server unloads idle providers for efficiency reasons.
+          A provider may rescind this hint by using the allowProviderUnload
+          method.  Note that disallowProviderUnload is cumulative, such that
+          each call to disallowProviderUnload must be matched with a call to
+          allowProviderUnload.
+       */
+      void disallowProviderUnload();
+
+      /**
+          Provides a hint to the CIM Server that the provider calling this
+          method no longer prefers not to be unloaded.  This hint applies in
+          situations where a provider unload is not necessary, such as
+          when the CIM Server unloads idle providers for efficiency reasons.
+          This method is used to rescind a hint that was given using the
+          disallowProviderUnload method.  Note that each allowProviderUnload
+          call should be preceded by a disallowProviderUnload call.
+       */
+      void allowProviderUnload();
+
    private:      
       class _cimom_handle_rep;
       _cimom_handle_rep *_rep;
 
       friend class Provider;
       friend class cimom_handle_op_semaphore;
-      virtual void get_idle_timer(struct timeval *);
-      virtual void update_idle_timer(void);
-      virtual Boolean pending_operation(void);
-      virtual Boolean unload_ok(void);
+      void get_idle_timer(struct timeval *);
+      void update_idle_timer(void);
+      Boolean pending_operation(void);
+      Boolean unload_ok(void);
 };
-
-
-
-
 
 PEGASUS_NAMESPACE_END
 

@@ -220,6 +220,7 @@ public:
     */
     virtual void terminate(void) = 0;
 
+#ifdef PEGASUS_PRESERVE_TRYTERMINATE
     /** 
     Allow a provider to decline a terminate call. If the provider
     is unable to terminate, it should return false. Otherwise, 
@@ -233,6 +234,7 @@ public:
 	terminate();
 	return true;
       }
+#endif
 
 };
 

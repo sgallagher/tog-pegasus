@@ -69,7 +69,9 @@ public:
 
     // CIMProvider interface
     virtual void initialize(CIMOMHandle & cimom);
+#ifdef PEGASUS_PRESERVE_TRYTERMINATE
     virtual Boolean tryTerminate(void);
+#endif
     
     virtual void terminate(void);
 

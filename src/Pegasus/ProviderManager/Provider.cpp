@@ -109,15 +109,18 @@ Boolean Provider::tryTerminate(void)
       pegasus_yield();
       try 
       {
+#ifdef PEGASUS_PRESERVE_TRYTERMINATE
 	terminated =  ProviderFacade::tryTerminate();
+#else
+         terminated = true;
+         ProviderFacade::terminate();
+#endif
       }
       catch(...)
       {
 	 PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			  "Exception caught in ProviderFacade::tryTerminate() for " + 
 			  _name);
-	 terminated = false;
-	 
       }
       // yield before a potentially lengthy operation.
       pegasus_yield();
@@ -129,8 +132,11 @@ Boolean Provider::tryTerminate(void)
       _status = UNKNOWN;
       
    }
-   
-   _status = TERMINATED;
+
+   if(terminated == true)
+   {
+      _status = TERMINATED;
+   }
    return terminated;
 }
 

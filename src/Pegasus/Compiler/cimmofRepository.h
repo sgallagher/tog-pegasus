@@ -43,6 +43,9 @@ PEGASUS_USING_PEGASUS;
 
 class PEGASUS_COMPILER_LINKAGE cimmofRepository : public CIMRepository {
  public:
+  enum operationType {IGNORE_REPOSITORY, 
+		      DO_NOT_ADD_TO_REPOSITORY,
+		      USE_REPOSITORY};
   cimmofRepository(const String &path);
   ~cimmofRepository();
 

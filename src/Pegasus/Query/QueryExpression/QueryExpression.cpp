@@ -35,6 +35,7 @@
 
 #include "QueryExpression.h"
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Query/QueryCommon/QueryException.h>
 #include <Pegasus/CQL/CQLSelectStatement.h>
 #include <Pegasus/CQL/CQLParser.h>

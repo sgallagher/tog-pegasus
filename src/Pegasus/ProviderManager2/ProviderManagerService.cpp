@@ -44,6 +44,7 @@
 #include "ProviderManagerService.h"
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/Thread.h>

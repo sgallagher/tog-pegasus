@@ -33,6 +33,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/PegasusVersion.h>
+
 #include "CIMQueryCapabilitiesProvider.h"
 #include <Pegasus/Common/Tracer.h>
 

@@ -273,7 +273,7 @@ String& String::assign(const char* str, Uint32 n)
 
     strncpy(tmpStr,str,n);
     assign(tmpStr);
-    delete tmpStr;
+    delete [] tmpStr;
 
     return *this;
 }

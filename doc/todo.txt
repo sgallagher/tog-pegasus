@@ -17,6 +17,12 @@ Urgent
 Topical To-Do List
 ==================
 
+    -   Template bloat reduction.
+
+    -	Use YACC on Linux.
+
+    - 	Need a tool to say which features are supported by a compiler.
+
     -   Support unloading of dynamic libraries (presently only load() is
 	supported).
 

@@ -251,7 +251,7 @@ class AtomicInt
 typedef struct {
     Mutex _wlock;
     Semaphore _rlock;
-    PEGASUS_THREAD_T _owner;
+    PEGASUS_THREAD_TYPE _owner;
 } PEGASUS_RWLOCK_HANDLE;
 #endif
 

@@ -105,7 +105,7 @@ typedef struct {
 /// Conditionals to support native or generic Conditional Semaphore
 //-----------------------------------------------------------------
 
-#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
+#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
 #define PEGASUS_CONDITIONAL_NATIVE = 1
 
 typedef pthread_cond_t PEGASUS_COND_TYPE;
@@ -125,7 +125,7 @@ typedef struct {
 // other unix platforms HPUX, AIX, may have different types
 // implementors should use the native type for faster operations
 
-#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
+#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
 #define PEGASUS_ATOMIC_INT_NATIVE = 1
 
 typedef sig_atomic_t PEGASUS_ATOMIC_TYPE ;
@@ -136,7 +136,7 @@ typedef sig_atomic_t PEGASUS_ATOMIC_TYPE ;
 /// Conditionals to support native or generic read/write semaphores
 //-----------------------------------------------------------------
 
-#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
+#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
 #define PEGASUS_READWRITE_NATIVE = 1
 
 typedef struct {
@@ -145,10 +145,4 @@ typedef struct {
 } PEGASUS_RWLOCK_HANDLE;
 
 #endif // linux platform atomic type
-
-// ATTN - No clue what I'm doing here, but HP-UX has a sig_atomic_t type
-#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
-#define PEGASUS_ATOMIC_INT_NATIVE = 1
-typedef sig_atomic_t PEGASUS_ATOMIC_TYPE ;
-#endif
 

@@ -53,6 +53,7 @@
 #include <Pegasus/Common/StatisticalData.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/CIMDateTime.h>
+#include <Pegasus/Common/CIMOperationType.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -189,6 +190,7 @@ class PEGASUS_COMMON_LINKAGE Message
 
       void setHttpMethod(HttpMethod httpMethod) {_httpMethod = httpMethod;}
 
+      
 #ifndef PEGASUS_DISABLE_PERFINST
 //
 // Needed for performance measurement
@@ -252,6 +254,33 @@ class PEGASUS_COMMON_LINKAGE Message
           Uint32 ret = _nextKey++;
           return ret;
       }
+
+      static CIMOperationType convertMessageTypetoCIMOpType(const Uint32 type)
+      {
+          Uint32 in_type, enum_type;
+          CIMOperationType cT;
+
+
+          in_type = type%40;      /* groups request/response message by type ie. getClassRequestMessage 
+                                (type = 1) gives the same result as getClassResponseMessage (type = 41)*/
+
+          if (in_type < 3) {
+             enum_type = in_type;
+             }
+          else if((3 < in_type) && (in_type < 25)){
+             enum_type = in_type -1;
+             }
+         else if (in_type == 25) {
+            enum_type = 0;
+            }
+         else{
+            return ((CIMOperationType)40); //error condition
+            }   
+
+        cT = (CIMOperationType)enum_type;
+        return cT;
+        }
+
 
       virtual void print(
 	  PEGASUS_STD(ostream)& os, 

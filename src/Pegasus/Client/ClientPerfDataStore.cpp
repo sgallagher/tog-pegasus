@@ -27,11 +27,11 @@
 //
 //==============================================================================
 //
-// Author: Willis White (whiwill@us.ibm.com
+// Author: Willis White (whiwill@us.ibm.com)
 //
 // Modified By: 
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////b////////////////
 
 
 #include "ClientPerfDataStore.h"
@@ -39,136 +39,156 @@
 
 PEGASUS_USING_STD;
 
+PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 ClientPerfDataStore* ClientPerfDataStore::current_Store = NULL;
 
-ClientPerfDataStore* ClientPerfDataStore::current(){
-   if (current_Store == NULL){
-      current_Store = new ClientPerfDataStore();
-   }
-   return current_Store;
+ClientPerfDataStore* ClientPerfDataStore::Instance(){
+   static ClientPerfDataStore current_Store; 
+   return &current_Store;
 }
 
-                                                                       
 ClientPerfDataStore::ClientPerfDataStore()
-{   current_Store = this;
- /*   serverTimeValid = false;
-    serverTime = 0;
-    networkStartTime = CIMDateTime("00000000000000.000000+000");
-    networkEndTime = CIMDateTime("00000000000000.000000+000");
-    requestSize = 0; 
-    responseSize = 0;
-    messID = "";   */
-
+{
 }
 
 void ClientPerfDataStore::reset()
 {
-    operationType = CIMOPTYPE_INVOKE_METHOD;
-    serverTimeValid = false;
-    serverTime = 0;                
-    networkStartTime = CIMDateTime(); //CIMDateTime("00000000000000.000000-000");
-    networkEndTime = CIMDateTime(); //CIMDateTime("00000000000000.000000-000");
-    requestSize = 0; 
-    responseSize = 0;
-    messID = "";
+    _operationType = CIMOPTYPE_INVOKE_METHOD;
+    _serverTimeKnown = false;
+    _errorCondition = false;
+    _serverTime = 0;                
+    _networkStartTime = CIMDateTime(); 
+    _networkEndTime = CIMDateTime(); 
+    _requestSize = 0; 
+    _responseSize = 0;
+    _messID = "";
 
 }
      
 
-ClientOpPerformanceData ClientPerfDataStore::createPerfDataSrtuct()
+bClientOpPerformanceData ClientPerfDataStore::createPerfDataStruct()
 {
-    ClientOpPerformanceData * cOPD;
-    cOPD = new ClientOpPerformanceData;
-    return *cOPD;
-}
+    ClientOpPerformanceData _ClientOpPerfData_obj;
+    _ClientOpPerfData_obj.roundTripTime = (_networkEndTime-_networkStartTime).toMicroSeconds();
+    _ClientOpPerfData_obj.operationType = _operationType;
+    _ClientOpPerfData_obj.requestSize = _requestSize;
+    _ClientOpPerfData_obj.responseSize = _responseSize;
+    _ClientOpPerfData_obj.serverTimeKnown = _serverTimeKnown;
+    if (_serverTimeKnown) {
+        _ClientOpPerfData_obj.serverTime = _serverTime;
+    }
+    return _ClientOpPerfData_obj;
+}  
 
 
         
-void ClientPerfDataStore::setServerTime(Uint32 time)
-{   serverTime = time;
-    serverTimeValid = true;
+void ClientPerfDataStore::setServerTime(Uint64 time)
+{   _serverTime = time;
+    _serverTimeKnown = true;
 }
 
         
-void ClientPerfDataStore::setResponseSize(Uint32 size)
-{ responseSize = size; }
+void ClientPerfDataStore::setResponseSize(Uint64 size)
+{ _responseSize = size; }
        
 
-void ClientPerfDataStore::setRequestSize(Uint32 size)
-{  requestSize = size; }
+void ClientPerfDataStore::setRequestSize(Uint64 size)
+{  _requestSize = size; }
 
         
 void ClientPerfDataStore::setStartNetworkTime(void)
-{ networkStartTime = CIMDateTime::getCurrentDateTime();  }
+{ _networkStartTime = CIMDateTime::getCurrentDateTime();  }
+
 
 void ClientPerfDataStore::setEndNetworkTime(CIMDateTime time)
-{ networkEndTime = time; }
+{ _networkEndTime = time; }
 
         
-void ClientPerfDataStore::setValidServerTime(Boolean bol)
-{   serverTimeValid = bol; }
+void ClientPerfDataStore::setServerTimeKnown(Boolean bol)
+{   _serverTimeKnown = bol; }
+
 
 void ClientPerfDataStore::setMessageID(String messageID)
-{ messID = messageID; }
+{ _messID = messageID; }
+       
 
-        
-CIMOperationType ClientPerfDataStore::setOperationType(Uint32 type)
-{   //this function needs to translate message type (type) to CIMOperationType 
-   //CIMOperationType oT = CIMOPTYPE_EMPTY;
-   //return oT;
-
-    Uint32 in_type, enum_type;
-    CIMOperationType cT;
-
-
-    in_type = type%40;      /* groups request/response message by type ie. getClassRequestMessage 
-                                (type = 1) gives the same result as getClassResponseMessage (type = 41)*/
-
-    if (in_type < 3) {
-        enum_type = in_type;
-    }
-    else if((3 < in_type) && (in_type < 25)){
-        enum_type = in_type -1;
-    }
-    else if (in_type == 25) {
-        enum_type = 0;
-    }
-    else{
-        //set error
-        cout << "error getting type" << endl;
-    }
-    
-
-    cT = (CIMOperationType)enum_type;
-    operationType = cT;
-    return cT;
-                                
+void ClientPerfDataStore::setOperationType(Uint32 type)
+{   
+  _operationType = Message::convertMessageTypetoCIMOpType(type);                             
 }
 
-//void ClientPerfDataStore::setErrorCondition(Boolean bol)
-//{  errorCondition = bol; }
 
-Boolean ClientPerfDataStore::checkMessageIDandType(String & messageID, CIMOperationType type)
-{ if(messID == messageID)
-    { return true; }
-  else
-    { return false;}
+Boolean ClientPerfDataStore::checkMessageIDandType(String messageID, Uint32 type)
+{ if(_messID != messageID)
+  {
+    _errorCondition = true;
+    cerr << " error being set in check method for messageID" << endl;
+    return false; 
+  }
+  
+  if (_operationType != Message::convertMessageTypetoCIMOpType(type)) 
+  {
+    _errorCondition = true;
+    cerr << " error being set in check method for type" << endl;
+    return false; 
+  }
+
+  return true;
 }
  
-void ClientPerfDataStore::print()
+String ClientPerfDataStore::toString()
 {
-    cout << " serverTime = " << serverTime << endl;
-    cout << " operation type  = " << (Uint32) operationType << endl;
-    cout << " network start time is = " << networkStartTime.toString() << endl;
-    cout << " network end time = " << networkEndTime.toString() << endl;
-    cout << " numberofRequestBytes = " << requestSize << endl;
-    cout << " number foRespoonse Bytes = " << responseSize << endl;
-    cout << "the message ID is " << messID << endl;
+    Array<char> out;
+    /*XMLWriter::append(out, String(" serverTime = ");
+    XMLWriter::append(out, _serverTime);
+     << "\r\n";  */
+    out << " operation type  = " << (Uint32)_operationType << "\r\n";
+    out << " network start time is = " << _networkStartTime.toString() << "\r\n";
+    out << " network end time = " << _networkEndTime.toString() << "\r\n";
+    out << " numberofRequestBytes = " << (Uint32)_requestSize << "\r\n";
+    out << " number foRespoonse Bytes = " << (Uint32)_responseSize << "\r\n";
+    out << "the message ID is " << _messID << "\r\n";
+    if (_errorCondition) {
+        out << "the error condition is true " << "\r\n";
+    }
+    else{
+        out << " he error condition is false" << "\r\n";
+    }
+    if (_classRegistered) {
+        out << "there is a class registered" << "\r\n";
+    }
+    else{
+        out << "no class is registered" << "\r\n";
+    }
+    if (_serverTimeKnown) {
+        out << "_serverTimeKnown is true" << "\r\n";
+    }
+    else{
+        out << "_serverTimeKnown is false" << "\r\n";
+    }
+
+    //return a Pegasus String constructed form the array "out"
+    return (String(out.getData(), out.size()));
+}
+    
+ 
+
+Boolean ClientPerfDataStore::getStatError()
+{
+    return _errorCondition;
 }
 
-    
+void ClientPerfDataStore::setClassRegistered(Boolean bol)
+{
+    _classRegistered = bol;
+}
+
+Boolean ClientPerfDataStore::isClassRegistered()
+{
+    return _classRegistered;
+}
 
 PEGASUS_NAMESPACE_END
 

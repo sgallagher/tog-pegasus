@@ -24,10 +24,9 @@
 // HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
 //==============================================================================
 //
-// Author: Willis White (whiwill@us.ibm.com
+// Author: Willis White (whiwill@us.ibm.com)
 //
 // Modified By: 
 //
@@ -36,30 +35,36 @@
 #ifndef ClientPerfDataStore_h
 #define ClientPerfDataStore_h
 
-#include "ClientOpPerformanceDataHandler.h"
 #include <Pegasus/Common/CIMOperationType.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMDateTime.h>
+#include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/Message.h>
 #include <Pegasus/Client/Linkage.h>
+#include <Pegasus/Client/ClientOpPerformanceDataHandler.h>
 #include <iostream>
 #include <fstream>
 
-PEGASUS_USING_STD;
 
-PEGASUS_NAMESPACE_BEGIN
+
+PEGASUS_NAMESPACE_BEGIN;  
+
                                                                           
-/* ALL UINT32 VALUES MUST BE CHANGED TO UINT64 BEFORE CHECK IN
+
+struct ClientOpPerformanceDataHandler;
+struct ClientOpPerformanceData;
+
+/* The ClientPerfDataStore class is internal to pegasus. It has no API's that client apps can
+access. It's purpose is to collect and calculate the data that is returned to the client app
+in the ClientOpPerformanceData object.
 */ 
 
-
-class PEGASUS_CLIENT_LINKAGE ClientPerfDataStore
+class PEGASUS_CLIENT_LINKAGE ClientPerfDataStore 
+  
 {
 public:
 
-
-    static ClientPerfDataStore* current();
-
-    ClientPerfDataStore();
+    static ClientPerfDataStore* Instance();
 
     /**Resets all the data members to 0
     */
@@ -67,27 +72,28 @@ public:
      
     /**Creates a ClientOpPerformanceData from the current values of of the private data members
     */
-    ClientOpPerformanceData createPerfDataSrtuct();
+    ClientOpPerformanceData createPerfDataStruct();
 
-    /**checks the currentMessageID and operationType data members against  
+    /**checks the currentMessageID and _operationType data members against  
     @param messageID and @param type if the values equea
     true is returned.
     @param messageID
+    @param type CIM message type of current message
     @return true if @param messageID equals currentMessageID data member
     */
-    Boolean checkMessageIDandType(String & messageID, CIMOperationType type);
+    Boolean checkMessageIDandType(String messageID, Uint32 type);
 
     /**sets the server time data member
     */
-    void setServerTime(Uint32 time);
+    void setServerTime(Uint64 time);
 
     /**sets the responsSize data member 
     */
-    void setResponseSize(Uint32 size);
+    void setResponseSize(Uint64 size);
 
-    /**sets the requestSize data member
+    /**sets the _requestSize data member
     */
-    void setRequestSize(Uint32 size);
+    void setRequestSize(Uint64 size);
 
     /**sets startNetworkTime data member
     */
@@ -100,38 +106,53 @@ public:
 
     /** sets validServerTime data member
     */
-    void setValidServerTime(Boolean bol);
+    void setServerTimeKnown(Boolean bol);
 
-    /**sets operationType data member by translating message type given by 
-    @param type, into a CIMOperationType. That value is ues to set the operationType
+    /**sets _operationType data member by translating message type given by 
+    @param type, into a CIMOperationType. That value is ues to set the _operationType
     data member and is returned.
     @param type integer repesenting the message type
-    @return translation of message type (@param type) into it's oringinal 
-    CIM operation (enum CIMOperationType)
     */
-    CIMOperationType setOperationType(Uint32 type);
+    void setOperationType(Uint32 type);
 
     //void setErrorCondition(Boolean bol);
 
-    Boolean checkMessageID(String id);
 
-    void print();
+    String toString();
 
     void setMessageID(String messageID);
 
-    static ClientPerfDataStore* current_Store;
+    Boolean getStatError();
+
+    void setClassRegistered(Boolean bol);
+
+    static ClientPerfDataStore *current_Store;
+
+    ClientOpPerformanceDataHandler * handler_prt;
+
+    Boolean isClassRegistered();
 
 
-private:
-    CIMOperationType operationType;
-    Boolean serverTimeValid;
-    //Boolean errorCondition;
-    Uint32 serverTime;
-    Uint32 requestSize; 
-    Uint32 responseSize; 
-    String messID;
-    CIMDateTime networkEndTime;
-    CIMDateTime networkStartTime;
+protected:
+    CIMOperationType _operationType;
+    Boolean _serverTimeKnown;
+    Boolean _errorCondition;
+    Boolean _classRegistered;
+    Uint64 _serverTime;
+    Uint64 _requestSize; 
+    Uint64 _responseSize; 
+    String _messID;
+    CIMDateTime _networkEndTime;
+    CIMDateTime _networkStartTime;
+    
+    
+    
+
+    //using the singleton pattern - constructors are made un-usealbe
+    ClientPerfDataStore();    
+    ClientPerfDataStore(const ClientPerfDataStore&);
+    ClientPerfDataStore& operator= (const ClientPerfDataStore&);
+
 };   
     
 

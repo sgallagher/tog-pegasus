@@ -231,6 +231,35 @@ const char* MessageTypeToString(Uint32 messageType)
     return "Unknown message type";
 }
 
+
+/*static CIMOperationType Message::convertMessageTypetoCIMOpType(const Uint32 type)
+{
+    Uint32 in_type, enum_type;
+    CIMOperationType cT;
+
+
+    in_type = type%40;      /* groups request/response message by type ie. getClassRequestMessage 
+                                (type = 1) gives the same result as getClassResponseMessage (type = 41)
+
+    if (in_type < 3) {
+        enum_type = in_type;
+    }
+    else if((3 < in_type) && (in_type < 25)){
+        enum_type = in_type -1;
+    }
+    else if (in_type == 25) {
+        enum_type = 0;
+    }
+    else{
+        return 41; //error condition
+    }   
+
+    cT = (CIMOperationType)enum_type;
+    return cT;
+
+}*/
+
+
 #ifndef PEGASUS_DISABLE_PERFINST
 void Message::startServer()
 {
@@ -246,7 +275,7 @@ void Message::endServer()
     Uint16 statType = (Uint16)((_type >= CIM_GET_CLASS_RESPONSE_MESSAGE) ?
        _type-CIM_GET_CLASS_RESPONSE_MESSAGE:_type-1);
 
-	Sint16 _provTi, _totTi, _servTi;
+	Sint64 _provTi, _totTi, _servTi;
 
 	/*Programs that call STAT_SERVEREND and STAT_SERVEREND_ERROR which in trun call 
 	endServer()] are not expecting to get any exceptions. So exceptions are commented out*/

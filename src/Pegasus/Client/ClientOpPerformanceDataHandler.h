@@ -27,9 +27,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: 
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -38,31 +35,32 @@
 
 
 #include <Pegasus/Common/CIMOperationType.h> 
+#include <Pegasus/Client/Linkage.h>
+#include <Pegasus/Client/ClientPerfDataStore.h>
 #include <iostream>
 
-PEGASUS_USING_STD;
+PEGASUS_NAMESPACE_BEGIN;
 
-PEGASUS_NAMESPACE_BEGIN
-                                                                          
 
-struct ClientOpPerformanceData
+
+struct PEGASUS_CLIENT_LINKAGE ClientOpPerformanceData
 {
-   /** Identifys operation statistical information is for
+   /** Identifies operation type for statistical information being
+       provided
     */
     CIMOperationType operationType;
 
-    /**serverTimeValid is true if the CIM server has sent back
-    a valid number in the WBEMServerResponseTime  header
-    field of the response.
+    /** serverTimeKnown is true if the CIM server has sent back
+    a valid WBEMServerResponseTime header field.
     */
-    Boolean serverTimeValid;
+    Boolean serverTimeKnown;
 
-    /**serverTime is the number of micro seconds the CIM Server
+    /** serverTime is the number of micro seconds the CIM Server
      has taken to process request.
     */
     Uint64 serverTime;
 
-    /**roundTripTime is the number of micro seconds a request/response
+    /** roundTripTime is the number of micro seconds a request/response
     has spent in the network and server combined. roundTripTime includes
     serverTime
     */
@@ -76,9 +74,126 @@ struct ClientOpPerformanceData
     */
     Uint64 responseSize; 
  };
+
+     
+
+/** A sub-class of the ClientOpPerformanceDataHandler class is registered by 
+the client app.  
+*/                                                                           
+class PEGASUS_CLIENT_LINKAGE ClientOpPerformanceDataHandler
+{
+public:
+
+    /**Callback method held by the ClientOpPerformanceDataHandler class. It is 
+    called by the CIMClient library for each operation performed against the 
+    server. The client application implements this method in a derived class 
+    of this class, and does whatever it wants to do with the 
+    raw data item it gets as an argument. For instance, it can accumulate the 
+    single values to allow calculating the average across a number of operations.
+    @param item The client statistics data item being delivered.
+    */
     
+    virtual void handleClientOpPerformanceData (const ClientOpPerformanceData & item) = 0;
+}; 
+
+
+/*
+
+The following example shows how the callback function can be used by a client application
+
+
+//   An implementation of a client statistics catcher that prints all the data in the 
+//   ClientOpPerformanceData object
+
+class ClientStatisticsAccumulator : public ClientOpPerformanceDataHandler
+{
+public:
+
+    virtual void handleClientOpPerformanceData (const ClientOpPerformanceData & item)
+        {
+            cout << "This is the client app talking" << endl;
+            cout << "operationType is " << (Uint32)item.operationType << endl;
+            cout << "serverTime is " << (Uint32)item.serverTime << endl;
+            cout << "roundTripTime is " << (Uint32)item.roundTripTime << endl;
+            cout << "requestSize is " << (Uint32)item.requestSize << endl;
+            cout << "responseSize is " << (Uint32)item.responseSize << endl;
+            if (item.serverTimeKnown) {
+                cout << "serverTimeKnow is true" << endl;
+            }
+            else{
+                cout << "serverTimeKnow is false" << endl;
+            }
+        }
+};
+
+
+
+
+int main(int argc, char** argv)
+{
+   // Establish the namespace from the input parameters
+   String nameSpace = "root/cimv2";
+
+   //Get hostname
+   String location = "localhost";
+
+   //Get port number
+   Uint32 port = 5988;
+
+   //Get user name and password
+   String userN = String::EMPTY;
+   String passW = String::EMPTY;
+   
+
+   //The next sectoin of code connects to the server
+
+   String className = "PG_ComputerSystem";
+   CIMClient client;
+
+   try
+   {
+      client.connect(location, port, userN, passW);
+   }
+
+   catch (Exception& e)
+   {
+      cerr << argv[0] << " Exception connecting to : " << location << endl;
+      cerr << e.getMessage() << endl;
+      exit(1);
+   }
+                
+    Array<CIMObjectPath> instances;
+
+   ///////////////////////////////////////////////////
+   // Register callback and EnumerateInstances 
+   /////////////////////////////////////////////////////
+     
+   ClientStatisticsAccumulator accumulator = ClientStatisticsAccumulator();
+   client.registerClientOpPerformanceDataHandler(accumulator);
+
+     
+   //issue command to use callback  
+        
+   try
+   {     
+      instances = client.enumerateInstanceNames(nameSpace,
+                                                className);
+   }
+   catch (Exception& e)
+   {
+      cerr << "Exception : " << e.getMessage() << endl;
+      exit(1);
+   }    
+
+
+   return 0;
+}
+
+*/
+
 
 PEGASUS_NAMESPACE_END
 
 #endif /* ClientOpPerformanceDataHandler_h */
+
 

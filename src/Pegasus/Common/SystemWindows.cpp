@@ -198,10 +198,7 @@ String System::getFullyQualifiedHostName ()
 
 String System::getSystemCreationClassName ()
 {
-    //
-    //  ATTN: Implement this method to return the system creation class name
-    //
-    return String::EMPTY;
+    return "CIM_ComputerSystem";
 }
 
 Uint32 System::lookupPort(

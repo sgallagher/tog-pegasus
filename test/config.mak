@@ -1,3 +1,5 @@
+include $(ROOT)/mak/test.mak
+
 HOSTNAME =
 PORT = -p 5988
 HTTPMETHOD = -m M-POST

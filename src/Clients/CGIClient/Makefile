@@ -13,3 +13,5 @@ install:
 	cp $(PEGASUS_HOME)/bin/CGIClient.exe $(ROOT)/cgi/cgi-bin
 
 tests:
+
+poststarttests:

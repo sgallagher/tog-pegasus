@@ -1,0 +1,46 @@
+ 
+cimmof -xml ValidMof1.mof
+ 
+cimmof -E ValidMof1.mof
+ 
+cimmof -R. ValidMof1.mof
+ 
+cimmof -xml ValidMof2.mof
+ 
+cimmof -R. ValidMof2.mof
+ 
+cimmof -h
+
+MofCompiler version 1.0.10
+
+Usage: cimmof -hEw -Ipath -Rrepository -ffile
+  -h, --help -- show this help.
+  -E -- syntax check only.
+  -w -- suppress warnings.
+  -Rrepository -- specify the repository path.
+  --CIMRepository=repository -- specify repository path.
+  -Ipath -- specify an include path.
+  -ffile -- specify file containing a list of MOFs to compile.
+ --file=file -- specify file containing list of MOFs.
+ -npath -- override the default CIMRepository namespace.
+ --namespace=path -- override default CIMRepository namespace.
+ --xml -- output XML only, to stdout.  Do not update repository.
+ --trace or --trace=ttracefile -- trace to file (default to stdout).
+ 
+cimmof --help
+
+MofCompiler version 1.0.10
+
+Usage: cimmof -hEw -Ipath -Rrepository -ffile
+  -h, --help -- show this help.
+  -E -- syntax check only.
+  -w -- suppress warnings.
+  -Rrepository -- specify the repository path.
+  --CIMRepository=repository -- specify repository path.
+  -Ipath -- specify an include path.
+  -ffile -- specify file containing a list of MOFs to compile.
+ --file=file -- specify file containing list of MOFs.
+ -npath -- override the default CIMRepository namespace.
+ --namespace=path -- override default CIMRepository namespace.
+ --xml -- output XML only, to stdout.  Do not update repository.
+ --trace or --trace=ttracefile -- trace to file (default to stdout).

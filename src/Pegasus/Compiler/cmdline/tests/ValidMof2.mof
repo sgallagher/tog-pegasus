@@ -1,0 +1,20 @@
+instance of Acme_LogicalDisk
+{
+key = "foo";
+Propertyuint8 = 0;
+Propertysint8 = -1;
+Propertyuint16 = 0;
+Propertysint16 = -1;
+Propertyuint32 = 0;
+Propertysint32 = -1;
+Propertyuint64 = 0;
+Propertysint64 = -1;
+Propertyboolean = false;
+Propertyreal32 = 1.2;
+Propertyreal64 = 2.4;
+DriveLetter = "C";
+VolumeLabel = "myvol";
+};
+
+
+

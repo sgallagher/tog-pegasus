@@ -14,5 +14,7 @@ include $(ROOT)/mak/program.mak
 tests:
 	LoadProcessClass $(REPOSITORY_ROOT)
 
+poststarttests:
+
 load:
 	LoadProcessClass $(REPOSITORY_ROOT)

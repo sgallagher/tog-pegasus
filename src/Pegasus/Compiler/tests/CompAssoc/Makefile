@@ -16,3 +16,5 @@ tests:
 	@ cimmof -R. -nroot CompAssoc.mof
 	@ $(PROGRAM)
 	@ $(RMDIRHIER) ./repository
+
+poststarttests:

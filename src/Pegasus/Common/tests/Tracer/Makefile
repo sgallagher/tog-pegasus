@@ -16,3 +16,6 @@ tests:
 	$(PROGRAM)
 	$(RM) *.log
 	$(RM) *.trace
+
+poststarttests:
+

@@ -30,6 +30,8 @@ endif
 
 tests:
 
+poststarttests:
+
 install:
 	$(COPY) cimserver_planned.conf $(PEGASUS_HOME)
 	$(COPY) cimserver_current.conf $(PEGASUS_HOME)

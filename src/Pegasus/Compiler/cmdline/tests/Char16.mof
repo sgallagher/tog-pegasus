@@ -1,0 +1,8 @@
+
+class Char16
+{
+    [key]
+    string key;
+    char16 PropertyChar16;
+};
+

@@ -12,3 +12,5 @@ LIBRARY = DynLib
 include $(ROOT)/mak/library.mak
 
 tests:
+
+poststarttests:

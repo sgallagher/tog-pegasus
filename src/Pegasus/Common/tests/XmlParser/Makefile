@@ -11,3 +11,6 @@ include $(ROOT)/mak/program.mak
 tests:
 	@ $(PROGRAM) x.xml
 	@ echo +++++ passed all tests
+
+poststarttests:
+

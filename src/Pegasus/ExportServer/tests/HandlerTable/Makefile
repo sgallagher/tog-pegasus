@@ -13,3 +13,5 @@ include $(ROOT)/mak/program.mak
 
 tests:
 	HandlerTable
+
+poststarttests:

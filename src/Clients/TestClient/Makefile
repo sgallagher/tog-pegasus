@@ -11,3 +11,5 @@ SOURCES = TestClient.cpp
 include $(ROOT)/mak/program.mak
 
 tests:
+
+poststarttests:

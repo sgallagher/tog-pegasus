@@ -61,3 +61,5 @@ include $(ROOT)/mak/sub.mak
 include $(ROOT)/mak/misc.mak
 
 tests: $(ERROR)
+
+poststarttests: $(ERROR)

@@ -15,6 +15,9 @@ depend: $(RECURSE_DEPENDS) $(ERROR)
 tests: $(RECURSE_DEPENDS) $(ERROR)
 	@ $(foreach i, $(DIRS), $(MAKESH) $(MAKE) -SC $(i) tests $(NL) )
 
+poststarttests: $(RECURSE_DEPENDS) $(ERROR)
+	@ $(foreach i, $(DIRS), $(MAKESH) $(MAKE) -SC $(i) poststarttests $(NL) )
+
 clean: $(RECURSE_DEPENDS) $(ERROR)
 	@ $(foreach i,$(CLEAN_DIRS),$(MAKESH) $(MAKE) -SC $(i) clean $(NL))
 
@@ -29,4 +32,3 @@ sub: $(RECURSE_DEPENDS) $(ERROR)
 
 general: $(RECURSE_DEPENDS) $(ERROR)
 	@ $(foreach i,$(DIRS),$(MAKESH) $(MAKE) -SC $(i) general OPTION=$(OPTION) $(NL))
-

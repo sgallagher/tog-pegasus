@@ -14,3 +14,5 @@ ifeq ($(OS_TYPE),windows)
 else
 	$(PROGRAM) $(HOME_DIR)/lib/libDynLib$(LIB_SUFFIX)
 endif
+
+poststarttests:

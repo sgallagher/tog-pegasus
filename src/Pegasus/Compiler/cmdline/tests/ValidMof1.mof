@@ -1,0 +1,24 @@
+class X
+{
+[key] string key;
+uint8 Propertyuint8;
+sint8 Propertysint8;
+uint16 Propertyuint16;
+sint16 Propertysint16;
+uint32 Propertyuint32;
+sint32 Propertysint32;
+uint64 Propertyuint64;
+sint64 Propertysint64;
+boolean Propertyboolean;
+real32 Propertyreal32;
+real64 Propertyreal64;
+datetime Propertydatetime;
+};
+
+class Acme_LogicalDisk : X
+{
+string DriveLetter;
+[Units("kilo bytes")] sint32 RawCapacity = 128000;
+[write] string VolumeLabel;
+[Units("kilo bytes")] sint32 FreeSpace;
+};

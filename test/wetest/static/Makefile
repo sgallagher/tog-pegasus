@@ -11,6 +11,7 @@ DIRS = \
 	EnumerateInstances\
 	ModifyInstance\
 	DeleteInstance\
+        Property
 #	ModifyClass\
 #	DeleteClass
 	

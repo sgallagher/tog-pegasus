@@ -12,7 +12,7 @@ SOURCES = ConfigFileHandler.cpp
 
 include $(ROOT)/mak/program.mak
 
-FILES_TO_CLEAN = \
+LOCAL_FILES_TO_CLEAN = \
 	./cimserver_planned.conf \
 	./cimserver_planned.conf.bak \
 	./cimserver_current.conf \
@@ -22,4 +22,6 @@ tests:
 	$(COPY) ../../../../Server/cimserver_planned.conf ./cimserver_planned.conf
 	$(COPY) ../../../../Server/cimserver_planned.conf ./cimserver_current.conf
 	$(PROGRAM)
-	$(RM) $(FILES_TO_CLEAN)
+	$(RM) $(LOCAL_FILES_TO_CLEAN)
+
+poststarttests: 

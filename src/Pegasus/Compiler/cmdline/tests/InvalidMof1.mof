@@ -1,0 +1,7 @@
+
+class X
+{
+    [nokey]
+    string key;
+};
+

@@ -1563,7 +1563,6 @@ void InteropProvider::deleteInstance(
 
         CIMNamespaceName childNamespaceName;
         CIMNamespaceName deleteNamespaceName;
-        Boolean isRelativeName;
         
         _operationNamespace = instanceName.getNameSpace();
         handler.processing();
@@ -1813,7 +1812,7 @@ void InteropProvider::modifyInstance(const OperationContext & context,
             (className.getString() + " not supported by Interop Provider");
     }
 
-    if (classEnum == classEnum == PG_CIMXMLCOMMUNICATIONMECHANISM)
+    if (classEnum == PG_CIMXMLCOMMUNICATIONMECHANISM)
     {
 
         PEG_METHOD_EXIT();

@@ -41,6 +41,7 @@
 #include <Pegasus/Common/XmlReader.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/FileSystem.h>
+#include <Pegasus/Common/CIMInstance.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -67,11 +68,152 @@ static void testGetErrorElement()
     }
 }
 
+// Tests PROPERTY as an embedded object.
+static void testGetInstanceElement()
+{
+    CIMInstance cimInstance;
+    Array<char> text;
+    FileSystem::loadFileToMemory(text, "./getInstanceElement.xml");
+    text.append('\0');
+
+    XmlParser parser((char*)text.getData());
+
+    XmlReader::getInstanceElement(parser, cimInstance);
+    assert(cimInstance.getClassName() == CIMName("CIM_InstCreation"));
+
+    Uint32 idx;
+    CIMProperty cimProperty;
+    CIMValue cimValue;
+    CIMType cimType;
+    assert(cimInstance.getPropertyCount() == 3);
+    
+    assert((idx = cimInstance.findProperty(CIMName("IndicationIdentifier"))) != PEG_NOT_FOUND);
+    cimProperty = cimInstance.getProperty(idx);
+    cimValue = cimProperty.getValue();
+    cimType = cimProperty.getType();
+    assert(strcmp(cimTypeToString(cimType), "string") == 0);
+    String myString;
+    cimValue.get(myString);
+    assert(strcmp(myString.getCString(), "0") == 0);
+    
+    assert((idx = cimInstance.findProperty(CIMName("IndicationTime"))) != PEG_NOT_FOUND);
+    cimProperty = cimInstance.getProperty(idx);
+    cimValue = cimProperty.getValue();
+    cimType = cimProperty.getType();
+    assert(strcmp(cimTypeToString(cimType), "datetime") == 0);
+    CIMDateTime myDateTime;
+    cimValue.get(myDateTime);
+    assert(myDateTime.equal(CIMDateTime("20050227225624.524000-300")));
+    
+    assert((idx = cimInstance.findProperty(CIMName("SourceInstance"))) != PEG_NOT_FOUND);
+    cimProperty = cimInstance.getProperty(idx);
+    cimValue = cimProperty.getValue();
+    cimType = cimProperty.getType();
+    assert(strcmp(cimTypeToString(cimType), "object") == 0);
+    CIMObject cimObject;
+    cimValue.get(cimObject);
+    assert(cimObject.getClassName() == CIMName("Sample_LifecycleIndicationProviderClass"));
+    assert(cimObject.getPropertyCount() == 2);
+    
+    assert((idx = cimObject.findProperty(CIMName("uniqueId"))) != PEG_NOT_FOUND);
+    cimProperty = cimObject.getProperty(idx);
+    cimValue = cimProperty.getValue();
+    cimType = cimProperty.getType();
+    assert(strcmp(cimTypeToString(cimType), "uint32") == 0);
+    Uint32 myUint32;
+    cimValue.get(myUint32);
+    assert(myUint32 == 1);
+
+    assert((idx = cimObject.findProperty(CIMName("lastOp"))) != PEG_NOT_FOUND);
+    cimProperty = cimObject.getProperty(idx);
+    cimValue = cimProperty.getValue();
+    cimType = cimProperty.getType();
+    assert(strcmp(cimTypeToString(cimType), "string") == 0);
+    cimValue.get(myString);
+    assert(strcmp(myString.getCString(), "createInstance") == 0);
+
+//    CIMObject printObject(cimInstance);
+//    cout << printObject.toString() << endl;
+}
+
+// Tests PROPERTY.ARRAY as an embedded object with array type.
+static void testGetInstanceElement2()
+{
+    CIMInstance cimInstance;
+    Array<char> text;
+    FileSystem::loadFileToMemory(text, "./getInstanceElement2.xml");
+    text.append('\0');
+
+    XmlParser parser((char*)text.getData());
+
+    XmlReader::getInstanceElement(parser, cimInstance);
+    assert(cimInstance.getClassName() == CIMName("CIM_InstCreation"));
+
+    Uint32 idx;
+    CIMProperty cimProperty;
+    CIMValue cimValue;
+    CIMType cimType;
+    assert(cimInstance.getPropertyCount() == 3);
+    
+    assert((idx = cimInstance.findProperty(CIMName("IndicationIdentifier"))) != PEG_NOT_FOUND);
+    cimProperty = cimInstance.getProperty(idx);
+    cimValue = cimProperty.getValue();
+    cimType = cimProperty.getType();
+    assert(strcmp(cimTypeToString(cimType), "string") == 0);
+    String myString;
+    cimValue.get(myString);
+    assert(strcmp(myString.getCString(), "0") == 0);
+    
+    assert((idx = cimInstance.findProperty(CIMName("IndicationTime"))) != PEG_NOT_FOUND);
+    cimProperty = cimInstance.getProperty(idx);
+    cimValue = cimProperty.getValue();
+    cimType = cimProperty.getType();
+    assert(strcmp(cimTypeToString(cimType), "datetime") == 0);
+    CIMDateTime myDateTime;
+    cimValue.get(myDateTime);
+    assert(myDateTime.equal(CIMDateTime("20050227225624.524000-300")));
+    
+    assert((idx = cimInstance.findProperty(CIMName("SourceInstance"))) != PEG_NOT_FOUND);
+    cimProperty = cimInstance.getProperty(idx);
+    cimValue = cimProperty.getValue();
+    cimType = cimProperty.getType();
+    assert(strcmp(cimTypeToString(cimType), "object") == 0);
+    Array<CIMObject> cimObject;
+    cimValue.get(cimObject);
+    assert(cimObject.size() == 2);
+    for (idx = 0; idx < cimObject.size(); idx++)
+    {
+        CIMInstance cimInstanceElement(cimObject[idx]);
+        assert(cimInstanceElement.getPropertyCount() == 2);
+        Uint32 propIdx = cimInstanceElement.findProperty(CIMName("uniqueId"));
+        if (propIdx != PEG_NOT_FOUND)
+        {
+            CIMProperty nestedProperty = cimInstanceElement.getProperty(propIdx);
+            cimValue = nestedProperty.getValue();
+            Uint32 uniqueId;
+            cimValue.get(uniqueId);
+            propIdx = cimInstanceElement.findProperty(CIMName("lastOp"));
+            nestedProperty = cimInstanceElement.getProperty(propIdx);
+            cimValue = nestedProperty.getValue();
+            String checkStringValue;
+            cimValue.get(checkStringValue);
+            if (uniqueId == 1)
+                assert(strcmp(checkStringValue.getCString(), "createInstance") == 0);
+            else if (uniqueId == 2)
+                assert(strcmp(checkStringValue.getCString(), "deleteInstance") == 0);
+            else
+                assert(false);
+        }
+    }    
+}
+
 int main(int argc, char** argv)
 {
     try 
     { 
 	testGetErrorElement();
+	testGetInstanceElement();
+	testGetInstanceElement2();
     }
     catch(Exception& e)
     {

@@ -216,6 +216,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     if (httpMessage->message.size() == 0)
     {
         // The message is empty; just drop it
+        PEG_METHOD_EXIT();
         return;
     }
 
@@ -238,41 +239,88 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     Uint32 queueId = httpMessage->queueId;
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
-    // This still needs work and is not functional.
-
+    // TODO::KERBEROS complete and verify code
     CIMKerberosSecurityAssociation *sa = httpMessage->authInfo->getSecurityAssociation();
-    char* outmessage = NULL;
-    Uint32   outlength = 0;
     if ( sa )
     {
+        char* outmessage = NULL;
+        Uint64   outlength = 0;
+        Array<Sint8> final_buffer;
+        final_buffer.clear();
+        Array<Sint8> header_buffer;
+        header_buffer.clear();
+        Array<Sint8> wrapped_content_buffer;
+        wrapped_content_buffer.clear();
         if (sa->getClientAuthenticated())
-        { 
-            if (sa->unwrap_message((const char*)httpMessage->message.getData(),
-                                    httpMessage->message.size(),
-                                    outmessage,
-                                    outlength))
+        {
+            // TODO::KERBEROS Question - will parse be able to distinguish headers from 
+            //     contents when the contents is wrapped??? I am thinking we are okay
+            //     because the code breaks out of the loop as soon as it finds the 
+            //     double separator that terminates the headers.
+            // Parse the HTTP message:
+            String startLine;
+            Array<HTTPHeader> headers;
+            Uint32 contentLength;
+            httpMessage->parse(startLine, headers, contentLength);
+
+            for (Uint64 i = 0; i < (httpMessage->message.size()-contentLength); i++)
+            {
+                header_buffer.append(httpMessage->message[i]);
+            }
+
+            for (Uint64 i = (httpMessage->message.size()-contentLength); i < httpMessage->message.size(); i++)
+            {
+                wrapped_content_buffer.append(outmessage[i]);
+            }
+
+            if (sa->wrap_message((const char*)wrapped_content_buffer.getData(),
+                                 (Uint64)wrapped_content_buffer.size(),
+                                  outmessage,
+                                  outlength))
             {
                 // build a bad request
-                Array<Sint8> statusMsg;
-                statusMsg = XmlWriter::formatHttpErrorRspMessage(HTTP_STATUS_BADREQUEST);
-                _sendResponse(queueId, statusMsg);
+                final_buffer = XmlWriter::formatHttpErrorRspMessage(HTTP_STATUS_BADREQUEST);
+                _sendResponse(queueId, final_buffer);
+                if (outmessage)
+                    delete [] outmessage;  // outmessage is no longer needed
                 PEG_METHOD_EXIT();
                 return;
             }
         }
-        else
+        //  Note:  unwrap_message can result in the client no longer being authenticated so the 
+        //  flag needs to be checked.  
+        if (!sa->getClientAuthenticated())
         {
             // set authenticated flag in _authInfo to not authenticated because the
-            // unwrap resulted in an expired token or credential.
+            // wrap resulted in an expired token or credential.
             httpMessage->authInfo->setAuthStatus(AuthenticationInfoRep::CHALLENGE_SENT);
             // build a 401 response 
-            Array<Sint8> statusMsg;
             // do we need to add a token here or just restart the negotiate again???
             // authResponse.append(sa->getServerToken());
-            XmlWriter::appendUnauthorizedResponseHeader(statusMsg, KERBEROS_CHALLENGE_HEADER);
-            _sendResponse(queueId, statusMsg);
+            XmlWriter::appendUnauthorizedResponseHeader(final_buffer, KERBEROS_CHALLENGE_HEADER);
+            _sendResponse(queueId, final_buffer);
+            if (outmessage)
+                delete [] outmessage;  // outmessage is no longer needed
             PEG_METHOD_EXIT();
             return;
+        }
+
+        if (outlength > 0)
+        {
+            Array<Sint8> unwrapped_content_buffer;
+            unwrapped_content_buffer.clear();
+            for (Uint64 i = 0; i < outlength; i++)
+            {
+                 unwrapped_content_buffer.append(outmessage[i]);
+            }
+            final_buffer.appendArray(header_buffer);
+            final_buffer.appendArray(unwrapped_content_buffer);
+
+            if (outmessage)
+                delete [] outmessage;  // outmessage is no longer needed
+
+            httpMessage->message.clear();
+            httpMessage->message = final_buffer;
         }
     }           
 #endif
@@ -398,6 +446,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                     // Kerberos authentication needs access to the AuthenticationInfo
                     // object for this session in order to set up the reference to the
                     // CIMKerberosSecurityAssociation object for this session.
+
                     String authResp =   
                         _authenticationManager->getHttpAuthResponseHeader(httpMessage->authInfo);
 #else
@@ -422,7 +471,6 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                          httpMessage->authInfo->isAuthenticated() &&
                          "Client requested mutual authentication")
                 {
-
                     String authResp =    
                         _authenticationManager->getHttpAuthResponseHeader(httpMessage->authInfo);
                     if (!String::equal(authResp, String::EMPTY))

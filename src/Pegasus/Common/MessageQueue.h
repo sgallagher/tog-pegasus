@@ -232,7 +232,7 @@ class PEGASUS_COMMON_LINKAGE MessageQueue
 	  queue id an monotonically increases and finally wraps (to one)
 	  after reaching the maximum unsigned 32 bit integer.
       */
-      static Uint32 MessageQueue::getNextQueueId() throw(IPCException);
+      static Uint32 getNextQueueId() throw(IPCException);
 
       static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL workThread(void * arg);
 

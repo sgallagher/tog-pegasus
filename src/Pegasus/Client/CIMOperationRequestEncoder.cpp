@@ -667,7 +667,8 @@ void CIMOperationRequestEncoder::_encodeInvokeMethodRequest(
     CIMInvokeMethodRequestMessage* message)
 {
     Array<Sint8> buffer = XmlWriter::formatSimpleMethodReqMessage(_hostName,
-	message->instanceName, _CString(message->methodName),
+	message->namespace, message->instanceName,
+	_CString(message->methodName),
 	message->inParameters, message->messageId,
 	_authenticator->buildRequestAuthHeader());
     

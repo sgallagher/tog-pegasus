@@ -1063,6 +1063,7 @@ void XmlWriter::appendQualifierDeclarationIParameter(
 // ATTN-RK-P1-20020228: Need to complete copy elimination optimization
 Array<Sint8> XmlWriter::formatSimpleMethodReqMessage(
     const char* host,
+    const String& nameSpace,
     const CIMReference& path,
     const char* methodName,
     const Array<CIMParamValue>& parameters,
@@ -1071,11 +1072,13 @@ Array<Sint8> XmlWriter::formatSimpleMethodReqMessage(
 {
     Array<Sint8> out;
     Array<Sint8> tmp;
+    CIMReference localObjectPath = path;
+    localObjectPath.setNameSpace(nameSpace);
 
     _appendMessageElementBegin(out, messageId);
     _appendSimpleReqElementBegin(out);
     _appendMethodCallElementBegin(out, methodName);
-    appendLocalObjectPathElement(out, path);
+    appendLocalObjectPathElement(out, localObjectPath);
     for (Uint32 i=0; i < parameters.size(); i++)
     {
         parameters[i].toXml(out);

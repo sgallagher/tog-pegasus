@@ -207,6 +207,7 @@ public:
 
     static Array<Sint8> formatSimpleMethodReqMessage(
 	const char* host,
+	const String& nameSpace,
 	const CIMReference& path,
 	const char* methodName,
 	const Array<CIMParamValue>& parameters,

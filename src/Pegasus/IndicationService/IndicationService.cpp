@@ -102,13 +102,13 @@ void IndicationService::_handle_async_request(AsyncRequest *req)
     if ( req->getType() == async_messages::CIMSERVICE_STOP )
     {
         req->op->processing();
-
+        handle_CimServiceStop(static_cast<CimServiceStop *>(req));
         //
         //  Call _terminate
         //
         _terminate ();
 
-        handle_CimServiceStop(static_cast<CimServiceStop *>(req));
+
     }
     else if (req->getType () == async_messages::CIMSERVICE_START)
     {

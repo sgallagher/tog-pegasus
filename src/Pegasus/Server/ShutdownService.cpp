@@ -44,7 +44,10 @@
 #include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Tracer.h>
-
+#if defined(PEGASUS_OS_TYPE_UNIX)
+#include <unistd.h>
+#include <sys/types.h>
+#endif
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
@@ -235,6 +238,8 @@ void ShutdownService::_shutdownCIMServer()
     //
     _cimserver->shutdown();
 
+    MessageQueueService::force_shutdown();
+
     Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
 		"ShutdownService::_shutdownCIMServer - CIM Server shutdown complete");
 
@@ -284,6 +289,12 @@ void ShutdownService::_shutdownCimomServices()
     //
     _sendShutdownRequestToService(PEGASUS_QUEUENAME_EXPORTREQDISPATCHER);
 
+    // 
+    // shutdown binary message handler 
+    //
+    _sendShutdownRequestToService(PEGASUS_QUEUENAME_BINARY_HANDLER);
+    
+
     PEG_METHOD_EXIT();
     return;
 }
@@ -313,14 +324,13 @@ void ShutdownService::_sendShutdownRequestToService(const char * serviceName)
                 _controller->getQueueId(),   // response
                 true);                       // blocking
 
-// ATTN-JY-P2-05162002: call ClientSendWait, until asyn_callback is fixed
 
     //
     // Now send Stop request to service
     //
-    AsyncMessage *reply  = _controller->ClientSendWait(*_client_handle,
-                                                        _queueId,
-                                                        stopRequest);
+    _controller->ClientSendForget(*_client_handle,
+				  _queueId,
+				  stopRequest);
 
     //delete stopRequest;
 
@@ -368,8 +378,8 @@ void ShutdownService::_shutdownProviders()
 // ATTN-JY-P2-05162002: call ClientSendWait, until asyn_callback is fixed
 
     AsyncReply * asyncReply = _controller->ClientSendWait(*_client_handle,
-                                                          _queueId,
-                                                          asyncRequest);
+							  _queueId,
+							  asyncRequest);
     CIMStopAllProvidersResponseMessage * response =
        reinterpret_cast<CIMStopAllProvidersResponseMessage *>(
          (static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
@@ -398,6 +408,7 @@ void ShutdownService::_shutdownProviders()
 
 Boolean ShutdownService::_waitUntilNoMoreRequests(Boolean requestPending)
 {
+
     Uint32 maxWaitTime = _shutdownTimeout;  // maximum wait time in seconds
     Uint32 waitInterval = 1;                // one second wait interval
 

@@ -240,6 +240,45 @@ class PEGASUS_COMMON_LINKAGE Mutex
 } ;
 
 
+//%//////////////////////////////////////////////////////////////
+//  auto mutex - use when you could lose scope due to an exception
+/////////////////////////////////////////////////////////////////
+
+class  PEGASUS_COMMON_LINKAGE auto_mutex
+{
+   public:
+      auto_mutex(Mutex *mut)
+	 : _mut(mut)
+      {
+	 try 
+	 {
+	    _mut->lock(pegasus_thread_self());
+	 }
+	 catch(Deadlock & )
+	 {
+	 }
+	 catch(AlreadyLocked & )
+	 {
+	 }
+	 
+      }
+
+      ~auto_mutex(void)
+      {
+	 try
+	 {
+	    _mut->unlock();
+	 }
+	 catch(...)
+	 {
+	 }
+      }
+   private:
+      auto_mutex(void);
+      Mutex * _mut;
+};
+
+
 //%////////////////////////////////////////////////////////////////////////////
  
 class PEGASUS_COMMON_LINKAGE Semaphore

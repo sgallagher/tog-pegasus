@@ -115,7 +115,9 @@ static char const* TRACE_COMPONENT_LIST[] =
     "Memory",
     "SSL",
     "ControlProvider",
-    "AsyncOpNode"
+    "AsyncOpNode",
+    "CIMOMHandle",
+    "BinaryMessageHandler"
 };
 /** Constants identifying the Trace components. These constants are used by 
     the component to identify its Trace messages. The component ID needs to
@@ -168,7 +170,9 @@ enum TRACE_COMPONENT_ID
     TRC_MEMORY,
     TRC_SSL,
     TRC_CONTROLPROVIDER,
-    TRC_ASYNC_OPNODE
+    TRC_ASYNC_OPNODE,
+    TRC_CIMOM_HANDLE,
+    TRC_BINARY_MSG_HANDLER
 };
 
 PEGASUS_NAMESPACE_END

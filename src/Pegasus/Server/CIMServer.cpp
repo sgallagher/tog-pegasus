@@ -69,6 +69,7 @@
 #include "HTTPAuthenticatorDelegator.h"
 #include "ShutdownProvider.h"
 #include "ShutdownService.h"
+#include "BinaryMessageHandler.h"
 #include <Pegasus/Common/ModuleController.h>
 #include <Pegasus/ControlProviders/ConfigSettingProvider/ConfigSettingProvider.h>
 #include <Pegasus/ControlProviders/UserAuthProvider/UserAuthProvider.h>
@@ -200,8 +201,9 @@ CIMServer::CIMServer(Monitor* monitor)
     _cimOperationRequestDispatcher
 	= new CIMOperationRequestDispatcher(_repository,
                                             _providerRegistrationManager);
-
-    
+    _binaryMessageHandler = 
+       new BinaryMessageHandler(_cimOperationRequestDispatcher);
+        
     _cimOperationResponseEncoder
 	= new CIMOperationResponseEncoder;
 
@@ -246,9 +248,7 @@ CIMServer::CIMServer(Monitor* monitor)
         _cimOperationRequestAuthorizer = 0;
 
         _cimOperationRequestDecoder = new CIMOperationRequestDecoder(
-// to test async cimom, substibute cimom for _cimOperationRequestDispatcher below
             _cimOperationRequestDispatcher,
-// substitute the cimom as well for the _cimOperationResponseEncoder below
             _cimOperationResponseEncoder->getQueueId());
 
     }
@@ -351,15 +351,27 @@ void CIMServer::runForever()
       if(false == _monitor->run(100))
       {
 	 modulator++;
-	 if( ! (modulator % 1000) )
-	    ThreadPool::kill_idle_threads();
+	 if( ! (modulator % 5000) )
+	 {
+	    try 
+	    {
+// 	       MessageQueueService::_check_idle_flag = 1;
+// 	       MessageQueueService::_polling_sem.signal();
+// 	       ProviderManagerService::getProviderManager()->unload_idle_providers();
+// 	       _monitor->kill_idle_threads();
+	    }
+	    catch(...)
+	    {
+	    }
+	 }
+	 
       }
 
       if (handleSigHup)
       {
          Tracer::trace(TRC_SERVER, Tracer::LEVEL3,
-            "CIMServer::runForever - HUP signal received.  Shutting down.");
-
+		       "CIMServer::runForever - HUP signal received.  Shutting down.");
+	 
          ShutdownService::getInstance(this)->shutdown(true, 10, false);
          handleSigHup = false;
       }

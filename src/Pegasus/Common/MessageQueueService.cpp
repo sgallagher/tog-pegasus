@@ -70,6 +70,27 @@ int MessageQueueService::kill_idle_threads(void)
    return dead_threads;
 }
 
+
+void MessageQueueService::force_shutdown(void)
+{
+   PEGASUS_STD(cout) << "Forcing shutdown of CIMOM Message Router" << PEGASUS_STD(endl);
+   MessageQueueService::_stop_polling = 1;
+   MessageQueueService *svc;
+   
+   _polling_list.lock();
+   svc = _polling_list.next(0);
+   while(svc != 0)
+   {
+      PEGASUS_STD(cout) << "Stopping " << svc->getQueueName() << PEGASUS_STD(endl);
+      _polling_sem.signal();
+      svc->_shutdown_incoming_queue();
+      _polling_sem.signal();
+      svc = _polling_list.next(svc);
+   }
+   _polling_list.unlock();
+}
+
+
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(void *parm)
 {
    Thread *myself = reinterpret_cast<Thread *>(parm);

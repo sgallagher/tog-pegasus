@@ -62,6 +62,8 @@ class IndicationHandlerService;
 class IndicationService;
 class ProviderManagerService;
 class ProviderRegistrationManager;
+class BinaryMessageHandler;
+
 
 class PEGASUS_SERVER_LINKAGE CIMServer
 {
@@ -155,7 +157,7 @@ private:
     IndicationService* _indicationService;
     ProviderManagerService* _providerManager;
     ProviderRegistrationManager* _providerRegistrationManager;
-
+    BinaryMessageHandler *_binaryMessageHandler;
     SSLContext* _sslcontext;
 };
 

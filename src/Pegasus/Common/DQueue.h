@@ -158,7 +158,7 @@ template<class L> class AsyncDQueue: public internal_dq
       
 };
       
-template<class L> DQueue<L> * DQueue<L>::_headOfFreeList;
+template<class L> DQueue<L> * DQueue<L>::_headOfFreeList = 0;
 template<class L> const int DQueue<L>::BLOCK_SIZE = 200;
 template<class L> Mutex DQueue<L>::_alloc_mut;
 
@@ -205,7 +205,7 @@ template<class L> void DQueue<L>::operator delete(void *dead, size_t size)
    _alloc_mut.unlock();
 }
 
-template<class L> AsyncDQueue<L> * AsyncDQueue<L>::_headOfFreeList;
+template<class L> AsyncDQueue<L> * AsyncDQueue<L>::_headOfFreeList =0;
 template<class L> const int AsyncDQueue<L>::BLOCK_SIZE = 20;
 template<class L> Mutex AsyncDQueue<L>::_alloc_mut;
 
@@ -505,7 +505,7 @@ template<class L> L *DQueue<L>::prev( const void *ref) throw(IPCException)
 {
    if (_mutex->get_owner() != pegasus_thread_self())
       throw Permission(pegasus_thread_self());
-   return  Base::prev( ref );
+   return  static_cast<L *>(Base::prev( ref ));
 }
 
 template<class L> Boolean DQueue<L>::exists(const void *key) throw(IPCException) 
@@ -781,7 +781,7 @@ template<class L> void AsyncDQueue<L>::wait_for_node(void) throw(IPCException)
 template<class L> void AsyncDQueue<L>::set_capacity(Uint32 capacity) throw(IPCException)
 {
    lock(pegasus_thread_self());
-   _capacity = capacity;
+   *_capacity = capacity;
    unlock();
 }
 

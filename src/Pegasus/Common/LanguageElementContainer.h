@@ -35,7 +35,17 @@
 
 #include <cstdlib>
 #include <cctype>
-#include <iostream>
+
+#ifdef PEGASUS_OS_HPUX
+# ifdef HPUX_IA64_NATIVE_COMPILER
+#  include <iostream>
+# else
+#  include <iostream.h>
+# endif
+#else
+# include <iostream>
+#endif
+
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>

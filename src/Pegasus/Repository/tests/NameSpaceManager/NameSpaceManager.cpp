@@ -27,6 +27,7 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //              (carolann_graves@hp.com)
+//              Amit K Arora, IBM (amita@in.ibm.com) for Bug#1502
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -40,42 +41,43 @@ PEGASUS_USING_PEGASUS;
 
 String repositoryRoot;
 
-static const char* _nameSpaceNames[] =
-{
-    "aa",
-    "aa/bb",
-    "aa/bb/cc",
-    "lmnop/qrstuv",
-    "root",
-    "xx",
-    "xx/yy"
-};
+Array<CIMNamespaceName> _nameSpaceNames;
 
-static const Uint32 NUM_NAMSPACE_NAMES = 
-    sizeof(_nameSpaceNames) / sizeof(_nameSpaceNames[0]);
+#define NUM_NAMSPACE_NAMES _nameSpaceNames.size()
 
 void test01()
 {
     NameSpaceManager nsm (repositoryRoot);
+    NameSpaceManager::NameSpaceAttributes nsa;
+    nsa.insert("shareable","true");
     //nsm.print (cout);
 
-    for (Uint32 j = 0; j < NUM_NAMSPACE_NAMES; j++)
+   _nameSpaceNames.append(CIMNamespaceName("aa"));
+   _nameSpaceNames.append(CIMNamespaceName("aa/bb"));
+   _nameSpaceNames.append(CIMNamespaceName("aa/bb/cc"));
+   _nameSpaceNames.append(CIMNamespaceName("/lmnop/qrstuv"));
+   _nameSpaceNames.append(CIMNamespaceName("root"));
+   _nameSpaceNames.append(CIMNamespaceName("xx"));
+   _nameSpaceNames.append(CIMNamespaceName("xx/yy"));
+
+    for (Uint32 j = 0; j < _nameSpaceNames.size(); j++)
     {
-        if (_nameSpaceNames[j] != "root")
+        if (!_nameSpaceNames[j].equal(CIMNamespaceName("root")))
         {
             String dir (repositoryRoot);
             dir.append("/");
-            dir.append(_nameSpaceNames [j]);
+            dir.append((const char*)_nameSpaceNames [j].getString().getCString());
 
             FileSystem::removeDirectoryHier (dir);
 
             // Create a namespace
-            nsm.createNameSpace (_nameSpaceNames[j]);
+           nsm.createNameSpace (_nameSpaceNames[j], nsa);
         }
     }
 
-    Array<String> nameSpaceNames;
+    Array<CIMNamespaceName> nameSpaceNames;
     nsm.getNameSpaceNames(nameSpaceNames);
+
     assert(nameSpaceNames.size() == NUM_NAMSPACE_NAMES);
     BubbleSort(nameSpaceNames);
 
@@ -85,14 +87,13 @@ void test01()
 	assert(nsm.nameSpaceExists(nameSpaceNames[i]));
     }
 
-    nsm.deleteNameSpace("lmnop/qrstuv");
-
+    nsm.deleteNameSpace(CIMNamespaceName("lmnop/qrstuv"));
     nsm.getNameSpaceNames(nameSpaceNames);
     assert(nameSpaceNames.size() == NUM_NAMSPACE_NAMES - 1);
 
     String outPath;
-    nsm.createClass ("aa/bb", "MyClass", "", outPath);
-    String classFilePath = nsm.getClassFilePath("aa/bb", "MyClass");
+    nsm.createClass (CIMNamespaceName("aa/bb"), "MyClass", CIMName(), outPath);
+    String classFilePath = nsm.getClassFilePath(CIMNamespaceName("aa/bb"), "MyClass",NameSpaceRead);
     String cfp (repositoryRoot);
     cfp.append("/aa#bb/classes/MyClass.#");
     assert (classFilePath == cfp);

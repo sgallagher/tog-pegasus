@@ -7,6 +7,7 @@ DIRS = \
     Repository \
     Repository2 \
     NameSpace \
+    NameSpaceManager \
     AssocTable \
     EnumerateClassNames \
     InheritanceTree \

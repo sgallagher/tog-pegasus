@@ -1471,30 +1471,6 @@ CIMObjectPath InteropProvider::_buildInstancePath(const CIMNamespaceName& name,
     return(ref);
 }
 
-/* _isNamespace determines if the namespace in the second
-   parameter is in the array in the first parameter.
-    @param array of possible namespaces
-    @param canidate namespace
-    @return - true if found
-*/
-static Boolean _isNamespace(
-            Array<CIMNamespaceName>& namespaceNames,
-	        CIMNamespaceName& namespaceName)
-{
-    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
-            "InteropProvider::_isNamespace");
-
-     Boolean found = false;
-     for(Uint32 i = 0; i < namespaceNames.size(); i++)
-     {
-        if(namespaceNames[i].equal ( namespaceName ))
-            return true;
-     }
-
-     PEG_METHOD_EXIT();
-     return false;
-}
-
 //**************************************************************
 // Overloaded functions to get key value with different params
 //**************************************************************
@@ -1831,7 +1807,7 @@ void InteropProvider::getInstance(
             namespaceName = _getKeyValue(instanceName, CIM_NAMESPACE_PROPERTY_NAME);
 
             // ATTN: Why this CIMNamespaceName parentNamespaceName = instanceName.getNameSpace();
-            if (!_isNamespace(namespaceNames, namespaceName))
+            if (!Contains(namespaceNames, namespaceName))
             {
                 throw CIMObjectNotFoundException("Namespace does not exist: "
                                      + namespaceName.getString());

@@ -112,22 +112,6 @@ static const CIMName NAMESPACE_CLASSNAME  = CIMName ("__Namespace");
 static const CIMName NAMESPACE_PROPERTYNAME  = CIMName ("Name");
 static const CIMNamespaceName ROOTNS  = CIMNamespaceName ("root");
 
-static Boolean _isNamespace(
-        Array<CIMNamespaceName>& namespaceNames,
-	CIMNamespaceName& namespaceName)
-
-{
-     Boolean found = false;
-     for(Uint32 i = 0; i < namespaceNames.size(); i++)
-     {
-        if(namespaceNames[i].equal ( namespaceName))
-        {
-            return true;
-        }
-     }
-     return false;
-}
-
 Boolean _isChild(
         CIMNamespaceName& parentNamespaceName,
 	CIMNamespaceName& namespaceName)
@@ -247,7 +231,7 @@ void _generateFullNamespaceName(
        //
        if (isRelativeName)
        {
-          if (!_isNamespace(namespaceNames, parentNamespaceName))
+          if (!Contains(namespaceNames, parentNamespaceName))
           {
           	//l10n
              //throw CIMObjectNotFoundException("Parent namespace does not exist: "
@@ -513,7 +497,7 @@ void NamespaceProvider::getInstance(
 			             childNamespaceName, isRelativeName,
 				     getNamespaceName);
 
-           if (!_isNamespace(namespaceNames, getNamespaceName))
+           if (!Contains(namespaceNames, getNamespaceName))
            {
            		//l10n
               //throw CIMObjectNotFoundException("Namespace deos not exist: "

@@ -78,7 +78,7 @@ char  strbuf[1024], *strbuf_p, slashx[2];
 %}
 
 
-%x str hex
+%x myStr myHex
 %%
 
 
@@ -128,7 +128,7 @@ class                                 { return(TOK_CLASS); }
                                        an impl. req't: strings are returned to parser
                                        with [no kidding!] enclosing "s.  
                                     */                                               
-\"                                  { BEGIN(str); strbuf_p = strbuf; 
+\"                                  { BEGIN(myStr); strbuf_p = strbuf; 
                                       /**strbuf_p++ = '"';*/ }
 <str>\"                             { BEGIN(INITIAL);  
                                       /**strbuf_p++ = '"';*/  *strbuf_p = '\0';
@@ -149,7 +149,7 @@ class                                 { return(TOK_CLASS); }
 <str>\\'                            { /* single quote */     *strbuf_p++ = '\''; }
 <str>\\\"                           { /* double quote */     *strbuf_p++ = '"';  }
 <str>\\\\                           { /* backslash */        *strbuf_p++ = '\\'; }
-<str>\\[xX]                         { yy_push_state(hex);
+<str>\\[xX]                         { yy_push_state(myHex);
                                       memcpy(slashx,yytext,2);
                                       }
 <str>\\(.|\n)                       { *strbuf_p++ = '\\';

@@ -31,6 +31,7 @@
 // Modified By: David Kennedy       <dkennedy@linuxcare.com>
 //              Christopher Neufeld <neufeld@linuxcare.com>
 //              Al Stone            <ahs3@fc.hp.com>
+//              Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
 //
 //%////////////////////////////////////////////////////////////////////////////
 //
@@ -39,6 +40,7 @@
 
 
 #include "PCIControllerData.h"
+#include <Pegasus/Common/AutoPtr.h>
 
 PEGASUS_USING_STD;
 
@@ -71,19 +73,18 @@ int PCIControllerData::initialize(void)
  *  stream for its Next object. */
 PCIControllerData *PCIControllerData::GetNext(void)
 { 
-  PCIControllerData *retval;
+  AutoPtr<PCIControllerData> retval; 
 
-  retval = new PCIControllerData();
+  retval.reset(new PCIControllerData());
 
   if (retval->initialize(searcher) == 1) {
     searcher = NULL;
-    delete retval;
     return NULL;
   }
 
   searcher = NULL; /* We've passed it to the new one, we may no longer
 		    * delete it ourselves */
-  return retval;
+  return retval.release();
 }
 
 

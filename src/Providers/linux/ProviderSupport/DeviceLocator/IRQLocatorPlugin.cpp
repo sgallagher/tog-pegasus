@@ -31,6 +31,7 @@
 // Modified By: David Kennedy       <dkennedy@linuxcare.com>
 //              Christopher Neufeld <neufeld@linuxcare.com>
 //              Al Stone            <ahs3@fc.hp.com>
+//              Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
 //
 //%////////////////////////////////////////////////////////////////////////////
 //
@@ -68,14 +69,7 @@ static char const *interrupt_regex_patterns[] = {
 
 
 IRQLocatorPlugin::IRQLocatorPlugin(){
-	fileReader=NULL;
-}
-
-IRQLocatorPlugin::~IRQLocatorPlugin(){
-	if(fileReader){
-		delete fileReader;
-		fileReader=NULL;
-	}
+	fileReader.reset();
 }
 
 /* Sets the device search criteria.
@@ -104,13 +98,9 @@ int IRQLocatorPlugin::setDeviceSearchCriteria(Uint16 base_class, Uint16 sub_clas
 		return -1;
 	}
 
-	/* Delete the old file reader */
-	if(fileReader){
-		delete fileReader;
-		fileReader=NULL;
-	}
 	/* Create a new file reader */
-	if((fileReader=new FileReader)==NULL){
+    fileReader.reset(new FileReader);
+	if(fileReader.get()==NULL){
 		return -1;
 	}
 
@@ -146,12 +136,12 @@ int IRQLocatorPlugin::setDeviceSearchCriteria(Uint16 base_class, Uint16 sub_clas
 /* Returns a pointer to a DeviceInformation class or NULL if the last device of that type was located.
  * This method allocated the LocatedDevice object */
 DeviceInformation *IRQLocatorPlugin::getNextDevice(void){
-	InterruptInformation *curIRQ;
+    AutoPtr<InterruptInformation> curIRQ; 
 
 	if(irqIterator!=irqs.end()){
-		curIRQ= new InterruptInformation(*irqIterator);
+        curIRQ.reset(new InterruptInformation(*irqIterator));
 		irqIterator++;
-		return curIRQ;
+		return curIRQ.release();
 		
 	}
 	return NULL;

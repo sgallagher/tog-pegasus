@@ -31,6 +31,7 @@
 // Modified By: David Kennedy       <dkennedy@linuxcare.com>
 //              Christopher Neufeld <neufeld@linuxcare.com>
 //              Al Stone            <ahs3@fc.hp.com>
+//              Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -40,6 +41,7 @@
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/AutoPtr.h>
 
 #include "PCIControllerProvider.h"
 #include "PCIControllerData.h"
@@ -59,7 +61,8 @@ LinuxPCIControllerProvider::getInstance(const OperationContext& context,
 					const CIMPropertyList& propertyList,
 					InstanceResponseHandler& handler)
 {
-   PCIControllerData *dptr1, *dptr2;
+   AutoPtr<PCIControllerData> dptr1; 
+   PCIControllerData *dptr2;
    Array<CIMKeyBinding> keys = ref.getKeyBindings();
    Uint32 i;
    String uniqueKeyID;
@@ -75,25 +78,24 @@ LinuxPCIControllerProvider::getInstance(const OperationContext& context,
  
    handler.processing();
  
-   dptr1 = new PCIControllerData;
+   dptr1.reset(new PCIControllerData);
  
    DEBUG("lpcp-> built PCIControllerData");
 
-   while (dptr1 != NULL)
+   while (dptr1.get() != NULL)
    {
       if (dptr1->GetLogicalDeviceID() == uniqueKeyID)
       {
-         CIMInstance instance = build_instance(classname, dptr1);
+         CIMInstance instance = build_instance(classname, dptr1.get());
          handler.deliver(instance);
 
 	 DEBUG("lpcp-> delivered instance");
-         delete dptr1;
+         dptr1.reset();
          break;
       }
  
       dptr2 = dptr1->GetNext();
-      delete dptr1;
-      dptr1 = dptr2;
+      dptr1.reset(dptr2);
    }
  
    handler.complete();
@@ -110,20 +112,20 @@ LinuxPCIControllerProvider::enumerateInstances(
 				const CIMPropertyList& propertyList,
 				InstanceResponseHandler& handler )
 {
-   PCIControllerData *dptr1, *dptr2;
+   AutoPtr<PCIControllerData> dptr1; 
+   PCIControllerData *dptr2;
 
    handler.processing();
   
-   dptr1 = new PCIControllerData;
+   dptr1.reset(new PCIControllerData);
 
-   while (dptr1 != NULL)
+   while (dptr1.get() != NULL)
    {
-      handler.deliver(build_instance(classname, dptr1));
+      handler.deliver(build_instance(classname, dptr1.get()));
       dptr2 = dptr1->GetNext();
-      delete dptr1;
-      dptr1 = dptr2;
+      dptr1.reset(dptr2);
    }
-
+   
    handler.complete();
 
 }
@@ -134,19 +136,19 @@ LinuxPCIControllerProvider::enumerateInstanceNames(
 			  	const CIMObjectPath& ref,
 			  	ObjectPathResponseHandler& handler )
 {
-   PCIControllerData *dptr1, *dptr2;
+   PCIControllerData *dptr2;
+   AutoPtr<PCIControllerData> dptr1; 
 
    handler.processing();
   
-   dptr1 = new PCIControllerData;
+   dptr1.reset(new PCIControllerData);
    dptr1->initialize();
 
-   while (dptr1 != NULL)
+   while (dptr1.get() != NULL)
    {
-      handler.deliver(fill_reference(ref.getNameSpace(), classname, dptr1));
+      handler.deliver(fill_reference(ref.getNameSpace(), classname, dptr1.get()));
       dptr2 = dptr1->GetNext();
-      delete dptr1;
-      dptr1 = dptr2;
+      dptr1.reset(dptr2);
    }
  
    handler.complete();

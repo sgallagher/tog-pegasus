@@ -31,6 +31,7 @@
 // Modified By: David Kennedy       <dkennedy@linuxcare.com>
 //              Christopher Neufeld <neufeld@linuxcare.com>
 //              Al Stone            <ahs3@fc.hp.com>
+//              Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -50,6 +51,7 @@
 #include "InterruptInformation.h"
 #include "DeviceLocatorPlugin.h"
 #include "FileReader.h"
+#include <Pegasus/Common/AutoPtr.h>
 
 /* Device list */
 
@@ -81,7 +83,7 @@ private:
 	vector<InterruptInformation>::iterator irqIterator;
 	int dirIndex;
 
-	FileReader *fileReader;
+    AutoPtr<FileReader> fileReader; 
 	void addInterrupt(String, String=String::EMPTY, String=String::EMPTY);
 
 };

@@ -37,15 +37,10 @@
 # include <dll.h>
 #elif defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
 #  include <fcntl.h> 
-#  include <mih/rslvsp.h>            /* rslvsp()                       */
-#  include <mih/micommon.h>          /* _AUTH_EXECUTE                  */
-#  include <mih/miobjtyp.h>          /* WLI_SRVPGM                     */
-#  include <pointer.h>               /* _SYSPTR                        */
-#  include <qusec.h>                 /* Qus_EC_t                       */
-#  include <qleawi.h>                /* QleActBndPgm(),QleGetExp()     */
 #  include <qycmutiltyUtility.H>
 #  include <unistd.cleinc>
 #  include "qycmmsgclsMessage.H" // ycmMessage class
+#  include <Pegasus/Common/OS400SystemState.h>  // OS400LoadDynamicLibrary, etc (not in CVS)
 #else
 # include <dlfcn.h>
 #endif
@@ -77,10 +72,6 @@ PEGASUS_NAMESPACE_BEGIN
 
 #if defined(PEGASUS_OS_HPUX)
 Boolean System::bindVerbose = false;
-#endif
-
-#if defined(PEGASUS_OS_OS400)
-char os400ExceptionID[8] = {0};
 #endif
 
 inline void sleep_wrapper(Uint32 seconds)
@@ -212,61 +203,8 @@ DynamicLibraryHandle System::loadDynamicLibrary(const char* fileName)
     PEG_METHOD_EXIT();
     return DynamicLibraryHandle(dllload(fileName));
 #elif defined(PEGASUS_OS_OS400)
-    // Activate the service program.	
-
-    // Parse out the library and srvpgm names.
-    // Note: the fileName passed in must be in OS/400 form - library/srvpgm
-    if (fileName == NULL || strlen(fileName) == 0 || strlen(fileName) >= 200)
-       return 0;
-
-    // More checking here!
-    char name[200];
-    strcpy(name, fileName);
-
-    char* lib = strtok(name, "/");
-    if (lib == NULL || strlen(lib) == 0)
-       return 0;
-
-    char* srvpgm = strtok(NULL,"/");              
-    if (srvpgm == NULL || strlen(srvpgm) == 0)
-       return 0;
-
-    /*----------------------------------------------------------------*/
-    /* Resolve to the service program                                 */
-    /*----------------------------------------------------------------*/
-    _OBJ_TYPE_T objectType = WLI_SRVPGM;
-    _SYSPTR sysP = rslvsp(objectType, srvpgm, lib, _AUTH_NONE);
-
-    /*----------------------------------------------------------------*/
-    /* Activate the service program                                   */
-    /*----------------------------------------------------------------*/
-    Qle_ABP_Info_t activationInfo;
-    int actInfoLen = sizeof(activationInfo);
-    int hdl;
-
-    Qus_EC_t os400ErrorCode = {0};
-    os400ErrorCode.Bytes_Provided = sizeof(Qus_EC_t);
-    os400ErrorCode.Bytes_Available = 0;
-
-    QleActBndPgm(&sysP,
-		&hdl,
-		&activationInfo,
-		&actInfoLen,
-		&os400ErrorCode);
-
-    if (os400ErrorCode.Bytes_Available)
-    {
-       // Got an error. 
-       memset(os400ExceptionID, '\0', 8);
-       strncpy(os400ExceptionID, os400ErrorCode.Exception_Id, 7);
-       Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL2, 
-                  "Error activating service program. Exception Id = %s", os400ExceptionID);
-       return 0;
-    }
-   
     PEG_METHOD_EXIT();
-    return DynamicLibraryHandle(hdl);
-
+    return DynamicLibraryHandle(OS400_LoadDynamicLibrary(fileName));
 #else
     PEG_METHOD_EXIT();
     return DynamicLibraryHandle(dlopen(fileName, RTLD_NOW | RTLD_GLOBAL));
@@ -286,6 +224,10 @@ void System::unloadDynamicLibrary(DynamicLibraryHandle libraryHandle)
     // multiple times.  No reference count is kept.
     int ignored = shl_unload(reinterpret_cast<shl_t>(libraryHandle));
 #endif
+
+#ifdef PEGASUS_OS_OS400
+   OS400_UnloadDynamicLibrary((int)libraryHandle);
+#endif
 }
 
 String System::dynamicLoadError() {
@@ -297,7 +239,7 @@ String System::dynamicLoadError() {
 #elif defined(PEGASUS_OS_ZOS)
     return String();
 #elif defined(PEGASUS_OS_OS400)
-    return String(os400ExceptionID);
+    return String(OS400_DynamicLoadError());
 #else
     String dlerr = dlerror();
     return dlerr;
@@ -334,41 +276,11 @@ DynamicSymbolHandle System::loadDynamicSymbol(
                                (char*)symbolName));
 
 #elif defined(PEGASUS_OS_OS400)
-   /*----------------------------------------------------------------*/
-   /* Get procedure pointer and return it to caller                  */
-   /*----------------------------------------------------------------*/
-
-    Qus_EC_t os400ErrorCode = {0};
-    os400ErrorCode.Bytes_Provided = sizeof(Qus_EC_t);
-    os400ErrorCode.Bytes_Available = 0;
-
-    int exportType;
-    int hdl = (int)libraryHandle; 
-    void * procAddress = NULL;
-
-    QleGetExp(&hdl,
-	     0,
-	     0,
-	     (char *)symbolName,
-	     &procAddress,
-	     &exportType,
-	     &os400ErrorCode);
-
-    if (os400ErrorCode.Bytes_Available)
-    {
-      // Got an error. 
-       memset(os400ExceptionID, '\0', 8);
-       strncpy(os400ExceptionID, os400ErrorCode.Exception_Id, 7);
-       Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL2, 
-                  "Error getting export. Exception Id = %s", os400ExceptionID);
-       return 0;
-    }
-
-    return DynamicSymbolHandle(procAddress);
-
+    return DynamicSymbolHandle(OS400_LoadDynamicSymbol((int)libraryHandle,
+                               symbolName));
 #else
 
-    return DynamicSymbolHandle(dlsym(libraryHandle, (char*)symbolName));
+    return DynamicSymbolHandle(dlsym(libraryHandle,(char *) symbolName));
 
 #endif
 }

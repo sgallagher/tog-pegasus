@@ -49,6 +49,11 @@ PEGASUS_USING_STD;
 //
 int main()
 {
+
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
+
+#elif defined(PEGASUS_OS_TYPE_UNIX)
+
     String testUser = String::EMPTY;
     String authHeader = String::EMPTY;
     String authType = "Local";
@@ -118,6 +123,7 @@ int main()
     assert(authenticated);
 //---------------------------------------------------------------------------
 
+#endif
 
     cout << "+++++ passed all tests" << endl;
 

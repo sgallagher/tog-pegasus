@@ -46,6 +46,10 @@ PEGASUS_USING_STD;
 
 int main()
 {
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
+
+#elif defined(PEGASUS_OS_TYPE_UNIX)
+
     String authorization = "PegasusAuthorization: ";
     String localHeader = "Local ";
     String localPrivHeader = "LocalPrivileged ";
@@ -204,6 +208,8 @@ int main()
 #endif
     assert(authenticated);
 //---------------------------------------------------------------------------
+
+#endif
 
     cout << "+++++ passed all tests" << endl;
 

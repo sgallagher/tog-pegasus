@@ -27,19 +27,12 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// CIMServer.h
-//
-//	Implementation of main Pegasus server class
-//
-////////////////////////////////////////////////////////////////////////////////
-
 #ifndef Pegasus_Server_h
 #define Pegasus_Server_h
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/MessageQueue.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -67,17 +60,21 @@ public:
 
     ~CIMServer();
     
-    /**  bind Binds the port address to the Server.
-    @param address char* to the port address for TCP.
-    @exception - This function may receive exceptions from
-    Channel specific subfunctions.
+    /** bind Binds the port address to the Server.
+	@param address char* to the port address for TCP.
+	@exception - This function may receive exceptions from
+	Channel specific subfunctions.
     */
     void bind(const char* address);
 
     /** runForever Main runloop for the server.
     */
     void runForever();
-    void killServer() { _dieNow = 1 ; }
+
+    /** Call to gracefully shutdown the sever. Next time runForever() is
+	called, the server shuts down.
+    */
+    void killServer() { _dieNow = true; }
 
 private:
 
@@ -85,7 +82,7 @@ private:
     String _repositoryRootPath;
     Selector* _selector;
     ChannelAcceptor* _acceptor;
-    int _dieNow;
+    Boolean _dieNow;
 };
 
 PEGASUS_NAMESPACE_END

@@ -40,7 +40,7 @@ static void TestGetClass(CIMClient& client)
     CIMClass c = client.getClass(
 	NAMESPACE, "CIM_ComputerSystem", false, false, true);
 
-    c.print();
+    // c.print();
 }
 
 static void TestClassOperations(CIMClient& client)
@@ -163,10 +163,9 @@ static void TestInstanceOperations(CIMClient& client)
 	// Ignore delete class!
     }
 
-#if 0
     // Create a new class:
 
-    CIMClass cimClass("myclass");
+    CIMClass cimClass("MyClass");
     cimClass
 	.addProperty(CIMProperty("last", String())
 	    .addQualifier(CIMQualifier("key", true)))
@@ -178,23 +177,21 @@ static void TestInstanceOperations(CIMClient& client)
 
     // Create an instance of that class:
 
-    CIMInstance cimInstance("myclass");
+    CIMInstance cimInstance("MyClass");
     cimInstance.addProperty(CIMProperty("last", "Smith"));
     cimInstance.addProperty(CIMProperty("first", "John"));
     cimInstance.addProperty(CIMProperty("age", Uint8(101)));
-    String instanceName = cimInstance.getInstanceName(cimClass);
+    CIMReference instanceName = cimInstance.getInstanceName(cimClass);
     client.createInstance(NAMESPACE, cimInstance);
 
     // Get the instance and compare with created one:
 
-    CIMReference ref;
-    CIMReference::instanceNameToReference(instanceName, ref);
-    CIMInstance tmp = client.getInstance(NAMESPACE, ref);
+    CIMInstance tmp = client.getInstance(NAMESPACE, instanceName);
 
     // cimInstance.print();
     // tmp.print();
-    // assert(cimInstance.identical(tmp));
-#endif
+
+    client.deleteInstance(NAMESPACE, instanceName);
 }
 
 static void TestAssociators(CIMClient& client)
@@ -318,20 +315,21 @@ int main(int argc, char** argv)
 
 	client.connect("localhost:5988");
 
+#if 0
 	// To run the following test, first compile "test.mof" into the
 	// repository!
 	TestAssociatorNames(client);
 	TestAssociators(client);
 	TestReferenceNames(client);
 	TestReferences(client);
-
 	TestAssociatorClassNames(client);
 	TestReferenceClassNames(client);
+#endif
 
-	// TestGetClass(client);
-	// TestQualifierOperations(client);
-	// TestClassOperations(client);
-	// TestInstanceOperations(client);
+	TestGetClass(client);
+	TestQualifierOperations(client);
+	TestClassOperations(client);
+	TestInstanceOperations(client);
     }
     catch(Exception& e)
     {

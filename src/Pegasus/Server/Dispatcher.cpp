@@ -1,4 +1,3 @@
-//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
@@ -37,12 +36,12 @@ PEGASUS_USING_STD;
 //#define DDD(X) X
 #define DDD(X) // X
 
-DDD(char* dptchr = "Dispatcher::";)
+DDD(static const char* _DISPATCHER = "Dispatcher::";)
 
 Dispatcher::Dispatcher(CIMRepository* repository)
     : _repository(repository)
 {
-    DDD(cout << dptchr << endl;)
+    DDD(cout << _DISPATCHER << endl;)
 }
 
 Dispatcher::~Dispatcher()
@@ -58,14 +57,8 @@ CIMClass Dispatcher::getClass(
     Boolean includeClassOrigin,
     const Array<String>& propertyList)
 {
-    DDD(cout << dptchr << "getClass" << endl;)
-    return _repository->getClass(
-	nameSpace,
-	className,
-	localOnly,
-	includeQualifiers,
-	includeClassOrigin,
-	propertyList);
+    // Obsolete!
+    PEGASUS_ASSERT(0);
 }
 
 CIMInstance Dispatcher::getInstance(
@@ -76,52 +69,22 @@ CIMInstance Dispatcher::getInstance(
     Boolean includeClassOrigin,
     const Array<String>& propertyList)
 {
-
-    String className = instanceName.getClassName();
-
-    DDD(cout << dptchr << "getInstance of " << className << endl;)
-
-    CIMProvider* provider = _lookupProviderForClass(nameSpace, className);
-
-    if (provider)
-    {
-	CIMInstance cimInstance = provider->getInstance(nameSpace,
-	    instanceName, localOnly, includeQualifiers, includeClassOrigin);
-
-	// ATTN: Need code here to fill out the class?
-
-	return cimInstance;
-    }
-    else
-    {
-	CIMInstance cimInstance = _repository->getInstance(nameSpace,
-	    instanceName, localOnly, includeQualifiers, includeClassOrigin);
-
-	return cimInstance;
-    }
+    // Obsolete!
+    PEGASUS_ASSERT(0);
 }
 
 void Dispatcher::deleteClass(
     const String& nameSpace,
     const String& className)
 {
-    _repository->deleteClass(nameSpace, className);
 }
 
 void Dispatcher::deleteInstance(
     const String& nameSpace,
     const CIMReference& instanceName)
 {
-    String className = instanceName.getClassName();
-
-    DDD(cout << dptchr << "deleteInstance of " << className << endl;)
-
-    CIMProvider* provider = _lookupProviderForClass(nameSpace, className);
-
-    if (provider)
-	provider->deleteInstance(nameSpace,instanceName );
-    else
-	_repository->deleteInstance(nameSpace, instanceName);
+    // Obsolete!
+    PEGASUS_ASSERT(0);
 }
 
 void Dispatcher::createClass(
@@ -137,7 +100,7 @@ void Dispatcher::createInstance(
 {
     String className = newInstance.getClassName();
     CIMProvider* provider = _lookupProviderForClass(nameSpace, className);
-    DDD(cout << dptchr << "createInstance of " << className << endl;)
+    DDD(cout << _DISPATCHER << "createInstance of " << className << endl;)
 
     if (provider)
 	provider->createInstance(nameSpace, newInstance);
@@ -181,7 +144,7 @@ Array<String> Dispatcher::enumerateClassNames(
     const String& className,
     Boolean deepInheritance)
 {
-    DDD(cout << dptchr << "emumClass " << className << endl;)
+    DDD(cout << _DISPATCHER << "emumClass " << className << endl;)
 
     return _repository->enumerateClassNames(
 	nameSpace,
@@ -198,7 +161,7 @@ Array<CIMInstance> Dispatcher::enumerateInstances(
     Boolean includeClassOrigin,
     const Array<String>& propertyList)
 {
-    DDD(cout << dptchr << "emumInstance of " << className << endl;)
+    DDD(cout << _DISPATCHER << "emumInstance of " << className << endl;)
 
     CIMProvider* provider = _lookupProviderForClass(nameSpace, className);
 
@@ -222,7 +185,7 @@ Array<CIMReference> Dispatcher::enumerateInstanceNames(
     const String& nameSpace,
     const String& className)
 {
-    DDD(cout << dptchr << "emumInstanceNames of " << className << endl;)
+    DDD(cout << _DISPATCHER << "emumInstanceNames of " << className << endl;)
 
     CIMProvider* provider = _lookupProviderForClass(nameSpace, className);
 
@@ -381,7 +344,7 @@ CIMProvider* Dispatcher::_lookupProviderForClass(
     //----------------------------------------------------------------------
 
     CIMClass cimClass = _repository->getClass(nameSpace, className);
-    DDD(cout << dptchr << "Lookup Provider for " << className << endl;)
+    DDD(cout << _DISPATCHER << "Lookup Provider for " << className << endl;)
 
     if (!cimClass)
 	throw CIMException(CIM_ERR_INVALID_CLASS);
@@ -393,7 +356,7 @@ CIMProvider* Dispatcher::_lookupProviderForClass(
     //----------------------------------------------------------------------
 
     Uint32 pos = cimClass.findQualifier("provider");
-    DDD(cout << dptchr << "Lookup Qualifier " << pos << endl;)
+    DDD(cout << _DISPATCHER << "Lookup Qualifier " << pos << endl;)
 
     if (pos == PEG_NOT_FOUND)
 	return 0;
@@ -402,7 +365,7 @@ CIMProvider* Dispatcher::_lookupProviderForClass(
     String providerId;
 
     q.getValue().get(providerId);
-    DDD(cout << dptchr << "Provider " << providerId << endl;)
+    DDD(cout << _DISPATCHER << "Provider " << providerId << endl;)
 
     //----------------------------------------------------------------------
     // Get the provider (initialize it if not already initialize)
@@ -413,7 +376,7 @@ CIMProvider* Dispatcher::_lookupProviderForClass(
 
     if (!provider)
     {
-	DDD(cout << dptchr << " Lookup Provider " << providerId << endl;)
+	DDD(cout << _DISPATCHER << " Lookup Provider " << providerId << endl;)
 	
 	provider = _providerTable.loadProvider(providerId);
 
@@ -424,6 +387,267 @@ CIMProvider* Dispatcher::_lookupProviderForClass(
     }
 
     return provider;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Dispatcher::enqueueResponse(
+    CIMRequestMessage* request,
+    CIMResponseMessage* response)
+{
+    // Use the same key as used in the request:
+
+    response->setKey(request->getKey());
+
+    // Lookup the message queue:
+
+    MessageQueue* queue = MessageQueue::lookup(request->queueId);
+    PEGASUS_ASSERT(queue != 0);
+
+    // Enqueue the response:
+
+    queue->enqueue(response);
+}
+
+void Dispatcher::handleEnqueue()
+{
+    Message* request = dequeue();
+
+    if (!request)
+	return;
+
+    // request->print(cout);
+
+    switch (request->getType())
+    {
+	case CIM_GET_CLASS_REQUEST_MESSAGE:
+	    handleGetClassRequest((CIMGetClassRequestMessage*)request);
+	    break;
+
+	case CIM_GET_INSTANCE_REQUEST_MESSAGE:
+	    handleGetInstanceRequest((CIMGetInstanceRequestMessage*)request);
+	    break;
+
+	case CIM_DELETE_CLASS_REQUEST_MESSAGE:
+	    handleDeleteClassRequest(
+		(CIMDeleteClassRequestMessage*)request);
+	    break;
+
+	case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
+	    handleDeleteInstanceRequest(
+		(CIMDeleteInstanceRequestMessage*)request);
+	    break;
+
+	case CIM_CREATE_CLASS_REQUEST_MESSAGE:
+	case CIM_CREATE_INSTANCE_REQUEST_MESSAGE:
+	case CIM_MODIFY_CLASS_REQUEST_MESSAGE:
+	case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
+	case CIM_ENUMERATE_CLASSES_REQUEST_MESSAGE:
+	case CIM_ENUMERATE_CLASS_NAMES_REQUEST_MESSAGE:
+	case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
+	case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE:
+	case CIM_EXEC_QUERY_REQUEST_MESSAGE:
+	case CIM_ASSOCIATORS_REQUEST_MESSAGE:
+	case CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE:
+	case CIM_REFERENCES_REQUEST_MESSAGE:
+	case CIM_REFERENCE_NAMES_REQUEST_MESSAGE:
+	case CIM_GET_PROPERTY_REQUEST_MESSAGE:
+	case CIM_SET_PROPERTY_REQUEST_MESSAGE:
+	case CIM_GET_QUALIFIER_REQUEST_MESSAGE:
+	case CIM_SET_QUALIFIER_REQUEST_MESSAGE:
+	case CIM_DELETE_QUALIFIER_REQUEST_MESSAGE:
+	case CIM_ENUMERATE_QUALIFIERS_REQUEST_MESSAGE:
+	case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
+	    break;
+    }
+}
+
+void Dispatcher::handleGetClassRequest(
+    CIMGetClassRequestMessage* request)
+{
+    // ATTN: Need code here to expand partial class!
+
+    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+    String errorDescription;
+    CIMClass cimClass;
+
+    try
+    {
+	cimClass = _repository->getClass(
+	    request->nameSpace,
+	    request->className,
+	    request->localOnly,
+	    request->includeQualifiers,
+	    request->includeClassOrigin,
+	    request->propertyList);
+    }
+    catch (CIMException& exception)
+    {
+	errorCode = exception.getCode();
+	errorDescription = exception.getMessage();
+    }
+    catch (Exception& exception)
+    {
+	errorCode = CIM_ERR_FAILED;
+	errorDescription = exception.getMessage();
+    }
+
+    CIMGetClassResponseMessage* response = new CIMGetClassResponseMessage(
+	request->messageId,
+	errorCode,
+	errorDescription,
+	cimClass);
+
+    enqueueResponse(request, response);
+
+    delete request;
+}
+
+void Dispatcher::handleGetInstanceRequest(
+    CIMGetInstanceRequestMessage* request)
+{
+    // ATTN: Need code here to expand partial instance!
+
+    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+    String errorDescription;
+    CIMInstance cimInstance;
+
+    try 
+    {
+	CIMProvider* provider = _lookupProviderForClass(
+	    request->nameSpace, request->instanceName.getClassName());
+
+	if (provider)
+	{
+	    cimInstance = provider->getInstance(
+		request->nameSpace,
+		request->instanceName, 
+		request->localOnly, 
+		request->includeQualifiers, 
+		request->includeClassOrigin);
+	}
+	else
+	{
+	    cimInstance = _repository->getInstance(
+		request->nameSpace,
+		request->instanceName, 
+		request->localOnly, 
+		request->includeQualifiers, 
+		request->includeClassOrigin);
+	}
+    }
+    catch (CIMException& exception)
+    {
+	errorCode = exception.getCode();
+	errorDescription = exception.getMessage();
+    }
+    catch (Exception& exception)
+    {
+	errorCode = CIM_ERR_FAILED;
+	errorDescription = exception.getMessage();
+    }
+
+    CIMGetInstanceResponseMessage* response = new CIMGetInstanceResponseMessage(
+	request->messageId,
+	errorCode,
+	errorDescription,
+	cimInstance);
+
+    enqueueResponse(request, response);
+
+    delete request;
+}
+
+void Dispatcher::handleDeleteClassRequest(
+    CIMDeleteClassRequestMessage* request)
+{
+    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+    String errorDescription;
+
+    try 
+    {
+	CIMProvider* provider = _lookupProviderForClass(
+	    request->nameSpace, request->className);
+
+	if (provider)
+	{
+	    provider->deleteClass(
+		request->nameSpace,
+		request->className);
+	}
+	else
+	{
+	    _repository->deleteClass(
+		request->nameSpace,
+		request->className);
+	}
+    }
+    catch (CIMException& exception)
+    {
+	errorCode = exception.getCode();
+	errorDescription = exception.getMessage();
+    }
+    catch (Exception& exception)
+    {
+	errorCode = CIM_ERR_FAILED;
+	errorDescription = exception.getMessage();
+    }
+
+    CIMDeleteClassResponseMessage* response = 
+	new CIMDeleteClassResponseMessage(
+	    request->messageId,
+	    errorCode,
+	    errorDescription);
+
+    enqueueResponse(request, response);
+
+    delete request;
+}
+
+void Dispatcher::handleDeleteInstanceRequest(
+    CIMDeleteInstanceRequestMessage* request)
+{
+    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+    String errorDescription;
+
+    try 
+    {
+	CIMProvider* provider = _lookupProviderForClass(
+	    request->nameSpace, request->instanceName.getClassName());
+
+	if (provider)
+	{
+	    provider->deleteInstance(
+		request->nameSpace,
+		request->instanceName);
+	}
+	else
+	{
+	    _repository->deleteInstance(
+		request->nameSpace,
+		request->instanceName);
+	}
+    }
+    catch (CIMException& exception)
+    {
+	errorCode = exception.getCode();
+	errorDescription = exception.getMessage();
+    }
+    catch (Exception& exception)
+    {
+	errorCode = CIM_ERR_FAILED;
+	errorDescription = exception.getMessage();
+    }
+
+    CIMDeleteInstanceResponseMessage* response = 
+	new CIMDeleteInstanceResponseMessage(
+	    request->messageId,
+	    errorCode,
+	    errorDescription);
+
+    enqueueResponse(request, response);
+
+    delete request;
 }
 
 PEGASUS_NAMESPACE_END

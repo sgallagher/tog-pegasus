@@ -86,6 +86,8 @@ void MessageQueue::enqueue(Message* message)
     }
     message->_owner = this;
     _count++;
+
+    handleEnqueue();
 }
 
 Message* MessageQueue::dequeue()
@@ -191,6 +193,11 @@ MessageQueue* MessageQueue::lookup(Uint32 queueId)
 
     // Not found!
     return 0;
+}
+
+void MessageQueue::handleEnqueue()
+{
+
 }
 
 PEGASUS_NAMESPACE_END

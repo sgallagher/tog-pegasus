@@ -246,6 +246,17 @@ struct DeleteClassResult
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+// DeleteInstanceResult
+//
+////////////////////////////////////////////////////////////////////////////////
+
+struct DeleteInstanceResult
+{
+    CIMStatusCode code;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+//
 // GetPropertyResult
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -343,6 +354,10 @@ public:
 
     int handleDeleteClassResponse(XmlParser& parser, const String& messageId);
 
+    int handleDeleteInstanceResponse(
+	XmlParser& parser, 
+	const String& messageId);
+
     int handleGetPropertyResponse(XmlParser& parser, const String& messageId);
 
     int handleSetPropertyResponse(XmlParser& parser, const String& messageId);
@@ -372,6 +387,7 @@ public:
 	CreateClassResult* _createClassResult;
 	ModifyClassResult* _modifyClassResult;
 	DeleteClassResult* _deleteClassResult;
+	DeleteInstanceResult* _deleteInstanceResult;
 	GetPropertyResult* _getPropertyResult;
 	SetPropertyResult* _setPropertyResult;
     };
@@ -532,6 +548,8 @@ int ClientHandler::handleMethodResponse()
 	handleModifyClassResponse(parser, messageId);
     else if (strcmp(iMethodResponseName, "DeleteClass") == 0)
 	handleDeleteClassResponse(parser, messageId);
+    else if (strcmp(iMethodResponseName, "DeleteInstance") == 0)
+	handleDeleteInstanceResponse(parser, messageId);
     else if (strcmp(iMethodResponseName, "GetProperty") == 0)
 	handleGetPropertyResponse(parser, messageId);
     else if (strcmp(iMethodResponseName, "SetProperty") == 0)
@@ -1332,7 +1350,49 @@ int ClientHandler::handleDeleteClassResponse(
     }
 
     return 0;
-}// ATTN: NEW NEW NEW
+}
+
+//------------------------------------------------------------------------------
+//
+// ClientHandler::handleDeleteInstanceResponse()
+//
+//     Expect (ERROR|IRETURNVALUE).
+//
+//------------------------------------------------------------------------------
+
+int ClientHandler::handleDeleteInstanceResponse(
+    XmlParser& parser,
+    const String& messageId)
+{
+    XmlEntry entry;
+    CIMStatusCode code;
+    const char* description = 0;
+
+    if (XmlReader::getErrorElement(parser, code, description))
+    {
+	_deleteInstanceResult = new DeleteInstanceResult;
+	_deleteInstanceResult->code = code;
+	_blocked = false;
+	return 0;
+    }
+    else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+    {
+	XmlReader::testEndTag(parser, "IRETURNVALUE");
+
+	_deleteInstanceResult = new DeleteInstanceResult;
+	_deleteInstanceResult->code = CIM_ERR_SUCCESS;
+	_blocked = false;
+	return 0;
+    }
+    else
+    {
+	throw XmlValidationError(parser.getLine(),
+	    "expected ERROR or IRETURNVALUE element");
+    }
+
+    return 0;
+}
+
 //------------------------------------------------------------------------------
 //
 // ClientHandler::handleGetPropertyResponse()
@@ -1728,9 +1788,29 @@ void CIMClient::deleteInstance(
     const String& nameSpace,
     const CIMReference& instanceName)
 {
-    throw CIMException(CIM_ERR_NOT_SUPPORTED);
-}
+    String messageId = XmlWriter::getNextMessageId();
 
+    Array<Sint8> params;
+
+    XmlWriter::appendInstanceNameParameter(
+	params, "InstanceName", instanceName);
+
+    Array<Sint8> message = XmlWriter::formatSimpleReqMessage(
+	_getHostName(), nameSpace, "DeleteInstance", params);
+	
+    _channel->writeN(message.getData(), message.size());
+
+    if (!_getHandler()->waitForResponse(_timeOutMilliseconds))
+	throw TimedOut();
+
+    DeleteInstanceResult* result = _getHandler()->_deleteInstanceResult;
+    CIMStatusCode code = result->code;
+    delete result;
+    _getHandler()->_deleteInstanceResult = 0;
+
+    if (code != CIM_ERR_SUCCESS)
+	throw CIMException(code);
+}
 
 void CIMClient::createClass(
     const String& nameSpace,

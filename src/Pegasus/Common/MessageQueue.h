@@ -58,12 +58,12 @@ public:
 	@param message pointer to message to be enqueued.
 	@exception throws NullPointer exception if message parameter is null.
     */
-    virtual void enqueue(Message* message);
+    void enqueue(Message* message);
 
     /** Dequeues a message (removes it from the front of the queue).
 	@return pointer to message or zero if queue is empty.
     */
-    virtual Message* dequeue();
+    Message* dequeue();
 
     /** Removes the given message from the queue.
 	@param message to be removed.
@@ -71,7 +71,7 @@ public:
 	@exception throws NoSuchMessageOnQueue is message paramter is not
 	    on this queue.
     */
-    virtual void remove(Message* message);
+    void remove(Message* message);
 
     /** Find the message with the given type.
 	@parameter type type of message to be found.
@@ -133,6 +133,14 @@ public:
 
     /** Unlock this queue. */
     virtual void unlock();
+
+    /** This method is called after a message has been enqueued. This default
+	implementation does nothing. Derived classes may override this to
+	take some action each time a message is enqueued (for example, this
+	method could handle the incoming message in the thread of the caller
+	of enqueue()).
+    */
+    virtual void handleEnqueue();
 
     /** Lookup a message queue from a queue id. */
     static MessageQueue* lookup(Uint32 queueId);

@@ -30,6 +30,8 @@
 #define PegasusDispatcher_Dispatcher_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/MessageQueue.h>
+#include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/CIMOperations.h>
 #include <Pegasus/Server/ProviderTable.h>
 
@@ -38,7 +40,8 @@ PEGASUS_NAMESPACE_BEGIN
 class CIMRepository;
 class ProviderTable;
 
-class PEGASUS_SERVER_LINKAGE Dispatcher : public CIMOperations
+class PEGASUS_SERVER_LINKAGE Dispatcher 
+    : public CIMOperations, public MessageQueue
 {
 public:
 
@@ -183,7 +186,22 @@ public:
 	const Array<CIMValue>& inParameters,
 	Array<CIMValue>& outParameters);
 
+    void enqueueResponse(
+	CIMRequestMessage* request,
+	CIMResponseMessage* response);
+
+    virtual void handleEnqueue();
+
+    void handleGetClassRequest(CIMGetClassRequestMessage* request);
+
+    void handleGetInstanceRequest(CIMGetInstanceRequestMessage* request);
+
+    void handleDeleteClassRequest(CIMDeleteClassRequestMessage* request);
+
+    void handleDeleteInstanceRequest(CIMDeleteInstanceRequestMessage* request);
+
 protected:
+
     CIMProvider* _lookupProviderForClass(
 	const String& nameSpace,
 	const String& className);

@@ -68,7 +68,7 @@ void PropertyProvider::getProperty(
 	// (class name and keys only).
 	CIMObjectPath localReference = CIMObjectPath(
 		String(),
-		String(),
+		CIMNamespaceName(),
 		instanceReference.getClassName(),
 		instanceReference.getKeyBindings());
 
@@ -102,7 +102,7 @@ void PropertyProvider::setProperty(
 	// (class name and keys only).
 	CIMObjectPath localReference = CIMObjectPath(
 		String(),
-		String(),
+		CIMNamespaceName(),
 		instanceReference.getClassName(),
 		instanceReference.getKeyBindings());
 

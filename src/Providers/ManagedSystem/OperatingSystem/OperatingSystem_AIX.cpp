@@ -326,6 +326,8 @@ Boolean OperatingSystem::getSystemUpTime(Uint64& mUpTime)
 
 Boolean OperatingSystem::getOperatingSystemCapability(String& scapability)
 {
+
+#ifdef _SC_AIX_KERNEL_BITMODE
     char               capability[80];
     long               ret;
 
@@ -333,14 +335,12 @@ Boolean OperatingSystem::getOperatingSystemCapability(String& scapability)
     if (ret != -1)
     {
         sprintf (capability, "%d bit", ret);
+        scapability.assign(capability);
+        return true;
     }
-    else
-    {
-       return false;
-    }
+#endif
 
-    scapability.assign(capability);
-    return true;
+	return false;
 }
 
 Uint32 OperatingSystem::_reboot()

@@ -84,4 +84,6 @@
 
 #define PEGASUS_NO_PASSWORDFILE
 
+#define PEGASUS_LOCAL_DOMAIN_SOCKET
+
 #endif /* Pegasus_Platform_OS400_ISERIES_IBM_h */

@@ -95,7 +95,7 @@
 		<make>
 			<base>&source_dir;/mak</base>
 			<param>-f SDKMakefile</param>
-			<param>SDK_STAGINDIR=&install_dir;/&pegasus-name;/opt/&pegasus-name;</param>
+			<param>SDK_STAGINGDIR=&install_dir;/&pegasus-name;/opt/&pegasus-name;</param>
 			<param>stageSDK</param>
 		</make>
 	</build>

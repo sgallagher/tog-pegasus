@@ -5,7 +5,7 @@ EXTRA_INCLUDES = $(SYS_INCLUDES) $(ACE_INCLUDES)
 
 LIBRARIES = $(ACE_LIB)
 
-SOURCES = dlloader.cpp inst.cpp handler.cpp
+SOURCES = dlloader.cpp
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 

@@ -3,7 +3,7 @@
 #include <ace/OS.h>
 #include "../MyClass/MyClass.h"
 
-typedef void* (*LoadClassFunc)();
+typedef MyClass* (*LoadClassFunc)();
 
 int main (int argc, char *argv[])
 {
@@ -31,7 +31,7 @@ int main (int argc, char *argv[])
 
     // Invoke LoadClass function to obtain MyClass implementation instance:
 
-    MyClass* myClass = (MyClass*)func();
+    MyClass* myClass = func();
     assert(myClass);
 
     myClass->print();

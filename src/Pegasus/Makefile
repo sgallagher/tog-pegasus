@@ -13,6 +13,7 @@ DIRS = \
     Repository \
     Protocol \
     Client \
+    Provider \
     Server \
     $(TEST_DIRS)
 

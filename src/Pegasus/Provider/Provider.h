@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Provider.h,v $
+// Revision 1.2  2001/01/29 02:24:15  mike
+// Added support for GetInstance.
+//
 // Revision 1.1  2001/01/20 22:29:24  karl
 // new provider interface class
 //
@@ -37,6 +40,8 @@
 #include <Pegasus/Common/Operations.h>
 
 PEGASUS_NAMESPACE_BEGIN
+
+class Repository;
 
 class PEGASUS_PROVIDER_LINKAGE Provider : public Operations
 {
@@ -182,6 +187,14 @@ public:
 	const String& methodName,
 	const Array<Value>& inParameters,
 	Array<Value>& outParameters);
+
+    /** 
+	This method is invoked to initialize the provider. Eventually we
+	will pass a loca interface to the CIMOM, but for now we are just
+	passing the repository.
+    */
+
+    virtual void initialize(Repository& repository);
 };
 
 PEGASUS_NAMESPACE_END

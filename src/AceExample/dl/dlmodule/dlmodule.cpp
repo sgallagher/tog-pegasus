@@ -12,7 +12,7 @@ public:
     }
 };
 
-extern "C" __declspec(dllexport) void* LoadClass()
+extern "C" PEGASUS_EXPORT void* LoadClass()
 {
     std::cout << "Called dummy" << std::endl;
     return new MyClassImpl;

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Provider.cpp,v $
+// Revision 1.2  2001/01/29 02:24:15  mike
+// Added support for GetInstance.
+//
 // Revision 1.1  2001/01/20 22:29:24  karl
 // new provider interface class
 //
@@ -265,6 +268,11 @@ Value Provider::invokeMethod(
 {
     throw CimException(CimException::NOT_SUPPORTED);
     return Value();
+}
+
+void Provider::initialize(Repository& repository)
+{
+
 }
 
 PEGASUS_NAMESPACE_END

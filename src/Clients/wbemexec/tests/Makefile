@@ -87,11 +87,6 @@ poststarttests:
 	@$(ECHO) +++ Test passed +++
 
 poststarttests_ignoreerror:
-	@$(ECHO) "XML request already encapsulated in HTTP M-POST request" >> $(RESULTFILE)
-	@$(ECHO) "wbemexec ./cimrequest.http" >> $(RESULTFILE)
-	@$(ECHO) " " >> $(RESULTFILE)
-	@wbemexec ./cimrequest.http >> $(RESULTFILE) $(REDIRECTERROR)
-	@$(ECHO) "  " >> $(RESULTFILE)
 	@$(ECHO) "Multiple CIM operation request" >> $(RESULTFILE)
 	@$(ECHO) "Times out -- not yet supported by CIM Server" >> $(RESULTFILE)
 	@$(ECHO) "wbemexec -t 1 ./cimrequest04.xml" >> $(RESULTFILE)
@@ -634,6 +629,12 @@ defect:
 	@wbemexec -t 1 ./cimreqerr03.http >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) " " >> $(RESULTFILE)
+#       ATTN-SF-P3-04/02/2002: Gets a different response on Windows
+	@$(ECHO) "XML request already encapsulated in HTTP M-POST request" >> $(RESULTFILE)
+	@$(ECHO) "wbemexec ./cimrequest.http" >> $(RESULTFILE)
+	@$(ECHO) " " >> $(RESULTFILE)
+	@wbemexec ./cimrequest.http >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) "  " >> $(RESULTFILE)
 
 depend:
 	

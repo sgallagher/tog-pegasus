@@ -268,42 +268,12 @@ wbemexec -t 4294967295 ./cimrequest.xml
 </MESSAGE>
 </CIM>
   
-XML request already encapsulated in HTTP M-POST request
-wbemexec ./cimrequest.http
- 
-<?xml version="1.0" encoding="utf-8"?>
-<CIM CIMVERSION="2.0" DTDVERSION="2.0">
-<MESSAGE ID="7873" PROTOCOLVERSION="1.0">
-<SIMPLERSP>
-<IMETHODRESPONSE NAME="EnumerateClassNames">
-<IRETURNVALUE>
-<CLASSNAME NAME="CIM_ErrorCountersForDevice"/>
-<CLASSNAME NAME="CIM_PhysicalStatistics"/>
-<CLASSNAME NAME="CIM_DeviceStatistics"/>
-<CLASSNAME NAME="CIM_SAPStatistics"/>
-<CLASSNAME NAME="CIM_ServiceStatistics"/>
-<CLASSNAME NAME="CIM_BGPServiceStatistics"/>
-<CLASSNAME NAME="CIM_SystemStatistics"/>
-</IRETURNVALUE>
-</IMETHODRESPONSE>
-</SIMPLERSP>
-</MESSAGE>
-</CIM>
-  
 Multiple CIM operation request
 Times out -- not yet supported by CIM Server
 wbemexec -t 1 ./cimrequest04.xml
  
-<?xml version="1.0" encoding="utf-8"?>
-<CIM CIMVERSION="2.0" DTDVERSION="2.0">
-<MESSAGE ID="7873" PROTOCOLVERSION="1.0">
-<SIMPLERSP>
-<IMETHODRESPONSE NAME="">
-<ERROR CODE="1" DESCRIPTION="Validation error: on line 4: Expected open of SIMPLEREQ element"/>
-</IMETHODRESPONSE>
-</SIMPLERSP>
-</MESSAGE>
-</CIM>
+HTTP/1.1 400 Bad Request
+CIMError: header-mismatch
   
 Error cases:
 Missing argument for -h option
@@ -735,13 +705,15 @@ Invalid XML request: Validation error: on line 2: Expected open of CIM element
 Invalid XML input: invalid CIMVERSION attribute
 wbemexec ./cimreqerr01b.xml
  
-Invalid XML request: Validation error: on line 2: CIM.CIMVERSION attribute must be "2.0"
+HTTP/1.1 501 Not Implemented
+CIMError: unsupported-cim-version
  
  
 Invalid XML input: invalid DTDVERSION attribute
 wbemexec ./cimreqerr01c.xml
  
-Invalid XML request: Validation error: on line 2: CIM.DTDVERSION attribute must be "2.0"
+HTTP/1.1 501 Not Implemented
+CIMError: unsupported-dtd-version
  
  
 Invalid XML input: missing CIMVERSION attribute

@@ -14,7 +14,7 @@ install:
 
 poststarttests:
 	@$(RM) $(RESULTFILE)
-	@$(MAKE) -i -s poststarttests_ignoreerror >> $(RESULTFILE)
+	@$(MAKE) -i -s poststarttests_ignoreerror 
 	$(COMPARERESULTS)
 	@$(ECHO) +++ Test passed +++ 
 
@@ -67,18 +67,7 @@ poststarttests_ignoreerror:
 	@$(ECHO) " " >> $(RESULTFILE)
 	@cimconfig -g traceFilePath -p >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) " " >> $(RESULTFILE)
-	@$(ECHO) "Display properties:" >> $(RESULTFILE)
-	@$(ECHO) " " >> $(RESULTFILE)
-	@cimconfig -l -c >> $(RESULTFILE) $(REDIRECTERROR)
-	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) "Set the planned values:" >> $(RESULTFILE)
-	@cimconfig -s traceLevel=1 -p >> $(RESULTFILE) $(REDIRECTERROR)
-	@$(ECHO) " " >> $(RESULTFILE)
-	@cimconfig -s traceLevel=2 -p >> $(RESULTFILE) $(REDIRECTERROR)
-	@$(ECHO) " " >> $(RESULTFILE)
-	@cimconfig -s traceLevel=3 -p >> $(RESULTFILE) $(REDIRECTERROR)
-	@$(ECHO) " " >> $(RESULTFILE)
-	@cimconfig -s traceLevel=4 -p >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@cimconfig -s traceComponents=ALL -p >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) " " >> $(RESULTFILE)
@@ -88,13 +77,6 @@ poststarttests_ignoreerror:
 	@$(ECHO) " " >> $(RESULTFILE)
 	@cimconfig -s traceComponents= -p >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) " " >> $(RESULTFILE)
-	@cimconfig -s traceFilePath=/tmp/test.trace -p >> $(RESULTFILE) $(REDIRECTERROR)
-	@$(ECHO) " " >> $(RESULTFILE)
-	@cimconfig -s traceFilePath=/tmp/test1.trace -p >> $(RESULTFILE) $(REDIRECTERROR)
-	@$(ECHO) " " >> $(RESULTFILE)
-	@cimconfig -s traceFilePath=/tmp/test.trace -p >> $(RESULTFILE) $(REDIRECTERROR)
-	@$(ECHO) "Display properties:" >> $(RESULTFILE)
-	@cimconfig -l -p >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) "Testing all unset options." >> $(RESULTFILE)
 	@$(ECHO) "Unset the current values: " >> $(RESULTFILE)
 	@cimconfig -u traceLevel -c >> $(RESULTFILE) $(REDIRECTERROR)
@@ -103,12 +85,10 @@ poststarttests_ignoreerror:
 	@$(ECHO) " " >> $(RESULTFILE)
 	@cimconfig -u traceFilePath -c >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) " " >> $(RESULTFILE)
-	@$(ECHO) "Display properties:" >> $(RESULTFILE)
-	@cimconfig -l -c >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) "Unset the planned values:" >> $(RESULTFILE)
-	@cimconfig -u traceLevel -p >> $(RESULTFILE) $(REDIRECTERROR)
 	@cimconfig -u traceComponents -p >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) " " >> $(RESULTFILE)
-	@cimconfig -u traceFilePath -p >> $(RESULTFILE) $(REDIRECTERROR)
-	@$(ECHO) "Display properties:" >> $(RESULTFILE)
-	@cimconfig -l -p >> $(RESULTFILE) $(REDIRECTERROR)
+
+clean:
+
+depend:

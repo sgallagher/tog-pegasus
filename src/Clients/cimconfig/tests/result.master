@@ -40,45 +40,13 @@ Current value: Config,XmlParser
 Current value: /tmp/test.trace
  
 Get the planned values:
-Planned value: 4
+Planned value: 1
  
 Planned value: 
  
-Planned value: 
- 
-Display properties:
- 
-logtrace=false
-home=./
-requireAuthentication=false
-repositoryIsDefaultInstanceProvider=true
-SSL=false
-slp=false
-repositoryProviderName=repository
-logdir=/tmp
-trace=false
-shutdownTimeout=5
-traceLevel=4
-severity=ALL
-traceFilePath=/tmp/test.trace
-httpAuthType=Basic
-remove=false
-timeout=2
-daemon=true
-port=5988
-cleanlogs=false
-traceComponents=Config,XmlParser
-requireAuthorization=false
-install=false
+Planned value: cimom.trace
  
 Set the planned values:
-Planned value for the property 'traceLevel' is set to "1" in CIMServer.
- 
-Planned value for the property 'traceLevel' is set to "2" in CIMServer.
- 
-Planned value for the property 'traceLevel' is set to "3" in CIMServer.
- 
-Planned value for the property 'traceLevel' is set to "4" in CIMServer.
  
 Planned value for the property 'traceComponents' is set to "ALL" in CIMServer.
  
@@ -88,34 +56,6 @@ Planned value for the property 'traceComponents' is set to "Config,XmlParser" in
  
 Planned value for the property 'traceComponents' is set to "" in CIMServer.
  
-Planned value for the property 'traceFilePath' is set to "/tmp/test.trace" in CIMServer.
- 
-Planned value for the property 'traceFilePath' is set to "/tmp/test1.trace" in CIMServer.
- 
-Planned value for the property 'traceFilePath' is set to "/tmp/test.trace" in CIMServer.
-Display properties:
-logtrace=false
-home=./
-requireAuthentication=false
-repositoryIsDefaultInstanceProvider=true
-SSL=false
-slp=false
-repositoryProviderName=repository
-logdir=/tmp
-trace=false
-shutdownTimeout=5
-traceLevel=4
-severity=ALL
-traceFilePath=/tmp/test.trace
-httpAuthType=Basic
-remove=false
-timeout=2
-daemon=false
-port=5988
-cleanlogs=false
-traceComponents=
-requireAuthorization=false
-install=false
 Testing all unset options.
 Unset the current values: 
 Current value for the property 'traceLevel' is set to default value in CIMServer.
@@ -124,55 +64,6 @@ Current value for the property 'traceComponents' is set to default value in CIMS
  
 Current value for the property 'traceFilePath' is set to default value in CIMServer.
  
-Display properties:
-logtrace=false
-home=./
-requireAuthentication=false
-repositoryIsDefaultInstanceProvider=true
-SSL=false
-slp=false
-repositoryProviderName=repository
-logdir=/tmp
-trace=false
-shutdownTimeout=5
-traceLevel=1
-severity=ALL
-traceFilePath=cimom.trace
-httpAuthType=Basic
-remove=false
-timeout=2
-daemon=true
-port=5988
-cleanlogs=false
-traceComponents=
-requireAuthorization=false
-install=false
 Unset the planned values:
-Specified property value is not valid.
-CIMClient.cpp(960): CIM_ERR_TYPE_MISMATCH: The value supplied is incompatible with the type: "ConfigSettingProvider.cpp(425): CIM_ERR_TYPE_MISMATCH: The value supplied is incompatible with the type: "Invalid property value: traceLevel=""
 Property 'traceComponents' is unset in the configuration file.
  
-Property 'traceFilePath' is unset in the configuration file.
-Display properties:
-logtrace=false
-home=./
-requireAuthentication=false
-repositoryIsDefaultInstanceProvider=true
-SSL=false
-slp=false
-repositoryProviderName=repository
-logdir=/tmp
-trace=false
-shutdownTimeout=5
-traceLevel=4
-severity=ALL
-traceFilePath=
-httpAuthType=Basic
-remove=false
-timeout=2
-daemon=false
-port=5988
-cleanlogs=false
-traceComponents=
-requireAuthorization=false
-install=false

@@ -42,7 +42,6 @@
 
 #include <Pegasus/Common/Config.h>
 
-#include <iostream>
 #include <cstdio>
 #include <cctype>
 #include <ctime>
@@ -105,8 +104,6 @@
 // l10n
 #include <Pegasus/Common/MessageLoader.h>
 
-
-PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -826,7 +823,6 @@ SSLContext* CIMServer::_getSSLContext()
                 }
 				else if (String::equal(verifyClient, "optional")) 
 				{
-					PEGASUS_STD(cout) << "Pegasus truststore is empty\n";
 					Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING, 
 								"SSL client verification is enabled but no truststore was specified.");
 				}
@@ -1126,8 +1122,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _callSLPProvider(void* parm )
 
     client.disconnect();
 
-    //ATTN: KS. The cout is temp and should be removed.
-    PEGASUS_STD(cout) << "Started SLP Provider thread." << PEGASUS_STD(endl);
     Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
         "SLP Registration Initiated");
 

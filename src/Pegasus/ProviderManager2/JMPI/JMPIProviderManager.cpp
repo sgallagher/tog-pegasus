@@ -180,8 +180,8 @@ Message * JMPIProviderManager::processMessage(Message * request) throw()
 
 	break;
     default:
-        cout<<"*** Unsupported Request ??"<<request->getType()<<endl;
-        asm("int $3");
+	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+        	"*** Unsupported Request "+request->getType());
         response = handleUnsupportedRequest(request);
 
         break;

@@ -106,7 +106,7 @@ void CIMExportClient::_connect()
     
    try
    {
-   #ifdef PEGASUS_USE_23HTTPMONITOR
+   #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
       _httpConnection = _httpConnector->connect(_connectHost, 
 					       _connectPortNumber, 
                  _connectSSLContext,
@@ -136,7 +136,7 @@ void CIMExportClient::_connect()
     
    // Create request encoder:
     
-   #ifdef PEGASUS_USE_23HTTPMONITOR
+   #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
    _requestEncoder = new CIMExportRequestEncoder(
       _httpConnection, &_authenticator);
    #else
@@ -339,7 +339,7 @@ Message* CIMExportClient::_doRequest(
 	//
 	// Wait until the timeout expires or an event occurs:
 	//
-       #ifdef PEGASUS_USE_23HTTPMONITOR
+       #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
        _monitor->run(Uint32(stopMilliseconds - nowMilliseconds));
        #else
        _monitor2->run();

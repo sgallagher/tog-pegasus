@@ -171,7 +171,7 @@ static void __cdecl cimserver_windows_thread(void *parm)
    // try loop to bind the address, and run the server
   try
   {
-    #ifdef PEGASUS_USE_23HTTPMONITOR
+    #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
     Monitor monitor(true);
     #else
     monitor_2 monitor();

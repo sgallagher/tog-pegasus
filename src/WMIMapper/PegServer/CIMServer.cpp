@@ -416,7 +416,7 @@ void CIMServer::addAcceptor(
     Uint32 portNumber,
     Boolean useSSL)
 {
-    #ifdef PEGASUS_USE_23HTTPMONITOR
+    #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
     HTTPAcceptor* acceptor;
     acceptor = new HTTPAcceptor(_monitor,
                                 _httpAuthenticatorDelegator,

@@ -72,7 +72,7 @@ CIMClientRep::CIMClientRep(Uint32 timeoutMilliseconds)
     //
     // Create Monitor and HTTPConnector
     //
-    #ifdef PEGASUS_USE_23HTTPMONITOR
+    #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
     _monitor = new Monitor();
     _httpConnector = new HTTPConnector(_monitor);
     #else
@@ -158,7 +158,7 @@ void CIMClientRep::_connect()
     //
     try
     {
-        #ifdef PEGASUS_USE_23HTTPMONITOR
+        #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
         _httpConnection = _httpConnector->connect(_connectHost,
                                                   _connectPortNumber,
                                                   _connectSSLContext,
@@ -1121,7 +1121,7 @@ Message* CIMClientRep::_doRequest(
         //
         // Wait until the timeout expires or an event occurs:
         //
-       #ifdef PEGASUS_USE_23HTTPMONITOR
+       #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
        _monitor->run(Uint32(stopMilliseconds - nowMilliseconds));
        #else
        _monitor->run();

@@ -297,7 +297,7 @@ private:
         const Uint32 expectedResponseMessageType);
 
     String _getLocalHostName();
-     #ifdef PEGASUS_USE_23HTTPMONITOR
+    #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
     Monitor* _monitor;
     HTTPConnector* _httpConnector;
     HTTPConnection* _httpConnection;

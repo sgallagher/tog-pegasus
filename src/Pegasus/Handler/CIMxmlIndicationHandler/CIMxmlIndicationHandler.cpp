@@ -161,7 +161,7 @@ public:
             SSLContext sslcontext(trustPath, certPath, keyPath, 
                 verifyListenerCertificate, randFile);
 
-            #ifdef PEGASUS_USE_23HTTPMONITOR
+            #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
             Monitor monitor;
             HTTPConnector httpConnector( &monitor);
             #else

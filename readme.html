@@ -114,13 +114,13 @@ Providers</a><p align="left" style="margin-top: 0; margin-bottom: 0">
 <a href="#Commands">Commands</a>
 
 <p align="left" style="margin-top: 0; margin-bottom: 0">
-<a href="#Creating SSL certifications">Creating SSL certifications</a>.
+<a href="#Creating SSL certifications">Creating SSL certifications</a>
 
 <p align="left" style="margin-top: 0; margin-bottom: 0">
-<a href="#Configuring SSL">Configuring Pegasus to use SSL</a>.
+<a href="#Configuring SSL">Configuring Pegasus to use SSL</a>
 
 <p align="left" style="margin-top: 0; margin-bottom: 0">
-<a href="#Configuring PAM">Configuring Pegasus to use PAM</a>.
+<a href="#Configuring PAM">Configuring Pegasus to use PAM</a>
 
 <p align="left" style="margin-top: 0; margin-bottom: 0">
 <a href="#Testing with ICU enabled">Testing with ICU enabled </a>
@@ -884,7 +884,7 @@ Please follow section <a href="#Notes about Building Pegasus with SSL">Notes on 
 before embarking on this endeavour.<br><br>
 
 To configure Pegasus to take advantage of SSL, configure
-cimserver_planned.conf to have:
+CIMServer to have the following configuration options set to:
 <blockquote><pre>
 	sslTrustFilePath=client.pem
 	sslCertificateFilePath=server.pem
@@ -892,16 +892,20 @@ cimserver_planned.conf to have:
 	httpsPort=5989
 	enableHttpsConnection=true
 </pre></blockquote>
+using the <b>cimconfig</b> utility:
+<blockquote><pre>
+	cimconfig -p -s enableHttpsConnection=true
+</pre></blockquote><br>
 (The client.pem and server.pem are the certifications
 files created per the steps in the earlier section).
 
 For good riddance you might consider closing down
-the cleartext 5988 port. Modify your cimserver_planned.conf
+the cleartext 5988 port. Modify your CIMServer configuration
 to include:
 <blockquote><pre>
 	enableHttpConnection=false
 </pre></blockquote>
-
+using <b>cimconfig</b>.
 <h1><a name="Configuring PAM">Configuring Pegasus to use PAM</a></h1><p>
 
 In order to use PAM Authentication you have to compile Pegasus
@@ -920,7 +924,7 @@ After compiling (refer to section <a href="#Building Pegasus">Building Pegasus <
       This notifies PAM what kind of libraries to use when authenticating
       Pegasus.</uL>
  <ul>
- b).  Edit  cimserver_planned.conf to include:
+ b).  Modify CIMServer configuration options:
 	<blockquote><pre>
 	usePAMAuthentication=true
 	enableAuthentication=true
@@ -930,6 +934,11 @@ After compiling (refer to section <a href="#Building Pegasus">Building Pegasus <
 	<blockquote><pre>
 	enableRemotePrivilegedUserAccess=true
 	</blockquote></pre>
+
+	using the <b>cimconfig</b> utility, such as:
+	<blockquote><pre>
+	cimconfig -p -s usePAMAuthentication=true
+	</pre></blockquote>	
   </ul>
 </ul>
 The user is authenticated using HTTP Basic method, thererfore it is

@@ -74,12 +74,10 @@ public:
     enum { DEFAULT_TIMEOUT_MILLISECONDS = 20000 };
 
     /** Constructor for a CIM Client object.
-    @param timeOutMilliseconds Defines the number of milliseconds
-    of inactivity before the connection will timeout
-    // ATTN-RK-P3-20020308: This means the time the CIMClient will wait for
-    // a response to an outstanding request, right?  Not inactivity on the
-    // connection?  If a request times out, does the connection remain
-    // active?
+    @param timeOutMilliseconds Defines the number of milliseconds the
+    CIMClient will wait for a response to an outstanding request.  If a
+    request times out, the connection gets reset (disconnected and
+    reconnected).
     
     <PRE>
         CIMClient client(60 * 1000);

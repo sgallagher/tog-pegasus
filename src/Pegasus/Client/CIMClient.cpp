@@ -71,10 +71,9 @@ public:
 
     enum { DEFAULT_TIMEOUT_MILLISECONDS = 20000 };
 
-    // ATTN-RK-P3-20020308: Timeout value defines the time the CIMClient will
-    // wait for a response to an outstanding request, right?  Not inactivity
-    // on the connection?  If a request times out, does the connection remain
-    // active?
+    // Timeout value defines the time the CIMClient will wait for a response
+    // to an outstanding request.  If a request times out, the connection
+    // gets reset (disconnected and reconnected).
     CIMClientRep(Uint32 timeOutMilliseconds = DEFAULT_TIMEOUT_MILLISECONDS);
 
     ~CIMClientRep();
@@ -282,6 +281,8 @@ private:
         const String& address,
         SSLContext* sslContext) throw(CIMClientException);
 
+    void _reconnect() throw(CIMClientException);
+
     Message* _doRequest(
         CIMRequestMessage * request,
 	const Uint32 expectedResponseMessageType) throw(CIMClientException);
@@ -296,6 +297,8 @@ private:
     CIMOperationResponseDecoder* _responseDecoder;
     CIMOperationRequestEncoder* _requestEncoder;
     ClientAuthenticator _authenticator;
+    String _connectAddress;
+    SSLContext* _connectSSLContext;
 };
 
 
@@ -377,6 +380,16 @@ void CIMClientRep::_connect(
     _responseDecoder->setEncoderQueue(_requestEncoder);
 
     _connected = true;
+
+    // Save the connection parameters in case we need to reconnect later
+    _connectAddress = address;
+    _connectSSLContext = sslContext;
+}
+
+void CIMClientRep::_reconnect() throw(CIMClientException)
+{
+    disconnect();
+    _connect(_connectAddress, _connectSSLContext);
 }
 
 void CIMClientRep::connect(
@@ -1157,9 +1170,19 @@ Message* CIMClientRep::_doRequest(
     }
 
     //
+    // Reconnect to reset the connection (disregard late response)
+    //
+    try
+    {
+        _reconnect();
+    }
+    catch (...)
+    {
+    }
+
+    //
     // Throw timed out exception:
     //
-
     throw CIMClientTimeoutException();
 }
 

@@ -282,6 +282,9 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatementRep : public SelectStatementRep
     Boolean isSubClass(const CIMName& derived,
 		       const CIMName& base); 
 
+    void checkWellFormedIdentifier(const CQLChainedIdentifier& chainId,
+				   Boolean isSelectListId);
+
     CQLPredicate _predicate;
 };
 

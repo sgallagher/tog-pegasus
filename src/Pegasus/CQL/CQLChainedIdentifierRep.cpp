@@ -93,7 +93,63 @@ Boolean CQLChainedIdentifierRep::prepend(CQLIdentifier & id){
 
 void CQLChainedIdentifierRep::applyContext(QueryContext& inContext)
 {
-  // ATTN - Fill this in
+  CQLIdentifier firstId = _subIdentifiers[0];
+  
+  if (!firstId.isScoped())
+  {
+    Array<CQLIdentifier> fromList = inContext.getFromList();
+
+    CQLIdentifier matchedId = inContext.findClass(firstId.getName().getString());
+
+    if (firstId.isWildcard())
+    {
+      // Example:  SELECT * FROM F AS A 
+      _subIdentifiers.prepend(fromList[0]);
+    }  
+    else
+    {
+      if (matchedId.getName().getString() == String::EMPTY)
+      {
+	// Could not find the firstId in the FROM list.
+	// Assume the firstId is a property, so prepend the FROM class.
+	// Examples:  
+	// SELECT p FROM F AS A  
+	// SELECT p.p1 FROM F AS A (illegal, but caught elsewhere)  
+        // SELECT p.* FROM F AS A 
+        // SELECT * FROM F AS A WHERE p ISA B
+	_subIdentifiers.prepend(fromList[0]);
+      }
+      else
+      {	
+	// The firstId was found in the FROM list, but it could have been 
+	// an alias
+	if (!matchedId.getName().equal(firstId.getName()))
+	{
+	  // It was an alias.
+	  // Replace the alias with the FROM class
+	  // Examples:  
+	  // SELECT A.p FROM F AS A 
+	  // SELECT A FROM F AS A  (illegal, but caught elsewhere) 
+	  // SELECT A.* FROM F AS A
+	  // SELECT * FROM F AS A WHERE A ISA B 
+	  // SELECT * FROM F AS A WHERE A.p ISA B
+	  _subIdentifiers[0] = matchedId;
+        }
+	else 
+	{
+	  // It was not an alias, and it is the only sub-identifier.
+	  // Do nothing.
+	  // Examples:
+	  // SELECT F.p FROM F AS A
+	  // SELECT F FROM F AS A (illegal, but caught elsewhere) 
+	  // SELECT F.* FROM F AS A
+	  // SELECT * FROM F AS A WHERE F ISA B
+	  // SELECT * FROM F AS A WHERE F.p ISA B
+	  ;
+	}
+      }
+    }
+  }
 }
 
 void CQLChainedIdentifierRep::parse(String & string){

@@ -66,24 +66,24 @@ struct PropertyNode
 
 
 CQLSelectStatementRep::CQLSelectStatementRep()
-  :SelectStatementRep()
+  :SelectStatementRep(),
+   _hasWhereClause(false)
 {
-	_hasWhereClause = false;
 }
 
 CQLSelectStatementRep::CQLSelectStatementRep(String& inQlang, String& inQuery, QueryContext* inCtx)
-  :SelectStatementRep(inQlang, inQuery, inCtx)
+  :SelectStatementRep(inQlang, inQuery, inCtx),
+   _hasWhereClause(false)
 {
-	_hasWhereClause = false;
 }
 
 CQLSelectStatementRep::CQLSelectStatementRep(const CQLSelectStatementRep& rep)
   :SelectStatementRep(rep),
    _selectIdentifiers(rep._selectIdentifiers),
    _whereIdentifiers(rep._whereIdentifiers),
+   _hasWhereClause(rep._hasWhereClause),
    _predicate(rep._predicate)
 {
-	_hasWhereClause = rep._hasWhereClause;
 }
 
 CQLSelectStatementRep::~CQLSelectStatementRep()
@@ -375,9 +375,7 @@ void CQLSelectStatementRep::validateProperty(CQLChainedIdentifier& chainId)
     }
     else
     {
-      // All embedded properties must be scoped.
-      // ATTN: Is this checked by Bison?
-      PEGASUS_ASSERT(pos == startingPos);
+      PEGASUS_ASSERT(pos == startingPos || ids[pos].isWildcard());
       curContext = prevContext;
     }
 
@@ -607,15 +605,72 @@ void CQLSelectStatementRep::applyContext()
   for (Uint32 i = 0; i < _selectIdentifiers.size(); i++)
   {
     _selectIdentifiers[i].applyContext(*_ctx);
+    checkWellFormedIdentifier(_selectIdentifiers[i], true);
   }
 
   for (Uint32 i = 0; i < _whereIdentifiers.size(); i++)
   {
     _whereIdentifiers[i].applyContext(*_ctx);
+    checkWellFormedIdentifier(_whereIdentifiers[i], false);
   }
 
   if (hasWhereClause())
+  {
     _predicate.applyContext(*_ctx);
+  }
+
+}
+
+void CQLSelectStatementRep::checkWellFormedIdentifier(const CQLChainedIdentifier& chainId,
+						      Boolean isSelectListId)
+{
+  Array<CQLIdentifier> ids = chainId.getSubIdentifiers();
+
+  Uint32 startingPos = 0;
+
+  if (!ids[0].isScoped())
+  {
+    if (ids.size() == 1 && isSelectListId)
+    {
+      throw Exception("TEMP MSG: need to select a property on the FROM class");
+    }
+    
+    startingPos = 1;
+  }
+
+  for (Uint32 pos = startingPos; pos < ids.size(); pos++)
+  {  
+    if (ids[pos].isArray() && isSelectListId)
+    {
+      throw Exception("TEMP MSG: array indexing not allowed in basic select");
+    }
+
+    if (ids[pos].isSymbolicConstant() && isSelectListId)
+    {
+      throw Exception("TEMP MSG: array indexing not allowed in basic select");
+    }
+
+    if (ids[pos].isWildcard())
+    {
+      if ( !isSelectListId)
+      {
+	throw Exception("TEMP MSG: wildcard not allowed in WHERE clause");
+      }
+
+      if ( pos != ids.size())
+      {
+	throw Exception("TEMP MSG: wildcard must be at the end of select-list property");
+      }
+    }
+
+    if (pos > startingPos && !ids[pos].isWildcard())
+    {
+      if (!ids[pos].isScoped())
+      {
+	throw Exception("TEMP MSG: property on embedded object must be scoped");
+      }
+    }
+  }
 }
 
 void CQLSelectStatementRep::normalizeToDOC()

@@ -374,13 +374,13 @@ void buildEmbeddedObjects(CIMNamespaceName& ns,
   CIMName nameCS("CIM_ComputerSystem");
 
   CIMInstance testElem;
-  Array<CIMInstance> testElemArray;
+  Array<CIMObject> testElemArray;
   Boolean foundTestElem = false;
 
   CIMInstance testCS;
   Boolean foundCS = false;
 
-  Array<CIMInstance> testPropTypesArray;
+  Array<CIMObject> testPropTypesArray;
 
   for (Uint32 i = 0; i < instances.size(); i++)
   {
@@ -501,27 +501,33 @@ void buildEmbeddedObjects(CIMNamespaceName& ns,
 
   CIMInstance embTE("CQL_EmbeddedTestElement");
   embTE.addProperty(CIMProperty("InstanceID", CIMValue((Uint64)1000)));
-  //  embTE.addProperty(CIMProperty("TEArray", CIMValue(testElemArray)));
-  //  embTE.addProperty(CIMProperty("TE", CIMValue(testElemArray[0])));
-  //  embTE.addProperty(CIMProperty("CS", CIMValue(testCS)));
-  //  embTE.addProperty(CIMProperty("SomeClass", CIMValue(someClass)));
+  embTE.addProperty(CIMProperty("TEArray", CIMValue(testElemArray)));
+  CIMObject _obj1 = testElemArray[0];
+  CIMValue temp(_obj1);
+  embTE.addProperty(CIMProperty("TE", temp));
+
+
+  temp = CIMValue(testCS);
+  embTE.addProperty(CIMProperty("CS", temp));
+  embTE.addProperty(CIMProperty("SomeClass", CIMValue(someClass)));
   embTE.addProperty(CIMProperty("SomeString", CIMValue("Huh?")));
   
 
   CIMInstance embTPT("CQL_EmbeddedTestPropertyTypes");
   embTPT.addProperty(CIMProperty("InstanceID", CIMValue((Uint64)1001)));
-  //  embTE.addProperty(CIMProperty("TEArray", CIMValue(testElemArray)));
-  //  embTE.addProperty(CIMProperty("TE", CIMValue(testElemArray[0])));
-  //  embTE.addProperty(CIMProperty("CS", CIMValue(testCS)));
-  //  embTPT.addProperty(CIMProperty("TPTArray", CIMValue(testPropTypesArray)));
-  //  embTPT.addProperty(CIMProperty("TPT", CIMValue(testPropTypesArray[0])));
-  //  embTPT.addProperty(CIMProperty("SomeClass", CIMValue(someClass)));
+
+
+ 
+  embTPT.addProperty(CIMProperty("TPTArray", CIMValue(testPropTypesArray)));
+
+  embTPT.addProperty(CIMProperty("TPT", CIMValue(testElemArray[0])));
+  embTPT.addProperty(CIMProperty("SomeClass", CIMValue(someClass)));
   embTPT.addProperty(CIMProperty("SomeUint8", CIMValue((Uint8)3)));
 
   CIMInstance embSub("CQL_EmbeddedSubClass");
   embSub.addProperty(CIMProperty("InstanceID", CIMValue((Uint64)100)));
-  //  embSub.addProperty(CIMProperty("EmbObjBase", CIMValue(embTE)));  
-  //  embSub.addProperty(CIMProperty("EmbObjSub", CIMValue(embTPT)));  
+  embSub.addProperty(CIMProperty("EmbObjBase", CIMValue(embTE)));  
+  embSub.addProperty(CIMProperty("EmbObjSub", CIMValue(embTPT)));  
 
   instances.append(embSub);
 }
@@ -603,9 +609,11 @@ int main(int argc, char ** argv)
 		cout << endl << "Using default class names to test queries. " << endl << endl;
         	const CIMName _testclass(String("CQL_TestPropertyTypes"));
 		const CIMName _testclass1(String("CIM_ComputerSystem"));
+		const CIMName _testclass2(String("CQL_TestElement"));
 		try{
         _instances = _rep->enumerateInstances( _ns, _testclass, true ); // deep inh true
         _instances.appendArray(_rep->enumerateInstances( _ns, _testclass1, false )); // deep inh false
+	_instances.appendArray(_rep->enumerateInstances( _ns, _testclass2, true )); // deep inh true
 		}catch(Exception& e){
 			cout << endl << endl << "Exception: Invalid namespace/class: " << e.getMessage() << endl << endl;
       }
@@ -613,9 +621,9 @@ int main(int argc, char ** argv)
 
    // Add the embedded object instances to the array
    // ATTN - uncomment when emb objs are available
-   //   buildEmbeddedObjects(_ns,
-   //                        _instances,
-   //                        _rep);
+     buildEmbeddedObjects(_ns,
+                          _instances,
+                          _rep);
    
 	// demo setup
 	if(argc == 3 && strcmp(argv[2],"Demo") == 0){

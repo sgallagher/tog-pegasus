@@ -59,8 +59,6 @@
 #include <Pegasus/Common/BinaryStreamer.h>
 #include <Pegasus/Common/AutoStreamer.h>
 
-#include <Pegasus/Client/CIMClientRep.h> // for 667
-
 #include "CIMRepository.h"
 #include "RepositoryDeclContext.h"
 #include "InstanceIndexFile.h"

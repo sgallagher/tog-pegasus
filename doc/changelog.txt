@@ -158,12 +158,28 @@ repository implementation.
 30. (Sushma Fernandes - HP) 24 Oct 2001 - Added an interface to the tracer 
     to allow tracing of a specific number of bytes in a given
     string. Also modified the XmlIO trace code to use the new interface. 
-    Changed the config file defaults for tracing. 
+    Changed the config file defaults for tracing.
 
-31. (Jenny Yu - HP) 29 Oct 2001 - Fixed CIMReference constructor to allow
+31. (Rudy Schuet - Compaq) 28 Oct 2001 - Added "make" support for Compaq
+    NonStop platform (NSK) in directory pegasus/mak. The following files
+    were added:  platform_NSK_NONSTOP_NMCPLUS.mak, objects-nsk.mak,
+    library-nsk.mak, config-nsk.mak, program-nsk.mak, program-windows.mak, 
+    program-unix.mak. The original program.mak which previously covered
+    all platforms was split into platform-specific make files, and now
+    only contains conditionals. Files config.mak, objects.mak, and
+    library.mak were changed to include the NSK files. 
+    File platform_NSK_NONSTOP_NMCPLUS.mak includes config-nsk.mak.
+
+32. (Jenny Yu - HP) 29 Oct 2001 - Fixed CIMReference constructor to allow
     commas (,) in the string values of key properties.
     
-32. (Karl Schopmeyer 30 October 2001- Move the repository load to CIM schema 2.6
+33. (Karl Schopmeyer 30 October 2001- Move the repository load to CIM schema 2.6
+
+34. (Rudy Schuet - Compaq) 30 Oct 2001 - Fixed a problem in
+    pegasus/mak/program-windows.mak that prevented program builds for
+    the windows platform (related to change from 28 Oct). Replaced
+    leading whitespace in front of commands with tabs as required
+    in make files.
 
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch

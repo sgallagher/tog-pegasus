@@ -80,11 +80,11 @@ char * FSName()
 
 
 CMPIObjectPath *makePath(CMPIBroker *broker, const char * classname, 
-			 const char * namespace, CWS_FILE *cwsf)
+			 const char * Namespace, CWS_FILE *cwsf)
 {
   CMPIObjectPath *op;
   op = CMNewObjectPath(broker, 
-		       (char*)namespace,
+		       (char*)Namespace,
 		       (char*)classname,
 		       NULL);
   if (!CMIsNullObject(op)) {
@@ -99,12 +99,12 @@ CMPIObjectPath *makePath(CMPIBroker *broker, const char * classname,
 }
 
 CMPIInstance   *makeInstance(CMPIBroker *broker, const char * classname, 
-			     const char * namespace, CWS_FILE *cwsf)
+			     const char * Namespace, CWS_FILE *cwsf)
 {
   CMPIInstance   *in = NULL;
   CMPIValue       val;
   CMPIObjectPath *op = CMNewObjectPath(broker, 
-				       (char*)namespace,
+				       (char*)Namespace,
 				       (char*)classname,
 				       NULL);
   

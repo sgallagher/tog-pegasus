@@ -68,7 +68,7 @@ int locateFile(const char *fn)
 void* CWS_Begin_Enum(const char *topdir, int filetype)
 {
   /* begin enumeration */
-  CWS_Control *cc = malloc(sizeof(CWS_Control));
+  CWS_Control *cc = (CWS_Control *)malloc(sizeof(CWS_Control));
   cc->type=filetype;
   cc->next=-1;
   cc->done=0;

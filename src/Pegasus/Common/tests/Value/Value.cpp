@@ -23,8 +23,20 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
+//              Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
 //%/////////////////////////////////////////////////////////////////////////////
+
+/*
+    This test module tests the functions associated with CIMvalue.
+    Feb 2k - Expanded to include isNULL tests and tests of NULL CIMValues
+*/
+
+/* ATTN: P3 KS feb 2002 tests to do
+    Test for array size
+    Test that a !isnull and an is null are not equal
+    Test that arrays of different size are not equal, etc.
+*/
 
 #include <cassert>
 #include <Pegasus/Common/CIMValue.h>
@@ -32,8 +44,17 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
+/* The following define is used to control displays of output from the
+    test.  Comment out the define to turn off the large quantity of prinout
+*/
 #define IO
 
+
+/* This template provides a complete set of tests of simple CIMValues for
+    the different possible data types.  It tests creating, assigning,
+    the equals, creating XML and MOF, and the functions associated with
+    clearing testing for the null attribute.
+*/
 template<class T>
 void test01(const T& x)
 {
@@ -42,30 +63,79 @@ void test01(const T& x)
     CIMValue v3;
     v3 = v2;
 #ifdef IO
+    cout << "\n----------------------\n";
     v3.print();
 #endif
     try
     {
 	T t;
 	v3.get(t);
+        assert (!v.isNull());
+        assert (!v2.isNull());
 	assert(t == x);
+        assert (v3.typeCompatible(v2));
 
         // Test toMof
         Array<Sint8> mofout;
         v.toMof(mofout);
+        mofout.append('\0');
 
         // Test toXml
         String xmlString = v.toXml();
 
         // Test toString
         String valueString = v.toString();
+#ifdef IO
+        cout << "MOF = [" << mofout.getData() << "]" << endl;
+        cout << "toString Output [" << valueString << "]" << endl;
+#endif
+
+    // There should be no exceptions to this point in the test.
     }
     catch(Exception& e)
     {
 	cerr << "Error: " << e.getMessage() << endl;
 	exit(1);
     }
+
+    // From here forward, in the future we may have exceptions because
+    // of the isNull which should generate an exception on the getdata.
+    // ATTN: KS 12 Feb 2002 This is work in progress until we complete
+    // adding the exception return to the CIMValue get functions.
+    try
+    {
+        // Test for isNull and the setNullValue function
+        CIMType type = v.getType();
+        v.setNullValue(type, false);
+        assert(v.isNull());
+
+        // get the String and XML outputs for v
+        String valueString2 = v.toString();
+        String xmlString2 = v.toXml();
+
+        Array<Sint8> mofOutput2;
+        v.toMof(mofOutput2);
+        mofOutput2.append('\0');
+#ifdef IO
+        cout << "MOF NULL = [" << mofOutput2.getData() << "]" << endl;
+        cout << "toString NULL Output [" << valueString2 << "]" << endl;
+        cout << " XML NULL = [" << xmlString2 << "]" << endl;
+#endif
+        v.clear();
+        assert(v.isNull());
+        //v2.clear();
+        //assert(v2.isNull();
+
+    }
+    catch(Exception& e)
+    {
+	cerr << "Error: " << e.getMessage() << endl;
+	exit(1);
+    }
+
 }
+/* This template defines the set of tests used for arrays
+*/
 
 template<class T>
 void test02(const Array<T>& x)
@@ -75,6 +145,7 @@ void test02(const Array<T>& x)
     CIMValue va3;
     va3 = va2;
 #ifdef IO
+    cout << "\n----------------------\n";
     va3.print();
 #endif
     try
@@ -84,24 +155,66 @@ void test02(const Array<T>& x)
 	assert(t == x);
 
         // Test toMof
-        Array<Sint8> mofout;
-        va.toMof(mofout);
+        Array<Sint8> mofOutput;
+        va.toMof(mofOutput);
+        mofOutput.append('\0');
+
 
         // Test toXml
         String xmlString = va.toXml();
 
         // Test toString
         String valueString = va.toString();
+#ifdef IO
+        cout << "MOF = [" << mofOutput.getData() << "]" << endl;
+
+        cout << "toString Output [" << valueString << "]" << endl;
+#endif
+        // There should be no exceptions to this point so the
+        // catch simply terminates.
     }
     catch(Exception& e)
     {
 	cerr << "Error: " << e.getMessage() << endl;
 	exit(1);
     }
+
+    // Test the Null Characteristics
+    try
+    {
+        CIMType type = va.getType();
+        va.setNullValue(type, false);
+        assert(va.isNull());
+
+        // get the String and XML outputs for v
+        String valueString2 = va.toString();
+        String xmlString2 = va.toXml();
+
+        Array<Sint8> mofOutput2;
+        va.toMof(mofOutput2);
+        mofOutput2.append('\0');
+#ifdef IO
+        cout << "MOF NULL = [" << mofOutput2.getData() << "]" << endl;
+        cout << "toString NULL Output [" << valueString2 << "]" << endl;
+        cout << " XML NULL = [" << xmlString2 << "]" << endl;
+#endif
+        va.clear();
+        assert(va.isNull());
+    }
+    catch(Exception& e)
+    {
+	cerr << "Error: " << e.getMessage() << endl;
+	exit(1);
+    }
+
 }
 
 int main()
 {
+#ifdef IO
+    cout << "Test CIMValue. To turn off display, compile with IO undefined\n";
+#endif
+    // Test the primitive CIMValue types with test01
     test01(Boolean(true));
     test01(Boolean(false));
     test01(Char16('Z'));
@@ -192,6 +305,7 @@ int main()
     arr14.append("20020201120000.000000+360");
     arr14.append("20020202120000.000000+360");
     test02(arr14);
+
 
     cout << "+++++ passed all tests" << endl;
 

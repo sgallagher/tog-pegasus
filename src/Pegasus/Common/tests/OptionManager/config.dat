@@ -1,0 +1,17 @@
+################################################################################
+##
+## Configuration file
+##
+## Note that the quotes are not optional.
+##
+################################################################################
+
+HOST = "www.opengroup.org"
+
+PORT = "8080"
+
+COLOR = "green"
+
+TRACE = "true"
+
+#MESSAGE = "This is a \"Test\" and so is \nthis"

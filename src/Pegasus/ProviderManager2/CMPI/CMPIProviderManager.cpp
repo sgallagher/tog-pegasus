@@ -114,6 +114,26 @@ CMPIProviderManager::CMPIProviderManager(Mode m)
 
 CMPIProviderManager::~CMPIProviderManager(void)
 {
+    indProvRecord *prec=NULL;
+	for (IndProvTab::Iterator i = provTab.start(); i; i++)
+	{
+        provTab.lookup(i.key(),prec);
+		if (prec->handler)
+			delete prec->handler;
+		delete prec;
+        provTab.remove(i.key());
+        prec=NULL;
+	}
+	indSelectRecord *selx=NULL;
+	for (IndSelectTab::Iterator i = selxTab.start(); i; i++)
+	{
+		selxTab.lookup(i.key(), selx);
+		if (selx->eSelx)
+			delete selx->eSelx;
+		delete selx;
+		selxTab.remove(i.key());
+		selx=NULL;
+	}
 }
 
 Boolean CMPIProviderManager::insertProvider(const ProviderName & name,
@@ -1707,25 +1727,25 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
         selxTab.insert(sPath.toString(),srec);
 
         // convert arguments
-        OperationContext *context=new OperationContext();
-        context->insert(request->operationContext.get(IdentityContainer::NAME));
-        context->insert(request->operationContext.get(AcceptLanguageListContainer::NAME));
-        context->insert(request->operationContext.get(ContentLanguageListContainer::NAME));
-        context->insert(request->operationContext.get(SubscriptionInstanceContainer::NAME));
-        context->insert(request->operationContext.get(SubscriptionLanguageListContainer::NAME));
-        context->insert(request->operationContext.get(SubscriptionFilterConditionContainer::NAME));
+        OperationContext context;
+        context.insert(request->operationContext.get(IdentityContainer::NAME));
+        context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME));
+        context.insert(request->operationContext.get(ContentLanguageListContainer::NAME));
+        context.insert(request->operationContext.get(SubscriptionInstanceContainer::NAME));
+        context.insert(request->operationContext.get(SubscriptionLanguageListContainer::NAME));
+        context.insert(request->operationContext.get(SubscriptionFilterConditionContainer::NAME));
 
         CIMObjectPath subscriptionName = request->subscriptionInstance.getPath();
 
         CMPIProvider & pr=ph.GetProvider();
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
-        CMPI_ContextOnStack eCtx(*context);
+        CMPI_ContextOnStack eCtx(context);
         
                 SubscriptionFilterConditionContainer sub_cntr =  request->operationContext.get
                                                                 (SubscriptionFilterConditionContainer::NAME);
 
-                CMPI_SelectExp *eSelx=new CMPI_SelectExp(*context,
+                CMPI_SelectExp *eSelx=new CMPI_SelectExp(context,
         request->query,
         sub_cntr.getQueryLanguage());
         srec->eSelx=eSelx;
@@ -1846,6 +1866,7 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
         provTab.lookup(providerName,prec);
         if (--prec->count<=0) {
            provTab.remove(providerName);
+		   delete prec;
            prec=NULL;
         }
 
@@ -1909,7 +1930,7 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
            &eRef,prec==NULL);
 
        delete eSelx;
-
+	   delete srec;
        STAT_PMS_PROVIDEREND;
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY

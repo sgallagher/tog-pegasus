@@ -29,6 +29,7 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//		Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
 //
 //%/////////////////////////////////////////////////////////////////////////////
@@ -53,6 +54,87 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+
+/* Class to manage the aggregation of data required by post processors. This
+    class is private to the dispatcher. An instance is created by the operation
+    dispatcher to aggregate request and response information and used by the
+    post processor to aggregate responses together.
+*/
+class  PEGASUS_SERVER_LINKAGE operationAggregate
+{
+public:
+
+    operationAggregate(CIMEnumerateInstanceNamesRequestMessage* request)
+    {
+	_request = request;
+	_total = 0;
+	_returnedCount = 0;
+    }
+
+    ~operationAggregate(){
+
+    }
+
+    /** Copy constructor */
+    operationAggregate(const operationAggregate& x)
+    {
+
+    }
+
+     /* Assignment operator
+    operationAggregate& operator=(const operationAggregate& x)
+    {
+
+    }
+     */
+
+    void incrementReturned()
+    {
+	_returnedCount++;
+    }
+
+    void setTotalIssued(Uint32 i)
+    {
+	_total = i;
+	_returnedCount = 0;
+    }
+
+    Uint32 returned()
+    {
+	return _returnedCount;
+    }
+    Uint32 total()
+    {
+	return _total;
+    }
+    // Append a new entry to the response list
+    void appendResponse(CIMResponseMessage* response)
+    {
+	_responseList.append(response);
+    }
+    Uint32 numberResponses()
+    {
+	return _responseList.size();
+    }
+    CIMResponseMessage* getResponse(const Uint32& pos)
+    {
+	return _responseList[pos];
+    }
+    void deleteResponse(const Uint32&pos)
+    {
+	_responseList[pos];
+    }
+    Array<String> _subClasses;
+    Array<String> _Servicenames;
+    Array<String> _ControlProviderNames;
+    Array<String> _provider;
+ 
+private:
+    Array<CIMResponseMessage*> _responseList;
+    CIMEnumerateInstanceNamesRequestMessage* _request;
+    Uint32 _returnedCount;
+    Uint32 _total;
+};
 class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher : public MessageQueueService
 {
 public:
@@ -102,6 +184,9 @@ public:
       void handleEnumerateInstancesRequest(
 	 CIMEnumerateInstancesRequestMessage* request);
 
+      void postProcessEnumerateInstanceNamesResponse(
+			operationAggregate* operationAggregator);
+
       void handleEnumerateInstanceNamesRequest(
 	 CIMEnumerateInstanceNamesRequestMessage* request);
 
@@ -150,7 +235,16 @@ public:
       static void _forwardToModuleCallBack(AsyncOpNode *, 
 					   MessageQueue *, 
 					   void *);
+      static void _forwardToDispatcherCallBack(AsyncOpNode *, 
+					   MessageQueue *, 
+					   void *);
       
+      static void _forwardToServiceCallBackEnum(AsyncOpNode *, 
+					    MessageQueue *,
+					    void *);
+      static void _forwardToModuleCallBackEnum(AsyncOpNode *, 
+					   MessageQueue *, 
+					   void *);
    protected:
 
 	/** _getSubClassNames - Gets the names of all subclasses of the defined
@@ -209,8 +303,16 @@ public:
         const String& className,
 	const String& serviceName,
 	const String& controlProviderName,
-	CIMRequestMessage* request,
-	CIMResponseMessage*& response);
+	CIMRequestMessage* request);
+
+	//ATTNKSDELETE CIMRequestMessage* request,
+	//ATTNKSDELETECIMResponseMessage*& response);
+
+      void _forwardRequestEnum(
+        const String& className,
+	const String& serviceName,
+	const String& controlProviderName,
+	CIMRequestMessage* request);
 
       void _enqueueResponse(
 	 CIMRequestMessage* request, CIMResponseMessage* response);

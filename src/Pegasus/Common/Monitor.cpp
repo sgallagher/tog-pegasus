@@ -513,7 +513,6 @@ monitor_2_entry::monitor_2_entry(const monitor_2_entry& e)
 
 monitor_2_entry::~monitor_2_entry(void)
 {
-   PEGASUS_STD(cout) << "~monitor_2_entry: ref = " << _rep->getRef() << PEGASUS_STD(endl);
    
   Dec(_rep);
 }
@@ -672,9 +671,7 @@ monitor_2::monitor_2(void)
 monitor_2::~monitor_2(void)
 {
 
-   PEGASUS_STD(cout) << "~monitor_2: stopping"  << PEGASUS_STD(endl);
    stop();
-   PEGASUS_STD(cout) << "~monitor_2: removing listeners"  << PEGASUS_STD(endl);
 
   try {
     monitor_2_entry* temp = _listeners.remove_first();
@@ -685,7 +682,6 @@ monitor_2::~monitor_2(void)
   }
 
   catch(...){  }
-  PEGASUS_STD(cout) << "connections: " << _connections.count() << PEGASUS_STD(endl);
   
 
   try 
@@ -701,7 +697,6 @@ monitor_2::~monitor_2(void)
   {
   }
   
-  PEGASUS_STD(cout) << "connections: " << _connections.count() << PEGASUS_STD(endl);
 
 }
 
@@ -723,8 +718,6 @@ void monitor_2::run(void)
 	  monitor_2_entry* closed = temp;
 	  temp = _listeners.next(closed);
 	  _listeners.remove_no_lock(closed);
-	  PEGASUS_STD(cout) << "removing " << closed << PEGASUS_STD(endl);
-	  PEGASUS_STD(cout) << "Listeners: " << _listeners.count() << PEGASUS_STD(endl);
 	  
 	  HTTPConnection2 *cn = monitor_2::remove_connection((Sint32)(closed->get_sock()));
 	  delete cn;
@@ -873,7 +866,6 @@ void monitor_2::_dispatch(void)
 	entry->get_sock().disableBlocking();
 	pegasus_socket connected = entry->get_sock().accept(&peer, &peer_size);
 	entry->get_sock().enableBlocking();
-   PEGASUS_STD(cout) << __FILE__ << " " << __LINE__ << "adding monitor entry" << PEGASUS_STD(endl);
 	monitor_2_entry *temp = add_entry(connected, SESSION, entry->get_accept(), entry->get_dispatch());
 	if(temp && _accept_dispatch != 0)
 	   _accept_dispatch(temp);
@@ -947,9 +939,6 @@ monitor_2_entry*  monitor_2::add_entry(pegasus_socket& ps,
 {
   monitor_2_entry* m2e = new monitor_2_entry(ps, type, accept_parm, dispatch_parm);
   
-  PEGASUS_STD(cout) << "Adding " << m2e << PEGASUS_STD(endl);
-  
-
   try{
     _listeners.insert_first(m2e);
   }
@@ -958,8 +947,6 @@ monitor_2_entry*  monitor_2::add_entry(pegasus_socket& ps,
     return 0;
   }
   tickle();
-  PEGASUS_STD(cout) << "Listeners: " << _listeners.count() <<  PEGASUS_STD(endl);
-  
   return m2e;
 }
 

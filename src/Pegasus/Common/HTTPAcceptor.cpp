@@ -704,8 +704,6 @@ void pegasus_acceptor::bind()
   // third step: add this listening socket to the monitor
 
    _monitor->tickle();
-   PEGASUS_STD(cout) << __FILE__ << " " << __LINE__ << "adding monitor entry" << PEGASUS_STD(endl);
-   
    _monitor->add_entry(_listener, LISTEN, this, this);
 }
 

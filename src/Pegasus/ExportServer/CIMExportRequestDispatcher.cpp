@@ -40,8 +40,8 @@ PEGASUS_NAMESPACE_BEGIN
 CIMExportRequestDispatcher::CIMExportRequestDispatcher(
    Boolean dynamicReg, Boolean staticConsumers, Boolean persistence)
    : Base("CIMExportRequestDispatcher", MessageQueue::getNextQueueId()),
-     _dynamicReg(dynamicReg), 
-     _staticConsumers(staticConsumers), 
+     _dynamicReg(dynamicReg),
+     _staticConsumers(staticConsumers),
      _persistence(persistence)
 {
    _consumerTable.set(_dynamicReg, _staticConsumers, _persistence);
@@ -90,7 +90,7 @@ void CIMExportRequestDispatcher::handleEnqueue(Message* message)
 
    if( ! message)
       return;
-   
+
     switch (message->getType())
     {
 	case CIM_EXPORT_INDICATION_REQUEST_MESSAGE:
@@ -111,7 +111,7 @@ void CIMExportRequestDispatcher::handleEnqueue()
    Message *message = dequeue();
    if(message)
       handleEnqueue(message);
-   
+
 }
 
 
@@ -123,7 +123,7 @@ void CIMExportRequestDispatcher::_handleExportIndicationRequest(
     CIMStatusCode errorCode = CIM_ERR_SUCCESS;
     String errorDescription;
 
-    if (request->indicationInstance.getClassName() == 
+    if (request->indicationInstance.getClassName() ==
 	"PG_IndicationConsumerRegistration")
     {
 	CIMInstance instance = request->indicationInstance;
@@ -191,7 +191,7 @@ CIMIndicationConsumer* CIMExportRequestDispatcher::_lookupConsumer(
 	    throw CIMException(CIM_ERR_FAILED);
 
 	//ATTN: How will get this handle? Defining just to proceed further.
-	CIMOMHandle cimom;
+	//CIMOMHandle cimom;
 
 	//consumer->initialize(cimom);
 	consumer->initialize();

@@ -107,15 +107,15 @@ void CQLFactorRep::applyContext(QueryContext& inContext)
    
    if(_containedType == FUNCTION)
    {
-     //      _CQLFunct.applyContext(inContext);
+     _CQLFunct.applyContext(inContext);
    }
    else if(_containedType == EXPRESSION)
    {
-     //      _CQLExp.applyContext(inContext);
+     _CQLExp.applyContext(inContext);
    }
    else 
    {
-     //      _CQLVal.applyContext(inContext);
+     _CQLVal.applyContext(inContext);
    }
    return;
 }

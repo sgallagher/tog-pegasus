@@ -6,6 +6,8 @@
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/CQL/CQLIdentifier.h>
+#include <Pegasus/CQL/QueryContext.h>
+
 PEGASUS_NAMESPACE_BEGIN 
 class PEGASUS_CQL_LINKAGE CQLScope;
 class PEGASUS_CQL_LINKAGE CQLFactory;
@@ -74,7 +76,7 @@ class PEGASUS_CQL_LINKAGE CQLChainedIdentifier
 
     CQLIdentifier getLastIdentifier();
 	
-    Boolean applyScopes();
+    void applyContext(QueryContext& inContext);
 
     friend class CQLFactory;
 

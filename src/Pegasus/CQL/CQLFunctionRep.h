@@ -51,10 +51,15 @@ class PEGASUS_CQL_LINKAGE CQLFunctionRep
    
 
     CQLFunctionRep() {};
+
    CQLFunctionRep(const CQLFunctionRep* rep);
+
     //CQLFunctionRep(FunctionOpType inFunctionOpType, Array<CQLExpression> inParms);
+
     CQLFunctionRep(CQLIdentifier inOpType, Array<CQLPredicate> inParms);
+
   ~CQLFunctionRep();
+
     /** 
        The getValue method validates the parms versus FunctionOpType.
                (A) resolves prarameter  types
@@ -63,12 +68,19 @@ class PEGASUS_CQL_LINKAGE CQLFunctionRep
         Returns a CQLValue object that has already been resolved.
       */
     CQLValue resolveValue(CIMInstance CI, QueryContext& queryCtx);
+
    Array<CQLPredicate> getParms();
+
    FunctionOpType getFunctionType();
+
    String toString();
-   void applyScopes(Array<CQLScope> inScopes);
+
+   void applyContext(QueryContext& inContext);
+
    Boolean operator==(const CQLFunctionRep& func);
+
    Boolean operator!=(const CQLFunctionRep& func);
+
    friend class CQLFactory;
 
   private:

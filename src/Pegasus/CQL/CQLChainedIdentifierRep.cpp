@@ -91,8 +91,9 @@ Boolean CQLChainedIdentifierRep::prepend(CQLIdentifier & id){
 	return false;
 }
 
-Boolean CQLChainedIdentifierRep::applyScopes(){
-	return true;
+void CQLChainedIdentifierRep::applyContext(QueryContext& inContext)
+{
+  // ATTN - Fill this in
 }
 
 void CQLChainedIdentifierRep::parse(String & string){

@@ -73,8 +73,9 @@ Boolean CQLChainedIdentifier::prepend(CQLIdentifier & id){
 	return _rep->prepend(id);
 }
 
-Boolean CQLChainedIdentifier::applyScopes(){
-	return _rep->applyScopes();
+void CQLChainedIdentifier::applyContext(QueryContext& inContext)
+{
+  return _rep->applyContext(inContext);
 }
 
 void CQLChainedIdentifier::parse(String & string){

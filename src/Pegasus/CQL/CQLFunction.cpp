@@ -46,9 +46,9 @@ FunctionOpType CQLFunction::getFunctionType()
    return _rep->getFunctionType();
 }
  
-void CQLFunction::applyScopes(Array<CQLScope> inScopes)
+void CQLFunction::applyContext(QueryContext& inContext)
 {
-	return _rep->applyScopes(inScopes);
+  _rep->applyContext(inContext);
 }
 
 CQLFunction& CQLFunction::operator=(const CQLFunction& rhs){

@@ -17,7 +17,27 @@ class PEGASUS_CQL_LINKAGE CQLFunctionRep;
 
  /** The Enum is private, the definition is public.
       */
-    enum  FunctionOpType { CLASSNAMEEXP, CLASSNAME, CLASSPATH, COUNT, COUNTDISTINCT, COUNTDISTINCTEXPR, CREATEARRAY, DATETIME, HOSTNAME, MAX, MEAN, MEDIAN, MIN, MODELPATH, NAMESPACENAME, NAMESPACEPATH, OBJECTPATH, SCHEME, SUM, USERINFO, UPPERCASE };
+    enum  FunctionOpType { CLASSNAMEEXP, 
+			   CLASSNAME, 
+			   CLASSPATH, 
+			   COUNT, 
+			   COUNTDISTINCT, 
+			   COUNTDISTINCTEXPR, 
+			   CREATEARRAY, 
+			   DATETIME,
+			   HOSTNAME,
+			   MAX,
+			   MEAN,
+			   MEDIAN,
+			   MIN,
+			   MODELPATH,
+			   NAMESPACENAME,
+			   NAMESPACEPATH,
+			   OBJECTPATH,
+			   SCHEME,
+			   SUM,
+			   USERINFO,
+			   UPPERCASE };
 /**
    CQLFunction objects are populated by the
    Bison code.
@@ -54,10 +74,12 @@ class PEGASUS_CQL_LINKAGE CQLFunction
 {
   public:
    
-
     CQLFunction();
+    
     CQLFunction(const CQLFunction& inFunc);
+
 //    CQLFunction(FunctionOpType inFunctionOpType, Array<CQLExpression> inParms);
+    
     CQLFunction(CQLIdentifier inOpType, Array<CQLPredicate> inParms);
 
     ~CQLFunction();
@@ -69,13 +91,21 @@ class PEGASUS_CQL_LINKAGE CQLFunction
         Returns a CQLValue object that has already been resolved.
       */
     CQLValue resolveValue(CIMInstance CI, QueryContext& queryCtx);
+    
    Array<CQLPredicate> getParms();
+   
    FunctionOpType getFunctionType();
+
    String toString();
-   void applyScopes(Array<CQLScope> inScopes);
+
+   void applyContext(QueryContext& inContext);
+
    CQLFunction& operator=(const CQLFunction& rhs);
+   
    Boolean operator==(const CQLFunction& func);
+   
    Boolean operator!=(const CQLFunction& func);
+   
    friend class CQLFactory;
 
   private:

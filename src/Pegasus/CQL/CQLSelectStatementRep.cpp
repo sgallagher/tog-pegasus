@@ -601,8 +601,6 @@ Boolean CQLSelectStatementRep::appendWhereIdentifier(const CQLChainedIdentifier&
 
 void CQLSelectStatementRep::applyContext()
 {
-//   ATTN - wait for applyContext API
-  /*
   for (Uint32 i = 0; i < _selectIdentifiers.size(); i++)
   {
     _selectIdentifiers[i].applyContext(*_ctx);
@@ -615,7 +613,6 @@ void CQLSelectStatementRep::applyContext()
 
   if (hasWhereClause())
     _predicate.applyContext(*_ctx);
-  */
 }
 
 void CQLSelectStatementRep::normalizeToDOC()

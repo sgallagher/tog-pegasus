@@ -97,11 +97,11 @@ FunctionOpType CQLFunctionRep::getFunctionType()
    return _funcOpType;
 }
  
-void CQLFunctionRep::applyScopes(Array<CQLScope> inScopes)
+void CQLFunctionRep::applyContext(QueryContext& inContext)
 {
    for(Uint32 i = 0; i < _parms.size(); ++i)
    {
-     //      _parms[i].applyScopes(inScopes);
+     _parms[i].applyContext(inContext);
    }
 }
 

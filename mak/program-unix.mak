@@ -8,6 +8,15 @@ FULL_PROGRAM=$(BIN_DIR)/$(PROGRAM)$(EXE)
 
 EXE_OUTPUT = $(EXE_OUT) $(FULL_PROGRAM)
 
+ifdef PEGASUS_PURIFY
+    PUREOPTIONS = -follow-child-processes=yes -locking=no \
+        -always-use-cache-dir -cache-dir=$(PURIFY_TMP)/cache \
+        -view-file=$(PURIFY_TMP)/$(PROGRAM).pv \
+        -log-file=$(PURIFY_TMP)/$(PROGRAM).log
+    LINK_WRAPPER = $(PURIFY_HOME)/purify $(PUREOPTIONS)
+    SYS_LIBS += $(PURIFY_HOME)/libpurify_stubs.a
+endif
+
 $(FULL_PROGRAM): $(OBJ_DIR)/target $(BIN_DIR)/target $(OBJECTS) $(FULL_LIBRARIES) $(ERROR)
 ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
 

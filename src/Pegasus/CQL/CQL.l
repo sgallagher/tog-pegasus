@@ -431,7 +431,7 @@ Z [Zz]
     return REAL;
 }
 
-\'((\\')|(\\)|[^'(\\')])+\' {
+\'((\\')|(\\)|[^'(\\')])*\' {
 	/* \'[^\'\n]*\' */
     /* ATTN-B: handle long literals by using yyinput(). */
     /* ATTN-B: Handle expansion of special characters */

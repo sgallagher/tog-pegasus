@@ -20,5 +20,3 @@ clean: $(RECURSE_DEPENDS) $(ERROR)
 
 misc: $(RECURSE_DEPENDS) $(ERROR)
 	@ $(foreach i,$(CLEAN_DIRS),$(MAKESH) $(MAKE) -SC $(i) misc $(NEWLINE))
-
-include $(ROOT)/mak/variables.mak

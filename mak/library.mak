@@ -50,8 +50,6 @@ include $(ROOT)/mak/build.mak
 
 -include $(OBJ_DIR)/depend.mak
 
-include $(ROOT)/mak/variables.mak
-
 include $(ROOT)/mak/misc.mak
 
 tests: $(ERROR)

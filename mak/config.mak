@@ -5,12 +5,6 @@
 ##
 ################################################################################
 
-ifdef PEGASUS_OS_TYPE
-  OS_TYPE = $(PEGASUS_OS_TYPE)
-else
-  OS_TYPE = windows
-endif
-
 ifdef PEGASUS_HOME
   HOME_DIR = $(subst \,/,$(PEGASUS_HOME))
 else
@@ -31,8 +25,4 @@ LEX = flex
 
 YACC = bison
 
-ifeq ($(OS_TYPE),windows)
-include $(ROOT)/mak/config-windows.mak
-else
-include $(ROOT)/mak/config-unix.mak
-endif
+include $(ROOT)/mak/config-platform.mak

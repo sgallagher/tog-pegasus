@@ -28,7 +28,6 @@
 //
 //%////////////////////////////////////////////////////////////////////////////
 
-
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Exception.h>
 
@@ -263,7 +262,7 @@ Boolean OperatingSystem::getLastBootUpTime(CIMDateTime& lastBootUpTime)
     long               year;
     struct timeval     tv;
     struct timezone    tz;
-    struct tm          *tmval;
+    struct tm          tmval;
     struct pst_static  pst;
     Timestamp_t        bootTime;
     char mTmpString[80];
@@ -273,15 +272,14 @@ Boolean OperatingSystem::getLastBootUpTime(CIMDateTime& lastBootUpTime)
  
     if (pstat_getstatic(&pst, sizeof(pst), (size_t)1, 0) == -1)
     {
-cout << "pstat failed" << endl;
-
 	return false;
     }
     // Get the boot time and convert to local time. 
 
 // ATTN-SLC-P2-17-Apr-02: use CIMOM DateTime function & consistency, BZ#45
 
-    tmval = localtime((time_t *)&pst.boot_time);
+    time_t tmp_time = pst.boot_time;
+    localtime_r(&tmp_time, &tmval);
     gettimeofday(&tv,&tz);
 
     year = 1900;
@@ -289,12 +287,12 @@ cout << "pstat failed" << endl;
 
     // Format the date. 
     sprintf((char *) &bootTime,"%04d%02d%02d%02d%02d%02d.%06d%04d",
-            year + tmval->tm_year,
-            tmval->tm_mon + 1,   // HP-UX stores month 0-11
-            tmval->tm_mday,
-            tmval->tm_hour,
-            tmval->tm_min,
-            tmval->tm_sec,
+            year + tmval.tm_year,
+            tmval.tm_mon + 1,   // HP-UX stores month 0-11
+            tmval.tm_mday,
+            tmval.tm_hour,
+            tmval.tm_min,
+            tmval.tm_sec,
             0,
             tz.tz_minuteswest);
     if (tz.tz_minuteswest > 0) 
@@ -325,25 +323,25 @@ Boolean OperatingSystem::getLocalDateTime(CIMDateTime& localDateTime)
     time_t mSysTime;
     struct timeval   tv;
     struct timezone  tz;
-    struct tm      * tmval;
+    struct tm        tmval;
 
     // Get the date and time from the system. 
 
 // ATTN-SLC-P2-17-Apr-02: use CIMOM DateTime function & consistency, BZ#45
     
     mSysTime = time(NULL);
-    tmval = localtime(&mSysTime);
+    localtime_r(&mSysTime, &tmval);
     gettimeofday(&tv,&tz);
 
     year = 1900;
     // Format the date.
     sprintf((char *)&dateTime,"%04d%02d%02d%02d%02d%02d.%06d+%03d",
-                    year + tmval->tm_year,
-                    tmval->tm_mon + 1,   // HP-UX stored month as 0-11
-                    tmval->tm_mday,
-                    tmval->tm_hour,
-                    tmval->tm_min,
-                    tmval->tm_sec,
+                    year + tmval.tm_year,
+                    tmval.tm_mon + 1,   // HP-UX stored month as 0-11
+                    tmval.tm_mday,
+                    tmval.tm_hour,
+                    tmval.tm_min,
+                    tmval.tm_sec,
                     0,
                     tz.tz_minuteswest);
 

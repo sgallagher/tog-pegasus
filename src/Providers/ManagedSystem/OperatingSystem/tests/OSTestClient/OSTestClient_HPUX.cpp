@@ -266,7 +266,7 @@ Boolean OSTestClient::goodLastBootUpTime(const CIMDateTime &btime,
    long                year;
    struct timeval      tv;
    struct timezone     tz;
-   struct tm          *tmval;
+   struct tm           tmval;
    struct pst_static   pst;
    Timestamp_t         bootTime;
    char mTmpString[80];
@@ -280,7 +280,8 @@ Boolean OSTestClient::goodLastBootUpTime(const CIMDateTime &btime,
       return false;   // fail if no validation info
    }
 
-   tmval = localtime((time_t *)&pst.boot_time);
+   time_t tmp_time = pst.boot_time;
+   localtime_r(&tmp_time, &tmval);
    gettimeofday(&tv, &tz);
 
    year = 1900;
@@ -288,12 +289,12 @@ Boolean OSTestClient::goodLastBootUpTime(const CIMDateTime &btime,
 
    // format as CIMDateTime
    sprintf((char *)&bootTime,"%04d%02d%02d%02d%02d%02d.%06d%04d",
-           year + tmval->tm_year,
-           tmval->tm_mon + 1, // HP-UX stores month 0-11
-           tmval->tm_mday,
-           tmval->tm_hour,
-           tmval->tm_min,
-           tmval->tm_sec,
+           year + tmval.tm_year,
+           tmval.tm_mon + 1, // HP-UX stores month 0-11
+           tmval.tm_mday,
+           tmval.tm_hour,
+           tmval.tm_min,
+           tmval.tm_sec,
            0,
            tz.tz_minuteswest);
    if (tz.tz_minuteswest > 0) 

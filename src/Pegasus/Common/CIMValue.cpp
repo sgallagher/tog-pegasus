@@ -1702,6 +1702,11 @@ void CIMValue::get(Array<CIMReference>& x) const
     x.set(_rep->_u._referenceArray);
 }
 
+CIMValue CIMValue::clone() const
+{
+    return CIMValue(*this);
+}
+
 void CIMValue::toXml(Array<Sint8>& out) const
 {
     /* If the CIMValue is Null, no element is returned.

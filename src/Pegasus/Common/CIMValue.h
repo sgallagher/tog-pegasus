@@ -380,6 +380,9 @@ public:
     ///
     void get(Array<CIMReference>& x) const; 
 
+    /** Makes a deep copy (clone) of the given object. */
+    CIMValue clone() const;
+
     /** toXML - Converts a CIMValue object to XML. The XML is appended
         to the Array provided with the call.  Returns the result as an
         XML element wrapped in the <VALUE>, <VALUE.ARRAY>, <VALUE.REFERENCE>,

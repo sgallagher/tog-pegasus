@@ -74,7 +74,8 @@ CIMDateTime CIMDateTime::getCurrentDateTime()
     struct 		timezone  tz;
     struct tm* 		tmval;
     struct tm		local_tm;
-#if defined PEGASUS_PLATFORM_SOLARIS_SPARC_CC
+#if defined (PEGASUS_PLATFORM_SOLARIS_SPARC_CC) || \
+    defined(PEGASUS_OS_LINUX)
     time_t		utc_offset;
 #endif
     // Get the system date and time
@@ -87,6 +88,11 @@ CIMDateTime CIMDateTime::getCurrentDateTime()
     gettimeofday(&tv,NULL);
     utc_offset = (tmval->tm_isdst > 0 && daylight) ? altzone : timezone ;
     utc_offset /= 60;	// CIM only uses minutes, not seconds.
+#elif defined(PEGASUS_OS_LINUX)
+    tmval = localtime_r(&mSysTime, &local_tm);
+    PEGASUS_ASSERT(tmval != 0);
+    gettimeofday(&tv,NULL);
+    utc_offset = local_tm.tm_gmtoff/60;
 #else
     tmval = localtime_r(&mSysTime, &local_tm);
     PEGASUS_ASSERT(tmval != 0);
@@ -105,7 +111,8 @@ CIMDateTime CIMDateTime::getCurrentDateTime()
                     tmval->tm_min,
                     tmval->tm_sec,
                     tv.tv_usec,
-#if defined PEGASUS_PLATFORM_SOLARIS_SPARC_CC
+#if defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC) || \
+    defined(PEGASUS_OS_LINUX)
 		    abs((int)utc_offset));
 
     // Set UTC sign

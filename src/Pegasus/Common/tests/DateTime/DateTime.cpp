@@ -455,6 +455,25 @@ int main(int argc, char** argv)
             assert(bad);
         }
 
+        {
+            Boolean good = true;
+    
+            try
+            {
+                CIMDateTime currDT = CIMDateTime::getCurrentDateTime();
+            }
+            catch (InvalidDateTimeFormatException&)
+            {
+                good = false;
+            }
+            catch (...)
+            {
+                good = false;
+            }
+    
+            assert(good);
+        }
+
     }
     catch (Exception & e)
     {

@@ -253,12 +253,14 @@ Message * DefaultProviderManager::handleGetInstanceRequest(const Message * messa
             request->instanceName.getClassName(),
             request->instanceName.getKeyBindings());
 
-        InternalProviderName name(
+        ProviderName name(
+            objectPath.toString(),
             String::EMPTY,
             String::EMPTY,
-            objectPath.toString());
+            String::EMPTY,
+            0);
 
-        name = findProvider(name.toString());
+        name = findProvider(name);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -360,12 +362,14 @@ Message * DefaultProviderManager::handleEnumerateInstancesRequest(const Message 
             request->nameSpace,
             request->className);
 
-        InternalProviderName name(
+        ProviderName name(
+            objectPath.toString(),
             String::EMPTY,
             String::EMPTY,
-            objectPath.toString());
+            String::EMPTY,
+            0);
 
-        name = findProvider(name.toString());
+        name = findProvider(name);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -469,13 +473,15 @@ Message * DefaultProviderManager::handleEnumerateInstanceNamesRequest(const Mess
             request->className);
 
         // build an internal provider name from the request arguments
-        InternalProviderName name(
+        ProviderName name(
+            objectPath.toString(),
             String::EMPTY,
             String::EMPTY,
-            objectPath.toString());
+            String::EMPTY,
+            0);
 
         // resolve the physical and logical provider name
-        name = findProvider(name.toString());
+        name = findProvider(name);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -574,12 +580,14 @@ Message * DefaultProviderManager::handleCreateInstanceRequest(const Message * me
             request->newInstance.getPath().getClassName(),
             request->newInstance.getPath().getKeyBindings());
 
-        InternalProviderName name(
+        ProviderName name(
+            objectPath.toString(),
             String::EMPTY,
             String::EMPTY,
-            objectPath.toString());
+            String::EMPTY,
+            0);
 
-        name = findProvider(name.toString());
+        name = findProvider(name);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -678,12 +686,14 @@ Message * DefaultProviderManager::handleModifyInstanceRequest(const Message * me
             request->modifiedInstance.getPath ().getClassName(),
             request->modifiedInstance.getPath ().getKeyBindings());
 
-        InternalProviderName name(
+        ProviderName name(
+            objectPath.toString(),
             String::EMPTY,
             String::EMPTY,
-            objectPath.toString());
+            String::EMPTY,
+            0);
 
-        name = findProvider(name.toString());
+        name = findProvider(name);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -786,12 +796,14 @@ Message * DefaultProviderManager::handleDeleteInstanceRequest(const Message * me
             request->instanceName.getClassName(),
             request->instanceName.getKeyBindings());
 
-        InternalProviderName name(
+        ProviderName name(
+            objectPath.toString(),
             String::EMPTY,
             String::EMPTY,
-            objectPath.toString());
+            String::EMPTY,
+            0);
 
-        name = findProvider(name.toString());
+        name = findProvider(name);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -924,12 +936,14 @@ Message * DefaultProviderManager::handleAssociatorsRequest(const Message * messa
 
         objectPath.setKeyBindings(request->objectName.getKeyBindings());
 
-        InternalProviderName name(
+        ProviderName name(
+            objectPath.toString(),
             String::EMPTY,
             String::EMPTY,
-            objectPath.toString());
+            String::EMPTY,
+            0);
 
-        name = findProvider(name.toString());
+        name = findProvider(name);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -1030,12 +1044,14 @@ Message * DefaultProviderManager::handleAssociatorNamesRequest(const Message * m
 
         objectPath.setKeyBindings(request->objectName.getKeyBindings());
 
-        InternalProviderName name(
+        ProviderName name(
+            objectPath.toString(),
             String::EMPTY,
             String::EMPTY,
-            objectPath.toString());
+            String::EMPTY,
+            0);
 
-        name = findProvider(name.toString());
+        name = findProvider(name);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -1132,12 +1148,14 @@ Message * DefaultProviderManager::handleReferencesRequest(const Message * messag
 
         objectPath.setKeyBindings(request->objectName.getKeyBindings());
 
-        InternalProviderName name(
+        ProviderName name(
+            objectPath.toString(),
             String::EMPTY,
             String::EMPTY,
-            objectPath.toString());
+            String::EMPTY,
+            0);
 
-        name = findProvider(name.toString());
+        name = findProvider(name);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -1239,12 +1257,14 @@ Message * DefaultProviderManager::handleReferenceNamesRequest(const Message * me
 
         objectPath.setKeyBindings(request->objectName.getKeyBindings());
 
-        InternalProviderName name(
+        ProviderName name(
+            objectPath.toString(),
             String::EMPTY,
             String::EMPTY,
-            objectPath.toString());
+            String::EMPTY,
+            0);
 
-        name = findProvider(name.toString());
+        name = findProvider(name);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -1343,12 +1363,14 @@ Message * DefaultProviderManager::handleGetPropertyRequest(const Message * messa
             request->instanceName.getClassName(),
             request->instanceName.getKeyBindings());
 
-        InternalProviderName name(
+        ProviderName name(
+            objectPath.toString(),
             String::EMPTY,
             String::EMPTY,
-            objectPath.toString());
+            String::EMPTY,
+            0);
 
-        name = findProvider(name.toString());
+        name = findProvider(name);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -1451,12 +1473,14 @@ Message * DefaultProviderManager::handleSetPropertyRequest(const Message * messa
             request->instanceName.getClassName(),
             request->instanceName.getKeyBindings());
 
-        InternalProviderName name(
+        ProviderName name(
+            objectPath.toString(),
             String::EMPTY,
             String::EMPTY,
-            objectPath.toString());
+            String::EMPTY,
+            0);
 
-        name = findProvider(name.toString());
+        name = findProvider(name);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -1562,12 +1586,14 @@ Message * DefaultProviderManager::handleInvokeMethodRequest(const Message * mess
             request->instanceName.getClassName(),
             request->instanceName.getKeyBindings());
 
-        InternalProviderName name(
+        ProviderName name(
+            objectPath.toString(),
             String::EMPTY,
             String::EMPTY,
-            objectPath.toString());
+            String::EMPTY,
+            0);
 
-        name = findProvider(name.toString());
+        name = findProvider(name);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -1687,12 +1713,14 @@ Message * DefaultProviderManager::handleCreateSubscriptionRequest(const Message 
             request->nameSpace,
             request->classNames[0].getString());
 
-        InternalProviderName name(
+        ProviderName name(
+            objectPath.toString(),
             String::EMPTY,
             String::EMPTY,
-            objectPath.toString());
+            String::EMPTY,
+            0);
 
-        name = findProvider(name.toString());
+        name = findProvider(name);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -1826,12 +1854,14 @@ Message * DefaultProviderManager::handleModifySubscriptionRequest( const Message
             request->nameSpace,
             request->classNames[0].getString());
 
-        InternalProviderName name(
+        ProviderName name(
+            objectPath.toString(),
             String::EMPTY,
             String::EMPTY,
-            objectPath.toString());
+            String::EMPTY,
+            0);
 
-        name = findProvider(name.toString());
+        name = findProvider(name);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -1965,12 +1995,14 @@ Message * DefaultProviderManager::handleDeleteSubscriptionRequest(const Message 
             request->nameSpace,
             request->classNames[0].getString());
 
-        InternalProviderName name(
+        ProviderName name(
+            objectPath.toString(),
             String::EMPTY,
             String::EMPTY,
-            objectPath.toString());
+            String::EMPTY,
+            0);
 
-        name = findProvider(name.toString());
+        name = findProvider(name);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -2160,15 +2192,15 @@ Message * DefaultProviderManager::handleDisableIndicationsRequest(const Message 
 
     try
     {
-        InternalProviderName name("");
+        ProviderName name("");
 
         /*
-        InternalProviderName name(
+        ProviderName name(
             String::EMPTY,
             String::EMPTY,
             objectPath.toString());
 
-        name = findProvider(name.toString());
+        name = findProvider(name);
         */
 
         // get cached or load new provider module
@@ -2257,15 +2289,15 @@ Message * DefaultProviderManager::handleConsumeIndicationRequest(const Message *
 
     try
     {
-        InternalProviderName name("");
+        ProviderName name("");
 
         /*
-        InternalProviderName name(
+        ProviderName name(
             String::EMPTY,
             String::EMPTY,
             objectPath.toString());
 
-        name = findProvider(name.toString());
+        name = findProvider(name);
         */
 
         // get cached or load new provider module
@@ -2339,7 +2371,7 @@ Message * DefaultProviderManager::handleConsumeIndicationRequest(const Message *
 Message * DefaultProviderManager::handleDisableModuleRequest(const Message * message) throw()
 {
     // HACK
-    ProviderRegistrationManager * _providerRegistrationManager = ProviderManager::getProviderRegistrationManager();
+    ProviderRegistrationManager * _providerRegistrationManager = GetProviderRegistrationManager();
 
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleDisableModuleRequest");
 
@@ -2464,7 +2496,7 @@ Message * DefaultProviderManager::handleDisableModuleRequest(const Message * mes
 Message * DefaultProviderManager::handleEnableModuleRequest(const Message * message) throw()
 {
     // HACK
-    ProviderRegistrationManager * _providerRegistrationManager = ProviderManager::getProviderRegistrationManager();
+    ProviderRegistrationManager * _providerRegistrationManager = GetProviderRegistrationManager();
 
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleEnableModuleRequest");
 

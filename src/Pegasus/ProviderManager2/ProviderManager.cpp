@@ -47,30 +47,19 @@ Message * ProviderManager::processMessage(Message * message)
     return(message);
 }
 
-String ProviderManager::findProvider(const String & providerName)
+ProviderName ProviderManager::findProvider(const ProviderName & providerName)
 {
     return(_registrar.findProvider(providerName));
 }
 
-Boolean ProviderManager::insertProvider(const String & providerName)
+Boolean ProviderManager::insertProvider(const ProviderName & providerName)
 {
     return(_registrar.insertProvider(providerName));
 }
 
-Boolean ProviderManager::removeProvider(const String & providerName)
+Boolean ProviderManager::removeProvider(const ProviderName & providerName)
 {
     return(_registrar.removeProvider(providerName));
-}
-
-// temp
-void ProviderManager::setProviderRegistrationManager(ProviderRegistrationManager * p)
-{
-    _registrar.setProviderRegistrationManager(p);
-}
-
-ProviderRegistrationManager * ProviderManager::getProviderRegistrationManager(void)
-{
-    return(_registrar.getProviderRegistrationManager());
 }
 
 PEGASUS_NAMESPACE_END

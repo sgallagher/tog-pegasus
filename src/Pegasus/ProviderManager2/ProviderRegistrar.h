@@ -32,15 +32,14 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 
-#include <Pegasus/ProviderManager2/InternalProviderName.h>
+#include <Pegasus/ProviderManager2/ProviderName.h>
+#include <Pegasus/ProviderManager2/ProviderType.h>
 
 #include <Pegasus/Server/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
-
-// temp
-class ProviderRegistrationManager;
 
 class PEGASUS_SERVER_LINKAGE ProviderRegistrar
 {
@@ -48,16 +47,17 @@ public:
     ProviderRegistrar(void);
     virtual ~ProviderRegistrar(void);
 
-    String findProvider(const String & providerName);
-
-    Boolean insertProvider(const String & providerName);
-    Boolean removeProvider(const String & providerName);
-
-    // temp
-    void setProviderRegistrationManager(ProviderRegistrationManager * p);
-    ProviderRegistrationManager * getProviderRegistrationManager(void);
+    ProviderName findProvider(const ProviderName & providerName);
+    Boolean insertProvider(const ProviderName & providerName);
+    Boolean removeProvider(const ProviderName & providerName);
 
 };
+
+//hack
+class ProviderRegistrationManager;
+
+PEGASUS_SERVER_LINKAGE void SetProviderRegistrationManager(ProviderRegistrationManager * p);
+PEGASUS_SERVER_LINKAGE ProviderRegistrationManager * GetProviderRegistrationManager(void);
 
 PEGASUS_NAMESPACE_END
 

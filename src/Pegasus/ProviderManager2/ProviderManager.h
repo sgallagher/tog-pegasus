@@ -47,13 +47,9 @@ public:
 
     virtual Message * processMessage(Message * message);
 
-    virtual String findProvider(const String & providerName);
-    virtual Boolean insertProvider(const String & providerName);
-    virtual Boolean removeProvider(const String & providerName);
-
-    // temp
-    void setProviderRegistrationManager(ProviderRegistrationManager * p);
-    ProviderRegistrationManager * getProviderRegistrationManager(void);
+    virtual ProviderName findProvider(const ProviderName & providerName);
+    virtual Boolean insertProvider(const ProviderName & providerName);
+    virtual Boolean removeProvider(const ProviderName & providerName);
 
 protected:
     // ingredients for CIMOMHandle (binary message handler, repository, etc.)

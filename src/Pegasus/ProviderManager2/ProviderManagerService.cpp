@@ -27,7 +27,7 @@
 //                  (carolann_graves@hp.com)
 //              Mike Day, IBM (mdday@us.ibm.com)
 //              Karl Schopmeyer(k.schopmeyer@opengroup.org) - Fix associators.
-//		        Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -189,13 +189,6 @@ ProviderManagerService::ProviderManagerService(ProviderRegistrationManager * pro
             if(manager == 0)
             {
                 throw 0;    // ATTN: inefficient
-            }
-
-            // ATTN: only set the hacked/cached provider registration manager pointer after the
-            // DEFAULT provider manager is loaded.
-            if(String::equalNoCase(_fileNames[i].second, "DEFAULT"))
-            {
-                manager->setProviderRegistrationManager(providerRegistrationManager);
             }
 
             _providerManagers.append(Pair<ProviderManager *, ProviderManagerModule>(manager, module));
@@ -451,10 +444,10 @@ void ProviderManagerService::handleCimRequest(AsyncOpNode * op, const Message * 
 
     AsyncLegacyOperationResult * async_result =
         new AsyncLegacyOperationResult(
-            async->getKey(),
-            async->getRouting(),
-            op,
-            response);
+        async->getKey(),
+        async->getRouting(),
+        op,
+        response);
 
     _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
 
@@ -466,3 +459,4 @@ void ProviderManagerService::unload_idle_providers(void)
 }
 
 PEGASUS_NAMESPACE_END
+

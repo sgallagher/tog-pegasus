@@ -32,6 +32,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/Array.h>
 
 #include <Pegasus/Server/Linkage.h>
 
@@ -48,6 +49,19 @@ public:
     static void initialize(CIMRepository * repository);
 
 };
+
+class PEGASUS_SERVER_LINKAGE RegistrationRecord
+{
+public:
+    String className;
+    String providerName;
+    String moduleName;
+    String interfaceName;
+    Uint32 capabilities;
+
+};
+
+extern Array<RegistrationRecord> _globalRegistrationTable;
 
 PEGASUS_NAMESPACE_END
 

@@ -20,7 +20,9 @@ SOURCES = \
 	\
 	ProviderManager.cpp \
 	ProviderRegistrar.cpp \
-	InternalProviderName.cpp \
+	ProviderRegistrarInitializer.cpp \
+	ProviderName.cpp \
+	ProviderType.cpp \
 	\
 	SafeQueue.cpp \
 	MutexLock.cpp \

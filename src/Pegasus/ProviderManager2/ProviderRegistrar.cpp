@@ -32,13 +32,169 @@
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Pair.h>
-#include <Pegasus/Common/CIMObjectPath.h>
 
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-ProviderRegistrationManager * _providerRegistrationManager = 0;
+static ProviderRegistrationManager * _prm = 0;
+
+static CIMValue _getPropertyValue(const CIMInstance & cimInstance, const String & propertyName)
+{
+    CIMValue value;
+
+    Uint32 pos = 0;
+
+    // get ClassName property
+    if((pos = cimInstance.findProperty(propertyName)) != PEG_NOT_FOUND)
+    {
+        value = cimInstance.getProperty(pos).getValue();
+    }
+
+    return(value);
+}
+
+static ProviderName _lookupProvider(const CIMObjectPath & cimObjectPath)
+{
+    String providerName;
+    String moduleName;
+
+    try
+    {
+        // get the PG_ProviderCapabilities instances for the specified namespace:class_name. use the matching
+        // instance to gather the PG_Provider instance name (logical name).
+
+        Array<CIMInstance> cimInstances = _prm->enumerateInstances(CIMObjectPath(String::EMPTY, "root/PG_Interop", "PG_ProviderCapabilities"));
+
+        for(Uint32 i = 0, n = cimInstances.size(); i < n; i++)
+        {
+            CIMInstance cimInstance = cimInstances[i];
+
+            // check ClassName property value
+            if(String::equalNoCase(cimObjectPath.getClassName().getString(), _getPropertyValue(cimInstance, "ClassName").toString()))
+            {
+                // check Namespaces property value
+                Array<String> nameSpaces;
+
+                _getPropertyValue(cimInstance, "Namespaces").get(nameSpaces);
+
+                for(Uint32 i = 0, n = nameSpaces.size(); i < n; i++)
+                {
+                    if(String::equalNoCase(cimObjectPath.getNameSpace().getString(), nameSpaces[i]))
+                    {
+                        providerName = _getPropertyValue(cimInstance, "ProviderName").toString();
+
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    catch(...)
+    {
+    }
+
+    // ensure the provider name is valid
+    if(providerName.size() == 0)
+    {
+        throw Exception("Could not determine PG_Provider instance for specified class.");
+    }
+
+    try
+    {
+        // get the PG_Provider instances associated with the specified namespace:class_name. use the matching
+        // instance to gather the PG_ProviderModule instance name.
+
+        Array<CIMInstance> cimInstances = _prm->enumerateInstances(CIMObjectPath(String::EMPTY, "root/PG_Interop", "PG_Provider"));
+
+        for(Uint32 i = 0, n = cimInstances.size(); i < n; i++)
+        {
+            CIMInstance cimInstance = cimInstances[i];
+
+            if(String::equalNoCase(providerName, _getPropertyValue(cimInstance, "Name").toString()))
+            {
+                moduleName = _getPropertyValue(cimInstance, "ProviderModuleName").toString();
+
+                break;
+            }
+        }
+    }
+    catch(...)
+    {
+    }
+
+    // ensure the module name is valid
+    if(moduleName.size() == 0)
+    {
+        throw Exception("Could not determine PG_ProviderModule instance for specified class.");
+    }
+
+    String interfaceType;
+    String moduleLocation;
+
+    try
+    {
+        // get the PG_ProviderModule instances associated with the specified namespace:class_name. use the matching
+        // instance to gather the module status and location (physical name).
+
+        Array<CIMInstance> cimInstances = _prm->enumerateInstances(CIMObjectPath(String::EMPTY, "root/PG_Interop", "PG_ProviderModule"));
+
+        for(Uint32 i = 0, n = cimInstances.size(); i < n; i++)
+        {
+            CIMInstance cimInstance = cimInstances[i];
+
+            if(String::equalNoCase(moduleName, _getPropertyValue(cimInstance, "Name").toString()))
+            {
+                // check status
+                if(String::equalNoCase("2", _getPropertyValue(cimInstance, "OperationalStatus").toString()))
+                {
+                    // get interface
+                    interfaceType = _getPropertyValue(cimInstance, "InterfaceType").toString();
+
+                    // get location
+                    moduleLocation = _getPropertyValue(cimInstance, "Location").toString();
+
+                    break;
+                }
+            }
+        }
+    }
+    catch(...)
+    {
+    }
+
+    // ensure the interface and location are valid
+    if((interfaceType.size() == 0) || (moduleLocation.size() == 0))
+    {
+        throw Exception("Could not determine PG_ProviderModule.InterfaceType or PG_ProviderModule.Location or module is disabled.");
+    }
+
+    // fully qualify physical provider name (module), if not already done so.
+    #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+    moduleLocation = moduleLocation + String(".dll");
+    #elif defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_LINUX_IA86_GNU)
+    String temp = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
+
+    moduleLocation = temp + String("/lib") + moduleLocation + String(".so"));
+    #elif defined(PEGASUS_OS_HPUX)
+    String temp = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
+
+    moduleLocation = temp + String("/lib") + moduleLocation + String(".sl"));
+    #elif defined(PEGASUS_OS_OS400)
+    // do nothing
+    #else
+    foo // needs code
+    #endif
+
+    ProviderName temp(
+        cimObjectPath.toString(),
+        providerName,
+        moduleLocation,
+        interfaceType,
+        0);
+
+    return(temp);
+}
 
 ProviderRegistrar::ProviderRegistrar(void)
 {
@@ -46,6 +202,47 @@ ProviderRegistrar::ProviderRegistrar(void)
 
 ProviderRegistrar::~ProviderRegistrar(void)
 {
+}
+
+// need at least the object and the one capability.
+// for example,
+//  "//localhost/root/cimv2:CIM_ComputerSystem", INSTANCE
+//  "//localhost/root/cimv2:CIM_ComputerSystem", METHOD
+//  "//localhost/root/cimv2:CIM_AssociatedComputerSystem", ASSOCIATION
+//  "//localhost/root/cimv2:CIM_ComputerSystemFailure", INDICATION
+
+// the method will return the logical and physical provider names associated with the object and capability.
+
+ProviderName ProviderRegistrar::findProvider(const ProviderName & providerName)
+{
+    CIMObjectPath objectName = providerName.getObjectName();
+    Uint32 flags = providerName.getCapabilitiesMask();
+
+    // validate arguments
+    if(objectName.getNameSpace().isNull() || objectName.getClassName().isNull() || (flags == 0))
+    {
+        throw Exception("Invalid argument.");
+    }
+
+    ProviderName temp = _lookupProvider(objectName);
+
+    return(temp);
+}
+
+Boolean ProviderRegistrar::insertProvider(const ProviderName & providerName)
+{
+    // assume the providerName is in ProviderName format
+    ProviderName name(providerName);
+
+    return(false);
+}
+
+Boolean ProviderRegistrar::removeProvider(const ProviderName & providerName)
+{
+    // assume the providerName is in ProviderName format
+    ProviderName name(providerName);
+
+    return(false);
 }
 
 // resolve a partial internal name into a fully qualified (as much as possible) internal
@@ -61,127 +258,15 @@ ProviderRegistrar::~ProviderRegistrar(void)
 //      O                X
 //      O                O              X                O
 //
-String ProviderRegistrar::findProvider(const String & providerName)
+
+void SetProviderRegistrationManager(ProviderRegistrationManager * p)
 {
-    // assume the providerName is in InternalProviderName format
-    InternalProviderName name(providerName);
-
-    CIMObjectPath cimObjectPath(name.getObjectName());
-
-    CIMInstance moduleInstance;
-    CIMInstance providerInstance;
-
-    _providerRegistrationManager->lookupInstanceProvider(
-        cimObjectPath.getNameSpace(),
-        cimObjectPath.getClassName(),
-        providerInstance,
-        moduleInstance);
-
-    Uint32 pos = 0;
-
-    // get the provider name from the provider instance
-    if((pos = providerInstance.findProperty(CIMName("Name"))) == PEG_NOT_FOUND)
-    {
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
-                            "ProviderManager.ProviderManagerService.PROVIDER_LOOKUP_FAILED",
-                            "provider lookup failed."));
-    }
-
-    String logicalName;
-
-    providerInstance.getProperty(pos).getValue().get(logicalName);
-
-    name.setLogicalName(logicalName);
-
-    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-        "providerName = " + providerName + " found.");
-
-    // get the provider location from the provider module instance
-    if((pos = moduleInstance.findProperty(CIMName("Location"))) == PEG_NOT_FOUND)
-    {
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
-                            "ProviderManager.ProviderManagerService.PROVIDER_LOOKUP_FAILED",
-                            "provider lookup failed."));
-    }
-
-    String location;
-
-    moduleInstance.getProperty(pos).getValue().get(location);
-
-    // get the provider location from the provider module instance
-    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-        "location = " + location + " found.");
-
-    String fileName;
-
-    #ifdef PEGASUS_OS_TYPE_WINDOWS
-    fileName = location + String(".dll");
-    #elif defined(PEGASUS_OS_HPUX)
-    fileName = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-        #ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
-        fileName.append(String("/lib") + location + String(".sl"));
-        #else
-        fileName.append(String("/lib") + location + String(".so"));
-        #endif
-    #elif defined(PEGASUS_OS_OS400)
-    fileName = location;
-    #else
-    fileName = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-    fileName.append(String("/lib") + location + String(".so"));
-    #endif
-
-    name.setPhysicalName(fileName);
-
-    return(name.toString());
-
-    /*
-    ATTN: goal is to be able to look up a provider by object name alone. that is, no information
-    should be needed other than the fully qualified object name because an object has an implicit
-    type associated with it.
-
-    ATTN: what happens if a provider has 2 registration instances (capabilities); 1 is for the
-    instance, 1 is for the method.
-
-    DynamicRoutingTable router = DynamicRoutingTable::get_route_table();
-
-    get_route(className, nameSpace, 0, 0, provider, module);
-
-    static const Uint32 INTERNAL; // "control providers"
-    static const Uint32 INSTANCE;
-    static const Uint32 CLASS;
-    static const Uint32 METHOD;
-    static const Uint32 ASSOCIATION;
-    static const Uint32 QUERY;
-    static const Uint32 INDICATION;
-    static const Uint32 CONSUMER;
-    */
+    _prm = p;
 }
 
-Boolean ProviderRegistrar::insertProvider(const String & providerName)
+ProviderRegistrationManager * GetProviderRegistrationManager(void)
 {
-    // assume the providerName is in InternalProviderName format
-    InternalProviderName name(providerName);
-
-    return(false);
-}
-
-Boolean ProviderRegistrar::removeProvider(const String & providerName)
-{
-    // assume the providerName is in InternalProviderName format
-    InternalProviderName name(providerName);
-
-    return(false);
-}
-
-// temp
-void ProviderRegistrar::setProviderRegistrationManager(ProviderRegistrationManager * p)
-{
-    _providerRegistrationManager = p;
-}
-
-ProviderRegistrationManager * ProviderRegistrar::getProviderRegistrationManager(void)
-{
-    return(_providerRegistrationManager);
+    return(_prm);
 }
 
 PEGASUS_NAMESPACE_END

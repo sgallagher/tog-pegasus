@@ -38,15 +38,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class RegistrationRecord
-{
-public:
-    String _className;
-    String _namespace;
-    String _providerName;
-    String _moduleName;
-
-};
+Array<RegistrationRecord> _globalRegistrationTable;
 
 ProviderRegistrarInitializer::ProviderRegistrarInitializer(void)
 {
@@ -101,7 +93,7 @@ void ProviderRegistrarInitializer::initialize(CIMRepository * repository)
         // get class name
         if((pos = providerInstances[i].findProperty("Name")) != PEG_NOT_FOUND)
         {
-            providerInstances[i].getProperty(pos).getValue().get(record._className);
+            providerInstances[i].getProperty(pos).getValue().get(record.className);
         }
 
         // get namespace
@@ -110,23 +102,23 @@ void ProviderRegistrarInitializer::initialize(CIMRepository * repository)
             // ATTN: must create duplicate entries for each namespace. for now, only
             // one namespace is support (0 is invalid).
 
-            Array<String> temp;
+            //Array<String> temp;
 
-            providerInstances[i].getProperty(pos).getValue().get(temp);
+            //providerInstances[i].getProperty(pos).getValue().get(temp);
 
-            record._namespace = temp[0];
+            //record._namespace = temp[0];
         }
 
         // get provider name
         if((pos = providerInstances[i].findProperty("ProviderName")) != PEG_NOT_FOUND)
         {
-            providerInstances[i].getProperty(pos).getValue().get(record._providerName);
+            providerInstances[i].getProperty(pos).getValue().get(record.providerName);
         }
 
         // get provider module name
         if((pos = providerInstances[i].findProperty("ProviderModuleName")) != PEG_NOT_FOUND)
         {
-            providerInstances[i].getProperty(pos).getValue().get(record._moduleName);
+            providerInstances[i].getProperty(pos).getValue().get(record.moduleName);
         }
     }
 
@@ -148,7 +140,7 @@ void ProviderRegistrarInitializer::initialize(CIMRepository * repository)
             }
 
             // compare record._providerName to PG_Provider.Name
-            if(String::equalNoCase(s, records[i]._providerName))
+            if(String::equalNoCase(s, records[i].providerName))
             {
                 break;
             }
@@ -173,7 +165,7 @@ void ProviderRegistrarInitializer::initialize(CIMRepository * repository)
             }
 
             // compare record._moduleName to PG_ProviderModule.Name
-            if(String::equalNoCase(s, records[i]._moduleName))
+            if(String::equalNoCase(s, records[i].moduleName))
             {
                 break;
             }

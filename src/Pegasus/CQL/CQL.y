@@ -198,7 +198,6 @@ scoped_property : SCOPED_PROPERTY
 		        String tmp(CQL_lval.strValue);
 			//String tmp1("A::prop#OK");
 		        $$ = new CQLIdentifier(tmp);
-			printf("BISON::scoped_property %s\n",(const char*)$$->toString().getCString());
                   }
 ;   
 
@@ -214,7 +213,8 @@ literal_string : STRING_LITERAL
 		if(isUTF8Str(CQL_lval.strValue)){
 		     $$ = new String(CQL_lval.strValue);
 		}else{
-		     printf("BISON::literal_string-> BAD UTF\n");
+		    sprintf(msg,"BISON::literal_string-> BAD UTF\n");
+		    printf_(msg);
 		}
              }
 ;
@@ -342,7 +342,6 @@ array_index : expr
 		  //$$ = new String(tmp.toString());
 		  CQLValue* _val = (CQLValue*)_factory.getObject($1,Predicate,Value);
 		  $$ = new String(_val->toString());
-		  printf("BISON::array_index->expr %s\n",(const char*)$$->getCString());
               }
 ;
 
@@ -380,7 +379,6 @@ chain : literal
            chain_state = CQLIDENTIFIER;
 	   $$ = _factory.makeObject($1,Predicate);
            CQLPredicate* _pred = (CQLPredicate*)$$;
-	   printf("%s\n",(const char*)_pred->toString().getCString());
         }
       | identifier HASH literal_string
         {
@@ -399,9 +397,7 @@ chain : literal
 	    printf_(msg);
 
             chain_state = CQLIDENTIFIER;
-		printf("BISON::chain-> scoped_property %s\n",(const char*)$1->toString().getCString());
 	    $$ = _factory.makeObject($1,Predicate);
-		printf("BISON::chain-> scoped_property %s\n",(const char*)$1->toString().getCString());
         }
       | identifier LPAR arg_list RPAR
         {
@@ -518,7 +514,6 @@ chain : literal
                 $$ = $1;
 	    }else{
 		/* error */
-		printf("HERE2\n");
 	    }
         }
 ;
@@ -529,7 +524,6 @@ concat : chain
 	     printf_(msg);
 
 	     $$ = ((CQLPredicate*)$1);
-	     printf("%s\n",(const char*)$$->toString().getCString());
          }
        | concat DBL_PIPE chain
          {
@@ -728,7 +722,9 @@ comp : arith
        }
      | value_symbol comp_op arith
        {
-           printf("BISON::comp->value_symbol comp_op arith\n");
+           sprintf(msg,"BISON::comp->value_symbol comp_op arith\n");
+	   printf_(msg);
+
 	   if($3->isSimple()){
            	CQLExpression* _exp1 = (CQLExpression*)(_factory.makeObject($1, Expression));
 	        CQLExpression* _exp2 = (CQLExpression*)(_factory.getObject($3,Predicate,Expression));
@@ -823,10 +819,8 @@ arg_list : {;}
                sprintf(msg,"BISON::arg_list->STAR\n");
 	       printf_(msg);
 	       CQLIdentifier _id("*");
-		printf("%s\n",(const char*)_id.toString().getCString());
 	       CQLPredicate* _pred = (CQLPredicate*)(_factory.makeObject(&_id,Predicate));
 	       _arglist.append(*_pred);
-		printf("%s\n",(const char*)_pred->toString().getCString());
            }
          | expr
 	   {
@@ -934,9 +928,7 @@ selected_entry : expr
                      sprintf(msg,"BISON::selected_entry->expr\n");
 		     printf_(msg);
 		     if($1->isSimpleValue()){
-			printf("%s\n",(const char*)$1->toString().getCString());
 		        CQLChainedIdentifier *_cid = (CQLChainedIdentifier*)(_factory.getObject($1,Predicate,ChainedIdentifier));
-			printf("%s\n",(const char*)_cid->toString().getCString());
 		        globalParserState->statement->appendSelectIdentifier(*_cid);
 		     }else{
 			/* error */
@@ -969,7 +961,6 @@ search_condition : expr
                    {
                         sprintf(msg,"BISON::search_condition->expr\n");
 			printf_(msg);
-			printf("%s\n",(const char*)($1->toString().getCString()));
 			globalParserState->statement->setPredicate(*$1);
                    }
 ;

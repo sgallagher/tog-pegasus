@@ -32,8 +32,6 @@ CQLSimplePredicateRep::CQLSimplePredicateRep(const CQLExpression& leftSideExpres
 	_leftSide = leftSideExpression;
 	_rightSide = rightSideExpression;
 	_operator = inOperator;
-	printf("CQLSimplePredicateRep::%d\n",_operator);
-        if(_operator == EQ) printf("CQLSimplePredicateRep:: EQ\n");
 	_isSimple = false;
 }
 

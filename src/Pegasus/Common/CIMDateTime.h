@@ -206,7 +206,7 @@ public:
     */
     Boolean isInterval();
 
-#ifdef PEGASUS_INTERNALONLY
+//#ifdef PEGASUS_INTERNALONLY
 private:
 
     enum { FORMAT_LENGTH = 25 };
@@ -238,7 +238,7 @@ private:
        @param tm           Contains the tm structure to be updated.
     */
     static void formatDateTime(char* dateTime, tm* tm);
-#endif
+//#endif
 
     /** CIMDateTime - ATTN: Friend operator Test for CIMDateTime 
 	equality

@@ -58,8 +58,6 @@ PEGASUS_NAMESPACE_BEGIN
 
 // ATTN: P3 KS 04/17/02 Need methods for extracting components (e.g., minutes, hours)?
 
-// ATTN: P3 KS 04/17/02 Need methods to get current datetime into this form.
-
 // ATTN: P3 KS 04/17/02 Needs constructor that creates from individual elements(year,...)
 
 static const char _NULL_INTERVAL_TYPE_STRING[] = "00000000000000.000000:000";
@@ -287,12 +285,14 @@ Real64 CIMDateTime::getDifference(CIMDateTime startTime, CIMDateTime finishTime)
     //
     dateTimeOnly = new char [FORMATTED_DATE_TIME];
     strncpy( dateTimeOnly, startDateTimeCString, DATE_TIME_LENGTH );
+    dateTimeOnly[DATE_TIME_LENGTH] = 0;
     formatDateTime(dateTimeOnly ,&tmvalStart);
 
     //
     // Copy only the Finish date and time in to the dateTimeOnly string
     //
     strncpy( dateTimeOnly, finishDateTimeCString, DATE_TIME_LENGTH );
+    dateTimeOnly[DATE_TIME_LENGTH] = 0;
     formatDateTime( dateTimeOnly, &tmvalFinish );
 
     //

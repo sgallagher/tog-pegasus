@@ -73,7 +73,6 @@ const Uint32 cimom_messages::ASYNC_LEGACY_OP_REPLY =    0x00000006;
 const Uint32 cimom_messages::FIND_SERVICE_Q =           0x00000007;
 const Uint32 cimom_messages::ENUMERATE_SERVICE =        0x00000008;
 
-
 // messages handled by services (modules)
  
 const Uint32 service_messages::HEARTBEAT =                  0x00000000;

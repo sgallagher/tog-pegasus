@@ -89,7 +89,6 @@ class cimom_messages
 
       static const Uint32 FIND_SERVICE_Q;
       static const Uint32 ENUMERATE_SERVICE;
-      
 };
 
 // messages handled by services (modules)
@@ -155,11 +154,15 @@ class PEGASUS_CIMOM_LINKAGE AsyncRequest : public Request
 		   QueueIdStack queue_ids,
 		   Uint32 mask,
 		   AsyncOpNode *opnode,
+		   Uint32 destination_queue = 0,
 		   Uint32 routing = 0) 
 	 : Request(type, key, queue_ids, mask | message_mask::ha_async, routing),
+	   dest_q(destination_queue),
 	   op(opnode) {  }
       virtual ~AsyncRequest(void);
 
+      Uint32 dest_q;
+      
       AsyncOpNode *op;
 } ;
 
@@ -395,7 +398,6 @@ class PEGASUS_CIMOM_LINKAGE CimomEnumerateService : public Request
       Uint32 qid;
 };
 
-
 // async operation issued TO a service FROM the Cimom
 class PEGASUS_CIMOM_LINKAGE ServiceAsyncReq : public AsyncRequest
 {
@@ -404,13 +406,15 @@ class PEGASUS_CIMOM_LINKAGE ServiceAsyncReq : public AsyncRequest
 		      Uint32 key,
 		      QueueIdStack queue_ids,
 		      AsyncOpNode *op,
+		      Uint32 destination_queue = 0,
 		      Uint32 routing = 0)
 	 : AsyncRequest(type, key, queue_ids, 
 			( message_mask::type_service | message_mask::ha_request),
 			op, routing) {  }
       
-      virtual ~ServiceAsyncReq(void) { };
+      virtual ~ServiceAsyncReq(void) ;
       
+      Uint32 destination;
 } ;
 
 

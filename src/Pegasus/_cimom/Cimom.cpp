@@ -274,10 +274,11 @@ void cimom::handleEnqueue(void)
     // for another module
     Uint32 mask = request->getMask();
     AsyncOpNode *op = 0;
+    Uint32 dest_q_id = 0;
+    
     
     if( mask & message_mask::type_cimom )
     {
-       // a message for the cimom 
        _internal_ops.insert_last(request);
        return;
     }
@@ -285,7 +286,8 @@ void cimom::handleEnqueue(void)
     {
        // an async request 
        op = (static_cast<AsyncRequest *>(request))->op;
-              
+       dest_q_id = (static_cast<AsyncRequest *>(request))->dest_q;
+       
        if(op == 0)
        {
 	  // something is wrong, just drop this message
@@ -335,22 +337,31 @@ void cimom::handleEnqueue(void)
     
 
     //----- ROUTING -----//
-    if(mask & message_mask::ha_request)
+    if( op == 0 || request == 0 )
+       throw NullPointer();
+        
+    MessageQueue *dst_q;
+    
+    // set the operation timeout to the cimom's default timeout interval
+    // the module performing the operation can change the timeout interval
+    // if it needs to. 
+    op->set_timeout_interval(&_default_op_timeout);
+    if(dest_q_id != 0 )
     {
-       if( op == 0 || request == 0 )
-	  throw NullPointer();
-       
+       // there is a specific queue that this message is destined for 
+       if( 0 != (dst_q = MessageQueue::lookup(dest_q_id)))
+       {
+	  // give the intended recipient this message
+	  if (true == dst_q->accept_async(request) )
+	     op->_state |= ASYNC_OPSTATE_ACCEPTED ;
+       }
+    }
+    else 
+    {
        // now give each registered module a chance to handle this request message
        // for now we bail after one module has accepted the message. 
        // in the future, multiple modules can concurrently handle the
        // same message
-
-       MessageQueue *dst_q;
-       
-       // set the operation timeout to the cimom's default timeout interval
-       // the module performing the operation can change the timeout interval
-       // if it needs to. 
-       op->set_timeout_interval(&_default_op_timeout);
        _modules.lock();
        message_module *module = _modules.next(0);
        while(module != 0)
@@ -368,22 +379,15 @@ void cimom::handleEnqueue(void)
 	  module = _modules.next(module);
        }
        _modules.unlock();
-       
-       if(op->_state & ASYNC_OPSTATE_ACCEPTED)
-       {
-	  _pending_ops.insert_last(op);
-       }
-       else
-       {
-	  op->_reset(&recycled);
-       }
     }
-    else 
+    
+    if(op->_state & ASYNC_OPSTATE_ACCEPTED)
     {
-       if( op != 0 )
-	  op->_reset(&recycled);
-       else
-	  delete request;
+       _pending_ops.insert_last(op);
+    }
+    else
+    {
+       op->_reset(&recycled);
     }
     
     if( recycled.count() > 0 )
@@ -471,6 +475,7 @@ void cimom::_handle_cimom_msg(Message *msg)
 	 // <<< Sun Dec 30 20:51:18 2001 mdd >>>
 	 
       }
+      
       else if (type == cimom_messages::FIND_SERVICE_Q)
       {
 	 find_service_q(static_cast<CimomFindServices *>(msg));
@@ -495,11 +500,12 @@ void cimom::_handle_cimom_msg(Message *msg)
       {
 	 ioctl(static_cast<CimomIoctl *>(msg));
       }
+
+
       delete msg;
    }
    return;
 }
-
 
 
 // fill an array with queue IDs of as many registered services

@@ -30,6 +30,7 @@
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//				Seema Gupta (gseema@in.ibm.com) for PEP135
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -209,12 +210,12 @@ void CIMOperationRequestEncoder::_encodeCreateClassRequest(
     Array<Sint8> params;
     XmlWriter::appendClassIParameter(params, "NewClass", message->newClass);
 	
-    Array<Sint8> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName, 
+	Array<Sint8> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName, 
         message->nameSpace, CIMName ("CreateClass"), message->messageId,
         message->getHttpMethod(), 
         _authenticator->buildRequestAuthHeader(), 
-        message->acceptLanguages,
-        message->contentLanguages,
+		((AcceptLanguageListContainer)message->operationContext.get(AcceptLanguageListContainer::NAME)).getLanguages(),
+		((ContentLanguageListContainer)message->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(),
         params);
     _sendRequest(buffer);
 }
@@ -244,8 +245,8 @@ void CIMOperationRequestEncoder::_encodeGetClassRequest(
         _hostName, message->nameSpace, CIMName ("GetClass"), message->messageId,
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(),
-        message->acceptLanguages,
-        message->contentLanguages,        
+		((AcceptLanguageListContainer)message->operationContext.get(AcceptLanguageListContainer::NAME)).getLanguages(),
+		((ContentLanguageListContainer)message->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(),
          params);
 
     _sendRequest(buffer);
@@ -263,8 +264,8 @@ void CIMOperationRequestEncoder::_encodeModifyClassRequest(
         message->nameSpace, CIMName ("ModifyClass"), message->messageId,
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(),
-        message->acceptLanguages,
-        message->contentLanguages,        
+		((AcceptLanguageListContainer)message->operationContext.get(AcceptLanguageListContainer::NAME)).getLanguages(),
+		((ContentLanguageListContainer)message->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(),
          params);
 
     _sendRequest(buffer);
@@ -286,8 +287,8 @@ void CIMOperationRequestEncoder::_encodeEnumerateClassNamesRequest(
         message->nameSpace, CIMName ("EnumerateClassNames"), message->messageId,
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(),
-        message->acceptLanguages,
-        message->contentLanguages,        
+		((AcceptLanguageListContainer)message->operationContext.get(AcceptLanguageListContainer::NAME)).getLanguages(),
+		((ContentLanguageListContainer)message->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(),
          params);
 
     _sendRequest(buffer);
@@ -320,8 +321,8 @@ void CIMOperationRequestEncoder::_encodeEnumerateClassesRequest(
         message->nameSpace, CIMName ("EnumerateClasses"), message->messageId,
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(),
-        message->acceptLanguages,
-        message->contentLanguages,	        
+		((AcceptLanguageListContainer)message->operationContext.get(AcceptLanguageListContainer::NAME)).getLanguages(),
+		((ContentLanguageListContainer)message->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(),
          params);
 
     _sendRequest(buffer);
@@ -340,8 +341,8 @@ void CIMOperationRequestEncoder::_encodeDeleteClassRequest(
         message->nameSpace, CIMName ("DeleteClass"), message->messageId,
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(),
-        message->acceptLanguages,
-        message->contentLanguages,        
+		((AcceptLanguageListContainer)message->operationContext.get(AcceptLanguageListContainer::NAME)).getLanguages(),
+		((ContentLanguageListContainer)message->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(),
          params);
 
     _sendRequest(buffer);
@@ -359,8 +360,8 @@ void CIMOperationRequestEncoder::_encodeCreateInstanceRequest(
         message->nameSpace, CIMName ("CreateInstance"), message->messageId,
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(),
-        message->acceptLanguages,
-        message->contentLanguages,        
+		((AcceptLanguageListContainer)message->operationContext.get(AcceptLanguageListContainer::NAME)).getLanguages(),
+		((ContentLanguageListContainer)message->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(),
          params);
 
     _sendRequest(buffer);
@@ -390,12 +391,12 @@ void CIMOperationRequestEncoder::_encodeGetInstanceRequest(
 	XmlWriter::appendPropertyListIParameter(
 	    params, message->propertyList);
 
-    Array<Sint8> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName, 
+	Array<Sint8> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName, 
         message->nameSpace, CIMName ("GetInstance"), message->messageId,
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(),
-        message->acceptLanguages,
-        message->contentLanguages,        
+		((AcceptLanguageListContainer)message->operationContext.get(AcceptLanguageListContainer::NAME)).getLanguages(),
+		((ContentLanguageListContainer)message->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(),
          params);
 
     _sendRequest(buffer);
@@ -420,8 +421,8 @@ void CIMOperationRequestEncoder::_encodeModifyInstanceRequest(
         message->nameSpace, CIMName ("ModifyInstance"), message->messageId,
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(),
-        message->acceptLanguages,
-        message->contentLanguages,        
+		((AcceptLanguageListContainer)message->operationContext.get(AcceptLanguageListContainer::NAME)).getLanguages(),
+		((ContentLanguageListContainer)message->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(),
          params);
 
     _sendRequest(buffer);
@@ -440,8 +441,8 @@ void CIMOperationRequestEncoder::_encodeEnumerateInstanceNamesRequest(
         message->nameSpace, CIMName ("EnumerateInstanceNames"), 
         message->messageId, message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(),
-        message->acceptLanguages,
-        message->contentLanguages,        
+		((AcceptLanguageListContainer)message->operationContext.get(AcceptLanguageListContainer::NAME)).getLanguages(),
+		((ContentLanguageListContainer)message->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(),
          params);
 
     _sendRequest(buffer);
@@ -477,8 +478,8 @@ void CIMOperationRequestEncoder::_encodeEnumerateInstancesRequest(
         message->nameSpace, CIMName ("EnumerateInstances"), message->messageId,
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(),
-        message->acceptLanguages,
-        message->contentLanguages,        
+		((AcceptLanguageListContainer)message->operationContext.get(AcceptLanguageListContainer::NAME)).getLanguages(),
+		((ContentLanguageListContainer)message->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(),
          params);
 
     _sendRequest(buffer);
@@ -496,8 +497,8 @@ void CIMOperationRequestEncoder::_encodeDeleteInstanceRequest(
         message->nameSpace, CIMName ("DeleteInstance"), message->messageId,
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(),
-        message->acceptLanguages,
-        message->contentLanguages,        
+		((AcceptLanguageListContainer)message->operationContext.get(AcceptLanguageListContainer::NAME)).getLanguages(),
+		((ContentLanguageListContainer)message->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(),
          params);
 
     _sendRequest(buffer);
@@ -518,8 +519,8 @@ void CIMOperationRequestEncoder::_encodeGetPropertyRequest(
         message->nameSpace, CIMName ("GetProperty"), message->messageId,
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(),
-        message->acceptLanguages,
-        message->contentLanguages,        
+		((AcceptLanguageListContainer)message->operationContext.get(AcceptLanguageListContainer::NAME)).getLanguages(),
+		((ContentLanguageListContainer)message->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(),
          params);
 
     _sendRequest(buffer);
@@ -544,8 +545,8 @@ void CIMOperationRequestEncoder::_encodeSetPropertyRequest(
         message->nameSpace, CIMName ("SetProperty"), message->messageId,
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(),
-        message->acceptLanguages,
-        message->contentLanguages,        
+		((AcceptLanguageListContainer)message->operationContext.get(AcceptLanguageListContainer::NAME)).getLanguages(),
+		((ContentLanguageListContainer)message->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(),
          params);
 
     _sendRequest(buffer);
@@ -562,8 +563,8 @@ void CIMOperationRequestEncoder::_encodeSetQualifierRequest(
         message->nameSpace, CIMName ("SetQualifier"), message->messageId,
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(),
-        message->acceptLanguages,
-        message->contentLanguages,        
+		((AcceptLanguageListContainer)message->operationContext.get(AcceptLanguageListContainer::NAME)).getLanguages(),
+		((ContentLanguageListContainer)message->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(),
          params);
 
     _sendRequest(buffer);
@@ -582,8 +583,8 @@ void CIMOperationRequestEncoder::_encodeGetQualifierRequest(
         message->nameSpace, CIMName ("GetQualifier"), message->messageId,
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(),
-        message->acceptLanguages,
-        message->contentLanguages,        
+		((AcceptLanguageListContainer)message->operationContext.get(AcceptLanguageListContainer::NAME)).getLanguages(),
+		((ContentLanguageListContainer)message->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(),
          params);
 
     _sendRequest(buffer);
@@ -598,8 +599,8 @@ void CIMOperationRequestEncoder::_encodeEnumerateQualifiersRequest(
         message->nameSpace, CIMName ("EnumerateQualifiers"), message->messageId,
         message->getHttpMethod(), 
         _authenticator->buildRequestAuthHeader(),
-        message->acceptLanguages,
-        message->contentLanguages,        
+		((AcceptLanguageListContainer)message->operationContext.get(AcceptLanguageListContainer::NAME)).getLanguages(),
+		((ContentLanguageListContainer)message->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(),
          params);
 
     _sendRequest(buffer);
@@ -618,8 +619,8 @@ void CIMOperationRequestEncoder::_encodeDeleteQualifierRequest(
         message->nameSpace, CIMName ("DeleteQualifier"), message->messageId,
         message->getHttpMethod(), 
         _authenticator->buildRequestAuthHeader(),
-        message->acceptLanguages,
-        message->contentLanguages,        
+		((AcceptLanguageListContainer)message->operationContext.get(AcceptLanguageListContainer::NAME)).getLanguages(),
+		((ContentLanguageListContainer)message->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(),
          params);
 
     _sendRequest(buffer);
@@ -650,8 +651,8 @@ void CIMOperationRequestEncoder::_encodeReferenceNamesRequest(
         message->nameSpace, CIMName ("ReferenceNames"), message->messageId,
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(),
-        message->acceptLanguages,
-        message->contentLanguages,        
+		((AcceptLanguageListContainer)message->operationContext.get(AcceptLanguageListContainer::NAME)).getLanguages(),
+		((ContentLanguageListContainer)message->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(),
          params);
 
     _sendRequest(buffer);
@@ -692,8 +693,8 @@ void CIMOperationRequestEncoder::_encodeReferencesRequest(
         message->nameSpace, CIMName ("References"), message->messageId,
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(),
-        message->acceptLanguages,
-        message->contentLanguages,        
+		((AcceptLanguageListContainer)message->operationContext.get(AcceptLanguageListContainer::NAME)).getLanguages(),
+		((ContentLanguageListContainer)message->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(),
          params);
 
     _sendRequest(buffer);
@@ -737,8 +738,8 @@ void CIMOperationRequestEncoder::_encodeAssociatorNamesRequest(
         message->nameSpace, CIMName ("AssociatorNames"), message->messageId,
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(),
-        message->acceptLanguages,
-        message->contentLanguages,        
+		((AcceptLanguageListContainer)message->operationContext.get(AcceptLanguageListContainer::NAME)).getLanguages(),
+		((ContentLanguageListContainer)message->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(),
          params);
 
     _sendRequest(buffer);
@@ -792,8 +793,8 @@ void CIMOperationRequestEncoder::_encodeAssociatorsRequest(
         message->nameSpace, CIMName ("Associators"), message->messageId,
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(),
-        message->acceptLanguages,
-        message->contentLanguages,        
+		((AcceptLanguageListContainer)message->operationContext.get(AcceptLanguageListContainer::NAME)).getLanguages(),
+		((ContentLanguageListContainer)message->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(),
          params);
 
     _sendRequest(buffer);
@@ -814,8 +815,8 @@ void CIMOperationRequestEncoder::_encodeExecQueryRequest(
         message->nameSpace, CIMName ("ExecQuery"), message->messageId,
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(),
-        message->acceptLanguages,
-        message->contentLanguages,        
+		((AcceptLanguageListContainer)message->operationContext.get(AcceptLanguageListContainer::NAME)).getLanguages(),
+		((ContentLanguageListContainer)message->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(),
          params);
 
     _sendRequest(buffer);
@@ -828,9 +829,9 @@ void CIMOperationRequestEncoder::_encodeInvokeMethodRequest(
 	message->nameSpace, message->instanceName, message->methodName,
 	message->inParameters, message->messageId, 
 	message->getHttpMethod(), _authenticator->buildRequestAuthHeader(),
-    message->acceptLanguages,
-    message->contentLanguages);
-    
+		((AcceptLanguageListContainer)message->operationContext.get(AcceptLanguageListContainer::NAME)).getLanguages(),
+		((ContentLanguageListContainer)message->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages());
+        
     _sendRequest(buffer);
 }
 

@@ -1123,6 +1123,10 @@ Message* CIMClientRep::_doRequest(
     request->acceptLanguages = requestAcceptLanguages;
     request->contentLanguages = requestContentLanguages;
 
+	request->operationContext.set(AcceptLanguageListContainer(requestAcceptLanguages)); 
+    request->operationContext.set(ContentLanguageListContainer(requestContentLanguages)); 
+
+
     // Sending a new request, so clear out the response Content-Languages
     responseContentLanguages = ContentLanguages::EMPTY;
 

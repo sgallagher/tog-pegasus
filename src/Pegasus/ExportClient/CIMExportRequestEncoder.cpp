@@ -31,6 +31,7 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
 //              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+//				Seema Gupta (gseema@in.ibm.com) for PEP135
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -107,7 +108,7 @@ void CIMExportRequestEncoder::_encodeExportIndicationRequest(
       message->getHttpMethod(),
       _authenticator->buildRequestAuthHeader(),
       AcceptLanguages::EMPTY,
-      message->contentLanguages, 
+	 ((ContentLanguageListContainer)message->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(),
       params);
 
    _outputQueue->enqueue(new HTTPMessage(buffer));

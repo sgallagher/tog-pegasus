@@ -1366,13 +1366,12 @@ Boolean CIMRepository::_loadAllInstances(
  
         //
         // for each instance loaded, call XML parser to parse the XML
-        // data and create an CIMInstance object
+        // data and create a CIMInstance object.
         //
         CIMInstance tmpInstance;
 
         Uint32 bufferSize = data.size();
-        char* buffer = new char[bufferSize];
-        buffer = (char*)data.getData();
+        char* buffer = (char*)data.getData();
 
         for (Uint32 i = 0; i < instanceNames.size(); i++)
         {
@@ -1382,8 +1381,6 @@ Boolean CIMRepository::_loadAllInstances(
 
             instances.append(tmpInstance);
         }
-
-        delete [] buffer;
     }
 
     return true;

@@ -138,14 +138,7 @@ int main(int argc, char** argv)
         // lookup a non-existent instance
         //
 	ref = "X.key1=8888,key2=\"Hello World N\"";
-	if (!InstanceIndexFile::lookup(PATH, ref, sizeOut, indexOut))
-        {
-            cout << "Expected result: Object does not exists. " << endl;
-        }
-        else
-        {
-            throw Exception ("Unexpected result.");
-        }
+	assert(!InstanceIndexFile::lookup(PATH, ref, sizeOut, indexOut));
     }
 
     catch (Exception& e)

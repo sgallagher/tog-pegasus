@@ -839,7 +839,8 @@ void SampleFamilyProvider::enumerateInstances(
     //CIMName myClassName = classReference.getClassName();
 
     Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "enumerateInstances. Class= %s. IncludeQualifiers= %s ClassOrig= %s, propertyList= %s",
-        classReference.toString(), _showBool(includeQualifiers), _showBool(includeClassOrigin), propertyList);
+		  (const char*) classReference.toString().getCString(),(const char*)_showBool(includeQualifiers).getCString(),
+		  (const char*)_showBool(includeClassOrigin).getCString(),(const char*)_showPropertyList(propertyList).getCString());
 
     // begin processing the request
 	handler.processing();
@@ -890,7 +891,7 @@ void SampleFamilyProvider::enumerateInstanceNames(
 	ObjectPathResponseHandler & handler)
 {
     Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "enumerateInstanceNames. Class= %s",
-        classReference.toString());
+		  (const char *) classReference.toString().getCString());
 
     // begin processing the request
 
@@ -1188,8 +1189,14 @@ void SampleFamilyProvider::associators(
 {
     Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, 
         "associators. object= %s, assocClass= %s, resultClass= %s, role= %s, resultRole=%s IncludeQualifiers= %s ClassOrig= %s, propertyList= %s",
-        objectName.toString(), associationClass.getString(), resultClass.getString(), role, resultRole,
-        _showBool(includeQualifiers), _showBool(includeClassOrigin), propertyList);
+		  (const char*) objectName.toString().getCString(),
+		  (const char*)associationClass.getString().getCString(),
+		  (const char*)resultClass.getString().getCString(),
+		  (const char*)role .getCString(),
+		  (const char *)resultRole.getCString(),
+		  (const char *)_showBool(includeQualifiers).getCString(),
+		  (const char*) _showBool(includeClassOrigin).getCString(),
+		  (const char *)_showPropertyList(propertyList).getCString());
 
     // begin processing the request
     // Get the namespace and host names to create the CIMObjectPath
@@ -1278,7 +1285,11 @@ void SampleFamilyProvider::associatorNames(
 {
     Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, 
         "associatorNames. object= %s, assocClass= %s, resultClass= %s, role= %s, resultRole=%s",
-        objectName.toString(), associationClass.getString(), resultClass.getString(), role, resultRole);
+		  (const char*)objectName.toString().getCString(),
+		  (const char*)associationClass.getString().getCString(),
+                  (const char*)resultClass.getString().getCString(),
+		  (const char*)role.getCString(),
+                  (const char*)resultRole.getCString());
 
     // Get the namespace and host names to create the CIMObjectPath
     String host = System::getHostName();
@@ -1359,10 +1370,11 @@ void SampleFamilyProvider::references(
 {
     Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, 
         "references. object= %s, resultClass= %s, role= %s, IncludeQualifiers= %s ClassOrig= %s, propertyList= %s",
-        objectName.toString(), resultClass.getString(), role,
-        _showBool(includeQualifiers), _showBool(includeClassOrigin), propertyList);
-	CDEBUG("references" << " PropertyList = " << _showPropertyList(propertyList));
-
+		  (const char*)objectName.toString().getCString(),(const char *)resultClass.getString().getCString(),
+		  (const char *)role.getCString(),
+		  (const char*)_showBool(includeQualifiers).getCString(),
+		  (const char *) _showBool(includeClassOrigin).getCString(),(const char*)_showPropertyList( propertyList).getCString());
+	
     //CIMNamespaceName nameSpace = objectName.getNameSpace();
 
 	CIMObjectPath localObjectName = _makeRefLocal(objectName);
@@ -1442,7 +1454,8 @@ void SampleFamilyProvider::referenceNames(
 {
     Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, 
         "referenceNames. object= %s, resultClass= %s, role= %s",
-        objectName.toString(), resultClass.getString(), role);
+		  (const char*)objectName.toString().getCString(),
+		  (const char *)resultClass.getString().getCString(), (const char*)role.getCString());
 
 	CDEBUG("ReferenceNames Operation. objectName= " << objectName.toString() << " resultClass= " << resultClass << " role= " << role);
     CIMNamespaceName nameSpace = objectName.getNameSpace().getString();

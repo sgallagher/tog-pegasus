@@ -1217,7 +1217,9 @@ int main(int argc, char** argv)
                                                      CIM_OBJECTMANAGERCOMMUNICATIONMECHANISM_CLASSNAME,
                                                      false, false, false,false, CIMPropertyList());
     
+        #ifdef PEGASUS_ENABLE_SLP
         assert(instancesCommMech.size() > 0);
+        #endif
 
         for (Uint32 i = 0 ; i < instancesCommMech.size() ; i++)
         {

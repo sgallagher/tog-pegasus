@@ -52,9 +52,8 @@ PEGASUS_NAMESPACE_BEGIN
 
 class CIMConstQualifierDecl;
 class CIMClassRep;
-#if defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
 class CIMQualifierDeclRep;
-#endif
+
 /** Class CIMQualifierDecl
   This class defines the CIM Qualifier Declarations. Note that the Declarations
   are not the same as CIM Qualiifers as seen on Classes, properties, etc.

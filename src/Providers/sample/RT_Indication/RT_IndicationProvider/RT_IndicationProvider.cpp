@@ -84,6 +84,15 @@ void RT_IndicationProvider::terminate (void)
 void RT_IndicationProvider::enableIndications (
     IndicationResponseHandler & handler)
 {
+    //
+    //  enableIndications should not be called if indications have already been 
+    //  enabled
+    //
+    if (_enabled)
+    {
+        PEGASUS_ASSERT (false);
+    }
+
     _enabled = true;
     _handler = &handler;
 }

@@ -77,15 +77,12 @@ private:
       {
 	INSERT_PROVIDER,
 	INSERT_MODULE,
-	REMOVE_PROVIDER, 
-	REMOVE_MODULE,
 	LOOKUP_PROVIDER, 
 	LOOKUP_MODULE, 
 	GET_PROVIDER, 
 	UNLOAD_PROVIDER, 
 	UNLOAD_ALL_PROVIDERS, 
-	UNLOAD_IDLE_PROVIDERS, 
-	UNLOAD_IDLE_MODULES
+	UNLOAD_IDLE_PROVIDERS
       };
         
     typedef HashTable<String, Provider *, 
@@ -104,14 +101,67 @@ private:
 
     friend class ProviderManagerService;
     
+    /**
+       A list of Provider entries.  Entries in this table are not to be
+       removed.  If a provider is terminated, its corresponding Provider
+       entry will be reset, but not deleted.
+    */
     ProviderTable _providers;
+
+    /**
+       A list of ProviderModule entries.  Entries in this table are not to
+       be removed.  If a provider module is unloaded, its corresponding 
+       ProviderModule entry will be reset, but not deleted.
+    */
     ModuleTable _modules;
+
     Uint32 _idle_timeout;
 
     Sint32 _provider_ctrl(CTRL code, void *parm, void *ret);
     AtomicInt _unload_idle_flag;
-    
-    Mutex _mut;
+
+    /**
+       Loads and initializes the specified provider if the provider is
+       not already initialized.  If initialization fails, the Provider
+       object remains uninitialized.  The _providerTableMutex must NOT
+       be locked before calling this method.
+    */
+    Provider* _initProvider(Provider * provider,
+                            const String & moduleFileName, 
+                            const String & interfaceName);
+
+    /**
+       Terminates and unloads the specified provider if it is not busy.
+       The _providerTableMutex must be locked before calling this method.
+    */
+    void _unloadProvider(Provider * provider);
+
+    /**
+       Looks up the specified provider in the provider table.  If the
+       provider is not in the provider table, this method creates a
+       new Provider entry and insert it into the provider table.
+       The _providerTableMutex must NOT be locked before calling this 
+       method.
+    */
+    Provider * _lookupProvider( const String & providerName );
+
+    /**
+       Looks up the specified provider module in the module table.  If the
+       module is not in the module table, this method creates a new 
+       ProviderModule entry and insert it into the provider module table.
+       The _providerTableMutex must be locked before calling this method.
+    */
+    ProviderModule * _lookupModule( const String & moduleFileName,
+	                            const String & interfaceName );
+
+    /**
+       A mutex to synchronize access to the ProviderTable.  This mutex
+       must also be held when loading and unloading provider modules.  In
+       order to prevent deadlocks, one should never attempt to acquire a
+       lock on the _providerTableMutex while holding a lock on a 
+       Provider's _statusMutex.  
+    */
+    Mutex _providerTableMutex;
     
 protected:
     

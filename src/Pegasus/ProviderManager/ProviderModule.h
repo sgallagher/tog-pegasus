@@ -51,10 +51,11 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_SERVER_LINKAGE ProviderModule
 {
    public:
-      ProviderModule(const String & fileName);
+      ProviderModule(const String & fileName, const String & interfaceName);
       virtual ~ProviderModule(void);
 
       const String & getFileName(void) const;
+      void setInterfaceName(const String & interfaceName);
 
       CIMProvider *load(const String & providerName);
       void unloadModule(void);
@@ -75,24 +76,15 @@ class PEGASUS_SERVER_LINKAGE ProviderModule
 // refCount is deprecated << Wed Apr  9 12:03:13 2003 mdd >>
 // reference counting is done automatically by provider manager
       ProviderModule(const String & fileName, const Uint32 & refCount);
-// providerName is deprecated because a provider module may have more than
-// one provider loaded. << Wed Apr  9 12:04:05 2003 mdd >>
-      ProviderModule(const String & fileName, const String & providerName);
-      ProviderModule(const String & fileName, const String & providerName,
-		     const String & interfaceName, const Uint32 & refCount);
 // do not use !! not safe !! << Wed Apr  9 12:07:02 2003 mdd >>
       ProviderModule(const ProviderModule & pm);
 
-      const String & getProviderName(void) const;
       const String & getInterfaceName(void) const ;
       
       const Uint32 & getRefCount(void) const;
       ProviderAdapter * getAdapter(void) const;
       virtual CIMProvider * getProvider(void) const;
 
-
-
-      String _providerName;
 
       String _interfaceName;
       String _interfaceFileName; // for later use with interface registration
@@ -117,11 +109,6 @@ inline const String & ProviderModule::getInterfaceName(void) const
 inline ProviderAdapter * ProviderModule::getAdapter(void) const
 {
    return _adapter;
-}
-
-inline const String & ProviderModule::getProviderName(void) const
-{
-   return(_providerName);
 }
 
 inline CIMProvider * ProviderModule::getProvider(void) const

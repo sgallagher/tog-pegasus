@@ -25,6 +25,7 @@
 //
 // Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
 //              Mike Day, IBM (mdday@us.ibm.com)
+//              Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -40,19 +41,32 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-// The Provider class represents the logical provider extracted from a
-// provider module. It is wrapped in a facade to stabalize the interface
-// and is directly tied to a module.
-
+/**
+   The Provider class represents the logical provider extracted from a
+   provider module. It is wrapped in a facade to stabalize the interface
+   and is directly tied to a module.
+  
+   A provider's status is either INITIALIZED or UNITIALIZED.
+   
+   A provider's status is set to UNINITIALZED when it is created by the
+   ProviderManager and has not yet been loaded/initialized.  Its status 
+   is also set to UNINITIALIZED after the provider has been terminated/unloaded.
+  
+   A provider's status is set to INITIALIZED after it has been successfully
+   loaded and initialized.
+  
+   To prevent multiple threads from attempting to load/initialize/terminate
+   the same provider at the same time, a mutex is used to synchronize access
+   to the status of a provider.  This mutex MUST be locked before any
+   attempt to change the status of a provider.
+*/
+  
 class PEGASUS_SERVER_LINKAGE Provider : public ProviderFacade
 {
 public:
     enum Status {
-	UNKNOWN,
-	INITIALIZING,
-	INITIALIZED,
-	TERMINATING,
-	TERMINATED
+	UNINITIALIZED,
+	INITIALIZED
     };
 
 public:
@@ -64,15 +78,42 @@ public:
 
     virtual ~Provider(void);
 
+    /**
+       Initializes the provider.
+       Caller must lock the _statusMutex before calling this method.
+    */
+      
     virtual void initialize(CIMOMHandle & cimom);
+
+    /**
+       Terminates the provider.
+       Caller must lock the _statusMutex before calling this method.
+    */
     virtual Boolean tryTerminate(void);
 
+    /**
+       Terminates the provider.
+       Caller must lock the _statusMutex before calling this method.
+    */
     virtual void terminate(void);
 
-    Status getStatus(void) const;
+    Status getStatus(void);
     String getName(void) const;
 
     ProviderModule *getModule(void) const;
+
+    /**
+       Sets the provider module, CIMProvider and CIMOM handle 
+    */
+    void set(ProviderModule *module, 
+             CIMProvider *base, 
+             CIMOMHandle *cimomHandle);
+
+    /**
+       Resets the provider after termination.  
+       Caller must lock the _statusMutex before calling this method.
+    */
+    void reset();
 
       // << Mon Oct 14 15:42:24 2002 mdd >> for use with DQueue template
       // to allow conversion from using Array<>
@@ -100,6 +141,14 @@ public:
       String _name;
       AtomicInt _no_unload;
       Uint32 _quantum;
+
+      /**
+         A mutex to synchronize access to the status of a provider.
+         In order to prevent deadlocks, one should never attempt to 
+         lock the ProviderTable mutex kept by the ProviderManager
+         while holding a Provider's _statusMutex.
+      */
+      Mutex  _statusMutex;
 };
 
 

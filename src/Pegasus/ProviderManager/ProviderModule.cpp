@@ -43,96 +43,17 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-
-    // added support to re-activate ProviderAdapter  ( A Schuur )
-
-/*
-ProviderModule::ProviderModule(const String & fileName)
-   : _fileName(fileName), 
-     _ref_count(0),
-     _library(0)
-{
-    _interfaceFileName=String::EMPTY;
-    _library = System::loadDynamicLibrary((const char *)_fileName.getCString());
-}
-*/
 ProviderModule::ProviderModule(const String & fileName, const String & interfaceName)
    : _fileName(fileName),
-     _interfaceName(interfaceName),
      _ref_count(0),
      _library(0)
 {
-     _interfaceFileName=String::EMPTY;
-     if (_interfaceName.size()>0) {
-        #ifdef PEGASUS_OS_TYPE_WINDOWS
-	   _interfaceFileName=_interfaceName+String("Adapter.dll");
-	#elif defined(PEGASUS_OS_HPUX)
-	   _interfaceFileName=ConfigManager::getHomedPath(
-	      ConfigManager::getInstance()->getCurrentValue("providerDir"))+
-	      String("/lib")+interfaceName+String("Adapter.sl");
-        #elif defined(PEGASUS_OS_OS400)
-           _interfaceFileName=interfaceName+String("Adapter");
-	#else
-	   _interfaceFileName=ConfigManager::getHomedPath(
-	      ConfigManager::getInstance()->getCurrentValue("providerDir"))+
-	      String("/lib")+interfaceName+String("Adapter.so");
-	#endif
-     }
-}
-
-/*
-ProviderModule::ProviderModule(const String & fileName,
-                               const String & providerName)
-    : _fileName(fileName), 
-      _library(0), 
-      _providerName(providerName),
-      _provider(0)
-{
-}
-*/
-
-ProviderModule::ProviderModule(const String & fileName,
-                               const String & providerName,
-                               const String & interfaceName,
-			       const Uint32 & refCount)
-    : _fileName(fileName), 
-      _library(0), 
-      _providerName(providerName),
-      _interfaceName(interfaceName),
-      _provider(0),
-      _refCount(refCount)
-
-{
-    // currently without interface registration
-    _interfaceFileName = String::EMPTY;
-
-    if (_interfaceName.size() > 0)
-        if (!( String::equalNoCase(_interfaceName, "C++Standard") ||
-               String::equalNoCase(_interfaceName, "C++Default") ||
-               String::equalNoCase(_interfaceName, "PG_DefaultC++") ))
-        {
-            #ifdef PEGASUS_OS_TYPE_WINDOWS
-            _interfaceFileName = _interfaceName + String(".dll");
-            #elif defined(PEGASUS_OS_HPUX)
-            _interfaceFileName = ConfigManager::getHomedPath(
-                ConfigManager::getInstance()->getCurrentValue("providerDir"));
-            _interfaceFileName.append(
-                String("/lib") + _interfaceName + String(".sl"));
-            #elif defined(PEGASUS_OS_OS400)
-            _interfaceFileName = _interfaceName;
-            #else
-            _interfaceFileName = ConfigManager::getHomedPath(
-                ConfigManager::getInstance()->getCurrentValue("providerDir"));
-            _interfaceFileName.append(
-                String("/lib") + _interfaceName + String(".so"));
-            #endif
-        }
+    setInterfaceName(interfaceName);
 }
 
 ProviderModule::ProviderModule(const ProviderModule & pm)
     : _fileName(pm._fileName),
       _library(pm._library),
-      _providerName(pm._providerName),
       _interfaceName(pm._interfaceName),
       _interfaceFileName(pm._interfaceFileName),
       _provider(pm._provider),
@@ -146,6 +67,30 @@ ProviderModule::ProviderModule(const ProviderModule & pm)
 ProviderModule::~ProviderModule(void)
 { 
 
+}
+
+void ProviderModule::setInterfaceName(const String & interfaceName)
+{
+    _interfaceName = interfaceName;
+    _interfaceFileName=String::EMPTY;
+
+    if (_interfaceName.size()>0)
+    {
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+        _interfaceFileName=_interfaceName+String("Adapter.dll");
+#elif defined(PEGASUS_OS_HPUX)
+        // ATTN: Fix this for IA64.
+        _interfaceFileName=ConfigManager::getHomedPath(
+            ConfigManager::getInstance()->getCurrentValue("providerDir"))+
+            String("/lib")+interfaceName+String("Adapter.sl");
+#elif defined(PEGASUS_OS_OS400)
+        _interfaceFileName=interfaceName+String("Adapter");
+#else
+        _interfaceFileName=ConfigManager::getHomedPath(
+            ConfigManager::getInstance()->getCurrentValue("providerDir"))+
+            String("/lib")+interfaceName+String("Adapter.so");
+#endif
+     }
 }
 
 CIMProvider *ProviderModule::load(const String & providerName)

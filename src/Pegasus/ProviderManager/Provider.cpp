@@ -25,6 +25,7 @@
 //
 // Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
 //              Mike Day, IBM (mdday@us.ibm.com)
+//              Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -41,7 +42,7 @@ Provider::Provider(const String & name,
 		   ProviderModule *module, 
 		   CIMProvider *pr)
    : Base(pr), _module(module), _cimom_handle(0), _name(name),
-     _no_unload(0)
+     _no_unload(0), _status(UNINITIALIZED)
 {
    _current_operations = 1;
 }
@@ -49,18 +50,42 @@ Provider::Provider(const String & name,
 
 Provider::~Provider(void)
 {
-   
+
 }
 
 
-Provider::Status Provider::getStatus(void) const
+Provider::Status Provider::getStatus(void)
 {
+    // lock the mutex
+    auto_mutex lock(&_statusMutex);
+
     return(_status);
 }
 
 ProviderModule *Provider::getModule(void) const
 {
     return(_module);
+}
+
+void Provider::set(ProviderModule *module, 
+                   CIMProvider *cimProvider,
+                   CIMOMHandle *cimomHandle)
+{
+    _module = module;
+    _provider = cimProvider;
+    _cimom_handle = cimomHandle;
+}
+
+void Provider::reset()
+{
+    //
+    // Note:  It is the caller's responsibility to lock the status
+    // Mutex before calling this method
+    //
+    _module = 0;
+    _cimom_handle = 0;
+    _no_unload = 0;
+    _status = UNINITIALIZED;
 }
 
 String Provider::getName(void) const
@@ -70,109 +95,102 @@ String Provider::getName(void) const
 
 void Provider::initialize(CIMOMHandle & cimom)
 {
-   
-    _status = INITIALIZING;
-
-    try
+    //
+    // Note:  It is the caller's responsibility to lock the status
+    // Mutex before calling this method
+    //
+    if (_status == UNINITIALIZED)
     {
-	// yield before a potentially lengthy operation.
-	pegasus_yield();
+        try
+        {
+	    // yield before a potentially lengthy operation.
+	    pegasus_yield();
 
-	ProviderFacade::initialize(cimom);
-    }
-    catch(...)
-    {
-	_status = UNKNOWN;
-	_module->unloadModule();
-	throw;
-    }
+	    ProviderFacade::initialize(cimom);
+        }
+        catch(...)
+        {
+	    // set the current operations to 0 so that the provider
+	    // can be unloaded
+	    //
+            _current_operations = 0;
+            _current_ind_operations = 0;
+	    throw;
+        }
 
-    _status = INITIALIZED;
-    _current_operations = 0;
-    _current_ind_operations = 0;
+        _status = INITIALIZED;
+        _current_operations = 0;
+        _current_ind_operations = 0;
+    }
 }
+
 
 Boolean Provider::tryTerminate(void)
 {
-   
-   if(false == unload_ok())
-   {
-      return false;
-   }
-
-   _status = TERMINATING;
+   //
+   // Note:  It is the caller's responsibility to lock the status
+   // Mutex before calling this method
+   //
    Boolean terminated = false;
-   
-   try
-   {
-      // yield before a potentially lengthy operation.
-      pegasus_yield();
-      try 
-      {
-#ifdef PEGASUS_PRESERVE_TRYTERMINATE
-	terminated =  ProviderFacade::tryTerminate();
-#else
-         terminated = true;
-         ProviderFacade::terminate();
-#endif
-      }
-      catch(...)
-      {
-	 PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
-			  "Exception caught in ProviderFacade::tryTerminate() for " + 
-			  _name);
-      }
-      // yield before a potentially lengthy operation.
-      pegasus_yield();
-      if(terminated == true)
-	 _module->unloadModule();
-   }
-   catch(...)
-   {
-      _status = UNKNOWN;
-      
-   }
 
-   if(terminated == true)
+   if (_status == INITIALIZED)
    {
-      _status = TERMINATED;
-   }
-   return terminated;
+       if(false == unload_ok())
+       {
+           return false;
+       }
+
+       // yield before a potentially lengthy operation.
+       pegasus_yield();
+       try 
+       {
+#ifdef PEGASUS_PRESERVE_TRYTERMINATE
+          terminated =  ProviderFacade::tryTerminate();
+#else
+          terminated = true;
+          ProviderFacade::terminate();
+#endif
+       }
+       catch(...)
+       {
+          PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+                           "Exception caught in ProviderFacade::tryTerminate() for " + 
+                           _name);
+       }
+
+       if (terminated == true)
+       {
+           _status = UNINITIALIZED;
+       }
+    }
+    return terminated;
 }
 
 
 void Provider::terminate(void)
 {
-   _status = TERMINATING;
-    
-    try
+    //
+    // Note:  It is the caller's responsibility to lock the status
+    // Mutex before calling this method
+    //
+    if (_status == INITIALIZED)
     {
-	// yield before a potentially lengthy operation.
-	pegasus_yield();
-	try 
-       {
-	ProviderFacade::terminate();
-       }
-       catch(...)
-       {
-	  PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
-			       "Exception caught in ProviderFacade::Terminate for " + 
-			       _name);
-       }
-	// yield before a potentially lengthy operation.
-	pegasus_yield();
-
-	_module->unloadModule();
-    }
-    catch(...)
-    {
-	_status = UNKNOWN;
-   
-	throw;
+        // yield before a potentially lengthy operation.
+        pegasus_yield();
+        try 
+        {
+            ProviderFacade::terminate();
+        }
+        catch(...)
+        {
+	    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+                          "Exception caught in ProviderFacade::Terminate for " +
+                           _name);
+            throw;
+        }
     }
 
-    _status = TERMINATED;
-
+    _status = UNINITIALIZED;
 }
 
 Boolean Provider::operator == (const void *key) const 

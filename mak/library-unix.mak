@@ -28,6 +28,7 @@ ifeq ($(COMPILER),acc)
         LINK_COMMAND += -Wl,+b$(LIB_DIR):/usr/lib
     endif
   endif
+  LINK_COMMAND += -Wl,+s
   ifdef PEGASUS_DEBUG
     LINK_COMMAND += -g
   endif

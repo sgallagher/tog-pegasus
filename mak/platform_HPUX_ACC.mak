@@ -155,6 +155,8 @@ else
   endif
 endif
 
+FLAGS += -Wl,+s
+
 ifdef PEGASUS_DEBUG
   FLAGS += -g
 endif

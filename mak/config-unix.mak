@@ -18,11 +18,6 @@ EXE =
 
 LIB_PREFIX = lib
 
-STATIC_LIB_SUFFIX = .a
-
-SHARED_LIB_SUFFIX = .so
-
-# Suffix to use on the link line
 LIB_SUFFIX = .so
 
 COPY = cp

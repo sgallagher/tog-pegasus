@@ -15,5 +15,3 @@ FLAGS = -O2 -W -Wall -Wno-unused
 SYS_LIBS = -ldl
 
 CXX = g++
-
-SHARED_LIB_SUFFIX = .so

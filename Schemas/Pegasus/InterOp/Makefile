@@ -77,9 +77,9 @@ endif
 # however, this cannot be done now because we cannot conditionally compile MOF.	
 ifdef PEGASUS_BUILD_INTEROP 
 	@ $(ECHO) +++++ Loading Loading PG_CIMXMLCommunicationMechanism$(PG_SCHEMA_VER) into $(INTEROPNS) namespace ...
-	@ cimmof "-I$(PG_MOF_PATH)" -n$(INTEROPNS) $(ALLOW_EXPERIMENTAL) $(PG_MOF_PATH)/Loading PG_CIMXMLCommunicationMechanism$(PG_SCHEMA_VER).mof
+	@ cimmof "-I$(PG_MOF_PATH)" -n$(INTEROPNS) $(ALLOW_EXPERIMENTAL) $(PG_MOF_PATH)/PG_CIMXMLCommunicationMechanism$(PG_SCHEMA_VER).mof
 	@ $(ECHO) +++++ Loading Loading PG_Namespace$(PG_SCHEMA_VER) into $(INTEROPNS) namespace ...
-	@ cimmof "-I$(PG_MOF_PATH)" -n$(INTEROPNS) $(ALLOW_EXPERIMENTAL) $(PG_MOF_PATH)/Loading PG_Namespace$(PG_SCHEMA_VER).mof
+	@ cimmof "-I$(PG_MOF_PATH)" -n$(INTEROPNS) $(ALLOW_EXPERIMENTAL) $(PG_MOF_PATH)/PG_Namespace$(PG_SCHEMA_VER).mof
 endif
 
 clean:

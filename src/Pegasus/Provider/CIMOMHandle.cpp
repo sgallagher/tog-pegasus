@@ -61,6 +61,8 @@ CIMOMHandle::CIMOMHandle(MessageQueueService * service)
 
 CIMOMHandle::~CIMOMHandle(void)
 {
+   _controller->return_client_handle(_client_handle);
+   
 }
 
 CIMOMHandle & CIMOMHandle::operator=(const CIMOMHandle & handle)

@@ -186,8 +186,8 @@ CIMInstance CIMOMStatDataProvider::getInstance(Uint16 type, CIMObjectPath cimRef
 //cerr << "this is cimtime for "<< type <<" - "<<sd->cimomTime[type] <<endl;
 //cerr << "this is providertime for " << sd->providerTime[type] << endl;
 
-   CIMDateTime cimom_time = toDateTime(sd->cimomTime[type]);
-   CIMDateTime provider_time = toDateTime(sd->providerTime[type]);
+   CIMDateTime cimom_time = CIMDateTime((sd->cimomTime[type]), true);
+   CIMDateTime provider_time = CIMDateTime((sd->providerTime[type]), true);
    Uint16 mof_type = getOpType(type);
 
    //printf("this is returned form getOpType %d\n",mof_type);
@@ -232,7 +232,7 @@ CIMInstance CIMOMStatDataProvider::getInstance(Uint16 type, CIMObjectPath cimRef
    return requestedInstance;
 }
 
-CIMDateTime CIMOMStatDataProvider::toDateTime(Sint64 date)
+/*CIMDateTime CIMOMStatDataProvider::toDateTime(Sint64 date)
 {
         //break millisecond value into days, hours, minutes, seconds and milliseconds
         //turn each number into a string and append them to each other
@@ -292,7 +292,7 @@ String dhmsm = dhms.append(String(buf_milsec));
 
         return ans;
 
-}
+} */
 
 
 void CIMOMStatDataProvider::checkObjectManager()

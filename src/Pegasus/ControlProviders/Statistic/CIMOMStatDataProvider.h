@@ -105,7 +105,7 @@ public:
 
    protected:
       CIMObjectPath _references[StatisticalData::NUMBER_OF_TYPES];
-	  CIMDateTime toDateTime(Sint64 date);
+	 //CIMDateTime toDateTime(Sint64 date);
 	  void checkObjectManager();
     
       CIMOMHandle _cimom;

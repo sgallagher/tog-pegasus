@@ -360,7 +360,7 @@ MessageQueue* MessageQueue::lookup(const char *name) throw(IPCException)
    for(QueueTable::Iterator i = _queueTable.start(); i; i++)
    {
         // ATTN: Need to decide how many characters to compare in queue names
-      if(! strncmp( ((MessageQueue *)i.value())->getQueueName(), name, 25) )
+      if(! strcmp( ((MessageQueue *)i.value())->getQueueName(), name) )
       {
 	 q_table_mut.unlock();
 	 return( (MessageQueue *)i.value());

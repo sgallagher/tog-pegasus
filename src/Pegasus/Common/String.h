@@ -147,7 +147,7 @@ public:
     */
     const Char16* getData() const { return _rep.getData(); }
 
-    /** AallocateCString - llocates an 8 bit representation of this String 
+    /** allocateCString - llocates an 8 bit representation of this String 
 	object. The user is responsible for freeing the result. If any 
 	characters are truncated, a TruncatedCharacter exception is thrown.
 	This exception may be suppressed by passing true as the noThrow 

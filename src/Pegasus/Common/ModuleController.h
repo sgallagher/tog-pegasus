@@ -42,6 +42,10 @@ PEGASUS_NAMESPACE_BEGIN
 
 class ModuleController;
 
+
+class PEGASUS_COMMON_LINKAGE pegasus_module
+{
+   private: 
       class PEGASUS_COMMON_LINKAGE module_rep 
       {
 	 public:
@@ -50,107 +54,43 @@ class ModuleController;
 		       void *module_address, 
 		       Message * (*receive_message)(Message *),
 		       void (*async_callback)(Uint32, Message *),
-		       void (*shutdown_notify)(Uint32 code))
-	       : _thread_safety(),
-		 _controller(controller), 
-		 _name(name), 
-		 _reference_count(1), 
-		 _shutting_down(0),
-		 _module_address(module_address)
-
-	    {
-	       if(receive_message != NULL)
-		  _receive_message = receive_message;
-	       else
-		  _receive_message = default_receive_message;
-	       if(async_callback != NULL)
-		  _async_callback = async_callback;
-	       else
-		  _async_callback = default_async_callback;
-	       if(shutdown_notify != NULL)
-		  _shutdown_notify = shutdown_notify;
-	       else
-		  _shutdown_notify = default_shutdown_notify;
-	    }
+		       void (*shutdown_notify)(Uint32 code));
       
-	    ~module_rep(void) 
-	    {
-
-	    }
+	    ~module_rep(void) ;
+	    
       
 	    Boolean operator == (const module_rep *rep) const
-	    {
-	       if (rep == this )
-		  return true;
-	       return false;
-	    }
+	    { if (rep == this ) return true; return false; }
       
 	    Boolean operator == (const module_rep &rep) const
-	    {
-	       if (rep == *this)
-		  return true;
-	       return false;
-	    }
+	    { if (rep == *this) return true; return false; }
       
 	    Boolean operator == (void *rep) const 
-	    {
-	       if ( (void *)this == rep )
-		  return true;
-	       return false;
-	    }
+	    { if ( (void *)this == rep ) return true; return false; }
       
 	    void reference(void) { _reference_count++; } 
 	    void dereference(void) { _reference_count--; } 
 	    Uint32 reference_count(void)  { return _reference_count.value(); }  
 	    const String & get_name(void) const { return _name; }
 	    void *get_module_address(void) const { return _module_address; }
-	    Message * module_receive_message(Message *msg)
-	    {
-	       Message * ret;
-	       _thread_safety.lock(pegasus_thread_self());
-	       try {  ret = _receive_message(msg); }
-	       catch(...) { _thread_safety.unlock(); throw; }
-	       _thread_safety.unlock();
-	       return ret;
-	    }
+
+	    Message * module_receive_message(Message *msg);
 	    
-	    void _send_async_callback(Uint32 msg_handle, Message *msg)
-	    {
-	       _thread_safety.lock(pegasus_thread_self());
-	       try  { _async_callback(msg_handle, msg); }
-	       catch(...) { _thread_safety.unlock(); throw; }
-	       
-	    }
-	    void _send_shutdown_notify(Uint32 code)
-	    {
-	       _thread_safety.lock(pegasus_thread_self());
-	       if( _shutting_down == 0 )
-	       {
-		  _shutting_down++;
-		  _shutdown_notify(code);
-	       }
-	       _thread_safety.unlock();
-	    }
-	    void lock(void) 
-	    {
-	       _thread_safety.lock(pegasus_thread_self());
-	    }
+	    void _send_async_callback(Uint32 msg_handle, Message *msg);
 	    
-	    void unlock(void)
-	    {
-	       _thread_safety.unlock();
-	    }
-	    
-	 private: 
+	    void _send_shutdown_notify(void);
+	    void lock(void) { _thread_safety.lock(pegasus_thread_self()); }
+	    void unlock(void) { _thread_safety.unlock(); }
+	 private:
 	    module_rep(void);
 	    module_rep(const module_rep & );
 	    module_rep& operator= (const module_rep & );
-      
+	    
 	    Mutex _thread_safety;
 	    ModuleController *_controller;
 	    String _name;
 	    AtomicInt _reference_count;
-	    Uint32 _shutting_down;
+	    AtomicInt _shutting_down;
 	    
 	    void *_module_address;
 	    Message * (*_receive_message)(Message *);
@@ -158,26 +98,22 @@ class ModuleController;
 	    void (*_shutdown_notify)(Uint32 code);
 
 	    static Message * default_receive_message(Message *msg)
-	    {
-	       throw NotImplemented("Module Receive");
-	    }
+	    { throw NotImplemented("Module Receive");}
 
 	    static void default_async_callback(Uint32 handle, Message *msg)
-	    {
-	       throw NotImplemented("Module Async Receive");
-	    }
+	    { throw NotImplemented("Module Async Receive"); }
 	    
 	    static void default_shutdown_notify(Uint32 code)
-	    {
-	       return;
-	    }
+	    { return; }
+
+	    static Message * closed_receive_message(Message *msg)
+	    { throw ModuleClosed();}
+
+	    static void closed_async_callback(Uint32 handle, Message *msg)
+	    { throw ModuleClosed(); }
 
 	    friend class ModuleController;
       };
-      
-
-class PEGASUS_COMMON_LINKAGE pegasus_module
-{
 
    public:
 
@@ -188,12 +124,7 @@ class PEGASUS_COMMON_LINKAGE pegasus_module
 		     void (*async_callback)(Uint32, Message *),
 		     void (*shutdown_notify)(Uint32 code)) ;
       
-      ~pegasus_module(void)
-      {
-	 _rep->dereference();
-	 if( 0 == _rep->reference_count())
-	    delete _rep;
-      }
+      ~pegasus_module(void);
       
       pegasus_module & operator= (const pegasus_module & mod);
       Boolean operator == (const pegasus_module *mod) const;
@@ -212,25 +143,13 @@ class PEGASUS_COMMON_LINKAGE pegasus_module
       pegasus_module(void);
       pegasus_module(const pegasus_module & mod);
       Boolean _rcv_msg(Message *) ;
-      Message * _receive_message(Message *msg)
-      {
-	 return _rep->module_receive_message(msg);
-      }
-      
-      void _send_async_callback(Uint32 msg_handle, Message *msg) 
-      {
-	 _rep->_send_async_callback(msg_handle, msg);
-      }
-      void _send_shutdown_notify(Uint32 code)
-      {
-	 _rep->_send_shutdown_notify(code);
-      }
-      
-      Boolean _shutdown(Uint32 code) { _send_shutdown_notify(code); return true; } 
+      Message * _receive_message(Message *msg);
+      void _send_async_callback(Uint32 msg_handle, Message *msg) ;
+      void _send_shutdown_notify(void);
+      Boolean _shutdown(void);
       
       void reference(void) { _rep->reference(); }
       void dereference(void)  { _rep->dereference(); }
-
       friend class ModuleController;
 };
 
@@ -253,11 +172,13 @@ class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
       ~ModuleController(void);
 
       // module api 
-      ModuleController & register_module(const String & module_name, 
-					 void *module_address, 
-					 Message * (*receive_message)(Message *),
-					 void (*async_callback)(Uint32, Message *),
-					 void (*shutdown_notify)(Uint32)) throw(AlreadyExists);
+      static ModuleController & register_module(const String & controller_name,
+						const String & module_name, 
+						void *module_address, 
+						Message * (*receive_message)(Message *),
+						void (*async_callback)(Uint32, Message *),
+						void (*shutdown_notify)(Uint32)) 
+	 throw(AlreadyExists, IncompatibleTypes);
 
       Boolean deregister_module(const String & module_name);
       
@@ -287,14 +208,14 @@ class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
       Boolean ModuleSendAsync(pegasus_module & handle,
 			      Uint32 msg_handle, 
 			      Uint32 destination_q, 
-			      AsyncMessage *message) throw(Permission, IPCException);
+			      AsyncRequest *message) throw(Permission, IPCException);
 
       // send a message to another module via another service
       Boolean ModuleSendAsync(pegasus_module & handle,
 			      Uint32 msg_handle, 
 			      Uint32 destination_q, 
 			      String & destination_module,
-			      AsyncMessage *message) throw(Permission, IPCException);
+			      AsyncRequest *message) throw(Permission, IPCException);
 
       void blocking_thread_exec(pegasus_module & handle,
 				PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *), 
@@ -307,12 +228,11 @@ class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
       // ATTN-RK-P2-20010322:  These methods are pure virtual in superclass
       virtual void handleEnqueue(void) {}
       virtual void handleEnqueue(Message *) {}
+      virtual void _handle_async_request(AsyncRequest *rq);
+      virtual void _handle_async_callback(AsyncOpNode *op);
 
    private:
-      
-
       static void _async_handleEnqueue(AsyncOpNode *h, MessageQueue *q, void *parm);
-      
       DQueue<pegasus_module> _modules;
       ThreadPool _thread_pool;
 };

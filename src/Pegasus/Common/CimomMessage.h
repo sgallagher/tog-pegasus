@@ -485,6 +485,7 @@ class PEGASUS_COMMON_LINKAGE AsyncModuleOperationStart : public AsyncRequest
    private:
       friend class MessageQueueService;
       friend class cimom;
+      friend class ModuleController;
       String _target_module;
       Message *_act;
 };
@@ -510,6 +511,7 @@ class PEGASUS_COMMON_LINKAGE AsyncModuleOperationResult : public AsyncReply
    private:
       friend class MessageQueueService;
       friend class cimom;
+      friend class ModuleController;
       String _target_module;
       Message *_res;
 };

@@ -173,6 +173,14 @@ class PEGASUS_COMMON_LINKAGE ListClosed: public IPCException
       }
 };
       
+class PEGASUS_COMMON_LINKAGE ModuleClosed: public IPCException
+{
+   public:
+      ModuleClosed(void) : IPCException(pegasus_thread_self())
+      {
+      }
+      
+};
 
 
 //%////////////////////////////////////////////////////////////////////////////

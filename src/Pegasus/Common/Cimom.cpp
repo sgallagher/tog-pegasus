@@ -425,7 +425,7 @@ void cimom::_complete_op_node(AsyncOpNode *op, Uint32 state, Uint32 flag, Uint32
       return;
    }
    
-   if ( flags & ASYNC_OPFLAGS_CALLBACK )
+   if ( (flags & ASYNC_OPFLAGS_CALLBACK) && ! (flags & ASYNC_OPFLAGS_PSEUDO_CALLBACK))
    {
       // send this node to the response queue
       op->_op_dest = op->_callback_response_q; 

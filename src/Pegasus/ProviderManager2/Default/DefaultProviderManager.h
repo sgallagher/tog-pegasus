@@ -100,6 +100,7 @@ protected:
     Message * handleDisableIndicationsRequest(const Message * message) throw();
 
     Message * handleConsumeIndicationRequest(const Message * message) throw();
+    Message * handleExportIndicationRequest(const Message * message) throw();
 
     Message * handleDisableModuleRequest(const Message * message) throw();
     Message * handleEnableModuleRequest(const Message * message) throw();
@@ -126,6 +127,7 @@ protected:
     String _generateKey(const Provider & provider);
 
     ProviderName _resolveProviderName(const ProviderName & providerName);
+    ProviderName _resolveProviderName(String & destinationPath);
 
 protected:
     /**

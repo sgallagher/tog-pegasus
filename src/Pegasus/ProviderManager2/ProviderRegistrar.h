@@ -55,6 +55,7 @@ public:
     ProviderRegistrar(void);
     virtual ~ProviderRegistrar(void);
 
+    ProviderName ProviderRegistrar::findConsumerProvider(const String & destinationPath);
     ProviderName findProvider(const ProviderName & providerName);
 
     //ProviderName findProvider(const CIMObjectPath & reference);

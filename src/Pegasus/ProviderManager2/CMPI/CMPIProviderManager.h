@@ -64,8 +64,6 @@ public:
   
     virtual Message * processMessage(Message * request) throw();
 
-    static String resolveFileName(String name);
-
     virtual void unload_idle_providers(void) ;
     
    struct indProvRecord {

@@ -89,7 +89,7 @@ CMPIProviderManager::CMPIProviderManager(Mode m)
    mode=m;
    if (getenv("CMPI_TRACE")) _cmpi_trace=1;
    else _cmpi_trace=0;
-   _repository = CIMServer::getServerRepository();
+   _repository = ProviderManagerService::_repository;
 }
 
 CMPIProviderManager::~CMPIProviderManager(void)
@@ -1425,7 +1425,7 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
             request->nameSpace.getString(),
             providerName);
 
-        String fileName = resolveFileName(providerLocation);
+        String fileName = _resolvePhysicalName(providerLocation);
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
@@ -1533,7 +1533,7 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
             request->nameSpace.getString(),
             providerName);
 
-        String fileName = resolveFileName(providerLocation);
+        String fileName = _resolvePhysicalName(providerLocation);
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
@@ -1621,7 +1621,7 @@ Message * CMPIProviderManager::handleEnableIndicationsRequest(const Message * me
               request->provider, ProviderManagerService::providerManagerService);
         }
 
-        String fileName = resolveFileName(providerLocation);
+        String fileName = _resolvePhysicalName(providerLocation);
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
@@ -1678,7 +1678,7 @@ Message * CMPIProviderManager::handleDisableIndicationsRequest(const Message * m
 	   provRec->handler=NULL;
         }
 
-        String fileName = resolveFileName(providerLocation);
+        String fileName = _resolvePhysicalName(providerLocation);
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
@@ -1973,52 +1973,11 @@ ProviderName CMPIProviderManager::_resolveProviderName(const ProviderName & prov
 {
     ProviderName temp = findProvider(providerName);
 
-    String physicalName = temp.getPhysicalName();
-
-    // fully qualify physical provider name (module), if not already done so.
-    #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
-    physicalName = physicalName + String(".dll");
-    #elif defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_LINUX_IA86_GNU)
-    String root = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-    physicalName = root + String("/lib") + physicalName + String(".so");
-    #elif defined(PEGASUS_OS_HPUX)
-    String root = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-    # ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
-    physicalName = root + String("/lib") + physicalName + String(".sl");
-    # else
-    physicalName = root + String("/lib") + physicalName + String(".so");
-    # endif
-    #elif defined(PEGASUS_OS_OS400)
-    // do nothing
-    #else
-    String root = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-    physicalName = root + String("/lib") + physicalName + String(".so");
-
-    #endif
+    String physicalName=_resolvePhysicalName(temp.getPhysicalName());
 
     temp.setPhysicalName(physicalName);
 
     return(temp);
-}
-
-String CMPIProviderManager::resolveFileName(String fileName)
-{
-    String name;
-    #if defined(PEGASUS_OS_TYPE_WINDOWS)
-    name = fileName + String(".dll");
-    #elif defined(PEGASUS_OS_HPUX) && defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
-    name = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-    name.append(String("/lib") + fileName + String(".sl"));
-    #elif defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
-    name = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-    name.append(String("/lib") + fileName + String(".so"));
-    #elif defined(PEGASUS_OS_OS400)
-    name = filrName;
-    #else
-    name = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-    name.append(String("/lib") + fileName + String(".so"));
-    #endif
-    return name;
 }
 
 PEGASUS_NAMESPACE_END

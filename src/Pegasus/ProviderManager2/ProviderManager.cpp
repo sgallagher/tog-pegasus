@@ -54,6 +54,11 @@ ProviderName ProviderManager::findProvider(const ProviderName & providerName)
     return(_registrar.findProvider(providerName));
 }
 
+ProviderName ProviderManager::findProvider(const String & destinationPath)
+{
+    return(_registrar.findConsumerProvider(destinationPath));
+}
+
 Boolean ProviderManager::insertProvider(const ProviderName & providerName)
 {
     return(_registrar.insertProvider(providerName));
@@ -63,5 +68,33 @@ Boolean ProviderManager::removeProvider(const ProviderName & providerName)
 {
     return(_registrar.removeProvider(providerName));
 }
+
+String ProviderManager::_resolvePhysicalName(String physicalName)
+{
+    String temp;
+    
+    // fully qualify physical provider name (module), if not already done so.
+    #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+    temp = physicalName + String(".dll");
+    #elif defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_LINUX_IA86_GNU)
+    String root = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
+    temp = root + String("/lib") + physicalName + String(".so");
+    #elif defined(PEGASUS_OS_HPUX)
+    String root = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
+    # ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+    temp = root + String("/lib") + physicalName + String(".sl");
+    # else
+    temp = root + String("/lib") + physicalName + String(".so");
+    # endif
+    #elif defined(PEGASUS_OS_OS400)
+    // do nothing
+    #else
+    String root = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
+    temp = root + String("/lib") + physicalName + String(".so");
+    #endif
+    
+    return temp;
+}
+
 
 PEGASUS_NAMESPACE_END

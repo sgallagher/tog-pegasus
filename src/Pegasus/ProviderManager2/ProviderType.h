@@ -43,6 +43,21 @@ class PEGASUS_PPM_LINKAGE ProviderType
 {
 public:
     // these constants have the same value as those in DynamicRoutingTable.
+    
+    #define ProviderType_CLASS 0x00000001
+
+    #define ProviderType_INSTANCE 0x00000002
+
+    #define ProviderType_ASSOCIATION 0x00000003
+
+    #define ProviderType_INDICATION 0x00000004
+
+    #define ProviderType_METHOD 0x00000005
+
+    #define ProviderType_CONSUMER 0x00000006
+
+    #define ProviderType_QUERY 0x00000007
+
     static const Uint32 INSTANCE;
     static const Uint32 CLASS;
     static const Uint32 METHOD;

@@ -1,0 +1,31 @@
+#pragma locale ("en_US")
+
+instance of PG_ProviderModule
+{
+    Description = "Sample CMPI Round Trip Indication Provider";
+    Caption = "Sample CMPI Round Trip Indication Provider";
+    Name = "CMPI_RT_SampleProviderModule";
+    Vendor = "CMPI";
+    Version = "2.0.0";
+    InterfaceType = "CMPI";
+    InterfaceVersion = "2.2.0";
+    Location = "CMPI_RT_Sample";
+};
+
+instance of PG_Provider
+{
+    ProviderModuleName = "CMPI_RT_SampleProviderModule";
+    Name = "CMPI_RT_SampleProvider";
+};
+
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "CMPI_RT_SampleProviderModule";
+    ProviderName = "CMPI_RT_SampleProvider";
+    CapabilityID = "1";
+    ClassName = "CMPI_RT_SampleIndication";
+    Namespaces = { "root/cimv2" };
+    ProviderType = { 4, 5 };  // Indication & Method
+    SupportedProperties = NULL;
+    SupportedMethods = {"SendTestIndication"};
+};

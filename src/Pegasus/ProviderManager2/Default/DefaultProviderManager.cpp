@@ -52,6 +52,7 @@
 #include <Pegasus/ProviderManager2/Default/OperationResponseHandler.h>
 
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
+#include <Pegasus/ProviderManager2/ProviderManagerService.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -181,6 +182,10 @@ Message * DefaultProviderManager::processMessage(Message * request) throw()
         break;
     case CIM_CONSUME_INDICATION_REQUEST_MESSAGE:
         response = handleConsumeIndicationRequest(request);
+        break;
+
+    case CIM_EXPORT_INDICATION_REQUEST_MESSAGE:
+        response = handleExportIndicationRequest(request);
         break;
 
     case CIM_DISABLE_MODULE_REQUEST_MESSAGE:
@@ -2204,26 +2209,35 @@ Message * DefaultProviderManager::handleEnableIndicationsRequest(const Message *
 
     response->dest = request->queueIds.top();
 
-    /*
     // ATTN: need pointer to Provider Manager Server!
-    //EnableIndicationsResponseHandler *handler =
-    //    new EnableIndicationsResponseHandler(request, response, this);
+    EnableIndicationsResponseHandler *handler =
+        new EnableIndicationsResponseHandler(request, response,
+              request->provider, ProviderManagerService::providerManagerService);
 
     try
     {
-        // get the provider file name and logical name
-        Triad<String, String, String> triad =
-            _getProviderRegPair(request->provider, request->providerModule);
+       String physicalName=_resolvePhysicalName(
+          request->providerModule.getProperty(
+	      request->providerModule.findProperty("Location")).getValue().toString());
+
+       ProviderName name(String::EMPTY,
+               request->provider.getProperty(request->providerModule.findProperty
+                   ("Name")).getValue ().toString (),
+	       physicalName,
+               request->providerModule.getProperty(request->providerModule.findProperty
+                    ("InterfaceType")).getValue().toString(),
+               0);
 
         // get cached or load new provider module
-        //Provider provider =
         OpProviderHolder ph =
-            providerManager.getProvider(triad.first, triad.second, triad.third);
+            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.enableIndications: " +
             ph.GetProvider().getName());
-        ph.GetProvider().protect();
+
+        pm_service_op_lock op_lock(&ph.GetProvider());
+
         ph.GetProvider().enableIndications(*handler);
 
 
@@ -2238,14 +2252,13 @@ Message * DefaultProviderManager::handleEnableIndicationsRequest(const Message *
     {
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Exception: " + e.getMessage());
+
         response->cimException = CIMException(e);
     }
     catch(Exception & e)
     {
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Exception: " + e.getMessage());
-        //l10n
-        //response->cimException = CIMException(CIM_ERR_FAILED, "Internal Error");
         response->cimException = CIMException(CIM_ERR_FAILED, MessageLoaderParms(
             "ProviderManager.DefaultProviderManager.INTERNAL_ERROR",
             "Internal Error"));
@@ -2254,13 +2267,10 @@ Message * DefaultProviderManager::handleEnableIndicationsRequest(const Message *
     {
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Exception: Unknown");
-        //l10n
-        //response->cimException = CIMException(CIM_ERR_FAILED, "Unknown Error");
         response->cimException = CIMException(CIM_ERR_FAILED, MessageLoaderParms(
             "ProviderManager.DefaultProviderManager.UNKNOWN_ERROR",
             "Unknown Error"));
     }
-    */
 
     PEG_METHOD_EXIT();
 
@@ -2294,36 +2304,21 @@ Message * DefaultProviderManager::handleDisableIndicationsRequest(const Message 
 
     try
     {
-        ProviderName name(
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
-            0);
-        /*
-        ProviderName name(
-            String::EMPTY,
-            String::EMPTY,
-            objectPath.toString());
+       String physicalName=_resolvePhysicalName(
+              request->providerModule.getProperty(
+	         request->providerModule.findProperty("Location")).getValue().toString());
 
-        // resolve provider name
-        name = _resolveProviderName(name);
-        */
+       ProviderName name(String::EMPTY,
+               request->provider.getProperty(request->providerModule.findProperty
+                   ("Name")).getValue ().toString (),
+	       physicalName,
+               request->providerModule.getProperty(request->providerModule.findProperty
+                    ("InterfaceType")).getValue().toString(),
+            0);
 
         // get cached or load new provider module
         OpProviderHolder ph =
             providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
-
-        /*
-        // get the provider file name and logical name
-        Triad<String, String, String> triad =
-            getProviderRegistrar()->_getProviderRegPair(request->provider, request->providerModule);
-
-        // get cached or load new provider module
-        //Provider provider =
-        OpProviderHolder ph =
-            providerManager.getProvider(triad.first, triad.second, triad.third);
-        */
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.disableIndications: " +
@@ -2471,6 +2466,102 @@ Message * DefaultProviderManager::handleConsumeIndicationRequest(const Message *
 
     return(response);
 }
+
+
+Message *DefaultProviderManager::handleExportIndicationRequest(const Message *message) throw()
+{
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManagerService::handlExportIndicationRequest");
+
+    CIMExportIndicationRequestMessage * request =
+        dynamic_cast<CIMExportIndicationRequestMessage *>(const_cast<Message *>(message));
+
+    PEGASUS_ASSERT(request != 0);
+
+    CIMExportIndicationResponseMessage * response =
+        new CIMExportIndicationResponseMessage(
+        request->messageId,
+        CIMException(),
+        request->queueIds.copyAndPop());
+
+    PEGASUS_ASSERT(response != 0);
+
+    // preserve message key
+    response->setKey(request->getKey());
+
+    //  Set HTTP method in response from request
+    response->setHttpMethod (request->getHttpMethod ());
+
+    OperationResponseHandler handler(request, response);
+
+    try
+    {
+       ProviderName name(
+            String::EMPTY,
+            String::EMPTY,
+            String::EMPTY,
+            String::EMPTY,
+            0);
+
+       // resolve provider name
+       name = _resolveProviderName(request->destinationPath);
+
+       // get cached or load new provider module
+        OpProviderHolder ph =
+            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
+
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+		       "Calling provider.: " +
+		       ph.GetProvider().getName());
+
+        OperationContext context;
+
+//L10N_TODO
+//l10n
+// ATTN-CEC 06/04/03 NOTE: I can't find where the consume msg is sent.  This
+// does not appear to be hooked-up.  When it is added, need to
+// make sure that Content-Language is set in the consume msg.
+// NOTE: A-L is not needed to be set in the consume msg.
+      // add the langs to the context
+      context.insert(ContentLanguageListContainer(request->contentLanguages));
+
+      CIMInstance indication_copy = request->indicationInstance;
+      pm_service_op_lock op_lock(&ph.GetProvider());
+
+      ph.GetProvider().consumeIndication(context,
+				request->destinationPath,
+				indication_copy);
+
+    }
+
+    catch(CIMException & e)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: " + e.getMessage());
+
+        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
+    }
+    catch(Exception & e)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: " + e.getMessage());
+
+        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
+    }
+    catch(...)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: Unknown");
+
+        handler.setStatus(CIM_ERR_FAILED, "Unknown Error");
+    }
+
+    PEG_METHOD_EXIT();
+
+    return(response);
+}
+
+
+
 
 //
 // This function disables a provider module if disableProviderOnly is not true,
@@ -2740,6 +2831,7 @@ EnableIndicationsResponseHandler * DefaultProviderManager::_removeEntry(
     EnableIndicationsResponseHandler *ret = 0;
 
     _responseTable.lookup(key, ret);
+    _responseTable.remove(key);		// why is this needed ? - we get killed when removed...
 
     PEG_METHOD_EXIT();
 
@@ -2771,24 +2863,18 @@ ProviderName DefaultProviderManager::_resolveProviderName(const ProviderName & p
 {
     ProviderName temp = findProvider(providerName);
 
-    String physicalName = temp.getPhysicalName();
+    String physicalName = _resolvePhysicalName(temp.getPhysicalName());
 
-    // fully qualify physical provider name (module), if not already done so.
-    #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
-    physicalName = physicalName + String(".dll");
-    #elif defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_LINUX_IA86_GNU)
-    String root = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-    physicalName = root + String("/lib") + physicalName + String(".so");
-    #elif defined(PEGASUS_OS_HPUX)
-    String root = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-    physicalName = root + String("/lib") + physicalName + String(".sl");
-    #elif defined(PEGASUS_OS_OS400)
-    // do nothing
-    #else
-    String root = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-    physicalName = root + String("/lib") + physicalName + String(".so");
+    temp.setPhysicalName(physicalName);
 
-    #endif
+    return(temp);
+}
+
+ProviderName DefaultProviderManager::_resolveProviderName(String & destinationPath)
+{
+    ProviderName temp = findProvider(destinationPath);
+
+    String physicalName = _resolvePhysicalName(temp.getPhysicalName());
 
     temp.setPhysicalName(physicalName);
 

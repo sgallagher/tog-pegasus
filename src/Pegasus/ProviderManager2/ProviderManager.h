@@ -36,6 +36,7 @@
 #include <Pegasus/Common/Message.h>
 
 #include <Pegasus/Server/Linkage.h>
+#include <Pegasus/Config/ConfigManager.h>
 
 #include <Pegasus/ProviderManager2/ProviderRegistrar.h>
 
@@ -50,8 +51,10 @@ public:
     virtual Message * processMessage(Message * message);
 
     virtual ProviderName findProvider(const ProviderName & providerName);
+    virtual ProviderName findProvider(const String & destinationPath);
     virtual Boolean insertProvider(const ProviderName & providerName);
     virtual Boolean removeProvider(const ProviderName & providerName);
+    static String _resolvePhysicalName(String physicalName);
 
 protected:
     // ingredients for CIMOMHandle (binary message handler, repository, etc.)

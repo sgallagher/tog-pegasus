@@ -51,7 +51,7 @@ CMPIProviderModule::CMPIProviderModule(const String & fileName,
     _library(0)
 {
    if (fileName[0]!='/')
-      _fileName=CMPIProviderManager::resolveFileName(fileName);
+      _fileName=ProviderManager::_resolvePhysicalName(fileName);
    else _fileName=fileName;
 }
 

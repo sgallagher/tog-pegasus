@@ -25,7 +25,7 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:
+// Modified By: Adrain Schuur (schuur@de-ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -41,12 +41,19 @@ const Uint32 ProviderType::QUERY = 0x00000006;
 const Uint32 ProviderType::INDICATION = 0x00000007;
 const Uint32 ProviderType::CONSUMER = 0x00000008;
 */
-const Uint32 ProviderType::INSTANCE = 0x00000002;
-const Uint32 ProviderType::CLASS = 0x00000001;
-const Uint32 ProviderType::METHOD = 0x00000005;
-const Uint32 ProviderType::ASSOCIATION = 0x00000003;
-const Uint32 ProviderType::QUERY = 0x00000007;
-const Uint32 ProviderType::INDICATION = 0x00000004;
-const Uint32 ProviderType::CONSUMER = 0x00000008;
+
+const Uint32 ProviderType::CLASS = ProviderType_CLASS;
+
+const Uint32 ProviderType::INSTANCE = ProviderType_INSTANCE;
+
+const Uint32 ProviderType::ASSOCIATION = ProviderType_ASSOCIATION;
+
+const Uint32 ProviderType::INDICATION = ProviderType_INDICATION;
+
+const Uint32 ProviderType::METHOD = ProviderType_METHOD;
+
+const Uint32 ProviderType::CONSUMER = ProviderType_CONSUMER;
+
+const Uint32 ProviderType::QUERY = ProviderType_QUERY;
 
 PEGASUS_NAMESPACE_END

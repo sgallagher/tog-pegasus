@@ -151,11 +151,6 @@ public:
     */
     void shutdownSignal();
 
-    static CIMRepository* getServerRepository()
-    {
-       return thisServer ? thisServer->_repository : NULL;
-    }
-
 private:
 
     SSLContext* _getSSLContext();
@@ -187,8 +182,6 @@ private:
     monitor_2* monitor2;
     server_type _type;
     
-    static CIMServer *thisServer;
-
     void _init(void);
     
     

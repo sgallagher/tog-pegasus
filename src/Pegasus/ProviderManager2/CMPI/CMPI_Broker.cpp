@@ -466,18 +466,36 @@ static CMPIStatus mbDetachThread(CMPIBroker* mb, CMPIContext* eCtx) {
    CMReturn(CMPI_RC_OK);
 }
 
-static CMPIStatus mbDeliverIndication(CMPIBroker* eMb, CMPIContext* eCtx,
+static CMPIStatus mbDeliverIndication(CMPIBroker* eMb, CMPIContext* ctx,
              char* ns, CMPIInstance* ind) {
    DDD(cout<<"--- mbDeliverIndication()"<<endl);
    CMPI_Broker *mb=(CMPI_Broker*)eMb;
    CMPIProviderManager::indProvRecord *prec;
+   OperationContext* context=CM_Context(ctx);
    
    if (CMPIProviderManager::provTab.lookup(mb->name,prec)) {
       if (prec->enabled) {
+         try {
+            context->get(SubscriptionInstanceNamesContainer::NAME);
+         }
+         catch (Exception& e) {
+            Array<CIMObjectPath> subscriptionInstanceNames;
+            context->insert(SubscriptionInstanceNamesContainer(subscriptionInstanceNames));
+         }
          CIMIndication cimIndication(*CM_Instance(ind));
-         prec->handler->deliver(cimIndication);
+         AutoMutex mtx(((CMPI_Broker*)mb)->mtx);
+         try {
+            prec->handler->deliver(
+               *context,
+//               OperationContext(*CM_Context(ctx)),
+               cimIndication);
          CMReturn(CMPI_RC_OK);
      }
+         catch (CIMException &e) {
+            DDD(cout<<"### exception: mbSetProperty - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
+            CMReturn((CMPIrc)e.getCode());
+         }
+      }
    }
    CMReturn(CMPI_RC_ERR_FAILED);
 }	     

@@ -193,6 +193,25 @@ ProviderRegistrar::~ProviderRegistrar(void)
 {
 }
 
+ProviderName ProviderRegistrar::findConsumerProvider(const String & destinationPath)
+{
+   CIMInstance provider;
+   CIMInstance providerModule;
+   ProviderName temp;
+
+   if (_prm->lookupIndicationConsumer(destinationPath,provider,providerModule))
+      return ProviderName(temp.getObjectName(),
+               provider.getProperty(providerModule.findProperty
+                   ("Name")).getValue ().toString (),
+               providerModule.getProperty(providerModule.findProperty
+                    ("Location")).getValue().toString(),
+               providerModule.getProperty(providerModule.findProperty
+                    ("InterfaceType")).getValue().toString(),
+               0);
+
+   return temp;
+}
+
 // need at least the object and the one capability.
 // for example,
 //  "//localhost/root/cimv2:CIM_ComputerSystem", INSTANCE
@@ -219,7 +238,7 @@ ProviderName ProviderRegistrar::findProvider(const ProviderName & providerName)
     Boolean hasNoQuery;
    
    switch (flags) {
-       case 2: //ProviderType::INSTANCE
+       case ProviderType_INSTANCE:
           if (_prm->lookupInstanceProvider(objectName.getNameSpace(),objectName.getClassName(),
                 provider,providerModule,0)) {
 	      return ProviderName(providerName.getObjectName(),
@@ -232,7 +251,7 @@ ProviderName ProviderRegistrar::findProvider(const ProviderName & providerName)
 		    ProviderType::INSTANCE);
           }
           break;
-       case 5: //ProviderType::ASSOCIATION
+       case ProviderType_ASSOCIATION:
           if (_prm->lookupInstanceProvider(objectName.getNameSpace(),objectName.getClassName(),
                 provider,providerModule,1)) {
 	      return ProviderName(providerName.getObjectName(),
@@ -245,7 +264,7 @@ ProviderName ProviderRegistrar::findProvider(const ProviderName & providerName)
 		    ProviderType::ASSOCIATION);
           }
           break;
-       case 7: //ProviderType::QUERY
+       case ProviderType_QUERY:
           if (_prm->lookupInstanceProvider(objectName.getNameSpace(),objectName.getClassName(),
                 provider,providerModule,0,&hasNoQuery)) {
 	      return ProviderName(providerName.getObjectName(),

@@ -173,6 +173,17 @@ static CMPICount contextGetEntryCount(CMPIContext* eCtx, CMPIStatus* rc) {
 
 static CMPIStatus contextAddEntry(CMPIContext* eCtx, char* name,
             CMPIValue* data, CMPIType type) {
+   if (strcmp(name,SnmpTrapOidContainer::NAME.getCString())==0) {
+      OperationContext *ctx=((CMPI_Context*)eCtx)->ctx;
+      if (type==CMPI_chars) {
+         ctx->insert(SnmpTrapOidContainer((char*)data));
+         CMReturn(CMPI_RC_OK);
+      }
+      else if (type==CMPI_string) {
+         ctx->insert(SnmpTrapOidContainer((char*)data->string->hdl));
+         CMReturn(CMPI_RC_OK);
+      }
+   }
    return argsAddArg((CMPIArgs*)eCtx,name,data,type);
 }
 

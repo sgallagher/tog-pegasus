@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Formatter.cpp,v $
+// Revision 1.2  2001/03/22 23:26:30  mike
+// Added missing formatting logic
+//
 // Revision 1.1  2001/03/22 23:24:23  mike
 // Added new formatter class for formatting log entries and other things.
 //
@@ -91,6 +94,13 @@ String Formatter::format(
 		case '0': result += arg0.toString(); break;
 		case '1': result += arg1.toString(); break;
 		case '2': result += arg2.toString(); break;
+		case '3': result += arg3.toString(); break;
+		case '4': result += arg4.toString(); break;
+		case '5': result += arg5.toString(); break;
+		case '6': result += arg6.toString(); break;
+		case '7': result += arg7.toString(); break;
+		case '8': result += arg8.toString(); break;
+		case '9': result += arg9.toString(); break;
 		default: break;
 	    }
 	}

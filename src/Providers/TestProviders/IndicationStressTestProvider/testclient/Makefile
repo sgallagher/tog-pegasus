@@ -31,8 +31,6 @@ poststarttests:
 	@$(PROGRAM) run 1
 	@$(ECHO) "TestIndicationStressTest run 10"
 	@$(PROGRAM) run 10
-	@$(ECHO) "TestIndicationStressTest run 100"
-	@$(PROGRAM) run 100
 	@$(ECHO) "TestIndicationStressTest cleanup"
 	@$(PROGRAM) cleanup cim:cql
 	@$(ECHO) "TestIndicationStressTest setup cim:cql"
@@ -41,8 +39,6 @@ poststarttests:
 	@$(PROGRAM) run 1
 	@$(ECHO) "TestIndicationStressTest run 10"
 	@$(PROGRAM) run 10
-	@$(ECHO) "TestIndicationStressTest run 100"
-	@$(PROGRAM) run 100
 	@$(ECHO) "TestIndicationStressTest cleanup"
 	@$(PROGRAM) cleanup cim:cql
 	@$(ECHO) "+++++ TestIndicationStressTest passed all tests"

@@ -35,15 +35,13 @@
 Summary: WBEM Services for Linux
 Name: pegasus-wbem
 Version: 2.2
-Release: 3
+Release: 4
 Group: Systems Management/Base
 Copyright: Open Group Pegasus Open Source
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}
 Source: ftp://www.opengroup.org/pegasus/pegasus-wbem-%{version}-%{release}.tar.gz
 Requires: openssl-devel >= 0.9.6
 Provides: cimserver pegasus-wbem-2.2
-#Patch0: pegasus-wbem-2.2-config.patch
-#Patch1: pegasus-wbem-2.2-initrd.patch
 
 %description
 WBEM Services for Red Hat Linux enables management solutions that deliver
@@ -84,17 +82,21 @@ done;
 # Needed for CMPI patch
 ln -s $RPM_BUILD_DIR/$RPM_PACKAGE_NAME-$RPM_PACKAGE_VERSION $RPM_BUILD_DIR/$RPM_PACKAGE_NAME
 
-#%patch0 -p1
-#%patch1 -p1
 
 %build
 export PEGASUS_ROOT=$RPM_BUILD_DIR/$RPM_PACKAGE_NAME-$RPM_PACKAGE_VERSION
 export PEGASUS_HOME=$RPM_BUILD_ROOT/usr/pegasus
-# Change for different versions
+%ifarch ia64
+export PEGASUS_PLATFORM=LINUX_IA64_GNU
+%else
 export PEGASUS_PLATFORM=LINUX_IX86_GNU
+%endif
 # Modify this when a new version of OpenSSL appears.
-export OPENSSL_HOME=$RPM_BUILD_DIR/openssl/
+# export OPENSSL_HOME=$RPM_BUILD_DIR/openssl/
 export PEGASUS_HAS_SSL=yes
+
+# per bug #368
+export PEGASUS_USE_RELEASE_DIRS=true
 
 make
 
@@ -110,7 +112,6 @@ mkdir -p $RPM_BUILD_ROOT/etc/pegasus/mof
 
 export PEGASUS_ROOT=$RPM_BUILD_DIR/$RPM_PACKAGE_NAME-$RPM_PACKAGE_VERSION
 export PEGASUS_HOME=$RPM_BUILD_ROOT/usr/pegasus
-#export PEGASUS_PLATFORM=LINUX_IX86_GNU
 
 #
 # Init scripts
@@ -179,7 +180,9 @@ install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libSampleInstanceProvider.so.1   
 install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libSampleMethodProvider.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libSampleMethodProvider.so.1
 install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libsendmailIndicationHandler.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libsendmailIndicationHandler.so.1
 install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libSimpleDisplayConsumer.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libSimpleDisplayConsumer.so.1
+%ifnarch ia64
 install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libslp.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libslp.so.1
+%endif
 install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libsnmpIndicationHandler.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libsnmpIndicationHandler.so.1
 install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libUserAuthProvider.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libUserAuthProvider.so.1
 #
@@ -434,15 +437,18 @@ chmod 644 /var/cache/pegasus/ssl.cnf
 chown bin /var/cache/pegasus/ssl.cnf
 chgrp bin /var/cache/pegasus/ssl.cnf
 
-/bin/rpm -qa >/var/cache/pegasus/ssl.rnd 2>>$INSTALL_LOG
-/bin/netstat -a >>/var/cache/pegasus/ssl.rnd 2>>$INSTALL_LOG
-
-/usr/bin/openssl req -x509 -days 365 -newkey rsa:2048 \
-   -rand /var/cache/pegasus/ssl.rnd -nodes -config /var/cache/pegasus/ssl.cnf   \
+# This random-enthropy-gathering is NOT random at all. Use the default one SSL has - (/dev/random).
+# /bin/rpm -qa >/var/cache/pegasus/ssl.rnd 2>>$INSTALL_LOG
+# /bin/netstat -a >>/var/cache/pegasus/ssl.rnd 2>>$INSTALL_LOG
+#   -rand /var/cache/pegasus/ssl.rnd 
+openssl req -x509 -days 365 -newkey rsa:2048 \
+   -nodes -config /var/cache/pegasus/ssl.cnf   \
    -keyout /var/cache/pegasus/key.pem -out /var/cache/pegasus/cert.pem 2>>$INSTALL_LOG
 
 cat /var/cache/pegasus/key.pem /var/cache/pegasus/cert.pem > /var/cache/pegasus/server_2048.pem
 cat /var/cache/pegasus/cert.pem > /var/cache/pegasus/client_2048.pem
+chmod 700 /var/cache/pegasus/*.pem
+
 rm -f /var/cache/pegasus/key.pem /var/cache/pegasus/cert.pem
 
 if [ -f /var/cache/pegasus/server.pem ] 
@@ -450,6 +456,7 @@ then
     echo "WARNING: /var/cache/pegasus/server.pem SSL Certificate file already exists."
 else
     cp /var/cache/pegasus/server_2048.pem /var/cache/pegasus/server.pem
+    chmod 400 /var/cache/pegasus/server.pem
 fi
 
 if [ -f /var/cache/pegasus/client.pem ]
@@ -457,6 +464,7 @@ then
     echo "WARNING: /var/cache/pegasus/client.pem SSL Certificate trust store already exists."
 else
     cp /var/cache/pegasus/client_2048.pem /var/cache/pegasus/client.pem
+    chmod 400 /var/cache/pegasus/client.pem
 fi
 
 if [ -d "/var/cache/pegasus/repository/root#PG_Internal" ]
@@ -739,7 +747,9 @@ fi
 %attr(-,root,root) /usr/lib/pegasus/libSampleMethodProvider.so.1
 %attr(-,root,root) /usr/lib/pegasus/libsendmailIndicationHandler.so.1
 %attr(-,root,root) /usr/lib/pegasus/libSimpleDisplayConsumer.so.1
+%ifnarch ia64
 %attr(-,root,root) /usr/lib/pegasus/libslp.so.1
+%endif
 %attr(-,root,root) /usr/lib/pegasus/libsnmpIndicationHandler.so.1
 %attr(-,root,root) /usr/lib/pegasus/libUserAuthProvider.so.1
 

@@ -279,6 +279,8 @@ CMPIrc key2CMPIData(const String& v, CIMKeyBinding::Type t, CMPIData *data) {
           data->value.sint64 = 0;
           sscanf((const char*)vp, "%" PEGASUS_64BIT_CONVERSION_WIDTH "d",
                  &data->value.sint64);
+         #elif defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
+          data->value.sint64=strtoll((const char*)vp, NULL, 10);
          #else
           data->value.sint64=atoll((const char*)vp);
          #endif

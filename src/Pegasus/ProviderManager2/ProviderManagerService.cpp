@@ -56,15 +56,15 @@ public:
         _physicalName = physicalName + String(".dll");
         #elif defined(PEGASUS_OS_HPUX) && defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
         _physicalName = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-        _physicalName.append(String("/lib") + physical + String(".sl"));
+        _physicalName.append(String("/lib") + physicalName + String(".sl"));
         #elif defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
         _physicalName = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-        _physicalName.append(String("/lib") + physical + String(".so"));
+        _physicalName.append(String("/lib") + physicalName + String(".so"));
         #elif defined(PEGASUS_OS_OS400)
         _physicalName = physicalName;
         #else
         _physicalName = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-        _physicalName.append(String("/lib") + physical + String(".so"));
+        _physicalName.append(String("/lib") + physicalName + String(".so"));
         #endif
 
         _logicalName = logicalName;

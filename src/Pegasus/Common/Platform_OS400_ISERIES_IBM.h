@@ -38,10 +38,9 @@
 
 #define _MULTI_THREADED  
 
-// chuck
-//#pragma convert(819)
-
 #include <cstddef>
+
+#define OS400_DEFAULT_PEGASUS_HOME "/QIBM/UserData/OS400/CIM"
 
 #define PEGASUS_OS_TYPE_UNIX
 
@@ -53,9 +52,9 @@
 
 #define PEGASUS_COMPILER_IBM
 
-#define PEGASUS_UINT64 unsigned long int
+#define PEGASUS_UINT64 unsigned long long
 
-#define PEGASUS_SINT64 long int
+#define PEGASUS_SINT64 long long
 
 #define PEGASUS_LLONG_MAX 9223372036854775807LL
 #define PEGASUS_LLONG_MIN (-PEGASUS_LLONG_MAX - 1LL)
@@ -76,4 +75,4 @@
 
 #define PEGASUS_STATIC_CDECL __cdecl
 
-#endif /* Pegasus_Platform_ZOS_ZSERIES_IBM_h */
+#endif /* Pegasus_Platform_OS400_ISERIES_IBM_h */

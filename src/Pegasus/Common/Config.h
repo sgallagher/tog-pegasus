@@ -52,6 +52,11 @@
 # include <Pegasus/Common/Platform_NSK_NONSTOP_NMCPLUS.h>
 #elif defined (PEGASUS_PLATFORM_LINUX_IA64_GNU)
 # include <Pegasus/Common/Platform_LINUX_IA64_GNU.h>
+#elif defined (__OS400__)
+# if !defined (PEGASUS_PLATFORM_OS400_ISERIES_IBM)
+#   define PEGASUS_PLATFORM_OS400_ISERIES_IBM 
+# endif
+# include <Pegasus/Common/Platform_OS400_ISERIES_IBM.h>
 #else
 # error "<Pegasus/Common/Config.h>: Unsupported Platform"
 #endif

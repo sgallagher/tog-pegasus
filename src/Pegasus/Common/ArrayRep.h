@@ -44,6 +44,10 @@ PEGASUS_NAMESPACE_BEGIN
     a private class and should not be accessed directly by the user.
 */
 template<class T>
+#ifdef PEGASUS_OS_OS400
+/* For OS/400, this forces the alignment mentioned above. */
+__align(16) 
+#endif
 struct ArrayRep
 {
     Uint32 size;

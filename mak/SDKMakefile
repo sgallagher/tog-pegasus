@@ -210,7 +210,7 @@ stageSAMPLES:
 stageHTML:
 	@$(RMDIRHIER) $(HTML_DESTPATH)
 	@$(MKDIRHIER) $(HTML_DESTPATH)
-	$(MAKE) --directory=$(PEGASUS_ROOT)/doc/SDK -f Makefile HTML_DESTPATH=$(HTML_DESTPATH) buildDoc
+	@$(MAKE) --directory=$(PEGASUS_ROOT)/doc/SDK -f Makefile HTML_DESTPATH=$(HTML_DESTPATH) buildDoc_ContinueOnError
 
 removeSampleProviderNamespace:
 	@$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f commands.mak cimstop_IgnoreError

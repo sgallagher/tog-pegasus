@@ -18,6 +18,7 @@ endif
 
 DIR = DevManual
 include $(ROOT)/mak/config.mak
+include $(ROOT)/mak/commands.mak
 
 
 ifdef HTML_DESTPATH
@@ -32,6 +33,13 @@ CONSUMER_INTERFACE_HEAD = IndicationConsumerInterface.dxx
 COMMON_INTERFACE_HEAD = CommonInterface.dxx
 CMPI_INTERFACE_HEAD = CMPIInterface.dxx
 CMPI_C_INTERFACE_HEAD = CMPI_C_Interface.dxx
+
+FORCE:
+
+buildDoc_ContinueOnError:
+	@if $(DOCXX) --version > /dev/null 2>&1; \
+then $(MAKE) --directory=$(ROOT)/doc/SDK -f Makefile HTML_DESTPATH=$(HTML_DESTPATH) buildDoc;\
+else $(ECHO) "Warning: API documentation not generated.  $(DOCXX) command not found."; fi
 
 buildDoc:
 	@$(RMDIRHIER) $(INTERFACE_OUTPUT)

@@ -27,8 +27,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_InternalProviderName_h
-#define Pegasus_InternalProviderName_h
+#ifndef Pegasus_ProviderType_h
+#define Pegasus_ProviderType_h
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>

@@ -515,7 +515,7 @@ int ServerHandler::handleMethodCall()
     else if (CompareNoCase(iMethodCallName, "SetProperty") == 0)
 	handleSetProperty(parser, messageId, nameSpace);
 
-
+    // ATTN-A: return error XML message here!
 
     //--------------------------------------------------------------------------
     // Handle end tags:

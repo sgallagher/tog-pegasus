@@ -10,7 +10,7 @@
 # include <unistd.h>
 #endif
 
-using namespace std;
+PEGASUS_USING_STD;
 
 bool RemoveFile(const string& path)
 {

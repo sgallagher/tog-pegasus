@@ -36,6 +36,8 @@
 #include "CMPI_Value.h"
 #include "CMPI_String.h"
 
+#include <string.h>
+
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 

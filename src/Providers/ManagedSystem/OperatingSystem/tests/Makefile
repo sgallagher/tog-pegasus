@@ -84,3 +84,6 @@ depend:
 
 general:
 
+strip-license:
+
+prepend-license:

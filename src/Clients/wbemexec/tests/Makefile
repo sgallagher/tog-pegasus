@@ -643,3 +643,7 @@ defect:
 
 depend:
 	
+strip-license:
+
+prepend-license:
+

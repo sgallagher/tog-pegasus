@@ -66,6 +66,10 @@ poststarttests:
 
 general:
 
+strip-license:
+
+prepend-license:
+
 xml:
 	@ echo +++++ Loading CIM_Schema25.mof into root/cimv2 namespace...
 	@ cimmof --xml -I$(MOF_PATH) -nroot/cimv2 $(MOF_PATH)/CIM_Schema25.mof

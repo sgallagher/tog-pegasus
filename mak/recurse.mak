@@ -32,3 +32,9 @@ sub: $(RECURSE_DEPENDS) $(ERROR)
 
 general: $(RECURSE_DEPENDS) $(ERROR)
 	@ $(foreach i,$(DIRS),$(MAKESH) $(MAKE) -SC $(i) general OPTION=$(OPTION) $(NL))
+
+strip-license: $(RECURSE_DEPENDS) $(ERROR)
+	@ $(foreach i, $(DIRS), $(MAKESH) $(MAKE) -SC $(i) strip-license $(NL) )
+
+prepend-license: $(RECURSE_DEPENDS) $(ERROR)
+	@ $(foreach i, $(DIRS), $(MAKESH) $(MAKE) -SC $(i) prepend-license $(NL) )

@@ -79,3 +79,7 @@ poststarttests_ignoreerror:
 depend:
 
 general:
+
+strip-license:
+
+prepend-license:

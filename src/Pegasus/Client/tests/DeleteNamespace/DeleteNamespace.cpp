@@ -37,9 +37,6 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Stopwatch.h>
 #include <Pegasus/Common/Exception.h>
-#if !defined(PEGASUS_OS_ZOS) && ! defined(PEGASUS_OS_HPUX)
-#include <slp/slp.h>
-#endif
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -393,8 +390,6 @@ void GetOptions(
 		 		     "Prints help message with command line options "},
 		 {"debug", "false", false, Option::BOOLEAN, 0, 0, "d", 
 		              "Not Used "},
-		 {"slp", "false", false, Option::BOOLEAN, 0, 0, "slp", 
-		 		 		 "use SLP to find cim servers to test"},
 		 {"ssl", "false", false, Option::BOOLEAN, 0, 0, "ssl", 
 		 		 		 "use SSL"}, 
 
@@ -530,10 +525,6 @@ int main(int argc, char** argv)
      
     // here we determine the list of systems to test.
     // All arguments remaining in argv go into list.
-    // if SLP option set, SLP list goes into set.
-    // if SLP false and no args, use default localhost:5988
-    Boolean useSLP =  om.isTrue("slp");
-    cout << "SLP " << (useSLP ? "true" : "false") << endl;
 
     Boolean localConnection = (om.valueEquals("local", "true"))? true: false;
     cout << "localConnection " << (localConnection ? "true" : "false") << endl;
@@ -543,31 +534,12 @@ int main(int argc, char** argv)
 		 for (Sint32 i = 1; i < argc; i++)
 		     connectionList.append(argv[i]);
 
-    // substitute the default only if noslp and no params
-    if(useSLP == false && argc < 2)
+    // substitute the default if no params
+    if(argc < 2)
       connectionList.append("localhost:5988");
 
     // Expand host to add port if not defined
 
-#if !defined(PEGASUS_OS_ZOS) && ! defined(PEGASUS_OS_HPUX)
-    if( useSLP )
-    {
-      slp_client discovery = slp_client();
-      discovery.discovery_cycle ( "service:cim.pegasus",
-		 		  NULL,
-		 		  "DEFAULT" ) ;
-      
-      struct rply_list *replies = discovery.get_response( );
-      String host ;
-      while( replies != NULL )
-		 {
-		   slp_get_addr_string_from_url(replies->url, host) ;
-		   connectionList.append( host ) ;
-		   delete replies;
-		   replies = discovery.get_response( ) ;
-		 }
-    }
-#endif
     Boolean useSSL =  om.isTrue("ssl");
 
 	// Show the connectionlist

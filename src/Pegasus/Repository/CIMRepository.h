@@ -22,10 +22,9 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
-//         Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//
-// Modified By: Yi Zhou (yi_zhou@hp.com)
+// Modified By: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
+//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -36,6 +35,8 @@
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/CIMInstance.h>
+#include <Pegasus/Common/CIMNamedInstance.h>
+#include <Pegasus/Common/CIMPropertyList.h>
 #include <Pegasus/Common/CIMQualifierDecl.h>
 #include <Pegasus/Repository/NameSpaceManager.h>
 
@@ -62,7 +63,7 @@ public:
         Boolean localOnly = true,
         Boolean includeQualifiers = true,
         Boolean includeClassOrigin = false,
-        const Array<String>& propertyList = EmptyStringArray());
+        const CIMPropertyList& propertyList = CIMPropertyList());
 
     /// getInstance
     virtual CIMInstance getInstance(
@@ -71,7 +72,7 @@ public:
         Boolean localOnly = true,
         Boolean includeQualifiers = false,
         Boolean includeClassOrigin = false,
-        const Array<String>& propertyList = EmptyStringArray());
+        const CIMPropertyList& propertyList = CIMPropertyList());
 
     /// deleteClass
     virtual void deleteClass(
@@ -101,7 +102,8 @@ public:
     /// modifyInstance
     virtual void modifyInstance(
         const String& nameSpace,
-        const CIMInstance& modifiedInstance);
+        const CIMNamedInstance& modifiedInstance,
+        const CIMPropertyList& propertyList = CIMPropertyList());
 
     /// enumerateClasses
     virtual Array<CIMClass> enumerateClasses(
@@ -119,14 +121,14 @@ public:
         Boolean deepInheritance = false);
 
     /// enumerateInstances
-    virtual Array<CIMInstance> enumerateInstances(
+    virtual Array<CIMNamedInstance> enumerateInstances(
         const String& nameSpace,
         const String& className,
         Boolean deepInheritance = true,
         Boolean localOnly = true,
         Boolean includeQualifiers = false,
         Boolean includeClassOrigin = false,
-        const Array<String>& propertyList = EmptyStringArray());
+        const CIMPropertyList& propertyList = CIMPropertyList());
 
     /// enumerateInstanceNames
     virtual Array<CIMReference> enumerateInstanceNames(
@@ -148,7 +150,7 @@ public:
         const String& resultRole = String::EMPTY,
         Boolean includeQualifiers = false,
         Boolean includeClassOrigin = false,
-        const Array<String>& propertyList = EmptyStringArray());
+        const CIMPropertyList& propertyList = CIMPropertyList());
 
     /// associateNames
     virtual Array<CIMReference> associatorNames(
@@ -167,7 +169,7 @@ public:
         const String& role = String::EMPTY,
         Boolean includeQualifiers = false,
         Boolean includeClassOrigin = false,
-        const Array<String>& propertyList = EmptyStringArray());
+        const CIMPropertyList& propertyList = CIMPropertyList());
 
     /// referenceNames
     virtual Array<CIMReference> referenceNames(
@@ -344,7 +346,8 @@ private:
 
         @param   nameSpace      the namespace of the instances to be loaded 
         @param   className      the class of the instances to be loaded
-        @param   instances      an array of CIMInstance objects to be returned
+        @param   namedInstances an array of CIMNamedInstance objects to which
+                                the loaded instances are appended
 
         @return  true      if successful
                  false     if an error occurs in loading the instances
@@ -352,7 +355,7 @@ private:
     Boolean _loadAllInstances(
         const String& nameSpace,
         const String& className,
-        Array<CIMInstance>& instances);
+        Array<CIMNamedInstance>& namedInstances);
 
     /** Modifies an instance object saved in the disk file.  The byte position
         and the size of the newly added instance record are returned.  Returns

@@ -23,7 +23,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -102,6 +102,10 @@ public:
     {
 	return _propertyNames[pos];
     }
+
+    /** Get an array of the property names
+    */
+    const Array<String>& getPropertyNameArray() const { return _propertyNames; }
 
 private:
 

@@ -24,10 +24,9 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//
-// Modified By: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//
+//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -717,15 +716,15 @@ CIMEnumerateInstancesResponseMessage* CIMOperationResponseDecoder::_decodeEnumer
 	    code,
 	    description,
 	    QueueIdStack(),
-	    Array<CIMInstance>()));
+	    Array<CIMNamedInstance>()));
     }
     else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
     {
-	Array<CIMInstance> instances;
-	CIMInstance tmp;
+	Array<CIMNamedInstance> namedInstances;
+	CIMNamedInstance tmp;
 
-	while (XmlReader::getInstanceElement(parser, tmp))
-	    instances.append(tmp);
+	while (XmlReader::getNamedInstanceElement(parser, tmp))
+	    namedInstances.append(tmp);
 
 	XmlReader::testEndTag(parser, "IRETURNVALUE");
 
@@ -734,7 +733,7 @@ CIMEnumerateInstancesResponseMessage* CIMOperationResponseDecoder::_decodeEnumer
 	    CIM_ERR_SUCCESS,
 	    String(),
 	    QueueIdStack(),
-	    instances));
+	    namedInstances));
     }
     else
     {

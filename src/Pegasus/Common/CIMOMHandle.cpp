@@ -23,8 +23,8 @@
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
 // Modified By: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Yi Zhou (yi_zhou@hp.com)
+//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -89,7 +89,7 @@ CIMClass CIMOMHandle::getClass(
 	Boolean localOnly,
 	Boolean includeQualifiers,
 	Boolean includeClassOrigin,
-	const Array<String>& propertyList)
+	const CIMPropertyList& propertyList)
 {
 	// encode request
 	Message* request = new CIMGetClassRequestMessage(
@@ -128,7 +128,7 @@ void CIMOMHandle::getClassAsync(
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const Array<String>& propertyList,
+    const CIMPropertyList& propertyList,
 	ResponseHandler<CIMClass> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
@@ -346,7 +346,7 @@ CIMInstance CIMOMHandle::getInstance(
 	Boolean localOnly,
 	Boolean includeQualifiers,
 	Boolean includeClassOrigin,
-	const Array<String>& propertyList)
+	const CIMPropertyList& propertyList)
 {
 	// encode request
 	Message* request = new CIMGetInstanceRequestMessage(
@@ -385,13 +385,13 @@ void CIMOMHandle::getInstanceAsync(
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const Array<String>& propertyList,
+    const CIMPropertyList& propertyList,
 	ResponseHandler<CIMInstance> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
-Array<CIMInstance> CIMOMHandle::enumerateInstances(
+Array<CIMNamedInstance> CIMOMHandle::enumerateInstances(
 	const OperationContext & context,
 	const String& nameSpace,
 	const String& className,
@@ -399,7 +399,7 @@ Array<CIMInstance> CIMOMHandle::enumerateInstances(
 	Boolean localOnly,
 	Boolean includeQualifiers,
 	Boolean includeClassOrigin,
-	const Array<String>& propertyList)
+	const CIMPropertyList& propertyList)
 {
 	Message* request = new CIMEnumerateInstancesRequestMessage(
 		XmlWriter::getNextMessageId(),
@@ -428,7 +428,7 @@ Array<CIMInstance> CIMOMHandle::enumerateInstances(
 
 	_checkError(response);
 
-	return(response->cimInstances);
+	return(response->cimNamedInstances);
 }
 
 void CIMOMHandle::enumerateInstancesAsync(
@@ -439,8 +439,8 @@ void CIMOMHandle::enumerateInstancesAsync(
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const Array<String>& propertyList,
-	ResponseHandler<CIMInstance> & handler)
+    const CIMPropertyList& propertyList,
+	ResponseHandler<CIMNamedInstance> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
@@ -526,12 +526,14 @@ void CIMOMHandle::createInstanceAsync(
 void CIMOMHandle::modifyInstance(
 	const OperationContext & context,
 	const String& nameSpace,
-	const CIMInstance& modifiedInstance)
+	const CIMNamedInstance& modifiedInstance,
+	const CIMPropertyList& propertyList)
 {
 	Message* request = new CIMModifyInstanceRequestMessage(
 		XmlWriter::getNextMessageId(),
 		nameSpace,
 		modifiedInstance,
+		propertyList,
 		QueueIdStack(_inputQueue->getQueueId()));
 
 	// save message key
@@ -554,7 +556,8 @@ void CIMOMHandle::modifyInstance(
 void CIMOMHandle::modifyInstanceAsync(
 	const OperationContext & context,
     const String& nameSpace,
-    const CIMInstance& modifiedInstance,
+    const CIMNamedInstance& modifiedInstance,
+	const CIMPropertyList& propertyList,
 	ResponseHandler<CIMInstance> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
@@ -646,7 +649,7 @@ Array<CIMObjectWithPath> CIMOMHandle::associators(
 	const String& resultRole,
 	Boolean includeQualifiers,
 	Boolean includeClassOrigin,
-	const Array<String>& propertyList)
+	const CIMPropertyList& propertyList)
 {
 	Message* request = new CIMAssociatorsRequestMessage(
 		XmlWriter::getNextMessageId(),
@@ -690,7 +693,7 @@ void CIMOMHandle::associatorsAsync(
     const String& resultRole,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const Array<String>& propertyList,
+    const CIMPropertyList& propertyList,
 	ResponseHandler<CIMObjectWithPath> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
@@ -755,7 +758,7 @@ Array<CIMObjectWithPath> CIMOMHandle::references(
 	const String& role,
 	Boolean includeQualifiers,
 	Boolean includeClassOrigin,
-	const Array<String>& propertyList)
+	const CIMPropertyList& propertyList)
 {
 	Message* request = new CIMReferencesRequestMessage(
 		XmlWriter::getNextMessageId(),
@@ -795,7 +798,7 @@ void CIMOMHandle::referencesAsync(
     const String& role,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const Array<String>& propertyList,
+    const CIMPropertyList& propertyList,
     ResponseHandler<CIMObjectWithPath> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);

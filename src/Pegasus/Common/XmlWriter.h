@@ -25,8 +25,8 @@
 //
 // Modified By: 
 //         Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//
-//         Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
+//         Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//         Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -40,6 +40,8 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Indentor.h>
 #include <Pegasus/Common/CIMReference.h>
+#include <Pegasus/Common/CIMPropertyList.h>
+#include <Pegasus/Common/CIMNamedInstance.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -162,6 +164,11 @@ public:
 	const char* parameterName,
 	const CIMConstInstance& instance);
 
+    static Array<Sint8>& appendNamedInstanceParameter(
+	Array<Sint8>& out,
+	const char* parameterName,
+	const CIMNamedInstance& namedInstance);
+
     static Array<Sint8>& appendQualifierDeclarationParameter(
 	Array<Sint8>& out,
 	const char* parameterName,
@@ -186,7 +193,7 @@ public:
 
     static Array<Sint8>& appendPropertyListParameter(
 	Array<Sint8>& out,
-	const Array<String>& propertyList);
+	const CIMPropertyList& propertyList);
 
     static Array<Sint8>& appendObjectNameParameter(
 	Array<Sint8>& out,

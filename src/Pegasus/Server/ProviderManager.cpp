@@ -106,8 +106,11 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManager::monitorThread(void *
         // start with highest entry to prevent out-of-bounds
         // exception in case a removed entry - Markus
 
-        for (Uint32 i = _this->_providers.size()-1; ; i--)
+        for (Uint32 i = _this->_providers.size(); i > 0; )
         {
+            // We want to count down to 0, but Uint32 will never go < 0
+            i--;
+
             // get provider timeout
 
 #if defined(PEGASUS_OS_HPUX)
@@ -124,9 +127,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManager::monitorThread(void *
                 _this->_providers[i].getProvider()->terminate();
                 _this->_providers.remove(i);
             }
-
-	    if (i == 0)
-		break;
         }
     }
     

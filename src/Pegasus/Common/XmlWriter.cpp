@@ -24,8 +24,8 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//
-//              Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
+//              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -542,6 +542,22 @@ Array<Sint8>& XmlWriter::appendInstanceParameter(
     return formatIParamValueElement(out, parameterName, tmp);
 }
 
+//------------------------------------------------------------------------------
+//
+// appendNamedInstanceParameter()
+//
+//------------------------------------------------------------------------------
+
+Array<Sint8>& XmlWriter::appendNamedInstanceParameter(
+    Array<Sint8>& out,
+    const char* parameterName,
+    const CIMNamedInstance& namedInstance)
+{
+    Array<Sint8> tmp;
+    namedInstance.toXml(tmp);
+    return formatIParamValueElement(out, parameterName, tmp);
+}
+
 //----------------------------------------------------------
 //
 //  appendPropertyNameParameter()
@@ -583,14 +599,14 @@ Array<Sint8>& XmlWriter::appendPropertyValueParameter(
 
 Array<Sint8>& XmlWriter::appendPropertyListParameter(
     Array<Sint8>& out,
-    const Array<String>& propertyList)
+    const CIMPropertyList& propertyList)
 {
     Array<Sint8> tmp;
 
     tmp << "<VALUE.ARRAY>\n";
-    for (Uint32 i = 0; i < propertyList.size(); i++)
+    for (Uint32 i = 0; i < propertyList.getNumProperties(); i++)
     {
-        tmp << "<VALUE>" << propertyList[i] << "</VALUE>\n"; 
+        tmp << "<VALUE>" << propertyList.getPropertyName(i) << "</VALUE>\n"; 
     }
     tmp << "</VALUE.ARRAY>\n";
     return formatIParamValueElement(out, "PropertyList", tmp);

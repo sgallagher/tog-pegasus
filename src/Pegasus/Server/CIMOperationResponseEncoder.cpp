@@ -25,6 +25,7 @@
 //
 // Modified By: Yi Zhou (yi_zhou@hp.com)
 //              Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -430,8 +431,8 @@ void CIMOperationResponseEncoder::encodeEnumerateInstancesResponse(
 
     Array<Sint8> body;
 
-    for (Uint32 i = 0; i < response->cimInstances.size(); i++)
-	response->cimInstances[i].toXml(body);
+    for (Uint32 i = 0; i < response->cimNamedInstances.size(); i++)
+	response->cimNamedInstances[i].toXml(body);
 
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"EnumerateInstances", response->messageId, body);

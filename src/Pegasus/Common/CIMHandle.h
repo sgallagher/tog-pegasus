@@ -22,7 +22,8 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By: Yi Zhou (yi_zhou@hp.com)
+// Modified By: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,6 +35,8 @@
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Common/ResponseHandler.h>
 #include <Pegasus/Common/CIMObject.h>
+#include <Pegasus/Common/CIMPropertyList.h>
+#include <Pegasus/Common/CIMNamedInstance.h>
 #include <Pegasus/Common/CIMValue.h>
 #include <Pegasus/Common/CIMParamValue.h>
 
@@ -53,7 +56,7 @@ public:
 		Boolean localOnly,
 		Boolean includeQualifiers,
 		Boolean includeClassOrigin,
-		const Array<String>& propertyList) = 0;
+		const CIMPropertyList& propertyList) = 0;
 	
 	virtual void getClassAsync(
 		const OperationContext & context,
@@ -62,7 +65,7 @@ public:
 		Boolean localOnly,
 		Boolean includeQualifiers,
 		Boolean includeClassOrigin,
-		const Array<String>& propertyList,
+		const CIMPropertyList& propertyList,
 		ResponseHandler<CIMClass> & handler) = 0;
 
 	virtual Array<CIMClass> enumerateClasses(
@@ -138,7 +141,7 @@ public:
 		Boolean localOnly,
 		Boolean includeQualifiers,
 		Boolean includeClassOrigin,
-		const Array<String>& propertyList) = 0;
+		const CIMPropertyList& propertyList) = 0;
 	
 	virtual void getInstanceAsync(
 		const OperationContext & context,
@@ -147,10 +150,10 @@ public:
 		Boolean localOnly,
 		Boolean includeQualifiers,
 		Boolean includeClassOrigin,
-		const Array<String>& propertyList,
+		const CIMPropertyList& propertyList,
 		ResponseHandler<CIMInstance> & handler) = 0;
 
-	virtual Array<CIMInstance> enumerateInstances(
+	virtual Array<CIMNamedInstance> enumerateInstances(
 		const OperationContext & context,
 		const String& nameSpace,
 		const String& className,
@@ -158,7 +161,7 @@ public:
 		Boolean localOnly,
 		Boolean includeQualifiers,
 		Boolean includeClassOrigin,
-		const Array<String>& propertyList) = 0;
+		const CIMPropertyList& propertyList) = 0;
 
 	virtual void enumerateInstancesAsync(
 		const OperationContext & context,
@@ -168,8 +171,8 @@ public:
 		Boolean localOnly,
 		Boolean includeQualifiers,
 		Boolean includeClassOrigin,
-		const Array<String>& propertyList,
-		ResponseHandler<CIMInstance> & handler) = 0;
+		const CIMPropertyList& propertyList,
+		ResponseHandler<CIMNamedInstance> & handler) = 0;
 
 	virtual Array<CIMReference> enumerateInstanceNames(
 		const OperationContext & context,
@@ -196,12 +199,14 @@ public:
 	virtual void modifyInstance(
 		const OperationContext & context,
 		const String& nameSpace,
-		const CIMInstance& modifiedInstance) = 0;
+		const CIMNamedInstance& modifiedInstance,
+		const CIMPropertyList& propertyList) = 0;
 
 	virtual void modifyInstanceAsync(
 		const OperationContext & context,
 		const String& nameSpace,
-		const CIMInstance& modifiedInstance,
+		const CIMNamedInstance& modifiedInstance,
+		const CIMPropertyList& propertyList,
 		ResponseHandler<CIMInstance> & handler) = 0;
 
 	virtual void deleteInstance(
@@ -238,7 +243,7 @@ public:
 		const String& resultRole,
 		Boolean includeQualifiers,
 		Boolean includeClassOrigin,
-		const Array<String>& propertyList) = 0;
+		const CIMPropertyList& propertyList) = 0;
 
 	virtual void associatorsAsync(
 		const OperationContext & context,
@@ -250,7 +255,7 @@ public:
 		const String& resultRole,
 		Boolean includeQualifiers,
 		Boolean includeClassOrigin,
-		const Array<String>& propertyList,
+		const CIMPropertyList& propertyList,
 		ResponseHandler<CIMObjectWithPath> & handler) = 0;
 
 	virtual Array<CIMReference> associatorNames(
@@ -280,7 +285,7 @@ public:
 		const String& role,
 		Boolean includeQualifiers,
 		Boolean includeClassOrigin,
-		const Array<String>& propertyList) = 0;
+		const CIMPropertyList& propertyList) = 0;
 
 	virtual void referencesAsync(
 		const OperationContext & context,
@@ -290,7 +295,7 @@ public:
 		const String& role,
 		Boolean includeQualifiers,
 		Boolean includeClassOrigin,
-		const Array<String>& propertyList,
+		const CIMPropertyList& propertyList,
 		ResponseHandler<CIMObjectWithPath> & handler) = 0;
 
 	virtual Array<CIMReference> referenceNames(

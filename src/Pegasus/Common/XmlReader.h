@@ -24,9 +24,9 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//              (carolann_graves@hp.com)
-//
+//                  (carolann_graves@hp.com)
 //              Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -49,6 +49,7 @@ class CIMProperty;
 class CIMParameter;
 class CIMMethod;
 class CIMObject;
+class CIMNamedInstance;
 class CIMObjectWithPath;
 class CIMParamValue;
 
@@ -302,6 +303,10 @@ public:
     static Boolean getInstanceElement(
 	XmlParser& parser, 
 	CIMInstance& cimInstance);
+
+    static Boolean getNamedInstanceElement(
+	XmlParser& parser, 
+	CIMNamedInstance& namedInstance);
 
     static void getObject(XmlParser& parser, CIMClass& x);
 

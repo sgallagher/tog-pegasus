@@ -22,7 +22,8 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By: Yi Zhou (yi_zhou@hp.com)
+// Modified By: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -55,14 +56,14 @@ CIMClass CIMProviderHandle::getClass(
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const Array<String>& propertyList)
+    const CIMPropertyList& propertyList)
 {
 	CIMClass cimClass = _provider->getClass(nameSpace,
 		className,
 		localOnly,
 		includeQualifiers,
 		includeClassOrigin,
-		propertyList);
+		propertyList.getPropertyNameArray());
 
 	return(cimClass);
 }
@@ -74,7 +75,7 @@ void CIMProviderHandle::getClassAsync(
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const Array<String>& propertyList,
+    const CIMPropertyList& propertyList,
 	ResponseHandler<CIMClass> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
@@ -190,7 +191,7 @@ CIMInstance CIMProviderHandle::getInstance(
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const Array<String>& propertyList)
+    const CIMPropertyList& propertyList)
 {
 	CIMInstance cimInstance = _provider->getInstance(
 		nameSpace,
@@ -198,7 +199,7 @@ CIMInstance CIMProviderHandle::getInstance(
 		localOnly,
 		includeQualifiers,
 		includeClassOrigin,
-		propertyList);
+		propertyList.getPropertyNameArray());
 
 	return(cimInstance);
 }
@@ -210,13 +211,13 @@ void CIMProviderHandle::getInstanceAsync(
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const Array<String>& propertyList,
+    const CIMPropertyList& propertyList,
 	ResponseHandler<CIMInstance> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
-Array<CIMInstance> CIMProviderHandle::enumerateInstances(
+Array<CIMNamedInstance> CIMProviderHandle::enumerateInstances(
 	const OperationContext & context,
     const String& nameSpace,
     const String& className,
@@ -224,18 +225,29 @@ Array<CIMInstance> CIMProviderHandle::enumerateInstances(
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const Array<String>& propertyList)
+    const CIMPropertyList& propertyList)
 {
-	Array<CIMInstance> cimInstances = _provider->enumerateInstances(
-		nameSpace,
-		className,
-		deepInheritance,
-		localOnly,
-		includeQualifiers,
-		includeClassOrigin,
-		propertyList);
+    Array<CIMInstance> cimInstances =
+        _provider->enumerateInstances(
+            nameSpace,
+            className,
+            deepInheritance,
+            localOnly,
+            includeQualifiers,
+            includeClassOrigin,
+            propertyList.getPropertyNameArray());
 
-	return(cimInstances);
+    // ATTN: For now, this just returns an empty reference for the instance name
+    Array<CIMNamedInstance> cimNamedInstances;
+    CIMNamedInstance tmp;
+
+    for (Uint32 i=0; i<cimInstances.size(); i++)
+    {
+        tmp.set(CIMReference(), cimInstances[i]);
+        cimNamedInstances.append(tmp);
+    }
+
+    return(cimNamedInstances);
 }
 
 void CIMProviderHandle::enumerateInstancesAsync(
@@ -246,8 +258,8 @@ void CIMProviderHandle::enumerateInstancesAsync(
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const Array<String>& propertyList,
-	ResponseHandler<CIMInstance> & handler)
+    const CIMPropertyList& propertyList,
+	ResponseHandler<CIMNamedInstance> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
@@ -297,17 +309,19 @@ void CIMProviderHandle::createInstanceAsync(
 void CIMProviderHandle::modifyInstance(
 	const OperationContext & context,
     const String& nameSpace,
-    const CIMInstance& modifiedInstance)
+    const CIMNamedInstance& modifiedInstance,
+    const CIMPropertyList& propertyList)
 {
 	_provider->modifyInstance(
 		nameSpace,
-		modifiedInstance);
+		modifiedInstance.getInstance());
 }
 
 void CIMProviderHandle::modifyInstanceAsync(
 	const OperationContext & context,
     const String& nameSpace,
-    const CIMInstance& modifiedInstance,
+    const CIMNamedInstance& modifiedInstance,
+    const CIMPropertyList& propertyList,
 	ResponseHandler<CIMInstance> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
@@ -363,7 +377,7 @@ Array<CIMObjectWithPath> CIMProviderHandle::associators(
     const String& resultRole,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const Array<String>& propertyList)
+    const CIMPropertyList& propertyList)
 {
     Array<CIMObjectWithPath> cimObjects;
 	
@@ -382,7 +396,7 @@ void CIMProviderHandle::associatorsAsync(
     const String& resultRole,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const Array<String>& propertyList,
+    const CIMPropertyList& propertyList,
 	ResponseHandler<CIMObjectWithPath> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
@@ -425,7 +439,7 @@ Array<CIMObjectWithPath> CIMProviderHandle::references(
     const String& role,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const Array<String>& propertyList)
+    const CIMPropertyList& propertyList)
 {
     Array<CIMObjectWithPath> cimObjects;
 	
@@ -442,7 +456,7 @@ void CIMProviderHandle::referencesAsync(
     const String& role,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const Array<String>& propertyList,
+    const CIMPropertyList& propertyList,
     ResponseHandler<CIMObjectWithPath> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);

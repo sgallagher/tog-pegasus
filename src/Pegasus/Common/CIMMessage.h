@@ -26,6 +26,7 @@
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
 // Modified By: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -39,6 +40,8 @@
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/CIMQualifierDecl.h>
 #include <Pegasus/Common/CIMObject.h>
+#include <Pegasus/Common/CIMNamedInstance.h>
+#include <Pegasus/Common/CIMPropertyList.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -103,7 +106,7 @@ public:
 	Boolean localOnly_,
 	Boolean includeQualifiers_,
 	Boolean includeClassOrigin_,
-	const Array<String>& propertyList_,
+	const CIMPropertyList& propertyList_,
 	QueueIdStack queueIds_) 
 	:
 	CIMRequestMessage(CIM_GET_CLASS_REQUEST_MESSAGE, messageId_, queueIds_),
@@ -123,7 +126,7 @@ public:
     Boolean localOnly;
     Boolean includeQualifiers;
     Boolean includeClassOrigin;
-    Array<String> propertyList;
+    CIMPropertyList propertyList;
 };
 
 class CIMGetInstanceRequestMessage : public CIMRequestMessage
@@ -137,7 +140,7 @@ public:
 	Boolean localOnly_,
 	Boolean includeQualifiers_,
 	Boolean includeClassOrigin_,
-	const Array<String>& propertyList_,
+	const CIMPropertyList& propertyList_,
 	QueueIdStack queueIds_) 
 	:
 	CIMRequestMessage(
@@ -157,7 +160,7 @@ public:
     Boolean localOnly;
     Boolean includeQualifiers;
     Boolean includeClassOrigin;
-    Array<String> propertyList;
+    CIMPropertyList propertyList;
 };
 
 class CIMExportIndicationRequestMessage : public CIMRequestMessage
@@ -299,19 +302,22 @@ public:
     CIMModifyInstanceRequestMessage(
         const String& messageId_,
 	const String& nameSpace_,
-	const CIMInstance& modifiedInstance_,
+	const CIMNamedInstance& modifiedInstance_,
+	const CIMPropertyList& propertyList_,
 	QueueIdStack queueIds_) 
 	:
 	CIMRequestMessage(
 	    CIM_MODIFY_INSTANCE_REQUEST_MESSAGE, messageId_, queueIds_),
 	nameSpace(nameSpace_),
-	modifiedInstance(modifiedInstance_)
+	modifiedInstance(modifiedInstance_),
+	propertyList(propertyList_)
     {
 
     }
 
     String nameSpace;
-    CIMInstance modifiedInstance;
+    CIMNamedInstance modifiedInstance;
+    CIMPropertyList propertyList;
 };
 
 class CIMEnumerateClassesRequestMessage : public CIMRequestMessage
@@ -383,7 +389,7 @@ public:
 	Boolean localOnly_,
 	Boolean includeQualifiers_,
 	Boolean includeClassOrigin_,
-	const Array<String>& propertyList_,
+	const CIMPropertyList& propertyList_,
 	QueueIdStack queueIds_) 
 	:
 	CIMRequestMessage(
@@ -405,7 +411,7 @@ public:
     Boolean localOnly;
     Boolean includeQualifiers;
     Boolean includeClassOrigin;
-    Array<String> propertyList;
+    CIMPropertyList propertyList;
 };
 
 class CIMEnumerateInstanceNamesRequestMessage : public CIMRequestMessage
@@ -463,7 +469,7 @@ public:
 	const String& resultRole_,
 	Boolean includeQualifiers_,
 	Boolean includeClassOrigin_,
-	const Array<String>& propertyList_,
+	const CIMPropertyList& propertyList_,
 	QueueIdStack queueIds_) 
 	:
 	CIMRequestMessage(
@@ -489,7 +495,7 @@ public:
     String resultRole;
     Boolean includeQualifiers;
     Boolean includeClassOrigin;
-    Array<String> propertyList;
+    CIMPropertyList propertyList;
 };
 
 class CIMAssociatorNamesRequestMessage : public CIMRequestMessage
@@ -537,7 +543,7 @@ public:
 	const String& role_,
 	Boolean includeQualifiers_,
 	Boolean includeClassOrigin_,
-	const Array<String>& propertyList_,
+	const CIMPropertyList& propertyList_,
 	QueueIdStack queueIds_) 
 	:
 	CIMRequestMessage(CIM_REFERENCES_REQUEST_MESSAGE, messageId_, queueIds_),
@@ -558,7 +564,7 @@ public:
     String role;
     Boolean includeQualifiers;
     Boolean includeClassOrigin;
-    Array<String> propertyList;
+    CIMPropertyList propertyList;
 };
 
 class CIMReferenceNamesRequestMessage : public CIMRequestMessage
@@ -781,7 +787,7 @@ public:
     CIMCheckIndicationRequestMessage(
         const String& messageId_,
 	const CIMReference& instanceName_,
-	const Array<String>& propertyList_,
+	const CIMPropertyList& propertyList_,
 	QueueIdStack queueIds_)
 	:
 	CIMRequestMessage(
@@ -793,7 +799,7 @@ public:
     }
 
     CIMReference instanceName;
-    Array<String> propertyList;
+    CIMPropertyList propertyList;
 };
 
 class CIMProvideIndicationRequestMessage : public CIMRequestMessage
@@ -807,7 +813,7 @@ public:
 	const CIMReference& handlerRef_,
 	const CIMDateTime & minimumInterval_,
 	const CIMDateTime & maximumInterval_,
-	const Array<String>& propertyList_,
+	const CIMPropertyList& propertyList_,
 	QueueIdStack queueIds_)
 	:
 	CIMRequestMessage(
@@ -827,7 +833,7 @@ public:
     CIMReference handlerRef;
     CIMDateTime minimumInterval;
     CIMDateTime maximumInterval;
-    Array<String> propertyList;
+    CIMPropertyList propertyList;
 };
 
 class CIMUpdateIndicationRequestMessage : public CIMRequestMessage
@@ -840,7 +846,7 @@ public:
 	const CIMReference& instanceName_,
 	const CIMDateTime & minimumInterval_,
 	const CIMDateTime & maximumInterval_,
-	const Array<String>& propertyList_,
+	const CIMPropertyList& propertyList_,
 	QueueIdStack queueIds_)
 	:
 	CIMRequestMessage(
@@ -858,7 +864,7 @@ public:
     CIMReference instanceName;
     CIMDateTime minimumInterval;
     CIMDateTime maximumInterval;
-    Array<String> propertyList;
+    CIMPropertyList propertyList;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMGetClassResponseMessage 
@@ -1069,15 +1075,15 @@ public:
         CIMStatusCode errorCode_,
 	const String& errorDescription_,
 	const QueueIdStack& queueIds_,
-        const Array<CIMInstance>& cimInstances_)
+        const Array<CIMNamedInstance>& cimNamedInstances_)
         :
         CIMResponseMessage(CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE, 
 	    messageId_, errorCode_, errorDescription_, queueIds_),
-	cimInstances(cimInstances_)
+	cimNamedInstances(cimNamedInstances_)
     {
     }
 
-    Array<CIMInstance> cimInstances;
+    Array<CIMNamedInstance> cimNamedInstances;
 };
 
 class CIMEnumerateInstanceNamesResponseMessage : public CIMResponseMessage

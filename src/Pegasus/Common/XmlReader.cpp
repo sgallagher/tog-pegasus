@@ -24,9 +24,9 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//              (carolann_graves@hp.com)
-//
+//                  (carolann_graves@hp.com)
 //              Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -42,6 +42,7 @@
 #include "CIMClass.h"
 #include "CIMInstance.h"
 #include "CIMObject.h"
+#include "CIMNamedInstance.h"
 #include "CIMParamValue.h"
 
 PEGASUS_USING_STD;
@@ -2633,6 +2634,51 @@ Boolean XmlReader::getInstanceElement(
 }
 
 //------------------------------------------------------------------------------
+// getNamedInstanceElement()
+//
+//     <!ELEMENT VALUE.NAMEDINSTANCE (INSTANCENAME,INSTANCE)>
+//
+//------------------------------------------------------------------------------
+
+Boolean XmlReader::getNamedInstanceElement(
+    XmlParser& parser, 
+    CIMNamedInstance& namedInstance)
+{
+    XmlEntry entry;
+
+    if (!testStartTag(parser, entry, "VALUE.NAMEDINSTANCE"))
+	return false;
+
+    CIMReference instanceName;
+
+    // Get INSTANCENAME elements:
+
+    if (!getInstanceNameElement(parser, instanceName))
+    {
+	throw XmlValidationError(parser.getLine(), 
+	    "expected INSTANCENAME element");
+    }
+
+    CIMInstance instance;
+
+    // Get INSTANCE elements:
+
+    if (!getInstanceElement(parser, instance))
+    {
+	throw XmlValidationError(parser.getLine(),
+	    "expected INSTANCE element");
+    }
+
+    // Get VALUE.NAMEDINSTANCE end tag:
+
+    expectEndTag(parser, "VALUE.NAMEDINSTANCE");
+
+    namedInstance.set(instanceName, instance);
+
+    return true;
+}
+
+//------------------------------------------------------------------------------
 //
 // getObject()
 //
@@ -2936,7 +2982,6 @@ Boolean XmlReader::getObjectNameElement(
     CIMReference& objectName)
 {
     String className;
-    CIMReference instanceName;
 
     if (getClassNameElement(parser, className, false))
     {

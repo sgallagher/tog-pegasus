@@ -25,6 +25,7 @@
 //
 // Modified By: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //              Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -509,7 +510,7 @@ CIMGetClassRequestMessage* CIMOperationRequestDecoder::decodeGetClassRequest(
     Boolean localOnly = true;
     Boolean includeQualifiers = true;
     Boolean includeClassOrigin = false;
-    Array<String> propertyList;  // ATTN: Initialize to null (not empty)
+    CIMPropertyList propertyList;
 
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
     {
@@ -524,8 +525,12 @@ CIMGetClassRequestMessage* CIMOperationRequestDecoder::decodeGetClassRequest(
 	else if (CompareNoCase(name, "PropertyList") == 0)
 	{
 	    CIMValue pl;
-	    XmlReader::getValueArrayElement(parser, CIMType::STRING, pl);
-	    pl.get(propertyList);
+	    if (XmlReader::getValueArrayElement(parser, CIMType::STRING, pl))
+	    {
+		Array<String> propertyListArray;
+		pl.get(propertyListArray);
+		propertyList.set(propertyListArray);
+	    }
 	}
 	else
 	{
@@ -727,7 +732,7 @@ CIMGetInstanceRequestMessage* CIMOperationRequestDecoder::decodeGetInstanceReque
     Boolean localOnly = true;
     Boolean includeQualifiers = false;
     Boolean includeClassOrigin = false;
-    Array<String> propertyList;  // ATTN: Initialize to null (not empty)
+    CIMPropertyList propertyList;
 
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
     {
@@ -742,8 +747,12 @@ CIMGetInstanceRequestMessage* CIMOperationRequestDecoder::decodeGetInstanceReque
 	else if (CompareNoCase(name, "PropertyList") == 0)
 	{
 	    CIMValue pl;
-	    XmlReader::getValueArrayElement(parser, CIMType::STRING, pl);
-	    pl.get(propertyList);
+	    if (XmlReader::getValueArrayElement(parser, CIMType::STRING, pl))
+	    {
+		Array<String> propertyListArray;
+		pl.get(propertyListArray);
+		propertyList.set(propertyListArray);
+	    }
 	}
 	else
 	{
@@ -772,12 +781,23 @@ CIMModifyInstanceRequestMessage* CIMOperationRequestDecoder::decodeModifyInstanc
     const String& messageId,
     const String& nameSpace)
 {
-    CIMInstance modifiedInstance;
+    CIMNamedInstance modifiedInstance;
+    CIMPropertyList propertyList;
 
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
     {
 	if (CompareNoCase(name, "ModifiedInstance") == 0)
-	    XmlReader::getInstanceElement(parser, modifiedInstance);
+	    XmlReader::getNamedInstanceElement(parser, modifiedInstance);
+	else if (CompareNoCase(name, "PropertyList") == 0)
+	{
+	    CIMValue pl;
+	    if (XmlReader::getValueArrayElement(parser, CIMType::STRING, pl))
+	    {
+		Array<String> propertyListArray;
+		pl.get(propertyListArray);
+		propertyList.set(propertyListArray);
+	    }
+	}
 	else
 	{
 	    throw CIMException(CIM_ERR_NOT_SUPPORTED);
@@ -791,6 +811,7 @@ CIMModifyInstanceRequestMessage* CIMOperationRequestDecoder::decodeModifyInstanc
 	    messageId,
 	    nameSpace,
 	    modifiedInstance,
+	    propertyList,
 	    QueueIdStack(queueId, _returnQueueId));
 
     return(request);
@@ -807,7 +828,7 @@ CIMEnumerateInstancesRequestMessage* CIMOperationRequestDecoder::decodeEnumerate
     Boolean localOnly = true;
     Boolean includeQualifiers = true;
     Boolean includeClassOrigin = false;
-    Array<String> propertyList;  // ATTN: Initialize to null (not empty)
+    CIMPropertyList propertyList;
 
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
     {
@@ -824,8 +845,12 @@ CIMEnumerateInstancesRequestMessage* CIMOperationRequestDecoder::decodeEnumerate
 	else if (CompareNoCase(name, "PropertyList") == 0)
 	{
 	    CIMValue pl;
-	    XmlReader::getValueArrayElement(parser, CIMType::STRING, pl);
-	    pl.get(propertyList);
+	    if (XmlReader::getValueArrayElement(parser, CIMType::STRING, pl))
+	    {
+		Array<String> propertyListArray;
+		pl.get(propertyListArray);
+		propertyList.set(propertyListArray);
+	    }
 	}
 	else
 	{
@@ -1075,7 +1100,7 @@ CIMReferencesRequestMessage* CIMOperationRequestDecoder::decodeReferencesRequest
     String role;
     Boolean includeQualifiers = false;
     Boolean includeClassOrigin = false;
-    Array<String> propertyList;  // ATTN: Initialize to null (not empty)
+    CIMPropertyList propertyList;
 
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
     {
@@ -1102,8 +1127,12 @@ CIMReferencesRequestMessage* CIMOperationRequestDecoder::decodeReferencesRequest
 	else if (CompareNoCase(name, "PropertyList") == 0)
 	{
 	    CIMValue pl;
-	    XmlReader::getValueArrayElement(parser, CIMType::STRING, pl);
-	    pl.get(propertyList);
+	    if (XmlReader::getValueArrayElement(parser, CIMType::STRING, pl))
+	    {
+		Array<String> propertyListArray;
+		pl.get(propertyListArray);
+		propertyList.set(propertyListArray);
+	    }
 	}
 	else
 	{
@@ -1187,7 +1216,7 @@ CIMAssociatorsRequestMessage* CIMOperationRequestDecoder::decodeAssociatorsReque
     String resultRole;
     Boolean includeQualifiers = false;
     Boolean includeClassOrigin = false;
-    Array<String> propertyList;  // ATTN: Initialize to null (not empty)
+    CIMPropertyList propertyList;
 
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
     {
@@ -1222,8 +1251,12 @@ CIMAssociatorsRequestMessage* CIMOperationRequestDecoder::decodeAssociatorsReque
 	else if (CompareNoCase(name, "PropertyList") == 0)
 	{
 	    CIMValue pl;
-	    XmlReader::getValueArrayElement(parser, CIMType::STRING, pl);
-	    pl.get(propertyList);
+	    if (XmlReader::getValueArrayElement(parser, CIMType::STRING, pl))
+	    {
+		Array<String> propertyListArray;
+		pl.get(propertyListArray);
+		propertyList.set(propertyListArray);
+	    }
 	}
 	else
 	{

@@ -22,10 +22,9 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By: 
-//         Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//
-// Modified By: Yi Zhou (yi_zhou@hp.com)
+// Modified By: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
+//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -167,7 +166,7 @@ CIMClass CIMRepository::getClass(
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const Array<String>& propertyList)
+    const CIMPropertyList& propertyList)
 {
     // ATTN: localOnly, includeQualifiers, and includeClassOrigin are ignored
     // for now.
@@ -247,7 +246,7 @@ CIMInstance CIMRepository::getInstance(
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const Array<String>& propertyList)
+    const CIMPropertyList& propertyList)
 {
     // -- Get the index for this instance:
 
@@ -650,21 +649,32 @@ void CIMRepository::modifyClass(
     _SaveObject(classFilePath, cimClass);
 }
 
+// ATTN: It is critical that the propertyList is respected
 void CIMRepository::modifyInstance(
     const String& nameSpace,
-    const CIMInstance& modifiedInstance)
+    const CIMNamedInstance& modifiedInstance,
+    const CIMPropertyList& propertyList)
 {
     String errMessage;
 
     // -- Resolve the instance (looks up the class):
-        CIMInstance cimInstance(modifiedInstance);
+        CIMInstance cimInstance(modifiedInstance.getInstance());
 
     CIMConstClass cimClass;
     cimInstance.resolve(_context, nameSpace, cimClass);
 
-    // -- Lookup index of entry from index file:
-
     CIMReference instanceName = cimInstance.getInstanceName(cimClass);
+
+    // -- Disallow if instance name is changed by this operation (attempt
+    // -- to modify a key property.
+
+    if (instanceName != modifiedInstance.getInstanceName())
+    {
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+            "Attempted to modify a key property");
+    }
+
+    // -- Lookup index of entry from index file:
 
     String indexFilePath = _getIndexFilePath(
         nameSpace, instanceName.getClassName());
@@ -750,14 +760,14 @@ Array<String> CIMRepository::enumerateClassNames(
     return classNames;
 }
 
-Array<CIMInstance> CIMRepository::enumerateInstances(
+Array<CIMNamedInstance> CIMRepository::enumerateInstances(
     const String& nameSpace,
     const String& className,
     Boolean deepInheritance,
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const Array<String>& propertyList)
+    const CIMPropertyList& propertyList)
 {
     // -- Get all descendent classes of this class:
 
@@ -767,11 +777,11 @@ Array<CIMInstance> CIMRepository::enumerateInstances(
 
     // -- Get all instances for this class and all its descendent classes
 
-    Array<CIMInstance> instances;
+    Array<CIMNamedInstance> namedInstances;
 
     for (Uint32 i = 0; i < classNames.size(); i++)
     {
-        if (!_loadAllInstances(nameSpace, classNames[i], instances))
+        if (!_loadAllInstances(nameSpace, classNames[i], namedInstances))
         {
             String errMessage = "Failed to load instances in class ";
             errMessage.append(classNames[i]);
@@ -779,7 +789,7 @@ Array<CIMInstance> CIMRepository::enumerateInstances(
         }
     }
 
-    return instances;
+    return namedInstances;
 }
 
 Array<CIMReference> CIMRepository::enumerateInstanceNames(
@@ -838,7 +848,7 @@ Array<CIMObjectWithPath> CIMRepository::associators(
     const String& resultRole,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const Array<String>& propertyList)
+    const CIMPropertyList& propertyList)
 {
     Array<CIMReference> names = associatorNames(
         nameSpace,
@@ -958,7 +968,7 @@ Array<CIMObjectWithPath> CIMRepository::references(
     const String& role,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const Array<String>& propertyList)
+    const CIMPropertyList& propertyList)
 {
     Array<CIMReference> names = referenceNames(
         nameSpace,
@@ -1111,19 +1121,9 @@ void CIMRepository::setProperty(
 {
     // -- Load the instance:
 
+    // ATTN: This may not be necessary when modifyInstance works properly
     CIMInstance instance = getInstance(
         nameSpace, instanceName, false, true);
-
-    // -- Get the class:
-
-    CIMClass cimClass = getClass(nameSpace, instance.getClassName(),
-        false, true);
-
-    // -- Save instance name:
-
-    CIMReference oldRef = instance.getInstanceName(cimClass);
-
-    // -- Modify the property (disallow if property is a key):
 
     Uint32 pos = instance.findProperty(propertyName);
 
@@ -1134,20 +1134,15 @@ void CIMRepository::setProperty(
 
     prop.setValue(newValue);
 
-    // -- Disallow if instance name is changed by this operation (attempt
-    // -- to modify a key property.
+    Array<String> propertyListArray;
+    propertyListArray.append(propertyName);
 
-    CIMReference newRef = instance.getInstanceName(cimClass);
+    CIMPropertyList propertyList(propertyListArray);
 
-    if (oldRef != newRef)
-    {
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-            "setProperty(): attempted to modify a key property");
-    }
+    CIMNamedInstance namedInstance;
+    namedInstance.set(instanceName, instance);
 
-    // -- Modify the instance:
-
-    modifyInstance(nameSpace, instance);
+    modifyInstance(nameSpace, namedInstance, propertyList);
 }
 
 CIMQualifierDecl CIMRepository::getQualifier(
@@ -1337,7 +1332,7 @@ Boolean CIMRepository::_loadInstance(
 Boolean CIMRepository::_loadAllInstances(
     const String& nameSpace,
     const String& className,
-    Array<CIMInstance>& instances)
+    Array<CIMNamedInstance>& namedInstances)
 {
     Array<CIMReference> instanceNames;
     Array<Sint8> data;
@@ -1390,7 +1385,7 @@ Boolean CIMRepository::_loadAllInstances(
 
             XmlReader::getObject(parser, tmpInstance);
 
-            instances.append(tmpInstance);
+            namedInstances.append(CIMNamedInstance(instanceNames[i], tmpInstance));
         }
     }
 

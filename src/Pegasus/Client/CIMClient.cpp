@@ -24,10 +24,9 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//
-// Modified By: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//
+//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -132,7 +131,7 @@ CIMClass CIMClient::getClass(
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const Array<String>& propertyList)
+    const CIMPropertyList& propertyList)
 {
     String messageId = XmlWriter::getNextMessageId();
     
@@ -170,7 +169,7 @@ CIMInstance CIMClient::getInstance(
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const Array<String>& propertyList)
+    const CIMPropertyList& propertyList)
 {
     String messageId = XmlWriter::getNextMessageId();
     
@@ -342,7 +341,8 @@ void CIMClient::modifyClass(
 
 void CIMClient::modifyInstance(
     const String& nameSpace,
-    const CIMInstance& modifiedInstance)
+    const CIMNamedInstance& modifiedInstance,
+    const CIMPropertyList& propertyList)
 {
     String messageId = XmlWriter::getNextMessageId();
     
@@ -350,6 +350,7 @@ void CIMClient::modifyInstance(
 	messageId,
 	nameSpace,
 	modifiedInstance,
+	propertyList,
 	QueueIdStack());
     
     _authenticator->clearRequest();
@@ -435,14 +436,14 @@ Array<String> CIMClient::enumerateClassNames(
     return(response->classNames);
 }
 
-Array<CIMInstance> CIMClient::enumerateInstances(
+Array<CIMNamedInstance> CIMClient::enumerateInstances(
     const String& nameSpace,
     const String& className,
     Boolean deepInheritance,
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const Array<String>& propertyList)
+    const CIMPropertyList& propertyList)
 {
     String messageId = XmlWriter::getNextMessageId();
     
@@ -471,7 +472,7 @@ Array<CIMInstance> CIMClient::enumerateInstances(
     
     _checkError(response);
     
-    return(response->cimInstances);
+    return(response->cimNamedInstances);
 }
 
 Array<CIMReference> CIMClient::enumerateInstanceNames(
@@ -541,7 +542,7 @@ Array<CIMObjectWithPath> CIMClient::associators(
     const String& resultRole,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const Array<String>& propertyList)
+    const CIMPropertyList& propertyList)
 {
     String messageId = XmlWriter::getNextMessageId();
     
@@ -619,7 +620,7 @@ Array<CIMObjectWithPath> CIMClient::references(
     const String& role,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const Array<String>& propertyList)
+    const CIMPropertyList& propertyList)
 {
     String messageId = XmlWriter::getNextMessageId();
     

@@ -23,7 +23,7 @@
 //
 // Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
-// Modified By:
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -186,36 +186,37 @@ CIMIndicationConsumer* CIMExportRequestDispatcher::_lookupConsumer(const String&
     //ATTN: How to get NAMESPACE? Defining just to proceed further.
     String NAMESPACE = "root/cimv2";
 
-    Array<CIMInstance> cInst;
-    cInst = _repository->enumerateInstances(NAMESPACE,
+    Array<CIMNamedInstance> cNamedInst;
+    cNamedInst = _repository->enumerateInstances(NAMESPACE,
         "PG_ConsumerRegistration");
 
     String consumerName;
 
-    for (Uint32 i=0; (i < cInst.size()) && (consumerName.size() == 0); i++)
+    for (Uint32 i=0; (i < cNamedInst.size()) && (consumerName.size() == 0); i++)
     {
         Uint32 urlPropertyPos;
         Uint32 consumerPropertyPos;
         String consumerUrl;
+        CIMInstance& cInst = cNamedInst[i].getInstance();
 
-        urlPropertyPos = cInst[i].findProperty("url");
+        urlPropertyPos = cInst.findProperty("url");
 
         // Ignore malformed consumer registration
         if (urlPropertyPos != PEG_NOT_FOUND)
         {
             try
             {
-                cInst[i].getProperty(urlPropertyPos).getValue()
+                cInst.getProperty(urlPropertyPos).getValue()
                     .get(consumerUrl);
                 if (consumerUrl == url)
                 {
-                    consumerPropertyPos = cInst[i].findProperty("consumerName");
+                    consumerPropertyPos = cInst.findProperty("consumerName");
 
                     // Ignore malformed consumer registration
                     if (consumerPropertyPos != PEG_NOT_FOUND)
                     {
                         // TypeMismatch exception is caught in outer block
-                        cInst[i].getProperty(consumerPropertyPos).getValue()
+                        cInst.getProperty(consumerPropertyPos).getValue()
                             .get(consumerName);
                     }
                 }

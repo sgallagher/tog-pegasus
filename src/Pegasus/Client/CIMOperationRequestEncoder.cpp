@@ -24,8 +24,8 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//
 //              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -226,14 +226,13 @@ void CIMOperationRequestEncoder::_encodeGetClassRequest(
     if (message->includeClassOrigin != false)
 	XmlWriter::appendBooleanParameter(params, "IncludeClassOrigin", true);
 
+    if (!message->propertyList.isNull())
+	XmlWriter::appendPropertyListParameter(
+	    params, message->propertyList);
+
     Array<Sint8> buffer = XmlWriter::formatSimpleIMethodReqMessage(
         _hostName, message->nameSpace, "GetClass", message->messageId,
         _authenticator->buildRequestAuthHeader(), params);
-
-    // ATTN: Need to distinguish between null and empty propertyList
-    if (message->propertyList.size() != 0)
-	XmlWriter::appendPropertyListParameter(
-	    params, message->propertyList);
 
     _outputQueue->enqueue(new HTTPMessage(buffer));
 }
@@ -354,14 +353,13 @@ void CIMOperationRequestEncoder::_encodeGetInstanceRequest(
 	XmlWriter::appendBooleanParameter(
 	    params, "IncludeClassOrigin", true);
 
+    if (!message->propertyList.isNull())
+	XmlWriter::appendPropertyListParameter(
+	    params, message->propertyList);
+
     Array<Sint8> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName, 
         message->nameSpace, "GetInstance", message->messageId,
         _authenticator->buildRequestAuthHeader(), params);
-
-    // ATTN: Need to distinguish between null and empty propertyList
-    if (message->propertyList.size() != 0)
-	XmlWriter::appendPropertyListParameter(
-	    params, message->propertyList);
 
     _outputQueue->enqueue(new HTTPMessage(buffer));
 }
@@ -370,9 +368,13 @@ void CIMOperationRequestEncoder::_encodeModifyInstanceRequest(
     CIMModifyInstanceRequestMessage* message)
 {
     Array<Sint8> params;
-    XmlWriter::appendInstanceParameter(
+    XmlWriter::appendNamedInstanceParameter(
 	params, "ModifiedInstance", message->modifiedInstance);
 	
+    if (!message->propertyList.isNull())
+	XmlWriter::appendPropertyListParameter(
+	    params, message->propertyList);
+
     Array<Sint8> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName, 
         message->nameSpace, "ModifyInstance", message->messageId,
         _authenticator->buildRequestAuthHeader(), params);
@@ -417,8 +419,7 @@ void CIMOperationRequestEncoder::_encodeEnumerateInstancesRequest(
 	XmlWriter::appendBooleanParameter(
 	    params, "IncludeClassOrigin", true);
 
-    // ATTN: Need to distinguish between null and empty propertyList
-    if (message->propertyList.size() != 0)
+    if (!message->propertyList.isNull())
 	XmlWriter::appendPropertyListParameter(
 	    params, message->propertyList);
 
@@ -583,8 +584,7 @@ void CIMOperationRequestEncoder::_encodeReferencesRequest(
     if (message->includeClassOrigin != false)
 	XmlWriter::appendBooleanParameter(params, "IncludeClassOrigin", true);
 
-    // ATTN: Need to distinguish between null and empty propertyList
-    if (message->propertyList.size() != 0)
+    if (!message->propertyList.isNull())
 	XmlWriter::appendPropertyListParameter(
 	    params, message->propertyList);
 
@@ -648,8 +648,7 @@ void CIMOperationRequestEncoder::_encodeAssociatorsRequest(
     if (message->includeClassOrigin != false)
 	XmlWriter::appendBooleanParameter(params, "IncludeClassOrigin", true);
 
-    // ATTN: Need to distinguish between null and empty propertyList
-    if (message->propertyList.size() != 0)
+    if (!message->propertyList.isNull())
 	XmlWriter::appendPropertyListParameter(
 	    params, message->propertyList);
 
@@ -677,7 +676,7 @@ void CIMOperationRequestEncoder::_encodeInvokeMethodRequest(
     }
 
     Array<Sint8> buffer = XmlWriter::formatSimpleMethodReqMessage(_hostName,
-	message->nameSpace, _CString(message->methodName), 
+	message->nameSpace, _CString(message->methodName),
 	message->messageId, _authenticator->buildRequestAuthHeader(), params);
     
     _outputQueue->enqueue(new HTTPMessage(buffer));

@@ -329,6 +329,45 @@ repository implementation.
     responses to the challenges from the server. Current implementation
     supports only 'local' authentication mechanism.
 
+47. (Roger Kumpf - HP) 20 Nov 2001 Commited the following set of changes:
+
+      - Changed the return value of EnumerateInstances from Array<CIMInstance>
+          to Array<CIMNamedInstance>
+      - Changed the parameter to ModifyInstance from CIMInstance to
+          CIMNamedInstance
+      - Added an optional PropertyList parameter to ModifyInstance
+      - Changed all handling of PropertyList parameters to use the
+          CIMPropertyList class instead of Array<String>
+
+    Each of these changes was required to comply with the DMTF specification.
+
+    These changes were made throughout the system except for in the provider
+    API.  For now, the CIMProviderHandle and CIMBaseProviderHandle hide the
+    differences from providers, so older providers will continue to function.
+    However, this means that clients can not yet take advantage of the added
+    functionality.
+
+    When the provider API is updated, the following changes will be visible:
+
+      - Providers will get a PropertyList parameter to ModifyInstance which
+          they are required to respect.  Providers that can not process the
+          PropertyList must throw a NOT_SUPPORTED exception whenever the
+          list is not null.  Clients can take advantage of this change by
+          issuing a ModifyInstance request against a selected set of
+          properties in an instance, rather than being required to replace
+          the entire instance.
+
+      - Providers will be required to return instance names along with
+          instances in the EnumerateInstances method.  Clients will receive
+          these instance names, as the standard dictates.
+
+      - Providers will receive a CIMPropertyList argument containing the
+          PropertyList instead of an Array<String>.  This change allows
+          providers to distinguish between an empty list and a null list.
+
+    Note that the repository also does not yet handle the PropertyList in
+    ModifyInstance correctly.
+
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch
               Tagged as version_1_01 on 3 August 2001 (sorry should have been

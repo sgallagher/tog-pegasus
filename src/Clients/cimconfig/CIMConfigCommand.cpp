@@ -21,9 +21,10 @@
 //
 //==============================================================================
 //
-// Author: Nag Boranna (nagaraja_boranna@hp.com)
+// Author: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //
-// Modified By: Yi Zhou (yi_zhou@hp.com)
+// Modified By: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -1188,7 +1189,8 @@ void CIMConfigCommand::_updatePropertyInCIMServer
             //    CIMProperty(PLANNED_VALUE, propValue));
         }
 
-        client.modifyInstance(NAMESPACE, modifiedInst);
+        CIMNamedInstance namedInstance(reference, modifiedInst);
+        client.modifyInstance(NAMESPACE, namedInstance);
 
     }
     catch (CIMException& e)
@@ -1209,7 +1211,7 @@ void CIMConfigCommand::_listAllPropertiesInCIMServer
     Array <String>&   propValues
     )
 {
-    Array<CIMInstance> configInstances;
+    Array<CIMNamedInstance> configNamedInstances;
 
     try
     {
@@ -1227,16 +1229,19 @@ void CIMConfigCommand::_listAllPropertiesInCIMServer
             //
             // get all the instances of class PG_ConfigSetting
             //
-            configInstances =
+            configNamedInstances =
                 client.enumerateInstances(NAMESPACE, PG_CONFIG_CLASS);
 
             //
             // copy all the property names and values
             //
-            for (Uint32 i = 0; i < configInstances.size(); i++)
+            for (Uint32 i = 0; i < configNamedInstances.size(); i++)
             {
-                Uint32 pos = configInstances[i].findProperty("PropertyName");
-                CIMProperty prop = (CIMProperty)configInstances[i].getProperty(pos);
+                CIMInstance& configInstance =
+                    configNamedInstances[i].getInstance();
+
+                Uint32 pos = configInstance.findProperty("PropertyName");
+                CIMProperty prop = (CIMProperty)configInstance.getProperty(pos);
                 propNames.append(prop.getValue().toString());
 
                 if (_currentValueSet)
@@ -1244,8 +1249,8 @@ void CIMConfigCommand::_listAllPropertiesInCIMServer
                     //
                     // get current value
                     //
-                    pos = configInstances[i].findProperty("CurrentValue");
-                    prop = (CIMProperty)configInstances[i].getProperty(pos);
+                    pos = configInstance.findProperty("CurrentValue");
+                    prop = (CIMProperty)configInstance.getProperty(pos);
                     propValues.append(prop.getValue().toString());
                 }
                 else if (_plannedValueSet)
@@ -1253,8 +1258,8 @@ void CIMConfigCommand::_listAllPropertiesInCIMServer
                     //
                     // get planned value
                     //
-                    pos = configInstances[i].findProperty("PlannedValue");
-                    prop = (CIMProperty)configInstances[i].getProperty(pos);
+                    pos = configInstance.findProperty("PlannedValue");
+                    prop = (CIMProperty)configInstance.getProperty(pos);
                     propValues.append(prop.getValue().toString());
                 }
             }

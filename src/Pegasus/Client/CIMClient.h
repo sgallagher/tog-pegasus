@@ -24,10 +24,9 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//
-// Modified By: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//
+//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -41,6 +40,8 @@
 #include <Pegasus/Common/HTTPConnector.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/CIMObject.h>
+#include <Pegasus/Common/CIMNamedInstance.h>
+#include <Pegasus/Common/CIMPropertyList.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Client/ClientAuthenticator.h>
 #include <Pegasus/Client/Linkage.h>
@@ -114,7 +115,7 @@ public:
 	Boolean localOnly = true,
 	Boolean includeQualifiers = true,
 	Boolean includeClassOrigin = false,
-	const Array<String>& propertyList = EmptyStringArray());
+	const CIMPropertyList& propertyList = CIMPropertyList());
 
     ///
     virtual CIMInstance getInstance(
@@ -123,7 +124,7 @@ public:
 	Boolean localOnly = true,
 	Boolean includeQualifiers = false,
 	Boolean includeClassOrigin = false,
-	const Array<String>& propertyList = EmptyStringArray());
+	const CIMPropertyList& propertyList = CIMPropertyList());
 
     ///
     virtual void deleteClass(
@@ -152,7 +153,8 @@ public:
     ///
     virtual void modifyInstance(
 	const String& nameSpace,
-	const CIMInstance& modifiedInstance);
+	const CIMNamedInstance& modifiedInstance,
+	const CIMPropertyList& propertyList = CIMPropertyList());
 
     ///
     virtual Array<CIMClass> enumerateClasses(
@@ -169,15 +171,15 @@ public:
 	const String& className = String::EMPTY,
 	Boolean deepInheritance = false);
 
-    /// ATTN: should return array of <namedInstance>!
-    virtual Array<CIMInstance> enumerateInstances(
+    ///
+    virtual Array<CIMNamedInstance> enumerateInstances(
 	const String& nameSpace,
 	const String& className,
 	Boolean deepInheritance = true,
 	Boolean localOnly = true,
 	Boolean includeQualifiers = false,
 	Boolean includeClassOrigin = false,
-	const Array<String>& propertyList = EmptyStringArray());
+	const CIMPropertyList& propertyList = CIMPropertyList());
 
     ///
     virtual Array<CIMReference> enumerateInstanceNames(
@@ -199,7 +201,7 @@ public:
 	const String& resultRole = String::EMPTY,
 	Boolean includeQualifiers = false,
 	Boolean includeClassOrigin = false,
-	const Array<String>& propertyList = EmptyStringArray());
+	const CIMPropertyList& propertyList = CIMPropertyList());
 
     ///
     virtual Array<CIMReference> associatorNames(
@@ -217,7 +219,7 @@ public:
 	const String& role = String::EMPTY,
 	Boolean includeQualifiers = false,
 	Boolean includeClassOrigin = false,
-	const Array<String>& propertyList = EmptyStringArray());
+	const CIMPropertyList& propertyList = CIMPropertyList());
 
     ///
     virtual Array<CIMReference> referenceNames(

@@ -23,13 +23,11 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:  Nag Boranna (nagaraja_boranna@hp.com)
-//
-// Modified By:  Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By:  Yi Zhou (yi_zhou@hp.com)
-//
-// Modified By:  Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+// Modified By:  Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//               Chip Vincent (cvincent@us.ibm.com)
+//               Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+//               Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+//               Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -301,7 +299,7 @@ void CIMOperationRequestDispatcher::handleGetClassRequest(
 	    request->localOnly,
 	    request->includeQualifiers,
 	    request->includeClassOrigin,
-	    request->propertyList);
+	    request->propertyList.getPropertyNameArray());
     }
     catch (CIMException& exception)
     {
@@ -351,7 +349,7 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 		request->localOnly,
 		request->includeQualifiers,
 		request->includeClassOrigin,
-		request->propertyList); 
+		request->propertyList.getPropertyNameArray()); 
 	}
 	else
 	{
@@ -360,7 +358,8 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 		request->instanceName,
 		request->localOnly,
 		request->includeQualifiers,
-		request->includeClassOrigin);
+		request->includeClassOrigin,
+		request->propertyList.getPropertyNameArray()); 
 	}
     }
     catch (CIMException& exception)
@@ -596,8 +595,10 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
 
     try
     {
+        // ATTN: Who makes sure the instance name and the instance match?
+
 	// get provider for class
-	String className = request->modifiedInstance.getClassName();
+	String className = request->modifiedInstance.getInstance().getClassName();
 	String providerName = _lookupProviderForClass(request->nameSpace, className);
 
 	if(providerName.size() != 0)
@@ -608,13 +609,15 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
 	    provider->modifyInstance(
 		OperationContext(),
                 request->nameSpace,
-                request->modifiedInstance);
+                request->modifiedInstance,
+                request->propertyList);
         }
         else
         {
             _repository->modifyInstance(
                 request->nameSpace,
-                request->modifiedInstance);
+                request->modifiedInstance,
+                request->propertyList);
         }
     }
     catch (CIMException& exception)
@@ -718,7 +721,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 {
     CIMStatusCode errorCode = CIM_ERR_SUCCESS;
     String errorDescription;
-    Array<CIMInstance> cimInstances;
+    Array<CIMNamedInstance> cimNamedInstances;
 
     try
     {
@@ -731,7 +734,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 		// attempt to load provider
 		ProviderHandle * provider = _providerManager.getProvider(providerName, className);
 
-	    cimInstances = provider->enumerateInstances(
+	    cimNamedInstances = provider->enumerateInstances(
 		OperationContext(),
 		request->nameSpace,
 		request->className,
@@ -739,18 +742,18 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 		request->localOnly,
 		request->includeQualifiers,
 		request->includeClassOrigin,
-		request->propertyList);
+		request->propertyList.getPropertyNameArray());
 	}
 	else
 	{
-	    cimInstances = _repository->enumerateInstances(
+	    cimNamedInstances = _repository->enumerateInstances(
 		request->nameSpace,
 		request->className,
 		request->deepInheritance,
 		request->localOnly,
 		request->includeQualifiers,
 		request->includeClassOrigin,
-		request->propertyList);
+		request->propertyList.getPropertyNameArray());
 	}
     }
     catch (CIMException& exception)
@@ -770,7 +773,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 	    errorCode,
 	    errorDescription,
 	    request->queueIds.copyAndPop(),
-	    cimInstances);
+	    cimNamedInstances);
 
     _enqueueResponse(request, response);
 }
@@ -855,7 +858,7 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
 	        request->resultRole,
 	        request->includeQualifiers,
 	        request->includeClassOrigin,
-	        request->propertyList);
+	        request->propertyList.getPropertyNameArray());
 	}
 	else {
 	    cimObjects = _repository->associators(
@@ -867,7 +870,7 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
 	        request->resultRole,
 	        request->includeQualifiers,
 	        request->includeClassOrigin,
-	        request->propertyList);
+	        request->propertyList.getPropertyNameArray());
  	}
     }
     catch (CIMException& exception)
@@ -977,7 +980,7 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
 	        request->role,
 	        request->includeQualifiers,
 	        request->includeClassOrigin,
-	        request->propertyList);
+	        request->propertyList.getPropertyNameArray());
         }
 	else {
 	    cimObjects = _repository->references(
@@ -987,7 +990,7 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
 	        request->role,
 	        request->includeQualifiers,
 	        request->includeClassOrigin,
-	        request->propertyList);
+	        request->propertyList.getPropertyNameArray());
         }
     }
     catch (CIMException& exception)

@@ -34,6 +34,7 @@
 //         (sushma_fernandes@hp.com)
 //	       David Eger (dteger@us.ibm.com)
 //         Amit K Arora (amita@in.ibm.com) for PEP-101
+//         Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -53,6 +54,7 @@
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/SSLContext.h>
 #include <Pegasus/Common/AutoPtr.h>
+#include <Pegasus/Common/PegasusVersion.h>
 
 #include <Pegasus/getoopt/getoopt.h>
 #include <Clients/cliutils/CommandException.h>
@@ -71,7 +73,7 @@ const char   WbemExecCommand::COMMAND_NAME []      = "wbemexec";
 /**
     Label for the usage string for this command.
  */
-const char   WbemExecCommand::_USAGE []            = "usage: ";
+const char   WbemExecCommand::_USAGE []            = "Usage: ";
 
 /**
     The option character used to specify the hostname.
@@ -146,6 +148,32 @@ static const char PASSWORD_PROMPT []  =
 static const char PASSWORD_BLANK []  = 
                      "Password cannot be blank. Please re-enter your password.";
 
+static const char   LONG_HELP []  = "help";
+
+static const char   LONG_VERSION []  = "version";
+
+static const char MSG_PATH [] 				= "pegasus/pegasusCLI";
+static const char REQUIRED_ARGS_MISSING []        =
+                        "Required arguments missing.";
+
+static const char REQUIRED_ARGS_MISSING_KEY []        = "Clients.cimuser.CIMUserCommand.REQUIRED_ARGS_MISSING";
+
+
+/**
+    This constant signifies that an operation option has not been recorded
+*/
+
+static const Uint32 OPERATION_TYPE_UNINITIALIZED  = 0;
+/**
+    This constant represents a help operation
+*/
+static const Uint32 OPERATION_TYPE_HELP           = 1;
+
+/**
+    This constant represents a version display operation
+*/
+static const Uint32 OPERATION_TYPE_VERSION        = 2;
+
 static Boolean verifyCertificate(SSLCertificateInfo &certInfo)
 {
     //
@@ -196,7 +224,7 @@ WbemExecCommand::WbemExecCommand ()
     //  Note: debug option is not shown in usage string.
     //  The debug option is not included in end-user documentation.
     //
-    String usage = String (_USAGE);
+    usage = String (_USAGE);
     usage.append (COMMAND_NAME);
     usage.append (" [ -");
     usage.append (_OPTION_HOSTNAME);
@@ -204,17 +232,35 @@ WbemExecCommand::WbemExecCommand ()
     usage.append (_OPTION_PORTNUMBER);
     usage.append (" portnumber ] [ -");
     usage.append (_OPTION_HTTPVERSION);
-    usage.append (" httpversion ] [ -");
+    usage.append (" httpversion ]\n                [ -");
     usage.append (_OPTION_HTTPMETHOD);
     usage.append (" httpmethod ] [ -");
     usage.append (_OPTION_TIMEOUT);
     usage.append (" timeout ] [ -");
     usage.append (_OPTION_USERNAME);
-    usage.append (" username ] [ -");
+    usage.append (" username ]\n                [ -");
     usage.append (_OPTION_PASSWORD);
     usage.append (" password ] [ -");
     usage.append (_OPTION_SSL);
-    usage.append (" ] [ inputfilepath ]");
+    usage.append (" ] [ --");
+    usage.append (LONG_HELP);
+    usage.append (" ] [ --");
+    usage.append (LONG_VERSION);
+    usage.append (" ]\n                < inputfilepath >\n");
+
+    usage.append("Options : \n");
+    usage.append("    -h         - Connect to CIM Server on specified hostname\n");
+    usage.append("    --help     - Display this help message\n");
+    usage.append("    -m         - Use the specified HTTP method for the request\n");
+    usage.append("    -p         - Connect to CIM Server on specified portnumber\n");
+    usage.append("    -s         - Use SSL protocol between 'wbemexec' client and the CIM Server\n");
+    usage.append("    -t         - Specify response timeout value in milliseconds\n");
+    usage.append("    -u         - Authorize the operation using the specified username\n");
+    usage.append("    -v         - Use the specified HTTP version for the request\n");
+    usage.append("    --version  - Display CIM Server version number\n");
+    usage.append("    -w         - Authorize the operation using the specified password\n");
+
+    usage.append("\nUsage note: The wbemexec command requires that the CIM Server is running.\n");
 
     setUsage (usage);
 }
@@ -661,6 +707,11 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
     //
     getOpts = getoopt ();
     getOpts.addFlagspec (GetOptString);
+
+    //PEP#167 - adding long flag for options : 'help' and 'version'
+    getOpts.addLongFlagspec(LONG_HELP,getoopt::NOARG);
+    getOpts.addLongFlagspec(LONG_VERSION,getoopt::NOARG);
+
     getOpts.parse (argc, argv);
 
     if (getOpts.hasErrors ())
@@ -676,10 +727,13 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
     {
         if (getOpts [i].getType () == Optarg::LONGFLAG)
         {
-            //
-            //  This path should not be hit
-            //  The wbemexec command has no LONGFLAG options
-            //
+            //PEP 167 : long flags newly added to this command
+
+            if(getOpts [i].getopt () == LONG_HELP)
+               _operationType = OPERATION_TYPE_HELP;
+            else if (getOpts [i].getopt () == LONG_VERSION)
+               _operationType = OPERATION_TYPE_VERSION;
+
         } 
         else if (getOpts [i].getType () == Optarg::REGULAR)
         {
@@ -882,6 +936,21 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
         }
     }
 
+    // 
+    // Some more validations
+    //
+    if ( _operationType == OPERATION_TYPE_UNINITIALIZED )
+    {
+        //
+        // No operation type was specified 
+        // Show the usage 
+        //
+		  //l10n
+		  //CommandFormatException e (REQUIRED_ARGS_MISSING);
+        CommandFormatException e (localizeMessage(MSG_PATH,REQUIRED_ARGS_MISSING_KEY, REQUIRED_ARGS_MISSING));
+        throw e;
+    }
+
     if (getOpts.isSet (_OPTION_PORTNUMBER) < 1)
     {
         //
@@ -1012,6 +1081,16 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
 Uint32 WbemExecCommand::execute (ostream& outPrintWriter, 
                                  ostream& errPrintWriter) 
 {
+    if ( _operationType == OPERATION_TYPE_HELP )
+    {
+        cerr << usage << endl;
+        return (RC_SUCCESS);
+    }
+    else if ( _operationType == OPERATION_TYPE_VERSION )
+    {
+        cerr << "Version " << PEGASUS_VERSION << endl;
+        return (RC_SUCCESS);
+    }
     try
     {
         _executeHttp (outPrintWriter, errPrintWriter);
@@ -1073,9 +1152,8 @@ int main (int argc, char* argv [])
     } 
     catch (CommandFormatException& cfe) 
     {
-        cerr << WbemExecCommand::COMMAND_NAME << ": " << cfe.getMessage () 
-             << endl;
-        cerr << command.getUsage () << endl;
+        cerr << WbemExecCommand::COMMAND_NAME << 
+             ": Invalid option. Use '--help' to obtain command syntax" << endl;
         exit (Command::RC_ERROR);
     }
 

@@ -71,12 +71,14 @@ int main(int argc, char **argv)
    {
       cout << " joining reader thread " << i << endl;
       readers[i]->join();
+      delete readers[i];
    }
 
    for(int i = 0; i < 10; i++)
    {
       cout << " joining writer thread " << i << endl;
       writers[i]->join();
+      delete writers[i];
    }
    
    return(0);

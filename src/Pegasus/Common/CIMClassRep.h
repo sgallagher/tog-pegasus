@@ -39,7 +39,7 @@
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMObjectRep.h>
 #include <Pegasus/Common/CIMMethod.h>
-#include <Pegasus/common/CIMInstance.h>
+#include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/CIMPropertyList.h>
 #include <Pegasus/Common/Linkage.h>
 

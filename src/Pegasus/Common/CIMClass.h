@@ -41,7 +41,7 @@
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/CIMMethod.h>
-#include <Pegasus/common/CIMInstance.h>
+#include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/CIMPropertyList.h>
 
 PEGASUS_NAMESPACE_BEGIN

@@ -26,7 +26,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "CIMClass.h"
+#include "CIMClassRep.h"
 #include "DeclContext.h"
 #include "Indentor.h"
 #include "CIMName.h"

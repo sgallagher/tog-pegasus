@@ -31,13 +31,13 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMObject.h>
-#include <Pegasus/Common/CIMClassRep.h>
+#include <Pegasus/Common/CIMMethod.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 class CIMConstClass;
-class CIMObject;
-class CIMConstObject;
+class CIMClassRep;
+class DeclContext;
 
 // REVIEW: redocument.
 
@@ -64,32 +64,15 @@ public:
 	unitialized handle is used
 	/REF(HPEGASUS_HANDLES)
     */
-    CIMClass() : _rep(0)
-    {
-    }
+    CIMClass();
 
     /** Constructor - Creates a class from a previous class
     */
-    CIMClass(const CIMClass& x)
-    {
-	Inc(_rep = x._rep);
-    }
+    CIMClass(const CIMClass& x);
 
     PEGASUS_EXPLICIT CIMClass(const CIMObject& x);
 
     PEGASUS_EXPLICIT CIMClass(const CIMObject& x, NoThrow&);
-
-    /** Assignment operator.
-    */
-    CIMClass& operator=(const CIMClass& x)
-    {
-	if (x._rep != _rep)
-	{
-            Dec(_rep);
-	    Inc(_rep = x._rep);
-	}
-	return *this;
-    }
 
     /**	Constructor - Creates a Class from inputs of a classname and
 	SuperClassName
@@ -104,16 +87,14 @@ public:
     */
     CIMClass(
 	const CIMReference& reference,
-	const String& superClassName = String())
-    {
-	_rep = new CIMClassRep(reference, superClassName);
-    }
+	const String& superClassName = String::EMPTY);
+
+    /** Assignment operator.
+    */
+    CIMClass& operator=(const CIMClass& x);
 
     /// Destructor
-    ~CIMClass()
-    {
-        Dec(_rep);
-    }
+    ~CIMClass();
 
     /** isAssociation - Identifies whether or not this CIM class
 	is an association. An association is a relationship between two
@@ -124,34 +105,22 @@ public:
 	@return  Boolean True if this CIM class belongs to an association;
 	otherwise, false.
     */
-    Boolean isAssociation() const
-    {
-	_checkRep();
-	return _rep->isAssociation();
-    }
+    Boolean isAssociation() const;
 
     /** isAbstract Test if the CIMClass is abstract.
 	@return - True if the CIMClass Object is abstract
 	SeeAlso: Abstract
     */
-    Boolean isAbstract() const
-    {
-	_checkRep();
-	return _rep->isAbstract();
-    }
+    Boolean isAbstract() const;
 
     /** getClassName Gets the name of the class
 	ATTN: COMMENT. Why not just get name so we have common method for all.
 	@return Returns string with the class name.
     */
-    const String& getClassName() const
-    {
-	_checkRep();
-	return _rep->getClassName();
-    }
+    const String& getClassName() const;
         
-    /** equalClassName compares Name of the class with a String. This test performs
-	a comparison of the classname component of the object
+    /** equalClassName compares Name of the class with a String. This test
+        performs a comparison of the classname component of the object
 	with a String.	Note that this function was included specifically
 	because the equality compare is not just a straight comparison
 	because classnames are case independent.
@@ -159,27 +128,14 @@ public:
 	@return True if it is the same class name (equalNoCase compare passes)
 	or false if not.
     */
-    const Boolean equalClassName(const String& classname) const
-    {
-	_checkRep();
-	return _rep->equalClassName(classname);
+    const Boolean equalClassName(const String& classname) const;
 
-    }
-
-    const CIMReference& getPath() const
-    {
-	_checkRep();
-	return _rep->getPath();
-    }
+    const CIMReference& getPath() const;
 
     /** getSuperClassName - Gets the name of the Parent
 	@return String with parent class name.
     */
-    const String& getSuperClassName() const
-    {
-	_checkRep();
-	return _rep->getSuperClassName();
-    }
+    const String& getSuperClassName() const;
 
     /**	setSuperClassName - Sets the name of the parent class from
 	the input parameter. \REF{CLASSNAME}. ATTN: Define legal classnames
@@ -189,11 +145,7 @@ public:
 	@exception throws IllegalName if the name is not correct. See
 	\URL[ClassNames]{DefinitionofTerms.html#CLASSNAME}
     */
-    void setSuperClassName(const String& superClassName)
-    {
-	_checkRep();
-	_rep->setSuperClassName(superClassName);
-    }
+    void setSuperClassName(const String& superClassName);
 
     /** addQualifier - Adds the specified qualifier to the class
 	and increments the qualifier count. It is illegal to add the same
@@ -203,12 +155,7 @@ public:
 	@return Returns handle of the class object
 	@exception Throws AlreadyExists.
     */
-    CIMClass& addQualifier(const CIMQualifier& qualifier)
-    {
-	_checkRep();
-	_rep->addQualifier(qualifier);
-	return *this;
-    }
+    CIMClass& addQualifier(const CIMQualifier& qualifier);
 
     /**	findQualifier - Searches for a qualifier with the specified `
         input name if it exists in the class
@@ -217,33 +164,14 @@ public:
 	@return Returns index of the qualifier found or PEG_NOT_FOUND
 	if not found.
     */
-    Uint32 findQualifier(const String& name)
-    {
-	_checkRep();
-	return _rep->findQualifier(name);
-    }
-    ///
-    Uint32 findQualifier(const String& name) const
-    {
-	_checkRep();
-	return _rep->findQualifier(name);
-    }
+    Uint32 findQualifier(const String& name) const;
+
     /** existsQualifier - Returns true if the qualifier with the
     specified name exists in the class
     @param name String name of the qualifier object being tested.
     @return True if the qualifier exits.  Otherwise false is returned.
     */
-    Boolean existsQualifier(const String& name)
-    {
-	_checkRep();
-	return _rep->existsQualifier(name);
-    }
-    ///
-    Boolean existsQualifier(const String& name) const
-    {
-	_checkRep();
-	return _rep->existsQualifier(name);
-    }
+    Boolean existsQualifier(const String& name) const;
 
     /** isTrueQualifier - Determines if the qualifier defined by
 	the input parameter exists for the class, is Boolean, and
@@ -253,11 +181,7 @@ public:
 	@param String containing the qualifier  name.
 	@return Boolean True if the qualifier exists, 
     */
-    Boolean isTrueQualifier(const String& name) const
-    {
-	_checkRep();
-	return _rep->isTrueQualifier(name);
-    }
+    Boolean isTrueQualifier(const String& name) const;
 
 /**	getQualifier - Gets the CIMQualifier object defined
 	by the input parameter
@@ -266,20 +190,12 @@ public:
 	@return CIMQualifier object representing the qualifier found. On error,
 	    CIMQualifier handle will be null.
     */
-    CIMQualifier getQualifier(Uint32 pos)
-    {
-	_checkRep();
-	return _rep->getQualifier(pos);
-    }
+    CIMQualifier getQualifier(Uint32 pos);
 
     /** getQualifier - Gets the qualifier defined by the input parameter
 		from the qualifier list for this CIMClass.
 	*/
-    CIMConstQualifier getQualifier(Uint32 pos) const
-    {
-	_checkRep();
-	return _rep->getQualifier(pos);
-    }
+    CIMConstQualifier getQualifier(Uint32 pos) const;
 
     /** removeQualifier - Removes the qualifier defined by the
     index parameter.
@@ -288,31 +204,18 @@ public:
     @exception Throw OutOfBound exception if the index is outside
     the range of existing qualifier objects for this class
     */
-    void removeQualifier(Uint32 pos)
-    {
-	_checkRep();
-	_rep->removeQualifier(pos);
-    }
+    void removeQualifier(Uint32 pos);
 
     /** getQualifierCount - Returns the number of qualifiers
 	in the class.
 	@return ATTN:
     */
-    Uint32 getQualifierCount() const
-    {
-	_checkRep();
-	return _rep->getQualifierCount();
-    }
+    Uint32 getQualifierCount() const;
 
     /**	addProperty - Adds the specified property object to the
 	properties in the CIM class
     */
-    CIMClass& addProperty(const CIMProperty& x)
-    {
-	_checkRep();
-	_rep->addProperty(x);
-	return *this;
-    }
+    CIMClass& addProperty(const CIMProperty& x);
 
     /** findProperty - Finds the property object with the
 	name defined by the input parameter in the class.
@@ -320,34 +223,14 @@ public:
 	@return position representing the property object found or
 	PEG_NOT_FOUND if the property is not found.
     */
-    Uint32 findProperty(const String& name)
-    {
-	_checkRep();
-	return _rep->findProperty(name);
-    }
+    Uint32 findProperty(const String& name) const;
 
-    Uint32 findProperty(const String& name) const
-    {
-	_checkRep();
-	return _rep->findProperty(name);
-    }
-
-    /** existsPropery - Determines if a property object with the
+    /** existsProperty - Determines if a property object with the
 	name defined by the input parameter exists in the class.
 	@parm String parameter with the property name.
 	@return True if the property object exists.
     */
-    Boolean existsProperty(const String& name)
-    {
-	_checkRep();
-	return _rep->existsProperty(name);
-    }
-
-	Boolean existsProperty(const String& name) const
-    {
-       _checkRep();
-       return _rep->existsProperty(name);
-    }
+    Boolean existsProperty(const String& name) const;
 
     /** getProperty - Returns a property representing the property
 	defined by the input parameter
@@ -356,11 +239,7 @@ public:
 	@return CIMProperty object
 	ATTN: what is error return?
     */
-    CIMProperty getProperty(Uint32 pos)
-    {
-	_checkRep();
-	return _rep->getProperty(pos);
-    }
+    CIMProperty getProperty(Uint32 pos);
 
     /**getProperty Gets a property object from the CIMClass
     	@param pos The index of the property object to get.
@@ -368,11 +247,7 @@ public:
     	@exception Throws OutofBounds if the size field is greather than the
     	bunber of properties in the class.
     */
-    CIMConstProperty getProperty(Uint32 pos) const
-    {
-	_checkRep();
-	return _rep->getProperty(pos);
-    }
+    CIMConstProperty getProperty(Uint32 pos) const;
 
     /** removeProperty - Removes the property represented
 	by the position input parameter from the class
@@ -380,21 +255,13 @@ public:
 	findPropety method
 	@exception Throws OutofBounds if index is not a property object
     */
-    void removeProperty(Uint32 pos)
-    {
-	_checkRep();
-	_rep->removeProperty(pos);
-    }
+    void removeProperty(Uint32 pos);
 
     /** getPropertyCount -   Gets the count of the number of properties
 	defined in the class.
 	@return count of number of proerties in the class
     */
-    Uint32 getPropertyCount() const
-    {
-	_checkRep();
-	return _rep->getPropertyCount();
-    }
+    Uint32 getPropertyCount() const;
 
     /** addMethod - Adds the method object defined by the input
 	parameter to the class and increments the count of the number of
@@ -404,12 +271,7 @@ public:
 	@exception Throws AlreadyExists if the method already exists and throws
 	UnitializedHandle if the handle is not initialized
     */
-    CIMClass& addMethod(const CIMMethod& x)
-    {
-	_checkRep();
-	_rep->addMethod(x);
-	return *this;
-    }
+    CIMClass& addMethod(const CIMMethod& x);
 
     /** findMethod - Locate the method object defined by the
 	name input
@@ -417,34 +279,14 @@ public:
 	@return Position of the method object in the class to be used in
 	subsequent getmethod, etc. operations
     */
-    Uint32 findMethod(const String& name)
-    {
-	_checkRep();
-	return _rep->findMethod(name);
-    }
-
-    Uint32 findMethod(const String& name) const
-    {
-	_checkRep();
-	return _rep->findMethod(name);
-    }
+    Uint32 findMethod(const String& name) const;
 
      /** existsMethod - Determine if the method object defined by the
 	name input exists
 	@param String representing the name of the method to be found
 	@return True if the method exists
     */
-    Boolean existsMethod(const String& name)
-    {
-	_checkRep();
-	return _rep->existsMethod(name);
-    }
-
-    Boolean existsMethod(const String& name) const
-    {
-	_checkRep();
-	return _rep->existsMethod(name);
-    }
+    Boolean existsMethod(const String& name) const;
 
     /** getMethod - Gets the method object defined by the
 	input parameter.
@@ -453,21 +295,13 @@ public:
 	@exception Throws OutofBounds if the index represented by pos is greater
 	than the number of methods defined in the class object
     */
-    CIMMethod getMethod(Uint32 pos)
-    {
-	_checkRep();
-	return _rep->getMethod(pos);
-    }
+    CIMMethod getMethod(Uint32 pos);
 
     /** getMethod Gets the method object defined by the input
     parameter. This is the const version.
     */
 
-    CIMConstMethod getMethod(Uint32 pos) const
-    {
-	_checkRep();
-	return _rep->getMethod(pos);
-    }
+    CIMConstMethod getMethod(Uint32 pos) const;
 
     /** removeMethod - Removes the method defined by the
     index parameter.
@@ -476,72 +310,20 @@ public:
     @exception Throw OutOfBound exception if the index is outside
     the range of existing method objects for this class
     */
-    void removeMethod(Uint32 pos)
-    {
-	_checkRep();
-	_rep->removeMethod(pos);
-    }
+    void removeMethod(Uint32 pos);
 
     /** getMethodCount - Count of the number of methods in the class
 	@return integer representing the number of methods in the class object.
     */
-    Uint32 getMethodCount() const
-    {
-	_checkRep();
-	return _rep->getMethodCount();
-    }
+    Uint32 getMethodCount() const;
 
-    /** Resolve -  Resolve the class: inherit any properties and
-	qualifiers. Make sure the superClass really exists and is consistent
-	with this class. Also set the propagated flag class-origin for each
-	class feature.
-	ATTN: explain why this here
-    */
-    void resolve(
-	DeclContext* declContext,
-	const String& nameSpace)
-    {
-	_checkRep();
-	_rep->resolve(declContext, nameSpace);
-    }
+    /** Get names of all keys of this class. */
+    void getKeyNames(Array<String>& keyNames) const;
 
-    /// operator - ATTN:
-    operator int() const { return _rep != 0; }
+    Boolean hasKeys() const;
 
-    /** toXML  - prepares an XML representation of the CIMClass object
-    	in the provided Sint8 variable.
-	@param out Sint8 array for the XML representation
-    */
-    void toXml(Array<Sint8>& out) const
-    {
-	_checkRep();
-	_rep->toXml(out);
-    }
-
-    /** print -  Prints the toXML output to cout
-    */
-    void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const
-    {
-	_checkRep();
-	_rep->print(o);
-    }
-
-    /** toMof  - prepares a MOF representation of the CIMClass object
-    	in the provided Sint8 variable.
-	@param out Sint8 array for the XML representation
-    */
-    void toMof(Array<Sint8>& out) const
-    {
-	_checkRep();
-	_rep->toMof(out);
-    }
-    /** printMof -  Prints the toMof output to cout
-    */
-    void printMof(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const
-    {
-	_checkRep();
-	_rep->printMof(o);
-    }
+    /** Makes a deep copy (clone) of the given object. */
+    CIMClass clone() const;
 
     /** identical -  Compares with another class
 	ATTN: Clarify exactly what identical means
@@ -550,41 +332,54 @@ public:
     */
     Boolean identical(const CIMConstClass& x) const;
 
-    /** Makes a deep copy (clone) of the given object. */
-    CIMClass clone() const
-    {
-	return CIMClass((CIMClassRep*)(_rep->clone()));
-    }
+    /** toXML  - prepares an XML representation of the CIMClass object
+    	in the provided Sint8 variable.
+	@param out Sint8 array for the XML representation
+    */
+    void toXml(Array<Sint8>& out) const;
 
-    /** Get names of all keys of this class. */
-    void getKeyNames(Array<String>& keyNames) const
-    {
-	_checkRep();
-	_rep->getKeyNames(keyNames);
-    }
+    /** toMof  - prepares a MOF representation of the CIMClass object
+    	in the provided Sint8 variable.
+	@param out Sint8 array for the XML representation
+    */
+    void toMof(Array<Sint8>& out) const;
 
-    Boolean hasKeys() const
-    {
-	_checkRep();
-	return _rep->hasKeys();
-    }
+    /** print -  Prints the toXML output to cout
+    */
+    void print(PEGASUS_STD(ostream)& o=PEGASUS_STD(cout)) const;
+
+#ifdef PEGASUS_INTERNALONLY
+    /** Resolve -  Resolve the class: inherit any properties and
+	qualifiers. Make sure the superClass really exists and is consistent
+	with this class. Also set the propagated flag class-origin for each
+	class feature.
+	ATTN: explain why this here
+    */
+    void resolve(
+	DeclContext* declContext,
+	const String& nameSpace);
+
+    /// operator - ATTN:
+    operator int() const;
+
+    /** printMof -  Prints the toMof output to cout
+    */
+    void printMof(PEGASUS_STD(ostream)& o=PEGASUS_STD(cout)) const;
+#endif
 
 private:
 
-    CIMClass(CIMClassRep* rep) : _rep(rep)
-    {
-    }
-
-    void _checkRep() const
-    {
-	if (!_rep)
-	    ThrowUnitializedHandle();
-    }
-
     CIMClassRep* _rep;
+
+#ifdef PEGASUS_INTERNALONLY
+    CIMClass(CIMClassRep* rep);
+
+    void _checkRep() const;
+
     friend class CIMConstClass;
     friend class CIMObject;
     friend class CIMConstObject;
+#endif
 };
 
 #define PEGASUS_ARRAY_T CIMClass
@@ -598,19 +393,11 @@ class PEGASUS_COMMON_LINKAGE CIMConstClass
 {
 public:
 
-    CIMConstClass() : _rep(0)
-    {
-    }
+    CIMConstClass();
 
-    CIMConstClass(const CIMConstClass& x)
-    {
-	Inc(_rep = x._rep);
-    }
+    CIMConstClass(const CIMConstClass& x);
 
-    CIMConstClass(const CIMClass& x)
-    {
-	Inc(_rep = x._rep);
-    }
+    CIMConstClass(const CIMClass& x);
 
     PEGASUS_EXPLICIT CIMConstClass(const CIMObject& x);
 
@@ -620,190 +407,78 @@ public:
 
     PEGASUS_EXPLICIT CIMConstClass(const CIMConstObject& x, NoThrow&);
 
-    CIMConstClass& operator=(const CIMConstClass& x)
-    {
-	if (x._rep != _rep)
-	{
-            Dec(_rep);
-	    Inc(_rep = x._rep);
-	}
-	return *this;
-    }
-
-    CIMConstClass& operator=(const CIMClass& x)
-    {
-	if (x._rep != _rep)
-	{
-            Dec(_rep);
-	    Inc(_rep = x._rep);
-	}
-	return *this;
-    }
-
     // Throws IllegalName if className argument not legal CIM identifier.
-
     CIMConstClass(
 	const CIMReference& reference,
-	const String& superClassName = String())
-    {
-	_rep = new CIMClassRep(reference, superClassName);
-    }
+	const String& superClassName = String::EMPTY);
 
-    ~CIMConstClass()
-    {
-        Dec(_rep);
-    }
+    CIMConstClass& operator=(const CIMConstClass& x);
 
-    Boolean isAssociation() const
-    {
-	_checkRep();
-	return _rep->isAssociation();
-    }
+    CIMConstClass& operator=(const CIMClass& x);
 
-    Boolean isAbstract() const
-    {
-	_checkRep();
-	return _rep->isAbstract();
-    }
+    ~CIMConstClass();
 
-    const String& getClassName() const
-    {
-	_checkRep();
-	return _rep->getClassName();
-    }
+    Boolean isAssociation() const;
 
-    const Boolean equalClassName(const String& classname) const
-    {
-	_checkRep();
-	return _rep->equalClassName(classname);
+    Boolean isAbstract() const;
 
-    }
+    const String& getClassName() const;
 
-    const CIMReference& getPath() const
-    {
-	_checkRep();
-	return _rep->getPath();
-    }
+    const Boolean equalClassName(const String& classname) const;
 
-    const String& getSuperClassName() const
-    {
-	_checkRep();
-	return _rep->getSuperClassName();
-    }
+    const CIMReference& getPath() const;
 
-    Uint32 findQualifier(const String& name) const
-    {
-	_checkRep();
-	return _rep->findQualifier(name);
-    }
+    const String& getSuperClassName() const;
 
-    CIMConstQualifier getQualifier(Uint32 pos) const
-    {
-	_checkRep();
-	return _rep->getQualifier(pos);
-    }
+    Uint32 findQualifier(const String& name) const;
 
-    Boolean isTrueQualifier(const String& name) const
-    {
-	_checkRep();
-	return _rep->isTrueQualifier(name);
-    }
+    CIMConstQualifier getQualifier(Uint32 pos) const;
 
-    Uint32 getQualifierCount() const
-    {
-	_checkRep();
-	return _rep->getQualifierCount();
-    }
+    Boolean isTrueQualifier(const String& name) const;
 
-    Uint32 findProperty(const String& name) const
-    {
-	_checkRep();
-	return _rep->findProperty(name);
-    }
+    Uint32 getQualifierCount() const;
 
-    CIMConstProperty getProperty(Uint32 pos) const
-    {
-	_checkRep();
-	return _rep->getProperty(pos);
-    }
+    Uint32 findProperty(const String& name) const;
 
-    Uint32 getPropertyCount() const
-    {
-	_checkRep();
-	return _rep->getPropertyCount();
-    }
+    CIMConstProperty getProperty(Uint32 pos) const;
 
-    Uint32 findMethod(const String& name) const
-    {
-	_checkRep();
-	return _rep->findMethod(name);
-    }
+    Uint32 getPropertyCount() const;
 
-    CIMConstMethod getMethod(Uint32 pos) const
-    {
-	_checkRep();
-	return _rep->getMethod(pos);
-    }
+    Uint32 findMethod(const String& name) const;
 
-    Uint32 getMethodCount() const
-    {
-	_checkRep();
-	return _rep->getMethodCount();
-    }
+    CIMConstMethod getMethod(Uint32 pos) const;
 
-    operator int() const { return _rep != 0; }
+    Uint32 getMethodCount() const;
 
-    void toXml(Array<Sint8>& out) const
-    {
-	_checkRep();
-	_rep->toXml(out);
-    }
+    void getKeyNames(Array<String>& keyNames) const;
 
-    void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const
-    {
-	_checkRep();
-	_rep->print(o);
-    }
+    Boolean hasKeys() const;
 
-    Boolean identical(const CIMConstClass& x) const
-    {
-	x._checkRep();
-	_checkRep();
-	return _rep->identical(x._rep);
-    }
+    CIMClass clone() const;
 
-    CIMClass clone() const
-    {
-	return CIMClass((CIMClassRep*)(_rep->clone()));
-    }
+    Boolean identical(const CIMConstClass& x) const;
 
-    void getKeyNames(Array<String>& keyNames) const
-    {
-	_checkRep();
-	_rep->getKeyNames(keyNames);
-    }
+#ifdef PEGASUS_INTERNALONLY
+    operator int() const;
 
-    Boolean hasKeys() const
-    {
-	_checkRep();
-	return _rep->hasKeys();
-    }
+    void toXml(Array<Sint8>& out) const;
+
+    void print(PEGASUS_STD(ostream)& o=PEGASUS_STD(cout)) const;
+#endif
 
 private:
 
-    void _checkRep() const
-    {
-	if (!_rep)
-	    ThrowUnitializedHandle();
-    }
-
     CIMClassRep* _rep;
+
+#ifdef PEGASUS_INTERNALONLY
+    void _checkRep() const;
 
     friend class CIMClassRep;
     friend class CIMClass;
     friend class CIMInstanceRep;
     friend class CIMObject;
     friend class CIMConstObject;
+#endif
 };
 
 PEGASUS_NAMESPACE_END

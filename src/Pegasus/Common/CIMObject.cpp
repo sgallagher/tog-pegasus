@@ -26,6 +26,9 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include "CIMClassRep.h"
+#include "CIMInstanceRep.h"
+#include "CIMObjectRep.h"
 #include "CIMObject.h"
 #include "CIMClass.h"
 #include "CIMInstance.h"
@@ -39,6 +42,16 @@ PEGASUS_NAMESPACE_BEGIN
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+CIMObject::CIMObject()
+    : _rep(0)
+{
+}
+
+CIMObject::CIMObject(const CIMObject& x)
+{
+    Inc(_rep = x._rep);
+}
+
 CIMObject::CIMObject(const CIMClass& x)
 {
     Inc(_rep = x._rep);
@@ -47,6 +60,21 @@ CIMObject::CIMObject(const CIMClass& x)
 CIMObject::CIMObject(const CIMInstance& x)
 {
     Inc(_rep = x._rep);
+}
+
+CIMObject::CIMObject(CIMObjectRep* rep)
+    : _rep(rep)
+{
+}
+
+CIMObject& CIMObject::operator=(const CIMObject& x)
+{
+    if (x._rep != _rep)
+    {
+        Dec(_rep);
+	Inc(_rep = x._rep);
+    }
+    return *this;
 }
 
 CIMObject& CIMObject::operator=(const CIMClass& x)
@@ -69,6 +97,120 @@ CIMObject& CIMObject::operator=(const CIMInstance& x)
     return *this;
 }
 
+CIMObject::~CIMObject()
+{
+    Dec(_rep);
+}
+
+const String& CIMObject::getClassName() const
+{
+    _checkRep();
+    return _rep->getClassName();
+}
+
+const Boolean CIMObject::equalClassName(const String& classname) const
+{
+    _checkRep();
+    return _rep->equalClassName(classname);
+}
+
+const CIMReference& CIMObject::getPath() const
+{
+    _checkRep();
+    return _rep->getPath();
+}
+
+CIMObject& CIMObject::addQualifier(const CIMQualifier& qualifier)
+{
+    _checkRep();
+    _rep->addQualifier(qualifier);
+    return *this;
+}
+
+Uint32 CIMObject::findQualifier(const String& name) const
+{
+    _checkRep();
+    return _rep->findQualifier(name);
+}
+
+Boolean CIMObject::existsQualifier(const String& name) const
+{
+    _checkRep();
+    return _rep->existsQualifier(name);
+}
+
+CIMQualifier CIMObject::getQualifier(Uint32 pos)
+{
+    _checkRep();
+    return _rep->getQualifier(pos);
+}
+
+CIMConstQualifier CIMObject::getQualifier(Uint32 pos) const
+{
+    _checkRep();
+    return _rep->getQualifier(pos);
+}
+
+void CIMObject::removeQualifier(Uint32 pos)
+{
+    _checkRep();
+    _rep->removeQualifier(pos);
+}
+
+Uint32 CIMObject::getQualifierCount() const
+{
+    _checkRep();
+    return _rep->getQualifierCount();
+}
+
+CIMObject& CIMObject::addProperty(const CIMProperty& x)
+{
+    _checkRep();
+    _rep->addProperty(x);
+    return *this;
+}
+
+Uint32 CIMObject::findProperty(const String& name) const
+{
+    _checkRep();
+    return _rep->findProperty(name);
+}
+
+Boolean CIMObject::existsProperty(const String& name) const
+{
+    _checkRep();
+    return _rep->existsProperty(name);
+}
+
+CIMProperty CIMObject::getProperty(Uint32 pos)
+{
+    _checkRep();
+    return _rep->getProperty(pos);
+}
+
+CIMConstProperty CIMObject::getProperty(Uint32 pos) const
+{
+    _checkRep();
+    return _rep->getProperty(pos);
+}
+
+void CIMObject::removeProperty(Uint32 pos)
+{
+    _checkRep();
+    _rep->removeProperty(pos);
+}
+
+Uint32 CIMObject::getPropertyCount() const
+{
+    _checkRep();
+    return _rep->getPropertyCount();
+}
+
+CIMObject::operator int() const
+{
+    return (_rep != 0);
+}
+
 Boolean CIMObject::identical(const CIMConstObject& x) const
 {
     x._checkRep();
@@ -76,11 +218,44 @@ Boolean CIMObject::identical(const CIMConstObject& x) const
     return _rep->identical(x._rep);
 }
 
+void CIMObject::toXml(Array<Sint8>& out) const
+{
+    _checkRep();
+    _rep->toXml(out);
+}
+
+CIMObject CIMObject::clone() const
+{
+    _checkRep();
+    return CIMObject(_rep->clone());
+}
+
+void CIMObject::_checkRep() const
+{
+    if (!_rep)
+        ThrowUnitializedHandle();
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // CIMConstObject
 //
 ////////////////////////////////////////////////////////////////////////////////
+
+CIMConstObject::CIMConstObject()
+    : _rep(0)
+{
+}
+
+CIMConstObject::CIMConstObject(const CIMConstObject& x)
+{
+    Inc(_rep = x._rep);
+}
+
+CIMConstObject::CIMConstObject(const CIMObject& x)
+{
+    Inc(_rep = x._rep);
+}
 
 CIMConstObject::CIMConstObject(const CIMClass& x)
 {
@@ -100,6 +275,26 @@ CIMConstObject::CIMConstObject(const CIMInstance& x)
 CIMConstObject::CIMConstObject(const CIMConstInstance& x)
 {
     Inc(_rep = x._rep);
+}
+
+CIMConstObject& CIMConstObject::operator=(const CIMConstObject& x)
+{
+    if (x._rep != _rep)
+    {
+        Dec(_rep);
+        Inc(_rep = x._rep);
+    }
+    return *this;
+}
+
+CIMConstObject& CIMConstObject::operator=(const CIMObject& x)
+{
+    if (x._rep != _rep)
+    {
+        Dec(_rep);
+        Inc(_rep = x._rep);
+    }
+    return *this;
 }
 
 CIMConstObject& CIMConstObject::operator=(const CIMClass& x)
@@ -142,6 +337,94 @@ CIMConstObject& CIMConstObject::operator=(const CIMConstInstance& x)
     return *this;
 }
 
+CIMConstObject::~CIMConstObject()
+{
+    Dec(_rep);
+}
+
+const String& CIMConstObject::getClassName() const
+{
+    _checkRep();
+    return _rep->getClassName();
+}
+
+const CIMReference& CIMConstObject::getPath() const
+{
+    _checkRep();
+    return _rep->getPath();
+}
+
+Uint32 CIMConstObject::findQualifier(const String& name) const
+{
+    _checkRep();
+    return _rep->findQualifier(name);
+}
+
+CIMConstQualifier CIMConstObject::getQualifier(Uint32 pos) const
+{
+    _checkRep();
+    return _rep->getQualifier(pos);
+}
+
+Uint32 CIMConstObject::getQualifierCount() const
+{
+    _checkRep();
+    return _rep->getQualifierCount();
+}
+
+Uint32 CIMConstObject::findProperty(const String& name) const
+{
+    _checkRep();
+    return _rep->findProperty(name);
+}
+
+CIMConstProperty CIMConstObject::getProperty(Uint32 pos) const
+{
+    _checkRep();
+    return _rep->getProperty(pos);
+}
+
+Uint32 CIMConstObject::getPropertyCount() const
+{
+    _checkRep();
+    return _rep->getPropertyCount();
+}
+
+CIMConstObject::operator int() const
+{
+    return (_rep != 0);
+}
+
+void CIMConstObject::toXml(Array<Sint8>& out) const
+{
+    _checkRep();
+    _rep->toXml(out);
+}
+
+void CIMConstObject::print(PEGASUS_STD(ostream)& o) const
+{
+    _checkRep();
+    _rep->print(o);
+}
+
+Boolean CIMConstObject::identical(const CIMConstObject& x) const
+{
+    x._checkRep();
+    _checkRep();
+    return _rep->identical(x._rep);
+}
+
+CIMObject CIMConstObject::clone() const
+{
+    return CIMObject(_rep->clone());
+}
+
+void CIMConstObject::_checkRep() const
+{
+    if (!_rep)
+        ThrowUnitializedHandle();
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // CIMObjectWithPath
@@ -150,7 +433,6 @@ CIMConstObject& CIMConstObject::operator=(const CIMConstInstance& x)
 
 CIMObjectWithPath::CIMObjectWithPath()
 {
-
 }
 
 CIMObjectWithPath::CIMObjectWithPath(
@@ -158,18 +440,15 @@ CIMObjectWithPath::CIMObjectWithPath(
     const CIMObject& object)
     : _reference(reference), _object(object)
 {
-
 }
 
 CIMObjectWithPath::CIMObjectWithPath(const CIMObjectWithPath& x)
     : _reference(x._reference), _object(x._object)
 {
-
 }
 
 CIMObjectWithPath::~CIMObjectWithPath()
 {
-
 }
 
 CIMObjectWithPath& CIMObjectWithPath::operator=(const CIMObjectWithPath& x)
@@ -188,6 +467,26 @@ void CIMObjectWithPath::set(
 {
     _reference = reference;
     _object = object;
+}
+
+const CIMReference& CIMObjectWithPath::getReference() const
+{
+    return _reference;
+}
+
+const CIMObject& CIMObjectWithPath::getObject() const
+{
+    return _object;
+}
+
+CIMReference& CIMObjectWithPath::getReference()
+{
+    return _reference;
+}
+
+CIMObject& CIMObjectWithPath::getObject()
+{
+    return _object;
 }
 
 void CIMObjectWithPath::toXml(Array<Sint8>& out) const

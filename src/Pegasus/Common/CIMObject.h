@@ -30,10 +30,15 @@
 #define Pegasus_Object_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/CIMObjectRep.h>
+#include <Pegasus/Common/String.h>
+#include <Pegasus/Common/Array.h>
+#include <Pegasus/Common/CIMProperty.h>
+#include <Pegasus/Common/CIMQualifier.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
+class CIMConstObject;
+class CIMObjectRep;
 class CIMClass;
 class CIMConstClass;
 class CIMInstance;
@@ -44,9 +49,6 @@ class CIMConstInstance;
 // CIMObject
 //
 ////////////////////////////////////////////////////////////////////////////////
-
-class CIMConstObject;
-class CIMObject;
 
 /** This class either refers to a CIMInstance or a CIMClass.
 
@@ -59,17 +61,11 @@ public:
 
     /** Constructor.
     */
-    CIMObject() : _rep(0)
-    {
-
-    }
+    CIMObject();
 
     /** Copy constructor.
     */
-    CIMObject(const CIMObject& x)
-    {
-	Inc(_rep = x._rep);
-    }
+    CIMObject(const CIMObject& x);
 
     /** Construction from CIMClass.
     */
@@ -81,15 +77,7 @@ public:
 
     /** Assignment operator.
     */
-    CIMObject& operator=(const CIMObject& x)
-    {
-	if (x._rep != _rep)
-	{
-            Dec(_rep);
-	    Inc(_rep = x._rep);
-	}
-	return *this;
-    }
+    CIMObject& operator=(const CIMObject& x);
 
     /** Assignment operator.
     */
@@ -101,10 +89,7 @@ public:
 
     /** Destructor.
     */
-    ~CIMObject()
-    {
-        Dec(_rep);
-    }
+    ~CIMObject();
 
     /**	Accessor for ClassName component of the object.
 	@return - Returns the ClassName of the object in
@@ -115,11 +100,7 @@ public:
 	    className = myclass.getClassName;
 	</pre>
     */
-    const String& getClassName() const
-    {
-	_checkRep();
-	return _rep->getClassName();
-    }
+    const String& getClassName() const;
 
     /** equalClassName Compares ClassName with a String. This test performs
 	a comparison of the classname component of the object
@@ -130,17 +111,9 @@ public:
 	@return True if it is the same class name (equalNoCase compare passes)
 	or false if not.
     */
-    const Boolean equalClassName(const String& classname) const
-    {
-	_checkRep();
-	return _rep->equalClassName(classname);
+    const Boolean equalClassName(const String& classname) const;
 
-    }
-    const CIMReference& getPath() const
-    {
-	_checkRep();
-	return _rep->getPath();
-    }
+    const CIMReference& getPath() const;
 
     /**	addQualifier - Adds the CIMQualifier object to the instance.
 	Thows an exception of the CIMQualifier already exists in the instance
@@ -148,12 +121,7 @@ public:
 	@return ATTN:
 	@exception Throws AlreadyExists.
     */
-    CIMObject& addQualifier(const CIMQualifier& qualifier)
-    {
-	_checkRep();
-	_rep->addQualifier(qualifier);
-	return *this;
-    }
+    CIMObject& addQualifier(const CIMQualifier& qualifier);
 
     /**	findQualifier - Searches the instance for the qualifier object
         defined by the input parameter.
@@ -161,11 +129,7 @@ public:
 	@return - Position of the qualifier to be used in subsequent
 	operations or PEG_NOT_FOUND if the qualifier is not found.
     */
-    Uint32 findQualifier(const String& name) const
-    {
-	_checkRep();
-	return _rep->findQualifier(name);
-    }
+    Uint32 findQualifier(const String& name) const;
 
     /**	existsQualifier - Searches the instance for the qualifier object
         defined by the input parameter.
@@ -173,11 +137,7 @@ public:
 	@return - Returns True if  the qualifier object exists or false
 	if the qualifier is not found.
     */
-    Boolean existsQualifier(const String& name) const
-    {
-	_checkRep();
-	return _rep->existsQualifier(name);
-    }
+    Boolean existsQualifier(const String& name) const;
 
     /**	getQualifier - Retrieves the qualifier object defined by the
 	index input parameter.  @ index for the qualifier object.
@@ -188,11 +148,7 @@ public:
 	@exception Throws the OutOfBounds exception if the index
 	is out of bounds
     */
-    CIMQualifier getQualifier(Uint32 pos)
-    {
-	_checkRep();
-	return _rep->getQualifier(pos);
-    }
+    CIMQualifier getQualifier(Uint32 pos);
 
     /** getQualifier - Retrieves the qualifier object defined by the
 	index input parameter.  @ index for the qualifier object.
@@ -205,17 +161,9 @@ public:
 	ATTN: What is effect of out of range index???
 	ATTN: Is the above statement correct???
     */
-    CIMConstQualifier getQualifier(Uint32 pos) const
-    {
-	_checkRep();
-	return _rep->getQualifier(pos);
-    }
+    CIMConstQualifier getQualifier(Uint32 pos) const;
 
-    void removeQualifier(Uint32 pos)
-	{
-	_checkRep();
-	_rep->removeQualifier(pos);
-	}
+    void removeQualifier(Uint32 pos);
 	
     /** getQualifierCount - Gets the number of CIMQualifier objects
 	defined for this CIMObject.
@@ -224,11 +172,7 @@ public:
 	@exception Throws the OutOfBounds exception if the index
 	is out of bounds
     */
-    Uint32 getQualifierCount() const
-    {
-	_checkRep();
-	return _rep->getQualifierCount();
-    }
+    Uint32 getQualifierCount() const;
 
     /**	addProperty - Adds a property object defined by the input
 	parameter to the CIMObject
@@ -238,12 +182,7 @@ public:
 	@exception Throws the exception AlreadyExists if the property
 	already exists.
     */
-    CIMObject& addProperty(const CIMProperty& x)
-    {
-	_checkRep();
-	_rep->addProperty(x);
-	return *this;
-    }
+    CIMObject& addProperty(const CIMProperty& x);
 
     /**	findProperty - Searches the CIMProperty objects installed in the
 	CIMObject for property objects with the name defined by the
@@ -253,22 +192,14 @@ public:
 	PEG_NOT_FOUND if no property object found with the name defined by the
 	input.
     */
-    Uint32 findProperty(const String& name) const
-    {
-	_checkRep();
-	return _rep->findProperty(name);
-    }
+    Uint32 findProperty(const String& name) const;
 
     /** existsProperty - Determines if a property object with the
 	name defined by the input parameter exists in the class.
 	@parm String parameter with the property name.
 	@return True if the property object exists.
     */
-    Boolean existsProperty(const String& name) const
-    {
-	_checkRep();
-	return _rep->existsProperty(name);
-    }
+    Boolean existsProperty(const String& name) const;
 
     /**	getProperty - Gets the CIMProperty object in the CIMObject defined
 	by the input index parameter.
@@ -282,11 +213,7 @@ public:
 
 	ATTN: What is the effect of out of range?
     */
-    CIMProperty getProperty(Uint32 pos)
-    {
-	_checkRep();
-	return _rep->getProperty(pos);
-    }
+    CIMProperty getProperty(Uint32 pos);
 
     /**	getProperty - Gets the CIMproperty object in the CIMObject defined
 	by the input index parameter.
@@ -300,11 +227,7 @@ public:
 
 	ATTN: What is the effect of out of range?
     */
-    CIMConstProperty getProperty(Uint32 pos) const
-    {
-	_checkRep();
-	return _rep->getProperty(pos);
-    }
+    CIMConstProperty getProperty(Uint32 pos) const;
 
     /** removeProperty - Removes the property represented
 	by the position input parameter from the instance.
@@ -312,11 +235,7 @@ public:
 	instance.  Normally this is obtained by getProperty();
 	@exception Throws OutofBounds if index is not a property object
     */
-    void removeProperty(Uint32 pos)
-    {
-	_checkRep();
-	_rep->removeProperty(pos);
-    }
+    void removeProperty(Uint32 pos);
 
     /**	getPropertyCount - Gets the number of CIMProperty
 	objects defined for this CIMObject.
@@ -327,55 +246,40 @@ public:
 	is out of bounds
 
     */
-    Uint32 getPropertyCount() const
-    {
-	_checkRep();
-	return _rep->getPropertyCount();
-    }
+    Uint32 getPropertyCount() const;
 
-    /**	operator int() - ATTN: */
-    operator int() const { return _rep != 0; }
+    /**	Clones the given object.
+    */
+    CIMObject clone() const;
 
     /**	Returns true if the two classes are structurally identical.
     */
     Boolean identical(const CIMConstObject& x) const;
 
+#ifdef PEGASUS_INTERNALONLY
+    /**	operator int() - ATTN: */
+    operator int() const;
+
     /** Convert object to XML format.
     */
-    void toXml(Array<Sint8>& out) const
-    {
-	_checkRep();
-	_rep->toXml(out);
-    }
-
-    /**	Clones the given object.
-    */
-    CIMObject clone() const
-    {
-	_checkRep();
-	return CIMObject(_rep->clone());
-    }
+    void toXml(Array<Sint8>& out) const;
+#endif
 
 private:
 
-    CIMObject(CIMObjectRep* rep) : _rep(rep)
-    {
-
-    }
-
-    void _checkRep() const
-    {
-	if (!_rep)
-	    ThrowUnitializedHandle();
-    }
-
     CIMObjectRep* _rep;
+
+#ifdef PEGASUS_INTERNALONLY
+    CIMObject(CIMObjectRep* rep);
+
+    void _checkRep() const;
 
     friend class CIMConstObject;
     friend class CIMClass;
     friend class CIMConstClass;
     friend class CIMInstance;
     friend class CIMConstInstance;
+#endif
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -388,20 +292,11 @@ class PEGASUS_COMMON_LINKAGE CIMConstObject
 {
 public:
 
-    CIMConstObject() : _rep(0)
-    {
+    CIMConstObject();
 
-    }
+    CIMConstObject(const CIMConstObject& x);
 
-    CIMConstObject(const CIMConstObject& x)
-    {
-	Inc(_rep = x._rep);
-    }
-
-    CIMConstObject(const CIMObject& x)
-    {
-	Inc(_rep = x._rep);
-    }
+    CIMConstObject(const CIMObject& x);
 
     /** Construction from CIMClass.
     */
@@ -419,25 +314,9 @@ public:
     */
     CIMConstObject(const CIMConstInstance& x);
 
-    CIMConstObject& operator=(const CIMConstObject& x)
-    {
-	if (x._rep != _rep)
-	{
-            Dec(_rep);
-	    Inc(_rep = x._rep);
-	}
-	return *this;
-    }
+    CIMConstObject& operator=(const CIMConstObject& x);
 
-    CIMConstObject& operator=(const CIMObject& x)
-    {
-	if (x._rep != _rep)
-	{
-            Dec(_rep);
-	    Inc(_rep = x._rep);
-	}
-	return *this;
-    }
+    CIMConstObject& operator=(const CIMObject& x);
 
     CIMConstObject& operator=(const CIMClass& x);
 
@@ -447,100 +326,49 @@ public:
 
     CIMConstObject& operator=(const CIMConstInstance& x);
 
-    ~CIMConstObject()
-    {
-        Dec(_rep);
-    }
+    ~CIMConstObject();
 
-    const String& getClassName() const
-    {
-	_checkRep();
-	return _rep->getClassName();
-    }
+    const String& getClassName() const;
 
-    const CIMReference& getPath() const
-    {
-	_checkRep();
-	return _rep->getPath();
-    }
+    const CIMReference& getPath() const;
 
-    Uint32 findQualifier(const String& name) const
-    {
-	_checkRep();
-	return _rep->findQualifier(name);
-    }
+    Uint32 findQualifier(const String& name) const;
 
-    CIMConstQualifier getQualifier(Uint32 pos) const
-    {
-	_checkRep();
-	return _rep->getQualifier(pos);
-    }
+    CIMConstQualifier getQualifier(Uint32 pos) const;
 
-    Uint32 getQualifierCount() const
-    {
-	_checkRep();
-	return _rep->getQualifierCount();
-    }
+    Uint32 getQualifierCount() const;
 
-    Uint32 findProperty(const String& name) const
-    {
-	_checkRep();
-	return _rep->findProperty(name);
-    }
+    Uint32 findProperty(const String& name) const;
 
-    CIMConstProperty getProperty(Uint32 pos) const
-    {
-	_checkRep();
-	return _rep->getProperty(pos);
-    }
+    CIMConstProperty getProperty(Uint32 pos) const;
 
-    Uint32 getPropertyCount() const
-    {
-	_checkRep();
-	return _rep->getPropertyCount();
-    }
+    Uint32 getPropertyCount() const;
 
-    operator int() const { return _rep != 0; }
+    CIMObject clone() const;
 
-    void toXml(Array<Sint8>& out) const
-    {
-	_checkRep();
-	_rep->toXml(out);
-    }
+    Boolean identical(const CIMConstObject& x) const;
 
-    void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const
-    {
-	_checkRep();
-	_rep->print(o);
-    }
+#ifdef PEGASUS_INTERNALONLY
+    operator int() const;
 
-    Boolean identical(const CIMConstObject& x) const
-    {
-	x._checkRep();
-	_checkRep();
-	return _rep->identical(x._rep);
-    }
+    void toXml(Array<Sint8>& out) const;
 
-    CIMObject clone() const
-    {
-	return CIMObject(_rep->clone());
-    }
+    void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const;
+#endif
 
 private:
 
-    void _checkRep() const
-    {
-	if (!_rep)
-	    ThrowUnitializedHandle();
-    }
-
     CIMObjectRep* _rep;
+
+#ifdef PEGASUS_INTERNALONLY
+    void _checkRep() const;
 
     friend class CIMObject;
     friend class CIMClass;
     friend class CIMConstClass;
     friend class CIMInstance;
     friend class CIMConstInstance;
+#endif
 };
 
 /** The CIMObjectWithPath encapsulates a CIMReference and CIMObject.
@@ -575,23 +403,25 @@ public:
 
     /**
     */
-    const CIMReference& getReference() const { return _reference; }
+    const CIMReference& getReference() const;
 
     /**
     */
-    const CIMObject& getObject() const { return _object; }
+    const CIMObject& getObject() const;
 
     /**
     */
-    CIMReference& getReference() { return _reference; }
+    CIMReference& getReference();
 
     /**
     */
-    CIMObject& getObject() { return _object; }
+    CIMObject& getObject();
 
+#ifdef PEGASUS_INTERNALONLY
     /**
     */
     void toXml(Array<Sint8>& out) const;
+#endif
 
 private:
 

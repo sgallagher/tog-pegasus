@@ -5,6 +5,7 @@ include $(ROOT)/mak/config.mak
 
 DIRS = \
     Common \
+    Query/QueryCommon \
     Config \
     Repository \
     getoopt \
@@ -25,7 +26,10 @@ DIRS = \
     ControlProviders/NamespaceProvider \
     HandlerService \
     IndicationService \
-    ManagedClient
+    ManagedClient \
+    CQL \
+    CQL/tests \
+    CQL/CQLCLI
 
 ifdef PEGASUS_ENABLE_SLP
 DIRS += \

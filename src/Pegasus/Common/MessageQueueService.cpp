@@ -92,25 +92,11 @@ void MessageQueueService::force_shutdown(void)
       PEGASUS_STD(cout) << "Stopping " << svc->getQueueName() << PEGASUS_STD(endl);
       _polling_sem.signal();
       svc->_shutdown_incoming_queue();
+      counter++;
       _polling_sem.signal();
       svc = _polling_list.next(svc);
    }
    _polling_list.unlock();
-}
-
-
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(void *parm)
-{
-   Thread *myself = reinterpret_cast<Thread *>(parm);
-   DQueue<MessageQueueService> *list = reinterpret_cast<DQueue<MessageQueueService> *>(myself->get_parm());
-   while ( _stop_polling.value()  == 0 ) 
-   {
-      counter++;
-      _polling_sem.wait();
-      if(_stop_polling.value() != 0 )
-      {
-         break;
-
    _polling_sem.signal();
 
   while ( counter != 0) {
@@ -126,6 +112,20 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(
 	_polling_list.unlock();
    }
    MessageQueueService::_stop_polling = 1;
+}
+
+
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(void *parm)
+{
+   Thread *myself = reinterpret_cast<Thread *>(parm);
+   DQueue<MessageQueueService> *list = reinterpret_cast<DQueue<MessageQueueService> *>(myself->get_parm());
+   while ( _stop_polling.value()  == 0 ) 
+   {
+      _polling_sem.wait();
+      if(_stop_polling.value() != 0 )
+      {
+         break;
+
       }
       
       list->lock();

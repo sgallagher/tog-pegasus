@@ -1,26 +1,26 @@
 include $(ROOT)/mak/config-unix.mak
 
-OS = linux
+OS = aix
 
-ARCHITECTURE = iX86
+ARCHITECTURE = rs
 
-COMPILER = gnu
+COMPILER = xlc
 
-SYS_INCLUDES = 
+SYS_INCLUDES = -I$(ROOT)/src/stdcxx
 
 DEFINES = -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM)
 
-DEPEND_INCLUDES = -I/usr/include/g++-3
+DEPEND_INCLUDES =
 
 ifdef PEGASUS_DEBUG
-FLAGS = -g -W -Wall -Wno-unused
+FLAGS = -g
 else
-FLAGS = -O2 -W -Wall -Wno-unused
+FLAGS = -O2
 endif
 
 SYS_LIBS = -ldl
 
-CXX = g++
+CXX = xlC
 
 SH = sh
 

@@ -94,7 +94,7 @@ DefaultProviderManager::~DefaultProviderManager(void)
 {
 }
 
-Message * DefaultProviderManager::processMessage(Message * request) throw()
+Message * DefaultProviderManager::processMessage(Message * request)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "DefaultProviderManager::processMessage()");
@@ -211,7 +211,7 @@ Message * DefaultProviderManager::processMessage(Message * request) throw()
     return(response);
 }
 
-Message * DefaultProviderManager::handleUnsupportedRequest(const Message * message) throw()
+Message * DefaultProviderManager::handleUnsupportedRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleUnsupportedRequest");
 
@@ -221,7 +221,7 @@ Message * DefaultProviderManager::handleUnsupportedRequest(const Message * messa
     return(0);
 }
 
-Message * DefaultProviderManager::handleGetInstanceRequest(const Message * message) throw()
+Message * DefaultProviderManager::handleGetInstanceRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleGetInstanceRequest");
 
@@ -329,7 +329,7 @@ Message * DefaultProviderManager::handleGetInstanceRequest(const Message * messa
     return(response);
 }
 
-Message * DefaultProviderManager::handleEnumerateInstancesRequest(const Message * message) throw()
+Message * DefaultProviderManager::handleEnumerateInstancesRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleEnumerateInstanceRequest");
 
@@ -436,7 +436,7 @@ Message * DefaultProviderManager::handleEnumerateInstancesRequest(const Message 
     return(response);
 }
 
-Message * DefaultProviderManager::handleEnumerateInstanceNamesRequest(const Message * message) throw()
+Message * DefaultProviderManager::handleEnumerateInstanceNamesRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleEnumerateInstanceNamesRequest");
 
@@ -540,7 +540,7 @@ Message * DefaultProviderManager::handleEnumerateInstanceNamesRequest(const Mess
     return(response);
 }
 
-Message * DefaultProviderManager::handleCreateInstanceRequest(const Message * message) throw()
+Message * DefaultProviderManager::handleCreateInstanceRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleCreateInstanceRequest");
 
@@ -645,7 +645,7 @@ Message * DefaultProviderManager::handleCreateInstanceRequest(const Message * me
     return(response);
 }
 
-Message * DefaultProviderManager::handleModifyInstanceRequest(const Message * message) throw()
+Message * DefaultProviderManager::handleModifyInstanceRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleModifyInstanceRequest");
 
@@ -753,7 +753,7 @@ Message * DefaultProviderManager::handleModifyInstanceRequest(const Message * me
     return(response);
 }
 
-Message * DefaultProviderManager::handleDeleteInstanceRequest(const Message * message) throw()
+Message * DefaultProviderManager::handleDeleteInstanceRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleDeleteInstanceRequest");
 
@@ -856,7 +856,7 @@ Message * DefaultProviderManager::handleDeleteInstanceRequest(const Message * me
     return(response);
 }
 
-Message * DefaultProviderManager::handleExecQueryRequest(const Message * message) throw()
+Message * DefaultProviderManager::handleExecQueryRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleExecQueryRequest");
 
@@ -971,7 +971,7 @@ Message * DefaultProviderManager::handleExecQueryRequest(const Message * message
     return(response);
 }
 
-Message * DefaultProviderManager::handleAssociatorsRequest(const Message * message) throw()
+Message * DefaultProviderManager::handleAssociatorsRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleAssociatorsRequest");
 
@@ -1079,7 +1079,7 @@ Message * DefaultProviderManager::handleAssociatorsRequest(const Message * messa
     return(response);
 }
 
-Message * DefaultProviderManager::handleAssociatorNamesRequest(const Message * message) throw()
+Message * DefaultProviderManager::handleAssociatorNamesRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleAssociatorNamesRequest");
 
@@ -1186,7 +1186,7 @@ Message * DefaultProviderManager::handleAssociatorNamesRequest(const Message * m
     return(response);
 }
 
-Message * DefaultProviderManager::handleReferencesRequest(const Message * message) throw()
+Message * DefaultProviderManager::handleReferencesRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleReferencesRequest");
 
@@ -1300,7 +1300,7 @@ Message * DefaultProviderManager::handleReferencesRequest(const Message * messag
     return(response);
 }
 
-Message * DefaultProviderManager::handleReferenceNamesRequest(const Message * message) throw()
+Message * DefaultProviderManager::handleReferenceNamesRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleReferenceNamesRequest");
 
@@ -1409,7 +1409,7 @@ Message * DefaultProviderManager::handleReferenceNamesRequest(const Message * me
     return(response);
 }
 
-Message * DefaultProviderManager::handleGetPropertyRequest(const Message * message) throw()
+Message * DefaultProviderManager::handleGetPropertyRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleGetPropertyRequest");
 
@@ -1515,7 +1515,7 @@ Message * DefaultProviderManager::handleGetPropertyRequest(const Message * messa
     return(response);
 }
 
-Message * DefaultProviderManager::handleSetPropertyRequest(const Message * message) throw()
+Message * DefaultProviderManager::handleSetPropertyRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleSetPropertyRequest");
 
@@ -1625,7 +1625,7 @@ Message * DefaultProviderManager::handleSetPropertyRequest(const Message * messa
     return(response);
 }
 
-Message * DefaultProviderManager::handleInvokeMethodRequest(const Message * message) throw()
+Message * DefaultProviderManager::handleInvokeMethodRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleInvokeMethodRequest");
 
@@ -1739,7 +1739,7 @@ Message * DefaultProviderManager::handleInvokeMethodRequest(const Message * mess
     return(response);
 }
 
-Message * DefaultProviderManager::handleCreateSubscriptionRequest(const Message * message) throw()
+Message * DefaultProviderManager::handleCreateSubscriptionRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleCreateSubscriptionRequest");
 
@@ -1871,7 +1871,7 @@ Message * DefaultProviderManager::handleCreateSubscriptionRequest(const Message 
     return(response);
 }
 
-Message * DefaultProviderManager::handleModifySubscriptionRequest( const Message * message) throw()
+Message * DefaultProviderManager::handleModifySubscriptionRequest( const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleModifySubscriptionRequest");
 
@@ -2003,7 +2003,7 @@ Message * DefaultProviderManager::handleModifySubscriptionRequest( const Message
     return(response);
 }
 
-Message * DefaultProviderManager::handleDeleteSubscriptionRequest(const Message * message) throw()
+Message * DefaultProviderManager::handleDeleteSubscriptionRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleDeleteSubscriptionRequest");
 
@@ -2127,7 +2127,7 @@ Message * DefaultProviderManager::handleDeleteSubscriptionRequest(const Message 
     return(response);
 }
 
-Message * DefaultProviderManager::handleEnableIndicationsRequest(const Message * message) throw()
+Message * DefaultProviderManager::handleEnableIndicationsRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager:: handleEnableIndicationsRequest");
 
@@ -2226,7 +2226,7 @@ Message * DefaultProviderManager::handleEnableIndicationsRequest(const Message *
     return(response);
 }
 
-Message * DefaultProviderManager::handleDisableIndicationsRequest(const Message * message) throw()
+Message * DefaultProviderManager::handleDisableIndicationsRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleDisableIndicationsRequest");
 
@@ -2311,7 +2311,7 @@ Message * DefaultProviderManager::handleDisableIndicationsRequest(const Message 
     return(response);
 }
 
-Message * DefaultProviderManager::handleConsumeIndicationRequest(const Message *message) throw()
+Message * DefaultProviderManager::handleConsumeIndicationRequest(const Message *message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handlConsumeIndicationRequest");
 
@@ -2414,7 +2414,7 @@ Message * DefaultProviderManager::handleConsumeIndicationRequest(const Message *
 }
 
 
-Message *DefaultProviderManager::handleExportIndicationRequest(const Message *message) throw()
+Message *DefaultProviderManager::handleExportIndicationRequest(const Message *message)
 {
    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManagerService::handlExportIndicationRequest");
 
@@ -2517,7 +2517,7 @@ Message *DefaultProviderManager::handleExportIndicationRequest(const Message *me
 //
 // ATTN-YZ-P2-20030519: Provider needs to be blocked when disable a provider.
 //
-Message * DefaultProviderManager::handleDisableModuleRequest(const Message * message) throw()
+Message * DefaultProviderManager::handleDisableModuleRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleDisableModuleRequest");
 
@@ -2751,7 +2751,7 @@ Message * DefaultProviderManager::handleDisableModuleRequest(const Message * mes
     return(response);
 }
 
-Message * DefaultProviderManager::handleEnableModuleRequest(const Message * message) throw()
+Message * DefaultProviderManager::handleEnableModuleRequest(const Message * message)
 {
     // HACK
     ProviderRegistrationManager * _providerRegistrationManager = GetProviderRegistrationManager();
@@ -2831,7 +2831,7 @@ Message * DefaultProviderManager::handleEnableModuleRequest(const Message * mess
     return(response);
 }
 
-Message * DefaultProviderManager::handleStopAllProvidersRequest(const Message * message) throw()
+Message * DefaultProviderManager::handleStopAllProvidersRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleStopAllProvidersRequest");
 

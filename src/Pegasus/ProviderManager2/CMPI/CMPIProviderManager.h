@@ -64,7 +64,7 @@ public:
     virtual Boolean insertProvider(const ProviderName & providerName, 
             const String &ns, const String &cn);
   
-    virtual Message * processMessage(Message * request) throw();
+    virtual Message * processMessage(Message * request);
 
     virtual void unload_idle_providers(void) ;
     
@@ -93,39 +93,39 @@ protected:
     CIMRepository *_repository;
     String getFilter(CIMInstance &subscription);
 
-    Message * handleUnsupportedRequest(const Message * message) throw();
+    Message * handleUnsupportedRequest(const Message * message);
 
-    Message * handleGetInstanceRequest(const Message * message) throw();
-    Message * handleEnumerateInstancesRequest(const Message * message) throw();
-    Message * handleEnumerateInstanceNamesRequest(const Message * message) throw();
-    Message * handleCreateInstanceRequest(const Message * message) throw();
-    Message * handleModifyInstanceRequest(const Message * message) throw();
-    Message * handleDeleteInstanceRequest(const Message * message) throw();
+    Message * handleGetInstanceRequest(const Message * message);
+    Message * handleEnumerateInstancesRequest(const Message * message);
+    Message * handleEnumerateInstanceNamesRequest(const Message * message);
+    Message * handleCreateInstanceRequest(const Message * message);
+    Message * handleModifyInstanceRequest(const Message * message);
+    Message * handleDeleteInstanceRequest(const Message * message);
 
-    Message * handleExecQueryRequest(const Message * message) throw();
+    Message * handleExecQueryRequest(const Message * message);
 
-    Message * handleAssociatorsRequest(const Message * message) throw();
-    Message * handleAssociatorNamesRequest(const Message * message) throw();
-    Message * handleReferencesRequest(const Message * message) throw();
-    Message * handleReferenceNamesRequest(const Message * message) throw();
+    Message * handleAssociatorsRequest(const Message * message);
+    Message * handleAssociatorNamesRequest(const Message * message);
+    Message * handleReferencesRequest(const Message * message);
+    Message * handleReferenceNamesRequest(const Message * message);
 /*
-    Message * handleGetPropertyRequest(const Message * message) throw();
-    Message * handleSetPropertyRequest(const Message * message) throw();
+    Message * handleGetPropertyRequest(const Message * message);
+    Message * handleSetPropertyRequest(const Message * message);
 */
-    Message * handleInvokeMethodRequest(const Message * message) throw();
+    Message * handleInvokeMethodRequest(const Message * message);
 
-    Message * handleCreateSubscriptionRequest(const Message * message) throw();
-//    Message * handleModifySubscriptionRequest(const Message * message) throw();
-    Message * handleDeleteSubscriptionRequest(const Message * message) throw();
-    Message * handleEnableIndicationsRequest(const Message * message) throw();
-    Message * handleDisableIndicationsRequest(const Message * message) throw();
+    Message * handleCreateSubscriptionRequest(const Message * message);
+//    Message * handleModifySubscriptionRequest(const Message * message);
+    Message * handleDeleteSubscriptionRequest(const Message * message);
+    Message * handleEnableIndicationsRequest(const Message * message);
+    Message * handleDisableIndicationsRequest(const Message * message);
 
 //  Not supported by CMPI
-//    Message * handleConsumeIndicationRequest(const Message * message) throw();
+//    Message * handleConsumeIndicationRequest(const Message * message);
 
-    Message * handleDisableModuleRequest(const Message * message) throw();
-    Message * handleEnableModuleRequest(const Message * message) throw();
-    Message * handleStopAllProvidersRequest(const Message * message) throw();
+    Message * handleDisableModuleRequest(const Message * message);
+    Message * handleEnableModuleRequest(const Message * message);
+    Message * handleStopAllProvidersRequest(const Message * message);
 
     ProviderName _resolveProviderName(const ProviderName & providerName);
 };

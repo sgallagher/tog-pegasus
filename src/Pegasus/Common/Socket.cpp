@@ -75,7 +75,13 @@ Sint32 Socket::read(Sint32 socket, void* ptr, Uint32 size)
     AtoE((char *)ptr, size);
     return i;
 #else
+
+#if defined (__GNUC__)
+    int ccode = TEMP_FAILURE_RETRY(::read(socket, (char*)ptr, size));
+    return ccode;
+#else 
     return ::read(socket, (char*)ptr, size);
+#endif
 #endif
 }
 
@@ -102,7 +108,12 @@ Sint32 Socket::write(Sint32 socket, const void* ptr, Uint32 size)
     free(ptr2);
     return i;
 #else
+#if (__GNUC__)
+    int ccode = TEMP_FAILURE_RETRY(::write(socket, (char*)ptr, size));
+    return ccode;
+#else
     return ::write(socket, (char*)ptr, size);
+#endif
 #endif
 }
 
@@ -111,7 +122,11 @@ void Socket::close(Sint32 socket)
 #ifdef PEGASUS_OS_TYPE_WINDOWS
     closesocket(socket);
 #else
+#if (__GNUC__)
+    TEMP_FAILURE_RETRY(::close(socket));
+#else
     ::close(socket);
+#endif
 #endif
 }
 
@@ -329,9 +344,9 @@ int bsd_socket_rep::socket(int sock_type, int sock_style, int sock_protocol, voi
 }
 
 
-virtual bsd_socket_rep::Sint32 read(void* ptr, Uint32 size)
+Sint32 bsd_socket_rep::read(void* ptr, Uint32 size)
 {
-   
+   return Socket::read(_socket, ptr, size);
 }
 
 

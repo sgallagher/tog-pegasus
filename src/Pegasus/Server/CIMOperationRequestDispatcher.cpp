@@ -38,7 +38,6 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CIMOperationRequestDispatcher.h"
-#include <Pegasus/suballoc/suballoc.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/XmlReader.h> // stringToValue(), stringArrayToValue()
 #include <Pegasus/Common/StatisticalData.h>
@@ -50,10 +49,6 @@ PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
 //#define LIMIT_ENUM_TO_ONE_LEVEL
 
-namespace 
-{
-   static peg_suballocator::SUBALLOC_HANDLE *dq_handle = new peg_suballocator::SUBALLOC_HANDLE();
-}
 
 CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
     CIMRepository* repository,
@@ -1037,7 +1032,6 @@ void CIMOperationRequestDispatcher::handleEnqueue(Message *request)
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDispatcher::handleEnqueue(Message *request)");
-   PEGASUS_START_LEAK_CHECK();
    if(!request)
    {
       PEG_METHOD_EXIT();

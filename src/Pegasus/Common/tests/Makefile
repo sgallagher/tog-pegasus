@@ -47,8 +47,7 @@ DIRS = \
     Logger \
     WebClient \
     ParamValue \
-    OperationContext \
-    DQueue
+    OperationContext
 
 #    MessageQueueService \
 #    WebServer \

@@ -11,7 +11,6 @@ LOCAL_DEFINES = -DPEGASUS_SERVER_INTERNAL -DPEGASUS_INTERNALONLY
 LIBRARY = pegserver
 
 LIBRARIES = \
-    suballoc \
     pegcommon \
     pegrepository \
     pegprovider \

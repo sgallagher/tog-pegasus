@@ -1,0 +1,104 @@
+Changes in pegasus 0.97 required to accomodate NSK/OSS platform        RS   05/25/01
+===============================================================
+
+
+pegasus/mak
+===========
+
+1.  Add conditional for OSS_NSK_GNU platform in the following files:
+    config.mak    library.mak    depend.mak    objects.mak
+
+2.  Add platform file: platform_OSS_NSK_GNU.mak
+
+3.  Separate program.mak into:
+    program-unix.mak   program-windows.mak    program-oss.mak
+
+4.  Change program.mak to only contain conditionals
+
+
+pegasus/src
+===========
+
+1.  Add the following include files (from the Win2000 C++ environment):
+    cstring  cstddef  cctype  cstdlib  cstdio  cassert malloc.h
+
+
+pegasus/src/Pegasus/Common 
+==========================
+
+1.  Add conditional for OSS_NSK_GNU in Config.h
+
+2.  Add file Platform_OSS_NSK_GNU.h
+
+3.  Change in FileSystem.cpp  line 240   return (is != 0);
+    replace with:  if (is) return true; else return false;
+    [ OSS compiler has problem with ambiguous operator ]
+
+4.  Change in Array.h:  "friend CIMValue;"  to "friend class CIMValue;"
+    [this will eliminate compiler warnings ]
+
+5.  Change in SystemUnix.cpp: #ifndef PEGASUS_OS_OSS around #define dfcn.h,
+    dlopen statement, and dlsym statement. Return NULL for OSS instead.
+
+
+pegasus/src/Pegasus/Compiler
+============================
+
+1.  cimmofRepository.h:  when ftp'ed to OSS, contains extra CRs at the end of each line (^M)
+
+2.  cimmofParser.h:  add "#define _OPEN_SOURCE_EXTENDED 1" to cover strdup function
+
+3.  cimmofParser.cpp:  problem found in cimmofParser::setRepository. The AlreadyExists
+    exception is never caught. Because createNameSpace in NamespaceManager.cpp (Repository)
+    throws a CIMException::ALREADY_EXISTS, a general CIM Exception is detected instead.
+    
+    Solution:
+
+    try {
+           _repository->createNameSpace(s);
+         } catch(AlreadyExists &) {
+           // OK, that's what we expect     --> never caught
+         } catch(CIMException &e) {    --> changed Exception to CIMException
+           if (e.getCode() != CIMException::ALREADY_EXISTS) {    --> added this line
+           arglist.append(s);
+           arglist.append(e.getMessage());
+           cimmofMessages::getMessage(message,
+                                      cimmofMessages::NAMESPACE_CREATE_ERROR,
+                                      arglist);
+           elog(message);
+           return false;
+         } }  --> added closing bracket
+
+
+pegasus/src/Pegasus/Compiler/cmdline
+====================================
+
+1.  Change in cmdline.cpp:  line 91    change "while (ifs != 0)" to "while (ifs)"
+    [OSS compiler has problem with ambiguous operator]
+
+2.  Add "char cimmof_text[1000]"  in main.cpp after #define NAMESPACE_ROOT.
+    This buffer is required by cimmof_tab.cpp. An undefined external will result
+    without it. Caution: find out first why this didn't cause a problem in the
+    Windows/Unix environments.
+     
+
+
+
+
+
+
+
+
+Issues
+======
+
+1.  Need to find a way to produce cimmof_lex.cpp under OSS. Currently it is built under the
+    Windows environment and copied to OSS. 
+
+2.  What is bison.simple used for ?
+
+
+
+
+
+              

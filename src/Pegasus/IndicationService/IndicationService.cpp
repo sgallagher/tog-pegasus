@@ -326,6 +326,7 @@ void IndicationService::_initialize (void)
     Array <CIMInstance> noProviderSubscriptions;
     Array <ProviderClassList> enableProviders;
     Boolean duplicate;
+    Boolean warningLogged = false;
 
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE, "IndicationService::_initialize");
  
@@ -375,7 +376,7 @@ void IndicationService::_initialize (void)
     //
     //  Get existing active subscriptions from each namespace in the repository
     //
-    activeSubscriptions = _getActiveSubscriptionsFromRepository ();
+    warningLogged = _getActiveSubscriptionsFromRepository (activeSubscriptions);
     noProviderSubscriptions.clear ();
 
     String condition;
@@ -426,8 +427,22 @@ void IndicationService::_initialize (void)
         //  and authType is not set
         //
         CIMInstance instance = activeSubscriptions [i];
-        String creator = instance.getProperty (instance.findProperty
-            (PEGASUS_PROPERTYNAME_INDSUB_CREATOR)).getValue ().toString ();
+        String creator;
+        if (!_getCreator (instance, creator))
+        {
+            //
+            //  This instance from the repository is corrupted
+            //  Log a message and skip it
+            //  L10N TODO -- new log message
+            //
+            if (!warningLogged)
+            {
+                Logger::put (Logger::STANDARD_LOG, System::CIMSERVER, 
+                             Logger::WARNING, _MSG_INVALID_INSTANCES);
+                warningLogged = true;
+            }
+            break;
+        }
 
 //l10n start            
 	// Get the language tags that were saved with the subscription instance 
@@ -661,6 +676,11 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
             {
                 //
                 //  Get subscription state
+                //
+                //  NOTE: _canCreate has already validated the 
+                //  SubscriptionState property in the instance; if missing, it 
+                //  was added with the default value; if null, it was set to 
+                //  the default value; if invalid, an exception was thrown
                 //
                 CIMValue subscriptionStateValue;
                 subscriptionStateValue = instance.getProperty
@@ -929,6 +949,17 @@ void IndicationService::_handleGetInstanceRequest (const Message* message)
         //
         //  Remove Creator property from instance before returning
         //
+        String creator;
+        if (!_getCreator (instance, creator))
+        {
+            //
+            //  This instance from the repository is corrupted
+            //  L10N TODO -- new throw of exception
+            //
+            PEG_METHOD_EXIT ();
+            throw PEGASUS_CIM_EXCEPTION (CIM_ERR_FAILED, 
+                _MSG_INVALID_INSTANCES);
+        }
         instance.removeProperty (instance.findProperty 
             (PEGASUS_PROPERTYNAME_INDSUB_CREATOR));
 
@@ -1012,6 +1043,7 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
         (CIMEnumerateInstancesRequestMessage*) message;
 
     Array <CIMInstance> enumInstances;
+    Array <CIMInstance> returnedInstances;
 
     CIMException cimException;
     CIMInstance cimInstance;
@@ -1039,6 +1071,15 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
         //
         for (Uint8 i = 0; i < enumInstances.size (); i++)
         {
+            String creator;
+            if (!_getCreator (enumInstances [i], creator))
+            {
+                //
+                //  This instance from the repository is corrupted
+                //  Skip it
+                //
+                break;
+            }
             enumInstances [i].removeProperty 
                 (enumInstances [i].findProperty 
                 (PEGASUS_PROPERTYNAME_INDSUB_CREATOR));
@@ -1089,6 +1130,8 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
             {
                 _setTimeRemaining (enumInstances [i]);
             }
+
+            returnedInstances.append (enumInstances [i]);
         }
     }
     catch (CIMException& exception)
@@ -1111,7 +1154,7 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
             request->messageId,
             cimException,
             request->queueIds.copyAndPop(),
-            enumInstances,
+            returnedInstances,
             ContentLanguages(aggregatedLangs));
 
     //
@@ -1235,7 +1278,8 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
 
         _repository->read_unlock ();
 
-        if (_canModify (request, instanceReference, instance))
+        CIMInstance modifiedInstance = request->modifiedInstance;
+        if (_canModify (request, instanceReference, instance, modifiedInstance))
         {
             //
             //  Check for expired subscription
@@ -1264,30 +1308,35 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
             //  _canModify, above, already checked that propertyList is not 
             //  null, and that numProperties is 0 or 1
             //
-            CIMInstance modifiedInstance = 
-                request->modifiedInstance;
             CIMPropertyList propertyList = request->propertyList;
             if (request->propertyList.size () > 0)
             {
                 //
                 //  Get current state from instance
                 //
-                CIMValue subscriptionStateValue;
                 Uint16 currentState;
-                subscriptionStateValue = instance.getProperty 
-                    (instance.findProperty (_PROPERTY_STATE)).getValue ();
-                subscriptionStateValue.get (currentState);
+                if (!_getState (instance, currentState))
+                {
+                    //
+                    //  This instance from the repository is corrupted
+                    //  L10N TODO -- new throw of exception
+                    //
+                    PEG_METHOD_EXIT ();
+                    throw PEGASUS_CIM_EXCEPTION (CIM_ERR_FAILED, 
+                        _MSG_INVALID_INSTANCES);
+                }
         
                 //
                 //  Get new state 
                 //
+                //  NOTE: _canModify has already validated the 
+                //  SubscriptionState property in the instance; if missing, it 
+                //  was added with the default value; if null, it was set to 
+                //  the default value; if invalid, an exception was thrown
+                //
                 Uint16 newState;
-                subscriptionStateValue = 
-                    request->modifiedInstance.getProperty
-                    (request->modifiedInstance.findProperty
-                    (_PROPERTY_STATE)).getValue ();
-    
-                subscriptionStateValue.get (newState);
+                modifiedInstance.getProperty (modifiedInstance.findProperty 
+                    (_PROPERTY_STATE)).getValue ().get (newState);
     
                 //
                 //  If Subscription State has changed,
@@ -2163,6 +2212,10 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
             //  The Creator from the subscription instance is used for 
             //  userName, and authType is not set
             //
+            //  NOTE: the subscriptions in the newSubscriptions list came from 
+            //  the IndicationService's internal hash tables, and thus 
+            //  each instance is known to have a valid Creator property
+            //
             CIMInstance instance = newSubscriptions [i];
             String creator = instance.getProperty (instance.findProperty
                 (PEGASUS_PROPERTYNAME_INDSUB_CREATOR)).getValue ().toString ();
@@ -2312,14 +2365,19 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
         //
         for (Uint8 i = 0; i < formerSubscriptions.size (); i++)
         {
+            //
             //  NOTE: These Delete or Modify requests are not associated with a
             //  user request, so there is no associated authType or userName
             //  The Creator from the subscription instance is used for userName,
             //  and authType is not set
+            //
+            //  NOTE: the subscriptions in the formerSubscriptions list came 
+            //  from the IndicationService's internal hash tables, and thus 
+            //  each instance is known to have a valid Creator property
+            //
             CIMInstance instance = formerSubscriptions [i];
             String creator = instance.getProperty (instance.findProperty
                 (PEGASUS_PROPERTYNAME_INDSUB_CREATOR)).getValue ().toString ();
-
 // l10n start
             String acceptLangs = String::EMPTY;
             Uint32 propIndex = instance.findProperty(PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS);  			
@@ -2963,6 +3021,25 @@ void IndicationService::_checkPropertyWithOther (
         CIMValue theValue = theProperty.getValue ();
 
         //
+        //  Check that the value is of the correct type 
+        //
+        if ((theValue.getType () != CIMTYPE_UINT16) || (theValue.isArray ()))
+        {
+            //  L10N TODO -- new throw of exception
+            String exceptionStr = _MSG_INVALID_TYPE;
+            if (theValue.isArray ())
+            {
+                exceptionStr.append (_MSG_ARRAY_OF);
+            }
+            exceptionStr.append (cimTypeToString (theValue.getType ()));
+            exceptionStr.append (_MSG_FOR_PROPERTY);
+            exceptionStr.append (propertyName.getString ());
+            PEG_METHOD_EXIT ();
+            throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER,
+                exceptionStr);
+        }
+
+        //
         //  If the value is null, set to the default value
         //
         if (theValue.isNull ())
@@ -3144,7 +3221,8 @@ String IndicationService::_checkPropertyWithDefault (
 Boolean IndicationService::_canModify (
     const CIMModifyInstanceRequestMessage * request,
     const CIMObjectPath & instanceReference,
-    CIMInstance & instance)
+    const CIMInstance & instance,
+    CIMInstance & modifiedInstance)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE, "IndicationService::_canModify");
 
@@ -3195,14 +3273,27 @@ Boolean IndicationService::_canModify (
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
     }
 
-    _checkPropertyWithOther (instance, _PROPERTY_STATE, _PROPERTY_OTHERSTATE,
-        (Uint16) _STATE_ENABLED, (Uint16) _STATE_OTHER, _validStates);
+    //
+    //  Check the SubscriptionState property in the modified instance
+    //
+    _checkPropertyWithOther (modifiedInstance, _PROPERTY_STATE, 
+        _PROPERTY_OTHERSTATE, (Uint16) _STATE_ENABLED, (Uint16) _STATE_OTHER, 
+        _validStates);
 
     //
     //  Get creator from instance
     //
-    String creator = instance.getProperty (instance.findProperty 
-        (PEGASUS_PROPERTYNAME_INDSUB_CREATOR)).getValue ().toString ();
+    String creator;
+    if (!_getCreator (instance, creator))
+    {
+        //
+        //  This instance from the repository is corrupted
+        //  L10N TODO -- new throw of exception
+        //
+        PEG_METHOD_EXIT ();
+        throw PEGASUS_CIM_EXCEPTION (CIM_ERR_FAILED, 
+            _MSG_INVALID_INSTANCES);
+    }
 
     //
     //  Current user must be privileged user or instance Creator to modify
@@ -3257,8 +3348,22 @@ Boolean IndicationService::_canDelete (
     //
     //  Get creator from instance
     //
-    String creator = instance.getProperty (instance.findProperty 
-        (PEGASUS_PROPERTYNAME_INDSUB_CREATOR)).getValue ().toString ();
+    String creator;
+    if (!_getCreator (instance, creator))
+    {
+        //
+        //  This instance from the repository is corrupted
+        //  Allow the delete if a Privileged User 
+        //      (or authentication turned off), 
+        //  Otherwise disallow as access denied
+        //
+        if ((!System::isPrivilegedUser (currentUser)) &&
+            (currentUser != String::EMPTY))
+        {
+            PEG_METHOD_EXIT ();
+            throw PEGASUS_CIM_EXCEPTION (CIM_ERR_ACCESS_DENIED, String::EMPTY);
+        }
+    }
 
     //
     //  Current user must be privileged user or instance Creator to delete
@@ -3378,17 +3483,19 @@ Boolean IndicationService::_canDelete (
 }
 
 
-Array <CIMInstance> 
-IndicationService::_getActiveSubscriptionsFromRepository () const
+Boolean IndicationService::_getActiveSubscriptionsFromRepository (
+    Array <CIMInstance> & activeSubscriptions) const
 {
-    Array <CIMInstance> activeSubscriptions;
     Array <CIMNamespaceName> nameSpaceNames;
     Array <CIMInstance> subscriptions;
     CIMValue subscriptionStateValue;
     Uint16 subscriptionState;
+    Boolean warningLogged = false;
 
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "IndicationService::_getActiveSubscriptionsFromRepository");
+
+    activeSubscriptions.clear ();
 
     //
     //  Get list of namespaces in repository
@@ -3414,13 +3521,22 @@ IndicationService::_getActiveSubscriptionsFromRepository () const
             //
             //  Get subscription state
             //
-            subscriptionStateValue = 
-                subscriptions [j].getProperty
-                (subscriptions [j].findProperty 
-                (_PROPERTY_STATE)).getValue ();
-            subscriptionStateValue.get (subscriptionState);
+            if (!_getState (subscriptions [j], subscriptionState))
+            {
+                //
+                //  This instance from the repository is corrupted
+                //  Skip it
+                //  L10N TODO -- new log message
+                //
+                if (!warningLogged)
+                {
+                    Logger::put (Logger::STANDARD_LOG, System::CIMSERVER, 
+                                 Logger::WARNING, _MSG_INVALID_INSTANCES);
+                    warningLogged = true;
+                }
+                break;
+            }
 
-    
             //
             //  Process each enabled subscription
             //
@@ -3442,7 +3558,7 @@ IndicationService::_getActiveSubscriptionsFromRepository () const
     }  // for each namespace
 
     PEG_METHOD_EXIT ();
-    return activeSubscriptions;
+    return warningLogged;
 }
 
 Array <CIMInstance> IndicationService::_getActiveSubscriptions () const
@@ -4597,8 +4713,14 @@ void IndicationService::_deleteReferencingSubscriptions (
             //  Send Delete requests
             //
             CIMInstance instance = subscriptions [i];
-            String creator = instance.getProperty (instance.findProperty
-                (PEGASUS_PROPERTYNAME_INDSUB_CREATOR)).getValue ().toString ();
+            String creator = String::EMPTY;
+            if (!_getCreator (instance, creator))
+            {
+                //
+                //  This instance from the repository is corrupted
+                //  Allow the delete
+                //
+            }
 
 // l10n start                
             String acceptLangs = String::EMPTY;
@@ -6056,6 +6178,143 @@ WQLSimplePropertySource IndicationService::_getPropertySourceFromInstance(
     return source;
 }
 
+Boolean IndicationService::_getCreator (
+    const CIMInstance & instance,
+    String & creator) const
+{
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE, "IndicationService::_getCreator");
+
+    Uint32 creatorIndex = instance.findProperty 
+        (PEGASUS_PROPERTYNAME_INDSUB_CREATOR);
+    if (creatorIndex != PEG_NOT_FOUND)
+    {
+        CIMValue creatorValue = instance.getProperty 
+            (creatorIndex).getValue ();
+        if (creatorValue.isNull ())
+        {
+            PEG_TRACE_STRING (TRC_INDICATION_SERVICE, 
+                Tracer::LEVEL4, 
+                "Null Subscription Creator property value");
+
+            //
+            //  This is a corrupted/invalid instance
+            //
+            return false;
+        }
+        else if ((creatorValue.getType () != CIMTYPE_STRING) ||
+            (creatorValue.isArray ()))
+        {
+            String traceString;
+            if (creatorValue.isArray ())
+            {
+                traceString.append ("array of ");
+            }
+            traceString.append (cimTypeToString (creatorValue.getType ()));
+            PEG_TRACE_STRING (TRC_INDICATION_SERVICE, 
+               Tracer::LEVEL4, 
+               "Subscription Creator property value of incorrect type: "
+               + traceString);
+
+            //
+            //  This is a corrupted/invalid instance
+            //
+            return false;
+        }
+        else
+        {
+            creatorValue.get (creator);
+        }
+    }
+    else
+    {
+        PEG_TRACE_STRING (TRC_INDICATION_SERVICE, 
+            Tracer::LEVEL4, 
+            "Missing Subscription Creator property");
+
+        //
+        //  This is a corrupted/invalid instance
+        //
+        return false;
+    }
+
+    PEG_METHOD_EXIT ();
+    return true;
+}
+
+Boolean IndicationService::_getState (
+    const CIMInstance & instance,
+    Uint16 & state) const
+{
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE, "IndicationService::_getState");
+
+    Uint32 stateIndex = instance.findProperty (_PROPERTY_STATE);
+    if (stateIndex != PEG_NOT_FOUND)
+    {
+        CIMValue stateValue = instance.getProperty 
+            (stateIndex).getValue ();
+        if (stateValue.isNull ())
+        {
+            PEG_TRACE_STRING (TRC_INDICATION_SERVICE, 
+                Tracer::LEVEL4, 
+                "Null SubscriptionState property value");
+
+            //
+            //  This is a corrupted/invalid instance
+            //
+            return false;
+        }
+        else if ((stateValue.getType () != CIMTYPE_UINT16) ||
+            (stateValue.isArray ()))
+        {
+            String traceString;
+            if (stateValue.isArray ())
+            {
+                traceString.append ("array of ");
+            }
+            traceString.append (cimTypeToString (stateValue.getType ()));
+            PEG_TRACE_STRING (TRC_INDICATION_SERVICE, 
+               Tracer::LEVEL4, 
+               "SubscriptionState property value of incorrect type: "
+               + traceString);
+
+            //
+            //  This is a corrupted/invalid instance
+            //
+            return false;
+        }
+        else
+        {
+            stateValue.get (state);
+
+            //
+            //  Validate the value
+            //
+            if (!Contains (_validStates, state))
+            {
+                //
+                //  This is a corrupted/invalid instance
+                //
+                return false;
+            }
+        }
+    }
+    else
+    {
+        PEG_TRACE_STRING (TRC_INDICATION_SERVICE, 
+            Tracer::LEVEL4, 
+            "Missing SubscriptionState property");
+
+        //
+        //  This is a corrupted/invalid instance
+        //
+        return false;
+    }
+
+    PEG_METHOD_EXIT ();
+    return true;
+}
+
+
 //
 //  Class names
 //
@@ -6400,15 +6659,25 @@ const char IndicationService::_MSG_REFERENCED_KEY [] =
 const char IndicationService::_MSG_INVALID_VALUE [] =
     "Invalid value ";
 
+const char IndicationService::_MSG_INVALID_TYPE [] =
+    "Invalid type ";
+
 const char IndicationService::_MSG_FOR_PROPERTY [] =
     " for property ";
+
+const char IndicationService::_MSG_ARRAY_OF [] =
+    " array of ";
 
 const char IndicationService::_MSG_INVALID_VALUE_FOR_PROPERTY_KEY [] =
     "IndicationService.IndicationService._MSG_INVALID_VALUE_FOR_PROPERTY";
 
 const char IndicationService::_MSG_CLASS_NOT_SERVED [] =
     "The specified class is not served by the Indication Service";
+
 const char IndicationService::_MSG_CLASS_NOT_SERVED_KEY [] =
     "IndicationService.IndicationService._MSG_CLASS_NOT_SERVED";
+
+const char IndicationService::_MSG_INVALID_INSTANCES [] =
+    "One or more invalid Subscription instances were ignored";
 
 PEGASUS_NAMESPACE_END

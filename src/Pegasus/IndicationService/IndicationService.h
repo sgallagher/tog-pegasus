@@ -437,11 +437,13 @@ private:
 
         @param   request               modification request
         @param   instance              instance to be modified
+        @param   modifiedInstance      modified instance
 
         @throw   CIM_ERR_NOT_SUPPORTED      if the specified modification is 
                                             not supported
         @throw   CIM_ERR_ACCESS_DENIED      if the user is not authorized to
                                             modify the instance
+        @throw   CIM_ERR_INVALID_PARAMETER  if the modifiedInstance is invalid
 
         @return  True if the instance can be modified
                  Otherwise throws an exception
@@ -449,7 +451,8 @@ private:
     Boolean _canModify (
         const CIMModifyInstanceRequestMessage * request,
         const CIMObjectPath & instanceReference,
-        CIMInstance & instance);
+        const CIMInstance & instance,
+        CIMInstance & modifiedInstance);
 
     /**
         Determines if the user is authorized to delete the instance, and if it 
@@ -480,9 +483,13 @@ private:
         Retrieves list of enabled subscription instances in all namespaces from
         the repository.
 
-        @return   list of CIMInstance subscriptions
+        @param   activeSubscriptions  the returned subscription instances
+
+        @return  True  if a warning was logged
+                 False otherwise
      */
-    Array <CIMInstance> _getActiveSubscriptionsFromRepository () const;
+    Boolean _getActiveSubscriptionsFromRepository (
+        Array <CIMInstance> & activeSubscriptions) const;
 
     /**
         Retrieves list of enabled subscription instances in all namespaces from
@@ -1151,6 +1158,40 @@ private:
     WQLSimplePropertySource _getPropertySourceFromInstance(
         CIMInstance & indicationInstance);
 
+    /**
+        Gets the value of the Creator property from the specified Subscription
+        instance.  If this function returns False, the value of the creator 
+        parameter is unchanged.
+
+        @param   instance              subscription instance
+        @param   creator               value of Creator property if retrieved
+
+        @return  True if the value of the Creator property was retrieved
+                 False if Creator property was missing, null, or of an
+                       incorrect type.
+     */
+    Boolean _getCreator (
+        const CIMInstance & instance,
+        String & creator) const;
+
+    /**
+        Gets the value of the SubscriptionState property from the specified 
+        Subscription instance.  If this function returns False, the value of 
+        the state parameter is unchanged.
+
+        @param   instance              subscription instance
+        @param   state                 value of SubscriptionState property if 
+                                       retrieved
+
+        @return  True  if the value of the SubscriptionState property was 
+                       retrieved
+                 False if SubscriptionState property was missing, null, of an
+                       incorrect type, or with an invalid value.
+     */
+    Boolean _getState (
+        const CIMInstance & instance,
+        Uint16 & state) const;
+
     CIMRepository * _repository;
 
     /**
@@ -1525,12 +1566,19 @@ private:
 
     static const char _MSG_INVALID_VALUE [];
 
+    static const char _MSG_INVALID_TYPE [];
+
     static const char _MSG_FOR_PROPERTY [];
+
+    static const char _MSG_ARRAY_OF [];
 
     static const char _MSG_INVALID_VALUE_FOR_PROPERTY_KEY [];
 
     static const char _MSG_CLASS_NOT_SERVED [];
+
     static const char _MSG_CLASS_NOT_SERVED_KEY [];
+
+    static const char _MSG_INVALID_INSTANCES [];
 };
 
 PEGASUS_NAMESPACE_END

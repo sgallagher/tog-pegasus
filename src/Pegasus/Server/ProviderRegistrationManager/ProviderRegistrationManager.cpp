@@ -1396,6 +1396,10 @@ CIMInstance ProviderRegistrationManager::getInstance(
 				      MessageLoaderParms(CAPABILITY_NOT_REGISTERED_KEY,
 				      CAPABILITY_NOT_REGISTERED));
     }
+
+    // Note: We should never be asked for an instance of any other class
+    PEG_METHOD_EXIT();
+    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, className.getString());
 }
 
 // get all registered providers

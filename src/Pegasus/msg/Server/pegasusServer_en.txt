@@ -1084,6 +1084,51 @@ en:table {
 
         ControlProviders.UserAuthProvider.INPUT_PARAMETERS_NOT_VALID:string {"PGS03206: Input parameters are not valid."}
 
+        // ==========================================================
+        // Messages for CertificateProvider
+        //  Please use message prefix "PGS03300" 
+        // ==========================================================
+
+	ControlProviders.CertificateProvider.MUST_BE_PRIVILEGED_USER:string {"PGS03301: Superuser authority is required to run this CIM operation."}
+
+        /**
+	* @note PGS03302
+	*    Substitution {0} is the name of the directory
+	*/
+	ControlProviders.CertificateProvider.COULD_NOT_READ_DIRECTORY:string {"PGS03302: Cannot read directory {0}."}
+
+        /**
+	* @note PGS03303
+	*    Substitution {0} is the name of the directory
+	*/    							 
+	ControlProviders.CertificateProvider.INVALID_DIRECTORY:string {"PGS03303: Invalid directory {0}."}
+				 
+        /**
+	* @note PGS03304
+	*    Substitution {0} is the name of the file
+	*/    
+	ControlProviders.CertificateProvider.DELETE_FAILED:string {"PGS03304: Could not delete file {0}."}
+        
+        /**
+	* @note PGS03305
+	*    Substitution {0} is the name of the file
+	*/  
+	ControlProviders.CertificateProvider.FILE_DNE:string {"PGS03305: File does not exist {0}."}
+
+	ControlProviders.CertificateProvider.BAD_X509_FORMAT:string {"PGS03306: Could not read x509 PEM format."}
+        
+	ControlProviders.CertificateProvider.CERT_NOT_VALID_YET:string {"PGS03307: The certificate is not valid yet.  Check the timestamps on your machine."}
+
+	ControlProviders.CertificateProvider.CERT_EXPIRED:string {"PGS03308: The certificate has expired."}
+											 
+	ControlProviders.CertificateProvider.BAD_DATE_FORMAT:string {"PGS03309: The validity dates are out of range."}
+
+	ControlProviders.CertificateProvider.CRL_NOT_VALID_YET:string {"PGS03310: The CRL is not valid yet.  Check the timestamps on your machine.."}
+
+	ControlProviders.CertificateProvider.CRL_EXPIRED:string {"PGS03311: The CRL is not up-to-date.  Check with the issuing CA for the latest one."}
+
+	ControlProviders.CertificateProvider.EMPTY_CRL:string {"PGS03312: The CRL is empty."}
+
 
         // ==========================================================
         // Messages for CIMOMHandle

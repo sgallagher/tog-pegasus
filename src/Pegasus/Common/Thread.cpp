@@ -446,20 +446,8 @@ Uint32 ThreadPool::kill_dead_threads(void)
    int i = 0;
    AtomicInt needed(0);
 
-//   for( ; i < 2; i++) << Fri Sep 13 12:49:46 2002 mdd >>
-// This change prevents the thread pool from killing hung threads.
-// The definition of a hung thread is one that has been on the run queue for too long. 
-// "too long" is defined as a time interval that is set when the thread pool is created. 
-// Cancelling "hung" threads has proved to be problematic. 
 
-// With this change the thread pool will not cancel hung threads. This may prevent a 
-// crash depending upon the state of the hung thread. It will cause the thread to hang 
-// around and not do anything besides waste space. 
-
-// Idle threads, those that have not executed a routine for a time interval, continue to be 
-// destroyed. This is normal and should not cause any problems. 
-
-   for( ; i < 1; i++)
+   for( ; i < 2; i++)
    { 
       q = map[i];
       if(q->count() > 0 )
@@ -531,29 +519,38 @@ Uint32 ThreadPool::kill_dead_threads(void)
 	
 	       if(th != 0)
 	       {
-		  
-		  th->delete_tsd("work func");
-		  th->put_tsd("work func", NULL,
-			      sizeof( PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *)(void *)),
-			      (void *)&_undertaker);
-		  th->delete_tsd("work parm");
-		  th->put_tsd("work parm", NULL, sizeof(void *), th);
-	
-		  // signal the thread's sleep semaphore to awaken it
-		  Semaphore *sleep_sem = (Semaphore *)th->reference_tsd("sleep sem");
-	
-		  if(sleep_sem == 0)
+		  if( i == 0 )
 		  {
-	             q->unlock();
+		     th->delete_tsd("work func");
+		     th->put_tsd("work func", NULL,
+				 sizeof( PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *)(void *)),
+				 (void *)&_undertaker);
+		     th->delete_tsd("work parm");
+		     th->put_tsd("work parm", NULL, sizeof(void *), th);
+		     
+		     // signal the thread's sleep semaphore to awaken it
+		     Semaphore *sleep_sem = (Semaphore *)th->reference_tsd("sleep sem");
+		     
+		     if(sleep_sem == 0)
+		     {
+			q->unlock();
+			th->dereference_tsd();
+			throw NullPointer();
+		     }
+		     
+		     _dead.insert_first(th);
+		     bodies++;
+		     sleep_sem->signal();
 		     th->dereference_tsd();
-		     throw NullPointer();
+		     th = 0;
 		  }
-		  
-		  _dead.insert_first(th);
-		  bodies++;
-		  sleep_sem->signal();
-		  th->dereference_tsd();
-		  th = 0;
+		  else 
+		  {
+		     // deadlocked threads
+		     PEGASUS_STD(cout) << "Killing a deadlocked thread" << PEGASUS_STD(endl);
+		     th->cancel();
+		     delete th;
+		  }
 	       }
 	    }
 	    th = q->next(th);

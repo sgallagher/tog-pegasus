@@ -232,7 +232,7 @@ String _showBool(Boolean x)
     return(x? "true" : "false");
 }
 
-String _toStringPropertyList(const CIMPropertyList& pl)
+static String _toStringPropertyList(const CIMPropertyList& pl)
 {
     String tmp;
     for (Uint32 i = 0; i < pl.size() ; i++)
@@ -244,7 +244,7 @@ String _toStringPropertyList(const CIMPropertyList& pl)
     return(tmp);
 }
 
-String _showPropertyList(const CIMPropertyList& pl)
+static String _showPropertyList(const CIMPropertyList& pl)
 {
     if (pl.isNull())
         return("NULL");

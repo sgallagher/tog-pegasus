@@ -25,7 +25,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Exception.h>
+//#include <Pegasus/Common/Exception.h>
 #include <assert.h>
 
 #ifndef PEG_INTERNAL_DQ_include

@@ -1,20 +1,21 @@
 //%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
+// Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to 
-// deal in the Software without restriction, including without limitation the 
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
 // 
-// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
-// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
-// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
-// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
@@ -302,10 +303,9 @@ int getClass(CIMClient& client, Options& opts)
             << ", localOnly = " << (opts.localOnly? "true" : "false")
             << ", includeQualifiers = " << (opts.includeQualifiers? "true" : "false")
             << ", includeClassOrigin = " << (opts.includeClassOrigin? "true" : "false")
-            << " PropertyList = " << " ADD HERE KSTEST"
+            << " PropertyList = " << " ADD property list print HERE KSTEST"
             << endl;
     }
-    cout << "KSTEST getclass " << endl;
     CIMClass cimClass = client.getClass(opts.nameSpace,
                                         opts.className,
                                         opts.localOnly,
@@ -349,6 +349,15 @@ int getProperty(CIMClient& client, Options& opts)
 
 int setProperty(CIMClient& client, Options& opts)
 {
+    if (opts.verboseTest)
+    {
+        cout << "setProperty "
+            << "Namespace = " << opts.nameSpace
+            << ", Instance = " << opts.instanceName
+            << ", propertyName = " << opts.propertyName
+            // KS The new value goes here
+            << endl;
+    }
     
     client.setProperty( opts.nameSpace,
                                    opts.instanceName,
@@ -392,12 +401,26 @@ int getQualifier(CIMClient& client, Options& opts)
 }
 int setQualifier(CIMClient& client, Options& opts)
 {
+    if (opts.verboseTest)
+    {
+        cout << "setQualifiers "
+            << "Namespace = " << opts.nameSpace
+            // KS add the qualifier decl here.
+            << endl;
+    }
     client.setQualifier( opts.nameSpace,
                          opts.qualifierDeclaration);
     return 0;
 }
 int deleteQualifier(CIMClient& client, Options& opts)
 {
+    if (opts.verboseTest)
+    {
+        cout << "deleteQualifiers "
+            << "Namespace = " << opts.nameSpace
+            << " Qualifier " << opts.qualifierName
+            << endl;
+    }
     client.deleteQualifier( opts.nameSpace,
                             opts.qualifierName);
                                    
@@ -411,8 +434,7 @@ int enumerateQualifiers(CIMClient& client, Options& opts)
             << "Namespace = " << opts.nameSpace
             << endl;
     }
-    
-    
+  
     Array<CIMQualifierDecl> qualifierDecls;
     qualifierDecls = client.enumerateQualifiers( opts.nameSpace);
     
@@ -593,11 +615,6 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
        cout << "Class Name = " << opts.className << endl;
     }
 
-   if(om.lookupValue("outputformats", opts.outputFormat))
-    {
-       cout << "Output Format = " << opts.outputFormat << endl;
-    }
-
     if(om.lookupValue("cimObjectPath", opts.cimObjectPath))
     {
        cout << "CIM ObjectPath = " << opts.cimObjectPath << endl;
@@ -655,7 +672,30 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
                  cout << "Password = " << opts.password << endl;
          }
     }
-                         
+    
+    // Create a variable with the format output and a correponding type.
+    // Suggest we might change this whole thing to the option type that
+    // mike used in the example of colors so that  you could do -red -blue
+    // or in our case -mof -xml, etc.
+    
+    if(om.lookupValue("outputformats", opts.outputFormat))
+     {
+        cout << "Output Format = " << opts.outputFormat << endl;
+     }
+
+    
+    Uint32 cnt = 0;
+    opts.outputFormat.toLower();
+
+    for( ; cnt < NUM_OUTPUTS; cnt++ ) 
+    {
+        if (opts.outputFormat == OutputTable[cnt].OutputName)
+                break;
+    }
+    // Note that this makes no notice of a not found
+    if (cnt != NUM_OUTPUTS)
+        opts.outputFormatType = cnt;
+    
     return 0;
 }
 

@@ -332,7 +332,7 @@ public:
 
     /** Convert object to XML format.
     */
-    virtual void toXml(Array<Sint8>& out) const
+    void toXml(Array<Sint8>& out) const
     {
 	_checkRep();
 	_rep->toXml(out);
@@ -521,7 +521,6 @@ private:
     CIMObjectRep* _rep;
 
     friend class CIMObject;
-    friend class CIMConstObject;
     friend class CIMClass;
     friend class CIMConstClass;
     friend class CIMInstance;

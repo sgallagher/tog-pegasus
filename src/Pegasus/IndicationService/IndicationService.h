@@ -576,6 +576,21 @@ private:
         const CIMInstance & provider);
 
     /**
+        Determines if the specified provider is currently in use serving one or
+        more subscriptions in the Active Subscriptions table.  This function is
+        called when a subscription instance has been deleted, to determine if
+        a Disable Indications request must be sent to the provider.
+
+        @param   provider          the provider instance
+
+        @return   True  if the provider is serving one or more active 
+                        subscriptions
+                  False otherwise
+     */
+    Boolean _providerInUse
+        (const CIMInstance & provider);
+
+    /**
         Retrieves the values of the filter query, source namespace,
         and query language properties for the specified subscription instance.
 
@@ -1093,6 +1108,15 @@ private:
         IndicationOperationAggregate * operationAggregate);
 
     /**
+        Processes disable indications responses from providers, once all have 
+        been received.
+
+        @param   operationAggregate    the operation aggregate instance 
+     */
+    void _handleDisableResponseAggregation 
+        (IndicationOperationAggregate * operationAggregate);
+
+    /**
         Generates a unique String key for the Active Subscriptions table from 
         the subscription namespace name and key values.
 
@@ -1248,13 +1272,22 @@ private:
 #endif
       
     /**
-        Sends an Enable message to the specified provider.
+        Sends an Enable Indications request to the specified providers.
 
         @param   enableProviders       the providers to be enabled
      */
     void _sendEnable (
         const Array <ProviderClassList> & enableProviders,
         const CIMRequestMessage * origRequest);
+
+    /**
+        Sends a Disable Indications request to the specified providers.
+
+        @param   disableProviders      the providers to be disabled
+     */
+    void _sendDisable 
+        (const Array <ProviderClassList> & disableProviders,
+         const CIMRequestMessage * origRequest);
 
     WQLSimplePropertySource _getPropertySourceFromInstance(
         CIMInstance & indicationInstance);

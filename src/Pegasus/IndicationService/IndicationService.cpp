@@ -4222,6 +4222,40 @@ Array <CIMInstance> IndicationService::_getProviderSubscriptions (
     return providerSubscriptions;
 }
 
+Boolean IndicationService::_providerInUse (
+    const CIMInstance & provider)
+{
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_providerInUse");
+
+    //
+    // Do not call any other methods that need _activeSubscriptionsTableLock
+    //
+    ReadLock lock (_activeSubscriptionsTableLock);
+
+    //
+    //  Iterate through the subscription table
+    //
+    for (ActiveSubscriptionsTable::Iterator i =
+        _activeSubscriptionsTable.start (); i; i++)
+    {
+        //
+        //  If provider matches, return true
+        //
+        for (Uint32 j = 0; j < i.value ().providers.size (); j++)
+        {
+            ActiveSubscriptionsTableEntry tableValue = i.value ();
+            if (tableValue.providers [j].provider.identical (provider))
+            {
+                return true;
+            }
+        }
+    }
+
+    PEG_METHOD_EXIT ();
+    return false;
+}
+
 void IndicationService::_getFilterProperties (
     const CIMInstance & subscription,
     const CIMNamespaceName & nameSpaceName, 
@@ -5880,6 +5914,12 @@ void IndicationService::_handleOperationResponseAggregation (
             break;
         }
 
+        case CIM_DISABLE_INDICATIONS_REQUEST_MESSAGE:
+        {
+            _handleDisableResponseAggregation (operationAggregate);
+            break;
+        }
+
         default:
         {
             PEG_TRACE_STRING (TRC_INDICATION_SERVICE, Tracer::LEVEL2, 
@@ -6300,6 +6340,7 @@ void IndicationService::_handleDeleteResponseAggregation (
         "IndicationService::_handleDeleteResponseAggregation");
 
     CIMException cimException;
+    Array <ProviderClassList> checkProviders;
 
     //
     //  Examine provider responses
@@ -6307,17 +6348,23 @@ void IndicationService::_handleDeleteResponseAggregation (
     for (Uint32 i = 0; i < operationAggregate->getNumberResponses (); i++)
     {
         //
-        //  If response is not SUCCESS, provider rejected the delete
+        //  Find provider from which response was sent and add to list
+        //  List will be checked later to determine if Disable Indications
+        //  request must be sent
         //
         CIMResponseMessage * response = operationAggregate->getResponse (i);
+        ProviderClassList provider = operationAggregate->findProvider 
+            (response->messageId);
+        checkProviders.append (provider);
+
+        //
+        //  If response is not SUCCESS, provider rejected the delete
+        //
         if (response->cimException.getCode () != CIM_ERR_SUCCESS)
         {
             //
-            //  Find provider from which response was sent
             //  Log a trace message
             //
-            ProviderClassList provider = operationAggregate->findProvider 
-                (response->messageId);
             PEG_TRACE_STRING (TRC_INDICATION_SERVICE, Tracer::LEVEL3,
                 "Provider (" + provider.provider.getPath ().toString() +
                 ") rejected delete subscription: " +
@@ -6392,6 +6439,27 @@ void IndicationService::_handleDeleteResponseAggregation (
     }
 
     //
+    //  Check each provider to see if it's still in use by any subscription
+    //
+    Array <ProviderClassList> disableProviders;
+    for (Uint32 j = 0; j < checkProviders.size (); j++)
+    {
+        if (!_providerInUse (checkProviders [j].provider))
+        {
+            disableProviders.append (checkProviders [j]);
+        }
+    }
+
+    //
+    //  Send Disable Indications requests to any provider no longer in 
+    //  use
+    //
+    if (disableProviders.size () > 0)
+    {
+        _sendDisable (disableProviders, operationAggregate->getOrigRequest ());
+    }
+
+    //
     //  For Delete Instance or Modify Instance, send response
     //
     if (operationAggregate->requiresResponse ())
@@ -6437,6 +6505,39 @@ void IndicationService::_handleDeleteResponseAggregation (
     
         Base::_enqueueResponse 
             (operationAggregate->getOrigRequest (), response);
+    }
+
+    PEG_METHOD_EXIT ();
+}
+
+void IndicationService::_handleDisableResponseAggregation (
+    IndicationOperationAggregate * operationAggregate)
+{
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+        "IndicationService::_handleDisableResponseAggregation");
+
+    //
+    //  Examine provider responses
+    //
+    for (Uint32 i = 0; i < operationAggregate->getNumberResponses (); i++)
+    {
+        //
+        //  If response is not SUCCESS, provider rejected the disable
+        //
+        CIMResponseMessage * response = operationAggregate->getResponse (i);
+        if (response->cimException.getCode () != CIM_ERR_SUCCESS)
+        {
+            //
+            //  Find provider from which response was sent
+            //  Log a trace message
+            //
+            ProviderClassList provider = operationAggregate->findProvider 
+                (response->messageId);
+            PEG_TRACE_STRING (TRC_INDICATION_SERVICE, Tracer::LEVEL3, 
+                "Provider (" + provider.provider.getPath ().toString() +
+                ") rejected disable indications: " +
+                response->cimException.getMessage ());
+        }
     }
 
     PEG_METHOD_EXIT ();
@@ -7066,6 +7167,122 @@ void IndicationService::_sendEnable (
         //
         CIMEnableIndicationsRequestMessage * requestCopy =
             new CIMEnableIndicationsRequestMessage (* request);
+        operationAggregate->appendRequest (requestCopy);
+
+        AsyncOpNode* op = this->get_op (); 
+
+        AsyncLegacyOperationStart * async_req =
+            new AsyncLegacyOperationStart
+                (get_next_xid (),
+                op,
+                _providerManager,
+                request,
+                _queueId);
+
+        SendAsync 
+            (op, 
+            _providerManager, 
+            IndicationService::_aggregationCallBack,
+            this, 
+            operationAggregate);
+    }
+
+    PEG_METHOD_EXIT ();
+}
+
+void IndicationService::_sendDisable (
+    const Array <ProviderClassList> & disableProviders,
+    const CIMRequestMessage * origRequest)
+{
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE, 
+        "IndicationService::_sendDisable");
+
+    CIMRequestMessage * aggRequest;
+
+    if (origRequest == 0)
+    {
+        //
+        //  Delete a referencing or expired subscription -- no request 
+        //  associated with this delete
+        //
+        aggRequest = 0;
+    }
+    else
+    {
+        //
+        //  Delete Instance, Modify Instance, or Provider Registration Change
+        //
+        switch (origRequest->getType ())
+        {
+            case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
+            {
+                CIMDeleteInstanceRequestMessage * request =
+                    (CIMDeleteInstanceRequestMessage *) origRequest;
+                CIMDeleteInstanceRequestMessage * requestCopy =
+                    new CIMDeleteInstanceRequestMessage (* request);
+                aggRequest = requestCopy;
+                break;
+            }
+
+            case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
+            {
+                CIMModifyInstanceRequestMessage * request =
+                    (CIMModifyInstanceRequestMessage *) origRequest;
+                CIMModifyInstanceRequestMessage * requestCopy =
+                    new CIMModifyInstanceRequestMessage (* request);
+                aggRequest = requestCopy;
+                break;
+            }
+
+            case CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE:
+            {
+                CIMNotifyProviderRegistrationRequestMessage * request =
+                    (CIMNotifyProviderRegistrationRequestMessage *) origRequest;
+                CIMNotifyProviderRegistrationRequestMessage * requestCopy =
+                    new CIMNotifyProviderRegistrationRequestMessage (* request);
+                aggRequest = requestCopy;
+                break;
+            }
+
+            default:
+            {
+                PEG_TRACE_STRING (TRC_INDICATION_SERVICE, Tracer::LEVEL2, 
+                    "Unexpected origRequest type " +
+                    String (MessageTypeToString (origRequest->getType ())) +
+                    " in _sendDisable");
+                break;
+            }
+        }
+    }
+
+    //
+    //  Create an aggregate object for the disable indications requests
+    //
+    Array <CIMName> indicationSubclasses;  //  empty array -- not needed
+    IndicationOperationAggregate * operationAggregate =
+        new IndicationOperationAggregate (aggRequest, indicationSubclasses);
+    operationAggregate->setNumberIssued (disableProviders.size ());
+
+    //
+    //  Send Disable Indications request to each provider
+    //
+    for (Uint32 i = 0; i < disableProviders.size (); i++)
+    {
+        //
+        //  Create the disable indications request
+        //
+        CIMDisableIndicationsRequestMessage * request =
+            new CIMDisableIndicationsRequestMessage
+                (XmlWriter::getNextMessageId (),
+                disableProviders [i].provider,
+                disableProviders [i].providerModule,
+                QueueIdStack (_providerManager, getQueueId ()));
+
+        //
+        //  Store a copy of the request in the operation aggregate instance
+        //
+        CIMDisableIndicationsRequestMessage * requestCopy =
+            new CIMDisableIndicationsRequestMessage (* request);
         operationAggregate->appendRequest (requestCopy);
 
         AsyncOpNode* op = this->get_op (); 

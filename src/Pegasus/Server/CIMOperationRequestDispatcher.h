@@ -29,7 +29,7 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//		Karl Schopmeyer (k.schopmeyer@opengroup.org)
+//		        Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
 //
 //%/////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,54 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+// Class to aggregate and manage the information about classes and providers
+// this simply masks some of the confusion of control providers, etc. today.
+
+class PEGASUS_SERVER_LINKAGE ProviderInfo
+{
+public:
+    ProviderInfo()
+    {
+    }
+    ProviderInfo(CIMName& className)
+            : _className(className), 
+              _magicNumber(54321)
+    {
+    }
+    ProviderInfo(CIMName className, String& serviceName, String& controlProviderName)
+        :   _className(className), _serviceName(serviceName),
+            _controlProviderName(controlProviderName),
+            _magicNumber(54321)
+    {
+    }
+    ~ProviderInfo()
+    {
+    }
+    void setClassName(CIMName className)
+    {
+    _className = className;
+    }
+    CIMName getClassName()
+    {
+        return _className;
+    }
+    void setServiceName(String& serviceName)
+    {
+        _serviceName = serviceName; 
+    }
+    String getServiceName()
+    {
+        return _serviceName;
+    }
+String _controlProviderName;
+String _serviceName;
+CIMName _className;
+Boolean _hasProvider;
+CIMNamespaceName _nameSpace;
+
+private:
+Uint32 _magicNumber;
+};
 
 /* Class to manage the aggregation of data required by post processors. This
     class is private to the dispatcher. An instance is created by the operation
@@ -64,39 +112,68 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_SERVER_LINKAGE OperationAggregate
 {
 public:
+    /* Operation Aggregate constructor.  Builds an aggregate
+        object.
+        @param request
+        @param msgRequestType
+        @param messageId
+        @param dest
+        
+        NOTE: This is the version we will generally use
+    */
 
     OperationAggregate(CIMRequestMessage* request,
                                 Uint32 msgRequestType,
-                                String messageId)
+                                String messageId,
+                                Uint32 dest,
+                                CIMName className)
     : _messageId(messageId), _msgRequestType(msgRequestType),
-      _request(request), _totalIssued(0), _magicNumber(12345)
+      _request(request), _totalIssued(0), _magicNumber(12345),
+      _dest(dest), _className(className)
     {}
+    /* Constructor with nameSpace object also.
+    */
+    OperationAggregate(CIMRequestMessage* request,
+                                Uint32 msgRequestType,
+                                String messageId,
+                                Uint32 dest,
+                                CIMName className,
+                                CIMNamespaceName nameSpace)
+    : _messageId(messageId), _msgRequestType(msgRequestType),
+      _request(request), _totalIssued(0), _magicNumber(12345),
+      _dest(dest), _className(className),_nameSpace(nameSpace)
+    {}
+
 
     ~OperationAggregate()
     {
         _magicNumber = 0;
         delete _request;
     }
-
-    void setTotalIssued(Uint32 i)
-    {
-	_totalIssued = i;
-    }
-
+    // Tests validity by checking the magic number we put into the
+    // packet.
     Boolean valid() {return(_magicNumber == 12345)? true: false; }
-
+    
+    // Returns count of total responses collected into this aggregation
     Uint32 totalIssued() { return _totalIssued; }
+    
+    // increment the count of requests issued
+    void incIssued() { _totalIssued++;}
+
+    // Sets the total issued to the input parameter
+    void setTotalIssued(Uint32 i) {_totalIssued = i; }
 
     // Append a new entry to the response list.  Return value indicates
     // whether this response is the last one expected
     Boolean appendResponse(CIMResponseMessage* response)
     {
         _appendResponseMutex.lock(pegasus_thread_self());
-	_responseList.append(response);
+        _responseList.append(response);
         Boolean returnValue = (totalIssued() == numberResponses());
         _appendResponseMutex.unlock();
         return returnValue;
     }
+
 
     Uint32 numberResponses() { return _responseList.size(); }
 
@@ -115,11 +192,14 @@ public:
     
     String _messageId;
     Uint32 _msgRequestType;
-    Uint32 dest;
+    Uint32 _dest;
     Array<CIMName> classes;
     Array<String> serviceNames;
     Array<String> controlProviderNames;
     Array<String> propertyList;
+    CIMNamespaceName _nameSpace;
+    CIMName _className;
+    Uint64 _aggregationSN;
 private:
     /** Hidden (unimplemented) copy constructor */
     OperationAggregate(const OperationAggregate& x){ }
@@ -226,12 +306,20 @@ public:
 					   void *);
       
       // Response Handler functions
-      void handleOperationResponseAggregation(
-			OperationAggregate* poA);
       
-      static void handleEnumerateInstancesResponse(OperationAggregate* poA);
+      void handleOperationResponseAggregation(OperationAggregate* poA);
 
-      static void handleEnumerateInstanceNamesResponse(OperationAggregate* poA);
+      static void handleReferencesResponseAggregation(OperationAggregate* poA);
+
+      static void handleReferenceNamesResponseAggregation(OperationAggregate* poA);
+
+      static void handleAssociatorsResponseAggregation(OperationAggregate* poA);
+
+      static void handleAssociatorNamesResponseAggregation(OperationAggregate* poA);
+      
+      static void handleEnumerateInstancesResponseAggregation(OperationAggregate* poA);
+
+      static void handleEnumerateInstanceNamesResponseAggregation(OperationAggregate* poA);
 
 
    protected:
@@ -247,29 +335,51 @@ public:
 	    class which does not have any representation in the class repository.
 	    @exception CIMException(CIM_ERR_INVALID_CLASS)
 	*/
-       Array<CIMName> _getSubClassNames(
-	    CIMNamespaceName& nameSpace,
-	    CIMName& className) throw(CIMException);
-       
-       Boolean _lookupInternalProvider(
+    Array<CIMName> _getSubClassNames(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className) throw(CIMException);
+    
+    Boolean _lookupInternalProvider(
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
         String& service,
         String& provider);
+    
+    Boolean _lookupNewInstanceProvider(
+        const CIMNamespaceName& nameSpace, 
+        const CIMName& className,
+        String& serviceName,
+        String& controlProviderName);
 
-      String _lookupInstanceProvider(
-    	const CIMNamespaceName& nameSpace, const CIMName& className);
-
-      Boolean _lookupNewInstanceProvider(
-    	const CIMNamespaceName& nameSpace, 
-    	const CIMName& className,
-    	String& serviceName,
-    	String& controlProviderName);
-
-      Array<String> _lookupAssociationProvider(
-    	const CIMNamespaceName& nameSpace, const CIMName& className,
-        const CIMName& assocClassName = CIMName(),
-        const CIMName& resultClassName = CIMName());
+    String _lookupInstanceProvider(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className);
+    
+    Array<ProviderInfo> _lookupAllInstanceProviders(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
+        Uint32& providerCount)  throw(CIMException);
+    
+    Array<ProviderInfo> _lookupAllAssociationProviders(
+        const CIMNamespaceName& nameSpace,
+        const CIMObjectPath& objectName,
+        const CIMName& assocClass,
+        const CIMName& resultClass,
+        const String& role,
+        Uint32& providerCount);
+    
+    Boolean _lookupNewAssociationProvider(
+        const CIMNamespaceName& nameSpace, 
+        const CIMName& className,
+        const CIMName& assocClass,
+        const CIMName& resultClass,
+        String& serviceName,
+        String& controlProviderName);
+    
+    Array<String> _lookupAssociationProvider(
+        const CIMNamespaceName& nameSpace, const CIMName& className,
+        const CIMName& assocClass,
+        const CIMName& resultClass);
 
       String _lookupMethodProvider(const CIMNamespaceName& nameSpace,
     	const CIMName& className, const CIMName& methodName);
@@ -291,7 +401,7 @@ public:
         CIMRequestMessage* request,
         OperationAggregate* poA);
 
-      void _forwardRequest(
+      void _forwardRequestToProviderManager(
         const CIMName& className,
         const String& serviceName,
         const String& controlProviderName,
@@ -319,6 +429,7 @@ public:
 
       Boolean _enableAssociationTraversal;
       Boolean _enableIndicationService;
+      Uint32 _maximumEnumerateBreadth;
 
       // << Tue Feb 12 08:48:09 2002 mdd >> meta dispatcher integration
       virtual void _handle_async_request(AsyncRequest *req);

@@ -23,11 +23,10 @@
 //
 // Author: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //
-// Modified By: 
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <ctype.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/FileSystem.h>
@@ -35,6 +34,7 @@
 #include <Pegasus/Common/Base64.h>
 #include "ClientAuthenticator.h"
 
+#include <ctype.h>
 
 //
 // Constants used to parse the authentication challenge header
@@ -66,13 +66,13 @@ static const String DIGEST_AUTH_HEADER          = "Authorization: Digest ";
 /**
     Constant representing the local authentication header.
 */
-static const String LOCAL_AUTH_HEADER           = 
+static const String LOCAL_AUTH_HEADER           =
                              "PegasusAuthorization: Local";
 
 /**
     Constant representing the local privileged authentication header.
 */
-static const String LOCALPRIVILEGED_AUTH_HEADER = 
+static const String LOCALPRIVILEGED_AUTH_HEADER =
                              "PegasusAuthorization: LocalPrivileged";
 
 
@@ -91,7 +91,7 @@ void ClientAuthenticator::clearRequest(Boolean closeConnection)
 {
     _requestMessage = 0;
     _challengeReceived = false;
- 
+
     if (closeConnection)
     {
         _userName = String::EMPTY;
@@ -203,14 +203,14 @@ String ClientAuthenticator::buildRequestAuthHeader()
             }
             break;
 
-        //    
+        //
         //ATTN: Implement Digest Auth challenge handling code here
-        //    
+        //
         //case ClientAuthenticator::DIGEST:
-        //    if (_challengeReceived) 
+        //    if (_challengeReceived)
         //    {
         //        challengeResponse = DIGEST_AUTH_HEADER;
-        //    
+        //
         //    }
         //    break;
 
@@ -219,7 +219,7 @@ String ClientAuthenticator::buildRequestAuthHeader()
             challengeResponse = LOCALPRIVILEGED_AUTH_HEADER;
             challengeResponse.append(" \"");
 
-            if (_userName.size()) 
+            if (_userName.size())
             {
                  challengeResponse.append(_userName);
             }
@@ -240,7 +240,7 @@ String ClientAuthenticator::buildRequestAuthHeader()
             challengeResponse = LOCAL_AUTH_HEADER;
             challengeResponse.append(" \"");
 
-            if (_userName.size()) 
+            if (_userName.size())
             {
                  challengeResponse.append(_userName);
             }
@@ -257,9 +257,9 @@ String ClientAuthenticator::buildRequestAuthHeader()
             break;
 
         default:
-            // 
+            //
             // Gets here only when no authType was set.
-            // 
+            //
             challengeResponse.clear();
             break;
     }
@@ -284,7 +284,7 @@ void ClientAuthenticator::setRequestMessage(Message* message)
 Message* ClientAuthenticator::getRequestMessage()
 {
    return _requestMessage;
-   
+
 }
 
 void ClientAuthenticator::setUserName(const String& userName)
@@ -336,7 +336,7 @@ String ClientAuthenticator::_getFileContent(String filePath)
     ifstream ifs(p.getPointer());
     if (!ifs)
     {
-       //ATTN: Log error message 
+       //ATTN: Log error message
         return (challenge);
     }
 
@@ -356,7 +356,7 @@ String ClientAuthenticator::_buildLocalAuthResponse()
 {
     String authResponse = String::EMPTY;
 
-    if (_challengeReceived) 
+    if (_challengeReceived)
     {
         authResponse.append(":");
 
@@ -368,7 +368,7 @@ String ClientAuthenticator::_buildLocalAuthResponse()
         authResponse.append(":");
 
         //
-        // Read and append the challenge file content 
+        // Read and append the challenge file content
         //
         String fileContent = String::EMPTY;
         try
@@ -387,8 +387,8 @@ String ClientAuthenticator::_buildLocalAuthResponse()
 }
 
 Boolean ClientAuthenticator::_parseAuthHeader(
-    const String authHeader, 
-    String& authType, 
+    const String authHeader,
+    String& authType,
     String& authRealm)
 {
     ArrayDestroyer<char> header(authHeader.allocateCString());
@@ -438,7 +438,7 @@ Boolean ClientAuthenticator::_parseAuthHeader(
 
 
 String ClientAuthenticator::_getSubStringUptoMarker(
-    const char** line, 
+    const char** line,
     char marker)
 {
     String result = String::EMPTY;

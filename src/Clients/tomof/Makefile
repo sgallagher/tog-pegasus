@@ -5,9 +5,6 @@ DIR = Clients/$(PROGRAM_NAME)
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 
-
-//LOCAL_DEFINES = -DPEGASUS_TOMOF_INTERNAL
-
 PROGRAM = $(PROGRAM_NAME)
 
 SOURCES = $(PROGRAM_NAME).cpp \

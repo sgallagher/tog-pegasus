@@ -157,10 +157,10 @@ void GetOptions(
     static struct OptionRow optionsTable[] =
         //optionname defaultvalue rqd  type domain domainsize clname hlpmsg
     {
-	{"location", "localhost:5988", false, Option::STRING, 0, 0, "-n",
+	{"location", "localhost:5988", false, Option::STRING, 0, 0, "l",
                                         "specifies system and port" },
         
-	{"namespace", "root/cimv2", false, Option::STRING, 0, 0, "-n",
+	{"namespace", "root/cimv2", false, Option::STRING, 0, 0, "n",
                                         "specifies namespace to use for operation" },
         
         // error here just went to temp nothing

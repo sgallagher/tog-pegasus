@@ -354,7 +354,7 @@ int main(int argc, char** argv)
     }
 	try
 	{
-	    CIMObjectPath cimReference = client.createInstance(nameSpace, myInstance);
+	    CIMObjectPath cimObjectPath = client.createInstance(nameSpace, myInstance);
 	/*******
 	This one is a real problem because we need to do the parms.
 	Maybe we create instance and add properties later for now.
@@ -364,7 +364,7 @@ int main(int argc, char** argv)
 	    ) throw(CIMClientException);
 
 	****/
-	    XmlWriter::printValueReferenceElement(cimReference, cout);
+	    XmlWriter::printValueReferenceElement(cimObjectPath, cout);
         /* Output the returned instances
             if(isXMLOutput)
                 XmlWriter::appendInstanceElement(cimInstance, cout);

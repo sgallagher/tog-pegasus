@@ -27,7 +27,8 @@
 //
 // Author: Adrian Schuur schuur@de-ibm.com
 //
-// Modified By:
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -39,29 +40,29 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-void XmlStreamer::encode(Array<Sint8>& out, const CIMClass& cls) {
+void XmlStreamer::encode(Array<char>& out, const CIMClass& cls) {
    XmlWriter::appendClassElement(out, cls);
 }
 
-void XmlStreamer::encode(Array<Sint8>& out, const CIMInstance& inst) {
+void XmlStreamer::encode(Array<char>& out, const CIMInstance& inst) {
    XmlWriter::appendInstanceElement(out, inst);
 }
 
-void XmlStreamer::encode(Array<Sint8>& out, const CIMQualifierDecl& qual) {
+void XmlStreamer::encode(Array<char>& out, const CIMQualifierDecl& qual) {
    XmlWriter::appendQualifierDeclElement(out, qual);
 }
 
-void XmlStreamer::decode(const Array<Sint8>& in, unsigned int pos, CIMClass& cls) {
+void XmlStreamer::decode(const Array<char>& in, unsigned int pos, CIMClass& cls) {
     XmlParser parser(((char*)in.getData())+pos);
     XmlReader::getObject(parser, cls);
 }
 
-void XmlStreamer::decode(const Array<Sint8>& in, unsigned int pos, CIMInstance& inst) {
+void XmlStreamer::decode(const Array<char>& in, unsigned int pos, CIMInstance& inst) {
    XmlParser parser(((char*)in.getData())+pos);
    XmlReader::getObject(parser, inst);
 }
 
-void XmlStreamer::decode(const Array<Sint8>& in, unsigned int pos, CIMQualifierDecl& qual) {
+void XmlStreamer::decode(const Array<char>& in, unsigned int pos, CIMQualifierDecl& qual) {
    XmlParser parser(((char*)in.getData())+pos);
    XmlReader::getObject(parser, qual);
 }

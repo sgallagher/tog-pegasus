@@ -82,6 +82,7 @@ inline T * getInterface(CIMProvider * provider)
 
 ProviderFacade::ProviderFacade(CIMProvider * provider) : _provider(provider)
 {
+   _indications_enabled=false;
 }
 
 ProviderFacade::~ProviderFacade(void)

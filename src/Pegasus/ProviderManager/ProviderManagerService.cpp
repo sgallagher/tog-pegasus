@@ -1133,7 +1133,7 @@ void ProviderManagerService::handleInvokeMethodRequest(const Message * message) 
 	virtual void complete(const OperationContext & context)
 	{
 	    // error? provider claims success, but did not deliver a CIMValue.
-	    if(getObjects().size() == 0)
+	    if(getObjects().size() != 0)
 	    {
 		((CIMInvokeMethodResponseMessage *)getResponse())->retValue = getObjects()[0];
 	    }

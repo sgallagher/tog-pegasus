@@ -51,8 +51,8 @@ OperationResponseHandler::OperationResponseHandler(
     CIMResponseMessage *response)
     : _request(request),
     _response(response),
-    _responseMessageTotal(0),
     _responseObjectTotal(0),
+    _responseMessageTotal(0),
 	_responseObjectThreshold(0)
 {
 #ifndef PEGASUS_RESPONSE_OBJECT_COUNT_THRESHOLD

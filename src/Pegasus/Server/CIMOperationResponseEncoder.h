@@ -62,6 +62,8 @@ class CIMOperationResponseEncoder : public MessageQueueService
 	CIMResponseMessage* response,
 	const String& cimMethodName);
 
+//      virtual void handleEnqueue(Message *);
+      
     virtual void handleEnqueue();
 
     virtual const char* getQueueName() const;

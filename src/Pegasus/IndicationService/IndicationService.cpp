@@ -1328,9 +1328,11 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
 void IndicationService::_handleEnumerateInstanceNamesRequest
     (const Message* message)
 {
-    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE, 
-            "IndicationService::_handleEnumerateInstanceNamesRequest");
 
+   const char METHOD_NAME [] = 
+	  "IndicationService::_handleEnumerateInstancesNamesRequest";
+   PEG_METHOD_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+   
     CIMEnumerateInstanceNamesRequestMessage* request =
 	(CIMEnumerateInstanceNamesRequestMessage*) message;
 
@@ -1365,18 +1367,19 @@ void IndicationService::_handleEnumerateInstanceNamesRequest
 
     // preserve message key
     response->setKey(request->getKey());
+    
+// << Fri Feb 22 13:55:34 2002 mdd >>
+// ATTN: set the response destination !!!
+    response->dest = request->queueIds.top();
+    
+// Note: In this particular case you can call either SendForget
+// OR Base::_enqueueResponse
+//    SendForget(response);
+    
+    Base::_enqueueResponse(request, response);
 
-    // lookup the message queue
-    MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
 
-    PEGASUS_ASSERT(queue != 0);
-
-    // enqueue the response
-    queue->enqueue(response);
-
-//    _enqueueResponse(request, response);
-
-    PEG_METHOD_EXIT ();
+    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
 }
 
 void IndicationService::_handleModifyInstanceRequest (const Message* message)

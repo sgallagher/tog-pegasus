@@ -137,21 +137,28 @@ void CIMOperationResponseEncoder::sendError(
                                   "sendError()");
 }
 
+// void CIMOperationResponseEncoder::handleEnqueue(Message *message)
+// {
+
+    
+// }
+
+
 void CIMOperationResponseEncoder::handleEnqueue()
 {
-    PEG_FUNC_ENTER(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-                                  "handleEnqueue()");
 
     Message* message = dequeue();
 
     if (!message)
     {
-        PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-                                  "handleEnqueue()");
-	return;
+       PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
+		     "handleEnqueue()");
+       return;
     }
-
-    switch (message->getType())
+   PEG_FUNC_ENTER(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
+		  "handleEnqueue()");
+   
+   switch (message->getType())
     {
 	case CIM_GET_CLASS_RESPONSE_MESSAGE:
 	    encodeGetClassResponse(
@@ -276,7 +283,9 @@ void CIMOperationResponseEncoder::handleEnqueue()
     delete message;
 
     PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-                                  "handleEnqueue()");
+		  "handleEnqueue()");
+    
+    return;
 }
 
 const char* CIMOperationResponseEncoder::getQueueName() const

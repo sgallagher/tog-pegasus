@@ -1382,6 +1382,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 		queue->enqueue(new CIMEnumerateInstanceNamesRequestMessage(*request));
 
 		return;
+
 	}
 
 	// check the class name for an "external provider"

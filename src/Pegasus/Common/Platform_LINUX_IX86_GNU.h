@@ -62,4 +62,6 @@
 #endif
 #define _THREAD_SAFE
 #include <features.h>
+#include <stdio.h>
+#include <stdlib.h>
 #endif /* Pegasus_Platform_LINUX_IX86_GNU_h */

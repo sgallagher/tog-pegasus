@@ -233,11 +233,17 @@ void MessageQueueService::_handle_incoming_operation(AsyncOpNode *operation,
       // divert legacy messages to handleEnqueue
       if ( ! (rq->getMask() & message_mask::ha_async) )
       {
+	 
 	 rq = operation->_request.remove_first() ;
 	 operation->unlock();
 	 // delete the op node 
 	 delete operation;
-	 handleEnqueue(rq);
+
+//	Attn:  change to handleEnqueue(msg) when we have that method in all messagequeueservices
+//             make handleEnqueue pure virtual !!!
+//      << Fri Feb 22 13:39:09 2002 mdd >>
+
+	 enqueue(rq);
 	 return;
       }
 
@@ -310,10 +316,9 @@ Boolean MessageQueueService::_enqueueResponse(
 			     0);
       return true;
    }
-   return false;
    
    // ensure that the destination queue is in response->dest
-   //   return SendForget(response);
+   return SendForget(response);
    
 }
 
@@ -359,22 +364,20 @@ Boolean MessageQueueService::messageOK(const Message *msg)
    if (_incoming_queue_shutdown.value() > 0 )
       return false;
    return true;
-   
 }
 
 
 void MessageQueueService::handleEnqueue(Message *msg)
 {
    
+   
    if ( msg )
       delete msg;
-   
 }
 
 
 void MessageQueueService::handleEnqueue(void)
 {
-   
     Message *msg = dequeue();
     handleEnqueue(msg);
 }
@@ -565,6 +568,7 @@ Boolean MessageQueueService::SendAsync(AsyncOpNode *op,
 Boolean MessageQueueService::SendForget(Message *msg)
 {
 
+   
    AsyncOpNode *op = 0;
    Uint32 mask = msg->getMask();
    
@@ -580,17 +584,21 @@ Boolean MessageQueueService::SendForget(Message *msg)
       if (mask & message_mask::ha_async)
 	 (static_cast<AsyncMessage *>(msg))->op = op;
    }
-
    op->_flags |= ASYNC_OPFLAGS_FIRE_AND_FORGET;
    op->_flags &= ~(ASYNC_OPFLAGS_CALLBACK | ASYNC_OPFLAGS_SIMPLE_STATUS);
    op->_state &= ~ASYNC_OPSTATE_COMPLETE;
    
    // get the queue handle for the destination
    if ( 0 == (op->_op_dest = MessageQueue::lookup(msg->dest)))
+   {
       return false;
-      
+   }
+   
    // now see if the meta dispatcher will take it
-   return  _meta_dispatcher->route_async(op);
+   Boolean return_code = _meta_dispatcher->route_async(op);
+   return  return_code;
+   
+
 }
 
 

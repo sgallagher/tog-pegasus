@@ -275,6 +275,40 @@ public:
         return _providerName;
     }
 
+    // used for enumerateInstances
+     /** Get subclass names of the given class in the given namespace.
+        @param nameSpaceName
+        @param className - class whose subclass names will be gotten. If
+            className is empty, all classnames are returned.
+        @param deepInheritance - if true all descendent classes of class
+            are returned. If className is empty, only root classes are returned.        @param subClassNames - output argument to hold subclass names.
+        @exception CIMException(CIM_ERR_INVALID_CLASS)
+    */
+    void getSubClassNames(
+        const String& nameSpaceName,
+        const String& className,
+        Boolean deepInheritance,
+        Array<String>& subClassNames) const
+    {
+        _nameSpaceManager.getSubClassNames(nameSpaceName,
+                                           className,
+                                           deepInheritance,
+                                           subClassNames);
+    }
+
+    /** Get the names of all superclasses (direct and indirect) of this
+        class.
+    */
+    void getSuperClassNames(
+        const String& nameSpaceName,
+        const String& className,
+        Array<String>& subClassNames) const
+    {
+        _nameSpaceManager.getSuperClassNames(nameSpaceName,
+                                             className,
+                                             subClassNames);
+    }
+
 private:
 
     void _createAssocInstEntries(

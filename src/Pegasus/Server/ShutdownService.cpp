@@ -32,6 +32,7 @@
 //  ShutdownService 
 /////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Config.h>
 #include <Pegasus/Server/ShutdownExceptions.h>
 #include <Pegasus/Server/ShutdownService.h>
 

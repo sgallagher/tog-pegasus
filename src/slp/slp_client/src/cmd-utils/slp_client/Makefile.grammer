@@ -1,0 +1,57 @@
+##############################################################
+# *************   REQUIRES BISON 1.35   **********************
+##############################################################
+
+ROOT=$(PEGASUS_ROOT)
+include $(ROOT)/mak/config.mak
+
+export BISON_SIMPLE := bison.simple
+
+all: y_attr.c l_attr.c y_url.c l_url.c y_filter.c l_filter.c
+
+##############################################################
+# 1. bison -oy_attr.c -pattr -v -d attr.y
+##############################################################
+y_attr.c : attr.y 
+	$(YACC) -o$@ -p$(basename $<) -v -d $<
+	$(MOVE) $@ $(basename $@).cpp
+
+##############################################################
+# 2. flex -p -v -ol_attr.c -Pattr attr.l
+##############################################################
+l_attr.c : attr.l
+	$(LEX) -p -v -o$@ -P$(basename $<) $<
+	$(MOVE) $@ $(basename $@).cpp
+
+##############################################################
+# 3. bison -oy_url.c -purl -v -d url.y
+##############################################################
+y_url.c : url.y
+	$(YACC) -o$@ -p$(basename $<) -v -d $<
+	$(MOVE) $@ $(basename $@).cpp
+
+##############################################################
+# 4. flex -p -v -ol_url.c -Pattr url.l
+##############################################################
+l_url.c : url.l
+	$(LEX) -p -v -o$@ -P$(basename $<) $<
+	$(MOVE) $@ $(basename $@).cpp
+
+##############################################################
+# 5. bison -ol_filter.c -pfilter -v -d l_filter.y
+##############################################################
+y_filter.c : filter.y
+	$(YACC) -o$@ -p$(basename $<) -v -d $<
+	$(MOVE) $@ $(basename $@).cpp
+
+##############################################################
+# 6. flex -p -v -ol_filter.c -Pfilter filter.l
+##############################################################
+l_filter.c : filter.l
+	$(LEX) -p -v -o$@ -P$(basename $<) $<
+	$(MOVE) $@ $(basename $@).cpp
+
+clean:
+	$(RM) y_attr.cpp l_attr.cpp y_url.cpp l_url.cpp y_filter.cpp \
+	      l_filter.cpp y_url.h y_filter.h y_attr.h y_attr.output \
+	      y_url.output y_filter.output

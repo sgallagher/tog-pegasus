@@ -2,7 +2,7 @@
   <body bgcolor="#CCCCCC">
     <table width="100%">
       <tr>
-	<td width="50%" align="bottom"><h1>enumerateNameSpaces</h1><td>
+	<td width="50%" align="bottom"><h1>Enumerate NameSpaces</h1><td>
 	<td width="50%" align="right">
 	    <img border=1 src="/pegasus/icons/OpenGroupLogo.gif">
 	</td>
@@ -10,49 +10,64 @@
     </table>
     <hr>
   <form METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
-       <INPUT TYPE="hidden" NAME="Operation" VALUE="EnumerateInstanceNames">
+       <INPUT TYPE="hidden" NAME="Operation" VALUE="EnumerateNameSpaces">
        <p>
-
-     <a name="TOP"></a>
-
-         This request enumerates the namespaces defined in the repository. This is not a CIM intrinsic method but uses CIM enumerateInstance.<p><b><a href="#NameSpace">NameSpace</a></b>
+       <a name="TOP"></a>
+       This request enumerates the namespaces defined in the repository. This is not a CIM intrinsic method but uses CIM enumerateInstance.
+       <p><b><a href="#NameSpace">NameSpace</a></b>
 	         <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root">&nbsp;
-       Defined the root namespace where the __Namespace class is defined.<p><b><a href="#ClassName">ClassName</a></b> <INPUT TYPE="text" NAME="ClassName" SIZE=30 VALUE="__Namespace">&nbsp;&nbsp;
-       Defined the __Namespace class within the repository
-	       <p><b>LocalOnly</b> <INPUT TYPE="checkbox" NAME="LocalOnly" VALUE="true" checked>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	       If true only CIM Elements overridden within definition of class are
-	       returned.
-	       <p><b>IncludeQualifiers</b> <INPUT TYPE="checkbox" NAME="IncludeQualifiers" VALUE="true">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	       If checked, show Qualifiers for class and returned Properties, Methods,
-	       and Method Parameters.
-	       <p><b>IncludeClassOrigins</b> <INPUT TYPE="checkbox" NAME="IncludeClassOrigins" VALUE="true">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	       If checked (TRUE), CLASSORIGIN attribute will be returned for all
-	       appropriate elements<p><b>PropertyList </b> <INPUT TYPE="text" NAME="PropertyList" SIZE=30 VALUE="NULL">
-	       NOTE: <b> NOT IMPLEMENTED </b>Null or array of property names to filter
-	       request. <a href="#PropertyList">See below</a>.
+       		Defines the root namespace where the __Namespace class is defined. (DO NOT CHANGE)
+       <p><b><a href="#ClassName">ClassName</a></b> <INPUT TYPE="text" NAME="ClassName" SIZE=30 VALUE="__Namespace">&nbsp;&nbsp;
+       Defines the __Namespace class within the repository. (DO NOT CHANGE)<p><b>DO
+       NOT CHANGE THE ABOVE.&nbsp; THE FIELDS ARE PROVIDED FOR INFORMATION ONLY</b>
 	       <p><INPUT TYPE="submit" VALUE="Submit Request">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	       <INPUT TYPE="reset" VALUE="Reset">
+           <INPUT TYPE="reset" VALUE="Reset">
 
        <hr>
-      <p>Today the namespace manipulation defined in CIM Operations over HTTP is
-      proprietary in nature.&nbsp; It is based on a class named __Namespace
-      which creates an instance for each namespace defined for the CIMOM. The
-      only property in the __namespace class is the name.</p>
-       <p>Within Pegasus, the namespace manipulation based on the __namespace
-      class can be executed through this HTML page or through the <a href="EnumerateInstanceNames.html">enumerateInstanceNames</a>
-       operation with the classname = __namespace and the namespace
-      parameter =&nbsp; root.&nbsp; While it has not been formally defined
-       within the specification,
-      Pegasus today maintains the __namespace class in the root namespace.</p>
-       <p style="line-height: 100%; margin-top: 0; margin-bottom: 0">Operations
-       on the __NameSpace class are handled within Pegasus by a special provider
-       that manipulates the instances of the class and also creates and deletes
-       namespaces.</p>
-       <hr>
-       <p style="line-height: 100%; margin-top: 0; margin-bottom: 0"><font size="1">Last
-       Modified <!--webbot bot="Timestamp" S-Type="EDITED"
-       S-Format="%A, %B %d, %Y %I:%M:%S %p" startspan -->Monday, February 19, 2001 05:13:56 AM<!--webbot bot="Timestamp" i-CheckSum="5667" endspan -->
-       &nbsp;&nbsp;&nbsp;&nbsp; Copyright @ The Open Group 2001&nbsp;</font>
+      <hr>
+    <h2>Additional Information on the Fields</h2>
+    <p><a name="NameSpace"><b>NameSpace</b></a> - The NameSpace parameter is a string that defines the
+    target namespace
+
+    <p><a name="className"><b>ClassName</b></a> - The <TT>ClassName</TT> input parameter defines the Class
+    that is the basis for the enumeration.&nbsp;Note that the class named is not
+    retrieved as part of the enumeration. Thus, if there are no subclasses to
+    the named class, zero classe names are returned.
+    <p><b>Definition of the Namespace -</b> An object that defines a scope within which object keys must be unique. Multiple namespaces typically indicate the presence
+	of multiple management spaces or multiple devices.
+
+	The namespace pragma
+	    <PRE>     #pragma namespace( )</PRE>
+	This pragma is used to specify a Namespace path. The syntax
+	needs to conform to the following:
+    	<PRE>     	<namespacetype>://<namespacehandle></PRE>
+	<P>The contents of a MOF file are loaded into a namespace that provides a domain (in other words, a container), in which the instances of the classes are guaranteed to be unique per the KEY qualifier definitions. The term namespace is used to refer to an implementation that provides such a domain.
+	Namespaces can be used to:
+	<UL>
+    	<LI>Define chunks of management information (objects and associations) to limit implementation resource requirements, such as database size.
+    	<LI>Define views on the model for applications managing only specific objects, such as hubs.
+    	<LI>Pre-structure groups of objects for optimized query speed.
+ 	</UL>
+    <p><b>Implementation of Namespace Manipulation - </b>Today the namespace manipulation defined in CIM Operations over HTTP
+    (Section 2.5) is
+    proprietary in nature.&nbsp; It is based on a class named __Namespace
+    which creates an instance for each namespace defined for the CIMOM. The
+    only required property in the __namespace class is the name.
+    <p>Within Pegasus, the namespace manipulation based on the __namespace
+    class can be executed through this HTML page or through the <a href="EnumerateInstanceNames.html">enumerateInstanceNames</a>
+    operation with the classname = __namespace and the namespace
+    parameter =&nbsp; root.&nbsp; While it has not been formally defined
+    within the specification,
+    Pegasus today maintains the __namespace class in the root namespace.</p>
+    <p style="line-height: 100%; margin-top: 0; margin-bottom: 0">Operations
+    on the __NameSpace class are handled within Pegasus by a special provider
+    that manipulates the instances of the class and also creates and deletes
+    namespaces.</p>
+    <hr>
+    <p style="line-height: 100%; margin-top: 0; margin-bottom: 0"><font size="1">Last
+    Modified <!--webbot bot="Timestamp" S-Type="EDITED"
+    S-Format="%A, %B %d, %Y %I:%M:%S %p" startspan -->Monday, February 19, 2001 02:21:08 PM<!--webbot bot="Timestamp" i-CheckSum="5666" endspan -->
+    &nbsp;&nbsp;&nbsp;&nbsp; Copyright @ The Open Group 2001&nbsp;</font>
       <p>
     </form>
     <p>

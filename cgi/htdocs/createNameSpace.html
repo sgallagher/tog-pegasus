@@ -13,8 +13,7 @@
       <INPUT TYPE="hidden" NAME="Operation" VALUE="CreateNameSpace">
       <p>The <tt>CreateNameSpace</tt> method creates a new namespace in the Pegasus repository.
       <p><b>NameSpace Name</b> <INPUT TYPE="text" NAME="NameSpace" SIZE=30>
-      String that defines the namespace to be created. See <a href="getnamespaces.html">NameSpace
-      Operations</a> for more information
+      String that defines the namespace to be created.&nbsp;
       
       <p><INPUT TYPE="submit" VALUE="Submit Request">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       <INPUT TYPE="reset" VALUE="Reset Form">
@@ -36,54 +35,26 @@
 	</LI>
     </UL>
 
-      <p>&nbsp;ADDDITIONAL Description of Fields
 	</form>
-	-------------------------------------------------------
-	
-	0;
 
-    /** The <TT>createInstance</TT> method creates a single CIM
-    Instance in the target Namespace. The Instance MUST NOT already exist.
-
-    In processing the creation of the new Instance, the following rules MUST be
-    conformed to by the CIM Server:
-
-    Any CLASSORIGIN and PROPAGATED attributes in the NewInstance MUST be ignored
-    by the Server.
-
-    The Server MUST ensure that:
-
-    <UL>
-        <LI>Any Qualifiers in the Instance not defined in the Class are created
-        as new elements of the Instance.
-        <LI>All Properties of the Instance preserve their CLASSORIGIN attribute
-        value from that defined in the Class.
-        <LI>If a CIMProperty is specified in the ModifiedInstance parameter, the
-        value assigned to that property in the Instance (including NULL) becomes
-        the value of the property for the Instance. Note that it is a Client
-        error to specify a CIMProperty that does not belong to the Class.
-        <LI>If a CIMProperty of the Class is not specified in the Instance, then
-        that CIMProperty is inherited without modification by the Instance.
-        <LI>Any Qualifiers defined in the Class with a TOINSTANCE attribute
-        value of true appear in the Instance. Qualifiers in the
-        Class with a TOINSTANCE attribute value of false MUST NOT be propagated
-        to the Instance.
-        <LI>Any CIMQualifier propagated from the Class cannot be modified in the
-        Instance if the OVERRIDABLE attribute of that CIMQualifier was set to false
-        in the Class. It is a Client error to specify such a CIMQualifier in the
-        NewInstance with a different definition to that in the Class (where
-        definition encompasses the name, type and flavor attribute settings of
-        the <QUALIFIER> element, and the value of the CIMQualifier).
-    </UL>
-
-    @param NameSpace The NameSpace parameter is a string that defines the target
-    namespace \Ref{NAMESPACE}&nbsp;
-    <p>@param newInstance The <TT>newInstance</TT> input parameter defines the new
-    Instance. The proposed definition MUST be a correct Instance definition for
-    the underlying CIM Class according to the CIM specification.&nbsp;</p>
-    <p>
-
-    @return If successful, the return value defines the object path of the new
+      <p><b>&nbsp;ADDDITIONAL Description of Fields</b>
+    <hr>
+    <p>Create Namespace is not an intrinsic CIM operation today.&nbsp; In
+    accordance with the current CIM operations over HTTP specification, the
+    creation of namespaces is executed instances of the class __Namespace. This
+    class is defined with a single property, the name property which is the
+    key.&nbsp; Creation of an instance of of this class causes a new namespace
+    to be defined. If the namespace already exists, the create namespace returns
+    the error CIM_ERR_ALREADY_EXISTS.</p>
+    <p>NOTE: In the next version of CIM Operations over HTTP, the technique will
+    be changed to allow for intrinsic methods that permit both creation an
+    deletion of namespaces.</p>
+    <p>In the&nbsp; Pegasus implementaiton, namespace manipulation is managed
+    through a special provider __Namespace that is registered for the
+    __Namespace class and returns creates and deletes namespaces as well as
+    returning instances of __Namespace corresponding to the current set of
+    namespaces.</p>
+    <p><b>Return - </b>If successful, the return value defines the object path of the new
     CIM Instance relative to the target Namespace (i.e. the Model Path as
     defined by the CIM specification), created by the CIM Server.  It is
     returned in case one or more of the new keys of the Instance are allocated
@@ -107,13 +78,13 @@
         <LI>CIM_ERR_ALREADY_EXISTS (the CIM Instance already exists)
         <LI>CIM_ERR_FAILED (some other unspecified error occurred)
     </UL>
-    */
+    
+    The following is the CIM operation that is used to create a new namespace.
+    <PRE>
     virtual void createInstance(
-	const String& nameSpace,
-	CIMInstance& newInstance) = 
-	-------------------------------------------------------
-	
-	
+		const String&amp; nameSpace,
+		CIMInstance&amp; newInstance) = 
+	</PRE>
   </body>
 </html>
 

@@ -718,8 +718,8 @@ void CIMExportRequestDecoder::handleMethodRequest(
 	{
 		cimmsg->contentLanguages = httpContentLanguages;
 		cimmsg->operationContext.insert(IdentityContainer(userName));
-		cimmsg->operationContext.insert(ContentLanguageListContainer(httpContentLanguages));
-		cimmsg->operationContext.insert(AcceptLanguageListContainer(AcceptLanguages::EMPTY));
+		cimmsg->operationContext.set(ContentLanguageListContainer(httpContentLanguages));
+		cimmsg->operationContext.set(AcceptLanguageListContainer(AcceptLanguages::EMPTY));
 	}
 	else
 	{

@@ -29,6 +29,7 @@
 //                  (carolann_graves@hp.com)
 //              Mike Day, IBM (mdday@us.ibm.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//				Seema Gupta, (gseema@in.ibm.com for PEP135)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -385,7 +386,17 @@ Message* InternalCIMOMHandleRep::do_request(
     CIMMessage* cimmsg = dynamic_cast<CIMMessage*>(request);
     if (cimmsg != NULL)
     {
-        // chuck 2.4
+        try
+        {
+            IdentityContainer identity_cntr = (IdentityContainer)context.get(IdentityContainer::NAME);
+            cimmsg->operationContext.insert(IdentityContainer(identity_cntr.getUserName()));
+        }
+        catch (Exception e)
+        {
+            // If the container is not found then try to use an empty string just to avoid exception
+            cimmsg->operationContext.insert(IdentityContainer(String::EMPTY));
+        }
+		// chuck 2.4
         // If the caller specified an Accept-Language or Content-Language
         // in the OperationContext, then use those on the request msg.
         try
@@ -393,6 +404,7 @@ Message* InternalCIMOMHandleRep::do_request(
             AcceptLanguageListContainer al_cntr = (AcceptLanguageListContainer)
                 context.get(AcceptLanguageListContainer::NAME);
             cimmsg->acceptLanguages = al_cntr.getLanguages();
+			cimmsg->operationContext.set(AcceptLanguageListContainer(al_cntr.getLanguages())); 
         }
         catch (Exception &)
         {
@@ -402,6 +414,7 @@ Message* InternalCIMOMHandleRep::do_request(
             if (pal != NULL)
             {
                 cimmsg->acceptLanguages = *pal;
+				cimmsg->operationContext.set(AcceptLanguageListContainer(*pal)); 
             }
         }
 
@@ -411,9 +424,11 @@ Message* InternalCIMOMHandleRep::do_request(
                 (ContentLanguageListContainer)context.get(
                     ContentLanguageListContainer::NAME);
             cimmsg->contentLanguages = cl_cntr.getLanguages();
+			cimmsg->operationContext.set(ContentLanguageListContainer(cl_cntr.getLanguages())); 
         }
         catch (Exception &)
         {
+			cimmsg->operationContext.set(ContentLanguageListContainer(ContentLanguages::EMPTY)); 
             // ignore the container not found error
         }
 

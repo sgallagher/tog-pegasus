@@ -5207,8 +5207,8 @@ void IndicationService::_sendCreateRequests
         request->operationContext.insert(SubscriptionFilterConditionContainer(condition,queryLanguage));
         request->operationContext.insert(SubscriptionLanguageListContainer(acceptLangs));
 		request->operationContext.insert(IdentityContainer(userName));
-		request->operationContext.insert(ContentLanguageListContainer(contentLangs));
-		request->operationContext.insert(AcceptLanguageListContainer(acceptLangs));
+		request->operationContext.set(ContentLanguageListContainer(contentLangs));
+		request->operationContext.set(AcceptLanguageListContainer(acceptLangs));
 
         AsyncOpNode * op = this->get_op (); 
 
@@ -5343,8 +5343,8 @@ void IndicationService::_sendModifyRequests
 		
         request->operationContext.insert(SubscriptionLanguageListContainer(acceptLangs));
 		request->operationContext.insert(IdentityContainer(userName));
-		request->operationContext.insert(ContentLanguageListContainer(contentLangs));
-		request->operationContext.insert(AcceptLanguageListContainer(acceptLangs));
+		request->operationContext.set(ContentLanguageListContainer(contentLangs));
+		request->operationContext.set(AcceptLanguageListContainer(acceptLangs));
 
 		AsyncOpNode * op = this->get_op ();
 
@@ -5485,8 +5485,8 @@ void IndicationService::_sendDeleteRequests
 		request->operationContext.insert(SubscriptionInstanceContainer(subscription));
         request->operationContext.insert(SubscriptionLanguageListContainer(acceptLangs));
 		request->operationContext.insert(IdentityContainer(userName));
-		request->operationContext.insert(ContentLanguageListContainer(contentLangs));
-		request->operationContext.insert(AcceptLanguageListContainer(acceptLangs));
+		request->operationContext.set(ContentLanguageListContainer(contentLangs));
+		request->operationContext.set(AcceptLanguageListContainer(acceptLangs));
 
 
         AsyncOpNode * op = this->get_op ();

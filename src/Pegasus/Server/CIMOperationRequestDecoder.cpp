@@ -1226,8 +1226,8 @@ void CIMOperationRequestDecoder::handleMethodCall(
 		cimmsg->acceptLanguages = httpAcceptLanguages;
 		cimmsg->contentLanguages = httpContentLanguages;
 		cimmsg->operationContext.insert(IdentityContainer(userName));
-		cimmsg->operationContext.insert(AcceptLanguageListContainer(httpAcceptLanguages));
-		cimmsg->operationContext.insert(ContentLanguageListContainer(httpContentLanguages));
+		cimmsg->operationContext.set(AcceptLanguageListContainer(httpAcceptLanguages));
+		cimmsg->operationContext.set(ContentLanguageListContainer(httpContentLanguages));
 	}
 	else
 	{

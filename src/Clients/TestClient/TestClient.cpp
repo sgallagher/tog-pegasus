@@ -740,7 +740,7 @@ int main(int argc, char** argv)
 					   }
 					   else 
 					   {
-						   cout << "connecting to " << connectionList[i] << endl;
+						   cout << "Connecting to " << connectionList[i] << endl;
 						   client.connect(connectionList[i], userName, password);
 					   }
 				   }

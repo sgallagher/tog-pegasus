@@ -23,6 +23,9 @@
 // Author: Michael E. Brasher
 //
 // $Log: OptionManager.cpp,v $
+// Revision 1.3  2001/04/14 02:26:42  mike
+// More on option manager implementation
+//
 // Revision 1.2  2001/04/14 02:11:41  mike
 // New option manager class.
 //
@@ -36,6 +39,14 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+using namespace std;
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// OptionManager
+//
+////////////////////////////////////////////////////////////////////////////////
+
 OptionManager::OptionManager()
 {
 
@@ -43,38 +54,69 @@ OptionManager::OptionManager()
 
 OptionManager::~OptionManager()
 {
+    // Delete all options in the list:
 
+    for (Uint32 i = 0; i < _options.getSize(); i++)
+	delete _options[i];
 }
 
 Boolean OptionManager::registerOption(Option* option)
 {
+    if (!option)
+	return false;
+
+    if (lookupOption(option->getOptionName()))
+	return false;
+
+    _options.append(option);
     return true;
 }
 
 void OptionManager::mergeCommandLine(int& argc, char**& argv)
 {
-
+    // ATTN-A: Implement
 }
 
 void OptionManager::mergeEnvironment()
 {
-
+    // ATTN-A: Implement
 }
 
 void OptionManager::mergeFile(const String& fileName)
 {
-
+    // ATTN-A: Implement
 }
 
 void OptionManager::checkRequiredOptions() const
 {
-
+    // ATTN-A: Implement
 }
 
 const Option* OptionManager::lookupOption(const String& optionName) const
 {
+    for (Uint32 i = 0; i < _options.getSize(); i++)
+    {
+	if (_options[i]->getOptionName() == optionName)
+	    return _options[i];
+    }
+
     return 0;
 }
+
+void OptionManager::print() const
+{
+    for (Uint32 i = 0; i < _options.getSize(); i++)
+    {
+	Option* option = _options[i];
+	cout << option->getOptionName() << "=" << option->getValue() << endl;
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Option
+//
+////////////////////////////////////////////////////////////////////////////////
 
 Option::Option(
     const String& optionName,
@@ -138,6 +180,7 @@ Option& Option::operator=(const Option& x)
 
 Boolean Option::isValid(const String& value) const
 {
+    // ATTN-A: Implement
     return false;
 }
 

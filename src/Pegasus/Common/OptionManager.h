@@ -23,6 +23,9 @@
 // Author: Michael E. Brasher
 //
 // $Log: OptionManager.h,v $
+// Revision 1.3  2001/04/14 02:26:42  mike
+// More on option manager implementation
+//
 // Revision 1.2  2001/04/14 02:11:41  mike
 // New option manager class.
 //
@@ -241,8 +244,12 @@ public:
     void checkRequiredOptions() const;
 
     /** Lookup the option with the given name.
+	@return false if no such option.
     */
     const Option* lookupOption(const String& optionName) const;
+
+    /** Print all the options. */
+    void print() const;
 
 private:
 

@@ -39,6 +39,7 @@
 #include <Pegasus/Common/OptionManager.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Stopwatch.h>
+#include <Pegasus/Common/Exception.h>
 #ifndef PEGASUS_OS_ZOS
 #include <slp/slp.h>
 #endif
@@ -606,6 +607,7 @@ static void TestEnumerateInstances( CIMClient& client,
       Boolean includeQualifiers = false;
       Boolean includeClassOrigin = false;
       Uint32 testRepeat = 10;
+      Uint32 numberInstances;
       for (Uint32 i = 0; i < testRepeat; i++)        // repeat the test x time
         {
 	  Array<CIMNamedInstance> cimNInstances = 
@@ -613,7 +615,8 @@ static void TestEnumerateInstances( CIMClient& client,
 				      localOnly,  includeQualifiers,
 				      includeClassOrigin );
 	  
-	  assert( cimNInstances.size() == 3);
+	  ASSERTTEMP( cimNInstances.size() == 3);
+          numberInstances =  cimNInstances.size();
 	  for (Uint32 i = 0; i < cimNInstances.size(); i++)
 	    {
 	      String instanceRef = cimNInstances[i].getInstanceName().toString();
@@ -630,7 +633,7 @@ static void TestEnumerateInstances( CIMClient& client,
 		}
 	    }
 	}
-      cout << "Enumerate instances " << testRepeat << " times" << endl;
+      cout << "Enumerate " << numberInstances << " instances " << testRepeat << " times" << endl;
     }
   catch(CIMClientException& e)
     {

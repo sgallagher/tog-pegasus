@@ -1319,7 +1319,7 @@ unsigned int CmpiObjectPath::getKeyCount() const {
    return c;
 }
 
-CmpiData CmpiObjectPath::getKey(const int pos, CmpiString *name) {
+CmpiData CmpiObjectPath::getKey(const int pos, CmpiString *name) const{
    CmpiData d;
    CMPIStatus rc={CMPI_RC_OK,NULL};
    CMPIString *s;

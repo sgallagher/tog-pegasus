@@ -152,7 +152,7 @@ public:
    @param name Optional output parameter returning the key name.
    @return CmpiData value object corresponding to the index.
    */
-   CmpiData getKey(const int index, CmpiString *name=NULL);
+   CmpiData getKey(const int index, CmpiString *name=NULL) const;
 
    /** setKey - adds/replaces a key value defined by the input
    parameter to the ObjectPath

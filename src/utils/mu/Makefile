@@ -21,12 +21,10 @@ endif
 
 ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
 OS=hpux
-IAFLAGS =
 endif
 
 ifeq ($(PEGASUS_PLATFORM),HPUX_IA64_ACC)
 OS=hpux
-IAFLAGS =
 endif
 
 # Set Parameters for OS type
@@ -81,16 +79,22 @@ ifeq ($(OS),tru64)
 endif
 
 ifeq ($(OS),hpux)
-    ifeq ($(HPUX_IA64_VERSION), yes)
-      IAFLAGS =  -AP
+    FLAGS += +Z -D_POSIX_C_SOURCE=199506L -D_HPUX_SOURCE 
+    ifeq ($(PEGASUS_PLATFORM),HPUX_IA64_ACC)
+      FLAGS += -DPEGASUS_PLATFORM_HPUX_IA64_ACC -AP
+      ifeq ($(HPUX_IA64_NATIVE_COMPILER),yes)
+        FLAGS += -DHPUX_IA64_NATIVE_COMPILER
+        INCLUDES = -I../../stdcxx/stream
+      else
+        INCLUDES = -I../../stdcxx/stream
+      endif
     else
-      IAFLAGS =  +DAportable
+      FLAGS += -DPEGASUS_PLATFORM_HPUX_PARISC_ACC +DPortable
+      INCLUDES = -I../../stdcxx/stream
     endif
-    FLAGS = +Z -D_POSIX_C_SOURCE=199506L -D_HPUX_SOURCE -DPEGASUS_PLATFORM_HPUX_PARISC_ACC
-    INCLUDES = -I../../stdcxx/stream
     CXX = aCC
     LXX = $(CXX)
-    CXXFLAGS = $(FLAGS) $(IAFLAGS) $(INCLUDES)
+    CXXFLAGS = $(FLAGS) $(INCLUDES)
     DEFINES = -DOS_UNIX
     PROGRAM = mu
     EXE_OUT = -o

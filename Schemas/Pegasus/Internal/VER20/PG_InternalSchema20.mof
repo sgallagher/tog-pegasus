@@ -2,5 +2,3 @@
 #pragma include ("PG_ConfigSetting20.mof")
 #pragma include ("PG_User20.mof")
 #pragma include ("PG_ShutdownService20.mof")
-//#pragma include ("PrerequisiteInstances.mof")
-#pragma include ("PG_SLPTemplate.mof")

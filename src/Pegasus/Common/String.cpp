@@ -233,7 +233,7 @@ String::String(const char* str, const char* utfFlag)
 
     if(!memcmp(utfFlag,STRING_FLAG_UTF8,sizeof(STRING_FLAG_UTF8)))
     {
-	assignUTF8(str);
+	assign(str);
     }
     else
     {
@@ -283,30 +283,14 @@ String& String::assign(const Char16* str, Uint32 n)
     return *this;
 }
 
-String& String::assign(const char* str)
-{
-    _rep->c16a.clear();
-
-    Uint32 n = strlen(str) + 1;
-    _rep->c16a.reserveCapacity(n);
-
-    while (n--)
-	_rep->c16a.append(Uint8(*str++));
-
-    return *this;
-}
-
 String& String::assign(const char* str, Uint32 n)
 {
-    _rep->c16a.clear();
+    char *tmpStr = new char[n+1];
+    memset(tmpStr,0x00,n+1);
 
-    Uint32 _n = _strnlen(str, n);
-    _rep->c16a.reserveCapacity(_n + 1);
-
-    while (_n--)
-	_rep->c16a.append(Uint8(*str++));
-
-    _rep->c16a.append('\0');
+    strncpy(tmpStr,str,n);
+    assign(tmpStr);
+    delete tmpStr;
 
     return *this;
 }
@@ -330,25 +314,6 @@ Uint32 String::size() const
 const Char16* String::getChar16Data() const
 {
     return _rep->c16a.getData();
-}
-
-CString String::getCString() const
-{
-    Uint32 n = size() + 1;
-    char* str = new char[n];
-    char* p = str;
-    const Char16* q = getChar16Data();
-
-    for (Uint32 i = 0; i < n; i++)
-    {
-	Uint16 c = *q++;
-	*p++ = char(c);
-
-	//if (c & 0xff00)
-	//    truncatedCharacters = true;
-    }
-
-    return CString(str);
 }
 
 Char16& String::operator[](Uint32 index)
@@ -486,14 +451,28 @@ Uint32 String::reverseFind(Char16 c) const
     return PEG_NOT_FOUND;
 }
 
-// ATTN-RK-P3-20020509: Define case-sensitivity for non-English characters
-// ATTN-CEC-20030913: ICU code added, but uses the server's locale.  Look at adding
-// a toLower( ) with Locale parameter - like ICU's toLower( )
 void String::toLower()
+{
+    const char * noLocale = NULL;
+    String::toLower(noLocale);
+}
+void String::toLower(const char * strLocale)
 {
 #ifdef PEGASUS_HAS_ICU
     UnicodeString UniStr((const UChar *)_rep->c16a.getData());
-    UniStr.toLower();
+    if(strLocale == NULL)
+    {
+       	UniStr.toLower();
+    }
+    else
+    {
+	Locale loc(strLocale);
+	if(loc.isBogus())
+	{
+	    throw InvalidNameException(String(strLocale));
+	}
+	UniStr.toLower(loc);
+    }
     UniStr.append((UChar)'\0');   
     
     assign((Char16*)UniStr.getBuffer());
@@ -503,6 +482,29 @@ void String::toLower()
 	if (*p <= PEGASUS_MAX_PRINTABLE_CHAR)
 	    *p = tolower(*p);
     }
+#endif
+}
+
+void String::toUpper(const char * strLocale)
+{
+#ifdef PEGASUS_HAS_ICU
+    UnicodeString UniStr((const UChar *)_rep->c16a.getData());
+    if(strLocale == NULL)
+    {
+       	UniStr.toUpper();
+    }
+    else
+    {
+	Locale loc(strLocale);
+	if(loc.isBogus())
+	{
+	    throw InvalidNameException(String(strLocale));
+	}
+	UniStr.toUpper(loc);
+    }
+    UniStr.append((UChar)'\0');   
+
+    assign((Char16*)UniStr.getBuffer());
 #endif
 }
 
@@ -545,12 +547,30 @@ int String::compare(const String& s1, const String& s2)
 
 int String::compareNoCase(const String& s1, const String& s2)
 {
+    const char * noLocale = NULL;
+    return String::compareNoCase(s1, s2, noLocale);
+}
+
+int String::compareNoCase(const String& s1, const String& s2,const char * strLocale)
+{
 #ifdef PEGASUS_HAS_ICU
     UnicodeString UniStr1((const UChar *)s1.getChar16Data(), (int32_t)s1.size());
     UnicodeString UniStr2((const UChar *)s2.getChar16Data(), (int32_t)s2.size());
-    UniStr1.toLower();
-    UniStr2.toLower();
-
+    if(strLocale == NULL)
+    {
+    	UniStr1.toLower();
+    	UniStr2.toLower();
+    }
+    else
+    {
+	Locale loc(strLocale);
+	if(loc.isBogus())
+	{
+	    throw InvalidNameException(String(strLocale));
+	}
+    	UniStr1.toLower(loc);
+    	UniStr2.toLower(loc);
+    }
     // Note:  the ICU 2.6.1 documentation for UnicodeString::compare( ) is
     // backwards!  The API actually returns +1 if this is greater than text.
     // This is why the line below appears wrong based on the 2.6.1 docs.
@@ -594,11 +614,30 @@ Boolean String::equal(const String& str1, const String& str2)
 
 Boolean String::equalNoCase(const String& str1, const String& str2)
 {
+    const char * noLocale = NULL;
+    return String::equalNoCase(str1, str2, noLocale);
+}
+
+Boolean String::equalNoCase(const String& str1, const String& str2,const char * strLocale)
+{
 #ifdef PEGASUS_HAS_ICU
     UnicodeString UniStr1((const UChar *)str1.getChar16Data(), (int32_t)str1.size());
     UnicodeString UniStr2((const UChar *)str2.getChar16Data(), (int32_t)str2.size());
-    UniStr1.toLower();
-    UniStr2.toLower();
+    if(strLocale == NULL)
+    {
+    	UniStr1.toLower();
+    	UniStr2.toLower();
+    }
+    else
+    {
+	Locale loc(strLocale);
+	if(loc.isBogus())
+	{
+	    throw InvalidNameException(String(strLocale));
+	}
+    	UniStr1.toLower(loc);
+    	UniStr2.toLower(loc);
+    }
     return (UniStr1 == UniStr2);    
 #else
     if (str1.size() != str2.size())
@@ -625,6 +664,36 @@ Boolean String::equalNoCase(const String& str1, const String& str2)
 #endif
 }
 
+// UTF8 specific code:
+String& String::assign(const char* str)
+{
+    _rep->c16a.clear();
+    Uint32 n = strlen(str) + 1;
+
+    const Uint8 *strsrc = (Uint8 *)str;
+    Uint8 *endsrc = (Uint8 *)&str[n-1];
+
+    Char16 *msg16 = new Char16[n];
+    Uint16 *strtgt = (Uint16 *)msg16;
+    Uint16 *endtgt = (Uint16 *)&msg16[n];
+
+    UTF8toUTF16(&strsrc,
+		endsrc,
+		&strtgt,
+		endtgt);
+
+    Uint32 count;
+
+    for(count = 0; ((msg16[count]) != Char16(0x00)) && (count < (n - 1)); ++count);
+
+    _rep->c16a.append(msg16, count);
+
+    _rep->c16a.append('\0');
+
+    delete [] msg16;
+
+    return *this;
+}
 // UTF8 specific code:
 String& String::assignUTF8(const char* str)
 {
@@ -656,6 +725,31 @@ String& String::assignUTF8(const char* str)
     return *this;
 }
 
+CString String::getCString() const
+{
+    Uint32 n = 3*size() + 1;
+    char* str = new char[n];
+
+    const Char16* msg16 = getChar16Data();
+
+    const Uint16 *strsrc = (Uint16 *)msg16;
+    Uint16 *endsrc = (Uint16 *)&msg16[size()+1];
+
+    Uint8 *strtgt = (Uint8 *)str;
+    Uint8 *endtgt = (Uint8 *)&str[n];
+
+    UTF16toUTF8 (&strsrc,
+		 endsrc,
+		 &strtgt,
+		 endtgt);
+
+	char* str1 = new char[strlen(str)+1];
+	strcpy(str1,str);
+	delete [] str;
+
+    return CString(str1);
+}
+
 CString String::getCStringUTF8() const
 {
     Uint32 n = 3*size() + 1;
@@ -681,22 +775,7 @@ CString String::getCStringUTF8() const
     return CString(str1);
 }
 
-Boolean String::isUTF8(const char *legal)
-{
-    char numBytes = UTF_8_COUNT_TRAIL_BYTES(*legal)+1;
 
-    // Validate that the string is long enough to hold all the expected bytes.
-    // Note that if legal[0] == 0, numBytes will be 1.
-    for (char i=1; i<numBytes; i++)
-    {
-        if (legal[i] == 0)
-        {
-            return false;
-        }
-    }
-
-    return (isValid_U8((const Uint8 *)legal, numBytes));
-}
 
 #if 0
 // ATTN-RK-P3-20020603: This code is not completely correct

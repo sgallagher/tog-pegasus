@@ -30,6 +30,7 @@
 //              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
+//              Amit K Arora, IBM (amita@in.ibm.com) for Bug#1979
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -165,7 +166,10 @@ static void TestQualifierOperations(CIMClient& client)
 
 static void TestInstanceOperations(CIMClient& client)
 {
-    // Delete the class if it already exists:
+    // Do some cleanup first.
+    // Delete the instances and the class if it already exists.
+    // If it doesn't exist, we get invalid-name OR not-found exception,
+    // which is perfectly fine. Thus we ignore these exceptions.
 
     try
     {
@@ -176,19 +180,32 @@ static void TestInstanceOperations(CIMClient& client)
            client.deleteInstance(SAMPLEPROVIDER_NAMESPACE, instanceNames[i]);
         }
     }
-    catch (Exception& e)
+    catch (InvalidNameException& e)
     {
-        cout << "MyClass EnumerateInstanceName error: " << e.getMessage() << endl;
-	// Continue on error!
+       // Ignore Invalid Name exception
     }
+    catch (CIMException& e)
+    {
+       CIMStatusCode code = e.getCode();
+
+       // Ignore CIM_ERR_INVALID_CLASS and CIM_ERR_NOT_FOUND exceptions
+       if(code != CIM_ERR_INVALID_CLASS && code != CIM_ERR_NOT_FOUND)
+       {
+          throw e;
+       }
+    }
+
     try
     {
         client.deleteClass(SAMPLEPROVIDER_NAMESPACE, CIMName ("myclass"));
     }
-    catch (Exception& e)
+    catch (CIMException& e)
     {
-        cout << "Delete MyClass error: " << e.getMessage() << endl;
-	// Ignore delete class!
+       // Ignore CIM_ERR_NOT_FOUND exception
+       if(e.getCode() != CIM_ERR_NOT_FOUND)
+       {
+          throw e;
+       }
     }
 
     // Create a new class:

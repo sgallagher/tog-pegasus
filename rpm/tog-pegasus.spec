@@ -347,10 +347,6 @@ install -D -m 0444  $PEGASUS_ROOT/Schemas/Pegasus/ManagedSystem/VER20/PG_UnixPro
 #
 mkdir -p  $RPM_BUILD_ROOT%PEGASUS_REPOSITORY_DIR
 cp -rf $PEGASUS_HOME/repository/*  $RPM_BUILD_ROOT%PEGASUS_REPOSITORY_DIR
-#
-# SSL Files
-#
-install -D -m 0444  $PEGASUS_ROOT/src/Server/ssl.cnf $RPM_BUILD_ROOT%PEGASUS_CONFIG_DIR/ssl.orig
 
 #
 # cimserver config files
@@ -379,9 +375,9 @@ install -D -m 0444  $PEGASUS_ROOT/rpm/manLinux/man1.Z/cimmof.1 $RPM_BUILD_ROOT%P
 install -D -m 0444  $PEGASUS_ROOT/rpm/manLinux/man1.Z/cimprovider.1 $RPM_BUILD_ROOT%PEGASUS_MANUSER_DIR/cimprovider.1
 install -D -m 0444  $PEGASUS_ROOT/rpm/manLinux/man1.Z/osinfo.1 $RPM_BUILD_ROOT%PEGASUS_MANUSER_DIR/osinfo.1
 install -D -m 0444  $PEGASUS_ROOT/rpm/manLinux/man1.Z/wbemexec.1 $RPM_BUILD_ROOT%PEGASUS_MANUSER_DIR/wbemexec.1
-install -D -m 0444  $PEGASUS_ROOT/rpm/manLinux/man1m.Z/cimauth.1m $RPM_BUILD_ROOT%PEGASUS_MANADMIN_DIR/cimauth.8
-install -D -m 0444  $PEGASUS_ROOT/rpm/manLinux/man1m.Z/cimconfig.1m $RPM_BUILD_ROOT%PEGASUS_MANADMIN_DIR/cimconfig.8
-install -D -m 0444  $PEGASUS_ROOT/rpm/manLinux/man1m.Z/cimserver.1m $RPM_BUILD_ROOT%PEGASUS_MANADMIN_DIR/cimserver.8
+install -D -m 0444  $PEGASUS_ROOT/rpm/manLinux/man8.Z/cimauth.8 $RPM_BUILD_ROOT%PEGASUS_MANADMIN_DIR/cimauth.8
+install -D -m 0444  $PEGASUS_ROOT/rpm/manLinux/man8.Z/cimconfig.8 $RPM_BUILD_ROOT%PEGASUS_MANADMIN_DIR/cimconfig.8
+install -D -m 0444  $PEGASUS_ROOT/rpm/manLinux/man8.Z/cimserver.8 $RPM_BUILD_ROOT%PEGASUS_MANADMIN_DIR/cimserver.8
 
 install -D -m 0444  $PEGASUS_ROOT/doc/%PEGASUS_LICENSE_FILE $RPM_BUILD_ROOT%PEGASUS_PROD_DIR/%PEGASUS_LICENSE_FILE
 #
@@ -899,15 +895,20 @@ ln -sf libProcessProvider.so.1 libProcessProvider.so
 #  Generate a self signed node certificate
 #
 echo " Generating SSL certificates... "
-CN="Common Name"
-EMAIL="test@email.address"
 HOSTNAME=`uname -n`
-sed -e "s/$CN/$HOSTNAME/"  \
-    -e "s/$EMAIL/root@$HOSTNAME/" %PEGASUS_CONFIG_DIR/ssl.orig \
-    > %PEGASUS_CONFIG_DIR/ssl.cnf
+echo "[ req ]" > %PEGASUS_CONFIG_DIR/ssl.cnf
+echo "distinguished_name     = req_distinguished_name"  >> %PEGASUS_CONFIG_DIR/ssl.cnf
+echo "prompt                 = no"  >> %PEGASUS_CONFIG_DIR/ssl.cnf
+echo "[ req_distinguished_name ]" >> %PEGASUS_CONFIG_DIR/ssl.cnf
+echo "C                      = UK" >> %PEGASUS_CONFIG_DIR/ssl.cnf
+echo "ST                     = Berkshire" >> %PEGASUS_CONFIG_DIR/ssl.cnf
+echo "L                      = Reading" >> %PEGASUS_CONFIG_DIR/ssl.cnf
+echo "O                      = The Open Group" >> %PEGASUS_CONFIG_DIR/ssl.cnf
+echo "OU                     = The OpenPegasus Project" >> %PEGASUS_CONFIG_DIR/ssl.cnf
+echo "CN                     = $HOSTNAME" >> %PEGASUS_CONFIG_DIR/ssl.cnf
 chmod 400 %PEGASUS_CONFIG_DIR/ssl.cnf
-chown bin %PEGASUS_CONFIG_DIR/ssl.cnf
-chgrp bin %PEGASUS_CONFIG_DIR/ssl.cnf
+chown root %PEGASUS_CONFIG_DIR/ssl.cnf
+chgrp root %PEGASUS_CONFIG_DIR/ssl.cnf
 
 openssl req -x509 -days 365 -newkey rsa:2048 \
    -nodes -config %PEGASUS_CONFIG_DIR/ssl.cnf   \
@@ -1126,7 +1127,6 @@ fi
 %config %attr(-,root,root) %PEGASUS_VARDATA_DIR/%PEGASUS_PLANNED_CONFIG_FILE
 %config %attr(-,root,root) /etc/init.d/tog-pegasus
 %config %attr(-,root,root) %PAM_CONF/wbem
-%attr(-,root,root) %PEGASUS_CONFIG_DIR/ssl.orig
 %attr(-,root,root) %PEGASUS_SBIN_DIR/cimauth
 %attr(-,root,root) %PEGASUS_SBIN_DIR/cimserver
 %attr(-,root,root) %PEGASUS_SBIN_DIR/cimservera

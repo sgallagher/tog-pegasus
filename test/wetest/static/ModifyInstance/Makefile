@@ -10,7 +10,4 @@ ATTN-SF-P3-2002/03/20:
 
 XmlScriptDefects: ModifyInstance54001
 
-clean:
-	$(RM) $(XMLRESPONSES)
-
-tests: $(XMLRESPONSES)
+include $(ROOT)/test/configend.mak

@@ -34,7 +34,7 @@
 
 
 #ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
-    {"logLevel", "SEVERE"},
+    {"logLevel", "SEVERE", 0, 0, 0, 1},
     {"httpPort", "5988", 0, 0, 0, 1},
     {"httpsPort", "5989", 0, 0, 0, 1},
     {"enableHttpConnection", "false", 0, 0, 0, 1},
@@ -55,7 +55,7 @@
     {"sslClientVerificationMode", "disabled", 0, 0, 0, 1},
     {"enableProviderProcesses", "false", 0, 0, 0, 1}
 #else
-    {"logLevel", "INFORMATION"},
+    {"logLevel", "INFORMATION", 0, 0, 0, 1},
     {"httpPort", "5988", 0, 0, 0, 1},
     {"httpsPort", "5989", 0, 0, 0, 1},
     {"enableHttpConnection", "true", 0, 0, 0, 1},

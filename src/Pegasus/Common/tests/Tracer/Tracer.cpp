@@ -284,7 +284,7 @@ Uint32 test10()
 {
     const char* METHOD_NAME = "test10";
     Tracer::setTraceComponents("ALL");
-    PEG_FUNC_EXIT(-1,METHOD_NAME);
+    PEG_FUNC_EXIT(Uint32(-1),METHOD_NAME);
     return(compare(FILE2,"Test Message for Level3 in test9"));
 }
 

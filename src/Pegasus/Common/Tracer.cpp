@@ -156,9 +156,9 @@ void Tracer::_trace(
 		_STRLEN_MAX_UNSIGNED_INT + _STRLEN_MAX_PID_TID ];
             sprintf(
                message,
-               "[%d:%d:%s:%u]: ",
+               "[%d:%u:%s:%u]: ",
                System::getPID(),
-               pegasus_thread_self(),
+               Uint32(pegasus_thread_self()),
                fileName,
                lineNum);
 
@@ -323,9 +323,9 @@ void Tracer::_traceEnter(
 	    _STRLEN_MAX_UNSIGNED_INT + _STRLEN_MAX_PID_TID ];
         sprintf(
            message,
-           "[%d:%d:%s:%u]: ",
+           "[%d:%u:%s:%u]: ",
            System::getPID(),
-           pegasus_thread_self(),
+           Uint32(pegasus_thread_self()),
            fileName,
            lineNum);
         _trace(traceComponent,message,fmt,argList); 
@@ -360,9 +360,9 @@ void Tracer::_traceExit(
 	    _STRLEN_MAX_UNSIGNED_INT + _STRLEN_MAX_PID_TID ];
         sprintf(
            message,
-           "[%d:%d:%s:%u]: ",
+           "[%d:%u:%s:%u]: ",
            System::getPID(),
-           pegasus_thread_self(),
+           Uint32(pegasus_thread_self()),
            fileName,
            lineNum);
         _trace(traceComponent,message,fmt,argList); 
@@ -430,7 +430,8 @@ void Tracer::_trace(
         // Needs to be updated if additional info is added
         //
 	tmpBuffer = new char[_STRLEN_MAX_PID_TID];
-        sprintf(tmpBuffer,"[%d:%d]: ",System::getPID(),pegasus_thread_self());
+        sprintf(tmpBuffer, "[%u:%u]: ", System::getPID(),
+                Uint32(pegasus_thread_self()));
 
         sprintf(msgHeader,"%s: %s %s ",timeStamp.getPointer(),
             TRACE_COMPONENT_LIST[traceComponent] ,tmpBuffer );

@@ -36,11 +36,11 @@ PEGASUS_USING_STD;
 
 static char * verbose;
 
-/**********************************************************************
-/*  CIMObject tests
-/*
-/*  The CIMObject class refers either to a CIMInstance or a CIMClass.
-/**********************************************************************/
+//*********************************************************************
+//  CIMObject tests
+//
+//  The CIMObject class refers either to a CIMInstance or a CIMClass.
+//*********************************************************************
 void test01()
 {
     CIMObject obj;
@@ -142,9 +142,9 @@ void test01()
     }
 }
 
-/**********************************************************************
-/*  CIMConstObject tests
-/**********************************************************************/
+//*********************************************************************
+//  CIMConstObject tests
+//*********************************************************************
 void test02()
 {
     CIMConstObject obj;
@@ -239,11 +239,11 @@ void test02()
     }
 }
 
-/**********************************************************************
-/*  CIMObjectWithPath tests
-/*
-/*  The CIMObjectWithPath encapsulates a CIMReference and a CIMObject.
-/**********************************************************************/
+//*********************************************************************
+//  CIMObjectWithPath tests
+//
+//  The CIMObjectWithPath encapsulates a CIMReference and a CIMObject.
+//*********************************************************************
 void test03()
 {
     CIMClass class1("//localhost/root/cimv2:MyClass");

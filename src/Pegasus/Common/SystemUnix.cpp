@@ -86,7 +86,7 @@ String System::getCurrentASCIITime()
     time_t  rawTime;
 
     time(&rawTime);
-    strftime(str, 40,"%T-%D", localtime(&rawTime));
+    strftime(str, 40,"%m/%d/%Y-%T", localtime(&rawTime));
     String time = str;
     return time;
 }

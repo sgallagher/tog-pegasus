@@ -203,9 +203,10 @@ void CIMClassRep::resolve(
     if (!context)
 	throw NullPointer();
 
-	Tracer::trace(TRC_OBJECTRESOLUTION, Tracer::LEVEL3,
-		"CIMClassRep::resolve  class = %s, superclass = %i", _reference.getClassName()
-		, _superClassName);
+	PEG_TRACE_STRING(TRC_OBJECTRESOLUTION, Tracer::LEVEL3,
+		String("CIMClassRep::resolve  class = ") +
+		_reference.getClassName() + ", superclass = " +
+		_superClassName);
 
     if (_superClassName.size())
 	{

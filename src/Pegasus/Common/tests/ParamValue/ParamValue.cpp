@@ -74,7 +74,7 @@ void test01()
     CIMParamValue a4clone = a4.clone();
     aa.append(a4clone);
 
-    for (int i=0; i< aa.size(); i++)
+    for (Uint32 i=0; i< aa.size(); i++)
     {
         aa[i].print(cout);
     }

@@ -103,7 +103,7 @@ Array<Sint8> Base64::encode(const Array<Uint8>& vby)
 };
 /*I checked for the zero length. The algorithm would also work for zero length input stream, but I’m pretty adamant about handling border conditions. They are often the culprits of run-time production failures.
 The algorithm goes thru each three bytes of data at a time. The first thing I do is to shift the bits around from three 8-bit values to four 6-bit values. Then I encode the 6-bit values and add then one at a time to the output stream. This is actually quite inefficient. The STL character array is being allocated one byte at a time. The algorithm would be much faster, if I pre-allocated that array. I’ll leave that as an optimization practical exercise for the reader.
-
+*/
 
 /*  The decode static method takes a base-64 stream and converts it 
     to an array of 8-bit values.

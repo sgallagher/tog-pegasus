@@ -540,7 +540,7 @@ PEGASUS_COMMON_LINKAGE String ToLower(const String& str);
 */
 PEGASUS_COMMON_LINKAGE int CompareNoCase(const char* s1, const char* s2);
 
-inline EqualNoCase(const char* s1, const char* s2)
+inline int EqualNoCase(const char* s1, const char* s2)
 {
     return CompareNoCase(s1, s2) == 0;
 }

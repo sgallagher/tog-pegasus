@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <CIM CIMVERSION="2.0" DTDVERSION="2.0">
-  <MESSAGE ID="030004" PROTOCOLVERSION="1.0">
+  <MESSAGE ID="030022" PROTOCOLVERSION="1.0">
     <SIMPLEREQ>
       <IMETHODCALL NAME="CreateInstance">
         <LOCALNAMESPACEPATH>
@@ -30,7 +30,7 @@
                   </KEYBINDING>
                   <KEYBINDING NAME="Name">
                     <KEYVALUE VALUETYPE="string">
-                    Filter04
+                    Filter01
                     </KEYVALUE>
                   </KEYBINDING>
                 </INSTANCENAME>
@@ -63,7 +63,8 @@
                 </INSTANCENAME>
               </VALUE.REFERENCE>
             </PROPERTY.REFERENCE>
-            <PROPERTY NAME="SubscriptionState" TYPE="uint16"> 
+            <PROPERTY NAME="OnFatalErrorPolicy" TYPE="uint16"> 
+              <VALUE> 5 </VALUE>
             </PROPERTY>
           </INSTANCE>
         </IPARAMVALUE>

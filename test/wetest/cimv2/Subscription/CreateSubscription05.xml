@@ -66,6 +66,8 @@
             <PROPERTY NAME="SubscriptionState" TYPE="uint16"> 
               <VALUE> 2 </VALUE>
             </PROPERTY>
+            <PROPERTY NAME="RepeatNotificationPolicy" TYPE="uint16">
+            </PROPERTY>
           </INSTANCE>
         </IPARAMVALUE>
       </IMETHODCALL>

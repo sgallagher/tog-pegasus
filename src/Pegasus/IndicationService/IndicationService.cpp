@@ -237,6 +237,27 @@ void IndicationService::_initialize (void)
     _checkClasses ();
 
     //
+    //  Set arrays of valid property values
+    //
+    _validStates.append (_STATE_UNKNOWN);
+    _validStates.append (_STATE_OTHER);
+    _validStates.append (_STATE_ENABLED);
+    _validStates.append (_STATE_ENABLEDDEGRADED);
+    _validStates.append (_STATE_DISABLED);
+    _validRepeatPolicies.append (_POLICY_UNKNOWN);
+    _validRepeatPolicies.append (_POLICY_OTHER);
+    _validRepeatPolicies.append (_POLICY_NONE);
+    _validRepeatPolicies.append (_POLICY_SUPPRESS);
+    _validRepeatPolicies.append (_POLICY_DELAY);
+    _validErrorPolicies.append (_ERRORPOLICY_OTHER);
+    _validErrorPolicies.append (_ERRORPOLICY_IGNORE);
+    _validErrorPolicies.append (_ERRORPOLICY_DISABLE);
+    _validErrorPolicies.append (_ERRORPOLICY_REMOVE);
+    _validPersistenceTypes.append (_PERSISTENCE_OTHER);
+    _validPersistenceTypes.append (_PERSISTENCE_PERMANENT);
+    _validPersistenceTypes.append (_PERSISTENCE_TRANSIENT);
+
+    //
     //  Get existing active subscriptions from each namespace in the repository
     //
     activeSubscriptions = _getActiveSubscriptions ();
@@ -317,21 +338,10 @@ void IndicationService::_initialize (void)
         for (Uint8 j = 0; j < indicationProviders.size (); j++)
         {
             duplicate = false;
-            String provider1 = indicationProviders [j].provider.getProperty 
-                (indicationProviders [j].provider.findProperty
-                (_PROPERTY_PROVIDERNAME)).getValue ().toString ();
-            String module1 = indicationProviders [j].provider.getProperty 
-                (indicationProviders [j].provider.findProperty
-                (_PROPERTY_PROVIDERMODULENAME)).getValue ().toString ();
             for (Uint8 k = 0; k < startProviders.size () && !duplicate; k++)
             {
-                String provider2 = startProviders [k].provider.getProperty 
-                    (startProviders [k].provider.findProperty
-                    (_PROPERTY_PROVIDERNAME)).getValue ().toString ();
-                String module2 = startProviders [k].provider.getProperty 
-                    (startProviders [k].provider.findProperty
-                    (_PROPERTY_PROVIDERMODULENAME)).getValue ().toString ();
-                if ((provider1 == provider2) && (module1 == module2))
+                if ((indicationProviders [j].provider.identical 
+                    (startProviders [k].provider)))
                 {
                     duplicate = true;
                 }
@@ -2020,10 +2030,6 @@ Boolean IndicationService::_canCreate (
     CIMInstance & instance,
     const String & nameSpace)
 {
-    SubscriptionState subscriptionState;
-    RepeatNotificationPolicy repeatNotificationPolicy;
-    OnFatalErrorPolicy onFatalErrorPolicy;
-    PersistenceType persistenceType;
     CIMValue nameSpaceValue;
     String sourceNameSpace;
 
@@ -2071,18 +2077,16 @@ Boolean IndicationService::_canCreate (
                 exceptionStr);
         }
 
-        subscriptionState = (SubscriptionState) _checkProperty (instance,
-            _PROPERTY_STATE, _PROPERTY_OTHERSTATE, (Uint16) _STATE_ENABLED,
-            (Uint16) _STATE_OTHER);
+        _checkProperty (instance, _PROPERTY_STATE, _PROPERTY_OTHERSTATE, 
+            (Uint16) _STATE_ENABLED, (Uint16) _STATE_OTHER, _validStates);
 
-        repeatNotificationPolicy = (RepeatNotificationPolicy) _checkProperty
-            (instance, _PROPERTY_REPEATNOTIFICATIONPOLICY,
+        _checkProperty (instance, _PROPERTY_REPEATNOTIFICATIONPOLICY,
             _PROPERTY_OTHERREPEATNOTIFICATIONPOLICY, (Uint16) _POLICY_NONE,
-            (Uint16) _POLICY_OTHER);
+            (Uint16) _POLICY_OTHER, _validRepeatPolicies);
 
-        onFatalErrorPolicy = (OnFatalErrorPolicy) _checkProperty (instance,
-            _PROPERTY_ONFATALERRORPOLICY, _PROPERTY_OTHERONFATALERRORPOLICY,
-            (Uint16) _ERRORPOLICY_IGNORE, (Uint16) _ERRORPOLICY_OTHER);
+        _checkProperty (instance, _PROPERTY_ONFATALERRORPOLICY, 
+            _PROPERTY_OTHERONFATALERRORPOLICY, (Uint16) _ERRORPOLICY_IGNORE, 
+            (Uint16) _ERRORPOLICY_OTHER, _validErrorPolicies);
     } 
     else  // Filter or Handler
     {
@@ -2195,10 +2199,9 @@ Boolean IndicationService::_canCreate (
                  (instance.getClassName () == 
                   PEGASUS_CLASSNAME_INDHANDLER_SNMP))
         {
-            persistenceType = (PersistenceType) _checkProperty
-                (instance, _PROPERTY_PERSISTENCETYPE,
-                _PROPERTY_OTHERPERSISTENCETYPE,
-                (Uint16) _PERSISTENCE_PERMANENT, (Uint16) _PERSISTENCE_OTHER);
+            _checkProperty (instance, _PROPERTY_PERSISTENCETYPE,
+                _PROPERTY_OTHERPERSISTENCETYPE, (Uint16) _PERSISTENCE_PERMANENT,
+                (Uint16) _PERSISTENCE_OTHER, _validPersistenceTypes);
 
             if (instance.getClassName () == PEGASUS_CLASSNAME_INDHANDLER_CIMXML)
             {
@@ -2262,12 +2265,13 @@ Boolean IndicationService::_canCreate (
     return true;
 }
 
-Uint16 IndicationService::_checkProperty (
+void IndicationService::_checkProperty (
     CIMInstance & instance,
     const String & propertyName,
     const String & otherPropertyName,
     const Uint16 defaultValue,
-    const Uint16 otherValue)
+    const Uint16 otherValue,
+    const Array <Uint16> & validValues)
 {
     Uint16 result = defaultValue;
 
@@ -2306,6 +2310,16 @@ Uint16 IndicationService::_checkProperty (
             //
             //  ATTN:  Validate the value
             //
+            if (!Contains (validValues, result))
+            {
+                String exceptionStr = _MSG_INVALID_VALUE;
+                exceptionStr.append (theValue.toString ());
+                exceptionStr.append (_MSG_FOR_PROPERTY);
+                exceptionStr.append (propertyName);
+                PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+                throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER,
+                    exceptionStr);
+            }
         }
 
         //
@@ -2364,13 +2378,12 @@ Uint16 IndicationService::_checkProperty (
     }
 
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-    return result;
 }
 
 Boolean IndicationService::_canModify (
     const CIMModifyInstanceRequestMessage * request,
     const CIMReference & instanceReference,
-    const CIMInstance & instance)
+    CIMInstance & instance)
 {
     const char METHOD_NAME [] = "IndicationService::_canModify";
 
@@ -2421,6 +2434,9 @@ Boolean IndicationService::_canModify (
         PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
         throw CIMException (CIM_ERR_NOT_SUPPORTED);
     }
+
+    _checkProperty (instance, _PROPERTY_STATE, _PROPERTY_OTHERSTATE,
+        (Uint16) _STATE_ENABLED, (Uint16) _STATE_OTHER, _validStates);
 
     //
     //  Get creator from instance
@@ -5310,6 +5326,12 @@ const char IndicationService::_MSG_EXPIRED [] =
 
 const char IndicationService::_MSG_REFERENCED [] = 
     "A Filter or Handler referenced by a subscription may not be deleted";
+
+const char IndicationService::_MSG_INVALID_VALUE [] =
+    "Invalid value ";
+
+const char IndicationService::_MSG_FOR_PROPERTY [] =
+    " for property ";
 
 
 PEGASUS_NAMESPACE_END

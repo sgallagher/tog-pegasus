@@ -32,8 +32,14 @@ XMLSCRIPTS = \
     CreateFilter11 \
     CreateHandler04 CreateHandler05 CreateHandler06 CreateHandler07 \
     CreateHandler08 \
+    CreateHandler10 CreateHandler11 CreateHandler12 CreateHandler13 \
+    CreateHandler14 \
     CreateSubscription10 CreateSubscription11 CreateSubscription12 \
     CreateSubscription13 \
+    CreateSubscription15 CreateSubscription16 CreateSubscription17 \
+    CreateSubscription18 CreateSubscription19 CreateSubscription20 \
+    CreateSubscription21 CreateSubscription22 CreateSubscription23 \
+    CreateSubscription24 CreateSubscription25 \
     DeleteCapability02 DeleteProvider02 DeleteModule02 \
     DeleteCapability01 DeleteProvider01 DeleteModule01
 #   EnumerateFilters01 EnumerateFilters02 \

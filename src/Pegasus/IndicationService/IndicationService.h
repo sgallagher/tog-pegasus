@@ -300,16 +300,18 @@ private:
         @param   otherPropertyName     name of Other___ property to be validated
         @param   defaultValue          default value for property
         @param   otherValue            "Other" value for property
+        @param   validValues           set of valid values for property
 
         @throw   CIM_ERR_INVALID_PARAMETER  if value of property or Other___ 
                                             property is invalid
      */
-    Uint16 _checkProperty (
+    void _checkProperty (
         CIMInstance & instance,
         const String & propertyName,
         const String & otherPropertyName,
         const Uint16 defaultValue,
-        const Uint16 otherValue);
+        const Uint16 otherValue,
+        const Array <Uint16> & validValues);
 
     /**
         Determines if the user is authorized to modify the instance, and if the
@@ -331,7 +333,7 @@ private:
     Boolean _canModify (
         const CIMModifyInstanceRequestMessage * request,
         const CIMReference & instanceReference,
-        const CIMInstance & instance);
+        CIMInstance & instance);
 
     /**
         Determines if the user is authorized to delete the instance, and if it 
@@ -935,6 +937,11 @@ private:
      */
     SubscriptionTable _subscriptionTable;
 
+    Array <Uint16> _validStates;
+    Array <Uint16> _validRepeatPolicies;
+    Array <Uint16> _validErrorPolicies;
+    Array <Uint16> _validPersistenceTypes;
+    
     /**
         Values for the Subscription State property of the Subscription class,
         as defined in the CIM Events MOF
@@ -1252,6 +1259,10 @@ private:
     static const char _MSG_EXPIRED [];
 
     static const char _MSG_REFERENCED [];
+
+    static const char _MSG_INVALID_VALUE [];
+
+    static const char _MSG_FOR_PROPERTY [];
 };
 
 PEGASUS_NAMESPACE_END

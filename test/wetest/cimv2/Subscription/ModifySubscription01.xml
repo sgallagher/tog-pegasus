@@ -65,7 +65,7 @@
             </INSTANCENAME>
             <INSTANCE CLASSNAME="PG_IndicationSubscription">
               <PROPERTY NAME="SubscriptionState" TYPE="uint16"> 
-                <VALUE> 5 </VALUE>
+                <VALUE> 4 </VALUE>
               </PROPERTY>
             </INSTANCE>
           </VALUE.NAMEDINSTANCE>

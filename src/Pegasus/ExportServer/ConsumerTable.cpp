@@ -62,7 +62,11 @@ CIMIndicationConsumer* ConsumerTable::loadConsumer(const String& consumerId)
     String unixLibName = getenv("PEGASUS_HOME");
     unixLibName += "/lib/lib";
     unixLibName += consumerId;
+#ifdef PEGASUS_OS_HPUX
+    unixLibName += ".sl";
+#else
     unixLibName += ".so";
+#endif
     ArrayDestroyer<char> libraryName = unixLibName.allocateCString();
 #endif
 

@@ -524,8 +524,9 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
         {
             content << line << '\n';
         }
+        content.append ('\0');
 
-        if (content.size () <= 0)
+        if (content.size () <= 1)
         {
             //
             //  No input

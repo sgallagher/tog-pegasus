@@ -1,0 +1,41 @@
+ROOT = ../../..
+
+DIR = Pegasus/Compiler
+
+include $(ROOT)/mak/config.mak
+
+EXTRA_INCLUDES = $(SYS_INCLUDES)
+
+ifeq ($(OS_TYPE),windows)
+EXTRA_INCLUDES += -I./nt_includes
+endif
+
+LOCAL_DEFINES = -DPEGASUS_COMPILER_INTERNAL
+
+## This pushes BISON_SIMPLE into the environment so that
+## bison will use this rather than looking for /usr/local/share/bison.simple.
+
+export BISON_SIMPLE = bison.simple
+
+all: cimmof_tab.cpp cimmof_tab.h cimmof_lex.cpp
+
+cimmof_tab.cpp cimmof_tab.h: cimmof.y
+ifeq ($(YACC),yacc)
+	$(YACC) -vd -p cimmof_ cimmof.y
+	$(COPY) y.tab.c cimmof_tab.cpp
+	$(COPY) y.tab.h cimmof_tab.h
+	$(RM) y.tab.c y.tab.h
+else
+	$(YACC) -vd -ocimmoftemp -p cimmof_ cimmof.y
+	$(COPY) cimmoftemp cimmof_tab.cpp
+	$(COPY) cimmoftemp.h cimmof_tab.h
+	$(RM) cimmoftemp cimmoftemp.h
+endif
+
+cimmof_lex.cpp: cimmof.l cimmof_tab.h
+	$(LEX) -ocimmof_lex.cpp -Pcimmof_ cimmof.l
+
+include $(ROOT)/mak/config.mak
+
+clean:
+	$(RM) cimmof_lex.cpp cimmof_tab.cpp cimmof_tab.h cimmoftemp.out cimmoftemp.output

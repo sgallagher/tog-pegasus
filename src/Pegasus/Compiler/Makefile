@@ -1,3 +1,12 @@
+#
+#  NOTE:  The grammar and parser are no longer built in this makefile,
+#  and in fact flex and bison are assumed to already have been run 
+#  and their output committed to CVS.  Run 
+#      make -f Makefile.grammmar
+#  to generate cimmof_tab.cpp, cimmof_tab.h, and cimmof_lex.cpp, 
+#  and remember to  commit them afterwards.
+#
+
 ROOT = ../../..
 
 DIR = Pegasus/Compiler
@@ -19,8 +28,6 @@ LIBRARY = pegcompiler
 LIBRARIES = \
     $(LIB_DIR)/$(LIB_PREFIX)pegcommon$(LIB_SUFFIX) \
     $(LIB_DIR)/$(LIB_PREFIX)pegrepository$(LIB_SUFFIX)
-#    $(LIB_DIR)/$(LIB_PREFIX)pegprotocol$(LIB_SUFFIX) \
-#    $(ACE_LIB)
 
 PRE_DEPEND_INCLUDES = -I./depends
 
@@ -32,31 +39,10 @@ OBJECTS = $(SOURCES:.cpp=$(OBJ))
 
 include $(ROOT)/mak/library.mak
 
-## This pushes BISON_SIMPLE into the environment so that
-## bison will use this rather than looking for /usr/local/share/bison.simple.
-
-export BISON_SIMPLE = bison.simple
 
 $(OBJ_DIR)/cimmof_tab_wrapper$(OBJ) : cimmof_tab.cpp
 
-cimmof_tab.cpp cimmof_tab.h: cimmof.y
-ifeq ($(YACC),yacc)
-	$(YACC) -vd -p cimmof_ cimmof.y
-	$(COPY) y.tab.c cimmof_tab.cpp
-	$(COPY) y.tab.h cimmof_tab.h
-	$(RM) y.tab.c y.tab.h
-else
-	$(YACC) -vd -ocimmoftemp -p cimmof_ cimmof.y
-	$(COPY) cimmoftemp cimmof_tab.cpp
-	$(COPY) cimmoftemp.h cimmof_tab.h
-	$(RM) cimmoftemp cimmoftemp.h
-endif
-
 $(OBJ_DIR)/cimmof_lex_wrapper$(OBJ) : cimmof_lex.cpp
 
-cimmof_lex.cpp: cimmof.l cimmof_tab.h
-	$(LEX) -ocimmof_lex.cpp -Pcimmof_ cimmof.l
-
 local_clean_target:
-	$(RM) cimmof_lex.cpp cimmof_tab.cpp cimmof_tab.h cimmoftemp.out cimmoftemp.output
-
+	$(RM) cimmoftemp.out cimmoftemp.output

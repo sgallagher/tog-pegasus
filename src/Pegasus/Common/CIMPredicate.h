@@ -195,6 +195,12 @@ class PEGASUS_COMMON_LINKAGE PredicateReference : public CIMReference
       Boolean identical(const CIMReference& x) const;
       Boolean identical(const PredicateReference& x) const;
       Boolean evaluate(void);
+      Boolean isBound(void) 
+      {
+	 if(getKeyBindings().size())
+	    return true;
+	 return false;
+      }
       
    private:
       Boolean _truth_value;
@@ -202,10 +208,54 @@ class PEGASUS_COMMON_LINKAGE PredicateReference : public CIMReference
       Array<Predicate> _predicates;
 };
 
-
 #define PEGASUS_ARRAY_T PredicateReference
 #include "ArrayInter.h"
 #undef PEGASUS_ARRAY_T
+
+class PredicateTree;
+
+
+class PEGASUS_COMMON_LINKAGE CIMQuery
+{
+   public:
+      CIMQuery(void);
+      virtual ~CIMQuery(void);
+      
+      virtual PredicateTree *parse(void) = 0;
+};
+
+class PEGASUS_COMMON_LINKAGE PredicateTree
+{
+   public:
+
+      PredicateTree();
+      ~PredicateTree(); 
+      Boolean evaluate(void);
+      void lock(void) throw(IPCException) { _mut.lock(pegasus_thread_self()); }
+      void unlock(void) throw(IPCException) { _mut.unlock(); }
+      void _add_peer(PredicateTree *pr) throw(IPCException)
+      {
+	 _peers.insert_last(pr);
+      }
+      
+      void _addChild(PredicateTree *cd) throw(IPCException)
+      {
+	 _children.insert_last(cd);
+      }
+   private:
+      PredicateTree(const PredicateTree& x);
+      PredicateTree& operator=(const Predicate& x);
+      Mutex _mut;
+      Boolean _truth_value;
+      LogicalOperator _logical_op;
+      DQueue<PredicateTree> _peers;
+      DQueue<PredicateTree> _children;
+      PredicateReference *_pred;
+      friend class CIMQuery;
+} ;
+
+
+
 
 PEGASUS_NAMESPACE_END
 
@@ -213,27 +263,6 @@ PEGASUS_NAMESPACE_END
 
 
 
-// class PEGASUS_COMMON_LINKAGE PredicateTree
-// {
-//    public:
-
-//       PredicateTree();
-//       PredicateTree(String& expression);
-//       ~PredicateTree();
-//       PredicateTree(const PredicateTree& x);
-//       PredicateTree& operator=(const Predicate& x);
-//       Boolean evaluate(void);
-
-//    private:
-//       Boolean _truth_value;
-//       LogicalOperator _logical_op;
-//       DQueue<PredicateTree> _peers;
-//       DQueue<PredicateTree> _children;
-//       DQueue<PredicateReference> _predicates;
-  
-//       friend Boolean operator==(const PredicateTree& x, const CIMReference& y);
-
-// } ;
 
 
 // // To evaluate a predicate tree, go recursive:

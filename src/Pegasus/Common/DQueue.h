@@ -125,7 +125,7 @@ template<class L> class PEGASUS_EXPORT DQueue {
 	 try {  ins->insert_last(*this); }
 	 catch(...) { delete ins; throw; }
       }
-
+      
       void empty_list( void ) throw(IPCException) 
       {
 	 if( _count > 0) {

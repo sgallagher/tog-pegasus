@@ -415,4 +415,75 @@ Boolean PredicateReference::evaluate(void)
 }
 
 
+PredicateTree::PredicateTree(void)
+   : _mut(), _truth_value(true), _logical_op(AND),
+     _peers(true), _children(true), _pred() { }
+
+PredicateTree::~PredicateTree(void)
+{
+   _children.empty_list();
+   _peers.empty_list();
+   
+   delete _pred;
+}
+
+Boolean PredicateTree::evaluate(void);
+{
+   if(_children.count())
+   {
+      Boolean truth = false;
+      PredicateTree *children = NULL;
+
+      _children.lock();
+      while( NULL != ( children = _children.next(children)))
+      {
+	 truth = children->evaluate();
+	 switch(_logical_op)
+	 {
+	    case AND:
+	       if(truth)
+		  _truth_value = true;
+	       else 
+	       {
+		  _truth_value = false;
+		  children = NULL;
+	       }
+	       break;
+	    case OR:
+	       if(truth)
+	       {
+		  _truth_value = true;
+		  children = NULL;
+	       }
+	       break;
+	    case NOT:
+	       if(truth)
+	       {
+		  _truth_value = false;
+		  children = NULL;
+	       }
+	       else 
+		  _truth_value = true;
+	       break;
+	 }
+	 if(children == NULL)
+	    break;
+      }
+      _children.unlock();
+   }
+
+   if(_peers.count())
+   {
+      PredicateTree *peers = NULL;
+      _peers.lock();
+      while( NULL != (peers = _peers.next(peers)))
+      {
+	 peers->evaluate();
+      }
+      _peers.unlock();
+   }
+   _pred.evaluate();
+}
+
+
 PEGASUS_NAMESPACE_END

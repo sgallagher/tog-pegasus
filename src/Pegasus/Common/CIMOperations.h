@@ -23,6 +23,9 @@
 // Author: Mike Brasher
 //
 // $Log: CIMOperations.h,v $
+// Revision 1.2  2001/02/26 10:13:24  karl
+// documentation changes
+//
 // Revision 1.1  2001/02/18 18:39:06  mike
 // new
 //
@@ -80,7 +83,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-/** @name The CIMOperations Class.
+/**  The CIMOperations Class.
     This class defines the external client operations for Pegasus These
     operations are based on the WBEM operations defined in the DMTF CIM
     CIMOperations over HTTP operations Specification. They duplicate the names,
@@ -89,10 +92,12 @@ PEGASUS_NAMESPACE_BEGIN
 
     This library (operations.h) defines the external APIs for the Pegasus MSB.
     These are synchronous calls and match the operations defined by the DMTF in
-    the document "Specification for CIM CIMOperations over HTTP" Version 1.0 with
+    the document "Specification for CIM CIMOperations over HTTP" Version 1.0
+    with
     errata
 
-    The CIMOperations class is used by other classes such as the client, provider,
+    The CIMOperations class is used by other classes such as the client,
+    provider,
     and repository classes to instantiate the operations interfaces.
 */
 class PEGASUS_COMMON_LINKAGE CIMOperations
@@ -124,7 +129,8 @@ public:
 	@param IncludeQualifiers If the <TT>IncludeQualifiers</TT> input
 	parameter is true, this specifies that all Qualifiers for that Class
 	(including Qualifiers on the Class and on any returned Properties,
-	Methods or CIMMethod Parameters) MUST be included as <QUALIFIER> elements
+	Methods or CIMMethod Parameters) MUST be included as <QUALIFIER>
+	elements
 	in the response.  If false no <QUALIFIER> elements are present in the
 	returned Class.
 
@@ -134,11 +140,13 @@ public:
 	CLASSORIGIN attributes are present in the returned Class.
 
 	@param PropertyList If the <TT>PropertyList</TT> input parameter is not
-	NULL, the members of the array define one or more CIMProperty names.  The
+	NULL, the members of the array define one or more CIMProperty names.
+	The
 	returned Class MUST NOT include elements for any Properties missing from
 	this list. Note that if LocalOnly is specified as true this acts as an
 	additional filter on the set of Properties returned (for example, if
-	CIMProperty A is included in the PropertyList but LocalOnly is set to true
+	CIMProperty A is included in the PropertyList but LocalOnly is set to
+	true
 	and A is not local to the requested Class, then it will not be included
 	in the response). If the PropertyList input parameter is an empty array
 	this signifies that no Properties are included in the response. If the
@@ -148,7 +156,8 @@ public:
 
 	If the <TT>PropertyList</TT> contains duplicate elements, the Server
 	MUST ignore the duplicates but otherwise process the request normally.
-	If the PropertyList contains elements which are invalid CIMProperty names
+	If the PropertyList contains elements which are invalid CIMProperty
+	names
 	for the target Class, the Server MUST ignore such entries but otherwise
 	process the request normally.
 
@@ -209,7 +218,8 @@ public:
 	false, no CLASSORIGIN attributes are present in the returned instance.
 
 	@param PropertyList If the <TT>PropertyList</TT> input parameter is not
-	NULL, the members of the array define one or more CIMProperty names.  The
+	NULL, the members of the array define one or more CIMProperty names.
+	The
 	returned Instance MUST NOT include elements for any Properties missing
 	from this list. Note that if LocalOnly is specified as true this acts
 	as an additional filter on the set of Properties returned (for example,
@@ -223,7 +233,8 @@ public:
 
 	If the <TT>PropertyList</TT> contains duplicate elements, the Server
 	MUST ignore the duplicates but otherwise process the request normally.
-	If the PropertyList contains elements which are invalid CIMProperty names
+	If the PropertyList contains elements which are invalid CIMProperty
+	names
 	for the target Instance, the Server MUST ignore such entries but
 	otherwise process the request normally.
 
@@ -242,7 +253,7 @@ public:
 		unrecognized or otherwise incorrect parameters)
 	    <LI>CIM_ERR_INVALID_CLASS (the CIM Class does not exist in the
 		specified namespace)
-	    <LI>CIM_ERR_NOT_FOUND (the CIM Class does exist, but the requested 
+	    <LI>CIM_ERR_NOT_FOUND (the CIM Class does exist, but the requested
 		CIM Instance does not exist in the specified namespace)
 	    <LI>CIM_ERR_FAILED (some other unspecified error occurred)
 	    </LI>
@@ -266,14 +277,14 @@ public:
 	@param ClassName The ClassName input parameter defines the name of the
 	Class to be deleted.
 
-	@return If successful, the specified Class (including any subclasses 
-	and any instances) MUST have been removed by the CIM Server.  The 
+	@return If successful, the specified Class (including any subclasses
+	and any instances) MUST have been removed by the CIM Server.  The
 	operation MUST fail if any one of these objects cannot be deleted.
 
-	If unsuccessful, one of the following status codes MUST be returned by 
-	this method, where the first applicable error in the list (starting 
-	with the first element of the list, and working down) is the error 
-	returned. Any additional method-specific interpretation of the error 
+	If unsuccessful, one of the following status codes MUST be returned by
+	this method, where the first applicable error in the list (starting
+	with the first element of the list, and working down) is the error
+	returned. Any additional method-specific interpretation of the error
 	in is given in parentheses.
 
 	<UL>
@@ -294,21 +305,21 @@ public:
         const String& nameSpace,
         const String& className) = 0;
 
-    /** The <TT>DeleteInstance</TT> operation deletes a single CIM Instance 
+    /** The <TT>DeleteInstance</TT> operation deletes a single CIM Instance
 	from the target Namespace.
 
-	@param NameSpace The NameSpace parameter is a string that defines the 
+	@param NameSpace The NameSpace parameter is a string that defines the
 	target namespace \Ref{NAMESPACE}
 
-	@param InstanceName The InstanceName input parameter defines the name 
+	@param InstanceName The InstanceName input parameter defines the name
 	(model path) of the Instance to be deleted.
 
-	@return If successful, the specified Instance MUST have been removed 
+	@return If successful, the specified Instance MUST have been removed
 	by the CIM Server.
 
-	If unsuccessful, one of the following status codes MUST be returned by 
-	this method, where the first applicable error in the list (starting 
-	with the first element of the list, and working down) is the error 
+	If unsuccessful, one of the following status codes MUST be returned by
+	this method, where the first applicable error in the list (starting
+	with the first element of the list, and working down) is the error
 	returned. Any additional method-specific interpretation of the error in
 	is given in parentheses.
 
@@ -320,7 +331,7 @@ public:
 		unrecognized or otherwise incorrect parameters)
 	    <LI>CIM_ERR_INVALID_CLASS (the CIM Class does not exist in the
 		specified namespace)
-	    <LI>CIM_ERR_NOT_FOUND (the CIM Class does exist, but the requested 
+	    <LI>CIM_ERR_NOT_FOUND (the CIM Class does exist, but the requested
 		CIM Instance does not exist in the specified namespace)
 	    <LI>CIM_ERR_FAILED (some other unspecified error occurred)</LI>
 	</UL>
@@ -359,14 +370,16 @@ public:
         value assigned to that property in the Subclass (including NULL) becomes
         the default value of the property for the Subclass. If a CIMProperty or
         CIMMethod of the Superclass is not specified in the Subclass, then that
-        CIMProperty or CIMMethod is inherited without modification by the Subclass
+        CIMProperty or CIMMethod is inherited without modification by the
+        Subclass
 
         <LI>Any Qualifiers defined in the Superclass with a TOSUBCLASS attribute
         value of true MUST appear in the resulting Subclass. Qualifiers in the
         Superclass with a TOSUBCLASS attribute value of false MUST NOT be
         propagated to the Subclass . Any CIMQualifier propagated from the
         Superclass cannot be modified in the Subclass if the OVERRIDABLE
-        attribute of that CIMQualifier was set to false in the Superclass. It is a
+        attribute of that CIMQualifier was set to false in the Superclass. It is
+        a
         Client error to specify such a CIMQualifier in the NewClass with a
         different definition to that in the Superclass (where definition
         encompasses the name, type and flavor attribute settings of the
@@ -431,7 +444,8 @@ public:
         Class with a TOINSTANCE attribute value of false MUST NOT be propagated
         to the Instance.
         <LI>Any CIMQualifier propagated from the Class cannot be modified in the
-        Instance if the OVERRIDABLE attribute of that CIMQualifier was set to false
+        Instance if the OVERRIDABLE attribute of that CIMQualifier was set to
+        false
         in the Class. It is a Client error to specify such a CIMQualifier in the
         NewInstance with a different definition to that in the Class (where
         definition encompasses the name, type and flavor attribute settings of
@@ -511,25 +525,29 @@ public:
         that all other Properties and Methods preserve their
         <TT>CLASSORIGIN</TT> attribute value from that defined in the
         Superclass.
-        <LI>Any CIMProperty, CIMMethod or CIMQualifier previously defined in the Subclass
+        <LI>Any CIMProperty, CIMMethod or CIMQualifier previously defined in the
+        Subclass
         but not defined in the Superclass, and which is not present in the
         <TT>ModifiedClass</TT> parameter, is removed from the Subclass.
         <LI>If a CIMProperty is specified in the <TT>ModifiedClass</TT>
         parameter, the value assigned to that property therein (including
         NULL) becomes the default value of the property for the Subclass.
-        <LI>If a CIMProperty or CIMMethod of the Superclass is not specified in the
+        <LI>If a CIMProperty or CIMMethod of the Superclass is not specified in
+        the
         Subclass, then that CIMProperty or CIMMethod is inherited
         without modification by the Subclass (so that any previous changes to
         such an Element in the Subclass are lost).
         <LI>If a CIMQualifier in the Superclass is not specified in the
         Subclass, and the CIMQualifier is defined in the Superclass with a
-        <TT>TOSUBCLASS</TT> attribute value of <TT>true</TT>, then the CIMQualifier
+        <TT>TOSUBCLASS</TT> attribute value of <TT>true</TT>, then the
+        CIMQualifier
         MUST still be present in the resulting modified Subclass (it is not
         possible to remove a propagated CIMQualifier from a Subclass).
         <LI>Any CIMQualifier propagated from the Superclass cannot be
         modified in the Subclass if the <TT>OVERRIDABLE</TT> attribute of
         that CIMQualifier was set to <TT>false</TT> in the Superclass. It is a
-        Client error to specify such a CIMQualifier in the <TT>ModifiedClass</TT>
+        Client error to specify such a CIMQualifier in the
+        <TT>ModifiedClass</TT>
         with a different definition to that in the Superclass (where definition
         encompasses the name, type and flavor attribute settings of the
         <TT>&lt;QUALIFIER&gt;</TT> element, and the value of the CIMQualifier).
@@ -621,25 +639,31 @@ public:
         belong to the Class.
 
         <LI>If a CIMProperty of the Class is not specified in the Instance,
-        then that CIMProperty is inherited without modification by the Instance (so
+        then that CIMProperty is inherited without modification by the Instance
+        (so
         that any previous changes to that CIMProperty in the Instance are
         lost).
         <LI>Any Qualifiers defined in the Class with a <TT>TOINSTANCE</TT>
         attribute value of <TT>true</TT> appear in the Instance (it is not
-        possible remove a propagated CIMQualifier from an Instance. Qualifiers in
+        possible remove a propagated CIMQualifier from an Instance. Qualifiers
+        in
         the Class with a <TT>TOINSTANCE</TT> attribute value of <TT>false</TT>
         MUST NOT be propagated to the Instance.
         <LI>Any CIMQualifier propagated from the Class cannot be modified by the
-        Server if the <TT>OVERRIDABLE</TT> attribute of that CIMQualifier was set
+        Server if the <TT>OVERRIDABLE</TT> attribute of that CIMQualifier was
+        set
         to <TT>false</TT> in the Class. It is a Client error to specify such a
-        CIMQualifier in the <TT>ModifiedInstance</TT> with a different definition
+        CIMQualifier in the <TT>ModifiedInstance</TT> with a different
+        definition
         to that in the Class (where definition encompasses the name,
         type and flavor attribute settings of the
         <TT>&lt;QUALIFIER&gt;</TT> element, and the value of the CIMQualifier).
         <LI>Any CIMQualifier propagated from the Class cannot be modified in
-        the Instance if the <TT>OVERRIDABLE</TT> attribute of that CIMQualifier was
+        the Instance if the <TT>OVERRIDABLE</TT> attribute of that CIMQualifier
+        was
         set to <TT>false</TT> in the Class. It is a Client error to specify such
-        a CIMQualifier in the <TT>ModifiedInstance</TT> with a different definition
+        a CIMQualifier in the <TT>ModifiedInstance</TT> with a different
+        definition
         to that in the Class (where definition encompasses the name, type and
         flavor attribute settings of the <TT>&lt;QUALIFIER&gt;</TT>
         element, and the value of the CIMQualifier).</LI>
@@ -973,7 +997,8 @@ public:
     mandating that each returned Object MUST be either an Instance of this Class
     (or one of its subclasses) or be this Class (or one of its subclasses).
 
-    @param Role The Role input parameter, if not NULL, MUST be a valid CIMProperty
+    @param Role The Role input parameter, if not NULL, MUST be a valid
+    CIMProperty
     name. It acts as a filter on the returned set of Objects by mandating that
     each returned Object MUST be associated to the source Object via an
     Association in which the source Object plays the specified role (i.e. the
@@ -981,10 +1006,12 @@ public:
     Object MUST match the value of this parameter).
 
     @param ResultRole The ResultRole input parameter, if not NULL, MUST be a
-    valid CIMProperty name. It acts as a filter on the returned set of Objects by
+    valid CIMProperty name. It acts as a filter on the returned set of Objects
+    by
     mandating that each returned Object MUST be associated to the source Object
     via an Association in which the returned Object plays the specified role
-    (i.e. the name of the CIMProperty in the Association Class that refers to the
+    (i.e. the name of the CIMProperty in the Association Class that refers to
+    the
     returned Object MUST match the value of this parameter).
 
     @param IncludeQualifiers If the IncludeQualifiers input parameter is true,
@@ -1081,14 +1108,17 @@ public:
     acts as a filter on the returned set of names by mandating that each
     returned name identifies an Object that MUST be associated to the source
     Object via an Association in which the source Object plays the specified
-    role (i.e. the name of the CIMProperty in the Association Class that refers to
+    role (i.e. the name of the CIMProperty in the Association Class that refers
+    to
     the source Object MUST match the value of this parameter).
 
-    The ResultRole input parameter, if not NULL, MUST be a valid CIMProperty name.
+    The ResultRole input parameter, if not NULL, MUST be a valid CIMProperty
+    name.
     It acts as a filter on the returned set of names by mandating that each
     returned name identifies an Object that MUST be associated to the source
     Object via an Association in which the named returned Object plays the
-    specified role (i.e. the name of the CIMProperty in the Association Class that
+    specified role (i.e. the name of the CIMProperty in the Association Class
+    that
     refers to the returned Object MUST match the value of this parameter).
 
     @return If successful, the method returns zero or more full CIM Class paths
@@ -1136,9 +1166,11 @@ public:
     mandating that each returned Object MUST be an Instance of this Class (or
     one of its subclasses), or this Class (or one of its subclasses).
 
-    @param role The Role input parameter, if not NULL, MUST be a valid CIMProperty
+    @param role The Role input parameter, if not NULL, MUST be a valid
+    CIMProperty
     name. It acts as a filter on the returned set of Objects by mandating that
-    each returned Objects MUST refer to the target Object via a CIMProperty whose
+    each returned Objects MUST refer to the target Object via a CIMProperty
+    whose
     name matches the value of this parameter.
 
     @param Include Qualifiers If the IncludeQualifiers input parameter is true,
@@ -1216,12 +1248,15 @@ public:
 
     @param The ResultClass input parameter, if not NULL, MUST be a valid CIM
     Class name. It acts as a filter on the returned set of Object Names by
-    mandating that each returned Object CIMName MUST identify an Instance of this
+    mandating that each returned Object CIMName MUST identify an Instance of
+    this
     Class (or one of its subclasses), or this Class (or one of its subclasses).
 
-    @param The role input parameter, if not NULL, MUST be a valid CIMProperty name.
+    @param The role input parameter, if not NULL, MUST be a valid CIMProperty
+    name.
     It acts as a filter on the returned set of Object Names by mandating that
-    each returned Object CIMName MUST identify an Object that refers to the target
+    each returned Object CIMName MUST identify an Object that refers to the
+    target
     Instance via a CIMProperty whose name matches the value of this parameter.
 
     @return If successful, the method returns the names of zero or more full CIM
@@ -1257,9 +1292,11 @@ public:
     namespace \Ref{NAMESPACE}
 
     @param The InstanceName input parameter specifies the name of the Instance
-    (model path) from which the CIMProperty value is requested.\\Ref{INSTANCENAME}
+    (model path) from which the CIMProperty value is
+    requested.\\Ref{INSTANCENAME}
 
-    @param The PropertyName input parameter specifies the name of the CIMProperty
+    @param The PropertyName input parameter specifies the name of the
+    CIMProperty
     whose value is to be returned.
 
     @return If successful, the return value specifies the value of the requested
@@ -1344,7 +1381,8 @@ public:
     @param QualifierName The QualifierName input parameter identifies the
     CIMQualifier whose declaration to be retrieved.
 
-    @return If successful, the method returns the CIMQualifier declaration for the
+    @return If successful, the method returns the CIMQualifier declaration for
+    the
     named CIMQualifier.
 
     If unsuccessful, one of the following status codes MUST be returned by this
@@ -1376,16 +1414,19 @@ public:
 
 
     /** The <TT>setQualifier</TT> creates or update a single CIMQualifier
-    declaration in the target Namespace.  If the CIMQualifier declaration already
+    declaration in the target Namespace.  If the CIMQualifier declaration
+    already
     exists it is overwritten.
 
     @param NameSpace The NameSpace parameter is a string that defines the target
     namespace \Ref{NAMESPACE}
 
     @param CIMQualifier Declaration The QualifierDeclaration input parameter
-    defines the CIMQualifier Declaration to be added to the Namespace. @return If
+    defines the CIMQualifier Declaration to be added to the Namespace. @return
+    If
     successful, the CIMQualifier declaration MUST have been added to the target
-    Namespace.  If a CIMQualifier declaration with the same CIMQualifier name already
+    Namespace.  If a CIMQualifier declaration with the same CIMQualifier name
+    already
     existed, then it MUST have been replaced by the new declaration.
 
     @return If unsuccessful, one of the following status codes MUST be returned
@@ -1400,7 +1441,8 @@ public:
       <LI>CIM_ERR_INVALID_NAMESPACE
       <LI>CIM_ERR_INVALID_PARAMETER (including missing,
       	duplicate, unrecognized or otherwise incorrect parameters)
-      <LI>CIM_ERR_NOT_FOUND (the requested CIMQualifier declaration did not exist)
+      <LI>CIM_ERR_NOT_FOUND (the requested CIMQualifier declaration did not
+      exist)
       <LI>CIM_ERR_FAILED (some other unspecified error occurred)
       </LI>
     </UL>
@@ -1418,7 +1460,8 @@ public:
 
     @param QualifierName The QualifierName input parameter identifies the
     CIMQualifier whose declaration to be deleted. @return If successful, the
-    specified CIMQualifier declaration MUST have been deleted from the Namespace.
+    specified CIMQualifier declaration MUST have been deleted from the
+    Namespace.
 
     @return If unsuccessful, one of the following status codes MUST be returned
     by this method, where the first applicable error in the list (starting with
@@ -1463,7 +1506,8 @@ public:
       <LI>CIM_ERR_INVALID_NAMESPACE
       <LI>CIM_ERR_INVALID_PARAMETER (including missing,
       	duplicate, unrecognized or otherwise incorrect parameters)
-      <LI>CIM_ERR_NOT_FOUND (the requested CIMQualifier declaration did not exist)
+      <LI>CIM_ERR_NOT_FOUND (the requested CIMQualifier declaration did not
+      exist)
       <LI>CIM_ERR_FAILED (some other unspecified error occurred)
       </LI>
      </UL>
@@ -1489,6 +1533,7 @@ PEGASUS_NAMESPACE_END
 
 
 #endif /* Pegasus_Operations_h */
+
 
 
 

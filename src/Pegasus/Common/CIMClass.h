@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CIMClass.h,v $
+// Revision 1.4  2001/02/26 10:13:24  karl
+// documentation changes
+//
 // Revision 1.3  2001/02/20 05:16:57  mike
 // Implemented CIMInstance::getInstanceName()
 //
@@ -66,12 +69,12 @@ PEGASUS_NAMESPACE_BEGIN
 
 class ConstCIMClass;
 
-/** The CIMClass class is used to represent CIM classes in Pegasus.  In CIM, 
-    a class object may be a class or an associator.  A CIM class must contain a 
-    name and may contain methods, properties, and qualifiers.  It is a template 
-    for creating a CIM instance.  A CIM class represents a collection of CIM 
-    instances, all of which support a common type (for example, a set of 
-    properties, methods, and associations).  
+/** The CIMClass class is used to represent CIM classes in Pegasus.  In CIM,
+    a class object may be a class or an associator.  A CIM class must contain a
+    name and may contain methods, properties, and qualifiers.  It is a template
+    for creating a CIM instance.  A CIM class represents a collection of CIM
+    instances, all of which support a common type (for example, a set of
+    properties, methods, and associations).
 */
 
 class PEGASUS_COMMON_LINKAGE CIMClass
@@ -79,7 +82,7 @@ class PEGASUS_COMMON_LINKAGE CIMClass
 public:
 
     /** Constructor - Creates and instantiates a new object reprenting a CIM
-	class. If you use this constructor, use setName to define a name for 
+	class. If you use this constructor, use setName to define a name for
 	the class
     */
     CIMClass() : _rep(0)
@@ -104,15 +107,15 @@ public:
 	return *this;
     }
 
-    /**	 Constructor - Creates a Class from inputs of a classname and 
+    /**	 Constructor - Creates a Class from inputs of a classname and
 	SuperClassName
-	@param className - String representing name of the class being created 
+	@param className - String representing name of the class being created
 	@param superClassName - String representing name of the SuperClass
 	ATTN: Define what makes up legal name.
 	@return Throws IllegalName if className argument illegal CIM identifier.
     */
     CIMClass(
-	const String& className, 
+	const String& className,
 	const String& superClassName = String())
     {
 	_rep = new CIMClassRep(className, superClassName);
@@ -124,15 +127,15 @@ public:
 	Dec(_rep);
     }
 
-    /** CIMMethod isAssociation - Identifies whether or not this CIM class 
-	is an association. An association is a relationship between two 
-	(or more) classes or instances of two classes.  The properties of an 
-	association class include pointers, or references, to the two (or 
-	more) instances. All CIM classes can be included in one or more 
+    /** CIMMethod isAssociation - Identifies whether or not this CIM class
+	is an association. An association is a relationship between two
+	(or more) classes or instances of two classes.  The properties of an
+	association class include pointers, or references, to the two (or
+	more) instances. All CIM classes can be included in one or more
 	associations.  ATTN: Move the association definition elsewhere
-	@return  Boolean True if this CIM class belongs to an association; 
-	otherwise, false. 
-    */ 
+	@return  Boolean True if this CIM class belongs to an association;
+	otherwise, false.
+    */
     Boolean isAssociation() const
     {
 	_checkRep();
@@ -149,26 +152,26 @@ public:
     /** CIMMethod Gets the name of the class
 	ATTN: COMMENT. Why not just get name so we have common method for all.
     */
-    const String& getClassName() const 
+    const String& getClassName() const
     {
 	_checkRep();
-	return _rep->getClassName(); 
+	return _rep->getClassName();
     }
 
     /** CIMMethod getSuperClassName - Gets the name of the Parent
 	@return String with parent class name.
     */
-    const String& getSuperClassName() const 
+    const String& getSuperClassName() const
     {
 	_checkRep();
-	return _rep->getSuperClassName(); 
+	return _rep->getSuperClassName();
     }
 
     /**	CIMMethod setSuperClassName - Sets the name of the parent class from
 	the input parameter. \REF{CLASSNAME}. ATTN: Define legal classnames
 	@param - String defining parent name.
-	@return Throws IllegalName if superClassName argument not legal CIM 
-	identifier. 
+	@return Throws IllegalName if superClassName argument not legal CIM
+	identifier.
     */
     void setSuperClassName(const String& superClassName)
     {
@@ -190,9 +193,9 @@ public:
 	return *this;
     }
 
-    /**	CIMMethod findQualifier - Finds a qualifier with the specified input 
-	name if it exists in the class @param name CIMName of the qualifier 
-	to be found @return Position of the qualifier in the Class ATTN: 
+    /**	CIMMethod findQualifier - Finds a qualifier with the specified input
+	name if it exists in the class @param name CIMName of the qualifier
+	to be found @return Position of the qualifier in the Class ATTN:
 	Clarify the return.  What if not found, etc.
     */
     Uint32 findQualifier(const String& name)
@@ -232,7 +235,7 @@ public:
     }
 
     /** CIMMethod getQualifierCount - Returns the number of qualifiers
-	in the class.  
+	in the class.
 	@return ATTN:
     */
     Uint32 getQualifierCount() const
@@ -253,7 +256,7 @@ public:
 
     /** CIMMethod removeProperty - Removes the property represented
 	by the position input parameter from the class
-	@param position parameter for the property to be removed from the 
+	@param position parameter for the property to be removed from the
 	findPropety method
 	@return ATTN:
     */
@@ -282,7 +285,7 @@ public:
 	return _rep->findProperty(name);
     }
 
-    /** CIMMethod getProperty - Returns a property representing the property 
+    /** CIMMethod getProperty - Returns a property representing the property
 	defined by the input parameter
 	@param position for this property
 	ATTN: Should we not use something like handle for position???
@@ -312,10 +315,10 @@ public:
 	return _rep->getPropertyCount();
     }
 
-    /** CIMMethod addMethod - Adds the method object defined by the input 
-	parameter to the class and increments the count of the number of 
+    /** CIMMethod addMethod - Adds the method object defined by the input
+	parameter to the class and increments the count of the number of
 	methods in the class
-	@param - method object representing the method to be added 
+	@param - method object representing the method to be added
     */
     CIMClass& addMethod(const CIMMethod& x)
     {
@@ -327,7 +330,7 @@ public:
     /** CIMMethod findMethod - Located the method object defined by the
 	name input
 	@param String representing the name of the method to be found
-	@return Position of the method object in the class to be used in 
+	@return Position of the method object in the class to be used in
 	subsequent getmethod, etc. operations
     */
     Uint32 findMethod(const String& name)
@@ -346,7 +349,7 @@ public:
     /** CIMMethod getMethod - Gets the method object defined by the
 	input parameter.
 	@param   ATTN:
-	@ method object representing the method defined 
+	@ method object representing the method defined
 	ATTN: Error???
     */
     CIMMethod getMethod(Uint32 pos)
@@ -370,9 +373,9 @@ public:
 	_checkRep();
 	return _rep->getMethodCount();
     }
-    
-    /** CIMMethod Resolve -  Resolve the class: inherit any properties and 
-	qualifiers. Make sure the superClass really exists and is consistent 
+
+    /** CIMMethod Resolve -  Resolve the class: inherit any properties and
+	qualifiers. Make sure the superClass really exists and is consistent
 	with this class. Also set the propagated flag class-origin for each
 	class feature.
 	ATTN: explain why this here
@@ -388,14 +391,14 @@ public:
     /// operator - ATTN:
     operator int() const { return _rep != 0; }
 
-    /// CIMMethod toXML 
+    /// CIMMethod toXML
     void toXml(Array<Sint8>& out) const
     {
 	_checkRep();
 	_rep->toXml(out);
     }
 
-    /// CIMMethod print 
+    /// CIMMethod print
     void print() const
     {
 	_checkRep();
@@ -437,7 +440,7 @@ private:
     friend class ConstCIMClass;
 };
 
-/** ConstCIMClass
+/** ConstCIMClass - ATTN: define this.
 
 */
 
@@ -483,7 +486,7 @@ public:
     // Throws IllegalName if className argument not legal CIM identifier.
 
     ConstCIMClass(
-	const String& className, 
+	const String& className,
 	const String& superClassName = String())
     {
 	_rep = new CIMClassRep(className, superClassName);
@@ -506,16 +509,16 @@ public:
 	return _rep->isAbstract();
     }
 
-    const String& getClassName() const 
-    { 
+    const String& getClassName() const
+    {
 	_checkRep();
-	return _rep->getClassName(); 
+	return _rep->getClassName();
     }
 
-    const String& getSuperClassName() const 
-    { 
+    const String& getSuperClassName() const
+    {
 	_checkRep();
-	return _rep->getSuperClassName(); 
+	return _rep->getSuperClassName();
     }
 
     Uint32 findQualifier(const String& name) const

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Array.h,v $
+// Revision 1.12  2001/02/26 10:13:24  karl
+// documentation changes
+//
 // Revision 1.11  2001/02/26 04:33:28  mike
 // Fixed many places where cim names were be compared with operator==(String,String).
 // Changed all of these to use CIMName::equal()
@@ -73,10 +76,10 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-/** @name ArrayRep<T>
+/*  ArrayRep<T>
     The ArrayRep object represents the array size, capacity, reference
-    count and elements in one contiguous chunk of memory. The elements 
-    follow immediately after the end of the ArrayRep structure in memory. 
+    count and elements in one contiguous chunk of memory. The elements
+    follow immediately after the end of the ArrayRep structure in memory.
     The union is used to force 64 bit alignment of these elements. This is
     a private class and should not be accessed directly by the user.
 */
@@ -86,7 +89,7 @@ struct ArrayRep
     Uint32 size;
     Uint32 capacity;
 
-    /** This union forces the first element (which follows this structure
+    /* This union forces the first element (which follows this structure
 	in memory) to be aligned on a 64 bit boundary. It is a requirement
 	that even an array of characters be aligned for any purpose (as malloc()
 	does). That way, arrays of characters can be used for alignement
@@ -100,18 +103,18 @@ struct ArrayRep
     };
 
 
-    /// Obtains a pointer to the first element in the array.
+    // Obtains a pointer to the first element in the array.
     T* data() { return (T*)(this + 1); }
 
-    /// Same as method above but returns a constant pointer.
+    // Same as method above but returns a constant pointer.
     const T* data() const { return (const T*)(this + 1); }
 
-    /** Creates a clone of the current object and sets the reference
+    /* Creates a clone of the current object and sets the reference
 	count to one.
     */
     ArrayRep* clone() const;
 
-    /** Create and initialize a ArrayRep instance. Set the reference count 
+    /* Create and initialize a ArrayRep instance. Set the reference count
 	to one so the caller need not bother incrementing it. Note that the
 	memory for the elements is unitialized and must be initialized by
 	the caller.
@@ -119,16 +122,16 @@ struct ArrayRep
 
     static ArrayRep* create(Uint32 size);
 
-    /// Increments the reference count of this object.
+    // Increments the reference count of this object.
     static void inc(const ArrayRep* rep_);
 
 
-    /** Decrements the reference count of this object. If the reference count
+    /* Decrements the reference count of this object. If the reference count
 	falls to zero, the object is disposed of.
     */
     static void dec(const ArrayRep* rep_);
 
-    /** Gets a pointer to a single instance which is created for each class
+    /* Gets a pointer to a single instance which is created for each class
 	to represent an empty array (zero-size).
     */
     static ArrayRep* getNullRep();
@@ -155,7 +158,7 @@ ArrayRep<T>* ArrayRep<T>::create(Uint32 size)
 
     // Create object:
 
-    ArrayRep* rep = 
+    ArrayRep* rep =
 	(ArrayRep*)operator new(sizeof(ArrayRep) + sizeof(T) * capacity);
 
     rep->size = size;
@@ -209,10 +212,10 @@ PEGASUS_COMMON_LINKAGE void ThrowOutOfBounds();
 
 class CIMValue;
 
-/** @name Array Class
+/** Array Class.
     This clas is used to represent arrays of intrinsic data types in CIM. And
     it is also used by the implementation to represent arrays of other kinds of
-    objects (e.g., it is used to implement the String class). However, the user 
+    objects (e.g., it is used to implement the String class). However, the user
     will only use it directly to manipulate arrays of CIM data types.
 */
 template<class T>
@@ -262,8 +265,8 @@ public:
 	change the size of the array (getSize() returns what it did before).
 	If the capacity of the array is already greater or equal to the
 	capacity argument, this method has no effect. After calling reserve(),
-	getCapacity() returns a value which is greater or equal to the 
-capacity argument.
+	getCapacity() returns a value which is greater or equal to the
+	capacity argument.
 	@param capacity defines the size that is to be reserved
     */
     void reserve(Uint32 capacity)
@@ -272,11 +275,11 @@ capacity argument.
 	    _reserveAux(capacity);
     }
 
-    /** Make the size of the array grow by size elements (new size will be
-	getSize() + size). The new elements (there are size of them) are 
+    /** Make the size of the array grow by size elements. Thenew size will 
+	be getSize() + size. The new elements (there are size of them) are
 	initialized with x.
-	@parm size defines the number of elements by which the array is to 
-	grow. 
+	@parm size defines the number of elements by which the array is to
+	grow.
     */
     void grow(Uint32 size, const T& x);
 
@@ -292,14 +295,14 @@ capacity argument.
     Uint32 getCapacity() const { return _rep->capacity; }
 
     /// Returns a pointer to the first element of the array.
-    const T* getData() const 
-    { 
-	return _rep->data(); 
+    const T* getData() const
+    {
+	return _rep->data();
     }
 
-    /** Returns the element at the index given by the pos argument. 
-    @return A reference to the elementdefined by index so that it may be 
-    modified. 
+    /** Returns the element at the index given by the pos argument.
+    @return A reference to the elementdefined by index so that it may be
+    modified.
     */
     T& operator[](Uint32 pos);
 
@@ -338,7 +341,7 @@ capacity argument.
     */
     void prepend(const T* x, Uint32 size);
 
-    /** Inserts the element at the given index in the array. Subsequent 
+    /** Inserts the element at the given index in the array. Subsequent
 	elements are moved down. The size of the array grows by one.
     */
     void insert(Uint32 pos, const T& x);
@@ -350,7 +353,7 @@ capacity argument.
     void insert(Uint32 pos, const T* x, Uint32 size);
 
     /** Removes the element at the given position from the array. The
-	size of the array shrinks by one. 
+	size of the array shrinks by one.
     */
     void remove(Uint32 pos);
 
@@ -414,7 +417,7 @@ Array<T>::Array(Uint32 size, const T& x)
     _rep = Rep::create(size);
 
     T* data = _rep->data();
-    
+
     while (size--)
 	new(data++) T(x);
 }
@@ -486,7 +489,7 @@ void Array<T>::swap(Array<T>& x)
 }
 
 template<class T>
-inline T& Array<T>::operator[](Uint32 pos) 
+inline T& Array<T>::operator[](Uint32 pos)
 {
     if (pos >= getSize())
 	ThrowOutOfBounds();

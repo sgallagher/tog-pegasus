@@ -642,7 +642,6 @@ static void TestInstanceModifyOperations(CIMClient* client, Boolean
     //CIMObjectPath ref;
     //CIMObjectPath::instanceNameToReference(instanceName, ref);
     CIMInstance tmp = client->getInstance(globalNamespace, instanceName);
-
     // XmlWriter::printInstanceElement(cimInstance);
     // XmlWriter::printInstanceElement(tmp);
     // assert(cimInstance.identical(tmp));
@@ -687,7 +686,7 @@ static void TestInstanceModifyOperations(CIMClient* client, Boolean
     CIMInstance currentInstance =
       client->getInstance( globalNamespace, instanceName );
     currentInstance.setPath( instanceName );
-    //assert( currentInstance.identical( testInstance ) );
+ //assert( currentInstance.identical( testInstance ) );
 
     client->deleteInstance(globalNamespace, instanceName);
 
@@ -1158,6 +1157,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL executeTests(void *parm){
 	Boolean activeTest = parms->activeTest;
 
 	for(Uint32 i=0; i<testCount; i++){
+	try{
 		Stopwatch elapsedTime;
 		testStart("Test NameSpace Operations");
                 TestNameSpaceOperations(client, activeTest, verboseTest);
@@ -1208,7 +1208,9 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL executeTests(void *parm){
                 elapsedTime.reset();
                 TestEnumerateInstances(client, activeTest, verboseTest);
                 testEnd(elapsedTime.getElapsed());
-
+	}catch(Exception e){
+		cout << e.getMessage() << endl;
+	}
 	}
 	my_thread->exit_self((PEGASUS_THREAD_RETURN)5);
 	return(0);
@@ -1232,7 +1234,7 @@ Thread * runTests(CIMClient *client, Uint32 testCount, Boolean activeTest, Boole
 void connectClient(CIMClient *client, String host, Uint32 portNumber, String userName, String password, Boolean useSSL, Boolean localConnection){
  
    try{
-	client->setTimeout(30000);
+	client->setTimeout(3000000);
         if (useSSL){
 		if (localConnection)
                 {

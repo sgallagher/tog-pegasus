@@ -26,7 +26,7 @@
 // Author:  Karl Schopmeyer (k.schopmeyer@opengroup.org) 
 //          Mary Hinton (m.hinton@verizon.net)
 //
-// Modified By:
+// Modified By:  Amit K Arora (amita@in.ibm.com) for Bug# 1081 (mofFormat())
 //
 //%/////////////////////////////////////////////////////////////////////////////
 #include <Pegasus/Common/Config.h>
@@ -1736,7 +1736,8 @@ void mofFormat(
     const char* text, 
     Uint32 indentSize)
 {
-    char* tmp = strcpy(new char[strlen(text) + 1], text);
+    char* var = new char[strlen(text)+1];
+    char* tmp = strcpy(var, text);
     Uint32 count = 0;
     Uint32 indent = 0;
     Boolean quoteState = false;
@@ -1811,6 +1812,7 @@ void mofFormat(
         }
 
     }
+    delete var;
 }
 
 PEGASUS_NAMESPACE_END

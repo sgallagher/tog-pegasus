@@ -25,7 +25,7 @@
 //
 // Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
-// Modified By:
+// Modified By: Amit K Arora (amita@in.ibm.com) for Bug# 1081 (mofFormat())
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -74,7 +74,9 @@ void mofFormat(
     const char* text, 
     Uint32 indentChars)
 {
-    char* tmp = strcpy(new char[strlen(text) + 1], text);
+    char* var = new char[strlen(text)+1];
+    char* tmp = strcpy(var, text);
+
     //const char* tmp = x.getData();
     Uint32 count = 0;
     Uint32 indent = 0;
@@ -113,6 +115,7 @@ void mofFormat(
 	}
 
     }
+    delete var;
 }
 
 ///////////////////////////////////////////////////////////////

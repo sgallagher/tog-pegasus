@@ -1,6 +1,7 @@
-ROOT=../..
+ROOT=$(PEGASUS_ROOT)
 
 include $(ROOT)/mak/config.mak
+
 
 DIRS = \
     Common \
@@ -22,6 +23,7 @@ DIRS = \
     ControlProviders/ConfigSettingProvider \
     ControlProviders/UserAuthProvider \
     ControlProviders/ProviderRegistrationProvider \
+    ControlProviders/NamespaceProvider \
     WQL \
     HandlerService \
     IndicationService \

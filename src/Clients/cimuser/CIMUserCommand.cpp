@@ -39,7 +39,7 @@
 
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/CIMProperty.h>
-#include <Pegasus/Common/CIMReference.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/CIMStatusCode.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/System.h>
@@ -1140,7 +1140,7 @@ void CIMUserCommand::_ModifyUser
 
         kbArray.append(kb);
 
-        CIMReference reference(
+        CIMObjectPath reference(
             _hostName, PROPERTY_NAME_NAMESPACE, PG_USER_CLASS, kbArray);
 
 	//
@@ -1188,7 +1188,7 @@ void CIMUserCommand::_RemoveUser
 
         kbArray.append(kb);
 
-        CIMReference reference(
+        CIMObjectPath reference(
             _hostName, PROPERTY_NAME_NAMESPACE, PG_USER_CLASS, kbArray);
 
         outPrintWriter << REMOVING_USER << endl;
@@ -1218,7 +1218,7 @@ void CIMUserCommand::_ListUsers
         // get all the instances of class PG_User
         //
 	outPrintWriter << LISTING_USERS << endl;
-        Array<CIMReference> instanceNames =
+        Array<CIMObjectPath> instanceNames =
             _client->enumerateInstanceNames(
 	       PROPERTY_NAME_NAMESPACE, 
 	       PG_USER_CLASS);

@@ -93,7 +93,7 @@ static void TestNameSpaceOperations(CIMClient& client, Boolean activeTest,
     // Enumerate NameSpaces using the old technique
     String className = "__Namespace";
 
-    Array<CIMReference> instanceNames;
+    Array<CIMObjectPath> instanceNames;
 
     // Call enumerate Instances CIM Method
     try 
@@ -103,7 +103,7 @@ static void TestNameSpaceOperations(CIMClient& client, Boolean activeTest,
 		     globalNamespace, className);
     
 		 cout << instanceNames.size() << " Namespaces" << endl;
-		 // Convert from CIMReference to String form
+		 // Convert from CIMObjectPath to String form
     
 		 if (verboseTest)
 		 {
@@ -174,8 +174,8 @@ static void TestNameSpaceOperations(CIMClient& client, Boolean activeTest,
 
 	try
 	{
-	    CIMReference myReference(instanceName);
-	    cout << "CIMReference for delete";
+	    CIMObjectPath myReference(instanceName);
+	    cout << "CIMObjectPath for delete";
 	    XmlWriter::printValueReferenceElement(myReference, cout);
 	    client.deleteInstance(globalNamespace, myReference);
 	}
@@ -395,7 +395,7 @@ static void TestInstanceGetOperations(CIMClient& client, Boolean activeTest,
 
     cout <<  classNames.size() << " Classes found " << endl;
 
-    Array<CIMReference> instanceNames;
+    Array<CIMObjectPath> instanceNames;
     Uint16 numberOfNotSupportedClassesFound = 0;
 
     for (Uint32 i = 0; i < classNames.size(); i++)
@@ -439,7 +439,7 @@ static void TestInstanceGetOperations(CIMClient& client, Boolean activeTest,
             << numberOfNotSupportedClassesFound << endl;
     }
     /*
-    virtual Array<CIMReference> enumerateInstanceNames(
+    virtual Array<CIMObjectPath> enumerateInstanceNames(
         const String& nameSpace,
         const String& className) = 0;
 
@@ -497,13 +497,13 @@ static void TestInstanceModifyOperations(CIMClient& client, Boolean
     cimInstance.addProperty(CIMProperty("first", "John"));
     cimInstance.addProperty(CIMProperty("age", Uint32(1010)));
     cimInstance.addProperty(CIMProperty("nick", "Duke"));
-    CIMReference instanceName = cimInstance.getInstanceName(cimClass);
+    CIMObjectPath instanceName = cimInstance.getInstanceName(cimClass);
     client.createInstance(globalNamespace, cimInstance);
 
     // Get the instance and compare with created one:
 
-    //CIMReference ref;
-    //CIMReference::instanceNameToReference(instanceName, ref);
+    //CIMObjectPath ref;
+    //CIMObjectPath::instanceNameToReference(instanceName, ref);
     CIMInstance tmp = client.getInstance(globalNamespace, instanceName);
 
     // XmlWriter::printInstanceElement(cimInstance);
@@ -557,7 +557,7 @@ static void TestInstanceModifyOperations(CIMClient& client, Boolean
 
     // Repeat to create multiple instances
     Uint32 repeatCount = 30;
-    Array<CIMReference> instanceNames;
+    Array<CIMObjectPath> instanceNames;
     cout << "Create " << repeatCount << " Instances" << endl;
     for (Uint32 i = 0; i < repeatCount; i++)
     {
@@ -607,7 +607,7 @@ static void TestMethodOperations( CIMClient& client, Boolean
     cimInstance.addProperty(CIMProperty("PkgIndex", Uint32(101)));
     cimInstance.addProperty(CIMProperty("trapOid", "1.3.6.1.4.1.11.2.3.1.7.0.4"));
     cimInstance.addProperty(CIMProperty("computerName", "NU744781"));
-    CIMReference instanceName = cimInstance.getInstanceName(cimClass);
+    CIMObjectPath instanceName = cimInstance.getInstanceName(cimClass);
     instanceName.setNameSpace(globalNamespace);
     client.createInstance(globalNamespace, cimInstance);
     try
@@ -663,7 +663,7 @@ static void TestInvokeMethod( CIMClient& client,
   const String OUTSTRING = "Yoda";
   const String GOODREPLY = "Hello, " + OUTSTRING + "!";
   const String GOODPARAM = "From Neverland";
-  const CIMReference instanceName = 
+  const CIMObjectPath instanceName = 
                             "Sample_MethodProviderClass.Identifier=1";
 
   try

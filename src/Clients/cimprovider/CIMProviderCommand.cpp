@@ -37,7 +37,7 @@
 
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/CIMProperty.h>
-#include <Pegasus/Common/CIMReference.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/CIMStatusCode.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/String.h>
@@ -958,7 +958,7 @@ void CIMProviderCommand::_deleteProvider
 
 	    CIMNamedInstance providerInstance = _getProviderInstance();
 
-	    CIMReference providerRef = providerInstance.getInstanceName();
+	    CIMObjectPath providerRef = providerInstance.getInstanceName();
 	    providerRef.setNameSpace(PEGASUS_NAMESPACENAME_INTEROP);
 	    providerRef.setClassName(PEGASUS_CLASSNAME_PROVIDER);
 
@@ -983,7 +983,7 @@ void CIMProviderCommand::_deleteProvider
 
 	    CIMNamedInstance moduleInstance = _getModuleInstance();
 
-	    CIMReference moduleRef = moduleInstance.getInstanceName();
+	    CIMObjectPath moduleRef = moduleInstance.getInstanceName();
 	    moduleRef.setNameSpace(PEGASUS_NAMESPACENAME_INTEROP);
 	    moduleRef.setClassName(PEGASUS_CLASSNAME_PROVIDERMODULE);
 
@@ -1024,7 +1024,7 @@ void CIMProviderCommand::_StartProvider
     
     try
     {
-	CIMReference ref;
+	CIMObjectPath ref;
 	//
 	// enable module
 	//
@@ -1033,7 +1033,7 @@ void CIMProviderCommand::_StartProvider
  	    // get the module instance
 	    CIMNamedInstance moduleInstance = _getModuleInstance();
 
-	    CIMReference moduleRef = moduleInstance.getInstanceName();
+	    CIMObjectPath moduleRef = moduleInstance.getInstanceName();
 	    moduleRef.setNameSpace(PEGASUS_NAMESPACENAME_INTEROP);
 	    moduleRef.setClassName(PEGASUS_CLASSNAME_PROVIDERMODULE);
 
@@ -1092,7 +1092,7 @@ void CIMProviderCommand::_StopProvider
 {
     try
     {
-	CIMReference ref;
+	CIMObjectPath ref;
 	//
 	// disable the module
 	//
@@ -1101,7 +1101,7 @@ void CIMProviderCommand::_StopProvider
  	    // get the module instance
 	    CIMNamedInstance moduleInstance = _getModuleInstance();
 
-	    CIMReference moduleRef = moduleInstance.getInstanceName();
+	    CIMObjectPath moduleRef = moduleInstance.getInstanceName();
 	    moduleRef.setNameSpace(PEGASUS_NAMESPACENAME_INTEROP);
 	    moduleRef.setClassName(PEGASUS_CLASSNAME_PROVIDERMODULE);
 

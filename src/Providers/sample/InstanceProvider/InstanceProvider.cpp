@@ -42,28 +42,28 @@ void InstanceProvider::initialize(CIMOMHandle & cimom)
 {
 	// create default instances
 	CIMInstance instance1("Sample_InstanceProviderClass");
-	CIMReference reference1("Sample_InstanceProviderClass.Identifier=1");
+	CIMObjectPath reference1("Sample_InstanceProviderClass.Identifier=1");
 
 	instance1.addProperty(CIMProperty("Identifier", Uint8(1)));   // key
 	instance1.addProperty(CIMProperty("Message", String("Hello World")));
 
-	_instances.append(Pair<CIMReference, CIMInstance>(reference1, instance1));
+	_instances.append(Pair<CIMObjectPath, CIMInstance>(reference1, instance1));
 
 	CIMInstance instance2("Sample_InstanceProviderClass");
-	CIMReference reference2("Sample_InstanceProviderClass.Identifier=2");
+	CIMObjectPath reference2("Sample_InstanceProviderClass.Identifier=2");
 
 	instance2.addProperty(CIMProperty("Identifier", Uint8(2)));   // key
 	instance2.addProperty(CIMProperty("Message", String("Yo Planet")));
 
-	_instances.append(Pair<CIMReference, CIMInstance>(reference2, instance2));
+	_instances.append(Pair<CIMObjectPath, CIMInstance>(reference2, instance2));
 
 	CIMInstance instance3("Sample_InstanceProviderClass");
-	CIMReference reference3("Sample_InstanceProviderClass.Identifier=3");
+	CIMObjectPath reference3("Sample_InstanceProviderClass.Identifier=3");
 
 	instance3.addProperty(CIMProperty("Identifier", Uint8(3)));   // key
 	instance3.addProperty(CIMProperty("Message", String("Hey Earth")));
 
-	_instances.append(Pair<CIMReference, CIMInstance>(reference3, instance3));
+	_instances.append(Pair<CIMObjectPath, CIMInstance>(reference3, instance3));
 }
 
 void InstanceProvider::terminate(void)
@@ -72,14 +72,14 @@ void InstanceProvider::terminate(void)
 
 void InstanceProvider::getInstance(
 	const OperationContext & context,
-	const CIMReference & instanceReference,
+	const CIMObjectPath & instanceReference,
 	const Uint32 flags,
 	const CIMPropertyList & propertyList,
 	ResponseHandler<CIMInstance> & handler)
 {
 	// convert a potential fully qualified reference into a local reference
 	// (class name and keys only).
-	CIMReference localReference = CIMReference(
+	CIMObjectPath localReference = CIMObjectPath(
 		String(),
 		String(),
 		instanceReference.getClassName(),
@@ -106,7 +106,7 @@ void InstanceProvider::getInstance(
 
 void InstanceProvider::enumerateInstances(
 	const OperationContext & context,
-	const CIMReference & classReference,
+	const CIMObjectPath & classReference,
 	const Uint32 flags,
 	const CIMPropertyList & propertyList,
 	ResponseHandler<CIMInstance> & handler)
@@ -126,8 +126,8 @@ void InstanceProvider::enumerateInstances(
 
 void InstanceProvider::enumerateInstanceNames(
 	const OperationContext & context,
-	const CIMReference & classReference,
-	ResponseHandler<CIMReference> & handler)
+	const CIMObjectPath & classReference,
+	ResponseHandler<CIMObjectPath> & handler)
 {
 	// begin processing the request
 	handler.processing();
@@ -144,7 +144,7 @@ void InstanceProvider::enumerateInstanceNames(
 
 void InstanceProvider::modifyInstance(
 	const OperationContext & context,
-	const CIMReference & instanceReference,
+	const CIMObjectPath & instanceReference,
 	const CIMInstance & instanceObject,
 	const Uint32 flags,
 	const CIMPropertyList & propertyList,
@@ -152,7 +152,7 @@ void InstanceProvider::modifyInstance(
 {
 	// convert a potential fully qualified reference into a local reference
 	// (class name and keys only).
-	CIMReference localReference = CIMReference(
+	CIMObjectPath localReference = CIMObjectPath(
 		String(),
 		String(),
 		instanceReference.getClassName(),
@@ -182,13 +182,13 @@ void InstanceProvider::modifyInstance(
 
 void InstanceProvider::createInstance(
 	const OperationContext & context,
-	const CIMReference & instanceReference,
+	const CIMObjectPath & instanceReference,
 	const CIMInstance & instanceObject,
-	ResponseHandler<CIMReference> & handler)
+	ResponseHandler<CIMObjectPath> & handler)
 {
 	// convert a potential fully qualified reference into a local reference
 	// (class name and keys only).
-	CIMReference localReference = CIMReference(
+	CIMObjectPath localReference = CIMObjectPath(
 		String(),
 		String(),
 		instanceReference.getClassName(),
@@ -207,7 +207,7 @@ void InstanceProvider::createInstance(
 	handler.processing();
 
 	// add the new instance to the array
-	_instances.append(Pair<CIMReference, CIMInstance>(instanceReference, instanceObject));
+	_instances.append(Pair<CIMObjectPath, CIMInstance>(instanceReference, instanceObject));
 
 	// deliver the new instance
 	handler.deliver(_instances[_instances.size() - 1].first);
@@ -218,12 +218,12 @@ void InstanceProvider::createInstance(
 
 void InstanceProvider::deleteInstance(
 	const OperationContext & context,
-	const CIMReference & instanceReference,
+	const CIMObjectPath & instanceReference,
 	ResponseHandler<CIMInstance> & handler)
 {
 	// convert a potential fully qualified reference into a local reference
 	// (class name and keys only).
-	CIMReference localReference = CIMReference(
+	CIMObjectPath localReference = CIMObjectPath(
 		String(),
 		String(),
 		instanceReference.getClassName(),

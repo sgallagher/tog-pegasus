@@ -33,7 +33,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/System.h>
-#include <Pegasus/Common/CIMReference.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 #include "CDROMDriveProvider.h"
 #include "CDROMDriveData.h"
 #include "MediaAccessDeviceInformation.h"
@@ -54,7 +54,7 @@ LinuxCDROMDriveProvider::~LinuxCDROMDriveProvider(void)
 
 
 void LinuxCDROMDriveProvider::getInstance(const OperationContext& context,
-					  const CIMReference& ref,
+					  const CIMObjectPath& ref,
 					  const Uint32 flags,
 					  const CIMPropertyList& propertyList,
 					  ResponseHandler<CIMInstance>& handler)
@@ -94,7 +94,7 @@ void LinuxCDROMDriveProvider::getInstance(const OperationContext& context,
 void 
 LinuxCDROMDriveProvider::enumerateInstances(
       				const OperationContext& context, 
-			        const CIMReference& ref, 
+			        const CIMObjectPath& ref, 
 			        const Uint32 flags, 
 			        const CIMPropertyList& propertyList,
 			        ResponseHandler<CIMInstance>& handler )
@@ -120,8 +120,8 @@ LinuxCDROMDriveProvider::enumerateInstances(
 void 
 LinuxCDROMDriveProvider::enumerateInstanceNames(
       				const OperationContext& context,
-			  	const CIMReference& ref,
-			  	ResponseHandler<CIMReference>& handler )
+			  	const CIMObjectPath& ref,
+			  	ResponseHandler<CIMObjectPath>& handler )
 {
    CDROMDriveData diskdriveData;
    MediaAccessDeviceInformation *curCDROMDrive;
@@ -145,7 +145,7 @@ LinuxCDROMDriveProvider::enumerateInstanceNames(
 void
 LinuxCDROMDriveProvider::modifyInstance(
       				const OperationContext& context,
-			  	const CIMReference& ref,
+			  	const CIMObjectPath& ref,
 			  	const CIMInstance& instanceObject,
 		          	const Uint32 flags, 
 		          	const CIMPropertyList& propertyList,
@@ -158,9 +158,9 @@ LinuxCDROMDriveProvider::modifyInstance(
 void
 LinuxCDROMDriveProvider::createInstance(
       				const OperationContext& context,
-			  	const CIMReference& ref,
+			  	const CIMObjectPath& ref,
 			  	const CIMInstance& instanceObject,
-			  	ResponseHandler<CIMReference>& handler )
+			  	ResponseHandler<CIMObjectPath>& handler )
 {
    cout << "LinuxCDROMDriveProvider::createInstance called" << endl;
    throw NotSupported(CDROMDRIVECLASSNAME"::createInstance");
@@ -169,7 +169,7 @@ LinuxCDROMDriveProvider::createInstance(
 void
 LinuxCDROMDriveProvider::deleteInstance(
       				const OperationContext& context,
-			  	const CIMReference& ref,
+			  	const CIMObjectPath& ref,
 			  	ResponseHandler<CIMInstance>& handler )
 {
    cout << "LinuxCDROMDriveProvider::deleteInstance called" << endl;
@@ -185,7 +185,7 @@ void LinuxCDROMDriveProvider::terminate(void)
 {
 }
 
-CIMReference
+CIMObjectPath
 LinuxCDROMDriveProvider::fill_reference(const String &nameSpace, 
       					const String &className, 
 					const MediaAccessDeviceInformation *ptr)
@@ -195,7 +195,7 @@ LinuxCDROMDriveProvider::fill_reference(const String &nameSpace,
    keys.append(KeyBinding("Name", ptr->getName(),
                           KeyBinding::STRING));
 
-   return CIMReference(System::getHostName(), nameSpace, 
+   return CIMObjectPath(System::getHostName(), nameSpace, 
 		       className, keys);
 }
 

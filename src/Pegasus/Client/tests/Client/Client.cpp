@@ -169,7 +169,7 @@ static void TestInstanceOperations(CIMClient& client)
 
     try
     {
-        Array<CIMReference> instanceNames =
+        Array<CIMObjectPath> instanceNames =
            client.enumerateInstanceNames(NAMESPACE, "MyClass");
 	for (Uint32 i = 0; i < instanceNames.size(); i++)
         {
@@ -209,8 +209,8 @@ static void TestInstanceOperations(CIMClient& client)
     cimInstance.addProperty(CIMProperty("last", "Smith"));
     cimInstance.addProperty(CIMProperty("first", "John"));
     cimInstance.addProperty(CIMProperty("age", Uint8(101)));
-    CIMReference instanceName = cimInstance.getInstanceName(cimClass);
-    CIMReference createdinstanceName = client.createInstance(NAMESPACE, cimInstance);
+    CIMObjectPath instanceName = cimInstance.getInstanceName(cimClass);
+    CIMObjectPath createdinstanceName = client.createInstance(NAMESPACE, cimInstance);
 
     // Get the instance and compare with created one:
 
@@ -224,7 +224,7 @@ static void TestInstanceOperations(CIMClient& client)
 
 static void TestAssociators(CIMClient& client)
 {
-    CIMReference instanceName = "Person.name=\"Mike\"";
+    CIMObjectPath instanceName = "Person.name=\"Mike\"";
 
     Array<CIMObjectWithPath> result = client.associators(
 	NAMESPACE, 
@@ -239,7 +239,7 @@ static void TestAssociators(CIMClient& client)
     for (Uint32 i = 0; i < result.size(); i++)
     {
 	CIMObjectWithPath current = result[i];
-	CIMReference ref = current.getReference();
+	CIMObjectPath ref = current.getReference();
 	cout << "[" << ref << "]" << endl;
     }
 
@@ -248,9 +248,9 @@ static void TestAssociators(CIMClient& client)
 
 static void TestAssociatorNames(CIMClient& client)
 {
-    CIMReference instanceName = "Person.name=\"Mike\"";
+    CIMObjectPath instanceName = "Person.name=\"Mike\"";
 
-    Array<CIMReference> result = client.associatorNames(
+    Array<CIMObjectPath> result = client.associatorNames(
 	NAMESPACE, 
 	instanceName, 
 	"Lineage", 
@@ -266,9 +266,9 @@ static void TestAssociatorNames(CIMClient& client)
 
 static void TestAssociatorClassNames(CIMClient& client)
 {
-    CIMReference className = "Person";
+    CIMObjectPath className = "Person";
 
-    Array<CIMReference> result = client.associatorNames(
+    Array<CIMObjectPath> result = client.associatorNames(
 	NAMESPACE, 
 	className, 
 	"Lineage", 
@@ -284,9 +284,9 @@ static void TestAssociatorClassNames(CIMClient& client)
 
 static void TestReferenceNames(CIMClient& client)
 {
-    CIMReference instanceName = "Person.name=\"Mike\"";
+    CIMObjectPath instanceName = "Person.name=\"Mike\"";
 
-    Array<CIMReference> result = client.referenceNames(
+    Array<CIMObjectPath> result = client.referenceNames(
 	NAMESPACE, 
 	instanceName, 
 	"Lineage", 
@@ -300,7 +300,7 @@ static void TestReferenceNames(CIMClient& client)
 
 static void TestReferences(CIMClient& client)
 {
-    CIMReference instanceName = "Person.name=\"Mike\"";
+    CIMObjectPath instanceName = "Person.name=\"Mike\"";
 
     Array<CIMObjectWithPath> result = client.references(
 	NAMESPACE, 
@@ -311,7 +311,7 @@ static void TestReferences(CIMClient& client)
     for (Uint32 i = 0; i < result.size(); i++)
     {
 	CIMObjectWithPath current = result[i];
-	CIMReference ref = current.getReference();
+	CIMObjectPath ref = current.getReference();
 	cout << "[" << ref << "]" << endl;
     }
 
@@ -320,9 +320,9 @@ static void TestReferences(CIMClient& client)
 
 static void TestReferenceClassNames(CIMClient& client)
 {
-    CIMReference className = "Person";
+    CIMObjectPath className = "Person";
 
-    Array<CIMReference> result = client.referenceNames(
+    Array<CIMObjectPath> result = client.referenceNames(
 	NAMESPACE, 
 	className, 
 	String(),

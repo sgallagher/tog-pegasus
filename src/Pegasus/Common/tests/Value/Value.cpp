@@ -300,7 +300,7 @@ int main(int argc, char** argv)
     test01(Sint64(-123456789));
     test01(String("Hello world"));
     test01(CIMDateTime("19991224120000.000000+360"));
-    test01(CIMReference("//host1:77/root/test:Class1.key1=\"key1Value\",key2=\"key2Value\""));
+    test01(CIMObjectPath("//host1:77/root/test:Class1.key1=\"key1Value\",key2=\"key2Value\""));
 
     // Test CIMValue arrays
 
@@ -388,10 +388,10 @@ int main(int argc, char** argv)
     arr14.append("20020202120000.000000+360");
     test02(arr14);
 
-    Array<CIMReference> arr15;
-    arr15.append(CIMReference("//host1:77/root/test:Class1.key1=\"key1Value\",key2=\"key2Value\""));
-    arr15.append(CIMReference("//host2:88/root/static:Class2.keyA=\"keyAValue\",keyB=\"keyBValue\""));
-    arr15.append(CIMReference("//host3:99/root/test/static:Class3.keyX=\"keyXValue\",keyY=\"keyYValue\""));
+    Array<CIMObjectPath> arr15;
+    arr15.append(CIMObjectPath("//host1:77/root/test:Class1.key1=\"key1Value\",key2=\"key2Value\""));
+    arr15.append(CIMObjectPath("//host2:88/root/static:Class2.keyA=\"keyAValue\",keyB=\"keyBValue\""));
+    arr15.append(CIMObjectPath("//host3:99/root/test/static:Class3.keyX=\"keyXValue\",keyY=\"keyYValue\""));
     test02(arr15);
 
     cout << argv[0] << " +++++ passed all tests" << endl;

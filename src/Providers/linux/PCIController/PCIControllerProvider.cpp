@@ -34,7 +34,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Logger.h>
-#include <Pegasus/Common/CIMReference.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/Exception.h>
 
 #include "PCIControllerProvider.h"
@@ -49,7 +49,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 void
 LinuxPCIControllerProvider::getInstance(const OperationContext& context,
-					const CIMReference& ref,
+					const CIMObjectPath& ref,
 					const Uint32 flags,
 					const CIMPropertyList& propertyList,
 					ResponseHandler<CIMInstance>& handler)
@@ -99,7 +99,7 @@ LinuxPCIControllerProvider::getInstance(const OperationContext& context,
 void 
 LinuxPCIControllerProvider::enumerateInstances(
       				const OperationContext& context, 
-				const CIMReference& ref, 
+				const CIMObjectPath& ref, 
 				const Uint32 flags, 
 				const CIMPropertyList& propertyList,
 				ResponseHandler<CIMInstance>& handler )
@@ -125,8 +125,8 @@ LinuxPCIControllerProvider::enumerateInstances(
 void
 LinuxPCIControllerProvider::enumerateInstanceNames(
       				const OperationContext& context,
-			  	const CIMReference& ref,
-			  	ResponseHandler<CIMReference>& handler )
+			  	const CIMObjectPath& ref,
+			  	ResponseHandler<CIMObjectPath>& handler )
 {
    PCIControllerData *dptr1, *dptr2;
 
@@ -150,7 +150,7 @@ LinuxPCIControllerProvider::enumerateInstanceNames(
 void 
 LinuxPCIControllerProvider::modifyInstance(
       				const OperationContext& context,
-			  	const CIMReference& ref,
+			  	const CIMObjectPath& ref,
 			  	const CIMInstance& instanceObject,
 			  	const Uint32 flags, 
 			  	const CIMPropertyList& propertyList,
@@ -162,9 +162,9 @@ LinuxPCIControllerProvider::modifyInstance(
 void
 LinuxPCIControllerProvider::createInstance(
       				const OperationContext& context,
-			  	const CIMReference& ref,
+			  	const CIMObjectPath& ref,
 			  	const CIMInstance& instanceObject,
-			  	ResponseHandler<CIMReference>& handler )
+			  	ResponseHandler<CIMObjectPath>& handler )
 {
    throw NotSupported(classname + "::createInstance");
 }
@@ -172,7 +172,7 @@ LinuxPCIControllerProvider::createInstance(
 void
 LinuxPCIControllerProvider::deleteInstance(
       				const OperationContext& context,
-			  	const CIMReference& ref,
+			  	const CIMObjectPath& ref,
 			  	ResponseHandler<CIMInstance>& handler )
 {
    throw NotSupported(classname + "::deleteInstance");
@@ -188,7 +188,7 @@ void LinuxPCIControllerProvider::terminate(void)
 }
 
 
-CIMReference
+CIMObjectPath
 LinuxPCIControllerProvider::fill_reference(String const& nameSpace,
 					   String const& className, 
 					   PCIControllerData const* ptr)
@@ -201,7 +201,7 @@ LinuxPCIControllerProvider::fill_reference(String const& nameSpace,
    keys.append(KeyBinding("DeviceID", ptr->GetLogicalDeviceID(),
 			  KeyBinding::STRING));
 
-   return CIMReference(System::getHostName(), nameSpace, 
+   return CIMObjectPath(System::getHostName(), nameSpace, 
 		       className, keys);
 }
 

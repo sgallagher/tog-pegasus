@@ -22,7 +22,7 @@
 #include <cassert>
 #include <cstdlib>
 #include <iostream>
-#include <Pegasus/Common/CIMReference.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/MofWriter.h>
 
@@ -42,12 +42,12 @@ void test01()
     String on2;
     on2 = "//atp:77/root/cimv25:TennisPlayer.first=\"Patrick\",last=\"Rafter\"";
 
-    CIMReference r = on1;
+    CIMObjectPath r = on1;
     assert(r.toString() != on1);
     assert(r.toString() == on2);
 
-    CIMReference r2 = r;
-    CIMReference r3 = "//atp:77/root/cimv25:TennisPlayer.first=\"Chris\",last=\"Evert\"";
+    CIMObjectPath r2 = r;
+    CIMObjectPath r3 = "//atp:77/root/cimv25:TennisPlayer.first=\"Chris\",last=\"Evert\"";
 
     if (verbose)
     {
@@ -61,9 +61,9 @@ void test01()
     }
 
     {
-    CIMReference r1 = "MyClass.z=true,y=1234,x=\"Hello World\"";
-    CIMReference r2 = "myclass.X=\"Hello World\",Z=true,Y=1234";
-    CIMReference r3 = "myclass.X=\"Hello\",Z=true,Y=1234";
+    CIMObjectPath r1 = "MyClass.z=true,y=1234,x=\"Hello World\"";
+    CIMObjectPath r2 = "myclass.X=\"Hello World\",Z=true,Y=1234";
+    CIMObjectPath r3 = "myclass.X=\"Hello\",Z=true,Y=1234";
     // cout << r1.toString() << endl;
     // cout << r2.toString() << endl;
     assert(r1 == r2);
@@ -72,12 +72,12 @@ void test01()
 
      // Test case independence and order independence of parameters.
     {
-	CIMReference r1 = "X.a=123,b=true";
-	CIMReference r2 = "x.B=TRUE,A=123";
+	CIMObjectPath r1 = "X.a=123,b=true";
+	CIMObjectPath r2 = "x.B=TRUE,A=123";
 	assert(r1 == r2);
 	assert(r1.makeHashCode() == r2.makeHashCode());
 
-	CIMReference r3 = "x.B=TRUE,A=123,c=FALSE";
+	CIMObjectPath r3 = "x.B=TRUE,A=123,c=FALSE";
 	assert(r1 != r3);
         String            keyValue;
 
@@ -103,7 +103,7 @@ void test01()
 	    }
 		//ATTN: KS 12 May 2002 P3 DEFER - keybinding manipulation. too simplistic
 		// This code demonstrates that it is not easy to manipulate and
-		// test keybindings.  Needs better tool both in CIMReference and
+		// test keybindings.  Needs better tool both in CIMObjectPath and
 		// separate.
 	}
     }
@@ -111,8 +111,8 @@ void test01()
 
     // Test building from component parts of CIM Reference.
     {
-	CIMReference r1 ("atp:77", "root/cimv25", "TennisPlayer");
-	CIMReference r2 ("//atp:77/root/cimv25:TennisPlayer.");
+	CIMObjectPath r1 ("atp:77", "root/cimv25", "TennisPlayer");
+	CIMObjectPath r2 ("//atp:77/root/cimv25:TennisPlayer.");
 	//cout << "r1 " << r1.toString() << endl;
 	//cout << "r2 " << r2.toString() << endl;
 
@@ -127,7 +127,7 @@ void test01()
 	String nameSpace = "root/cimv2";
 	String className = "tennisplayer";
 
-	CIMReference r1;
+	CIMObjectPath r1;
 	r1.setHost(hostName);
 	r1.setNameSpace(nameSpace);
 	r1.setClassName(className);
@@ -138,7 +138,7 @@ void test01()
 	String newHostName = r1.getHost();
 	//cout << "HostName = " << newHostName << endl;
 
-	CIMReference r2 (hostName, nameSpace, className);
+	CIMObjectPath r2 (hostName, nameSpace, className);
 	assert(r1 == r2);
      }
 
@@ -148,20 +148,20 @@ void test02()
 {
     // test cases with commas in the key value string
 
-    CIMReference testr1 = "MyClass.z=true,y=1234,x=\"Hello,World\"";
+    CIMObjectPath testr1 = "MyClass.z=true,y=1234,x=\"Hello,World\"";
 
-    CIMReference testr2 = "MyClass.z=true,y=1234,x=\"Hello World,\"";
+    CIMObjectPath testr2 = "MyClass.z=true,y=1234,x=\"Hello World,\"";
 
-    CIMReference testr3 = "MyClass.z=true,y=1234,x=\"Hello,,World\"";
+    CIMObjectPath testr3 = "MyClass.z=true,y=1234,x=\"Hello,,World\"";
 
-    CIMReference testr4 = "//atp:77/root/cimv25:test.last=\"Rafter,Smith.Jones long_name:any*char=any123%#@!<>?+^\",first=\"Patrick\"";
+    CIMObjectPath testr4 = "//atp:77/root/cimv25:test.last=\"Rafter,Smith.Jones long_name:any*char=any123%#@!<>?+^\",first=\"Patrick\"";
 
     // test error cases
 
     Boolean errorDetected = false;
     try
     {
-       CIMReference testerr1 = "myclass.X=\"Hello World\"Z=trueY=1234";
+       CIMObjectPath testerr1 = "myclass.X=\"Hello World\"Z=trueY=1234";
     }
     catch (Exception& e)
     {
@@ -172,7 +172,7 @@ void test02()
     errorDetected = false;
     try
     {
-       CIMReference testerr2 = "myclass.XYZ";
+       CIMObjectPath testerr2 = "myclass.XYZ";
     }
     catch (Exception& e)
     {
@@ -183,7 +183,7 @@ void test02()
     errorDetected = false;
     try
     {
-       CIMReference testerr3 = "MyClass.z=true,y=1234abc,x=\"Hello World\"";
+       CIMObjectPath testerr3 = "MyClass.z=true,y=1234abc,x=\"Hello World\"";
     }
     catch (Exception& e)
     {
@@ -194,7 +194,7 @@ void test02()
     errorDetected = false;
     try
     {
-       CIMReference testerr4 = "MyClass.z=nottrue,y=1234,x=\"Hello World\"";
+       CIMObjectPath testerr4 = "MyClass.z=nottrue,y=1234,x=\"Hello World\"";
     }
     catch (Exception& e)
     {

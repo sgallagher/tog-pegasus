@@ -142,16 +142,16 @@ void HelloWorldProvider::terminate(void)
 
 void HelloWorldProvider::getInstance(
 	const OperationContext & context,
-	const CIMReference & instanceReference,
+	const CIMObjectPath & instanceReference,
 	const Uint32 flags,
 	const Array<String> & propertyList,
 	ResponseHandler<CIMInstance> & handler)
 {
 	// synchronously get references
-	Array<CIMReference> references = _enumerateInstanceNames(context, instanceReference);
+	Array<CIMObjectPath> references = _enumerateInstanceNames(context, instanceReference);
 
 	// ensure the request object exists
-	if(Contains<CIMReference>(references, instanceReference) == false)
+	if(Contains<CIMObjectPath>(references, instanceReference) == false)
 	{
 		throw CIMException(CIM_ERR_NOT_FOUND);
 	}
@@ -174,7 +174,7 @@ void HelloWorldProvider::getInstance(
 
 void HelloWorldProvider::enumerateInstances(
 	const OperationContext & context,
-	const CIMReference & ref,
+	const CIMObjectPath & ref,
 	const Uint32 flags,
 	const Array<String> & propertyList,
 	ResponseHandler<CIMInstance> & handler)
@@ -197,7 +197,7 @@ void HelloWorldProvider::enumerateInstances(
 	// convert instances to references;
 	for(Uint32 i = 0; i < _instances.size(); i++)
 	{
-		CIMReference tempRef = _instances[i].getInstanceName(cimclass);
+		CIMObjectPath tempRef = _instances[i].getInstanceName(cimclass);
 
 		// ensure references are fully qualified
 		tempRef.setHost(ref.getHost());
@@ -212,8 +212,8 @@ void HelloWorldProvider::enumerateInstances(
 
 void HelloWorldProvider::enumerateInstanceNames(
 	const OperationContext & context,
-	const CIMReference & classReference,
-	ResponseHandler<CIMReference> & handler)
+	const CIMObjectPath & classReference,
+	ResponseHandler<CIMObjectPath> & handler)
 {
 	// begin processing the request
 	handler.processing();
@@ -231,7 +231,7 @@ void HelloWorldProvider::enumerateInstanceNames(
 	// convert instances to references;
 	for(Uint32 i = 0; i < _instances.size(); i++)
 	{
-		CIMReference tempRef = _instances[i].getInstanceName(cimclass);
+		CIMObjectPath tempRef = _instances[i].getInstanceName(cimclass);
 
 		// ensure references are fully qualified
 		tempRef.setHost(classReference.getHost());
@@ -246,7 +246,7 @@ void HelloWorldProvider::enumerateInstanceNames(
 
 void HelloWorldProvider::modifyInstance(
 	const OperationContext & context,
-	const CIMReference & instanceReference,
+	const CIMObjectPath & instanceReference,
 	const CIMInstance & instanceObject,
 	const Uint32 flags,
 	const Array<String> & propertyList,
@@ -260,10 +260,10 @@ void HelloWorldProvider::modifyInstance(
         }
 
 	// synchronously get references
-	Array<CIMReference> references = _enumerateInstanceNames(context, instanceReference);
+	Array<CIMObjectPath> references = _enumerateInstanceNames(context, instanceReference);
 
 	// ensure the request object exists
-	if(Contains<CIMReference>(references, instanceReference) == false)
+	if(Contains<CIMObjectPath>(references, instanceReference) == false)
 	{
 		throw CIMException(CIM_ERR_NOT_FOUND);
 	}
@@ -296,15 +296,15 @@ void HelloWorldProvider::modifyInstance(
 
 void HelloWorldProvider::createInstance(
 	const OperationContext & context,
-	const CIMReference & instanceReference,
+	const CIMObjectPath & instanceReference,
 	const CIMInstance & instanceObject,
-	ResponseHandler<CIMReference> & handler)
+	ResponseHandler<CIMObjectPath> & handler)
 {
 	// synchronously get references
-	Array<CIMReference> references = _enumerateInstanceNames(context, instanceReference);
+	Array<CIMObjectPath> references = _enumerateInstanceNames(context, instanceReference);
 
 	// ensure the requested object do not exist
-	if(Contains<CIMReference>(references, instanceReference) == true)
+	if(Contains<CIMObjectPath>(references, instanceReference) == true)
 	{
 		throw CIMException(CIM_ERR_ALREADY_EXISTS);
 	}
@@ -329,14 +329,14 @@ void HelloWorldProvider::createInstance(
 
 void HelloWorldProvider::deleteInstance(
 	const OperationContext & context,
-	const CIMReference & instanceReference,
+	const CIMObjectPath & instanceReference,
 	ResponseHandler<CIMInstance> & handler)
 {
 	// synchronously get references
-	Array<CIMReference> references = _enumerateInstanceNames(context, instanceReference);
+	Array<CIMObjectPath> references = _enumerateInstanceNames(context, instanceReference);
 
 	// ensure the requested object exists
-	if(Contains<CIMReference>(references, instanceReference) == false)
+	if(Contains<CIMObjectPath>(references, instanceReference) == false)
 	{
 		throw CIMException(CIM_ERR_NOT_FOUND);
 	}
@@ -362,7 +362,7 @@ void HelloWorldProvider::deleteInstance(
 
 void HelloWorldProvider::provideIndication(
 	const OperationContext & context,
-	const CIMReference & classReference,
+	const CIMObjectPath & classReference,
 	const CIMDateTime & minimumInterval,
 	const CIMDateTime & maximumInterval,
 	const Array<String> & propertyList,
@@ -373,7 +373,7 @@ void HelloWorldProvider::provideIndication(
 
 void HelloWorldProvider::updateIndication(
 	const OperationContext & context,
-	const CIMReference & classReference,
+	const CIMObjectPath & classReference,
 	const CIMDateTime & minimumInterval,
 	const CIMDateTime & maximumInterval,
 	const Array<String> & propertyList,
@@ -384,7 +384,7 @@ void HelloWorldProvider::updateIndication(
 
 void HelloWorldProvider::cancelIndication(
 	const OperationContext & context,
-	const CIMReference & classReference,
+	const CIMObjectPath & classReference,
 	ResponseHandler<CIMInstance> & handler)
 {
 	handler.complete();
@@ -392,18 +392,18 @@ void HelloWorldProvider::cancelIndication(
 	
 void HelloWorldProvider::checkIndication(
 	const OperationContext & context,
-	const CIMReference & classReference,
+	const CIMObjectPath & classReference,
 	const Array<String> & propertyList,
 	ResponseHandler<CIMInstance> & handler)
 {
 	throw NotSupported("HelloWorldProvider::checkIndication");
 }
 
-Array<CIMReference> HelloWorldProvider::_enumerateInstanceNames(
+Array<CIMObjectPath> HelloWorldProvider::_enumerateInstanceNames(
 	const OperationContext & context,
-	const CIMReference & classReference)
+	const CIMObjectPath & classReference)
 {
-	SimpleResponseHandler<CIMReference> handler;
+	SimpleResponseHandler<CIMObjectPath> handler;
 
 	enumerateInstanceNames(context, classReference, handler);
 

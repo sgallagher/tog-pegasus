@@ -61,7 +61,7 @@ void test01()
     CIMClass cimClass3 = CIMClass(oclass1);
 
     assert(oclass1.getClassName() == "MyClass");
-    assert(oclass1.getPath() == CIMReference("//localhost/root/cimv2:MyClass"));
+    assert(oclass1.getPath() == CIMObjectPath("//localhost/root/cimv2:MyClass"));
 
     //
     // Construct from CIMInstance
@@ -162,7 +162,7 @@ void test02()
     
     CIMObject obj1 = class1;
 
-    CIMConstClass cclass1(CIMReference("MyClass"));
+    CIMConstClass cclass1(CIMObjectPath("MyClass"));
     CIMConstObject cobj1(class1);
     CIMConstObject cobj2(cclass1);
     CIMConstObject cobj3(obj1);
@@ -191,7 +191,7 @@ void test02()
     CIMConstObject cobj12 = cinstance;
 
     assert(cobj1.getClassName() == "MyClass");
-    assert(cobj1.getPath() == CIMReference("//localhost/root/cimv2:MyClass"));
+    assert(cobj1.getPath() == CIMObjectPath("//localhost/root/cimv2:MyClass"));
 
     // clone the instance object
     CIMObject cloneObj = cobj4.clone();
@@ -248,12 +248,12 @@ void test02()
 //*********************************************************************
 //  CIMObjectWithPath tests
 //
-//  The CIMObjectWithPath encapsulates a CIMReference and a CIMObject.
+//  The CIMObjectWithPath encapsulates a CIMObjectPath and a CIMObject.
 //*********************************************************************
 void test03()
 {
     CIMClass class1("//localhost/root/cimv2:MyClass");
-    CIMReference ref1("//localhost/root/cimv2:MyClass");
+    CIMObjectPath ref1("//localhost/root/cimv2:MyClass");
 
     CIMObjectWithPath obj1;
     CIMObjectWithPath obj2(ref1, class1);
@@ -261,10 +261,10 @@ void test03()
     CIMObjectWithPath obj4 = obj3;
 
     CIMClass class2("//localhost/root/cimv2:YourClass");
-    CIMReference ref2("//localhost/root/cimv2:YourClass");
+    CIMObjectPath ref2("//localhost/root/cimv2:YourClass");
 
     obj3.set(ref2, class2);
-    CIMReference ref3 = obj3.getReference();
+    CIMObjectPath ref3 = obj3.getReference();
    
     CIMObject myObj = obj3.getObject();
 

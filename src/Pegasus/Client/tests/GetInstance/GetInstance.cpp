@@ -43,7 +43,7 @@ int main(int argc, char** argv)
 	CIMClient client;
 	client.connect("localhost:5988");
 
-	CIMReference reference = "Process.pid=123456";
+	CIMObjectPath reference = "Process.pid=123456";
 	CIMInstance cimInstance = client.getInstance(NAMESPACE, reference);
         XmlWriter::printInstanceElement(cimInstance);
     }

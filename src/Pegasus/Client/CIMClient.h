@@ -40,7 +40,7 @@
 #include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMInstance.h>
-#include <Pegasus/Common/CIMReference.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/CIMValue.h>
 #include <Pegasus/Common/CIMParamValue.h>
 #include <Pegasus/Common/CIMNamedInstance.h>
@@ -262,7 +262,7 @@ public:
     */
     virtual CIMInstance getInstance(
 	const String& nameSpace,
-	const CIMReference& instanceName,
+	const CIMObjectPath& instanceName,
 	Boolean localOnly = true,
 	Boolean includeQualifiers = false,
 	Boolean includeClassOrigin = false,
@@ -280,7 +280,7 @@ public:
     */ 
     virtual void deleteInstance(
 	const String& nameSpace,
-	const CIMReference& instanceName
+	const CIMObjectPath& instanceName
     ) throw(CIMClientException);
 
     /** ATTN TBD
@@ -290,7 +290,7 @@ public:
 	const CIMClass& newClass
     ) throw(CIMClientException);
 
-    virtual CIMReference createInstance(
+    virtual CIMObjectPath createInstance(
 	const String& nameSpace,
 	const CIMInstance& newInstance
     ) throw(CIMClientException);
@@ -338,7 +338,7 @@ public:
     ) throw(CIMClientException);
 
     ///
-    virtual Array<CIMReference> enumerateInstanceNames(
+    virtual Array<CIMObjectPath> enumerateInstanceNames(
 	const String& nameSpace,
 	const String& className
     ) throw(CIMClientException);
@@ -353,7 +353,7 @@ public:
     ///
     virtual Array<CIMObjectWithPath> associators(
 	const String& nameSpace,
-	const CIMReference& objectName,
+	const CIMObjectPath& objectName,
 	const String& assocClass = String::EMPTY,
 	const String& resultClass = String::EMPTY,
 	const String& role = String::EMPTY,
@@ -364,9 +364,9 @@ public:
     ) throw(CIMClientException);
 
     ///
-    virtual Array<CIMReference> associatorNames(
+    virtual Array<CIMObjectPath> associatorNames(
 	const String& nameSpace,
-	const CIMReference& objectName,
+	const CIMObjectPath& objectName,
 	const String& assocClass = String::EMPTY,
 	const String& resultClass = String::EMPTY,
 	const String& role = String::EMPTY,
@@ -376,7 +376,7 @@ public:
     ///
     virtual Array<CIMObjectWithPath> references(
 	const String& nameSpace,
-	const CIMReference& objectName,
+	const CIMObjectPath& objectName,
 	const String& resultClass = String::EMPTY,
 	const String& role = String::EMPTY,
 	Boolean includeQualifiers = false,
@@ -385,9 +385,9 @@ public:
     ) throw(CIMClientException);
 
     ///
-    virtual Array<CIMReference> referenceNames(
+    virtual Array<CIMObjectPath> referenceNames(
 	const String& nameSpace,
-	const CIMReference& objectName,
+	const CIMObjectPath& objectName,
 	const String& resultClass = String::EMPTY,
 	const String& role = String::EMPTY
     ) throw(CIMClientException);
@@ -395,14 +395,14 @@ public:
     ///
     virtual CIMValue getProperty(
 	const String& nameSpace,
-	const CIMReference& instanceName,
+	const CIMObjectPath& instanceName,
 	const String& propertyName
     ) throw(CIMClientException);
 
     ////
     virtual void setProperty(
 	const String& nameSpace,
-	const CIMReference& instanceName,
+	const CIMObjectPath& instanceName,
 	const String& propertyName,
 	const CIMValue& newValue = CIMValue()
     ) throw(CIMClientException);
@@ -433,7 +433,7 @@ public:
     ///
     virtual CIMValue invokeMethod(
 	const String& nameSpace,
-	const CIMReference& instanceName,
+	const CIMObjectPath& instanceName,
 	const String& methodName,
 	const Array<CIMParamValue>& inParameters,
 	Array<CIMParamValue>& outParameters

@@ -33,7 +33,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/System.h>
-#include <Pegasus/Common/CIMReference.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 #include "InterruptProvider.h"
 #include "InterruptData.h"
 
@@ -53,7 +53,7 @@ LinuxInterruptProvider::~LinuxInterruptProvider(void)
 
 
 void LinuxInterruptProvider::getInstance(const OperationContext& context,
-					 const CIMReference& ref,
+					 const CIMObjectPath& ref,
 					 const Uint32 flags,
 					 const CIMPropertyList& propertyList,
 					 ResponseHandler<CIMInstance>& handler)
@@ -92,7 +92,7 @@ void LinuxInterruptProvider::getInstance(const OperationContext& context,
 void 
 LinuxInterruptProvider::enumerateInstances(
       				const OperationContext& context, 
-			        const CIMReference& ref, 
+			        const CIMObjectPath& ref, 
 			        const Uint32 flags, 
 			        const CIMPropertyList& propertyList,
 			        ResponseHandler<CIMInstance>& handler )
@@ -117,8 +117,8 @@ LinuxInterruptProvider::enumerateInstances(
 
 void LinuxInterruptProvider::enumerateInstanceNames(
       					const OperationContext& context,
-			  		const CIMReference& ref,
-			  		ResponseHandler<CIMReference>& handler)
+			  		const CIMObjectPath& ref,
+			  		ResponseHandler<CIMObjectPath>& handler)
 {
    InterruptData interruptData;
    InterruptData* curInterrupt;
@@ -141,7 +141,7 @@ void LinuxInterruptProvider::enumerateInstanceNames(
 
 void LinuxInterruptProvider::modifyInstance(
       				const OperationContext& context,
-			  	const CIMReference& ref,
+			  	const CIMObjectPath& ref,
 			  	const CIMInstance& instanceObject,
 			  	const Uint32 flags, 
 			  	const CIMPropertyList& propertyList,
@@ -153,9 +153,9 @@ void LinuxInterruptProvider::modifyInstance(
 
 void LinuxInterruptProvider::createInstance(
       				const OperationContext& context,
-			  	const CIMReference& ref,
+			  	const CIMObjectPath& ref,
 			  	const CIMInstance& instanceObject,
-			  	ResponseHandler<CIMReference>& handler )
+			  	ResponseHandler<CIMObjectPath>& handler )
 {
    cout << "LinuxInterruptProvider::createInstance called" << endl;
    throw NotSupported(INTERRUPTCLASSNAME"::createInstance");
@@ -163,7 +163,7 @@ void LinuxInterruptProvider::createInstance(
 
 void LinuxInterruptProvider::deleteInstance(
       				const OperationContext& context,
-			  	const CIMReference& ref,
+			  	const CIMObjectPath& ref,
 			  	ResponseHandler<CIMInstance>& handler )
 {
    cout << "LinuxInterruptProvider::deleteInstance called" << endl;
@@ -179,7 +179,7 @@ void LinuxInterruptProvider::terminate(void)
 {
 }
 
-CIMReference 
+CIMObjectPath 
 LinuxInterruptProvider::fill_reference(const String& nameSpace, 
       				       const String& className,
 				       const InterruptData* ptr)
@@ -190,7 +190,7 @@ LinuxInterruptProvider::fill_reference(const String& nameSpace,
 	    	          ptr->getIRQNumber(),
                           KeyBinding::STRING));
 
-   return CIMReference(System::getHostName(), nameSpace, className, keys);
+   return CIMObjectPath(System::getHostName(), nameSpace, className, keys);
 }
 
 CIMInstance 

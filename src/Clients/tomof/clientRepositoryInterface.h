@@ -104,7 +104,7 @@ class clientRepositoryInterface
       const String& className,
       const Boolean deepInheritance);
 
-  virtual Array<CIMReference> enumerateInstanceNames(
+  virtual Array<CIMObjectPath> enumerateInstanceNames(
 	  const String& nameSpace,
 	  const String& className);
 

@@ -49,26 +49,26 @@ public:
 	// CIMInstanceProvider interface
 	virtual void getInstance(
 		const OperationContext & context,
-		const CIMReference & ref,
+		const CIMObjectPath & ref,
 		const Uint32 flags,
 		const CIMPropertyList & propertyList,
 		ResponseHandler<CIMInstance> & handler);
 
 	virtual void enumerateInstances(
 		const OperationContext & context,
-		const CIMReference & ref,
+		const CIMObjectPath & ref,
 		const Uint32 flags,
 		const CIMPropertyList & propertyList,
 		ResponseHandler<CIMInstance> & handler);
 
 	virtual void enumerateInstanceNames(
 		const OperationContext & context,
-		const CIMReference & ref,
-		ResponseHandler<CIMReference> & handler);
+		const CIMObjectPath & ref,
+		ResponseHandler<CIMObjectPath> & handler);
 
 	virtual void modifyInstance(
 		const OperationContext & context,
-		const CIMReference & ref,
+		const CIMObjectPath & ref,
 		const CIMInstance & obj,
 		const Uint32 flags,
 		const CIMPropertyList & propertyList,
@@ -76,17 +76,17 @@ public:
 
 	virtual void createInstance(
 		const OperationContext & context,
-		const CIMReference & ref,
+		const CIMObjectPath & ref,
 		const CIMInstance & obj,
-		ResponseHandler<CIMReference> & handler);
+		ResponseHandler<CIMObjectPath> & handler);
 
 	virtual void deleteInstance(
 		const OperationContext & context,
-		const CIMReference & ref,
+		const CIMObjectPath & ref,
 		ResponseHandler<CIMInstance> & handler);
 
 protected:
-	Array<Pair<CIMReference, CIMInstance> > _instances;
+	Array<Pair<CIMObjectPath, CIMInstance> > _instances;
 
 };
 

@@ -53,26 +53,26 @@ public:
 	// CIMInstanceProvider interface
 	virtual void getInstance(
 		const OperationContext & context,
-		const CIMReference & ref,
+		const CIMObjectPath & ref,
 		const Uint32 flags,
 		const Array<String> & propertyList,
 		ResponseHandler<CIMInstance> & handler);
 
 	virtual void enumerateInstances(
 		const OperationContext & context,
-		const CIMReference & ref,
+		const CIMObjectPath & ref,
 		const Uint32 flags,
 		const Array<String> & propertyList,
 		ResponseHandler<CIMInstance> & handler);
 
 	virtual void enumerateInstanceNames(
 		const OperationContext & context,
-		const CIMReference & ref,
-		ResponseHandler<CIMReference> & handler);
+		const CIMObjectPath & ref,
+		ResponseHandler<CIMObjectPath> & handler);
 
 	virtual void modifyInstance(
 		const OperationContext & context,
-		const CIMReference & ref,
+		const CIMObjectPath & ref,
 		const CIMInstance & obj,
 		const Uint32 flags,
 		const Array<String> & propertyList,
@@ -80,19 +80,19 @@ public:
 
 	virtual void createInstance(
 		const OperationContext & context,
-		const CIMReference & ref,
+		const CIMObjectPath & ref,
 		const CIMInstance & obj,
-		ResponseHandler<CIMReference> & handler);
+		ResponseHandler<CIMObjectPath> & handler);
 
 	virtual void deleteInstance(
 		const OperationContext & context,
-		const CIMReference & ref,
+		const CIMObjectPath & ref,
 		ResponseHandler<CIMInstance> & handler);
 
 	// CIMIndicationProvider interface
 	virtual void provideIndication(
 		const OperationContext & context,
-		const CIMReference & classReference,
+		const CIMObjectPath & classReference,
 		const CIMDateTime & minimumInterval,
 		const CIMDateTime & maximumInterval,
 		const Array<String> & propertyList,
@@ -100,7 +100,7 @@ public:
 
 	virtual void updateIndication(
 		const OperationContext & context,
-		const CIMReference & classReference,
+		const CIMObjectPath & classReference,
 		const CIMDateTime & minimumInterval,
 		const CIMDateTime & maximumInterval,
 		const Array<String> & propertyList,
@@ -108,12 +108,12 @@ public:
 
 	virtual void cancelIndication(
 		const OperationContext & context,
-		const CIMReference & classReference,
+		const CIMObjectPath & classReference,
 		ResponseHandler<CIMInstance> & handler);
 
 	virtual void checkIndication(
 		const OperationContext & context,
-		const CIMReference & classReference,
+		const CIMObjectPath & classReference,
 		const Array<String> & propertyList,
 		ResponseHandler<CIMInstance> & handler);
 
@@ -156,9 +156,9 @@ public:
 
 
 protected:
-	Array<CIMReference> _enumerateInstanceNames(
+	Array<CIMObjectPath> _enumerateInstanceNames(
 		const OperationContext & context,
-		const CIMReference & classReference);
+		const CIMObjectPath & classReference);
 
 protected:
 	CIMOMHandle         _cimom;

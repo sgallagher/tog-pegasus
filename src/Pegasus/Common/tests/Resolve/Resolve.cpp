@@ -847,9 +847,9 @@ void test05()
 		.addQualifier(CIMQualifier("Association", Boolean(true)))
 
 		.addProperty(CIMProperty("ref1", 
-			CIMReference("YourClass.key1=\"fred\""),0, "refClassName"))
+			CIMObjectPath("YourClass.key1=\"fred\""),0, "refClassName"))
 		.addProperty(CIMProperty("ref2", 
-			CIMReference("MyClass.key1=\"fred\""), 0, "refClassName" ))
+			CIMObjectPath("MyClass.key1=\"fred\""), 0, "refClassName" ))
 		;
 	}
     catch (Exception& e)

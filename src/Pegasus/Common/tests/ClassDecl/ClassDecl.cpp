@@ -48,7 +48,7 @@ void test01()
 
     CIMClass class0("//localhost/root/cimv2:MyClass", "YourClass");
 
-    assert(class0.getPath() == CIMReference("//localhost/root/cimv2:MyClass"));
+    assert(class0.getPath() == CIMObjectPath("//localhost/root/cimv2:MyClass"));
 
     CIMClass class1("MyClass", "YourClass");
 

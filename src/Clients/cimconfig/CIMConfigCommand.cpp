@@ -34,7 +34,7 @@
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/CIMProperty.h>
-#include <Pegasus/Common/CIMReference.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/CIMStatusCode.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/PegasusVersion.h>
@@ -1083,7 +1083,7 @@ void CIMConfigCommand::_getPropertiesFromCIMServer
 
         kbArray.append(kb);
 
-        CIMReference reference(
+        CIMObjectPath reference(
             _hostName, INTERNAL_NAMESPACE, PG_CONFIG_CLASS, kbArray);
 
         CIMInstance cimInstance =
@@ -1139,7 +1139,7 @@ void CIMConfigCommand::_updatePropertyInCIMServer
 
         kbArray.append(kb);
 
-        CIMReference reference(
+        CIMObjectPath reference(
             _hostName, INTERNAL_NAMESPACE, PG_CONFIG_CLASS, kbArray);
 
         CIMInstance modifiedInst = CIMInstance(PG_CONFIG_CLASS);
@@ -1241,7 +1241,7 @@ void CIMConfigCommand::_listAllPropertiesInCIMServer
             //
             // call enumerateInstanceNames
             //
-            Array<CIMReference> instanceNames =
+            Array<CIMObjectPath> instanceNames =
                 _client->enumerateInstanceNames(INTERNAL_NAMESPACE, PG_CONFIG_CLASS);
 
             //

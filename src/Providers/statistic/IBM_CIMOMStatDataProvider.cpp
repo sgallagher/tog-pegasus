@@ -44,7 +44,7 @@ void IBM_CIMOMStatDataProvider::initialize(CIMOMHandle & cimom)
    for (Uint32 i=0; i<StatisticalData::length; i++){
       char buffer[32];
       sprintf(buffer, "%d", i);
-      _references[i] = CIMReference(
+      _references[i] = CIMObjectPath(
         "IBM_CIMOMStatData.instancdID=\"IBM_CIMOMStatData"+String(buffer)+"\"");
    }
 
@@ -56,12 +56,12 @@ void IBM_CIMOMStatDataProvider::terminate(void)
 
 void IBM_CIMOMStatDataProvider::getInstance(
 	const OperationContext & context,
-	const CIMReference & instanceReference,
+	const CIMObjectPath & instanceReference,
 	const Uint32 flags,
         const CIMPropertyList & propertyList,
 	ResponseHandler<CIMInstance> & handler)
 {
-	CIMReference localReference = CIMReference(
+	CIMObjectPath localReference = CIMObjectPath(
 		String(),
 		String(),
 		instanceReference.getClassName(),
@@ -87,7 +87,7 @@ void IBM_CIMOMStatDataProvider::getInstance(
 
 void IBM_CIMOMStatDataProvider::enumerateInstances(
 	const OperationContext & context,
-	const CIMReference & classReference,
+	const CIMObjectPath & classReference,
 	const Uint32 flags,
         const CIMPropertyList & propertyList,
 	ResponseHandler<CIMInstance> & handler)
@@ -108,8 +108,8 @@ void IBM_CIMOMStatDataProvider::enumerateInstances(
 
 void IBM_CIMOMStatDataProvider::enumerateInstanceNames(
 	const OperationContext & context,
-	const CIMReference & classReference,
-	ResponseHandler<CIMReference> & handler)
+	const CIMObjectPath & classReference,
+	ResponseHandler<CIMObjectPath> & handler)
 {
 	// begin processing the request
 	handler.processing();
@@ -126,7 +126,7 @@ void IBM_CIMOMStatDataProvider::enumerateInstanceNames(
 
 void IBM_CIMOMStatDataProvider::modifyInstance(
 	const OperationContext & context,
-	const CIMReference & instanceReference,
+	const CIMObjectPath & instanceReference,
 	const CIMInstance & instanceObject,
 	const Uint32 flags,
         const CIMPropertyList & propertyList,
@@ -137,16 +137,16 @@ void IBM_CIMOMStatDataProvider::modifyInstance(
 
 void IBM_CIMOMStatDataProvider::createInstance(
 	const OperationContext & context,
-	const CIMReference & instanceReference,
+	const CIMObjectPath & instanceReference,
 	const CIMInstance & instanceObject,
-	ResponseHandler<CIMReference> & handler)
+	ResponseHandler<CIMObjectPath> & handler)
 {
 	throw NotSupported("StatisticalData::createInstance");
 }
 
 void IBM_CIMOMStatDataProvider::deleteInstance(
 	const OperationContext & context,
-	const CIMReference & instanceReference,
+	const CIMObjectPath & instanceReference,
 	ResponseHandler<CIMInstance> & handler)
 {
 throw NotSupported("StatisticalData::deleteInstance");

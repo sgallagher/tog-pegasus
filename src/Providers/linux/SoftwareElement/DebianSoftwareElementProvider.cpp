@@ -56,7 +56,7 @@ DebianSoftwareElementProvider::~DebianSoftwareElementProvider(void)
 void 
 DebianSoftwareElementProvider::getInstance(
       				const OperationContext& context,
-			  	const CIMReference& ref,
+			  	const CIMObjectPath& ref,
 			  	const Uint32 flags,
 			  	const CIMPropertyList& propertyList,
 			  	ResponseHandler<CIMInstance>& handler )
@@ -135,7 +135,7 @@ DebianSoftwareElementProvider::getInstance(
 void
 DebianSoftwareElementProvider::enumerateInstances(
                           const OperationContext& context,
-			  const CIMReference& ref,
+			  const CIMObjectPath& ref,
 			  const Uint32 flags,
 			  const CIMPropertyList& propertyList,
 			  ResponseHandler<CIMInstance>& handler )
@@ -166,8 +166,8 @@ DebianSoftwareElementProvider::enumerateInstances(
 void 
 DebianSoftwareElementProvider::enumerateInstanceNames(
       				const OperationContext& context,
-			  	const CIMReference& ref,
-			  	ResponseHandler<CIMReference>& handler )
+			  	const CIMObjectPath& ref,
+			  	ResponseHandler<CIMObjectPath>& handler )
 {
    DebianPackageManagerData packageManager(DEFAULT_DEBIAN_DATABASE);
    PackageInformation* curPackage;
@@ -198,7 +198,7 @@ DebianSoftwareElementProvider::enumerateInstanceNames(
 void 
 DebianSoftwareElementProvider::modifyInstance(
       			  	const OperationContext& context,
-			  	const CIMReference& ref,
+			  	const CIMObjectPath& ref,
 			  	const CIMInstance& instanceObject,
 			  	const Uint32 flags,
 			  	const CIMPropertyList& propertyList,
@@ -211,9 +211,9 @@ DebianSoftwareElementProvider::modifyInstance(
 void 
 DebianSoftwareElementProvider::createInstance(
       			  	const OperationContext& context,
-			  	const CIMReference& ref,
+			  	const CIMObjectPath& ref,
 			  	const CIMInstance& instanceObject,
-			  	ResponseHandler<CIMReference>& handler )
+			  	ResponseHandler<CIMObjectPath>& handler )
 {
    cout << "DebianSoftwareElementProvider::createInstance called" << endl;
    throw NotSupported(DEBIANCLASSNAME "::createInstance");
@@ -222,7 +222,7 @@ DebianSoftwareElementProvider::createInstance(
 void 
 DebianSoftwareElementProvider::deleteInstance(
       				const OperationContext& context,
-			  	const CIMReference& ref,
+			  	const CIMObjectPath& ref,
 			  	ResponseHandler<CIMInstance>& handler )
 {
    cout << "DebianSoftwareElementProvider::deleteInstance called" << endl;
@@ -258,7 +258,7 @@ DebianSoftwareElementProvider::build_instance(const String& className,
 }
 
 
-CIMReference 
+CIMObjectPath 
 DebianSoftwareElementProvider::fill_reference(const String& nameSpace,
       					      const String& className,
 					      const String& packageDirectory,
@@ -289,7 +289,7 @@ DebianSoftwareElementProvider::fill_reference(const String& nameSpace,
    value = buf;
    keys.append(KeyBinding("TargetOperatingSystem", value, KeyBinding::NUMERIC));
 
-   return CIMReference(System::getHostName(), nameSpace,
+   return CIMObjectPath(System::getHostName(), nameSpace,
 		       className, keys);
 }
 

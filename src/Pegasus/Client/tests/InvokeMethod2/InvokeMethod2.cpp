@@ -43,7 +43,7 @@ const String GOODPARAM = "From Neverland";
 int main(int argc, char** argv)
 {
 
-    const CIMReference instanceName = "Sample_MethodProviderClass.Identifier=1";
+    const CIMObjectPath instanceName = "Sample_MethodProviderClass.Identifier=1";
 
     try
     {

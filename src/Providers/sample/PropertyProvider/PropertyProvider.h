@@ -47,19 +47,19 @@ public:
 	// CIMPropertyProvider interface
 	virtual void getProperty(
 		const OperationContext & context,
-		const CIMReference & instanceReference,
+		const CIMObjectPath & instanceReference,
 		const String & propertyName,
 		ResponseHandler<CIMValue> & handler);
 
 	virtual void setProperty(
 		const OperationContext & context,
-		const CIMReference & instanceReference,
+		const CIMObjectPath & instanceReference,
 		const String & propertyName,
 		const CIMValue & newValue,
 		ResponseHandler<CIMValue> & handler);
 
 protected:
-	Array<Pair<CIMReference, CIMProperty> > _properties;
+	Array<Pair<CIMObjectPath, CIMProperty> > _properties;
 
 };
 

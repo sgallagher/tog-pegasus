@@ -48,7 +48,7 @@ void MethodProvider::terminate(void)
 
 void MethodProvider::invokeMethod(
 	const OperationContext & context,
-	const CIMReference & objectReference,
+	const CIMObjectPath & objectReference,
 	const String & methodName,
 	const Array<CIMParamValue> & inParameters,
 	Array<CIMParamValue> & outParameters,
@@ -56,7 +56,7 @@ void MethodProvider::invokeMethod(
 {
 	// convert a fully qualified reference into a local reference
 	// (class name and keys only).
-	CIMReference localReference = CIMReference(
+	CIMObjectPath localReference = CIMObjectPath(
 		String(),
 		String(),
 		objectReference.getClassName(),

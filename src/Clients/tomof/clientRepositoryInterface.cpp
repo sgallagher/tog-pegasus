@@ -153,7 +153,7 @@ Array<String> clientRepositoryInterface::enumerateClassNames(
 	throw OutOfBounds();
 };
 
-Array<CIMReference> clientRepositoryInterface::enumerateInstanceNames(
+Array<CIMObjectPath> clientRepositoryInterface::enumerateInstanceNames(
 	const String& nameSpace,
 	const String& className)
 {

@@ -47,7 +47,7 @@ public:
 	// CIMAssociationProvider interface
 	virtual void associators(
 		const OperationContext & context,
-		const CIMReference & objectName,
+		const CIMObjectPath & objectName,
 		const String & associationClass,
 		const String & resultClass,
 		const String & role,
@@ -58,16 +58,16 @@ public:
 
 	virtual void associatorNames(
 		const OperationContext & context,
-		const CIMReference & objectName,
+		const CIMObjectPath & objectName,
 		const String & associationClass,
 		const String & resultClass,
 		const String & role,
 		const String & resultRole,
-		ResponseHandler<CIMReference> & handler);
+		ResponseHandler<CIMObjectPath> & handler);
 
 	virtual void references(
 		const OperationContext & context,
-		const CIMReference & objectName,
+		const CIMObjectPath & objectName,
 		const String & resultClass,
 		const String & role,
 		const Uint32 flags,
@@ -76,10 +76,10 @@ public:
 
 	virtual void referenceNames(
 		const OperationContext & context,
-		const CIMReference & objectName,
+		const CIMObjectPath & objectName,
 		const String & resultClass,
 		const String & role,
-		ResponseHandler<CIMReference> & handler);
+		ResponseHandler<CIMObjectPath> & handler);
 
 protected:
 

@@ -40,15 +40,15 @@ PropertyProvider::~PropertyProvider(void)
 
 void PropertyProvider::initialize(CIMOMHandle & cimom)
 {
-	CIMReference reference1("Sample_PropertyProviderClass.Identifier=1");
+	CIMObjectPath reference1("Sample_PropertyProviderClass.Identifier=1");
 	CIMProperty property1("Message", CIMValue("Hello World"));
 	
-	_properties.append(Pair<CIMReference, CIMProperty>(reference1, property1));
+	_properties.append(Pair<CIMObjectPath, CIMProperty>(reference1, property1));
 	
-	CIMReference reference2("Sample_PropertyProviderClass.Identifier=2");
+	CIMObjectPath reference2("Sample_PropertyProviderClass.Identifier=2");
 	CIMProperty property2("Message", CIMValue("Yo Planet"));
 	
-	_properties.append(Pair<CIMReference, CIMProperty>(reference1, property1));
+	_properties.append(Pair<CIMObjectPath, CIMProperty>(reference1, property1));
 }
 
 void PropertyProvider::terminate(void)
@@ -57,13 +57,13 @@ void PropertyProvider::terminate(void)
 
 void PropertyProvider::getProperty(
 	const OperationContext & context,
-	const CIMReference & instanceReference,
+	const CIMObjectPath & instanceReference,
 	const String & propertyName,
 	ResponseHandler<CIMValue> & handler)
 {
 	// convert a potential fully qualified reference into a local reference
 	// (class name and keys only).
-	CIMReference localReference = CIMReference(
+	CIMObjectPath localReference = CIMObjectPath(
 		String(),
 		String(),
 		instanceReference.getClassName(),
@@ -90,14 +90,14 @@ void PropertyProvider::getProperty(
 
 void PropertyProvider::setProperty(
 	const OperationContext & context,
-	const CIMReference & instanceReference,
+	const CIMObjectPath & instanceReference,
 	const String & propertyName,
 	const CIMValue & newValue,
 	ResponseHandler<CIMValue> & handler)
 {
 	// convert a potential fully qualified reference into a local reference
 	// (class name and keys only).
-	CIMReference localReference = CIMReference(
+	CIMObjectPath localReference = CIMObjectPath(
 		String(),
 		String(),
 		instanceReference.getClassName(),

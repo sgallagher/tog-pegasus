@@ -33,7 +33,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/System.h>
-#include <Pegasus/Common/CIMReference.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/Exception.h>
 
 #include "NetworkAdapterProvider.h"
@@ -59,7 +59,7 @@ LinuxNetworkAdapterProvider::~LinuxNetworkAdapterProvider(void)
 
 void
 LinuxNetworkAdapterProvider::getInstance(const OperationContext& context,
-					 const CIMReference& ref,
+					 const CIMObjectPath& ref,
 					 const Uint32 flags,
 					 const CIMPropertyList& propertyList,
 					 ResponseHandler<CIMInstance>& handler)
@@ -109,7 +109,7 @@ LinuxNetworkAdapterProvider::getInstance(const OperationContext& context,
 void
 LinuxNetworkAdapterProvider::enumerateInstances(
       				const OperationContext& context, 
-				const CIMReference& ref, 
+				const CIMObjectPath& ref, 
 				const Uint32 flags, 
 				const CIMPropertyList& propertyList,
 				ResponseHandler<CIMInstance>& handler)
@@ -154,8 +154,8 @@ LinuxNetworkAdapterProvider::enumerateInstances(
 void
 LinuxNetworkAdapterProvider::enumerateInstanceNames(
       				   const OperationContext& context,
-				   const CIMReference& ref,
-				   ResponseHandler<CIMReference>& handler )
+				   const CIMObjectPath& ref,
+				   ResponseHandler<CIMObjectPath>& handler )
 {
    int i;
    vector<String> adapter_names;
@@ -197,7 +197,7 @@ LinuxNetworkAdapterProvider::enumerateInstanceNames(
 void 
 LinuxNetworkAdapterProvider::modifyInstance(
       				const OperationContext& context,
-			  	const CIMReference& ref,
+			  	const CIMObjectPath& ref,
 			  	const CIMInstance& instanceObject,
 			  	const Uint32 flags,
 			  	const CIMPropertyList& propertyList,
@@ -209,9 +209,9 @@ LinuxNetworkAdapterProvider::modifyInstance(
 void
 LinuxNetworkAdapterProvider::createInstance(
       				const OperationContext& context,
-			  	const CIMReference& ref,
+			  	const CIMObjectPath& ref,
 			  	const CIMInstance& instanceObject,
-			  	ResponseHandler<CIMReference>& handler )
+			  	ResponseHandler<CIMObjectPath>& handler )
 {
    throw NotSupported(ref.getClassName() + "::createInstance");
 }
@@ -219,7 +219,7 @@ LinuxNetworkAdapterProvider::createInstance(
 void
 LinuxNetworkAdapterProvider::deleteInstance(
       				const OperationContext& context,
-			  	const CIMReference& ref,
+			  	const CIMObjectPath& ref,
 			  	ResponseHandler<CIMInstance>& handler )
 {
    throw NotSupported(ref.getClassName() + "::deleteInstance");
@@ -234,7 +234,7 @@ void LinuxNetworkAdapterProvider::terminate(void)
 {
 }
 
-CIMReference
+CIMObjectPath
 LinuxNetworkAdapterProvider::fill_reference(const String& nameSpace, 
 					    const String& className, 
 					    NetworkAdapterData const* ptr)
@@ -247,7 +247,7 @@ LinuxNetworkAdapterProvider::fill_reference(const String& nameSpace,
    keys.append(KeyBinding("Name", ptr->GetName(),
                           KeyBinding::STRING));
 
-   return CIMReference(System::getHostName(), nameSpace, 
+   return CIMObjectPath(System::getHostName(), nameSpace, 
 		       className, keys);
 }
 

@@ -97,7 +97,7 @@ void test01()
 
     CIMInstance instance0("//localhost/root/cimv2:MyClass.Foo=1");
 
-    assert(instance0.getPath() == CIMReference("//localhost/root/cimv2:MyClass.Foo=1"));
+    assert(instance0.getPath() == CIMObjectPath("//localhost/root/cimv2:MyClass.Foo=1"));
 
     CIMInstance instance1("MyClass");
     instance1.addQualifier(CIMQualifier("classcounter", true));
@@ -237,10 +237,10 @@ void test02()
 
 
 
-    CIMReference instanceName
+    CIMObjectPath instanceName
 	= cimInstance.getInstanceName(CIMConstClass(cimClass));
 
-    CIMReference tmp("myclass.age=101,first=\"John\",last=\"Smith\"");
+    CIMObjectPath tmp("myclass.age=101,first=\"John\",last=\"Smith\"");
 
     assert(tmp.makeHashCode() == instanceName.makeHashCode());
 }

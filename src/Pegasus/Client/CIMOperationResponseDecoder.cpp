@@ -638,11 +638,11 @@ CIMCreateInstanceResponseMessage* CIMOperationResponseDecoder::_decodeCreateInst
 	    messageId,
 	    cimException,
 	    QueueIdStack(),
-	    CIMReference()));
+	    CIMObjectPath()));
     }
     else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
     {
-	CIMReference instanceName;
+	CIMObjectPath instanceName;
 	XmlReader::getInstanceNameElement(parser, instanceName);
 
 	XmlReader::testEndTag(parser, "IRETURNVALUE");
@@ -738,11 +738,11 @@ CIMEnumerateInstanceNamesResponseMessage* CIMOperationResponseDecoder::_decodeEn
 	    messageId,
 	    cimException,
 	    QueueIdStack(),
-	    Array<CIMReference>()));
+	    Array<CIMObjectPath>()));
     }
     else
     {
-	Array<CIMReference> instanceNames;
+	Array<CIMObjectPath> instanceNames;
 
 	if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
 	{
@@ -752,7 +752,7 @@ CIMEnumerateInstanceNamesResponseMessage* CIMOperationResponseDecoder::_decodeEn
 	    while (XmlReader::getInstanceNameElement(
 	        parser, className, keyBindings))
 	    {
-	        CIMReference r(
+	        CIMObjectPath r(
 		    String::EMPTY,
 		    String::EMPTY,
 		    className,
@@ -1041,15 +1041,15 @@ CIMReferenceNamesResponseMessage* CIMOperationResponseDecoder::_decodeReferenceN
 	    messageId,
 	    cimException,
 	    QueueIdStack(),
-	    Array<CIMReference>()));
+	    Array<CIMObjectPath>()));
     }
     else
     {
-	Array<CIMReference> objectPaths;
+	Array<CIMObjectPath> objectPaths;
 
 	if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
 	{
-	    CIMReference objectPath;
+	    CIMObjectPath objectPath;
 
 	    while (XmlReader::getObjectPathElement(parser, objectPath))
 	        objectPaths.append(objectPath);
@@ -1113,15 +1113,15 @@ CIMAssociatorNamesResponseMessage* CIMOperationResponseDecoder::_decodeAssociato
 	    messageId,
 	    cimException,
 	    QueueIdStack(),
-	    Array<CIMReference>()));
+	    Array<CIMObjectPath>()));
     }
     else
     {
-	Array<CIMReference> objectPaths;
+	Array<CIMObjectPath> objectPaths;
 
 	if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
 	{
-	    CIMReference objectPath;
+	    CIMObjectPath objectPath;
 
 	    while (XmlReader::getObjectPathElement(parser, objectPath))
 	        objectPaths.append(objectPath);

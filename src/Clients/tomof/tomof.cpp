@@ -689,7 +689,7 @@ int main(int argc, char** argv)
                 {
                     for(Uint32 j = 0; j < myClassNameList.size(); j++)
                     {
-                        Array<CIMReference> instanceNames;
+                        Array<CIMObjectPath> instanceNames;
                         instanceNames = clRepository.enumerateInstanceNames(nameSpace,
                                                                             className);
                         for(Uint32 j = 0; j < instanceNames.size(); j++)

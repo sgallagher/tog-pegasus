@@ -41,7 +41,7 @@
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Common/CIMReference.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/CIMInstance.h>
 
 #include <iostream>
@@ -83,7 +83,7 @@ class LinuxIPRouteProvider : public CIMInstanceProvider
       /** Given a reference to an instance of the CIM class, fills in the data
        *  elements of the class with the details gleaned from the system. */
       void getInstance(const OperationContext& context,
-		       const CIMReference& ref,
+		       const CIMObjectPath& ref,
 		       const Uint32 flags,
 		       const CIMPropertyList& propertyList,
 		       ResponseHandler<CIMInstance>& handler );
@@ -91,7 +91,7 @@ class LinuxIPRouteProvider : public CIMInstanceProvider
       /** Returns filled instances for all instances of the CIM class detected
        *  on the system. */
       void enumerateInstances(const OperationContext& context,
-			      const CIMReference& ref,
+			      const CIMObjectPath& ref,
 			      const Uint32 flags,
 			      const CIMPropertyList& propertyList,
 			      ResponseHandler<CIMInstance>& handler );
@@ -100,13 +100,13 @@ class LinuxIPRouteProvider : public CIMInstanceProvider
        *  detected on the system, but does not fill the instances
        *  themselves. */
       void enumerateInstanceNames(const OperationContext& context,
-			          const CIMReference& ref,
-			          ResponseHandler<CIMReference>& handler );
+			          const CIMObjectPath& ref,
+			          ResponseHandler<CIMObjectPath>& handler );
 
       /** Currently unimplemented in the Pegasus source, this is a no-op
        *  here. */
       void modifyInstance(const OperationContext& context,
-		          const CIMReference& ref,
+		          const CIMObjectPath& ref,
 		          const CIMInstance& instanceObject,
 		          const Uint32 flags,
 		          const CIMPropertyList& propertyList,
@@ -115,14 +115,14 @@ class LinuxIPRouteProvider : public CIMInstanceProvider
       /** Currently unimplemented in the Pegasus source, this is a no-op
        *  here. */
       void createInstance(const OperationContext& context,
-		          const CIMReference& ref,
+		          const CIMObjectPath& ref,
 		          const CIMInstance& instanceObject,
-		          ResponseHandler<CIMReference>& handler );
+		          ResponseHandler<CIMObjectPath>& handler );
 
       /** Currently unimplemented in the Pegasus source, this is a no-op
        *  here. */
       void deleteInstance(const OperationContext& context,
-		          const CIMReference& ref,
+		          const CIMObjectPath& ref,
 		          ResponseHandler<CIMInstance>& handler );
 
       void initialize(CIMOMHandle& handle);
@@ -131,7 +131,7 @@ class LinuxIPRouteProvider : public CIMInstanceProvider
    private:
       /** Takes the route_data structure and builds a reference (a set of
        *  Key,Value pairs) for it. */
-      CIMReference fill_reference(const String& nameSpace, 
+      CIMObjectPath fill_reference(const String& nameSpace, 
 	    			  const String& className,
 			          const struct route_data* ptr);
 

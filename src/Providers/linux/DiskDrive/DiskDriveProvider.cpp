@@ -33,7 +33,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/System.h>
-#include <Pegasus/Common/CIMReference.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 #include "DiskDriveProvider.h"
 #include "DiskDriveData.h"
 #include "MediaAccessDeviceInformation.h"
@@ -54,7 +54,7 @@ LinuxDiskDriveProvider::~LinuxDiskDriveProvider(void)
 
 
 void LinuxDiskDriveProvider::getInstance(const OperationContext& context,
-					 const CIMReference& ref,
+					 const CIMObjectPath& ref,
 					 const Uint32 flags,
 					 const CIMPropertyList& propertyList,
 					 ResponseHandler<CIMInstance>& handler)
@@ -94,7 +94,7 @@ void LinuxDiskDriveProvider::getInstance(const OperationContext& context,
 void 
 LinuxDiskDriveProvider::enumerateInstances(
       				const OperationContext& context, 
-				const CIMReference& ref, 
+				const CIMObjectPath& ref, 
 				const Uint32 flags, 
 				const CIMPropertyList& propertyList,
 				ResponseHandler<CIMInstance>& handler )
@@ -120,8 +120,8 @@ LinuxDiskDriveProvider::enumerateInstances(
 void
 LinuxDiskDriveProvider::enumerateInstanceNames(
       				const OperationContext& context,
-			  	const CIMReference& ref,
-			  	ResponseHandler<CIMReference>& handler )
+			  	const CIMObjectPath& ref,
+			  	ResponseHandler<CIMObjectPath>& handler )
 {
    DiskDriveData diskdriveData;
    MediaAccessDeviceInformation *curDiskDrive;
@@ -145,7 +145,7 @@ LinuxDiskDriveProvider::enumerateInstanceNames(
 void
 LinuxDiskDriveProvider::modifyInstance(
       				const OperationContext& context,
-			  	const CIMReference& ref,
+			  	const CIMObjectPath& ref,
 			  	const CIMInstance& instanceObject,
 			  	const Uint32 flags, 
 			  	const CIMPropertyList& propertyList,
@@ -158,9 +158,9 @@ LinuxDiskDriveProvider::modifyInstance(
 void
 LinuxDiskDriveProvider::createInstance(
       				const OperationContext& context,
-			  	const CIMReference& ref,
+			  	const CIMObjectPath& ref,
 			  	const CIMInstance& instanceObject,
-			  	ResponseHandler<CIMReference>& handler )
+			  	ResponseHandler<CIMObjectPath>& handler )
 {
    cout << "LinuxDiskDriveProvider::createInstance called" << endl;
    throw NotSupported(DISKDRIVECLASSNAME"::createInstance");
@@ -169,7 +169,7 @@ LinuxDiskDriveProvider::createInstance(
 void
 LinuxDiskDriveProvider::deleteInstance(
       				const OperationContext& context,
-			  	const CIMReference& ref,
+			  	const CIMObjectPath& ref,
 			  	ResponseHandler<CIMInstance>& handler )
 {
    cout << "LinuxDiskDriveProvider::deleteInstance called" << endl;
@@ -184,7 +184,7 @@ void LinuxDiskDriveProvider::terminate(void)
 {
 }
 
-CIMReference
+CIMObjectPath
 LinuxDiskDriveProvider::fill_reference(const String& nameSpace, 
       				       const String& className, 
 				       const MediaAccessDeviceInformation* ptr)
@@ -193,7 +193,7 @@ LinuxDiskDriveProvider::fill_reference(const String& nameSpace,
 
    keys.append(KeyBinding("Name", ptr->getName(), KeyBinding::STRING));
 
-   return CIMReference(System::getHostName(), nameSpace, className, keys);
+   return CIMObjectPath(System::getHostName(), nameSpace, className, keys);
 }
 
 CIMInstance 

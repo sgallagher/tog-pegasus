@@ -33,7 +33,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/System.h>
-#include <Pegasus/Common/CIMReference.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 #include "IPRouteProvider.h"
 #include "IPV4NetInformation.h"
 #include "DeviceLocator.h"
@@ -57,7 +57,7 @@ LinuxIPRouteProvider::~LinuxIPRouteProvider(void)
 
 void
 LinuxIPRouteProvider::getInstance(const OperationContext& context,
-				  const CIMReference& ref,
+				  const CIMObjectPath& ref,
 				  const Uint32 flags,
 				  const CIMPropertyList& propertyList,
 				  ResponseHandler<CIMInstance>& handler)
@@ -125,7 +125,7 @@ LinuxIPRouteProvider::getInstance(const OperationContext& context,
 void
 LinuxIPRouteProvider::enumerateInstances(
       				const OperationContext& context, 
-				const CIMReference& ref, 
+				const CIMObjectPath& ref, 
 				const Uint32 flags, 
 				const CIMPropertyList& propertyList,
 				ResponseHandler<CIMInstance>& handler)
@@ -147,8 +147,8 @@ LinuxIPRouteProvider::enumerateInstances(
 void 
 LinuxIPRouteProvider::enumerateInstanceNames(
       				const OperationContext& context,
-			        const CIMReference& ref,
-			        ResponseHandler<CIMReference>& handler )
+			        const CIMObjectPath& ref,
+			        ResponseHandler<CIMObjectPath>& handler )
 {
    unsigned int i;
 
@@ -172,7 +172,7 @@ LinuxIPRouteProvider::enumerateInstanceNames(
 void
 LinuxIPRouteProvider::modifyInstance(
       				const OperationContext& context,
-			  	const CIMReference& ref,
+			  	const CIMObjectPath& ref,
 			  	const CIMInstance& instanceObject,
 			  	const Uint32 flags, 
 			  	const CIMPropertyList& propertyList,
@@ -184,16 +184,16 @@ LinuxIPRouteProvider::modifyInstance(
 void 
 LinuxIPRouteProvider::createInstance(
       				const OperationContext& context,
-			  	const CIMReference& ref,
+			  	const CIMObjectPath& ref,
 			  	const CIMInstance& instanceObject,
-			  	ResponseHandler<CIMReference>& handler )
+			  	ResponseHandler<CIMObjectPath>& handler )
 {
    throw NotSupported(IPROUTECLASSNAME"::createInstance");
 }
 
 void 
 LinuxIPRouteProvider::deleteInstance(const OperationContext& context,
-			  	     const CIMReference& ref,
+			  	     const CIMObjectPath& ref,
 			  	     ResponseHandler<CIMInstance>& handler )
 {
    throw NotSupported(IPROUTECLASSNAME"::deleteInstance");
@@ -208,7 +208,7 @@ void LinuxIPRouteProvider::terminate(void)
 {
 }
 
-CIMReference 
+CIMObjectPath 
 LinuxIPRouteProvider::fill_reference(const String& nameSpace, 
 				     const String& className, 
 				     struct route_data const* ptr)
@@ -226,7 +226,7 @@ LinuxIPRouteProvider::fill_reference(const String& nameSpace,
    keys.append(KeyBinding("AddressType", ptr->AddressType,
                           KeyBinding::NUMERIC));
 
-   return CIMReference(System::getHostName(), nameSpace, 
+   return CIMObjectPath(System::getHostName(), nameSpace, 
 		       className, keys);
 }
 

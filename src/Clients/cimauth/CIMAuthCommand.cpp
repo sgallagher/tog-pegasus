@@ -37,7 +37,7 @@
 
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/CIMProperty.h>
-#include <Pegasus/Common/CIMReference.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/CIMStatusCode.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
@@ -1006,7 +1006,7 @@ void CIMAuthCommand::_ModifyAuthorization
 
         kbArray.append(kb);
 
-        CIMReference reference(
+        CIMObjectPath reference(
             _hostName, INTERNAL_NAMESPACE, PG_AUTH_CLASS, kbArray);
 
         CIMInstance modifiedInst( PG_AUTH_CLASS );
@@ -1061,7 +1061,7 @@ void CIMAuthCommand::_RemoveAuthorization
 
             kbArray.append(kb);
 
-            CIMReference reference(
+            CIMObjectPath reference(
                 _hostName, INTERNAL_NAMESPACE, PG_AUTH_CLASS, kbArray);
 
             _client->deleteInstance(INTERNAL_NAMESPACE, reference);
@@ -1073,7 +1073,7 @@ void CIMAuthCommand::_RemoveAuthorization
             // names to get all the namespaces and call delete instance for
             // each of the namespaces.
             //
-            Array<CIMReference> instanceNames =
+            Array<CIMObjectPath> instanceNames =
                 _client->enumerateInstanceNames(INTERNAL_NAMESPACE, PG_AUTH_CLASS);
             //
             //

@@ -48,7 +48,7 @@ void AssociationProvider::terminate(void)
 
 void AssociationProvider::associators(
 	const OperationContext & context,
-	const CIMReference & objectName,
+	const CIMObjectPath & objectName,
 	const String & associationClass,
 	const String & resultClass,
 	const String & role,
@@ -62,19 +62,19 @@ void AssociationProvider::associators(
 
 void AssociationProvider::associatorNames(
 	const OperationContext & context,
-	const CIMReference & objectName,
+	const CIMObjectPath & objectName,
 	const String & associationClass,
 	const String & resultClass,
 	const String & role,
 	const String & resultRole,
-	ResponseHandler<CIMReference> & handler)
+	ResponseHandler<CIMObjectPath> & handler)
 {
 	throw NotSupported("AssociationProvider::associatorNames");
 }
 
 void AssociationProvider::references(
 	const OperationContext & context,
-	const CIMReference & objectName,
+	const CIMObjectPath & objectName,
 	const String & resultClass,
 	const String & role,
 	const Uint32 flags,
@@ -86,10 +86,10 @@ void AssociationProvider::references(
 
 void AssociationProvider::referenceNames(
 	const OperationContext & context,
-	const CIMReference & objectName,
+	const CIMObjectPath & objectName,
 	const String & resultClass,
 	const String & role,
-	ResponseHandler<CIMReference> & handler)
+	ResponseHandler<CIMObjectPath> & handler)
 {
 	throw NotSupported("AssociationProvider::referenceNames");
 }

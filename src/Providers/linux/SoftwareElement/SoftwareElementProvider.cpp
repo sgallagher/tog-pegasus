@@ -33,7 +33,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/System.h>
-#include <Pegasus/Common/CIMReference.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 #include "SoftwareElementProvider.h"
 
 #include <iostream>
@@ -42,7 +42,7 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-CIMReference 
+CIMObjectPath 
 SoftwareElementProvider::fill_reference(const String& nameSpace, 
       				        const String& className, 
 					const PackageInformation* ptr)
@@ -52,7 +52,7 @@ SoftwareElementProvider::fill_reference(const String& nameSpace,
    keys.append(KeyBinding("Name", ptr->GetName(),
 			  KeyBinding::STRING));
 
-   return CIMReference(System::getHostName(), nameSpace, 
+   return CIMObjectPath(System::getHostName(), nameSpace, 
 		       className, keys);
 }
 

@@ -47,7 +47,7 @@ public:
 	// CIMMethodProviderFacade
 	virtual void invokeMethod(
 		const OperationContext & context,
-		const CIMReference & objectReference,
+		const CIMObjectPath & objectReference,
 		const String & methodName,
 		const Array<CIMParamValue> & inParameters,
 		Array<CIMParamValue> & outParameters,

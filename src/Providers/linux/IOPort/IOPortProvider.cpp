@@ -33,7 +33,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/System.h>
-#include <Pegasus/Common/CIMReference.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 #include "IOPortProvider.h"
 #include "DeviceTypes.h"
 #include "DeviceLocator.h"
@@ -55,7 +55,7 @@ LinuxIOPortProvider::~LinuxIOPortProvider(void)
 
 void 
 LinuxIOPortProvider::getInstance(const OperationContext& context,
-				 const CIMReference& ref,
+				 const CIMObjectPath& ref,
 				 const Uint32 flags,
 				 const CIMPropertyList& propertyList,
 				 ResponseHandler<CIMInstance>& handler)
@@ -114,7 +114,7 @@ LinuxIOPortProvider::getInstance(const OperationContext& context,
 void 
 LinuxIOPortProvider::enumerateInstances(
       				const OperationContext& context, 
-				const CIMReference& ref, 
+				const CIMObjectPath& ref, 
 				const Uint32 flags, 
 				const CIMPropertyList& propertyList,
 				ResponseHandler<CIMInstance>& handler)
@@ -156,8 +156,8 @@ LinuxIOPortProvider::enumerateInstances(
 void 
 LinuxIOPortProvider::enumerateInstanceNames(
       				const OperationContext& context,
-				const CIMReference& ref,
-				ResponseHandler<CIMReference>& handler )
+				const CIMObjectPath& ref,
+				ResponseHandler<CIMObjectPath>& handler )
 {
    IOPortInformation* located_port;
    String className;
@@ -197,7 +197,7 @@ LinuxIOPortProvider::enumerateInstanceNames(
 void
 LinuxIOPortProvider::modifyInstance(
       				const OperationContext& context,
-			  	const CIMReference& ref,
+			  	const CIMObjectPath& ref,
 			  	const CIMInstance& instanceObject,
 			  	const Uint32 flags,
 			  	const CIMPropertyList& propertyList,
@@ -210,9 +210,9 @@ LinuxIOPortProvider::modifyInstance(
 void 
 LinuxIOPortProvider::createInstance(
       				const OperationContext& context,
-			  	const CIMReference& ref,
+			  	const CIMObjectPath& ref,
 			  	const CIMInstance& instanceObject,
-			  	ResponseHandler<CIMReference>& handler )
+			  	ResponseHandler<CIMObjectPath>& handler )
 {
    cout << "LinuxIOPortProvider::createInstance called" << endl;
    throw NotSupported(IOPORTCLASSNAME "::createInstance");
@@ -221,7 +221,7 @@ LinuxIOPortProvider::createInstance(
 void 
 LinuxIOPortProvider::deleteInstance(
       				const OperationContext& context,
-			  	const CIMReference& ref,
+			  	const CIMObjectPath& ref,
 			  	ResponseHandler<CIMInstance>& handler )
 {
    cout << "LinuxIOPortProvider::deleteInstance called" << endl;
@@ -236,7 +236,7 @@ void LinuxIOPortProvider::terminate(void)
 {
 }
 
-CIMReference 
+CIMObjectPath 
 LinuxIOPortProvider::fill_reference(const String& nameSpace, 
 				    const String& className, 
 				    struct IOPortInformation const* ptr)
@@ -248,7 +248,7 @@ LinuxIOPortProvider::fill_reference(const String& nameSpace,
    keys.append(KeyBinding("StartingAddress", ptr->getStartingAddress(),
                           KeyBinding::STRING));
 
-   return CIMReference(System::getHostName(), nameSpace, 
+   return CIMObjectPath(System::getHostName(), nameSpace, 
 		       className, keys);
 }
 

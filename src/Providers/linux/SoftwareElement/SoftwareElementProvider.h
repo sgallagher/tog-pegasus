@@ -39,7 +39,7 @@
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Common/CIMReference.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/CIMInstance.h>
 #include "PackageInformation.h"
 
@@ -56,44 +56,44 @@ class SoftwareElementProvider : public CIMInstanceProvider
       virtual ~SoftwareElementProvider() {};
 
       virtual void getInstance(const OperationContext& context,
-			       const CIMReference& ref,
+			       const CIMObjectPath& ref,
 			       const Uint32 flags,
 			       const CIMPropertyList& propertyList,
 			       ResponseHandler<CIMInstance>& handler) = 0;
 
       virtual void enumerateInstances(
 	    		       const OperationContext& context,
-			       const CIMReference& ref,
+			       const CIMObjectPath& ref,
 			       const Uint32 flags,
 			       const CIMPropertyList& propertyList,
 			       ResponseHandler<CIMInstance>& handler) = 0;
 
       virtual void enumerateInstanceNames(
 	    			const OperationContext& context,
-				const CIMReference &ref,
-				ResponseHandler<CIMReference>& handler) = 0;
+				const CIMObjectPath &ref,
+				ResponseHandler<CIMObjectPath>& handler) = 0;
 
       virtual void modifyInstance(const OperationContext& context,
-				  const CIMReference& ref,
+				  const CIMObjectPath& ref,
 				  const CIMInstance& instanceObject,
 				  const Uint32 flags,
 				  const CIMPropertyList& propertyList,
 				  ResponseHandler<CIMInstance>& handler) = 0;
 
       virtual void createInstance(const OperationContext& context,
-				  const CIMReference& ref,
+				  const CIMObjectPath& ref,
 				  const CIMInstance& instanceObject,
-				  ResponseHandler<CIMReference>& handler) = 0;
+				  ResponseHandler<CIMObjectPath>& handler) = 0;
 
       virtual void deleteInstance(const OperationContext& context,
-				  const CIMReference& ref,
+				  const CIMObjectPath& ref,
 				  ResponseHandler<CIMInstance>& handler) = 0;
 
       virtual void initialize(CIMOMHandle& handle) = 0;
       virtual void terminate(void) = 0;
 
    protected:
-      virtual CIMReference fill_reference(const String& nameSpace, 
+      virtual CIMObjectPath fill_reference(const String& nameSpace, 
 	    				  const String& className,
 				          const PackageInformation* ptr);
 

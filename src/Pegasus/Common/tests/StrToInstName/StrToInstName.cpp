@@ -27,7 +27,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cassert>
-#include <Pegasus/Common/CIMReference.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -36,7 +36,7 @@ static char * verbose;
 void test(const String& instanceName)
 {
 
-    CIMReference reference = instanceName;
+    CIMObjectPath reference = instanceName;
     assert(instanceName == reference.toString());
 }
 
@@ -45,7 +45,7 @@ int main(int argc, char** argv)
     verbose = getenv("PEGASUS_TEST_VERBOSE");
     try
     {
-	CIMReference reference;
+	CIMObjectPath reference;
 	String instanceName;
 	
 	test("X.key1=\"Hello World\"");

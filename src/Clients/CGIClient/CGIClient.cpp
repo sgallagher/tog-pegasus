@@ -1119,7 +1119,7 @@ static void GetQualifier(const CGIQueryString& qs)
 /** PrintInstanceNames
     Prints the HTML form for the names provided in the
     String array of instancenames. Note that the instance names
-    are provided as an array of CIMReference.
+    are provided as an array of CIMObjectPath.
     The table created includes an href for each name so that
     a click on the href entry will get the instance
     Note that we assume the defaults for the extra
@@ -1131,7 +1131,7 @@ static void GetQualifier(const CGIQueryString& qs)
 static void PrintObjectNames(
     const String& header,
     const String& nameSpace,
-    const Array<CIMReference>& instanceNames,
+    const Array<CIMObjectPath>& instanceNames,
     double elapsedTime)
 {
     PrintHTMLHead("GetInstanceNames", header);
@@ -1229,10 +1229,10 @@ static void EnumerateInstanceNames(const CGIQueryString& qs)
 	client.connect(hostinfo.getAddress());
 
 	// Call enumerate Instances CIM Method
-	Array<CIMReference> instanceNames = client.enumerateInstanceNames(
+	Array<CIMObjectPath> instanceNames = client.enumerateInstanceNames(
 	    nameSpace, className);
 
-	// Print the CIMReference array
+	// Print the CIMObjectPath array
 	PrintObjectNames( "EnumerateInstanceNames Result",
 	    nameSpace, instanceNames, elapsedTime.getElapsed());
         }
@@ -1264,7 +1264,7 @@ static void GetInstance(const CGIQueryString& qs)
 	ErrorExit("Missing InstanceName field");
 
     // KSREVIEWKS: This must be modified for the toString
-    CIMReference referenceName;
+    CIMObjectPath referenceName;
     try
     {
 	referenceName = tmp;
@@ -1427,7 +1427,7 @@ static void EnumerateInstances(const CGIQueryString& qs)
     cout << "DEBUG GetProperty " << __LINE__
 	<< " Name " << inputInstanceName << endl;
     // This must be modified for the toString KSREVIEW KS
-    CIMReference referenceName;
+    CIMObjectPath referenceName;
 
     // Convert instanceName to referenceName
     try
@@ -1594,7 +1594,7 @@ static void DeleteNameSpace(const CGIQueryString& qs)
     instanceName.append("\"");
 
     // Create Instance Reference. Name must be in form Reference
-    CIMReference referenceName;
+    CIMObjectPath referenceName;
     try
     {
 	referenceName = instanceName;
@@ -1657,10 +1657,10 @@ static void EnumerateNameSpaces(const CGIQueryString& qs)
 	client.connect(hostinfo.getAddress());
 
 	// Call enumerate Instances CIM Method
-	Array<CIMReference> instanceNames = client.enumerateInstanceNames(
+	Array<CIMObjectPath> instanceNames = client.enumerateInstanceNames(
 	    nameSpace, className);
 
-	// Convert from CIMReference to String form
+	// Convert from CIMObjectPath to String form
 	Array<String> tmpInstanceNames;
 
         for (Uint32 i = 0; i < instanceNames.size(); i++)
@@ -2049,7 +2049,7 @@ static void AllInstances(const  CGIQueryString& qs)
 	PrintHTMLHead("EnumerateAllInstances", "Enumerate Classes with Instances");
 
 
-        Array<CIMReference> instanceNames;
+        Array<CIMObjectPath> instanceNames;
 
         for (Uint32 i = 0; i < classNames.size(); i++)
         {
@@ -2104,15 +2104,15 @@ static void ReferenceNames(const CGIQueryString& qs)
 	HostInfo hostinfo;
 	client.connect(hostinfo.getAddress());
 
-	Array<CIMReference> objectReferences; 
+	Array<CIMObjectPath> objectReferences; 
 	objectReferences = client.referenceNames(
 		    nameSpace,
 		    objectName,
 		    resultClass,
 		    role);
-	// Generate table of returned CIMReferences
+	// Generate table of returned CIMObjectPath
 	// Similar to Instance names response.
-	// Print the CIMReference array
+	// Print the CIMObjectPath array
 	PrintObjectNames( "EnumerateReferenceNames Result",
 	    nameSpace, objectReferences, elapsedTime.getElapsed());
 
@@ -2135,7 +2135,7 @@ static void AssociatorNames(const CGIQueryString& qs)
     const char* tmp;
 
     //Finish this one.
-    CIMReference objectNameRef;
+    CIMObjectPath objectNameRef;
     String objectName;
     if ((tmp = qs.findValue("ObjectName")))
 	objectName = tmp;
@@ -2167,7 +2167,7 @@ static void AssociatorNames(const CGIQueryString& qs)
 	HostInfo hostinfo;
 	client.connect(hostinfo.getAddress());
 
-	Array<CIMReference> objectReferences; 
+	Array<CIMObjectPath> objectReferences; 
 	objectReferences = client.associatorNames(
 	    nameSpace,
 	    objectName,
@@ -2176,7 +2176,7 @@ static void AssociatorNames(const CGIQueryString& qs)
 	    role,
 	    resultRole);
 
-	// Generate table of returned CIMReferences
+	// Generate table of returned CIMObjectPath
 	// Similar to Instance names response.
 
 	PrintObjectNames( "EnumerateAssociationNames Result",

@@ -44,7 +44,7 @@ int main(int argc, char** argv)
 
 	String instanceName = "Process.pid=123456";
 
-	Array<CIMReference> instanceNames = 
+	Array<CIMObjectPath> instanceNames = 
 	    client.enumerateInstanceNames(NAMESPACE, "Process");
 
 	for (Uint32 i = 0; i < instanceNames.size(); i++)

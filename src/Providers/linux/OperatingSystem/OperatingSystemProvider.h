@@ -46,7 +46,7 @@
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Common/CIMReference.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/CIMInstance.h>
 
 #include <iostream>
@@ -64,7 +64,7 @@ class OperatingSystemProvider: public CIMInstanceProvider,
       /** Given a reference to an instance of the CIM class, fills in the data
        *  elements of the class with the details gleaned from the system. */
       void getInstance(const OperationContext& context, 
-		       const CIMReference& ref, 
+		       const CIMObjectPath& ref, 
 		       const Uint32 flags, 
 		       const CIMPropertyList& propertyList,
 		       ResponseHandler<CIMInstance>& handler);
@@ -72,7 +72,7 @@ class OperatingSystemProvider: public CIMInstanceProvider,
       /** Returns filled instances for all instances of the CIM class detected
        *  on the system. */
       void enumerateInstances(const OperationContext& context, 
-			      const CIMReference& ref, 
+			      const CIMObjectPath& ref, 
 			      const Uint32 flags,
 			      const CIMPropertyList& propertyList,
 			      ResponseHandler<CIMInstance>& handler);
@@ -81,13 +81,13 @@ class OperatingSystemProvider: public CIMInstanceProvider,
        *  detected on the system, but does not fill the instances
        *  themselves. */
       void enumerateInstanceNames(const OperationContext& context, 
-			          const CIMReference& ref,
-			          ResponseHandler<CIMReference>& handler);
+			          const CIMObjectPath& ref,
+			          ResponseHandler<CIMObjectPath>& handler);
    
       /** Currently unimplemented in the Pegasus source, this is a no-op
        *  here. */
       void modifyInstance(const OperationContext& context,
-		          const CIMReference& ref,
+		          const CIMObjectPath& ref,
 		          const CIMInstance& instanceObject,
 		          const Uint32 flags,
 		          const CIMPropertyList& propertyList,
@@ -96,14 +96,14 @@ class OperatingSystemProvider: public CIMInstanceProvider,
       /** Currently unimplemented in the Pegasus source, this is a no-op
        *  here. */
       void createInstance(const OperationContext& context,
-		          const CIMReference& ref,
+		          const CIMObjectPath& ref,
 		          const CIMInstance& instanceObject,
-		          ResponseHandler<CIMReference>& handler );
+		          ResponseHandler<CIMObjectPath>& handler );
  
       /** Currently unimplemented in the Pegasus source, this is a no-op
        *  here. */
       void deleteInstance(const OperationContext& context,
-		          const CIMReference& ref,
+		          const CIMObjectPath& ref,
 		          ResponseHandler<CIMInstance>& handler );
  
       void initialize(CIMOMHandle& handle);
@@ -114,7 +114,7 @@ class OperatingSystemProvider: public CIMInstanceProvider,
       Uint32 Shutdown();
 
       void invokeMethod(const OperationContext& context,
-	                const CIMReference& objectReference,
+	                const CIMObjectPath& objectReference,
 			const String& methodName,
 			const Array<CIMParamValue>& inParameters,
 			Array<CIMParamValue>& outParameters,
@@ -125,7 +125,7 @@ class OperatingSystemProvider: public CIMInstanceProvider,
       CIMInstance _build_instance(const String &className);
 
       /** Builds a reference (a set of Key,Value pairs) */
-      CIMReference _fill_reference(const String &nameSpace, 
+      CIMObjectPath _fill_reference(const String &nameSpace, 
 			           const String &className);
     
       /** Get the values needed */

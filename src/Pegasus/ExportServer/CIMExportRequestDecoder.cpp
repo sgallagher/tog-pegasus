@@ -545,7 +545,7 @@ CIMExportIndicationRequestMessage* CIMExportRequestDecoder::decodeExportIndicati
 {
    CIMInstance instanceName;
 
-   for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+   for (const char* name; XmlReader::getEParamValueTag(parser, name);)
    {
       if (System::strcasecmp(name, "NewIndication") == 0)
 	 XmlReader::getInstanceElement(parser, instanceName);

@@ -11,7 +11,7 @@ Man: http://www.dmtf.org/cim/mapping/http/v1.0 ; ns=40
  <MESSAGE ID="1007" PROTOCOLVERSION="1.0">
   <SIMPLEEXPREQ>
    <EXPMETHODCALL NAME="ExportIndication">
-    <IPARAMVALUE NAME="NewIndication">
+    <EXPPARAMVALUE NAME="NewIndication">
      <INSTANCE CLASSNAME="PG_IndicationConsumerRegistration" >
       <PROPERTY NAME="ConsumerId" TYPE="string">
        <VALUE>cimom/Pegasus_RT_IndicationConsumer</VALUE>
@@ -23,7 +23,7 @@ Man: http://www.dmtf.org/cim/mapping/http/v1.0 ; ns=40
        <VALUE>2</VALUE>
       </PROPERTY>
      </INSTANCE>
-    </IPARAMVALUE>
+    </EXPPARAMVALUE>
    </EXPMETHODCALL>
  </SIMPLEEXPREQ>
 </MESSAGE>

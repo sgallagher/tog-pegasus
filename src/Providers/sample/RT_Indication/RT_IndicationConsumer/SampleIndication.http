@@ -23,7 +23,7 @@ Man: http://www.dmtf.org/cim/mapping/http/v1.0 ; ns=40
        <VALUE>NONE</VALUE>
       </PROPERTY>
      </INSTANCE>
-    </IPARAMVALUE>
+    </EXPPARAMVALUE>
    </EXPMETHODCALL>
  </SIMPLEEXPREQ>
 </MESSAGE>

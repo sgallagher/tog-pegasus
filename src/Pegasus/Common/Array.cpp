@@ -29,7 +29,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -38,6 +39,10 @@
 PEGASUS_NAMESPACE_BEGIN
 
 #define PEGASUS_ARRAY_T Boolean
+#include <Pegasus/Common/ArrayImpl.h>
+#undef PEGASUS_ARRAY_T
+
+#define PEGASUS_ARRAY_T char
 #include <Pegasus/Common/ArrayImpl.h>
 #undef PEGASUS_ARRAY_T
 

@@ -769,36 +769,39 @@ Boolean CQLValueRep::isNull()
 
 
 Boolean CQLValueRep::isa(const CQLChainedIdentifier& inID,QueryContext& QueryCtx)
-{
+{ 
   PEG_METHOD_ENTER(TRC_CQL,"CQLValueRep::isa()");
-   if(!_isResolved || 
-      (_valueType != CQLValue::CIMObject_type))
-     {
-       MessageLoaderParms mload(String("CQL.CQLValueRep.ISA_TYPE_MISMATCH"),
-				String("The type is not an object."));
-       throw CQLRuntimeException(mload);
-     }
-   
-   CIMName className;
-   CIMObject obj;
+  if(!_isResolved || 
+     (_valueType != CQLValue::CIMObject_type))
+    {
+      MessageLoaderParms mload(String("CQL.CQLValueRep.ISA_TYPE_MISMATCH"),
+			       String("The type is not an object."));
+      throw CQLRuntimeException(mload);
+    }
+  
+  CIMName className;
+  CIMName isaName;
+  CIMObject obj;
+  
+  _theValue.get(obj);
+  
+  className = obj.getClassName();
+  isaName = inID[0].getName();
+  
+  Array<CIMName> cimNames = QueryCtx.enumerateClassNames(isaName);
+  cimNames.append(isaName);
 
-   _theValue.get(obj);
-
-   className = obj.getClassName();
-   cout << inID[0].getName().getString() << endl;
-   Array<CIMName> cimNames = QueryCtx.enumerateClassNames(inID[0].getName());
-
-   for(Uint32 i = 0; i < cimNames.size() ; ++i)
-     {
-       cout << cimNames[i].getString() << " = " << className.getString() << endl;
-       if(cimNames[i] == className)
-	 {
-	   PEG_METHOD_EXIT();
-	   return true;
-	 }
-     }
-   PEG_METHOD_EXIT();
-   return false;
+  for(Uint32 i = 0; i < cimNames.size() ; ++i)
+    {
+      
+      if(cimNames[i] == className)
+	{
+	  PEG_METHOD_EXIT();
+	  return true;
+	}
+    }
+  PEG_METHOD_EXIT();
+  return false;
 }
 
 
@@ -1571,8 +1574,6 @@ void CQLValueRep::_resolveSymbolicConstant(const QueryContext& inQueryCtx)
      className = _CQLChainId[0].getName();
    }
 
-   PEGASUS_STD(cout) << _CQLChainId.toString() << PEGASUS_STD(endl);
-
    QueryClass = inQueryCtx.getClass(className);
 
    Uint32 propertyIndex = 
@@ -1606,6 +1607,7 @@ void CQLValueRep::_resolveSymbolicConstant(const QueryContext& inQueryCtx)
    }
 
    valueMap = queryPropObj.getQualifier(qualIndex).getValue();
+
    qualIndex = queryPropObj.findQualifier(CIMName("Values"));
 
    if(qualIndex == PEG_NOT_FOUND)
@@ -1751,11 +1753,6 @@ Boolean CQLValueRep::_compareObjects(CIMObject& _in1, CIMObject& _in2)
 			}
 		      else
 			{
-			  cout << "object:   " << _in1.getPath().toString() << endl;
-			  cout << "property: " << prop1[i].getName().getString() << endl;
-
-			  cout << "object:   " << _in2.getPath().toString() << endl;
-			  cout << "property: " << prop2[j].getName().getString() << endl;
 			  result = false;
 			  break;
 			}

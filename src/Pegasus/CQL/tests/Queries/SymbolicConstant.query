@@ -30,11 +30,11 @@ select * from CIM_ComputerSystem where #'Enabled' = EnabledState#'Disabled'
 
 #Query on symbolic constant qualified with scope comparison with unqualified SC. Result is FALSE
 #Note that the scope of the SC is not related to the FROM.
-select * from CIM_ComputerSystem where CIM_LogicalDevice::OperationalStatus#'Error' = #'OK'
+select * from CIM_ComputerSystem where CIM_LogicalDevice::OperationalStatus#'Error' = 6
    
 #Query on symbolic constant qualified with scope comparison with unqualified SC. Result is FALSE
 #Note that the scope of the SC is not related to the FROM.
-select * from CIM_ComputerSystem where #'OK' = CIM_LogicalDevice::OperationalStatus#'Error
+select * from CIM_ComputerSystem where #'OK' = CIM_LogicalDevice::OperationalStatus#'Error'
 
 #Query on 2 fully qualified symbolic constants comparison with an invalid SC name. Result Exception.
 select * from CIM_ComputerSystem where CIM_ComputerSystem.EnabledState#'Enabled' = CIM_ComputerSystem.EnabledState#'Bogus' 

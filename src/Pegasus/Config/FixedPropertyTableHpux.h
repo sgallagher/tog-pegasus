@@ -28,6 +28,7 @@
 // Author: Jenny Yu, Hewlett-Packard Company (jenny.yu@hp.com)
 //
 // Modified By: Sushma Fernandes,  Hewlett-Packard Company sushma_fernandes@hp.com
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //            
 //
 //%/////////////////////////////////////////////////////////////////////////////
@@ -50,6 +51,7 @@
     {"httpAuthType",        "Basic"},
     {"repositoryIsDefaultInstanceProvider", "false"},
     {"enableBinaryRepository", "false"},
+    {"maxProviderProcesses", "0"},
 #endif
 
 #ifdef PEGASUS_USE_RELEASE_DIRS

@@ -28,6 +28,7 @@
 // Author: Jenny Yu, Hewlett-Packard Company (jenny.yu@hp.com)
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company (carolann_graves@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              
 //
 //%/////////////////////////////////////////////////////////////////////////////
@@ -48,7 +49,8 @@
     // Removed for now because unresolved PEP {"maximumEnumerationBreadth", "50", 0, 0, 0},
     {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, 0, 0, 0, 1},
     {"sslClientVerificationMode", "disabled", 0, 0, 0, 1},
-    {"enableProviderProcesses", "false", 0, 0, 0, 1}
+    {"forceProviderProcesses", "false", 0, 0, 0, 1},
+    {"maxProviderProcesses", "0", 0, 0, 0, 1}
 #else
     {"httpPort", "5988", 0, 0, 0, 1},
     {"httpsPort", "5989", 0, 0, 0, 1},
@@ -62,7 +64,8 @@
     {"maximumEnumerationBreadth", "50", 0, 0, 0, 1},
     {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, 0, 0, 0, 1},
     {"sslClientVerificationMode", "disabled", 0, 0, 0, 1},
-    {"enableProviderProcesses", "false", 0, 0, 0, 1}
+    {"forceProviderProcesses", "false", 0, 0, 0, 1},
+    {"maxProviderProcesses", "0", 0, 0, 0, 1}
 #endif
 
 #endif /* Pegasus_DefaultPropertyTableHpux_h */

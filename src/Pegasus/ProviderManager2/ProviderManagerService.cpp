@@ -100,7 +100,7 @@ ProviderManagerService::ProviderManagerService(
     // Determine whether Out-of-Process Provider support is enabled
     ConfigManager* configManager = ConfigManager::getInstance();
     if (String::equal(
-        configManager->getCurrentValue("enableProviderProcesses"), "true"))
+        configManager->getCurrentValue("forceProviderProcesses"), "true"))
     {
         _providerManagerRouter =
             new OOPProviderManagerRouter(indicationCallback);

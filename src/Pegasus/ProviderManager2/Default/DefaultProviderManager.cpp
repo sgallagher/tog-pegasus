@@ -2142,12 +2142,6 @@ Message * DefaultProviderManager::handleEnableIndicationsRequest(const Message *
         CIMException(),
         request->queueIds.copyAndPop());
 
-    CIMEnableIndicationsResponseMessage * responseforhandler =
-        new CIMEnableIndicationsResponseMessage(
-        request->messageId,
-        CIMException(),
-        request->queueIds.copyAndPop());
-
     PEGASUS_ASSERT(response != 0);
 
     // preserve message key

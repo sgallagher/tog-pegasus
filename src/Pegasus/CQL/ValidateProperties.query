@@ -1,0 +1,83 @@
+# Validate Properties testcases
+# TODO - WHERE testcases will not work yet
+# TODO - add embedded object tests
+#
+# First chain element is a property not on the FROM class
+SELECT NonExistent FROM CQL_TestElement
+SELECT * FROM CQL_TestElement WHERE NonExistent = 3
+SELECT PropertyString FROM CQL_TestElement
+SELECT * FROM CQL_TestElement WHERE PropertyString = 'abc'
+# 
+# Multiple chain elements, one property not on the FROM class
+SELECT InstanceID, NotThere FROM CQL_TestElement
+SELECT NotThere1, NotThere2 FROM CQL_TestElement
+SELECT * FROM CQL_TestElement WHERE InstanceID = 3 AND NotThere = 'abc'
+#
+# First chain element is a property on the FROM class
+SELECT InstanceID FROM CQL_TestElement
+SELECT * FROM CQL_TestElement WHERE InstanceID = 3
+SELECT InstanceID FROM CQL_TestPropertyTypes
+SELECT * FROM CQL_TestPropertyTypes WHERE InstanceID = 3
+#
+# First chain element is not the FROM class
+SELECT CQL_NonExistent.InstanceID FROM CQL_TestElement
+SELECT * FROM CQL_TestElement WHERE CQL_NonExistent.InstanceID = 3
+#
+# First chain element is the FROM class
+SELECT CQL_TestElement.InstanceID FROM CQL_TestElement
+SELECT * FROM CQL_TestElement WHERE CQL_TestElement.InstanceID = 3
+SELECT alias.InstanceID FROM CQL_TestElement alias
+SELECT * FROM CQL_TestElement alias WHERE alias.InstanceID = 3
+#
+# First chain element is the FROM class, but invalid property
+SELECT CQL_TestElement.NotThere FROM CQL_TestElement
+SELECT * FROM CQL_TestElement WHERE CQL_TestElement.NotThere = 3
+SELECT alias.NotThere FROM CQL_TestElement alias
+SELECT * FROM CQL_TestElement alias WHERE alias.NotThere = 3
+#
+# Scoping tests - scoping class does not exist
+SELECT CQL_NotThere::someprop FROM CQL_TestElement
+SELECT CQL_TestElement.CQL_NotThere::someprop FROM CQL_TestElement
+SELECT alias.CQL_NotThere::someprop FROM CQL_TestElement alias
+#
+# Scoping tests - scoping class exists but not related to FROM
+SELECT CIM_ComputerSystem::EnabledState FROM CQL_TestElement
+SELECT CQL_TestElement.CIM_ComputerSystem::EnabledState FROM CQL_TestElement alias
+SELECT alias.CIM_ComputerSystem::EnabledState FROM CQL_TestElement as alias
+#
+# Scoping tests - scoping class is superclass of FROM
+SELECT CQL_TestElement::InstanceID FROM CQL_TestPropertyTypes
+SELECT CQL_TestPropertyTypes.CQL_TestElement::InstanceID FROM CQL_TestPropertyTypes
+SELECT alias.CQL_TestElement::InstanceID FROM CQL_TestPropertyTypes alias
+#
+# Scoping tests - scoping class is the FROM
+SELECT CQL_TestPropertyTypes::InstanceID FROM CQL_TestPropertyTypes
+SELECT CQL_TestPropertyTypes.CQL_TestPropertyTypes::InstanceID FROM CQL_TestPropertyTypes
+SELECT alias.CQL_TestPropertyTypes::InstanceID FROM CQL_TestPropertyTypes alias
+SELECT CQL_TestPropertyTypes::PropertyString FROM CQL_TestPropertyTypes
+SELECT CQL_TestPropertyTypes.CQL_TestPropertyTypes::PropertyString FROM CQL_TestPropertyTypes
+SELECT alias.CQL_TestPropertyTypes::PropertyString FROM CQL_TestPropertyTypes alias
+SELECT alias::InstanceID FROM CQL_TestPropertyTypes as alias
+SELECT CQL_TestPropertyTypes.alias::InstanceID FROM CQL_TestPropertyTypes as alias
+SELECT alias.alias::InstanceID FROM CQL_TestPropertyTypes as alias
+SELECT alias::PropertyString FROM CQL_TestPropertyTypes as alias
+SELECT CQL_TestPropertyTypes.alias::PropertyString FROM CQL_TestPropertyTypes as alias
+SELECT alias.alias::PropertyString FROM CQL_TestPropertyTypes as alias
+#
+# Scoping tests - scoping class is subclass of FROM
+SELECT CQL_TestPropertyTypes::InstanceID FROM CQL_TestElement
+SELECT CQL_TestElement.CQL_TestPropertyTypes::InstanceID FROM CQL_TestElement
+SELECT alias.CQL_TestPropertyTypes::InstanceID FROM CQL_TestElement as alias
+SELECT CQL_TestPropertyTypes::PropertyString FROM CQL_TestElement
+SELECT CQL_TestElement.CQL_TestPropertyTypes::PropertyString FROM CQL_TestElement
+SELECT alias.CQL_TestPropertyTypes::PropertyString FROM CQL_TestElement as alias
+#
+# Scoping tests - property does not exist on the scoping class
+SELECT CQL_TestElement::PropertyString FROM CQL_TestPropertyTypes
+SELECT CQL_TestPropertyTypes.CQL_TestElement::PropertyString FROM CQL_TestPropertyTypes
+SELECT alias.CQL_TestElement::PropertyString FROM CQL_TestPropertyTypes alias
+SELECT CQL_TestElement::PropertyString FROM CQL_TestElement
+SELECT CQL_TestElement.CQL_TestElement::PropertyString FROM CQL_TestElement
+SELECT alias.CQL_TestElement::PropertyString FROM CQL_TestElement as alias
+
+

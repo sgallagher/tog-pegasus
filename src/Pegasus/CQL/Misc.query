@@ -1,0 +1,37 @@
+# Misc testcases
+#
+# Case in-sensitivity of names and keywords
+# property name and FROM class
+sELeCT * from cql_TestEleMENT where inSTanCEId = 0
+Select * from CQL_TESTPropertyTypes where Cql_TestPropertyTypeS.instanceId = 0
+# alias
+sELeCT * from cql_TestEleMENT as ALIAS where alias.InStanCEiD = 0
+# scoping class
+Select * from CQL_TESTPropertyTypes where Cql_TestPropertyTypeS::instanceId = 0
+Select * from CQL_TESTPropertyTypes where cql_testpropertytypes.Cql_TEStPropertyTypeS::instanceId = 0
+Select * from CQL_TESTPropertyTypes aS ALIAS where cql_testpropertytypes.alias::instanceId = 0
+# symbolic constant
+select * from CIM_ComputerSystem where 2 = CIM_ComputerSystem.EnabledState#'ENAbled'
+#
+# Case sensitivity of string and char16 values
+SELECT * from CQL_TestPropertyTypes where Propertystring = 'bert RULES'
+SELECT * from CQL_TestPropertyTypes where Propertystring = 'Bert Rules'
+SELECT * from CQL_TestPropertyTypes where PropertyChar16 = 'a'
+SELECT * from CQL_TestPropertyTypes where PropertyChar16 = 'A'
+#
+# From List variations
+# More than 1 FROM class not allowed
+SELECT * FROM CQL_TestPropertyTypes, CQL_TestElement
+SELECT * FROM CQL_TestPropertyTypes alias1 , CQL_TestElement alias2
+# The next 2 are not allowed due to >1 FROM class, but are also wrong
+# due to alias conflicts
+SELECT * FROM CQL_TestPropertyTypes alias, alias
+SELECT * FROM CQL_TestPropertyTypes, alias CQL_TestPropertyTypes
+SELECT * FROM CQL_TestPropertyTypes alias, CQL_TestElement alias
+# The next 2 ares not allowed due to >1 FROM class, but could be allowed
+# because of repeating FROM class
+SELECT * FROM CQL_TestPropertyTypes, CQL_TestPropertyTypes
+SELECT * FROM CQL_TestPropertyTypes alias, CQL_TestPropertyTypes
+SELECT * FROM CQL_TestPropertyTypes, CQL_TestPropertyTypes alias
+SELECT * FROM CQL_TestPropertyTypes alias1, CQL_TestPropertyTypes alias2
+

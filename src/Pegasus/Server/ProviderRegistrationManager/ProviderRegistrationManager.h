@@ -32,6 +32,7 @@
 #define Pegasus_ProviderRegistrationManager_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Server/ProviderRegistrationManager/Linkage.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Server/ServiceCIMOMHandle.h>
@@ -45,7 +46,7 @@ struct RegistrationTable;
 
 struct ClassNamespaceTable;
  
-class PEGASUS_SERVER_LINKAGE ProviderRegistrationManager
+class PEGASUS_PRM_LINKAGE ProviderRegistrationManager
 {
 public:
 	//ProviderRegistrationManager(ServiceCIMOMHandle & cimom);

@@ -32,6 +32,7 @@
 #define Pegasus_ProviderRegistrationTable_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Server/ProviderRegistrationManager/Linkage.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/CIMInstance.h>
@@ -39,7 +40,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_SERVER_LINKAGE ProviderRegistrationTable
+class PEGASUS_PRM_LINKAGE ProviderRegistrationTable
 {
 public:
 	ProviderRegistrationTable(const Array<CIMInstance>& instance); 

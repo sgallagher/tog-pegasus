@@ -321,7 +321,15 @@ int main()
         assert(String::match("This is a test", "This is *"));
         assert(String::match("This is a test", "* is a test"));
         assert(!String::match("Hello", "Goodbye"));
-
+        assert(String::match(
+            "When in the course of human events it becomes 0 necessary",
+            "When in the * of human*e??nts it be?ome[sS] [0-9] nec*"));
+        assert(String::match(
+            "When in the xyz of human events it becomes 9 necessary",
+            "When in the * of human*e??nts it be?ome[sS] [0-9] nec*"));
+        assert(String::match(
+            "When in the  of human events it becomes 3 necessary",
+            "When in the * of human*e??nts it be?ome[sS] [0-9] nec*"));
     }
 #endif
 

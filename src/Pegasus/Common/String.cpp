@@ -593,4 +593,96 @@ const Array<String>& EmptyStringArray()
     return tmp;
 }
 
+#if 0 // Wildcard String matching function that may be useful in the future
+// The following code was provided by Bob Blair.
+// This code needs to be converted to work on Strings instead of const char*'s.
+
+// Match two paths which may contain DOS-type wild-cards.
+static const unsigned char *
+matchrange(const unsigned char *range, unsigned char c) {
+  const unsigned char *p = range;
+  const unsigned char *rstart = range + 1;
+  const unsigned char *rend = 0;
+  unsigned char compchar;
+  for (rend = rstart; *rend && *rend != ']'; rend++);
+  if (*rend == ']') {  // if there is an end to this thing
+    for (compchar = *rstart; rstart != rend; rstart++) {
+      if (*rstart == c)
+        return ++rend;
+      if (*rstart == '-') {
+        rstart++;
+        if (c >= compchar && c <= *rstart)
+          return ++rend;
+      }
+    }
+  }
+  return (const unsigned char *)0;
+}
+
+static int
+matchem(const unsigned char *thePattern, const unsigned char *theTest) {
+  unsigned int done = 0;
+  unsigned int res = 0;  // the result: 1 == match
+  const unsigned char *pat = thePattern;
+  const unsigned char *str = theTest;
+
+  while (!done) { // main loop walks through pattern and test string
+    //cerr << "Comparing <" << *pat << "> and <" << *str << ">" << endl;
+    if (!*pat) {                                         //end of pattern
+      done = 1;                                          // we're done
+      if (!*str)                                         //end of test, too?
+        res = 1;                                         // then we matched
+    } else {                                             //Not end of pattern
+      if (!*str) {                                       // but end of test
+        done = 1;                                        // We're done
+        if (*pat == '*')                                 // If pattern openends
+          res = 1;                                       //  then we matched
+      } else {                                           //Not end of test
+        if (*pat == '*') {                               //Ambiguuity found
+          if (!*++pat) {                                 //and it ends pattern
+            done = 1;                                    //  then we're done
+            res = 1;                                     //  and match
+          } else {                                       //if it doesn't end
+            while (!done) {                              //  until we're done
+              if (matchem(pat, str)) {                   //  we recurse
+                done = 1;                                //if it recurses true
+                res = 1;                                 //  we done and match
+              } else {                                   //it recurses false
+                if (!*str)                               // see if test is done
+                  done = 1;                              //  yes: we done
+                else                                     // not done:
+                  str++;                                 //   keep testing
+              } // end test on recursive call
+            } // end looping on recursive calls
+          } // end logic when pattern is ambiguous
+        } else {                                         //pattern not ambiguus
+          if (*pat == '?') {                             //pattern is 'any'
+            pat++, str++;                                //  so move along
+          } else if (*pat == '[') {                      //see if it's a range
+            pat = matchrange(pat, *str);                 // and is a match
+            if (!pat) {                                  //It is not a match
+              done = 1;                                  //  we're done
+              res = 1;                                   //  no match
+            } else {                                     //Range matches
+              str++, pat++;                              //  keep going
+            }
+          } else {               // only case left is individual characters
+            if (*pat++ != *str++)                        // if they don't match
+              done = 1;                                  //   bail.
+          }
+        }  // end ("pattern is not ambiguous (*)" logic
+      } // end logic when pattern and string still have data
+    } // end logic when pattern still has data
+  } // end main loop
+  return res;
+}
+
+int
+Match::compare() {
+  if (!_pattern || !_test)
+    return 0;
+  return matchem(_pattern, _test);
+}
+#endif
+
 PEGASUS_NAMESPACE_END

@@ -43,8 +43,6 @@
 #include "ProviderDirPropertyOwner.h"
 
 
-PEGASUS_USING_STD;
-
 PEGASUS_NAMESPACE_BEGIN
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -56,7 +54,11 @@ PEGASUS_NAMESPACE_BEGIN
 
 static struct ConfigPropertyRow properties[] =
 {
+#if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+    {"providerDir", "lib;bin", 0, 0, 0, 1},
+#else
     {"providerDir", "lib", 0, 0, 0, 1},
+#endif
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
@@ -85,7 +87,7 @@ Boolean isProviderDirValid(const String& dirName)
       Uint32 token=0;
 
       do {
-	if (( pos = temp.find(":")) == PEG_NOT_FOUND) {
+	if (( pos = temp.find(FileSystem::getPathDelimiter())) == PEG_NOT_FOUND) {
 		pos = temp.size();
 		token = 0;
 	}

@@ -1,0 +1,222 @@
+// ===================================================================
+// Title:       User-Security Access Control 2.7
+// Filename:    User27_AccessControl.mof
+// Version:     2.7.0
+// Status:      Final
+// Date:        03/31/2003
+// ===================================================================
+// Copyright 2000-2003 Distributed Management Task Force, Inc. (DMTF).
+// All rights reserved.  
+// DMTF is a not-for-profit association of industry members dedicated 
+// to promoting enterprise and systems management and interoperability. 
+// DMTF specifications and documents may be reproduced for uses
+// consistent with this purpose by members and non-members, 
+// provided that correct attribution is given. 
+// As DMTF specifications may be revised from time to time, 
+// the particular version and release date should always be noted.
+//
+// Implementation of certain elements of this standard or proposed 
+// standard may be subject to third party patent rights, including 
+// provisional patent rights (herein "patent rights"). DMTF makes 
+// no representations to users of the standard as to the existence 
+// of such rights, and is not responsible to recognize, disclose, or
+// identify any or all such third party patent right, owners or 
+// claimants, nor for any incomplete or inaccurate identification or 
+// disclosure of such rights, owners or claimants. DMTF shall have no 
+// liability to any party, in any manner or circumstance, under any 
+// legal theory whatsoever, for failure to recognize, disclose, or 
+// identify any such third party patent rights, or for such party's
+// reliance on the standard or incorporation thereof in its product, 
+// protocols or testing procedures. DMTF shall have no liability to 
+// any party implementing such standard, whether such implementation 
+// is foreseeable or not, nor to any patent owner or claimant, and shall 
+// have no liability or responsibility for costs or losses incurred if 
+// a standard is withdrawn or modified after publication, and shall be
+// indemnified and held harmless by any party implementing the 
+// standard from any and all claims of infringement by a patent owner 
+// for such implementations.
+//
+// For information about patents held by third-parties which have 
+// notified the DMTF that, in their opinion, such patent may relate to 
+// or impact implementations of DMTF standards, visit 
+// http://www.dmtf.org/about/policies/disclosures.php.
+// ===================================================================
+// Description: The User Model extends the management concepts that
+//              are related to users and security.
+//              This file defines the concepts and classes for 
+//              access control.
+//
+//              The object classes below are listed in an order that
+//              avoids forward references. Required objects, defined 
+//              by other working groups, are omitted.
+// ===================================================================
+// Change Log for v2.7 - None
+// ===================================================================
+
+#pragma Locale ("en_US")
+
+
+// ================================================================== 
+// AccessControlInformation
+// ==================================================================
+[Version ("2.6.0"), Description (
+   "CIM_AccessControlInformation provides, through its properties "
+   "and its associations, the specification of the access rights "
+   "granted to a set of subject users to a set of target resources. "
+   "The AccessControlInformation class is weak to the system (e.g., "
+   "Computer System or Administrative Domain) for which the access "
+   "controls apply.") ]
+class CIM_AccessControlInformation : CIM_LogicalElement {
+
+   [Propagated ("CIM_System.CreationClassName"), Key, MaxLen (256), 
+      Description ("Hosting system creation class name.") ]
+   string SystemCreationClassName;
+
+   [Propagated ("CIM_System.Name"), Key, MaxLen (256), 
+      Description ("Hosting system name.") ]
+   string SystemName;
+
+   [Key, MaxLen (256), Description (  
+      "CreationClassName indicates the name of the class or the "
+      "subclass used in the creation of an instance. When used "
+      "with the other key properties of this class, this property "
+      "allows all instances of this class and its subclasses to "
+      "be uniquely identified.") ]
+   string CreationClassName;
+
+   [Key, MaxLen (256), Override ("Name"), Description (  
+      "The Name property defines the unique label, in the context of "
+      "the hosting system, by which the AccessControlInformation "
+      "is known.") ]
+   string Name;
+
+   [Description (
+      "The SecurityClassification property specifies a named level "
+      "of security associated with the AccessControlInformation, "
+      "e.g., 'Confidential', 'Top Secret', etc.") ]
+   string SecurityClassification;
+
+   [Description (
+      "The AccessType property is an array of string values that "
+      "specifies the type of access for which the corresponding "
+      "permission applies. For example, it can be used to specify a "
+      "generic access such as 'Read-only', 'Read/Write', etc. for "
+      "file or record access control or it can be used to specifiy "
+      "an entry point name for service access control."),  
+      ModelCorrespondence {
+       "CIM_AccessControlInformation.AccessQualifier",
+       "CIM_AccessControlInformation.Permission"} ]
+   string AccessType[];
+
+   [Description (
+      "The AccessQualifier property is an array of string values "
+      "may be used to further qualify the type of access for which "
+      "the corresponding permission applies. For example, it may  be "
+      "used to specify a set of parameters that are permitted or "
+      "denied in conjunction with the corresponding AccessType entry "
+      "point name."),
+      ModelCorrespondence {
+       "CIM_AccessControlInformation.AccessType",
+       "CIM_AccessControlInformation.Permission"} ]
+   string AccessQualifier[];
+
+   [Description (
+      "The Permission property is an array of string values "
+      "indicating the permission that applies to the corrsponding "
+      "AccessType and AccessQualifier array values.  The values "
+      "may be extended in subclasses to provide more specific access "
+      "controls."),
+      ValueMap {"Unknown", "Allow", "Deny", "Manage"},
+      ModelCorrespondence {
+       "CIM_AccessControlInformation.AccessType",
+       "CIM_AccessControlInformation.AccessQualifier"} ]
+   string Permission[];
+};
+
+
+// ==================================================================
+// HostedACI 
+// ==================================================================
+[Association, Version ("2.6.0"), Description (   
+   "CIM_HostedACI is an association used to provide the namespace "
+   "scoping of AccessControlInformation.  The hosted ACI may or may "
+   "not apply to resources on the hosting system.") ]
+class CIM_HostedACI : CIM_Dependency {   
+
+   [Min (1), Max (1), Override ("Antecedent"), 
+      Description ("The hosting system.") ]
+   CIM_System REF Antecedent;   
+
+   [Override ("Dependent"), Weak,
+      Description ("The hosted AccessControlInformation.") ]
+   CIM_AccessControlInformation REF Dependent;   
+};   
+
+
+// ==================================================================
+// AuthorizedUse 
+// ==================================================================
+[Association, Version ("2.6.0"), Description (   
+   "CIM_AuthorizedUse is an association used to provide an "
+   "AuthorizationService with the AccessControlInformation it needs "
+   "to do its job.") ]
+class CIM_AuthorizedUse : CIM_Dependency {   
+
+   [Override ("Antecedent"), 
+      Description ("Access Control Information.") ]
+   CIM_AccessControlInformation REF Antecedent;   
+
+   [Override ("Dependent"), 
+      Description ("AuthorizationService that uses an ACI.") ]
+   CIM_AuthorizationService REF Dependent;   
+};   
+
+
+// ==================================================================
+// AuthorizationSubject 
+// ==================================================================
+[Association, Version ("2.6.0"), Description (   
+   "CIM_AuthorizationSubject is an association used to apply "
+   "authorization decisions to specific subjects (i.e., users).  The "
+   "subjects may be identified directly or they may be aggregated "
+   "into a collection that may, in turn, use the MemberPrincipal "
+   "association to provide further indirection in the specification "
+   "of the subject set.") ]
+class CIM_AuthorizationSubject : CIM_Dependency {   
+
+   [Override ("Antecedent"), Description (
+      "AccessControlInformation that applies to a subject set.") ]
+   CIM_AccessControlInformation REF Antecedent;   
+
+   [Override ("Dependent"), Description (
+      "The subject set may be specified as a collection or as a set "
+      "of associations to ManagedElements that represent users.") ]
+   CIM_ManagedElement REF Dependent;   
+};
+
+  
+// ==================================================================
+// AuthorizationTarget 
+// ==================================================================
+[Association, Version ("2.6.0"), Description (   
+   "CIM_AuthorizationTarget is an association used to apply "
+   "authorization decisions to specific target resources.  The "
+   "target resources may be aggregated into a collection or may be "
+   "represented as a set of associations to ManagedElements.") ]
+class CIM_AuthorizationTarget : CIM_Dependency {   
+
+   [Override ("Antecedent"), Description (
+      "AccessControlInformation that applies to the target set.") ]
+   CIM_AccessControlInformation REF Antecedent;   
+
+   [Override ("Dependent"), Description (
+      "The target set of resources may be specified as a collection "
+      "or as a set of associations to ManagedElements that represent "
+      "target resources.") ]
+   CIM_ManagedElement REF Dependent;   
+};   
+
+
+// ===================================================================
+// end of file
+// ===================================================================

@@ -709,51 +709,19 @@ void CIMOperationRequestDecoder::handleMethodCall(
             return;
          }
 
-	 if (cimMethodName != NULL)
+	 //
+	 // if CIMOM is shutting down, return error response
+	 //
+	 // ATTN:  Need to define a new CIM Error.
+	 //
+	 if (_serverTerminating)
 	 {
-	    //
-	    // if CIMOM is shutting down, return error response
-	    //
-	    // ATTN:  Need to define a new CIM Error.
-	    //
-	    if (_serverTerminating)
-	    {
-	       String description = "CIMServer is shutting down.  ";
-	       description.append("Request cannot be processed: ");
-	       description += cimMethodName;
-
-	       sendMethodError(
-		  queueId,
-		  messageId,
-		  cimMethodName,
-		  CIM_ERR_FAILED,
-		  description);
-
-               PEG_METHOD_EXIT();
-	       return;
-	    }
-	    else
-	    {
-	       // Delegate to appropriate method to handle:
-
-	       request = decodeInvokeMethodRequest(
-		  queueId, 
-		  parser, 
-		  messageId, 
-		  reference, 
-		  cimMethodName,
-		  authType,
-		  userName);
-	    }
-	 }
-	 else
-	 {
-	    // ATTN: cimMethodName is null in this case
-	    String description = "Unknown extrinsic method: ";
+	    String description = "CIMServer is shutting down.  ";
+	    description.append("Request cannot be processed: ");
 	    description += cimMethodName;
 
 	    sendMethodError(
-	       queueId, 
+	       queueId,
 	       messageId,
 	       cimMethodName,
 	       CIM_ERR_FAILED,
@@ -762,6 +730,18 @@ void CIMOperationRequestDecoder::handleMethodCall(
             PEG_METHOD_EXIT();
 	    return;
 	 }
+
+	 // Delegate to appropriate method to handle:
+
+	 request = decodeInvokeMethodRequest(
+	    queueId, 
+	    parser, 
+	    messageId, 
+	    reference, 
+	    cimMethodName,
+	    authType,
+	    userName);
+
 	 // Expect </METHODCALL>
 
 	 XmlReader::expectEndTag(parser, "METHODCALL");
@@ -769,7 +749,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
       else
       {
 	 throw XmlValidationError(parser.getLine(), 
-				  "expected IMETHODCALL element");
+				  "expected IMETHODCALL or METHODCALL element");
       }
 
       // Expect </SIMPLEREQ>
@@ -786,6 +766,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
    }
    catch (CIMException& e)
    {
+      // ATTN-RK-P3-20020305: Should these be Method or IMethod errors?
       sendIMethodError(
 	 queueId, 
 	 messageId,
@@ -798,6 +779,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
    }
    catch (Exception& e)
    {
+      // ATTN-RK-P3-20020305: Should these be Method or IMethod errors?
       sendIMethodError(
 	 queueId, 
 	 messageId,

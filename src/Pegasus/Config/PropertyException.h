@@ -34,9 +34,7 @@
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Config/Linkage.h>
 
-
 PEGASUS_NAMESPACE_BEGIN
-
 
 /**
  * Abstract exception class for errors involving configuration properties.
@@ -57,5 +55,7 @@ public:
     PropertyException (const String& exceptionMessage);
 
 };
+
+PEGASUS_NAMESPACE_END
 
 #endif  /* Pegasus_PropertyException_h */

@@ -43,9 +43,7 @@
 #include <Pegasus/Config/ConfigExceptions.h>
 #include <Pegasus/Config/Linkage.h>
 
-
 PEGASUS_NAMESPACE_BEGIN
-
 
 ///////////////////////////////////////////////////////////////////////////////
 //  ConfigPropertyOwner Class

@@ -27,8 +27,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <fstream.h>
-#include <string.h>
+#include <fstream>
+#include <cstring>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Tracer.h>
 

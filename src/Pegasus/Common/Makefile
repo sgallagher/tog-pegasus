@@ -61,7 +61,6 @@ SOURCES = \
     Indentor.cpp \
     Logger.cpp \
     Memory.cpp \
-    OptionManager.cpp \
     Pair.cpp \
     Queue.cpp \
     TraceFileHandler.cpp \

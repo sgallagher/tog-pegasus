@@ -38,8 +38,6 @@
 #include <Pegasus/Config/UnrecognizedPropertyException.h>
 #include <Pegasus/Config/InvalidPropertyValueException.h>
 
-PEGASUS_NAMESPACE_BEGIN
-
 
 /**
 This is a configuration CLI used to manage the configuration of the
@@ -180,7 +178,5 @@ private:
     Uint32        _operationType;
 
 };
-
-PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_CIMConfigCommand_h */

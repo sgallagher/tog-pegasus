@@ -36,4 +36,13 @@ endif
 tests:
 
 install:
-	$(COPY) cimserver.conf $(PEGASUS_HOME)
+	$(COPY) cimserver_planned.conf $(PEGASUS_HOME)
+	$(COPY) cimserver_current.conf $(PEGASUS_HOME)
+
+run: install
+ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
+	cimserver -l
+else
+	cimserver
+endif
+

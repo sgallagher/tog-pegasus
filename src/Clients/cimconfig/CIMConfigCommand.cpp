@@ -43,9 +43,7 @@
 
 
 PEGASUS_USING_STD;
-
-PEGASUS_NAMESPACE_BEGIN
-
+PEGASUS_USING_PEGASUS;
 
 /**
     The command name.
@@ -275,7 +273,6 @@ CIMConfigCommand::CIMConfigCommand ()
 void CIMConfigCommand::setCommand (Uint32 argc, char* argv []) 
     throw (CommandFormatException)
 {
-    char              invalidOption;
     unsigned int      i                = 0;
     Uint32            c                = 0;
     String            property         = String ();
@@ -640,7 +637,7 @@ Uint32 CIMConfigCommand::execute (
 
         connected = true;
     }
-    catch(Exception& e)
+    catch(Exception&)
     {
         //
         // Failed connect, so process the request off-line.
@@ -1165,6 +1162,3 @@ int main (int argc, char* argv [])
     exit (returnCode);
     return 0;
 }
-
-PEGASUS_NAMESPACE_END
-

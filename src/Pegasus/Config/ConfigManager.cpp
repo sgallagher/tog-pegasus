@@ -463,9 +463,6 @@ void ConfigManager::mergeCommandLine(int& argc, char**& argv)
     throw (UnrecognizedConfigProperty, MissingCommandLineOptionArgument,
         InvalidPropertyValue)
 {
-    Boolean booleanOption;
-
-
     for (int i = 1; i < argc; )
     {
         const char* arg = argv[i];

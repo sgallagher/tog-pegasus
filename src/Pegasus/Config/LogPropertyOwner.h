@@ -51,7 +51,7 @@ PEGASUS_NAMESPACE_BEGIN
     This is Log property owner class that extends ConfigPropertyOwner
     class and provide implementation.
 */
-class PEGASUS_CONFIG_LINKAGE LogPropertyOwner : ConfigPropertyOwner
+class PEGASUS_CONFIG_LINKAGE LogPropertyOwner : public ConfigPropertyOwner
 {
 public:
 

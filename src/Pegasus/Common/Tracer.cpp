@@ -228,7 +228,6 @@ void Tracer::_trace(
     va_list argList)
 {
     char* msgHeader;
-    Uint32 retCode;
 
     // Get the current system time and prepend to message
     String currentTime = System::getCurrentASCIITime();

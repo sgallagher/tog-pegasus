@@ -28,8 +28,8 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef Pegasus_GeneralPropertyOwner_h
-#define Pegasus_GeneralPropertyOwner_h
+#ifndef Pegasus_DefaultPropertyOwner_h
+#define Pegasus_DefaultPropertyOwner_h
 
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Config/ConfigPropertyOwner.h>
@@ -64,7 +64,7 @@ PEGASUS_NAMESPACE_BEGIN
 This is default property owner class that extends ConfigPropertyOwner
 class and provide implementation.
 */
-class PEGASUS_CONFIG_LINKAGE DefaultPropertyOwner : ConfigPropertyOwner
+class PEGASUS_CONFIG_LINKAGE DefaultPropertyOwner : public ConfigPropertyOwner
 {
 public:
 
@@ -213,4 +213,4 @@ private:
 
 PEGASUS_NAMESPACE_END
 
-#endif /* Pegasus_GeneralPropertyOwner_h */
+#endif /* Pegasus_DefaultPropertyOwner_h */

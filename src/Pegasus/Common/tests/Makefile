@@ -7,7 +7,6 @@ DIRS = \
     HashTable \
     Resolve \
     Acceptor \
-    Connector \
     Formatter \
     Abstract \
     Array \
@@ -40,8 +39,7 @@ DIRS = \
     Reference \
     DynLib \
     DynLoad \
-    Logger \
-    OptionManager
+    Logger
 
 ifeq ($(OS),linux)
 SOURCES += IPC

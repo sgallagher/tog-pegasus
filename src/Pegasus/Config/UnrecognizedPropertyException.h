@@ -42,7 +42,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-
 /**
  * Exception class indicating that a property name is not recognized.
  *
@@ -76,6 +75,8 @@ public:
         _message.append (UNRECOGNIZED_PROPERTY_ERR2);
     }
 };
+
+PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_UnrecognizedPropertyException_h */
 

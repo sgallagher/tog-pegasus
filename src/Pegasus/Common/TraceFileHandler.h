@@ -31,8 +31,8 @@
 #ifndef Pegasus_TraceFileHandler_h
 #define Pegasus_TraceFileHandler_h
 
-#include <stdarg.h>
-#include <stdio.h>
+#include <cstdarg>
+#include <cstdio>
 #include <Pegasus/Common/String.h>
 
 PEGASUS_NAMESPACE_BEGIN

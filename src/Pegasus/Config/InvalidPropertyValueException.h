@@ -46,7 +46,7 @@ PEGASUS_NAMESPACE_BEGIN
  *
  * @author Hewlett-Packard Company
  */
-class InvalidPropertyValueException : PropertyException
+class InvalidPropertyValueException : public PropertyException
 {
 public:
 
@@ -81,5 +81,7 @@ public:
     }
 
 };
+
+PEGASUS_NAMESPACE_END
 
 #endif  /* Pegasus_InvalidPropertyValueException_h */

@@ -71,7 +71,6 @@
 #include <cstdlib>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Selector.h>
-//#include <Pegasus/Common/OptionManager.h>
 #include <Pegasus/Server/CIMServer.h>
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Protocol/Handler.h>
@@ -191,6 +190,7 @@ void PrintHelp(const char* arg0)
 //////////////////////////////////////////////////////////////////////////
 int main(int argc, char** argv)
 {
+
     String pegasusHome  = String::EMPTY;
     Boolean pegasusIOTrace = false;
     Boolean pegasusIOLog = false;
@@ -224,9 +224,7 @@ int main(int argc, char** argv)
     //
     // Get an instance of the Config Manager.
     //
-    ConfigManager* configManager;
-
-    configManager = ConfigManager::getInstance();
+    ConfigManager* configManager = ConfigManager::getInstance();
 
     //
     // Get options (from command line and from configuration file); this

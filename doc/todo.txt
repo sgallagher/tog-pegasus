@@ -1,4 +1,6 @@
 
+    -	Get rid of usage of System (use since it
+
     -	Migrate to use of Linkage.h files.
 
     -   Document that lex and yacc are no longer a requirement to build
@@ -211,3 +213,4 @@
 	DiskController example and LanController.
 
     -   SLP - Eliminate lib directory.
+

@@ -11,7 +11,7 @@ SYS_INCLUDES = -I/usr/include/g++
 DEFINES = -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM)
 
 ifdef PEGASUS_DEBUG
-FLAGS = -g -W -Wall -Wno-unused -D_REENTRANT
+FLAGS = -g -W -Wall -Wno-unused  -D_GNU_SOURCE -DTHREAD_SAFE -D_REENTRANT
 else
 FLAGS = -O2 -W -Wall -Wno-unused
 endif

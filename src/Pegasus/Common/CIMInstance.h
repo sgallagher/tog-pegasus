@@ -78,10 +78,7 @@ public:
     {
 	if (x._rep != _rep)
 	{
-            if (_rep)
-            {
-                Dec(_rep);
-            }
+            Dec(_rep);
 	    Inc(_rep = x._rep);
 	}
 	return *this;
@@ -102,10 +99,7 @@ public:
     /** Destructor. */
     ~CIMInstance()
     {
-        if (_rep)
-        {
-            Dec(_rep);
-        }
+        Dec(_rep);
     }
 
     /**	getClassName - 	Returns the class name of the instance
@@ -488,10 +482,7 @@ public:
     {
 	if (x._rep != _rep)
 	{
-            if (_rep)
-            {
-                Dec(_rep);
-            }
+            Dec(_rep);
 	    Inc(_rep = x._rep);
 	}
 	return *this;
@@ -501,10 +492,7 @@ public:
     {
 	if (x._rep != _rep)
 	{
-            if (_rep)
-            {
-                Dec(_rep);
-            }
+            Dec(_rep);
 	    Inc(_rep = x._rep);
 	}
 	return *this;
@@ -519,10 +507,7 @@ public:
 
     ~CIMConstInstance()
     {
-        if (_rep)
-        {
-            Dec(_rep);
-        }
+        Dec(_rep);
     }
 
     const String& getClassName() const

@@ -85,10 +85,7 @@ public:
     {
 	if (x._rep != _rep)
 	{
-            if (_rep)
-            {
-                Dec(_rep);
-            }
+            Dec(_rep);
 	    Inc(_rep = x._rep);
 	}
 	return *this;
@@ -115,10 +112,7 @@ public:
     /// Destructor
     ~CIMClass()
     {
-        if (_rep)
-        {
-            Dec(_rep);
-        }
+        Dec(_rep);
     }
 
     /** isAssociation - Identifies whether or not this CIM class
@@ -630,10 +624,7 @@ public:
     {
 	if (x._rep != _rep)
 	{
-            if (_rep)
-            {
-                Dec(_rep);
-            }
+            Dec(_rep);
 	    Inc(_rep = x._rep);
 	}
 	return *this;
@@ -643,10 +634,7 @@ public:
     {
 	if (x._rep != _rep)
 	{
-            if (_rep)
-            {
-                Dec(_rep);
-            }
+            Dec(_rep);
 	    Inc(_rep = x._rep);
 	}
 	return *this;
@@ -663,10 +651,7 @@ public:
 
     ~CIMConstClass()
     {
-        if (_rep)
-        {
-            Dec(_rep);
-        }
+        Dec(_rep);
     }
 
     Boolean isAssociation() const

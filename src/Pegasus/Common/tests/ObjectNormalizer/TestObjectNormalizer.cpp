@@ -31,65 +31,22 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Repository/CIMRepository.h>
+#include "LocalRepository.h"
+#include "Clock.h"
 
 #include <Pegasus/Common/ObjectNormalizer.h>
 
 #include <Pegasus/Common/XmlWriter.h>
-#include <Pegasus/Common/TimeValue.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-//
-// Clock
-//
-// Local object used to measure the performance of normalization for the test
-// cases defined in this file.
-//
-class _Clock
-{
-public:
-    _Clock(void) : _start(0), _stop(0), _total(0)
-    {
-    }
-
-    inline void start(void)
-    {
-        _start = TimeValue::getCurrentTime().toMilliseconds();
-    }
-
-    inline void stop(void)
-    {
-        _stop = TimeValue::getCurrentTime().toMilliseconds();;
-
-        // update total
-        _total += double(_stop - _start);
-    }
-
-    inline void reset(void)
-    {
-        _start = 0;
-        _stop = 0;
-
-        _total = 0;
-    }
-
-    inline double getElapsed(void)
-    {
-        return(_total);
-    }
-
-private:
-    Uint32 _start;
-    Uint32 _stop;
-
-    double _total;
-
-} _clock;
-
 static char * verbose = 0;
-static CIMRepository * repository = 0;
+
+static LocalRepository * repository = 0;
+static Clock _clock;
+
+#define PRINT(x) if(verbose) cout << x << endl;
 
 //
 // Basic ObjectNormalizer tests
@@ -98,7 +55,7 @@ static CIMRepository * repository = 0;
 // test improper ObjectNormalizer seeding
 void Test001a(void)
 {
-    cout << "Test001a" << endl << endl;
+    PRINT("Test001a");
 
     CIMClass cimClass;
 
@@ -118,7 +75,7 @@ void Test001a(void)
 // test bad arguments
 void Test001b(void)
 {
-    cout << "Test001b" << endl << endl;
+    PRINT("Test001b");
 
     ObjectNormalizer normalizer(
         CIMClass("CIM_ManagedElement"),
@@ -130,39 +87,33 @@ void Test001b(void)
     {
         normalizer.processClassObjectPath(CIMObjectPath());
 
-        cout << "Failed to detect null class object path." << endl;
-
-        throw 0;
+        throw Exception("Failed to detect null class object path.");
     }
     catch(CIMException & e)
     {
-        cout << "CIMException: " << e.getMessage() << endl;
+        PRINT("expected CIMException: " << e.getMessage());
     }
 
     try
     {
         normalizer.processInstanceObjectPath(CIMObjectPath());
 
-        cout << "Failed to detect null instance object path." << endl;
-
-        throw 0;
+        throw Exception("Failed to detect null instance object path.");
     }
     catch(CIMException & e)
     {
-        cout << "CIMException: " << e.getMessage() << endl;
+        PRINT("expected CIMException: " << e.getMessage());
     }
 
     try
     {
         normalizer.processInstance(CIMInstance());
 
-        cout << "Failed to detect null instance." << endl;
-
-        throw 0;
+        throw Exception("Failed to detect null instance.");
     }
     catch(CIMException & e)
     {
-        cout << "CIMException: " << e.getMessage() << endl;
+        PRINT("expected CIMException: " << e.getMessage());
     }
 }
 
@@ -173,7 +124,7 @@ void Test001b(void)
 // class object path (null object path)
 void Test002a(void)
 {
-    cout << "Test002a" << endl << endl;
+    PRINT("Test002a");
 
     _clock.reset();
 
@@ -183,17 +134,12 @@ void Test002a(void)
 
     CIMClass cimClass =
         repository->getClass(
-            "root/cimv2",
-            "cim_softwarefeature",
+            "test_namespace",
+            "ClassC",
             localOnly,
             true,   // always true. needed for key qualifiers
             localOnly ? true : includeClassOrigin,  // class origin is needed if local only is true
             CIMPropertyList());
-
-    // ATTN: patch the class object path because the repository does not set the host or namespace elements.
-    cimClass.setPath(CIMObjectPath("localhost", "root/cimv2", cimClass.getClassName()));
-
-    cout << "cimClass object path = " << cimClass.getPath().toString() << endl;
 
     ObjectNormalizer normalizer(
         cimClass,
@@ -211,24 +157,22 @@ void Test002a(void)
 
         _clock.stop();
 
-        cout << "Failed to detect a null class object path." << endl;
-
-        throw 0;
+        throw Exception("Failed to detect a null class object path.");
     }
     catch(CIMException & e)
     {
         _clock.stop();
 
-        cout << "CIMException: " << e.getMessage() << endl;
+        PRINT("expected CIMException: " << e.getMessage());
     }
 
-    cout << "*** " << _clock.getElapsed() << " milliseconds." << endl;
+    PRINT("*** " << _clock.getElapsed() << " milliseconds.");
 }
 
 // class object path (incorrect class name)
 void Test002b(void)
 {
-    cout << "Test002b" << endl << endl;
+    PRINT("Test002b");
 
     _clock.reset();
 
@@ -238,17 +182,12 @@ void Test002b(void)
 
     CIMClass cimClass =
         repository->getClass(
-            "root/cimv2",
-            "cim_softwarefeature",
+            "test_namespace",
+            "ClassC",
             localOnly,
             true,   // always true. needed for key qualifiers
             localOnly ? true : includeClassOrigin,  // class origin is needed if local only is true
             CIMPropertyList());
-
-    // ATTN: patch the class object path because the repository does not set the host or namespace elements.
-    cimClass.setPath(CIMObjectPath("localhost", "root/cimv2", cimClass.getClassName()));
-
-    cout << "cimClass object path = " << cimClass.getPath().toString() << endl;
 
     ObjectNormalizer normalizer(
         cimClass,
@@ -258,7 +197,7 @@ void Test002b(void)
 
     CIMObjectPath cimObjectPath;
 
-    cimObjectPath.setClassName("CIM_SoftwareFeatureBAD");  // use different case to test that too
+    cimObjectPath.setClassName("ClassBAD");  // use different case to test that too
 
     try
     {
@@ -268,24 +207,22 @@ void Test002b(void)
 
         _clock.stop();
 
-        cout << "Failed to detect class object path with incorrect class name." << endl;
-
-        throw 0;
+        throw Exception("Failed to detect class object path with incorrect class name.");
     }
     catch(CIMException & e)
     {
         _clock.stop();
 
-        cout << "CIMException: " << e.getMessage() << endl;
+        PRINT("expected CIMException: " << e.getMessage());
     }
 
-    cout << "*** " << _clock.getElapsed() << " milliseconds." << endl;
+    PRINT("*** " << _clock.getElapsed() << " milliseconds.")
 }
 
 // instance object path (incorrect class name)
 void Test002c(void)
 {
-    cout << "Test002c" << endl << endl;
+    PRINT("Test002c");
 
     _clock.reset();
 
@@ -295,17 +232,12 @@ void Test002c(void)
 
     CIMClass cimClass =
         repository->getClass(
-            "root/cimv2",
-            "cim_softwarefeature",
+            "test_namespace",
+            "ClassC",
             localOnly,
             true,   // always true. needed for key qualifiers
             localOnly ? true : includeClassOrigin,  // class origin is needed if local only is true
             CIMPropertyList());
-
-    // ATTN: patch the class object path because the repository does not set the host or namespace elements.
-    cimClass.setPath(CIMObjectPath("localhost", "root/cimv2", cimClass.getClassName()));
-
-    cout << "cimClass object path = " << cimClass.getPath().toString() << endl;
 
     ObjectNormalizer normalizer(
         cimClass,
@@ -315,7 +247,9 @@ void Test002c(void)
 
     CIMObjectPath cimObjectPath;
 
-    cimObjectPath.setClassName("CIM_SoftwareFeatureBAD");  // use different case to test that too
+    cimObjectPath.setClassName("ClassBAD");
+
+    // no keys
 
     try
     {
@@ -325,24 +259,22 @@ void Test002c(void)
 
         _clock.stop();
 
-        cout << "Failed to detect instance object path with incorrect class name." << endl;
-
-        throw 0;
+        throw Exception("Failed to detect instance object path with incorrect class name.");
     }
     catch(CIMException & e)
     {
         _clock.stop();
 
-        cout << "CIMException: " << e.getMessage() << endl;
+        PRINT("expected CIMException: " << e.getMessage());
     }
 
-    cout << "*** " << _clock.getElapsed() << " milliseconds." << endl;
+    PRINT("*** " << _clock.getElapsed() << " milliseconds.");
 }
 
 // instance object path (no key properties in instance, no keys in object path)
 void Test002d(void)
 {
-    cout << "Test002d" << endl << endl;
+    PRINT("Test002d");
 
     _clock.reset();
 
@@ -352,17 +284,12 @@ void Test002d(void)
 
     CIMClass cimClass =
         repository->getClass(
-            "root/cimv2",
-            "cim_softwarefeature",
+            "test_namespace",
+            "ClassC",
             localOnly,
             true,   // always true. needed for key qualifiers
             localOnly ? true : includeClassOrigin,  // class origin is needed if local only is true
             CIMPropertyList());
-
-    // ATTN: patch the class object path because the repository does not set the host or namespace elements.
-    cimClass.setPath(CIMObjectPath("localhost", "root/cimv2", cimClass.getClassName()));
-
-    cout << "cimClass object path = " << cimClass.getPath().toString() << endl;
 
     ObjectNormalizer normalizer(
         cimClass,
@@ -374,6 +301,8 @@ void Test002d(void)
 
     cimObjectPath.setClassName(cimClass.getClassName());
 
+    // no keys
+
     try
     {
         _clock.start();
@@ -382,18 +311,16 @@ void Test002d(void)
 
         _clock.stop();
 
-        cout << "Failed to detect instance object path with no key properties and no keys." << endl;
-
-        throw 0;
+        throw Exception("Failed to detect instance object path with no key properties and no keys.");
     }
     catch(CIMException & e)
     {
         _clock.stop();
 
-        cout << "CIMException: " << e.getMessage() << endl;
+        PRINT("expected CIMException: " << e.getMessage());
     }
 
-    cout << "*** " << _clock.getElapsed() << " milliseconds." << endl;
+    PRINT("*** " << _clock.getElapsed() << " milliseconds.");
 }
 
 //
@@ -403,7 +330,7 @@ void Test002d(void)
 // class object path (normal)
 void Test003a(void)
 {
-    cout << "Test003a" << endl << endl;
+    PRINT("Test003a");
 
     _clock.reset();
 
@@ -413,17 +340,12 @@ void Test003a(void)
 
     CIMClass cimClass =
         repository->getClass(
-            "root/cimv2",
-            "cim_softwarefeature",
+            "test_namespace",
+            "ClassC",
             localOnly,
             true,   // always true. needed for key qualifiers
             localOnly ? true : includeClassOrigin,  // class origin is needed if local only is true
             CIMPropertyList());
-
-    // ATTN: patch the class object path because the repository does not set the host or namespace elements.
-    cimClass.setPath(CIMObjectPath("localhost", "root/cimv2", cimClass.getClassName()));
-
-    cout << "cimClass object path = " << cimClass.getPath().toString() << endl;
 
     ObjectNormalizer normalizer(
         cimClass,
@@ -446,13 +368,13 @@ void Test003a(void)
         cout << normalizedObjectPath.toString() << endl;
     }
 
-    cout << "*** " << _clock.getElapsed() << " milliseconds." << endl;
+    PRINT("*** " << _clock.getElapsed() << " milliseconds.");
 }
 
 // class object path (with erroneous and extra information)
 void Test003b(void)
 {
-    cout << "Test003b" << endl << endl;
+    PRINT("Test003b");
 
     _clock.reset();
 
@@ -462,15 +384,12 @@ void Test003b(void)
 
     CIMClass cimClass =
         repository->getClass(
-            "root/cimv2",
-            "cim_softwarefeature",
+            "test_namespace",
+            "ClassC",
             localOnly,
             true,   // always true. needed for key qualifiers
             localOnly ? true : includeClassOrigin,  // class origin is needed if local only is true
             CIMPropertyList());
-
-    // ATTN: patch the class object path because the repository does not set the host or namespace elements.
-    cimClass.setPath(CIMObjectPath("localhost", "root/cimv2", cimClass.getClassName()));
 
     ObjectNormalizer normalizer(
         cimClass,
@@ -480,7 +399,7 @@ void Test003b(void)
 
     CIMObjectPath cimObjectPath;
 
-    cimObjectPath.setClassName("cim_softwarefeature");  // use lowercase. normalization should fix case
+    cimObjectPath.setClassName("classc");  // use lowercase. normalization should fix case
 
     // fake keys
     Array<CIMKeyBinding> keys;
@@ -496,18 +415,15 @@ void Test003b(void)
 
     _clock.stop();
 
-    if(verbose)
-    {
-        cout << normalizedObjectPath.toString() << endl;
-    }
+    PRINT(normalizedObjectPath.toString());
 
-    cout << "*** " << _clock.getElapsed() << " milliseconds." << endl;
+    PRINT("*** " << _clock.getElapsed() << " milliseconds.");
 }
 
 // instance object path (normal)
 void Test003c(void)
 {
-    cout << "Test003c" << endl << endl;
+    PRINT("Test003c");
 
     _clock.reset();
 
@@ -517,15 +433,12 @@ void Test003c(void)
 
     CIMClass cimClass =
         repository->getClass(
-            "root/cimv2",
-            "cim_softwarefeature",
+            "test_namespace",
+            "ClassC",
             localOnly,
             true,   // always true. needed for key qualifiers
             localOnly ? true : includeClassOrigin,  // class origin is needed if local only is true
             CIMPropertyList());
-
-    // ATTN: patch the class object path because the repository does not set the host or namespace elements.
-    cimClass.setPath(CIMObjectPath("localhost", "root/cimv2", cimClass.getClassName()));
 
     ObjectNormalizer normalizer(
         cimClass,
@@ -535,16 +448,14 @@ void Test003c(void)
 
     CIMObjectPath cimObjectPath;
 
-    cimObjectPath.setClassName("cim_softwarefeature");  // use lowercase. normalization should fix case
+    cimObjectPath.setClassName("classc");  // use lowercase. normalization should fix case
 
     // simple keys
     Array<CIMKeyBinding> keys;
 
-    keys.append(CIMKeyBinding("IdentifyingNumber", CIMValue(String("AAAAA"))));
-    keys.append(CIMKeyBinding("Name", CIMValue(String("Test Instance #003c"))));
-    keys.append(CIMKeyBinding("ProductName", CIMValue(String("TestObjectNormalizer"))));
-    keys.append(CIMKeyBinding("Vendor", CIMValue(String("Pegasus"))));
-    keys.append(CIMKeyBinding("Version", CIMValue(String("2.0"))));
+    keys.append(CIMKeyBinding("property1", CIMValue(Uint32(1))));
+    keys.append(CIMKeyBinding("property2", CIMValue(String("Test Instance #003c"))));
+    keys.append(CIMKeyBinding("property3", CIMValue(CIMDateTime::getCurrentDateTime())));
 
     cimObjectPath.setKeyBindings(keys);
 
@@ -554,18 +465,15 @@ void Test003c(void)
 
     _clock.stop();
 
-    if(verbose)
-    {
-        cout << normalizedObjectPath.toString() << endl;
-    }
+    PRINT(normalizedObjectPath.toString());
 
-    cout << "*** " << _clock.getElapsed() << " milliseconds." << endl;
+    PRINT("*** " << _clock.getElapsed() << " milliseconds.");
 }
 
-// instance object path (with erroneous and missing information)
+// instance object path (with missing information--use default values)
 void Test003d(void)
 {
-    cout << "Test003d" << endl << endl;
+    PRINT("Test003d");
 
     _clock.reset();
 
@@ -575,19 +483,12 @@ void Test003d(void)
 
     CIMClass cimClass =
         repository->getClass(
-            "root/cimv2",
-            "cim_softwarefeature",
+            "test_namespace",
+            "ClassC",
             localOnly,
             true,   // always true. needed for key qualifiers
             localOnly ? true : includeClassOrigin,  // class origin is needed if local only is true
             CIMPropertyList());
-
-    // ATTN: patch the class object path because the repository does not set the host or namespace elements.
-    cimClass.setPath(CIMObjectPath("localhost", "root/cimv2", cimClass.getClassName()));
-
-    // give vendor a default value for this test
-    cimClass.getProperty(cimClass.findProperty("Vendor")).setValue(CIMValue(String("DefaultVendor")));
-    cimClass.getProperty(cimClass.findProperty("Name")).setValue(CIMValue(String("DefaultName")));
 
     ObjectNormalizer normalizer(
         cimClass,
@@ -597,16 +498,14 @@ void Test003d(void)
 
     CIMObjectPath cimObjectPath;
 
-    cimObjectPath.setClassName("cim_softwarefeature");
+    cimObjectPath.setClassName("classc");  // use lowercase. normalization should fix case
 
     // keys
     Array<CIMKeyBinding> keys;
 
-    keys.append(CIMKeyBinding("IdentifyingNumber", CIMValue(String("AAAAA"))));
-    //keys.append(CIMKeyBinding("Name", CIMValue(String("Test Intance #003d"))));
-    keys.append(CIMKeyBinding("ProductName", CIMValue(String("TestObjectNormalizer"))));
-    //keys.append(CIMKeyBinding("Vendor", CIMValue(String("Pegasus"))));
-    keys.append(CIMKeyBinding("Version", CIMValue(String("2.0"))));
+    keys.append(CIMKeyBinding("property1", CIMValue(Uint32(1))));
+    //keys.append(CIMKeyBinding("property2", CIMValue(String("Test Instance #003d"))));
+    keys.append(CIMKeyBinding("property3", CIMValue(CIMDateTime::getCurrentDateTime())));
 
     cimObjectPath.setKeyBindings(keys);
 
@@ -616,18 +515,15 @@ void Test003d(void)
 
     _clock.stop();
 
-    if(verbose)
-    {
-        cout << normalizedObjectPath.toString() << endl;
-    }
+    PRINT(normalizedObjectPath.toString());
 
-    cout << "*** " << _clock.getElapsed() << " milliseconds." << endl;
+    PRINT("*** " << _clock.getElapsed() << " milliseconds.");
 }
 
 // instance object path (with erroneous and extra information)
 void Test003e(void)
 {
-    cout << "Test003e" << endl <<endl;
+    PRINT("Test003e");
 
     _clock.reset();
 
@@ -637,15 +533,12 @@ void Test003e(void)
 
     CIMClass cimClass =
         repository->getClass(
-            "root/cimv2",
-            "cim_softwarefeature",
+            "test_namespace",
+            "ClassC",
             localOnly,
             true,   // always true. needed for key qualifiers
             localOnly ? true : includeClassOrigin,  // class origin is needed if local only is true
             CIMPropertyList());
-
-    // ATTN: patch the class object path because the repository does not set the host or namespace elements.
-    cimClass.setPath(CIMObjectPath("localhost", "root/cimv2", cimClass.getClassName()));
 
     ObjectNormalizer normalizer(
         cimClass,
@@ -655,16 +548,14 @@ void Test003e(void)
 
     CIMObjectPath cimObjectPath;
 
-    cimObjectPath.setClassName("cim_softwarefeature");  // use lowercase. normalization should fix case
+    cimObjectPath.setClassName("classc");  // use lowercase. normalization should fix case
 
     // simple keys
     Array<CIMKeyBinding> keys;
 
-    keys.append(CIMKeyBinding("IdentifyingNumber", CIMValue(String("AAAAA"))));
-    keys.append(CIMKeyBinding("Name", CIMValue(String("Test Instance #003e"))));
-    keys.append(CIMKeyBinding("ProductName", CIMValue(String("TestObjectNormalizer"))));
-    keys.append(CIMKeyBinding("Vendor", CIMValue(String("Pegasus"))));
-    keys.append(CIMKeyBinding("Version", CIMValue(String("2.0"))));
+    keys.append(CIMKeyBinding("property1", CIMValue(Uint32(1))));
+    keys.append(CIMKeyBinding("property2", CIMValue(String("Test Instance #003e"))));
+    keys.append(CIMKeyBinding("property3", CIMValue(CIMDateTime::getCurrentDateTime())));
 
     // fake keys
     keys.append(CIMKeyBinding("FakeProperty1", CIMValue(String("junk"))));
@@ -678,12 +569,9 @@ void Test003e(void)
 
     _clock.stop();
 
-    if(verbose)
-    {
-        cout << normalizedObjectPath.toString() << endl;
-    }
+    PRINT(normalizedObjectPath.toString());
 
-    cout << "*** " << _clock.getElapsed() << " milliseconds." << endl;
+    PRINT("*** " << _clock.getElapsed() << " milliseconds.");
 }
 
 //
@@ -693,7 +581,7 @@ void Test003e(void)
 // instance object with no properties and no object path
 void Test004a(void)
 {
-    cout << "Test004a" << endl << endl;
+    PRINT("Test004a");
 
     _clock.reset();
 
@@ -703,15 +591,12 @@ void Test004a(void)
 
     CIMClass cimClass =
         repository->getClass(
-            "root/cimv2",
-            "CIM_SoftwareFeature",
+            "test_namespace",
+            "ClassC",
             localOnly,
             true,   // always true. needed for key qualifiers
             localOnly ? true : includeClassOrigin,  // class origin is needed if local only is true
             CIMPropertyList());
-
-    // ATTN: patch the class object path because the repository does not set the host or namespace elements.
-    cimClass.setPath(CIMObjectPath("localhost", "root/cimv2", cimClass.getClassName()));
 
     ObjectNormalizer normalizer(
         cimClass,
@@ -733,24 +618,22 @@ void Test004a(void)
 
         _clock.stop();
 
-        cout << "Failed to dected instance with no properties and no object path." << endl;
-
-        throw 0;
+        throw Exception("Failed to dected instance with no properties and no object path.");
     }
     catch(CIMException & e)
     {
         _clock.stop();
 
-        cout << "CIMException: " << e.getMessage() << endl;
+        PRINT("expected CIMException: " << e.getMessage());
     }
 
-    cout << "*** " << _clock.getElapsed() << " milliseconds." << endl;
+    PRINT("*** " << _clock.getElapsed() << " milliseconds.");
 }
 
 // instance object with incorrect property type
 void Test004b(void)
 {
-    cout << "Test004b" << endl << endl;
+    PRINT("Test004b");
 
     _clock.reset();
 
@@ -760,15 +643,12 @@ void Test004b(void)
 
     CIMClass cimClass =
         repository->getClass(
-            "root/cimv2",
-            "CIM_SoftwareFeature",
+            "test_namespace",
+            "ClassC",
             localOnly,
             true,   // always true. needed for key qualifiers
             localOnly ? true : includeClassOrigin,  // class origin is needed if local only is true
             CIMPropertyList());
-
-    // ATTN: patch the class object path because the repository does not set the host or namespace elements.
-    cimClass.setPath(CIMObjectPath("localhost", "root/cimv2", cimClass.getClassName()));
 
     ObjectNormalizer normalizer(
         cimClass,
@@ -779,14 +659,12 @@ void Test004b(void)
     CIMInstance cimInstance(cimClass.getClassName());
 
     // only populate keys, let the normalizer do the rest
-    cimInstance.addProperty(CIMProperty("IdentifyingNumber", CIMValue(String("AAAAA"))));
-    cimInstance.addProperty(CIMProperty("Name", CIMValue(String("Test Instance #004b"))));
-    cimInstance.addProperty(CIMProperty("ProductName", CIMValue(String("TestObjectNormalizer"))));
-    cimInstance.addProperty(CIMProperty("Vendor", CIMValue(String("Pegasus"))));
-    cimInstance.addProperty(CIMProperty("Version", CIMValue(String("2.0"))));
+    cimInstance.addProperty(CIMProperty("property1", CIMValue(Uint32(1))));
+    cimInstance.addProperty(CIMProperty("property2", CIMValue(String("Test Instance #004b"))));
+    cimInstance.addProperty(CIMProperty("property3", CIMValue(CIMDateTime::getCurrentDateTime())));
 
     // incorrect property type
-    cimInstance.addProperty(CIMProperty("ElementName", CIMValue(Uint32(0))));   // should be String
+    cimInstance.addProperty(CIMProperty("property4", CIMValue(Uint32(0))));   // should be String
 
     // no object path specified
 
@@ -798,18 +676,16 @@ void Test004b(void)
 
         _clock.stop();
 
-        cout << "Failed to detect incorrect property type." << endl;
-
-        throw 0;
+        throw Exception("Failed to detect incorrect property type.");
     }
     catch(CIMException & e)
     {
         _clock.stop();
 
-        cout << "CIMException: " << e.getMessage() << endl;
+        PRINT("expected CIMException: " << e.getMessage());
     }
 
-    cout << "*** " << _clock.getElapsed() << " milliseconds." << endl;
+    PRINT("*** " << _clock.getElapsed() << " milliseconds.");
 }
 
 //
@@ -819,7 +695,7 @@ void Test004b(void)
 // instance with key properties but no object path
 void Test005a(void)
 {
-    cout << "Test005a" << endl << endl;
+    PRINT("Test005a");
 
     _clock.reset();
 
@@ -829,15 +705,12 @@ void Test005a(void)
 
     CIMClass cimClass =
         repository->getClass(
-            "root/cimv2",
-            "CIM_SoftwareFeature",
+            "test_namespace",
+            "ClassC",
             localOnly,
             true,   // always true. needed for key qualifiers
             localOnly ? true : includeClassOrigin,  // class origin is needed if local only is true
             CIMPropertyList());
-
-    // ATTN: patch the class object path because the repository does not set the host or namespace elements.
-    cimClass.setPath(CIMObjectPath("localhost", "root/cimv2", cimClass.getClassName()));
 
     ObjectNormalizer normalizer(
         cimClass,
@@ -848,11 +721,9 @@ void Test005a(void)
     CIMInstance cimInstance(cimClass.getClassName());
 
     // only populate keys, let the normalizer do the rest
-    cimInstance.addProperty(CIMProperty("IdentifyingNumber", CIMValue(String("AAAAA"))));
-    cimInstance.addProperty(CIMProperty("Name", CIMValue(String("Test Instance #005a"))));
-    cimInstance.addProperty(CIMProperty("ProductName", CIMValue(String("TestObjectNormalizer"))));
-    cimInstance.addProperty(CIMProperty("Vendor", CIMValue(String("Pegasus"))));
-    cimInstance.addProperty(CIMProperty("Version", CIMValue(String("2.0"))));
+    cimInstance.addProperty(CIMProperty("property1", CIMValue(Uint32(1))));
+    cimInstance.addProperty(CIMProperty("property2", CIMValue(String("Test Instance #005a"))));
+    cimInstance.addProperty(CIMProperty("property3", CIMValue(CIMDateTime::getCurrentDateTime())));
 
     // no object path specified
 
@@ -869,13 +740,13 @@ void Test005a(void)
         XmlWriter::printInstanceElement(normalizedInstance);
     }
 
-    cout << "*** " << _clock.getElapsed() << " milliseconds." << endl;
+    PRINT("*** " << _clock.getElapsed() << " milliseconds.");
 }
 
 // instance with object path but no properties
 void Test005b(void)
 {
-    cout << "Test005b" << endl <<endl;
+    PRINT("Test005b");
 
     _clock.reset();
 
@@ -885,15 +756,12 @@ void Test005b(void)
 
     CIMClass cimClass =
         repository->getClass(
-            "root/cimv2",
-            "CIM_SoftwareFeature",
+            "test_namespace",
+            "ClassC",
             localOnly,
             true,   // always true. needed for key qualifiers
             localOnly ? true : includeClassOrigin,  // class origin is needed if local only is true
             CIMPropertyList());
-
-    // ATTN: patch the class object path because the repository does not set the host or namespace elements.
-    cimClass.setPath(CIMObjectPath("localhost", "root/cimv2", cimClass.getClassName()));
 
     ObjectNormalizer normalizer(
         cimClass,
@@ -904,18 +772,10 @@ void Test005b(void)
     CIMInstance cimInstance(cimClass.getClassName());
 
     // all properties
-    cimInstance.addProperty(CIMProperty("Caption", CIMValue(String("Software Feature"))));
-    cimInstance.addProperty(CIMProperty("Description", CIMValue(String("Test Software Feature"))));
-    cimInstance.addProperty(CIMProperty("ElementName", CIMValue(String("Test Instance #005b"))));
-    cimInstance.addProperty(CIMProperty("IdentifyingNumber", CIMValue(String("AAAAA"))));   // key
-    cimInstance.addProperty(CIMProperty("InstanceDate", CIMValue(CIMDateTime::getCurrentDateTime())));
-    cimInstance.addProperty(CIMProperty("Name", CIMValue(String("Test Instance #005b"))));
-    cimInstance.addProperty(CIMProperty("OperationalStatus", CIMValue(Array<Uint16>())));
-    cimInstance.addProperty(CIMProperty("ProductName", CIMValue(String("TestObjectNormalizer"))));  // key
-    cimInstance.addProperty(CIMProperty("Status", CIMValue(String("Status"))));
-    cimInstance.addProperty(CIMProperty("StatusDescriptions", CIMValue(Array<String>())));
-    cimInstance.addProperty(CIMProperty("Vendor", CIMValue(String("Pegasus"))));    // key
-    cimInstance.addProperty(CIMProperty("Version", CIMValue(String("2.0"))));   // key
+    cimInstance.addProperty(CIMProperty("property1", CIMValue(Uint32(1))));
+    cimInstance.addProperty(CIMProperty("property2", CIMValue(String("Test Instance #005b"))));
+    cimInstance.addProperty(CIMProperty("property3", CIMValue(CIMDateTime::getCurrentDateTime())));
+    cimInstance.addProperty(CIMProperty("property4", CIMValue(String("Pegasus TestObjectNormalizer"))));
 
     // complete object path
     CIMObjectPath cimObjectPath;
@@ -924,11 +784,9 @@ void Test005b(void)
 
     Array<CIMKeyBinding> keys;
 
-    keys.append(CIMKeyBinding("IdentifyingNumber", CIMValue(String("AAAAA"))));
-    keys.append(CIMKeyBinding("Name", CIMValue(String("Test Instance #005b"))));
-    keys.append(CIMKeyBinding("ProductName", CIMValue(String("TestObjectNormalizer"))));
-    keys.append(CIMKeyBinding("Vendor", CIMValue(String("Pegasus"))));
-    keys.append(CIMKeyBinding("Version", CIMValue(String("2.0"))));
+    keys.append(CIMKeyBinding("property1", CIMValue(Uint32(1))));
+    keys.append(CIMKeyBinding("property2", CIMValue(String("Test Instance #005b"))));
+    keys.append(CIMKeyBinding("property3", CIMValue(CIMDateTime::getCurrentDateTime()))); // slightly differnt value than property. who wins?
 
     cimObjectPath.setKeyBindings(keys);
 
@@ -947,13 +805,13 @@ void Test005b(void)
         XmlWriter::printInstanceElement(normalizedInstance);
     }
 
-    cout << "*** " << _clock.getElapsed() << " milliseconds." << endl;
+    PRINT("*** " << _clock.getElapsed() << " milliseconds.");
 }
 
 // instance with local properties only
 void Test005c(void)
 {
-    cout << "Test005c" << endl <<endl;
+    PRINT("Test005c");
 
     _clock.reset();
 
@@ -963,15 +821,12 @@ void Test005c(void)
 
     CIMClass cimClass =
         repository->getClass(
-            "root/cimv2",
-            "CIM_SoftwareFeature",
+            "test_namespace",
+            "ClassC",
             localOnly,
             true,   // always true. needed for key qualifiers
             localOnly ? true : includeClassOrigin,  // class origin is needed if local only is true
             CIMPropertyList());
-
-    // ATTN: patch the class object path because the repository does not set the host or namespace elements.
-    cimClass.setPath(CIMObjectPath("localhost", "root/cimv2", cimClass.getClassName()));
 
     ObjectNormalizer normalizer(
         cimClass,
@@ -982,18 +837,10 @@ void Test005c(void)
     CIMInstance cimInstance(cimClass.getClassName());
 
     // all properties
-    cimInstance.addProperty(CIMProperty("Caption", CIMValue(String("Software Feature"))));
-    cimInstance.addProperty(CIMProperty("Description", CIMValue(String("Test Software Feature"))));
-    cimInstance.addProperty(CIMProperty("ElementName", CIMValue(String("Test Instance #005c"))));
-    cimInstance.addProperty(CIMProperty("IdentifyingNumber", CIMValue(String("AAAAA"))));   // key
-    cimInstance.addProperty(CIMProperty("InstanceDate", CIMValue(CIMDateTime::getCurrentDateTime())));
-    cimInstance.addProperty(CIMProperty("Name", CIMValue(String("Test Instance #005c"))));
-    cimInstance.addProperty(CIMProperty("OperationalStatus", CIMValue(Array<Uint16>())));
-    cimInstance.addProperty(CIMProperty("ProductName", CIMValue(String("TestObjectNormalizer"))));  // key
-    cimInstance.addProperty(CIMProperty("Status", CIMValue(String("Status"))));
-    cimInstance.addProperty(CIMProperty("StatusDescriptions", CIMValue(Array<String>())));
-    cimInstance.addProperty(CIMProperty("Vendor", CIMValue(String("Pegasus"))));    // key
-    cimInstance.addProperty(CIMProperty("Version", CIMValue(String("2.0"))));   // key
+    cimInstance.addProperty(CIMProperty("property1", CIMValue(Uint32(1))));
+    cimInstance.addProperty(CIMProperty("property2", CIMValue(String("Test Instance #005c"))));
+    cimInstance.addProperty(CIMProperty("property3", CIMValue(CIMDateTime::getCurrentDateTime())));
+    cimInstance.addProperty(CIMProperty("property4", CIMValue(String("Pegasus TestObjectNormalizer"))));
 
     // complete object path
     CIMObjectPath cimObjectPath;
@@ -1002,11 +849,9 @@ void Test005c(void)
 
     Array<CIMKeyBinding> keys;
 
-    keys.append(CIMKeyBinding("IdentifyingNumber", CIMValue(String("AAAAA"))));
-    keys.append(CIMKeyBinding("Name", CIMValue(String("Test Instance #005c"))));
-    keys.append(CIMKeyBinding("ProductName", CIMValue(String("TestObjectNormalizer"))));
-    keys.append(CIMKeyBinding("Vendor", CIMValue(String("Pegasus"))));
-    keys.append(CIMKeyBinding("Version", CIMValue(String("2.0"))));
+    keys.append(CIMKeyBinding("property1", CIMValue(Uint32(1))));
+    keys.append(CIMKeyBinding("property2", CIMValue(String("Test Instance #005b"))));
+    keys.append(CIMKeyBinding("property3", CIMValue(CIMDateTime::getCurrentDateTime()))); // slightly differnt value than property. who wins?
 
     cimObjectPath.setKeyBindings(keys);
 
@@ -1025,13 +870,13 @@ void Test005c(void)
         XmlWriter::printInstanceElement(normalizedInstance);
     }
 
-    cout << "*** " << _clock.getElapsed() << " milliseconds." << endl;
+    PRINT("*** " << _clock.getElapsed() << " milliseconds.");
 }
 
 // include with properties containing class origin
 void Test005d(void)
 {
-    cout << "Test005d" << endl <<endl;
+    PRINT("Test005d");
 
     _clock.reset();
 
@@ -1041,15 +886,12 @@ void Test005d(void)
 
     CIMClass cimClass =
         repository->getClass(
-            "root/cimv2",
-            "CIM_SoftwareFeature",
+            "test_namespace",
+            "ClassC",
             localOnly,
             true,   // always true. needed for key qualifiers
             localOnly ? true : includeClassOrigin,  // class origin is needed if local only is true
             CIMPropertyList());
-
-    // ATTN: patch the class object path because the repository does not set the host or namespace elements.
-    cimClass.setPath(CIMObjectPath("localhost", "root/cimv2", cimClass.getClassName()));
 
     ObjectNormalizer normalizer(
         cimClass,
@@ -1059,20 +901,11 @@ void Test005d(void)
 
     CIMInstance cimInstance(cimClass.getClassName());
 
-    // no properties
     // all properties
-    cimInstance.addProperty(CIMProperty("Caption", CIMValue(String("Software Feature"))));
-    cimInstance.addProperty(CIMProperty("Description", CIMValue(String("Test Software Feature"))));
-    cimInstance.addProperty(CIMProperty("ElementName", CIMValue(String("Test Instance #005d"))));
-    cimInstance.addProperty(CIMProperty("IdentifyingNumber", CIMValue(String("AAAAA"))));   // key
-    cimInstance.addProperty(CIMProperty("InstanceDate", CIMValue(CIMDateTime::getCurrentDateTime())));
-    cimInstance.addProperty(CIMProperty("Name", CIMValue(String("Test Instance #005d"))));
-    cimInstance.addProperty(CIMProperty("OperationalStatus", CIMValue(Array<Uint16>())));
-    cimInstance.addProperty(CIMProperty("ProductName", CIMValue(String("TestObjectNormalizer"))));  // key
-    cimInstance.addProperty(CIMProperty("Status", CIMValue(String("Status"))));
-    cimInstance.addProperty(CIMProperty("StatusDescriptions", CIMValue(Array<String>())));
-    cimInstance.addProperty(CIMProperty("Vendor", CIMValue(String("Pegasus"))));    // key
-    cimInstance.addProperty(CIMProperty("Version", CIMValue(String("2.0"))));   // key
+    cimInstance.addProperty(CIMProperty("property1", CIMValue(Uint32(1))));
+    cimInstance.addProperty(CIMProperty("property2", CIMValue(String("Test Instance #005c"))));
+    cimInstance.addProperty(CIMProperty("property3", CIMValue(CIMDateTime::getCurrentDateTime())));
+    cimInstance.addProperty(CIMProperty("property4", CIMValue(String("Pegasus TestObjectNormalizer"))));
 
     // complete object path
     CIMObjectPath cimObjectPath;
@@ -1081,11 +914,9 @@ void Test005d(void)
 
     Array<CIMKeyBinding> keys;
 
-    keys.append(CIMKeyBinding("IdentifyingNumber", CIMValue(String("AAAAA"))));
-    keys.append(CIMKeyBinding("Name", CIMValue(String("Test Instnace #005d"))));
-    keys.append(CIMKeyBinding("ProductName", CIMValue(String("TestObjectNormalizer"))));
-    keys.append(CIMKeyBinding("Vendor", CIMValue(String("Pegasus"))));
-    keys.append(CIMKeyBinding("Version", CIMValue(String("2.0"))));
+    keys.append(CIMKeyBinding("property1", CIMValue(Uint32(1))));
+    keys.append(CIMKeyBinding("property2", CIMValue(String("Test Instance #005b"))));
+    keys.append(CIMKeyBinding("property3", CIMValue(CIMDateTime::getCurrentDateTime()))); // slightly differnt value than property. who wins?
 
     cimObjectPath.setKeyBindings(keys);
 
@@ -1104,7 +935,7 @@ void Test005d(void)
         XmlWriter::printInstanceElement(normalizedInstance);
     }
 
-    cout << "*** " << _clock.getElapsed() << " milliseconds." << endl;
+    PRINT("*** " << _clock.getElapsed() << " milliseconds.");
 }
 
 //
@@ -1112,7 +943,7 @@ void Test005d(void)
 //
 void Test100a(void)
 {
-    cout << "Test100a" << endl << endl;
+    PRINT("Test100a");
 
     _clock.reset();
 
@@ -1122,15 +953,12 @@ void Test100a(void)
 
     CIMClass cimClass =
         repository->getClass(
-            "root/cimv2",
-            "cim_softwarefeature",
+            "test_namespace",
+            "ClassC",
             localOnly,
             true,   // always true. needed for key qualifiers
             localOnly ? true : includeClassOrigin,  // class origin is needed if local only is true
             CIMPropertyList());
-
-    // ATTN: patch the class object path because the repository does not set the host or namespace elements.
-    cimClass.setPath(CIMObjectPath("localhost", "root/cimv2", cimClass.getClassName()));
 
     ObjectNormalizer normalizer(
         cimClass,
@@ -1147,11 +975,9 @@ void Test100a(void)
         // simple keys
         Array<CIMKeyBinding> keys;
 
-        keys.append(CIMKeyBinding("IdentifyingNumber", CIMValue(String("AAAAA"))));
-        keys.append(CIMKeyBinding("Name", CIMValue(String("Test Instance #100a.") + CIMValue(i).toString())));
-        keys.append(CIMKeyBinding("ProductName", CIMValue(String("TestObjectNormalizer"))));
-        keys.append(CIMKeyBinding("Vendor", CIMValue(String("Pegasus"))));
-        keys.append(CIMKeyBinding("Version", CIMValue(String("2.0"))));
+        keys.append(CIMKeyBinding("property1", CIMValue(Uint32(1))));
+        keys.append(CIMKeyBinding("property2", CIMValue(String("Test Instance #005b"))));
+        keys.append(CIMKeyBinding("property3", CIMValue(CIMDateTime::getCurrentDateTime())));
 
         cimObjectPath.setKeyBindings(keys);
 
@@ -1161,19 +987,16 @@ void Test100a(void)
 
         _clock.stop();
 
-        if(verbose)
-        {
-            cout << normalizedObjectPath.toString() << endl;
-        }
+        PRINT(normalizedObjectPath.toString());
     }
 
-    cout << "*** " << _clock.getElapsed() << " milliseconds." << endl;
+    PRINT("*** " << _clock.getElapsed() << " milliseconds.");
 }
 
 // large instance set with object paths set and without qualifiers
 void Test101a(void)
 {
-    cout << "Test101a" << endl << endl;
+    PRINT("Test101a");
 
     _clock.reset();
 
@@ -1183,15 +1006,12 @@ void Test101a(void)
 
     CIMClass cimClass =
         repository->getClass(
-            "root/cimv2",
-            "CIM_SoftwareFeature",
+            "test_namespace",
+            "ClassC",
             localOnly,
             true,   // always true. needed for key qualifiers
             localOnly ? true : includeClassOrigin,  // class origin is needed if local only is true
             CIMPropertyList());
-
-    // ATTN: patch the class object path because the repository does not set the host or namespace elements.
-    cimClass.setPath(CIMObjectPath("localhost", "root/cimv2", cimClass.getClassName()));
 
     ObjectNormalizer normalizer(
         cimClass,
@@ -1204,18 +1024,10 @@ void Test101a(void)
         CIMInstance cimInstance(cimClass.getClassName());
 
         // all properties
-        cimInstance.addProperty(CIMProperty("Caption", CIMValue(String("Software Feature"))));
-        cimInstance.addProperty(CIMProperty("Description", CIMValue(String("Test Software Feature"))));
-        cimInstance.addProperty(CIMProperty("ElementName", CIMValue(String("Test Instance #101a.") + CIMValue(i).toString())));
-        cimInstance.addProperty(CIMProperty("IdentifyingNumber", CIMValue(String("AAAAA"))));   // key
-        cimInstance.addProperty(CIMProperty("InstanceDate", CIMValue(CIMDateTime::getCurrentDateTime())));
-        cimInstance.addProperty(CIMProperty("Name", CIMValue(String("Test Instance #101a.") + CIMValue(i).toString()))); // key
-        cimInstance.addProperty(CIMProperty("OperationalStatus", CIMValue(Array<Uint16>())));
-        cimInstance.addProperty(CIMProperty("ProductName", CIMValue(String("TestObjectNormalizer"))));  // key
-        cimInstance.addProperty(CIMProperty("Status", CIMValue(String("Status"))));
-        cimInstance.addProperty(CIMProperty("StatusDescriptions", CIMValue(Array<String>())));
-        cimInstance.addProperty(CIMProperty("Vendor", CIMValue(String("Pegasus"))));    // key
-        cimInstance.addProperty(CIMProperty("Version", CIMValue(String("2.0"))));   // key
+        cimInstance.addProperty(CIMProperty("property1", CIMValue(Uint32(i))));
+        cimInstance.addProperty(CIMProperty("property2", CIMValue(String("Test Instance #101a"))));
+        cimInstance.addProperty(CIMProperty("property3", CIMValue(CIMDateTime::getCurrentDateTime())));
+        cimInstance.addProperty(CIMProperty("property4", CIMValue(String("Pegasus TestObjectNormalizer"))));
 
         // complete object path
         CIMObjectPath cimObjectPath;
@@ -1224,11 +1036,9 @@ void Test101a(void)
 
         Array<CIMKeyBinding> keys;
 
-        keys.append(CIMKeyBinding("IdentifyingNumber", CIMValue(String("AAAAA"))));
-        keys.append(CIMKeyBinding("Name", CIMValue(String("Test Instnace #101a." + CIMValue(i).toString()))));
-        keys.append(CIMKeyBinding("ProductName", CIMValue(String("TestObjectNormalizer"))));
-        keys.append(CIMKeyBinding("Vendor", CIMValue(String("Pegasus"))));
-        keys.append(CIMKeyBinding("Version", CIMValue(String("2.0"))));
+        keys.append(CIMKeyBinding("property1", CIMValue(Uint32(1))));
+        keys.append(CIMKeyBinding("property2", CIMValue(String("Test Instance #005b"))));
+        keys.append(CIMKeyBinding("property3", CIMValue(CIMDateTime::getCurrentDateTime()))); // slightly differnt value than property. who wins?
 
         cimObjectPath.setKeyBindings(keys);
 
@@ -1246,13 +1056,13 @@ void Test101a(void)
         }
     }
 
-    cout << "*** " << _clock.getElapsed() << " milliseconds." << endl;
+    PRINT("*** " << _clock.getElapsed() << " milliseconds.")
 }
 
 // large instance set without object paths and without qualifiers
 void Test101b(void)
 {
-    cout << "Test101b" << endl << endl;
+    PRINT("Test101b");
 
     _clock.reset();
 
@@ -1262,15 +1072,12 @@ void Test101b(void)
 
     CIMClass cimClass =
         repository->getClass(
-            "root/cimv2",
-            "CIM_SoftwareFeature",
+            "test_namespace",
+            "ClassC",
             localOnly,
             true,   // always true. needed for key qualifiers
             localOnly ? true : includeClassOrigin,  // class origin is needed if local only is true
             CIMPropertyList());
-
-    // ATTN: patch the class object path because the repository does not set the host or namespace elements.
-    cimClass.setPath(CIMObjectPath("localhost", "root/cimv2", cimClass.getClassName()));
 
     ObjectNormalizer normalizer(
         cimClass,
@@ -1283,18 +1090,10 @@ void Test101b(void)
         CIMInstance cimInstance(cimClass.getClassName());
 
         // only populate keys, let the normalizer do the rest
-        cimInstance.addProperty(CIMProperty("Caption", CIMValue(String("Software Feature"))));
-        cimInstance.addProperty(CIMProperty("Description", CIMValue(String("Test Software Feature"))));
-        cimInstance.addProperty(CIMProperty("ElementName", CIMValue(String("Test Instance #101b.") + CIMValue(i).toString())));
-        cimInstance.addProperty(CIMProperty("IdentifyingNumber", CIMValue(String("AAAAA"))));   // key
-        cimInstance.addProperty(CIMProperty("InstanceDate", CIMValue(CIMDateTime::getCurrentDateTime())));
-        cimInstance.addProperty(CIMProperty("Name", CIMValue(String("Test Instance #101b.") + CIMValue(i).toString()))); // key
-        cimInstance.addProperty(CIMProperty("OperationalStatus", CIMValue(Array<Uint16>())));
-        cimInstance.addProperty(CIMProperty("ProductName", CIMValue(String("TestObjectNormalizer"))));  // key
-        cimInstance.addProperty(CIMProperty("Status", CIMValue(String("Status"))));
-        cimInstance.addProperty(CIMProperty("StatusDescriptions", CIMValue(Array<String>())));
-        cimInstance.addProperty(CIMProperty("Vendor", CIMValue(String("Pegasus"))));    // key
-        cimInstance.addProperty(CIMProperty("Version", CIMValue(String("2.0"))));   // key
+        cimInstance.addProperty(CIMProperty("property1", CIMValue(Uint32(i))));
+        cimInstance.addProperty(CIMProperty("property2", CIMValue(String("Test Instance #101b"))));
+        cimInstance.addProperty(CIMProperty("property3", CIMValue(CIMDateTime::getCurrentDateTime())));
+        cimInstance.addProperty(CIMProperty("property4", CIMValue(String("Pegasus TestObjectNormalizer"))));
 
         // no object path specified (obtained via instance)
 
@@ -1312,25 +1111,32 @@ void Test101b(void)
         }
     }
 
-    cout << "*** " << _clock.getElapsed() << " milliseconds." << endl;
+    PRINT("*** " << _clock.getElapsed() << " milliseconds.");
 }
 
 int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE");
 
-    String repositoryRoot = String(getenv("PEGASUS_HOME")) + String("/repository");
+    repository = new LocalRepository();
+
+    if(verbose)
+    {
+        CIMClass cimClass =
+            repository->getClass(
+                "test_namespace",
+                "ClassC",
+                false,
+                true,
+                true,
+                CIMPropertyList());
+
+        cout << "using the following classes for tests:" << endl;
+
+        XmlWriter::printClassElement(cimClass);
+    }
 
     try
-    {
-        repository = new CIMRepository(repositoryRoot);
-    }
-    catch(...)
-    {
-        cout << "Failed to create CIMRepository object." << endl;
-    }
-
-	try
     {
         // basic object tests
         Test001a();
@@ -1386,6 +1192,8 @@ int main(int argc, char** argv)
     }
 
     cout << argv[0] << " +++++ passed all tests" << endl;
+
+    delete repository;
 
     return(0);
 }

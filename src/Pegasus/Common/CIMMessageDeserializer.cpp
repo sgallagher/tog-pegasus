@@ -253,9 +253,6 @@ CIMRequestMessage* CIMMessageDeserializer::_deserializeCIMRequestMessage(
         case CIM_PROCESS_INDICATION_REQUEST_MESSAGE:
             message = _deserializeCIMProcessIndicationRequestMessage(parser);
             break;
-        case CIM_CONSUME_INDICATION_REQUEST_MESSAGE:
-            message = _deserializeCIMConsumeIndicationRequestMessage(parser);
-            break;
         case CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE:
             // ATTN: No need to serialize this yet
             PEGASUS_ASSERT(0);
@@ -415,9 +412,6 @@ CIMResponseMessage* CIMMessageDeserializer::_deserializeCIMResponseMessage(
             break;
         case CIM_PROCESS_INDICATION_RESPONSE_MESSAGE:
             message = _deserializeCIMProcessIndicationResponseMessage(parser);
-            break;
-        case CIM_CONSUME_INDICATION_RESPONSE_MESSAGE:
-            message = _deserializeCIMConsumeIndicationResponseMessage(parser);
             break;
         case CIM_NOTIFY_PROVIDER_REGISTRATION_RESPONSE_MESSAGE:
             // ATTN: No need to serialize this yet
@@ -1702,35 +1696,6 @@ CIMMessageDeserializer::_deserializeCIMProcessIndicationRequestMessage(
 }
 
 //
-// _deserializeCIMConsumeIndicationRequestMessage
-//
-CIMConsumeIndicationRequestMessage*
-CIMMessageDeserializer::_deserializeCIMConsumeIndicationRequestMessage(
-    XmlParser& parser)
-{
-    CIMNamespaceName nameSpace;
-    CIMInstance indicationInstance;
-    CIMInstance consumer_provider;
-    CIMInstance consumer_module;
-
-    _deserializeCIMNamespaceName(parser, nameSpace);
-    _deserializeCIMInstance(parser, indicationInstance);
-    _deserializeCIMInstance(parser, consumer_provider);
-    _deserializeCIMInstance(parser, consumer_module);
-
-    CIMConsumeIndicationRequestMessage* message =
-        new CIMConsumeIndicationRequestMessage(
-            String::EMPTY,         // messageId
-            nameSpace,
-            indicationInstance,
-            consumer_provider,
-            consumer_module,
-            QueueIdStack());       // queueIds
-
-    return(message);
-}
-
-//
 // _deserializeCIMDisableModuleRequestMessage
 //
 CIMDisableModuleRequestMessage*
@@ -2325,22 +2290,6 @@ CIMMessageDeserializer::_deserializeCIMProcessIndicationResponseMessage(
 {
     CIMProcessIndicationResponseMessage* message =
         new CIMProcessIndicationResponseMessage(
-            String::EMPTY,         // messageId
-            CIMException(),        // cimException
-            QueueIdStack());       // queueIds
-
-    return(message);
-}
-
-//
-// _deserializeCIMConsumeIndicationResponseMessage
-//
-CIMConsumeIndicationResponseMessage*
-CIMMessageDeserializer::_deserializeCIMConsumeIndicationResponseMessage(
-    XmlParser& parser)
-{
-    CIMConsumeIndicationResponseMessage* message =
-        new CIMConsumeIndicationResponseMessage(
             String::EMPTY,         // messageId
             CIMException(),        // cimException
             QueueIdStack());       // queueIds

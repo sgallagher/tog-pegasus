@@ -105,7 +105,6 @@ protected:
     Message * handleEnableIndicationsRequest(const Message * message);
     Message * handleDisableIndicationsRequest(const Message * message);
 
-    Message * handleConsumeIndicationRequest(const Message * message);
     Message * handleExportIndicationRequest(const Message * message);
 
     Message * handleDisableModuleRequest(const Message * message);

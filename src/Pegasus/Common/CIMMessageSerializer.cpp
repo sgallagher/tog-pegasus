@@ -245,10 +245,6 @@ void CIMMessageSerializer::_serializeCIMRequestMessage(
             _serializeCIMProcessIndicationRequestMessage(
                 out, (CIMProcessIndicationRequestMessage*)cimMessage);
             break;
-        case CIM_CONSUME_INDICATION_REQUEST_MESSAGE:
-            _serializeCIMConsumeIndicationRequestMessage(
-                out, (CIMConsumeIndicationRequestMessage*)cimMessage);
-            break;
         case CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE:
             // ATTN: No need to serialize this yet
             PEGASUS_ASSERT(0);
@@ -434,10 +430,6 @@ void CIMMessageSerializer::_serializeCIMResponseMessage(
         case CIM_PROCESS_INDICATION_RESPONSE_MESSAGE:
             _serializeCIMProcessIndicationResponseMessage(
                 out, (CIMProcessIndicationResponseMessage*)cimMessage);
-            break;
-        case CIM_CONSUME_INDICATION_RESPONSE_MESSAGE:
-            _serializeCIMConsumeIndicationResponseMessage(
-                out, (CIMConsumeIndicationResponseMessage*)cimMessage);
             break;
         case CIM_NOTIFY_PROVIDER_REGISTRATION_RESPONSE_MESSAGE:
             // ATTN: No need to serialize this yet
@@ -1198,19 +1190,6 @@ void CIMMessageSerializer::_serializeCIMProcessIndicationRequestMessage(
 }
 
 //
-// _serializeCIMConsumeIndicationRequestMessage
-//
-void CIMMessageSerializer::_serializeCIMConsumeIndicationRequestMessage(
-    Array<Sint8>& out,
-    CIMConsumeIndicationRequestMessage* message)
-{
-    _serializeCIMNamespaceName(out, message->nameSpace);
-    _serializeCIMInstance(out, message->indicationInstance);
-    _serializeCIMInstance(out, message->consumer_provider);
-    _serializeCIMInstance(out, message->consumer_module);
-}
-
-//
 // _serializeCIMDisableModuleRequestMessage
 //
 void CIMMessageSerializer::_serializeCIMDisableModuleRequestMessage(
@@ -1563,16 +1542,6 @@ void CIMMessageSerializer::_serializeCIMExportIndicationResponseMessage(
 void CIMMessageSerializer::_serializeCIMProcessIndicationResponseMessage(
     Array<Sint8>& out,
     CIMProcessIndicationResponseMessage* message)
-{
-    // No additional attributes to serialize!
-}
-
-//
-// _serializeCIMConsumeIndicationResponseMessage
-//
-void CIMMessageSerializer::_serializeCIMConsumeIndicationResponseMessage(
-    Array<Sint8>& out,
-    CIMConsumeIndicationResponseMessage* message)
 {
     // No additional attributes to serialize!
 }

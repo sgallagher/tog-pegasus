@@ -122,7 +122,7 @@ protected:
     Message * handleDisableIndicationsRequest(const Message * message);
 
 //  Not supported by CMPI
-//    Message * handleConsumeIndicationRequest(const Message * message);
+//    Message * handleExportIndicationRequest(const Message * message);
 
     Message * handleDisableModuleRequest(const Message * message);
     Message * handleEnableModuleRequest(const Message * message);

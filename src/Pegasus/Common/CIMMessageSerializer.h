@@ -224,10 +224,6 @@ private:
         Array<Sint8>& out,
         CIMProcessIndicationRequestMessage* message);
 
-    static void _serializeCIMConsumeIndicationRequestMessage(
-        Array<Sint8>& out,
-        CIMConsumeIndicationRequestMessage* message);
-
     static void _serializeCIMDisableModuleRequestMessage(
         Array<Sint8>& out,
         CIMDisableModuleRequestMessage* message);
@@ -346,10 +342,6 @@ private:
     static void _serializeCIMProcessIndicationResponseMessage(
         Array<Sint8>& out,
         CIMProcessIndicationResponseMessage* message);
-
-    static void _serializeCIMConsumeIndicationResponseMessage(
-        Array<Sint8>& out,
-        CIMConsumeIndicationResponseMessage* message);
 
     static void _serializeCIMDisableModuleResponseMessage(
         Array<Sint8>& out,

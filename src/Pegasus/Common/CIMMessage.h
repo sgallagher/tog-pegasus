@@ -1162,39 +1162,6 @@ public:
     CIMInstance provider;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMConsumeIndicationRequestMessage
-    : public CIMRequestMessage
-{
-public:
-    CIMConsumeIndicationRequestMessage(
-        const String & messageId_,
-        const CIMNamespaceName & nameSpace_,     // ns of the origin of the indication
-        const CIMInstance & indicationInstance_,
-        const CIMInstance & consumer_provider_,
-        const CIMInstance & consumer_module_,
-        const QueueIdStack& queueIds_,
-        const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
-        const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
-        : CIMRequestMessage(
-              CIM_CONSUME_INDICATION_REQUEST_MESSAGE, messageId_, queueIds_,
-              contentLanguages_, acceptLanguages_),
-          nameSpace(nameSpace_),
-          indicationInstance(indicationInstance_),
-          consumer_provider(consumer_provider_),
-          consumer_module(consumer_module_)
-    {
-    }
-
-    virtual CIMResponseMessage* buildResponse();
-
-    CIMNamespaceName nameSpace;
-    CIMInstance indicationInstance;
-    CIMInstance consumer_provider;
-    CIMInstance consumer_module;
-};
-
-
-
 class PEGASUS_COMMON_LINKAGE CIMEnableIndicationsRequestMessage
     : public CIMIndicationRequestMessage
 {
@@ -2069,20 +2036,6 @@ public:
         const CIMException& cimException_,
         const QueueIdStack& queueIds_)
     : CIMResponseMessage(CIM_CREATE_INSTANCE_RESPONSE_MESSAGE,
-        messageId_, cimException_, queueIds_)
-    {
-    }
-};
-
-class PEGASUS_COMMON_LINKAGE CIMConsumeIndicationResponseMessage
-    : public CIMResponseMessage
-{
-public:
-    CIMConsumeIndicationResponseMessage(
-        const String& messageId_,
-        const CIMException& cimException_,
-        const QueueIdStack& queueIds_)
-    : CIMResponseMessage(CIM_CONSUME_INDICATION_RESPONSE_MESSAGE,
         messageId_, cimException_, queueIds_)
     {
     }

@@ -453,21 +453,6 @@ CIMResponseMessage* CIMProcessIndicationRequestMessage::buildResponse()
     return response;
 }
 
-CIMResponseMessage* CIMConsumeIndicationRequestMessage::buildResponse()
-{
-    CIMConsumeIndicationResponseMessage* response;
-    response = new CIMConsumeIndicationResponseMessage(
-        messageId,
-        CIMException(),
-        queueIds.copyAndPop());
-    AutoPtr<CIMConsumeIndicationResponseMessage> responsePtr(response);
-
-    response->syncAttributes(this);
-
-    responsePtr.release();
-    return response;
-}
-
 CIMResponseMessage* CIMEnableIndicationsRequestMessage::buildResponse()
 {
     CIMEnableIndicationsResponseMessage* response;

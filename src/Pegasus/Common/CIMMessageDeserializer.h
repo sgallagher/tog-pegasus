@@ -193,9 +193,6 @@ private:
     static CIMProcessIndicationRequestMessage*
         _deserializeCIMProcessIndicationRequestMessage(XmlParser& parser);
 
-    static CIMConsumeIndicationRequestMessage*
-        _deserializeCIMConsumeIndicationRequestMessage(XmlParser& parser);
-
     static CIMDisableModuleRequestMessage*
         _deserializeCIMDisableModuleRequestMessage(XmlParser& parser);
 
@@ -288,9 +285,6 @@ private:
 
     static CIMProcessIndicationResponseMessage*
         _deserializeCIMProcessIndicationResponseMessage(XmlParser& parser);
-
-    static CIMConsumeIndicationResponseMessage*
-        _deserializeCIMConsumeIndicationResponseMessage(XmlParser& parser);
 
     static CIMDisableModuleResponseMessage*
         _deserializeCIMDisableModuleResponseMessage(XmlParser& parser);

@@ -197,8 +197,8 @@ Message * CMPIProviderManager::processMessage(Message * request)
         response = handleDisableIndicationsRequest(request);
 
         break;
-/*    case CIM_CONSUME_INDICATION_REQUEST_MESSAGE:
-        response = handleConsumeIndicationRequest(request);
+/*    case CIM_EXPORT_INDICATION_REQUEST_MESSAGE:
+        response = handleExportIndicationRequest(request);
         break;
 */
     case CIM_DISABLE_MODULE_REQUEST_MESSAGE:

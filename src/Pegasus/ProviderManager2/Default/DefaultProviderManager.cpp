@@ -180,10 +180,6 @@ Message * DefaultProviderManager::processMessage(Message * request)
         response = handleDisableIndicationsRequest(request);
 
         break;
-    case CIM_CONSUME_INDICATION_REQUEST_MESSAGE:
-        response = handleConsumeIndicationRequest(request);
-        break;
-
     case CIM_EXPORT_INDICATION_REQUEST_MESSAGE:
         response = handleExportIndicationRequest(request);
         break;
@@ -2328,97 +2324,6 @@ Message * DefaultProviderManager::handleDisableIndicationsRequest(const Message 
 
     return(response);
 }
-
-Message * DefaultProviderManager::handleConsumeIndicationRequest(const Message *message)
-{
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handlConsumeIndicationRequest");
-
-    CIMConsumeIndicationRequestMessage *request =
-        dynamic_cast<CIMConsumeIndicationRequestMessage *>(const_cast<Message *>(message));
-
-    PEGASUS_ASSERT(request != 0);
-
-    CIMResponseMessage * response =
-        new CIMResponseMessage(
-        CIM_CONSUME_INDICATION_RESPONSE_MESSAGE,
-        request->messageId,
-        CIMException(),
-        request->queueIds.copyAndPop());
-
-    PEGASUS_ASSERT(response != 0);
-
-    response->setKey(request->getKey());
-
-    //  Set HTTP method in response from request
-    response->setHttpMethod (request->getHttpMethod ());
-
-    Uint32 type = 3;
-
-    try
-    {
-        // resolve provider name
-        ProviderName name = _resolveProviderName(
-            request->operationContext.get(ProviderIdContainer::NAME));
-
-        // get cached or load new provider module
-        OpProviderHolder ph =
-            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
-
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Calling provider.: " +
-            ph.GetProvider().getName());
-
-        OperationContext context;
-
-        //l10n
-        // ATTN-CEC 06/04/03 NOTE: I can't find where the consume msg is sent.  This
-        // does not appear to be hooked-up.  When it is added, need to
-        // make sure that Content-Language is set in the consume msg.
-        // NOTE: A-L is not needed to be set in the consume msg.
-        // add the langs to the context
-        context.insert(ContentLanguageListContainer(request->contentLanguages));
-
-        CIMInstance indication_copy = request->indicationInstance;
-
-        SimpleIndicationResponseHandler handler;
-
-        ph.GetProvider().consumeIndication(context,
-            "",
-            indication_copy);
-    }
-    catch(CIMException & e)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: " + e.getMessage());
-
-        response->cimException = CIMException(e);
-    }
-    catch(Exception & e)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: " + e.getMessage());
-        //l10n
-        //response->cimException = CIMException(CIM_ERR_FAILED, "Internal Error");
-        response->cimException = CIMException(CIM_ERR_FAILED, MessageLoaderParms(
-            "ProviderManager.DefaultProviderManager.INTERNAL_ERROR",
-            "Internal Error"));
-    }
-    catch(...)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: Unknown");
-        //l10n
-        //response->cimException = CIMException(CIM_ERR_FAILED, "Unknown Error");
-        response->cimException = CIMException(CIM_ERR_FAILED, MessageLoaderParms(
-            "ProviderManager.DefaultProviderManager.UNKNOWN_ERROR",
-            "Unknown Error"));
-    }
-
-    PEG_METHOD_EXIT();
-
-    return(response);
-}
-
 
 Message *DefaultProviderManager::handleExportIndicationRequest(const Message *message)
 {

@@ -220,7 +220,7 @@ CQLValueRep::CQLValueRep(String inString, NumericType inValueType, Boolean inSig
          }
          break;
       default:
-         throw(1);
+         throw(Exception(String("")));
          break;
    }
    _isResolved = true;
@@ -349,7 +349,7 @@ void CQLValueRep::resolve(CIMInstance CI, QueryContext& inQueryCtx)
 
       if(classList.size() != 1)
       {
-         throw(1);
+         throw(Exception(String("")));
       }
 
       className = classList[0].getName().getString();   
@@ -438,7 +438,7 @@ void CQLValueRep::resolve(CIMInstance CI, QueryContext& inQueryCtx)
 
       if(propertyIndex == PEG_NOT_FOUND)
       {
-         throw(1);
+         throw(Exception(String("")));
       }
 
       // We will check the property type to determine what processing 
@@ -520,13 +520,13 @@ Boolean CQLValueRep::operator==(const CQLValueRep& x)
 {
    if(!_validate(x))
    {
-      throw(1);
+      throw(Exception(String("")));
    } 
 
    if(x._valueType == Null_type ||
       _valueType == Null_type)
    {
-      throw(1);
+      throw(Exception(String("")));
    }
  
    switch(_valueType)
@@ -638,11 +638,11 @@ Boolean CQLValueRep::operator==(const CQLValueRep& x)
          }   
          break;
          case CQLIdentifier_type:
-            throw(1);
+            throw(Exception(String("")));
          break;
 
       default:
-         throw(1);
+         throw(Exception(String("")));
          break;
    }
    return false;
@@ -653,7 +653,7 @@ Boolean CQLValueRep::operator!=(const CQLValueRep& x)
 {
    if(!_validate(x))
    {
-      throw(1);
+      throw(Exception(String("")));
    }  
  
    return !(this->operator==(x));
@@ -664,13 +664,13 @@ Boolean CQLValueRep::operator<=(const CQLValueRep& x)
 {
    if(!_validate(x))
    {
-      throw(1);
+      throw(Exception(String("")));
    }  
 
    if(x._valueType == Null_type ||
       _valueType == Null_type)
    {
-      throw(1);
+      throw(Exception(String("")));
    }
  
    switch(_valueType)
@@ -762,20 +762,20 @@ Boolean CQLValueRep::operator<=(const CQLValueRep& x)
          }
          break;
       case CIMDateTime_type:
-         throw(1);
+         throw(Exception(String("")));
          break;
       case CIMReference_type:
-         throw(1);
+         throw(Exception(String("")));
          break;
       case CIMInstance_type:
-            throw(1);
+            throw(Exception(String("")));
          break;
       case CQLIdentifier_type:
-            throw(1);
+            throw(Exception(String("")));
          break;
 
       default:
-         throw(1);
+         throw(Exception(String("")));
          break;
    }
    return false;
@@ -786,13 +786,13 @@ Boolean CQLValueRep::operator>=(const CQLValueRep& x)
 {
    if(!_validate(x))
    {
-      throw(1);
+      throw(Exception(String("")));
    }  
  
    if(x._valueType == Null_type ||
       _valueType == Null_type)
    {
-      throw(1);
+      throw(Exception(String("CQLValueRep::")));
    }
 
    switch(_valueType)
@@ -884,20 +884,20 @@ Boolean CQLValueRep::operator>=(const CQLValueRep& x)
          }
          break;
       case CIMDateTime_type:
-         throw(1);
+         throw(Exception(String("CQLValueRep::")));
          break;
       case CIMReference_type:
-         throw(1);
+         throw(Exception(String("CQLValueRep::")));
          break;
       case CIMInstance_type:
-            throw(1);
+            throw(Exception(String("CQLValueRep::")));
          break;
       case CQLIdentifier_type:
-            throw(1);
+            throw(Exception(String("CQLValueRep::")));
          break;
 
       default:
-         throw(1);
+         throw(Exception(String("CQLValueRep::")));
          break;
    }
    return false;
@@ -908,13 +908,13 @@ Boolean CQLValueRep::operator<(const CQLValueRep& x)
 {
 if(!_validate(x))
    {
-      throw(1);
+      throw(Exception(String("CQLValueRep::")));
    }  
  
    if(x._valueType == Null_type ||
       _valueType == Null_type)
    {
-      throw(1);
+      throw(Exception(String("CQLValueRep::")));
    }
 
    switch(_valueType)
@@ -1006,20 +1006,20 @@ if(!_validate(x))
          }
          break;
       case CIMDateTime_type:
-         throw(1);
+         throw(Exception(String("CQLValueRep::")));
          break;
       case CIMReference_type:
-         throw(1);
+         throw(Exception(String("CQLValueRep::")));
          break;
       case CIMInstance_type:
-            throw(1);
+            throw(Exception(String("CQLValueRep::")));
          break;
       case CQLIdentifier_type:
-            throw(1);
+            throw(Exception(String("CQLValueRep::")));
          break;
 
       default:
-         throw(1);
+         throw(Exception(String("CQLValueRep::")));
          break;
    }
    return false;
@@ -1030,13 +1030,13 @@ Boolean CQLValueRep::operator>(const CQLValueRep& x)
 {
    if(!_validate(x))
    {
-      throw(1);
+      throw(Exception(String("CQLValueRep::")));
    }  
  
    if(x._valueType == Null_type ||
       _valueType == Null_type)
    {
-      throw(1);
+      throw(Exception(String("CQLValueRep::")));
    }
 
    switch(_valueType)
@@ -1128,20 +1128,20 @@ Boolean CQLValueRep::operator>(const CQLValueRep& x)
          }
          break;
       case CIMDateTime_type:
-         throw(1);
+         throw(Exception(String("CQLValueRep::")));
          break;
       case CIMReference_type:
-         throw(1);
+         throw(Exception(String("CQLValueRep::")));
          break;
       case CIMInstance_type:
-            throw(1);
+            throw(Exception(String("CQLValueRep::")));
          break;
       case CQLIdentifier_type:
-            throw(1);
+            throw(Exception(String("CQLValueRep::")));
          break;
 
       default:
-         throw(1);
+         throw(Exception(String("CQLValueRep::")));
          break;
    }
    return false;
@@ -1153,7 +1153,7 @@ CQLValueRep CQLValueRep::operator+(const CQLValueRep x)
    
    if(!_validate(x))  
    {
-      throw(1);
+      throw(Exception(String("CQLValueRep::")));
    } 
 
    if(x._valueType == Null_type ||
@@ -1165,7 +1165,7 @@ CQLValueRep CQLValueRep::operator+(const CQLValueRep x)
    switch(_valueType)
    {
       case Boolean_type:
-         throw(1);
+         throw(Exception(String("CQLValueRep::")));
          break;
       case Sint64_type:
          if(x._valueType == Sint64_type)
@@ -1213,20 +1213,20 @@ CQLValueRep CQLValueRep::operator+(const CQLValueRep x)
          return CQLValueRep(*_theValue._S + *x._theValue._S);
          break;
       case CIMDateTime_type:
-         throw(1);
+         throw(Exception(String("CQLValueRep::")));
          break;
       case CIMReference_type:
-         throw(1);
+         throw(Exception(String("CQLValueRep::")));
          break;
       case CIMInstance_type:
-            throw(1);
+            throw(Exception(String("CQLValueRep::")));
          break;
       case CQLIdentifier_type:
-            throw(1);
+            throw(Exception(String("CQLValueRep::")));
          break;
 
       default:
-         throw(1);
+         throw(Exception(String("CQLValueRep::")));
          break;
    }
 
@@ -1239,7 +1239,7 @@ CQLValueRep CQLValueRep::operator-(const CQLValueRep& x)
 {
    if(!_validate(x))  
    {
-      throw(1);
+      throw(Exception(String("CQLValueRep::")));
    } 
    if(x._valueType == Null_type ||
       _valueType == Null_type)
@@ -1250,7 +1250,7 @@ CQLValueRep CQLValueRep::operator-(const CQLValueRep& x)
    switch(_valueType)
    {
       case Boolean_type:
-         throw(1);
+         throw(Exception(String("CQLValueRep::")));
          break;
       case Sint64_type:
          if(x._valueType == Sint64_type)
@@ -1295,23 +1295,23 @@ CQLValueRep CQLValueRep::operator-(const CQLValueRep& x)
          }
          break;
       case String_type:
-         throw(1);
+         throw(Exception(String("CQLValueRep::")));
          break;
       case CIMDateTime_type:
-         throw(1);
+         throw(Exception(String("CQLValueRep::")));
          break;
       case CIMReference_type:
-         throw(1);
+         throw(Exception(String("CQLValueRep::")));
          break;
       case CIMInstance_type:
-            throw(1);
+            throw(Exception(String("CQLValueRep::")));
          break;
       case CQLIdentifier_type:
-            throw(1);
+            throw(Exception(String("CQLValueRep::")));
          break;
 
       default:
-         throw(1);
+         throw(Exception(String("CQLValueRep::")));
          break;
    }
    // control should never reach here
@@ -1324,7 +1324,7 @@ CQLValueRep CQLValueRep::operator*(const CQLValueRep& x)
 
    if(!_validate(x))  
    {
-      throw(1);
+      throw(Exception(String("CQLValueRep::")));
    } 
 
    if(x._valueType == Null_type ||
@@ -1336,7 +1336,7 @@ CQLValueRep CQLValueRep::operator*(const CQLValueRep& x)
    switch(_valueType)
    {
       case Boolean_type:
-         throw(1);
+         throw(Exception(String("CQLValueRep::")));
          break;
       case Sint64_type:
          if(x._valueType == Sint64_type)
@@ -1381,23 +1381,23 @@ CQLValueRep CQLValueRep::operator*(const CQLValueRep& x)
          }
          break;
       case String_type:
-         throw(1);
+         throw(Exception(String("CQLValueRep::")));
          break;
       case CIMDateTime_type:
-         throw(1);
+         throw(Exception(String("CQLValueRep::")));
          break;
       case CIMReference_type:
-         throw(1);
+         throw(Exception(String("CQLValueRep::")));
          break;
       case CIMInstance_type:
-            throw(1);
+            throw(Exception(String("CQLValueRep::")));
          break;
       case CQLIdentifier_type:
-            throw(1);
+            throw(Exception(String("CQLValueRep::")));
          break;
 
       default:
-         throw(1);
+         throw(Exception(String("CQLValueRep::")));
          break;
    }
    // control should never reach here
@@ -1410,7 +1410,7 @@ CQLValueRep CQLValueRep::operator/(const CQLValueRep& x)
    if(!_validate(x) || 
       x._theValue._U64 == 0)  
    {
-      throw(1);
+      throw(Exception(String("CQLValueRep::")));
    } 
    
    if(x._valueType == Null_type ||
@@ -1422,7 +1422,7 @@ CQLValueRep CQLValueRep::operator/(const CQLValueRep& x)
    switch(_valueType)
    {
       case Boolean_type:
-         throw(1);
+         throw(Exception(String("CQLValueRep::")));
          break;
       case Sint64_type:
          if(x._valueType == Sint64_type)
@@ -1467,23 +1467,23 @@ CQLValueRep CQLValueRep::operator/(const CQLValueRep& x)
          }
          break;
       case String_type:
-         throw(1);
+         throw(Exception(String("CQLValueRep::")));
          break;
       case CIMDateTime_type:
-         throw(1);
+         throw(Exception(String("CQLValueRep::")));
          break;
       case CIMReference_type:
-         throw(1);
+         throw(Exception(String("CQLValueRep::")));
          break;
       case CIMInstance_type:
-            throw(1);
+            throw(Exception(String("CQLValueRep::")));
          break;
       case CQLIdentifier_type:
-            throw(1);
+            throw(Exception(String("CQLValueRep::")));
          break;
 
       default:
-         throw(1);
+         throw(Exception(String("CQLValueRep::")));
          break;
    }
    // control should never reach here
@@ -1527,7 +1527,7 @@ Boolean CQLValueRep::isa(const CQLValueRep& inVal, QueryContext& QueryCtx)
       _valueType != CIMInstance_type ||
       inVal._valueType != String_type)
    {
-      throw(1);
+      throw(Exception(String("CQLValueRep::")));
    }
    
    CIMName  className;
@@ -1555,7 +1555,7 @@ Boolean CQLValueRep::like(const CQLValueRep& inVal)
    if( _valueType != String_type ||
       inVal._valueType != String_type)
    {
-      throw(1);
+      throw(Exception(String("CQLValueRep::")));
    }
 
    // Poughkepsie is doing this, Dan Gorey.
@@ -1589,7 +1589,7 @@ Uint64 CQLValueRep::getUint()const
 {
    if(_valueType != Uint64_type)
    {
-      throw(1);
+      throw(Exception(String("CQLValueRep::")));
    }
    return _theValue._U64;
 }
@@ -1598,7 +1598,7 @@ Boolean CQLValueRep::getBool()const
 {
    if(_valueType != Boolean_type)
    {
-      throw(1);
+      throw(Exception(String("CQLValueRep::")));
    }
    return _theValue._B;
 }
@@ -1607,7 +1607,7 @@ Sint64 CQLValueRep::getSint()const
 {
    if(_valueType != Sint64_type)
    {
-      throw(1);
+      throw(Exception(String("CQLValueRep::")));
    }
    return _theValue._S64;
 }
@@ -1616,7 +1616,7 @@ Real64 CQLValueRep::getReal()const
 {
    if(_valueType != Real_type)
    {
-      throw(1);
+      throw(Exception(String("CQLValueRep::")));
    }
    return _theValue._R64;
 }
@@ -1625,7 +1625,7 @@ String CQLValueRep::getString()const
 {
    if(_valueType != String_type)
    {
-      throw(1);
+      throw(Exception(String("CQLValueRep::")));
    }
    return *_theValue._S;
 }
@@ -1634,7 +1634,7 @@ CIMDateTime CQLValueRep::getDateTime()const
 {
    if(_valueType != CIMDateTime_type)
    {
-      throw(1);
+      throw(Exception(String("CQLValueRep::")));
    }
    
    return *_theValue._DT;
@@ -1644,7 +1644,7 @@ CIMObjectPath CQLValueRep::getReference()const
 {
    if(_valueType != CIMReference_type)
    {
-      throw(1);
+      throw(Exception(String("CQLValueRep::")));
    }
    return *_theValue._OP;
 }
@@ -1653,7 +1653,7 @@ CIMInstance CQLValueRep::getInstance()const
 {
    if(_valueType != CIMInstance_type)
    {
-      throw(1);
+      throw(Exception(String("CQLValueRep::")));
    }
    return *_theValue._IN;
 }
@@ -1662,7 +1662,7 @@ CIMClass CQLValueRep::getClass()const
 {
    if(_valueType != CIMClass_type)
    {
-      throw(1);
+      throw(Exception(String("CQLValueRep::")));
    }
 
    return *_theValue._CL;
@@ -1776,7 +1776,7 @@ Boolean CQLValueRep::_validate(const CQLValueRep& x)
          break;
 
       default:
-         throw(1);
+         throw(Exception(String("CQLValueRep::")));
          break;
    }
    return true;
@@ -1941,7 +1941,7 @@ void CQLValueRep::_setValue(CIMValue cv,Uint64 index)
             break;
          }   
          default:
-            throw(1);
+            throw(Exception(String("CQLValueRep::")));
       } // switch statement
 
    }
@@ -2071,7 +2071,7 @@ void CQLValueRep::_setValue(CIMValue cv,Uint64 index)
             break;
          }
          default:
-            throw(1);
+            throw(Exception(String("CQLValueRep::")));
       } // switch statement
    }
    _isResolved = true;
@@ -2126,7 +2126,7 @@ void CQLValueRep::_resolveSymbolicConstant(QueryContext& inQueryCtx)
 
    if(propertyIndex == PEG_NOT_FOUND)
    {
-      throw(1);
+      throw(Exception(String("CQLValueRep::")));
    }
 
    CIMProperty queryPropObj = QueryClass.getProperty(propertyIndex);
@@ -2139,7 +2139,7 @@ void CQLValueRep::_resolveSymbolicConstant(QueryContext& inQueryCtx)
    if(qualIndex == PEG_NOT_FOUND)
    {
       // This property can not be processed with a symbolic constant.
-      throw(1);
+      throw(Exception(String("CQLValueRep::")));
    }
 
    valueMap = queryPropObj.getQualifier(qualIndex).getValue();
@@ -2169,7 +2169,7 @@ void CQLValueRep::_resolveSymbolicConstant(QueryContext& inQueryCtx)
       {
          // The symbolic constant provided is not valid
          // for this property.
-         throw(1);
+         throw(Exception(String("CQLValueRep::")));
       }
 
       // The symbolic constant defined in the CQLIdentifier is 
@@ -2204,7 +2204,7 @@ void CQLValueRep::_resolveSymbolicConstant(QueryContext& inQueryCtx)
       {
          // The symbolic constant provided is not valid
          // for this property.
-         throw(1);
+         throw(Exception(String("CQLValueRep::"))); 
       }
 
       CString cStr = valueMapArray[matchIndex].getCString();

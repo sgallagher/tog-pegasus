@@ -89,7 +89,7 @@ public:
 	_nameSpace = nameSpace;
     }
     // enumerate - Executes the enumerate
-    Boolean enumerate(CIMName& className, Boolean deepInheritance)
+    Boolean enumerate(const CIMName& className, Boolean deepInheritance)
     {
         try
         {
@@ -101,6 +101,7 @@ public:
             cout << "Exception " << e.getMessage() << " on enumerateClassNames open. Terminating." << endl;
             return false;
         }
+	return true;
     }
     /* filter - Filters the list against a defined pattern using the
         glob type filter.
@@ -643,7 +644,8 @@ int main(int argc, char** argv)
     classNameList list(nameSpace, clRepository);
 
     // Enumerate all classnames from namespace
-    if (!list.enumerate(CIMName(),true))
+
+    if (!list.enumerate(CIMName(), true))
         ErrorExit("Class Enumeration failed");
 
     //Filter list for input patterns

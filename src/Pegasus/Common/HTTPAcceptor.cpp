@@ -664,18 +664,28 @@ void HTTPAcceptor::_acceptConnection()
 
    AutoPtr<MP_Socket> mp_socket(new MP_Socket(socket, _sslcontext, _exportConnection));
 
-   {
-       //ATTN: This seem to make the client tests fail. Need to debug and fix the problem 
-       // before including the locking here...
-       //ReadLock rlock(*_sslContextObjectLock);
+   Sint32 retVal;
 
-       if (mp_socket->accept() < 0) 
-       {
-           PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+   if (_sslcontext)
+   {
+       //
+       // For SSL connections, obtain read lock to SSLContext object before 
+       // calling the accept() method of MP_Socket.
+       //
+       ReadLock rlock(*_sslContextObjectLock);
+       retVal = mp_socket->accept();
+   }
+   else
+   {
+       retVal = mp_socket->accept();
+   }
+
+   if (retVal < 0) 
+   {
+       PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                         "HTTPAcceptor: SSL_accept() failed");
-           mp_socket->close();
-           return;
-       }
+       mp_socket->close();
+       return;
    }
 
    HTTPConnection* connection = new HTTPConnection(_monitor, mp_socket, 

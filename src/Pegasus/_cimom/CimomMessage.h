@@ -55,15 +55,18 @@ class cimom_results
       static const Uint32 ASYNC_PAUSED;
       static const Uint32 ASYNC_RESUMED;
 
-      static const Uint32 SERVICE_STARTED;
+      static const Uint32 CIM_SERVICE_STARTED;
 
       // mbrasher: I appended "_" to these since MSVC #defines these 
       // which causes a compiler error here.
-      static const Uint32 SERVICE_STOPPED_;
-      static const Uint32 SERVICE_PAUSED_;
 
-      static const Uint32 SERVICE_RESUMED;
-      static const Uint32 NAK;
+      // <<< Thu Dec 27 19:39:02 2001 mdd >>> sorry !
+      // changed all instances of SERVICE to CIM_SERVICE
+      static const Uint32 CIM_SERVICE_STOPPED;
+      static const Uint32 CIM_SERVICE_PAUSED;
+
+      static const Uint32 CIM_SERVICE_RESUMED;
+      static const Uint32 CIM_NAK;
 };
 
 // messages handled by the cimom
@@ -71,9 +74,9 @@ class cimom_messages
 {
    public:
       static const Uint32 HEARTBEAT;
-      static const Uint32 REGISTER_SERVICE;
-      static const Uint32 DEREGISTER_SERVICE;
-      static const Uint32 UPDATE_SERVICE;
+      static const Uint32 REGISTER_CIM_SERVICE;
+      static const Uint32 DEREGISTER_CIM_SERVICE;
+      static const Uint32 UPDATE_CIM_SERVICE;
       static const Uint32 IOCTL;
       static const Uint32 ASYNC_OP_REPLY;
 };
@@ -183,7 +186,7 @@ class PEGASUS_CIMOM_LINKAGE Ioctl : public AsyncRequest
       
 };
 
-// heartbeat TO the cimom from a SERVICE
+// heartbeat TO the cimom from a CIM_SERVICE
 
 class PEGASUS_CIMOM_LINKAGE CimomHeartBeat : public Reply
 {
@@ -212,7 +215,7 @@ class PEGASUS_CIMOM_LINKAGE CimomRegisterService : public AsyncRequest
 			   Uint32 module_queue,
 			   AsyncOpNode *op,
 			   Uint32 routing = 0)
-	 : AsyncRequest(cimom_messages::REGISTER_SERVICE, key, queue_ids, 
+	 : AsyncRequest(cimom_messages::REGISTER_CIM_SERVICE, key, queue_ids, 
 			message_mask::type_cimom | message_mask::ha_request , 
 			op, routing),
 	   name(module_name), capabilities(module_capabilities),
@@ -237,7 +240,7 @@ class PEGASUS_CIMOM_LINKAGE CimomDeregisterService : public AsyncRequest
 			     Uint32 module_queue,
 			     AsyncOpNode *op,
 			     Uint32 routing = 0 )
-	 : AsyncRequest(cimom_messages::DEREGISTER_SERVICE, key, queue_ids, 
+	 : AsyncRequest(cimom_messages::DEREGISTER_CIM_SERVICE, key, queue_ids, 
 		   (message_mask::type_cimom | message_mask::ha_request),
 		   op, routing),
 	   q_id(module_queue) {  }
@@ -260,7 +263,7 @@ class PEGASUS_CIMOM_LINKAGE CimomUpdateService : public AsyncRequest
 			 Uint32 module_queue,
 			 AsyncOpNode *op,
 			 Uint32 routing = 0)
-	 : AsyncRequest(cimom_messages::UPDATE_SERVICE, key, queue_ids, 
+	 : AsyncRequest(cimom_messages::UPDATE_CIM_SERVICE, key, queue_ids, 
 		   message_mask::type_cimom | message_mask::ha_request,
 		   op, routing ) ,
 	  capabilities(module_capabilities), mask(module_mask),
@@ -508,7 +511,7 @@ class PEGASUS_CIMOM_LINKAGE ServiceResume : public AsyncRequest
 
 //     switch (message->getType())
 //     {
-//        case SERVICE_ASYNC_OP:
+//        case CIM_SERVICE_ASYNC_OP:
 //        {
 // 	  // pass the async op node to the handler
 // 	  handleAsyncOpMessage(  static_cast<ServiceAsyncOp *>(message) );

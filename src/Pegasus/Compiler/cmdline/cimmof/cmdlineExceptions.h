@@ -36,6 +36,7 @@
 
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/MessageLoader.h> //l10n
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -43,12 +44,16 @@ class ArgumentErrorsException : public Exception {
  public:
   static const String MSG;
   ArgumentErrorsException(const String &msg) : Exception(msg) {};
+  //l10n
+  ArgumentErrorsException(MessageLoaderParms &parms) : Exception(parms) {};
 };
 
 class CmdlineNoRepository : public Exception {
  public:
   static const String MSG;
   CmdlineNoRepository(const String &msg) : Exception(msg) {};
+  //l10n
+  CmdlineNoRepository(MessageLoaderParms &parms) : Exception(parms) {};
 };
 
 PEGASUS_NAMESPACE_END

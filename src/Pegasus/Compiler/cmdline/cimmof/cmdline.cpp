@@ -67,50 +67,62 @@ PEGASUS_USING_PEGASUS;
 
 ostream & 
 help(ostream &os) {
-  os << endl << "MOF Compiler version " << COMPILER_VERSION << endl << endl;
+	
+//l10n menu
+  String help = "MOF Compiler version ";
+  help.append(COMPILER_VERSION).append("\n\n");
 #ifdef PEGASUS_OS_HPUX
-  os << "Usage: cimmof [-h] [-w] [-uc] [-aE | -aV | -aEV] [-I path] [-n namespace] [file, ...]" << endl;
-  os << "    -h           - show this help " << endl;
-  os << "    -w           - suppress warnings " << endl;
-  os << "    -I path      - specify an include path " << endl;
-  os << "    -n namespace - override the default CIMRepository namespace "
-     << endl;
-  os << "  -uc   -- allow update of an existing class definition." << endl;
-  os << "  -aE   -- allow creation, either through addition or modification, of Experimental classes." << endl;
-  os << "  -aV   -- allow both Major and Down Revision Schema changes." << endl;
-  os << "  -aEV  -- allow both Experimental and Version Schema changes." << endl;
+  help.append("Usage: cimmof [-h] [-w] [-uc] [-aE | -aV | -aEV] [-I path] [-n namespace] [file, ...]\n");
+  help.append( "    -h           - show this help \n");
+  help.append( "    -w           - suppress warnings \n");
+  help.append( "    -I path      - specify an include path \n");
+  help.append( "    -n namespace - override the default CIMRepository namespace \n");
+  help.append( "  -uc   -- allow update of an existing class definition.\n");
+  help.append( "  -aE   -- allow creation, either through addition or modification, of Experimental classes.\n");
+  help.append( "  -aV   -- allow both Major and Down Revision Schema changes.\n");
+  help.append( "  -aEV  -- allow both Experimental and Version Schema changes.\n");
 #else
 #ifndef PEGASUS_OS_OS400
-  os << "Usage: cimmof [-h] [-E] [-w] [-uc] [-aE | -aV | -aEV] [-R repository] [-I path] [-n namespace] [--xml] [--trace] -ffile" << endl;
-  os << "       cimmof [-h] [-E] [-w] [-uc] [-aE | -aV | -aEV] [-R repository] [-I path] [-n namespace] [--xml] [--trace] [mof_files...]" << endl;
+  help.append( "Usage: cimmof [-h] [-E] [-w] [-uc] [-aE | -aV | -aEV] [-R repository] [-I path] [-n namespace] [--xml] [--trace] -ffile\n");
+  help.append( "       cimmof [-h] [-E] [-w] [-uc] [-aE | -aV | -aEV] [-R repository] [-I path] [-n namespace] [--xml] [--trace] [mof_files...]\n");
 #else
-  os << "Usage: cimmof [-h] [-E] [-w] [-uc] [-aE | -aV | -aEV] [-R repository] [-I path] [-n namespace] [--xml] [--trace] [-q] -ffile" << endl;
-  os << "       cimmof [-h] [-E] [-w] [-uc] [-aE | -aV | -aEV] [-R repository] [-I path] [-n namespace] [--xml] [--trace] [-q] mof_files..." << endl;
+  help.append( "Usage: cimmof [-h] [-E] [-w] [-uc] [-aE | -aV | -aEV] [-R repository] [-I path] [-n namespace] [--xml] [--trace] [-q] -ffile\n");
+  help.append( "       cimmof [-h] [-E] [-w] [-uc] [-aE | -aV | -aEV] [-R repository] [-I path] [-n namespace] [--xml] [--trace] [-q] mof_files...\n");
 #endif
-  os << "  -h, --help -- show this help." << endl;
-  os << "  -E -- syntax check only." << endl;
-  os << "  -w -- suppress warnings." << endl;
-  os << "  -uc   -- allow update of an existing class definition." << endl;
-  os << "  -aE   -- allow creation, either through addition or modification, of Experimental classes." << endl;
-  os << "  -aV   -- allow both Major and Down Revision Schema changes." << endl;
-  os << "  -aEV  -- allow both Experimental and Version Schema changes." << endl;
+  help.append( "  -h, --help -- show this help.\n");
+  help.append( "  -E -- syntax check only.\n");
+  help.append( "  -w -- suppress warnings.\n");
+  help.append( "  -uc   -- allow update of an existing class definition.\n");
+  help.append( "  -aE   -- allow creation, either through addition or modification, of Experimental classes.\n");
+  help.append( "  -aV   -- allow both Major and Down Revision Schema changes.\n");
+  help.append( "  -aEV  -- allow both Experimental and Version Schema changes.\n");
 #ifdef PEGASUS_OS_OS400
-  os << "  -q -- suppress all messages except command line usage errors." << endl;
+  help.append( "  -q -- suppress all messages except command line usage errors.\n");
 #endif
-  os << "  -Rrepository -- specify the repository path (cimmofl) or hostname:portnumber (cimmof)" << endl;
-  os << "  --CIMRepository=repository -- specify repository path or hostname:portnumber." << endl;
-  os << "  -Ipath -- specify an include path." << endl;
-  os << "  -ffile -- specify file containing a list of MOFs to compile."
-       << endl;
-  os << " --file=file -- specify file containing list of MOFs." << endl;
-  os << " -npath -- override the default CIMRepository namespace (root/cimv2)." << endl;
-  os << " --namespace=path -- override default CIMRepository namespace (root/cimv2)." 
-       << endl;
-  os << " --xml -- output XML only, to stdout.  Do not update repository."
-     << endl;
-  os << " --trace or --trace=ttracefile -- trace to file (default to stdout)."
-     << endl;
+  help.append( "  -Rrepository -- specify the repository path (cimmofl) or hostname:portnumber (cimmof)\n");
+  help.append( "  --CIMRepository=repository -- specify repository path or hostname:portnumber.\n");
+  help.append( "  -Ipath -- specify an include path.\n");
+  help.append( "  -ffile -- specify file containing a list of MOFs to compile.\n");
+  help.append( " --file=file -- specify file containing list of MOFs.\n");
+  help.append( " -npath -- override the default CIMRepository namespace (root/cimv2).\n");
+  help.append( " --namespace=path -- override default CIMRepository namespace (root/cimv2).\n");
+  help.append( " --xml -- output XML only, to stdout.  Do not update repository.\n");
+  help.append( " --trace or --trace=ttracefile -- trace to file (default to stdout).\n");
 #endif
+
+// now localize the menu based on platform, use help as the default menu which
+// has been appropriately built above for the specific platform
+
+MessageLoaderParms parms("Compiler.cmdline.cimmof.cmdline.MENU.STANDARD",help,COMPILER_VERSION); 
+
+#ifdef PEGASUS_OS_HPUX
+	parms = MessageLoaderParms("Compiler.cmdline.cimmof.cmdline.MENU.PEGASUS_OS_HPUX",help,COMPILER_VERSION);	
+#endif
+#ifdef PEGASUS_OS_OS400
+	parms = MessageLoaderParms("Compiler.cmdline.cimmof.cmdline.MENU.PEGASUS_OS_OS400",help,COMPILER_VERSION);
+#endif
+
+  os << MessageLoader::getMessage(parms);
   return os;
 }
 
@@ -296,8 +308,13 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
   }
   applyDefaults(cmdlinedata);
   if (cmdline.hasErrors()) {
-    String msg = "Command line errors:\n";
+    
     //  throw an exception and hande it in the caller
+    //l10n
+    //String msg = "Command line errors:\n";
+    MessageLoaderParms parms("Compiler.cmdline.cimmof.CMDLINE_ERRORS",
+    						 "Command line errors:\n");
+    String msg = MessageLoader::getMessage(parms);						 
     cmdline.printErrors(msg);
     throw ArgumentErrorsException(msg);
   }
@@ -327,15 +344,25 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
                       cmdlinedata.set_update_class();
                   else
                   {
-                      throw ArgumentErrorsException(
-                          "Unknown value specified for option -u.");
+                  	//l10n
+                      //throw ArgumentErrorsException(
+                          //"Unknown value specified for option -u.");
+                      MessageLoaderParms parms("Compiler.cmdline.cimmof.UNKNOWN_VALUE_OPTION",
+                      					       "Unknown value specified for option -$0.",
+                      					       "u");
+                      throw ArgumentErrorsException(parms);
                   }
               }
           }
           else
           {
-            throw ArgumentErrorsException(
-                "Too many values specified for option -u.");
+          	//l10n
+            //throw ArgumentErrorsException(
+              //  "Too many values specified for option -u.");
+            MessageLoaderParms parms("Compiler.cmdline.cimmof.TOO_MANY_VALUES_OPTION",
+                      					       "Too many values specified for option -$0.",
+                      					       "u");
+            throw ArgumentErrorsException(parms);
           }
         }
         break;
@@ -352,15 +379,25 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
                      cmdlinedata.set_allow_version();
                  else
                   {
-                      throw ArgumentErrorsException(
-                          "Unknown value specified for option -a.");
+                  	//l10n
+                      //throw ArgumentErrorsException(
+                          //"Unknown value specified for option -a.");
+                      MessageLoaderParms parms("Compiler.cmdline.cimmof.UNKNOWN_VALUE_OPTION",
+                      					       "Unknown value specified for option -$0.",
+                      					       "a");
+                      throw ArgumentErrorsException(parms);
                   }
               }
           }
           else
           {
-            throw ArgumentErrorsException(
-                "Too many values specified for option -a.");
+          	//l10n
+            //throw ArgumentErrorsException(
+                //"Too many values specified for option -a.");
+            MessageLoaderParms parms("Compiler.cmdline.cimmof.TOO_MANY_VALUES_OPTION",
+                      					       "Too many values specified for option -$0.",
+                      					       "a");
+            throw ArgumentErrorsException(parms);
           }
         }
         break;
@@ -405,15 +442,23 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
       }
   }
   if (String::equal(cmdlinedata.get_repository_name(), String::EMPTY)) {
-    throw CmdlineNoRepository(
-          "You must specify -R or set PEGASUS_HOME environment variable");
+  	//l10n
+    //throw CmdlineNoRepository(
+          //"You must specify -R or set PEGASUS_HOME environment variable");
+    MessageLoaderParms parms("Compiler.cmdline.cimmof.MUST_SPECIFY_R_OR_HOME",
+    						 "You must specify -R or set PEGASUS_HOME environment variable");
+    throw CmdlineNoRepository(parms);
   }
 
 #ifdef PEGASUS_OS_OS400 
   // Force a mof to be specified on OS/400
   if (cmdlinedata.get_filespec_list().size() == 0) {
-    throw ArgumentErrorsException(
-          "You must specify some MOF files to process.");
+  	//l10n
+    //throw ArgumentErrorsException(
+          //"You must specify some MOF files to process.");
+    MessageLoaderParms parms("Compiler.cmdline.cimmof.MUST_SPECIFY_MOF_FILES",
+    						 "You must specify some MOF files to process.");
+    throw ArgumentErrorsException(parms);
   }
 #endif
 

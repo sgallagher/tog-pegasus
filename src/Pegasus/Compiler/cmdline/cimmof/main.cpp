@@ -66,6 +66,7 @@ int
 main(int argc, char ** argv) {
   int ret = 0;
   String msg_;
+  MessageLoaderParms parms;
 
 #ifdef PEGASUS_OS_OS400
 
@@ -108,13 +109,25 @@ main(int argc, char ** argv) {
     cerr << e.getMessage() << endl;
     ret = -3;
   } catch (CIMException &e) {
-    cerr << "Unexpected condition: " << e.getMessage() << endl;
+  	//l10n
+    //cerr << "Unexpected condition: " << e.getMessage() << endl;
+    parms.msg_id = "Compiler.cmdline.cimmof.main.UNEXPECTED_CONDITION";
+    parms.default_msg = "Unexpected condition: ";
+    cerr << MessageLoader::getMessage(parms) << e.getMessage() << endl;
     ret = -4;
   }
   if (ret) {
     if (ret > 0) {
-      cerr << "Unexpected result from processing command line: " << ret <<endl;
-      cerr << "Compilation terminating." << endl;
+    	//l10n
+      //cerr << "Unexpected result from processing command line: " << ret <<endl;
+      //cerr << "Compilation terminating." << endl;
+      parms.msg_id = "Compiler.cmdline.cimmof.main.UNEXPECTED_RESULT";
+      parms.default_msg = "Unexpected result from processing command line: $0";
+      parms.arg0 = ret;
+      cerr << MessageLoader::getMessage(parms) << endl;
+      parms.msg_id = "Compiler.cmdline.cimmof.main.COMPILE_TERMINATING";
+      parms.default_msg = "Compilation terminating.";
+      cerr << MessageLoader::getMessage(parms) << endl;
     }
     return ret;
   }
@@ -141,7 +154,13 @@ main(int argc, char ** argv) {
   if ( p->setRepository() ) {	
     p->setDefaultNamespacePath(NAMESPACE_ROOT);
   } else {
-    cerr << "Failed to set DefaultNamespacePath." << endl;
+  	//l10n
+    //cerr << "Failed to set DefaultNamespacePath." << endl;
+    String s1 = "DefaultNamespacePath";
+    parms.msg_id = "Compiler.cmdline.cimmof.main.FAILED_TO_SET";
+    parms.default_msg = "Failed to set $0.";
+    parms.arg0 = s1;
+    cerr << MessageLoader::getMessage(parms) << endl;
     // ATTN: P3 BB 2001 Did not set namespace.  We may need to log an error here.
     return ret;
   }
@@ -151,10 +170,22 @@ main(int argc, char ** argv) {
 	try {
 	  ret = p->parse();
 	} catch(ParserLexException &e) {
-	    msg_ = String("Lexer error: ").append(e.getMessage());
+		//l10n
+		String s1 = "Lexer";
+		parms.msg_id = "Compiler.cmdline.cimmof.main.ERROR";
+		parms.default_msg = "$0 error: ";
+		parms.arg0 = s1;
+	    //msg_ = String("Lexer error: ").append(e.getMessage());
+	    msg_ = MessageLoader::getMessage(parms).append(e.getMessage());
 	    ret = -5;
 	} catch(Exception &e) {
-	    msg_ = String("Parsing error: ").append(e.getMessage());
+		//l10n
+		String s1 = "Parsing";
+		parms.msg_id = "Compiler.cmdline.cimmof.main.ERROR";
+		parms.default_msg = "$0 error: ";
+		parms.arg0 = s1;
+	    //msg_ = String("Parsing error: ").append(e.getMessage());
+	    msg_ = MessageLoader::getMessage(parms).append(e.getMessage());
 	    ret = -6;
 	}
       } else {
@@ -166,10 +197,20 @@ main(int argc, char ** argv) {
     try {
     int ret =  p->parse();
     } catch(ParserLexException &e) {
-	msg_ = String("Lexer error: ").append(e.getMessage());
+    	//l10n
+    	String s1 = "Lexer";
+    	parms.msg_id = "Compiler.cmdline.cimmof.main.ERROR";
+		parms.default_msg = "$0 error: ";
+		parms.arg0 = s1;
+	    //msg_ = String("Lexer error: ").append(e.getMessage());
+	    msg_ = MessageLoader::getMessage(parms).append(e.getMessage());
         ret = -5;
     } catch(Exception &e) {
-	msg_ = String("Compiler general exception: ").append(e.getMessage());
+    	//l10n
+    	parms.msg_id = "Compiler.cmdline.cimmof.main.GENERAL_EXCEPTION";
+    	parms.default_msg = "Compiler general exception: ";
+	    //msg_ = String("Compiler general exception: ").append(e.getMessage());
+	    msg_ = MessageLoader::getMessage(parms).append(e.getMessage());
         ret = -8;
     }
   }
@@ -179,7 +220,11 @@ main(int argc, char ** argv) {
   // Send good completion message to stdout if the compile worked.
   // Callers of QYCMMOFL *PGM from the native command line will want to see this.
   if (ret == 0)
-      cout << "Compile completed successfully." << endl;
+  		//l10n
+      //cout << "Compile completed successfully." << endl;
+      parms.msg_id = "Compiler.cmdline.cimmof.main.COMPILE_SUCCESSFUL";
+      parms.default_msg = "Compile completed successfully.";
+      cout << MessageLoader::getMessage(parms) << endl;
 
   // Send a CPDDF83 and CPFDF81 OS/400 program message if an error occurred
   // This will allow PTFs to monitor for this message.

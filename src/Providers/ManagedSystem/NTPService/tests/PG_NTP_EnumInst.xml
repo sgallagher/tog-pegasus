@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0"?>
 <CIM CIMVERSION="2.0" DTDVERSION="2.0">
-   <MESSAGE ID="25004" PROTOCOLVERSION="1.0">
+   <MESSAGE ID="51000" PROTOCOLVERSION="1.0">
       <SIMPLEREQ>
-         <IMETHODCALL NAME="EnumerateInstanceNames">
+         <IMETHODCALL NAME="EnumerateInstances">
             <LOCALNAMESPACEPATH>
                <NAMESPACE NAME="root"/>
                <NAMESPACE NAME="cimv2"/>

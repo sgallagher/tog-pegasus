@@ -210,12 +210,16 @@ targetClass _verifyValidAssocClassInput(const CIMName& className)
     @returns CIMObjectPath object with only className and keybinding 
     components
 */
-CIMObjectPath _makeRefLocal(const CIMObjectPath& p)
+CIMObjectPath _makeRefLocal(const CIMObjectPath& path)
 {
-    return (CIMObjectPath(String(),
+  CIMObjectPath rtn(path);
+  rtn.setHost(String());
+  rtn.setNameSpace(CIMNamespaceName()); 
+  /* return (CIMObjectPath(String(),
 		CIMNamespaceName(),
-		p.getClassName(),
-		p.getKeyBindings()));
+		path.getClassName(),
+		path.getKeyBindings()));*/
+  return(rtn);
 }
 
 String _toStringPropertyList(const CIMPropertyList& pl)

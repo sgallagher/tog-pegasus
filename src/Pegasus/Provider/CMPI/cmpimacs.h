@@ -131,7 +131,7 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
 #endif
 
 #ifndef DOC_ONLY
-  #ifdef CMPI_PLATFORM_WIN32_IX86_MSVC
+  #ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
 	#define  CMPI_EXTERN_C __declspec(dllexport)
   #else
 	#ifdef __cplusplus
@@ -1799,7 +1799,7 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
    pfx##DeleteInstance, \
    pfx##ExecQuery, \
   }; \
-   \
+  CMPI_EXTERN_C \
   CMPIInstanceMI* pn##_Create_InstanceMI(CMPIBroker* brkr,CMPIContext *ctx) { \
    static CMPIInstanceMI mi={ \
       NULL, \
@@ -1846,7 +1846,7 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
    pfx##References, \
    pfx##ReferenceNames, \
   }; \
-   \
+  CMPI_EXTERN_C \
   CMPIAssociationMI* pn##_Create_AssociationMI(CMPIBroker* brkr,CMPIContext *ctx) { \
    static CMPIAssociationMI mi={ \
       NULL, \
@@ -1887,7 +1887,7 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
    pfx##MethodCleanup, \
    pfx##InvokeMethod, \
   }; \
-   \
+  CMPI_EXTERN_C \
   CMPIMethodMI* pn##_Create_MethodMI(CMPIBroker* brkr,CMPIContext *ctx) { \
    static CMPIMethodMI mi={ \
       NULL, \
@@ -1931,7 +1931,7 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
    pfx##SetProperty, \
    pfx##GetProperty, \
   }; \
-   \
+  CMPI_EXTERN_C \
   CMPIPropertyMI* pn##_Create_PropertyMI(CMPIBroker* brkr,CMPIContext *ctx) { \
    static CMPIPropertyMI mi={ \
       NULL, \
@@ -1985,7 +1985,7 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
    pfx##DeActivateFilter, \
    CMIndicationMIStubExtensions(pfx) \
  }; \
-   \
+  CMPI_EXTERN_C \
   CMPIIndicationMI* pn##_Create_IndicationMI(CMPIBroker* brkr,CMPIContext *ctx) { \
    static CMPIIndicationMI mi={ \
       NULL, \

@@ -20,6 +20,7 @@ SOURCES = \
     NameSpaceManager.cpp \
     InheritanceTree.cpp \
     InstanceIndexFile.cpp \
+    InstanceFile.cpp \
     RepositoryDeclContext.cpp \
     CIMRepository.cpp
 

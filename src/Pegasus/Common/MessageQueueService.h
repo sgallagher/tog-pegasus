@@ -66,8 +66,9 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
       virtual ~MessageQueueService(void);
             
       virtual Boolean isAsync(void) {  return true;  }
-            
-      virtual void enqueue(Message *) throw(IPCException);
+
+      // enqueue may throw an IPCException
+      virtual void enqueue(Message *);
       
       AsyncReply *SendWait(AsyncRequest *request);
       Boolean SendAsync(AsyncOpNode *op, 

@@ -146,7 +146,7 @@ MessageQueue::~MessageQueue()
     PEG_METHOD_EXIT();
 }
 
-void MessageQueue::enqueue(Message* message) throw(IPCException)
+void MessageQueue::enqueue(Message* message)
 {
     PEG_METHOD_ENTER(TRC_MESSAGEQUEUESERVICE,"MessageQueue::enqueue()");
 

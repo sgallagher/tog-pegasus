@@ -49,9 +49,9 @@
 
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
-#include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/CIMKerberosSecurityAssociation.h>
 #endif
+#include <Pegasus/Common/XmlWriter.h>
 
 
 PEGASUS_USING_STD;
@@ -406,6 +406,8 @@ Boolean _IsBodylessMessage(const char* line)
         "HTTP/1.0 400",
         "HTTP/1.1 401",
         "HTTP/1.0 401",
+        "HTTP/1.1 413",
+        "HTTP/1.0 413",
         "HTTP/1.1 500",
         "HTTP/1.0 500",
         "HTTP/1.1 501",
@@ -523,7 +525,7 @@ void HTTPConnection::_handleReadEvent()
 #ifdef LOCK_CONNECTION_ENABLED
     lock_connection();
 #endif
-
+    Boolean bufferException = false;
     Sint32 bytesRead = 0;
     Boolean incompleteSecureReadOccurred = false;
     for (;;)
@@ -552,15 +554,40 @@ void HTTPConnection::_handleReadEvent()
 	    break;
 	}
 
-	_incomingBuffer.append(buffer, n);
+        try
+        {
+	    _incomingBuffer.append(buffer, n);
+        }
+        catch(...)
+        {
+            bufferException = true;
+            _clearIncoming();
+        }
+        if (bufferException)
+        {
+            PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL2, "HTTPConnection::_handleReadEvent: Unable to append the request to the input buffer");
+            _requestCount++;
+            Array<Sint8> message;
+            message = XmlWriter::formatHttpErrorRspMessage( HTTP_STATUS_REQUEST_TOO_LARGE );
+            HTTPMessage* httpMessage = new HTTPMessage( message );
+            Tracer::traceBuffer(TRC_XML_IO, Tracer::LEVEL2,
+	                        httpMessage->message.getData(),
+                                httpMessage->message.size());
+            handleEnqueue( httpMessage );
+#ifdef LOCK_CONNECTION_ENABLED
+            unlock_connection();
+#endif
+            _closeConnection(); 
+	    return;
+        }
+
 	bytesRead += n;
     }
 
     
     Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-     "_socket->read bytesRead = %d", bytesRead);
-   
-    // -- If still waiting for beginning of content!
+     "Total bytesRead = %d; Bytes read this iteration = %d", 
+                _incomingBuffer.size(), bytesRead);
 
     if (_contentOffset == -1)
 	_getContentLengthAndContentOffset();

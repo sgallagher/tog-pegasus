@@ -609,8 +609,21 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                 {
 		   httpMessage->dest = queue->getQueueId();
 		   
-                    queue->enqueue(httpMessage);
-                    deleteMessage = false;
+		   try
+		     {
+                       queue->enqueue(httpMessage);
+		     }
+		   catch(exception & e)
+		     {
+		       delete httpMessage;
+		       Array<Sint8> message;
+		       message = XmlWriter::formatHttpErrorRspMessage(HTTP_STATUS_REQUEST_TOO_LARGE);
+		       _sendResponse(queueId, message);
+		       PEG_METHOD_EXIT();
+		       deleteMessage = false;
+		       return;
+		     }
+                 deleteMessage = false;
                 }
             }
             else if (HTTPMessage::lookupHeader(

@@ -101,9 +101,10 @@ class PEGASUS_COMMON_LINKAGE MessageQueue
 
       /** Enques a message (places it at the back of the queue).
 	  @param message pointer to message to be enqueued.
-	  @exception throws NullPointer exception if message parameter is null.
+	  @exception  NullPointer exception if message parameter is null.
+	  @exception  IPCException if socket call has an error
       */
-      virtual void enqueue(Message* message) throw(IPCException);
+      virtual void enqueue(Message* message);
 
 
       /** allows a caller to determine if this message queue is asynchronous or 

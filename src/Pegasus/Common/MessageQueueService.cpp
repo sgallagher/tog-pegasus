@@ -308,7 +308,7 @@ void MessageQueueService::_shutdown_incoming_queue(void)
 
 
 
-void MessageQueueService::enqueue(Message *msg) throw(IPCException)
+void MessageQueueService::enqueue(Message *msg)
 {
    PEG_METHOD_ENTER(TRC_MESSAGEQUEUESERVICE, "MessageQueueService::enqueue()");
 

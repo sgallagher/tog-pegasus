@@ -93,7 +93,7 @@ void IndicationService::_handle_async_request(AsyncRequest *req)
 
         handle_CimServiceStop(static_cast<CimServiceStop *>(req));
     }
-    if (req->getType () == async_messages::CIMSERVICE_START)
+    else if (req->getType () == async_messages::CIMSERVICE_START)
     {
         req->op->processing ();
 

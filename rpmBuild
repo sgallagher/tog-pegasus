@@ -1,0 +1,80 @@
+#!/bin/sh
+if test `whoami` != 'root'; then
+  echo "You have to be root to build the pegasus rpm"
+  exit
+fi
+#
+if test "$PEGASUS_PLATFORM" != LINUX_IX86_GNU; then
+  echo "Please set PEGASUS_PLATFORM to LINUX_IX86_GNU"
+  echo "either using export PEGASUS_PLATFORM=LINUX_IX86_GNU for ksh and bash"
+  echo "or set PEGASUS_PLATFORM=LINUX_IX86_GNU csh and tcsh"
+  exit;
+fi
+#
+# assume that we have been started in PEGASUS_ROOT
+# and that the basename is pegasus
+#
+if test -z $PEGASUS_ROOT; then
+  echo "Please make sure that PEGASUS_ROOT points to the current"
+  echo "location of the Pegasus sources"
+  exit
+fi
+#
+if test "$PEGASUS_CONCURRENT" != "yes" ; then
+  echo "Please set PEGASUS_CONCURRENT to yes"
+  exit
+fi
+#
+PEGASUS_BASE=`basename $PEGASUS_ROOT`
+if test "$PEGASUS_BASE" != "pegasus-1.0"; then
+  echo "I'm going to make sure that pegasus is found in */pegasus-1.0/ "
+  cp -a $PEGASUS_ROOT $PEGASUS_ROOT/../pegasus-1.0
+  export PEGASUS_ROOT=$PEGASUS_ROOT/../pegasus-1.0
+fi
+# pack the entire source, but first clean it up
+#
+export PEGASUS_HOME=$PEGASUS_ROOT
+cd $PEGASUS_HOME
+if make clean;then
+  # Clean up the stuff make clean forgets
+  rm -rf repository
+  rm -rf obj
+  rm -f cgi/cgi-bin/*.so
+  echo "Sources are now cleaned up"
+else
+  echo "Cleaning up the sources (make clean) hasn't been successful"
+  exit 
+fi
+#
+#
+# tar it and copy it into /usr/src/packages/SOURCES
+#
+pushd ..
+if tar cfz /usr/src/packages/SOURCES/pegasus-1.0.tar.gz pegasus-1.0 ;then
+  echo "/usr/src/packages/SOURCES/pegasus-1.0.tar.gz created"
+else
+  echo "Didn't succeed in tarring"
+  exit
+fi
+popd
+#
+# 
+#
+chmod +x rpm/pegasus
+if cp rpm/pegasus-1.0.spec /usr/src/packages/SPECS/; then
+  echo "Copied spec file"
+else
+  echo "Spec file missing ???"
+  exit
+fi
+#
+#
+#
+echo "Start building ...."
+if rpm -ba /usr/src/packages/SPECS/pegasus-1.0.spec; then
+  echo "Package built as /usr/src/packages/RPMS/pegasus-1.0.rpm"
+else
+  echo "Build error"
+  exit
+fi
+echo "Finished"

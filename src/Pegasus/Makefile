@@ -14,6 +14,8 @@ DIRS = \
     Compiler/cmdline \
     ExportClient \
     WQL \
+    CQL \
+    Query/QueryExpression \
     Provider \
     Server/ProviderRegistrationManager \
     ExportServer \
@@ -26,10 +28,7 @@ DIRS = \
     ControlProviders/NamespaceProvider \
     HandlerService \
     IndicationService \
-    ManagedClient \
-    CQL \
-    CQL/tests \
-    CQL/CQLCLI
+    ManagedClient
 
 ifdef PEGASUS_ENABLE_SLP
 DIRS += \
@@ -115,6 +114,10 @@ DIRS += \
     ControlProviders/ProviderRegistrationProvider/tests \
     Listener/tests \
     Consumer/tests \
+    CQL/tests \
+    CQL/CQLCLI \
+    Query/QueryExpression/tests \
+    Query/QueryExpression/tests/Queries \
     msg/Server \
     msg/CLI
 

@@ -27,6 +27,8 @@
 //
 // Modified By: Dave Rosckes (rosckes@us.ibm.com)
 //
+// Modified By: Bert Rivero (hurivero@us.ibm.com) 
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <sys/types.h>
@@ -38,6 +40,8 @@
 #include <Pegasus/Common/Logger.h>
 #include <except.h>
 
+#include <stdio.h>
+#include "qycmutiltyUtility.H"
 #include "qycmjobjobJob.H"
 #include "qycmmsgclsMessage.H"
 #include "licall.h"        // EPTCALL macros.
@@ -272,3 +276,34 @@ Boolean isCIMServerRunning(void)
   return false;
 }
 
+////////////////////////////////////////////////////
+//  Setup a fifo for process communication
+////////////////////////////////////////////////////
+int init_fifo(const char * fifo_name){
+    int fifo = -1;
+    struct stat FIFO_STAT;
+    int stat_rc = stat( fifo_name, &FIFO_STAT );
+
+    // check if the FIFO already exists
+    if( S_ISFIFO( FIFO_STAT.st_mode ) ){
+	// prep FIFO, on this end we only want to write to it,
+	// set its I/O mode to not block on any reads
+	fifo = open(fifo_name, O_RDWR | O_NONBLOCK);
+    }
+    return fifo;
+}
+ 
+ 
+////////////////////////////////////////////////////
+//  Sends return code back to caller before exiting...
+////////////////////////////////////////////////////
+void cimserver_exitRC(int rc){
+    int fifo = init_fifo(QYCMSSERV_FIFO);
+    
+    if( fifo != -1 ){
+	char rc_tmp[3];
+	memset(rc_tmp, 0, 3);
+ 	sprintf(rc_tmp,"%d",rc);
+ 	write(fifo,rc_tmp,strlen(rc_tmp));
+    }
+}

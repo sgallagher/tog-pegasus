@@ -38,6 +38,8 @@
 //
 // Modified By: Dave Rosckes (rosckes@us.ibm.com)
 //
+// Modified By: Humberto Rivero (hurivero@us.ibm.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -240,6 +242,16 @@ void PrintHelp(const char* arg0)
     cout << usage << endl;
 }
 
+//
+// cimserver_exit: platform specific exit routine calls
+//         
+void cimserver_exit( int rc ){
+#ifdef PEGASUS_OS_OS400
+    cimserver_exitRC(rc);
+#endif
+    exit(rc);
+}
+
 void shutdownCIMOM(Uint32 timeoutValue)
 {
     //
@@ -271,13 +283,14 @@ void shutdownCIMOM(Uint32 timeoutValue)
 		    "Unable to connect to CIM Server.  CIM Server may not be running." );
 	// The server job may still be active but not responding.
 	// Kill the job if it exists.
-	cimserver_kill();
-	exit(1);
+	if(cimserver_kill() == -1)
+	   cimserver_exit(2);
+	cimserver_exit(1);
 #else
         PEGASUS_STD(cerr) << "Unable to connect to CIM Server." << PEGASUS_STD(endl);
         PEGASUS_STD(cerr) << "CIM Server may not be running." << PEGASUS_STD(endl);
 #endif
-        exit(0);
+        cimserver_exit(0);
     }
 
     try
@@ -328,7 +341,8 @@ void shutdownCIMOM(Uint32 timeoutValue)
 			"Failed to shutdown server: $0", e.getMessage());
 	}
 	// Kill the server job.
-	cimserver_kill();
+	if(cimserver_kill() == -1)
+	   cimserver_exit(2);
 #else
         PEGASUS_STD(cerr) << "Failed to shutdown server: ";
         if (e.getCode() == CIM_ERR_INVALID_NAMESPACE)
@@ -341,7 +355,7 @@ void shutdownCIMOM(Uint32 timeoutValue)
             PEGASUS_STD(cerr) << e.getMessage() << PEGASUS_STD(endl);
         }
 #endif
-        exit(1);
+        cimserver_exit(1);
 
     }
     catch(Exception& e)
@@ -376,7 +390,12 @@ void shutdownCIMOM(Uint32 timeoutValue)
 
         if (running)
         {
-            cimserver_kill();
+            int kill_rc = cimserver_kill();
+#ifdef PEGASUS_OS_OS400
+	    if(kill_rc == -1)
+		cimserver_exit(2);
+	    cimserver_exit(1);
+#endif
         }
     }
     //catch(Exception& e)
@@ -697,7 +716,7 @@ int main(int argc, char** argv)
 #else
             cout << "CIM Server stopped." << endl;
 #endif
-            exit(0);
+            cimserver_exit(0);
         }
 
         // Leave this in until people get familiar with the logs.

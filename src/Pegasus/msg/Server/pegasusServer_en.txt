@@ -3011,13 +3011,13 @@ CIM server listening on HTTPS port {0}."}
 
         src.Server.cimserver.DUPLICATE_SHUTDOWN_OPTION:string {"PGS10017:  Duplicate shutdown option is specified."}
 
-        src.Server.cimserver.INSTALLED_NT_SERVICE:string {"\nCIMSVR_INSTALLED_NT_SERVICE:  The CIM server is installed as Windows service."}
+        src.Server.cimserver.INSTALLED_NT_SERVICE:string {"\nCIMSVR_INSTALLED_NT_SERVICE:  The CIM server is installed as a Windows service."}
 
-        src.Server.cimserver.REMOVED_NT_SERVICE:string {"\nCIMSVR_REMOVED_NT_SERVICE:  The CIM server is removed as Windows service."}
+        src.Server.cimserver.REMOVED_NT_SERVICE:string {"\nCIMSVR_REMOVED_NT_SERVICE:  The CIM server is removed as a Windows service."}
 
-        src.Server.cimserver.STARTED_NT_SERVICE:string {"\nCIMSVR_STARTED_NT_SERVICE:  The CIM server is started as Windows service."}
+        src.Server.cimserver.STARTED_NT_SERVICE:string {"\nCIMSVR_STARTED_NT_SERVICE:  The CIM server is started as a Windows service."}
 
-        src.Server.cimserver.STOPPED_NT_SERVICE:string {"\nCIMSVR_STOPPED_NT_SERVICE:  The CIM server is stopped as Windows service."}
+        src.Server.cimserver.STOPPED_NT_SERVICE:string {"\nCIMSVR_STOPPED_NT_SERVICE:  The CIM server is stopped as a Windows service."}
 
         src.Server.cimserver.HTTP_NOT_ENABLED_SERVER_NOT_STARTING:string {"PGS10018: Neither HTTP nor HTTPS connection is enabled.  CIM server is not started."}
 

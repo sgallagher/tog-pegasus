@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Dir.cpp,v $
+// Revision 1.2  2001/02/11 06:52:32  mike
+// fixed compiler error
+//
 // Revision 1.1  2001/02/11 05:46:52  mike
 // new
 //
@@ -80,7 +83,7 @@ int main()
     {
 	Dir dir("noSuchDirectory");
     }
-    catch (CannotOpenDirectory& e)
+    catch (CannotOpenDirectory&)
     {
 	cout << "+++++ passed all tests" << endl;
 	exit(0);

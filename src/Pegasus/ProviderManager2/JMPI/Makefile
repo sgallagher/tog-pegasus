@@ -14,3 +14,8 @@ clean:
 	$(MAKE) -C org/pegasus/jmpi/tests/Client clean
 
 messages:
+
+tests:
+
+poststarttests:
+

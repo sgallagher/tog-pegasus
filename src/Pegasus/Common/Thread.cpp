@@ -539,6 +539,14 @@ Uint32 ThreadPool::kill_dead_threads(void)
 	       }
 	
 	       th = q->remove_no_lock((void *)th);
+
+	       // ATTN-DME-P3-20020919 This code assumes that the thread being
+	       // killed is 'alive' and available to respond to a terminate
+	       // request quickly. Since this code is only processing threads 
+	       // on the _pool (i.e., idle) queue this assumption is currently
+	       // valid. However, this code should not be called if the 
+	       // thread is truly 'hung' or executing a long running request
+	       // because it will cause this thread to wait. 
 	
 	       if(th != 0)
 	       {
@@ -560,6 +568,17 @@ Uint32 ThreadPool::kill_dead_threads(void)
 		     throw NullPointer();
 		  }
 		  
+#ifdef DO_NOT_IMPLEMENT_THREAD_POOL_FIX 
+		  // The above code activates an idle thread to run the
+		  // _undertaker method. This will cause the thread to
+		  // terminate.  The issue with placing this 
+		  // thread on the _dead queue is that it creates a timing 
+		  // problem. If the kill_dead_threads procedure is called
+		  // before this thread has a chance to execute, or while
+		  // this thread is executing, the thread object may be
+		  // deleted prematurely.  This can cause the CIM Server
+		  // or the ThreadPool test to core dump or hang.
+		  // 
 		  // put the thread on the dead  list
 		  _dead.insert_first(th);
 		  bodies++;
@@ -567,6 +586,19 @@ Uint32 ThreadPool::kill_dead_threads(void)
 		  
 		  th->dereference_tsd();
 		  th = 0;
+#else
+		  // Wait until the thread exits before deleting the 
+		  // thread object and related data structures.
+		  //
+                  th->cancel();
+                  th->dereference_tsd();
+                  sleep_sem->signal();
+                  th->join();
+                  th->empty_tsd();
+                  delete th;
+                  th=0;
+                  bodies++;
+#endif
 	       }
 	    }
 	    th = q->next(th);
@@ -614,7 +646,13 @@ PEGASUS_THREAD_RETURN ThreadPool::_undertaker( void *parm )
    if(myself != 0)
    {
       myself->detach();
+#ifdef DO_NOT_IMPLEMENT_THREAD_POOL_FIX 
+      // Implementations of the join operation rely on the 
+      // value of the handle.thid to implement the join operation.
+      // Setting this value to 0 can cause the thread
+      // issuing the join call to hang.
       myself->_handle.thid = 0;
+#endif
       myself->cancel();
       myself->test_cancel();
       myself->exit_self(0);

@@ -186,22 +186,46 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_USER          =
 #define HTTP_REASONPHRASE_SERVICEUNAVAILABLE "Service Unavailable"
 #define HTTP_STATUS_SERVICEUNAVAILABLE "503 Service Unavailable"
 
+
 //
 // Default port numbers
 //
+
 #define WBEM_DEFAULT_HTTP_PORT 5988
 #define WBEM_DEFAULT_HTTPS_PORT 5989
+
 
 //
 // Wbem service names
 //
+
 #define WBEM_HTTP_SERVICE_NAME "wbem-http"
 #define WBEM_HTTPS_SERVICE_NAME "wbem-https"
 
+
 //
-// SSL client certificate files
+// File system layout
 //
-#include <Pegasus/Common/SSLDir.h>
+
+#define PEGASUS_SSLCLIENT_CERTIFICATEFILE "server.pem"
+#define PEGASUS_SSLCLIENT_RANDOMFILE      "ssl.rnd"
+#define PEGASUS_LOCAL_AUTH_DIR            "/tmp"
+// ATTN: Relocate this relative to PEGASUS_HOME
+#define PEGASUS_LOCAL_DOMAIN_SOCKET_PATH  "/tmp/cimxml.socket"
+
+#ifdef PEGASUS_USE_RELEASE_DIRS
+# if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
+#  undef PEGASUS_SSLCLIENT_CERTIFICATEFILE
+#  define PEGASUS_SSLCLIENT_CERTIFICATEFILE "/var/opt/wbem/server.pem"
+#  undef PEGASUS_SSLCLIENT_RANDOMFILE
+#  define PEGASUS_SSLCLIENT_RANDOMFILE      "/var/opt/wbem/ssl.rnd"
+#  undef PEGASUS_LOCAL_AUTH_DIR
+#  define PEGASUS_LOCAL_AUTH_DIR            "/var/opt/wbem/localauth"
+#  undef PEGASUS_LOCAL_DOMAIN_SOCKET_PATH
+#  define PEGASUS_LOCAL_DOMAIN_SOCKET_PATH  "/var/opt/wbem/cimxml.socket"
+# endif
+#endif
+
 
 //
 // Miscellaneous Constants

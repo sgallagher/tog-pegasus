@@ -105,8 +105,10 @@ CIMValue value2CIMValue(CMPIValue* data, CMPIType type, CMPIrc *rc) {
       }
    }
 
-   else if (type==CMPI_chars)  v.set(String((char*)data));
-   else if (type==CMPI_string) v.set(String((char*)data->string->hdl));
+   else if (type==CMPI_chars)  v.set(data ?
+        String((char*)data) : String::EMPTY );
+   else if (type==CMPI_string) v.set(data->string->hdl ?
+        String((char*)data->string->hdl) : String::EMPTY);
 
    else if ((type & (CMPI_UINT|CMPI_SINT))==CMPI_UINT) {
       switch (type) {

@@ -40,6 +40,7 @@
 #ifndef Pegasus_StreamScanner_h
 #define Pegasus_StreamScanner_h
 
+#include <Pegasus/Common/String.h>
 #include <unistd.h>
 #include <dirent.h>
 #include <stdio.h>

@@ -34,6 +34,12 @@
 //#define _OPEN_SYS 1
 #define _MSE_PROTOS
 #define _OPEN_SOURCE 3
+// timezone
+#define _ALL_SOURCE
+// longlong
+//#define _LONG_LONG 1
+
+#include <limits.h>
 
 #include <Pegasus/Common/ConfigUnix.h>
 
@@ -47,10 +53,13 @@
 
 #define PEGASUS_SINT64 long int
 
-#define PEGASUS_LLONG_MAX 9223372036854775807LL
-#define PEGASUS_LLONG_MIN (-PEGASUS_LLONG_MAX - 1LL)
-
-#define PEGASUS_ULLONG_MAX 18446744073709551615ULL
+#define PEGASUS_LLONG_MAX LONGLONG_MAX
+//9223372036854775807L       
+#define PEGASUS_LLONG_MIN LONGLONG_MIN
+//(-PEGASUS_LLONG_MAX - 1L)  
+                                                     
+#define PEGASUS_ULLONG_MAX ULONGLONG_MAX
+//18446744073709551615UL    
 
 #define PEGASUS_HAVE_NAMESPACES
 

@@ -207,8 +207,8 @@ Boolean _evaluate(QueryExpression& qe,
         {
           Boolean result = qe.evaluate(_instances[j]);
           cout << qe.getQuery() << " = ";
-          if(result) printf("TRUE\n\n");
-          else printf("FALSE\n\n");
+          if (result) cout << "TRUE" << endl << endl;
+          else cout << "FALSE" << endl << endl;
         }
         catch(Exception e){ cout << e.getMessage() << endl;}
         catch(...){ cout << "Unknown Exception" << endl;}
@@ -386,6 +386,14 @@ int main(int argc, char ** argv)
                }
 				}
 			}
+
+			// while (!eof) behaves differently on HP-UX, seems
+			// like it takes an extra iteration to hit eof.  This
+			// leaves "text" with the previous value from
+			// getline(..), which causes a duplicate parse of
+			// the last select statement in the query file,
+			// FIX: we clear text before doing another getline(..)
+			text[0] = 0;
 		}
 		queryInputSource.close();
 	}else{

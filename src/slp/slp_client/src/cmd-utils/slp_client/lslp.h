@@ -33,7 +33,7 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdd@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/lslp.h,v 1.4 2005/02/05 23:01:36 karl Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/lslp.h,v 1.5 2005/02/26 05:54:20 david.dillard Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -394,7 +394,7 @@ extern "C" {
 
 struct api_hdr {
   int32 version;
-  int8 signature[28];
+  char  signature[28];
   int16 msgLen; /* including header */
   int16 errCode;
   int16 function_id;

@@ -33,7 +33,7 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdd@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/lslp-linux.h,v 1.5 2005/02/05 23:01:36 karl Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/lslp-linux.h,v 1.6 2005/02/26 05:47:04 david.dillard Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -92,7 +92,6 @@
 #include <string.h>
 #include <ctype.h>
 #include <net/if.h>
-typedef char int8;
 typedef	unsigned char uint8;
 typedef uint8 byte;
 typedef short int16;
@@ -111,10 +110,13 @@ extern "C" {
 #ifdef PEGASUS_OS_SOLARIS
 #include "lslp-solaris.h"
 #endif
+#ifdef PEGASUS_OS_HPUX
+#include "lslp-hpux.h"
+#endif
 
 void _lslp_term(int sig) ;
-void  num_to_ascii(uint32 val, int8 *buf, int32 radix, BOOL is_neg);
-void  hug_num_to_ascii(uint64 val, int8 *buf, int32 radix, BOOL is_neg);
+void  num_to_ascii(uint32 val, char *buf, int32 radix, BOOL is_neg);
+void  hug_num_to_ascii(uint64 val, char *buf, int32 radix, BOOL is_neg);
 
   typedef int SOCKETD;
   

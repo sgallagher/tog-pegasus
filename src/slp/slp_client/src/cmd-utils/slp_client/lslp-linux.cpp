@@ -33,7 +33,7 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdd@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/lslp-linux.cpp,v 1.3 2005/02/05 23:01:36 karl Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/lslp-linux.cpp,v 1.4 2005/02/26 05:47:04 david.dillard Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -72,11 +72,11 @@
 #include <assert.h>
 #include "lslp-linux.h"
 
-void  num_to_ascii(uint32 val, int8 *buf, int32 radix, BOOL is_neg)
+void  num_to_ascii(uint32 val, char *buf, int32 radix, BOOL is_neg)
 {
-  int8 *p;
-  int8 *firstdig;
-  int8 temp;
+  char *p;
+  char *firstdig;
+  char temp;
   uint32 digval;
 
   assert(buf != NULL);
@@ -104,9 +104,9 @@ void  num_to_ascii(uint32 val, int8 *buf, int32 radix, BOOL is_neg)
     digval = (uint32) (val % radix);
     val /= radix;
     if(digval > 9)
-      *p++ = (int8)(digval - 10 + 'a');
+      *p++ = (char)(digval - 10 + 'a');
     else
-      *p++ = (int8)(digval + '0');
+      *p++ = (char)(digval + '0');
   } while (val > 0);
 
   /* by getting the mod value before the div value, the digits are */
@@ -124,11 +124,11 @@ void  num_to_ascii(uint32 val, int8 *buf, int32 radix, BOOL is_neg)
 }
 
 
-void  hug_num_to_ascii(uint64 val, int8 *buf, int32 radix, BOOL is_neg)
+void  hug_num_to_ascii(uint64 val, char *buf, int32 radix, BOOL is_neg)
 {
-  int8 *p;
-  int8 *firstdig;
-  int8 temp;
+  char *p;
+  char *firstdig;
+  char temp;
   uint64 digval;
 
   assert(buf != NULL);
@@ -156,9 +156,9 @@ void  hug_num_to_ascii(uint64 val, int8 *buf, int32 radix, BOOL is_neg)
     digval = (uint64)(val % radix);
     val /= radix;
     if(digval > 9)
-      *p++ = (int8)(digval - 10 + 'a');
+      *p++ = (char)(digval - 10 + 'a');
     else
-      *p++ = (int8)(digval + '0');
+      *p++ = (char)(digval + '0');
   } while (val > 0);
 
   /* by getting the mod value before the div value, the digits are */
@@ -188,5 +188,3 @@ void _lslp_term(int sig)
   signal(sig, SIG_DFL);
   raise(sig);
 }
- 
-

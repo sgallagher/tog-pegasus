@@ -32,7 +32,7 @@
  *  Originated: December 31, 1999 
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdday@us.ibm.com 
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/lslp-windows.h,v 1.5 2005/02/05 23:01:36 karl Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/lslp-windows.h,v 1.6 2005/02/26 05:50:01 david.dillard Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -86,7 +86,6 @@ extern "C" {
 #include <assert.h>
 #include <errno.h>
 
-typedef char int8;
 typedef	unsigned char uint8;
 typedef uint8 byte;
 typedef short int16;

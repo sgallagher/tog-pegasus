@@ -155,8 +155,8 @@ public:
             _name = x._name;
             _value = x._value;
             _type = x._type;
-            return *this;
         }
+        return *this;
     }
 
     String _name;

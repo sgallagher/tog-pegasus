@@ -220,7 +220,7 @@ class PEGASUS_COMMON_LINKAGE Thread
 
       void thread_switch(void);
 
-#ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU
+#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
       // suspend this thread 
       void suspend(void) ;
 

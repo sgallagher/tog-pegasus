@@ -375,7 +375,7 @@ void HTTPAcceptor::_acceptConnection()
    int n = sizeof(address);
 #endif
 
-#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
+#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
    Sint32 socket = accept(
       _rep->socket, (struct sockaddr*)&address, (socklen_t *)&n);
 #else

@@ -39,7 +39,7 @@
 #include <sys/timex.h>
 #include <unistd.h>
 
-#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
+#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
 #include <asm/atomic.h>
 #endif
 
@@ -97,7 +97,7 @@ typedef struct {
 /// Conditionals to support native or generic Conditional Semaphore
 //-----------------------------------------------------------------
 
-#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
+#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
 #define PEGASUS_CONDITIONAL_NATIVE = 1
 
 typedef pthread_cond_t PEGASUS_COND_TYPE;
@@ -117,7 +117,7 @@ typedef struct {
 // other unix platforms HPUX, AIX, may have different types
 // implementors should use the native type for faster operations
 
-#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
+#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
 #define PEGASUS_ATOMIC_INT_NATIVE = 1
 
 typedef atomic_t PEGASUS_ATOMIC_TYPE ;

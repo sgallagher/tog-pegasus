@@ -208,22 +208,22 @@ static void __cdecl cimserver_windows_thread(void *parm)
     if (enableHttpConnection)
     {
       server_windows->addAcceptor(false, portNumberHttp, false);
-      //l10n
+      //l10n 485
       //Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
                   //"Listening on HTTP port $0.", portNumberHttp);
       Logger::put_l(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
-      				"src.Server.cimserver_windows.LISTENING_ON_PORT",
-                  "Listening on $0 port $1.", "HTTP", portNumberHttp);
+      				"src.Server.cimserver_windows.LISTENING_ON_HTTP_PORT",
+                  "Listening on HTTP port $0.", portNumberHttp);
     }
     if (enableHttpsConnection)
     {
       server_windows->addAcceptor(false, portNumberHttps, true);
-      //l10n
+      //l10n 485
       //Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
         //          "Listening on HTTPS port $0.", portNumberHttps);
       Logger::put_l(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
-      				"src.Server.cimserver_windows.LISTENING_ON_PORT",
-                  "Listening on $0 port $1.", "HTTPS", portNumberHttps);
+      				"src.Server.cimserver_windows.LISTENING_ON_HTTPS_PORT",
+                  "Listening on HTTPS port $0.", "HTTPS", portNumberHttps);
     }
 
     server_windows->bind();

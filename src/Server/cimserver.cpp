@@ -938,8 +938,8 @@ MessageLoader::_useProcessLocale = true;
 			//l10n
             //cout << "CIM Server stopped." << endl;
             MessageLoaderParms parms("src.Server.cimserver.SERVER_STOPPED",
-            						 "$0 Server stopped.",
-            						 "CIM");
+            						 "CIM Server stopped.");
+
             cout << MessageLoader::getMessage(parms) << endl;
 #endif
             cimserver_exit(0);

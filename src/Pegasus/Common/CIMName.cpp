@@ -119,22 +119,36 @@ void CIMName::clear()
 Boolean CIMName::legal(const String& name)
 {
     Uint32 length = name.size();
-    Uint32 i = 0;
+    Char16 chkchr;
     
 
     if (length == 0)
         return false;
 
-    CString temp = name.getCStringUTF8();
-    const char* UTF8name = temp;
+    chkchr = name[0];
 
-    char currentChar;
-
-    while(i<length)
+    if(!(  
+	(chkchr == 0x005F) ||
+	((chkchr >= 0x0041) && (chkchr <= 0x005A)) ||
+	((chkchr >= 0x0061) && (chkchr <= 0x007A)) ||
+	((chkchr >= 0x0080) && (chkchr <= 0xFFEF))))
     {
-	UTF8_NEXT(UTF8name,i,currentChar);
-        if (!(String::isUTF8(&UTF8name[i])))
-            return false;
+ 	return false;
+    }
+    
+    
+    for(Uint32 i = 1; i < length; ++i)
+    {
+	chkchr = name[i];
+	if(!(  
+	     (chkchr == 0x005F) ||
+	     ((chkchr >= 0x0041) && (chkchr <= 0x005A)) ||
+	     ((chkchr >= 0x0061) && (chkchr <= 0x007A)) ||
+	     ((chkchr >= 0x0080) && (chkchr <= 0xFFEF)) ||
+	     ((chkchr >= 0x0030) && (chkchr <= 0x0039))))
+        {
+ 	     return false;
+        }
     }
 
     return true;
@@ -234,26 +248,41 @@ void CIMNamespaceName::clear()
 
 Boolean CIMNamespaceName::legal(const String& name)
 {
-    Uint32 i = 0;
-    Uint32 length = name.size();
-    if (length == 0) return true;    // ATTN: Cheap hack!
 
-    if (length == 0) return true;    // ATTN: Cheap hack!
+  Uint32 length = name.size();
+    Char16 chkchr;
+    
 
-    CString temp = name.getCStringUTF8();
-    const char* UTF8name = temp;
+    if (length == 0)
+        return false;
 
-    char currentChar;
+    chkchr = name[0];
 
-    while(i<length)
+    if(!(  
+	(chkchr == 0x005F) ||
+	((chkchr >= 0x0041) && (chkchr <= 0x005A)) ||
+	((chkchr >= 0x0061) && (chkchr <= 0x007A)) ||
+	((chkchr >= 0x0080) && (chkchr <= 0xFFEF))))
     {
-	UTF8_NEXT(UTF8name,i,currentChar);
-	if (!(String::isUTF8(&UTF8name[i])))
-	    return false;
+ 	return false;
+    }
+    
+    
+    for(Uint32 i = 1; i < length; ++i)
+    {
+	chkchr = name[i];
+	if(!(  
+	     (chkchr == 0x005F) ||
+	     ((chkchr >= 0x0041) && (chkchr <= 0x005A)) ||
+	     ((chkchr >= 0x0061) && (chkchr <= 0x007A)) ||
+	     ((chkchr >= 0x0080) && (chkchr <= 0xFFEF)) ||
+	     ((chkchr >= 0x0030) && (chkchr <= 0x0039))))
+        {
+ 	     return false;
+        }
     }
 
     return true;
-
 // Alternate implementation
 #if 0
     String temp;

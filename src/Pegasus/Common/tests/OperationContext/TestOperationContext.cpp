@@ -36,6 +36,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/CIMDateTime.h>
+#include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/OperationContextInternal.h>
 
 #include <iostream>
@@ -383,6 +384,106 @@ int main(void)
     }
 
     //
+    //  SubscriptionFilterQueryContainer
+    //
+    try
+    {
+        String filterQuery ("SELECT * FROM CIM_AlertIndication WHERE AlertType = 5");
+        String queryLanguage ("WQL1");
+        CIMNamespaceName sourceNamespace("root/sampleprovider");
+
+        context.insert(SubscriptionFilterQueryContainer
+            (filterQuery, queryLanguage, sourceNamespace));
+
+        SubscriptionFilterQueryContainer container = context.get
+            (SubscriptionFilterQueryContainer::NAME);
+
+        if((filterQuery != container.getFilterQuery()) ||
+           (queryLanguage != container.getQueryLanguage()) ||
+           (!(sourceNamespace == container.getSourceNameSpace())))
+        {
+            throw 0;
+        }
+    }
+    catch(...)
+    {
+        cout << "----- Subscription Filter Query Container failed" << endl;
+
+        exit(1);
+    }
+
+    try
+    {
+        context.clear();
+        String filterQuery ("SELECT * FROM CIM_AlertIndication WHERE AlertType = 5");
+        String queryLanguage ("WQL1");
+        CIMNamespaceName sourceNamespace("root/sampleprovider");
+
+        context.insert(SubscriptionFilterQueryContainer(filterQuery,
+            queryLanguage, sourceNamespace));
+
+        //
+        //  This test exercises the SubscriptionFilterQueryContainer copy 
+        //  constructor
+        //
+        SubscriptionFilterQueryContainer container = 
+            (SubscriptionFilterQueryContainer)context.get
+            (SubscriptionFilterQueryContainer::NAME);
+
+        if((filterQuery != container.getFilterQuery()) ||
+           (queryLanguage != container.getQueryLanguage()) ||
+           (!(sourceNamespace == container.getSourceNameSpace())))
+        {
+            throw 0;
+        }
+    }
+    catch(...)
+    {
+        cout << 
+          "----- SubscriptionFilterQuery Container copy constructor failed" 
+             << endl;
+
+        exit(1);
+    }
+
+    try
+    {
+        context.clear();
+        String filterQuery ("SELECT * FROM CIM_AlertIndication WHERE AlertType = 5");
+        String queryLanguage ("WQL1");
+        CIMNamespaceName sourceNamespace("root/sampleprovider");
+        CIMNamespaceName junkNamespace("root/junk");
+
+        context.insert(SubscriptionFilterQueryContainer(filterQuery,
+            queryLanguage, sourceNamespace));
+
+        //
+        //  This test exercises the SubscriptionFilterQueryContainer 
+        //  assignment operator
+        //
+        SubscriptionFilterQueryContainer container = 
+            SubscriptionFilterQueryContainer(" ", " ", junkNamespace);
+        container =
+            (SubscriptionFilterQueryContainer)context.get
+            (SubscriptionFilterQueryContainer::NAME);
+
+        if((filterQuery != container.getFilterQuery()) ||
+           (queryLanguage != container.getQueryLanguage()) ||
+           (!(sourceNamespace == container.getSourceNameSpace())))
+        {
+            throw 0;
+        }
+    }
+    catch(...)
+    {
+        cout << 
+        "----- SubscriptionFilterQuery Container assignment operator failed"
+             << endl;
+
+        exit(1);
+    }
+
+    //
     //  SubscriptionInstanceNamesContainer
     //
 
@@ -645,6 +746,7 @@ int main(void)
         scopeContext.remove(IdentityContainer::NAME);
         scopeContext.remove(SubscriptionInstanceContainer::NAME);
         scopeContext.remove(SubscriptionFilterConditionContainer::NAME);
+        scopeContext.remove(SubscriptionFilterQueryContainer::NAME);
         scopeContext.remove(LocaleContainer::NAME);
         scopeContext.remove(ProviderIdContainer::NAME);
     }

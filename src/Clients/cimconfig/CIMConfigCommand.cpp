@@ -47,6 +47,10 @@
 #include <Pegasus/Config/ConfigFileHandler.h>
 #include "CIMConfigCommand.h"
 
+#ifdef PEGASUS_OS_OS400
+#include "qycmutiltyUtility.H"
+#endif
+
 PEGASUS_NAMESPACE_BEGIN
 
 /**
@@ -588,8 +592,21 @@ Uint32 CIMConfigCommand::execute (
     //
 
     const char* env = getenv("PEGASUS_HOME");
+
+#ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
+    // Set pegasusHome to the env var,if it is set.  Otherwise,
+    // use the OS/400 default path.
+    if (env != NULL)
+	pegasusHome = env;
+    else
+        pegasusHome = OS400_DEFAULT_PEGASUS_HOME;
+
+    String currentFile = FileSystem::getAbsolutePath(pegasusHome.getCString(), CURRENT_CONFIG_FILE);
+    String plannedFile = FileSystem::getAbsolutePath(pegasusHome.getCString(), PLANNED_CONFIG_FILE);
+#else
     String currentFile = FileSystem::getAbsolutePath(env, CURRENT_CONFIG_FILE);
     String plannedFile = FileSystem::getAbsolutePath(env, PLANNED_CONFIG_FILE);
+#endif
 
     try
     {
@@ -1272,6 +1289,13 @@ int main (int argc, char* argv [])
 {
     CIMConfigCommand*    command;
     Uint32               returnCode;
+
+#ifdef PEGASUS_OS_OS400
+    if(FALSE == ycmCheckCmdAuthorities())
+    { 
+      return -9;
+    }
+#endif
 
     command  = new CIMConfigCommand ();
 

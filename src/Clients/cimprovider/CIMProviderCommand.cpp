@@ -47,6 +47,10 @@
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/PegasusVersion.h>
 
+#ifdef PEGASUS_OS_OS400
+#include "qycmutiltyUtility.H"
+#endif
+
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
@@ -1285,6 +1289,8 @@ CIMInstance CIMProviderCommand::_getModuleInstance()
     cerr << ERR_MODULE_NOT_REGISTERED << endl;
     exit(-1); 
     
+    // Keep the compiler happy
+    return CIMInstance();
 }
 
 // Get namedInstance for a provider
@@ -1325,6 +1331,8 @@ CIMInstance CIMProviderCommand::_getProviderInstance()
     cerr << ERR_PROVIDER_NOT_REGISTERED << endl;
     exit(-1); 
     
+    // Keep the compiler happy
+    return CIMInstance();
 }
 
 // Print out registered modules and status
@@ -1509,6 +1517,13 @@ int main (int argc, char* argv [])
 {
     CIMProviderCommand*      command;
     Uint32               retCode;
+
+#ifdef PEGASUS_OS_OS400
+    if(FALSE == ycmCheckCmdAuthorities())
+    { 
+	return 9;
+    }
+#endif
 
     command  = new CIMProviderCommand ();
 

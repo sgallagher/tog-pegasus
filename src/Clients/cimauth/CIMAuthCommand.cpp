@@ -48,6 +48,10 @@
 
 #include <Pegasus/Common/PegasusVersion.h>
 
+#ifdef PEGASUS_OS_OS400
+#include "qycmutiltyUtility.H"
+#endif
+
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
@@ -1195,6 +1199,12 @@ int main (int argc, char* argv [])
     CIMAuthCommand*      command;
     Uint32               retCode;
 
+#ifdef PEGASUS_OS_OS400
+  if(FALSE == ycmCheckCmdAuthorities())
+  { 
+    return 1;
+  }
+#else
     //
     // Check if root is issuing the command
     //
@@ -1203,6 +1213,7 @@ int main (int argc, char* argv [])
         cerr << NOT_PRIVILEGED_USER << endl;
         return 1;
     }
+#endif
 
     command  = new CIMAuthCommand ();
 

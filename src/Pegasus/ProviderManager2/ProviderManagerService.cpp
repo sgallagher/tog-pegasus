@@ -471,7 +471,7 @@ ProviderManager* ProviderManagerService::locateProviderManager(const Message *me
            String::EMPTY,
            p->providerType);
        // find provider manager
-       name = ProviderRegistrar().findProvider(name);
+       name = ProviderRegistrar().findProvider(name,false);
        it=name.getInterfaceName();
     }
 

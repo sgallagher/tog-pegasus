@@ -261,7 +261,7 @@ Message * DefaultProviderManager::handleGetInstanceRequest(const Message * messa
             String::EMPTY,
             String::EMPTY,
             String::EMPTY,
-            0);
+            ProviderType::INSTANCE);
 
         // resolve provider name
         name = _resolveProviderName(name);
@@ -371,7 +371,7 @@ Message * DefaultProviderManager::handleEnumerateInstancesRequest(const Message 
             String::EMPTY,
             String::EMPTY,
             String::EMPTY,
-            0);
+            ProviderType::INSTANCE);
 
         // resolve provider name
         name = _resolveProviderName(name);
@@ -483,7 +483,7 @@ Message * DefaultProviderManager::handleEnumerateInstanceNamesRequest(const Mess
             String::EMPTY,
             String::EMPTY,
             String::EMPTY,
-            0);
+            ProviderType::INSTANCE);
 
         // resolve provider name
         name = _resolveProviderName(name);
@@ -590,7 +590,7 @@ Message * DefaultProviderManager::handleCreateInstanceRequest(const Message * me
             String::EMPTY,
             String::EMPTY,
             String::EMPTY,
-            0);
+            ProviderType::INSTANCE);
 
         // resolve provider name
         name = _resolveProviderName(name);
@@ -697,7 +697,7 @@ Message * DefaultProviderManager::handleModifyInstanceRequest(const Message * me
             String::EMPTY,
             String::EMPTY,
             String::EMPTY,
-            0);
+            ProviderType::INSTANCE);
 
         // resolve provider name
         name = _resolveProviderName(name);
@@ -808,7 +808,7 @@ Message * DefaultProviderManager::handleDeleteInstanceRequest(const Message * me
             String::EMPTY,
             String::EMPTY,
             String::EMPTY,
-            0);
+            ProviderType::INSTANCE);
 
         // resolve provider name
         name = _resolveProviderName(name);
@@ -1058,7 +1058,7 @@ Message * DefaultProviderManager::handleAssociatorNamesRequest(const Message * m
             String::EMPTY,
             String::EMPTY,
             String::EMPTY,
-            0);
+            ProviderType::ASSOCIATION);
 
         // resolve provider name
         name = _resolveProviderName(name);
@@ -1163,7 +1163,7 @@ Message * DefaultProviderManager::handleReferencesRequest(const Message * messag
             String::EMPTY,
             String::EMPTY,
             String::EMPTY,
-            0);
+            ProviderType::ASSOCIATION);
 
         // resolve provider name
         name = _resolveProviderName(name);
@@ -1273,7 +1273,7 @@ Message * DefaultProviderManager::handleReferenceNamesRequest(const Message * me
             String::EMPTY,
             String::EMPTY,
             String::EMPTY,
-            0);
+            ProviderType::ASSOCIATION);
 
         // resolve provider name
         name = _resolveProviderName(name);
@@ -1605,7 +1605,7 @@ Message * DefaultProviderManager::handleInvokeMethodRequest(const Message * mess
             String::EMPTY,
             String::EMPTY,
             String::EMPTY,
-            0);
+            ProviderType::METHOD);
 
         // resolve provider name
         name = _resolveProviderName(name);

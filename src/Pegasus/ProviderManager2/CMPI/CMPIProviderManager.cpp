@@ -489,8 +489,8 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
 
         // resolve provider name
         name = _resolveProviderName(name);
-
-        // get cached or load new provider module
+        
+	// get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
             providerManager.getProvider(name.getPhysicalName(), name.getLogicalName());
 

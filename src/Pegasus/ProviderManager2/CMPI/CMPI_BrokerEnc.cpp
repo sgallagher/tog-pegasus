@@ -489,7 +489,7 @@ extern "C" {
     int exception = 1;
     int useShortNames = 0;
 
-    if (strcmp (lang, "WQL") == 0)
+    if (strncmp (lang, CALL_SIGN_WQL, CALL_SIGN_WQL_SIZE) == 0)
       {
         WQLSelectStatement *stmt = new WQLSelectStatement ();
         try
@@ -514,10 +514,11 @@ extern "C" {
               *projection = NULL;
             return NULL;
           }
-
+		if (projection)
+			{
         if (stmt->getAllProperties ())
           {
-            *projection = NULL;
+            	*projection = NULL;
           }
         else
           {
@@ -532,18 +533,21 @@ extern "C" {
                                      (const char *) n.getString ().
                                      getCString (), CMPI_chars);
               }
+		    }
           }
         stmt->hasWhereClause ();
+        if (st)
+            CMSetStatus (st, CMPI_RC_OK);
         return (CMPISelectExp *) new CMPI_SelectExp (stmt);
       }
 
-    if ((strcmp (lang, "CIMxCQL") == 0) || (strcmp (lang, "CIM:CQL") == 0))
+    if ((strncmp (lang, "CIMxCQL", CALL_SIGN_CQL_SIZE) == 0) || (strncmp (lang, CALL_SIGN_CQL, CALL_SIGN_CQL_SIZE) == 0))
       {
         /* IBMKR: This will have to be removed when the CMPI spec is updated
            with a clear explanation of what properties array can have as
            strings. For right now, if useShortNames is set to true, _only_
            the last chained identifier is used. */
-        if (strcmp (lang, "CIM:CQL") == 0)
+        if (strncmp (lang, CALL_SIGN_CQL, CALL_SIGN_CQL_SIZE) == 0)
           useShortNames = 1;
         // Get the namespace.
         CMPIContext *ctx = CMPI_ThreadContext::getContext ();
@@ -589,6 +593,8 @@ extern "C" {
           }
         else
           {
+		    if (projection)
+			{
             Array < CQLChainedIdentifier > select_Array =
               selectStatement->getSelectChainedIdentifiers ();
 
@@ -628,7 +634,10 @@ extern "C" {
                     return NULL;
                   }
               }
+			}
           }
+        if (st)
+            CMSetStatus (st, CMPI_RC_OK);
         return (CMPISelectExp *) new CMPI_SelectExp (selectStatement);
       }
     if (st)

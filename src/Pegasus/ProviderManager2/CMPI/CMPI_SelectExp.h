@@ -50,6 +50,11 @@
 #include <Pegasus/ProviderManager2/CMPI/Linkage.h>
 PEGASUS_NAMESPACE_BEGIN
 
+#define CALL_SIGN_WQL "WQL"
+#define CALL_SIGN_WQL_SIZE 3
+#define CALL_SIGN_CQL "CIM:CQL"
+#define CALL_SIGN_CQL_SIZE 7
+
 struct PEGASUS_CMPIPM_LINKAGE CMPI_SelectExp : CMPISelectExp {
    CMPI_SelectExp(const OperationContext& ct, QueryContext *context, String cond_, String lang_);
    CMPI_SelectExp(WQLSelectStatement*);

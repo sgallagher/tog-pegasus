@@ -37,36 +37,16 @@ PEGASUS_USING_PEGASUS;
 
 PEGASUS_NAMESPACE_BEGIN
 
-Boolean IndicationHandlerService::messageOK(const Message *msg)
+IndicationHandlerService::IndicationHandlerService(void)
+        : Base("IndicationHandlerService", MessageQueue::getNextQueueId())
 {
-   if(msg->getMask() & message_mask::ha_async)
-   {
-      if( msg->getType() == 0x04100000 ||
-	  msg->getType() == async_messages::CIMSERVICE_STOP || 
-	  msg->getType() == async_messages::CIMSERVICE_PAUSE || 
-	  msg->getType() == async_messages::ASYNC_LEGACY_OP_START ||
-	  msg->getType() == async_messages::CIMSERVICE_RESUME )
-      return true;
-   }
-   return false;
+
 }
 
-
-void IndicationHandlerService::handle_CimServiceStop(CimServiceStop *req)
+IndicationHandlerService::IndicationHandlerService(CIMRepository* repository)
+   : Base("IndicationHandlerService", MessageQueue::getNextQueueId()),
+     _repository(repository)
 {
-    AsyncReply *resp =  
-	new AsyncReply(async_messages::REPLY,
-	    req->getKey(),
-	    req->getRouting(), 
-	    0, 
-	    req->op, 
-	    async_results::CIM_SERVICE_STOPPED, 
-	    req->resp, 
-	    req->block);
-    
-    _completeAsyncResponse(req, resp, ASYNC_OPSTATE_COMPLETE, 0 );
-    
-    dienow++;
 }
 
 void IndicationHandlerService::_handle_async_request(AsyncRequest *req)
@@ -79,41 +59,35 @@ void IndicationHandlerService::_handle_async_request(AsyncRequest *req)
     else if ( req->getType() == async_messages::ASYNC_LEGACY_OP_START )
     {
 	req->op->processing();
-	handle_LegacyOpStart(static_cast<AsyncLegacyOperationStart *>(req));
+        Message *legacy = (static_cast<AsyncLegacyOperationStart *>(req)->act);
+        if (false == handleEnqueue(legacy))
+            _make_response(req, async_results::CIM_NAK);
+        return;
+	//handle_LegacyOpStart(static_cast<AsyncLegacyOperationStart *>(req));
     }
     else
 	Base::_handle_async_request(req);
 }
 
-void IndicationHandlerService::handle_LegacyOpStart(AsyncLegacyOperationStart *req)
+Boolean IndicationHandlerService::handleEnqueue(Message* message)
 {
-    Message *legacy = req->act;
-    
-    switch (legacy->getType())
-    {
-	case CIM_HANDLE_INDICATION_REQUEST_MESSAGE:
-	    handle_handleIndcication(legacy);
-	    break;
+    Boolean ret = true;
 
-	default:
-	    // Ignore this
-	    break;
-    }
+    switch (message->getType())
+    {
+        case CIM_HANDLE_INDICATION_REQUEST_MESSAGE:
+            _handleIndication(message);
+            break;
    
-    AsyncReply *resp =  
-	new AsyncReply(async_messages::REPLY,
-	    req->getKey(),
-	    req->getRouting(), 
-	    0, 
-	    req->op, 
-	    async_results::OK, 
-	    req->resp, 
-	    req->block);
-    
-    _completeAsyncResponse(req, resp, ASYNC_OPSTATE_COMPLETE, 0 );
+        default:
+            ret = false;
+            break;
+    }
+    delete message;
+    return ret;
 }
 
-void IndicationHandlerService::handle_handleIndcication(const Message* message)
+void IndicationHandlerService::_handleIndication(const Message* message)
 {
     CIMHandleIndicationRequestMessage* request = 
 	(CIMHandleIndicationRequestMessage*) message;

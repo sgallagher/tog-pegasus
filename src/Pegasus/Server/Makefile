@@ -23,7 +23,8 @@ LIBRARIES = \
     pegconfig \
     peguser \
     peglocalauth \
-    pegwql
+    pegwql \
+    peghandlerservice
 
 PRE_DEPEND_INCLUDES = -I./depends
 
@@ -43,8 +44,7 @@ SOURCES = \
     ProviderManager/ProviderBlockedEntry.cpp \
     ConfigurationManager/ConfigurationManagerQueue.cpp \
     ConfigurationManager/PG_RegistrationProvider.cpp \
-    IndicationService/IndicationService.cpp \
-    IndicationService/HandlerTable.cpp
+    IndicationService/IndicationService.cpp
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 

@@ -28,8 +28,8 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef Pegasus_IndicationService_h
-#define Pegasus_IndicationService_h
+#ifndef Pegasus_IndicationHandlerService_h
+#define Pegasus_IndicationHandlerService_h
 
 #include <Pegasus/Common/Config.h>
 #include <sys/types.h>
@@ -68,28 +68,21 @@ public:
     
     typedef MessageQueueService Base;
     
-    IndicationHandlerService(char *name, CIMRepository* repository)
-       : Base(name, MessageQueue::getNextQueueId()) ,
-	dienow(0)
-    {
+    IndicationHandlerService(CIMRepository* repository);
 
-       _repository = repository;
-    }
+    IndicationHandlerService(void);
 
-    virtual ~IndicationHandlerService(void) 
-    {
-    }
+    ~IndicationHandlerService(void) { } ;
       
-    virtual Boolean messageOK(const Message *msg);
-    virtual void handle_CimServiceStop(CimServiceStop *req);
     virtual void _handle_async_request(AsyncRequest *req);
-    void handle_LegacyOpStart(AsyncLegacyOperationStart *req);
-    
-    void handle_handleIndcication(const Message* message);
+
+    Boolean handleEnqueue(Message *);
     
     AtomicInt dienow;
 
 protected:
+
+    void _handleIndication(const Message* message);
 
     HandlerTable _handlerTable;
 

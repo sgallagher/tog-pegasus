@@ -10,6 +10,10 @@ include $(PEGASUS_ROOT)/mak/config.mak
 all:
 
 # Delete and rebuild the repository using the MOF compiler.
+install:
+	$(MAKE) --directory=Internal install 
+	$(MAKE) --directory=InterOp install
+	$(MAKE) --directory=ManagedSystem install
 
 repository:
 	$(MAKE) --directory=Internal repository

@@ -43,6 +43,10 @@ ifeq ($(PEGASUS_ENABLE_SLP),true)
 endif
 
 	
+install:
+	$(MKDIRHIER) $(LOCAL_STATE_PREFIX)
+	$(MAKE) REPOSITORY_DIR=$(LOCAL_STATE_PREFIX) repository
+
 
 repositoryServer:
 	@ echo +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(INTEROPNS) namespace ...

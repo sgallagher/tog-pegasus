@@ -27,6 +27,10 @@ EXTENDED_MANAGEDSYSTEM_NS_SUPPORTED = true
 FILE_PREFIX=HPUX
 endif
 
+install:
+	$(MKDIRHIER) $(LOCAL_STATE_PREFIX)
+	$(MAKE) REPOSITORY_DIR=$(LOCAL_STATE_PREFIX) repository
+
 ifeq ($(MANAGEDSYSTEM_NS_SUPPORTED),true)
 repository:
 	@ echo +++++ Removing existing repository named $(MANAGEDSYSTEMNS)

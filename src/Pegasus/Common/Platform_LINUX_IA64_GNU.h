@@ -71,4 +71,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/param.h> // For MAXHOSTNAMELEN
+
+#if defined(PEGASUS_OS_LSB) && !defined(MAXHOSTNAMELEN)
+#define PEGASUS_MAXHOSTNAMELEN 64
+#endif
+
 #endif /* Pegasus_Platform_LINUX_IA64_GNU_h */

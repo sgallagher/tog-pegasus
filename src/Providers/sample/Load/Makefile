@@ -51,6 +51,10 @@ repositoryServer:
 	@ cimmof -n$(SAMPLEPROVIDERNS) ClientTest.mof
 	@ echo +++++ Registering SampleProvider schema Providers  ...
 	@ cimmof -n$(INTEROPNS) SampleProviderSchemaR.mof
+	@ echo +++++ Installing the Family MOF file for the association provider
+	@ cimmof -n$(SAMPLEPROVIDERNS) TST_Family.mof
+	@ echo +++++ Registering FamilyProvider schema Providers  ...
+	@ cimmof -n$(INTEROPNS) FamilyProviderSchemaR.mof
 
 removerepository:
 	@ echo +++++ Removing existing repository named $(SAMPLEPROVIDERNS)

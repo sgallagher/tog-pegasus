@@ -28,6 +28,7 @@
 // Author: Sushma Fernandes, Hewlett-Packard Company (sushma_fernandes@hp.com)
 //
 // Modified By: Amit K Arora, IBM (amita@in.ibm.com) for Bug#1527
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -40,8 +41,6 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Linkage.h>
 
-// REVIEW: are tracing and logging facilities redundant?
-
 PEGASUS_NAMESPACE_BEGIN
 
 /** TraceFileHandler implements logging of messages to file 
@@ -50,6 +49,13 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_COMMON_LINKAGE TraceFileHandler 
 {
 private:
+
+    /** Open the specified file in append mode and ensure the file owner and
+        permissions are appropriate.
+        @param    fileName Full path of the file to open.
+        @return   Handle to the opened file if successful, otherwise 0.
+     */
+    FILE* _openFile(const char* fileName);
 
     /* File path to write messages
      */

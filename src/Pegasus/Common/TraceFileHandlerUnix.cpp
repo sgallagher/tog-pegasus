@@ -28,6 +28,7 @@
 // Author: Sushma Fernandes, Hewlett-Packard Company (sushma_fernandes@hp.com)
 //
 // Modified By: Amit K Arora, IBM (amita@in.ibm.com) for Bug#1527
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -50,6 +51,28 @@ void TraceFileHandler::handleMessage(
     const char* fmt,
     va_list argList) 
 {
+    if (!_fileHandle)
+    {
+        // The trace file is not open, which means an earlier fopen() was
+        // unsuccessful.  Stop now to avoid logging duplicate error messages.
+        return;
+    }
+
+    // Do not add Trace calls in the Critical section
+    // ---- BEGIN CRITICAL SECTION
+
+    // If the file has been deleted, re-open it and continue
+    if (!System::exists(_fileName))
+    {
+        fclose(_fileHandle);
+        _fileHandle = _openFile(_fileName);
+        if (!_fileHandle)
+        {
+            return; 
+        } 	
+    }
+
+    // Try to lock the file. If the lock is busy, wait for it to be free.
     struct flock lock;
     Sint32 retCode;
 
@@ -57,38 +80,6 @@ void TraceFileHandler::handleMessage(
     lock.l_whence = SEEK_SET;
     lock.l_start = 0;
     lock.l_len = 1;
-
-    // Try to lock the file. If the lock is busy, wait for it to be free.
-    // Do not add Trace calls in the Critical section
-    // ---- BEGIN CRITICAL SECTION
-
-    // Check if the file has been deleted, if so re-open the file and continue
-    if (!System::exists(_fileName))
-    {
-	freopen(_fileName,"a+",_fileHandle);
-        if (!_fileHandle)
-        {
-            // Unable to re-open file, log a message
-            //l10n
-            //Logger::put(Logger::DEBUG_LOG,System::CIMSERVER,Logger::WARNING,
-                //"Failed to open File $0",_fileName);
-            Logger::put_l(Logger::DEBUG_LOG,System::CIMSERVER,Logger::WARNING,
-            	"Common.TraceFileHandlerUnix.FAILED_TO_OPEN_FILE",
-                "Failed to open File $0",_fileName);
-            return; 
-        } 	
-
-        //
-        // Set permissions on the trace file to 0600
-        //
-        if ( !FileSystem::changeFilePermissions(String(_fileName), (S_IRUSR|S_IWUSR)) )
-        {
-            Logger::put_l(Logger::DEBUG_LOG,"Tracer",Logger::WARNING,
-               "Common.TraceFileHandlerUnix.FAILED_TO_SET_FILE_PERMISSIONS",
-               "Failed to set permissions on file $0",_fileName);
-                return;
-        }
-    }
 
     retCode = fcntl(fileno(_fileHandle), F_SETLKW, &lock);
 

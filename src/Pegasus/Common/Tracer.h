@@ -269,7 +269,8 @@ public:
         /** Set the trace file to the given file
             @param    traceFile       full path of the trace file
             @return   0               if the filepath is valid 
-                      1               if an error occurs while opening the file
+                      1               if the traceFile is an empty string or
+                                      if an error occurs while opening the file
 				      in append mode
         */
         static Uint32 setTraceFile(const char* traceFile);

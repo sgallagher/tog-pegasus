@@ -434,13 +434,12 @@ Boolean TracePropertyOwner::isValid(const String& name, const String& value)
     else if (String::equalNoCase(_traceFilePath->propertyName, name))
     {
 	//
-        // Check if the file path is valid
+        // Check if the file path is valid.  An empty string is currently
+        // considered a valid value; the traceFilePath is set to the empty
+        // string when a trace file cannot be opened successfully.
 	//
-        if ( value == String::EMPTY ) 
-        {
-            throw InvalidPropertyValue(name, value);
-        }
-	if (!Tracer::isValidFileName(value.getCString()))
+        if ((value != String::EMPTY) &&
+            !Tracer::isValidFileName(value.getCString()))
 	{
 	    throw InvalidPropertyValue(name, value);
 	}

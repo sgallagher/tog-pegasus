@@ -221,6 +221,16 @@ public:
     static Boolean isGroupMember(const char* userName, const char* groupName);
 
     /**
+    Changes the process user context to the specified user.
+
+    @param userName     User name to set as the process user context.
+
+    @return             True if the user context is successfully changed,
+                        false otherwise.
+    */
+    static Boolean changeUserContext(const char* userName);
+
+    /**
     This function is used to get the process ID of the calling process.
 
     @return             Process ID
@@ -262,6 +272,14 @@ public:
         @return true on success, false on error and errno is set appropriately.
     */
     static Boolean changeFilePermissions(const char* path, mode_t mode);
+
+    /** Checks whether the specified file is owned by the effective user for
+        the current process.
+        @param path Path of the file to check.
+        @return True if the file is owned by the effective user for the
+        current process, false otherwise.
+    */
+    static Boolean verifyFileOwnership(const char* path);
 
     /**
         Flag indicating whether shared libraries are loaded with the

@@ -595,6 +595,11 @@ Tracer* Tracer::_getInstance()
 ////////////////////////////////////////////////////////////////////////////////
 Uint32 Tracer::setTraceFile(const char* traceFile)
 {
+    if (*traceFile == 0)
+    {
+        return 1;
+    }
+
     String moduleName = _getInstance()->_moduleName;
     if (moduleName == String::EMPTY)
     {

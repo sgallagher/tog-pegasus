@@ -152,6 +152,13 @@ Boolean System::isGroupMember(const char* userName, const char* groupName)
     return true;
 }
 
+Boolean System::changeUserContext(const char* userName)
+{
+    // ATTN: Implement this method to change the process user context to the
+    //       specified user
+    return false;
+}
+
 Uint32 System::getPID()
 {
     // ATTN: Implement this to get the process ID of the current process
@@ -168,6 +175,13 @@ void System::openlog(const String ident)
 Boolean System::changeFilePermissions(const char* path, mode_t mode)
 {
     // ATTN: File permissions are not currently defined in Nsk
+    return true;
+}
+
+Boolean System::verifyFileOwnership(const char* path)
+{
+    // ATTN: Implement this to check that the owner of the specified file is
+    //       the same as the effective user for this process.
     return true;
 }
 

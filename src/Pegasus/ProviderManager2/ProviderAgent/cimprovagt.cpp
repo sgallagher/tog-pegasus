@@ -36,6 +36,7 @@
 #include <Pegasus/Common/AnonymousPipe.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Logger.h>
+#include <Pegasus/Common/System.h>
 #include <Pegasus/ProviderManager2/ProviderAgent/ProviderAgent.h>
 
 PEGASUS_USING_STD;
@@ -83,7 +84,7 @@ int main(int argc, char* argv[])
 
         // Provider Agent ID argument is used for process identification
         String agentId = argv[3];
-        Tracer::setModuleName(agentId);
+        Tracer::setModuleName(agentId + "." + System::getEffectiveUserName());
 
         // Set message loading not to use process locale
         MessageLoader::_useProcessLocale = false;

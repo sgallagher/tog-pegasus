@@ -1026,6 +1026,58 @@ Boolean System::isGroupMember(const char* userName, const char* groupName)
     return retVal;
 }
 
+Boolean System::changeUserContext(const char* userName)
+{
+    const unsigned int PWD_BUFF_SIZE = 1024;
+    struct passwd pwd;
+    struct passwd *result;
+    char pwdBuffer[PWD_BUFF_SIZE];
+
+# if defined(PEGASUS_OS_OS400)
+    AtoE((char *)userName);
+# endif
+
+    int rc = getpwnam_r(userName, &pwd, pwdBuffer, PWD_BUFF_SIZE, &result);
+
+# if defined(PEGASUS_OS_OS400)
+    EtoA((char *)userName);
+# endif
+
+    if (rc != 0)
+    {
+        PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+            String("getpwnam_r failed: ") + String(strerror(errno)));
+        return false;
+    }
+
+    if (result == 0)
+    {
+        Tracer::PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+            "getpwnam_r failed.");
+        return false;
+    }
+
+    Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL4, 
+        "Changing user context to: uid = %d, gid = %d",
+        (int)pwd.pw_uid, (int)pwd.pw_gid);
+
+    if (setgid(pwd.pw_gid) != 0)
+    {
+        PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+            String("setgid failed: ") + String(strerror(errno)));
+        return false;
+    }
+
+    if (setuid(pwd.pw_uid) != 0)
+    {
+        PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+            String("setuid failed: ") + String(strerror(errno)));
+        return false;
+    }
+
+    return true;
+}
+
 Uint32 System::getPID()
 {
     //
@@ -1094,6 +1146,37 @@ Boolean System::changeFilePermissions(const char* path, mode_t mode)
     ret = ::chmod(tmp, mode);
 
     return ( ret != -1 );
+}
+
+Boolean System::verifyFileOwnership(const char* path)
+{
+    struct stat st;
+
+#if defined(PEGASUS_OS_OS400)
+    OS400_PNSTRUCT pathname;
+    memset((void*)&pathname, 0x00, sizeof(OS400_PNSTRUCT));
+    pathname.qlg_struct.CCSID = 1208;
+#pragma convert(37)
+    memcpy(pathname.qlg_struct.Country_ID,"US",2);
+    memcpy(pathname.qlg_struct.Language_ID,"ENU",3);
+#pragma convert(0)
+    pathname.qlg_struct.Path_Type = QLG_PTR_SINGLE;
+    pathname.qlg_struct.Path_Length = strlen(path);
+    pathname.qlg_struct.Path_Name_Delimiter[0] = '/';
+    pathname.pn = (char *)path;
+
+    if (QlgStat((Qlg_Path_Name_T *)&pathname, &st) != 0)
+    {
+	return false;
+    }
+#else
+    if (stat(path, &st) != 0)
+    {
+        return false;
+    }
+#endif
+
+    return (st.st_uid == geteuid());
 }
 
 void System::openlog(const String ident)

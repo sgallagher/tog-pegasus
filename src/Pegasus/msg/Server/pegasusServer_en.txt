@@ -2491,6 +2491,14 @@ en:table {
         */
         Common.TraceFileHandlerUnix.FAILED_TO_SET_FILE_PERMISSIONS:string {"PGS09407:  Failed to set permissions on file {0}."}
 
+        /**
+        * @note  PGS09408:
+        * @version 2.5
+        *    Substitution {0} is the name of the file (a string)
+        *    Substitution {1} is the name of a system user (a string)
+        */
+        Common.TraceFileHandler.UNEXPECTED_FILE_OWNER:string {"PGS09408: File {0} is not owned by user {1}."}
+
 
         // ==========================================================
         // Messages for XmlReader

@@ -30,6 +30,7 @@
 // Modified By: Rudy Schuet (rudy.schuet@compaq.com) 11/12/01
 //              added nsk platform support
 //              Amit K Arora, IBM (amita@in.ibm.com) for Bug#1527
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -98,59 +99,86 @@ TraceFileHandler::~TraceFileHandler ()
 
 Uint32 TraceFileHandler::setFileName(const char* fileName)
 {
+    // If a file is already open, close it
+    if (_fileHandle)
+    {
+        fclose(_fileHandle);
+        _fileHandle = 0;
+    }
+
+    delete [] _fileName;
+    _fileName = 0;
+#ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
+    delete [] _baseFileName;
+    _baseFileName = 0;
+#endif
+
     if (!isValidFilePath(fileName))
     {
 	return 1;
     }
-    // Check if a file is already open, if so close it
-    if (_fileHandle)
-    {
-        fclose(_fileHandle);
-    }
 
-    // Now open the file
-    _fileHandle = fopen(fileName,"a+");
+    _fileHandle = _openFile(fileName);
+
     if (!_fileHandle)
     {
-        // Unable to open file, log a message
-        //l10n
-        //Logger::put(Logger::DEBUG_LOG,"Tracer",Logger::WARNING,
-           //"Failed to open File $0",fileName);
-        Logger::put_l(Logger::DEBUG_LOG,"Tracer",Logger::WARNING,
-           "Common.TraceFileHandler.FAILED_TO_OPEN_FILE",
-           "Failed to open File $0",fileName);
-            return 1;
-    }
-    else
-    {
-        if (_fileName)
-        {
-            delete [] _fileName;
-        }
-        _fileName = new char [strlen(fileName)+1];
-        strcpy (_fileName,fileName);
-#ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
-        _baseFileName = new char [strlen(fileName)+1];
-        strcpy (_baseFileName,fileName);
-#endif
+        return 1;
     }
 
-    //
-    // Set permissions on the trace file to 0600
-    //
-#if !defined(PEGASUS_OS_TYPE_WINDOWS)
-    if ( !FileSystem::changeFilePermissions(String(_fileName), (S_IRUSR|S_IWUSR)) )
-#else
-    if ( !FileSystem::changeFilePermissions(String(_fileName), (_S_IREAD | _S_IWRITE )) )
+    _fileName = new char[strlen(fileName)+1];
+    strcpy(_fileName, fileName);
+#ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
+    _baseFileName = new char[strlen(fileName)+1];
+    strcpy(_baseFileName, fileName);
 #endif
-    {
-        Logger::put_l(Logger::DEBUG_LOG,"Tracer",Logger::WARNING,
-           "Common.TraceFileHandler.FAILED_TO_SET_FILE_PERMISSIONS",
-           "Failed to set permissions on file $0", _fileName);
-            return 1;
-    }
 
     return 0;
+}
+
+FILE* TraceFileHandler::_openFile(const char* fileName)
+{
+    FILE* fileHandle = fopen(fileName,"a+");
+    if (!fileHandle)
+    {
+        // Unable to open file, log a message
+        Logger::put_l(Logger::DEBUG_LOG, "Tracer", Logger::WARNING,
+            "Common.TraceFileHandler.FAILED_TO_OPEN_FILE",
+            "Failed to open file $0", fileName);
+        return 0;
+    }
+
+    //
+    // Set the file permissions to 0600
+    //
+#if !defined(PEGASUS_OS_TYPE_WINDOWS)
+    if (!FileSystem::changeFilePermissions(
+            String(fileName), (S_IRUSR|S_IWUSR)) )
+#else
+    if (!FileSystem::changeFilePermissions(
+            String(fileName), (_S_IREAD|_S_IWRITE)) )
+#endif
+    {
+        Logger::put_l(Logger::DEBUG_LOG, "Tracer", Logger::WARNING,
+           "Common.TraceFileHandler.FAILED_TO_SET_FILE_PERMISSIONS",
+           "Failed to set permissions on file $0", fileName);
+        fclose(fileHandle);
+        return 0;
+    }
+
+    //
+    // Verify that the file has the correct owner
+    //
+    if (!System::verifyFileOwnership(fileName))
+    {
+        Logger::put_l(Logger::ERROR_LOG, "Tracer", Logger::WARNING,
+           "Common.TraceFileHandler.UNEXPECTED_FILE_OWNER",
+           "File $0 is not owned by user $1.", fileName,
+           System::getEffectiveUserName());
+        fclose(fileHandle);
+        return 0;
+    }
+
+    return fileHandle;
 }
 
 Boolean TraceFileHandler::isValidFilePath(const char* filePath)

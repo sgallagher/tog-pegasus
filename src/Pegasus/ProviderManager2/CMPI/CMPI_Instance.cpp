@@ -119,10 +119,6 @@ static CMPICount instGetPropertyCount(CMPIInstance* eInst, CMPIStatus* rc) {
    return inst->getPropertyCount();
 }
 
-#define PEGASUS_CIM_EXCEPTION(CODE, EXTRA_MESSAGE) \
-    TraceableCIMException(CODE, EXTRA_MESSAGE, __FILE__, __LINE__)
-
-
 static CMPIStatus instSetProperty(CMPIInstance* eInst, const char *name,
                           CMPIValue* data, CMPIType type) {
    CIMInstance *inst=(CIMInstance*)eInst->hdl;

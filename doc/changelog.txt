@@ -307,6 +307,8 @@ will be deleted.
     releated files. Implemented a new AuthenticationInfoRep class and modified 
     the related files. Added more test cases to test the authentication classes.
 
+33. (Ramnath Ravindran - Compaq) 21 March 2002 - replaced instances of "| ios::binary" 		with PEGASUS_OR_IOS_BINARY in 3 files: System.cpp, InstanceIndexFile.cpp, and
+	InstanceDataFile.cpp
 -------------------------------------------------------------------
 Version 1.06 working towards 1.1 Started 13 December 2001
 

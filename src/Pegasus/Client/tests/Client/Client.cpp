@@ -1,4 +1,4 @@
-//%/////////////////////////////////////////////////////////////////////////////
+
 //
 // Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
@@ -162,7 +162,18 @@ static void TestInstanceOperations(CIMClient& client)
 
     try
     {
-	client.deleteClass(NAMESPACE, "myclass");
+        Array<CIMReference> instanceNames =
+           client.enumerateInstanceNames(NAMESPACE, "MyClass");
+	for (Uint32 i = 0; i < instanceNames.size(); i++)
+        {
+           client.deleteInstance(NAMESPACE, instanceNames[i]);
+        }
+// ATTN DE P1 30 March 2002 There may be a case-sensitivity problem with 
+//      the Repository's use of class names to create file names.
+//      Changing "myclass" to "MyClass" works-around the problem of 
+//      running Client application multiple times.
+
+	client.deleteClass(NAMESPACE, "MyClass");
     }
     catch (Exception&)
     {

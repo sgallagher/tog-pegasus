@@ -7,19 +7,40 @@ PEGASUS_NAMESPACE_BEGIN
 #include <Pegasus/Common/ArrayImpl.h>
 #undef PEGASUS_ARRAY_T
 
-CQLScope::CQLScope(CIMName _inCIMName, CQLChainedIdentifier _inChainedIdentifier){
-
+CQLScope::CQLScope(CIMName _inCIMName, Array<CIMName> inList,
+                  CQLChainedIdentifier _inChainedIdentifier)
+{
+   _name = _inCIMName;
+   _list = _list;
+   _chainedIdentifier = new CQLChainedIdentifier(_inChainedIdentifier);
 }
 
-CIMName CQLScope::getScope(){
+CQLScope::~CQLScope()
+{
+   if(_chainedIdentifier != NULL)
+   {
+      delete _chainedIdentifier;
+      _chainedIdentifier = NULL;
+   }
+}
+
+CIMName CQLScope::getScope()
+{
 	return _name;
 }
 
-CQLChainedIdentifier CQLScope::getTarget(){
+Array<CIMName> CQLScope::getList()
+{
+   return _list;
+}
+
+CQLChainedIdentifier CQLScope::getTarget()
+{
 	return* _chainedIdentifier;
 }
 
-Boolean CQLScope::isDefault(){
+Boolean CQLScope::isDefault()
+{
 
 }
 

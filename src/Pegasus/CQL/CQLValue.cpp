@@ -1749,9 +1749,13 @@ String CQLValue::toString()
    return String();
 }
 
-void CQLValue::applyScopes(Array<CQLScope> inScopes)
+void CQLValue::applyScopes(Array<CQLScope> inScope)
 {
-   
+   if(_CQLChainId == NULL)
+   {
+      return;
+   }
+   _CQLChainId.applyScopes(inScope);
 }
 
 Boolean CQLValue::_validate(const CQLValue& x)

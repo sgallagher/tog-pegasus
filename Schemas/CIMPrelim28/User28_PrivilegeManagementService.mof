@@ -1,0 +1,226 @@
+// ===================================================================
+// Title:       User-Security Privilege Management Service ID 2.8
+// Filename:    User28_PrivilegeManagementService.mof
+// Version:     2.8
+// Release:     Preliminary
+// Date:        08/04/2003
+// ===================================================================
+// Copyright 1998-2003 Distributed Management Task Force, Inc. (DMTF).
+// All rights reserved.
+// DMTF is a not-for-profit association of industry members dedicated
+// to promoting enterprise and systems management and interoperability.
+// DMTF specifications and documents may be reproduced for uses
+// consistent with this purpose by members and non-members,
+// provided that correct attribution is given.
+// As DMTF specifications may be revised from time to time,
+// the particular version and release date should always be noted.
+// 
+// Implementation of certain elements of this standard or proposed
+// standard may be subject to third party patent rights, including
+// provisional patent rights (herein "patent rights"). DMTF makes
+// no representations to users of the standard as to the existence
+// of such rights, and is not responsible to recognize, disclose, or
+// identify any or all such third party patent right, owners or
+// claimants, nor for any incomplete or inaccurate identification or
+// disclosure of such rights, owners or claimants. DMTF shall have no
+// liability to any party, in any manner or circumstance, under any
+// legal theory whatsoever, for failure to recognize, disclose, or
+// identify any such third party patent rights, or for such party's
+// reliance on the standard or incorporation thereof in its product,
+// protocols or testing procedures. DMTF shall have no liability to
+// any party implementing such standard, whether such implementation
+// is foreseeable or not, nor to any patent owner or claimant, and shall
+// have no liability or responsibility for costs or losses incurred if
+// a standard is withdrawn or modified after publication, and shall be
+// indemnified and held harmless by any party implementing the
+// standard from any and all claims of infringement by a patent owner
+// for such implementations.
+// 
+// For information about patents held by third-parties which have
+// notified the DMTF that, in their opinion, such patent may relate to
+// or impact implementations of DMTF standards, visit
+// http://www.dmtf.org/about/policies/disclosures.php.
+// ===================================================================
+// Description: The User Model extends the management concepts that
+//              are related to users and security.
+//              This file defines the concepts and classes related to
+//              hardware World Wide Names used as credentials
+//              for accessing Storage services and credentials.
+// 
+//              The object classes below are listed in an order that
+//              avoids forward references. Required objects, defined
+//              by other working groups, are omitted.
+// ===================================================================
+// Change Log for v2.8 Preliminary (Company Review)
+//  CR1102 - Fix PrivilegeManagementService for application to
+//           Storage LUN Masking.
+// 
+// Change Log for v2.8  Preliminary -
+//  CR1017 - Created this file.
+// ===================================================================
+
+#pragma Locale ("en_US")
+
+// ==================================================================
+// PrivilegeManagementService
+// ==================================================================
+   [Experimental, Version ("2.7.1000"), Description (
+       "The PrivilegeManagementService is responsible for creating, "
+       "deleting, and associating Privilege instances.  References to "
+       "'subject' and 'target' define the entities that are associated "
+       "with a Privilege instance via the relationships, "
+       "AuthorizedSubject and AuthorizedTarget, respectively.  When "
+       "created, a Privilege instance is related to this "
+       "(PrivilegeManagement)Service via the association, "
+       "ConcreteDependency.") ]
+class CIM_PrivilegeManagementService: CIM_AuthorizationService {
+
+      [Description (
+          "When this method is called, a provider identifies an "
+          "appropriate existing Privilege or creates a new instance of "
+          "Privilege to satisfy the parameters of the request.  The "
+          "Privilege is linked to the ManagedElements that are its "
+          "subject and target via the AuthorizedSubject and "
+          "AuthorizedTarget associations, respectively.  When created, "
+          "the Privilege instance is associated to this "
+          "PrivilegeManagementService via ConcreteDependency.\n"
+          "Note that the method's input parameters, Activities, "
+          "ActivityQualifiers and QualifierFormats, are mutually "
+          "indexed.  Values for these parameters MAY be supplied with "
+          "the method invocation or MAY be obtained via reference to "
+          "an existing Privilege.  One of these two approaches MUST be "
+          "taken to specify the values of the Privilege's properties.  "
+          "Also note that Subject and Target references MAY be "
+          "supplied.\n"
+          "The successful completion of the method SHALL create any "
+          "necessary AuthorizedSubject, AuthorizedTarget and Privilege "
+          "instances.  Returning references to the AuthorizedSubject "
+          "and AuthorizedTarget instances is NOT REQUIRED since they "
+          "can be construed using the Privilege output parameter and "
+          "intrinsic methods."), 
+       ValueMap {"0", "1", "2", "3", "4", "5", "6..15999", "16000",
+          "16001", "16002", "16003", "16004", "16005..31999",
+          "32000..65535"}, 
+       Values {"Success", "Not Supported", "Unknown", "Timeout",
+          "Failed", "Invalid Parameter", "DMTF Reserved",
+           "Unsupported Subject", "Unsupported Privilege",
+           "Unsupported Target", "Authorization Error",
+           "NULL not supported", "Method Reserved", "Vendor Specific"} ]
+   uint32 AssignAccess (
+       
+       [IN, OUT(false), Description (
+       "The Subject parameter is a reference to a "
+       "ManagedElement instance that SHALL be associated "
+       "via AuthorizedSubject to the Privilege. This "
+       "parameter MAY NOT be supplied when an "
+       "existing Privilege is referenced by the "
+       "Privilege parameter. Note that a Subject "
+       "reference MUST be provided when creating a "
+       "new instance of Privilege." ) ]
+       CIM_ManagedElement REF Subject,
+       
+       [IN, OUT(false), Description (
+       "The PrivilegesGranted flag in the new/existing "
+       "Privilege." ),
+       ModelCorrespondence{"CIM_Privilege.PrivilegeGranted"} ]
+       boolean PrivilegeGranted,
+       
+       [IN, OUT(false), Description (
+       "The activities granted in the new/existing Privilege." ),
+       ArrayType ("Indexed"),
+       Values {"1", "2", "3", "4", "5", "6", "7", "8..15999",
+       "16000..65535"},
+       ValueMap {"Other", "Create", "Delete", "Detect", "Read",
+       "Write", "Execute", "DMTF Reserved", "Vendor Reserved"},
+       ModelCorrespondence{"CIM_Privilege.Activities"} ]
+       uint16 Activities[],
+       
+       [IN, OUT(false), Description (
+       "The activity qualifiers set in the new/existing "
+       "Privilege." ),
+       ArrayType ("Indexed"),
+       ModelCorrespondence{"CIM_Privilege.ActivityQualifers"} ]
+       string ActivityQualifiers[],
+       
+       [IN, OUT(false), Description (
+       "The qualifier formats set in the new/existing "
+       "Privilege." ),
+       ArrayType ("Indexed"),
+       Values {"2", "3", "4", "5", "6", "7", "8", "9",
+       "10..15999", "16000..65535"},
+       ValueMap {"Class Name", "<Class.>Property",
+       "<Class.>Method", "Object Reference", "Namespace",
+       "URL", "Directory/File Name",
+       "Command Line Instruction", "DMTF Reserved",
+       "Vendor Reserved"},
+       ModelCorrespondence{"CIM_Privilege.QualifierFormats"} ]
+       uint16 QualifierFormats[],
+       
+       [IN, OUT(false), Description (
+       "The Target parameter is a reference to a ManagedElement "
+       "that SHALL be associated via AuthorizedTarget to the "
+       "Privilege. This parameter MAY NOT be supplied when an "
+       "existing Privilege is referenced by the "
+       "Privilege parameter. Note that a Target "
+       "reference MUST be provided when creating a "
+       "new instance of Privilege." ) ]
+       CIM_ManagedElement REF Target,
+       
+       [IN, OUT, Description (
+       "Reference to the Privilege used or created."
+       "If a reference is not provided, an implementation "
+       "MAY create a new instance of Privilege, or MAY "
+       "reuse an existing one. The Privilege that is "
+       "created or reused is returned in this parameter. "
+       "If a reference is input, "
+       "it serves as the definition of the Privilege, "
+       "replacing the method's input parameters, "
+       "PrivilegeGranted, Activities[], "
+       "ActivityQualifiers[] and QualifierFormats[]. Also, "
+       "the existing Privilege defines the relevant 'subject' "
+       "and 'target' ManagedElements, when one or the other "
+       "of the Subject/Target input parameters is not specified. "
+       "An implementation MAY use the supplied reference purely "
+       "as a template and MAY return a reference to a different "
+       "Privilege instance.")]
+       CIM_Privilege REF Privilege );
+
+      [Description (
+          "This method revokes a specific privilege or all privileges "
+          "for a particular target, subject, or subject/target pair.  "
+          "If a Privilege instance is left with no AuthorizedTarget "
+          "associations, it SHOULD be deleted.  The successful "
+          "completion of the method SHALL remove the directly or "
+          "indirectly requested AuthorizedSubject, AuthorizedTarget "
+          "and Privilege instances."), 
+       ValueMap {"0", "1", "2", "3", "4", "5", "6..15999", "16000",
+          "16001", "16002", "16003", "16004..32767", "32768..65535"}, 
+       Values {"Success", "Not Supported", "Unknown", "Timeout",
+          "Failed", "Invalid Parameter", "DMTF Reserved",
+           "Unsupported Privilege", "Unsupported Target",
+          "Authorization Error", "Null parameter not supported",
+          "Method Reserved", "Vendor Specific"} ]
+   uint32 RemoveAccess (
+       [IN, OUT(false), Description (
+       "The Subject parameter is a reference to a ManagedElement "
+       "instance (associated via AuthorizedSubject) for which "
+       "privileges are to be revoked.") ]
+       CIM_ManagedElement REF Subject,
+       
+       [IN, OUT(false), Description (
+       "A reference to the Privilege to be revoked."),
+       ArrayType ("Indexed") ]
+       CIM_Privilege REF Privilege,
+       
+       [IN, OUT(false), Description (
+       "The Target parameter is a reference to a ManagedElement "
+       "(associated via AuthorizedTarget) which will no longer "
+       "be protected via the Privilege."),
+       ArrayType ("Indexed") ]
+       CIM_ManagedElement REF Target );
+};
+
+
+// ===================================================================
+// end of file
+// ===================================================================

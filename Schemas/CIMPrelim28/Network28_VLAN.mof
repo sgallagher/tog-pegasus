@@ -1,0 +1,813 @@
+// ===================================================================
+// Title:       Network VLAN 2.8
+// Filename:    Network28_VLAN.mof
+// Version:     2.8
+// Status:      Preliminary
+// Date:        August 12, 2003
+// ===================================================================
+// Copyright 1998-2003 Distributed Management Task Force, Inc. (DMTF).
+// All rights reserved.
+// DMTF is a not-for-profit association of industry members dedicated
+// to promoting enterprise and systems management and interoperability.
+// DMTF specifications and documents may be reproduced for uses
+// consistent with this purpose by members and non-members,
+// provided that correct attribution is given.
+// As DMTF specifications may be revised from time to time,
+// the particular version and release date should always be noted.
+// 
+// Implementation of certain elements of this standard or proposed
+// standard may be subject to third party patent rights, including
+// provisional patent rights (herein "patent rights"). DMTF makes
+// no representations to users of the standard as to the existence
+// of such rights, and is not responsible to recognize, disclose, or
+// identify any or all such third party patent right, owners or
+// claimants, nor for any incomplete or inaccurate identification or
+// disclosure of such rights, owners or claimants. DMTF shall have no
+// liability to any party, in any manner or circumstance, under any
+// legal theory whatsoever, for failure to recognize, disclose, or
+// identify any such third party patent rights, or for such party's
+// reliance on the standard or incorporation thereof in its product,
+// protocols or testing procedures. DMTF shall have no liability to
+// any party implementing such standard, whether such implementation
+// is foreseeable or not, nor to any patent owner or claimant, and shall
+// have no liability or responsibility for costs or losses incurred if
+// a standard is withdrawn or modified after publication, and shall be
+// indemnified and held harmless by any party implementing the
+// standard from any and all claims of infringement by a patent owner
+// for such implementations.
+// 
+// For information about patents held by third-parties which have
+// notified the DMTF that, in their opinion, such patent may relate to
+// or impact implementations of DMTF standards, visit
+// http://www.dmtf.org/about/policies/disclosures.php.
+// ===================================================================
+// Description: The Network Model extends the management concepts to
+//              represent protocol interfaces and network/protocol
+//              services.  This file defines VLAN (virtual LAN)
+//              concepts.
+// 
+//              The object classes below are listed in an order that
+//              avoids forward references. Required objects, defined
+//              by other working groups, are omitted.
+// ==================================================================
+// Change Log for v2.8
+// CR1024 - Updated version of VLAN model
+// CR1123 - Incorporates member comments
+// CR1146 - Update cardinalities for associations VLANsInTrunk and
+//          EndstationInVLAN
+// /Change Log for v2.7
+// CR867 - Remove Min(1), Max(1) cardinality restrictions on Related
+//         TransparentBridgingService
+// CR920 - Add missing parenthesis to the Description for CIM_VLAN
+// ===================================================================
+
+#pragma Locale ("en_US")
+
+
+// ==================================================================
+// VLAN
+// ==================================================================
+   [Deprecated {"CIM_NetworkVLAN"}, Version ("2.7.1000"), Description (
+       "This property is deprecated in lieu of NetworkVLAN An instance "
+       "of VLAN represents a VLAN within a switch.  In a particular "
+       "switch, there should be an instance of VLAN for every VLAN "
+       "available.  For example, in a switch with port-based VLANs, if "
+       "there are 16 VLANs to which ports can be assigned (VLAN 1 "
+       "through VLAN 16), there should be an instance of CIM_VLAN for "
+       "each of VLAN 1 through VLAN 16.\n"
+       "\n"
+       "VLAN inherits Name from ServiceAccessPoint.  Use this for the "
+       "textual name of the VLAN, if there is one.  Otherwise, "
+       "synthesize a textual name, e.g., VLAN 0003.  (Consider leading "
+       "zero fill, as shown, to ensure that if the textual VLAN names "
+       "are extracted and presented by a management applictions, the "
+       "VLAN names will sort in the expected order.) The numeric part "
+       "of the name should be at least four digits wide since 802.1Q "
+       "specifies 4095 VLANs.\n"
+       "\n"
+       "It is intended that VLAN be subclassed only if necessary to "
+       "add attributes.  The type of the VLAN can be inferred from the "
+       "VLANService(s) with which the VLAN is associated in the "
+       "VLANFor association.\n"
+       "\n"
+       "An instance of VLAN may be associated with more than one "
+       "VLANService.  For example, there are switches that support "
+       "both 802.1Q VLANs and the vendor's proprietary VLANs.  In some "
+       "such switches, if a broadcast packet is received on a port in "
+       "an 802.1Q VLAN (VLAN 5, for example), it may be be transmitted "
+       "from a port in a 'proprietary' VLAN 5.  In effect, there is "
+       "only one VLAN 5, and the type of port only determines the "
+       "packet format for tagged packets.  In the case just described, "
+       "only one instance of CIM_VLAN should be instantiated for VLAN "
+       "5, and it should be associated both with the 802.1Q "
+       "VLANService and the proprietary VLANService.\n"
+       "\n"
+       "In typical VLAN-aware switches, packets can be assigned to a "
+       "VLAN based on the port on which they are received (port-based "
+       "VLANS), based on the source MAC address (MAC-based VLANs), or "
+       "based on the value of a set of bits in the packet "
+       "(protocol-based VLANs).  If it is desirable to represent the "
+       "VLAN assignment predicate for some MAC-based VLAN switch, it "
+       "will be necessary to subclass VLAN.  The list of MAC addresses "
+       "associated with a VLAN might be an attribute of the subclass.  "
+       "If it is desirable to represent the VLAN assignment predicate "
+       "in a protocol-based VLAN switch, it will also be necessary to "
+       "subclass VLAN, InboundVLAN, or both.  If the predicate applies "
+       "to all ports in the switch, then only VLAN need be "
+       "used/instantiated.  If the predicate may vary based on the "
+       "port, then InboundVLAN must be subclassed, and CIM_VLAN might "
+       "have to be subclassed as well.") ]
+class CIM_VLAN : CIM_ServiceAccessPoint {
+
+      [Deprecated {"CIM_NetworkVLAN.VLANId"}, Description (
+          "VLAN identifying number.  This property is deprecated in "
+          "lieu of VLANId in class NetworkVLAN.") ]
+   uint16 VLANNumber;
+};
+
+
+// ==================================================================
+// InboundVLAN
+// ==================================================================
+   [Association, Deprecated {"No Value"}, Version ("2.7.1000"), 
+    Description (
+       "This class is deprecated in lieu or not being necessary to "
+       "indicate whether the VLAN is inbound/outbound This association "
+       "makes explicit the operational dependencies of a SwitchPort "
+       "when operating in a VLAN.  If there is an association between "
+       "a particular SwitchPort and a particular VLAN, then there is "
+       "the possibility that a packet received by the port will be "
+       "assigned to the VLAN (or if the packet already has a VLAN tag, "
+       "that the packet will not be dropped).  If there is no such "
+       "association, then there is NO possibility that a packet "
+       "received by the port will progress through the switch having "
+       "been assigned to the referenced VLAN.") ]
+class CIM_InboundVLAN : CIM_SAPSAPDependency {
+
+      [Deprecated {"No Value"}, Override ("Antecedent"), Description (
+          "The VLAN to which the SwitchPort is assigned.") ]
+   CIM_VLAN REF Antecedent;
+
+      [Deprecated {"No Value"}, Override ("Dependent"), Description (
+          "The SwitchPort on the VLAN.") ]
+   CIM_SwitchPort REF Dependent;
+
+      [Deprecated {"No Value"}, Description (
+          "If TRUE, packets already tagged with this VLAN number will "
+          "be accepted when arriving at this port.  For example, if "
+          "there is an InboundVLAN association between port 12 and "
+          "VLAN 7 for which Tagged is true, then when a packet tagged "
+          "with VLAN 7 arrives at port 12, the packet will be accepted "
+          "into the switch for further processing.  If there is no "
+          "such association, then the packet will be dropped.\n"
+          "\n"
+          "If FALSE, it means that any untagged packets arriving at "
+          "this port MIGHT be classified into the associated VLAN.  "
+          "If, for a particular SwitchPort, there is only one instance "
+          "of the association for which Tagged is FALSE, then all "
+          "incoming untagged packets will be classified into that "
+          "VLAN.  This is the typical configuration of a non-trunk "
+          "port in a switch implementing port-based VLANs.  If there "
+          "is more than one such association instance, then the packet "
+          "MIGHT be classified into any one of them, based on some "
+          "criterion other than the identity of the switch port.  For "
+          "example, in a MAC-based VLAN switch, the decision would be "
+          "based on the source MAC address.  In a protocol-based VLAN "
+          "switch, the decision would be based on the values of some "
+          "set of bits in the packet.\n"
+          "\n"
+          "Note that the MAC address is formatted as twelve "
+          "hexadecimal digits (e.g., \"010203040506\"), with each pair "
+          "representing one of the six octets of the MAC address in "
+          "\"canonical\" bit order according to RFC 2469.") ]
+   boolean Tagged;
+
+      [Deprecated {"No Value"}, Description (
+          "Default should be TRUE if untagged packets received by the "
+          "SwitchPort are assigned to the VLAN.  For 802.1Q-compliant "
+          "ports, the Default property should be TRUE on the "
+          "association instance connecting a SwitchPort to the VLAN "
+          "corresponding to the port's PVID.  Default MUST never be "
+          "TRUE if Tagged is true -- it applies only to untagged "
+          "packets.") ]
+   boolean Default;
+};
+
+
+// ==================================================================
+// OutboundVLAN
+// ==================================================================
+   [Association, Deprecated {"No Value"}, Version ("2.7.1000"), 
+    Description (
+       "This class is deprecated in lieu or not being necessary to "
+       "indicate whether the VLAN is inbound/outbound This association "
+       "makes explicit the operational dependencies of a SwitchPort "
+       "when operating in a VLAN.  If there is no instance of "
+       "OutboundVLAN between a given SwitchPort and VLAN, then any "
+       "packet that has been assigned to the VLAN and whose "
+       "destination address is associated with the port will be "
+       "dropped by the switch without being transmitted.  Otherwise, "
+       "the packet will be transmitted.") ]
+class CIM_OutboundVLAN : CIM_SAPSAPDependency {
+
+      [Deprecated {"No Value"}, Override ("Antecedent"), Description (
+          "The VLAN to which the SwitchPort is assigned.") ]
+   CIM_VLAN REF Antecedent;
+
+      [Deprecated {"No Value"}, Override ("Dependent"), Description (
+          "The SwitchPort on the VLAN.") ]
+   CIM_SwitchPort REF Dependent;
+
+      [Deprecated {"No Value"}, Description (
+          "If Tagged is TRUE, then the packet will be transmitted in "
+          "encapsulated form, tagged with the associated VLAN tag.  If "
+          "Tagged is FALSE, the packet will be trasmitted without any "
+          "VLAN tag.") ]
+   boolean Tagged;
+};
+
+
+// ==================================================================
+// VLANService
+// ==================================================================
+   [Deprecated {"No Value"}, Abstract, Version ("2.7.1000"), 
+    Description (
+       "This class is deprecated following discussion as to the need "
+       "of a modeling a VLAN as a service.  It was determined that a "
+       "VLAN service was not needed.  VLANService represents the VLAN "
+       "aspects of the function performed by a switch.  Some "
+       "VLAN-aware devices participate in protocols where VLAN "
+       "information is propagated among switches, e.g., GVRP in 802.1Q "
+       "switches and VTP in Cisco Catalyst switches.  VLANService also "
+       "represents the function performed by the switch as a "
+       "participant in such a protocol.  VLANService must be "
+       "subclassed so that the type of instance can be distinguished "
+       "by its class.") ]
+class CIM_VLANService : CIM_Service {
+};
+
+
+// ==================================================================
+// 802dot1QVLANService
+// ==================================================================
+   [Deprecated {"No Value"}, Version ("2.7.1000"), Description (
+       "This class is deprecated following discussion as to the need "
+       "of a modeling a 802.1Q as a service.  It was determined that a "
+       "802.1Q service was not needed.  If a switch supports 802.1Q, "
+       "an instance of this class should be instantiated in the "
+       "switch.  If the switch supports GVRP, this class represents "
+       "the function that the switch performs with respect to GVRP.") ]
+class CIM_802dot1QVLANService : CIM_VLANService {
+};
+
+
+// ==================================================================
+// VLANFor
+// ==================================================================
+   [Association, Deprecated {"No Value"}, Version ("2.7.1000"), 
+    Description (
+       "The VLAN for the VLAN Service.") ]
+class CIM_VLANFor : CIM_ServiceSAPDependency {
+
+      [Deprecated {"No Value"}, Override ("Antecedent"), Description (
+          "The VLAN for the VLANService.") ]
+   CIM_VLAN REF Antecedent;
+
+      [Deprecated {"No Value"}, Override ("Dependent"), Min (1), 
+       Description (
+          "The VLANService which uses the VLAN for processing.") ]
+   CIM_VLANService REF Dependent;
+};
+
+
+// ==================================================================
+// SwitchServiceVLAN
+// ==================================================================
+   [Association, Deprecated {"No Value"}, Aggregation,
+    Version ("2.7.1000"), Description (
+       "This class is deprecated as a fall out of the previous "
+       "deprecations within the existing model An association linking "
+       "SwitchService to a component VLANService.") ]
+class CIM_SwitchServiceVLAN : CIM_ServiceComponent {
+
+      [Deprecated {"No Value"}, Aggregate, Override ("GroupComponent"),
+       Min (1), Max (1), Description (
+          "The SwitchService containing the VLANService.") ]
+   CIM_SwitchService REF GroupComponent;
+
+      [Deprecated {"No Value"}, Override ("PartComponent"), 
+       Description (
+          "The VLANService that is a component of the SwitchService.") ]
+   CIM_VLANService REF PartComponent;
+};
+
+
+// ==================================================================
+// RelatedTransparentBridgingService
+// ==================================================================
+   [Association, Deprecated {"No Value"}, Version ("2.7.1000"), 
+    Description (
+       "This class is deprecated as a fall out of the previous "
+       "deprecations within the existing model The association between "
+       "a VLAN and the forwarding database (some use the term "
+       "filtering database) used to determine which port a packet "
+       "should be transmitted on, given that it is assigned to the "
+       "VLAN and that it has a particular destination MAC address.  "
+       "The TransparentBridgingService represents a forwarding "
+       "database.") ]
+class CIM_RelatedTransparentBridgingService : CIM_ServiceSAPDependency {
+
+      [Deprecated {"No Value"}, Override ("Antecedent"), Description (
+          "The VLAN.") ]
+   CIM_VLAN REF Antecedent;
+
+      [Deprecated {"No Value"}, Override ("Dependent"), Description (
+          "The BridgingService that determines the port, given the the "
+          "VLAN and addressing information.") ]
+   CIM_TransparentBridgingService REF Dependent;
+};
+
+// ==================================================================
+// NetworkVLAN
+// ==================================================================
+   [Experimental, Version ("2.7.1000"), Description (
+       "An instance of NetworkVLAN represents a collection of "
+       "VLANSwitchEndpoints and/or VLANEndstationEndpoints which are "
+       "members of the VLAN.  There SHOULD be an instance of "
+       "NetworkVLAN for every VLAN available in a switch.  For "
+       "example, in a switch with port-based VLANs, if there are 16 "
+       "VLANs to which ports can be assigned (VLAN 1 through VLAN 16), "
+       "there SHOULD be an instance of NetworkVLAN for each of VLAN 1 "
+       "through VLAN 16.") ]
+class CIM_NetworkVLAN : CIM_ConnectivityCollection {
+
+      [Description (
+          "A 12-bit VLAN ID used in the VLAN Tag header."), 
+       MinValue (1), MaxValue (4094), 
+       MappingStrings {"MIB.IETF|Q-BRIDGE-MIB.VlanId"} ]
+   uint16 VLANId;
+
+      [Description (
+          "The value of this property is set to a positive integer "
+          "when the value of the MTU for all members (switch "
+          "endpoints/endstationendpoints of the VLAN is the same, "
+          "otherwise is set to -1 and the MaxTransmission size is set "
+          "on each of the individual endpoints.") ]
+   sint32 MaxTransmissionSize;
+
+      [Description (
+          "The value of the 802.10 SAID field which would be used for "
+          "this VLAN.") ]
+   uint32 SAIdentifier;
+};
+
+
+// ==================================================================
+// OrgEntityAssignedVLAN
+// ==================================================================
+   [Association, Experimental, Aggregation, Version ("2.7.1000"), 
+    Description (
+       "The organizations that are members of the VLAN.") ]
+class CIM_OrgEntityAssignedVLAN : CIM_MemberOfCollection {
+
+      [Aggregate, Override ("Collection"), Max (1), Description (
+          "The VLAN to which the organization/group has been assigned "
+          "to.") ]
+   CIM_NetworkVLAN REF Collection;
+
+      [Override ("Member"), Description (
+          "One of the organizations (groups) that have been assigned "
+          "to this VLAN.") ]
+   CIM_OrganizationalEntity REF Member;
+};
+
+
+// ==================================================================
+// VLANSwitchEndpoint
+// ==================================================================
+   [Experimental, Version ("2.7.1000"), Description (
+       "An endpoint on a switch which is assigned to a given VLAN or "
+       "accepts traffic from one or more VLANs.  As defined by the "
+       "property, SwitchEndpointMode, the endpoint may be configured "
+       "as trunking or nontrunking.  When operating in trunking mode, "
+       "the remaining properties of the class apply.  Given this "
+       "statement, one might ask why a subclassing structure was not "
+       "chosen versus this design of a single class with properties "
+       "that may not be applicable.  The reason is that an endpoint "
+       "may dynamically be converted to/from a trunking mode.  When "
+       "this occurs, it is not correct to delete the instance and "
+       "recreate it, since the SwitchEndpoint itself has not been "
+       "deleted/created, only its mode has changed.  Note that when "
+       "configured as a trunk, the VLANsInTrunk association is used to "
+       "identify the VLANs which are allowed by the trunk.") ]
+class CIM_VLANSwitchEndpoint : CIM_ProtocolEndpoint {
+
+      [Description (
+          "The configuration mode for the SwitchEndpoint/switch port.  "
+          "The following values are defined:\n"
+          "- Access: Puts the endpoint/switch port into permanent "
+          "nontrunking mode and negotiates to convert the link into a "
+          "nontrunk link.  The endpoint becomes a nontrunk interface.\n"
+          "- Dynamic Auto: Makes the endpoint able to convert the link "
+          "to a trunk link.  The endpoint becomes a trunk interface if "
+          "the neighboring interface is set to trunk or desirable mode.\n"
+          "- Dynamic Desirable: Makes the endpoint actively attempt to "
+          "convert the link to a trunk link.  The endpoint becomes a "
+          "trunk interface if the neighboring interface is set to "
+          "trunk, desirable, or auto mode.  The default switch-port "
+          "mode for all Ethernet interfaces is 'dynamic desirable.'\n"
+          "- Trunk: Puts the endpoint into permanent trunking mode and "
+          "negotiates to convert the link into a trunk link.  The "
+          "endpoint becomes a trunk interface even if the neighboring "
+          "interface is not a trunk interface.\n"
+          "- Dot1Q Tunnel: Configures the interface as a tunnel "
+          "(nontrunking) endpoint/port to be connected in an "
+          "asymmetric link with an 802.1Q trunk port.  802.1Q "
+          "tunneling is used to maintain customer VLAN integrity "
+          "across a service provider network."), 
+       ValueMap {"0", "2", "3", "4", "5", "6"}, 
+       Values {"Unknown", "Access", "Dynamic Auto",
+           "Dynamic Desirable", "Trunk", "Dot1Q Tunnel"} ]
+   uint16 SwitchEndpointMode;
+
+      [Write, Description (
+          "The type of VLAN encapsulation that is requested for use "
+          "when trunking.  (Note that the encapsulation currently in "
+          "use is given by the VLANTrunkOperationalEncapsulation "
+          "property.) This property is either 'not applicable' (i.e., "
+          "the endpoint will never be placed in trunking mode), a "
+          "particular type (802.1q or Cisco ISL today), or 'negotiate' "
+          "(i.e., the result of the negotiation between this interface "
+          "(PE) and its neighbor).  The value, \"Negotiate\" is not "
+          "allowed if the endpoint does not support negotiation.  The "
+          "ability to negotiate the trunk encapsulation is hardware "
+          "and vendor dependent.  Property "
+          "VLANSwitchEndpointCapabilities.  "
+          "SupportsTrunkEncapsulationNegotiation is used to indicate "
+          "whether or not a particular endpoint (port) supports "
+          "encapsulation negotiation."), 
+       ValueMap {"2", "3", "4", "5", "6", "7"}, 
+       Values {"Not Applicable", "802.1q", "Cisco ISL", "Negotiate",
+          "DMTF Reserved", "Vendor Reserved"}, 
+       ModelCorrespondence { 
+          "CIM_VLANSwitchCapabilities.SupportsTrunkEncapsulationNegotiation"} ]
+   uint16 DesiredVLANTrunkEncapsulation;
+
+      [Description (
+          "The type of VLAN encapsulation in use on a trunk "
+          "endpoint/port.  This property is either 'not applicable' "
+          "(i.e., the endpoint is not operating in trunking mode), a "
+          "particular type (802.1q or Cisco ISL), 'negotiating' (i.e., "
+          "the endpoints are negotiating the encapsulation type)."), 
+       ValueMap {"2", "3", "4", "5", "6", "7"}, 
+       Values {"Not Applicable", "802.1q", "Cisco ISL", "Negotiating",
+          "DMTF Reserved", "Vendor Reserved"} ]
+   uint16 VLANTrunkOperationalEncapsulation;
+
+      [Description (
+          "If a VLAN Id is part of this array, then the system MAY "
+          "prune that VLAN on this trunk endpoint/port.  This property "
+          "is applicable only when the endpoint is operating in "
+          "trunking mode (determined by examining the "
+          "SwitchEndpointMode property)."), 
+       ModelCorrespondence 
+          {"CIM_VLANSwitchEndpoint.SwitchEndpointMode"} ]
+   uint16 PruneElegibleVLANList[];
+
+      [Description (
+          "VLAN Id that is used to tag untagged traffic received on "
+          "this trunk endpoint/port.  This property is applicable only "
+          "when the endpoint is operating in trunking mode (determined "
+          "by examining the SwitchEndpointMode property)."), 
+       ModelCorrespondence 
+          {"CIM_VLANSwitchEndpoint.SwitchEndpointMode"} ]
+   uint16 NativeVLAN;
+
+      [Description (
+          "Default value for the native VLAN on this trunk "
+          "endpoint/port.  This property is applicable only when the "
+          "endpoint is operating in trunking mode (determined by "
+          "examining the SwitchEndpointMode property)."), 
+       ModelCorrespondence 
+          {"CIM_VLANSwitchEndpoint.SwitchEndpointMode"} ]
+   uint16 DefaultVLAN;
+
+      [Description (
+          "Indicates whether GARP VLAN Registration Protocol (GVRP) is "
+          "enabled or disabled on the trunk endpoint/port.  This "
+          "property is 'not applicable' unless GVRP is supported by "
+          "the endpoint.  This is indicated in the Capabilities "
+          "property, VLANSwitchEndpointCapabilities.Dot1QTagging.  "
+          "This property is applicable only when the endpoint is "
+          "operating in trunking mode (determined by examining the "
+          "SwitchEndpointMode property)."), 
+       ValueMap {"2", "3", "4"}, 
+       Values {"Not Applicable", "Enabled", "Disabled"}, 
+       ModelCorrespondence 
+          {"CIM_VLANSwitchEndpoint.SwitchEndpointMode",
+          "CIM_VLANSwitchEndpointCapabilities.Dot1QTagging"} ]
+   uint16 GVRPStatus;
+};
+
+
+// ==================================================================
+// VLANsInTrunk
+// ==================================================================
+   [Association, Experimental, Version ("2.7.1000"), Description (
+       "The VLANs allowed by the VLANSwitchEndpoint.  The reason for "
+       "the association is to permit query for either the endpoint or "
+       "the VLAN, instead of being one directional information (stored "
+       "as a property in the switch endpoint class).  Note that this "
+       "association only applies to switch endpoints operating in "
+       "trunking mode (determined by examining the SwitchEndpointMode "
+       "property).") ]
+
+class CIM_VLANsInTrunk : CIM_Dependency {
+
+      [Override ("Antecedent"), Max (1), Description (
+          "The SwitchEndpoint configured for trunking.") ]
+   CIM_VLANSwitchEndpoint REF Antecedent;
+
+      [Override ("Dependent"), Description (
+          "The VLAN allowed by this SwitchEndpoint acting as a trunk.") ]
+   CIM_NetworkVLAN REF Dependent;
+};
+
+
+// ==================================================================
+// SwitchEndpointInVLAN
+// ==================================================================
+   [Association, Experimental, Aggregation, Version ("2.7.1000"), 
+    Description (
+       "The switchendpoints which participate in this VLAN.") ]
+class CIM_SwitchEndpointInVLAN : CIM_MemberOfCollection {
+
+      [Aggregate, Override ("Collection"), Max (1), Description (
+          "The VLAN to which the endpoint belongs.") ]
+   CIM_NetworkVLAN REF Collection;
+
+      [Override ("Member"), Description (
+          "One of the switch endpoints in this VLAN.") ]
+   CIM_VLANSwitchEndpoint REF Member;
+};
+
+
+// ==================================================================
+// VLANEndstationEndpoint
+// ==================================================================
+   [Experimental, Version ("2.7.1000"), Description (
+       "An endpoint on an endstation which has been configured to "
+       "belong to a given VLAN and is a VLAN aware endstation that "
+       "sends traffic on a given VLAN.") ]
+class CIM_VLANEndstationEndpoint : CIM_ProtocolEndpoint {
+
+      [Description (
+          "The type of VLAN encapsulation desired to be used on this "
+          "trunk port.  Today this is only 802.1q for VLAN aware "
+          "endstations.  The value of 'Not Applicable' is used when "
+          "the endstation is not VLAN aware."), 
+       ValueMap {"2", "3", "4", "5"}, 
+       Values {"Not Applicable", "802.1q", "DMTF Reserved",
+           "Vendor Reserved"}, 
+       ModelCorrespondence {"CIM_VLANEndstationEndpoint.VLANAware" } ]
+   uint16 DesiredVLANTrunkEncapsulation;
+
+      [Description (
+          "The type of VLAN encapsulation in use on this trunk port.  "
+          "Today this is only 802.1q for VLAN aware endstations.  The "
+          "value of 'Not Applicable' is used when the endstation is "
+          "not VLAN aware."), 
+       ValueMap {"2", "3", "4", "5"}, 
+       Values {"Not Applicable", "802.1q", "DMTF Reserved",
+           "Vendor Reserved"}, 
+       ModelCorrespondence {"CIM_VLANEndstationEndpoint.VLANAware" } ]
+   uint16 VLANTrunkOperationalEncapsulation;
+
+      [Description (
+          "The Endstation is VLAN aware (i.e.  can send 802.1q tagged "
+          "frames).") ]
+   boolean VLANAware;
+};
+
+
+// ==================================================================
+// EndstationInVLAN
+// ==================================================================
+   [Association, Experimental, Aggregation, Version ("2.7.1000"), 
+    Description (
+       "The endstation port (endpoints) which participate in this "
+       "VLAN.") ]
+class CIM_EndstationInVLAN : CIM_MemberOfCollection {
+
+      [Aggregate, Override ("Collection"), Description (
+          "The VLAN to which the endpoint belongs.") ]
+   CIM_NetworkVLAN REF Collection;
+
+      [Override ("Member"), Description (
+          "One of the endstation endpoints in this VLAN.") ]
+   CIM_VLANEndstationEndpoint REF Member;
+};
+
+
+// ==================================================================
+// VLANCapabilities
+// ==================================================================
+   [Experimental, Version ("2.7.1000"), Description (
+       "Properties in VLANCapabilities represent the ComputerSystem's "
+       "constraints and capabilities for VLANs.  The information "
+       "included in this class addresses the resource limits for the "
+       "ComputerSystem.") ]
+class CIM_VLANCapabilities : CIM_Capabilities {
+
+      [Description (
+          "The maximum number of IEEE 802.1Q VLANs that this device "
+          "supports."), 
+       MappingStrings { "MIB.IETF|Q-BRIDGE-MIB.dot11MaxSupportedVlans"} ]
+   uint16 MaxSupportedVLANs;
+
+      [Description (
+          "The maximum number of IEEE 802.1Q VLAN Ids that this device "
+          "supports."), 
+       MappingStrings {"MIB.IETF|Q-BRIDGE-MIB.dot1qMaxVlanId"} ]
+   uint16 MaxVLANId;
+};
+
+
+// ==================================================================
+// VLANSwitchEndpointCapabilities
+// ==================================================================
+   [Experimental, Version ("2.7.1000"), Description (
+       "Capabilities supported by the switch endpoint.") ]
+class CIM_VLANSwitchEndpointCapabilities : CIM_Capabilities {
+
+      [Description (
+          "Indicates support for dot1Q tagging and GVRP."), 
+       MappingStrings { "MIB.IETF|P-BRIDGE-MIB.dot1dPortCapabilities"} ]
+   boolean Dot1QTagging;
+
+      [Description (
+          "Describes the type of frames that are accepted by the "
+          "port."), 
+       ValueMap {"2", "3"}, 
+       Values {"Accept All", "Admit VLAN Tagged Only"}, 
+       MappingStrings { "MIB.IETF|P-BRIDGE-MIB.dot1dPortCapabilities"} ]
+   uint16 Dot1ConfigurableAcceptableFrameTypes;
+
+      [Description (
+          "Supports the discarding of any frame received on a "
+          "ProtocolEndpoint whose VLAN classification does not include "
+          "that ProtocolEndpoint in its Member set."), 
+       MappingStrings { "MIB.IETF|P-BRIDGE-MIB.dot1dPortCapabilities "} ]
+   boolean Dot1qIngressFiltering;
+
+      [Description (
+          "This property indicates whether or not the protocol "
+          "endpoint supports negotiation of the trunk encapsulation."), 
+       ModelCorrespondence 
+          {"CIM_VLANSwitchEndpoint.SwitchEndpointMode"} ]
+   boolean SupportsTrunkEncasulationNegotiation;
+};
+
+
+// ==================================================================
+// GARPMembershipSettingData
+// ==================================================================
+   [Experimental, Version ("2.7.1000"), Description (
+       "Configuration for the Generic Attribute Registration Protocol "
+       "(GARP).  GARP is a protocol used by switches and end stations "
+       "to register and de-register attribute values, such as VLAN "
+       "Ids.  The GVRP is an application of GARP for VLAN "
+       "registration.  The properties (timers) in this class are GARP "
+       "control information about every ProtocolEndpoint supporting "
+       "GARP & GVRP.") ]
+class CIM_GARPMembershipSettingData: CIM_ConnectivityMembershipSettingData {
+
+      [Description (
+          "The GARP join time."), 
+       Units ("MilliSeconds"), 
+       MappingStrings { "MIB.IETF|Q-BRIDGE-MIB.dot1dPortGarpJoinTime"} ]
+   uint32 Dot1dPortGarpJoinTime;
+
+      [Description (
+          "The GARP leave time."), 
+       Units ("MilliSeconds"), 
+       MappingStrings { "MIB.IETF|Q-BRIDGE-MIB.dot1dPortGarpLeaveTime"} ]
+   uint32 Dot1dPortGarpLeaveTime;
+
+      [Description (
+          "The GARP leave all time."), 
+       Units ("MilliSeconds"), 
+       MappingStrings { 
+          "MIB.IETF|Q-BRIDGE-MIB.dot1dPortGarpLeaveAllTime"} ]
+   uint32 Dot1dPortGarpLeaveAllTime;
+};
+
+
+// ==================================================================
+// VLANSwitchSettings
+// ==================================================================
+   [Experimental, Version ("2.7.1000"), Description (
+       "The VLAN configuration data for a system.  It is associated "
+       "using ElementSettingData to the ComputerSystem to which it "
+       "applies.") ]
+class CIM_VLANSwitchSettings : CIM_SettingData {
+
+      [Description (
+          "List of VLANs which are reserved for pre-determined "
+          "uses/media types, etc.  An example of this is reservation "
+          "of VLANs specifically for use with FDDI or Token Ring.") ]
+   uint16 ReservedVLANList[ ];
+
+      [Description (
+          "This is a set of VLANs reserved for use internally by the "
+          "switch.") ]
+   uint16 InternalVLANList[ ];
+
+      [Description (
+          "The current number of VLANs configured in the switch.") ]
+   uint16 NumberOfConfiguredVLANs;
+
+      [Description (
+          "List of VLANs dynamically created in the switch.") ]
+   uint16 DynamicVLANList[];
+
+      [Description (
+          "List of VLANs statically created in the switch.") ]
+   uint16 StaticVLANList[];
+};
+
+
+// ==================================================================
+// VLANStatistics
+// ==================================================================
+   [Experimental, Version ("2.7.1000"), Description (
+       "Performance metrics for a either a VLAN or a port (endpoint).  "
+       "Depending on the switch's ability to collect statistics, these "
+       "statistics may be associated with all endpoints on the port "
+       "(i.e.  port level stats) or they may be per VLAN per port "
+       "stats.  When a port (endpoint) is configured as an access port "
+       "then port stats are equivalent to the VLAN stats.  The "
+       "AssociatedStatisticalData association is used to tie the "
+       "VLANNetwork with its statistics.") ]
+class CIM_VLANStatistics : CIM_StatisticalData {
+
+      [Description (
+          "The number of valid frames received by this "
+          "ProtocolEndpoint from its segment which were classified as "
+          "belonging to this VLAN.  Note that a frame received on this "
+          "port is counted by this object if and only if it is for a "
+          "protocol being processed by the local forwarding process "
+          "for this VLAN.  This object includes received bridge "
+          "management frames classified as belonging to this VLAN "
+          "(e.g.  GMRP, but not GVRP or STP - RFC2674)."), 
+       Counter, 
+       MappingStrings { 
+          "MIB.IETF|Q-BRIDGE-MIB.Dot1qTpVlanPortHCInFrames"} ]
+   uint64 Dot1qTpVlanPortHCInFrames;
+
+      [Description (
+          "The number of valid frames transmitted by this port to its "
+          "segment from the local forwarding process for this VLAN.  "
+          "This includes bridge management frames originated by this "
+          "device which are classified as belonging to this VLAN "
+          "(e.g.  GMRP, but not GVRP or STP - RFC2674)."), 
+       Counter, 
+       MappingStrings { 
+          "MIB.IETF|Q-BRIDGE-MIB.Dot1qTpVlanPortHCOutFrames"} ]
+   uint64 Dot1qTpVlanPortHCOutFrames;
+
+      [Description (
+          "The number of valid frames received by this port from its "
+          "segment which were classified as belonging to this VLAN "
+          "which were discarded due to VLAN related reasons.  "
+          "Specifically, the IEEE 802.1Q counters for Discard Inbound "
+          "and Discard on Ingress Filtering - RFC2674."), 
+       Counter, 
+       MappingStrings { "MIB.IETF|Q-BRIDGE-MIB. " 
+          "Dot1qTpVlanPortHCInDiscards"} ]
+   uint64 Dot1qTpVlanPortHCInDiscards;
+
+      [Description (
+          "A 12-bit VLAN ID used in the VLAN Tag header."), 
+       MinValue (1), MaxValue (4094), 
+       MappingStrings {"MIB.IETF|Q-BRIDGE-MIB.VlanId"} ]
+   uint16 VLANId;
+};
+
+
+// ==================================================================
+// VLANMembershipSettingData
+// ==================================================================
+   [Experimental, Version ("2.7.1000"), Description (
+       "For dynamic VLAN assignment, these rules define how incoming "
+       "traffic is assigned to a VLAN.  A typical set of assignment "
+       "rules include assignment based on MAC address, IP address, or "
+       "IP subnet.  Many other criteria or combination of criteria may "
+       "be used.") ]
+class CIM_VLANMembershipSettingData: CIM_ConnectivityMembershipSettingData {
+};
+
+
+// ===================================================================
+// end of file
+// ===================================================================

@@ -34,7 +34,7 @@ CQLFactor::CQLFactor(CQLFunction inCQLFunc)
 }
 
 //##ModelId=40FC33B70262
-CQLValue CQLFactor::getValue(CIMInstance CI, QueryContext& QueryCtx)
+CQLValue CQLFactor::getValue()
 {
    return _CQLVal;
 }

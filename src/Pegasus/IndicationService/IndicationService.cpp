@@ -101,10 +101,23 @@ void IndicationService::_handle_async_request(AsyncRequest *req)
     }
     else if ( req->getType() == async_messages::ASYNC_LEGACY_OP_START )
     {
-        req->op->processing();
-        Message *legacy = 
-            (static_cast<AsyncLegacyOperationStart *>(req)->get_action());
-        handleEnqueue(legacy);
+       try 
+       {
+	  
+	  req->op->processing();
+	  Message *legacy = 
+	     (static_cast<AsyncLegacyOperationStart *>(req)->get_action());
+	  legacy->put_async(req);
+	  
+	  handleEnqueue(legacy);
+       }
+       catch(Exception & )
+       {
+	  PEG_TRACE_STRING(TRC_INDICATION_SERVICE, Tracer::LEVEL3, 
+			   "Caught Exception in IndicationService while handling a wrapped legacy  message ");
+	  _make_response(req, async_results::CIM_NAK );
+       }
+       
         return;
     }
     else
@@ -114,54 +127,137 @@ void IndicationService::_handle_async_request(AsyncRequest *req)
 void IndicationService::handleEnqueue(Message* message)
 {
 
-    switch(message->getType())
-    {
-	case CIM_GET_INSTANCE_REQUEST_MESSAGE:
+
+	  
+   switch(message->getType())
+   {
+      case CIM_GET_INSTANCE_REQUEST_MESSAGE:
+	 try 
+	 {
 	    _handleGetInstanceRequest(message);
-	    break;
+	 }
+	 catch( ... ) 
+	 {
 
-	case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
+	  ;
+	 }
+	 
+	 break;
+
+      case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
+	 try 
+	 {
 	    _handleEnumerateInstancesRequest(message);
-	    break;
+	 }
+	 catch( ... ) 
+	 {
 
-	case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE:
+	  ;
+	 }
+	 
+	 break;
+
+      case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE:
+	 try 
+	 {
+	    
 	    _handleEnumerateInstanceNamesRequest(message);
-	    break;
+	 }
+	 catch( ... ) 
+	 {
 
-	case CIM_CREATE_INSTANCE_REQUEST_MESSAGE:
+	  ;
+	 }
+	 
+	 break;
+
+      case CIM_CREATE_INSTANCE_REQUEST_MESSAGE:
+	 try 
+	 {
+	    
 	    _handleCreateInstanceRequest(message);
-	    break;
+	 }
+	 catch( ... ) 
+	 {
 
-	case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
+	  ;
+	 }
+	 break;
+
+      case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
+	 try 
+	 {
+	    
 	    _handleModifyInstanceRequest(message);
-	    break;
+	 }
+	 catch( ... ) 
+	 {
 
-	case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
+	  ;
+	 }
+	 break;
+
+      case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
+	 try 
+	 {
 	    _handleDeleteInstanceRequest(message);
-	    break;
+	 }
+	 catch( ... ) 
+	 {
 
-        case CIM_PROCESS_INDICATION_REQUEST_MESSAGE:
-            _handleProcessIndicationRequest(message);
-            break;
+	  ;
+	 }
+	 break;
 
-	case CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE:
+      case CIM_PROCESS_INDICATION_REQUEST_MESSAGE:
+	 try 
+	 {
+	    _handleProcessIndicationRequest(message);
+	 }
+	 catch( ... ) 
+	 {
+
+	    ;
+	 }
+	 break;
+
+      case CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE:
+	 try 
+	 {
 	    _handleNotifyProviderRegistrationRequest(message);    
-	    break;
+	 }
+	 catch( ... ) 
+	 {
 
-	case CIM_NOTIFY_PROVIDER_TERMINATION_REQUEST_MESSAGE:
+	  ;
+	 }
+	 break;
+
+      case CIM_NOTIFY_PROVIDER_TERMINATION_REQUEST_MESSAGE:
+	 try 
+	 {
 	    _handleNotifyProviderTerminationRequest(message);    
-	    break;
+	 }
+	 catch( ... ) 
+	 {
 
-	default:
-            //
-            //  A message type not supported by the Indication Service
-            //  Should not reach here
-            //
-            PEGASUS_ASSERT (true);
-	    break;
-    }
-
-    delete message;
+	    ;
+	 }
+	 break;
+	 
+      default:
+	 //
+	 //  A message type not supported by the Indication Service
+	 //  Should not reach here
+	 //
+	 // << Mon Apr 29 16:29:10 2002 mdd >>
+	 PEG_TRACE_STRING(TRC_INDICATION_SERVICE, Tracer::LEVEL3, 
+			  "IndicationService::handleEnqueue(msg *) rcv'd unsupported msg " 
+			  + String(MessageTypeToString(message->getType())));
+	 break;
+   }
+	  
+   delete message;
 }
 
 void IndicationService::handleEnqueue(void)
@@ -182,7 +278,7 @@ void IndicationService::_initialize (void)
     const char METHOD_NAME [] = "IndicationService::_initialize";
 
     PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
-
+ 
     //
     //  Find required services
     //  NOTE: Indication Service expects to find exactly one Provider Manager
@@ -1350,8 +1446,9 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
 
     CIMInstance handler;
     CIMInstance indication = request->indicationInstance;
-//cout << "Received indication: " << indication.getClassName () << endl;
-
+    PEG_TRACE_STRING(TRC_INDICATION_SERVICE, Tracer::LEVEL4, 
+		     "Received Indication " + 
+		     indication.getClassName() );
     try
     {
         WQLSimplePropertySource propertySource = _getPropertySourceFromInstance(
@@ -1479,6 +1576,13 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
                 //  On Fatal Error Policy if message to handler was not 
                 //  successful
                 //
+		 PEG_TRACE_STRING(TRC_INDICATION_SERVICE, Tracer::LEVEL4, 
+				  "Sending (SendForget) Indication to " + 
+				  ((MessageQueue::lookup(_handlerService)) ? 
+				   String( ((MessageQueue::lookup(_handlerService))->getQueueName()) ) : 
+				   String("BAD queue name")) + 
+				  "via CIMHandleIndicationRequestMessage" );
+		 		 
                  SendForget(async_req);
 
                 //
@@ -4809,18 +4913,19 @@ void IndicationService::_sendEnableCallBack(AsyncOpNode *op,
    IndicationService *service = 
       static_cast<IndicationService *>(q);
    
+   cout << " send enable callback " << endl;
+   
    AsyncRequest *asyncRequest = static_cast<AsyncRequest *>(op->get_request());
    AsyncReply *asyncReply = static_cast<AsyncReply *>(op->get_response());
    CIMEnableIndicationsRequestMessage *request = 
       static_cast<CIMEnableIndicationsRequestMessage *>
       ((static_cast<AsyncLegacyOperationStart *>(asyncRequest))->get_action());
    
-   //Message *response =  
-      //((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
+//    Message *response =  
+//       ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
 
    CIMEnableIndicationsResponseMessage * response =
-      reinterpret_cast
-      <CIMEnableIndicationsResponseMessage *>
+      reinterpret_cast<CIMEnableIndicationsResponseMessage *>
       ((static_cast <AsyncLegacyOperationResult *>
         (asyncReply))->get_result());
 
@@ -4883,7 +4988,7 @@ void IndicationService::_sendEnable (
 	       this, 
 	       NULL);
 
-    //    AsyncReply * async_reply = SendWait (async_req);
+//    AsyncReply * async_reply = SendWait (async_req);
     // << Wed Apr 10 12:26:16 2002 mdd >>
 
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);

@@ -1,0 +1,509 @@
+// ===================================================================
+// Title:       Core Statistics 2.7
+// Filename:    Core27_Statistics.mof
+// Version:     2.7.0
+// Release:     Preliminary 
+// Date:        07/01/02
+// ===================================================================
+// Copyright 2002 Distributed Management Task Force, Inc. (DMTF).
+// All rights reserved.  
+// DMTF is a not-for-profit association of industry members dedicated 
+// to promoting enterprise and systems management and interoperability. 
+// DMTF specifications and documents may be reproduced for uses
+// consistent with this purpose by members and non-members, 
+// provided that correct attribution is given. 
+// As DMTF specifications may be revised from time to time, 
+// the particular version and release date should always be noted.
+//
+// Implementation of certain elements of this standard or proposed 
+// standard may be subject to third party patent rights, including 
+// provisional patent rights (herein "patent rights"). DMTF makes 
+// no representations to users of the standard as to the existence 
+// of such rights, and is not responsible to recognize, disclose, or
+// identify any or all such third party patent right, owners or 
+// claimants, nor for any incomplete or inaccurate identification or 
+// disclosure of such rights, owners or claimants. DMTF shall have no 
+// liability to any party, in any manner or circumstance, under any 
+// legal theory whatsoever, for failure to recognize, disclose, or 
+// identify any such third party patent rights, or for such party's
+// reliance on the standard or incorporation thereof in its product, 
+// protocols or testing procedures. DMTF shall have no liability to 
+// any party implementing such standard, whether such implementation 
+// is foreseeable or not, nor to any patent owner or claimant, and shall 
+// have no liability or responsibility for costs or losses incurred if 
+// a standard is withdrawn or modified after publication, and shall be
+// indemnified and held harmless by any party implementing the 
+// standard from any and all claims of infringement by a patent owner 
+// for such implementations.
+//
+// For information about patents held by third-parties which have 
+// notified the DMTF that, in their opinion, such patent may relate to 
+// or impact implementations of DMTF standards, visit 
+// http://www.dmtf.org/about/policies/disclosures.php.
+// ===================================================================
+// Description: The Core Model defines basic management concepts. 
+//              This file defines the top of the Statistics/
+//              StatisticalData hierarchies.
+//
+//              The object classes below are listed in an order that
+//              avoids forward references. Required objects, defined 
+//              by other working groups, are omitted.
+// ==================================================================
+// Change Log for v2.7
+// CR721 - Introduce StatisticalData, ElementStatisticalData,
+//         and ReleatedStatisticalData
+// ==================================================================
+
+#pragma locale ("en_US")
+
+
+// ==================================================================
+// StatisticalData
+// ================================================================== 
+[Abstract, Experimental, Version ("2.7.0"), Description ( 
+    "CIM_StatisticalData is a root class for any arbitrary " 
+    "collection of statistical data and/or metrics applicable to " 
+    "one or more ManagedElements.  These statistics MUST "
+    "represent the most recent observations and MUST NOT be "
+    "provided if irrelevant or stale. Note that this class uses "
+    "a simplified naming/identity algorithm as compared to "
+    "CIM_StatisticalInformation.") ] 
+class CIM_StatisticalData : CIM_ManagedElement { 
+
+    [Key, Description (
+        "InstanceID opaquely identifies a unique instance of "
+        "StatisticalData.  The InstanceID must be unique within a "
+        "namespace. In order to ensure uniqueness, the value of "
+        "InstanceID SHOULD be constructed in the following manner: \n"
+        "<Vendor ID><ID> \n"
+        "   <Vendor ID> MUST include a copyrighted, trademarked "
+        "or otherwise unique name that is owned by the business "
+        "entity or a registered ID that is assigned to the business "
+        "entity that is defining the InstanceID. (This is similar to "
+        "the <Schema Name>_<Class Name> structure of Schema class "
+        "names.) The purpose of <Vendor ID> is to ensure that <ID> "
+        "is truly unique across multiple vendor implementations.  "
+        "If such a name is not used, the defining entity MUST assure "
+        "that the <ID> portion of the Instance ID is unique when "
+        "compared with other instance providers. For DMTF defined "
+        "instances, the <Vendor ID> is 'CIM'. \n"
+        "   <ID> MUST include a vendor specified unique "
+        "identifier.") ]        
+    string InstanceID;
+
+    [Override ("ElementName"), Required, Description (
+        "The user friendly name for this instance of StatisticalData. "
+        "In addition, the user friendly name can be used as a "
+        "index property for a search of query.  (Note:  Name "
+        "does not have to be unique within a namespace.)") ]
+    string ElementName;
+
+    [Description (
+        "Method to reset one or more of the instance's statistics. "
+        "The method takes one parameter as input - an array of "
+        "strings indicating which statistics to reset. If all the "
+        "statistics in the instance should be reset, the first "
+        "element of the array MUST be set to \"All\" or \"ALL\".  "
+        "If one or more individual statistics should be reset, the "
+        "corresponding property names are entered into the "
+        "elements of the array. \n"
+        "The method returns 0 if successful, 1 if not supported, and " 
+        "any other value if an error occurred. A method is specified "
+        "so that the StatisticalInformation's provider/"
+        "instrumentation, which calculates the statistics, can reset "
+        "its internal processing, counters, etc. \n"
+        "In a subclass, the set of possible return codes could be "
+        "specified, using a ValueMap qualifier on the method. The "
+        "strings to which the ValueMap contents are 'translated' "
+        "may also be specified in the subclass as a Values "
+        "array qualifier.") ]
+    uint32 ResetSelectedStats (
+        [IN] string SelectedStatistics[]);
+};
+
+
+// ==================================================================
+// ElementStatisticalData
+// ================================================================== 
+[Association, Experimental, Version ("2.7.0"), Description ( 
+    "CIM_ElementStatisticalData is an association that relates a " 
+    "ManagedElement to its StatisticalData. Note that the "
+    "cardinality of the ManagedElement reference is Min(1), "
+    "Max(1). This cardinality mandates the instantiation of the "
+    "ElementStatisticalData association for the referenced instance "
+    "of CIM_StatisticalData. ElementStatisticalData describes the "
+    "existence requirements and context for the CIM_StatisticalData, "
+    "relative to a specific ManagedElement.") ]
+class CIM_ElementStatisticalData { 
+
+    [Key, Min(1), Max(1), Description ( 
+        "The ManagedElement for which statistical or metric " 
+        "data is defined.") ] 
+    CIM_ManagedElement REF ManagedElement;
+
+    [Key, Description (
+        "The statistic information/object.") ] 
+    CIM_StatisticalData REF Stats; 
+};
+
+
+// ==================================================================
+// RelatedStatisticalData
+// ================================================================== 
+[Association, Experimental, Description ( 
+    "CIM_RelatedStatisticalData is an association that defines " 
+    "hierarchies and/or dependencies of related CIM_Statistical" 
+    "Data classes.") ]
+class CIM_RelatedStatisticalData { 
+
+    [Key, Description (
+        "The statistic information/object.") ] 
+    CIM_StatisticalData REF Stats; 
+
+    [Key, Description (
+        "The related statistics.") ] 
+    CIM_StatisticalData REF RelatedStats;
+
+    [Description (
+        "A free-form string describing how the statistics are "
+        "related.") ] 
+    string Description;
+};
+
+
+// ==================================================================
+// StatisticalInformation
+// ================================================================== 
+[Abstract, Version ("2.6.0"), Description ( 
+    "CIM_StatisticalInformation is a root class for any arbitrary " 
+    "collection of statistical data and/or metrics applicable to " 
+    "one or more ManagedSystemElements. Note that the CIM_"
+    "StatisticalData class uses a simplified naming/identity "
+    "algorithm as compared to this class.  StatisticalInformation "
+    "is not deprecated since its naming algorithm is still in use in "
+    "various implementations.") ] 
+class CIM_StatisticalInformation : CIM_ManagedElement { 
+    
+    [MaxLen (256), Description ( 
+        "The Name property defines the label by which the statistic " 
+        "or metric is known. When subclassed, the property can be " 
+        "overridden to be a Key property.") ] 
+    string Name; 
+};
+
+
+// ==================================================================
+// Statistics
+// ================================================================== 
+[Association, Version ("2.6.0"), Description ( 
+    "CIM_Statistics is an association that relates Managed" 
+    "Elements to the StatisticalGroup(s) that apply to them.") ]
+class CIM_Statistics { 
+    
+    [Key, Description (
+        "The statistic information/object.") ] 
+    CIM_StatisticalInformation REF Stats; 
+    
+    [Key, Description ( 
+        "The ManagedElement for which statistical or metric " 
+        "data is defined.") ] 
+    CIM_ManagedElement REF Element;
+};
+
+
+// ==================================================================
+// RelatedStatistics
+// ================================================================== 
+[Association, Version ("2.6.0"), Description ( 
+    "CIM_RelatedStatistics is an association that defines " 
+    "hierarchies and/or dependencies of related CIM_Statistical" 
+    "Information classes.") ]
+class CIM_RelatedStatistics { 
+    
+    [Key, Description (
+        "The statistic information/object.") ] 
+    CIM_StatisticalInformation REF Stats; 
+    
+    [Key, Description (
+        "The related statistics or metrics.") ] 
+    CIM_StatisticalInformation REF RelatedStats;
+};
+
+
+// ==================================================================
+// SystemStatisticalInformation
+// ==================================================================
+[Version ("2.6.0"), Description (
+    "Statistical information associated with a System object "
+    "or one of its subclasses.") ]
+class CIM_SystemStatisticalInformation : CIM_StatisticalInformation {
+    
+    [Propagated("CIM_System.CreationClassName"), Key, 
+        MaxLen (256), Description (
+            "The scoping System's CreationClassName.") ]
+    string SystemCreationClassName;
+    
+    [Propagated("CIM_System.Name"), Key, MaxLen (256), 
+        Description ("The scoping System's Name.") ]
+    string SystemName;
+    
+    [Key, MaxLen (256), Description (
+        "CreationClassName indicates the name of the class or the "
+        "subclass used in the creation of an instance. When used "
+        "with the other key properties of this class, this property "
+        "allows all instances of this class and its subclasses to "
+        "be uniquely identified.") ]
+    string CreationClassName;
+    
+    [Key, MaxLen (256), Override ("Name"), Description (
+        "The Name property, inherited from StatisticalInformation, "
+        "serves as part of the object key.") ]
+    string Name;
+};
+
+
+// ==================================================================
+// SystemStatistics
+// ==================================================================
+[Association, Version ("2.6.0"), Description (
+    "SystemStatistics relates the SystemStatisticalInformation "
+    "class to the System to which it applies.") ]
+class CIM_SystemStatistics : CIM_Statistics {
+    
+    [Override ("Stats"), Weak, Description (
+        "The statistical object.") ]
+    CIM_SystemStatisticalInformation REF Stats;
+    
+    [Override ("Element"), Min (1), Max (1), 
+        Description ("The System to which the statistics apply.") ]
+    CIM_System REF Element;
+};
+
+
+// ==================================================================
+// ServiceStatisticalInformation
+// ==================================================================
+[Version ("2.6.0"), Description (
+    "Statistical information associated with a Service object "
+    "or one of its subclasses.") ]
+class CIM_ServiceStatisticalInformation : CIM_StatisticalInformation {
+    
+    [Propagated("CIM_Service.SystemCreationClassName"), Key, 
+        MaxLen (256), Description (
+            "The scoping System's CreationClassName.") ]
+    string SystemCreationClassName;
+    
+    [Propagated("CIM_Service.SystemName"), Key, MaxLen (256), 
+        Description ("The scoping System's Name.") ]
+    string SystemName;
+    
+    [Propagated("CIM_Service.CreationClassName"), Key, 
+        MaxLen (256), Description (
+            "The scoping Service's CreationClassName.") ]
+    string ServiceCreationClassName;
+       
+    [Propagated("CIM_Service.Name"), Key, MaxLen (256), 
+        Description ("The scoping Service's Name.") ]
+    string ServiceName;
+    
+    [Key, MaxLen (256), Description (
+        "CreationClassName indicates the name of the class or the "
+        "subclass used in the creation of an instance. When used "
+        "with the other key properties of this class, this property "
+        "allows all instances of this class and its subclasses to "
+        "be uniquely identified.") ]
+    string CreationClassName;
+    
+    [Key, MaxLen (256), Override ("Name"), Description (
+        "The Name property, inherited from StatisticalInformation, "
+        "serves as part of the object key.") ]
+    string Name;
+};
+
+
+// ==================================================================
+// ServiceStatistics
+// ==================================================================
+[Association, Version ("2.6.0"), Description (
+    "ServiceStatistics relates the ServiceStatisticalInformation "
+    "class to the Service to which it applies.") ]
+class CIM_ServiceStatistics : CIM_Statistics {
+    
+    [Override ("Stats"), Weak, 
+        Description ("The statistical object.") ]
+    CIM_ServiceStatisticalInformation REF Stats;
+    
+    [Override ("Element"), Min (1), Max (1), 
+        Description ( 
+            "The Service to which the statistics apply.") ]
+    CIM_Service REF Element;
+};
+
+
+// ==================================================================
+// SAPStatisticalInformation
+// ==================================================================
+[Version ("2.6.0"), Description (
+    "Statistical information associated with a Service"
+    "AccessPoint object or one of its subclasses.") ]
+class CIM_SAPStatisticalInformation : CIM_StatisticalInformation {
+    
+    [Propagated("CIM_ServiceAccessPoint.SystemCreationClassName"),  
+        Key, MaxLen (256), Description (
+            "The scoping System's CreationClassName.") ]
+    string SystemCreationClassName;
+    
+    [Propagated("CIM_ServiceAccessPoint.SystemName"), Key, 
+        MaxLen (256), Description ("The scoping System's Name.") ]
+    string SystemName;
+    
+    [Propagated("CIM_ServiceAccessPoint.CreationClassName"), 
+        Key, MaxLen (256), Description (
+            "The scoping SAP's CreationClassName.") ]
+    string SAPCreationClassName;
+    
+    [Propagated("CIM_ServiceAccessPoint.Name"), Key, 
+        MaxLen (256), Description ("The scoping SAP's Name.") ]
+    string SAPName;
+    
+    [Key, MaxLen (256), Description (
+        "CreationClassName indicates the name of the class or the "
+        "subclass used in the creation of an instance. When used "
+        "with the other key properties of this class, this property "
+        "allows all instances of this class and its subclasses to "
+        "be uniquely identified.") ]
+    string CreationClassName;
+    
+    [Key, MaxLen (256), Override ("Name"), Description (
+        "The Name property, inherited from StatisticalInformation, "
+        "serves as part of the object key.") ]
+    string Name;
+};
+
+
+// ==================================================================
+// SAPStatistics
+// ==================================================================
+[Association, Version ("2.6.0"), Description (
+    "SAPStatistics relates the SAPStatisticalInformation "
+    "class to the ServiceAccessPoint to which it applies.") ]
+class CIM_SAPStatistics : CIM_Statistics {
+    
+    [Override ("Stats"), Weak, 
+        Description ("The statistical object.") ]
+    CIM_SAPStatisticalInformation REF Stats;
+    
+    [Override ("Element"), Min (1), Max (1), Description (
+        "The ServiceAccessPoint to which the statistics apply.") ]
+    CIM_ServiceAccessPoint REF Element;
+};
+
+
+// ==================================================================
+// DeviceStatisticalInformation
+// ==================================================================
+[Version ("2.6.0"), Description (
+    "Statistical information associated with a LogicalDevice "
+    "or one of its subclasses.") ]
+class CIM_DeviceStatisticalInformation : CIM_StatisticalInformation {
+    [Propagated("CIM_LogicalDevice.SystemCreationClassName"), Key, 
+        MaxLen (256), Description (
+            "The scoping System's CreationClassName.") ]
+    string SystemCreationClassName;
+    
+    [Propagated("CIM_LogicalDevice.SystemName"), Key, MaxLen (256), 
+        Description ("The scoping System's Name.") ]
+    string SystemName;
+    
+    [Propagated("CIM_LogicalDevice.CreationClassName"), Key, 
+        MaxLen (256), 
+        Description ("The scoping Device's CreationClassName.") ]
+    string DeviceCreationClassName;
+   
+    [Propagated("CIM_LogicalDevice.DeviceID"), Key, MaxLen (64), 
+        Description ("The scoping Device's ID.") ]
+    string DeviceID;
+    
+    [Key, MaxLen (256), Description (
+        "CreationClassName indicates the name of the class or the "
+        "subclass used in the creation of an instance. When used "
+        "with the other key properties of this class, this property "
+        "allows all instances of this class and its subclasses to "
+        "be uniquely identified.") ]
+    string CreationClassName;
+    
+    [Key, MaxLen (256), Override ("Name"), Description (
+        "The Name property, inherited from StatisticalInformation, "
+        "serves as part of the object key.") ]
+    string Name;
+};
+
+
+// ==================================================================
+// DeviceStatistics
+// ==================================================================
+[Association, Version ("2.6.0"), Description (
+    "DeviceStatistics relates the DeviceStatisticalInformation "
+    "class to the LogicalDevice to which it applies.") ]
+class CIM_DeviceStatistics : CIM_Statistics {
+    [Override ("Stats"), Weak, 
+        Description ("The statistical object.") ]
+    CIM_DeviceStatisticalInformation REF Stats;
+    
+    [Override ("Element"), Min (1), Max (1), 
+        Description ("The Device to which the statistics apply.") ]
+    CIM_LogicalDevice REF Element;
+};
+
+
+// ==================================================================
+// PhysicalStatisticalInformation
+// ==================================================================
+[Version ("2.6.0"), Description (
+    "Statistical information associated with a PhysicalElement "
+    "or one of its subclasses.") ]
+class CIM_PhysicalStatisticalInformation : CIM_StatisticalInformation {
+    [Propagated("CIM_PhysicalElement.CreationClassName"), Key, 
+        MaxLen (256), 
+        Description ("The scoping Element's CreationClassName.") ]
+    string PhysicalCreationClassName;
+    
+    [Propagated("CIM_PhysicalElement.Tag"), Key, MaxLen (256), 
+        Description ("The scoping Element's identifying Tag.") ]
+    string Tag;
+    
+    [Key, MaxLen (256), Description (
+        "CreationClassName indicates the name of the class or the "
+        "subclass used in the creation of an instance. When used "
+        "with the other key properties of this class, this property "
+        "allows all instances of this class and its subclasses to "
+        "be uniquely identified.") ]
+    string CreationClassName;
+    
+    [Key, MaxLen (256), Override ("Name"), Description (
+        "The Name property, inherited from StatisticalInformation, "
+        "serves as part of the object key.") ]
+    string Name;
+};
+
+
+// ==================================================================
+// PhysicalStatistics
+// ==================================================================
+[Association, Version ("2.6.0"), Description (
+    "PhysicalStatistics relates the PhysicalStatisticalInformation "
+    "class to the PhysicalElement to which it applies.") ]
+class CIM_PhysicalStatistics : CIM_Statistics {
+    [Override ("Stats"), Weak, 
+        Description ("The statistical object.") ]
+    CIM_PhysicalStatisticalInformation REF Stats;
+    
+    [Override ("Element"), Min (1), Max (1), Description (
+        "The PhysicalElement to which the statistics apply.") ]
+    CIM_PhysicalElement REF Element;
+};
+
+
+// ===================================================================
+// end of file
+// ===================================================================

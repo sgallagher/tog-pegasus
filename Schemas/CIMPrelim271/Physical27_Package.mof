@@ -1,0 +1,435 @@
+// ===================================================================
+// Title:       Physical Packages 2.7
+// Filename:    Physical27_Package.mof
+// Version:     2.7.1
+// Release:     Preliminary 
+// Date:        November 12 2002 
+// ===================================================================
+// Copyright 2002 Distributed Management Task Force, Inc. (DMTF).
+// All rights reserved.  
+// DMTF is a not-for-profit association of industry members dedicated 
+// to promoting enterprise and systems management and interoperability. 
+// DMTF specifications and documents may be reproduced for uses
+// consistent with this purpose by members and non-members, 
+// provided that correct attribution is given. 
+// As DMTF specifications may be revised from time to time, 
+// the particular version and release date should always be noted.
+//
+// Implementation of certain elements of this standard or proposed 
+// standard may be subject to third party patent rights, including 
+// provisional patent rights (herein "patent rights"). DMTF makes 
+// no representations to users of the standard as to the existence 
+// of such rights, and is not responsible to recognize, disclose, or
+// identify any or all such third party patent right, owners or 
+// claimants, nor for any incomplete or inaccurate identification or 
+// disclosure of such rights, owners or claimants. DMTF shall have no 
+// liability to any party, in any manner or circumstance, under any 
+// legal theory whatsoever, for failure to recognize, disclose, or 
+// identify any such third party patent rights, or for such party's
+// reliance on the standard or incorporation thereof in its product, 
+// protocols or testing procedures. DMTF shall have no liability to 
+// any party implementing such standard, whether such implementation 
+// is foreseeable or not, nor to any patent owner or claimant, and shall 
+// have no liability or responsibility for costs or losses incurred if 
+// a standard is withdrawn or modified after publication, and shall be
+// indemnified and held harmless by any party implementing the 
+// standard from any and all claims of infringement by a patent owner 
+// for such implementations.
+//
+// For information about patents held by third-parties which have 
+// notified the DMTF that, in their opinion, such patent may relate to 
+// or impact implementations of DMTF standards, visit 
+// http://www.dmtf.org/about/policies/disclosures.php.
+// ===================================================================
+// Description: The Physical Model defines modeling concepts related
+//              to actual boxes and packaging. This file defines the 
+//              concepts related to packaging of Frames, Chassis, etc.
+//
+//              The object classes below are listed in an order that
+//              avoids forward references. Required objects, defined 
+//              by other working groups, are omitted.
+// ==================================================================
+// Change Log for v2.7.1
+// CR920 - Move the CIM_Card related classes to a separate MOF since
+//         Card contains a forward reference to PhysicalConnector in
+//         its method
+//
+// Change Log for v2.7
+// CR623 - Fix the DMI mapping string to include the attribute number
+//         PhysicalFrame.SecurityBreach and Chassis.ChassisTypes 
+// CR629 - Extend Chassis.ChassisType to include "Multi-system Chassis"
+// CR877 - Add AGP8X enumeration to PhysicalConnector.ConnectorType 
+// ==================================================================
+
+#pragma locale ("en_US")
+
+
+// ==================================================================
+// PhysicalPackage
+// ==================================================================
+[Version ("2.6.0"), Description (
+    "The PhysicalPackage class represents PhysicalElements that "
+    "contain or host other components. Examples are a Rack "
+    "enclosure or an adapter Card.") ]
+class CIM_PhysicalPackage : CIM_PhysicalElement {
+    
+    [Description (
+        "A PhysicalPackage is Removable if it is designed to be "
+        "taken in and out of the physical container in which it is "
+        "normally found, without impairing the function of the "
+        "overall packaging. A Package can still be Removable if "
+        "power must be 'off' in order to perform the removal. If "
+        "power can be 'on' and the Package removed, then the Element "
+        "is both Removable and HotSwappable. For example, an extra "
+        "battery in a laptop is Removable, as is a disk drive Package "
+        "inserted using SCA connectors. However, the latter is also "
+        "HotSwappable.  A laptop's display is not Removable, nor "
+        "is a non-redundant power supply.  Removing these "
+        "components would impact the function of the overall packaging "
+        "or is impossible due to the tight integration of the "
+        "Package.") ]
+    boolean Removable;
+    
+    [Description (
+        "A PhysicalPackage is Replaceable if it is possible to "
+        "replace (FRU or upgrade) the Element with a physically "
+        "different one.  For example, some ComputerSystems "
+        "allow the main Processor chip to be upgraded to one of a "
+        "higher clock rating. In this case, the Processor is said "
+        "to be Replaceable. Another example is a power supply "
+        "Package mounted on sliding rails. All Removable packages "
+        "are inherently Replaceable.") ]
+    boolean Replaceable;
+    
+    [Description (
+        "A PhysicalPackage is HotSwappable if it is possible to "
+        "replace the Element with a physically different "
+        "but equivalent one while the containing Package has power "
+        "applied to it (ie, is 'on').  For example, a disk drive "
+        "Package inserted using SCA connectors is both Removable "
+        "and HotSwappable. All HotSwappable packages are inherently "
+        "Removable and Replaceable.") ]
+    boolean HotSwappable;
+    
+    [Description (
+        "The height of the PhysicalPackage in inches."),
+        Units ("Inches") ]
+    real32 Height;
+    
+    [Description (
+        "The depth of the PhysicalPackage in inches."),
+        Units ("Inches") ]
+    real32 Depth;
+    
+    [Description (
+        "The width of the PhysicalPackage in inches."),
+        Units ("Inches") ]
+    real32 Width;
+    
+    [Description (
+        "The weight of the PhysicalPackage in pounds."),
+        Units ("Pounds") ]
+    real32 Weight;
+    
+    [Description (
+        "The IsCompatible method verifies whether the referenced "
+        "PhysicalElement may be contained by or inserted into "
+        "the PhysicalPackage. The return value should be 0 if "
+        "the request was successfully executed, 1 if the request "
+        "is not supported and some other value if an error "
+        "occurred. In a subclass, the set of possible return codes "
+        "could be specified, using a ValueMap qualifier on the "
+        "method. The strings to which the ValueMap contents are "
+        "'translated' may also be specified in the subclass as a "
+        "Values array qualifier.") ]
+    uint32 IsCompatible(
+        [IN] CIM_PhysicalElement REF ElementToCheck);
+};
+
+
+// ==================================================================
+// Container
+// ==================================================================
+[Association, Aggregation, Version ("2.6.0"), Description (
+    "The Container association represents the relationship "
+    "between a contained and a containing PhysicalElement. "
+    "A containing object must be a PhysicalPackage.") ]
+class CIM_Container : CIM_Component {
+    
+    [Override ("GroupComponent"), Aggregate, Max (1), Description (
+        "The PhysicalPackage that contains other PhysicalElements, "
+        "including other Packages."),
+        MappingStrings {
+            "MIB.IETF|Entity-MIB.entPhysicalContainedIn"} ] 
+    CIM_PhysicalPackage REF GroupComponent;
+    
+    [Override ("PartComponent"), Description (
+        "The PhysicalElement which is contained in the Package.") ]
+    CIM_PhysicalElement REF PartComponent;
+    
+    [Description (
+        "A free-form string representing the positioning of the "
+        "PhysicalElement within the PhysicalPackage. Information "
+        "relative to stationary elements in the Container (for "
+        "example, 'second drive bay from the top'), angles, "
+        "altitudes and other data may be recorded in this property. "
+        "This string could supplement or be used in place of "
+        "instantiating the CIM_Location object."),
+        MappingStrings {
+            "MIB.IETF|Entity-MIB.entPhysicalParentRelPos"} ] 
+   string LocationWithinContainer;
+};
+
+
+// ==================================================================
+// PhysicalFrame
+// ==================================================================
+[Version ("2.7.0"), Description (
+    "PhysicalFrame is a superclass of Rack, Chassis and "
+    "other frame enclosures, as they are defined in extension "
+    "classes. Properties like visible or audible alarm, and data "
+    "related to security breaches are in this superclass." ) ]
+class CIM_PhysicalFrame : CIM_PhysicalPackage {
+    
+    [Description ("CableManagementStrategy is a free-form string "
+        "that contains information on how the various cables are "
+        "connected and bundled for the Frame. With many networking, "
+        "storage-related and power cables, cable management can be "
+        "a complex and challenging endeavor. This string property "
+        "contains information to aid in assembly and service "
+        "of the Frame.") ]
+    string CableManagementStrategy;
+    
+    [Description (
+        "ServicePhilosophy is an enumerated, integer-valued "
+        "array that indicates whether the Frame is serviced from the "
+        "top (value=2), front (3), back (4) or side (5), whether it "
+        "has sliding trays (6) or removable sides (7), and/or whether "
+        "the Frame is moveable (8), for example, having rollers."),
+        ArrayType ("Indexed"), 
+        ValueMap {"0", "1", "2", "3", "4", "5", "6", "7", "8"},
+        Values {"Unknown", "Other", "Service From Top",
+            "Service From Front", "Service From Back", 
+            "Service From Side", "Sliding Trays", 
+            "Removable Sides", "Moveable"},
+        ModelCorrespondence {"CIM_PhysicalFrame.ServiceDescriptions"} ]
+    uint16 ServicePhilosophy[];
+    
+    [Description ("An array of free-form strings providing more "
+        "detailed explanations for any of the entries in the Service"
+        "Philosophy array. Note, each entry of this array "
+        "is related to the entry in ServicePhilosophy that is "
+        "located at the same index."),
+        ArrayType ("Indexed"),
+        ModelCorrespondence {"CIM_PhysicalFrame.ServicePhilosophy"} ]
+    string ServiceDescriptions[];
+    
+    [Description ("Boolean indicating whether the Frame is protected "
+        "with a lock.") ]
+    boolean LockPresent;
+    
+    [Description ("Boolean indicating whether the Frame is equipped "
+        "with an audible alarm.") ]
+    boolean AudibleAlarm; 
+    
+    [Description ("Boolean indicating that the equipment includes "
+        "a visible alarm.") ]
+    boolean VisibleAlarm;
+    
+    [Description ("SecurityBreach is an enumerated, integer-valued "
+        "property indicating whether a physical breach of the Frame "
+        "was attempted but unsuccessful (value=4) or attempted and "
+        "successful (5). Also, the values, \"Unknown\", \"Other\" or "
+        "\"No Breach\", can be specified."),
+        ValueMap {"1", "2", "3", "4", "5"},
+        Values {"Other", "Unknown", "No Breach", "Breach Attempted", 
+            "Breach Successful"},
+        MappingStrings {
+            "MIF.DMTF|Physical Container Global Table|004.12"},
+        ModelCorrespondence {"CIM_PhysicalFrame.BreachDescription"} ]
+    uint16 SecurityBreach;
+    
+    [Description ("BreachDescription is a free-form string providing "
+        "more information if the SecurityBreach property indicates "
+        "that a breach or some other security-related event "
+        "occurred."),
+        ModelCorrespondence {"CIM_PhysicalFrame.SecurityBreach"} ]
+    string BreachDescription;
+    
+    [Description (
+        "Boolean indicating that the Frame is currently locked.") ]
+    boolean IsLocked;
+};
+
+
+// ==================================================================
+// Rack
+// ==================================================================
+[Version ("2.6.0"), Description (
+    "A Rack is a PhysicalFrame that represents an enclosure in "
+    "which Chassis are placed. Typically a Rack is nothing more "
+    "than the enclosure, and all the functioning componentry is "
+    "packaged in the Chassis, loaded in the Rack.") ]
+class CIM_Rack : CIM_PhysicalFrame {
+    
+    [Override ("Height"), Description (
+        "The height of the PhysicalPackage in 'U's. A 'U' is a "
+        "standard unit of measure for the height of a Rack or "
+        "rack-mountable component. It is equal to 1.75 inches or "
+        "4.445 cm."),
+        Units ("Us") ]
+    real32 Height;
+    
+    [Description ("Enumeration indicating the type of Rack."
+        "Information such as \"Telco\" rack (value=2) or standard "
+        "19 inch rack (1) can be specified. The country for which "
+        "the Rack is manufactured is defined in the the Country"
+        "Designation property."),
+        ValueMap {"0", "1", "2", "3", "4"},
+        Values {"Unknown", "Standard 19 Inch", "Telco", 
+            "Equipment Shelf", "Non-Standard"},
+        ModelCorrespondence {"CIM_Rack.CountryDesignation"} ]
+    uint16 TypeOfRack;
+    
+    [Description ("Designation of the country for which the Rack "
+        "is designed. Country code strings are as defined by "
+        "ISO/IEC 3166. The rack type is specified in the TypeOf"
+        "Rack property."),
+        ModelCorrespondence {"CIM_Rack.TypeOfRack"} ]
+    string CountryDesignation;
+};
+
+// ==================================================================
+// Chassis
+// ==================================================================
+[Version ("2.7.0"), Description (
+    "The Chassis class represents the PhysicalElements that "
+    "enclose other Elements and provide definable functionality, "
+    "such as a desktop, processing node, UPS, disk or tape storage, "
+    "or a combination of these.") ]
+class CIM_Chassis : CIM_PhysicalFrame {
+    
+    [Description (
+        "Integer indicating the number of power cords which must be "
+        "connected to the Chassis, for all the componentry to "
+        "operate.") ]
+    uint16 NumberOfPowerCords;
+    
+    [Description (
+        "Current required by the Chassis at 120V. If power is "
+        "provided by the Chassis (as in the case of a UPS), this "
+        "property may indicate the amperage produced, as a negative "
+        "number."),
+        Units ("Amps at 120 Volts") ]
+    sint16 CurrentRequiredOrProduced;
+    
+    [Description (
+        "Amount of heat generated by the Chassis in BTU/hour."),
+        Units ("BTU per Hour") ]
+    uint16 HeatGeneration;
+    
+    [Description (
+        "An enumerated, integer-valued array indicating the type of "
+        "Chassis."),
+        ArrayType ("Indexed"),
+        ValueMap {"1", "2", "3", "4", "5", "6", "7", "8", "9", 
+            "10", "11", "12", "13", "14", "15", "16", "17", "18", "19",
+            "20", "21", "22", "23", "24", "25"},
+        Values {"Other", "Unknown", "Desktop", "Low Profile Desktop",
+               "Pizza Box", "Mini Tower", "Tower", "Portable", "LapTop",
+               // 10 
+               "Notebook", "Hand Held", "Docking Station", "All in One",
+               "Sub Notebook", "Space-Saving", "Lunch Box",
+               "Main System Chassis", "Expansion Chassis", "SubChassis",
+               // 20
+               "Bus Expansion Chassis", "Peripheral Chassis",
+               "Storage Chassis", "Rack Mount Chassis",
+               "Sealed-Case PC", "Multi-system Chassis"},
+        MappingStrings {
+            "MIF.DMTF|Physical Container Global Table|004.1"},
+        ModelCorrespondence {"CIM_Chassis.TypeDescriptions"} ]
+    uint16 ChassisTypes[];
+    
+    [Description (
+        "An array of free-form strings providing more information "
+        "on the ChassisTypes array entries. Note, each entry of this "
+        "array is related to the entry in ChassisTypes that is "
+        "located at the same index."),
+        ArrayType ("Indexed"),
+        ModelCorrespondence {"CIM_Chassis.ChassisTypes"} ]
+    string TypeDescriptions[];
+};
+
+
+// ==================================================================
+// ChassisInRack
+// ==================================================================
+[Association, Aggregation, Version ("2.6.0"), Description (
+    "Racks, as simple enclosures, contain Chassis that provide "
+    "the physical componentry realizing processing nodes, "
+    "storage devices, UPSs, etc. The ChassisInRack association "
+    "makes explicit the 'containing' relationship between the "
+    "Rack and the Chassis.") ]
+class CIM_ChassisInRack : CIM_Container {
+    
+    [Override ("GroupComponent"), Aggregate, Max (1),
+        Description ("The Rack that contains the Chassis.") ]
+    CIM_Rack REF GroupComponent;
+    
+    [Override ("PartComponent"),
+        Description ("The Chassis which is mounted in the Rack.") ]
+    CIM_Chassis REF PartComponent;
+    
+    [Description (
+        "An integer indicating the lowest or 'bottom' U in which "
+        "the Chassis is mounted. A 'U' is a standard unit of "
+        "measure for the height of a Rack or rack-mountable "
+        "component. It is equal to 1.75 inches or 4.445 cm."),
+        Units ("Us") ]
+    uint16 BottomU;
+};
+
+
+// ==================================================================
+// PackageInChassis
+// ==================================================================
+[Association, Aggregation, Version ("2.6.0"), Description (
+    "A Chassis can contain other Packages, such as other Chassis "
+    "and Cards. The PackageInChassis association makes explicit "
+    "this relationship.") ]
+class CIM_PackageInChassis : CIM_Container {
+    
+    [Override ("GroupComponent"), Aggregate, Max (1), Description (
+        "The Chassis that contains other PhysicalPackages.") ]
+    CIM_Chassis REF GroupComponent;
+    
+    [Override ("PartComponent"), Description (
+        "The PhysicalPackage which is contained in the Chassis.") ]
+    CIM_PhysicalPackage REF PartComponent;
+};
+
+
+// ==================================================================
+// Docked
+// ==================================================================
+[Association, Version ("2.6.0"), Description (
+    "A laptop, a type of Chassis, may be docked in another "
+    "type of Chassis, a Docking Station. This is the relationship "
+    "represented by the Docked association. Because this is "
+    "such a typical relationship, it is explicitly described."),
+    MappingStrings {"MIF.DMTF|Dynamic States|001.2"} ]
+class CIM_Docked : CIM_Dependency {
+    
+    [Override ("Antecedent"),
+        Max (1), Description ("The Docking Station.") ]
+    CIM_Chassis REF Antecedent;
+    
+    [Override ("Dependent"),
+        Max (1), Description ("The Laptop that is 'Docked'.") ]
+    CIM_Chassis REF Dependent;
+};
+
+
+// ===================================================================
+// end of file
+// ===================================================================

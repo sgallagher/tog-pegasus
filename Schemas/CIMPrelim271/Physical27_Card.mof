@@ -1,0 +1,256 @@
+// ===================================================================
+// Title:       Physical Card 2.7
+// Filename:    Physical27_Card.mof
+// Version:     2.7.1
+// Release:     Preliminary 
+// Date:        November 12 2002 
+// ===================================================================
+// Copyright 2002 Distributed Management Task Force, Inc. (DMTF).
+// All rights reserved.  
+// DMTF is a not-for-profit association of industry members dedicated 
+// to promoting enterprise and systems management and interoperability. 
+// DMTF specifications and documents may be reproduced for uses
+// consistent with this purpose by members and non-members, 
+// provided that correct attribution is given. 
+// As DMTF specifications may be revised from time to time, 
+// the particular version and release date should always be noted.
+//
+// Implementation of certain elements of this standard or proposed 
+// standard may be subject to third party patent rights, including 
+// provisional patent rights (herein "patent rights"). DMTF makes 
+// no representations to users of the standard as to the existence 
+// of such rights, and is not responsible to recognize, disclose, or
+// identify any or all such third party patent right, owners or 
+// claimants, nor for any incomplete or inaccurate identification or 
+// disclosure of such rights, owners or claimants. DMTF shall have no 
+// liability to any party, in any manner or circumstance, under any 
+// legal theory whatsoever, for failure to recognize, disclose, or 
+// identify any such third party patent rights, or for such party's
+// reliance on the standard or incorporation thereof in its product, 
+// protocols or testing procedures. DMTF shall have no liability to 
+// any party implementing such standard, whether such implementation 
+// is foreseeable or not, nor to any patent owner or claimant, and shall 
+// have no liability or responsibility for costs or losses incurred if 
+// a standard is withdrawn or modified after publication, and shall be
+// indemnified and held harmless by any party implementing the 
+// standard from any and all claims of infringement by a patent owner 
+// for such implementations.
+//
+// For information about patents held by third-parties which have 
+// notified the DMTF that, in their opinion, such patent may relate to 
+// or impact implementations of DMTF standards, visit 
+// http://www.dmtf.org/about/policies/disclosures.php.
+// ===================================================================
+// Description: The Physical Model defines modeling concepts related
+//              to actual boxes and packaging. This file defines the 
+//              concepts related to packaging of Cards.
+//
+//              The object classes below are listed in an order that
+//              avoids forward references. Required objects, defined 
+//              by other working groups, are omitted.
+// ==================================================================
+// Change Log for v2.7.1
+// CR920 - Move the CIM_Card related classes to a Physical27_Card MOF 
+//         from Physical27_Package and Physical27_Connector
+// ==================================================================
+
+#pragma locale ("en_US")
+
+
+// ==================================================================
+// Card
+// ==================================================================
+[Version ("2.6.0"), Description (
+    "The Card class represents a type of physical container that "
+    "can be plugged into another Card or HostingBoard, or is "
+    "itself a HostingBoard/Motherboard in a Chassis. The CIM_Card "
+    "class includes any package capable of carrying signals and "
+    "providing a mounting point for PhysicalComponents, such as "
+    "Chips, or other PhysicalPackages, such as other Cards.") ]
+class CIM_Card : CIM_PhysicalPackage {
+    
+    [Description (
+        "Boolean indicating that this Card is a Motherboard or, "
+        "more generically, a baseboard in a Chassis.") ]
+    boolean HostingBoard;
+    
+    [Description (
+        "SlotLayout is a free-form string that describes the "
+        "slot positioning, typical usage, restrictions, individual "
+        "slot spacings or any other pertinent information for the "
+        "slots on a Card.") ]
+    string SlotLayout;
+    
+    [Description (
+        "Boolean indicating that at least one daughterboard or "
+        "auxiliary Card is required in order to function properly.") ]
+    boolean RequiresDaughterBoard;
+    
+    [Description ("Boolean indicating that this Card is physically "
+        "unique from other Cards of the same type and therefore "
+        "requires a special Slot. For example, a double-wide Card "
+        "requires two Slots. Another example is where a certain Card "
+        "may be used for the same general function as other Cards but "
+        "requires a special Slot (e.g., extra long), whereas the "
+        "other Cards can be placed in any available Slot. "
+        "If set to TRUE, then the corresponding property, "
+        "RequirementsDescription, should specify the nature of the "
+        "uniqueness or purpose of the Card."),
+        ModelCorrespondence{"CIM_Card.RequirementsDescription"} ]
+    boolean SpecialRequirements;
+    
+    [Description ("A free-form string describing the way(s) in which "
+        "this Card is physically unique from other Cards. This "
+        "property only has meaning when the corresponding boolean "
+        "property, SpecialRequirements, is set to TRUE."),
+        ModelCorrespondence{"CIM_Card.SpecialRequirements"} ]
+    string RequirementsDescription;
+    
+    [Description ("Operating voltages required by the Card."),
+        Units("MilliVolts") ]
+    sint16 OperatingVoltages[];
+    
+    [Description (
+        "This method manipulates the power to a PhysicalConnector on "
+        "a Card. It is intended to be used by a Card (especially by a "
+        "motherboard - i.e., HostingBoard=TRUE) to turn the power on "
+        "and off for a specific PhysicalConnector located on it. For "
+        "example, in a personal computer, a system slot does not know "
+        "how to turn itself on and off. However, the motherboard "
+        "hosting this slot may have that capability. This is important "
+        "in order to support hot swapping of an adapter card in a "
+        "system slot. The method should return 0 if successful, 1 if "
+        "the request is not supported, and some other value if any "
+        "other error occurred. In a subclass, the set of possible "
+        "return codes could be specified, using a ValueMap qualifier "
+        "on the method. The strings to which the ValueMap contents are "
+        "'translated' may also be specified in the subclass as a "
+        "Values array qualifier.") ]
+    uint32 ConnectorPower(
+        [IN] 
+        CIM_PhysicalConnector REF Connector,
+        [IN] 
+        boolean PoweredOn);
+};
+
+
+// ==================================================================
+// SystemBusCard
+// ==================================================================
+[Version ("2.7.0"), Description (
+    "The SystemBusCard class represents additional information "
+    "for a CIM_Card, detailing the Card's bus type and data width. "
+    "These properties dictate the type of Slot into which the Card "
+    "can be inserted. For example, using the properties of this "
+    "class, one can define that a Card is a PCI, 64 bit adapter.") ]
+class CIM_SystemBusCard : CIM_Card {
+    
+    [Description (
+        "An enumerated integer describing the System bus type for "
+        "this Card. It indicates the type of Slot into which the "
+        "Card can plug. The list of permissible values aligns with "
+        "the System bus types in CIM_PhysicalConnector.Connector"
+        "Type."),
+        ValueMap {"43", "44", "45", "46", "47", "48", "49", "50", 
+            "52", 
+            "64", "65", 
+            "73", "74", "75", "76", "77", "78", "79", 
+            "80", "81", "82", "83", "84", "85", "86", "87", 
+            "98", "99", 
+            "100", "101", "102", "103", "104", "105", "106", 
+            "109", "110", "111"},
+        Values {
+            // 43
+            "PCI", "ISA", "EISA", "VESA", "PCMCIA", 
+            "PCMCIA Type I", "PCMCIA Type II", "PCMCIA Type III", 
+            // 52
+            "CardBus", 
+            // 64
+            "Access.bus", "NuBus", 
+            // 73
+            "AGP", "VME Bus", "VME64", "Proprietary", 
+            "Proprietary Processor Card Slot", 
+            "Proprietary Memory Card Slot", 
+            "Proprietary I/O Riser Slot", 
+            // 80
+            "PCI-66MHZ", "AGP2X", "AGP4X", "PC-98", "PC-98-Hireso", 
+            "PC-H98", "PC-98Note", "PC-98Full", 
+            // 98
+            "PCI-X", "Sbus IEEE 1396-1993 32 bit", 
+            // 100
+            "Sbus IEEE 1396-1993 64 bit", "MCA", "GIO", "XIO", 
+            "HIO", "NGIO", "PMC", 
+            // 109
+            "Future I/O", "InfiniBand", "AGP8X"},
+        ModelCorrespondence {"CIM_PhysicalConnector.ConnectorType"} ]
+    uint16 BusType;
+    
+    [Description (
+        "System bus width (in bits) required by this Card. If "
+        "'unknown', enter 0. If 'other' than the values, 8, 16, "
+        "32, 64 or 128, enter 1. The list of permissible values "
+        "aligns with the data in CIM_Slot.MaxBusWidth."),
+        Units ("Bits"),
+        ValueMap {"0", "1", "8", "16", "32", "64", "128"},
+        ModelCorrespondence {"CIM_Slot.MaxBusWidth"} ]
+    uint16 BusWidth;
+};
+
+
+// ==================================================================
+// CardOnCard
+// ==================================================================
+[Association, Aggregation, Version ("2.6.0"), Description (
+    "Cards may be plugged into Motherboards/baseboards, are "
+    "daughtercards of an adapter, or support special Card-like "
+    "modules. These relationships are described by the CardOnCard "
+    "association.") ]
+class CIM_CardOnCard : CIM_Container {
+    
+    [Override ("GroupComponent"), Aggregate,  Max (1), Description (
+        "The Card that hosts another Card.") ]
+    CIM_Card REF GroupComponent;
+    
+    [Override ("PartComponent"), Description (
+        "The Card that is plugged into or otherwise mounted on "
+        "another Card.") ]
+    CIM_Card REF PartComponent;
+    
+    [Description (
+        "A string describing and identifying how the Card is "
+        "mounted on or plugged into the 'other' Card. Slot "
+        "information could be included in this field and may be "
+        "sufficient for certain management purposes. If so, "
+        "this avoids creating instantiations of Connector/Slot "
+        "objects just to model the relationship of Cards to "
+        "HostingBoards or other adapters. On the other hand, "
+        "if Slot and Connector information is available, this "
+        "field could be used to provide more detailed mounting "
+        "or slot insertion data.") ]
+    string MountOrSlotDescription;
+};
+
+
+// ==================================================================
+// CardInSlot 
+// ==================================================================
+[Association, Version ("2.6.0"), Description (
+    "Slots are special types of Connectors into which adapter "
+    "Cards are inserted. This relationship of a Card in a Slot "
+    "is made explicit using the CardInSlot association."),
+    MappingStrings {"MIF.DMTF|System Slot|005.4"} ]
+class CIM_CardInSlot : CIM_PackageInSlot {
+    
+    [Override ("Antecedent"), Description (
+        "The Slot into which the Card is inserted.") ]
+    CIM_Slot REF Antecedent;
+    
+    [Override ("Dependent"), Max (1), Description (
+        "The Card in the Slot.") ]
+    CIM_Card REF Dependent;
+};
+
+
+// ===================================================================
+// end of file
+// ===================================================================

@@ -1,0 +1,1242 @@
+// ===================================================================
+// Title:       Network MPLS 2.7
+// Filename:    Network27_MPLS.mof
+// Version:     2.7.1
+// Status:      Preliminary
+// Date:        November 12 2002
+// ===================================================================
+// Copyright 1998-2002 Distributed Management Task Force, Inc. (DMTF).
+// All rights reserved.  
+// DMTF is a not-for-profit association of industry members dedicated 
+// to promoting enterprise and systems management and interoperability. 
+// DMTF specifications and documents may be reproduced for uses
+// consistent with this purpose by members and non-members, 
+// provided that correct attribution is given. 
+// As DMTF specifications may be revised from time to time, 
+// the particular version and release date should always be noted.
+//
+// Implementation of certain elements of this standard or proposed 
+// standard may be subject to third party patent rights, including 
+// provisional patent rights (herein "patent rights"). DMTF makes 
+// no representations to users of the standard as to the existence 
+// of such rights, and is not responsible to recognize, disclose, or
+// identify any or all such third party patent right, owners or 
+// claimants, nor for any incomplete or inaccurate identification or 
+// disclosure of such rights, owners or claimants. DMTF shall have no 
+// liability to any party, in any manner or circumstance, under any 
+// legal theory whatsoever, for failure to recognize, disclose, or 
+// identify any such third party patent rights, or for such party's
+// reliance on the standard or incorporation thereof in its product, 
+// protocols or testing procedures. DMTF shall have no liability to 
+// any party implementing such standard, whether such implementation 
+// is foreseeable or not, nor to any patent owner or claimant, and shall 
+// have no liability or responsibility for costs or losses incurred if 
+// a standard is withdrawn or modified after publication, and shall be
+// indemnified and held harmless by any party implementing the 
+// standard from any and all claims of infringement by a patent owner 
+// for such implementations.
+//
+// For information about patents held by third-parties which have 
+// notified the DMTF that, in their opinion, such patent may relate to 
+// or impact implementations of DMTF standards, visit 
+// http://www.dmtf.org/about/policies/disclosures.php.
+// ===================================================================
+// Description: The Network Model extends the management concepts to
+//              represent protocol interfaces and network/protocol 
+//              services.  This file defines concepts in support of 
+//              managing MPLS (Multi-Protocol Label Switching).  
+//
+//              The object classes below are listed in an order that
+//              avoids forward references. Required objects, defined 
+//              by other working groups, are omitted.
+// ==================================================================
+// Change Log for v2.7.1
+// CR920 - Add missing parenthesis to the Description for MPLSTunnel.
+//         IncludeAnyAffinity
+// 
+// Change Log for v2.7
+// CR790 - Add classes to support MPLS
+// CR805 - Add MPLSSpecifiedRoute, MPLSSpecifiedNextHop,
+//         MPSLComputedNextHop, and RouteSpecifiedForLSP     
+// CR853 - MPLS Model changes: MPLSQoSPRTrfcProf should subclass from
+//         SettingData and several property names are updated in 
+//         MPLSSegmentStats  
+// CR905 - MPLS cleanup and updates
+//         Add - MPLSTunnel, MPLSReverseDirectionTunnel, 
+//          MPLSTunnelHops, MPLSNextTunnelHop, 
+//          MPLSFecOfTunnel and MPLSTunnelStats
+//         Remove - MPLSSpecifiedRoute, MPLSSpecifedNextHop, 
+//          MPLSComputedNextHop, RouteSpecifiedForLSP, 
+//          MPLSLSPTunnel, MPLSTrafficTrunk, 
+//          MPLSFecOfTrafficTrunk, MPLSFecOfLSP 
+//          and MPLSBiDirectionalTrunks
+// CR907 - MPLS cleanup and updates
+//         Add - MPLSTunnelHop and HostedMPLSTunnelHop
+//         Rename MPLSTunnelHops to MPLSHopInTunnel
+//         Rename MPLSNextTunnelHop to MPLSNextHopInTunnel
+//         Change reference from MPLSTrafficTrunk to MPLSTunnel
+//          in MPLSCurrentlyAssignedLSP and MPLSBackupLSP
+//         Rename MPLSTunnel.TunnelingSignalingProtocol to 
+//          TunnelSignalingProtocol
+//         Remove .IsPinned, .LocalProtectionAvailable, .IsAdaptive, 
+//          and .IsDynamicallyRouted properties from MPLSLSP
+//         Promote properties of MPLSTEService to MPLSService, 
+//          and remove MPLSTEService
+//         Rename MPLSTunnelStats.MPLSTunnelStateTransitions to
+//          TunnelStateTransitions
+//          
+// ===================================================================
+ 
+#pragma Locale ("en_US")
+
+// ==================================================================
+// MPLSService
+// ==================================================================
+   [Experimental, Version ("2.7.0"), Description (
+      "This object class contains properties relating to the "
+      "overall operation of MPLS on a router. This service is "
+      "weak to the router (modeled as a ComputerSystem) via "
+      "the association CIM_HostedService.") ]
+class CIM_MPLSService: CIM_Service {
+
+        [Description (
+         "Path computation may be configured to be more or less "
+         "reactive to network state. It may be desirable to have "
+         "different values on different LSRs. Also, certain "
+         "tunnels may not be re-optimized. This property specifies "
+         "the re-optimization frequency for the LSR, in seconds. "
+         "Default is 3600 (1 hour). The maximum interval is "
+         "604800 seconds (1 week). A value of 0 disables re-"
+         "optimization."),
+         Units ("Seconds"), MaxValue (604800) ]
+    uint32 ReoptimizationFreq = 3600; 
+
+        [Description (
+         "Specifies the time interval in seconds at which traffic "
+         "engineering information is flooded. Shorter intervals lead to "
+         "more control overhead, more traffic in the network and more "
+         "cycles wasted in processing this information at the routers. "
+         "On the other hand longer intervals, make the route "
+         "chosen for the tunnels to be less optimal with "
+         "respect to the state of the network."),
+         Units ("Seconds") ]
+    uint16 FloodingInterval;
+
+        [Description (
+         "This property describes what happens when the MPLSTEService "
+         "obtains knowledge about a new link coming into operation. "
+         "The value 'OnLinkUp' (1) denotes that immediately after "
+         "detecting the new link, a re-optimization step is performed."
+         "'NextTimeInSchedule' (2) waits until the next time a re-"
+         "optimization needs to take place. The frequency is  "
+         "defined by the ReoptimizationFreq property. And, 'Manual"
+         "Trigger' (3) means the re-optimization MUST be triggered "
+         "by manual interaction such as a human operator triggering "
+         "the re-optimization."),
+         ValueMap {"0", "1", "2", "3"},
+         Values {"Unknown",  "OnLinkUp", "NextTimeInSchedule", 
+            "ManualTrigger"} ]
+    uint16 ReoptimizationLinkUp;
+};
+
+
+// ==================================================================
+// MPLSCapabilities
+// ==================================================================
+   [Experimental, Version ("2.7.0"), Description (
+      "This class specifies the capabilities of an MPLSService "
+      "or MPLSProtocolEndpoint (interface) on a Label Switched "
+      "Router (LSR). The association CIM_ElementCapabilities relates "
+      "the instance with its MPLS Service and/or Endpoint.") ]
+class CIM_MPLSCapabilities : CIM_Capabilities {
+
+        [Description (
+         "This is the minimum value of an MPLS label that this "
+         "Endpoint or MPLSService is willing to receive. The values "
+         "of an MPLSProtocolEndpoint may overrule the values "
+         "specified for the LSR as a whole, based on the Endpoint's "
+         "boolean property OverruleLSR."),
+         MappingStrings {
+            "MIB.IETF|MPLS-LSR-MIB.MPLSInterfaceLabelMinIn"} ]
+    uint32 LabelMinIn;
+
+        [Description (
+         "This is the maximum value of an MPLS label that this "
+         "Endpoint or MPLSService is willing to receive. The values "
+         "of an MPLSProtocolEndpoint may overrule the values "
+         "specified for the LSR as a whole, based on the Endpoint's "
+         "boolean property OverruleLSR."),
+         MappingStrings {
+            "MIB.IETF|MPLS-LSR-MIB.MPLSInterfaceLabelMaxIn"} ]
+    uint32 LabelMaxIn;
+
+        [Description (
+         "This is the minimum value of an MPLS label that this "
+         "Endpoint or MPLSService is willing to send. The values "
+         "of an MPLSProtocolEndpoint may overrule the values "
+         "specified for the LSR as a whole, based on the Endpoint's "
+         "boolean property OverruleLSR.") ,
+         MappingStrings {
+            "MIB.IETF|MPLS-LSR-MIB.MPLSInterfaceLabelMinOut"} ]
+    uint32 LabelMinOut;
+
+        [Description (
+         "This is the maximum value of an MPLS label that this "
+         "Endpoint or MPLSService is willing to send. The values of "
+         "an MPLSProtocolEndpoint may overrule the values specified "
+         "for the LSR as a whole, based on the Endpoint's boolean "
+         "property OverruleLSR."),
+         MappingStrings {
+            "MIB.IETF|MPLS-LSR-MIB.MPLSInterfaceLabelMaxOut"} ]
+    uint32 LabelMaxOut;
+};
+
+
+// ==================================================================
+// MPLSProtocolEndpointStats
+// ==================================================================
+   [Experimental, Version ("2.7.0"), Description (
+      "This class represents the statistics for an MPLSProtocol"
+      "Endpoint. The statistics are associated with the Endpoint "
+      "using the relationship CIM_ElementStatisticalData.") ]
+class CIM_MPLSProtocolEndpointStats : CIM_StatisticalData {
+
+        [Gauge, Description (
+         "This object contains the number of top-most labels "
+         "that are in use at this point in time on this "
+         "interface in the incoming direction."),
+         MappingStrings {
+            "MIB.IETF|MPLS-LSR-MIB.MPLSInterfaceInLabelsUsed"} ]
+    uint32 InLabelsUsed;
+
+        [Gauge, Description (
+         "This object contains the number of top-most labels "
+         "that are in use at this point in time on this "
+         "interface in the outgoing direction."),
+         MappingStrings {
+            "MIB.IETF|MPLS-LSR-MIB.MPLSInterfaceOutLabelsUsed"} ]
+    uint32 OutLabelsUsed;
+
+        [Counter, Description (
+         "This object counts the number of labeled packets "
+         "that have been received on this interface and were "
+         "discarded because there was no matching cross-connect "
+         "entry."),
+         MappingStrings {
+            "MIB.IETF|MPLS-LSR-MIB.MPLSInterfaceFailedLabelLookup"} ]
+    uint32 FailedLabelLookups;
+   
+        [Counter, Description (
+         "This object counts the number of outgoing MPLS "
+         "packets that required fragmentation before "
+         "transmission on this interface."),
+         MappingStrings {
+            "MIB.IETF|MPLS-LSR-MIB.MPLSInterfaceOutFragments"} ]
+    uint32 NumberOfPacketsFragmented;
+};
+
+
+// ==================================================================
+// MPLSLSP
+// ==================================================================
+   [Experimental, Version ("2.7.0"), Description (
+      "This class is used to represent an MPLS Label Switch Path "
+      "(LSP). This is usually a path from an ingress to an egress "
+      "label edge router, through a sequence of label switch routers. "
+      "Sometimes an LSP is a series of hop-by-hop LSPs that go from "
+      "the ingress to egress LSRs. For example, using unordered "
+      "downstream unsolicited mode in LDP, the result is a "
+      "series of 'mini' LSPs along the path, each with incoming and "
+      "outgoing labels, and a FEC to accept traffic onto the 'mini' "
+      "LSP at each hop. \n"
+      "\n"
+      "An instance describes either an existing LSP, or the user's "
+      "configurations of one to be established in the network. The "
+      "boolean property, Established, indicates the state of the "
+      "instance. \n"
+      "\n"
+      "Note that MPLSLSP subclasses from EnabledLogicalElement. "
+      "This allows (via inherited properties) the explicit "
+      "enabling and disabling of the path, as well as the ability "
+      "to request that the path be 'tested' or shut down.") ]
+class CIM_MPLSLSP : CIM_EnabledLogicalElement {
+
+        [Key, Description (
+         "InstanceID opaquely identifies a unique instance of "
+         "MPLSLSP.  The InstanceID must be unique within a namespace. "
+         "In order to ensure uniqueness, the value of InstanceID "
+         "should be constructed in the following manner:  " 
+         "The instance id consists of the IPAddress of the "
+         "ingress LSR, combined with the LocalLSPId found in "
+         "this class.") ]
+    string InstanceID;
+
+        [Write, Description (
+         "Boolean indicating whether or not the LSP currently exists "
+         "in the network. Note that if the LSP is not established, "
+         "then the OperationalStatus properties inherited from Managed"
+         "SystemElement have no meaning.") ]
+    boolean Established;
+
+        [Description (
+         "Property to indicate the nesting level of this LSP. Note "
+         "that this a shortcut counting the number of instances of the "
+         "MPLSLSPInLSP association. It is advantageous to determine the "
+         "nesting level directly, instead of traversing several "
+         "associations to do so.") ]
+    uint16 NestingLevel;
+
+        [Required, Description (
+         "Property indicating a unique (per ingress LSR) LSP ID.") ]
+    uint16 LocalLSPId;
+
+        [Description (
+         "The IP addresses of the ingress node(s) (LERs) of the path. "
+         "This is an array to allow for multipoint LSPs.") ]
+    string IngressIPAddresses[];
+
+        [Description (
+         "The IP addresses of the egress node(s) (LERs) of the path."
+         "This is an array to allow for multipoint LSPs.") ]
+    string EgressIPAddresses[];
+
+        [Description (
+         "Flag to indicate that the LSP ingress node may choose to "
+         "reroute this LSP without tearing it down.") ]
+    boolean IngressMayReroute;
+
+        [Description (
+         "Flag to indicate that this LSP should be restored "
+         "automatically after a failure occurs.") ]
+    boolean IsPersistent;
+
+};
+
+
+// ==================================================================
+// MPLSTunnel
+// ==================================================================
+   [Experimental, Version ("2.7.0"), Description (
+      "This class represents an MPLS traffic engineering tunnel as "
+      "defined in RFC 3031.") ]
+class CIM_MPLSTunnel : CIM_EnabledLogicalElement {
+ 
+        [Key, Description (
+         "InstanceID opaquely identifies a unique instance of "
+         "SettingData.  The InstanceID must be unique within a "
+         "namespace. In order to ensure uniqueness, the value of "
+         "InstanceID SHOULD be constructed in the following manner: \n"
+         "<Vendor ID><ID> \n"
+         "   <Vendor ID> MUST include a copyrighted, trademarked "
+         "or otherwise unique name that is owned by the business entity "
+         "or a registered ID that is assigned to the business entity "
+         "that is defining the InstanceID. (This is similar to the "
+         "<Schema Name>_<Class Name> structure of Schema class names.) "
+         "The purpose of <Vendor ID> is to ensure that <ID> is truly "
+         "unique across multiple vendor implementations.   If such a "
+         "name is not used, the defining entity MUST assure that the "
+         "<ID> portion of the Instance ID is unique when compared with "
+         "other instance providers. For DMTF defined instances, the "
+         "<Vendor ID> is 'CIM'. \n"
+         "   <ID> MUST include a vendor specified unique "
+         "identifier.")]
+    string InstanceID;
+ 
+        [Write, Description (
+         "Boolean indicating whether or not the tunnel is currently "
+         "signaled. Note that if the tunnel is not established, then "
+         "the OperationalStatus properties inherited from Managed"
+         "SystemElement have no meaning.") ]
+    boolean Established;
+ 
+        [Description (
+         "The IsResilient property indicates the recovery procedure " 
+         "to be applied to tunnels whose paths are impacted by faults. " 
+         "More specifically, it contains a boolean value that " 
+         "determines whether the tunnel is to be rerouted "
+         "or not, when segments of its path fail. If set to true, "
+         "the tunnel should be rerouted in case of failure; "
+         "if false, it should not (which means that other means are "
+         "applied, e.g. lower layer technologies for rerouting.)") ]
+    boolean IsResilient;
+ 
+        [Description (
+         "The bandwidth property denotes the complete bandwidth "
+         "(in kilobits per second) required to be transported by the "
+         "tunnel. Note, that the bandwidth is not directly implemented/"
+         "configured in a router, but the MPLSTunnel's Reserved"
+         "Bandwidth property might be derived from this "
+         "information."), 
+         Units ("KiloBits per Second") ]
+    uint32 Bandwidth;
+ 
+        [Description (
+         "Reserved bandwidth for this tunnel in kilobits per second. "
+         "In a load sharing environment, the bandwidth on each tunnel "
+         "is set to be proportional to how traffic should be balanced. "
+         "An LSR then load-shares into the tunnels based on the "
+         "aggregate bandwidth. Note that it is possible to signal 0 "
+         "bandwidth for a pure best-effort tunnel."), 
+         Units ("KiloBits per Second") ]
+    uint32 ReservedBandwidth;
+ 
+        [Description (
+         "Active bandwidth for this tunnel in kilobits per second. If "
+         "the tunnel is not yet Established, then this property has "
+         "no meaning. Knowing current Bandwidth is important because "
+         "several path options may be configured for the tunnel. Note "
+         "that it is possible to signal 0 bandwidth for a pure best-"
+         "effort tunnel."), 
+         Units ("KiloBits per Second") ]
+    uint32 ActiveBandwidth;
+ 
+        [Description (
+         "Due to changes in network and traffic characteristics, "
+         "there may be a need to periodically change the paths of "
+         "tunnels for optimization purposes. This should not be done "
+         "too frequently as it could adversely affect the stability "
+         "of the network. This property indicates how often such "
+         "reoptimization should be performed for a specific tunnel. "
+         "Note that the class, CIM_MPLSTEService, also has a "
+         "reoptimization frequency property. The frequency specified "
+         "in this class is specific to a particular tunnel, whereas "
+         "the MPLSTEService's frequency is per service, on a "
+         "Label Switched Router."),
+         Units ("Seconds"), MaxValue (604800) ]
+    uint32 ReoptimizationFreq = 3600;
+ 
+        [Description (
+         "Indicates whether the tunnel is a candidate for "
+         "re-optimization at all. If true the ReoptimizationFreq "
+         "property should be taken into account. "
+         "By default, a tunnel is re-optimized periodically.") ]
+    boolean Lockdown = true;
+ 
+        [Description (
+         "Resource classes and resource class affinities are "
+         "described in [RFC2702]. Resource classes can be associated "
+         "with links and advertised in routing protocols.  Resource "
+         "class affinities are used by RSVP-TE [RFC3209]. "
+         "In order to be used, a link MUST pass three tests. One "
+         "of them is against this property. \n"
+         "\n"
+         "ExcludeAllAffinity is one type of resource class affinity. "
+         "It specifies a set of attribute filters for the tunnel, "
+         "and a match on any of the filters renders a link "
+         "unacceptable (it is excluded for consideration). "
+         "This test takes the form, \n"
+         "(MPLSProtocolEndpoint.ResourceClass & ExcludeAllAffinity) "
+         "== 0"),      
+         MappingStrings {
+            "MIB.IETF|MPLS-TE-MIB.MPLSTunnelExcludeAllAffinity"} ]
+    uint32 ExcludeAllAffinity;
+ 
+        [Description (
+         "Resource classes and resource class affinities are "
+         "described in [RFC2702]. Resource classes can be associated "
+         "with links and advertised in routing protocols.  Resource "
+         "class affinities are used by RSVP-TE [RFC3209]. "
+         "In order to be used, a link MUST pass three tests. One "
+         "of them against this property. \n"
+         "\n"
+         "IncludeAllAffinity is one type of resource class affinity. "
+         "It specifies a set of attribute filters for the tunnel, "
+         "and all of the filters must match for a link to be "
+         "acceptable (i.e., pass this test). If IncludeAllAffinity "
+         "is zero, then the test automatically passes. The test "
+         "takes the form, \n"
+         "(IncludeAllAffinity == 0) ||  "
+         "(((MPLSProtocolEndpoint.ResourceClass & IncludeAllAffinity) "
+         "^ IncludeAllAffinity) == 0)"),
+         MappingStrings {
+            "MIB.IETF|MPLS-TE-MIB.MPLSTunnelIncludeAllAffinity"} ]
+    uint32 IncludeAllAffinity;
+   
+        [Description (
+         "Resource classes and resource class affinities are "
+         "described in [RFC2702]. Resource classes can be associated "
+         "with links and advertised in routing protocols.  Resource "
+         "class affinities are used by RSVP-TE [RFC3209]. "
+         "In order to be used, a link MUST pass three tests. One "
+         "of them against this property. \n"
+         "\n"
+         "IncludeAnyAffinity is one type of resource class affinity. "
+         "It specifies a set of attribute filters for the tunnel, "
+         "and any of the filters must match for a link to be "
+         "acceptable (i.e., pass this test). If IncludeAllAffinity "
+         "is zero, then the test automatically passes. The test "
+         "takes the form, \n"
+         "(IncludeAnyAffinity == 0) || "
+         "((MPLSProtocolEndpoint.ResourceClass & IncludeAnyAffinity) "
+         "!= 0)"),
+         MappingStrings {
+            "MIB.IETF|MPLS-TE-MIB.MPLSTunnelIncludeAnyAffinity"} ]
+    uint32 IncludeAnyAffinity;
+ 
+        [MinValue (0), MaxValue (7), Description (
+         "Property to indicate the holding priority of an "
+         "established tunnel. If the tunnel is not yet established, this "
+         "property has no meaning. A new tunnel is allowed to preempt the "
+         "resources of this tunnel only if its SetupPriority is smaller "
+         "than the HoldingPriority of the established one. (See RFC3209 "
+         "for additional information.) The value 0 is the highest "
+         "priority."), 
+         MappingStrings {"MIB.IETF|MPLS-TE-MIB.mplsTunnelHoldingPrio"} ] 
+    uint8 HoldingPriority;
+    
+        [MinValue (0), MaxValue (7), Description (
+         "Guaranteed bandwidth tunnels can have setup and preemption "
+         "priorities associated with them. These priorities determine "
+         "if an existing tunnel can be preempted by a new one. The "
+         "SetupPriority of the new tunnel is compared to the Holding"
+         "Priority of the established one, to determine if the new "
+         "tunnel can preempt the existing one. It does preempt if the "
+         "SetupPriority in smaller than the HoldingPriority. "
+         "Note that the value 0 is the highest priority."), 
+         MappingStrings {"MIB.IETF|MPLS-TE-MIB.mplsTunnelSetupPrio"} ]
+    uint8 SetupPriority;
+ 
+        [Description (
+         "Flag to indicate that this tunnel should be restored "
+         "automatically after a failure occurs.") ]
+    boolean IsPersistent;
+ 
+        [Description (
+         "Flag to indicate whether the loosely-routed hops of this "
+         "tunnel are to be pinned.") ]
+    boolean IsPinned;
+ 
+        [Description (
+         "Flag to indicate that transit routers are permitted to use "
+         "a local repair mechanism which may result in violation of "
+         "the explicit routing of this tunnel. When a fault is detected "
+         "on an adjacent downstream link or node, a transit router can "
+         "reroute traffic for fast service restoration.") ]
+    boolean LocalProtectionAvailable;
+ 
+        [Description (
+         "In some situations, it is necessary to reroute a tunnel "
+         "without disrupting traffic. This flag indicates whether "
+         "the tunnel's route is adaptive. ") ]
+    boolean IsAdaptive;
+   
+        [Description (
+         "Flag to indicate whether the route for the tunnel is "
+         "selected dynamically based on routing protocols - as "
+         "opposed to being specified 'statically' via configuration, "
+         "where a network operator or other external entity specifies "
+         "the path of the tunnel hop by hop.") ]
+    boolean IsDynamicallyRouted;
+ 
+       [Description (
+        "Flag to indicate that the tunnel ingress node may choose to "
+        "reroute this tunnel without tearing it down.") ]
+    boolean IngressMayReroute;
+ 
+       [Description (
+        "The purpose of this object is to uniquely identity a "
+        "tunnel within a network. When the MPLS signaling "
+        "protocol is rsvp(3), this value SHOULD mimic the "
+        "Extended Tunnel Id field in the SESSION object. "
+        "When the MPLS signaling protoocol is crldp(4), this "
+        "value SHOULD mimic the Ingress LSR Router ID field "
+        "in the LSPID TLV object."),
+        ModelCorrespondence {
+           "CIM_MPLSTunnel.TunnelingSignalingProtocol"} ]
+    uint32 IngressLSRId;
+ 
+       [Description (
+        "ID of egress LSR.") ]
+    uint32 EgressLSRId;
+ 
+       [Override ("ElementName"), Description (
+        "The canonical name assigned to the tunnel. This name "
+        "can be used to refer to the tunnel on the LSR's "
+        "console port.") ]
+    string ElementName;
+  
+       [Description (
+        "The signaling protocol, if any, which was used to "
+        "setup this tunnel."),
+        ValueMap {"0", "1", "2", "3", "4"},
+        Values {"Unknown", "Other", "None", "RSVP", "CRLDP"} ]
+    uint8 TunnelSignalingProtocol;
+ 
+       [Description (
+        "Indicates which protocol created and is responsible "
+        "for managing this tunnel. Values rsvp(3) and "
+        "crldp(4) should NOT be used at the head-end of an "
+        "MPLS tunnel."),
+        ValueMap {"0", "1", "2", "3", "4", "5"},
+        Values {"Unknown", "Other", "Admin", "RSVP", "CRDLP", 
+           "Policy Agent"}]
+    uint8 TunnelManagementOwner;
+ 
+       [Description ( 
+        "This value represents the priority for a tunnel in "
+        "descending order, with 0 indicating the lowest priority, "
+        "within a group of tunnels used for redundancy/load sharing. "
+        "Tunnel group priorities are used to denote the priority at "
+        "which a particular tunnel instance will supercede "
+        "another. Instances of tunnels containing the same "
+        "TunnelInstancePriority will be used for load "
+        "sharing.") ]
+    uint32 TunnelInstancePriority ;
+ 
+       [Description (
+        "This property signifies the role that this tunnel "
+        "entry/instance represents. The value MUST be set "
+        "to head(2) at the originating point of the tunnel, to "
+        "transit(3) at transit points along the tunnel (if transit "
+        "points are supported), and to tail(4) at the "
+        " terminating point of the tunnel (if tunnel tails are"
+        "supported)."),
+        ValueMap {"0", "2", "3", "4"},
+        Values {"Unknown", "Head", "Transit", "Tail"} ]
+    uint16 TunnelRole;
+};
+  
+
+// ==================================================================
+// MPLSReverseDirectionTunnel
+// ==================================================================
+   [Association, Experimental, Version ("2.7.0"), Description (
+      "Tunnels are unidirectional. This association relates two "
+      "TE tunnels that carry traffic in reverse directions, "
+      "creating a bi-directional connection.") ]
+class CIM_MPLSReverseDirectionTunnel : CIM_Dependency {
+ 
+        [Override ("Antecedent"), Max (1), Description (
+         "An MPLSTunnel, which operates in the reverse direction of "
+         "the Dependent reference.") ]
+    CIM_MPLSTunnel REF Antecedent;
+ 
+        [Override ("Dependent"), Max (1), Description (
+         "An MPLSTunnel, which operates in the reverse direction of "
+         "the Antecedent reference.") ]
+    CIM_MPLSTunnel REF Dependent;
+};
+
+ 
+// ==================================================================
+// MPLSTunnelHop
+// ==================================================================
+   [Experimental, Version ("2.7.0"), Description (
+      "A destination in an MPLS tunnel. This may be specified "
+      "by the user, calculated for the tunnel or actually in use. "
+      "These different aspects are indicated by the HopDerivation "
+      "enumeration.") ]
+class CIM_MPLSTunnelHop : CIM_RemoteServiceAccessPoint {
+
+        [Description (
+         "The method used to determine the destination."),
+         ValueMap {"0", "2", "3"},
+         Values {"Unknown", "User", "Calculated"} ]
+    uint16 HopDerivation;
+}; 
+
+
+// ==================================================================
+// MPLSHopInTunnel
+// ==================================================================
+   [Association, Experimental, Version ("2.7.0"), Description (
+      "This association represents the relationship between the "
+      "tunnel head-end and the first hop in the tunnel's path. "
+      "The hop may be of type Specified, Computed, or Actual.") ]
+class CIM_MPLSHopInTunnel : CIM_Dependency {
+ 
+        [Override ("Antecedent"), Description (
+         "The head-end of an MPLS traffic engineering tunnel.") ]
+    CIM_MPLSTunnelHop REF Antecedent;
+ 
+        [Override ("Dependent"), Description (
+         "The MPLSTunnel whose first hop is described.") ]
+    CIM_MPLSTunnel REF Dependent;
+};
+ 
+ 
+// ==================================================================
+// MPLSNextHopInTunnel
+// ==================================================================
+   [Association, Experimental, Version ("2.7.0"), Description (
+      "This association represents the relationship between two "
+      "consecutive tunnels hops." ) ]
+class CIM_MPLSNextHopInTunnel : CIM_Dependency {
+ 
+        [Override ("Antecedent"), Max (1), Description (
+         "Current MPLSTunnel hop.") ]
+    CIM_MPLSTunnelHop REF Antecedent;
+ 
+        [Override ("Dependent"), Max (1), Description (
+         "Next MPLSTunnel hop for the traversed path.") ]
+    CIM_MPLSTunnelHop REF Dependent;
+};
+
+ 
+// ==================================================================
+// HostedMPLSTunnelHop
+// ==================================================================
+   [Association, Experimental, Version ("2.7.0"), Description (
+    "HostedMPLSTunnelHop defines a MPLSTunnelHop in the context of a "
+    "scoping AutonomousSystem. It represents a MPLSTunnelHop that only "
+    "has meaning in the context of an AutonomousSystem.") ]
+class CIM_HostedMPLSTunnelHop : CIM_Dependency {
+
+        [Override ("Antecedent"), Min (1), Max (1), Description (
+         "The scoping system.") ] 
+    CIM_AutonomousSystem REF Antecedent;
+      
+        [Override ("Dependent"), Description (
+         "The collection defined in the context of a system.") ] 
+    CIM_MPLSTunnelHop REF Dependent;
+};
+ 
+
+// ==================================================================
+// MPLSFecOfTunnel
+// ==================================================================
+   [Association, Experimental, Version ("2.7.0"), Description (
+      "This association defines the forwarding equivalency class "
+      "(FEC) for a traffic engineering tunnel. It is typically just "
+      "an IP destination address - and can be defined using a "
+      "FilterList. Although this is not truly a filter on the tunnel, "
+      "the FilterList class is reused to describe the traffic on the "
+      "tunnel.") ]
+class CIM_MPLSFecOfTunnel : CIM_Dependency {
+ 
+        [Override ("Antecedent"), Max (1), Description (
+         "The FilterList defining the FEC of the MPLSTunnel.") ]
+    CIM_FilterList REF Antecedent;
+ 
+        [Override ("Dependent"), Description (
+         "The MPLSTunnel.") ]
+    CIM_MPLSTunnel REF Dependent;
+};
+ 
+  
+// ==================================================================
+// MPLSTunnelStats
+// ==================================================================
+   [Experimental, Version ("2.7.0"), Description (
+      "This class represents the statistics for an MPLSTunnel. "
+      "The statistics are associated to the tunnel "
+      "using the relationship, CIM_ElementStatisticalData.") ]
+class CIM_MPLSTunnelStats : CIM_StatisticalData {
+ 
+        [Counter, Description (
+         "Specifies the total time the primary tunnel has been "
+         "active. A primary tunnel is found/designated in situations "
+         "where multiple tunnels exist - i.e., when parallel or backup "
+         "tunnels are defined."),
+         MappingStrings {
+            "MIB.IETF|MPLS-TE-MIB.MPLSTunnelPrimaryTimeUp"},
+         Units ("Hundredths of a Second"), MaxValue (4294967295)]
+    uint32 TunnelPrimaryTimeUp;
+ 
+        [Counter, Description (
+         "Specifies the number of times the paths have changed "
+         "for this tunnel."),
+         MappingStrings {
+            "MIB.IETF|MPLS-TE-MIB.MPLSTunnelPathChanges"} ]
+    uint32 TunnelPathChanges;
+ 
+        [Counter, Description (
+         "Specifies the time since the last path change for "
+         "this tunnel."),
+         MappingStrings {
+            "MIB.IETF|MPLS-TE-MIB.MPLSTunnelLastPathChange"},
+         Units ("Hundredths of a Second"), MaxValue (4294967295)]
+    uint32 TunnelLastPathChange;
+ 
+        [Counter, Description (
+         "Specifies the number of times the operational status of "
+         "this tunnel has changed."),
+         MappingStrings {
+            "MIB.IETF|MPLS-TE-MIB.MPLSTunnelStateTransitions"} ]
+    uint32 TunnelStateTransitions;
+  
+        [Counter, Description (
+         "This value identifies the total time for which the "
+         "the OperationalStatus of the tunnel is up (i.e., \"OK\"=2)."),
+         MappingStrings {
+            "MIB.IETF|MPLS-TE-MIB.MPLSTunnelInstanceUpTime"},
+         Units ("Hundredths of a Second") ]
+    uint32 TunnelInstanceUpTime;
+};
+
+
+// ==================================================================
+// MPLSPerformance
+// ==================================================================
+   [Experimental, Version ("2.7.0"), Description (
+      "This class contains performance information for MPLS entities "
+      "such as an MPLS Endpoint or LSP Tunnel. The statistics are "
+      "associated with the MPSL entity, using the general "
+      "CIM_ElementStatisticalData relationship.") ]
+class CIM_MPLSPerformance: CIM_StatisticalData {
+
+        [Counter, Description (
+         "Denotes the number of packets lost.") ]
+    uint32 NumberOfPacketsLost;
+
+        [Counter, Description (
+         "Denotes the number of packets successfully transmitted.") ]
+    uint32 NumberOfPacketsTransmitted;
+
+        [Counter, Description (
+         "Denotes the number of octets transmitted.") ]
+    uint32 NumberOfOctets;
+
+        [Gauge, Description (
+         "Denotes the average delay of the packets transmitted in "
+         "milliseconds."),
+         Units ("MilliSeconds") ]
+    uint16 Delay;
+
+        [MinValue (0), MaxValue (100000), Description (
+         "Denotes availability in hundredths of a percent."),
+         Units ("Hundredths of Percent") ]
+    uint16 Availability;
+};
+
+
+// ==================================================================
+// MPLSSegment
+// ==================================================================
+   [Abstract, Experimental, Version ("2.7.0"), Description (
+      "This class is abstract, and generalizes the notion of incoming "
+      "and outgoing MPLS segments on an interface/MPLSProtocolEndpoint. "
+      "(Both In and Out Segment subclasses are derived from "
+      "MPLSSegment.) An instance is defined in the context of an "
+      "MPLSProtocolEndpoint. This is specified using the association, "
+      "CIM_MPLSSegmentOnProtocolEP.") ]
+class CIM_MPLSSegment : CIM_LogicalElement {
+
+        [Key, Description (
+         "InstanceID opaquely identifies a unique instance of "
+         "MPLSSegment. The InstanceID must be unique within a "
+         "namespace. In order to ensure uniqueness, the value of "
+         "InstanceID should be constructed in the following manner: \n"
+         "<ID of the MPLSProtocolEndpoint>.<InLabel or TopLabel>") ]
+    string InstanceID;
+
+        [Description (
+         "Denotes the entity that created and is responsible "
+         "for managing this Segment. Note that the MappingString "
+         "is depending on the instantiated class and corresponds to "
+         "InSegmentOwner or OutSegmentOwner."),
+         ValueMap {"0", "1", "2", "3", "4", "5", "6", "7"},
+         Values {"Unknown", "Other", "SNMP", "LDT", "RSVP",
+            "CR-LDP", "Policy Agent", "CLI"}, 
+         ModelCorrespondence {"CIM_MPLSSegment.OtherOwner"},
+         MappingStrings {"MIB.IETF|MPLS-LSR-MIB.MPLSInSegmentOwner", 
+            "MIB.IETF|MPLS-LSR-MIB.MPLSIOutSegmentOwner"} ]
+    uint16 SegmentOwner;
+   
+        [Description (
+         "If property SegmentOwner has a value 1 (\"Other\"), "
+         "this property contains a string explaining the entity "
+         "that created and manages the Segment."),
+         ModelCorrespondence {"CIM_MPLSSegment.SegmentOwner"} ]
+    string OtherOwner;
+};
+
+
+// ==================================================================
+// MPLSSegmentStats
+// ==================================================================
+   [Experimental, Version ("2.7.0"), Description (
+      "The class represents the statistics for an In or Out "
+      "MPLSSegment. The statistics are associated to the Segment "
+      "using the relationship CIM_ElementStatisticalData.") ]
+class CIM_MPLSSegmentStats : CIM_StatisticalData {
+
+        [Counter, Description (
+         "This value represents the total number of octets "
+         "received/sent by this Segment. Whether it denotes "
+         "In or Out Segments depends on the instance "
+         "associated with MPLSSegmentStats."),
+         MappingStrings {"MIB.IETF|MPLS-LSR-MIB.MPLSInSegmentOctets", 
+            "MIB.IETF|MPLS-LSR-MIB.MPLSIOutSegmentOctets"} ]
+    uint32 NumberOfOctets;
+
+        [Counter, Description (
+         "Total number of packets received/sent by this Segment. "
+         "Whether this value denotes In or Out Segments depends on "
+         "the instance associated with MPLSSegmentStats."), 
+         MappingStrings {"MIB.IETF|MPLS-LSR-MIB.MPLSInSegmentPackets", 
+            "MIB.IETF|MPLS-LSR-MIB.MPLSOutSegmentPackets"} ]
+    uint32 NumberOfPackets;
+
+        [Counter, Description (
+         "The number of errored packets received/sent on this Segment."
+         "Whether this value denotes In or Out Segments depends on "
+         "the instance associated with MPLSSegmentStats."), 
+         MappingStrings {"MIB.IETF|MPLS-LSR-MIB.MPLSInSegmentErrors",
+            "MIB.IETF|MPLS-LSR-MIB.MPLSIOutSegmentErrors"} ]
+    uint32 NumberOfErrors;
+
+        [Counter, Description (
+         "The number of labeled packets received/sent on this "
+         "Segment, which were chosen to be discarded even "
+         "though no errors had been detected to prevent their "
+         "being transmitted.  One possible reason for "
+         "discarding such a labeled packet could be to free up "
+         "buffer space. Whether this value denotes In or Out "
+         "Segments depends on the instance associated with "
+         "MPLSSegmentStats."), 
+         MappingStrings {"MIB.IETF|MPLS-LSR-MIB.MPLSInSegmentDiscards", 
+            "MIB.IETF|MPLS-LSR-MIB.MPLSIOutSegmentDiscards"} ]
+    uint32 NumberOfDiscards;
+};
+
+
+// ==================================================================
+// MPLSInSegment
+// ==================================================================
+   [Experimental, Version ("2.7.0"), Description (
+      "This class represents an incoming Segment on an MPLS "
+      "interface.") ]
+class CIM_MPLSInSegment : CIM_MPLSSegment {
+
+        [Required, Description (
+         "The incoming label for this segment."),
+         MappingStrings {"MIB.IETF|MPLS-LSR-MIB.MPLSInSegmentLabel"} ]
+    uint32 InLabel;
+
+        [Description (
+         "The number of labels to pop from the incoming packet. "
+         "Normally only the top label is popped from the packet, and "
+         "used for all switching decisions. Note that technologies which "
+         "do not support label popping should leave this value at its "
+         "default (1)."),
+         MappingStrings {"MIB.IETF|MPLS-LSR-MIB.MPLSInSegmentNPop"} ]
+    uint32 NPop = 1;
+
+        [Description (
+         "Describes the address type expected on the incoming Segment. "
+         "This is used when the last label is popped to know to which "
+         "IP stack the packet is forwarded."),
+         ValueMap {"0", "1", "2"},
+         Values {"Unknown", "IPv4", "IPv6"},
+         MappingStrings {"MIB.IETF|MPLS-LSR-MIB.MPLSInSegmentAddrFamily"} ]
+    uint16 AddressType;
+};
+
+
+// ==================================================================
+// MPLSOutSegment
+// ==================================================================
+   [Experimental, Version ("2.7.0"), Description (
+      "This class represents an outgoing Segment on an MPLS "
+      "interface.") ]
+class CIM_MPLSOutSegment : CIM_MPLSSegment {
+
+        [Description (
+         "This value indicates whether or not a top label "
+         "should be pushed onto the outgoing packet's label "
+         "stack.  The value of this variable must be set to "
+         "true if the outgoing interface does not support pop-"
+         "and-go (for example an ATM interface) or if it is a "
+         "tunnel origination."),
+         MappingStrings {
+            "MIB.IETF|MPLS-LSR-MIB.MPLSOutSegmentPushTopLabel"} ]
+    boolean PushTopLabel = true;
+
+        [Required, Description (
+         "If the property, PushTopLabel, is true then this "
+         "represents the label that should be pushed onto the "
+         "top of the outgoing packet's label stack. If PushTopLabel "
+         "is false, then the value should be 0."),
+         ModelCorrespondence {"CIM_MPLSOutSegment.PushTopLabel"}, 
+         MappingStrings {
+            "MIB.IETF|MPLS-LSR-MIB.MPLSOutSegmentTopLabel"} ]
+    uint32 TopLabel;
+};
+
+
+// ==================================================================
+// MPLSCrossConnect
+// ==================================================================
+   [Experimental, Version ("2.7.0"), Description (
+      "This class specifies information for switching "
+      "between Segments within a LSR. It is scoped by a Computer"
+      "System, that is the Label Switched Router, via "
+      "the HostedService association. Specific In/Out Segments are "
+      "associated with the cross-connect using the relationship, "
+      "MPLSSegmentInXC. The service can support point-to-point, "
+      "point-to-multipoint and multipoint-to-point connections "
+      "by defining multiple instances of the association. "
+      "CrossConnect Services can be aggregated into an "
+      "overarching MPLSService using the CIM_ServiceComponent "
+      "association. And, the LSP to which the CrossConnect "
+      "belongs is indicated by the association, CrossConnectLSP.") ]
+class CIM_MPLSCrossConnect : CIM_Service {
+
+        [Description (
+         "Denotes whether or not this CrossConnect entry and "
+         "associated In and Out Segments should be restored "
+         "automatically after failures."),
+         MappingStrings {"MIB.IETF|MPLS-LSR-MIB.MPLSXCIsPersistent"} ]
+    boolean IsPersistent;
+
+        [Description (
+         "Identifies a stack of labels to be pushed beneath the top "
+         "label. Note that the top label identified in an instance of "
+         "OutSegment ensures that all the components of a "
+         "multipoint-to-point connection have the same "
+         "outgoing label. This array is 'Ordered' to maintain the "
+         "sequence of entries."),
+         ArrayType ("Ordered") ]
+    uint16 LabelStack[];
+};
+
+
+// ==================================================================
+// MPLSQosPRTrfcProf
+// ==================================================================
+   [Experimental, Version ("2.7.0"), Description (
+      "A QoS traffic profile, which is associated to an LSP when "
+      "QoS is guaranteed. The association ElementSetting "
+      "ties the Setting to the LSP.") ]
+class CIM_MPLSQosPRTrfcProf : CIM_SettingData {
+
+        [Description (
+         "The peak traffic rate in kilobits per second."),
+         Units ("KiloBits per Second") ]
+    uint32 PRRate;
+
+        [Description ("Traffic burst size in bytes."),
+         Units ("Bytes") ]
+    uint16 PRNormalBurst;
+
+        [Description ("Traffic excess burst in bytes."), 
+         Units ("Bytes") ]
+    uint16 PRExcessBurst;
+};
+
+
+// ==================================================================
+// MPLSCRLSPTrfcProf
+// ==================================================================
+   [Experimental, Version ("2.7.0"), Description (
+      "Class to represent the Constraint-based Routed LSP (CR-LSP) "
+      "traffic parameters as specified in [RFC3212].") ]
+class CIM_MPLSCRLSPTrfcProf : CIM_MPLSQosPRTrfcProf {
+
+        [Description (
+         "Property to indicate at what granularity the CDR "
+         "(allocated to the CR-LSP) is made available."),
+         ValueMap {"0", "1", "2"},
+         Values {"Unspecified", "Frequently", "Very Frequently"} ]
+    uint16 CRLSPFrequency;
+
+        [MinValue (0), MaxValue (100), Description (
+         "Property to indicate the CR-LSP's relative share (in "
+         "percent) of the possible excess bandwidth above its "
+         "committed rate."),
+         Units ("Percent") ]
+    uint8 CRLSPWeight;
+
+        [Description (
+         "Property to indicate the CR-LSP's committed data rate in "
+         "bytes per second."),
+         Units ("Bytes per Second") ]
+    uint16 CRLSPCommitedDataRate;
+
+        [Description (
+         "Property to indicate the CR-LSP's committed burst size in "
+         "bytes."),
+         Units ("Bytes") ]
+    uint16 CRLSPCommitedBurstSize;
+};
+
+
+// ==================================================================
+// MPLSSegmentOnProtocolEP
+// ==================================================================
+   [Association, Experimental, Version ("2.7.0"),  
+    Description (
+      "An MPLSSegment is defined in the context of an MPLS "
+      "Endpoint. This association makes that relationship explicit.") ]
+class CIM_MPLSSegmentOnProtocolEP : CIM_Dependency {
+
+        [Override ("Antecedent"), Min (1), Max (1), Description (
+         "The MPLSProtocolEndpoint which scopes the Segment.") ]
+    CIM_MPLSProtocolEndpoint REF Antecedent;
+
+        [Override ("Dependent"), Description (
+         "An MPLSSegment on the ProtocolEndpoint.") ]
+    CIM_MPLSSegment REF Dependent;
+};
+
+
+// ==================================================================
+// MPLSSegmentInXC
+// ==================================================================
+   [Association, Experimental, Version ("2.7.0"), Description (
+      "Defines the association between an In or Out Segment and a "
+      "CrossConnect Service. The Segment is dependent on the Cross"
+      "Connect for switching within the LSR.") ]
+class CIM_MPLSSegmentInXC : CIM_Dependency {
+
+        [Override ("Antecedent"), Description (
+         "The MPLSCrossConnect.") ]
+    CIM_MPLSCrossConnect REF Antecedent;
+
+        [Override ("Dependent"), Description (
+         "An MPLSSegment dependent on the CrossConnect for "
+         "switching.") ]
+    CIM_MPLSSegment REF Dependent;
+};
+
+
+// ==================================================================
+// MPLSFilterAtXC
+// ==================================================================
+   [Association, Experimental, Version ("2.7.0"), Description (
+      "The association denotes a filter list defining what traffic "
+      "is mapped into the CrossConnect Service. A filter list is "
+      "associated with the CrossConnect at the originating LSR.") ]
+class CIM_MPLSFilterAtXC : CIM_Dependency {
+
+        [Override ("Antecedent"), Max (1), Description (
+         "A FilterList defining what traffic is mapped into "
+         "the CrossConnect Service.") ]
+    CIM_FilterList REF Antecedent;
+
+        [Override ("Dependent"), Description (
+         "The CrossConnect whose traffic is filtered.") ]
+    CIM_MPLSCrossConnect REF Dependent;
+};
+
+
+// ==================================================================
+// MPLSCurrentlyAssignedLSP
+// ==================================================================
+   [Association, Experimental, Version ("2.7.0"), Description (
+      "Associates a traffic trunk with an LSP that is currently "
+      "carrying its traffic.") ]
+class CIM_MPLSCurrentlyAssignedLSP : CIM_Dependency {
+
+        [Override ("Antecedent"), Description (
+         "The LSP carrying the traffic of the trunk.") ]
+    CIM_MPLSLSP REF Antecedent;
+
+        [Override ("Dependent"), Description (
+         "The MPLSTrafficTrunk which is signaling using the LSP.") ]
+    CIM_MPLSTunnel REF Dependent;
+
+        [MinValue (0), MaxValue (7), Description (
+         "The preference for the use of the LSP, if more than one "
+         "LSP is available to a trunk. Possible values are 0 to 7, "
+         "with 7 indicating the highest preference.") ]
+    uint16 Preference;
+
+        [Write, MinValue (0), MaxValue (100), Description (
+         "This property is used to indicate the relative proportion "
+         "of traffic to be carried by parallel LSPs, specified "
+         "as a percentage from 0 to 100. The value is defined by the "
+         "network user/administrator to indicate how a LSPtunnel's "
+         "bandwidth should be set on a router. It allows load "
+         "distribution across multiple parallel LSP tunnels, between "
+         "two nodes. Quoting from RFC2702, 'In many practical "
+         "situations, the aggregate traffic between two nodes may be "
+         "such that no single link can carry the load. In this case, "
+         "the only feasible solution is to appropriately divide the "
+         "aggregate traffic into sub-streams and route the sub-streams "
+         "through multiple paths between the two nodes. This problem can "
+         "be addressed by instantiating multiple LSP tunnels between the "
+         "two nodes, such that each traffic trunk carries a proportion "
+         "of the aggregate traffic.' The proportion of traffic "
+         "carried by each such LSP tunnel is specified by the "
+         "TrafficProportion property."), 
+         Units ("Percent") ]
+    uint8 TrafficProportion;
+};
+
+
+// ==================================================================
+// MPLSBackupLSP
+// ==================================================================
+   [Association, Experimental, Version ("2.7.0"), Description (
+      "Identifies an LSP as a backup LSP for a traffic trunk.") ]
+class CIM_MPLSBackupLSP : CIM_Dependency {
+
+        [Override ("Antecedent"), Description (
+         "The backup LSP for the traffic trunk.") ]
+    CIM_MPLSLSP REF Antecedent;
+
+        [Override ("Dependent"), Description (
+         "The traffic trunk using the LSP for backup.") ]
+    CIM_MPLSTunnel REF Dependent;
+
+        [MinValue (0), MaxValue (7), Description (
+         "The preference for the use of the LSP, if more than one "
+         "LSP is available to a trunk. Possible values are 0 to 7, "
+         "with 7 indicating the highest preference.") ]
+    uint16 Preference;
+};
+
+
+// ==================================================================
+// MPLSLSPInLSP
+// ==================================================================
+   [Association, Experimental, Version ("2.7.0"), Aggregation, 
+    Composition, Description (
+      "Defines the nesting relationship of LSPs within LSPs. "
+      "Arbitrary hierarchies of LSPs are possible.") ]
+class CIM_MPLSLSPInLSP : CIM_Component {
+
+        [Override ("GroupComponent"), Aggregate, Description (
+         "The higher-level LSP containing another LSP.") ]
+    CIM_MPLSLSP REF GroupComponent;
+
+        [Override ("PartComponent"), Description (
+         "The LSP that is nested in the one referenced as "
+         "GroupComponent.") ]
+    CIM_MPLSLSP REF PartComponent;
+};
+
+
+// ==================================================================
+// MPLSCrossConnectLSP
+// ==================================================================
+   [Association, Experimental, Version ("2.7.0"), Description (
+      "Defines the LSP to which the CrossConnect belongs.") ]
+class CIM_MPLSCrossConnectLSP : CIM_Dependency {
+
+        [Override ("Antecedent"), Max (1), 
+         Description ("The LSP.") ]
+    CIM_MPLSLSP REF Antecedent;
+
+        [Override ("Dependent"), Description (
+         "The CrossConnect belonging to the LSP.") ]
+    CIM_MPLSCrossConnect REF Dependent;
+
+        [Description (
+         "The XcType property defines whether a CrossConnect is at "
+         "the terminating end (\"Term\", 1), or originating end "
+         "(\"Orig\", 2) of an LSP. A value of 4, \"Normal\", "
+         "indicates the CrossConnect is switching through an LSP "
+         "on an intermediate node. A value of 3, \"Special\", "
+         "implies a terminating LSP for special traffic, e.g. "
+         "signaling neighbor discovery, etc. Reserved MPLS labels "
+         "with values 0 through 15 are used."),
+         ValueMap {"1", "2", "3", "4"},
+         Values {"Term", "Orig", "Special", "Normal"} ]
+    uint16 XcType;
+
+       [Description (
+        "This property defines the order of the CrossConnects in an"
+        "LSP. An incrementally higher number indicates the next Cross"
+        "Connect in the ordered sequence. Note that the first "
+        "CrossConnect must be of type 'Orig', and the last of "
+        "type 'Term' (see the property, XcType).") ]
+    uint16 XcOrder;
+};
+
+
+// ===================================================================
+// end of file
+// ===================================================================

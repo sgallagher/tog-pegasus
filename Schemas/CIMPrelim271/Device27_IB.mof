@@ -1,0 +1,290 @@
+// ===================================================================
+// Title:       Device Infiniband 2.7
+// Filename:    Device27_IB.mof
+// Version:     2.7.0
+// Release:     Preliminary 
+// Date:        07/17/02
+// ===================================================================
+// Copyright 2002 Distributed Management Task Force, Inc. (DMTF).
+// All rights reserved.  
+// DMTF is a not-for-profit association of industry members dedicated 
+// to promoting enterprise and systems management and interoperability. 
+// DMTF specifications and documents may be reproduced for uses
+// consistent with this purpose by members and non-members, 
+// provided that correct attribution is given. 
+// As DMTF specifications may be revised from time to time, 
+// the particular version and release date should always be noted.
+//
+// Implementation of certain elements of this standard or proposed 
+// standard may be subject to third party patent rights, including 
+// provisional patent rights (herein "patent rights"). DMTF makes 
+// no representations to users of the standard as to the existence 
+// of such rights, and is not responsible to recognize, disclose, or
+// identify any or all such third party patent right, owners or 
+// claimants, nor for any incomplete or inaccurate identification or 
+// disclosure of such rights, owners or claimants. DMTF shall have no 
+// liability to any party, in any manner or circumstance, under any 
+// legal theory whatsoever, for failure to recognize, disclose, or 
+// identify any such third party patent rights, or for such party's
+// reliance on the standard or incorporation thereof in its product, 
+// protocols or testing procedures. DMTF shall have no liability to 
+// any party implementing such standard, whether such implementation 
+// is foreseeable or not, nor to any patent owner or claimant, and shall 
+// have no liability or responsibility for costs or losses incurred if 
+// a standard is withdrawn or modified after publication, and shall be
+// indemnified and held harmless by any party implementing the 
+// standard from any and all claims of infringement by a patent owner 
+// for such implementations.
+//
+// For information about patents held by third-parties which have 
+// notified the DMTF that, in their opinion, such patent may relate to 
+// or impact implementations of DMTF standards, visit 
+// http://www.dmtf.org/about/policies/disclosures.php.
+// ===================================================================
+// Description: The Device Model extends the management concepts that
+//              are related to LogicalDevices. This file defines the 
+//              classes to manage Infiniband devices.
+//
+//              The object classes below are listed in an order that
+//              avoids forward references. Required objects, defined 
+//              by other working groups, are omitted.
+// ==================================================================
+// Change Log for v2.7
+// CR631 - Add IBPortStatistics
+// CR633 - Add IBPort
+// CR783 - Add IBPortController
+//       - Modify IBPort
+// ================================================================== 
+
+#pragma locale ("en_US")
+
+
+// ==================================================================
+// IBPort 
+// ==================================================================
+[Experimental, Version ("2.7.0"), Description (
+    "Management information and capabilities of an InfiniBand Port "
+    "and Channel Adapter. Each port of an IB Channel Adapter "
+    "independently provides the physical, link and network "
+    "protocol layers of its container IBA Device.  Multiple "
+    "ports of a container IBA Device share the transport layer "
+    "functionality among the ports.  An IBA Port represents "
+    "attributes of \"link port\" and/or \"end port\".") ]
+class CIM_IBPort  : CIM_NetworkPort {    
+    
+    [Override ("Speed"), Description (
+        "The Speed property is derived from the product of "
+        "LinkWidthActive and LinkSpeedActive. This is the actual "
+        "speed of the connection.") ]
+    uint64 Speed;
+    
+    [Override ("MaxSpeed"), Description (
+        "The Max speed of the connection is derived from the product "
+        "of LinkSpeedEnabled and LinkWidthAvailable.") ]
+    uint64 MaxSpeed;
+    
+    [Override ("PermanentAddress"), Description (
+        "The GUID of this port.") ]
+    string PermanentAddress;
+    
+    [Override ("NetworkAddresses"), Description (
+        "The LIDs of this port.  The first entry should always contain"
+        "the base LID.") ]
+    string NetworkAddresses[];
+    
+    [Write, MinValue(1), MaxValue(128), Description (
+        "The LID Mask Control value provides a way to have multiple "
+        "addresses for a single path.  The number of LIDs assigned "
+        "to a port range from 1 to 128 unicast LIDs.  The LIDMask "
+        "can be set to define the LID assignments of the port."),
+        Mappingstrings {"MAD.IBTA | PortInfo | LMC"} ]
+    uint8 LIDMask;  
+    
+    [Override("PortType"), Description (
+        "The type of port; e.g. switch, router, channel adapter." ),
+        ValueMap { "1", "50", "51", "52", "16000.." }, 
+        Values { "Unknown", "Switch", "Router",                
+            "Channel Adapter", "Vendor Specific" } ]
+    uint16 PortType;
+    
+    [Description (
+        "Currently active link width.  Only one width should be "
+        "selected.  Therefore, the only valid values are 1 (1x), "
+        "2 (4x), and 8 (12x)."),
+        BitMap {"0","1", "3"},
+        BitValues {"1x", "4x", "12x"},
+        Mappingstrings {"MAD.IBTA | PortInfo | LinkWidthActive"} ]
+    uint16 LinkWidthActive;
+    
+    [Description (
+        "Current active link speed. It is a component of the "
+        "ports actual speed. Actual speed is calculated by the "
+        "product of LinkSpeedActive times LinkWidthActive."),
+        BitMap {"0"},
+        BitValues {"2.5"},
+        Units ("GigaBits"),
+        Mappingstrings {"MAD.IBTA | PortInfo | LinkSpeedActive"} ]
+    uint8 LinkSpeedActive;
+};
+
+
+// ===================================================================
+// IBPortController
+// ===================================================================
+[Experimental, Version("2.7.0"), Description (
+    "IBPortController is a logical device corresponding "
+    "to an IB Channel Adapter (CA).") ]
+class CIM_IBPortController : CIM_PortController {
+ 
+    [Description (
+        "The AdapterDiagnosticCode provides both generic and vendor-"
+        "specific diagnostic functionality.  For all ports, all bits "
+        "set to zero means the port status is good.  Any non-zero "
+        "value means there are possible error conditions."),
+        Mappingstrings {"MAD.IBTA | PortInfo | DiagCode"} ]
+    uint32 AdapterDiagnosticCode;
+};
+ 
+
+// ===================================================================
+// IBSubnetManager
+// =================================================================== 
+[Version("2.7.0"), Description (
+    "An Infiniband Subnet Manager (SM) is an entity responsible "
+    "for configuring and managing an IB subnet. It uses Subnet "
+    "Management Agents (SMA) to access and manage individual "
+    "nodes. The SM is hosted in the context of a specific "
+    "computer system (i.e., hosted by an instance of "
+    "UnitaryComputerSystem), as described by the HostedService "
+    "association. Note that there may be multiple SMs operating "
+    "in a subnet, but only the elected master is allowed to "
+    "perform configuration functions.") ]
+class CIM_IBSubnetManager : CIM_Service {
+    
+    [Description (
+        "Administratively assigned priority for this SM, used to "
+        "establish the master. A higher number indicates a higher "
+        "priority and likelihood of becoming the master. The property "
+        "value can be reset by the master SM."),
+        Write,
+        MappingStrings {"MAD.IBTA | SMInfo | Priority"} ]
+    uint8 Priority;
+    
+    [Description (
+        "Enumerated value that indicates the Subnet Manager's State. "
+        "The values are fairly self-explanatory except for \"Not "
+        "Active\". This value indicates that the SM is available to "
+        "participate in the subnet, but has not been given "
+        "permission.  A value \"Unknown\" (0) is also defined."),
+        ValueMap {"0", "1", "2", "3", "4"},
+        Values {"Unknown", "Not Active", "Discovering", "Standby", 
+            "Master"},
+        MappingStrings {"MAD.IBTA | SMInfo | SMState"} ]
+    uint16 State;
+};
+
+
+// ==================================================================
+// IBPortStatistics
+// ==================================================================
+[Experimental, Version ("2.7.0"), Description (
+    "The class, IBPortStatistics, represents the statistics for "
+    "the IBPort.") ]
+class CIM_IBPortStatistics : CIM_NetworkPortStatistics {
+      
+    [Counter, Description (
+        "Total number of symbol errors detected on one or more "
+        "VLs."),
+        Mappingstrings {"MAD.IBTA | PortCounters | SymbolErrorCounter"} ]
+    uint16 SymbolErrorCounter;
+    
+    [Counter, Description (
+        "Total number of times the Port Training state machine "
+        "has successfully completed the link error recovery "
+        "process."), 
+        Mappingstrings {
+            "MAD.IBTA | PortCounters | LinkErrorRecoveryCounter"} ]
+    uint16 LinkErrorRecoveryCounter;
+    
+    [Counter, Description (
+        "Total number of times the Port Training state machine "
+        "has failed the link error recovery process and downed "
+        "the link."), 
+        Mappingstrings {"MAD.IBTA | PortCounters | LinkDownedCounter"} ]
+    uint16 LinkDownedCounter;
+    
+    [Counter, Description (
+        "Total number of packets containing an error that were "
+        "received on the port."),
+        Mappingstrings {"MAD.IBTA | PortCounters | PortRcvErrors"} ]
+    uint16 PortRcvErrors;
+    
+    [Counter, Description (
+        "Total number of packets marked with the EBP delimiter "
+        "received on the port."), 
+        Mappingstrings {
+            "MAD.IBTA | PortCounters | PortRcvRemotePhysicalErrors"} ]
+    uint16 PortRcvRemotePhysicalErrors;
+      
+    [Counter, Description (
+        "Total number of packets received on the port that "
+        "were discarded because they could not be forwarded "
+        "by the switch relay."), 
+        Mappingstrings {
+            "MAD.IBTA | PortCounters | PortRcvSwitchRelayErrors"} ]
+    uint16 PortRcvSwitchRelayErrors;
+      
+    [Counter, Description (
+        "Total number of outbound packets discarded by the "
+        "port because the port is down or congested."), 
+        Mappingstrings {"MAD.IBTA | PortCounters | PortXmitDiscards"} ]
+    uint16 PortXmitDiscards;
+      
+    [Counter, Description (
+        "Total number of packets not transmitted from the port "
+        "for any of the following reasons: \n"
+        "  - FilterRawOutbound is true and packet is raw \n"
+        "  - PartitionEnforcementOutbound is true and packet "
+        "fails partition key check, IP version check, or \n"
+        "transport header version check."),
+        Mappingstrings {
+            "MAD.IBTA | PortCounters | PortXmitConstraintErrors"} ]
+    uint16 PortXmitConstraintErrors;
+ 
+    [Counter, Description (
+        "Total number of packets received on the port that are "
+        "discarded for any of the following reasons: \n"
+        "  - FilterRawInbound is true and packet is raw "
+        "  - PartitionEnforcementInbound is true and packet "
+        "fails partition key check, IP version check, or "
+        "transport header version check."),
+        Mappingstrings {
+            "MAD.IBTA | PortCounters | PortRcvConstraintErrors"} ]
+    uint16 PortRcvConstraintErrors;
+      
+    [Counter, Description (
+        "The number of times that the frequency of packets "
+        "containing local physical errors exceeded "
+        "the local physical error threshold."),
+        Mappingstrings {
+            "MAD.IBTA | PortCounters | LocalLinkIntegrityErrors"} ]
+    uint16 LocalLinkIntegrityErrors;
+      
+    [Counter, Description (
+        "The number of times that consecutive flow control "
+        "update periods had at least one overrun error."),
+        Mappingstrings {
+            "MAD.IBTA | PortCounters | ExcessiveBufferOverrunErrors"} ]
+    uint16 ExcessiveBufferOverrunErrors;
+      
+    [Counter, Description (
+        "Number of incoming VL15 packets dropped due to "
+        "resource limitations (due to lack of buffers)."),
+        Mappingstrings {"MAD.IBTA | PortCounters | VL15Dropped"} ]
+    uint16 VL15Dropped;
+};
+
+ 
+// ===================================================================
+// end of file
+// ===================================================================

@@ -1,0 +1,492 @@
+// ===================================================================
+// Title:       Device Fibre Channel 2.7.1
+// Filename:    Device27_FC.mof
+// Version:     2.7.1
+// Release:     Preliminary 
+// Date:        10/21/02
+// ===================================================================
+// Copyright 2002 Distributed Management Task Force, Inc. (DMTF).
+// All rights reserved.  
+// DMTF is a not-for-profit association of industry members dedicated 
+// to promoting enterprise and systems management and interoperability. 
+// DMTF specifications and documents may be reproduced for uses
+// consistent with this purpose by members and non-members, 
+// provided that correct attribution is given. 
+// As DMTF specifications may be revised from time to time, 
+// the particular version and release date should always be noted.
+//
+// Implementation of certain elements of this standard or proposed 
+// standard may be subject to third party patent rights, including 
+// provisional patent rights (herein "patent rights"). DMTF makes 
+// no representations to users of the standard as to the existence 
+// of such rights, and is not responsible to recognize, disclose, or
+// identify any or all such third party patent right, owners or 
+// claimants, nor for any incomplete or inaccurate identification or 
+// disclosure of such rights, owners or claimants. DMTF shall have no 
+// liability to any party, in any manner or circumstance, under any 
+// legal theory whatsoever, for failure to recognize, disclose, or 
+// identify any such third party patent rights, or for such party's
+// reliance on the standard or incorporation thereof in its product, 
+// protocols or testing procedures. DMTF shall have no liability to 
+// any party implementing such standard, whether such implementation 
+// is foreseeable or not, nor to any patent owner or claimant, and shall 
+// have no liability or responsibility for costs or losses incurred if 
+// a standard is withdrawn or modified after publication, and shall be
+// indemnified and held harmless by any party implementing the 
+// standard from any and all claims of infringement by a patent owner 
+// for such implementations.
+//
+// For information about patents held by third-parties which have 
+// notified the DMTF that, in their opinion, such patent may relate to 
+// or impact implementations of DMTF standards, visit 
+// http://www.dmtf.org/about/policies/disclosures.php.
+// ===================================================================
+// Description: The Device Model extends the management concepts that
+//              are related to LogicalDevices. This file defines the 
+//              concepts and classes to manage Fibre Channel devices
+//              and Zones.
+//
+//              The object classes below are listed in an order that
+//              avoids forward references. Required objects, defined 
+//              by other working groups, are omitted.
+// ==================================================================
+// Change Log for v2.7.1
+// CR914 - Remove "5" from the ValueMap for FCPort.SupportedCOS.
+//         There is a mismatch between the Values and ValueMap arrays.
+//
+// Change Log for v2.7
+// CR630 - Add FCPort and FCPortStatistics
+// CR674 - Add ZoneSet, Zone, ZoneAlias, ZoneMemberSettingData,
+//         ZoneService and ZoneCapabilities
+// CR783 - Modify FCPort and FCPortStatistics
+// ================================================================== 
+
+#pragma locale ("en_US")
+
+
+// ==================================================================
+// FCPort
+// ==================================================================
+[Experimental, Version ("2.7.1"), Description (
+    "Capabilities and management of a Fibre Channel Port Device.") ] 
+class CIM_FCPort : CIM_NetworkPort {
+    
+    [Override("PortType"), Description (
+        "The specific mode currently enabled for the Port. "
+        "The values: \"N\" = Node Port, \"NL\" = Node Port "
+        "supporting FC arbitrated loop, \"E\" = Expansion Port "
+        "connecting fabric elements (for example, FC switches), "
+        "\"F\" = Fabric (element) Port, \"FL\" = Fabric (element) "
+        "Port supporting FC arbitrated loop, and \"B\" = Bridge "
+        "Port. PortTypes are defined in the ANSI X3 standards."
+        "When set to 1 (\"Other\"), the related property "
+        "OtherPortType contains a string description of "
+        "the port's type."),
+        ValueMap {"0", "1", "10", "11", "12", "13", "14", "15", 
+            "16", "17", "16000.."},
+        Values {"Unknown", "Other", "N", "NL", "F/NL", "Nx", "E", 
+            "F", "FL", "B", "Vendor Reserved"} ]
+    uint16 PortType;
+
+    [Description (
+        "An array of integers indicating the Fibre Channel Classes of "
+        "Service that are supported. The active COS are indicated in "
+        "ActiveCOS."),
+        ValueMap {"0", "1", "2", "3", "4", "6", "7"},
+        Values {"Unknown", "1", "2", "3", "4", "6", "F"} ]
+    uint16 SupportedCOS[];
+
+    [Description (
+        "An array of integers indicating the Classes of Service that "
+        "are active. The Active COS is indicated in ActiveCOS."),
+        ValueMap {"0", "1", "2", "3", "4", "6", "7"},
+        Values {"Unknown", "1", "2", "3", "4", "6", "F"},
+        ModelCorrespondence {"CIM_FCPort.SupportedCOS"}  ]
+    uint16 ActiveCOS[];
+
+    [Description (
+        "An array of integers indicating the Fibre Channel FC-4 "
+        "protocols supported. The protocols that are active and "
+        "running are indicated in the ActiveFC4Types property."), 
+        ValueMap {"0", "1", "4", "5", "8", "9", 
+            "17", "18", "19", "21", "22", "23", 
+            "25", "26", "27", "28", "32", "34", "36", 
+            "64", "80", "81", "82", "88", "96", "255"}, 
+        Values {"Unknown", "Other", "ISO/IEC 8802 - 2 LLC", 
+            "IP over FC", "SCSI - FCP", "SCSI - GPP", 
+            "IPI - 3 Master", "IPI - 3 Slave", "IPI - 3 Peer", 
+            "CP IPI - 3 Master", "CP IPI - 3 Slave", 
+            "CP IPI - 3 Peer", "SBCCS Channel", 
+            "SBCCS Control Unit", "FC-SB-2 Channel", 
+            "FC-SB-2 Control Unit", 
+            "Fibre Channel Services (FC-GS, FC-GS-2, FC-GS-3)", 
+            "FC-SW", "FC - SNMP", "HIPPI - FP", "BBL Control", 
+            "BBL FDDI Encapsulated LAN PDU", 
+            "BBL 802.3 Encapsulated LAN PDU", "FC - VI", "FC - AV", 
+            "Vendor Unique"} ]
+    uint16 SupportedFC4Types[];
+
+    [Description (
+        "An array of integers indicating the Fibre Channel FC-4 "
+        "protocols currently running. A list of all protocols "
+        "supported is indicated in the SupportedFC4Types property."), 
+        ValueMap {"0", "1", "4", "5", "8", "9", "17", "18", "19", "21", 
+            "22", "23", "25", "26", "27", "28", "32", "34", "36", 
+            "64", "80", "81", "82", "88", "96", "255"}, 
+        Values {"Unknown", "Other", "ISO/IEC 8802 - 2 LLC", 
+            "IP over FC", "SCSI - FCP", "SCSI - GPP", 
+            "IPI - 3 Master", "IPI - 3 Slave", "IPI - 3 Peer", 
+            "SBCCS Channel", 
+            "SBCCS Control Unit", "FC-SB-2 Channel", 
+            "FC-SB-2 Control Unit", 
+            "Fibre Channel Services (FC-GS)", 
+            "FC-SW", "FC - SNMP", "HIPPI - FP", "BBL Control", 
+            "BBL FDDI Encapsulated LAN PDU", 
+            "BBL 802.3 Encapsulated LAN PDU", "FC - VI", "FC - AV", 
+            "Vendor Unique"},
+        ModelCorrespondence {"CIM_FCPort.SupportedFC4Types"}  ]
+    uint16 ActiveFC4Types[];
+};
+ 
+ 
+// ==================================================================
+// ZoneSet
+// ==================================================================
+[Experimental, Version ("2.7.0"), Description (
+    "A ZoneSet is a group of zones that are managed collectively "
+    "by the same domain.  The managing domain is indicated by the "
+    "HostedCollection association.  For example, for Fibre Channel, "
+    "this would indicate a set of zones that are part of a fabric.  "
+    "The zones are only under zone enforcement by the fabric,"
+    "if the zoneset is set to active.") ] 
+class CIM_ZoneSet : CIM_SystemSpecificCollection {
+ 
+    [Override ("ElementName"), Required, Write, Description (  
+        "A user-friendly name for the ZoneSet that is unique "
+        "within the AdminDomain.") ]
+    string ElementName;
+ 
+    [Required, Write, Description (
+        "Indicates that this ZoneSet is currently active (i.e. "
+        "under enforcement of a fabric).  This property can be "
+        "used to distinguish between a ZoneSet that is currently "
+        "active and a snapshot of a ZoneSet (with the same "
+        "InstanceName) that is for \"offline\" editing.") ]
+    boolean Active;
+};
+ 
+ 
+// ==================================================================
+// Zone
+// ==================================================================
+[Experimental, Version ("2.7.0"), Description (
+    "A zone is a group of Ports, Endpoints, Nodes, Zones, and/or "
+    "ZoneAliases that are managed collectively by the same domain.  "
+    "The managing domain is indicated by the HostedCollection "
+    "association.  For Fibre Channel a zones would indicate a set of "
+    "members that are participating together in the fabric.") ]
+class CIM_Zone : CIM_SystemSpecificCollection { 
+ 
+    [Override ("ElementName"), Required, Write, Description (  
+        "A user-friendly name for the Zone that is unique "
+        "within the AdminDomain.") ]
+    string ElementName;
+ 
+    [Required, Description (
+        "Indicates that this Zone is currently active (i.e. "
+        "under enforcement of a fabric).  This property can be "
+        "used to distinguish between a Zone that is currently "
+        "active and a snapshot of a Zone (with the same "
+        "InstanceName) that is for \"offline\" editing.") ]
+    boolean Active;
+    
+    [Required, Description (
+        "The type of zoning to be enforced."),
+        ValueMap {"0", "1", "2", "3", "..", "0x8000.."},
+        Values {"Unknown", "Other", "Default", "Protocol",
+            "DMTF Reserved", "Vendor Reserved"},
+        ModelCorrespondence {"CIM_Zone.OtherZoneTypeDescription"} ]
+    uint16 ZoneType;
+    
+    [Description (
+        "A string describing the ZoneType when the ZoneType value "
+        "is 1 \"Other\"."),
+        ModelCorrespondence {"CIM_Zone.ZoneType"} ]
+    string OtherZoneTypeDescription;
+    
+    [Description (
+        "The protocol that is allowed to participate in the Zone. "
+        "For Fibre Channel, this is the FC4 type."),
+        ValueMap {"0", "1", "2", "3", "4"},
+        Values {"Unknown", "Other", "SCSI", "VI", "IP"},
+        ModelCorrespondence {"CIM_Zone.OtherProtocolTypeDescription"} ]
+    uint16 ProtocolType;
+    
+    [Description (
+        "A string describing the ProtocolType when the ProtocolType "
+        "value is 1 \"Other\"."),
+       ModelCorrespondence {"CIM_Zone.ProtocolType"} ]
+    string OtherProtocolTypeDescription;
+        
+    [Description (
+        "The access mode allowed for the ProtocolType.") ]
+    boolean ReadOnly;
+};
+ 
+ 
+// ==================================================================
+// ZoneAlias
+// ==================================================================
+[Experimental, Version ("2.7.0"), Description (
+    "A zone is a group of Ports, Endpoints, Nodes, and/or other Zones "
+    "that are managed collectively by the same domain. The managing "
+    "domain is indicated by the HostedCollection association.") ]
+class CIM_ZoneAlias : CIM_SystemSpecificCollection { 
+ 
+    [Override ("ElementName"), Required, Write, Description (  
+        "A user-friendly name for the ZoneAlias that is unique "
+        "within the AdminDomain.") ]
+    string ElementName;
+};
+ 
+ 
+// ==================================================================
+// ZoneMemberSettingData
+// ==================================================================
+[Experimental, Version ("2.7.0"), Description (
+    "ZoneMemberSettingData provides the identification criteria for "
+    "possible Zone and ZoneAlias members.") ]
+class CIM_ZoneMemberSettingData : CIM_SettingData {
+ 
+    [Required, Write, Description (
+        "This specifies the type of identification "
+        "used in the ZoneMemberID field.  For Fibre Channel: \n"
+        "* A ZoneMemberType of 'PermanentAddress', the "
+        "ZoneMemberID is the NxPort WWN; \n"
+        "* A ZoneMemberType of 'NetworkAddress', the "
+        "ZoneMemberID is the NXPort Address ID; \n"
+        "* A ZoneMemberType of 'SwitchPortID', the ZoneMemberID "
+        "is 'Domain:PortNumber'; \n"
+        "* A ZoneMemberType of 'Alias', the ZoneMemberID is "
+        "ZoneAlias name."),
+        ValueMap {"0", "1", "2", "3", "4", "5", "6", "..", 
+            "0x8000.."},
+        Values {"Unknown", "Other", "PermanentAddress", 
+            "NetworkAddress", "SwitchPortID", "LogicalPortGroup",
+            "Alias", "DMTF Reserved", "Vendor Reserved"},
+        ModelCorrespondence {
+            "CIM_ZoneMemberSettingData.ZoneMemberID"} ] 
+    uint16 ZoneMemberType;
+ 
+    [Required, Write, Description (
+        "The identification of the member "
+        "based on the type specified by ZoneMemberType."),
+        ModelCorrespondence {
+            "CIM_ZoneMemberSettingData.ZoneMemberType"} ] 
+    string ZoneMemberID;
+};
+ 
+ 
+// ==================================================================
+// ZoneService
+// ==================================================================
+[Experimental, Version ("2.7.0"), Description (
+    "The ZoneService if responsible for managing the zone "
+    "enforcement for the fabric.  The ZoneService is hosted on an "
+    "AdminDomain.  This is depicted by the HostedService "
+    "association. ") ] 
+class CIM_ZoneService: CIM_Service {
+}; 
+ 
+
+// ==================================================================
+// ZoneCapabilities
+// ==================================================================
+[Experimental, Version ("2.7.0"), Description (
+    "ZoneCapabilities exposes the capabilities for zoning of an "
+    "AdminDomain.") ] 
+class CIM_ZoneCapabilities : CIM_Capabilities {
+        
+    [Description (
+        "The maximum length for the Zone Name that the AdminDomain "
+        "is capable of supporting.") ]
+    uint32 ZoneNameMaxLen;
+ 
+    [Description (
+        "The ZoneNameFormat supported by the AdminDomain."),
+        ValueMap {"0", "2", "3", "..", "0x8000.."},
+        Values {"Unknown", "Numeric", "Alpha Numeric",
+            "DMTF Reserved", "Vendor Reserved"} ]
+    uint16 ZoneNameFormat;
+ 
+    [Description (
+         "The maximum number of ZoneSets that the AdminDomain "
+         "is capable of supporting.") ]
+    uint32 MaxNumZoneSets;
+ 
+    [Description (
+         "The maximum number of Zones that the AdminDomain is "
+         "capable of supporting.") ]
+    uint32 MaxNumZone;
+ 
+    [Description (
+         "The maximum number of ZoneMembers that the AdminDomain "
+         "is capable of supporting.") ]
+    uint32 MaxNumZoneMembers;
+ 
+    [Description (
+         "The maximum number of Zones per ZoneSet that the "
+         "AdminDomain is capable of supporting.") ]
+    uint32 MaxNumZonesPerZoneSet;
+ 
+    [Description (
+         "The maximum number of ZoneAliases that the AdminDomain "
+         "is capable of supporting.") ]
+    uint32 MaxNumZoneAliases;
+};
+
+
+// ==================================================================
+// FibreProtocolService 
+// ==================================================================
+[Version ("2.6.0"), Description (
+   "FibreProtocolService abstracts and allows the management of "
+   "the Alias, Management, Time, Security, Directory (Naming) and "
+   "other services and functions available in a Fibre Channel "
+   "network. This class will be further defined in a later "
+   "release of CIM.") ]
+class CIM_FibreProtocolService : CIM_Service {
+};
+
+
+// ==================================================================
+// FCPortStatistics
+// ==================================================================
+[Experimental, Version ("2.7.0"), Description (
+    "FCPortStatistics is the statistics for the FCPort.") ]
+class CIM_FCPortStatistics : CIM_NetworkPortStatistics {
+    
+    [Counter, Description (
+        "LIPCount is the number of LIP events that have occurred on "
+        "an arbitrated loop.") ]
+    uint64 LIPCount;
+ 
+    [Counter, Description (
+        "NOSCount is the number of NOS events that have occurred on "
+        "the switched fabric.") ]
+    uint64 NOSCount;
+ 
+    [Counter, Description (
+        "ErrorFrames is the number of frames that have been received "
+        "in error.") ]
+    uint64 ErrorFrames;
+ 
+    [Counter, Description (
+        "DumpedFrames is the number of frames that were lost due to "
+        "a lack of host buffers available.") ]
+    uint64 DumpedFrames;
+ 
+    [Counter, Description (
+        "LinkFailure is the number of times a link error has "
+        "occurred. This count is part of the Link Error "
+        "Status Block (LESB).") ]
+    uint64 LinkFailures;
+ 
+    [Counter, Description (
+        "Number of times that signal is lost on the Port since last "
+        "reset of the Device. This count is part of the Link Error "
+        "Status Block (LESB).") ]
+    uint64 LossOfSignalCounter;
+ 
+    [Counter, Description (
+        "Number of times that synchronization is lost on the Port "
+        "since last reset of the Device. Synchronization is assumed "
+        "lost after a timeout period (identified by the Receiver"
+        "TransmitterTimeout property) is exceeded. This count is part "
+        "of the Link Error Status Block (LESB).") ]
+    uint64 LossOfSyncCounter;
+ 
+    [Counter, Description (
+        "Count of primitive sequence protocol errors detected at this "
+        "port. This count is part of the Link Error Status Block "
+        "(LESB).") ]
+    uint64 PrimitiveSeqProtocolErrCount;
+ 
+    [Counter, Description (
+        "Number of times that the CRC in a frame does not match the "
+        "CRC computed by the receiver. This count is part of the "
+        "Link Error Status Block (LESB).") ]
+    uint64 CRCErrors;
+ 
+    [Counter, Description (
+        "The number of transmission words that had an invalid "
+        "character (8b10b code "
+        "violation) in one or more of its characters, had a "
+        "K28.5 (8b10b control) in its second, third or fourth "
+        "character positions, and/or had an incorrect Beginning "
+        "Running Disparity. This count is part of the Link Error "
+        "Status Block (LESB).") ]
+    uint64 InvalidTransmissionWords;
+ 
+    [Counter, Description (
+        "The number of frames received that were shorter than 28 "
+        "octets. The value of 28 is calculated based on an "
+        "assumption of 24 header bytes plus 4 CRC bytes. The "
+        "count does not include SOF/EOF bytes which are not data.") ]
+    uint64 FramesTooShort;
+ 
+    [Counter, Description (
+        "The number of frames received that were longer than 2140 "
+        "octets. The value of 2140 is calculated based on an "
+        "assumption of 24 header bytes plus 4 CRC bytes and 2112 "
+        "bytes of payload.") ]
+    uint64 FramesTooLong;
+ 
+    [Counter, Description (
+        "Count of frames received with unknown addressing. An example "
+        "is an unknown SID or DID. The SID or DID is not known to the "
+        "routing algorithm.") ]
+    uint64 AddressErrors;
+ 
+    [Counter, Description (
+        "Count of occurrences when all input buffers of a port were "
+        "full and outbound buffer-to-buffer credit transitioned to "
+        "zero. There is no credit to provide to other side.") ]
+    uint64 BufferCreditNotProvided;
+ 
+    [Counter, Description (
+        "Count of transitions in/out of BBcredit zero state. The "
+        "other side is not providing any credit.") ]
+    uint64 BufferCreditNotReceived;
+ 
+    [Counter, Description (
+        " Count of invalid frame delimiters received at this port. "
+        "An example is a frame with a class 2 start and a class 3 "
+        "at the end.") ]
+    uint64 DelimiterErrors;
+ 
+    [Counter, Description (
+        "Count of disparity errors received at this port.") ]
+    uint64 EncodingDisparityErrors;
+ 
+    [Counter, Description (
+        "Count of Link resets. This is the number of LRs received.") ]
+    uint64 LinkResetsReceived;
+ 
+    [Counter, Description (
+        "Count of Link resets. This is the number of LRs transmitted.") ]
+    uint64 LinkResetsTransmitted;
+ 
+    [Counter, Description (
+        "Count of Multicast Frames or Packets received.") ]
+    uint64 MulticastFramesReceived;
+ 
+    [Counter, Description (
+        "Count of Multicast Frames or Packets transmitted.") ]
+    uint64 MulticastFramesTransmitted;
+};
+ 
+ 
+// ===================================================================
+// end of file
+// ===================================================================

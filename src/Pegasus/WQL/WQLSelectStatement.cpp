@@ -73,7 +73,7 @@ static Boolean _Evaluate(
     {
 	case WQLOperand::NULL_VALUE:
 	{
-	    // ATTN: not sure what to do here:
+	    // ATTN-A: not sure what to do here:
 	    PEGASUS_ASSERT(0);
 	    break;
 	}
@@ -259,7 +259,7 @@ Boolean WQLSelectStatement::evaluateWhereClause(
 	    }
 
 	    // 
-	    // ATTN: implement these next!
+	    // ATTN-A: implement these next!
 	    //
 
 	    case WQL_IS_NULL:

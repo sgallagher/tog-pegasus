@@ -29,27 +29,35 @@ SOURCES_X = \
 
 include $(ROOT)/mak/library.mak
 
+##------------------------------------------------------------------------------
+##
+## Rules to build LEX AND YACC sources:
+##
+## To make these files type: "make grammar"
+##
+##------------------------------------------------------------------------------
+
 
 ##
 ## This pushes BISON_SIMPLE into the environment so that bison will use this 
 ## rather than looking for /usr/local/share/bison.simple.
 ##
 
+grammar: yacc_rule lex_rule
+
 export BISON_SIMPLE = bison.simple
 
 ##
 ## Lex rule:
 ##
-
-WQLLEX.cpp: WQL.l
+lex_rule:
 	$(LEX) -oWQLLEX.cpp -PWQL_ WQL.l
 	$(TOUCH) WQLLEX.cpp
 
 ##
 ## Yacc rule:
 ##
-
-WQLYACC.cpp WQLYACC.h: WQL.y
+yacc_rule:
 ifeq ($(YACC),yacc)
 	$(YACC) -vd -p WQL_ WQL.y
 	$(COPY) y.tab.c WQLYACC.cpp

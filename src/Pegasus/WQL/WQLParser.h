@@ -73,6 +73,9 @@ public:
     /** Parse the SELECT statement given by the text parameter and initialize
 	the statement parameter accordingly.
 
+	Please note that this method is not thread safe. It must be guarded 
+	with mutexes by the caller.
+
 	@param text null terminated array of characters containing a SELECT
 	    statement.
 	@param statement object which holds the compiled version of the SELECT
@@ -80,8 +83,6 @@ public:
 	@exception throws ParseError if text is not a valid SELECT statement.
 	@exception throws MissingNullTerminator if text argument is not 
 	    terminated with a null. 
-
-	ATTN: this method is NOT thread safe. Needs mutexes.
     */
     static void parse(
 	const Array<Sint8>& text,

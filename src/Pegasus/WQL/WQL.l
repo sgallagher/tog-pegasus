@@ -4,7 +4,6 @@
 extern int WQLInput(char* buffer, int& numRead, int numRequested);
 extern int WQL_error(char*);
 
-/* ATTN: works with Flex only */
 #define YY_INPUT(BUF, NREAD, NREQUESTED) WQLInput(BUF, NREAD, NREQUESTED)
 
 #include <Pegasus/Common/Config.h>
@@ -114,8 +113,6 @@ IDENT_CHAR [A-Za-z_]
 
 [-+]?{DECIMAL_DIGIT}*\.{DECIMAL_DIGIT}+([eE][+-]?{DECIMAL_DIGIT}+)? {
 
-    /* ATTN: make this consistent with WBEMSQL1 "standard" */
-
     WQL_TRACE(("LEX: %s [TOK_DOUBLE]\n", yytext));
     WQL_lval.doubleValue = strtod((char*)yytext, (char**)0);
     return TOK_DOUBLE;
@@ -123,8 +120,8 @@ IDENT_CHAR [A-Za-z_]
 
 \"[^\"\n]*\" {
 
-    /* ATTN: Can long string literals overflow the buffer? */
-    /* ATTN: Handle expansion of special characters */
+    /* ATTN-B: handle long literals by using yyinput(). */
+    /* ATTN-B: Handle expansion of special characters */
 
     WQL_TRACE(("LEX: %s [TOK_STRING]\n", yytext));
 

@@ -45,8 +45,6 @@ void WQLParser::parse(
     const Array<Sint8>& text,
     WQLSelectStatement& statement)
 {
-    // ATTN: raise error here:
-
     if (text.size() == 0 || text[text.size() - 1] != '\0')
 	throw MissingNullTerminator();
 

@@ -44,8 +44,14 @@
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
+
+#ifdef PEGASUS_OS_HPUX
+# include <arpa/inet.h>
+# include <net/if.h>
+#else
 #include <linux/inet.h>
 #include <linux/if.h>
+#endif
 
 #include <netdb.h>
 #include <errno.h>

@@ -62,10 +62,12 @@ repository you make world, make rebuild or make repository. ks
 
 14. slp client code integrated as pegasus-style c++ library. (MDD)
 
-15. Update CGI Client to correct number of errors and install AssociationName
+15. (Karl)Update CGI Client to correct number of errors and install
+AssociationName
 and ReferenceName functions.  This included extensive update to the HTML
 pages.
 
+16. (Denise E.) Changes to slp client support code for HPUX (
 ------------------------------------------------------------------------------
 --
 Version 0.97.3 - Released 5 June 2001
@@ -157,5 +159,6 @@ with the complete unit test and client/server test successfully.
 29 May 2001
 
 1.  Implemented CIMRepository::setProperty() and CIMRepository::getProperty().
+
 
 

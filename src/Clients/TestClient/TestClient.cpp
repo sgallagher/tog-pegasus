@@ -552,7 +552,6 @@ int main(int argc, char** argv)
 	  }
       }
 
-
     cout << "Connection List size " << connectionList.size() << endl;
     for (Uint32 i = 0; i < connectionList.size(); i++)
 	cout << "Connection " << i << " address " << connectionList[i] << 

@@ -68,6 +68,28 @@ PEGASUS_EXPORT int gethostbyname_r(const char *name,
 
 #endif
 
+#ifdef PEGASUS_OS_HPUX
+
+PEGASUS_EXPORT int gethostbyname_r(const char *name, 
+		    struct hostent *resultbuf, 
+		    char *buf, 
+		    size_t bufsize, 
+		    struct hostent **result, 
+		    int *errnop) 
+{
+  name = name;
+  resultbuf = resultbuf;
+  buf = buf;
+  bufsize = bufsize;
+  
+  if(NULL == (*result = gethostbyname(name))) {
+    *errnop = h_errno;
+    return(-1);
+  } 
+  return(0);
+}
+#endif
+
 PEGASUS_EXPORT String slp_get_addr_string_from_url(const String & url) 
 {
   String s = String();
@@ -1021,12 +1043,20 @@ Sint32 slp_client::service_listener(SOCKET extra_sock )
     struct sockaddr_in remote;
     int size = sizeof(remote);
     if(extra_sock && FD_ISSET(extra_sock, &fds) ) {
+#ifdef PEGASUS_OS_HPUX
+      err = recvfrom(extra_sock, _rcv_buf, LSLP_MTU, 0, (struct sockaddr *)&remote, &size);
+#else
       err = recvfrom(extra_sock, _rcv_buf, LSLP_MTU, 0, (struct sockaddr *)&remote, (socklen_t *)&size);
+#endif
       if(err && err != SOCKET_ERROR)
 	decode_reply( &remote );
     }
     if(FD_ISSET(_rcv_sock, &fds)) {
+#ifdef PEGASUS_OS_HPUX
+      err = recvfrom(_rcv_sock, _rcv_buf, LSLP_MTU, 0, (struct sockaddr *)&remote, &size);
+#else
       err = recvfrom(_rcv_sock, _rcv_buf, LSLP_MTU, 0, (struct sockaddr *)&remote, (socklen_t *)&size);
+#endif
       if(err && err != SOCKET_ERROR)
 	decode_reply( &remote );
     }

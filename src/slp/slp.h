@@ -34,11 +34,11 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 
-#ifdef _WIN32
+#ifdef PEGASUS_OS_TYPE_WINDOWS
 #include "lslp-perl-windows.h"
 #endif	/* win 32 */
 
-#ifdef __linux__
+#ifdef PEGASUS_OS_TYPE_UNIX
 #include "lslp-perl-linux.h"
 #endif
 
@@ -69,7 +69,14 @@ PEGASUS_EXPORT int gethostbyname_r(const char *name,
 				   struct hostent **result, 
 				   int *errno) ;
 #endif
-
+#ifdef PEGASUS_OS_HPUX
+PEGASUS_EXPORT int gethostbyname_r(const char *name, 
+				   struct hostent *resultbuf, 
+				   char *buf, 
+				   size_t bufsize, 
+				   struct hostent **result, 
+				   int *errno) ;
+#endif
 
 PEGASUS_EXPORT String slp_get_addr_string_from_url(const String & url)  ;
 
@@ -188,7 +195,11 @@ public:
 					    _retries = retries; _ttl = ttl; }
 
   void set_spi(const Sint8 *spi) ;
+#ifdef PEGASUS_OS_HPUX
+  rply_list *get_response( void );
+#else
   rply_list *slp_client::get_response( void );
+#endif
   int find_das(const Sint8 *predicate, 
 	       const Sint8 *scopes) ;
   int converge_srv_req( const Sint8 *type, 

@@ -154,6 +154,34 @@ void IndicationHandlerService::_handleIndicationCallBack(AsyncOpNode *op,
 }
 
 
+String IndicationHandlerService::_parseDestination(String dest)
+{
+	CString pCString = dest.getCStringUTF8();
+  char* p = const_cast<char*>((const char*) pCString);
+
+	static char schemeType[] = "HTTP:";	
+	Boolean hasSchemeType = true;
+	for(int i= 0; i<5; i++)
+	{
+		if(::toupper(p[i]) != schemeType[i])
+		{
+			hasSchemeType = false;
+			break;
+		}
+	}
+	if(hasSchemeType)
+	{
+		p += 5;
+	}
+
+  // See if there is a host name begins with "//":
+  if (p[0] == '/' && p[1] == '/')
+  {
+		p += 2;
+	}
+	return String(p);
+}
+
 void IndicationHandlerService::_handleIndication(const Message* message)
 {
 	PEG_METHOD_ENTER (TRC_IND_HANDLE,
@@ -173,15 +201,20 @@ void IndicationHandlerService::_handleIndication(const Message* message)
 
    Uint32 pos = PEG_NOT_FOUND;
 
-   if (className.equal (PEGASUS_CLASSNAME_INDHANDLER_CIMXML))
+   if (className.equal (PEGASUS_CLASSNAME_INDHANDLER_CIMXML) 
+		 || className.equal (PEGASUS_CLASSNAME_LSTNRDST_CIMXML)
+	 )
+   {
        pos = handler.findProperty(CIMName ("destination"));
+   }
    else if (className.equal (PEGASUS_CLASSNAME_INDHANDLER_SNMP))
+   {
        pos = handler.findProperty(CIMName ("TargetHost"));
+   }
 
    if (pos == PEG_NOT_FOUND)
    {
      // l10n
-
      // cimException = 
      //   PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String("Handler without destination"));
 
@@ -192,6 +225,10 @@ void IndicationHandlerService::_handleIndication(const Message* message)
    {
        CIMProperty prop = handler.getProperty(pos);
        String destination = prop.getValue().toString();
+
+
+			 //filter out http:// // ATTN: Do not enable yet.
+			// destination = _parseDestination(destination);
 
        if (destination.size() == 0)
        {
@@ -205,11 +242,10 @@ void IndicationHandlerService::_handleIndication(const Message* message)
 					    MessageLoaderParms("HandlerService.IndicationHandlerService.INVALID_DESTINATION", "invalid destination"));
 
        }
-       //
-       // if the URL has format (localhost/CIMListener/...), send message to
-       // ExportServer
-       //	
-       else if ((className.equal (PEGASUS_CLASSNAME_INDHANDLER_CIMXML)) &&
+       else if ((className.equal (PEGASUS_CLASSNAME_INDHANDLER_CIMXML)
+				 || className.equal (PEGASUS_CLASSNAME_LSTNRDST_CIMXML)
+				 ) &&
+//compared index 10 is not :
            (destination.subString(0, 10) == String("localhost/")))
        {
           Array<Uint32> exportServer;
@@ -253,6 +289,7 @@ void IndicationHandlerService::_handleIndication(const Message* message)
        }
        else
        {
+				 
           // generic handler. So load it and let it to do.
           CIMHandler* handlerLib = _lookupHandlerForClass(className);
 
@@ -302,7 +339,9 @@ CIMHandler* IndicationHandlerService::_lookupHandlerForClass(
 {
    String handlerId;
 
-   if (className.equal (PEGASUS_CLASSNAME_INDHANDLER_CIMXML))
+   if (className.equal (PEGASUS_CLASSNAME_INDHANDLER_CIMXML)
+      || className.equal (PEGASUS_CLASSNAME_LSTNRDST_CIMXML)
+      )
        handlerId = String("CIMxmlIndicationHandler");
    else if (className.equal (PEGASUS_CLASSNAME_INDHANDLER_SNMP))
        handlerId = String("snmpIndicationHandler");
@@ -325,3 +364,5 @@ CIMHandler* IndicationHandlerService::_lookupHandlerForClass(
 }
 
 PEGASUS_NAMESPACE_END
+
+

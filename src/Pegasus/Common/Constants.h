@@ -120,6 +120,8 @@ static const CIMName PEGASUS_CLASSNAME_INDHANDLER           =
     CIMName ("CIM_IndicationHandler");
 static const CIMName PEGASUS_CLASSNAME_INDHANDLER_CIMXML    = 
     CIMName ("CIM_IndicationHandlerCIMXML");
+static const CIMName PEGASUS_CLASSNAME_LSTNRDST_CIMXML    = 
+		CIMName ("CIM_ListenerDestinationCIMXML");
 static const CIMName PEGASUS_CLASSNAME_INDHANDLER_SNMP      = 
     CIMName ("PG_IndicationHandlerSNMPMapper");
 static const CIMName PEGASUS_CLASSNAME_INDFILTER            = 

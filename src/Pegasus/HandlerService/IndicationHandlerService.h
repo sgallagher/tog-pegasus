@@ -95,6 +95,8 @@ class PEGASUS_HANDLER_SERVICE_LINKAGE IndicationHandlerService
 
       CIMHandler* _lookupHandlerForClass(const CIMName& className);
 
+      String _parseDestination(String dest);
+
    private:
       CIMRepository* _repository;
 };

@@ -134,6 +134,8 @@ void CIMInstanceRep::resolve(
                     (CIMName (PEGASUS_CLASSNAME_INDSUBSCRIPTION))) ||
                 (className.equal 
                     (CIMName (PEGASUS_CLASSNAME_INDHANDLER_CIMXML))) ||
+								(className.equal 
+                    (CIMName (PEGASUS_CLASSNAME_LSTNRDST_CIMXML))) ||
                 (className.equal 
                     (CIMName (PEGASUS_CLASSNAME_INDHANDLER_SNMP))) ||
                 (className.equal (CIMName (PEGASUS_CLASSNAME_INDFILTER)))) &&

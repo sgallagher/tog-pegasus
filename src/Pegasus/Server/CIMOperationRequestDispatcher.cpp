@@ -300,6 +300,15 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
 					 String::EMPTY,
 					 PEGASUS_QUEUENAME_INDICATIONSERVICE);
 
+			_routing_table.insert_record(PEGASUS_CLASSNAME_LSTNRDST_CIMXML,
+					 _wild,
+					 DynamicRoutingTable::INTERNAL,
+					 0,
+					 static_cast<MessageQueueService *>
+					 (MessageQueue::lookup(PEGASUS_QUEUENAME_INDICATIONSERVICE)),
+					 String::EMPTY,
+					 PEGASUS_QUEUENAME_INDICATIONSERVICE);
+
 	    _routing_table.insert_record(PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
 					 _wild,
 					 DynamicRoutingTable::INTERNAL,
@@ -5839,3 +5848,4 @@ CIMClass CIMOperationRequestDispatcher::_getClass(
 
 
 PEGASUS_NAMESPACE_END
+

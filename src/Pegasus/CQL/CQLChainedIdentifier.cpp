@@ -1,5 +1,5 @@
 #include "CQLChainedIdentifier.h"
-#include <Pegasus/CQL/CQLScope.h>
+//#include <Pegasus/CQL/CQLScope.h>
 PEGASUS_NAMESPACE_BEGIN
 
 CQLChainedIdentifier::CQLChainedIdentifier(String inString)
@@ -39,6 +39,36 @@ String CQLChainedIdentifier::toString()const{
 
 void CQLChainedIdentifier::append(CQLIdentifier & id){
 	_subIdentifiers.append(id);
+}
+
+Boolean CQLChainedIdentifier::isSubChain(CQLChainedIdentifier & chain){
+	Array<CQLIdentifier> ids = chain.getSubIdentifiers();
+	for(Uint32 i = 0; i < ids.size(); i++){
+		if(ids[i] != _subIdentifiers[i].getName())
+			return false;
+	}
+	return true;
+}
+
+CQLIdentifier& CQLChainedIdentifier::operator[](Uint32 index){
+	return _subIdentifiers[index];
+}
+
+Uint32 CQLChainedIdentifier::size(){
+	return _subIdentifiers.size();
+}
+
+Boolean CQLChainedIdentifier::prepend(CQLIdentifier & id){
+	/*
+	   Compare id against the first element in _subIdentifiers, 
+	   if not an exact match, then prepend.  This is used to fully
+	   qualify the chained identifier.
+	*/
+	if(id != _subIdentifiers[0]){
+		_subIdentifiers.prepend(id);
+		return true;
+	}
+	return false;
 }
 
 void CQLChainedIdentifier::applyScopes(Array<CQLScope>& scopes){

@@ -27,6 +27,14 @@ CQLIdentifier::CQLIdentifier(String identifier): _isWildcard(false), _isSymbolic
 	parse(identifier);
 }
 
+CQLIdentifier::CQLIdentifier(const CQLIdentifier& id){
+	_name = id.getName();
+	_indices = id.getSubRanges();
+	_symbolicConstant = id.getSymbolicConstantName();
+	_scope = id.getScope();
+	_isWildcard = id.isWildcard();
+}
+
 const CIMName& CQLIdentifier::getName()const
 {
 	return _name;
@@ -66,6 +74,12 @@ Boolean CQLIdentifier::isScoped()const
 {
 	return (_scope != String::EMPTY);
 }
+
+void CQLIdentifier::applyScope(String scope)
+{
+        _scope = scope;
+}
+
 
 Boolean CQLIdentifier::operator==(const CIMName &rhs)const{
 	if(_name == rhs) return true;

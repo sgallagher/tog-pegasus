@@ -55,6 +55,8 @@ Exceptions:
       */
     CQLIdentifier(String identifier);
 
+    CQLIdentifier(const CQLIdentifier& id);
+
     /**
       The getPropertyName method returns the property name portion of 
       a property.   For example, of the property string contained myProperty#'OK',
@@ -105,6 +107,8 @@ Exceptions:
     const String& getScope()const;
 
     Boolean isScoped()const;
+
+    void applyScope(String scope);
 
     Boolean operator==(const CIMName &rhs)const;
                                                                                                                                        

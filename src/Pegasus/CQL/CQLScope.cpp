@@ -8,7 +8,8 @@ PEGASUS_NAMESPACE_BEGIN
 #undef PEGASUS_ARRAY_T
 
 CQLScope::CQLScope(CIMName _inCIMName, CQLChainedIdentifier _inChainedIdentifier){
-
+	_name = _inCIMName;
+	_chainedIdentifier = _inChainedIdentifier;
 }
 
 CIMName CQLScope::getScope(){

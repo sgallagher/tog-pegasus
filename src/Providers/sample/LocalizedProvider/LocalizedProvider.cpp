@@ -1067,7 +1067,7 @@ ContentLanguages LocalizedProvider::_loadLocalizedProps(
 		contentLangs.itrStart();
 		while((cle = contentLangs.itrNext()) != ContentLanguageElement::EMPTY)
 		{
-			if (ale.getLanguageTag() == cle.getLanguageTag())
+			if (ale.getTag() == cle.getTag())
 			{
 				matchFound = true;	
 				break;					

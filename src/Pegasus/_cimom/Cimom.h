@@ -114,6 +114,9 @@ class PEGASUS_CIMOM_LINKAGE cimom : public MessageQueue
       
 
       virtual void handleEnqueue();
+      void find_service_q(CimomFindServices *msg);
+      void enumerate_service(CimomEnumerateService *msg);
+      
       void register_module(CimomRegisterService *msg);
       void deregister_module(CimomDeregisterService *msg) ;
       

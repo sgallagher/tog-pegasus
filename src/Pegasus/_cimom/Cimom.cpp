@@ -275,9 +275,9 @@ void cimom::handleEnqueue(void)
     Uint32 mask = request->getMask();
     AsyncOpNode *op = 0;
     
-    if((mask & message_mask::type_cimom) || (mask & message_mask::ha_reply))
+    if( mask & message_mask::type_cimom )
     {
-       // should be almost all reply messages 
+       // a message for the cimom 
        _internal_ops.insert_last(request);
        return;
     }
@@ -318,10 +318,10 @@ void cimom::handleEnqueue(void)
        op->put_request(request);
        
 
-       ServiceAsyncOpStart *async_request = 
-	  new ServiceAsyncOpStart(Message::getNextKey(),
-				  QueueIdStack(CIMOM_Q_ID, CIMOM_Q_ID),
-				  op);
+       ServiceAsyncLegacyOpStart *async_request = 
+	  new ServiceAsyncLegacyOpStart(Message::getNextKey(),
+					QueueIdStack(CIMOM_Q_ID, CIMOM_Q_ID),
+					op);
 
        // redirect the message pointer to point the the "envelope"
        request = static_cast<Message *>(async_request);
@@ -451,24 +451,8 @@ void cimom::_handle_cimom_msg(Message *msg)
       {
 	 // update the heartbeat time for the module 
       }
-      else if (type == cimom_messages::REGISTER_CIM_SERVICE)
-      {
-	 register_module(static_cast<CimomRegisterService *>(msg));
-      }
-
-      else if (type == cimom_messages::DEREGISTER_CIM_SERVICE)
-      {
-	 deregister_module(static_cast<CimomDeregisterService *>(msg));
-      }
-      else if (type == cimom_messages::UPDATE_CIM_SERVICE)
-      {
-//	 update_module(static_cast<CimomUpdateService *>(msg));
-      }
-      else if (type == cimom_messages::IOCTL)
-      {
-//             direct call interface into module 
-      }
-      else if (type == cimom_messages::ASYNC_OP_REPLY)
+      else if (type == cimom_messages::ASYNC_OP_REPLY || 
+	 type == cimom_messages::ASYNC_LEGACY_OP_REPLY)
       {
 	 // a provider, repository, or other service is telling
 	 // us that it has completed or update an async operation
@@ -481,16 +465,49 @@ void cimom::_handle_cimom_msg(Message *msg)
 	 // right here for completed operations. 
 
 	 // This code block will be put to use when we support phased 
-	 // operations, transactional operations, or remote operations. 
+	 // operations, transactional operations, child operations, 
+	 // or remote operations. 
 	 // <<< Sun Dec 30 20:51:18 2001 mdd >>>
 	 
+      }
+      else if (type == cimom_messages::FIND_SERVICE_Q)
+      {
+	 find_service_q(static_cast<CimomFindServices *>(msg));
+      }
+      else if (type == cimom_messages::ENUMERATE_SERVICE)
+      {
+	 enumerate_service(static_cast<CimomEnumerateService *>(msg));
+      }
+      else if (type == cimom_messages::REGISTER_CIM_SERVICE)
+      {
+	 register_module(static_cast<CimomRegisterService *>(msg));
+      }
+      else if (type == cimom_messages::DEREGISTER_CIM_SERVICE)
+      {
+	 deregister_module(static_cast<CimomDeregisterService *>(msg));
+      }
+      else if (type == cimom_messages::UPDATE_CIM_SERVICE)
+      {
+//	 update_module(static_cast<CimomUpdateService *>(msg));
+      }
+      else if (type == cimom_messages::IOCTL)
+      {
+//             direct call interface into module 
       }
       delete msg;
    }
    return;
 }
 
+void cimom::find_service_q(CimomFindServices *msg)
+{
+   return;
+}
 
+void cimom::enumerate_service(CimomEnumerateService *msg)
+{
+   return;
+}
 
 void cimom::register_module(CimomRegisterService *msg)
 {

@@ -20,6 +20,8 @@ buildDoc:
 	@$(MKDIRHIER) $(PEGASUS_HTML_DIR)
 	@$(COPY) index.html $(PEGASUS_HTML_DIR)/index.html
 	@$(MAKE) --directory=$(ROOT)/doc/SDK -f Makefile PEGASUS_HTML_DIR=$(PEGASUS_HTML_DIR) buildDefaultC++Doc
+
+2.4Deferred:
 	@$(MAKE) --directory=$(ROOT)/doc/SDK -f Makefile PEGASUS_HTML_DIR=$(PEGASUS_HTML_DIR) buildCMPIDoc
 	@$(MAKE) --directory=$(ROOT)/doc/SDK -f Makefile PEGASUS_HTML_DIR=$(PEGASUS_HTML_DIR) buildCMPIC++Doc
 

@@ -75,34 +75,7 @@ INCLUDEFILES = \
    Pegasus/Provider/CIMOMHandle.h \
    Pegasus/Provider/CIMProvider.h \
    Pegasus/Provider/Linkage.h \
-   Pegasus/Provider/ProviderException.h \
-   Pegasus/Provider/CMPI/cmpidt.h \
-   Pegasus/Provider/CMPI/cmpift.h \
-   Pegasus/Provider/CMPI/cmpimacs.h \
-   Pegasus/Provider/CMPI/CmpiArgs.h \
-   Pegasus/Provider/CMPI/CmpiArray.h \
-   Pegasus/Provider/CMPI/CmpiAssociationMI.h \
-   Pegasus/Provider/CMPI/CmpiBaseMI.h \
-   Pegasus/Provider/CMPI/CmpiBooleanData.h \
-   Pegasus/Provider/CMPI/CmpiBroker.h \
-   Pegasus/Provider/CMPI/CmpiCharData.h \
-   Pegasus/Provider/CMPI/CmpiContext.h \
-   Pegasus/Provider/CMPI/CmpiData.h \
-   Pegasus/Provider/CMPI/CmpiDateTime.h \
-   Pegasus/Provider/CMPI/CmpiEnumeration.h \
-   Pegasus/Provider/CMPI/CmpiIndicationMI.h \
-   Pegasus/Provider/CMPI/CmpiInstance.h \
-   Pegasus/Provider/CMPI/CmpiInstanceMI.h \
-   Pegasus/Provider/CMPI/CmpiIndicationMI.h \
-   Pegasus/Provider/CMPI/CmpiMethodMI.h \
-   Pegasus/Provider/CMPI/CmpiObject.h \
-   Pegasus/Provider/CMPI/CmpiObjectPath.h \
-   Pegasus/Provider/CMPI/CmpiPropertyMI.h \
-   Pegasus/Provider/CMPI/CmpiProviderBase.h \
-   Pegasus/Provider/CMPI/CmpiResult.h \
-   Pegasus/Provider/CMPI/CmpiSelectExp.h \
-   Pegasus/Provider/CMPI/CmpiStatus.h \
-   Pegasus/Provider/CMPI/CmpiString.h
+   Pegasus/Provider/ProviderException.h 
 
 INCLUDEFILES += \
    Pegasus/Common/AcceptLanguages.h \
@@ -144,9 +117,6 @@ PROVIDERSRCPATH1FILES = \
    DefaultC++/Makefile \
    DefaultC++/InstanceProvider/Makefile \
    DefaultC++/MethodProvider/Makefile \
-   CMPI/Makefile \
-   CMPI/FilesAndDirectories/Makefile \
-   CMPI/FilesAndDirectories/tests/Makefile \
    DefaultC++/IndicationProvider/Makefile \
    DefaultC++/IndicationProvider/IndicationProvider.cpp \
    DefaultC++/IndicationProvider/IndicationProvider.h \
@@ -154,34 +124,9 @@ PROVIDERSRCPATH1FILES = \
    DefaultC++/SimpleDisplayConsumer/Makefile
    
 PROVIDERSRCPATH2FILES = \
-   Load/CWS_FilesAndDir.mof \
-   Load/CWS_FilesAndDirR.mof \
    Load/InstanceProviderR.mof \
    Load/MethodProviderR.mof \
-   Load/SimpleDisplayConsumerR.mof \
-   CMPI/FilesAndDirectories/tests/AssocDirNames12001.xml \
-   CMPI/FilesAndDirectories/tests/AssocDirNames12001rspgood.xml \
-   CMPI/FilesAndDirectories/tests/DeleteDirInstance10003.xml \
-   CMPI/FilesAndDirectories/tests/DeleteDirInstance10003rspgood.xml \
-   CMPI/FilesAndDirectories/tests/EnumerateDir10001.xml \
-   CMPI/FilesAndDirectories/tests/EnumerateDir10001rspgood.xml \
-   CMPI/FilesAndDirectories/tests/EnumerateDirNames10000.xml \
-   CMPI/FilesAndDirectories/tests/EnumerateDirNames10000rspgood.xml \
-   CMPI/FilesAndDirectories/tests/GetDirInstance10002.xml \
-   CMPI/FilesAndDirectories/tests/GetDirInstance10002rspgood.xml \
-   CMPI/FilesAndDirectories/tests/PlainFileMethodCall11001.xml \
-   CMPI/FilesAndDirectories/tests/PlainFileMethodCall11001rspgood.xml \
-   CMPI/FilesAndDirectories/tests/ReferenceDirNames12002.xml \
-   CMPI/FilesAndDirectories/tests/ReferenceDirNames12002rspgood.xml \
-   CMPI/FilesAndDirectories/CWS_Directory.c \
-   CMPI/FilesAndDirectories/CWS_DirectoryContainsFile.c \
-   CMPI/FilesAndDirectories/CWS_FileUtils.c \
-   CMPI/FilesAndDirectories/CWS_FileUtils.h \
-   CMPI/FilesAndDirectories/CWS_PlainFile.c \
-   CMPI/FilesAndDirectories/cwssimdata.c \
-   CMPI/FilesAndDirectories/cwstest.c \
-   CMPI/FilesAndDirectories/cwsutil.c \
-   CMPI/FilesAndDirectories/cwsutil.h
+   Load/SimpleDisplayConsumerR.mof 
 
 PROVIDERSRCPATH3FILES = \
    InstanceProvider/InstanceProvider.cpp \
@@ -213,7 +158,6 @@ stageINCLUDE:
 	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_INCLUDE_DIR)/Pegasus/Common
 	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_INCLUDE_DIR)/Pegasus/Client
 	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_INCLUDE_DIR)/Pegasus/Provider
-	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_INCLUDE_DIR)/Pegasus/Provider/CMPI
 	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_INCLUDE_DIR)/Pegasus/Handler
 	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_INCLUDE_DIR)/Pegasus/Consumer
 	@$(foreach i, $(INCLUDEFILES), $(COPY) $(INCLUDE_SRCPATH)/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_INCLUDE_DIR)/$(i);)
@@ -262,7 +206,6 @@ stageSAMPLES:
 	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Providers/DefaultC++/MethodProvider
 	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Providers/DefaultC++/IndicationProvider
 	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Providers/DefaultC++/SimpleDisplayConsumer
-	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Providers/CMPI/FilesAndDirectories/tests
 	@$(foreach i, $(CLIENTSRCPATH1FILES), $(COPY) $(CLIENT_SRCPATH1)/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/$(i);)
 	@$(foreach i, $(CLIENTSRCPATH2FILES), $(COPY) $(CLIENT_SRCPATH2)/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Clients/DefaultC++/$(i);)
 	@$(foreach i, $(CLIENTSRCPATH3FILES), $(COPY) $(CLIENT_SRCPATH3)/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Clients/DefaultC++/$(i);)

@@ -902,7 +902,10 @@ Boolean ProviderRegistrationManager::lookupIndicationConsumer(
 
 // get registered provider
 CIMInstance ProviderRegistrationManager::getInstance(
-    const CIMObjectPath & instanceReference)
+    const CIMObjectPath & instanceReference,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
+    const CIMPropertyList & propertyList)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
                      "ProviderRegistrationManager::getInstance");
@@ -920,9 +923,9 @@ CIMInstance ProviderRegistrationManager::getInstance(
             PEGASUS_NAMESPACENAME_INTEROP,
             localReference,
             false,
-            false,
-            false,
-            CIMPropertyList());
+            includeQualifiers,
+            includeClassOrigin,
+            propertyList); 
     }
     catch (...)
     {
@@ -939,7 +942,10 @@ CIMInstance ProviderRegistrationManager::getInstance(
 
 // get all registered providers
 Array<CIMInstance> ProviderRegistrationManager::enumerateInstances(
-    const CIMObjectPath & ref)
+    const CIMObjectPath & ref,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
+    const CIMPropertyList & propertyList)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "ProviderRegistrationManager::enumerateInstances");
@@ -955,9 +961,9 @@ Array<CIMInstance> ProviderRegistrationManager::enumerateInstances(
             ref.getClassName(),
             false,
             false,
-            false,
-            false,
-            CIMPropertyList());
+            includeQualifiers,
+            includeClassOrigin,
+            propertyList);
     }
     catch (...)
     {
@@ -1890,7 +1896,6 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
                 // add the instance to the hash table
                 //
                 instances.append(instance);
-
                 _addInstancesToTable(_providerKey, instances);
 
                 _repository->write_unlock();

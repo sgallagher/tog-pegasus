@@ -255,9 +255,17 @@ public:
 		Array<CIMInstance> & provider,
 		Array<CIMInstance> & providerModule); 
 
-	CIMInstance getInstance(const CIMObjectPath & ref);
+	CIMInstance getInstance(
+		    const CIMObjectPath & ref,
+		    const Boolean includeQualifiers = false,
+		    const Boolean includeClassOrigin = false,
+		    const CIMPropertyList & propertyList = CIMPropertyList());
 
-	Array<CIMInstance> enumerateInstances(const CIMObjectPath & ref);
+	Array<CIMInstance> enumerateInstances(
+			   const CIMObjectPath & classReference,
+		    	   const Boolean includeQualifiers = false,
+		     	   const Boolean includeClassOrigin = false,
+		    	   const CIMPropertyList & propertyList = CIMPropertyList());
 
 	Array<CIMObjectPath> enumerateInstanceNames(const CIMObjectPath & ref);
 

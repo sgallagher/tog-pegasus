@@ -142,7 +142,10 @@ void ProviderRegistrationProvider::getInstance(
 
     try
     {
-	instance = _providerRegistrationManager->getInstance(instanceReference);
+	instance = _providerRegistrationManager->getInstance(instanceReference,
+							     includeQualifiers,
+							     includeClassOrigin,
+							     propertyList);
     }
     catch(CIMException& e)
     {
@@ -189,7 +192,11 @@ void ProviderRegistrationProvider::enumerateInstances(
 
     try
     {
-        enumInstances = _providerRegistrationManager->enumerateInstances(classReference);
+        enumInstances = 
+	    _providerRegistrationManager->enumerateInstances(classReference, 
+							     includeQualifiers,
+			 				     includeClassOrigin, 
+							     propertyList);
     }
     catch(CIMException& e)
     {
@@ -328,8 +335,10 @@ void ProviderRegistrationProvider::modifyInstance(
 
     try
     {
-        _providerRegistrationManager->modifyInstance(instanceReference,
-	    instanceObject, includeQualifiers, propertyArray);
+        _providerRegistrationManager->modifyInstance(instanceReference, 
+						     instanceObject, 
+						     includeQualifiers, 
+	    					     propertyArray);
     }
     catch(CIMException& e)
     {

@@ -874,7 +874,7 @@ String ConfigManager::getHomedPath(const String& value)
     Uint32 pos =0;
     Uint32 token=0;
     do {
-      if (( pos = temp.find(":")) == PEG_NOT_FOUND) {
+      if (( pos = temp.find(FileSystem::getPathDelimiter())) == PEG_NOT_FOUND) {
 	pos = temp.size();
 	token = 0;
       }
@@ -888,7 +888,7 @@ String ConfigManager::getHomedPath(const String& value)
          homedPath.append( _pegasusHome + "/" + temp.subString(0, pos));
 
       if (token == 1)
-	homedPath.append(":");
+	homedPath.append(FileSystem::getPathDelimiter());
       temp.remove(0,pos+token);	
     }
     while ( temp.size() > 0 );	

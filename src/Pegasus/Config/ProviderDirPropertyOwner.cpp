@@ -56,7 +56,11 @@ PEGASUS_NAMESPACE_BEGIN
 
 static struct ConfigPropertyRow properties[] =
 {
+#if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+    {"providerDir", "lib;bin", 0, 0, 0, 1},
+#else
     {"providerDir", "lib", 0, 0, 0, 1},
+#endif
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);

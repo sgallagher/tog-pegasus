@@ -36,7 +36,10 @@
 #include "cmpidt.h"
 #include "cmpift.h"
 #include <string.h>
+
+#ifndef PEGASUS_PLATFORM_WIN32_IX86_MSVC
 #include <strings.h>
+#endif
 
 #ifndef CmpiBoolean
 #define CmpiBoolean CMPIBoolean

@@ -804,7 +804,7 @@ CmpiData::CmpiData(CMPIData& data) {
 
 CmpiData::CmpiData() {
    data.state=CMPI_nullValue;
-   data.value.uint64=0LL;
+   data.value.uint64=0;
    data.type=CMPI_null;
 }
 

@@ -32,35 +32,18 @@
 #ifndef _CMPIOS_H_
 #define _CMPIOS_H_
 
-#if defined(CMPI_PLATFORM_LINUX_GENERIC_GNU)
+#define CMPI_THREAD_TYPE        void *
+#define CMPI_MUTEX_TYPE         void*
+#define CMPI_COND_TYPE          void*
 
+#if defined(CMPI_PLATFORM_WIN32_IX86_MSVC)
+   #define CMPI_THREAD_RETURN      unsigned
+   #define CMPI_THREAD_CDECL       __stdcall
+   #define CMPI_THREAD_KEY_TYPE    DWORD
+#elif
    #define CMPI_THREAD_RETURN      void *
-   #define CMPI_THREAD_TYPE        unsigned long int
    #define CMPI_THREAD_CDECL
    #define CMPI_THREAD_KEY_TYPE    unsigned int
-   #define CMPI_MUTEX_TYPE         void*
-   #define CMPI_COND_TYPE          void*
-
-//#elif defined(CMPI_PLATFORM_HPUX_ACC)
-
-//#elif defined(CMPI_PLATFORM_WIN32_IX86_MSVC)
-
-//#elif defined(CMPI_PLATFORM_SOLARIS_SPARC_GNU)
-
-//#elif defined(CMPI_PLATFORM_SOLARIS_SPARC_CC)
-
-//#elif defined(CMPI_PLATFORM_AIX_RS_IBMCXX)
-
-//#elif defined(CMPI_PLATFORM_ZOS_ZSERIES_IBM)
-
-//#elif defined(CMPI_PLATFORM_TRU64_ALPHA_DECCXX)
-
-//#elif defined(CMPI_PLATFORM_OS400_ISERIES_IBM)
-
-//#elif defined(CMPI_PLATFORM_DARWIN_PPC_GNU)
-
-#else
-   #error Platform for Remote CMPI daemon no yet supported
 #endif
 
 

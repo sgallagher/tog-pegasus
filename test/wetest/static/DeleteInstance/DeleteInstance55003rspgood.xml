@@ -3,7 +3,7 @@
 <MESSAGE ID="55003" PROTOCOLVERSION="1.0">
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="DeleteInstance">
-<ERROR CODE="6" DESCRIPTION="CIM_ERR_NOT_FOUND: The requested object could not be found: &quot;test_class.CreationClassName=&quot;PG_TestPropertyTypes&quot;,InstanceId=1&quot;"/>
+<ERROR CODE="5" DESCRIPTION="CIM_ERR_INVALID_CLASS: The specified class does not exist: &quot;test_class&quot;"/>
 </IMETHODRESPONSE>
 </SIMPLERSP>
 </MESSAGE>

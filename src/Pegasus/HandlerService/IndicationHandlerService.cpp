@@ -29,6 +29,7 @@
 //                (carolann_graves@hp.com)
 //              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//				Seema Gupta (gseema@in.ibm.com) for PEP135
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -118,7 +119,8 @@ void IndicationHandlerService::handleEnqueue(Message* message)
     {
         if (msg->thread_changed())
         {
-            AcceptLanguages *langs = new AcceptLanguages(msg->acceptLanguages);
+            AcceptLanguages *langs =  new AcceptLanguages(((AcceptLanguageListContainer)msg->operationContext.get
+											(AcceptLanguageListContainer::NAME)).getLanguages());
             Thread::setLanguages(langs);
         }
     }
@@ -301,8 +303,10 @@ IndicationHandlerService::_handleIndication(
                     QueueIdStack(exportServer[0], getQueueId()),
                     String::EMPTY,
                     String::EMPTY,
-                    request->contentLanguages);
+					((ContentLanguageListContainer)request->operationContext.get
+								(ContentLanguageListContainer::NAME)).getLanguages());
 
+			exportmessage->operationContext.set(request->operationContext.get(ContentLanguageListContainer::NAME)); 
             AsyncOpNode* op = this->get_op();
 
             AsyncLegacyOperationStart *asyncRequest =
@@ -348,13 +352,15 @@ IndicationHandlerService::_handleIndication(
             {
                 try
                 {
+					ContentLanguages langs = ((ContentLanguageListContainer)request->operationContext.
+												get(ContentLanguageListContainer::NAME)).getLanguages(); 
                     handlerLib->handleIndication(
                         request->operationContext,
                         handler,
                         indication,
                         nameSpace.getString(),
-                    request->contentLanguages);
-                }
+						langs);
+                 }
                 catch(CIMException& e)
                 {
                     cimException =

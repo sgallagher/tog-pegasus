@@ -976,6 +976,7 @@ void IndicationService::_handleGetInstanceRequest (const Message* message)
         instance,
         ContentLanguages(contentLangs));
 
+	response->operationContext.set(ContentLanguageListContainer(ContentLanguages(contentLangs)));
     //
     //  Preserve message key
     //
@@ -1141,6 +1142,7 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
             returnedInstances,
             ContentLanguages(aggregatedLangs));
 
+	response->operationContext.set(ContentLanguageListContainer(ContentLanguages(aggregatedLangs))); 
     //
     //  Preserve message key
     //
@@ -2039,8 +2041,9 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
                         QueueIdStack(_handlerService, getQueueId()),
                         String::EMPTY,
                         String::EMPTY,
-                        request->contentLanguages);
-               
+						((ContentLanguageListContainer)request->operationContext.
+								get(ContentLanguageListContainer::NAME)).getLanguages());
+                                      
 		handler_request->operationContext = request->operationContext;
 
                 AsyncOpNode* op = this->get_op();
@@ -5836,8 +5839,11 @@ void IndicationService::_handleCreateResponseAggregation (
             {
                 instanceRef = _subscriptionRepository->createInstance 
                     (request->subscriptionInstance, origRequest->nameSpace, 
-                    origRequest->userName, origRequest->acceptLanguages, 
-                    origRequest->contentLanguages, true);
+					((IdentityContainer)origRequest->operationContext.get(IdentityContainer::NAME)).getUserName(), 
+					((AcceptLanguageListContainer)request->operationContext.get
+												(AcceptLanguageListContainer::NAME)).getLanguages(),
+					((ContentLanguageListContainer)request->operationContext.get
+												(ContentLanguageListContainer::NAME)).getLanguages(),true);
                 instanceRef.setNameSpace 
                     (request->subscriptionInstance.getPath().getNameSpace());
                 instance.setPath (instanceRef);

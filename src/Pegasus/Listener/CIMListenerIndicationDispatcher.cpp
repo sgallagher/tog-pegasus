@@ -26,7 +26,7 @@
 //
 // Author: Dong Xiang, EMC Corporation (xiang_dong@emc.com)
 //
-// Modified By:
+// Modified By:	Seema Gupta (gseema@in.ibm.com) for PEP135
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -161,7 +161,8 @@ CIMExportIndicationResponseMessage* CIMListenerIndicationDispatcherRep::handleIn
 
 	CIMInstance instance = request->indicationInstance;
 	String			url = request->destinationPath;
-        ContentLanguages contentLangs = request->contentLanguages;
+    ContentLanguages contentLangs =((ContentLanguageListContainer)request->operationContext.
+			                                    get(ContentLanguageListContainer::NAME)).getLanguages();
 
 	deliverIndication(url,instance,contentLangs);
 

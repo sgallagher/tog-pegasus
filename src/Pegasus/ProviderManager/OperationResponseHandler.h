@@ -133,7 +133,6 @@ public:
             getResponse())->cimInstance = getObjects()[0];
 
 		// l10n
-		getResponse()->contentLanguages = getLanguages();
 		getResponse()->operationContext.set(ContentLanguageListContainer(getLanguages()));
     }
 };
@@ -157,7 +156,6 @@ public:
             getResponse())->cimNamedInstances = getObjects();
 
 		// l10n
-		getResponse()->contentLanguages = getLanguages();
 		getResponse()->operationContext.set(ContentLanguageListContainer(getLanguages()));
     }
 
@@ -182,7 +180,6 @@ public:
             getResponse())->instanceNames = getObjects();
 
 	// l10n
-	getResponse()->contentLanguages = getLanguages();
 	getResponse()->operationContext.set(ContentLanguageListContainer(getLanguages()));
     }
 
@@ -213,7 +210,6 @@ public:
             getResponse())->instanceName = getObjects()[0];
 
 		// l10n
-		getResponse()->contentLanguages = getLanguages();
 		getResponse()->operationContext.set(ContentLanguageListContainer(getLanguages()));
     }
 
@@ -271,7 +267,6 @@ public:
             getResponse())->value = getObjects()[0];
 
 		// l10n
-		getResponse()->contentLanguages = getLanguages();
 		getResponse()->operationContext.set(ContentLanguageListContainer(getLanguages()));
     }
 };
@@ -306,7 +301,6 @@ public:
             getResponse())->cimObjects = getObjects();
 
 		// l10n
-		getResponse()->contentLanguages = getLanguages();
 		getResponse()->operationContext.set(ContentLanguageListContainer(getLanguages()));
     }
 
@@ -332,7 +326,6 @@ public:
             getResponse())->objectNames.appendArray(getObjects());
 
 		// l10n
-		getResponse()->contentLanguages = getLanguages();
 		getResponse()->operationContext.set(ContentLanguageListContainer(getLanguages()));
     }
 
@@ -357,7 +350,6 @@ public:
             getResponse())->cimObjects = getObjects();
 
 		// l10n
-		getResponse()->contentLanguages = getLanguages();
 		getResponse()->operationContext.set(ContentLanguageListContainer(getLanguages()));
     }
 
@@ -382,7 +374,6 @@ public:
             getResponse())->objectNames.appendArray(getObjects());
 
 		// l10n
-		getResponse()->contentLanguages = getLanguages();
 		getResponse()->operationContext.set(ContentLanguageListContainer(getLanguages()));
     }
 
@@ -417,7 +408,6 @@ public:
             getResponse())->retValue = getReturnValue();
 
 		// l10n
-		getResponse()->contentLanguages = getLanguages();
 		getResponse()->operationContext.set(ContentLanguageListContainer(getLanguages()));
     }
 
@@ -524,6 +514,13 @@ public:
             QueueIdStack(_target->getQueueId(), _source->getQueueId()),
             contentLangs);
         request->operationContext = context;
+		try
+		{
+			request->operationContext.set(ContentLanguageListContainer(contentLangs));
+		}catch(Exception &e)
+		{
+			request->operationContext.insert(ContentLanguageListContainer(contentLangs));
+		}
 
         // send message
         // <<< Wed Apr 10 21:04:00 2002 mdd >>>

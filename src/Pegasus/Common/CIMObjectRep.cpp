@@ -101,7 +101,7 @@ CIMObjectRep::CIMObjectRep()
 
 }
 
-CIMObjectRep::CIMObjectRep(const CIMObjectRep& x) :
+CIMObjectRep::CIMObjectRep(const CIMObjectRep& x) : 
     Sharable(),
     _reference(x._reference),
     _resolved(x._resolved)
@@ -111,7 +111,7 @@ CIMObjectRep::CIMObjectRep(const CIMObjectRep& x) :
     _properties.reserve(x._properties.size());
 
     for (Uint32 i = 0, n = x._properties.size(); i < n; i++)
-	_properties.append(x._properties[i].clone());
+	_properties.append(x._properties[i].clone(true));
 }
 
 Boolean CIMObjectRep::identical(const CIMObjectRep* x) const

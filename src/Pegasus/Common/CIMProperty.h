@@ -316,20 +316,24 @@ public:
 	DeclContext* declContext,
 	const String& nameSpace,
 	Boolean isInstancePart,
-	const CIMConstProperty& property)
+	const CIMConstProperty& property,
+	Boolean propagateQualifiers)
     {
 	_checkRep();
-	_rep->resolve(declContext, nameSpace, isInstancePart, property);
+	_rep->resolve(declContext, 
+	    nameSpace, isInstancePart, property, propagateQualifiers);
     }
 
     /// resolve - ATTN
     void resolve(
 	DeclContext* declContext,
 	const String& nameSpace,
-	Boolean isInstancePart)
+	Boolean isInstancePart,
+	Boolean propagateQualifiers)
     {
 	_checkRep();
-	_rep->resolve(declContext, nameSpace, isInstancePart);
+	_rep->resolve(
+	    declContext, nameSpace, isInstancePart, propagateQualifiers);
     }
 
     /// ATTN
@@ -383,9 +387,9 @@ public:
     }
 
     /// clone - ATTN
-    CIMProperty clone() const
+    CIMProperty clone(Boolean propagateQualifiers) const
     {
-	return CIMProperty(_rep->clone());
+	return CIMProperty(_rep->clone(propagateQualifiers));
     }
 
 private:
@@ -574,9 +578,9 @@ public:
 	return _rep->isKey();
     }
 
-    CIMProperty clone() const
+    CIMProperty clone(Boolean propagateQualifiers) const
     {
-	return CIMProperty(_rep->clone());
+	return CIMProperty(_rep->clone(propagateQualifiers));
     }
 
 private:

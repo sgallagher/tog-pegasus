@@ -32,10 +32,12 @@
 #include "CIMName.h"
 #include "XmlWriter.h"
 
+PEGASUS_USING_STD;
+
 PEGASUS_NAMESPACE_BEGIN
 
-CIMInstanceRep::CIMInstanceRep(const CIMReference& reference) :
-    CIMObjectRep(reference)
+CIMInstanceRep::CIMInstanceRep(const CIMReference& reference)
+    : CIMObjectRep(reference)
 {
 
 }
@@ -48,7 +50,8 @@ CIMInstanceRep::~CIMInstanceRep()
 void CIMInstanceRep::resolve(
     DeclContext* context,
     const String& nameSpace,
-    CIMConstClass& cimClassOut)
+    CIMConstClass& cimClassOut,
+    Boolean propagateQualifiers)
 {
     // ATTN: Verify that references are initialized.
 
@@ -85,7 +88,7 @@ void CIMInstanceRep::resolve(
 	throw InstantiatedAbstractClass(_reference.getClassName());
 
     //----------------------------------------------------------------------
-    // Validate the qualifiers of this class:
+    // Validate and propagate qualifiers.
     //----------------------------------------------------------------------
 
     _qualifiers.resolve(
@@ -93,7 +96,8 @@ void CIMInstanceRep::resolve(
 	nameSpace,
 	CIMScope::CLASS,
 	false,
-	cimClass._rep->_qualifiers);
+	cimClass._rep->_qualifiers,
+	propagateQualifiers);
 
     //----------------------------------------------------------------------
     // First iterate the properties of this instance and verify that
@@ -112,7 +116,8 @@ void CIMInstanceRep::resolve(
 	if (pos == PEG_NOT_FOUND)
 	    throw NoSuchProperty(property.getName());
 
-	property.resolve(context, nameSpace, true, cimClass.getProperty(pos));
+	property.resolve(context, 
+	    nameSpace, true, cimClass.getProperty(pos), propagateQualifiers);
         property.setClassOrigin(classOrigin);
     }
 
@@ -142,7 +147,7 @@ void CIMInstanceRep::resolve(
 
 	if (!found)
 	{
-	    CIMProperty p = property.clone();
+	    CIMProperty p = property.clone(propagateQualifiers);
 	    p.setPropagated(true);
 	    _properties.insert(m++, p);
 	}

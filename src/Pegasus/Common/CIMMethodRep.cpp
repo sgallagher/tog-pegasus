@@ -131,7 +131,8 @@ void CIMMethodRep::resolve(
 	nameSpace,
 	CIMScope::METHOD,
 	false,
-	inheritedMethod._rep->_qualifiers);
+	inheritedMethod._rep->_qualifiers,
+	true);
 
     // Validate each of the parameters:
 
@@ -154,7 +155,8 @@ void CIMMethodRep::resolve(
 	nameSpace,
 	CIMScope::METHOD,
 	false,
-	dummy);
+	dummy,
+	true);
 
     // Validate each of the parameters:
 

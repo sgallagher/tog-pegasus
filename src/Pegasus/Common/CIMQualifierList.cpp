@@ -97,7 +97,8 @@ void CIMQualifierList::resolve(
     const String& nameSpace,
     Uint32 scope,
     Boolean isInstancePart,
-    CIMQualifierList& inheritedQualifiers)
+    CIMQualifierList& inheritedQualifiers,
+    Boolean propagateQualifiers)
 {
     // For each qualifier in the qualifiers array, the following
     // is checked:
@@ -209,9 +210,13 @@ void CIMQualifierList::resolve(
         << " flavor= " << iq.getFlavor()
         << " TOSUBCLASS " << (iq.getFlavor() && CIMFlavor::TOSUBCLASS) << endl;
         */
-	CIMQualifier q = iq.clone();
-	q.setPropagated(true);
-	_qualifiers.prepend(q);
+
+	if (propagateQualifiers)
+	{
+	    CIMQualifier q = iq.clone();
+	    q.setPropagated(true);
+	    _qualifiers.prepend(q);
+	}
     }
 }
 

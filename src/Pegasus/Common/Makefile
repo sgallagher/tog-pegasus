@@ -30,7 +30,7 @@ SOURCES = \
     CIMObject.cpp \
     CIMObjectRep.cpp \
     CIMObjectPath.cpp \
-	Cimom.cpp \
+    Cimom.cpp \
     CimomMessage.cpp \
     CIMParameter.cpp \
     CIMParameterRep.cpp \

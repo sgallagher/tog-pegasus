@@ -32,6 +32,8 @@
 #include "CIMName.h"
 #include "XmlWriter.h"
 
+PEGASUS_USING_STD;
+
 PEGASUS_NAMESPACE_BEGIN
 
 #define PEGASUS_ARRAY_T CIMInstance
@@ -62,11 +64,14 @@ Boolean CIMInstance::identical(const CIMConstInstance& x) const
     return _rep->identical(x._rep);
 }
 
-void CIMInstance::resolve(DeclContext* declContext, const String& nameSpace)
+void CIMInstance::resolve(
+    DeclContext* declContext, 
+    const String& nameSpace,
+    Boolean propagateQualifiers)
 {
     _checkRep();
     CIMConstClass cimClass;
-    _rep->resolve(declContext, nameSpace, cimClass);
+    _rep->resolve(declContext, nameSpace, cimClass, propagateQualifiers);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

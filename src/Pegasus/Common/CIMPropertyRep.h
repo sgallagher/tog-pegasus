@@ -139,12 +139,14 @@ public:
 	DeclContext* declContext,
 	const String& nameSpace,
 	Boolean isInstancePart,
-	const CIMConstProperty& property);
+	const CIMConstProperty& property,
+	Boolean propagateQualifiers);
 
     void resolve(
 	DeclContext* declContext,
 	const String& nameSpace,
-	Boolean isInstancePart);
+	Boolean isInstancePart,
+	Boolean propagateQualifiers);
 
     void toXml(Array<Sint8>& out) const;
 
@@ -156,9 +158,9 @@ public:
 
     Boolean isKey() const;
 
-    CIMPropertyRep* clone() const
+    CIMPropertyRep* clone(Boolean propagateQualifiers) const
     {
-	return new CIMPropertyRep(*this);
+	return new CIMPropertyRep(*this, propagateQualifiers);
     }
 
 private:
@@ -167,7 +169,7 @@ private:
 
     // Cloning constructor:
 
-    CIMPropertyRep(const CIMPropertyRep& x);
+    CIMPropertyRep(const CIMPropertyRep& x, Boolean propagateQualifiers);
 
     CIMPropertyRep& operator=(const CIMPropertyRep& x);
 

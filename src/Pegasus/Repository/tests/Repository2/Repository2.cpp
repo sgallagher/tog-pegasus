@@ -174,12 +174,13 @@ void TestCreateClass()
     modifiedInst0.addProperty(CIMProperty("message", "Goodbye World"));
     CIMNamedInstance namedInst0(instanceNames[0], modifiedInst0);
     r.modifyInstance(NS, namedInst0);
+    // modifiedInst0.print();
 
     // -- Get instance back and see that it is the same as modified one:
 
     CIMInstance tmpInstance = r.getInstance(NS, "MyClass.key=111");
-    assert(tmpInstance.identical(modifiedInst0));
     // tmpInstance.print();
+    assert(tmpInstance.identical(modifiedInst0));
 
     // -- Now modify the "message" property:
 

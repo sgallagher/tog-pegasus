@@ -34,6 +34,8 @@
 #include "CIMName.h"
 #include "CIMScope.h"
 
+PEGASUS_USING_STD;
+
 PEGASUS_NAMESPACE_BEGIN
 
 CIMPropertyRep::CIMPropertyRep(
@@ -42,7 +44,8 @@ CIMPropertyRep::CIMPropertyRep(
     Uint32 arraySize,
     const String& referenceClassName,
     const String& classOrigin,
-    Boolean propagated) :
+    Boolean propagated) 
+    :
     _name(name), _value(value), _arraySize(arraySize),
     _referenceClassName(referenceClassName), _classOrigin(classOrigin),
     _propagated(propagated)
@@ -103,7 +106,8 @@ void CIMPropertyRep::resolve(
     DeclContext* declContext,
     const String& nameSpace,
     Boolean isInstancePart,
-    const CIMConstProperty& inheritedProperty)
+    const CIMConstProperty& inheritedProperty,
+    Boolean propagateQualifiers)
 {
     assert (inheritedProperty);
 
@@ -126,7 +130,8 @@ void CIMPropertyRep::resolve(
 	nameSpace,
 	scope,
 	isInstancePart,
-	inheritedProperty._rep->_qualifiers);
+	inheritedProperty._rep->_qualifiers, 
+	propagateQualifiers);
 
     _classOrigin = inheritedProperty.getClassOrigin();
 }
@@ -134,7 +139,8 @@ void CIMPropertyRep::resolve(
 void CIMPropertyRep::resolve(
     DeclContext* declContext,
     const String& nameSpace,
-    Boolean isInstancePart)
+    Boolean isInstancePart,
+    Boolean propagateQuaifiers)
 {
     CIMQualifierList dummy;
 
@@ -148,7 +154,8 @@ void CIMPropertyRep::resolve(
 	nameSpace,
 	scope,
 	isInstancePart,
-	dummy);
+	dummy,
+	propagateQuaifiers);
 }
 
 static const char* _toString(Boolean x)
@@ -343,7 +350,10 @@ CIMPropertyRep::CIMPropertyRep()
 
 }
 
-CIMPropertyRep::CIMPropertyRep(const CIMPropertyRep& x) :
+CIMPropertyRep::CIMPropertyRep(
+    const CIMPropertyRep& x, 
+    Boolean propagateQualifiers) 
+    :
     Sharable(),
     _name(x._name),
     _value(x._value),
@@ -352,7 +362,8 @@ CIMPropertyRep::CIMPropertyRep(const CIMPropertyRep& x) :
     _classOrigin(x._classOrigin),
     _propagated(x._propagated)
 {
-    x._qualifiers.cloneTo(_qualifiers);
+    if (propagateQualifiers)
+	x._qualifiers.cloneTo(_qualifiers);
 }
 
 CIMPropertyRep& CIMPropertyRep::operator=(const CIMPropertyRep& x)

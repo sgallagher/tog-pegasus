@@ -104,7 +104,8 @@ void CIMParameterRep::resolve(
 	nameSpace,
 	CIMScope::PARAMETER,
 	false,
-	dummy);
+	dummy,
+	true);
 }
 
 void CIMParameterRep::toXml(Array<Sint8>& out) const

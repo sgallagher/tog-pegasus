@@ -44,14 +44,16 @@ class PEGASUS_COMMON_LINKAGE CIMInstanceRep : public CIMObjectRep
 {
 public:
 
-    CIMInstanceRep(const CIMReference& reference);
+    CIMInstanceRep(
+	const CIMReference& reference);
 
     virtual ~CIMInstanceRep();
 
     void resolve(
 	DeclContext* declContext,
 	const String& nameSpace,
-	CIMConstClass& cimClassOut);
+	CIMConstClass& cimClassOut,
+	Boolean propagateQualifiers);
 
     virtual void toXml(Array<Sint8>& out) const;
 

@@ -330,15 +330,19 @@ public:
     operator int() const { return _rep != 0; }
 
     /**	resolve - ATTN: */
-    void resolve(DeclContext* declContext, const String& nameSpace);
+    void resolve(
+	DeclContext* declContext, 
+	const String& nameSpace,
+	Boolean propagateQualifiers);
 
     void resolve(
 	DeclContext* declContext,
 	const String& nameSpace,
-	CIMConstClass& cimClassOut)
+	CIMConstClass& cimClassOut,
+	Boolean propagateQualifiers)
     {
 	_checkRep();
-	_rep->resolve(declContext, nameSpace, cimClassOut);
+	_rep->resolve(declContext, nameSpace, cimClassOut, propagateQualifiers);
     }
 
     /**	toXml - Creates an XML transformation of the CIMInstance

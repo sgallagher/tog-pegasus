@@ -69,7 +69,7 @@ int main(int argc, char** argv)
 	    .add(CIMQualifier("q2", false));
 
 	qualifiers1.resolve(
-	    context, NAMESPACE, CIMScope::CLASS, false, qualifiers0);
+	    context, NAMESPACE, CIMScope::CLASS, false, qualifiers0, true);
 
 	// Create qualifier list 2:
 
@@ -80,7 +80,7 @@ int main(int argc, char** argv)
 	    .add(CIMQualifier("q1", true, CIMFlavor::OVERRIDABLE));
 
 	qualifiers2.resolve(
-	    context, NAMESPACE, CIMScope::CLASS, false, qualifiers1);
+	    context, NAMESPACE, CIMScope::CLASS, false, qualifiers1, true);
 
         if(verbose)
 			qualifiers2.print();

@@ -96,7 +96,7 @@ void test01()
     assert(!instance1.existsProperty("nuts"));
     assert(instance1.getPropertyCount() == 1);
 
-    instance1.resolve(context, NAMESPACE);
+    instance1.resolve(context, NAMESPACE, true);
 
     // Now test for parameters after resolution.
 

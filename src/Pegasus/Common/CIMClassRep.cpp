@@ -211,13 +211,14 @@ void CIMClassRep::resolve(
 
 	    if (pos == PEG_NOT_FOUND)
 	    {
-		property.resolve(context, nameSpace, false);
+		property.resolve(context, nameSpace, false, true);
 	    }
 	    else
 	    {
 		CIMConstProperty superClassProperty =
 		superClass.getProperty(pos);
-		property.resolve(context, nameSpace, false, superClassProperty);
+		property.resolve(
+		    context, nameSpace, false, superClassProperty, true);
 	    }
 	}
 
@@ -253,12 +254,14 @@ void CIMClassRep::resolve(
 	    // clone and insert it. Otherwise, the properties class
 	    // origin was set above.
 
-	    CIMProperty superproperty = superClassProperty.clone();
+	    CIMProperty superproperty = superClassProperty.clone(true);
+
 	    if (pos == PEG_NOT_FOUND)
 	    {
-		superproperty.setPropagated(true);
 		_properties.insert(m++, superproperty);
-	    } else {
+	    } 
+	    else 
+	    {
 	        // If property exists in the superclass and in the subclass,
 	        // then, enumerate the qualifiers of the superclass's property.
 	        // If a qualifier is defined on the superclass's property
@@ -357,7 +360,8 @@ void CIMClassRep::resolve(
 	    nameSpace,
 	    isAssociation() ? CIMScope::ASSOCIATION : CIMScope::CLASS,
 	    false,
-	    superClass._rep->_qualifiers);
+	    superClass._rep->_qualifiers,
+	    true);
     }
     else
     {
@@ -366,7 +370,7 @@ void CIMClassRep::resolve(
 	//----------------------------------------------------------------------
 
 	for (Uint32 i = 0, n = _properties.size(); i < n; i++)
-	    _properties[i].resolve(context, nameSpace, false);
+	    _properties[i].resolve(context, nameSpace, false, true);
 
 	//----------------------------------------------------------------------
 	// Resolve each method:
@@ -386,7 +390,8 @@ void CIMClassRep::resolve(
 	    nameSpace,
 	    isAssociation() ? CIMScope::ASSOCIATION : CIMScope::CLASS,
 	    false,
-	    dummy);
+	    dummy, 
+	    true);
     }
 
     // _resolved = true;

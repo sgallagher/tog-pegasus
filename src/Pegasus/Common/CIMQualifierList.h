@@ -92,7 +92,8 @@ public:
 	const String& nameSpace,
 	Uint32 scope,
 	Boolean isInstancePart,
-	CIMQualifierList& inheritedQualifiers);
+	CIMQualifierList& inheritedQualifiers,
+	Boolean propagateQualifiers);
 
     ///
     void toXml(Array<Sint8>& out) const;

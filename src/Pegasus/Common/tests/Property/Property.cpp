@@ -48,17 +48,18 @@ void test01()
     CIMConstProperty p2 = p1;
 
     // Test clone
-       CIMProperty p1clone = p1.clone();
-       CIMProperty p2clone = p2.clone();
+    CIMProperty p1clone = p1.clone(true);
+    CIMProperty p2clone = p2.clone(true);
    
     // Test print
-	   if(verbose)
-	   {
-		   p1.print(cout);
-		   p2.print(cout);
-		   p1clone.print(cout);
-		   p2clone.print(cout);
-	   }
+
+    if(verbose)
+    {
+	   p1.print(cout);
+	   p2.print(cout);
+	   p1clone.print(cout);
+	   p2clone.print(cout);
+    }
 
     // Test toMof
        Array<Sint8> mofOut;
@@ -155,9 +156,10 @@ void test02()
         CIMConstProperty cp1 = p1;
         CIMConstProperty cp2 = p2;
         CIMConstProperty cp3("message3", "hello");
-        CIMConstProperty cp1clone = cp1.clone();
+        CIMConstProperty cp1clone = cp1.clone(true);
+
         if(verbose)
-			cp1.print(cout);
+	    cp1.print(cout);
 
         Array<Sint8> mofOut;
         cp1.toMof(mofOut);

@@ -220,7 +220,6 @@ CIMClass CIMRepository::getClass(
     return cimClass;
 }
 
-/*ZZZ*/
 Boolean CIMRepository::_getInstanceIndex(
     const String& nameSpace,
     const CIMReference& instanceName,
@@ -271,14 +270,14 @@ Boolean CIMRepository::_getInstanceIndex(
     return false;
 }
 
-/*ZZZ*/
 CIMInstance CIMRepository::getInstance(
     const String& nameSpace,
     const CIMReference& instanceName,
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList)
+    const CIMPropertyList& propertyList,
+    Boolean _resolveInstance)
 {
     //
     // Get the index for this instance:
@@ -307,6 +306,16 @@ CIMInstance CIMRepository::getInstance(
     {
 	PEG_METHOD_EXIT();
         throw CannotOpenFile(path);
+    }
+
+    //
+    // Resolve the instance (if requested):
+    //
+
+    if (_resolveInstance)
+    {
+	CIMConstClass cimClass;
+	cimInstance.resolve(_context, nameSpace, cimClass, true);
     }
 
     PEG_METHOD_EXIT();
@@ -362,7 +371,6 @@ void CIMRepository::deleteClass(
     }
 }
 
-/*ZZZ*/
 void _CompactInstanceRepository(
     const String& indexFilePath, 
     const String& dataFilePath)
@@ -393,7 +401,6 @@ void _CompactInstanceRepository(
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "compact failed");
 }
 
-/*ZZZ*/
 void CIMRepository::deleteInstance(
     const String& nameSpace,
     const CIMReference& instanceName)
@@ -689,7 +696,6 @@ void CIMRepository::_createAssocInstEntries(
     }
 }
 
-/*ZZZ*/
 CIMReference CIMRepository::createInstance(
     const String& nameSpace,
     const CIMInstance& newInstance)
@@ -727,13 +733,13 @@ CIMReference CIMRepository::createInstance(
     }
 
     //
-    // Resolve the instance (looks up class and fills out properties and
-    // qualifiers):
+    // Resolve the instance. Looks up class and fills out properties but
+    // not the qualifiers.
     //
 
     CIMInstance cimInstance(newInstance);
     CIMConstClass cimClass;
-    cimInstance.resolve(_context, nameSpace, cimClass);
+    cimInstance.resolve(_context, nameSpace, cimClass, false);
     CIMReference instanceName = cimInstance.getInstanceName(cimClass);
 
     //
@@ -839,6 +845,8 @@ CIMReference CIMRepository::createInstance(
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "commit failed");
     }
 
+    cimInstance.resolve(_context, nameSpace, cimClass, true);
+
     PEG_METHOD_EXIT();
     return instanceName;
 }
@@ -888,7 +896,6 @@ void CIMRepository::modifyClass(
     _SaveObject(classFilePath, cimClass);
 }
 
-/*ZZZ*/
 void CIMRepository::modifyInstance(
     const String& nameSpace,
     const CIMNamedInstance& modifiedInstance,
@@ -955,15 +962,18 @@ void CIMRepository::modifyInstance(
             //
 
             cimInstance = getInstance(nameSpace,
-                modifiedInstance.getInstanceName(), false, true);
+                modifiedInstance.getInstanceName(), false, true, false);
+
             CIMInstance newInstance(
                 modifiedInstance.getInstanceName().getClassName());
+
             CIMInstance givenInstance = modifiedInstance.getInstance();
 
             //
             // Copy over the original instance qualifiers
             //
-            for (Uint32 i=0; i<cimInstance.getQualifierCount(); i++)
+
+            for (Uint32 i = 0; i < cimInstance.getQualifierCount(); i++)
             {
                 newInstance.addQualifier(cimInstance.getQualifier(i));
             }
@@ -1011,7 +1021,7 @@ void CIMRepository::modifyInstance(
         //
 
         cimInstance = getInstance(nameSpace,
-            modifiedInstance.getInstanceName(), false, true);
+            modifiedInstance.getInstanceName(), false, true, false);
         CIMInstance givenInstance = modifiedInstance.getInstance();
 
         // NOTE: Instance qualifiers are not changed when a property list
@@ -1116,11 +1126,12 @@ void CIMRepository::modifyInstance(
     }
 
     //
-    // Resolve the instance:
+    // Resolve the instance (do not propagate qualifiers from class since
+    // this will bloat the instance).
     //
 
     CIMConstClass cimClass;
-    cimInstance.resolve(_context, nameSpace, cimClass);
+    cimInstance.resolve(_context, nameSpace, cimClass, false);
 
     CIMReference instanceName = cimInstance.getInstanceName(cimClass);
 
@@ -1194,6 +1205,12 @@ void CIMRepository::modifyInstance(
 
     if (freeCount == _MAX_FREE_COUNT)
 	_CompactInstanceRepository(indexFilePath, dataFilePath);
+
+    //
+    // Resolve the instance:
+    //
+
+    cimInstance.resolve(_context, nameSpace, cimClass, true);
 }
 
 Array<CIMClass> CIMRepository::enumerateClasses(
@@ -1235,7 +1252,6 @@ Array<String> CIMRepository::enumerateClassNames(
     return classNames;
 }
 
-/*ZZZ*/
 Boolean CIMRepository::_loadAllInstances(
     const String& nameSpace,
     const String& className,
@@ -1301,8 +1317,11 @@ Boolean CIMRepository::_loadAllInstances(
 
 		XmlReader::getObject(parser, tmpInstance);
 
+		tmpInstance.resolve(_context, nameSpace, true);
+
 		namedInstances.append(
 		    CIMNamedInstance(instanceNames[i], tmpInstance));
+
 	    }
         }
     }
@@ -1310,7 +1329,6 @@ Boolean CIMRepository::_loadAllInstances(
     return true;
 }
 
-/*ZZZ*/
 Array<CIMNamedInstance> CIMRepository::enumerateInstances(
     const String& nameSpace,
     const String& className,
@@ -1347,7 +1365,6 @@ Array<CIMNamedInstance> CIMRepository::enumerateInstances(
     return namedInstances;
 }
 
-/*ZZZ*/
 Array<CIMReference> CIMRepository::enumerateInstanceNames(
     const String& nameSpace,
     const String& className)
@@ -1649,7 +1666,6 @@ Array<CIMReference> CIMRepository::referenceNames(
     return result;
 }
 
-/*ZZZ*/
 CIMValue CIMRepository::getProperty(
     const String& nameSpace,
     const CIMReference& instanceName,
@@ -1697,7 +1713,6 @@ CIMValue CIMRepository::getProperty(
     return prop.getValue();
 }
 
-/*ZZZ*/
 void CIMRepository::setProperty(
     const String& nameSpace,
     const CIMReference& instanceName,
@@ -1884,7 +1899,6 @@ String CIMRepository::_getInstanceDataFilePath(
     return tmp;
 }
 
-/*ZZZ*/
 Boolean CIMRepository::_loadInstance(
     const String& path,
     CIMInstance& object,

@@ -82,7 +82,8 @@ public:
         Boolean localOnly = true,
         Boolean includeQualifiers = false,
         Boolean includeClassOrigin = false,
-        const CIMPropertyList& propertyList = CIMPropertyList());
+        const CIMPropertyList& propertyList = CIMPropertyList(),
+	Boolean _resolveInstance = true /* private parameter; pass default*/ );
 
     /// deleteClass
     virtual void deleteClass(

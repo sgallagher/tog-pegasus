@@ -460,7 +460,7 @@ static void TestLocalizedInstances( CIMClient& client, Boolean verboseTest )
       // message file will cause us to test the default message
       // strings compiled into the code.	
  
-      for (Uint32 i = 0; i < testRepeat; i++)        // repeat the test x time
+      for (Uint32 n = 0; n < testRepeat; n++)        // repeat the test x time
       {
           //
           //  TEST 1 - Enumerate Instances of the base class, deepInheritance == false.  
@@ -483,8 +483,6 @@ static void TestLocalizedInstances( CIMClient& client, Boolean verboseTest )
           if (verboseTest)	      
               cout << "Found " << cimNInstances.size() << " Instances of " << className << endl;
 
-// Note: this should really be 2 because there are 2 instances of the base class,
-// but Pegasus ignores deepInheritance == false
           MYASSERT(cimNInstances.size() == 3);
 
 #ifdef PEGASUS_HAS_MESSAGES	

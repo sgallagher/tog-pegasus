@@ -118,6 +118,26 @@ endif
 	@ $(ECHO) Finished Tests
 
 ###############################################################################
+##  Test Suite Definitions
+###############################################################################
+
+###############################################################################
+##  OOP Test Suite 1: "Out-of-Process"(OOP) Provider Tests 
+##
+##  Configuration Options: forceProviderProcesses=true
+##
+###############################################################################
+OOP_TS1_CONFIG_OPTIONS = forceProviderProcesses=true
+OOP_TS1_TEST_CMDS = \
+        TestClient
+
+run_OOP_TS1:
+	$(MAKE) -f $(PEGASUS_ROOT)/mak/commands.mak runTestSuite \
+            CIMSERVER_CONFIG_OPTIONS="$(OOP_TS1_CONFIG_OPTIONS)" \
+            TESTSUITE_CMDS="$(OOP_TS1_TEST_CMDS)"
+###############################################################################
+
+###############################################################################
 ##
 ## Trace Configuration
 ##

@@ -74,24 +74,76 @@ class PEGASUS_CQL_LINKAGE CQLChainedIdentifier : public QueryChainedIdentifier
   public:
 
     CQLChainedIdentifier();
-    /**  constructor 
-          Parses the string into the various components of a CQL identifier.
-          Throws parsing errors.
-      */
+    /**  
+	Constructor 
+        Parses the string into the various components of a CQL identifier.
+	@param  - inString.  The raw string to be parsed into a CQLChainedIdentifier
+        @return - None.
+        @throws - None.
+    */
     CQLChainedIdentifier(String inString);
-
+    
+    /**  
+	The constructor for a CQLChainedIdentifier object.
+                                                                                                                                                             
+        @param  - id.  The CQLIdentifier to construct this object with.
+        @return - None.
+        @throws - None.
+    */
     CQLChainedIdentifier(const CQLIdentifier & id);
  
+    /**
+        Copy Constructor
+                                                                                                                                                             
+        @param  - cid.  The CQLChainedIdentifier to construct this object with.
+        @return - None.
+        @throws - None.
+    */
     CQLChainedIdentifier(const CQLChainedIdentifier& cid);
 
+    /**
+        Destructor
+                                                                                                                                                             
+        @param  - None.
+        @return - None.
+        @throws - None.
+    */
     ~CQLChainedIdentifier();
 
+    /**
+        Opertor=
+                                                                                                                                                             
+        @param  - rhs. Right hand side of assignement operator.
+        @return - *this.
+        @throws - None.
+    */
     CQLChainedIdentifier& operator=(const CQLChainedIdentifier& rhs);
 
+    /**
+        Operator[]. Allows indexed access into the CQLChainedIdentifier
+                                                                                                                                                             
+        @param  - index. Location of data within the CQLChainedIdentifier
+        @return - CQLIdentifier.  returns CQLIdentifer() if index is out of bounds.
+        @throws - None.
+    */
     CQLIdentifier operator[](Uint32 index)const;
 
+    /**
+        Gets all of the CQLIdentifiers within the CQLChainedIdentifier
+                                                                                                                                                             
+        @param  - None.
+        @return - Array<CQLIdentifier>.
+        @throws - None.
+    */
     Array<CQLIdentifier> getSubIdentifiers()const;
 
+    /**
+        Gets the last CQLIdentifier in this objects Array of CQLIdentifiers
+                                                                                                                                                             
+        @param  - None.
+        @return - CQLIdentifier.
+        @throws - None.
+    */
     CQLIdentifier getLastIdentifier()const;
 	
     friend class CQLFactory;

@@ -99,6 +99,7 @@ CQLChainedIdentifierRep& CQLChainedIdentifierRep::operator=(const CQLChainedIden
 }
 
 void CQLChainedIdentifierRep::parse(String & string){
+	PEG_METHOD_ENTER(TRC_CQL, "CQLChainedIdentifierRep::parse");	
 	/* 
 	  - parse string on "."
 	  - start from the end of string
@@ -138,6 +139,7 @@ void CQLChainedIdentifierRep::parse(String & string){
 			}
 		}
 	}
+	PEG_METHOD_EXIT();	
 }
 
 PEGASUS_NAMESPACE_END

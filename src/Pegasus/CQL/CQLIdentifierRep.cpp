@@ -92,7 +92,7 @@ CQLIdentifierRep& CQLIdentifierRep::operator=(const CQLIdentifierRep& rhs)
 
 void CQLIdentifierRep::parse(String identifier)
 {
-PEG_METHOD_ENTER(TRC_CQL, "CQLIdentifier::parse");
+PEG_METHOD_ENTER(TRC_CQL, "CQLIdentifierRep::parse");
 	/*
 	 - Parse for the following:
          1. A::<scoped string>

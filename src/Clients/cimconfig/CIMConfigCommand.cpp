@@ -2021,12 +2021,18 @@ int main (int argc, char* argv [])
     } 
     catch (const CommandFormatException& cfe) 
     {
-        if (!String::equal(cfe.getMessage (), ""))
-        {
-            cerr << COMMAND_NAME << ": " <<  "Invalid option. Use '-h' " 
-                 << "or '--help' to obtain command syntax" << endl;
-        }
-        exit (-1);
+        String msg(cfe.getMessage());
+
+        cerr << COMMAND_NAME << ": " << msg <<  endl;
+
+        if (msg.find(String("Unknown flag")) != PEG_NOT_FOUND)
+          cerr << COMMAND_NAME <<
+            ": Invalid option. Use '--help' to obtain command syntax" << endl;
+        else
+          cerr << COMMAND_NAME <<
+            ": Incorrect usage. Use '--help' to obtain command syntax" << endl;
+
+        exit (Command::RC_ERROR);
     }
 
     returnCode = command->execute (cout, cerr);

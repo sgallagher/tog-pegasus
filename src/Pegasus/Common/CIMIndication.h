@@ -37,8 +37,8 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_COMMON_LINKAGE CIMIndication
 {
 public:
-   CIMIndication(void);
-   virtual ~CIMIndication(void);
+   CIMIndication(void) { };
+   virtual ~CIMIndication(void) { };
 
 };
 

@@ -43,7 +43,6 @@
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/AsyncOpNode.h>
-#include <Pegasus/Common/AsyncOpNodeLocal.h>
 #include <Pegasus/Common/AsyncResponseHandler.h>
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Server/ProviderManager.h>
@@ -199,10 +198,7 @@ protected:
       ThreadPool _dispatch_pool; 
       
       static  PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _qthread (void *);
-      internal_dq _response_handler_cache[RESPONSE_HANDLER_TYPE_CIM_LAST - 1];
            
-      DQueue<OperationContext> _context_cache;
-      DQueue<CIMOperation_async> _async_cache;
       DQueue<AsyncOpNode> _opnode_cache;
       AsyncDQueue<AsyncOpNode> _waiting_ops;
       AsyncDQueue<AsyncOpNode> _started_ops;

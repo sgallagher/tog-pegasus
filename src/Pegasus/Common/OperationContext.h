@@ -47,6 +47,9 @@ PEGASUS_NAMESPACE_BEGIN
 #define CONTEXT_UID_PRESENT      0x00000080
 #define CONTEXT_UINT32_PRESENT   0x00000100
 #define CONTEXT_OTHER            0x00000200
+#define CONTEXT_COPY_MEMORY      0x00000400
+#define CONTEXT_DELETE_MEMORY    0x00000800
+#define CONTEXT_POINTER          0x00001000
 
 #define OPERATION_NONE                      0x00000000
 #define OPERATION_LOCAL_ONLY                0x00000001
@@ -55,9 +58,11 @@ PEGASUS_NAMESPACE_BEGIN
 #define OPERATION_DEEP_INHERITANCE          0x00000008
 #define OPERATION_PARTIAL_INSTANCE          0x00000010
 #define OPERATION_REMOTE_ONLY               0x00000020
-#define CONTEXT_COPY_MEMORY                 0x00000040
-#define CONTEXT_DELETE_MEMORY               0x00000080
-#define CONTEXT_POINTER                     0x00000100
+#define OPERATION_DELIVER                   0x00000040
+#define OPERATION_RESERVE                   0x00000080
+#define OPERATION_PROCESSING                0x00000100
+#define OPERATION_COMPLETE                  0x00000200
+
 
 
 //void PEGASUS_EXPORT default_serialize(Sint8 *, Uint32 ) throw(BufferTooSmall, NotSupported);
@@ -78,6 +83,55 @@ class PEGASUS_EXPORT context
       
       
       ~context(void);
+      
+      inline void reset( Uint32 data_size,
+			 void *data, 
+			 void (*del)(void *), 
+			 Uint32 uint_val ,
+			 Uint32 key , 
+			 Uint32 flag ,
+			 Uint8 *uid )
+      {
+	 
+	 if(_flag & CONTEXT_DELETE_MEMORY)
+	 {
+	    if(_delete_func != 0)
+	       _delete_func(_data);
+	    else
+	       default_delete(_data);
+	 }
+	 
+	 _size = data_size;
+	 _uint_val = uint_val;
+	 _key = key;
+	 _flag = flag;
+	 
+	 
+	 if(uid != 0)
+	    memcpy(_uid, uid, 16);
+	 else
+	    memset(_uid, 0x00, 16);
+	 
+	 if(flag & CONTEXT_POINTER)
+	    _data = data;
+	 else if (flag & CONTEXT_COPY_MEMORY)
+	 {
+	    if(data != 0)
+	    {
+	       _data = ::operator new(_size);
+	       memcpy(_data, data, _size);
+	    }
+	    
+	 }
+	 
+	 if(flag & CONTEXT_DELETE_MEMORY)
+	 {
+	    if(del != 0)
+	       _delete_func = del;
+	    else 
+	       _delete_func =  default_delete;
+	 }
+      }
       
       inline Boolean operator == (const Uint32 uint_val) const
       {
@@ -168,6 +222,11 @@ class PEGASUS_EXPORT OperationContext
 
       }
       
+      inline void reset(void) 
+      {
+	 _context.empty_list();
+      }
+      
       void add_context(Uint32 data_size,
 		       void *data, 
 		       void (*del)(void *), 
@@ -178,8 +237,6 @@ class PEGASUS_EXPORT OperationContext
 
       void add_context(context *);
 
-
-
       inline Boolean operator==(const void *key) const
       {
 	 if(reinterpret_cast<void *>(const_cast<OperationContext *>(this)) == key)
@@ -189,7 +246,9 @@ class PEGASUS_EXPORT OperationContext
       
       inline Boolean operator==(const OperationContext& ct) const
       {
-	 return(this->operator==((void *)this));
+	 if(this == &ct)
+	    return true;
+	 return false;
       }
       
       context *remove_context(void);
@@ -291,8 +350,6 @@ inline context *OperationContext::remove_context_key(Uint32 key)
    }
    return c;
 }
-
-
 
 PEGASUS_NAMESPACE_END
 

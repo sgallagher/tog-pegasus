@@ -55,8 +55,6 @@ struct timeval alloc_wait = { 0, 40 };
 struct timeval dealloc_wait = { 10, 0 };
 struct timeval deadlock_detect = { 5, 0 };
 
-
-
 // called by the request handler to setup an asynchronous request
 void async_operation_dispatch(CIMOperationRequestDispatcher *d, 
 			      void (CIMOperationRequestDispatcher::*top)(AsyncOpNode *),
@@ -74,47 +72,47 @@ void async_operation_dispatch(CIMOperationRequestDispatcher *d,
 
    //----------------------------------------------------------------- 
    // 1 - get all the resources we need to start an async operation
-   //-----------------------------------------------------------------
-   AsyncOpNodeLocal *node;
-   CIMOperationRequestDispatcher::CIMOperation_async *operation;
-   OperationContext *context;
-   void *response_handler;
+//    //-----------------------------------------------------------------
+//    AsyncOpNodeLocal *node;
+//    CIMOperationRequestDispatcher::CIMOperation_async *operation;
+//    OperationContext *context;
+//    void *response_handler;
    
-   node = static_cast<AsyncOpNodeLocal *>(d->_opnode_cache.remove_first());
-   if(node == 0)
-      node = new AsyncOpNodeLocal();
+//    node = static_cast<AsyncOpNodeLocal *>(d->_opnode_cache.remove_first());
+//    if(node == 0)
+//       node = new AsyncOpNodeLocal();
 
-   operation = d->_async_cache.remove_first();
-   if(operation == 0)
-      operation = new CIMOperationRequestDispatcher::CIMOperation_async(d, top, bottom, node);
+//    operation = d->_async_cache.remove_first();
+//    if(operation == 0)
+//       operation = new CIMOperationRequestDispatcher::CIMOperation_async(d, top, bottom, node);
    
-   context = d->_context_cache.remove_first();
-   if(context == 0)
-      context = new OperationContext();
+//    context = d->_context_cache.remove_first();
+//    if(context == 0)
+//       context = new OperationContext();
 
-   response_handler = d->_response_handler_cache[rh_type].remove_first();
-   if(response_handler == 0)
-      response_handler = create_rh(rh_type);
+//    response_handler = d->_response_handler_cache[rh_type].remove_first();
+//    if(response_handler == 0)
+//       response_handler = create_rh(rh_type);
 
-   //-----------------------------------------------------------------
-   // 2 - lock the op node and initialize it with the other resources
-   //-----------------------------------------------------------------
+//    //-----------------------------------------------------------------
+//    // 2 - lock the op node and initialize it with the other resources
+//    //-----------------------------------------------------------------
 
-   node->lock();
-   node->put_dispatch_async_struct(operation);
-   node->put_request(request);
-   node->put_req_context(context);
-   node->put_response_handler(response_handler, rh_type);
+//    node->lock();
+//    node->put_dispatch_async_struct(operation);
+//    node->put_request(request);
+//    node->put_req_context(context);
+//    node->put_response_handler(response_handler, rh_type);
 
-   node->set_state_bits(ASYNC_OPSTATE_NORMAL | ASYNC_OPSTATE_SINGLE);
-   node->set_flag_bits(ASYNC_OPFLAGS_UNKNOWN);
+//    node->set_state_bits(ASYNC_OPSTATE_NORMAL | ASYNC_OPSTATE_SINGLE);
+//    node->set_flag_bits(ASYNC_OPFLAGS_UNKNOWN);
    
-   //-----------------------------------------------------------------
-   // 3 - unlock the node and put it on the waitng operations queue
-   //-----------------------------------------------------------------
+//    //-----------------------------------------------------------------
+//    // 3 - unlock the node and put it on the waitng operations queue
+//    //-----------------------------------------------------------------
    
-   node->unlock();
-   d->_waiting_ops.insert_last(node);
+//    node->unlock();
+//    d->_waiting_ops.insert_last(node);
    return;
 }
 
@@ -124,17 +122,10 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(CIMRepository* repo
    : _repository(repository), _providerManager(this, repository, server),
      _dispatch_thread(_qthread, this, false),
      _dispatch_pool(10, "CIMOp dispatch", 5, 30, alloc_wait, dealloc_wait, deadlock_detect),
-     _context_cache(true), _async_cache(true), _opnode_cache(true), _waiting_ops(true, 100),
+     _opnode_cache(true), _waiting_ops(true, 100),
      _started_ops(true, 100),  _completed_ops(true, 100), _dying(0)
    
 {
-   _response_handler_cache[RESPONSE_HANDLER_TYPE_CIM_CLASS] = DQueue<AsyncResponseHandler<CIMClass> >(true);
-   _response_handler_cache[RESPONSE_HANDLER_TYPE_CIM_INSTANCE] = DQueue<AsyncResponseHandler<CIMInstance> >(true);
-   _response_handler_cache[RESPONSE_HANDLER_TYPE_CIM_OBJECT] = DQueue<AsyncResponseHandler<CIMObject> >(true);
-   _response_handler_cache[RESPONSE_HANDLER_TYPE_CIM_OBJECT_WITH_PATH] = DQueue<AsyncResponseHandler<CIMObjectWithPath> >(true);   
-   _response_handler_cache[RESPONSE_HANDLER_TYPE_CIM_VALUE] = DQueue<AsyncResponseHandler<CIMValue> >(true);
-   _response_handler_cache[RESPONSE_HANDLER_TYPE_CIM_INDICATION] = DQueue<AsyncResponseHandler<CIMIndication> >(true);
-   _response_handler_cache[RESPONSE_HANDLER_TYPE_CIM_REFERENCE] = DQueue<AsyncResponseHandler<CIMReference> >(true);
    
     DDD(cout << _DISPATCHER << endl;)
 }
@@ -285,9 +276,6 @@ void CIMOperationRequestDispatcher::handleEnqueue()
 
     if (!request)
 	return;
-    
-
-    
 
     switch (request->getType())
     {
@@ -401,6 +389,11 @@ void CIMOperationRequestDispatcher::handleEnqueue()
 	    handleInvokeMethodRequest(
 		(CIMInvokeMethodRequestMessage*)request);
 	    break;
+
+// 	case CIM_CANCEL_INDICATION_REQUEST_MESSAGE:
+// 	    handleCancelIndicationRequest(
+// 		(CIMCancelIndicationRequestMessage*)request);
+// 	    break;
 
         case CIM_ENABLE_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
             handleEnableIndicationSubscriptionRequest(
@@ -1809,30 +1802,30 @@ void CIMOperationRequestDispatcher::handleDisableIndicationSubscriptionRequest(
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL CIMOperationRequestDispatcher::async_dispatcher(void *parm)
 {
 
-   AsyncOpNodeLocal *work = reinterpret_cast<AsyncOpNodeLocal *>(parm);
+   AsyncOpNode *work = reinterpret_cast<AsyncOpNode *>(parm);
    work->lock();
    
-   CIMOperation_async *op = reinterpret_cast<CIMOperation_async *>(work->get_dispatch_async_struct());
-   CIMOperationRequestDispatcher *dispatcher = op->dispatcher;
+//   CIMOperation_async *op = reinterpret_cast<CIMOperation_async *>(work->get_dispatch_async_struct());
+//   CIMOperationRequestDispatcher *dispatcher = op->dispatcher;
    
    work->unlock();
    
 
-   if(work->test_flag_bit(ASYNC_OPFLAGS_COMPLETE))
-   {
+//   if(work->test_flag_bit(ASYNC_OPFLAGS_COMPLETE))
+// {
       // 1 - unlink from started list
       // 2 - call bottom half
-      // 3 - link to completed list for recycling
-      (dispatcher->*(op->bottom_half))(static_cast<AsyncOpNode *>(work));
-   }
-   else
-   {
+//      // 3 - link to completed list for recycling
+//    (dispatcher->*(op->bottom_half))(work);
+// }
+// else
+// {
       // unlink from waiting list
       // 1 - call top half
       // 2 - link to started list
       // 3 - return
-      (dispatcher->*(op->top_half))(static_cast<AsyncOpNode *>(work));
-   }
+//    (dispatcher->*(op->top_half))(work);
+// }
    
    return(0);
 }
@@ -1859,24 +1852,24 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL CIMOperationRequestDispatcher::_qthre
    if(dispatcher == 0)
       throw NullPointer();
       
-   while(dispatcher->_dying.value() != 0)
-   {
+//    while(dispatcher->_dying.value() != 0)
+//    {
 
-     // 1 - pull all nodes off the waiting list and start them, then put them on the started list
-      AsyncOpNodeLocal *worknode = static_cast<AsyncOpNodeLocal *>(dispatcher->_waiting_ops.remove_first());
-      while(worknode != 0)
-      {
-	 worknode->lock();
-	 worknode->set_flag_bits(ASYNC_OPFLAGS_STARTED);
-	 dispatcher->_dispatch_pool.allocate_and_awaken(worknode, 
-							async_dispatcher);
-	 worknode->unlock();
-	 dispatcher->_started_ops.insert_first_wait(worknode);
-	 worknode = static_cast<AsyncOpNodeLocal *>(dispatcher->_waiting_ops.remove_first());
-      }
+//      // 1 - pull all nodes off the waiting list and start them, then put them on the started list
+//       AsyncOpNodeLocal *worknode = static_cast<AsyncOpNodeLocal *>(dispatcher->_waiting_ops.remove_first());
+//       while(worknode != 0)
+//       {
+// 	 worknode->lock();
+// 	 worknode->set_flag_bits(ASYNC_OPFLAGS_STARTED);
+// 	 dispatcher->_dispatch_pool.allocate_and_awaken(worknode, 
+// 							async_dispatcher);
+// 	 worknode->unlock();
+// 	 dispatcher->_started_ops.insert_first_wait(worknode);
+// 	 worknode = static_cast<AsyncOpNodeLocal *>(dispatcher->_waiting_ops.remove_first());
+//       }
       
       
-   }
+//    }
    myself->test_cancel();
    myself->exit_self(0);
    return((PEGASUS_THREAD_RETURN)0);

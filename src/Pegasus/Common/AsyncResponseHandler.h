@@ -31,22 +31,16 @@
 #define Pegasus_AsyncResponse_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/ResponseHandler.h>
 #include <Pegasus/Common/Array.h>
+#include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/AsyncOpNode.h>
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Provider2/CIMBaseProviderHandle.h>
 #include <Pegasus/Provider2/CIMIndicationProvider.h>
 
 PEGASUS_NAMESPACE_BEGIN
-
-PEGASUS_EXPORT void *create_rh(int type)
-   throw(TypeMismatch) ;
-
-PEGASUS_EXPORT void delete_rh(void *handler, int type)
-   throw(TypeMismatch);
 
 template<class PEGASUS_EXPORT object_type>
 class PEGASUS_EXPORT AsyncResponseHandler : public ResponseHandler<object_type>
@@ -55,8 +49,7 @@ class PEGASUS_EXPORT AsyncResponseHandler : public ResponseHandler<object_type>
   
       
       AsyncResponseHandler<object_type>(int type) 
-	 : _parent(0), _provider(0), _thread(0),
-	   _type(type)
+	 : _parent(0), _provider(0), _thread(0)
       { 
 	 _objects = (Array<object_type> *)new Array<object_type>();
 	 gettimeofday(&_key, NULL);
@@ -101,7 +94,7 @@ class PEGASUS_EXPORT AsyncResponseHandler : public ResponseHandler<object_type>
 
    private:
       AsyncResponseHandler<object_type>(void)
-	 : _parent(0), _provider(0), _thread(0), _type(0)
+	 : _parent(0), _provider(0), _thread(0)
       {
 	 _objects = (Array<object_type> *)new Array<object_type>();
 	 gettimeofday(&_key, NULL);
@@ -112,7 +105,6 @@ class PEGASUS_EXPORT AsyncResponseHandler : public ResponseHandler<object_type>
       // to gain access to the Thread object's utility routines 
       Thread *_thread;
       Array<object_type> *_objects;
-      int _type;
       struct timeval _key;
       void _clear(void);
       friend class AsyncOpNode;
@@ -120,49 +112,121 @@ class PEGASUS_EXPORT AsyncResponseHandler : public ResponseHandler<object_type>
 };
 
 
+// need to rewrite the notify method for AsyncOpNode !!!!
+
 template<class object_type>
 inline void AsyncResponseHandler<object_type>::deliver(const object_type & object)
 {
    _objects->append(object);
-   _parent->notify(&_key,  NULL, ASYNC_OPFLAGS_DELIVER, 
-		   ASYNC_OPSTATE_SINGLE | ASYNC_OPSTATE_NORMAL , _type);
+   if(_parent != 0)
+      _parent->deliver(1);
 }
 
 template<class object_type>
 inline void AsyncResponseHandler<object_type>::deliver(const Array<object_type> & objects) 
 {
    _objects->appendArray(objects);
-   _parent->notify(&_key,  NULL, ASYNC_OPFLAGS_DELIVER, 
-		   ASYNC_OPSTATE_MULTIPLE | ASYNC_OPSTATE_NORMAL , _type);
+   if(_parent != 0)
+   {
+      try 
+      {
+	 _parent->deliver(_objects.count());
+      }
+      catch(IPCException & ie)
+      {
+	 // ATTN handle exception
+	 abort();
+      }
+   }
+   
+}
+
+template<class object_type>
+inline void  AsyncResponseHandler<object_type>::reserve(const Uint32 size) 
+{
+   _objects->reserve(size);
+   if(_parent != 0)
+   {
+      try 
+      {
+	 _parent->reserve(size);
+      }
+      catch(IPCException & ie)
+      {
+	 // ATTN handle exception
+	 abort();
+      }
+   }
 }
 
 
 template<class object_type>
 inline void AsyncResponseHandler<object_type>::processing(void) 
 {
-   _parent->notify(&_key, NULL, ASYNC_OPFLAGS_PROCESSING, 
-		   ASYNC_OPSTATE_NORMAL, _type);
+   if(_parent != 0)
+   {
+      try 
+      {
+	 _parent->processing();
+      }
+      catch(IPCException & ie)
+      {
+	 // ATTN handle exception
+	 abort();
+      }
+   }
+   
 }
 
 template<class object_type>
-inline void AsyncResponseHandler<object_type>::processing(OperationContext *context) 
+inline void AsyncResponseHandler<object_type>::processing(OperationContext *con) 
 {
-   _parent->notify(&_key, context, ASYNC_OPFLAGS_PROCESSING, 
-		   ASYNC_OPSTATE_NORMAL, _type);
+   if(_parent != 0)
+   {
+      try 
+      {
+	 _parent->processing(con);
+      }
+      catch(IPCException& ie)
+      {
+	 // ATTN handle exception
+	 abort();
+      }
+   }
 }
 
 template<class object_type>
 inline void AsyncResponseHandler<object_type>::complete(void) 
 {
-   _parent->notify(&_key, NULL, ASYNC_OPFLAGS_COMPLETE, 
-		   ASYNC_OPSTATE_NORMAL, _type);
+   if(_parent != 0)
+   {
+      try
+      {
+	 _parent->complete();
+      }
+      catch(IPCException & ie)
+      {
+	 // ATTN handle exception
+	 abort();
+      }
+   }
 }
 
 template<class object_type>
-inline void AsyncResponseHandler<object_type>::complete(OperationContext *context) 
+inline void AsyncResponseHandler<object_type>::complete(OperationContext *con) 
 {
-   _parent->notify(&_key, context, ASYNC_OPFLAGS_COMPLETE,
-		   ASYNC_OPSTATE_NORMAL, _type);
+   if(_parent != 0)
+   {
+      try
+      {
+	 _parent->complete(con);
+      }
+      catch(IPCException & ie)
+      {
+	 // ATTN handle exception
+	 abort();
+      }
+   }
 }
 
 template<class object_type>
@@ -207,10 +271,6 @@ inline Boolean AsyncResponseHandler<object_type>::operator == (
 {
    return(this->operator ==((void *)&(rh._key)));
 }
-
-
-
-
 
 
 // /** 

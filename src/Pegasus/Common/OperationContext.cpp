@@ -124,7 +124,6 @@ context::context(Uint32 data_size,
       else 
 	 _delete_func =  default_delete;
    }
-   
 }
 
 context::~context(void)

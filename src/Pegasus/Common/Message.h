@@ -1,4 +1,4 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%///-*-c++-*-/////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
 // The Open Group, Tivoli Systems
@@ -90,6 +90,32 @@ private:
     static Uint32 _nextKey;
     friend class MessageQueue;
 };
+
+
+// each component needs to support a set of these messgaes and pass that array
+// to the dispatcher so the dispatcher can route messages at the first level
+// i.e., client will not accept request messages.
+// every message should have a response
+
+// dispatcher supports full cim api set (as below)
+// repository needs to be a peer to the provider manager
+// 
+
+// mkdir _dispatcher
+// mkdir _providermanager
+// mkdir _server (http incoming, front end)
+// mkdir _repositorymanager
+//       _subscriptionprocessor
+//       _indicationprocessor
+//       _configurationmanager 
+//       _cimom (loads and links everyone, hooks up queues)
+
+// fundamental messages:
+
+// start, stop, pause, resume
+// handshaking: interrogate (as in windows service api)
+//              message class support
+//              message namespace support ???
 
 enum MessageType
 {

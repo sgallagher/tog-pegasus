@@ -58,6 +58,8 @@ class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
       /** */
       CIMOMHandle(void);
       CIMOMHandle(const CIMOMHandle &);
+      CIMOMHandle(const CIMOMHandle* );
+      
 
       /** */
 #ifdef PEGASUS_OS_OS400

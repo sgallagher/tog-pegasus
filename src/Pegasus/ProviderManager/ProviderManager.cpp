@@ -690,7 +690,9 @@ Provider* ProviderManager::_initProvider(
 
             try
             {
-                provider->initialize(*(provider->_cimom_handle));
+	       CIMOMHandle _ch(cimomHandle);
+	       
+	       provider->initialize(_ch);
                 undoModuleLoad = false;
             }
             catch(...)

@@ -35,34 +35,34 @@ endif
 
 ifdef PEGASUS_USE_23PROVIDER_MANAGER
 DIRS += \
-	ProviderManager \
-	ProviderManager/tests
+        ProviderManager \
+        ProviderManager/tests
 else
 DIRS += \
         ProviderManager2 \
-	ProviderManager2/Default \
-	ProviderManager2/ProviderAgent \
-	ProviderManager2/tests \
-	ProviderManager2/Default/tests
+        ProviderManager2/Default \
+        ProviderManager2/ProviderAgent \
+        ProviderManager2/tests \
+        ProviderManager2/Default/tests
 endif
 
 ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
     DIRS += \
         Provider/CMPI \
-	ProviderManager2/CMPI
+        ProviderManager2/CMPI
 endif
 
 
 ifdef PEGASUS_ENABLE_REMOTE_CMPI
   ifeq ($(PEGASUS_PLATFORM), WIN32_IX86_MSVC)
-	$(error: Error: Remote CMPI is not currently supported on Windows.)
+        $(error: Error: Remote CMPI is not currently supported on Windows.)
   endif
     DIRS += \
-	ProviderManager2/CMPIR \
-	ProviderManager2/CMPIR/tcpcomm \
-	ProviderManager2/CMPIR/native \
-	ProviderManager2/CMPIR/tcpcommrem \
-	ProviderManager2/CMPIR/daemon
+        ProviderManager2/CMPIR \
+        ProviderManager2/CMPIR/tcpcomm \
+        ProviderManager2/CMPIR/native \
+        ProviderManager2/CMPIR/tcpcommrem \
+        ProviderManager2/CMPIR/daemon
 endif
 
 ifdef PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER
@@ -70,28 +70,24 @@ ifdef PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER
       DIRS += \
          ProviderManager2/JMPI
   endif
-  ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
-      DIRS += \
-         ProviderManager2/JMPI
-  endif  
 endif
 
 ifdef PEGASUS_USE_PAM_STANDALONE_PROC
 DIRS += \
-	Security/Cimservera
+        Security/Cimservera
 endif
 
 ifdef PEGASUS_HAS_PERFINST
 DIRS += \
-	ControlProviders/Statistic \
-	ControlProviders/Statistic/test \
-	ControlProviders/InteropProvider \
-    	ControlProviders/InteropProvider/tests
+        ControlProviders/Statistic \
+        ControlProviders/Statistic/test \
+        ControlProviders/InteropProvider \
+        ControlProviders/InteropProvider/tests
 
 endif
-	
+        
 DIRS += \
-	Server \
+        Server \
     Handler/CIMxmlIndicationHandler \
     Handler/sendmailIndicationHandler \
     Handler/snmpIndicationHandler \

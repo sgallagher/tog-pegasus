@@ -49,3 +49,12 @@ the majority of the validation is done manually (moving to a generic
 client that performs appropriate native OS calls and compares the
 results against the CIM content returned).
 
+There is a common "doc" directory which contains the standard template
+for documenting ManagedSystem providers.  This template was developed
+by WBEMSource (http://www.wbemsource.org/wbem-doctemp); its usage is
+endorsed and encouraged for all WBEM providers, across all WBEM
+infrastructures.  The template should be copied and updated for each
+provider and placed in the "doc" directory under that particular provider
+(e.g. for the OS Provider it would be placed in the "OperatingSystem/doc"
+directory).
+

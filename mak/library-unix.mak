@@ -20,12 +20,12 @@ ifeq ($(COMPILER),acc)
   endif
   ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
     ifdef PEGASUS_USE_RELEASE_DIRS
-      LINK_COMMAND += -Wl,+s -Wl,+b$(PEGASUS_DEST_LIB_DIR):/usr/lib
+      LINK_COMMAND += -Wl,+b$(PEGASUS_DEST_LIB_DIR):/usr/lib
       ifeq ($(PEGASUS_PLATFORM), HPUX_PARISC_ACC)
         LINK_COMMAND += -Wl,+cdp,$(PEGASUS_PLATFORM_SDKROOT)/usr/lib:/usr/lib -Wl,+cdp,$(PEGASUS_HOME)/lib:$(PEGASUS_DEST_LIB_DIR)
       endif
     else
-        LINK_COMMAND += -Wl,+s -Wl,+b$(LIB_DIR):/usr/lib
+        LINK_COMMAND += -Wl,+b$(LIB_DIR):/usr/lib
     endif
   endif
   ifdef PEGASUS_DEBUG

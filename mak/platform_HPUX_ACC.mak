@@ -139,16 +139,19 @@ FLAGS =
 PEGASUS_SUPPORTS_DYNLIB=yes
 
 ifdef PEGASUS_USE_RELEASE_DIRS
-  FLAGS += -Wl,+s -Wl,+b$(PEGASUS_DEST_LIB_DIR):/usr/lib
+  FLAGS += -Wl,+b$(PEGASUS_DEST_LIB_DIR):/usr/lib
+  ifeq ($(PEGASUS_PLATFORM), HPUX_PARISC_ACC)
+    FLAGS += -Wl,+cdp,$(PEGASUS_PLATFORM_SDKROOT)/usr/lib:/usr/lib -Wl,+cdp,$(PEGASUS_HOME)/lib:$(PEGASUS_DEST_LIB_DIR)
+  endif
 else
   ifdef PEGASUS_HAS_MESSAGES
     ifdef ICU_ROOT
       ifdef ICU_INSTALL
-        FLAGS += -Wl,+s -Wl,+b$(LIB_DIR):/usr/lib:${ICU_INSTALL}/lib
+        FLAGS += -Wl,+b$(LIB_DIR):/usr/lib:${ICU_INSTALL}/lib
       endif
     endif
   else
-    FLAGS += -Wl,+s -Wl,+b$(LIB_DIR):/usr/lib
+    FLAGS += -Wl,+b$(LIB_DIR):/usr/lib
   endif
 endif
 

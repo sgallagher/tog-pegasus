@@ -903,7 +903,10 @@ private:
         response is required.
 
         @param   indicationProviders   list of providers with associated classes
-        @param   nameSpace             the namespace name
+        @param   nameSpace             the nameSpace name of the resource been monitored.
+                                        This value is contained in the SourceNamespace
+                                        property of the CIM_IndicationFilter
+                                        instance for the specified subscription
         @param   propertyList          the properties referenced by the
                                            subscription
         @param   condition             the condition part of the filter query
@@ -950,7 +953,10 @@ private:
         Registration Request), but no response is required.
 
         @param   indicationProviders   list of providers with associated classes
-        @param   nameSpace             the namespace name
+        @param   nameSpace             the nameSpace name of the resource been monitored.
+                                        This value is contained in the SourceNamespace
+                                        property of the CIM_IndicationFilter
+                                        instance for the specified subscription 
         @param   propertyList          the properties referenced by the
                                            subscription
         @param   condition             the condition part of the filter query
@@ -992,7 +998,10 @@ private:
         Request), but no response is required.
 
         @param   indicationProviders   list of providers with associated classes
-        @param   nameSpace             the namespace name
+        @param   nameSpace             the nameSpace name of the resource been monitored.
+                                        This value is contained in the SourceNamespace
+                                        property of the CIM_IndicationFilter
+                                        instance for the specified subscription 
         @param   subscription          the subscription to be modified
         @param   acceptLangs           the language of the response
         @param   contentLangs          the language of the subscription    

@@ -1388,7 +1388,7 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                     if (indicationProviders.size () > 0)
                     {
                         _sendDeleteRequests (indicationProviders, 
-                            request->nameSpace,
+                            sourceNameSpace,
                             instance,
 	                    request->acceptLanguages,
     		            request->contentLanguages,  
@@ -1582,7 +1582,7 @@ void IndicationService::_handleDeleteInstanceRequest (const Message* message)
                     //
 // l10n                
                     _sendDeleteRequests (indicationProviders,
-                        request->nameSpace, subscriptionInstance,
+                        sourceNamespaceName, subscriptionInstance,
                         request->acceptLanguages,
                         request->contentLanguages,
                         request,
@@ -2055,7 +2055,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                     //
 // l10n
                     _sendModifyRequests (indicationProviders,
-                        newSubscriptions [i].getPath ().getNameSpace (), 
+                        sourceNameSpace, 
                         requiredProperties, condition, queryLanguage,
                         newSubscriptions [i],
                         AcceptLanguages(acceptLangs),
@@ -2189,7 +2189,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                     {
 // l10n
                         _sendDeleteRequests (indicationProviders,
-                            formerSubscriptions [i].getPath ().getNameSpace (), 
+			    sourceNameSpace,
                             formerSubscriptions [i], 
                             AcceptLanguages(acceptLangs),
                             ContentLanguages(contentLangs), 
@@ -2212,7 +2212,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                         //
 // l10n                    
                         _sendModifyRequests (indicationProviders,
-                            formerSubscriptions [i].getPath ().getNameSpace (), 
+                            sourceNameSpace, 
                             requiredProperties, condition, queryLanguage, 
                             formerSubscriptions [i], 
                             AcceptLanguages(acceptLangs),
@@ -4772,7 +4772,7 @@ void IndicationService::_deleteReferencingSubscriptions (
             instanceName.setNameSpace (nameSpace);
             subscriptions [i].setPath (instanceName);
 // l10n  
-            _sendDeleteRequests (indicationProviders, nameSpace, 
+            _sendDeleteRequests (indicationProviders, sourceNamespaceName, 
                 subscriptions [i], 
                 AcceptLanguages(acceptLangs),
                 ContentLanguages(contentLangs),
@@ -4922,7 +4922,7 @@ void IndicationService::_deleteExpiredSubscription (
 // l10n                
         subscriptionInstance.setPath (subscription);
         _sendDeleteRequests (indicationProviders,
-            nameSpace, subscriptionInstance,
+            sourceNamespaceName, subscriptionInstance,
             AcceptLanguages(acceptLangs),
             ContentLanguages(contentLangs),
             0, // no request

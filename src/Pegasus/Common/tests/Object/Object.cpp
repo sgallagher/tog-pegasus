@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,24 +29,26 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:  Jenny Yu (jenny_yu@hp.com)
-//               Carol Ann Krug Graves, Hewlett-Packard Company 
-//                   (carolann_graves@hp.com)
-//               David Dillard, VERITAS Software Corp.
-//                   (david.dillard@veritas.com)
+// Modified By:
+//      Jenny Yu (jenny_yu@hp.com)
+//      Carol Ann Krug Graves, Hewlett-Packard Company (carolann_graves@hp.com)
+//      David Dillard, VERITAS Software Corp. (david.dillard@veritas.com)
+//      Chip Vincent (cvincent@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <cassert>
+#include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/XmlWriter.h>
 
+#include <cassert>
+
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-static char * verbose;
+static char * verbose = 0;
 
 //*********************************************************************
 //  CIMObject tests
@@ -68,7 +70,7 @@ void test01()
     CIMObject oclass4 = oclass3;
 
     CIMClass cimClass2 = cimClass1;
-    cimClass2 = cimClass1; 
+    cimClass2 = cimClass1;
     cimClass2 = CIMClass(oclass1);
     CIMClass cimClass3 = CIMClass(oclass1);
 
@@ -163,7 +165,7 @@ void test01()
         Array<char> xmlOut;
         XmlWriter::appendObjectElement(xmlOut, oinstance1);
     }
-    
+
 }
 
 //*********************************************************************
@@ -181,7 +183,7 @@ void test02()
     //
     // Construct from CIMClass
     //
-    
+
     CIMObject obj1 = class1;
 
     CIMConstClass cclass1(CIMName ("MyClass"));
@@ -290,7 +292,7 @@ void test03()
     obj3 = CIMObject (class2);
     obj3.setPath (ref2);
     CIMObjectPath ref3 = obj3.getPath ();
-   
+
     CIMObject myObj = obj3;
 
     if(verbose)
@@ -305,6 +307,27 @@ void test03()
 //*********************************************************************
 void test04()
 {
+    // Verify class name cannot be changed after creation. only a test for CIMObject
+    // is needed because CIMClass and CIMInstance use CIMClass::setPath() to
+    // perform this function.
+    try
+    {
+        CIMObject cimObject(CIMInstance("MyClass"));
+
+        cimObject.setPath(CIMObjectPath("//localhost/root/cimv2:YourClass"));
+
+        throw Exception("Failed to detect name change via CIMObject::setPath().");
+    }
+    catch(Exception &)
+    {
+        // expected. do nothing.
+
+        if(verbose)
+        {
+            cout << "Successfully prevented class name change via setPath()." << endl;
+        }
+    }
+
     //
     //  Test CIMClass
     //
@@ -331,10 +354,9 @@ void test04()
         cout << "Class object path from getPath: " << cpath.toString() << endl;
         cout << "Class object path from getPath after setPath: "
              << cpath2.toString() << endl;
-        cout << "Class object path from getPath after second setPath: " 
+        cout << "Class object path from getPath after second setPath: "
              << cpath3.toString() << endl;
     }
-
 
     //
     //  Test class CIMObject
@@ -352,10 +374,9 @@ void test04()
         cout << "Class object path from getPath: " << ocpath.toString() << endl;
         cout << "Class object path from getPath after setPath: "
              << ocpath2.toString() << endl;
-        cout << "Class object path from getPath after second setPath: " 
+        cout << "Class object path from getPath after second setPath: "
              << ocpath3.toString() << endl;
     }
-
 
     //
     //  Test CIMInstance
@@ -378,7 +399,6 @@ void test04()
         cout << "Instance object path from getPath after setPath: "
              << path3.toString() << endl;
     }
-
 
     //
     //  Test instance CIMObject
@@ -423,4 +443,4 @@ int main(int argc, char** argv)
     cout << argv[0] << " +++++ passed all tests" << endl;
     return 0;
 }
- 
+

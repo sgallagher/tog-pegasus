@@ -1,0 +1,1 @@
+select * from CIM_ComputerSystem CS where CS isa CIM_System

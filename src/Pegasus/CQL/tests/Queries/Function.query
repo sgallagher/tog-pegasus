@@ -1,0 +1,6 @@
+#
+select * from CIM_ComputerSystem where UPPERCASE(CIM_ComputerSystem.Description) = 'COMPUTER SYSTEM'
+select * from CIM_ComputerSystem where UPPERCASE(CIM_ComputerSystem.Description) = 'computer system'
+select * from CQL_TestPropertyTypes where STRINGTOUINT(CQL_TestPropertyTypes.PropertyStringUint) = 347
+select * from CQL_TestPropertyTypes where STRINGTOSINT(CQL_TestPropertyTypes.PropertyStringSint) = -743
+select * from CQL_TestPropertyTypes where STRINGTOREAL(CQL_TestPropertyTypes.PropertyStringReal) = 98.6

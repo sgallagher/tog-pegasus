@@ -6,7 +6,8 @@ ARCHITECTURE = zseries
 
 COMPILER = ibm
 
-SYS_INCLUDES = -I/usr/lpp/tcpip/include -I/usr/lpp/ioclib/include -I$(ROOT)/src/StandardIncludes/zOS
+#SYS_INCLUDES = -I/usr/lpp/tcpip/include -I/usr/lpp/ioclib/include -I$(ROOT)/src/StandardIncludes/zOS
+SYS_INCLUDES = -I/usr/lpp/tcpip/include -I/usr/lpp/ioclib/include
 
 DEFINES = -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM)
 

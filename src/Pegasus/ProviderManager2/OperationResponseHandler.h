@@ -399,6 +399,20 @@ public:
     {
     }
 
+    virtual void deliver(const CIMObjectPath & cimObjectPath)
+    {
+        if(cimObjectPath.getClassName().isNull())
+        {
+            MessageLoaderParms message(
+                "Common.Exception.UNINITIALIZED_OBJECT_EXCEPTION",
+                "The object is not initialized.");
+
+            throw CIMException(CIM_ERR_FAILED, message);
+        }
+
+        SimpleObjectPathResponseHandler::deliver(cimObjectPath);
+    }
+
 protected:
     virtual String getClass(void) const
     {
@@ -473,6 +487,20 @@ public:
     {
     }
 
+    virtual void deliver(const CIMValue & cimValue)
+    {
+        if(cimValue.isNull())
+        {
+            MessageLoaderParms message(
+                "Common.Exception.UNINITIALIZED_OBJECT_EXCEPTION",
+                "The object is not initialized.");
+
+            throw CIMException(CIM_ERR_FAILED, message);
+        }
+
+        SimpleValueResponseHandler::deliver(cimValue);
+    }
+
 protected:
     virtual String getClass(void) const
     {
@@ -529,6 +557,20 @@ public:
     {
     }
 
+    virtual void deliver(const CIMInstance & cimInstance)
+    {
+        if(cimInstance.isUninitialized())
+        {
+            MessageLoaderParms message(
+                "Common.Exception.UNINITIALIZED_OBJECT_EXCEPTION",
+                "The object is not initialized.");
+
+            throw CIMException(CIM_ERR_FAILED, message);
+        }
+
+        SimpleInstance2ObjectResponseHandler::deliver(cimInstance);
+    }
+
 protected:
     virtual String getClass(void) const
     {
@@ -559,6 +601,20 @@ public:
     {
     }
 
+    virtual void deliver(const CIMObject & cimObject)
+    {
+        if(cimObject.isUninitialized())
+        {
+            MessageLoaderParms message(
+                "Common.Exception.UNINITIALIZED_OBJECT_EXCEPTION",
+                "The object is not initialized.");
+
+            throw CIMException(CIM_ERR_FAILED, message);
+        }
+
+        SimpleObjectResponseHandler::deliver(cimObject);
+    }
+
 protected:
     virtual String getClass(void) const
     {
@@ -582,6 +638,20 @@ public:
         CIMAssociatorNamesResponseMessage * response)
     : OperationResponseHandler(request, response)
     {
+    }
+
+    virtual void deliver(const CIMObjectPath & cimObjectPath)
+    {
+        if(cimObjectPath.getClassName().isNull())
+        {
+            MessageLoaderParms message(
+                "Common.Exception.UNINITIALIZED_OBJECT_EXCEPTION",
+                "The object is not initialized.");
+
+            throw CIMException(CIM_ERR_FAILED, message);
+        }
+
+        SimpleObjectPathResponseHandler::deliver(cimObjectPath);
     }
 
 protected:
@@ -609,6 +679,20 @@ public:
     {
     }
 
+    virtual void deliver(const CIMObject & cimObject)
+    {
+        if(cimObject.isUninitialized())
+        {
+            MessageLoaderParms message(
+                "Common.Exception.UNINITIALIZED_OBJECT_EXCEPTION",
+                "The object is not initialized.");
+
+            throw CIMException(CIM_ERR_FAILED, message);
+        }
+
+        SimpleObjectResponseHandler::deliver(cimObject);
+    }
+
 protected:
     virtual String getClass(void) const
     {
@@ -634,6 +718,20 @@ public:
     {
     }
 
+    virtual void deliver(const CIMObjectPath & cimObjectPath)
+    {
+        if(cimObjectPath.getClassName().isNull())
+        {
+            MessageLoaderParms message(
+                "Common.Exception.UNINITIALIZED_OBJECT_EXCEPTION",
+                "The object is not initialized.");
+
+            throw CIMException(CIM_ERR_FAILED, message);
+        }
+
+        SimpleObjectPathResponseHandler::deliver(cimObjectPath);
+    }
+
 protected:
     virtual String getClass(void) const
     {
@@ -657,6 +755,34 @@ public:
         CIMInvokeMethodResponseMessage * response)
     : OperationResponseHandler(request, response)
     {
+    }
+
+    virtual void deliverParamValue(const CIMParamValue & cimParamValue)
+    {
+        if(cimParamValue.isUninitialized())
+        {
+            MessageLoaderParms message(
+                "Common.Exception.UNINITIALIZED_OBJECT_EXCEPTION",
+                "The object is not initialized.");
+
+            throw CIMException(CIM_ERR_FAILED, message);
+        }
+
+        SimpleMethodResultResponseHandler::deliverParamValue(cimParamValue);
+    }
+
+    virtual void deliver(const CIMValue & cimValue)
+    {
+        if(cimValue.isNull())
+        {
+            MessageLoaderParms message(
+                "Common.Exception.UNINITIALIZED_OBJECT_EXCEPTION",
+                "The object is not initialized.");
+
+            throw CIMException(CIM_ERR_FAILED, message);
+        }
+
+        SimpleMethodResultResponseHandler::deliver(cimValue);
     }
 
 protected:
@@ -708,6 +834,15 @@ public:
 
     virtual void deliver(const OperationContext & context, const CIMIndication & cimIndication)
     {
+        if(cimIndication.isUninitialized())
+        {
+            MessageLoaderParms message(
+                "Common.Exception.UNINITIALIZED_OBJECT_EXCEPTION",
+                "The object is not initialized.");
+
+            throw CIMException(CIM_ERR_FAILED, message);
+        }
+
         // ATTN: temporarily convert indication to instance
         CIMInstance cimInstance(cimIndication);
 

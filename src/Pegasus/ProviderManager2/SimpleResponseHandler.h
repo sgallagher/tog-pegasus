@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,9 +29,10 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Dave Rosckes (rosckes@us.ibm.com)
-//              Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase2
+// Modified By:
+//      Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//      Dave Rosckes (rosckes@us.ibm.com)
+//      Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase2
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -74,31 +75,44 @@ public:
 
     virtual void processing(void)
     {
-	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-		    "SimpleResponseHandler: processing()");
+        Logger::put(
+            Logger::STANDARD_LOG,
+            System::CIMSERVER,
+            Logger::TRACE,
+            "SimpleResponseHandler::processing()");
+
         // do nothing
     }
 
     virtual void complete(void)
     {
-	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-		    "SimpleResponseHandler: complete()");
+        Logger::put(
+            Logger::STANDARD_LOG,
+            System::CIMSERVER,
+            Logger::TRACE,
+            "SimpleResponseHandler::complete()");
 
-	send(true);
+        send(true);
     }
 
-		// return the number of objects in this handler
-   	virtual Uint32 size() const { return 0;	}
+    // return the number of objects in this handler
+    virtual Uint32 size(void) const
+    {
+        return(0);
+    }
 
-		// clear any objects in this handler
-	  virtual void clear() {}
+    // clear any objects in this handler
+    virtual void clear(void)
+    {
+    }
 
-// l10n
+    // l10n
     ContentLanguages getLanguages(void);
 
 protected:
-	// send (deliver) asynchronously with restrictions
-	virtual void send(Boolean isComplete);
+
+    // send (deliver) asynchronously with restrictions
+    virtual void send(Boolean isComplete);
 
 };
 
@@ -109,18 +123,37 @@ public:
     {
     }
 
-    virtual void processing(void) { SimpleResponseHandler::processing(); }
-    virtual void complete(void) { SimpleResponseHandler::complete(); }
-		virtual Uint32 size() const { return _objects.size(); }
-		virtual void clear() { _objects.clear(); }
+    virtual void processing(void)
+    {
+        SimpleResponseHandler::processing();
+    }
+
+    virtual void complete(void)
+    {
+        SimpleResponseHandler::complete();
+    }
+
+    virtual Uint32 size(void) const
+    {
+        return(_objects.size());
+    }
+
+    virtual void clear(void)
+    {
+        _objects.clear();
+    }
 
     virtual void deliver(const CIMInstance & instance)
     {
-	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-		    "SimpleResponseHandler: deliver()");
+        Logger::put(
+            Logger::STANDARD_LOG,
+            System::CIMSERVER,
+            Logger::TRACE,
+            "SimpleInstanceResponseHandler::deliver()");
 
         _objects.append(instance);
-				send(false);
+
+        send(false);
     }
 
     virtual void deliver(const Array<CIMInstance> & instances)
@@ -134,7 +167,7 @@ public:
 
     const Array<CIMInstance> getObjects(void) const
     {
-        return _objects;
+        return(_objects);
     }
 
 private:
@@ -149,17 +182,37 @@ public:
     {
     }
 
-    virtual void processing(void) { SimpleResponseHandler::processing(); }
-    virtual void complete(void) { SimpleResponseHandler::complete(); }
-	  virtual Uint32 size() const { return _objects.size(); }
-		virtual void clear() { _objects.clear(); }
+    virtual void processing(void)
+    {
+        SimpleResponseHandler::processing();
+    }
+
+    virtual void complete(void)
+    {
+        SimpleResponseHandler::complete();
+    }
+
+    virtual Uint32 size(void) const
+    {
+        return(_objects.size());
+    }
+
+    virtual void clear(void)
+    {
+        _objects.clear();
+    }
 
     virtual void deliver(const CIMObjectPath & objectPath)
     {
-	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-		    "SimpleResponseHandler: deliver()");
+        Logger::put(
+            Logger::STANDARD_LOG,
+            System::CIMSERVER,
+            Logger::TRACE,
+            "SimpleObjectPathResponseHandler::deliver()");
+
         _objects.append(objectPath);
-				send(false);
+
+        send(false);
     }
 
     virtual void deliver(const Array<CIMObjectPath> & objectPaths)
@@ -173,7 +226,7 @@ public:
 
     const Array<CIMObjectPath> getObjects(void) const
     {
-        return _objects;
+        return(_objects);
     }
 
 private:
@@ -188,17 +241,35 @@ public:
     {
     }
 
-    virtual void processing(void) { SimpleResponseHandler::processing(); }
-    virtual void complete(void) { SimpleResponseHandler::complete(); }
-	  // NOTE: this is the total size (count) of ALL parameters!
-		virtual Uint32 size() const { return _objects.size(); }
-		virtual void clear() { _objects.clear(); _returnValue.clear(); }
+    virtual void processing(void)
+    {
+        SimpleResponseHandler::processing();
+    }
+
+    virtual void complete(void)
+    {
+        SimpleResponseHandler::complete();
+    }
+
+    // NOTE: this is the total size (count) of ALL parameters!
+    virtual Uint32 size(void) const
+    {
+        return(_objects.size());
+    }
+
+    virtual void clear(void)
+    {
+        _objects.clear();
+
+        _returnValue.clear();
+    }
 
     virtual void deliverParamValue(const CIMParamValue & outParamValue)
     {
         _objects.append(outParamValue);
-				// async delivers not yet supported for parameters
-				//send(false);
+
+        // async delivers not yet supported for parameters
+        //send(false);
     }
 
     virtual void deliverParamValue(const Array<CIMParamValue> & outParamValues)
@@ -212,20 +283,25 @@ public:
 
     virtual void deliver(const CIMValue & returnValue)
     {
-	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-		    "SimpleResponseHandler: deliver()");
+        Logger::put(
+            Logger::STANDARD_LOG,
+            System::CIMSERVER,
+            Logger::TRACE,
+            "SimpleMethodResultResponseHandler::deliver()");
+
         _returnValue = returnValue;
-				send(false);
+
+        send(false);
     }
 
     const Array<CIMParamValue> getParamValues(void) const
     {
-        return _objects;
+        return(_objects);
     }
 
     const CIMValue getReturnValue(void) const
     {
-        return _returnValue;
+        return(_returnValue);
     }
 
 private:
@@ -242,18 +318,37 @@ public:
     {
     }
 
-    virtual void processing(void) { SimpleResponseHandler::processing(); }
-    virtual void complete(void) { SimpleResponseHandler::complete(); }
-	  virtual Uint32 size() const { return _objects.size(); }
-		virtual void clear() { _objects.clear(); }
+    virtual void processing(void)
+    {
+        SimpleResponseHandler::processing();
+    }
+
+    virtual void complete(void)
+    {
+        SimpleResponseHandler::complete();
+    }
+
+    virtual Uint32 size(void) const
+    {
+        return(_objects.size());
+    }
+
+    virtual void clear(void)
+    {
+        _objects.clear();
+    }
 
     virtual void deliver(const CIMIndication & indication)
     {
-	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-		    "SimpleResponseHandler: deliver()");
+        Logger::put(
+            Logger::STANDARD_LOG,
+            System::CIMSERVER,
+            Logger::TRACE,
+            "SimpleIndicationResponseHandler::deliver()");
 
         _objects.append(indication);
-				send(false);
+
+        send(false);
     }
 
     virtual void deliver(const Array<CIMIndication> & indications)
@@ -269,8 +364,11 @@ public:
         const OperationContext & context,
         const CIMIndication & indication)
     {
-	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-		    "SimpleResponseHandler: deliver()");
+        Logger::put(
+            Logger::STANDARD_LOG,
+            System::CIMSERVER,
+            Logger::TRACE,
+            "SimpleIndicationResponseHandler::deliver()");
 
         _objects.append(indication);
     }
@@ -288,8 +386,10 @@ public:
 
     const Array<CIMIndication> getObjects(void) const
     {
-        return _objects;
+        return(_objects);
     }
+
+    // ATTN: why is this variable public?
 
     CIMInstance _provider;
 
@@ -305,18 +405,37 @@ public:
     {
     }
 
-    virtual void processing(void) { SimpleResponseHandler::processing(); }
-    virtual void complete(void) { SimpleResponseHandler::complete(); }
-	  virtual Uint32 size() const { return _objects.size(); }
-		virtual void clear() { _objects.clear(); }
+    virtual void processing(void)
+    {
+        SimpleResponseHandler::processing();
+    }
+
+    virtual void complete(void)
+    {
+        SimpleResponseHandler::complete();
+    }
+
+    virtual Uint32 size(void) const
+    {
+        return(_objects.size());
+    }
+
+    virtual void clear(void)
+    {
+        _objects.clear();
+    }
 
     virtual void deliver(const CIMObject & object)
     {
-	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-		    "SimpleResponseHandler: deliver()");
+        Logger::put(
+            Logger::STANDARD_LOG,
+            System::CIMSERVER,
+            Logger::TRACE,
+            "SimpleObjectResponseHandler::deliver()");
 
         _objects.append(object);
-				send(false);
+
+        send(false);
     }
 
     virtual void deliver(const Array<CIMObject> & objects)
@@ -330,7 +449,7 @@ public:
 
     const Array<CIMObject> getObjects(void) const
     {
-        return _objects;
+        return(_objects);
     }
 
 private:
@@ -345,19 +464,38 @@ public:
     {
     }
 
-    virtual void processing(void) { SimpleResponseHandler::processing(); }
-    virtual void complete(void) { SimpleResponseHandler::complete(); }
-		virtual Uint32 size() const { return _objects.size(); }
-		virtual void clear() { _objects.clear(); }
+    virtual void processing(void)
+    {
+        SimpleResponseHandler::processing();
+    }
+
+    virtual void complete(void)
+    {
+        SimpleResponseHandler::complete();
+    }
+
+    virtual Uint32 size(void) const
+    {
+        return(_objects.size());
+    }
+
+    virtual void clear(void)
+    {
+        _objects.clear();
+    }
 
     virtual void deliver(const CIMInstance & object)
     {
-	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-		    "SimpleResponseHandler: deliver()");
+        Logger::put(
+            Logger::STANDARD_LOG,
+            System::CIMSERVER,
+            Logger::TRACE,
+            "SimpleInstance2ObjectResponseHandler::deliver()");
 
         _objects.append(CIMObject(object));
-				// async delivers not yet supported
-				//send(false);
+
+        // async delivers not yet supported
+        //send(false);
     }
 
     virtual void deliver(const Array<CIMInstance> & objects)
@@ -371,7 +509,7 @@ public:
 
     const Array<CIMObject> getObjects(void) const
     {
-        return _objects;
+        return(_objects);
     }
 
 private:
@@ -386,18 +524,37 @@ public:
     {
     }
 
-    virtual void processing(void) { SimpleResponseHandler::processing(); }
-    virtual void complete(void) { SimpleResponseHandler::complete(); }
-		virtual Uint32 size() const { return _objects.size(); }
-		virtual void clear() { _objects.clear(); }
+    virtual void processing(void)
+    {
+        SimpleResponseHandler::processing();
+    }
+
+    virtual void complete(void)
+    {
+        SimpleResponseHandler::complete();
+    }
+
+    virtual Uint32 size(void) const
+    {
+        return(_objects.size());
+    }
+
+    virtual void clear(void)
+    {
+        _objects.clear();
+    }
 
     virtual void deliver(const CIMValue & value)
     {
-	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-		    "SimpleResponseHandler: deliver()");
+        Logger::put(
+            Logger::STANDARD_LOG,
+            System::CIMSERVER,
+            Logger::TRACE,
+            "SimpleValueResponseHandler::deliver()");
 
         _objects.append(value);
-				send(false);
+
+        send(false);
     }
 
     virtual void deliver(const Array<CIMValue> & values)
@@ -411,7 +568,7 @@ public:
 
     const Array<CIMValue> getObjects(void) const
     {
-        return _objects;
+        return(_objects);
     }
 
 private:
@@ -422,3 +579,4 @@ private:
 PEGASUS_NAMESPACE_END
 
 #endif
+

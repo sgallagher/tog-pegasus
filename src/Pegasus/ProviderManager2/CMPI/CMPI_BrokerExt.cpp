@@ -86,20 +86,32 @@ static CMPI_THREAD_TYPE newThread
    return (CMPI_THREAD_TYPE)t;
 }
 
-static unsigned int createThreadKey(CMPI_THREAD_KEY_TYPE *key, void (*cleanup)(void*))
+
+
+static int joinThread (CMPI_THREAD_TYPE thread, CMPI_THREAD_RETURN *returnCode)
 {
-   return pegasus_key_create(key);
+   ((Thread*)thread)->join();
+   *returnCode=((Thread*)thread)->get_exit();
+   return 0;
 }
 
-static void *getThreadSpecific(CMPI_THREAD_KEY_TYPE key)
-{
-   return pegasus_get_thread_specific(key);
-}
+ static int exitThread(CMPI_THREAD_RETURN return_code)
+ {
+    Thread::getCurrent()->exit_self(return_code);
+    return 0;
+ }
 
-static unsigned int setThreadSpecific(CMPI_THREAD_KEY_TYPE key, void * value)
-{
-   return pegasus_set_thread_specific(key,value);
-}
+ static int cancelThread(CMPI_THREAD_TYPE thread)
+ {
+    ((Thread*)thread)->cancel();
+    return 0;
+ }
+
+ static int threadSleep(CMPIUint32 msec)
+ {
+    Thread::getCurrent()->sleep(msec);
+    return 0;
+ }
 
 static int threadOnce (int *once, void (*init)(void))
 {
@@ -109,6 +121,28 @@ static int threadOnce (int *once, void (*init)(void))
    }
    return *once;
 }
+
+
+static int createThreadKey(CMPI_THREAD_KEY_TYPE *key, void (*cleanup)(void*))
+{
+   return pegasus_key_create((PEGASUS_THREAD_KEY_TYPE*)key);
+}
+
+static int destroyThreadKey(CMPI_THREAD_KEY_TYPE key)
+{
+   return pegasus_key_delete(key);
+}
+
+static void *getThreadSpecific(CMPI_THREAD_KEY_TYPE key)
+{
+   return pegasus_get_thread_specific(key);
+}
+
+static  int setThreadSpecific(CMPI_THREAD_KEY_TYPE key, void * value)
+{
+   return pegasus_set_thread_specific(key,value);
+}
+
 
 static CMPI_MUTEX_TYPE newMutex (int opt)
 {
@@ -146,24 +180,53 @@ static void destroyCondition (CMPI_COND_TYPE c)
 
 static int timedCondWait(CMPI_COND_TYPE c, CMPI_MUTEX_TYPE m, struct timespec *wait)
 {
-        printf("--- timedCondWait() not supported yet\n");
-	exit(12);
+
+/* this is not truely mapping to pthread_timed_wait
+   but will work for the time beeing
+*/
+   int msec;
+   struct timeval now;
+   struct timespec next=*wait;
+   gettimeofday(&now, NULL);
+   if (next.tv_nsec>1000000000) {
+      next.tv_sec+=next.tv_nsec/1000000000;
+      next.tv_nsec=next.tv_nsec%1000000000;
+   }
+   msec=(next.tv_sec-now.tv_sec)*1000;
+   msec+=(next.tv_nsec/1000000)-(now.tv_usec/1000);
+
+   Thread::getCurrent()->sleep(msec);
+   return 0;
 }
 
+
+static int signalCondition(CMPI_COND_TYPE cond)
+{
+   ((Condition*)cond)->signal(Thread::getCurrent()->self());
+   return 0;
+}
 
 static CMPIBrokerExtFT brokerExt_FT={
      CMPICurrentVersion,
      resolveFileName,
+
      newThread,
+     joinThread,
+     exitThread,
+     cancelThread,
+     threadSleep,
+     threadOnce,
+
      createThreadKey,
+     destroyThreadKey,
      getThreadSpecific,
      setThreadSpecific,
-     NULL,                      // Join not supported yet
-     threadOnce,
+
      newMutex,
      destroyMutex,
      lockMutex,
      unlockMutex,
+
      newCondition,
      destroyCondition,
      timedCondWait,

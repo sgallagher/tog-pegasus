@@ -218,13 +218,11 @@ Boolean CMPIProvider::tryTerminate(void)
 void CMPIProvider::_terminate(void)
 {
     if (broker.clsCache) {
-       // cerr<<"--- CMPIProvider::_terminate() deleting ClassCache "<<endl;
 	ClassCache::Iterator i=broker.clsCache->start();
 	for (; i; i++) {
-	   //cerr<<"--- CMPIProvider::_terminate() deleting class "
-	    //  <<i.value()->getClassName().getString()<<endl;
-  delete i.value(); }
+        delete i.value(); }
 	delete broker.clsCache;
+	broker.clsCache=NULL;
     }
 
     const OperationContext opc;

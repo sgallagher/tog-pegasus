@@ -561,20 +561,33 @@ extern "C" {
      CMPI_THREAD_TYPE (*newThread)
         (CMPI_THREAD_RETURN (CMPI_THREAD_CDECL *start)(void *), void *parm, int detached);
 
-     unsigned int (*createThreadKey)
+     int (*joinThread)
+        (CMPI_THREAD_TYPE thread, CMPI_THREAD_RETURN *retval );
+
+     int (*exitThread)
+        (CMPI_THREAD_RETURN return_code);
+
+     int (*cancelThread)
+        (CMPI_THREAD_TYPE thread);
+
+     int (*threadSleep)
+        (CMPIUint32 msec);
+
+     int (*threadOnce)
+        (int *once, void (*init)(void));
+
+
+     int (*createThreadKey)
         (CMPI_THREAD_KEY_TYPE *key, void (*cleanup)(void*));
+
+     int (*destroyThreadKey)
+        (CMPI_THREAD_KEY_TYPE key);
 
      void *(*getThreadSpecific)
         (CMPI_THREAD_KEY_TYPE key);
 
-     unsigned int (*setThreadSpecific)
+     int (*setThreadSpecific)
         (CMPI_THREAD_KEY_TYPE key, void * value);
-
-     int (*joinThread)
-        (CMPI_THREAD_TYPE thread, void ** retval );
-
-     int (*threadOnce)
-        (int *once, void (*init)(void));
 
 
 

@@ -32,18 +32,22 @@
 #ifndef _CMPIOS_H_
 #define _CMPIOS_H_
 
-#define CMPI_THREAD_TYPE        void *
+#define CMPI_THREAD_RETURN      void*
+#define CMPI_THREAD_TYPE        void*
 #define CMPI_MUTEX_TYPE         void*
 #define CMPI_COND_TYPE          void*
 
 #if defined(CMPI_PLATFORM_WIN32_IX86_MSVC)
-   #define CMPI_THREAD_RETURN      unsigned
-   #define CMPI_THREAD_CDECL       __stdcall
-   #define CMPI_THREAD_KEY_TYPE    DWORD
-#elif
-   #define CMPI_THREAD_RETURN      void *
+   #define CMPI_THREAD_CDECL    __stdcall
+   #define CMPI_THREAD_KEY_TYPE unsigned long int
+
+#elif defined( PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+   #define CMPI_THREAD_CDECL    __cdecl
+   #define CMPI_THREAD_KEY_TYPE unsigned long long
+
+#else
    #define CMPI_THREAD_CDECL
-   #define CMPI_THREAD_KEY_TYPE    unsigned int
+   #define CMPI_THREAD_KEY_TYPE unsigned long int
 #endif
 
 

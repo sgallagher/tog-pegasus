@@ -676,6 +676,34 @@ Boolean InstanceIndexFile::compact(
     return true;
 }
 
+Boolean InstanceIndexFile::hasNonFreeEntries(const String& path)
+{
+    //
+    // If file does not exist, there are no instances:
+    //
+
+    if (!FileSystem::existsNoCase(path))
+	return false;
+
+    //
+    // We must iterate all the entries looking for a non-free one:
+    //
+
+    Array<Uint32> freeFlags;
+    Array<Uint32> indices;
+    Array<Uint32> sizes;
+    Array<CIMReference> instanceNames;
+
+    if (!InstanceIndexFile::enumerateEntries(
+	path, freeFlags, indices, sizes, instanceNames, false))
+    {
+	// This won't happen!
+	return false;
+    }
+
+    return freeFlags.size() != 0;
+}
+
 Boolean InstanceIndexFile::beginTransaction(const String& path)
 {
     //
@@ -723,7 +751,7 @@ Boolean InstanceIndexFile::commitTransaction(const String& path)
     String rollbackPath = path;
     rollbackPath += ".rollback";
 
-    return FileSystem::removeFile(rollbackPath);
+    return FileSystem::removeFileNoCase(rollbackPath);
 }
 
 PEGASUS_NAMESPACE_END

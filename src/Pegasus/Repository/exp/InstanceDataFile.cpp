@@ -146,6 +146,13 @@ Boolean InstanceDataFile::appendInstance(
     Uint32& index)
 {
     //
+    // Get size of the data file:
+    //
+
+    if (!FileSystem::getFileSizeNoCase(path, index))
+	index = 0;
+
+    //
     // Open the file for append:
     //
 
@@ -158,7 +165,7 @@ Boolean InstanceDataFile::appendInstance(
     // Save index to data:
     //
 
-    index = fs.tellp();
+    // index = fs.tellp();
 
     //
     // Write the instance:

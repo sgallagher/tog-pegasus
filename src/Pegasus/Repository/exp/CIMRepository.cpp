@@ -225,8 +225,8 @@ Boolean CIMRepository::_getInstanceIndex(
     const String& nameSpace,
     const CIMReference& instanceName,
     String& className,
-    Uint32& size,
     Uint32& index,
+    Uint32& size,
     Boolean searchSuperClasses) const
 {
     //
@@ -290,7 +290,7 @@ CIMInstance CIMRepository::getInstance(
 
     PEG_METHOD_ENTER(TRC_REPOSITORY,"CIMRepository::getInstance");
 
-    if (!_getInstanceIndex(nameSpace, instanceName, className, size, index))
+    if (!_getInstanceIndex(nameSpace, instanceName, className, index, size))
     {
 	PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, instanceName.toString());
@@ -317,24 +317,40 @@ void CIMRepository::deleteClass(
     const String& nameSpace,
     const String& className)
 {
-    // -- Get the class and check to see if it is an association class:
+    //
+    // Get the class and check to see if it is an association class:
+    //
 
     CIMClass cimClass = getClass(nameSpace, className, false);
     Boolean isAssociation = cimClass.isAssociation();
 
-    // -- Disallow deletion if class has instances:
+    //
+    // Disallow deletion if class has instances:
+    //
 
-    String path = _getInstanceIndexFilePath(nameSpace, className);
-    String realPath;
+    String indexFilePath = _getInstanceIndexFilePath(nameSpace, className);
 
-    if (FileSystem::existsNoCase(path, realPath))
+    String dataFilePath = _getInstanceDataFilePath(nameSpace, className);
+
+    if (InstanceIndexFile::hasNonFreeEntries(indexFilePath))
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_CLASS_HAS_INSTANCES, className);
 
-    // -- Delete the class (disallowed if there are subclasses):
+    //
+    // Delete the class (disallowed if there are subclasses):
+    //
 
     _nameSpaceManager.deleteClass(nameSpace, className);
 
-    // -- Remove association:
+    FileSystem::removeFileNoCase(indexFilePath);
+    FileSystem::removeFileNoCase(dataFilePath);
+
+    //
+    // Kill off empty instance files:
+    //
+
+    //
+    // Remove association:
+    //
 
     if (isAssociation)
     {
@@ -740,8 +756,8 @@ CIMReference CIMRepository::createInstance(
     Uint32 dummyIndex;
     Uint32 dummySize;
 
-    if (_getInstanceIndex(nameSpace, instanceName, className, dummySize, 
-        dummyIndex, true))
+    if (_getInstanceIndex(nameSpace, instanceName, className, dummyIndex, 
+        dummySize, true))
     {
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ALREADY_EXISTS, 
@@ -765,8 +781,6 @@ CIMReference CIMRepository::createInstance(
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "begin failed");
     }
-
-cout << "DATA FILE PATH[" << dataFilePath << "]" << endl;
 
     if (!InstanceDataFile::beginTransaction(dataFilePath))
     {
@@ -887,6 +901,20 @@ void CIMRepository::modifyInstance(
 
     if (!InstanceDataFile::rollbackTransaction(dataFilePath))
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "rollback failed");
+
+    //
+    // Begin the transaction:
+    //
+
+    if (!InstanceIndexFile::beginTransaction(indexFilePath))
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "begin failed");
+
+    if (!InstanceDataFile::beginTransaction(dataFilePath))
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "begin failed");
+
+    //
+    // Do this:
+    //
 
     String errMessage;
     CIMInstance cimInstance;   // The instance that replaces the original
@@ -1127,7 +1155,7 @@ void CIMRepository::modifyInstance(
     Uint32 freeCount;
 
     if (!InstanceIndexFile::modifyEntry(indexFilePath, instanceName, newIndex,
-        newIndex, freeCount))
+        newSize, freeCount))
     {
         errMessage.append("Failed to modify instance ");
         errMessage.append(instanceName.toString());
@@ -1620,7 +1648,7 @@ CIMValue CIMRepository::getProperty(
     Uint32 index;
     Uint32 size;
 
-    if (!_getInstanceIndex(nameSpace, instanceName, className, size, index))
+    if (!_getInstanceIndex(nameSpace, instanceName, className, index, size))
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, instanceName.toString());
 
     //

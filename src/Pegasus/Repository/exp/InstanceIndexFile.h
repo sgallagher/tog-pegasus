@@ -164,6 +164,10 @@ public:
 	Array<CIMReference>& instanceNames,
 	Boolean includeFreeEntries);
 
+    /** Returns true if this index file has any non-free entries:
+    */
+    static Boolean hasNonFreeEntries(const String& path);
+
     /** Begin a transaction to modify this file. The effect of subsequent
 	modifications can be rolled back by calling rollbackTransaction().
 	The current implementation simply copies the index file to a a file

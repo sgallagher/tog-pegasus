@@ -13,7 +13,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -27,7 +27,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company 
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
@@ -60,11 +60,11 @@ PEGASUS_TEMPLATE_SPECIALIZATION struct HashFunc<Uint32>
 };
 
 /*
-    Hash function object that converts to lowercase.  
+    Hash function object that converts to lowercase.
 
     This function can be used for hash table keys constructed from strings that
-    should be treated as case insensitive (e.g. class names, namespace names, 
-    system names).  
+    should be treated as case insensitive (e.g. class names, namespace names,
+    system names).
 
     Note: this function converts to lower case based on the process locale.
 */
@@ -82,7 +82,7 @@ struct HashLowerCaseFunc
 };
 
 /*  This is a function object used by the HashTable to compare keys. This is
-    the default implementation. Others may be defined and passed in the 
+    the default implementation. Others may be defined and passed in the
     template argument list to perform other kinds of comparisons.
 */
 template<class K>
@@ -95,11 +95,11 @@ struct EqualFunc
 };
 
 /*
-    Equal function object that can be used by HashTable to compare keys that 
-    should be treated as case insensitive.  
+    Equal function object that can be used by HashTable to compare keys that
+    should be treated as case insensitive.
 
     This function can be used for hash table keys constructed from strings that
-    should be treated as case insensitive (e.g. class names, namespace names, 
+    should be treated as case insensitive (e.g. class names, namespace names,
     system names).
 
     Note: this function compares Strings based on the process locale.
@@ -123,7 +123,7 @@ public:
     /* Default constructor. */
     _BucketBase() : next(0) { }
 
-    /* Virtual destructor to ensure destruction of derived class 
+    /* Virtual destructor to ensure destruction of derived class
 	elements.
     */
     virtual ~_BucketBase();
@@ -146,7 +146,7 @@ class _HashTableRep;
 class PEGASUS_COMMON_LINKAGE _HashTableIteratorBase
 {
 public:
-    
+
     _HashTableIteratorBase() : _first(0), _last(0), _bucket(0) { }
 
     operator int() const { return _bucket != 0; }
@@ -172,8 +172,8 @@ protected:
     This code is primarily an internal class used to implement the HashTable.
     But there may be occasions to use it directly.
 
-    _HashTableRep parcels out much of the large code so that that code is not 
-    instantiated by the HashTable template class many times. This scheme helps 
+    _HashTableRep parcels out much of the large code so that that code is not
+    instantiated by the HashTable template class many times. This scheme helps
     reduce code bloat caused by templates. The HashTable template class below
     acts as kind of a wrapper around this class.
 
@@ -296,7 +296,7 @@ class _HashTableIterator : public _HashTableIteratorBase
 {
 public:
 
-    _HashTableIterator() 
+    _HashTableIterator()
 	: _HashTableIteratorBase() { }
 
     _HashTableIterator(_BucketBase** first, _BucketBase** last)
@@ -307,7 +307,7 @@ public:
     const V& value() const { return ((_Bucket<K, V, E>*)_bucket)->getValue(); }
 };
 
-/** The HashTable class provides a simple hash table implementation which 
+/** The HashTable class provides a simple hash table implementation which
     associates key-value pairs.
 
     This implementation minimizes template bloat considerably by factoring out
@@ -317,11 +317,11 @@ public:
 
     Hashing as always is O(1).
 
-    HashTable uses the most popular hash table implementation which utilizes 
+    HashTable uses the most popular hash table implementation which utilizes
     an array of pointers to bucket chains. This is organized as follows:
 
         <pre>
-           +---+ 
+           +---+
            |   |   +-----+-------+
          0 | ----->| key | value |
            |   |   +-----+-------+
@@ -340,8 +340,8 @@ public:
            +---+
         </pre>
 
-    To locate an item a hash function is applied to the key to produce an 
-    integer value. Then the modulo of that integer is taken with N to select 
+    To locate an item a hash function is applied to the key to produce an
+    integer value. Then the modulo of that integer is taken with N to select
     a chain (as shown above). Then the chain is searched for a bucket whose
     key value is the same as the target key.
 
@@ -352,7 +352,7 @@ public:
     one might set the number of chains to be the same as the expected number
     of entries.
 
-    This implementation does have NOT an adaptive growth algorithm yet which 
+    This implementation does have NOT an adaptive growth algorithm yet which
     would allow it to increase the number of chains periodically based on some
     statistic (e.g., when the number of entries is more than three times the
     number of chains; this would keep the average chain length below three).
@@ -365,7 +365,7 @@ public:
 	HT ht;
 	</pre>
 
-    Some of the template arguments are defaulted in the above example (the 
+    Some of the template arguments are defaulted in the above example (the
     third and forth). The instantiation is explicitly qualified like this
     (which by the way has exactly the same effect).
 
@@ -406,12 +406,13 @@ public:
 	}
 	</pre>
 
-    Note that only forward iteration is supported (no backwards iteration).
+    Note that only forward iteration is supported (no backwards iteration),
+    AND that the hashtable MUST NOT be modified during the iteration!!!
 
     Equality of keys is determined using the EqualFunc class which is
-    the default third argument of the template argument list. A new function 
-    object may be defined and passed to modify the behavior (for example, one 
-    might define equality of strings to ignore whitespace). Here is how to 
+    the default third argument of the template argument list. A new function
+    object may be defined and passed to modify the behavior (for example, one
+    might define equality of strings to ignore whitespace). Here is how to
     define and use a new equality function object:
 
 	<pre>
@@ -428,7 +429,7 @@ public:
 	EqualFunc&lt;String, Uint32, MyEqualFunc&gt; ht;
 	</pre>
 
-    When the lookup(), insert(), and remove() methods are called, the 
+    When the lookup(), insert(), and remove() methods are called, the
     MyEqualFunc::equal() method will be used to determine equality.
 
     Hash functions are provided for common types (as part of the default
@@ -449,7 +450,7 @@ public:
 	EqualFunc&lt;String, Uint32, MyEqualFunc, MyHashFunc&gt; ht;
 	</pre>
 
-    As always, the hash function should provide a reasonably uniform 
+    As always, the hash function should provide a reasonably uniform
     distrubtion so that all of the entries don't get crowded into a few
     chains. Note that a hash function which returns zero, would force
     the pathalogical case in which all entries are placed in the first
@@ -533,7 +534,7 @@ public:
     }
 
     /** Obtains an iterator for this object. */
-    Iterator start() const 
+    Iterator start() const
     {
 	return Iterator(
 	    _rep.getChains(), _rep.getChains() + _rep.getNumChains());
@@ -547,7 +548,7 @@ private:
 template<class K, class V, class E, class H>
 inline Boolean HashTable<K, V, E, H>::lookup(const K& key, V& value) const
 {
-    _Bucket<K, V, E>* bucket 
+    _Bucket<K, V, E>* bucket
 	= (_Bucket<K, V, E>*)_rep.lookup(H::hash(key), &key);
 
     if (bucket)

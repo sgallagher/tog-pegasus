@@ -593,108 +593,7 @@ void drive_resolve_specialChars()
 }
 
 
-void drive_resolve_embedded()
-{
-   try
-   {
-      const char* env = getenv("PEGASUS_HOME");
-   	String repositoryDir(env);
-   	repositoryDir.append("/repository");	
-   	CIMNamespaceName _ns("root/cimv2");
-   	CIMRepository *_rep = new CIMRepository(repositoryDir);
-   	RepositoryQueryContext _query(_ns, _rep);
-   
-   }
-   catch(Exception & e)
-   {
-      cout << e.getMessage() << endl;
-   }
-   return;
-}
 
-void drive_like_function()
-{
-   try
-   {
-      const char* env = getenv("PEGASUS_HOME");
-   	String repositoryDir(env);
-   	repositoryDir.append("/repository");	
-   	CIMNamespaceName _ns("root/cimv2");
-   	CIMRepository *_rep = new CIMRepository(repositoryDir);
-   	RepositoryQueryContext _query(_ns, _rep);
-   
-   }
-   catch(Exception & e)
-   {
-      cout << e.getMessage() << endl;
-   }
-   return;
-}
-
-void drive_isa_function()
-{
-   try
-   {
-      const char* env = getenv("PEGASUS_HOME");
-   	String repositoryDir(env);
-   	repositoryDir.append("/repository");	
-   	CIMNamespaceName _ns("root/cimv2");
-   	CIMRepository *_rep = new CIMRepository(repositoryDir);
-   	RepositoryQueryContext _query(_ns, _rep);
-
-      String s1("CIM_ComputerSystem");
-      String s2("CIM_System");
-      String s3("CIM_OperatingSystem");
-      String s4("CIM_ManagedElement");
-
-      CIMName n1(s1);
-      CIMName n2(s2);
-      CIMName n3(s3);
-      CIMName n4(s4);
-
-      CIMInstance i1(n1);
-      CIMInstance i2(n2);
-      CIMInstance i3(n3);
-      CIMInstance i4(n4);
-
-      CQLChainedIdentifier vs1(s1);
-      CQLChainedIdentifier vs2(s2);
-      CQLChainedIdentifier vs3(s3);
-      CQLChainedIdentifier vs4(s4);
-
-      CQLValue vi1(i1);
-      CQLValue vi2(i2);
-      CQLValue vi3(i3);
-      CQLValue vi4(i4);
-
-      assert(vi1.isa(vs1,_query));
-      assert(vi1.isa(vs2,_query));
-      assert(!vi1.isa(vs3,_query));
-      assert(vi1.isa(vs4,_query));
-
-      assert(!vi2.isa(vs1,_query));
-      assert(vi2.isa(vs2,_query));
-      assert(!vi2.isa(vs3,_query));
-      assert(vi2.isa(vs4,_query));
-
-      assert(!vi3.isa(vs1,_query));
-      assert(!vi3.isa(vs2,_query));
-      assert(vi3.isa(vs3,_query));
-      assert(vi3.isa(vs4,_query));
-
-      assert(!vi4.isa(vs1,_query));
-      assert(!vi4.isa(vs2,_query));
-      assert(!vi4.isa(vs3,_query));
-      assert(vi4.isa(vs4,_query));
-      
-   
-   }
-   catch(Exception & e)
-   {
-      cout << e.getMessage() << endl;
-   }
-   return;
-}
 
 
 int main( int argc, char *argv[] ){
@@ -707,11 +606,6 @@ cout << "operation" << endl;
        
  cout << "misc" << endl;  
    drive_get_misc_functions();
-   
- cout << "isa NOT Implemented yet" << endl;
- // drive_isa_function();
- cout << "like NOT Implemented yet" << endl;
-   drive_like_function();
   
  cout << "primitive" << endl;
    drive_resolve_primitive();
@@ -719,8 +613,6 @@ cout << "operation" << endl;
  cout << "special" << endl;
    drive_resolve_specialChars();
    
- cout << "embedded NOT implemented yet" << endl;
-   drive_resolve_embedded();
 	
 	//END TESTS....
 	     

@@ -102,8 +102,7 @@ CQLValueRep::CQLValueRep(const String& inString, CQLValue::NumericType inValueTy
    {
    case CQLValue::Hex:
      {
-       String tmp("0x");
-       tmp.append(inString);
+       String tmp(inString);
        if(inSign)
 	 {
 	   _theValue.set(CQLUtilities::stringToUint64(tmp));
@@ -118,8 +117,7 @@ CQLValueRep::CQLValueRep(const String& inString, CQLValue::NumericType inValueTy
      break;
    case CQLValue::Binary:
      {
-       String tmp("b");
-       tmp.append(inString);
+       String tmp(inString);;
        if(inSign)
 	 {
 	   _theValue.set(CQLUtilities::stringToUint64(tmp));
@@ -134,8 +132,7 @@ CQLValueRep::CQLValueRep(const String& inString, CQLValue::NumericType inValueTy
      }
    case CQLValue::Decimal:
      {
-       String tmp;
-       tmp.append(inString);
+       String tmp(inString);
        if(inSign)
 	 {
 	   _theValue.set(CQLUtilities::stringToUint64(tmp));
@@ -150,8 +147,7 @@ CQLValueRep::CQLValueRep(const String& inString, CQLValue::NumericType inValueTy
      break;
    case CQLValue::Real:
      {
-       String tmp;
-       tmp.append(inString);
+       String tmp(inString);
        if(inSign)
 	 {
 	   _theValue.set(CQLUtilities::stringToReal64(tmp));
@@ -789,11 +785,12 @@ Boolean CQLValueRep::isa(const CQLChainedIdentifier& inID,QueryContext& QueryCtx
    _theValue.get(obj);
 
    className = obj.getClassName();
-
+   cout << inID[0].getName().getString() << endl;
    Array<CIMName> cimNames = QueryCtx.enumerateClassNames(inID[0].getName());
 
    for(Uint32 i = 0; i < cimNames.size() ; ++i)
      {
+       cout << cimNames[i].getString() << " = " << className.getString() << endl;
        if(cimNames[i] == className)
 	 {
 	   PEG_METHOD_EXIT();

@@ -4,6 +4,7 @@ include $(ROOT)/mak/config.mak
 include ../libraries.mak
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
+LOCAL_CLEAN_TARGET=local-clean
 
 PROGRAM = CompareRepositories
 SOURCES = CompareRepositories.cpp
@@ -18,3 +19,7 @@ tests:
 poststarttests:
 
 install:
+
+
+local-clean:
+	rm -rf file1 file2

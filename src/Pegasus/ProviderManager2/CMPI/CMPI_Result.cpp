@@ -40,7 +40,7 @@
 #include "CMPI_Value.h"
 
 #include <Pegasus/ProviderManager2/SimpleResponseHandler.h>
-
+#include <Pegasus/Common/System.h>
 #include <string.h>
 
 PEGASUS_USING_STD;

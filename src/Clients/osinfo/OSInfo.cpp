@@ -84,6 +84,16 @@ void OSInfo::errorExit(const String& message)
     exit(1);
 }
 
+/** _usage method for osinfo - only accept one option
+    -c for raw CIM formatting
+*/
+void OSInfo::_usage()
+{
+  cerr << "Usage: osinfo [-c]" << endl;
+  cerr << "Example:" << endl;
+  cerr << "  osinfo " << endl;
+  cerr << "  osinfo -c " << endl;
+}
 
 /**
    displayProperties method of the osinfo Test Client
@@ -185,7 +195,7 @@ static void formatCIMDateTime (char* cimString, char* dateTime)
 /**
    gatherProperties method of the osinfo Test Client
   */
-void OSInfo::gatherProperties(CIMInstance &inst) 
+void OSInfo::gatherProperties(CIMInstance &inst, Boolean cimFormat) 
 {
    // don't have a try here - want it to be caught by caller
 
@@ -254,7 +264,14 @@ void OSInfo::gatherProperties(CIMInstance &inst)
          char bdateString[80];
 
          inst.getProperty(j).getValue().get(bdate);
-         formatCIMDateTime((char *)bdate.getString(), bdateString);
+         if (!cimFormat) 
+         { // else leave in raw CIM
+            formatCIMDateTime((char *)bdate.getString(), bdateString);
+         }
+         else
+         {
+            sprintf(bdateString,"%s",bdate.getString());
+         }
          osBootUpTime.assign(bdateString);
       }   // end if LastBootUpTime 
       
@@ -265,7 +282,14 @@ void OSInfo::gatherProperties(CIMInstance &inst)
          char ldateString[80];
 
          inst.getProperty(j).getValue().get(ldate);
-         formatCIMDateTime((char *)ldate.getString(), ldateString);
+         if (!cimFormat) 
+         { // else leave in raw CIM
+            formatCIMDateTime((char *)ldate.getString(), ldateString);
+         }
+         else
+         {
+            sprintf(ldateString,"%s",ldate.getString());
+         }
          osLocalDateTime.assign(ldateString);
       }   // end if LocalDateTime 
       
@@ -273,49 +297,57 @@ void OSInfo::gatherProperties(CIMInstance &inst)
                                    "SystemUpTime"))
       {
          Uint64 total;
+         char   uptime[80];
          inst.getProperty(j).getValue().get(total);
 
-         // let's make things a bit easier for our user to read
-         Uint64 days = 0;
-         Uint64 hours = 0;
-         Uint64 minutes = 0;
-         Uint64 seconds = 0;
-         Uint64 totalSeconds = total;
-         seconds = total%60;
-         total = total/60;
-         minutes = total%60;
-         total = total/60;
-         hours = total%24;
-         total = total/24;
-         days = total;
+         if (!cimFormat) 
+         { // else leave in raw CIM
+            // let's make things a bit easier for our user to read
+            Uint64 days = 0;
+            Uint64 hours = 0;
+            Uint64 minutes = 0;
+            Uint64 seconds = 0;
+            Uint64 totalSeconds = total;
+            seconds = total%60;
+            total = total/60;
+            minutes = total%60;
+            total = total/60;
+            hours = total%24;
+            total = total/24;
+            days = total;
 
-         // now deal with the proper singular/plural
-         char dayString[20];
-         char hourString[20];
-         char minuteString[20];
-         char secondString[20];
+            // now deal with the proper singular/plural
+            char dayString[20];
+            char hourString[20];
+            char minuteString[20];
+            char secondString[20];
    
-         sprintf(dayString, (days == 0?"":
-                            (days == 1?"1 day,":
-                            "%lld days,")), days);
+            sprintf(dayString, (days == 0?"":
+                               (days == 1?"1 day,":
+                               "%lld days,")), days);
         
-         // for other values, want to display the 0s 
-         sprintf(hourString, (hours == 1?"1 hr,":
-                             "%lld hrs,"), hours);
+            // for other values, want to display the 0s 
+            sprintf(hourString, (hours == 1?"1 hr,":
+                                "%lld hrs,"), hours);
          
-         sprintf(minuteString, (minutes == 1?"1 min,":
-                               "%lld mins,"), minutes);
+            sprintf(minuteString, (minutes == 1?"1 min,":
+                                  "%lld mins,"), minutes);
          
-         sprintf(secondString, (seconds == 1?"1 sec":
-                               "%lld secs"), seconds);
+            sprintf(secondString, (seconds == 1?"1 sec":
+                                  "%lld secs"), seconds);
          
-         char   uptime[80];
-         sprintf(uptime, "%lld seconds = %s %s %s %s",
-                 totalSeconds,
-                 dayString,
-                 hourString,
-                 minuteString,
-                 secondString);
+            sprintf(uptime, "%lld seconds = %s %s %s %s",
+                    totalSeconds,
+                    dayString,
+                    hourString,
+                    minuteString,
+                    secondString);
+            osSystemUpTime.assign(uptime);
+         }  // end of if wanted nicely formatted vs. raw CIM
+         else 
+         {
+            sprintf(uptime,"%lld",total);
+         }
 
          osSystemUpTime.assign(uptime);
 
@@ -327,62 +359,38 @@ void OSInfo::gatherProperties(CIMInstance &inst)
 /* 
    getOSInfo of the OS provider. 
 */
-void OSInfo::getOSInfo(CIMClient &client)
-{
-  try
-    {
-      Boolean deepInheritance = true;
-      Boolean localOnly = true;
-      Boolean includeQualifiers = false;
-      Boolean includeClassOrigin = false;
-      Uint32 numberInstances;
-
-      Array<CIMNamedInstance> cimNInstances = 
-	       client.enumerateInstances(NAMESPACE, CLASSNAME, 
-                                         deepInheritance,
-				         localOnly,  includeQualifiers,
-				         includeClassOrigin );
-	  
-      numberInstances = cimNInstances.size();
-
-      // while we only have one instance (the running OS), we can take the
-      // first instance.  When the OSProvider supports installed OSs as well,
-      // will need to select the runningOS instance
-
-      for (Uint32 i = 0; i < cimNInstances.size(); i++)
-      {
-         CIMObjectPath instanceRef = cimNInstances[i].getInstanceName();
-         //String instanceRef = cimNInstances[i].getInstanceName().toString();
-	 if( !(String::equalNoCase(instanceRef.getClassName(), CLASSNAME ) ) )
-         {
-	    errorExit("EnumerateInstances failed");
-	 }
-
-         // first gather the interesting properties
-         gatherProperties(cimNInstances[i].getInstance());
-         
-         // then display them
-         displayProperties();
-
-      }   // end for looping through instances
-    
-    }  // end try 
-   
-    catch(CIMClientException& e)
-    {
-      errorExit(e.getMessage());
-    }
-}
-
-///////////////////////////////////////////////////////////////
-//    MAIN
-///////////////////////////////////////////////////////////////
-
-int main(int argc, char** argv)
+void OSInfo::getOSInfo(const int argc, const char** argv)
 {
 
 // ATTN-SLC-16-May-02-P1  enhance to take host & user info
 //  Decided to keep local only for first release 
+
+    Boolean cimFormat = false;
+
+    // before we even connect to CIMOM, make sure we're
+    // syntactically valid
+
+    if (argc > 2)
+    {
+       _usage();
+       exit(1);
+    }
+
+    if (argc == 2)
+    {
+       // only support one option, -c for CIM formatting
+       const char *opt = argv[1];
+
+       if (strcmp(opt,"-c") == 0)
+       {
+          cimFormat = true;
+       }
+       else
+       {
+          _usage();
+          exit(1);
+       }
+    }
 
     // need to first connect to the CIMOM
 
@@ -393,15 +401,58 @@ int main(int argc, char** argv)
         CIMClient client(60 * 1000);
 	client.connectLocal();
         
-        OSInfo testClient;
-        testClient.getOSInfo(client);
-        
-        client.disconnect();
-  }
-  catch(CIMClientException& e)
-  {
-     cout << "osinfo error: " << e.getMessage() << endl;
-  }
-    return 0;
+        Boolean deepInheritance = true;
+        Boolean localOnly = true;
+        Boolean includeQualifiers = false;
+        Boolean includeClassOrigin = false;
+        Uint32 numberInstances;
+
+        Array<CIMNamedInstance> cimNInstances = 
+	       client.enumerateInstances(NAMESPACE, CLASSNAME, 
+                                         deepInheritance,
+				         localOnly,  includeQualifiers,
+				         includeClassOrigin );
+	  
+        numberInstances = cimNInstances.size();
+
+        // while we only have one instance (the running OS), we can take the
+        // first instance.  When the OSProvider supports installed OSs as well,
+        // will need to select the runningOS instance
+
+        for (Uint32 i = 0; i < cimNInstances.size(); i++)
+        {
+           CIMObjectPath instanceRef = cimNInstances[i].getInstanceName();
+           if ( !(String::equalNoCase(instanceRef.getClassName(), 
+                                      CLASSNAME ) ) )
+           {
+              errorExit("EnumerateInstances failed");
+           }
+
+           // first gather the interesting properties
+           gatherProperties(cimNInstances[i].getInstance(), cimFormat);
+         
+           // then display them
+           displayProperties();
+
+      }   // end for looping through instances
+    
+    }  // end try 
+   
+    catch(CIMClientException& e)
+    {
+      errorExit(e.getMessage());
+    }
+
+}
+
+///////////////////////////////////////////////////////////////
+//    MAIN
+///////////////////////////////////////////////////////////////
+
+int main(const int argc, const char** argv)
+{
+   OSInfo osInfo;
+   osInfo.getOSInfo(argc, argv);
+   return 0;
 }
 

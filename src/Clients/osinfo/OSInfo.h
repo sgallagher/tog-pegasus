@@ -33,11 +33,11 @@ class OSInfo
      OSInfo(void);
      ~OSInfo(void);
 
-     void getOSInfo(CIMClient &client);
+     void getOSInfo(const int argc, const char** argv);
 
      // utility methods for common functions
      void errorExit(const String &message);
-     void gatherProperties(CIMInstance &inst);
+     void gatherProperties(CIMInstance &inst, Boolean cimFormat);
      void displayProperties();
 
   private:
@@ -50,6 +50,7 @@ class OSInfo
      String osLicensedUsers;
      String osLocalDateTime;
      String osSystemUpTime;
+     void _usage();
 };
 
 #endif

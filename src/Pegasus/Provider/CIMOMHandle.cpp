@@ -436,7 +436,11 @@ Message *CIMOMHandle::_cimom_handle_rep::do_request(Message *request,
    {
       PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
 		       "IPC Exception, throwing CIMException");
-      throw CIMException(CIM_ERR_ACCESS_DENIED, "Recursive Use of CIMOMHandle Attempted");
+		//l10n
+      //throw CIMException(CIM_ERR_ACCESS_DENIED, "Recursive Use of CIMOMHandle Attempted");
+      throw CIMException(CIM_ERR_ACCESS_DENIED, MessageLoaderParms(
+      				"Provider.CIMOMHandle.RECURSIVE_USE_CIMOMHANDLE",
+      				"Recursive Use of CIMOMHandle Attempted"));
    }
    
    catch(...)
@@ -478,7 +482,11 @@ Message *CIMOMHandle::_cimom_handle_rep::do_request(Message *request,
 			"timeout waiting for response");
        _request = 0;
        _recursion.unlock();
-       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Empty CIM Response");
+       //l10n
+       //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Empty CIM Response");
+       throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
+       				"Provider.CIMOMHandle.EMPTY_CIM_RESPONSE",
+       				"Empty CIM Response"));
     }
     catch(...)
     {
@@ -486,7 +494,11 @@ Message *CIMOMHandle::_cimom_handle_rep::do_request(Message *request,
 			"Unexpected Exception");
        _request = 0;
        _recursion.unlock();
-       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Empty CIM Response");
+       //l10n
+       //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Empty CIM Response");
+       throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
+       				"Provider.CIMOMHandle.EMPTY_CIM_RESPONSE",
+       				"Empty CIM Response"));
     }
     _request = 0;
     Message *temp = _response.remove_first();
@@ -501,8 +513,12 @@ Message *CIMOMHandle::_cimom_handle_rep::do_request(Message *request,
        catch(...)
        {
        }
-       _recursion.unlock();      
-       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Empty CIM Response");
+       _recursion.unlock(); 
+       //l10n     
+       //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Empty CIM Response");
+       throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
+       				"Provider.CIMOMHandle.EMPTY_CIM_RESPONSE",
+       				"Empty CIM Response"));
     }
 
     if(response->cimException.getCode() != CIM_ERR_SUCCESS)
@@ -594,7 +610,11 @@ CIMClass CIMOMHandle::getClass(
     {
        PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
 			"Exception caught in CIMOMHandle");
-       throw CIMException(CIM_ERR_FAILED, "Exception caught in CIMOMHandle");
+			//l10n
+       //throw CIMException(CIM_ERR_FAILED, "Exception caught in CIMOMHandle");
+       throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
+       				"Provider.CIMOMHandle.CAUGHT_EXCEPTION",
+       				"Exception caught in CIMOMHandle"));
     }
         
     CIMClass cimClass = response->cimClass;
@@ -649,7 +669,11 @@ Array<CIMClass> CIMOMHandle::enumerateClasses(
     {
        PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
 			"Exception caught in CIMOMHandle");
-       throw CIMException(CIM_ERR_FAILED, "Exception caught in CIMOMHandle");
+			//l10n
+       //throw CIMException(CIM_ERR_FAILED, "Exception caught in CIMOMHandle");
+       throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
+       				"Provider.CIMOMHandle.CAUGHT_EXCEPTION",
+       				"Exception caught in CIMOMHandle"));
     }
    Array<CIMClass> cimClasses = response->cimClasses;
    delete response;
@@ -695,7 +719,11 @@ Array<CIMName> CIMOMHandle::enumerateClassNames(
     {
        PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
 			"Exception caught in CIMOMHandle");
-       throw CIMException(CIM_ERR_FAILED, "Exception caught in CIMOMHandle");
+			//l10n
+       //throw CIMException(CIM_ERR_FAILED, "Exception caught in CIMOMHandle");
+       throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
+       				"Provider.CIMOMHandle.CAUGHT_EXCEPTION",
+       				"Exception caught in CIMOMHandle"));
     }
     Array<CIMName> classNames = response->classNames;
 
@@ -742,7 +770,11 @@ void CIMOMHandle::createClass(
     {
        PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
 			"Exception caught in CIMOMHandle");
-       throw CIMException(CIM_ERR_FAILED, "Exception caught in CIMOMHandle");
+			//l10n
+       //throw CIMException(CIM_ERR_FAILED, "Exception caught in CIMOMHandle");
+       throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
+       				"Provider.CIMOMHandle.CAUGHT_EXCEPTION",
+       				"Exception caught in CIMOMHandle"));
     }
    
    delete response;
@@ -786,7 +818,11 @@ void CIMOMHandle::modifyClass(
     {
        PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
 			"Exception caught in CIMOMHandle");
-       throw CIMException(CIM_ERR_FAILED, "Exception caught in CIMOMHandle");
+			//l10n
+       //throw CIMException(CIM_ERR_FAILED, "Exception caught in CIMOMHandle");
+       throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
+       				"Provider.CIMOMHandle.CAUGHT_EXCEPTION",
+       				"Exception caught in CIMOMHandle"));
     }
    
    delete response;
@@ -833,7 +869,11 @@ void CIMOMHandle::deleteClass(
    {
       PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
 		       "Exception caught in CIMOMHandle");
-      throw CIMException(CIM_ERR_FAILED, "Exception caught in CIMOMHandle");
+		       //l10n
+      //throw CIMException(CIM_ERR_FAILED, "Exception caught in CIMOMHandle");
+      throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
+       				"Provider.CIMOMHandle.CAUGHT_EXCEPTION",
+       				"Exception caught in CIMOMHandle"));
    }
    delete response;
    PEG_METHOD_EXIT();
@@ -886,7 +926,11 @@ CIMInstance CIMOMHandle::getInstance(
     {
        PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
 			"Exception caught in CIMOMHandle");
-       throw CIMException(CIM_ERR_FAILED, "Exception caught in CIMOMHandle");
+			//l10n
+       //throw CIMException(CIM_ERR_FAILED, "Exception caught in CIMOMHandle");
+       throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
+       				"Provider.CIMOMHandle.CAUGHT_EXCEPTION",
+       				"Exception caught in CIMOMHandle"));
     }
 
    CIMInstance cimInstance  = response->cimInstance;
@@ -942,7 +986,11 @@ Array<CIMInstance> CIMOMHandle::enumerateInstances(
     {
        PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
 			"Exception caught in CIMOMHandle");
-       throw CIMException(CIM_ERR_FAILED, "Exception caught in CIMOMHandle");
+			//l10n
+       //throw CIMException(CIM_ERR_FAILED, "Exception caught in CIMOMHandle");
+       throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
+       				"Provider.CIMOMHandle.CAUGHT_EXCEPTION",
+       				"Exception caught in CIMOMHandle"));
     }
    
    Array<CIMInstance> cimInstances = response->cimNamedInstances;
@@ -989,7 +1037,11 @@ Array<CIMObjectPath> CIMOMHandle::enumerateInstanceNames(
     {
        PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
 			"Exception caught in CIMOMHandle");
-       throw CIMException(CIM_ERR_FAILED, "Exception caught in CIMOMHandle");
+			//l10n
+       //throw CIMException(CIM_ERR_FAILED, "Exception caught in CIMOMHandle");
+       throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
+       				"Provider.CIMOMHandle.CAUGHT_EXCEPTION",
+       				"Exception caught in CIMOMHandle"));
     }
 
    Array<CIMObjectPath> cimReferences = response->instanceNames;
@@ -1034,7 +1086,11 @@ CIMObjectPath CIMOMHandle::createInstance(
     {
        PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
 			"Exception caught in CIMOMHandle");
-       throw CIMException(CIM_ERR_FAILED, "Exception caught in CIMOMHandle");
+			//l10n
+       //throw CIMException(CIM_ERR_FAILED, "Exception caught in CIMOMHandle");
+       throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
+       				"Provider.CIMOMHandle.CAUGHT_EXCEPTION",
+       				"Exception caught in CIMOMHandle"));
     }
 
    CIMObjectPath cimReference = response->instanceName;
@@ -1086,7 +1142,11 @@ void CIMOMHandle::modifyInstance(
    {
       PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
 		       "Exception caught in CIMOMHandle");
-      throw CIMException(CIM_ERR_FAILED, "Exception caught in CIMOMHandle");
+		       //l10n
+      //throw CIMException(CIM_ERR_FAILED, "Exception caught in CIMOMHandle");
+      throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
+       				"Provider.CIMOMHandle.CAUGHT_EXCEPTION",
+       				"Exception caught in CIMOMHandle"));
     }
 
    delete response;
@@ -1131,7 +1191,11 @@ void CIMOMHandle::deleteInstance(
     {
        PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
 			"Exception caught in CIMOMHandle");
-       throw CIMException(CIM_ERR_FAILED, "Exception caught in CIMOMHandle");
+			//l10n
+       //throw CIMException(CIM_ERR_FAILED, "Exception caught in CIMOMHandle");
+       throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
+       				"Provider.CIMOMHandle.CAUGHT_EXCEPTION",
+       				"Exception caught in CIMOMHandle"));
     }
 
    delete response;
@@ -1179,7 +1243,11 @@ Array<CIMObject> CIMOMHandle::execQuery(
     {
        PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
 			"Exception caught in CIMOMHandle");
-       throw CIMException(CIM_ERR_FAILED, "Exception caught in CIMOMHandle");
+			//l10n
+       //throw CIMException(CIM_ERR_FAILED, "Exception caught in CIMOMHandle");
+       throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
+       				"Provider.CIMOMHandle.CAUGHT_EXCEPTION",
+       				"Exception caught in CIMOMHandle"));
     }
 
    Array<CIMObject> cimObjects = response->cimObjects;
@@ -1239,7 +1307,11 @@ Array<CIMObject> CIMOMHandle::associators(
     {
        PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
 			"Exception caught in CIMOMHandle");
-       throw CIMException(CIM_ERR_FAILED, "Exception caught in CIMOMHandle");
+			//l10n
+       //throw CIMException(CIM_ERR_FAILED, "Exception caught in CIMOMHandle");
+       throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
+       				"Provider.CIMOMHandle.CAUGHT_EXCEPTION",
+       				"Exception caught in CIMOMHandle"));
     }
 
     Array<CIMObject> cimObjects = response->cimObjects;
@@ -1295,7 +1367,11 @@ Array<CIMObjectPath> CIMOMHandle::associatorNames(
     {
        PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
 			"Exception caught in CIMOMHandle");
-       throw CIMException(CIM_ERR_FAILED, "Exception caught in CIMOMHandle");
+			//l10n
+       //throw CIMException(CIM_ERR_FAILED, "Exception caught in CIMOMHandle");
+       throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
+       				"Provider.CIMOMHandle.CAUGHT_EXCEPTION",
+       				"Exception caught in CIMOMHandle"));
     }
 
    Array<CIMObjectPath> cimObjectPaths = response->objectNames;
@@ -1353,7 +1429,11 @@ Array<CIMObject> CIMOMHandle::references(
    {
       PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
 		       "Exception caught in CIMOMHandle");
-      throw CIMException(CIM_ERR_FAILED, "Exception caught in CIMOMHandle");
+		       //l10n
+      //throw CIMException(CIM_ERR_FAILED, "Exception caught in CIMOMHandle");
+      throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
+       				"Provider.CIMOMHandle.CAUGHT_EXCEPTION",
+       				"Exception caught in CIMOMHandle"));
    }
 
    Array<CIMObject> cimObjects = response->cimObjects;
@@ -1404,7 +1484,11 @@ Array<CIMObjectPath> CIMOMHandle::referenceNames(
     {
        PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
 			"Exception caught in CIMOMHandle");
-       throw CIMException(CIM_ERR_FAILED, "Exception caught in CIMOMHandle");
+			//l10n
+       //throw CIMException(CIM_ERR_FAILED, "Exception caught in CIMOMHandle");
+       throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
+       				"Provider.CIMOMHandle.CAUGHT_EXCEPTION",
+       				"Exception caught in CIMOMHandle"));
     }
 
    Array<CIMObjectPath> cimObjectPaths = response->objectNames;
@@ -1453,7 +1537,11 @@ CIMValue CIMOMHandle::getProperty(
     {
        PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
 			"Exception caught in CIMOMHandle");
-       throw CIMException(CIM_ERR_FAILED, "Exception caught in CIMOMHandle");
+			//l10n
+       //throw CIMException(CIM_ERR_FAILED, "Exception caught in CIMOMHandle");
+       throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
+       				"Provider.CIMOMHandle.CAUGHT_EXCEPTION",
+       				"Exception caught in CIMOMHandle"));
     }
 
     CIMValue cimValue = response->value;
@@ -1506,7 +1594,11 @@ void CIMOMHandle::setProperty(
     {
        PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
 			"Exception caught in CIMOMHandle");
-       throw CIMException(CIM_ERR_FAILED, "Exception caught in CIMOMHandle");
+			//l10n
+       //throw CIMException(CIM_ERR_FAILED, "Exception caught in CIMOMHandle");
+       throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
+       				"Provider.CIMOMHandle.CAUGHT_EXCEPTION",
+       				"Exception caught in CIMOMHandle"));
     }
 
    delete response;
@@ -1554,7 +1646,11 @@ CIMValue CIMOMHandle::invokeMethod(
     {
        PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
 			"Exception caught in CIMOMHandle");
-       throw CIMException(CIM_ERR_FAILED, "Exception caught in CIMOMHandle");
+			//l10n
+       //throw CIMException(CIM_ERR_FAILED, "Exception caught in CIMOMHandle");
+       throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
+       				"Provider.CIMOMHandle.CAUGHT_EXCEPTION",
+       				"Exception caught in CIMOMHandle"));
     }
    
    CIMValue value = response->retValue;

@@ -41,6 +41,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Signal.h>
+#include <Pegasus/Common/Exception.h>
 
 PEGASUS_USING_PEGASUS;
 
@@ -68,28 +69,33 @@ PEGASUS_NAMESPACE_BEGIN
 
 SignalHandler::SignalHandler()
 {
-   for(Uint32 i=0;i <= PEGASUS_NSIG;i++)
-   {
+    for(Uint32 i=0;i <= PEGASUS_NSIG;i++)
+    {
        register_handler &rh = reg_handler[i];
        rh.signum = i;
        rh.active = 0;
        rh.sh = NULL;
        memset(&rh.oldsa,0,sizeof(struct sigaction));
-   }
+    }
 }
 
 SignalHandler::~SignalHandler()
 {
-   deactivateAll();
+    deactivateAll();
 }
 
-SignalHandler::register_handler &SignalHander::getHandler(Uint32 signum)
+void SignalHandler::verifySignum(Uint32 signum)
 {
     if ( signum > PEGASUS_NSIG )
     {
-        throw IndexOutOfBounds();
+        throw IndexOutOfBoundsException();
     }
+}
 
+SignalHandler::register_handler& 
+SignalHandler::getHandler(Uint32 signum)
+{
+    verifySignum(signum);
     return(reg_handler[signum]);
 }
 
@@ -114,13 +120,9 @@ void SignalHandler::activate(Uint32 signum)
 
     sig_acts->sa_sigaction = rh.sh;
     sigfillset(&(sig_acts->sa_mask));
-#if defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_PLATFORM_HPUX_ACC) || defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM) || defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC) || defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
-    sig_acts->sa_flags = SA_SIGINFO | SA_RESETHAND;
-#else
-    sig_acts->sa_flags = SA_SIGINFO | SA_ONESHOT;
+    sig_acts->sa_flags = SA_SIGINFO;
 #if !defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
     sig_acts->sa_restorer = NULL;
-#endif
 #endif
 
     sigaction(signum, sig_acts, &rh.oldsa);
@@ -132,7 +134,7 @@ void SignalHandler::activate(Uint32 signum)
 
 void SignalHandler::deactivate(Uint32 signum)
 {
-    register_handle &rh = getHandler(signum);
+    register_handler &rh = getHandler(signum);
     AutoMutex autoMut(reg_mutex);
     deactivate_i(rh);
 }
@@ -162,10 +164,10 @@ void SignalHandler::deactivateAll()
 void SignalHandler::ignore(Uint32 signum)
 {
 
-    register_handler &rg = getHandler(signum);
+    verifySignum(signum);
 
 #if !defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM) && !defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
-    ::sigignore(signum);
+    sigignore(signum);
 #else
     struct sigaction * sig_acts = new struct sigaction;
 
@@ -207,5 +209,3 @@ SignalHandler * getSigHandle() { return _globalSignalHandlerPtr; }
 
 
 PEGASUS_NAMESPACE_END
-
-

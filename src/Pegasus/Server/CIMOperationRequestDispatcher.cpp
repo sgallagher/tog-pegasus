@@ -426,10 +426,10 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
     //
     // check the class name for subscription, filter and handler
     //
-    if(String::equalNoCase(className, "CIM_IndicationSubscription") ||
-       String::equalNoCase(className, "CIM_IndicationHandlerCIMXML") ||
-       String::equalNoCase(className, "CIM_IndicationHandlerSNMP") ||
-       String::equalNoCase(className, "CIM_IndicationFilter"))
+    if(String::equalNoCase(className, "PG_IndicationSubscription") ||
+       String::equalNoCase(className, "PG_IndicationHandlerCIMXML") ||
+       String::equalNoCase(className, "PG_IndicationHandlerSNMP") ||
+       String::equalNoCase(className, "PG_IndicationFilter"))
     {
         //
         //  Send to the indication service
@@ -621,10 +621,10 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
     //
     // check the class name for subscription, filter and handler
     //
-    if(String::equalNoCase(className, "CIM_IndicationSubscription") ||
-       String::equalNoCase(className, "CIM_IndicationHandlerCIMXML") ||
-       String::equalNoCase(className, "CIM_IndicationHandlerSNMP") ||
-       String::equalNoCase(className, "CIM_IndicationFilter"))
+    if(String::equalNoCase(className, "PG_IndicationSubscription") ||
+       String::equalNoCase(className, "PG_IndicationHandlerCIMXML") ||
+       String::equalNoCase(className, "PG_IndicationHandlerSNMP") ||
+       String::equalNoCase(className, "PG_IndicationFilter"))
     {
         //
         //  Send to the indication service
@@ -809,10 +809,10 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
    // check the class name for subscription, filter and handler
    //
 
-   if(String::equalNoCase(className, "CIM_IndicationSubscription") ||
-      String::equalNoCase(className, "CIM_IndicationHandlerCIMXML") ||
-      String::equalNoCase(className, "CIM_IndicationHandlerSNMP") ||
-      String::equalNoCase(className, "CIM_IndicationFilter"))
+   if(String::equalNoCase(className, "PG_IndicationSubscription") ||
+      String::equalNoCase(className, "PG_IndicationHandlerCIMXML") ||
+      String::equalNoCase(className, "PG_IndicationHandlerSNMP") ||
+      String::equalNoCase(className, "PG_IndicationFilter"))
    {
       Array<Uint32> iService;
 
@@ -1041,10 +1041,10 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
     //
     // check the class name for subscription, filter and handler
     //
-    if(String::equalNoCase(className, "CIM_IndicationSubscription") ||
-       String::equalNoCase(className, "CIM_IndicationHandlerCIMXML") ||
-       String::equalNoCase(className, "CIM_IndicationHandlerSNMP") ||
-       String::equalNoCase(className, "CIM_IndicationFilter"))
+    if(String::equalNoCase(className, "PG_IndicationSubscription") ||
+       String::equalNoCase(className, "PG_IndicationHandlerCIMXML") ||
+       String::equalNoCase(className, "PG_IndicationHandlerSNMP") ||
+       String::equalNoCase(className, "PG_IndicationFilter"))
     {
         //
         //  Send to the indication service
@@ -1282,11 +1282,11 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
     //
     // check the class name for subscription, filter and handler
     //
-    if(String::equalNoCase(className, "CIM_IndicationSubscription") ||
-       String::equalNoCase(className, "CIM_IndicationHandler") ||
-       String::equalNoCase(className, "CIM_IndicationHandlerCIMXML") ||
-       String::equalNoCase(className, "CIM_IndicationHandlerSNMP") ||
-       String::equalNoCase(className, "CIM_IndicationFilter"))
+    if(String::equalNoCase(className, "PG_IndicationSubscription") ||
+       String::equalNoCase(className, "PG_IndicationHandler") ||
+       String::equalNoCase(className, "PG_IndicationHandlerCIMXML") ||
+       String::equalNoCase(className, "PG_IndicationHandlerSNMP") ||
+       String::equalNoCase(className, "PG_IndicationFilter"))
     {
         //
         //  Send to the indication service
@@ -1437,11 +1437,11 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
     //
     // check the class name for subscription, filter and handler
     //
-    if(String::equalNoCase(className, "CIM_IndicationSubscription") ||
-       String::equalNoCase(className, "CIM_IndicationHandler") ||
-       String::equalNoCase(className, "CIM_IndicationHandlerCIMXML") ||
-       String::equalNoCase(className, "CIM_IndicationHandlerSNMP") ||
-       String::equalNoCase(className, "CIM_IndicationFilter"))
+    if(String::equalNoCase(className, "PG_IndicationSubscription") ||
+       String::equalNoCase(className, "PG_IndicationHandler") ||
+       String::equalNoCase(className, "PG_IndicationHandlerCIMXML") ||
+       String::equalNoCase(className, "PG_IndicationHandlerSNMP") ||
+       String::equalNoCase(className, "PG_IndicationFilter"))
     {
         //
         //  Send to the indication service

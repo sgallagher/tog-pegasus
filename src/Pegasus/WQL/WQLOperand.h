@@ -36,12 +36,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-enum WQLOperandIntegerValueTag { WQL_OPERAND_INTEGER_VALUE };
-enum WQLOperandDoubleValueTag { WQL_OPERAND_DOUBLE_VALUE };
-enum WQLOperandBooleanValueTag { WQL_OPERAND_BOOLEAN_VALUE };
-enum WQLOperandStringValueTag { WQL_OPERAND_STRING_VALUE };
-enum WQLOperandPropertyNameTag { WQL_OPERAND_PROPERTY_NAME };
-
 class PEGASUS_WQL_LINKAGE WQLOperand
 {
 public:
@@ -56,9 +50,46 @@ public:
 	PROPERTY_NAME
     };
 
+    enum IntegerValueTag { INTEGER_VALUE_TAG };
+    enum DoubleValueTag { DOUBLE_VALUE_TAG };
+    enum BooleanValueTag { BOOLEAN_VALUE_TAG };
+    enum StringValueTag { STRING_VALUE_TAG };
+    enum PropertyNameTag { PROPERTY_NAME_TAG };
+
+
     WQLOperand();
 
     WQLOperand(const WQLOperand& x);
+
+    WQLOperand(Sint32 x, IntegerValueTag)
+    {
+	_integerValue = x;
+	_type = INTEGER_VALUE;
+    }
+
+    WQLOperand(Real64 x, DoubleValueTag)
+    {
+	_doubleValue = x;
+	_type = DOUBLE_VALUE;
+    }
+
+    WQLOperand(Boolean x, BooleanValueTag)
+    {
+	_booleanValue = x;
+	_type = BOOLEAN_VALUE;
+    }
+
+    WQLOperand(const String& x, StringValueTag)
+    {
+	new(_stringValue) String(x);
+	_type = STRING_VALUE;
+    }
+
+    WQLOperand(const String& x, PropertyNameTag)
+    {
+	new(_propertyName) String(x);
+	_type = PROPERTY_NAME;
+    }
 
     ~WQLOperand();
 
@@ -70,35 +101,35 @@ public:
 
     Type getType() const { return _type; }
 
-    void setIntegerValue(Sint32 x)
+    void set(Sint32 x, IntegerValueTag)
     {
 	clear();
 	_integerValue = x;
 	_type = INTEGER_VALUE;
     }
 
-    void setDoubleValue(Real64 x)
+    void set(Real64 x, DoubleValueTag)
     {
 	clear();
 	_doubleValue = x;
 	_type = DOUBLE_VALUE;
     }
 
-    void setBooleanValue(Boolean x)
+    void set(Boolean x, BooleanValueTag)
     {
 	clear();
 	_booleanValue = x;
 	_type = BOOLEAN_VALUE;
     }
 
-    void setStringValue(const String& x)
+    void set(const String& x, StringValueTag)
     {
 	clear();
 	new(_stringValue) String(x);
 	_type = STRING_VALUE;
     }
 
-    void setPropertyName(const String& x)
+    void set(const String& x, PropertyNameTag)
     {
 	clear();
 	new(_propertyName) String(x);

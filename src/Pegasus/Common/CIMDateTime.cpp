@@ -386,15 +386,25 @@ Sint64 CIMDateTime::getDifference(CIMDateTime startTime, CIMDateTime finishTime)
         // Convert all values to seconds and compute the start and finish
         // intervals in seconds.
         startIntervalInMicroseconds = 
+#ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU
+            (Uint64)((startIntervalDays*86400000000ULL) +
+                     (startIntervalHours*3600000000ULL) +
+#else
             (Uint64)((startIntervalDays*86400000000) +
                      (startIntervalHours*3600000000) +
+#endif
                      (startIntervalMinutes*60000000) +
                      (startIntervalSeconds*1000000) +
                       startIntervalMicroseconds);
 
         finishIntervalInMicroseconds = 
+#ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU
+            (Uint64)((finishIntervalDays*86400000000ULL) +
+                     (finishIntervalHours*3600000000ULL) +
+#else
             (Uint64)((finishIntervalDays*86400000000) +
                      (finishIntervalHours*3600000000) +
+#endif
                      (finishIntervalMinutes*60000000) + 
                      (finishIntervalSeconds*1000000) +
                       finishIntervalMicroseconds);

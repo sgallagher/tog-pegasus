@@ -65,7 +65,15 @@ Boolean TestLookupInstanceProvider(ProviderRegistrationManager prmanager)
     instanceName.setNameSpace(NAMESPACE);
     instanceName.setClassName(CLASSNAME);
 
-    returnRef = prmanager.createInstance(instanceName, cimInstance);
+    try
+    {
+    	returnRef = prmanager.createInstance(instanceName, cimInstance);
+    }
+    catch(CIMException& e)
+    {
+        throw (e);
+    }
+
 
     // create PG_Provider instances
 
@@ -83,7 +91,14 @@ Boolean TestLookupInstanceProvider(ProviderRegistrationManager prmanager)
     instanceName2.setNameSpace(NAMESPACE);
     instanceName2.setClassName(CLASSNAME2);
 
-    returnRef2 = prmanager.createInstance(instanceName2, cimInstance2);
+    try
+    {
+        returnRef2 = prmanager.createInstance(instanceName2, cimInstance2);
+    }
+    catch(CIMException& e)
+    {
+        throw (e);
+    }
 
     //
     // create provider capability instances
@@ -121,9 +136,15 @@ Boolean TestLookupInstanceProvider(ProviderRegistrationManager prmanager)
     instanceName3.setNameSpace(NAMESPACE);
     instanceName3.setClassName(CLASSNAME3);
 
-    returnRef3 = prmanager.createInstance(instanceName3, cimInstance3);
+    try
+    {
+        returnRef3 = prmanager.createInstance(instanceName3, cimInstance3);
+    }
+    catch(CIMException& e)
+    {
+        throw (e);
+    }
 
-      
     // find the instance provider
     //
     String _providerModuleName;

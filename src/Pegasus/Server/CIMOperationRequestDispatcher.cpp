@@ -93,8 +93,6 @@ String CIMOperationRequestDispatcher::_lookupInstanceProvider(
     CIMInstance pmInstance;
     String providerName;
 
-   try
-   {
     if (_providerRegistrationManager.lookupInstanceProvider(
 	nameSpace, className, pInstance, pmInstance))
     {
@@ -116,11 +114,6 @@ String CIMOperationRequestDispatcher::_lookupInstanceProvider(
     {
    	return(String::EMPTY);
     }
-   }
-   catch (Exception& e)
-   {
-       return(String::EMPTY);
-   }
 }
 
 String CIMOperationRequestDispatcher::_lookupMethodProvider(
@@ -132,8 +125,6 @@ String CIMOperationRequestDispatcher::_lookupMethodProvider(
     CIMInstance pmInstance;
     String providerName;
 
-   try
-   {
     if (_providerRegistrationManager.lookupMethodProvider(
 	nameSpace, className, methodName, pInstance, pmInstance))
     {
@@ -155,11 +146,6 @@ String CIMOperationRequestDispatcher::_lookupMethodProvider(
     {
    	return(String::EMPTY);
     }
-   }
-   catch (Exception& e)
-   {
-       return(String::EMPTY);
-   }
 }
 
 // ATTN-YZ-P1-20020305: Implement this interface 
@@ -427,9 +413,9 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
    String className = request->instanceName.getClassName();
 
    // check the class name for an "internal provider"
-   if(String::equalNoCase(className, "CIM_Provider") ||
-      String::equalNoCase(className, "CIM_ProviderCapabilities") ||
-      String::equalNoCase(className, "CIM_ProviderElementCapabilities"))
+   if(String::equalNoCase(className, "PG_Provider") ||
+      String::equalNoCase(className, "PG_ProviderCapabilities") ||
+      String::equalNoCase(className, "PG_ProviderModule"))
    {
       // send to the configuration manager. it will generate the
       // appropriate response message.
@@ -607,9 +593,9 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
    String className = request->instanceName.getClassName();
 
    // check the class name for an "internal provider"
-   if(String::equalNoCase(className, "CIM_Provider") ||
-      String::equalNoCase(className, "CIM_ProviderCapabilities") ||
-      String::equalNoCase(className, "CIM_ProviderElementCapabilities"))
+   if(String::equalNoCase(className, "PG_Provider") ||
+      String::equalNoCase(className, "PG_ProviderCapabilities") ||
+      String::equalNoCase(className, "PG_ProviderModule"))
    {
       // send to the configuration manager. it will generate the
       // appropriate response message.
@@ -781,9 +767,9 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
    String className = request->newInstance.getClassName();
 
    // check the class name for an "internal provider"
-   if(String::equalNoCase(className, "CIM_Provider") ||
-      String::equalNoCase(className, "CIM_ProviderCapabilities") ||
-      String::equalNoCase(className, "CIM_ProviderElementCapabilities"))
+   if(String::equalNoCase(className, "PG_Provider") ||
+      String::equalNoCase(className, "PG_ProviderCapabilities") ||
+      String::equalNoCase(className, "PG_ProviderModule"))
    {
       // send to the configuration manager. it will generate the
       // appropriate response message.
@@ -1000,9 +986,9 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
    String className = request->modifiedInstance.getInstance().getClassName();
 
    // check the class name for an "internal provider"
-   if(String::equalNoCase(className, "CIM_Provider") ||
-      String::equalNoCase(className, "CIM_ProviderCapabilities") ||
-      String::equalNoCase(className, "CIM_ProviderElementCapabilities"))
+   if(String::equalNoCase(className, "PG_Provider") ||
+      String::equalNoCase(className, "PG_ProviderCapabilities") ||
+      String::equalNoCase(className, "PG_ProviderModule"))
    {
       // send to the configuration manager. it will generate the
       // appropriate response message.
@@ -1228,9 +1214,9 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
    String className = request->className;
 
    // check the class name for an "internal provider"
-   if(String::equalNoCase(className, "CIM_Provider") ||
-      String::equalNoCase(className, "CIM_ProviderCapabilities") ||
-      String::equalNoCase(className, "CIM_ProviderElementCapabilities"))
+   if(String::equalNoCase(className, "PG_Provider") ||
+      String::equalNoCase(className, "PG_ProviderCapabilities") ||
+      String::equalNoCase(className, "PG_ProviderModule"))
    {
       // send to the configuration manager. it will generate the
       // appropriate response message.
@@ -1369,9 +1355,9 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
    String className = request->className;
 
    // check the class name for an "internal provider"
-   if(String::equalNoCase(className, "CIM_Provider") ||
-      String::equalNoCase(className, "CIM_ProviderCapabilities") ||
-      String::equalNoCase(className, "CIM_ProviderElementCapabilities"))
+   if(String::equalNoCase(className, "PG_Provider") ||
+      String::equalNoCase(className, "PG_ProviderCapabilities") ||
+      String::equalNoCase(className, "PG_ProviderModule"))
    {
       // send to the configuration manager. it will generate the
       // appropriate response message.

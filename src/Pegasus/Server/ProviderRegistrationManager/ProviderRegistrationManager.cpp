@@ -224,61 +224,64 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
     //
     String capabilityKey = _generateKey(nameSpace, className, INS_PROVIDER);
 
-    // 
-    // get provider capability instance from the table
-    //
-    if (!_registrationTable->table.lookup(capabilityKey, providerCapability))
+    try
     {
-        throw CIMException(CIM_ERR_FAILED, "provider capability has not been registered yet");
-	return (false);
+        // 
+        // get provider capability instance from the table
+        //
+        if (!_registrationTable->table.lookup(capabilityKey, providerCapability))
+        {
+            throw CIMException(CIM_ERR_FAILED, "provider capability has not been registered yet");
+        }
+
+        Array<CIMInstance> instances = providerCapability->getInstances();
+
+        Uint32 pos = instances[0].findProperty(_PROPERTY_PROVIDERNAME);
+
+        if (pos == PEG_NOT_FOUND)
+        {
+    	    throw CIMException(CIM_ERR_INVALID_PARAMETER);
+        }
+
+        //
+        // get provider name
+        //
+        instances[0].getProperty(pos).getValue().get(providerName);
+
+        //
+        // get provider module name
+        //
+        Uint32 pos2 = instances[0].findProperty(_PROPERTY_PROVIDERMODULENAME);
+        if (pos2 == PEG_NOT_FOUND)
+        {
+	    throw CIMException(CIM_ERR_INVALID_PARAMETER);
+        }
+
+        instances[0].getProperty(pos2).getValue().get(providerModuleName);
+
+        // 
+        // get provider instance from the table by using providerName to be key
+        //
+        if (!_registrationTable->table.lookup(providerName, _provider))
+        {
+	    throw CIMException(CIM_ERR_FAILED, "can not find the provider");
+        }
+
+        Array<CIMInstance> providerInstances = _provider->getInstances();
+        provider = providerInstances[0];
+
+        // 
+        // get provider module instance from the table by using providerModule
+        // name to be key
+        //
+        if (!_registrationTable->table.lookup(providerModuleName, _providerModule))
+        {
+	    throw CIMException(CIM_ERR_FAILED, "can not find the provider module");
+        }
+
     }
-
-    Array<CIMInstance> instances = providerCapability->getInstances();
-
-    Uint32 pos = instances[0].findProperty(_PROPERTY_PROVIDERNAME);
-
-    if (pos == PEG_NOT_FOUND)
+    catch(CIMException & exception)
     {
-	throw CIMException(CIM_ERR_INVALID_PARAMETER);
-	return (false);
-    }
-
-    //
-    // get provider name
-    //
-    instances[0].getProperty(pos).getValue().get(providerName);
-
-    //
-    // get provider module name
-    //
-    Uint32 pos2 = instances[0].findProperty(_PROPERTY_PROVIDERMODULENAME);
-    if (pos2 == PEG_NOT_FOUND)
-    {
-	throw CIMException(CIM_ERR_INVALID_PARAMETER);
-	return (false);
-    }
-
-    instances[0].getProperty(pos2).getValue().get(providerModuleName);
-
-    // 
-    // get provider instance from the table by using providerName to be key
-    //
-    if (!_registrationTable->table.lookup(providerName, _provider))
-    {
-	throw CIMException(CIM_ERR_FAILED, "can not find the provider");
-	return (false);
-    }
-
-    Array<CIMInstance> providerInstances = _provider->getInstances();
-    provider = providerInstances[0];
-
-    // 
-    // get provider module instance from the table by using providerModule
-    // name to be key
-    //
-    if (!_registrationTable->table.lookup(providerModuleName, _providerModule))
-    {
-	throw CIMException(CIM_ERR_FAILED, "can not find the provider module");
 	return (false);
     }
 
@@ -304,6 +307,8 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
     ProviderRegistrationTable* _provider= 0;
     ProviderRegistrationTable* _providerModule = 0;
 
+  try
+  {
     //
     // check if the provider was registerted to support all methods
     // create the key by using nameSpace, className, allMethods, and providerType
@@ -323,7 +328,6 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
     	if (pos == PEG_NOT_FOUND)
     	{
 	    throw CIMException(CIM_ERR_INVALID_PARAMETER);
-	    return (false);
     	}
 
 	instances[0].getProperty(pos).getValue().get(providerName);
@@ -335,7 +339,6 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
     	if (pos2 == PEG_NOT_FOUND)
     	{
 	    throw CIMException(CIM_ERR_INVALID_PARAMETER);
-	    return (false);
     	}
 
     	instances[0].getProperty(pos2).getValue().get(providerModuleName);
@@ -361,7 +364,6 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
     	    if (pos == PEG_NOT_FOUND)
     	    {
 	    	throw CIMException(CIM_ERR_INVALID_PARAMETER);
-	    	return (false);
     	    }
 
 	    instances[0].getProperty(pos).getValue().get(providerName);
@@ -373,14 +375,12 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
     	    if (pos2 == PEG_NOT_FOUND)
     	    {
 	    	throw CIMException(CIM_ERR_INVALID_PARAMETER);
-	    	return (false);
     	    }
     	    instances[0].getProperty(pos2).getValue().get(providerModuleName);
 	}
 	else
 	{
             throw CIMException(CIM_ERR_FAILED, "provider has not been registered yet");
-	    return (false);
 	}
 	
     }
@@ -391,7 +391,6 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
     if (!_registrationTable->table.lookup(providerName, _provider))
     {
 	throw CIMException(CIM_ERR_FAILED, "can not find the provider");
-	return (false);
     }
 
     Array<CIMInstance> providerInstances = _provider->getInstances();
@@ -404,8 +403,12 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
     if (!_registrationTable->table.lookup(providerModuleName, _providerModule))
     {
 	throw CIMException(CIM_ERR_FAILED, "can not find the provider module");
-	return (false);
     }
+  }
+  catch(CIMException & exception)
+  {
+	return (false);
+  }
 
     Array<CIMInstance> providerModuleInstances = _providerModule->getInstances();
     providerModule = providerModuleInstances[0];
@@ -436,6 +439,8 @@ Array <CIMInstance> ProviderRegistrationManager::getIndicationProviders(
     ProviderRegistrationTable* providerCapability = 0;
     ProviderRegistrationTable* _provider = 0;
     
+  try 
+  {
     //
     // create the key by using nameSpace, className, and providerType
     //
@@ -534,6 +539,10 @@ Array <CIMInstance> ProviderRegistrationManager::getIndicationProviders(
 	}
 	
     }
+  }
+  catch (CIMException & exception)
+  {
+  }
     
     return (findedInstances);
 }
@@ -560,11 +569,13 @@ CIMInstance ProviderRegistrationManager::getInstance(
     {
         errorCode = exception.getCode ();
         errorDescription = exception.getMessage ();
+	throw (exception);
     }
     catch (Exception & exception)
     {
         errorCode = CIM_ERR_FAILED;
         errorDescription = exception.getMessage ();
+	throw (exception);
     }
 
     return (instance);
@@ -590,11 +601,13 @@ Array<CIMNamedInstance> ProviderRegistrationManager::enumerateInstances(
     {
         errorCode = exception.getCode ();
         errorDescription = exception.getMessage ();
+	throw (exception);
     }
     catch (Exception & exception)
     {
         errorCode = CIM_ERR_FAILED;
         errorDescription = exception.getMessage ();
+	throw (exception);
     }
 
     return (enumInstances);
@@ -624,11 +637,13 @@ Array<CIMReference> ProviderRegistrationManager::enumerateInstanceNames(
     {
         errorCode = exception.getCode ();
         errorDescription = exception.getMessage ();
+	throw (exception);
     }
     catch (Exception & exception)
     {
         errorCode = CIM_ERR_FAILED;
         errorDescription = exception.getMessage ();
+	throw (exception);
     }
 
     return (enumInstanceNames);
@@ -938,11 +953,13 @@ CIMReference ProviderRegistrationManager::createInstance(
     {
 	errorCode = exception.getCode ();
  	errorDescription = exception.getMessage ();
+	throw (exception);
     }
     catch (Exception & exception)
     {
 	errorCode = CIM_ERR_FAILED;
 	errorDescription = exception.getMessage ();
+	throw (exception);
     }
 
 }
@@ -1076,11 +1093,13 @@ void ProviderRegistrationManager::deleteInstance(
     {
 	errorCode = exception.getCode ();
  	errorDescription = exception.getMessage ();
+	throw (exception);
     }
     catch (Exception & exception)
     {
 	errorCode = CIM_ERR_FAILED;
 	errorDescription = exception.getMessage ();
+	throw (exception);
     }
 
 }
@@ -1330,7 +1349,6 @@ void ProviderRegistrationManager::_initialRegistrationTable()
         errorCode = CIM_ERR_FAILED;
         errorDescription = exception.getMessage();
     }
-
 
 }
 

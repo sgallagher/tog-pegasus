@@ -814,6 +814,13 @@ int main(int argc, char** argv)
     catch(Exception& e)
     {
 	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
+
+	//
+        // notify parent process (if there is a parent process) to terminate
+        //
+        if (daemonOption)
+                notify_parent();
+
         return 1;
     }
 

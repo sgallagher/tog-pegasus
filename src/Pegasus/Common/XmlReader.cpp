@@ -700,13 +700,13 @@ Boolean XmlReader::stringToSignedInteger(
 
     while (first != last)
     {
-        if (x < -922337203685477580 /* -(1<<63) / 10 */)
+        if (x < -922337203685477580LL /* -(1<<63) / 10 */)
         {
             return false;
         }
         x = 10 * x;
         Sint64 newDigit = (*first++ - '0');
-        if (-9223372036854775808 - x > -newDigit)
+        if (PEGASUS_LLONG_MIN - x > -newDigit)
         {
             return false;
         }
@@ -715,7 +715,7 @@ Boolean XmlReader::stringToSignedInteger(
 
     if (!negative)
     {
-        if (x == -9223372036854775808)
+        if (x == PEGASUS_LLONG_MIN)
         {
             return false;
         }
@@ -777,13 +777,13 @@ Boolean XmlReader::stringToUnsignedInteger(
 
     while (first != last)
     {
-        if (x > 1844674407370955161 /* (1<<64 - 1) / 10 */)
+        if (x > 1844674407370955161ULL /* (1<<64 - 1) / 10 */)
         {
             return false;
         }
         x = 10 * x;
         Uint64 newDigit = (*first++ - '0');
-        if (18446744073709551615 - x < newDigit)
+        if (18446744073709551615ULL - x < newDigit)
         {
             return false;
         }

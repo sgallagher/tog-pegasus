@@ -304,8 +304,18 @@ private:
 
 static Boolean verifyServerCertificate(SSLCertificateInfo &certInfo)
 {
-    //ATTN-NB-03-05132002: Add code to handle server certificate verification.
-    return true;
+    //
+    // If server certificate was found in CA trust store and validated, then
+    // return 'true' to accept the certificate, otherwise return 'false'.
+    //
+    if (certInfo.getResponseCode() == 1)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 CIMClientRep::CIMClientRep(Uint32 timeoutMilliseconds)

@@ -23,6 +23,9 @@
 // Author: Michael E. Brasher
 //
 // $Log: OptionManager.h,v $
+// Revision 1.2  2001/04/14 02:11:41  mike
+// New option manager class.
+//
 // Revision 1.1  2001/04/14 01:52:45  mike
 // New option management class.
 //
@@ -83,7 +86,7 @@ class Option;
 	<li>The option's name</li>
 	<li>The default value (to be used if not specified elsewhere)</li>
 	<li>Whether the option is required</li>
-	<li>The option's type (integer or string)</li>
+	<li>The option's type (e.g., boolean, integer or string)</li>
 	<li>The domain of the option if any (set of legal values)</li>
 	<li>The name the option as it appears as an environment variable</li>
 	<li>The name the option as it appears in a configuration file</li>
@@ -96,13 +99,16 @@ class Option;
 	OptionManager om;
 
 	Option* option = new Option("port", "80", false, Option::INTEGER, 
-	    Array<String>(), "PEGASUS_PORT", "port", "p");
+	    Array<String>(), "PEGASUS_PORT", "PORT", "p");
 
 	om.registerOption(option);
     </pre>
 
     The arguments of the Option constructor are the same (and in the same
-    order) as the list just above.
+    order) as the list just above. Notice that option name is "port", Whereas
+    the environment variable is named "PEGASUS_PORT" and the option name
+    in the configuration file is "port" and the command line option argument
+    name is "p" (will appear as -p on the command line).
 
     Once options have been registered, the option values may be obtained using
     the merge methods described earlier. During merging, certain validation is
@@ -160,8 +166,16 @@ class Option;
 	<li>User extended validation - whether the user overriden 
 	    Option::isValid() returns true when the value is passed to it</li>
     </ul>
+
+    <h4>Typcial Usage</h4>
+
+    The OptionManager is typically used in the following way. First, options
+    are registered to establish the valid set of options. Next, values are
+    merged from the various sources by calling the merge functions. Finally,
+    checkRequiredOptions() is called to see if any required option values were
+    not provided.
 */
-class OptionManager
+class PEGASUS_COMMON_LINKAGE OptionManager
 {
 public:
 
@@ -226,6 +240,10 @@ public:
     */
     void checkRequiredOptions() const;
 
+    /** Lookup the option with the given name.
+    */
+    const Option* lookupOption(const String& optionName) const;
+
 private:
 
     Array<Option*> _options;
@@ -235,7 +253,7 @@ private:
 
     See the OptionManager class for more details.
 */
-class Option
+class PEGASUS_COMMON_LINKAGE Option
 {
 public:
 
@@ -275,53 +293,13 @@ public:
         const StringArray& domain = StringArray(),
         const String& environmentVariableName = String(),
         const String& configFileVariableName = String(),
-        const String& commandLineOptionName = String())
-        :
-        _optionName(optionName),
-	_defaultValue(defaultValue),
-        _value(defaultValue),
-        _required(required),
-        _type(type),
-        _domain(domain),
-        _environmentVariableName(environmentVariableName),
-        _configFileVariableName(configFileVariableName),
-        _commandLineOptionName(commandLineOptionName),
-	_foundValue(false)
-    {
+        const String& commandLineOptionName = String());
 
-    }
-
-    Option(const Option& x):
-        _optionName(x._optionName),
-        _defaultValue(x._defaultValue),
-        _value(x._value),
-        _required(x._required),
-        _type(x._type),
-        _domain(x._domain),
-        _environmentVariableName(x._environmentVariableName),
-        _configFileVariableName(x._configFileVariableName),
-        _commandLineOptionName(x._commandLineOptionName)
-    {
-    }
+    Option(const Option& x);
 
     virtual ~Option();
 
-    Option& operator=(const Option& x)
-    {
-        if (this != &x)
-        {
-            _optionName = x._optionName;
-            _defaultValue = x._defaultValue;
-            _value = x._value;
-            _required = x._required;
-            _type = x._type;
-            _domain = x._domain;
-            _environmentVariableName = x._environmentVariableName;
-            _configFileVariableName = x._configFileVariableName;
-            _commandLineOptionName = x._commandLineOptionName;
-        }
-        return *this;
-    }
+    Option& operator=(const Option& x);
 
     /** Accessor */
     const String& getOptionName() const

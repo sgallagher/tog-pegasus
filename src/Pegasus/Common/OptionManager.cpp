@@ -23,6 +23,9 @@
 // Author: Michael E. Brasher
 //
 // $Log: OptionManager.cpp,v $
+// Revision 1.2  2001/04/14 02:11:41  mike
+// New option manager class.
+//
 // Revision 1.1  2001/04/14 01:52:45  mike
 // New option management class.
 //
@@ -32,5 +35,110 @@
 #include "OptionManager.h"
 
 PEGASUS_NAMESPACE_BEGIN
+
+OptionManager::OptionManager()
+{
+
+}
+
+OptionManager::~OptionManager()
+{
+
+}
+
+Boolean OptionManager::registerOption(Option* option)
+{
+    return true;
+}
+
+void OptionManager::mergeCommandLine(int& argc, char**& argv)
+{
+
+}
+
+void OptionManager::mergeEnvironment()
+{
+
+}
+
+void OptionManager::mergeFile(const String& fileName)
+{
+
+}
+
+void OptionManager::checkRequiredOptions() const
+{
+
+}
+
+const Option* OptionManager::lookupOption(const String& optionName) const
+{
+    return 0;
+}
+
+Option::Option(
+    const String& optionName,
+    const String& defaultValue,
+    Boolean required,
+    Type type,
+    const StringArray& domain,
+    const String& environmentVariableName,
+    const String& configFileVariableName,
+    const String& commandLineOptionName)
+    :
+    _optionName(optionName),
+    _defaultValue(defaultValue),
+    _value(defaultValue),
+    _required(required),
+    _type(type),
+    _domain(domain),
+    _environmentVariableName(environmentVariableName),
+    _configFileVariableName(configFileVariableName),
+    _commandLineOptionName(commandLineOptionName),
+    _foundValue(false)
+{
+
+}
+
+Option::Option(const Option& x) 
+    :
+    _optionName(x._optionName),
+    _defaultValue(x._defaultValue),
+    _value(x._value),
+    _required(x._required),
+    _type(x._type),
+    _domain(x._domain),
+    _environmentVariableName(x._environmentVariableName),
+    _configFileVariableName(x._configFileVariableName),
+    _commandLineOptionName(x._commandLineOptionName)
+{
+}
+
+Option::~Option()
+{
+
+}
+
+Option& Option::operator=(const Option& x)
+{
+    if (this != &x)
+    {
+	_optionName = x._optionName;
+	_defaultValue = x._defaultValue;
+	_value = x._value;
+	_required = x._required;
+	_type = x._type;
+	_domain = x._domain;
+	_environmentVariableName = x._environmentVariableName;
+	_configFileVariableName = x._configFileVariableName;
+	_commandLineOptionName = x._commandLineOptionName;
+    }
+    return *this;
+}
+
+Boolean Option::isValid(const String& value) const
+{
+    return false;
+}
 
 PEGASUS_NAMESPACE_END

@@ -1363,6 +1363,23 @@ void CIMClient::connect(
     _rep->connect(address, sslContext, userName, password);
 }
 
+#ifndef PEGASUS_REMOVE_DEPRECATED
+void CIMClient::connect(
+    const String& address
+)
+{
+    _rep->connect(address, String::EMPTY, String::EMPTY);
+}
+
+void CIMClient::connect(
+    const String& address,
+    const SSLContext& sslContext
+)
+{
+    _rep->connect(address, sslContext, String::EMPTY, String::EMPTY);
+}
+#endif
+
 void CIMClient::connectLocal()
 {
     _rep->connectLocal();

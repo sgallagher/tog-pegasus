@@ -173,6 +173,7 @@ standardtests:
 	$(MAKE) -f TestMakefile TestNoSecurity
 	$(MAKE) -f TestMakefile EnableAuthentication 
 	$(MAKE) -f TestMakefile TestLocalSecurity
+	$(MAKE) -f TestMakefile TestRemoteSecurity
 
 TestNoSecurity:
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile tests

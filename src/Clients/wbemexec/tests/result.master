@@ -522,13 +522,11 @@ usage: wbemexec [ -h hostname ] [ -p portnumber ] [ -v httpversion ] [ -m httpme
 Maximum valid portnumber, but cimom not running on specified port
 wbemexec -p 65535 ./cimrequest.xml
  
-Failed to connect to CIM server: Cannot connect to: monolake:65535
  
  
 Minimum valid portnumber, but cimom not running on specified port
 wbemexec -p 0 ./cimrequest.xml
  
-Failed to connect to CIM server: Cannot connect to: monolake:0
  
  
 Invalid (unsupported) version argument

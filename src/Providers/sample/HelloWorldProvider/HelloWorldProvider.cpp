@@ -78,11 +78,7 @@ void IndicationThread::stop(void)
 {
 }
 
-#ifndef PEGASUS_OS_LINUX
-PEGASUS_THREAD_RETURN __stdcall IndicationThread::run(void * pv)
-#else
-PEGASUS_THREAD_RETURN IndicationThread::run(void * pv)
-#endif
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL IndicationThread::run(void * pv)
 {
 	IndicationThread * pThread = (IndicationThread *)pv;
 	

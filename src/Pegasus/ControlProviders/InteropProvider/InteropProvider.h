@@ -245,6 +245,19 @@ private:
 
     Array<CIMInstance> _buildInstancesCommMechanismForManager();
 
+
+    Boolean _getInstanceCIMObjectManager(
+                        const Boolean includeQualifiers,
+                        const Boolean includeClassOrigin,
+                        const CIMPropertyList& propertyList);
+
+    void modifyObjectManagerInstance(const OperationContext & context,
+        const CIMObjectPath & instanceReference,
+        const CIMInstance& modifiedIns,
+        const Boolean includeQualifiers,
+        const CIMPropertyList& propertyList,
+        ResponseHandler & handler);
+
     // Repository Instance variable
     //
        CIMRepository*   _repository;

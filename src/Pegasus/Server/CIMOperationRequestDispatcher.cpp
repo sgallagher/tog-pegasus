@@ -237,7 +237,10 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
 				      PEGASUS_QUEUENAME_CONTROLSERVICE);
 
 #ifdef PEGASUS_ENABLE_SLP
-	 _routing_table.insert_record(PEGASUS_CLASSNAME_NAMESPACE,
+     // PG_Namespace.  Note that this means that CIM_Namespace is not
+     // managed by the provider.  It is not implemented so that the
+     // information comes from PG_Namespace.
+	 _routing_table.insert_record(PEGASUS_CLASSNAME_PGNAMESPACE,
 				      _wild,
 				      DynamicRoutingTable::INTERNAL,
 				      0,

@@ -91,10 +91,10 @@ static CIMProperty _resolveProperty(
 
     // TODO: check override (especially for references)?
 
-    // apply default value
-    if(cimProperty.getValue().isNull())
+    // update value
+    if(!cimProperty.getValue().isNull())
     {
-        newProperty.setValue(referenceProperty.getValue());
+        newProperty.setValue(cimProperty.getValue());
     }
 
     // set class origin
@@ -260,18 +260,18 @@ static CIMClass _resolveClass(
         // ATTN: convert const property to non const
         CIMProperty referenceProperty = referenceClass.getProperty(i).clone();
 
-        if(localOnly && (!superClassName.isNull()) && (!referenceProperty.getPropagated()))
-        {
+        //if(localOnly && (!superClassName.isNull()) && (!referenceProperty.getPropagated()))
+        //{
             PEGASUS_STD(cout) << "adding property - " << referenceProperty.getName().getString() << PEGASUS_STD(endl);
 
             CIMProperty cimProperty = referenceClass.getProperty(i).clone();
 
             newClass.addProperty(_resolveProperty(referenceProperty, cimProperty, includeQualifiers, includeClassOrigin));
-        }
-        else
-        {
-            PEGASUS_STD(cout) << "ignoring property - " << referenceProperty.getName().getString() << PEGASUS_STD(endl);
-        }
+        //}
+        //else
+        //{
+        //    PEGASUS_STD(cout) << "ignoring property - " << referenceProperty.getName().getString() << PEGASUS_STD(endl);
+        //}
     }
 
     // apply reference class methods
@@ -280,18 +280,18 @@ static CIMClass _resolveClass(
         // ATTN: convert const method to non const
         CIMMethod referenceMethod = referenceClass.getMethod(i).clone();
 
-        if(localOnly && (!superClassName.isNull()) && (!referenceMethod.getPropagated()))
-        {
+        //if(localOnly && (!superClassName.isNull()) && (!referenceMethod.getPropagated()))
+        //{
             PEGASUS_STD(cout) << "adding method - " << referenceMethod.getName().getString() << PEGASUS_STD(endl);
 
             CIMMethod cimMethod = referenceClass.getMethod(i).clone();
 
             newClass.addMethod(_resolveMethod(referenceMethod, cimMethod, includeQualifiers, includeClassOrigin));
-        }
-        else
-        {
-            PEGASUS_STD(cout) << "ignoring method - " << referenceMethod.getName().getString() << PEGASUS_STD(endl);
-        }
+        //}
+        //else
+        //{
+        //    PEGASUS_STD(cout) << "ignoring method - " << referenceMethod.getName().getString() << PEGASUS_STD(endl);
+        //}
     }
 
     // TODO: check for properties in the specified class that do not exist in the reference class
@@ -423,7 +423,7 @@ static CIMInstance _resolveInstance(
     // apply specified instance properties
     for(Uint32 i = 0, n = cimInstance.getPropertyCount(); i < n; i++)
     {
-        Uint32 pos = cimInstance.findProperty(cimInstance.getProperty(i).getName());
+        Uint32 pos = newInstance.findProperty(cimInstance.getProperty(i).getName());
 
         if(pos == PEG_NOT_FOUND)
         {
@@ -605,8 +605,21 @@ Array<CIMInstance> ObjectNormalizer::normalizeInstances(
     // make the reference class a reference instance
     CIMInstance referenceInstance(className);
 
-    // propagate namespace in object
-    referenceInstance.setPath(CIMObjectPath("", nameSpace, className));
+    // build a reference object path for the reference instance
+    Array<CIMName> keyNames;
+
+    referenceClass.getKeyNames(keyNames);
+
+    Array<CIMKeyBinding> keyBindings;
+
+    for(Uint32 i = 0, n = keyNames.size(); i < n; i++)
+    {
+        CIMProperty referenceProperty = referenceClass.getProperty(referenceClass.findProperty(keyNames[i]));
+
+        keyBindings.append(CIMKeyBinding(referenceProperty.getName(), referenceProperty.getValue()));
+    }
+
+    referenceInstance.setPath(CIMObjectPath("", nameSpace, className, keyBindings));
 
     // copy qualifiers (if includeQualfiers == false, the class should have none
     // the following code will do nothing)
@@ -638,7 +651,7 @@ Array<CIMInstance> ObjectNormalizer::normalizeInstances(
         CIMInstance cimInstance =
             _resolveInstance(
                 referenceInstance,
-                cimInstance,
+                cimInstances[i],
                 localOnly,
                 includeQualifiers,
                 includeClassOrigin,

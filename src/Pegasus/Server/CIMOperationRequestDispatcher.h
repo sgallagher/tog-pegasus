@@ -38,6 +38,7 @@
 //				Seema Gupta (gseema@in.ibm.com for PEP135)
 //              Chip Vincent (cvincent@us.ibm.com)
 //              Alagaraja Ramasubramanian (alags_raj@in.ibm.com) for Bug#1090
+//         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase2
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -62,6 +63,8 @@
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 #include <Pegasus/Server/Linkage.h>
 
+#include <Pegasus/Common/QueryExpressionRep.h>
+
 PEGASUS_NAMESPACE_BEGIN
 
 // Class to aggregate and manage the information about classes and providers
@@ -71,23 +74,17 @@ class PEGASUS_SERVER_LINKAGE ProviderInfo
 {
 public:
     ProviderInfo(CIMName& className)
-    : className(className),
-      hasNoQuery(true)
+            : className(className),
+	      hasNoQuery(true)
     {
     }
-
-    ProviderInfo(
-        const CIMName& className, 
-        const String& serviceName, 
-        const String& controlProviderName)
-    : className(className),
-      serviceName(serviceName),
-      controlProviderName(controlProviderName),
-      hasNoQuery(true)
+    ProviderInfo(CIMName className, String& serviceName, String& controlProviderName)
+        :   className(className), serviceName(serviceName),
+            controlProviderName(controlProviderName),
+	    hasNoQuery(true)
     {
     }
-
-    ProviderInfo(const ProviderInfo& providerInfo)
+   ProviderInfo(const ProviderInfo& providerInfo)
     : className(providerInfo.className),
       serviceName(providerInfo.serviceName),
       controlProviderName(providerInfo.controlProviderName),
@@ -120,15 +117,15 @@ public:
         return *this;
     }
 
-    CIMName className;
-    String serviceName;
-    String controlProviderName;
-    Boolean hasProvider;
-    Boolean hasNoQuery;
+		CIMName className;
+		String serviceName;
+		String controlProviderName;
+		Boolean hasProvider;
+		Boolean hasNoQuery;
     AutoPtr<ProviderIdContainer> providerIdContainer;
 
 private:
-    ProviderInfo() {}
+  ProviderInfo() {}
 };
 
 /* Class to manage the aggregation of data required by post processors. This
@@ -145,133 +142,61 @@ public:
         @param msgRequestType
         @param messageId
         @param dest
-
-        NOTE: This is the version we will generally use
+				@param className
     */
 
     OperationAggregate(CIMRequestMessage* request,
-                                Uint32 msgRequestType,
-                                String messageId,
-                                Uint32 dest,
-                                CIMName className,
-				QueryExpressionRep* query=NULL,
-				String queryLanguage=String::EMPTY)
-    : _messageId(messageId), _msgRequestType(msgRequestType),
-      _request(request), _totalIssued(0), _magicNumber(12345),
-      _dest(dest), _className(className), _query(query),
-      _queryLanguage(queryLanguage)
-    {}
+											 Uint32 msgRequestType,
+											 String messageId,
+											 Uint32 dest,
+											 CIMName className,
+											 CIMNamespaceName nameSpace = CIMNamespaceName(),
+											 QueryExpressionRep *query = 0,
+											 String queryLanguage = String::EMPTY);
 
-    /* Constructor with nameSpace object also.
-    */
-    OperationAggregate(CIMRequestMessage* request,
-                                Uint32 msgRequestType,
-                                String messageId,
-                                Uint32 dest,
-                                CIMName className,
-                                CIMNamespaceName nameSpace,
-				QueryExpressionRep* query=NULL,
-				String queryLanguage=String::EMPTY)
-    : _messageId(messageId), _msgRequestType(msgRequestType),
-      _request(request), _totalIssued(0), _magicNumber(12345),
-      _dest(dest), _className(className),_nameSpace(nameSpace),
-      _query(query), _queryLanguage(queryLanguage)
-    {}
-
-
-    ~OperationAggregate()
-    {
-        _magicNumber = 0;
-        delete _request;
-    }
+    virtual ~OperationAggregate();
+			
     // Tests validity by checking the magic number we put into the
     // packet.
-    Boolean valid() {return(_magicNumber == 12345)? true: false; }
 
-    // Returns count of total responses collected into this aggregation
-    Uint32 totalIssued() { return _totalIssued; }
+    Boolean valid() const;
 
-    // increment the count of requests issued
-    void incIssued() { _totalIssued++;}
+		// Sets the total issued to the input parameter
 
-    // Sets the total issued to the input parameter
-    void setTotalIssued(Uint32 i) {_totalIssued = i; }
+    void setTotalIssued(Uint32 i);
 
     // Append a new entry to the response list.  Return value indicates
     // whether this response is the last one expected
-    Boolean appendResponse(CIMResponseMessage* response)
-    {
-        AutoMutex autoMut(_appendResponseMutex);
-        _responseList.append(response);
-        Boolean returnValue = (totalIssued() == numberResponses());
 
-        return returnValue;
-    }
+    Boolean appendResponse(CIMResponseMessage* response);
+    
+    Uint32 numberResponses() const;
 
+    CIMRequestMessage* getRequest();
 
-    Uint32 numberResponses() {
-      //      _appendResponseMutex.lock(pegasus_thread_self());
-      Uint32 size =  _responseList.size();
-      //      _appendResponseMutex.unlock();
-      return size;
-
-    }
-
-    CIMRequestMessage* getRequest(void)
-    {
-        return(_request);
-    }
-
-    CIMResponseMessage* getResponse(const Uint32& pos)
-      {
-      CIMResponseMessage *tmp;
-      AutoMutex autoMut(_appendResponseMutex);
-      tmp = _responseList[pos];
-
-      return tmp;
-
-    }
-
-    // << Fri Sep 26 12:28:53 2003 mdd >>
+    CIMResponseMessage* getResponse(const Uint32& pos);
 
     // allow dispatcher to remove the response so it doesn't become
     // destroyed when the poA is destroyed.
 
-    CIMResponseMessage* removeResponse(const Uint32& pos)
-      {
-	CIMResponseMessage* tmp;
-	
-	AutoMutex autoMut(_appendResponseMutex);
-	tmp = _responseList[pos];
-	_responseList.remove(pos);
+    CIMResponseMessage* removeResponse(const Uint32& pos);
 
-	return tmp;
-	
-      }
+    void deleteResponse(const Uint32&pos);
 
+    Uint32 getRequestType() const;
 
-    void deleteResponse(const Uint32&pos)
-    {
-      AutoMutex autoMut(_appendResponseMutex);
-      delete _responseList[pos];
-      _responseList.remove(pos);
-
-    }
-
-    Uint32 getRequestType(){ return _msgRequestType;}
+		void resequenceResponse(CIMResponseMessage& response);
 
     String _messageId;
     Uint32 _msgRequestType;
     Uint32 _dest;
     CIMNamespaceName _nameSpace;
     CIMName _className;
-
     Array<String> propertyList;
-
     Uint64 _aggregationSN;
-//    WQLSelectStatement* _query;
     QueryExpressionRep* _query;
     String _queryLanguage;
+
 private:
     /** Hidden (unimplemented) copy constructor */
     OperationAggregate(const OperationAggregate& x) : _query(NULL) {}
@@ -281,6 +206,12 @@ private:
     CIMRequestMessage* _request;
     Uint32 _totalIssued;
     Uint32 _magicNumber;
+		Uint32 _totalReceived;
+		Uint32 _totalReceivedComplete;
+		Uint32 _totalReceivedExpected;
+		Uint32 _totalReceivedErrors;
+		CIMException _cimException;
+		ContentLanguages _contentLanguages;
 };
 
 class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher : public MessageQueueService
@@ -485,23 +416,21 @@ class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher : public MessageQueue
         CIMRequestMessage* request,
         CIMResponseMessage*& response);
 
-      void _forwardRequestToControlProvider(
-        const String& serviceName,
-        const String& controlProviderName,
-        CIMRequestMessage* request,
-        CIMResponseMessage*& response);
-
       void _forwardRequestForAggregation(
         const String& serviceName,
         const String& controlProviderName,
         CIMRequestMessage* request,
-        OperationAggregate* poA);
+        OperationAggregate* poA,
+				CIMResponseMessage *response = 0);
 
       void _forwardRequestToProviderManager(
         const CIMName& className,
         const String& serviceName,
         const String& controlProviderName,
         CIMRequestMessage* request);
+
+			Boolean _enqueueResponse(OperationAggregate *&poA, 
+															 CIMResponseMessage *&response);
 
       void _enqueueResponse(
           CIMRequestMessage* request, CIMResponseMessage* response);

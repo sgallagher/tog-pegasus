@@ -102,7 +102,8 @@ inline void Mutex::unlock() throw(Permission)
 //-----------------------------------------------------------------
 
 // block until this semaphore is in a signalled state
-inline void Semaphore::wait(void) throw(WaitFailed, WaitInterrupted) 
+// note that windows does not support interrupt
+inline void Semaphore::wait(Boolean ignoreInterrupt) throw(WaitFailed, WaitInterrupted) 
 {
    DWORD errorcode = WaitForSingleObject(_semaphore.sem, INFINITE);
    if(errorcode != WAIT_FAILED)

@@ -54,6 +54,7 @@
 
 #include <Pegasus/ProviderManager2/BasicProviderManagerRouter.h>
 #include <Pegasus/ProviderManager2/OOPProviderManagerRouter.h>
+#include <Pegasus/ProviderManager2/OperationResponseHandler.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -520,6 +521,65 @@ void ProviderManagerService::handleCimRequest(
     _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
 
     PEG_METHOD_EXIT();
+}
+
+void 
+ProviderManagerService::handleCimResponse(CIMRequestMessage &request,
+																					CIMResponseMessage &response)
+{
+	CIMStatusCode code = CIM_ERR_SUCCESS;
+	String message;
+
+	try
+	{
+		// only incomplete messages are processed because the caller ends up
+		// sending the complete() stage
+		PEGASUS_ASSERT(response.isComplete() == false);
+		
+		AsyncLegacyOperationStart *requestAsync = 
+			dynamic_cast<AsyncLegacyOperationStart *>(request._async);
+		PEGASUS_ASSERT(requestAsync);
+		AsyncOpNode *op = requestAsync->op;
+		PEGASUS_ASSERT(op);
+		PEGASUS_ASSERT(! response._async);
+		response._async = new AsyncLegacyOperationResult
+			(requestAsync->getKey(), requestAsync->getRouting(), op, &response);
+		
+		// set the destination
+		op->_op_dest = op->_callback_response_q;
+		
+		MessageQueueService *service = 	
+			dynamic_cast<MessageQueueService *>(op->_callback_response_q);
+
+		PEGASUS_ASSERT(service);
+
+		// the last chunk MUST be sent last, so use execute the callback
+		// not all chunks are going through the dispatcher's chunk 
+		// resequencer, so this must be a synchronous call here
+		// After the call is done, response and asyncResponse are now invalid 
+		// as they have been sent and deleted externally
+		
+		op->_async_callback(op, service, op->_callback_ptr);
+	}
+
+	catch(CIMException &e)
+	{
+		code = e.getCode();
+		message = e.getMessage();
+	}
+	catch(Exception &e)
+	{
+		code = CIM_ERR_FAILED;
+		message = e.getMessage();
+	}
+	catch(...)
+	{
+		code = CIM_ERR_FAILED;
+		message = cimStatusCodeToString(code);
+	}
+
+	if (code !=  CIM_ERR_SUCCESS)
+		response.cimException = PEGASUS_CIM_EXCEPTION(code, message);
 }
 
 void ProviderManagerService::unloadIdleProviders()

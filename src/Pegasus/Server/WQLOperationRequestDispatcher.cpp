@@ -166,12 +166,12 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
 	 qx.reset(new WQLQueryExpressionRep("WQL",selectStatement.get()));
 	 selectStatement.release();
       }
-      catch (ParseError& e) {
+      catch (ParseError&) {
          cimException =
             PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_QUERY, request->query);
          exception=true;
       }
-      catch (MissingNullTerminator& e) {
+      catch (MissingNullTerminator&) {
          cimException =
             PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_QUERY, request->query);
          exception=true;
@@ -297,7 +297,7 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
         request->getType(),
         request->messageId,
         request->queueIds.top(),
-        className,
+        className, CIMNamespaceName(),
 	qx.release(),
 	"WQL");
 
@@ -420,11 +420,9 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
                         cimInstances));
 
                 STAT_COPYDISPATCHER_REP
-                Boolean isDoneAggregation = poA->appendResponse(response.release());
-                if (isDoneAggregation)
-                {
-                    handleOperationResponseAggregation(poA);
-                }
+									// ??? new CIMEnumerateInstancesRequestMessage(*request)
+									// ?? should this be a new ???
+								_forwardRequestForAggregation(String(PEGASUS_QUEUENAME_OPREQDISPATCHER), String(), request, poA, response.release());
             }
         }
     }

@@ -77,6 +77,8 @@ public:
     void unloadIdleProviders();
 
     static void indicationCallback(CIMProcessIndicationRequestMessage* request);
+    static void handleCimResponse(CIMRequestMessage &request,
+																	CIMResponseMessage &response);
 
 protected:
     virtual Boolean messageOK(const Message * message);
@@ -108,7 +110,6 @@ private:
         Uint16 fromStatus,
         Uint16 toStatus);
 
-private:
     SafeQueue<AsyncOpNode *> _incomingQueue;
     SafeQueue<AsyncOpNode *> _outgoingQueue;
 

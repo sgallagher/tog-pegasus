@@ -603,18 +603,25 @@ Semaphore::~Semaphore()
 
 // block until this semaphore is in a signalled state, or
 // throw an exception if the wait fails 
- void Semaphore::wait(void) throw(WaitFailed, WaitInterrupted) 
+void Semaphore::wait(Boolean ignoreInterrupt) throw(WaitFailed, WaitInterrupted) 
 {
-   int rc = 0;
-   rc = sem_wait(&_semaphore.sem);
-   if (rc != 0) {
+	do
+	{
+		int rc = sem_wait(&_semaphore.sem);
+		if (rc == 0)
+			break;
 
-     if (errno == EINTR)
-	throw(WaitInterrupted(_semaphore.owner));
+		int e = errno;
+		if (e == EINTR)
+		{
+			if (ignoreInterrupt == false)
+				throw(WaitInterrupted(_semaphore.owner));
+		}
+		else throw(WaitFailed(_semaphore.owner));
 
-      //if (errno == EDEADLK
-     throw(WaitFailed(_semaphore.owner));
-   }
+		// keep going if above conditions fail
+	} while (true);
+	
 }
 
 // wait succeeds immediately if semaphore has a non-zero count, 
@@ -839,6 +846,9 @@ Semaphore::~Semaphore()
 
 #if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
 // cleanup function 
+#ifndef PEGASUS_PLATFORM_AIX_RS_IBMCXX
+extern "C"
+#endif
 static void semaphore_cleanup(void *arg)
 {
    //cast back to proper type and unlock mutex

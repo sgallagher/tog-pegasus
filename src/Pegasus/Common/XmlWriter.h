@@ -35,6 +35,7 @@
 //             (carolann_graves@hp.com)
 //         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
 //		   Willis White (whiwill@us.ibm.com) PEP 127 and 128
+//         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase2
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -259,19 +260,13 @@ public:
     const ContentLanguages & contentLanguages,        
 	Uint32 contentLength);
 
-    static void appendMethodResponseHeader(
-	Array<Sint8>& out,
-        HttpMethod httpMethod,
-    const ContentLanguages & contentLanguages,        
-	Uint32 contentLength);
-
-	// added to accommidate sending WBEMServerResponseTime PEP #128
+	// added to accommodate sending WBEMServerResponseTime PEP #128
     static void appendMethodResponseHeader(
         Array<Sint8>& out,
         HttpMethod httpMethod,
     const ContentLanguages & contentLanguages,
         Uint32 contentLength,
-	Uint64 serverResponseTime);
+	Uint64 serverResponseTime = 0);
 
     static void appendHttpErrorResponseHeader(
 	Array<Sint8>& out,
@@ -373,15 +368,6 @@ public:
     const AcceptLanguages& httpAcceptLanguages,
     const ContentLanguages& httpContentLanguages);
 
-    static Array<Sint8> formatSimpleMethodRspMessage(
-	const CIMName& methodName,
-        const String& messageId,
-        HttpMethod httpMethod,
-        const ContentLanguages & httpContentLanguages,          
-	const Array<Sint8>& body,
-	Boolean isFirst = true,
-	Boolean isLast = true);
-	
 	//PEP 128 - sending serverResponseTime (WBEMServerResponseTime) in respons header
 	static Array<Sint8> formatSimpleMethodRspMessage(
 	const CIMName& methodName,
@@ -409,15 +395,6 @@ public:
     const AcceptLanguages& httpAcceptLanguages,
     const ContentLanguages& httpContentLanguages,        
 	const Array<Sint8>& body);
-
-	static Array<Sint8> formatSimpleIMethodRspMessage(
-	const CIMName& iMethodName,
-        const String& messageId,
-        HttpMethod httpMethod,
-        const ContentLanguages & httpContentLanguages,  
-	const Array<Sint8>& body,
-	Boolean isFirst = true,
-	Boolean isLast = true);
 
     //PEP 128 - sending serverResponseTime (WBEMServerResponseTime) in respons header
 	static Array<Sint8> formatSimpleIMethodRspMessage(

@@ -28,11 +28,51 @@
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
 // Modified By:
+//         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase2
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "SimpleResponseHandler.h"
+#include "OperationResponseHandler.h"
 
 PEGASUS_NAMESPACE_BEGIN
+
+void SimpleResponseHandler::send(Boolean isComplete)
+{
+	// If this was NOT instantiated as a derived OperationResponseHandle class, 
+	// then this will be null but is NOT an error. In this case, there is no 
+	// response attached, hence no data,so there is nothing to send. else we have
+	// a valid "cross-cast" to the operation side
+
+	OperationResponseHandler *operation = 
+		dynamic_cast<OperationResponseHandler*>(this);
+
+	if (operation)
+		operation->send(isComplete);
+}
+
+
+ContentLanguages SimpleResponseHandler::getLanguages(void)
+{
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+							"SimpleResponseHandler: getLanguages()");
+	
+	ContentLanguages langs;
+	try
+	{
+		// Try to get the ContentLanguages out of the OperationContext
+		// in the base ResponseHandler.
+		OperationContext context = getContext();
+		ContentLanguageListContainer cntr = context.get
+			(ContentLanguageListContainer::NAME);
+		langs = cntr.getLanguages();
+	}
+	catch (const Exception &)
+	{
+		// The content language container must not exist.
+		// Return the empty ContentLanguages.
+	}
+	
+	return langs;
+}
 
 PEGASUS_NAMESPACE_END

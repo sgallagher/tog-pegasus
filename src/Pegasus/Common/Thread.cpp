@@ -545,7 +545,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
       
       try 
       {
-	 sleep_sem->wait();
+				Boolean ignoreInterrupt = false;
+				sleep_sem->wait(ignoreInterrupt);
       }
       catch (WaitInterrupted &e)
       {

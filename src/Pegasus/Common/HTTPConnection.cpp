@@ -37,6 +37,7 @@
 //         Alagaraja Ramasubramanian (alags_raj@in.ibm.com) for Bug#1090
 //         Amit K Arora, IBM (amita@in.ibm.com) for Bug#1097
 //         Sushma Fernandes, IBM (sushma@hp.com) for Bug#2057
+//         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase2
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -370,18 +371,6 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 		}
 #endif
 		
-		// ATTN: convert over to asynchronous write scheme:
-		// Send response message to the client (use synchronous I/O for now:
-
-		_socket->enableBlocking();
-		SignalHandler::ignore(PEGASUS_SIGPIPE);
-		
-		// use the next four lines to test the SIGABRT handler
-		//getSigHandle()->registerHandler(PEGASUS_SIGABRT, sig_act);
-		//getSigHandle()->activate(PEGASUS_SIGABRT);
-		//Thread t(sigabrt_generator, NULL, false);
-		//t.run();
-		
 		// delivery behavior:
 		// 1 handler.processing() : header + optional body?
 		// 2 handler.deliver()    : 1+ fully XML encoded object(s)
@@ -417,6 +406,11 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 				_transferEncodingChunkOffset++;
 			}
 
+			// this is possible when chunked responses are empty in between the //
+			// isFirst and isLast flags
+			if (messageLength == 0)
+				return false;
+
 			// check to see if the client requested chunking OR trailers. trailers
 			// are tightly integrated with chunking, so it can also be used.
 
@@ -426,6 +420,29 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 			{
 				isChunkRequest = true;
 			}
+			else
+			{
+				// we are not sending chunks because the client did not request it
+
+				if (isFirst == false)
+				{
+					// subsequent chunks from the server, just append
+					
+					messageLength += _incomingBuffer.size();
+					_incomingBuffer.reserveCapacity(messageLength+1);
+					_incomingBuffer.appendArray(buffer);
+					buffer.clear();
+					// null terminate
+					messageStart = (Sint8 *) _incomingBuffer.getData();
+					messageStart[messageLength] = 0;
+					_incomingBuffer.swap(buffer);
+				}
+
+				if (isLast == false)
+					bytesRemaining = 0;
+				else bytesRemaining = messageLength;
+
+			} // if not sending chunks
 		
 			// We now need to adjust the contentLength line.
 			// If chunking was requested and this is the first chunk, then we need
@@ -517,7 +534,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 					// we will be sending a chunk response if:
 					// 1. chunking has been requested AND
 					// 2. contentLength has been set 
-					//    (meaning entire message has come in) OR
+					//    (meaning a non-bodyless message has come in) OR
 					// 3. this is not the last message 
 					//  (meaning the data is coming in pieces and we should send chunked)
 
@@ -556,6 +573,10 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 					} // else chunk response is true
 
 				} // if content length was found
+
+				if (isChunkRequest == false && isLast == false)
+					bytesRemaining = 0;
+
 			} // if this is the first chunk containing the header
 			else
 			{
@@ -569,50 +590,24 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 				}
 			}
 			
-			if (isChunkResponse == false)
-			{
-				// we are not sending chunks in the response because either
-				// the client did not request it or there is no body to send
-				// because of bodyless message or an error
-
-				if (isLast == false)
-				{
-					// this tells the send loop (below) to NOT send any of the 
-					// data collected yet
-					bytesRemaining = 0;
-					
-					Uint32 capacity = _incomingBuffer.size() + messageLength + 1;
-					_incomingBuffer.reserveCapacity(capacity);
-					_incomingBuffer.appendArray(buffer);
-					if (_incomingBuffer.size() > 0)
-					{
-						Sint8 *data = (Sint8 *) _incomingBuffer.getData();
-						data[_incomingBuffer.size()] = 0;
-					}
-
-					messageLength = 0;
-					messageStart = 0;
-				}
-				else
-				{
-					// performance: if this was the last of at least 2 chunks, get it
-					// from the incoming buffer which has been collecting them
-					if (isFirst == false)
-					{
-						messageLength = _incomingBuffer.size();
-						messageStart = (Sint8 *)_incomingBuffer.getData();
-					}
-					// ... else get it from the single buffer
-					else
-					{
-						messageLength = buffer.size();
-						messageStart = (Sint8 *)buffer.getData();
-					}
-					bytesRemaining = messageLength;
-				}
-			} // if not sending chunks
+			// the data is sitting in buffer, but we want to cache it in 
+			// _incomingBuffer because there may be more chunks to append
+			if (isChunkRequest == false)
+				_incomingBuffer.swap(buffer);
+			
 		} // if not a client
 
+		// ATTN: convert over to asynchronous write scheme:
+		// Send response message to the client (use synchronous I/O for now:
+		_socket->enableBlocking();
+		SignalHandler::ignore(PEGASUS_SIGPIPE);
+		
+		// use the next four lines to test the SIGABRT handler
+		//getSigHandle()->registerHandler(PEGASUS_SIGABRT, sig_act);
+		//getSigHandle()->activate(PEGASUS_SIGABRT);
+		//Thread t(sigabrt_generator, NULL, false);
+		//t.run();
+		
 		static const char errorSocket[] = "socket write error";
 		Sint8 *sendStart = messageStart;
 		Sint32 bytesWritten = 0;
@@ -790,7 +785,6 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 		//
 		
 		_requestCount--;
-		_socket->disableBlocking();
 		_responsePending = false;
 
 		if (httpStatus.size() == 0)
@@ -828,6 +822,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
             _closeConnection();
         }  
 
+	_socket->disableBlocking();
 	return httpStatus.size() == 0 ? false : true;
 
 }
@@ -1351,7 +1346,7 @@ void HTTPConnection::_handleReadEventTransferEncoding() throw (Exception)
 					if (isValid == false || httpStatusCode == 0 || 
 							httpStatusCode == HTTP_STATUSCODE_OK)
 					{
-						// ??? ATTN: make up our own http code if not given ?
+						// ATTN: make up our own http code if not given ?
 						httpStatusCode = (Uint32) HTTP_STATUSCODE_BADREQUEST;
 						httpStatus = HTTP_STATUS_BADREQUEST;
 					}
@@ -1702,36 +1697,35 @@ Boolean HTTPConnection::run(Uint32 milliseconds)
 {
    Boolean handled_events = false;
    int events = 0;
-   
    fd_set fdread; // , fdwrite;
    struct timeval tv = { 0, 1 };
       FD_ZERO(&fdread);
       FD_SET(getSocket(), &fdread);
       events = select(FD_SETSIZE, &fdread, NULL, NULL, &tv);
 #ifdef PEGASUS_OS_TYPE_WINDOWS
-      if(events == SOCKET_ERROR)
+	 if(events == SOCKET_ERROR)
 #else
-      if(events == -1)
+	 if(events == -1)
 #endif
-      {
-	 return false;
-      }
-
-      if (events)
-      {
-	 events = 0;
-	 if( FD_ISSET(getSocket(), &fdread))
 	 {
-	    events |= SocketMessage::READ;
-	    Message *msg = new SocketMessage(getSocket(), events);
-	    try 
-	    {
+		 return false;
+	 }
+	 
+	 if (events)
+	 {
+		 events = 0;
+		 if( FD_ISSET(getSocket(), &fdread))
+		 {
+			 events |= SocketMessage::READ;
+			 Message *msg = new SocketMessage(getSocket(), events);
+			 try 
+			 {
 	       handleEnqueue(msg);
-	    }
-	    catch(...)
-	    {
-              Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                  "HTTPConnection::run handleEnqueue(msg) failure");
+			 }
+			 catch(...)
+			 {
+				 Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+											 "HTTPConnection::run handleEnqueue(msg) failure");
 	       return true;
 	    }
 	    handled_events = true;
@@ -1901,7 +1895,7 @@ void HTTPConnection2::handleEnqueue(Message *message)
 
 void HTTPConnection2::enqueue(Message* message) throw(IPCException)
 {
-   AutoMutex autoMut(_reentry);
+	 AutoMutex autoMut(_reentry);
    if(_closed.value())
    {
       delete message;
@@ -1911,7 +1905,6 @@ void HTTPConnection2::enqueue(Message* message) throw(IPCException)
    {
       handleEnqueue(message);
    }
-   
 }
 
 
@@ -2129,13 +2122,9 @@ void HTTPConnection2::_handleReadEvent(monitor_2_entry* entry)
 
 void HTTPConnection2::_close_connection(void)
 {
-   AutoMutex autoMut(_reentry);
-   
+	 AutoMutex autoMut(_reentry);
    _closed = 1;
    remove_myself(_queueId);
-   
-   
-
 }
 
 
@@ -2170,3 +2159,4 @@ void HTTPConnection2::connection_dispatch(monitor_2_entry* entry)
 
 
 PEGASUS_NAMESPACE_END
+

@@ -867,7 +867,6 @@ Boolean MessageQueueService::SendAsync(AsyncOpNode *op,
    op->_op_dest = MessageQueue::lookup(destination); // destination of this message
    op->_flags |= ASYNC_OPFLAGS_CALLBACK;
    op->_flags &= ~(ASYNC_OPFLAGS_FIRE_AND_FORGET);
-   op->_state &= ~ASYNC_OPSTATE_COMPLETE;
    // initialize the callback data
    op->_async_callback = callback;   // callback function to be executed by recpt. of response
    op->_callback_node = op;          // the op node

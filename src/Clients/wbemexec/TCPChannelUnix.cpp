@@ -37,6 +37,9 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
+#ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
+# include <sys/un.h>
+#endif
 #include "TCPChannel.h"
 
 PEGASUS_NAMESPACE_BEGIN
@@ -195,6 +198,34 @@ Channel* TCPChannelConnector::connect(const char* addressString)
     if (!_factory)
         return 0;
 
+    int desc;
+
+#ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
+    if (!addressString || (strlen(addressString) == 0))
+    {
+        // Set up the domain socket for a local connection
+
+        sockaddr_un address;
+        address.sun_family = AF_UNIX;
+        strcpy(address.sun_path, "/var/opt/wbem/cimxml.socket");
+
+        desc = ::socket(AF_UNIX, SOCK_STREAM, 0);
+        if (desc < 0)
+            return 0;
+
+        // Connect the socket to the address:
+
+        if (::connect(desc,
+                      reinterpret_cast<sockaddr*>(&address),
+                      sizeof(address)) < 0)
+        {
+            return 0;
+        }
+    }
+    else
+    {
+#endif
+
     // Parse the address:
 
     char* hostname;
@@ -215,7 +246,7 @@ Channel* TCPChannelConnector::connect(const char* addressString)
 
     // Create the socket:
 
-    int desc = ::socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+    desc = ::socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 
     if (desc < 0)
         return 0;
@@ -224,6 +255,10 @@ Channel* TCPChannelConnector::connect(const char* addressString)
 
     if (::connect(desc, (sockaddr*)(void*)&address, sizeof(address)) < 0)
         return 0;
+
+#ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
+    }
+#endif
 
     // Create the channel:
 

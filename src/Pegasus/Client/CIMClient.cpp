@@ -139,6 +139,9 @@ void CIMClient::connectLocal()
 {
     String address = String::EMPTY;
 
+#ifndef PEGASUS_LOCAL_DOMAIN_SOCKET
+    // ATTN-RK-P3-20020307: Fix this so the connect() method does not have to
+    // accept an empty address to support PEGASUS_LOCAL_DOMAIN_SOCKET
     Uint32 portNum = System::lookupPort(WBEM_SERVICE_NAME, WBEM_DEFAULT_PORT);
     char port[32];
     sprintf(port, "%u", portNum);
@@ -149,6 +152,7 @@ void CIMClient::connectLocal()
     address.append(_getLocalHostName());
     address.append(":");
     address.append(port);
+#endif
 
     //
     // Set authentication type

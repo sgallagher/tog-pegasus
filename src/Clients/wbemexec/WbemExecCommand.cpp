@@ -225,9 +225,16 @@ Channel* WbemExecCommand::_getHTTPChannel (ostream& outPrintWriter)
         _debugOutput2);
     connector = new TCPChannelConnector (factory, selector);
 
+#ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
+    if ((!_hostNameSet) && (!_portNumberSet))
+    {
+#endif
     addressStr.append (_hostName);
     addressStr.append (":");
     addressStr.append (_portNumberStr);
+#ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
+    }
+#endif
 
     address = addressStr.allocateCString ();
 
@@ -445,14 +452,14 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
 
         saddress.sin_addr.s_addr = INADDR_LOOPBACK;
         _hostName = inet_ntoa( saddress.sin_addr );
-	if( !_portNumberSet )
-	  {
-	    _portNumber = System::lookupPort( WBEM_SERVICE_NAME,
-					      WBEM_DEFAULT_PORT );
-	    char buffer[32];
-	    sprintf( buffer, "%lu", (unsigned long) _portNumber );
-	    _portNumberStr       = buffer;
-	  }
+    }
+    if( !_portNumberSet )
+    {
+        _portNumber = System::lookupPort( WBEM_SERVICE_NAME,
+    				          WBEM_DEFAULT_PORT );
+        char buffer[32];
+        sprintf( buffer, "%lu", (unsigned long) _portNumber );
+        _portNumberStr = buffer;
     }
 
     //

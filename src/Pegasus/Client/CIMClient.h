@@ -49,7 +49,7 @@
 //
 // Wbem service name
 //
-#define WBEM_SERVICE_NAME          "wbem-local"
+#define WBEM_SERVICE_NAME          "wbem-http"
 
 PEGASUS_NAMESPACE_BEGIN
 

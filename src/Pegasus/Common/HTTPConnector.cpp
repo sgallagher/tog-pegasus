@@ -43,6 +43,9 @@
 # include <netinet/in.h>
 # include <arpa/inet.h>
 # include <sys/socket.h>
+# ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
+#  include <sys/un.h>
+# endif
 #endif
 
 #include "Socket.h"
@@ -221,6 +224,34 @@ HTTPConnection* HTTPConnector::connect(
    const String& locator, 
    MessageQueue* outputMessageQueue)
 {
+   Sint32 socket;
+
+#ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
+   if (locator == String::EMPTY)
+   {
+      // Set up the domain socket for a local connection
+
+      sockaddr_un address;
+      address.sun_family = AF_UNIX;
+      strcpy(address.sun_path, "/var/opt/wbem/cimxml.socket");
+
+      socket = ::socket(AF_UNIX, SOCK_STREAM, 0);
+      if (socket < 0)
+         throw CannotCreateSocket();
+
+      // Connect the socket to the address:
+
+      if (::connect(socket,
+                    reinterpret_cast<sockaddr*>(&address),
+                    sizeof(address)) < 0)
+      {
+         throw CannotConnect("local CIM server");
+      }
+   }
+   else
+   {
+#endif
+
    // Parse the locator (get hostname and port):
 
    char* hostname;
@@ -246,15 +277,23 @@ HTTPConnection* HTTPConnector::connect(
 
    // Create the socket:
 
-   Sint32 socket = ::socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+   socket = ::socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 
    if (socket < 0)
       throw CannotCreateSocket();
 
    // Conect the socket to the address:
 
-   if (::connect(socket, reinterpret_cast<sockaddr*>(&address), sizeof(address)) < 0)
+   if (::connect(socket,
+                 reinterpret_cast<sockaddr*>(&address),
+                 sizeof(address)) < 0)
+   {
       throw CannotConnect(locator);
+   }
+
+#ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
+   }
+#endif
 
    // Create HTTPConnection object:
 

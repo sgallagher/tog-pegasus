@@ -40,7 +40,7 @@
 #else
 # include <cctype>
 #ifndef PEGASUS_OS_OS400
-#   include <unistd.h>
+//#   include <unistd.h>
 #else
 #   include <Pegasus/Common/OS400ConvertChar.h>
 #   include <unistd.cleinc>

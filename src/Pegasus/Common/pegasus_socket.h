@@ -42,7 +42,7 @@
 #else
 # include <cctype>
 #ifndef PEGASUS_OS_OS400
-#   include <unistd.h>
+//#   include <unistd.h>
 #else
 #   include <Pegasus/Common/OS400ConvertChar.h>
 #   include <unistd.cleinc>
@@ -68,7 +68,7 @@ typedef size_t PEGASUS_SOCKLEN_SIZE;
 #elif defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || (defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC) && !defined(SUNOS_5_6))
 typedef socklen_t PEGASUS_SOCKLEN_SIZE;
 #else
-   typedef int PEGASUS_SOCKLEN_SIZE
+typedef int PEGASUS_SOCKLEN_SIZE;
 #endif
 
 

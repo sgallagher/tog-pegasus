@@ -41,7 +41,7 @@
 #else
 # include <cctype>
 #ifndef PEGASUS_OS_OS400
-#   include <unistd.h>
+//#   include <unistd.h>
 #else
 #   include <unistd.cleinc> 
 #endif
@@ -53,11 +53,10 @@
 # include <netinet/in.h>
 # include <arpa/inet.h>
 # include <sys/socket.h>
-# include <errno.h>
 #endif
 
 # ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
-#  include <unistd.h>
+//#  include <unistd.h>
 #  include <sys/un.h>
 #  include <Pegasus/Common/Constants.h>
 # endif
@@ -67,7 +66,9 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+#define errno WSAGetLastError()
+#endif 
 class PEGASUS_COMMON_LINKAGE abstract_socket : public Sharable
 {
    public:

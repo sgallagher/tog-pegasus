@@ -130,6 +130,17 @@ void CQLChainedIdentifierRep::applyContext(QueryContext& inContext)
   if (_subIdentifiers.size() == 0)
     return;
 
+  // Chained identifiers that are standalone symbolic constants 
+  // should have had the context applied already.  If this method
+  // is called and this is still a standalone symbolic constant,
+  // then that is an error.
+  if (_subIdentifiers.size() == 1 &&
+      _subIdentifiers[0].getName().getString().size() == 0 &&
+      _subIdentifiers[0].isSymbolicConstant())
+  {
+    throw Exception("TEMP MSG: CQLChainedIdentifierRep::applyContext - standalone symb const");
+  }
+
   CQLIdentifier firstId = _subIdentifiers[0];
   
   if ((firstId.getName().getString() != String::EMPTY) || firstId.isWildcard()) 

@@ -167,7 +167,7 @@ enum ExpressionOpType CQLSimplePredicateRep::getOperation()
 
 void CQLSimplePredicateRep::applyContext(QueryContext& queryContext)
 {
-   CQLIdentifier _id;
+  CQLIdentifier _id;
 
    _id = _leftSide.getTerms()[0].getFactors()[0].
                   getValue().getChainedIdentifier().getLastIdentifier();
@@ -188,7 +188,7 @@ void CQLSimplePredicateRep::applyContext(QueryContext& queryContext)
          // We need to add context to the symbolic constant
          _leftSide.applyContext(queryContext,
                                 _rightSide.getTerms()[0].getFactors()[0].
-                                getValue().getChainedIdentifier());               
+                                getValue().getChainedIdentifier()); 
       }
       else
       {
@@ -230,7 +230,22 @@ void CQLSimplePredicateRep::applyContext(QueryContext& queryContext)
       }
       else
       {
-         _rightSide.applyContext(queryContext);
+        // Right side is not simple OR it is a not a standalone symbolic constant
+        if (_operator != ISA)
+        {
+          // Not doing an ISA, go ahead and applyContext to right side
+          _rightSide.applyContext(queryContext);
+        }
+        else
+        {
+          // Operation is an ISA.. The right side must be simple.
+          // We don't want to applyContext to the right side because
+          // it could be a classname unrelated to the FROM class.
+          if (!_rightSide.isSimpleValue())
+          {
+            throw Exception("CQLSimplePredicateRep::applyContext -- right side of ISA is not simple");
+          }
+        }
       }
    }
 }

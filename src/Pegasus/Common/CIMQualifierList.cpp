@@ -157,7 +157,7 @@ void CIMQualifierList::resolve(
 	// For now it is just disabled. This problem exists in both XML and
 	// CIM schema.
          //cout << "KSTEST QUal resolve Propagate 1 " << q.getName() << endl;
-//#if 0
+#if 0
 	Uint32 pos = inheritedQualifiers.find(q.getName());
 
 	if (pos != PEG_NOT_FOUND)
@@ -168,7 +168,7 @@ void CIMQualifierList::resolve(
 		throw BadQualifierOverride(q.getName());
             }
 	}
-//#endif
+#endif
     }
 
     //--------------------------------------------------------------------------

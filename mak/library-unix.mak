@@ -13,7 +13,7 @@ ifeq ($(COMPILER),acc)
     LINK_COMMAND += +DD64 -mt
   endif
   ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
-    LINK_COMMAND += -Wl,+s -Wl,+b/opt/wbem/lib
+    LINK_COMMAND += -Wl,+s -Wl,+b/opt/wbem/lib:/usr/lib
   endif
   ifdef PEGASUS_DEBUG
     LINK_COMMAND += -g
@@ -63,8 +63,14 @@ $(FULL_LIB): $(LIB_DIR)/target $(OBJ_DIR)/target $(OBJECTS) $(FULL_LIBRARIES) \
 	touch $(ROOT)/src/$(DIR)/lib$(LIBRARY).x
 	cp $(ROOT)/src/$(DIR)/lib$(LIBRARY).x $(LIB_DIR)
     endif
-    ifeq ($(OS),HPUX)
+  else
+	$(LINK_COMMAND) $(LINK_ARGUMENTS) $(LINK_OUT) $(FULL_LIB) $(OBJECTS) $(FULL_LIBRARIES) $(EXTRA_LIBRARIES)
+  endif
+    ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
 	$(MAKE) --directory=$(LIB_DIR) -f $(PEGASUS_ROOT)/mak/library-unix.mak ln LIBRARY=lib$(LIBRARY) SUFFIX=$(LIB_SUFFIX) PLATFORM_SUFFIX=sl
+    endif
+    ifeq ($(PEGASUS_PLATFORM),HPUX_IA64_ACC)
+	$(MAKE) --directory=$(LIB_DIR) -f $(PEGASUS_ROOT)/mak/library-unix.mak ln LIBRARY=lib$(LIBRARY) SUFFIX=$(LIB_SUFFIX) PLATFORM_SUFFIX=so
     endif
     ifeq ($(PEGASUS_PLATFORM),LINUX_IA64_GNU)
 	$(MAKE) --directory=$(LIB_DIR) -f $(PEGASUS_ROOT)/mak/library-unix.mak ln LIBRARY=lib$(LIBRARY) SUFFIX=$(LIB_SUFFIX) PLATFORM_SUFFIX=so
@@ -72,9 +78,6 @@ $(FULL_LIB): $(LIB_DIR)/target $(OBJ_DIR)/target $(OBJECTS) $(FULL_LIBRARIES) \
     ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
 	$(MAKE) --directory=$(LIB_DIR) -f $(PEGASUS_ROOT)/mak/library-unix.mak ln LIBRARY=lib$(LIBRARY) SUFFIX=$(LIB_SUFFIX) PLATFORM_SUFFIX=so
     endif
-  else
-	$(LINK_COMMAND) $(LINK_ARGUMENTS) $(LINK_OUT) $(FULL_LIB) $(OBJECTS) $(FULL_LIBRARIES) $(EXTRA_LIBRARIES)
-  endif
 	$(TOUCH) $(FULL_LIB)
 	@ $(ECHO)
 

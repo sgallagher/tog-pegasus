@@ -49,14 +49,14 @@
 
 Summary: WBEM Services for Linux
 Name: pegasus-wbem
-Version: 2.2
-Release: 4
+Version: 2.3
+Release: 2
 Group: Systems Management/Base
 Copyright: Open Group Pegasus Open Source
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}
 Source: ftp://www.opengroup.org/pegasus/pegasus-wbem-%{version}-%{release}.tar.gz
 Requires: openssl-devel >= 0.9.6
-Provides: cimserver pegasus-wbem-2.2
+Provides: cimserver pegasus-wbem-2.3
 
 %description
 WBEM Services for Red Hat Linux enables management solutions that deliver
@@ -69,7 +69,7 @@ sources.
 Summary:      The Pegasus source tree
 Group:        Systems Management/Base
 Autoreq: 0
-Requires: pegasus-wbem >= 2.2 openssl-devel >= 0.9.6
+Requires: pegasus-wbem >= 2.3 openssl-devel >= 0.9.6
 
 %description devel
 This package contains the Pegasus source tree, header files and
@@ -81,6 +81,7 @@ static libraries (if any).
 
 %setup
 # Copy the necessary include files
+export PEGASUS_ENABLE_SLP=1
 export PEGASUS_ROOT=$RPM_BUILD_DIR/$RPM_PACKAGE_NAME-$RPM_PACKAGE_VERSION
 export LISTLOC=$RPM_BUILD_DIR/$RPM_PACKAGE_NAME-$RPM_PACKAGE_VERSION
 rm -f $LISTLOC/rpm_pegasus_include_files
@@ -99,6 +100,7 @@ ln -s $RPM_BUILD_DIR/$RPM_PACKAGE_NAME-$RPM_PACKAGE_VERSION $RPM_BUILD_DIR/$RPM_
 
 
 %build
+export PEGASUS_ENABLE_SLP=1
 export PEGASUS_ROOT=$RPM_BUILD_DIR/$RPM_PACKAGE_NAME-$RPM_PACKAGE_VERSION
 export PEGASUS_HOME=$RPM_BUILD_ROOT/usr/pegasus
 %ifarch ia64

@@ -25,11 +25,15 @@
 # Author: Konrad Rzeszutek <konradr@us.ibm.com>
 #
 # Modified By:
+#	10-28-2003: Martin Knipper <knipper@de.ibm.com>
+#		- Changed the chkconfig runlevel from 2345 to 3 and 5
+#		- Fixed a confusing output about syslog when you ask for the status on SuSE
+#		- The startproc command for stopping pegasus removed
 #
 #%/////////////////////////////////////////////////////////////////////////////
 #
 #
-# chkconfig: 2345 26 74
+# chkconfig: 35 26 74
 # description: Pegasus CIMOM enables a Linux System for WBEM (visit http://www.dmtf.org for
 # more information about CIM and WBEM). With appropriate instrumentation
 # Linux can provide systems management information or be managed by a remote
@@ -66,8 +70,8 @@ if [ "$isUnited" ] || [ "$isSUSE" ]; then
 	rc_status -v
 	;;
     stop)
-	echo -n "Shutting down Pegasus CIMOM daemon  "
-	startproc /usr/sbin/cimserver -s
+	echo -n "Shutting down Pegasus CIMOM daemon  "	
+	killproc -TERM /usr/sbin/cimserver 
 	rc_status -v
 	;;
     try-restart)
@@ -80,7 +84,7 @@ if [ "$isUnited" ] || [ "$isSUSE" ]; then
 	rc_status
 	;;
     status)
-	echo -n "Checking for service syslog:"
+	echo -n "Checking for Pegasus CIMOM daemon:"
 	checkproc /usr/sbin/cimserver  ; rc_status -v
 	;;
     *)

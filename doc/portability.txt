@@ -1,0 +1,55 @@
+
+
+    1.	In .h files the following identifiers must be surrounded by
+	the PEGASUS_STD() macro (which prepends std:: to the argument).
+
+	    ostream
+	    istream
+	    cout
+	    cerr
+
+	Do not use this macro in .cpp files. Instead put the following
+	at the beginning of the file:
+
+	    PEGASUS_USING_STD
+
+    2.	The following does not compile with some compilers.
+
+	    class X
+	    {
+	    public:
+
+		static const Uint32 COLOR = 225;
+	    };
+
+	Use this instead:
+
+	    class X
+	    {
+	    public:
+
+		static const Uint32 COLOR;
+	    };
+
+	Change to this:
+
+	    class X
+	    {
+	    public:
+
+		static const Uint32 COLOR;
+	    };
+
+	And place this in the .cpp file:
+
+	    const Uint32 X::COLOR = 255;
+
+	Or use enumerated type:
+
+	    class X
+	    {
+	    public:
+
+		enum { COLOR = 225 };
+	    };
+

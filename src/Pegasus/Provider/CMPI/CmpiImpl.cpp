@@ -1453,6 +1453,7 @@ CmpiEnumeration CmpiBroker::execQuery(const CmpiContext& ctx,
                           const char* query, const char* language)
 {
    throw CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);
+   return NULL;
 }
 
 
@@ -1474,6 +1475,7 @@ CmpiEnumeration CmpiBroker::associators(const CmpiContext& ctx,
 			    const char** properties)
 {
    throw CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);
+   return NULL;
 }
 
 CmpiEnumeration CmpiBroker::associatorNames(const CmpiContext& ctx,
@@ -1482,6 +1484,7 @@ CmpiEnumeration CmpiBroker::associatorNames(const CmpiContext& ctx,
 		                const char* role, const char* resultRole)
 {
    throw CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);
+   return NULL;
 }
 
 CmpiEnumeration CmpiBroker::references(const CmpiContext& ctx,
@@ -1490,6 +1493,7 @@ CmpiEnumeration CmpiBroker::references(const CmpiContext& ctx,
 			   const char** properties)
 {
    throw CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);
+   return NULL;
 }
 
 CmpiEnumeration CmpiBroker::referenceNames(const CmpiContext& ctx,
@@ -1497,12 +1501,14 @@ CmpiEnumeration CmpiBroker::referenceNames(const CmpiContext& ctx,
                                const char* resultClass, const char* role)
 {
    throw CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);
+   return NULL;
 }
 
 CmpiData CmpiBroker::invokeMethod(const CmpiContext& ctx, const CmpiObjectPath& cop,
                  const char* methName, const CmpiArgs& in, CmpiArgs& out)
 {
    throw CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);
+   return CmpiData();
 }
 
 void CmpiBroker::setProperty(const CmpiContext& ctx, const CmpiObjectPath& cop,
@@ -1515,6 +1521,7 @@ CmpiData CmpiBroker::getProperty(const CmpiContext& ctx, const CmpiObjectPath& c
                   const char* name)
 {
    throw CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);
+   return CmpiData();
 }
 
 

@@ -243,7 +243,8 @@ Array<CIMNamedInstance> CIMProviderHandle::enumerateInstances(
 
     for (Uint32 i=0; i<cimInstances.size(); i++)
     {
-        tmp.set(CIMReference(), cimInstances[i]);
+        tmp.set(CIMReference("", nameSpace, cimInstances[i].getClassName()),
+                cimInstances[i]);
         cimNamedInstances.append(tmp);
     }
 

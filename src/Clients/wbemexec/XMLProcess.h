@@ -26,6 +26,8 @@
 //
 // Modified By:
 //         Warren Otsuka (warren_otsuka@hp.com)
+//         Sushma Fernandes, Hewlett-Packard Company
+//         (sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -71,10 +73,12 @@ public:
         @exception  XmlValidationError  if the XML input is invalid
         @exception  XmlSemanticError    if the XML input contains a semantic 
                                         error
+        @exception  XmlException        if the XML input is invalid
+        @exception  Exception           internal error 
       
      */
     static Array <Sint8> getObjPath (XmlParser& parser)
-        throw (XmlValidationError, XmlSemanticError);
+        throw (XmlValidationError, XmlSemanticError, XmlException, Exception);
 
 
     /**
@@ -119,6 +123,8 @@ public:
         @exception  WbemExecException   if the input contains neither XML
                                         declaration nor HTTP M-POST or POST 
                                         method request
+        @exception  XmlException        if the XML input is invalid
+        @exception  Exception           internal error 
       
      */
     static Array <Sint8> encapsulate (XmlParser parser, 
@@ -129,7 +135,8 @@ public:
                                       Boolean useAuthentication,
                                       Array <Sint8>& content,
                                       Array <Sint8>& httpHeaders) 
-        throw (XmlValidationError, XmlSemanticError, WbemExecException);
+        throw (XmlValidationError, XmlSemanticError, WbemExecException,
+               XmlException, Exception);
 
 private:
     /**

@@ -24,7 +24,8 @@
 // Author: Carol Ann Krug Graves, Hewlett-Packard Company 
 //         (carolann_graves@hp.com)
 //
-// Modified By:
+// Modified By: Sushma Fernandes, Hewlett-Packard Company
+//         (sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -127,11 +128,18 @@ const Uint32 WbemExecException::MALLOC_ERROR = 10;
 
 /**
   
+    Exception identifier indicating internal error.
+  
+ */
+const Uint32 WbemExecException::INTERNAL_ERROR = 11;
+
+/**
+  
     Maximum valid exception identifier.  This value must be updated when
     a new exception identifier and message are added.
   
  */
-const Uint32 WbemExecException::MAX_ID = WbemExecException::MALLOC_ERROR;
+const Uint32 WbemExecException::MAX_ID = WbemExecException::INTERNAL_ERROR;
 
 /**
 
@@ -153,7 +161,8 @@ const char*  WbemExecException::_messageStrings [] =
     "Timed out waiting for response ",
     "Invalid XML request: ",
     "Invalid input: expected XML request, or HTTP M-POST or POST method request",
-    "Failed to allocate additional memory "
+    "Failed to allocate additional memory ",
+    "Internal error "
 };
 
 /**

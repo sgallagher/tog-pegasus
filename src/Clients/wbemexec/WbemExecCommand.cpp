@@ -26,6 +26,8 @@
 //
 // Modified By:
 //         Warren Otsuka (warren_otsuka@hp.com)
+//         Sushma Fernandes, Hewlett-Packard Company
+//         (sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -651,6 +653,24 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
             (WbemExecException::INVALID_XML, xse.getMessage ());
         throw e;
     }
+    catch (XmlException& xe)
+    {
+        WbemExecException e
+            (WbemExecException::INVALID_XML, xe.getMessage ());
+        throw e;
+    }
+    catch (WbemExecException& e)
+    {
+        throw e;
+    }
+    catch (Exception& ex)
+    {
+        // Note: Should never get here, unless there is an internal
+        // exception thrown
+        WbemExecException e
+            (WbemExecException::INTERNAL_ERROR, ex.getMessage ());
+        throw e;
+    }
 
     //
     //  Get channel and write message to channel
@@ -1093,7 +1113,7 @@ Uint32 WbemExecCommand::execute (ostream& outPrintWriter,
     {
         _executeHttp (outPrintWriter, errPrintWriter);
     }
-    catch (WbemExecException e)
+    catch (WbemExecException& e)
     {
         errPrintWriter << e.getMessage () << endl;
         return (RC_ERROR);

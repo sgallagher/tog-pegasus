@@ -24,7 +24,8 @@
 // Author: Carol Ann Krug Graves, Hewlett-Packard Company 
 //         (carolann_graves@hp.com)
 //
-// Modified By:
+// Modified By: Sushma Fernandes, Hewlett-Packard Company
+//         (sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -173,6 +174,13 @@ public:
   
     */
     static const Uint32 MALLOC_ERROR;
+
+    /**
+       
+       Exception identifier indicating internal error.
+  
+    */
+    static const Uint32 INTERNAL_ERROR;
 
     /**
       

@@ -26,6 +26,8 @@
 //
 // Modified By:
 //         Warren Otsuka (warren_otsuka@hp.com)
+//         Sushma Fernandes, Hewlett-Packard Company
+//         (sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -62,7 +64,7 @@ PEGASUS_NAMESPACE_BEGIN
  */
 
 Array <Sint8> XMLProcess::getObjPath (XmlParser& parser)
-    throw (XmlValidationError, XmlSemanticError)
+    throw (XmlValidationError, XmlSemanticError, XmlException, Exception)
 {
     XmlEntry                     entry;
     String                       namespaceName;
@@ -175,7 +177,8 @@ Array <Sint8> XMLProcess::encapsulate( XmlParser parser,
                                        Array <Sint8>& content,
                                        Array <Sint8>& httpHeaders
                                        )
-    throw (XmlValidationError, XmlSemanticError, WbemExecException)
+throw (XmlValidationError, XmlSemanticError, WbemExecException,
+               XmlException, Exception)
 {
     XmlEntry                     entry;
     Array <Sint8>                message;

@@ -741,11 +741,8 @@ alias: TOK_AS aliasIdentifier {
               YYABORT;
               $$ = $2;
               } 
-              | /* empty */ { 
-              yyerror("'alias' is not yet supported (see bugzilla 14).");
-              YYABORT;
-              $$ = new String(String::EMPTY);
-              } ;
+              | /* empty */ { $$ = new String(String::EMPTY); }
+              ;
 
 
 aliasIdentifier: TOK_ALIAS_IDENTIFIER ;

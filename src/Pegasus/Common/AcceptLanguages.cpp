@@ -79,7 +79,7 @@ String AcceptLanguages::toString() const{
 	return s;
 }
 
-ostream & operator<<(ostream &stream, AcceptLanguages al){
+PEGASUS_STD(ostream) & operator<<(PEGASUS_STD(ostream) &stream, AcceptLanguages al){
 	stream << al.toString();
 	return stream;
 }

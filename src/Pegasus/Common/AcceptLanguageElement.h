@@ -31,7 +31,7 @@
 #ifndef Pegasus_AcceptLanguageElement_h
 #define Pegasus_AcceptLanguageElement_h
 
-
+#include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/LanguageElement.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -141,7 +141,7 @@ public:
 	/**
 	 * Writes the string representation of this object to the stream
 	 */
-	friend ostream &operator<<(ostream &stream, AcceptLanguageElement ale);
+	friend PEGASUS_STD(ostream) &operator<<(PEGASUS_STD(ostream) &stream, AcceptLanguageElement ale);
 
 			
 }; // end AcceptLanguageElement

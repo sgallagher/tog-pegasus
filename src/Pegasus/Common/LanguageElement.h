@@ -34,6 +34,7 @@
 #include <cstdlib>
 #include <cctype>
 #include <iostream>
+#include <ostream>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
@@ -150,7 +151,7 @@ public:
 	/**
 	 * Writes the String representation of this object to the stream
 	 */
-	friend ostream & operator<<(ostream &stream, LanguageElement le);
+	friend PEGASUS_STD(ostream)& operator <<(PEGASUS_STD(ostream) &stream, LanguageElement le);
 
 	/**
 	 * AcceptLanguages needs direct access to quality, but ContentLanguages does not.

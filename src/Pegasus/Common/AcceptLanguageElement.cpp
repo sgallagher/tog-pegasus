@@ -91,7 +91,7 @@ Boolean AcceptLanguageElement::operator!=(AcceptLanguageElement rhs){
 	return true;
 }
 
-ostream & operator<<(ostream &stream, AcceptLanguageElement ale){
+PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& stream, AcceptLanguageElement ale){
 	String s = ale.toString();
 	stream << s;
 	return stream;

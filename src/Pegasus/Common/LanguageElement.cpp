@@ -124,7 +124,7 @@ Boolean LanguageElement::operator!=(LanguageElement rhs){
 	return (!String::equalNoCase(getLanguageTag(),rhs.getLanguageTag()));
 }
 
-ostream & operator<<(ostream &stream, LanguageElement le){
+PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& stream, LanguageElement le){
 		stream << le.getLanguageTag();
 		return stream;
 }

@@ -91,7 +91,7 @@ PEGASUS_NAMESPACE_BEGIN
 		else return ContentLanguageElement(le.getTag());	
 	}
 	
-	ostream & operator<<(ostream &stream, ContentLanguages cl){
+	PEGASUS_STD(ostream) & operator<<(PEGASUS_STD(ostream) &stream, ContentLanguages cl){
 		for(int i = 0; i < cl.size(); i++){
 			stream << cl.getLanguageElement(i);
 			if(i != (cl.size()-1)) 

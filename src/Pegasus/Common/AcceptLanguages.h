@@ -31,6 +31,7 @@
 #ifndef Pegasus_AcceptLanguages_h
 #define Pegasus_AcceptLanguages_h
 
+#include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/LanguageElementContainer.h>
 #include <Pegasus/Common/AcceptLanguageElement.h>
 
@@ -92,7 +93,7 @@ public:
 	 * @return ostream - Returns a representation of this object in AcceptLanguage header format
 	 * according to the RFC
 	 */
-	friend ostream & operator<<(ostream &stream, AcceptLanguages al);
+	friend PEGASUS_STD(ostream) & operator<<(PEGASUS_STD(ostream) &stream, AcceptLanguages al);
 	
 	/**
 	 * Random access into this container given an index

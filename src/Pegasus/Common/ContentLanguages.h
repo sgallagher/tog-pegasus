@@ -30,7 +30,7 @@
 
 #ifndef Pegasus_ContentLanguages_h
 #define Pegasus_ContentLanguages_h
-
+#include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/LanguageElementContainer.h>
 #include <Pegasus/Common/ContentLanguageElement.h>
 
@@ -126,7 +126,7 @@ public:
 	 * @return ostream - Returns a representation of this object in ContentLanguage header format
 	 * according to the RFC
 	 */
-	friend ostream & operator<<(ostream &stream, ContentLanguages cl);
+	friend PEGASUS_STD(ostream) & operator<<(PEGASUS_STD(ostream) &stream, ContentLanguages cl);
 	
 private:	
 

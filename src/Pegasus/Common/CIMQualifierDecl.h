@@ -43,18 +43,20 @@ PEGASUS_NAMESPACE_BEGIN
 class CIMConstQualifierDecl;
 class CIMClassRep;
 /** Class CIMQualifierDecl
-  NOTE: Clarify difference between qualifier and qualiferdeclaration
-  ATTN: Important work required here.
+  This class defines the CIM Qualifier Declarations. Note that the Declarations
+  are not the same as CIM Qualiifers as seen on Classes, properties, etc.
+  These are the original declarations of qualifiers (i.e. input from the compiler
+  qualifierDeclarations.
 */
 class PEGASUS_COMMON_LINKAGE CIMQualifierDecl
 {
 public:
-    /// Constructor - ATTN:
+    /// Constructor - 
     CIMQualifierDecl() : _rep(0)
     {
 
     }
-    /// Constructor - ATTN:
+    /// Constructor - Creates a CIMQualifierDecl from another CIMQualifierDecl
 
     CIMQualifierDecl(const CIMQualifierDecl& x) 
     {
@@ -109,27 +111,30 @@ public:
 	return _rep->getName(); 
     }
 
-    // Throws IllegalName if name argument not legal CIM identifier.
-    /** CIMMethod	ATTN:
-    
+    /** setName - Puts the name into a CIMQualifierdecl
+    @param Name String containing name to be put on this qualifier.
+    This must be a legal qualifier name.
+    @exception - Throws IllegalName if name argument not a legal
+    CIM Qualifier name
     */
     void setName(const String& name) 
     { 
 	_checkRep();
 	_rep->setName(name); 
     }
-    /** CIMMethod ATTN:
-
-    
+    /** getType - gets the Qualifier Declaration type which is the
+        value type (boolean, etc. for this qualifier.
+        ATTN: P3 Documentation clean up
+        @return Returns the type as CIMType
     */
     CIMType getType() const 
     { 
 	_checkRep();
 	return _rep->getType(); 
     }
-    /** CIMMethod  ATTN:
-
-    
+    /** isArray - test if this qualifier declaration is an array type.
+    @return Boolean true if this is array type.
+    ATTN: P1 KS 04/17/02 Confirm this correspond to array type or fixed array?
     */
     Boolean isArray() const 
     {

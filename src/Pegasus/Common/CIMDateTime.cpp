@@ -52,13 +52,13 @@ PEGASUS_NAMESPACE_BEGIN
 # include "ArrayImpl.h"
 #undef PEGASUS_ARRAY_T
 
-// REVIEW: Need methods for determining inequalities.
+// ATTN: P3 KS 04/17/02 Need methods for determining inequalities.
 
-// REVIEW: Need methods for extracting components (e.g., minutes, hours)?
+// ATTN: P3 KS 04/17/02 Need methods for extracting components (e.g., minutes, hours)?
 
-// REVIEW: Need methods to get current datetime into this form.
+// ATTN: P3 KS 04/17/02 Need methods to get current datetime into this form.
 
-// REVIEW: Needs constructor that creates from individual elements(year,...)
+// ATTN: P3 KS 04/17/02 Needs constructor that creates from individual elements(year,...)
 
 static const char _NULL_INTERVAL_TYPE_STRING[] = "00000000000000.000000:000";
 static const char _NULL_DATE_TYPE_STRING[] = "00000000000000.000000-000";

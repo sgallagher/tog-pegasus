@@ -43,7 +43,7 @@ PEGASUS_NAMESPACE_BEGIN
 // REVIEW: these classes need a major restructuring. This has become the
 // REVIEW: dumping ground for exception classes.
 
-/** Class Exception  - This 
+/** Class Exception  - This ATTN: Documentation incomplete
 */
 class PEGASUS_COMMON_LINKAGE Exception
 {
@@ -115,7 +115,7 @@ public:
     } while (0)
 
 
-/// ATTN:
+/// ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE BadReference : public Exception
 {
 public:
@@ -123,7 +123,7 @@ public:
     BadReference(const String& message) : Exception(message) { }
 };
 
-/// ATTN:
+/// ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE OutOfBounds : public Exception
 {
 public:
@@ -133,7 +133,7 @@ public:
     OutOfBounds() : Exception(MSG) { }
 };
 
-/// ATTN:
+/// ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE AlreadyExists : public Exception
 {
 public:
@@ -143,7 +143,7 @@ public:
     AlreadyExists(const String& x = String()) : Exception(MSG + x) { }
 };
 
-/// ATTN:
+/// ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE NullPointer : public Exception
 {
 public:
@@ -153,7 +153,7 @@ public:
     NullPointer() : Exception(MSG) { }
 };
 
-/// ATTN:
+/// ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE IllegalName : public Exception
 {
 public:
@@ -163,7 +163,7 @@ public:
     IllegalName() : Exception(MSG) { }
 };
 
-/// ATTN:
+/// ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE UnitializedHandle : public Exception
 {
 public:
@@ -173,7 +173,7 @@ public:
     UnitializedHandle() : Exception(MSG) { }
 };
 
-/// ATTN:
+/// ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE InvalidPropertyOverride : public Exception
 {
 public:
@@ -184,7 +184,7 @@ public:
 	: Exception(MSG + message) { }
 };
 
-/// ATTN:
+/// ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE InvalidMethodOverride : public Exception
 {
 public:
@@ -195,7 +195,7 @@ public:
 	: Exception(MSG + message) { }
 };
 
-/// ATTN:
+/// ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE UndeclaredQualifier : public Exception
 {
 public:
@@ -206,7 +206,7 @@ public:
 	: Exception(MSG + qualifierName) { }
 };
 
-/// ATTN:
+/// ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE BadQualifierScope : public Exception
 {
 public:
@@ -217,7 +217,7 @@ public:
 	: Exception(MSG + qualifierName + String(" scope=") + scopeString) { }
 };
 
-/// ATTN:
+/// ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE BadQualifierOverride : public Exception
 {
 public:
@@ -238,7 +238,7 @@ public:
 	: Exception(MSG + qualifierName) { }
 };
 
-/// ATTN:
+/// ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE NullType : public Exception
 {
 public:
@@ -248,7 +248,7 @@ public:
     NullType() : Exception(MSG) { }
 };
 
-/// ATTN:
+/// ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE AddedReferenceToClass : public Exception
 {
 public:
@@ -259,7 +259,7 @@ public:
 	: Exception(MSG + className) { }
 };
 
-/// ATTN:
+/// ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE ClassAlreadyResolved : public Exception
 {
 public:
@@ -270,7 +270,7 @@ public:
 	: Exception(MSG + className) { }
 };
 
-/// ATTN:
+/// ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE ClassNotResolved : public Exception
 {
 public:
@@ -281,7 +281,7 @@ public:
 	: Exception(MSG + className) { }
 };
 
-/// ATTN:
+/// ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE InstanceAlreadyResolved : public Exception
 {
 public:
@@ -292,7 +292,7 @@ public:
      : Exception(MSG) { }
 };
 
-/// ATTN:
+/// ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE InstantiatedAbstractClass : public Exception
 {
 public:
@@ -303,7 +303,7 @@ public:
      : Exception(MSG + className) { }
 };
 
-/// ATTN:
+/// ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE NoSuchProperty : public Exception
 {
 public:
@@ -314,7 +314,7 @@ public:
 	: Exception(MSG + propertyName) { }
 };
 
-/// ATTN:
+/// ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE TruncatedCharacter : public Exception
 {
 public:
@@ -324,7 +324,7 @@ public:
     TruncatedCharacter() : Exception(MSG) { }
 };
 
-/// ATTN:
+/// ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE ExpectedReferenceValue : public Exception
 {
 public:
@@ -334,7 +334,7 @@ public:
     ExpectedReferenceValue() : Exception(MSG) { }
 };
 
-/// ATTN:
+/// ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE MissingReferenceClassName : public Exception
 {
 public:
@@ -344,7 +344,7 @@ public:
     MissingReferenceClassName() : Exception(MSG) { }
 };
 
-/// ATTN:
+/// ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE IllegalTypeTag : public Exception
 {
 public:
@@ -354,7 +354,7 @@ public:
     IllegalTypeTag() : Exception(MSG) { }
 };
 
-/// ATTN:
+/// ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE TypeMismatch : public Exception
 {
 public:
@@ -364,7 +364,7 @@ public:
     TypeMismatch() : Exception(MSG) { }
 };
 
-/// ATTN:
+/// ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE CIMValueIsNull : public Exception
 {
 public:
@@ -374,7 +374,7 @@ public:
     CIMValueIsNull() : Exception(MSG) { }
 };
 
-/// ATTN:
+/// ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE CIMValueInvalidType : public Exception
 {
 public:
@@ -385,7 +385,7 @@ public:
 };
 
 
-/// ATTN:
+/// ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE DynamicCastFailed : public Exception
 {
 public:
@@ -395,7 +395,7 @@ public:
     DynamicCastFailed() : Exception(MSG) { }
 };
 
-/// ATTN:
+/// ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE NoSuchFile : public Exception
 {
 public:
@@ -405,7 +405,7 @@ public:
     NoSuchFile(const String& fileName) : Exception(MSG + fileName) { }
 };
 
-/// ATTN:
+/// ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE FileNotReadable : public Exception
 {
 public:
@@ -424,7 +424,7 @@ public:
     CannotBindToAddress(const String& address) : Exception(MSG + address) { }
 };
 
-/// ATTN:
+/// ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE CannotRemoveDirectory : public Exception
 {
 public:
@@ -434,7 +434,7 @@ public:
     CannotRemoveDirectory(const String& path) : Exception(MSG + path) { }
 };
 
-/// ATTN:
+/// ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE CannotRemoveFile : public Exception
 {
 public:
@@ -444,7 +444,7 @@ public:
     CannotRemoveFile(const String& path) : Exception(MSG + path) { }
 };
 
-/// ATTN:
+/// ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE CannotRenameFile : public Exception
 {
 public:
@@ -454,7 +454,7 @@ public:
     CannotRenameFile(const String& path) : Exception(MSG + path) { }
 };
 
-/// ATTN:
+/// ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE NoSuchDirectory : public Exception
 {
 public:
@@ -475,7 +475,7 @@ public:
 	: Exception(MSG + directoryName) { }
 };
 
-/// ATTN:
+/// ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE CannotCreateDirectory : public Exception
 {
 public:
@@ -486,7 +486,7 @@ public:
 	: Exception(MSG + path) { }
 };
 
-/// ATTN:
+/// ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE NoSuchNameSpace : public Exception
 {
 public:
@@ -497,7 +497,7 @@ public:
 	: Exception(MSG + directoryName) { }
 };
 
-/// ATTN:
+/// ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE CannotOpenFile : public Exception
 {
 public:
@@ -508,7 +508,7 @@ public:
 	: Exception(MSG + path) { }
 };
 
-/// ATTN:
+/// ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE NotImplemented : public Exception
 {
 public:
@@ -735,7 +735,7 @@ public:
     TimedOut() : Exception(MSG) { }
 };
 
-// ATTN: this exception should derive from the Exception class to define
+// ATTN: P1 this exception should derive from the Exception class to define
 // the standard message interface. Try blocks which catch the class
 // Exception will miss this one.
 

@@ -47,7 +47,7 @@ class CIMInstanceRep;
 Object. It defines a single CIM Property and allows the manipulation of that 
 property. A CIM property is a value used to characterize an instance of a 
 class.
-ANNT: This is a very poor definition.
+ATTN : P3 KS 03/02/02Documentation This is a very poor definition for property class.
 ATTN: Define the property concept in more detail and ref property.
 */
  class PEGASUS_COMMON_LINKAGE CIMProperty
@@ -130,7 +130,7 @@ public:
         argument not legal CIM identifier.
 		@param - Name to set
 		@exception Throws "IllegalName" exception is name
-		ATTN: please hide this. The only way a name should be
+		ATTN: P3 please hide this. The only way a name should be
 		set is through a constructor.
     */
     void setName(const String& name)
@@ -295,7 +295,14 @@ public:
 	return _rep->getQualifier(pos);
     }
 
-    /// CIMMethod getQualifier - ATTN
+    /** getQualifier returns the qualifier defined at the position
+        input.
+        @param pos Uint32 position for the qualifier. Can be obtained
+        from functions such as findQualifier.
+        @return Returns the qualifier object.
+        @exception throws OutOfBounds if pos is outside the range
+        of qualifiers that exist for the property.
+    */
     CIMConstQualifier getQualifier(Uint32 pos) const
     {
 	_checkRep();
@@ -339,7 +346,19 @@ public:
 	    nameSpace, isInstancePart, property, propagateQualifiers);
     }
 
-    /// resolve - ATTN
+    /** resolve - Resolves the property. Resolution is the process of
+        intregating the property into the the context of a repository
+        or other store.
+        Note that this is an internal function and should not be made
+        available to external users.
+        ATTN: P3 03/02/02 KS Needs more documentation.
+        @param declContext Defines the context in which the property is
+        to be resolved.  This provides the basis for other functions to
+        get information from the context to use to resolve the property.
+        @parm nameSpace Namespace in which the property is to be placed
+        @param isInstancePart - Is this instance or class resolution
+        @param propagateQualifiers Boolean to determine if we propagate qualifiers
+    */
     void resolve(
 	DeclContext* declContext,
 	const String& nameSpace,
@@ -351,7 +370,7 @@ public:
 	    declContext, nameSpace, isInstancePart, propagateQualifiers);
     }
 
-    /// ATTN
+    /// ATTN: documentation
     operator int() const { return _rep != 0; }
 
     /** toXML  - Converts the object to XML and puts the
@@ -401,7 +420,7 @@ public:
 	return _rep->isKey();
     }
 
-    /// clone - ATTN
+    /// clone - ATTN: P3 Documentation
     CIMProperty clone(Boolean propagateQualifiers) const
     {
 	return CIMProperty(_rep->clone(propagateQualifiers));

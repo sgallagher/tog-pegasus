@@ -74,7 +74,6 @@ public:
     /** Constructor - instantiates a CIM qualifier object from another 
     qualifier object. 
     @param CIM CIMQualifier object
-    ATTN: What is differenc from clone?
     @return - Instantiated qualifier object
  */
     CIMQualifier(const CIMQualifier& x) 

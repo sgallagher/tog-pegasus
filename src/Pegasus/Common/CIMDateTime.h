@@ -40,7 +40,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-/* ATTN: P3. Several functions should be added to this class for datetime manipulation
+/* ATTN: P3. KS Several functions should be added to this class for datetime manipulation
    including get and set each subcomponent (year, month, etc), test for equality,
    create intervals from absolutes, possibly gett current time, Note that
    the Java rep is probably tostring, not get string, 

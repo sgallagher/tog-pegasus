@@ -78,6 +78,11 @@ void Test001b(void)
 {
     PRINT("Test001b");
 
+    PRINT("Explicity disabled.");
+
+    /*
+    // ATTN: the following test has been disabled because the initialized object
+    // check was moved to the response handlers.
     ObjectNormalizer normalizer(
         CIMClass("CIM_ManagedElement"),
         false,
@@ -115,6 +120,7 @@ void Test001b(void)
     {
         PRINT("expected CIMException: " << e.getMessage());
     }
+    */
 }
 
 //

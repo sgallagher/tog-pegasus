@@ -217,10 +217,14 @@ CIMObjectPath ObjectNormalizer::processClassObjectPath(const CIMObjectPath & cim
         return(cimObjectPath);
     }
 
+    /*
+    // ATTN: moving similar logic to the response handlers because this type of error should
+    // be checked regardless with or without normalization enabled.
     if(cimObjectPath.getClassName().isNull())
     {
         throw CIMException(CIM_ERR_FAILED, "uninitialized object path");
     }
+    */
 
     /*
     // ATTN: The following code is currently redundant because the CIMName object validates
@@ -267,10 +271,14 @@ CIMObjectPath ObjectNormalizer::processInstanceObjectPath(const CIMObjectPath & 
         return(cimObjectPath);
     }
 
+    /*
+    // ATTN: moving similar logic to the response handlers because this type of error should
+    // be checked regardless with or without normalization enabled.
     if(cimObjectPath.getClassName().isNull())
     {
         throw CIMException(CIM_ERR_FAILED, "uninitialized object path");
     }
+    */
 
     /*
     // ATTN: The following code is currently redundant because the CIMName object validates
@@ -362,10 +370,14 @@ CIMInstance ObjectNormalizer::processInstance(const CIMInstance & cimInstance) c
         return(cimInstance);
     }
 
+    /*
+    // ATTN: moving similar logic to the response handlers because this type of error should
+    // be checked regardless with or without normalization enabled.
     if(cimInstance.isUninitialized())
     {
         throw CIMException(CIM_ERR_FAILED, "unintialized instance object.");
     }
+    */
 
     CIMInstance normalizedInstance(_cimClass.getClassName());
 

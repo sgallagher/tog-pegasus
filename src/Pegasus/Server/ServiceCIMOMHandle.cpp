@@ -52,7 +52,6 @@ ServiceCIMOMHandle::ServiceCIMOMHandle(
 
 ServiceCIMOMHandle::~ServiceCIMOMHandle(void)
 {
-    CIMOMHandle::~CIMOMHandle();
 }
 
 ServiceCIMOMHandle& ServiceCIMOMHandle::operator=(const ServiceCIMOMHandle& handle)

@@ -34,16 +34,15 @@
 #define Pegasus_ProviderManagerService_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Pair.h>
-#include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/MessageQueueService.h>
+#include <Pegasus/Common/CIMObjectPath.h>
+#include <Pegasus/Common/Pair.h>
 #include <Pegasus/Common/Thread.h>
 
 #include <Pegasus/ProviderManager/SafeQueue.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class ProviderManager;
 class ProviderRegistrationManager;
 
 class PEGASUS_SERVER_LINKAGE ProviderManagerService : public MessageQueueService
@@ -71,7 +70,7 @@ protected:
         Array<String>& Locations, Array<String>& providerNames);
 
 protected:
-    static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleServiceOperation(void * arg) throw();
+    //static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleServiceOperation(void * arg) throw();
 
     //void handleStartService();
     //void handleStopService();

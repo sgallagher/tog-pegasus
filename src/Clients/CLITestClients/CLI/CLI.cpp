@@ -105,11 +105,6 @@ int main(int argc, char** argv)
         }
         client.connect(opts.location, opts.user, opts.password);
     }    
-    catch(CIMClientException& e)
-    {
-        cerr << "CIMClientException connecting to : " << opts.location << " "
-          << e.getMessage() << endl;
-    }
     catch(Exception &e) 
     {
         cerr << "Pegasus Exception: " << e.getMessage() <<
@@ -267,11 +262,6 @@ int main(int argc, char** argv)
                 break;
             }
         }
-    }
-    catch(CIMClientException& e)
-    {
-        PEGASUS_STD(cerr) << argv[0] << " CIMClientException : " << e.getMessage()
-              <<  " ClassName = " << opts.className << PEGASUS_STD(endl);
     }
     catch(Exception& e)
     {

@@ -261,7 +261,7 @@ private:
     // @param ostream        The stream to which command output is written.
     // @param ostream        The stream to which command errors are written.
     // 
-    // @exception CIMClientException  if failed to add user
+    // @exception Exception  if failed to add user
     //
     void _AddAuthorization
         (
@@ -275,7 +275,7 @@ private:
     // @param ostream          The stream to which command output is written.
     // @param ostream          The stream to which command errors are written.
     // 
-    // @exception CIMClientException  if failed to modify password
+    // @exception Exception  if failed to modify password
     //
     void _ModifyAuthorization
         (
@@ -289,7 +289,7 @@ private:
     // @param ostream          The stream to which command output is written.
     // @param ostream          The stream to which command errors are written.
     //
-    // @exception CIMClientException  if failed to remove user
+    // @exception Exception  if failed to remove user
     //
     void _RemoveAuthorization
         (
@@ -746,7 +746,7 @@ Uint32 CIMAuthCommand::execute (
 
         _client->connectLocal();
     }
-    catch(CIMClientException& e)
+    catch(Exception& e)
     {
         outPrintWriter << CIMOM_NOT_RUNNING << endl;
         return 1;
@@ -762,7 +762,7 @@ Uint32 CIMAuthCommand::execute (
             {
                 _AddAuthorization( outPrintWriter, errPrintWriter );
             }
-            catch (CIMClientCIMException& e)
+            catch (CIMException& e)
             {
                 CIMStatusCode code = e.getCode();
 
@@ -793,7 +793,7 @@ Uint32 CIMAuthCommand::execute (
                 }
                 return ( RC_ERROR );
             }
-            catch (CIMClientException& e)
+            catch (Exception& e)
             {
                 outPrintWriter << ADD_AUTH_FAILURE << endl <<
                     e.getMessage() << endl;
@@ -806,7 +806,7 @@ Uint32 CIMAuthCommand::execute (
             {
                 _ModifyAuthorization( outPrintWriter, errPrintWriter );
             }
-            catch (CIMClientCIMException& e)
+            catch (CIMException& e)
             {
                 CIMStatusCode code = e.getCode();
                 if (code == CIM_ERR_FAILED)
@@ -836,7 +836,7 @@ Uint32 CIMAuthCommand::execute (
                 }
                 return ( RC_ERROR );
             }
-            catch (CIMClientException& e)
+            catch (Exception& e)
             {
                 outPrintWriter << MODIFY_AUTH_FAILURE << endl <<
                     e.getMessage() << endl;
@@ -849,7 +849,7 @@ Uint32 CIMAuthCommand::execute (
             {
                 _RemoveAuthorization( outPrintWriter, errPrintWriter );
             }
-            catch (CIMClientCIMException& e)
+            catch (CIMException& e)
             {
                 CIMStatusCode code = e.getCode();
                 if (code == CIM_ERR_FAILED)
@@ -879,7 +879,7 @@ Uint32 CIMAuthCommand::execute (
                 }
                 return ( RC_ERROR );
             }
-            catch (CIMClientException& e)
+            catch (Exception& e)
             {
                 outPrintWriter << REMOVE_AUTH_FAILURE << endl <<
                     e.getMessage() << endl;
@@ -892,7 +892,7 @@ Uint32 CIMAuthCommand::execute (
             {
                 _ListAuthorization( outPrintWriter, errPrintWriter );
             }
-            catch (CIMClientCIMException& e)
+            catch (CIMException& e)
             {
                 CIMStatusCode code = e.getCode();
                 if (code == CIM_ERR_FAILED)
@@ -921,7 +921,7 @@ Uint32 CIMAuthCommand::execute (
                 }
                 return ( RC_ERROR );
             }
-            catch (CIMClientException& e)
+            catch (Exception& e)
             {
                 outPrintWriter << LIST_AUTH_FAILURE << endl <<
                     e.getMessage() << endl;
@@ -966,7 +966,7 @@ void CIMAuthCommand::_AddAuthorization
 	outPrintWriter << ADD_AUTH_SUCCESS << endl;
 
     }
-    catch (CIMClientException& e)
+    catch (Exception& e)
     {
         throw e;
     }
@@ -1020,7 +1020,7 @@ void CIMAuthCommand::_ModifyAuthorization
             namedInstance);
         outPrintWriter << MODIFY_AUTH_SUCCESS << endl;
     }
-    catch (CIMClientException& e)
+    catch (Exception& e)
     {
         throw e;
     }
@@ -1107,7 +1107,7 @@ void CIMAuthCommand::_RemoveAuthorization
 
 	outPrintWriter << REMOVE_AUTH_SUCCESS << endl;
     }
-    catch (CIMClientException& e)
+    catch (Exception& e)
     {
 	throw e;
     }
@@ -1168,7 +1168,7 @@ void CIMAuthCommand::_ListAuthorization
             outPrintWriter << auth << "\"" << endl;
         }
     }
-    catch (CIMClientException& e)
+    catch (Exception& e)
     {
         throw e;
     }

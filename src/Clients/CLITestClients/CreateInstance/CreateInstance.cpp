@@ -327,11 +327,6 @@ int main(int argc, char** argv)
 	
     myInstance.addProperty(CIMProperty("name", String(myReference)));
     /*
-    catch(CIMClientException& e)
-    {
-	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
-	exit(1);
-    }
     catch(Exception& e)
     {
 	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
@@ -344,11 +339,6 @@ int main(int argc, char** argv)
     {
        	client.connect(location);
     } 
-    catch(CIMClientException& e)
-    {
-	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
-	exit(1);
-    }
     catch(Exception& e)
     {
 	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
@@ -363,7 +353,7 @@ int main(int argc, char** argv)
 	    virtual CIMObjectPath createInstance(
 		const String& nameSpace,
 		const CIMInstance& newInstance
-	    ) throw(CIMClientException);
+	    ) throw(Exception);
 
 	****/
 	    XmlWriter::printValueReferenceElement(cimObjectPath, cout);
@@ -380,11 +370,6 @@ int main(int argc, char** argv)
                 mofFormat(cout, x.getData(), 4);
             }
 	 */
-    }
-    catch(CIMClientException& e)
-    {
-	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
-	exit(1);
     }
     catch(Exception& e)
     {

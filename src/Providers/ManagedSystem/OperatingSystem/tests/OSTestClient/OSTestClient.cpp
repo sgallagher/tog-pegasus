@@ -534,7 +534,7 @@ void OSTestClient::testEnumerateInstanceNames(CIMClient &client,
     testLog("OS Provider Test EnumInstanceNames Passed");
     }  // end try 
    
-    catch(CIMClientException& e)
+    catch(Exception& e)
     {
       errorExit(e.getMessage());
     }
@@ -584,7 +584,7 @@ void OSTestClient::testEnumerateInstances(CIMClient &client,
     testLog("OS Provider Test EnumInstances Passed");
     }  // end try 
    
-    catch(CIMClientException& e)
+    catch(Exception& e)
     {
       errorExit(e.getMessage());
     }
@@ -644,7 +644,7 @@ void OSTestClient::testGetInstance (CIMClient &client,
     testLog("OS Provider Test Get Instance passed ");
     }  // end try 
    
-    catch(CIMClientException& e)
+    catch(Exception& e)
     {
       errorExit(e.getMessage());
     }
@@ -711,7 +711,7 @@ int main(int argc, char** argv)
         cout << "OSTestClient disconnecting from CIMOM " << endl;
         client.disconnect();
   }
-  catch(CIMClientException& e)
+  catch(Exception& e)
   {
      cout << "---- OS Provider Test Failed " << e.getMessage() << endl;
   }

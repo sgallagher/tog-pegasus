@@ -279,7 +279,7 @@ int main(int argc, char** argv)
             cout << endl;
         }
         	}
-	 catch(CIMClientException& e)
+	 catch(Exception& e)
 	{
 	    ErrorExit(e.getMessage());
 	}
@@ -309,7 +309,7 @@ int main(int argc, char** argv)
             //MofWriter::printClassElement(cimClass);
 	    cout << endl;
 	}
-	 catch(CIMClientException& e)
+	 catch(Exception& e)
 	{
 	    ErrorExit(e.getMessage());
 	}
@@ -345,7 +345,7 @@ int main(int argc, char** argv)
 
 	    }
 	}
-	catch(CIMClientException& e)
+	catch(Exception& e)
 	{
 	     cout << "Error Class Enumeration:" << endl;
 	     cout << e.getMessage() << endl;

@@ -793,7 +793,7 @@ Uint32 CIMProviderCommand::execute (
         _client->connectLocal();
 
     }
-    catch(CIMClientException& e)
+    catch(Exception& e)
     {
         outPrintWriter << CIMOM_NOT_RUNNING << endl;
 	return 1;
@@ -810,7 +810,7 @@ Uint32 CIMProviderCommand::execute (
             {
 	        _deleteProvider( outPrintWriter, errPrintWriter );
             }
-            catch (CIMClientCIMException& e)
+            catch (CIMException& e)
             {
                 CIMStatusCode code = e.getCode();
 
@@ -830,7 +830,7 @@ Uint32 CIMProviderCommand::execute (
                 }
                 return ( RC_ERROR );
             }
-            catch (CIMClientException& e)
+            catch (Exception& e)
             {
                 errPrintWriter << e.getMessage() << endl;
                 return ( RC_ERROR );
@@ -843,7 +843,7 @@ Uint32 CIMProviderCommand::execute (
             {
                 _StartProvider( outPrintWriter, errPrintWriter );
             }
-            catch (CIMClientCIMException& e)
+            catch (CIMException& e)
             {
                 CIMStatusCode code = e.getCode();
                 if (code == CIM_ERR_FAILED)
@@ -862,7 +862,7 @@ Uint32 CIMProviderCommand::execute (
                 }
                 return ( RC_ERROR );
             }
-            catch (CIMClientException& e)
+            catch (Exception& e)
             {
                 errPrintWriter << e.getMessage() << endl;
                 return ( RC_ERROR );
@@ -875,7 +875,7 @@ Uint32 CIMProviderCommand::execute (
             {
                 _StopProvider( outPrintWriter, errPrintWriter );
             }
-            catch (CIMClientCIMException& e)
+            catch (CIMException& e)
             {
                 CIMStatusCode code = e.getCode();
                 if (code == CIM_ERR_FAILED)
@@ -894,7 +894,7 @@ Uint32 CIMProviderCommand::execute (
                 }
                 return ( RC_ERROR );
             }
-            catch (CIMClientException& e)
+            catch (Exception& e)
             {
                 errPrintWriter << e.getMessage() << endl;
                 return ( RC_ERROR );
@@ -908,7 +908,7 @@ Uint32 CIMProviderCommand::execute (
 
                 break;
             }
-            catch (CIMClientCIMException& e)
+            catch (CIMException& e)
             {
                 CIMStatusCode code = e.getCode();
                 if (code == CIM_ERR_FAILED)
@@ -927,7 +927,7 @@ Uint32 CIMProviderCommand::execute (
                 }
                 return ( RC_ERROR );
             }
-            catch (CIMClientException& e)
+            catch (Exception& e)
             {
                 errPrintWriter << e.getMessage() << endl;
                 return ( RC_ERROR );
@@ -1011,7 +1011,7 @@ void CIMProviderCommand::_deleteProvider
 
     }
 
-    catch (CIMClientException& e)
+    catch (Exception& e)
     {
         throw e;
     }
@@ -1083,7 +1083,7 @@ void CIMProviderCommand::_StartProvider
 	}
     }
 
-    catch (CIMClientException& e)
+    catch (Exception& e)
     {
         throw e;
     }
@@ -1150,7 +1150,7 @@ void CIMProviderCommand::_StopProvider
 	}
     }
 
-    catch (CIMClientException& e)
+    catch (Exception& e)
     {
         throw e;
     }
@@ -1252,7 +1252,7 @@ outPrintWriter << test << endl;
 	    }
 	}
     }
-    catch (CIMClientException& e)
+    catch (Exception& e)
     {
         throw e;
     }

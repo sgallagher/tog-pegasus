@@ -311,7 +311,7 @@ private:
     // @param ostream        The stream to which command output is written.
     // @param ostream        The stream to which command errors are written.
     // 
-    // @exception CIMClientException  if failed to add user
+    // @exception Exception  if failed to add user
     //
     void _AddUser
         (
@@ -325,7 +325,7 @@ private:
     // @param ostream          The stream to which command output is written.
     // @param ostream          The stream to which command errors are written.
     // 
-    // @exception CIMClientException  if failed to modify password
+    // @exception Exception  if failed to modify password
     //
     void _ModifyUser
         (
@@ -339,7 +339,7 @@ private:
     // @param ostream          The stream to which command output is written.
     // @param ostream          The stream to which command errors are written.
     //
-    // @exception CIMClientException  if failed to remove user
+    // @exception Exception  if failed to remove user
     //
     void _RemoveUser
         (
@@ -878,7 +878,7 @@ Uint32 CIMUserCommand::execute (
 
         _client->connectLocal();
     }
-    catch(CIMClientException& e)
+    catch(Exception& e)
     {
         outPrintWriter << CIMOM_NOT_RUNNING << endl;
 	return 1;
@@ -894,7 +894,7 @@ Uint32 CIMUserCommand::execute (
             {
                 _AddUser( outPrintWriter, errPrintWriter );
             }
-            catch (CIMClientCIMException& e)
+            catch (CIMException& e)
             {
                 CIMStatusCode code = e.getCode();
 
@@ -925,7 +925,7 @@ Uint32 CIMUserCommand::execute (
                 }
                 return ( RC_ERROR );
             }
-            catch (CIMClientException& e)
+            catch (Exception& e)
             {
                 outPrintWriter << ADD_USER_FAILURE << endl <<
                     e.getMessage() << endl;
@@ -938,7 +938,7 @@ Uint32 CIMUserCommand::execute (
             {
                 _ModifyUser( outPrintWriter, errPrintWriter );
             }
-            catch (CIMClientCIMException& e)
+            catch (CIMException& e)
             {
                 CIMStatusCode code = e.getCode();
                 if (code == CIM_ERR_FAILED)
@@ -968,7 +968,7 @@ Uint32 CIMUserCommand::execute (
                 }
                 return ( RC_ERROR );
             }
-            catch (CIMClientException& e)
+            catch (Exception& e)
             {
                 outPrintWriter << CHANGE_PASSWORD_FAILURE << endl <<
                     e.getMessage() << endl;
@@ -981,7 +981,7 @@ Uint32 CIMUserCommand::execute (
             {
                 _RemoveUser( outPrintWriter, errPrintWriter );
             }
-            catch (CIMClientCIMException& e)
+            catch (CIMException& e)
             {
                 CIMStatusCode code = e.getCode();
                 if (code == CIM_ERR_FAILED)
@@ -1011,7 +1011,7 @@ Uint32 CIMUserCommand::execute (
                 }
                 return ( RC_ERROR );
             }
-            catch (CIMClientException& e)
+            catch (Exception& e)
             {
                 outPrintWriter << REMOVE_USER_FAILURE << endl <<
                     e.getMessage() << endl;
@@ -1024,7 +1024,7 @@ Uint32 CIMUserCommand::execute (
             {
                 _ListUsers(outPrintWriter, errPrintWriter);
             }
-            catch (CIMClientCIMException& e)
+            catch (CIMException& e)
             {
                 CIMStatusCode code = e.getCode();
                 if (code == CIM_ERR_FAILED)
@@ -1053,7 +1053,7 @@ Uint32 CIMUserCommand::execute (
                 }
                 return ( RC_ERROR );
             }
-            catch (CIMClientException& e)
+            catch (Exception& e)
             {
                 outPrintWriter << LIST_USERS_FAILURE << endl <<
                     e.getMessage() << endl;
@@ -1095,7 +1095,7 @@ void CIMUserCommand::_AddUser
 	outPrintWriter << ADD_USER_SUCCESS << endl;
 
     }
-    catch (CIMClientException& e)
+    catch (Exception& e)
     {
         throw e;
     }
@@ -1154,7 +1154,7 @@ void CIMUserCommand::_ModifyUser
 
         outPrintWriter << CHANGE_PASSWORD_SUCCESS << endl;
     }
-    catch (CIMClientException& e)
+    catch (Exception& e)
     {
         throw e;
     }
@@ -1189,7 +1189,7 @@ void CIMUserCommand::_RemoveUser
 	outPrintWriter << REMOVE_USER_SUCCESS << endl;
 
     }
-    catch (CIMClientException& e)
+    catch (Exception& e)
     {
 	throw e;
     }
@@ -1236,7 +1236,7 @@ void CIMUserCommand::_ListUsers
             }
         }
     }
-    catch (CIMClientException& e)
+    catch (Exception& e)
     {
         throw e;
     }

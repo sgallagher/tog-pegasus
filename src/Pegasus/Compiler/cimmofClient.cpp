@@ -74,114 +74,42 @@ cimmofClient::init(String &location, compilerCommonDefs::operationType ot)
 }
 
 void
-cimmofClient::addClass(const String &nameSpace, CIMClass &Class)
-  const {
-  try
-  {
+cimmofClient::addClass(const String &nameSpace, CIMClass &Class) const
+{
     _client->createClass(nameSpace, Class);
-  }
-  catch (CIMClientCIMException &eCIMClient)
-  {
-     CIMException e = CIMException(eCIMClient.getCode(), 
-                                   eCIMClient.getMessage());
-     throw e;
-  }
-  catch (CIMClientException &eCIMClient)
-  {
-     Exception e  = Exception(eCIMClient.getMessage());
-     throw e;
-  }
 }
 
 void
 cimmofClient::addQualifier(const String &nameSpace,
 					CIMQualifierDecl &qualifier) const
 {
-  try
-  {
     _client->setQualifier(nameSpace, qualifier);
-  }
-  catch (CIMClientCIMException &eCIMClient)
-  {
-     CIMException e = CIMException(eCIMClient.getCode(), 
-                                   eCIMClient.getMessage());
-     throw e;
-  }
-  catch (CIMClientException &eCIMClient)
-  {
-     Exception e  = Exception(eCIMClient.getMessage());
-     throw e;
-  }
 }
 
 void
 cimmofClient::addInstance(const String &nameSpace,
 				       CIMInstance &instance) const
 {
-  try
-  {
     _client->createInstance(nameSpace, instance);
-  }
-  catch (CIMClientCIMException &eCIMClient)
-  {
-     CIMException e = CIMException(eCIMClient.getCode(), 
-                                   eCIMClient.getMessage());
-     throw e;
-  }
-  catch (CIMClientException &eCIMClient)
-  {
-     Exception e  = Exception(eCIMClient.getMessage());
-     throw e;
-  }
 }
 
 CIMQualifierDecl
 cimmofClient::getQualifierDecl(const String &nameSpace,
 					    const String &qualifierName) const
 {
-  try
-  {
     return (_client->getQualifier(nameSpace, qualifierName));
-  }
-  catch (CIMClientCIMException &eCIMClient)
-  {
-     CIMException e = CIMException(eCIMClient.getCode(), 
-                                   eCIMClient.getMessage());
-     throw e;
-  }
-  catch (CIMClientException &eCIMClient)
-  {
-     Exception e  = Exception(eCIMClient.getMessage());
-     throw e;
-  }
 }
 
 CIMClass
 cimmofClient::getClass(const String &nameSpace,
 				    const String &className) const
 {
-  try
-  {
     return (_client->getClass(nameSpace, className));
-  }
-  catch (CIMClientCIMException &eCIMClient)
-  {
-     CIMException e = CIMException(eCIMClient.getCode(), 
-                                   eCIMClient.getMessage());
-     throw e;
-  }
-  catch (CIMClientException &eCIMClient)
-  {
-     Exception e  = Exception(eCIMClient.getMessage());
-     throw e;
-  }
 }
 
 void
 cimmofClient::createNameSpace(const String &nameSpace) const
 {
-  try
-  {
     // The new namespace name will be computed by
     // concatenating the target Namespace name with the
     // value of the Name property. By setting the
@@ -192,16 +120,4 @@ cimmofClient::createNameSpace(const String &nameSpace) const
     newInstance.addProperty(
               CIMProperty(NAMESPACE_PROPERTY_NAME, String::EMPTY));
     _client->createInstance(nameSpace, newInstance);
-  }
-  catch (CIMClientCIMException &eCIMClient)
-  {
-     CIMException e = CIMException(eCIMClient.getCode(), 
-                                   eCIMClient.getMessage());
-     throw e;
-  }
-  catch (CIMClientException &eCIMClient)
-  {
-     Exception e  = Exception(eCIMClient.getMessage());
-     throw e;
-  }
 }

@@ -1217,7 +1217,7 @@ Message* CIMClientRep::_doRequest(
                 }
                 if (cimResponse->cimException.getCode() != CIM_ERR_SUCCESS)
                 {
-                    CIMClientCIMException cimException(
+                    CIMException cimException(
                         cimResponse->cimException.getCode(),
                         cimResponse->cimException.getMessage());
                     delete response;

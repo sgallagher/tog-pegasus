@@ -82,7 +82,7 @@ cimmofRepositoryInterface::init(_repositoryType type, String location,
     _client = new cimmofClient();
     try {
       _client->init(location, ot);
-    } catch(CIMClientException &e) {
+    } catch(Exception &e) {
       arglist.append(location);
       arglist.append(e.getMessage());
       cimmofMessages::getMessage(message,
@@ -114,15 +114,7 @@ cimmofRepositoryInterface::addQualifier(const String &nameSpace,
   if (_repository)
     _repository->addQualifier(nameSpace, &qualifier);
   if (_client)
-    // Convert CIMClientException to Exception so the caller catches it
-    try
-    {
-      _client->addQualifier(nameSpace, qualifier);
-    }
-    catch (CIMClientException& e)
-    {
-      throw Exception(e.getMessage());
-    }
+    _client->addQualifier(nameSpace, qualifier);
 }
 
 void
@@ -132,15 +124,7 @@ cimmofRepositoryInterface::addInstance(const String &nameSpace,
   if (_repository)
     _repository->addInstance(nameSpace, &instance);
   if (_client)
-    // Convert CIMClientException to Exception so the caller catches it
-    try
-    {
-      _client->addInstance(nameSpace, instance);
-    }
-    catch (CIMClientException& e)
-    {
-      throw Exception(e.getMessage());
-    }
+    _client->addInstance(nameSpace, instance);
 }
 
 CIMQualifierDecl
@@ -150,15 +134,7 @@ cimmofRepositoryInterface::getQualifierDecl(const String &nameSpace,
   if (_repository)
     return (_repository->getQualifierDecl(nameSpace, qualifierName));
   else if (_client)
-    // Convert CIMClientException to Exception so the caller catches it
-    try
-    {
-      return (_client->getQualifierDecl(nameSpace, qualifierName));
-    }
-    catch (CIMClientException& e)
-    {
-      throw Exception(e.getMessage());
-    }
+    return (_client->getQualifierDecl(nameSpace, qualifierName));
   else
     return CIMQualifierDecl();
 }
@@ -170,15 +146,7 @@ cimmofRepositoryInterface::getClass(const String &nameSpace,
   if (_repository)
     return (_repository->getClass(nameSpace, className));
   else if (_client)
-    // Convert CIMClientException to Exception so the caller catches it
-    try
-    {
-      return (_client->getClass(nameSpace, className));
-    }
-    catch (CIMClientException& e)
-    {
-      throw Exception(e.getMessage());
-    }
+    return (_client->getClass(nameSpace, className));
   else
     return CIMClass();
 }

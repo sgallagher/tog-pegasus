@@ -296,15 +296,10 @@ int main(int argc, char** argv)
        	client.connect(location);
     } 
     
-    catch(CIMClientException& e)
+    catch(Exception& e)
     {
-	  cerr << argv[0] << " CIMClientException connecting to : " << location << endl;
+	  cerr << argv[0] << " Exception connecting to : " << location << endl;
 	  cerr << e.getMessage() << endl;
-    }
-    catch(Exception &e) 
-    {
-	  cerr << argv[0] << " Internal Error during connect: " << e.getMessage() <<
-	      " connecting to " << location << endl;
     }
 	CIMClass performanceClass;
 	try
@@ -316,17 +311,11 @@ int main(int argc, char** argv)
 										   false);
 	}
 
-    catch(CIMClientException& e)
-    {
-	  cerr << argv[0] << "CIMClientException getClass : " << className
-		   << e.getMessage() << endl;
-	  exit(1);
-    }
     catch(Exception& e)
     {
-		cerr  << argv[0]   << "Client Error getClass: "  << className 
-			<< e.getMessage() << endl;
-		exit(1);
+	  cerr << argv[0] << "Exception getClass : " << className
+		   << e.getMessage() << endl;
+	  exit(1);
     }
     try
     {
@@ -495,17 +484,12 @@ int main(int argc, char** argv)
 			delete [] pStatName;
 		}
     }
-    catch(CIMClientException& e)
+    catch(Exception& e)
     {
-	  cerr << argv[0] << "CIMClientException : " << className
+	  cerr << argv[0] << "Exception : " << className
 			<< e.getMessage() << endl;
 
 	  exit(1);
-    }
-    catch(Exception& e)
-    {
-		cerr  << argv[0]   << "Error: " << e.getMessage() << endl;
-		exit(1);
     }
 
     return 0;

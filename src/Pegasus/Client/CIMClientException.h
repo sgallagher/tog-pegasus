@@ -39,25 +39,11 @@
 PEGASUS_NAMESPACE_BEGIN
 
 /**
-    This exception indicates that a CIM request was not processed successfully.
-    All exceptions intentionally thrown by the CIMClient interface are of this
-    type.
-*/
-class PEGASUS_CLIENT_LINKAGE CIMClientException : public Exception
-{
-public:
-
-    CIMClientException(const String& message);
-
-    ~CIMClientException();
-};
-
-/**
     An exception of this type indicates that the HTTP response from the CIM
     Server was improperly formed.
 */
 class PEGASUS_CLIENT_LINKAGE CIMClientMalformedHTTPException
-    : public CIMClientException
+    : public Exception
 {
 public:
     CIMClientMalformedHTTPException(const String& message);
@@ -67,7 +53,7 @@ public:
     An exception of this type indicates that an HTTP error response was sent
     by the CIM Server.
 */
-class PEGASUS_CLIENT_LINKAGE CIMClientHTTPError : public CIMClientException
+class PEGASUS_CLIENT_LINKAGE CIMClientHTTPError : public Exception
 {
 public:
     CIMClientHTTPError(
@@ -90,7 +76,7 @@ private:
     An exception of this type indicates that the CIM response sent by the
     CIM Server could not be decoded from XML.
 */
-class PEGASUS_CLIENT_LINKAGE CIMClientXmlException : public CIMClientException
+class PEGASUS_CLIENT_LINKAGE CIMClientXmlException : public Exception
 {
 public:
     CIMClientXmlException(const String& message);
@@ -101,32 +87,11 @@ public:
     CIM Server contained unexpected data.
 */
 class PEGASUS_CLIENT_LINKAGE CIMClientResponseException
-    : public CIMClientException
+    : public Exception
 {
 public:
     CIMClientResponseException(const String& message);
 };
-
-/**
-    An exception of this type indicates that the CIM Server processed the
-    CIM request successfully, but the operation resulted in an error.
-*/
-class PEGASUS_CLIENT_LINKAGE CIMClientCIMException : public CIMClientException
-{
-public:
-    CIMClientCIMException(
-        CIMStatusCode code,
-        const String& message);
-
-    CIMClientCIMException(
-        const CIMClientCIMException& cimException);
-
-    CIMStatusCode getCode() const;
-
-private:
-    CIMStatusCode  _code;
-};
-
 
 PEGASUS_NAMESPACE_END
 

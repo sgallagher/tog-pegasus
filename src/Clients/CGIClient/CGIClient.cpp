@@ -740,7 +740,7 @@ static void GetClass(const CGIQueryString& qs)
 	PrintClass(nameSpace, cimClass,localOnly, includeQualifiers,
 	    includeClassOrigin, showMof);
     }
-    catch(CIMClientException& e)
+    catch(Exception& e)
     {
 	ErrorExit(e.getMessage());
     }
@@ -803,7 +803,7 @@ static void GetPropertyDeclaration(const CGIQueryString& qs)
 
 	PrintPropertyDeclaration(property);
     }
-    catch(CIMClientException& e)
+    catch(Exception& e)
     {
 	ErrorExit(e.getMessage());
     }
@@ -894,7 +894,7 @@ static void EnumerateClassNames(const CGIQueryString& qs)
 	PrintClassNames(nameSpace, classNames, elapsedTime.getElapsed());
 
     }
-    catch(CIMClientException& e)
+    catch(Exception& e)
     {
 	ErrorExit(e.getMessage());
     }
@@ -937,7 +937,7 @@ static void DeleteClass(const CGIQueryString& qs)
         cout << "  </body>\n";
         cout << "</html>\n";
     }
-    catch(CIMClientException& e)
+    catch(Exception& e)
     {
 	ErrorExit(e.getMessage());
     }
@@ -1073,7 +1073,7 @@ static void EnumerateQualifiers(const CGIQueryString& qs)
 
 	PrintEnumerateQualifiers(nameSpace, qualifierDecls);
     }
-    catch(CIMClientException& e)
+    catch(Exception& e)
     {
 	ErrorExit(e.getMessage());
     }
@@ -1109,7 +1109,7 @@ static void GetQualifier(const CGIQueryString& qs)
 
 	PrintGetQualifier(nameSpace, qd);
     }
-    catch(CIMClientException& e)
+    catch(Exception& e)
     {
 	ErrorExit(e.getMessage());
     }
@@ -1238,7 +1238,7 @@ static void EnumerateInstanceNames(const CGIQueryString& qs)
 	PrintObjectNames( "EnumerateInstanceNames Result",
 	    nameSpace, instanceNames, elapsedTime.getElapsed());
         }
-    catch(CIMClientException& e)
+    catch(Exception& e)
     {
 	ErrorExit(e.getMessage());
     }
@@ -1303,7 +1303,7 @@ static void GetInstance(const CGIQueryString& qs)
 
 	PrintInstance(nameSpace, cimInstance, localOnly, includeQualifiers,
 		includeClassOrigin); }
-    catch(CIMClientException& e)
+    catch(Exception& e)
     {
 	ErrorExit(e.getMessage());
     }
@@ -1402,7 +1402,7 @@ static void EnumerateInstances(const CGIQueryString& qs)
             PrintInstanceTableRow(nameSpace, instances[i]);
         }
     }
-    catch(CIMClientException& e)
+    catch(Exception& e)
     {
         ErrorExit(e.getMessage());
     }
@@ -1477,7 +1477,7 @@ static void EnumerateInstances(const CGIQueryString& qs)
 
 	    cout << "</body>\n" << "</html>\n";
 	}
-	catch(CIMClientException& e)
+	catch(Exception& e)
 	{
 	    ErrorExit(e.getMessage());
 	}
@@ -1566,7 +1566,7 @@ static void CreateNameSpace(const CGIQueryString& qs)
 	cout << " in " << elapsedTime.getElapsed() << " Seconds</p>\n";
 	cout << "</body>\n" << "</html>\n";
     }
-    catch(CIMClientException& e)
+    catch(Exception& e)
     {
 	ErrorExit(e.getMessage());
     }
@@ -1625,7 +1625,7 @@ static void DeleteNameSpace(const CGIQueryString& qs)
 	cout << " in " << elapsedTime.getElapsed() << " Seconds</p>\n";
 	cout << "</body>\n" << "</html>\n";
     }
-    catch(CIMClientException& e)
+    catch(Exception& e)
     {
 	ErrorExit(e.getMessage());
     }
@@ -1709,7 +1709,7 @@ static void EnumerateNameSpaces(const CGIQueryString& qs)
 	cout << "</body>\n" << "</html>\n";
 
 	}
-    catch(CIMClientException& e)
+    catch(Exception& e)
     {
 	ErrorExit(e.getMessage());
     }
@@ -1930,7 +1930,7 @@ static void ClassInheritance(const CGIQueryString& qs)
 
 
     }
-    catch(CIMClientException& e)
+    catch(Exception& e)
     {
         ErrorExit(e.getMessage());
     }
@@ -2009,7 +2009,7 @@ static void ClassTree(const CGIQueryString& qs)
 	cout << "</body>\n" << "</html>\n";
 
     }
-    catch(CIMClientException& e)
+    catch(Exception& e)
     {
         ErrorExit(e.getMessage());
     }
@@ -2066,7 +2066,7 @@ static void AllInstances(const  CGIQueryString& qs)
             }
         }
     }
-    catch(CIMClientException& e)
+    catch(Exception& e)
     {
         ErrorExit(e.getMessage());
     }
@@ -2120,7 +2120,7 @@ static void ReferenceNames(const CGIQueryString& qs)
 
 
     }
-    catch(CIMClientException& e)
+    catch(Exception& e)
     {
         ErrorExit(e.getMessage());
     }
@@ -2185,7 +2185,7 @@ static void AssociatorNames(const CGIQueryString& qs)
 	    nameSpace, objectReferences, elapsedTime.getElapsed());
 
     }
-    catch(CIMClientException& e)
+    catch(Exception& e)
     {
         ErrorExit(e.getMessage());
     }
@@ -2301,7 +2301,7 @@ int main(int argc, char** argv)
 	    ErrorExit(message);
 	}
     }
-    catch (CIMClientException& e)
+    catch (Exception& e)
     {
 	char* msg = e.getMessage().allocateCString();
 	ErrorExit(msg);

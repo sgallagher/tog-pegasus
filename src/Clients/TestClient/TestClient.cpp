@@ -113,12 +113,6 @@ static void TestNameSpaceOperations(CIMClient& client, Boolean activeTest,
 		 		 cout << instanceNames[i].toString() << endl;
 		 }
 	 }
-    catch(CIMClientException& e)
-    {
-    	 PEGASUS_STD(cerr) << "CIMClient Exception NameSpace Enumeration: "
-    		    << e.getMessage() << PEGASUS_STD(endl);
-    	 return;
-    }
     catch(Exception& e)
     {
     	PEGASUS_STD(cerr) << "Exception Namespace Enumeration: " 
@@ -156,7 +150,7 @@ static void TestNameSpaceOperations(CIMClient& client, Boolean activeTest,
     	    newInstance.addProperty(CIMProperty("name", testNamespaceName));
     	    newInstanceName = client.createInstance(__NAMESPACE_NAMESPACE, newInstance);
     	}
-    	catch(CIMClientCIMException& e)
+    	catch(CIMException& e)
     	{
     	     if (e.getCode() == CIM_ERR_ALREADY_EXISTS)
              {
@@ -164,7 +158,7 @@ static void TestNameSpaceOperations(CIMClient& client, Boolean activeTest,
     	     }
     	     else
              {
-    	          PEGASUS_STD(cerr) << "CIMClientException NameSpace Creation: "
+    	          PEGASUS_STD(cerr) << "CIMException NameSpace Creation: "
                       << e.getMessage() << " Creating " << instanceName
                       << PEGASUS_STD(endl);
     	          return;
@@ -180,17 +174,12 @@ static void TestNameSpaceOperations(CIMClient& client, Boolean activeTest,
     	{
     	    client.getInstance(__NAMESPACE_NAMESPACE, newInstanceName);
     	}
-    	catch(CIMClientException& e)
+    	catch(Exception& e)
     	{
-    	     PEGASUS_STD(cerr) << "CIMClientException NameSpace getInstance: "
+    	     PEGASUS_STD(cerr) << "Exception NameSpace getInstance: "
     			<< e.getMessage() << " Retrieving " << instanceName
     		    << PEGASUS_STD(endl);
     	     return;
-    	}
-    	catch(Exception& e)
-    	{
-    	    PEGASUS_STD(cerr) << "Exception NameSpace getInstance: " << e.getMessage() << PEGASUS_STD(endl);
-    	    return;
     	}
     
     	// Now delete it
@@ -201,17 +190,12 @@ static void TestNameSpaceOperations(CIMClient& client, Boolean activeTest,
     	    cout << "Deleting namespace = " << instanceName << endl;
     	    client.deleteInstance(__NAMESPACE_NAMESPACE, myReference);
     	}
-    	catch(CIMClientException& e)
+    	catch(Exception& e)
     	{
-    	     PEGASUS_STD(cerr) << "CIMClientException NameSpace Deletion: "
+    	     PEGASUS_STD(cerr) << "Exception NameSpace Deletion: "
     			<< e.getMessage() << " Deleting " << instanceName
     		        << PEGASUS_STD(endl);
     	     return;
-    	}
-    	catch(Exception& e)
-    	{
-    	    PEGASUS_STD(cerr) << "Exception NameSpace Deletion: " << e.getMessage() << PEGASUS_STD(endl);
-    	    return;
     	}
     }
 }
@@ -235,7 +219,7 @@ static void TestEnumerateClassNames (CIMClient& client, Boolean activeTest,
 
 		 cout << classNames.size() << " ClassNames" << endl;
     }
-    catch(CIMClientException& e)
+    catch(Exception& e)
     {
 		 cout << "Error NameSpace Enumeration:" << endl;
 		 cout << e.getMessage() << endl;
@@ -280,7 +264,7 @@ static void TestClassOperations(CIMClient& client, Boolean ActiveTest,
     		     {
     		     client.deleteClass(globalNamespace, testClass);
     		 	 }
-                catch (CIMClientCIMException& e)
+                catch (CIMException& e)
                 {
     					cout << "TestClass " << testClass << " delete failed " << e.getMessage() << endl;
     		    }
@@ -297,7 +281,7 @@ static void TestClassOperations(CIMClient& client, Boolean ActiveTest,
         {
         	client.createClass(globalNamespace, c1);
     	}
-    	catch (CIMClientCIMException& e)
+    	catch (CIMException& e)
     	{
     	    CIMStatusCode code = e.getCode();
     	    if (code == CIM_ERR_ALREADY_EXISTS)
@@ -328,7 +312,7 @@ static void TestClassOperations(CIMClient& client, Boolean ActiveTest,
         {
         	client.modifyClass(globalNamespace, c2);
     	}
-    	catch (CIMClientCIMException& e)
+    	catch (CIMException& e)
     	{
     		cout << "Testclass Modification failed " << e.getMessage() << endl;
      	}
@@ -367,7 +351,7 @@ static void TestClassOperations(CIMClient& client, Boolean ActiveTest,
     	{
         	client.deleteClass(globalNamespace, testClass);
     	}
-    	catch (CIMClientCIMException& e)
+    	catch (CIMException& e)
     	{
     		cout << "Testclass delete failed " << e.getMessage() << endl;
     		return;
@@ -492,7 +476,7 @@ static void TestInstanceGetOperations(CIMClient& client, Boolean activeTest,
 		   cout << "Class " << classNames[i] << " "
  		        << instanceNames.size() << " Instances" << endl;
            }
-           catch(CIMClientCIMException& e)
+           catch(CIMException& e)
            {
                  if (e.getCode() == CIM_ERR_NOT_SUPPORTED)
                  {
@@ -500,7 +484,7 @@ static void TestInstanceGetOperations(CIMClient& client, Boolean activeTest,
                  }
                  else
                  {
-                    cerr << "CIMClientCIMException : " << classNames[i] << endl;
+                    cerr << "CIMException : " << classNames[i] << endl;
                     cerr << e.getMessage() << endl;
                  }
            }
@@ -548,7 +532,7 @@ static void TestInstanceModifyOperations(CIMClient& client, Boolean
     {
 		 client.deleteClass(globalNamespace, className);
     }
-    catch (CIMClientException&)
+    catch (Exception&)
     {
 		 // Ignore delete class!
     }
@@ -716,7 +700,7 @@ static void TestMethodOperations( CIMClient& client, Boolean
             cout << "Executed " << testRepeat << " methods" << endl;
     }
 
-    catch(CIMClientException& e)
+    catch(Exception& e)
     {
     	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
     	exit(1);
@@ -797,7 +781,7 @@ static void TestInvokeMethod( CIMClient& client,
       }
   cout << "Executed " << testRepeat << " methods" << endl;
   }
-  catch(CIMClientException& e)
+  catch(Exception& e)
   {
         PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
         return;
@@ -856,7 +840,7 @@ static void TestEnumerateInstances( CIMClient& client,
 	}
       cout << "Enumerate " << numberInstances << " instances " << testRepeat << " times" << endl;
     }
-  catch(CIMClientException& e)
+  catch(Exception& e)
     {
       PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
       return;
@@ -975,11 +959,6 @@ int main(int argc, char** argv)
     try
     {
 		 GetOptions(om, argc, argv, pegasusHome);
-    }
-    catch (CIMClientException& e)
-    {
-		 cerr << argv[0] << ": " << e.getMessage() << endl;
-		 exit(1);
     }
     catch (Exception& e)
     {
@@ -1213,7 +1192,7 @@ int main(int argc, char** argv)
 
 			  client.disconnect();
 		  }
-		  catch(CIMClientException& e)
+		  catch(Exception& e)
 		  {
 			   PEGASUS_STD(cerr) << "Error: " << e.getMessage() <<
 			     PEGASUS_STD(endl);

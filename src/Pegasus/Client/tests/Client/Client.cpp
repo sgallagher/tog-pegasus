@@ -171,7 +171,7 @@ static void TestInstanceOperations(CIMClient& client)
            client.deleteInstance(NAMESPACE, instanceNames[i]);
         }
     }
-    catch (CIMClientException& e)
+    catch (Exception& e)
     {
         cout << "MyClass EnumerateInstanceName error: " << e.getMessage() << endl;
 	// Continue on error!
@@ -180,7 +180,7 @@ static void TestInstanceOperations(CIMClient& client)
     {
         client.deleteClass(NAMESPACE, "myclass");
     }
-    catch (CIMClientException& e)
+    catch (Exception& e)
     {
         cout << "Delete MyClass error: " << e.getMessage() << endl;
 	// Ignore delete class!
@@ -351,7 +351,7 @@ int main(int argc, char** argv)
 	TestAssociatorClassNames(client);
 	TestReferenceClassNames(client);
     }
-    catch(CIMClientException& e)
+    catch(Exception& e)
     {
 	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
 	exit(1);

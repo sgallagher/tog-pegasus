@@ -49,11 +49,6 @@ int main(int argc, char** argv)
 	CIMInstance cimInstance = client.getInstance(NAMESPACE, reference);
         XmlWriter::printInstanceElement(cimInstance);
     }
-    catch(CIMClientException& e)
-    {
-	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
-	exit(1);
-    }
     catch(Exception& e)
     {
 	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);

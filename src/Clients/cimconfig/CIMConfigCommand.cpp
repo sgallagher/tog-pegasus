@@ -626,7 +626,7 @@ Uint32 CIMConfigCommand::execute (
 
         connected = true;
     }
-    catch(CIMClientException& e)
+    catch(Exception& e)
     {
         //
         // Failed to connect, so process the request offline.
@@ -677,7 +677,7 @@ Uint32 CIMConfigCommand::execute (
                     }
                 }
             }
-            catch (CIMClientCIMException& e)
+            catch (CIMException& e)
             {
                 CIMStatusCode code = e.getCode();
 
@@ -700,7 +700,7 @@ Uint32 CIMConfigCommand::execute (
                 }
                 return ( RC_ERROR );
             }
-            catch (CIMClientException& e)
+            catch (Exception& e)
             {
                 outPrintWriter << FAILED_TO_GET_PROPERTY << endl <<
                     e.getMessage() << endl;
@@ -790,7 +790,7 @@ Uint32 CIMConfigCommand::execute (
                         UPDATED_IN_FILE << endl;
                 }
             }
-            catch (CIMClientCIMException& e)
+            catch (CIMException& e)
             {
                 CIMStatusCode code = e.getCode();
 
@@ -836,7 +836,7 @@ Uint32 CIMConfigCommand::execute (
                 }
                 return ( RC_ERROR );
             }
-            catch (CIMClientException& e)
+            catch (Exception& e)
             {
                 outPrintWriter << FAILED_TO_SET_PROPERTY << endl << 
                     e.getMessage() << endl;
@@ -892,7 +892,7 @@ Uint32 CIMConfigCommand::execute (
                 }
 
             }
-            catch (CIMClientCIMException& e)
+            catch (CIMException& e)
             {
                 CIMStatusCode code = e.getCode();
 
@@ -937,7 +937,7 @@ Uint32 CIMConfigCommand::execute (
                 }
                 return ( RC_ERROR );
             }
-            catch (CIMClientException& e)
+            catch (Exception& e)
             {
                 outPrintWriter << FAILED_TO_UNSET_PROPERTY << endl <<
                     e.getMessage() << endl;
@@ -997,7 +997,7 @@ Uint32 CIMConfigCommand::execute (
                 }
                 break;
             }
-            catch (CIMClientCIMException& e)
+            catch (CIMException& e)
             {
                 CIMStatusCode code = e.getCode();
 
@@ -1018,7 +1018,7 @@ Uint32 CIMConfigCommand::execute (
 
                 return ( RC_ERROR );
             }
-            catch (CIMClientException& e)
+            catch (Exception& e)
             {
                 outPrintWriter << FAILED_TO_LIST_PROPERTIES <<  endl <<
                     e.getMessage() << endl;
@@ -1086,7 +1086,7 @@ void CIMConfigCommand::_getPropertiesFromCIMServer
         prop = (CIMProperty)cimInstance.getProperty(pos);
         propValues.append(prop.getValue().toString());
     }
-    catch (CIMClientException& e)
+    catch (Exception& e)
     {
         throw e;
     }
@@ -1153,7 +1153,7 @@ void CIMConfigCommand::_updatePropertyInCIMServer
             false,
             CIMPropertyList(propertyList));
     }
-    catch (CIMClientException& e)
+    catch (Exception& e)
     {
         throw e;
     }
@@ -1242,7 +1242,7 @@ void CIMConfigCommand::_listAllPropertiesInCIMServer
  
         }
     }
-    catch (CIMClientException& e)
+    catch (Exception& e)
     {
         throw e;
     }

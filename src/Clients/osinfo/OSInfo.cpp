@@ -441,7 +441,7 @@ void OSInfo::getOSInfo(const int argc, const char** argv)
     
     }  // end try 
    
-    catch(CIMClientException& e)
+    catch(Exception& e)
     {
       errorExit(e.getMessage());
     }

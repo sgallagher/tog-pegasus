@@ -308,11 +308,6 @@ int main(int argc, char** argv)
        	client.connect(location);
     } 
     
-    catch(CIMClientException& e)
-    {
-	  cerr << "CIMClientException connecting to : " << location << endl;
-	  cerr << e.getMessage() << endl;
-    }
     catch(Exception &e) 
     {
 	  cerr << "Internal Error: " << e.getMessage() <<
@@ -350,11 +345,6 @@ int main(int argc, char** argv)
 	    }
 	
 	}
-    }
-    catch(CIMClientException& e)
-    {
-	  cerr << "CIMClientException : " << className << endl;
-	  cerr << e.getMessage() << endl;
     }
     catch(Exception& e)
     {

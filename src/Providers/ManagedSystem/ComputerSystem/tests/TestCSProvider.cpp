@@ -141,7 +141,7 @@ PEGASUS_USING_PEGASUS;
 
 CIMClient c;
 
-void errorExit(CIMClientException& e)
+void errorExit(Exception& e)
 {
   cout << "Error: Failed" << endl << e.getMessage() << endl;
   exit(1);
@@ -160,7 +160,7 @@ int testClass(const String& className)
   {
     refs = c.enumerateInstanceNames(NAMESPACE,className);
   }
-  catch (CIMClientException& e)
+  catch (Exception& e)
   {
     cout << endl;
     errorExit(e);
@@ -189,7 +189,7 @@ int testClass(const String& className)
   {
     inst = c.getInstance(NAMESPACE,ref);
   }
-  catch (CIMClientException& e)
+  catch (Exception& e)
   {
     errorExit(e);
   }
@@ -210,11 +210,11 @@ int testClass(const String& className)
   {
     inst = c.getInstance(NAMESPACE,ref);
   }
-  catch (CIMClientCIMException& e)
+  catch (CIMException& e)
   {
     if (e.getCode() == CIM_ERR_INVALID_PARAMETER) status = 1;
   }
-  catch (CIMClientException& e)
+  catch (Exception& e)
   {
     // any other exception is a failure; leave status alone
   }
@@ -235,13 +235,13 @@ int testClass(const String& className)
   {
     ref2 = c.createInstance(NAMESPACE,inst);
   }
-  catch (CIMClientCIMException& e)
+  catch (CIMException& e)
   {
     if (e.getCode() == CIM_ERR_NOT_SUPPORTED) status = 1;
   }
-  catch (CIMClientException& e)
+  catch (Exception& e)
   {
-    // any other CIMClientException is a problem; leave status alone
+    // any other Exception is a problem; leave status alone
   }
   if (status == 0)
   {
@@ -259,13 +259,13 @@ int testClass(const String& className)
   {
     c.deleteInstance(NAMESPACE,ref);
   }
-  catch (CIMClientCIMException& e)
+  catch (CIMException& e)
   {
     if (e.getCode() == CIM_ERR_NOT_SUPPORTED) status = 1;
   }
-  catch (CIMClientException& e)
+  catch (Exception& e)
   {
-    // any other CIMClientException is a problem; leave status alone
+    // any other Exception is a problem; leave status alone
   }
   if (status == 0)
   {
@@ -284,7 +284,7 @@ int testClass(const String& className)
   {
     ia = c.enumerateInstances(NAMESPACE,className);
   }
-  catch (CIMClientException& e)
+  catch (Exception& e)
   {
     errorExit(e);
   }
@@ -313,13 +313,13 @@ int testClass(const String& className)
   {
     c.modifyInstance(NAMESPACE,ni);
   }
-  catch (CIMClientCIMException& e)
+  catch (CIMException& e)
   {
     if (e.getCode() == CIM_ERR_NOT_SUPPORTED) status = 1;
   }
-  catch (CIMClientException& e)
+  catch (Exception& e)
   {
-    // any other CIMClientException is a problem; leave status alone
+    // any other Exception is a problem; leave status alone
   }
   if (status == 0)
   {
@@ -343,7 +343,7 @@ int main()
   {
     c.connect(HOST);
   }
-  catch (CIMClientException& e)
+  catch (Exception& e)
   {
     errorExit(e);
   }

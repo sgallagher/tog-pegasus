@@ -33,29 +33,13 @@ PEGASUS_NAMESPACE_BEGIN
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// CIMClientException
-//
-////////////////////////////////////////////////////////////////////////////////
-
-CIMClientException::CIMClientException(const String& message)
-    : Exception(message)
-{ 
-}
-
-CIMClientException::~CIMClientException()
-{
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-//
 // CIMClientMalformedHTTPException
 //
 ////////////////////////////////////////////////////////////////////////////////
 
 CIMClientMalformedHTTPException::CIMClientMalformedHTTPException(
     const String& message)
-    : CIMClientException(message)
+    : Exception(message)
 { 
 }
 
@@ -102,7 +86,7 @@ CIMClientHTTPError::CIMClientHTTPError(
     const String& cimError,
     const String& pegasusError)
     : 
-    CIMClientException(
+    Exception(
         _makeHTTPErrorMessage(httpStatusCode, cimError, pegasusError)),
     _httpStatusCode(httpStatusCode),
     _cimError(cimError),
@@ -112,7 +96,7 @@ CIMClientHTTPError::CIMClientHTTPError(
 
 CIMClientHTTPError::CIMClientHTTPError(const CIMClientHTTPError& httpError)
     :
-    CIMClientException(httpError.getMessage()),
+    Exception(httpError.getMessage()),
     _httpStatusCode(httpError._httpStatusCode),
     _cimError(httpError._cimError),
     _pegasusError(httpError._pegasusError)
@@ -142,7 +126,7 @@ String CIMClientHTTPError::getPegasusError() const
 ////////////////////////////////////////////////////////////////////////////////
 
 CIMClientXmlException::CIMClientXmlException(const String& message)
-    : CIMClientException(message)
+    : Exception(message)
 { 
 }
 
@@ -154,37 +138,8 @@ CIMClientXmlException::CIMClientXmlException(const String& message)
 ////////////////////////////////////////////////////////////////////////////////
 
 CIMClientResponseException::CIMClientResponseException(const String& message)
-    : CIMClientException(message)
+    : Exception(message)
 { 
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// CIMClientCIMException
-//
-////////////////////////////////////////////////////////////////////////////////
-
-CIMClientCIMException::CIMClientCIMException(
-    CIMStatusCode code, 
-    const String& message)
-    : 
-    CIMClientException(message),
-    _code(code)
-{
-}
-
-CIMClientCIMException::CIMClientCIMException(
-    const CIMClientCIMException& cimException)
-    :
-    CIMClientException(cimException.getMessage()),
-    _code(cimException._code)
-{
-}
-
-CIMStatusCode CIMClientCIMException::getCode() const
-{
-    return _code;
 }
 
 PEGASUS_NAMESPACE_END

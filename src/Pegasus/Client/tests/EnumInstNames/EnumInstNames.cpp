@@ -51,7 +51,7 @@ int main(int argc, char** argv)
 	for (Uint32 i = 0; i < instanceNames.size(); i++)
 	    cout << instanceNames[i] << endl;
     }
-    catch(CIMClientException& e)
+    catch(Exception& e)
     {
 	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
 	exit(1);

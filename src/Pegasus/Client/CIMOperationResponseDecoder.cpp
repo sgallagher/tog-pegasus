@@ -441,7 +441,7 @@ void CIMOperationResponseDecoder::_handleMethodResponse(char* content)
         }
 
         response = new ClientExceptionMessage(
-            new CIMClientException(x.getMessage()));
+            new Exception(x.getMessage()));
     }
 
     _outputQueue->enqueue(response);

@@ -285,7 +285,7 @@ void shutdownCIMOM(Uint32 timeoutValue)
             inParams,
             outParams);
     }
-    catch(CIMClientCIMException& e)
+    catch(CIMException& e)
     {
         PEGASUS_STD(cerr) << "Failed to shutdown server: ";
         if (e.getCode() == CIM_ERR_INVALID_NAMESPACE)
@@ -299,7 +299,7 @@ void shutdownCIMOM(Uint32 timeoutValue)
         }
         exit(1);
     }
-    catch(CIMClientException& e)
+    catch(Exception& e)
     {
         //
         // This may mean the CIM Server has been terminated and returns a 
@@ -334,12 +334,12 @@ void shutdownCIMOM(Uint32 timeoutValue)
             cimserver_kill();
         }
     }
-    catch(Exception& e)
-    {
-        PEGASUS_STD(cerr) << "Error occurred while stopping the CIM Server: ";
-        PEGASUS_STD(cerr) << e.getMessage() << PEGASUS_STD(endl);
-        exit(1);
-    }
+    //catch(Exception& e)
+    //{
+    //    PEGASUS_STD(cerr) << "Error occurred while stopping the CIM Server: ";
+    //    PEGASUS_STD(cerr) << e.getMessage() << PEGASUS_STD(endl);
+    //    exit(1);
+    //}
 
     return;
 }

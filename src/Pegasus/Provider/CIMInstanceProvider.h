@@ -344,28 +344,25 @@ public:
     @param context specifies the client user's context for this operation,
     including the User ID.
 
-    @param instanceReference specifies the fully qualified object
-    path of the instance to create.
-    It is possible that the values for some properties are
-    null, and that these null
-    properties may be keys, when this would not be ambiguous. When
-    a non-key property value is null, the provider may insert
-    the default value for the class, or null. When a key property
-    value is null, the provider <i>must</i> use a valid value
-    for the property. If a key property value is null, and the set
-    of keys does not uniquely define an instance name, or any
-    other parameter is invalid, then the
-    provider should throw an {@link CIMInvalidParameterException CIMInvalidParameterException}
-    exception.
+    @param instanceReference Specifies the namespace and class name
+    of the instance to create.  The key bindings are not present in
+    the instanceReference, because an instance name is not defined
+    until after the instance has been created.
 
     @param instanceObject contains the partial or complete instance to create.
+    If a key property is null, the provider <em>must</em> supply a valid
+    value for the property or throw a {@link CIMInvalidParameterException
+    CIMInvalidParameterException}.  If any property value is invalid, the
+    provider should throw a {@link CIMInvalidParameterException
+    CIMInvalidParameterException}.
 
     @param handler {@link ResponseHandler ResponseHandler} object for
-    delivery of results.
+    delivery of results.  If the operation is successful, the provider must
+    deliver the complete instance name of the created instance.
 
     @exception CIMNotSupportedException
     @exception CIMInvalidParameterException
-    @exception ObjectAlreadyExists
+    @exception CIMObjectAlreadyExistsException
     @exception CIMAccessDeniedException
     @exception CIMOperationFailedException
     */

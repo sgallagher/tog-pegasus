@@ -267,8 +267,10 @@ applyDefaults(mofCompilerOptions &cmdlinedata) {
 
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 # define SEPCHAR '\\'
+# define SEPCHAR2 '/'
 #else
 # define SEPCHAR '/'
+# define SEPCHAR2 '/'
 #endif
 
 // This function looks at a string (which we suppose to be argv[0]
@@ -282,7 +284,10 @@ getType(const char *name)
     return 1;
 #else
   const char *pos;
+  const char *pos2;
   pos = strrchr(name, SEPCHAR);
+  pos2 = strrchr(name, SEPCHAR2);
+  pos = (pos2 > pos) ? pos2 : pos; 
   if (!pos)
     pos = name;
   else

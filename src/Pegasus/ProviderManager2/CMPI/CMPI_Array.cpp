@@ -38,16 +38,10 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 static CMPIStatus arrayRelease(CMPIArray* eArray) {
-//   cout<<"--- arrayRelease()"<<endl;
+//  cout<<"--- arrayRelease()"<<endl;
    CMPIData *dta=(CMPIData*)eArray->hdl;
    if (dta) {
-      if (dta->type & CMPI_ENC) {
-         for (unsigned int i=1; i<=dta->value.uint32; i++) {
-	//    if (dta[i].state==0)
-	//     ((CMPIString*)dta[i].value.string)->ft->release((CMPIString*)dta[i].value.string);
-	 }
-      }
-      delete[] dta;
+       delete[] dta;
       ((CMPI_Object*)eArray)->unlinkAndDelete();
    }
    CMReturn(CMPI_RC_OK);
@@ -56,7 +50,7 @@ static CMPIStatus arrayRelease(CMPIArray* eArray) {
 static CMPIArray* arrayClone(CMPIArray* eArray, CMPIStatus* rc) {
    CMPIData* dta=(CMPIData*)eArray->hdl;
    CMPIData* nDta=new CMPIData[dta->value.uint32+1];
-   CMPI_Object* obj=new CMPI_Object(nDta,CMPI_Array_Ftab);
+   CMPI_Object* obj=new CMPI_Object(nDta);
    obj->unlink();
    CMPIArray* nArray=(CMPIArray*)obj;
    CMPIStatus rrc={CMPI_RC_OK,NULL};
@@ -69,11 +63,11 @@ static CMPIArray* arrayClone(CMPIArray* eArray, CMPIStatus* rc) {
       if (dta->type & CMPI_ENC && dta[i].state==0) {
          nDta[i].value.string=
          ((CMPIString*)dta[i].value.string)->ft->clone((CMPIString*)dta[i].value.string,&rrc);
-	 if (rrc.rc) {
+         if (rrc.rc) {
             arrayRelease(nArray);
-	    if (rc) *rc=rrc;
-	    return NULL;
-	 }
+            if (rc) *rc=rrc;
+            return NULL;
+         }
       }
    }
    if (rc) CMSetStatus(rc,CMPI_RC_OK);

@@ -719,20 +719,21 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
                      ((p)->ft->setHostAndNameSpaceFromObjectPath((p),(s)))
 #endif
 
+#if defined(CMPI_VER_86)
 #ifdef CMPI_INLINE
       /** Set/replace hostname, namespace and classname components from <src>.
 	 @param op ObjectPath this pointer.
 	 @param src Source input.
 	 @return Service return status.
       */
-   inline static   CMPISring* CMObjectPathToString
+   inline static   CMPIString* CMObjectPathToString
               (CMPIObjectPath* op, CMPIStatus* rc)
 	{ return ((op)->ft->toString(op),(rc))); }
 #else
   #define CMObjectPathToString(p,rc) \
                      ((p)->ft->toString((p),(rc)))
 #endif
-
+#endif
 
     // CMPIArray macros
 
@@ -1731,7 +1732,7 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
 #ifndef DOC_ONLY
    // MI factory stubs
 
-  #define CMNoHook if (brkr) { void *x=brkr; }
+  #define CMNoHook if (brkr) 
 #endif
 
 /*
@@ -1815,7 +1816,7 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
   static CMPIAssociationMIFT assocMIFT__={ \
    CMPICurrentVersion, \
    CMPICurrentVersion, \
-   "asscociation" #pn, \
+   "association" #pn, \
    pfx##AssociationCleanup, \
    pfx##Associators, \
    pfx##AssociatorNames, \
@@ -2011,11 +2012,10 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
    fprintf(stderr,"--- _Create_InstanceMI() broker: %p\n",broker); \
    CmpiContext ctx(ctxp); \
    mi.ft=&instMIFT; \
-   CmpiInstanceMI *provider=new cn(broker,ctx); \
+   CmpiInstanceMI *provider=new cn(CmpiBroker(broker),ctx); \
    mi.hdl=provider; \
-   if (CmpiProviderBase::testAndSetOneTime(2)) { \
+   if (base##pn.init()) { \
        provider->initialize(ctx); \
-       CmpiProviderBase::setBroker(broker); \
     } \
     return &mi; \
  }
@@ -2038,7 +2038,7 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
 #else
  #define CMAssociationMIFactory(cn,pn) \
  extern "C" \
- CMPIMethodMI* pn##_Create_AssociationMI(CMPIBroker* broker, CMPIContext *ctxp) { \
+ CMPIAssociationMI* pn##_Create_AssociationMI(CMPIBroker* broker, CMPIContext *ctxp) { \
    static CMPIAssociationMIFT assocMIFT={ \
     CMPICurrentVersion, \
     CMPICurrentVersion, \
@@ -2050,14 +2050,13 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
     CmpiAssociationMI::driveReferenceNames, \
   }; \
    static CMPIAssociationMI mi; \
-   fprintf(stderr,"--- _Create_MethodMI() broker: %p\n",broker); \
+   fprintf(stderr,"--- _Create_AssociationMI() broker: %p\n",broker); \
    CmpiContext ctx(ctxp); \
    mi.ft=&assocMIFT; \
-   CmpiAssociationMI *provider=new cn(broker,ctx); \
+   CmpiAssociationMI *provider=new cn(CmpiBroker(broker),ctx); \
    mi.hdl=provider; \
-   if (CmpiProviderBase::testAndSetOneTime(2)) { \
+   if (base##pn.init()) { \
        provider->initialize(ctx); \
-       CmpiProviderBase::setBroker(broker); \
     } \
     return &mi; \
  }
@@ -2092,11 +2091,10 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
    fprintf(stderr,"--- _Create_MethodMI() broker: %p\n",broker); \
    CmpiContext ctx(ctxp); \
    mi.ft=&methMIFT; \
-   CmpiMethodMI *provider=new cn(broker,ctx); \
+   CmpiMethodMI *provider=new cn(CmpiBroker(broker),ctx); \
    mi.hdl=provider; \
-   if (CmpiProviderBase::testAndSetOneTime(2)) { \
+   if (base##pn.init()) { \
        provider->initialize(ctx); \
-       CmpiProviderBase::setBroker(broker); \
     } \
     return &mi; \
  }
@@ -2131,11 +2129,10 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
    fprintf(stderr,"--- _Create_MethodMI() broker: %p\n",broker); \
    CmpiContext ctx(ctxp); \
    mi.ft=&propMIFT; \
-   CmpiPropertyMI *provider=new cn(broker,ctx); \
+   CmpiPropertyMI *provider=new cn(CmpiBroker(broker),ctx); \
    mi.hdl=provider; \
-   if (CmpiProviderBase::testAndSetOneTime(2)) { \
+   if (base##pn.init()) { \
        provider->initialize(ctx); \
-       CmpiProviderBase::setBroker(broker); \
     } \
    return &mi; \
  }
@@ -2182,18 +2179,16 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
    fprintf(stderr,"--- _Create_IndicationMI() broker: %p\n",broker); \
    CmpiContext ctx(ctxp); \
    mi.ft=&indMIFT; \
-   CmpiIndicationMI *provider=new cn(broker,ctx); \
+   CmpiIndicationMI *provider=new cn(CmpiBroker(broker),ctx); \
    mi.hdl=provider; \
-   if (CmpiProviderBase::testAndSetOneTime(2)) { \
+   if (base##pn.init()) { \
        provider->initialize(ctx); \
-       CmpiProviderBase::setBroker(broker); \
     } \
   return &mi; \
  }
 #endif
 
-#define CMProviderBase(b) \
-   CmpiProviderBase* CmpiProviderBase::base=NULL; \
-   CmpiProviderBase b();
+#define CMProviderBase(pn) \
+   CmpiProviderBase base##pn;
 
 #endif // _CMPIMACS_H_

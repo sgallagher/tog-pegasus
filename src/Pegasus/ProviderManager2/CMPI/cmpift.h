@@ -2189,8 +2189,8 @@ extern "C" {
 	 @return Function return status.
       */
      CMPIStatus (*referenceNames)
-             (CMPIAssociationMI*,CMPIContext*,CMPIResult*,
-              CMPIObjectPath*,char*,char*);
+             (CMPIAssociationMI* mi, CMPIContext* ctx, CMPIResult* rslt,
+              CMPIObjectPath* op, const char* resultClass, const char* role);
    };
 
 

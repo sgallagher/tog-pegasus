@@ -62,9 +62,9 @@ static CMPIObjectPath* refClone(CMPIObjectPath* eRef, CMPIStatus* rc) {
 					  ref->getClassName());
    Array<CIMKeyBinding> kb=ref->getKeyBindings();
    nRef->setKeyBindings(kb);
-   CMPI_Object* obj=new CMPI_Object(nRef,CMPI_ObjectPath_Ftab);
+   CMPI_Object* obj=new CMPI_Object(nRef);
    obj->unlink();
-   CMPIObjectPath* neRef=(CMPIObjectPath*)new CMPI_Object(nRef,CMPI_ObjectPath_Ftab);
+   CMPIObjectPath* neRef=(CMPIObjectPath*)obj;
    if (rc) CMSetStatus(rc,CMPI_RC_OK);
    return neRef;
 }

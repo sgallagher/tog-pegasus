@@ -123,7 +123,7 @@ static CMPIStatus dtRelease(CMPIDateTime* eDt) {
 static CMPIDateTime* dtClone(CMPIDateTime* eDt, CMPIStatus* rc) {
    CIMDateTime* dt=(CIMDateTime*)eDt->hdl;
    CIMDateTime* cDt=new CIMDateTime(dt->toString());
-   CMPI_Object* obj=new CMPI_Object(cDt,CMPI_DateTime_Ftab);
+   CMPI_Object* obj=new CMPI_Object(cDt);
    obj->unlink();
    CMPIDateTime* neDt=(CMPIDateTime*)obj;
    if (rc) CMSetStatus(rc,CMPI_RC_OK);

@@ -61,7 +61,6 @@ class CMPI_Object {
    CMPI_Object(OperationContext*);
    CMPI_Object(const String&);
    CMPI_Object(char*);
-   CMPI_Object(void*,void*);
    CMPI_Object(Array<CIMParamValue>*);
    CMPI_Object(CMPIData*);
    CMPI_Object(CMPI_Object*);

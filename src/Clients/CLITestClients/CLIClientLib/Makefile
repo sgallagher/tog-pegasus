@@ -12,8 +12,8 @@ LIBRARY = pegCLIClientLib
 
 LIBRARIES = \
     pegcommon \
-    pegClient \
-    pegPRM 
+    pegclient \
+    pegprm 
 
 SOURCES = \
     CLIClientLib.cpp    

@@ -27,6 +27,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "MessageQueueService.h"
+#include <Pegasus/Common/Tracer.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -42,7 +43,7 @@ MessageQueueService::MessageQueueService(const char *name,
 					 Uint32 capabilities, 
 					 Uint32 mask) 
    : Base(name, true,  queueID),
-     _capabilities(capabilities),
+     
      _mask(mask),
      _die(0),
      _pending(true), 
@@ -50,6 +51,8 @@ MessageQueueService::MessageQueueService(const char *name,
      _incoming_queue_shutdown(0),
      _req_thread(_req_proc, this, false)
 { 
+   _capabilities = (capabilities | module_capabilities::async);
+   
    _default_op_timeout.tv_sec = 30;
    _default_op_timeout.tv_usec = 100;
 
@@ -68,7 +71,6 @@ MessageQueueService::MessageQueueService(const char *name,
       
    }
    _service_count++;
-
 
 
    if( false == register_service(name, _capabilities, _mask) )
@@ -143,6 +145,35 @@ void MessageQueueService::_shutdown_incoming_queue(void)
    
 }
 
+
+
+void MessageQueueService::enqueue(Message *msg) throw(IPCException)
+{
+   Base::enqueue(msg);
+   
+//    PEGASUS_ASSERT(msg != 0 );
+   
+//    cout << "inside overriden enqueue" << endl;
+//        if (!msg) 
+//     {
+//        Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL3,
+//         "MessageQueue::enqueue failure");
+//        throw NullPointer();
+//     }
+
+//     if (getenv("PEGASUS_TRACE"))
+//     {
+//        cout << "===== " << getQueueName() << ": ";
+//        msg->print(cout);
+//     }
+
+//    msg->dest = _queueId;
+//    SendForget(msg);
+   
+}
+
+
+
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::_req_proc(void * parm)
 {
    Thread *myself = reinterpret_cast<Thread *>(parm);
@@ -173,6 +204,11 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::_req_proc(void *
    return(0);
 }
 
+void MessageQueueService::_handle_async_callback(AsyncOpNode *op)
+{
+   return_op(op);
+}
+
 
 void MessageQueueService::_handle_incoming_operation(AsyncOpNode *operation, 
 						     Thread *thread, 
@@ -180,7 +216,17 @@ void MessageQueueService::_handle_incoming_operation(AsyncOpNode *operation,
 {
    if ( operation != 0 )
    {
+
+// ATTN: optimization 
+// << Tue Feb 19 14:10:38 2002 mdd >>
       operation->lock();
+      if ((operation->_state & ASYNC_OPFLAGS_CALLBACK) &&  
+	 (operation->_state & ASYNC_OPSTATE_COMPLETE))
+      {
+	 operation->unlock();
+	 _handle_async_callback(operation);
+      }
+      
       Message *rq = operation->_request.next(0);
       PEGASUS_ASSERT(rq != 0 );
 
@@ -204,6 +250,9 @@ void MessageQueueService::_handle_incoming_operation(AsyncOpNode *operation,
    return;
    
 }
+
+
+
 
 void MessageQueueService::_handle_async_request(AsyncRequest *req)
 {
@@ -295,7 +344,8 @@ Boolean MessageQueueService::accept_async(AsyncOpNode *op)
    Message *rp = op->_response.next(0);
    op->unlock();
    
-   if(  ((true == messageOK(rq)) || ( true == messageOK(rp) )) &&  _die.value() == 0  )
+   if(  (rq != 0 && (true == messageOK(rq))) || (rp != 0 && ( true == messageOK(rp) )) &&  
+	_die.value() == 0  )
    {
       _incoming.insert_last_wait(op);
       return true;
@@ -314,6 +364,7 @@ Boolean MessageQueueService::messageOK(const Message *msg)
 
 void MessageQueueService::handleEnqueue(Message *msg)
 {
+   
    if ( msg )
       delete msg;
    
@@ -322,8 +373,9 @@ void MessageQueueService::handleEnqueue(Message *msg)
 
 void MessageQueueService::handleEnqueue(void)
 {
-   Message *msg = dequeue();
-   handleEnqueue(msg);
+   
+    Message *msg = dequeue();
+    handleEnqueue(msg);
 }
 
 void MessageQueueService::handle_heartbeat_request(AsyncRequest *req)
@@ -500,8 +552,9 @@ Boolean MessageQueueService::SendAsync(AsyncOpNode *op,
    if ( 0 == (op->_op_dest = MessageQueue::lookup(destination)))
       return false;
 
-   op->_flags &= ASYNC_OPFLAGS_CALLBACK;
-   op->_flags &= ~(ASYNC_OPFLAGS_FIRE_AND_FORGET | ASYNC_OPSTATE_COMPLETE);
+   op->_flags |= ASYNC_OPFLAGS_CALLBACK;
+   op->_flags &= ~(ASYNC_OPFLAGS_FIRE_AND_FORGET);
+   op->_state &= ~ASYNC_OPSTATE_COMPLETE;
    
 
    return  _meta_dispatcher->route_async(op);
@@ -512,20 +565,24 @@ Boolean MessageQueueService::SendForget(Message *msg)
 {
 
    AsyncOpNode *op = 0;
-
-   if (msg->getMask() & message_mask::ha_async)
+   Uint32 mask = msg->getMask();
+   
+   if (mask & message_mask::ha_async)
    {
       op = (static_cast<AsyncMessage *>(msg))->op ;
    }
+
    if( op == 0 )
    {
       op = get_op();
       op->_request.insert_first(msg);
+      if (mask & message_mask::ha_async)
+	 (static_cast<AsyncMessage *>(msg))->op = op;
    }
 
-   op->_flags &= ASYNC_OPFLAGS_FIRE_AND_FORGET;
-   op->_flags &= ~(ASYNC_OPFLAGS_CALLBACK | ASYNC_OPFLAGS_SIMPLE_STATUS | ASYNC_OPSTATE_COMPLETE);
-   op->put_response(0);
+   op->_flags |= ASYNC_OPFLAGS_FIRE_AND_FORGET;
+   op->_flags &= ~(ASYNC_OPFLAGS_CALLBACK | ASYNC_OPFLAGS_SIMPLE_STATUS);
+   op->_state &= ~ASYNC_OPSTATE_COMPLETE;
    
    // get the queue handle for the destination
    if ( 0 == (op->_op_dest = MessageQueue::lookup(msg->dest)))
@@ -551,8 +608,8 @@ AsyncReply *MessageQueueService::SendWait(AsyncRequest *request)
    }
    
    request->block = true;
-   request->op->_state &= ~(ASYNC_OPSTATE_COMPLETE | ASYNC_OPFLAGS_CALLBACK);
-   request->op->put_response(0);
+   request->op->_state &= ~ASYNC_OPSTATE_COMPLETE;
+   request->op->_flags &= ~ASYNC_OPFLAGS_CALLBACK; 
    
    // get the queue handle for the destination
    if ( 0 == (request->op->_op_dest = MessageQueue::lookup(request->dest)))

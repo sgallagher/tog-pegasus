@@ -145,8 +145,10 @@ class MessageQueueServer : public MessageQueueService
       {
 	 
       }
+      virtual void _handle_incoming_operation(AsyncOpNode *operation, 
+					      Thread *thread, 
+					      MessageQueue *queue);
       
-      virtual void _handle_incoming_operation(AsyncOpNode *operation);
       virtual Boolean messageOK(const Message *msg);
       void handle_test_request(AsyncRequest *msg);
       virtual void handle_CimServiceStop(CimServiceStop *req);
@@ -205,19 +207,33 @@ Uint32 MessageQueueClient::get_qid(void)
 }
 
 
-void MessageQueueServer::_handle_incoming_operation(AsyncOpNode *operation)
+void MessageQueueServer::_handle_incoming_operation(AsyncOpNode *operation, 
+						    Thread *thread, 
+						    MessageQueue *queue)
 {
    if ( operation != 0 )
    {
       Message *rq = operation->get_request();
+
       PEGASUS_ASSERT(rq != 0 );
-      PEGASUS_ASSERT(rq->getMask() & message_mask::ha_async );
-      PEGASUS_ASSERT(rq->getMask() & message_mask::ha_request);
-      _handle_async_request(static_cast<AsyncRequest *>(rq));
+      if ( rq->getMask() & message_mask::ha_async)
+      {
+	 static_cast<AsyncMessage *>(rq)->_myself = thread;
+	 static_cast<AsyncMessage *>(rq)->_service = queue;
+	 _handle_async_request(static_cast<AsyncRequest *>(rq));
+      }
+      else 
+      {
+	 if ( rq->getType() == 0x11100011 )
+	 {
+	    cout << " caught a hacked legacy message " << endl;
+
+	 }
+	 delete rq;
+      }
    }
      
    return;
-   
 }
 
 void MessageQueueServer::_handle_async_request(AsyncRequest *req)
@@ -237,6 +253,7 @@ void MessageQueueServer::_handle_async_request(AsyncRequest *req)
       req->op->processing();
       handle_LegacyOpStart(static_cast<AsyncLegacyOperationStart *>(req));
    }
+
    
    else
       Base::_handle_async_request(req);
@@ -244,15 +261,13 @@ void MessageQueueServer::_handle_async_request(AsyncRequest *req)
 
 Boolean MessageQueueServer::messageOK(const Message *msg)
 {
-   if(msg->getMask() & message_mask::ha_async)
-   {
       if( msg->getType() == 0x04100000 ||
 	  msg->getType() == async_messages::CIMSERVICE_STOP || 
 	  msg->getType() == async_messages::CIMSERVICE_PAUSE || 
 	  msg->getType() == async_messages::ASYNC_LEGACY_OP_START ||
-	  msg->getType() == async_messages::CIMSERVICE_RESUME )
+	  msg->getType() == async_messages::CIMSERVICE_RESUME || 
+	  msg->getType() == 0x11100011 )
       return true;
-   }
    return false;
 }
 
@@ -260,6 +275,8 @@ void MessageQueueServer::handle_LegacyOpStart(AsyncLegacyOperationStart *req)
 {
 
    Message *legacy = req->act;
+   req->act = 0;
+   
    cout << " ### handling legacy messages " << endl;
    
 
@@ -276,6 +293,8 @@ void MessageQueueServer::handle_LegacyOpStart(AsyncLegacyOperationStart *req)
 
       if (legacy != 0 )
 	 cout << " legacy msg type: " << legacy->getType() << endl;
+      delete legacy;
+      
       
 }
 
@@ -290,7 +309,7 @@ void MessageQueueServer::handle_test_request(AsyncRequest *msg)
 	 new test_response(msg->getKey(),
 			   msg->getRouting(),
 			   msg->op, 
-			   async_results::OK,
+			   async_results::OK,  
 			   msg->dest, 
 			   "i am a test response");
       _completeAsyncResponse(msg, resp, ASYNC_OPSTATE_COMPLETE, 0);
@@ -370,15 +389,12 @@ int main(int argc, char **argv)
    Thread another(client_func, (void *)&msg_count, false);
    Thread a_third(client_func, (void *)&msg_count, false);
    
-   Thread server(server_func, (void *)&msg_count, false);
+   Thread server(server_func, (void *)&msg_count, false); 
    
-//   cimom *Q_server = new cimom();
-   
-
    server.run();
    client.run();
-   another.run();
-   a_third.run();
+  another.run();
+  a_third.run();
    
    
    while( msg_count.value() < 1500 ) 
@@ -391,9 +407,6 @@ int main(int argc, char **argv)
    server.join();
    cout << "exiting main " << endl;
    
-//   Q_server->_shutdown_routed_queue();
-    
-//   delete Q_server;  
    
    return(0);
 }
@@ -411,14 +424,11 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_func(void *parm)
    
 
    MessageQueueClient *q_client = new MessageQueueClient("name_buf");
-//   q_client->register_service("test client", q_client->_client_capabilities, q_client->_client_mask);
-//   cout << " client registered " << endl;
    
    client_count++;
    while( client_count.value() < 3 )
       pegasus_yield();
    
-
    while( services.size() == 0 )
    {
       q_client->find_services(String("test server"), 0, 0, &services); 
@@ -453,6 +463,37 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_func(void *parm)
    delete reply;
    
 
+
+   cout << "trying SendForget " << endl;
+   
+   legacy = new Message(0x11100011, 
+			Message::getNextKey());
+   
+   req = new AsyncLegacyOperationStart(q_client->get_next_xid(), 
+				       0, 
+				       services[0],
+				       legacy, 
+				       q_client->getQueueId());
+   
+
+
+   q_client->SendForget(req);
+
+   legacy = new Message(0x11100011, 
+			Message::getNextKey());
+   legacy->dest = services[0];
+   
+   q_client->SendForget(legacy);
+   
+
+   MessageQueueService * server = 
+      static_cast<MessageQueueService *>(MessageQueue::lookup(services[0]));
+   
+   legacy = new Message(0x11100011, 
+			Message::getNextKey());
+   
+   server->enqueue(legacy);
+   
    cout << "sending STOP to test server" << endl;
    
    CimServiceStop *stop =   
@@ -491,9 +532,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL server_func(void *parm)
 
    MessageQueueServer *q_server = new MessageQueueServer("test server") ;
  
-//   q_server->register_service("test server", q_server->_capabilities, q_server->_mask);
-   
-//   cout << "test server registered" << endl;
+
    
    while( q_server->dienow.value()  < 3  )
    {

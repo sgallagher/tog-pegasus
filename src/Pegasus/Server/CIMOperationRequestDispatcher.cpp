@@ -346,16 +346,13 @@ void CIMOperationRequestDispatcher::_enqueueResponse(
 
 	response->setKey(request->getKey());
 
-	//if( true == Base::_enqueueResponse(request, response))
-	   //return;
+	if( true == Base::_enqueueResponse(request, response))
+	   return;
 	
-	// Lookup the message queue:
 
-	MessageQueue* queue = MessageQueue::lookup(request->queueIds.top());
-	PEGASUS_ASSERT(queue != 0);
-
-	// Enqueue the response:
-
+	MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
+	PEGASUS_ASSERT(queue != 0 );
+	
 	queue->enqueue(response);
 }
 

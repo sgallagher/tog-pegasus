@@ -30,7 +30,7 @@
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Tracer.h>
 #include "MessageQueue.h"
-
+#include "MessageQueueService.h"
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
@@ -69,11 +69,13 @@ Uint32 MessageQueue::getNextQueueId() throw(IPCException)
    return queueId;
 }
 
+
+
 MessageQueue::MessageQueue(
     const char* name, 
     Boolean async,
     Uint32 queueId)
-    : _queueId(queueId), _count(0), _front(0), _back(0), _async(async)
+   : _queueId(queueId), _capabilities(0), _count(0), _front(0), _back(0), _async(async)
 {
     //
     // Copy the name:
@@ -82,7 +84,7 @@ MessageQueue::MessageQueue(
    PEG_FUNC_ENTER(TRC_DISPATCHER,"MessageQueue::MessageQueue()");
 
     if (!name)
-	name = "";
+	name = ""; 
 
     _name = new char[strlen(name) + 1];
     strcpy(_name, name);
@@ -141,6 +143,7 @@ void MessageQueue::enqueue(Message* message) throw(IPCException)
        cout << "===== " << getQueueName() << ": ";
        message->print(cout);
     }
+
 
     _mut.lock(pegasus_thread_self());
     if (_back)

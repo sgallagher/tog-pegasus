@@ -78,7 +78,9 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
       
       virtual Boolean accept_async(AsyncOpNode *op);
       virtual Boolean messageOK(const Message *msg) ;
-
+      
+      virtual void enqueue(Message *) throw(IPCException);
+      
       AsyncReply *SendWait(AsyncRequest *request);
       Boolean SendAsync(AsyncOpNode *op, 
 			Uint32 destination,
@@ -101,7 +103,7 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
       Uint32 get_next_xid(void);
       AsyncOpNode *get_op(void);
       void return_op(AsyncOpNode *op);
-      Uint32 _capabilities;
+
       Uint32 _mask;
       AtomicInt _die;
    protected:
@@ -110,6 +112,7 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
       virtual Boolean _enqueueResponse(Message *, Message *);
       virtual void _handle_incoming_operation(AsyncOpNode *operation, Thread *thread, MessageQueue *queue);
       virtual void _handle_async_request(AsyncRequest *req);
+      virtual void _handle_async_callback(AsyncOpNode *operation);     
       virtual void _make_response(Message *req, Uint32 code);
       
       static cimom *_meta_dispatcher;

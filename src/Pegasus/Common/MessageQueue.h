@@ -88,10 +88,10 @@ class PEGASUS_COMMON_LINKAGE MessageQueue
 	  queue id.
       */
       MessageQueue(
-	 const char * name = 0, 
+	 const char *name = 0,
 	 Boolean async = false,
 	 Uint32 queueId = MessageQueue::getNextQueueId());
-
+      
       /** Removes this queue from the queue table. */
       virtual ~MessageQueue();
 
@@ -170,6 +170,12 @@ class PEGASUS_COMMON_LINKAGE MessageQueue
       /** Retrieve the queue id for this queue. */
       Uint32 getQueueId() const { return _queueId; }
 
+      Uint32 get_capabilities(void) const 
+      {
+	 return _capabilities;
+      }
+      
+
       /** Prints the contents of this queue by calling the print() method
 	  of each message.
 	  @param os stream onto which the output is placed.
@@ -218,7 +224,8 @@ class PEGASUS_COMMON_LINKAGE MessageQueue
       Mutex _mut;
       Uint32 _queueId;
       char *_name;
-
+      Uint32 _capabilities;
+      
    private:
 
 

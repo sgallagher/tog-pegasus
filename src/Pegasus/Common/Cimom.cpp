@@ -215,14 +215,18 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
 //
 //   << Tue Feb 19 11:40:37 2002 mdd >>
 //   moved the lookup to sendwait/nowait/forget functions. 
-//   now a dynamic cast is sufficient safeguard 
 
-	    MessageQueueService *dest_svc = dynamic_cast<MessageQueueService *>(dest_q);
+	    MessageQueueService *dest_svc = 0;
+	    
+	    if ( dest_q->get_capabilities()  & module_capabilities::async)
+	    {
+	        dest_svc= static_cast<MessageQueueService *>(dest_q);
+	    }
 	    
 	    if(dest_svc != 0)
 	    {
-	       if( dest_svc->_capabilities & module_capabilities::paused ||
-		   dest_svc->_capabilities & module_capabilities::stopped )
+	       if( dest_svc->get_capabilities() & module_capabilities::paused ||
+		   dest_svc->get_capabilities() & module_capabilities::stopped )
 	       {
 		  // the target is stopped or paused
 		  // unless the message is a start or resume
@@ -235,7 +239,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
 		  if (code != async_messages::CIMSERVICE_START  &&
 		      code != async_messages::CIMSERVICE_RESUME )
 		  {
-		     if ( dest_svc->_capabilities & module_capabilities::paused )
+		     if ( dest_svc->get_capabilities() & module_capabilities::paused )
 			dispatcher->_make_response(request, async_results::CIM_PAUSED);
 		     else 
 			dispatcher->_make_response(request, async_results::CIM_STOPPED);
@@ -264,7 +268,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
 
 
 cimom::cimom(void)
-   : MessageQueue("pegasus meta dispatcher", true, CIMOM_Q_ID),
+   : MessageQueue("pegasus meta dispatcher", true, CIMOM_Q_ID ),
      _modules(true),
      _recycle(true),
      _routed_ops(true, 1000), 
@@ -272,8 +276,8 @@ cimom::cimom(void)
      _routing_thread( _routing_proc, this, false),
      _die(0), _routed_queue_shutdown(0)
 {
-
-
+   _capabilities |= module_capabilities::async;
+   
    _global_this = static_cast<cimom *>(MessageQueue::lookup(CIMOM_Q_ID));
    
    pegasus_gettimeofday(&_last_module_change);
@@ -352,11 +356,33 @@ void cimom::_completeAsyncResponse(AsyncRequest *request,
 
    AsyncOpNode *op = request->op;
    op->lock();
+
+   if( op->_flags & ASYNC_OPFLAGS_FIRE_AND_FORGET )
+   {
+      
+      // destructor empties request list 
+      op->unlock();
+      
+      delete op;
+      return;
+   }
+
+
+   
    op->_state |= (state | ASYNC_OPSTATE_COMPLETE);
    op->_flags |= flag;
    gettimeofday(&(op->_updated), NULL);
-   if ( (reply != 0) && (false == op->_response.exists(reinterpret_cast<void *>(reply))) )
-      op->_response.insert_last(reply);
+   if ( op->_flags & ASYNC_OPFLAGS_SIMPLE_STATUS )
+   { 
+      op->_completion_code = reply->result;
+      delete reply;
+   }
+   else
+   {
+      if ( (reply != 0) && (false == op->_response.exists(reinterpret_cast<void *>(reply))) )
+	 op->_response.insert_last(reply);
+   }
+   
    op->unlock();
    op->_client_sem.signal();
 }

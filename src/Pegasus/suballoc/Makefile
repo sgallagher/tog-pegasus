@@ -8,8 +8,8 @@ LOCAL_DEFINES = -DPEGASUS_SUBALLOC_INTERNAL
 
 LIBRARY = peg_suballoc
 
-#LIBRARIES = \
-#    pegcommon
+LIBRARIES = \
+    pegcommon
 
 SOURCES = \
 	suballoc.cpp

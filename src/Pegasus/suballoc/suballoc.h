@@ -104,22 +104,27 @@ namespace
    static const unsigned int IS_HEAD_NODE = 0x00000001;
    static const unsigned int AVAIL =        0x00000002;
    static const unsigned int ARRAY_NODE =   0x00000004;
+   static const unsigned int CHECK_FAILED = 0x00000008;
 }
 
 PEGASUS_NAMESPACE_BEGIN
 
 class guardian;
+struct SUBALLOC_HANDLE;
 
 PEGASUS_SUBALLOC_LINKAGE void * pegasus_alloc(size_t);
-PEGASUS_SUBALLOC_LINKAGE void * pegasus_alloc(size_t, int type, 
+PEGASUS_SUBALLOC_LINKAGE void * pegasus_alloc(size_t, 
+					      void *,
+					      int type, 
 					      const Sint8 *classname, 
 					      Sint8 *file, 
-					      int line );
+					      Uint32 line );
 PEGASUS_SUBALLOC_LINKAGE void pegasus_free(void *dead, 
+					   void *,
 					   int type, 
 					   Sint8 *classname, 
 					   Sint8 *file, 
-					   int line);
+					   Uint32 line);
 
 PEGASUS_SUBALLOC_LINKAGE void pegasus_free(void *);
 
@@ -185,11 +190,15 @@ class peg_suballoc;
 
 
 #if defined(PEGASUS_DEBUG_MEMORY)
-#define PEGASUS_NEW(a) new((pegasus_alloc(sizeof(a), NORMAL, (#a), __FILE__, __LINE__)))
-#define PEGASUS_ARRAY_NEW(a, i) new(pegasus_alloc(sizeof(a) * (i), ARRAY, (#a), __FILE__, __LINE__)) (a)
+#define PEGASUS_NEW(a) new((pegasus_alloc(sizeof(a), ((void *)0), NORMAL, (#a), __FILE__, __LINE__)))
+#define PEGASUS_ARRAY_NEW(a, i) new(pegasus_alloc(sizeof(a) * (i), NULL, ARRAY, (#a), __FILE__, __LINE__)) (a)
+#define PEGASUS_DELETE(a) pegasus_free((a), NULL, NORMAL, (#a), __FILE__, __LINE__)
+#define PEGASUS_ARRAY_DELETE(a) pegasus_free(a, NULL, ARRAY, (#a), __FILE__, __LINE__)
 #else
 #define PEGASUS_NEW(a) new
 #define PEGASUS_ARRAY_NEW(a, i) new (a)[(i)] 
+#define PEGASUS_DELETE(a) ::operator delete((a))
+#define PEGASUS_ARRAY_DELETE(a) ::operator delete [] ((a))
 #endif 
 
 
@@ -199,35 +208,20 @@ class PEGASUS_SUBALLOC_LINKAGE peg_suballocator
       peg_suballocator(const peg_suballocator &);
       peg_suballocator & operator = (const peg_suballocator &);
       Boolean _debug;
-
-      typedef struct _subAllocTemplate {
-	    struct _subAllocNode *next;
-	    struct _subAllocNode *prev;
-	    Uint32 flags;
-//	    Boolean isHead;
-//	    Boolean avail;
-//	    Uint32 allocSize;
-	    Uint8 guardPre[GUARD_SIZE];
-      } SUB_TEMPLATE;
-
       typedef struct _subAllocNode {
 	    struct _subAllocNode *next;
 	    struct _subAllocNode *prev;
 	    Uint32 flags;
-//	    Boolean isHead;
-//	    Uint8 avail;
-//	    Uint8 type;
-//	    Uint8 reserved[2];
 	    Uint32 allocSize;
-	    Uint8 guardPre[GUARD_SIZE];
-	    void *allocPtr;
-	    Uint8 guardPost[GUARD_SIZE];
 	    Sint8 file[MAX_PATH_LEN + 1];
 	    Sint8 line[MAX_LINE_LEN + 1];
 	    Sint8 classname[MAX_CLASS_LEN + 1];
+	    Sint8 d_file[MAX_PATH_LEN + 1];
+	    Sint8 d_line[MAX_LINE_LEN + 1];
+	    Sint8 d_classname[MAX_CLASS_LEN + 1];
 	    void *concurrencyHandle;
+	    Uint8 guardPre[GUARD_SIZE];
       } SUBALLOC_NODE;
-
 
       SUBALLOC_NODE *nodeListHeads[3][16];
 
@@ -248,7 +242,8 @@ class PEGASUS_SUBALLOC_LINKAGE peg_suballocator
       Sint32 init_count;
       PEGASUS_MUTEX_T init_mutex;
       Boolean debug_mode;
-
+      Boolean abort_on_error;
+  
    public:
       static int CREATE_MUTEX(PEGASUS_MUTEX_T *mut);
       static void WAIT_MUTEX(PEGASUS_MUTEX_T *mut, Uint32 msec, int *result);
@@ -274,9 +269,6 @@ class PEGASUS_SUBALLOC_LINKAGE peg_suballocator
       void PutNode(Sint32 vector, Sint32 index, SUBALLOC_NODE *node);
       void PutHugeNode(SUBALLOC_NODE *node);
       
-      static const Sint8 dumpFileName[];
-      Sint8 global_log_filename[MAX_PATH_LEN + 1];
-      FILE *dumpFile ;
       static const Uint8 guard[];
       static const Uint8 alloc_pattern;
       static const Uint8 delete_pattern;
@@ -287,7 +279,7 @@ class PEGASUS_SUBALLOC_LINKAGE peg_suballocator
    public:
 
       peg_suballocator(void);
-      peg_suballocator(Sint8 *log_filename, Boolean mode = true);
+      peg_suballocator(Boolean mode = true);
       virtual ~peg_suballocator(void);
 
       inline Boolean PEGASUS_DEBUG_ALLOC(void) { return _debug; }
@@ -296,6 +288,7 @@ class PEGASUS_SUBALLOC_LINKAGE peg_suballocator
       { 
 	 public:
 	    Sint8 logpath[MAX_PATH_LEN + 1];
+	    Sint8 classname[MAX_CLASS_LEN + 1];
 	    _suballocHandle(const Sint8 *log_path = 0)
 	    {
 	       if(log_path)
@@ -309,17 +302,17 @@ class PEGASUS_SUBALLOC_LINKAGE peg_suballocator
 	    
       }SUBALLOC_HANDLE;
 
-      Boolean InitializeSubAllocator(Sint8 *f = NULL);
+      Boolean InitializeSubAllocator(void);
       static SUBALLOC_HANDLE *InitializeProcessHeap(Sint8 *f = NULL);
-      void *vs_malloc(size_t size, void *handle, int type = NORMAL, const Sint8 *classname = 0, const Sint8 *f = 0, Sint32 l = 0);
-      void *vs_calloc(size_t num, size_t size, void *handle, int type = NORMAL, Sint8 *f = 0, Sint32 l = 0);
-      void *vs_realloc(void *pblock, size_t newsize, void *handle, int type = NORMAL, Sint8 *f = 0, Sint32 l = 0);
-      Sint8 * vs_strdup(const Sint8 *string, void *handle, int type = NORMAL, Sint8 *f = 0, Sint32 l = 0);
+      void *vs_malloc(size_t size, void *handle, int type = NORMAL, const Sint8 *classname = 0, const Sint8 *f = 0, Uint32 l = 0);
+      void *vs_calloc(size_t num, size_t size, void *handle, int type = NORMAL, Sint8 *f = 0, Uint32 l = 0);
+      void *vs_realloc(void *pblock, size_t newsize, void *handle, int type = NORMAL, Sint8 *f = 0, Uint32 l = 0);
+      Sint8 * vs_strdup(const Sint8 *string, void *handle, int type = NORMAL, Sint8 *f = 0, Uint32 l = 0);
       void vs_free(void *m);
-      void vs_free(void *m, int type, Sint8 *classname, Sint8 *f, Sint32 l);
+      void vs_free(void *m, void *handle, int type, Sint8 *classname, Sint8 *f, Uint32 l);
       Boolean _UnfreedNodes(void *handle);
       void DeInitSubAllocator(void *handle);
-      static SUBALLOC_NODE * _CheckNode(void *m, int type);
+      SUBALLOC_NODE *_CheckNode(void *m, int type, Sint8 *file, Uint32 line);
       
       Boolean get_mode(void) 
       {
@@ -330,7 +323,6 @@ class PEGASUS_SUBALLOC_LINKAGE peg_suballocator
       {
 	 return internal_handle;
       }
-      
 
    private:
       _suballocHandle internal_handle;
@@ -338,7 +330,7 @@ class PEGASUS_SUBALLOC_LINKAGE peg_suballocator
 
 inline Boolean peg_suballocator::IS_ARRAY(SUBALLOC_NODE *x)
 {
-   return (x->flags & ARRAY_NODE) ? false : true ;
+   return (x->flags & ARRAY_NODE) ? true : false ;
 }
 
 inline Boolean peg_suballocator::IS_HEAD(SUBALLOC_NODE *x) 

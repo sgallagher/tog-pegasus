@@ -26,11 +26,12 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-
 #include <Pegasus/suballoc/suballoc.h>
+#include <Pegasus/Common/Tracer.h>
 #include <new.h>
 PEGASUS_NAMESPACE_BEGIN
-peg_suballocator internal_allocator;
+
+peg_suballocator internal_allocator(true);
 
 PEGASUS_SUBALLOC_LINKAGE void * pegasus_alloc(size_t size)
 {
@@ -39,31 +40,42 @@ PEGASUS_SUBALLOC_LINKAGE void * pegasus_alloc(size_t size)
 }
 
 PEGASUS_SUBALLOC_LINKAGE void * pegasus_alloc(size_t size, 
+					      void * handle,
 					      int type,
 					      const Sint8 *classname, 
 					      Sint8 *file,
-					      int line)
+					      Uint32 line)
 {
    return internal_allocator.vs_malloc(size, 
- 				       &(internal_allocator.get_handle()),
+ 				       ((handle == NULL) ? &(internal_allocator.get_handle()) : handle),
 				       type, 
 				       classname, 
 				       file,  
 				       line) ;
 }
 
-PEGASUS_SUBALLOC_LINKAGE void pegasus_free(void * dead, int type, Sint8 *classname, Sint8 * file, int line) 
+PEGASUS_SUBALLOC_LINKAGE void pegasus_free(void * dead,
+					   void * handle,
+					   int type, 
+					   Sint8 *classname, 
+					   Sint8 * file, 
+					   Uint32 line) 
 {
    if ( dead == 0 )
       return;
    
-   internal_allocator.vs_free(dead, type, classname, file, line); 
+   internal_allocator.vs_free(dead,  				       
+			      ((handle == NULL) ? &(internal_allocator.get_handle()) : handle),
+			      type, 
+			      classname, 
+			      file, 
+			      line); 
 }
 
 
 PEGASUS_SUBALLOC_LINKAGE void pegasus_free(void *dead)
 {
-   internal_allocator.vs_free(dead, NORMAL, "INTERNAL", __FILE__, __LINE__);
+   internal_allocator.vs_free(dead);
 }
 
 PEGASUS_NAMESPACE_END
@@ -100,8 +112,12 @@ void operator delete(void *dead, size_t size) throw()
 {
    if( dead == 0 )
       return;
-   
-   internal_allocator.vs_free(dead);
+   internal_allocator.vs_free(dead,  
+			      &(internal_allocator.get_handle()), 
+			      NORMAL, 
+			      "internal", 
+			      __FILE__, 
+			      __LINE__);
    return;
 }
 
@@ -131,24 +147,17 @@ void operator delete [] (void *dead) throw()
 {
    if( dead == 0 )
       return;
-   internal_allocator.vs_free(dead, ARRAY, NULL, NULL, 0);
+   internal_allocator.vs_free(dead, 
+			      &(internal_allocator.get_handle()), 
+			      ARRAY, 
+			      "internal",
+			      __FILE__, 
+			      __LINE__);
    return;
 }
 
 PEGASUS_NAMESPACE_BEGIN
 
-// <<< Sun May  5 22:25:14 2002 mdd >>> 
-// to do: 
-// flag to note array new and array delete versus normal new and delete
-// pattern for deleted objects to cause segfault when dereferencing freed memory
-// Boolean to indication wether to use debug features or to pass through to 
-// global new and global delete
-// void * operator new(size_t size);
-// void * operator new [] (size_t size);
-// void operator delete(void *);
-// void operator delete [] (void *);
-
-const Sint8 peg_suballocator::dumpFileName[] = ".peg_suballoc_dump.txt";
 const Uint8 peg_suballocator::guard[] = {0x01, 0x02, 0x03, 0x04, 0x05, 
 					 0x06, 0x07, 0x08, 0x09, 0x09, 
 					 0x08, 0x07, 0x06, 0x05, 0x04, 
@@ -170,9 +179,10 @@ const Sint32 peg_suballocator::nodeSizes[3][16] =
    {
       0x1000, 0x2000, 0x3000, 0x4000, 0x5000, 0x6000, 
       0x7000, 0x8000, 0x9000, 0xa000, 0xb000, 0xc000, 
-      0xd000, 0xe000, 0xf000, 0xffff
+      0xd000, 0xe000, 0xf000, 64
    }
 };	
+
 
 // prototypes that begin with an underscore do not attempt to 
 // gain ownership of semaphores and can be safely called
@@ -194,21 +204,20 @@ const Uint32 peg_suballocator::step[3][16] =
 };
 
 peg_suballocator::peg_suballocator(void)
-   : debug_mode(true), internal_handle("internal_suballoc_log")
+   : debug_mode(true), 
+     abort_on_error(true), 
+     internal_handle("internal_suballoc_log")
+     
 { 
-   sprintf(global_log_filename, "%s", dumpFileName);
-   InitializeSubAllocator(global_log_filename);
+   sprintf(internal_handle.classname, "internal");
+   InitializeSubAllocator();
    return;
 }
 
-peg_suballocator::peg_suballocator(Sint8 *log_file_name, Boolean mode)
+peg_suballocator::peg_suballocator(Boolean mode)
    : debug_mode(mode), internal_handle("internal_suballoc_log")
 {
-   if(log_file_name)
-      snprintf(global_log_filename, MAX_PATH_LEN, "%s", log_file_name);
-   else 
-      sprintf(global_log_filename, "%s", dumpFileName);
-   InitializeSubAllocator(global_log_filename);
+   InitializeSubAllocator();
    return;
 }
 
@@ -235,7 +244,7 @@ peg_suballocator::SUBALLOC_HANDLE *peg_suballocator::InitializeProcessHeap(Sint8
  *  RETURNS: true if successful, false otherwise
  *
  ***************************************************************/
-Boolean peg_suballocator::InitializeSubAllocator(Sint8 *file)
+Boolean peg_suballocator::InitializeSubAllocator(void)
 {
    SUBALLOC_NODE *temp;
    Sint32 i, o;
@@ -291,7 +300,6 @@ Boolean peg_suballocator::InitializeSubAllocator(Sint8 *file)
 	    temp->next = temp->prev = temp;
 	    temp->flags |= (IS_HEAD_NODE );
 	    memcpy(temp->guardPre, guard, GUARD_SIZE);
-	    memcpy(temp->guardPost, guard, GUARD_SIZE);
 	    if (preAlloc[o][i])
 	       // we don't need to own the listhead semaphore because we
 	       // are initializing
@@ -365,30 +373,18 @@ Boolean peg_suballocator::_Allocate(Sint32 vector, Sint32 index, Sint32 code)
       i = step[vector][index]; // this is a step allocation
    for ( ; i > 0; i--)
    {
-      temp2 = (SUBALLOC_NODE *)calloc(1, sizeof(SUBALLOC_NODE));
+      size_t chunk_size = sizeof(SUBALLOC_NODE) + GUARD_SIZE + nodeSizes[vector][index];
+      temp2 = (SUBALLOC_NODE *)malloc(chunk_size);
+      
       if (temp2 == NULL)
 	 return(false);
       temp2->flags |= AVAIL;
+      temp2->concurrencyHandle = &internal_handle;
       memcpy(temp2->guardPre, guard, GUARD_SIZE);
-      memcpy(temp2->guardPost, guard, GUARD_SIZE);
-//      temp2->allocPtr = malloc( sizeof(void *) + nodeSizes[vector][index] +
-//			       (2 * GUARD_SIZE) );
-      size_t chunk_size = sizeof(SUBALLOC_NODE **) + ( 2 * GUARD_SIZE ) + nodeSizes[vector][index];
-      
-      void * ptr = malloc( chunk_size );
-      temp2->allocPtr = ptr;
-      
-      if (temp2->allocPtr == NULL)
-      {
-	 free(temp2);
-	 return(false);
-      }
-      g = (Sint8 *)temp2->allocPtr;
-      *(SUBALLOC_NODE **)g = temp2;
-      g += sizeof(SUBALLOC_NODE **);
-      g = (Sint8 *)memcpy(g, guard, GUARD_SIZE);
-      memcpy(g + nodeSizes[vector][index] + GUARD_SIZE, guard, GUARD_SIZE); 
-      // insert new node at the beginning of the list
+      g = (Sint8 *)temp2;
+      g+= sizeof(SUBALLOC_NODE);
+      g+= nodeSizes[vector][index];
+      memcpy(g, guard, GUARD_SIZE);
       INSERT(temp2, temp);
    }
    return(true);
@@ -419,6 +415,7 @@ void peg_suballocator::DeInitSubAllocator(void *handle)
    init_count--;
    if (! init_count)
    {
+      initialized = 0;
       WAIT_MUTEX(&globalSemHandle, 1000, &waitCode);
       for (o = 0; o < 3; o++)
       {
@@ -465,7 +462,6 @@ void peg_suballocator::_DeAllocate(Sint32 vector, Sint32 index)
    {
       temp2 = temp->next;
       _DELETE(temp2);
-      free(temp2->allocPtr);
       free(temp2); 
    }
    return;
@@ -553,7 +549,7 @@ peg_suballocator::SUBALLOC_NODE * peg_suballocator::GetHugeNode(Sint32 size)
    }
    WAIT_MUTEX(&(semHandles[0x03][0x0f]), 1000, &waitCode);
    // use the last listhead to hold all the huge nodes
-   temp = (nodeListHeads[0x03][0x0f])->next;
+   temp = (nodeListHeads[0x02][0x0f])->next;
    // if list is empty we will fall through
    while (! IS_HEAD(temp) )
    {
@@ -561,21 +557,16 @@ peg_suballocator::SUBALLOC_NODE * peg_suballocator::GetHugeNode(Sint32 size)
       if (temp->flags & AVAIL)
       {
 	 temp->flags &= ~(AVAIL);
-	 if (temp->allocPtr != NULL)
-	    free(temp->allocPtr);
-	 temp->allocPtr = calloc(sizeof(SUBALLOC_NODE **) + size + 
-				 (2 * GUARD_SIZE), sizeof(Sint8));
-	 if (temp->allocPtr != NULL)
+	 g = (Sint8 *)temp;
+	 g += sizeof(SUBALLOC_NODE);
+	 g = (Sint8 *)malloc( size + GUARD_SIZE );
+	 if (g != NULL)
 	 {
-	    g = (Sint8 *)temp->allocPtr;
-	    *(SUBALLOC_NODE **)g = temp;
-	    g += sizeof(SUBALLOC_NODE **);
-	    g = (Sint8 *)memcpy(g, guard, GUARD_SIZE);
-	    memcpy(g + size + GUARD_SIZE, guard, GUARD_SIZE); 
+	    memcpy(g + size, guard, GUARD_SIZE); 
 	 }
 	 // release semHandles[index]
 	 RELEASE_MUTEX(&(semHandles[0x03][0x0f]));
-	 if (temp->allocPtr != NULL)
+	 if (g != NULL)
 	    return(temp);
 	 else
 	    return(NULL);
@@ -583,7 +574,7 @@ peg_suballocator::SUBALLOC_NODE * peg_suballocator::GetHugeNode(Sint32 size)
       temp = temp->next;
    }
    // the list is either empty or fully allocated
-   if (! _Allocate(0x03, 0x0f, STEP_ALLOCATE))
+   if (! _Allocate(0x02, 0x0f, STEP_ALLOCATE))
    {
       RELEASE_MUTEX(&(semHandles[0x03][0x0f]));
       return(NULL);
@@ -625,12 +616,12 @@ void peg_suballocator::PutNode(Sint32 vector, Sint32 index, SUBALLOC_NODE *node)
    assert(node != NULL);
    // gain ownership of semHandles[index];
    assert((! IS_EMPTY(nodeListHeads[vector][index])));
-   _DELETE(node);
-   // insert the node at the front of the list - 
+   // delete insert the node at the front of the list - 
    // this will make it faster to get the node
-   // next time we need it. 
-   INSERT(node, nodeListHeads[vector][index]);
+   _DELETE(node);
+   node->concurrencyHandle = &internal_handle;
    node->flags |= AVAIL;
+   INSERT(node, nodeListHeads[vector][index]);
    RELEASE_MUTEX(&(semHandles[vector][index]));
    return;
 }	
@@ -658,18 +649,21 @@ void peg_suballocator::PutHugeNode(SUBALLOC_NODE *node)
    // to the front of the list
    Sint32 waitCode;
    assert(node != NULL);
-   WAIT_MUTEX(&(semHandles[0x03][0x0f]), 1000, &waitCode);
+   WAIT_MUTEX(&(semHandles[0x02][0x0f]), 1000, &waitCode);
    // gain ownership of semHandles[0x0f];
-   assert((! IS_EMPTY(nodeListHeads[0x03][0x0f])));
+   assert((! IS_EMPTY(nodeListHeads[0x02][0x0f])));
    _DELETE(node);
-   free(node->allocPtr);
-   node->allocPtr = NULL;
+   Sint8 *g = (Sint8 *)node;
+   g += sizeof(SUBALLOC_NODE);
+   free(g);
+   g = NULL;
    // insert the node at the front of the list - 
    // this will make it faster to get the node
-   // next time we need it. 
-   INSERT(node, nodeListHeads[0x03][0x0f]);
+   // next time we need it.
+   INSERT(node, nodeListHeads[0x02][0x0f]);
    node->flags |= AVAIL;
-   RELEASE_MUTEX(&(semHandles[0x03][0x0f]));
+   node->concurrencyHandle = &internal_handle;
+   RELEASE_MUTEX(&(semHandles[0x02][0x0f]));
    return;
 }	
 
@@ -688,7 +682,7 @@ void peg_suballocator::PutHugeNode(SUBALLOC_NODE *node)
  *   		 or NULL. 
  *
  ***************************************************************/
-void *peg_suballocator::vs_malloc(size_t size, void *handle, int type, const Sint8 *classname, const Sint8 *f, Sint32 l)
+void *peg_suballocator::vs_malloc(size_t size, void *handle, int type, const Sint8 *classname, const Sint8 *f, Uint32 l)
 {
    // we don't need to grab any semaphores, 
    // called routines will do that for us
@@ -714,20 +708,24 @@ void *peg_suballocator::vs_malloc(size_t size, void *handle, int type, const Sin
    temp->concurrencyHandle = (void *)handle;
    if(type == ARRAY)
       temp->flags |= ARRAY_NODE;
-   g = (Sint8 *)temp->allocPtr;
-   assert(*(SUBALLOC_NODE **)g == temp);
-   g += sizeof(SUBALLOC_NODE **);
-   memset(temp->classname, 0x00, MAX_CLASS_LEN + 1);
    if(classname)
       strncpy(temp->classname, classname, MAX_CLASS_LEN);
-   memset(temp->file, 0x00, MAX_PATH_LEN + 1);
-   if( f ) 
+   else
+      temp->classname[0] = 0x00;
+   
+   if(f)
       strncpy(temp->file, f, MAX_PATH_LEN);
-   memset(temp->line, 0x00, MAX_LINE_LEN + 1);
-   if( l ) 
+   else 
+      temp->file[0] = 0x00;
+   
+   if(l)
       sprintf(temp->line, "%d", l);
-   memcpy(g, guard, GUARD_SIZE);
-   g += GUARD_SIZE;
+   else
+      temp->line[0] = 0x00;
+   
+   
+   g = (Sint8 *)temp;
+   g += sizeof(SUBALLOC_NODE);
    memcpy(g + size, guard, GUARD_SIZE);
    return((void *)g);
 }	
@@ -749,44 +747,11 @@ void *peg_suballocator::vs_malloc(size_t size, void *handle, int type, const Sin
  *  RETURNS: pointer to zero'ed memory available for use by the 
  *	caller, or NULL. 
  ***************************************************************/
-void *peg_suballocator::vs_calloc(size_t num, size_t s, void *handle, int type, Sint8 *f, Sint32 l)
+void *peg_suballocator::vs_calloc(size_t num, size_t s, void *handle, int type, Sint8 *f, Uint32 l)
 {
-   // we don't need to grab any semaphores - 
-   // called routines will do that for us
-   SUBALLOC_NODE *temp;
-   Sint32 size;
-   Sint8 *g;
-   assert(num != 0);
-   assert(s != 0);
-   size = num * s;
-
-   if (! (size >> 8))
-   {
-      temp = GetNode(0, (size >> 4));
-   }
-   else if (! (size >> 12))
-   {
-      temp = GetNode(1, (size >> 8));
-   }
-   else if (! (size >> 16))
-   { 
-      temp = GetNode(2, (size >> 12));
-   }
-   else
-      temp = GetHugeNode(size);
-   assert(temp != NULL);
-   temp->allocSize = size;
-   temp->concurrencyHandle = (void *)handle;
-   g = (Sint8 *)temp->allocPtr;
-   assert((*(SUBALLOC_NODE **)g) == temp);
-   g += sizeof(SUBALLOC_NODE **);
-   memset(temp->file, 0x00, MAX_PATH_LEN + 1);
-   strncpy(temp->file, f, MAX_PATH_LEN);
-   memset(temp->line, 0x00, MAX_LINE_LEN + 1);
-   sprintf(temp->line, "%d", l);
-   g += GUARD_SIZE;
-   memset(g, 0x00, size);
-   return((void *)g);
+   void *g = vs_malloc((unsigned)num * s, handle, type, "internal", f, l);
+   memset(g, 0x00, num * s);
+   return(g);
 }
 	
 /****************************************************************
@@ -807,8 +772,9 @@ void peg_suballocator::vs_free(void *m)
    // we don't need to grab any semaphores - 
    // called routines will do that for us
    assert( m != 0 );
-   SUBALLOC_NODE *temp = _CheckNode(m, NORMAL);
-
+   SUBALLOC_NODE *temp = (SUBALLOC_NODE *)m;
+   temp--;
+   
    if (! (temp->allocSize >> 8))
    {
       PutNode(0, (temp->allocSize >> 4), temp);
@@ -826,13 +792,25 @@ void peg_suballocator::vs_free(void *m)
    return;
 }
 
-void peg_suballocator::vs_free(void *m, int type , Sint8 *classname, Sint8* file, int line)
+void peg_suballocator::vs_free(void *m, 
+			       void *handle,
+			       int type , 
+			       Sint8 *classname, 
+			       Sint8* file, 
+			       Uint32 line)
 {
    // we don't need to grab any semaphores - 
    // called routines will do that for us
-   assert( m != 0 );
-   SUBALLOC_NODE *temp = _CheckNode(m, NORMAL);
-
+   assert( m != NULL);
+   
+   SUBALLOC_NODE *temp = _CheckNode(m, type, file, line);
+   memset(temp->d_classname, 0x00, MAX_CLASS_LEN + 1);
+   strncpy(temp->d_classname, classname, MAX_CLASS_LEN);
+   memset(temp->d_file, 0x00, MAX_PATH_LEN + 1);
+   strncpy(temp->d_file, file, MAX_PATH_LEN);
+   memset(temp->d_line, 0x00, MAX_LINE_LEN + 1);
+   sprintf(temp->d_line, "%d", line); 
+   
    if (! (temp->allocSize >> 8))
    {
       PutNode(0, (temp->allocSize >> 4), temp);
@@ -850,7 +828,7 @@ void peg_suballocator::vs_free(void *m, int type , Sint8 *classname, Sint8* file
    return;
 }
 
-void *peg_suballocator::vs_realloc(void *pblock, size_t newsize, void *handle, int type, Sint8 *f, Sint32 l)
+void *peg_suballocator::vs_realloc(void *pblock, size_t newsize, void *handle, int type, Sint8 *f, Uint32 l)
 {
    if (pblock == NULL) {
       return(vs_malloc(newsize, handle, type, 0, f, l));	
@@ -886,7 +864,7 @@ void *peg_suballocator::vs_realloc(void *pblock, size_t newsize, void *handle, i
    }
 }	
 	
-Sint8 * peg_suballocator::vs_strdup(const Sint8 *string, void *handle, int type, Sint8 *f, Sint32 l)
+Sint8 * peg_suballocator::vs_strdup(const Sint8 *string, void *handle, int type, Sint8 *f, Uint32 l)
 {
 
    Sint8 *memory;
@@ -922,7 +900,6 @@ Boolean peg_suballocator::_UnfreedNodes(void * handle)
    SUBALLOC_NODE *temp;
    Boolean ccode = false;
    SUBALLOC_HANDLE *h = (SUBALLOC_HANDLE *)handle;
-   dumpFile = fopen(h->logpath, "wt");
 
    WAIT_MUTEX(&(globalSemHandle), 1000, &waitCode);
 
@@ -937,28 +914,24 @@ Boolean peg_suballocator::_UnfreedNodes(void * handle)
 	 {
 	    if (!(temp->flags & AVAIL) && temp->concurrencyHandle == (void *)handle)
 	    {
-	       if (dumpFile != NULL)
-	       {
-		  fprintf(dumpFile, "\nLeaked  memory: %s, %s, %s", 
- 			  temp->classname, temp->file, temp->line);
-	       }
+		  h = (SUBALLOC_HANDLE *)temp->concurrencyHandle;
+// 		  fprintf(dumpFile, "\nLeaked  memory: class: %s, source file: %s, source line: %s, handle class: %s", 
+//  			  temp->classname, temp->file, temp->line, 
+// 			  h->classname);
 	       ccode = true;
 	       temp->flags |= AVAIL;
 	       if ((temp->allocSize >> 16))
 	       {
-		  free(temp->allocPtr);
-		  temp->allocPtr = NULL;
+		  Sint8 *g = (Sint8 *)temp;
+		  g += sizeof(SUBALLOC_NODE);
+		  free(g);
+		  g = NULL;
 	       }
 	    }
 	    temp = temp->next;	
 	 }
 	 RELEASE_MUTEX(&(semHandles[y][i]));
       }
-   }
-   if (dumpFile != NULL)
-   {
-      fclose(dumpFile);
-      dumpFile = NULL;
    }
    RELEASE_MUTEX(&(globalSemHandle));
    return(ccode);
@@ -982,48 +955,69 @@ Boolean peg_suballocator::_UnfreedNodes(void * handle)
 Boolean peg_suballocator::_CheckGuard(SUBALLOC_NODE *node)
 {
    Sint32 ccode;
-   Sint8 *g;
 
    ccode = memcmp(node->guardPre, guard, GUARD_SIZE);
    if (ccode == 0)
    {
-      g = (Sint8 *)node->allocPtr + sizeof(SUBALLOC_NODE **);
+      Sint8 *g = (Sint8 *)node;
+      g += sizeof(SUBALLOC_NODE);
+      g += node->allocSize;
+      
       ccode = memcmp(g, guard, GUARD_SIZE);
       if (ccode == 0)
-      {
-	 g += (node->allocSize + GUARD_SIZE);
-	 ccode = memcmp(g, guard, GUARD_SIZE);
-	 if (ccode == 0)
-	 {
-	    ccode = memcmp(node->guardPost, guard, GUARD_SIZE);
-	    if (ccode == 0)
-	       return(true);
-	 }
+      { 
+	 return(true); 
       }
    }
    return(false);
 }
 
-
-peg_suballocator::SUBALLOC_NODE *peg_suballocator::_CheckNode(void *m, int type)
+peg_suballocator::SUBALLOC_NODE *peg_suballocator::_CheckNode(void *m, 
+							      int type, 
+							      Sint8 *file, 
+							      Uint32 line)
 {
-   // we don't need to grab any semaphores - 
-   // called routines will do that for us
-   SUBALLOC_NODE *temp;
-   Sint8 *g;
    assert(m != NULL);
-   g = (Sint8 *)m;
-   g -= GUARD_SIZE;	
-   temp = *(SUBALLOC_NODE **)(g - sizeof(SUBALLOC_NODE **));
-   // check all the guard pages
-   // we don't need to own semaphores because we will not be
-   // walking the list 
-   assert(! (temp->flags & AVAIL));
-   if( type == ARRAY )
-      assert(IS_ARRAY(temp));
-   else
-      assert( ! IS_ARRAY(temp));
-   assert(_CheckGuard(temp));
+   SUBALLOC_NODE *temp = (SUBALLOC_NODE *)m;
+   temp--;
+   if( (temp->flags & AVAIL ) )
+   {
+      Tracer::trace(file, line, TRC_MEMORY, Tracer::LEVEL2, 
+		    "Doubly freed memory, already deleted by class %s at " \
+		    "source file %s line number %s; this deletion is from " \
+		    "source file %s line number %d",
+		    temp->d_classname, temp->d_file, temp->d_line, file, line);
+      temp->flags |= CHECK_FAILED;
+      if( abort_on_error)
+	 abort(); 
+   }
+      if( type == ARRAY )
+      {
+	 if( false == IS_ARRAY(temp))
+	 {
+// 	    fprintf(dumpFile, "\nArray delete called on non-array memory\n\tAllocation data: %s %s %s\n\t",
+// 		    temp->classname, temp->file, temp->line);
+	    temp->flags |= CHECK_FAILED;
+	    if( abort_on_error)
+	       abort();
+	 }
+      }
+      else if( true == IS_ARRAY(temp))
+      {
+// 	 fprintf(dumpFile, "\nNormal delete called on Array memory\n\tAllocation data: %s %s %s\n\t",
+// 		 temp->classname, temp->file, temp->line);
+	 temp->flags |= CHECK_FAILED;
+	 if( abort_on_error)
+	    abort();
+      }
+      if(false == _CheckGuard(temp))
+      {
+// 	 fprintf(dumpFile, "\nMemory overwritten\n\tAllocation data: %s %s %s\n\t",
+// 		 temp->classname, temp->file, temp->line);
+	 temp->flags |= CHECK_FAILED;
+	 if( abort_on_error)
+	    abort();
+      }
    return temp;
 }
 

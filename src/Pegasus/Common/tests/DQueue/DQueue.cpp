@@ -26,9 +26,13 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 #define PEGASUS_DEBUG_MEMORY 1
+#if defined(PEGASUS_REMOVE_TRACE)
+#undef PEGASUS_REMOVE_TRACE
+#endif
 #include <Pegasus/suballoc/suballoc.h>
 #include <Pegasus/Common/DQueue.h>
 #include <Pegasus/Common/Thread.h>
+#include <Pegasus/Common/Tracer.h>
 #include <sys/types.h>
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 #else
@@ -224,8 +228,10 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_receiving_thread(void *parm)
 
       if(msg != 0 )
       {
-//	 delete msg;
-	 replies++;
+	 PEGASUS_DELETE(msg);
+	 PEGASUS_DELETE(msg);
+	  
+	 replies++; 
       }
       pegasus_yield();
    }
@@ -239,6 +245,10 @@ int main(int argc, char **argv)
 {
    peg_suballocator::SUBALLOC_HANDLE *heap_handle = new peg_suballocator::SUBALLOC_HANDLE("DQueue_test");
    
+   Tracer::setTraceFile("dq_memory_trace"); 
+   Tracer::setTraceComponents("Memory");  
+   Tracer::setTraceLevel(Tracer::LEVEL4); 
+   
    read_write rw =
       { 
 	 new AsyncDQueue<FAKE_MESSAGE>(true, 100),
@@ -248,6 +258,10 @@ int main(int argc, char **argv)
    Thread *client_sender[20];
    Thread *server[10];
    int i;
+
+   Sint8 * exp = PEGASUS_ARRAY_NEW(Sint8, 100 );
+   PEGASUS_ARRAY_DELETE(exp);
+   
 
    for( i = 0; i < NUMBER_CLIENTS; i++)
    {

@@ -4,8 +4,8 @@ include $(ROOT)/mak/config.mak
 
 
 DIRS = \
-    suballoc \
     Common \
+    suballoc \
     Config \
     Repository \
     getoopt \

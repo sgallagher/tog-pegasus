@@ -49,6 +49,10 @@ PEGASUS_NAMESPACE_BEGIN
 const String DEFAULT_NAMESPACE = "root/cimv2";
 
 
+String _toString(Boolean x)
+{
+	return(x ? "true" : "false");
+}
 /** Select one item from an array of items presented to
     the user. This preents the list and requests user input for
     the response.
@@ -78,11 +82,12 @@ Uint32 _selectStringItem(const Array<String>& selectList, const String& what)
     @param
     @param
     @param className CIMName for the class to enumerate.
-    @return CIMObjectPath with the path that was selected.  If there were no
-    paths selected or the enumerate returned no instances the returned CIMObjectPath
-    is Null. Note that we do not have a clean way to test for null CIMObjectPath today.
+    @param instancePath CIMObjectPath of instance found 
+    @return True if instance provided and the path is in instancePath.  Else False
+    and there is nothing in the instancePath
 */
-CIMObjectPath _selectInstance(CIMClient& client, Options& opts, const CIMName& className)
+Boolean _selectInstance(CIMClient& client, Options& opts, const CIMName& className,
+    CIMObjectPath & instancePath)
 {
     Array<CIMObjectPath> instanceNames =
         client.enumerateInstanceNames(opts.nameSpace,
@@ -93,42 +98,43 @@ CIMObjectPath _selectInstance(CIMClient& client, Options& opts, const CIMName& c
 
     if (list.size() == 0)
     {
-        return(CIMObjectPath());
+        return(false);
     }
     Uint32 rtn = _selectStringItem(list, "an Instance");
 
-    return(instanceNames[rtn]);
+    instancePath = instanceNames[rtn];
+    return(true);
 }
 
-String _toString(Boolean x)
-{
-	return(x ? "true" : "false");
-}
 
 /** Use the interactive selection mechanism to get the instance if
     the input object is a class AND if the opts.interactive flag is
     set.  This function is used by the association functions because
     just the existence of the object as class is insufficient since
     these functions accept both class and instance input for processing.
-    If the tests are passed this funciton calls the server to enumerate
+    If the tests are passed this function calls the server to enumerate
     the instance names possible and displays them for the user to 
     select one.
     @param client CIMClient context for the operation required
     @param opts the context structure for this operaiton
     @param name String of the object that is the target of the request.
-    @return CIMObjectPath with either the original object or the result
-    of the selection
+    @param instancePath CIMObjectPath of instance selected if return
+    is true.  Else, unchanged.
+    @return Boolean True if an instance path is to be returned. If nothing
+    is selected, returns False.
 */
-CIMObjectPath _conditionalSelectInstance(CIMClient& client, Options& opts, const String& objectName)
+Boolean _conditionalSelectInstance(CIMClient& client, Options& opts,
+    const String& objectName, CIMObjectPath & instancePath)
 {
     CIMObjectPath thisObject(objectName);
     // if class level and interactive set.
     if ((thisObject.getKeyBindings().size() == 0) && opts.interactive)
     {
         // Ask the user to select an instance
-        thisObject = _selectInstance(client, opts, CIMName(opts.objectName));
+        
+        return(_selectInstance(client, opts, CIMName(opts.objectName), thisObject));
     }
-    return(thisObject);
+    return(false);
 }
 
 
@@ -637,10 +643,7 @@ int deleteInstance(CIMClient& client, Options& opts)
     if ((thisObject.getKeyBindings().size() == 0) ? true : false)
     {
         // get the instance to delete
-        thisObject = 
-          _selectInstance(client, opts, CIMName(opts.objectName));
-        // No instances returned. exit
-        if (thisObject.getClassName() == CIMName())
+        if(!_selectInstance(client, opts, CIMName(opts.objectName), thisObject))
             return(0);
     }
 
@@ -693,9 +696,7 @@ int getInstance(CIMClient& client, Options& opts)
     if ((thisObject.getKeyBindings().size() == 0) ? true : false)
     {
         // get the instance to delete
-        thisObject = 
-          _selectInstance(client, opts, CIMName(opts.objectName));
-        if (thisObject.getClassName() == CIMName())
+        if(!_selectInstance(client, opts, CIMName(opts.objectName),thisObject))
             return(0);
     }
     if (opts.time) opts.elapsedTime.reset();
@@ -1075,8 +1076,10 @@ int referenceNames(CIMClient& client, Options& opts)
             << endl;
     }
     // do conditional select of instance if params properly set.
-    CIMObjectPath thisObjectPath = 
-        _conditionalSelectInstance(client, opts, opts.objectName);
+    CIMObjectPath thisObjectPath; 
+    if (!_conditionalSelectInstance(client, opts,
+            opts.objectName, thisObjectPath))
+        return(0);
 
     if (opts.time) opts.elapsedTime.reset();
 
@@ -1137,9 +1140,11 @@ int references(CIMClient& client, Options& opts)
     }
 
     // do conditional select of instance if params properly set.
-    // Note that this assumes that a valid object will always be returned.
-    CIMObjectPath thisObjectPath = 
-        _conditionalSelectInstance(client, opts, opts.objectName);
+    CIMObjectPath thisObjectPath; 
+    if(!_conditionalSelectInstance(client, opts,
+                opts.objectName, thisObjectPath))
+
+        return(0);
 
     if (opts.time) opts.elapsedTime.reset();
 
@@ -1195,8 +1200,10 @@ int associatorNames(CIMClient& client, Options& opts)
     }
 
     // do conditional select of instance if params properly set.
-    CIMObjectPath thisObjectPath = 
-        _conditionalSelectInstance(client, opts, opts.objectName);
+    CIMObjectPath thisObjectPath; 
+    if(!_conditionalSelectInstance(client, opts,
+        opts.objectName, thisObjectPath))
+        return(0);
 
     if (opts.time) opts.elapsedTime.reset();
 
@@ -1262,8 +1269,10 @@ int associators(CIMClient& client, Options& opts)
     }
 
     // do conditional select of instance if params properly set.
-    CIMObjectPath thisObjectPath = 
-        _conditionalSelectInstance(client, opts, opts.objectName);
+    CIMObjectPath thisObjectPath; 
+    if(!_conditionalSelectInstance(client, opts,
+        opts.objectName, thisObjectPath))
+        return(0);
 
     if (opts.time) opts.elapsedTime.reset();
 

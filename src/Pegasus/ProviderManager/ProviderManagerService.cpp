@@ -9,7 +9,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -162,7 +162,7 @@ Triad<String, String, String> _getProviderRegPair(
         if (String::equal(interfaceName,"C++Default") )
             interfaceName = String::EMPTY;
     }
-   
+
 //
 
     PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
@@ -253,7 +253,7 @@ void ProviderManagerService::_lookupProviderForAssocClass(
             if (String::equal(interfaceName,"C++Default") )
                 interfaceName = String::EMPTY;
         }
-   
+
 //
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
@@ -477,11 +477,19 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOper
         return(PEGASUS_THREAD_RETURN(1));
     }
 
-    AsyncOpNode *op = service->_incomingQueue.dequeue();
+    AsyncOpNode * op = service->_incomingQueue.dequeue();
 
     PEGASUS_ASSERT(op != 0 );
 
-    AsyncRequest *request = static_cast<AsyncRequest *>(op->_request.next(0));
+    AsyncRequest * request = static_cast<AsyncRequest *>(op->_request.next(0));
+
+    if(request == 0)
+    {
+        // ATTN: periodically the request is null. Should this ever get this far???
+
+        // no request in op node
+        return(PEGASUS_THREAD_RETURN(1));
+    }
 
     if(request->getType() == async_messages::ASYNC_LEGACY_OP_START)
     {
@@ -1537,7 +1545,7 @@ void ProviderManagerService::handleGetPropertyRequest(AsyncOpNode *op, const Mes
             _lookupProviderForClass(objectPath);
 
 	// get cached or load new provider module
-	Provider provider = 
+	Provider provider =
             providerManager.getProvider(triad.first, triad.second, triad.third);
 
 	// convert arguments
@@ -1625,7 +1633,7 @@ void ProviderManagerService::handleSetPropertyRequest(AsyncOpNode *op, const Mes
             _lookupProviderForClass(objectPath);
 
 	// get cached or load new provider module
-	Provider provider = 
+	Provider provider =
             providerManager.getProvider(triad.first, triad.second, triad.third);
 
 	// convert arguments
@@ -1722,7 +1730,7 @@ void ProviderManagerService::handleInvokeMethodRequest(AsyncOpNode *op, const Me
             _lookupMethodProviderForClass(objectPath, request->methodName);
 
 	// get cached or load new provider module
-	Provider provider = 
+	Provider provider =
             providerManager.getProvider(triad.first, triad.second, triad.third);
 
         // convert arguments
@@ -1808,7 +1816,7 @@ void ProviderManagerService::handleCreateSubscriptionRequest(AsyncOpNode *op, co
 	    _getProviderRegPair(request->provider, request->providerModule);
 
 	// get cached or load new provider module
-	Provider provider = 
+	Provider provider =
             providerManager.getProvider(triad.first, triad.second, triad.third);
 
 
@@ -1894,7 +1902,7 @@ void ProviderManagerService::handleModifySubscriptionRequest(AsyncOpNode *op, co
 	    _getProviderRegPair(request->provider, request->providerModule);
 
 	// get cached or load new provider module
-	Provider provider = 
+	Provider provider =
             providerManager.getProvider(triad.first, triad.second, triad.third);
 
         // convert arguments
@@ -1979,7 +1987,7 @@ void ProviderManagerService::handleDeleteSubscriptionRequest(AsyncOpNode *op, co
 	    _getProviderRegPair(request->provider, request->providerModule);
 
 	// get cached or load new provider module
-	Provider provider = 
+	Provider provider =
             providerManager.getProvider(triad.first, triad.second, triad.third);
 
         // convert arguments
@@ -2060,7 +2068,7 @@ void ProviderManagerService::handleEnableIndicationsRequest(AsyncOpNode *op, con
 	    _getProviderRegPair(request->provider, request->providerModule);
 
 	// get cached or load new provider module
-	Provider provider = 
+	Provider provider =
             providerManager.getProvider(triad.first, triad.second, triad.third);
 
         provider.enableIndications(handler);
@@ -2117,7 +2125,7 @@ void ProviderManagerService::handleDisableIndicationsRequest(AsyncOpNode *op, co
 	    _getProviderRegPair(request->provider, request->providerModule);
 
 	// get cached or load new provider module
-	Provider provider = 
+	Provider provider =
             providerManager.getProvider(triad.first, triad.second, triad.third);
 
         provider.disableIndications();

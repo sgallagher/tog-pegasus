@@ -124,7 +124,7 @@ void CQLSelectStatement::appendClassPath(const CQLIdentifier& inIdentifier)
   _rep->appendClassPath(inIdentifier);
 }
 
-void CQLSelectStatement::setPredicate(CQLPredicate inPredicate)
+void CQLSelectStatement::setPredicate(const CQLPredicate& inPredicate)
 {
   PEGASUS_ASSERT(_rep != NULL);
 

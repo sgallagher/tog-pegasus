@@ -121,6 +121,7 @@ Boolean CQLSelectStatementRep::evaluate(const CIMInstance& inCI)
 {
   if (!hasWhereClause())
   {
+	printf("!hasWhereCluase\n");
     return true;
   }
   else
@@ -687,7 +688,7 @@ void CQLSelectStatementRep::appendClassPath(const CQLIdentifier& inIdentifier)
   _ctx->insertClassPath(inIdentifier);
 }
 
-void CQLSelectStatementRep::setPredicate(CQLPredicate inPredicate)
+void CQLSelectStatementRep::setPredicate(const CQLPredicate& inPredicate)
 {
   _predicate = inPredicate;
 }

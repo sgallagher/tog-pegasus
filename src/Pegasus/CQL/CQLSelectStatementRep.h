@@ -170,7 +170,7 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatementRep : public SelectStatementRep
         //     CQL_IS_A,
         //     CQL_LIKE
         // };
-        CQLPredicate inPredicate);
+        const CQLPredicate& inPredicate);
 
     /**  This method calls QueryContext::insertClassPathAlias()  to insert a
     classpath-alias pair

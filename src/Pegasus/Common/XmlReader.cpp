@@ -322,6 +322,27 @@ Boolean XmlReader::testStartTagOrEmptyTag(
 
 //------------------------------------------------------------------------------
 //
+// testStartTagOrEmptyTag()
+//
+//------------------------------------------------------------------------------
+
+Boolean XmlReader::testStartTagOrEmptyTag(
+    XmlParser& parser, 
+    XmlEntry& entry)
+{
+    if (!parser.next(entry) ||
+	(entry.type != XmlEntry::START_TAG &&
+	 entry.type != XmlEntry::EMPTY_TAG))
+    {
+	parser.putBack(entry);
+	return false;
+    }
+
+    return true;
+}
+
+//------------------------------------------------------------------------------
+//
 // testContentOrCData()
 //
 //------------------------------------------------------------------------------
@@ -1526,6 +1547,36 @@ CIMValue XmlReader::stringToValue(
     throw XmlSemanticError(lineNumber, mlParms);
 
     return false;
+}
+
+//------------------------------------------------------------------------------
+//
+// skipElement()
+//
+//------------------------------------------------------------------------------
+void XmlReader::skipElement(
+    XmlParser& parser,
+    XmlEntry& entry)
+{
+    const char * tag_name = entry.text;
+
+    if (entry.type == XmlEntry::EMPTY_TAG)
+    {
+	return;
+    }
+
+    while (testStartTagOrEmptyTag(parser, entry))
+    {
+        skipElement(parser, entry); 
+    }
+
+    if (testContentOrCData(parser, entry))
+    {
+        ; // skip
+    }
+
+    expectEndTag(parser, tag_name);
+    return;
 }
 
 //------------------------------------------------------------------------------
@@ -3972,9 +4023,9 @@ Boolean XmlReader::getBooleanValueElement(
 
 //------------------------------------------------------------------------------
 //
-// getErrorElement()
+//     DMTF CR Pending
 //
-//     <!ELEMENT ERROR EMPTY>
+//     <!ELEMENT ERROR (INSTANCE*)>
 //     <!ATTLIST ERROR 
 //         CODE CDATA #REQUIRED
 //         DESCRIPTION CDATA #IMPLIED>
@@ -4033,7 +4084,14 @@ Boolean XmlReader::getErrorElement(
     entry.getAttributeValue("DESCRIPTION", tmpDescription);
 
     if (!empty)
+    {
+	while (testStartTagOrEmptyTag(parser, entry))
+	{
+	    skipElement(parser, entry);
+	}
+
 	expectEndTag(parser, "ERROR");
+    }
 
     cimException = PEGASUS_CIM_EXCEPTION(CIMStatusCode(tmpCode), tmpDescription);
     return true;

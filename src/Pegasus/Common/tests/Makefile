@@ -40,6 +40,7 @@ DIRS = \
     Value \
     XmlDump \
     XmlParser \
+    XmlReader \
     XmlPrint \
     Reference \
     DynLib \

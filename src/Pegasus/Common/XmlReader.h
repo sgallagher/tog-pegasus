@@ -83,6 +83,10 @@ public:
 	XmlEntry& entry,
 	const char* tagName);
 
+    static void skipElement(
+	XmlParser& parser,
+	XmlEntry& entry);
+
     static Boolean expectContentOrCData(
 	XmlParser& parser, 
 	XmlEntry& entry);
@@ -100,6 +104,10 @@ public:
 	XmlParser& parser, 
 	XmlEntry& entry,
 	const char* tagName);
+
+    static Boolean testStartTagOrEmptyTag(
+	XmlParser& parser, 
+	XmlEntry& entry);
 
     static Boolean testContentOrCData(
 	XmlParser& parser, 

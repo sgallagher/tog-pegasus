@@ -62,7 +62,7 @@ extern "C" {
       
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
 	  CMPI_Object *obj=reinterpret_cast<CMPI_Object*>(eSbc);
-	  TableauRow* row = (TableauRow* )obj->priv;
+	  CMPI_TableauRow* row = (CMPI_TableauRow* )obj->priv;
 	  if (row)	  
       	return row->size();
 	  return 0;
@@ -71,11 +71,11 @@ extern "C" {
    CMPIPredicate* sbcGetPredicateAt(CMPISubCond* eSbc, unsigned int index, CMPIStatus* rc) {
 
 	  CMPI_Object *obj=reinterpret_cast<CMPI_Object*>(eSbc);
-	  TableauRow* row = (TableauRow* )obj->priv;
+	  CMPI_TableauRow* row = (CMPI_TableauRow* )obj->priv;
 
 	  if (row)
       	if (index<=row->size()) {
-         const term_el *term=(row->getData())+index;
+         const CMPI_term_el *term=(row->getData())+index;
 
          CMPIPredicate *prd=(CMPIPredicate*)new CMPI_Predicate(term);
 		 /* CMPI_Object puts in the hdl the pointer to the CMPI_Predicate. 
@@ -110,7 +110,7 @@ static CMPISubCondFT scnd_FT={
 
 CMPISubCondFT *CMPI_SubCond_Ftab=&scnd_FT;
 
-CMPI_SubCond::CMPI_SubCond(const TableauRow* tblor)
+CMPI_SubCond::CMPI_SubCond(const CMPI_TableauRow* tblor)
   : priv((void*)tblor) {
    ft=CMPI_SubCond_Ftab;
 }

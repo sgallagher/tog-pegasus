@@ -61,7 +61,7 @@ extern "C" {
                   CMPIPredOp* op, CMPIString** lhs, CMPIString** rhs) {
       //CMPI_Predicate *prd=(CMPI_Predicate*)ePrd;
 	  CMPI_Object *obj=reinterpret_cast<CMPI_Object*>(ePrd);
-	  term_el *term =  (term_el *)obj->priv;
+	  CMPI_term_el *term =  (CMPI_term_el *)obj->priv;
 	 
       if (term) 
 	   { 
@@ -98,7 +98,7 @@ static CMPIPredicateFT prd_FT={
 
 CMPIPredicateFT *CMPI_Predicate_Ftab=&prd_FT;
 
-CMPI_Predicate::CMPI_Predicate(const term_el* t)
+CMPI_Predicate::CMPI_Predicate(const CMPI_term_el* t)
   : priv((void*)t) {
    ft=CMPI_Predicate_Ftab;
 }

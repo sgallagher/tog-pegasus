@@ -25,32 +25,47 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
+// Author:      Konrad Rzeszutek, konradr@us.ibm.com
 //
 // Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef CMPI_SelectExpAccessor_h
-#define CMPI_SelectExpAccessor_h
+#ifndef CMPI_SelectExpAccessor_CQL_h
+#define CMPI_SelectExpAccessor_CQL_h
 
 #include <Pegasus/Provider/CMPI/cmpidt.h>
-#include <Pegasus/WQL/WQLPropertySource.h>
+#include <Pegasus/Common/CIMObjectPath.h>
+#include <Pegasus/Common/CIMInstance.h>
+#include <Pegasus/CQL/CQLSelectStatement.h>
 
-PEGASUS_NAMESPACE_BEGIN
+PEGASUS_NAMESPACE_BEGIN class CMPI_SelectExpAccessor_CQL
+{
+private:
+  CMPIAccessor * accessor;
+  void *accParm;
 
-class CMPI_SelectExpAccessor : public WQLPropertySource {
- private:
-   CMPIAccessor* accessor;
-   void* accParm;
+  // Needed to build an instance 
+  CQLSelectStatement *_stmt;    // No need to de-allocate it.
+  CIMObjectPath _objPath;
+  CIMInstance _instance;
+
+  void _constructInstance ();
+
 public:
-   CMPI_SelectExpAccessor(CMPIAccessor *acc, void *parm);
-   virtual ~CMPI_SelectExpAccessor() {}
-   Boolean getValue(
-	const CIMName& propertyName,
-	WQLOperand& value) const;
+  CMPI_SelectExpAccessor_CQL (CMPIAccessor * acc, void *parm,
+                              CQLSelectStatement * stmt,
+                              CIMObjectPath & objPath);
+
+  virtual ~ CMPI_SelectExpAccessor_CQL ()
+  {
+  }
+
+  CIMInstance & getInstance ()
+  {
+    return _instance;
+  }
 };
 
 PEGASUS_NAMESPACE_END
-
 #endif

@@ -110,6 +110,10 @@ CMPIProviderManager::CMPIProviderManager(Mode m)
    if (getenv("CMPI_TRACE")) _cmpi_trace=1;
    else _cmpi_trace=0;
 //   _repository=ProviderManagerService::getRepository();
+   ProviderManagerService *provService =ProviderManagerService::providerManagerService;
+	_repository=
+		provService->_repository;
+
 }
 
 CMPIProviderManager::~CMPIProviderManager(void)
@@ -1724,6 +1728,7 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
 
         indSelectRecord *srec=new indSelectRecord();
         const CIMObjectPath &sPath=request->subscriptionInstance.getPath();
+
         selxTab.insert(sPath.toString(),srec);
 
         // convert arguments
@@ -1746,8 +1751,11 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
 								(SubscriptionFilterConditionContainer::NAME);
 
 		CMPI_SelectExp *eSelx=new CMPI_SelectExp(context,
-        request->query,
-        sub_cntr.getQueryLanguage());
+						_repository,
+						request->nameSpace.getString(),
+        				request->query,
+        				sub_cntr.getQueryLanguage());
+
         srec->eSelx=eSelx;
         CMPI_ThreadContext thr(&pr.broker,&eCtx);
 

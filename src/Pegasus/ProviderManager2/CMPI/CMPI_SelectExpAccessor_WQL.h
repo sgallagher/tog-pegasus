@@ -31,22 +31,24 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef _CMPI_SubCond_H_
-#define _CMPI_SubCond_H_
+#ifndef CMPI_SelectExpAccessor_WQL_h
+#define CMPI_SelectExpAccessor_WQL_h
 
-#include "CMPI_Query2Dnf.h"
-#include "CMPI_Predicate.h"
-#include "CMPI_Object.h"
-#include "CMPI_Ftabs.h"
-
-#include <Pegasus/Common/OperationContext.h>
+#include <Pegasus/Provider/CMPI/cmpidt.h>
+#include <Pegasus/WQL/WQLPropertySource.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-struct CMPI_SubCond : CMPISubCond {
-   CMPI_Object *next,*prev;
-   void* priv;
-   CMPI_SubCond(const CMPI_TableauRow* tblor);
+class CMPI_SelectExpAccessor_WQL : public WQLPropertySource {
+ private:
+   CMPIAccessor* accessor;
+   void* accParm;
+public:
+   CMPI_SelectExpAccessor_WQL(CMPIAccessor *acc, void *parm);
+   virtual ~CMPI_SelectExpAccessor_WQL() {}
+   Boolean getValue(
+	const CIMName& propertyName,
+	WQLOperand& value) const;
 };
 
 PEGASUS_NAMESPACE_END

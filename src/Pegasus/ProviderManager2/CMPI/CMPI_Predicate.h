@@ -34,7 +34,7 @@
 #ifndef _CMPI_Predicate_H_
 #define _CMPI_Predicate_H_
 
-#include "CMPI_Wql2Dnf.h"
+#include "CMPI_Query2Dnf.h"
 #include "CMPI_Object.h"
 #include "CMPI_Ftabs.h"
 
@@ -45,7 +45,7 @@ PEGASUS_NAMESPACE_BEGIN
 struct CMPI_Predicate : CMPIPredicate {
    CMPI_Object *next,*prev;
    void *priv;
-   CMPI_Predicate(const term_el* t);
+   CMPI_Predicate(const CMPI_term_el* t);
 };
 
 PEGASUS_NAMESPACE_END

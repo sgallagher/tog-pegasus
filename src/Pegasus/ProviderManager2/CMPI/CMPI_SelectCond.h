@@ -34,7 +34,7 @@
 #ifndef _CMPI_SelectCond_H_
 #define _CMPI_SelectCond_H_
 
-#include "CMPI_Wql2Dnf.h"
+#include "CMPI_Query2Dnf.h"
 #include "CMPI_SubCond.h"
 #include "CMPI_Object.h"
 #include "CMPI_Ftabs.h"
@@ -44,15 +44,15 @@
 PEGASUS_NAMESPACE_BEGIN
 
 struct CMPI_SelectCondData {
-	CMPI_SelectCondData(Tableau *tblo, int t);
-	Tableau *tableau;
+	CMPI_SelectCondData(CMPI_Tableau *tblo, int t);
+	CMPI_Tableau *tableau;
 	int type;
 };
 
 struct CMPI_SelectCond : CMPISelectCond {
    CMPI_Object *next,*prev;
    void *priv;
-   CMPI_SelectCond(Tableau* tblo, int t);
+   CMPI_SelectCond(CMPI_Tableau* tblo, int t);
 };
 
 PEGASUS_NAMESPACE_END

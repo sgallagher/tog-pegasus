@@ -39,12 +39,15 @@ SOURCES = \
 	CMPI_String.cpp \
 	CMPI_ThreadContext.cpp \
 	CMPI_Value.cpp \
+	CMPI_Query2Dnf.cpp \
+	CMPI_Cql2Dnf.cpp \
         CMPI_Wql2Dnf.cpp \
         CMPI_SelectExp.cpp \
         CMPI_SelectCond.cpp \
         CMPI_SubCond.cpp \
         CMPI_Predicate.cpp \
-        CMPI_SelectExpAccessor.cpp
+        CMPI_SelectExpAccessor_WQL.cpp \
+        CMPI_SelectExpAccessor_CQL.cpp
 
 include $(ROOT)/mak/library.mak
 include $(ROOT)/mak/install.mak

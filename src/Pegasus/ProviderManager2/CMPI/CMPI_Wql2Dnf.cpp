@@ -28,6 +28,7 @@
 // Author:      Markus Mueller (sedgewick_de@yahoo.de)
 //
 // Modified By: Adrian Schuur, schuur@de.ibm.com
+//				Konrad Rzeszutek, konradr@us.ibm.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -43,7 +44,7 @@
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
-#define PEGASUS_ARRAY_T term_el
+#define PEGASUS_ARRAY_T term_el_WQL
 # include <Pegasus/Common/ArrayImpl.h>
 #undef PEGASUS_ARRAY_T
 
@@ -55,7 +56,7 @@ PEGASUS_NAMESPACE_BEGIN
 # include <Pegasus/Common/ArrayImpl.h>
 #undef PEGASUS_ARRAY_T
 
-#define PEGASUS_ARRAY_T TableauRow
+#define PEGASUS_ARRAY_T TableauRow_WQL
 # include <Pegasus/Common/ArrayImpl.h>
 #undef PEGASUS_ARRAY_T
 
@@ -63,7 +64,7 @@ PEGASUS_NAMESPACE_BEGIN
 //
 // Terminal element methods 
 //
-void term_el::negate(void)
+void term_el_WQL::negate(void)
 {
     switch (op)
     {
@@ -76,7 +77,7 @@ void term_el::negate(void)
         default: break;
     }
 };
-
+/*
 String opnd2string(const WQLOperand &o) {
     switch (o.getType()) {
     case WQLOperand::PROPERTY_NAME:
@@ -132,6 +133,37 @@ int term_el::toStrings(CMPIType &typ, CMPIPredOp &opr, String &o1, String &o2) c
    if (opn1.getType()==WQLOperand::PROPERTY_NAME) typ=mapType(opn2.getType());
    else typ=mapType(opn1.getType());
    return 0;
+}
+*/
+
+CMPIPredOp mapOperation(WQLOperation op) {
+   static CMPIPredOp ops[]={(CMPIPredOp)0,(CMPIPredOp)0,(CMPIPredOp)0,
+      CMPI_PredOp_Equals,
+      CMPI_PredOp_NotEquals,
+      CMPI_PredOp_LessThan,
+      CMPI_PredOp_LessThanOrEquals,
+      CMPI_PredOp_GreaterThan,
+      CMPI_PredOp_GreaterThanOrEquals,
+      (CMPIPredOp)0,(CMPIPredOp)0,(CMPIPredOp)0,(CMPIPredOp)0,(CMPIPredOp)0,(CMPIPredOp)0};
+   return ops[(int)op];
+}
+
+CMPIType mapType(WQLOperand::Type typ) {
+   switch (typ) {
+    case WQLOperand::PROPERTY_NAME:
+       return CMPI_nameString;
+    case WQLOperand::STRING_VALUE:
+       return CMPI_charString;
+    case WQLOperand::INTEGER_VALUE:
+       return CMPI_integerString;
+    case WQLOperand::DOUBLE_VALUE:
+       return CMPI_realString;
+    case WQLOperand::BOOLEAN_VALUE:
+       return CMPI_booleanString;
+    case WQLOperand::NULL_VALUE:
+       return CMPI_null;
+  }
+  return CMPI_null;
 }
 
 //
@@ -244,14 +276,14 @@ static bool operator==(const WQLOperand& x, const WQLOperand& y)
    return false;
 }
 
-static bool operator==(const term_el& x, const term_el& y)
+static bool operator==(const term_el_WQL& x, const term_el_WQL& y)
 {
 	return x.op == y.op && 
 	   x.opn1 == y.opn1 && 
 	   x.opn2 == y.opn2;
 }
 
-static void addIfNotExists(TableauRow &tr, const term_el& el)
+static void addIfNotExists(TableauRow_WQL &tr, const term_el_WQL& el)
 {
    for (int i=0,m=tr.size(); i<m; i++) {
       if (tr[i]==el) return;
@@ -323,7 +355,7 @@ static Boolean _Evaluate(
 // WQL Compiler methods
 //
     
-CMPI_Wql2Dnf::CMPI_Wql2Dnf(const String condition, const String pref) 
+CMPI_Wql2Dnf::CMPI_Wql2Dnf(const String &condition, const String &pref) 
 {
     WQLSelectStatement wqs;
     WQLParser::parse(pref+condition,wqs);
@@ -376,7 +408,7 @@ void CMPI_Wql2Dnf::compile(const WQLSelectStatement * wqs)
 
     for (Uint32 i=0, n =disj.size(); i< n; i++)
     {
-        TableauRow tr;
+        TableauRow_WQL tr;
         Array<stack_el> conj;
 
         if (!disj[i].is_terminal)
@@ -395,8 +427,9 @@ void CMPI_Wql2Dnf::compile(const WQLSelectStatement * wqs)
     eval_heap.clear();
        
     //print();
-    printTableau();
+    //printTableau();
     //_sortTableau();
+	_populateTableau();
 }
 
 Boolean CMPI_Wql2Dnf::evaluate(WQLPropertySource * source) const
@@ -406,7 +439,7 @@ Boolean CMPI_Wql2Dnf::evaluate(WQLPropertySource * source) const
 
    for(Uint32 i=0,n = _tableau.size(); i < n; i++)
    {
-       TableauRow tr = _tableau[i];
+       TableauRow_WQL tr = _tableau[i];
        for(Uint32 j=0,m = tr.size(); j < m; j++)
        {
            lhs = tr[j].opn1;
@@ -457,7 +490,7 @@ void CMPI_Wql2Dnf::printTableau(void)
    for(Uint32 i=0,n = _tableau.size(); i < n; i++)
    {
        cout << "Tableau " << i << endl;
-       TableauRow tr = _tableau[i];
+       TableauRow_WQL tr = _tableau[i];
        for(Uint32 j=0,m = tr.size(); j < m; j++)
        {
            cout << tr[j].opn1.toString() << " ";
@@ -469,6 +502,80 @@ void CMPI_Wql2Dnf::printTableau(void)
 
 }
 
+String
+WQL2String(const WQLOperand &o) {
+    switch (o.getType()) {
+    case WQLOperand::PROPERTY_NAME:
+       return o.getPropertyName();
+    case WQLOperand::STRING_VALUE:
+       return o.getStringValue();
+    case WQLOperand::INTEGER_VALUE:
+       return Formatter::format("$0",o.getIntegerValue());
+    case WQLOperand::DOUBLE_VALUE:
+       return Formatter::format("$0",o.getDoubleValue());
+    case WQLOperand::BOOLEAN_VALUE:
+       return Formatter::format("$0",o.getBooleanValue());
+    default: ;
+   }
+   return "NULL_VALUE";
+}
+
+CMPIPredOp
+WQL2PredOp(const WQLOperation &op) { 
+
+   static CMPIPredOp ops[]={(CMPIPredOp)0,(CMPIPredOp)0,(CMPIPredOp)0,
+      CMPI_PredOp_Equals,
+      CMPI_PredOp_NotEquals,
+      CMPI_PredOp_LessThan,
+      CMPI_PredOp_LessThanOrEquals,
+      CMPI_PredOp_GreaterThan,
+      CMPI_PredOp_GreaterThanOrEquals,
+      (CMPIPredOp)0,(CMPIPredOp)0,(CMPIPredOp)0,(CMPIPredOp)0,(CMPIPredOp)0,(CMPIPredOp)0};
+
+   return ops[(int)op];
+}
+
+CMPI_QueryOperand::Type
+WQL2Type(WQLOperand::Type typ) {
+   switch (typ) {
+    case WQLOperand::PROPERTY_NAME:
+       return CMPI_QueryOperand::PROPERTY_TYPE;
+    case WQLOperand::STRING_VALUE:
+       return CMPI_QueryOperand::STRING_TYPE;
+    case WQLOperand::INTEGER_VALUE:
+       return CMPI_QueryOperand::UINT64_TYPE;
+    case WQLOperand::DOUBLE_VALUE:
+       return CMPI_QueryOperand::REAL_TYPE;
+    case WQLOperand::BOOLEAN_VALUE:
+       return CMPI_QueryOperand::BOOLEAN_TYPE;
+    case WQLOperand::NULL_VALUE:
+       return CMPI_QueryOperand::NULL_TYPE;
+  }
+  return CMPI_QueryOperand::NULL_TYPE;
+}
+
+
+void CMPI_Wql2Dnf::_populateTableau(void)
+{
+   for(Uint32 i=0,n = _tableau.size(); i < n; i++)
+   {
+       TableauRow_WQL tr_wql = _tableau[i];
+	
+       for(Uint32 j=0,m = tr_wql.size(); j < m; j++)
+       {
+		   term_el_WQL t = tr_wql[j]; 
+
+		   CMPI_TableauRow tr;
+      		CMPI_QueryOperand lhs(WQL2String(t.opn1), WQL2Type(t.opn1.getType()));
+      		CMPI_QueryOperand rhs(WQL2String(t.opn2), WQL2Type(t.opn2.getType()));
+
+      		tr.append(CMPI_term_el(t.mark, WQL2PredOp(t.op), lhs, rhs));
+      		_CMPI_tableau.append (tr);
+
+       }
+
+   }
+}
 void CMPI_Wql2Dnf::_buildEvalHeap(const WQLSelectStatement * wqs)
 {
 
@@ -541,7 +648,7 @@ void CMPI_Wql2Dnf::_buildEvalHeap(const WQLSelectStatement * wqs)
 
                 WQLOperand rhs = wqsrep->_operands[j++];
 
-                terminal_heap.push(term_el(false, op, lhs, rhs));
+                terminal_heap.push(term_el_WQL(false, op, lhs, rhs));
 
                 stack.push(stack_el(terminal_heap.size()-1, true));
 
@@ -560,7 +667,7 @@ void CMPI_Wql2Dnf::_buildEvalHeap(const WQLSelectStatement * wqs)
                 PEGASUS_ASSERT(wqsrep->_operands.size() >= 1);
                 WQLOperand op = wqsrep->_operands[j++];
 
-                terminal_heap.push(term_el(false, WQL_EQ, op, dummy));
+                terminal_heap.push(term_el_WQL(false, WQL_EQ, op, dummy));
 
                 stack.push(stack_el(terminal_heap.size()-1, true));
 
@@ -572,7 +679,7 @@ void CMPI_Wql2Dnf::_buildEvalHeap(const WQLSelectStatement * wqs)
                 PEGASUS_ASSERT(wqsrep->_operands.size() >= 1);
                 WQLOperand op = wqsrep->_operands[j++];
 
-                terminal_heap.push(term_el(false, WQL_NE, op, dummy));
+                terminal_heap.push(term_el_WQL(false, WQL_NE, op, dummy));
 
                 stack.push(stack_el(terminal_heap.size()-1, true));
 

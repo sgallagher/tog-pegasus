@@ -119,6 +119,9 @@ private:
         unloading idle providers at the same time.
      */
     AtomicInt _unloadIdleProvidersBusy;
+
+	friend class CMPIProviderManager;
+
 };
 
 PEGASUS_NAMESPACE_END

@@ -33,16 +33,16 @@
 
 #include "CMPI_Version.h"
 
-#include "CMPI_SelectExpAccessor.h"
+#include "CMPI_SelectExpAccessor_WQL.h"
 #include <Pegasus/Provider/CMPI/cmpimacs.h>
 PEGASUS_NAMESPACE_BEGIN
 
-CMPI_SelectExpAccessor::CMPI_SelectExpAccessor(CMPIAccessor *acc, void *parm)
+CMPI_SelectExpAccessor_WQL::CMPI_SelectExpAccessor_WQL(CMPIAccessor *acc, void *parm)
    : accessor(acc), accParm(parm)
 {
 }
 
-Boolean CMPI_SelectExpAccessor::getValue(const CIMName& propertyName,
+Boolean CMPI_SelectExpAccessor_WQL::getValue(const CIMName& propertyName,
 	WQLOperand& value) const {
 
    CMPIAccessor* get=(CMPIAccessor*) accessor;

@@ -40,6 +40,7 @@
 #include <Pegasus/WQL/WQLOperation.h>
 #include <Pegasus/WQL/WQLOperand.h>
 #include <Pegasus/WQL/WQLSelectStatement.h>
+#include "CMPI_Query2Dnf.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -48,11 +49,11 @@ PEGASUS_NAMESPACE_BEGIN
 
 #include <Pegasus/Common/Linkage.h> 
 
-class term_el
+class term_el_WQL
 {
 public:
-    term_el() {}
-    term_el(Boolean m, WQLOperation o, WQLOperand op1, WQLOperand op2) :
+    term_el_WQL() {}
+    term_el_WQL(Boolean m, WQLOperation o, WQLOperand op1, WQLOperand op2) :
        mark(m), op(o), opn1(op1), opn2(op2) {}
     Boolean mark;
     WQLOperation op;
@@ -60,7 +61,7 @@ public:
     WQLOperand opn2;
 
     void negate(void);
-    int toStrings(CMPIType &typ, CMPIPredOp &opr, String &o1, String &o2) const;
+    //int toStrings(CMPIType &typ, CMPIPredOp &opr, String &o1, String &o2) const;
 };
 
 class stack_el
@@ -103,7 +104,7 @@ public:
     void order(void);
 };
 
-#define PEGASUS_ARRAY_T term_el
+#define PEGASUS_ARRAY_T term_el_WQL
 # include <Pegasus/Common/ArrayInter.h>
 #undef PEGASUS_ARRAY_T
 
@@ -115,15 +116,15 @@ public:
 # include <Pegasus/Common/ArrayInter.h>
 #undef PEGASUS_ARRAY_T
 
-typedef Array<term_el> TableauRow;
+typedef Array<term_el_WQL> TableauRow_WQL;
 
-#define PEGASUS_ARRAY_T TableauRow
+#define PEGASUS_ARRAY_T TableauRow_WQL
 # include <Pegasus/Common/ArrayInter.h>
 #undef PEGASUS_ARRAY_T
 
 #undef PEGASUS_COMMON_LINKAGE
 
-typedef Array<TableauRow> Tableau;
+typedef Array<TableauRow_WQL> Tableau_WQL;
 
 
 class CMPI_Wql2Dnf
@@ -135,13 +136,13 @@ public:
 
     CMPI_Wql2Dnf(const WQLSelectStatement * wqs);
 
-    CMPI_Wql2Dnf(const String condition, const String pref); 
+    CMPI_Wql2Dnf(const String &condition, const String &pref); 
     
     ~CMPI_Wql2Dnf();
 
     void compile (const WQLSelectStatement * wqs);
 
-    Tableau* getTableau() {return &_tableau;}
+    CMPI_Tableau *getTableau() {return &_CMPI_tableau;}
 
     Boolean evaluate(WQLPropertySource * source) const;
 
@@ -151,6 +152,8 @@ public:
 
 
 protected:
+	void _populateTableau(void);
+	
     void _buildEvalHeap(const WQLSelectStatement * wqs);
 
     void _pushNOTDown(void);
@@ -183,7 +186,8 @@ protected:
 
     // Structure to contain the compiled DNF form
 
-    Tableau _tableau;
+    Tableau_WQL _tableau;
+	CMPI_Tableau _CMPI_tableau;
 
     //
     // The eval_heap structure contains an ordered tree of non-terminal
@@ -191,7 +195,7 @@ protected:
     // expressions
     //
 
-    Stack<term_el> terminal_heap;
+    Stack<term_el_WQL> terminal_heap;
 
     Array<eval_el> eval_heap;
 

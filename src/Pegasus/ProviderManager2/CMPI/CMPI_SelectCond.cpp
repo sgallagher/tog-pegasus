@@ -81,7 +81,7 @@ extern "C" {
 	  if (data)
 		{
       	  if (index<=data->tableau->size()) {
-         	const TableauRow *row=(data->tableau->getData())+index;
+         	const CMPI_TableauRow *row=(data->tableau->getData())+index;
 
          	CMPISubCond *sbc=(CMPISubCond*)new CMPI_SubCond(row);
 			CMPI_Object *obj = new CMPI_Object(sbc);
@@ -106,10 +106,10 @@ static CMPISelectCondFT scnd_FT={
 
 CMPISelectCondFT *CMPI_SelectCond_Ftab=&scnd_FT;
 
-CMPI_SelectCondData::CMPI_SelectCondData(Tableau *tblo, int t)
+CMPI_SelectCondData::CMPI_SelectCondData(CMPI_Tableau *tblo, int t)
   : tableau(tblo), type(t) { }
 
-CMPI_SelectCond::CMPI_SelectCond(Tableau* tblo, int t)
+CMPI_SelectCond::CMPI_SelectCond(CMPI_Tableau* tblo, int t)
   {
    priv = new CMPI_SelectCondData(tblo, t);
    ft=CMPI_SelectCond_Ftab;

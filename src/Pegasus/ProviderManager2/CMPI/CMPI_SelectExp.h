@@ -35,27 +35,34 @@
 #define _CMPI_SelectExp_H_
 
 #include "CMPI_SelectCond.h"
+#include "CMPI_Query2Dnf.h"
 #include "CMPI_Wql2Dnf.h"
+#include "CMPI_Cql2Dnf.h"
 #include "CMPI_Object.h"
 #include "CMPI_Ftabs.h"
 
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/WQL/WQLSelectStatement.h>
+#include <Pegasus/Repository/CIMRepository.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 struct CMPI_SelectExp : CMPISelectExp {
-   CMPI_SelectExp(const OperationContext& ct, String cond_, String lang_);
+   CMPI_SelectExp(const OperationContext& ct, CIMRepository *repository, String _ns, String cond_, String lang_);
    CMPI_SelectExp(WQLSelectStatement*);
    CMPI_Object *next,*prev;
    const char **props;
    Array<CIMObjectPath> classNames;
    const OperationContext ctx;
    SubscriptionFilterConditionContainer* fcc;
+   String _namespace;
    String cond,lang;
-   CMPI_Wql2Dnf *dnf;
-   Tableau* tableau;
-   WQLSelectStatement* stmt;
+   CMPI_Wql2Dnf *wql_dnf;
+   CMPI_Cql2Dnf *cql_dnf;
+   CMPI_Tableau *tableau;
+   WQLSelectStatement *wql_stmt;
+   CQLSelectStatement *cql_stmt;
+   CIMRepository *_repository;
 };
 
 PEGASUS_NAMESPACE_END

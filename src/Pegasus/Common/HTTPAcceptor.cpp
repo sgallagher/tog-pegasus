@@ -560,13 +560,18 @@ void HTTPAcceptor::_acceptConnection()
 	  SocketMessage::READ | SocketMessage::EXCEPTION,
 	  connection->getQueueId(), Monitor::CONNECTION)) )
    {
+      // ATTN-DE-P2-2003100503::TODO::Need to enhance code to return
+      // an error message to Client application.
+      Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+          "HTTPAcceptor::_acceptConnection. Attempt to allocate entry in _entries table failed.");
       delete connection;
       Socket::close(socket);
+      return;
    }
 
    // Save the socket for cleanup later:
    connection->_entry_index = index;
-      _rep->_connection_mut.lock(pegasus_thread_self());
+   _rep->_connection_mut.lock(pegasus_thread_self());
    _rep->connections.append(connection);
    _rep->_connection_mut.unlock();
 }

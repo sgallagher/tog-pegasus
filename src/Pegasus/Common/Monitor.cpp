@@ -91,13 +91,15 @@ struct MonitorRep
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#define MAX_NUMBER_OF_MONITOR_ENTRIES  32
 Monitor::Monitor()
    : _module_handle(0), _controller(0), _async(false), _stopConnections(0)
 {
+    int numberOfMonitorEntriesToAllocate = MAX_NUMBER_OF_MONITOR_ENTRIES;
     Socket::initializeInterface();
     _rep = 0;
-    _entries.reserveCapacity(32);
-    for( int i = 0; i < 32; i++ )
+    _entries.reserveCapacity(numberOfMonitorEntriesToAllocate);
+    for( int i = 0; i < numberOfMonitorEntriesToAllocate; i++ )
     {
        _MonitorEntry entry(0, 0, 0);
        _entries.append(entry);
@@ -107,10 +109,11 @@ Monitor::Monitor()
 Monitor::Monitor(Boolean async)
    : _module_handle(0), _controller(0), _async(async), _stopConnections(0)
 {
+    int numberOfMonitorEntriesToAllocate = MAX_NUMBER_OF_MONITOR_ENTRIES;
     Socket::initializeInterface();
     _rep = 0;
-    _entries.reserveCapacity(32);
-    for( int i = 0; i < 32; i++ )
+    _entries.reserveCapacity(numberOfMonitorEntriesToAllocate);
+    for( int i = 0; i < numberOfMonitorEntriesToAllocate; i++ )
     {
        _MonitorEntry entry(0, 0, 0);
        _entries.append(entry);

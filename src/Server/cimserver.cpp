@@ -121,6 +121,7 @@ int cimserver_run( int argc, char** argv, Boolean shutdownOption );
 # include "cimserver_windows.cpp"
 #elif defined(PEGASUS_OS_TYPE_UNIX)
 # if defined(PEGASUS_OS_OS400)
+#  include "vfyptrs.cinc"
 #  include "OS400ConvertChar.h"
 #  include "cimserver_os400.cpp"
 # else
@@ -537,6 +538,17 @@ MessageLoader::_useProcessLocale = true;
 //l10n
 
 #ifdef PEGASUS_OS_OS400
+
+  VFYPTRS_INCDCL;               // VFYPTRS local variables
+
+  // verify pointers
+  #pragma exception_handler (qsyvp_excp_hndlr,qsyvp_excp_comm_area,\
+    0,_C2_MH_ESCAPE)
+    for( int arg_index = 1; arg_index < argc; arg_index++ ){
+	VFYPTRS(VERIFY_SPP_NULL(argv[arg_index]));
+    }
+  #pragma disable_handler
+
     // Convert the args to ASCII
     for(Uint32 i = 0;i< argc;++i)
     {

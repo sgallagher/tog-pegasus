@@ -14,11 +14,11 @@ LIBRARIES = \
 
 SOURCES = snmpIndicationHandler.cpp
 
-ifdef PEGASUS_AGENT
- EXTRA_LIBRARIES += -lsubagent -lpack -lagent -lemanate -lmibtable -lsnmp
+ifdef PEGASUS_USE_EMANATE
+ EXTRA_LIBRARIES += -L$(PEGASUS_EMANATE_LIB_DIR) -lsubagent -lpack -lagent -lemanate -lmibtable -lsnmp
 
- EXTRA_INCLUDES = -I/opt/snmp15.3/sadk/include \
-        -I/opt/snmp15.3/sadk/include/snmpd \
+ EXTRA_INCLUDES = -I$(PEGASUS_EMANATE_INCLUDE_DIR) \
+        -I$(PEGASUS_EMANATE_INCLUDE_DIR)/snmpd \
         $(SYS_INCLUDES) $(ACE_INCLUDES)
 
 LOCAL_DEFINES += -DSETS -DSR_SNMPv1 -DSR_SNMPv2c -DSR_SNMPv2  -DEMANATE -DSR_ANSI_PROTOTYPES -DSUBAGENT -DSR_USER_AP_SERVICE -DSR_UDS_IPC -DSR_MIB_TABLE_HASHING -DSR_IP

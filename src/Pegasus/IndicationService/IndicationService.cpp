@@ -1369,8 +1369,6 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
 
     CIMInstance handler;
     CIMInstance indication = request->indicationInstance;
-//cout << "Indication Service received indication: ";
-//cout << indication.getClassName () << endl;
 
     try
     {
@@ -1421,6 +1419,48 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
 
             if (match)
             {
+                 // Formatting indication. Removes properties listed in WHERE clause
+                 // from indication as they are not required to pass to consumer
+
+                 Array <String> selectPropertyList;
+                 String selectProperty;
+
+                 //
+                 //  Get all the properties from SELECT clause
+                 //
+                 Uint32 selectCount = selectStatement.getSelectPropertyNameCount ();
+                 if (selectCount > 0)
+                 {
+                     for (Uint32 i = 0; i < selectCount; i++)
+                     {
+                         selectProperty = selectStatement.getSelectPropertyName (i);
+                         if (!Contains (selectPropertyList, selectProperty))
+                         {
+                             selectPropertyList.append (selectProperty);
+                         }
+                     }
+                 }
+
+                 if (selectStatement.hasWhereClause ())
+                 {
+                     Uint32 whereCount = selectStatement.getWherePropertyNameCount ();
+                     if (whereCount > 0)
+                     {
+                         for (Uint32 j = 0; j < whereCount; j++)
+                         {
+                             String whereProperty = 
+                                 selectStatement.getWherePropertyName(j);
+                             // check if where property is not in select 
+                             if (!Contains(selectPropertyList, whereProperty))
+                             {
+                                 Uint32 propPos = indication.findProperty(whereProperty);
+                                 if (propPos != PEG_NOT_FOUND)
+                                     indication.removeProperty(propPos);
+                             }
+                         }
+                     }
+                 }
+                  
                  handlerNamedInstance = _getHandler
                      (matchedSubscriptions[i]);
 

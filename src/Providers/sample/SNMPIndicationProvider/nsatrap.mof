@@ -1,0 +1,131 @@
+[Provider ("nsatrap")]
+class HP_nsatrap : CIM_AlertIndication
+{
+};
+
+[Description ("This Trap is issued when previously "
+	"unknown Host adapter if found." ),
+ MappingStrings {
+	"OID.IETF | SNMP.1.3.6.1.4.1.795.2.5.0.108" }
+]
+class cycHostAdapterDiscovered : HP_nsatrap
+{
+	[MappingStrings {
+		"OID.IETF | SNMP.1.3.6.1.4.1.795.2.5.9000.9003",
+		"DataType.IETF | Integer32" }]
+	uint32 cycHostAdapterNumber ;
+
+	[MappingStrings {
+		"OID.IETF | SNMP.1.3.6.1.4.1.795.2.5.9000.9002",
+		"DataType.IETF | OctetString" }]
+	string cycHostAdapterID ;
+
+	[MappingStrings {
+		"OID.IETF | SNMP.1.3.6.1.4.1.795.2.5.9000.9001",
+		"DataType.IETF | OctetString" }]
+	string cycManagerID ; 
+};
+
+[Description ("This Trap is issued when a Host adapter "
+	"is swapped for different type one." ),
+ MappingStrings {
+	"OID.IETF | SNMP.1.3.6.1.4.1.795.2.5.0.109" }
+]
+class cycHostAdapterChanged : HP_nsatrap
+{
+	[MappingStrings {
+		"OID.IETF | SNMP.1.3.6.1.4.1.795.2.5.9000.9003",
+		"DataType.IETF | Integer32" }]
+	uint32 cycHostAdapterNumber ;
+
+	[MappingStrings {
+		"OID.IETF | SNMP.1.3.6.1.4.1.795.2.5.9000.9002",
+		"DataType.IETF | OctetString" }]
+	string cycHostAdapterID ;
+
+	[MappingStrings {
+		"OID.IETF | SNMP.1.3.6.1.4.1.795.2.5.9000.9001",
+		"DataType.IETF | OctetString" }]
+	string cycManagerID ; 
+};
+
+[Description ("This Trap is issued when a Host adapter fails." ),
+ MappingStrings {
+	"OID.IETF | SNMP.1.3.6.1.4.1.795.2.5.0.110" }
+]
+class cycHostAdapterFailed : HP_nsatrap
+{
+	[MappingStrings {
+		"OID.IETF | SNMP.1.3.6.1.4.1.795.2.5.9000.9003",
+		"DataType.IETF | Integer32" }]
+	uint32 cycHostAdapterNumber ;
+};
+
+[Description ("This Trap is issued when a previously failed Host"
+	"adapter starts working again." ),
+ MappingStrings {
+	"OID.IETF | SNMP.1.3.6.1.4.1.795.2.5.0.111" }
+]
+class	cycHostAdapterRecovered : HP_nsatrap
+{
+	[MappingStrings {
+		"OID.IETF | SNMP.1.3.6.1.4.1.795.2.5.9000.9003",
+		"DataType.IETF | Integer32" }]
+	uint32 cycHostAdapterNumber ;
+};
+
+[Description ("This Trap is issued when a previously good "
+	"device fails" ),
+ MappingStrings {
+ 	"OID.IETF | SNMP.1.3.6.1.4.1.795.2.5.0.112" }
+]
+class	cycDeviceFailed : HP_nsatrap
+{
+	[MappingStrings {
+		"OID.IETF | SNMP.1.3.6.1.4.1.795.2.5.9000.9003",
+		"DataType.IETF | Integer32" }]
+	uint32 cycHostAdapterNumber ;
+
+	[MappingStrings {
+		"OID.IETF | SNMP.1.3.6.1.4.1.795.2.5.9000.9009",
+		"DataType.IETF | Integer32" }]
+	uint32 cycScsiTargetID ;
+
+	[MappingStrings {
+		"OID.IETF | SNMP.1.3.6.1.4.1.795.2.5.9000.9010",
+		"DataType.IETF | Integer32" }]
+	uint32 cycLun ;
+};
+
+[Description ("This Trap is issued when a previously unknown "
+	"device is found." ),
+ MappingStrings {
+ 	"OID.IETF | SNMP.1.3.6.1.4.1.795.2.5.0.113" }
+]
+class cycDeviceDiscovered : HP_nsatrap
+{
+	[MappingStrings {
+		"OID.IETF | SNMP.1.3.6.1.4.1.795.2.5.9000.9003",
+		"DataType.IETF | Integer32" }]
+	uint32 cycHostAdapterNumber ;
+
+	[MappingStrings {
+		"OID.IETF | SNMP.1.3.6.1.4.1.795.2.5.9000.9009",
+		"DataType.IETF | Integer32" }]
+	uint32 cycScsiTargetID ;
+
+	[MappingStrings {
+		"OID.IETF | SNMP.1.3.6.1.4.1.795.2.5.9000.9010",
+		"DataType.IETF | Integer32" }]
+	uint32 cycLun ;
+
+	[MappingStrings {
+		"OID.IETF | SNMP.1.3.6.1.4.1.795.2.5.9000.9004",
+		"DataType.IETF | OctetString" }]
+	string cycVendor ;
+
+	[MappingStrings {
+		"OID.IETF | SNMP.1.3.6.1.4.1.795.2.5.9000.9005",
+		"DataType.IETF | OctetString" }]
+	string cycProduct ;
+};

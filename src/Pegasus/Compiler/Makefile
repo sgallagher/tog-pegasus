@@ -27,11 +27,13 @@ LIBRARY = pegcompiler
 
 LIBRARIES = \
     pegcommon \
-    pegrepository
+    pegrepository \
+    pegclient
 
 PRE_DEPEND_INCLUDES = -I./depends
 
 SOURCES = cimmof_lex_wrapper.cpp cimmofParser.cpp cimmofMessages.cpp \
+        cimmofRepositoryInterface.cpp cimmofClient.cpp \
 	cimmofRepository.cpp cimmof_tab_wrapper.cpp parser.cpp \
 	qualifierList.cpp valueFactory.cpp objname.cpp compilerDeclContext.cpp
 

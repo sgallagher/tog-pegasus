@@ -32,11 +32,14 @@
 //
 //
 //
-// CIMRepository implementation for use in the cimmof compiler.
-// Basically, it adds compiler-level methods and provides error handling
+// This class acts as a buffer between the compiler and the repository
+// interface.  Thie main thing it does is registers a non-standard
+// DeclContext so we can do local checking of context for new objects
 //
 
 #include "cimmofRepository.h"
+
+PEGASUS_USING_PEGASUS;
 
 cimmofRepository::cimmofRepository(const String &path, 
 				   compilerCommonDefs::operationType ot) :
@@ -59,45 +62,43 @@ cimmofRepository::~cimmofRepository() {
 }
 
 int 
-cimmofRepository::addClass(CIMClass *classdecl)
+cimmofRepository::addClass(const String &nameSpace, CIMClass *classdecl)
 {
-  const String &Sns = (cimmofParser::Instance())->getNamespacePath();
-  _context->addClass( Sns,  *classdecl);
-  // FIXME:  catch errors
+  // Don't catch errors: pass them up to the requester
+  _context->addClass( nameSpace,  *classdecl);
   return 0;
 }
 
 
 int 
-cimmofRepository::addInstance(CIMInstance *instance)
+cimmofRepository::addInstance(const String &nameSpace, CIMInstance *instance)
 { 
-  const String &Sns = (cimmofParser::Instance())->getNamespacePath();
-  _context->addInstance(Sns, *instance);
-  // FIXME:  catch errors
+  // Don't catch errors: pass them up to the requester
+  _context->addInstance(nameSpace, *instance);
   return 0;
 }
 
 int 
-cimmofRepository::addQualifier(CIMQualifierDecl *qualifier)
+cimmofRepository::addQualifier(const String &nameSpace,
+			       CIMQualifierDecl *qualifier)
 { 
-  const String &Sns = cimmofParser::Instance()->getNamespacePath();
-  _context->addQualifierDecl(Sns, *qualifier);
-  // FIXME:  catch errors
-  return 0; 
+  // Don't catch errors: pass them up to the requester
+  _context->addQualifierDecl(nameSpace, *qualifier);
+  return 0;
 }
 
 CIMQualifierDecl
-cimmofRepository::getQualifierDecl(const String &name)
+cimmofRepository::getQualifierDecl(const String &nameSpace, const String &name)
 {
-  const String &Sns = cimmofParser::Instance()->getNamespacePath();
-  return _context->lookupQualifierDecl(Sns, name);
+  // Don't catch errors: pass them up to the requester
+  return _context->lookupQualifierDecl(nameSpace, name);
 }
 
 CIMClass
-cimmofRepository::getClass(const String &classname)
+cimmofRepository::getClass(const String &nameSpace, const String &classname)
 {
-  const String &Sns = cimmofParser::Instance()->getNamespacePath();
-  return _context->lookupClass(Sns, classname);
+  // Don't catch errors: pass them up to the requester
+  return _context->lookupClass(nameSpace, classname);
 }
 
 void 

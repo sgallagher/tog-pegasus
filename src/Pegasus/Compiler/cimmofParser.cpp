@@ -64,13 +64,11 @@ const char LexerError::MSG[] = "";
 cimmofParser *cimmofParser::_instance = 0;
 
 cimmofParser::cimmofParser(): 
-  parser(),  _cmdline(0), _repository(0), 
+  parser(),  _cmdline(0), 
   _ot(compilerCommonDefs::USE_REPOSITORY) {
 }
 
 cimmofParser::~cimmofParser() {
-  if (_repository)
-    delete _repository;
 }
 
 cimmofParser *
@@ -113,8 +111,13 @@ cimmofParser::setRepository(void) {
   if (_cmdline) {
     String rep = _cmdline->get_repository_name();
     if (rep != "") {
+      cimmofRepositoryInterface::_repositoryType rt;
+      if (_cmdline->is_local())
+        rt = cimmofRepositoryInterface::REPOSITORY_INTERFACE_LOCAL;
+      else
+        rt = cimmofRepositoryInterface::REPOSITORY_INTERFACE_CLIENT;
       try {
-      _repository = new cimmofRepository(rep, _ot);
+	_repository.init(rt, rep, _ot);
       } catch(Exception &e) {
 	arglist.append(rep);
 	arglist.append(e.getMessage());
@@ -124,12 +127,9 @@ cimmofParser::setRepository(void) {
 	elog(message);
 	return false;
       }
-      // FIX KAS/MEB Change exception to CIMException June 11 2001
       try {
-        _repository->createNameSpace(s);
+        _repository.createNameSpace(s);
       } 
-
-
       catch(CIMException &e) {
 	if (e.getCode() == CIM_ERR_ALREADY_EXISTS) {
 	  // Not a problem.  Happens all the time.
@@ -147,12 +147,12 @@ cimmofParser::setRepository(void) {
 		       cimmofMessages::SETREPOSITORY_NO_COMPILER_OPTIONS);
     elog(message);
   }
-  return (_repository ? true : false);
+  return (_repository.ok() ? true : false);
 }
 
-const cimmofRepository *
+const cimmofRepositoryInterface *
 cimmofParser::getRepository() const {
-  return _repository;
+  return &_repository;
 }
 
 //------------------------------------------------------------------
@@ -164,7 +164,7 @@ void
 cimmofParser::setOperationType(compilerCommonDefs::operationType ot)
 {
   _ot = ot;
-  if (_ot == compilerCommonDefs::USE_REPOSITORY && !_repository) {
+  if (_ot == compilerCommonDefs::USE_REPOSITORY && !_repository.ok()) {
     // FIXME:  throw an exception
   }
 }
@@ -502,7 +502,7 @@ cimmofParser::addClass(CIMClass *classdecl)
     return ret; 
   }
   try {
-    ret = _repository->addClass(classdecl);
+   _repository.addClass(getNamespacePath(), *classdecl);
   } catch(AlreadyExists) {
     //FIXME:  We should be able to modify the class through the compiler
     cimmofMessages::getMessage(message, cimmofMessages::CLASS_EXISTS_WARNING,
@@ -597,7 +597,7 @@ cimmofParser::addInstance(CIMInstance *instance)
     return ret; 
   }
   try {
-    _repository->addInstance(instance);
+    _repository.addInstance(getNamespacePath(), *instance);
   } catch (CIMException &e) {
     arglist.append(e.getMessage());
     if (e.getCode() == CIM_ERR_ALREADY_EXISTS) {
@@ -694,7 +694,7 @@ cimmofParser::addQualifier(CIMQualifierDecl *qualifier)
     return ret; 
   }
   try {
-    ret = _repository->addQualifier(qualifier);
+    _repository.addQualifier(getNamespacePath(), *qualifier);
   } catch(CIMException e) {
     if (e.getCode() == CIM_ERR_ALREADY_EXISTS) {
       // OK, just skip it for now.
@@ -1011,8 +1011,21 @@ cimmofParser::applyParameter(CIMMethod &m, CIMParameter &p) {
 CIMValue *
 cimmofParser::QualifierValue(const String &qualifierName, const String &valstr)
 {
-  // FIXME:  Needs try/catch
-  CIMQualifierDecl q = _repository->getQualifierDecl(qualifierName);
+  CIMQualifierDecl q;
+  try {
+    q = _repository.getQualifierDecl(getNamespacePath(), qualifierName);
+  }
+  catch (CIMException &e) {
+    cimmofMessages::arglist arglist;
+    String message;
+    arglist.append(qualifierName);
+    arglist.append(e.getMessage());
+    cimmofMessages::getMessage(message,
+			       cimmofMessages::GET_QUALIFIER_DECL_ERROR,
+			       arglist);
+    elog(message);
+    maybeThrowParseError(message);
+  } 
   CIMValue v = q.getValue();
 
   Uint32 asize = v.getArraySize();
@@ -1072,7 +1085,7 @@ cimmofParser::PropertyFromInstance(CIMInstance &instance,
   try {
     Array<String> propertyList;
     propertyList.append(propertyName);
-    CIMClass c = _repository->getClass(className); 
+    CIMClass c = _repository.getClass(getNamespacePath(), className); 
     Uint32 pos = c.findProperty(propertyName);
     if (pos != (Uint32)-1) {
       return new CIMProperty(c.getProperty(pos));

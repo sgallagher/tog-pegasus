@@ -51,7 +51,7 @@
 
 #include "parser.h"
 #include "mofCompilerOptions.h"
-#include "cimmofRepository.h"
+#include "cimmofRepositoryInterface.h"
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Compiler/compilerCommonDefs.h>
@@ -63,7 +63,7 @@ extern int cimmof_parse(); // the yacc parser entry point
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
-class cimmofRepository;
+//class cimmofRepository;
 
 // This class extends class parser (see parser.h)
 class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser {
@@ -73,8 +73,6 @@ class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser {
   static cimmofParser *_instance;
   cimmofParser();
   ~cimmofParser();
-  void elog(const String &msg) const; // handle logging of warnings
-  void wlog(const String &msg) const; // handle logging of warnings
   void trace(const String &head, const String &tail) const;
   //either throw us out or retry depending on user preference
   void maybeThrowParseError(const String &msg) const;
@@ -83,7 +81,7 @@ class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser {
   // Here are the members added by this specialization
   const mofCompilerOptions *_cmdline;
   String _includefile;  // temp storage for included file to be entered
-  cimmofRepository *_repository; // the repository object to use
+  cimmofRepositoryInterface _repository; // the repository interface object
   String _defaultNamespacePath;  // The path we'll use if none is given
   String _currentNamespacePath;  // a namespace set from a #pragma
   compilerCommonDefs::operationType _ot;
@@ -91,6 +89,8 @@ class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser {
   // Provide a way for the singleton to be constructed, or a
   // pointer to be returned:
   static cimmofParser *Instance();
+  void elog(const String &msg) const; // handle logging of errors
+  void wlog(const String &msg) const; // handle logging of warnings
 
   //------------------------------------------------------------------
   // Methods for manipulating the members added in this specialization
@@ -101,7 +101,7 @@ class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser {
   const mofCompilerOptions *getCompilerOptions() const;
   // for all, or nearly all, operations, a repository object is needed
   Boolean setRepository(void);
-  const cimmofRepository *getRepository() const;
+  const cimmofRepositoryInterface *getRepository() const;
   // Whether you need a repository or not depends on the operationsType
   void setOperationType(compilerCommonDefs::operationType);
   compilerCommonDefs::operationType getOperationType() const;

@@ -44,7 +44,7 @@
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Compiler/compilerCommonDefs.h>
 #include <Pegasus/Repository/RepositoryDeclContext.h>
-#include <Pegasus/Compiler/cimmofRepository.h>
+#include <Pegasus/Repository/CIMRepository.h>
 
 PEGASUS_USING_PEGASUS;
 

@@ -35,15 +35,15 @@
 #ifndef _CIMMOFREPOSITORY_H_
 #define _CIMMOFREPOSITORY_H_
 
+
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Compiler/cimmofParser.h>
+//#include <Pegasus/Compiler/cimmofParser.h>
 #include <Pegasus/Compiler/compilerDeclContext.h>
 
-class compilerDeclContext;
+PEGASUS_NAMESPACE_BEGIN
 
-PEGASUS_USING_PEGASUS;
 
 class PEGASUS_COMPILER_LINKAGE cimmofRepository  {
  public:
@@ -51,17 +51,21 @@ class PEGASUS_COMPILER_LINKAGE cimmofRepository  {
   virtual ~cimmofRepository();
 
   // Add some methods for use at the compiler level
-  virtual int addClass(CIMClass *classdecl);
-  virtual int addInstance(CIMInstance *instance);
-  virtual int addQualifier(CIMQualifierDecl *qualifier);
+  virtual int addClass(const String &nameSpace, CIMClass *classdecl);
+  virtual int addInstance(const String &nameSpace, CIMInstance *instance);
+  virtual int addQualifier(const String &nameSpace,
+			   CIMQualifierDecl *qualifier);
 
-  virtual CIMQualifierDecl getQualifierDecl(const String &name);
-  virtual CIMClass getClass(const String &classname);
+  virtual CIMQualifierDecl getQualifierDecl(const String &nameSpace,
+					    const String &name);
+  virtual CIMClass getClass(const String &nameSpace, const String &classname);
   virtual void createNameSpace(const String &nameSpaceName);
  private:
   CIMRepository *_cimrepository;
   compilerDeclContext *_context;
   compilerCommonDefs::operationType _ot;
 };
+
+PEGASUS_NAMESPACE_END
 
 #endif

@@ -58,6 +58,8 @@ static String _cimmofMessages[] = {
   "Error adding new Qualifier %1: %2", //ADD_QUALIFIER_ERROR
                                               //NEW_QUALIFIER_DECLARATION_ERROR
   "Error creating new Qualifier Declaration %1: %2",
+                                              // GET_QUALIFIER_DECL_ERROR
+  "Could not find declaration for Qualifier named %1",
   "ADD INSTANCE: ",  //ADD_INSTANCE
                                                  //UNINITIALIZED_PROPERTY_ERROR
   "Internal Error: Uninitialized parameter %2 in class %1",

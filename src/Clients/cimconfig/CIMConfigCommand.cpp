@@ -38,7 +38,7 @@
 #include <Pegasus/Common/CIMReference.h>
 #include <Pegasus/Common/CIMStatusCode.h>
 #include <Pegasus/Client/CIMClient.h>
-#include <Pegasus/Client/ClientException.h>
+//#include <Pegasus/Client/ClientException.h>
 #include <Pegasus/Config/ConfigFileHandler.h>
 #include "CIMConfigCommand.h"
 

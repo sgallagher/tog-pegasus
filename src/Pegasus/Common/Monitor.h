@@ -176,7 +176,7 @@ enum Type
       /** dispatch a message to the cimom on an independent thread 
        */
       static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _dispatch(void *);
-      static int kill_idle_threads(void);
+      int kill_idle_threads(void);
       
 private:
       
@@ -188,7 +188,7 @@ private:
       ModuleController * _controller;
       Boolean _async;
       Mutex _connection_mutex;
-      static ThreadPool _thread_pool;
+      ThreadPool *_thread_pool;
       
       friend class HTTPConnection;
       

@@ -849,7 +849,7 @@ void ModuleController::_blocking_thread_exec(
    void *parm) 
 {
    Semaphore *blocking_sem = new Semaphore(0);
-   _thread_pool.allocate_and_awaken(parm, thread_func, blocking_sem);
+   _thread_pool->allocate_and_awaken(parm, thread_func, blocking_sem);
    blocking_sem->wait();
    delete blocking_sem;
 }
@@ -871,7 +871,7 @@ void ModuleController::_async_thread_exec(
    PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *), 
    void *parm) 
 {
-   _thread_pool.allocate_and_awaken(parm, thread_func);
+   _thread_pool->allocate_and_awaken(parm, thread_func);
 }
 
 

@@ -152,6 +152,7 @@ ThreadPool::ThreadPool(Sint16 initial_size,
 
 ThreadPool::~ThreadPool(void)
 {
+
    _dying++;
    Thread *th = 0;
    th = _pool.remove_first();
@@ -289,6 +290,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
 	 PEG_METHOD_EXIT();
 	 myself->exit_self(0);
       }
+      
    }
    // wait to be awakend by the thread pool destructor
    sleep_sem->wait();
@@ -550,6 +552,60 @@ PEGASUS_THREAD_RETURN ThreadPool::_undertaker( void *parm )
    }
    return((PEGASUS_THREAD_RETURN)0);
 }
+
+
+ void ThreadPool::_sleep_sem_del(void *p)
+{
+   if(p != 0)
+   {
+      delete (Semaphore *)p;
+   }
+}
+
+ void ThreadPool::_check_deadlock(struct timeval *start) throw(Deadlock)
+{
+   if (true == check_time(start, &_deadlock_detect))
+      throw Deadlock(pegasus_thread_self());
+   return;
+}
+
+
+ Boolean ThreadPool::_check_deadlock_no_throw(struct timeval *start)
+{
+   return(check_time(start, &_deadlock_detect));
+}
+
+ Boolean ThreadPool::_check_dealloc(struct timeval *start)
+{
+   return(check_time(start, &_deallocate_wait));
+}
+
+ Thread *ThreadPool::_init_thread(void) throw(IPCException)
+{
+   Thread *th = (Thread *) new Thread(_loop, this, false);
+   // allocate a sleep semaphore and pass it in the thread context
+   // initial count is zero, loop function will sleep until
+   // we signal the semaphore
+   Semaphore *sleep_sem = (Semaphore *) new Semaphore(0);
+   th->put_tsd("sleep sem", &_sleep_sem_del, sizeof(Semaphore), (void *)sleep_sem);
+   
+   struct timeval *dldt = (struct timeval *) ::operator new(sizeof(struct timeval));
+   th->put_tsd("deadlock timer", thread_data::default_delete, sizeof(struct timeval), (void *)dldt);
+   // thread will enter _loop(void *) and sleep on sleep_sem until we signal it
+   th->run();
+   _current_threads++;
+   pegasus_yield();
+   
+   return th;
+}
+
+ void ThreadPool::_link_pool(Thread *th) throw(IPCException)
+{
+   if(th == 0)
+      throw NullPointer();
+   _pool.insert_first(th);
+}
+
 
 
 PEGASUS_NAMESPACE_END

@@ -504,8 +504,14 @@ int main(int argc, char** argv)
         if (String::equal(configManager->getCurrentValue("daemon"), "true"))
         {
             daemonOption = true;
+	    // do we need to run as a daemon ?
+	    if (daemonOption)
+	    {
+	       if(-1 == cimserver_fork())
+		  exit(-1);
+	    }
         }
-
+	
         //
         // Check the log trace options and set global variable
         //
@@ -624,12 +630,7 @@ int main(int argc, char** argv)
          << (useSSL ? " Use SSL " : " No SSL ")
 	<< endl;
 
-    // do we need to run as a daemon ?
-    if (daemonOption)
-    {
-        if(-1 == cimserver_fork())
-          exit(-1);
-    }
+
 
     // try loop to bind the address, and run the server
     try
@@ -686,6 +687,7 @@ int main(int argc, char** argv)
                     PEGASUS_NAME, PEGASUS_VERSION, address);
 
 
+	
         //
         // Loop to call CIMServer's runForever() method until CIMServer
         // has been shutdown

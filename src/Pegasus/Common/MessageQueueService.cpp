@@ -38,12 +38,11 @@ AtomicInt MessageQueueService::_service_count = 0;
 AtomicInt MessageQueueService::_xid(1);
 Mutex MessageQueueService::_meta_dispatcher_mutex;
 
-static struct timeval create_time = {0, 100};
-static struct timeval destroy_time = {1, 0};
-static struct timeval deadlock_time = {10, 0};
+static struct timeval create_time = {0, 10};
+static struct timeval destroy_time = {5, 0};
+static struct timeval deadlock_time = {100, 0};
 
-ThreadPool MessageQueueService::_thread_pool(2, "MessageQueueService", 2, 20,
-					     create_time, destroy_time, deadlock_time);  
+ThreadPool *MessageQueueService::_thread_pool = 0;
 
 DQueue<MessageQueueService> MessageQueueService::_polling_list(true);
 
@@ -55,7 +54,7 @@ int MessageQueueService::kill_idle_threads(void)
    if( now.tv_sec - last.tv_sec > 0 )
    {
       gettimeofday(&last, NULL);
-      return _thread_pool.kill_dead_threads();
+      return _thread_pool->kill_dead_threads();
    }
    return 0;
 }
@@ -75,7 +74,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(
       {
 	 if(service->_incoming.count() > 0 )
 	 {
-	    _thread_pool.allocate_and_awaken(service, _req_proc);
+	    _thread_pool->allocate_and_awaken(service, _req_proc);
 	    
 //	    service->_req_proc(service);
 	 }
@@ -129,6 +128,8 @@ MessageQueueService::MessageQueueService(const char *name,
 	 _meta_dispatcher_mutex.unlock();
 	 throw NullPointer();
       }
+      _thread_pool = new ThreadPool(0, "MessageQueueService", 0, 20,
+				    create_time, destroy_time, deadlock_time);  
       _polling_thread.run();
    }
    _service_count++;

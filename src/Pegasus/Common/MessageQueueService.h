@@ -114,7 +114,7 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
       static int kill_idle_threads(void);
       static int pooled_threads(void) 
       {
-	 return _thread_pool.running_count() + _thread_pool.dead_count() + _thread_pool.pool_count();
+	 return _thread_pool->running_count() + _thread_pool->dead_count() + _thread_pool->pool_count();
       }
       
       Uint32 _mask;
@@ -178,7 +178,7 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
       Thread _req_thread;
       Thread _callback_thread;
    protected:
-      static ThreadPool _thread_pool;
+      static ThreadPool *_thread_pool;
    private:
       struct timeval _default_op_timeout;
       static AtomicInt _xid;

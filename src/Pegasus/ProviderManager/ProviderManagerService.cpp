@@ -421,7 +421,7 @@ void ProviderManagerService::_handle_async_request(AsyncRequest * request)
         request->op->processing();
         _incomingQueue.enqueue(request->op);
 
-        _thread_pool.allocate_and_awaken((void *)this, ProviderManagerService::handleCimOperation);
+        _thread_pool->allocate_and_awaken((void *)this, ProviderManagerService::handleCimOperation);
     }
     else
     {

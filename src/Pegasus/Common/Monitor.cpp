@@ -62,12 +62,9 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 
-static struct timeval create_time = {0, 50};
-static struct timeval destroy_time = {2, 0};
-static struct timeval deadlock_time = {10, 0};
-
-ThreadPool Monitor::_thread_pool(0, "Monitor", 0, 20,
-				 create_time, destroy_time, deadlock_time);
+static struct timeval create_time = {0, 10};
+static struct timeval destroy_time = {5, 0};
+static struct timeval deadlock_time = {100, 0};
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -115,6 +112,17 @@ Monitor::Monitor(Boolean async)
     FD_ZERO(&_rep->active_rd_fd_set);
     FD_ZERO(&_rep->active_wr_fd_set);
     FD_ZERO(&_rep->active_ex_fd_set);
+    if( _async == true )
+    {
+       _thread_pool = new ThreadPool(0, 
+				     "Monitor", 
+				     0, 
+				     20,
+				     create_time, 
+				     destroy_time, 
+				     deadlock_time);
+    }
+    
 }
 Monitor::~Monitor()
 {
@@ -134,6 +142,7 @@ Monitor::~Monitor()
     Socket::uninitializeInterface();
     Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
                   "returning from monitor destructor");
+    delete _thread_pool;
 }
 
 
@@ -145,7 +154,7 @@ int Monitor::kill_idle_threads()
    if( now.tv_sec - last.tv_sec > 0 )
    {
       gettimeofday(&last, NULL);
-      return _thread_pool.kill_dead_threads();
+      return _thread_pool->kill_dead_threads();
    }
    return 0;
 }
@@ -288,7 +297,7 @@ Boolean Monitor::run(Uint32 milliseconds)
 		  
 		  static_cast<HTTPConnection *>(queue)->refcount++;
 		  if( false == static_cast<HTTPConnection *>(queue)->is_dying())
-		     _thread_pool.allocate_and_awaken((void *)queue, _dispatch);
+		     _thread_pool->allocate_and_awaken((void *)queue, _dispatch);
 		  else
 		     static_cast<HTTPConnection *>(queue)->refcount--;
 	       }

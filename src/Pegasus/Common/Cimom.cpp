@@ -252,6 +252,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
 				 async_results::CIM_NAK);
 	    }
 	 }
+
       }
    } // loop 
    myself->exit_self( (PEGASUS_THREAD_RETURN) 1 );

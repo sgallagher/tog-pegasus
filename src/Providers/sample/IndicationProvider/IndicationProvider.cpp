@@ -35,11 +35,11 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-IndicationProvider::IndicationProvider(void) : pThread(0)
+IndicationProvider::IndicationProvider(void) throw() : pThread(0)
 {
 }
 
-IndicationProvider::~IndicationProvider(void)
+IndicationProvider::~IndicationProvider(void) throw()
 {
 }
 
@@ -117,7 +117,7 @@ void IndicationProvider::checkIndication(
 }
 
 IndicationProvider::IndicationThread::IndicationThread(
-	ResponseHandler<CIMIndication> & handler) :
+	ResponseHandler<CIMIndication> & handler) throw() :
 	Thread(run, this, false)
 {
 	_pHandler = &handler;
@@ -125,12 +125,12 @@ IndicationProvider::IndicationThread::IndicationThread(
 	Thread::run();
 }
 
-IndicationProvider::IndicationThread::~IndicationThread(void)
+IndicationProvider::IndicationThread::~IndicationThread(void) throw()
 {
 }
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL IndicationProvider::IndicationThread::run(
-	void * pv)
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL
+        IndicationProvider::IndicationThread::run(void * pv) throw()
 {
 	if(pv == 0)
 	{
@@ -152,7 +152,11 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL IndicationProvider::IndicationThread:
 		pThread->sleep(30000);
 	}
 
+#ifdef PEGASUS_OS_WINDOWS
 	pThread->exit_self(1);
+#else
+	pThread->exit_self(NULL);
+#endif
 }
 
 PEGASUS_NAMESPACE_END

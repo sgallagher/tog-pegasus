@@ -85,10 +85,22 @@ public:
 	return _flavor; 
     }
 
+	Boolean isFlavor(Uint32 flavor) const
+	{
+		return ((getFlavor() & flavor) !=0);
+	}
+
     void setFlavor(Uint32 flavor) 
     {
-	_flavor = flavor; 
+	_flavor = _flavor | flavor; 
     }
+
+    void unsetFlavor(Uint32 flavor) 
+    {
+	_flavor = _flavor & (~flavor); 
+    }
+
+	void resolveFlavor(Uint32 inheritedFlavor, Boolean inherited);
 
     Boolean getPropagated() const 
     { 

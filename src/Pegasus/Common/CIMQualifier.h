@@ -82,7 +82,7 @@ public:
     @param String representing CIMName for the new qualifier
     @param value
     @param flavor - Flavor defined for this qualifier definition. Default for this
-	parameter is CIMFlavor::DEFAULTS (which allows override and tosubclass).
+	parameter is CIMFlavor::NONE.
     @param propoagated - Boolean defining whether this is a propagated qualifier.
 	This is an optional parameter with default = false
     @return -Returns the instantiated qualifier object or throws an exception 
@@ -94,7 +94,7 @@ public:
     CIMQualifier(
 	const String& name, 
 	const CIMValue& value, 
-	Uint32 flavor = CIMFlavor::DEFAULTS,
+	Uint32 flavor = CIMFlavor::NONE,
 	Boolean propagated = false)
     {
 	_rep = new CIMQualifierRep(name, value, flavor, propagated);
@@ -173,7 +173,7 @@ public:
 	_rep->setValue(value); 
     }
 
-	/* setFlavor - Sets the value defined on input into the Flavor variable
+	/* setFlavor - Sets the bits defined on input into the Flavor variable
 		for the Qualifier Object.
 		@param flavor - Uint32 defines the flavor bits to be set.
 	*/
@@ -181,6 +181,15 @@ public:
     {
 		_checkRep();
 		_rep->setFlavor(flavor);
+    }
+	/* unsetFlavor - Resets the bits defined for the flavor 
+		for the Qualifier Object with the input.
+		@param flavor - Uint32 defines the flavor bits to be set.
+	*/
+    void unsetFlavor(Uint32 flavor) 
+    {
+		_checkRep();
+		_rep->unsetFlavor(flavor);
     }
 
     /**	getFlavor - Gets the Flavor field from a Qualifier
@@ -204,30 +213,25 @@ public:
 	*/
 	Boolean isFlavor(Uint32 flavor) const
 	{
-		return ((getFlavor() & flavor) !=0);
+		return _rep->isFlavor(flavor);
 	}
-	/** Determine if Flavor toSubClass set for this qualifier
+	/* resolveFlavor - Function used only in object creation to
+		resolve the combination of a qualifer flavor input and
+		the corresponding inherited flavor from declaration or
+		superclass and set the current qualifier to that
+		definition.	The functions changes the current flavor based
+		on the characteristics of the inheritance.
+		@param inheritedFlavor - The flavor inherited from higher level
+		@param inherited - True if inherited from definition. False if this
+		is definition that inherits from the declaration
 	*/
-	Boolean isFlavorToSubclass() const
+	void resolveFlavor(Uint32 inheritedFlavor, Boolean inherited)
 	{
-		return ((getFlavor() & CIMFlavor::TOSUBCLASS) !=0);
+		_checkRep();
+		_rep->resolveFlavor(inheritedFlavor, inherited);
 	}
-
-	/** Determine if Flavor ToInstance set for this qualifier
-	*/
-	Boolean isFlavorToInstance() const
-	{
-		return ((getFlavor() & CIMFlavor::TOINSTANCE) !=0);
-	}
-
-	/** Determine if Flavor Overridable set for this qualifier
-	*/
-	Boolean isFlavorOverridable() const
-	{
-		return ((getFlavor() & CIMFlavor::OVERRIDABLE) !=0);
-	}
-
-    /**	CIMMethod
+    /**	getPropagated returns the propagated indicator
+	@return Uint32 - TBD
 
    */
     const Uint32 getPropagated() const 

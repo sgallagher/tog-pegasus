@@ -123,8 +123,8 @@ void CIMQualifierList::resolve(
 		//----------------------------------------------------------------------
 		// 1. Check to see if it's declared.
 		//----------------------------------------------------------------------
-	
-		CIMConstQualifierDecl qd = declContext->lookupQualifierDecl(
+		// set this back to  CIMConstQualifierDecl
+		CIMQualifierDecl qd = declContext->lookupQualifierDecl(
 			nameSpace, q.getName());
 	
 		if (!qd)
@@ -149,39 +149,97 @@ void CIMQualifierList::resolve(
 			throw BadQualifierScope(qd.getName(), ScopeToString(scope));
 //#endif
 		//----------------------------------------------------------------------
-		// See if this qualifier is contained in the inheritedQualifiers. If
-		// so then we must handle the OVERRIDABLE flavor.
+		// Resolve the qualifierflavor. Since Flavors are a combination of inheritance
+		// and input characteristics, resolve the inherited characteristics
+		// against those provided with the creation.  If there is a superclass
+		// the flavor is resolved against that superclass.  If not, it is resolved
+		// against the declaration. If the flavor is disableoverride and tosubclass
+		// the resolved qualifier value must be identical to the original
 		//----------------------------------------------------------------------
-	
-		// ATTN: there seems to be a problem with the CIM schema that marks the
-		// abstract qualifier as non-overridable but then they override it.
-		// For now it is just disabled. This problem exists in both XML and
-		// CIM schema.
 
-		// Move the flavor from declaration
-		// Always sets flavor to the declaration flavor.
-		q.setFlavor(qd.getFlavor());	
-//#if 0
+
+		// Test for Qualifier found in SuperClass. If found and qualifier
+		// is not overridable.
+		// Abstract (not Overridable and restricted) can be found in subclasses
+		// Can have nonabstracts below abstracts. That is function of nottosubclass
+		// Association (notOverridable and tosubclass) can be found in subclasses but
+		// cannot be changed. No non-associatons below associations. In other words
+		// once a class becomes an association, no subclass can override that definition
+		// apparently
+		// Throw exception if DisableOverride and tosubclass and different value.
+		// Gets the source from superclass if qualifier exists or from declaraction
+		// If we do not throw the exception, resolve the flavor from the inheritance
+		// point and resolve against current input.
+		// Diableoverride is defined in the CIM Spec to mean that the value cannot change
+		// The other characteristics including the flavor can change apparently. Thus, we
+		// need only confirm that the value is the same (2.2 pp 33).  Strange since we 
+		// would think that  override implies that you cannot override any of the 
+		// characteristics (value, type, flavor, etc.) This also leaves the question
+		// of NULL or no values.  The implication is that we must move the value
+		// from the superclass or declaration.
+		//  
+		
+
 		Uint32 pos = inheritedQualifiers.find(q.getName());
 
 		//cout << "KSTEST Qualifier resolve inherit test " << q.getName() 
-		//<< " Inherited Position = " << pos << endl;
+		//<< " Inherited From " << ((pos == PEG_NOT_FOUND) ? "Declaration" : "superclass")
+		//<< " Flavor " << q.getFlavor() 
+		//<< " inherited Flavor ";
 
-		// Test for Qualifier found in SuperClass. If found and qualifier
-		// is not overridable, Must be identical.
-		// Thus - abstract (not Overridable and restricted) can be found in subclasses
-		// I can have nonabstracts below abstracts. No propagation.
-		// Association (notOverridable and tosubclass) can be found in subclasses but
-		// cannot be changed. No non-aswsociatons below associations..
-		// Throw exception if DisableOverride and tosubclass and different value
-		if (pos != PEG_NOT_FOUND)
-		{
-			CIMConstQualifier iq = inheritedQualifiers.getQualifier(pos);
+		if (pos == PEG_NOT_FOUND)
+		{   // Qualifier does not exist in superclass
+			/* If from declaration, we can override the default value.
+			   However, we need some way to get the value if we have a Null.
 			if (!qd.isFlavor(CIMFlavor::OVERRIDABLE) && qd.isFlavor(CIMFlavor::TOSUBCLASS))
-				if(!q.identical(iq))
-					throw BadQualifierOverride(q.getName());
+			{
+				if(!(q.getValue() == qd.getValue()))
+					cout << "KSTEST QL err NSCL " << q.getName()
+					<< " decl flavor " << qd.getFlavor() << " Flavor " << q.getFlavor()
+					<< " Not override " << !qd.isFlavor(CIMFlavor::OVERRIDABLE)
+					<< " tosubclass " <<  qd.isFlavor(CIMFlavor::TOSUBCLASS) << endl;
+				qd.print(); q.print();
+					//throw BadQualifierOverride(q.getName());
+			}
+			//cout <<  qd.getFlavor() << endl;*/
+			// Do not allow change from disable override to enable override.
+			if(!qd.isFlavor(CIMFlavor::OVERRIDABLE) && q.isFlavor(CIMFlavor::OVERRIDABLE ))
+				throw BadQualifierOverride(q.getName());
+
+			q.resolveFlavor(qd.getFlavor(), false);
+			/*if(!(q.getValue() == qd.getValue()))
+				cout << "KSTEST Flavor resolved from decl. " << q.getName()
+				<< " decl flavor " << qd.getFlavor() << " Flavor " << q.getFlavor()
+				<< " Not override " << !qd.isFlavor(CIMFlavor::OVERRIDABLE)
+				<< " tosubclass " <<  qd.isFlavor(CIMFlavor::TOSUBCLASS) << endl;            
+			 qd.print(); q.print(); */
 		}
-//#endif
+		else   			// qualifier exists in superclass 
+		{	////// Make Const again
+			CIMQualifier iq = inheritedQualifiers.getQualifier(pos);
+			// don't allow change override to notoverride.
+			if(!iq.isFlavor(CIMFlavor::OVERRIDABLE) && q.isFlavor(CIMFlavor::OVERRIDABLE ))
+				throw BadQualifierOverride(q.getName());
+			
+			if (!iq.isFlavor(CIMFlavor::OVERRIDABLE) && iq.isFlavor(CIMFlavor::TOSUBCLASS))
+			{
+				/*if(!(q.getValue() == iq.getvalue()))
+					cout << "KSTEST QL err inherit " << q.getName()
+					<< " from superclass " << iq.getName() 
+					<< "   Superclass flavor " << iq.getFlavor()
+					<< " Flavor " << q.getFlavor() 
+					<< endl;
+				iq.print(); q.print();*/
+				// test if values the same.
+				CIMValue qv = q.getValue();
+				CIMValue iqv = iq.getValue();
+				if(!(qv == iqv)) {
+					throw BadQualifierOverride(q.getName());
+			  }
+			} 
+			//cout << iq.getFlavor()  << endl;
+			q.resolveFlavor(iq.getFlavor(), true);	
+		}
     } 					// end of this objects qualifier loop
 
     //--------------------------------------------------------------------------

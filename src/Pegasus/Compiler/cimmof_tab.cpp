@@ -117,7 +117,9 @@
 #define YYSTACKSIZE 2000
 
 #include <cstdlib>
+#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 #include <malloc.h>
+#endif
 #include <cstdio>
 #include <cstring>
 #include <Pegasus/Common/String.h>
@@ -142,9 +144,7 @@ extern void cimmof_yy_less(int n);
 /* encountered, then applied to the production they qualify when it    */
 /* is completed.                                                       */
 /* ------------------------------------------------------------------- */
-  // KS : simply forced the defaults
-  //Uint32 g_flavor = CIMFlavor::DEFAULTS;
-  Uint32 g_flavor = 0;
+  Uint32 g_flavor = CIMFlavor::NONE;
   Uint32 g_scope = 0;
   qualifierList g_qualifierList(10);  /* FIXME */
   CIMMethod *g_currentMethod = 0;
@@ -332,11 +332,11 @@ static const short yyrline[] = { 0,
    499,   500,   502,   504,   511,   523,   526,   527,   530,   560,
    564,   569,   576,   578,   585,   595,   601,   603,   605,   606,
    609,   611,   612,   613,   615,   616,   617,   618,   619,   622,
-   624,   629,   631,   633,   637,   638,   639,   640,   641,   643,
-   644,   646,   647,   650,   651,   652,   653,   654,   656,   657,
-   658,   659,   660,   661,   662,   663,   664,   666,   667,   669,
-   670,   672,   674,   675,   677,   692,   693,   697,   698,   699,
-   702,   704
+   624,   629,   631,   633,   644,   645,   646,   647,   648,   650,
+   651,   653,   654,   657,   658,   659,   660,   661,   663,   664,
+   665,   666,   667,   668,   669,   670,   671,   673,   674,   676,
+   677,   679,   681,   682,   684,   699,   700,   704,   705,   706,
+   709,   711
 };
 #endif
 
@@ -1620,122 +1620,122 @@ case 110:
     break;}
 case 111:
 #line 624 "cimmof.y"
-{ yyval.ival = (CIMFlavor::DEFAULTS); ;
+{ yyval.ival = (CIMFlavor::NONE); ;
     break;}
 case 112:
 #line 629 "cimmof.y"
-{ g_flavor = (CIMFlavor::DEFAULTS); ;
+{ g_flavor = (CIMFlavor::NONE); ;
     break;}
 case 115:
-#line 637 "cimmof.y"
-{ g_flavor |=   CIMFlavor::OVERRIDABLE; ;
+#line 644 "cimmof.y"
+{ g_flavor |=   CIMFlavor::ENABLEOVERRIDE; ;
     break;}
 case 116:
-#line 638 "cimmof.y"
-{ g_flavor &= ~(CIMFlavor::OVERRIDABLE); ;
+#line 645 "cimmof.y"
+{ g_flavor |=   CIMFlavor::DISABLEOVERRIDE; ;
     break;}
 case 117:
-#line 639 "cimmof.y"
-{ g_flavor &= ~(CIMFlavor::TOSUBELEMENTS); ;
+#line 646 "cimmof.y"
+{ g_flavor |=   CIMFlavor::RESTRICTED; ;
     break;}
 case 118:
-#line 640 "cimmof.y"
+#line 647 "cimmof.y"
 { g_flavor |=   CIMFlavor::TOSUBELEMENTS; ;
     break;}
 case 119:
-#line 641 "cimmof.y"
+#line 648 "cimmof.y"
 { g_flavor |=   CIMFlavor::TRANSLATABLE; ;
     break;}
 case 120:
-#line 643 "cimmof.y"
+#line 650 "cimmof.y"
 { yyval.ival = g_flavor; ;
     break;}
 case 121:
-#line 644 "cimmof.y"
-{ yyval.ival = CIMFlavor::DEFAULTS; ;
+#line 651 "cimmof.y"
+{ yyval.ival = CIMFlavor::NONE; ;
     break;}
 case 124:
-#line 650 "cimmof.y"
+#line 657 "cimmof.y"
 { yyval.datatype = yyvsp[0].datatype; ;
     break;}
 case 125:
-#line 651 "cimmof.y"
+#line 658 "cimmof.y"
 { yyval.datatype = yyvsp[0].datatype; ;
     break;}
 case 126:
-#line 652 "cimmof.y"
+#line 659 "cimmof.y"
 { yyval.datatype = CIMType::STRING;   ;
     break;}
 case 127:
-#line 653 "cimmof.y"
+#line 660 "cimmof.y"
 { yyval.datatype = CIMType::BOOLEAN;  ;
     break;}
 case 128:
-#line 654 "cimmof.y"
+#line 661 "cimmof.y"
 { yyval.datatype = CIMType::DATETIME; ;
     break;}
 case 129:
-#line 656 "cimmof.y"
+#line 663 "cimmof.y"
 { yyval.datatype = CIMType::UINT8;  ;
     break;}
 case 130:
-#line 657 "cimmof.y"
+#line 664 "cimmof.y"
 { yyval.datatype = CIMType::SINT8;  ;
     break;}
 case 131:
-#line 658 "cimmof.y"
+#line 665 "cimmof.y"
 { yyval.datatype = CIMType::UINT16; ;
     break;}
 case 132:
-#line 659 "cimmof.y"
+#line 666 "cimmof.y"
 { yyval.datatype = CIMType::SINT16; ;
     break;}
 case 133:
-#line 660 "cimmof.y"
+#line 667 "cimmof.y"
 { yyval.datatype = CIMType::UINT32; ;
     break;}
 case 134:
-#line 661 "cimmof.y"
+#line 668 "cimmof.y"
 { yyval.datatype = CIMType::SINT32; ;
     break;}
 case 135:
-#line 662 "cimmof.y"
+#line 669 "cimmof.y"
 { yyval.datatype = CIMType::UINT64; ;
     break;}
 case 136:
-#line 663 "cimmof.y"
+#line 670 "cimmof.y"
 { yyval.datatype = CIMType::SINT64; ;
     break;}
 case 137:
-#line 664 "cimmof.y"
+#line 671 "cimmof.y"
 { yyval.datatype = CIMType::CHAR16; ;
     break;}
 case 138:
-#line 666 "cimmof.y"
+#line 673 "cimmof.y"
 { yyval.datatype =CIMType::REAL32; ;
     break;}
 case 139:
-#line 667 "cimmof.y"
+#line 674 "cimmof.y"
 { yyval.datatype =CIMType::REAL64; ;
     break;}
 case 141:
-#line 670 "cimmof.y"
+#line 677 "cimmof.y"
 { ;
     break;}
 case 142:
-#line 672 "cimmof.y"
+#line 679 "cimmof.y"
 { g_qualifierList.init(); ;
     break;}
 case 143:
-#line 674 "cimmof.y"
+#line 681 "cimmof.y"
 { ;
     break;}
 case 144:
-#line 675 "cimmof.y"
+#line 682 "cimmof.y"
 { ;
     break;}
 case 145:
-#line 678 "cimmof.y"
+#line 685 "cimmof.y"
 {
   cimmofParser *p = cimmofParser::Instance();
   // The qualifier value can't be set until we know the contents of the
@@ -1750,33 +1750,33 @@ case 145:
  ;
     break;}
 case 146:
-#line 692 "cimmof.y"
+#line 699 "cimmof.y"
 { g_flavor = 0; ;
     break;}
 case 147:
-#line 693 "cimmof.y"
+#line 700 "cimmof.y"
 { 
                         yyval.strval = new String(ScopeToString(yyvsp[0].ival));
                         g_flavor = 0; ;
     break;}
 case 148:
-#line 697 "cimmof.y"
+#line 704 "cimmof.y"
 { yyval.strval = yyvsp[-1].strval; ;
     break;}
 case 149:
-#line 698 "cimmof.y"
+#line 705 "cimmof.y"
 { yyval.strval = yyvsp[0].strval; ;
     break;}
 case 150:
-#line 699 "cimmof.y"
+#line 706 "cimmof.y"
 { yyval.strval = new String(String::EMPTY); ;
     break;}
 case 151:
-#line 702 "cimmof.y"
+#line 709 "cimmof.y"
 { yyval.strval = yyvsp[0].strval; ;
     break;}
 case 152:
-#line 704 "cimmof.y"
+#line 711 "cimmof.y"
 { yyval.strval = yyvsp[0].strval; ;
     break;}
 }
@@ -2001,5 +2001,5 @@ yyerrhandle:
     }
   return 1;
 }
-#line 706 "cimmof.y"
+#line 713 "cimmof.y"
 

@@ -64,8 +64,22 @@ void test01()
     // Test getScope and getFlavor
     //
     assert(qual1.getScope() == CIMScope::PROPERTY);
-    assert(qual1.getFlavor() == CIMFlavor::TOINSTANCE);
+    assert(qual1.isFlavor(CIMFlavor::TOINSTANCE));
+	// This should be the defaults if nothing specified.
+    assert(qual1.isFlavor(CIMFlavor::TOSUBCLASS));
+    assert(qual1.isFlavor(CIMFlavor::OVERRIDABLE));
 
+	CIMQualifierDecl q4("q4", true, CIMScope::CLASS, CIMFlavor::RESTRICTED);
+    assert(!q4.isFlavor(CIMFlavor::TOINSTANCE));
+    assert(!q4.isFlavor(CIMFlavor::TOSUBCLASS));
+    assert(q4.isFlavor(CIMFlavor::OVERRIDABLE));
+
+	CIMQualifierDecl q5("q5", true, CIMScope::CLASS, CIMFlavor::DISABLEOVERRIDE);
+    assert(!q5.isFlavor(CIMFlavor::TOINSTANCE));
+    assert(q5.isFlavor(CIMFlavor::TOSUBCLASS));
+    assert(!q5.isFlavor(CIMFlavor::OVERRIDABLE));
+
+    //
     //
     // Test getValue and setValue
     //
@@ -129,7 +143,7 @@ void test02()
     // Test getScope and getFlavor
     //
     assert(cq1.getScope() == CIMScope::PROPERTY);
-    assert(cq1.getFlavor() == CIMFlavor::TOINSTANCE);
+    assert(cq1.isFlavor(CIMFlavor::TOINSTANCE));
 
     //
     // Test getValue and setValue

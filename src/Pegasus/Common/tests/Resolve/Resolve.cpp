@@ -99,21 +99,24 @@ void test01()
     // This generates an empty string, not NULL
     CIMQualifierDecl q1("q1",String(),CIMScope::CLASS);
 
+	// This qualifier is
     CIMQualifierDecl q2("Abstract", Boolean(true), CIMScope::CLASS , CIMFlavor::NONE);
-	// flavors for this one should be disableoverride, but tosubclass 
+
+	// flavors for this one should be enableoverride, and tosubclass 
 	CIMQualifierDecl key("key",Boolean(true),(CIMScope::PROPERTY + CIMScope::REFERENCE),
 	  CIMFlavor::TOSUBCLASS);
+
 	// Flavor is the defaults. overridable and tosubclass.
     CIMValue v1(CIMType::UINT32, false);
     CIMQualifierDecl q3("q3",v1,CIMScope::CLASS);
 
-	// Flavor should be tosubclass but not overridable
+	// Flavor should be tosubclass and overridable
     CIMQualifierDecl q4("q4",String(),CIMScope::CLASS, 
-		CIMFlavor::TOSUBCLASS);
+		CIMFlavor::TOSUBCLASS | CIMFlavor::ENABLEOVERRIDE);
 
-	// Flavor should be tosubclass but not overridable
-    CIMQualifierDecl q5("q5",String(),CIMScope::CLASS, 
-		CIMFlavor::TOSUBCLASS);
+	// Flavor should be tosubclass and overridable
+    CIMQualifierDecl q5("q5",String("Declaration"),CIMScope::CLASS, 
+		CIMFlavor::TOSUBCLASS | CIMFlavor::ENABLEOVERRIDE);
 
 	if(verbose)
 	{
@@ -145,7 +148,7 @@ void test01()
         .addQualifier(CIMQualifier("Abstract", Boolean(true)))
 		.addQualifier(CIMQualifier("q1", "Hello"))
 		.addQualifier(CIMQualifier("q4", "Goodby"))
-		.addQualifier(CIMQualifier("q5", "Goodby"))
+		.addQualifier(CIMQualifier("q5", "Hello"))
 		.addProperty(CIMProperty(keyProperty))
 	;
     
@@ -241,7 +244,8 @@ void test02()
 
 
 	  // flavors for this one should be disable override, restricted.
-      CIMQualifierDecl abstract("Abstract", Boolean(true), CIMScope::CLASS , 0);
+      CIMQualifierDecl abstract("Abstract", Boolean(true), CIMScope::CLASS , 
+		  CIMFlavor::RESTRICTED | CIMFlavor::DISABLEOVERRIDE);
 
       // flavors for this one should be disableoverride, but tosubclass 
 	  CIMQualifierDecl key("key",Boolean(true),
@@ -250,7 +254,12 @@ void test02()
 
 	  // Flavors are not to subclass and not overridable
 	  CIMQualifierDecl notToSubclass("notToSubclass", Boolean(),
-		  (CIMScope::PROPERTY + CIMScope::CLASS),0);
+		  (CIMScope::PROPERTY + CIMScope::CLASS),
+		  CIMFlavor::RESTRICTED | CIMFlavor::DISABLEOVERRIDE);
+	  // same qualities as association qualifier. DisableOverride 
+	  CIMQualifierDecl association("associat", Boolean(false),
+		  (CIMScope::ASSOCIATION + CIMScope::CLASS),
+		  CIMFlavor::DISABLEOVERRIDE);
 
 	  // Qualifier with TOSubclass set and a value and not overridable.
 	  CIMQualifierDecl toSubclass("toSubclass", String("default"),
@@ -285,13 +294,13 @@ void test02()
       CIMQualifierDecl arrayValue("arrayValue",stringArray,
 		  (CIMScope::CLASS + CIMScope::PROPERTY), CIMFlavor::DEFAULTS);
 
-
       if(verbose)
 	  {
 		  q1.print();
 		  q2.print();
 		  q3.print();
 		  abstract.print();
+		  association.print();
 		  key.print();
 		  notToSubclass.print();
 		  toSubclass.print();
@@ -304,6 +313,7 @@ void test02()
     context->addQualifierDecl(NAMESPACE, q2);
     context->addQualifierDecl(NAMESPACE, q3);
     context->addQualifierDecl(NAMESPACE, abstract);
+    context->addQualifierDecl(NAMESPACE, association);
     context->addQualifierDecl(NAMESPACE, key);
     context->addQualifierDecl(NAMESPACE, notToSubclass);
     context->addQualifierDecl(NAMESPACE, toSubclass);
@@ -315,8 +325,8 @@ void test02()
 	// Create property with qualifier that propagates.
 	CIMProperty propertyWithQualifier("withQualifier", Boolean(true));
 	propertyWithQualifier
-		.addQualifier(CIMQualifier("toSubclass", String("superClass")));
-
+		.addQualifier(CIMQualifier("toSubclass", String("default")));
+	
 	// Create a key property with key qualifier
 	CIMProperty keyProperty("keyProperty", Boolean(true));
 	keyProperty	
@@ -333,8 +343,9 @@ void test02()
 		.addQualifier(CIMQualifier("Abstract", Boolean(true)))
 		.addQualifier(CIMQualifier("q1", "BonJour"))
 		.addQualifier(CIMQualifier("notToSubclass", true))
-		.addQualifier(CIMQualifier("toSubclass", "superClass"))
+		.addQualifier(CIMQualifier("toSubclass", "default"))
 		.addQualifier(CIMQualifier("toSubclassOverriddable", "superClass"))
+		.addQualifier(CIMQualifier("associat", Boolean(true)))
 
 		.addProperty(CIMProperty(keyProperty))
 		.addProperty(CIMProperty("message", String("Hello")))
@@ -360,7 +371,7 @@ void test02()
 
 	CIMProperty sndPropertyWithQualifier("sndWithQualifier", Boolean(true));
 	sndPropertyWithQualifier
-		.addQualifier(CIMQualifier("toSubclass", String("PropertySubclass")));
+		.addQualifier(CIMQualifier("toSubclass", String("default")));
 
     subClass
 		.addQualifier(CIMQualifier("q1", "Hello"))
@@ -533,7 +544,7 @@ void test02()
 		assert(v.getType() == CIMType::STRING);
 		String s;
 		v.get(s);
-		assert(s == "superClass");  // same as value in superclass
+		assert(s == "default");  // same as value in superclass
 	}
 
 

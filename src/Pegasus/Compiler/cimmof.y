@@ -64,9 +64,7 @@ extern void cimmof_yy_less(int n);
 /* encountered, then applied to the production they qualify when it    */
 /* is completed.                                                       */
 /* ------------------------------------------------------------------- */
-  // KS : simply forced the defaults
-  //Uint32 g_flavor = CIMFlavor::DEFAULTS;
-  Uint32 g_flavor = 0;
+  Uint32 g_flavor = CIMFlavor::NONE;
   Uint32 g_scope = 0;
   qualifierList g_qualifierList(10);  /* FIXME */
   CIMMethod *g_currentMethod = 0;
@@ -623,27 +621,34 @@ metaElement: TOK_CLASS       { $$ = CIMScope::CLASS;        }
 // Correction KS 4 march 2002 - Set the default if empty
 defaultFlavor: TOK_COMMA flavorHead explicitFlavors TOK_RIGHTPAREN
   { $$ = g_flavor; }
-	   | /* empty */ { $$ = (CIMFlavor::DEFAULTS); } ;
+	   | /* empty */ { $$ = (CIMFlavor::NONE); } ;
 
 // Correction KS 4 March 2002 - set the defaults (was zero)
 // Set the flavors for the defaults required: via DEFAULTS
 
-flavorHead: TOK_FLAVOR TOK_LEFTPAREN { g_flavor = (CIMFlavor::DEFAULTS); } ;
+flavorHead: TOK_FLAVOR TOK_LEFTPAREN { g_flavor = (CIMFlavor::NONE); } ;
 
 explicitFlavors: explicitFlavor
 
                | explicitFlavors TOK_COMMA explicitFlavor ;
 
-// ATTN: it seems that TOINSTANCE is incorrectly set here! KS 5 March 2002 Corrected
 
-explicitFlavor: TOK_ENABLEOVERRIDE  { g_flavor |=   CIMFlavor::OVERRIDABLE; }
-              | TOK_DISABLEOVERRIDE { g_flavor &= ~(CIMFlavor::OVERRIDABLE); } 
-              | TOK_RESTRICTED      { g_flavor &= ~(CIMFlavor::TOSUBELEMENTS); }
+// ATTN:KS-26/03/02 P2 This accumulates the flavor defintions.  However, it allows multiple instances
+// of any keyword.  Note also that each entity simply sets a bit so that you may
+// set disable and enable and we will not know which overrides the other.
+// We need to create the function to insure that you cannot enable then disable or
+// accept the latter and override the former.
+
+// The compiler simply provides the flavors defined in the MOF and does not make any
+// assumptions about defaults, etc.  That is a problem for resolution of the flavors.
+explicitFlavor: TOK_ENABLEOVERRIDE  { g_flavor |=   CIMFlavor::ENABLEOVERRIDE; }
+              | TOK_DISABLEOVERRIDE { g_flavor |=   CIMFlavor::DISABLEOVERRIDE; } 
+              | TOK_RESTRICTED      { g_flavor |=   CIMFlavor::RESTRICTED; }
               | TOK_TOSUBCLASS      { g_flavor |=   CIMFlavor::TOSUBELEMENTS; }
               | TOK_TRANSLATABLE    { g_flavor |=   CIMFlavor::TRANSLATABLE; } ;
 
 flavor: overrideFlavors { $$ = g_flavor; }
-      | /* empty */ { $$ = CIMFlavor::DEFAULTS; };
+      | /* empty */ { $$ = CIMFlavor::NONE; };
 
 overrideFlavors: explicitFlavor
                | overrideFlavors explicitFlavor ;

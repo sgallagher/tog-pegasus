@@ -22,7 +22,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By:	 Karl Schopmeyer(k.schopmeyer@opengroup.org)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -46,15 +46,24 @@ struct PEGASUS_COMMON_LINKAGE CIMFlavor
     /** Indicates that the qualifier may be overriden.
     */
     static const Uint32 OVERRIDABLE;
+    static const Uint32 ENABLEOVERRIDE;
+
+    static const Uint32 DISABLEOVERRIDE;
 
     /** Indicates that the qualifier is propagated to the qualifier in the
 	subclass with the same name.
     */
     static const Uint32 TOSUBCLASS;
 
+	/* Indicates that the qualifier may not be propagated to the qualifier in
+	   a subclass
+	*/
+	static const Uint32 RESTRICTED;
+
     /** Indicates that the qualifier is propagated to the qualifier in the
 	instance with the same name.
     */
+
     static const Uint32 TOINSTANCE;
 
     /** Indicates whether qualifier is translatable (for internationalization).
@@ -68,6 +77,11 @@ struct PEGASUS_COMMON_LINKAGE CIMFlavor
     /** Set both toInstance and toinstance according to the CIM DTD (OVERRIDABLE | TOSUBCLASS).
     */
     static const Uint32 TOSUBELEMENTS;
+
+    /** Includes all elements of Flavor..
+    */
+    static const Uint32 ALL;
+
 };
 
 /** FlavorToMof - Converts the flavor attributes of a qualifier to CIM MOF

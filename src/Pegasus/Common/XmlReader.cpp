@@ -1424,9 +1424,13 @@ Uint32 XmlReader::getFlavor(
 
     if (overridable)
 	flavor |= CIMFlavor::OVERRIDABLE;
+	else
+		flavor |= CIMFlavor::DISABLEOVERRIDE;
 
     if (toSubClass)
 	flavor |= CIMFlavor::TOSUBCLASS;
+	else
+		flavor |= CIMFlavor::RESTRICTED;
 
     if (toInstance)
 	flavor |= CIMFlavor::TOINSTANCE;

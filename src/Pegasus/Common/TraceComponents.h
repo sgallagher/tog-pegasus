@@ -104,7 +104,7 @@ static char const* TRACE_COMPONENT_LIST[] =
     "IndicationService",
     "ConfigurationManager",
     "MessageQueueService",
-    "ProviderManager" 
+    "ProviderManager"
 };
 
 /** Constants identifying the Trace components. These constants are used by 

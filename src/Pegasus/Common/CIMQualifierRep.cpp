@@ -52,7 +52,8 @@ CIMQualifierRep::CIMQualifierRep(
     _flavor(flavor),
     _propagated(propagated)
 {
-    if (!CIMName::legal(name))
+    //cout << "KSTEST Qualifer create " << name << " Flavor " << flavor << endl;
+	if (!CIMName::legal(name))
 	throw IllegalName();
 
     if (_value.getType() == CIMType::NONE)
@@ -71,6 +72,22 @@ void CIMQualifierRep::setName(const String& name)
 
     _name = name; 
 }
+
+void CIMQualifierRep::resolveFlavor(Uint32 inheritedFlavor, Boolean inherited)
+	{
+		// ATTN: KS P3 Needs more tests and expansion so we treate first different
+		// from inheritance
+
+		// if the turnoff flags set, reset the functions.
+		if((inheritedFlavor & CIMFlavor::RESTRICTED) != 0) {
+			unsetFlavor(CIMFlavor::TOSUBCLASS + CIMFlavor::TOINSTANCE);
+		}
+		if((inheritedFlavor & CIMFlavor::DISABLEOVERRIDE)) {
+			unsetFlavor(CIMFlavor::ENABLEOVERRIDE);
+		}
+
+		_flavor = inheritedFlavor | _flavor;
+	}
 
 static const char* _toString(Boolean x)
 {
@@ -125,37 +142,38 @@ void CIMQualifierRep::toMof(Array<Sint8>& out) const
 
     /* If the qualifier is Boolean, we do not put out a value. This is
        the way MOF is shown.  Note that we should really be checking
-       the qualifierdecl to compare with the default but the defaults
-       on the current ones are all false so the existence of the qualifier
-       implies true.
+       the qualifierdecl to compare with the default.
        Also if the value is Null, we do not put out a value because
        no value has been set.  Assumes that qualifiers are built
        with NULL set if no value has been placed in the qualifier.
     */
     Boolean hasValueField = false;
-    if (!_value.isNull() || !(_value.getType() == CIMType::BOOLEAN) )
+    if (!_value.isNull())
     {
-	out << " (";
-	hasValueField = true;
-	_value.toMof(out);
+	   if (_value.getType() == CIMType::BOOLEAN)
+	   {
+		    Boolean b;
+			_value.get(b);
+		    if(!b)
+				out << " (false)";	
+	   }
+	   else
+	   {
+		   out << " (";
+		   hasValueField = true;
+		   _value.toMof(out);
+		   out << ")"; 
+	   }
     }
 
     // output the flavors
-    // ATTN: KS P3 This is a poor test to see if flavor output exists
     String flavorString;
     flavorString = FlavorToMof(_flavor);
     if (flavorString.size())
     {
-	if (hasValueField == false)
-	    out << " (";
-	out << " : ";
-	out << flavorString;
-	hasValueField = true;
-	//FlavorToMof(out, _flavor);
+		out << " : ";
+		out << flavorString;
     }
-
-    if (hasValueField)
-	out << ")"; 
 }
 
 void CIMQualifierRep::printMof(PEGASUS_STD(ostream) &os) const

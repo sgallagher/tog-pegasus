@@ -37,11 +37,18 @@ PEGASUS_USING_STD;
 
 const Uint32 CIMFlavor::NONE = 0;
 const Uint32 CIMFlavor::OVERRIDABLE = 1;
+const Uint32 CIMFlavor::ENABLEOVERRIDE = 1;
 const Uint32 CIMFlavor::TOSUBCLASS = 2;
 const Uint32 CIMFlavor::TOINSTANCE = 4;
 const Uint32 CIMFlavor::TRANSLATABLE = 8;
 const Uint32 CIMFlavor::TOSUBELEMENTS = TOSUBCLASS | TOINSTANCE;
+const Uint32 CIMFlavor::DISABLEOVERRIDE = 16;
+const Uint32 CIMFlavor::RESTRICTED = 32;
 const Uint32 CIMFlavor::DEFAULTS = OVERRIDABLE | TOSUBCLASS;
+// ATTN: P1 KS 24 March 2002 Change here to make TOINSTANCE part of the defaults
+//const Uint32 CIMFlavor::DEFAULTS = OVERRIDABLE | TOSUBCLASS| TOINSTANCE;
+const Uint32 CIMFlavor::ALL = OVERRIDABLE | DEFAULTS
+						 | TRANSLATABLE | DISABLEOVERRIDE | RESTRICTED;
 
 static const char* _toString(Boolean x)
 {
@@ -89,8 +96,6 @@ String FlavorToMof(Uint32 flavor)
 
     tmp = "";
 
-    //cout << "KSTEST MOF " << flavor << "  overridable = " << overridable << endl;
-
     if (!overridable)
 	tmp += "DisableOverride, ";
 
@@ -123,10 +128,10 @@ void FlavorToXml(Array<Sint8>& out, Uint32 flavor)
     if (!overridable)
 	out << " OVERRIDABLE=\"" << _toString(overridable) << "\"";
 
-    /*cout << "KSTEST XML " << flavor << "  overridable = " 
+    /*cout << "KSTEST XML " << hex << flavor << "  overridable = " 
         << overridable 
         << " " << FlavorToMof(flavor)
-        << endl;*/
+        << endl; */
 
     if (!toSubClass)
 	out << " TOSUBCLASS=\"" << _toString(toSubClass) << "\"";

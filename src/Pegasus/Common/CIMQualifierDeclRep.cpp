@@ -61,6 +61,25 @@ CIMQualifierDeclRep::CIMQualifierDeclRep(
 
     if (_value.getType() == CIMType::NONE)
 	throw NullType();
+
+	// Set the flavor defaults. Must actively set them in case input flavor
+	// sets some but not all the defaults.	Also Make sure no conflicts. This covers
+	// the fact that we have separate flags for on and off for the toelement
+	// and override functions. Something must be set on creation and the
+	// default in the .h file only covers the case where there is no input.
+	// This also assures that there are no conflicts. Note that it favors
+	// restricted and disable override
+	//ATTN: This should become an exception in case conflicting entities are set.
+	if((_flavor & CIMFlavor::RESTRICTED) == 0)
+		_flavor |= ( CIMFlavor::DEFAULTS);
+	else
+		_flavor &= ~( CIMFlavor::DEFAULTS);
+
+	if((_flavor & CIMFlavor::DISABLEOVERRIDE) == 0)
+		_flavor |= ( CIMFlavor::ENABLEOVERRIDE);
+	else
+		_flavor &= ~( CIMFlavor::ENABLEOVERRIDE);
+
 }
 
 CIMQualifierDeclRep::~CIMQualifierDeclRep()

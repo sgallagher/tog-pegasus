@@ -661,6 +661,7 @@ void HTTPAcceptor::_acceptConnection()
    {
        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                         "HTTPAcceptor: SSL_accept() failed");
+       mp_socket->close();
       return;
    }
 

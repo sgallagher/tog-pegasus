@@ -1,4 +1,4 @@
-//%/////////////////////////////////////////////////////////////////////////////
+///%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
 // The Open Group, Tivoli Systems
@@ -35,2118 +35,1915 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CIMOperationRequestDispatcher.h"
-#include <Pegasus/Repository/CIMRepository.h>
-#include <Pegasus/Provider/CIMOMHandle.h>
-#include <Pegasus/Provider/CIMIndicationProvider.h>
-#include <Pegasus/Provider/SimpleResponseHandler.h>
-#include <Pegasus/Provider/OperationFlag.h>
 
-#include <Pegasus/Server/CIMBaseProviderFacade.h>
+#include <Pegasus/Server/ServiceCIMOMHandle.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-PEGASUS_USING_STD;
+	PEGASUS_USING_STD;
 
-//#define DDD(X) X
 #define DDD(X) // X
 
 DDD(static const char* _DISPATCHER = "CIMOperationRequestDispatcher::";)
 
 CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
-    CIMRepository* repository,
-    CIMServer* server)
-   :
-   Base("CIMOpRequestDispatcher", true),
-   _repository(repository),
-   _providerManager(this)
+	CIMRepository* repository,
+	CIMServer* server)
+	:
+Base("CIMOpRequestDispatcher", true),
+	_repository(repository),
+	_cimom(0)
 {
+	// ATTN: this is only temporary. the sub components require direct
+	// access to one another to communicate. this will be unnecessary
+	// once they use messages routed through the meta dispatcher.
+	_cimom = new ServiceCIMOMHandle(this, server, repository, 0, 0);
 
-    DDD(cout << _DISPATCHER << endl;)
+	_providerManager = new ProviderManagerQueue(_cimom);
+
+	_cimom->_providerManager = _providerManager;
+
+	_configurationManager = new ConfigurationManagerQueue(_cimom);
+	
+	_cimom->_providerManager = _providerManager;
+	
+	DDD(cout << _DISPATCHER << endl;)
 }
 
-CIMOperationRequestDispatcher::~CIMOperationRequestDispatcher()
+CIMOperationRequestDispatcher::~CIMOperationRequestDispatcher()	
 {
-   _dying = 1;
+	_dying = 1;
 
+	delete _providerManager;
+	delete _configurationManager;
+	
+	delete _cimom;
 }
 
 // ATTN
 // this needs to return an array of names if it is possible
 // to have more than one provider per class.
 String CIMOperationRequestDispatcher::_lookupProviderForClass(
-    const String& nameSpace,
-    const String& className)
+	const String& nameSpace,
+	const String& className)
 {
-    //----------------------------------------------------------------------
-    // Look up the class:
-    //----------------------------------------------------------------------
+	// ATTN: should use the CIM_ElementCapabilities association to find
+	// the CIM_Provider instance from the CIM_Capabilities instance
 
-    CIMClass cimClass;
-    Array<CIMNamedInstance> enumInstances;
-    CIMInstance instance;
-    String classname;
-    String providername;
+	//
+	// get the provider capabilities instances from the configuration manager.
+	//
 
-   // check if it is asking for PG_RegistrationProvider
-   if (className == "PG_Provider" || className == "CIM_ProviderCapabilities")
-   {
-	return ("PG_ProviderRegistration");
-   }
+	// create request
+	CIMRequestMessage * request = new CIMEnumerateInstancesRequestMessage(
+		"golden snitch",
+		nameSpace,
+		"CIM_ProviderCapabilities",
+		false,
+		false,
+		false,
+		false,
+		Array<String>(),
+		QueueIdStack(_configurationManager->getQueueId(), getQueueId()));
 
-   // use provider registration to find provider
+	// save the message key because the lifetime of the message is not known.
+	Uint32 messageKey = request->getKey();
 
-   // get all the registered providers
-   _repository->read_lock();
+	// send request
+	_configurationManager->enqueue(request);
 
-   try
-   {
-      enumInstances = _repository->enumerateInstances(nameSpace, "CIM_ProviderCapabilities");
-   }
-   catch(CIMException&)
-   {
-      // ATTN: Fail silently for now
-   }
+	// wait for response
+	CIMEnumerateInstancesResponseMessage * response =
+		(CIMEnumerateInstancesResponseMessage *)_waitForResponse(
+		CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE,
+		messageKey);
 
-   _repository->read_unlock();
+	// ATTN: temporary fix until CIMNamedInstance removed
+	Array<CIMInstance> cimInstances;
 
-   for (Uint32 i = 0, n = enumInstances.size(); i < n ; i++)
-   {
-      instance = enumInstances[i].getInstance();
-      // get className
-      classname = instance.getProperty(instance.findProperty("ClassName")).getValue().toString();
-      if (String::equal(classname, className))
-      {
-	 providername = instance.getProperty(instance.findProperty("ProviderName")).getValue().toString();
-	
-	 if (_providerManager.isProviderBlocked(providername)) // blocked
-	 {
-	    // if the provider is blocked
-	
-	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, "provider is blocked");
-	    return (String::EMPTY);
-	 }
-	 else
-	 {
-	    return(providername);
-	 }
-      }
-   }		
+	{
+		for(Uint32 i = 0, n = response->cimNamedInstances.size(); i < n; i++)
+		{
+			cimInstances.append(response->cimNamedInstances[i].getInstance());
+		}
+	}
 
-// ATTN: still use qualifier to find provider if a provider did not use
-// PG_RegistrationProvider to register. Will remove in the future
-   _repository->read_lock();
-   try
-   {
-      cimClass = _repository->getClass(nameSpace, className);
-   }
-   catch (CIMException& e)
-   {
-      _repository->read_unlock();
+	//
+	// get the provider instances from the configuration manager.
+	//
 
-      if (e.getCode() == CIM_ERR_NOT_FOUND)
-      {
-	 throw CIMException(CIM_ERR_INVALID_CLASS);
-      }
-      else
-      {
-	 throw e;
-      }
-   }
-   _repository->read_unlock();
+	// check each instance for the requested class name
+	for(Uint32 i = 0, n = cimInstances.size(); i < n ; i++)
+	{
+		CIMInstance cimInstance(cimInstances[i]);
 
-   DDD(cout << _DISPATCHER << "Lookup Provider for " << className << endl;)
+		// get the ClassName property value from the instance
+		Uint32 pos = cimInstance.findProperty("ClassName");
 
+		// compare the property value with the requested class name
+		if(String::equalNoCase(className, cimInstance.getProperty(pos).getValue().toString()))
+		{
+			// get the ProviderName property value from the instance
+			pos = cimInstance.findProperty("ProviderName");
 
+			String providerName = cimInstance.getProperty(pos).getValue().toString();
 
-    //----------------------------------------------------------------------
-    // Get the provider qualifier:
-    //----------------------------------------------------------------------
+			if(_providerManager->isProviderBlocked(providerName))
+			{
+				// if the provider is blocked
+				throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, "provider is blocked");
+			}
 
-    Uint32 pos = cimClass.findQualifier("provider");
-    DDD(cout << _DISPATCHER << "Lookup Qualifier " << pos << endl;)
+			if(providerName.size() != 0)
+			{
+			   return(providerName);
+			}
 
-    if (pos == PEG_NOT_FOUND)
-	return String::EMPTY;
+			// invalid provider name
+			break;
+		}
+	}
 
-    CIMQualifier q = cimClass.getQualifier(pos);
-    String providerId;
+	// ATTN: still use qualifier to find provider if a provider did not use
+	// PG_RegistrationProvider to register. Will remove in the future
 
-    q.getValue().get(providerId);
-    DDD(cout << _DISPATCHER << "Provider " << providerId << endl;)
+	CIMClass cimClass;
 
-    if (_providerManager.isProviderBlocked(providerId)) // blocked
-    {
-	// if the provider is blocked
+	try
+	{
+		_repository->read_lock();
 
-	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, "provider is blocked");
-    }
-    else
-    {
+		cimClass = _repository->getClass(nameSpace, className);
+
+		_repository->read_unlock();
+	}
+	catch(CIMException& e)
+	{
+		_repository->read_unlock();
+
+		if(e.getCode() == CIM_ERR_NOT_FOUND)
+		{
+			throw CIMException(CIM_ERR_INVALID_CLASS);
+		}
+
+		throw e;
+	}
+
+	DDD(cout << _DISPATCHER << "Lookup Provider for " << className << endl;)
+
+	//----------------------------------------------------------------------
+	// Get the provider qualifier:
+	//----------------------------------------------------------------------
+
+	Uint32 pos = cimClass.findQualifier("provider");
+	DDD(cout << _DISPATCHER << "Lookup Qualifier " << pos << endl;)
+
+	if(pos == PEG_NOT_FOUND)
+		return(String::EMPTY);
+
+	CIMQualifier q = cimClass.getQualifier(pos);
+	String providerId;
+
+	q.getValue().get(providerId);
+	DDD(cout << _DISPATCHER << "Provider " << providerId << endl;)
+
+	if(_providerManager->isProviderBlocked(providerId)) // blocked
+	{
+		// if the provider is blocked
+		throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, "provider is blocked");
+	}
+
 	return(providerId);
-    }
 }
 
-////////////////////////////////////////////////////////////////////////////////
+Message * CIMOperationRequestDispatcher::_waitForResponse(
+	const Uint32 messageType,
+	const Uint32 messageKey,
+	const Uint32 timeout)
+{
+	// immediately attempt to locate a message of the requested type
+	Message * message = ((MessageQueue *)this)->find(messageType, messageKey);
+
+	// if the message is null and the timeout is greater than 0, go into
+	// a sleep/retry mode until the timeout expires or a message of the
+	// requested type arrives. a timeout value of 0xffffffff represents
+	// infinity.
+	for(Uint32 i = 0; ((i < timeout) || (timeout == 0xffffffff)) && (message == 0); i++)
+	{
+		System::sleep(1);
+
+		message = ((MessageQueue *)this)->find(messageType, messageKey);
+	}
+
+	if(message == 0)
+	{
+		throw CIMException(CIM_ERR_FAILED, __FILE__, __LINE__, "queue underflow");
+	}
+
+	((MessageQueue *)this)->remove(message);
+
+	return(message);
+}
 
 void CIMOperationRequestDispatcher::_enqueueResponse(
-    CIMRequestMessage* request,
-    CIMResponseMessage* response)
+	CIMRequestMessage* request,
+	CIMResponseMessage* response)
 {
-    // Use the same key as used in the request:
+	// Use the same key as used in the request:
 
-    response->setKey(request->getKey());
+	response->setKey(request->getKey());
 
-    // Lookup the message queue:
+	// Lookup the message queue:
 
-    MessageQueue* queue = MessageQueue::lookup(request->queueIds.top());
-    PEGASUS_ASSERT(queue != 0);
+	MessageQueue* queue = MessageQueue::lookup(request->queueIds.top());
+	PEGASUS_ASSERT(queue != 0);
 
-    // Enqueue the response:
+	// Enqueue the response:
 
-    queue->enqueue(response);
+	queue->enqueue(response);
 }
-
 
 // allocate a CIM Operation_async,  opnode, context, and response handler
 // initialize with pointers to async top and async bottom
 // link to the waiting q
-
 void CIMOperationRequestDispatcher::handleEnqueue()
 {
-    Message* request = dequeue();
+	Message* request = dequeue();
 
-    if (!request)
-	return;
+	if(!request)
+		return;
 
-    switch (request->getType())
-    {
+	switch(request->getType())
+	{
 	case CIM_GET_CLASS_REQUEST_MESSAGE:
-	    handleGetClassRequest((CIMGetClassRequestMessage*)request);
-	    break;
+		handleGetClassRequest((CIMGetClassRequestMessage*)request);
+		break;
 
 	case CIM_GET_INSTANCE_REQUEST_MESSAGE:
-	    handleGetInstanceRequest((CIMGetInstanceRequestMessage*)request);
-	    break;
+		handleGetInstanceRequest((CIMGetInstanceRequestMessage*)request);
+		break;
 
 	case CIM_DELETE_CLASS_REQUEST_MESSAGE:
-	    handleDeleteClassRequest(
-		(CIMDeleteClassRequestMessage*)request);
-	    break;
+		handleDeleteClassRequest(
+			(CIMDeleteClassRequestMessage*)request);
+		break;
 
 	case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
-	    handleDeleteInstanceRequest(
-		(CIMDeleteInstanceRequestMessage*)request);
-	    break;
+		handleDeleteInstanceRequest(
+			(CIMDeleteInstanceRequestMessage*)request);
+		break;
 
 	case CIM_CREATE_CLASS_REQUEST_MESSAGE:
-	    handleCreateClassRequest((CIMCreateClassRequestMessage*)request);
-	    break;
+		handleCreateClassRequest((CIMCreateClassRequestMessage*)request);
+		break;
 
 	case CIM_CREATE_INSTANCE_REQUEST_MESSAGE:
-	    handleCreateInstanceRequest(
-		(CIMCreateInstanceRequestMessage*)request);
-	    break;
+		handleCreateInstanceRequest(
+			(CIMCreateInstanceRequestMessage*)request);
+		break;
 
 	case CIM_MODIFY_CLASS_REQUEST_MESSAGE:
-	    handleModifyClassRequest((CIMModifyClassRequestMessage*)request);
-	    break;
+		handleModifyClassRequest((CIMModifyClassRequestMessage*)request);
+		break;
 
 	case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
-	    handleModifyInstanceRequest(
-		(CIMModifyInstanceRequestMessage*)request);
-	    break;
+		handleModifyInstanceRequest(
+			(CIMModifyInstanceRequestMessage*)request);
+		break;
 
 	case CIM_ENUMERATE_CLASSES_REQUEST_MESSAGE:
-	    handleEnumerateClassesRequest(
-		(CIMEnumerateClassesRequestMessage*)request);
-	    break;
+		handleEnumerateClassesRequest(
+			(CIMEnumerateClassesRequestMessage*)request);
+		break;
 
 	case CIM_ENUMERATE_CLASS_NAMES_REQUEST_MESSAGE:
-	    handleEnumerateClassNamesRequest(
-		(CIMEnumerateClassNamesRequestMessage*)request);
-	    break;
+		handleEnumerateClassNamesRequest(
+			(CIMEnumerateClassNamesRequestMessage*)request);
+		break;
 
 	case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
-	    handleEnumerateInstancesRequest(
-		(CIMEnumerateInstancesRequestMessage*)request);
-	    break;
+		handleEnumerateInstancesRequest(
+			(CIMEnumerateInstancesRequestMessage*)request);
+		break;
 
 	case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE:
-	    handleEnumerateInstanceNamesRequest(
-		(CIMEnumerateInstanceNamesRequestMessage*)request);
-	    break;
+		handleEnumerateInstanceNamesRequest(
+			(CIMEnumerateInstanceNamesRequestMessage*)request);
+		break;
 
-	// ATTN: implement this!
+		// ATTN: implement this!
 	case CIM_EXEC_QUERY_REQUEST_MESSAGE:
-	    break;
+		break;
 
 	case CIM_ASSOCIATORS_REQUEST_MESSAGE:
-	    handleAssociatorsRequest((CIMAssociatorsRequestMessage*)request);
-	    break;
+		handleAssociatorsRequest((CIMAssociatorsRequestMessage*)request);
+		break;
 
 	case CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE:
-	    handleAssociatorNamesRequest(
-		(CIMAssociatorNamesRequestMessage*)request);
-	    break;
+		handleAssociatorNamesRequest(
+			(CIMAssociatorNamesRequestMessage*)request);
+		break;
 
 	case CIM_REFERENCES_REQUEST_MESSAGE:
-	    handleReferencesRequest((CIMReferencesRequestMessage*)request);
-	    break;
+		handleReferencesRequest((CIMReferencesRequestMessage*)request);
+		break;
 
 	case CIM_REFERENCE_NAMES_REQUEST_MESSAGE:
-	    handleReferenceNamesRequest(
-		(CIMReferenceNamesRequestMessage*)request);
-	    break;
+		handleReferenceNamesRequest(
+			(CIMReferenceNamesRequestMessage*)request);
+		break;
 
 	case CIM_GET_PROPERTY_REQUEST_MESSAGE:
-	    handleGetPropertyRequest(
-		(CIMGetPropertyRequestMessage*)request);
-	    break;
+		handleGetPropertyRequest(
+			(CIMGetPropertyRequestMessage*)request);
+		break;
 
 	case CIM_SET_PROPERTY_REQUEST_MESSAGE:
-	    handleSetPropertyRequest(
-		(CIMSetPropertyRequestMessage*)request);
-	    break;
+		handleSetPropertyRequest(
+			(CIMSetPropertyRequestMessage*)request);
+		break;
 
 	case CIM_GET_QUALIFIER_REQUEST_MESSAGE:
-	    handleGetQualifierRequest((CIMGetQualifierRequestMessage*)request);
-	    break;
+		handleGetQualifierRequest((CIMGetQualifierRequestMessage*)request);
+		break;
 
 	case CIM_SET_QUALIFIER_REQUEST_MESSAGE:
-	    handleSetQualifierRequest((CIMSetQualifierRequestMessage*)request);
-	    break;
+		handleSetQualifierRequest((CIMSetQualifierRequestMessage*)request);
+		break;
 
 	case CIM_DELETE_QUALIFIER_REQUEST_MESSAGE:
-	    handleDeleteQualifierRequest(
-		(CIMDeleteQualifierRequestMessage*)request);
-	    break;
+		handleDeleteQualifierRequest(
+			(CIMDeleteQualifierRequestMessage*)request);
+		break;
 
 	case CIM_ENUMERATE_QUALIFIERS_REQUEST_MESSAGE:
-	    handleEnumerateQualifiersRequest(
-		(CIMEnumerateQualifiersRequestMessage*)request);
-	    break;
+		handleEnumerateQualifiersRequest(
+			(CIMEnumerateQualifiersRequestMessage*)request);
+		break;
 
 	case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
-	    handleInvokeMethodRequest(
-		(CIMInvokeMethodRequestMessage*)request);
-	    break;
+		handleInvokeMethodRequest(
+			(CIMInvokeMethodRequestMessage*)request);
+		break;
 
-// 	case CIM_CANCEL_INDICATION_REQUEST_MESSAGE:
-// 	    handleCancelIndicationRequest(
-// 		(CIMCancelIndicationRequestMessage*)request);
-// 	    break;
+	case CIM_ENABLE_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
+		handleEnableIndicationSubscriptionRequest(
+			(CIMEnableIndicationSubscriptionRequestMessage*)request);
+		break;
 
-        case CIM_ENABLE_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
-            handleEnableIndicationSubscriptionRequest(
-                (CIMEnableIndicationSubscriptionRequestMessage*)request);
-            break;
+	case CIM_MODIFY_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
+		handleModifyIndicationSubscriptionRequest(
+			(CIMModifyIndicationSubscriptionRequestMessage*)request);
+		break;
 
-        case CIM_MODIFY_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
-            handleModifyIndicationSubscriptionRequest(
-                (CIMModifyIndicationSubscriptionRequestMessage*)request);
-            break;
+	case CIM_DISABLE_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
+		handleDisableIndicationSubscriptionRequest(
+			(CIMDisableIndicationSubscriptionRequestMessage*)request);
+		break;
+	}
 
-        case CIM_DISABLE_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
-            handleDisableIndicationSubscriptionRequest(
-                (CIMDisableIndicationSubscriptionRequestMessage*)request);
-            break;
-    }
-
-    delete request;
+	delete request;
 }
 
 const char* CIMOperationRequestDispatcher::getQueueName() const
 {
-    return "CIMOperationRequestDispatcher";
+	return("CIMOperationRequestDispatcher");
 }
 
 void CIMOperationRequestDispatcher::handleGetClassRequest(
-    CIMGetClassRequestMessage* request)
+	CIMGetClassRequestMessage* request)
 {
-    // ATTN: Need code here to expand partial class!
+	// ATTN: Need code here to expand partial class!
 
-    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-    String errorDescription;
-    CIMClass cimClass;
+	CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+	String errorDescription;
+	CIMClass cimClass;
 
-    _repository->read_lock();
+	_repository->read_lock();
 
-    try
-    {
-       cimClass = _repository->getClass(
-	  request->nameSpace,
-	  request->className,
-	  request->localOnly,
-	  request->includeQualifiers,
-	  request->includeClassOrigin,
-	  request->propertyList.getPropertyNameArray());
-    }
-    catch (CIMException& exception)
-    {
-       errorCode = exception.getCode();
-       errorDescription = exception.getMessage();
-    }
-    catch (Exception& exception)
-    {
-       errorCode = CIM_ERR_FAILED;
-       errorDescription = exception.getMessage();
-    }
+	try
+	{
+		cimClass = _repository->getClass(
+			request->nameSpace,
+			request->className,
+			request->localOnly,
+			request->includeQualifiers,
+			request->includeClassOrigin,
+			request->propertyList.getPropertyNameArray());
+	}
+	catch(CIMException& exception)
+	{
+		errorCode = exception.getCode();
+		errorDescription = exception.getMessage();
+	}
+	catch(Exception& exception)
+	{
+		errorCode = CIM_ERR_FAILED;
+		errorDescription = exception.getMessage();
+	}
+	catch(...)
+	{
+		errorCode = CIM_ERR_FAILED;
+	}
 
-    _repository->read_unlock();
+	_repository->read_unlock();
 
+	CIMGetClassResponseMessage* response = new CIMGetClassResponseMessage(
+		request->messageId,
+		errorCode,
+		errorDescription,
+		request->queueIds.copyAndPop(),
+		cimClass);
 
-    CIMGetClassResponseMessage* response = new CIMGetClassResponseMessage(
-	request->messageId,
-	errorCode,
-	errorDescription,
-	request->queueIds.copyAndPop(),
-	cimClass);
-
-    _enqueueResponse(request, response);
+	_enqueueResponse(request, response);
 }
 
 void CIMOperationRequestDispatcher::handleGetInstanceRequest(
-    CIMGetInstanceRequestMessage* request)
+	CIMGetInstanceRequestMessage* request)
 {
-    // ATTN: Need code here to expand partial instance!
+	// ATTN: Need code here to expand partial instance!
 
-    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-    String errorDescription;
-    CIMInstance cimInstance;
-
-    try
-    {
-	// get provider for class
+	// get the class name
 	String className = request->instanceName.getClassName();
-	String providerName = _lookupProviderForClass(request->nameSpace, className);
 
-        if ( (providerName.size() == 0) &&
-                 !_repository->isDefaultInstanceProvider() )
-        {
-            // ATTN: Is this the right exception?
-            throw CIMException(CIM_ERR_NOT_SUPPORTED);
-        }
-
-	// NOTE - getProviderName reads a const string and does not
-	// need to use the rw lock
-        else if ( (providerName.size() == 0) ||
-                  (providerName == _repository->getProviderName()) )
-        {
-	   _repository->read_lock();
-
-	   try
-	   {
-	      cimInstance = _repository->getInstance(
-		 request->nameSpace,
-		 request->instanceName,
-		 request->localOnly,
-		 request->includeQualifiers,
-		 request->includeClassOrigin,
-		 request->propertyList.getPropertyNameArray());
-	   }
-	   catch (...)
-	   {
-	      _repository->read_unlock();
-	      throw;
-	   }
-	   _repository->read_unlock();
-	}
-	
-	else
+	// check the class name for an "internal provider"
+	if(String::equalNoCase(className, "CIM_Provider") ||
+		String::equalNoCase(className, "CIM_ProviderCapabilities") ||
+		String::equalNoCase(className, "PG_Provider"))
 	{
-	    // attempt to load provider
-	    CIMBaseProvider * provider = _providerManager.getProvider(providerName, className);
-		CIMBaseProviderFacade facade(provider);
+		// send to the configuration manager. it will generate the
+		// appropriate response message.
+		_configurationManager->enqueue(new CIMGetInstanceRequestMessage(*request));
 
-		Uint32 flags = OperationFlag::convert(
-			request->localOnly,
-			request->includeQualifiers,
-			request->includeClassOrigin);
-		
-		SimpleResponseHandler<CIMInstance> handler;
-
-	    request->instanceName.setNameSpace(request->nameSpace);
-
-	    facade.getInstance(
-		OperationContext(),
-		request->instanceName,
-		flags,
-		request->propertyList.getPropertyNameArray(),
-		handler);
-
-		cimInstance = handler._objects[0];
+		return;
 	}
-    }
-    catch (CIMException& exception)
-    {
-	errorCode = exception.getCode();
-	errorDescription = exception.getMessage();
-    }
-    catch (Exception& exception)
-    {
-	errorCode = CIM_ERR_FAILED;
-	errorDescription = exception.getMessage();
-    }
-
-    CIMGetInstanceResponseMessage* response = new CIMGetInstanceResponseMessage(
-	request->messageId,
-	errorCode,
-	errorDescription,
-	request->queueIds.copyAndPop(),
-	cimInstance);
-
-    _enqueueResponse(request, response);
-}
-
-void CIMOperationRequestDispatcher::handleDeleteClassRequest(
-    CIMDeleteClassRequestMessage* request)
-{
-    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-    String errorDescription;
-
-    _repository->write_lock();
-
-    try
-    {
-       _repository->deleteClass(
-	  request->nameSpace,
-	  request->className);
-    }
-
-    catch (CIMException& exception)
-    {
-       errorCode = exception.getCode();
-       errorDescription = exception.getMessage();
-    }
-    catch (Exception& exception)
-    {
-       errorCode = CIM_ERR_FAILED;
-       errorDescription = exception.getMessage();
-    }
-
-    _repository->write_unlock();
-
-    CIMDeleteClassResponseMessage* response =
-	new CIMDeleteClassResponseMessage(
-	    request->messageId,
-	    errorCode,
-	    errorDescription,
-	    request->queueIds.copyAndPop());
-
-    _enqueueResponse(request, response);
-}
-
-void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
-    CIMDeleteInstanceRequestMessage* request)
-{
-    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-    String errorDescription;
-
-    try
-    {
-	// get provider for class
-	String className = request->instanceName.getClassName();
-	String providerName = _lookupProviderForClass(request->nameSpace, className);
-
-        if ( (providerName.size() == 0) &&
-                 !_repository->isDefaultInstanceProvider() )
-        {
-            // ATTN: Is this the right exception?
-            throw CIMException(CIM_ERR_NOT_SUPPORTED);
-        }
-        else if ( (providerName.size() == 0) ||
-                  (providerName == _repository->getProviderName()) )
-	{
-	   _repository->write_lock();
-	   try
-	   {
-	      _repository->deleteInstance(
-		 request->nameSpace,
-		 request->instanceName);
-	   }
-	   catch( ... )
-	   {
-	      _repository->write_unlock();
-	      throw;
-	   }
-	
-	   _repository->write_unlock();
-	
-	}
-	else
-	{
-	    // attempt to load provider
-	    CIMBaseProvider * provider = _providerManager.getProvider(providerName, className);
-		CIMBaseProviderFacade facade(provider);
-	
-	    SimpleResponseHandler<CIMInstance> handler;
-		
-	    request->instanceName.setNameSpace(request->nameSpace);
-
-		facade.deleteInstance(
-		OperationContext(),
-		request->instanceName,
-		handler);
-	}
-    }
-    catch (CIMException& exception)
-    {
-	errorCode = exception.getCode();
-	errorDescription = exception.getMessage();
-    }
-    catch (Exception& exception)
-    {
-	errorCode = CIM_ERR_FAILED;
-	errorDescription = exception.getMessage();
-    }
-
-    CIMDeleteInstanceResponseMessage* response =
-	new CIMDeleteInstanceResponseMessage(
-	    request->messageId,
-	    errorCode,
-	    errorDescription,
-	    request->queueIds.copyAndPop());
-
-    _enqueueResponse(request, response);
-}
-
-void CIMOperationRequestDispatcher::handleCreateClassRequest(
-    CIMCreateClassRequestMessage* request)
-{
-    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-    String errorDescription;
-
-    _repository->write_lock();
-
-    try
-    {
-       _repository->createClass(
-	  request->nameSpace,
-	  request->newClass);
-    }
-
-    catch (CIMException& exception)
-    {
-	errorCode = exception.getCode();
-	errorDescription = exception.getMessage();
-    }
-    catch (Exception& exception)
-    {
-	errorCode = CIM_ERR_FAILED;
-	errorDescription = exception.getMessage();
-    }
-
-    _repository->write_unlock();
-
-    CIMCreateClassResponseMessage* response =
-	new CIMCreateClassResponseMessage(
-	    request->messageId,
-	    errorCode,
-	    errorDescription,
-	    request->queueIds.copyAndPop());
-
-    _enqueueResponse(request, response);
-}
-
-void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
-    CIMCreateInstanceRequestMessage* request)
-{
-    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-    String errorDescription;
-    CIMReference instanceName;
-
-    CIMInstance cimInstance(request->newInstance);
-
-	// ATTN: SPECIAL CASE
-	{
-		// CreateInstance requests for classes of type CIM_Provider and CIM_ProviderCapabilities
-		// go to the ConfigurationManager.
-		// ATTN: should check class inheritance, not just the name
-		String className = request->newInstance.getClassName();
-	
-		if(String::equalNoCase(className, "CIM_Provider") ||
-           String::equalNoCase(className, "CIM_ProviderCapabilities"))
-		{
-			// ATTN: function under construction
-			
-			//_configurationManager->handleEnqueue(request);
-	
-			CIMResponseMessage * response = new CIMCreateInstanceResponseMessage(
-				request->messageId,
-				CIM_ERR_FAILED,
-				"function under construction",
-				request->queueIds.copyAndPop(),
-				CIMReference());
-	
-			_enqueueResponse(request, response);
-	
-			return;
-		}
-		
-		// CreateInstance requests for classes of type CIM_IndicationSubscription
-		// go to the Subscription Processor
-		// ATTN: should check class inheritance, not just the name
-		if(String::equalNoCase(className, "CIM_IndicationSubscription"))
-		{
-			// ATTN: function under construction
-			
-			//_subscriptionProcessor->handleEnqueue(request);
-	
-			CIMResponseMessage * response = new CIMCreateInstanceResponseMessage(
-				request->messageId,
-				CIM_ERR_FAILED,
-				"function under construction",
-				request->queueIds.copyAndPop(),
-				CIMReference());
-	
-			_enqueueResponse(request, response);
-	
-			return;
-		}
-	}
-	
-	try
-    {
-	// get provider for class
-	String className = request->newInstance.getClassName();
-        //CIMClass cimClass = className;
-	String providerName = _lookupProviderForClass(request->nameSpace, className);
-
-        if ( (providerName.size() == 0) &&
-                 !_repository->isDefaultInstanceProvider() )
-        {
-            // ATTN: Is this the right exception?
-            throw CIMException(CIM_ERR_NOT_SUPPORTED);
-        }
-        else if ( (providerName.size() == 0) ||
-                  (providerName == _repository->getProviderName()) )
-	{
-
-	   _repository->write_lock();
-
-	   try
-	   {
-	      instanceName = _repository->createInstance(
-		 request->nameSpace,
-		 request->newInstance);
-	   }
-	   catch( ... )
-	   {
-	      _repository->write_unlock();
-	      throw;
-	   }
-	
-	   _repository->write_unlock();
-
-	}
-	else
-	{
-	    // attempt to load provider
-	    CIMBaseProvider * provider = _providerManager.getProvider(providerName, className);
-		CIMBaseProviderFacade facade(provider);
-
-	    SimpleResponseHandler<CIMReference> handler;
-		
-		facade.createInstance(
-		OperationContext(),
-		CIMReference(),
-		request->newInstance,
-		handler);
-
-		//instanceName = handler._objects[0];
-	}
-    }
-    catch (CIMException& exception)
-    {
-	errorCode = exception.getCode();
-	errorDescription = exception.getMessage();
-    }
-    catch (Exception& exception)
-    {
-	errorCode = CIM_ERR_FAILED;
-	errorDescription = exception.getMessage();
-    }
-
-    CIMCreateInstanceResponseMessage* response =
-	new CIMCreateInstanceResponseMessage(
-	    request->messageId,
-	    errorCode,
-	    errorDescription,
-	    request->queueIds.copyAndPop(),
-	    instanceName);
-
-    _enqueueResponse(request, response);
-}
-
-void CIMOperationRequestDispatcher::handleModifyClassRequest(
-    CIMModifyClassRequestMessage* request)
-{
-    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-    String errorDescription;
-
-    _repository->write_lock();
-
-    try
-    {
-       _repository->modifyClass(
-	  request->nameSpace,
-	  request->modifiedClass);
-    }
-
-    catch (CIMException& exception)
-    {
-	errorCode = exception.getCode();
-	errorDescription = exception.getMessage();
-    }
-    catch (Exception& exception)
-    {
-	errorCode = CIM_ERR_FAILED;
-	errorDescription = exception.getMessage();
-    }
-
-    _repository->write_unlock();
-
-    CIMModifyClassResponseMessage* response =
-	new CIMModifyClassResponseMessage(
-	    request->messageId,
-	    errorCode,
-	    errorDescription,
-	    request->queueIds.copyAndPop());
-
-    _enqueueResponse(request, response);
-}
-
-void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
-    CIMModifyInstanceRequestMessage* request)
-{
-    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-    String errorDescription;
-
-	// ATTN: SPECIAL CASE
-	{
-		// ModifyInstance requests for classes of type CIM_Provider and CIM_ProviderCapabilities
-		// go to the ConfigurationManager.
-		// ATTN: should check class inheritance, not just the name
-		String className = request->modifiedInstance.getInstance().getClassName();
-	
-		if(String::equalNoCase(className, "CIM_Provider") ||
-           String::equalNoCase(className, "CIM_ProviderCapabilities"))
-		{
-			// ATTN: function under construction
-			
-			//_configurationManager->handleEnqueue(request);
-	
-			CIMResponseMessage * response = new CIMCreateInstanceResponseMessage(
-				request->messageId,
-				CIM_ERR_FAILED,
-				"function under construction",
-				request->queueIds.copyAndPop(),
-				CIMReference());
-	
-			_enqueueResponse(request, response);
-	
-			return;
-		}
-		
-		// ModifyInstance requests for classes of type CIM_IndicationSubscription
-		// go to the Subscription Processor
-		// ATTN: should check class inheritance, not just the name
-		if(String::equalNoCase(className, "CIM_IndicationSubscription"))
-		{
-			// ATTN: function under construction
-			
-			//_subscriptionProcessor->handleEnqueue(request);
-	
-			CIMResponseMessage * response = new CIMCreateInstanceResponseMessage(
-				request->messageId,
-				CIM_ERR_FAILED,
-				"function under construction",
-				request->queueIds.copyAndPop(),
-				CIMReference());
-	
-			_enqueueResponse(request, response);
-	
-			return;
-		}
-	}
-	
-    try
-    {
-        // ATTN: Who makes sure the instance name and the instance match?
 
 	// get provider for class
-	String className = request->modifiedInstance.getInstance().getClassName();
-	String providerName = _lookupProviderForClass(request->nameSpace, className);
-
-        if ( (providerName.size() == 0) &&
-                 !_repository->isDefaultInstanceProvider() )
-        {
-            // ATTN: Is this the right exception?
-            throw CIMException(CIM_ERR_NOT_SUPPORTED);
-        }
-        else if ( (providerName.size() == 0) ||
-                  (providerName == _repository->getProviderName()) )
-        {
-	
-	   _repository->write_lock();
-	
-	   try
-	   {
-	      _repository->modifyInstance(
-		 request->nameSpace,
-		 request->modifiedInstance,
-		 request->includeQualifiers,
-		 request->propertyList);
-	   }
-
-	   catch( ... )
-	   {
-	      _repository->write_unlock();
-	      throw;
-	   }
-
-	   _repository->write_unlock();
-
-        }
-        else
-	{
-	    // attempt to load provider
-		CIMBaseProvider * provider = _providerManager.getProvider(providerName, className);
-		CIMBaseProviderFacade facade(provider);
-
-	    SimpleResponseHandler<CIMInstance> handler;
-		
-		facade.modifyInstance(
-		OperationContext(),
-        request->nameSpace,
-        request->modifiedInstance.getInstance(),
-        OperationFlag::convert(false, request->includeQualifiers),
-        Array<String>(), //request->propertyList,
-		handler);
-		}
-    }
-    catch (CIMException& exception)
-    {
-	errorCode = exception.getCode();
-	errorDescription = exception.getMessage();
-    }
-    catch (Exception& exception)
-    {
-	errorCode = CIM_ERR_FAILED;
-	errorDescription = exception.getMessage();
-    }
-
-    CIMModifyInstanceResponseMessage* response =
-	new CIMModifyInstanceResponseMessage(
-	    request->messageId,
-	    errorCode,
-	    errorDescription,
-	    request->queueIds.copyAndPop());
-
-    _enqueueResponse(request, response);
-}
-
-void CIMOperationRequestDispatcher::handleEnumerateClassesRequest(
-    CIMEnumerateClassesRequestMessage* request)
-{
-    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-    String errorDescription;
-    Array<CIMClass> cimClasses;
-
-    _repository->read_lock();
-
-    try
-    {
-       cimClasses = _repository->enumerateClasses(
-	  request->nameSpace,
-	  request->className,
-	  request->deepInheritance,
-	  request->localOnly,
-	  request->includeQualifiers,
-	  request->includeClassOrigin);
-    }
-
-    catch (CIMException& exception)
-    {
-	errorCode = exception.getCode();
-	errorDescription = exception.getMessage();
-    }
-    catch (Exception& exception)
-    {
-	errorCode = CIM_ERR_FAILED;
-	errorDescription = exception.getMessage();
-    }
-
-    _repository->read_unlock();
-
-    CIMEnumerateClassesResponseMessage* response =
-	new CIMEnumerateClassesResponseMessage(
-	    request->messageId,
-	    errorCode,
-	    errorDescription,
-	    request->queueIds.copyAndPop(),
-	    cimClasses);
-
-    _enqueueResponse(request, response);
-}
-
-void CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest(
-    CIMEnumerateClassNamesRequestMessage* request)
-{
-    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-    String errorDescription;
-    Array<String> classNames;
-
-    _repository->read_lock();
-
-    try
-    {
-
-       classNames = _repository->enumerateClassNames(
-	  request->nameSpace,
-	  request->className,
-	  request->deepInheritance);
-    }
-
-    catch (CIMException& exception)
-    {
-	errorCode = exception.getCode();
-	errorDescription = exception.getMessage();
-    }
-    catch (Exception& exception)
-    {
-	errorCode = CIM_ERR_FAILED;
-	errorDescription = exception.getMessage();
-    }
-
-    _repository->read_unlock();
-
-    CIMEnumerateClassNamesResponseMessage* response =
-	new CIMEnumerateClassNamesResponseMessage(
-	    request->messageId,
-	    errorCode,
-	    errorDescription,
-	    request->queueIds.copyAndPop(),
-	    classNames);
-
-    _enqueueResponse(request, response);
-}
-
-void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
-    CIMEnumerateInstancesRequestMessage* request)
-{
-    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-    String errorDescription;
-    Array<CIMNamedInstance> cimNamedInstances;
-
-    try
-    {
-	// get provider for class
-	String className = request->className;
-	String providerName = _lookupProviderForClass(request->nameSpace, className);
-
-        if ( (providerName.size() == 0) &&
-                 !_repository->isDefaultInstanceProvider() )
-        {
-            // ATTN: Is this the right exception?
-            throw CIMException(CIM_ERR_NOT_SUPPORTED);
-        }
-        else if ( (providerName.size() == 0) ||
-                  (providerName == _repository->getProviderName()) )
-	{
-	   _repository->read_lock();
-
-	   try
-	   {
-	      cimNamedInstances = _repository->enumerateInstances(
-		 request->nameSpace,
-		 request->className,
-		 request->deepInheritance,
-		 request->localOnly,
-		 request->includeQualifiers,
-		 request->includeClassOrigin,
-		 request->propertyList.getPropertyNameArray());
-	   }
-	   catch( ...)
-	   {
-	      _repository->read_unlock();
-	      throw;
-	   }
-	
-	   _repository->read_unlock();
-	}
-	
-	else
-	{
-	    // attempt to load provider
-	    CIMBaseProvider * provider = _providerManager.getProvider(providerName, className);
-		CIMBaseProviderFacade facade(provider);
-
-		SimpleResponseHandler<CIMInstance> handler;
-
-	    facade.enumerateInstances(
-		OperationContext(),
-		CIMReference(String::EMPTY, request->nameSpace,
-                             request->className),
-		OperationFlag::convert(request->localOnly, request->includeQualifiers, request->includeClassOrigin, request->deepInheritance),
-		request->propertyList.getPropertyNameArray(),
-		handler);
-
-		//cimNamedInstances = CIMNamedInstance(CIMReference(), handler._objects[0]);
-	}
-    }
-    catch (CIMException& exception)
-    {
-	errorCode = exception.getCode();
-	errorDescription = exception.getMessage();
-    }
-    catch (Exception& exception)
-    {
-	errorCode = CIM_ERR_FAILED;
-	errorDescription = exception.getMessage();
-    }
-
-    CIMEnumerateInstancesResponseMessage* response =
-	new CIMEnumerateInstancesResponseMessage(
-	    request->messageId,
-	    errorCode,
-	    errorDescription,
-	    request->queueIds.copyAndPop(),
-	    cimNamedInstances);
-
-    _enqueueResponse(request, response);
-}
-
-void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
-    CIMEnumerateInstanceNamesRequestMessage* request)
-{
-    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-    String errorDescription;
-    Array<CIMReference> instanceNames;
-
-    try
-    {
-	// get provider for class
-	String className = request->className;
-	String providerName = _lookupProviderForClass(request->nameSpace, className);
-
-        if ( (providerName.size() == 0) &&
-                 !_repository->isDefaultInstanceProvider() )
-        {
-            // ATTN: Is this the right exception?
-            throw CIMException(CIM_ERR_NOT_SUPPORTED);
-        }
-        else if ( (providerName.size() == 0) ||
-                  (providerName == _repository->getProviderName()) )
-	{
-	   _repository->read_lock();
-	   try
-	   {
-	      instanceNames = _repository->enumerateInstanceNames(
-		 request->nameSpace,
-		 request->className);
-	   }
-	   catch( ... )
-	   {
-	      _repository->read_unlock();
-	      throw;
-	   }
-	
-	   _repository->read_unlock();
-	}
-
-	else
-	{
-	    // attempt to load provider
-	    CIMBaseProvider * provider = _providerManager.getProvider(providerName, className);
-		CIMBaseProviderFacade facade(provider);
-
-		SimpleResponseHandler<CIMReference> handler;
-
-	    facade.enumerateInstanceNames(
-		OperationContext(),
-		CIMReference(String::EMPTY, request->nameSpace,
-                             request->className),
-		handler);
-
-		instanceNames = handler._objects;
-	}
-    }
-    catch (CIMException& exception)
-    {
-	errorCode = exception.getCode();
-	errorDescription = exception.getMessage();
-    }
-    catch (Exception& exception)
-    {
-	errorCode = CIM_ERR_FAILED;
-	errorDescription = exception.getMessage();
-    }
-
-    CIMEnumerateInstanceNamesResponseMessage* response =
-	new CIMEnumerateInstanceNamesResponseMessage(
-	    request->messageId,
-	    errorCode,
-	    errorDescription,
-	    request->queueIds.copyAndPop(),
-	    instanceNames);
-
-    _enqueueResponse(request, response);
-}
-
-void CIMOperationRequestDispatcher::handleAssociatorsRequest(
-    CIMAssociatorsRequestMessage* request)
-{
-    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-    String errorDescription;
-    Array<CIMObjectWithPath> cimObjects;
-
-    try
-    {
-	// get provider for class
-	String className = request->objectName.getClassName();
-	String providerName = _lookupProviderForClass(request->nameSpace, className);
-
-        if ( (providerName.size() == 0) &&
-                 !_repository->isDefaultInstanceProvider() )
-        {
-            // ATTN: Is this the right exception?
-            throw CIMException(CIM_ERR_NOT_SUPPORTED);
-        }
-        else if ( (providerName.size() == 0) ||
-                  (providerName == _repository->getProviderName()) )
-	{
-	   _repository->read_lock();
-	
-	   try
-	   {
-	      cimObjects = _repository->associators(
-		 request->nameSpace,
-		 request->objectName,
-		 request->assocClass,
-		 request->resultClass,
-		 request->role,
-		 request->resultRole,
-		 request->includeQualifiers,
-		 request->includeClassOrigin,
-		 request->propertyList.getPropertyNameArray());
-	   }
-	   catch( ... )
-	   {
-	      _repository->read_unlock();
-	      throw;
-	   }
-
-	   _repository->read_unlock();
- 	}
-	else
-	{
-	    // attempt to load provider
-	    CIMBaseProvider * provider = _providerManager.getProvider(providerName, className);
-		CIMBaseProviderFacade facade(provider);
-
-		SimpleResponseHandler<CIMObject> handler;
-
-	    facade.associators(
-		OperationContext(),
-	    request->objectName,
-	    request->assocClass,
-	    request->resultClass,
-	    request->role,
-	    request->resultRole,
-	    OperationFlag::convert(false, request->includeQualifiers, request->includeClassOrigin),
-	    request->propertyList.getPropertyNameArray(),
-		handler);
-
-		//cimObjects = handler._objects;
-	}
-    }
-    catch (CIMException& exception)
-    {
-	errorCode = exception.getCode();
-	errorDescription = exception.getMessage();
-    }
-    catch (Exception& exception)
-    {
-	errorCode = CIM_ERR_FAILED;
-	errorDescription = exception.getMessage();
-    }
-
-    CIMAssociatorsResponseMessage* response =
-	new CIMAssociatorsResponseMessage(
-	    request->messageId,
-	    errorCode,
-	    errorDescription,
-	    request->queueIds.copyAndPop(),
-	    cimObjects);
-
-    _enqueueResponse(request, response);
-}
-
-void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
-    CIMAssociatorNamesRequestMessage* request)
-{
-    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-    String errorDescription;
-    Array<CIMReference> objectNames;
-
-    try
-    {
-	// get provider for class
-	String className = request->objectName.getClassName();
-	String providerName = _lookupProviderForClass(request->nameSpace, className);
-
-        if ( (providerName.size() == 0) &&
-                 !_repository->isDefaultInstanceProvider() )
-        {
-            // ATTN: Is this the right exception?
-            throw CIMException(CIM_ERR_NOT_SUPPORTED);
-        }
-        else if ( (providerName.size() == 0) ||
-                  (providerName == _repository->getProviderName()) )
-	{
-	   _repository->read_lock();
-	
-	   try
-	   {	
-	      objectNames = _repository->associatorNames(
-		 request->nameSpace,
-		 request->objectName,
-		 request->assocClass,
-		 request->resultClass,
-		 request->role,
-		 request->resultRole);
-	   }
-	   catch( ... )
-	   {
-	      _repository->read_unlock();
-	      throw;
-	   }
-
-	   _repository->read_unlock();
-        }
-	else
-	{
-	    // attempt to load provider
-	    CIMBaseProvider * provider = _providerManager.getProvider(providerName, className);
-		CIMBaseProviderFacade facade(provider);
-
-		SimpleResponseHandler<CIMReference> handler;
-
-	    facade.associatorNames(
-		OperationContext(),
-	    request->objectName,
-	    request->assocClass,
-	    request->resultClass,
-	    request->role,
-	    request->resultRole,
-		handler);
-        }
-    }
-    catch (CIMException& exception)
-    {
-	errorCode = exception.getCode();
-	errorDescription = exception.getMessage();
-    }
-    catch (Exception& exception)
-    {
-	errorCode = CIM_ERR_FAILED;
-	errorDescription = exception.getMessage();
-    }
-
-    CIMAssociatorNamesResponseMessage* response =
-	new CIMAssociatorNamesResponseMessage(
-	    request->messageId,
-	    errorCode,
-	    errorDescription,
-	    request->queueIds.copyAndPop(),
-	    objectNames);
-
-    _enqueueResponse(request, response);
-}
-
-void CIMOperationRequestDispatcher::handleReferencesRequest(
-    CIMReferencesRequestMessage* request)
-{
-    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-    String errorDescription;
-    Array<CIMObjectWithPath> cimObjects;
-
-    try
-    {
-	// get provider for class
-	String className = request->objectName.getClassName();
-	String providerName = _lookupProviderForClass(request->nameSpace, className);
-
-        if ( (providerName.size() == 0) &&
-                 !_repository->isDefaultInstanceProvider() )
-        {
-            // ATTN: Is this the right exception?
-            throw CIMException(CIM_ERR_NOT_SUPPORTED);
-        }
-        else if ( (providerName.size() == 0) ||
-                  (providerName == _repository->getProviderName()) )
-	{
-	   _repository->read_lock();
-
-	   try
-	   {
-	      cimObjects = _repository->references(
-		 request->nameSpace,
-		 request->objectName,
-		 request->resultClass,
-		 request->role,
-		 request->includeQualifiers,
-		 request->includeClassOrigin,
-		 request->propertyList.getPropertyNameArray());
-	   }
-	   catch( ... )
-	   {
-	      _repository->read_unlock();
-	      throw;
-	   }
-
-	   _repository->read_unlock();
-	}
-	else
-	{
-	    // attempt to load provider
-	    CIMBaseProvider * provider = _providerManager.getProvider(providerName, className);
-		CIMBaseProviderFacade facade(provider);
-
-		SimpleResponseHandler<CIMObject> handler;
-
-	    facade.references(
-		OperationContext(),
-	        request->objectName,
-	        request->resultClass,
-	        request->role,
-	        OperationFlag::convert(false, request->includeQualifiers, request->includeClassOrigin),
-	        request->propertyList.getPropertyNameArray(),
-		handler);
-
-		//cimObjects = handler._objects;
-	}
-    }
-    catch (CIMException& exception)
-    {
-	errorCode = exception.getCode();
-	errorDescription = exception.getMessage();
-    }
-    catch (Exception& exception)
-    {
-	errorCode = CIM_ERR_FAILED;
-	errorDescription = exception.getMessage();
-    }
-
-    CIMReferencesResponseMessage* response =
-	new CIMReferencesResponseMessage(
-	    request->messageId,
-	    errorCode,
-	    errorDescription,
-	    request->queueIds.copyAndPop(),
-	    cimObjects);
-
-    _enqueueResponse(request, response);
-}
-
-void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
-    CIMReferenceNamesRequestMessage* request)
-{
-    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-    String errorDescription;
-    Array<CIMReference> objectNames;
-
-    try
-    {
-	// get provider for class
-	String className = request->objectName.getClassName();
-	String providerName = _lookupProviderForClass(request->nameSpace, className);
-
-        if ( (providerName.size() == 0) &&
-                 !_repository->isDefaultInstanceProvider() )
-        {
-            // ATTN: Is this the right exception?
-            throw CIMException(CIM_ERR_NOT_SUPPORTED);
-        }
-        else if ( (providerName.size() == 0) ||
-                  (providerName == _repository->getProviderName()) )
-	{
-	   _repository->read_lock();
-
-	   try
-	   {
-	      objectNames = _repository->referenceNames(
-		 request->nameSpace,
-		 request->objectName,
-		 request->resultClass,
-		 request->role);
-	   }
-	   catch( ... )
-	   {
-	      _repository->read_unlock();
-	      throw;
-	   }
-
-	   _repository->read_unlock();
-        }
-	else
-	{
-	   // attempt to load provider
-	    CIMBaseProvider * provider = _providerManager.getProvider(providerName, className);
-		CIMBaseProviderFacade facade(provider);
-
-		SimpleResponseHandler<CIMReference> handler;
-	
-	   facade.referenceNames(
-	      OperationContext(),
-	        request->objectName,
-	        request->resultClass,
-	        request->role,
-		  handler);
-	   //objectNames =
-        }
-    }
-    catch (CIMException& exception)
-    {
-	errorCode = exception.getCode();
-	errorDescription = exception.getMessage();
-    }
-    catch (Exception& exception)
-    {
-	errorCode = CIM_ERR_FAILED;
-	errorDescription = exception.getMessage();
-    }
-
-    CIMReferenceNamesResponseMessage* response =
-	new CIMReferenceNamesResponseMessage(
-	    request->messageId,
-	    errorCode,
-	    errorDescription,
-	    request->queueIds.copyAndPop(),
-	    objectNames);
-
-    _enqueueResponse(request, response);
-}
-
-void CIMOperationRequestDispatcher::handleGetPropertyRequest(
-    CIMGetPropertyRequestMessage* request)
-{
-    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-    String errorDescription;
-    CIMValue value;
-
-    try
-    {
-	// get provider for class
-	String className = request->instanceName.getClassName();
-	String providerName = _lookupProviderForClass(request->nameSpace, className);
-
-        if ( (providerName.size() == 0) &&
-                 !_repository->isDefaultInstanceProvider() )
-        {
-            // ATTN: Is this the right exception?
-            throw CIMException(CIM_ERR_NOT_SUPPORTED);
-        }
-        else if ( (providerName.size() == 0) ||
-                  (providerName == _repository->getProviderName()) )
-        {
-	   _repository->read_lock();
-	   try
-	   {
-	      value = _repository->getProperty(
-		 request->nameSpace,
-		 request->instanceName,
-		 request->propertyName);
-	   }
-	   catch( ... )
-	   {
-	      _repository->read_unlock();
-	      throw;
-	   }
-        }
-        else
-	{
-	    // attempt to load provider
-		CIMBaseProvider * provider = _providerManager.getProvider(providerName, className);
-		CIMBaseProviderFacade facade(provider);
-
-	    SimpleResponseHandler<CIMValue> handler;
-
-	    request->instanceName.setNameSpace(request->nameSpace);
-		
-		facade.getProperty(
-		OperationContext(),
-		request->instanceName,
-		request->propertyName,
-		handler);
-
-		value = handler._objects[0];						
-        }
-    }
-    catch (CIMException& exception)
-    {
-	errorCode = exception.getCode();
-	errorDescription = exception.getMessage();
-    }
-    catch (Exception& exception)
-    {
-	errorCode = CIM_ERR_FAILED;
-	errorDescription = exception.getMessage();
-    }
-
-    CIMGetPropertyResponseMessage* response =
-	new CIMGetPropertyResponseMessage(
-	    request->messageId,
-	    errorCode,
-	    errorDescription,
-	    request->queueIds.copyAndPop(),
-	    value);
-
-    _enqueueResponse(request, response);
-}
-
-void CIMOperationRequestDispatcher::handleSetPropertyRequest(
-    CIMSetPropertyRequestMessage* request)
-{
-    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-    String errorDescription;
-
-    try
-    {
-	// get provider for class
-	String className = request->instanceName.getClassName();
-	String providerName = _lookupProviderForClass(request->nameSpace, className);
-
-        if ( (providerName.size() == 0) &&
-                 !_repository->isDefaultInstanceProvider() )
-        {
-            // ATTN: Is this the right exception?
-            throw CIMException(CIM_ERR_NOT_SUPPORTED);
-        }
-        else if ( (providerName.size() == 0) ||
-                  (providerName == _repository->getProviderName()) )
-        {
-	   _repository->write_lock();
-
-	   try
-	   {
-	      _repository->setProperty(
-		 request->nameSpace,
-		 request->instanceName,
-		 request->propertyName,
-		 request->newValue);
-	   }
-	   catch( ... )
-	   {
-	      _repository->write_unlock();
-	      throw;
-	   }
-
-	   _repository->write_unlock();
-        }
-        else
-	{
-	    // attempt to load provider
-		CIMBaseProvider * provider = _providerManager.getProvider(providerName, className);
-		CIMBaseProviderFacade facade(provider);
-
-		SimpleResponseHandler<CIMValue> handler;
-
-	    request->instanceName.setNameSpace(request->nameSpace);
-
-	    facade.setProperty(
-		OperationContext(),
-		request->instanceName,
-		request->propertyName,
-		request->newValue,
-		handler);
-        }
-    }
-    catch (CIMException& exception)
-    {
-	errorCode = exception.getCode();
-	errorDescription = exception.getMessage();
-    }
-    catch (Exception& exception)
-    {
-	errorCode = CIM_ERR_FAILED;
-	errorDescription = exception.getMessage();
-    }
-
-    CIMSetPropertyResponseMessage* response =
-	new CIMSetPropertyResponseMessage(
-	    request->messageId,
-	    errorCode,
-	    errorDescription,
-	    request->queueIds.copyAndPop());
-
-    _enqueueResponse(request, response);
-}
-
-void CIMOperationRequestDispatcher::handleGetQualifierRequest(
-    CIMGetQualifierRequestMessage* request)
-{
-    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-    String errorDescription;
-    CIMQualifierDecl cimQualifierDecl;
-
-    _repository->read_lock();
-    try
-    {
-       cimQualifierDecl = _repository->getQualifier(
-	  request->nameSpace,
-	  request->qualifierName);
-    }
-
-    catch (CIMException& exception)
-    {
-	errorCode = exception.getCode();
-	errorDescription = exception.getMessage();
-    }
-    catch (Exception& exception)
-    {
-	errorCode = CIM_ERR_FAILED;
-	errorDescription = exception.getMessage();
-    }
-
-    _repository->read_unlock();
-
-    CIMGetQualifierResponseMessage* response =
-	new CIMGetQualifierResponseMessage(
-	    request->messageId,
-	    errorCode,
-	    errorDescription,
-	    request->queueIds.copyAndPop(),
-	    cimQualifierDecl);
-
-    _enqueueResponse(request, response);
-}
-
-void CIMOperationRequestDispatcher::handleSetQualifierRequest(
-    CIMSetQualifierRequestMessage* request)
-{
-    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-    String errorDescription;
-
-    _repository->write_lock();
-    try
-    {
-       _repository->setQualifier(
-	  request->nameSpace,
-	  request->qualifierDeclaration);
-    }
-    catch (CIMException& exception)
-    {
-	errorCode = exception.getCode();
-	errorDescription = exception.getMessage();
-    }
-    catch (Exception& exception)
-    {
-	errorCode = CIM_ERR_FAILED;
-	errorDescription = exception.getMessage();
-    }
-
-    _repository->write_unlock();
-
-    CIMSetQualifierResponseMessage* response =
-	new CIMSetQualifierResponseMessage(
-	    request->messageId,
-	    errorCode,
-	    errorDescription,
-	    request->queueIds.copyAndPop());
-
-    _enqueueResponse(request, response);
-}
-
-void CIMOperationRequestDispatcher::handleDeleteQualifierRequest(
-    CIMDeleteQualifierRequestMessage* request)
-{
-    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-    String errorDescription;
-
-    _repository->write_lock();
-
-    try
-    {
-	_repository->deleteQualifier(
-	    request->nameSpace,
-	    request->qualifierName);
-    }
-
-    catch (CIMException& exception)
-    {
-	errorCode = exception.getCode();
-	errorDescription = exception.getMessage();
-    }
-    catch (Exception& exception)
-    {
-	errorCode = CIM_ERR_FAILED;
-	errorDescription = exception.getMessage();
-    }
-
-    _repository->write_unlock();
-
-    CIMDeleteQualifierResponseMessage* response =
-	new CIMDeleteQualifierResponseMessage(
-	    request->messageId,
-	    errorCode,
-	    errorDescription,
-	    request->queueIds.copyAndPop());
-
-    _enqueueResponse(request, response);
-}
-
-void CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest(
-    CIMEnumerateQualifiersRequestMessage* request)
-{
-    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-    String errorDescription;
-    Array<CIMQualifierDecl> qualifierDeclarations;
-
-    _repository->read_lock();
-
-    try
-    {
-       qualifierDeclarations = _repository->enumerateQualifiers(
-	  request->nameSpace);
-    }
-
-    catch (CIMException& exception)
-    {
-	errorCode = exception.getCode();
-	errorDescription = exception.getMessage();
-    }
-    catch (Exception& exception)
-    {
-	errorCode = CIM_ERR_FAILED;
-	errorDescription = exception.getMessage();
-    }
-
-    _repository->read_unlock();
-
-    CIMEnumerateQualifiersResponseMessage* response =
-	new CIMEnumerateQualifiersResponseMessage(
-	    request->messageId,
-	    errorCode,
-	    errorDescription,
-	    request->queueIds.copyAndPop(),
-	    qualifierDeclarations);
-
-    _enqueueResponse(request, response);
-}
-
-void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
-    CIMInvokeMethodRequestMessage* request)
-{
-    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-    String errorDescription;
-
-    CIMValue retValue(0);
-
-    Array<CIMParamValue> outParameters;
-
-    try
-    {
-	// get provider for class
-	String className = request->instanceName.getClassName();
 	String providerName = _lookupProviderForClass(request->nameSpace, className);
 
 	if(providerName.size() != 0)
 	{
-	    // attempt to load provider
-	    CIMBaseProvider * provider = _providerManager.getProvider(providerName, className);
-		CIMBaseProviderFacade facade(provider);
+		// forward to provider manager
+		_providerManager->enqueue(new CIMGetInstanceRequestMessage(*request));
 
-		SimpleResponseHandler<CIMValue> handler;
-
-        request->instanceName.setNameSpace(request->nameSpace);
-
-    	facade.invokeMethod(
-		OperationContext(),
-		request->instanceName,
-		request->methodName,
-		request->inParameters,
-		outParameters,
-		handler);
-
-		retValue = 0;
+		return;
 	}
-	else
+
+	CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+	String errorDescription;
+	CIMInstance cimInstance;
+
+	_repository->read_lock();
+
+	try
 	{
-	    retValue.set(1);
-	    errorCode = CIM_ERR_SUCCESS;
-	    errorDescription = "Provider not available";
+		cimInstance = _repository->getInstance(
+			request->nameSpace,
+			request->instanceName,
+			request->localOnly,
+			request->includeQualifiers,
+			request->includeClassOrigin,
+			request->propertyList.getPropertyNameArray());
 	}
-    }
-    catch (CIMException& exception)
-    {
-	errorCode = exception.getCode();
-	errorDescription = exception.getMessage();
-    }
-    catch (Exception& exception)
-    {
-	errorCode = CIM_ERR_FAILED;
-	errorDescription = exception.getMessage();
-    }
+	catch(CIMException& exception)
+	{
+		errorCode = exception.getCode();
+		errorDescription = exception.getMessage();
+	}
+	catch(Exception& exception)
+	{
+		errorCode = CIM_ERR_FAILED;
+		errorDescription = exception.getMessage();
+	}
+	catch(...)
+	{
+		errorCode = CIM_ERR_FAILED;
+	}
+	
+	_repository->read_unlock();
 
-    CIMInvokeMethodResponseMessage* response =
-	new CIMInvokeMethodResponseMessage(
-	    request->messageId,
-	    errorCode,
-	    errorDescription,
-	    request->queueIds.copyAndPop(),
-	    retValue,
-	    outParameters,
-	    request->methodName);
+	CIMGetInstanceResponseMessage* response = new CIMGetInstanceResponseMessage(
+		request->messageId,
+		errorCode,
+		errorDescription,
+		request->queueIds.copyAndPop(),
+		cimInstance);
 
-    _enqueueResponse(request, response);
+	_enqueueResponse(request, response);
+}
+
+void CIMOperationRequestDispatcher::handleDeleteClassRequest(
+	CIMDeleteClassRequestMessage* request)
+{
+	CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+	String errorDescription;
+
+	_repository->write_lock();
+
+	try
+	{
+		_repository->deleteClass(
+			request->nameSpace,
+			request->className);
+	}
+
+	catch(CIMException& exception)
+	{
+		errorCode = exception.getCode();
+		errorDescription = exception.getMessage();
+	}
+	catch(Exception& exception)
+	{
+		errorCode = CIM_ERR_FAILED;
+		errorDescription = exception.getMessage();
+	}
+	catch(...)
+	{
+		errorCode = CIM_ERR_FAILED;
+	}
+
+	_repository->write_unlock();
+
+	CIMDeleteClassResponseMessage* response =
+		new CIMDeleteClassResponseMessage(
+		request->messageId,
+		errorCode,
+		errorDescription,
+		request->queueIds.copyAndPop());
+
+	_enqueueResponse(request, response);
+}
+
+void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
+	CIMDeleteInstanceRequestMessage* request)
+{
+	// get the class name
+	String className = request->instanceName.getClassName();
+
+	// check the class name for an "internal provider"
+	if(String::equalNoCase(className, "CIM_Provider") ||
+		String::equalNoCase(className, "CIM_ProviderCapabilities") ||
+		String::equalNoCase(className, "PG_Provider"))
+	{
+		// send to the configuration manager. it will generate the
+		// appropriate response message.
+		_configurationManager->enqueue(new CIMDeleteInstanceRequestMessage(*request));
+
+		return;
+	}
+
+	String providerName = _lookupProviderForClass(request->nameSpace, className);
+
+	if(providerName.size() != 0)
+	{
+		// forward request to the provider manager
+		_providerManager->enqueue(new CIMDeleteInstanceRequestMessage(*request));
+	
+		return;
+	}
+
+	CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+	String errorDescription;
+
+	_repository->write_lock();
+
+	try
+	{
+		_repository->deleteInstance(
+			request->nameSpace,
+			request->instanceName);
+	}
+	catch(CIMException& exception)
+	{
+		errorCode = exception.getCode();
+		errorDescription = exception.getMessage();
+	}
+	catch(Exception& exception)
+	{
+		errorCode = CIM_ERR_FAILED;
+		errorDescription = exception.getMessage();
+	}
+	catch(...)
+	{
+		errorCode = CIM_ERR_FAILED;
+	}
+
+	_repository->write_unlock();
+
+	CIMDeleteInstanceResponseMessage* response =
+		new CIMDeleteInstanceResponseMessage(
+		request->messageId,
+		errorCode,
+		errorDescription,
+		request->queueIds.copyAndPop());
+
+	_enqueueResponse(request, response);
+}
+
+void CIMOperationRequestDispatcher::handleCreateClassRequest(
+	CIMCreateClassRequestMessage* request)
+{
+	CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+	String errorDescription;
+
+	_repository->write_lock();
+
+	try
+	{
+		_repository->createClass(
+			request->nameSpace,
+			request->newClass);
+	}
+
+	catch(CIMException& exception)
+	{
+		errorCode = exception.getCode();
+		errorDescription = exception.getMessage();
+	}
+	catch(Exception& exception)
+	{
+		errorCode = CIM_ERR_FAILED;
+		errorDescription = exception.getMessage();
+	}
+	catch(...)
+	{
+		errorCode = CIM_ERR_FAILED;
+	}
+
+	_repository->write_unlock();
+
+	CIMCreateClassResponseMessage* response =
+		new CIMCreateClassResponseMessage(
+		request->messageId,
+		errorCode,
+		errorDescription,
+		request->queueIds.copyAndPop());
+
+	_enqueueResponse(request, response);
+}
+
+void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
+	CIMCreateInstanceRequestMessage* request)
+{
+	// get the class name
+	String className = request->newInstance.getClassName();
+
+	// check the class name for an "internal provider"
+	if(String::equalNoCase(className, "CIM_Provider") ||
+		String::equalNoCase(className, "CIM_ProviderCapabilities") ||
+		String::equalNoCase(className, "PG_Provider"))
+	{
+		// send to the configuration manager. it will generate the
+		// appropriate response message.
+		_configurationManager->enqueue(new CIMCreateInstanceRequestMessage(*request));
+
+		return;
+	}
+
+	String providerName = _lookupProviderForClass(request->nameSpace, className);
+
+	if(providerName.size() != 0)
+	{
+		// forward request to the provider manager
+		_providerManager->enqueue(new CIMCreateInstanceRequestMessage(*request));
+	
+		return;
+	}
+
+	CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+	String errorDescription;
+	CIMReference instanceName;
+
+	_repository->write_lock();
+
+	try
+	{
+		instanceName = _repository->createInstance(
+			request->nameSpace,
+			request->newInstance);
+	}
+	catch(CIMException& exception)
+	{
+		errorCode = exception.getCode();
+		errorDescription = exception.getMessage();
+	}
+	catch(Exception& exception)
+	{
+		errorCode = CIM_ERR_FAILED;
+		errorDescription = exception.getMessage();
+	}
+	catch(...)
+	{
+		errorCode = CIM_ERR_FAILED;
+	}
+
+	_repository->write_unlock();
+
+	CIMCreateInstanceResponseMessage* response =
+		new CIMCreateInstanceResponseMessage(
+		request->messageId,
+		errorCode,
+		errorDescription,
+		request->queueIds.copyAndPop(),
+		instanceName);
+
+	_enqueueResponse(request, response);
+}
+
+void CIMOperationRequestDispatcher::handleModifyClassRequest(
+	CIMModifyClassRequestMessage* request)
+{
+	CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+	String errorDescription;
+
+	_repository->write_lock();
+
+	try
+	{
+		_repository->modifyClass(
+			request->nameSpace,
+			request->modifiedClass);
+	}
+
+	catch(CIMException& exception)
+	{
+		errorCode = exception.getCode();
+		errorDescription = exception.getMessage();
+	}
+	catch(Exception& exception)
+	{
+		errorCode = CIM_ERR_FAILED;
+		errorDescription = exception.getMessage();
+	}
+	catch(...)
+	{
+		errorCode = CIM_ERR_FAILED;
+	}
+
+	_repository->write_unlock();
+
+	CIMModifyClassResponseMessage* response =
+		new CIMModifyClassResponseMessage(
+		request->messageId,
+		errorCode,
+		errorDescription,
+		request->queueIds.copyAndPop());
+
+	_enqueueResponse(request, response);
+}
+
+void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
+	CIMModifyInstanceRequestMessage* request)
+{
+	// ATTN: Who makes sure the instance name and the instance match?
+
+	// get the class name
+	String className = request->modifiedInstance.getInstance().getClassName();
+
+	// check the class name for an "internal provider"
+	if(String::equalNoCase(className, "CIM_Provider") ||
+		String::equalNoCase(className, "CIM_ProviderCapabilities") ||
+		String::equalNoCase(className, "PG_Provider"))
+	{
+		// send to the configuration manager. it will generate the
+		// appropriate response message.
+		_configurationManager->enqueue(new CIMModifyInstanceRequestMessage(*request));
+
+		return;
+	}
+
+	// check the class name for an "external provider"
+	String providerName = _lookupProviderForClass(request->nameSpace, className);
+
+	if(providerName.size() != 0)
+	{
+		// forward request to the provider manager
+		_providerManager->enqueue(new CIMModifyInstanceRequestMessage(*request));
+
+		return;
+	}
+
+	// translate and forward request to repository
+	CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+	String errorDescription;
+
+	_repository->write_lock();
+
+	try
+	{
+		_repository->modifyInstance(
+			request->nameSpace,
+			request->modifiedInstance,
+			request->includeQualifiers,request->propertyList);
+	}
+	catch(CIMException& exception)
+	{
+		errorCode = exception.getCode();
+		errorDescription = exception.getMessage();
+	}
+	catch(Exception& exception)
+	{
+		errorCode = CIM_ERR_FAILED;
+		errorDescription = exception.getMessage();
+	}
+	catch(...)
+	{
+		errorCode = CIM_ERR_FAILED;
+	}
+
+	_repository->write_unlock();
+
+	CIMModifyInstanceResponseMessage* response =
+		new CIMModifyInstanceResponseMessage(
+		request->messageId,
+		errorCode,
+		errorDescription,
+		request->queueIds.copyAndPop());
+
+	_enqueueResponse(request, response);
+}
+
+void CIMOperationRequestDispatcher::handleEnumerateClassesRequest(
+	CIMEnumerateClassesRequestMessage* request)
+{
+	CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+	String errorDescription;
+	Array<CIMClass> cimClasses;
+
+	_repository->read_lock();
+
+	try
+	{
+		cimClasses = _repository->enumerateClasses(
+			request->nameSpace,
+			request->className,
+			request->deepInheritance,
+			request->localOnly,
+			request->includeQualifiers,
+			request->includeClassOrigin);
+	}
+
+	catch(CIMException& exception)
+	{
+		errorCode = exception.getCode();
+		errorDescription = exception.getMessage();
+	}
+	catch(Exception& exception)
+	{
+		errorCode = CIM_ERR_FAILED;
+		errorDescription = exception.getMessage();
+	}
+	catch(...)
+	{
+		errorCode = CIM_ERR_FAILED;
+	}
+
+	_repository->read_unlock();
+
+	CIMEnumerateClassesResponseMessage* response =
+		new CIMEnumerateClassesResponseMessage(
+		request->messageId,
+		errorCode,
+		errorDescription,
+		request->queueIds.copyAndPop(),
+		cimClasses);
+
+	_enqueueResponse(request, response);
+}
+
+void CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest(
+	CIMEnumerateClassNamesRequestMessage* request)
+{
+	CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+	String errorDescription;
+	Array<String> classNames;
+
+	_repository->read_lock();
+
+	try
+	{
+		classNames = _repository->enumerateClassNames(
+			request->nameSpace,
+			request->className,
+			request->deepInheritance);
+	}
+
+	catch(CIMException& exception)
+	{
+		errorCode = exception.getCode();
+		errorDescription = exception.getMessage();
+	}
+	catch(Exception& exception)
+	{
+		errorCode = CIM_ERR_FAILED;
+		errorDescription = exception.getMessage();
+	}
+	catch(...)
+	{
+		errorCode = CIM_ERR_FAILED;
+	}
+
+	_repository->read_unlock();
+
+	CIMEnumerateClassNamesResponseMessage* response =
+		new CIMEnumerateClassNamesResponseMessage(
+		request->messageId,
+		errorCode,
+		errorDescription,
+		request->queueIds.copyAndPop(),
+		classNames);
+
+	_enqueueResponse(request, response);
+}
+
+void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
+	CIMEnumerateInstancesRequestMessage* request)
+{
+	// get the class name
+	String className = request->className;
+
+	// check the class name for an "internal provider"
+	if(String::equalNoCase(className, "CIM_Provider") ||
+		String::equalNoCase(className, "CIM_ProviderCapabilities") ||
+		String::equalNoCase(className, "PG_Provider"))
+	{
+		// send to the configuration manager. it will generate the
+		// appropriate response message.
+		_configurationManager->enqueue(new CIMEnumerateInstancesRequestMessage(*request));
+
+		return;
+	}
+
+	// check the class name for an "external provider"
+	String providerName = _lookupProviderForClass(request->nameSpace, className);
+
+	if(providerName.size() != 0)
+	{
+		// forward request to the provider manager
+		_providerManager->enqueue(new CIMEnumerateInstancesRequestMessage(*request));
+
+		return;
+	}
+
+	CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+	String errorDescription;
+	Array<CIMNamedInstance> cimNamedInstances;
+
+	_repository->read_lock();
+
+	try
+	{
+		cimNamedInstances = _repository->enumerateInstances(
+			request->nameSpace,
+			request->className,
+			request->deepInheritance,
+			request->localOnly,
+			request->includeQualifiers,
+			request->includeClassOrigin,
+			request->propertyList.getPropertyNameArray());
+	}
+	catch(CIMException& exception)
+	{
+		errorCode = exception.getCode();
+		errorDescription = exception.getMessage();
+	}
+	catch(Exception& exception)
+	{
+		errorCode = CIM_ERR_FAILED;
+		errorDescription = exception.getMessage();
+	}
+	catch(...)
+	{
+		errorCode = CIM_ERR_FAILED;
+	}
+
+	_repository->read_unlock();
+
+	CIMEnumerateInstancesResponseMessage* response =
+		new CIMEnumerateInstancesResponseMessage(
+		request->messageId,
+		errorCode,
+		errorDescription,
+		request->queueIds.copyAndPop(),
+		cimNamedInstances);
+
+	_enqueueResponse(request, response);
+}
+
+void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
+	CIMEnumerateInstanceNamesRequestMessage* request)
+{
+	// get the class name
+	String className = request->className;
+
+	// check the class name for an "internal provider"
+	if(String::equalNoCase(className, "CIM_Provider") ||
+		String::equalNoCase(className, "CIM_ProviderCapabilities") ||
+		String::equalNoCase(className, "PG_Provider"))
+	{
+		// send to the configuration manager. it will generate the
+		// appropriate response message.
+		_configurationManager->enqueue(new CIMEnumerateInstanceNamesRequestMessage(*request));
+
+		return;
+	}
+
+	// check the class name for an "external provider"
+	String providerName = _lookupProviderForClass(request->nameSpace, className);
+
+	if(providerName.size() != 0)
+	{
+		// forward request to the provider manager
+		_providerManager->enqueue(new CIMEnumerateInstanceNamesRequestMessage(*request));
+
+		return;
+	}
+	
+	CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+	String errorDescription;
+	Array<CIMReference> instanceNames;
+
+	_repository->read_lock();
+	
+	try
+	{
+		instanceNames = _repository->enumerateInstanceNames(
+			request->nameSpace,
+			request->className);
+	}
+	catch(CIMException& exception)
+	{
+		errorCode = exception.getCode();
+		errorDescription = exception.getMessage();
+	}
+	catch(Exception& exception)
+	{
+		errorCode = CIM_ERR_FAILED;
+		errorDescription = exception.getMessage();
+	}
+	catch(...)
+	{
+		errorCode = CIM_ERR_FAILED;
+	}
+
+	_repository->read_unlock();
+
+	CIMEnumerateInstanceNamesResponseMessage* response =
+		new CIMEnumerateInstanceNamesResponseMessage(
+		request->messageId,
+		errorCode,
+		errorDescription,
+		request->queueIds.copyAndPop(),
+		instanceNames);
+
+	_enqueueResponse(request, response);
+}
+
+void CIMOperationRequestDispatcher::handleAssociatorsRequest(
+	CIMAssociatorsRequestMessage* request)
+{
+	String className = request->objectName.getClassName();
+	
+	// check the class name for an "external provider"
+	String providerName = _lookupProviderForClass(request->nameSpace, className);
+
+	if(providerName.size() != 0)
+	{
+		// forward request to the provider manager
+		_providerManager->enqueue(new CIMAssociatorsRequestMessage(*request));
+
+		return;
+	}
+
+	CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+	String errorDescription;
+	Array<CIMObjectWithPath> cimObjects;
+
+	_repository->read_lock();
+
+	try
+	{
+		cimObjects = _repository->associators(
+			request->nameSpace,
+			request->objectName,
+			request->assocClass,
+			request->resultClass,
+			request->role,
+			request->resultRole,
+			request->includeQualifiers,
+			request->includeClassOrigin,
+			request->propertyList.getPropertyNameArray());
+	}
+	catch(CIMException& exception)
+	{
+		errorCode = exception.getCode();
+		errorDescription = exception.getMessage();
+	}
+	catch(Exception& exception)
+	{
+		errorCode = CIM_ERR_FAILED;
+		errorDescription = exception.getMessage();
+	}
+	catch(...)
+	{
+		errorCode = CIM_ERR_FAILED;
+	}
+
+	_repository->read_unlock();
+
+	CIMAssociatorsResponseMessage* response =
+		new CIMAssociatorsResponseMessage(
+		request->messageId,
+		errorCode,
+		errorDescription,
+		request->queueIds.copyAndPop(),
+		cimObjects);
+
+	_enqueueResponse(request, response);
+}
+
+void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
+	CIMAssociatorNamesRequestMessage* request)
+{
+	String className = request->objectName.getClassName();
+	
+	// check the class name for an "external provider"
+	String providerName = _lookupProviderForClass(request->nameSpace, className);
+
+	if(providerName.size() != 0)
+	{
+		// forward request to the provider manager
+		_providerManager->enqueue(new CIMAssociatorNamesRequestMessage(*request));
+
+		return;
+	}
+
+	CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+	String errorDescription;
+	Array<CIMReference> objectNames;
+
+	_repository->read_lock();
+
+	try
+	{
+		objectNames = _repository->associatorNames(
+			request->nameSpace,
+			request->objectName,
+			request->assocClass,
+			request->resultClass,
+			request->role,
+			request->resultRole);
+	}
+	catch(CIMException& exception)
+	{
+		errorCode = exception.getCode();
+		errorDescription = exception.getMessage();
+	}
+	catch(Exception& exception)
+	{
+		errorCode = CIM_ERR_FAILED;
+		errorDescription = exception.getMessage();
+	}
+	catch(...)
+	{
+		errorCode = CIM_ERR_FAILED;
+	}
+
+	_repository->read_unlock();
+
+	CIMAssociatorNamesResponseMessage* response =
+		new CIMAssociatorNamesResponseMessage(
+		request->messageId,
+		errorCode,
+		errorDescription,
+		request->queueIds.copyAndPop(),
+		objectNames);
+
+	_enqueueResponse(request, response);
+}
+
+void CIMOperationRequestDispatcher::handleReferencesRequest(
+	CIMReferencesRequestMessage* request)
+{
+	String className = request->objectName.getClassName();
+	
+	// check the class name for an "external provider"
+	String providerName = _lookupProviderForClass(request->nameSpace, className);
+
+	if(providerName.size() != 0)
+	{
+		// forward request to the provider manager
+		_providerManager->enqueue(new CIMReferencesRequestMessage(*request));
+
+		return;
+	}
+
+	CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+	String errorDescription;
+	Array<CIMObjectWithPath> cimObjects;
+
+	_repository->read_lock();
+
+	try
+	{
+		cimObjects = _repository->references(
+			request->nameSpace,
+			request->objectName,
+			request->resultClass,
+			request->role,
+			request->includeQualifiers,
+			request->includeClassOrigin,
+			request->propertyList.getPropertyNameArray());
+	}
+	catch(CIMException& exception)
+	{
+		errorCode = exception.getCode();
+		errorDescription = exception.getMessage();
+	}
+	catch(Exception& exception)
+	{
+		errorCode = CIM_ERR_FAILED;
+		errorDescription = exception.getMessage();
+	}
+	catch(...)
+	{
+		errorCode = CIM_ERR_FAILED;
+	}
+
+	_repository->read_unlock();
+
+	CIMReferencesResponseMessage* response =
+		new CIMReferencesResponseMessage(
+		request->messageId,
+		errorCode,
+		errorDescription,
+		request->queueIds.copyAndPop(),
+		cimObjects);
+
+	_enqueueResponse(request, response);
+}
+
+void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
+	CIMReferenceNamesRequestMessage* request)
+{
+	String className = request->objectName.getClassName();
+	
+	// check the class name for an "external provider"
+	String providerName = _lookupProviderForClass(request->nameSpace, className);
+
+	if(providerName.size() != 0)
+	{
+		// forward request to the provider manager
+		_providerManager->enqueue(new CIMReferenceNamesRequestMessage(*request));
+
+		return;
+	}
+
+	CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+	String errorDescription;
+	Array<CIMReference> objectNames;
+
+	_repository->read_lock();
+
+	try
+	{
+		objectNames = _repository->referenceNames(
+			request->nameSpace,
+			request->objectName,
+			request->resultClass,
+			request->role);
+	}
+	catch(CIMException& exception)
+	{
+		errorCode = exception.getCode();
+		errorDescription = exception.getMessage();
+	}
+	catch(Exception& exception)
+	{
+		errorCode = CIM_ERR_FAILED;
+		errorDescription = exception.getMessage();
+	}
+	catch(...)
+	{
+		errorCode = CIM_ERR_FAILED;
+	}
+
+	_repository->read_unlock();
+
+	CIMReferenceNamesResponseMessage* response =
+		new CIMReferenceNamesResponseMessage(
+		request->messageId,
+		errorCode,
+		errorDescription,
+		request->queueIds.copyAndPop(),
+		objectNames);
+
+	_enqueueResponse(request, response);
+}
+
+void CIMOperationRequestDispatcher::handleGetPropertyRequest(
+	CIMGetPropertyRequestMessage* request)
+{
+	String className = request->instanceName.getClassName();
+	
+	// check the class name for an "external provider"
+	String providerName = _lookupProviderForClass(request->nameSpace, className);
+
+	if(providerName.size() != 0)
+	{
+		// forward request to the provider manager
+		_providerManager->enqueue(new CIMGetPropertyRequestMessage(*request));
+
+		return;
+	}
+	
+	CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+	String errorDescription;
+	CIMValue value;
+
+	_repository->read_lock();
+	
+	try
+	{
+		value = _repository->getProperty(
+			request->nameSpace,
+			request->instanceName,
+			request->propertyName);
+	}
+	catch(CIMException& exception)
+	{
+		errorCode = exception.getCode();
+		errorDescription = exception.getMessage();
+	}
+	catch(Exception& exception)
+	{
+		errorCode = CIM_ERR_FAILED;
+		errorDescription = exception.getMessage();
+	}
+	catch(...)
+	{
+		errorCode = CIM_ERR_FAILED;
+	}
+		
+	_repository->read_unlock();
+	
+	CIMGetPropertyResponseMessage* response =
+		new CIMGetPropertyResponseMessage(
+		request->messageId,
+		errorCode,
+		errorDescription,
+		request->queueIds.copyAndPop(),
+		value);
+
+	_enqueueResponse(request, response);
+}
+
+void CIMOperationRequestDispatcher::handleSetPropertyRequest(
+	CIMSetPropertyRequestMessage* request)
+{
+	String className = request->instanceName.getClassName();
+	
+	// check the class name for an "external provider"
+	String providerName = _lookupProviderForClass(request->nameSpace, className);
+
+	if(providerName.size() != 0)
+	{
+		// forward request to the provider manager
+		_providerManager->enqueue(new CIMSetPropertyRequestMessage(*request));
+
+		return;
+	}
+	
+	CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+	String errorDescription;
+
+	_repository->write_lock();
+
+	try
+	{
+		_repository->setProperty(
+			request->nameSpace,
+			request->instanceName,
+			request->propertyName,
+			request->newValue);
+	}
+	catch(CIMException& exception)
+	{
+		errorCode = exception.getCode();
+		errorDescription = exception.getMessage();
+	}
+	catch(Exception& exception)
+	{
+		errorCode = CIM_ERR_FAILED;
+		errorDescription = exception.getMessage();
+	}
+	catch(...)
+	{
+		errorCode = CIM_ERR_FAILED;
+	}
+
+	_repository->write_unlock();
+
+	CIMSetPropertyResponseMessage* response =
+		new CIMSetPropertyResponseMessage(
+		request->messageId,
+		errorCode,
+		errorDescription,
+		request->queueIds.copyAndPop());
+
+	_enqueueResponse(request, response);
+}
+
+void CIMOperationRequestDispatcher::handleGetQualifierRequest(
+	CIMGetQualifierRequestMessage* request)
+{
+	CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+	String errorDescription;
+	CIMQualifierDecl cimQualifierDecl;
+
+	_repository->read_lock();
+	
+	try
+	{
+		cimQualifierDecl = _repository->getQualifier(
+			request->nameSpace,
+			request->qualifierName);
+	}
+	catch(CIMException& exception)
+	{
+		errorCode = exception.getCode();
+		errorDescription = exception.getMessage();
+	}
+	catch(Exception& exception)
+	{
+		errorCode = CIM_ERR_FAILED;
+		errorDescription = exception.getMessage();
+	}
+	catch(...)
+	{
+		errorCode = CIM_ERR_FAILED;
+	}
+
+	_repository->read_unlock();
+
+	CIMGetQualifierResponseMessage* response =
+		new CIMGetQualifierResponseMessage(
+		request->messageId,
+		errorCode,
+		errorDescription,
+		request->queueIds.copyAndPop(),
+		cimQualifierDecl);
+
+	_enqueueResponse(request, response);
+}
+
+void CIMOperationRequestDispatcher::handleSetQualifierRequest(
+	CIMSetQualifierRequestMessage* request)
+{
+	CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+	String errorDescription;
+
+	_repository->write_lock();
+	
+	try
+	{
+		_repository->setQualifier(
+			request->nameSpace,
+			request->qualifierDeclaration);
+	}
+	catch(CIMException& exception)
+	{
+		errorCode = exception.getCode();
+		errorDescription = exception.getMessage();
+	}
+	catch(Exception& exception)
+	{
+		errorCode = CIM_ERR_FAILED;
+		errorDescription = exception.getMessage();
+	}
+	catch(...)
+	{
+		errorCode = CIM_ERR_FAILED;
+	}
+
+	_repository->write_unlock();
+
+	CIMSetQualifierResponseMessage* response =
+		new CIMSetQualifierResponseMessage(
+		request->messageId,
+		errorCode,
+		errorDescription,
+		request->queueIds.copyAndPop());
+
+	_enqueueResponse(request, response);
+}
+
+void CIMOperationRequestDispatcher::handleDeleteQualifierRequest(
+	CIMDeleteQualifierRequestMessage* request)
+{
+	CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+	String errorDescription;
+
+	_repository->write_lock();
+
+	try
+	{
+		_repository->deleteQualifier(
+			request->nameSpace,
+			request->qualifierName);
+	}
+
+	catch(CIMException& exception)
+	{
+		errorCode = exception.getCode();
+		errorDescription = exception.getMessage();
+	}
+	catch(Exception& exception)
+	{
+		errorCode = CIM_ERR_FAILED;
+		errorDescription = exception.getMessage();
+	}
+	catch(...)
+	{
+		errorCode = CIM_ERR_FAILED;
+	}
+
+	_repository->write_unlock();
+
+	CIMDeleteQualifierResponseMessage* response =
+		new CIMDeleteQualifierResponseMessage(
+		request->messageId,
+		errorCode,
+		errorDescription,
+		request->queueIds.copyAndPop());
+
+	_enqueueResponse(request, response);
+}
+
+void CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest(
+	CIMEnumerateQualifiersRequestMessage* request)
+{
+	CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+	String errorDescription;
+	Array<CIMQualifierDecl> qualifierDeclarations;
+
+	_repository->read_lock();
+
+	try
+	{
+		qualifierDeclarations = _repository->enumerateQualifiers(
+			request->nameSpace);
+	}
+
+	catch(CIMException& exception)
+	{
+		errorCode = exception.getCode();
+		errorDescription = exception.getMessage();
+	}
+	catch(Exception& exception)
+	{
+		errorCode = CIM_ERR_FAILED;
+		errorDescription = exception.getMessage();
+	}
+	catch(...)
+	{
+		errorCode = CIM_ERR_FAILED;
+	}
+
+	_repository->read_unlock();
+
+	CIMEnumerateQualifiersResponseMessage* response =
+		new CIMEnumerateQualifiersResponseMessage(
+		request->messageId,
+		errorCode,
+		errorDescription,
+		request->queueIds.copyAndPop(),
+		qualifierDeclarations);
+
+	_enqueueResponse(request, response);
+}
+
+void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
+	CIMInvokeMethodRequestMessage* request)
+{
+	String className = request->instanceName.getClassName();
+	
+	// check the class name for an "external provider"
+	String providerName = _lookupProviderForClass(request->nameSpace, className);
+
+	if(providerName.size() != 0)
+	{
+		// forward request to the provider manager
+		_providerManager->enqueue(new CIMInvokeMethodRequestMessage(*request));
+
+		return;
+	}
+	
+	CIMStatusCode errorCode = CIM_ERR_FAILED;
+	String errorDescription = "Provider not available";
+	CIMValue retValue(1);
+	Array<CIMParamValue> outParameters;
+
+	CIMInvokeMethodResponseMessage* response =
+		new CIMInvokeMethodResponseMessage(
+		request->messageId,
+		errorCode,
+		errorDescription,
+		request->queueIds.copyAndPop(),
+		retValue,
+		outParameters,
+		request->methodName);
+
+	_enqueueResponse(request, response);
 }
 
 void CIMOperationRequestDispatcher::handleEnableIndicationSubscriptionRequest(
-    CIMEnableIndicationSubscriptionRequestMessage* request)
+	CIMEnableIndicationSubscriptionRequestMessage* request)
 {
-    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-    String errorDescription = String::EMPTY;
+	// ATTN: under construction
+	
+	/*
+	// check the class name for an "external provider"
+	String providerName = _lookupProviderForClass(request->nameSpace, className);
 
-    try
-    {
-        if (request->providerName.size () != 0)
-        {
-            //
-            // attempt to load provider
-            //
-            //
-            //  ATTN: Provider to be loaded is known to serve all classes
-            //  in classNames list.  The getProvider function requires a class
-            //  name.  There is no form that takes only the provider name.
-            //  Currently, the first class name in the list is passed to
-            //  getProvider.  It shouldn't matter which class name is passed in.
-            //
-            CIMBaseProvider * provider = _providerManager.getProvider
-                (request->providerName, request->classNames [0]);
+	if(providerName)
+	{
+		// forward request to the provider manager
+		_providerManager->enqueue(request);
+
+		return;
+	}
+	CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+	String errorDescription = String::EMPTY;
+
+	try
+	{
+		if(request->providerName.size () != 0)
+		{
+			//
+			// attempt to load provider
+			//
+			//
+			//  ATTN: Provider to be loaded is known to serve all classes
+			//  in classNames list.  The getProvider function requires a class
+			//  name.  There is no form that takes only the provider name.
+			//  Currently, the first class name in the list is passed to
+			//  getProvider.  It shouldn't matter which class name is passed in.
+			//
+			CIMBaseProvider * provider = _providerManager->getProvider
+				(request->providerName, request->classNames [0]);
 
 			CIMBaseProviderFacade facade(provider);
 
-            SimpleResponseHandler<CIMIndication> responseHandler;
+			SimpleResponseHandler<CIMIndication> responseHandler;
 
-            /*
 			facade.enableIndicationSubscription (
-                //
-                //  ATTN: pass thresholding parameter values in
-                //  operation context
-                //
-                OperationContext (),
-                request->classNames,
-                request->propertyList,
-                request->repeatNotificationPolicy,
-                request->condition,
-                request->queryLanguage,
-                request->subscription,
-                responseHandler);
-			*/
-        }
-        else
-        {
-            errorCode = CIM_ERR_FAILED;
-            errorDescription = "Provider not available";
-        }
-    }
-    catch (CIMException& exception)
-    {
-        errorCode = exception.getCode ();
-        errorDescription = exception.getMessage ();
-    }
-    catch (Exception& exception)
-    {
-        errorCode = CIM_ERR_FAILED;
-        errorDescription = exception.getMessage ();
-    }
+				//
+				//  ATTN: pass thresholding parameter values in
+				//  operation context
+				//
+				OperationContext (),
+				request->classNames,
+				request->propertyList,
+				request->repeatNotificationPolicy,
+				request->condition,
+				request->queryLanguage,
+				request->subscription,
+				responseHandler);
+		}
+		else
+		{
+			errorCode = CIM_ERR_FAILED;
+			errorDescription = "Provider not available";
+		}
+	}
+	catch(CIMException& exception)
+	{
+		errorCode = exception.getCode ();
+		errorDescription = exception.getMessage ();
+	}
+	catch(Exception& exception)
+	{
+		errorCode = CIM_ERR_FAILED;
+		errorDescription = exception.getMessage ();
+	}
+	catch(...)
+	{
+		errorCode = CIM_ERR_FAILED;
+	}
 
-    CIMEnableIndicationSubscriptionResponseMessage* response =
-        new CIMEnableIndicationSubscriptionResponseMessage (
-            request->messageId,
-            errorCode,
-            errorDescription,
-            request->queueIds.copyAndPop ());
+	CIMEnableIndicationSubscriptionResponseMessage* response =
+		new CIMEnableIndicationSubscriptionResponseMessage (
+		request->messageId,
+		errorCode,
+		errorDescription,
+		request->queueIds.copyAndPop ());
 
-    _enqueueResponse (request, response);
+	_enqueueResponse (request, response);
+	*/
 }
 
 void CIMOperationRequestDispatcher::handleModifyIndicationSubscriptionRequest(
-    CIMModifyIndicationSubscriptionRequestMessage* request)
+	CIMModifyIndicationSubscriptionRequestMessage* request)
 {
-    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-    String errorDescription = String::EMPTY;
+	// ATTN: under construction
 
-    try
-    {
-        if (request->providerName.size () != 0)
-        {
-            //
-            // attempt to load provider
-            //
-            //
-            //  ATTN: Provider to be loaded is known to serve all classes
-            //  in classNames list.  The getProvider function requires a class
-            //  name.  There is no form that takes only the provider name.
-            //  Currently, the first class name in the list is passed to
-            //  getProvider.  It shouldn't matter which class name is passed in.
-            //
-            CIMBaseProvider * provider = _providerManager.getProvider
-                (request->providerName, request->classNames [0]);
+	/*
+	// check the class name for an "external provider"
+	String providerName = _lookupProviderForClass(request->nameSpace, className);
+
+	if(providerName)
+	{
+		// forward request to the provider manager
+		_providerManager->enqueue(request);
+
+		return;
+	}
+	CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+	String errorDescription = String::EMPTY;
+
+	try
+	{
+		if(request->providerName.size () != 0)
+		{
+			//
+			// attempt to load provider
+			//
+			//
+			//  ATTN: Provider to be loaded is known to serve all classes
+			//  in classNames list.  The getProvider function requires a class
+			//  name.  There is no form that takes only the provider name.
+			//  Currently, the first class name in the list is passed to
+			//  getProvider.  It shouldn't matter which class name is passed in.
+			//
+			CIMBaseProvider * provider = _providerManager->getProvider
+				(request->providerName, request->classNames [0]);
 
 			CIMBaseProviderFacade facade(provider);
 
-            SimpleResponseHandler<CIMIndication> responseHandler;
+			SimpleResponseHandler<CIMIndication> responseHandler;
 
-            /*
 			facade.modifyIndicationSubscription (
-                //
-                //  ATTN: pass thresholding parameter values in
-                //  operation context
-                //
-                OperationContext (),
-                request->classNames,
-                request->propertyList,
-                request->repeatNotificationPolicy,
-                request->condition,
-                request->queryLanguage,
-                request->subscription,
-                responseHandler);
-			*/
-        }
-        else
-        {
-            errorCode = CIM_ERR_FAILED;
-            errorDescription = "Provider not available";
-        }
-    }
-    catch (CIMException& exception)
-    {
-        errorCode = exception.getCode ();
-        errorDescription = exception.getMessage ();
-    }
-    catch (Exception& exception)
-    {
-        errorCode = CIM_ERR_FAILED;
-        errorDescription = exception.getMessage ();
-    }
+				//
+				//  ATTN: pass thresholding parameter values in
+				//  operation context
+				//
+				OperationContext (),
+				request->classNames,
+				request->propertyList,
+				request->repeatNotificationPolicy,
+				request->condition,
+				request->queryLanguage,
+				request->subscription,
+				responseHandler);
+		}
+		else
+		{
+			errorCode = CIM_ERR_FAILED;
+			errorDescription = "Provider not available";
+		}
+	}
+	catch(CIMException& exception)
+	{
+		errorCode = exception.getCode ();
+		errorDescription = exception.getMessage ();
+	}
+	catch(Exception& exception)
+	{
+		errorCode = CIM_ERR_FAILED;
+		errorDescription = exception.getMessage ();
+	}
+	catch(...)
+	{
+		errorCode = CIM_ERR_FAILED;
+	}
 
-    CIMModifyIndicationSubscriptionResponseMessage* response =
-        new CIMModifyIndicationSubscriptionResponseMessage (
-            request->messageId,
-            errorCode,
-            errorDescription,
-            request->queueIds.copyAndPop ());
+	CIMModifyIndicationSubscriptionResponseMessage* response =
+		new CIMModifyIndicationSubscriptionResponseMessage (
+		request->messageId,
+		errorCode,
+		errorDescription,
+		request->queueIds.copyAndPop ());
 
-    _enqueueResponse (request, response);
+	_enqueueResponse (request, response);
+	*/
 }
 
 void CIMOperationRequestDispatcher::handleDisableIndicationSubscriptionRequest(
-    CIMDisableIndicationSubscriptionRequestMessage* request)
+	CIMDisableIndicationSubscriptionRequestMessage* request)
 {
-    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-    String errorDescription = String::EMPTY;
+	// ATTN: under construction
+	
+	/*
+	// check the class name for an "external provider"
+	String providerName = _lookupProviderForClass(request->nameSpace, className);
 
-    try
-    {
-        if (request->providerName.size () != 0)
-        {
-            //
-            // attempt to load provider
-            //
-            //
-            //  ATTN: Provider to be loaded is known to serve all classes
-            //  in classNames list.  The getProvider function requires a class
-            //  name.  There is no form that takes only the provider name.
-            //  Currently, the first class name in the list is passed to
-            //  getProvider.  It shouldn't matter which class name is passed in.
-            //
-            CIMBaseProvider * provider = _providerManager.getProvider
-                (request->providerName, request->classNames [0]);
+	if(providerName)
+	{
+		// forward request to the provider manager
+		_providerManager->enqueue(request);
+
+		return;
+	}
+	CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+	String errorDescription = String::EMPTY;
+
+	try
+	{
+		if(request->providerName.size () != 0)
+		{
+			//
+			// attempt to load provider
+			//
+			//
+			//  ATTN: Provider to be loaded is known to serve all classes
+			//  in classNames list.  The getProvider function requires a class
+			//  name.  There is no form that takes only the provider name.
+			//  Currently, the first class name in the list is passed to
+			//  getProvider.  It shouldn't matter which class name is passed in.
+			//
+			CIMBaseProvider * provider = _providerManager->getProvider
+				(request->providerName, request->classNames [0]);
 
 			CIMBaseProviderFacade facade(provider);
 
-            SimpleResponseHandler<CIMIndication> responseHandler;
+			SimpleResponseHandler<CIMIndication> responseHandler;
 
-            /*
 			facade.disableIndicationSubscription (
-                OperationContext (),
-                request->classNames,
-                request->subscription,
-                responseHandler);
-			*/
-        }
-        else
-        {
-            errorCode = CIM_ERR_FAILED;
-            errorDescription = "Provider not available";
-        }
-    }
-    catch (CIMException& exception)
-    {
-        errorCode = exception.getCode ();
-        errorDescription = exception.getMessage ();
-    }
-    catch (Exception& exception)
-    {
-        errorCode = CIM_ERR_FAILED;
-        errorDescription = exception.getMessage ();
-    }
+				OperationContext (),
+				request->classNames,
+				request->subscription,
+				responseHandler);
+		}
+		else
+		{
+			errorCode = CIM_ERR_FAILED;
+			errorDescription = "Provider not available";
+		}
+	}
+	catch(CIMException& exception)
+	{
+		errorCode = exception.getCode ();
+		errorDescription = exception.getMessage ();
+	}
+	catch(Exception& exception)
+	{
+		errorCode = CIM_ERR_FAILED;
+		errorDescription = exception.getMessage ();
+	}
+	catch(...)
+	{
+		errorCode = CIM_ERR_FAILED;
+	}
 
-    CIMDisableIndicationSubscriptionResponseMessage* response =
-        new CIMDisableIndicationSubscriptionResponseMessage (
-            request->messageId,
-            errorCode,
-            errorDescription,
-            request->queueIds.copyAndPop ());
+	CIMDisableIndicationSubscriptionResponseMessage* response =
+		new CIMDisableIndicationSubscriptionResponseMessage (
+		request->messageId,
+		errorCode,
+		errorDescription,
+		request->queueIds.copyAndPop ());
 
-    _enqueueResponse (request, response);
+	_enqueueResponse (request, response);
+	*/
 }
 
-
-// ATTN:: Temporaryly required to support provider registration service
-ProviderManager* CIMOperationRequestDispatcher::getProviderManager(void)
-{
-    return &_providerManager;
-}
-
+/*
 void CIMOperationRequestDispatcher::loadRegisteredProviders(void)
 {
-    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-    String errorDescription;
-    Array<CIMNamedInstance> cimNamedInstances;
+	CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+	String errorDescription;
+	Array<CIMNamedInstance> cimNamedInstances;
 
-    // ATTN: May need change
-    const String& nameSpace = "root/cimv2";
-    const String& className = "PG_Provider";
+	// ATTN: May need change
+	const String& nameSpace = "root/cimv2";
+	const String& className = "PG_Provider";
 
-    _repository->read_lock();
+	_repository->read_lock();
 
-    try
-    {
-        // ATTN: Exceptions are silently ignored for now
+	try
+	{
+		// ATTN: Exceptions are silently ignored for now
 	cimNamedInstances = _repository->enumerateInstances(
 		nameSpace,
 		className);
 
-    }
+	}
 
-    catch (CIMException& exception)
-    {
+	catch (CIMException& exception)
+	{
 	errorCode = exception.getCode();
 	errorDescription = exception.getMessage();
-    }
-    catch (Exception& exception)
-    {
+	}
+	catch (Exception& exception)
+	{
 	errorCode = CIM_ERR_FAILED;
 	errorDescription = exception.getMessage();
-    }
-    _repository->read_unlock();
+	}
+	_repository->read_unlock();
 
-    _providerManager.createProviderBlockTable(cimNamedInstances);
+	_providerManager->createProviderBlockTable(cimNamedInstances);
 }
-
+*/
 
 PEGASUS_NAMESPACE_END
+	

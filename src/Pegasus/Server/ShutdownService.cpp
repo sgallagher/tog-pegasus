@@ -1,21 +1,21 @@
 //%////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM, 
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
 // The Open Group, Tivoli Systems
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to 
-// deal in the Software without restriction, including without limitation the 
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
-// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+//
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
-// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
-// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
-// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
@@ -29,7 +29,7 @@
 
 
 /////////////////////////////////////////////////////////////////////////////
-//  ShutdownService 
+//  ShutdownService
 /////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -48,16 +48,16 @@ PEGASUS_NAMESPACE_BEGIN
 static String TIMEOUT_PROPERTY = "operationTimeout";
 static String SHUTDOWN_TIMEOUT_PROPERTY = "shutdownTimeout";
 
-/** 
-Initialize ShutdownService instance 
+/**
+Initialize ShutdownService instance
 */
 ShutdownService* ShutdownService::_instance = 0;
 
-/** 
-Initialize all other class variables 
+/**
+Initialize all other class variables
 */
 CIMServer*       ShutdownService::_cimserver = 0;
-ProviderManager* ShutdownService::_providerManager = 0;
+//ProviderManager* ShutdownService::_providerManager = 0;
 Uint32           ShutdownService::_operationTimeout = 0;
 Uint32           ShutdownService::_shutdownTimeout = 0;
 
@@ -71,20 +71,20 @@ ShutdownService::~ShutdownService()
 {
 }
 
-/** 
+/**
     return a pointer to the ShutdownService instance.
 */
-ShutdownService* ShutdownService::getInstance() 
+ShutdownService* ShutdownService::getInstance()
 {
-    if (!_instance) 
+    if (!_instance)
     {
         _instance = new ShutdownService();
     }
     return _instance;
 }
 
-/** 
-    The shutdown method to be called by the ShutdownProvider to 
+/**
+    The shutdown method to be called by the ShutdownProvider to
     process a shutdown request from the CLI client.
 */
 void ShutdownService::shutdown(CIMServer* cimserver, Boolean force,
@@ -101,14 +101,14 @@ void ShutdownService::shutdown(CIMServer* cimserver, Boolean force,
     //
     // get an instance of the ProviderManager
     //
-    _providerManager = _cimserver->getDispatcher()->getProviderManager();
+    //_providerManager = _cimserver->getDispatcher()->getProviderManager();
 
     //
     // set CIMServer state to TERMINATING
     //
     _cimserver->setState(CIMServerState::TERMINATING);
 
-    // 
+    //
     // Tell the CIMServer to stop accepting new client connection requests.
     //
     _cimserver->stopClientConnection();
@@ -118,7 +118,7 @@ void ShutdownService::shutdown(CIMServer* cimserver, Boolean force,
     //
     _initTimeoutValues(timeout);
 
-    // 
+    //
     // Determine if there are any outstanding CIM operation requests
     // (take into account that one of the request is the shutdown request).
     //
@@ -128,12 +128,12 @@ void ShutdownService::shutdown(CIMServer* cimserver, Boolean force,
     Uint32 maxWaitTime = _operationTimeout; // maximum wait time in milliseconds
     Uint32 waitTime = 1000;                 // one second wait interval
 
-    Uint32 requestCount = _cimserver->getOutstandingRequestCount(); 
+    Uint32 requestCount = _cimserver->getOutstandingRequestCount();
 
     while ( requestCount > 1 && maxWaitTime > 0)
     {
          System::sleep(waitTime);
-         requestCount = _cimserver->getOutstandingRequestCount(); 
+         requestCount = _cimserver->getOutstandingRequestCount();
          maxWaitTime = maxWaitTime - waitTime;
     }
 
@@ -141,9 +141,9 @@ void ShutdownService::shutdown(CIMServer* cimserver, Boolean force,
     {
         noMoreRequests = true;
     }
-    
+
     //
-    // If no more requests or force shutdown option is specified, proceed 
+    // If no more requests or force shutdown option is specified, proceed
     // to shutdown the CIMServer
     //
     if ( noMoreRequests || force )
@@ -199,21 +199,21 @@ void ShutdownService::_initTimeoutValues(Uint32 timeout)
 
 void ShutdownService::_shutdownCIMServer()
 {
-    // 
+    //
     // Shutdown the Indication Subscription Service
     //
     _shutdownSubscriptionService();
 
-    // ATTN: Shutdown the Indication Handlers? 
+    // ATTN: Shutdown the Indication Handlers?
 
     // ATTN: Shutdown the Indication Processing Service?
 
-    // 
-    // Shutdown the providers 
+    //
+    // Shutdown the providers
     //
     _shutdownProviders();
- 
-    // 
+
+    //
     // Tell CIMServer to shutdown completely.
     //
     _cimserver->shutdown();
@@ -223,8 +223,8 @@ void ShutdownService::_shutdownCIMServer()
 
 void ShutdownService::_resumeCIMServer()
 {
-    // 
-    // resume CIMServer 
+    //
+    // resume CIMServer
     //
     try
     {
@@ -253,7 +253,7 @@ void ShutdownService::_shutdownSubscriptionService()
     //
     // find the Subscription Service provider and shut it down
     //
-    _providerManager->stopProvider(subscriptionProviderName);
+    //_providerManager->stopProvider(subscriptionProviderName);
 
     return;
 }
@@ -269,11 +269,10 @@ void ShutdownService::_shutdownProviders()
     // ATTN:  Need to make use of the provider shutdown timeout
     //        when asyn provider API is supported.
     //
-    _providerManager->shutdownAllProviders(shutdownProviderName,
-                                           shutdownProviderClassName);
+    //_providerManager->shutdownAllProviders(shutdownProviderName,
+    //                                       shutdownProviderClassName);
 
     return;
 }
 
 PEGASUS_NAMESPACE_END
-

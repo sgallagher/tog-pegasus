@@ -2,6 +2,10 @@ ROOT = ../../..
 
 DIR = Pegasus/Server
 
+OBJECT_DIRS = \
+	ProviderManager \
+	ConfigurationManager
+
 include $(ROOT)/mak/config.mak
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
@@ -27,14 +31,16 @@ SOURCES = \
     CIMOperationRequestDispatcher.cpp \
     CIMOperationRequestAuthorizer.cpp \
     HTTPAuthenticatorDelegator.cpp \
-    ProviderManager.cpp \
-    ProviderModule.cpp \
-	CIMBaseProviderFacade.cpp \
-    ServiceCIMOMHandle.cpp \
-    ProviderBlockedEntry.cpp \
     ShutdownService.cpp \
     CIMServer.cpp \
-    CIMServerState.cpp
+    CIMServerState.cpp \
+    ServiceCIMOMHandle.cpp \
+    ProviderManager/ProviderManagerQueue.cpp \
+    ProviderManager/ProviderModule.cpp \
+	ProviderManager/CIMBaseProviderFacade.cpp \
+    ProviderManager/ProviderBlockedEntry.cpp \
+	ConfigurationManager/ConfigurationManagerQueue.cpp \
+	ConfigurationManager/PG_RegistrationProvider.cpp
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 

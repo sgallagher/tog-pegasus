@@ -31,13 +31,19 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/MessageQueue.h>
-#include <Pegasus/Repository/CIMRepository.h>
-#include <Pegasus/Server/ProviderManager.h>
+
 #include <Pegasus/Server/CIMServer.h>
+
+#include <Pegasus/Repository/CIMRepository.h>
+
+#include <Pegasus/Server/ProviderManager/ProviderManagerQueue.h>
+#include <Pegasus/Server/ConfigurationManager/ConfigurationManagerQueue.h>
 
 #include <Pegasus/Provider/CIMOMHandle.h>
 
 PEGASUS_NAMESPACE_BEGIN
+
+class CIMOperationRequestDispatcher;
 
 class PEGASUS_SERVER_LINKAGE ServiceCIMOMHandle : public CIMOMHandle
 {
@@ -47,29 +53,32 @@ public:
 
 	/** */
 	ServiceCIMOMHandle(
-		MessageQueue* outputQueue,
+		MessageQueue * outputQueue,
+		CIMServer * cimserver,
 		CIMRepository * repository,
-		ProviderManager * providerManager,
-		CIMServer * cimserver);
+		ProviderManagerQueue * providerManager,
+		ConfigurationManagerQueue * configurationManager);
 
 	/** */
 	virtual ~ServiceCIMOMHandle(void);
 
 	ServiceCIMOMHandle & operator=(const ServiceCIMOMHandle & handle);
 
-	const CIMServer * getServer(void) const { return(_server); }
-	
 	CIMServer * getServer(void) { return(_server); }
 
 	CIMRepository * getRepository(void) { return(_repository); }
 	
-	ProviderManager * getProviderManager(void) { return(_providerManager); }
+	ProviderManagerQueue * getProviderManager(void) { return(_providerManager); }
+
+	ConfigurationManagerQueue * getConfigurationManager(void) { return(_configurationManager); }
 
 protected:	
 	CIMServer * _server;
 	CIMRepository * _repository;
-	ProviderManager * _providerManager;
+	ProviderManagerQueue * _providerManager;
+	ConfigurationManagerQueue * _configurationManager;
 
+	friend CIMOperationRequestDispatcher;
 };
 
 PEGASUS_NAMESPACE_END

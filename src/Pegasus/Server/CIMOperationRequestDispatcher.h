@@ -44,14 +44,16 @@
 #include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/OperationContext.h>
 
-#include <Pegasus/Server/ProviderManager.h>
 #include <Pegasus/Server/CIMServer.h>
 
 #include <Pegasus/Repository/CIMRepository.h>
 
+#include <Pegasus/Server/ProviderManager/ProviderManagerQueue.h>
+#include <Pegasus/Server/ConfigurationManager/ConfigurationManagerQueue.h>
+
 PEGASUS_NAMESPACE_BEGIN
 
-class CIMRepository;
+class ServiceCIMOMHandle;
 
 class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher : public MessageQueue
 {
@@ -148,23 +150,29 @@ public:
     void handleDisableIndicationSubscriptionRequest(
         CIMDisableIndicationSubscriptionRequestMessage* request);
 
-    ProviderManager* getProviderManager(void);
-
-    void loadRegisteredProviders(void);
+    //void loadRegisteredProviders(void);
 
 protected:
-
-    void _enqueueResponse(
-	CIMRequestMessage* request,
-	CIMResponseMessage* response);
-
     String _lookupProviderForClass(
 	const String& nameSpace,
 	const String& className);
 
-      CIMRepository* _repository;
-      ProviderManager _providerManager;
-      AtomicInt _dying ;
+	void _enqueueResponse(
+	CIMRequestMessage* request,
+	CIMResponseMessage* response);
+
+	Message * _waitForResponse(
+	const Uint32 messageType,
+	const Uint32 messageKey,
+	const Uint32 timeout = 0xffffffff);
+
+protected:
+    ServiceCIMOMHandle * _cimom;
+	CIMRepository * _repository;
+	ProviderManagerQueue * _providerManager;
+	ConfigurationManagerQueue * _configurationManager;
+	AtomicInt _dying;
+
 };
 
 PEGASUS_NAMESPACE_END

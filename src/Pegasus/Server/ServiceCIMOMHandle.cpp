@@ -42,14 +42,16 @@ ServiceCIMOMHandle::ServiceCIMOMHandle(void) : _server(0)
 
 ServiceCIMOMHandle::ServiceCIMOMHandle(
     MessageQueue* outputQueue,
+	CIMServer * server,
     CIMRepository * repository,
-	ProviderManager * providerManager,
-    CIMServer * server)
+	ProviderManagerQueue * providerManager,
+	ConfigurationManagerQueue * configurationManager)
 :
     //CIMOMHandle(outputQueue),
+    _server(server),
     _repository(repository),
 	_providerManager(providerManager),
-    _server(server)
+	_configurationManager(configurationManager)
 {
 }
 
@@ -67,10 +69,9 @@ ServiceCIMOMHandle& ServiceCIMOMHandle::operator=(const ServiceCIMOMHandle& hand
     CIMOMHandle::operator=(handle);
 
     _server = handle._server;
-
     _repository = handle._repository;
-
 	_providerManager = handle._providerManager;
+	_configurationManager = handle._configurationManager;
 
     return(*this);
 }

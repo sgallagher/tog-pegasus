@@ -9,7 +9,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -58,7 +58,7 @@
 #include <Pegasus/Security/UserManager/UserManager.h>
 #include <Pegasus/HandlerService/IndicationHandlerService.h>
 #include <Pegasus/IndicationService/IndicationService.h>
-#include <Pegasus/ProviderManager/ProviderManagerService.h>
+#include <Pegasus/ProviderManager2/ProviderManagerService.h>
 #include "CIMServer.h"
 #include "CIMOperationRequestDispatcher.h"
 #include "CIMOperationResponseEncoder.h"
@@ -73,7 +73,6 @@
 #include <Pegasus/ControlProviders/UserAuthProvider/UserAuthProvider.h>
 #include <Pegasus/ControlProviders/ProviderRegistrationProvider/ProviderRegistrationProvider.h>
 #include <Pegasus/ControlProviders/NamespaceProvider/NamespaceProvider.h>
-#include <Pegasus/ProviderManager/ProviderManager.h>
 
 // l10n
 #include <Pegasus/Common/MessageLoader.h>
@@ -110,7 +109,7 @@ CIMServer::CIMServer(Monitor* monitor)
 {
     PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::CIMServer()");
     _init();
-    
+
     PEG_METHOD_EXIT();
 }
 
@@ -123,7 +122,7 @@ CIMServer::CIMServer(monitor_2* m2)
 
     monitor2->set_accept_dispatch(pegasus_acceptor::accept_dispatch);
     monitor2->set_session_dispatch(HTTPConnection2::connection_dispatch);
-    
+
     PEG_METHOD_EXIT();
 }
 
@@ -134,7 +133,7 @@ void CIMServer::_init(void)
     String repositoryRootPath = String::EMPTY;
 
     // -- Save the monitor or create a new one:
-    
+
     repositoryRootPath =
 	    ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("repositoryDir"));
 
@@ -145,7 +144,7 @@ void CIMServer::_init(void)
     // if the repository directory does not exit. If called,
     // the Repository will create an empty repository.
 
-    // This check has been disabled to allow cimmof to call 
+    // This check has been disabled to allow cimmof to call
     // the CIMServer to build the initial repository.
     if (!FileSystem::isDirectory(repositoryRootPath))
     {
@@ -222,9 +221,9 @@ void CIMServer::_init(void)
     _cimOperationRequestDispatcher
 	= new CIMOperationRequestDispatcher(_repository,
                                             _providerRegistrationManager);
-    _binaryMessageHandler = 
+    _binaryMessageHandler =
        new BinaryMessageHandler(_cimOperationRequestDispatcher);
-        
+
     _cimOperationResponseEncoder
 	= new CIMOperationResponseEncoder;
 
@@ -332,11 +331,11 @@ void CIMServer::addAcceptor(
                                 localConnection,
                                 portNumber,
                                 useSSL ? _getSSLContext() : 0);
-    
+
     _acceptors.append(acceptor);
   }
   else {
-    pegasus_acceptor* acceptor = 
+    pegasus_acceptor* acceptor =
       new pegasus_acceptor(monitor2,
 			   _httpAuthenticatorDelegator,
 			   localConnection,
@@ -351,15 +350,15 @@ void CIMServer::bind()
     PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::bind()");
 
     if(_type == OLD) {
-      
+
       if (_acceptors.size() == 0)
 	{
 	  // l10n
-      
+
 	  // throw BindFailedException("No CIM Server connections are enabled.");
 
 	  MessageLoaderParms mlp = MessageLoaderParms("Server.CIMServer.BIND_FAILED","No CIM Server connections are enabled.");
-      
+
 	  throw BindFailedException(mlp);
 	}
 
@@ -368,18 +367,18 @@ void CIMServer::bind()
 	  _acceptors[i]->bind();
 	}
     }
-    
+
     PEG_METHOD_EXIT();
 }
 
 void CIMServer::runForever()
 {
   if(_type == OLD) {
- 
+
     // Note: Trace code in this method will be invoked frequently.
 
     static int modulator = 0;
-   
+
     if(!_dieNow)
       {
 	if(false == _monitor->run(100))
@@ -387,11 +386,11 @@ void CIMServer::runForever()
 	    modulator++;
 	    if( ! (modulator % 5000) )
 	      {
-		try 
+		try
 		  {
 		    MessageQueueService::_check_idle_flag = 1;
 		    MessageQueueService::_polling_sem.signal();
-		    ProviderManagerService::getProviderManager()->unload_idle_providers();
+		    _providerManager->unload_idle_providers();
 		    _monitor->kill_idle_threads();
 		  }
 		catch(...)
@@ -404,7 +403,7 @@ void CIMServer::runForever()
 	  {
 	    Tracer::trace(TRC_SERVER, Tracer::LEVEL3,
 			  "CIMServer::runForever - signal received.  Shutting down.");
-	 
+	
 	    ShutdownService::getInstance(this)->shutdown(true, 10, false);
 	    handleShutdownSignal = false;
 	  }
@@ -413,7 +412,7 @@ void CIMServer::runForever()
   else {
     monitor2->run();
   }
-  
+
 }
 
 void CIMServer::stopClientConnection()
@@ -421,14 +420,14 @@ void CIMServer::stopClientConnection()
     PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::stopClientConnection()");
 
     if(_type == OLD) {
-      
+
       for (Uint32 i=0; i<_acceptors.size(); i++)
 	{
 	  _acceptors[i]->closeConnectionSocket();
 	}
     }
-    
-      
+
+
     PEG_METHOD_EXIT();
 }
 
@@ -522,16 +521,16 @@ Uint32 CIMServer::getOutstandingRequestCount()
 	  requestCount += _acceptors[i]->getOutstandingRequestCount();
 	}
     }
-    
+
     PEG_METHOD_EXIT();
     return requestCount;
 }
 
 SSLContext* CIMServer::_getSSLContext()
 {
-    static String PROPERTY_NAME__SSLCERT_FILEPATH = "sslCertificateFilePath"; 
-    static String PROPERTY_NAME__SSLKEY_FILEPATH  = "sslKeyFilePath"; 
-  
+    static String PROPERTY_NAME__SSLCERT_FILEPATH = "sslCertificateFilePath";
+    static String PROPERTY_NAME__SSLKEY_FILEPATH  = "sslKeyFilePath";
+
 
     if (_sslcontext == 0)
     {

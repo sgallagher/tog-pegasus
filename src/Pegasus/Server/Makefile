@@ -21,7 +21,8 @@ LIBRARIES = \
     pegrepository \
     pegprovider \
     pegprovidermanager \
-    pegexportserver \
+    DefaultProviderManager \
+	pegexportserver \
     pegconfig \
     peguser \
     pegauthentication \

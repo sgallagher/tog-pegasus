@@ -15,7 +15,7 @@ DIRS = \
     ExportClient \
     Provider \
     Server/ProviderRegistrationManager \
-    ProviderManager \
+    ProviderManager2 \
     ExportServer \
     Listener \
     Security/UserManager \
@@ -47,6 +47,6 @@ DIRS = \
     Consumer/tests \
 	ProviderManager/tests \
     msg/Server \
-    msg/CLI 
+    msg/CLI
 
 include $(ROOT)/mak/recurse.mak

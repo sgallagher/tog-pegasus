@@ -30,13 +30,14 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "ProviderMessageFacade.h"
-#include <Pegasus/ProviderManager/SimpleResponseHandler.h>
+
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Common/Tracer.h>
-
 // l10n
 #include <Pegasus/Common/MessageLoader.h>
+
+#include <Pegasus/ProviderManager2/Default/SimpleResponseHandler.h>
 
 PEGASUS_USING_STD;
 
@@ -215,7 +216,7 @@ Message * ProviderMessageFacade::_handleGetInstanceRequest(Message * message) th
     catch(...)
     {
       // l10n
-      
+
       cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.UNKNOWN_ERROR", "Unknown Error"));
       // cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
     }
@@ -292,7 +293,7 @@ Message * ProviderMessageFacade::_handleEnumerateInstancesRequest(Message * mess
     catch(...)
     {
       // l10n
-      
+
       cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.UNKNOWN_ERROR", "Unknown Error"));
       // cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
     }
@@ -431,7 +432,7 @@ Message * ProviderMessageFacade::_handleCreateInstanceRequest(Message * message)
 	{
 //	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, String::EMPTY);
 	   // << Mon Apr 29 12:40:57 2002 mdd >>
-	  
+	
 	  // l10n
 
 	  cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.UNKNOWN_ERROR", "Unknown Error"));
@@ -453,7 +454,7 @@ Message * ProviderMessageFacade::_handleCreateInstanceRequest(Message * message)
     catch(...)
     {
       // l10n
-      
+
       cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.UNKNOWN_ERROR", "Unknown Error"));
       // cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
     }
@@ -530,7 +531,7 @@ Message * ProviderMessageFacade::_handleModifyInstanceRequest(Message * message)
     catch(...)
     {
       // l10n
-      
+
       cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.UNKNOWN_ERROR", "Unknown Error"));
       //  cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
     }
@@ -595,7 +596,7 @@ Message * ProviderMessageFacade::_handleDeleteInstanceRequest(Message * message)
     catch(...)
     {
       // l10n
-      
+
       cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.UNKNOWN_ERROR", "Unknown Error"));
       // cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
     }
@@ -899,7 +900,7 @@ Message * ProviderMessageFacade::_handleInvokeMethodRequest(Message * message) t
     catch(...)
     {
       // l10n
-      
+
       cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.UNKNOWN_ERROR", "Unknown Error"));
       // cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
     }

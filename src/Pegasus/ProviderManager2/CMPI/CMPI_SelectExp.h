@@ -46,9 +46,11 @@
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/WQL/WQLSelectStatement.h>
 #include <Pegasus/Query/QueryCommon/QueryContext.h>
+
+#include <Pegasus/ProviderManager2/CMPI/Linkage.h>
 PEGASUS_NAMESPACE_BEGIN
 
-struct CMPI_SelectExp : CMPISelectExp {
+struct PEGASUS_CMPIPM_LINKAGE CMPI_SelectExp : CMPISelectExp {
    CMPI_SelectExp(const OperationContext& ct, QueryContext *context, String cond_, String lang_);
    CMPI_SelectExp(WQLSelectStatement*);
    CMPI_SelectExp(CQLSelectStatement*);

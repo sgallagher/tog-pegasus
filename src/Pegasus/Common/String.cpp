@@ -650,7 +650,7 @@ CString String::getCStringUTF8() const
 Boolean String::isUTF8(const char *legal)
 {
     return (isValid_U8((const Uint8 *)legal,
-		       trailingBytesForUTF8[*legal]+1));
+		       UTF_8_COUNT_TRAIL_BYTES(*legal)+1));
 }
 
 #if 0

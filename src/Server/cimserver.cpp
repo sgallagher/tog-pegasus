@@ -119,6 +119,8 @@ void GetOptions(
 {
     static struct OptionRow optionsTable[] =
     {
+	{"home", "/etc/pegasus", false, Option::STRING, 0, 0, "D",
+		    "Sets the pegasus home directory"},
 	{"port", "5988", false, Option::WHOLE_NUMBER, 0, 0, "port",
 			"specifies port number to listen on" },
 	{"trace", "false", false, Option::BOOLEAN, 0, 0, "t", 
@@ -190,11 +192,19 @@ int main(int argc, char** argv)
     if (argc == 1 )
       cim_server_service(argc, argv) ;
   
-    // Get environment variables:
+    // Get environment variables
 
     String pegasusHome;
 
-    GetEnvironmentVariables(argv[0], pegasusHome);
+    for (int i=0; i < argc; i++) {
+        if (!strcmp(argv[i],"-D")) {
+            i++;
+            if (i < argc) pegasusHome = argv[i];
+            break;
+        }
+    }
+    if (pegasusHome.size() == 0)
+        GetEnvironmentVariables(argv[0], pegasusHome);
 
     // Get options (from command line and from configuration file); this
     // removes corresponding options and their arguments fromt he command

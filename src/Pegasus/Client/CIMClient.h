@@ -139,7 +139,7 @@ public:
     */
     void connect(
         const String& address,
-        SSLContext* sslContext,
+        const SSLContext& sslContext,
         const String& userName = String::EMPTY,
         const String& password = String::EMPTY
     );

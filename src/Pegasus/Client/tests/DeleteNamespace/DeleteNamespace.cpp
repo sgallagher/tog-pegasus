@@ -545,7 +545,7 @@ int main(int argc, char** argv)
                             pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
 #endif
 
-                        SSLContext * sslcontext = new SSLContext(certpath,verifyServerCertificate, randFile, true);
+                        SSLContext sslcontext(certpath,verifyServerCertificate, randFile, true);
 
 			if (om.isTrue("local"))
 			{

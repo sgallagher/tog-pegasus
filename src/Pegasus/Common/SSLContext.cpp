@@ -264,7 +264,12 @@ SSLContextRep::SSLContextRep(const SSLContextRep& sslContextRep)
 
     PEG_METHOD_EXIT();
 }
-  
+
+// Dummy constructor made private to disallow default construction
+SSLContextRep::SSLContextRep()
+{
+}
+
 //
 // Destructor
 //
@@ -424,6 +429,11 @@ SSLCertificateInfo::SSLCertificateInfo(
     _rep->errorDepth = certificateInfo._rep->errorDepth;
     _rep->errorCode = certificateInfo._rep->errorCode;
     _rep->respCode = certificateInfo._rep->respCode;
+}
+
+// Dummy constructor made private to disallow default construction
+SSLCertificateInfo::SSLCertificateInfo()
+{
 }
 
 SSLCertificateInfo::~SSLCertificateInfo()

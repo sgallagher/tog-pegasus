@@ -97,6 +97,8 @@ public:
 
 private:
 
+    SSLCertificateInfo();
+
     SSLCertificateInfoRep* _rep;
 };
 
@@ -138,6 +140,8 @@ public:
     ~SSLContext();
 
 private:
+
+    SSLContext();
 
     SSLContextRep* _rep;
 

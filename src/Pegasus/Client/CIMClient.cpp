@@ -93,18 +93,15 @@ public:
 	_timeoutMilliseconds = timeoutMilliseconds;
     }
 
-    inline void connect(
+    void connect(
         const String& address,
         const String& userName = String::EMPTY,
         const String& password = String::EMPTY
-    )
-    {
-        connect(address, NULL, userName, password);
-    }
+    );
 
     void connect(
         const String& address,
-        SSLContext* sslContext,
+        const SSLContext& sslContext,
         const String& userName = String::EMPTY,
         const String& password = String::EMPTY
     );
@@ -279,9 +276,7 @@ public:
 
 private:
 
-    void _connect(
-        const String& address,
-        SSLContext* sslContext);
+    void _connect();
 
     void _reconnect();
 
@@ -316,7 +311,8 @@ CIMClientRep::CIMClientRep(Uint32 timeoutMilliseconds)
     _timeoutMilliseconds(timeoutMilliseconds),
     _connected(false),
     _responseDecoder(0),
-    _requestEncoder(0)
+    _requestEncoder(0),
+    _connectSSLContext(0)
 {
     //
     // Create Monitor and HTTPConnector
@@ -337,10 +333,7 @@ void CIMClientRep::handleEnqueue()
 
 }
 
-void CIMClientRep::_connect(
-    const String& address,
-    SSLContext* sslContext
-)
+void CIMClientRep::_connect()
 {
     //
     // Create response decoder:
@@ -353,8 +346,8 @@ void CIMClientRep::_connect(
     //
     try
     {
-	_httpConnection = _httpConnector->connect(address,
-                                                  sslContext,
+	_httpConnection = _httpConnector->connect(_connectAddress,
+                                                  _connectSSLContext,
                                                   _responseDecoder);
     }
     catch (CannotCreateSocketException& e)
@@ -387,21 +380,16 @@ void CIMClientRep::_connect(
     _responseDecoder->setEncoderQueue(_requestEncoder);
 
     _connected = true;
-
-    // Save the connection parameters in case we need to reconnect later
-    _connectAddress = address;
-    _connectSSLContext = sslContext;
 }
 
 void CIMClientRep::_reconnect()
 {
     disconnect();
-    _connect(_connectAddress, _connectSSLContext);
+    _connect();
 }
 
 void CIMClientRep::connect(
     const String& address,
-    SSLContext* sslContext,
     const String& userName,
     const String& password
 )
@@ -434,7 +422,61 @@ void CIMClientRep::connect(
         _authenticator.setPassword(password);
     }
 
-    _connect(address, sslContext);
+    _connectSSLContext = 0;
+    _connectAddress = address;
+
+    _connect();
+}
+
+
+void CIMClientRep::connect(
+    const String& address,
+    const SSLContext& sslContext,
+    const String& userName,
+    const String& password
+)
+{
+    //
+    // If already connected, bail out!
+    //
+    if (_connected)
+	throw AlreadyConnectedException();
+
+    //
+    // If the address is empty, reject it
+    //
+    if (address == String::EMPTY)
+	throw InvalidLocatorException(address);
+
+    //
+    // Set authentication information
+    //
+    _authenticator.clearRequest(true);
+    _authenticator.setAuthType(ClientAuthenticator::NONE);
+
+    if (userName.size())
+    {
+        _authenticator.setUserName(userName);
+    }
+
+    if (password.size())
+    {
+        _authenticator.setPassword(password);
+    }
+
+    _connectSSLContext = new SSLContext(sslContext);
+    _connectAddress = address;
+
+    try
+    {
+        _connect();
+    }
+    catch (Exception&)
+    {
+        delete _connectSSLContext;
+        _connectSSLContext = 0;
+        throw;
+    }
 }
 
 
@@ -446,8 +488,6 @@ void CIMClientRep::connectLocal()
     if (_connected)
 	throw AlreadyConnectedException();
 
-    String      address = String::EMPTY;
-
     //
     // Set authentication type
     //
@@ -455,10 +495,8 @@ void CIMClientRep::connectLocal()
     _authenticator.setAuthType(ClientAuthenticator::LOCAL);
 
 #ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
-    _connect(address, NULL);
+    _connect();
 #else
-
-    SSLContext  *sslContext;
 
     try
     {
@@ -472,13 +510,13 @@ void CIMClientRep::connectLocal()
         //
         // Build address string using local host name and port number
         //
-        address.assign(_getLocalHostName());
-        address.append(":");
-        address.append(port);
+        _connectAddress.assign(_getLocalHostName());
+        _connectAddress.append(":");
+        _connectAddress.append(port);
 
-        sslContext = NULL;
+        _connectSSLContext = 0;
 
-        _connect(address, sslContext);
+        _connect();
     }
     catch(CannotConnectException &e)
     {
@@ -492,9 +530,9 @@ void CIMClientRep::connectLocal()
         //
         // Build address string using local host name and port number
         //
-        address.assign(_getLocalHostName());
-        address.append(":");
-        address.append(port);
+        _connectAddress.assign(_getLocalHostName());
+        _connectAddress.append(":");
+        _connectAddress.append(port);
 
         //
         // Create SSLContext
@@ -514,7 +552,7 @@ void CIMClientRep::connectLocal()
 
         try
         {
-            sslContext =
+            _connectSSLContext =
                 new SSLContext(certpath, verifyServerCertificate, randFile, true);
         }
         catch (SSLException &se)
@@ -522,7 +560,16 @@ void CIMClientRep::connectLocal()
             throw se;
         }
 
-        _connect(address, sslContext);
+        try
+        {
+            _connect();
+        }
+        catch (Exception&)
+        {
+            delete _connectSSLContext;
+            _connectSSLContext = 0;
+            throw;
+        }
     }
 #endif
 }
@@ -560,8 +607,13 @@ void CIMClientRep::disconnect()
 
         _authenticator.clearRequest(true);
 
-        _connected = false;
+        if (_connectSSLContext)
+        {
+            delete _connectSSLContext;
+            _connectSSLContext = 0;
+        }
 
+        _connected = false;
     }
 }
 
@@ -1309,7 +1361,7 @@ void CIMClient::connect(
 
 void CIMClient::connect(
     const String& address,
-    SSLContext* sslContext,
+    const SSLContext& sslContext,
     const String& userName,
     const String& password
 )

@@ -282,6 +282,7 @@ CIMServer::CIMServer(
         certPath = configManager->getCurrentValue(
                                PROPERTY_NAME__SSLCERT_FILEPATH);
 
+        // ATTN-RK-20020905: Memory leak
         sslcontext = new SSLContext(certPath, verifyClientCertificate);
     }
     else

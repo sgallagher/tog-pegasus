@@ -1112,7 +1112,7 @@ int main(int argc, char** argv)
                             randFile = FileSystem::getAbsolutePath(
                                 pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
 #endif
-                            SSLContext* sslcontext = new SSLContext(
+                            SSLContext sslcontext(
                                 certpath, verifyCertificate, randFile, true);
 
                             cout << "connecting to " << connectionList[i] << " using SSL" << endl;

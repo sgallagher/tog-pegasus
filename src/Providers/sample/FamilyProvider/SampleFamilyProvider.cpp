@@ -792,37 +792,6 @@ void SampleFamilyProvider::deleteInstance(
 	handler.complete();
 }
 
-CIMInstance SampleFamilyProvider::findInstanceForPath(CIMObjectPath & path, String & host, CIMNamespaceName & nameSpace)
-{
-	CIMObjectPath localReference = CIMObjectPath(
-		String(),
-		String(),
-		path.getClassName(),
-		path.getKeyBindings());
-
-    CIMName myClass = path.getClassName();
-
-    if (myClass == CIMName("tst_persondynamic"))
-    {
-    	// instance index corresponds to reference index
-    	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
-    	{
-            CIMObjectPath newPath = _instances[i].buildPath(_referencedClass);
-    		CDEBUG("findInstanceForpath \n    newPath= " << newPath.toString() << " count " << i << "\n    localReference= " << localReference.toString() << "\n    orig path= " << path.toString() );
-            if(localReference.identical(newPath))
-    		{
-    			// deliver requested instance
-                CDEBUG("FindInstanceForPath returns Instance = " << i << " newPath= " << newPath.toString());
-                newPath.setHost(host);
-                newPath.setNameSpace(nameSpace);
-                _instances[i].setPath(newPath);
-                return(_instances[i]);
-    		}
-    	}
-    }
-    return(CIMInstance());
-
-}
 
 void SampleFamilyProvider::associators(
 	const OperationContext & context,
@@ -869,10 +838,27 @@ void SampleFamilyProvider::associators(
             for (Uint32 i = 0 ; i < resultPaths.size() ; i++)
             {
                 CDEBUG("resultPath found. = " << resultPaths[i].toString());
-                CIMInstance instance;
-                instance = SampleFamilyProvider::findInstanceForPath(resultPaths[i], host, nameSpace);
-                CDEBUG("Delivering Instance.");
-                handler.deliver(instance);
+                //CIMInstance instance;
+                //instance = SampleFamilyProvider::findInstanceForPath(resultPaths[i], host, nameSpace);
+                //CDEBUG("Delivering Instance.");
+                //handler.deliver(instance);
+
+                // instance index corresponds to reference index
+                for(Uint32 i = 0, n = _instances.size(); i < n; i++)
+                {
+                    CIMObjectPath newPath = _instances[i].buildPath(_referencedClass);
+                    CDEBUG("findInstanceForpath \n    newPath= " << newPath.toString() << " count " << i << "\n    localObjectName= " << localObjectName.toString());
+                    if(localObjectName.identical(newPath))
+                    {
+                        // deliver requested instance
+                        CDEBUG("FoundInstanceForPath returns Instance = " << i << " newPath= " << newPath.toString());
+                        newPath.setHost(host);
+                        newPath.setNameSpace(nameSpace);
+                        _instances[i].setPath(newPath);
+                        handler.deliver(_instances[i]);
+                    }
+                }
+
             }
         }
     }

@@ -94,11 +94,6 @@ public:
 		const CIMObjectPath & ref,
 		ResponseHandler & handler);
 
-    CIMInstance findInstanceForPath(
-        CIMObjectPath & path,
-        String & host,
-        CIMNamespaceName & nameSpace);
-
 	// CIMAssociationProvider interface
 	virtual void associators(
 		const OperationContext & context,

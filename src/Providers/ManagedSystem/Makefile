@@ -46,7 +46,8 @@ ifeq ($(OS),HPUX)
 	  NTPService \
 	  NTPService/tests \
 	  DNSService \
-	  DNSService/tests
+	  DNSService/tests \
+	  DNSService/tests/testclient
 endif
 
 include $(ROOT)/mak/recurse.mak

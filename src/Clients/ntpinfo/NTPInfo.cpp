@@ -103,8 +103,18 @@ void NTPInfo::displayProperties()
    cout << "  Create Class Name          : " << ntpCreationClassName << endl;
    cout << "  Caption                    : " << ntpCaption << endl;
    cout << "  Description                : " << ntpDescription << endl;
-   for (int i = 0; i <ntpServerAddress.size(); i++)
-      cout << "  Server Address[" << i << "]          : " << ntpServerAddress[i] << endl;
+   if (ntpServerAddress.size() == 0)
+   {
+      cout << "  No NTP Servers Configured" << endl;
+   }
+   else
+   {
+      for (int i = 0; i <ntpServerAddress.size(); i++)
+      {
+          cout << "  Server Address[" << i << "]          : " <<
+               ntpServerAddress[i] << endl;
+      }
+   }
 
 }
 

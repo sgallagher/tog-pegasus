@@ -73,10 +73,8 @@ static const String NTP_NAME("xntpd");
 //------------------------------------------------------------------------------
 NTPService::NTPService(void)
 {
-    // Retrieve NTP informations
-    if(!getNTPInfo())
-        throw CIMObjectNotFoundException("NTPService "
-            "can't create PG_NTPService instance");
+    // Retrieve NTP information
+    getNTPInfo();
 }
 
 //------------------------------------------------------------------------------

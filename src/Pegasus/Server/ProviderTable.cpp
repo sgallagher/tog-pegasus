@@ -27,6 +27,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <stdlib.h>
+#include <dlfcn.h>
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/System.h>
 #include "ProviderTable.h"
@@ -66,8 +67,18 @@ CIMProvider* ProviderTable::loadProvider(const String& providerId)
     DynamicLibraryHandle libraryHandle = 
 	System::loadDynamicLibrary(libraryName.getPointer());
 
-    if (!libraryHandle)
+    if (!libraryHandle) {
+#ifdef PEGASUS_OS_TYPE_WINDOWS
 	throw DynamicLoadFailed(libraryName.getPointer());
+#else
+        unixLibName = System::DynamicLoadError();
+        ArrayDestroyer<char> errorMsg = unixLibName.allocateCString();
+	throw DynamicLoadFailed(errorMsg.getPointer());
+#endif
+    }
+
+
+
 
     // Lookup the create provider symbol:
 

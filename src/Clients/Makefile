@@ -23,6 +23,7 @@ DIRS = \
     MCCATestClient \
     repupgrade  \
     repupgrade/SSPModules/SampleSSPModule \
+    SendTestIndications \
     repupgrade/tests
 
 ifndef PEGASUS_XML_ORDERING_DEFECT_ENCOUNTERED

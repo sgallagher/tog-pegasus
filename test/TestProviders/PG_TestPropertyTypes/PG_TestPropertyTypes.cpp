@@ -51,7 +51,6 @@ extern "C" PEGASUS_EXPORT CIMBaseProvider* PegasusCreateProvider(const String & 
 
 PG_TestPropertyTypes::PG_TestPropertyTypes(void)
 {
-cout << "PG_TestPropertyTypes:: PG_TestPropertyTypes" << endl;
 }
 
 PG_TestPropertyTypes::~PG_TestPropertyTypes(void)
@@ -217,7 +216,6 @@ void PG_TestPropertyTypes::enumerateInstanceNames(
 	// ensure the Namespace is valid
 	if (classReference.getNameSpace() != "test/static")
 	{
-		cout << "PG_TestPropertyTypes::enumerateInstanceNames failed" << endl;
 		throw CIMException(CIM_ERR_INVALID_NAMESPACE);
 	}
 
@@ -307,21 +305,15 @@ void PG_TestPropertyTypes::createInstance(
 	const CIMInstance & instanceObject,
 	ResponseHandler<CIMReference> & handler)
 {
-        cout << "PG_TestPropertyTypes::createInstance" << endl;
-        cout << "getNameSpace = " << instanceReference.getNameSpace() << endl;
 	// synchronously get references
 	Array<CIMReference> references = _enumerateInstanceNames(context, instanceReference);
 
 	// ensure the Namespace is valid
 
-        cout << "getNameSpace = " << instanceReference.getNameSpace() << endl;
 	if (instanceReference.getNameSpace() != "test/static")
 	{
-		cout << "PG_TestPropertyTypes::createInstance failed " << endl;
 		throw CIMException(CIM_ERR_INVALID_NAMESPACE);
 	}
-
-        cout << "after namespace tests" << endl;
 
 	// ensure the class existing in the specified namespace
 	if (instanceReference.getClassName() != "PG_TestPropertyTypes")

@@ -5,7 +5,6 @@ include $(ROOT)/mak/config.mak
 LIBRARIES = \
     pegclient \
     pegserver \
-    CertificateProvider \
     peguser \
     pegprm \
     CIMOMStatDataProvider \
@@ -29,6 +28,11 @@ LIBRARIES = \
     pegrepository \
     pegconfig \
     pegcommon 
+
+ifdef PEGASUS_HAS_SSL
+LIBRARIES += \
+    CertificateProvider 
+endif
 
 ifneq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
   ifneq ($(OS),HPUX)

@@ -877,7 +877,7 @@ void OSInfoCommand::getOSInfo(ostream& outPrintWriter,
         _connectToServer( client, outPrintWriter);
 
         Boolean deepInheritance = true;
-        Boolean localOnly = true;
+        Boolean localOnly = false;
         Boolean includeQualifiers = false;
         Boolean includeClassOrigin = false;
         Uint32 numberInstances;

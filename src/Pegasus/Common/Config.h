@@ -42,6 +42,8 @@
 # include <Pegasus/Common/Platform_HPUX_PARISC_ACC.h>
 #elif defined (PEGASUS_PLATFORM_TRU64_ALPHA_DECCXX)
 # include <Pegasus/Common/Platform_TRU64_ALPHA_DECCXX.h>
+#elif defined (PEGASUS_PLATFORM_SOLARIS_SPARC_GNU)
+# include <Pegasus/Common/Platform_SOLARIS_SPARC_GNU.h>
 #else
 # error "<Pegasus/Common/Config.h>: Unsupported Platform"
 #endif

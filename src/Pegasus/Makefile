@@ -91,7 +91,7 @@ DIRS += \
 	Security/Cimservera
 endif
 
-ifdef PEGASUS_HAS_PERFINST
+ifndef PEGASUS_DISABLE_PERFINST
 DIRS += \
 	ControlProviders/Statistic \
 	ControlProviders/Statistic/test \

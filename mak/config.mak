@@ -305,8 +305,8 @@ endif
 DEFINES += -DPEGASUS_USE_EXPERIMENTAL_INTERFACES
 
 # Set compile flag to control compilation of CIMOM statistics
-ifdef PEGASUS_HAS_PERFINST
-    FLAGS += -DPEGASUS_HAS_PERFINST
+ifdef PEGASUS_DISABLE_PERFINST
+    FLAGS += -DPEGASUS_DISABLE_PERFINST
 endif
 
 ############################################################

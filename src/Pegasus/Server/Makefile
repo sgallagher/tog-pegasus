@@ -61,7 +61,7 @@ LIBRARIES += \
 	DefaultProviderManager
 endif
 
-ifdef PEGASUS_HAS_PERFINST
+ifndef PEGASUS_DISABLE_PERFINST
 LIBRARIES += \
 	CIMOMStatDataProvider \
 	InteropProvider

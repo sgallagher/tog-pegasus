@@ -48,7 +48,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-#ifdef PEGASUS_HAS_PERFINST
+#ifndef PEGASUS_DISABLE_PERFINST
 
 #define STAT_GETSTARTTIME \
 CIMDateTime startTime = CIMDateTime::getCurrentDateTime();\

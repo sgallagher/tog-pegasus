@@ -13,7 +13,7 @@ include $(ROOT)/mak/configschema.mak
 ifdef PEGASUS_ENABLE_SLP
 	PEGASUS_BUILD_INTEROP=TRUE
 endif
-ifdef PEGASUS_HAS_PERFINST
+ifndef PEGASUS_DISABLE_PERFINST
 	PEGASUS_BUILD_INTEROP=TRUE
 endif
 # The following two variables determine the version of the Schema to

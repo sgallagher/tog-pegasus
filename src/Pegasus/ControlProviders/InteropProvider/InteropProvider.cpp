@@ -917,7 +917,7 @@ CIMInstance InteropProvider::_buildInstanceCIMObjectManager(
     // gathering function dynamically.  We simply get the correct value
     // and call the internal method to set it each time this object is
     // built.
-#ifdef PEGASUS_HAS_PERFINST
+#ifndef PEGASUS_DISABLE_PERFINST
     StatisticalData* sd = StatisticalData::current();
     sd->setCopyGSD(gatherStatDataFlag);
 #endif
@@ -1894,7 +1894,7 @@ void InteropProvider::modifyObjectManagerInstance(const OperationContext & conte
         // gathering function dynamically.  We simply get the  value from input
         // and call the internal method to set it each time this object is
         // built.
-#ifdef PEGASUS_HAS_PERFINST
+#ifndef PEGASUS_DISABLE_PERFINST
         StatisticalData* sd = StatisticalData::current();
         Boolean statisticsFlag = _getPropertyValue(modifiedIns, OM_GATHERSTATISTICALDATA, false);  
         sd->setCopyGSD(statisticsFlag);
@@ -2109,7 +2109,7 @@ void InteropProvider::associators(
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::associatorNames()");
-	throw CIMNotSupportedException("AssociationProvider::associators");
+	//throw CIMNotSupportedException("AssociationProvider::associators");
 }
 
 void InteropProvider::associatorNames(
@@ -2123,7 +2123,7 @@ void InteropProvider::associatorNames(
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::associatorNames()");
-	throw CIMNotSupportedException("AssociationProvider::associatorNames");
+	//throw CIMNotSupportedException("AssociationProvider::associatorNames");
 }
 
 void InteropProvider::references(
@@ -2138,7 +2138,7 @@ void InteropProvider::references(
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::references()");
-	throw CIMNotSupportedException("AssociationProvider::references");
+	//throw CIMNotSupportedException("AssociationProvider::references");
 }
 
 void _filterAssocInstances(Array<CIMInstance>& instances,

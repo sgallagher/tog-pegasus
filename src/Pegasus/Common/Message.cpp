@@ -229,7 +229,7 @@ const char* MessageTypeToString(Uint32 messageType)
     return "Unknown message type";
 }
 
-#ifdef PEGASUS_HAS_PERFINST
+#ifndef PEGASUS_DISABLE_PERFINST
 void Message::startServer()
 {
     _timeServerStart = CIMDateTime::getCurrentDateTime();

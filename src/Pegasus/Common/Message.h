@@ -187,7 +187,7 @@ class PEGASUS_COMMON_LINKAGE Message
 
       void setHttpMethod(HttpMethod httpMethod) {_httpMethod = httpMethod;}
 
-#ifdef PEGASUS_HAS_PERFINST
+#ifndef PEGASUS_DISABLE_PERFINST
 //
 // Needed for performance measurement
 //

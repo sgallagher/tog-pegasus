@@ -56,7 +56,7 @@ DIRS = \
     OperationContext \
 	ObjectNormalizer
 
-ifdef PEGASUS_HAS_PERFINST
+ifndef PEGASUS_DISABLE_PERFINST
 DIRS += \
 	StatisticalData
 endif

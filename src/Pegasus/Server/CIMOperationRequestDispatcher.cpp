@@ -583,7 +583,7 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
 #endif
 
 
-#ifdef PEGASUS_HAS_PERFINST
+#ifndef PEGASUS_DISABLE_PERFINST
 	 _routing_table.insert_record(PEGASUS_CLASSNAME_CIMOMSTATDATA,
 							PEGASUS_NAMESPACENAME_CIMOMSTATDATA,
 							DynamicRoutingTable::INTERNAL,
@@ -605,7 +605,7 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
                                       PEGASUS_QUEUENAME_CONTROLSERVICE);
 #endif
 
-#if defined(PEGASUS_HAS_PERFINST) || defined(PEGASUS_ENABLE_SLP)
+#if !defined(PEGASUS_DISABLE_PERFINST) || defined(PEGASUS_ENABLE_SLP)
 	 // Interop Class, InteropProvider ObjectManager Class
 	 _routing_table.insert_record(PEGASUS_CLASSNAME_OBJECTMANAGER,
 					  _wild,

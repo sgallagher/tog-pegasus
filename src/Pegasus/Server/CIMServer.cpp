@@ -94,7 +94,7 @@
 #include <Pegasus/ControlProviders/ProviderRegistrationProvider/ProviderRegistrationProvider.h>
 #include <Pegasus/ControlProviders/NamespaceProvider/NamespaceProvider.h>
 
-#ifdef PEGASUS_HAS_PERFINST
+#ifndef PEGASUS_DISABLE_PERFINST
 #include <Pegasus/ControlProviders/Statistic/CIMOMStatDataProvider.h>
 #endif
 
@@ -106,7 +106,7 @@
 #include <Pegasus/ControlProviders/QueryCapabilitiesProvider/CIMQueryCapabilitiesProvider.h>
 #endif
 
-#if defined(PEGASUS_HAS_PERFINST) ||  defined(PEGASUS_ENABLE_SLP)
+#if !defined(PEGASUS_DISABLE_PERFINST) ||  defined(PEGASUS_ENABLE_SLP)
 #include <Pegasus/ControlProviders/InteropProvider/InteropProvider.h>
 #endif
 
@@ -309,8 +309,7 @@ void CIMServer::_init(void)
 										  0, 0);
 #endif
 
-#ifdef PEGASUS_HAS_PERFINST
-                                                                                
+#ifndef PEGASUS_DISABLE_PERFINST
    // Create the Statistical Data control provider
      ProviderMessageFacade * cimomstatdataProvider =
          new ProviderMessageFacade(new CIMOMStatDataProvider());
@@ -333,7 +332,7 @@ void CIMServer::_init(void)
 #endif
 
 
-#if defined(PEGASUS_HAS_PERFINST) ||  defined(PEGASUS_ENABLE_SLP)
+#if !defined(PEGASUS_DISABLE_PERFINST) ||  defined(PEGASUS_ENABLE_SLP)
 
 // Create the interop control provider
      ProviderMessageFacade * interopProvider =

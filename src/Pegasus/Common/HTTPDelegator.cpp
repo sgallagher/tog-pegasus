@@ -122,7 +122,9 @@ void HTTPDelegator::handleHTTPMessage(HTTPMessage* httpMessage)
 	    // ATTN: error discarded at this time!
 	    return;
 	}
+
     }
+    // ATTN: Add the else here for Post, etc.  Also go to OPTIONS here.
 }
 
 const char* HTTPDelegator::getQueueName() const

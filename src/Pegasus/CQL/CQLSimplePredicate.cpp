@@ -28,7 +28,8 @@
 //          Chuck Carmack (carmack@us.ibm.com)
 //          Brian Lucier (lucier@us.ibm.com) 
 //
-// Modified By:
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -50,7 +51,7 @@ CQLSimplePredicate::CQLSimplePredicate(const CQLExpression& inExpression)
 }
 
 CQLSimplePredicate::CQLSimplePredicate(const CQLExpression& inExpression, 
-				       const ExpressionOpType inOperator)
+				       ExpressionOpType inOperator)
 {
 	_rep = new CQLSimplePredicateRep(inExpression,inOperator);
 }

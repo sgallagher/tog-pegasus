@@ -41,6 +41,7 @@
 #include <Pegasus/Common/DeclContext.h>
 #include <Pegasus/Common/DeclContext.h>
 #include <Pegasus/Common/System.h>
+#include <Pegasus/Common/Tracer.h>
 #include "CIMRepository.h"
 #include "RepositoryDeclContext.h"
 #include "InstanceIndexFile.h"
@@ -284,9 +285,11 @@ CIMInstance CIMRepository::getInstance(
     Uint32 index;
     Uint32 size;
 
+    PEG_METHOD_ENTER(TRC_REPOSITORY,"CIMRepository::getInstance");
 
     if (!_getInstanceIndex(nameSpace, instanceName, className, size, index))
     {
+	PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, instanceName.toString());
     }
 
@@ -296,9 +299,11 @@ CIMInstance CIMRepository::getInstance(
     CIMInstance cimInstance;
     if (!_loadInstance(path, cimInstance, index, size))
     {
+	PEG_METHOD_EXIT();
         throw CannotOpenFile(path);
     }
 
+    PEG_METHOD_EXIT();
     return cimInstance;
 }
 
@@ -339,6 +344,7 @@ void CIMRepository::deleteInstance(
     const String& nameSpace,
     const CIMReference& instanceName)
 {
+   PEG_METHOD_ENTER(TRC_REPOSITORY,"CIMRepository::deleteInstance");
 
     String errMessage;
 
@@ -351,7 +357,10 @@ void CIMRepository::deleteInstance(
     Uint32 size;
 
     if (!InstanceIndexFile::lookup(indexFilePath, instanceName, size, index))
+    {
+        PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, instanceName.toString());
+    }
 
     // -- Remove entry from index file:
 
@@ -359,6 +368,7 @@ void CIMRepository::deleteInstance(
     {
         errMessage.append("Failed to delete instance ");
         errMessage.append(instanceName.toString());
+        PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, errMessage);
     }
 
@@ -371,6 +381,7 @@ void CIMRepository::deleteInstance(
     {
         errMessage.append("Failed to delete instance ");
         errMessage.append(instanceName.toString());
+        PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, errMessage);
     }
 
@@ -380,6 +391,7 @@ void CIMRepository::deleteInstance(
     {
         errMessage.append("Unexpected error occurred while deleting instance ");
         errMessage.append(instanceName.toString());
+        PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, errMessage);
     }
 
@@ -391,6 +403,8 @@ void CIMRepository::deleteInstance(
 
     if (FileSystem::exists(assocFileName))
         AssocInstTable::deleteAssociation(assocFileName, instanceName);
+
+    PEG_METHOD_EXIT();
 }
 
 void CIMRepository::_createAssocClassEntries(
@@ -578,6 +592,7 @@ CIMReference CIMRepository::createInstance(
     const String& nameSpace,
     const CIMInstance& newInstance)
 {
+   PEG_METHOD_ENTER(TRC_REPOSITORY,"CIMRepository::createInstance");
 
     String errMessage;
 
@@ -595,6 +610,7 @@ CIMReference CIMRepository::createInstance(
     {
         errMessage = "class has no keys: ";
         errMessage += cimClass.getClassName();
+        PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, errMessage);
     }
 
@@ -607,6 +623,7 @@ CIMReference CIMRepository::createInstance(
     if (_getInstanceIndex(nameSpace, instanceName, className, dummySize, 
         dummyIndex, true))
     {
+        PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ALREADY_EXISTS, 
             instanceName.toString());
     }
@@ -632,6 +649,7 @@ CIMReference CIMRepository::createInstance(
     {
         errMessage.append("Failed to create instance ");
         errMessage.append(instanceName.toString());
+        PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, errMessage);
     }
 
@@ -644,6 +662,7 @@ CIMReference CIMRepository::createInstance(
     {
         errMessage.append("Failed to create instance ");
         errMessage.append(instanceName.toString());
+        PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, errMessage);
     }
 
@@ -653,8 +672,10 @@ CIMReference CIMRepository::createInstance(
     {
         errMessage.append("Unexpected error occurred while creating instance ");
         errMessage.append(instanceName.toString());
+        PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, errMessage);
     }
+    PEG_METHOD_EXIT();
     return (instanceName);
 }
 
@@ -1026,8 +1047,7 @@ Array<CIMReference> CIMRepository::enumerateInstanceNames(
     const String& nameSpace,
     const String& className)
 {
-
-
+   PEG_METHOD_ENTER(TRC_REPOSITORY,"CIMRepository::enumerateInstanceNames");
 
     // -- Get all descendent classes of this class:
 
@@ -1054,12 +1074,13 @@ Array<CIMReference> CIMRepository::enumerateInstanceNames(
         {
             String errMessage = "Failed to load instance names in class ";
             errMessage.append(classNames[i]);
+            PEG_METHOD_EXIT();
             throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, errMessage);
         }
         PEGASUS_ASSERT(instanceNames.size() == indices.size());
         PEGASUS_ASSERT(instanceNames.size() == sizes.size());
     }
-
+    PEG_METHOD_EXIT();
     return instanceNames;
 }
 

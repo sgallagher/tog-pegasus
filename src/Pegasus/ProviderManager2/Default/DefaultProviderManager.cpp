@@ -29,7 +29,7 @@
 //                  (carolann_graves@hp.com)
 //              Mike Day, IBM (mdday@us.ibm.com)
 //              Karl Schopmeyer(k.schopmeyer@opengroup.org) - Fix associators.
-//		        Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+//                      Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -94,7 +94,7 @@ DefaultProviderManager::~DefaultProviderManager(void)
 {
 }
 
-Message * DefaultProviderManager::processMessage(Message * request, ProviderName providerName)
+Message * DefaultProviderManager::processMessage(Message * request)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "DefaultProviderManager::processMessage()");
@@ -105,103 +105,103 @@ Message * DefaultProviderManager::processMessage(Message * request, ProviderName
     switch(request->getType())
     {
     case CIM_GET_INSTANCE_REQUEST_MESSAGE:
-        response = handleGetInstanceRequest(request, providerName);
+        response = handleGetInstanceRequest(request);
 
         break;
     case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
-        response = handleEnumerateInstancesRequest(request, providerName);
+        response = handleEnumerateInstancesRequest(request);
 
         break;
     case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE:
-        response = handleEnumerateInstanceNamesRequest(request, providerName);
+        response = handleEnumerateInstanceNamesRequest(request);
 
         break;
     case CIM_CREATE_INSTANCE_REQUEST_MESSAGE:
-        response = handleCreateInstanceRequest(request, providerName);
+        response = handleCreateInstanceRequest(request);
 
         break;
     case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
-        response = handleModifyInstanceRequest(request, providerName);
+        response = handleModifyInstanceRequest(request);
 
         break;
     case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
-        response = handleDeleteInstanceRequest(request, providerName);
+        response = handleDeleteInstanceRequest(request);
 
         break;
     case CIM_EXEC_QUERY_REQUEST_MESSAGE:
-        response = handleExecQueryRequest(request, providerName);
+        response = handleExecQueryRequest(request);
 
         break;
     case CIM_ASSOCIATORS_REQUEST_MESSAGE:
-        response = handleAssociatorsRequest(request, providerName);
+        response = handleAssociatorsRequest(request);
 
         break;
     case CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE:
-        response = handleAssociatorNamesRequest(request, providerName);
+        response = handleAssociatorNamesRequest(request);
 
         break;
     case CIM_REFERENCES_REQUEST_MESSAGE:
-        response = handleReferencesRequest(request, providerName);
+        response = handleReferencesRequest(request);
 
         break;
     case CIM_REFERENCE_NAMES_REQUEST_MESSAGE:
-        response = handleReferenceNamesRequest(request, providerName);
+        response = handleReferenceNamesRequest(request);
 
         break;
     case CIM_GET_PROPERTY_REQUEST_MESSAGE:
-        response = handleGetPropertyRequest(request, providerName);
+        response = handleGetPropertyRequest(request);
 
         break;
     case CIM_SET_PROPERTY_REQUEST_MESSAGE:
-        response = handleSetPropertyRequest(request, providerName);
+        response = handleSetPropertyRequest(request);
 
         break;
     case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
-        response = handleInvokeMethodRequest(request, providerName);
+        response = handleInvokeMethodRequest(request);
 
         break;
     case CIM_CREATE_SUBSCRIPTION_REQUEST_MESSAGE:
-        response = handleCreateSubscriptionRequest(request, providerName);
+        response = handleCreateSubscriptionRequest(request);
 
         break;
     case CIM_MODIFY_SUBSCRIPTION_REQUEST_MESSAGE:
-        response = handleModifySubscriptionRequest(request, providerName);
+        response = handleModifySubscriptionRequest(request);
 
         break;
     case CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE:
-        response = handleDeleteSubscriptionRequest(request, providerName);
+        response = handleDeleteSubscriptionRequest(request);
 
         break;
     case CIM_ENABLE_INDICATIONS_REQUEST_MESSAGE:
-        response = handleEnableIndicationsRequest(request, providerName);
+        response = handleEnableIndicationsRequest(request);
 
         break;
     case CIM_DISABLE_INDICATIONS_REQUEST_MESSAGE:
-        response = handleDisableIndicationsRequest(request, providerName);
+        response = handleDisableIndicationsRequest(request);
 
         break;
     case CIM_CONSUME_INDICATION_REQUEST_MESSAGE:
-        response = handleConsumeIndicationRequest(request, providerName);
+        response = handleConsumeIndicationRequest(request);
         break;
 
     case CIM_EXPORT_INDICATION_REQUEST_MESSAGE:
-        response = handleExportIndicationRequest(request, providerName);
+        response = handleExportIndicationRequest(request);
         break;
 
     case CIM_DISABLE_MODULE_REQUEST_MESSAGE:
-        response = handleDisableModuleRequest(request, providerName);
+        response = handleDisableModuleRequest(request);
 
         break;
     case CIM_ENABLE_MODULE_REQUEST_MESSAGE:
-        response = handleEnableModuleRequest(request, providerName);
+        response = handleEnableModuleRequest(request);
 
         break;
     case CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE:
-        response = handleStopAllProvidersRequest(request, providerName);
+        response = handleStopAllProvidersRequest(request);
 
         break;
     default:
-        response = handleUnsupportedRequest(request, providerName);
+        response = handleUnsupportedRequest(request);
 
         break;
     }
@@ -211,7 +211,7 @@ Message * DefaultProviderManager::processMessage(Message * request, ProviderName
     return(response);
 }
 
-Message * DefaultProviderManager::handleUnsupportedRequest(const Message * message, const ProviderName providerName)
+Message * DefaultProviderManager::handleUnsupportedRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleUnsupportedRequest");
 
@@ -221,7 +221,7 @@ Message * DefaultProviderManager::handleUnsupportedRequest(const Message * messa
     return(0);
 }
 
-Message * DefaultProviderManager::handleGetInstanceRequest(const Message * message, const ProviderName providerName)
+Message * DefaultProviderManager::handleGetInstanceRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleGetInstanceRequest");
 
@@ -268,7 +268,7 @@ Message * DefaultProviderManager::handleGetInstanceRequest(const Message * messa
             ProviderType::INSTANCE);
 
         // resolve provider name
-        name = _resolveProviderName(providerName);
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -329,7 +329,7 @@ Message * DefaultProviderManager::handleGetInstanceRequest(const Message * messa
     return(response);
 }
 
-Message * DefaultProviderManager::handleEnumerateInstancesRequest(const Message * message, const ProviderName providerName)
+Message * DefaultProviderManager::handleEnumerateInstancesRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleEnumerateInstanceRequest");
 
@@ -375,11 +375,11 @@ Message * DefaultProviderManager::handleEnumerateInstancesRequest(const Message 
             ProviderType::INSTANCE);
 
         // resolve provider name
-        name = _resolveProviderName(providerName);
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         OpProviderHolder ph = providerManager.getProvider(name.getPhysicalName(),
-	        name.getLogicalName(), String::EMPTY);
+                name.getLogicalName(), String::EMPTY);
 
         // convert arguments
         OperationContext context;
@@ -436,7 +436,7 @@ Message * DefaultProviderManager::handleEnumerateInstancesRequest(const Message 
     return(response);
 }
 
-Message * DefaultProviderManager::handleEnumerateInstanceNamesRequest(const Message * message, const ProviderName providerName)
+Message * DefaultProviderManager::handleEnumerateInstanceNamesRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleEnumerateInstanceNamesRequest");
 
@@ -484,7 +484,7 @@ Message * DefaultProviderManager::handleEnumerateInstanceNamesRequest(const Mess
             ProviderType::INSTANCE);
 
         // resolve provider name
-        name = _resolveProviderName(providerName);
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -540,7 +540,7 @@ Message * DefaultProviderManager::handleEnumerateInstanceNamesRequest(const Mess
     return(response);
 }
 
-Message * DefaultProviderManager::handleCreateInstanceRequest(const Message * message, const ProviderName providerName)
+Message * DefaultProviderManager::handleCreateInstanceRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleCreateInstanceRequest");
 
@@ -588,7 +588,7 @@ Message * DefaultProviderManager::handleCreateInstanceRequest(const Message * me
             ProviderType::INSTANCE);
 
         // resolve provider name
-        name = _resolveProviderName(providerName);
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -645,7 +645,7 @@ Message * DefaultProviderManager::handleCreateInstanceRequest(const Message * me
     return(response);
 }
 
-Message * DefaultProviderManager::handleModifyInstanceRequest(const Message * message, const ProviderName providerName)
+Message * DefaultProviderManager::handleModifyInstanceRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleModifyInstanceRequest");
 
@@ -692,7 +692,7 @@ Message * DefaultProviderManager::handleModifyInstanceRequest(const Message * me
             ProviderType::INSTANCE);
 
         // resolve provider name
-        name = _resolveProviderName(providerName);
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -753,7 +753,7 @@ Message * DefaultProviderManager::handleModifyInstanceRequest(const Message * me
     return(response);
 }
 
-Message * DefaultProviderManager::handleDeleteInstanceRequest(const Message * message, const ProviderName providerName)
+Message * DefaultProviderManager::handleDeleteInstanceRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleDeleteInstanceRequest");
 
@@ -800,7 +800,7 @@ Message * DefaultProviderManager::handleDeleteInstanceRequest(const Message * me
             ProviderType::INSTANCE);
 
         // resolve provider name
-        name = _resolveProviderName(providerName);
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -856,7 +856,7 @@ Message * DefaultProviderManager::handleDeleteInstanceRequest(const Message * me
     return(response);
 }
 
-Message * DefaultProviderManager::handleExecQueryRequest(const Message * message, const ProviderName providerName)
+Message * DefaultProviderManager::handleExecQueryRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleExecQueryRequest");
 
@@ -902,18 +902,18 @@ Message * DefaultProviderManager::handleExecQueryRequest(const Message * message
             ProviderType::QUERY);
 
         // resolve provider name
-        name = _resolveProviderName(providerName);
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         OpProviderHolder ph =
             providerManager.getProvider(name.getPhysicalName(),
-	                                name.getLogicalName(), String::EMPTY);
+                                        name.getLogicalName(), String::EMPTY);
 
         if (dynamic_cast<CIMInstanceQueryProvider*>(ph.GetCIMProvider()) == 0) {
            String errorString = " instance provider is registered supporting execQuery "
-	                        "but is not a CIMQueryInstanceProvider subclass.";
+                                "but is not a CIMQueryInstanceProvider subclass.";
            throw CIMException(CIM_ERR_FAILED,"ProviderLoadFailure (" + name.getPhysicalName() + ":" +
-	                    name.getLogicalName() + "):" + errorString);
+                            name.getLogicalName() + "):" + errorString);
         }
 
         // convert arguments
@@ -952,7 +952,7 @@ Message * DefaultProviderManager::handleExecQueryRequest(const Message * message
     }
     catch(Exception & e)
     {
-	   cout<<"--- exception not a CIMInstanceQueryProvider"<<endl;
+           cout<<"--- exception not a CIMInstanceQueryProvider"<<endl;
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Exception: " + e.getMessage());
 
@@ -971,7 +971,7 @@ Message * DefaultProviderManager::handleExecQueryRequest(const Message * message
     return(response);
 }
 
-Message * DefaultProviderManager::handleAssociatorsRequest(const Message * message, const ProviderName providerName)
+Message * DefaultProviderManager::handleAssociatorsRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleAssociatorsRequest");
 
@@ -1022,7 +1022,7 @@ Message * DefaultProviderManager::handleAssociatorsRequest(const Message * messa
             ProviderType::ASSOCIATION);
 
         // resolve provider name
-        name = _resolveProviderName(providerName);
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -1079,7 +1079,7 @@ Message * DefaultProviderManager::handleAssociatorsRequest(const Message * messa
     return(response);
 }
 
-Message * DefaultProviderManager::handleAssociatorNamesRequest(const Message * message, const ProviderName providerName)
+Message * DefaultProviderManager::handleAssociatorNamesRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleAssociatorNamesRequest");
 
@@ -1133,7 +1133,7 @@ Message * DefaultProviderManager::handleAssociatorNamesRequest(const Message * m
             ProviderType::ASSOCIATION);
 
         // resolve provider name
-        name = _resolveProviderName(providerName);
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -1186,7 +1186,7 @@ Message * DefaultProviderManager::handleAssociatorNamesRequest(const Message * m
     return(response);
 }
 
-Message * DefaultProviderManager::handleReferencesRequest(const Message * message, const ProviderName providerName)
+Message * DefaultProviderManager::handleReferencesRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleReferencesRequest");
 
@@ -1240,7 +1240,7 @@ Message * DefaultProviderManager::handleReferencesRequest(const Message * messag
             ProviderType::ASSOCIATION);
 
         // resolve provider name
-        name = _resolveProviderName(providerName);
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -1300,7 +1300,7 @@ Message * DefaultProviderManager::handleReferencesRequest(const Message * messag
     return(response);
 }
 
-Message * DefaultProviderManager::handleReferenceNamesRequest(const Message * message, const ProviderName providerName)
+Message * DefaultProviderManager::handleReferenceNamesRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleReferenceNamesRequest");
 
@@ -1352,7 +1352,7 @@ Message * DefaultProviderManager::handleReferenceNamesRequest(const Message * me
             ProviderType::ASSOCIATION);
 
         // resolve provider name
-        name = _resolveProviderName(providerName);
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -1409,7 +1409,7 @@ Message * DefaultProviderManager::handleReferenceNamesRequest(const Message * me
     return(response);
 }
 
-Message * DefaultProviderManager::handleGetPropertyRequest(const Message * message, const ProviderName providerName)
+Message * DefaultProviderManager::handleGetPropertyRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleGetPropertyRequest");
 
@@ -1456,7 +1456,7 @@ Message * DefaultProviderManager::handleGetPropertyRequest(const Message * messa
             0);
 
         // resolve provider name
-        name = _resolveProviderName(providerName);
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -1515,7 +1515,7 @@ Message * DefaultProviderManager::handleGetPropertyRequest(const Message * messa
     return(response);
 }
 
-Message * DefaultProviderManager::handleSetPropertyRequest(const Message * message, const ProviderName providerName)
+Message * DefaultProviderManager::handleSetPropertyRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleSetPropertyRequest");
 
@@ -1564,7 +1564,7 @@ Message * DefaultProviderManager::handleSetPropertyRequest(const Message * messa
             0);
 
         // resolve provider name
-        name = _resolveProviderName(providerName);
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -1625,7 +1625,7 @@ Message * DefaultProviderManager::handleSetPropertyRequest(const Message * messa
     return(response);
 }
 
-Message * DefaultProviderManager::handleInvokeMethodRequest(const Message * message, const ProviderName providerName)
+Message * DefaultProviderManager::handleInvokeMethodRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleInvokeMethodRequest");
 
@@ -1676,7 +1676,7 @@ Message * DefaultProviderManager::handleInvokeMethodRequest(const Message * mess
             request->methodName);
 
         // resolve provider name
-        name = _resolveProviderName(providerName);
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -1739,7 +1739,7 @@ Message * DefaultProviderManager::handleInvokeMethodRequest(const Message * mess
     return(response);
 }
 
-Message * DefaultProviderManager::handleCreateSubscriptionRequest(const Message * message, const ProviderName providerName)
+Message * DefaultProviderManager::handleCreateSubscriptionRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleCreateSubscriptionRequest");
 
@@ -1799,7 +1799,7 @@ Message * DefaultProviderManager::handleCreateSubscriptionRequest(const Message 
         // get cached or load new provider module
         OpProviderHolder ph =
             providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
-        
+
         // convert arguments
         OperationContext context;
 
@@ -1871,7 +1871,7 @@ Message * DefaultProviderManager::handleCreateSubscriptionRequest(const Message 
     return(response);
 }
 
-Message * DefaultProviderManager::handleModifySubscriptionRequest( const Message * message, const ProviderName providerName)
+Message * DefaultProviderManager::handleModifySubscriptionRequest( const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleModifySubscriptionRequest");
 
@@ -1931,7 +1931,7 @@ Message * DefaultProviderManager::handleModifySubscriptionRequest( const Message
         // get cached or load new provider module
         OpProviderHolder ph =
             providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
-        
+
         // convert arguments
         OperationContext context;
 
@@ -2003,7 +2003,7 @@ Message * DefaultProviderManager::handleModifySubscriptionRequest( const Message
     return(response);
 }
 
-Message * DefaultProviderManager::handleDeleteSubscriptionRequest(const Message * message, const ProviderName providerName)
+Message * DefaultProviderManager::handleDeleteSubscriptionRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleDeleteSubscriptionRequest");
 
@@ -2063,7 +2063,7 @@ Message * DefaultProviderManager::handleDeleteSubscriptionRequest(const Message 
         // get cached or load new provider module
         OpProviderHolder ph =
             providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
-        
+
         // convert arguments
         OperationContext context;
 
@@ -2127,7 +2127,7 @@ Message * DefaultProviderManager::handleDeleteSubscriptionRequest(const Message 
     return(response);
 }
 
-Message * DefaultProviderManager::handleEnableIndicationsRequest(const Message * message, const ProviderName providerName)
+Message * DefaultProviderManager::handleEnableIndicationsRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager:: handleEnableIndicationsRequest");
 
@@ -2167,12 +2167,12 @@ Message * DefaultProviderManager::handleEnableIndicationsRequest(const Message *
     {
        String physicalName=_resolvePhysicalName(
           request->providerModule.getProperty(
-	      request->providerModule.findProperty("Location")).getValue().toString());
+              request->providerModule.findProperty("Location")).getValue().toString());
 
        ProviderName name(
                request->provider.getProperty(request->provider.findProperty
                    ("Name")).getValue ().toString (),
-	       physicalName,
+               physicalName,
                request->providerModule.getProperty(request->providerModule.findProperty
                     ("InterfaceType")).getValue().toString(),
                0);
@@ -2227,7 +2227,7 @@ Message * DefaultProviderManager::handleEnableIndicationsRequest(const Message *
     return(response);
 }
 
-Message * DefaultProviderManager::handleDisableIndicationsRequest(const Message * message, const ProviderName providerName)
+Message * DefaultProviderManager::handleDisableIndicationsRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleDisableIndicationsRequest");
 
@@ -2254,12 +2254,12 @@ Message * DefaultProviderManager::handleDisableIndicationsRequest(const Message 
     {
        String physicalName=_resolvePhysicalName(
               request->providerModule.getProperty(
-	         request->providerModule.findProperty("Location")).getValue().toString());
+                 request->providerModule.findProperty("Location")).getValue().toString());
 
        ProviderName name(
                request->provider.getProperty(request->provider.findProperty
                    ("Name")).getValue ().toString (),
-	       physicalName,
+               physicalName,
                request->providerModule.getProperty(request->providerModule.findProperty
                     ("InterfaceType")).getValue().toString(),
             0);
@@ -2312,7 +2312,7 @@ Message * DefaultProviderManager::handleDisableIndicationsRequest(const Message 
     return(response);
 }
 
-Message * DefaultProviderManager::handleConsumeIndicationRequest(const Message *message, const ProviderName providerName)
+Message * DefaultProviderManager::handleConsumeIndicationRequest(const Message *message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handlConsumeIndicationRequest");
 
@@ -2345,7 +2345,7 @@ Message * DefaultProviderManager::handleConsumeIndicationRequest(const Message *
             String::EMPTY,
             0);
 
-        /* 
+        /*
         ProviderName name(
             String::EMPTY,
             String::EMPTY,
@@ -2415,7 +2415,7 @@ Message * DefaultProviderManager::handleConsumeIndicationRequest(const Message *
 }
 
 
-Message *DefaultProviderManager::handleExportIndicationRequest(const Message *message, const ProviderName providerName)
+Message *DefaultProviderManager::handleExportIndicationRequest(const Message *message)
 {
    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManagerService::handlExportIndicationRequest");
 
@@ -2456,8 +2456,8 @@ Message *DefaultProviderManager::handleExportIndicationRequest(const Message *me
             providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-		       "Calling provider.: " +
-		       ph.GetProvider().getName());
+                       "Calling provider.: " +
+                       ph.GetProvider().getName());
 
         OperationContext context;
 
@@ -2474,8 +2474,8 @@ Message *DefaultProviderManager::handleExportIndicationRequest(const Message *me
       pm_service_op_lock op_lock(&ph.GetProvider());
 
       ph.GetProvider().consumeIndication(context,
-				request->destinationPath,
-				indication_copy);
+                                request->destinationPath,
+                                indication_copy);
 
     }
 
@@ -2518,7 +2518,7 @@ Message *DefaultProviderManager::handleExportIndicationRequest(const Message *me
 //
 // ATTN-YZ-P2-20030519: Provider needs to be blocked when disable a provider.
 //
-Message * DefaultProviderManager::handleDisableModuleRequest(const Message * message, const ProviderName providerName)
+Message * DefaultProviderManager::handleDisableModuleRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleDisableModuleRequest");
 
@@ -2526,13 +2526,13 @@ Message * DefaultProviderManager::handleDisableModuleRequest(const Message * mes
         dynamic_cast<CIMDisableModuleRequestMessage *>(const_cast<Message *>(message));
 
     PEGASUS_ASSERT(request != 0);
-        
+
     Array<Uint16> operationalStatus;
     Boolean disableProviderOnly = request->disableProviderOnly;
     CIMException cimException;
 
     ProviderRegistrationManager * _providerRegistrationManager = GetProviderRegistrationManager();
-     
+
     try
     {
         // get provider module name
@@ -2542,7 +2542,7 @@ Message * DefaultProviderManager::handleDisableModuleRequest(const Message * mes
 
         if(pos != PEG_NOT_FOUND)
         {
-        	mInstance.getProperty(pos).getValue().get(moduleName);
+                mInstance.getProperty(pos).getValue().get(moduleName);
         }
 
         Boolean disableProviderOnly = request->disableProviderOnly;
@@ -2591,11 +2591,11 @@ Message * DefaultProviderManager::handleDisableModuleRequest(const Message * mes
         // Unload providers
         Array<CIMInstance> _pInstances = request->providers;
         Array<Boolean> _indicationProviders = request->indicationProviders;
-        
+
         String physicalName=_resolvePhysicalName(
            mInstance.getProperty(
               mInstance.findProperty("Location")).getValue().toString());
-           
+
         for(Uint32 i = 0, n = _pInstances.size(); i < n; i++)
         {
             String pName(_pInstances[i].getProperty(
@@ -2606,17 +2606,17 @@ Message * DefaultProviderManager::handleDisableModuleRequest(const Message * mes
             if (ret_value == 0)
             {
                 // disable failed since there are pending requests,
-                // update module status from Stopping to OK if 
+                // update module status from Stopping to OK if
                 // disableProviderOnly is not true
                 if (!disableProviderOnly)
                 {
-            	    for(Uint32 j=0, m = operationalStatus.size(); j < m; j++)
-            	    {
+                    for(Uint32 j=0, m = operationalStatus.size(); j < m; j++)
+                    {
                         if (operationalStatus[j] == _MODULE_STOPPING)
                         {
                             operationalStatus.remove(j);
                         }
-		    }
+                    }
 
                     operationalStatus.append(_MODULE_OK);
 
@@ -2631,31 +2631,31 @@ Message * DefaultProviderManager::handleDisableModuleRequest(const Message * mes
                                 "set module status failed."));
                     }
                 }
-	    }
-	    else if (ret_value == 1)
-	    {
+            }
+            else if (ret_value == 1)
+            {
                 // if It is an indication provider
-                // remove the entry from the table since the 
+                // remove the entry from the table since the
                 // provider has been disabled
                 if (_indicationProviders[i])
-		{
+                {
                     _removeEntry(_generateKey(pName,physicalName));
-		}
-	    }
+                }
+            }
             else
             {
-		// disable failed for other reason, throw exception
-                // update module status from Stopping to OK if 
-		// disableProviderOnly is not true
+                // disable failed for other reason, throw exception
+                // update module status from Stopping to OK if
+                // disableProviderOnly is not true
                 if (!disableProviderOnly)
                 {
-            	    for(Uint32 j=0, m = operationalStatus.size(); j < m; j++)
-            	    {
+                    for(Uint32 j=0, m = operationalStatus.size(); j < m; j++)
+                    {
                         if (operationalStatus[j] == _MODULE_STOPPING)
                         {
                             operationalStatus.remove(j);
                         }
-		    }
+                    }
 
                     operationalStatus.append(_MODULE_OK);
 
@@ -2679,9 +2679,9 @@ Message * DefaultProviderManager::handleDisableModuleRequest(const Message * mes
                         "Failed to disable the provider."));
             }
         }
-        // disable succeed 
-        // update module status from Stopping to Stopped if 
-	// disableProviderOnly is not true
+        // disable succeed
+        // update module status from Stopping to Stopped if
+        // disableProviderOnly is not true
         if (!disableProviderOnly)
         {
             // update module status from Stopping to Stopped
@@ -2698,7 +2698,7 @@ Message * DefaultProviderManager::handleDisableModuleRequest(const Message * mes
                (moduleName, operationalStatus) == false)
             {
                 //l10n
-                //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+                //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
                 //"set module status failed.");
                 throw PEGASUS_CIM_EXCEPTION_L(
                       CIM_ERR_FAILED,
@@ -2711,19 +2711,19 @@ Message * DefaultProviderManager::handleDisableModuleRequest(const Message * mes
     }
     catch(CIMException & e)
     {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                          "Exception: " + e.getMessage());
         cimException = e;
     }
     catch(Exception & e)
     {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                          "Exception: " + e.getMessage());
         cimException = CIMException(CIM_ERR_FAILED, e.getMessage());
     }
     catch(...)
     {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                          "Exception: Unknown");
         //l10n
         //response->cimException = CIMException(CIM_ERR_FAILED, "Unknown Error");
@@ -2752,7 +2752,7 @@ Message * DefaultProviderManager::handleDisableModuleRequest(const Message * mes
     return(response);
 }
 
-Message * DefaultProviderManager::handleEnableModuleRequest(const Message * message, const ProviderName providerName)
+Message * DefaultProviderManager::handleEnableModuleRequest(const Message * message)
 {
     // HACK
     ProviderRegistrationManager * _providerRegistrationManager = GetProviderRegistrationManager();
@@ -2832,7 +2832,7 @@ Message * DefaultProviderManager::handleEnableModuleRequest(const Message * mess
     return(response);
 }
 
-Message * DefaultProviderManager::handleStopAllProvidersRequest(const Message * message, const ProviderName providerName)
+Message * DefaultProviderManager::handleStopAllProvidersRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleStopAllProvidersRequest");
 
@@ -2886,7 +2886,7 @@ EnableIndicationsResponseHandler * DefaultProviderManager::_removeEntry(
     EnableIndicationsResponseHandler *ret = 0;
 
     _responseTable.lookup(key, ret);
-    _responseTable.remove(key);		// why is this needed ? - we get killed when removed...
+    _responseTable.remove(key);         // why is this needed ? - we get killed when removed...
 
     PEG_METHOD_EXIT();
 
@@ -2935,8 +2935,7 @@ String DefaultProviderManager::_generateKey (
 
 ProviderName DefaultProviderManager::_resolveProviderName(const ProviderName & providerName)
 {
-    //ProviderName temp = findProvider(providerName);
-    ProviderName temp = providerName;
+    ProviderName temp = findProvider(providerName);
     String physicalName = _resolvePhysicalName(temp.getPhysicalName());
     temp.setPhysicalName(physicalName);
 

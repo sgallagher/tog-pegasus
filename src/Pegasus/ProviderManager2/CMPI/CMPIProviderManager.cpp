@@ -125,7 +125,7 @@ Boolean CMPIProviderManager::insertProvider(const ProviderName & name,
 }
 
 
-Message * CMPIProviderManager::processMessage(Message * request, ProviderName providerName)
+Message * CMPIProviderManager::processMessage(Message * request)
 {
       PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "CMPIProviderManager::processMessage()");
@@ -136,91 +136,91 @@ Message * CMPIProviderManager::processMessage(Message * request, ProviderName pr
     switch(request->getType())
     {
     case CIM_GET_INSTANCE_REQUEST_MESSAGE:
-        response = handleGetInstanceRequest(request,providerName);
+        response = handleGetInstanceRequest(request);
 
         break;
     case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
-        response = handleEnumerateInstancesRequest(request,providerName);
+        response = handleEnumerateInstancesRequest(request);
 
         break;
     case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE:
-        response = handleEnumerateInstanceNamesRequest(request,providerName);
+        response = handleEnumerateInstanceNamesRequest(request);
 
         break;
     case CIM_CREATE_INSTANCE_REQUEST_MESSAGE:
-        response = handleCreateInstanceRequest(request,providerName);
+        response = handleCreateInstanceRequest(request);
 
         break;
     case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
-        response = handleModifyInstanceRequest(request,providerName);
+        response = handleModifyInstanceRequest(request);
 
         break;
     case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
-        response = handleDeleteInstanceRequest(request,providerName);
+        response = handleDeleteInstanceRequest(request);
 
         break;
     case CIM_EXEC_QUERY_REQUEST_MESSAGE:
-        response = handleExecQueryRequest(request,providerName);
+        response = handleExecQueryRequest(request);
 
         break;
     case CIM_ASSOCIATORS_REQUEST_MESSAGE:
-        response = handleAssociatorsRequest(request,providerName);
+        response = handleAssociatorsRequest(request);
 
         break;
     case CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE:
-        response = handleAssociatorNamesRequest(request,providerName);
+        response = handleAssociatorNamesRequest(request);
 
         break;
     case CIM_REFERENCES_REQUEST_MESSAGE:
-        response = handleReferencesRequest(request,providerName);
+        response = handleReferencesRequest(request);
 
         break;
     case CIM_REFERENCE_NAMES_REQUEST_MESSAGE:
-        response = handleReferenceNamesRequest(request,providerName);
+        response = handleReferenceNamesRequest(request);
 
         break;
     case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
-        response = handleInvokeMethodRequest(request,providerName);
+        response = handleInvokeMethodRequest(request);
 
         break;
     case CIM_CREATE_SUBSCRIPTION_REQUEST_MESSAGE:
-        response = handleCreateSubscriptionRequest(request,providerName);
+        response = handleCreateSubscriptionRequest(request);
 
         break;
 /*    case CIM_MODIFY_SUBSCRIPTION_REQUEST_MESSAGE:
-        response = handleModifySubscriptionRequest(request,providerName);
+        response = handleModifySubscriptionRequest(request);
 
         break;
 */  case CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE:
-        response = handleDeleteSubscriptionRequest(request,providerName);
+        response = handleDeleteSubscriptionRequest(request);
 
         break;
     case CIM_ENABLE_INDICATIONS_REQUEST_MESSAGE:
-        response = handleEnableIndicationsRequest(request,providerName);
+        response = handleEnableIndicationsRequest(request);
 
         break;
     case CIM_DISABLE_INDICATIONS_REQUEST_MESSAGE:
-        response = handleDisableIndicationsRequest(request,providerName);
+        response = handleDisableIndicationsRequest(request);
 
         break;
 /*    case CIM_CONSUME_INDICATION_REQUEST_MESSAGE:
-        response = handleConsumeIndicationRequest(request,providerName);
+        response = handleConsumeIndicationRequest(request);
         break;
 */
     case CIM_DISABLE_MODULE_REQUEST_MESSAGE:
-        response = handleDisableModuleRequest(request,providerName);
+        response = handleDisableModuleRequest(request);
 
         break;
     case CIM_ENABLE_MODULE_REQUEST_MESSAGE:
-        response = handleEnableModuleRequest(request,providerName);
+        response = handleEnableModuleRequest(request);
 
         break;
     case CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE:
-        response = handleStopAllProvidersRequest(request,providerName);
+        response = handleStopAllProvidersRequest(request);
 
         break;
     default:
-        response = handleUnsupportedRequest(request,providerName);
+        response = handleUnsupportedRequest(request);
 
         break;
     }
@@ -290,7 +290,7 @@ void CMPIProviderManager::unload_idle_providers(void)
 
 
 
-Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message, ProviderName providerName)
+Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "CMPIProviderManager::handleGetInstanceRequest");
@@ -316,7 +316,7 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message,
             ProviderType::INSTANCE);
 
         // resolve provider name
-        name = _resolveProviderName(providerName);
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph = providerManager.getProvider(name.getPhysicalName(),
@@ -353,13 +353,13 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message,
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-		CIMGetInstanceRequestMessage * req = dynamic_cast<CIMGetInstanceRequestMessage *>(const_cast<Message *>(message));
-		int err_num=enablePThreadSecurity(req->userName);
-		if (err_num!=0)
-		{
-			// need a new CIMException for this
-			throw CIMException(CIM_ERR_ACCESS_DENIED,String(strerror(err_num)));
-		}
+                CIMGetInstanceRequestMessage * req = dynamic_cast<CIMGetInstanceRequestMessage *>(const_cast<Message *>(message));
+                int err_num=enablePThreadSecurity(req->userName);
+                if (err_num!=0)
+                {
+                        // need a new CIMException for this
+                        throw CIMException(CIM_ERR_ACCESS_DENIED,String(strerror(err_num)));
+                }
 #endif
 
         STAT_GETSTARTTIME;
@@ -370,7 +370,7 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message,
         STAT_PMS_PROVIDEREND;
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-		disablePThreadSecurity(req->userName);
+                disablePThreadSecurity(req->userName);
 #endif
         if (rc.rc!=CMPI_RC_OK)
            throw CIMException((CIMStatusCode)rc.rc,
@@ -383,7 +383,7 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message,
     return(response);
 }
 
-Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * message, ProviderName providerName)
+Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "CMPIProviderManager::handleEnumerateInstanceRequest");
@@ -408,7 +408,7 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
             ProviderType::INSTANCE);
 
         // resolve provider name
-        name = _resolveProviderName(providerName);
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
@@ -448,13 +448,13 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-		CIMEnumerateInstancesRequestMessage * req = dynamic_cast<CIMEnumerateInstancesRequestMessage *>(const_cast<Message *>(message));
-		int err_num=enablePThreadSecurity(req->userName);
-		if (err_num!=0)
-		{
-			// need a new CIMException for this
-			throw CIMException(CIM_ERR_ACCESS_DENIED,String(strerror(err_num)));
-		}
+                CIMEnumerateInstancesRequestMessage * req = dynamic_cast<CIMEnumerateInstancesRequestMessage *>(const_cast<Message *>(message));
+                int err_num=enablePThreadSecurity(req->userName);
+                if (err_num!=0)
+                {
+                        // need a new CIMException for this
+                        throw CIMException(CIM_ERR_ACCESS_DENIED,String(strerror(err_num)));
+                }
 #endif
 
         STAT_GETSTARTTIME;
@@ -465,7 +465,7 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
         STAT_PMS_PROVIDEREND;
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-		disablePThreadSecurity(req->userName);
+                disablePThreadSecurity(req->userName);
 #endif
 
         if (rc.rc!=CMPI_RC_OK)
@@ -481,7 +481,7 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
     return(response);
 }
 
-Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message * message, ProviderName providerName)
+Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager::handleEnumerateInstanceNamesRequest");
 
@@ -506,7 +506,7 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
             ProviderType::INSTANCE);
 
         // resolve provider name
-        name = _resolveProviderName(providerName);
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
@@ -538,13 +538,13 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-		CIMEnumerateInstanceNamesRequestMessage * req = dynamic_cast<CIMEnumerateInstanceNamesRequestMessage *>(const_cast<Message *>(message));
-		int err_num=enablePThreadSecurity(req->userName);
-		if (err_num!=0)
-		{
-			// need a new CIMException for this
-			throw CIMException(CIM_ERR_ACCESS_DENIED,String(strerror(err_num)));
-		}
+                CIMEnumerateInstanceNamesRequestMessage * req = dynamic_cast<CIMEnumerateInstanceNamesRequestMessage *>(const_cast<Message *>(message));
+                int err_num=enablePThreadSecurity(req->userName);
+                if (err_num!=0)
+                {
+                        // need a new CIMException for this
+                        throw CIMException(CIM_ERR_ACCESS_DENIED,String(strerror(err_num)));
+                }
 #endif
         STAT_GETSTARTTIME;
 
@@ -553,7 +553,7 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
         STAT_PMS_PROVIDEREND;
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-		disablePThreadSecurity(req->userName);
+                disablePThreadSecurity(req->userName);
 #endif
 
         if (rc.rc!=CMPI_RC_OK)
@@ -568,7 +568,7 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
     return(response);
 }
 
-Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * message, ProviderName providerName)
+Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
        "CMPIProviderManager::handleCreateInstanceRequest");
@@ -594,7 +594,7 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * messa
             ProviderType::INSTANCE);
 
         // resolve provider name
-        name = _resolveProviderName(providerName);
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
@@ -629,13 +629,13 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * messa
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-		CIMCreateInstanceRequestMessage * req = dynamic_cast<CIMCreateInstanceRequestMessage *>(const_cast<Message *>(message));
-		int err_num=enablePThreadSecurity(req->userName);
-		if (err_num!=0)
-		{
-			// need a new CIMException for this
-			throw CIMException(CIM_ERR_ACCESS_DENIED,String(strerror(err_num)));
-		}
+                CIMCreateInstanceRequestMessage * req = dynamic_cast<CIMCreateInstanceRequestMessage *>(const_cast<Message *>(message));
+                int err_num=enablePThreadSecurity(req->userName);
+                if (err_num!=0)
+                {
+                        // need a new CIMException for this
+                        throw CIMException(CIM_ERR_ACCESS_DENIED,String(strerror(err_num)));
+                }
 #endif
 
         STAT_GETSTARTTIME;
@@ -646,7 +646,7 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * messa
         STAT_PMS_PROVIDEREND;
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-		disablePThreadSecurity(req->userName);
+                disablePThreadSecurity(req->userName);
 #endif
 
         if (rc.rc!=CMPI_RC_OK)
@@ -660,7 +660,7 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * messa
     return(response);
 }
 
-Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * message, ProviderName providerName)
+Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
        "CMPIProviderManager::handleModifyInstanceRequest");
@@ -686,7 +686,7 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
             ProviderType::INSTANCE);
 
         // resolve provider name
-        name = _resolveProviderName(providerName);
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
@@ -723,13 +723,13 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-		CIMModifyInstanceRequestMessage * req = dynamic_cast<CIMModifyInstanceRequestMessage *>(const_cast<Message *>(message));
-		int err_num=enablePThreadSecurity(req->userName);
-		if (err_num!=0)
-		{
-			// need a new CIMException for this
-			throw CIMException(CIM_ERR_ACCESS_DENIED,String(strerror(err_num)));
-		}
+                CIMModifyInstanceRequestMessage * req = dynamic_cast<CIMModifyInstanceRequestMessage *>(const_cast<Message *>(message));
+                int err_num=enablePThreadSecurity(req->userName);
+                if (err_num!=0)
+                {
+                        // need a new CIMException for this
+                        throw CIMException(CIM_ERR_ACCESS_DENIED,String(strerror(err_num)));
+                }
 #endif
 
         STAT_GETSTARTTIME;
@@ -740,7 +740,7 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
         STAT_PMS_PROVIDEREND;
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-		disablePThreadSecurity(req->userName);
+                disablePThreadSecurity(req->userName);
 #endif
 
         if (rc.rc!=CMPI_RC_OK)
@@ -754,7 +754,7 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
     return(response);
 }
 
-Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * message, ProviderName providerName)
+Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
        "CMPIProviderManager::handleDeleteInstanceRequest");
@@ -780,7 +780,7 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
             ProviderType::INSTANCE);
 
         // resolve provider name
-        name = _resolveProviderName(providerName);
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
@@ -811,13 +811,13 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-		CIMDeleteInstanceRequestMessage * req = dynamic_cast<CIMDeleteInstanceRequestMessage *>(const_cast<Message *>(message));
-		int err_num=enablePThreadSecurity(req->userName);
-		if (err_num!=0)
-		{
-			// need a new CIMException for this
-			throw CIMException(CIM_ERR_ACCESS_DENIED,String(strerror(err_num)));
-		}
+                CIMDeleteInstanceRequestMessage * req = dynamic_cast<CIMDeleteInstanceRequestMessage *>(const_cast<Message *>(message));
+                int err_num=enablePThreadSecurity(req->userName);
+                if (err_num!=0)
+                {
+                        // need a new CIMException for this
+                        throw CIMException(CIM_ERR_ACCESS_DENIED,String(strerror(err_num)));
+                }
 #endif
 
         STAT_GETSTARTTIME;
@@ -828,7 +828,7 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
         STAT_PMS_PROVIDEREND;
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-		disablePThreadSecurity(req->userName);
+                disablePThreadSecurity(req->userName);
 #endif
 
         if (rc.rc!=CMPI_RC_OK)
@@ -842,7 +842,7 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
     return(response);
 }
 
-Message * CMPIProviderManager::handleExecQueryRequest(const Message * message, ProviderName providerName)
+Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
        "CMPIProviderManager::handleExecQueryRequest");
@@ -868,7 +868,7 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message, P
             ProviderType::QUERY);
 
         // resolve provider name
-        name = _resolveProviderName(providerName);
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
@@ -906,13 +906,13 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message, P
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-		CIMExecQueryRequestMessage * req = dynamic_cast<CIMExecQueryRequestMessage *>(const_cast<Message *>(message));
-		int err_num=enablePThreadSecurity(req->userName);
-		if (err_num!=0)
-		{
-			// need a new CIMException for this
-			throw CIMException(CIM_ERR_ACCESS_DENIED,String(strerror(err_num)));
-		}
+                CIMExecQueryRequestMessage * req = dynamic_cast<CIMExecQueryRequestMessage *>(const_cast<Message *>(message));
+                int err_num=enablePThreadSecurity(req->userName);
+                if (err_num!=0)
+                {
+                        // need a new CIMException for this
+                        throw CIMException(CIM_ERR_ACCESS_DENIED,String(strerror(err_num)));
+                }
 #endif
 
         STAT_GETSTARTTIME;
@@ -923,7 +923,7 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message, P
         STAT_PMS_PROVIDEREND;
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-		disablePThreadSecurity(req->userName);
+                disablePThreadSecurity(req->userName);
 #endif
 
         if (rc.rc!=CMPI_RC_OK)
@@ -939,7 +939,7 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message, P
     return(response);
 }
 
-Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message, ProviderName providerName)
+Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
        "CMPIProviderManager::handleAssociatorsRequest");
@@ -971,7 +971,7 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message,
             ProviderType::ASSOCIATION);
 
         // resolve provider name
-        name = _resolveProviderName(providerName);
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
@@ -1012,14 +1012,14 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message,
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-#ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY		
-		CIMAssociatorsRequestMessage * req = dynamic_cast<CIMAssociatorsRequestMessage *>(const_cast<Message *>(message));
-		int err_num=enablePThreadSecurity(req->userName);
-		if (err_num!=0)
-		{
-			// need a new CIMException for this
-			throw CIMException(CIM_ERR_ACCESS_DENIED,String(strerror(err_num)));
-		}
+#ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
+                CIMAssociatorsRequestMessage * req = dynamic_cast<CIMAssociatorsRequestMessage *>(const_cast<Message *>(message));
+                int err_num=enablePThreadSecurity(req->userName);
+                if (err_num!=0)
+                {
+                        // need a new CIMException for this
+                        throw CIMException(CIM_ERR_ACCESS_DENIED,String(strerror(err_num)));
+                }
 #endif
 
         STAT_GETSTARTTIME;
@@ -1031,7 +1031,7 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message,
         STAT_PMS_PROVIDEREND;
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-		disablePThreadSecurity(req->userName);
+                disablePThreadSecurity(req->userName);
 #endif
 
         if (rc.rc!=CMPI_RC_OK)
@@ -1045,7 +1045,7 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message,
     return(response);
 }
 
-Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * message, ProviderName providerName)
+Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
        "CMPIProviderManager::handleAssociatorNamesRequest");
@@ -1077,7 +1077,7 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
             ProviderType::ASSOCIATION);
 
         // resolve provider name
-        name = _resolveProviderName(providerName);
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
@@ -1114,14 +1114,14 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-#ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY		
-		CIMAssociatorNamesRequestMessage * req = dynamic_cast<CIMAssociatorNamesRequestMessage *>(const_cast<Message *>(message));
-		int err_num=enablePThreadSecurity(req->userName);
-		if (err_num!=0)
-		{
-			// need a new CIMException for this
-			throw CIMException(CIM_ERR_ACCESS_DENIED,String(strerror(err_num)));
-		}
+#ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
+                CIMAssociatorNamesRequestMessage * req = dynamic_cast<CIMAssociatorNamesRequestMessage *>(const_cast<Message *>(message));
+                int err_num=enablePThreadSecurity(req->userName);
+                if (err_num!=0)
+                {
+                        // need a new CIMException for this
+                        throw CIMException(CIM_ERR_ACCESS_DENIED,String(strerror(err_num)));
+                }
 #endif
 
         STAT_GETSTARTTIME;
@@ -1133,7 +1133,7 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
         STAT_PMS_PROVIDEREND;
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-		disablePThreadSecurity(req->userName);
+                disablePThreadSecurity(req->userName);
 #endif
 
         if (rc.rc!=CMPI_RC_OK)
@@ -1147,7 +1147,7 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
     return(response);
 }
 
-Message * CMPIProviderManager::handleReferencesRequest(const Message * message, ProviderName providerName)
+Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
        "CMPIProviderManager::handleReferencesRequest");
@@ -1179,7 +1179,7 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message, 
             ProviderType::ASSOCIATION);
 
         // resolve provider name
-        name = _resolveProviderName(providerName);
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
@@ -1218,14 +1218,14 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message, 
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-#ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY		
-		CIMReferencesRequestMessage * req = dynamic_cast<CIMReferencesRequestMessage *>(const_cast<Message *>(message));
-		int err_num=enablePThreadSecurity(req->userName);
-		if (err_num!=0)
-		{
-			// need a new CIMException for this
-			throw CIMException(CIM_ERR_ACCESS_DENIED,String(strerror(err_num)));
-		}
+#ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
+                CIMReferencesRequestMessage * req = dynamic_cast<CIMReferencesRequestMessage *>(const_cast<Message *>(message));
+                int err_num=enablePThreadSecurity(req->userName);
+                if (err_num!=0)
+                {
+                        // need a new CIMException for this
+                        throw CIMException(CIM_ERR_ACCESS_DENIED,String(strerror(err_num)));
+                }
 #endif
 
         STAT_GETSTARTTIME;
@@ -1237,7 +1237,7 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message, 
         STAT_PMS_PROVIDEREND;
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-		disablePThreadSecurity(req->userName);
+                disablePThreadSecurity(req->userName);
 #endif
 
         if (rc.rc!=CMPI_RC_OK)
@@ -1251,7 +1251,7 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message, 
     return(response);
 }
 
-Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * message, ProviderName providerName)
+Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "CMPIProviderManager::handleReferenceNamesRequest");
@@ -1283,7 +1283,7 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * messa
             ProviderType::ASSOCIATION);
 
         // resolve provider name
-        name = _resolveProviderName(providerName);
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
@@ -1317,14 +1317,14 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * messa
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-#ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY		
-		CIMReferenceNamesRequestMessage * req = dynamic_cast<CIMReferenceNamesRequestMessage *>(const_cast<Message *>(message));
-		int err_num=enablePThreadSecurity(req->userName);
-		if (err_num!=0)
-		{
-			// need a new CIMException for this
-			throw CIMException(CIM_ERR_ACCESS_DENIED,String(strerror(err_num)));
-		}
+#ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
+                CIMReferenceNamesRequestMessage * req = dynamic_cast<CIMReferenceNamesRequestMessage *>(const_cast<Message *>(message));
+                int err_num=enablePThreadSecurity(req->userName);
+                if (err_num!=0)
+                {
+                        // need a new CIMException for this
+                        throw CIMException(CIM_ERR_ACCESS_DENIED,String(strerror(err_num)));
+                }
 #endif
 
         STAT_GETSTARTTIME;
@@ -1336,7 +1336,7 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * messa
         STAT_PMS_PROVIDEREND;
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-		disablePThreadSecurity(req->userName);
+                disablePThreadSecurity(req->userName);
 #endif
 
         if (rc.rc!=CMPI_RC_OK)
@@ -1350,7 +1350,7 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * messa
     return(response);
 }
 
-Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message, ProviderName providerName)
+Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "CMPIProviderManager::handleInvokeMethodRequest");
@@ -1377,7 +1377,7 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
             request->methodName);
 
         // resolve provider name
-        name = _resolveProviderName(providerName);
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
@@ -1416,14 +1416,14 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-#ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY		
-		CIMInvokeMethodRequestMessage * req = dynamic_cast<CIMInvokeMethodRequestMessage *>(const_cast<Message *>(message));
-		int err_num=enablePThreadSecurity(req->userName);
-		if (err_num!=0)
-		{
-			// need a new CIMException for this
-			throw CIMException(CIM_ERR_ACCESS_DENIED,String(strerror(err_num)));
-		}
+#ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
+                CIMInvokeMethodRequestMessage * req = dynamic_cast<CIMInvokeMethodRequestMessage *>(const_cast<Message *>(message));
+                int err_num=enablePThreadSecurity(req->userName);
+                if (err_num!=0)
+                {
+                        // need a new CIMException for this
+                        throw CIMException(CIM_ERR_ACCESS_DENIED,String(strerror(err_num)));
+                }
 #endif
         STAT_GETSTARTTIME;
 
@@ -1433,7 +1433,7 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
         STAT_PMS_PROVIDEREND;
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-		disablePThreadSecurity(req->userName);
+                disablePThreadSecurity(req->userName);
 #endif
 
         if (rc.rc!=CMPI_RC_OK)
@@ -1490,7 +1490,7 @@ String CMPIProviderManager::getFilter(CIMInstance &subscription)
    return String::EMPTY;
 }
 
-Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * message, ProviderName providerName)
+Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager::handleCreateSubscriptionRequest");
 
@@ -1582,14 +1582,14 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-#ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY		
-		CIMCreateSubscriptionRequestMessage * req = dynamic_cast<CIMCreateSubscriptionRequestMessage *>(const_cast<Message *>(message));
-		int err_num=enablePThreadSecurity(req->userName);
-		if (err_num!=0)
-		{
-			// need a new CIMException for this
-			throw CIMException(CIM_ERR_ACCESS_DENIED,String(strerror(err_num)));
-		}
+#ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
+                CIMCreateSubscriptionRequestMessage * req = dynamic_cast<CIMCreateSubscriptionRequestMessage *>(const_cast<Message *>(message));
+                int err_num=enablePThreadSecurity(req->userName);
+                if (err_num!=0)
+                {
+                        // need a new CIMException for this
+                        throw CIMException(CIM_ERR_ACCESS_DENIED,String(strerror(err_num)));
+                }
 #endif
         STAT_GETSTARTTIME;
 
@@ -1601,7 +1601,7 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
        STAT_PMS_PROVIDEREND;
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-		disablePThreadSecurity(req->userName);
+                disablePThreadSecurity(req->userName);
 #endif
 
         if (rc.rc!=CMPI_RC_OK)
@@ -1615,7 +1615,7 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
     return(response);
 }
 
-Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * message, ProviderName providerName)
+Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager::handleDeleteSubscriptionRequest");
 
@@ -1682,14 +1682,14 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-#ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY		
-		CIMDeleteSubscriptionRequestMessage * req = dynamic_cast<CIMDeleteSubscriptionRequestMessage *>(const_cast<Message *>(message));
-		int err_num=enablePThreadSecurity(req->userName);
-		if (err_num!=0)
-		{
-			// need a new CIMException for this
-			throw CIMException(CIM_ERR_ACCESS_DENIED,String(strerror(err_num)));
-		}
+#ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
+                CIMDeleteSubscriptionRequestMessage * req = dynamic_cast<CIMDeleteSubscriptionRequestMessage *>(const_cast<Message *>(message));
+                int err_num=enablePThreadSecurity(req->userName);
+                if (err_num!=0)
+                {
+                        // need a new CIMException for this
+                        throw CIMException(CIM_ERR_ACCESS_DENIED,String(strerror(err_num)));
+                }
 #endif
         STAT_GETSTARTTIME;
         rc=pr.miVector.indMI->ft->deActivateFilter(
@@ -1702,7 +1702,7 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
        STAT_PMS_PROVIDEREND;
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-		disablePThreadSecurity(req->userName);
+                disablePThreadSecurity(req->userName);
 #endif
 
         if (rc.rc!=CMPI_RC_OK)
@@ -1716,7 +1716,7 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
     return(response);
 }
 
-Message * CMPIProviderManager::handleEnableIndicationsRequest(const Message * message, ProviderName providerName)
+Message * CMPIProviderManager::handleEnableIndicationsRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager:: handleEnableIndicationsRequest");
 
@@ -1774,7 +1774,7 @@ Message * CMPIProviderManager::handleEnableIndicationsRequest(const Message * me
     return(response);
 }
 
-Message * CMPIProviderManager::handleDisableIndicationsRequest(const Message * message, ProviderName providerName)
+Message * CMPIProviderManager::handleDisableIndicationsRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager:: handleDisableIndicationsRequest");
 
@@ -1839,7 +1839,7 @@ static const Uint16 _MODULE_OK       = 2;
 static const Uint16 _MODULE_STOPPING = 9;
 static const Uint16 _MODULE_STOPPED  = 10;
 
-Message * CMPIProviderManager::handleDisableModuleRequest(const Message * message, ProviderName providerName)
+Message * CMPIProviderManager::handleDisableModuleRequest(const Message * message)
 {
     // HACK
     ProviderRegistrationManager * _providerRegistrationManager = GetProviderRegistrationManager();
@@ -1963,7 +1963,7 @@ Message * CMPIProviderManager::handleDisableModuleRequest(const Message * messag
     return(response);
 }
 
-Message * CMPIProviderManager::handleEnableModuleRequest(const Message * message, ProviderName providerName)
+Message * CMPIProviderManager::handleEnableModuleRequest(const Message * message)
 {
     // HACK
     ProviderRegistrationManager * _providerRegistrationManager = GetProviderRegistrationManager();
@@ -2043,7 +2043,7 @@ Message * CMPIProviderManager::handleEnableModuleRequest(const Message * message
     return(response);
 }
 
-Message * CMPIProviderManager::handleStopAllProvidersRequest(const Message * message, ProviderName providerName)
+Message * CMPIProviderManager::handleStopAllProvidersRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager::handleStopAllProvidersRequest");
 
@@ -2074,7 +2074,7 @@ Message * CMPIProviderManager::handleStopAllProvidersRequest(const Message * mes
     return(response);
 }
 
-Message * CMPIProviderManager::handleUnsupportedRequest(const Message * message, ProviderName providerName)
+Message * CMPIProviderManager::handleUnsupportedRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager::handleUnsupportedRequest");
 
@@ -2086,9 +2086,8 @@ Message * CMPIProviderManager::handleUnsupportedRequest(const Message * message,
 
 ProviderName CMPIProviderManager::_resolveProviderName(const ProviderName & providerName)
 {
-    //ProviderName temp = findProvider(providerName);
-    ProviderName temp = providerName;
-    
+    ProviderName temp = findProvider(providerName);
+
     String physicalName=_resolvePhysicalName(temp.getPhysicalName());
 
     temp.setPhysicalName(physicalName);

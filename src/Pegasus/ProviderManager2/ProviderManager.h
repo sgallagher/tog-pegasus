@@ -48,7 +48,7 @@ public:
     ProviderManager(void);
     virtual ~ProviderManager(void);
 
-    virtual Message * processMessage(Message * message, ProviderName providerName);
+    virtual Message * processMessage(Message * message);
 
     virtual ProviderName findProvider(const ProviderName & providerName);
     virtual ProviderName findProvider(const String & destinationPath);

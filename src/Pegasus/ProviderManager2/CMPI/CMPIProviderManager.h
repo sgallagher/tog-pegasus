@@ -1,4 +1,4 @@
-                                                         //%2003////////////////////////////////////////////////////////////////////////
+//%2003////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002  BMC Software, Hewlett-Packard Development
 // Company, L. P., IBM Corp., The Open Group, Tivoli Systems.
@@ -63,7 +63,7 @@ public:
     virtual Boolean insertProvider(const ProviderName & providerName,
             const String &ns, const String &cn);
 
-    virtual Message * processMessage(Message * request, ProviderName providerName);
+    virtual Message * processMessage(Message * request);
 
     virtual void unload_idle_providers(void) ;
 
@@ -92,39 +92,39 @@ protected:
     CIMRepository *_repository;
     String getFilter(CIMInstance &subscription);
 
-    Message * handleUnsupportedRequest(const Message * message, const ProviderName providerName);
+    Message * handleUnsupportedRequest(const Message * message);
 
-    Message * handleGetInstanceRequest(const Message * message, const ProviderName providerName);
-    Message * handleEnumerateInstancesRequest(const Message * message, const ProviderName providerName);
-    Message * handleEnumerateInstanceNamesRequest(const Message * message, const ProviderName providerName);
-    Message * handleCreateInstanceRequest(const Message * message, const ProviderName providerName);
-    Message * handleModifyInstanceRequest(const Message * message, const ProviderName providerName);
-    Message * handleDeleteInstanceRequest(const Message * message, const ProviderName providerName);
+    Message * handleGetInstanceRequest(const Message * message);
+    Message * handleEnumerateInstancesRequest(const Message * message);
+    Message * handleEnumerateInstanceNamesRequest(const Message * message);
+    Message * handleCreateInstanceRequest(const Message * message);
+    Message * handleModifyInstanceRequest(const Message * message);
+    Message * handleDeleteInstanceRequest(const Message * message);
 
-    Message * handleExecQueryRequest(const Message * message, const ProviderName providerName);
+    Message * handleExecQueryRequest(const Message * message);
 
-    Message * handleAssociatorsRequest(const Message * message, const ProviderName providerName);
-    Message * handleAssociatorNamesRequest(const Message * message, const ProviderName providerName);
-    Message * handleReferencesRequest(const Message * message, const ProviderName providerName);
-    Message * handleReferenceNamesRequest(const Message * message, const ProviderName providerName);
+    Message * handleAssociatorsRequest(const Message * message);
+    Message * handleAssociatorNamesRequest(const Message * message);
+    Message * handleReferencesRequest(const Message * message);
+    Message * handleReferenceNamesRequest(const Message * message);
 /*
-    Message * handleGetPropertyRequest(const Message * message, const ProviderName providerName);
-    Message * handleSetPropertyRequest(const Message * message, const ProviderName providerName);
+    Message * handleGetPropertyRequest(const Message * message);
+    Message * handleSetPropertyRequest(const Message * message);
 */
-    Message * handleInvokeMethodRequest(const Message * message, const ProviderName providerName);
+    Message * handleInvokeMethodRequest(const Message * message);
 
-    Message * handleCreateSubscriptionRequest(const Message * message, const ProviderName providerName);
-//    Message * handleModifySubscriptionRequest(const Message * message, const ProviderName providerName);
-    Message * handleDeleteSubscriptionRequest(const Message * message, const ProviderName providerName);
-    Message * handleEnableIndicationsRequest(const Message * message, const ProviderName providerName);
-    Message * handleDisableIndicationsRequest(const Message * message, const ProviderName providerName);
+    Message * handleCreateSubscriptionRequest(const Message * message);
+//    Message * handleModifySubscriptionRequest(const Message * message);
+    Message * handleDeleteSubscriptionRequest(const Message * message);
+    Message * handleEnableIndicationsRequest(const Message * message);
+    Message * handleDisableIndicationsRequest(const Message * message);
 
 //  Not supported by CMPI
-//    Message * handleConsumeIndicationRequest(const Message * message, const ProviderName providerName);
+//    Message * handleConsumeIndicationRequest(const Message * message);
 
-    Message * handleDisableModuleRequest(const Message * message, const ProviderName providerName);
-    Message * handleEnableModuleRequest(const Message * message, const ProviderName providerName);
-    Message * handleStopAllProvidersRequest(const Message * message, const ProviderName providerName);
+    Message * handleDisableModuleRequest(const Message * message);
+    Message * handleEnableModuleRequest(const Message * message);
+    Message * handleStopAllProvidersRequest(const Message * message);
 
     ProviderName _resolveProviderName(const ProviderName & providerName);
 };

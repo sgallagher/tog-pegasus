@@ -385,12 +385,11 @@ void ProviderManagerService::handleCimRequest(AsyncOpNode * op, const Message * 
 
     Message * response = 0;
     String ifc;
-    ProviderName providerName;
 
     // get the responsible provider Manager
-    ProviderManager * pm = locateProviderManager(message,ifc, providerName);
+    ProviderManager * pm = locateProviderManager(message,ifc);
     if (pm) {
-        response = pm->processMessage(request,providerName);
+        response = pm->processMessage(request);
     }
 
     else for (Uint32 i = 0, n = _providerManagers.size(); i < n; i++) {
@@ -401,7 +400,7 @@ void ProviderManagerService::handleCimRequest(AsyncOpNode * op, const Message * 
                 dynamic_cast<CIMEnableModuleRequestMessage*>(const_cast<Message*>(message));
              if (request->providerModule.getProperty(request->providerModule.findProperty
                  ("InterfaceType")).getValue().toString()==pmc->getInterfaceName())
-             response=pmc->getProviderManager()->processMessage(request,providerName);
+             response=pmc->getProviderManager()->processMessage(request);
            }
           break;
        case CIM_DISABLE_MODULE_REQUEST_MESSAGE: {
@@ -409,11 +408,11 @@ void ProviderManagerService::handleCimRequest(AsyncOpNode * op, const Message * 
                 dynamic_cast<CIMDisableModuleRequestMessage*>(const_cast<Message*>(message));
              if (request->providerModule.getProperty(request->providerModule.findProperty
                  ("InterfaceType")).getValue().toString()==pmc->getInterfaceName())
-             response=pmc->getProviderManager()->processMessage(request,providerName);
+             response=pmc->getProviderManager()->processMessage(request);
        }
           break;
        case CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE: {
-          Message  *resp=pmc->getProviderManager()->processMessage(request,providerName);
+          Message  *resp=pmc->getProviderManager()->processMessage(request);
           if (resp) response=resp; }
           break;
        default:
@@ -447,7 +446,7 @@ void ProviderManagerService::handleCimRequest(AsyncOpNode * op, const Message * 
 }
 
 ProviderManager* ProviderManagerService::locateProviderManager(const Message *message,
-             String & it, ProviderName& providerName)
+             String & it)
 {
     CIMNamespaceName nameSpace;
     CIMName className;
@@ -473,7 +472,6 @@ ProviderManager* ProviderManagerService::locateProviderManager(const Message *me
 
        // find provider manager
        name = ProviderRegistrar().findProvider(name,false);
-       providerName = name;
        it=name.getInterfaceName();
     }
 
@@ -513,7 +511,7 @@ void ProviderManagerService::unload_idle_providers(void)
     for(Uint32 i = 0, n = _providerManagers.size(); i < n; i++)
     {
       ProviderManagerContainer *pmc=_providerManagers[i];
-	   pmc->getProviderManager()->unload_idle_providers();
+           pmc->getProviderManager()->unload_idle_providers();
     }
 }
 

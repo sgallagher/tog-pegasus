@@ -11,7 +11,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -60,9 +60,9 @@
 PEGASUS_NAMESPACE_BEGIN
 
 typedef HashTable<String,
-	EnableIndicationsResponseHandler *,
-	EqualFunc<String>,
-	HashFunc<String> > IndicationResponseTable;
+        EnableIndicationsResponseHandler *,
+        EqualFunc<String>,
+        HashFunc<String> > IndicationResponseTable;
 
 class PEGASUS_DEFPM_LINKAGE DefaultProviderManager : public ProviderManager
 {
@@ -70,42 +70,42 @@ public:
     DefaultProviderManager(void);
     virtual ~DefaultProviderManager(void);
 
-    virtual Message * processMessage(Message * request, ProviderName providerName);
+    virtual Message * processMessage(Message * request);
 
 protected:
-    Message * handleUnsupportedRequest(const Message * message, const ProviderName providerName);
+    Message * handleUnsupportedRequest(const Message * message);
 
-    Message * handleGetInstanceRequest(const Message * message, const ProviderName providerName);
-    Message * handleEnumerateInstancesRequest(const Message * message, const ProviderName providerName);
-    Message * handleEnumerateInstanceNamesRequest(const Message * message, const ProviderName providerName);
-    Message * handleCreateInstanceRequest(const Message * message, const ProviderName providerName);
-    Message * handleModifyInstanceRequest(const Message * message, const ProviderName providerName);
-    Message * handleDeleteInstanceRequest(const Message * message, const ProviderName providerName);
+    Message * handleGetInstanceRequest(const Message * message);
+    Message * handleEnumerateInstancesRequest(const Message * message);
+    Message * handleEnumerateInstanceNamesRequest(const Message * message);
+    Message * handleCreateInstanceRequest(const Message * message);
+    Message * handleModifyInstanceRequest(const Message * message);
+    Message * handleDeleteInstanceRequest(const Message * message);
 
-    Message * handleExecQueryRequest(const Message * message, const ProviderName providerName);
+    Message * handleExecQueryRequest(const Message * message);
 
-    Message * handleAssociatorsRequest(const Message * message, const ProviderName providerName);
-    Message * handleAssociatorNamesRequest(const Message * message, const ProviderName providerName);
-    Message * handleReferencesRequest(const Message * message, const ProviderName providerName);
-    Message * handleReferenceNamesRequest(const Message * message, const ProviderName providerName);
+    Message * handleAssociatorsRequest(const Message * message);
+    Message * handleAssociatorNamesRequest(const Message * message);
+    Message * handleReferencesRequest(const Message * message);
+    Message * handleReferenceNamesRequest(const Message * message);
 
-    Message * handleGetPropertyRequest(const Message * message, const ProviderName providerName);
-    Message * handleSetPropertyRequest(const Message * message, const ProviderName providerName);
+    Message * handleGetPropertyRequest(const Message * message);
+    Message * handleSetPropertyRequest(const Message * message);
 
-    Message * handleInvokeMethodRequest(const Message * message, const ProviderName providerName);
+    Message * handleInvokeMethodRequest(const Message * message);
 
-    Message * handleCreateSubscriptionRequest(const Message * message, const ProviderName providerName);
-    Message * handleModifySubscriptionRequest(const Message * message, const ProviderName providerName);
-    Message * handleDeleteSubscriptionRequest(const Message * message, const ProviderName providerName);
-    Message * handleEnableIndicationsRequest(const Message * message, const ProviderName providerName);
-    Message * handleDisableIndicationsRequest(const Message * message, const ProviderName providerName);
+    Message * handleCreateSubscriptionRequest(const Message * message);
+    Message * handleModifySubscriptionRequest(const Message * message);
+    Message * handleDeleteSubscriptionRequest(const Message * message);
+    Message * handleEnableIndicationsRequest(const Message * message);
+    Message * handleDisableIndicationsRequest(const Message * message);
 
-    Message * handleConsumeIndicationRequest(const Message * message, const ProviderName providerName);
-    Message * handleExportIndicationRequest(const Message * message, const ProviderName providerName);
+    Message * handleConsumeIndicationRequest(const Message * message);
+    Message * handleExportIndicationRequest(const Message * message);
 
-    Message * handleDisableModuleRequest(const Message * message, const ProviderName providerName);
-    Message * handleEnableModuleRequest(const Message * message, const ProviderName providerName);
-    Message * handleStopAllProvidersRequest(const Message * message, const ProviderName providerName);
+    Message * handleDisableModuleRequest(const Message * message);
+    Message * handleEnableModuleRequest(const Message * message);
+    Message * handleStopAllProvidersRequest(const Message * message);
 
     void _insertEntry(const Provider & provider, const EnableIndicationsResponseHandler *handler);
     EnableIndicationsResponseHandler * _removeEntry(const String & key);

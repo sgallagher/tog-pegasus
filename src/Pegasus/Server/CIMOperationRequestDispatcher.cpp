@@ -172,14 +172,15 @@ String CIMOperationRequestDispatcher::_lookupProviderForClass(
 
     catch (CIMException& e)
     {
-        if (e.getCode() == CIM_ERR_NOT_FOUND)
-        {
-	    throw CIMException(CIM_ERR_INVALID_CLASS);
-        }
-        else
-        {
-            throw e;
-        }
+        // ATTN: Fail silently for now
+        //if (e.getCode() == CIM_ERR_NOT_FOUND)
+        //{
+        //    throw CIMException(CIM_ERR_INVALID_CLASS);
+        //}
+        //else
+        //{
+        //    throw e;
+        //}
     }
 
     for (Uint32 i = 0, n = enumInstances.size(); i < n ; i++)
@@ -1737,6 +1738,7 @@ void CIMOperationRequestDispatcher::loadRegisteredProviders(void)
 
     try
     {
+        // ATTN: Exceptions are silently ignored for now
 	cimNamedInstances = _repository->enumerateInstances(
 		nameSpace,
 		className);

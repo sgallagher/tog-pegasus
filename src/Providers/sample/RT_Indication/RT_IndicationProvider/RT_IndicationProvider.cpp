@@ -32,6 +32,8 @@
 
 #include "RT_IndicationProvider.h"
 
+PEGASUS_NAMESPACE_BEGIN
+
 static ResponseHandler<CIMIndication> * _handler = 0; 
 static Boolean _enabled = false;
 static Uint32 _nextUID = 0;
@@ -39,8 +41,6 @@ static Uint32 _nextUID = 0;
 void _generateIndication (
     ResponseHandler <CIMIndication> * handler,
     const String methodName);
-
-PEGASUS_NAMESPACE_BEGIN
 
 RT_IndicationProvider::RT_IndicationProvider (void) throw ()
 {

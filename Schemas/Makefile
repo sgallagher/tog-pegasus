@@ -8,22 +8,9 @@
 ROOT = $(PEGASUS_ROOT)
 include $(ROOT)/mak/config.mak
 
-# The following two variables determine which CIM Schema is compiled
-# from the CIMSchemas Directory.
-# To Change the CIM Schema used, change the following two environment
-# variables.
-
-SCHEMA_VER=25
-SCHEMA_DIR=CIM$(SCHEMA_VER)
-
-#SCHEMA_VER=26
-#SCHEMA_DIR=CIM26
-
 # Define Namespace in which the CIM Schemas are to be Loaded.
 # Note that by default, the CORE is also loaded into root.
 NAMESPACE=root/cimv2
-
-MOF_PATH = $(ROOT)/Schemas/$(SCHEMA_DIR)
 
 all:
 
@@ -33,10 +20,10 @@ repository:
 	@ echo +++++ Removing existing repository named $(REPOSITORY_ROOT)
 	@ $(RMREPOSITORY) $(REPOSITORY_ROOT)
 	@ echo +++++ Populating CIM repository - this will take a while
-	@ echo +++++ Loading CIM_Core$(SCHEMA_VER).mof into root namespace...
-	@ cimmofl -R$(REPOSITORY_DIR) -I$(MOF_PATH) -nroot $(MOF_PATH)/CIM_Core$(SCHEMA_VER).mof
-	@ echo +++++ Loading CIM_Schema$(SCHEMA_VER).mof into $(NAMESPACE) namespace...
-	@ cimmofl -R$(REPOSITORY_DIR) -I$(MOF_PATH) -n$(NAMESPACE) $(MOF_PATH)/CIM_Schema$(SCHEMA_VER).mof
+	@ echo +++++ Loading CIM_Core$(CIM_SCHEMA_VER).mof into root namespace...
+	@ cimmofl -R$(REPOSITORY_DIR) -I$(CIM_SCHEMA_DIR) -nroot $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
+	@ echo +++++ Loading CIM_Schema$(CIM_SCHEMA_VER).mof into $(NAMESPACE) namespace...
+	@ cimmofl -R$(REPOSITORY_DIR) -I$(CIM_SCHEMA_DIR) -n$(NAMESPACE) $(CIM_SCHEMA_DIR)/CIM_Schema$(CIM_SCHEMA_VER).mof
 
 # The following is a hangover from previous testing and simply loads the
 # core into the namespace defined by NAMESPACE.  It should probably be 
@@ -45,7 +32,7 @@ short:
 	@ echo +++++ Populating CIM repository - this will take a minute
 	$(RMREPOSITORY) $(REPOSITORY_ROOT)
 	echo +++++ Loading CIM_Core.mof into root namespace...
-	cimmofl -R$(REPOSITORY_DIR) -I$(MOF_PATH) -n$(NAMESPACE) $(MOF_PATH)/CIM_Core$(SCHEMA_VER).mof
+	cimmofl -R$(REPOSITORY_DIR) -I$(CIM_SCHEMA_DIR) -n$(NAMESPACE) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
 
 clean:
 	@ echo +++++ Removing existing CIM Repository named $(REPOSITORY_ROOT)
@@ -65,6 +52,11 @@ poststarttests:
 general:
 
 # used to generate xml output from the schema
+
 xml:
-	@ echo +++++ Loading CIM_Schema$(SCHEMA_VER).mof into root/cimv2 namespace...
-	@ cimmofl -R$(REPOSITORY_DIR) --xml -I$(MOF_PATH) -nroot/cimv2 $(MOF_PATH)/CIM_Schema$(SCHEMA_VER).mof >CIM_Schema$(SCHEMA_VER).XML
+	@ $(RMREPOSITORY) $(TMP_DIR)/repository
+	@ echo +++++ Temporarily loading CIM_Core$(CIM_SCHEMA_VER) into xml/cimv2 namespace ...
+	@ cimmofl -R$(TMP_DIR) -I$(CIM_SCHEMA_DIR) -nxml/cimv2 $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
+	@ echo +++++ Creating XML for CIM Schema$(CIM_SCHEMA_VER).mof in file $(TMP_DIR)/CIM_Schema$(CIM_SCHEMA_VER).xml
+	@ cimmofl  -R$(TMP_DIR) --xml -I$(CIM_SCHEMA_DIR) -nxml/cimv2 $(CIM_SCHEMA_DIR)/CIM_Schema$(CIM_SCHEMA_VER).mof > $(TMP_DIR)/CIM_Schema$(CIM_SCHEMA_VER).xml
+	@ $(RMREPOSITORY) $(TMP_DIR)/repository

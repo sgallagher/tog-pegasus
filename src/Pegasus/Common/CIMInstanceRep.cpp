@@ -105,7 +105,7 @@ void CIMInstanceRep::resolve(
     _qualifiers.resolve(
 	context,
 	nameSpace,
-	CIMScope::CLASS,
+        (cimClass.isAssociation()) ? CIMScope::ASSOCIATION : CIMScope::CLASS,
 	false,
 	cimClass._rep->_qualifiers,
 	propagateQualifiers);

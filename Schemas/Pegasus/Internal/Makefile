@@ -17,10 +17,6 @@ PG_SCHEMA_VER=20
 PG_SCHEMA_DIR=VER$(PG_SCHEMA_VER)
 PG_MOF_PATH=$(ROOT)/Schemas/Pegasus/Internal/$(PG_SCHEMA_DIR)
 
-CIM_SCHEMA_VER=25
-CIM_SCHEMA_DIR=CIM$(CIM_SCHEMA_VER)
-CIM_MOF_PATH = $(ROOT)/Schemas/$(CIM_SCHEMA_DIR)
-
 all:
 
 # Delete and rebuild the repository using the MOF compiler.
@@ -28,14 +24,14 @@ all:
 repository:
 	@ echo +++++ Removing existing repository named $(INTERNALNS)
 	@ $(RMREPOSITORY) $(INTERNALNSDIRECTORY)
-	@ echo +++++ Loading CIM_Qualifiers$(CIM_SCHEMA_VER) into $(INTERNALNS) namespace ...
-	@ $(CIMMOFCLI) -R$(REPOSITORY_DIR)  -n$(INTERNALNS) ../CIM_Qualifiers$(CIM_SCHEMA_VER).mof
+	@ echo +++++ Loading Core$(CIM_SCHEMA_VER)_Qualifiers.mof into $(INTERNALNS) namespace ...
+	@ $(CIMMOFCLI) -R$(REPOSITORY_DIR)  -n$(INTERNALNS) $(CIM_SCHEMA_DIR)/Core$(CIM_SCHEMA_VER)_Qualifiers.mof
 	@ echo +++++ Loading PG_InternalSchema$(PG_SCHEMA_VER).mof into $(INTERNALNS) namespace...
 	@ $(CIMMOFCLI) -R$(REPOSITORY_DIR) -I$(PG_MOF_PATH) -n$(INTERNALNS) $(PG_MOF_PATH)/PG_InternalSchema$(PG_SCHEMA_VER).mof
 
 repositoryServer:
-	@ echo +++++ Loading CIM_Qualifiers$(CIM_SCHEMA_VER) into $(INTERNALNS) namespace ...
-	@ cimmof  -n$(INTERNALNS) ../CIM_Qualifiers$(CIM_SCHEMA_VER).mof
+	@ echo +++++ Loading Core$(CIM_SCHEMA_VER)_Qualifiers.mof into $(INTERNALNS) namespace ...
+	@ cimmof  -n$(INTERNALNS) $(CIM_SCHEMA_DIR)/Core$(CIM_SCHEMA_VER)_Qualifiers.mof
 	@ echo +++++ Loading PG_InternalSchema$(PG_SCHEMA_VER).mof into $(INTERNALNS) namespace...
 	@ cimmof  -I$(PG_MOF_PATH) -n$(INTERNALNS) $(PG_MOF_PATH)/PG_InternalSchema$(PG_SCHEMA_VER).mof
 

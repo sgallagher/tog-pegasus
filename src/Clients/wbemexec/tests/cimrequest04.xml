@@ -5,10 +5,11 @@
    <SIMPLEREQ>
     <IMETHODCALL NAME="EnumerateClassNames">
      <LOCALNAMESPACEPATH>
-      <NAMESPACE NAME="root"/>
+      <NAMESPACE NAME="test"/>
+      <NAMESPACE NAME="static"/>
      </LOCALNAMESPACEPATH>
      <IPARAMVALUE NAME="ClassName">
-      <CLASSNAME NAME="CIM_Statistics"/>
+      <CLASSNAME NAME="WET_Statistics"/>
      </IPARAMVALUE>
      <IPARAMVALUE NAME="DeepInheritance">
       <VALUE> TRUE </VALUE>
@@ -18,10 +19,11 @@
    <SIMPLEREQ>
     <IMETHODCALL NAME="EnumerateClassNames">
      <LOCALNAMESPACEPATH>
-      <NAMESPACE NAME="root"/>
+      <NAMESPACE NAME="test"/>
+      <NAMESPACE NAME="static"/>
      </LOCALNAMESPACEPATH>
      <IPARAMVALUE NAME="ClassName">
-      <CLASSNAME NAME="CIM_Setting"/>
+      <CLASSNAME NAME="WET_Setting"/>
      </IPARAMVALUE>
      <IPARAMVALUE NAME="DeepInheritance">
       <VALUE> TRUE </VALUE>

@@ -13,10 +13,6 @@ include $(ROOT)/mak/configschema.mak
 # be loaded into the static tests namespace.
 # Update the following variable to change the version.
 
-CIM_SCHEMA_VER=25
-CIM_SCHEMA_DIR=CIM$(CIM_SCHEMA_VER)
-CIM_MOF_PATH = $(ROOT)/Schemas/$(CIM_SCHEMA_DIR)
-
 STATICTESTNS=test/static
 STATICTESTNSDIRECTORY=$(REPOSITORY_ROOT)/test\#static
 
@@ -24,7 +20,9 @@ repository:
 	@ echo +++++ Removing existing repository named $(STATICTESTNS)
 	@$(RMREPOSITORY) $(STATICTESTNSDIRECTORY)
 	@ echo +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(STATICTESTNS) namespace ...
-	@ cimmofl -R$(REPOSITORY_DIR) -I$(CIM_MOF_PATH) -n$(STATICTESTNS) $(CIM_MOF_PATH)/CIM_Core$(CIM_SCHEMA_VER).mof
+	@ cimmofl -R$(REPOSITORY_DIR) -I$(CIM_SCHEMA_DIR) -n$(STATICTESTNS) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
+	@ echo +++++ Loading WET_Schema into $(STATICTESTNS) namespace ...
+	@ cimmofl -R$(REPOSITORY_DIR) -n$(STATICTESTNS) WET_Schema.mof
 	@ echo +++++ Loading Static Test Schema into $(STATICTESTNS) namespace ...
 	@ cimmofl -R$(REPOSITORY_DIR) -n$(STATICTESTNS) StaticTestSchema.mof
 	@ echo +++++ Registering Static Tests Schema Providers  ...
@@ -32,11 +30,14 @@ repository:
 
 repositoryServer:
 	@ echo +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(STATICTESTNS) namespace ...
-	@ cimmof -I$(CIM_MOF_PATH) -n$(STATICTESTNS) $(CIM_MOF_PATH)/CIM_Core$(CIM_SCHEMA_VER).mof
+	@ cimmof -I$(CIM_SCHEMA_DIR) -n$(STATICTESTNS) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
+	@ echo +++++ Loading WET_Schema into $(STATICTESTNS) namespace ...
+	@ cimmof -n$(STATICTESTNS) WET_Schema.mof
 	@ echo +++++ Loading Static Test Schema into $(STATICTESTNS) namespace ...
 	@ cimmof -n$(STATICTESTNS) StaticTestSchema.mof
 	@ echo +++++ Registering Static Tests Schema Providers  ...
 	@ cimmof -n$(INTEROPNS) StaticTestSchemaR.mof
+
 removerepository:
 	@ echo +++++ Removing existing repository named $(STATICTESTNS)
 	@$(RMREPOSITORY) $(STATICTESTNSDIRECTORY)

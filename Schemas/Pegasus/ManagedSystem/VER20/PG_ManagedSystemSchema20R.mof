@@ -3,6 +3,4 @@
 #pragma include ("PG_UnixProcess20R.mof")
 #pragma include ("IBM_CIMOMStatDataR.mof")
 #pragma include ("PG_Processor20R.mof")
-// old #pragma include ("PG_DNSAdminDomain20R.mof")
-// old #pragma include ("PG_NTPAdminDomain20R.mof")
 #pragma include ("PG_IP20R.mof")

@@ -17,10 +17,6 @@ PG_SCHEMA_VER=20
 PG_SCHEMA_DIR=VER$(PG_SCHEMA_VER)
 PG_MOF_PATH=$(ROOT)/Schemas/Pegasus/InterOp/$(PG_SCHEMA_DIR)
 
-CIM_SCHEMA_VER=25
-CIM_SCHEMA_DIR=CIM$(CIM_SCHEMA_VER)
-CIM_MOF_PATH = $(ROOT)/Schemas/$(CIM_SCHEMA_DIR)
-
 all:
 
 # Delete and rebuild the repository using the MOF compiler.
@@ -29,13 +25,13 @@ repository:
 	@ echo +++++ Removing existing repository named $(INTEROPNS)
 	@ $(RMREPOSITORY) $(INTEROPNSDIRECTORY)
 	@ echo +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(INTEROPNS) namespace ...
-	@ $(CIMMOFCLI) -R$(REPOSITORY_DIR) -I$(CIM_MOF_PATH) -n$(INTEROPNS) $(CIM_MOF_PATH)/CIM_Core$(CIM_SCHEMA_VER).mof
+	@ $(CIMMOFCLI) -R$(REPOSITORY_DIR) -I$(CIM_SCHEMA_DIR) -n$(INTEROPNS) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
 	@ echo +++++ Loading PG_InterOpSchema$(PG_SCHEMA_VER).mof into $(INTEROPNS) namespace...
 	@ $(CIMMOFCLI) -R$(REPOSITORY_DIR) -I$(PG_MOF_PATH) -n$(INTEROPNS) $(PG_MOF_PATH)/PG_InterOpSchema$(PG_SCHEMA_VER).mof
 
 repositoryServer:
 	@ echo +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(INTEROPNS) namespace ...
-	@ cimmof -I$(CIM_MOF_PATH) -n$(INTEROPNS) $(CIM_MOF_PATH)/CIM_Core$(CIM_SCHEMA_VER).mof
+	@ cimmof -I$(CIM_SCHEMA_DIR) -n$(INTEROPNS) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
 	@ echo +++++ Loading PG_InterOpSchema$(PG_SCHEMA_VER).mof into $(INTEROPNS) namespace...
 	@ cimmof -I$(PG_MOF_PATH) -n$(INTEROPNS) $(PG_MOF_PATH)/PG_InterOpSchema$(PG_SCHEMA_VER).mof
 

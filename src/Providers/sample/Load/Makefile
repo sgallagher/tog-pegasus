@@ -13,10 +13,6 @@ include $(ROOT)/mak/configschema.mak
 # be loaded into the Sample Provider namespace.
 # Update the following variable to change the version.
 
-CIM_SCHEMA_VER=25
-CIM_SCHEMA_DIR=CIM$(CIM_SCHEMA_VER)
-CIM_MOF_PATH = $(ROOT)/Schemas/$(CIM_SCHEMA_DIR)
-
 SAMPLEPROVIDERNS=root/SampleProvider
 SAMPLEPROVIDERNSDIRECTORY=$(REPOSITORY_ROOT)/root\#SampleProvider
 
@@ -26,9 +22,9 @@ repository:
 	@ echo +++++ Removing existing repository named $(SAMPLEPROVIDERNS)
 	@$(RMREPOSITORY) $(SAMPLEPROVIDERNSDIRECTORY)
 	@ echo +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
-	@ cimmofl -R$(REPOSITORY_DIR) -I$(CIM_MOF_PATH) -n$(SAMPLEPROVIDERNS) $(CIM_MOF_PATH)/CIM_Core$(CIM_SCHEMA_VER).mof
-	@ echo +++++ Loading CIM_Events$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
-	@ cimmofl -R$(REPOSITORY_DIR) -I$(CIM_MOF_PATH) -n$(SAMPLEPROVIDERNS) $(CIM_MOF_PATH)/CIM_Events$(CIM_SCHEMA_VER).mof
+	@ cimmofl -R$(REPOSITORY_DIR) -I$(CIM_SCHEMA_DIR) -n$(SAMPLEPROVIDERNS) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
+	@ echo +++++ Loading CIM_Event$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
+	@ cimmofl -R$(REPOSITORY_DIR) -I$(CIM_SCHEMA_DIR) -n$(SAMPLEPROVIDERNS) $(CIM_SCHEMA_DIR)/CIM_Event$(CIM_SCHEMA_VER).mof
 	@ echo +++++ Loading SampleProvider class definitions into $(SAMPLEPROVIDERNS) namespace ...
 	@ cimmofl -R$(REPOSITORY_DIR) -n$(SAMPLEPROVIDERNS) SampleProviderSchema.mof
 	@ cimmofl -R$(REPOSITORY_DIR) -n$(SAMPLEPROVIDERNS) RT_Indication.mof
@@ -37,9 +33,9 @@ repository:
 
 repositoryServer:
 	@ echo +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
-	@ cimmof -I$(CIM_MOF_PATH) -n$(SAMPLEPROVIDERNS) $(CIM_MOF_PATH)/CIM_Core$(CIM_SCHEMA_VER).mof
-	@ echo +++++ Loading CIM_Events$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
-	@ cimmof -I$(CIM_MOF_PATH) -n$(SAMPLEPROVIDERNS) $(CIM_MOF_PATH)/CIM_Events$(CIM_SCHEMA_VER).mof
+	@ cimmof -I$(CIM_SCHEMA_DIR) -n$(SAMPLEPROVIDERNS) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
+	@ echo +++++ Loading CIM_Event$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
+	@ cimmof -I$(CIM_SCHEMA_DIR) -n$(SAMPLEPROVIDERNS) $(CIM_SCHEMA_DIR)/CIM_Event$(CIM_SCHEMA_VER).mof
 	@ echo +++++ Loading SampleProvider class definitions into $(SAMPLEPROVIDERNS) namespace ...
 	@ cimmof -n$(SAMPLEPROVIDERNS) SampleProviderSchema.mof
 	@ cimmof -n$(SAMPLEPROVIDERNS) RT_Indication.mof

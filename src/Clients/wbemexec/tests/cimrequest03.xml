@@ -5,8 +5,8 @@
          <METHODCALL NAME="myMethod">
             <LOCALCLASSPATH>
                <LOCALNAMESPACEPATH>
-                  <NAMESPACE NAME="root"> </NAMESPACE>
-                  <NAMESPACE NAME="cimv2"> </NAMESPACE>
+                  <NAMESPACE NAME="test"> </NAMESPACE>
+                  <NAMESPACE NAME="static"> </NAMESPACE>
                   <NAMESPACE NAME="myspace"> </NAMESPACE>
                </LOCALNAMESPACEPATH>
                <CLASSNAME NAME="myClass"/>

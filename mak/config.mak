@@ -59,6 +59,17 @@ LIB_DIR = $(HOME_DIR)/lib
 REPOSITORY_DIR = $(HOME_DIR)
 REPOSITORY_ROOT = $(REPOSITORY_DIR)/repository
 
+# The two variables, CIM_SCHEMA_DIR and CIM_SCHEMA_VER,
+# are used to control the version of the CIM Schema 
+# loaded into the Pegasus Internal, InterOp,
+# root/cimv2 and various test namespaces.
+#
+# Update the following two environment variables to 
+# change the version.
+
+CIM_SCHEMA_DIR=$(PEGASUS_ROOT)/Schemas/CIMPrelim271
+CIM_SCHEMA_VER=27
+
 LEX = flex
 
 ################################################################################

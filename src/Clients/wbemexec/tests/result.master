@@ -9,14 +9,11 @@ wbemexec -p 5988 -v 1.1 -m M-POST -t 10000 -u guest -w guest ./cimrequest.xml
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="EnumerateClassNames">
 <IRETURNVALUE>
-<CLASSNAME NAME="PG_UnixProcessStatistics"/>
-<CLASSNAME NAME="CIM_ErrorCountersForDevice"/>
-<CLASSNAME NAME="CIM_PhysicalStatistics"/>
-<CLASSNAME NAME="CIM_DeviceStatistics"/>
-<CLASSNAME NAME="CIM_SAPStatistics"/>
-<CLASSNAME NAME="CIM_ServiceStatistics"/>
-<CLASSNAME NAME="CIM_BGPServiceStatistics"/>
-<CLASSNAME NAME="CIM_SystemStatistics"/>
+<CLASSNAME NAME="WET_PhysicalStatistics"/>
+<CLASSNAME NAME="WET_DeviceStatistics"/>
+<CLASSNAME NAME="WET_SAPStatistics"/>
+<CLASSNAME NAME="WET_ServiceStatistics"/>
+<CLASSNAME NAME="WET_SystemStatistics"/>
 </IRETURNVALUE>
 </IMETHODRESPONSE>
 </SIMPLERSP>
@@ -32,14 +29,11 @@ wbemexec -p5988 -v1.1 -mM-POST -t10000 -uguest -wguest ./cimrequest.xml
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="EnumerateClassNames">
 <IRETURNVALUE>
-<CLASSNAME NAME="PG_UnixProcessStatistics"/>
-<CLASSNAME NAME="CIM_ErrorCountersForDevice"/>
-<CLASSNAME NAME="CIM_PhysicalStatistics"/>
-<CLASSNAME NAME="CIM_DeviceStatistics"/>
-<CLASSNAME NAME="CIM_SAPStatistics"/>
-<CLASSNAME NAME="CIM_ServiceStatistics"/>
-<CLASSNAME NAME="CIM_BGPServiceStatistics"/>
-<CLASSNAME NAME="CIM_SystemStatistics"/>
+<CLASSNAME NAME="WET_PhysicalStatistics"/>
+<CLASSNAME NAME="WET_DeviceStatistics"/>
+<CLASSNAME NAME="WET_SAPStatistics"/>
+<CLASSNAME NAME="WET_ServiceStatistics"/>
+<CLASSNAME NAME="WET_SystemStatistics"/>
 </IRETURNVALUE>
 </IMETHODRESPONSE>
 </SIMPLERSP>
@@ -55,14 +49,11 @@ wbemexec < ./cimrequest.xml
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="EnumerateClassNames">
 <IRETURNVALUE>
-<CLASSNAME NAME="PG_UnixProcessStatistics"/>
-<CLASSNAME NAME="CIM_ErrorCountersForDevice"/>
-<CLASSNAME NAME="CIM_PhysicalStatistics"/>
-<CLASSNAME NAME="CIM_DeviceStatistics"/>
-<CLASSNAME NAME="CIM_SAPStatistics"/>
-<CLASSNAME NAME="CIM_ServiceStatistics"/>
-<CLASSNAME NAME="CIM_BGPServiceStatistics"/>
-<CLASSNAME NAME="CIM_SystemStatistics"/>
+<CLASSNAME NAME="WET_PhysicalStatistics"/>
+<CLASSNAME NAME="WET_DeviceStatistics"/>
+<CLASSNAME NAME="WET_SAPStatistics"/>
+<CLASSNAME NAME="WET_ServiceStatistics"/>
+<CLASSNAME NAME="WET_SystemStatistics"/>
 </IRETURNVALUE>
 </IMETHODRESPONSE>
 </SIMPLERSP>
@@ -79,14 +70,11 @@ wbemexec -v 1.0 ./cimrequest.xml
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="EnumerateClassNames">
 <IRETURNVALUE>
-<CLASSNAME NAME="PG_UnixProcessStatistics"/>
-<CLASSNAME NAME="CIM_ErrorCountersForDevice"/>
-<CLASSNAME NAME="CIM_PhysicalStatistics"/>
-<CLASSNAME NAME="CIM_DeviceStatistics"/>
-<CLASSNAME NAME="CIM_SAPStatistics"/>
-<CLASSNAME NAME="CIM_ServiceStatistics"/>
-<CLASSNAME NAME="CIM_BGPServiceStatistics"/>
-<CLASSNAME NAME="CIM_SystemStatistics"/>
+<CLASSNAME NAME="WET_PhysicalStatistics"/>
+<CLASSNAME NAME="WET_DeviceStatistics"/>
+<CLASSNAME NAME="WET_SAPStatistics"/>
+<CLASSNAME NAME="WET_ServiceStatistics"/>
+<CLASSNAME NAME="WET_SystemStatistics"/>
 </IRETURNVALUE>
 </IMETHODRESPONSE>
 </SIMPLERSP>
@@ -102,14 +90,11 @@ wbemexec -v 1.1 ./cimrequest.xml
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="EnumerateClassNames">
 <IRETURNVALUE>
-<CLASSNAME NAME="PG_UnixProcessStatistics"/>
-<CLASSNAME NAME="CIM_ErrorCountersForDevice"/>
-<CLASSNAME NAME="CIM_PhysicalStatistics"/>
-<CLASSNAME NAME="CIM_DeviceStatistics"/>
-<CLASSNAME NAME="CIM_SAPStatistics"/>
-<CLASSNAME NAME="CIM_ServiceStatistics"/>
-<CLASSNAME NAME="CIM_BGPServiceStatistics"/>
-<CLASSNAME NAME="CIM_SystemStatistics"/>
+<CLASSNAME NAME="WET_PhysicalStatistics"/>
+<CLASSNAME NAME="WET_DeviceStatistics"/>
+<CLASSNAME NAME="WET_SAPStatistics"/>
+<CLASSNAME NAME="WET_ServiceStatistics"/>
+<CLASSNAME NAME="WET_SystemStatistics"/>
 </IRETURNVALUE>
 </IMETHODRESPONSE>
 </SIMPLERSP>
@@ -126,14 +111,11 @@ wbemexec -m POST ./cimrequest.xml
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="EnumerateClassNames">
 <IRETURNVALUE>
-<CLASSNAME NAME="PG_UnixProcessStatistics"/>
-<CLASSNAME NAME="CIM_ErrorCountersForDevice"/>
-<CLASSNAME NAME="CIM_PhysicalStatistics"/>
-<CLASSNAME NAME="CIM_DeviceStatistics"/>
-<CLASSNAME NAME="CIM_SAPStatistics"/>
-<CLASSNAME NAME="CIM_ServiceStatistics"/>
-<CLASSNAME NAME="CIM_BGPServiceStatistics"/>
-<CLASSNAME NAME="CIM_SystemStatistics"/>
+<CLASSNAME NAME="WET_PhysicalStatistics"/>
+<CLASSNAME NAME="WET_DeviceStatistics"/>
+<CLASSNAME NAME="WET_SAPStatistics"/>
+<CLASSNAME NAME="WET_ServiceStatistics"/>
+<CLASSNAME NAME="WET_SystemStatistics"/>
 </IRETURNVALUE>
 </IMETHODRESPONSE>
 </SIMPLERSP>
@@ -149,14 +131,11 @@ wbemexec -m M-POST ./cimrequest.xml
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="EnumerateClassNames">
 <IRETURNVALUE>
-<CLASSNAME NAME="PG_UnixProcessStatistics"/>
-<CLASSNAME NAME="CIM_ErrorCountersForDevice"/>
-<CLASSNAME NAME="CIM_PhysicalStatistics"/>
-<CLASSNAME NAME="CIM_DeviceStatistics"/>
-<CLASSNAME NAME="CIM_SAPStatistics"/>
-<CLASSNAME NAME="CIM_ServiceStatistics"/>
-<CLASSNAME NAME="CIM_BGPServiceStatistics"/>
-<CLASSNAME NAME="CIM_SystemStatistics"/>
+<CLASSNAME NAME="WET_PhysicalStatistics"/>
+<CLASSNAME NAME="WET_DeviceStatistics"/>
+<CLASSNAME NAME="WET_SAPStatistics"/>
+<CLASSNAME NAME="WET_ServiceStatistics"/>
+<CLASSNAME NAME="WET_SystemStatistics"/>
 </IRETURNVALUE>
 </IMETHODRESPONSE>
 </SIMPLERSP>
@@ -172,14 +151,11 @@ wbemexec -v 1.0 -m POST ./cimrequest.xml
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="EnumerateClassNames">
 <IRETURNVALUE>
-<CLASSNAME NAME="PG_UnixProcessStatistics"/>
-<CLASSNAME NAME="CIM_ErrorCountersForDevice"/>
-<CLASSNAME NAME="CIM_PhysicalStatistics"/>
-<CLASSNAME NAME="CIM_DeviceStatistics"/>
-<CLASSNAME NAME="CIM_SAPStatistics"/>
-<CLASSNAME NAME="CIM_ServiceStatistics"/>
-<CLASSNAME NAME="CIM_BGPServiceStatistics"/>
-<CLASSNAME NAME="CIM_SystemStatistics"/>
+<CLASSNAME NAME="WET_PhysicalStatistics"/>
+<CLASSNAME NAME="WET_DeviceStatistics"/>
+<CLASSNAME NAME="WET_SAPStatistics"/>
+<CLASSNAME NAME="WET_ServiceStatistics"/>
+<CLASSNAME NAME="WET_SystemStatistics"/>
 </IRETURNVALUE>
 </IMETHODRESPONSE>
 </SIMPLERSP>
@@ -195,14 +171,11 @@ wbemexec -v 1.1 -m POST ./cimrequest.xml
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="EnumerateClassNames">
 <IRETURNVALUE>
-<CLASSNAME NAME="PG_UnixProcessStatistics"/>
-<CLASSNAME NAME="CIM_ErrorCountersForDevice"/>
-<CLASSNAME NAME="CIM_PhysicalStatistics"/>
-<CLASSNAME NAME="CIM_DeviceStatistics"/>
-<CLASSNAME NAME="CIM_SAPStatistics"/>
-<CLASSNAME NAME="CIM_ServiceStatistics"/>
-<CLASSNAME NAME="CIM_BGPServiceStatistics"/>
-<CLASSNAME NAME="CIM_SystemStatistics"/>
+<CLASSNAME NAME="WET_PhysicalStatistics"/>
+<CLASSNAME NAME="WET_DeviceStatistics"/>
+<CLASSNAME NAME="WET_SAPStatistics"/>
+<CLASSNAME NAME="WET_ServiceStatistics"/>
+<CLASSNAME NAME="WET_SystemStatistics"/>
 </IRETURNVALUE>
 </IMETHODRESPONSE>
 </SIMPLERSP>
@@ -218,14 +191,11 @@ wbemexec -v 1.1 -m M-POST ./cimrequest.xml
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="EnumerateClassNames">
 <IRETURNVALUE>
-<CLASSNAME NAME="PG_UnixProcessStatistics"/>
-<CLASSNAME NAME="CIM_ErrorCountersForDevice"/>
-<CLASSNAME NAME="CIM_PhysicalStatistics"/>
-<CLASSNAME NAME="CIM_DeviceStatistics"/>
-<CLASSNAME NAME="CIM_SAPStatistics"/>
-<CLASSNAME NAME="CIM_ServiceStatistics"/>
-<CLASSNAME NAME="CIM_BGPServiceStatistics"/>
-<CLASSNAME NAME="CIM_SystemStatistics"/>
+<CLASSNAME NAME="WET_PhysicalStatistics"/>
+<CLASSNAME NAME="WET_DeviceStatistics"/>
+<CLASSNAME NAME="WET_SAPStatistics"/>
+<CLASSNAME NAME="WET_ServiceStatistics"/>
+<CLASSNAME NAME="WET_SystemStatistics"/>
 </IRETURNVALUE>
 </IMETHODRESPONSE>
 </SIMPLERSP>
@@ -242,14 +212,11 @@ wbemexec -t 4294967295 ./cimrequest.xml
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="EnumerateClassNames">
 <IRETURNVALUE>
-<CLASSNAME NAME="PG_UnixProcessStatistics"/>
-<CLASSNAME NAME="CIM_ErrorCountersForDevice"/>
-<CLASSNAME NAME="CIM_PhysicalStatistics"/>
-<CLASSNAME NAME="CIM_DeviceStatistics"/>
-<CLASSNAME NAME="CIM_SAPStatistics"/>
-<CLASSNAME NAME="CIM_ServiceStatistics"/>
-<CLASSNAME NAME="CIM_BGPServiceStatistics"/>
-<CLASSNAME NAME="CIM_SystemStatistics"/>
+<CLASSNAME NAME="WET_PhysicalStatistics"/>
+<CLASSNAME NAME="WET_DeviceStatistics"/>
+<CLASSNAME NAME="WET_SAPStatistics"/>
+<CLASSNAME NAME="WET_ServiceStatistics"/>
+<CLASSNAME NAME="WET_SystemStatistics"/>
 </IRETURNVALUE>
 </IMETHODRESPONSE>
 </SIMPLERSP>
@@ -323,14 +290,11 @@ wbemexec - < ./cimrequest.xml
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="EnumerateClassNames">
 <IRETURNVALUE>
-<CLASSNAME NAME="PG_UnixProcessStatistics"/>
-<CLASSNAME NAME="CIM_ErrorCountersForDevice"/>
-<CLASSNAME NAME="CIM_PhysicalStatistics"/>
-<CLASSNAME NAME="CIM_DeviceStatistics"/>
-<CLASSNAME NAME="CIM_SAPStatistics"/>
-<CLASSNAME NAME="CIM_ServiceStatistics"/>
-<CLASSNAME NAME="CIM_BGPServiceStatistics"/>
-<CLASSNAME NAME="CIM_SystemStatistics"/>
+<CLASSNAME NAME="WET_PhysicalStatistics"/>
+<CLASSNAME NAME="WET_DeviceStatistics"/>
+<CLASSNAME NAME="WET_SAPStatistics"/>
+<CLASSNAME NAME="WET_ServiceStatistics"/>
+<CLASSNAME NAME="WET_SystemStatistics"/>
 </IRETURNVALUE>
 </IMETHODRESPONSE>
 </SIMPLERSP>
@@ -348,14 +312,11 @@ wbemexec - ./cimrequest.xml
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="EnumerateClassNames">
 <IRETURNVALUE>
-<CLASSNAME NAME="PG_UnixProcessStatistics"/>
-<CLASSNAME NAME="CIM_ErrorCountersForDevice"/>
-<CLASSNAME NAME="CIM_PhysicalStatistics"/>
-<CLASSNAME NAME="CIM_DeviceStatistics"/>
-<CLASSNAME NAME="CIM_SAPStatistics"/>
-<CLASSNAME NAME="CIM_ServiceStatistics"/>
-<CLASSNAME NAME="CIM_BGPServiceStatistics"/>
-<CLASSNAME NAME="CIM_SystemStatistics"/>
+<CLASSNAME NAME="WET_PhysicalStatistics"/>
+<CLASSNAME NAME="WET_DeviceStatistics"/>
+<CLASSNAME NAME="WET_SAPStatistics"/>
+<CLASSNAME NAME="WET_ServiceStatistics"/>
+<CLASSNAME NAME="WET_SystemStatistics"/>
 </IRETURNVALUE>
 </IMETHODRESPONSE>
 </SIMPLERSP>
@@ -594,14 +555,11 @@ wbemexec -u nonuser ./cimrequest.xml
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="EnumerateClassNames">
 <IRETURNVALUE>
-<CLASSNAME NAME="PG_UnixProcessStatistics"/>
-<CLASSNAME NAME="CIM_ErrorCountersForDevice"/>
-<CLASSNAME NAME="CIM_PhysicalStatistics"/>
-<CLASSNAME NAME="CIM_DeviceStatistics"/>
-<CLASSNAME NAME="CIM_SAPStatistics"/>
-<CLASSNAME NAME="CIM_ServiceStatistics"/>
-<CLASSNAME NAME="CIM_BGPServiceStatistics"/>
-<CLASSNAME NAME="CIM_SystemStatistics"/>
+<CLASSNAME NAME="WET_PhysicalStatistics"/>
+<CLASSNAME NAME="WET_DeviceStatistics"/>
+<CLASSNAME NAME="WET_SAPStatistics"/>
+<CLASSNAME NAME="WET_ServiceStatistics"/>
+<CLASSNAME NAME="WET_SystemStatistics"/>
 </IRETURNVALUE>
 </IMETHODRESPONSE>
 </SIMPLERSP>
@@ -619,14 +577,11 @@ wbemexec -w nonpassword ./cimrequest.xml
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="EnumerateClassNames">
 <IRETURNVALUE>
-<CLASSNAME NAME="PG_UnixProcessStatistics"/>
-<CLASSNAME NAME="CIM_ErrorCountersForDevice"/>
-<CLASSNAME NAME="CIM_PhysicalStatistics"/>
-<CLASSNAME NAME="CIM_DeviceStatistics"/>
-<CLASSNAME NAME="CIM_SAPStatistics"/>
-<CLASSNAME NAME="CIM_ServiceStatistics"/>
-<CLASSNAME NAME="CIM_BGPServiceStatistics"/>
-<CLASSNAME NAME="CIM_SystemStatistics"/>
+<CLASSNAME NAME="WET_PhysicalStatistics"/>
+<CLASSNAME NAME="WET_DeviceStatistics"/>
+<CLASSNAME NAME="WET_SAPStatistics"/>
+<CLASSNAME NAME="WET_ServiceStatistics"/>
+<CLASSNAME NAME="WET_SystemStatistics"/>
 </IRETURNVALUE>
 </IMETHODRESPONSE>
 </SIMPLERSP>

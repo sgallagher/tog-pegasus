@@ -4,10 +4,11 @@
   <SIMPLEREQ>
    <IMETHODCALL>
     <LOCALNAMESPACEPATH>
-     <NAMESPACE NAME="root"/>
+     <NAMESPACE NAME="test"/>
+     <NAMESPACE NAME="static"/>
     </LOCALNAMESPACEPATH>
     <IPARAMVALUE NAME="ClassName">
-     <CLASSNAME NAME="CIM_Statistics"/>
+     <CLASSNAME NAME="WET_Statistics"/>
     </IPARAMVALUE>
     <IPARAMVALUE NAME="DeepInheritance">
      <VALUE>

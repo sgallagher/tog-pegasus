@@ -28,7 +28,6 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <fcntl.h>
-#include <unistd.h>
 #include <sys/stat.h>
 #include "snmpDeliverTrap_stub.h"
 

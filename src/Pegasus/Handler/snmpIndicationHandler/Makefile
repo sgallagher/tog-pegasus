@@ -10,10 +10,15 @@ LIBRARIES = \
     $(LIB_DIR)/$(LIB_PREFIX)pegcommon$(LIB_SUFFIX) \
     $(LIB_DIR)/$(LIB_PREFIX)pegconfig$(LIB_SUFFIX) \
     $(LIB_DIR)/$(LIB_PREFIX)peggetoopt$(LIB_SUFFIX) \
-    $(LIB_DIR)/$(LIB_PREFIX)pegclient$(LIB_SUFFIX) \
-    $(LIB_DIR)/$(LIB_PREFIX)pegcliutils$(LIB_SUFFIX) \
+    $(LIB_DIR)/$(LIB_PREFIX)pegclient$(LIB_SUFFIX) 
 
-SOURCES = snmpIndicationHandler.cpp snmpDeliverTrap_emanate.cpp snmpDeliverTrap_stub.cpp
+SOURCES = snmpIndicationHandler.cpp
+
+ifdef PEGASUS_AGENT
+ SOURCES += snmpDeliverTrap_emanate.cpp
+else
+ SOURCES += snmpDeliverTrap_stub.cpp
+endif
 
 LIBRARY = snmpIndicationHandler
  

@@ -20,6 +20,8 @@ else
   COMPARERESULTS = @$(ECHO) "Results not compared."
 endif
 
+TMP_DIR = .
+
 default:
 
 

@@ -118,6 +118,14 @@ void CIMClassRep::addProperty(const CIMProperty& x)
             
     }
 
+    // Reject addition of a reference property without a referenceClassName
+
+    if ((x.getType() == CIMTYPE_REFERENCE) &&
+        (x.getReferenceClassName().isNull()))
+    {
+        throw TypeMismatchException();
+    }
+
     // Set the class origin:
     // ATTN: put this check in other places:
 

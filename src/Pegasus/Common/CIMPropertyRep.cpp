@@ -63,11 +63,11 @@ CIMPropertyRep::CIMPropertyRep(
         if (_value.getType() != CIMTYPE_REFERENCE)
             throw TypeMismatchException();
     }
-    else
-    {
-        if (_value.getType() == CIMTYPE_REFERENCE)
-            throw TypeMismatchException();
-    }
+
+    // Can a property be of reference type with a null referenceClassName?
+    // The DMTF says yes if it is a property of an instance; no if it is a
+    // property of a class.  We'll allow it here, but check in the CIMClass
+    // addProperty() method.
 }
 
 CIMPropertyRep::~CIMPropertyRep()
@@ -107,6 +107,12 @@ void CIMPropertyRep::resolve(
 
     if (_value.getType() == CIMTYPE_REFERENCE)
 	scope = CIMScope::REFERENCE;
+
+    // Get the reference class name from the inherited property
+    if (_value.getType() == CIMTYPE_REFERENCE)
+    {
+        _referenceClassName = inheritedProperty.getReferenceClassName();
+    }
 
     _qualifiers.resolve(
 	declContext,
@@ -183,7 +189,10 @@ void CIMPropertyRep::toXml(Array<Sint8>& out) const
 
 	out << " NAME=\"" << _name << "\" ";
 
-	out << " REFERENCECLASS=\"" << _referenceClassName << "\"";
+        if (!_referenceClassName.isNull())
+        {
+            out << " REFERENCECLASS=\"" << _referenceClassName << "\"";
+        }
 
 	if (!_classOrigin.isNull())
 	    out << " CLASSORIGIN=\"" << _classOrigin << "\"";

@@ -1732,36 +1732,36 @@ Array<CIMInstance> ProviderRegistrationProvider::_getIndicationCapInstances(
              {
                   _providerName = keys[j].getValue();
              }
+	}
 
-	     //
-	     // if capability instance has same module name as moduleName
-	     // and same provider name as providerName, get provider type
-	     //
-	     if(String::equal(_moduleName, moduleName) &&
-		String::equal(_providerName, providerName))
-	     {
-		  capInstance = _providerRegistrationManager->getInstance
+       //
+       // if capability instance has same module name as moduleName
+       // and same provider name as providerName, get provider type
+       //
+       if(String::equal(_moduleName, moduleName) &&
+          String::equal(_providerName, providerName))
+       {
+	    capInstance = _providerRegistrationManager->getInstance
 				(instanceNames[i]);
 
-		  Uint32 pos = capInstance.findProperty(CIMName (_PROPERTY_PROVIDERTYPE));
-    		  if (pos != PEG_NOT_FOUND)
-		  {
-		       capInstance.getProperty(pos).getValue().get(providerTypes); 
+	    Uint32 pos = capInstance.findProperty(CIMName (_PROPERTY_PROVIDERTYPE));
+    	    if (pos != PEG_NOT_FOUND)
+	    {
+	        capInstance.getProperty(pos).getValue().get(providerTypes); 
 
-    			for (Uint32 k=0; k < providerTypes.size(); k++)
-    			{
-			    // 
-		 	    // if provider type of the instance is indication,
-			    // append the instance 
-			    //
-        		    if (providerTypes[k] == _INDICATION_PROVIDER)
-        		    {
-            			indCapInstances.append(capInstance);
-        		    }
-    			}
-		  }
-  	     }
-        }
+    		for (Uint32 k=0; k < providerTypes.size(); k++)
+    		{
+		    // 
+		    // if provider type of the instance is indication,
+		    // append the instance 
+		    //
+        	    if (providerTypes[k] == _INDICATION_PROVIDER)
+        	    {
+            	        indCapInstances.append(capInstance);
+        	    }
+    		}
+	    }
+	}
     }
 
     return (indCapInstances);

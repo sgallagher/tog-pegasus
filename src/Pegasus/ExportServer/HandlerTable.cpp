@@ -27,6 +27,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Config.h>
 #include <cstdlib>
 // #include <dlfcn.h>
 #include <Pegasus/Common/Destroyer.h>

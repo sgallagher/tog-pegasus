@@ -27,6 +27,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Config.h>
 #include <cctype>
 #include <cstdio>
 #include <Pegasus/Common/XmlParser.h>

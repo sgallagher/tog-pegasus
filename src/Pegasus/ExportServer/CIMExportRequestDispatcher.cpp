@@ -27,6 +27,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Common/CIMOMHandle.h>
 #include <Pegasus/Repository/CIMRepository.h>

@@ -28,6 +28,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Config.h>
 #include "WbemExecClientHandler.h"
 #include "WbemExecClientHandlerFactory.h"
 

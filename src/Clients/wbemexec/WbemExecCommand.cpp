@@ -29,6 +29,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 // define asprintf used to implement ultostr on Linux
+#include <Pegasus/Common/Config.h>
 #if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
 #define _GNU_SOURCE
 #include <features.h>
@@ -37,7 +38,6 @@
 
 #include <iostream>
 #include <Pegasus/Client/CIMClient.h>
-#include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/String.h>

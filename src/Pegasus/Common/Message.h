@@ -32,9 +32,9 @@
 #ifndef Pegasus_Message_h
 #define Pegasus_Message_h
 
+#include <Pegasus/Common/Config.h>
 #include <iostream>
 #include <cstring>
-#include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/IPC.h>
 

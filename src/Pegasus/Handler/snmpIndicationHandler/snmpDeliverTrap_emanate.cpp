@@ -27,6 +27,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Config.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/stat.h>

@@ -26,6 +26,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Config.h>
 #include <cassert>
 #include <Pegasus/Common/Monitor.h>
 #include <Pegasus/Common/HTTPConnector.h>
@@ -312,7 +313,11 @@ int main(int argc, char** argv)
     try
     {
 	Monitor* monitor = new Monitor;
-	HTTPConnector* httpConnector = new HTTPConnector(monitor);
+	//HTTPConnector* httpConnector = new HTTPConnector(monitor);
+        // Test SSL
+        String certpath("~/src/pegasus");
+        SSLContext * sslcontext = new SSLContext(certpath);
+	HTTPConnector* httpConnector = new HTTPConnector(monitor,sslcontext);
 	CIMClient client(monitor, httpConnector);
 
 	client.connect("localhost:5988");

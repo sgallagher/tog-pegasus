@@ -28,6 +28,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Config.h>
 #include "WbemExecException.h"
 
 PEGASUS_NAMESPACE_BEGIN

@@ -28,6 +28,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Config.h>
 #include "CommandException.h"
 
 PEGASUS_NAMESPACE_BEGIN

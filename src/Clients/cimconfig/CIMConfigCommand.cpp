@@ -29,8 +29,8 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 
-#include <Pegasus/getoopt/getoopt.h>
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/getoopt/getoopt.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Monitor.h>

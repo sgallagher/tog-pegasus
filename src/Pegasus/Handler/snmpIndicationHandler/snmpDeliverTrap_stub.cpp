@@ -27,6 +27,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Config.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include "snmpDeliverTrap_stub.h"

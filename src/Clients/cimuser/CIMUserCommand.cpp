@@ -26,6 +26,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Config.h>
+
 #include <iostream>
 
 #include <Clients/cliutils/Command.h>
@@ -37,7 +39,6 @@
 #include <Pegasus/Common/CIMProperty.h>
 #include <Pegasus/Common/CIMReference.h>
 #include <Pegasus/Common/CIMStatusCode.h>
-#include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/HTTPConnector.h>

@@ -28,6 +28,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/TCPChannel.h>
 #include <Pegasus/Common/Selector.h>
 #include <Pegasus/Common/Array.h>

@@ -26,6 +26,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Config.h>
+
 #include <iostream>
 
 #include <Clients/cliutils/Command.h>

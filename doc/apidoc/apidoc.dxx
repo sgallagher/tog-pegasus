@@ -1,7 +1,6 @@
 /* api.dxx - Top Level file for Developer api Documentation.
 This file defines the document strucuture and provides the introduction
 
-	
 	$Author: karl $
 */
 /* do not change the following Name.  Used in the Frame definition.
@@ -12,7 +11,7 @@ If you change it, the HTML Frame must also be changed.
 <CENTER><FONT Size=+4>PEGASUS Public APIs</FONT></CENTER>
 
 <P><B><CENTER>STATUS: DRAFT FOR REVIEW</CENTER></B>
-<SMALL><CENTER>version 1.01 13 September 2003</CENTER></SMALL>
+<SMALL><CENTER>version 1.01 13 September 2003, Pegasus 2.3</CENTER></SMALL>
 
 Pegasus is an open source implementation of the manageability environment defined by the DMTF WBEM standards.
 
@@ -22,17 +21,13 @@ Pegasus is an open source implementation of the manageability environment define
 
 This manual serves as both a manual for installation and operation of the prototype version of Pegasus and a manual for developing components to attach to Pegasus. In addition to the manual, we keep current working information in a set of README files within the Pegasus distributions. Please consult these files also.
 
-Within this manual you will find:
+Within this document you will find:
 <UL>
-<LI>Information on the installation and operation of the broker and additional components.
-<LI> A basic defintion of the architecture and function of Pegasus.
-<LI>The current definition of the programming interfaces that Pegasus allows.  As these interfaces are stabilized they will be moved from this document to an Open Group specificaton.
-<LI>A number of defintions of additional code that is
-available to interface with Pegasus as providers, consumers, and services.
+<LI>definition of the public APIs defined for the current version of Pegasus including the client, CIMOM, and provider APIs
+<LI> Information on the status of these APIs (frozen, experimental, etc.)
+<LI> Usage examples of the APIs with the defintions.
 </UL>
-
 */
-
 
 /* The following is the complete file hiearchy for this document.
    We have tried to keep all file references in only this one place
@@ -42,54 +37,45 @@ available to interface with Pegasus as providers, consumers, and services.
 TBD: Pegasus API version information
 */
 
-/** @name Pegasus CIM OBjects and General Function APIs
+/** @name Pegasus CIM Objects and Common Function APIs
 	NOTE: This needs to be reorganized to take into account a structure for these APIs 
 */    
         //@{
            //@{ 
 		//@Include: ../../src/Pegasus/Common/Array.h
+		//@Include: ../../src/Pegasus/Common/ArrayInter.h
 		//@Include: ../../src/Pegasus/Common/Boolean.h
 		//@Include: ../../src/Pegasus/Common/CIMClass.h
-		//@Include: ../../src/Pegasus/Common/CIMClassRep.h
 		//@Include: ../../src/Pegasus/Common/CIMDateTime.h
-		//@Include: ../../src/Pegasus/Common/CIMExceptionRep.h
 		//@Include: ../../src/Pegasus/Common/CIMFlavor.h
 		//@Include: ../../src/Pegasus/Common/CIMIndication.h
 		//@Include: ../../src/Pegasus/Common/CIMInstance.h
-		//@Include: ../../src/Pegasus/Common/CIMInstanceRep.h
-		//@Include: ../../src/Pegasus/Common/CIMMessage.h
 		//@Include: ../../src/Pegasus/Common/CIMMethod.h
-		//@Include: ../../src/Pegasus/Common/CIMMethodRep.h
 		//@Include: ../../src/Pegasus/Common/CIMName.h
-		//@Include: ../../src/Pegasus/Common/CIMOMPort.h
 		//@Include: ../../src/Pegasus/Common/CIMObject.h
 		//@Include: ../../src/Pegasus/Common/CIMObjectPath.h
-		//@Include: ../../src/Pegasus/Common/CIMObjectRep.h
 		//@Include: ../../src/Pegasus/Common/CIMParamValue.h
-		//@Include: ../../src/Pegasus/Common/CIMParamValueRep.h
 		//@Include: ../../src/Pegasus/Common/CIMParameter.h
-		//@Include: ../../src/Pegasus/Common/CIMParameterRep.h
 		//@Include: ../../src/Pegasus/Common/CIMPredicate.h
 		//@Include: ../../src/Pegasus/Common/CIMProperty.h
 		//@Include: ../../src/Pegasus/Common/CIMPropertyList.h
-		//@Include: ../../src/Pegasus/Common/CIMPropertyRep.h
 		//@Include: ../../src/Pegasus/Common/CIMQualifier.h
 		//@Include: ../../src/Pegasus/Common/CIMQualifierDecl.h
-		//@Include: ../../src/Pegasus/Common/CIMQualifierDeclRep.h
 		//@Include: ../../src/Pegasus/Common/CIMQualifierList.h
-		//@Include: ../../src/Pegasus/Common/CIMQualifierNames.h
-		//@Include: ../../src/Pegasus/Common/CIMQualifierRep.h
-		//@Include: ../../src/Pegasus/Common/CIMRepositoryBase.h
 		//@Include: ../../src/Pegasus/Common/CIMScope.h
 		//@Include: ../../src/Pegasus/Common/CIMStatusCode.h
 		//@Include: ../../src/Pegasus/Common/CIMType.h
 		//@Include: ../../src/Pegasus/Common/CIMValue.h
 		//@Include: ../../src/Pegasus/Common/Char16.h
-		//@Include: ../../src/Pegasus/Common/Formatter.h
-		//@Include: ../../src/Pegasus/Common/OperationContext.h
-		//@Include: ../../src/Pegasus/Common/Queue.h
-		//@Include: ../../src/Pegasus/Common/Stopwatch.h
+		//@Include: ../../src/Pegasus/Common/Config.h
 		//@Include: ../../src/Pegasus/Common/String.h
+		
+		//@Include: ../../src/Pegasus/Common/OperationContext.h
+		//@Include: ../../src/Pegasus/Common/ResponseHandler.h
+		
+		//@Include: ../../src/Pegasus/Common/SSLContext.h
+		 /* effective 2.3 */
+		//@Include: ../../src/Pegasus/Common/CIMIndication.h
 
         	//@{
 		/// @name Exceptions  
@@ -98,7 +84,7 @@ TBD: Pegasus API version information
             //@}
         	
 	//@}
-    /// @name Client and Provider Interfaces
+    /// @name ClientInterfaces
        //@{
 	    /** @name Pegasus Operations
 	    NOTE That this section should probably go away
@@ -110,23 +96,19 @@ TBD: Pegasus API version information
 		//@{    
 		    //@Include: ../../src/Pegasus/Client/CIMClient.h
 		//@}
-    	   /// @name Pegasus Provider Interfaces
-    	   	//@{
-
-			//@Include: ../../src/Pegasus/Provider/CIMProvider.h
-			//@Include: ../../src/Pegasus/Provider/CIMAssociationProvider.h
-			//@Include: ../../src/Pegasus/Provider/CIMClassProvider.h
-			//@Include: ../../src/Pegasus/Provider/CIMIndicationConsumer.h
-			//@Include: ../../src/Pegasus/Provider/CIMIndicationProvider.h
-			//@Include: ../../src/Pegasus/Provider/CIMInstanceProvider.h
-			//@Include: ../../src/Pegasus/Provider/CIMMethodProvider.h
-			//@Include: ../../src/Pegasus/Provider/CIMNullProvider.h
-			//@Include: ../../src/Pegasus/Provider/CIMOMHandle.h
-			//@Include: ../../src/Pegasus/Provider/CIMPropertyProvider.h
-			//@Include: ../../src/Pegasus/Provider/CIMQueryProvider.h
-			//@Include: ../../src/Pegasus/Provider/ProviderException.h
-		//@}  	 
        //@}
+   /// @name Pegasus Provider Interfaces
+	//@{
+
+		//@Include: ../../src/Pegasus/Provider/CIMProvider.h
+		//@Include: ../../src/Pegasus/Provider/CIMAssociationProvider.h
+		//@Include: ../../src/Pegasus/Provider/CIMIndicationConsumer.h
+		//@Include: ../../src/Pegasus/Provider/CIMIndicationProvider.h
+		//@Include: ../../src/Pegasus/Provider/CIMInstanceProvider.h
+		//@Include: ../../src/Pegasus/Provider/CIMMethodProvider.h
+		//@Include: ../../src/Pegasus/Provider/CIMOMHandle.h
+		//@Include: ../../src/Pegasus/Provider/ProviderException.h
+	//@}  	 
 /** @name Document References
 
 This section will contain references to external documents.

@@ -19,32 +19,33 @@ else
 endif
 
 ifdef PEGASUS_MU_BIN_DIR
-  ifdef BACKWARD_SLASH
-     FULL_PROGRAM = $(PEGASUS_MU_BIN_DIR)\$(PROGRAM)$(EXE)
-  else
-     FULL_PROGRAM = $(PEGASUS_MU_BIN_DIR)/$(PROGRAM)$(EXE)
-  endif
+    ifdef BACKWARD_SLASH
+       FULL_PROGRAM = $(PEGASUS_MU_BIN_DIR)\$(PROGRAM)$(EXE)
+    else
+       FULL_PROGRAM = $(PEGASUS_MU_BIN_DIR)/$(PROGRAM)$(EXE)
+    endif
 else
-   FULL_PROGRAM = $(PROGRAM)$(EXE)
+    FULL_PROGRAM = $(PROGRAM)$(EXE)
 endif
 
 
 SOURCES = \
-    $(PLATFORM_SOURCES) \
-    DependCmd.cpp \
-    PwdCmd.cpp \
-    CompareCmd.cpp \
-    MoveCmd.cpp \
-    CopyCmd.cpp \
-    TouchCmd.cpp \
-    EchoCmd.cpp \
-    MkDirHierCmd.cpp \
-    RmDirHierCmd.cpp \
-    RmCmd.cpp \
-    Files.cpp \
-    mu.cpp \
-    StripCmd.cpp \
-    PrependCmd.cpp
+    $(PLATFORM_SOURCES)     \
+    DependCmd.cpp           \
+    PwdCmd.cpp              \
+    CompareCmd.cpp          \
+    MoveCmd.cpp             \
+    CopyCmd.cpp             \
+    TouchCmd.cpp            \
+    EchoCmd.cpp             \
+    MkDirHierCmd.cpp        \
+    RmDirHierCmd.cpp        \
+    RmCmd.cpp               \
+    Files.cpp               \
+    mu.cpp                  \
+    StripCmd.cpp            \
+    PrependCmd.cpp          \
+    SleepCmd.cpp
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 

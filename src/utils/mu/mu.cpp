@@ -27,6 +27,8 @@
 //
 // Author: Michael E. Brasher
 //
+// Modified By: David Dillard, VERITAS Software Corp. (david.dillard@veritas.com)
+//
 //%=============================================================================
 
 #include <iostream>
@@ -43,19 +45,18 @@
 #include "TouchCmd.h"
 #include "StripCmd.h"
 #include "PrependCmd.h"
+#include "SleepCmd.h"
 #include "Files.h"
 
 const char HELP[] =
 "\n"
-"MU (MakeUtility) Version 1.4.1\n"
+"MU (MakeUtility) Version 1.5.0\n"
 "\n"
 "Usage: mu command arguments ...\n"
 "\n"
 "Where command is one of the following:\n"
 "    rm, rmdirhier, mkdirhier, echo, touch, pwd, copy, move, compare depend\n"
-"    strip prepend\n";
-
-const char* PROGRAM_NAME = "";
+"    strip prepend sleep\n";
 
 int main(int argc, char** argv)
 {
@@ -63,8 +64,8 @@ int main(int argc, char** argv)
 
     if (argc == 2 && strcmp(argv[1], "-help") == 0 || argc < 2)
     {
-	cerr << HELP << endl;
-	exit(1);
+        cerr << HELP << endl;
+        return(1);
     }
 
     // Build up the argument list (expanding as we go)
@@ -75,50 +76,49 @@ int main(int argc, char** argv)
 
     for (int i = 2; i < argc; i++)
     {
-	vector<string> argsOut;
+        vector<string> argsOut;
 
-	if (Glob(argv[i], argsOut))
-	    args.insert(args.end(), argsOut.begin(), argsOut.end());
-	else
-	    args.push_back(argv[i]);
+    if (Glob(argv[i], argsOut))
+        args.insert(args.end(), argsOut.begin(), argsOut.end());
+    else
+        args.push_back(argv[i]);
     }
 
     // Execute the command:
 
     int result = 0;
 
-#if 1
     if (args[0] == "rm")
-	result = RmCmd(args);
+        result = RmCmd(args);
     else if (args[0] == "rmdirhier")
-	result = RmDirHierCmd(args);
+        result = RmDirHierCmd(args);
     else if (args[0] == "mkdirhier")
-	result = MkDirHierCmd(args);
+        result = MkDirHierCmd(args);
     else if (args[0] == "echo")
-	result = EchoCmd(args);
+        result = EchoCmd(args);
     else if (args[0] == "touch")
-	result = TouchCmd(args);
+        result = TouchCmd(args);
     else if (args[0] == "pwd")
-	result = PwdCmd(args);
+        result = PwdCmd(args);
     else if (args[0] == "copy")
-	result = CopyCmd(args);
+        result = CopyCmd(args);
     else if (args[0] == "move")
-	result = MoveCmd(args);
+        result = MoveCmd(args);
     else if (args[0] == "compare")
-	result = CompareCmd(args);
+        result = CompareCmd(args);
     else if (args[0] == "depend")
-	result = DependCmd(args);
+        result = DependCmd(args);
     else if (args[0] == "strip")
-	result = StripCmd(args);
+        result = StripCmd(args);
     else if (args[0] == "prepend")
-	result = PrependCmd(args);
+        result = PrependCmd(args);
+    else if (args[0] == "sleep")
+        result = SleepCmd(args);
     else
     {
-	result = 1;
-	cerr << args[0] << ": unknown command: \"" << args[0] << "\"" << endl;
+        result = 1;
+        cerr << args[0] << ": unknown command: \"" << args[0] << "\"" << endl;
     }
-#endif
 
-    exit(result);
-    return 0;
+    return(result);
 }

@@ -612,7 +612,10 @@ void System::openlog(const String ident)
 {
 #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
 
-    ::openlog(ident.getCString(), LOG_PID|LOG_CONS, LOG_DAEMON);
+    // ATTN: Hard-code the "cimserver" identifier until the infrastructure
+    // is set up to pass this as the "ident" string.
+    //::openlog(ident.getCString(), LOG_PID|LOG_CONS, LOG_DAEMON);
+    ::openlog("cimserver", LOG_PID|LOG_CONS, LOG_DAEMON);
 
 #endif
 

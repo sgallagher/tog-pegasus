@@ -611,7 +611,8 @@ PEGASUS_NAMESPACE_BEGIN
 
 SSLContext::SSLContext(const String& certPath,
                        const String& randomFile,
-                       Boolean isCIMClient) throw(SSL_Exception) {}
+                       Boolean isCIMClient,
+                       VERIFY_CERTIFICATE verifyCert) throw(SSL_Exception) {}
 SSLContext::~SSLContext() {}
 SSL_CTX * SSLContext::getContext() { return NULL; }
 

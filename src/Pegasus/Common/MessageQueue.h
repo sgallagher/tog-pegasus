@@ -153,7 +153,7 @@ public:
 	the message queue can inform the caller that it does not want
 	to handle the message by returning false **/
 
-    virtual Boolean messageOK(const Message & msg) { return true ;}
+    virtual Boolean messageOK(const Message *msg) { return true ;}
     
     /** Lookup a message queue from a queue id. */
     static MessageQueue* lookup(Uint32 queueId) throw(IPCException);

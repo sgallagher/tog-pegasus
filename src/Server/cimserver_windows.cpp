@@ -507,7 +507,7 @@ int platform_run( int argc, char** argv, Boolean shutdownOption )
 					//cout << "\nPegasus installed as NT Service";
 					MessageLoaderParms parms(
 						"src.Server.cimserver.INSTALLED_NT_SERVICE",
-						"\nPegasus installed as Windows Service");
+						"\nPegasus installed as a Windows service");
 					cout << MessageLoader::getMessage(parms) << endl;
 					exit(0);
 				}
@@ -532,7 +532,7 @@ int platform_run( int argc, char** argv, Boolean shutdownOption )
 					//cout << "\nPegasus removed as NT Service";
 					MessageLoaderParms parms(
 						"src.Server.cimserver.REMOVED_NT_SERVICE",
-						"\nPegasus removed as Windows Service");
+						"\nPegasus removed as a Windows service");
 					cout << MessageLoader::getMessage(parms) << endl;
 					exit(0);
 				}
@@ -558,7 +558,7 @@ int platform_run( int argc, char** argv, Boolean shutdownOption )
 					//cout << "\nPegasus started as NT Service";
 					MessageLoaderParms parms(
 						"src.Server.cimserver.STARTED_NT_SERVICE",
-						"\nPegasus started as Windows Service");
+						"\nPegasus started as a Windows service");
 					cout << MessageLoader::getMessage(parms) << endl;
 					exit(0);
 				}
@@ -583,7 +583,7 @@ int platform_run( int argc, char** argv, Boolean shutdownOption )
 					//cout << "\nPegasus stopped as NT Service";
 					MessageLoaderParms parms(
 						"src.Server.cimserver.STOPPED_NT_SERVICE",
-						"\nPegasus stopped as Windows Service");
+						"\nPegasus stopped as a Windows service");
 					cout << MessageLoader::getMessage(parms) << endl;
 					exit(0);
 				}

@@ -34,6 +34,8 @@
 //
 // Modified By: Dave Rosckes (rosckes@us.ibm.com)
 //              Amit K Arora (amita@in.ibm.com) for PEP101
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -821,7 +823,7 @@ Boolean System::isSystemUser(const char* userName)
     return true;
 }
 
-Boolean System::isPrivilegedUser(const String userName)
+Boolean System::isPrivilegedUser(const String& userName)
 {
     //
     // Check if the given user is a privileged user

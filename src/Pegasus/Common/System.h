@@ -32,6 +32,8 @@
 //
 // Modified By: Dave Rosckes (rosckes@us.ibm.com)
 //              Robert Kieninger, IBM (kieningr@de.ibm.com) for Bug#667
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -192,7 +194,7 @@ public:
     @param userName     User name to be checked.
     @return             true if the user is a privileged user, else false
     */
-    static Boolean isPrivilegedUser(const String userName);
+    static Boolean isPrivilegedUser(const String& userName);
 
     /**
     This function returns the privileged user name on the system.

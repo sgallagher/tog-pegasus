@@ -127,7 +127,7 @@ Boolean System::isSystemUser(const char* userName)
     return true;
 }
 
-Boolean System::isPrivilegedUser(const String userName)
+Boolean System::isPrivilegedUser(const String& userName)
 {
     // ATTN: Implement this method to verify if user executing the current
     //       command is a priviliged user, when user name is not passed as

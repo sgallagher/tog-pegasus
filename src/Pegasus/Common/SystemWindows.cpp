@@ -35,6 +35,8 @@
 //              Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
 //              Amit K Arora, IBM (amita@in.ibm.com) for Bug#1428
 //				Seema Gupta (gseema@in.ibm.com) for Bug#1617
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -358,7 +360,7 @@ Boolean System::isSystemUser(const char* userName)
     return true;
 }
 
-Boolean System::isPrivilegedUser(const String userName)
+Boolean System::isPrivilegedUser(const String& userName)
 {
     // ATTN: Implement this method to verify if user executing the current
     //       command is a priviliged user, when user name is not passed as

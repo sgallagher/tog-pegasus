@@ -26,6 +26,7 @@
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //              Mike Day, IBM (mdday@us.ibm.com)
+//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,7 +35,6 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/IPC.h>
-
 #include <Pegasus/Provider/CIMProvider.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Provider/CIMClassProvider.h>
@@ -44,10 +44,10 @@
 #include <Pegasus/Provider/CIMQueryProvider.h>
 #include <Pegasus/Provider/CIMIndicationProvider.h>
 #include <Pegasus/Provider/CIMIndicationConsumerProvider.h>
-
 #include <Pegasus/Server/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
+
 
 // The ProviderModule class wraps a provider pointer extracted from a provider
 // module to ensure it is complete and well behaved. So, regardless of the
@@ -69,10 +69,6 @@ public:
 
     // CIMProvider interface
     virtual void initialize(CIMOMHandle & cimom);
-#ifdef PEGASUS_PRESERVE_TRYTERMINATE
-    virtual Boolean tryTerminate(void);
-#endif
-
     virtual void terminate(void);
 
     // CIMInstanceProvider interface
@@ -252,15 +248,16 @@ public:
         const CIMObjectPath & subscriptionName,
         const Array<CIMObjectPath> & classNames);
 
-    // CIMIndicationConsumer interface
+    // CIMIndicationConsumerProvider interface
     virtual void consumeIndication(
         const OperationContext & context,
-        const String & url,
+        const String & destinationPath,
         const CIMInstance& indicationInstance);
 
 protected:
     CIMProvider * _provider;
     AtomicInt _current_operations;
+    AtomicInt _current_ind_operations;
 
 };
 

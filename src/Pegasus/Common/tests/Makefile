@@ -36,6 +36,7 @@ DIRS = \
     XmlParser \
     XmlPrint \
     Reference \
+    Logger \
     DynLib \
     DynLoad
 

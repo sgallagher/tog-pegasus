@@ -512,6 +512,7 @@ Boolean System::isPrivilegedUser(const String userName)
     //
     // Check if the given user is a privileged user
     //
+#if !defined(PEGASUS_OS_OS400)
     struct passwd   pwd;
     struct passwd   *result;
     char            pwdBuffer[1024];
@@ -524,6 +525,9 @@ Boolean System::isPrivilegedUser(const String userName)
         }
     }
     return false;
+#else
+    return ycmCheckUserCmdAuthorities(userName.getCString());
+#endif
 }
 
 String System::getPrivilegedUserName()
@@ -537,6 +541,7 @@ String System::getPrivilegedUserName()
         //
         //  get the privileged user's UID.
         //
+	//  (on OS/400, this is QSECOFR)
         pwd = getpwuid(0);
         if ( pwd != NULL )
         {

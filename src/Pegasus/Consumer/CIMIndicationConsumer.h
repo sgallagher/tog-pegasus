@@ -35,8 +35,6 @@
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/OperationContext.h>
 
-#include <Pegasus/Consumer/Linkage.h>
-
 PEGASUS_NAMESPACE_BEGIN
 
 /**
@@ -44,7 +42,7 @@ This class defines the set of methods implemented by an indication consumer prov
 A providers that derives from this class must implement all methods. The minimal method
 implementation simply throw the NotSupported exception.
 */
-class PEGASUS_CONSUMER_LINKAGE CIMIndicationConsumer
+class CIMIndicationConsumer
 {
 public:
     

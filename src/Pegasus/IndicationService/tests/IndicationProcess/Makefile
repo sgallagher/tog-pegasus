@@ -16,4 +16,3 @@ include $(ROOT)/mak/program.mak
 tests:
 
 poststarttests:
-	@$(PROGRAM)

@@ -29,14 +29,14 @@
 
 #include <Pegasus/Common/Config.h>
 #include <iostream>
-#include <Pegasus/Provider/CIMIndicationConsumerProvider.h>
+#include <Pegasus/Consumer/CIMIndicationConsumer.h>
 #include <Pegasus/Common/XmlWriter.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 PEGASUS_USING_STD;
 
-class PEGASUS_PROVIDER_LINKAGE DisplayConsumer : public CIMIndicationConsumerProvider
+class DisplayConsumer : public CIMIndicationConsumer
 {
 public:
 
@@ -46,16 +46,6 @@ public:
     }
 
     virtual ~DisplayConsumer()
-    {
-
-    }
-
-    void initialize(CIMOMHandle& handle)
-    {
-	
-    }
-
-    void terminate()
     {
 
     }
@@ -77,7 +67,7 @@ public:
 // to load this handler.
 
 extern "C"
-PEGASUS_EXPORT CIMProvider* PegasusCreateProvider(const String& providerName)
+PEGASUS_EXPORT CIMIndicationConsumer* PegasusCreateIndicationConsumer(const String& providerName)
 {
     if (String::equalNoCase(providerName, "DisplayConsumer"))
     {

@@ -9,7 +9,8 @@ LOCAL_DEFINES = -DPEGASUS_CONSUMER_INTERNAL -DPEGASUS_INTERNALONLY
 LIBRARY = RT_IndicationConsumer
 
 LIBRARIES = \
-	 pegcommon 
+	 pegcommon \
+	 pegprovider
 	
 SOURCES = \
    RT_IndicationConsumerMain.cpp \

@@ -9,7 +9,8 @@ LOCAL_DEFINES = -DPEGASUS_CONSUMER_INTERNAL -DPEGASUS_INTERNALONLY -DINDICATION_
 LIBRARY = SimpleDisplayConsumer
 
 LIBRARIES = \
-	 pegcommon
+	 pegcommon \
+	 pegprovider
 	
 SOURCES = \
    SimpleDisplayConsumerMain.cpp \

@@ -11,7 +11,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -44,13 +44,25 @@
 
 #include <Pegasus/Config/ConfigManager.h>
 
+#include <Pegasus/ProviderManager2/ProviderManagerModule.h>
+#include <Pegasus/ProviderManager2/ProviderManager.h>
+
 PEGASUS_NAMESPACE_BEGIN
 
 // BEGIN TEMP SECTION
 class ProviderManagerContainer
 {
 public:
-    ProviderManagerContainer(const String & physicalName, const String & logicalName, const String & interfaceName)
+    ProviderManagerContainer(void) : _manager(0)
+    {
+    }
+
+    ProviderManagerContainer(const ProviderManagerContainer & container) : _manager(0)
+    {
+        *this = container;
+    }
+
+    ProviderManagerContainer(const String & physicalName, const String & logicalName, const String & interfaceName) : _manager(0)
     {
         #if defined(PEGASUS_OS_TYPE_WINDOWS)
         _physicalName = physicalName + String(".dll");
@@ -76,6 +88,8 @@ public:
         _module.load();
 
         _manager = _module.getProviderManager(_logicalName);
+
+        PEGASUS_ASSERT(_manager != 0);
     }
 
     ~ProviderManagerContainer(void)
@@ -83,22 +97,39 @@ public:
         _module.unload();
     }
 
+    ProviderManagerContainer & operator=(const ProviderManagerContainer & container)
+    {
+        if(this == &container)
+        {
+            return(*this);
+        }
+
+        _logicalName = container._logicalName;
+        _physicalName = container._physicalName;
+        _interfaceName = container._interfaceName;
+
+        _module = container._module;
+        _manager = container._manager;
+
+        return(*this);
+    }
+
     ProviderManager & getProviderManager(void)
     {
         return(*_manager);
     }
 
-    String & getPhysicalName(void)
+    const String & getPhysicalName(void) const
     {
         return(_physicalName);
     }
 
-    String & getLogicalName(void)
+    const String & getLogicalName(void) const
     {
         return(_logicalName);
     }
 
-    String & getInterfaceName(void)
+    const String & getInterfaceName(void) const
     {
         return(_interfaceName);
     }
@@ -659,6 +690,12 @@ void ProviderManagerService::handleCimRequest(AsyncOpNode * op, const Message * 
     // find provider manager for provider interface
     for(Uint32 i = 0, n = _providerManagers.size(); i < n; i++)
     {
+        CString s1 = name.getInterfaceName().getCString();
+        const char * p1 = s1;
+
+        CString s2 = _providerManagers[i].getInterfaceName().getCString();
+        const char * p2 = s2;
+
         if(String::equalNoCase(name.getInterfaceName(), _providerManagers[i].getInterfaceName()))
         {
             try
@@ -667,7 +704,7 @@ void ProviderManagerService::handleCimRequest(AsyncOpNode * op, const Message * 
                     "ProviderManagerService::handleCimRequest() passing control to provider manager.");
 
                 // forward request
-                response = _providerManagers[0].getProviderManager().processMessage(request);
+                response = _providerManagers[i].getProviderManager().processMessage(request);
             }
             catch(...)
             {

@@ -11,7 +11,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -66,11 +66,11 @@ static ProviderName _lookupProvider(const CIMObjectPath & cimObjectPath)
         // get the PG_ProviderCapabilities instances for the specified namespace:class_name. use the matching
         // instance to gather the PG_Provider instance name (logical name).
 
-        Array<CIMInstance> cimInstances = _prm->enumerateInstances(CIMObjectPath(String::EMPTY, "root/PG_Interop", "PG_ProviderCapabilities"));
+        Array<CIMObjectPath> cimInstanceNames = _prm->enumerateInstanceNames(CIMObjectPath(String::EMPTY, "root/PG_Interop", "PG_ProviderCapabilities"));
 
-        for(Uint32 i = 0, n = cimInstances.size(); i < n; i++)
+        for(Uint32 i = 0, n = cimInstanceNames.size(); i < n; i++)
         {
-            CIMInstance cimInstance = cimInstances[i];
+            CIMInstance cimInstance = _prm->getInstance(cimInstanceNames[i]);
 
             // check ClassName property value
             if(String::equalNoCase(cimObjectPath.getClassName().getString(), _getPropertyValue(cimInstance, "ClassName").toString()))
@@ -105,11 +105,11 @@ static ProviderName _lookupProvider(const CIMObjectPath & cimObjectPath)
         // get the PG_Provider instances associated with the specified namespace:class_name. use the matching
         // instance to gather the PG_ProviderModule instance name.
 
-        Array<CIMInstance> cimInstances = _prm->enumerateInstances(CIMObjectPath(String::EMPTY, "root/PG_Interop", "PG_Provider"));
+        Array<CIMObjectPath> cimInstanceNames = _prm->enumerateInstanceNames(CIMObjectPath(String::EMPTY, "root/PG_Interop", "PG_Provider"));
 
-        for(Uint32 i = 0, n = cimInstances.size(); i < n; i++)
+        for(Uint32 i = 0, n = cimInstanceNames.size(); i < n; i++)
         {
-            CIMInstance cimInstance = cimInstances[i];
+            CIMInstance cimInstance = _prm->getInstance(cimInstanceNames[i]);
 
             if(String::equalNoCase(providerName, _getPropertyValue(cimInstance, "Name").toString()))
             {
@@ -137,11 +137,11 @@ static ProviderName _lookupProvider(const CIMObjectPath & cimObjectPath)
         // get the PG_ProviderModule instances associated with the specified namespace:class_name. use the matching
         // instance to gather the module status and location (physical name).
 
-        Array<CIMInstance> cimInstances = _prm->enumerateInstances(CIMObjectPath(String::EMPTY, "root/PG_Interop", "PG_ProviderModule"));
+        Array<CIMObjectPath> cimInstanceNames = _prm->enumerateInstanceNames(CIMObjectPath(String::EMPTY, "root/PG_Interop", "PG_ProviderModule"));
 
-        for(Uint32 i = 0, n = cimInstances.size(); i < n; i++)
+        for(Uint32 i = 0, n = cimInstanceNames.size(); i < n; i++)
         {
-            CIMInstance cimInstance = cimInstances[i];
+            CIMInstance cimInstance = _prm->getInstance(cimInstanceNames[i]);
 
             if(String::equalNoCase(moduleName, _getPropertyValue(cimInstance, "Name").toString()))
             {
@@ -166,6 +166,13 @@ static ProviderName _lookupProvider(const CIMObjectPath & cimObjectPath)
     {
         throw Exception("Could not determine PG_ProviderModule.InterfaceType or PG_ProviderModule.Location or module is disabled.");
     }
+
+    // DEBUG
+    CString s1 = interfaceType.getCString();
+    const char * p1 = s1;
+
+    CString s2 = moduleLocation.getCString();
+    const char * p2 = s2;
 
     ProviderName temp(
         cimObjectPath.toString(),
@@ -225,20 +232,6 @@ Boolean ProviderRegistrar::removeProvider(const ProviderName & providerName)
 
     return(false);
 }
-
-// resolve a partial internal name into a fully qualified (as much as possible) internal
-// provider name. for example, given a namespace and class name (embedded in the object
-// name component), this method will determine the physical provider name, the logical
-// provider name, and the provider capabilities for the specific object name
-//
-// given X, this method will provide O.
-//
-// physical_name    logical_name    object_name     capabilities
-// =============================================================
-//      X
-//      O                X
-//      O                O              X                O
-//
 
 void SetProviderRegistrationManager(ProviderRegistrationManager * p)
 {

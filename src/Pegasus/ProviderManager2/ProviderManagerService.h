@@ -11,7 +11,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -45,13 +45,13 @@
 #include <Pegasus/Common/Pair.h>
 #include <Pegasus/Common/MessageQueueService.h>
 
-#include <Pegasus/ProviderManager2/ProviderManagerModule.h>
-#include <Pegasus/ProviderManager2/ProviderManager.h>
 #include <Pegasus/ProviderManager2/SafeQueue.h>
 
 #include <Pegasus/Server/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
+
+class ProviderRegistrationManager;
 
 class PEGASUS_SERVER_LINKAGE ProviderManagerService : public MessageQueueService
 {

@@ -284,8 +284,7 @@ void OperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
 	// Zero-terminate the message:
 
-	Array<Sint8>& message = httpMessage->message;
-	message.append('\0');
+	httpMessage->message.append('\0');
 
 	// If it is a method call, then dispatch it to be handled:
 

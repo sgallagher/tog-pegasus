@@ -64,6 +64,7 @@ class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportRequestDecoder
 
       void sendEMethodError(
 	 Uint32 queueId, 
+         HttpMethod httpMethod,
 	 const String& messageId,
 	 const String& methodName,
 	 const CIMException& cimException);
@@ -82,6 +83,7 @@ class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportRequestDecoder
 
       void handleMethodRequest(
 	 Uint32 queueId,
+         HttpMethod httpMethod,
 	 Sint8* content,
 	 const String& requestUri,
 	 const String& cimProtocolVersionInHeader,

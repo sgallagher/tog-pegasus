@@ -84,6 +84,7 @@ void CIMOperationRequestAuthorizer::sendResponse(
 // Code is duplicated in CIMOperationRequestDecoder
 void CIMOperationRequestAuthorizer::sendIMethodError(
    Uint32 queueId,
+   HttpMethod httpMethod,
    const String& messageId,
    const CIMName& iMethodName,
    const CIMException& cimException)
@@ -95,6 +96,7 @@ void CIMOperationRequestAuthorizer::sendIMethodError(
     message = XmlWriter::formatSimpleIMethodErrorRspMessage(
         iMethodName,
         messageId,
+        httpMethod,
         cimException);
 
     sendResponse(queueId, message);
@@ -357,6 +359,7 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
 
 	 sendIMethodError(
 	    queueId,
+            request->getHttpMethod(),
 	    ((CIMRequestMessage*)request)->messageId,
 	    cimMethodName,
 	    PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, description));
@@ -379,6 +382,7 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
 
       sendIMethodError(
 	 queueId,
+         request->getHttpMethod(),
 	 ((CIMRequestMessage*)request)->messageId,
 	 cimMethodName,
 	 PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, description));

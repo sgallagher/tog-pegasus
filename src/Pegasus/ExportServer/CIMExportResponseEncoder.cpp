@@ -71,6 +71,7 @@ void CIMExportResponseEncoder::sendResponse(
 
 void CIMExportResponseEncoder::sendEMethodError(
    Uint32 queueId, 
+   HttpMethod httpMethod,
    const String& messageId,
    const String& eMethodName,
    const CIMException& cimException) 
@@ -79,6 +80,7 @@ void CIMExportResponseEncoder::sendEMethodError(
     message = XmlWriter::formatSimpleEMethodErrorRspMessage(
         eMethodName,
         messageId,
+        httpMethod,
         cimException);
 
     sendResponse(queueId, message);
@@ -93,6 +95,7 @@ void CIMExportResponseEncoder::sendEMethodError(
 
    sendEMethodError(
       queueId,
+      response->getHttpMethod(),
       response->messageId, 
       cimMethodName, 
       response->cimException);
@@ -134,7 +137,8 @@ void CIMExportResponseEncoder::encodeExportIndicationResponse(
    Array<Sint8> body;
     
    Array<Sint8> message = XmlWriter::formatSimpleEMethodRspMessage(
-      CIMName ("ExportIndication"), response->messageId, body);
+      CIMName ("ExportIndication"), response->messageId, 
+      response->getHttpMethod(), body);
 
    sendResponse(response->queueIds.top(), message);
 }

@@ -224,7 +224,7 @@ public:
 	@return This String
 	<pre>
 	    String t1 = "abc";
-	    t1 += Char16('d')
+	    t1.append (Char16('d'));
 	    assert(t1 == "abcd");
 	</pre>
     */

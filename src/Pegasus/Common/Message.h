@@ -93,6 +93,12 @@ class MessageQueueService;
 class AsyncLegacyOperationStart;
 class AsyncLegacyOperationResult;
 
+enum HttpMethod
+{
+    HTTP_METHOD__POST,
+    HTTP_METHOD_M_POST
+};
+
 /** The Message class and derived classes are used to pass messages between
     modules. Messages are passed between modules using the message queues
     (see MessageQueue class). Derived classes may add their own fields.
@@ -158,6 +164,10 @@ class PEGASUS_COMMON_LINKAGE Message
       Uint32 getMask() const { return _mask; }
 
       void setMask(Uint32 mask) { _mask = mask; }
+
+      HttpMethod getHttpMethod() const { return _httpMethod; }
+
+      void setHttpMethod(HttpMethod httpMethod) {_httpMethod = httpMethod;}
 
 #ifdef PEGASUS_HAS_PERFINST
 //
@@ -253,6 +263,7 @@ class PEGASUS_COMMON_LINKAGE Message
       Uint32 _key;
       Uint32 _routing_code;
       Uint32 _mask;
+      HttpMethod _httpMethod;
 // Needed for performance measurement
       timeval _timeServerStart;
       timeval _timeServerEnd;

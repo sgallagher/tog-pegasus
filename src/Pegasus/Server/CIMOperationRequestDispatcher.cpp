@@ -1011,6 +1011,11 @@ void CIMOperationRequestDispatcher::_enqueueResponse(
    response->setKey(request->getKey());
    response->dest = request->queueIds.top();
 
+   //
+   //  Set HTTP method in response from request
+   //
+   response->setHttpMethod (request->getHttpMethod ());
+
    if( true == Base::_enqueueResponse(request, response))
    {
       PEG_METHOD_EXIT();

@@ -64,12 +64,14 @@ class CIMOperationRequestDecoder : public MessageQueueService
 
       void sendIMethodError(
 	 Uint32 queueId, 
+         HttpMethod httpMethod,
 	 const String& messageId,
 	 const String& methodName,
 	 const CIMException& cimException);
 
       void sendMethodError(
 	 Uint32 queueId, 
+         HttpMethod httpMethod,
 	 const String& messageId,
 	 const String& methodName,
 	 const CIMException& cimException);
@@ -88,6 +90,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 
       void handleMethodCall(
 	 Uint32 queueId,
+         HttpMethod httpMethod,
 	 Sint8* content,
          Uint32 contentLength,
 	 const String& cimProtocolVersionInHeader,

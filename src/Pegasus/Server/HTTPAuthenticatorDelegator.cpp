@@ -223,9 +223,18 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     String methodName;
     String requestUri;
     String httpVersion;
+    HttpMethod httpMethod = HTTP_METHOD__POST;
 
     HTTPMessage::parseRequestLine(
         startLine, methodName, requestUri, httpVersion);
+
+    //
+    //  Set HTTP method for the request
+    //
+    if (methodName == "M-POST")
+    {
+        httpMethod = HTTP_METHOD_M_POST;
+    }
 
     if (methodName != "M-POST" && methodName != "POST")
     {
@@ -233,6 +242,17 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         Array<Sint8> message;
         message = XmlWriter::formatHttpErrorRspMessage(
             HTTP_STATUS_NOTIMPLEMENTED);
+        _sendResponse(queueId, message);
+    }
+    else if ((httpMethod == HTTP_METHOD_M_POST) &&
+             (httpVersion == "HTTP/1.0"))
+    {
+        //
+        //  M-POST method is not valid with version 1.0
+        //
+        Array<Sint8> message;
+        message = XmlWriter::formatHttpErrorRspMessage(
+            HTTP_STATUS_BADREQUEST);
         _sendResponse(queueId, message);
     }
     else

@@ -55,6 +55,7 @@ class CIMOperationResponseEncoder : public MessageQueueService
 
       void sendMethodError(
 	 Uint32 queueId, 
+         HttpMethod httpMethod,
 	 const String& messageId,
 	 const CIMName& methodName,
 	 const CIMException& cimException);
@@ -65,6 +66,7 @@ class CIMOperationResponseEncoder : public MessageQueueService
 
       void sendIMethodError(
 	 Uint32 queueId, 
+         HttpMethod httpMethod,
 	 const String& messageId,
 	 const String& methodName,
 	 const CIMException& cimException);

@@ -86,6 +86,7 @@ void CIMOperationRequestDecoder::sendResponse(
 
 void CIMOperationRequestDecoder::sendIMethodError(
    Uint32 queueId, 
+   HttpMethod httpMethod,
    const String& messageId,
    const String& iMethodName,
    const CIMException& cimException)
@@ -94,6 +95,7 @@ void CIMOperationRequestDecoder::sendIMethodError(
     message = XmlWriter::formatSimpleIMethodErrorRspMessage(
         iMethodName,
         messageId,
+        httpMethod,
         cimException);
 
     sendResponse(queueId, message);
@@ -101,6 +103,7 @@ void CIMOperationRequestDecoder::sendIMethodError(
 
 void CIMOperationRequestDecoder::sendMethodError(
    Uint32 queueId, 
+   HttpMethod httpMethod,
    const String& messageId,
    const String& methodName,
    const CIMException& cimException)
@@ -109,6 +112,7 @@ void CIMOperationRequestDecoder::sendMethodError(
     message = XmlWriter::formatSimpleMethodErrorRspMessage(
         methodName,
         messageId,
+        httpMethod,
         cimException);
     
     sendResponse(queueId, message);
@@ -209,6 +213,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    String methodName;
    String requestUri;
    String httpVersion;
+   HttpMethod httpMethod  = HTTP_METHOD__POST;
 
    Tracer::trace(TRC_XML_IO, Tracer::LEVEL2, "%s",
 		 httpMessage->message.getData());
@@ -216,8 +221,22 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    HTTPMessage::parseRequestLine(
       startLine, methodName, requestUri, httpVersion);
 
+   //
+   //  Set HTTP method for the request
+   //
+   if (methodName == "M-POST")
+   {
+       httpMethod = HTTP_METHOD_M_POST;
+   }
+
    // Unsupported methods are caught in the HTTPAuthenticatorDelegator
    PEGASUS_ASSERT(methodName == "M-POST" || methodName == "POST");
+
+   //
+   //  Mismatch of method and version is caught in HTTPAuthenticatorDelegator
+   //
+   PEGASUS_ASSERT (!((httpMethod == HTTP_METHOD_M_POST) && 
+                     (httpVersion == "HTTP/1.0")));
 
    // Process M-POST and POST messages:
 
@@ -317,7 +336,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
    // If it is a method call, then dispatch it to be handled:
 
-   handleMethodCall(queueId, content, contentLength, 
+   handleMethodCall(queueId, httpMethod, content, contentLength, 
                     cimProtocolVersion, cimMethod,
                     cimObject, authType, userName);
     
@@ -327,6 +346,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
 void CIMOperationRequestDecoder::handleMethodCall(
    Uint32 queueId,
+   HttpMethod httpMethod,
    Sint8* content,
    Uint32 contentLength,    // used for statistics only
    const String& cimProtocolVersionInHeader,
@@ -654,6 +674,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
          {
             sendIMethodError(
                queueId, 
+               httpMethod,
                messageId,
                cimMethodName,
                e);
@@ -839,6 +860,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
          {
             sendMethodError(
                queueId, 
+               httpMethod,
                messageId,
                cimMethodName,
                e);
@@ -912,6 +934,8 @@ void CIMOperationRequestDecoder::handleMethodCall(
    }
 
    STAT_BYTESREAD
+
+   request->setHttpMethod (httpMethod);
 
    _outputQueue->enqueue(request);
    PEG_METHOD_EXIT();

@@ -102,6 +102,7 @@ void CIMExportRequestEncoder::_encodeExportIndicationRequest(
       _hostName,
       CIMName ("ExportIndication"), 
       message->messageId, 
+      message->getHttpMethod(),
       _authenticator->buildRequestAuthHeader(), 
       params);
 

@@ -1230,6 +1230,11 @@ Message* CIMClientRep::_doRequest(
     // ATTN-RK-P2-20020416: We should probably clear out the queue first.
     PEGASUS_ASSERT(getCount() == 0);  // Shouldn't be any messages in our queue
 
+    //
+    //  Set HTTP method in request to M-POST
+    //
+    request->setHttpMethod (HTTP_METHOD_M_POST);
+
     _requestEncoder->enqueue(request);
 
     Uint64 startMilliseconds = TimeValue::getCurrentTime().toMilliseconds();
@@ -1254,6 +1259,11 @@ Message* CIMClientRep::_doRequest(
 	{
             // Shouldn't be any more messages in our queue
             PEGASUS_ASSERT(getCount() == 0);
+
+            //
+            //  ATTN-CAKG-20021001: If HTTP response is 501 Not Implemented
+            //  or 510 Not Extended, retry with POST method
+            //
 
             if (response->getType() == CLIENT_EXCEPTION_MESSAGE)
             {

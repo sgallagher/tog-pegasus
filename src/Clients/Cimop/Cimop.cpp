@@ -87,8 +87,7 @@ int main(const int argc, const char **argv)
         sslContext = new SSLContext(PEGASUS_SSLCLIENT_CERTIFICATEFILE,
                                     verifyServerCertificate,
                                     PEGASUS_SSLCLIENT_RANDOMFILE
-                                    /* "/var/opt/wbem/ssl.rnd" */,
-                                    true);
+                                    /* "/var/opt/wbem/ssl.rnd" */);
       }
       catch (Exception &e)
       {
@@ -699,7 +698,7 @@ int _setProperty(const int argc, const char **argv)
   else strcpy(v,argv[3]);
 
 cout << "namespace: " << _nameSpace << endl;
-cout << "reference: " << ref << endl;
+cout << "reference: " << ref.toString() << endl;
 cout << "propName:  " << pDef.getName().getString() << endl;
 cout << "value:     " << _makeValue(v,pDef).toString() << endl;
 

@@ -53,6 +53,7 @@
 #include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/CIMPropertyList.h>
 #include <Pegasus/Common/CIMParamValue.h>
+#include <Pegasus/Common/Message.h>
 #include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -238,10 +239,12 @@ public:
 	const CIMName& cimMethod,
 	const String& cimObject,
 	const String& authenticationHeader,
+        HttpMethod httpMethod,
 	Uint32 contentLength);
 
     static void appendMethodResponseHeader(
 	Array<Sint8>& out,
+        HttpMethod httpMethod,
 	Uint32 contentLength);
 
     static void appendHttpErrorResponseHeader(
@@ -333,16 +336,19 @@ public:
 	const CIMName& methodName,
 	const Array<CIMParamValue>& parameters,
 	const String& messageId,
+        HttpMethod httpMethod,
         const String& authenticationHeader);
 
     static Array<Sint8> formatSimpleMethodRspMessage(
 	const CIMName& methodName,
         const String& messageId,
+        HttpMethod httpMethod,
 	const Array<Sint8>& body);
 
     static Array<Sint8> formatSimpleMethodErrorRspMessage(
 	const CIMName& methodName,
 	const String& messageId,
+        HttpMethod httpMethod,
 	const CIMException& cimException);
 
     static Array<Sint8> formatSimpleIMethodReqMessage(
@@ -350,17 +356,20 @@ public:
 	const CIMNamespaceName& nameSpace,
 	const CIMName& iMethodName,
 	const String& messageId,
+        HttpMethod httpMethod,
         const String& authenticationHeader,
 	const Array<Sint8>& body);
 
     static Array<Sint8> formatSimpleIMethodRspMessage(
 	const CIMName& iMethodName,
         const String& messageId,
+        HttpMethod httpMethod,
 	const Array<Sint8>& body);
 
     static Array<Sint8> formatSimpleIMethodErrorRspMessage(
 	const CIMName& iMethodName,
 	const String& messageId,
+        HttpMethod httpMethod,
 	const CIMException& cimException);
 
     static void appendEMethodRequestHeader(
@@ -368,11 +377,13 @@ public:
         const char* requestUri,
     	const char* host,
     	const CIMName& cimMethod,
+        HttpMethod httpMethod,
         const String& authenticationHeader,
 	Uint32 contentLength);
 
     static void appendEMethodResponseHeader(
 	Array<Sint8>& out,
+        HttpMethod httpMethod,
 	Uint32 contentLength);
 
     static Array<Sint8> formatSimpleEMethodReqMessage(
@@ -380,17 +391,20 @@ public:
 	const char* host,
 	const CIMName& eMethodName,
 	const String& messageId,
+        HttpMethod httpMethod,
 	const String& authenticationHeader,
 	const Array<Sint8>& body);
 
     static Array<Sint8> formatSimpleEMethodRspMessage(
 	const CIMName& eMethodName,
         const String& messageId,
+        HttpMethod httpMethod,
 	const Array<Sint8>& body);
 
     static Array<Sint8> formatSimpleEMethodErrorRspMessage(
 	const CIMName& eMethodName,
 	const String& messageId,
+        HttpMethod httpMethod,
 	const CIMException& cimException);
 
     static void indentedPrint(

@@ -79,6 +79,7 @@ void CIMExportRequestDecoder::sendResponse(
 
 void CIMExportRequestDecoder::sendEMethodError(
    Uint32 queueId, 
+   HttpMethod httpMethod,
    const String& messageId,
    const String& eMethodName,
    const CIMException& cimException) 
@@ -87,6 +88,7 @@ void CIMExportRequestDecoder::sendEMethodError(
     message = XmlWriter::formatSimpleEMethodErrorRspMessage(
         eMethodName,
         messageId,
+        httpMethod,
         cimException);
 
     sendResponse(queueId, message);
@@ -181,14 +183,29 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    String methodName;
    String requestUri;
    String httpVersion;
+   HttpMethod httpMethod = HTTP_METHOD__POST;
 
    // ATTN-RK-P3-20020404: The requestUri may need to be pruned of the host
    // name.  All we care about at this point is the path.
    HTTPMessage::parseRequestLine(
       startLine, methodName, requestUri, httpVersion);
 
+   //
+   //  Set HTTP method for the request
+   //
+   if (methodName == "M-POST")
+   {
+       httpMethod = HTTP_METHOD_M_POST;
+   }
+
    // Unsupported methods are caught in the HTTPAuthenticatorDelegator
    PEGASUS_ASSERT(methodName == "M-POST" || methodName == "POST");
+
+   //
+   //  Mismatch of method and version is caught in HTTPAuthenticatorDelegator
+   //
+   PEGASUS_ASSERT (!((httpMethod == HTTP_METHOD_M_POST) &&
+                     (httpVersion == "HTTP/1.0")));
 
    // Process M-POST and POST messages:
 
@@ -273,13 +290,14 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
    // If it is a method call, then dispatch it to be handled:
 
-   handleMethodRequest(queueId, content, requestUri, cimProtocolVersion,
-                       cimExportMethod, userName);
+   handleMethodRequest(queueId, httpMethod, content, requestUri, 
+                       cimProtocolVersion, cimExportMethod, userName);
 }
 
 
 void CIMExportRequestDecoder::handleMethodRequest(
    Uint32 queueId,
+   HttpMethod httpMethod,
    Sint8* content,
    const String& requestUri,
    const String& cimProtocolVersionInHeader,
@@ -455,6 +473,7 @@ void CIMExportRequestDecoder::handleMethodRequest(
       {
          sendEMethodError(
             queueId,
+            httpMethod,
             messageId,
             cimExportMethodName,
             e);

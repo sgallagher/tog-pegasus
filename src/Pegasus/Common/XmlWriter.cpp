@@ -1406,6 +1406,7 @@ void XmlWriter::appendMethodCallHeader(
     const CIMName& cimMethod,
     const String& cimObject,
     const String& authenticationHeader,
+    HttpMethod httpMethod,
     Uint32 contentLength)
 {
     char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
@@ -1419,16 +1420,33 @@ void XmlWriter::appendMethodCallHeader(
 #ifdef PEGASUS_SNIA_INTEROP_TEST
     out << "POST /cimom HTTP/1.1\r\n";
 #else
-    out << "M-POST /cimom HTTP/1.1\r\n";
+    if (httpMethod == HTTP_METHOD_M_POST)
+    {
+        out << "M-POST /cimom HTTP/1.1\r\n";
+    }
+    else
+    {
+        out << "POST /cimom HTTP/1.1\r\n";
+    }
 #endif
     out << "HOST: " << host << "\r\n";
     out << "Content-Type: application/xml; charset=\"utf-8\"\r\n";
     out << "Content-Length: " << contentLength << "\r\n";
-    out << "Man: http://www.dmtf.org/cim/mapping/http/v1.0; ns=";
-    out << nn <<"\r\n";
-    out << nn << "-CIMOperation: MethodCall\r\n";
-    out << nn << "-CIMMethod: " << cimMethod << "\r\n";
-    out << nn << "-CIMObject: " << cimObject << "\r\n";
+    if (httpMethod == HTTP_METHOD_M_POST)
+    {
+        out << "Man: http://www.dmtf.org/cim/mapping/http/v1.0; ns=";
+        out << nn <<"\r\n";
+        out << nn << "-CIMOperation: MethodCall\r\n";
+        out << nn << "-CIMMethod: " << cimMethod << "\r\n";
+        out << nn << "-CIMObject: " << cimObject << "\r\n";
+    }
+    else 
+    {
+        out << "CIMOperation: MethodCall\r\n";
+        out << "CIMMethod: " << cimMethod << "\r\n";
+        out << "CIMObject: " << cimObject << "\r\n";
+    }
+
     if (authenticationHeader.size())
     {
         out << authenticationHeader << "\r\n";
@@ -1446,6 +1464,7 @@ void XmlWriter::appendMethodCallHeader(
 
 void XmlWriter::appendMethodResponseHeader(
     Array<Sint8>& out,
+    HttpMethod httpMethod,
     Uint32 contentLength)
 {
     char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
@@ -1454,11 +1473,18 @@ void XmlWriter::appendMethodResponseHeader(
     STAT_SERVERTIME
     out << "Content-Type: application/xml; charset=\"utf-8\"\r\n";
     out << "Content-Length: " << contentLength << "\r\n";
-    out << "Ext:\r\n";
-    out << "Cache-Control: no-cache\r\n";
-    out << "Man: http://www.dmtf.org/cim/mapping/http/v1.0; ns=";
-    out << nn <<"\r\n";
-    out << nn << "-CIMOperation: MethodResponse\r\n\r\n";
+    if (httpMethod == HTTP_METHOD_M_POST)
+    {
+        out << "Ext:\r\n";
+        out << "Cache-Control: no-cache\r\n";
+        out << "Man: http://www.dmtf.org/cim/mapping/http/v1.0; ns=";
+        out << nn <<"\r\n";
+        out << nn << "-CIMOperation: MethodResponse\r\n\r\n";
+    }
+    else
+    {
+        out << "CIMOperation: MethodResponse\r\n\r\n";
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -2062,6 +2088,7 @@ Array<Sint8> XmlWriter::formatSimpleMethodReqMessage(
     const CIMName& methodName,
     const Array<CIMParamValue>& parameters,
     const String& messageId,
+    HttpMethod httpMethod,
     const String& authenticationHeader)
 {
     Array<Sint8> out;
@@ -2088,6 +2115,7 @@ Array<Sint8> XmlWriter::formatSimpleMethodReqMessage(
 	methodName,
 	localObjectPath.toString(),
         authenticationHeader,
+        httpMethod,
 	out.size());
     tmp << out;
 
@@ -2097,6 +2125,7 @@ Array<Sint8> XmlWriter::formatSimpleMethodReqMessage(
 Array<Sint8> XmlWriter::formatSimpleMethodRspMessage(
     const CIMName& methodName,
     const String& messageId,
+    HttpMethod httpMethod,
     const Array<Sint8>& body)
 {
     Array<Sint8> out;
@@ -2110,7 +2139,7 @@ Array<Sint8> XmlWriter::formatSimpleMethodRspMessage(
     _appendSimpleRspElementEnd(out);
     _appendMessageElementEnd(out);
 
-    appendMethodResponseHeader(tmp, out.size());
+    appendMethodResponseHeader(tmp, httpMethod, out.size());
     tmp << out;
 
     return tmp;
@@ -2125,6 +2154,7 @@ Array<Sint8> XmlWriter::formatSimpleMethodRspMessage(
 Array<Sint8> XmlWriter::formatSimpleMethodErrorRspMessage(
     const CIMName& methodName,
     const String& messageId,
+    HttpMethod httpMethod,
     const CIMException& cimException)
 {
     Array<Sint8> out;
@@ -2138,7 +2168,7 @@ Array<Sint8> XmlWriter::formatSimpleMethodErrorRspMessage(
     _appendSimpleRspElementEnd(out);
     _appendMessageElementEnd(out);
 
-    appendMethodResponseHeader(tmp, out.size());
+    appendMethodResponseHeader(tmp, httpMethod, out.size());
     tmp << out;
 
     return tmp;
@@ -2155,6 +2185,7 @@ Array<Sint8> XmlWriter::formatSimpleIMethodReqMessage(
     const CIMNamespaceName& nameSpace,
     const CIMName& iMethodName,
     const String& messageId,
+    HttpMethod httpMethod,
     const String& authenticationHeader,
     const Array<Sint8>& body)
 {
@@ -2176,6 +2207,7 @@ Array<Sint8> XmlWriter::formatSimpleIMethodReqMessage(
 	iMethodName,
 	nameSpace.getString(),
         authenticationHeader,
+        httpMethod,
 	out.size());
     tmp << out;
 
@@ -2191,6 +2223,7 @@ Array<Sint8> XmlWriter::formatSimpleIMethodReqMessage(
 Array<Sint8> XmlWriter::formatSimpleIMethodRspMessage(
     const CIMName& iMethodName,
     const String& messageId,
+    HttpMethod httpMethod,
     const Array<Sint8>& body)
 {
     Array<Sint8> out;
@@ -2209,7 +2242,7 @@ Array<Sint8> XmlWriter::formatSimpleIMethodRspMessage(
     _appendSimpleRspElementEnd(out);
     _appendMessageElementEnd(out);
 
-    appendMethodResponseHeader(tmp, out.size());
+    appendMethodResponseHeader(tmp, httpMethod, out.size());
     tmp << out;
 
     return tmp;
@@ -2224,6 +2257,7 @@ Array<Sint8> XmlWriter::formatSimpleIMethodRspMessage(
 Array<Sint8> XmlWriter::formatSimpleIMethodErrorRspMessage(
     const CIMName& iMethodName,
     const String& messageId,
+    HttpMethod httpMethod,
     const CIMException& cimException)
 {
     Array<Sint8> out;
@@ -2237,7 +2271,7 @@ Array<Sint8> XmlWriter::formatSimpleIMethodErrorRspMessage(
     _appendSimpleRspElementEnd(out);
     _appendMessageElementEnd(out);
 
-    appendMethodResponseHeader(tmp, out.size());
+    appendMethodResponseHeader(tmp, httpMethod, out.size());
     tmp << out;
 
     return tmp;
@@ -2262,19 +2296,36 @@ void XmlWriter::appendEMethodRequestHeader(
     const char* requestUri,
     const char* host,
     const CIMName& cimMethod,
+    HttpMethod httpMethod,
     const String& authenticationHeader,
     Uint32 contentLength)
 {
     char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
 
-    out << "M-POST " << requestUri << " HTTP/1.1\r\n";
+    if (httpMethod == HTTP_METHOD_M_POST)
+    {
+        out << "M-POST " << requestUri << " HTTP/1.1\r\n";
+    }
+    else
+    {
+        out << "POST " << requestUri << " HTTP/1.1\r\n";
+    }
     out << "HOST: " << host << "\r\n";
     out << "Content-Type: application/xml; charset=\"utf-8\"\r\n";
     out << "Content-Length: " << contentLength << "\r\n";
-    out << "Man: http://www.hp.com; ns=";
-    out << nn <<"\r\n";
-    out << nn << "-CIMExport: MethodRequest\r\n";
-    out << nn << "-CIMExportMethod: " << cimMethod << "\r\n";
+    if (httpMethod == HTTP_METHOD_M_POST)
+    {
+        out << "Man: http://www.hp.com; ns=";
+        out << nn <<"\r\n";
+        out << nn << "-CIMExport: MethodRequest\r\n";
+        out << nn << "-CIMExportMethod: " << cimMethod << "\r\n";
+    }
+    else
+    {
+        out << "CIMExport: MethodRequest\r\n";
+        out << "CIMExportMethod: " << cimMethod << "\r\n";
+    }
+
     if (authenticationHeader.size())
     {
         out << authenticationHeader << "\r\n";
@@ -2292,6 +2343,7 @@ void XmlWriter::appendEMethodRequestHeader(
 
 void XmlWriter::appendEMethodResponseHeader(
     Array<Sint8>& out,
+    HttpMethod httpMethod,
     Uint32 contentLength)
 {
     char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
@@ -2299,11 +2351,18 @@ void XmlWriter::appendEMethodResponseHeader(
     out << "HTTP/1.1 " HTTP_STATUS_OK "\r\n";
     out << "Content-Type: application/xml; charset=\"utf-8\"\r\n";
     out << "Content-Length: " << contentLength << "\r\n";
-    out << "Ext:\r\n";
-    out << "Cache-Control: no-cache\r\n";
-    out << "Man: http://www.dmtf.org/cim/mapping/http/v1.0; ns=";
-    out << nn <<"\r\n";
-    out << nn << "-CIMExport: MethodResponse\r\n\r\n";
+    if (httpMethod == HTTP_METHOD_M_POST)
+    {
+        out << "Ext:\r\n";
+        out << "Cache-Control: no-cache\r\n";
+        out << "Man: http://www.dmtf.org/cim/mapping/http/v1.0; ns=";
+        out << nn <<"\r\n";
+        out << nn << "-CIMExport: MethodResponse\r\n\r\n";
+    }
+    else
+    {
+        out << "CIMExport: MethodResponse\r\n\r\n";
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -2405,6 +2464,7 @@ Array<Sint8> XmlWriter::formatSimpleEMethodReqMessage(
     const char* host,
     const CIMName& eMethodName,
     const String& messageId,
+    HttpMethod httpMethod,
     const String& authenticationHeader,
     const Array<Sint8>& body)
 {
@@ -2424,6 +2484,7 @@ Array<Sint8> XmlWriter::formatSimpleEMethodReqMessage(
         requestUri,
         host,
         eMethodName,
+        httpMethod,
         authenticationHeader,
 	out.size());
     tmp << out;
@@ -2440,6 +2501,7 @@ Array<Sint8> XmlWriter::formatSimpleEMethodReqMessage(
 Array<Sint8> XmlWriter::formatSimpleEMethodRspMessage(
     const CIMName& eMethodName,
     const String& messageId,
+    HttpMethod httpMethod,
     const Array<Sint8>& body)
 {
     Array<Sint8> out;
@@ -2453,7 +2515,7 @@ Array<Sint8> XmlWriter::formatSimpleEMethodRspMessage(
     _appendSimpleExportRspElementEnd(out);
     _appendMessageElementEnd(out);
 
-    appendEMethodResponseHeader(tmp, out.size());
+    appendEMethodResponseHeader(tmp, httpMethod, out.size());
     tmp << out;
 
     return tmp;
@@ -2468,6 +2530,7 @@ Array<Sint8> XmlWriter::formatSimpleEMethodRspMessage(
 Array<Sint8> XmlWriter::formatSimpleEMethodErrorRspMessage(
     const CIMName& eMethodName,
     const String& messageId,
+    HttpMethod httpMethod,
     const CIMException& cimException)
 {
     Array<Sint8> out;
@@ -2481,7 +2544,7 @@ Array<Sint8> XmlWriter::formatSimpleEMethodErrorRspMessage(
     _appendSimpleExportRspElementEnd(out);
     _appendMessageElementEnd(out);
 
-    appendEMethodResponseHeader(tmp, out.size());
+    appendEMethodResponseHeader(tmp, httpMethod, out.size());
     tmp << out;
 
     return tmp;

@@ -202,8 +202,8 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
         HTTPMessage::lookupHeader(headers, "CIMError", cimError);
         HTTPMessage::lookupHeader(headers, PEGASUS_HTTPHEADERTAG_ERRORDETAIL, pegasusError);
 
-        CIMClientHTTPError* httpError =
-            new CIMClientHTTPError(statusCode, cimError, pegasusError);
+        CIMClientHTTPErrorException* httpError =
+            new CIMClientHTTPErrorException(statusCode, cimError, pegasusError);
         ClientExceptionMessage * response =
             new ClientExceptionMessage(httpError);
 

@@ -46,7 +46,7 @@ CIMClientMalformedHTTPException::CIMClientMalformedHTTPException(
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// CIMClientHTTPError
+// CIMClientHTTPErrorException
 //
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -81,7 +81,7 @@ static String _makeHTTPErrorMessage(
     return tmp;
 }
 
-CIMClientHTTPError::CIMClientHTTPError(
+CIMClientHTTPErrorException::CIMClientHTTPErrorException(
     Uint32 httpStatusCode, 
     const String& cimError,
     const String& pegasusError)
@@ -94,7 +94,8 @@ CIMClientHTTPError::CIMClientHTTPError(
 {
 }
 
-CIMClientHTTPError::CIMClientHTTPError(const CIMClientHTTPError& httpError)
+CIMClientHTTPErrorException::CIMClientHTTPErrorException(
+    const CIMClientHTTPErrorException& httpError)
     :
     Exception(httpError.getMessage()),
     _httpStatusCode(httpError._httpStatusCode),
@@ -103,17 +104,17 @@ CIMClientHTTPError::CIMClientHTTPError(const CIMClientHTTPError& httpError)
 {
 }
 
-Uint32 CIMClientHTTPError::getCode() const
+Uint32 CIMClientHTTPErrorException::getCode() const
 {
     return _httpStatusCode;
 }
 
-String CIMClientHTTPError::getCIMError() const
+String CIMClientHTTPErrorException::getCIMError() const
 {
     return _cimError;
 }
 
-String CIMClientHTTPError::getPegasusError() const
+String CIMClientHTTPErrorException::getPegasusError() const
 {
     return _pegasusError;
 }

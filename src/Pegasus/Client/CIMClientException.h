@@ -52,14 +52,14 @@ public:
     An exception of this type indicates that an HTTP error response was sent
     by the CIM Server.
 */
-class PEGASUS_CLIENT_LINKAGE CIMClientHTTPError : public Exception
+class PEGASUS_CLIENT_LINKAGE CIMClientHTTPErrorException : public Exception
 {
 public:
-    CIMClientHTTPError(
+    CIMClientHTTPErrorException(
         Uint32 httpStatusCode,
         const String& cimError,
         const String& pegasusError);
-    CIMClientHTTPError(const CIMClientHTTPError& httpError);
+    CIMClientHTTPErrorException(const CIMClientHTTPErrorException& httpError);
 
     Uint32 getCode() const;
     String getCIMError() const;

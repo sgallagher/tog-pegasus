@@ -5150,18 +5150,20 @@ Boolean IndicationService::_getTimeRemaining (
     //
     CIMValue startTimeValue;
     CIMDateTime startTime;
-    startTimeValue = instance.getProperty
-        (instance.findProperty (_PROPERTY_STARTTIME)).getValue ();
+    Uint32 startTimeIndex = instance.findProperty (_PROPERTY_STARTTIME);
+    PEGASUS_ASSERT (startTimeIndex != PEG_NOT_FOUND);
+    startTimeValue = instance.getProperty (startTimeIndex).getValue ();
+    PEGASUS_ASSERT (!(startTimeValue.isNull ()));
     startTimeValue.get (startTime);
 
     //
     //  Get Subscription Duration
     //
-    if (instance.findProperty (_PROPERTY_DURATION) != PEG_NOT_FOUND)
+    Uint32 durationIndex = instance.findProperty (_PROPERTY_DURATION);
+    if (durationIndex != PEG_NOT_FOUND)
     {
         CIMValue durationValue;
-        durationValue = instance.getProperty
-            (instance.findProperty (_PROPERTY_DURATION)).getValue ();
+        durationValue = instance.getProperty (durationIndex).getValue ();
         if (durationValue.isNull ())
         {
             hasDuration = false;
@@ -5172,27 +5174,54 @@ Boolean IndicationService::_getTimeRemaining (
             durationValue.get (duration);
 
             //
-            //  Get current date time, and calculate Subscription Time Remaining
+            //  A Start Time set to the _ZERO_INTERVAL_STRING indicates that 
+            //  the subscription has not yet been enabled for the first time
+            //  In this case, the time remaining is equal to the Duration
             //
-            CIMDateTime currentDateTime = CIMDateTime::getCurrentDateTime ();
+            if (startTime.isInterval ())
+            {
+                if (startTime.equal (CIMDateTime (_ZERO_INTERVAL_STRING)))
+                {
+                    timeRemaining = (Sint64) duration;
+                }
 
-            Sint64 difference;
-            try
-            {
-                difference = CIMDateTime::getDifference
-                    (startTime, currentDateTime);
-            }
-            // Check if the date time is out of range.
-            catch (DateTimeOutOfRangeException& e)
-            {
-                PEG_METHOD_EXIT();
-                throw e;
+                //
+                //  Any interval value other than _ZERO_INTERVAL_STRING
+                //  indicates an invalid Start Time value in the instance
+                //
+                else
+                {
+                    PEGASUS_ASSERT (false);
+                }
             }
 
-            PEGASUS_ASSERT (difference >= 0);
-            if (((Sint64) duration - difference) >= 0)
+            else
             {
-                timeRemaining = (Sint64) duration - difference;
+                //
+                //  Get current date time, and calculate Subscription Time 
+                //  Remaining
+                //
+                CIMDateTime currentDateTime = CIMDateTime::getCurrentDateTime();
+
+                Sint64 difference;
+                try
+                {
+                    difference = CIMDateTime::getDifference
+                        (startTime, currentDateTime);
+                }
+
+                // Check if the date time is out of range.
+                catch (DateTimeOutOfRangeException& e)
+                {
+                    PEG_METHOD_EXIT();
+                    throw e;
+                }
+
+                PEGASUS_ASSERT (difference >= 0);
+                if (((Sint64) duration - difference) >= 0)
+                {
+                    timeRemaining = (Sint64) duration - difference;
+                }
             }
         }
     }

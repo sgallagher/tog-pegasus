@@ -3255,9 +3255,13 @@ void _error (CIMClient & client)
              _buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
                  "Handler00"));
         _addUint16Property (subscription, "SubscriptionState", 4);
+        _addUint64Property (subscription, "SubscriptionDuration", 60000);
         path = client.createInstance (NAMESPACE, subscription);
         CIMInstance retrievedInstance = client.getInstance (NAMESPACE, path);
         _checkUint16Property (retrievedInstance, "SubscriptionState", 4);
+        _checkUint64Property (retrievedInstance, "SubscriptionDuration", 60000);
+        _checkUint64Property (retrievedInstance, "SubscriptionTimeRemaining", 
+            60000);
         _deleteSubscriptionInstance (client, "Filter07", 
             PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler00");
     }
@@ -3586,6 +3590,15 @@ void _cleanup (CIMClient & client)
     {
         _deleteSubscriptionInstance (client, "Filter06", 
             PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");
+    }
+    catch (...)
+    {
+    }
+
+    try
+    {
+        _deleteSubscriptionInstance (client, "Filter07",
+            PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler00");
     }
     catch (...)
     {

@@ -90,30 +90,42 @@ PEGASUS_EXPORT int gethostbyname_r(const char *name,
 }
 #endif
 
-PEGASUS_EXPORT String slp_get_addr_string_from_url(const String & url) 
+PEGASUS_EXPORT void slp_get_addr_string_from_url(const Sint8 *url, String &addr) 
 {
-  String s = String();
-  struct sockaddr_in addr;
-  if( get_addr_from_url( url, &addr) ) {
-    Sint8 *name = new Sint8[255];
+  Sint8 *name = NULL;
+  struct sockaddr_in a;
+  if( get_addr_from_url( url, &a, NULL) ) {
+    name = new Sint8 [ 255 ] ;
 #ifdef _WIN32
-    _snprintf(name, 254, "%s:%d", inet_ntoa(addr.sin_addr), ntohs(addr.sin_port) );
+    _snprintf(name, 254, "%s:%d", inet_ntoa(a.sin_addr), ntohs(a.sin_port) );
 #else
-    snprintf(name, 254, "%s:%d", inet_ntoa(addr.sin_addr), ntohs(addr.sin_port) );
+    snprintf(name, 254, "%s:%d", inet_ntoa(a.sin_addr), ntohs(a.sin_port) );
 #endif
-    s += name;
+    addr.clear();
+    addr = name;
     delete [] name;
   }
-  return(s);
+  return ;
 }
 
-PEGASUS_EXPORT Boolean get_addr_from_url(const String & url, struct sockaddr_in *addr )
+PEGASUS_EXPORT void slp_get_host_string_from_url(const Sint8 *url, String &host) 
+{
+  Sint8 *s;
+  struct sockaddr_in addr;
+  get_addr_from_url(url, &addr, &s );
+  host.clear();
+  host = s; 
+  delete [] s;
+  return ;
+}
+
+PEGASUS_EXPORT Boolean get_addr_from_url(const Sint8 *url, struct sockaddr_in *addr, Sint8 **host)
 {
   Sint8 *bptr, *url_dup;
   Boolean ccode = false;
 
   // isolate the host field 
-  bptr = (url_dup = url.allocateCString());
+  bptr = (url_dup = strdup(url));
   if(bptr == NULL)
     return(false );
 
@@ -139,13 +151,21 @@ PEGASUS_EXPORT Boolean get_addr_from_url(const String & url, struct sockaddr_in 
     // bptr points to the host name or address
     // portptr points to the port or is null
 
+    bptr += 2;
+
+    if(host != NULL) {
+      *host = new Sint8[ strlen(bptr) + strlen(portptr) + 3] ;
+      strcpy(*host, bptr);
+      strcat(*host, ":");
+      strcat(*host, portptr);
+    }
     if (portptr != NULL)
       addr->sin_port = htons( (Sint16)strtoul(portptr, NULL, 0) );
     else
       addr->sin_port = 0x0000;
     addr->sin_family = AF_INET;
     
-    bptr += 2;
+
     addr->sin_addr.s_addr = inet_addr(bptr);
     if(addr->sin_addr.s_addr == INADDR_NONE) {
       struct hostent *host;
@@ -186,16 +206,100 @@ PEGASUS_EXPORT Boolean get_addr_from_url(const String & url, struct sockaddr_in 
 }
  
 
-static Boolean  slp_join_multicast(SOCKET sock, struct in_addr *addr) 
+
+static int slp_get_local_interfaces(Uint32 **list)
+{
+  SOCKET sock;
+  int interfaces = 0;
+
+  delete [] *list;
+
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+
+  if ( INVALID_SOCKET != ( sock  = WSASocket(AF_INET,
+					   SOCK_RAW, 0, NULL, 0, 0) ) ) {
+    char *output_buf = new char[1024];
+    DWORD buf_size = 1024, bytes_returned = 0;
+
+    if ( 0 == WSAIoctl( sock, SIO_ADDRESS_LIST_QUERY, NULL, 0, 
+			output_buf, buf_size, &bytes_returned, NULL, NULL) ) {
+      socket_addr_list *addr_list = (socket_addr_list *)output_buf;
+      *list = new Uint32 [ addr_list->count + 1 ] ;
+      socket_addr *addr = addr_list->list;
+      Uint32 *intp;
+      sockaddr_in *sin;
+      for( interfaces = 0, intp = *list, sin = (sockaddr_in *)addr ; 
+	   interfaces < addr_list->count; 
+	   interfaces++ , intp++  ) {
+	*intp = sin->sin_addr.s_addr;
+	addr++;
+	sin = (sockaddr_in *)addr;
+      }
+      *intp = INADDR_ANY;
+    }
+    delete [] output_buf;
+    _LSLP_CLOSESOCKET(sock);
+  }
+  
+#else
+  if( -1 < (sock = socket(AF_INET, SOCK_DGRAM, 0) ) ) {
+    struct ifconf conf;
+
+    conf.ifc_buf = new char [ 128 * sizeof(struct ifreq )  ];
+    conf.ifc_len = 128 * sizeof( struct ifreq ) ;
+    if( -1 < ioctl(sock, SIOCGIFCONF, &conf ) ) {
+      
+      // count the interfaces 
+
+
+      struct ifreq *r = conf.ifc_req;
+      struct sockaddr_in *addr ;
+      addr = (struct sockaddr_in *)&r->ifr_addr;
+      while(  addr->sin_addr.s_addr != 0 ) {
+	interfaces++;
+	r++;
+	addr = (struct sockaddr_in *)&r->ifr_addr;
+      }
+
+      // now store the addresses
+
+      *list  = new Uint32 [interfaces + 1 ];
+      Uint32 *this_addr = *list;
+      r = conf.ifc_req;
+      addr = (struct sockaddr_in *)&r->ifr_addr;
+      while(  addr->sin_addr.s_addr != 0 ) {
+	*this_addr = addr->sin_addr.s_addr;
+	r++;
+	this_addr++;
+	addr = (struct sockaddr_in *)&r->ifr_addr;
+      }
+      *this_addr = INADDR_ANY;
+    } // did the ioctl 
+    delete [] conf.ifc_buf;
+    _LSLP_CLOSESOCKET(sock);
+  } // opened the socket 
+
+#endif 
+  // failsafe if the ioctl doesn't work
+  if( interfaces == 0 ) {
+    *list = new Uint32 [1] ;
+    *list[0] = INADDR_ANY; 
+  }
+
+  return(interfaces);
+}
+
+
+static Boolean  slp_join_multicast(SOCKET sock, Uint32 addr) 
 {
   
   // don't join on the loopback interface
-  if (addr->s_addr == inet_addr("127.0.0.1") )
+  if (addr == inet_addr("127.0.0.1") )
     return(false);
 
   struct ip_mreq mreq;
   mreq.imr_multiaddr.s_addr = inet_addr("239.255.255.253");
-  mreq.imr_interface.s_addr = addr->s_addr;
+  mreq.imr_interface.s_addr = addr;
   
   if(SOCKET_ERROR == setsockopt(sock,IPPROTO_IP, IP_ADD_MEMBERSHIP, (const char *)&mreq, sizeof(mreq))) 
     return(false);
@@ -207,45 +311,19 @@ static Boolean  slp_join_multicast(SOCKET sock, struct in_addr *addr)
 static int slp_join_multicast_all(SOCKET sock)
 {
 
-
-  int num_interfaces = 0;
-
-  String host_name = slp_get_host_name();
-
-  if( 0 < host_name.size() ) {
-    struct hostent hostbuf;
-    struct hostent *host ;
-    
-    int result = 0, err;
-    size_t hostbuf_len = 512;
-    Sint8 *hn = host_name.allocateCString( );
-    Sint8 *buf = (Sint8 *)malloc(hostbuf_len) ;
-    while( buf != NULL && ( result = gethostbyname_r( hn, 
-						      &hostbuf, 
-						      buf, 
-						      hostbuf_len, 
-						      &host, 
-						      &err) )  == ERANGE ) {
-      hostbuf_len *= 2;
-      buf = (Sint8 *)realloc(buf, hostbuf_len);
-    } // realloc buffer loop
-
-    if((host != NULL) && (result == 0)) {
-      struct in_addr *ptr;
-      while ( ( ptr = (struct in_addr *) *(host->h_addr_list)++ ) != NULL ) { 
-	if(true == slp_join_multicast(sock, ptr) )
-	  num_interfaces++ ;
-      } // traversing address list 
-      if(buf != NULL)
-	free(buf);
-    } // gethostnume succeeded
-    delete[] hn;
-  } // if allocated host buffer
+  Uint32 *list = NULL , *lptr = NULL;
+  int num_interfaces = slp_get_local_interfaces(&list);
+  lptr = list;
+  while ( *lptr != INADDR_ANY ) {
+    slp_join_multicast(sock, *lptr) ;
+    lptr++;
+  }
+  delete [] list;
   return(num_interfaces);
 }
 
 
-static SOCKET  slp_open_listen_sock( void )
+static SOCKET slp_open_listen_sock( void )
 {
 
   SOCKET sock  = socket(AF_INET, SOCK_DGRAM, 0) ;
@@ -255,9 +333,33 @@ static SOCKET  slp_open_listen_sock( void )
   local.sin_family = AF_INET;
   local.sin_port = htons(427);
   local.sin_addr.s_addr  = INADDR_ANY;
-  bind(sock, (struct sockaddr *)&local, sizeof(local));
-  slp_join_multicast_all(sock);
+  if( 0 == bind(sock, (struct sockaddr *)&local, sizeof(local)) )
+    slp_join_multicast_all(sock);
   return(sock);
+}
+
+
+static Boolean slp_scope_intersection(const Sint8 *our_scopes, Sint8 *his_scopes)
+{
+  const Sint8 delimiters [] = " ," ;
+  Sint8 *saveptr = NULL, *bptr;
+
+  if(our_scopes == NULL || his_scopes == NULL)
+    return(true);
+  bptr = _LSLP_STRTOK(his_scopes, delimiters, &saveptr);
+  while (NULL != bptr) {
+
+    // convert hist scope string  upper case
+    for( Sint8 *cp = bptr; *cp; ++cp) {
+      if( 'a' <= *cp && *cp <= 'z' )
+	*cp += 'A' - 'a' ;
+    }
+
+    if( NULL != strstr( bptr , our_scopes) )
+      return(true);
+    bptr = _LSLP_STRTOK(NULL, delimiters, &saveptr);
+  }
+  return(false);
 }
 
 
@@ -358,6 +460,19 @@ template<class L> L *slp2_list<L>::remove(Sint8 *key)
 }
 
 
+template<class L> L *slp2_list<L>::reference(Sint8 *key)
+{
+  if( _count > 0 ) {
+    slp2_list *temp = _next;
+    while(temp->_isHead == false ) {
+      if( temp->_rep->operator==(key))
+	return(temp->_rep);
+      temp = temp->_next;
+    }
+  }
+  return(NULL);
+}
+
 template<class L> Boolean slp2_list<L>::exists(Sint8 *key)
 {
   if( _count > 0) {
@@ -406,6 +521,35 @@ Boolean rply_list::operator ==(const Sint8 *key ) const
 }
 
 
+reg_list::reg_list(Sint8 *r_url, 
+		   Sint8 *r_attributes, 
+		   Sint8 *r_service_type, 
+		   Sint8 *r_scopes, 
+		   time_t r_lifetime)
+{
+  if( r_url != NULL ) {
+    url = new Sint8[ strlen(r_url + 1 ) ];
+    strcpy(url, r_url);
+  }
+
+  if( r_attributes != NULL ) {
+    attributes = new Sint8[ strlen(r_attributes) + 1 ];
+    strcpy(attributes, r_attributes);
+  }
+
+  if(r_service_type != NULL ) {
+    service_type = new Sint8[ strlen(r_service_type) + 1 ]; 
+    strcpy(service_type, r_service_type);
+  }
+
+  if(r_scopes != NULL) {
+    scopes = new Sint8[ strlen(r_scopes ) + 1 ];
+    strcpy(scopes, r_scopes);
+  }
+  lifetime = r_lifetime;
+
+}
+
 reg_list::~reg_list()
 {
   delete[] url;
@@ -416,6 +560,37 @@ reg_list::~reg_list()
 
 
 Boolean reg_list::operator ==(const Sint8 *key ) const
+{
+  if( ! strcasecmp(url, key) )
+    return(true);
+  return(false);
+}
+
+url_entry::url_entry( Uint16 u_lifetime,
+		      Sint8 *u_url, 
+		      Uint8 u_num_auths,
+		      Uint8 *u_auth_blocks)
+{
+
+  lifetime = u_lifetime;
+  if(u_url != NULL && (len = strlen(u_url) )) {
+    len++;
+    url = new Sint8[len];
+    strcpy(url, u_url);
+  } else { len = 0 ; }
+
+  num_auths = 0;
+  auth_blocks = NULL;
+}
+
+url_entry::~url_entry() 
+{
+  delete [] url;
+  delete [] auth_blocks;
+}
+
+
+Boolean url_entry::operator ==(const Sint8 *key) const
 {
   if( ! strcasecmp(url, key) )
     return(true);
@@ -442,66 +617,87 @@ void slp_client::set_local_interface(const Sint8 *iface)
 
 void slp_client::set_spi(const Sint8 *spi) 
 {
-  if(_spi != NULL) 
-    free(_spi);
-  if(spi != NULL)
-    _spi = strdup(spi);
-  else 
-    _spi = NULL;
+  delete [] _spi;
+  if(spi != NULL && strlen(spi) ) {
+    _spi = new Sint8[strlen(spi) + 1 ];
+    strcpy(_spi, spi);
+  }
   return ;
+}
+
+void slp_client::set_scopes(const Sint8 *scopes)
+{
+  delete [] _scopes;
+  if( scopes != NULL && strlen(scopes) ) {
+    _scopes = new Sint8[ strlen(scopes) + 1 ];
+    strcpy(_scopes, scopes);
+  }
+  return;
 }
 
 slp_client::slp_client(const Sint8 *target_addr, 
 		       const Sint8 *local_addr, 
 		       Uint16 target_port, 
-		       const Sint8 *spi )
+		       const Sint8 *spi, 
+		       const Sint8 *scopes )
 
   : _pr_buf_len(0), _buf_len (LSLP_MTU), _version((Uint8)1), 
-    _xid(1),  _target_port(target_port), _spi(NULL), _use_das(false),
-    _last_da_cycle(0), _retries(3), _ttl(255),  _convergence(1), 
-    _crypto_context(NULL), das( ), replies( ), regs( )
+    _xid(1),  _target_port(htons(target_port)), _local_addr_list(NULL), 
+    _spi(NULL), _scopes(NULL),  _use_das(false), _last_da_cycle(0), _retries(3), 
+    _ttl(255),  _convergence(5), _crypto_context(NULL), das( ), 
+    replies( ), regs( )
 
 {
   set_target_addr(target_addr);
   set_local_interface(local_addr);
   set_spi(spi);
+  set_scopes(scopes);
   _pr_buf = new Sint8[LSLP_MTU];
   _msg_buf = new Sint8[LSLP_MTU] ; 
   _rcv_buf = new Sint8[LSLP_MTU] ;
-  _tv.tv_sec = 1;
-  _tv.tv_usec = 0;
+  _tv.tv_sec = 0;
+  _tv.tv_usec = 200000;
 #ifdef _WIN32
   if(_winsock_count == 0)
     WSAStartup(0x0002, &_wsa_data);
   _winsock_count++;
 #endif 
 
-  // initialize the recieve socket 
-  _rcv_sock = slp_open_listen_sock( );
+  // build our local address list
+  slp_get_local_interfaces( &_local_addr_list ) ;
+
+  // before opening the listen socket we need to see if the local machine is a da
+  // if it is, don't open the listen socket
+  _rcv_sock = INVALID_SOCKET;
+  local_srv_req(NULL, NULL, "DEFAULT");
+  if(0 < das.count() )
+    _rcv_sock = INVALID_SOCKET;
+  else
+    _rcv_sock = slp_open_listen_sock( );
 }
 
 
 slp_client::~slp_client()
 {
   // close the receive socket 
-
-
+  _LSLP_CLOSESOCKET( _rcv_sock ) ;
 #ifdef _WIN32
   _winsock_count--;
   if(_winsock_count == 0)
     WSACleanup();
 #endif 
 
-  delete _pr_buf;;
-  delete _msg_buf;
-  delete _rcv_buf;
-  if(_spi != NULL)
-    free(_spi);
+  delete [] _pr_buf;
+  delete [] _msg_buf;
+  delete [] _rcv_buf;
+  delete [] _local_addr_list;
+  delete [] _spi;
+  delete [] _scopes;
+
   if(_crypto_context != NULL)
     free(_crypto_context);
   das.empty_list();
   replies.empty_list();
-
 }
 
 
@@ -539,7 +735,7 @@ Boolean slp_client::prepare_query( Uint16 xid,
   _LSLP_SETVERSION(bptr, LSLP_PROTO_VER);
   _LSLP_SETFUNCTION(bptr, LSLP_SRVRQST);
   /* we don't know the length yet */
-  _LSLP_SETFLAGS(bptr, LSLP_FLAGS_MCAST);
+  _LSLP_SETFLAGS(bptr, 0);
   _LSLP_SETXID(bptr, xid);
   _LSLP_SETLAN(bptr, LSLP_EN_US);
   bptr += ( total_len = _LSLP_HDRLEN(bptr) ) ;
@@ -628,8 +824,7 @@ Boolean slp_client::prepare_query( Uint16 xid,
 rply_list *slp_client::get_response( void  )
 {
   
-  rply_list *ret = replies.remove();
-  return(ret);
+  return(replies.remove());
 }
 
 
@@ -645,57 +840,186 @@ int slp_client::find_das(const Sint8 *predicate,
   return( das.count( ) );
 }
 
-int slp_client::converge_srv_req( const Sint8 *type, 
-				  const Sint8 *predicate, 
-				  const Sint8 *scopes)
-{
 
-  Uint32 old_addr = _target_addr;
-  set_target_addr( "239.255.255.253" ) ;
-  srv_req( type, predicate, scopes ) ;
-  _target_addr = old_addr;
-  
-  return( replies.count( ) );
+// smart interface to slp discovery. uses das if they are present, 
+// convergence otherwise.
+// periodically forces an active da discovery cycle 
+
+void slp_client::discovery_cycle ( const Sint8 *type, 
+				   const Sint8 *predicate, 
+				   const Sint8 *scopes) 
+
+{
+  // see if we have built a cache of directory agents 
+  if(  0 == das.count() ) {
+    // we don't know of any directory agents - see if we need to do active da discovery
+    if( ((time(NULL)) - _last_da_cycle ) > (60 * 5) )
+      find_das(NULL, scopes) ;
+  }
+
+  // if there are das, unicast a srvreq to each da
+
+  if( 0 < das.count() ) {
+
+    da_list *da = das.next(NULL);
+    struct sockaddr_in addr;
+    while( da != NULL ) {
+      addr.sin_port = htons(427);
+      addr.sin_family = AF_INET;
+      addr.sin_addr.s_addr = inet_addr(da->remote);
+      unicast_srv_req(type, predicate, scopes, &addr);
+      da = das.next(da);
+    }
+  } else {
+    // do a convergence request because we don't have any das to use 
+
+    converge_srv_req(type, predicate, scopes );
+  }
+  return; 
 }
 
-
-void slp_client::srv_req( const Sint8 *type, 
-			  const Sint8 *predicate, 
-			  const Sint8 *scopes)
+// this request MUST be retried <_convergence> times on EACH interface 
+// regardless of how many responses we have received 
+// it can be VERY time consuming but is the most thorough 
+// discovery method 
+void slp_client::converge_srv_req( const Sint8 *type, 
+				   const Sint8 *predicate, 
+				   const Sint8 *scopes)
 {
-  if ((true == prepare_query( _xid + 1, type, scopes, predicate ))) {
-    replies.empty_list();
-    Uint16 convergence = _convergence;
-    if(convergence-- > 0) { _LSLP_SETFLAGS( _msg_buf, LSLP_FLAGS_MCAST) ; }
-    send_rcv_udp(  ) ;
-    while(convergence-- > 0) {
-      _LSLP_SLEEP( _tv.tv_usec / 1000 ) ;
+
+  Uint32 old_target_addr = _target_addr;
+  Uint32 old_local_addr = _local_addr;
+  set_target_addr( "239.255.255.253" ) ;
+  
+  Uint32 *p_addr = _local_addr_list;
+  Uint16 convergence; 
+  Uint32 loopback = inet_addr("127.0.0.1");
+
+  do {
+    if( *p_addr == loopback ) {
+      p_addr++;
+      continue; 
+    }
+    _local_addr = *p_addr;
+    convergence = _convergence;
+
+    if(prepare_query( _xid + 1, type, scopes, predicate)) {
+	_LSLP_SETFLAGS(_msg_buf, LSLP_FLAGS_MCAST) ;
+	send_rcv_udp( );
+      }
+
+    while(--convergence > 0) {
       if(prepare_query( _xid, type, scopes, predicate)) {
 	_LSLP_SETFLAGS(_msg_buf, LSLP_FLAGS_MCAST) ;
 	send_rcv_udp( );
       }
     }
-    /* if this was a multicast request try it on the local machine too  */
-    if(_convergence) {
-      /* save current settings  */
-      Sint8 convergence_save = _convergence;
-      Uint32 target_save = _target_addr;
-      _convergence = 0;
-      _target_addr = inet_addr("127.0.0.1" ) ;
-      if ((true == prepare_query( _xid + 1, type, scopes, predicate ))) {
-	_LSLP_SETFLAGS( _msg_buf, 0 );
-	send_rcv_udp(  );
-      }
-      /* restore current settings  */
-      _convergence = convergence_save;
-      _target_addr = target_save;
-    } /* if we need to do the query on the local machine  */
-  } /* prepared query  */
-  memset( _msg_buf, 0x00, LSLP_MTU);
+    p_addr++;
+  }   while( *p_addr != INADDR_ANY ) ;
+
+
+  // always try a local request
+  local_srv_req(type, predicate, scopes);
+
+  _target_addr = old_target_addr;
+  _local_addr = old_local_addr;
   return ;
 }
 
-void slp_client::decode_reply( struct sockaddr_in *remote )
+
+
+// this request will be retried MAX <_retries> times 
+// but will always end when the first response is received
+// This request is best when using a directory agent
+void slp_client::unicast_srv_req( const Sint8 *type, 
+				  const Sint8 *predicate, 
+				  const Sint8 *scopes, 
+				  struct sockaddr_in *addr )
+{
+
+  Uint32 target_addr_save, local_addr_save;
+  Uint16 target_port_save;
+  struct timeval tv_save;
+  
+  target_addr_save = _target_addr;
+  local_addr_save = _local_addr;
+  target_port_save = _target_port;
+
+  tv_save.tv_sec = _tv.tv_sec;
+  _tv.tv_sec = 1;
+  
+  // let the host decide which interface to use 
+  _local_addr = INADDR_ANY; 
+  _target_addr = addr->sin_addr.s_addr;
+  _target_port = addr->sin_port;
+
+  
+  int retries = _retries ;
+  int old_count = replies.count() ;
+  srv_req(type, predicate, scopes, false) ;
+  while( --retries > 0 && replies.count() == old_count ) {
+    srv_req(type, predicate, scopes, true );
+  }
+  _target_addr = target_addr_save;
+  _local_addr = local_addr_save;
+  _target_port = target_port_save;
+  _tv.tv_sec = tv_save.tv_sec;
+  return;
+}
+
+// this request is targeted to the loopback interface, 
+// and has a tiny wait timer. It should be resolved quickly. 
+// It will never be retried.
+void slp_client::local_srv_req( const Sint8 *type, 
+				const Sint8 *predicate, 
+				const Sint8 *scopes )
+
+
+{
+
+  Uint32 target_addr_save;
+  struct timeval tv_save;
+  
+  target_addr_save = _target_addr;
+
+  tv_save.tv_sec = _tv.tv_sec;
+  tv_save.tv_usec = _tv.tv_usec;
+  _tv.tv_sec = 0;
+  _tv.tv_usec = 1000000;
+  
+  // let the host decide which interface to use 
+  _local_addr = INADDR_ANY; 
+  _target_addr = inet_addr("127.0.0.1");
+  _target_port = htons(427);
+
+  
+  srv_req(type, predicate, scopes, false) ;
+
+  _target_addr = target_addr_save;
+
+  _tv.tv_sec = tv_save.tv_sec;
+  _tv.tv_usec = tv_save.tv_usec;
+  return;
+
+}
+
+
+// workhorse request function
+void slp_client::srv_req( const Sint8 *type, 
+			  const Sint8 *predicate, 
+			  const Sint8 *scopes, 
+			  Boolean retry )
+{
+  if ((true == prepare_query( (retry == true) ? _xid : _xid + 1, 
+			      type, 
+			      scopes, 
+			      predicate ))) {
+    send_rcv_udp(  ) ;
+  } /* prepared query  */
+  return ;
+}
+
+void slp_client::decode_msg( struct sockaddr_in *remote )
 {
   
   if( _xid == _LSLP_GETXID( _rcv_buf ))
@@ -706,6 +1030,9 @@ void slp_client::decode_reply( struct sockaddr_in *remote )
   case LSLP_DAADVERT:
     decode_daadvert( remote );
     return;		
+  case LSLP_SRVRQST:
+    decode_srvreq( remote );
+    return;
   case LSLP_SRVRPLY:
     decode_srvrply( remote );
     return;
@@ -852,6 +1179,179 @@ void slp_client::decode_daadvert(struct sockaddr_in *remote)
 }
 
 
+void slp_client::decode_srvreq(struct sockaddr_in *remote )
+{
+  
+  Sint8 *bptr;
+  Sint16 str_len, err = LSLP_PARSE_ERROR ;
+  Sint32 total_len, purported_len;
+		    time_t current;
+  
+  bptr = _rcv_buf;
+  purported_len = _LSLP_GETLENGTH(bptr);
+  bptr += (total_len = _LSLP_HDRLEN(bptr));
+  if(total_len < purported_len) {
+    if( 0 < regs.count() ) {
+      // advance past the slp v2 header
+      // get the previous responder list 
+      str_len = _LSLP_GETSHORT(bptr, 0);
+      if ( (str_len + total_len + 2 < purported_len )) {
+	if( false == slp_previous_responder( (str_len ? bptr + 2 : NULL ) )) {
+	  Sint8 *service_type = NULL;
+	  Sint8 *scopes = NULL;
+	  Sint8 *spi = NULL;
+	  slp2_list<url_entry> url_list ;
+
+	  bptr += 2 + str_len;
+	  total_len += 2 + str_len;
+	  // extract the service type string 
+	  str_len = _LSLP_GETSHORT(bptr, 0);
+	  if(str_len && (str_len + total_len + 2 < purported_len )) {
+	    service_type = new Sint8[str_len + 1]; // one extra byte 
+	    strcpy(service_type, bptr + 2);
+
+	    // set the error code to zero 
+	    err = 0; 
+	    bptr += 2 + str_len;
+	    total_len += 2 + str_len;
+
+	    // extract the scope list
+
+	    str_len = _LSLP_GETSHORT(bptr, 0);
+	    if( str_len + total_len + 2 < purported_len) {
+	      if(str_len > 0 ) {
+		scopes = new Sint8[str_len + 1] ; // one extra byte
+		strcpy(scopes, bptr + 2);
+	      }
+
+	      // see if the requested scopes intersect with our scopes 
+
+	      if (true == slp_scope_intersection(_scopes, scopes) ) {
+
+		bptr += 2 + str_len;
+		total_len += 2 + str_len;
+
+		// this is a very lightweight client and currently 
+		// doesn't support predicate evaluation. 
+		// we will answer srvreq messages with no predicate
+		// however, if there is a predicate, we can't evaluate it
+		// so we won't answer it. 
+
+		// extract the predicate
+		str_len = _LSLP_GETSHORT(bptr, 0) ;
+		if(str_len == 0 ) {
+		  // ignore the spi for now. 
+		  // look for a srvtype match 
+
+		  reg_list *reg = regs.next(NULL);
+		  while( reg != 0 ) {
+		    // check the lifetime 
+
+		    if( (current = time(NULL)) > reg->lifetime ) {
+		      // this guy is stale, unlink him and start over 
+		      regs.remove(reg->url);
+		      delete reg;
+		      reg = regs.next(NULL);
+		      continue;
+		    }
+		    if( ! strcasecmp( reg->service_type, service_type ) ) {
+		      // found a match
+		      
+
+
+
+		      url_entry *entry = new url_entry((reg->lifetime - time(NULL) ), 
+						       reg->url ) ;
+		      url_list.insert(entry);
+		    }
+		    reg = regs.next(reg);
+		  } // traversing list
+
+		} // if there is no predicate 
+	      } // scopes intersect 
+	    } // scope string fits
+	  } // svc type string fits
+	  
+	  Boolean mcast = ( ((_LSLP_GETFLAGS( _rcv_buf )) & (LSLP_FLAGS_MCAST) ) ? true : false   ) ;
+	  if(mcast == false || url_list.count() ) {
+
+	    // we need to respond to this message
+	    
+	    _LSLP_SETVERSION(_msg_buf, LSLP_PROTO_VER);
+	    _LSLP_SETFUNCTION(_msg_buf, LSLP_SRVRPLY);
+	    // skip the length for now
+	    _LSLP_SETFLAGS(_msg_buf, 0);
+	    _LSLP_SETNEXTEXT(_msg_buf, 0, LSLP_NEXT_EX);
+	    _LSLP_SETXID( _msg_buf, ( _LSLP_GETXID(_rcv_buf)  )  );
+	    _LSLP_SETLAN(_msg_buf, LSLP_EN_US );
+	    Sint32 msg_len = _LSLP_HDRLEN(_msg_buf);
+	    Sint8 *bptr = _msg_buf + msg_len;
+	    _LSLP_SETSHORT(bptr, err, 0);
+	    _LSLP_SETSHORT( bptr, url_list.count() , 2 );
+	    
+	    bptr += 4;
+	    msg_len += 4;
+	    while ( 0 < url_list.count() ) {
+	      url_entry *entry = url_list.remove() ;
+	      assert(entry != NULL);
+
+	      // check the length 
+	      if ( (msg_len + 6 + entry->len ) <= LSLP_MTU ) {
+		_LSLP_SETSHORT(bptr, entry->lifetime, 1);
+		_LSLP_SETSHORT(bptr, entry->len, 3);
+		memcpy(bptr + 5, entry->url, entry->len);
+
+		bptr += (5 + entry->len );
+		msg_len += (5 + entry->len); 
+
+		// for now don't support authentication
+		_LSLP_SETBYTE(bptr, 0, 0);
+		bptr++;
+		msg_len++;
+	      
+	      } else  {   
+		// set the overvlow flag because we ran out of room 
+		// also decrement the count of urls
+		// possibly a subsequent url will fit so kee going 
+		_LSLP_SETFLAGS(_msg_buf,  LSLP_FLAGS_OVERFLOW);
+		Sint8 *save = bptr;
+		bptr = _msg_buf + _LSLP_HDRLEN(_msg_buf) ;
+		_LSLP_SETSHORT(bptr, ( _LSLP_GETSHORT(bptr, 2) - 1 ) , 2 );
+		bptr = save;
+	      }
+	      delete entry;
+	    }
+
+	    // ok, now we can set the length
+	    _LSLP_SETLENGTH(_msg_buf, msg_len );
+
+	    // _msg_buf is stuffed with the service reply. now we need 
+	    // to allocate a socket and send it back to the requesting node 
+	    SOCKET sock;
+	    if(INVALID_SOCKET != (sock = socket(AF_INET, SOCK_DGRAM, 0))) {
+	      int err = 1;
+	      setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&err, sizeof(err) );
+	      struct sockaddr_in local;
+	      local.sin_family = AF_INET;
+	      local.sin_port = _target_port ; 
+	      local.sin_addr.s_addr = _local_addr;
+	      if(SOCKET_ERROR != bind(sock, (struct sockaddr *)&local, sizeof(local))) {
+		sendto(sock, _msg_buf, msg_len , 0, 
+		      (struct sockaddr *)remote, sizeof(struct sockaddr_in )) ;
+	      } // successfully bound this socket 
+	      _LSLP_CLOSESOCKET(sock);
+	    } // successfully opened this socket
+	  } // we must respond to this request 
+	  delete [] spi; 
+	  delete [] scopes;
+	  delete [] service_type; 
+	} // not on the pr list 
+      } // pr list length is consistent 
+    } // if there are local registrations
+  } // if length is consistent
+}
+
+
 Boolean slp_client::srv_reg(Sint8 *url,
 			 Sint8 *attributes,
 			 Sint8 *service_type,
@@ -932,14 +1432,17 @@ Boolean slp_client::srv_reg(Sint8 *url,
 	  len += 1;
 	  /* set the length field in the header */
 	  _LSLP_SETLENGTH( _msg_buf, len );
-	  if(true == send_rcv_udp(  )) {
-	    if(LSLP_SRVACK == _LSLP_GETFUNCTION( _rcv_buf )) {
-	      if(0x0000 == _LSLP_GETSHORT( _rcv_buf, (_LSLP_HDRLEN( _rcv_buf )))) {
-		memset(_msg_buf, 0x00, LSLP_MTU);
-		return(true); 
+	  int retries = _retries;
+	  while( --retries ) {
+	    if(true == send_rcv_udp(  )) {
+	      if(LSLP_SRVACK == _LSLP_GETFUNCTION( _rcv_buf )) {
+		if(0x0000 == _LSLP_GETSHORT( _rcv_buf, (_LSLP_HDRLEN( _rcv_buf )))) {
+		  memset(_msg_buf, 0x00, LSLP_MTU);
+		  return(true); 
+		}
 	      }
-	    }
-	  }
+	    } // received a response 
+	  } // retrying the unicast 
 	} /* attribute string fits into buffer */
       } /* scope string fits into buffer  */
     } /* service type fits into buffer  */
@@ -981,7 +1484,7 @@ Boolean slp_client::send_rcv_udp( void )
 	}
       }
       target.sin_family = AF_INET;
-      target.sin_port = htons(_target_port);
+      target.sin_port = _target_port;
       target.sin_addr.s_addr = _target_addr;
       if(SOCKET_ERROR == (err = sendto(sock, 
 				       _msg_buf, 
@@ -991,10 +1494,10 @@ Boolean slp_client::send_rcv_udp( void )
 	_LSLP_CLOSESOCKET(sock);
 	return(false);
       } /* oops - error sending data */
-      if(bcast)
-	service_listener_wait(_convergence, sock, false) ;
-      else
-	service_listener_wait(_convergence, sock, true);
+
+
+      while ( 0 < service_listener( sock ) ) { ccode = true; }
+
     } // bound the socket 
     _LSLP_CLOSESOCKET(sock);
   } /*  got the socket */
@@ -1029,38 +1532,48 @@ Sint32 slp_client::service_listener_wait(time_t wait, SOCKET extra_sock, Boolean
 Sint32 slp_client::service_listener(SOCKET extra_sock )
 {
 
+  struct timeval tv; 
   fd_set fds;
-  struct timeval tv = {0, 10}; 
   FD_ZERO(&fds);
-  FD_SET(_rcv_sock, &fds);
+  if(_rcv_sock != INVALID_SOCKET) {
+    FD_SET(_rcv_sock, &fds);
+  }
   if(extra_sock)
     FD_SET( extra_sock, &fds);
   Sint32 err;
   do { 
+    tv.tv_sec = _tv.tv_sec;
+    tv.tv_usec = _tv.tv_usec;
     err = select(_rcv_sock > extra_sock ? _rcv_sock + 1: extra_sock + 1, &fds, NULL, NULL, &tv); 
   } while ( (err < 0 )&& (errno == EINTR)) ;
   if( 0 < err ) {
     struct sockaddr_in remote;
+
+#ifdef PEGASUS_OS_HPUX
     int size = sizeof(remote);
-    if(extra_sock && FD_ISSET(extra_sock, &fds) ) {
-#ifdef PEGASUS_OS_HPUX
+#else
+    socklen_t size = sizeof(remote);
+#endif
+
+    if(extra_sock && FD_ISSET(extra_sock, &fds) )
       err = recvfrom(extra_sock, _rcv_buf, LSLP_MTU, 0, (struct sockaddr *)&remote, &size);
-#else
-      err = recvfrom(extra_sock, _rcv_buf, LSLP_MTU, 0, (struct sockaddr *)&remote, (socklen_t *)&size);
-#endif
-      if(err && err != SOCKET_ERROR)
-	decode_reply( &remote );
+    if(_rcv_sock != INVALID_SOCKET) {
+      if(FD_ISSET(_rcv_sock, &fds)) 
+	err = recvfrom(_rcv_sock, _rcv_buf, LSLP_MTU, 0, (struct sockaddr *)&remote, &size);
     }
-    if(FD_ISSET(_rcv_sock, &fds)) {
-#ifdef PEGASUS_OS_HPUX
-      err = recvfrom(_rcv_sock, _rcv_buf, LSLP_MTU, 0, (struct sockaddr *)&remote, &size);
-#else
-      err = recvfrom(_rcv_sock, _rcv_buf, LSLP_MTU, 0, (struct sockaddr *)&remote, (socklen_t *)&size);
-#endif
-      if(err && err != SOCKET_ERROR)
-	decode_reply( &remote );
+
+    if(err && err != SOCKET_ERROR)
+      decode_msg( &remote );
+  } 
+  if (err == SOCKET_ERROR) {
+    // our interfaces could be disconnected or we could be a laptop that 
+    // just got pulled from the network, etc. 
+    _LSLP_CLOSESOCKET(_rcv_sock );
+    if( 0 < slp_get_local_interfaces( & _local_addr_list ) ) {
+      if(_rcv_sock != INVALID_SOCKET)
+      	_rcv_sock = slp_open_listen_sock( );
     }
-  }
+  } 
   return(err);
 }
 
@@ -1077,35 +1590,84 @@ int slp_client::srv_reg_all( Sint8 *url,
     
   // see if we have built a cache of directory agents 
   if(  0 == das.count() ) {
-    // we don't know of any directory agents - see if we can find some 
-    if( 0 == find_das(NULL, scopes) )
-      return(0);
+    // we don't know of any directory agents - see if we need to do active da discovery
+    if( ((time(NULL)) - _last_da_cycle ) > (60 * 5) )
+      find_das(NULL, scopes) ;
   }
 
-  // unicast a srvreg to each da
+  // keep track of how many times we register
   int registrations = 0;
+
+  // save target and convergence parameters 
   Uint32 target_addr_save = _target_addr;
   int convergence_save = _convergence;
   _convergence = 0;
 
-  da_list *da = das.next(NULL);
-  while( da != NULL ) {
-    set_target_addr(da->remote);
-    if( true == srv_reg( url, attributes, service_type, scopes, lifetime) )
-      registrations++;
-    da = das.next(da);;
+  // if there are das, unicast a srvreg to each da
+
+  if( 0 < das.count() ) {
+
+    da_list *da = das.next(NULL);
+    while( da != NULL ) {
+      set_target_addr(da->remote);
+      if( true == srv_reg( url, attributes, service_type, scopes, lifetime) )
+	registrations++;
+      da = das.next(da);;
+    }
   }
 
-  /* now try to register with the local host  */
-  set_target_addr("127.0.0.1");
-  if(true == srv_reg( url, attributes, service_type, scopes, lifetime) )
-    registrations++;
-
+  // restore parameters 
   _convergence = convergence_save;
   _target_addr = target_addr_save;
+  
+
+  // if we have registered with any das, act like a service agent and cache our
+  // own registration. This provides a failsafe in case the DA is not available 
+  srv_reg_local(url, attributes, service_type, scopes, lifetime);
+  registrations++;
   
   return(registrations);
 }
 
+
+void  slp_client::srv_reg_local ( Sint8 *url,
+				  Sint8 *attributes, 
+				  Sint8 *service_type, 
+				  Sint8 *scopes, 
+				  Sint16 lifetime) 
+{
+  reg_list *reg = NULL;
+  // first see if the reg already exists. if it does, just update the lifetime
+  if ( NULL != (reg = regs.reference(url))) {
+    reg->lifetime = lifetime + time(NULL);
+  } else {  // new reg 
+    reg = new reg_list(url, attributes, service_type, scopes, (lifetime + time(NULL)));
+    regs.insert(reg);
+  }
+  return;
+}
+
+Boolean slp_client::slp_previous_responder(Sint8 *pr_list)
+{
+
+  Sint8 *a, *s = NULL;
+  Uint32 addr, *list_addr;
+  if(pr_list == NULL || 0 == strlen(pr_list))
+    return(false);
+
+  a = _LSLP_STRTOK(pr_list, ",", &s);
+  while(NULL != a ) {
+    if(INADDR_NONE != (addr = inet_addr(a))) {
+      list_addr = _local_addr_list;
+      while( INADDR_ANY != *list_addr ) {
+	if(*list_addr == addr)
+	  return(true);
+	list_addr++;
+      }
+    }
+    a = _LSLP_STRTOK(NULL, ",", &s);
+  }
+  return(false);
+}
 
 PEGASUS_NAMESPACE_END

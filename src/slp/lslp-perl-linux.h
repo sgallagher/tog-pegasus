@@ -44,6 +44,7 @@
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
+#include <string.h>
 
 #ifdef PEGASUS_OS_HPUX
 # include <arpa/inet.h>
@@ -102,8 +103,7 @@ typedef int BOOL;
 #define FAR
 
 #define _LSLP_STRTOK(n, d, s) strtok_r((n), (d), (s))
-
-
+  
 #define LSLP_MAXPATH FILENAME_MAX
 #define LSLP_NEWLINE \r
 

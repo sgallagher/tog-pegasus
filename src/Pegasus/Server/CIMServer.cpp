@@ -592,6 +592,11 @@ void ServerHandler::sendError(
 //
 //------------------------------------------------------------------------------
 
+
+// dive into parser to see if it is reentrant and, if not, what it needs to 
+// have to make it reentrant. 
+
+
 void ServerHandler::handleGetClass(
     XmlParser& parser, 
     const String& messageId,

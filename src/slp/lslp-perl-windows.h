@@ -71,6 +71,17 @@ typedef unsigned __int64 uint64;
   //#define _LSLP_SET_TTL(s, ttl) WSAIoctl((s), SIO_MULTICAST_SCOPE, &(ttl), sizeof((ttl))  , NULL, 0 , NULL, NULL, NULL)
 #define _LSLP_SET_TTL(s, t)  setsockopt((s), IPPROTO_IP, IP_MULTICAST_TTL, (const char *)&(t), sizeof((t))) 
 
+
+typedef struct socket_address {
+  sockaddr_in *address;
+  int address_len;
+} socket_addr ;
+
+typedef struct socket_address_list {
+  int count;
+  socket_addr *list;
+} socket_addr_list; 
+
 #define strcasecmp _stricmp
 
 #define ENOTSOCK WSAENOTSOCK

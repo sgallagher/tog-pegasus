@@ -121,8 +121,14 @@ Uint32 TraceFileHandler::setFileName(const char* fileName)
 #if !defined(PEGASUS_OS_TYPE_WINDOWS)
     //
     // Set permissions on the trace file to 0400
+	// for z/OS, as Pegasus is intended to run as restricted user (not root), 
+    // Set permissions on the trace file to 0400
+    //
     //
     if ( !FileSystem::changeFilePermissions(String(_fileName), S_IRUSR) )
+#else
+    if ( !FileSystem::changeFilePermissions(String(_fileName), (S_IRUSR|S_IWUSR)) )
+#endif
     {
         Logger::put_l(Logger::DEBUG_LOG,"Tracer",Logger::WARNING,
            "Common.TraceFileHandler.FAILED_TO_SET_FILE_PERMISSIONS",

@@ -682,7 +682,7 @@ MessageLoader::_useProcessLocale = true;
                     //
                     // check to see if user is root
                     //
-#ifndef PEGASUS_OS_OS400
+#if !defined(PEGASUS_OS_OS400) && !defined(PEGASUS_OS_ZOS)
                     if (!System::isPrivilegedUser(System::getEffectiveUserName()))
                     {
                         //l10n

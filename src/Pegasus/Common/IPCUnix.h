@@ -59,6 +59,8 @@
 // ATTN: RK - Need to determine HP-UX equivalent
 typedef int PEGASUS_CRIT_TYPE;
 #else
+
+
 typedef pthread_spinlock_t PEGASUS_CRIT_TYPE;
 #endif
 typedef sem_t PEGASUS_SEMAPHORE_TYPE;

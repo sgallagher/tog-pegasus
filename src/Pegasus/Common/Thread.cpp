@@ -146,7 +146,7 @@ Sint8 Thread::initializeKey()
 Thread * Thread::getCurrent()
 {
     PEG_METHOD_ENTER(TRC_THREAD, "Thread::getCurrent");	
-    if (Thread::initializeKey() == 0)
+    if (Thread::initializeKey() != 0)
     {
 	return NULL;  
     }

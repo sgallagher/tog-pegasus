@@ -1653,9 +1653,9 @@ void IndicationService::_handleDeleteInstanceRequest (const Message* message)
             //
             CIMInstance subscriptionInstance;
             if (request->instanceName.getClassName ().equal
-                (PEGASUS_CLASSNAME_INDSUBSCRIPTION) ||
-        request->instanceName.getClassName ().equal
-        (PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION))
+                    (PEGASUS_CLASSNAME_INDSUBSCRIPTION) ||
+                request->instanceName.getClassName ().equal
+                    (PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION))
             {
                 subscriptionInstance =
                     _subscriptionRepository->getInstance
@@ -4157,24 +4157,20 @@ Boolean IndicationService::_canDelete (
     superClass = refClass.getSuperClassName();
 
     //
-    //  If the class or superclass is Filter or Handler, check for
-    //  subscription instances referring to the instance to be deleted
+    //  If the class is Filter or superclass is Handler or Listener Destination,
+    //  check for subscription instances referring to the instance to be deleted
     //
-    if ((superClass.equal (PEGASUS_CLASSNAME_INDFILTER)) ||
-        (superClass.equal (PEGASUS_CLASSNAME_INDHANDLER)) ||
-    (superClass.equal (PEGASUS_CLASSNAME_LSTNRDST)) ||
-        (instanceReference.getClassName().equal (PEGASUS_CLASSNAME_INDFILTER)) ||
-    (instanceReference.getClassName().equal (PEGASUS_CLASSNAME_LSTNRDST)) ||
-        (instanceReference.getClassName().equal (PEGASUS_CLASSNAME_INDHANDLER)))
+    if ((superClass.equal (PEGASUS_CLASSNAME_INDHANDLER)) ||
+        (superClass.equal (PEGASUS_CLASSNAME_LSTNRDST)) ||
+        (instanceReference.getClassName().equal (PEGASUS_CLASSNAME_INDFILTER)))
     {
-        if ((superClass.equal (PEGASUS_CLASSNAME_INDFILTER)) ||
-            (instanceReference.getClassName().equal
-            (PEGASUS_CLASSNAME_INDFILTER)))
+        if (instanceReference.getClassName ().equal 
+               (PEGASUS_CLASSNAME_INDFILTER))
         {
             propName = _PROPERTY_FILTER;
         }
         else if ((superClass.equal (PEGASUS_CLASSNAME_INDHANDLER)) ||
-         (superClass.equal (PEGASUS_CLASSNAME_LSTNRDST)))
+            (superClass.equal (PEGASUS_CLASSNAME_LSTNRDST)))
         {
             propName = _PROPERTY_HANDLER;
 

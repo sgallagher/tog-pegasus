@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: XmlParser.cpp,v $
-// Revision 1.1  2001/01/14 19:53:23  mike
-// Initial revision
+// Revision 1.2  2001/03/23 21:33:44  mike
+// Removed debugging output
+//
+// Revision 1.1.1.1  2001/01/14 19:53:23  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -393,10 +396,7 @@ void XmlParser::_skipWhitespace(char*& p)
 Boolean XmlParser::_getElementName(char*& p)
 {
     if (!isalpha(*p) && *p != '_')
-    {
-	std::cout << __LINE__ << std::endl;
 	throw XmlException(XmlException::BAD_START_TAG, _line);
-    }
 
     while (*p && 
 	(isalnum(*p) || *p == '_' || *p == '-' || *p == ':' || *p == '.'))
@@ -424,10 +424,7 @@ Boolean XmlParser::_getOpenElementName(char*& p, Boolean& openCloseElement)
     openCloseElement = false;
 
     if (!isalpha(*p) && *p != '_')
-    {
-	std::cout << __LINE__ << std::endl;
 	throw XmlException(XmlException::BAD_START_TAG, _line);
-    }
 
     while (*p && 
 	(isalnum(*p) || *p == '_' || *p == '-' || *p == ':' || *p == '.'))
@@ -461,10 +458,7 @@ Boolean XmlParser::_getOpenElementName(char*& p, Boolean& openCloseElement)
 void XmlParser::_getAttributeNameAndEqual(char*& p)
 {
     if (!isalpha(*p) && *p != '_')
-    {
-	std::cout << __LINE__ << std::endl;
 	throw XmlException(XmlException::BAD_ATTRIBUTE_NAME, _line);
-    }
 
     while (*p && 
 	(isalnum(*p) || *p == '_' || *p == '-' || *p == ':' || *p == '.'))
@@ -475,10 +469,7 @@ void XmlParser::_getAttributeNameAndEqual(char*& p)
     _skipWhitespace(p);
 
     if (*p != '=')
-    {
-	std::cout << __LINE__ << std::endl;
 	throw XmlException(XmlException::BAD_ATTRIBUTE_NAME, _line);
-    }
 
     p++;
 
@@ -492,10 +483,7 @@ void XmlParser::_getAttributeValue(char*& p)
     // ATTN-B: handle values contained in semiquotes:
 
     if (*p != '"' && *p != '\'')
-    {
-	std::cout << __LINE__ << std::endl;
 	throw XmlException(XmlException::BAD_ATTRIBUTE_VALUE, _line);
-    }
 
     char startChar = *p++;
 
@@ -503,10 +491,7 @@ void XmlParser::_getAttributeValue(char*& p)
 	p++;
 
     if (*p != startChar)
-    {
-	std::cout << __LINE__ << std::endl;
 	throw XmlException(XmlException::BAD_ATTRIBUTE_VALUE, _line);
-    }
 
     *p++ = '\0';
 }
@@ -705,10 +690,7 @@ void XmlParser::_getElement(char*& p, XmlEntry& entry)
 	entry.text = ++p;
 
 	if (!_getElementName(p))
-	{
-	    std::cout << __LINE__ << std::endl;
 	    throw(XmlException(XmlException::BAD_END_TAG, _line));
-	}
 
 	return;
     }
@@ -727,10 +709,7 @@ void XmlParser::_getElement(char*& p, XmlEntry& entry)
 	}
     }
     else
-    {
-	std::cout << __LINE__ << std::endl;
 	throw XmlException(XmlException::BAD_START_TAG, _line);
-    }
 
     //--------------------------------------------------------------------------
     // Grab all the attributes:
@@ -763,10 +742,7 @@ void XmlParser::_getElement(char*& p, XmlEntry& entry)
 	_getAttributeNameAndEqual(p);
 
 	if (*p != '"' && *p != '\'')
-	{
-	    std::cout << __LINE__ << std::endl;
 	    throw XmlException(XmlException::BAD_ATTRIBUTE_VALUE, _line);
-	}
 
 	attr.value = p + 1;
 	_getAttributeValue(p);
@@ -777,7 +753,6 @@ void XmlParser::_getElement(char*& p, XmlEntry& entry)
 
 	    if (!(p[0] == '?' && p[1] == '>') && !isspace(*p))
 	    {
-		std::cout << __LINE__ << std::endl;
 		throw XmlException(
 		    XmlException::BAD_ATTRIBUTE_VALUE, _line);
 	    }
@@ -786,7 +761,6 @@ void XmlParser::_getElement(char*& p, XmlEntry& entry)
 	{
 	    // The next thing must be a space or a '>':
 
-	    std::cout << __LINE__ << std::endl;
 	    throw XmlException(XmlException::BAD_ATTRIBUTE_VALUE, _line);
 	}
 

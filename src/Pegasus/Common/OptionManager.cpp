@@ -463,7 +463,7 @@ void OptionManager::printOptionsHelp() const
 	Option* option = _options[i];
 	cout << " -";
 	cout << option->getCommandLineOptionName() << "  ";
-	cout << option->getOptionName() << " ";
+	cout << option->getOptionName() << ". ";
 	cout << option->getOptionHelpMessage();
         cout << ". Default(" << option->getDefaultValue() << ")\n";
     }

@@ -409,7 +409,7 @@ void test03()
 void test04()
 {
     //
-    // Create classes 
+    // Create classes A and B referenced classes, C - Association
     //
     CIMClass classA (CIMName ("A"), CIMName ());
     CIMProperty propertyX ("x", String ());
@@ -442,7 +442,7 @@ void test04()
     classC.addProperty (propertyB);
 
     //
-    //  Create instances
+    //  Create instances of each classa
     //
     CIMInstance instanceA (CIMName ("A"));
     instanceA.addProperty (CIMProperty (CIMName ("x"), String ("rose")));
@@ -456,10 +456,13 @@ void test04()
     instanceB.addProperty (CIMProperty (CIMName ("q"), String ("pelargonium")));
     instanceB.addProperty (CIMProperty (CIMName ("r"), String ("thyme")));
     instanceB.addProperty (CIMProperty (CIMName ("s"), String ("sage")));
+    
+    // Test to assure that the buildpath function works.
     CIMObjectPath bPath = instanceB.buildPath (classB);
     CIMObjectPath bPath2 ("B.s=\"sage\",q=\"pelargonium\",r=\"thyme\"");
     assert (bPath.identical (bPath2));
 
+    // Build instance of C and build path from buildPath function.
     CIMInstance instanceC (CIMName ("C"));
     instanceC.addProperty (CIMProperty (CIMName ("a"), aPath, 0, 
         CIMName ("A")));
@@ -467,6 +470,7 @@ void test04()
         CIMName ("B")));
     CIMObjectPath cPath = instanceC.buildPath (classC);
 
+    // Build CIMObjectPath from keybindings.
     Array <CIMKeyBinding> keyBindings;
     CIMKeyBinding aBinding ("a", "A.y=\"lavender\",x=\"rose\",z=\"rosemary\"", 
         CIMKeyBinding::REFERENCE);
@@ -478,7 +482,11 @@ void test04()
     CIMObjectPath cPath2 ("", CIMNamespaceName (),
         cPath.getClassName (), keyBindings);
 
+    // Assert that the CIMObjectPaths for C from build path and direct from keybindings are equal.
     assert (cPath.identical (cPath2));
+
+    // ATTN: KS 25 Feb 2003 P3 - Think we can extend these tests since this is creation of classes and
+    // instnaces for associations and referenced classes.
 }
 
 int main(int argc, char** argv)

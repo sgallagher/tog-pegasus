@@ -31,7 +31,7 @@
 
 #include "AssociationProvider.h"
 
-PEGASUS_NAMESPACE_BEGIN
+PEGASUS_USING_PEGASUS;
 
 AssociationProvider::AssociationProvider(void)
 {
@@ -100,4 +100,3 @@ void AssociationProvider::referenceNames(
 	throw CIMNotSupportedException("AssociationProvider::referenceNames");
 }
 
-PEGASUS_NAMESPACE_END

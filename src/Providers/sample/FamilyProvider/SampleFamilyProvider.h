@@ -42,7 +42,7 @@
 #define CDEBUG(X)
 //#define CDEBUG(X) Logger::put (Logger::DEBUG_LOG, "SampleFamilyProvider", Logger::INFORMATION, "$0", X)
 
-PEGASUS_NAMESPACE_BEGIN
+PEGASUS_USING_PEGASUS;
 
 class SampleFamilyProvider :
 	public CIMInstanceProvider, public CIMAssociationProvider
@@ -157,7 +157,5 @@ protected:
     Array<CIMObjectPath> _instanceNamesLabeledLineageDynamic;
     Array<CIMInstance> _instancesLabeledLineageDynamic;
 };
-
-PEGASUS_NAMESPACE_END
 
 #endif

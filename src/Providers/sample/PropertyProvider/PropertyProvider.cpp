@@ -31,7 +31,7 @@
 
 #include "PropertyProvider.h"
 
-PEGASUS_NAMESPACE_BEGIN
+PEGASUS_USING_PEGASUS;
 
 PropertyProvider::PropertyProvider(void)
 {
@@ -131,4 +131,3 @@ void PropertyProvider::setProperty(
 	handler.complete();
 }
 
-PEGASUS_NAMESPACE_END

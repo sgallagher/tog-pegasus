@@ -35,7 +35,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Provider/CIMQueryProvider.h>
 
-PEGASUS_NAMESPACE_BEGIN
+PEGASUS_USING_PEGASUS;
 
 class QueryProvider : public CIMQueryProvider
 {
@@ -58,7 +58,5 @@ public:
 protected:
 
 };
-
-PEGASUS_NAMESPACE_END
 
 #endif

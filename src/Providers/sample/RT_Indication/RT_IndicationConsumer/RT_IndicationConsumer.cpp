@@ -34,7 +34,7 @@
 
 #include "RT_IndicationConsumer.h"
 
-PEGASUS_NAMESPACE_BEGIN
+PEGASUS_USING_PEGASUS;
 
 PEGASUS_USING_STD;
 
@@ -110,4 +110,3 @@ void RT_IndicationConsumer::consumeIndication(
         indicationTime << ", MethodName = " << methodName << endl;
 }
 
-PEGASUS_NAMESPACE_END

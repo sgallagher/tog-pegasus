@@ -35,7 +35,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Provider/CIMIndicationProvider.h>
 
-PEGASUS_NAMESPACE_BEGIN
+PEGASUS_USING_PEGASUS;
 
 class IndicationProvider :
     public CIMIndicationProvider
@@ -75,8 +75,6 @@ protected:
     CIMOMHandle _cimom;
 
 };
-
-PEGASUS_NAMESPACE_END
 
 #endif
 

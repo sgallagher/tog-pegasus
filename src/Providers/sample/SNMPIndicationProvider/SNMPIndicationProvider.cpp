@@ -34,7 +34,7 @@
 
 #include "SNMPIndicationProvider.h"
 
-PEGASUS_NAMESPACE_BEGIN
+PEGASUS_USING_PEGASUS;
 
 SNMPIndicationProvider::SNMPIndicationProvider(void) throw()
 {
@@ -101,4 +101,3 @@ void SNMPIndicationProvider::deleteSubscription(
 {
 }
 
-PEGASUS_NAMESPACE_END

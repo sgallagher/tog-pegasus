@@ -37,7 +37,7 @@
 #include <Pegasus/Provider/CIMIndicationProvider.h>
 #include <Pegasus/Provider/CIMMethodProvider.h>
 
-PEGASUS_NAMESPACE_BEGIN
+PEGASUS_USING_PEGASUS;
 
 class RT_IndicationProvider :
     public CIMMethodProvider,
@@ -85,8 +85,6 @@ public:
 protected:
 
 };
-
-PEGASUS_NAMESPACE_END
 
 #endif
 

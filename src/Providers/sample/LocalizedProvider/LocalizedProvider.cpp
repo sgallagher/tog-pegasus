@@ -115,7 +115,7 @@
 
 PEGASUS_USING_STD;
 
-PEGASUS_NAMESPACE_BEGIN
+PEGASUS_USING_PEGASUS;
 
 // Class Hierarchy:
 // Sample_LocalizedProviderClass is a subclass of Sample_ProviderClass
@@ -1404,4 +1404,3 @@ void LocalizedProvider::_generateIndication()
     }
 } 
 
-PEGASUS_NAMESPACE_END

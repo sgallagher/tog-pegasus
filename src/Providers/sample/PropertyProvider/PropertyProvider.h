@@ -35,7 +35,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Provider/CIMPropertyProvider.h>
 
-PEGASUS_NAMESPACE_BEGIN
+PEGASUS_USING_PEGASUS;
 
 class PropertyProvider : public CIMPropertyProvider
 {
@@ -66,7 +66,5 @@ protected:
 	Array<CIMProperty> _properties;
 
 };
-
-PEGASUS_NAMESPACE_END
 
 #endif

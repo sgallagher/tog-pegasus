@@ -31,7 +31,7 @@
 
 #include "QueryProvider.h"
 
-PEGASUS_NAMESPACE_BEGIN
+PEGASUS_USING_PEGASUS;
 
 QueryProvider::QueryProvider(void)
 {
@@ -60,4 +60,3 @@ void QueryProvider::executeQuery(
 	throw CIMNotSupportedException("QueryProvider::executeQuery");
 }
 
-PEGASUS_NAMESPACE_END

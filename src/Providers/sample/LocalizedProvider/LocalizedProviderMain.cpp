@@ -35,7 +35,7 @@
 
 #include "LocalizedProvider.h"
 
-PEGASUS_NAMESPACE_BEGIN
+PEGASUS_USING_PEGASUS;
 
 // This is the dynamic entry point into this dynamic module. The name of
 // this provider is "LocalizedProvider" which is appened to
@@ -55,4 +55,3 @@ extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(const String & nam
 	return(0);
 }
 
-PEGASUS_NAMESPACE_END

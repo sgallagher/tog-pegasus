@@ -36,7 +36,7 @@
 
 #include "RT_IndicationConsumer.h"
 
-PEGASUS_NAMESPACE_BEGIN
+PEGASUS_USING_PEGASUS;
 
 extern "C" 
 PEGASUS_EXPORT CIMProvider* PegasusCreateProvider(const String& providerName)
@@ -48,4 +48,3 @@ PEGASUS_EXPORT CIMProvider* PegasusCreateProvider(const String& providerName)
     return 0;
 }
 
-PEGASUS_NAMESPACE_END

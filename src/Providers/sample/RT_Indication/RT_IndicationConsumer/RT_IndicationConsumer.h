@@ -32,7 +32,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Provider/CIMIndicationConsumerProvider.h>
 
-PEGASUS_NAMESPACE_BEGIN
+PEGASUS_USING_PEGASUS;
 
 static const char PROPERTY_NAME_INDICATIONID [] = "IndicationIdentifier";
 static const char PROPERTY_NAME_INDICATIONTIME [] = "IndicationTime";
@@ -57,4 +57,3 @@ public:
 	const CIMInstance& indicationInstance);
 };
 
-PEGASUS_NAMESPACE_END

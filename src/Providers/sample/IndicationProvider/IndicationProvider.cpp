@@ -34,7 +34,7 @@
 
 #include "IndicationProvider.h"
 
-PEGASUS_NAMESPACE_BEGIN
+PEGASUS_USING_PEGASUS;
 
 IndicationProvider::IndicationProvider(void) throw()
 {
@@ -94,4 +94,3 @@ void IndicationProvider::deleteSubscription(
 {
 }
 
-PEGASUS_NAMESPACE_END

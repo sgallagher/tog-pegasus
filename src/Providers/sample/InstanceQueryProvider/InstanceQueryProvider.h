@@ -36,7 +36,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Provider/CIMInstanceQueryProvider.h>
 
-PEGASUS_NAMESPACE_BEGIN
+PEGASUS_USING_PEGASUS;
 
 class InstanceQueryProvider :
 	public CIMInstanceQueryProvider
@@ -103,7 +103,5 @@ protected:
 	Array<CIMInstance> _instances;
 
 };
-
-PEGASUS_NAMESPACE_END
 
 #endif

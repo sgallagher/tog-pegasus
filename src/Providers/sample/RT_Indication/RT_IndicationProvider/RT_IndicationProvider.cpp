@@ -39,7 +39,7 @@
 
 PEGASUS_USING_STD;
 
-PEGASUS_NAMESPACE_BEGIN
+PEGASUS_USING_PEGASUS;
 
 static IndicationResponseHandler * _handler = 0; 
 static Boolean _enabled = false;
@@ -188,4 +188,3 @@ void RT_IndicationProvider::invokeMethod(
            _generateIndication(_handler,"generateIndication");
 }
 
-PEGASUS_NAMESPACE_END

@@ -35,7 +35,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Provider/CIMAssociationProvider.h>
 
-PEGASUS_NAMESPACE_BEGIN
+PEGASUS_USING_PEGASUS;
 
 class AssociationProvider : public CIMAssociationProvider
 {
@@ -89,7 +89,5 @@ public:
 protected:
 
 };
-
-PEGASUS_NAMESPACE_END
 
 #endif

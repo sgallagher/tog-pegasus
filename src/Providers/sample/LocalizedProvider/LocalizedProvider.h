@@ -45,7 +45,7 @@
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/ContentLanguages.h>
 
-PEGASUS_NAMESPACE_BEGIN
+PEGASUS_USING_PEGASUS;
 
 class LocalizedProvider :
       public CIMInstanceProvider,
@@ -250,7 +250,5 @@ private:
 
     void _generateIndication();
 };
-
-PEGASUS_NAMESPACE_END
 
 #endif

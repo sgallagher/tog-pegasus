@@ -34,7 +34,7 @@
 
 #include "IndicationProvider.h"
 
-PEGASUS_NAMESPACE_BEGIN
+PEGASUS_USING_PEGASUS;
 
 extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(const String & providerName)
 {
@@ -46,4 +46,3 @@ extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(const String & pro
     return(0);
 }
 
-PEGASUS_NAMESPACE_END

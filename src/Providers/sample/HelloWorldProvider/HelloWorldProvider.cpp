@@ -35,7 +35,7 @@
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Thread.h>
 
-PEGASUS_NAMESPACE_BEGIN
+PEGASUS_USING_PEGASUS;
 
 class IndicationThread : public Thread
 {
@@ -459,4 +459,3 @@ void HelloWorldProvider::modifyIndication(
 {
 }
 
-PEGASUS_NAMESPACE_END

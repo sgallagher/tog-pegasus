@@ -38,7 +38,7 @@
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Thread.h>
 
-PEGASUS_NAMESPACE_BEGIN
+PEGASUS_USING_PEGASUS;
 
 class HelloWorldProvider :
 	public CIMInstanceProvider
@@ -169,7 +169,5 @@ protected:
 	Array<CIMInstance>	_instances;
 
 };
-
-PEGASUS_NAMESPACE_END
 
 #endif

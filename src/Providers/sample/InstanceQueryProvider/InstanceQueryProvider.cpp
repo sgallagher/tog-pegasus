@@ -32,7 +32,7 @@
 
 #include "InstanceQueryProvider.h"
 
-PEGASUS_NAMESPACE_BEGIN
+PEGASUS_USING_PEGASUS;
 
 InstanceQueryProvider::InstanceQueryProvider(void)
 {
@@ -304,6 +304,3 @@ void InstanceQueryProvider::execQuery(
     return;
 }  // execQuery
 
-
-
-PEGASUS_NAMESPACE_END

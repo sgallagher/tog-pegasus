@@ -35,7 +35,7 @@
 #include <Pegasus/Common/MofWriter.h>
 
 
-PEGASUS_NAMESPACE_BEGIN
+PEGASUS_USING_PEGASUS;
 
 SampleFamilyProvider::SampleFamilyProvider(void)
 {
@@ -1165,5 +1165,3 @@ void SampleFamilyProvider::referenceNames(
 
 }
 
-
-PEGASUS_NAMESPACE_END

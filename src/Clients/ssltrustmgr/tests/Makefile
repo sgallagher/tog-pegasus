@@ -94,13 +94,23 @@ ifdef PEGASUS_HAS_SSL
 	@$(STRIPCRS)
 	$(COMPARERESULTS)
 	@$(ECHO) +++ Test passed +++
-	@$(RM) $(RESULTFILE)
+	#@$(RM) $(RESULTFILE) Leaving this file here for now, so we have it to debug any poststarttest failures
 endif
 
 
 SSLCertificateTest1_ignoreerror:
 ifdef PEGASUS_HAS_SSL
 	@$(ECHO) ++++ssltrustmgr tests
+	
+ifeq ($(PEGASUS_PLATFORM), WIN32_IX86_MSVC)
+	# This is here because there is a very slight delay between the Windows service starting and the first request being taken
+	# This is a separate issue from the tests working
+	@CLI gc CIM_ManagedElement >> /dev/null $(REDIRECTERROR)
+	@CLI gc CIM_ManagedElement >> /dev/null $(REDIRECTERROR)
+	@CLI gc CIM_ManagedElement >> /dev/null $(REDIRECTERROR)
+	@CLI gc CIM_ManagedElement >> /dev/null $(REDIRECTERROR)
+	@CLI gc CIM_ManagedElement >> /dev/null $(REDIRECTERROR)
+endif
 	
 	@$(ECHO) "Connect with an untrusted certificate -- should get a 401" >> $(RESULTFILE)
 	@TestCertClient $(PEGASUS_HOME)/testdn1.cert $(PEGASUS_HOME)/testdn1.key >> $(RESULTFILE) $(REDIRECTERROR)

@@ -267,7 +267,11 @@ void ProviderManagerService::_handle_async_request(AsyncRequest * request)
 
         _incomingQueue.enqueue(request->op);
 
-        _thread_pool->allocate_and_awaken((void *)this, ProviderManagerService::handleCimOperation);
+         while (!_thread_pool->allocate_and_awaken(
+                     (void *)this, ProviderManagerService::handleCimOperation))
+         {
+             pegasus_yield();
+         }
     }
     else
     {

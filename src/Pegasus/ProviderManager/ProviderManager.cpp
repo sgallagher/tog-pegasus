@@ -474,6 +474,7 @@ Sint32 ProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
 			   {
 			      _providers.insert(provider->_name, provider);
 			   }
+			   continue;
 			}
 			else
 			{

@@ -4622,7 +4622,7 @@ Boolean XmlReader::getParamValueElement(
 {
     XmlEntry entry;
     const char* name;
-    CIMType type;
+    CIMType type=CIMTYPE_BOOLEAN;
     CIMValue value;
 
     if (!testStartTagOrEmptyTag(parser, entry, "PARAMVALUE"))

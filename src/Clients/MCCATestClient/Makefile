@@ -35,17 +35,18 @@ tests:
 poststarttests: repository
 	
 	$(PROGRAM) 1
+	$(MAKE) -i unregister
 
 # Load the sample MOF with the local compiler. Cleans the existing repository
 # before reloading.
 repository:
 
 # Loading Core mof into the two new test namespaces	
-	@ echo +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into root/test/A namespace ...
-	@ cimmof -R$(REPOSITORY_DIR) -I$(CIM_SCHEMA_DIR) -n/root/test/A $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
+	@ echo +++++ Loading Core$(CIM_SCHEMA_VER)_Qualifiers into root/test/A namespace ...
+	@ cimmof -R$(REPOSITORY_DIR) -I$(CIM_SCHEMA_DIR) -n/root/test/A $(CIM_SCHEMA_DIR)/Core$(CIM_SCHEMA_VER)_Qualifiers.mof
 	
-	@ echo +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into root/test/B namespace ...
-	@ cimmof -R$(REPOSITORY_DIR) -I$(CIM_SCHEMA_DIR) -n/root/test/B $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
+	@ echo +++++ Loading Core$(CIM_SCHEMA_VER)_Qualifiers into root/test/B namespace ...
+	@ cimmof -R$(REPOSITORY_DIR) -I$(CIM_SCHEMA_DIR) -n/root/test/B $(CIM_SCHEMA_DIR)/Core$(CIM_SCHEMA_VER)_Qualifiers.mof
 
 # Loading MCCA_TestClass into the two namespaces
 	@ echo +++++ Loading MCCA_TestClass into root/test/A namespace ...
@@ -61,14 +62,22 @@ repository:
 	@ echo +++++ Loading  MCCA_TestAssocClass provider definitions into PG_InterOp namespace ...
 	@ cimmof -R$(REPOSITORY_DIR) -n$(INTEROPNS) $(ROOT)/src/Providers/TestProviders/MCCA_TestAssocProvider/MCCA_TestAssocPrvReg.mof
 
-removerepository:
+removeclasses:
 # Removing test repository without cimserver knowing it	
+	@ echo +++++ Removing MCCA_Test Classes from repository ...
+	wbemexec DeleteClassA.xml > removeclasses.log
+	wbemexec DeleteClassB.xml >> removeclasses.log
+	wbemexec DeleteAssocA.xml >> removeclasses.log
+	wbemexec DeleteAssocB.xml >> removeclasses.log
+
+removerepository:
 	@ echo +++++ Removing existing repository named root/test/A
 	@$(RMREPOSITORY) '$(REPOSITORY_ROOT)/root#test#A'
 	@ echo +++++ Removing existing repository named root/test/B
 	@$(RMREPOSITORY) '$(REPOSITORY_ROOT)/root#test#B'
 
-unregister:
+unregister: removeclasses
+	@ echo +++++ Unregister MCCA_TestAssocClass provider ...
 	$(MAKE) -i unregisterproviders
 
 unregisterproviders:

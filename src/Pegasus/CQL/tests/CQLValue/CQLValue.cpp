@@ -621,6 +621,7 @@ cout << "operation" << endl;
 catch(Exception e)
   {
     cout << e.getMessage() << endl;
+    assert(0);
   } 
  return 0;
 }

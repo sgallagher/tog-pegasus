@@ -1,0 +1,24 @@
+class ValidMof4 {
+    [key] uint32 id;
+    uint16 A1[];
+};
+
+instance of ValidMof4 {
+    id = 1;
+    A1 = NULL;
+};
+
+instance of ValidMof4 {
+    id = 2;
+    A1 = {};
+};
+
+instance of ValidMof4 {
+    id = 3;
+    A1 = {1};
+};
+
+instance of ValidMof4 {
+    id = 4;
+    A1 = {1,2};
+};

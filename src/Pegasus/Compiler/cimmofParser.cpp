@@ -1042,6 +1042,7 @@ cimmofParser::QualifierValue(const String &qualifierName, const String &valstr)
   } else {
     return valueFactory::createValue(v.getType(),
 				     v.isArray() ? (int)asize : -1, 
+                                     false,
 				     &valstr);
   }
 }

@@ -53,6 +53,16 @@
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
+#define CIMMOF_CONSTANT_VALUE  1
+#define CIMMOF_ARRAY_VALUE     2
+#define CIMMOF_REFERENCE_VALUE 3
+#define CIMMOF_NULL_VALUE      4
+
+typedef struct typedInitializerValue {
+    Uint16 type;
+    const String *value;
+    } TYPED_INITIALIZER_VALUE;
+
 struct bufstate {
 	void *buffer_state; // the YY_BUFFER_STATE of the stacked context
 	String filename;    // the name of the file open in the stacked context

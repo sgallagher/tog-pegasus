@@ -23,8 +23,8 @@ instance of PG_ProviderCapabilities
     ProviderName = "SampleInstanceProvider";
     CapabilityID = "SampleInstanceProvider";
     ClassName = "Sample_InstanceProviderClass";
-    Namespaces[] = { "root/SampleProvider" };
-    ProviderType[] = { 2 };
-    SupportedProperties[] = NULL;
-    SupportedMethods[] = NULL;
+    Namespaces = { "root/SampleProvider" };
+    ProviderType = { 2 };
+    SupportedProperties = NULL;
+    SupportedMethods = NULL;
 };

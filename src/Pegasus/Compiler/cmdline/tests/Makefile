@@ -60,6 +60,12 @@ tests:
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) "cimmofl -R. ValidMof2.mof" >> $(RESULTFILE)
 	@cimmofl $(NAMESPACE) -R. ValidMof2.mof >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) " " >> $(RESULTFILE)
+	@$(ECHO) "cimmofl -R. ValidMof3.mof" >> $(RESULTFILE)
+	@cimmofl $(NAMESPACE) -R. ValidMof3.mof >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) " " >> $(RESULTFILE)
+	@$(ECHO) "cimmofl -R. ValidMof4.mof" >> $(RESULTFILE)
+	@cimmofl $(NAMESPACE) -R. ValidMof4.mof >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(MAKE) -i -s tests_ignoreerror
 	$(COMPARERESULTS)
 	@$(ECHO) +++ Test Passed +++

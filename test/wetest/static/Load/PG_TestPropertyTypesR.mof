@@ -20,10 +20,10 @@ instance of PG_ProviderCapabilities
    ProviderName = "PG_TestPropertyTypes";
    CapabilityID = "1";
    ClassName = "PG_TestElement";
-   Namespaces[] = {"test/static"};
-   ProviderType[] = { 2 }; // Instance
-   SupportedProperties[] = NULL; // All properties
-   SupportedMethods[] = NULL; // All methods
+   Namespaces = {"test/static"};
+   ProviderType = { 2 }; // Instance
+   SupportedProperties = NULL; // All properties
+   SupportedMethods = NULL; // All methods
 };
 
 instance of PG_ProviderCapabilities 
@@ -32,8 +32,8 @@ instance of PG_ProviderCapabilities
    ProviderName = "PG_TestPropertyTypes";
    CapabilityID = "2";
    ClassName = "PG_TestPropertyTypes";
-   Namespaces[] = {"test/static"};
-   ProviderType[] = { 2 }; // Instance
-   SupportedProperties[] = NULL; // All properties
-   SupportedMethods[] = NULL; // All methods
+   Namespaces = {"test/static"};
+   ProviderType = { 2 }; // Instance
+   SupportedProperties = NULL; // All properties
+   SupportedMethods = NULL; // All methods
 };

@@ -182,6 +182,9 @@ TAG: Version_1_09.
 31. (Roger Kumpf - HP) 26 Apr 2002 - Added copy constructors to the
     CIMMessage subclasses.
 
+32. (Denise Eckstein - HP) 27 Apr 2002 - Fixed several defects
+    in MOF compiler associated with the handling the initialization 
+    of array values.
 ========================================================================
 
 Version 1.08 working towards 1.1 - Started 27 March 2002

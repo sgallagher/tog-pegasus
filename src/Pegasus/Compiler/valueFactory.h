@@ -48,6 +48,7 @@ class PEGASUS_COMPILER_LINKAGE valueFactory  {
  public:
   static unsigned long Stoi(const String &s);
   static CIMValue * createValue(CIMType::Tag type, int arrayDimension,
+                             Boolean isNull,
 			     const String *rep);
 };
 

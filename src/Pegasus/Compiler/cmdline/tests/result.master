@@ -9,6 +9,10 @@ cimmofl -xml ValidMof2.mof
  
 cimmofl -R. ValidMof2.mof
  
+cimmofl -R. ValidMof3.mof
+ 
+cimmofl -R. ValidMof4.mof
+ 
 cimmofl -h
 
 MofCompiler version 1.1.00

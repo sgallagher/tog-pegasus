@@ -15,6 +15,7 @@ typedef union {
   CIMReference *  reference;
   modelPath *     modelpath;
   KeyBinding *    keybinding;
+  TYPED_INITIALIZER_VALUE * typedinitializer;
 } YYSTYPE;
 #define	TOK_LEFTCURLYBRACE	257
 #define	TOK_RIGHTCURLYBRACE	258

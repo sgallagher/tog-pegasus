@@ -20,8 +20,8 @@ instance of PG_ProviderCapabilities
    ProviderName = "LinuxCDROMDriveProvider";
    CapabilityID = "1";
    ClassName = "Linux_CDROMDrive";
-   Namespaces[] = {"root/cimv2"};
-   ProviderType[] = { 2 }; // Instance
-   SupportedProperties[] = NULL; // All properties
-   SupportedMethods[] = NULL; // All methods
+   Namespaces = {"root/cimv2"};
+   ProviderType = { 2 }; // Instance
+   SupportedProperties = NULL; // All properties
+   SupportedMethods = NULL; // All methods
 };

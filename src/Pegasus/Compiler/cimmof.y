@@ -74,6 +74,7 @@ extern void cimmof_yy_less(int n);
   String g_currentAlias = String::EMPTY;
   String g_referenceClassName = String::EMPTY;
   KeyBindingArray g_KeyBindingArray; // it gets created empty
+  TYPED_INITIALIZER_VALUE g_typedInitializerValue; 
 
 /* ------------------------------------------------------------------- */
 /* Pragmas, except for the Include pragma, are not handled yet    */
@@ -122,6 +123,7 @@ cimmof_error(char *msg) {
   CIMReference *  reference;
   modelPath *     modelpath;
   KeyBinding *    keybinding;
+  TYPED_INITIALIZER_VALUE * typedinitializer;
 }
 
 %token TOK_LEFTCURLYBRACE
@@ -197,12 +199,15 @@ cimmof_error(char *msg) {
 %type <strval> TOK_SIGNED_DECIMAL_VALUE TOK_BINARY_VALUE
 %type <strval> TOK_SIMPLE_IDENTIFIER TOK_STRING_VALUE
 %type <strval> stringValue stringValues defaultValue initializer constantValue
+%type <strval> nonNullConstantValue
 %type <strval> arrayInitializer constantValues 
 %type <strval> integerValue TOK_REAL_VALUE TOK_CHAR_VALUE qualifierParameter
 %type <strval> superClass TOK_ALIAS_IDENTIFIER  alias aliasIdentifier
 %type <strval> namespaceHandle namespaceHandleRef
 %type <strval> referenceInitializer aliasInitializer objectHandle
 %type <strval> TOK_UNEXPECTED_CHAR
+
+%type <typedinitializer> typedInitializer
 
 %type <modelpath> modelPath 
 %type <keybinding> keyValuePair
@@ -219,7 +224,7 @@ cimmof_error(char *msg) {
 %type <instance> instanceHead instanceDeclaration 
 
 %%
-mofSpec: mofProductions
+mofSpec: mofProductions ;
 
 mofProductions: mofProduction mofProductions
               | /* empty */ ;
@@ -249,9 +254,9 @@ classHead: qualifierList TOK_CLASS className alias superClass
   delete $3;
   delete $4;
   delete $5;
-}
+} ;
 
-className: TOK_SIMPLE_IDENTIFIER {  }
+className: TOK_SIMPLE_IDENTIFIER {  } ;
 
 superClass: TOK_COLON className { $$ = $2; }
           | /* empty */ { $$ = new String(String::EMPTY); } ;
@@ -298,7 +303,7 @@ propertyDeclaration: qualifierList propertyBody propertyEnd
 // KS 8 March 2002 - Extended to pass isArray and arraySize
 propertyBody: dataType propertyName array defaultValue
 {
-  CIMValue *v = valueFactory::createValue($1, $3, $4);
+  CIMValue *v = valueFactory::createValue($1, $3, true,  $4);
   if ($3 == -1) {
     $$ = cimmofParser::Instance()->newProperty(*$2, *v, false, 0);
 } else {                                           
@@ -318,7 +323,7 @@ referenceDeclaration: qualifierList referencedObject TOK_REF referenceName
   String s(*$2);
   if (!String::equal(*$5, String::EMPTY))
     s += "." + *$5;
-  CIMValue *v = valueFactory::createValue(CIMType::REFERENCE, -1, &s);
+  CIMValue *v = valueFactory::createValue(CIMType::REFERENCE, -1, true, &s);
   //KS add the isArray and arraysize parameters. 8 mar 2002
   $$ = cimmofParser::Instance()->newProperty(*$4, *v, false,0, *$2);
   apply(&g_qualifierList, $$);
@@ -373,7 +378,7 @@ array: TOK_LEFTSQUAREBRACKET TOK_POSITIVE_DECIMAL_VALUE
 		   delete $2;
                  }
      | TOK_LEFTSQUAREBRACKET TOK_RIGHTSQUAREBRACKET { $$ = 0; } 
-     | /* empty */ { $$ = -1; }
+     | /* empty */ { $$ = -1; } ;
 
 defaultValue: TOK_EQUAL initializer { $$ = $2; }  
             | /* empty */ { $$ = new String(String::EMPTY); } ;
@@ -381,6 +386,34 @@ defaultValue: TOK_EQUAL initializer { $$ = $2; }
 initializer: constantValue { $$ = $1; }
            | arrayInitializer { $$ = $1; }
            | referenceInitializer { $$ = $1; } ;
+
+// The typedInitializer element is syntactially identical to 
+// the initializer element. However, the typedInitializer element 
+// returns, in addition to the value, the type of the value.
+typedInitializer: nonNullConstantValue 
+           { 
+           g_typedInitializerValue.type = CIMMOF_CONSTANT_VALUE;
+           g_typedInitializerValue.value =  $1; 
+           $$ = &g_typedInitializerValue;
+           }
+         | TOK_NULL_VALUE
+           {
+           g_typedInitializerValue.type = CIMMOF_NULL_VALUE;
+           g_typedInitializerValue.value = new String(String::EMPTY); 
+           $$ = &g_typedInitializerValue;
+           }
+         | arrayInitializer
+           { 
+           g_typedInitializerValue.type = CIMMOF_ARRAY_VALUE;
+           g_typedInitializerValue.value =  $1; 
+           $$ = &g_typedInitializerValue;
+           }
+         | referenceInitializer
+           { 
+           g_typedInitializerValue.type = CIMMOF_REFERENCE_VALUE;
+           g_typedInitializerValue.value =  $1; 
+           $$ = &g_typedInitializerValue;
+           };
 
 constantValues: constantValue { $$ = $1; }
               | constantValues TOK_COMMA constantValue 
@@ -390,12 +423,17 @@ constantValues: constantValue { $$ = $1; }
 				delete $3;
                               } ;
 
-constantValue: integerValue { $$ = $1; }
+// The nonNullConstantValue has been added to allow NULL 
+// to be distinguished from the EMPTY STRING.
+
+constantValue: nonNullConstantValue {$$ = $1;}
+             | TOK_NULL_VALUE { $$ = new String(String::EMPTY); } ;
+
+nonNullConstantValue: integerValue { $$ = $1; }
              | TOK_REAL_VALUE { $$ = $1; }
              | TOK_CHAR_VALUE { $$ =  $1; }
              | stringValues { }
-             | booleanValue { $$ = new String($1 ? "T" : "F"); }
-             | TOK_NULL_VALUE { $$ = new String(String::EMPTY); } ;
+             | booleanValue { $$ = new String($1 ? "T" : "F"); };
 
 integerValue: TOK_POSITIVE_DECIMAL_VALUE
             | TOK_SIGNED_DECIMAL_VALUE
@@ -444,10 +482,13 @@ stringValue: TOK_STRING_VALUE
      }
    }
    delete $1; $$ = new String(s1);
-}
+} ;
 
-arrayInitializer: TOK_LEFTCURLYBRACE constantValues TOK_RIGHTCURLYBRACE 
-       { $$ = $2; } ;
+arrayInitializer: 
+       TOK_LEFTCURLYBRACE constantValues TOK_RIGHTCURLYBRACE 
+           { $$ = $2; } 
+     | TOK_LEFTCURLYBRACE  TOK_RIGHTCURLYBRACE 
+           { $$ = new String(String::EMPTY); };
 
 referenceInitializer: objectHandle {}
                   | aliasInitializer {  } ;
@@ -465,12 +506,12 @@ objectHandle: TOK_DQUOTE namespaceHandleRef modelPath TOK_DQUOTE
   $$ = s;
   delete $2;
   delete $3;
-}
+} ;
 
 aliasInitializer : aliasIdentifier {
   // convert somehow from alias to a CIM object name
   delete $1;
-}
+} ;
 
 namespaceHandleRef: namespaceHandle TOK_COLON
                     { }
@@ -527,12 +568,14 @@ instanceBody: TOK_LEFTCURLYBRACE valueInitializers TOK_RIGHTCURLYBRACE
 valueInitializers: valueInitializer
                  | valueInitializers valueInitializer ;
 
-// ATTN-KS-P1 -  7 Mar 2002 - The array in the following is incorrect.
-valueInitializer: qualifierList TOK_SIMPLE_IDENTIFIER array TOK_EQUAL
-                  initializer TOK_SEMICOLON 
+// ATTN-DE-P1-20020427: Processing NULL Initializer values is incomplete.
+// Currently only the arrayInitializer element has been modified to 
+// return CIMMOF_NULL_VALUE
+valueInitializer: qualifierList TOK_SIMPLE_IDENTIFIER TOK_EQUAL
+                  typedInitializer TOK_SEMICOLON 
 {
   cimmofParser *cp = cimmofParser::Instance();
-  // ATTN: P1 InstnaceUpdate function 2001 BB  Instnace update needs work here and CIMOM 
+  // ATTN: P1 InstanceUpdate function 2001 BB  Instance update needs work here and CIMOM 
   // a property.  It must be fixed in the Common code first.
   // What we have to do here is create a CIMProperty  and initialize it with
   // the value provided.  The name of the property is $2 and it belongs
@@ -542,8 +585,20 @@ valueInitializer: qualifierList TOK_SIMPLE_IDENTIFIER array TOK_EQUAL
   CIMProperty *oldprop = cp->PropertyFromInstance(*g_currentInstance,
 							*$2);
   CIMValue *oldv = cp->ValueFromProperty(*oldprop);
+
   //   3. create the new Value object of the same type
-  CIMValue *v = valueFactory::createValue(oldv->getType(), $3, $5);
+
+  // We want createValue to interpret a value as an array if is enclosed 
+  // in {}s (e.g., { 2 } or {2, 3, 5}) or it is NULL and the property is 
+  // defined as an array. createValue is responsible for the actual
+  // validation.
+
+  CIMValue *v = valueFactory::createValue(oldv->getType(),
+                 (($4->type == CIMMOF_ARRAY_VALUE) |
+                  (($4->type == CIMMOF_NULL_VALUE) & oldprop->isArray()))?0:-1,
+                 ($4->type == CIMMOF_NULL_VALUE),
+                 $4->value);
+
   //   4. create a clone property with the new value
   CIMProperty *newprop = cp->copyPropertyWithNewValue(*oldprop, *v);
   //   5. apply the qualifiers; 
@@ -551,7 +606,7 @@ valueInitializer: qualifierList TOK_SIMPLE_IDENTIFIER array TOK_EQUAL
   //   6. and apply the CIMProperty to g_currentInstance.
   cp->applyProperty(*g_currentInstance, *newprop);
   delete $2;
-  delete $5;
+  delete $4->value;
   delete oldprop;
   delete oldv;
   delete v;
@@ -595,9 +650,9 @@ qualifierDeclaration: TOK_QUALIFIER qualifierName qualifierValue scope
 
 qualifierValue: TOK_COLON dataType array defaultValue
 {
-    $$ = valueFactory::createValue($2, $3, $4);
+    $$ = valueFactory::createValue($2, $3, false, $4);
     delete $4;
-}
+} ;
 
 scope: scope_begin metaElements TOK_RIGHTPAREN { $$ = $2; } ;
 

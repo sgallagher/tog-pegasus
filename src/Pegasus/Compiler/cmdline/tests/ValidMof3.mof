@@ -1,0 +1,5 @@
+class ValidMof3 {
+[key] uint16 id;
+uint32 B [2];
+uint16 C [];
+};

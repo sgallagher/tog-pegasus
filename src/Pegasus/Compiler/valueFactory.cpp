@@ -362,8 +362,13 @@ build_array_value(CIMType::Tag type, unsigned int arrayDimension,
 */
 CIMValue *
 valueFactory::createValue(CIMType::Tag type, int arrayDimension,
+                          Boolean isNULL,
 			  const String *repp)
 {
+// ATTN-DME-P1-20020427: Processing NULL Initializer values is incomplete.
+// Currently only the arrayInitializer element cimmof.y has been modified to
+// return CIMMOF_NULL_VALUE
+
   const String &rep = *repp;
   CIMDateTime dt;
   if (arrayDimension == -1) { // this is not an array type
@@ -393,8 +398,9 @@ valueFactory::createValue(CIMType::Tag type, int arrayDimension,
     return(new CIMValue((Uint32) 0));    // default
   } else { // an array type, either fixed or variable
 
+  const String &rep = *repp;
       // KS If empty string set CIMValue type but Null attribute.
-      if (rep.size() == 0)
+      if (isNULL)
           return new CIMValue(type, true, arrayDimension);
 
     return build_array_value(type, (unsigned int)arrayDimension, rep);

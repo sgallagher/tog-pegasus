@@ -25,8 +25,8 @@ instance of PG_ProviderCapabilities
     ProviderName = "IBM_CIMOMStatDataProvider";
     CapabilityID = "1";
     ClassName = "IBM_CIMOMStatData";
-    Namespaces[] = { "root/cimv2" };
-    ProviderType[] = { 2 };
-    SupportedProperties[] = NULL; // All properties
-    SupportedMethods[] = NULL; // All methods
+    Namespaces = { "root/cimv2" };
+    ProviderType = { 2 };
+    SupportedProperties = NULL; // All properties
+    SupportedMethods = NULL; // All methods
 };

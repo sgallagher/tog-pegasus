@@ -91,11 +91,19 @@ CIMObjectPath _selectInstance(CIMClient& client, Options& opts, const CIMName& c
     for (Uint32 i = 0 ; i < instanceNames.size() ; i++)
         list.append(instanceNames[i].toString());
 
-    Uint32 rtn = _selectStringItem(list, "instance to delete");
+    if (list.size() == 0)
+    {
+        return(CIMObjectPath());
+    }
+    Uint32 rtn = _selectStringItem(list, "an Instance");
 
     return(instanceNames[rtn]);
 }
 
+String _toString(Boolean x)
+{
+	return(x ? "true" : "false");
+}
 
 /** Use the interactive selection mechanism to get the instance if
     the input object is a class AND if the opts.interactive flag is
@@ -114,19 +122,15 @@ CIMObjectPath _selectInstance(CIMClient& client, Options& opts, const CIMName& c
 CIMObjectPath _conditionalSelectInstance(CIMClient& client, Options& opts, const String& objectName)
 {
     CIMObjectPath thisObject(objectName);
+    // if class level and interactive set.
     if ((thisObject.getKeyBindings().size() == 0) && opts.interactive)
     {
         // Ask the user to select an instance
-        thisObject = 
-          _selectInstance(client, opts, CIMName(opts.objectName));
+        thisObject = _selectInstance(client, opts, CIMName(opts.objectName));
     }
     return(thisObject);
 }
 
-String _toString(Boolean x)
-{
-	return(x ? "true" : "false");
-}
 
 // Character sequences used in help/usage output.
 String buildPropertyListString(CIMPropertyList& pl)
@@ -635,7 +639,9 @@ int deleteInstance(CIMClient& client, Options& opts)
         // get the instance to delete
         thisObject = 
           _selectInstance(client, opts, CIMName(opts.objectName));
-        // convert back to the opts.objectName
+        // No instances returned. exit
+        if (thisObject.getClassName() == CIMName())
+            return(0);
     }
 
     if (opts.time) 
@@ -689,6 +695,8 @@ int getInstance(CIMClient& client, Options& opts)
         // get the instance to delete
         thisObject = 
           _selectInstance(client, opts, CIMName(opts.objectName));
+        if (thisObject.getClassName() == CIMName())
+            return(0);
     }
     if (opts.time) opts.elapsedTime.reset();
     CIMInstance cimInstance = client.getInstance(opts.nameSpace,
@@ -1067,14 +1075,14 @@ int referenceNames(CIMClient& client, Options& opts)
             << endl;
     }
     // do conditional select of instance if params properly set.
-    CIMObjectPath thisObject = 
+    CIMObjectPath thisObjectPath = 
         _conditionalSelectInstance(client, opts, opts.objectName);
 
     if (opts.time) opts.elapsedTime.reset();
 
     Array<CIMObjectPath> referenceNames =
 		client.referenceNames( opts.nameSpace,
-							   thisObject,
+							   thisObjectPath,
 							   opts.resultClass,
 							   opts.role);
 
@@ -1129,14 +1137,15 @@ int references(CIMClient& client, Options& opts)
     }
 
     // do conditional select of instance if params properly set.
-    CIMObjectPath thisObject = 
+    // Note that this assumes that a valid object will always be returned.
+    CIMObjectPath thisObjectPath = 
         _conditionalSelectInstance(client, opts, opts.objectName);
 
     if (opts.time) opts.elapsedTime.reset();
 
     Array<CIMObject> objects =
 		client.references(  opts.nameSpace,
-							opts.objectName,
+							thisObjectPath,
 							opts.resultClass,
 							opts.role,
 							opts.includeQualifiers,
@@ -1148,8 +1157,7 @@ int references(CIMClient& client, Options& opts)
     if (opts.summary)
     {
       String s = "references";
-        _displaySummary(objects.size(), s,
-             opts.objectName,opts);
+        _displaySummary(objects.size(), s, opts.objectName,opts);
     }
     else
     {
@@ -1187,14 +1195,14 @@ int associatorNames(CIMClient& client, Options& opts)
     }
 
     // do conditional select of instance if params properly set.
-    CIMObjectPath thisObject = 
+    CIMObjectPath thisObjectPath = 
         _conditionalSelectInstance(client, opts, opts.objectName);
 
     if (opts.time) opts.elapsedTime.reset();
 
     Array<CIMObjectPath> associatorNames =
     client.associatorNames( opts.nameSpace,
-                            opts.objectName,
+                            thisObjectPath,
                             opts.assocClass,
                             opts.resultClass,
                             opts.role,
@@ -1254,14 +1262,14 @@ int associators(CIMClient& client, Options& opts)
     }
 
     // do conditional select of instance if params properly set.
-    CIMObjectPath thisObject = 
+    CIMObjectPath thisObjectPath = 
         _conditionalSelectInstance(client, opts, opts.objectName);
 
     if (opts.time) opts.elapsedTime.reset();
 
     Array<CIMObject> objects =
     client.associators( opts.nameSpace,
-                        opts.objectName,
+                        thisObjectPath,
                         opts.assocClass,
                         opts.resultClass,
                         opts.role,

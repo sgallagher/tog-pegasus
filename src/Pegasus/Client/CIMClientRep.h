@@ -28,6 +28,7 @@
 // Modified By:  Dan Gorey (djgorey@us.ibm.com)
 //				 Marek Szermutzky (MSzermutzky@de.ibm.com) for PEP#139 Stage1
 //               Robert Kieninger, IBM (kieningr@de.ibm.com) for Bug#667
+//               Amit K Arora, IBM (amita@in.ibm.com) for Bug#2040
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -53,7 +54,6 @@
 #include <Pegasus/Common/HTTPConnector.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/HTTPConnection.h>
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/TimeValue.h>
 #include <Pegasus/Common/AutoPtr.h>
@@ -291,32 +291,32 @@ public:
 
 private:
 
-    void _connect();
+    void _connect(AutoPtr<SSLContext>& connectSSLContext);
 
     void _disconnect();
 
     void _reconnect();
 
     Message* _doRequest(
-        CIMRequestMessage * request,
+        AutoPtr<CIMRequestMessage>& request,
         const Uint32 expectedResponseMessageType);
 
     String _getLocalHostName();
     #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
-    Monitor* _monitor;
-    HTTPConnector* _httpConnector;
-    HTTPConnection* _httpConnection;
+    AutoPtr<Monitor> _monitor;
+    AutoPtr<HTTPConnector> _httpConnector;
+    AutoPtr<HTTPConnection> _httpConnection;
     #else
-    monitor_2* _monitor;
-    HTTPConnector2* _httpConnector;
-    HTTPConnection2* _httpConnection;
+    AutoPtr<monitor_2> _monitor;
+    AutoPtr<HTTPConnector2> _httpConnector;
+    AutoPtr<HTTPConnection2> _httpConnection;
     #endif
 
 
     Uint32 _timeoutMilliseconds;
     Boolean _connected;
-    CIMOperationResponseDecoder* _responseDecoder;
-    CIMOperationRequestEncoder* _requestEncoder;
+    AutoPtr<CIMOperationResponseDecoder> _responseDecoder;
+    AutoPtr<CIMOperationRequestEncoder> _requestEncoder;
     ClientAuthenticator _authenticator;
     String _connectHost;
     Uint32 _connectPortNumber;

@@ -20,6 +20,11 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
+// Modified By:  Carol Ann Krug Graves, Hewlett-Packard Company
+//                   (carolann_graves@hp.com)
+//
+//%/////////////////////////////////////////////////////////////////////////////
+
 #include <cassert>
 #include <cstdlib>
 #include <iostream>
@@ -49,7 +54,8 @@ void test01()
     assert(r.toString() == on2);
 
     CIMObjectPath r2 = r;
-    CIMObjectPath r3 = "//atp:77/root/cimv25:TennisPlayer.first=\"Chris\",last=\"Evert\"";
+    CIMObjectPath r3 = CIMObjectPath 
+        ("//atp:77/root/cimv25:TennisPlayer.first=\"Chris\",last=\"Evert\"");
 
     if (verbose)
     {
@@ -63,9 +69,11 @@ void test01()
     }
 
     {
-    CIMObjectPath r1 = "MyClass.z=true,y=1234,x=\"Hello World\"";
-    CIMObjectPath r2 = "myclass.X=\"Hello World\",Z=true,Y=1234";
-    CIMObjectPath r3 = "myclass.X=\"Hello\",Z=true,Y=1234";
+    CIMObjectPath r1 = CIMObjectPath 
+        ("MyClass.z=true,y=1234,x=\"Hello World\"");
+    CIMObjectPath r2 = CIMObjectPath 
+        ("myclass.X=\"Hello World\",Z=true,Y=1234");
+    CIMObjectPath r3 = CIMObjectPath ("myclass.X=\"Hello\",Z=true,Y=1234");
     // cout << r1.toString() << endl;
     // cout << r2.toString() << endl;
     assert(r1 == r2);
@@ -74,12 +82,12 @@ void test01()
 
      // Test case independence and order independence of parameters.
     {
-	CIMObjectPath r1 = "X.a=123,b=true";
-	CIMObjectPath r2 = "x.B=TRUE,A=123";
+	CIMObjectPath r1 = CIMObjectPath ("X.a=123,b=true");
+	CIMObjectPath r2 = CIMObjectPath ("x.B=TRUE,A=123");
 	assert(r1 == r2);
 	assert(r1.makeHashCode() == r2.makeHashCode());
 
-	CIMObjectPath r3 = "x.B=TRUE,A=123,c=FALSE";
+	CIMObjectPath r3 = CIMObjectPath ("x.B=TRUE,A=123,c=FALSE");
 	assert(r1 != r3);
         String            keyValue;
 
@@ -150,20 +158,25 @@ void test02()
 {
     // test cases with commas in the key value string
 
-    CIMObjectPath testr1 = "MyClass.z=true,y=1234,x=\"Hello,World\"";
+    CIMObjectPath testr1 = CIMObjectPath 
+        ("MyClass.z=true,y=1234,x=\"Hello,World\"");
 
-    CIMObjectPath testr2 = "MyClass.z=true,y=1234,x=\"Hello World,\"";
+    CIMObjectPath testr2 = CIMObjectPath 
+        ("MyClass.z=true,y=1234,x=\"Hello World,\"");
 
-    CIMObjectPath testr3 = "MyClass.z=true,y=1234,x=\"Hello,,World\"";
+    CIMObjectPath testr3 = CIMObjectPath 
+        ("MyClass.z=true,y=1234,x=\"Hello,,World\"");
 
-    CIMObjectPath testr4 = "//atp:77/root/cimv25:test.last=\"Rafter,Smith.Jones long_name:any*char=any123%#@!<>?+^\",first=\"Patrick\"";
+    CIMObjectPath testr4 = CIMObjectPath 
+        ("//atp:77/root/cimv25:test.last=\"Rafter,Smith.Jones long_name:any*char=any123%#@!<>?+^\",first=\"Patrick\"");
 
     // test error cases
 
     Boolean errorDetected = false;
     try
     {
-       CIMObjectPath testerr1 = "myclass.X=\"Hello World\"Z=trueY=1234";
+       CIMObjectPath testerr1 = CIMObjectPath 
+           ("myclass.X=\"Hello World\"Z=trueY=1234");
     }
     catch (Exception& e)
     {
@@ -174,7 +187,7 @@ void test02()
     errorDetected = false;
     try
     {
-       CIMObjectPath testerr2 = "myclass.XYZ";
+       CIMObjectPath testerr2 = CIMObjectPath ("myclass.XYZ");
     }
     catch (Exception& e)
     {
@@ -185,7 +198,8 @@ void test02()
     errorDetected = false;
     try
     {
-       CIMObjectPath testerr3 = "MyClass.z=true,y=1234abc,x=\"Hello World\"";
+       CIMObjectPath testerr3 = CIMObjectPath 
+           ("MyClass.z=true,y=1234abc,x=\"Hello World\"");
     }
     catch (Exception& e)
     {
@@ -196,7 +210,8 @@ void test02()
     errorDetected = false;
     try
     {
-       CIMObjectPath testerr4 = "MyClass.z=nottrue,y=1234,x=\"Hello World\"";
+       CIMObjectPath testerr4 = CIMObjectPath 
+           ("MyClass.z=nottrue,y=1234,x=\"Hello World\"");
     }
     catch (Exception& e)
     {

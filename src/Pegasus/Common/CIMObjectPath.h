@@ -24,6 +24,8 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -94,13 +96,6 @@ public:
 
     /** Modifier */
     void setType(Type type);
-
-#ifdef PEGASUS_INTERNALONLY
-    /** Converts the given type to one of the following:
-        "boolean", "string", or "numeric"
-    */
-    static const char* typeToString(Type type);
-#endif
 
 private:
 
@@ -359,24 +354,12 @@ public:
     /** Initializes a CIMObjectPath object from a CIM object name.
         @param objectName String representing the object name.
         @return Returns the initialized CIMObjectPath
-        @exception Throws "IllformedObjectName" exception if the name
-        not parsable.
+        @exception IllformedObjectName if the name is not parsable.
         <PRE>
             CIMObjectPath r1 = "MyClass.z=true,y=1234,x=\"Hello World\"";
         </PRE>
     */
     CIMObjectPath(const String& objectName);
-
-    /** Initializes this object from a CIM object name (char* version).
-        @param objectName char* representing the objectName
-        @return
-        @exception Throws "IllformedObjectName" if objectName parameter not
-        parsable as a CIMObjectPath.
-    */
-    CIMObjectPath(const char* objectName);
-
-    /** Workaround to MSVC++ bug. */
-    static KeyBindingArray getKeyBindingArray();
 
     /** Constructs a CIMObjectPath from constituent elements.
         @param host Name of host (e.g., "nemesis-5988").
@@ -389,7 +372,10 @@ public:
         const String& host,
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
-        const KeyBindingArray& keyBindings = getKeyBindingArray());
+        //
+        //  NOTE: Due to a bug in MSVC 5, the following will not work on MSVC 5
+        //
+        const KeyBindingArray& keyBindings = KeyBindingArray ());
 
     /** Destructor */
     ~CIMObjectPath();
@@ -406,22 +392,22 @@ public:
     /** Sets this reference from constituent elements. The effect is same
         as if the object was initialized using the constructor above that
         has the same arguments.
-        @exception throws IllformedObjectName if host name is illformed.
+        @exception IllformedObjectName if host name is illformed.
     */
     void set(
         const String& host,
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
-        const KeyBindingArray& keyBindings = getKeyBindingArray());
+        //
+        //  NOTE: Due to a bug in MSVC 5, the following will not work on MSVC 5
+        //
+        const KeyBindingArray& keyBindings = KeyBindingArray ());
 
     /** Set the reference from an object name . */
-      void set(const String& objectName) throw(IllformedObjectName);
+      void set(const String& objectName);
 
     /** Same as set() above except that it is an assignment operator */
     CIMObjectPath& operator=(const String& objectName);
-
-    /** Same as set() above except that it is an assignment operator */
-    CIMObjectPath& operator=(const char* objectName);
 
     /** getHost - returns the hostname component of the
         CIMObjectPath
@@ -500,9 +486,6 @@ public:
     */
     String toStringCanonical(Boolean includeHost=true) const;
 
-    /** Makes a deep copy (clone) of the given object. */
-    CIMObjectPath clone() const;
-
     /** Returns true if this reference is identical to the one given
         by the x argument. Since CIMObjectPaths are normalized when they
         are created, any differences in the ordering of keybindings is accounted
@@ -522,25 +505,13 @@ public:
     */
     Uint32 makeHashCode() const;
 
-    /** Check whether this reference refers to an instance (if it does, the
-        class must have key bindings).
-    */
-    Boolean isInstanceName() const;
-
-    /** Check whether this reference refers to an class (if not it is an
-        instance).
-    */
-    Boolean isClassName() const
-    {
-        return !isInstanceName();
-    }
 
 private:
 
     Boolean _parseHostElement(
         const String& objectName,
         char*& p,
-        String& host) throw(IllformedObjectName);
+        String& host);
 
     Boolean _parseNamespaceElement(
         const String& objectName,
@@ -550,7 +521,7 @@ private:
     void _parseKeyBindingPairs(
         const String& objectName,
         char*& p,
-        Array<KeyBinding>& keyBindings) throw(IllformedObjectName) ;
+        Array<KeyBinding>& keyBindings);
 
     CIMObjectPathRep* _rep;
 };

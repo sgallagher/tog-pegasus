@@ -363,7 +363,7 @@ void XmlWriter::appendInstanceNameElement(
         }
         else {
             out << "<KEYVALUE VALUETYPE=\"";
-            out << KeyBinding::typeToString(keyBindings[i].getType());
+            out << keyBindingTypeToString(keyBindings[i].getType());
             out << "\">";
 
             // fixed the special character problem - Markus
@@ -465,7 +465,13 @@ void XmlWriter::appendLocalObjectPathElement(
     Array<Sint8>& out, 
     const CIMObjectPath& objectPath)
 {
-    if (objectPath.isInstanceName())
+    //
+    //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
+    //  distinguish instanceNames from classNames in every case
+    //  The instanceName of a singleton instance of a keyless class has no 
+    //  key bindings
+    //
+    if (objectPath.getKeyBindings ().size () != 0)
     {
         appendLocalInstancePathElement(out, objectPath);
     }
@@ -914,8 +920,13 @@ void XmlWriter::appendValueReferenceElement(
 
     // See if it is a class or instance reference (instance references have
     // key-bindings; class references do not).
+    //
+    //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
+    //  distinguish instanceNames from classNames in every case
+    //  The instanceName of a singleton instance of a keyless class has no
+    //  key bindings
+    //
 
-    //KeyBindingArray kbs = reference.getKeyBindingArray();
     KeyBindingArray kbs = reference.getKeyBindings();
 
     if (kbs.size())
@@ -1859,7 +1870,13 @@ void XmlWriter::appendObjectNameIParameter(
     const char* name,
     const CIMObjectPath& objectName)
 {
-    if (objectName.isClassName())
+    //
+    //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
+    //  distinguish instanceNames from classNames in every case
+    //  The instanceName of a singleton instance of a keyless class also 
+    //  has no key bindings
+    //
+    if (objectName.getKeyBindings ().size () == 0)
     {
 	XmlWriter::appendClassNameIParameter(
 	    out, name, objectName.getClassName());
@@ -2613,6 +2630,32 @@ String XmlWriter::getNextMessageId()
     char buffer[16];
     sprintf(buffer, "%d", messageId);
     return buffer;
+}
+
+//------------------------------------------------------------------------------
+//
+// XmlWriter::keyBindingTypeToString
+//
+//------------------------------------------------------------------------------
+const char* XmlWriter::keyBindingTypeToString (KeyBinding::Type type)
+{
+    switch (type)
+    {
+        case KeyBinding::BOOLEAN:
+            return "boolean";
+
+        case KeyBinding::STRING:
+            return "string";
+
+        case KeyBinding::NUMERIC:
+            return "numeric";
+
+        case KeyBinding::REFERENCE:
+        default:
+            PEGASUS_ASSERT(false);
+    }
+
+    return "unknown";
 }
 
 PEGASUS_NAMESPACE_END

@@ -23,6 +23,9 @@
 //
 // Author: Warren Otsuka (warren_otsuka@hp.com)
 //
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -43,7 +46,8 @@ const String GOODPARAM = "From Neverland";
 int main(int argc, char** argv)
 {
 
-    const CIMObjectPath instanceName = "Sample_MethodProviderClass.Identifier=1";
+    const CIMObjectPath instanceName = CIMObjectPath 
+        ("Sample_MethodProviderClass.Identifier=1");
 
     try
     {

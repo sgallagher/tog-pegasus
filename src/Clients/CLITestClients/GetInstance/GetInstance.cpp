@@ -23,7 +23,8 @@
 //
 // Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -314,7 +315,7 @@ int main(int argc, char** argv)
     }
 
     // Note that this name is does not exist in the system 
-    CIMObjectPath reference = "Process.pid=123456";
+    CIMObjectPath reference = CIMObjectPath ("Process.pid=123456");
 
     String myReference = argv[1];
     try

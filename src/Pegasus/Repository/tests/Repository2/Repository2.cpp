@@ -190,21 +190,25 @@ void TestCreateClass()
 
     // -- Get instance back and see that it is the same as modified one:
 
-    CIMInstance tmpInstance = r.getInstance(NS, "MyClass.key=111");
+    CIMInstance tmpInstance = r.getInstance(NS, CIMObjectPath 
+        ("MyClass.key=111"));
     tmpInstance.setPath (instanceNames[0]);
     // tmpInstance.print();
     assert(tmpInstance.identical(modifiedInst0));
 
     // -- Now modify the "message" property:
 
-    CIMValue messageValue = r.getProperty(NS, "MyClass.key=111", "message");
+    CIMValue messageValue = r.getProperty(NS, CIMObjectPath 
+        ("MyClass.key=111"), "message");
     String message;
     messageValue.get(message);
     assert(message == "Goodbye World");
 
-    r.setProperty(NS, "MyClass.key=111", "message", CIMValue(String("Hello World")));
+    r.setProperty(NS, CIMObjectPath ("MyClass.key=111"), "message", 
+        CIMValue(String("Hello World")));
 
-    messageValue = r.getProperty( NS, "MyClass.key=111", "message");
+    messageValue = r.getProperty( NS, CIMObjectPath ("MyClass.key=111"), 
+        "message");
     messageValue.get(message);
     assert(message == "Hello World");
 
@@ -214,7 +218,8 @@ void TestCreateClass()
 
     try
     {
-	r.setProperty(NS, "MyClass.key=111", "key", Uint32(999));
+	r.setProperty(NS, CIMObjectPath ("MyClass.key=111"), "key", 
+            Uint32(999));
     }
     catch (CIMException& e)
     {
@@ -226,8 +231,8 @@ void TestCreateClass()
 
     // -- Delete the instances:
 
-    r.deleteInstance(NS, "MyClass.key=111");
-    r.deleteInstance(NS, "YourClass.key=222");
+    r.deleteInstance(NS, CIMObjectPath ("MyClass.key=111"));
+    r.deleteInstance(NS, CIMObjectPath ("YourClass.key=222"));
 
     // -- Delete the qualifier:
 

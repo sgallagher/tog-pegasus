@@ -41,7 +41,7 @@ void TestAssociations(CIMRepository& r)
 {
     String nameSpace = "root";
     {
-	CIMObjectPath instanceName = "X.key=\"John Smith\"";
+	CIMObjectPath instanceName = CIMObjectPath ("X.key=\"John Smith\"");
 
 	Array<CIMObjectPath> names = r.associatorNames(
 	    nameSpace,
@@ -57,7 +57,7 @@ void TestAssociations(CIMRepository& r)
     }
 
     {
-	CIMObjectPath instanceName = "X.key=\"John Smith\"";
+	CIMObjectPath instanceName = CIMObjectPath ("X.key=\"John Smith\"");
 
 	Array<CIMObject> result = r.associators(
 	    nameSpace,
@@ -81,7 +81,7 @@ void TestAssociations(CIMRepository& r)
     }
 
     {
-	CIMObjectPath instanceName = "X.key=\"John Smith\"";
+	CIMObjectPath instanceName = CIMObjectPath ("X.key=\"John Smith\"");
 
 	Array<CIMObjectPath> result = r.referenceNames(
 	    nameSpace,
@@ -91,16 +91,16 @@ void TestAssociations(CIMRepository& r)
 
 	assert(result.size() == 1);
 
-	CIMObjectPath tmp = "A."
+	CIMObjectPath tmp = CIMObjectPath ("A."
 	    "left=\"x.key=\\\"John Smith\\\"\","
-	    "right=\"y.key=\\\"John Jones\\\"\"";
+	    "right=\"y.key=\\\"John Jones\\\"\"");
 	
 	Boolean cond = (result[0] == tmp);
 	assert(cond);
     }
 
     {
-	CIMObjectPath instanceName = "X.key=\"John Smith\"";
+	CIMObjectPath instanceName = CIMObjectPath ("X.key=\"John Smith\"");
 
 	Array<CIMObject> result = r.references(
 	    nameSpace,
@@ -116,9 +116,9 @@ void TestAssociations(CIMRepository& r)
 	CIMObjectPath tmpInstanceName = 
 	    CIMInstance(result[0]).getInstanceName(tmpClass);
 
-	CIMObjectPath tmp = "A."
+	CIMObjectPath tmp = CIMObjectPath ("A."
 	    "left=\"x.key=\\\"John Smith\\\"\","
-	    "right=\"y.key=\\\"John Jones\\\"\"";
+	    "right=\"y.key=\\\"John Jones\\\"\"");
 	
 	Boolean cond = (tmpInstanceName == tmp);
 	assert(cond);
@@ -128,9 +128,9 @@ void TestAssociations(CIMRepository& r)
     {
 	// First delete the association:
 
-	CIMObjectPath assocInstanceName = "A."
+	CIMObjectPath assocInstanceName = CIMObjectPath ("A."
 	    "left=\"x.key=\\\"John Smith\\\"\","
-	    "right=\"y.key=\\\"John Jones\\\"\"";
+	    "right=\"y.key=\\\"John Jones\\\"\"");
 
 	r.deleteInstance(nameSpace, assocInstanceName);
     }

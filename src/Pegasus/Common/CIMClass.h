@@ -80,10 +80,10 @@ public:
     // ATTN define what makes up a legal CIM class name
     /**	Constructor - Creates a Class from inputs of a classname and
 	SuperClassName
-	@param className CIMObjectPath representing name of the class being created
+	@param className CIMName representing name of the class being created
 	@param superClassName CIMName representing name of the SuperClass
 	<pre>
-	    CIMClass NewCass("MyClass", "YourClass");
+	    CIMClass NewClass("MyClass", "YourClass");
 	</pre>
 
     */

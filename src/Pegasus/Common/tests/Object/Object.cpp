@@ -52,7 +52,7 @@ void test01()
     // Construct from CIMClass
     //
     CIMClass cimClass1("MyClass");
-    cimClass1.setPath("//localhost/root/cimv2:MyClass");
+    cimClass1.setPath(CIMObjectPath ("//localhost/root/cimv2:MyClass"));
 
     CIMObject oclass1 = cimClass1;
     CIMObject oclass2(cimClass1);
@@ -155,7 +155,7 @@ void test02()
     // Construct from CIMClass
     //
     CIMClass class1("MyClass");
-    class1.setPath("//localhost/root/cimv2:MyClass");
+    class1.setPath(CIMObjectPath ("//localhost/root/cimv2:MyClass"));
 
     //
     // Construct from CIMClass
@@ -288,7 +288,7 @@ void test04()
     //  Test CIMClass
     //
     CIMClass class1 ("MyClass");
-    class1.setPath("//localhost/root/cimv2:MyClass");
+    class1.setPath(CIMObjectPath ("//localhost/root/cimv2:MyClass"));
     CIMProperty prop1;
     prop1 = CIMProperty ("message", CIMValue (CIMTYPE_STRING));
     prop1.addQualifier (CIMQualifier ("Key", true));

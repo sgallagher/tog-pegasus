@@ -86,7 +86,8 @@ int main(int argc, char** argv)
     //
     AssocInstTable::deleteAssociation(
         assocTablePath,
-        "A.left=\"x.key=\\\"one\\\"\",right=\"y.key=\\\"two\\\"\"");
+        CIMObjectPath 
+            ("A.left=\"x.key=\\\"one\\\"\",right=\"y.key=\\\"two\\\"\""));
 
     cout << "+++++ passed all tests" << endl;
 

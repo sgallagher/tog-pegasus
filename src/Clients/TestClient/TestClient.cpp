@@ -739,8 +739,8 @@ static void TestInvokeMethod( CIMClient& client,
   const String OUTSTRING = "Yoda";
   const String GOODREPLY = "Hello, " + OUTSTRING + "!";
   const String GOODPARAM = "From Neverland";
-  const CIMObjectPath instanceName =
-                            "Sample_MethodProviderClass.Identifier=1";
+  const CIMObjectPath instanceName = CIMObjectPath 
+                            ("Sample_MethodProviderClass.Identifier=1");
 
   try
   {

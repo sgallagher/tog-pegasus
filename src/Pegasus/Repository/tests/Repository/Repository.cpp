@@ -139,7 +139,7 @@ void test02()
     CIMObjectPath instanceName1 = subClassInstance.getInstanceName(subClass);
 
     CIMObjectPath instanceName2 =
-	"SuperClass.first=\"John\",last=\"Smith\",age=101";
+	CIMObjectPath ("SuperClass.first=\"John\",last=\"Smith\",age=101");
 
     CIMInstance tmp = r.getInstance(NAMESPACE, instanceName2);
 
@@ -200,7 +200,7 @@ void test03()
 
     Array<CIMObjectPath> names = r.associatorNames(
 	"root/cimv2",
-	"X.key=\"John Smith\"");
+	CIMObjectPath ("X.key=\"John Smith\""));
 
     for (Uint32 i = 0; i < names.size(); i++)
     {

@@ -1760,7 +1760,13 @@ Array<CIMObject> CIMRepository::associators(
         if (tmpNameSpace.size() == 0)
             tmpNameSpace = nameSpace;
 
-        if (names[i].isClassName())
+        //
+        //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
+        //  distinguish instanceNames from classNames in every case
+        //  The instanceName of a singleton instance of a keyless class also
+        //  has no key bindings
+        //
+        if (names[i].getKeyBindings ().size () == 0)
         {
             CIMObjectPath tmpRef = names[i];
             tmpRef.setHost(String());
@@ -1814,7 +1820,13 @@ Array<CIMObjectPath> CIMRepository::associatorNames(
 
     Array<String> associatorNames;
 
-    if (objectName.isClassName())
+    //
+    //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
+    //  distinguish instanceNames from classNames in every case
+    //  The instanceName of a singleton instance of a keyless class also
+    //  has no key bindings
+    //
+    if (objectName.getKeyBindings ().size () == 0)
     {
         String assocFileName = _MakeAssocClassPath(nameSpace, _repositoryRoot);
 
@@ -1893,7 +1905,13 @@ Array<CIMObject> CIMRepository::references(
         tmpRef.setHost(String());
         tmpRef.setNameSpace(String());
 
-        if (objectName.isClassName())
+        //
+        //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
+        //  distinguish instanceNames from classNames in every case
+        //  The instanceName of a singleton instance of a keyless class also
+        //  has no key bindings
+        //
+        if (objectName.getKeyBindings ().size () == 0)
         {
             CIMClass cimClass = getClass(
                 tmpNameSpace,
@@ -1937,7 +1955,13 @@ Array<CIMObjectPath> CIMRepository::referenceNames(
 
     Array<String> tmpReferenceNames;
 
-    if (objectName.isClassName())
+    //
+    //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
+    //  distinguish instanceNames from classNames in every case
+    //  The instanceName of a singleton instance of a keyless class also
+    //  has no key bindings
+    //
+    if (objectName.getKeyBindings ().size () == 0)
     {
         String assocFileName = _MakeAssocClassPath(nameSpace, _repositoryRoot);
 

@@ -24,6 +24,8 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -222,27 +224,6 @@ void KeyBinding::setType(KeyBinding::Type type)
     _rep->_type = type;
 }
 
-const char* KeyBinding::typeToString(KeyBinding::Type type)
-{
-    switch (type)
-    {
-        case KeyBinding::BOOLEAN:
-            return "boolean";
-
-        case KeyBinding::STRING:
-            return "string";
-
-        case KeyBinding::NUMERIC:
-            return "numeric";
-
-        case KeyBinding::REFERENCE:
-        default:
-            PEGASUS_ASSERT(false);
-    }
-
-    return "unknown";
-}
-
 Boolean operator==(const KeyBinding& x, const KeyBinding& y)
 {
     return
@@ -327,15 +308,6 @@ CIMObjectPath::CIMObjectPath(const String& objectName)
     _rep = new CIMObjectPathRep(*tmpRef._rep);
 }
 
-CIMObjectPath::CIMObjectPath(const char* objectName)
-{
-    // Test the objectName out to see if we get an exception
-    CIMObjectPath tmpRef;
-    tmpRef.set(objectName);
-
-    _rep = new CIMObjectPathRep(*tmpRef._rep);
-}
-
 CIMObjectPath::CIMObjectPath(
     const String& host,
     const CIMNamespaceName& nameSpace,
@@ -383,7 +355,7 @@ void CIMObjectPath::set(
 Boolean CIMObjectPath::_parseHostElement(
     const String& objectName,
     char*& p,
-    String& host) throw(IllformedObjectName)
+    String& host)
 {
     // See if there is a host name (true if it begins with "//"):
     // Host is of the from <hostname>-<port> and begins with "//"
@@ -541,7 +513,7 @@ Boolean CIMObjectPath::_parseNamespaceElement(
 void CIMObjectPath::_parseKeyBindingPairs(
     const String& objectName,
     char*& p,
-    Array<KeyBinding>& keyBindings)  throw(IllformedObjectName)
+    Array<KeyBinding>& keyBindings)  
 {
     // Get the key-value pairs:
 
@@ -679,7 +651,7 @@ void CIMObjectPath::_parseKeyBindingPairs(
     _BubbleSort(keyBindings);
 }
 
-void CIMObjectPath::set(const String& objectName)  throw(IllformedObjectName)
+void CIMObjectPath::set(const String& objectName)  
 {
     clear();
 
@@ -738,12 +710,6 @@ void CIMObjectPath::set(const String& objectName)  throw(IllformedObjectName)
 }
 
 CIMObjectPath& CIMObjectPath::operator=(const String& objectName)
-{
-    set(objectName);
-    return *this;
-}
-
-CIMObjectPath& CIMObjectPath::operator=(const char* objectName)
 {
     set(objectName);
     return *this;
@@ -815,7 +781,13 @@ String CIMObjectPath::toString(Boolean includeHost) const
 
     objectName.append(getClassName());
 
-    if (isInstanceName())
+    //
+    //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
+    //  distinguish instanceNames from classNames in every case
+    //  The instanceName of a singleton instance of a keyless class has no
+    //  key bindings
+    //
+    if (_rep->_keyBindings.size () != 0)
     {
         objectName.append('.');
 
@@ -872,11 +844,6 @@ String CIMObjectPath::toStringCanonical(Boolean includeHost) const
     return ref.toString(includeHost);
 }
 
-CIMObjectPath CIMObjectPath::clone() const
-{
-    return CIMObjectPath(*this);
-}
-
 Boolean CIMObjectPath::identical(const CIMObjectPath& x) const
 {
     return
@@ -890,17 +857,6 @@ Uint32 CIMObjectPath::makeHashCode() const
 {
     return HashFunc<String>::hash(toStringCanonical());
 }
-
-Boolean CIMObjectPath::isInstanceName() const
-{
-    return _rep->_keyBindings.size() != 0;
-}
-
-KeyBindingArray CIMObjectPath::getKeyBindingArray()
-{
-    return KeyBindingArray();
-}
-
 
 Boolean operator==(const CIMObjectPath& x, const CIMObjectPath& y)
 {

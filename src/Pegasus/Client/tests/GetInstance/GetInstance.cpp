@@ -23,7 +23,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -44,7 +45,7 @@ int main(int argc, char** argv)
 	CIMClient client;
 	client.connect("localhost:5988");
 
-	CIMObjectPath reference = "Process.pid=123456";
+	CIMObjectPath reference = CIMObjectPath ("Process.pid=123456");
 	CIMInstance cimInstance = client.getInstance(NAMESPACE, reference);
         XmlWriter::printInstanceElement(cimInstance);
     }

@@ -219,7 +219,7 @@ static void TestInstanceOperations(CIMClient& client)
 
 static void TestAssociators(CIMClient& client)
 {
-    CIMObjectPath instanceName = "Person.name=\"Mike\"";
+    CIMObjectPath instanceName = CIMObjectPath ("Person.name=\"Mike\"");
 
     Array<CIMObject> result = client.associators(
 	NAMESPACE, 
@@ -243,7 +243,7 @@ static void TestAssociators(CIMClient& client)
 
 static void TestAssociatorNames(CIMClient& client)
 {
-    CIMObjectPath instanceName = "Person.name=\"Mike\"";
+    CIMObjectPath instanceName = CIMObjectPath ("Person.name=\"Mike\"");
 
     Array<CIMObjectPath> result = client.associatorNames(
 	NAMESPACE, 
@@ -261,7 +261,7 @@ static void TestAssociatorNames(CIMClient& client)
 
 static void TestAssociatorClassNames(CIMClient& client)
 {
-    CIMObjectPath className = "Person";
+    CIMObjectPath className = CIMObjectPath ("Person");
 
     Array<CIMObjectPath> result = client.associatorNames(
 	NAMESPACE, 
@@ -279,7 +279,7 @@ static void TestAssociatorClassNames(CIMClient& client)
 
 static void TestReferenceNames(CIMClient& client)
 {
-    CIMObjectPath instanceName = "Person.name=\"Mike\"";
+    CIMObjectPath instanceName = CIMObjectPath ("Person.name=\"Mike\"");
 
     Array<CIMObjectPath> result = client.referenceNames(
 	NAMESPACE, 
@@ -295,7 +295,7 @@ static void TestReferenceNames(CIMClient& client)
 
 static void TestReferences(CIMClient& client)
 {
-    CIMObjectPath instanceName = "Person.name=\"Mike\"";
+    CIMObjectPath instanceName = CIMObjectPath ("Person.name=\"Mike\"");
 
     Array<CIMObject> result = client.references(
 	NAMESPACE, 
@@ -315,7 +315,7 @@ static void TestReferences(CIMClient& client)
 
 static void TestReferenceClassNames(CIMClient& client)
 {
-    CIMObjectPath className = "Person";
+    CIMObjectPath className = CIMObjectPath ("Person");
 
     Array<CIMObjectPath> result = client.referenceNames(
 	NAMESPACE, 

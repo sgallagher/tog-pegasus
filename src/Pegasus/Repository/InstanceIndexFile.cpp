@@ -31,6 +31,8 @@
 //
 //              Sushma Fernandes. Hewlett-Packard Company
 //                     sushma_fernandes@hp.com
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -442,7 +444,7 @@ Boolean InstanceIndexFile::enumerateEntries(
 	    freeFlags.append(freeFlag); 
 	    indices.append(index); 
 	    sizes.append(size);
-	    instanceNames.append(instanceName);
+	    instanceNames.append (CIMObjectPath (instanceName));
 	}
     }
 
@@ -749,7 +751,8 @@ Boolean InstanceIndexFile::compact(
 	}
 	else
 	{
-	    if (!_appendEntry(tmpFs, instanceName, index - adjust, size))
+	    if (!_appendEntry(tmpFs, CIMObjectPath (instanceName), 
+                index - adjust, size))
 	    {
 		error = true;
 		break;

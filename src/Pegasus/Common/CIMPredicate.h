@@ -273,7 +273,10 @@ class PEGASUS_COMMON_LINKAGE PredicateReference : public CIMObjectPath
 	 const String& host,
 	 const String& nameSpace,
 	 const String& className,
-	 const KeyBindingArray& keyBindings = getKeyBindingArray(),
+        //
+        //  NOTE: Due to a bug in MSVC 5, the following will not work on MSVC 5
+        //
+	 const KeyBindingArray& keyBindings = KeyBindingArray (),
 	 const PredicateArray& predicates = getPredicateArray(),
 	 Boolean truth = true,
 	 LogicalOperator lop = AND );
@@ -302,7 +305,10 @@ class PEGASUS_COMMON_LINKAGE PredicateReference : public CIMObjectPath
 	 const String& host,
 	 const String& nameSpace,
 	 const String& className,
-	 const KeyBindingArray& keyBindings = getKeyBindingArray(),
+        //
+        //  NOTE: Due to a bug in MSVC 5, the following will not work on MSVC 5
+        //
+	 const KeyBindingArray& keyBindings = KeyBindingArray (),
 	 const PredicateArray& predicates = getPredicateArray(),
 	 Boolean truth = true,
 	 LogicalOperator lop = AND);

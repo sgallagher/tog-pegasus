@@ -93,6 +93,12 @@ CWS_Directory
 4096
 </VALUE>
 </PROPERTY>
+<PROPERTY NAME="CreationDate" TYPE="datetime">
+</PROPERTY>
+<PROPERTY NAME="LastModified" TYPE="datetime">
+</PROPERTY>
+<PROPERTY NAME="LastAccessed" TYPE="datetime">
+</PROPERTY>
 <PROPERTY NAME="Readable" TYPE="boolean">
 <VALUE>
 TRUE
@@ -200,19 +206,10 @@ CWS_Directory
 </VALUE>
 </PROPERTY>
 <PROPERTY NAME="CreationDate" TYPE="datetime">
-<VALUE>
-20040306151901.000000+060
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="LastModified" TYPE="datetime">
-<VALUE>
-20040307005708.000000+060
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="LastAccessed" TYPE="datetime">
-<VALUE>
-20040115142851.000000+060
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="Readable" TYPE="boolean">
 <VALUE>
@@ -319,6 +316,12 @@ CWS_Directory
 <VALUE>
 4096
 </VALUE>
+</PROPERTY>
+<PROPERTY NAME="CreationDate" TYPE="datetime">
+</PROPERTY>
+<PROPERTY NAME="LastModified" TYPE="datetime">
+</PROPERTY>
+<PROPERTY NAME="LastAccessed" TYPE="datetime">
 </PROPERTY>
 <PROPERTY NAME="Readable" TYPE="boolean">
 <VALUE>

@@ -43,7 +43,6 @@
 #include <Pegasus/Common/HTTPConnection.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/TimeValue.h>
-#include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Common/AutoPtr.h>

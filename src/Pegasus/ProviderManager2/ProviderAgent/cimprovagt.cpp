@@ -39,6 +39,7 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/System.h>
+#include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/ProviderManager2/ProviderAgent/ProviderAgent.h>
 
 PEGASUS_USING_STD;

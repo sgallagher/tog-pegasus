@@ -46,8 +46,6 @@
 #include <Pegasus/Compiler/cimmofParser.h>
 #include <Pegasus/Compiler/parserExceptions.h>
 
-#include <Pegasus/Common/PegasusVersion.h>
-
 #ifdef PEGASUS_OS_OS400
 #include <qycmutiltyUtility.H>
 #include <qycmutilu2.H>

@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -44,7 +44,10 @@ static CIMQualifier _processQualifier(
     // check name
     if(!referenceQualifier.getName().equal(cimQualifier.getName()))
     {
-        String message = cimQualifier.getName().getString() + String(" invalid qualifier name.");
+        MessageLoaderParms message(
+            "Common.ObjectNormalizer.INVALID_QUALIFIER_NAME",
+            "\"$0\"",
+            cimQualifier.getName().getString());
 
         throw CIMException(CIM_ERR_FAILED, message);
     }
@@ -52,7 +55,10 @@ static CIMQualifier _processQualifier(
     // check type
     if(referenceQualifier.getType() != cimQualifier.getType())
     {
-        String message = cimQualifier.getName().getString() + String(" incorrect qualifier type.");
+        MessageLoaderParms message(
+            "Common.ObjectNormalizer.INVALID_QUALIFIER_TYPE",
+            "\"$0\"",
+            cimQualifier.getName().getString());
 
         throw CIMException(CIM_ERR_FAILED, message);
     }
@@ -81,7 +87,10 @@ static CIMProperty _processProperty(
     // check name
     if(!referenceProperty.getName().equal(cimProperty.getName()))
     {
-        String message = cimProperty.getName().getString() + String(" invalid property name.");
+        MessageLoaderParms message(
+            "Common.ObjectNormalizer.INVALID_PROPERTY_NAME",
+            "\"$0\"",
+            cimProperty.getName().getString());
 
         throw CIMException(CIM_ERR_FAILED, message);
     }
@@ -89,7 +98,10 @@ static CIMProperty _processProperty(
     // check type
     if(referenceProperty.getType() != cimProperty.getType())
     {
-        String message = cimProperty.getName().getString() + String(" incorrect property type.");
+        MessageLoaderParms message(
+            "Common.ObjectNormalizer.INVALID_PROPERTY_NAME",
+            "\"$0\"",
+            cimProperty.getName().getString());
 
         throw CIMException(CIM_ERR_FAILED, message);
     }
@@ -193,10 +205,28 @@ CIMObjectPath ObjectNormalizer::processClassObjectPath(const CIMObjectPath & cim
         throw CIMException(CIM_ERR_FAILED, "uninitialized object path");
     }
 
+    /*
+    // ATTN: The following code is currently redundant because the CIMName object validates
+    // legal names when it is constructed. It is included here for completeness.
     // check class name
+    if(!CIMName(cimObjectPath.getClassName()).legal())
+    {
+        MessageLoaderParms message(
+            "Common.ObjectNormalizer.INVALID_CLASS_NAME",
+            "\"$0\"",
+            cimObjectPath.getClassName().getString());
+
+        throw CIMException(CIM_ERR_FAILED, message);
+    }
+    */
+
+    // check class type
     if(!_cimClass.getClassName().equal(cimObjectPath.getClassName()))
     {
-        String message = cimObjectPath.getClassName().getString() + String(" invalid class name.");
+        MessageLoaderParms message(
+            "Common.ObjectNormalizer.INVALID_CLASS_TYPE",
+            "\"$0\"",
+            cimObjectPath.getClassName().getString());
 
         throw CIMException(CIM_ERR_FAILED, message);
     }
@@ -225,10 +255,28 @@ CIMObjectPath ObjectNormalizer::processInstanceObjectPath(const CIMObjectPath & 
         throw CIMException(CIM_ERR_FAILED, "uninitialized object path");
     }
 
+    /*
+    // ATTN: The following code is currently redundant because the CIMName object validates
+    // legal names when it is constructed. It is included here for completeness.
     // check class name
+    if(!CIMName(cimObjectPath.getClassName()).legal())
+    {
+        MessageLoaderParms message(
+            "Common.ObjectNormalizer.INVALID_CLASS_NAME",
+            "\"$0\"",
+            cimObjectPath.getClassName().getString());
+
+        throw CIMException(CIM_ERR_FAILED, message);
+    }
+    */
+
+    // check class type
     if(!_cimClass.getClassName().equal(cimObjectPath.getClassName()))
     {
-        String message = cimObjectPath.getClassName().getString() + String(" invalid class name.");
+        MessageLoaderParms message(
+            "Common.ObjectNormalizer.INVALID_CLASS_TYPE",
+            "\"$0\"",
+            cimObjectPath.getClassName().getString());
 
         throw CIMException(CIM_ERR_FAILED, message);
     }
@@ -277,7 +325,10 @@ CIMObjectPath ObjectNormalizer::processInstanceObjectPath(const CIMObjectPath & 
             // no default and not overriden by specified object path
             if(value == "<null>")
             {
-                String message = name.getString() + String(" key property missing from object path.");
+                MessageLoaderParms message(
+                    "Common.ObjectNormalizer.MISSING_KEY",
+                    "\"$0\"",
+                    name.getString());
 
                 throw CIMException(CIM_ERR_FAILED, message);
             }
@@ -315,7 +366,15 @@ CIMObjectPath ObjectNormalizer::processInstanceObjectPath(const CIMObjectPath & 
                 break;
             case CIMTYPE_OBJECT:
             default:
-                throw CIMException(CIM_ERR_FAILED, "invalid key type.");
+                {
+                    MessageLoaderParms message(
+                        "Common.ObjectNormalizer.MISSING_KEY",
+                        "\"$0\"",
+                        name.getString());
+
+                    throw CIMException(CIM_ERR_FAILED, message);
+                }
+
                 break;
             }
 
@@ -342,10 +401,28 @@ CIMInstance ObjectNormalizer::processInstance(const CIMInstance & cimInstance) c
         throw CIMException(CIM_ERR_FAILED, "unintialized instance object.");
     }
 
+    /*
+    // ATTN: The following code is currently redundant because the CIMName object validates
+    // legal names when it is constructed. It is included here for completeness.
     // check class name
+    if(!CIMName(cimInstance.getClassName()).legal())
+    {
+        MessageLoaderParms message(
+            "Common.ObjectNormalizer.INVALID_CLASS_NAME",
+            "\"$0\"",
+            cimInstance.getClassName().getString());
+
+        throw CIMException(CIM_ERR_FAILED, message);
+    }
+    */
+
+    // check class type
     if(!_cimClass.getClassName().equal(cimInstance.getClassName()))
     {
-        String message = cimInstance.getClassName().getString() + String(" invalid class name.");
+        MessageLoaderParms message(
+            "Common.ObjectNormalizer.INVALID_CLASS_TYPE",
+            "\"$0\"",
+            cimInstance.getClassName().getString());
 
         throw CIMException(CIM_ERR_FAILED, message);
     }

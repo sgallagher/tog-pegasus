@@ -177,7 +177,6 @@ WbemExecCommand::WbemExecCommand ()
     _useHTTP11           = true;   
     _useMPost            = true;   
     _timeout             = WbemExecClient::DEFAULT_TIMEOUT_MILLISECONDS;
-    _timeout             = 200000;
     _debugOutput1        = false;
     _debugOutput2        = false;
     _userName            = String ();

@@ -35,13 +35,11 @@ removeall:
 checkout:
 	$(CVS) checkout -P pegasus
 
-rebuild: clean all tests
+rebuild:
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile rebuild
 
-rebuild-notest: clean all
-
-build: all tests
-
-build-notest: all
+build:
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile build
 
 clean:
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile clean

@@ -24,9 +24,9 @@ system = localhost
 
 TESTS = prestarttests poststarttests
 
-rebuild: clean all
+rebuild: clean all tests
 
-build: all
+build: all tests
 
 clean:
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile clean
@@ -245,6 +245,3 @@ startcimWithoutSSL:
 startcimWithSSL:
 	$(CIMSERVER_START_SERVICE) enableHttpConnection=false enableHttpsConnection=true
 	$(SLEEP) 5
-
-pegasus:
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile rebuild

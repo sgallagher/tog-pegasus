@@ -44,8 +44,6 @@ Planned value: 1
  
 Planned value: 
  
-Planned value: cimom.trace
- 
 Set the planned values:
  
 Planned value for the property 'traceComponents' is set to "ALL" in CIMServer.
@@ -61,8 +59,6 @@ Unset the current values:
 Current value for the property 'traceLevel' is set to default value in CIMServer.
  
 Current value for the property 'traceComponents' is set to default value in CIMServer.
- 
-Current value for the property 'traceFilePath' is set to default value in CIMServer.
  
 Unset the planned values:
 Property 'traceComponents' is unset in the configuration file.

@@ -38,6 +38,10 @@
 #define PEGASUS_SINT64_MIN (PEGASUS_SINT64_LITERAL(0x8000000000000000))
 #define PEGASUS_UINT64_MAX PEGASUS_UINT64_LITERAL(0xFFFFFFFFFFFFFFFF)
 
+#ifndef _MSC_VER
+#define _MSC_VER 0
+#endif
+
 PEGASUS_NAMESPACE_BEGIN
 
 inline Uint8 _CQLUtilities_hexCharToNumeric(const Char16 c)
@@ -337,7 +341,7 @@ Real64 CQLUtilities::stringToReal64(const String &stringNum)
     neg = true;
     p++;
   };
-
+  
   // Check if it it is a binary or hex integer
   Uint32 endString = stringNum.size() - 1;
   if ((*p == '0' && (p[1] == 'x' || p[1] == 'X')) ||  // hex OR
@@ -346,7 +350,20 @@ Real64 CQLUtilities::stringToReal64(const String &stringNum)
     if (neg)
       x = stringToSint64(stringNum);
     else
+
+// Check if the complier is MSVC 6, which does not support the conversion operator from Uint64 to Real64      
+#if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC) && (_MSC_VER < 1300)
+    {
+      Uint64 num = stringToUint64(stringNum);
+      Sint64 half = num / 2;
+      x = half;
+      x == half;
+      if (num % 2)  // if odd, then add the lost remainder
+        x += 1;
+    }
+#else
       x = stringToUint64(stringNum);
+#endif    
     return x;
   }  
   

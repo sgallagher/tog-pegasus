@@ -111,6 +111,7 @@ Boolean operator==(
     return true;
 }
 
+#ifdef PEGASUS_INTERNALONLY
 template<class PEGASUS_ARRAY_T>
 Boolean Contains(const Array<PEGASUS_ARRAY_T>& a, const PEGASUS_ARRAY_T& x)
 {
@@ -125,7 +126,6 @@ Boolean Contains(const Array<PEGASUS_ARRAY_T>& a, const PEGASUS_ARRAY_T& x)
     return false;
 }
 
-#ifdef PEGASUS_INTERNALONLY
 template<class PEGASUS_ARRAY_T>
 void BubbleSort(Array<PEGASUS_ARRAY_T>& x) 
 {

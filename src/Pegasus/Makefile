@@ -47,11 +47,9 @@ DIRS += \
 endif
 
 ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
-  ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
     DIRS += \
         Provider/CMPI \
 	ProviderManager2/CMPI
-  endif
 endif
 
 
@@ -59,22 +57,18 @@ ifdef PEGASUS_ENABLE_REMOTE_CMPI
   ifeq ($(PEGASUS_PLATFORM), WIN32_IX86_MSVC)
 	$(error: Error: Remote CMPI is not currently supported on Windows.)
   endif
-  ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
     DIRS += \
 	ProviderManager2/CMPIR \
 	ProviderManager2/CMPIR/tcpcomm \
 	ProviderManager2/CMPIR/native \
 	ProviderManager2/CMPIR/tcpcommrem \
 	ProviderManager2/CMPIR/daemon
-  endif
 endif
 
 ifdef PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER
   ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
-    ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
       DIRS += \
          ProviderManager2/JMPI
-    endif
   endif
 endif
 

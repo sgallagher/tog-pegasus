@@ -63,27 +63,15 @@ static CIMDateTime *makeCIMDateTime(time_t inTime, unsigned long usec, CMPIBoole
 #else 
      gmtime_r(&inTime,&tmTime);
 #endif
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-     if (sprintf(strTime,
-		  "%04d%02d%02d%02d%02d%02d.%06ld:000",
-		  tmTime.tm_year-70,
-		  tmTime.tm_mon,
-		  tmTime.tm_mday-1,
-		  tmTime.tm_hour,
-		  tmTime.tm_min,
-		  tmTime.tm_sec,
-		  usec) > 0)
-#else
      if (SNPRINTF(strTime,256,
-		  "%04d%02d%02d%02d%02d%02d.%06ld:000",
-		  tmTime.tm_year-70,
-		  tmTime.tm_mon,
-		  tmTime.tm_mday-1,
-		  tmTime.tm_hour,
-		  tmTime.tm_min,
-		  tmTime.tm_sec,
-		  usec) > 0)
-#endif
+                  "%04d%02d%02d%02d%02d%02d.%06ld:000",
+                  tmTime.tm_year-70,
+                  tmTime.tm_mon,
+                  tmTime.tm_mday-1,
+                  tmTime.tm_hour,
+                  tmTime.tm_min,
+                  tmTime.tm_sec,
+                  usec) > 0)
        *dt=String(strTime);
    } else {
 #ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
@@ -229,8 +217,3 @@ static CMPIDateTimeFT dateTime_FT={
 CMPIDateTimeFT *CMPI_DateTime_Ftab=&dateTime_FT;
 
 PEGASUS_NAMESPACE_END
-
-
-
-
-

@@ -473,7 +473,7 @@ void CIMExportRequestDecoder::handleMethodRequest(
       // When iSeries indication support is implemented this code
       // Must be removed.
 #ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
-	throw PEGASUS_CIM_EXCEPTION (CIM_ERROR_NOT_SUPPORTED,
+	throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED,
 	                             "INDICATIONS NOT SUPPORTED");
 #endif
       // These values are currently unused

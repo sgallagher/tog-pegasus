@@ -38,8 +38,8 @@
 
     {"httpPort", "5988", IS_STATIC, 0, 0, IS_VISIBLE},
     {"httpsPort", "5989", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"enableHttpConnection", "true", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"enableHttpsConnection", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableHttpConnection", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableHttpsConnection", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     {"home", "/QIBM/UserData/OS400/CIM", IS_STATIC, 0, 0, IS_VISIBLE},
     {"daemon", "false", IS_STATIC, 0, 0, IS_VISIBLE},
     {"slp", "false", IS_STATIC, 0, 0, IS_VISIBLE},
@@ -47,5 +47,6 @@
     {"enableIndicationService", "false", IS_STATIC, 0, 0, IS_VISIBLE},
     {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, IS_STATIC, 0, 0, IS_VISIBLE},
     {"sslClientVerificationMode", "disabled", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"httpAuthType","Basic",IS_STATIC, 0, 0, IS_VISIBLE},
 
 #endif /* Pegasus_DefaultPropertyTableOS400_h */

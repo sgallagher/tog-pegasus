@@ -172,19 +172,6 @@ void InternalCIMOMHandleRep::setOS400ProfileHandle(const char* profileHandle)
 }
 #endif
 
-#ifdef PEGASUS_OS_OS400
-InternalCIMOMHandleRep::InternalCIMOMHandleRep(Uint32 os400key)
-    : MessageQueue(PEGASUS_QUEUENAME_INTERNALCLIENT),
-     _chOS400(os400key)
-{
-}
-
-void InternalCIMOMHandleRep::setOS400ProfileHandle(const char* ph)
-{
-    memcpy(os400PH, ph, 12);
-}
-#endif
-
 Uint32 InternalCIMOMHandleRep::get_output_qid()
 {
     try

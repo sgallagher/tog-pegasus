@@ -35,9 +35,10 @@
 
 #ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
     {"enableAuthentication",                     "true"},
-    {"enableRemotePrivilegedAccess",             "true"},
+    {"enableRemotePrivilegedUserAccess",         "true"},
     {"enableNamespaceAuthorization",             "true"},
     {"enableHttpConnection",                     "true"},
+    {"enableBinaryRepository",                  "false"},
     // Do not fix the daemon property.  Otherwise, daemon=true cannot
     // be passed on the CIMOM command line.
     // Note: fixing the daemon property to true could
@@ -56,6 +57,10 @@
     {"httpsPort",                                "5989"},
     {"enableHttpsConnection",                    "false"},
     {"slp",                                      "false"},
+    {"authorizedUserGroups",                          ""},
+    {"home",                  "/QIBM/UserData/OS400/CIM"},
+    {"forceProviderProcesses",                   "false"},
+    {"maxProviderProcesses",                         "0"},
 #endif
 
 #if !defined(PEGASUS_USE_RELEASE_CONFIG_OPTIONS)

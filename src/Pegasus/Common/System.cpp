@@ -169,8 +169,13 @@ String System::getHostIP(const String &hostName)
     struct hostent * phostent;
     struct in_addr   inaddr;
     String ipAddress = String::EMPTY;
-
+    CString csName = hostName.getCString();
+    const char * ccName = csName;
+#ifndef PEGASUS_OS_OS400
+    if ((phostent = ::gethostbyname(ccName)) != NULL)
+#else
     if ((phostent = ::gethostbyname((const char *)hostName.getCString())) != NULL)
+#endif
     {
         ::memcpy( &inaddr, phostent->h_addr,4);
 #ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
@@ -275,8 +280,11 @@ Uint32 System::_acquireIP(const char* hostname)
 	{
 		// resolve hostaddr to a real host entry
 		// casting to (const char *) as (char *) will work as (void *) too, those it fits all platforms
+#ifndef PEGASUS_OS_OS400
+        entry = gethostbyaddr((const char *) &tmp_addr, sizeof(tmp_addr), AF_INET);
+#else
 		entry = gethostbyaddr((const char *) &tmp_addr, sizeof(tmp_addr), AF_INET);
-
+#endif
 		if (entry == 0)
 		{
 			// error, couldn't resolve the ip

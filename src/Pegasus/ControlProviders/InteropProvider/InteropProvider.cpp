@@ -1559,6 +1559,12 @@ void InteropProvider::createInstance(
 
         if (classEnum == PG_NAMESPACE)
         {
+#ifdef PEGASUS_OS_OS400
+            MessageLoaderParms mparms("ControlProviders.InteropProvider.CREATE_INSTANCE_NOT_ALLOWED",
+                                      "Create instance operation not allowed by Interop Provider for class $0.", 
+                                      PG_NAMESPACE_CLASSNAME.getString());
+            throw CIMNotSupportedException(mparms);
+#else
             // Create local instance to complete any keys.
             CIMInstance localInstance = myInstance.clone();
 
@@ -1568,6 +1574,7 @@ void InteropProvider::createInstance(
 
             newInstanceReference = _buildInstancePath(_operationNamespace,
                                         PG_NAMESPACE_CLASSNAME, localInstance);
+#endif
         }
 
         else   // Invalid class for the create functions.
@@ -1705,11 +1712,18 @@ void InteropProvider::deleteInstance(
         namespaceNames = _enumerateNameSpaces();
         if (classEnum == PG_NAMESPACE)
         {
+#ifdef PEGASUS_OS_OS400
+            MessageLoaderParms mparms("ControlProviders.InteropProvider.DELETE_INSTANCE_NOT_ALLOWED",
+                                      "Delete instance operation not allowed by Interop Provider for class $0.",
+                                      PG_NAMESPACE_CLASSNAME.getString());
+            throw CIMNotSupportedException(mparms);
+#else
             // validate requred keys.  Exception out if not valid
             _validateCIMNamespaceKeys(instanceName);
             
             deleteNamespaceName = _getKeyValue(instanceName, CIM_NAMESPACE_PROPERTY_NAME);
             CDEBUG("Delete namespace = " << deleteNamespaceName );
+#endif
         }
 
 	    // ATTN: KS Why THis??? 
@@ -2002,10 +2016,17 @@ void InteropProvider::modifyInstance(const OperationContext & context,
     }
     else if (classEnum == PG_NAMESPACE)
     {
+#ifdef PEGASUS_OS_OS400
+            MessageLoaderParms mparms("ControlProviders.InteropProvider.MODIFY_INSTANCE_NOT_ALLOWED",
+                                      "Modify instance operation not allowed by Interop Provider for class $0.",
+                                      PG_NAMESPACE_CLASSNAME.getString());
+            throw CIMNotSupportedException(mparms);
+#else
         // for the moment allow modification of the statistics property only
         PEG_METHOD_EXIT();
         throw CIMNotSupportedException
             (className.getString() + " not supported by Interop Provider");
+#endif
     }
     else
     {

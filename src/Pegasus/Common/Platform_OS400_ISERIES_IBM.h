@@ -38,7 +38,7 @@
 #define _OPEN_SOURCE 3
 
 #define _MULTI_THREADED 
-
+/*
 #ifndef PEGASUS_INTERNALONLY
   // Need this because Sint8 is typedef as a char,
   // and char defaults to unsigned on OS/400.
@@ -48,7 +48,7 @@
   // operators (<, <=, etc).
   #pragma chars(signed)
 #endif 
-
+*/
 #include <cstddef>
 
 #define OS400_DEFAULT_PEGASUS_HOME "/QIBM/UserData/OS400/CIM"

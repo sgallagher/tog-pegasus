@@ -493,7 +493,8 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 #ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
 #pragma convert(37)
 		const char* env = getenv("PEGASUS_MSG_HOME");
-		EtoA(env);
+        if(env != NULL)
+		   EtoA((char*)env);
 #pragma convert(0)
 #else
 		const char* env = getenv("PEGASUS_MSG_HOME");

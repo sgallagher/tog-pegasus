@@ -1021,7 +1021,7 @@ Boolean System::isGroupMember(const char* userName, const char* groupName)
 
     return retVal;
 }
-
+#ifndef PEGASUS_OS_OS400
 Boolean System::changeUserContext(const char* userName)
 {
     const unsigned int PWD_BUFF_SIZE = 1024;
@@ -1073,7 +1073,7 @@ Boolean System::changeUserContext(const char* userName)
 
     return true;
 }
-
+#endif
 Uint32 System::getPID()
 {
     //

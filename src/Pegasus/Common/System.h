@@ -246,8 +246,9 @@ public:
     @return             True if the user context is successfully changed,
                         false otherwise.
     */
+#ifndef PEGASUS_OS_OS400
     static Boolean changeUserContext(const char* userName);
-
+#endif
     /**
     This function is used to get the process ID of the calling process.
 

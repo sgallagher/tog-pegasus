@@ -51,7 +51,7 @@
 
 // ProviderManager library names.  Should these be defined elsewhere?
 #if defined(PEGASUS_OS_OS400)
-# define LIBRARY_NAME_DEFAULTPM "QSYS/QYCMDFTPVM"
+# define LIBRARY_NAME_DEFAULTPM "QSYS/QYCMPMDE00"
 # define LIBRARY_NAME_CMPIPM    "QSYS/QYCMCMPIPM"
 # define LIBRARY_NAME_JMPIPM    "QSYS/QYCMJMPIPM"
 #else
@@ -87,6 +87,8 @@ public:
     {
 #if defined (PEGASUS_OS_VMS)
         _physicalName = FileSystem::buildLibraryFileName(physicalName);
+#elif defined (PEGASUS_OS_OS400)
+        _physcialName = physicalName;
 #else
         _physicalName = ConfigManager::getHomedPath(PEGASUS_DEST_LIB_DIR) +
             String("/") + FileSystem::buildLibraryFileName(physicalName);

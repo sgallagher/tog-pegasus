@@ -71,10 +71,12 @@ String ProviderManager::_resolvePhysicalName(String physicalName)
       return fileName;
     }
 #else
+#ifndef PEGASUS_OS_OS400
     fileName = FileSystem::getAbsoluteFileName(
         ConfigManager::getHomedPath(
             ConfigManager::getInstance()->getCurrentValue("providerDir")),
         fileName);
+#endif
 
     return fileName;
 #endif

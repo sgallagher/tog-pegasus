@@ -27,17 +27,17 @@ DIRS = \
     HandlerService \
     IndicationService
 
-ifdef ENABLE_PROVIDER_MANAGER2
+ifdef PEGASUS_USE_23PROVIDER_MANAGER
+DIRS += \
+	ProviderManager \
+	ProviderManager/tests
+else
 DIRS += \
     ProviderManager2 \
 	ProviderManager2/Default \
 	ProviderManager2/CMPI \
 	ProviderManager2/tests \
 	ProviderManager2/Default/tests
-else
-DIRS += \
-	ProviderManager \
-	ProviderManager/tests
 endif
 	
 DIRS += \

@@ -28,6 +28,7 @@
 // Modified By:
 //               Carol Ann Krug Graves, Hewlett-Packard Company
 //                   (carolann_graves@hp.com)
+//               Dan Gorey, IBM (djgorey@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -39,10 +40,10 @@
 // l10n
 #include <Pegasus/Common/MessageLoader.h>
 
-#ifdef ENABLE_PROVIDER_MANAGER2
-#include <Pegasus/ProviderManager2/Default/SimpleResponseHandler.h>
-#else
+#ifdef PEGASUS_USE_23PROVIDER_MANAGER
 #include <Pegasus/ProviderManager/SimpleResponseHandler.h>
+#else
+#include <Pegasus/ProviderManager2/Default/SimpleResponseHandler.h>
 #endif
 
 PEGASUS_USING_STD;

@@ -24,6 +24,7 @@
 //==============================================================================
 //
 // Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//         Dan Gorey, IBM (djgorey@us.ibm.com)
 //
 // Modified By:
 //
@@ -35,10 +36,10 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMMessage.h>
 
-#ifdef ENABLE_PROVIDER_MANAGER2
-#include <Pegasus/ProviderManager2/Default/ProviderFacade.h>
-#else
+#ifdef PEGASUS_USE_23PROVIDER_MANAGER
 #include <Pegasus/ProviderManager/ProviderFacade.h>
+#else
+#include <Pegasus/ProviderManager2/Default/ProviderFacade.h>
 #endif
 
 #include <Pegasus/Server/Linkage.h>

@@ -34,6 +34,7 @@
 //         Sushma Fernandes, Hewlett-Packard Company (sushma_fernandes@hp.com)
 //         Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //         Bapu Patil, Hewlett-Packard Company (bapu_patil@hp.com)
+//         Dan Gorey, IBM (djgorey@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -64,11 +65,11 @@
 #include <Pegasus/HandlerService/IndicationHandlerService.h>
 #include <Pegasus/IndicationService/IndicationService.h>
 
-#ifdef ENABLE_PROVIDER_MANAGER2
-#include <Pegasus/ProviderManager2/ProviderManagerService.h>
-#else
+#ifdef PEGASUS_USE_23PROVIDER_MANAGER
 #include <Pegasus/ProviderManager/ProviderManagerService.h>
 #include <Pegasus/ProviderManager/ProviderManager.h>
+#else
+#include <Pegasus/ProviderManager2/ProviderManagerService.h>
 #endif
 
 #include "CIMServer.h"
@@ -192,10 +193,10 @@ void CIMServer::_init(void)
 
     // -- Create queue inter-connections:
 
-#ifdef ENABLE_PROVIDER_MANAGER2
-    _providerManager = new ProviderManagerService(_providerRegistrationManager,_repository);
-#else
+#ifdef PEGASUS_USE_23PROVIDER_MANAGER
     _providerManager = new ProviderManagerService(_providerRegistrationManager);
+#else
+    _providerManager = new ProviderManagerService(_providerRegistrationManager,_repository);
 #endif
     _handlerService = new IndicationHandlerService(_repository);
 
@@ -416,10 +417,10 @@ void CIMServer::_monitor_idle_routine(void *parm)
       MessageQueueService::_check_idle_flag = 1;
       MessageQueueService::_polling_sem.signal();
       
-#ifdef ENABLE_PROVIDER_MANAGER2
-      myself->_providerManager->unload_idle_providers();
-#else
+#ifdef PEGASUS_USE_23PROVIDER_MANAGER
       ProviderManagerService::getProviderManager()->unload_idle_providers();
+#else
+      myself->_providerManager->unload_idle_providers();
 #endif
       
    }
@@ -465,10 +466,10 @@ void CIMServer::runForever()
 		    MessageQueueService::_check_idle_flag = 1;
 		    MessageQueueService::_polling_sem.signal();
 		
-            #ifdef ENABLE_PROVIDER_MANAGER2
-            _providerManager->unload_idle_providers();
-            #else
+            #ifdef PEGASUS_USE_23PROVIDER_MANAGER
             ProviderManagerService::getProviderManager()->unload_idle_providers();
+	    #else
+            _providerManager->unload_idle_providers();
             #endif
 
 		  }

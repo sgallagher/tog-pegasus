@@ -165,11 +165,9 @@ ArrayRep<T>* PEGASUS_STATIC_CDECL ArrayRep<T>::getNullRep()
 
     if (!nullRep)
     {
+        // Create sets the reference count to 1 so that it will be one
+        // greater than the callers ask for and so it will never be deleted.
 	nullRep = ArrayRep<T>::create(0);
-
-	// Increment reference count here so that it will be one
-	// greater so that it will never be deleted.
-	ArrayRep<T>::inc(nullRep);
     }
 
     // Increment reference count on behalf of caller.

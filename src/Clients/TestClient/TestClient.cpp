@@ -34,7 +34,9 @@
 #include <Pegasus/Common/OptionManager.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Stopwatch.h>
+#ifndef PEGASUS_OS_ZOS
 #include <slp/slp.h>
+#endif
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -532,6 +534,7 @@ int main(int argc, char** argv)
     if(useSLP == false && argc < 2)
       connectionList.append("localhost:5988");
 
+#ifndef PEGASUS_OS_ZOS
     if( useSLP )
     {
       slp_client discovery = slp_client();
@@ -549,6 +552,7 @@ int main(int argc, char** argv)
 		   replies = discovery.get_response( ) ;
 		 }
     }
+#endif
     
 
     cout << "Connection List size " << connectionList.size() << endl;

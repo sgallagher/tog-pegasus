@@ -68,6 +68,7 @@
 
 
 #include <iostream>
+#include <cassert>
 #include <cstdlib>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Monitor.h>
@@ -78,8 +79,9 @@
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Config/ConfigManager.h>
+#ifndef PEGASUS_OS_ZOS
 #include <slp/slp.h>
-
+#endif
 
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
@@ -440,6 +442,7 @@ int main(int argc, char** argv)
     // try loop to bind the address, and run the server
     try
     {
+#ifndef PEGASUS_OS_ZOS
       	slp_client *discovery = new slp_client() ;;
         String serviceURL;
 	serviceURL.assign("service:cim.pegasus://");
@@ -449,6 +452,7 @@ int main(int argc, char** argv)
 	serviceURL += address;
 	char *url = serviceURL.allocateCString();
 	//	free(host_name);
+#endif
 
 	Monitor monitor;
 	CIMServer server(&monitor, pegasusHome);
@@ -466,6 +470,7 @@ int main(int argc, char** argv)
 	time_t last = 0;
 	while( 1 )
 	{
+#ifndef PEGASUS_OS_ZOS
 	  if(useSLP  ) 
 	  {
 	    if(  (time(NULL) - last ) > 60 ) 
@@ -481,6 +486,7 @@ int main(int argc, char** argv)
 	  
 	    discovery->service_listener();
 	  }
+#endif
 	  server.runForever();
 	}
 

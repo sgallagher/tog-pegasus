@@ -29,6 +29,7 @@
 //                (carolann_graves@hp.com)
 // Modified By: Sushma Fernandes, Hewlett-Packard Company
 //                (sushma_fernandes@hp.com)
+// Modified By: Dan Gorey, IBM (djgorey@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -164,6 +165,11 @@ static Boolean _MakeAddress(
 struct HTTPConnectorRep
 {
       Array<HTTPConnection*> connections;
+};
+
+struct HTTPConnector2Rep
+{
+      Array<HTTPConnection2*> connections2;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -390,6 +396,245 @@ void HTTPConnector::disconnect(HTTPConnection* currentConnection)
 }
 
 void HTTPConnector::_deleteConnection(HTTPConnection* httpConnection)
+{
+    Sint32 socket = httpConnection->getSocket();
+
+    // Unsolicit SocketMessages:
+
+    _monitor->unsolicitSocketMessages(socket);
+
+    // Destroy the connection (causing it to close):
+
+    delete httpConnection;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// HTTPConnector2
+//
+////////////////////////////////////////////////////////////////////////////////
+
+HTTPConnector2::HTTPConnector2(monitor_2* monitor)
+   : Base(PEGASUS_QUEUENAME_HTTPCONNECTOR),
+     _monitor(monitor), _entry_index(-1)
+{
+   _rep2 = new HTTPConnector2Rep;
+   Socket::initializeInterface();
+}
+
+HTTPConnector2::~HTTPConnector2()
+{
+   delete _rep2;
+   Socket::uninitializeInterface();
+}
+
+void HTTPConnector2::handleEnqueue(Message *message)
+{
+
+   if (!message)
+      return;
+
+   switch (message->getType())
+   {
+      // It might be useful to catch socket messages later to implement
+      // asynchronous establishment of connections.
+
+      case SOCKET_MESSAGE:
+	 break;
+
+      case CLOSE_CONNECTION_MESSAGE:
+      {
+	 CloseConnectionMessage* closeConnectionMessage 
+	    = (CloseConnectionMessage*)message;
+
+	 for (Uint32 i = 0, n = _rep2->connections2.size(); i < n; i++)
+	 {
+	    HTTPConnection2* connection = _rep2->connections2[i];	
+	    Sint32 socket = connection->getSocket();
+
+	    if (socket == closeConnectionMessage->socket)
+	    {
+	       _monitor->unsolicitSocketMessages(socket);
+	       _rep2->connections2.remove(i);
+	       delete connection;
+	       break;
+	    }
+	 }
+      }
+
+      default:
+	 // ATTN: need unexpected message error!
+	 break;
+   };
+
+   delete message;
+}
+
+void HTTPConnector2::handleEnqueue()
+{
+
+   Message* message = dequeue();
+
+   if (!message)
+      return;
+
+   handleEnqueue(message);
+}
+
+HTTPConnection2* HTTPConnector2::connect(
+   const String& host, 
+   const Uint32 portNumber,
+   SSLContext * sslContext,
+   MessageQueue* outputMessageQueue)
+{
+   Sint32 socket;
+
+#ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
+   if (host == String::EMPTY)
+   {
+      // Set up the domain socket for a local connection
+
+      sockaddr_un address;
+      address.sun_family = AF_UNIX;
+      strcpy(address.sun_path, PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);
+#ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
+      AtoE(address.sun_path);
+#endif
+
+      socket = ::socket(AF_UNIX, SOCK_STREAM, 0);
+      if (socket < 0)
+         throw CannotCreateSocketException();
+
+      // Connect the socket to the address:
+
+      if (::connect(socket,
+                    reinterpret_cast<sockaddr*>(&address),
+                    sizeof(address)) < 0)
+      {
+	 
+      	//l10n
+         //throw CannotConnectException("Cannot connect to local CIM server. Connection failed.");
+         MessageLoaderParms parms("Common.HTTPConnector2.CONNECTION_FAILED_LOCAL_CIM_SERVER",
+         						  "Cannot connect to local CIM server. Connection failed.");
+         throw CannotConnectException(parms);
+      }
+   }
+   else
+   {
+#endif
+
+   // Make the internet address:
+
+   sockaddr_in address;
+
+   if (!_MakeAddress((const char*)host.getCString(), portNumber, address))
+   {
+      char portStr [32];
+      sprintf (portStr, "%u", portNumber);
+      throw InvalidLocatorException(host + ":" + portStr);
+   }
+
+
+   // Create the socket:
+
+   socket = ::socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+
+   if (socket < 0)
+      throw CannotCreateSocketException();
+
+   // Conect the socket to the address:
+
+   if (::connect(socket,
+                 reinterpret_cast<sockaddr*>(&address),
+                 sizeof(address)) < 0)
+   {
+      char portStr [32];
+      sprintf (portStr, "%u", portNumber);
+      //l10n
+      //throw CannotConnectException("Cannot connect to " + host + ":" + portStr +". Connection failed.");
+      MessageLoaderParms parms("Common.HTTPConnector2.CONNECTION_FAILED_TO",
+         					   "Cannot connect to $0:$1. Connection failed.",
+         					   host,
+         					   portStr);
+      throw CannotConnectException(parms);
+   }
+
+#ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
+   }
+#endif
+
+   // Create HTTPConnection2 object:
+
+  //MP_Socket * mp_socket = new MP_Socket(socket, sslContext);
+   pegasus_socket * peg_socket = new pegasus_socket();
+  /* if (peg_socket->connect() < 0) {
+      char portStr [32];
+      sprintf (portStr, "%u", portNumber);
+      //l10n
+      //throw CannotConnectException("Cannot connect to " + host + ":" + portStr +". Connection failed.");
+      MessageLoaderParms parms("Common.HTTPConnector2.CONNECTION_FAILED_TO",
+         					   "Cannot connect to $0:$1. Connection failed.",
+         					   host,
+         					   portStr);
+      throw CannotConnectException(parms);
+   }*/
+
+    
+   HTTPConnection2* connection = new HTTPConnection2(*peg_socket,static_cast<MessageQueue *>(outputMessageQueue));
+//   HTTPConnection* connection = new HTTPConnection(_monitor, mp_socket,
+//	this, static_cast<MessageQueueService *>(outputMessageQueue));
+
+   // Solicit events on this new connection's socket:
+
+   if (-1 == (_entry_index = _monitor->solicitSocketMessages(
+  socket,
+  SocketMessage::READ | SocketMessage::EXCEPTION,
+  connection->getQueueId(), Monitor::CONNECTOR)))
+   {
+      peg_socket->close();
+   }
+
+   // Save the socket for cleanup later:
+
+   _rep2->connections2.append(connection);
+
+   return connection;
+}
+
+void HTTPConnector2::destroyConnections()
+{
+   // For each connection created by this object:
+
+   for (Uint32 i = 0, n = _rep2->connections2.size(); i < n; i++)
+   {
+      _deleteConnection(_rep2->connections2[i]);
+   }
+
+   _rep2->connections2.clear();
+}
+
+
+void HTTPConnector2::disconnect(HTTPConnection2* currentConnection)
+{
+    //
+    // find and delete the specified connection
+    //
+    for (Uint32 i = 0, n = _rep2->connections2.size(); i < n; i++)
+    {
+        if (currentConnection == _rep2->connections2[i])
+        {
+	   Sint32 socket = _rep2->connections2[i]->getSocket();
+	   _monitor->unsolicitSocketMessages(socket);
+	   _rep2->connections2.remove(i);
+
+            Socket::close(socket);
+            return;
+        }
+    }
+}
+
+void HTTPConnector2::_deleteConnection(HTTPConnection2* httpConnection)
 {
     Sint32 socket = httpConnection->getSocket();
 

@@ -1615,12 +1615,9 @@ Boolean XmlReader::getPropertyElement(XmlParser& parser, CIMProperty& property)
     CIMType type = getCimTypeAttribute(parser.getLine(), entry, "PROPERTY");
 
     // Create property: Sets type and !isarray
-    // ATTN: KS P1 change to use the correct constructor
 
-    CIMValue value;
-    value.setNullValue(type, false);
-    property = CIMProperty(
-	name, value, 0, String(), classOrigin, propagated);
+    CIMValue value(type, false);
+    property = CIMProperty(name, value, 0, String(), classOrigin, propagated);
 
     if (!empty)
     {
@@ -1727,13 +1724,9 @@ Boolean XmlReader::getPropertyArrayElement(
 
     // Create property:
 
-    // ATTN: KS P1 4 March 2002 Change to use correct constructor.
-    // ATTN: KS P3 4 March 2002.  Why create extra value. Use same one.
-
-    CIMValue nullValue;
-    nullValue.setNullValue(type, true, arraySize);
+    CIMValue value(type, true, arraySize);
     property = CIMProperty(
-	name, nullValue, arraySize, String(), classOrigin, propagated);
+	name, value, arraySize, String(), classOrigin, propagated);
 
     if (!empty)
     {
@@ -1742,10 +1735,6 @@ Boolean XmlReader::getPropertyArrayElement(
 	getQualifierElements(parser, property);
 
 	// Get value:
-
-        // ATTN: KS P1 4 March 2002. Does not set array type into value.
-        // ATTN: Thus, if it returns false, the CIMValue is nothing.
-	CIMValue value;
 
 	if (getValueArrayElement(parser, type, value))
 	{

@@ -1,4 +1,4 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%///////////-*-c++-*-//////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
@@ -40,19 +40,28 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_EXPORT cleanup_handler
 {
 
- public:
-  cleanup_handler( void (*routine)(void *), void *arg  ) : _routine(routine), _arg(arg)  {}
-  ~cleanup_handler()  {; }
+   public:
+      cleanup_handler( void (*routine)(void *), void *arg  ) : _routine(routine), _arg(arg)  {}
+      ~cleanup_handler()  {; }
 
- private:
-  void execute(void) { _routine(_arg); } 
-  cleanup_handler();
-  void (*_routine)(void *);
-  inline Boolean operator==(void *key) { if(key == (void *)_routine) return true; return false; }
-  void *_arg; 
-  PEGASUS_CLEANUP_HANDLE _cleanup_buffer;
-  template<class cleanup_handler> friend class DQueue;
-  friend class Thread;
+   private:
+      void execute(void) { _routine(_arg); } 
+      cleanup_handler();
+      void (*_routine)(void *);
+      inline Boolean operator==(const void *key) const
+      { 
+	 if(key == (void *)_routine) 
+	    return true; 
+	 return false; 
+      }
+      inline Boolean operator ==(const cleanup_handler & b) const 
+      {
+	 return(operator==((const void *)b._routine));
+      }
+      void *_arg; 
+      PEGASUS_CLEANUP_HANDLE _cleanup_buffer;
+      template<class cleanup_handler> friend class DQueue;
+      friend class Thread;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -60,75 +69,75 @@ class PEGASUS_EXPORT cleanup_handler
 class PEGASUS_EXPORT SimpleThread
 {
 
- public:
-  SimpleThread( PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *start )(void *),
-          void *parameter, Boolean detached );
+   public:
+      SimpleThread( PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *start )(void *),
+		    void *parameter, Boolean detached );
 
-  ~SimpleThread();
+      ~SimpleThread();
 
-  void run(void);
+      void run(void);
 
-  Uint32 threadId(void);
+      Uint32 threadId(void);
 
-  // get the user parameter 
-  void *get_parm(void);
+      // get the user parameter 
+      void *get_parm(void);
 
-  // cancellation must be deferred (not asynchronous)
-  // for user-level threads the thread itself can decide
-  // when it should die. 
-  void cancel(void);
+      // cancellation must be deferred (not asynchronous)
+      // for user-level threads the thread itself can decide
+      // when it should die. 
+      void cancel(void);
 
-  void kill(int signum);
+      void kill(int signum);
 
-  // cancel if there is a pending cancellation request
-  void test_cancel(void);
+      // cancel if there is a pending cancellation request
+      void test_cancel(void);
 
-  // for user-level threads  - put the calling thread
-  // to sleep and jump to the thread scheduler. 
-  // platforms with preemptive scheduling and native threads 
-  // can define this to be a no-op. 
-  // platforms without preemptive scheduling like NetWare 
-  // or gnu portable threads will have an existing 
-  // routine that can be mapped to this method 
+      // for user-level threads  - put the calling thread
+      // to sleep and jump to the thread scheduler. 
+      // platforms with preemptive scheduling and native threads 
+      // can define this to be a no-op. 
+      // platforms without preemptive scheduling like NetWare 
+      // or gnu portable threads will have an existing 
+      // routine that can be mapped to this method 
 
-  void thread_switch(void);
+      void thread_switch(void);
 
-  // suspend this thread 
-  void suspend(void) ;
+      // suspend this thread 
+      void suspend(void) ;
 
-  // resume this thread
-  void resume(void) ;
+      // resume this thread
+      void resume(void) ;
 
-  void sleep(Uint32 msec) ;
+      void sleep(Uint32 msec) ;
 
-  // block the calling thread until this thread terminates
-  void join( PEGASUS_THREAD_RETURN *ret_val);
+      // block the calling thread until this thread terminates
+      void join( PEGASUS_THREAD_RETURN *ret_val);
 
 
-  // stack of functions to be called when thread terminates
-  // will be called last in first out (LIFO)
-  void cleanup_push( void (*routine) (void *), void *parm );
-  void cleanup_pop(Boolean execute) ;
+      // stack of functions to be called when thread terminates
+      // will be called last in first out (LIFO)
+      void cleanup_push( void (*routine) (void *), void *parm );
+      void cleanup_pop(Boolean execute) ;
 
-  PEGASUS_THREAD_TYPE self(void) ;
+      PEGASUS_THREAD_TYPE self(void) ;
 
- private:
-  SimpleThread();
+   private:
+      SimpleThread();
 
-  PEGASUS_THREAD_HANDLE _handle;
-  Boolean _is_detached;
-  Boolean _cancel_enabled;
-  Boolean _cancelled; 
+      PEGASUS_THREAD_HANDLE _handle;
+      Boolean _is_detached;
+      Boolean _cancel_enabled;
+      Boolean _cancelled; 
   
-  //PEGASUS_SEM_HANDLE _suspend_count;
-  Semaphore _suspend;
+      //PEGASUS_SEM_HANDLE _suspend_count;
+      Semaphore _suspend;
 
-  // always pass this * as the void * parameter to the thread
-  // store the user parameter in _thread_parm 
+      // always pass this * as the void * parameter to the thread
+      // store the user parameter in _thread_parm 
 
-  PEGASUS_THREAD_RETURN  ( PEGASUS_THREAD_CDECL *_start)(void *) ;
+      PEGASUS_THREAD_RETURN  ( PEGASUS_THREAD_CDECL *_start)(void *) ;
 
-  void *_thread_parm;
+      void *_thread_parm;
 } ;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -138,54 +147,63 @@ static void default_delete(void * data) { delete [] (char *) data; }
 class  PEGASUS_EXPORT thread_data
 {
 
- public:
-  thread_data( Sint8 *key ) : _delete_func(NULL) , _data(NULL), _size(0)
-  {
-    PEGASUS_ASSERT(key != NULL);
-    _key = strdup(key) ; 
-  }
+   public:
+      thread_data( Sint8 *key ) : _delete_func(NULL) , _data(NULL), _size(0)
+      {
+	 PEGASUS_ASSERT(key != NULL);
+	 _key = strdup(key) ; 
+      }
   
-  thread_data(Sint8 *key, int size)
-  {
-    PEGASUS_ASSERT(key != NULL);
-    _delete_func = default_delete;
-    _data = new char [size];
-    _size = size;
-  }
+      thread_data(Sint8 *key, int size)
+      {
+	 PEGASUS_ASSERT(key != NULL);
+	 _delete_func = default_delete;
+	 _data = new char [size];
+	 _size = size;
+      }
 
-  thread_data(Sint8 *key, int size, void *data)
-  {
-    PEGASUS_ASSERT(key != NULL);
-    PEGASUS_ASSERT(data != NULL);
-    _delete_func = default_delete;
-    _data = new char [size];
-    memcpy(_data, data, size);
-    _size = size;
-  }
+      thread_data(Sint8 *key, int size, void *data)
+      {
+	 PEGASUS_ASSERT(key != NULL);
+	 PEGASUS_ASSERT(data != NULL);
+	 _delete_func = default_delete;
+	 _data = new char [size];
+	 memcpy(_data, data, size);
+	 _size = size;
+      }
 
-  ~thread_data() { if( _data != NULL) _delete_func( _data ); }  
+      ~thread_data() { if( _data != NULL) _delete_func( _data ); }  
 
-  void *get_data(void );
-  Uint32 get_size(void);
-  void *put_data(void (*delete_func) (void *), Uint32 size, void *data  )
-    {
-      void *old_data = data;
-      _delete_func = delete_func;
-      _data = data;
-      _size = size;
-      return(old_data);
-    }
+      void *get_data(void );
+      Uint32 get_size(void);
+      void *put_data(void (*delete_func) (void *), Uint32 size, void *data  )
+      {
+	 void *old_data = data;
+	 _delete_func = delete_func;
+	 _data = data;
+	 _size = size;
+	 return(old_data);
+      }
+      inline Boolean operator==(const void *key) const 
+      { 
+	 if ( ! strcmp(_key, (Sint8 *)key)) 
+	    return(true); 
+	 return(false);
+      } 
+      inline Boolean operator==(const thread_data& b) const
+      {
+	 return(operator==((const void *)b._key));
+      }
 
- private:
-  inline Boolean operator ==(void *key) { if ( ! strcmp(_key, (Sint8 *)key)) return(true); return(false);  } 
-  void (*_delete_func) (void *data) ;
-  thread_data();
-  void *_data;
-  Uint32 _size;
-  Sint8 *_key;
+   private:
+      void (*_delete_func) (void *data) ;
+      thread_data();
+      void *_data;
+      Uint32 _size;
+      Sint8 *_key;
   
-  template<class thread_data> friend class DQueue;
-  friend class Thread;
+      template<class thread_data> friend class DQueue;
+      friend class Thread;
 };
 
 
@@ -194,180 +212,181 @@ class  PEGASUS_EXPORT thread_data
 class PEGASUS_EXPORT Thread
 {
 
- public:
-  Thread( PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *start )(void *),
-          void *parameter, Boolean detached );
+   public:
+      Thread( PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *start )(void *),
+	      void *parameter, Boolean detached );
 
-  ~Thread();
+      ~Thread();
 
-  void run(void);
+      void run(void);
 
-  // get the user parameter 
-  inline void *get_parm(void) { return _thread_parm; }
+      // get the user parameter 
+      inline void *get_parm(void) { return _thread_parm; }
 
-  // send the thread a signal -- may not be appropriate due to Windows 
-  //  void kill(int signum); 
+      // send the thread a signal -- may not be appropriate due to Windows 
+      //  void kill(int signum); 
 
-  // cancellation must be deferred (not asynchronous)
-  // for user-level threads the thread itself can decide
-  // when it should die. 
-  void cancel(void);
+      // cancellation must be deferred (not asynchronous)
+      // for user-level threads the thread itself can decide
+      // when it should die. 
+      void cancel(void);
 
-  // cancel if there is a pending cancellation request
-  void test_cancel(void);
+      // cancel if there is a pending cancellation request
+      void test_cancel(void);
 
-  // for user-level threads  - put the calling thread
-  // to sleep and jump to the thread scheduler. 
-  // platforms with preemptive scheduling and native threads 
-  // can define this to be a no-op. 
-  // platforms without preemptive scheduling like NetWare 
-  // or gnu portable threads will have an existing 
-  // routine that can be mapped to this method 
+      // for user-level threads  - put the calling thread
+      // to sleep and jump to the thread scheduler. 
+      // platforms with preemptive scheduling and native threads 
+      // can define this to be a no-op. 
+      // platforms without preemptive scheduling like NetWare 
+      // or gnu portable threads will have an existing 
+      // routine that can be mapped to this method 
 
-  void thread_switch(void);
+      void thread_switch(void);
 
-  // suspend this thread 
-  // void suspend(void) ;
+      // suspend this thread 
+      // void suspend(void) ;
 
-  // resume this thread
-  // void resume(void) ;
+      // resume this thread
+      // void resume(void) ;
 
-  void sleep(Uint32 msec) ;
+      void sleep(Uint32 msec) ;
 
-  // block the calling thread until this thread terminates
-  void join(void );
-  void thread_init(void);
+      // block the calling thread until this thread terminates
+      void join( void );
+      void thread_init(void);
 
-  // thread routine needs to call this function when
-  // it is ready to exit
-  void exit_self(PEGASUS_THREAD_RETURN return_code) ;
+      // thread routine needs to call this function when
+      // it is ready to exit
+      void exit_self(PEGASUS_THREAD_RETURN return_code) ;
 
-  // stack of functions to be called when thread terminates
-  // will be called last in first out (LIFO)
-  void cleanup_push( void (*routine) (void *), void *parm ) throw(IPCException);
-  void cleanup_pop(Boolean execute = true) throw(IPCException);
+      // stack of functions to be called when thread terminates
+      // will be called last in first out (LIFO)
+      void cleanup_push( void (*routine) (void *), void *parm ) throw(IPCException);
+      void cleanup_pop(Boolean execute = true) throw(IPCException);
 
-  // create and initialize a tsd
-  inline void create_tsd(Sint8 *key, int size, void *buffer) throw(IPCException)
-  {
-    thread_data *tsd = new thread_data(key, size, buffer);
-       try { _tsd.insert_first(tsd); }
-    catch(IPCException& e) { delete tsd; throw; }
-  }
+      // create and initialize a tsd
+      inline void create_tsd(Sint8 *key, int size, void *buffer) throw(IPCException)
+      {
+	 thread_data *tsd = new thread_data(key, size, buffer);
+	 try { _tsd.insert_first(tsd); }
+	 catch(IPCException& e) { delete tsd; throw; }
+      }
 
-  // get the buffer associated with the key
-  // NOTE: this call leaves the tsd LOCKED !!!! 
-  inline void *reference_tsd(Sint8 *key) throw(IPCException)
-  {
-    _tsd.lock(); 
-    thread_data *tsd = _tsd.reference((void *)key);
-    if(tsd != NULL)
-      return( (void *)(tsd->_data) );
-    else
-      return(NULL);
-  }
+      // get the buffer associated with the key
+      // NOTE: this call leaves the tsd LOCKED !!!! 
+      inline void *reference_tsd(Sint8 *key) throw(IPCException)
+      {
+	 _tsd.lock(); 
+	 thread_data *tsd = _tsd.reference((void *)key);
+	 if(tsd != NULL)
+	    return( (void *)(tsd->_data) );
+	 else
+	    return(NULL);
+      }
 
-  // release the lock held on the tsd
-  // NOTE: assumes a corresponding and prior call to reference_tsd() !!!
-  inline void dereference_tsd(void) throw(IPCException)
-  {
-     _tsd.unlock();
-  }
+      // release the lock held on the tsd
+      // NOTE: assumes a corresponding and prior call to reference_tsd() !!!
+      inline void dereference_tsd(void) throw(IPCException)
+      {
+	 _tsd.unlock();
+      }
 
-  // delete the tsd associated with the key
-  inline void delete_tsd(Sint8 *key) throw(IPCException)
-  {
-    thread_data *tsd = _tsd.remove((void *)key);
-    if(tsd != NULL)
-      delete tsd;
-  }
+      // delete the tsd associated with the key
+      inline void delete_tsd(Sint8 *key) throw(IPCException)
+      {
+	 thread_data *tsd = _tsd.remove((void *)key);
+	 if(tsd != NULL)
+	    delete tsd;
+      }
 
-  // create or re-initialize tsd associated with the key
-  // if the tsd already exists, return the existing buffer
-  thread_data *put_tsd(Sint8 *key, void (*delete_func)(void *), Uint32 size, void *value) throw(IPCException)
+      // create or re-initialize tsd associated with the key
+      // if the tsd already exists, return the existing buffer
+      thread_data *put_tsd(Sint8 *key, void (*delete_func)(void *), Uint32 size, void *value) 
+	 throw(IPCException)
 
-{
-  PEGASUS_ASSERT(key != NULL);
-  PEGASUS_ASSERT(delete_func != NULL);
-  thread_data *tsd ;
-  tsd = _tsd.remove((void *)key);  // may throw an IPC exception 
-  thread_data *ntsd = new thread_data(key);
-  ntsd->put_data(delete_func, size, value);
-  try { _tsd.insert_first(ntsd); }
-  catch(IPCException& e) { delete ntsd; throw; }
-  return(tsd);
-}
-  inline PEGASUS_THREAD_RETURN get_exit(void) { return _exit_code; }
-  inline PEGASUS_THREAD_TYPE self(void) {return pegasus_thread_self(); }
+      {
+	 PEGASUS_ASSERT(key != NULL);
+	 PEGASUS_ASSERT(delete_func != NULL);
+	 thread_data *tsd ;
+	 tsd = _tsd.remove((void *)key);  // may throw an IPC exception 
+	 thread_data *ntsd = new thread_data(key);
+	 ntsd->put_data(delete_func, size, value);
+	 try { _tsd.insert_first(ntsd); }
+	 catch(IPCException& e) { delete ntsd; throw; }
+	 return(tsd);
+      }
+      inline PEGASUS_THREAD_RETURN get_exit(void) { return _exit_code; }
+      inline PEGASUS_THREAD_TYPE self(void) {return pegasus_thread_self(); }
 
- private:
-  Thread();
-  inline void create_tsd(Sint8 *key ) throw(IPCException)
-  {
-    thread_data *tsd = new thread_data(key);
-    try { _tsd.insert_first(tsd); }
-    catch(IPCException& e) { delete tsd; throw; }
-  }
-  PEGASUS_THREAD_HANDLE _handle;
-  Boolean _is_detached;
-  Boolean _cancel_enabled;
-  Boolean _cancelled; 
+   private:
+      Thread();
+      inline void create_tsd(Sint8 *key ) throw(IPCException)
+      {
+	 thread_data *tsd = new thread_data(key);
+	 try { _tsd.insert_first(tsd); }
+	 catch(IPCException& e) { delete tsd; throw; }
+      }
+      PEGASUS_THREAD_HANDLE _handle;
+      Boolean _is_detached;
+      Boolean _cancel_enabled;
+      Boolean _cancelled; 
   
-  PEGASUS_SEM_HANDLE _suspend_count;
+      PEGASUS_SEM_HANDLE _suspend_count;
 
-  // always pass this * as the void * parameter to the thread
-  // store the user parameter in _thread_parm 
+      // always pass this * as the void * parameter to the thread
+      // store the user parameter in _thread_parm 
 
-  PEGASUS_THREAD_RETURN  ( PEGASUS_THREAD_CDECL *_start)(void *) ;
-  DQueue<cleanup_handler> _cleanup;
-  DQueue<thread_data> _tsd;
+      PEGASUS_THREAD_RETURN  ( PEGASUS_THREAD_CDECL *_start)(void *) ;
+      DQueue<cleanup_handler> _cleanup;
+      DQueue<thread_data> _tsd;
 
-  void *_thread_parm;
-  PEGASUS_THREAD_RETURN _exit_code;
-  static Boolean _signals_blocked;
+      void *_thread_parm;
+      PEGASUS_THREAD_RETURN _exit_code;
+      static Boolean _signals_blocked;
 } ;
 
 
 #if 0
 class PEGASUS_EXPORT Aggregator {
 
- public:
+   public:
 
-  Aggregator();
-  ~Aggregator();
+      Aggregator();
+      ~Aggregator();
 
-  void started(void);
-  void completed(void);
-  void remaining(int operations);
-  void put_result(CIMReference *ref);
+      void started(void);
+      void completed(void);
+      void remaining(int operations);
+      void put_result(CIMReference *ref);
 
- private: 
-  int _reference_count;
+   private: 
+      int _reference_count;
 
-  // keep track of the thread running this operation so we can kill
-  // it if necessary 
-  Thread _owner;
+      // keep track of the thread running this operation so we can kill
+      // it if necessary 
+      Thread _owner;
 
-  // this is a phased aggregate. when it is complete is will
-  // be streamed to the client regardless of the state of 
-  // siblings 
-  Boolean _is_phased;
+      // this is a phased aggregate. when it is complete is will
+      // be streamed to the client regardless of the state of 
+      // siblings 
+      Boolean _is_phased;
 
-  int _total_values;
-  int _completed_values;
-  int _total_child_values;
-  int _completed_child_values;
-  int _completion_state;
-  struct timeval _last_update; 
-  time_t lifetime;
-  Aggregator *_parent;
-  // children may be phased or not phased
-  DQueue _children;
-  // empty results that are filled by provider
-  DQueue _results;
-  // array of predicates for events and 
-  // stored queries (cursors)
-  Array _filter;
+      int _total_values;
+      int _completed_values;
+      int _total_child_values;
+      int _completed_child_values;
+      int _completion_state;
+      struct timeval _last_update; 
+      time_t lifetime;
+      Aggregator *_parent;
+      // children may be phased or not phased
+      DQueue _children;
+      // empty results that are filled by provider
+      DQueue _results;
+      // array of predicates for events and 
+      // stored queries (cursors)
+      Array _filter;
 } ;
 #endif
 

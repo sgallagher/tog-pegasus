@@ -43,12 +43,16 @@ static sigset_t *block_signal_mask(sigset_t *sig)
     sigaddset(sig, SIGALRM);
     sigaddset(sig, SIGPIPE);
 
+
+// Note: linux pthreads library uses SIGUSR1 and SIGUSR2 internally
+// to stop and start threads that are blocking. 
+
 // since SIGSTOP/CONT can handle suspend()/resume() on Linux
 // block them
-#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
-    sigaddset(sig, SIGUSR1);
-    sigaddset(sig, SIGUSR2);
-#endif
+// #if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
+//     sigaddset(sig, SIGUSR1);
+//     sigaddset(sig, SIGUSR2);
+// #endif
     pthread_sigmask(SIG_BLOCK, sig, NULL);
     return sig;
 }
@@ -186,12 +190,6 @@ Thread::Thread( PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *start )(void *),
 {
 
     pthread_attr_init(&_handle.thatt);
-
-    if( _signals_blocked == false) 
-    {
-      sigset_t signals_to_block;
-      block_signal_mask(&signals_to_block);
-    } 
     _handle.thid = 0;
 }
 
@@ -236,7 +234,11 @@ void Thread::sleep(Uint32 msec)
   nanosleep(&timeout,NULL);
 }
 
-void Thread::join(void) { pthread_join(_handle.thid, &_exit_code) ; }
+void Thread::join(void) 
+{ 
+   if(! _is_detached)
+      pthread_join(_handle.thid, &_exit_code) ; 
+}
 
 void Thread::thread_init(void)
 {

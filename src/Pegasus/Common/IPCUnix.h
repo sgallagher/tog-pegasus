@@ -39,14 +39,14 @@
    #define _XOPEN_SOURCE 600
 #endif
 
-#ifndef PEGASUS_PLATFORM_HPUX_PARISC_ACC
-   # include <features.h>
-#endif
 
-#include <pthread.h>
-#include <semaphore.h>
-// Signal blocking
-#include <signal.h>
+
+
+
+
+#ifndef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+# include <features.h>
+#endif
 
 #ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
 # include <sched.h>
@@ -65,13 +65,20 @@ extern int pthread_rwlock_timedwrlock(
 extern int sem_timedwait(
     sem_t *sem,
     const struct timespec *abstime);
+
+
 #endif
 
+#include <pthread.h>
+#include <semaphore.h>
+#include <signal.h>
 #include <signal.h>
 #include <errno.h>
 #include <sys/time.h>
 #include <time.h>
 
+
+typedef pthread_spinlock_t PEGASUS_CRIT_TYPE;
 typedef sem_t PEGASUS_SEMAPHORE_TYPE;
 typedef pthread_t PEGASUS_THREAD_TYPE;
 typedef pthread_mutex_t PEGASUS_MUTEX_TYPE;
@@ -138,12 +145,12 @@ typedef sig_atomic_t PEGASUS_ATOMIC_TYPE ;
 //-----------------------------------------------------------------
 
 #if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
-#define PEGASUS_READWRITE_NATIVE = 1
+// #define PEGASUS_READWRITE_NATIVE = 1
 
-typedef struct {
-    pthread_rwlock_t rwlock;
-    pthread_t owner;
-} PEGASUS_RWLOCK_HANDLE;
+// typedef struct {
+//     pthread_rwlock_t rwlock;
+//     pthread_t owner;
+// } PEGASUS_RWLOCK_HANDLE;
 
 #endif // linux platform read/write type
 

@@ -27,6 +27,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/IPC.h>
+#include <Pegasus/Common/Thread.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <cassert>
@@ -45,7 +46,7 @@ typedef struct {
     int first;
     int second;
     int count;
-    SimpleThread * th;
+    Thread * th;
     Condition * cond_start;
     MT_MessageQueue * mq;
 } parmdef;
@@ -65,6 +66,9 @@ static parmdef * setparm()
     return parm;
 };
     
+Boolean die = false;
+
+
 int main()
 {
     void * retval;
@@ -75,7 +79,7 @@ int main()
 
     parmdef * parm[4];
 
-    SimpleThread * thr[4];
+    Thread * thr[4];
 
     for (int i = 0; i < 4;i++)
     {
@@ -87,15 +91,15 @@ int main()
     parm[3]->second = 6;
     parm[3]->count = 10;
 
-    thr[0] = new SimpleThread(fibonacci,parm[0],false);
-    thr[1] = new SimpleThread(deq,parm[1],false);
-    thr[2] = new SimpleThread(deq,parm[2],false);
-    thr[3] = new SimpleThread(fibonacci,parm[3],false);
+    thr[0] = new Thread(fibonacci,parm[0],false);
+    thr[1] = new Thread(deq,parm[1],false);
+    thr[2] = new Thread(deq,parm[2],false);
+    thr[3] = new Thread(fibonacci,parm[3],false);
 
     for (int i = 0; i < 4;i++)
     {
        parm[i]->th = thr[i];
-       parm[i]->cond_start->getMutex()->lock(pegasus_thread_self());
+       parm[i]->cond_start->lock_object(pegasus_thread_self());
        thr[i]->run();
     }
 
@@ -103,7 +107,7 @@ int main()
     for (int i = 0; i < 4;i++)
     {
         parm[i]->cond_start->unlocked_wait( pegasus_thread_self() );
-        parm[i]->cond_start->getMutex()->unlock( );
+        parm[i]->cond_start->unlock_object( );
     }
 
     // all fired up successfully
@@ -120,16 +124,22 @@ int main()
 	//        else 
 	//            parm[rn]->th->resume();
 
-        sleep(1);
+
+	sched_yield();
+//        sleep(1);
         cout << "+++++ passed test round " << i << endl; 
     }
 
     // Cancel the enqueueing tasks
 
-    parm[3]->th->cancel();
-    parm[0]->th->cancel();
-    parm[3]->th->kill(15);
-    parm[0]->th->kill(15);
+//    sometimes these threads die leaving a conditional object
+//    locked. kill them using our own means. 
+    die = true;
+
+//    parm[3]->th->cancel();
+//    parm[0]->th->cancel();
+//    parm[3]->th->cancel();
+//    parm[0]->th->cancel();
 
     // Enforce that the first dequeuing task receives the cancel message
     //    parm[2]->th->suspend();
@@ -145,8 +155,6 @@ int main()
     message = new Message(MY_CANCEL_TYPE,0); 
     mq->enqueue(message);
     
-    parm[1]->th->join(&retval);
-
     cout << "+++++ passed test round 21" << endl; 
 
 #ifndef PEGASUS_PLATFORM_HPUX_PARISC_ACC
@@ -154,25 +162,26 @@ int main()
     message = new Message(MY_CANCEL_TYPE,0); 
     mq->enqueue(message);
 
-    //cout << "+++++ passed test round 22" << endl; 
+    cout << "+++++ passed test round 22" << endl; 
 
     //    parm[2]->th->resume();
-
-    parm[2]->th->join(&retval);
 
     cout << "+++++ passed all tests" << endl; 
 
     // Make sure all threads end
-    for (int i = 0; i<4; i++) parm[i]->th->kill(9);
+    for (int i = 0; i<4; i++) parm[i]->th->cancel();
 
 #endif
-
+    parm[0]->th->join();
+    parm[1]->th->join();
+    parm[2]->th->join();
+    parm[3]->th->join();
     return 0;
 }
 
 void * fibonacci(void * parm)
 {
-  SimpleThread* my_thread  = (SimpleThread *)parm;
+  Thread* my_thread  = (Thread *)parm;
   
     parmdef * Parm = (parmdef *)my_thread->get_parm();
     int first = Parm->first;
@@ -191,7 +200,7 @@ void * fibonacci(void * parm)
 
     Message * message;
 
-    while (true)
+    while (die == false)
     {
         for (int i=0; i < count; i++)
         {
@@ -213,7 +222,7 @@ void * fibonacci(void * parm)
 
 void * deq(void * parm)
 {
-  SimpleThread* my_thread  = (SimpleThread *)parm;
+  Thread* my_thread  = (Thread *)parm;
   
     parmdef * Parm = (parmdef *)my_thread->get_parm();
     Uint32 type, key;

@@ -42,9 +42,27 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Exception.h>
 
+
 PEGASUS_NAMESPACE_BEGIN
 extern const Uint32 PEG_SEM_READ;
 extern const Uint32 PEG_SEM_WRITE;
+
+
+//%///////////////// ----- IPC related functions ------- //////////////////////
+// ----- NOTE - these functions are PRIMITIVES that MUST be implemented
+//               by the platform. e.g., see IPCUnix.cpp
+
+void disable_cancel(void);
+void enable_cancel(void);
+void native_cleanup_push( void (*)(void *), void * );
+void native_cleanup_pop(Boolean execute);
+void init_crit(PEGASUS_CRIT_TYPE *crit);
+void enter_crit(PEGASUS_CRIT_TYPE *crit);
+void try_crit(PEGASUS_CRIT_TYPE *crit);
+void destroy_crit(PEGASUS_CRIT_TYPE *crit);
+void exit_crit(PEGASUS_CRIT_TYPE *crit);
+PEGASUS_THREAD_TYPE pegasus_thread_self(void);
+
 
 //%//////// -------- IPC Exception Classes -------- ///////////////////////////////
 
@@ -52,7 +70,6 @@ class PEGASUS_EXPORT IPCException
 {
    public:
       IPCException(PEGASUS_THREAD_TYPE owner): _owner(owner) { }
-      //  ~IPCException(void);
       inline PEGASUS_THREAD_TYPE get_owner(void) { return(_owner); }
    private:
       IPCException(void);
@@ -109,11 +126,132 @@ class PEGASUS_EXPORT TooManyReaders: public IPCException
 };
 
 
+//-----------------------------------------------------------------
+// internal (unprotected) doubly linked list template
+//-----------------------------------------------------------------
+template<class L> class PEGASUS_EXPORT internal_dq {
+   private: 
+      L *_rep;
+      internal_dq *_next;
+      internal_dq  *_prev;
+      Boolean _isHead ;
+      int _count;
+
+      // unlink this node from whichever list it is on
+      inline void unlink( void  ) 
+      { 
+	 _prev->_next = _next; 
+	 _next->_prev = _prev; 
+      }
+    
+      inline void insert_first(internal_dq & head) 
+      { 
+	 _prev = head; 
+	 _next = head._next; 
+	 head._next->_prev = this; 
+	 head._next = this;   
+	 head._count++; 
+      }
+
+      inline void insert_last(internal_dq & head)
+      {
+	 _next = head;
+	 _prev = head._prev;
+	 head._prev->next = this;
+	 head._prev = this;
+	 head._count++;
+      }
+
+      inline L *remove( void )
+      {
+	 L *ret = NULL;
+	
+	 if( _count > 0 ) {
+	    internal_dq *temp = _next;
+	    temp->unlink();
+	    ret = temp->_rep;
+	    // unhinge ret from temp so it doesn't get destroyed 
+	    temp->_rep = NULL ;
+	    delete temp;
+	    _count--;
+	 }
+	 return(ret);
+      }
+
+      friend class Condition;
+
+   public:
+    
+      internal_dq(Boolean head = true) :  _rep(NULL), _isHead(head), _count(0) 
+      { 
+	 _next = this; 
+	 _prev = this; 
+      }
+      ~internal_dq() 
+      {  
+	 this->empty_list(); 
+      }
+      inline void insert_first(L *element) 
+      {
+	 internal_dq *ins = new internal_dq(false);
+	 ins->_rep = element;
+	 ins->_prev = this;
+	 ins->_next = this->_next;
+	 this->_next->_prev = ins;
+	 this->_next = ins;
+	 _count++;
+      }
+      inline void insert_last(L *element) 
+      {
+	 internal_dq *ins = new internal_dq(false);
+	 ins->_rep = element;
+	 ins->_next = this;
+	 ins->_prev = this->_prev;
+	 this->_prev->_next = ins;
+	 this->_prev = ins;
+	 _count++;
+      }
+      inline void empty_list( void )
+      {
+	 if( _count > 0) {
+	    while( _count > 0 ) {
+	       internal_dq<L> *temp = _next;
+	       temp->unlink();
+	       if(temp->_rep != NULL)
+		  delete temp->_rep;
+	       delete temp;
+	       _count--;
+	    }
+	    PEGASUS_ASSERT(_count == 0);
+	 }
+	 return;
+      }
+
+      inline L *remove(void *key)
+      {
+	 L *ret = NULL;
+	 
+	 if( _count > 0 ) {
+	    internal_dq *temp = _next;
+	    while ( temp->_isHead == false ) {
+	       if( temp->_rep == key ) {
+		  temp->unlink();
+		  ret = temp->_rep;
+		  temp->_rep = NULL;
+		  delete temp;
+		  _count--;
+		  break;
+	       }
+	       temp = temp->_next;
+	    }
+	 }
+	 return(ret); 
+      }
+
+      inline int count(void) { return _count ; }
+} ;
 
 
-//%///////////////// ----- IPC related functions ------- //////////////////////
-
-PEGASUS_THREAD_TYPE pegasus_thread_self(void);
 
 
 //%////////////////////////////////////////////////////////////////////////////
@@ -143,10 +281,9 @@ class PEGASUS_EXPORT Mutex
       // unlock the semaphore
       void unlock(void) throw(Permission);
 
-//      inline PEGASUS_MUTEX_TYPE* getMutex() { return(&_mutex.mut); }
       inline PEGASUS_THREAD_TYPE get_owner() { return(_mutex.owner); }
 
-   protected:
+   private:
       PEGASUS_MUTEX_HANDLE _mutex;
       friend class Condition;
 } ;
@@ -190,6 +327,8 @@ class PEGASUS_EXPORT Semaphore
       // platorms that allow you to ask the semaphore for 
       // its count 
       int _count; 
+      void _extricate(void);
+      friend class Condition;
 };
 
 
@@ -228,10 +367,10 @@ class AtomicInt
 
       Uint32  value(void);
 
-      void operator++(void); // prefix
+      inline void operator++(void); // prefix
       inline void operator++(int) { this->operator++(); }  // postfix
 
-      void operator--(void); // prefix
+      inline void operator--(void); // prefix
       inline void operator--(int) { this->operator--(); } // postfix
 
       Uint32 operator+(const AtomicInt& val);
@@ -259,11 +398,14 @@ class AtomicInt
 
 #ifndef PEGASUS_READWRITE_NATIVE
 
-typedef struct {
-      Mutex _internal_lock;
-      Mutex _wlock;
+typedef struct pegasus_rwlock {
       Semaphore _rlock;
+      Mutex _wlock;
+      Mutex _internal_lock;
       PEGASUS_THREAD_TYPE _owner;
+      pegasus_rwlock() : _rlock(10), _wlock(), _internal_lock(), _owner(pegasus_thread_self()) 
+      {
+      }
 } PEGASUS_RWLOCK_HANDLE;
 
 #endif
@@ -334,6 +476,7 @@ class PEGASUS_EXPORT ReadWriteSem
 	 throw(TimeOut, Deadlock, Permission, WaitFailed, TooManyReaders);
       void unlock(Uint32 mode, PEGASUS_THREAD_TYPE caller)
       	 throw(Permission);
+      void _extricate(void);
       int _readers; 
       int _writers;
       PEGASUS_RWLOCK_HANDLE _rwlock;
@@ -348,53 +491,72 @@ class PEGASUS_EXPORT ReadWriteSem
 
 // typedef PEGASUS_SEMAPHORE_TYPE PEGASUS_COND_TYPE;
 
-typedef struct {
-      PEGASUS_THREAD_TYPE _owner; 
-      Mutex _internal_mutex;
-      Semaphore _cond_sem;
-      int _waiters;
+class PEGASUS_EXPORT cond_waiter {
+   public:
+      cond_waiter( PEGASUS_THREAD_TYPE caller, Sint32 time = -1) : 
+	 waiter(caller), signalled(0) { }
+      ~cond_waiter() 
+      {
+	 signalled.signal();
+      }
+      inline Boolean operator==(const void *key) const
+      {
+	 if((PEGASUS_THREAD_TYPE)key == waiter)
+	    return true;
+	 return false;
+      }
+      inline Boolean operator ==(const cond_waiter & b ) const 
+      { 
+	 return (operator ==(b.waiter)) ; 
+      }
+   private:
+      cond_waiter();
+      PEGASUS_THREAD_TYPE waiter;
+      Semaphore signalled;
+      friend class Condition;
+};
+
+typedef struct peg_condition{
+      internal_dq<cond_waiter> _waiters;
+      Mutex _spin;
+      peg_condition() : _waiters(true), _spin()  { }
 } PEGASUS_COND_TYPE;
 
 #endif 
 
 class PEGASUS_EXPORT Condition
-{
-  
+{ 
    public:
     
       // create the condition variable
       Condition(void)  ;
       ~Condition(void);
 
-      // block until this condition is in a signalled state 
-      void wait(PEGASUS_THREAD_TYPE caller) throw(Deadlock, WaitFailed);
-
-      // wait for milliseconds and throw an exception
-      // if wait times out without being signaled
-      void time_wait( Uint32 milliseconds, PEGASUS_THREAD_TYPE caller ) 
-	 throw(TimeOut, Deadlock, WaitFailed);
-
       // signal the condition variable
-      void signal(PEGASUS_THREAD_TYPE caller) throw(Deadlock, WaitFailed);
+      void signal(PEGASUS_THREAD_TYPE caller) 
+	 throw(Deadlock, WaitFailed, Permission);
       void lock_object(PEGASUS_THREAD_TYPE caller) 
 	 throw(Deadlock, WaitFailed);
       void try_lock_object(PEGASUS_THREAD_TYPE caller)
 	 throw(Deadlock, AlreadyLocked, WaitFailed);
       void wait_lock_object(PEGASUS_THREAD_TYPE caller, int milliseconds)
 	 throw(Deadlock, TimeOut, WaitFailed);
-            
       void unlock_object(void);
-      
 
       // without pthread_mutex_lock/unlock
-      void unlocked_wait(PEGASUS_THREAD_TYPE caller)  ;
-      void unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE caller) throw(TimeOut);
-      void unlocked_signal(PEGASUS_THREAD_TYPE caller) ;
+      void unlocked_wait(PEGASUS_THREAD_TYPE caller) 
+	 throw(Permission);
+      void unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE caller) 
+	 throw(TimeOut, Permission);
+      void unlocked_signal(PEGASUS_THREAD_TYPE caller)
+	 throw(Permission);
+
 
    private:
-      PEGASUS_THREAD_TYPE _owner; // owner of the conditional mutex
+      int _disallow; // don't allow any further waiters
       PEGASUS_COND_TYPE _condition; // special type to control execution flow
       Mutex _cond_mutex; // the conditional mutex
+      friend void extricate_condition(void *);
       
 };
 

@@ -40,6 +40,54 @@ inline void pegasus_yield(void)
 #endif
 }
 
+// pthreads cancellation calls 
+inline void disable_cancel(void)
+{
+   pthread_setcanceltype(PTHREAD_CANCEL_DISABLE, NULL);
+}
+
+inline void enable_cancel(void)
+{
+   pthread_setcanceltype(PTHREAD_CANCEL_DISABLE, NULL);
+}
+
+
+// the next two routines are macros that MUST SHARE the same stack frame
+// they are implemented as macros by glibc. 
+// native_cleanup_push( void (*func)(void *) ) ;
+// these ALSO SET CANCEL STATE TO DEFER
+#define native_cleanup_push( func, arg ) \
+   pthread_cleanup_push_defer_np((func), arg)
+
+// native cleanup_pop(Boolean execute) ; 
+#define native_cleanup_pop(execute) \
+   pthread_cleanup_pop_restore_np(execute)
+
+inline void init_crit(PEGASUS_CRIT_TYPE *crit)
+{
+   pthread_spin_init(crit, 0);
+}
+
+inline void enter_crit(PEGASUS_CRIT_TYPE *crit)
+{
+   pthread_spin_lock(crit);
+}
+
+inline void try_crit(PEGASUS_CRIT_TYPE *crit)
+{
+   pthread_spin_trylock(crit);
+}
+
+inline void exit_crit(PEGASUS_CRIT_TYPE *crit)
+{
+   pthread_spin_unlock(crit);
+}
+
+inline void destroy_crit(PEGASUS_CRIT_TYPE *crit)
+{
+   pthread_spin_destroy(crit);
+}
+   
 //-----------------------------------------------------------------
 /// accurate version of gettimeofday for unix systems
 //  posix glibc implementation does not return microseconds.
@@ -60,9 +108,6 @@ static int pegasus_gettimeofday(struct timeval *tv)
 // If  pegasus_gettimeofday() does not compile, comment it 
 // out and uncomment the following line
 //static inline int pegasus_gettimeofday(struct timeval *tv) { return(gettimeofday(tv, NULL)); }
-
-
-   
 
 
 PEGASUS_THREAD_TYPE pegasus_thread_self(void) 
@@ -132,40 +177,55 @@ void Mutex::try_lock(PEGASUS_THREAD_TYPE caller) throw(Deadlock, AlreadyLocked, 
 
 // wait for milliseconds and throw an exception then return if the wait
 // expires without gaining the lock. Otherwise return without throwing an
-// exception. 
+// exception.
+
+// Note: I was unable to get the expected behavior using pthread_mutex_timedlock. 
+// I don't know excactly why, but the locks were never timing out. Reimplemting
+// using pthread_mutex_trylock works reliably. The documentation says that
+// pthread_mutex_timedlock works with error checking mutexes but works
+// just like pthread_mutex_lock (i.e., it never times out) with other
+// kinds of mutexes. I couldn't determine whether or not it actually
+// works with any type of mutex other than PTHREAD_MUTEX_TIMED_NP.
+// However, we want the mutexes to be error checking whenever possible
+// mdday Sun Aug  5 13:08:43 2001
+
+// pthread_mutex_timedlock is not supported on HUPX
+// mdday Sun Aug  5 14:12:22 2001
+
 void Mutex::timed_lock( Uint32 milliseconds , PEGASUS_THREAD_TYPE caller) 
    throw(Deadlock, TimeOut, WaitFailed)
 {
 
-   struct timeval now;
-   struct timespec timeout;
+   struct timeval start, now;
    int errorcode;
   
-//   gettimeofday(&now,NULL);
-   pegasus_gettimeofday(&now);
+   gettimeofday(&start,NULL);
+   start.tv_usec += (milliseconds * 1000);
    
-   timeout.tv_sec = now.tv_sec;
-   timeout.tv_nsec += now.tv_usec * 1000 + milliseconds; 
-   if(0 == (errorcode = pthread_mutex_timedlock(&_mutex.mut, &timeout)))
+   do 
    {
-      _mutex.owner = caller;
-      return;
-   }
-   else if (errorcode == ETIMEDOUT)
+      errorcode = pthread_mutex_trylock(&_mutex.mut);
+      gettimeofday(&now, NULL);
+   } while (errorcode == EBUSY && 
+	    now.tv_usec < start.tv_usec) ;
+
+   if (errorcode)
+   {
       throw(TimeOut(_mutex.owner));
-   else if (errorcode == EDEADLK)
-      throw(Deadlock(_mutex.owner));
-   else
-      throw(WaitFailed(_mutex.owner));
+   }
 }
 
 // unlock the mutex
 void Mutex::unlock() throw(Permission)
 {
-   if(0 != pthread_mutex_unlock(&_mutex.mut))
+   PEGASUS_THREAD_TYPE m_owner = _mutex.owner;
+   _mutex.owner = 0;
+   if(0 != pthread_mutex_unlock(&_mutex.mut)) 
+   {
+      _mutex.owner = m_owner;
       throw(Permission(_mutex.owner));
+   }
 }
-
 
 #ifdef PEGASUS_READWRITE_NATIVE 
 //-----------------------------------------------------------------
@@ -253,22 +313,27 @@ void ReadWriteSem::try_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller)
       throw(WaitFailed(pthread_self()));
 }
 
+
+// timedrdlock and timedwrlock are not supported on HPUX
+// mdday Sun Aug  5 14:21:00 2001
 void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milliseconds) 
    throw(TimeOut, Deadlock, Permission, WaitFailed, TooManyReaders)
 {
-   struct timeval now;
-   struct timespec timeout;
+   struct timeval start, now;
    int errorcode = 0;
 
-//   gettimeofday(&now,NULL);
-   pegasus_gettimeofday(&now);
-   timeout.tv_sec = now.tv_sec;
-   timeout.tv_nsec += now.tv_usec * 1000 + milliseconds; 
+   gettimeofday(&start, NULL);
+   start.tv_usec += (milliseconds * 1000)
    
    if (mode == PEG_SEM_READ)
    {
-      if(0 == (errorcode = pthread_rwlock_timedrdlock(&_rwlock.rwlock,
-						      &timeout)))
+      do
+      {
+	 errorcode = pthread_rwlock_tryrdlock(&_rwlock.rwlock);
+	 gettimeofday(&now, NULL);
+      }
+      while (errorcode == EBUSY && now.tv_used < start.tv_used);
+      if(0 == errorcode)
       {
 	 _readers++;
 	 return;
@@ -276,8 +341,14 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
    }
    else if (mode == PEG_SEM_WRITE)
    {
-      if(0 == (errorcode = pthread_rwlock_timedwrlock(&_rwlock.rwlock,
-						      &timeout)))
+      do
+      {
+	 errorcode = pthread_rwlock_trywrlock(&_rwlock.rwlock);
+	 gettimeofday(&now, NULL);
+      }
+      while(errorcode == EBUSY && now.tv_used < start.tv_used)
+
+      if(0 == errorcode)
       {
 	 _writers++;
 	 _rwlock.owner = caller;
@@ -286,7 +357,6 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
    }
    else
       throw(Permission(pthread_self()));
-
    if (errorcode == ETIMEDOUT)
       throw(TimeOut(_rwlock.owner));
    else if (errorcode == EDEADLK)
@@ -297,11 +367,21 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 
 void ReadWriteSem::unlock(Uint32 mode, PEGASUS_THREAD_TYPE caller) throw(Permission)
 {
+   PEGASUS_THREAD_TYPE owner;
+
+   if (mode == PEG_SEM_WRITE)
+   {
+      owner = _rwlock.owner;
+      _rwlock.owner = 0;
+   }
    if(0 != pthread_rwlock_unlock(&_rwlock.rwlock))
+   {
+      _rwlock.owner = owner;
       throw(Permission(pthread_self()));
+   }
    if(mode == PEG_SEM_READ)
       _readers--;
-   else if (mode == PEG_SEM_WRITE)
+   else 
       _writers--;
 }
 
@@ -338,6 +418,25 @@ int ReadWriteSem::write_count()
 
 #ifdef PEGASUS_CONDITIONAL_NATIVE
 
+
+// Note: I felt uncomfortable exposing the condition mutex outside
+// of the class so I defined method calls to lock and unlock the 
+// mutex object. This protects the (hidden) conditional mutex from
+// being called outside of the control of the object.
+
+// Further, the use model of conditions seems to require locking the object, 
+// examining the state of the condition variable while that variable is 
+// protected from other threads, and then determining whether to signal or
+//    wait on the condition variable. Then afterwards explicitly unlocking
+// the condition object. 
+
+// So I commented out the method calls that do all three operations 
+// without examining the state of the condition variable. 
+// i.e., lock, signal, unlock or lock, wait, unlock. 
+
+//    The method calls I commented out are: wait, signal, time_wait.
+// mdday Sun Aug  5 13:19:30 2001
+
 /// Conditions are implemented as process-wide condition variables
 Condition::Condition() 
 {
@@ -355,7 +454,6 @@ Condition::Condition()
 #else
    _condition = (PEGASUS_COND_TYPE) PTHREAD_COND_INITIALIZER;
 #endif
-   _owner = 0;
 }
 
 Condition::~Condition()
@@ -370,48 +468,55 @@ Condition::~Condition()
 }
 
 // block until this semaphore is in a signalled state 
-void Condition::wait(PEGASUS_THREAD_TYPE caller) throw(Deadlock, WaitFailed)
-{
-   try { _cond_mutex.lock(caller); }
-   catch(...) { throw; }
+// void Condition::wait(PEGASUS_THREAD_TYPE caller) throw(Deadlock, WaitFailed)
+// {
+//    try { _cond_mutex.lock(caller); }
+//    catch(...) { throw; }
 
-   pthread_cond_wait(&_condition, &_cond_mutex._mutex.mut);
-   _cond_mutex.unlock();
-}
+//    pthread_cond_wait(&_condition, &_cond_mutex._mutex.mut);
+//    _cond_mutex.unlock();
+// }
 
-void Condition::signal(PEGASUS_THREAD_TYPE caller) throw(Deadlock, WaitFailed)
-{
-   try { _cond_mutex.lock(caller); }
-   catch(...) { throw; }
+void Condition::signal(PEGASUS_THREAD_TYPE caller) 
+   throw(Deadlock, WaitFailed, Permission) 
+{ 
+   try 
+   { 
+      _cond_mutex.lock(caller); 
+   }
+   catch(...) 
+   { throw; 
+   } 
    pthread_cond_broadcast(&_condition);
-   _cond_mutex.unlock();
+   _cond_mutex.unlock(); 
 }
 
 // wait for milliseconds and throw an exception
 // if wait times out without gaining the semaphore
-void Condition::time_wait( Uint32 milliseconds, PEGASUS_THREAD_TYPE caller ) throw(TimeOut, Deadlock, WaitFailed)
-{
-   struct timeval now;
-   struct timespec timeout;
-   int retcode;
+// void Condition::time_wait( Uint32 milliseconds, PEGASUS_THREAD_TYPE caller ) throw(TimeOut, Deadlock, WaitFailed)
+// {
+//    struct timeval now;
+//    struct timespec timeout;
+//    int retcode;
 
-   try { _cond_mutex.lock(caller); }
-   catch(...) { throw; }
-   do 
-   { 
-//      gettimeofday(&now,NULL);
-      pegasus_gettimeofday(&now);
-      timeout.tv_sec = now.tv_sec;
-      timeout.tv_nsec += now.tv_usec * 1000 + milliseconds; 
-      retcode = pthread_cond_timedwait(&_condition, &_cond_mutex._mutex.mut, &timeout);
-   } while( retcode == EINTR ) ;
+//    try { _cond_mutex.lock(caller); }
+//    catch(...) { throw; }
+//    do 
+//    { 
+// //      gettimeofday(&now,NULL);
+//       pegasus_gettimeofday(&now);
+//       timeout.tv_sec = now.tv_sec;
+//       timeout.tv_nsec += now.tv_usec * 1000 + milliseconds; 
+//       retcode = pthread_cond_timedwait(&_condition, &_cond_mutex._mutex.mut, &timeout);
+//    } while( retcode == EINTR ) ;
     
-   _cond_mutex.unlock();
-   if( retcode)
-      throw(TimeOut(caller)) ;
-}
+//    _cond_mutex.unlock();
+//    if( retcode)
+//       throw(TimeOut(caller)) ;
+// }
 
 void Condition::unlocked_signal(PEGASUS_THREAD_TYPE caller) 
+   throw(Permission)
 {
    pthread_cond_broadcast(&_condition);
 }
@@ -443,30 +548,26 @@ void Condition::unlock_object(void)
 
 // block until this semaphore is in a signalled state 
 void Condition::unlocked_wait(PEGASUS_THREAD_TYPE caller) 
+   throw(Permission)
 {
    pthread_cond_wait(&_condition, &_cond_mutex._mutex.mut);
 }
 
 // block until this semaphore is in a signalled state 
-void Condition::unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE caller) throw(TimeOut)
+void Condition::unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE caller) 
+   throw(TimeOut, Permission)
 {
    struct timeval now;
-   struct timespec timeout;
    int retcode;
-  
+   gettimeofday(&now, NULL);
+   now.tv_usec += (milliseconds * 1000);
    do
    {
-//      gettimeofday(&now,NULL);
-      pegasus_gettimeofday(&now);
-      timeout.tv_sec = now.tv_sec;
-      timeout.tv_nsec += now.tv_usec * 1000 + milliseconds; 
-      retcode = pthread_cond_timedwait(&_condition, &_cond_mutex._mutex.mut, &timeout) ;
+      retcode = pthread_cond_timedwait(&_condition, &_cond_mutex._mutex.mut, (struct timespec *)&now) ;
    } while ( retcode == EINTR ) ;
    if(retcode)
       throw(TimeOut(caller));
 }
-
-
 
 #endif
 //-----------------------------------------------------------------
@@ -505,22 +606,29 @@ void Semaphore::try_wait(void) throw(WaitFailed)
       throw(WaitFailed(_semaphore.owner));
 }
 
+
+// Note: I could not get sem_timed_wait to work reliably. 
+// See my comments above on mut timed_wait. 
+// I reimplemented using try_wait, which works reliably. 
+// mdd Sun Aug  5 13:25:31 2001
+
 // wait for milliseconds and throw an exception
 // if wait times out without gaining the semaphore
 void Semaphore::time_wait( Uint32 milliseconds ) throw(TimeOut)
 {
-   struct timeval now;
-   struct timespec timeout;
+   struct timeval start, now;
    int retcode;
-  
-   do
+   gettimeofday(&start,NULL);
+   start.tv_usec += (milliseconds * 1000);
+   
+   do 
    {
-//      gettimeofday(&now,NULL);
-      pegasus_gettimeofday(&now);
-      timeout.tv_sec = now.tv_sec;
-      timeout.tv_nsec += now.tv_usec * 1000 + milliseconds; 
-      retcode = sem_timedwait(&_semaphore.sem, &timeout);
-   } while (retcode != EINTR) ;
+      retcode = sem_trywait(&_semaphore.sem);
+      gettimeofday(&now, NULL);
+   } while (retcode == -1 && 
+	    errno == EAGAIN &&
+	    now.tv_usec < start.tv_usec) ;
+   
    if(retcode)
       throw(TimeOut(_semaphore.owner));
 }

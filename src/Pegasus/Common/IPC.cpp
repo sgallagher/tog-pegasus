@@ -46,17 +46,10 @@ const Uint32 PEG_SEM_WRITE = 2 ;
 //-----------------------------------------------------------------
 #ifndef PEGASUS_READWRITE_NATIVE 
 
-ReadWriteSem::ReadWriteSem(void) : _readers(0), _writers(0)
-{
-   _rwlock._internal_lock = Mutex();
-    _rwlock._wlock = Mutex();
-   _rwlock._rlock= Semaphore(10); // allow 10 concurrent readers 
-   _rwlock._owner = pegasus_thread_self();
-}
+ReadWriteSem::ReadWriteSem(void) : _readers(0), _writers(0), _rwlock() {}
 
 ReadWriteSem::~ReadWriteSem(void)
 {
-   
    // lock everyone out of this object
    try 
    {
@@ -75,10 +68,7 @@ ReadWriteSem::~ReadWriteSem(void)
    {
       pegasus_yield();
    }
-   _rwlock._wlock.~Mutex();
-   _rwlock._rlock.~Semaphore();
    _rwlock._internal_lock.unlock();
-   _rwlock._internal_lock.~Mutex();
 }
 
 //-----------------------------------------------------------------
@@ -214,12 +204,16 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	 
 	 while(_writers > 0)
 	 {
-	    if((now.tv_usec - start.tv_usec) > (1000 * milliseconds))
+	    if((now.tv_sec > start.tv_sec)) 
 	    {
-	       _rwlock._internal_lock.unlock();
-	       throw(TimeOut(pegasus_thread_self()));
+	       if((now.tv_usec - start.tv_usec) > (1000 * milliseconds))
+	       {
+		  _rwlock._internal_lock.unlock();
+		  throw(TimeOut(pegasus_thread_self()));
+	       }
 	    }
 	    pegasus_yield();
+	    pegasus_gettimeofday(&now);
 	 }
       }
       
@@ -245,8 +239,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
       else if(milliseconds == -1) // infinite wait
       {
 	 _rwlock._rlock.wait(); // does not throw an exception
-      }
-      else // timed wait
+      }      else // timed wait
       {
 	 try 
 	 {
@@ -453,6 +446,161 @@ AtomicInt& AtomicInt::operator-=(Uint32 val)
 #ifndef PEGASUS_CONDITIONAL_NATIVE
 
 
+// may be entered by many different threads concurrently
+// ensure that, upon exit, I OWN the mutex 
+// and I DO NOT own the critical section
+
+void extricate_condition(void *parm)
+{
+
+   // if I own the critical section, release it
+
+
+   // if I DO NOT own the mutex, obtain it
+
+}
+
+Condition::Condition(void) : _disallow(0), _condition(), _cond_mutex() { } 
+
+Condition::~Condition(void)
+{
+   struct internal_dq<cond_waiter> *lingerers;
+   // don't allow any new waiters
+   _disallow = 1;
+// lock the internal mutex
+   _condition._spin.lock(pegasus_thread_self());
+   lingerers = _condition._waiters._next;
+   while( lingerers->_isHead == false)
+   {
+      lingerers->_rep->signalled.signal();
+      lingerers = lingerers->_next;
+   }
+   _condition._spin.unlock();
+   _condition._spin.~Mutex();
+   while( _condition._waiters._count) 
+   {
+      pegasus_yield();
+   }
+   _cond_mutex.~Mutex();
+}
+
+void Condition::signal(PEGASUS_THREAD_TYPE caller)
+   throw(Deadlock, WaitFailed, Permission)
+{
+   try 
+   {
+      lock_object(caller);
+   }
+   catch(...)
+   {
+      throw;
+   }
+   try
+   {
+      unlocked_signal(caller);
+   }
+   catch(...)
+   {
+      unlock_object();
+      throw;
+   } 
+   unlock_object();
+}
+
+void Condition::lock_object(PEGASUS_THREAD_TYPE caller) 
+   throw(Deadlock, WaitFailed)
+{
+   _cond_mutex.lock(caller);
+}
+
+void Condition::try_lock_object(PEGASUS_THREAD_TYPE caller)
+   throw(Deadlock, AlreadyLocked, WaitFailed)
+{
+   _cond_mutex.try_lock(caller);
+}
+
+void Condition::wait_lock_object(PEGASUS_THREAD_TYPE caller, int milliseconds)
+   throw(Deadlock, TimeOut, WaitFailed)
+{
+   _cond_mutex.timed_lock(milliseconds, caller);
+   
+}
+
+void Condition::unlock_object(void)
+{
+   _cond_mutex.unlock();
+}
+
+void Condition::unlocked_wait(PEGASUS_THREAD_TYPE caller) 
+	 throw(Permission)
+{
+   unlocked_timed_wait(-1, caller);
+}
+
+void Condition::unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE caller) 
+   throw(TimeOut, Permission)
+{
+
+   if(_disallow == 1)
+      throw(TimeOut(caller));
+   // enforce that the caller owns the conditional lock
+   if(_cond_mutex._mutex.owner != caller)
+      throw(Permission(caller));
+   cond_waiter *waiter = new cond_waiter(caller, milliseconds);
+   // lock the internal list
+   _condition._spin.lock(caller);
+   _condition._waiters.insert_first(waiter);
+   // unlock the condition mutex 
+   _cond_mutex.unlock();
+   _condition._spin.unlock();
+   try 
+   {
+      if(milliseconds == -1)
+	 waiter->signalled.wait();
+      else
+	 waiter->signalled.time_wait(milliseconds);
+   }
+   catch(IPCException& e)
+   {
+      _condition._spin.lock(caller);
+      _condition._waiters.remove(waiter);
+      _condition._spin.unlock();
+      delete waiter;
+      _cond_mutex.lock(caller);
+      throw;
+   }
+   _condition._spin.lock(caller);
+   _condition._waiters.remove(waiter);
+   _condition._spin.unlock();
+   delete waiter;
+   _cond_mutex.lock(caller);
+   return;
+}
+
+void Condition::unlocked_signal(PEGASUS_THREAD_TYPE caller)
+   throw(Permission)
+{
+   if(_disallow == 1)
+      return;
+   
+   // enforce that the caller owns the conditional lock
+   if(_cond_mutex._mutex.owner != caller)
+      throw(Permission(caller));
+
+   // lock the internal list
+   _condition._spin.lock(caller);
+   if (_condition._waiters.count() > 0) 
+   {
+      internal_dq<cond_waiter> *waiters = _condition._waiters._next;
+      while( waiters->_isHead == false) 
+      {
+	 waiters->_rep->signalled.signal();
+	 waiters = waiters->_next;
+      }
+   }
+   _condition._spin.unlock();
+}
+
 
 #endif // PEGASUS_CONDITIONAL_NATIVE
 //-----------------------------------------------------------------
@@ -460,67 +608,3 @@ AtomicInt& AtomicInt::operator-=(Uint32 val)
 //-----------------------------------------------------------------
 
 PEGASUS_NAMESPACE_END
-
-// waiter: 
-// get the mutex
-// conditioned wait (releases the mutex)
-
-// signaler:
-// get the mutex (check for deadlock)
-// signal the resource 
-// release the mutex 
-
-
-//   Consider two shared variables X and Y, protected by the mutex MUT,
-// and a condition variable COND that is to be signaled whenever X becomes
-// greater than Y.
-//
-//      int x,y;
-//      pthread_mutex_t mut = PTHREAD_MUTEX_INITIALIZER;
-//      pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
-//
-//    Waiting until X is greater than Y is performed as follows:
-//
-//      pthread_mutex_lock(&mut);
-//      while (x <= y) {
-//              pthread_cond_wait(&cond, &mut);
-//      }
-//      /* operate on x and y */
-//      pthread_mutex_unlock(&mut);
-//
-//    Modifications on X and Y that may cause X to become greater than Y
-// should signal the condition if needed:
-//
-//      pthread_mutex_lock(&mut);
-//      /* modify x and y */
-//      if (x > y) pthread_cond_broadcast(&cond);
-//      pthread_mutex_unlock(&mut);
-//
-//    If it can be proved that at most one waiting thread needs to be waken
-// up (for instance, if there are only two threads communicating through X
-// and Y), `pthread_cond_signal' can be used as a slightly more efficient
-// alternative to `pthread_cond_broadcast'. In doubt, use
-// `pthread_cond_broadcast'.
-//
-//    To wait for X to becomes greater than Y with a timeout of 5 seconds,
-// do:
-//
-//      struct timeval now;
-//      struct timespec timeout;
-//      int retcode;
-//     
-//      pthread_mutex_lock(&mut);
-//      gettimeofday(&now);
-//      timeout.tv_sec = now.tv_sec + 5;
-//      timeout.tv_nsec = now.tv_usec * 1000;
-//      retcode = 0;
-//      while (x <= y && retcode != ETIMEDOUT) {
-//              retcode = pthread_cond_timedwait(&cond, &mut, &timeout);
-//      }
-//      if (retcode == ETIMEDOUT) {
-//              /* timeout occurred */
-//      } else {
-//              /* operate on x and y */
-//      }
-//      pthread_mutex_unlock(&mut);
-//

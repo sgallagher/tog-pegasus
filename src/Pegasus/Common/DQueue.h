@@ -29,9 +29,6 @@
 #ifndef Pegasus_DQueue_h
 #define Pegasus_DQueue_h
 
-
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/IPC.h>
 PEGASUS_NAMESPACE_BEGIN
 
 extern const int PEG_DQUEUE_FIRST;
@@ -100,7 +97,7 @@ template<class L> class PEGASUS_EXPORT DQueue {
 
    public:
     
-      DQueue(Boolean head = true) :  _rep(NULL), _isHead(head), _count(0) 
+      DQueue(Boolean head = true) :  _rep(NULL), _isHead(head), _count(0), _mutex()
       { 
 	 _next = this; 
 	 _prev = this; 
@@ -121,8 +118,6 @@ template<class L> class PEGASUS_EXPORT DQueue {
 	 catch(...) { delete ins; throw; }
       }
 
-      // ATTN - Was this a mistake? 
-      // yes, it was. thanks Roger! - Wed Aug  1 09:30:32 2001
       void insert_last(L *element) throw(IPCException)
       {
 	 DQueue *ins = new DQueue(false);
@@ -160,7 +155,7 @@ template<class L> class PEGASUS_EXPORT DQueue {
 	    _mutex.lock(pegasus_thread_self());
 	    DQueue *temp = _next;
 	    while ( temp->_isHead == false ) {
-	       if( temp->_rep->operator==( key ) ) {
+	       if( temp->_rep == key ) {
 		  temp->unlink();
 		  ret = temp->_rep;
 		  temp->_rep = NULL;

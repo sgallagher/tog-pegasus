@@ -100,7 +100,7 @@ prestarttests:
 	$(MAKE) -f Makefile repository
 	$(MAKE) -f Makefile testrepository
 	$(MAKE) -f Makefile tests
-	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Server -f Makefile install
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Server -f Makefile install_run
 
 poststarttests:
 	$(MAKE) --directory=$(PEGASUS_ROOT)/test/wetest -f Makefile clean

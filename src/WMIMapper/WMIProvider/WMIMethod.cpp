@@ -277,12 +277,19 @@ WMIMethod::WMIMethod(const BSTR & name,
 
 // modified to correct bug JAGaf25827  
 // JAGaf25827 - new code begin
-	HRESULT hr = outParameters->Get(
-		propertyName,  
-		0, 
-		&vValue, 
-		&returnValueType, 
-		NULL);
+	if (outParameters)
+	{
+		hr = outParameters->Get(
+			propertyName,  
+			0, 
+			&vValue, 
+			&returnValueType, 
+			NULL);
+	}
+	else
+	{
+		hr = WBEM_E_NOT_FOUND;
+	}
 
 	//	not found. Maybe it is a 'void' return value
 	if (hr == WBEM_E_NOT_FOUND) {

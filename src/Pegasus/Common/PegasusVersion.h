@@ -44,8 +44,8 @@ PEGASUS_NAMESPACE_BEGIN
 # include <Pegasus/Common/ProductVersion.h>
 #else
 # define PEGASUS_PRODUCT_NAME    "CIM Server"
-# define PEGASUS_PRODUCT_VERSION "2.4"
-# define PEGASUS_PRODUCT_STATUS  ""
+# define PEGASUS_PRODUCT_VERSION "2.5"
+# define PEGASUS_PRODUCT_STATUS  "Experimental"
 #endif
 
 PEGASUS_NAMESPACE_END

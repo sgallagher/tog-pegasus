@@ -41,6 +41,8 @@ namespace
 	 return;
       switch(type)
       {
+	 case UNDEFINED:
+	    break;
 	 case CIM_CLASS:
 	    delete static_cast<ResponseHandler<CIMClass> *>(handler);
 	    break;
@@ -72,7 +74,7 @@ PEGASUS_NAMESPACE_BEGIN
 AsyncOpNodeLocal::AsyncOpNodeLocal(void) 
    : _mut(), _request(0), _response(0), _req_ctx(0), 
      _proc_ctx(0), _comp_ctx(0), _state(0), _flags(0),
-     _responseHandler(0), _parents(true), _children(true)
+     _responseHandler(0), _parent(0), _children(true)
 {
    memset(&_start, 0x00, sizeof(struct timeval));
    memset(&_lifetime, 0x00, sizeof(struct timeval));
@@ -82,24 +84,60 @@ AsyncOpNodeLocal::AsyncOpNodeLocal(void)
 
 AsyncOpNodeLocal::~AsyncOpNodeLocal(void)
 {
-   // move to reset
-   
+   reset();
+   delete_rh(_responseHandler, _rh_type);
+}
+
+virtual void AsyncOpNodeLocal::reset(void) throw(IPCException)
+{
    delete _request;
    delete _response;
    delete _req_ctx;
    delete _proc_ctx;
    delete _comp_ctx;
-   // ATTN:
-   delete_rh(void *handler, Uint32 message_type);
-   _parents.empty_list();
    _children.empty_list();
 }
 
-
-virtual void AsyncOpNodeLocal::reset(void) throw(IPCException)
+virtual inline Boolean AsyncOpNodeLocal::operator == (const void *key) const
 {
-
+   if (key == (void *)this)
+      return true;
+   return false;
 }
+
+virtual inline Boolean AsyncOpNodeLocal::operator == (const AsyncOpNode & node) const
+{
+   return AsyncOpNodeLocal::operator==((const void *)&node);
+}
+
+
+// notifications should only come from children 
+virtual void AsyncOpNodeLocal::notify(void *key, 
+				      const OperationContext& context,
+				      const Uint32 flag, 
+				      const Uint32 state,
+				      const ResponseHandlerType type)
+   throw(IPCException)
+{
+   if( ! _children.count() )
+      return;
+   if(flag & AsyncOpFlags::COMPLETE)
+   {
+      ;
+   }
+   if(flag & AsyncOpFlags::INDICATION)
+   {
+      ;
+   }
+   
+   if(flag & AsyncOpFlags::DELIVER)
+   {
+      ;
+   }
+   
+   return;
+}
+
 
 
 inline virtual void AsyncOpNodeLocal::put_req_context(OperationContext *context) 
@@ -238,7 +276,6 @@ virtual Boolean AsyncOpNodeLocal::check_lifetime(struct timeval *dst) const
    return true;
 }
 
-            
 inline virtual void AsyncOpNodeLocal::lock(void)  
    throw(IPCException) 
 {
@@ -248,14 +285,44 @@ inline virtual void AsyncOpNodeLocal::lock(void)
 inline virtual void AsyncOpNodeLocal::unlock(void) 
    throw(IPCException) 
 {
-   _mut.unlock(pegasus_thread_self());
+   _mut.unlock();
 }
 
 inline virtual void AsyncOpNodeLocal::check_owner(void) throw(IPCException)
 {
    if(_mut.get_owner() != pegasus_thread_self())
-      throw(Permission);
+      throw Permission();
    return;
+}
+
+inline virtual AsyncOpNodeLocal::ResponseHandlerType get_rh_type(void) 
+   throw(IPCException)
+{
+   check_owner();
+   return _rh_type;
+}
+
+
+inline void AsyncOpNodeLocal::_adopt_child(AsyncOpNodeLocal *child) 
+   throw(IPCException)
+{
+   if(child == NULL)
+      throw NullPointer();
+   if(true == child->is_child())
+      throw Permission(pegasus_thread_self());
+   child->_parent = this;
+   _children.insert_last(child);
+}
+
+      
+inline void AsyncOpNodeLocal::_disown_child(AsyncOpNodeLocal *child)
+{
+   if(child == NULL)
+      throw NullPointer();
+   if( false == child->is_child() || false == child->is_my_child(this))
+      throw Permission(pegasus_thread_self);
+   child->make_orphan(this);
+   _children.remove(child);
 }
 
 

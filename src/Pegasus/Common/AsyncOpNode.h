@@ -66,6 +66,7 @@ class PEGASUS_COMMON_LINKAGE AsyncOpState
 
 enum ResponseHandlerType 
 {
+   UNDEFINED,
    CIM_CLASS,
    CIM_INSTANCE,
    CIM_OBJECT,
@@ -92,23 +93,10 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
 
       // clear the node so it can be reused
       virtual void reset(void) throw(IPCException) = 0;
-      virtual void operator == (const void *key) const = 0;
-      virtual void operator == (const AsyncOpNode & node) const = 0;
-      virtual Uint32 timeout(void) throw(IPCException) = 0;
+      virtual Boolean  operator == (const void *key) const = 0;
+      virtual Boolean operator == (const AsyncOpNode & node) const = 0;
+      virtual Boolean timeout(void) throw(IPCException) = 0;
 
-      virtual void enqueue_as_child(AsyncOpNode *parent) throw(IPCException) = 0;
-      virtual void enqueue_child(AsyncOpNode *child) throw(IPCException) = 0;
-      virtual void enqueue_as_sibling(DQueue<AsyncOpNode> list) throw (IPCException) = 0;
-      virtual void make_parent(DQueue<AsyncOpNode> child_list) throw(IPCException) = 0;
-      
-      virtual void notify_parents(void *key, 
-				  const OperationContext& context, 
-				  const Uint32 flag, 
-				  const Uint32 state) throw(IPCException) = 0;
-      virtual void notify_children(void *key, 
-				   const OperationContext& context, 
-				   const Uint32 flag, 
-				   const Uint32 state) throw(IPCException) = 0;
       virtual void notify(void *key,
 			  const OperationContext& context,
 			  const Uint32 flag,
@@ -144,8 +132,11 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
       virtual void lock(void)  throw(IPCException) = 0;
       virtual void unlock(void) throw(IPCException) = 0;
       virtual void check_owner(void) throw(IPCException) = 0;
-      
-      virtual get_rh_type(void)
+      virtual ResponseHandlerType get_rh_type(void) = 0;
+      virtual Boolean is_child(void) = 0;
+      virtual Uint32 is_parent(void) = 0; 
+      virtual Boolean is_my_child(AsyncOpNode *myself) = 0;
+      virtual void make_orphan( AsyncOpNode *parent) = 0;
 };
 
 PEGASUS_NAMESPACE_END

@@ -653,7 +653,7 @@ const Boolean CIMReference::equalClassName(const String& classname) const
 	return (String::equalNoCase(classname, CIMReference::getClassName()));
 }
 
-void CIMReference::setClassName(const String& className)
+void CIMReference::setClassName(const String& className)  throw(IllegalName)
 {
     if (!CIMName::legal(className))
 	throw IllegalName();

@@ -10,6 +10,12 @@
 
     ------------------------------------------------------------------------
 
+    -  	Change getLength() to length() or size()?
+
+    -  	Change find<Object> to find<Object>ByIndex().
+
+    -	Need get by name.
+
     Now:
 
     -	Add convenience functions: addProperty().

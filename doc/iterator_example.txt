@@ -1,0 +1,47 @@
+			  Iterator "Study"
+
+
+    -------------------------------------------------------------------------
+    Prsent Scheme
+    -------------------------------------------------------------------------
+
+    CIMClass c;
+
+    for (Uint32 i = 0; i < c.getNuProperties(); i++)
+    {
+	CIMProperty p = c.getProperty(i);
+    }
+
+    -------------------------------------------------------------------------
+    Scheme #1 (dependent iterator)
+    -------------------------------------------------------------------------
+
+    CIMClass c;
+
+    for (CIMProperty::Iterator i = c.firstProperty(); c.more(i); c.next(i))
+    {
+	CIMProperty p = i.current(i);
+    }
+
+    -------------------------------------------------------------------------
+    Scheme #2 (independent iterator)
+    -------------------------------------------------------------------------
+
+    CIMClass c;
+
+    for (CIMClass::Iterator i = c.getProperties(); i.more(); i.next())
+    {
+	Property p = i.current();
+    }
+
+    -------------------------------------------------------------------------
+    Scheme #3 (independent iterator with operator overloading trickery)
+    -------------------------------------------------------------------------
+
+    CIMClass c;
+
+    for (CIMClass::Iterator i = c.getProperties(); i; i++)
+    {
+	Property p = *i;
+    }
+

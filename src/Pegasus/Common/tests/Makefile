@@ -17,6 +17,7 @@ DIRS = \
     Flavor \
     InstanceDecl \
     IPC \
+    MessageSerializer \
     Method \
     Object \
     Parameter \

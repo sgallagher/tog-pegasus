@@ -112,7 +112,7 @@ public:
 	}
     }
 
-    const String messageId;
+    String messageId;
     ContentLanguages contentLanguages;
     AcceptLanguages acceptLanguages;
 };

@@ -15,6 +15,8 @@ LOCAL_DEFINES = -DPEGASUS_COMMON_INTERNAL -DPEGASUS_INTERNALONLY
 LIBRARY = pegcommon
 
 SOURCES = \
+    CIMMessageSerializer.cpp \
+    CIMMessageDeserializer.cpp \
     Array.cpp \
     AsyncOpNode.cpp \
     AuthenticationInfoRep.cpp \

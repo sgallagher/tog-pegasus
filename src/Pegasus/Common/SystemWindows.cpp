@@ -66,12 +66,12 @@ void System::getCurrentTime(Uint32& seconds, Uint32& milliseconds)
 String System::getCurrentASCIITime()
 {
     char tmpbuf[128];
-    _strtime( tmpbuf );
-    String time = tmpbuf;
     _strdate( tmpbuf );
-    time.append("-");
-    time.append(tmpbuf);
-    return time;
+    String date = tmpbuf;
+    _strtime( tmpbuf );
+    date.append("-");
+    date.append(tmpbuf);
+    return date;
 }
 
 void System::sleep(Uint32 seconds)

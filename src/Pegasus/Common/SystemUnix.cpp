@@ -372,10 +372,10 @@ String System::getHostName()
     if (!*hostname)
         gethostname(hostname, sizeof(hostname));
 
-#ifdef PEGASUS_PLATFORM_AIX_RS_IBMCXX
+    // (temporary?) fix for problem of object path creation with
+    // fully-qualified hostname
     char *dot = strchr(hostname, '.');
     if (dot != NULL) *dot = '\0';
-#endif
 
     return hostname;
 }

@@ -309,11 +309,12 @@ void LocalizedProvider::getInstance(
 	// to be returned in the response.
 	AcceptLanguages clientAcceptLangs = getRequestAcceptLanguages(context);
 
-    CIMObjectPath localReference(
-        String(),
-        instanceReference.getNameSpace(),
-        instanceReference.getClassName(),
-        instanceReference.getKeyBindings());
+    CIMObjectPath localReference =
+        CIMObjectPath(
+            String(),
+            instanceReference.getNameSpace(),
+            instanceReference.getClassName(),
+            instanceReference.getKeyBindings());
 
     CIMInstance foundInstance;
     ContentLanguages foundLang;
@@ -470,10 +471,10 @@ void LocalizedProvider::enumerateInstances(
                }
 
                // deliver instance
-	       CIMObjectPath localReference = buildRefFromInstance(foundInstances[j]);
-	       foundInstances[j].setPath(localReference);
+               CIMObjectPath localReference = buildRefFromInstance(foundInstances[j]);
+               foundInstances[j].setPath(localReference);
 
-           handler.deliver(foundInstances[j]);
+               handler.deliver(foundInstances[j]);
             }  // end for
 
             // Set the aggregated content language into the response
@@ -519,11 +520,12 @@ void LocalizedProvider::modifyInstance(
     const CIMPropertyList & propertyList,
     ResponseHandler & handler)
 {
-    CIMObjectPath localReference(
-        String(),
-        instanceReference.getNameSpace(),
-        instanceReference.getClassName(),
-        instanceReference.getKeyBindings());
+    CIMObjectPath localReference =
+        CIMObjectPath(
+            String(),
+            instanceReference.getNameSpace(),
+            instanceReference.getClassName(),
+            instanceReference.getKeyBindings());
 
     if(localReference.getKeyBindings().size() == 0)
     {
@@ -592,11 +594,12 @@ void LocalizedProvider::createInstance(
     const CIMInstance & instanceObject,
     ObjectPathResponseHandler & handler)
 {
-    CIMObjectPath localReference(
-        String(),
-        instanceReference.getNameSpace(),
-        instanceReference.getClassName(),
-        instanceReference.getKeyBindings());
+    CIMObjectPath localReference =
+        CIMObjectPath(
+            String(),
+            instanceReference.getNameSpace(),
+            instanceReference.getClassName(),
+            instanceReference.getKeyBindings());
 
     if(localReference.getKeyBindings().size() == 0)
     {
@@ -609,29 +612,28 @@ void LocalizedProvider::createInstance(
         throw CIMOperationFailedException("cannot determine instance name.");
     }
 
+    {
+        AutoMutex autoMut(mutex);
+
+        // instance index corresponds to reference index
+        for(Uint32 i = 0, n = _instanceNames.size(); i < n; i++)
         {
-           AutoMutex autoMut(mutex);
+            if(localReference == _instanceNames[i])
+            {
+                // Note: Since localReference is a CIMObjectPath,
+                // and that is our "message" here, no need to
+                // to localize.
+                throw CIMObjectAlreadyExistsException(localReference.toString());
+            }
+        }
 
-	   // instance index corresponds to reference index
-	   for(Uint32 i = 0, n = _instanceNames.size(); i < n; i++)
-	   {
-		if(localReference == _instanceNames[i])
-		{
-			// Note: Since localReference is a CIMObjectPath,
-			// and that is our "message" here, no need to
-			// to localize.
-			throw CIMObjectAlreadyExistsException(
-                                  localReference.toString());
-		}
-	   }
+        // begin processing the request
+        handler.processing();
 
-	   // begin processing the request
-	   handler.processing();
-
-           // We expect the client to send us specific values in the
-	   // round trip string and char16 properties.
-           // This is to test that the Unicode characters got to us properly.
-           // (Note: this call can throw an exception)
+        // We expect the client to send us specific values in the
+        // round trip string and char16 properties.
+        // This is to test that the Unicode characters got to us properly.
+        // (Note: this call can throw an exception)
 	   _checkRoundTripString(context, instanceObject);
 
        // update the object's path
@@ -654,7 +656,7 @@ void LocalizedProvider::createInstance(
 
 	   // deliver the new instance
 	   handler.deliver(_instanceNames[_instanceNames.size() - 1]);
-        }  // mutex unlocks here
+    }  // mutex unlocks here
 
 	// complete processing the request
 	handler.complete();
@@ -667,11 +669,12 @@ void LocalizedProvider::deleteInstance(
 {
 	// We're not going to support this for instances 0, 1, or 2
 
-    CIMObjectPath localReference(
-        String(),
-        instanceReference.getNameSpace(),
-        instanceReference.getClassName(),
-        instanceReference.getKeyBindings());
+    CIMObjectPath localReference =
+        CIMObjectPath(
+            String(),
+            instanceReference.getNameSpace(),
+            instanceReference.getClassName(),
+            instanceReference.getKeyBindings());
 
     {
         AutoMutex autoMut(mutex);

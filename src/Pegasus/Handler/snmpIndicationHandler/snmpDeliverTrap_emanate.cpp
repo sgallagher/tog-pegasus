@@ -103,18 +103,33 @@ void snmpDeliverTrap_emanate::deliverTrap(
     Array<String>& vbTypes,
     Array<String>& vbValues)
 {
-    initialize();
-
-    //void*   newValue;
-    OctetString*   newValue;
-    char*   entV2Trap;
-    int	    vb_link_flag = 0;
+    OctetString*    newValue;
 
     VarBind *vb = NULL;
     VarBind *vb2 = NULL;
     VarBind *vb3 = NULL;
     
     OID	    *object = NULL;
+
+    // Initializing with Master agent
+    initialize();
+
+    // TRAP OID: getting trapOid
+    char* _trapOid = trapOid.allocateCString();
+    OID *sendtrapOid = MakeOIDFromDot(_trapOid);
+
+    // Destination : converting destination into Transport
+    char* trap_dest = destination.allocateCString();
+    TransportInfo   global_ti;
+    global_ti.type = SR_IP_TRANSPORT;
+    global_ti.t_ipAddr = inet_addr(trap_dest);
+    global_ti.t_ipPort = htons((unsigned short)GetSNMPTrapPort());
+    delete [] trap_dest;
+
+    // Community Name
+    char* _community = community.allocateCString();
+    OctetString* community_name = MakeOctetStringFromText(_community);
+    delete [] _community;
 
     // getting IP address of the host
     char* hostname = System::getHostName().allocateCString();
@@ -125,15 +140,8 @@ void snmpDeliverTrap_emanate::deliverTrap(
     p = hp->h_addr_list;
     (void)memcpy(&in.s_addr, *p, sizeof(in.s_addr));
     char* IP_string = inet_ntoa(in);
+    delete [] hostname;
     
-    // converting destination into Transport
-    TransportInfo   global_ti;
-    global_ti.type = SR_IP_TRANSPORT;
-    // address to which to send trap
-    global_ti.t_ipAddr = inet_addr(destination.allocateCString());
-    // port to which to send trap
-    global_ti.t_ipPort = htons((unsigned short)GetSNMPTrapPort());  
-
     // formatting agent(host) address into OctetString format
     OctetString* agent_addr;
 
@@ -159,28 +167,103 @@ void snmpDeliverTrap_emanate::deliverTrap(
     // ATTN-NU-20020312 : Write code to get enterprise, genTrap and 
     // specTrap from trapOid. 
 
-    String enterprise;
-    
-    OID* enterpriseOid = MakeOIDFromDot(enterprise.allocateCString());
-    
-    // getting trap data for do_trap()
-    entV2Trap = trapOid.allocateCString();
+    //NU_SNMP
 
-    // getting trapOid
-    OID *sendtrapOid = MakeOIDFromDot(trapOid.allocateCString());
+    SR_INT32 genTrap = 0;
+    SR_INT32 specTrap = 0;
+    
+    OID* enterpriseOid ;
 
+    Array<String> standard_traps;
+
+    standard_traps.append(String("1.3.6.1.6.3.1.1.5.1"));
+    standard_traps.append(String("1.3.6.1.6.3.1.1.5.2"));
+    standard_traps.append(String("1.3.6.1.6.3.1.1.5.3"));
+    standard_traps.append(String("1.3.6.1.6.3.1.1.5.4"));
+    standard_traps.append(String("1.3.6.1.6.3.1.1.5.5"));
+    standard_traps.append(String("1.3.6.1.6.3.1.1.5.6"));
+
+    Array<String> oids;
+    String tmpoid = trapOid;
+
+    while(tmpoid.find(".") != PEG_NOT_FOUND)
+    {
+        oids.append(tmpoid.subString(0, tmpoid.find(".")));
+        tmpoid = tmpoid.subString(tmpoid.find(".") + 1);
+    }
+    oids.append(tmpoid);
+
+    String ent;
+    if (oids[oids.size()-2] == "0")
+    {
+        ent = oids[0];
+        for (Uint8 i = 1; i < oids.size()-2; i++)
+            ent = ent + "." + oids[i];
+    }
+
+    if (Contains(standard_traps, trapOid))
+    {
+	ent = oids[0];
+	for (Uint8 i = 1; i < oids.size()-1; i++)
+            ent = ent + "." + oids[i];
+
+	char* gtrap = ent.allocateCString();
+        genTrap = atoi(gtrap) - 1;
+        enterpriseOid = sendtrapOid;
+        delete [] gtrap;
+    }
+    else
+    {
+	genTrap = 6;
+
+	ent = oids[0];
+	for (Uint8 i = 1; i < oids.size()-1; i++)
+            ent = ent + "." + oids[i];
+	char* strap = oids[oids.size()-1].allocateCString();
+        specTrap = atoi(strap);
+        delete [] strap;
+
+        if (oids[oids.size()-2] == "0")
+        {
+            ent = oids[0];
+	    for (Uint8 i = 1; i < oids.size()-2; i++)
+		ent = ent + "." + oids[i];
+
+	    char* _ent = ent.allocateCString();
+            enterpriseOid = MakeOIDFromDot(_ent);
+            delete [] _ent;
+        }
+        else
+        {
+	    ent = oids[0];
+            for (Uint8 i = 1; i < oids.size()-1; i++)
+                ent = ent + "." + oids[i];
+
+            char* _ent = ent.allocateCString();
+            enterpriseOid = MakeOIDFromDot(_ent);
+            delete [] _ent;
+        }
+    }
+
+    char* _vbOid;
+    char* _vbType;
+    char* _vbValue;
+    
     for(Uint32 i = 0; i < vbOids.size(); i++)
     {
-	if ((object = MakeOIDFromDot(vbOids[i].allocateCString())) == NULL)
+	_vbOid = vbOids[i].allocateCString();
+	_vbType = vbTypes[i].allocateCString();
+	_vbValue = vbValues[i].allocateCString();
+
+	if ((object = MakeOIDFromDot(_vbOid)) == NULL)
         {
             cout << "Invalid OID received: " << vbOids[i] << endl;
             return;
         } 
 
-        if (strcmp(vbTypes[i].allocateCString(),"OctetString") == 0)
+        if (strcmp(_vbType,"OctetString") == 0)
         {
-            newValue = CloneOctetString(MakeOctetStringFromText
-                           (vbValues[i].allocateCString()));
+            newValue = CloneOctetString(MakeOctetStringFromText(_vbValue));
             if (newValue == NULL)
             {
                 cout << "Invalid Value provided : " << vbValues[i] << endl;
@@ -198,8 +281,7 @@ void snmpDeliverTrap_emanate::deliverTrap(
         else
         {
             newValue = CloneOctetString(MakeOctetString(
-		(unsigned char *) vbValues[i].allocateCString(),
-		strlen(vbValues[i].allocateCString())));
+		(unsigned char *) _vbValue, strlen(_vbValue)));
 
             if (newValue == NULL)
             {
@@ -228,30 +310,42 @@ void snmpDeliverTrap_emanate::deliverTrap(
 
 	FreeOID(object);
     }
+
+    delete [] _vbType;
+    delete [] _vbValue;
+    delete [] _vbOid;
     
     vb3->next_var = NULL;
 
     // Now sending the trap
     if (trapType == String("SNMPGeneric"))
     {
-	do_trap(6, 4, vb2, enterpriseOid, entV2Trap);
-        FreeVarBindList(vb);
+        cout << genTrap << endl;
+        cout << specTrap << endl;
+        PrintVarBindList(vb);
+        //PrintOID(enterpriseOid);
+        cout << _trapOid << endl;
+        cout << "Sending SNMP generic trap : " << trapOid << endl;
+
+	do_trap(genTrap, specTrap, vb, enterpriseOid, _trapOid);
+        
+	FreeVarBindList(vb);
         FreeVarBindList(vb2);
     }
     else if (trapType == String("SNMPv1"))
     {
-        cout << "Sending SNMPv1 Trap : " << trapOid << endl;
+	cout << "Sending SNMPv1 Trap : " << trapOid << endl;
         SendNotificationToDestSMIv1Params(
-            1,					// notifyType
-            6,					// genTrap
-            1,					// specTrap
+            1,					// notifyType - TRAP
+            genTrap,				// genTrap
+            specTrap,				// specTrap
             enterpriseOid,			// enterprise
             agent_addr,				// agent_addr
-            vb2,				// vb
+            vb,					// vb
             NULL,				// contextName
             1,					// retryCount
             1,					// timeout
-            MakeOctetStringFromText(community.allocateCString()),	// securityName,
+            community_name,			// securityName,
             SR_SECURITY_LEVEL_NOAUTH,		// securityLevel
             SR_SECURITY_MODEL_V1,		// securityModel
             &global_ti,				// Transport Info
@@ -264,15 +358,14 @@ void snmpDeliverTrap_emanate::deliverTrap(
     {
         cout << "Sending SNMPv2 Trap : " << trapOid << endl;
         SendNotificationToDestSMIv2Params(
-            1,					// notifyType
+            2,					// notifyType - NOTIFICATION
             sendtrapOid,			// snmpTrapOID
             agent_addr,				// agent_addr
-            //vb2,				// vb
-            vb,				// vb
+            vb,					// vb
             NULL,				// contextName
             1,					// retryCount
             100,				// timeout
-            MakeOctetStringFromText(community.allocateCString()),	// securityName or community
+            community_name,			// securityName or community
             SR_SECURITY_LEVEL_NOAUTH,		// securityLevel
             SR_SECURITY_MODEL_V1,		// securityModel
             &global_ti,				// TransportInfo
@@ -283,8 +376,11 @@ void snmpDeliverTrap_emanate::deliverTrap(
     else
     {
         cout << "Trap type not supported : " << trapType << endl;
+	delete [] _trapOid;
         exit(2);
     }
+
+    delete [] _trapOid;
 }
 
 PEGASUS_NAMESPACE_END

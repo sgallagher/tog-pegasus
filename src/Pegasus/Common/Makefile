@@ -90,7 +90,8 @@ SOURCES = \
     MessageQueueService.cpp \
     ModuleController.cpp \
     Monitor.cpp \
-    OperationContext.cpp \
+    ObjectNormalizer.cpp \
+	OperationContext.cpp \
     OperationContextInternal.cpp \
     OptionManager.cpp \
     pegasus_socket.cpp \
@@ -158,7 +159,7 @@ endif
 ifeq ($(PEGASUS_PLATFORM),AIX_RS_IBMCXX)
 AIX_LIB_PRIORITY=-20
   ifdef PEGASUS_HAS_SSL
-    EXTRA_LIBRARIES += -L$(OPENSSL_HOME)/lib -lssl 
+    EXTRA_LIBRARIES += -L$(OPENSSL_HOME)/lib -lssl
   endif
 endif
 
@@ -170,7 +171,7 @@ endif
 
 ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
   SYS_LIBS = ws2_32.lib advapi32.lib
-  ifdef PEGASUS_HAS_SSL 
+  ifdef PEGASUS_HAS_SSL
     SYS_LIBS += $(OPENSSL_HOME)/lib/*.lib
   endif
 endif

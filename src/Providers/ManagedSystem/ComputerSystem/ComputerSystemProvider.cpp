@@ -154,7 +154,19 @@ void ComputerSystemProvider::enumerateInstances(
     // Deliver instance only if request was for leaf class
     if (className.equal (CLASS_EXTENDED_COMPUTER_SYSTEM))
     {
+      Array<CIMKeyBinding> keys;
+      keys.append(CIMKeyBinding(PROPERTY_CREATION_CLASS_NAME,
+                                CLASS_EXTENDED_COMPUTER_SYSTEM,
+                                CIMKeyBinding::STRING));
+      keys.append(CIMKeyBinding(PROPERTY_NAME,
+                                _cs.getHostName(),
+                                CIMKeyBinding::STRING));
+      CIMObjectPath instanceName(String::EMPTY,       // Hostname not required
+                                 CIMNamespaceName(),  // Namespace not required
+                                 CLASS_EXTENDED_COMPUTER_SYSTEM,
+                                 keys);
       CIMInstance instance = _buildInstance(CLASS_EXTENDED_COMPUTER_SYSTEM);
+      instance.setPath(instanceName);
       handler.deliver(instance);
     }
 

@@ -387,7 +387,7 @@ void HTTPAcceptor::_acceptConnection()
    }
 
    HTTPConnection* connection = new HTTPConnection(
-      _monitor, mp_socket, this, _outputMessageQueue);
+      _monitor, mp_socket, this, static_cast<MessageQueueService *>(_outputMessageQueue));
 
    // Solicit events on this new connection's socket:
 

@@ -154,7 +154,7 @@ void MessageQueueService::enqueue(Message *msg) throw(IPCException)
 //    PEGASUS_ASSERT(msg != 0 );
    
 //    cout << "inside overriden enqueue" << endl;
-//        if (!msg) 
+//    if (!msg) 
 //     {
 //        Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL3,
 //         "MessageQueue::enqueue failure");
@@ -168,6 +168,7 @@ void MessageQueueService::enqueue(Message *msg) throw(IPCException)
 //     }
 
 //    msg->dest = _queueId;
+   
 //    SendForget(msg);
    
 }
@@ -243,7 +244,7 @@ void MessageQueueService::_handle_incoming_operation(AsyncOpNode *operation,
 //             make handleEnqueue pure virtual !!!
 //      << Fri Feb 22 13:39:09 2002 mdd >>
 
-	 enqueue(rq);
+	 handleEnqueue(rq);
 	 return;
       }
 

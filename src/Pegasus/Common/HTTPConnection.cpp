@@ -99,10 +99,10 @@ HTTPConnection::HTTPConnection(
     Monitor* monitor,
     //Sint32 socket, 
     MP_Socket* socket, 
-    MessageQueue* ownerMessageQueue,
-    MessageQueue* outputMessageQueue)
+    MessageQueueService* ownerMessageQueue,
+    MessageQueueService* outputMessageQueue)
     : 
-   Base("HTTPConnection", MessageQueue::getNextQueueId()),
+   Base("HTTPConnection", MessageQueue::getNextQueueId()), 
    _monitor(monitor),
    _socket(socket), 
    _ownerMessageQueue(ownerMessageQueue),
@@ -320,6 +320,9 @@ void HTTPConnection::_closeConnection()
     PEG_FUNC_ENTER(TRC_HTTP, METHOD_NAME);
 
     Message* message= new CloseConnectionMessage(_socket->getSocket());
+    message->dest = _ownerMessageQueue->getQueueId();
+//    SendForget(message);
+    
     _ownerMessageQueue->enqueue(message);
 
     PEG_FUNC_EXIT(TRC_HTTP, METHOD_NAME);
@@ -364,7 +367,9 @@ void HTTPConnection::_handleReadEvent()
         // increment request count 
         //
         _requestCount++;
-
+	message->dest = _outputMessageQueue->getQueueId();
+//	SendForget(message);
+	
 	_outputMessageQueue->enqueue(message);
 	_clearIncoming();
 

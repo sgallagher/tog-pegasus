@@ -64,18 +64,18 @@ class CloseConnectionMessage : public Message
 
 /** This class represents an HTTP listener.
 */
-class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueueService
+class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueue
 {
    public:
-      typedef MessageQueueService Base;
+      typedef MessageQueue Base;
       
       /** Constructor. */
       HTTPConnection(
 	 Monitor* monitor,
 	 //Sint32 socket, 
 	 MP_Socket * socket, 
-	 MessageQueue* ownerMessageQueue,
-	 MessageQueue* outputMessageQueue);
+	 MessageQueueService* ownerMessageQueue,
+	 MessageQueueService* outputMessageQueue);
 
       /** Destructor. */
       ~HTTPConnection();
@@ -111,8 +111,8 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueueService
 
       //Sint32 _socket;
       MP_Socket* _socket;
-      MessageQueue* _ownerMessageQueue;
-      MessageQueue* _outputMessageQueue;
+      MessageQueueService* _ownerMessageQueue;
+      MessageQueueService* _outputMessageQueue;
 
       Sint32 _contentOffset; 
       Sint32 _contentLength;

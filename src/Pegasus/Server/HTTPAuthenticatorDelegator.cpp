@@ -66,7 +66,8 @@ void HTTPAuthenticatorDelegator::_sendResponse(
     if (queue)
     {
         HTTPMessage* httpMessage = new HTTPMessage(message);
-
+	httpMessage->dest = queue->getQueueId();
+	
         queue->enqueue(httpMessage);
     }
 }
@@ -279,6 +280,8 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 
                 if (queue)
                 {
+		   httpMessage->dest = queue->getQueueId();
+		   
                     queue->enqueue(httpMessage);
                     deleteMessage = false;
                 }
@@ -291,8 +294,10 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 
                 if (queue)
                 {
-                    queue->enqueue(httpMessage);
-                    deleteMessage = false;
+		   httpMessage->dest = queue->getQueueId();
+
+		   queue->enqueue(httpMessage);
+		   deleteMessage = false;
                 }
             }
             else

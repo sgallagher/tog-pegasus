@@ -264,7 +264,7 @@ HTTPConnection* HTTPConnector::connect(
    }
     
    HTTPConnection* connection = new HTTPConnection(_monitor, mp_socket,
-						   this, outputMessageQueue);
+						   this, static_cast<MessageQueueService *>(outputMessageQueue));
 
    // Solicit events on this new connection's socket:
 

@@ -252,14 +252,23 @@ inline Uint32 cimom::getModuleIDs(Uint32 *ids, Uint32 count) throw(IPCException)
 
 inline AsyncOpNode *cimom::get_cached_op(void) throw(IPCException)
 {
-   if( _recycle.count() > 0 )
-      return _recycle.remove_first();
-   else 
-      return new AsyncOpNode();
+   AsyncOpNode *op;
+   
+   op = _recycle.remove_first();
+   if(op == 0)
+      op = new AsyncOpNode();
+   if ( op == 0 )
+      throw NullPointer();
+   
+   op->_flags = ASYNC_OPFLAGS_META_DISPATCHER;
+   return op;
+   
 }
 
 inline void cimom::cache_op(AsyncOpNode *op) throw(IPCException)
 {
+   PEGASUS_ASSERT(op->read_state() & ASYNC_OPSTATE_RELEASED );
+   
    unlocked_dq<AsyncOpNode> recycle;
    op->_reset(&recycle);
    while( recycle.count() )

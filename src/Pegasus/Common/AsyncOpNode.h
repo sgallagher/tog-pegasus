@@ -50,6 +50,7 @@ PEGASUS_NAMESPACE_BEGIN
 #define ASYNC_OPFLAGS_SINGLE            0x00000008
 #define ASYNC_OPFLAGS_MULTIPLE          0x00000010
 #define ASYNC_OPFLAGS_TOTAL             0x00000020
+#define ASYNC_OPFLAGS_META_DISPATCHER   0x00000040
 
 #define ASYNC_OPSTATE_UNKNOWN           0x00000000
 #define ASYNC_OPSTATE_OFFERED           0x00000001
@@ -69,6 +70,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 class Cimom;
 
+
 class PEGASUS_COMMON_LINKAGE AsyncOpNode
 {
    public:
@@ -87,10 +89,10 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
       OperationContext & get_context(void) ;
 
       void put_request(const Message *request) ;
-      const Message *get_request(void) ;
+      Message *get_request(void) ;
       
       void put_response(const Message *response) ;
-      const Message *get_response(void) ;
+      Message *get_response(void) ;
       
       Uint32 read_state(void) ;
       void write_state(Uint32) ;
@@ -216,7 +218,7 @@ inline  void AsyncOpNode::put_request(const Message *request)
    _mut.unlock();
 }
 
-inline const Message * AsyncOpNode::get_request(void) 
+inline Message * AsyncOpNode::get_request(void) 
 {
    Message *ret;
    _mut.lock(pegasus_thread_self());
@@ -235,7 +237,7 @@ inline void AsyncOpNode::put_response(const Message *response)
    _mut.unlock();
 }
 
-inline const Message * AsyncOpNode::get_response(void) 
+inline Message * AsyncOpNode::get_response(void) 
 {
    Message *ret;
 

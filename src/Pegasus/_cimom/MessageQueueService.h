@@ -51,67 +51,45 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
 	 : Base(name, true, queueID),
 	   _capabilities(capabilities),
 	   _mask(mask),
-	   _recycle(true),
 	   _die(0)
       {
 	 _default_op_timeout.tv_sec = 30;
 	 _default_op_timeout.tv_usec = 100;
 	 _meta_dispatcher = static_cast<cimom *>(Base::lookup(CIMOM_Q_ID));
+	 if(_meta_dispatcher == 0 )
+	    throw NullPointer();
       }
 
       virtual ~MessageQueueService(void);
       
       virtual void handleEnqueue();
       virtual Boolean accept_async(Message *message) throw(IPCException);
-      virtual Message *openEnvelope(const Message *msg);
+      virtual Message *openEnvelope(Message *msg);
       
-      
+      void SendWait(AsyncRequest *request, unlocked_dq<AsyncMessage>& reply_list);
+      Boolean SendAsync(AsyncMessage *msg);
+      void _enqueueAsyncResponse(AsyncRequest *request, 
+				 AsyncReply *reply, 
+				 Uint32 state, 
+				 Uint32 flag);
+            
    protected:
       Boolean register_service(String name, Uint32 capabilities, Uint32 mask);
       Boolean update_service(Uint32 capabilities, Uint32 mask);
       Boolean deregister_service(void);
-      Boolean SendMessage(Message *msg, Uint32 dst_queue);
       Uint32 get_next_xid(void);
       
-
       Uint32 _capabilities;
       Uint32 _mask;
       
    private: 
-
-      DQueue<AsyncOpNode> _recycle;
       AsyncOpNode *_get_op(void);
-      void _cache_op(AsyncOpNode *op);
+      void _return_op(AsyncOpNode *op);
       cimom *_meta_dispatcher;
       struct timeval _default_op_timeout;
       AtomicInt _die;
       static AtomicInt _xid;
 };
-
-
-
-inline AsyncOpNode *MessageQueueService::_get_op(void)
-{
-   AsyncOpNode *ret = _recycle.remove_first();
-   if(ret == 0 )
-   {
-      ret = new AsyncOpNode();
-   }
-   return ret;
-}
-
-inline void MessageQueueService::_cache_op(AsyncOpNode *op)
-{
-   if(op != 0 )
-   {
-      unlocked_dq<AsyncOpNode> recycle(true);
-      op->_reset(&recycle);
-      while(recycle.count())
-	 _recycle.insert_last(recycle.remove_first());
-   }
-   
-}
-
 
 inline Uint32 MessageQueueService::get_next_xid(void)
 {

@@ -35,100 +35,185 @@ AtomicInt MessageQueueService::_xid(1);
 // mutex is UNLOCKED
 void MessageQueueService::handleEnqueue(void)
 {
-
-   
+   Message *msg = dequeue();
+   if( msg )
+   {
+      if(msg->getMask() & message_mask::ha_async)
+      {
+	 (static_cast<AsyncMessage *>(msg))->op->release();
+      }
+      else
+	 delete msg;
+   }
 }
 
-Message *MessageQueueService::openEnvelope(const Message *msg)
+
+void MessageQueueService::_enqueueAsyncResponse(AsyncRequest *request, 
+						AsyncReply *reply, 
+						Uint32 state, 
+						Uint32 flag)
+{
+   AsyncOpNode *op = request->op;
+   op->lock();
+   if (false == op->_response.exists(reply))
+      op->_response.insert_last(reply);
+   
+   op->_state |= state;
+   op->_flags |= flag;
+   gettimeofday(&(op->_updated), NULL);
+   op->unlock();
+}
+
+
+Message *MessageQueueService::openEnvelope(Message *msg)
 {
    Uint32 mask = msg->getMask();
    if( mask & message_mask::ha_async )
    {
-      AsyncOpNode *op;
-      
-      if( mask & message_mask::ha_request)
-      {
-	 op = (static_cast<AsyncRequest *>(const_cast<Message *>(msg)))->op;
-	 return const_cast<Message *>(op->get_request());
-      }
-      else if (mask & message_mask::ha_reply)
-      {
-	 op = (static_cast<AsyncReply *>(const_cast<Message *>(msg)))->op;
-	 return const_cast<Message *>(op->get_response()) ;
-      }
+      AsyncOpNode *op = (static_cast<AsyncMessage *>(msg))->op;
+      if(op == 0 )
+	 throw NullPointer();
+      // start pulling the last message
+      // when we reach the envelope return null
+
    }
    return 0;
 }
 
-
-Boolean MessageQueueService::register_service(String name, Uint32 capabilities, Uint32 mask)
+AsyncOpNode *MessageQueueService::_get_op(void)
 {
+   AsyncOpNode *op = _meta_dispatcher->get_cached_op();
+   if(op == 0 )
+      throw NullPointer();
    
-   CimomRegisterService *msg = 
-      new CimomRegisterService(Message::getNextKey(), 
-			       QueueIdStack(_queueId, _queueId),
-			       0,
-			       _name, 
-			       _capabilities, 
-			       _mask,
-			       _queueId, 
-			       get_next_xid());
+   op->write_state(ASYNC_OPSTATE_UNKNOWN);
+   op->write_flags(ASYNC_OPFLAGS_SINGLE | 
+		   ASYNC_OPFLAGS_NORMAL | 
+		   ASYNC_OPFLAGS_META_DISPATCHER);
+   return op;
+}
+
+void MessageQueueService::_return_op(AsyncOpNode *op)
+{
+   PEGASUS_ASSERT(op->read_state() & ASYNC_OPSTATE_RELEASED );
    
-   Boolean accepted = _meta_dispatcher->accept_async(static_cast<Message *>(msg));
-   if (false == accepted )
-      delete msg;
+   if(op->read_state() & ASYNC_OPFLAGS_META_DISPATCHER )
+   {
+      _meta_dispatcher->cache_op(op);
+   }
+   else
+      delete op;
+}
+
+
+void MessageQueueService::SendWait(AsyncRequest *request, unlocked_dq<AsyncMessage>& reply_list)
+{
+   AsyncOpNode *op = request->op;
+   if(op == 0 )
+      return;
    
-   return accepted;
+   if(true == _meta_dispatcher->accept_async(static_cast<Message *>(request)))
+   {
+      op->_client_sem.wait();
+      op->lock();
+      while( op->_response.count() )
+      {
+	 AsyncMessage *rply = static_cast<AsyncMessage *>(op->_response.remove_last());
+	 if (rply != 0 )
+	 {
+	    rply->op = 0;
+	    reply_list.insert_first( rply );
+	 }
+      }
+      // release the opnode, the meta-dispatcher will recycle it for us
+      op->_state |= ASYNC_OPSTATE_RELEASED ;
+      op->unlock();
+   }
+   else
+   {
+      // manually free the opnode and message
+      op->release();
+      _return_op(op);
+   }
+}
+
+Boolean MessageQueueService::SendAsync(AsyncMessage *msg)
+{
+   return _meta_dispatcher->accept_async(static_cast<Message *>(msg));
+}
+
+
+Boolean MessageQueueService::register_service(String name, 
+					      Uint32 capabilities, 
+					      Uint32 mask)
+
+{
+   AsyncOpNode *op = _meta_dispatcher->get_cached_op();
+   
+   op->_state |= ASYNC_OPSTATE_UNKNOWN;
+   op->_flags |= ASYNC_OPFLAGS_SINGLE | ASYNC_OPFLAGS_NORMAL;
+   
+   RegisterCimService *msg = new RegisterCimService(get_next_xid(),
+						    op, 
+						    true, 
+						    name, 
+						    capabilities, 
+						    mask,
+						    _queueId);
+   unlocked_dq<AsyncMessage> reply_list;
+   SendWait(msg, reply_list);
+   Boolean registered = false;
+   
+   AsyncReply *reply = static_cast<AsyncReply *>(reply_list.remove_first());
+   while(reply)
+   {
+      if(reply->getMask() & message_mask:: ha_async)
+      {
+	 if(reply->getMask() & message_mask::ha_reply)
+	 {
+	    if(reply->result == async_results::OK)
+	       registered = true;
+	 }
+      }
+      
+      delete reply;
+      reply = static_cast<AsyncReply *>(reply_list.remove_first());
+   }
+   return registered;
 }
 
 Boolean MessageQueueService::update_service(Uint32 capabilities, Uint32 mask)
 {
-   _capabilities = capabilities;
-   _mask = mask;
    
-   CimomUpdateService *msg = 
-      new CimomUpdateService( Message::getNextKey(), 
-			      QueueIdStack(_queueId, _queueId), 
-			      0, 
-			      capabilities, 
-			      mask, 
-			      get_next_xid());
+   AsyncOpNode *op = _meta_dispatcher->get_cached_op();
+   op->_state |= ASYNC_OPSTATE_UNKNOWN;
+   op->_flags |= ASYNC_OPFLAGS_SINGLE | ASYNC_OPFLAGS_NORMAL;
    
-   Boolean accepted = _meta_dispatcher->accept_async(static_cast<Message *>(msg));
-   if (false == accepted )
-      delete msg;
-   
-   return accepted;
-   
-}
-
-Boolean MessageQueueService::SendMessage(Message *msg, Uint32 dst_queue)
-{
-   
-   AsyncOpNode *op = _get_op();
-   if(op == 0 )
-      throw NullPointer();
-   
-   op->put_request(msg);
-   
-   ServiceAsyncOpStart *envelope = 
-      new ServiceAsyncOpStart(Message::getNextKey(),
-			      QueueIdStack(_queueId, _queueId),
-			      op,
-			      dst_queue, 
-			      get_next_xid());
-   
-   Boolean accepted = _meta_dispatcher->accept_async(static_cast<Message *>(envelope));
-   if (accepted == false)
+   UpdateCimService *msg = new UpdateCimService(get_next_xid(), 
+						op, 
+						true, 
+						_queueId,
+						_capabilities, 
+						_mask);
+   unlocked_dq<AsyncMessage> reply_list;
+   SendWait(msg, reply_list);
+   Boolean registered = false;
+   AsyncReply *reply = static_cast<AsyncReply *>(reply_list.remove_first());
+   while(reply)
    {
-      delete msg;
-      _cache_op(op);
+      if(reply->getMask() & message_mask:: ha_async)
+      {
+	 if(reply->getMask() & message_mask::ha_reply)
+	 {
+	    if(reply->result == async_results::OK)
+	       registered = true;
+	 }
+      }
+      
+      delete reply;
+      reply = static_cast<AsyncReply *>(reply_list.remove_first());
    }
-   return accepted;
+   return registered;
 }
-
-
-
-
 
 PEGASUS_NAMESPACE_END

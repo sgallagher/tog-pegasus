@@ -218,7 +218,7 @@ class PEGASUS_COMMON_LINKAGE MessageQueue
       /** Overridden by MessageQueueService and derived classes to handle
 	  asynchronous messages. 
       */
-      virtual Message *openEnvelope(const Message *msg) { return 0 ; }
+      virtual Message *openEnvelope(Message *msg) { return 0 ; }
       
       /** Lookup a message queue from a queue id. Note this is an O(1) operation.
        */

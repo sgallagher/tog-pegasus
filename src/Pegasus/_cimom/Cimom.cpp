@@ -387,7 +387,6 @@ void cimom::register_module(RegisterCimService *msg)
 	 result = async_results::INTERNAL_ERROR;
       else
       {
-	 
 	 try
 	 {
 	    _modules.insert_first(new_mod);

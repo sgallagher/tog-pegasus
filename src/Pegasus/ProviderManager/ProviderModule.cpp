@@ -91,8 +91,8 @@ ProviderModule::~ProviderModule(void)
 void ProviderModule::load(void)
 {
 // BMMU
-    cerr << "Load: " << _interfaceName << " 2) " << _interfaceFilename 
-         << " 3) " << _providerName << endl;
+    PEGASUS_STD(cerr) << "Load: " << _interfaceName << " 2) " << 
+        _interfaceFilename << " 3) " << _providerName << PEGASUS_STD(endl);
 
     // get the interface adapter library first
     if (_interfaceFilename.size() > 0)

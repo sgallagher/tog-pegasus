@@ -349,7 +349,8 @@ void ProviderAdapterManager::list(void)
     _listMutex.lock(pegasus_thread_self());
     for(Uint32 i=0,n=_listOfAdapterNames.size(); i<n; i++)
     {
-        cout << "Entry " << i << "  " << _listOfAdapterNames[i] << endl;
+        PEGASUS_STD(cout) << "Entry " << i << "  " << _listOfAdapterNames[i] <<
+        PEGASUS_STD(endl);
     }
     _listMutex.unlock();
 }

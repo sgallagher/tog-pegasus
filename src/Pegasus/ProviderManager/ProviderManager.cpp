@@ -58,7 +58,7 @@ ProviderManager::~ProviderManager(void)
 Provider ProviderManager::getProvider(
     const String & fileName,
     const String & providerName,
-    const String & interfaceName = String::EMPTY)
+    const String & interfaceName)
 {
     // check list for requested provider and return if found
     for(Uint32 i = 0, n = _providers.size(); i < n; i++)
@@ -77,7 +77,7 @@ Provider ProviderManager::getProvider(
 void ProviderManager::loadProvider(
     const String & fileName,
     const String & providerName,
-    const String & interfaceName = String::EMPTY)
+    const String & interfaceName)
 {
     MutexLock lock(_mutex);
 

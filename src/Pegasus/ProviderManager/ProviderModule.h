@@ -54,8 +54,8 @@ public:
     const String & getFileName(void) const;
     const String & getProviderName(void) const;
 
-    const String & ProviderModule::getInterfaceName(void) const;
-    ProviderAdapter * ProviderModule::getAdapter(void) const;
+    const String & getInterfaceName(void) const;
+    ProviderAdapter * getAdapter(void) const;
 
     void load(void);
     void unload(void);

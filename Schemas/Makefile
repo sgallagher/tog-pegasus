@@ -16,9 +16,8 @@ include $(ROOT)/mak/config.mak
 SCHEMA_VER=25
 SCHEMA_DIR=CIM$(SCHEMA_VER)
 
-#Special because Karl goofed and put the prelim on after the version number.
 #SCHEMA_VER=26
-#SCHEMA_DIR=CIM26Prelim
+#SCHEMA_DIR=CIM26
 
 # Define Namespace in which the CIM Schemas are to be Loaded.
 # Note that by default, the CORE is also loaded into root.
@@ -65,6 +64,7 @@ poststarttests:
 
 general:
 
+# used to generate xml output from the schema
 xml:
 	@ echo +++++ Loading CIM_Schema25.mof into root/cimv2 namespace...
-	@ cimmof --xml -I$(MOF_PATH) -nroot/cimv2 $(MOF_PATH)/CIM_Schema25.mof
+	@ cimmofl --xml -I$(MOF_PATH) -nroot/cimv2 $(MOF_PATH)/CIM_Schema$(SCHEMA_VER).mof	 >CIM_Schema$(SCHEMA_VER).XML

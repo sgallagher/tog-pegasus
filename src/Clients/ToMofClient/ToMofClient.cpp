@@ -46,7 +46,6 @@ String nameSpace = "root/cimv2";
     @param - Text for error message
     @return - None, Terminates the program
     @execption - This function terminates the program
-    ATTN: Should write to stderr
 */
 void ErrorExit(const String& message)
 {
@@ -195,6 +194,8 @@ void PrintHelp(const char* arg0)
 int main(int argc, char** argv)
 {   
     Boolean singleClass = true;
+
+    cout << "This program obsolete. Please use tomof" << endl;
     
     String className;
 

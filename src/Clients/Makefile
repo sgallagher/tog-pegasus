@@ -1,4 +1,4 @@
-ROOT = ../..
+ ROOT = $(PEGASUS_ROOT)
 
 include $(ROOT)/mak/config.mak
 
@@ -12,7 +12,8 @@ DIRS = \
     cimprovider \
     wbemexec \
     wbemexec/tests \
-    ToMofClient
+    ToMofClient\
+    tomof
 
 #The following tests are NOT included as part of the standard
 #regession test.  The cimuser tests require PrivilegedUser

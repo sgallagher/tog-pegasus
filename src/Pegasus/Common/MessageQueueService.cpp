@@ -180,10 +180,12 @@ MessageQueueService::~MessageQueueService(void)
       _polling_sem.signal();
       _polling_thread->join();
       delete _polling_thread;
+      _polling_thread = 0;
       _meta_dispatcher->_shutdown_routed_queue();
       delete _meta_dispatcher;
       _meta_dispatcher = 0;
-
+      delete _thread_pool;
+      _thread_pool = 0;
    }
    _meta_dispatcher_mutex.unlock();
    _polling_list.remove(this);
@@ -215,7 +217,7 @@ void MessageQueueService::_shutdown_incoming_queue(void)
    _incoming.insert_last_wait(msg->op);
 
 //   _req_thread.join();
-   
+
 }
 
 

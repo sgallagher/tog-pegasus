@@ -329,7 +329,7 @@ CIMClientRep::~CIMClientRep()
 {
    disconnect();
    delete _httpConnector;
-//   delete _monitor;
+   delete _monitor;
 }
 
 void CIMClientRep::handleEnqueue()

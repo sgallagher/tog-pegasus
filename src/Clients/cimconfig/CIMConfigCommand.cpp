@@ -868,7 +868,7 @@ Uint32 CIMConfigCommand::execute (
         // Open connection with CIMSever
         //
         _client = new CIMClient;
-
+		_client->setRequestDefaultLanguages(); //l10n
         _client->connectLocal();
 
         connected = true;
@@ -1741,7 +1741,8 @@ int main (int argc, char* argv [])
     CIMConfigCommand*    command;
     Uint32               returnCode;
     
-
+	MessageLoader::_useProcessLocale = true; //l10n set message loading to process locale
+	
 #ifdef PEGASUS_OS_OS400
 
   VFYPTRS_INCDCL;               // VFYPTRS local variables 

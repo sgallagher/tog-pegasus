@@ -998,7 +998,7 @@ Uint32 CIMProviderCommand::execute (
         // Open connection with CIMSever
         //
         _client = new CIMClient;
-
+		_client->setRequestDefaultLanguages();
         _client->connectLocal();
 
     }
@@ -1858,6 +1858,7 @@ int main (int argc, char* argv [])
     CIMProviderCommand*      command;
     Uint32               retCode;
     
+    MessageLoader::_useProcessLocale = true; //l10n set message loading to process locale
 
 #ifdef PEGASUS_OS_OS400
 

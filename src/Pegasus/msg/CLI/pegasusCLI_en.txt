@@ -544,7 +544,7 @@ en:table {
         "ssltrustmgr -a -T trustpath -f certfile\n"
         "ssltrustmgr -a -R -f crlfile\n"
         "ssltrustmgr -r [ -t truststore | -T trustpath ] -i issuername -n serialnumber\n"
-        "ssltrustmgr -r -R -i issuernamev
+        "ssltrustmgr -r -R -i issuernamev"
         "ssltrustmgr -l [ -t truststore | -T trustpath ] [ -i issuername [ -n serialnumber ] ]\n"
         "ssltrustmgr -l -R [ -i issuername ]\n"
         "ssltrustmgr -v | --version\n"
@@ -610,13 +610,17 @@ en:table {
         Clients.ssltrustmgr.SSLTrustMgr.LIST_CRL_FAILURE:string {"PGC00917: Failed to list CRL."}
 
 
-                        // ==========================================================
-                        // Start of messages from platform-specific files
-                        // ==========================================================
+        // ==========================================================
+        // Start of messages from platform-specific files
+        // ==========================================================
                         
                         
-                        // ==========================================================
-                        // End of messages from platform-specific files
-                        // ==========================================================
+        // ==========================================================
+        // End of messages from platform-specific files
+        // ==========================================================
 
+// ==============================================================================
+// END OF RESOURCE BUNDLE
+// DO NOT ADD MESSAGES AFTER THE FOLLOWING '}' 
+// ==============================================================================
 }

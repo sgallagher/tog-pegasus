@@ -545,6 +545,7 @@ void SSLContextRep::_randomInit(const String& randomFile)
                     "Not enough seed data in seed file: " + randomFile);
                 PEG_METHOD_EXIT();
                 //l10n
+		// do not put in $0 in default message, but pass in filename for bundle message
                 //throw( SSLException("Not enough seed data in random seed file."));
                 MessageLoaderParms parms("Common.SSLContext.NOT_ENOUGH_SEED_DATA_IN_FILE",
             						     "Not enough seed data in random seed file.",
@@ -582,10 +583,12 @@ void SSLContextRep::_randomInit(const String& randomFile)
                     "Not enough seed data in random seed file, RAND_status = " +
                     seedRet);
                 PEG_METHOD_EXIT();
-                //l10n
+                //l10n 485
+		// do not put in $0 in default message, but pass in filename for bundle message
                 //throw( SSLException("Not enough seed data in random seed file."));
                 MessageLoaderParms parms("Common.SSLContext.NOT_ENOUGH_SEED_DATA_IN_FILE",
-            						     "Not enough seed data in random seed file.");
+            						     "Not enough seed data in random seed file.",
+            						     randomFile);
             	throw( SSLException(parms));
             }
         }

@@ -244,7 +244,8 @@ void test03()
 //Test reference type properties
 void test04()
 {
-    CIMObjectPath path =  "//localhost/root/SampleProvider:TST_PersonDynamic.Name=\"Father\"";
+    String p =  "//localhost/root/SampleProvider:TST_PersonDynamic.Name=\"Father\"";
+    CIMObjectPath path = p;
         
     CIMProperty p1(CIMName ("message"), path, 0, CIMName("TST_Person"));
     assert(!p1.isArray());

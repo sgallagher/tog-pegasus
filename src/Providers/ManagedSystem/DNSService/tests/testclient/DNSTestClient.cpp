@@ -29,7 +29,7 @@
 //
 // Author: Paulo F. Borges (pfborges@wowmail.com)
 //
-// Modified By: 
+// Modified By: Sean Keenan Hewlett-Packard Company (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -44,6 +44,8 @@
 // include the appropriate DNS-specific file for checking results
 #if defined(PEGASUS_PLATFORM_HPUX_ACC)
 # include "DNSTestClient_HPUX.cpp"
+#elif defined (PEGASUS_OS_VMS)
+#include "DNSTestClient_Vms.cpp"
 #else
 # include "DNSTestClient_Stub.cpp"
 #endif

@@ -38,6 +38,7 @@
 //         Susan Campbell, Hewlett-Packard Company (scampbell@hp.com)
 //         Carol Ann Krug Graves, Hewlett-Packard Company
 //             (carolann_graves@hp.com)
+//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -55,7 +56,11 @@
 #if defined (PEGASUS_PLATFORM_HPUX_ACC)
 # include "OSTestClient_HPUX.cpp"
 #else
-# include "OSTestClient_Stub.cpp"
+# if defined (PEGASUS_OS_VMS)
+#  include "OSTestClient_VMS.cpp"
+# else
+#  include "OSTestClient_Stub.cpp"
+# endif
 #endif
 
 PEGASUS_USING_PEGASUS;

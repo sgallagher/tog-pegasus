@@ -37,11 +37,14 @@
 //         Jim Metcalfe, Hewlett-Packard Company
 //         Carlos Bonilla, Hewlett-Packard Company
 //         Mike Glantz, Hewlett-Packard Company <michael_glantz@hp.com>
+//         Sean Keenan, Hewlett-Packard Company <sean.keenan@hp.com>
 //
 //%////////////////////////////////////////////////////////////////////////////
 
 #ifdef PEGASUS_PLATFORM_HPUX_ACC
 #include "Processor_HPUX.cpp"
+#elif defined (PEGASUS_OS_VMS)
+#include "Processor_Vms.cpp"
 #else
 #include "Processor_Stub.cpp"
 #endif

@@ -38,11 +38,14 @@
 //         Carlos Bonilla, Hewlett-Packard Company
 //         Mike Glantz, Hewlett-Packard Company <michael_glantz@hp.com>
 //         Lyle Wilkinson, Hewlett-Packard Company <lyle_wilkinson@hp.com>
+//         Sean Keenan, Hewlett-Packard Company <sean.keenan@hp.com>
 //
 //%////////////////////////////////////////////////////////////////////////////
 
 #if defined(PEGASUS_PLATFORM_HPUX_ACC)
 #include "IP_HPUX.cpp"
+#elif defined (PEGASUS_OS_VMS)
+#include "IP_Vms.cpp"
 #else
 #include "IP_Stub.cpp"
 #endif

@@ -43,6 +43,9 @@ static void _SplitPath(const string& path, vector<string>& components)
     char* tmp = new char[path.size() + 1];
     strcpy(tmp, path.c_str());
 
+#if defined (OS_VMS)
+    components.push_back (tmp);
+#else
     if (path[0] == '/')
 	components.push_back("/");
 
@@ -63,6 +66,7 @@ static void _SplitPath(const string& path, vector<string>& components)
     }
 
     delete [] tmp;
+#endif
 }
 
 // string.find_last_of() is broken in GNU C++.
@@ -84,15 +88,36 @@ void _SplitPath(
 {
     size_t pos = _find_last_of(path, '/');
 
+#if defined (OS_VMS)
+    size_t pos1 = _find_last_of (path, ']');
+    if ((pos == (size_t) -1) && (pos1 == (size_t) -1))
+#else
     if (pos == (size_t)-1)
+#endif
     {
 	dirname = ".";
 	basename = path;
     }
     else
     {
-	dirname = path.substr(0, pos);
-	basename = path.substr(pos + 1);
+#if defined (OS_VMS)
+      // Did we find a slash?
+      if (pos == (size_t) -1)
+      {
+        // No. Must be a close bracket.
+        dirname = path.substr (0, pos1 + 1);
+        basename = path.substr (pos1 + 1);
+      }
+      else
+      {
+        // Yes.
+        dirname = path.substr (0, pos);
+        basename = path.substr (pos + 1);
+      }
+#else
+        dirname = path.substr(0, pos);
+        basename = path.substr(pos + 1);
+#endif
     }
 }
 
@@ -569,5 +594,7 @@ bool CompareFiles(
 	    return false;
     }
 
+#if !defined (OS_VMS)
     return true;
+#endif
 }

@@ -31,6 +31,7 @@
 //       
 //
 // Modified By:  
+//         Sean Keenan, Hewlett-Packard Company <sean.keenan@hp.com>
 //
 //==============================================================================
 // This template was created from DNSService.cpp
@@ -39,6 +40,8 @@
 
 #if defined(PEGASUS_PLATFORM_HPUX_ACC)
 # include "NTPService_HPUX.cpp"
+#elif defined (PEGASUS_OS_VMS)
+#include "NTPService_Vms.cpp"
 #else
 # include "NTPService_Stub.cpp"
 #endif

@@ -46,6 +46,8 @@
 
 #if defined(PEGASUS_PLATFORM_HPUX_ACC)
 #include "IP_HPUX.h"
+#elif defined (PEGASUS_OS_VMS)
+#include "IP_Vms.h"
 #else
 #include "IP_Stub.h"
 #endif

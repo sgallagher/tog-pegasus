@@ -31,6 +31,7 @@
 //
 // Modified By: Rudy Schuet (rudy.schuet@compaq.com) 11/12/01
 //              added nsk platform support
+//              Sean Keenan Hewlett-Packard Company (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -40,6 +41,8 @@
 # include "ComputerSystem_HPUX.cpp"
 #elif defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
 # include "ComputerSystem_Linux.cpp"
+#elif defined(PEGASUS_OS_VMS)
+# include "ComputerSystem_Vms.cpp"
 #else
 # include "ComputerSystem_Stub.cpp"
 #endif

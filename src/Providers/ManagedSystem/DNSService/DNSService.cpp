@@ -31,6 +31,7 @@
 //
 // Modified By: 
 //         Lyle Wilkinson, Hewlett-Packard Company <lyle_wilkinson@hp.com>
+//         Sean Keenan, Hewlett-Packard Company <sean.keenan@hp.com>
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -38,6 +39,8 @@
 
 #if defined(PEGASUS_PLATFORM_HPUX_ACC)
 # include "DNSService_HPUX.cpp"
+#elif defined (PEGASUS_OS_VMS)
+#include "DNSService_Vms.cpp"
 #else
 # include "DNSService_Stub.cpp"
 #endif

@@ -38,6 +38,10 @@
 #include <string>
 #include <vector>
 
+#if defined (OS_VMS)
+char cstr[256];
+#endif
+
 bool GetCwd(string& path);
 
 bool ChangeDir(const string& path);
@@ -81,4 +85,16 @@ bool Readable(const string& path);
 
 bool IsDir(const string& path);
 
+#if defined (OS_VMS)
+bool parse_name(const string& name);
+
+bool assign_name(void);
+
+bool get_attr(void);
+
+bool set_attr(void);
+
+bool deassign_name(void);
+
+#endif
 #endif /* _Files_h */

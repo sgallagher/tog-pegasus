@@ -38,6 +38,7 @@
 //         Carlos Bonilla, Hewlett-Packard Company
 //         Mike Glantz, Hewlett-Packard Company <michael_glantz@hp.com>
 //         Chad Smith, Hewlett-Packard Company <chad_smith@hp.com>
+//         Sean Keenan Hewlett-Packard Company (sean.keenan@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -48,6 +49,8 @@
 #include "Process_HPUX.h"
 #elif defined (PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
 #include "Process_Linux.h"
+#elif defined (PEGASUS_OS_VMS)
+#include "Process_Vms.h"
 #else
 #include "Process_Stub.h"
 #endif

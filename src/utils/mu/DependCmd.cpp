@@ -29,6 +29,8 @@
 //
 // Author: Michael E. Brasher
 //
+// Modified By:	Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
+//
 //%=============================================================================
 
 #include "DependCmd.h"
@@ -38,7 +40,7 @@
 #include <cstddef>
 #include <cassert>
 
-#ifdef OS_WINDOWS
+#if defined (OS_WINDOWS) || defined (OS_VMS)
 # define OBJ_EXT ".obj"
 #else
 # define OBJ_EXT ".o"

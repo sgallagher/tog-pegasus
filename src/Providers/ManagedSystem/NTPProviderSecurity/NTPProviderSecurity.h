@@ -30,6 +30,7 @@
 // Author: Paulo F. Borges (pfborges@wowmail.com)
 //
 // Modified By: 
+//         Sean Keenan, Hewlett-Packard Company <sean.keenan@hp.com>
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -50,7 +51,9 @@
 #include <Pegasus/Common/System.h>
 
 // Security includes
+#if !defined (PEGASUS_OS_VMS)
 #include <sys/getaccess.h>
+#endif
 #include <grp.h>
 #include <pwd.h>
 #include <unistd.h>

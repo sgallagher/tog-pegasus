@@ -30,6 +30,7 @@
 // Author: Paulo F. Borges (pfborges@wowmail.com)
 //
 // Modified By: 
+//	Sean Keenan, Hewlett-Packard Company <sean.keenan@hp.com>
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -37,6 +38,8 @@
 
 #if defined(PEGASUS_PLATFORM_HPUX_ACC)
 # include "NTPProviderSecurity_HPUX.cpp"    
+#elif defined(PEGASUS_OS_VMS)
+# include "NTPProviderSecurity_Vms.cpp"    
 #else
 # include "NTPProviderSecurity_Stub.cpp"    
 #endif

@@ -47,6 +47,7 @@
 // Modified By: Humberto Rivero (hurivero@us.ibm.com)
 //
 // Modified By: Steve Hills (steve.hills@ncr.com)
+//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //
 // Modified By: Amit K Arora, IBM (amitarora@in.ibm.com) - pep 167
 //
@@ -140,6 +141,8 @@ Uint32 parentPid = 0;
 # else
 #  include "cimserver_unix.cpp"
 #endif
+#elif defined(PEGASUS_OS_VMS)
+# include "cimserver_vms.cpp"
 #else
 # error "Unsupported platform"
 #endif
@@ -171,6 +174,12 @@ static const char   LONG_VERSION []  = "version";
 
 #if defined(PEGASUS_OS_HPUX)
 static const char OPTION_BINDVERBOSE = 'X';
+#endif
+
+# if defined(PEGASUS_OS_VMS)
+static const char OPTION_PORT    = 'p';
+
+static const char OPTION_TRACE    = 't';
 #endif
 
 static const String PROPERTY_TIMEOUT = "shutdownTimeout";
@@ -478,7 +487,9 @@ void shutdownCIMOM(Uint32 timeoutValue)
 	    cimserver_exitRC(1);
 #endif
 
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC)
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) \
+|| defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC) \
+|| defined (PEGASUS_OS_VMS)
 	    if (kill_rc != -1)
             {
                 //l10n - TODO
@@ -630,6 +641,38 @@ setlocale(LC_ALL, "");
                 						 "Missing argument for option -$0",
                 						 opt);
                 		cout << MessageLoader::getMessage(parms) << endl;
+                        exit(0);
+                    }
+
+                    memmove(&argv[i], &argv[i + 2], (argc-i-1) * sizeof(char*));
+                    argc -= 2;
+                }
+#endif
+#if defined(PEGASUS_OS_VMS)
+                else if (*option == OPTION_PORT)
+                {
+                    if (i + 1 < argc)
+                    {
+                        newPortNumber.assign(argv[i + 1]);
+                    }
+                    else
+                    {
+                        cout << "Missing argument for option -" << option << endl;
+                        exit(0);
+                    }
+
+                    memmove(&argv[i], &argv[i + 2], (argc-i-1) * sizeof(char*));
+                    argc -= 2;
+                }
+                else if (*option == OPTION_TRACE)
+                {
+                    if (i + 1 < argc)
+                    {
+                        pegasusTrace.assign(argv[i + 1]);
+                    }
+                    else
+                    {
+                        cout << "Missing argument for option -" << option << endl;
                         exit(0);
                     }
 
@@ -937,6 +980,13 @@ int cimserver_run( int argc, char** argv, Boolean shutdownOption )
     {
         String httpsPort = configManager->getCurrentValue("httpsPort");
         CString portString = httpsPort.getCString();
+#if defined(PEGASUS_OS_VMS)
+//        if (!(newPortNumber == String::EMPTY))
+        if (!(newPortNumber == ""))
+        {
+          portString = newPortNumber.getCString();
+        }
+#endif
         char* end = 0;
         Uint32 port = strtol(portString, &end, 10);
         if(!(end != 0 && *end == '\0'))
@@ -956,6 +1006,13 @@ int cimserver_run( int argc, char** argv, Boolean shutdownOption )
     {
         String httpPort = configManager->getCurrentValue("httpPort");
         CString portString = httpPort.getCString();
+#if defined(PEGASUS_OS_VMS)
+//        if (!(newPortNumber == String::EMPTY))
+        if (!(newPortNumber == ""))
+        {
+          portString = newPortNumber.getCString();
+        }
+#endif
         char* end = 0;
         Uint32 port = strtol(portString, &end, 10);
         if(!(end != 0 && *end == '\0'))
@@ -1075,7 +1132,9 @@ MessageLoader::_useProcessLocale = false;
 #endif
 
 
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_OS_AIX) || defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC)
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) \
+|| defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_OS_AIX) \
+|| defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC) || defined (PEGASUS_OS_VMS)
     umask(S_IWGRP|S_IWOTH);
 
     //
@@ -1116,6 +1175,18 @@ MessageLoader::_useProcessLocale = false;
 
 	CimserverHolder cimserverHolder( &server );
 
+#if defined(PEGASUS_OS_VMS)
+        //
+        // Enable tracing at highest level
+        //
+
+        if (!(pegasusTrace == String::EMPTY))
+        {
+          Tracer::setTraceFile(pegasusTrace.getCString());
+          Tracer::setTraceLevel(Tracer::LEVEL4);
+          Tracer::setTraceComponents("All");
+        }
+#endif
         if (enableHttpConnection)
         {
             server.addAcceptor(false, portNumberHttp, false, false);
@@ -1200,7 +1271,9 @@ MessageLoader::_useProcessLocale = false;
 
 	time_t last = 0;
 
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX) || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_OS_AIX) || defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC)
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX) || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) \
+    || defined(PEGASUS_OS_AIX) || defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC) \
+    || defined(PEGASUS_OS_VMS)
         //
         // create a file to indicate that the cimserver has started and
         // save the process id of the cimserver process in the file
@@ -1250,7 +1323,9 @@ MessageLoader::_useProcessLocale = false;
             Logger::INFORMATION, "src.Server.cimserver.STOPPED",
             "$0 stopped.", PEGASUS_PRODUCT_NAME);
 
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_OS_AIX) || defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC)
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) \
+|| defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_OS_AIX) \
+|| defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC) || defined(PEGASUS_OS_VMS)
         //
         // close the file created at startup time to indicate that the 
         // cimserver has terminated normally.

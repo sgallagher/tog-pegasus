@@ -30,6 +30,7 @@
 // Author: Paulo F. Borges (pfborges@wowmail.com)
 //
 // Modified By:
+//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -44,6 +45,8 @@
 // include the appropriate NTPProvider-specific file for checking results
 #if defined (PEGASUS_PLATFORM_HPUX_ACC)
 # include "NTPTestClient_HPUX.cpp"
+#elif defined (PEGASUS_OS_VMS)
+#include "NTPTestClient_Vms.cpp"
 #else
 # include "NTPTestClient_Stub.cpp"
 #endif

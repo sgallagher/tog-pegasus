@@ -23,6 +23,10 @@
 // Author:
 //
 // $Log: Config.h,v $
+// Revision 1.4  2001/04/13 19:57:17  mike
+// Fixed several memory leaks.
+// Fixed build crash problem (caused by screwed up NT flags).
+//
 // Revision 1.3  2001/04/13 18:20:51  mike
 // Ported so Solaris.
 // Fixed memory leaks.
@@ -53,6 +57,8 @@
 # error "Unsupported platform"
 #endif
 
+#include <iostream>
+
 #if defined(sparc)
 # define PEGASUS_OS_SOLARIS
 #elif defined(linux)
@@ -60,5 +66,8 @@
 #elif defined(_WIN32)
 # define PEGASUS_OS_WIN32
 #endif
+
+#define PEGASUS_TRACE \
+    std::cout << __FILE__ << '(' << __LINE__ << ')' << std::endl
 
 #endif  /* Pegasus_Config_h */

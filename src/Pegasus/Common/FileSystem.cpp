@@ -23,6 +23,10 @@
 // Author:
 //
 // $Log: FileSystem.cpp,v $
+// Revision 1.16  2001/04/13 19:57:17  mike
+// Fixed several memory leaks.
+// Fixed build crash problem (caused by screwed up NT flags).
+//
 // Revision 1.15  2001/04/12 09:57:39  mike
 // Post Channel Port to Linux
 //
@@ -329,9 +333,11 @@ Boolean FileSystem::getDirectoryContents(
     const String& path,
     Array<String>& paths)
 {
+#if 0
     // This may be just extra fluff but added anyway
     if (!FileSystem::isDirectory(path))
 	return false;
+#endif
     
     paths.clear();
 
@@ -354,7 +360,6 @@ Boolean FileSystem::getDirectoryContents(
     {
     	return false;
     }
-
 }
 
 Boolean FileSystem::renameFile(

@@ -1,13 +1,15 @@
 CHANGE LOG FOR PEGASUS
 
---------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+--
 
-Version 0.97.5 - Work in progress
+Version 0.98.0 - Work in progress
 
-1. (Mike Brasher) Added support for class association operations 
+1. (Mike Brasher) Added support for class association operations
     (references(), associators(), referenceNames(), associatorNames()).
 
---------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+--
 
 Version 0.97.4 - Tag Created for 0.97.4 and snapshot 7 July 2001
 
@@ -94,8 +96,9 @@ variables.
 
 20. (Karl) added basic Queue function to common (based on array) and added
     tests for stack and queue.
-    
---------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------
+--
 
 Version 0.97.3 - Released 5 June 2001
 
@@ -195,6 +198,7 @@ with the complete unit test and client/server test successfully.
 29 May 2001
 
 1.  Implemented CIMRepository::setProperty() and CIMRepository::getProperty().
+
 
 
 

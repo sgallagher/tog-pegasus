@@ -93,6 +93,33 @@ CIMObjectPath _selectInstance(CIMClient& client, Options& opts, const CIMName& c
     return(instanceNames[rtn]);
 }
 
+
+/** Use the interactive selection mechanism to get the instance if
+    the input object is a class AND if the opts.interactive flag is
+    set.  This function is used by the association functions because
+    just the existence of the object as class is insufficient since
+    these functions accept both class and instance input for processing.
+    If the tests are passed this funciton calls the server to enumerate
+    the instance names possible and displays them for the user to 
+    select one.
+    @param client CIMClient context for the operation required
+    @param opts the context structure for this operaiton
+    @param name CIMName of the object that is the target of the request.
+    @return CIMObjectPath with either the original object or the result
+    of the selection
+*/
+CIMObjectPath _conditionalSelectInstance(CIMClient& client, Options& opts, const CIMName& className)
+{
+    CIMObjectPath thisObject(opts.objectName);
+    if (((thisObject.getKeyBindings().size() == 0) ? true : false) && opts.interactive)
+    {
+        // get the instance to delete
+        thisObject = 
+          _selectInstance(client, opts, CIMName(opts.objectName));
+        // convert back to the opts.objectName
+    }
+    return(thisObject);
+}
 String _toString(Boolean x)
 {
 	return(x ? "true" : "false");
@@ -104,13 +131,11 @@ String buildPropertyListString(CIMPropertyList& pl)
 	String rtn;	
 	Array<CIMName> pls = pl.getPropertyNameArray();
 	if (pl.isNull())
-	{
-		return("NULL");	
-	}
+		return("NULL");
+
 	if (pl.size() == 0)
-	{
 		return("EMPTY");
-	}
+
 	for (Uint32 i = 0 ; i < pls.size() ; i++)
 	{
 		if (i != 0)
@@ -1041,11 +1066,16 @@ int referenceNames(CIMClient& client, Options& opts)
             << ", role= " << opts.role
             << endl;
     }
+
+    // do conditional select of instance if params properly set.
+    CIMObjectPath thisObject = 
+        _conditionalSelectInstance(client, opts, CIMName(opts.objectName));
+
     if (opts.time) opts.elapsedTime.reset();
 
     Array<CIMObjectPath> referenceNames =
 		client.referenceNames( opts.nameSpace,
-							   opts.objectName,
+							   thisObject,
 							   opts.resultClass,
 							   opts.role);
 
@@ -1098,6 +1128,11 @@ int references(CIMClient& client, Options& opts)
             << ", CIMPropertyList= "  << buildPropertyListString(opts.propertyList)
             << endl;
     }
+
+    // do conditional select of instance if params properly set.
+    CIMObjectPath thisObject = 
+        _conditionalSelectInstance(client, opts, CIMName(opts.objectName));
+
     if (opts.time) opts.elapsedTime.reset();
 
     Array<CIMObject> objects =
@@ -1151,6 +1186,11 @@ int associatorNames(CIMClient& client, Options& opts)
             << ", resultRole= " << opts.resultRole
             << endl;
     }
+
+    // do conditional select of instance if params properly set.
+    CIMObjectPath thisObject = 
+        _conditionalSelectInstance(client, opts, CIMName(opts.objectName));
+
     if (opts.time) opts.elapsedTime.reset();
 
     Array<CIMObjectPath> associatorNames =
@@ -1213,6 +1253,11 @@ int associators(CIMClient& client, Options& opts)
             << ", propertyList= " << buildPropertyListString(opts.propertyList)
             << endl;
     }
+
+    // do conditional select of instance if params properly set.
+    CIMObjectPath thisObject = 
+        _conditionalSelectInstance(client, opts, CIMName(opts.objectName));
+
     if (opts.time) opts.elapsedTime.reset();
 
     Array<CIMObject> objects =
@@ -1254,15 +1299,6 @@ int associators(CIMClient& client, Options& opts)
  int invokeMethod(CIMClient& client, Options& opts)
  {
      {
-         // Append any parameters found to the list.  This can be used
-         // inplace of the -ip function to create space separated
-         // key=value pairs.
-         for (Uint32 i = 0 ; i < opts.extraParams.size() ; i++)
-         {
-             CIMParamValue cv = _createMethodParamValue(opts.extraParams[i], opts);
-             opts.inParams.append(cv);
-         }
-
          // Display the parameter set if verbose requested.
 		 if (opts.verboseTest)
 		 {
@@ -1419,14 +1455,23 @@ void GetOptions(
     static OptionRow optionsTable[] =
         //optionname defaultvalue rqd  type domain domainsize clname hlpmsg
     {
-        {"User", "", false, Option::STRING, 0, 0, "u",
-                                        "Defines User Name for authentication" },
+        {"count", "29346", false, Option::WHOLE_NUMBER, 0, 0, "count",
+                            "Expected count of objects returned if the summary set. Tests this count and display difference. Term nonzero if test fails  "},
+
+        {"debug", "false", false, Option::BOOLEAN, 0, 0, "d",
+                            "More detailed debug messages "},
+
+        {"delay", "0", false, Option::WHOLE_NUMBER, 0, 0, "delay",
+                            "Delay between connection and request "},
 
         {"Password", "", false, Option::STRING, 0, 0, "p",
                                         "Defines password for authentication" },
 
         {"location", "localhost:5988", false, Option::STRING, 0, 0, "l",
                             "specifies system and port (HostName:port). Port is optional" },
+
+        {"User", "", false, Option::STRING, 0, 0, "u",
+                                        "Defines User Name for authentication" },
 
         {"namespace", "root/cimv2", false, Option::STRING, 0, 0, "n",
                             "Specifies namespace to use for operation" },
@@ -1513,17 +1558,11 @@ void GetOptions(
         {"connecttimeout", "0", false, Option::WHOLE_NUMBER, 0, 0, "-timeout",
                             "Set the connection timeout in seconds. "},
 
-        {"debug", "false", false, Option::BOOLEAN, 0, 0, "d",
-                            "More detailed debug messages "},
+        {"interactive", "false", false, Option::BOOLEAN, 0, 0, "i",
+                            "Interactively ask user to select instances.  Used with associator and reference operations "},
 
         {"trace", "0", false, Option::WHOLE_NUMBER, 0, 0, "trace",
                             "Set Pegasus Common Components Trace. Sets the Trace level. 0 is off"},
-
-        {"delay", "0", false, Option::WHOLE_NUMBER, 0, 0, "delay",
-                            "Delay between connection and request "},
-
-        {"count", "29346", false, Option::WHOLE_NUMBER, 0, 0, "count",
-                            "Expected count of objects returned if the summary set. Tests this count and display difference. Term nonzero if test fails  "},
 
         {"repeat", "0", false, Option::WHOLE_NUMBER, 0, 0, "-r",
                             "Number of times to repeat the function. Zero means one time "},
@@ -1793,6 +1832,12 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
         cout << "delay= " << opts.delay << " Seconds" << endl;
     }
 
+    // Set the interactive request flag based on input
+    opts.interactive = om.isTrue("interactive");
+    if (om.isTrue("interactive")  && verboseTest && debug)
+        cout << "interactive request" << endl;
+
+    // set the deepInheritance flag based on input
     opts.deepInheritance = om.isTrue("deepInheritance");
     if (om.isTrue("deepInheritance")  && verboseTest && debug)
         cout << "deepInteritance set" << endl;

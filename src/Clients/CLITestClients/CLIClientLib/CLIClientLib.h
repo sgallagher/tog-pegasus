@@ -215,6 +215,7 @@ struct  OPTION_STRUCT
     String query;
     Uint32 connectionTimeout;    // Connection timeout in seconds
     Array<String> extraParams;   // additional parameter list. depends on command.
+    Boolean interactive;
 };
 
 typedef struct OPTION_STRUCT Options;

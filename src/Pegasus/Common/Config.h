@@ -62,6 +62,28 @@
 # error "<Pegasus/Common/Config.h>: Unsupported Platform"
 #endif
 
+
+
+
+//<<< Sun Apr  6 19:28:00 2003 mdd >>>
+//
+// COMPILER Checks
+//
+// This is to allow a check for GCC > 3.2
+// It needs to be the first thing we check because the next lines load
+// further source files
+
+#if defined(__GNUC__)
+#define GCC_VERSION (__GNUC__ * 10000 \
+                               + __GNUC_MINOR__ * 100 \
+                               + __GNUC_PATCHLEVEL__)
+
+// To test for GCC > 3.2.0:
+//     #if GCC_VERSION > 30200
+
+#endif 
+
+
 #include <cstdlib>
 
 // used for Windows only
@@ -160,5 +182,6 @@ PEGASUS_NAMESPACE_END
 #ifndef PEGASUS_STATIC_CDECL
 #define PEGASUS_STATIC_CDECL
 #endif
+
 
 #endif  /* Pegasus_Config_h */

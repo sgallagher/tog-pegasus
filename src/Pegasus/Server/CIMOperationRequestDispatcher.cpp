@@ -1883,44 +1883,53 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesResponseAggregation(
     CIMEnumerateInstancesRequestMessage * request =
         (CIMEnumerateInstancesRequestMessage *)poA->getRequest();
 
+    // Work backward and delete each response off the end of the array
+    for(Uint32 i = poA->numberResponses() - 1; i > 0; i--)
+    {
+    	CIMEnumerateInstancesResponseMessage * fromResponse =
+    	    (CIMEnumerateInstancesResponseMessage *)poA->getResponse(i);
+
+    	for(Uint32 j = 0; j < fromResponse->cimNamedInstances.size(); j++)
+    	{
+            toResponse->cimNamedInstances.append(fromResponse->cimNamedInstances[j]);
+    	}
+
+        poA->deleteResponse(i);
+    }
+
     Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-        "CIMOperationRequestDispatcher::EnumerateInstancesResponseAggregation - Local Only: $0 Include Qualifiers: $1 Inlcude Class Origin: $2",
+        "CIMOperationRequestDispatcher::EnumerateInstancesResponseAggregation - Local Only: $0 Include Qualifiers: $1 Include Class Origin: $2",
         (request->localOnly == true ? "true" : "false"),
         (request->includeQualifiers == true ? "true" : "false"),
         (request->includeClassOrigin == true ? "true" : "false"));
 
-    // Work backward and delete each response off the end of the array
-    for(Uint32 i = poA->numberResponses() - 1; i > 0; i--)
+    // normalize responses
+    for(Uint32 i = 0, n = toResponse->cimNamedInstances.size(); i < n; i++)
     {
-    	CIMEnumerateInstancesResponseMessage *fromResponse =
-    	    (CIMEnumerateInstancesResponseMessage *)poA->getResponse(i);
+        try
+        {
+            // normalize instance
+            CIMInstance cimInstance =
+                _normalizer.normalizeInstance(
+                    toResponse->cimNamedInstances[i],
+                    request->localOnly,
+                    request->includeQualifiers,
+                    request->includeClassOrigin,
+                    request->propertyList);
 
-    	for (Uint32 j = 0; j < fromResponse->cimNamedInstances.size(); j++)
-    	{
-            try
-            {
-                CIMInstance cimInstance =
-                    _normalizer.normalizeInstance(
-                        fromResponse->cimNamedInstances[j],
-                        request->localOnly,
-                        request->includeQualifiers,
-                        request->includeClassOrigin,
-                        request->propertyList);
+            // replace existing instance
+            toResponse->cimNamedInstances[i] = cimInstance;
+        }
+        catch(...)
+        {
+            // ATTN: individual responses that fail to normalize are simply logged and dropped at the moment.
+            // Reporting this error to the provider would be ideal, but what can be done at this point?
 
-                toResponse->cimNamedInstances.append(cimInstance);
-            }
-            catch(...)
-            {
-                // ATTN: individual responses that fail to normalize are simply logged and dropped at the moment.
-                // A way to report this error to the provider would be ideal, but what can be done at this point?
+            Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+                "CIMOperationRequestDispatcher::EnumerateInstancesResponseAggregation - Failed to normalize object: $0",
+                toResponse->cimNamedInstances[i].getPath().toString());
 
-                Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-                    "CIMOperationRequestDispatcher::EnumerateInstancesResponseAggregation - Failed to normalize object: $0",
-                    fromResponse->cimNamedInstances[j].getPath().toString());
-            }
-    	}
-
-        poA->deleteResponse(i);
+            toResponse->cimNamedInstances.remove(i);        }
     }
 
     PEG_METHOD_EXIT();

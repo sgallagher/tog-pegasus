@@ -417,6 +417,9 @@ Boolean SSLSocket::isCertificateVerified()
 }
 
 #ifdef PEGASUS_USE_AUTOMATIC_TRUSTSTORE_UPDATE
+
+static Mutex _trustStoreMutex;
+
 Boolean SSLSocket::addTrustedClient(const char* username) 
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLSocket::addTrustedClient()");
@@ -475,6 +478,9 @@ Boolean SSLSocket::addTrustedClient(const char* username)
         
         PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "Searching for files like " + hashString);
 
+        //Lock the truststore directory before we search for the certificate and write to the directory
+        _trustStoreMutex.lock(pegasus_thread_self());
+
         FileSystem::translateSlashes(trustStore); 
         if (FileSystem::isDirectory(trustStore) && FileSystem::canWrite(trustStore)) 
         {
@@ -495,6 +501,7 @@ Boolean SSLSocket::addTrustedClient(const char* username)
                 String errorMsg = "Cannot add client certificate to truststore: could not open truststore directory.";
                 PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, errorMsg);
                 Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING, "$0", errorMsg);
+                _trustStoreMutex.unlock();
                 return false;
             }
         } 
@@ -503,6 +510,7 @@ Boolean SSLSocket::addTrustedClient(const char* username)
             String errorMsg = "Cannot add client certificate to truststore: Truststore directory DNE or does not have write privileges.";
             PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, errorMsg);
             Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING, "$0", errorMsg);
+            _trustStoreMutex.unlock();
             return false;
         }
         
@@ -523,6 +531,9 @@ Boolean SSLSocket::addTrustedClient(const char* username)
         BIO_write_filename(outFile, filename);
         int i = PEM_write_bio_X509(outFile, client_cert);
         BIO_free_all(outFile);
+
+        //Unlock the truststore directory now that the certificate's been written
+        _trustStoreMutex.unlock();
 
         char subject[256];
         X509_NAME_oneline(X509_get_subject_name(client_cert), subject, 256);

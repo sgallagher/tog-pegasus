@@ -26,6 +26,7 @@
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company 
 //              (carolann_graves@hp.com)
+// Modified By: Mike Day (mdday@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -44,25 +45,28 @@ class PEGASUS_COMMON_LINKAGE message_mask
 {
    public:
       static Uint32 type_legacy;
-      static Uint32 type_CIMClass;
-      static Uint32 type_CIMInstance;
-      static Uint32 type_CIMIndication;
-      static Uint32 type_CIMQualifier;
-      static Uint32 type_CIMSubscription;
+      static Uint32 type_CIMOperation;
+      static Uint32 type_CIMAsyncOperation;
+      static Uint32 type_export;
+      static Uint32 type_lifetime;
       static Uint32 type_socket;
       static Uint32 type_connection;
       static Uint32 type_http;
       static Uint32 type_cimom;
-      
-      static Uint32 no_delete;
-      
-      static Uint32 type_request;
-      static Uint32 type_reply;
       static Uint32 type_control;
+      static Uint32 type_service;
+      static Uint32 type_broadcast;
+      
+      
+
+      static Uint32 ha_no_delete;
+      static Uint32 ha_request;
+      static Uint32 ha_reply;
+
 
       // more for documentation than for use 
 
-      inline Uint32 get_classification(Uint32 flags)
+      inline Uint32 get_type(Uint32 flags)
       {
 	 return (flags & 0x000fffff);
       }

@@ -62,7 +62,7 @@ PEGASUS_NAMESPACE_BEGIN
 #define ASYNC_OPSTATE_CANCELLED         0x00000100
 #define ASYNC_OPSTATE_PAUSED            0x00000200
 #define ASYNC_OPSTATE_SUSPENDED         0x00000400
-#define ASYNCP_OPSTATE_RESUMED          0x00000800
+#define ASYNC_OPSTATE_RESUMED           0x00000800
 
 // we need a nak response message, with an error code and exception
 // so that the dispatcher can receive a nak from the provider manager
@@ -162,7 +162,8 @@ inline Boolean AsyncOpNode::timeout(void)
    return false;
 }
 
-inline OperationContext& AsyncOpNode::get_context(void)
+// note: lock the op node before using the context 
+inline OperationContext & AsyncOpNode::get_context(void)
 {
    return _operation_list;
 }
@@ -170,22 +171,36 @@ inline OperationContext& AsyncOpNode::get_context(void)
 
 inline  void AsyncOpNode::put_request(Message *request) 
 {
+   _mut.lock(pegasus_thread_self());
    _request = request;
+   _mut.unlock();
+   
 }
 
 inline  Message * AsyncOpNode::get_request(void) 
 {
-   return _request;
+   Message *req = 0;
+   _mut.lock(pegasus_thread_self());
+   req = _request;
+   _mut.unlock();
+   return req;
 }
 
 inline  void AsyncOpNode::put_response(Message *response) 
 {
+   _mut.lock(pegasus_thread_self());
    _response = response;
+   _mut.unlock();
+   
 }
 
 inline  Message * AsyncOpNode::get_response(void) 
 {
-   return _response;
+   Message *resp;
+   _mut.lock(pegasus_thread_self());
+   resp = _response;
+   _mut.unlock();
+   return resp;
 }
 
 inline Uint32 AsyncOpNode::read_state(void)

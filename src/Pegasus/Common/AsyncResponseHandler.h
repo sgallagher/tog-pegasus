@@ -67,7 +67,6 @@ class PEGASUS_COMMON_LINKAGE AsyncResponseHandler : public ResponseHandler<objec
       /** ATTN:
       */
       virtual void reserve(const Uint32 size) ;
-
       /** ATTN:
       */
       virtual void processing(void) ;

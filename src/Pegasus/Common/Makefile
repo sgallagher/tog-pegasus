@@ -175,7 +175,7 @@ endif
 ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
   SYS_LIBS = ws2_32.lib advapi32.lib netapi32.lib
   ifdef PEGASUS_HAS_SSL
-    SYS_LIBS += $(OPENSSL_HOME)/lib/*.lib
+    SYS_LIBS += /libpath:$(OPENSSL_HOME)/lib libeay32.lib ssleay32.lib
   endif
 endif
 

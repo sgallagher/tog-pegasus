@@ -965,6 +965,7 @@ abstract_socket* unix_socket_factory::make_socket(void)
    return new unix_socket_rep();
 }
 
+
 #endif // domain socket 
 
 

@@ -70,7 +70,7 @@
 #include "SLPProvider.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <iostream.h>
+#include <iostream>
 
 #include <Pegasus/Common/Constants.h>
 
@@ -382,7 +382,7 @@ String SLPProvider::getNameSpaceInfo(const CIMNamespaceName& nameSpace, String& 
                                          true, true, true, true,
                                          CIMPropertyList());
     }
-    catch (exception& e)
+    catch (const exception&)
     {
         //ATTN: KS... catch if we get error here. In particular unsupported class
         return(names);

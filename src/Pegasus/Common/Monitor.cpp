@@ -54,7 +54,7 @@ CIMOM. PLEASE DO NOT SUPPRESS THIS WARNING; PLEASE FIX THE PROBLEM."
 # include <netinet/in.h>
 # include <netdb.h>
 # include <arpa/inet.h>
-//# include <unistd.h>
+# include <unistd.h>
 #endif
 
 PEGASUS_USING_STD;
@@ -96,8 +96,12 @@ Monitor::Monitor()
 {
     Socket::initializeInterface();
     _rep = 0;
-    _entries.reserveCapacity(128);
-    
+    _entries.reserveCapacity(32);
+    for( int i = 0; i < 32; i++ )
+    {
+       _MonitorEntry entry(0, 0, 0);
+       _entries.append(entry);
+    }
 }
 
 Monitor::Monitor(Boolean async)
@@ -105,12 +109,17 @@ Monitor::Monitor(Boolean async)
 {
     Socket::initializeInterface();
     _rep = 0;
-    _entries.reserveCapacity(128);
+    _entries.reserveCapacity(32);
+    for( int i = 0; i < 32; i++ )
+    {
+       _MonitorEntry entry(0, 0, 0);
+       _entries.append(entry);
+    }
     if( _async == true )
     {
        _thread_pool = new ThreadPool(0, 
 				     "Monitor", 
-				     0, 
+				     1, 
 				     0,
 				     create_time, 
 				     destroy_time, 
@@ -148,7 +157,7 @@ int Monitor::kill_idle_threads()
    gettimeofday(&now, NULL);
    int dead_threads = 0;
    
-   if( now.tv_sec - last.tv_sec > 0 )
+   if( now.tv_sec - last.tv_sec > 300 )
    {
       gettimeofday(&last, NULL);
       try 
@@ -170,24 +179,23 @@ Boolean Monitor::run(Uint32 milliseconds)
 
     Boolean handled_events = false;
     int i = 0;
-
-#if defined(PEGASUS_OS_OS400) || defined(PEGASUS_OS_HPUX)
+    #if defined(PEGASUS_OS_OS400) || defined(PEGASUS_OS_HPUX)
     struct timeval tv = {milliseconds/1000, milliseconds%1000*1000};
 #else
     struct timeval tv = {0, 1};
 #endif
     fd_set fdread;
     FD_ZERO(&fdread);
-
-    _entries_mut.lock(pegasus_thread_self());
+    _entry_mut.lock(pegasus_thread_self());
     
     for( int indx = 0; indx < (int)_entries.size(); indx++)
     {
-       if(_entries[indx]._status == _MonitorEntry::IDLE)
+       if(_entries[indx]._status.value() == _MonitorEntry::IDLE)
        {
 	  FD_SET(_entries[indx].socket, &fdread);
        }
     }
+
     
     int events = select(FD_SETSIZE, &fdread, NULL, NULL, &tv);
 
@@ -204,46 +212,58 @@ Boolean Monitor::run(Uint32 milliseconds)
 	     MessageQueue *q = MessageQueue::lookup(_entries[indx].queueId);
 	     if(q == 0)
 	     {
-		_entries[indx]._status = _MonitorEntry::EMPTY;
-		_entries_mut.unlock();
-		return true;
-	     }
-	     
-	     if(_entries[indx]._type == Monitor::CONNECTION)
-	     {
-		static_cast<HTTPConnection *>(q)->_entry_index = indx;
-		if(static_cast<HTTPConnection *>(q)->_dying.value() > 0 )
+		try
 		{
-		   _entries[indx]._status = _MonitorEntry::DYING;
+		   _entries[indx]._status = _MonitorEntry::EMPTY;
+		}
+		catch(...)
+		{
 
-		   MessageQueue & o = static_cast<HTTPConnection *>(q)->get_owner();
-		   Message* message= new CloseConnectionMessage(_entries[indx].socket);
-		   message->dest = o.getQueueId();
-		   _entries_mut.unlock();
-		   o.enqueue(message);
+		}
+		continue;
+	     }
+	     try 
+	     {
+		if(_entries[indx]._type == Monitor::CONNECTION)
+		{
+		   static_cast<HTTPConnection *>(q)->_entry_index = indx;
+		   if(static_cast<HTTPConnection *>(q)->_dying.value() > 0 )
+		   {
+		      _entries[indx]._status = _MonitorEntry::DYING;
+		      MessageQueue & o = static_cast<HTTPConnection *>(q)->get_owner();
+		      Message* message= new CloseConnectionMessage(_entries[indx].socket);
+		      message->dest = o.getQueueId();
+		      _entry_mut.unlock();
+		      o.enqueue(message);
+		      return true;
+		   }
+		   _entries[indx]._status = _MonitorEntry::BUSY;
+		   _thread_pool->allocate_and_awaken((void *)q, _dispatch);
+		}
+		else
+		{
+		   int events = 0;
+		   events |= SocketMessage::READ;
+		   Message *msg = new SocketMessage(_entries[indx].socket, events);
+		   _entries[indx]._status = _MonitorEntry::BUSY;
+		   _entry_mut.unlock();
+
+		   q->enqueue(msg);
+		   _entries[indx]._status = _MonitorEntry::IDLE;
 		   return true;
 		}
-		_entries[indx]._status = _MonitorEntry::BUSY;
-		_entries_mut.unlock();
-		_thread_pool->allocate_and_awaken((void *)q, _dispatch);
-		_entries_mut.lock(pegasus_thread_self());
 	     }
-	     else
+	     catch(...)
 	     {
-		int events = 0;
-		events |= SocketMessage::READ;
-		Message *msg = new SocketMessage(_entries[indx].socket, events);
-		_entries_mut.unlock();
-		q->enqueue(msg);
-		return true;
 	     }
 	     handled_events = true;
 	  }
        }
     }
-    _entries_mut.unlock();
+    _entry_mut.unlock();
     return(handled_events);
 }
+
 
 
 int  Monitor::solicitSocketMessages(
@@ -255,30 +275,30 @@ int  Monitor::solicitSocketMessages(
 
    PEG_METHOD_ENTER(TRC_HTTP, "Monitor::solicitSocketMessages");
 
-   _MonitorEntry entry(socket, queueId, type);
-   entry._status = _MonitorEntry::IDLE;
-   _entries_mut.lock(pegasus_thread_self());
+   int index = -1;
+   _entry_mut.lock(pegasus_thread_self());
    
-   Boolean found = false;
-   
-   int index ;
    for(index = 0; index < (int)_entries.size(); index++)
    {
-      if(_entries[index]._status == _MonitorEntry::EMPTY)
+      try 
       {
-	 _entries[index].operator =(entry);
-	 found = true;
-	 break;
+	 if(_entries[index]._status.value() == _MonitorEntry::EMPTY)
+	 {
+	    _entries[index].socket = socket;
+	    _entries[index].queueId  = queueId;
+	    _entries[index]._type = type;
+	    _entries[index]._status = _MonitorEntry::IDLE;
+	    _entry_mut.unlock();
+	    
+	    return index;
+	 }
       }
-   }
-   if(found == false)
-   {
-      _entries.append(entry);
-      index = _entries.size() - 1;
-   }
-   _connections++;
-   _entries_mut.unlock();
+      catch(...)
+      {
+      }
 
+   }
+      _entry_mut.unlock();
    PEG_METHOD_EXIT();
    return index;
 }
@@ -286,34 +306,31 @@ int  Monitor::solicitSocketMessages(
 void Monitor::unsolicitSocketMessages(Sint32 socket)
 {
     PEG_METHOD_ENTER(TRC_HTTP, "Monitor::unsolicitSocketMessages");
-
-    _entries_mut.lock(pegasus_thread_self());
-    
-    Boolean found = false;
+    _entry_mut.lock(pegasus_thread_self());
     
     for(int index = 0; index < (int)_entries.size(); index++)
     {
        if(_entries[index].socket == socket)
        {
-	  found = true;
-	  _connections--;
 	  _entries[index]._status = _MonitorEntry::EMPTY;
+	  break;
        }
     }
-    _entries_mut.unlock();
-    PEGASUS_ASSERT(found == true);
-    
+    _entry_mut.unlock();
     PEG_METHOD_EXIT();
 }
-
-
 
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL Monitor::_dispatch(void *parm)
 {
    HTTPConnection *dst = reinterpret_cast<HTTPConnection *>(parm);
+   
    dst->run(1);
+   if(  dst->_monitor->_entries.size() > (Uint32)dst->_entry_index )
+      dst->_monitor->_entries[dst->_entry_index]._status = _MonitorEntry::IDLE;
+   
    return 0;
 }
+
 
 
 PEGASUS_NAMESPACE_END

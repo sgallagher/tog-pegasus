@@ -39,7 +39,7 @@ PEGASUS_NAMESPACE_BEGIN
 typedef HashTable<Uint32, MessageQueue*, EqualFunc<Uint32>, HashFunc<Uint32> >
     QueueTable;
 
-static QueueTable _queueTable(128);
+static QueueTable _queueTable(256);
 static Mutex q_table_mut ;
 
 Uint32 MessageQueue::getNextQueueId() throw(IPCException)

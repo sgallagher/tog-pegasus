@@ -347,7 +347,8 @@ class PEGASUS_COMMON_LINKAGE AsyncIoctl : public AsyncRequest
 	 IO_CLOSE,
 	 IO_OPEN,
 	 IO_SOURCE_QUENCH,
-	 IO_SERVICE_DEFINED
+	 IO_SERVICE_DEFINED, 
+	 IO_IDLE_CONTROL
       };
       
       

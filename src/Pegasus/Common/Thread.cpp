@@ -183,56 +183,58 @@ ThreadPool::ThreadPool(Sint16 initial_size,
 
 ThreadPool::~ThreadPool(void)
 {
-
-  try {
-   _pools.remove(this);
-   _dying++;
-   Thread *th = 0;
-   th = _pool.remove_first();
-   while(th != 0)
+   try 
    {
-      Semaphore *sleep_sem = (Semaphore *)th->reference_tsd("sleep sem");
-
-      if(sleep_sem == 0)
+      _pools.remove(this);
+      _dying++;
+      Thread *th = 0;
+      th = _pool.remove_first();
+      while(th != 0)
       {
+	 Semaphore *sleep_sem = (Semaphore *)th->reference_tsd("sleep sem");
+	 
+	 if(sleep_sem == 0)
+	 {
+	    th->dereference_tsd();
+	    throw NullPointer();
+	 }
+	 
+	 sleep_sem->signal();
+	 sleep_sem->signal();
 	 th->dereference_tsd();
-	 throw NullPointer();
+	 // signal the thread's sleep semaphore
+	 th->cancel();
+	 th->join();
+	 th->empty_tsd();
+	 delete th;
+	 th = _pool.remove_first();
       }
 
-      sleep_sem->signal();
-      sleep_sem->signal();
-      th->dereference_tsd();
-      // signal the thread's sleep semaphore
-      th->cancel();
-      th->join();
-      th->empty_tsd();
-      delete th;
-      th = _pool.remove_first();
-   }
-
-   th = _running.remove_first();
-   while(th != 0)
-   {
-      // signal the thread's sleep semaphore
-      th->cancel();
-      th->join();
-      th->empty_tsd();
-      delete th;
       th = _running.remove_first();
-   }
+      while(th != 0)
+      {
+	 // signal the thread's sleep semaphore
+	 th->cancel();
+	 th->join();
+	 th->empty_tsd();
+	 delete th;
+	 th = _running.remove_first();
+      }
 
-   th = _dead.remove_first();
-   while(th != 0)
-   {
-      // signal the thread's sleep semaphore
-      th->cancel();
-      th->join();
-      th->empty_tsd();
-      delete th;
       th = _dead.remove_first();
+      while(th != 0)
+      {
+	 // signal the thread's sleep semaphore
+	 th->cancel();
+	 th->join();
+	 th->empty_tsd();
+	 delete th;
+	 th = _dead.remove_first();
+      }
    }
-  }
-  catch(...){}
+   catch(...)
+   {
+   }
 }
 
 // make this static to the class
@@ -240,7 +242,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
 {
    PEG_METHOD_ENTER(TRC_THREAD, "ThreadPool::_loop");
 
-   Tracer::trace(TRC_THREAD, Tracer::LEVEL4, "ThreadPool::_loop entered");
    Thread *myself = (Thread *)parm;
    if(myself == 0)
    {
@@ -267,38 +268,28 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
    }
    catch(IPCException &)
    {
-      Tracer::trace(__FILE__, __LINE__, TRC_THREAD, Tracer::LEVEL4, 
-		    "IPCException Caught - EXITING");
       PEG_METHOD_EXIT();
       myself->exit_self(0);
    }
    catch(...)
    {
-      Tracer::trace(__FILE__, __LINE__, TRC_THREAD, Tracer::LEVEL4, 
-		    "Unknown  Exception Caught - EXITING");
       PEG_METHOD_EXIT();
       myself->exit_self(0);
    }
    
    if(sleep_sem == 0 || deadlock_timer == 0)
    {
-      Tracer::trace(__FILE__, __LINE__, TRC_THREAD, Tracer::LEVEL4, 
-		    "NULL Semaphore  - EXITING");
       PEG_METHOD_EXIT();
       throw NullPointer();
    }
 
    while(pool->_dying < 1)
    {
-      Tracer::trace(__FILE__, __LINE__, TRC_THREAD, Tracer::LEVEL4, 
-		    "ThreadPool::_loop - waiting on semaphore");
       sleep_sem->wait();
-      Tracer::trace(__FILE__, __LINE__, TRC_THREAD, Tracer::LEVEL4, 
-		    "ThreadPool::_loop - awakened from semaphore");
+        
       // when we awaken we reside on the running queue, not the pool queue
       if(pool->_dying > 0)
 	 break;
-      
 
       PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *_work)(void *) = 0;
       void *parm = 0;
@@ -316,16 +307,12 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
       }
       catch(IPCException &)
       {
-	 Tracer::trace(__FILE__, __LINE__, TRC_THREAD, Tracer::LEVEL4, 
-		       "IPCException Caught - EXITING");
 	 PEG_METHOD_EXIT();
 	 myself->exit_self(0);
       }
 
       if(_work == 0)
       {
-	 Tracer::trace(__FILE__, __LINE__, TRC_THREAD, Tracer::LEVEL4, 
-		       "NULL work pointer - EXITING");
          PEG_METHOD_EXIT();
 	 throw NullPointer();
       }
@@ -333,24 +320,16 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
       if(_work ==
          (PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *)(void *)) &_undertaker)
       {
-	 Tracer::trace(__FILE__, __LINE__, TRC_THREAD, Tracer::LEVEL4, 
-		       "Calling the Undertaker");
 	 _work(parm);
       }
 
       gettimeofday(deadlock_timer, NULL);
       try 
       {
-	 Tracer::trace(__FILE__, __LINE__, TRC_THREAD, Tracer::LEVEL4, 
-		       "ThreadPool::_loop - calling work routine");
 	 _work(parm);
-	 Tracer::trace(__FILE__, __LINE__, TRC_THREAD, Tracer::LEVEL4, 
-		       "ThreadPool::_loop - returned from work routine");
       }
       catch(...)
       {
-	 Tracer::trace(__FILE__, __LINE__, TRC_THREAD, Tracer::LEVEL4, 
-		       "Unknown  Exception Caught - EXITING");
 	 gettimeofday(deadlock_timer, NULL);
       }
       gettimeofday(deadlock_timer, NULL);
@@ -365,8 +344,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
       }
       catch(IPCException &)
       {
-	 Tracer::trace(__FILE__, __LINE__, TRC_THREAD, Tracer::LEVEL4, 
-		       "IPCException Caught - EXITING");
 	 PEG_METHOD_EXIT();
 	 myself->exit_self(0);
       }
@@ -399,12 +376,11 @@ void ThreadPool::allocate_and_awaken(void *parm,
       _check_deadlock(&start) ;
       
       if(_max_threads == 0 || _current_threads < _max_threads)
-	{
-	  th = _init_thread();
-	  continue;
-	}
-
-      pegasus_sleep(1);
+      {
+	 th = _init_thread();
+	 continue;
+      }
+      pegasus_yield();
       th = _pool.remove_first();
    }
 
@@ -676,7 +652,6 @@ PEGASUS_THREAD_RETURN ThreadPool::_undertaker( void *parm )
 
  Thread *ThreadPool::_init_thread(void) throw(IPCException)
 {
-   PEG_METHOD_ENTER(TRC_THREAD, "ThreadPool::_init_thread");
    Thread *th = (Thread *) new Thread(_loop, this, false);
    // allocate a sleep semaphore and pass it in the thread context
    // initial count is zero, loop function will sleep until
@@ -685,12 +660,13 @@ PEGASUS_THREAD_RETURN ThreadPool::_undertaker( void *parm )
    th->put_tsd("sleep sem", &_sleep_sem_del, sizeof(Semaphore), (void *)sleep_sem);
    
    struct timeval *dldt = (struct timeval *) ::operator new(sizeof(struct timeval));
+   pegasus_gettimeofday(dldt);
+   
    th->put_tsd("deadlock timer", thread_data::default_delete, sizeof(struct timeval), (void *)dldt);
    // thread will enter _loop(void *) and sleep on sleep_sem until we signal it
    th->run();
    _current_threads++;
    pegasus_yield();
-   PEG_METHOD_EXIT();
    
    return th;
 }

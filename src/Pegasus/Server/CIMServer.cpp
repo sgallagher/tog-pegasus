@@ -344,10 +344,10 @@ void CIMServer::runForever()
 	 {
 	    try 
 	    {
-// 	       MessageQueueService::_check_idle_flag = 1;
-// 	       MessageQueueService::_polling_sem.signal();
+ 	       MessageQueueService::_check_idle_flag = 1;
+ 	       MessageQueueService::_polling_sem.signal();
 // 	       ProviderManagerService::getProviderManager()->unload_idle_providers();
-// 	       _monitor->kill_idle_threads();
+ 	       _monitor->kill_idle_threads();
 	    }
 	    catch(...)
 	    {

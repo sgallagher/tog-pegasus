@@ -79,6 +79,9 @@ template<class L> class PEGASUS_COMMON_LINKAGE DQueue : public internal_dq
       Boolean exists(const L *key) throw(IPCException);
       
       Uint32 count(void) { return _actual_count->value() ; }
+      Uint32 size(void) { return _actual_count->value() ; }
+	
+	  
 } ;
 
  
@@ -151,6 +154,8 @@ template<class L> class PEGASUS_COMMON_LINKAGE AsyncDQueue: public internal_dq
       L *reference(const void *key) throw(IPCException);
       L *reference(const L *key) throw(IPCException);
       Uint32 count(void) ;
+      Uint32 size(void) ;
+      
 };
       
 template<class L> DQueue<L> * DQueue<L>::_headOfFreeList;
@@ -1073,6 +1078,7 @@ template<class L> L *AsyncDQueue<L>::reference(const L *key) throw(IPCException)
 }
 
 template<class L> Uint32 AsyncDQueue<L>::count(void) { return _actual_count->value() ; }
+template<class L> Uint32 AsyncDQueue<L>::size(void) { return _actual_count->value() ; }
 
 
 PEGASUS_NAMESPACE_END

@@ -98,9 +98,10 @@ public:
 #else
    int address_size;
 #endif
-
-    Sint32 socket;
-    Array<HTTPConnection*> connections;
+      Mutex _connection_mut;
+      
+      Sint32 socket;
+      Array<HTTPConnection*> connections;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -164,6 +165,8 @@ void HTTPAcceptor::handleEnqueue(Message *message)
 	 CloseConnectionMessage* closeConnectionMessage 
 	    = (CloseConnectionMessage*)message;
 
+	 _rep->_connection_mut.lock(pegasus_thread_self());
+	 
 	 for (Uint32 i = 0, n = _rep->connections.size(); i < n; i++)
 	 {
 	    HTTPConnection* connection = _rep->connections[i];	
@@ -177,6 +180,7 @@ void HTTPAcceptor::handleEnqueue(Message *message)
 	       break;
 	    }
 	 }
+	 _rep->_connection_mut.unlock();
       }
 
       default:
@@ -264,6 +268,28 @@ void HTTPAcceptor::_bind()
       throw BindFailedException("Failed to create socket");
    }
 
+
+// set the close-on-exec bit for this file handle.
+// any unix that forks needs this bit set. 
+#ifndef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+   int sock_flags;
+ if( (sock_flags = fcntl(_rep->socket, F_GETFD, 0)) < 0)
+   {
+       PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL2,
+                        "HTTPAcceptor: fcntl(F_GETFD) failed");
+   }
+   else
+   {
+      sock_flags |= FD_CLOEXEC;
+      if (fcntl(_rep->socket, F_SETFD, sock_flags) < 0)
+      {
+       PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL2,
+                        "HTTPAcceptor: fcntl(F_SETFD) failed");
+      }
+   }
+#endif 
+
+
    //
    // Set the socket option SO_REUSEADDR to reuse the socket address so
    // that we can rebind to a new socket using the same address when we
@@ -274,6 +300,7 @@ void HTTPAcceptor::_bind()
    if (setsockopt(_rep->socket, SOL_SOCKET, SO_REUSEADDR,
 		  (char *)&opt, sizeof(opt)) < 0)
    {
+      Socket::close(_rep->socket);
       delete _rep;
       _rep = 0;
       throw BindFailedException("Failed to set socket option");
@@ -348,15 +375,16 @@ void HTTPAcceptor::reopenConnectionSocket()
 */
 Uint32 HTTPAcceptor::getOutstandingRequestCount()
 {
+   Uint32 count = 0;
+   
+   _rep->_connection_mut.lock(pegasus_thread_self());
    if (_rep->connections.size() > 0)
    {
       HTTPConnection* connection = _rep->connections[0];	
-      return(connection->getRequestCount());
+      count = connection->getRequestCount();
    }
-   else
-   {
-      return(0);
-   }
+   _rep->_connection_mut.unlock();
+   return count;
 }
 
 void HTTPAcceptor::unbind()
@@ -382,8 +410,11 @@ void HTTPAcceptor::unbind()
 
 void HTTPAcceptor::destroyConnections()
 {
+
+
    // For each connection created by this object:
 
+   _rep->_connection_mut.lock(pegasus_thread_self());
    for (Uint32 i = 0, n = _rep->connections.size(); i < n; i++)
    {
       HTTPConnection* connection = _rep->connections[i];	
@@ -400,6 +431,7 @@ void HTTPAcceptor::destroyConnections()
    }
 
    _rep->connections.clear();
+   _rep->_connection_mut.unlock();
 }
 
 void HTTPAcceptor::_acceptConnection()
@@ -452,6 +484,26 @@ void HTTPAcceptor::_acceptConnection()
       return;
    }
 
+// set the close on exec flag 
+#ifndef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+   int sock_flags;
+ if( (sock_flags = fcntl(socket, F_GETFD, 0)) < 0)
+   {
+       PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL2,
+                        "HTTPAcceptor: fcntl(F_GETFD) failed");
+   }
+   else
+   {
+      sock_flags |= FD_CLOEXEC;
+      if (fcntl(socket, F_SETFD, sock_flags) < 0)
+      {
+       PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL2,
+                        "HTTPAcceptor: fcntl(F_SETFD) failed");
+      }
+   }
+#endif 
+
+
    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
 	       "HTTPAcceptor - accept() success.  Socket: $1"
 	       ,socket);
@@ -483,8 +535,9 @@ void HTTPAcceptor::_acceptConnection()
 
    // Save the socket for cleanup later:
    connection->_entry_index = index;
-   
+      _rep->_connection_mut.lock(pegasus_thread_self());
    _rep->connections.append(connection);
+   _rep->_connection_mut.unlock();
 }
 
 PEGASUS_NAMESPACE_END

@@ -43,7 +43,7 @@
 PEGASUS_NAMESPACE_BEGIN
 
 class HTTPAcceptorRep;
-
+class Monitor;
 /** Instances of this class listen on a port and accept conections.
 */
 class PEGASUS_COMMON_LINKAGE HTTPAcceptor : public MessageQueue
@@ -111,6 +111,9 @@ class PEGASUS_COMMON_LINKAGE HTTPAcceptor : public MessageQueue
 
       void _acceptConnection();
       void _bind();
+
+      cimom *_meta_dispatcher;
+    
 
       Monitor* _monitor;
       MessageQueue* _outputMessageQueue;

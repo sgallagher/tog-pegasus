@@ -39,12 +39,12 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class  _MonitorEntry
+class PEGASUS_COMMON_LINKAGE _MonitorEntry
 {
    public:
       Sint32 socket;
       Uint32 queueId;
-      int _status;
+      AtomicInt _status;
       int _type;
       
       _MonitorEntry(Sint32 sock, Uint32 q, int Type)
@@ -161,8 +161,8 @@ public:
 */
 class PEGASUS_COMMON_LINKAGE Monitor
 {
-public:
-enum Type 
+   public:
+      enum Type 
       {
 	 ACCEPTOR, CONNECTOR, CONNECTION
       };
@@ -221,9 +221,7 @@ private:
       ModuleController * _controller;
       Boolean _async;
       ThreadPool *_thread_pool;
-      
-      Mutex _entries_mut;
-      
+      Mutex _entry_mut;
       friend class HTTPConnection;
       
 };

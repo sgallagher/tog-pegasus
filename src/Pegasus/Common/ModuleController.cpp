@@ -744,8 +744,6 @@ Boolean ModuleController::ModuleSendAsync(const pegasus_module & handle,
    callback_handle *cb = new callback_handle(const_cast<pegasus_module *>(&handle), 
 					     callback_parm);
    
-   //printf("obtained callback handle %p\n", cb);
-   
    message->setRouting(msg_handle);
    message->resp = getQueueId();
    message->block = false;
@@ -987,8 +985,7 @@ ModuleController & ModuleController::get_client_handle(const char *controller,
 
 void ModuleController::return_client_handle(client_handle *handle)
 {
-   (handle->reference_count)--;
-   if( handle->reference_count.value() == 0 )
+   if( true == handle->reference_count.DecAndTestIfZero())
       delete handle;
 }
 

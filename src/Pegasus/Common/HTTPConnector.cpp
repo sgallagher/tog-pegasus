@@ -275,11 +275,13 @@ HTTPConnection* HTTPConnector::connect(
 
    // Solicit events on this new connection's socket:
 
-   _entry_index = _monitor->solicitSocketMessages(
-	              socket,
-	              SocketMessage::READ | SocketMessage::EXCEPTION,
-	              connection->getQueueId(), Monitor::CONNECTOR);
-   PEGASUS_ASSERT(_entry_index != -1);
+   if (-1 == (_entry_index = _monitor->solicitSocketMessages(
+	  mp_socket->getSocket(),
+	  SocketMessage::READ | SocketMessage::EXCEPTION,
+	  connection->getQueueId(), Monitor::CONNECTOR)))
+   {
+      mp_socket->close();
+   }
 
    // Save the socket for cleanup later:
 

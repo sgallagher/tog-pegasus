@@ -81,18 +81,13 @@ class Thread;
 class PEGASUS_COMMON_LINKAGE AsyncOpNode
 {
 
-#ifdef PEGASUS_ASYNCOPNODE_MEMORY_OPTIMIZATION
-// Note: These memory operators cause memory corruption errors because they
-// are not compatible with the "::operator delete()" function used in
-// internal_dq::empty_list()
-    public:
-      static void * operator new(size_t );
-      static void operator delete( void *, size_t);
-   private:
-      static AsyncOpNode * _headOfFreeList;
-      static const int BLOCK_SIZE;
-      static Mutex _alloc_mut;
-#endif
+//     public:
+//       static void * operator new(size_t );
+//       static void operator delete( void *, size_t);
+//    private:
+//       static AsyncOpNode * _headOfFreeList;
+//       static const int BLOCK_SIZE;
+//       static Mutex _alloc_mut;
    public:
 
       AsyncOpNode(void);
@@ -192,7 +187,6 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
       friend class MessageQueueService;
       friend class ProviderManagerService;
       friend class BinaryMessageHandler;
-      
  public:
       // << Tue Jun  4 16:44:09 2002 mdd >>
       // debug artifact 
@@ -282,8 +276,6 @@ inline Message * AsyncOpNode::get_request(void)
    _mut.lock(pegasus_thread_self());
    gettimeofday(&_updated, NULL);
    ret = _request.remove_first() ;
-//   ret = _request;
-
    _mut.unlock();
    return ret;
 }
@@ -294,9 +286,6 @@ inline void AsyncOpNode::put_response(const Message *response)
    gettimeofday(&_updated, NULL);
    if (false == _response.exists(reinterpret_cast<void *>(const_cast<Message *>(response))))
    _response.insert_last( const_cast<Message *>(response) );
-
-//   _response = const_cast<Message *>(response);
-
    _mut.unlock();
 }
 

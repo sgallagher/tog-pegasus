@@ -177,13 +177,6 @@ class PEGASUS_COMMON_LINKAGE cimom : public MessageQueue
       static cimom *_global_this;
       
       friend class MessageQueueService;
-      
-
-//       CIMOperationRequestDispatcher *_cim_dispatcher;
-//       CIMOperationResponseEncoder *_cim_encoder;
-//       CIMOperationRequestDecoder *_cim_decoder;
-//       CIMRepository *_repository;
-      
 };
 
 

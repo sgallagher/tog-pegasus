@@ -67,6 +67,8 @@ class CloseConnectionMessage : public Message
 
 /** This class represents an HTTP listener.
 */
+class Monitor;
+
 class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueue
 {
    public:

@@ -234,12 +234,15 @@ inline AtomicInt& AtomicInt::operator-=(Uint32 val)
 
 inline Boolean AtomicInt::DecAndTestIfZero()
 {
-   enter_crit(&_crit);
-   _rep--;
-   Boolean b = (_rep == 0);
-   exit_crit(&_crit);
-   
-   return b;
+  Boolean ret = false;
+  
+  enter_crit(&_crit);
+  InterlockedDecrement(&_rep);
+  if( _rep == 0)
+    ret = true;
+  exit_crit(&_crit);
+  return ret;
+  
 }
 
 

@@ -39,7 +39,7 @@ AtomicInt MessageQueueService::_xid(1);
 Mutex MessageQueueService::_meta_dispatcher_mutex;
 
 static struct timeval create_time = {0, 1};
-static struct timeval destroy_time = {15, 0};
+static struct timeval destroy_time = {300, 0};
 static struct timeval deadlock_time = {0, 0};
 
 ThreadPool *MessageQueueService::_thread_pool = 0;
@@ -48,26 +48,34 @@ DQueue<MessageQueueService> MessageQueueService::_polling_list(true);
 
 Thread* MessageQueueService::_polling_thread = 0;
 
-
-int MessageQueueService::kill_idle_threads(void)
+ThreadPool *MessageQueueService::get_thread_pool(void)
 {
-   static struct timeval now, last;
+   return _thread_pool;
+}
+
+void unload_idle_providers(void);
+
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL  MessageQueueService::kill_idle_threads(void *parm)
+{
+
+   static struct timeval now, last = {0,0};
    gettimeofday(&now, NULL);
    int dead_threads = 0;
    
-   if( now.tv_sec - last.tv_sec > 0 )
+   if( now.tv_sec - last.tv_sec > 300 )
    {
       gettimeofday(&last, NULL);
       try 
       {
-	 dead_threads =  _thread_pool->kill_dead_threads();
+	 dead_threads =  MessageQueueService::_thread_pool->kill_dead_threads();
       }
-      catch(IPCException& )
+      catch(...)
       {
 
       }
    }
-   return dead_threads;
+   exit_thread((PEGASUS_THREAD_RETURN)dead_threads);
+   return (PEGASUS_THREAD_RETURN)dead_threads;
 }
 
 
@@ -97,15 +105,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(
    DQueue<MessageQueueService> *list = reinterpret_cast<DQueue<MessageQueueService> *>(myself->get_parm());
    while ( _stop_polling.value()  == 0 ) 
    {
-      try
-      {
-         _polling_sem.wait();
-      }
-      catch (WaitFailed)
-      {
-         myself->exit_self( (PEGASUS_THREAD_RETURN) 1 );
-      }
-
+      _polling_sem.wait();
       if(_stop_polling.value() != 0 )
       {
          break;
@@ -118,11 +118,16 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(
 	 if(service->_incoming.count() > 0 )
 	 {
 	    _thread_pool->allocate_and_awaken(service, _req_proc);
-//	    service->_req_proc(service);
 	 }
 	 service = list->next(service);
       }
       list->unlock();
+      if(_check_idle_flag.value() != 0 )
+      {
+	 _check_idle_flag = 0;
+	 Thread th(kill_idle_threads, 0, true);
+	 th.run();
+      }
    }
    myself->exit_self( (PEGASUS_THREAD_RETURN) 1 );
    return(0);
@@ -131,6 +136,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(
 
 Semaphore MessageQueueService::_polling_sem(0);
 AtomicInt MessageQueueService::_stop_polling(0);
+AtomicInt MessageQueueService::_check_idle_flag(0);
 
 
 MessageQueueService::MessageQueueService(const char *name, 

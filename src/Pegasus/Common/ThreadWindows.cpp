@@ -49,6 +49,9 @@ Thread::Thread( PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *start )(void *),
 
 Thread::~Thread()
 {
+   try 
+   {
+      
    if( (! _is_detached) && (_handle.thid != 0))
    {
       // emulate the unix join api. caller sleeps until 
@@ -65,6 +68,11 @@ Thread::~Thread()
        }
    }
    CloseHandle(_handle.thid);
+   }
+   catch(..)
+   {
+   }
+   
    
 }
 

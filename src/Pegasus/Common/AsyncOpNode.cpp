@@ -36,53 +36,51 @@ PEGASUS_NAMESPACE_BEGIN
 #define snprintf _snprintf
 #endif
 
-#ifdef PEGASUS_ASYNCOPNODE_MEMORY_OPTIMIZATION
-AsyncOpNode * AsyncOpNode::_headOfFreeList = 0;
-const int AsyncOpNode::BLOCK_SIZE = 200;
-Mutex AsyncOpNode::_alloc_mut;
+// AsyncOpNode * AsyncOpNode::_headOfFreeList;
+// const int AsyncOpNode::BLOCK_SIZE = 200;
+// Mutex AsyncOpNode::_alloc_mut;
 
-void * AsyncOpNode::operator new(size_t size)
-{
-   if(size != sizeof(AsyncOpNode))
-      return :: operator new(size);
+// void * AsyncOpNode::operator new(size_t size)
+// {
+//    if(size != sizeof(AsyncOpNode))
+//       return :: operator new(size);
 
-   _alloc_mut.lock(pegasus_thread_self());
+//    _alloc_mut.lock(pegasus_thread_self());
 
-   AsyncOpNode *node = _headOfFreeList;
-   if(node)
-      _headOfFreeList = node->_parent;
-   else
-   {
-      AsyncOpNode * newBlock =
-	 reinterpret_cast<AsyncOpNode *>(::operator new( BLOCK_SIZE * sizeof(AsyncOpNode)));
-      int i;
-      for( i = 1; i < BLOCK_SIZE - 1; ++i)
-	 newBlock[i]._parent = &newBlock[i + 1];
-      newBlock[BLOCK_SIZE - 1]._parent = NULL;
-      node = newBlock;
-      _headOfFreeList = &newBlock[1];
-   }
-   _alloc_mut.unlock();
-   return node;
-}
+//    AsyncOpNode *node = _headOfFreeList;
+//    if(node)
+//       _headOfFreeList = node->_parent;
+//    else
+//    {
+//       AsyncOpNode * newBlock =
+// 	 reinterpret_cast<AsyncOpNode *>(::operator new( BLOCK_SIZE * sizeof(AsyncOpNode)));
+//       int i;
+//       for( i = 1; i < BLOCK_SIZE - 1; ++i)
+// 	 newBlock[i]._parent = &newBlock[i + 1];
+//       newBlock[BLOCK_SIZE - 1]._parent = NULL;
+//       node = newBlock;
+//       _headOfFreeList = &newBlock[1];
+//    }
+//    _alloc_mut.unlock();
+//    return node;
+// }
 
-void AsyncOpNode::operator delete(void *dead, size_t size)
-{
+// void AsyncOpNode::operator delete(void *dead, size_t size)
+// {
 
-   if(dead == 0)
-      return;
-   if(size != sizeof(AsyncOpNode))
-   {
-      ::operator delete(dead);
-      return;
-   }
-   AsyncOpNode *node = reinterpret_cast<AsyncOpNode *>(dead);
-   _alloc_mut.lock(pegasus_thread_self());
-   node->_parent = _headOfFreeList;
-   _headOfFreeList = node;
-   _alloc_mut.unlock();
-}
-#endif // PEGASUS_ASYNCOPNODE_MEMORY_OPTIMIZATION
+//    if(dead == 0)
+//       return;
+//    if(size != sizeof(AsyncOpNode))
+//    {
+//       ::operator delete(dead);
+//       return;
+//    }
+//    AsyncOpNode *node = reinterpret_cast<AsyncOpNode *>(dead);
+//    _alloc_mut.lock(pegasus_thread_self());
+//    node->_parent = _headOfFreeList;
+//    _headOfFreeList = node;
+//    _alloc_mut.unlock();
+// }
 
 
 AsyncOpNode::AsyncOpNode(void)

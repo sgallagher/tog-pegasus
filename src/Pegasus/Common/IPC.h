@@ -1,4 +1,4 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////-*-c++-*-////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
 // The Open Group, Tivoli Systems
@@ -317,7 +317,7 @@ class PEGASUS_COMMON_LINKAGE Semaphore
       PEGASUS_SEM_HANDLE  _semaphore;
 
       // may not need to use the _count member on
-      // platorms that allow you to ask the semaphore for 
+      // platforms that allow you to ask the semaphore for 
       // its count 
       int _count; 
 //      void _extricate(void);

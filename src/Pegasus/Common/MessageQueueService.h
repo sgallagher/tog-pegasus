@@ -112,14 +112,14 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
       }
 
       static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL polling_routine(void *);
-      static int kill_idle_threads(void);
+      static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL kill_idle_threads(void *);
       static int pooled_threads(void) 
       {
 	 return _thread_pool->running_count() + _thread_pool->dead_count() + _thread_pool->pool_count();
       }
-      
+      static ThreadPool *get_thread_pool(void);
       static void force_shutdown(void);
-
+      
       Uint32 _mask;
       AtomicInt _die;
    protected:
@@ -168,6 +168,7 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
       static Thread* _polling_thread;
       static Semaphore _polling_sem;
       static AtomicInt _stop_polling;
+      static AtomicInt _check_idle_flag;
       
       static DQueue<MessageQueueService> _polling_list;
       
@@ -187,6 +188,7 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
       struct timeval _default_op_timeout;
       static AtomicInt _xid;
       friend class cimom;
+      friend class CIMServer;
 };
 
 PEGASUS_NAMESPACE_END

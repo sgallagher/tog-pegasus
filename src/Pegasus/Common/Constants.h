@@ -207,7 +207,7 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_USER          =
 // File system layout
 //
 
-#define PEGASUS_SSLCLIENT_CERTIFICATEFILE "server.pem"
+#define PEGASUS_SSLCLIENT_CERTIFICATEFILE "client.pem"
 #define PEGASUS_SSLCLIENT_RANDOMFILE      "ssl.rnd"
 #define PEGASUS_LOCAL_AUTH_DIR            "/tmp"
 // ATTN: Relocate this relative to PEGASUS_HOME
@@ -216,7 +216,7 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_USER          =
 #ifdef PEGASUS_USE_RELEASE_DIRS
 # if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
 #  undef PEGASUS_SSLCLIENT_CERTIFICATEFILE
-#  define PEGASUS_SSLCLIENT_CERTIFICATEFILE "/var/opt/wbem/server.pem"
+#  define PEGASUS_SSLCLIENT_CERTIFICATEFILE "/var/opt/wbem/client.pem"
 #  undef PEGASUS_SSLCLIENT_RANDOMFILE
 #  define PEGASUS_SSLCLIENT_RANDOMFILE      "/var/opt/wbem/ssl.rnd"
 #  undef PEGASUS_LOCAL_AUTH_DIR

@@ -1,0 +1,32 @@
+Copyright (c) 2001, 2002 Hewlett-Packard Company
+
+Usage:
+  cimop <cimoperation> [arg, ...]
+
+Implemented operations (not case sensitive) are:
+  getClass|gc <class>
+  enumerateClassNames|ecn [ <class> ]
+  getInstance|gi <class> [ list ]
+  enumerateInstances|ei <class>
+  enumerateInstanceNames|ein <class>
+  getProperty|gp <class> { ask | list } [ <propnam> ]
+  deleteClass|dc <class>
+  createInstance|ci <class>
+  modifyInstance|mi <class> [ list ]
+  deleteInstance|di <class> [ list ]
+
+Examples:
+  cimop ecn
+  cimop enumerateinstancenames pg_operatingsystem
+  cimop gi pg_unixprocess list
+
+Environment variables:
+  CIM_HOST -- local connect if not defined
+  CIM_PORT -- port number (default determined by CIM_NOSSL)
+  CIM_NOSSL -- if defined, connect unencrypted to 5988, else 5989
+  CIM_NAMESPACE -- if not defined use root/cimv2
+  CIM_USER -- user
+  CIM_PASSWORD -- password
+
+Note: by setting CIM_NAMESPACE appropriately, instances of
+      __Namespace can be enumerated, created, and deleted.

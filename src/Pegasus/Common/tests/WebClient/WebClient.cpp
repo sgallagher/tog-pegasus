@@ -186,7 +186,7 @@ int main(int argc, char** argv)
   HTTPConnection* connection 
 	    = httpConnector->connect(host, portNumber, webClientQueue);
   #else
-  monitor_2* monitor = new Monitor;
+  monitor_2* monitor = new monitor_2;
   HTTPConnector2* httpConnector = new HTTPConnector2(monitor);
   HTTPConnection2* connection
 	    = httpConnector2->connect(host, portNumber, webClientQueue);

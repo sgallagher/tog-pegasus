@@ -80,11 +80,12 @@ bool _MakeDir(const string& path)
 void _Split(const string& path, vector<string>& components)
 {
     char *p = strdup(path.c_str());
+    char *porig = p;
 
     for (p = strtok(p, ";"); p; p = strtok(NULL, ";"))
 	components.push_back(p);
 
-    free(p);
+    free(porig);
 }
 
 

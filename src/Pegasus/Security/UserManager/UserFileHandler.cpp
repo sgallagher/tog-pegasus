@@ -29,6 +29,7 @@
 //
 // Modified By:
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//              Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -50,6 +51,7 @@
 #include <Pegasus/Security/UserManager/UserExceptions.h>
 #include <Pegasus/Common/MessageLoader.h> //l10n
 
+#include <Pegasus/Common/AutoPtr.h>
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
@@ -110,8 +112,8 @@ UserFileHandler::UserFileHandler()
     //
     // Get an instance of the ConfigManager.
     //
-    ConfigManager*  configManager;
-    configManager = ConfigManager::getInstance();
+    AutoPtr<ConfigManager> configManager; 
+    configManager.reset(ConfigManager::getInstance());
 
     //
     // Get the PasswordFilePath property from the Config Manager.
@@ -128,6 +130,7 @@ UserFileHandler::UserFileHandler()
     //
     // Load the user information in to the cache.
     //
+    configManager.release();
     try
     {
         _loadAllUsers();

@@ -27,7 +27,7 @@
 //
 // Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
-// Modified By:
+// Modified By:  Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -39,14 +39,16 @@
 #include "ClientCIMOMHandleRep.h"
 
 #include "CIMOMHandle.h"
+#include <Pegasus/Common/AutoPtr.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 CIMOMHandle::CIMOMHandle(void)
 {
     // The existence of a BinaryMessageHandler determines which Rep to use
-    MessageQueue* bmh = MessageQueue::lookup(PEGASUS_QUEUENAME_BINARY_HANDLER);
-    if (bmh != 0)
+    AutoPtr<MessageQueue> bmh(MessageQueue::lookup(PEGASUS_QUEUENAME_BINARY_HANDLER)); 
+
+    if (bmh.get() != 0)
     {
         // A BinaryMessageHandler exists.  We can use InternalCIMOMHandleRep
         _rep = new InternalCIMOMHandleRep();
@@ -62,8 +64,8 @@ CIMOMHandle::CIMOMHandle(void)
 CIMOMHandle::CIMOMHandle(Uint32 os400UserStateKey)
 {
     // The existence of a BinaryMessageHandler determines which Rep to use
-    MessageQueue* bmh = MessageQueue::lookup(PEGASUS_QUEUENAME_BINARY_HANDLER);
-    if (bmh != 0)
+    AutoPtr<MessageQueue> bmh(MessageQueue::lookup(PEGASUS_QUEUENAME_BINARY_HANDLER)); 
+    if (bmh.get() != 0)
     {
         // A BinaryMessageHandler exists.  We can use InternalCIMOMHandleRep
         _rep = new InternalCIMOMHandleRep(os400UserStateKey);

@@ -32,6 +32,7 @@
 //              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //				Seema Gupta (gseema@in.ibm.com) for PEP135
+//              Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -46,7 +47,7 @@
 
 // l10n
 #include <Pegasus/Common/MessageLoader.h>
-
+#include <Pegasus/Common/AutoPtr.h>
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
@@ -74,21 +75,20 @@ void IndicationHandlerService::_handle_async_request(AsyncRequest *req)
     else if ( req->getType() == async_messages::ASYNC_LEGACY_OP_START )
     {
         req->op->processing();
-        Message *legacy =
-            (static_cast<AsyncLegacyOperationStart *>(req)->get_action());
+        AutoPtr<Message> legacy(static_cast<AsyncLegacyOperationStart *>(req)->get_action()); //PEP 101
         if (legacy->getType() == CIM_HANDLE_INDICATION_REQUEST_MESSAGE)
         {
-            Message* legacy_response = _handleIndication(
-                (CIMHandleIndicationRequestMessage*) legacy);
-            AsyncLegacyOperationResult *async_result =
-                new AsyncLegacyOperationResult(
+            AutoPtr<Message> legacy_response(_handleIndication(
+                (CIMHandleIndicationRequestMessage*) legacy.get())); //PEP 101
+            legacy.release();
+            AutoPtr<AsyncLegacyOperationResult> async_result(new AsyncLegacyOperationResult(
                     req->getKey(),
                     req->getRouting(),
                     req->op,
-                    legacy_response);
-
+                    legacy_response.get())); //PEP 101
+            legacy_response.release();
+            async_result.release();
             _complete_op_node(req->op, ASYNC_OPSTATE_COMPLETE, 0, 0);
-            delete legacy;
         }
         else
         {
@@ -96,7 +96,6 @@ void IndicationHandlerService::_handle_async_request(AsyncRequest *req)
                 "IndicationHandlerService::_handle_async_request got "
                     "unexpected legacy message type '%u'", legacy->getType());
             _make_response(req, async_results::CIM_NAK);
-            delete legacy;
         }
     }
     else
@@ -116,14 +115,14 @@ void IndicationHandlerService::handleEnqueue(Message* message)
     // Set the client's requested language into this service thread.
     // This will allow functions in this service to return messages
     // in the correct language.
-    CIMMessage * msg = dynamic_cast<CIMMessage *>(message);
-    if (msg != NULL)
+    AutoPtr<CIMMessage>   msg(dynamic_cast<CIMMessage *>(message));
+    if (msg.get() != NULL)
     {
         if (msg->thread_changed())
         {
-            AcceptLanguages *langs =  new AcceptLanguages(((AcceptLanguageListContainer)msg->operationContext.get
-											(AcceptLanguageListContainer::NAME)).getLanguages());
-            Thread::setLanguages(langs);
+            AutoPtr<AcceptLanguages> langs(new AcceptLanguages(((AcceptLanguageListContainer)msg->operationContext.get(AcceptLanguageListContainer::NAME)).getLanguages()));
+            Thread::setLanguages(langs.get());
+            langs.release();
         }
     }
     else
@@ -135,9 +134,10 @@ void IndicationHandlerService::handleEnqueue(Message* message)
     {
         case CIM_HANDLE_INDICATION_REQUEST_MESSAGE:
         {
-            CIMHandleIndicationResponseMessage* response = _handleIndication(
-                (CIMHandleIndicationRequestMessage*) message);
-            SendForget(response);
+            AutoPtr<CIMHandleIndicationResponseMessage> response(_handleIndication(
+                (CIMHandleIndicationRequestMessage*) message));
+            SendForget(response.get());
+            response.release();
             break;
         }
 
@@ -148,17 +148,17 @@ void IndicationHandlerService::handleEnqueue(Message* message)
             break;
     }
 
-    delete message;
 }
 
 void IndicationHandlerService::handleEnqueue()
 {
-   Message * message = dequeue();
+   AutoPtr<Message> message(dequeue());
 
-   PEGASUS_ASSERT(message != 0);
-   if (message)
+   PEGASUS_ASSERT(message.get() != 0);
+   if (message.get())
    {
-       handleEnqueue(message);
+       handleEnqueue(message.get());
+       message.release();
    }
 }
 
@@ -171,16 +171,15 @@ void IndicationHandlerService::_handleIndicationCallBack(AsyncOpNode *op,
 {
    PEGASUS_ASSERT(0);
 #if 0
-   IndicationHandlerService *service =
-      static_cast<IndicationHandlerService *>(q);
+   AutoPtr<IndicationHandlerService> service(static_cast<IndicationHandlerService *>(q));
 
-   AsyncRequest *asyncRequest = static_cast<AsyncRequest *>(op->get_request());
-   AsyncReply *asyncReply = static_cast<AsyncReply *>(op->get_response());
-   CIMRequestMessage *request = reinterpret_cast<CIMRequestMessage *>
-      ((static_cast<AsyncLegacyOperationStart *>(asyncRequest))->get_action());
-   CIMResponseMessage *response = reinterpret_cast<CIMResponseMessage *>
-      ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
-   PEGASUS_ASSERT(response != 0);
+   AutoPtr<AsyncRequest> asyncRequest(static_cast<AsyncRequest *>(op->get_request()));
+   AutoPtr<AsyncReply> asyncReply(static_cast<AsyncReply *>(op->get_response()));
+   AutoPtr<CIMRequestMessage> request(reinterpret_cast<CIMRequestMessage *>
+      ((static_cast<AsyncLegacyOperationStart *>(asyncRequest))->get_action()));
+   AutoPtr<CIMResponseMessage> response(reinterpret_cast<CIMResponseMessage *>
+      ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result()));
+   PEGASUS_ASSERT(response.get() != 0);
    // ensure that the destination queue is in response->dest
 #ifdef PEGASUS_ARCHITECTURE_IA64
    response->dest = (Uint64)parm;
@@ -191,9 +190,8 @@ void IndicationHandlerService::_handleIndicationCallBack(AsyncOpNode *op,
 #else
    response->dest = (Uint32)parm;
 #endif
-   service->SendForget(response);
-   delete asyncRequest;
-   delete asyncReply;
+   service->SendForget(response.get());
+   response.release();
 //   op->release();
 //   service->return_op(op);
 #endif
@@ -296,26 +294,24 @@ IndicationHandlerService::_handleIndication(
                           &exportServer);
 
             // Listener is build with Cimom, so send message to ExportServer
-
-            CIMExportIndicationRequestMessage* exportmessage =
-                new CIMExportIndicationRequestMessage(
+            AutoPtr<CIMExportIndicationRequestMessage> exportmessage( new CIMExportIndicationRequestMessage(
                     XmlWriter::getNextMessageId(),
                     destination.subString(21), //taking localhost/CIMListener portion out from reg
                     indication,
                     QueueIdStack(exportServer[0], getQueueId()),
                     String::EMPTY,
-                    String::EMPTY);
-
+                    String::EMPTY));
+ 
 			exportmessage->operationContext.set(request->operationContext.get(ContentLanguageListContainer::NAME)); 
-            AsyncOpNode* op = this->get_op();
+            AutoPtr<AsyncOpNode> op( this->get_op());
 
-            AsyncLegacyOperationStart *asyncRequest =
-                new AsyncLegacyOperationStart(
+            AutoPtr<AsyncLegacyOperationStart> asyncRequest( new AsyncLegacyOperationStart(
                     get_next_xid(),
-                    op,
+                    op.get(),
                     exportServer[0],
-                    exportmessage,
-                    _queueId);
+                    exportmessage.get(),
+                    _queueId));
+            exportmessage.release();
 
             PEG_TRACE_STRING(TRC_IND_HANDLE, Tracer::LEVEL4,
                "Indication handler forwarding message to " +
@@ -329,26 +325,24 @@ IndicationHandlerService::_handleIndication(
             //      IndicationHandlerService::_handleIndicationCallBack,
             //      this,
             //      (void *)request->queueIds.top());
-            AsyncReply *asyncReply = SendWait(asyncRequest);
+        AutoPtr<AsyncReply> asyncReply(SendWait(asyncRequest.get()));
+        asyncRequest.release();
 
             // Return the ExportIndication results in HandleIndication response
-            CIMExportIndicationResponseMessage* exportResponse =
-                reinterpret_cast<CIMExportIndicationResponseMessage *>(
+        AutoPtr<CIMExportIndicationResponseMessage> exportResponse(reinterpret_cast<CIMExportIndicationResponseMessage *>(
                     (static_cast<AsyncLegacyOperationResult *>(
-                        asyncReply))->get_result());
+                        asyncReply.get()))->get_result()));
             cimException = exportResponse->cimException;
 
-            delete exportResponse;
-            delete asyncReply;
             op->release();
-            this->return_op(op);
+            this->return_op(op.release());
         }
         else
         {
             // generic handler. So load it and let it to do.
-            CIMHandler* handlerLib = _lookupHandlerForClass(className);
+            AutoPtr<CIMHandler> handlerLib(_lookupHandlerForClass(className));
 
-            if (handlerLib)
+            if (handlerLib.get())
             {
                 try
                 {
@@ -379,15 +373,13 @@ IndicationHandlerService::_handleIndication(
                         "IndicationHandlerService.FAILED_TO_LOAD",
                         "Failed to load Handler"));
             }
+            handlerLib.release();
         }
     }
-
-    CIMHandleIndicationResponseMessage* response =
-        new CIMHandleIndicationResponseMessage(
+	CIMHandleIndicationResponseMessage* response( new CIMHandleIndicationResponseMessage(
             request->messageId,
             cimException,
-            request->queueIds.copyAndPop());
-
+            request->queueIds.copyAndPop()));
     return response;
 }
 
@@ -406,7 +398,6 @@ CIMHandler* IndicationHandlerService::_lookupHandlerForClass(
        return 0;
 
    CIMHandler* handler = _handlerTable.lookupHandler(handlerId);
-
    if (!handler)
    {
       handler = _handlerTable.loadHandler(handlerId);

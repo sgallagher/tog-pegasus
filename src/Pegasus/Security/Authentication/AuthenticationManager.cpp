@@ -28,12 +28,12 @@
 // Author: Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //
 // Modified By: Dave Rosckes (rosckes@us.ibm.com)
+//                Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/XmlWriter.h>
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/PegasusVersion.h>
 
@@ -42,6 +42,8 @@
 #include "LocalAuthenticationHandler.h"
 #include "BasicAuthenticationHandler.h"
 #include "AuthenticationManager.h"
+
+#include <Pegasus/Common/AutoPtr.h>
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
 #include "KerberosAuthenticationHandler.h"
@@ -434,35 +436,34 @@ Authenticator* AuthenticationManager::_getHttpAuthHandler()
 {
     PEG_METHOD_ENTER(
         TRC_AUTHENTICATION, "AuthenticationManager::_getHttpAuthHandler()");
-
-    Authenticator* handler = 0;
+    AutoPtr<Authenticator> handler;
 
     //
     // get the configured authentication type
     //
-    ConfigManager* configManager = ConfigManager::getInstance();
+    AutoPtr<ConfigManager> configManager(ConfigManager::getInstance());
 
     _httpAuthType = configManager->getCurrentValue("httpAuthType");
-    
+    configManager.release();
     //
     // create a authentication handler.
     //
     if ( String::equalNoCase(_httpAuthType, "Basic") )
     {
-        handler = (Authenticator* ) new BasicAuthenticationHandler( );
+        handler.reset((Authenticator* ) new BasicAuthenticationHandler( ));
     }
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
     else if ( String::equalNoCase(_httpAuthType, "Kerberos") )
     {
-        handler = (Authenticator* ) new KerberosAuthenticationHandler( );
-        KerberosAuthenticationHandler* kerberosHandler = (KerberosAuthenticationHandler *)handler;
+        handler.reset((Authenticator* ) new KerberosAuthenticationHandler( ));
+        AutoPtr<KerberosAuthenticationHandler> kerberosHandler((KerberosAuthenticationHandler *)handler.get());
         int itFailed = kerberosHandler->initialize();
+        kerberosHandler.release();
         if (itFailed)
         {
-            if (handler)
+            if (handler.get())
             {
-                delete handler;	// cleanup
-                handler = 0;
+                handler.reset(0);
             }
             // L10N TODO DONE
             //Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE, 
@@ -494,8 +495,7 @@ Authenticator* AuthenticationManager::_getHttpAuthHandler()
     }
     
     PEG_METHOD_EXIT();
-
-    return ( handler );
+    return ( handler.release() );
 }
 
 

@@ -35,7 +35,13 @@ PEGASUS_NAMESPACE_BEGIN
 #undef PEGASUS_ARRAY_T
 
 CQLExpression::CQLExpression(CQLTerm& theTerm){}
+
 CQLExpression::CQLExpression(CIMInstance& CI, QueryContext& QueryCtx){}
+
+CQLValue CQLExpression::getValue(CIMInstance CI, QueryContext& QueryCtx){}
+
+void CQLExpression::appendOperation(TermOpType theTermOpType, CQLTerm& theTerm){}
+
 
 PEGASUS_NAMESPACE_END
 

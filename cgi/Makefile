@@ -9,11 +9,15 @@ endif
 
 all:
 	$(COPY) $(BIN_DIR)/CGIClient$(EXE) cgi-bin
+ifneq ($(PEGASUS_PLATFORM),AIX_RS_IBMCXX)
 	$(COPY) $(LIB_DIR)/*$(LIB_SUFFIX) cgi-bin
+endif
 
 clean:
 	$(RM) cgi-bin/CGIClient.exe
+ifneq ($(PEGASUS_PLATFORM),AIX_RS_IBMCXX)
 	$(RM) cgi-bin/*$(LIB_SUFFIX)
+endif
 
 depend:
 

@@ -357,7 +357,7 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
 
         if (rc.rc!=CMPI_RC_OK)
            throw CIMException((CIMStatusCode)rc.rc);
-    }   
+    }
     HandlerCatch(handler);
     
     PEG_METHOD_EXIT();
@@ -949,7 +949,7 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
             System::getHostName(),
             request->nameSpace,
             request->assocClass.getString());
-      
+
       ProviderName name(
             assocPath,
             ProviderType::ASSOCIATION);

@@ -11,7 +11,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -55,7 +55,7 @@ DynamicLibrary::DynamicLibrary(const DynamicLibrary & library) : _handle(0)
 
     // load the module again, if necessary. this effectively increments the
     // operating system's reference count for the module.
-    if(isLoaded())
+    if(library.isLoaded())
     {
         load();
     }
@@ -70,7 +70,7 @@ DynamicLibrary::~DynamicLibrary(void)
     // unload the module, if necessary. this ensures 1) the module is released in the
     // event the caller did not explicity unload it, and 2) the operating system's
     // reference count is accurate.
-    if(_handle != 0)
+    if(isLoaded())
     {
         unload();
     }

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Repository.cpp,v $
+// Revision 1.10  2001/04/25 20:44:21  mike
+// Added strip and prepend command to mu
+//
 // Revision 1.9  2001/04/08 01:13:23  mike
 // Changed "ConstCIM" to "CIMConst"
 //
@@ -128,13 +131,35 @@ void test02()
     CIMReference ref;
     CIMReference::instanceNameToReference(instanceName, ref);
 
-    CIMInstance tmp = r.getInstance(NAMESPACE, ref);
+String tmp2 = "ThisClass.first=\"John\",last=\"Smith\",age=101";
+
+    CIMReference ref2;
+    CIMReference::instanceNameToReference(tmp2, ref2);
+
+    CIMInstance tmp = r.getInstance(NAMESPACE, ref2);
 
     assert(cimInstance.identical(tmp));
 }
 
+void f()
+{
+    String instanceName = "ThisClass.first=\"John\",last=\"Smith\",age=101";
+    OUT(instanceName);
+
+    CIMReference ref;
+    CIMReference::instanceNameToReference(instanceName, ref);
+
+    String tmp;
+    CIMReference::referenceToInstanceName(ref, tmp);
+
+    OUT(tmp);
+}
+
 int main()
 {
+    f();
+    exit(0);
+
     CIMRepository r(".");
 
     try 

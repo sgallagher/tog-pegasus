@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CIMRepository.cpp,v $
+// Revision 1.13  2001/04/25 20:44:21  mike
+// Added strip and prepend command to mu
+//
 // Revision 1.12  2001/04/24 01:50:15  mike
 // Switch to use of cimmof compiler for populating the repository.
 //
@@ -618,6 +621,8 @@ CIMInstance CIMRepository::getInstance(
 
     String tmp;
     CIMReference::referenceToInstanceName(instanceName, tmp);
+
+OUT(tmp);
 
     if (!InstanceIndexFile::lookup(indexPath, tmp, index))
 	throw CIMException(CIMException::FAILED);

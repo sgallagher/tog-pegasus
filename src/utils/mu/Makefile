@@ -4,6 +4,7 @@
 # Builds mu.exe in the local directory unless MU_BIN_DIR defined.
 #
 # Set default to windows if OS type not set.
+
 ifdef PEGASUS_OS_TYPE
     OS_TYPE=$(PEGASUS_OS_TYPE)
 else
@@ -52,11 +53,6 @@ ifeq ($(OS_TYPE),unix)
     PLATFORM_SOURCES = FilesUnix.cpp
 endif
 
-#Setup MU_BIN_DIR Directory
-ifndef MU_BIN_DIR
-    MU_BIN_DIR = ./
-endif
-
 SOURCES = \
     $(PLATFORM_SOURCES) \
     DependCmd.cpp \
@@ -71,6 +67,8 @@ SOURCES = \
     RmCmd.cpp \
     Files.cpp \
     mu.cpp \
+    StripCmd.cpp \
+    PrependCmd.cpp 
 
 HEADERS = \
     CompareCmd.h \
@@ -84,24 +82,18 @@ HEADERS = \
     PwdCmd.h \
     RmCmd.h \
     RmDirHierCmd.h \
-    TouchCmd.h
+    TouchCmd.h \
+    StripCmd.h \
+    PrependCmd.h
 
 OBJECTS=$(SOURCES:.cpp=$(OBJ))
 
-$(MU_BIN_DIR)$(PROGRAM): $(OBJECTS)
-	$(LXX) $(LIBFLAGS) $(SRLFLAGS) $(EXE_OUT)$(MU_BIN_DIR)$(PROGRAM)
-	$(OBJECTS)
+$(PROGRAM): $(OBJECTS)
+	$(LXX) $(LIBFLAGS) $(SRLFLAGS) $(EXE_OUT)$(PROGRAM) $(OBJECTS)
 
 %$(OBJ) : %.cpp
 	$(CXX) -c $(CXXFLAGS) $(DEFINES) $*.cpp
 
-ifeq ($(OS_TYPE),windows)
-    TMP_MU_BIN_DIR = $(subst /,\,$(MU_BIN_DIR))
-else
-    TMP_MU_BIN_DIR = $(MU_BIN_DIR)
-endif
-
 clean:
-	- $(RM) $(TMP_MU_BIN_DIR)$(PROGRAM)
+	- $(RM) $(PROGRAM)
 	- $(RM) *$(OBJ)
-

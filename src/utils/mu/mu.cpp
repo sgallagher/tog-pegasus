@@ -10,6 +10,8 @@
 #include "RmCmd.h"
 #include "RmDirHierCmd.h"
 #include "TouchCmd.h"
+#include "StripCmd.h"
+#include "PrependCmd.h"
 #include "Files.h"
 
 const char HELP[] = 
@@ -19,7 +21,8 @@ const char HELP[] =
 "Usage: mu command arguments ...\n"
 "\n"
 "Where command is one of the following:\n"
-"    rm, rmdirhier, mkdirhier, echo, touch, pwd, copy, move, compare depend\n";
+"    rm, rmdirhier, mkdirhier, echo, touch, pwd, copy, move, compare depend\n"
+"    strip prepend\n";
 
 const char* PROGRAM_NAME = "";
 
@@ -74,6 +77,10 @@ int main(int argc, char** argv)
 	result = CompareCmd(args);
     else if (args[0] == "depend")
 	result = DependCmd(args);
+    else if (args[0] == "strip")
+	result = StripCmd(args);
+    else if (args[0] == "prepend")
+	result = PrependCmd(args);
     else
     {
 	result = 1;

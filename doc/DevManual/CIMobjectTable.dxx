@@ -1,0 +1,120 @@
+
+/*
+  $Log: CIMobjectTable.dxx,v $
+  Revision 1.1  2001/02/23 20:29:05  karl
+  documentation cleanup
+
+Table of the CIM Objects.
+*/
+ /** @name CIM Object Table
+ <table border cellspacing=4 cellpadding=5>
+ <tr>
+ <th colspan=4 align=center>CIM Objects anc Concepts and their Pegasus
+ Implementation</th>
+ </tr>
+
+ <tr>
+ <th>CIM Concept / Object</th>
+ <th>Pegasus Class</th>
+ <th>Reference
+ <th>Description</th>
+ </tr>
+ <tr>
+     <td>CIM Classes</td>
+     <td>CIMClass</td>
+     <td>\Ref{CIMClass}</td>
+ <td>A CIM Class is a collection of instances, all of which support a common
+ type; that is, a set of properties and methods. The common properties and
+ methods are defined as features of the class</td>
+
+ </tr>
+
+ <tr>
+     <td>CIM Instance</td>
+     <td>CIMInstance</td>
+     <td>\Ref{CIMInstance}</td>    <td>ATT: Description</td>
+ </tr>
+ <tr>
+     <td>CIM DateTime</td>
+     <td>CIMDateTime</td>
+     <td>\Ref{CIMDateTime}</td>    <td>ATT: Description</td>
+ </tr>
+
+ <tr>
+     <td>CIM Qualifier Declaration</td>
+     <td>?????</td>
+     <td>ATTN</td>    <td>ATT: Description</td>
+ </tr>
+
+ <tr>
+     <td>CIM Qualifier</td>
+     <td>CIMQualifier</td>
+     <td>\Ref{CIMQualifier}</td>    <td>ATT: Description</td>
+ </tr>
+
+ <tr>
+     <td>CIM Property</td>
+     <td>CIMProperty</td>
+     <td>\Ref{PROPERTY}</td>
+     <td>A value used to characterize an instance of a class.</td>
+ </tr>
+
+ <tr>
+     <td>CIM Object Path</td>
+     <td>CIMReference</td>
+     <td>\Ref{CIMReference}</td>    <td>ATT: Description</td>
+ </tr>
+
+ <tr>
+     <td>CIM Method</td>
+     <td>CIMMethod</td>
+     <td>\Ref{CIMMethod}</td>    <td>ATT: Description</td>
+ </tr>
+
+ <tr>
+     <td>CIM Scope</td>
+     <td>CIMScope</td>
+     <td>\Ref{CIMScope}</td>    <td>ATT: Description</td>
+ </tr>
+
+ <tr>
+     <td>CIM flavor</td>
+     <td>CIMFlavor</td>
+     <td>\Ref{CIMFLAVOR}</td>
+     <td>Part of a qualifier spcification indicating overriding and
+     inheritance rules.</td>
+ </tr>
+
+ <tr>
+     <td>CIM ????</td>
+     <td>Qualifier Type</td>
+     <td>\Ref{???}</td>    <td>ATT: Description</td>
+     </tr>
+
+ <tr>
+     <td>CIM Array</td>
+     <td>Array</td>
+     <td>\Ref{Array}</td>    <td>ATT: Description</td>
+     </tr>
+
+ 
+ <tr>
+      <td>CIM Value</td>
+      <td>CIMValue</td>
+      <td>\Ref{CIMValue}</td>    <td>ATT: Description</td>
+ </tr>
+     
+   <tr>
+        <td>String</td>
+        <td>String</td>
+        <td>\Ref{String}</td>    <td>ATT: Description</td>
+   </tr>
+     
+   tr>
+         <td>CIM Type</td>
+         <td>CIMType</td>
+         <td>\Ref{CIMType}</td>    <td>ATT: Description</td>
+   </tr>
+   
+  </table>
+*/

@@ -181,47 +181,49 @@ select * from CQL_TestPropertyTypes where PropertyStringSint = NUMERICTOSTRING('
 #############
 # ClassName
 #############
-
-
-#############
-# ClassName
-#############
-
+select * FROM CQL_TestElement where ClassName(ObjectPath('CQL_TestElement')) = 'CQL_TestElement'
+select * FROM CQL_TestElement where ClassName(CQL_TestElement) = ClassName()
+select * FROM CQL_TestElement where ClassName('CQL_TestElement') = 'CQL_TestElements'
 
 #############
 # nameSpaceName
 #############
-
+select * FROM CIM_ComputerSystem where NamespaceName(ObjectPath(CIM_ComputerSystem)) = 'root/SampleProvider'
+select * FROM CIM_ComputerSystem where NamespaceName(CIM_ComputerSystem) = NamespaceName()
 
 #############
 # nameSpaceType
 #############
-
+# NOT SUPPORTED
+select * FROM CQL_TestElement where NamespaceType(CQL_TestElement) = 'Function Not supported'
 
 #############
 # hostPort
 #############
-
+select * FROM CQL_TestElement where HostPort(ObjectPath(CQL_TestElement)) = HostPort(CQL_TestElement)
 
 #############
 # modelPath
 #############
-
+select * FROM CQL_TestElement where ModelPath(CQL_TestElement) = 'CQL_TestPropertyTypes.InstanceId=2'
+select * FROM CQL_TestElement where ModelPath(CQL_TestElement) = Modelpath()
 
 #############
 # classPath
 #############
-
+select * FROM CQL_TestElement where ClassPath(CQL_TestElement) = ClassPath(CQL_TestElement)
+select * FROM CQL_TestElement where ClassPath(CQL_TestElement) = ClassPath()
 
 #############
 # objectPath
 #############
-
+select * FROM CQL_TestElement where ObjectPath(CQL_TestElement) = ObjectPath(CQL_TestElement)
+select * FROM CQL_TestElement where ObjectPath() = ObjectPath(CQL_TestElement)
 
 #############
 # instanceToReference
 #############
-
+select * FROM CQL_TestElement where InstanceToReference() = InstanceToReference(CQL_TestElement)
 
 #############
 # currentDateTime

@@ -530,7 +530,7 @@ PEGASUS_COMMON_LINKAGE const char* MessageTypeToString(Uint32 messageType);
     stack of queue-ids of queues which they must be returned to. This provides
     a light efficient stack for this purpose.
 */
-class QueueIdStack
+class PEGASUS_COMMON_LINKAGE QueueIdStack
 {
 public:
 

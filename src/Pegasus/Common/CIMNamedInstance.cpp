@@ -40,29 +40,38 @@ PEGASUS_NAMESPACE_BEGIN
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+class CIMNamedInstanceRep
+{
+public:
+    CIMReference instanceName;
+    CIMInstance instance;
+};
+
+
 CIMNamedInstance::CIMNamedInstance()
 {
-
+    _rep = new CIMNamedInstanceRep();
 }
 
 CIMNamedInstance::CIMNamedInstance(
     const CIMReference& instanceName,
     const CIMInstance& instance) 
-    : _instanceName(instanceName), _instance(instance)
 {
-
+    _rep = new CIMNamedInstanceRep();
+    _rep->instanceName = instanceName;
+    _rep->instance = instance;
 }
 
 CIMNamedInstance::CIMNamedInstance(const CIMNamedInstance& namedInstance)
-    : _instanceName(namedInstance._instanceName),
-      _instance(namedInstance._instance)
 {
-
+    _rep = new CIMNamedInstanceRep();
+    _rep->instanceName = namedInstance._rep->instanceName;
+    _rep->instance = namedInstance._rep->instance;
 }
 
 CIMNamedInstance::~CIMNamedInstance()
 {
-
+    delete _rep;
 }
 
 CIMNamedInstance& CIMNamedInstance::operator=(
@@ -71,8 +80,8 @@ CIMNamedInstance& CIMNamedInstance::operator=(
 {
     if (this != &namedInstance)
     {
-	_instanceName = namedInstance._instanceName;
-	_instance = namedInstance._instance;
+	_rep->instanceName = namedInstance._rep->instanceName;
+	_rep->instance = namedInstance._rep->instance;
     }
     return *this;
 }
@@ -81,8 +90,35 @@ void CIMNamedInstance::set(
     const CIMReference& instanceName, 
     const CIMInstance& instance)
 {
-    _instanceName = instanceName;
-    _instance = instance;
+    _rep->instanceName = instanceName;
+    _rep->instance = instance;
+}
+
+const CIMReference& CIMNamedInstance::getInstanceName() const
+{
+    return _rep->instanceName;
+}
+
+const CIMInstance& CIMNamedInstance::getInstance() const
+{
+    return _rep->instance;
+}
+
+CIMReference& CIMNamedInstance::getInstanceName()
+{
+    return _rep->instanceName;
+}
+
+CIMInstance& CIMNamedInstance::getInstance()
+{
+    return _rep->instance;
+}
+
+CIMNamedInstance CIMNamedInstance::clone() const
+{
+    CIMNamedInstance ni;
+    ni.set(_rep->instanceName.clone(), _rep->instance.clone());
+    return ni;
 }
 
 //------------------------------------------------------------------------------
@@ -95,8 +131,8 @@ void CIMNamedInstance::toXml(Array<Sint8>& out) const
 {
     out << "<VALUE.NAMEDINSTANCE>\n";
 
-    XmlWriter::appendInstanceNameElement(out, _instanceName);
-    _instance.toXml(out);
+    XmlWriter::appendInstanceNameElement(out, _rep->instanceName);
+    _rep->instance.toXml(out);
 
     out << "</VALUE.NAMEDINSTANCE>\n";
 }

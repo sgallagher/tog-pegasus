@@ -43,28 +43,17 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_COMMON_LINKAGE CIMIndication : public CIMInstance
 {
 public:
-    CIMIndication(void) : CIMInstance()
-    {
-    }
+    CIMIndication(void);
 
-    CIMIndication(const CIMInstance & x) : CIMInstance(x)
-    {
-    }
+    CIMIndication(const CIMInstance & x);
 
-    CIMIndication(const CIMIndication & x) : CIMInstance(x)
-    {
-    }
+    CIMIndication(const CIMIndication & x);
 
-    virtual ~CIMIndication(void)
-    {
-    }
+    virtual ~CIMIndication(void);
 
-    CIMIndication & operator=(const CIMIndication & x)
-    {
-	CIMInstance::operator=(x);
+    CIMIndication & operator=(const CIMIndication & x);
 
-	return(*this);
-    }
+    CIMIndication clone() const;
 
 protected:
 

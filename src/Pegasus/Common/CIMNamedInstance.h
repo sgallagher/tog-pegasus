@@ -36,6 +36,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+class CIMNamedInstanceRep;
+
 /** The CIMNamedInstance encapsulates a CIMReference and CIMInstance.
     Accessors are provided for getting the two parts. Constructors are
     provided for initializing it from a CIMNamedInstance and from the
@@ -98,28 +100,31 @@ public:
 
         @return A CIMReference object containing the instance name.
     */
-    const CIMReference& getInstanceName() const { return _instanceName; }
+    const CIMReference& getInstanceName() const;
 
     /**
         Accessor for the instance portion of the CIMNamedInstance object.
 
         @return A CIMInstance object containing the instance.
     */
-    const CIMInstance& getInstance() const { return _instance; }
+    const CIMInstance& getInstance() const;
 
     /**
         Accessor for the instance name portion of the CIMNamedInstance object.
 
         @return A CIMReference object containing the instance name.
     */
-    CIMReference& getInstanceName() { return _instanceName; }
+    CIMReference& getInstanceName();
 
     /**
         Accessor for the instance portion of the CIMNamedInstance object.
 
         @return A CIMInstance object containing the instance.
     */
-    CIMInstance& getInstance() { return _instance; }
+    CIMInstance& getInstance();
+
+    /** Makes a deep copy (clone) of the given object. */
+    CIMNamedInstance clone() const;
 
     /**
         Creates an XML transformation of the CIMNamedInstance compatible
@@ -131,8 +136,7 @@ public:
 
 private:
 
-    CIMReference _instanceName;
-    CIMInstance _instance;
+    CIMNamedInstanceRep* _rep;
 };
 
 PEGASUS_NAMESPACE_END

@@ -2282,7 +2282,7 @@ void ProviderRegistrationManager::_addInstancesToTable(
                       "Exception:: Attempt to add duplicate entry to provider reistration hash table.");
 	//ATTN-YZ-P3-20020301:Is this proper exception 
 	PEG_METHOD_EXIT();
-        throw CIMException(CIM_ERR_FAILED, "can not insert element to the table ");
+        //throw CIMException(CIM_ERR_FAILED, "can not insert element to the table ");
     }
     PEG_METHOD_EXIT();
 }

@@ -8,6 +8,9 @@ include $(ROOT)/mak/config.mak
 ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
 FLAGS += /TC
 endif
+ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
+FLAGS += -x c 
+endif
 
 LIBRARY = slp_client
 

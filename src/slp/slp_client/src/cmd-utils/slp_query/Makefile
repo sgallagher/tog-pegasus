@@ -11,6 +11,9 @@ SOURCES = slp_query.cpp
 ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
   SYS_LIBS = ws2_32.lib advapi32.lib $(LIB_DIR)/slp_client.lib
 endif
+ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
+  SYS_LIBS = -lslp_client -L$(LIB_DIR)
+endif
 
 include $(ROOT)/mak/program.mak
 

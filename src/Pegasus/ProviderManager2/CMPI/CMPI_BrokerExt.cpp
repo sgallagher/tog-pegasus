@@ -56,6 +56,21 @@
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
+struct thrd_data {
+   CMPI_THREAD_RETURN(CMPI_THREAD_CDECL*pgm)(void*);
+   void *parm;
+};
+
+static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL start_driver(void *parm)
+{
+   Thread* my_thread = (Thread*)parm;
+   thrd_data *pp = (thrd_data*)my_thread->get_parm();
+   thrd_data data=*pp;
+   delete pp;
+
+   return (PEGASUS_THREAD_RETURN)(data.pgm)(data.parm);
+}
+
 extern "C" {
 
    static char *resolveFileName (const char *filename)
@@ -63,21 +78,6 @@ extern "C" {
       String pn=ProviderManager::_resolvePhysicalName(filename);
       CString n=pn.getCString();
       return strdup((const char*)n);
-   }
-
-   struct thrd_data {
-      CMPI_THREAD_RETURN(CMPI_THREAD_CDECL*pgm)(void*);
-      void *parm;
-   };
-
-   static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL start_driver(void *parm)
-   {
-      Thread* my_thread = (Thread*)parm;
-      thrd_data *pp = (thrd_data*)my_thread->get_parm();
-      thrd_data data=*pp;
-      delete pp;
-
-      return (PEGASUS_THREAD_RETURN)(data.pgm)(data.parm);
    }
 
    static CMPI_THREAD_TYPE newThread

@@ -22,6 +22,9 @@ DYNAMIC_LIBRARIES = \
 
 PRE_DEPEND_INCLUDES = -I./depends
 
+_SOURCES = \
+    OperationRequestDecoder.cpp \
+
 SOURCES = \
     ClientConnection.cpp \
     Dispatcher.cpp \

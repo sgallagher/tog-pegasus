@@ -68,6 +68,8 @@ CIMExportClient::CIMExportClient(
 
 CIMExportClient::~CIMExportClient()
 {
+
+	disconnect();
 }
 
 void CIMExportClient::_connect()

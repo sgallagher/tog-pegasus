@@ -372,9 +372,11 @@ redo_connect:
     }
     PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: Connected");
 
+#ifdef PEGASUS_USE_232_CLIENT_VERIFICATION
     // this will be true if the client specified a callback function and/or a truststore
     if (_SSLContext->isPeerVerificationEnabled())
     {
+#endif
         PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "Attempting to verify server certificate.");
 
         X509 * server_cert = SSL_get_peer_certificate(_SSLConnection);
@@ -399,7 +401,9 @@ redo_connect:
            PEG_METHOD_EXIT();
            return -1;
         }
+#ifdef PEGASUS_USE_232_CLIENT_VERIFICATION
     }
+#endif
 
     PEG_METHOD_EXIT();
     return ssl_rc;

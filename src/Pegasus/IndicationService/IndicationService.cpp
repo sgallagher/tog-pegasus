@@ -1798,6 +1798,9 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                 (newSubscriptions [i], indicationProviders [i].provider);
             if (_subscriptionTable.contains (tableKey))
             {
+                //
+                //  ATTN-CAKG-P3-20030226: Add test case
+                //
 //cout << "case A: table contains key" << endl;
                 //
                 //  Send Modify requests
@@ -1887,6 +1890,9 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                 //
                 else
                 {
+                    //
+                    //  ATTN-CAKG-P3-20030226: Add test case
+                    //
 //cout << "case D: classlist contains more" << endl;
                     CIMNamespaceName sourceNameSpace;
                     _getCreateParams 
@@ -2876,13 +2882,8 @@ Array <CIMInstance> IndicationService::_getMatchingSubscriptions (
                         //  Get property list from filter query (FROM and 
                         //  WHERE clauses)
                         //
-                        if ((selectStatement.getSelectPropertyNameCount () > 0)
-                            ||
-                            (selectStatement.getWherePropertyNameCount () > 0))
-                        {
-                            propertyList = _getPropertyList (selectStatement,
-                                sourceNameSpace, indicationClassName);
-                        }
+                        propertyList = _getPropertyList (selectStatement,
+                            sourceNameSpace, indicationClassName);
                 
                         //
                         //  If the subscription requires all properties,
@@ -3034,12 +3035,8 @@ void IndicationService::_getModifiedSubscriptions (
                     //  Get property list from filter query (FROM and WHERE 
                     //  clauses)
                     //
-                    if ((selectStatement.getSelectPropertyNameCount () > 0) ||
-                        (selectStatement.getWherePropertyNameCount () > 0))
-                    {
-                        requiredProperties = _getPropertyList (selectStatement,
-                            sourceNameSpace, indicationClassName);
-                    }
+                    requiredProperties = _getPropertyList (selectStatement,
+                        sourceNameSpace, indicationClassName);
 
                     //
                     //  If source namespace is now supported, but previously 
@@ -4129,12 +4126,8 @@ void IndicationService::_getCreateParams (
     //  Get property list from filter query (FROM and WHERE 
     //  clauses)
     //
-    if ((selectStatement.getSelectPropertyNameCount () > 0) ||
-        (selectStatement.getWherePropertyNameCount () > 0))
-    {
-        propertyList = _getPropertyList (selectStatement,
-            sourceNameSpace, indicationClassName);
-    }
+    propertyList = _getPropertyList (selectStatement,
+        sourceNameSpace, indicationClassName);
 
     //
     //  Get indication provider class lists
@@ -4184,14 +4177,10 @@ void IndicationService::_getCreateParams (
     //  Get property list from filter query (FROM and WHERE 
     //  clauses)
     //
-    if ((selectStatement.getSelectPropertyNameCount () > 0) ||
-        (selectStatement.getWherePropertyNameCount () > 0))
-    {
-        CIMName indicationClassName = _getIndicationClassName (selectStatement,
-            sourceNameSpace);
-        propertyList = _getPropertyList (selectStatement,
-            sourceNameSpace, indicationClassName);
-    }
+    CIMName indicationClassName = _getIndicationClassName (selectStatement,
+        sourceNameSpace);
+    propertyList = _getPropertyList (selectStatement,
+        sourceNameSpace, indicationClassName);
 
     //
     //  Get condition from filter query (WHERE clause)
@@ -4242,12 +4231,8 @@ Array <ProviderClassList> IndicationService::_getDeleteParams (
     //  Get property list from filter query (FROM and WHERE 
     //  clauses)
     //
-    if ((selectStatement.getSelectPropertyNameCount () > 0) ||
-        (selectStatement.getWherePropertyNameCount () > 0))
-    {
-        propertyList = _getPropertyList (selectStatement,
-            sourceNameSpace, indicationClassName);
-    }
+    propertyList = _getPropertyList (selectStatement,
+        sourceNameSpace, indicationClassName);
 
     //
     //  Get indication provider class lists
@@ -4663,7 +4648,7 @@ void IndicationService::_sendDeleteRequests
 
 String IndicationService::_generateKey (
     const CIMInstance & subscription,
-    const CIMInstance provider)
+    const CIMInstance & provider)
 {
     String tableKey;
 

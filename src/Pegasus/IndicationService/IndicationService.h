@@ -540,7 +540,7 @@ private:
         CIMNamespaceName & sourceNameSpace);
 
     /**
-        Retrieves the values of the filter query property 
+        Retrieves the value of the filter query property 
         for the specified subscription instance.
 
         @param   subscription      Input subscription instance
@@ -625,7 +625,7 @@ private:
     /**
         Checks if the property list includes all properties in the specified 
         class.  If so, a NULL CIMPropertyList is returned.  Otherwise, a
-        CIMPropertyList containing all the properties is returned.
+        CIMPropertyList containing the properties is returned.
 
         @param   propertyList          the list of property names
         @param   nameSpaceName         the namespace
@@ -915,22 +915,22 @@ private:
         const String & authType = String::EMPTY);
 
     /**
-        Generates a unique String key from the subscription instance name and
-        provider keys.
+        Generates a unique String key from the subscription namespace name and 
+        key values and provider key values.
 
-        @param   subscription          the subscription named instance
+        @param   subscription          the subscription instance
         @param   provider              the provider instance
 
         @return  the generated key
      */
     String _generateKey (
         const CIMInstance & subscription,
-        const CIMInstance provider);
+        const CIMInstance & provider);
 
     /**
         Inserts an entry into the subscription table.
 
-        @param   subscription          the subscription named instance
+        @param   subscription          the subscription instance
         @param   provider              the provider instance
         @param   classList             the list of class names
      */
@@ -1012,7 +1012,7 @@ private:
     Uint32 _handlerService;
 
     /**
-        Integer representing queue ID for accessing Repository Service
+        FUTURE: Integer representing queue ID for accessing Repository Service
      */
     //Uint32 _repository;
 

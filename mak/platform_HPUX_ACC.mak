@@ -81,14 +81,6 @@ ifdef PEGASUS_ALWAYS_USE_PAM
 endif
 
 ##
-## The following flag needs to be set to compile in code for
-## not listing the trace configuration properties. This will cause
-## the trace configuration properties, traceComponents and traceLevel
-## not to be listed when using the cimconfig -l command.
-##
-DEFINES += -DPEGASUS_DONOT_LIST_TRACE_PROPERTIES
-
-##
 ## The following flag needs to be set to compile in the configuration
 ## properties set with fixed release settings.
 ##

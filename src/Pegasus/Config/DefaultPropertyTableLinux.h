@@ -32,35 +32,35 @@
 
 
 #ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
-    {"httpPort", "5988", 0, 0, 0},
-    {"httpsPort", "5989", 0, 0, 0},
-    {"enableHttpConnection", "false", 0, 0, 0},
-    {"enableHttpsConnection", "true", 0, 0, 0},
-    {"home", "./", 0, 0, 0},
-    {"daemon", "true", 0, 0, 0},
-    {"install", "false", 0, 0, 0},
-    {"remove", "false", 0, 0, 0},
-    {"slp", "false", 0, 0, 0},
-    {"enableAssociationTraversal", "false", 0, 0, 0},
-    {"enableIndicationService", "true", 0, 0, 0},
+    {"httpPort", "5988", 0, 0, 0, 1},
+    {"httpsPort", "5989", 0, 0, 0, 1},
+    {"enableHttpConnection", "false", 0, 0, 0, 1},
+    {"enableHttpsConnection", "true", 0, 0, 0, 1},
+    {"home", "./", 0, 0, 0, 1},
+    {"daemon", "true", 0, 0, 0, 1},
+    {"install", "false", 0, 0, 0, 1},
+    {"remove", "false", 0, 0, 0, 1},
+    {"slp", "false", 0, 0, 0, 1},
+    {"enableAssociationTraversal", "false", 0, 0, 0, 1},
+    {"enableIndicationService", "true", 0, 0, 0, 1},
     // Removed because unresolved PEP 66 KS{"maximumEnumerationBreadth", "50", 0, 0, 0},
-    {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, 0, 0, 0},
-    {"enableClientCertification", "false", 0, 0, 0}
+    {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, 0, 0, 0, 1},
+    {"enableClientCertification", "false", 0, 0, 0, 1}
 #else
-    {"httpPort", "5988", 0, 0, 0},
-    {"httpsPort", "5989", 0, 0, 0},
-    {"enableHttpConnection", "true", 0, 0, 0},
-    {"enableHttpsConnection", "false", 0, 0, 0},
-    {"home", "./", 0, 0, 0},
-    {"daemon", "true", 0, 0, 0},
-    {"install", "false", 0, 0, 0},
-    {"remove", "false", 0, 0, 0},
-    {"slp", "false", 0, 0, 0},
-    {"enableAssociationTraversal", "true", 0, 0, 0},
-    {"enableIndicationService", "true", 0, 0, 0},
-    {"maximumEnumerationBreadth", "50", 0, 0, 0},
-    {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, 0, 0, 0},
-    {"enableClientCertification", "false", 0, 0, 0}
+    {"httpPort", "5988", 0, 0, 0, 1},
+    {"httpsPort", "5989", 0, 0, 0, 1},
+    {"enableHttpConnection", "true", 0, 0, 0, 1},
+    {"enableHttpsConnection", "false", 0, 0, 0, 1},
+    {"home", "./", 0, 0, 0, 1},
+    {"daemon", "true", 0, 0, 0, 1},
+    {"install", "false", 0, 0, 0, 1},
+    {"remove", "false", 0, 0, 0, 1},
+    {"slp", "false", 0, 0, 0, 1},
+    {"enableAssociationTraversal", "true", 0, 0, 0, 1},
+    {"enableIndicationService", "true", 0, 0, 0, 1},
+    {"maximumEnumerationBreadth", "50", 0, 0, 0, 1},
+    {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, 0, 0, 0, 1},
+    {"enableClientCertification", "false", 0, 0, 0, 1}
 #endif
 
 

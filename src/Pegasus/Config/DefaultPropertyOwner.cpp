@@ -25,6 +25,8 @@
 //
 // Modified By: Yi Zhou (yi_zhou@hp.com)
 //              Warren Otsuka (warren.otsuka@hp.com)
+//              Sushma Fernandes, Hewlett-Packard Company
+//                     (sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -85,6 +87,7 @@ void DefaultPropertyOwner::initialize()
         _configProperties[i].dynamic = properties[i].dynamic;
         _configProperties[i].domain = properties[i].domain;
         _configProperties[i].domainSize = properties[i].domainSize;
+        _configProperties[i].externallyVisible = properties[i].externallyVisible;
     }
 }
 
@@ -107,6 +110,14 @@ void DefaultPropertyOwner::getPropertyInfo(
             propertyInfo.append(_configProperties[i].currentValue);
             propertyInfo.append(_configProperties[i].plannedValue);
             if (_configProperties[i].dynamic)
+            {
+                propertyInfo.append(STRING_TRUE);
+            }
+            else
+            {
+                propertyInfo.append(STRING_FALSE);
+            }
+            if (_configProperties[i].externallyVisible)
             {
                 propertyInfo.append(STRING_TRUE);
             }

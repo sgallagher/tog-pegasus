@@ -53,15 +53,20 @@ PEGASUS_NAMESPACE_BEGIN
 
 static struct ConfigPropertyRow properties[] =
 {
-    {"enableAuthentication", "false", 0, 0, 0},
-    {"usePAMAuthentication", "false", 0, 0, 0},
-    {"httpAuthType", "Basic", 0, 0, 0},
-    {"passwordFilePath", "cimserver.passwd", 0, 0, 0},
-    {"sslCertificateFilePath", "server.pem", 0, 0, 0}, 
-    {"sslKeyFilePath", "file.pem", 0, 0, 0}, 
-    {"sslTrustFilePath", "client.pem", 0, 0, 0}, 
-    {"enableNamespaceAuthorization", "false", 0, 0, 0},
-    {"enableRemotePrivilegedUserAccess", "false", 0, 0, 0}
+    {"enableAuthentication", "false", 0, 0, 0, 1},
+#ifdef PEGASUS_OS_HPUX
+    {"usePAMAuthentication", "true", 0, 0, 0, 0},
+    {"enableRemotePrivilegedUserAccess", "true", 0, 0, 0, 1},
+#else
+    {"usePAMAuthentication", "false", 0, 0, 0, 1},
+    {"enableRemotePrivilegedUserAccess", "false", 0, 0, 0, 1},
+#endif
+    {"httpAuthType", "Basic", 0, 0, 0, 1},
+    {"passwordFilePath", "cimserver.passwd", 0, 0, 0, 1},
+    {"sslCertificateFilePath", "server.pem", 0, 0, 0, 1}, 
+    {"sslKeyFilePath", "file.pem", 0, 0, 0, 1}, 
+    {"sslTrustFilePath", "client.pem", 0, 0, 0, 1}, 
+    {"enableNamespaceAuthorization", "false", 0, 0, 0, 1},
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
@@ -116,6 +121,7 @@ void SecurityPropertyOwner::initialize()
             _enableAuthentication->dynamic = properties[i].dynamic;
             _enableAuthentication->domain = properties[i].domain;
             _enableAuthentication->domainSize = properties[i].domainSize;
+            _enableAuthentication->externallyVisible = properties[i].externallyVisible;
         }
         else if (String::equalNoCase(
             properties[i].propertyName, "usePAMAuthentication"))
@@ -127,6 +133,7 @@ void SecurityPropertyOwner::initialize()
             _usePAMAuthentication->dynamic = properties[i].dynamic;
             _usePAMAuthentication->domain = properties[i].domain;
             _usePAMAuthentication->domainSize = properties[i].domainSize;
+            _usePAMAuthentication->externallyVisible = properties[i].externallyVisible;
         }
         else if (String::equalNoCase(
             properties[i].propertyName, "enableNamespaceAuthorization"))
@@ -138,6 +145,7 @@ void SecurityPropertyOwner::initialize()
             _enableNamespaceAuthorization->dynamic = properties[i].dynamic;
             _enableNamespaceAuthorization->domain = properties[i].domain;
             _enableNamespaceAuthorization->domainSize = properties[i].domainSize;
+            _enableNamespaceAuthorization->externallyVisible = properties[i].externallyVisible;
         }
         else if (String::equalNoCase(properties[i].propertyName, "httpAuthType"))
         {
@@ -148,6 +156,7 @@ void SecurityPropertyOwner::initialize()
             _httpAuthType->dynamic = properties[i].dynamic;
             _httpAuthType->domain = properties[i].domain;
             _httpAuthType->domainSize = properties[i].domainSize;
+            _httpAuthType->externallyVisible = properties[i].externallyVisible;
         }
         else if (String::equalNoCase(
 			    properties[i].propertyName, 
@@ -159,6 +168,7 @@ void SecurityPropertyOwner::initialize()
             _passwordFilePath->dynamic = properties[i].dynamic;
             _passwordFilePath->domain = properties[i].domain;
             _passwordFilePath->domainSize = properties[i].domainSize;
+            _passwordFilePath->externallyVisible = properties[i].externallyVisible;
 
             // 
             // Initialize passsword file path to $PEGASUS_HOME/cimserver.passwd
@@ -180,6 +190,7 @@ void SecurityPropertyOwner::initialize()
             _certificateFilePath->dynamic = properties[i].dynamic;
             _certificateFilePath->domain = properties[i].domain;
             _certificateFilePath->domainSize = properties[i].domainSize;
+            _certificateFilePath->externallyVisible = properties[i].externallyVisible;
 
             // 
             // Initialize SSL cert file path to $PEGASUS_HOME/server.pem
@@ -201,6 +212,7 @@ void SecurityPropertyOwner::initialize()
             _keyFilePath->dynamic = properties[i].dynamic;
             _keyFilePath->domain = properties[i].domain;
             _keyFilePath->domainSize = properties[i].domainSize;
+            _keyFilePath->externallyVisible = properties[i].externallyVisible;
 
             // 
             // Initialize SSL key file path to $PEGASUS_HOME/file.pem
@@ -222,6 +234,7 @@ void SecurityPropertyOwner::initialize()
             _trustFilePath->dynamic = properties[i].dynamic;
             _trustFilePath->domain = properties[i].domain;
             _trustFilePath->domainSize = properties[i].domainSize;
+            _trustFilePath->externallyVisible = properties[i].externallyVisible;
 
             // 
             // Initialize SSL trust file path to $PEGASUS_HOME/trust.pem
@@ -243,6 +256,7 @@ void SecurityPropertyOwner::initialize()
             _enableRemotePrivilegedUserAccess->dynamic = properties[i].dynamic;
             _enableRemotePrivilegedUserAccess->domain = properties[i].domain;
             _enableRemotePrivilegedUserAccess->domainSize = properties[i].domainSize;
+            _enableRemotePrivilegedUserAccess->externallyVisible = properties[i].externallyVisible;
         }
     }
 
@@ -310,6 +324,14 @@ void SecurityPropertyOwner::getPropertyInfo(
     propertyInfo.append(configProperty->currentValue);
     propertyInfo.append(configProperty->plannedValue);
     if (configProperty->dynamic)
+    {
+        propertyInfo.append(STRING_TRUE);
+    }
+    else
+    {
+        propertyInfo.append(STRING_FALSE);
+    }
+    if (configProperty->externallyVisible)
     {
         propertyInfo.append(STRING_TRUE);
     }

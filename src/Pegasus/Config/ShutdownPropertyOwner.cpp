@@ -23,7 +23,8 @@
 //
 // Author: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //
-// Modified By: 
+// Modified By:  Sushma Fernandes, Hewlett-Packard Company
+//                   (sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -57,7 +58,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 static struct ConfigPropertyRow properties[] =
 {
-    {"shutdownTimeout", "10", 1, 0, 0},
+    {"shutdownTimeout", "10", 1, 0, 0, 1},
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
@@ -95,6 +96,7 @@ void ShutdownPropertyOwner::initialize()
             _shutdownTimeout->dynamic = properties[i].dynamic;
             _shutdownTimeout->domain = properties[i].domain;
             _shutdownTimeout->domainSize = properties[i].domainSize;
+            _shutdownTimeout->externallyVisible = properties[i].externallyVisible;
         }
     }
 }
@@ -128,6 +130,14 @@ void ShutdownPropertyOwner::getPropertyInfo(
     propertyInfo.append(configProperty->currentValue);
     propertyInfo.append(configProperty->plannedValue);
     if (configProperty->dynamic)
+    {
+        propertyInfo.append(STRING_TRUE);
+    }
+    else
+    {
+        propertyInfo.append(STRING_FALSE);
+    }
+    if (configProperty->externallyVisible)
     {
         propertyInfo.append(STRING_TRUE);
     }

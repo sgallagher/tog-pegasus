@@ -23,7 +23,8 @@
 //
 // Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
-// Modified By:
+// Modified By: Sushma Fernandes, Hewlett-Packard Company
+//                sushma_fernandes@hp.com
 //
 //
 //%/////////////////////////////////////////////////////////////////////////////
@@ -48,7 +49,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 static struct ConfigPropertyRow properties[] =
 {
-    {"repositoryIsDefaultInstanceProvider", "true", 0, 0, 0}
+    {"repositoryIsDefaultInstanceProvider", "true", 0, 0, 0, 1}
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
@@ -87,6 +88,7 @@ void RepositoryPropertyOwner::initialize()
             _repositoryIsDefaultInstanceProvider->dynamic = properties[i].dynamic;
             _repositoryIsDefaultInstanceProvider->domain = properties[i].domain;
             _repositoryIsDefaultInstanceProvider->domainSize = properties[i].domainSize;
+            _repositoryIsDefaultInstanceProvider->externallyVisible = properties[i].externallyVisible;
         }
     }
 }
@@ -121,6 +123,14 @@ void RepositoryPropertyOwner::getPropertyInfo(
     propertyInfo.append(configProperty->currentValue);
     propertyInfo.append(configProperty->plannedValue);
     if (configProperty->dynamic)
+    {
+        propertyInfo.append(STRING_TRUE);
+    }
+    else
+    {
+        propertyInfo.append(STRING_FALSE);
+    }
+    if (configProperty->externallyVisible)
     {
         propertyInfo.append(STRING_TRUE);
     }

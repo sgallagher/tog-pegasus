@@ -23,7 +23,8 @@
 //
 // Author: Nag Boranna (nagaraja_boranna@hp.com)
 //
-// Modified By:
+// Modified By: Sushma Fernandes, Hewlett-Packard Company,
+//                  sushma_fernandes@hp.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -229,6 +230,11 @@ struct ConfigProperty
     Boolean    dynamic;            // Dynamic or non dynamic property
     char**     domain;            // List of valid values of a config property
     Uint32     domainSize;        // Size of the domain
+    Boolean    externallyVisible; // Determines whether a property wants to be
+                                  // externally visible or not. 
+                                  // If a property chooses not to be externally 
+                                  // visible, it is not listed as a configurable 
+                                  // property but is still configurable. 
 };
 
 
@@ -253,6 +259,7 @@ struct ConfigPropertyRow
     int         dynamic;
     char**      domain;
     Uint32      domainSize;
+    int         externallyVisible;
 };
 #else
 struct ConfigPropertyRow
@@ -262,6 +269,7 @@ struct ConfigPropertyRow
     Boolean     dynamic;
     char**      domain;
     Uint32      domainSize;
+    Boolean     externallyVisible;
 };
 #endif
 

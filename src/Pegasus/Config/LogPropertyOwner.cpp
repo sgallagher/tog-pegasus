@@ -50,8 +50,8 @@ PEGASUS_NAMESPACE_BEGIN
 
 static struct ConfigPropertyRow properties[] =
 {
-    {"logdir", "./logs", 1, 0, 0},
-    {"logLevel", "INFORMATION", 1, 0, 0}
+    {"logdir", "./logs", 1, 0, 0, 1},
+    {"logLevel", "INFORMATION", 1, 0, 0, 1}
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
@@ -91,6 +91,7 @@ void LogPropertyOwner::initialize()
             _logdir->dynamic = properties[i].dynamic;
             _logdir->domain = properties[i].domain;
             _logdir->domainSize = properties[i].domainSize;
+            _logdir->externallyVisible = properties[i].externallyVisible;
         }
         else if (String::equalNoCase(properties[i].propertyName, "logLevel"))
         {
@@ -101,6 +102,7 @@ void LogPropertyOwner::initialize()
             _logLevel->dynamic = properties[i].dynamic;
             _logLevel->domain = properties[i].domain;
             _logLevel->domainSize = properties[i].domainSize;
+            _logLevel->externallyVisible = properties[i].externallyVisible;
 
 	    Logger::setlogLevelMask(_logLevel->currentValue);
         }
@@ -140,6 +142,14 @@ void LogPropertyOwner::getPropertyInfo(
     propertyInfo.append(configProperty->currentValue);
     propertyInfo.append(configProperty->plannedValue);
     if (configProperty->dynamic)
+    {
+        propertyInfo.append(STRING_TRUE);
+    }
+    else
+    {
+        propertyInfo.append(STRING_FALSE);
+    }
+    if (configProperty->externallyVisible)
     {
         propertyInfo.append(STRING_TRUE);
     }

@@ -54,8 +54,8 @@ PEGASUS_NAMESPACE_BEGIN
 
 static struct ConfigPropertyRow properties[] =
 {
-    {"repositoryDir", "repository", 0, 0, 0},
-    {"providerDir", "lib", 0, 0, 0},
+    {"repositoryDir", "repository", 0, 0, 0, 1},
+    {"providerDir", "lib", 0, 0, 0, 1},
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
@@ -106,6 +106,7 @@ void FileSystemPropertyOwner::initialize()
             _repositoryDir->dynamic = properties[i].dynamic;
             _repositoryDir->domain = properties[i].domain;
             _repositoryDir->domainSize = properties[i].domainSize;
+            _repositoryDir->externallyVisible = properties[i].externallyVisible;
         }
         else if (String::equalNoCase(properties[i].propertyName, "providerDir"
 ))
@@ -117,6 +118,7 @@ void FileSystemPropertyOwner::initialize()
             _providerDir->dynamic = properties[i].dynamic;
             _providerDir->domain = properties[i].domain;
             _providerDir->domainSize = properties[i].domainSize;
+            _providerDir->externallyVisible = properties[i].externallyVisible;
         }
     }
 }
@@ -154,6 +156,14 @@ void FileSystemPropertyOwner::getPropertyInfo(
     propertyInfo.append(configProperty->currentValue);
     propertyInfo.append(configProperty->plannedValue);
     if (configProperty->dynamic)
+    {
+        propertyInfo.append(STRING_TRUE);
+    }
+    else
+    {
+        propertyInfo.append(STRING_FALSE);
+    }
+    if (configProperty->externallyVisible)
     {
         propertyInfo.append(STRING_TRUE);
     }

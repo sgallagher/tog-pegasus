@@ -423,7 +423,7 @@ void ProviderFacade::executeQuery(
     const String & query,
     ResponseHandler<CIMObject> & handler)
 {
-    throw CIMException(CIM_ERR_NOT_SUPPORTED, "CIMQueryProvider::*");
+    throw CIMException(CIM_ERR_NOT_SUPPORTED, "CIMiQueryProvider::*");
 }
 
 void ProviderFacade::provideIndication(

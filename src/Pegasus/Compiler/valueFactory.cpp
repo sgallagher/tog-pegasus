@@ -42,12 +42,14 @@
 #include <cstring>
 #include <cstdlib>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/Destroyer.h>
 
 #define local_min(a,b) ( a < b ? a : b )
 #define local_max(a,b) ( a > b ? a : b )
 
-unsigned long
+long
 valueFactory::Stoi(const String &val) {
+#if 0
   unsigned int end = val.size();
   String s;
   for (unsigned int i = 0; i < end; i++) {
@@ -65,6 +67,16 @@ valueFactory::Stoi(const String &val) {
     }
   }
   return atol(_CString(s));
+#else
+  long longValue;
+  ArrayDestroyer<char> valCharStr(val.allocateCString());
+  if (!sscanf(valCharStr.getPointer(), "%ld", &longValue))
+  {
+//   ATTN-DME-P3-20020602: How should this error condition be handled?
+     return 0;
+  }
+  else return longValue;
+#endif
 }
 
 static double

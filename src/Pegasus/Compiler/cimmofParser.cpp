@@ -386,7 +386,7 @@ cimmofParser::oct_to_dec(const String &octrep) const {
 //The format of octrep string is [+-]0[0-7]+
 //E.g., +0345 (octal) = 228 (decimal)
 
-  for (int i = 1; i <= octrep.size() - 1; i++) {
+  for (unsigned int i = 1; i <= octrep.size() - 1; i++) {
      oval *= 8;
      switch(octrep[i]) {
      case '1': oval += 1; break;
@@ -421,7 +421,7 @@ cimmofParser::hex_to_dec(const String &hexrep) const {
 //The format of hexrep string is 0x[0-9A-Fa-f]+
 //E.g., 0x9FFF (hex) = 40959 (decimal)
 
-  for (int i = 2; i <= hexrep.size() - 1; i++) {
+  for (unsigned int i = 2; i <= hexrep.size() - 1; i++) {
      hval *= 16;
      switch(hexrep[i]) {
      case '1': hval += 1; break;
@@ -471,7 +471,7 @@ cimmofParser::binary_to_dec(const String &binrep) const {
 //The format of binrep string is [+-][01]+[Bb]
 //E.g., +01011b = 11
 
-  for (int i = 1; i <= binrep.size() - 2; i++) {
+  for (unsigned int i = 1; i <= binrep.size() - 2; i++) {
      bval *= 2;
      bval += (binrep[i] == '1' ? 1 : 0);
   }

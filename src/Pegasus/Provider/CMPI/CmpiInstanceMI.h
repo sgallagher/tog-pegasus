@@ -1,0 +1,109 @@
+//%2003////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2000, 2001, 2002  BMC Software, Hewlett-Packard Development
+// Company, L. P., IBM Corp., The Open Group, Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L. P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+//==============================================================================
+//
+// Author:      Adrian Schuur, schuur@de.ibm.com
+//
+// Modified By: Heidi Neuman, heidineu@de.ibm.com
+//              Angel Nunez Mencias, anunez@de.ibm.com
+//              Viktor Mihajlovski, mihajlov@de.ibm.com
+//
+//%/////////////////////////////////////////////////////////////////////////////
+
+#ifndef _CmpiInstanceMI_h_
+#define _CmpiInstanceMI_h_
+
+#include <iostream>
+
+#include "cmpidt.h"
+#include "cmpift.h"
+
+#include "CmpiBaseMI.h"
+#include "CmpiStatus.h"
+#include "CmpiString.h"
+#include "CmpiData.h"
+#include "CmpiObjectPath.h"
+#include "CmpiInstance.h"
+#include "CmpiResult.h"
+#include "CmpiContext.h"
+#include "Linkage.h"
+
+class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiInstanceMI : virtual public CmpiBaseMI {
+public:
+   CmpiInstanceMI(const CmpiBroker &mbp, const CmpiContext& ctx);
+
+   static CMPIStatus driveEnumInstanceNames
+   (CMPIInstanceMI* mi,CMPIContext* eCtx, CMPIResult* eRslt,
+    CMPIObjectPath* eCop);
+   static CMPIStatus driveEnumInstances
+   (CMPIInstanceMI* mi, CMPIContext* eCtx, CMPIResult* eRslt,
+    CMPIObjectPath* eCop, char* *properties);
+   static CMPIStatus driveGetInstance
+   (CMPIInstanceMI* mi, CMPIContext* eCtx, CMPIResult* eRslt,
+    CMPIObjectPath* eCop, char* *properties);
+   static CMPIStatus driveCreateInstance
+   (CMPIInstanceMI* mi, CMPIContext* eCtx, CMPIResult* eRslt,
+    CMPIObjectPath* eCop, CMPIInstance* eInst);
+   static CMPIStatus driveSetInstance
+   (CMPIInstanceMI* mi, CMPIContext* eCtx, CMPIResult* eRslt,
+    CMPIObjectPath* eCop, CMPIInstance* eInst, char* *properties);
+   static CMPIStatus driveDeleteInstance
+   (CMPIInstanceMI* mi, CMPIContext* eCtx, CMPIResult* eRslt,
+    CMPIObjectPath* eCop);
+   static CMPIStatus driveExecQuery
+   (CMPIInstanceMI* mi, CMPIContext* eCtx, CMPIResult* eRslt,
+    CMPIObjectPath* eCop, char* language ,char* query);
+
+
+   virtual CmpiStatus enumInstanceNames
+   (const CmpiContext& ctx, CmpiResult& rslt, const CmpiObjectPath& cop);
+   virtual CmpiStatus enumInstances
+   (const CmpiContext& ctx, CmpiResult& rslt, const CmpiObjectPath& cop,
+    const char* *properties);
+   virtual CmpiStatus getInstance
+   (const CmpiContext& ctx, CmpiResult& rslt, const CmpiObjectPath& cop,
+    const char* *properties);
+   virtual CmpiStatus createInstance
+   (const CmpiContext& ctx, CmpiResult& rslt, const CmpiObjectPath& cop,
+    const CmpiInstance& inst);
+   virtual CmpiStatus setInstance
+   (const CmpiContext& ctx, CmpiResult& rslt, const CmpiObjectPath& cop,
+    const CmpiInstance& inst, const char* *properties);
+   virtual CmpiStatus deleteInstance
+   (const CmpiContext& ctx, CmpiResult& rslt, const CmpiObjectPath& cop);
+   virtual CmpiStatus execQuery
+   (const CmpiContext& ctx, CmpiResult& rslt, const CmpiObjectPath& cop,
+    const char* language, const char* query);
+};
+
+#endif
+
+
+
+
+
+
+
+
+

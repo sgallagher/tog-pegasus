@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CIM CIMVERSION="2.0" DTDVERSION="2.0">
+<MESSAGE ID="10002" PROTOCOLVERSION="1.0">
+<SIMPLERSP>
+<IMETHODRESPONSE NAME="GetInstance">
+<IRETURNVALUE>
+<INSTANCE CLASSNAME="CWS_Directory">
+<PROPERTY NAME="Caption" TYPE="string">
+</PROPERTY>
+<PROPERTY NAME="Description" TYPE="string">
+</PROPERTY>
+<PROPERTY NAME="ElementName" TYPE="string">
+</PROPERTY>
+<PROPERTY NAME="InstallDate" TYPE="datetime">
+</PROPERTY>
+<PROPERTY.ARRAY NAME="OperationalStatus" TYPE="uint16">
+</PROPERTY.ARRAY>
+<PROPERTY.ARRAY NAME="StatusDescriptions" TYPE="string">
+</PROPERTY.ARRAY>
+<PROPERTY NAME="Status" TYPE="string">
+</PROPERTY>
+<PROPERTY NAME="CompressionMethod" TYPE="string">
+</PROPERTY>
+<PROPERTY NAME="EncryptionMethod" TYPE="string">
+</PROPERTY>
+<PROPERTY NAME="InUseCount" TYPE="uint64">
+</PROPERTY>
+<PROPERTY NAME="CSCreationClassName" TYPE="string">
+<VALUE>
+CIM_UnitaryComputerSystem
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="CSName" TYPE="string">
+<VALUE>
+localhost
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="FSCreationClassName" TYPE="string">
+<VALUE>
+CIM_FileSystem
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="FSName" TYPE="string">
+<VALUE>
+/Simulated/CMPI/tests/
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="CreationClassName" TYPE="string">
+<VALUE>
+CWS_Directory
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="Name" TYPE="string">
+<VALUE>
+/Simulated/CMPI/tests/Providers
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="FileSize" TYPE="uint64">
+<VALUE>
+4096
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="CreationDate" TYPE="datetime">
+<VALUE>
+20040307005203.000000+060
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="LastModified" TYPE="datetime">
+<VALUE>
+20040307005709.000000+060
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="LastAccessed" TYPE="datetime">
+<VALUE>
+20040307005203.000000+060
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="Readable" TYPE="boolean">
+<VALUE>
+TRUE
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="Writeable" TYPE="boolean">
+<VALUE>
+TRUE
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="Executable" TYPE="boolean">
+<VALUE>
+TRUE
+</VALUE>
+</PROPERTY>
+</INSTANCE>
+</IRETURNVALUE>
+</IMETHODRESPONSE>
+</SIMPLERSP>
+</MESSAGE>
+</CIM>

@@ -58,19 +58,6 @@
    ========================================================================== */
 typedef unsigned char boolean_t;
 typedef unsigned long ErrorStatus_t;
-typedef struct Timestamp {
-char year[4];
-char month[2];
-char day[2];
-char hour[2];
-char minutes[2];
-char seconds[2];
-char dot;
-char microSeconds[6];
-char plusOrMinus;
-char utcOffset[3];
-char padding[3];
-} Timestamp_t;
 
 PEGASUS_USING_STD;
 
@@ -266,14 +253,10 @@ Boolean OperatingSystem::getOtherTypeDescription(String& otherTypeDescription)
   */
 Boolean OperatingSystem::getLastBootUpTime(CIMDateTime& lastBootUpTime)
 {
-    long               year;
-    struct timeval     tv;
-    struct timezone    tz;
-    struct tm          tmval;
-    struct pst_static  pst;
-    Timestamp_t        bootTime;
-    char mTmpString[80];
-
+    struct tm tmval;
+    struct pst_static pst;
+    char dateTimeBuffer[26];
+    int tzMinutesEast;
 
     // Get the static information from the pstat call to the system.
  
@@ -287,32 +270,26 @@ Boolean OperatingSystem::getLastBootUpTime(CIMDateTime& lastBootUpTime)
 
     time_t tmp_time = pst.boot_time;
     localtime_r(&tmp_time, &tmval);
-    gettimeofday(&tv,&tz);
-
-    year = 1900;
-    memset((void *)&bootTime, 0, sizeof(Timestamp_t));
+    tzMinutesEast = - (int) timezone / 60;
+    if ((tmval.tm_isdst > 0) && daylight)
+    {
+        // ATTN: It is unclear how to determine the DST offset.  Assume 1 hour.
+        tzMinutesEast += 60;
+    }
 
     // Format the date. 
-    sprintf((char *) &bootTime,"%04d%02d%02d%02d%02d%02d.%06d%04d",
-            year + tmval.tm_year,
-            tmval.tm_mon + 1,   // HP-UX stores month 0-11
-            tmval.tm_mday,
-            tmval.tm_hour,
-            tmval.tm_min,
-            tmval.tm_sec,
-            0,
-            tz.tz_minuteswest);
-    if (tz.tz_minuteswest > 0) 
-    {
-        bootTime.plusOrMinus = '-';
-    }
-    else 
-    {
-        bootTime.plusOrMinus = '+';
-    }
-    lastBootUpTime.clear();
-    strcpy(mTmpString, (char *)&bootTime);
-    lastBootUpTime.set(mTmpString);
+    sprintf(
+        dateTimeBuffer,
+        "%04d%02d%02d%02d%02d%02d.%06d%+04d",
+        1900 + tmval.tm_year,
+        tmval.tm_mon + 1,   // HP-UX stores month 0-11
+        tmval.tm_mday,
+        tmval.tm_hour,
+        tmval.tm_min,
+        tmval.tm_sec,
+        0,
+        tzMinutesEast);
+    lastBootUpTime.set(dateTimeBuffer);
     return true;
 }
 
@@ -324,48 +301,11 @@ Boolean OperatingSystem::getLastBootUpTime(CIMDateTime& lastBootUpTime)
   */
 Boolean OperatingSystem::getLocalDateTime(CIMDateTime& localDateTime)
 {
-    long         year;
-    Timestamp_t  dateTime;
-    char   mTmpString[80];
-    time_t mSysTime;
-    struct timeval   tv;
-    struct timezone  tz;
-    struct tm        tmval;
-
     // Get the date and time from the system. 
-
-// ATTN-SLC-P2-17-Apr-02: use CIMOM DateTime function & consistency, BZ#45
-    
-    mSysTime = time(NULL);
-    localtime_r(&mSysTime, &tmval);
-    gettimeofday(&tv,&tz);
-
-    year = 1900;
-    // Format the date.
-    sprintf((char *)&dateTime,"%04d%02d%02d%02d%02d%02d.%06d+%03d",
-                    year + tmval.tm_year,
-                    tmval.tm_mon + 1,   // HP-UX stored month as 0-11
-                    tmval.tm_mday,
-                    tmval.tm_hour,
-                    tmval.tm_min,
-                    tmval.tm_sec,
-                    0,
-                    tz.tz_minuteswest);
-
-    if (tz.tz_minuteswest > 0) 
-    {
-        dateTime.plusOrMinus = '-';
-    }
-    else 
-    {
-        dateTime.plusOrMinus = '+';
-    }
-
-    localDateTime.clear();
-    strcpy(mTmpString, (char *)&dateTime);
-    localDateTime.set(mTmpString);
+    localDateTime = CIMDateTime::getCurrentDateTime();
     return true;
 }
+
 /**
    getCurrentTimeZone method for HP-UX implementation of OS Provider
 
@@ -374,13 +314,19 @@ Boolean OperatingSystem::getLocalDateTime(CIMDateTime& localDateTime)
   */
 Boolean OperatingSystem::getCurrentTimeZone(Sint16& currentTimeZone)
 {
-    struct timeval   tv;
-    struct timezone  tz;
-    struct tm      * tmval;
+    time_t systemTime;
+    struct tm tmval;
 
     // Get the time from the system. 
-    gettimeofday(&tv,&tz);
-    currentTimeZone = -tz.tz_minuteswest;
+    systemTime = time(0);
+    localtime_r(&systemTime, &tmval);
+    currentTimeZone = - (Sint16) (timezone / 60);
+    if ((tmval.tm_isdst > 0) && daylight)
+    {
+        // ATTN: It is unclear how to determine the DST offset.  Assume 1 hour.
+        currentTimeZone += 60;
+    }
+
     return true;
 }
 

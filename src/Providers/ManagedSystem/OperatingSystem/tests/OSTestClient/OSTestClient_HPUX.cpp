@@ -58,19 +58,6 @@
 #include <sys/pstat.h>      // for pstat 
 #include <dl.h>             // for shl_findsym
 
-typedef struct Timestamp {
-char year[4];
-char month[2];
-char day[2];
-char hour[2];
-char minutes[2];
-char seconds[2];
-char dot;
-char microSeconds[6];
-char plusOrMinus;
-char utcOffset[3];
-char padding[3];
-} Timestamp_t;  
 /**
    goodCSCreationClassName method for the OS Provider Test Client
 
@@ -269,14 +256,10 @@ Boolean OSTestClient::goodVersion(const String &version, Boolean verbose)
 Boolean OSTestClient::goodLastBootUpTime(const CIMDateTime &btime,
 					 Boolean verbose)
 {
-   long                year;
-   struct timeval      tv;
-   struct timezone     tz;
-   struct tm           tmval;
-   struct pst_static   pst;
-   Timestamp_t         bootTime;
-   char mTmpString[80];
-   CIMDateTime        lbTime;
+   struct tm tmval;
+   struct pst_static pst;
+   char dateTimeBuffer[26];
+   int tzMinutesEast;
 
    if (verbose)
       cout<<"Checking LastBootUpTime " << btime.toString() << endl;
@@ -288,37 +271,30 @@ Boolean OSTestClient::goodLastBootUpTime(const CIMDateTime &btime,
 
    time_t tmp_time = pst.boot_time;
    localtime_r(&tmp_time, &tmval);
-   gettimeofday(&tv, &tz);
-
-   year = 1900;
-   memset((void *)&bootTime, 0, sizeof(Timestamp_t));
+   tzMinutesEast = - (int) timezone / 60;
+   if ((tmval.tm_isdst > 0) && daylight)
+   {
+       // ATTN: It is unclear how to determine the DST offset.  Assume 1 hour.
+       tzMinutesEast += 60;
+   }
 
    // format as CIMDateTime
-   sprintf((char *)&bootTime,"%04d%02d%02d%02d%02d%02d.%06d%04d",
-           year + tmval.tm_year,
-           tmval.tm_mon + 1, // HP-UX stores month 0-11
-           tmval.tm_mday,
-           tmval.tm_hour,
-           tmval.tm_min,
-           tmval.tm_sec,
-           0,
-           tz.tz_minuteswest);
-   if (tz.tz_minuteswest > 0) 
-   {
-       bootTime.plusOrMinus = '-';
-   }
-   else
-   {
-       bootTime.plusOrMinus = '+';
-   }
+   sprintf(
+       dateTimeBuffer,
+       "%04d%02d%02d%02d%02d%02d.%06d%+04d",
+       1900 + tmval.tm_year,
+       tmval.tm_mon + 1, // HP-UX stores month 0-11
+       tmval.tm_mday,
+       tmval.tm_hour,
+       tmval.tm_min,
+       tmval.tm_sec,
+       0,
+       tzMinutesEast);
 
-   strcpy(mTmpString, (char *)&bootTime);
-   lbTime.set(mTmpString);
-  
    if (verbose)
-      cout << " Should be " << mTmpString << endl;
+      cout << " Should be " << dateTimeBuffer << endl;
 
-   return (btime == lbTime);
+   return (btime == CIMDateTime(dateTimeBuffer));
 }
 
 /**

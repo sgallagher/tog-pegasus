@@ -7,7 +7,7 @@ First installment
 
    This installment of JMPI has been committed to the 2.4 branch.
    This installment has been build and tested on Suse 9.0 with Sun's j2sdk 1.4.2_04.
-
+   
 
 Environment settings
 
@@ -17,9 +17,8 @@ Environment settings
 
    export PEGASUS_HOME=`pwd`
    export PEGASUS_PLATFORM=LINUX_IX86_GNU
-   export ENABLE_PROVIDER_MANAGER2=1
-   export ENABLE_CMPI_PROVIDER_MANAGER=1
-   export ENABLE_JMPI_PROVIDER_MANAGER=1
+   export PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER=1
+   export PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER=1
    export PEGASUS_DEBUG=1
    export JAVA_SDK=/usr/java/j2sdk1.4.2_04
    export JAVA_SDKINC=$JAVA_SDK/include
@@ -103,8 +102,7 @@ Provider Registration
 
 Bug reports
 
-   Use normal Pegasus bugzilla procedures to report malfunctions. However, I will be out of town and
-   offline though 5/14/2004.
+   Use normal Pegasus bugzilla procedures to report malfunctions. 
 
 	
 Regards, Adrian Schuur.

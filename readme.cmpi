@@ -10,8 +10,7 @@ Pegasus as a pluggable provider manager.
 CMPI must be enabled during Pegasus build.
 For CMPI enablement, set the following environment variables prior to make:
 
-   ENABLE_PROVIDER_MANAGER2=1
-   ENABLE_CMPI_PROVIDER_MANAGER=1
+   PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER=1
 
 If you plan to write your own CMPI providers you are kindly referred to the
 WBEMSource homepage where the draft specification document for CMPI resides.

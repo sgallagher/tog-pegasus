@@ -1,0 +1,67 @@
+CMPI Providers in a nutshell
+============================
+
+Viktor Mihajlovski <mihajlov@de.ibm.com>
+Nov 14th 2003
+
+The Common Manageability Programming Interface (CMPI) has been integrated into
+Pegasus as a pluggable provider manager.
+
+CMPI must be enabled during Pegasus build.
+For CMPI enablement, set the following environment variables prior to make:
+
+   ENABLE_PROVIDER_MANAGER2=1
+   ENABLE_CMPI_PROVIDER_MANAGER=1
+
+If you plan to write your own CMPI providers you are kindly referred to the
+WBEMSource homepage where the draft specification document for CMPI resides.
+You can find at http://www.wbemsource.org/doc.tpl?CALLER=index.tpl&gdid=3712 .
+If you are looking for samples you should have a look at the SBLIM project.
+The packages prefixed by the string sblim-cmpi contain CMPI providers for
+various classes. See http://www-124.ibm.com/developerworks/projects/sblim .
+
+Once you have a CMPI provider library you want to register it with Pegasus.
+How? Well it's almost the same as for C++ providers. The only difference is
+that the Provider.Interface property must be set to "CMPI".
+
+Here's an excerpt from the SBLIM Linux Computer System provider registration
+
+// ===================================================================
+// 	Linux_ComputerSystem
+// ===================================================================
+
+
+instance of PG_ProviderModule
+{
+   Name = "OSBase_ComputerSystemProviderModule";
+   //The library name on disk
+   Location = "cmpiOSBase_ComputerSystemProvider";
+   Vendor = "SBLIM";
+   Version = "1.2.2";
+   InterfaceType = "CMPI";
+   InterfaceVersion = "0.86.0";
+};
+
+instance of PG_Provider
+{
+   //The provider module as defined in PG_ProviderModule
+   ProviderModuleName = "OSBase_ComputerSystemProviderModule";
+   // The provider name as referenced in the code
+   Name = "OSBase_ComputerSystemProvider";
+};
+
+instance of PG_ProviderCapabilities
+{
+   //The provider module as defined in PG_ProviderModule
+   ProviderModuleName = "OSBase_ComputerSystemProviderModule";
+   //The provider name as defined in PG_Provider
+   ProviderName = "OSBase_ComputerSystemProvider";
+   CapabilityID = "1";
+   //Name of the CIM class as defined in the mof
+   ClassName = "Linux_ComputerSystem";
+   Namespaces = {"root/cimv2"};
+   ProviderType = { 2,5 }; // Instance, Method
+   SupportedProperties = NULL; // All properties
+   SupportedMethods = NULL; // All methods
+};
+

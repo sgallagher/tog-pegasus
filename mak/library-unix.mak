@@ -1,6 +1,6 @@
 ifeq ($(COMPILER),xlc)
   LINK_COMMAND = xlC_r
-  LINK_ARGUMENTS = -qmkshrobj=$(AIX_LIB_PRIORITY)
+  LINK_ARGUMENTS = -qmkshrobj=$(AIX_LIB_PRIORITY) -bhalt:$(AIX_LD_HALT)
   LINK_OUT = -o
   ifeq ($(PEGASUS_SUPPORTS_DYNLIB), yes)
     LINK_COMMAND += -G

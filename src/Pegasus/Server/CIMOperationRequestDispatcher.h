@@ -34,12 +34,11 @@
 #include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/CIMObject.h>
-#include <Pegasus/Server/ProviderTable.h>
+#include <Pegasus/Server/ProviderManager.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 class CIMRepository;
-class ProviderTable;
 
 class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher : public MessageQueue
 {
@@ -122,12 +121,12 @@ protected:
 	CIMRequestMessage* request,
 	CIMResponseMessage* response);
 
-    CIMProvider* _lookupProviderForClass(
+    String _lookupProviderForClass(
 	const String& nameSpace,
 	const String& className);
 
     CIMRepository* _repository;
-    ProviderTable _providerTable;
+    ProviderManager _providerManager;
 };
 
 PEGASUS_NAMESPACE_END

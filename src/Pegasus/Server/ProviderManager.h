@@ -20,7 +20,7 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent
+// Author: Chip Vincent (cvincent@us.ibm.com)
 //
 // Modified By:
 //
@@ -30,84 +30,30 @@
 #define Pegasus_ProviderManager_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Array.h>
-#include <Pegasus/Common/Exception.h>
-#include <Pegasus/Common/System.h>
-#include <Pegasus/Common/CIMOMHandle.h>
-#include <Pegasus/Provider/CIMProvider.h>
+#include <Pegasus/Common/String.h>
+#include <Pegasus/Common/Thread.h>
+
+#include <Pegasus/Server/ProviderModule.h>
+
+#include <Pegasus/Provider/ProviderHandle.h>
+#include <Pegasus/Provider/ProviderException.h>
 
 PEGASUS_NAMESPACE_BEGIN
-
-class ProviderFailure : public Exception
-{
-public:
-	ProviderFailure(const String & fileName, const String & className);
-
-};
-
-class ProviderLoadFailure : public ProviderFailure
-{
-public:
-    ProviderLoadFailure(const String & fileName, const String & className);
-
-};
-
-class ProviderCreateFailure : public ProviderFailure
-{
-public:
-	ProviderCreateFailure(const String & fileName, const String & className);
-
-};
-
-class ProviderInitializationFailure : public ProviderFailure
-{
-public:
-	ProviderInitializationFailure(const String & fileName, const String & className);
-
-};
-
-class ProviderTerminationFailure : public ProviderFailure
-{
-public:
-	ProviderTerminationFailure(const String & fileName, const String & className);
-
-};
-
-class ProviderModule
-{
-public:
-	ProviderModule(const String & fileName, const String & className) throw();
-	virtual ~ProviderModule(void) throw();
-	
-	operator CIMProvider * (void) const throw() { return(_provider); }
-	
-	const String & getFileName(void) const throw() { return(_fileName); }
-	const String & getClassName(void) const throw() { return(_className); }
-		
-protected:
-	void load(void);
-	void unload(void);
-
-protected:
-	String _fileName;
-	String _className;
-		
-	DynamicLibraryHandle _libraryHandle;
-	CIMProvider * _provider;
-	
-};
 
 class PEGASUS_SERVER_LINKAGE ProviderManager
 {
 public:
-    ProviderManager(CIMOMHandle & cimomHandle) throw();
-	virtual ~ProviderManager(void) throw();
+	ProviderManager(MessageQueue * outputQueue, CIMRepository * repository);
+	virtual ~ProviderManager(void);
 
-    CIMProvider * getProvider(const String & fileName, const String & className) throw(ProviderFailure);
+	ProviderHandle * getProvider(const String & fileName, const String & className);
 
 protected:
-	CIMOMHandle				_cimom;
-	Array<ProviderModule>	_providers;
+	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL monitorThread(void * arg);
+
+protected:	
+	CIMOMHandle _cimom;
+	Array<ProviderModule> _providers;
 
 };
 

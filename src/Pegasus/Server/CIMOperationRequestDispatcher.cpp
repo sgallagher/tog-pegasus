@@ -1,7 +1,5 @@
-//%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
-// The Open Group, Tivoli Systems
+// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -23,17 +21,15 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By: Nag Boranna (nagaraja_boranna@hp.com)
-//              Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com) 
+// Modified By:  Nag Boranna (nagaraja_boranna@hp.com)
+//
+// Modified By:  Chip Vincent (cvincent@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include "CIMOperationRequestDispatcher.h"
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Common/CIMOMHandle.h>
-#include <Pegasus/Provider2/CIMMethodProvider.h>
-
-#include "CIMOperationRequestDispatcher.h"
-#include "ProviderTable.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -45,7 +41,7 @@ PEGASUS_USING_STD;
 DDD(static const char* _DISPATCHER = "CIMOperationRequestDispatcher::";)
 
 CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(CIMRepository* repository)
-    : _repository(repository)
+    : _repository(repository), _providerManager(this, repository)
 {
     DDD(cout << _DISPATCHER << endl;)
 }
@@ -55,7 +51,7 @@ CIMOperationRequestDispatcher::~CIMOperationRequestDispatcher()
 
 }
 
-CIMProvider* CIMOperationRequestDispatcher::_lookupProviderForClass(
+String CIMOperationRequestDispatcher::_lookupProviderForClass(
     const String& nameSpace,
     const String& className)
 {
@@ -69,8 +65,6 @@ CIMProvider* CIMOperationRequestDispatcher::_lookupProviderForClass(
     if (!cimClass)
 	throw CIMException(CIM_ERR_INVALID_CLASS);
 
-    // cimClass.print();
-
     //----------------------------------------------------------------------
     // Get the provider qualifier:
     //----------------------------------------------------------------------
@@ -79,7 +73,7 @@ CIMProvider* CIMOperationRequestDispatcher::_lookupProviderForClass(
     DDD(cout << _DISPATCHER << "Lookup Qualifier " << pos << endl;)
 
     if (pos == PEG_NOT_FOUND)
-	return 0;
+	return String::EMPTY;
 
     CIMQualifier q = cimClass.getQualifier(pos);
     String providerId;
@@ -87,27 +81,14 @@ CIMProvider* CIMOperationRequestDispatcher::_lookupProviderForClass(
     q.getValue().get(providerId);
     DDD(cout << _DISPATCHER << "Provider " << providerId << endl;)
 
-    //----------------------------------------------------------------------
-    // Get the provider (initialize it if not already initialize)
-    // ATTN: move this block so that it can be shared.
-    //----------------------------------------------------------------------
-
-    CIMProvider* provider = _providerTable.lookupProvider(providerId);
-
-    if (!provider)
-    {
-	DDD(cout << _DISPATCHER << " Lookup Provider " << providerId << endl;)
-
-        provider = _providerTable.loadProvider(providerId);
-
-        if (!provider)
-	    throw CIMException(CIM_ERR_FAILED);
-
-	CIMOMHandle cimomHandle(this, _repository);
-	provider->initialize(cimomHandle);
-    }
-
-    return provider;
+	// translate the provider identifier into a file name
+	#ifdef PEGASUS_OS_TYPE_WINDOWS
+	String fileName = providerId + String(".dll");
+	#else
+    String fileName = getenv("PEGASUS_HOME") + String("/lib/lib") + providerId + String(".so");
+	#endif
+	
+	return(fileName);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -244,8 +225,8 @@ void CIMOperationRequestDispatcher::handleEnqueue()
 	    break;
 
 	case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
-	    handleInvokeMethodRequest(
-		(CIMInvokeMethodRequestMessage*)request);
+	    //handleInvokeMethodRequest(
+		//(CIMInvokeMethodRequestMessage*)request);
 	    break;
     }
 
@@ -308,17 +289,23 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 
     try
     {
-	CIMProvider* provider = _lookupProviderForClass(
-	    request->nameSpace, request->instanceName.getClassName());
+	// get provider for class
+	String className = request->instanceName.getClassName();
+	String fileName = _lookupProviderForClass(request->nameSpace, className);
 
-	if (provider)
+	if(fileName.size() != 0)
 	{
-	    cimInstance = provider->getInstance(
+		// attempt to load provider
+		ProviderHandle * provider = _providerManager.getProvider(fileName, className);
+
+		cimInstance = provider->getInstance(
+		OperationContext(),
 		request->nameSpace,
 		request->instanceName,
 		request->localOnly,
 		request->includeQualifiers,
-		request->includeClassOrigin);
+		request->includeClassOrigin,
+		request->propertyList);
 	}
 	else
 	{
@@ -359,18 +346,23 @@ void CIMOperationRequestDispatcher::handleDeleteClassRequest(
 
     try
     {
-	CIMProvider* provider = _lookupProviderForClass(
-	    request->nameSpace, request->className);
+	// get provider for class
+	String className = request->className;
+	String fileName = _lookupProviderForClass(request->nameSpace, className);
 
-	if (provider)
+	if(fileName.size() != 0)
 	{
-	    provider->deleteClass(
+		// attempt to load provider
+		ProviderHandle * provider = _providerManager.getProvider(fileName, className);
+
+		provider->deleteClass(
+		OperationContext(),
 		request->nameSpace,
 		request->className);
 	}
 	else
 	{
-	    _repository->deleteClass(
+	   _repository->deleteClass(
 		request->nameSpace,
 		request->className);
 	}
@@ -404,12 +396,17 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
 
     try
     {
-	CIMProvider* provider = _lookupProviderForClass(
-	    request->nameSpace, request->instanceName.getClassName());
+	// get provider for class
+	String className = request->instanceName.getClassName();
+	String fileName = _lookupProviderForClass(request->nameSpace, className);
 
-	if (provider)
+	if(fileName.size() != 0)
 	{
+		// attempt to load provider
+		ProviderHandle * provider = _providerManager.getProvider(fileName, className);
+	
 	    provider->deleteInstance(
+		OperationContext(),
 		request->nameSpace,
 		request->instanceName);
 	}
@@ -482,12 +479,17 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 
     try
     {
-	CIMProvider* provider = _lookupProviderForClass(
-	    request->nameSpace, request->newInstance.getClassName());
+	// get provider for class
+	String className = request->newInstance.getClassName();
+	String fileName = _lookupProviderForClass(request->nameSpace, className);
 
-	if (provider)
+	if(fileName.size() != 0)
 	{
+		// attempt to load provider
+		ProviderHandle * provider = _providerManager.getProvider(fileName, className);
+
 	    provider->createInstance(
+		OperationContext(),
 		request->nameSpace,
 		request->newInstance);
 	}
@@ -560,17 +562,20 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
 
     try
     {
-// HP-Nag
-        CIMProvider* provider = _lookupProviderForClass(
-            request->nameSpace, request->modifiedInstance.getClassName());
+	// get provider for class
+	String className = request->modifiedInstance.getClassName();
+	String fileName = _lookupProviderForClass(request->nameSpace, className);
 
-        if (provider)
-        {
-            provider->modifyInstance(
+	if(fileName.size() != 0)
+	{
+		// attempt to load provider
+		ProviderHandle * provider = _providerManager.getProvider(fileName, className);
+
+	    provider->modifyInstance(
+		OperationContext(),
                 request->nameSpace,
                 request->modifiedInstance);
         }
-// HP-Nag
         else
         {
             _repository->modifyInstance(
@@ -683,12 +688,17 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 
     try
     {
-	CIMProvider* provider = _lookupProviderForClass(
-	    request->nameSpace, request->className);
+	// get provider for class
+	String className = request->className;
+	String fileName = _lookupProviderForClass(request->nameSpace, className);
 
-	if (provider)
+	if(fileName.size() != 0)
 	{
+		// attempt to load provider
+		ProviderHandle * provider = _providerManager.getProvider(fileName, className);
+
 	    cimInstances = provider->enumerateInstances(
+		OperationContext(),
 		request->nameSpace,
 		request->className,
 		request->deepInheritance,
@@ -740,13 +750,17 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 
     try
     {
-	CIMProvider* provider = _lookupProviderForClass(
-	    request->nameSpace,
-	    request->className);
+	// get provider for class
+	String className = request->className;
+	String fileName = _lookupProviderForClass(request->nameSpace, className);
 
-	if (provider)
+	if(fileName.size() != 0)
 	{
+		// attempt to load provider
+		ProviderHandle * provider = _providerManager.getProvider(fileName, className);
+
 	    instanceNames = provider->enumerateInstanceNames(
+		OperationContext(),
 		request->nameSpace,
 		request->className);
 	}
@@ -788,11 +802,17 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
 
     try
     {
-	CIMProvider* provider = _lookupProviderForClass(
-	    request->nameSpace, request->objectName.getClassName());
+	// get provider for class
+	String className = request->objectName.getClassName();
+	String fileName = _lookupProviderForClass(request->nameSpace, className);
 
-	if (provider) {
+	if(fileName.size() != 0)
+	{
+		// attempt to load provider
+		ProviderHandle * provider = _providerManager.getProvider(fileName, className);
+
 	    cimObjects = provider->associators(
+		OperationContext(),
  	        request->nameSpace,
 	        request->objectName,
 	        request->assocClass,
@@ -847,11 +867,17 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
 
     try
     {
-	CIMProvider* provider = _lookupProviderForClass(
-	    request->nameSpace, request->objectName.getClassName());
+	// get provider for class
+	String className = request->objectName.getClassName();
+	String fileName = _lookupProviderForClass(request->nameSpace, className);
 
-	if (provider) {
+	if(fileName.size() != 0)
+	{
+		// attempt to load provider
+		ProviderHandle * provider = _providerManager.getProvider(fileName, className);
+
 	    objectNames = provider->associatorNames(
+		OperationContext(),
 	        request->nameSpace,
 	        request->objectName,
 	        request->assocClass,
@@ -900,11 +926,17 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
 
     try
     {
-	CIMProvider* provider = _lookupProviderForClass(
-	    request->nameSpace, request->objectName.getClassName());
+	// get provider for class
+	String className = request->objectName.getClassName();
+	String fileName = _lookupProviderForClass(request->nameSpace, className);
 
-	if (provider) {
+	if(fileName.size() != 0)
+	{
+		// attempt to load provider
+		ProviderHandle * provider = _providerManager.getProvider(fileName, className);
+
 	    cimObjects = provider->references(
+		OperationContext(),
 	        request->nameSpace,
 	        request->objectName,
 	        request->resultClass,
@@ -955,11 +987,17 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
 
     try
     {
-	CIMProvider* provider = _lookupProviderForClass(
-	    request->nameSpace, request->objectName.getClassName());
+	// get provider for class
+	String className = request->objectName.getClassName();
+	String fileName = _lookupProviderForClass(request->nameSpace, className);
 
-	if (provider) {
+	if(fileName.size() != 0)
+	{
+		// attempt to load provider
+		ProviderHandle * provider = _providerManager.getProvider(fileName, className);
+
 	    objectNames = provider->referenceNames(
+		OperationContext(),
 	        request->nameSpace,
 	        request->objectName,
 	        request->resultClass,
@@ -1130,6 +1168,7 @@ void CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest(
     _enqueueResponse(request, response);
 }
 
+/*
 void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
     CIMInvokeMethodRequestMessage* request)
 {
@@ -1139,26 +1178,31 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
     CIMValue retValue(0);
 
     Array<CIMParamValue> outParameters;
-    
-    Array<CIMValue> outParams;
-    Array<CIMValue> inParams;
-    
+
+    Array<CIMParamValue> outParams;
+    Array<CIMParamValue> inParams;
+
     try
     {
-	CIMProvider* provider = _lookupProviderForClass(
-    	    request->nameSpace, request->instanceName.getClassName());
+	// get provider for class
+	String className = request->instanceName.getClassName();
+	String fileName = _lookupProviderForClass(request->nameSpace, className);
+
+	if(fileName.size() != 0)
+	{
+		// attempt to load provider
+		ProviderHandle * provider = _providerManager.getProvider(fileName, className);
 
     	// converting Array<CIMargument> to Array<CIMvalue>
-	for (Uint8 i = 0; i < request->inParameters.size(); i++)
-	    inParams.append(request->inParameters[i].getValue());
+		for (Uint8 i = 0; i < request->inParameters.size(); i++)
+			inParams.append(request->inParameters[i].getValue());
 
-	if (provider)
-	{ 
 	    retValue = provider->invokeMethod(
+			OperationContext(),
 		request->nameSpace,
-		request->instanceName, 
+		request->instanceName,
 		request->methodName,
-		inParams, 
+		inParams,
 		outParams);
 	}
 	else
@@ -1180,21 +1224,21 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
     }
 
     // converting Array<CIMvalue> to Array<CIMvalue> Array<CIMargument>
-    /*for (Uint8 j = 0; j < outParams.size(); j++)
-    {
-	outParameters.append(CIMParamValue(
-	    CIMParameter("ATTN: What's name?", outParams[j].getType()), 
-	    outParams[j]));
-    }*/
+    //for (Uint8 j = 0; j < outParams.size(); j++)
+    //{
+	//outParameters.append(CIMParamValue(
+	//    CIMParameter("ATTN: What's name?", outParams[j].getType()),
+	//    outParams[j]));
+    //}
 
     // ATTN: Assuming provider returned true and following parameters
     outParameters.append(CIMParamValue(
-	CIMParameter("param1", CIMType::STRING), 
+	CIMParameter("param1", CIMType::STRING),
 	CIMValue("HP")));
     outParameters.append(CIMParamValue(
-	CIMParameter("param2", CIMType::STRING), 
+	CIMParameter("param2", CIMType::STRING),
 	CIMValue("CA")));
-    
+
     CIMInvokeMethodResponseMessage* response =
 	new CIMInvokeMethodResponseMessage(
 	    request->messageId,
@@ -1207,5 +1251,6 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
 
     _enqueueResponse(request, response);
 }
+*/
 
 PEGASUS_NAMESPACE_END

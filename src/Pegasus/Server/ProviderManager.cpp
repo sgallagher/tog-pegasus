@@ -26,142 +26,98 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <cstdlib>
-#include <Pegasus/Common/Destroyer.h>
-#include <Pegasus/Common/System.h>
 #include "ProviderManager.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-ProviderFailure::ProviderFailure(const String & fileName, const String & className)
-	: Exception("Failure in " + fileName + " with provider for " + className)
+ProviderManager::ProviderManager(MessageQueue * outputQueue, CIMRepository * repository) : _cimom(outputQueue, repository)
 {
+	Thread * thread = new Thread(monitorThread, this, false);
+
+	thread->run();
 }
 
-ProviderLoadFailure::ProviderLoadFailure(const String & fileName, const String & className)
-	: ProviderFailure(fileName, className)
+ProviderManager::~ProviderManager(void)	
 {
-}
-
-ProviderCreateFailure::ProviderCreateFailure(const String & fileName, const String & className)
-	: ProviderFailure(fileName, className)
-{
-}
-
-ProviderInitializationFailure::ProviderInitializationFailure(const String & fileName, const String & className)
-	: ProviderFailure(fileName, className)
-{
-}
-
-ProviderTerminationFailure::ProviderTerminationFailure(const String & fileName, const String & className)
-	: ProviderFailure(fileName, className)
-{
-}
-
-typedef CIMProvider* (*CreateProviderFunction)(const String &);
-
-ProviderModule::ProviderModule(const String & fileName, const String & className)
-	: _fileName(fileName), _className(className), _libraryHandle(0), _provider(0)
-{
-	load();
-}
-
-ProviderModule::~ProviderModule(void)
-{
-	unload();
-}
-
-void ProviderModule::load(void)
-{
-	unload();
-	
-	// load the library
-	ArrayDestroyer<char> tempFileName = _fileName.allocateCString();
-	
-	_libraryHandle = System::loadDynamicLibrary(tempFileName.getPointer());
-
-    if(_libraryHandle == 0)
-	{
-		throw ProviderLoadFailure(_fileName, _className);
-	}
-
-	// find libray entry point
-    CreateProviderFunction createProvider = (CreateProviderFunction)System::loadDynamicSymbol(
-		_libraryHandle, "PegasusCreateProvider");
-
-    if(createProvider == 0)
-	{
-		unload();
-		
-		throw ProviderCreateFailure(_fileName, _className);
-	}
-
-    // invoke the provider entry point
-    _provider = createProvider(_className);
-
-    if(_provider == 0)
-	{
-		unload();
-
-		throw ProviderCreateFailure(_fileName, _className);
-	}
-}
-
-void ProviderModule::unload(void)
-{
-	if(_provider != 0) {
-		try {
-			_provider->terminate();
-		}
-		catch(...)
-		{
-		}
-		
-		delete _provider;
-		_provider = 0;
-	}
-
-	if(_libraryHandle != 0)
-	{
-		System::unloadDynamicLibrary(_libraryHandle);
-		_libraryHandle = 0;
-	}
-}
-
-ProviderManager::ProviderManager(CIMOMHandle & cimom) : _cimom(cimom)
-{
-}
-
-ProviderManager::~ProviderManager(void)
-{
-}
-
-CIMProvider * ProviderManager::getProvider(const String & fileName, const String & className)
-{
-    // check list for requested provider and return if found
+	// terminate all providers
 	for(Uint32 i = 0, n = _providers.size(); i < n; i++)
 	{
-		if((fileName == _providers[i].getFileName()) && (className == _providers[i].getClassName()))
+		ProviderHandle * provider = _providers[i].getProvider();
+		
+		if(provider != 0)
 		{
-			return(_providers[i]);
+			_providers[i].getProvider()->terminate();
 		}
 	}
+}
 
-    // create a logical provider module to represent the physical provider module
-	ProviderModule providerModule(fileName, className);
-
-	try {	
-		((CIMProvider *)providerModule)->initialize(_cimom);
-		
-		// add provider to list
-		_providers.append(providerModule);
-	}
-	catch(...)
+ProviderHandle * ProviderManager::getProvider(const String & fileName, const String & className)
+{
+	// check list for requested provider and return if found
+	for(Uint32 i = 0, n = _providers.size(); i < n; i++)
 	{
-		throw ProviderInitializationFailure(fileName, className);
+		if(String::equalNoCase(fileName, _providers[i].getFileName()) &&
+		   String::equalNoCase(className, _providers[i].getClassName()))
+		{
+			return(_providers[i].getProvider());
+		}
 	}
+	
+	std::cout << "loading provider for " << className << " in " << fileName << std::endl;
+	
+	// create provider module
+	ProviderModule module(fileName, className);
 
-	return(providerModule);
+	module.load();
+	
+	// get provider handle
+	ProviderHandle * provider = module.getProvider();
+
+	if(provider == 0)
+	{
+		throw ProviderFailure(fileName, className, "invalid provider handle.");
+	}
+	
+	// initialize provider
+	provider->initialize(_cimom);
+	
+	// add provider to list
+	_providers.append(module);
+
+	// recurse to get the provider as it resides in the array (rather than the local instance)
+	return(getProvider(fileName, className));
+}
+	
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManager::monitorThread(void * arg)
+{
+	Thread * thread = reinterpret_cast<Thread *>(arg);
+	
+	ProviderManager * _this = reinterpret_cast<ProviderManager *>(thread->get_parm());
+
+	// check provider list every 30 seconds for providers to unload
+	for(Uint32 timeout = 0; true; timeout += 30)
+	{
+		thread->sleep(30000);
+		
+		// check each provider for timeouts less than the current timeout
+		for(Uint32 i = 0, n = _this->_providers.size(); i < n; i++)
+		{
+			// get provider timeout
+			Uint32 provider_timeout = 30;
+
+			if((provider_timeout != 0xffffffff) && (provider_timeout <= timeout))
+			{
+				std::cout << "unloading provider for " << _this->_providers[i].getClassName() << " in " << _this->_providers[i].getFileName() << std::endl;
+
+				_this->_providers[i].getProvider()->terminate();
+				_this->_providers.remove(i);
+			}
+		}
+	}
+	
+	std::cout << "provider monitor stopped" << std::endl;
+	
+	return(0);
 }
 
 PEGASUS_NAMESPACE_END

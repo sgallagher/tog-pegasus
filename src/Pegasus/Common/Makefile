@@ -18,8 +18,6 @@ NEW_SOURCES = \
     HTTPConnector.cpp  \
     HTTPMessage.cpp \
     HTTPDelegator.cpp \
-    CIMParamValue.cpp \
-    CIMParamValueRep.cpp \
 	 CIMHandle.cpp \
 	 OperationContext.cpp \
 	 ResponseHandler.cpp
@@ -46,8 +44,11 @@ SOURCES = \
     CIMMethod.cpp \
     CIMMethodRep.cpp \
     CIMName.cpp \
+    CIMNamedInstance.cpp \
     CIMParameter.cpp \
     CIMParameterRep.cpp \
+    CIMParamValue.cpp \
+    CIMParamValueRep.cpp \
     CIMProperty.cpp \
     CIMPropertyRep.cpp \
     CIMQualifier.cpp \

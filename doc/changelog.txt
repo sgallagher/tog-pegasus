@@ -311,6 +311,11 @@ repository implementation.
     CIMOperationRequestDecoder to handle <LOCALCLASSPATHELEMENT ...>. 
     Changed the CIMOperationRequestEncoder to call the localObjectPathtoXml.
 
+44. (Roger Kumpf - HP) 19 Nov 2001 Added a CIMNamedInstance class
+    to hold the argument to ModifyInstance and the return values
+    from EnumerateInstances.  The client and provider APIs need to
+    be updated to use this class.
+
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch
               Tagged as version_1_01 on 3 August 2001 (sorry should have been

@@ -558,12 +558,18 @@ public:
     */
     Boolean identical(const CIMReference& x) const;
 
-    /** Encodes this CIMreference object as XML.
+    /** Encodes this CIMReference object as XML.
 	@param out argument in which to place results
     */
     void toXml(Array<Sint8>& out, Boolean putValueWrapper = true) const;
 
-    /** Encodes this CIMreference object as XML. Ignores the host.
+    /** Encodes this CIMReference object as XML.  Ignores the host and
+        namespace.
+	@param out argument in which to place results
+    */
+    void instanceNameToXml(Array<Sint8>& out) const;
+
+    /** Encodes this CIMReference object as XML. Ignores the host.
 	@param out argument in which to place results
     */
     void localObjectPathtoXml(Array<Sint8>& out) const;
@@ -605,8 +611,6 @@ private:
     void nameSpaceToXml(Array<Sint8>& out) const;
 
     void localNameSpaceToXml(Array<Sint8>& out) const;
-
-    void instanceNameToXml(Array<Sint8>& out) const;
 
     void classNameToXml(Array<Sint8>& out) const;
 

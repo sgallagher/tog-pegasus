@@ -29,6 +29,9 @@
 //			replaced instances of "| ios::binary" with 
 //			PEGASUS_OR_IOS_BINARY
 //
+//              Sushma Fernandes. Hewlett-Packard Company
+//                     sushma_fernandes@hp.com
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <fstream>
@@ -256,6 +259,9 @@ Boolean InstanceDataFile::beginTransaction(const String& path)
     // Open the rollback file:
     //
 
+    // ATTN-SF-P3-20020517: FUTURE: Need to look in to this. Empty rollback
+    // files are getting created in some error conditions.
+
     fstream fs;
 
     if (!_openFile(fs, path + ".rollback", ios::out PEGASUS_OR_IOS_BINARY))
@@ -344,6 +350,24 @@ Boolean InstanceDataFile::rollbackTransaction(const String& path)
     //
     // Now truncate the data file to that size:
     //
+
+    //
+    // If the fileSize is zero, then create the InstanceDataFile and exit.
+    //
+    if ( fileSize == 0 )
+    {
+        fstream ofs;
+
+        if (!_openFile(ofs, path, ios::out PEGASUS_OR_IOS_BINARY))
+        {
+            PEG_METHOD_EXIT();
+            return false;
+        }
+
+        ofs.close();
+        PEG_METHOD_EXIT();
+        return true;
+    }
 
     ArrayDestroyer<char> tmp(path.allocateCString());
 

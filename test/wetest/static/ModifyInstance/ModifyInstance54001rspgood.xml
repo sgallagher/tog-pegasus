@@ -3,7 +3,7 @@
 <MESSAGE ID="54001" PROTOCOLVERSION="1.0">
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="ModifyInstance">
-<ERROR CODE="1" DESCRIPTION="CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: &quot;rollback failed&quot;"/>
+<ERROR CODE="5" DESCRIPTION="CIM_ERR_INVALID_CLASS: The specified class does not exist: &quot;test_classname&quot;"/>
 </IMETHODRESPONSE>
 </SIMPLERSP>
 </MESSAGE>

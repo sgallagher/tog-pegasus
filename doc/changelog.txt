@@ -284,6 +284,9 @@ TAG: Version_1_09.
     method is modified to try and connect to HTTP port, if failed then try and
     connect to HTTPS port.
 
+48. (Sushma Fernandes - HP) 21 May 2002: Fixed a problem in repository related
+    to rollback failure. 
+
 ========================================================================
 
 Version 1.08 working towards 1.1 - Started 27 March 2002

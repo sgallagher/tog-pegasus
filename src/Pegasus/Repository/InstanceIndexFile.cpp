@@ -28,6 +28,9 @@
 //			replaced instances of "| ios::binary" with 
 //			PEGASUS_OR_IOS_BINARY
 //
+//              Sushma Fernandes. Hewlett-Packard Company
+//                     sushma_fernandes@hp.com
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -832,6 +835,8 @@ Boolean InstanceIndexFile::beginTransaction(const String& path)
     String rollbackPath = path;
     rollbackPath += ".rollback";
 
+    // ATTN-SF-P3-20020517: FUTURE: Need to look in to this. Empty rollback 
+    // files are getting created in some error conditions. 
     if (!FileSystem::copyFile(path, rollbackPath))
     {
         PEG_METHOD_EXIT();
@@ -862,10 +867,13 @@ Boolean InstanceIndexFile::rollbackTransaction(const String& path)
     // the rollback file over it.
     //
 
-    if (!FileSystem::removeFileNoCase(path))
+    if (FileSystem::existsNoCase(path))
     {
-        PEG_METHOD_EXIT();
-	return false;
+        if (!FileSystem::removeFileNoCase(path))
+        {
+            PEG_METHOD_EXIT();
+	    return false;
+        }
     }
 
     PEG_METHOD_EXIT();

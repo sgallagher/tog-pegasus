@@ -257,9 +257,8 @@ Boolean _tokenPair(const String& input, String& key, String& value)
     Array<String> pair = _tokenize(input, '=');
     if (pair.size() < 2)
     {
-        return(false);
         cout << "Input Parameter error. Expected name=value. Received  " << input << input;
-        exit(1);
+        return(false);
     }
     // If there is more than 1 "=" it is part of the reference and we
     // rebuild the reference.

@@ -98,7 +98,9 @@ void SignalHandler::activate(Uint32 signum)
     sig_acts->sa_flags = SA_SIGINFO | SA_RESETHAND;
 #else
     sig_acts->sa_flags = SA_SIGINFO | SA_ONESHOT;
+#if !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
     sig_acts->sa_restorer = NULL;
+#endif
 #endif
 
     sigaction(signum, sig_acts, &reg_handler[signum].oldsa);

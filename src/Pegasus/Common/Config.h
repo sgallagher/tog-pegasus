@@ -48,6 +48,8 @@
 # include <Pegasus/Common/Platform_ZOS_ZSERIES_IBM.h>
 #elif defined (PEGASUS_PLATFORM_NSK_NONSTOP_NMCPLUS)
 # include <Pegasus/Common/Platform_NSK_NONSTOP_NMCPLUS.h>
+#elif defined (PEGASUS_PLATFORM_LINUX_IA64_GNU)
+# include <Pegasus/Common/Platform_LINUX_IA64_GNU.h>
 #else
 # error "<Pegasus/Common/Config.h>: Unsupported Platform"
 #endif

@@ -1999,7 +1999,7 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
                 // added by the provider incorrectly.  It is possible that
                 // these properties will remain after applyProjection if the
                 // SELECT clause happens to have a property name not on the
-                // indication class, and the indication has that property.
+                // indication class, and the indication has that same property.
                 // Note: If SELECT includes all properties ("*"), it's still 
                 // necessary to check, in case the provider added properties not in 
                 // the indication class.
@@ -2011,13 +2011,17 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
                 catch (QueryRuntimePropertyException& re)
                 {
                   // The indication was missing a required property.
-                  // We have checked for missing required properties on
-                  // the base indication object above, so this can only happen
-                  // for CQL with missing embedded object properties.
+                  // The call to _getMatchingSubscriptions above checked for
+                  // missing required properties on the base indication object 
+                  // so this can only happen for CQL when an embedded object
+                  // property is missing.
+                  //
                   // Since this is the same as the indication
-                  // not matching the subscription, just swallow the exception.
+                  // not matching the subscription, just swallow the exception,
+                  // and skip this subscription.
                   PEG_TRACE_STRING (TRC_INDICATION_SERVICE, Tracer::LEVEL4,
-                                    "Apply Projection CQL error: " + re.getMessage());
+                                    "Apply Projection error: " + re.getMessage());
+                  continue;
                 }
                 
                 // Remove any remaining properties not in the indication class 

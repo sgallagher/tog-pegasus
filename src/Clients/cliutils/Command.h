@@ -86,8 +86,8 @@ public:
                  1              if an error occurs in executing the command
       
      */
-    virtual Uint32 execute (ostream& outPrintWriter,
-                            ostream& errPrintWriter) = 0;
+    virtual Uint32 execute (PEGASUS_STD(ostream)& outPrintWriter,
+                            PEGASUS_STD(ostream)& errPrintWriter) = 0;
 
     //
     // Return codes
@@ -97,7 +97,7 @@ public:
         Return value from the execute method indicating the command executed
         successfully.
       
-     */
+    */
     static const Uint32    RC_SUCCESS  =  0;
 
     /**
@@ -105,7 +105,7 @@ public:
         Return value from the execute method indicating an error occurred in
         executing the command.
       
-     */
+    */
     static const Uint32    RC_ERROR    =  1;
 
 protected:

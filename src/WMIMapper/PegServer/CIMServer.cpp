@@ -254,6 +254,9 @@ void CIMServer::_init(void)
      //
      _sslContextMgr = new SSLContextManager();
 
+    _cimOperationRequestDispatcher = 
+		new CIMOperationRequestDispatcher;
+	
 	_cimOperationResponseEncoder
         = new CIMOperationResponseEncoder;
 

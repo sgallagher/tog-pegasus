@@ -42,12 +42,19 @@ ProviderManager::ProviderManager(void)
 
 ProviderManager::~ProviderManager(void)
 {
+    String fileName;
+    String providerName;
+
     // terminate all providers
     for(Uint32 i = 0, n = _providers.size(); i < n; i++)
     {
         try
         {
-            _providers[i].terminate();
+            //_providers[i].terminate();
+	    providerName = _providers[i].getName();
+	    fileName = _providers[i].getModule().getFileName();
+
+	    unloadProvider(fileName, providerName);
         }
         catch(...)
         {
@@ -96,8 +103,17 @@ void ProviderManager::loadProvider(
             return;
         }
     }
+
+    Uint32 refCount = 0;
+
+    // get reference count 
+    _getRefCount(fileName, refCount);
+
+    refCount = refCount + 1;
+
     // create provider module
-    Provider provider(providerName, fileName, interfaceName);
+    Provider provider(providerName, fileName, interfaceName, refCount);
+
 
     // ATTN: need optimization - create CIMOMHandle once
 
@@ -115,6 +131,18 @@ void ProviderManager::loadProvider(
     // initialize provider
     provider.initialize(_cimom);
 
+    // if module is already in the array, remove the old module, add the new module in 
+    if (refCount > 1)
+    {
+	// module is already in the array
+	_updateRefCount(fileName, refCount);	
+    }
+    else
+    {
+	// module is not in the array, create the module and add it in the array
+	ProviderModule module(fileName, refCount);
+    	_modules.append(module);
+    } 
     _providers.append(provider);
 }
 
@@ -144,7 +172,27 @@ void ProviderManager::unloadProvider(
 
             _providers.remove(i);
 
-            provider.terminate();
+	    // get module reference count
+	    Uint32 refCount = 0;
+
+ 	    _getRefCount(fileName, refCount);
+
+	    // if refCount is greater than 1, just terminate provider, not unload
+ 	    // otherwise, terminate and unload
+	    if (refCount > 1)
+	    {
+		provider.terminate();
+    	    }
+	    else
+	    {
+            	provider.terminate();
+		provider.getModule().unloadModule();
+	    }
+	    
+	    // update reference count
+	    _updateRefCount(fileName, refCount - 1);
+
+	    return;
         }
     }
 }
@@ -174,6 +222,40 @@ void ProviderManager::shutdownAllProviders(void)
             Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
                 "Error occurred while terminating provider $0.",
                 _providers[0].getName());
+	}
+    }
+}
+
+void ProviderManager::_getRefCount(const String & fileName, Uint32 & refCount)
+{
+    for(Uint32 i = 0, n = _modules.size(); i < n; i++)
+    {
+	if(String::equalNoCase(fileName, _modules[i].getFileName()))
+	{
+	    refCount = _modules[i].getRefCount();
+
+	    return;
+	}
+    }
+}
+
+void ProviderManager::_updateRefCount(const String & fileName, const Uint32 & refCount)
+{
+    for(Uint32 i = 0, n = _modules.size(); i < n; i++)
+    {
+	if(String::equalNoCase(fileName, _modules[i].getFileName()))
+	{
+	    // remove the module from array
+	    _modules.remove(i);
+
+	    // if reference count is none zero, update the array
+	    if ( refCount > 0 )
+	    {
+	    	// Add the module to the array
+	    	ProviderModule module(fileName, refCount);
+	    	_modules.append(module);
+	    }
+	    return;
 	}
     }
 }

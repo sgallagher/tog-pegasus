@@ -45,14 +45,16 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_SERVER_LINKAGE ProviderModule
 {
 public:
+    ProviderModule(const String & fileName, const Uint32 & refCount);
     ProviderModule(const String & fileName, const String & providerName);
     ProviderModule(const String & fileName, const String & providerName,
-                   const String & interfaceName);
+                   const String & interfaceName, const Uint32 & refCount);
     ProviderModule(const ProviderModule & pm);
     virtual ~ProviderModule(void);
 
     const String & getFileName(void) const;
     const String & getProviderName(void) const;
+    const Uint32 & getRefCount(void) const;
 
     const String & getInterfaceName(void) const;
     ProviderAdapter * getAdapter(void) const;
@@ -73,6 +75,8 @@ protected:
 
     DynamicLibraryHandle _library;
     CIMBaseProvider * _provider;
+
+    Uint32 _refCount;
 
 };
 
@@ -99,6 +103,11 @@ inline const String & ProviderModule::getProviderName(void) const
 inline CIMBaseProvider * ProviderModule::getProvider(void) const
 {
     return(_provider);
+}
+
+inline const Uint32 & ProviderModule::getRefCount(void) const
+{
+    return(_refCount);
 }
 
 PEGASUS_NAMESPACE_END

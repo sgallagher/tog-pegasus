@@ -62,7 +62,10 @@ private:
 protected:
     Mutex _mutex;
     Array<Provider> _providers;
+    Array<ProviderModule> _modules;
 
+    void _getRefCount(const String & fileName, Uint32 & refCount);
+    void _updateRefCount(const String & fileName, const Uint32 & refCount);
 };
 
 PEGASUS_NAMESPACE_END

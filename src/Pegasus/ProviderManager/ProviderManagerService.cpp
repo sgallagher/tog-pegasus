@@ -2183,7 +2183,7 @@ void ProviderManagerService::handleDisableModuleRequest(AsyncOpNode *op, const M
 	Triad<String, String, String> triad =
             _getProviderRegPair(_pInstances[i], mInstance);
 
-        providerManager.unloadProvider(triad.second, triad.first);
+        providerManager.unloadProvider(triad.first, triad.second);
     }
 
     // set module status to be Stopped

@@ -38,8 +38,9 @@ Provider::Provider(const String & name, const String & path)
 }
 
 Provider::Provider(const String & name, const String & path,
-                   const String & interfaceName)
-    : ProviderFacade(0), _status(UNKNOWN), _module(path, name ,interfaceName)
+                   const String & interfaceName, const Uint32 & refCount)
+    : ProviderFacade(0), _status(UNKNOWN), 
+      _module(path, name ,interfaceName, refCount)
 {
     //PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "Provider::Provider");
     //PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, "name = " + name + "; path = " + path);
@@ -60,6 +61,11 @@ Provider::~Provider(void)
 Provider::Status Provider::getStatus(void) const
 {
     return(_status);
+}
+
+ProviderModule Provider::getModule(void) const
+{
+    return(_module);
 }
 
 String Provider::getName(void) const
@@ -109,7 +115,7 @@ void Provider::terminate(void)
 	// yield before a potentially lengthy operation.
 	pegasus_yield();
 
-	_module.unload();
+     //   _module.unloadModule();
     }
     catch(...)
     {

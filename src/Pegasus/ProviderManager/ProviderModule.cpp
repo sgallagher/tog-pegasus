@@ -37,6 +37,14 @@
 PEGASUS_NAMESPACE_BEGIN
 
 ProviderModule::ProviderModule(const String & fileName,
+                               const Uint32 & refCount)
+    : _fileName(fileName), _providerName(String::EMPTY),
+      _refCount(refCount), _interfaceName(String::EMPTY),
+      _library(0), _provider(0)
+{
+}
+
+ProviderModule::ProviderModule(const String & fileName,
                                const String & providerName)
     : _fileName(fileName), _providerName(providerName),
       _library(0), _provider(0)
@@ -45,9 +53,11 @@ ProviderModule::ProviderModule(const String & fileName,
 
 ProviderModule::ProviderModule(const String & fileName,
                                const String & providerName,
-                               const String & interfaceName)
+                               const String & interfaceName,
+			       const Uint32 & refCount)
     : _fileName(fileName), _providerName(providerName),
       _interfaceName(interfaceName),
+      _refCount(refCount),
       _library(0), _provider(0)
 {
     // currently without interface registration
@@ -80,7 +90,8 @@ ProviderModule::ProviderModule(const ProviderModule & pm)
       _interfaceName(pm._interfaceName),
       _interfaceFilename(pm._interfaceFilename),
       _library(pm._library),
-      _provider(pm._provider)
+      _provider(pm._provider),
+      _refCount(pm._refCount)
 {
 }
 

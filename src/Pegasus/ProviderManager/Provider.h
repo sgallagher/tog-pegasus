@@ -56,7 +56,7 @@ public:
     Provider(const String & name, const String & path);
 
     Provider(const String & name, const String & path,
-             const String & interfaceName);
+             const String & interfaceName, const Uint32 & refCount);
     Provider(const Provider & p);
 
     virtual ~Provider(void);
@@ -66,6 +66,8 @@ public:
 
     Status getStatus(void) const;
     String getName(void) const;
+
+    ProviderModule getModule(void) const;
 
 protected:
     Status _status;

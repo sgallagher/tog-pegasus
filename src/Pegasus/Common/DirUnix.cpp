@@ -22,7 +22,10 @@
 //
 // Author:
 //
-// $Log: Dir.cpp,v $
+// $Log: DirUnix.cpp,v $
+// Revision 1.1  2001/04/11 00:34:03  mike
+// more porting
+//
 // Revision 1.1  2001/02/11 05:42:33  mike
 // new
 //
@@ -38,54 +41,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-# include <io.h>
-# include <direct.h>
-
-struct DirRep
-{
-    long file;
-    struct _finddata_t findData;
-};
-
-Dir::Dir(const String& path)
-{
-    Destroyer<char> p(strcat(path.allocateCString(2), "/*"));
-    _rep = new DirRep;
-    _rep->file = _findfirst(p.getPointer(), &_rep->findData);
-
-    if (_rep->file == -1)
-    {
-	_more = false;
-	throw CannotOpenDirectory(path);
-    }
-    else
-	_more = true;
-}
-
-Dir::~Dir()
-{
-    if (_rep->file != -1)
-	_findclose(_rep->file);
-
-    delete _rep;
-}
-
-const char* Dir::getName() const
-{
-    return _rep->findData.name;
-}
-
-void Dir::next()
-{
-    if (!_more)
-	return;
-
-    _more = _findnext(_rep->file, &_rep->findData) == 0;
-}
-
-#else /* PEGASUS_OS_TYPE_WINDOWS */
-# include <dirent.h>
+#include <dirent.h>
 
 // Clone the string to a plain old C-String and null out
 // trailing slash (if any).
@@ -150,7 +106,5 @@ void Dir::next()
 	_more = _rep->entry != NULL;
     }
 }
-
-#endif /* !PEGASUS_OS_TYPE_WINDOWS */
 
 PEGASUS_NAMESPACE_END

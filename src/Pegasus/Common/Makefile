@@ -14,12 +14,14 @@ OS_SPECIFIC_SOURCES = \
     Selector.cpp \
     WindowsSelector.cpp \
     WindowsChannel.cpp \
-    SystemWindows.cpp
+    SystemWindows.cpp \
+    DirWindows.cpp
 endif
 
 ifeq ($(OS_TYPE),unix)
 OS_SPECIFIC_SOURCES = \
-    SystemUnix.cpp
+    SystemUnix.cpp \
+    DirUnix.cpp
 endif
 
 SOURCES = \
@@ -55,7 +57,6 @@ SOURCES = \
     Char16.cpp \
     DeclContext.cpp \
     Destroyer.cpp \
-    Dir.cpp \
     Exception.cpp \
     FileSystem.cpp \
     Headers.cpp \

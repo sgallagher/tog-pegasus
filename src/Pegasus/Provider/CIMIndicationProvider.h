@@ -34,7 +34,6 @@
 #include <Pegasus/Provider/CIMBaseProvider.h>
 
 #include <Pegasus/Common/Array.h>
-#include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/CIMDateTime.h>
 #include <Pegasus/Common/CIMIndication.h>

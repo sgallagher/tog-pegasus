@@ -68,9 +68,9 @@ CIMInstance::CIMInstance(const CIMObject& x) throw(DynamicCastFailed)
     Inc(_rep);
 }
 
-CIMInstance::CIMInstance(const String& className)
+CIMInstance::CIMInstance(const CIMName& className)
 {
-    _rep = new CIMInstanceRep(className);
+    _rep = new CIMInstanceRep(CIMObjectPath(String::EMPTY, CIMNamespaceName(), className));
 }
 
 CIMInstance::CIMInstance(CIMInstanceRep* rep)
@@ -93,7 +93,7 @@ CIMInstance::~CIMInstance()
     Dec(_rep);
 }
 
-const String& CIMInstance::getClassName() const
+const CIMName& CIMInstance::getClassName() const
 {
     _checkRep();
     return _rep->getClassName();
@@ -118,7 +118,7 @@ CIMInstance& CIMInstance::addQualifier(const CIMQualifier& qualifier)
     return *this;
 }
 
-Uint32 CIMInstance::findQualifier(const String& name) const
+Uint32 CIMInstance::findQualifier(const CIMName& name) const
 {
     _checkRep();
     return _rep->findQualifier(name);
@@ -149,7 +149,7 @@ CIMInstance& CIMInstance::addProperty(const CIMProperty& x)
     return *this;
 }
 
-Uint32 CIMInstance::findProperty(const String& name) const
+Uint32 CIMInstance::findProperty(const CIMName& name) const
 {
     _checkRep();
     return _rep->findProperty(name);
@@ -250,9 +250,9 @@ CIMConstInstance::CIMConstInstance(const CIMConstObject& x)
     Inc(_rep);
 }
 
-CIMConstInstance::CIMConstInstance(const String& className)
+CIMConstInstance::CIMConstInstance(const CIMName& className)
 {
-    _rep = new CIMInstanceRep(className);
+    _rep = new CIMInstanceRep(CIMObjectPath(String::EMPTY, CIMNamespaceName(), className));
 }
 
 CIMConstInstance& CIMConstInstance::operator=(const CIMConstInstance& x)
@@ -280,7 +280,7 @@ CIMConstInstance::~CIMConstInstance()
     Dec(_rep);
 }
 
-const String& CIMConstInstance::getClassName() const
+const CIMName& CIMConstInstance::getClassName() const
 {
     _checkRep();
     return _rep->getClassName();
@@ -292,7 +292,7 @@ const CIMObjectPath& CIMConstInstance::getPath() const
     return _rep->getPath();
 }
 
-Uint32 CIMConstInstance::findQualifier(const String& name) const
+Uint32 CIMConstInstance::findQualifier(const CIMName& name) const
 {
     _checkRep();
     return _rep->findQualifier(name);
@@ -310,7 +310,7 @@ Uint32 CIMConstInstance::getQualifierCount() const
     return _rep->getQualifierCount();
 }
 
-Uint32 CIMConstInstance::findProperty(const String& name) const
+Uint32 CIMConstInstance::findProperty(const CIMName& name) const
 {
     _checkRep();
     return _rep->findProperty(name);

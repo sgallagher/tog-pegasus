@@ -163,7 +163,7 @@ void TestModifyInstances(ProviderRegistrationManager prmanager)
 
     Array <String> supportedMethods2;
     Array <String> namespaces2;
-    Array<String> propertyList;
+    Array<CIMName> propertyList;
 
     // create new instance which will replace cimInstance3 
     CIMInstance cimInstance4(CLASSNAME3);

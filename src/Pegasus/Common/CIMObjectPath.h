@@ -31,10 +31,11 @@
 #define Pegasus_ObjectPath_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/Exception.h>
-#include <Pegasus/Common/Linkage.h>
 
 #include <iostream>
 
@@ -61,13 +62,13 @@ public:
     KeyBinding(const KeyBinding& x);
 
     /** Construct a KeyBinding with a name, value, and type
-        @param name String name for the key for this binding object.
+        @param name CIMName name for the key for this binding object.
         @param value String value for this key.
         @param type
         <pre>
         </pre>
     */
-    KeyBinding(const String& name, const String& value, Type type);
+    KeyBinding(const CIMName& name, const String& value, Type type);
 
     /** Destructor */
     ~KeyBinding();
@@ -77,10 +78,10 @@ public:
 
     /** Accessor
     */
-    const String& getName() const;
+    const CIMName& getName() const;
 
     /** Modifier */
-    void setName(const String& name);
+    void setName(const CIMName& name);
 
     /** Accessor */
     const String& getValue() const;
@@ -214,8 +215,8 @@ class XmlWriter;
 
     CIMObjectPath(
         const String& host,
-        const String& nameSpace,
-        const String& className,
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
         const KeyBindingArray& keyBindings);
     </pre>
 
@@ -386,8 +387,8 @@ public:
     */
     CIMObjectPath(
         const String& host,
-        const String& nameSpace,
-        const String& className,
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
         const KeyBindingArray& keyBindings = getKeyBindingArray());
 
     /** Destructor */
@@ -409,8 +410,8 @@ public:
     */
     void set(
         const String& host,
-        const String& nameSpace,
-        const String& className,
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
         const KeyBindingArray& keyBindings = getKeyBindingArray()) 
         throw(IllformedObjectName, IllegalName);
 
@@ -446,7 +447,7 @@ public:
     /** getNameSpace - returns the namespace component of the
         CIMObjectPath as a String.
     */
-    const String& getNameSpace() const;
+    const CIMNamespaceName& getNameSpace() const;
 
     /** Sets the namespace component.
         @param String representing the Namespace. The functions tests for
@@ -454,23 +455,23 @@ public:
         @exception Throws IllegalName if form of the namespace is illegal.
         Pegasus does a limited check on name
     */
-    void setNameSpace(const String& nameSpace) throw(IllegalName);
+    void setNameSpace(const CIMNamespaceName& nameSpace);
 
     /** Accessor for className attribute.
-        @return String containing the classname.
+        @return CIMName containing the classname.
      */
-    const String& getClassName() const;
+    const CIMName& getClassName() const;
 
     /** Sets the classname component of the CIMObjectPath object to the input
         parameter.
-        @param className String containing the className.
+        @param className CIMName containing the className.
         @exception Throws IllegalName if form of className is illegal.
         A CIM name must match the following regular expression:
         <PRE>
            [A-Z-a-z_][A-Za-z_0-9]*
         </PRE>
     */
-    void setClassName(const String& className) throw(IllegalName);
+    void setClassName(const CIMName& className);
 
     /** getKeyBindings - Returns an Array of keybindings from the
         CIMObjectPath representing all of the key/value pairs defined in the
@@ -553,7 +554,7 @@ private:
     Boolean _parseNamespaceElement(
         const String& objectName,
         char*& p,
-        String& nameSpace);
+        CIMNamespaceName& nameSpace);
 
     void _parseKeyBindingPairs(
         const String& objectName,

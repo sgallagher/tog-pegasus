@@ -80,6 +80,8 @@ const char UninitializedHandle::MSG[] = "uninitialized handle";
 
 const char IllegalName::MSG[] = "illegal CIM name";
 
+const char IllegalNamespaceName::MSG[] = "illegal CIM namespace name";
+
 const char InvalidPropertyOverride::MSG[] = "invalid property override: ";
 
 const char InvalidMethodOverride::MSG[] = "invalid method override: ";

@@ -41,19 +41,13 @@
 PEGASUS_NAMESPACE_BEGIN
 
 CIMMethodRep::CIMMethodRep(
-    const String& name,
+    const CIMName& name,
     CIMType type,
-    const String& classOrigin,
+    const CIMName& classOrigin,
     Boolean propagated)
     : _name(name), _type(type),
     _classOrigin(classOrigin), _propagated(propagated)
 {
-    if (!CIMName::legal(name))
-	throw IllegalName();
-
-    if (classOrigin.size() && !CIMName::legal(classOrigin))
-	throw IllegalName();
-
     if (type == CIMTYPE_NONE)
 	throw NullType();
 }
@@ -63,7 +57,7 @@ CIMMethodRep::~CIMMethodRep()
 
 }
 
-void CIMMethodRep::setName(const String& name)
+void CIMMethodRep::setName(const CIMName& name)
 {
     if (!CIMName::legal(name))
 	throw IllegalName();
@@ -71,7 +65,7 @@ void CIMMethodRep::setName(const String& name)
     _name = name;
 }
 
-void CIMMethodRep::setClassOrigin(const String& classOrigin)
+void CIMMethodRep::setClassOrigin(const CIMName& classOrigin)
 {
     if (!CIMName::legal(classOrigin))
 	throw IllegalName();
@@ -90,11 +84,11 @@ void CIMMethodRep::addParameter(const CIMParameter& x)
     _parameters.append(x);
 }
 
-Uint32 CIMMethodRep::findParameter(const String& name) const
+Uint32 CIMMethodRep::findParameter(const CIMName& name) const
 {
     for (Uint32 i = 0, n = _parameters.size(); i < n; i++)
     {
-	if (CIMName::equal(_parameters[i].getName(), name))
+	if (name.equal(_parameters[i].getName()))
 	    return i;
     }
 
@@ -116,7 +110,7 @@ Uint32 CIMMethodRep::getParameterCount() const
 
 void CIMMethodRep::resolve(
     DeclContext* declContext,
-    const String& nameSpace,
+    const CIMNamespaceName& nameSpace,
     const CIMConstMethod& inheritedMethod)
 {
     // ATTN: Check to see if this method has same signature as
@@ -148,7 +142,7 @@ void CIMMethodRep::resolve(
 
 void CIMMethodRep::resolve(
     DeclContext* declContext,
-    const String& nameSpace)
+    const CIMNamespaceName& nameSpace)
 {
     // Validate the qualifiers:
 
@@ -181,7 +175,7 @@ void CIMMethodRep::toXml(Array<Sint8>& out) const
 
     out << " TYPE=\"" << cimTypeToString (_type) << "\"";
 
-    if (_classOrigin.size())
+    if (!_classOrigin.isNull())
 	out << " CLASSORIGIN=\"" << _classOrigin << "\"";
 
     if (_propagated != false)

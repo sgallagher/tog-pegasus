@@ -109,7 +109,7 @@ CIMObject::~CIMObject()
     Dec(_rep);
 }
 
-const String& CIMObject::getClassName() const
+const CIMName& CIMObject::getClassName() const
 {
     _checkRep();
     return _rep->getClassName();
@@ -134,7 +134,7 @@ CIMObject& CIMObject::addQualifier(const CIMQualifier& qualifier)
     return *this;
 }
 
-Uint32 CIMObject::findQualifier(const String& name) const
+Uint32 CIMObject::findQualifier(const CIMName& name) const
 {
     _checkRep();
     return _rep->findQualifier(name);
@@ -171,7 +171,7 @@ CIMObject& CIMObject::addProperty(const CIMProperty& x)
     return *this;
 }
 
-Uint32 CIMObject::findProperty(const String& name) const
+Uint32 CIMObject::findProperty(const CIMName& name) const
 {
     _checkRep();
     return _rep->findProperty(name);
@@ -331,7 +331,7 @@ CIMConstObject::~CIMConstObject()
     Dec(_rep);
 }
 
-const String& CIMConstObject::getClassName() const
+const CIMName& CIMConstObject::getClassName() const
 {
     _checkRep();
     return _rep->getClassName();
@@ -343,7 +343,7 @@ const CIMObjectPath& CIMConstObject::getPath() const
     return _rep->getPath();
 }
 
-Uint32 CIMConstObject::findQualifier(const String& name) const
+Uint32 CIMConstObject::findQualifier(const CIMName& name) const
 {
     _checkRep();
     return _rep->findQualifier(name);
@@ -361,7 +361,7 @@ Uint32 CIMConstObject::getQualifierCount() const
     return _rep->getQualifierCount();
 }
 
-Uint32 CIMConstObject::findProperty(const String& name) const
+Uint32 CIMConstObject::findProperty(const CIMName& name) const
 {
     _checkRep();
     return _rep->findProperty(name);

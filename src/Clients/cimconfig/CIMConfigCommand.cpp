@@ -1121,7 +1121,7 @@ void CIMConfigCommand::_updatePropertyInCIMServer
             PEGASUS_CLASSNAME_CONFIGSETTING, kbArray);
 
         CIMInstance modifiedInst = CIMInstance(PEGASUS_CLASSNAME_CONFIGSETTING);
-        Array<String> propertyList;
+        Array<CIMName> propertyList;
 
         if ( _currentValueSet )
         {

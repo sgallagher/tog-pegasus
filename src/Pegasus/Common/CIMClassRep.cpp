@@ -45,19 +45,16 @@ PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
 
 CIMClassRep::CIMClassRep(
-    const CIMObjectPath& reference,
-    const String& superClassName)
+    const CIMName& className,
+    const CIMName& superClassName)
     :
-    CIMObjectRep(reference),
+    CIMObjectRep(CIMObjectPath(String(), CIMNamespaceName(), className)),
     _superClassName(superClassName)
 {
-    if (superClassName.size() && !CIMName::legal(superClassName))
-	throw IllegalName();
 }
 
 CIMClassRep::~CIMClassRep()
 {
-
 }
 
 Boolean CIMClassRep::isAssociation() const
@@ -95,7 +92,7 @@ Boolean CIMClassRep::isAbstract() const
     return flag;
 }
 
-Boolean CIMClassRep::isTrueQualifier(const String& name) const
+Boolean CIMClassRep::isTrueQualifier(const CIMName& name) const
 {
     Uint32 pos = findQualifier(name);
 
@@ -112,11 +109,8 @@ Boolean CIMClassRep::isTrueQualifier(const String& name) const
     return flag;
 }
 
-void CIMClassRep::setSuperClassName(const String& superClassName)
+void CIMClassRep::setSuperClassName(const CIMName& superClassName)
 {
-    if (!CIMName::legal(superClassName))
-	throw IllegalName();
-
     _superClassName = superClassName;
 }
 
@@ -138,7 +132,7 @@ void CIMClassRep::addProperty(const CIMProperty& x)
     // Set the class origin:
     // ATTN: put this check in other places:
 
-    if (x.getClassOrigin().size() == 0)
+    if (x.getClassOrigin().isNull())
 	CIMProperty(x).setClassOrigin(_reference.getClassName());
 
     // Add the property:
@@ -161,11 +155,11 @@ void CIMClassRep::addMethod(const CIMMethod& x)
     _methods.append(x);
 }
 
-Uint32 CIMClassRep::findMethod(const String& name) const
+Uint32 CIMClassRep::findMethod(const CIMName& name) const
 {
     for (Uint32 i = 0, n = _methods.size(); i < n; i++)
     {
-	if (CIMName::equal(_methods[i].getName(), name))
+	if (name.equal(_methods[i].getName()))
 	    return i;
     }
 
@@ -195,7 +189,7 @@ void CIMClassRep::removeMethod(Uint32 pos)
 
 void CIMClassRep::resolve(
     DeclContext* context,
-    const String& nameSpace)
+    const CIMNamespaceName& nameSpace)
 {
 	PEG_METHOD_ENTER(TRC_OBJECTRESOLUTION, "CIMClassRep::resolve()");
 #if 0
@@ -210,7 +204,7 @@ void CIMClassRep::resolve(
 		_reference.getClassName() + ", superclass = " +
 		_superClassName);
 
-    if (_superClassName.size())
+    if (!_superClassName.isNull())
 	{
 		//cout << "KSTEST Class Resolve with Super class " << getClassName() 
 		//<< " superClass " << _superClassName << endl;
@@ -315,7 +309,7 @@ void CIMClassRep::resolve(
 					Uint32 pos = PEG_NOT_FOUND;
 					CIMQualifier superClassQualifier = 
 											superproperty.getQualifier(i);
-					const String name = superClassQualifier.getName();
+					const CIMName name = superClassQualifier.getName();
 					/* ATTN KS This is replacement find function.
 					if((Uint32 j = subproperty.findQualifier(q.getName()) == PEG_NOT_FOUND)
 					{
@@ -328,8 +322,7 @@ void CIMClassRep::resolve(
 						 j++) 
 					{
 						CIMConstQualifier q = subproperty.getQualifier(j);
-						if (CIMName::equal(name,
-							   q.getName())) 
+						if (name.equal(q.getName())) 
 						{
 							pos = j;
 							break;
@@ -471,7 +464,7 @@ void CIMClassRep::toXml(Array<Sint8>& out) const
     out << "<CLASS ";
     out << " NAME=\"" << _reference.getClassName() << "\" ";
 
-    if (_superClassName.size())
+    if (!_superClassName.isNull())
 	out << " SUPERCLASS=\"" << _superClassName << "\" ";
 
     out << ">\n";
@@ -522,7 +515,7 @@ void CIMClassRep::toMof(Array<Sint8>& out) const
     // output class statement
     out << "class " << _reference.getClassName();
 
-    if (_superClassName.size())
+    if (!_superClassName.isNull())
 	out << " : " << _superClassName;
 
     out << "\n{";
@@ -606,7 +599,7 @@ Boolean CIMClassRep::identical(const CIMObjectRep* x) const
     return true;
 }
 
-void CIMClassRep::getKeyNames(Array<String>& keyNames) const
+void CIMClassRep::getKeyNames(Array<CIMName>& keyNames) const
 {
     keyNames.clear();
 

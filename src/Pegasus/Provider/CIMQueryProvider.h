@@ -35,6 +35,7 @@
 
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Provider/Linkage.h>
 
@@ -67,7 +68,7 @@ public:
     */
     virtual void executeQuery(
 	const OperationContext & context,
-	const String & nameSpace,
+	const CIMNamespaceName & nameSpace,
 	const String & queryLanguage,
 	const String & query,
 	ResponseHandler<CIMObject> & handler) = 0;

@@ -101,7 +101,7 @@ class clientRepositoryInterface
       const Boolean includeQualifiers,
       const Boolean includeClassOrigin) const;
 
-  virtual Array<String> enumerateClassNames(
+  virtual Array<CIMName> enumerateClassNames(
       const String& nameSpace,
       const String& className,
       const Boolean deepInheritance);

@@ -55,11 +55,11 @@ CIMParameter::CIMParameter(const CIMParameter& x)
 }
 
 CIMParameter::CIMParameter(
-    const String& name,
+    const CIMName& name,
     CIMType type,
     Boolean isArray,
     Uint32 arraySize,
-    const String& referenceClassName)
+    const CIMName& referenceClassName)
 {
     _rep = new CIMParameterRep(
         name, type, isArray, arraySize, referenceClassName);
@@ -85,13 +85,13 @@ CIMParameter& CIMParameter::operator=(const CIMParameter& x)
     return *this;
 }
 
-const String& CIMParameter::getName() const
+const CIMName& CIMParameter::getName() const
 {
     _checkRep();
     return _rep->getName();
 }
 
-void CIMParameter::setName(const String& name)
+void CIMParameter::setName(const CIMName& name)
 {
     _checkRep();
     _rep->setName(name);
@@ -109,7 +109,7 @@ Uint32 CIMParameter::getArraySize() const
     return _rep->getArraySize();
 }
 
-const String& CIMParameter::getReferenceClassName() const
+const CIMName& CIMParameter::getReferenceClassName() const
 {
     _checkRep();
     return _rep->getReferenceClassName();
@@ -134,7 +134,7 @@ CIMParameter& CIMParameter::addQualifier(const CIMQualifier& x)
     return *this;
 }
 
-Uint32 CIMParameter::findQualifier(const String& name) const
+Uint32 CIMParameter::findQualifier(const CIMName& name) const
 {
     _checkRep();
     return _rep->findQualifier(name);
@@ -204,11 +204,11 @@ CIMConstParameter::CIMConstParameter(const CIMParameter& x)
 }
 
 CIMConstParameter::CIMConstParameter(
-    const String& name,
+    const CIMName& name,
     CIMType type,
     Boolean isArray,
     Uint32 arraySize,
-    const String& referenceClassName)
+    const CIMName& referenceClassName)
 {
     _rep = new CIMParameterRep(
         name, type, isArray, arraySize, referenceClassName);
@@ -239,7 +239,7 @@ CIMConstParameter& CIMConstParameter::operator=(const CIMParameter& x)
     return *this;
 }
 
-const String& CIMConstParameter::getName() const
+const CIMName& CIMConstParameter::getName() const
 {
     _checkRep();
     return _rep->getName();
@@ -257,7 +257,7 @@ Uint32 CIMConstParameter::getArraySize() const
     return _rep->getArraySize();
 }
 
-const String& CIMConstParameter::getReferenceClassName() const
+const CIMName& CIMConstParameter::getReferenceClassName() const
 {
     _checkRep();
     return _rep->getReferenceClassName();
@@ -269,7 +269,7 @@ CIMType CIMConstParameter::getType() const
     return _rep->getType();
 }
 
-Uint32 CIMConstParameter::findQualifier(const String& name) const
+Uint32 CIMConstParameter::findQualifier(const CIMName& name) const
 {
     _checkRep();
     return _rep->findQualifier(name);

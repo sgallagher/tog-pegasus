@@ -704,10 +704,10 @@ Boolean operator!=(const String& str1, const String& str2)
     return !String::equal(str1, str2);
 }
 
-PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const String& str1)
+PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const String& str)
 {
-    for (Uint32 i = 0, n = str1.size(); i < n; i++)
-	os << str1[i];
+    for (Uint32 i = 0, n = str.size(); i < n; i++)
+	os << str[i];
 
     return os;
 }

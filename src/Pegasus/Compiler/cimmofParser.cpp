@@ -581,7 +581,7 @@ cimmofParser::addClass(CIMClass *classdecl)
 // object
 //---------------------------------------------------------------------
 CIMClass *
-cimmofParser::newClassDecl(const String &name, const String &superclassname)
+cimmofParser::newClassDecl(const CIMName &name, const CIMName &superclassname)
 {
   CIMClass *c = 0;
   try {
@@ -820,10 +820,10 @@ cimmofParser::newInstance(const String &className)
 
 // KS 8 Mar 2002 - Added is array and arraySize to parameters
 CIMProperty *
-cimmofParser::newProperty(const String &name, const CIMValue &val,
+cimmofParser::newProperty(const CIMName &name, const CIMValue &val,
                           const Boolean isArray,
                           const Uint32 arraySize,
-			  const String &referencedObject) const
+			  const CIMName &referencedObject) const
 {
   CIMProperty *p = 0;
   
@@ -955,7 +955,7 @@ cimmofParser::copyPropertyWithNewValue(const CIMProperty &p,
 // new CIMMethod object.
 //----------------------------------------------------------------------
 CIMMethod *
-cimmofParser::newMethod(const String &name, const CIMType type)
+cimmofParser::newMethod(const CIMName &name, const CIMType type)
 { 
   CIMMethod *m = 0;
   try {
@@ -1009,8 +1009,8 @@ cimmofParser::applyMethod(CIMClass &c, CIMMethod &m) {
 }
 
 CIMParameter *
-cimmofParser::newParameter(const String &name, const CIMType type,
-			   Boolean isArray, Uint32 array, const String &objName)
+cimmofParser::newParameter(const CIMName &name, const CIMType type,
+			   Boolean isArray, Uint32 array, const CIMName &objName)
 {
   CIMParameter *p = 0;
   try {

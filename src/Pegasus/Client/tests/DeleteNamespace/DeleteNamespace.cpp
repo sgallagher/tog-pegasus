@@ -151,7 +151,7 @@ static void TestNamespaceHierarchy1 ( CIMClient& client,
 	try
 	{
 	    // Build the new instance
-	    CIMInstance newInstance(instanceName);
+	    CIMInstance newInstance(CLASSNAME);
 	    newInstance.addProperty(CIMProperty("name", testNamespaceName));
 	    client.createInstance(__NAMESPACE_NAMESPACE, newInstance);
 	}
@@ -290,7 +290,7 @@ static void TestNamespaceHierarchy2 ( CIMClient& client,
 	try
 	{
 	    // Build the new instance
-	    CIMInstance newInstance(instanceName);
+	    CIMInstance newInstance(CLASSNAME);
 	    newInstance.addProperty(CIMProperty("name",String::EMPTY));
             if(verboseTest)
             {

@@ -132,7 +132,7 @@ void OperatingSystemProvider::enumerateInstances(
 			false,
 			false,
 			false,
-			Array<String>());
+			CIMPropertyList());
 
 		CIMObjectPath instanceName = cimInstance.getInstanceName(cimclass);
 
@@ -163,7 +163,7 @@ void OperatingSystemProvider::enumerateInstanceNames(
 		false,
 		false,
 		false,
-		Array<String>());
+		CIMPropertyList());
 
 	Array<CIMInstance> cimInstances = _enumerateInstances(context, classReference);
 	
@@ -218,7 +218,7 @@ Array<CIMInstance> OperatingSystemProvider::_enumerateInstances(
 {
 	SimpleResponseHandler<CIMInstance> handler;
 
-	enumerateInstances(context, classReference, 0xffffffff, Array<String>(), handler);
+	enumerateInstances(context, classReference, 0xffffffff, CIMPropertyList(), handler);
 
 	return(handler.getObjects());
 }

@@ -96,7 +96,10 @@ void test01()
 		XmlWriter::printClassElement(class1);
 	}
 
-    CIMInstance instance0("//localhost/root/cimv2:MyClass.Foo=1");
+    CIMInstance instance0("MyClass");
+    assert(instance0.getClassName() == CIMName("MyClass"));
+    instance0.setPath(CIMObjectPath("//localhost/root/cimv2:MyClass.Foo=1"));
+    assert(instance0.getPath() == CIMObjectPath("//localhost/root/cimv2:MyClass.Foo=1"));
 
     assert(instance0.getPath() == CIMObjectPath("//localhost/root/cimv2:MyClass.Foo=1"));
 
@@ -176,10 +179,10 @@ void test01()
     assert(cinstance3.identical(cinstance1));
 
     assert(cinstance1.getClassName() == "MyClass");
-    assert(CIMName::equal(cinstance1.getClassName(), "MyClass"));
-    assert(CIMName::equal(cinstance1.getClassName(), "MYCLASS"));
-    assert(CIMName::equal(cinstance1.getClassName(), "myclass"));
-    assert(!CIMName::equal(cinstance1.getClassName(), "blob"));
+    assert(cinstance1.getClassName().equal("MyClass"));
+    assert(cinstance1.getClassName().equal("MYCLASS"));
+    assert(cinstance1.getClassName().equal("myclass"));
+    assert(!cinstance1.getClassName().equal("blob"));
 
 
 

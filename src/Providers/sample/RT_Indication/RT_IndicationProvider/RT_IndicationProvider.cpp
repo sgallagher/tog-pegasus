@@ -43,11 +43,11 @@ static Uint32 _nextUID = 0;
 
 void _generateIndication (
     ResponseHandler <CIMIndication> * handler,
-    const String methodName);
+    const CIMName methodName);
 
 void _generateIndication (
     ResponseHandler <CIMIndication> & handler,
-    const String methodName);
+    const CIMName methodName);
 
 RT_IndicationProvider::RT_IndicationProvider (void) throw ()
 {
@@ -78,7 +78,7 @@ cout << "enable RT_IndicationProvider" << " _handler = " << _handler << endl;
 
 void _generateIndication (
     ResponseHandler <CIMIndication> * handler,
-    const String methodName)
+    const CIMName methodName)
 {
     if (_enabled)
     {
@@ -94,7 +94,7 @@ void _generateIndication (
             (CIMProperty ("IndicationID",String(buffer)));
 
         indicationInstance.addProperty
-            (CIMProperty ("MethodName", methodName));
+            (CIMProperty ("MethodName", CIMValue(String(methodName))));
         
         CIMIndication cimIndication (indicationInstance);
 
@@ -104,7 +104,7 @@ void _generateIndication (
 
 void _generateIndication (
     ResponseHandler <CIMIndication> & handler,
-    const String methodName)
+    const CIMName methodName)
 {
     if (_enabled)
     {
@@ -121,7 +121,7 @@ void _generateIndication (
             (CIMProperty ("IndicationID",String(buffer)));
 
         indicationInstance.addProperty
-            (CIMProperty ("MethodName", methodName));
+            (CIMProperty ("MethodName", CIMValue(String(methodName))));
         
         CIMIndication cimIndication (indicationInstance);
 
@@ -168,7 +168,7 @@ void RT_IndicationProvider::deleteSubscription (
 void RT_IndicationProvider::invokeMethod(
         const OperationContext & context,
         const CIMObjectPath & objectReference,
-        const String & methodName,
+        const CIMName & methodName,
         const Array<CIMParamValue> & inParameters,
         Array<CIMParamValue> & outParameters,
         ResponseHandler<CIMValue> & handler)
@@ -180,7 +180,7 @@ cout << "invokeMethod RT_IndicationProvider" << endl;
         if(String::equalNoCase(objectReference.getClassName(),
                                "RT_TestIndication"))
         {                
-            if(String::equalNoCase(methodName, "SendTestIndication"))
+            if(methodName.equal("SendTestIndication"))
             {
                 sendIndication = true;
                 handler.deliver( CIMValue( 0 ) );

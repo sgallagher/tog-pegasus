@@ -38,6 +38,7 @@
 #include <fstream>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/SSLContext.h>
 #include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/CIMClass.h>
@@ -241,8 +242,8 @@ public:
 	</UL>
     */
     virtual CIMClass getClass(
-	const String& nameSpace,
-	const String& className,
+	const CIMNamespaceName& nameSpace,
+	const CIMName& className,
 	Boolean localOnly = true,
 	Boolean includeQualifiers = true,
 	Boolean includeClassOrigin = false,
@@ -252,7 +253,7 @@ public:
     /** ATTN TBD
     */
     virtual CIMInstance getInstance(
-	const String& nameSpace,
+	const CIMNamespaceName& nameSpace,
 	const CIMObjectPath& instanceName,
 	Boolean localOnly = true,
 	Boolean includeQualifiers = false,
@@ -263,38 +264,38 @@ public:
     /** ATTN TBD
     */
     virtual void deleteClass(
-	const String& nameSpace,
-	const String& className
+	const CIMNamespaceName& nameSpace,
+	const CIMName& className
     ) throw(CIMClientException);
 
     /** ATTN TBD
     */ 
     virtual void deleteInstance(
-	const String& nameSpace,
+	const CIMNamespaceName& nameSpace,
 	const CIMObjectPath& instanceName
     ) throw(CIMClientException);
 
     /** ATTN TBD
     */
     virtual void createClass(
-	const String& nameSpace,
+	const CIMNamespaceName& nameSpace,
 	const CIMClass& newClass
     ) throw(CIMClientException);
 
     virtual CIMObjectPath createInstance(
-	const String& nameSpace,
+	const CIMNamespaceName& nameSpace,
 	const CIMInstance& newInstance
     ) throw(CIMClientException);
 
     ///
     virtual void modifyClass(
-	const String& nameSpace,
+	const CIMNamespaceName& nameSpace,
 	const CIMClass& modifiedClass
     ) throw(CIMClientException);
 
     ///
     virtual void modifyInstance(
-	const String& nameSpace,
+	const CIMNamespaceName& nameSpace,
 	const CIMInstance& modifiedInstance,
 	Boolean includeQualifiers = true,
 	const CIMPropertyList& propertyList = CIMPropertyList()
@@ -302,8 +303,8 @@ public:
 
     ///
     virtual Array<CIMClass> enumerateClasses(
-	const String& nameSpace,
-	const String& className = String::EMPTY,
+	const CIMNamespaceName& nameSpace,
+	const CIMName& className = CIMName(),
 	Boolean deepInheritance = false,
 	Boolean localOnly = true,
 	Boolean includeQualifiers = true,
@@ -311,16 +312,16 @@ public:
     ) throw(CIMClientException);
 
     ///
-    virtual Array<String> enumerateClassNames(
-	const String& nameSpace,
-	const String& className = String::EMPTY,
+    virtual Array<CIMName> enumerateClassNames(
+	const CIMNamespaceName& nameSpace,
+	const CIMName& className = CIMName(),
 	Boolean deepInheritance = false
     ) throw(CIMClientException);
 
     ///
     virtual Array<CIMInstance> enumerateInstances(
-	const String& nameSpace,
-	const String& className,
+	const CIMNamespaceName& nameSpace,
+	const CIMName& className,
 	Boolean deepInheritance = true,
 	Boolean localOnly = true,
 	Boolean includeQualifiers = false,
@@ -330,23 +331,23 @@ public:
 
     ///
     virtual Array<CIMObjectPath> enumerateInstanceNames(
-	const String& nameSpace,
-	const String& className
+	const CIMNamespaceName& nameSpace,
+	const CIMName& className
     ) throw(CIMClientException);
 
     ///
     virtual Array<CIMObject> execQuery(
-	const String& nameSpace,
+	const CIMNamespaceName& nameSpace,
 	const String& queryLanguage,
 	const String& query
     ) throw(CIMClientException);
 
     ///
     virtual Array<CIMObject> associators(
-	const String& nameSpace,
+	const CIMNamespaceName& nameSpace,
 	const CIMObjectPath& objectName,
-	const String& assocClass = String::EMPTY,
-	const String& resultClass = String::EMPTY,
+	const CIMName& assocClass = CIMName(),
+	const CIMName& resultClass = CIMName(),
 	const String& role = String::EMPTY,
 	const String& resultRole = String::EMPTY,
 	Boolean includeQualifiers = false,
@@ -356,19 +357,19 @@ public:
 
     ///
     virtual Array<CIMObjectPath> associatorNames(
-	const String& nameSpace,
+	const CIMNamespaceName& nameSpace,
 	const CIMObjectPath& objectName,
-	const String& assocClass = String::EMPTY,
-	const String& resultClass = String::EMPTY,
+	const CIMName& assocClass = CIMName(),
+	const CIMName& resultClass = CIMName(),
 	const String& role = String::EMPTY,
 	const String& resultRole = String::EMPTY
     ) throw(CIMClientException);
 
     ///
     virtual Array<CIMObject> references(
-	const String& nameSpace,
+	const CIMNamespaceName& nameSpace,
 	const CIMObjectPath& objectName,
-	const String& resultClass = String::EMPTY,
+	const CIMName& resultClass = CIMName(),
 	const String& role = String::EMPTY,
 	Boolean includeQualifiers = false,
 	Boolean includeClassOrigin = false,
@@ -377,55 +378,55 @@ public:
 
     ///
     virtual Array<CIMObjectPath> referenceNames(
-	const String& nameSpace,
+	const CIMNamespaceName& nameSpace,
 	const CIMObjectPath& objectName,
-	const String& resultClass = String::EMPTY,
+	const CIMName& resultClass = CIMName(),
 	const String& role = String::EMPTY
     ) throw(CIMClientException);
 
     ///
     virtual CIMValue getProperty(
-	const String& nameSpace,
+	const CIMNamespaceName& nameSpace,
 	const CIMObjectPath& instanceName,
-	const String& propertyName
+	const CIMName& propertyName
     ) throw(CIMClientException);
 
     ////
     virtual void setProperty(
-	const String& nameSpace,
+	const CIMNamespaceName& nameSpace,
 	const CIMObjectPath& instanceName,
-	const String& propertyName,
+	const CIMName& propertyName,
 	const CIMValue& newValue = CIMValue()
     ) throw(CIMClientException);
 
     ///
     virtual CIMQualifierDecl getQualifier(
-	const String& nameSpace,
-	const String& qualifierName
+	const CIMNamespaceName& nameSpace,
+	const CIMName& qualifierName
     ) throw(CIMClientException);
 
     ///
     virtual void setQualifier(
-	const String& nameSpace,
+	const CIMNamespaceName& nameSpace,
 	const CIMQualifierDecl& qualifierDeclaration
     ) throw(CIMClientException);
 
     ///
     virtual void deleteQualifier(
-	const String& nameSpace,
-	const String& qualifierName
+	const CIMNamespaceName& nameSpace,
+	const CIMName& qualifierName
     ) throw(CIMClientException);
 
     ///
     virtual Array<CIMQualifierDecl> enumerateQualifiers(
-	const String& nameSpace
+	const CIMNamespaceName& nameSpace
     ) throw(CIMClientException);
 
     ///
     virtual CIMValue invokeMethod(
-	const String& nameSpace,
+	const CIMNamespaceName& nameSpace,
 	const CIMObjectPath& instanceName,
-	const String& methodName,
+	const CIMName& methodName,
 	const Array<CIMParamValue>& inParameters,
 	Array<CIMParamValue>& outParameters
     ) throw(CIMClientException);

@@ -32,16 +32,17 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/CIMName.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 struct PEGASUS_COMMON_LINKAGE CIMQualifierNames
 {
-    static const char KEY[];
-    static const char ABSTRACT[];
-    static const char ASSOCIATION[];
-    static const char INDICATION[];
-    static const char TERMINAL[];
+    static const CIMName KEY;
+    static const CIMName ABSTRACT;
+    static const CIMName ASSOCIATION;
+    static const CIMName INDICATION;
+    static const CIMName TERMINAL;
 };
 
 PEGASUS_NAMESPACE_END

@@ -60,11 +60,11 @@ void CIMObjectRep::addProperty(const CIMProperty& x)
     _properties.append(x);
 }
 
-Uint32 CIMObjectRep::findProperty(const String& name) const
+Uint32 CIMObjectRep::findProperty(const CIMName& name) const
 {
     for (Uint32 i = 0, n = _properties.size(); i < n; i++)
     {
-	if (CIMName::equal(_properties[i].getName(), name))
+	if (name.equal(_properties[i].getName()))
 	    return i;
     }
 

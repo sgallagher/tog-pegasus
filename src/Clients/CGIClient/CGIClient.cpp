@@ -812,7 +812,7 @@ static void GetPropertyDeclaration(const CGIQueryString& qs)
 */
 static void PrintClassNames(
     const String& nameSpace,
-    const Array<String>& classNames,
+    const Array<CIMName>& classNames,
     double elapsedTime)
 {
     PrintHTMLHead("GetClassNames", "EnumerateClassNames Result");
@@ -887,7 +887,7 @@ static void EnumerateClassNames(const CGIQueryString& qs)
 	HostInfo hostinfo;
 	client.connect(hostinfo.getAddress());
 
-	Array<String> classNames = client.enumerateClassNames(
+	Array<CIMName> classNames = client.enumerateClassNames(
 	    nameSpace, className, deepInheritance);
 
 	// Print the results
@@ -1786,7 +1786,7 @@ void TraverseClassTree(
     const String& nameSpace,
     const String& className,
     const Array<String>& superClassNames,
-    const Array<String>& classNames,
+    const Array<CIMName>& classNames,
     Uint32 size,
     Uint32 level)
  {
@@ -1966,7 +1966,7 @@ static void ClassTree(const CGIQueryString& qs)
 	HostInfo hostinfo;
 	client.connect(hostinfo.getAddress());
 
-	Array<String> classNames = client.enumerateClassNames(
+	Array<CIMName> classNames = client.enumerateClassNames(
 					nameSpace,
 					className,
         				deepInheritance);
@@ -2043,7 +2043,7 @@ static void AllInstances(const  CGIQueryString& qs)
 	HostInfo hostinfo;
 	client.connect(hostinfo.getAddress());
 
-	Array<String> classNames = client.enumerateClassNames(
+	Array<CIMName> classNames = client.enumerateClassNames(
 					nameSpace,
 					className,
 					deepInheritance);

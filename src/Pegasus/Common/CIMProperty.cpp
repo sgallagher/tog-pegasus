@@ -56,11 +56,11 @@ CIMProperty::CIMProperty(const CIMProperty& x)
 }
 
 CIMProperty::CIMProperty(
-    const String& name,
+    const CIMName& name,
     const CIMValue& value,
     Uint32 arraySize,
-    const String& referenceClassName,
-    const String& classOrigin,
+    const CIMName& referenceClassName,
+    const CIMName& classOrigin,
     Boolean propagated)
 {
     _rep = new CIMPropertyRep(name, value,
@@ -94,13 +94,13 @@ CIMProperty& CIMProperty::operator=(const CIMProperty& x)
     return *this;
 }
 
-const String& CIMProperty::getName() const
+const CIMName& CIMProperty::getName() const
 {
     _checkRep();
     return _rep->getName();
 }
 
-void CIMProperty::setName(const String& name)
+void CIMProperty::setName(const CIMName& name)
 {
     _checkRep();
     _rep->setName(name);
@@ -136,19 +136,19 @@ Uint32 CIMProperty::getArraySize() const
     return _rep->getArraySize();
 }
 
-const String& CIMProperty::getReferenceClassName() const
+const CIMName& CIMProperty::getReferenceClassName() const
 {
     _checkRep();
     return _rep->getReferenceClassName();
 }
 
-const String& CIMProperty::getClassOrigin() const
+const CIMName& CIMProperty::getClassOrigin() const
 {
     _checkRep();
     return _rep->getClassOrigin();
 }
 
-void CIMProperty::setClassOrigin(const String& classOrigin)
+void CIMProperty::setClassOrigin(const CIMName& classOrigin)
 {
     _checkRep();
     _rep->setClassOrigin(classOrigin);
@@ -173,7 +173,7 @@ CIMProperty& CIMProperty::addQualifier(const CIMQualifier& x)
     return *this;
 }
 
-Uint32 CIMProperty::findQualifier(const String& name) const
+Uint32 CIMProperty::findQualifier(const CIMName& name) const
 {
     _checkRep();
     return _rep->findQualifier(name);
@@ -256,11 +256,11 @@ CIMConstProperty::CIMConstProperty(const CIMProperty& x)
 // Throws IllegalName if name argument not legal CIM identifier.
 
 CIMConstProperty::CIMConstProperty(
-    const String& name,
+    const CIMName& name,
     const CIMValue& value,
     Uint32 arraySize,
-    const String& referenceClassName,
-    const String& classOrigin,
+    const CIMName& referenceClassName,
+    const CIMName& classOrigin,
     Boolean propagated)
 {
     _rep = new CIMPropertyRep(name, value,
@@ -292,7 +292,7 @@ CIMConstProperty& CIMConstProperty::operator=(const CIMProperty& x)
     return *this;
 }
 
-const String& CIMConstProperty::getName() const
+const CIMName& CIMConstProperty::getName() const
 {
     _checkRep();
     return _rep->getName();
@@ -322,13 +322,13 @@ Uint32 CIMConstProperty::getArraySize() const
     return _rep->getArraySize();
 }
 
-const String& CIMConstProperty::getReferenceClassName() const
+const CIMName& CIMConstProperty::getReferenceClassName() const
 {
     _checkRep();
     return _rep->getReferenceClassName();
 }
 
-const String& CIMConstProperty::getClassOrigin() const
+const CIMName& CIMConstProperty::getClassOrigin() const
 {
     _checkRep();
     return _rep->getClassOrigin();
@@ -340,7 +340,7 @@ Boolean CIMConstProperty::getPropagated() const
     return _rep->getPropagated();
 }
 
-Uint32 CIMConstProperty::findQualifier(const String& name) const
+Uint32 CIMConstProperty::findQualifier(const CIMName& name) const
 {
     _checkRep();
     return _rep->findQualifier(name);

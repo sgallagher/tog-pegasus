@@ -31,10 +31,10 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-const char CIMQualifierNames::KEY[] = "key";
-const char CIMQualifierNames::ABSTRACT[] = "abstract";
-const char CIMQualifierNames::ASSOCIATION[] = "association";
-const char CIMQualifierNames::INDICATION[] = "indication";
-const char CIMQualifierNames::TERMINAL[] = "terminal";
+const CIMName CIMQualifierNames::KEY = "key";
+const CIMName CIMQualifierNames::ABSTRACT = "abstract";
+const CIMName CIMQualifierNames::ASSOCIATION = "association";
+const CIMName CIMQualifierNames::INDICATION = "indication";
+const CIMName CIMQualifierNames::TERMINAL = "terminal";
 
 PEGASUS_NAMESPACE_END

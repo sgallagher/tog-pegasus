@@ -148,8 +148,8 @@ public:
     virtual void associators(
         const OperationContext & context,
         const CIMObjectPath & objectName,
-        const String & associationClass,
-        const String & resultClass,
+        const CIMName & associationClass,
+        const CIMName & resultClass,
         const String & role,
         const String & resultRole,
         const Uint32 flags,
@@ -159,8 +159,8 @@ public:
     virtual void associatorNames(
         const OperationContext & context,
         const CIMObjectPath & objectName,
-        const String & associationClass,
-        const String & resultClass,
+        const CIMName & associationClass,
+        const CIMName & resultClass,
         const String & role,
         const String & resultRole,
         ResponseHandler<CIMObjectPath> & handler);
@@ -168,7 +168,7 @@ public:
     virtual void references(
         const OperationContext & context,
         const CIMObjectPath & objectName,
-        const String & resultClass,
+        const CIMName & resultClass,
         const String & role,
         const Uint32 flags,
         const CIMPropertyList & propertyList,
@@ -177,7 +177,7 @@ public:
     virtual void referenceNames(
         const OperationContext & context,
         const CIMObjectPath & objectName,
-        const String & resultClass,
+        const CIMName & resultClass,
         const String & role,
         ResponseHandler<CIMObjectPath> & handler);
 
@@ -185,13 +185,13 @@ public:
     virtual void getProperty(
         const OperationContext & context,
         const CIMObjectPath & instanceReference,
-        const String & propertyName,
+        const CIMName & propertyName,
         ResponseHandler<CIMValue> & handler);
 
     virtual void setProperty(
         const OperationContext & context,
         const CIMObjectPath & instanceReference,
-        const String & propertyName,
+        const CIMName & propertyName,
         const CIMValue & newValue,
         ResponseHandler<CIMValue> & handler);
 
@@ -199,7 +199,7 @@ public:
     virtual void invokeMethod(
         const OperationContext & context,
         const CIMObjectPath & objectReference,
-        const String & methodName,
+        const CIMName & methodName,
         const Array<CIMParamValue> & inParameters,
         Array<CIMParamValue> & outParameters,
         ResponseHandler<CIMValue> & handler);
@@ -207,7 +207,7 @@ public:
     // CIMQueryProvider interface
     virtual void executeQuery(
         const OperationContext & context,
-        const String & nameSpace,
+        const CIMNamespaceName & nameSpace,
         const String & queryLanguage,
         const String & query,
         ResponseHandler<CIMObject> & handler);

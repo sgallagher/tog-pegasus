@@ -270,7 +270,7 @@ CIMClass CIMRepository::getClass(
     {
         _LoadObject(classFilePath, cimClass);
     }
-    catch (Exception&)
+    catch (Exception& e)
     {
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, className);
@@ -1850,7 +1850,7 @@ Array<CIMObjectPath> CIMRepository::associatorNames(
         if (r.getHost().size() == 0)
             r.setHost(System::getHostName());
 
-        if (r.getNameSpace().size() == 0)
+        if (r.getNameSpace().isNull())
             r.setNameSpace(nameSpace);
 
         result.append(r);
@@ -1975,7 +1975,7 @@ Array<CIMObjectPath> CIMRepository::referenceNames(
         if (r.getHost().size() == 0)
             r.setHost(System::getHostName());
 
-        if (r.getNameSpace().size() == 0)
+        if (r.getNameSpace().isNull())
             r.setNameSpace(nameSpace);
 
         result.append(r);
@@ -2062,7 +2062,7 @@ void CIMRepository::setProperty(
     // Create the propertyList to pass to modifyInstance()
     //
 
-    Array<String> propertyListArray;
+    Array<CIMName> propertyListArray;
     propertyListArray.append(propertyName);
     CIMPropertyList propertyList(propertyListArray);
 

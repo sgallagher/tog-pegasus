@@ -211,7 +211,7 @@ int enumerateClassNames(CIMClient& client, Options& opts)
             << endl;
     }
     
-    Array<String> classNames; 
+    Array<CIMName> classNames; 
     
     classNames = client.enumerateClassNames(opts.nameSpace,
                                         opts.className,

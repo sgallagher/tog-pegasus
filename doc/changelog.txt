@@ -32,6 +32,17 @@ etc., please use the TMP_DIR variable in the Makefile, and the value of the
 PEGASUS_TMP environment variable in the test program source file.  For examples,
 see the current test programs (e.g. pegasus/src/Pegasus/Repository/tests/*).
 
+4. (Roger Kumpf - HP) 30 July 2002 - Changes from the Pegasus API review:
+
+   - Updated the CIMName class to a data type class
+   - Added CIMNamespaceName as a data type class
+   - Updated the client, provider, and common (CIM*) classes to use CIMName
+     and CIMNamespaceName in place of String when handing CIM names (class,
+     property, qualifier, method, and parameter names)
+   - Changed the CIMClass constructor to take a CIMName for the class name
+     instead of a CIMObjectPath
+   - Changed the CIMName::equal method to be non-static
+
 
 -----------------------------------------------------------------
 Version 1.09 - Started 5 April 2002

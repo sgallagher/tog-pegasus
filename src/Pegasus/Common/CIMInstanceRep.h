@@ -53,7 +53,7 @@ public:
 
     void resolve(
 	DeclContext* declContext,
-	const String& nameSpace,
+	const CIMNamespaceName& nameSpace,
 	CIMConstClass& cimClassOut,
 	Boolean propagateQualifiers);
 

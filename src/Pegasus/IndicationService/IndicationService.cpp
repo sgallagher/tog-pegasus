@@ -1034,7 +1034,7 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                         modifiedInstance.addProperty (CIMProperty 
                             (_PROPERTY_LASTCHANGE, CIMValue (currentDateTime)));
                     }
-                    Array <String> properties = 
+                    Array <CIMName> properties = 
                         propertyList.getPropertyNameArray ();
                     properties.append (_PROPERTY_LASTCHANGE);
                     propertyList.set (properties);
@@ -1088,7 +1088,7 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                                 CIMValue (currentDateTime)));
                         }
 
-                        Array <String> properties = 
+                        Array <CIMName> properties = 
                             propertyList.getPropertyNameArray ();
                         properties.append (_PROPERTY_STARTTIME);
                         propertyList.set (properties);
@@ -1430,7 +1430,7 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
             request->queueIds.copyAndPop());
 
     String filterQuery;
-    Array <String> propertyNames;
+    Array <CIMName> propertyNames;
     CIMPropertyList propertyList;
     Boolean match;
 
@@ -1969,7 +1969,7 @@ void IndicationService::_disableSubscription (
     //  Create property list
     //
     CIMPropertyList propertyList;
-    Array <String> properties;
+    Array <CIMName> properties;
     properties.append (_PROPERTY_STATE);
     propertyList = CIMPropertyList (properties);
 
@@ -3524,8 +3524,8 @@ CIMPropertyList IndicationService::_getPropertyList
      const String & nameSpaceName,
      const String & indicationClassName) const
 {
-    Array <String> propertyList;
-    String propertyName;
+    Array <CIMName> propertyList;
+    CIMName propertyName;
 
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
                       "IndicationService::_getPropertyList");
@@ -3579,7 +3579,7 @@ CIMPropertyList IndicationService::_getPropertyList
 }
 
 CIMPropertyList IndicationService::_checkPropertyList 
-    (const Array <String> & propertyList,
+    (const Array <CIMName> & propertyList,
      const String & nameSpaceName,
      const String & indicationClassName) const
 {

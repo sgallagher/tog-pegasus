@@ -138,7 +138,7 @@ public:
     }
 
     KeyBindingRep(
-        const String& name,
+        const CIMName& name,
         const String& value,
         KeyBinding::Type type)
         : _name(name), _value(value), _type(type)
@@ -160,7 +160,7 @@ public:
         return *this;
     }
 
-    String _name;
+    CIMName _name;
     String _value;
     KeyBinding::Type _type;
 };
@@ -176,7 +176,7 @@ KeyBinding::KeyBinding(const KeyBinding& x)
     _rep = new KeyBindingRep(*x._rep);
 }
 
-KeyBinding::KeyBinding(const String& name, const String& value, Type type)
+KeyBinding::KeyBinding(const CIMName& name, const String& value, Type type)
 {
     _rep = new KeyBindingRep(name, value, type);
 }
@@ -192,12 +192,12 @@ KeyBinding& KeyBinding::operator=(const KeyBinding& x)
     return *this;
 }
 
-const String& KeyBinding::getName() const
+const CIMName& KeyBinding::getName() const
 {
     return _rep->_name;
 }
 
-void KeyBinding::setName(const String& name)
+void KeyBinding::setName(const CIMName& name)
 {
     _rep->_name = name;
 }
@@ -246,7 +246,7 @@ const char* KeyBinding::typeToString(KeyBinding::Type type)
 Boolean operator==(const KeyBinding& x, const KeyBinding& y)
 {
     return
-        CIMName::equal(x.getName(), y.getName()) &&
+        x.getName().equal(y.getName()) &&
         String::equal(x.getValue(), y.getValue()) &&
         x.getType() == y.getType();
 }
@@ -273,8 +273,8 @@ public:
 
     CIMObjectPathRep(
         const String& host,
-        const String& nameSpace,
-        const String& className,
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
         const Array<KeyBinding>& keyBindings)
         : _host(host), _nameSpace(nameSpace),
         _className(className), _keyBindings(keyBindings)
@@ -302,8 +302,8 @@ public:
     //
     String _host;
 
-    String _nameSpace;
-    String _className;
+    CIMNamespaceName _nameSpace;
+    CIMName _className;
     Array<KeyBinding> _keyBindings;
 };
 
@@ -338,8 +338,8 @@ CIMObjectPath::CIMObjectPath(const char* objectName)
 
 CIMObjectPath::CIMObjectPath(
     const String& host,
-    const String& nameSpace,
-    const String& className,
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className,
     const Array<KeyBinding>& keyBindings)
 {
     // Test the objectName out to see if we get an exception
@@ -370,8 +370,8 @@ void CIMObjectPath::clear()
 
 void CIMObjectPath::set(
     const String& host,
-    const String& nameSpace,
-    const String& className,
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className,
     const Array<KeyBinding>& keyBindings)  throw(IllformedObjectName, IllegalName)
 {
    setHost(host);
@@ -454,47 +454,30 @@ Boolean CIMObjectPath::_parseHostElement(
 Boolean CIMObjectPath::_parseNamespaceElement(
     const String& objectName,
     char*& p,
-    String& nameSpace)
+    CIMNamespaceName& nameSpace)
 {
     // If we don't find a valid namespace name followed by a ':', we
     // assume we're not looking at a namespace name.
+
+    char* colon = strchr(p, ':');
+    if (!colon)
+    {
+        return false;
+    }
 
     //----------------------------------------------------------------------
     // Validate the namespace path.  Namespaces must match the following
     // regular expression: "[A-Za-z_]+(/[A-Za-z_]+)*"
     //----------------------------------------------------------------------
 
-    char* q = p;
-
-    for (;;)
+    String namespaceName = String(p, colon - p);
+    if (!CIMNamespaceName::legal(namespaceName))
     {
-        // Pass the next token:
-
-        if (!*q || (!isalpha(*q) && *q != '_'))
-            return false;
-
-        q++;
-
-        while (isalnum(*q) || *q == '_')
-            q++;
-
-        if (!*q)
-            return false;
-
-        if (*q == ':')
-            break;
-
-        if (*q == '/')
-        {
-            q++;
-            continue;
-        }
-
-        return false;
+        throw IllformedObjectName(objectName);
     }
+    nameSpace = namespaceName;
 
-    nameSpace.assign(p, q - p);
-    p = ++q;
+    p = colon+1;
     return true;
 }
 
@@ -573,7 +556,7 @@ void CIMObjectPath::_parseKeyBindingPairs(
         }
 
         *equalsign = 0;
-        String keyString(p);
+        CIMName keyString(p);
 
         if (!CIMName::legal(keyString))
             throw IllformedObjectName(objectName);
@@ -736,11 +719,16 @@ void CIMObjectPath::set(const String& objectName)  throw(IllformedObjectName)
         // ATTN: remove this later: a reference should only be able to hold
         // an instance name.
 
-        _rep->_className.assign(p);
+        _rep->_className = p;
         return;
     }
 
-    _rep->_className.assign(p, dot - p);
+    String className = String(p, dot - p);
+    if (!CIMName::legal(className))
+    {
+        throw IllformedObjectName(objectName);
+    }
+    _rep->_className = className;
 
     // Advance past dot:
 
@@ -771,45 +759,23 @@ void CIMObjectPath::setHost(const String& host)
     _rep->_host = host;
 }
 
-const String& CIMObjectPath::getNameSpace() const
+const CIMNamespaceName& CIMObjectPath::getNameSpace() const
 {
     return _rep->_nameSpace;
 }
 
-void CIMObjectPath::setNameSpace(const String& nameSpace) throw(IllegalName)
+void CIMObjectPath::setNameSpace(const CIMNamespaceName& nameSpace)
 {
-    String temp;
-
-    // check each namespace segment (delimted by '/') for correctness
-
-    for(Uint32 i = 0; i < nameSpace.size(); i += temp.size() + 1)
-    {
-        // isolate the segment beginning at i and ending at the first
-        // ocurrance of '/' after i or eos
-
-        temp = nameSpace.subString(i, nameSpace.subString(i).find('/'));
-
-        // check segment for correctness
-
-        if(!CIMName::legal(temp))
-        {
-            throw IllegalName() ;
-        }
-    }
-
    _rep->_nameSpace = nameSpace;
 }
 
-const String& CIMObjectPath::getClassName() const
+const CIMName& CIMObjectPath::getClassName() const
 {
     return _rep->_className;
 }
 
-void CIMObjectPath::setClassName(const String& className) throw(IllegalName)
+void CIMObjectPath::setClassName(const CIMName& className)
 {
-    if (!CIMName::legal(className))
-        throw IllegalName();
-
     _rep->_className = className;
 }
 
@@ -839,7 +805,7 @@ String CIMObjectPath::toString(Boolean includeHost) const
 
     // Get the namespace (if we have a host name, we must write namespace):
 
-    if (_rep->_nameSpace.size() || _rep->_host.size())
+    if (!_rep->_nameSpace.isNull() || _rep->_host.size())
     {
         objectName += _rep->_nameSpace;
         objectName += ":";
@@ -892,11 +858,15 @@ String CIMObjectPath::toStringCanonical(Boolean includeHost) const
 
     // ATTN-RK-P2-20020510: Need to make hostname and namespace lower case?
 
-    ref._rep->_className.toLower();
+    String classNameLower = ref._rep->_className;
+    classNameLower.toLower();
+    ref._rep->_className = classNameLower;
 
     for (Uint32 i = 0, n = ref._rep->_keyBindings.size(); i < n; i++)
     {
-        ref._rep->_keyBindings[i]._rep->_name.toLower();
+        String keyBindingNameLower = ref._rep->_keyBindings[i]._rep->_name;
+        keyBindingNameLower.toLower();
+        ref._rep->_keyBindings[i]._rep->_name = keyBindingNameLower;
     }
 
     return ref.toString(includeHost);
@@ -911,8 +881,8 @@ Boolean CIMObjectPath::identical(const CIMObjectPath& x) const
 {
     return
         String::equal(_rep->_host, x._rep->_host) &&
-        CIMName::equal(_rep->_nameSpace, x._rep->_nameSpace) &&
-        CIMName::equal(_rep->_className, x._rep->_className) &&
+        _rep->_nameSpace.equal(x._rep->_nameSpace) &&
+        _rep->_className.equal(x._rep->_className) &&
         _rep->_keyBindings == x._rep->_keyBindings;
 }
 

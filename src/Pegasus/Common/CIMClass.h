@@ -33,9 +33,10 @@
 #define Pegasus_CIMClass_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/CIMMethod.h>
-#include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -80,7 +81,7 @@ public:
     /**	Constructor - Creates a Class from inputs of a classname and
 	SuperClassName
 	@param className CIMObjectPath representing name of the class being created
-	@param superClassName String representing name of the SuperClass
+	@param superClassName CIMName representing name of the SuperClass
 	@return Throws IllegalName if className argument illegal CIM identifier.
 	<pre>
 	    CIMClass NewCass("MyClass", "YourClass");
@@ -88,8 +89,8 @@ public:
 
     */
     CIMClass(
-	const CIMObjectPath& reference,
-	const String& superClassName = String::EMPTY);
+	const CIMName& className,
+	const CIMName& superClassName = CIMName());
 
     /** Assignment operator.
     */
@@ -119,7 +120,7 @@ public:
     /** getClassName Gets the name of the class
 	@return Returns string with the class name.
     */
-    const String& getClassName() const;
+    const CIMName& getClassName() const;
         
     const CIMObjectPath& getPath() const;
 
@@ -130,20 +131,20 @@ public:
     void setPath (const CIMObjectPath & path);
 
     /** getSuperClassName - Gets the name of the Parent
-	@return String with parent class name.
+	@return CIMName with parent class name.
     */
-    const String& getSuperClassName() const;
+    const CIMName& getSuperClassName() const;
 
     // ATTN define what's a legal class name
     /**	setSuperClassName - Sets the name of the parent class from
 	the input parameter. \REF{CLASSNAME}.
-	@param String defining parent name.
+	@param CIMName defining parent name.
 	@return Throws IllegalName if superClassName argument not legal CIM
 	identifier
 	@exception throws IllegalName if the name is not correct. See
 	\URL[ClassNames]{DefinitionofTerms.html#CLASSNAME}
     */
-    void setSuperClassName(const String& superClassName);
+    void setSuperClassName(const CIMName& superClassName);
 
     /** addQualifier - Adds the specified qualifier to the class
 	and increments the qualifier count. It is illegal to add the same
@@ -162,17 +163,17 @@ public:
 	@return Returns index of the qualifier found or PEG_NOT_FOUND
 	if not found.
     */
-    Uint32 findQualifier(const String& name) const;
+    Uint32 findQualifier(const CIMName& name) const;
 
     /** isTrueQualifier - Determines if the qualifier defined by
 	the input parameter exists for the class, is Boolean, and
 	has a value of true.
 	This function is useful to quickly determine the state of a
 	qualifier.
-	@param String containing the qualifier  name.
+	@param CIMName containing the qualifier  name.
 	@return Boolean True if the qualifier exists, 
     */
-    Boolean isTrueQualifier(const String& name) const;
+    Boolean isTrueQualifier(const CIMName& name) const;
 
 /**	getQualifier - Gets the CIMQualifier object defined
 	by the input parameter
@@ -211,11 +212,11 @@ public:
 
     /** findProperty - Finds the property object with the
 	name defined by the input parameter in the class.
-	@param String parameter with the property name.
+	@param CIMName parameter with the property name.
 	@return position representing the property object found or
 	PEG_NOT_FOUND if the property is not found.
     */
-    Uint32 findProperty(const String& name) const;
+    Uint32 findProperty(const CIMName& name) const;
 
     // ATTN: Should we not use something like handle for position???
     // ATTN: what is error return?
@@ -260,11 +261,11 @@ public:
 
     /** findMethod - Locate the method object defined by the
 	name input
-	@param String representing the name of the method to be found
+	@param CIMName representing the name of the method to be found
 	@return Position of the method object in the class to be used in
 	subsequent getmethod, etc. operations
     */
-    Uint32 findMethod(const String& name) const;
+    Uint32 findMethod(const CIMName& name) const;
 
     /** getMethod - Gets the method object defined by the
 	input parameter.
@@ -296,7 +297,7 @@ public:
     Uint32 getMethodCount() const;
 
     /** Get names of all keys of this class. */
-    void getKeyNames(Array<String>& keyNames) const;
+    void getKeyNames(Array<CIMName>& keyNames) const;
 
     Boolean hasKeys() const;
 
@@ -354,10 +355,9 @@ public:
     PEGASUS_EXPLICIT CIMConstClass(const CIMConstObject& x)
         throw(DynamicCastFailed);
 
-    // Throws IllegalName if className argument not legal CIM identifier.
     CIMConstClass(
-	const CIMObjectPath& reference,
-	const String& superClassName = String::EMPTY);
+	const CIMName& className,
+	const CIMName& superClassName = CIMName());
 
     CIMConstClass& operator=(const CIMConstClass& x);
 
@@ -369,33 +369,33 @@ public:
 
     Boolean isAbstract() const;
 
-    const String& getClassName() const;
+    const CIMName& getClassName() const;
 
     const CIMObjectPath& getPath() const;
 
-    const String& getSuperClassName() const;
+    const CIMName& getSuperClassName() const;
 
-    Uint32 findQualifier(const String& name) const;
+    Uint32 findQualifier(const CIMName& name) const;
 
     CIMConstQualifier getQualifier(Uint32 pos) const;
 
-    Boolean isTrueQualifier(const String& name) const;
+    Boolean isTrueQualifier(const CIMName& name) const;
 
     Uint32 getQualifierCount() const;
 
-    Uint32 findProperty(const String& name) const;
+    Uint32 findProperty(const CIMName& name) const;
 
     CIMConstProperty getProperty(Uint32 pos) const;
 
     Uint32 getPropertyCount() const;
 
-    Uint32 findMethod(const String& name) const;
+    Uint32 findMethod(const CIMName& name) const;
 
     CIMConstMethod getMethod(Uint32 pos) const;
 
     Uint32 getMethodCount() const;
 
-    void getKeyNames(Array<String>& keyNames) const;
+    void getKeyNames(Array<CIMName>& keyNames) const;
 
     Boolean hasKeys() const;
 

@@ -33,10 +33,10 @@
 #define Pegasus_Property_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/String.h>
+#include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMValue.h>
 #include <Pegasus/Common/CIMQualifier.h>
-#include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -75,13 +75,13 @@ public:
 
     /** CIMProperty Constructor for CIMProperty that adds a number of 
         parameters to the constructed CIMProperty object.
-        @param name String Name for the property 
+        @param name CIMName Name for the property 
 		@param value CIMValue defines the value for the property
 		@param arraySize (optional) - Size of array if fixed array size.
-		@param referenceClassName (optional) String parameter that defines the 
+		@param referenceClassName (optional) CIMName parameter that defines the 
         reference class name for the property. This parameter is required if
 		the property is type CIMObjectPath.
-        @param classOrigin (optional) String parameter to define the class 
+        @param classOrigin (optional) CIMName parameter to define the class 
 		origin of the property /Ref{ClassOrigin} 
         @param propagated (optional) If true defines the property as 
         propagated  /Ref{propagated properties}
@@ -90,11 +90,11 @@ public:
 		name /Ref{CIMName}.
     */
     CIMProperty(
-	const String& name,
+	const CIMName& name,
 	const CIMValue& value,
 	Uint32 arraySize = 0,
-	const String& referenceClassName = String::EMPTY,
-	const String& classOrigin = String::EMPTY,
+	const CIMName& referenceClassName = CIMName(),
+	const CIMName& classOrigin = CIMName(),
 	Boolean propagated = false);
 
     /** ~CIMProperty(). */
@@ -104,13 +104,13 @@ public:
     CIMProperty& operator=(const CIMProperty& x);
 
     /** getName - Gets the name of the property.
-        @return String containing the property name.
+        @return CIMName containing the property name.
         <pre>
         CIMProperty p1("count", Uint32(231));
     	assert(p1.getName() == Uint32(231));
 		</pre>
     */
-    const String& getName() const;
+    const CIMName& getName() const;
 
     // ATTN: P3 please hide this. The only way a name should be
     // set is through a constructor.
@@ -119,7 +119,7 @@ public:
 		@exception IllegalName if name 
         argument is not legal CIM identifier.
     */
-    void setName(const String& name);
+    void setName(const CIMName& name);
 
     /** Get the value of the property. */
     const CIMValue& getValue() const;
@@ -143,22 +143,22 @@ public:
     Uint32 getArraySize() const;
 
     /** getReferenceClassName - gets the referenceClassName.
-	@return String contianing the referenceClassName if this is a
+	@return CIMName contianing the referenceClassName if this is a
 	reference property or empty if another CIMType.
     */
-    const String& getReferenceClassName() const;
+    const CIMName& getReferenceClassName() const;
 
     /** getClassOrigin - Gets the classOrigin field from the property
 		object. This will be a string with the name of the originating
 		class for the property or empty if this is the originating class
-		@return String with classOrigin name.
+		@return CIMName with classOrigin name.
 	*/
-    const String& getClassOrigin() const;
+    const CIMName& getClassOrigin() const;
 
     /**setClassOrigin - Sets the Class Origin attribute
-	@param classOrigin String containing the classOrigin
+	@param classOrigin CIMName containing the classOrigin
     */
-    void setClassOrigin(const String& classOrigin);
+    void setClassOrigin(const CIMName& classOrigin);
 
     /** getPropagated - Tests if this property is propogated.
 	@return - Returns true if the class is propogated.
@@ -181,12 +181,12 @@ public:
     /**findQualifier - Finds the qualifier object defined
 	by the name parameter if it is attached to this 
 	CIMProperty
-	@param name String parameter defining name of Qualifier
+	@param name CIMName parameter defining name of Qualifier
 	object.
 	@return Position of the qualifier object or -1 if not 
 	found
     */
-    Uint32 findQualifier(const String& name) const;
+    Uint32 findQualifier(const CIMName& name) const;
 
     /** getQualifier - gets the Qualifier object specified by the
 	pos parameter.
@@ -286,11 +286,11 @@ public:
     // Throws IllegalName if name argument not legal CIM identifier.
 
     CIMConstProperty(
-	const String& name,
+	const CIMName& name,
 	const CIMValue& value,
 	Uint32 arraySize = 0,
-	const String& referenceClassName = String::EMPTY,
-	const String& classOrigin = String::EMPTY,
+	const CIMName& referenceClassName = CIMName(),
+	const CIMName& classOrigin = CIMName(),
 	Boolean propagated = false);
 
     ~CIMConstProperty();
@@ -299,7 +299,7 @@ public:
 
     CIMConstProperty& operator=(const CIMProperty& x);
 
-    const String& getName() const;
+    const CIMName& getName() const;
 
     const CIMValue& getValue() const;
 
@@ -309,13 +309,13 @@ public:
 
     Uint32 getArraySize() const;
 
-    const String& getReferenceClassName() const;
+    const CIMName& getReferenceClassName() const;
 
-    const String& getClassOrigin() const;
+    const CIMName& getClassOrigin() const;
 
     Boolean getPropagated() const;
 
-    Uint32 findQualifier(const String& name) const;
+    Uint32 findQualifier(const CIMName& name) const;
 
     CIMConstQualifier getQualifier(Uint32 pos) const;
 

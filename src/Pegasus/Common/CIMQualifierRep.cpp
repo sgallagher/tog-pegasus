@@ -46,7 +46,7 @@ PEGASUS_USING_STD;
 ////////////////////////////////////////////////////////////////////////////////
 
 CIMQualifierRep::CIMQualifierRep(
-    const String& name, 
+    const CIMName& name, 
     const CIMValue& value, 
     Uint32 flavor,
     Boolean propagated)
@@ -69,7 +69,7 @@ CIMQualifierRep::~CIMQualifierRep()
 
 }
 
-void CIMQualifierRep::setName(const String& name) 
+void CIMQualifierRep::setName(const CIMName& name) 
 {
     if (!CIMName::legal(name))
 	throw IllegalName();
@@ -187,7 +187,7 @@ Boolean CIMQualifierRep::identical(const CIMQualifierRep* x) const
 {
     return
 	this == x ||
-	CIMName::equal(_name, x->_name) && 
+	_name.equal(x->_name) && 
 	_value == x->_value && 
 	_flavor == x->_flavor &&
 	_propagated == x->_propagated;

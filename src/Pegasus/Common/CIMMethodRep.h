@@ -32,14 +32,15 @@
 #define Pegasus_MethodRep_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMQualifier.h>
 #include <Pegasus/Common/CIMQualifierList.h>
 #include <Pegasus/Common/CIMParameter.h>
 #include <Pegasus/Common/Sharable.h>
 #include <Pegasus/Common/Pair.h>
-#include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -51,19 +52,19 @@ class PEGASUS_COMMON_LINKAGE CIMMethodRep : public Sharable
 public:
 
     CIMMethodRep(
-	const String& name,
+	const CIMName& name,
 	CIMType type,
-	const String& classOrigin,
+	const CIMName& classOrigin,
 	Boolean propagated);
 
     ~CIMMethodRep();
 
-    virtual const String& getName() const
+    virtual const CIMName& getName() const
     {
 	return _name;
     }
 
-    void setName(const String& name);
+    void setName(const CIMName& name);
 
     CIMType getType() const
     {
@@ -72,12 +73,12 @@ public:
 
     void setType(CIMType type);
 
-    const String& getClassOrigin() const
+    const CIMName& getClassOrigin() const
     {
 	return _classOrigin;
     }
 
-    void setClassOrigin(const String& classOrigin);
+    void setClassOrigin(const CIMName& classOrigin);
 
     Boolean getPropagated() const
     {
@@ -94,7 +95,7 @@ public:
 	_qualifiers.add(qualifier);
     }
 
-    Uint32 findQualifier(const String& name) const
+    Uint32 findQualifier(const CIMName& name) const
     {
 	return _qualifiers.find(name);
     }
@@ -123,7 +124,7 @@ public:
 
     void addParameter(const CIMParameter& x);
 
-    Uint32 findParameter(const String& name) const;
+    Uint32 findParameter(const CIMName& name) const;
 
     CIMParameter getParameter(Uint32 pos);
 
@@ -136,12 +137,12 @@ public:
 
     void resolve(
 	DeclContext* declContext,
-	const String& nameSpace,
+	const CIMNamespaceName& nameSpace,
 	const CIMConstMethod& method);
 
     void resolve(
 	DeclContext* declContext,
-	const String& nameSpace);
+	const CIMNamespaceName& nameSpace);
 
     void toXml(Array<Sint8>& out) const;
 
@@ -168,9 +169,9 @@ private:
         return *this;
     }
 
-    String _name;
+    CIMName _name;
     CIMType _type;
-    String _classOrigin;
+    CIMName _classOrigin;
     Boolean _propagated;
     CIMQualifierList _qualifiers;
     Array<CIMParameter> _parameters;

@@ -34,7 +34,7 @@
 #include <Pegasus/Provider/CIMBaseProvider.h>
 
 #include <Pegasus/Common/Array.h>
-#include <Pegasus/Common/String.h>
+#include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/CIMValue.h>
 #include <Pegasus/Common/CIMParamValue.h>
@@ -112,7 +112,7 @@ public:
     virtual void invokeMethod(
 	const OperationContext & context,
 	const CIMObjectPath & objectReference,
-	const String & methodName,
+	const CIMName & methodName,
 	const Array<CIMParamValue> & inParameters,
 	Array<CIMParamValue> & outParameters,
 	ResponseHandler<CIMValue> & handler) = 0;

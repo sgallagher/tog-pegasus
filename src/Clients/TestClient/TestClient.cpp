@@ -223,8 +223,8 @@ static void TestEnumerateClassNames (CIMClient& client, Boolean activeTest,
     try
     {
 		 Boolean deepInheritance = true;
-		 String className = "";
-		 Array<String> classNames = client.enumerateClassNames(
+		 CIMName className;
+		 Array<CIMName> classNames = client.enumerateClassNames(
 		     globalNamespace, className, deepInheritance);
 
 		 if (verboseTest)
@@ -264,7 +264,7 @@ static void TestClassOperations(CIMClient& client, Boolean ActiveTest,
     // if managedelement not intalled.
 
     //Test for class already existing
-    Array<String> classNames = client.enumerateClassNames(
+    Array<CIMName> classNames = client.enumerateClassNames(
 		 globalNamespace, "CIM_ManagedElement", false);
     cout << "KSTEST verboseTest = " << verboseTest << " ActiveTest ' " << ActiveTest << endl;
     if (ActiveTest)
@@ -275,7 +275,7 @@ static void TestClassOperations(CIMClient& client, Boolean ActiveTest,
         }
         for (Uint32 i = 0; i < classNames.size(); i++)
         {
-    		 if (CIMName::equal(classNames[i], testClass))
+    		 if (classNames[i].equal(testClass))
     		     try
     		     {
     		     client.deleteClass(globalNamespace, testClass);
@@ -351,7 +351,7 @@ static void TestClassOperations(CIMClient& client, Boolean ActiveTest,
     
         for (Uint32 i = 0; i < classNames.size(); i++)
         {
-    		 if (CIMName::equal(classNames[i], testClass))
+    		 if (classNames[i].equal(testClass))
     		     found = true;
         }
         if (!found)
@@ -376,10 +376,10 @@ static void TestClassOperations(CIMClient& client, Boolean ActiveTest,
 
     // Get all the classes and compare enum names with enum classes from before
 
-    classNames = client.enumerateClassNames(globalNamespace, String(), false);
+    classNames = client.enumerateClassNames(globalNamespace, CIMName(), false);
 
     Array<CIMClass> classDecls = client.enumerateClasses(
-		 globalNamespace, String(), false, false, true, true);
+		 globalNamespace, CIMName(), false, false, true, true);
 
     //assert(classDecls.size() == classNames.size());
     if (classDecls.size() == classNames.size())
@@ -394,7 +394,7 @@ static void TestClassOperations(CIMClient& client, Boolean ActiveTest,
 		 CIMClass tmp = client.getClass(
 		     globalNamespace, classNames[i], false, true, true);
 
-		 assert(CIMName::equal(classDecls[i].getClassName(), classNames[i]));
+		 assert(classNames[i].equal(classDecls[i].getClassName()));
 
 		 assert(tmp.identical(classDecls[i]));
     }
@@ -443,10 +443,10 @@ static void TestQualifierOperations(CIMClient& client, Boolean activeTest,
 		 {
 		     CIMQualifierDecl tmp = qualifierDecls[i];
 
-		     if (CIMName::equal(tmp.getName(), "qd1"))
+		     if (tmp.getName().equal("qd1"))
 		 		 assert(tmp1.identical(tmp));
 
-		     if (CIMName::equal(tmp.getName(), "qd2"))
+		     if (tmp.getName().equal("qd2"))
 		 		 assert(tmp2.identical(tmp));
 		 }
 
@@ -468,8 +468,8 @@ static void TestInstanceGetOperations(CIMClient& client, Boolean activeTest,
     //Array<String> classNames = client.enumerateClassNames(
     //    globalNamespace, "CIM_ManagedElement", false);
 
-    Array<String> classNames = client.enumerateClassNames(
-		 globalNamespace, String(), true);
+    Array<CIMName> classNames = client.enumerateClassNames(
+		 globalNamespace, CIMName(), true);
 
     cout <<  classNames.size() << " Classes found " << endl;
 

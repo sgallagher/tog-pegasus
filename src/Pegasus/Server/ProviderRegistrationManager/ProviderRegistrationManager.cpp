@@ -532,7 +532,7 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
     String providerName;
     String providerModuleName;
 
-    Array<String> requiredProperties;
+    Array<CIMName> requiredProperties;
 
     provider.clear();
     providerModule.clear();
@@ -664,7 +664,7 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
 		//
 		for (Uint32 j=0; j < requiredProperties.size() && match; j++)
 		{
-		    if (!Contains (_supportedProperties, requiredProperties[j]))
+		    if (!Contains (_supportedProperties, String(requiredProperties[j])))
 		    {
 			match = false;
 		    }
@@ -903,7 +903,7 @@ void ProviderRegistrationManager::modifyInstance(
     const CIMObjectPath & ref,
     const CIMInstance & cimInstance,
     const Uint32 flags,
-    const Array<String> & propertyList)
+    const Array<CIMName> & propertyList)
 {
 
     CIMStatusCode errorCode = CIM_ERR_SUCCESS;
@@ -1820,7 +1820,7 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
 			    	_getInstances(_providerName, _providerModule, 
 					  _providerInstance, _moduleInstance);
 
-                                Array<String> emptyList;
+                                Array<CIMName> emptyList;
 			    	CIMPropertyList _oldPropertyNames(emptyList);
 			    	CIMPropertyList _newPropertyNames;
 
@@ -2647,7 +2647,7 @@ void ProviderRegistrationManager::_getPropertyNames(
 	//
 	// no properties
      	//
-        Array<String> emptyList;
+        Array<CIMName> emptyList;
 	CIMPropertyList _propertyList(emptyList);
 	propertyNames = _propertyList;
     }
@@ -2664,8 +2664,13 @@ void ProviderRegistrationManager::_getPropertyNames(
 	else
 	{
 	    value.get(_supportedProperties);
-	    CIMPropertyList _propertyList(_supportedProperties);
-	    propertyNames = _propertyList;
+            // Convert Array<String> to Array<CIMValue>
+            Array<CIMName> supportedPropertyArray(_supportedProperties.size());
+            for (Uint32 i = 0; i < _supportedProperties.size(); i++)
+            {
+                supportedPropertyArray.append(_supportedProperties[i]);
+            }
+	    propertyNames = CIMPropertyList(supportedPropertyArray);
 	}
     }
 }
@@ -2715,7 +2720,7 @@ void ProviderRegistrationManager::_sendDeleteNotifyMessage(
     _getInstances(_providerName, _providerModule,
 		  _providerInstance, _moduleInstance);
 
-    Array<String> emptyList;
+    Array<CIMName> emptyList;
     CIMPropertyList _newPropertyNames(emptyList);
     CIMPropertyList _oldPropertyNames;
 

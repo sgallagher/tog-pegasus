@@ -53,7 +53,7 @@ CIMQualifierDecl::CIMQualifierDecl(const CIMQualifierDecl& x)
 }
 
 CIMQualifierDecl::CIMQualifierDecl(
-    const String& name,
+    const CIMName& name,
     const CIMValue& value,
     Uint32 scope,
     Uint32 flavor,
@@ -83,13 +83,13 @@ CIMQualifierDecl& CIMQualifierDecl::operator=(const CIMQualifierDecl& x)
     return *this;
 }
 
-const String& CIMQualifierDecl::getName() const
+const CIMName& CIMQualifierDecl::getName() const
 {
     _checkRep();
     return _rep->getName();
 }
 
-void CIMQualifierDecl::setName(const String& name)
+void CIMQualifierDecl::setName(const CIMName& name)
 {
     _checkRep();
     _rep->setName(name);
@@ -188,7 +188,7 @@ CIMConstQualifierDecl::CIMConstQualifierDecl(const CIMQualifierDecl& x)
 }
 
 CIMConstQualifierDecl::CIMConstQualifierDecl(
-    const String& name,
+    const CIMName& name,
     const CIMValue& value,
     Uint32 scope,
     Uint32 flavor,
@@ -226,7 +226,7 @@ CIMConstQualifierDecl& CIMConstQualifierDecl::operator=(
     return *this;
 }
 
-const String& CIMConstQualifierDecl::getName() const
+const CIMName& CIMConstQualifierDecl::getName() const
 {
     _checkRep();
     return _rep->getName();

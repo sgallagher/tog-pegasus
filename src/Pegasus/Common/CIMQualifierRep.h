@@ -31,14 +31,14 @@
 #define Pegasus_QualifierRep_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/String.h>
+#include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMValue.h>
 #include <Pegasus/Common/Sharable.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/Pair.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/CIMFlavor.h>
-#include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -50,19 +50,19 @@ class PEGASUS_COMMON_LINKAGE CIMQualifierRep : public Sharable
 public:
 
     CIMQualifierRep(
-	const String& name, 
+	const CIMName& name, 
 	const CIMValue& value, 
 	Uint32 flavor,
 	Boolean propagated);
 
     virtual ~CIMQualifierRep();
 
-    const String& getName() const 
+    const CIMName& getName() const 
     { 
 	return _name; 
     }
 
-    void setName(const String& name);
+    void setName(const CIMName& name);
 
     CIMType getType() const 
     { 
@@ -140,7 +140,7 @@ private:
         return *this;
     }
 
-    String _name;
+    CIMName _name;
     CIMValue _value;
     Uint32 _flavor;
     Boolean _propagated;

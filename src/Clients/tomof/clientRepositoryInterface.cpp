@@ -141,14 +141,23 @@ Array<CIMClass> clientRepositoryInterface::enumerateClasses(
                                     includeClassOrigin);
 	 throw OutOfBounds();
 };
-Array<String> clientRepositoryInterface::enumerateClassNames(
+Array<CIMName> clientRepositoryInterface::enumerateClassNames(
     const String& nameSpace,
     const String& className,
     const Boolean deepInheritance)
 
 {
     if (_repository)
-       return _repository->enumerateClassNames(nameSpace, className, deepInheritance);
+    {
+       Array<String> classNameArray = _repository->enumerateClassNames(nameSpace, className, deepInheritance);
+       // ATTN: Temporary code until the repository uses CIMName
+       Array<CIMName> cimNameArray;
+       for (Uint32 i = 0; i < classNameArray.size(); i++)
+       {
+           cimNameArray.append(classNameArray[i]);
+       }
+       return cimNameArray;
+    }
 
     if (_client)
        return _client->enumerateClassNames(nameSpace, className, deepInheritance);

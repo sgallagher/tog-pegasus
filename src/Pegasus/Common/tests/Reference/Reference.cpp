@@ -133,8 +133,8 @@ void test01()
 	r1.setHost(hostName);
 	r1.setNameSpace(nameSpace);
 	r1.setClassName(className);
-	assert(CIMName::equal(r1.getClassName(), "TENNISPLAYER"));
-	assert(!CIMName::equal(r1.getClassName(), "blob"));
+	assert(r1.getClassName().equal("TENNISPLAYER"));
+	assert(!r1.getClassName().equal("blob"));
 
 
 	String newHostName = r1.getHost();

@@ -3,6 +3,7 @@ typedef union {
   int              ival;
   //  char             *strval;
   String *         strval;
+  CIMName *         cimnameval;
   CIMType        datatype;
   CIMValue *          value;
   String *         strptr;

@@ -23,7 +23,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Roger Kumpf, Hewlett Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -31,6 +31,85 @@
 #include "CIMName.h"
 
 PEGASUS_NAMESPACE_BEGIN
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// CIMName
+//
+////////////////////////////////////////////////////////////////////////////////
+
+#define PEGASUS_ARRAY_T CIMName
+# include "ArrayImpl.h"
+#undef PEGASUS_ARRAY_T
+
+CIMName::CIMName()
+    : cimName(String::EMPTY)
+{
+}
+
+CIMName::CIMName(const String& name)
+    : cimName(name)
+{
+    if (!legal(name))
+    {
+        // ATTN: Does this clean up String memory properly?
+        throw IllegalName(name);
+    }
+}
+
+CIMName::CIMName(const char* name)
+    : cimName(name)
+{
+    if (!legal(name))
+    {
+        // ATTN: Does this clean up String memory properly?
+        throw IllegalName(name);
+    }
+}
+
+CIMName& CIMName::operator=(const CIMName& name)
+{
+    cimName=name;
+    return *this;
+}
+
+CIMName& CIMName::operator=(const String& name)
+{
+    if (!legal(name))
+    {
+        throw IllegalName(name);
+    }
+    cimName=name;
+    return *this;
+}
+
+CIMName& CIMName::operator=(const char* name)
+{
+    cimName=name;
+    return *this;
+}
+
+#if 0
+String CIMName::toString() const
+{
+    return cimName;
+}
+#endif
+
+CIMName::operator String() const
+{
+    return cimName;
+}
+
+Boolean CIMName::isNull() const
+{
+    return (cimName.size() == 0);
+}
+
+void CIMName::clear()
+{
+    cimName.clear();
+}
 
 Boolean CIMName::legal(const String& name) throw()
 {
@@ -41,19 +120,182 @@ Boolean CIMName::legal(const String& name) throw()
 
     for (Uint32 i=1; i<length; i++)
     {
+        // ATTN-RK-20020729: Is this check necessary?  Add it to namespace name?
         if (name[i] > PEGASUS_MAX_PRINTABLE_CHAR)
             return false;
 
-        if (!(isalpha(name[0]) || name[0] == '_'))
+        if (!(isalnum(name[i]) || name[i] == '_'))
             return false;
     }
 
     return true;
 }
 
+Boolean CIMName::equal(const CIMName& name) const
+{
+    return String::equalNoCase(cimName, name.cimName);
+}
+
+#if 0
 Boolean CIMName::equal(const String& name1, const String& name2) throw()
 {
     return String::equalNoCase(name1, name2);
 }
+#endif
+
+#if 0
+PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const CIMName& name)
+{
+    os << name.toString();
+    return os;
+}
+#endif
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// CIMNamespaceName
+//
+////////////////////////////////////////////////////////////////////////////////
+
+CIMNamespaceName::CIMNamespaceName()
+    : cimNamespaceName(String::EMPTY)
+{
+}
+
+CIMNamespaceName::CIMNamespaceName(const String& name)
+    : cimNamespaceName(name)
+{
+    if (!legal(name))
+    {
+        // ATTN: Does this clean up String memory properly?
+        throw IllegalNamespaceName(name);
+    }
+}
+
+CIMNamespaceName::CIMNamespaceName(const char* name)
+    : cimNamespaceName(name)
+{
+    if (!legal(name))
+    {
+        // ATTN: Does this clean up String memory properly?
+        throw IllegalNamespaceName(name);
+    }
+}
+
+CIMNamespaceName& CIMNamespaceName::operator=(const CIMNamespaceName& name)
+{
+    cimNamespaceName=name;
+    return *this;
+}
+
+CIMNamespaceName& CIMNamespaceName::operator=(const String& name)
+{
+    if (!legal(name))
+    {
+        throw IllegalNamespaceName(name);
+    }
+    cimNamespaceName=name;
+    return *this;
+}
+
+CIMNamespaceName& CIMNamespaceName::operator=(const char* name)
+{
+    cimNamespaceName=name;
+    return *this;
+}
+
+#if 0
+String CIMNamespaceName::toString() const
+{
+    return cimNamespaceName;
+}
+#endif
+
+CIMNamespaceName::operator String() const
+{
+    return cimNamespaceName;
+}
+
+Boolean CIMNamespaceName::isNull() const
+{
+    return (cimNamespaceName.size() == 0);
+}
+
+void CIMNamespaceName::clear()
+{
+    cimNamespaceName.clear();
+}
+
+Boolean CIMNamespaceName::legal(const String& name) throw()
+{
+    Uint32 length = name.size();
+    if (length == 0) return true;    // ATTN: Cheap hack!
+
+    // ATTN-RK-20020729: Hack: Skip leading '/' because spec is ambiguous
+    Uint32 start = 0;
+    if (name[0] == '/')
+    {
+        start++;
+    }
+
+    for (Uint32 i=start; i<length; )
+    {
+        if (!name[i] || (!isalpha(name[i]) && name[i] != '_'))
+        {
+            return false;
+        }
+
+        i++;
+
+        while (isalnum(name[i]) || name[i] == '_')
+        {
+            i++;
+        }
+
+        if (name[i] == '/')
+        {
+            i++;
+        }
+    }
+
+    return true;
+
+// Alternate implementation
+#if 0
+    String temp;
+
+    // check each namespace segment (delimited by '/') for correctness
+
+    for(Uint32 i = 0; i < name.size(); i += temp.size() + 1)
+    {
+        // isolate the segment beginning at i and ending at the first
+        // ocurrance of '/' after i or eos
+
+        temp = name.subString(i, name.subString(i).find('/'));
+
+        // check segment for correctness
+
+        if (!CIMName::legal(temp))
+        {
+            return false;
+        }
+    }
+
+    return true;
+#endif
+}
+
+Boolean CIMNamespaceName::equal(const CIMNamespaceName& name) const
+{
+    return String::equalNoCase(cimNamespaceName, name.cimNamespaceName);
+}
+
+#if 0
+Boolean CIMNamespaceName::equal(const String& name1, const String& name2) throw()
+{
+    return String::equalNoCase(name1, name2);
+}
+#endif
 
 PEGASUS_NAMESPACE_END

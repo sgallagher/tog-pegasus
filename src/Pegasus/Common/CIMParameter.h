@@ -33,6 +33,7 @@
 #define Pegasus_Parameter_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMQualifier.h>
 #include <Pegasus/Common/CIMType.h>
 #include <Pegasus/Common/Linkage.h>
@@ -59,26 +60,25 @@ public:
 
     // Throws IllegalName if name argument not legal CIM identifier.
     CIMParameter(
-	const String& name, 
+	const CIMName& name, 
 	CIMType type,
 	Boolean isArray = false,
 	Uint32 arraySize = 0,
-	const String& referenceClassName = String::EMPTY);
+	const CIMName& referenceClassName = CIMName());
 
     ~CIMParameter();
 
     CIMParameter& operator=(const CIMParameter& x);
 
-    const String& getName() const ;
+    const CIMName& getName() const ;
 
-    // Throws IllegalName if name argument not legal CIM identifier.
-    void setName(const String& name);
+    void setName(const CIMName& name);
 
     Boolean isArray() const;
 
     Uint32 getArraySize() const;
 
-    const String& getReferenceClassName() const ;
+    const CIMName& getReferenceClassName() const ;
 
     CIMType getType() const ;
 
@@ -87,7 +87,7 @@ public:
     // Throws AlreadyExists.
     CIMParameter& addQualifier(const CIMQualifier& x);
 
-    Uint32 findQualifier(const String& name) const;
+    Uint32 findQualifier(const CIMName& name) const;
 
     CIMQualifier getQualifier(Uint32 pos);
 
@@ -135,11 +135,11 @@ public:
 
     // Throws IllegalName if name argument not legal CIM identifier.
     CIMConstParameter(
-	const String& name, 
+	const CIMName& name, 
 	CIMType type,
 	Boolean isArray = false,
 	Uint32 arraySize = 0,
-	const String& referenceClassName = String::EMPTY);
+	const CIMName& referenceClassName = CIMName());
 
     ~CIMConstParameter();
 
@@ -147,17 +147,17 @@ public:
 
     CIMConstParameter& operator=(const CIMParameter& x);
 
-    const String& getName() const;
+    const CIMName& getName() const;
 
     Boolean isArray() const;
 
     Uint32 getArraySize() const;
 
-    const String& getReferenceClassName() const;
+    const CIMName& getReferenceClassName() const;
 
     CIMType getType() const;
 
-    Uint32 findQualifier(const String& name) const;
+    Uint32 findQualifier(const CIMName& name) const;
 
     CIMConstQualifier getQualifier(Uint32 pos) const;
 

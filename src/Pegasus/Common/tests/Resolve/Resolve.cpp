@@ -145,7 +145,7 @@ void test01()
 		.addQualifier(CIMQualifier("key", Boolean(true)));
 
 
-    CIMClass class2("SuperClass", "");
+    CIMClass class2("SuperClass");
 
 	if(verbose)	cout << "Create Class2 " << endl;
 
@@ -327,7 +327,7 @@ void test02()
     context->addQualifierDecl(NAMESPACE, toSubclassOverridable);
 
 	// Create the superclass and add qualifier, properties and methods
-    CIMClass superClass("SuperClass", "");
+    CIMClass superClass("SuperClass");
 
 	// Create property with qualifier that propagates.
 	CIMProperty propertyWithQualifier("withQualifier", Boolean(true));
@@ -681,7 +681,7 @@ void test04()
 	CIMProperty keyProperty("keyProperty", Boolean(true));
 	keyProperty.addQualifier(CIMQualifier("key", Boolean(true)));
 
-    CIMClass class2("SuperClass", "");
+    CIMClass class2("SuperClass");
 
 	class2.addProperty(CIMProperty(keyProperty));
     

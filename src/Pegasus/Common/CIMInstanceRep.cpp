@@ -60,7 +60,7 @@ CIMInstanceRep::~CIMInstanceRep()
 
 void CIMInstanceRep::resolve(
     DeclContext* context,
-    const String& nameSpace,
+    const CIMNamespaceName& nameSpace,
     CIMConstClass& cimClassOut,
     Boolean propagateQualifiers)
 {
@@ -114,7 +114,7 @@ void CIMInstanceRep::resolve(
     // each one is defined in the class and then resolve each one.
     //----------------------------------------------------------------------
 
-    String className = cimClass.getClassName();
+    CIMName className = cimClass.getClassName();
 
     for (Uint32 i = 0, n = _properties.size(); i < n; i++)
     {
@@ -154,7 +154,7 @@ void CIMInstanceRep::resolve(
     for (Uint32 i = 0, m = 0, n = cimClass.getPropertyCount(); i < n; i++)
     {
 	CIMConstProperty property = cimClass.getProperty(i);
-	const String& name = property.getName();
+	const CIMName& name = property.getName();
 
 	// See if this instance already contains a property with this name:
 
@@ -162,7 +162,7 @@ void CIMInstanceRep::resolve(
 
 	for (Uint32 j = m, n = _properties.size(); j < n; j++)
 	{
-	    if (CIMName::equal(_properties[j].getName(), name))
+	    if (name.equal(_properties[j].getName()))
 	    {
 		found = true;
 		break;
@@ -252,13 +252,13 @@ CIMObjectPath CIMInstanceRep::getInstanceName(
     // Get class name:
     //--------------------------------------------------------------------------
 
-    String className = getClassName();
+    CIMName className = getClassName();
 
     //--------------------------------------------------------------------------
     // Get key names:
     //--------------------------------------------------------------------------
 
-    Array<String> keyNames;
+    Array<CIMName> keyNames;
     cimClass.getKeyNames(keyNames);
 
     if (keyNames.size() == 0)
@@ -272,14 +272,14 @@ CIMObjectPath CIMInstanceRep::getInstanceName(
 
     for (Uint32 i = 0, n = keyNames.size(); i < n; i++)
     {
-	const String& keyName = keyNames[i];
+	const CIMName& keyName = keyNames[i];
 
 	Uint32 pos = findProperty(keyName);
 	PEGASUS_ASSERT(pos != PEG_NOT_FOUND);
 
 	CIMConstProperty tmp = getProperty(pos);
 
-	if (CIMName::equal(tmp.getName(), keyName))
+	if (keyName.equal(tmp.getName()))
 	{
 	    const CIMValue& value = tmp.getValue();
 
@@ -342,7 +342,7 @@ String CIMInstanceRep::toString() const
 
     // Get the host:
 
-    if (object.getHost().size() && object.getNameSpace().size())
+    if (object.getHost().size() && !object.getNameSpace().isNull())
     {
         objectName = "//";
         objectName += object.getHost();
@@ -354,7 +354,7 @@ String CIMInstanceRep::toString() const
 
     // Get the class name:
 
-    const String& className = getClassName();
+    const CIMName& className = getClassName();
     objectName.append(className);
 
     //if (isClassName())

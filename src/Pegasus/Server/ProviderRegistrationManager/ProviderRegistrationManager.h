@@ -94,7 +94,7 @@ public:
 	void modifyInstance(const CIMObjectPath & ref, 
 			    const CIMInstance & instance,
 			    const Uint32 flags,
-			    const Array<String> & propertyList);
+			    const Array<CIMName> & propertyList);
 
 	CIMObjectPath createInstance(const CIMObjectPath & ref, 
 		const CIMInstance & instance);

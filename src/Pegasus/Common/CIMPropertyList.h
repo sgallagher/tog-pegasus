@@ -32,7 +32,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Array.h>
-#include <Pegasus/Common/String.h>
+#include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -73,7 +73,7 @@ public:
 
     /** Constructor. Initializes propertyNames (sets isNull to false).
     */
-    CIMPropertyList(const Array<String>& propertyNames);
+    CIMPropertyList(const Array<CIMName>& propertyNames);
 
     /** Destructor
     */
@@ -81,7 +81,7 @@ public:
 
     /** Modifier for propertyNames (sets isNull to false).
     */
-    void set(const Array<String>& propertyNames);
+    void set(const Array<CIMName>& propertyNames);
 
     /** Assignment operator.
     */
@@ -101,11 +101,11 @@ public:
 
     /** Get the property at the given position.
     */
-    const String& operator[](Uint32 pos) const;
+    const CIMName& operator[](Uint32 pos) const;
 
     /** Get an array of the property names
     */
-    Array<String> getPropertyNameArray() const;
+    Array<CIMName> getPropertyNameArray() const;
 
 private:
 

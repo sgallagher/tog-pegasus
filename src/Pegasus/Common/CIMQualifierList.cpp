@@ -76,17 +76,17 @@ void CIMQualifierList::removeQualifier(Uint32 pos)
     _qualifiers.remove(pos);
 }
 
-Uint32 CIMQualifierList::find(const String& name) const
+Uint32 CIMQualifierList::find(const CIMName& name) const
 {
     for (Uint32 i = 0, n = _qualifiers.size(); i < n; i++)
     {
-	if (CIMName::equal(_qualifiers[i].getName(), name))
+	if (name.equal(_qualifiers[i].getName()))
 	    return i;
     }
 
     return PEG_NOT_FOUND;
 }
-Boolean CIMQualifierList::isTrue(const String& name) const
+Boolean CIMQualifierList::isTrue(const CIMName& name) const
 {
     Uint32 pos = find(name);
 
@@ -103,11 +103,11 @@ Boolean CIMQualifierList::isTrue(const String& name) const
     return flag;
 }
 
-Uint32 CIMQualifierList::findReverse(const String& name) const
+Uint32 CIMQualifierList::findReverse(const CIMName& name) const
 {
     for (Uint32 i = _qualifiers.size(); i; --i)
     {
-	if (CIMName::equal(_qualifiers[i - 1].getName(), name))
+	if (name.equal(_qualifiers[i-1].getName()))
 	    return i - 1;
     }
 

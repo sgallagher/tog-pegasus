@@ -809,7 +809,7 @@ void UserAuthProvider::enumerateInstanceNames(
 void UserAuthProvider::invokeMethod(
     const OperationContext & context,
     const CIMObjectPath & ref,
-    const String & methodName,
+    const CIMName & methodName,
     const Array<CIMParamValue> & inParams,
     Array<CIMParamValue> & outParams,
     ResponseHandler<CIMValue> & handler)

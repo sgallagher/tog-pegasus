@@ -66,7 +66,7 @@ void test01()
 	    .addParameter(CIMParameter("port", CIMTYPE_UINT32)));
 
     // Test the method count function
-    assert(CIMName::equal(class1.getClassName(), "myclass"));
+    assert(class1.getClassName().equal("myclass"));
     assert(class1.getSuperClassName() == "YourClass");
 
     assert(class1.getMethodCount() ==1);
@@ -193,12 +193,12 @@ void test01()
     
     assert(!class1.hasKeys());
     
-    Array<String> keyNames;
+    Array<CIMName> keyNames;
     class1.getKeyNames(keyNames);
 
     CIMClass c2("MyClass");
 
-    assert(CIMName::equal(c2.getClassName(), "myclass"));
+    assert(c2.getClassName().equal("myclass"));
 
 
     // Error uninitialized handle
@@ -292,10 +292,10 @@ void test01()
     assert(c4.findProperty("count") == PEG_NOT_FOUND);
 
     assert(c4.getClassName() == "MyClass");
-    assert(CIMName::equal(c4.getClassName(), "MyClass"));
-    assert(CIMName::equal(c4.getClassName(), "MYCLASS"));
-    assert(CIMName::equal(c4.getClassName(), "myclass"));
-    assert(!CIMName::equal(c4.getClassName(), "blob"));
+    assert(c4.getClassName().equal("MyClass"));
+    assert(c4.getClassName().equal("MYCLASS"));
+    assert(c4.getClassName().equal("myclass"));
+    assert(!c4.getClassName().equal("blob"));
 
 
     assert(c4.getSuperClassName() == "YourClass");

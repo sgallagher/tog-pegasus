@@ -23,7 +23,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Roger Kumpf, Hewlett Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -31,14 +31,21 @@
 #define Pegasus_Name_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/String.h>
+#include <Pegasus/Common/Array.h>
+#include <Pegasus/Common/Exception.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// CIMName
+//
+////////////////////////////////////////////////////////////////////////////////
+
 /**
-    The name class defines static methods for handling CIM names.
-    There is no public constructor, and no instances can be created.
+    The CIMName class defines methods for handling CIM names.
     <p>
     The names of classes, properties, qualifiers, and methods are all
     CIM names. A CIM name must match the following regular
@@ -50,13 +57,34 @@ PEGASUS_NAMESPACE_BEGIN
 
     Notice that the definition of a name is the same as C, C++,
     and Java.
-
-    This class cannot be instantiated (since its only constructor is
-    private).
 */
 class PEGASUS_COMMON_LINKAGE CIMName
 {
 public:
+
+    CIMName();
+    CIMName(const String& name);
+    CIMName(const char* name);
+
+    CIMName& operator=(const CIMName& name);
+    CIMName& operator=(const String& name);
+    CIMName& operator=(const char* name);
+
+#if 0
+    String toString() const;
+#endif
+
+    operator String() const;
+
+    Boolean isNull() const;
+
+    void clear();
+
+    /** equal - Compares two names.
+	@return Return true if the two names are equal. CIM names are
+	case insensitive and so it this method.
+    */
+    Boolean equal(const CIMName& name) const;
 
     //  ATTN: Define what is legal
     /** legal - Determine if the name string input is legal as
@@ -66,15 +94,89 @@ public:
     */
     static Boolean legal(const String& name) throw();
 
+#if 0
     /** equal - Compares two names.
 	@return Return true if the two names are equal. CIM names are
 	case insensitive and so it this method.
     */
     static Boolean equal(const String& name1, const String& name2) throw();
+#endif
 
 private:
+    String cimName;
+};
 
-    CIMName() { }
+#if 0
+PEGASUS_COMMON_LINKAGE PEGASUS_STD(ostream)& operator<<(
+    PEGASUS_STD(ostream)& os,
+    const CIMName& name);
+#endif
+
+#define PEGASUS_ARRAY_T CIMName
+# include "ArrayInter.h"
+#undef PEGASUS_ARRAY_T
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// CIMNamespaceName
+//
+////////////////////////////////////////////////////////////////////////////////
+
+/**
+    The CIMNameSpace class defines methods for handling CIM namespace names.
+    <p>
+    A CIM namespace name must match the following expression:
+    <PRE>
+        <CIMName>[/<CIMName>]...
+    </PRE>
+*/
+class PEGASUS_COMMON_LINKAGE CIMNamespaceName
+{
+public:
+
+    CIMNamespaceName();
+    CIMNamespaceName(const String& name);
+    CIMNamespaceName(const char* name);
+
+    CIMNamespaceName& operator=(const CIMNamespaceName& name);
+    CIMNamespaceName& operator=(const String& name);
+    CIMNamespaceName& operator=(const char* name);
+
+#if 0
+    String toString() const;
+#endif
+
+    operator String() const;
+
+    Boolean isNull() const;
+
+    void clear();
+
+    /** equal - Compares two names.
+	@return Return true if the two names are equal. CIM names are
+	case insensitive and so it this method.
+    */
+    Boolean equal(const CIMNamespaceName& name) const;
+
+    //  ATTN: Define what is legal
+    /** legal - Determine if the name string input is legal as
+	defnined in the CIMNamespaceName class definition
+	@param - String to test
+	@return Returns true if the given name is legal.
+    */
+    static Boolean legal(const String& name) throw();
+
+#if 0
+    /** equal - Compares two names.
+	@return Return true if the two names are equal. CIM names are
+	case insensitive and so it this method.
+    */
+    static Boolean equal(const String& name1, const String& name2) throw();
+#endif
+
+private:
+    String cimNamespaceName;
 };
 
 PEGASUS_NAMESPACE_END

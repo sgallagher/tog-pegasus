@@ -34,8 +34,9 @@
 #define Pegasus_Instance_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/CIMName.h>
+#include <Pegasus/Common/CIMObject.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -72,12 +73,12 @@ public:
     //  ATTN: Clarify the defintion of legal CIM identifier.
     /**	Constructor - Creates an Instance object with the classname
 	from the input parameters
-	@param - String className to be used with new instance object
+	@param - CIMName className to be used with new instance object
 	@return The new instance object
 	@exception Throws IllegalName if className argument not legal CIM
 	identifier.
     */
-    CIMInstance(const String& className);
+    CIMInstance(const CIMName& className);
 
     /** Constructor. */
     CIMInstance& operator=(const CIMInstance& x);
@@ -86,9 +87,9 @@ public:
     virtual ~CIMInstance();
 
     /**	getClassName - 	Returns the class name of the instance
-	@return String with the class name.
+	@return CIMName with the class name.
     */
-    const String& getClassName() const;
+    const CIMName& getClassName() const;
 
     const CIMObjectPath& getPath() const;
 
@@ -108,11 +109,11 @@ public:
 
     /**	findQualifier - Searches the instance for the qualifier object
         defined by the input parameter.
-	@param String defining the qualifier object to be found.
+	@param CIMName defining the qualifier object to be found.
 	@return - Position of the qualifier to be used in subsequent
 	operations or PEG_NOT_FOUND if the qualifier is not found.
     */
-    Uint32 findQualifier(const String& name) const;
+    Uint32 findQualifier(const CIMName& name) const;
 
     /**	getQualifier - Retrieves the qualifier object defined by the
 	index input parameter.  @ index for the qualifier object.
@@ -158,12 +159,12 @@ public:
     /**	findProperty - Searches the CIMProperty objects installed in the
 	CIMInstance for property objects with the name defined by the
 	input.
-	@param String with the name of the property object to be found
+	@param CIMName with the name of the property object to be found
 	@return Position in the CIM Instance to the property object if found or
 	PEG_NOT_FOUND if no property object found with the name defined by the
 	input.
     */
-    Uint32 findProperty(const String& name) const;
+    Uint32 findProperty(const CIMName& name) const;
 
     /**	getProperty - Gets the CIMproperty object in the CIMInstance defined
 	by the input index parameter.
@@ -280,7 +281,7 @@ public:
         throw(DynamicCastFailed);
 
     // Throws IllegalName if className argument not legal CIM identifier.
-    CIMConstInstance(const String& className);
+    CIMConstInstance(const CIMName& className);
 
     CIMConstInstance& operator=(const CIMConstInstance& x);
 
@@ -288,17 +289,17 @@ public:
 
     ~CIMConstInstance();
 
-    const String& getClassName() const;
+    const CIMName& getClassName() const;
 
     const CIMObjectPath& getPath() const;
 
-    Uint32 findQualifier(const String& name) const;
+    Uint32 findQualifier(const CIMName& name) const;
 
     CIMConstQualifier getQualifier(Uint32 pos) const;
 
     Uint32 getQualifierCount() const;
 
-    Uint32 findProperty(const String& name) const;
+    Uint32 findProperty(const CIMName& name) const;
 
     CIMConstProperty getProperty(Uint32 pos) const;
 

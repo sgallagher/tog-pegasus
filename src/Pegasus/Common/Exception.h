@@ -176,7 +176,17 @@ public:
 
     static const char MSG[];
 
-    IllegalName() : Exception(MSG) { }
+    IllegalName(const String& name = String::EMPTY) : Exception(MSG + String(": ") + name) { }
+};
+
+// ATTN: P3  KS documentation Required
+class PEGASUS_COMMON_LINKAGE IllegalNamespaceName : public Exception
+{
+public:
+
+    static const char MSG[];
+
+    IllegalNamespaceName(const String& name = String::EMPTY) : Exception(MSG + String(": ") + name) { }
 };
 
 // ATTN: P3  KS documentation Required

@@ -55,7 +55,7 @@ CIMQualifier::CIMQualifier(const CIMQualifier& x)
 }
 
 CIMQualifier::CIMQualifier(
-    const String& name,
+    const CIMName& name,
     const CIMValue& value,
     Uint32 flavor,
     Boolean propagated)
@@ -84,13 +84,13 @@ CIMQualifier& CIMQualifier::operator=(const CIMQualifier& x)
     return *this;
 }
 
-const String& CIMQualifier::getName() const
+const CIMName& CIMQualifier::getName() const
 {
     _checkRep();
     return _rep->getName();
 }
 
-void CIMQualifier::setName(const String& name)
+void CIMQualifier::setName(const CIMName& name)
 {
     _checkRep();
     _rep->setName(name);
@@ -201,7 +201,7 @@ CIMConstQualifier::CIMConstQualifier(const CIMQualifier& x)
 }
 
 CIMConstQualifier::CIMConstQualifier(
-    const String& name,
+    const CIMName& name,
     const CIMValue& value,
     Uint32 flavor,
     Boolean propagated)
@@ -236,7 +236,7 @@ CIMConstQualifier& CIMConstQualifier::operator=(const CIMQualifier& x)
     return *this;
 }
 
-const String& CIMConstQualifier::getName() const
+const CIMName& CIMConstQualifier::getName() const
 {
     _checkRep();
     return _rep->getName();

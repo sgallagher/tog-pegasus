@@ -40,11 +40,11 @@
 PEGASUS_NAMESPACE_BEGIN
 
 CIMParameterRep::CIMParameterRep(
-    const String& name, 
+    const CIMName& name, 
     CIMType type,
     Boolean isArray,
     Uint32 arraySize,
-    const String& referenceClassName) 
+    const CIMName& referenceClassName) 
     : _name(name), _type(type), 
     _isArray(isArray), _arraySize(arraySize), 
     _referenceClassName(referenceClassName)
@@ -58,11 +58,8 @@ CIMParameterRep::CIMParameterRep(
     if (_arraySize && !_isArray)
 	throw IncompatibleTypes();
 
-    if (referenceClassName.size())
+    if (!referenceClassName.isNull())
     {
-	if (!CIMName::legal(referenceClassName))
-	    throw IllegalName();
-
 	if (_type != CIMTYPE_REFERENCE)
 	{
 	    throw ExpectedReferenceValue();
@@ -70,8 +67,7 @@ CIMParameterRep::CIMParameterRep(
     }
     else
     {
-
-    // ATTN: revisit this later!
+        // ATTN: revisit this later!
 #if 0
 	if (_type == CIMTYPE_REFERENCE)
 	    throw MissingReferenceClassName();
@@ -84,7 +80,7 @@ CIMParameterRep::~CIMParameterRep()
 
 }
 
-void CIMParameterRep::setName(const String& name) 
+void CIMParameterRep::setName(const CIMName& name) 
 {
     if (!CIMName::legal(name))
 	throw IllegalName();
@@ -94,7 +90,7 @@ void CIMParameterRep::setName(const String& name)
 
 void CIMParameterRep::resolve(
     DeclContext* declContext,
-    const String& nameSpace)
+    const CIMNamespaceName& nameSpace)
 {
     // Validate the qualifiers of the method (according to
     // superClass's method with the same name). This method
@@ -235,7 +231,7 @@ void CIMParameterRep::setType(CIMType type)
 { 
     _type = type;
 
-    if (_referenceClassName.size() == 0 && _type == CIMTYPE_REFERENCE)
+    if (_referenceClassName.isNull() && _type == CIMTYPE_REFERENCE)
     {
 	throw MissingReferenceClassName();
     }

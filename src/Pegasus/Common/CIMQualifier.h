@@ -39,10 +39,11 @@
 #define Pegasus_Qualifier_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMFlavor.h>
 #include <Pegasus/Common/CIMType.h>
 #include <Pegasus/Common/CIMValue.h>
-#include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -87,7 +88,7 @@ public:
 
     /** Constructor - Instantiates a CIM qualifier object with the parameters 
         defined on input.
-        @param String representing CIMName for the new qualifier
+        @param CIMName representing CIMName for the new qualifier
         @param value
         @param flavor - Flavor defined for this qualifier definition. Default
         for this parameter is CIMFlavor::NONE.
@@ -100,7 +101,7 @@ public:
         identifier.
     */
     CIMQualifier(
-	const String& name, 
+	const CIMName& name, 
 	const CIMValue& value, 
 	Uint32 flavor = CIMFlavor::NONE,
 	Boolean propagated = false);
@@ -112,15 +113,15 @@ public:
     CIMQualifier& operator=(const CIMQualifier& x);
 
     /**	getName - Returns the name field from the qualifier
-        @return String containing the qualifier name.
+        @return CIMName containing the qualifier name.
     */
-    const String& getName() const;
+    const CIMName& getName() const;
 
     /**	setName - Sets the qualifier name field in the qualifier object.
-	@param name - String containing the name for the qualifier
+	@param name - CIMName containing the name for the qualifier
 	@exception Throws IllegalName if name argument not legal CIM identifier.
     */
-    void setName(const String& name);
+    void setName(const CIMName& name);
 
     /** getType - Gets the type field from the qualifier object.
         @return CIMType containing the type for this qualifier /Ref{CIMType}.
@@ -231,7 +232,7 @@ public:
     // Throws IllegalName if name argument not legal CIM identifier.
 
     CIMConstQualifier(
-	const String& name, 
+	const CIMName& name, 
 	const CIMValue& value, 
 	Uint32 flavor = CIMFlavor::NONE,
 	Boolean propagated = false);
@@ -242,7 +243,7 @@ public:
 
     CIMConstQualifier& operator=(const CIMQualifier& x);
 
-    const String& getName() const;
+    const CIMName& getName() const;
 
     CIMType getType() const;
 

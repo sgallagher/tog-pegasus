@@ -71,8 +71,10 @@ CIMQualifierDecl SimpleDeclContext::lookupQualifierDecl(
 	const String& first = _qualifierDeclarations[i].first;
 	const CIMQualifierDecl& second = _qualifierDeclarations[i].second;
 
-	if (CIMName::equal(first, nameSpace) && 
-	    CIMName::equal(second.getName(), name))
+        // ATTN-RK-20020729: Use correct equal method
+	//if (first.equal(nameSpace)) && 
+	if (String::equalNoCase(first, nameSpace) && 
+	    second.getName().equal(name))
 	{
 	    return second;
 	}
@@ -91,8 +93,10 @@ CIMClass SimpleDeclContext::lookupClass(
 	const String& first = _classDeclarations[i].first;
 	const CIMClass& second = _classDeclarations[i].second;
 
-	if (CIMName::equal(first, nameSpace) && 
-	    CIMName::equal(second.getClassName(), name))
+        // ATTN-RK-20020729: Use correct equal method
+	//if (first.equal(nameSpace)) && 
+	if (String::equalNoCase(first, nameSpace) && 
+	    second.getClassName().equal(name))
 	{
 	    return second;
 	}

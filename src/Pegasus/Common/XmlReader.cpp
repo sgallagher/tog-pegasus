@@ -383,7 +383,7 @@ String XmlReader::getClassNameAttribute(
 //
 //------------------------------------------------------------------------------
 
-String XmlReader::getClassOriginAttribute(
+CIMName XmlReader::getClassOriginAttribute(
     Uint32 lineNumber, 
     const XmlEntry& entry,
     const char* tagName)
@@ -391,7 +391,7 @@ String XmlReader::getClassOriginAttribute(
     String name;
 
     if (!entry.getAttributeValue("CLASSORIGIN", name))
-	return String();
+	return CIMName();
 
     if (!CIMName::legal(name))
     {
@@ -412,7 +412,7 @@ String XmlReader::getClassOriginAttribute(
 //
 //------------------------------------------------------------------------------
 
-String XmlReader::getReferenceClassAttribute(
+CIMName XmlReader::getReferenceClassAttribute(
     Uint32 lineNumber, 
     const XmlEntry& entry,
     const char* elementName)
@@ -420,7 +420,7 @@ String XmlReader::getReferenceClassAttribute(
     String name;
 
     if (!entry.getAttributeValue("REFERENCECLASS", name))
-	return String();
+	return CIMName();
 
     if (!CIMName::legal(name))
     {
@@ -441,7 +441,7 @@ String XmlReader::getReferenceClassAttribute(
 //
 //------------------------------------------------------------------------------
 
-String XmlReader::getSuperClassAttribute(
+CIMName XmlReader::getSuperClassAttribute(
     Uint32 lineNumber, 
     const XmlEntry& entry,
     const char* tagName)
@@ -449,7 +449,7 @@ String XmlReader::getSuperClassAttribute(
     String superClass;
 
     if (!entry.getAttributeValue("SUPERCLASS", superClass))
-	return String();
+	return CIMName();
 
     if (!CIMName::legal(superClass))
     {
@@ -1601,7 +1601,7 @@ Boolean XmlReader::getPropertyElement(XmlParser& parser, CIMProperty& property)
 
     // Get PROPERTY.CLASSORIGIN attribute:
 
-    String classOrigin = 
+    CIMName classOrigin = 
 	getClassOriginAttribute(parser.getLine(), entry, "PROPERTY");
 
     // Get PROPERTY.PROPAGATED
@@ -1616,7 +1616,7 @@ Boolean XmlReader::getPropertyElement(XmlParser& parser, CIMProperty& property)
     // Create property: Sets type and !isarray
 
     CIMValue value(type, false);
-    property = CIMProperty(name, value, 0, String(), classOrigin, propagated);
+    property = CIMProperty(name, value, 0, CIMName(), classOrigin, propagated);
 
     if (!empty)
     {
@@ -1713,7 +1713,7 @@ Boolean XmlReader::getPropertyArrayElement(
 
     // Get PROPERTY.CLASSORIGIN attribute:
 
-    String classOrigin 
+    CIMName classOrigin 
 	= getClassOriginAttribute(parser.getLine(), entry, "PROPERTY.ARRAY");
 
     // Get PROPERTY.ARRAY.PROPAGATED
@@ -1725,7 +1725,7 @@ Boolean XmlReader::getPropertyArrayElement(
 
     CIMValue value(type, true, arraySize);
     property = CIMProperty(
-	name, value, arraySize, String(), classOrigin, propagated);
+	name, value, arraySize, CIMName(), classOrigin, propagated);
 
     if (!empty)
     {
@@ -2113,7 +2113,7 @@ Boolean XmlReader::getInstanceNameElement(
     if (!XmlReader::getInstanceNameElement(parser, className, keyBindings))
 	return false;
 
-    instanceName.set(String(), String(), className, keyBindings);
+    instanceName.set(String(), CIMNamespaceName(), className, keyBindings);
     return true;
 }
 
@@ -2324,7 +2324,7 @@ Boolean XmlReader::getValueReferenceElement(
 	parser.putBack(entry);
 	String className;
 	getClassNameElement(parser, className);
-	reference.set(String(), String(), className);
+	reference.set(String(), CIMNamespaceName(), className);
     }
     else if (strcmp(entry.text, "INSTANCEPATH") == 0)
     {
@@ -2342,7 +2342,7 @@ Boolean XmlReader::getValueReferenceElement(
 	String className;
 	Array<KeyBinding> keyBindings;
 	getInstanceNameElement(parser, className, keyBindings);
-	reference.set(String(), String(), className, keyBindings);
+	reference.set(String(), CIMNamespaceName(), className, keyBindings);
     }
 
     expectEndTag(parser, "VALUE.REFERENCE");
@@ -2419,12 +2419,12 @@ Boolean XmlReader::getPropertyReferenceElement(
 
     // Get PROPERTY.REFERENCECLASS attribute:
 
-    String referenceClass = getReferenceClassAttribute(
+    CIMName referenceClass = getReferenceClassAttribute(
 	parser.getLine(), entry, "PROPERTY.REFERENCE");
 
     // Get PROPERTY.CLASSORIGIN attribute:
 
-    String classOrigin = 
+    CIMName classOrigin = 
 	getClassOriginAttribute(parser.getLine(), entry, "PROPERTY.REFERENCE");
 
     // Get PROPERTY.PROPAGATED
@@ -2604,7 +2604,7 @@ Boolean XmlReader::getParameterReferenceElement(
 
     // Get PARAMETER.REFERENCECLASS attribute:
 
-    String referenceClass = getReferenceClassAttribute(
+    CIMName referenceClass = getReferenceClassAttribute(
 	parser.getLine(), entry, "PARAMETER.REFERENCE");
 
     // Create parameter:
@@ -2650,7 +2650,7 @@ Boolean XmlReader::getParameterReferenceArrayElement(
 
     // Get PARAMETER.REFERENCECLASS attribute:
 
-    String referenceClass = getReferenceClassAttribute(
+    CIMName referenceClass = getReferenceClassAttribute(
 	parser.getLine(), entry, "PARAMETER.REFARRAY");
 
     // Get PARAMETER.ARRAYSIZE attribute:
@@ -2833,7 +2833,7 @@ Boolean XmlReader::getMethodElement(XmlParser& parser, CIMMethod& method)
 
     CIMType type = getCimTypeAttribute(parser.getLine(), entry, "PROPERTY");
 
-    String classOrigin = 
+    CIMName classOrigin = 
 	getClassOriginAttribute(parser.getLine(), entry, "PROPERTY");
 
     Boolean propagated = getCimBooleanAttribute(
@@ -2873,7 +2873,7 @@ Boolean XmlReader::getClassElement(XmlParser& parser, CIMClass& cimClass)
 
     String name = getCimNameAttribute(parser.getLine(), entry, "CLASS");
 
-    String superClass = getSuperClassAttribute(parser.getLine(), entry,"CLASS");
+    CIMName superClass = getSuperClassAttribute(parser.getLine(), entry,"CLASS");
 
     cimClass = CIMClass(name, superClass);
 
@@ -3422,7 +3422,7 @@ Boolean XmlReader::getObjectNameElement(
 
     if (getClassNameElement(parser, className, false))
     {
-	objectName.set(String(), String(), className);
+	objectName.set(String(), CIMNamespaceName(), className);
 	return true;
     }
     else if (getInstanceNameElement(parser, objectName))

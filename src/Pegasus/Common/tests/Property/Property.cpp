@@ -199,7 +199,7 @@ void test03()
     CIMPropertyList list1;
     CIMPropertyList list2;
 
-    Array<String> names;
+    Array<CIMName> names;
     names.append("property1");
     names.append("property2");
     names.append("property3");

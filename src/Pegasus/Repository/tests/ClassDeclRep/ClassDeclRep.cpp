@@ -86,8 +86,9 @@ void Test01()
     // Print(classNames);
 
     assert(classNames.size() == 2);
-    assert(CIMName::equal(classNames[0], "Class1"));
-    assert(CIMName::equal(classNames[1], "Class2"));
+    // ATTN-RK-20020729: Remove CIMName cast when Repository uses CIMName
+    assert(CIMName(classNames[0]).equal("Class1"));
+    assert(CIMName(classNames[1]).equal("Class2"));
 
     // Attempt to delete Class1. It should fail since the class has
     // children.

@@ -635,7 +635,7 @@ private:
                  select statement
      */
     CIMPropertyList _checkPropertyList (
-        const Array <String> & propertyList,
+        const Array <CIMName> & propertyList,
         const String & nameSpaceName,
         const String & indicationClassName) const;
 

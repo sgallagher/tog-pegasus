@@ -244,7 +244,7 @@ void NamespaceProvider::createInstance(
 	Boolean isRelativeName;
 
        // Verify that the className = __namespace
-       if (!CIMName::equal(myInstance.getClassName(), NAMESPACE_CLASSNAME))
+       if (!myInstance.getClassName().equal(NAMESPACE_CLASSNAME))
        {
 	   PEG_METHOD_EXIT();
            throw NotSupported(myInstance.getClassName() +
@@ -336,7 +336,7 @@ void NamespaceProvider::deleteInstance(
 	Boolean isRelativeName;
 
        // Verify that the className = __namespace
-       if (!CIMName::equal(instanceName.getClassName(), NAMESPACE_CLASSNAME))
+       if (!instanceName.getClassName().equal(NAMESPACE_CLASSNAME))
        {
 	   PEG_METHOD_EXIT();
            throw NotSupported(instanceName.getClassName() +
@@ -424,7 +424,7 @@ void NamespaceProvider::getInstance(
 	Boolean isRelativeName;
 
        // Verify that the className = __namespace
-       if (!CIMName::equal(instanceName.getClassName(), NAMESPACE_CLASSNAME))
+       if (!instanceName.getClassName().equal(NAMESPACE_CLASSNAME))
        {
 	   PEG_METHOD_EXIT();
            throw NotSupported(instanceName.getClassName() +
@@ -519,7 +519,7 @@ void NamespaceProvider::enumerateInstances(
        PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "NamespaceProvider::enumerateInstances()");
 
        // Verify that ClassName == __Namespace
-       if (!CIMName::equal(ref.getClassName(), NAMESPACE_CLASSNAME))
+       if (!ref.getClassName().equal(NAMESPACE_CLASSNAME))
        {
            PEG_METHOD_EXIT();
            throw NotSupported(ref.getClassName() +
@@ -606,7 +606,7 @@ void NamespaceProvider::enumerateInstanceNames(
 
 
         // Verify that ClassName == __Namespace
-        if (!CIMName::equal(classReference.getClassName(), NAMESPACE_CLASSNAME))
+        if (!classReference.getClassName().equal(NAMESPACE_CLASSNAME))
         {
 	    PEG_METHOD_EXIT();
             throw NotSupported(classReference.getClassName() +

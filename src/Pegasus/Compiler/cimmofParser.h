@@ -150,7 +150,7 @@ class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser {
   // This is called when a completed class declaration production is formed
   int addClass(CIMClass *classdecl);
   // This is called when a new class declaration heading is discovered
-  CIMClass *newClassDecl(const String &name, const String &superclass);
+  CIMClass *newClassDecl(const CIMName &name, const CIMName &superclass);
   // Called when a completed instanace declaration production is formed
   int addInstance(CIMInstance *instance);
   // Called when a new qualifier declaration heading is discovered
@@ -164,22 +164,22 @@ class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser {
   // Called when a new instance declaration heading is discovered
   CIMInstance *newInstance(const String &name);
   // Called when a new property is discovered
-  CIMProperty *newProperty(const String &name, const CIMValue &val,
+  CIMProperty *newProperty(const CIMName &name, const CIMValue &val,
                            const Boolean isArray,
                            const Uint32 arraySize,
-			   const String &referencedObj = String::EMPTY) const;
+			   const CIMName &referencedObj = CIMName()) const;
   // Called when a property production inside a class is complete
   int applyProperty(CIMClass &c, CIMProperty &p);
   // Called when a property production inside an instance is complete
   int applyProperty(CIMInstance &instance, CIMProperty &p);
   // Called when a new method is discovered
-  CIMMethod   *newMethod(const String &name, const CIMType type);
+  CIMMethod   *newMethod(const CIMName &name, const CIMType type);
   // Called when a method production inside a class is complete
   int applyMethod(CIMClass &c, CIMMethod &m);
   // Called when a method parameter is discovered
-  CIMParameter *newParameter(const String &name, const CIMType type,
+  CIMParameter *newParameter(const CIMName &name, const CIMType type,
 			     Boolean isArray=false, Uint32 array=0, 
-			     const String &objName=String::EMPTY);
+			     const CIMName &objName=CIMName());
   // Called when a method parameter production is complete
   int applyParameter(CIMMethod &method, CIMParameter &parm);
   // Called when a qualifier value production is complete

@@ -55,9 +55,9 @@ CIMMethod::CIMMethod(const CIMMethod& x)
 }
 
 CIMMethod::CIMMethod(
-    const String& name,
+    const CIMName& name,
     CIMType type,
-    const String& classOrigin,
+    const CIMName& classOrigin,
     Boolean propagated)
 {
     _rep = new CIMMethodRep(name, type, classOrigin, propagated);
@@ -88,13 +88,13 @@ CIMMethod& CIMMethod::operator=(const CIMMethod& x)
     return *this;
 }
 
-const String& CIMMethod::getName() const
+const CIMName& CIMMethod::getName() const
 {
     _checkRep();
     return _rep->getName();
 }
 
-void CIMMethod::setName(const String& name)
+void CIMMethod::setName(const CIMName& name)
 {
     _checkRep();
     _rep->setName(name);
@@ -112,13 +112,13 @@ void CIMMethod::setType(CIMType type)
     _rep->setType(type);
 }
 
-const String& CIMMethod::getClassOrigin() const
+const CIMName& CIMMethod::getClassOrigin() const
 {
     _checkRep();
     return _rep->getClassOrigin();
 }
 
-void CIMMethod::setClassOrigin(const String& classOrigin)
+void CIMMethod::setClassOrigin(const CIMName& classOrigin)
 {
     _checkRep();
     _rep->setClassOrigin(classOrigin);
@@ -143,7 +143,7 @@ CIMMethod& CIMMethod::addQualifier(const CIMQualifier& x)
     return *this;
 }
 
-Uint32 CIMMethod::findQualifier(const String& name) const
+Uint32 CIMMethod::findQualifier(const CIMName& name) const
 {
     _checkRep();
     return _rep->findQualifier(name);
@@ -180,7 +180,7 @@ CIMMethod& CIMMethod::addParameter(const CIMParameter& x)
     return *this;
 }
 
-Uint32 CIMMethod::findParameter(const String& name) const
+Uint32 CIMMethod::findParameter(const CIMName& name) const
 {
     _checkRep();
     return _rep->findParameter(name);
@@ -250,9 +250,9 @@ CIMConstMethod::CIMConstMethod(const CIMMethod& x)
 }
 
 CIMConstMethod::CIMConstMethod(
-    const String& name,
+    const CIMName& name,
     CIMType type,
-    const String& classOrigin,
+    const CIMName& classOrigin,
     Boolean propagated)
 {
     _rep = new CIMMethodRep(name, type, classOrigin, propagated);
@@ -283,7 +283,7 @@ CIMConstMethod& CIMConstMethod::operator=(const CIMMethod& x)
     return *this;
 }
 
-const String& CIMConstMethod::getName() const
+const CIMName& CIMConstMethod::getName() const
 {
     _checkRep();
     return _rep->getName();
@@ -295,7 +295,7 @@ CIMType CIMConstMethod::getType() const
     return _rep->getType();
 }
 
-const String& CIMConstMethod::getClassOrigin() const
+const CIMName& CIMConstMethod::getClassOrigin() const
 {
     _checkRep();
     return _rep->getClassOrigin();
@@ -307,7 +307,7 @@ Boolean CIMConstMethod::getPropagated() const
     return _rep->getPropagated();
 }
 
-Uint32 CIMConstMethod::findQualifier(const String& name) const
+Uint32 CIMConstMethod::findQualifier(const CIMName& name) const
 {
     _checkRep();
     return _rep->findQualifier(name);
@@ -325,7 +325,7 @@ Uint32 CIMConstMethod::getQualifierCount() const
     return _rep->getQualifierCount();
 }
 
-Uint32 CIMConstMethod::findParameter(const String& name) const
+Uint32 CIMConstMethod::findParameter(const CIMName& name) const
 {
     _checkRep();
     return _rep->findParameter(name);

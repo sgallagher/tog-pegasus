@@ -41,11 +41,11 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 CIMPropertyRep::CIMPropertyRep(
-    const String& name,
+    const CIMName& name,
     const CIMValue& value,
     Uint32 arraySize,
-    const String& referenceClassName,
-    const String& classOrigin,
+    const CIMName& referenceClassName,
+    const CIMName& classOrigin,
     Boolean propagated) 
     :
     _name(name), _value(value), _arraySize(arraySize),
@@ -58,25 +58,19 @@ CIMPropertyRep::CIMPropertyRep(
     if (arraySize && (!value.isArray() || value.getArraySize() != arraySize))
 		throw IncompatibleTypes();
 
-    if (classOrigin.size() && !CIMName::legal(classOrigin))
-		throw IllegalName();
-
     if (_value.getType() == CIMTYPE_NONE)
 		throw NullType();
 
 	// If referenceClassName exists, must be legal namd and CIMType REFERENCE.
-    if (referenceClassName.size())
+    if (!referenceClassName.isNull())
     {
-		if (!CIMName::legal(referenceClassName))
-			throw IllegalName();
-	
-		if (_value.getType() != CIMTYPE_REFERENCE)
-			throw ExpectedReferenceValue();
-	}
-	else
-	{
-		if (_value.getType() == CIMTYPE_REFERENCE)
-			throw MissingReferenceClassName();
+        if (_value.getType() != CIMTYPE_REFERENCE)
+            throw ExpectedReferenceValue();
+    }
+    else
+    {
+        if (_value.getType() == CIMTYPE_REFERENCE)
+            throw MissingReferenceClassName();
     }
 }
 
@@ -85,7 +79,7 @@ CIMPropertyRep::~CIMPropertyRep()
 
 }
 
-void CIMPropertyRep::setName(const String& name)
+void CIMPropertyRep::setName(const CIMName& name)
 {
     if (!CIMName::legal(name))
 	throw IllegalName();
@@ -93,7 +87,7 @@ void CIMPropertyRep::setName(const String& name)
     _name = name;
 }
 
-void CIMPropertyRep::setClassOrigin(const String& classOrigin)
+void CIMPropertyRep::setClassOrigin(const CIMName& classOrigin)
 {
     if (!CIMName::legal(classOrigin))
 	throw IllegalName();
@@ -103,7 +97,7 @@ void CIMPropertyRep::setClassOrigin(const String& classOrigin)
 
 void CIMPropertyRep::resolve(
     DeclContext* declContext,
-    const String& nameSpace,
+    const CIMNamespaceName& nameSpace,
     Boolean isInstancePart,
     const CIMConstProperty& inheritedProperty,
     Boolean propagateQualifiers)
@@ -137,7 +131,7 @@ void CIMPropertyRep::resolve(
 
 void CIMPropertyRep::resolve(
     DeclContext* declContext,
-    const String& nameSpace,
+    const CIMNamespaceName& nameSpace,
     Boolean isInstancePart,
     Boolean propagateQualifiers)
 {
@@ -179,7 +173,7 @@ void CIMPropertyRep::toXml(Array<Sint8>& out) const
 	    out << " ARRAYSIZE=\"" << buffer << "\"";
 	}
 
-	if (_classOrigin.size())
+	if (!_classOrigin.isNull())
 	    out << " CLASSORIGIN=\"" << _classOrigin << "\"";
 
 	if (_propagated != false)
@@ -201,7 +195,7 @@ void CIMPropertyRep::toXml(Array<Sint8>& out) const
 
 	out << " REFERENCECLASS=\"" << _referenceClassName << "\"";
 
-	if (_classOrigin.size())
+	if (!_classOrigin.isNull())
 	    out << " CLASSORIGIN=\"" << _classOrigin << "\"";
 
 	if (_propagated != false)
@@ -220,7 +214,7 @@ void CIMPropertyRep::toXml(Array<Sint8>& out) const
 	out << "<PROPERTY";
 	out << " NAME=\"" << _name << "\" ";
 
-	if (_classOrigin.size())
+	if (!_classOrigin.isNull())
 	    out << " CLASSORIGIN=\"" << _classOrigin << "\"";
 
 	if (_propagated != false)

@@ -79,14 +79,14 @@ static void TestClassOperations(CIMClient& client)
 
     // EnumerateClassNames:
 
-    Array<String> classNames = client.enumerateClassNames(
+    Array<CIMName> classNames = client.enumerateClassNames(
 	NAMESPACE, "CIM_ManagedElement", false);
 
     Boolean found = false;
 
     for (Uint32 i = 0; i < classNames.size(); i++)
     {
-	if (CIMName::equal(classNames[i], "SubClass"))
+	if (classNames[i].equal("SubClass"))
 	    found = true;
     }
 
@@ -99,10 +99,10 @@ static void TestClassOperations(CIMClient& client)
     // Get all the classes;
 
 
-    classNames = client.enumerateClassNames(NAMESPACE, String(), false);
+    classNames = client.enumerateClassNames(NAMESPACE, CIMName(), false);
 
     Array<CIMClass> classDecls = client.enumerateClasses(
-	NAMESPACE, String(), false, false, true, true);
+	NAMESPACE, CIMName(), false, false, true, true);
 
     assert(classDecls.size() == classNames.size());
 
@@ -111,7 +111,7 @@ static void TestClassOperations(CIMClient& client)
 	CIMClass tmp = client.getClass(
 	    NAMESPACE, classNames[i], false, true, true);
 
-	assert(CIMName::equal(classDecls[i].getClassName(), classNames[i]));
+	assert(classNames[i].equal(classDecls[i].getClassName()));
 
 	assert(tmp.identical(classDecls[i]));
     }
@@ -145,10 +145,10 @@ static void TestQualifierOperations(CIMClient& client)
     {
 	CIMQualifierDecl tmp = qualifierDecls[i];
 
-	if (CIMName::equal(tmp.getName(), "qd1"))
+	if (tmp.getName().equal("qd1"))
 	    assert(tmp1.identical(tmp));
 
-	if (CIMName::equal(tmp.getName(), "qd2"))
+	if (tmp.getName().equal("qd2"))
 	    assert(tmp2.identical(tmp));
     }
 
@@ -320,7 +320,7 @@ static void TestReferenceClassNames(CIMClient& client)
     Array<CIMObjectPath> result = client.referenceNames(
 	NAMESPACE, 
 	className, 
-	String(),
+	CIMName(),
 	"parent");
 
     for (Uint32 i = 0; i < result.size(); i++)

@@ -35,6 +35,7 @@
 
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMPropertyList.h>
 #include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/CIMInstance.h>
@@ -74,8 +75,8 @@ public:
     virtual void associators(
 	const OperationContext & context,
 	const CIMObjectPath & objectName,
-	const String & associationClass,
-	const String & resultClass,
+	const CIMName & associationClass,
+	const CIMName & resultClass,
 	const String & role,
 	const String & resultRole,
 	const Uint32 flags,
@@ -100,8 +101,8 @@ public:
     virtual void associatorNames(
 	const OperationContext & context,
 	const CIMObjectPath & objectName,
-	const String & associationClass,
-	const String & resultClass,
+	const CIMName & associationClass,
+	const CIMName & resultClass,
 	const String & role,
 	const String & resultRole,
 	ResponseHandler<CIMObjectPath> & handler) = 0;
@@ -125,7 +126,7 @@ public:
     virtual void references(
 	const OperationContext & context,
 	const CIMObjectPath & objectName,
-	const String & resultClass,
+	const CIMName & resultClass,
 	const String & role,
 	const Uint32 flags,
 	const CIMPropertyList & propertyList,
@@ -147,7 +148,7 @@ public:
     virtual void referenceNames(
 	const OperationContext & context,
 	const CIMObjectPath & objectName,
-	const String & resultClass,
+	const CIMName & resultClass,
 	const String & role,
 	ResponseHandler<CIMObjectPath> & handler) = 0;
 };

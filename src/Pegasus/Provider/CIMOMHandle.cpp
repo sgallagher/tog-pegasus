@@ -99,8 +99,8 @@ void CIMOMHandle::async_callback(Uint32 user_data,
 
 CIMClass CIMOMHandle::getClass(
     const OperationContext & context,
-    const String& nameSpace,
-    const String& className,
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className,
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
@@ -165,8 +165,8 @@ CIMClass CIMOMHandle::getClass(
 
 void CIMOMHandle::getClassAsync(
     const OperationContext & context,
-    const String& nameSpace,
-    const String& className,
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className,
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
@@ -178,8 +178,8 @@ void CIMOMHandle::getClassAsync(
 
 Array<CIMClass> CIMOMHandle::enumerateClasses(
     const OperationContext & context,
-    const String& nameSpace,
-    const String& className,
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className,
     Boolean deepInheritance,
     Boolean localOnly,
     Boolean includeQualifiers,
@@ -208,8 +208,8 @@ Array<CIMClass> CIMOMHandle::enumerateClasses(
 
 void CIMOMHandle::enumerateClassesAsync(
     const OperationContext & context,
-    const String& nameSpace,
-    const String& className,
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className,
     Boolean deepInheritance,
     Boolean localOnly,
     Boolean includeQualifiers,
@@ -219,10 +219,10 @@ void CIMOMHandle::enumerateClassesAsync(
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
-Array<String> CIMOMHandle::enumerateClassNames(
+Array<CIMName> CIMOMHandle::enumerateClassNames(
     const OperationContext & context,
-    const String& nameSpace,
-    const String& className,
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className,
     Boolean deepInheritance)
 {
     if((_service == 0) || (_cimom == 0))
@@ -238,15 +238,15 @@ Array<String> CIMOMHandle::enumerateClassNames(
         deepInheritance,
         QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
 
-    Array<String> classNames;
+    Array<CIMName> classNames;
 
     return(classNames);
 }
 
 void CIMOMHandle::enumerateClassNamesAsync(
     const OperationContext & context,
-    const String& nameSpace,
-    const String& className,
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className,
     Boolean deepInheritance,
     ResponseHandler<CIMObjectPath> & handler)
 {
@@ -255,7 +255,7 @@ void CIMOMHandle::enumerateClassNamesAsync(
 
 void CIMOMHandle::createClass(
     const OperationContext & context,
-    const String& nameSpace,
+    const CIMNamespaceName& nameSpace,
     const CIMClass& newClass)
 {
     if((_service == 0) || (_cimom == 0))
@@ -275,7 +275,7 @@ void CIMOMHandle::createClass(
 
 void CIMOMHandle::createClassAsync(
     const OperationContext & context,
-    const String& nameSpace,
+    const CIMNamespaceName& nameSpace,
     const CIMClass& newClass,
     ResponseHandler<void> & handler)
 {
@@ -284,7 +284,7 @@ void CIMOMHandle::createClassAsync(
 
 void CIMOMHandle::modifyClass(
     const OperationContext & context,
-    const String& nameSpace,
+    const CIMNamespaceName& nameSpace,
     const CIMClass& modifiedClass)
 {
     if((_service == 0) || (_cimom == 0))
@@ -304,7 +304,7 @@ void CIMOMHandle::modifyClass(
 
 void CIMOMHandle::modifyClassAsync(
     const OperationContext & context,
-    const String& nameSpace,
+    const CIMNamespaceName& nameSpace,
     const CIMClass& modifiedClass,
     ResponseHandler<void> & handler)
 {
@@ -313,8 +313,8 @@ void CIMOMHandle::modifyClassAsync(
 
 void CIMOMHandle::deleteClass(
     const OperationContext & context,
-    const String& nameSpace,
-    const String& className)
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className)
 {
     if((_service == 0) || (_cimom == 0))
     {
@@ -334,8 +334,8 @@ void CIMOMHandle::deleteClass(
 
 void CIMOMHandle::deleteClassAsync(
     const OperationContext & context,
-    const String& nameSpace,
-    const String& className,
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className,
     ResponseHandler<void> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
@@ -343,7 +343,7 @@ void CIMOMHandle::deleteClassAsync(
 
 CIMInstance CIMOMHandle::getInstance(
     const OperationContext & context,
-    const String& nameSpace,
+    const CIMNamespaceName& nameSpace,
     const CIMObjectPath& instanceName,
     Boolean localOnly,
     Boolean includeQualifiers,
@@ -420,7 +420,7 @@ CIMInstance CIMOMHandle::getInstance(
 
 void CIMOMHandle::getInstanceAsync(
     const OperationContext & context,
-    const String& nameSpace,
+    const CIMNamespaceName& nameSpace,
     const CIMObjectPath& instanceName,
     Boolean localOnly,
     Boolean includeQualifiers,
@@ -433,8 +433,8 @@ void CIMOMHandle::getInstanceAsync(
 
 Array<CIMInstance> CIMOMHandle::enumerateInstances(
     const OperationContext & context,
-    const String& nameSpace,
-    const String& className,
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className,
     Boolean deepInheritance,
     Boolean localOnly,
     Boolean includeQualifiers,
@@ -520,8 +520,8 @@ Array<CIMInstance> CIMOMHandle::enumerateInstances(
 
 void CIMOMHandle::enumerateInstancesAsync(
     const OperationContext & context,
-    const String& nameSpace,
-    const String& className,
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className,
     Boolean deepInheritance,
     Boolean localOnly,
     Boolean includeQualifiers,
@@ -534,8 +534,8 @@ void CIMOMHandle::enumerateInstancesAsync(
 
 Array<CIMObjectPath> CIMOMHandle::enumerateInstanceNames(
     const OperationContext & context,
-    const String& nameSpace,
-    const String& className)
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className)
 {
     if((_service == 0) || (_cimom == 0))
     {
@@ -600,8 +600,8 @@ Array<CIMObjectPath> CIMOMHandle::enumerateInstanceNames(
 
 void CIMOMHandle::enumerateInstanceNamesAsync(
     const OperationContext & context,
-    const String& nameSpace,
-    const String& className,
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className,
     ResponseHandler<CIMObjectPath> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
@@ -609,7 +609,7 @@ void CIMOMHandle::enumerateInstanceNamesAsync(
 
 CIMObjectPath CIMOMHandle::createInstance(
     const OperationContext & context,
-    const String& nameSpace,
+    const CIMNamespaceName& nameSpace,
     const CIMInstance& newInstance)
 {
     if((_service == 0) || (_cimom == 0))
@@ -631,7 +631,7 @@ CIMObjectPath CIMOMHandle::createInstance(
 
 void CIMOMHandle::createInstanceAsync(
     const OperationContext & context,
-    const String& nameSpace,
+    const CIMNamespaceName& nameSpace,
     const CIMInstance& newInstance,
     ResponseHandler<void> & handler)
 {
@@ -640,7 +640,7 @@ void CIMOMHandle::createInstanceAsync(
 
 void CIMOMHandle::modifyInstance(
     const OperationContext & context,
-    const String& nameSpace,
+    const CIMNamespaceName& nameSpace,
     const CIMInstance& modifiedInstance,
     Boolean includeQualifiers,
     const CIMPropertyList& propertyList)
@@ -664,7 +664,7 @@ void CIMOMHandle::modifyInstance(
 
 void CIMOMHandle::modifyInstanceAsync(
     const OperationContext & context,
-    const String& nameSpace,
+    const CIMNamespaceName& nameSpace,
     const CIMInstance& modifiedInstance,
     Boolean includeQualifiers,
     const CIMPropertyList& propertyList,
@@ -675,7 +675,7 @@ void CIMOMHandle::modifyInstanceAsync(
 
 void CIMOMHandle::deleteInstance(
     const OperationContext & context,
-    const String& nameSpace,
+    const CIMNamespaceName& nameSpace,
     const CIMObjectPath& instanceName)
 {
     if((_service == 0) || (_cimom == 0))
@@ -695,7 +695,7 @@ void CIMOMHandle::deleteInstance(
 
 void CIMOMHandle::deleteInstanceAsync(
     const OperationContext & context,
-    const String& nameSpace,
+    const CIMNamespaceName& nameSpace,
     const CIMObjectPath& instanceName,
     ResponseHandler<void> & handler)
 {
@@ -704,7 +704,7 @@ void CIMOMHandle::deleteInstanceAsync(
 
 Array<CIMInstance> CIMOMHandle::execQuery(
     const OperationContext & context,
-    const String& nameSpace,
+    const CIMNamespaceName& nameSpace,
     const String& queryLanguage,
     const String& query)
 {
@@ -728,7 +728,7 @@ Array<CIMInstance> CIMOMHandle::execQuery(
 
 void CIMOMHandle::execQueryAsync(
     const OperationContext & context,
-    const String& nameSpace,
+    const CIMNamespaceName& nameSpace,
     const String& queryLanguage,
     const String& query,
     ResponseHandler<CIMObject> & handler)
@@ -738,10 +738,10 @@ void CIMOMHandle::execQueryAsync(
 
 Array<CIMObject> CIMOMHandle::associators(
     const OperationContext & context,
-    const String& nameSpace,
+    const CIMNamespaceName& nameSpace,
     const CIMObjectPath& objectName,
-    const String& assocClass,
-    const String& resultClass,
+    const CIMName& assocClass,
+    const CIMName& resultClass,
     const String& role,
     const String& resultRole,
     Boolean includeQualifiers,
@@ -774,10 +774,10 @@ Array<CIMObject> CIMOMHandle::associators(
 
 void CIMOMHandle::associatorsAsync(
     const OperationContext & context,
-    const String& nameSpace,
+    const CIMNamespaceName& nameSpace,
     const CIMObjectPath& objectName,
-    const String& assocClass,
-    const String& resultClass,
+    const CIMName& assocClass,
+    const CIMName& resultClass,
     const String& role,
     const String& resultRole,
     Boolean includeQualifiers,
@@ -790,10 +790,10 @@ void CIMOMHandle::associatorsAsync(
 
 Array<CIMObjectPath> CIMOMHandle::associatorNames(
     const OperationContext & context,
-    const String& nameSpace,
+    const CIMNamespaceName& nameSpace,
     const CIMObjectPath& objectName,
-    const String& assocClass,
-    const String& resultClass,
+    const CIMName& assocClass,
+    const CIMName& resultClass,
     const String& role,
     const String& resultRole)
 {
@@ -820,10 +820,10 @@ Array<CIMObjectPath> CIMOMHandle::associatorNames(
 
 void CIMOMHandle::associatorNamesAsync(
     const OperationContext & context,
-    const String& nameSpace,
+    const CIMNamespaceName& nameSpace,
     const CIMObjectPath& objectName,
-    const String& assocClass,
-    const String& resultClass,
+    const CIMName& assocClass,
+    const CIMName& resultClass,
     const String& role,
     const String& resultRole,
     ResponseHandler<CIMObjectPath> & handler)
@@ -833,9 +833,9 @@ void CIMOMHandle::associatorNamesAsync(
 
 Array<CIMObject> CIMOMHandle::references(
     const OperationContext & context,
-    const String& nameSpace,
+    const CIMNamespaceName& nameSpace,
     const CIMObjectPath& objectName,
-    const String& resultClass,
+    const CIMName& resultClass,
     const String& role,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
@@ -865,9 +865,9 @@ Array<CIMObject> CIMOMHandle::references(
 
 void CIMOMHandle::referencesAsync(
     const OperationContext & context,
-    const String& nameSpace,
+    const CIMNamespaceName& nameSpace,
     const CIMObjectPath& objectName,
-    const String& resultClass,
+    const CIMName& resultClass,
     const String& role,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
@@ -879,9 +879,9 @@ void CIMOMHandle::referencesAsync(
 
 Array<CIMObjectPath> CIMOMHandle::referenceNames(
     const OperationContext & context,
-    const String& nameSpace,
+    const CIMNamespaceName& nameSpace,
     const CIMObjectPath& objectName,
-    const String& resultClass,
+    const CIMName& resultClass,
     const String& role)
 {
     if((_service == 0) || (_cimom == 0))
@@ -905,9 +905,9 @@ Array<CIMObjectPath> CIMOMHandle::referenceNames(
 
 void CIMOMHandle::referenceNamesAsync(
     const OperationContext & context,
-    const String& nameSpace,
+    const CIMNamespaceName& nameSpace,
     const CIMObjectPath& objectName,
-    const String& resultClass,
+    const CIMName& resultClass,
     const String& role,
     ResponseHandler<CIMObjectPath> & handler)
 {
@@ -916,9 +916,9 @@ void CIMOMHandle::referenceNamesAsync(
 
 CIMValue CIMOMHandle::getProperty(
     const OperationContext & context,
-    const String& nameSpace,
+    const CIMNamespaceName& nameSpace,
     const CIMObjectPath& instanceName,
-    const String& propertyName)
+    const CIMName& propertyName)
 {
     if((_service == 0) || (_cimom == 0))
     {
@@ -940,9 +940,9 @@ CIMValue CIMOMHandle::getProperty(
 
 void CIMOMHandle::getPropertyAsync(
     const OperationContext & context,
-    const String& nameSpace,
+    const CIMNamespaceName& nameSpace,
     const CIMObjectPath& instanceName,
-    const String& propertyName,
+    const CIMName& propertyName,
     ResponseHandler<CIMValue> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
@@ -950,9 +950,9 @@ void CIMOMHandle::getPropertyAsync(
 
 void CIMOMHandle::setProperty(
     const OperationContext & context,
-    const String& nameSpace,
+    const CIMNamespaceName& nameSpace,
     const CIMObjectPath& instanceName,
-    const String& propertyName,
+    const CIMName& propertyName,
     const CIMValue& newValue)
 {
     if((_service == 0) || (_cimom == 0))
@@ -974,9 +974,9 @@ void CIMOMHandle::setProperty(
 
 void CIMOMHandle::setPropertyAsync(
     const OperationContext & context,
-    const String& nameSpace,
+    const CIMNamespaceName& nameSpace,
     const CIMObjectPath& instanceName,
-    const String& propertyName,
+    const CIMName& propertyName,
     const CIMValue& newValue,
     ResponseHandler<CIMValue> & handler)
 {
@@ -986,9 +986,9 @@ void CIMOMHandle::setPropertyAsync(
 /*
 CIMValue CIMOMHandle::invokeMethod(
     const OperationContext & context,
-    const String& nameSpace,
+    const CIMNamespaceName& nameSpace,
     const CIMObjectPath& instanceName,
-    const String& methodName,
+    const CIMName& methodName,
     const Array<CIMParamValue>& inParameters,
     Array<CIMParamValue>& outParameters)
 {
@@ -1010,9 +1010,9 @@ CIMValue CIMOMHandle::invokeMethod(
 
 void CIMOMHandle::invokeMethodAsync(
     const OperationContext & context,
-    const String& nameSpace,
+    const CIMNamespaceName& nameSpace,
     const CIMObjectPath& instanceName,
-    const String& methodName,
+    const CIMName& methodName,
     const Array<CIMParamValue>& inParameters,
     Array<CIMParamValue>& outParameters,
     ResponseHandler<CIMValue> & handler)

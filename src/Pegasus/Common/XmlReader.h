@@ -119,17 +119,17 @@ public:
 	const XmlEntry& entry,
 	const char* elementName);
 
-    static String getClassOriginAttribute(
+    static CIMName getClassOriginAttribute(
 	Uint32 lineNumber, 
 	const XmlEntry& entry,
 	const char* tagName);
 
-    static String getReferenceClassAttribute(
+    static CIMName getReferenceClassAttribute(
 	Uint32 lineNumber, 
 	const XmlEntry& entry,
 	const char* elementName);
 
-    static String getSuperClassAttribute(
+    static CIMName getSuperClassAttribute(
 	Uint32 lineNumber, 
 	const XmlEntry& entry,
 	const char* tagName);

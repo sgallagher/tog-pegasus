@@ -1034,7 +1034,12 @@ CIMGetClassRequestMessage* CIMOperationRequestDecoder::decodeGetClassRequest(
 	 {
 	    Array<String> propertyListArray;
 	    pl.get(propertyListArray);
-	    propertyList.set(propertyListArray);
+            Array<CIMName> cimNameArray;
+            for (Uint32 i = 0; i < propertyListArray.size(); i++)
+            {
+                cimNameArray.append(propertyListArray[i]);
+            }
+	    propertyList.set(cimNameArray);
 	 }
 	 duplicateParameter = gotPropertyList;
 	 gotPropertyList = true;
@@ -1437,7 +1442,12 @@ CIMGetInstanceRequestMessage* CIMOperationRequestDecoder::decodeGetInstanceReque
 	 {
 	    Array<String> propertyListArray;
 	    pl.get(propertyListArray);
-	    propertyList.set(propertyListArray);
+            Array<CIMName> cimNameArray;
+            for (Uint32 i = 0; i < propertyListArray.size(); i++)
+            {
+                cimNameArray.append(propertyListArray[i]);
+            }
+	    propertyList.set(cimNameArray);
 	 }
 	 duplicateParameter = gotPropertyList;
 	 gotPropertyList = true;
@@ -1516,7 +1526,12 @@ CIMModifyInstanceRequestMessage* CIMOperationRequestDecoder::decodeModifyInstanc
 	 {
 	    Array<String> propertyListArray;
 	    pl.get(propertyListArray);
-	    propertyList.set(propertyListArray);
+            Array<CIMName> cimNameArray;
+            for (Uint32 i = 0; i < propertyListArray.size(); i++)
+            {
+                cimNameArray.append(propertyListArray[i]);
+            }
+	    propertyList.set(cimNameArray);
 	 }
 	 duplicateParameter = gotPropertyList;
 	 gotPropertyList = true;
@@ -1618,7 +1633,12 @@ CIMEnumerateInstancesRequestMessage* CIMOperationRequestDecoder::decodeEnumerate
 	 {
 	    Array<String> propertyListArray;
 	    pl.get(propertyListArray);
-	    propertyList.set(propertyListArray);
+            Array<CIMName> cimNameArray;
+            for (Uint32 i = 0; i < propertyListArray.size(); i++)
+            {
+                cimNameArray.append(propertyListArray[i]);
+            }
+	    propertyList.set(cimNameArray);
 	 }
 	 duplicateParameter = gotPropertyList;
 	 gotPropertyList = true;
@@ -2093,7 +2113,12 @@ CIMReferencesRequestMessage* CIMOperationRequestDecoder::decodeReferencesRequest
 	 {
 	    Array<String> propertyListArray;
 	    pl.get(propertyListArray);
-	    propertyList.set(propertyListArray);
+            Array<CIMName> cimNameArray;
+            for (Uint32 i = 0; i < propertyListArray.size(); i++)
+            {
+                cimNameArray.append(propertyListArray[i]);
+            }
+	    propertyList.set(cimNameArray);
 	 }
 	 duplicateParameter = gotPropertyList;
 	 gotPropertyList = true;
@@ -2304,7 +2329,12 @@ CIMAssociatorsRequestMessage* CIMOperationRequestDecoder::decodeAssociatorsReque
 	 {
 	    Array<String> propertyListArray;
 	    pl.get(propertyListArray);
-	    propertyList.set(propertyListArray);
+            Array<CIMName> cimNameArray;
+            for (Uint32 i = 0; i < propertyListArray.size(); i++)
+            {
+                cimNameArray.append(propertyListArray[i]);
+            }
+	    propertyList.set(cimNameArray);
 	 }
 	 duplicateParameter = gotPropertyList;
 	 gotPropertyList = true;

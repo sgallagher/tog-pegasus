@@ -31,14 +31,14 @@
 #define Pegasus_QualifierDecl_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/String.h>
+#include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/CIMQualifierDecl.h>
 #include <Pegasus/Common/CIMFlavor.h>
 #include <Pegasus/Common/CIMScope.h>
 #include <Pegasus/Common/CIMType.h>
 #include <Pegasus/Common/CIMValue.h>
-#include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -83,7 +83,7 @@ public:
         @exception IllegalName if name argument not legal CIM identifier.
     */
     CIMQualifierDecl(
-        const String& name, 
+        const CIMName& name, 
         const CIMValue& value, 
         Uint32 scope,
         Uint32 flavor = CIMFlavor::DEFAULTS,
@@ -98,15 +98,15 @@ public:
     /**
     Get the name of a CIMQualifierDecl object.
     */
-    const String& getName() const;
+    const CIMName& getName() const;
 
     /** setName - Puts the name into a CIMQualifierdecl
-        @param Name String containing name to be put on this qualifier.
+        @param Name CIMName containing name to be put on this qualifier.
         This must be a legal qualifier name.
         @exception - Throws IllegalName if name argument not a legal
         CIM Qualifier name
     */
-    void setName(const String& name);
+    void setName(const CIMName& name);
 
     //  ATTN: P3 Documentation clean up
     /** getType - gets the Qualifier Declaration type which is the
@@ -214,7 +214,7 @@ public:
         @exception IllegalName if name argument not legal CIM identifier.
     */
     CIMConstQualifierDecl(
-        const String& name, 
+        const CIMName& name, 
         const CIMValue& value, 
         Uint32 scope,
         Uint32 flavor = CIMFlavor::DEFAULTS,
@@ -229,7 +229,7 @@ public:
     CIMConstQualifierDecl& operator=(const CIMQualifierDecl& x);
 
     ///
-    const String& getName() const;
+    const CIMName& getName() const;
 
     ///
     CIMType getType() const;

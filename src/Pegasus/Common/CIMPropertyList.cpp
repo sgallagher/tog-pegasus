@@ -34,7 +34,7 @@ PEGASUS_NAMESPACE_BEGIN
 class CIMPropertyListRep
 {
 public:
-    Array<String> propertyNames;
+    Array<CIMName> propertyNames;
     Boolean isNull;
 };
 
@@ -52,7 +52,7 @@ CIMPropertyList::CIMPropertyList(const CIMPropertyList& x)
     _rep->isNull = x._rep->isNull;
 }
 
-CIMPropertyList::CIMPropertyList(const Array<String>& propertyNames)
+CIMPropertyList::CIMPropertyList(const Array<CIMName>& propertyNames)
 {
     _rep = new CIMPropertyListRep();
     _rep->propertyNames = propertyNames;
@@ -64,7 +64,7 @@ CIMPropertyList::~CIMPropertyList()
     delete _rep;
 }
 
-void CIMPropertyList::set(const Array<String>& propertyNames)
+void CIMPropertyList::set(const Array<CIMName>& propertyNames)
 {
     _rep->propertyNames = propertyNames;
     _rep->isNull = false;
@@ -97,12 +97,12 @@ Uint32 CIMPropertyList::size() const
     return _rep->propertyNames.size();
 }
 
-const String& CIMPropertyList::operator[](Uint32 pos) const
+const CIMName& CIMPropertyList::operator[](Uint32 pos) const
 {
     return _rep->propertyNames[pos];
 }
 
-Array<String> CIMPropertyList::getPropertyNameArray() const
+Array<CIMName> CIMPropertyList::getPropertyNameArray() const
 {
     return _rep->propertyNames;
 }

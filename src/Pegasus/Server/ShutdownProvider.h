@@ -90,7 +90,7 @@ public:
     void invokeMethod(
         const OperationContext & context,
         const CIMObjectPath & objectReference,
-        const String & methodName,
+        const CIMName & methodName,
         const Array<CIMParamValue> & inParameters,
         Array<CIMParamValue> & outParameters,
         ResponseHandler<CIMValue> & handler);

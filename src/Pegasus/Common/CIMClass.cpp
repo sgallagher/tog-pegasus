@@ -62,10 +62,10 @@ CIMClass::CIMClass(const CIMObject& x) throw(DynamicCastFailed)
 }
 
 CIMClass::CIMClass(
-    const CIMObjectPath& reference,
-    const String& superClassName)
+    const CIMName& className,
+    const CIMName& superClassName)
 {
-    _rep = new CIMClassRep(reference, superClassName);
+    _rep = new CIMClassRep(className, superClassName);
 }
 
 CIMClass::CIMClass(CIMClassRep* rep)
@@ -100,7 +100,7 @@ Boolean CIMClass::isAbstract() const
     return _rep->isAbstract();
 }
 
-const String& CIMClass::getClassName() const
+const CIMName& CIMClass::getClassName() const
 {
     _checkRep();
     return _rep->getClassName();
@@ -118,13 +118,13 @@ void CIMClass::setPath (const CIMObjectPath & path)
     _rep->setPath (path);
 }
 
-const String& CIMClass::getSuperClassName() const
+const CIMName& CIMClass::getSuperClassName() const
 {
     _checkRep();
     return _rep->getSuperClassName();
 }
 
-void CIMClass::setSuperClassName(const String& superClassName)
+void CIMClass::setSuperClassName(const CIMName& superClassName)
 {
     _checkRep();
     _rep->setSuperClassName(superClassName);
@@ -137,13 +137,13 @@ CIMClass& CIMClass::addQualifier(const CIMQualifier& qualifier)
     return *this;
 }
 
-Uint32 CIMClass::findQualifier(const String& name) const
+Uint32 CIMClass::findQualifier(const CIMName& name) const
 {
     _checkRep();
     return _rep->findQualifier(name);
 }
 
-Boolean CIMClass::isTrueQualifier(const String& name) const
+Boolean CIMClass::isTrueQualifier(const CIMName& name) const
 {
     _checkRep();
     return _rep->isTrueQualifier(name);
@@ -180,7 +180,7 @@ CIMClass& CIMClass::addProperty(const CIMProperty& x)
     return *this;
 }
 
-Uint32 CIMClass::findProperty(const String& name) const
+Uint32 CIMClass::findProperty(const CIMName& name) const
 {
     _checkRep();
     return _rep->findProperty(name);
@@ -217,7 +217,7 @@ CIMClass& CIMClass::addMethod(const CIMMethod& x)
     return *this;
 }
 
-Uint32 CIMClass::findMethod(const String& name) const
+Uint32 CIMClass::findMethod(const CIMName& name) const
 {
     _checkRep();
     return _rep->findMethod(name);
@@ -264,7 +264,7 @@ CIMClass CIMClass::clone() const
     return CIMClass((CIMClassRep*)(_rep->clone()));
 }
 
-void CIMClass::getKeyNames(Array<String>& keyNames) const
+void CIMClass::getKeyNames(Array<CIMName>& keyNames) const
 {
     _checkRep();
     _rep->getKeyNames(keyNames);
@@ -318,10 +318,10 @@ CIMConstClass::CIMConstClass(const CIMConstObject& x) throw(DynamicCastFailed)
 }
 
 CIMConstClass::CIMConstClass(
-    const CIMObjectPath& reference,
-    const String& superClassName)
+    const CIMName& className,
+    const CIMName& superClassName)
 {
-    _rep = new CIMClassRep(reference, superClassName);
+    _rep = new CIMClassRep(className, superClassName);
 }
 
 CIMConstClass& CIMConstClass::operator=(const CIMConstClass& x)
@@ -361,7 +361,7 @@ Boolean CIMConstClass::isAbstract() const
     return _rep->isAbstract();
 }
 
-const String& CIMConstClass::getClassName() const
+const CIMName& CIMConstClass::getClassName() const
 {
     _checkRep();
     return _rep->getClassName();
@@ -373,13 +373,13 @@ const CIMObjectPath& CIMConstClass::getPath() const
     return _rep->getPath();
 }
 
-const String& CIMConstClass::getSuperClassName() const
+const CIMName& CIMConstClass::getSuperClassName() const
 {
     _checkRep();
     return _rep->getSuperClassName();
 }
 
-Uint32 CIMConstClass::findQualifier(const String& name) const
+Uint32 CIMConstClass::findQualifier(const CIMName& name) const
 {
     _checkRep();
     return _rep->findQualifier(name);
@@ -391,7 +391,7 @@ CIMConstQualifier CIMConstClass::getQualifier(Uint32 pos) const
     return _rep->getQualifier(pos);
 }
 
-Boolean CIMConstClass::isTrueQualifier(const String& name) const
+Boolean CIMConstClass::isTrueQualifier(const CIMName& name) const
 {
     _checkRep();
     return _rep->isTrueQualifier(name);
@@ -403,7 +403,7 @@ Uint32 CIMConstClass::getQualifierCount() const
     return _rep->getQualifierCount();
 }
 
-Uint32 CIMConstClass::findProperty(const String& name) const
+Uint32 CIMConstClass::findProperty(const CIMName& name) const
 {
     _checkRep();
     return _rep->findProperty(name);
@@ -421,7 +421,7 @@ Uint32 CIMConstClass::getPropertyCount() const
     return _rep->getPropertyCount();
 }
 
-Uint32 CIMConstClass::findMethod(const String& name) const
+Uint32 CIMConstClass::findMethod(const CIMName& name) const
 {
     _checkRep();
     return _rep->findMethod(name);
@@ -456,7 +456,7 @@ CIMClass CIMConstClass::clone() const
     return CIMClass((CIMClassRep*)(_rep->clone()));
 }
 
-void CIMConstClass::getKeyNames(Array<String>& keyNames) const
+void CIMConstClass::getKeyNames(Array<CIMName>& keyNames) const
 {
     _checkRep();
     _rep->getKeyNames(keyNames);

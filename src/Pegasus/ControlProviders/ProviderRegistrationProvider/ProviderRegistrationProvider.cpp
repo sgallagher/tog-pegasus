@@ -383,7 +383,7 @@ void ProviderRegistrationProvider::modifyInstance(
 	    "Only can modify Namespaces, SupportedProperties, and SupportedMethods.");
     }
 
-    Array<String> propertyArray = propertyList.getPropertyNameArray();
+    Array<CIMName> propertyArray = propertyList.getPropertyNameArray();
     for (Uint32 i=0; i<propertyArray.size(); i++)
     {
 	if (!String::equalNoCase(propertyArray[i], _PROPERTY_NAMESPACES) &&
@@ -658,7 +658,7 @@ void ProviderRegistrationProvider::deleteInstance(
 void ProviderRegistrationProvider::invokeMethod(
     const OperationContext & context,
     const CIMObjectPath & objectReference,
-    const String & methodName,
+    const CIMName & methodName,
     const Array<CIMParamValue> & inParameters,
     Array<CIMParamValue> & outParameters,
     ResponseHandler<CIMValue> & handler)
@@ -722,7 +722,7 @@ void ProviderRegistrationProvider::invokeMethod(
 
     Sint16 ret_value;
 
-    if(String::equalNoCase(methodName, _STOP_PROVIDER))
+    if(methodName.equal(_STOP_PROVIDER))
     {
 	for (Uint32 i = 0; i<_OperationalStatus.size(); i++)
 	{
@@ -803,7 +803,7 @@ void ProviderRegistrationProvider::invokeMethod(
     	handler.complete();
 	return;
     }
-    else if(String::equalNoCase(methodName, _START_PROVIDER))
+    else if(methodName.equal(_START_PROVIDER))
     {
 	for (Uint32 i = 0; i<_OperationalStatus.size(); i++)
 	{

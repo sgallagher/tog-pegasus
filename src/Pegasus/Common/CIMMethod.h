@@ -33,11 +33,12 @@
 #define Pegasus_Method_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMParameter.h>
 #include <Pegasus/Common/CIMQualifier.h>
 #include <Pegasus/Common/CIMType.h>
-#include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -71,9 +72,9 @@ public:
 	@return Throws IllegalName if name argument not legal CIM identifier.
     */
     CIMMethod(
-	const String& name,
+	const CIMName& name,
 	CIMType type,
-	const String& classOrigin = String::EMPTY,
+	const CIMName& classOrigin = CIMName(),
 	Boolean propagated = false);
 
     /** Desctructor. */
@@ -83,15 +84,15 @@ public:
     CIMMethod& operator=(const CIMMethod& x);
 
     /** getName - Gets the name of the method
-	@return String with the name of the method
+	@return CIMName with the name of the method
     */
-    const String& getName() const;
+    const CIMName& getName() const;
 
     /** setName - Set the method name
 	@param name
 	@exception IllegalName if name argument not legal CIM identifier.
     */
-    void setName(const String& name);
+    void setName(const CIMName& name);
 
     /** getType - gets the method type
 	@return The CIM method type for this method.
@@ -105,16 +106,16 @@ public:
 
     /** getClassOrigin - Returns the class in which this method
 	was defined.
-	@return String containing the classOrigin field. 
+	@return CIMName containing the classOrigin field. 
     */
-    const String& getClassOrigin() const;
+    const CIMName& getClassOrigin() const;
 
     /** setClassOrigin - Set the ClassOrigin attribute with
 	the classname defined on input
-	@param classOrigin - String parameter defining the name
+	@param classOrigin - CIMName parameter defining the name
 	of the class origin
     */
-    void setClassOrigin(const String& classOrigin);
+    void setClassOrigin(const CIMName& classOrigin);
 
     /** getPropagated - Tests the propogated qualifier
         @return - returns True if method is propogated
@@ -137,7 +138,7 @@ public:
 	@param name Name of qualifier to be found.
 	@return index of the parameter if found; otherwise PEG_NOT_FOUND.
     */
-    Uint32 findQualifier(const String& name) const;
+    Uint32 findQualifier(const CIMName& name) const;
 
     /** getQualifier - Gets the CIMQualifier defined by the index
 	input as a parameter.
@@ -175,7 +176,7 @@ public:
 	@param name Name of parameter to be found.
 	@return index of the parameter if found; otherwise PEG_NOT_FOUND.
     */
-    Uint32 findParameter(const String& name) const;
+    Uint32 findParameter(const CIMName& name) const;
 
     /** getParameter - Gets the parameter defined by the index
 	input as a parameter.
@@ -235,9 +236,9 @@ public:
 
     // Throws IllegalName if name argument not legal CIM identifier.
     CIMConstMethod(
-	const String& name,
+	const CIMName& name,
 	CIMType type,
-	const String& classOrigin = String::EMPTY,
+	const CIMName& classOrigin = CIMName(),
 	Boolean propagated = false);
 
     ~CIMConstMethod();
@@ -246,21 +247,21 @@ public:
 
     CIMConstMethod& operator=(const CIMMethod& x);
 
-    const String& getName() const;
+    const CIMName& getName() const;
 
     CIMType getType() const;
 
-    const String& getClassOrigin() const;
+    const CIMName& getClassOrigin() const;
 
     Boolean getPropagated() const;
 
-    Uint32 findQualifier(const String& name) const;
+    Uint32 findQualifier(const CIMName& name) const;
 
     CIMConstQualifier getQualifier(Uint32 pos) const;
 
     Uint32 getQualifierCount() const;
 
-    Uint32 findParameter(const String& name) const;
+    Uint32 findParameter(const CIMName& name) const;
 
     CIMConstParameter getParameter(Uint32 pos) const;
 

@@ -43,6 +43,7 @@
 #include <cstdio>
 #include <cstring>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/CIMName.h>
 #include "cimmofParser.h"
 #include "valueFactory.h"
 #include "memobjs.h"
@@ -72,7 +73,7 @@ extern void cimmof_yy_less(int n);
   CIMClass *g_currentClass = 0;
   CIMInstance *g_currentInstance = 0;
   String g_currentAlias = String::EMPTY;
-  String g_referenceClassName = String::EMPTY;
+  CIMName g_referenceClassName = CIMName();
   KeyBindingArray g_KeyBindingArray; // it gets created empty
   TYPED_INITIALIZER_VALUE g_typedInitializerValue; 
 
@@ -111,6 +112,7 @@ cimmof_error(const char *msg) {
   int              ival;
   //  char             *strval;
   String *         strval;
+  CIMName *         cimnameval;
   CIMType        datatype;
   CIMValue *          value;
   String *         strptr;
@@ -192,8 +194,7 @@ cimmof_error(const char *msg) {
 %token TOK_UNEXPECTED_CHAR
 %token TOK_END_OF_FILE
 
-%type <strval> pragmaName pragmaVal qualifierName keyValuePairName
-%type <strval> propertyName parameterName methodName className
+%type <strval> pragmaName pragmaVal keyValuePairName qualifierName
 %type <strval> fileName referencedObject referenceName referencePath 
 %type <strval> TOK_POSITIVE_DECIMAL_VALUE TOK_OCTAL_VALUE TOK_HEX_VALUE 
 %type <strval> TOK_SIGNED_DECIMAL_VALUE TOK_BINARY_VALUE
@@ -201,11 +202,14 @@ cimmof_error(const char *msg) {
 %type <strval> stringValue stringValues initializer constantValue
 %type <strval> nonNullConstantValue
 %type <strval> arrayInitializer constantValues 
+%type <strval> TOK_ALIAS_IDENTIFIER  alias aliasIdentifier
 %type <strval> integerValue TOK_REAL_VALUE TOK_CHAR_VALUE 
-%type <strval> superClass TOK_ALIAS_IDENTIFIER  alias aliasIdentifier
 %type <strval> namespaceHandle namespaceHandleRef
 %type <strval> referenceInitializer aliasInitializer objectHandle
 %type <strval> TOK_UNEXPECTED_CHAR
+
+%type <cimnameval> propertyName parameterName methodName className
+%type <cimnameval> superClass
 
 %type <typedinitializer> typedInitializer typedDefaultValue 
 %type <typedinitializer> typedQualifierParameter
@@ -259,8 +263,8 @@ classHead: qualifierList TOK_CLASS className alias superClass
 
 className: TOK_SIMPLE_IDENTIFIER {  } ;
 
-superClass: TOK_COLON className { $$ = $2; }
-          | /* empty */ { $$ = new String(String::EMPTY); } ;
+superClass: TOK_COLON className { $$ = new CIMName(*$2); }
+          | /* empty */ { $$ = new CIMName(); } ;
 
 classBody: TOK_LEFTCURLYBRACE classFeatures TOK_RIGHTCURLYBRACE TOK_SEMICOLON
          | TOK_LEFTCURLYBRACE TOK_RIGHTCURLYBRACE TOK_SEMICOLON ;
@@ -342,7 +346,7 @@ referenceName: TOK_SIMPLE_IDENTIFIER { $$ = $1; };
 referencePath: TOK_EQUAL stringValue { $$ = $2; }
                | /* empty */ { $$ = new String(String::EMPTY); } ;
 
-methodName: TOK_SIMPLE_IDENTIFIER ;
+methodName: TOK_SIMPLE_IDENTIFIER { $$ = new CIMName(*$1); } ;
 
 parameters : parameter
            | parameters TOK_COMMA parameter
@@ -357,7 +361,7 @@ parameter: qualifierList parameterType parameterName array
   } else {
     p = cp->newParameter(*$3, $2, true, $4, g_referenceClassName);
   }
-  g_referenceClassName = String::EMPTY;
+  g_referenceClassName = CIMName();
   apply(&g_qualifierList, p);
   cp->applyParameter(*g_currentMethod, *p);
   delete p;
@@ -370,9 +374,9 @@ parameterType: dataType { $$ = $1; }
 objectRef: className TOK_REF {  
                           g_referenceClassName = *$1; } ;
 
-parameterName: TOK_SIMPLE_IDENTIFIER ;
+parameterName: TOK_SIMPLE_IDENTIFIER { $$ = new CIMName(*$1); } ;
 
-propertyName: TOK_SIMPLE_IDENTIFIER ;
+propertyName: TOK_SIMPLE_IDENTIFIER { $$ = new CIMName(*$1); } ;
 
 array: TOK_LEFTSQUAREBRACKET TOK_POSITIVE_DECIMAL_VALUE  
          TOK_RIGHTSQUAREBRACKET

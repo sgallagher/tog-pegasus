@@ -33,11 +33,12 @@
 #define Pegasus_Object_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/CIMProperty.h>
 #include <Pegasus/Common/CIMQualifier.h>
-#include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -97,14 +98,14 @@ public:
 
     /**	Accessor for ClassName component of the object.
 	@return - Returns the ClassName of the object in
-	a String parameter.
+	a CIMName parameter.
 	<pre>
-	    String className;
+	    CIMName className;
 	    CIMClass myclass("myclass", "superclass");
 	    className = myclass.getClassName;
 	</pre>
     */
-    const String& getClassName() const;
+    const CIMName& getClassName() const;
 
     const CIMObjectPath& getPath() const;
 
@@ -124,11 +125,11 @@ public:
 
     /**	findQualifier - Searches the instance for the qualifier object
         defined by the input parameter.
-	@param String defining the qualifier object to be found.
+	@param CIMName defining the qualifier object to be found.
 	@return - Position of the qualifier to be used in subsequent
 	operations or PEG_NOT_FOUND if the qualifier is not found.
     */
-    Uint32 findQualifier(const String& name) const;
+    Uint32 findQualifier(const CIMName& name) const;
 
     /**	getQualifier - Retrieves the qualifier object defined by the
 	index input parameter.  @ index for the qualifier object.
@@ -176,12 +177,12 @@ public:
     /**	findProperty - Searches the CIMProperty objects installed in the
 	CIMObject for property objects with the name defined by the
 	input.
-	@param String with the name of the property object to be found
+	@param CIMName with the name of the property object to be found
 	@return Position in the CIM object to the property object if found or
 	PEG_NOT_FOUND if no property object found with the name defined by the
 	input.
     */
-    Uint32 findProperty(const String& name) const;
+    Uint32 findProperty(const CIMName& name) const;
 
     /**	getProperty - Gets the CIMProperty object in the CIMObject defined
 	by the input index parameter.
@@ -306,17 +307,17 @@ public:
 
     ~CIMConstObject();
 
-    const String& getClassName() const;
+    const CIMName& getClassName() const;
 
     const CIMObjectPath& getPath() const;
 
-    Uint32 findQualifier(const String& name) const;
+    Uint32 findQualifier(const CIMName& name) const;
 
     CIMConstQualifier getQualifier(Uint32 pos) const;
 
     Uint32 getQualifierCount() const;
 
-    Uint32 findProperty(const String& name) const;
+    Uint32 findProperty(const CIMName& name) const;
 
     CIMConstProperty getProperty(Uint32 pos) const;
 

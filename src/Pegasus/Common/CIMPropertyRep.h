@@ -34,6 +34,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMValue.h>
 #include <Pegasus/Common/CIMQualifier.h>
 #include <Pegasus/Common/CIMQualifierList.h>
@@ -52,21 +53,21 @@ class PEGASUS_COMMON_LINKAGE CIMPropertyRep : public Sharable
 public:
 
     CIMPropertyRep(
-	const String& name,
+	const CIMName& name,
 	const CIMValue& value,
 	Uint32 arraySize,
-	const String& referenceClassName,
-	const String& classOrigin,
+	const CIMName& referenceClassName,
+	const CIMName& classOrigin,
 	Boolean propagated);
 
     ~CIMPropertyRep();
 
-    const String& getName() const
+    const CIMName& getName() const
     {
 	return _name;
     }
 
-    void setName(const String& name);
+    void setName(const CIMName& name);
 
     const CIMValue& getValue() const
     {
@@ -80,17 +81,17 @@ public:
 	return _arraySize;
     }
 
-    const String& getReferenceClassName() const
+    const CIMName& getReferenceClassName() const
     {
 	return _referenceClassName;
     }
 
-    const String& getClassOrigin() const
+    const CIMName& getClassOrigin() const
     {
 	return _classOrigin;
     }
 
-    void setClassOrigin(const String& classOrigin);
+    void setClassOrigin(const CIMName& classOrigin);
 
     Boolean getPropagated() const
     {
@@ -107,7 +108,7 @@ public:
 	_qualifiers.add(qualifier);
     }
 
-    Uint32 findQualifier(const String& name) const
+    Uint32 findQualifier(const CIMName& name) const
     {
 	return _qualifiers.find(name);
     }
@@ -134,14 +135,14 @@ public:
 
     void resolve(
 	DeclContext* declContext,
-	const String& nameSpace,
+	const CIMNamespaceName& nameSpace,
 	Boolean isInstancePart,
 	const CIMConstProperty& property,
 	Boolean propagateQualifiers);
 
     void resolve(
 	DeclContext* declContext,
-	const String& nameSpace,
+	const CIMNamespaceName& nameSpace,
 	Boolean isInstancePart,
 	Boolean propagateQualifiers);
 
@@ -174,11 +175,11 @@ private:
         return *this;
     }
 
-    String _name;
+    CIMName _name;
     CIMValue _value;
     Uint32 _arraySize;
-    String _referenceClassName;
-    String _classOrigin;
+    CIMName _referenceClassName;
+    CIMName _classOrigin;
     Boolean _propagated;
     CIMQualifierList _qualifiers;
 

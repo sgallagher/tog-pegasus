@@ -924,7 +924,7 @@ void XmlWriter::appendValueReferenceElement(
         {
             appendInstancePathElement(out, reference);
         }
-        else if (reference.getNameSpace().size())
+        else if (!reference.getNameSpace().isNull())
         {
             appendLocalInstancePathElement(out, reference);
         }
@@ -939,7 +939,7 @@ void XmlWriter::appendValueReferenceElement(
         {
             appendClassPathElement(out, reference);
         }
-        else if (reference.getNameSpace().size())
+        else if (!reference.getNameSpace().isNull())
         {
             appendLocalClassPathElement(out, reference);
         }

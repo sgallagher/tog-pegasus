@@ -32,6 +32,7 @@
 #define Pegasus_CIMClassRep_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMObjectRep.h>
 #include <Pegasus/Common/CIMMethod.h>
 #include <Pegasus/Common/Linkage.h>
@@ -50,8 +51,8 @@ class PEGASUS_COMMON_LINKAGE CIMClassRep : public CIMObjectRep
 public:
 
     CIMClassRep(
-	const CIMObjectPath& reference,
-	const String& superClassName);
+	const CIMName& className,
+	const CIMName& superClassName);
 
     virtual ~CIMClassRep();
 
@@ -59,17 +60,17 @@ public:
 
     Boolean isAbstract() const;
 
-    Boolean isTrueQualifier(const String& name) const;
+    Boolean isTrueQualifier(const CIMName& name) const;
 
-    const String& getSuperClassName() const { return _superClassName; }
+    const CIMName& getSuperClassName() const { return _superClassName; }
 
-    void setSuperClassName(const String& superClassName);
+    void setSuperClassName(const CIMName& superClassName);
 
     virtual void addProperty(const CIMProperty& x);
 
     void addMethod(const CIMMethod& x);
 
-    Uint32 findMethod(const String& name) const;
+    Uint32 findMethod(const CIMName& name) const;
 
     CIMMethod getMethod(Uint32 pos);
 
@@ -84,7 +85,7 @@ public:
 
     void resolve(
 	DeclContext* context,
-	const String& nameSpace);
+	const CIMNamespaceName& nameSpace);
 
     virtual Boolean identical(const CIMObjectRep* x) const;
 
@@ -97,7 +98,7 @@ public:
 	return new CIMClassRep(*this);
     }
 
-    void getKeyNames(Array<String>& keyNames) const;
+    void getKeyNames(Array<CIMName>& keyNames) const;
 
     Boolean hasKeys() const;
 
@@ -115,7 +116,7 @@ private:
         return *this;
     }
 
-    String _superClassName;
+    CIMName _superClassName;
     Array<CIMMethod> _methods;
 
     friend class CIMClass;

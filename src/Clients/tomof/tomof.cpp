@@ -114,7 +114,7 @@ public:
     {
 	// Filter the list in accordance with the pattern
 	//cout << "Filter Start " << _classNameList.size() << endl;
-	Array<String> tmp;
+	Array<CIMName> tmp;
 	for (Uint32 i = 0; i < _classNameList.size(); i++)
 	{
 	   /* cout << "Loop in filter " << i << " " 
@@ -160,7 +160,7 @@ public:
         _index = 0;
     }
 private:
-    Array<String> _classNameList;
+    Array<CIMName> _classNameList;
     clientRepositoryInterface _cli;
     String _nameSpace;
     Uint32 _index;

@@ -31,12 +31,13 @@
 #define Pegasus_ParameterRep_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Sharable.h>
+#include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMQualifier.h>
 #include <Pegasus/Common/CIMQualifierList.h>
-#include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -49,20 +50,20 @@ class PEGASUS_COMMON_LINKAGE CIMParameterRep : public Sharable
 public:
 
     CIMParameterRep(
-	const String& name, 
+	const CIMName& name, 
 	CIMType type,
 	Boolean isArray,
 	Uint32 arraySize,
-	const String& referenceClassName);
+	const CIMName& referenceClassName);
 
     ~CIMParameterRep();
 
-    const String& getName() const 
+    const CIMName& getName() const 
     { 
 	return _name; 
     }
 
-    void setName(const String& name);
+    void setName(const CIMName& name);
 
     Boolean isArray() const
     {
@@ -74,7 +75,7 @@ public:
 	return _arraySize;
     }
 
-    const String& getReferenceClassName() const 
+    const CIMName& getReferenceClassName() const 
     {
 	return _referenceClassName; 
     }
@@ -91,7 +92,7 @@ public:
 	_qualifiers.add(qualifier);
     }
 
-    Uint32 findQualifier(const String& name) const
+    Uint32 findQualifier(const CIMName& name) const
     {
 	return _qualifiers.find(name);
     }
@@ -111,7 +112,7 @@ public:
 	return _qualifiers.getCount();
     }
 
-    void resolve(DeclContext* declContext, const String& nameSpace);
+    void resolve(DeclContext* declContext, const CIMNamespaceName& nameSpace);
 
     void toXml(Array<Sint8>& out) const;
 
@@ -138,11 +139,11 @@ private:
         return *this;
     }
 
-    String _name;
+    CIMName _name;
     CIMType _type;
     Boolean _isArray;
     Uint32 _arraySize;
-    String _referenceClassName;
+    CIMName _referenceClassName;
     CIMQualifierList _qualifiers;
 };
 

@@ -31,10 +31,11 @@
 #define Pegasus_QualifierList_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMQualifier.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/Pair.h>
-#include <Pegasus/Common/Linkage.h>
 
 
 /* ATTN: P2 KS 25 Mar 2002 - The function names are a mismash of local and taken
@@ -110,16 +111,16 @@ public:
 	@return Returns index of the qualifier found or PEG_NOT_FOUND
 	if not found.
     */
-    Uint32 find(const String& name) const;
+    Uint32 find(const CIMName& name) const;
 
     /** exists - Returns true if the qualifier with the
 	specified name exists in the class
-	@param name String name of the qualifier object being tested.
+	@param name CIMName name of the qualifier object being tested.
 	@return True if the qualifier exits in the list.  Otherwise
 	false is returned.
     */
 
-    Boolean exists(const String& name) const
+    Boolean exists(const CIMName& name) const
     {
 	return (((find(name)) == PEG_NOT_FOUND)? false : true);
     }
@@ -129,13 +130,13 @@ public:
 	has a value of true.
 	This function is useful to quickly determine the state of a
 	qualifier.
-	@param String containing the qualifier  name.
+	@param CIMName containing the qualifier  name.
 	@return Boolean True if the qualifier exists, 
     */
-    Boolean isTrue(const String& name) const;
+    Boolean isTrue(const CIMName& name) const;
 
     /// findReverse - See find
-    Uint32 findReverse(const String& name) const;
+    Uint32 findReverse(const CIMName& name) const;
     
     /** resolve - Resolves the qualifierList based on the information provided. The resolved
 	qualifiers are the result of validating and testing the qualifiers against the

@@ -32,13 +32,14 @@
 #define Pegasus_CIMObjectRep_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Sharable.h>
+#include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMProperty.h>
 #include <Pegasus/Common/CIMQualifier.h>
 #include <Pegasus/Common/CIMQualifierList.h>
 #include <Pegasus/Common/Array.h>
-#include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -57,7 +58,7 @@ public:
 
     virtual ~CIMObjectRep();
 
-    const String& getClassName() const
+    const CIMName& getClassName() const
     {
 	return _reference.getClassName();
     }
@@ -78,7 +79,7 @@ public:
 	_qualifiers.add(qualifier);
     }
 
-    Uint32 findQualifier(const String& name) const
+    Uint32 findQualifier(const CIMName& name) const
     {
 	return _qualifiers.find(name);
     }
@@ -93,7 +94,7 @@ public:
 	return _qualifiers.getQualifier(pos);
     }
 
-    Boolean isTrueQualifer(String& name) const
+    Boolean isTrueQualifer(CIMName& name) const
     {
 	return _qualifiers.isTrue(name);
     }
@@ -110,7 +111,7 @@ public:
 
     virtual void addProperty(const CIMProperty& x);
 
-    Uint32 findProperty(const String& name) const;
+    Uint32 findProperty(const CIMName& name) const;
 
     CIMProperty getProperty(Uint32 pos);
 

@@ -127,6 +127,10 @@ static const char MET_PROVIDER [] = "Method";
 */
 static const char MODULE_KEY [] = "Module";
 
+static const char MODULE_NOT_FOUND [] = " Can not find the provider module.";
+static const char PROVIDER_NOT_FOUND [] = " Can not find the provider.";
+static const char CAPABILITY_NOT_REGISTERED [] = " Provider capability has not been registered yet.";
+
 /**
    Registered instance provider type
 */
@@ -219,7 +223,7 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
         if (!_registrationTable->table.lookup(capabilityKey, providerCapability))
         {
             PEG_METHOD_EXIT();
-            throw CIMException(CIM_ERR_FAILED, "provider capability has not been registered yet");
+            throw CIMException(CIM_ERR_FAILED, CAPABILITY_NOT_REGISTERED);
         }
 
         Array<CIMInstance> instances = providerCapability->getInstances();
@@ -265,7 +269,7 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
         if (!_registrationTable->table.lookup(_providerKey, _provider))
         {
             PEG_METHOD_EXIT();
-	    throw CIMException(CIM_ERR_FAILED, "can not find the provider");
+	    throw CIMException(CIM_ERR_FAILED, PROVIDER_NOT_FOUND);
         }
 
         Array<CIMInstance> providerInstances = _provider->getInstances();
@@ -277,7 +281,7 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
         if (!_registrationTable->table.lookup(_moduleKey, _providerModule))
         {
             PEG_METHOD_EXIT();
-	    throw CIMException(CIM_ERR_FAILED, "can not find the provider module");
+	    throw CIMException(CIM_ERR_FAILED, MODULE_NOT_FOUND);
         }
 
         Array<CIMInstance> providerModuleInstances = _providerModule->getInstances();
@@ -392,7 +396,7 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
 	else
 	{
             PEG_METHOD_EXIT();
-            throw CIMException(CIM_ERR_FAILED, "provider has not been registered yet");
+            throw CIMException(CIM_ERR_FAILED, CAPABILITY_NOT_REGISTERED);
 	}
 	
     }
@@ -413,7 +417,7 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
     if (!_registrationTable->table.lookup(_providerKey, _provider))
     {
         PEG_METHOD_EXIT();
-	throw CIMException(CIM_ERR_FAILED, "can not find the provider");
+	throw CIMException(CIM_ERR_FAILED, PROVIDER_NOT_FOUND);
     }
 
     Array<CIMInstance> providerInstances = _provider->getInstances();
@@ -425,7 +429,7 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
     if (!_registrationTable->table.lookup(_moduleKey, _providerModule))
     {
         PEG_METHOD_EXIT();
-	throw CIMException(CIM_ERR_FAILED, "can not find the provider module");
+	throw CIMException(CIM_ERR_FAILED, MODULE_NOT_FOUND);
     }
     
     Array<CIMInstance> providerModuleInstances = _providerModule->getInstances();
@@ -491,7 +495,7 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
     if (! _registrationTable->table.lookup(capabilityKey, providerCapability))
     {
         PEG_METHOD_EXIT();
-        throw CIMException(CIM_ERR_FAILED, "provider capability has not been registered yet");
+        throw CIMException(CIM_ERR_FAILED, CAPABILITY_NOT_REGISTERED);
     }
 
     Array<CIMInstance> instances = providerCapability->getInstances();
@@ -558,7 +562,7 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
 	    if (!_registrationTable->table.lookup(_providerKey, _provider))
     	    {
                 PEG_METHOD_EXIT();
-        	throw CIMException(CIM_ERR_FAILED, "can not find the provider");
+        	throw CIMException(CIM_ERR_FAILED, PROVIDER_NOT_FOUND);
     	    }
 	    
 	    _providerInstances = _provider->getInstances();
@@ -577,7 +581,7 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
 	    if (!_registrationTable->table.lookup(_moduleKey, _providerModule))
     	    {
                 PEG_METHOD_EXIT();
-        	throw CIMException(CIM_ERR_FAILED, "Can not find the provider module");
+        	throw CIMException(CIM_ERR_FAILED, MODULE_NOT_FOUND);
     	    }
 	    
 	    _providerModuleInstances = _providerModule->getInstances();
@@ -622,7 +626,7 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
 	    	    if (!_registrationTable->table.lookup(_providerKey, _provider))
     	    	    {
                         PEG_METHOD_EXIT();
-        		throw CIMException(CIM_ERR_FAILED, "Can not find the provider");
+        		throw CIMException(CIM_ERR_FAILED, PROVIDER_NOT_FOUND);
     	    	     }
 	    
 	    	     _providerInstances = _provider->getInstances();
@@ -642,7 +646,7 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
             	     if (!_registrationTable->table.lookup(_moduleKey, _providerModule))
             	     {
                          PEG_METHOD_EXIT();
-                         throw CIMException(CIM_ERR_FAILED, "can not find the provider module");
+                         throw CIMException(CIM_ERR_FAILED, MODULE_NOT_FOUND);
             	     }
 
             	     _providerModuleInstances = _providerModule->getInstances();
@@ -1073,7 +1077,7 @@ Array<Uint16> ProviderRegistrationManager::getProviderModuleStatus(
 
     if (!_registrationTable->table.lookup(_moduleKey, _providerModule))
     {
-    	throw (CIMException(CIM_ERR_FAILED, "Can not find the provider module."));
+    	throw (CIMException(CIM_ERR_FAILED, MODULE_NOT_FOUND));
     }
     
     instances = _providerModule->getInstances();
@@ -1833,7 +1837,6 @@ CIMReference ProviderRegistrationManager::_createInstance(
 	    else
 	    {
                 // the provider class was not registered
-//		PEG_METHOD_EXIT();
                 throw CIMException(CIM_ERR_FAILED, "PG_Provider class needs "
                    "to be registered before register the Provider capabilities class");
 	    }
@@ -1856,8 +1859,6 @@ CIMReference ProviderRegistrationManager::_createInstance(
 	PEG_METHOD_EXIT();
 	throw (exception);
     }
-
-//    _repository->write_unlock();
 
     // Should never get here
     PEGASUS_ASSERT(0);
@@ -2731,8 +2732,6 @@ void ProviderRegistrationManager::_sendMessageToSubscription(
     	delete asyncRequest;
     	throw CIMException(CIM_ERR_NOT_FOUND);
     }
-				
-    delete asyncRequest;
 }
 
 PEGASUS_NAMESPACE_END

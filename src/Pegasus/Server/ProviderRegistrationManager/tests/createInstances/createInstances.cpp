@@ -108,7 +108,7 @@ void TestCreateInstances(ProviderRegistrationManager prmanager)
     namespaces.append("root/cimv2");
     namespaces.append("root/cimv3");
     
-    providerType.append(4);
+    providerType.append(2);
     providerType.append(5);
 
     supportedMethods.append("test_method1");

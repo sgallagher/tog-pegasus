@@ -34,6 +34,7 @@ DIRS = \
     Config/tests \
     Repository/tests \
     Server/tests \
+    Server/ProviderRegistrationManager/tests \
     ExportServer/tests \
     Client/tests \
     Compiler/tests \
@@ -42,7 +43,5 @@ DIRS = \
     IndicationService/tests \
     Listener/tests \
     Consumer/tests
-
-#    Server/ProviderRegistrationManager/tests \
 
 include $(ROOT)/mak/recurse.mak

@@ -7,7 +7,8 @@ DIRS = \
    deleteInstances \
    modifyInstances \
    lookupInstanceProvider \
-   lookupIndicationProvider \
    lookupMethodProvider
+
+#   lookupIndicationProvider \
 
 include $(ROOT)/mak/recurse.mak

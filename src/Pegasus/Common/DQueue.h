@@ -238,7 +238,11 @@ template<class L> class PEGASUS_COMMON_LINKAGE AsyncDQueue: virtual public inter
 
       inline void _insert_prep(void) throw(IPCException)
       {
-
+	 if(_disallow->value() > 0)
+	 {
+	    unlock();
+	    throw ListClosed();
+	 }	    
 	 _slot->lock_object(pegasus_thread_self());
 	 while(true == is_full())
 	 {
@@ -248,6 +252,11 @@ template<class L> class PEGASUS_COMMON_LINKAGE AsyncDQueue: virtual public inter
 	       throw ListClosed();
 	    }	    
 	    _slot->unlocked_wait(pegasus_thread_self());
+	    if(_disallow->value() > 0)
+	    {
+	       unlock();
+	       throw ListClosed();
+	    }	    
 	 }
       }
       
@@ -260,6 +269,11 @@ template<class L> class PEGASUS_COMMON_LINKAGE AsyncDQueue: virtual public inter
       
       inline void _unlink_prep(void) throw(IPCException)
       {
+	 if(_disallow->value() > 0)
+	 {
+	    unlock();
+	    throw ListClosed();
+	 }	    
 	 _node->lock_object(pegasus_thread_self());
 	 while(true == is_empty())
 	 {
@@ -269,6 +283,11 @@ template<class L> class PEGASUS_COMMON_LINKAGE AsyncDQueue: virtual public inter
 	       throw ListClosed();
 	    }
 	    _node->unlocked_wait(pegasus_thread_self());
+	    if(_disallow->value() > 0)
+	    {
+	       unlock();
+	       throw ListClosed();
+	    }
 	 }
       }
       
@@ -377,10 +396,12 @@ template<class L> class PEGASUS_COMMON_LINKAGE AsyncDQueue: virtual public inter
       {
 	 lock(pegasus_thread_self());
 	 (*_disallow)++;
-	 _node->unlocked_signal(pegasus_thread_self());
 	 _node->disallow();
-	 _slot->unlocked_signal(pegasus_thread_self());  
+	 _node->unlocked_signal(pegasus_thread_self());
+	 _node->unlocked_signal(pegasus_thread_self());
 	 _slot->disallow();
+	 _slot->unlocked_signal(pegasus_thread_self());  
+	 _slot->unlocked_signal(pegasus_thread_self());  
 	 unlock();
       }
 

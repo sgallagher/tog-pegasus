@@ -125,6 +125,7 @@ class PEGASUS_COMMON_LINKAGE cimom : public MessageQueue
       void find_service_q(FindServiceQueue *msg );
       void enumerate_service(EnumerateService *msg );
       Boolean route_async(AsyncOpNode *operation);
+      void _shutdown_routed_queue(void);
       
             
    protected:
@@ -153,6 +154,8 @@ class PEGASUS_COMMON_LINKAGE cimom : public MessageQueue
 
 
       AtomicInt _die;
+      AtomicInt _routed_queue_shutdown;
+      
       static AtomicInt _xid;
       
 //       CIMOperationRequestDispatcher *_cim_dispatcher;

@@ -40,6 +40,7 @@ MessageQueueService::MessageQueueService(const char *name,
      _die(0),
      _pending(true), 
      _incoming(true, 1000),
+     _incoming_queue_shutdown(0),
      _req_thread(_req_proc, this, false)
 { 
    _default_op_timeout.tv_sec = 30;
@@ -55,13 +56,22 @@ MessageQueueService::MessageQueueService(const char *name,
 MessageQueueService::~MessageQueueService(void)
 {
    _die = 1;
-   _incoming.shutdown_queue();
-   
+   if (_incoming_queue_shutdown.value() == 0 )
+       _incoming.shutdown_queue();
+
    _req_thread.join();
 
 }
 
 AtomicInt MessageQueueService::_xid(1);
+
+void MessageQueueService::_shutdown_incoming_queue(void)
+{
+   _incoming_queue_shutdown = 1;
+   
+   _incoming.shutdown_queue();
+   _req_thread.cancel();
+}
 
 
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::_req_proc(void * parm)
@@ -71,14 +81,24 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::_req_proc(void *
 
    // pull messages off the incoming queue and dispatch them. then 
    // check pending messages that are non-blocking
-
+   AsyncOpNode *operation = 0;
+   
    while ( service->_die.value() == 0 ) 
    {
-      AsyncOpNode *operation = service->_incoming.remove_first_wait();
-      if ( operation == 0 )
+      try 
+      {
+	 operation = service->_incoming.remove_first();
+      }
+      catch(ListClosed & )
+      {
 	 break;
-      
-      service->_handle_incoming_operation(operation);
+      }
+      if ( service->_incoming.is_shutdown() || service->_die.value() )
+	 break;
+      if( operation )
+	 service->_handle_incoming_operation(operation);
+      else
+	 pegasus_yield();
    }
    
    myself->exit_self( (PEGASUS_THREAD_RETURN) 1 );
@@ -160,8 +180,8 @@ void MessageQueueService::_completeAsyncResponse(AsyncRequest *request,
    op->_state |= state ;
    op->_flags |= flag;
    gettimeofday(&(op->_updated), NULL);
-   if ( false == op->_request.exists(reinterpret_cast<void *>(reply)) )
-      op->_request.insert_last(reply);
+   if ( false == op->_response.exists(reinterpret_cast<void *>(reply)) )
+      op->_response.insert_last(reply);
    op->unlock();
 
    op->_client_sem.signal();
@@ -289,8 +309,7 @@ AsyncReply *MessageQueueService::SendWait(AsyncRequest *request)
    if (request->op == false)
    {
       request->op = get_op();
-      request->op->put_request(request);
-      
+      request->op->_request.insert_first(request);
       destroy_op = true;
    }
    
@@ -323,9 +342,7 @@ AsyncReply *MessageQueueService::SendWait(AsyncRequest *request)
       request->op->unlock();
       
       return_op(request->op);
-      
-//      delete request->op;
-//      request->op = 0;
+      request->op = 0;
    }
    
    return rpl;
@@ -345,7 +362,7 @@ Boolean MessageQueueService::register_service(String name,
 						    mask,
 						    _queueId);
    Boolean registered = false;
-   AsyncMessage *reply = SendWait( msg );
+   AsyncReply *reply = static_cast<AsyncReply *>(SendWait( msg ));
    
    if ( reply != 0 )
    {
@@ -353,12 +370,12 @@ Boolean MessageQueueService::register_service(String name,
       {
 	 if(reply->getMask() & message_mask::ha_reply)
 	 {
-	    if((static_cast<AsyncReply *>(reply))->result == async_results::OK)
+	    if(reply->result == async_results::OK)
 	       registered = true;
 	 }
       }
       
-      delete reply;
+      delete reply; 
    }
    delete msg;
    return registered;

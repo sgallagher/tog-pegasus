@@ -81,7 +81,7 @@ ReadWriteSem::~ReadWriteSem(void)
    catch(IPCException& e) 
    {
       e = e; // oops - this is really bad
-      PEGASUS_ASSERT(0);
+      PEGASUS_ASSERT(0); 
    }
    while(_readers > 0 || _writers > 0) 
    {

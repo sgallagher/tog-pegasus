@@ -263,22 +263,22 @@ template<class L> class PEGASUS_COMMON_LINKAGE unlocked_dq
 	 _next = _prev = 0;
       }
     
-      inline void insert_first(unlocked_dq<L> *head)
+      void insert_first(unlocked_dq<L> & head)
       { 
-	 _prev = head; 
-	 _next = head->_next; 
-	 head->_next->_prev = this; 
-	 head->_next = this;   
-	 (head->_count)++; 
+	 _prev = &head; 
+	 _next = head._next; 
+	 head._next->_prev = this; 
+	 head._next = this;   
+	 (head._count)++; 
       }
 
-      inline void insert_last(unlocked_dq<L> *head) 
+      void insert_last(unlocked_dq<L> & head) 
       {
-	 _next = head;
-	 _prev = head->_prev;
-	 head->_prev->_next = this;
-	 head->_prev = this;
-	 (head->_count)++;
+	 _next = &head;
+	 _prev = head._prev;
+	 head._prev->_next = this;
+	 head._prev = this;
+	 (head._count)++;
       }
 
       inline L *remove( int code )
@@ -306,16 +306,20 @@ template<class L> class PEGASUS_COMMON_LINKAGE unlocked_dq
       
       unlocked_dq() : _rep(0), _isHead(false), _count(0)
       {
-	 _next = this;
-	 _prev = this;
-	 _cur = this;
+	 _next = 0;
+	 _prev = 0;
+	 _cur = 0;
       }
       
       unlocked_dq(Boolean head ) : _rep(NULL), _isHead(head), _count(0)
       {
-	 _next = this;
-	 _prev = this;
-	 _cur = this;
+	 if ( _isHead == true )
+	 {
+	    _next = this;
+	    _prev = this;
+	    _cur = this;
+	 }
+	 
       }
             
       virtual ~unlocked_dq() 
@@ -324,23 +328,22 @@ template<class L> class PEGASUS_COMMON_LINKAGE unlocked_dq
 	    empty_list();
       }
 
-
-      inline virtual void insert_first(L *element) 
+      void insert_first(L *element) 
       {
 	 if( element == 0 )
 	    return;
-	 unlocked_dq<L> *ins = new unlocked_dq<L>();
+	 unlocked_dq<L> *ins = new unlocked_dq<L>(false);
 	 ins->_rep = element;
-	 ins->insert_first(this);
+	 ins->insert_first(*this);
       }
 
-      inline virtual void insert_last(L *element) 
+      void insert_last(L *element) 
       {
 	 if( element == 0 )
 	    return;
 	 unlocked_dq<L> *ins = new unlocked_dq<L>();
 	 ins->_rep = element;
-	 ins->insert_first(this);
+	 ins->insert_last(*this);
       }
       
       inline virtual void empty_list( void ) 
@@ -446,9 +449,9 @@ template<class L> class PEGASUS_COMMON_LINKAGE unlocked_dq
 	 PEGASUS_ASSERT(this->_isHead);
 	 
 	 if( ref == 0)
-	    _cur = _next;
+	    _cur = this->_next;
 	 else {
-	    _cur = _cur->_next;
+	       _cur = _cur->_next;
 	 }
 	 return(_cur->_rep);
       }

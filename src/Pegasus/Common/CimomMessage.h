@@ -173,7 +173,9 @@ class PEGASUS_COMMON_LINKAGE AsyncReply : public AsyncMessage
       
       virtual ~AsyncReply(void)
       {
-
+	 if(op != 0 )
+	    delete op;
+	 
       }
             
       Uint32 result;

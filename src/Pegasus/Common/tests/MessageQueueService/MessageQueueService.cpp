@@ -143,6 +143,7 @@ class MessageQueueServer : public MessageQueueService
 
       virtual ~MessageQueueServer(void) 
       {
+	 
       }
       
       virtual void _handle_incoming_operation(AsyncOpNode *operation);
@@ -333,10 +334,10 @@ int main(int argc, char **argv)
    cimom *Q_server = new cimom();
    
 
-//   server.run();
+   server.run();
    client.run();
-//   another.run();
-//   a_third.run();
+   another.run();
+   a_third.run();
    
    
    while( msg_count.value() < 1500 ) 
@@ -393,13 +394,20 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_func(void *parm)
    q_client->SendWait(stop ); 
    delete stop;
    
-   cout << "deregistering client" << endl;
+   cout << "deregistering client qid " << q_client->getQueueId() << endl;
  
    q_client->deregister_service(); 
  
-   cout << " deleting client ";
+   cout << "closing service queue" << endl;
    
+   q_client->_shutdown_incoming_queue();
+   
+   cout << " deleting client " << endl ;
+
    delete q_client;
+
+   cout << " exiting " << endl;
+   
    my_handle->exit_self( (PEGASUS_THREAD_RETURN) 1 );
    return(0);
 }
@@ -419,12 +427,19 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL server_func(void *parm)
    {
       my_handle->sleep(10);
    }
-
+ 
    cout << "deregistering server qid " << q_server->getQueueId() << endl;
    q_server->deregister_service();
+
+   cout << "closing server queue" << endl;
+   q_server->_shutdown_incoming_queue();
+   
+
    cout << " deleting server " << endl;
    
    delete q_server; 
+   
+   cout << "exiting server " << endl;
    
    my_handle->exit_self( (PEGASUS_THREAD_RETURN) 1 );
    return(0);

@@ -76,7 +76,7 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
       Boolean register_service(String name, Uint32 capabilities, Uint32 mask);
       Boolean update_service(Uint32 capabilities, Uint32 mask);
       Boolean deregister_service(void);
-
+      virtual void _shutdown_incoming_queue(void);
       void find_services(String name,
 			 Uint32 capabilities, 
 			 Uint32 mask, 
@@ -89,6 +89,7 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
       Uint32 _mask;
       AtomicInt _die;
    protected:
+
       virtual void _handle_incoming_operation(AsyncOpNode *operation);
       virtual void _handle_async_request(AsyncRequest *req);
       virtual void _make_response(AsyncRequest *req, Uint32 code);
@@ -100,11 +101,14 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
       AsyncDQueue<AsyncOpNode> _incoming;
       
       static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _req_proc(void *);
+      AtomicInt _incoming_queue_shutdown;
+      
       Thread _req_thread;
       
       struct timeval _default_op_timeout;
 
       static AtomicInt _xid;
+      
 
 
 

@@ -281,36 +281,31 @@ void ThreadPool::allocate_and_awaken(void *parm,
    
    Thread *th = _pool.remove_first();
 
-   while (th == 0 && _dying < 1)
+
+   // wait for the right interval and try again
+   while(th == 0 && _dying < 1)
    {
-      try  // we couldn't get a free thread from the pool
+      _check_deadlock(&start);
+      Uint32 interval = (_allocate_wait.tv_sec * 1000) + _allocate_wait.tv_usec;
+      // will throw a timeout if no thread comes free
+      try 
       {
-	 // wait for the right interval and try again
-	 while(th == 0 && _dying < 1)
-	 {
-	    _check_deadlock(&start);
-	    Uint32 interval = _allocate_wait.tv_sec * 1000;
-	    if(_allocate_wait.tv_usec > 0)
-	       interval += (_deallocate_wait.tv_usec / 1000);
-	    // will throw a timeout if no thread comes free
-	    _pool_sem.time_wait(interval);
-	    th = _pool.remove_first();
-	 }
+	 _pool_sem.time_wait(interval);
       }
-      catch(TimeOut &)
+      catch(TimeOut & timeout)
       {
+	 if (timeout.get_owner())
+	    ;
+	 
 	 if(_current_threads < _max_threads)
 	 {
 	    th = _init_thread();
-	    break;
+	    continue;
 	 } 
       } 
-      // will throw a Deadlock Exception before falling out of the loop
-
-      _check_deadlock(&start); 
+      th = _pool.remove_first();
+   }
       
-   } // while th == null
-   
    if(_dying < 1)
    {
       // initialize the thread data with the work function and parameters

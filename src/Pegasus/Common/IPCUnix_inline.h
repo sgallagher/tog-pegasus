@@ -303,18 +303,29 @@ inline void Semaphore::time_wait( Uint32 milliseconds ) throw(TimeOut)
    struct timeval start, now;
    int retcode;
    gettimeofday(&start,NULL);
+   now.tv_sec = start.tv_sec;
+   now.tv_usec = start.tv_usec;
+   
    start.tv_usec += (milliseconds * 1000);
-   
-   do 
+   if (start.tv_usec < now.tv_usec)
+      start.tv_sec++;
+   while( 1 )
    {
-      retcode = sem_trywait(&_semaphore.sem);
+      do 
+      {
+	 retcode = sem_trywait(&_semaphore.sem);
+      } while (retcode == -1 && errno == EINTR);
+
+      if ( retcode == 0 )
+	 return ;
+
+      if( retcode == -1 && errno != EAGAIN )
+	 throw IPCException(pegasus_thread_self());
       gettimeofday(&now, NULL);
-   } while (retcode == -1 && 
-	    errno == EAGAIN &&
-	    (now.tv_usec < start.tv_usec) || ( now.tv_sec <= start.tv_sec)) ;
-   
-   if(retcode)
-      throw(TimeOut(_semaphore.owner));
+      if ( now.tv_usec >= start.tv_usec && 
+	   now.tv_sec >= start.tv_sec )
+	 throw TimeOut(pegasus_thread_self());
+   }
 }
 
 // increment the count of the semaphore 

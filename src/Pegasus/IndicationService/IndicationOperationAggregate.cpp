@@ -256,10 +256,19 @@ ProviderClassList IndicationOperationAggregate::findProvider (
                     break;
                 }
         
+                case CIM_DISABLE_INDICATIONS_REQUEST_MESSAGE:
+                {
+                    CIMDisableIndicationsRequestMessage * request =
+                        (CIMDisableIndicationsRequestMessage *) getRequest (i);
+                    provider.provider = request->provider;
+                    provider.providerModule = request->providerModule;
+                    break;
+                }
+        
                 default:
                 {
                     PEG_TRACE_STRING (TRC_INDICATION_SERVICE, Tracer::LEVEL2,
-                        "Unexpected origRequest type " + String 
+                        "Unexpected request type " + String 
                         (MessageTypeToString (getRequest (i)->getType ())) +
                         " in findProvider");
                     PEGASUS_ASSERT (false);

@@ -6696,6 +6696,7 @@ void IndicationService::_handleDeleteResponseAggregation (
         //
         ProviderClassList provider;
         provider.provider = origRequest->provider;
+        provider.providerModule = origRequest->providerModule;
         disableProviders = _updateHashTable
             (request->subscriptionInstance.getPath (), provider, false);
     }

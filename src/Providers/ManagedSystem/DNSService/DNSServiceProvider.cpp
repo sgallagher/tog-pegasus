@@ -183,6 +183,9 @@ DNSServiceProvider::enumerateInstances(
 
         dns = new DNSService();
 
+	    if (!dns->AccessOk(context))
+	       throw CIMAccessDeniedException("Access denied by DNSProvider");
+
         newref = _fill_reference(classReference.getNameSpace(), className);
         instance = _build_instance(className, 
                                    classReference.getNameSpace(), 
@@ -219,6 +222,9 @@ DNSServiceProvider::enumerateInstanceNames(
     }
 
     dns = new DNSService();
+
+    if (!dns->AccessOk(context))
+       throw CIMAccessDeniedException("Access denied by DNSProvider");
 
     handler.processing();
     // in terms of the class we use, want to set to what was requested

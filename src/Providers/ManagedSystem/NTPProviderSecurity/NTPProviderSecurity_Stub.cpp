@@ -35,14 +35,14 @@
 
 //==============================================================================
 //
-// Class [Security] methods
+// Class [NTPProviderSecurity] methods
 //
 //==============================================================================
 
 //------------------------------------------------------------------------------
 // Constructor to set context
 //------------------------------------------------------------------------------
-SecurityProvider::SecurityProvider(const OperationContext & context)
+NTPProviderSecurity::NTPProviderSecurity(const OperationContext & context)
 {
     // Insert your code here
 }
@@ -50,9 +50,9 @@ SecurityProvider::SecurityProvider(const OperationContext & context)
 //------------------------------------------------------------------------------
 // Destructor
 //------------------------------------------------------------------------------
-SecurityProvider::~SecurityProvider(void)
+NTPProviderSecurity::~NTPProviderSecurity(void)
 {
-   delete this;    
+	delete this;    
 }    
 
 //------------------------------------------------------------------------------
@@ -63,14 +63,14 @@ SecurityProvider::~SecurityProvider(void)
 // PARAMETERS:    [IN]  username  -> user to retrieve information
 //                [IN]  filename  -> file name to verify access    
 //                [IN]  chkoper   -> valid options: OPT_READ,
-//                                         OPT_WRITE,
-//                                         OPT_READ_WRITE or
-//                                         OPT_EXECUTE
+//											  		OPT_WRITE,
+//											  		OPT_READ_WRITE or
+//											  		OPT_EXECUTE
 //
 // RETURN: TRUE, if user have privileges, otherwise FALSE
 //------------------------------------------------------------------------------
 Boolean
-SecurityProvider::checkAccess(const String username, 
+NTPProviderSecurity::checkAccess(const String username, 
                               const String filename,
                               const String chkoper) 
 {
@@ -88,9 +88,9 @@ SecurityProvider::checkAccess(const String username,
 // RETURN: string that will contain the context user
 //------------------------------------------------------------------------------
 String
-SecurityProvider::getUserContext() 
+NTPProviderSecurity::getUserContext() 
 {    
-   String user;
-   // Insert your code here
+	String user;
+	// Insert your code here
     return user;   
 }

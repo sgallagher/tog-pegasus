@@ -31,11 +31,9 @@
 // INCLUDES
 //------------------------------------------------------------------------------
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Provider/ProviderException.h>    
-#include "DNSServiceProvider.h"
-
-
+#include <Pegasus/Provider/ProviderException.h>
 #include "NTPProviderSecurity.h"
+#include "DNSServiceProvider.h"
 
 // The following includes are necessary to gethostbyaddr and gethostname
 // functions
@@ -44,14 +42,13 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
+
 //used by gethostname function
 #include <unistd.h>
 #include <sys/param.h>
 #include <sys/getaccess.h>
 #include <pwd.h>
 #include <stdlib.h>
-
-#include "DNSServiceProvider.h"
 
 //------------------------------------------------------------------------------
 PEGASUS_USING_PEGASUS;
@@ -175,7 +172,8 @@ DNSService::~DNSService(void)
 //
 // RETURN:     true, hardcoded
 //------------------------------------------------------------------------------
-Boolean DNSService::getCaption(String & capt)
+Boolean 
+DNSService::getCaption(String & capt)
 {
     capt.assign(DNS_CAPTION);
     return true;
@@ -190,7 +188,8 @@ Boolean DNSService::getCaption(String & capt)
 //
 // RETURN:     true, hardcoded
 //------------------------------------------------------------------------------
-Boolean DNSService::getDescription(String & desc)
+Boolean 
+DNSService::getDescription(String & desc)
 {
     desc.assign(DNS_DESCRIPTION);
     return true;
@@ -221,7 +220,8 @@ DNSService::getSystemName(String & systemName)
 //
 // RETURN:
 //------------------------------------------------------------------------------
-Boolean DNSService::FindInArray(Array<String> src, String text)
+Boolean 
+DNSService::FindInArray(Array<String> src, String text)
 {
     Boolean ok = false;
     int i;
@@ -244,7 +244,8 @@ Boolean DNSService::FindInArray(Array<String> src, String text)
 //
 // RETURN:     true, if there's a DNS Name
 //------------------------------------------------------------------------------
-Boolean DNSService::getDNSName(String & name) 
+Boolean 
+DNSService::getDNSName(String & name) 
 {
 #ifdef DEBUG
     cout << "DNSService::getDNSName()" << endl;
@@ -271,7 +272,8 @@ Boolean DNSService::getDNSName(String & name)
 //
 // RETURN: 
 //------------------------------------------------------------------------------
-Boolean DNSService::getSearchList(Array<String> & srclst) 
+Boolean 
+DNSService::getSearchList(Array<String> & srclst) 
 {
     srclst.clear();
     for(int i=0; i < dnsSearchList.size(); i++) 
@@ -288,7 +290,8 @@ Boolean DNSService::getSearchList(Array<String> & srclst)
 //
 // RETURN: 
 //------------------------------------------------------------------------------
-Boolean DNSService::getAddresses(Array<String> & addrlst) 
+Boolean 
+DNSService::getAddresses(Array<String> & addrlst) 
 {
     addrlst.clear();
     for(int i=0; i < dnsAddresses.size(); i++) 
@@ -399,11 +402,12 @@ DNSService::getDNSInfo()
 //
 // RETURN: TRUE, if user have privileges, otherwise FALSE
 //------------------------------------------------------------------------------
-Boolean DNSService::AccessOk(const OperationContext & context)
+Boolean 
+DNSService::AccessOk(const OperationContext & context)
 {
-    sec = new SecurityProvider(context);  // Pointer defined into System.h file
+    sec = new NTPProviderSecurity(context);  // Pointer defined into System.h file
     Boolean ok = sec->checkAccess(sec->getUserContext(),
-                                 DNS_FILE_CONFIG,
-                                 SEC_OPT_READ);
+                                  DNS_FILE_CONFIG,
+                                  SEC_OPT_READ);
     return ok;
 }

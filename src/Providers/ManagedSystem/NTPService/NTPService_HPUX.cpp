@@ -34,8 +34,7 @@
 //Pegasus includes
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Exception.h>
-
-#include "NTPProviderSecurity.h"
+#include "NTPProviderSecurity.h"    
 
 // The following includes are necessary to gethostbyaddr and gethostname
 // functions 
@@ -73,8 +72,10 @@ static const String NTP_NAME("xntpd");
 //------------------------------------------------------------------------------
 NTPService::NTPService(void)
 {
-    // Retrieve NTP information
-    getNTPInfo();
+    // Retrieve NTP informations
+    if(!getNTPInfo())
+        throw CIMObjectNotFoundException("NTPService "
+            "can't create PG_NTPService instance");
 }
 
 //------------------------------------------------------------------------------
@@ -244,62 +245,10 @@ Boolean NTPService::getLocalHostName(String & hostName)
 //------------------------------------------------------------------------------
 Boolean NTPService::AccessOk(const OperationContext & context)
 {
-    sec = new SecurityProvider(context);  // Pointer defined into System.h file
+    sec = new NTPProviderSecurity(context);  // Pointer defined into NTPProviderSecurity.h file
     Boolean ok = sec->checkAccess(sec->getUserContext(),
-                                 NTP_FILE_CONFIG,
-                                 SEC_OPT_READ);
-    return ok;
-}
-
-//------------------------------------------------------------------------------
-// FUNCTION: getKeyValue
-//
-// REMARKS: Retrieves the key value from line buffer
-//
-// PARAMETERS:  [IN] strLine   -> string that will contain the line buffer
-//                [OUT] strValue -> string key value 
-//
-// RETURN: TRUE if Ok, otherwise FALSE.
-//------------------------------------------------------------------------------
-Boolean NTPService::getKeyValue(String strLine, String & strValue) {
-    int ps;
-    Boolean ok = false;
-    String strTmp;
-
-    strValue.clear();
-    // Verify is value exists after space character
-
-    ps = strLine.find(" ");
-    if (ps < 0)                // If not a space, then verify a tab character
-        ps = strLine.find("\t");
-
-    if(ps > 0) {
-
-        // Eat additional tabs and spaces until we get the next value
-        for (; ps < strLine.size(); ps++)
-        {
-            if (!String::equal(strLine.subString(ps+1,1)," ") &&
-                !String::equal(strLine.subString(ps+1,1),"\t") )
-               break;
-        }
-
-        // Retrieve partial value
-        strTmp.assign(strLine.subString(ps + 1));
-        ps = strTmp.find(" ");
-        if(ps < 0)
-            ps = strTmp.find("\t");
-        if(ps < 0)
-        {
-            strValue.assign(strTmp);
-            ok = true;
-        }
-        else if(ps > 0) {
-            // Retrieve real value
-            strValue.assign(strTmp.subString(0, ps));
-            ok = true;
-        }
-    }
-
+                                  NTP_FILE_CONFIG,
+                                  SEC_OPT_READ);
     return ok;
 }
 
@@ -315,6 +264,7 @@ Boolean NTPService::getNTPInfo()
 {
     FILE *fp;
     int i, ps = 0;
+    long lstPos = 0;
     char buffer[5000];
     Boolean ok = false,
             okRet = false;
@@ -324,8 +274,7 @@ Boolean NTPService::getNTPInfo()
 
     // Open NTP configuration file
     if((fp = fopen(NTP_FILE_CONFIG.getCString(), "r")) == NULL)
-        throw CIMOperationFailedException("NTPService "
-              "can't open ntp.conf file");
+        return ok;
 
     // Clear attributes 
     ntpName.clear();
@@ -339,17 +288,24 @@ Boolean NTPService::getNTPInfo()
 
         ps = strBuffer.find(NTP_ROLE_CLIENT);
         
+        okRet = true;
         if(ps == 0) 
         {
             okRet = true;
-            
-            //Insert address server into array
-            if(!getKeyValue(strBuffer, strHost))
+            fseek(fp, lstPos, SEEK_SET);
+            fscanf(fp, "%s", buffer);
+            strBuffer.assign(buffer);
+            ps = strBuffer.find(NTP_ROLE_CLIENT);
+            if(ps < 0) {
+                lstPos = ftell(fp);
                 continue;
-            
-            
-            // Verify if name server exists in array
+            }
+
+            fscanf(fp, "%s", buffer);
+            strHost.assign(buffer);
+
             ok = false;    
+            // Verify if name server exists in array
             for(i=0; i < ntpServerAddress.size(); i++) 
             {
                 if(String::equalNoCase(ntpServerAddress[i], strHost)) 
@@ -367,6 +323,7 @@ Boolean NTPService::getNTPInfo()
                     getHostName(strHost, ntpName);
             }
         }
+        lstPos = ftell(fp);
     }
     fclose(fp);        
     return okRet;

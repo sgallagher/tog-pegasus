@@ -32,28 +32,20 @@
 //Pegasus includes
 #include "NTPProviderSecurity.h"
 
-// Security includes
-#include <sys/getaccess.h>
-#include <grp.h>
-#include <pwd.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-
 //------------------------------------------------------------------------------ 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 //==============================================================================
 //
-// Class [Security] methods
+// Class [NTPProviderSecurity] methods
 //
 //==============================================================================
 
 //------------------------------------------------------------------------------
 // Constructor to set context
 //------------------------------------------------------------------------------
-SecurityProvider::SecurityProvider(const OperationContext & context)
+NTPProviderSecurity::NTPProviderSecurity(const OperationContext & context)
 {
     IdentityContainer container(context.get(IdentityContainer::NAME));
     secUsername.assign(container.getUserName());
@@ -62,7 +54,7 @@ SecurityProvider::SecurityProvider(const OperationContext & context)
 //------------------------------------------------------------------------------
 // Destructor
 //------------------------------------------------------------------------------
-SecurityProvider::~SecurityProvider(void)
+NTPProviderSecurity::~NTPProviderSecurity(void)
 {
 	delete this;    
 }    
@@ -82,9 +74,9 @@ SecurityProvider::~SecurityProvider(void)
 // RETURN: TRUE, if user have privileges, otherwise FALSE
 //------------------------------------------------------------------------------
 Boolean
-SecurityProvider::checkAccess(const String username, 
-                              const String filename,
-                              const String chkoper) 
+NTPProviderSecurity::checkAccess(const String username, 
+                           const String filename,
+                           const String chkoper) 
 {
     FILE *fp;
     struct passwd *pwd;
@@ -101,7 +93,7 @@ SecurityProvider::checkAccess(const String username,
     char *member;
     gid_t grps[100];
     // store user id
-	uid_t user_id; 
+	uid_t user_id = -1; 
 	// store group id  - is there only one group id?
 	gid_t group_id;
     int accessrights;
@@ -114,59 +106,57 @@ SecurityProvider::checkAccess(const String username,
     if(okUser) {
 	    // Retrieve uid from user
 	    strValue.clear();
-	    if(String::equalNoCase(username, "root"))
-	        isRoot = true;
-	    else
-	    {
-            // Go through password entries and find the entry that matches "username"
-		    pwd = getpwent();
-		    if(pwd != NULL) {
-		    	strValue.assign(pwd->pw_name);
-		    	while(!String::equalNoCase(strValue, username)) {
-		            pwd = getpwent();
-		            if(pwd == NULL)
-		                break;
-		            strValue.assign(pwd->pw_name);
-		        }
-		    }
-			// indicate that the processing of the password database is complete
-	        endpwent();
-
-	        // If we didn't find the entry - just return
-	        if(strValue.size() == 0 || !String::equalNoCase(strValue, username))
-	            return ok;
-
-			// DLH set the group and user id
-			user_id = pwd->pw_uid;
-			group_id = pwd->pw_gid;
+        // Go through password entries and find the entry that matches "username"
+	    pwd = getpwent();
+	    if(pwd != NULL) {
+	    	strValue.assign(pwd->pw_name);
+	    	while(!String::equalNoCase(strValue, username)) {
+	            pwd = getpwent();
+	            if(pwd == NULL)
+	                break;
+	            strValue.assign(pwd->pw_name);
+	        }
 	    }
+		// indicate that the processing of the password database is complete
+        endpwent();
+
+        // If we didn't find the entry - just return
+        if(strValue.size() == 0 || !String::equalNoCase(strValue, username))
+            return ok;
+
+		// DLH set the group and user id
+		user_id = pwd->pw_uid;
+		group_id = pwd->pw_gid;
+        isRoot = (user_id == 0);
     
-	    // Find the groups to which this user belongs and store the list in "member"
-		strValue.clear(); 
-	    memset(&grps, 0, sizeof(grps));
-	    // Return a pointer to the first group structure in the group database
-	    grp = getgrent();
-	    while(grp != NULL) {
-			i = 0;
-	    	strMembers.clear();
-			member = grp->gr_mem[i++];
-			while (member) {
-	        	strMembers.append(member);
-	        	member = grp->gr_mem[i++];
-	        }
-	        for(i=0; i < strMembers.size(); i++) {
-	        	strValue.assign(strMembers[i]);
-	        	ps = strValue.find(username);
-	        	if(ps >= 0) {
-	            	grps[ngr++] = grp->gr_gid;
-	            	break;
-	            }
-	        }
-            // Get the next group structure
-	        grp = getgrent();
-	    }
-        // Indicate that the processing of the group database is complete
-	    endgrent();
+	    if(!isRoot) {
+		    // Find the groups to which this user belongs and store the list in "member"
+			strValue.clear(); 
+		    memset(&grps, 0, sizeof(grps));
+		    // Return a pointer to the first group structure in the group database
+		    grp = getgrent();
+		    while(grp != NULL) {
+				i = 0;
+		    	strMembers.clear();
+				member = grp->gr_mem[i++];
+				while (member) {
+		        	strMembers.append(member);
+		        	member = grp->gr_mem[i++];
+		        }
+		        for(i=0; i < strMembers.size(); i++) {
+		        	strValue.assign(strMembers[i]);
+		        	ps = strValue.find(username);
+		        	if(ps >= 0) {
+		            	grps[ngr++] = grp->gr_gid;
+		            	break;
+		            }
+		        }
+	            // Get the next group structure
+		        grp = getgrent();
+		    }
+	        // Indicate that the processing of the group database is complete
+		    endgrent();
+        }
     }
     
 	// Build the command with path of file
@@ -248,7 +238,7 @@ SecurityProvider::checkAccess(const String username,
 // RETURN: string that will contain the context user
 //------------------------------------------------------------------------------
 String
-SecurityProvider::getUserContext(void) 
+NTPProviderSecurity::getUserContext(void) 
 {    
     return secUsername;
 }

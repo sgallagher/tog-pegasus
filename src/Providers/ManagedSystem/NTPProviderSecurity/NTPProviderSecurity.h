@@ -42,6 +42,14 @@
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Common/System.h>
 
+// Security includes
+#include <sys/getaccess.h>
+#include <grp.h>
+#include <pwd.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+    
 //------------------------------------------------------------------------------ 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -57,14 +65,14 @@ static const String SEC_OPT_ALL("rwx");
 static const Uint32 CONTEXT_ID = 1;
 
 //------------------------------------------------------------------------------
-// Class [Security] Definition
+// Class [NTPProviderSecurity] Definition
 //------------------------------------------------------------------------------
-class SecurityProvider
+class NTPProviderSecurity
 {
     
 public:
-    SecurityProvider(const OperationContext & context);
-    virtual ~SecurityProvider(void);
+    NTPProviderSecurity(const OperationContext & context);
+    virtual ~NTPProviderSecurity(void);
 
 public:
     //
@@ -92,6 +100,6 @@ private:
 };
 
 // Global pointer to access SecurityProvider class
-SecurityProvider *sec;
+NTPProviderSecurity *sec;
 
 #endif

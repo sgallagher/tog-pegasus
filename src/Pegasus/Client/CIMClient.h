@@ -334,15 +334,15 @@ public:
 	const String& className
     ) throw(CIMClientException);
 
-    /// ATTN: should return Array<CIMObject>
-    virtual Array<CIMObjectWithPath> execQuery(
+    ///
+    virtual Array<CIMObject> execQuery(
 	const String& nameSpace,
 	const String& queryLanguage,
 	const String& query
     ) throw(CIMClientException);
 
     ///
-    virtual Array<CIMObjectWithPath> associators(
+    virtual Array<CIMObject> associators(
 	const String& nameSpace,
 	const CIMObjectPath& objectName,
 	const String& assocClass = String::EMPTY,
@@ -365,7 +365,7 @@ public:
     ) throw(CIMClientException);
 
     ///
-    virtual Array<CIMObjectWithPath> references(
+    virtual Array<CIMObject> references(
 	const String& nameSpace,
 	const CIMObjectPath& objectName,
 	const String& resultClass = String::EMPTY,

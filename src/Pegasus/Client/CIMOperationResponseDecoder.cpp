@@ -1087,15 +1087,15 @@ CIMReferencesResponseMessage* CIMOperationResponseDecoder::_decodeReferencesResp
 	    messageId,
 	    cimException,
 	    QueueIdStack(),
-	    Array<CIMObjectWithPath>()));
+	    Array<CIMObject>()));
     }
     else
     {
-	Array<CIMObjectWithPath> objectWithPathArray;
+	Array<CIMObject> objectWithPathArray;
 
 	if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
 	{
-	    CIMObjectWithPath objectWithPath;
+	    CIMObject objectWithPath;
 
 	    while (XmlReader::getValueObjectWithPathElement(parser, objectWithPath))
 	        objectWithPathArray.append(objectWithPath);
@@ -1159,15 +1159,15 @@ CIMAssociatorsResponseMessage* CIMOperationResponseDecoder::_decodeAssociatorsRe
 	    messageId,
 	    cimException,
 	    QueueIdStack(),
-	    Array<CIMObjectWithPath>()));
+	    Array<CIMObject>()));
     }
     else
     {
-	Array<CIMObjectWithPath> objectWithPathArray;
+	Array<CIMObject> objectWithPathArray;
 
 	if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
 	{
-	    CIMObjectWithPath objectWithPath;
+	    CIMObject objectWithPath;
 
 	    while (XmlReader::getValueObjectWithPathElement(parser, objectWithPath))
 	        objectWithPathArray.append(objectWithPath);
@@ -1195,11 +1195,11 @@ CIMExecQueryResponseMessage* CIMOperationResponseDecoder::_decodeExecQueryRespon
 	    messageId,
 	    cimException,
 	    QueueIdStack(),
-	    Array<CIMObjectWithPath>()));
+	    Array<CIMObject>()));
     }
     else
     {
-	Array<CIMObjectWithPath> objectWithPathArray;
+	Array<CIMObject> objectWithPathArray;
 
 	if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
 	{

@@ -1120,7 +1120,7 @@ void ProviderManagerService::handleExecuteQueryRequest(AsyncOpNode *op, const Me
 
     PEGASUS_ASSERT(request != 0 && async != 0 );
 
-    Array<CIMObjectWithPath> cimObjects;
+    Array<CIMObject> cimObjects;
 
     CIMExecQueryResponseMessage * response =
         new CIMExecQueryResponseMessage(
@@ -1153,7 +1153,7 @@ void ProviderManagerService::handleAssociatorsRequest(AsyncOpNode *op, const Mes
 
     PEGASUS_ASSERT(request != 0 && async != 0);
 
-    Array<CIMObjectWithPath> cimObjects;
+    Array<CIMObject> cimObjects;
 
     CIMAssociatorsResponseMessage * response =
         new CIMAssociatorsResponseMessage(
@@ -1292,7 +1292,7 @@ void ProviderManagerService::handleReferencesRequest(AsyncOpNode *op, const Mess
 
     PEGASUS_ASSERT(request != 0 && async != 0 );
 
-    Array<CIMObjectWithPath> cimObjects;
+    Array<CIMObject> cimObjects;
 
     CIMReferencesResponseMessage * response =
         new CIMReferencesResponseMessage(

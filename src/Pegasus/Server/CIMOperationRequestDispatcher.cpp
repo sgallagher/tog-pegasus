@@ -2775,7 +2775,7 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
 
       STAT_PROVIDERSTART
 
-      Array<CIMObjectWithPath> cimObjects;
+      Array<CIMObject> cimObjects;
 
       _repository->read_lock();
 
@@ -2828,7 +2828,7 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
             request->messageId,
             PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
             request->queueIds.copyAndPop(),
-            Array<CIMObjectWithPath>());
+            Array<CIMObject>());
 
       STAT_COPYDISPATCHER
 
@@ -2957,7 +2957,7 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
 
       STAT_PROVIDERSTART
 
-      Array<CIMObjectWithPath> cimObjects;
+      Array<CIMObject> cimObjects;
 
       _repository->read_lock();
 
@@ -3008,7 +3008,7 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
             request->messageId,
             PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
             request->queueIds.copyAndPop(),
-            Array<CIMObjectWithPath>());
+            Array<CIMObject>());
 
       STAT_COPYDISPATCHER
 
@@ -3519,7 +3519,7 @@ void CIMOperationRequestDispatcher::handleExecQueryRequest(
 
    CIMException cimException =
        PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "ExecQuery");
-   Array<CIMObjectWithPath> cimObjects;
+   Array<CIMObject> cimObjects;
 
    CIMExecQueryResponseMessage* response =
       new CIMExecQueryResponseMessage(

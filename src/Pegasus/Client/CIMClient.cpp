@@ -198,14 +198,13 @@ public:
 	const String& className
     ) throw(CIMClientException);
 
-    /// ATTN: should return Array<CIMObject>
-    virtual Array<CIMObjectWithPath> execQuery(
+    virtual Array<CIMObject> execQuery(
 	const String& nameSpace,
 	const String& queryLanguage,
 	const String& query
     ) throw(CIMClientException);
 
-    virtual Array<CIMObjectWithPath> associators(
+    virtual Array<CIMObject> associators(
 	const String& nameSpace,
 	const CIMObjectPath& objectName,
 	const String& assocClass = String::EMPTY,
@@ -226,7 +225,7 @@ public:
 	const String& resultRole = String::EMPTY
     ) throw(CIMClientException);
 
-    virtual Array<CIMObjectWithPath> references(
+    virtual Array<CIMObject> references(
 	const String& nameSpace,
 	const CIMObjectPath& objectName,
 	const String& resultClass = String::EMPTY,
@@ -862,7 +861,7 @@ Array<CIMObjectPath> CIMClientRep::enumerateInstanceNames(
     return(response->instanceNames);
 }
 
-Array<CIMObjectWithPath> CIMClientRep::execQuery(
+Array<CIMObject> CIMClientRep::execQuery(
     const String& nameSpace,
     const String& queryLanguage,
     const String& query
@@ -885,7 +884,7 @@ Array<CIMObjectWithPath> CIMClientRep::execQuery(
     return(response->cimObjects);
 }
 
-Array<CIMObjectWithPath> CIMClientRep::associators(
+Array<CIMObject> CIMClientRep::associators(
     const String& nameSpace,
     const CIMObjectPath& objectName,
     const String& assocClass,
@@ -949,7 +948,7 @@ Array<CIMObjectPath> CIMClientRep::associatorNames(
     return(response->objectNames);
 }
 
-Array<CIMObjectWithPath> CIMClientRep::references(
+Array<CIMObject> CIMClientRep::references(
     const String& nameSpace,
     const CIMObjectPath& objectName,
     const String& resultClass,
@@ -1495,7 +1494,7 @@ Array<CIMObjectPath> CIMClient::enumerateInstanceNames(
         className);
 }
 
-Array<CIMObjectWithPath> CIMClient::execQuery(
+Array<CIMObject> CIMClient::execQuery(
     const String& nameSpace,
     const String& queryLanguage,
     const String& query
@@ -1507,7 +1506,7 @@ Array<CIMObjectWithPath> CIMClient::execQuery(
         query);
 }
 
-Array<CIMObjectWithPath> CIMClient::associators(
+Array<CIMObject> CIMClient::associators(
     const String& nameSpace,
     const CIMObjectPath& objectName,
     const String& assocClass,
@@ -1549,7 +1548,7 @@ Array<CIMObjectPath> CIMClient::associatorNames(
         resultRole);
 }
 
-Array<CIMObjectWithPath> CIMClient::references(
+Array<CIMObject> CIMClient::references(
     const String& nameSpace,
     const CIMObjectPath& objectName,
     const String& resultClass,

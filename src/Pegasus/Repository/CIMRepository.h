@@ -182,7 +182,7 @@ public:
         const String& query) ;
 
     /// associators
-    virtual Array<CIMObjectWithPath> associators(
+    virtual Array<CIMObject> associators(
         const String& nameSpace,
         const CIMObjectPath& objectName,
         const String& assocClass = String::EMPTY,
@@ -203,7 +203,7 @@ public:
         const String& resultRole = String::EMPTY);
 
     /// references
-    virtual Array<CIMObjectWithPath> references(
+    virtual Array<CIMObject> references(
         const String& nameSpace,
         const CIMObjectPath& objectName,
         const String& resultClass = String::EMPTY,

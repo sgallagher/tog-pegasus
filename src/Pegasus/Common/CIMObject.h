@@ -364,62 +364,6 @@ private:
 #endif
 };
 
-/** The CIMObjectWithPath encapsulates a CIMObjectPath and CIMObject.
-    Accessors are provided for getting the two parts. Constructors are
-    provided for initializing it from a CIMObject.
-*/
-class PEGASUS_COMMON_LINKAGE CIMObjectWithPath
-{
-public:
-
-    /**	Constructor
-    */
-    CIMObjectWithPath();
-
-    /** constructor
-    */
-    CIMObjectWithPath(const CIMObjectPath& reference, const CIMObject& object);
-
-    /** Constructor - Constructs a CIMObjectWithPath Object from
-        another CimObjectWithPath
-        @param - ATTN
-    */
-    CIMObjectWithPath(const CIMObjectWithPath& x);
-
-    ~CIMObjectWithPath();
-
-    CIMObjectWithPath& operator=(const CIMObjectWithPath& x);
-
-    /** set -
-    */
-    void set(const CIMObjectPath& reference, const CIMObject& object);
-
-    /**
-    */
-    const CIMObjectPath& getReference() const;
-
-    /**
-    */
-    const CIMObject& getObject() const;
-
-    /**
-    */
-    CIMObjectPath& getReference();
-
-    /**
-    */
-    CIMObject& getObject();
-
-private:
-
-    CIMObjectPath _reference;
-    CIMObject _object;
-};
-
-#define PEGASUS_ARRAY_T CIMObjectWithPath
-# include <Pegasus/Common/ArrayInter.h>
-#undef PEGASUS_ARRAY_T
-
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_Object_h */

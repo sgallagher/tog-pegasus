@@ -3266,7 +3266,7 @@ Boolean XmlReader::getValueObjectElement(
 
 Boolean XmlReader::getValueObjectWithPathElement(
     XmlParser& parser, 
-    CIMObjectWithPath& objectWithPath)
+    CIMObject& objectWithPath)
 {
     XmlEntry entry;
 
@@ -3293,7 +3293,8 @@ Boolean XmlReader::getValueObjectWithPathElement(
 	    throw XmlValidationError(parser.getLine(),
 	        "Expected INSTANCE element");
 	}
-	objectWithPath.set(reference, CIMObject(cimInstance));
+	objectWithPath = CIMObject (cimInstance);
+        objectWithPath.setPath (reference);
     }
     else
     {
@@ -3304,7 +3305,8 @@ Boolean XmlReader::getValueObjectWithPathElement(
 	    throw XmlValidationError(parser.getLine(),
 		"Expected CLASS element");
 	}
-	objectWithPath.set(reference, CIMObject(cimClass));
+	objectWithPath = CIMObject (cimClass);
+        objectWithPath.setPath (reference);
     }
 
     expectEndTag(parser, "VALUE.OBJECTWITHPATH");
@@ -3322,7 +3324,7 @@ Boolean XmlReader::getValueObjectWithPathElement(
 
 Boolean XmlReader::getValueObjectWithLocalPathElement(
     XmlParser& parser, 
-    CIMObjectWithPath& objectWithPath)
+    CIMObject& objectWithPath)
 {
     XmlEntry entry;
 
@@ -3349,7 +3351,8 @@ Boolean XmlReader::getValueObjectWithLocalPathElement(
 	    throw XmlValidationError(parser.getLine(),
 	        "Expected INSTANCE element");
 	}
-	objectWithPath.set(reference, CIMObject(cimInstance));
+	objectWithPath = CIMObject (cimInstance);
+	objectWithPath.setPath (reference);
     }
     else
     {
@@ -3360,7 +3363,8 @@ Boolean XmlReader::getValueObjectWithLocalPathElement(
 	    throw XmlValidationError(parser.getLine(),
 		"Expected CLASS element");
 	}
-	objectWithPath.set(reference, CIMObject(cimClass));
+	objectWithPath = CIMObject (cimClass);
+	objectWithPath.setPath (reference);
     }
 
     expectEndTag(parser, "VALUE.OBJECTWITHLOCALPATH");
@@ -3378,18 +3382,18 @@ Boolean XmlReader::getValueObjectWithLocalPathElement(
 
 void XmlReader::getObjectArray(
     XmlParser& parser, 
-    Array<CIMObjectWithPath>& objectArray)
+    Array<CIMObject>& objectArray)
 {
     CIMObject object;
-    CIMObjectWithPath objectWithPath;
+    CIMObject objectWithPath;
 
     objectArray.clear();
 
     if (getValueObjectElement(parser, object))
     {
-        objectArray.append(CIMObjectWithPath(CIMObjectPath(), object));
+        objectArray.append(object);
         while (getValueObjectElement(parser, object))
-            objectArray.append(CIMObjectWithPath(CIMObjectPath(), object));
+            objectArray.append(object);
     }
     else if (getValueObjectWithPathElement(parser, objectWithPath))
     {

@@ -562,7 +562,7 @@ Message * ProviderMessageFacade::_handleExecuteQueryRequest(Message * message) t
 
     PEGASUS_ASSERT(request != 0);
 
-    Array<CIMObjectWithPath> cimObjects;
+    Array<CIMObject> cimObjects;
 
     CIMExecQueryResponseMessage * response =
 	new CIMExecQueryResponseMessage(
@@ -584,7 +584,7 @@ Message * ProviderMessageFacade::_handleAssociatorsRequest(Message * message) th
 
     PEGASUS_ASSERT(request != 0);
 
-    Array<CIMObjectWithPath> cimObjects;
+    Array<CIMObject> cimObjects;
 
     CIMAssociatorsResponseMessage * response =
 	new CIMAssociatorsResponseMessage(
@@ -628,7 +628,7 @@ Message * ProviderMessageFacade::_handleReferencesRequest(Message * message) thr
 
     PEGASUS_ASSERT(request != 0);
 
-    Array<CIMObjectWithPath> cimObjects;
+    Array<CIMObject> cimObjects;
 
     CIMReferencesResponseMessage * response =
 	new CIMReferencesResponseMessage(

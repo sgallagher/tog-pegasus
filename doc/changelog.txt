@@ -322,6 +322,23 @@ TAG: Version_1_09.
     is a privileged user for all operations. ConfigSettingProvider checks
     whether the user is a privileged user only for write operations.
 
+55. (Carol Ann Krug Graves - HP) 30 May 2002 -
+    Removed the CIMNamedInstance and CIMObjectWithPath classes.  The CIMObject
+    and CIMInstance classes now include a setPath (CIMObjectPath) method.  
+    These changes will affect Clients and Providers.  A call to the 
+    CIMNamedInstance constructor with a CIMObjectPath and a CIMInstance should 
+    be replaced with a call to the setPath () method on the CIMInstance, 
+    passing the same CIMObjectPath.  A call to the CIMNamedInstance 
+    getInstance () method should be replaced with the CIMInstance, and a call 
+    to the CIMNamedInstance getInstanceName () method should be replaced with a
+    call to the getPath () method on the CIMInstance.  A call to the 
+    CIMObjectWithPath constructor with a CIMObjectPath and a CIMObject, should 
+    be replaced with a call the setPath () method on the CIMObject, passing the
+    same CIMObjectPath.  A call to the CIMObjectWithPath getObject () method 
+    should be replaced with the CIMObject, and a call to the CIMObjectWithPath 
+    getReference () method should be replaced with a call to the CIMObject 
+    getPath () method.
+
 ========================================================================
 
 Version 1.08 working towards 1.1 - Started 27 March 2002

@@ -884,12 +884,12 @@ void XmlWriter::printValueElement(
 
 void XmlWriter::appendValueObjectWithPathElement(
     Array<Sint8>& out,
-    const CIMObjectWithPath& objectWithPath)
+    const CIMObject& objectWithPath)
 {
     out << "<VALUE.OBJECTWITHPATH>\n";
 
-    appendValueReferenceElement(out, objectWithPath.getReference(), false);
-    appendObjectElement(out, objectWithPath.getObject());
+    appendValueReferenceElement(out, objectWithPath.getPath (), false);
+    appendObjectElement(out, objectWithPath);
 
     out << "</VALUE.OBJECTWITHPATH>\n";
 }

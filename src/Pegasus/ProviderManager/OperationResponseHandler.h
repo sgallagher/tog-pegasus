@@ -290,19 +290,8 @@ public:
 
     virtual void complete(const OperationContext & context)
     {
-        Array<CIMObjectWithPath> cimObjects;
-
-        // ATTN: can be removed once CIMObjectWithPath is removed
-        for(Uint32 i = 0, n = getObjects().size(); i < n; i++)
-        {
-            CIMObject cimObject(getObjects()[i]);
-
-            cimObjects.append(
-                CIMObjectWithPath(cimObject.getPath(), cimObject));
-        }
-
         static_cast<CIMReferencesResponseMessage *>(
-            getResponse())->cimObjects.appendArray(cimObjects);
+            getResponse())->cimObjects = getObjects();
     }
 
 };

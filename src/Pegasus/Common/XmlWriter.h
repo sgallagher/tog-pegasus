@@ -140,7 +140,7 @@ public:
 
     static void appendValueObjectWithPathElement(
         Array<Sint8>& out,
-        const CIMObjectWithPath& objectWithPath);
+        const CIMObject& objectWithPath);
 
     static void appendValueReferenceElement(
         Array<Sint8>& out,

@@ -1460,14 +1460,14 @@ public:
         const String& messageId_,
         const CIMException& cimException_,
         const QueueIdStack& queueIds_,
-        const Array<CIMObjectWithPath>& cimObjects_)
+        const Array<CIMObject>& cimObjects_)
     : CIMResponseMessage(CIM_EXEC_QUERY_RESPONSE_MESSAGE,
         messageId_, cimException_, queueIds_),
         cimObjects(cimObjects_)
     {
     }
 
-    Array<CIMObjectWithPath> cimObjects;
+    Array<CIMObject> cimObjects;
 };
 
 class CIMAssociatorsResponseMessage : public CIMResponseMessage
@@ -1477,14 +1477,14 @@ public:
         const String& messageId_,
         const CIMException& cimException_,
         const QueueIdStack& queueIds_,
-        const Array<CIMObjectWithPath>& cimObjects_)
+        const Array<CIMObject>& cimObjects_)
     : CIMResponseMessage(CIM_ASSOCIATORS_RESPONSE_MESSAGE,
         messageId_, cimException_, queueIds_),
         cimObjects(cimObjects_)
     {
     }
 
-    Array<CIMObjectWithPath> cimObjects;
+    Array<CIMObject> cimObjects;
 };
 
 class CIMAssociatorNamesResponseMessage : public CIMResponseMessage
@@ -1511,14 +1511,14 @@ public:
         const String& messageId_,
         const CIMException& cimException_,
         const QueueIdStack& queueIds_,
-        const Array<CIMObjectWithPath>& cimObjects_)
+        const Array<CIMObject>& cimObjects_)
     : CIMResponseMessage(CIM_REFERENCES_RESPONSE_MESSAGE,
         messageId_, cimException_, queueIds_),
         cimObjects(cimObjects_)
     {
     }
 
-    Array<CIMObjectWithPath> cimObjects;
+    Array<CIMObject> cimObjects;
 };
 
 class CIMReferenceNamesResponseMessage : public CIMResponseMessage

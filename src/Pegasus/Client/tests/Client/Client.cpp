@@ -27,6 +27,8 @@
 // Modified By:
 //         Bapu Patil, Hewlett-Packard Company ( bapu_patil@hp.com )
 //         Nag Boranna, Hewlett-Packard Company ( nagaraja_boranna@hp.com )
+//         Carol Ann Krug Graves, Hewlett-Packard Company
+//             (carolann_graves@hp.com)
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -219,7 +221,7 @@ static void TestAssociators(CIMClient& client)
 {
     CIMObjectPath instanceName = "Person.name=\"Mike\"";
 
-    Array<CIMObjectWithPath> result = client.associators(
+    Array<CIMObject> result = client.associators(
 	NAMESPACE, 
 	instanceName, 
 	"Lineage", 
@@ -231,8 +233,8 @@ static void TestAssociators(CIMClient& client)
 
     for (Uint32 i = 0; i < result.size(); i++)
     {
-	CIMObjectWithPath current = result[i];
-	CIMObjectPath ref = current.getReference();
+	CIMObject current = result[i];
+	CIMObjectPath ref = current.getPath ();
 	cout << "[" << ref << "]" << endl;
     }
 
@@ -295,7 +297,7 @@ static void TestReferences(CIMClient& client)
 {
     CIMObjectPath instanceName = "Person.name=\"Mike\"";
 
-    Array<CIMObjectWithPath> result = client.references(
+    Array<CIMObject> result = client.references(
 	NAMESPACE, 
 	instanceName, 
 	"Lineage", 
@@ -303,8 +305,8 @@ static void TestReferences(CIMClient& client)
 
     for (Uint32 i = 0; i < result.size(); i++)
     {
-	CIMObjectWithPath current = result[i];
-	CIMObjectPath ref = current.getReference();
+	CIMObject current = result[i];
+	CIMObjectPath ref = current.getPath ();
 	cout << "[" << ref << "]" << endl;
     }
 

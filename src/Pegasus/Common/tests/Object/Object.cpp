@@ -248,27 +248,28 @@ void test02()
 }
 
 //*********************************************************************
-//  CIMObjectWithPath tests
+//  CIMObject setPath tests
 //
-//  The CIMObjectWithPath encapsulates a CIMObjectPath and a CIMObject.
 //*********************************************************************
 void test03()
 {
     CIMClass class1("//localhost/root/cimv2:MyClass");
     CIMObjectPath ref1("//localhost/root/cimv2:MyClass");
 
-    CIMObjectWithPath obj1;
-    CIMObjectWithPath obj2(ref1, class1);
-    CIMObjectWithPath obj3(obj2);
-    CIMObjectWithPath obj4 = obj3;
+    CIMObject obj1;
+    CIMObject obj2 = CIMObject (class1);
+    obj2.setPath (ref1);
+    CIMObject obj3(obj2);
+    CIMObject obj4 = obj3;
 
     CIMClass class2("//localhost/root/cimv2:YourClass");
     CIMObjectPath ref2("//localhost/root/cimv2:YourClass");
 
-    obj3.set(ref2, class2);
-    CIMObjectPath ref3 = obj3.getReference();
+    obj3 = CIMObject (class2);
+    obj3.setPath (ref2);
+    CIMObjectPath ref3 = obj3.getPath ();
    
-    CIMObject myObj = obj3.getObject();
+    CIMObject myObj = obj3;
 
     if(verbose)
     {

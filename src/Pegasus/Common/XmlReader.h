@@ -50,7 +50,6 @@ class CIMProperty;
 class CIMParameter;
 class CIMMethod;
 class CIMObject;
-class CIMObjectWithPath;
 class CIMParamValue;
 class CIMValue;
 
@@ -370,15 +369,15 @@ public:
 
     static Boolean getValueObjectWithPathElement(
 	XmlParser& parser, 
-	CIMObjectWithPath& objectWithPath);
+	CIMObject& objectWithPath);
 
     static Boolean getValueObjectWithLocalPathElement(
 	XmlParser& parser, 
-	CIMObjectWithPath& objectWithPath);
+	CIMObject& objectWithPath);
 
     static void getObjectArray(
 	XmlParser& parser, 
-	Array<CIMObjectWithPath>& objectArray);
+	Array<CIMObject>& objectArray);
 
     static Boolean getObjectNameElement(
 	XmlParser& parser, 

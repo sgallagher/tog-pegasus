@@ -1729,7 +1729,7 @@ Array<CIMInstance> CIMRepository::execQuery(
     return Array<CIMInstance>();
 }
 
-Array<CIMObjectWithPath> CIMRepository::associators(
+Array<CIMObject> CIMRepository::associators(
     const String& nameSpace,
     const CIMObjectPath& objectName,
     const String& assocClass,
@@ -1750,7 +1750,7 @@ Array<CIMObjectWithPath> CIMRepository::associators(
         role,
         resultRole);
 
-    Array<CIMObjectWithPath> result;
+    Array<CIMObject> result;
 
     for (Uint32 i = 0, n = names.size(); i < n; i++)
     {
@@ -1774,7 +1774,8 @@ Array<CIMObjectWithPath> CIMRepository::associators(
                 propertyList);
 
             CIMObject cimObject(cimClass);
-            result.append(CIMObjectWithPath(names[i], cimObject));
+            cimObject.setPath (names[i]);
+            result.append(cimObject);
         }
         else
         {
@@ -1791,7 +1792,8 @@ Array<CIMObjectWithPath> CIMRepository::associators(
                 propertyList);
 
             CIMObject cimObject(cimInstance);
-            result.append(CIMObjectWithPath(names[i], cimObject));
+            cimObject.setPath (names[i]);
+            result.append(cimObject);
         }
     }
 
@@ -1857,7 +1859,7 @@ Array<CIMObjectPath> CIMRepository::associatorNames(
     return result;
 }
 
-Array<CIMObjectWithPath> CIMRepository::references(
+Array<CIMObject> CIMRepository::references(
     const String& nameSpace,
     const CIMObjectPath& objectName,
     const String& resultClass,
@@ -1874,7 +1876,7 @@ Array<CIMObjectWithPath> CIMRepository::references(
         resultClass,
         role);
 
-    Array<CIMObjectWithPath> result;
+    Array<CIMObject> result;
 
     for (Uint32 i = 0, n = names.size(); i < n; i++)
     {
@@ -1900,7 +1902,9 @@ Array<CIMObjectWithPath> CIMRepository::references(
                 includeClassOrigin,
                 propertyList);
 
-            result.append(CIMObjectWithPath(names[i], cimClass));
+            CIMObject cimObject = CIMObject (cimClass);
+            cimObject.setPath (names[i]);
+            result.append (cimObject);
         }
         else
         {
@@ -1912,7 +1916,9 @@ Array<CIMObjectWithPath> CIMRepository::references(
                 includeClassOrigin,
                 propertyList);
 
-            result.append(CIMObjectWithPath(names[i], instance));
+            CIMObject cimObject = CIMObject (instance);
+            cimObject.setPath (names[i]);
+            result.append (cimObject);
         }
     }
 

@@ -237,7 +237,7 @@ private:
 
        @param tm           Contains the tm structure to be updated.
     */
-    static void formatDateTime(char* dateTime, tm* tm);
+    static void formatDateTime(char* dateTime, struct tm* tm);
 //#endif
 
     /** CIMDateTime - ATTN: Friend operator Test for CIMDateTime 

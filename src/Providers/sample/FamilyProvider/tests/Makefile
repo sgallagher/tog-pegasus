@@ -118,7 +118,7 @@ poststarttests:
 	CLI an TST_PersonDynamic.name=@Father@ -n $(SAMPLEPROVIDERNS) -s -count 3
 	CLI a TST_PersonDynamic.name=@Father@ -n $(SAMPLEPROVIDERNS) -s -count 3
 
-	@echo TST_PersonDynamic with bad object name (lower case)
+	@echo "TST_PersonDynamic with bad object name (lower case)"
 
 	CLI rn TST_PersonDynamic.name=@father@ -n $(SAMPLEPROVIDERNS) -s -count 0
 

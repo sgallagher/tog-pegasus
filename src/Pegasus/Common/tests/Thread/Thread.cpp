@@ -42,6 +42,9 @@
 #else
 #include <unistd.h>
 #endif 
+#ifdef PEGASUS_OS_HPUX
+# include <memory>
+#endif
 #include <cassert>
 #include <iostream>
 #include <stdio.h>
@@ -92,7 +95,7 @@ int main(int argc, char **argv)
 		char *data = NULL;
 		try {
 			data = new char[2];
-		} catch (bad_alloc)
+		} catch (bad_alloc&)
 		{
 			cerr << "Not enough memory. Changing the amount of threads used." << endl;
 			max_threads = i;

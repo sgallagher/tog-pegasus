@@ -19,41 +19,47 @@
 #// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
+#//=============================================================================
+#//
+#// Author: Christopher Neufeld <neufeld@linuxcare.com>
+#//         David Kennedy       <dkennedy@linuxcare.com>
+#//
+#// Modified By: David Kennedy       <dkennedy@linuxcare.com>
+#//              Christopher Neufeld <neufeld@linuxcare.com>
+#//              Paulo Fernando Borges da Silva <pfborges@wowmail.com>
+#//              Jenny Yu <jenny.yu@hp.com>
+#//
 #//%////////////////////////////////////////////////////////////////////////////
-#
-# Recurse the directories defined in DIRS
-#
 
-ROOT = ../../..
+ROOT = $(PEGASUS_ROOT)
+
+DIR = Providers/ManagedSystem/NISServerService
 
 include $(ROOT)/mak/config.mak
 
-DIRS =  \
-        OperatingSystem \
-        OperatingSystem/tests \
-        OperatingSystem/tests/OSTestClient \
-        ComputerSystem \
-        ComputerSystem/tests \
-        Process \
-        Process/tests \
-        Processor \
-        Processor/tests \
-	IP \
-	IP/tests \
-	IP/testclient
+LIBRARY = NISProvider
+
+EXTRA_INCLUDES = -I$(ROOT)/src/Providers/ManagedSystem/NTPProviderSecurity
+
+SOURCES = \
+	NISServerServiceProvider.cpp \
+	NISServerServiceProviderMain.cpp \
+        NISServerService.cpp
+
+
+LIBRARIES = \
+	pegcommon \
+	pegprovider
 
 ifeq ($(OS),HPUX)
-  DIRS += NTPProviderSecurity \
-	  NTPService \
-	  NTPService/tests \
-	  NTPService/testclient \
-	  DNSService \
-	  DNSService/tests \
-	  DNSService/tests/testclient \
-	  NISServerService \
-	  NISServerService/tests \
-	  NISServerService/testclient
+  LIBRARIES += NTPProviderSecurity
 endif
 
-include $(ROOT)/mak/recurse.mak
+DYNAMIC_LIBRARIES = \
+	-lpegcommon \
+	-lpegprovider
+
+include $(ROOT)/mak/library.mak
+
+tests:
 

@@ -1,0 +1,68 @@
+//%/////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPNTPE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+//==============================================================================
+//
+// Author: Paulo F. Borges (pfborges@wowmail.com)
+//
+// Modified By:  Jenny Yu, Hewlett-Packard Company (jenny.yu@hp.com)
+//
+//%/////////////////////////////////////////////////////////////////////////////
+
+#ifndef _NISINFO_H
+#define _NISINFO_H
+
+#include <Pegasus/Client/CIMClient.h>
+
+PEGASUS_USING_PEGASUS;
+PEGASUS_USING_STD;
+
+class NISInfo
+{
+  public:
+     NISInfo(void);
+     ~NISInfo(void);
+
+     void getNISInfo(const int argc, const char** argv);
+
+     // utility methods for common functions
+     void errorExit(const String &message);
+     void gatherProperties(CIMInstance &inst);
+     void displayProperties();
+
+  private:
+     // Insert your class attributes here (do not remove)
+
+     String nisSystemCreationClassName;
+     String nisSystemName;
+     String nisCreationClassName;
+     String nisName;
+     String nisCaption;
+     String nisDescription;
+     Boolean nisMasterServer;
+     Boolean nisSlaveServer;
+     Uint16 nisServerType;
+     Uint16 nisServerWaitFlag;
+     
+     void _usage();
+};
+
+#endif

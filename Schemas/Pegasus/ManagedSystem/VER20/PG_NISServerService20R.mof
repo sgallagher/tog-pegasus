@@ -1,0 +1,29 @@
+#pragma locale ("en_US")
+
+instance of PG_ProviderModule
+{
+   Name = "NISProviderModule";
+   Location = "NISProvider";
+   Vendor = "Pegasus Community";
+   Version = "1.0.0";
+   InterfaceType = "C++Default";
+   InterfaceVersion = "2.1.0";
+};
+
+instance of PG_Provider
+{
+   ProviderModuleName = "NISProviderModule";
+   Name = "NISProvider";
+};
+
+instance of PG_ProviderCapabilities
+{
+   ProviderModuleName = "NISProviderModule";
+   ProviderName = "NISProvider";
+   CapabilityID = "1";
+   ClassName = "PG_NISServerService";
+   Namespaces = {"root/cimv2"};
+   ProviderType = { 2 }; // Instance
+   SupportedProperties = NULL; // All properties
+   SupportedMethods = NULL;  // All methods
+};

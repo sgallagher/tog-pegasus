@@ -23,7 +23,8 @@ DIRS = \
 ifeq ($(OS),HPUX)
   DIRS += \
     ntpinfo \
-    dnsinfo
+    dnsinfo \
+    nisinfo
 endif
 
 

@@ -145,8 +145,7 @@ void MessageQueue::enqueue(Message* message) throw(IPCException)
        cout << "===== " << getQueueName() << ": ";
        message->print(cout);
     }
-
-
+    
     _mut.lock(pegasus_thread_self());
     if (_back)
     {
@@ -163,13 +162,13 @@ void MessageQueue::enqueue(Message* message) throw(IPCException)
        message->_next = 0;
     }
     message->_owner = this;
-
+       
     _count++;
     Tracer::trace(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL4,
-       "MessageQueue::enqueue _queueId = %d, _count = %d", _queueId, _count);
-
+		  "MessageQueue::enqueue _queueId = %d, _count = %d", _queueId, _count);
+       
     _mut.unlock();
-
+    
     handleEnqueue();
     PEG_METHOD_EXIT();
 }

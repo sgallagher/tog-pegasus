@@ -80,7 +80,7 @@ Mutex::~Mutex()
       _mutex.owner = caller;
       return;
    }
-   else if (errorcode == EDEADLK) 
+   if (errorcode == EDEADLK) 
       throw( Deadlock( _mutex.owner ) );
    else 
       throw( WaitFailed( _mutex.owner) );
@@ -456,6 +456,7 @@ Condition::~Condition()
  void Condition::lock_object(PEGASUS_THREAD_TYPE caller)
    throw(IPCException)
 {
+
    if(_disallow.value() > 0) 
       throw ListClosed();
    _cond_mutex->lock(caller);

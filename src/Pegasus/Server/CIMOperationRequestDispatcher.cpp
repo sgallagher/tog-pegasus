@@ -441,7 +441,8 @@ void CIMOperationRequestDispatcher::_enqueueResponse(
    // Use the same key as used in the request:
 
    response->setKey(request->getKey());
-
+   response->dest = request->queueIds.top();
+   
    if( true == Base::_enqueueResponse(request, response))
    {
       PEG_METHOD_EXIT();

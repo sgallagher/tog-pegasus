@@ -705,7 +705,7 @@ void Condition::unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE caller
 	    throw;
 	 }
       
-      _condition._spin.lock(caller);
+      _condition._spin.lock(caller);  
       _condition._waiters.remove(waiter);
       _condition._spin.unlock();
       delete waiter;

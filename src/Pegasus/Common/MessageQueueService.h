@@ -71,6 +71,13 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
 			void (*callback)(AsyncOpNode *, MessageQueue *, void *),
 			MessageQueue *callback_q,
 			void *callback_ptr);
+
+      Boolean SendAsync(Message *msg,
+			Uint32 destination,
+			void (*callback)(Message *response, void *handle, void *parameter),
+			void *handle, 
+			void *parameter);
+      
       Boolean  SendForget(Message *msg);
       Boolean ForwardOp(AsyncOpNode *, Uint32 destination);
       
@@ -132,14 +139,19 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
       
    private: 
       
-      DQueue<AsyncOpNode> _pending;
       AsyncDQueue<AsyncOpNode> _incoming;
-      AsyncDQueue<AsyncOpNode> _callback;
+      DQueue<AsyncOpNode> _callback;
       
       static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _req_proc(void *);
+      static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _callback_proc(void *);
+      
       static void _sendwait_callback(AsyncOpNode *, MessageQueue *, void *);
       AtomicInt _incoming_queue_shutdown;
+      Semaphore _callback_ready;
+            
       Thread _req_thread;
+      Thread _callback_thread;
+      
       struct timeval _default_op_timeout;
       static AtomicInt _xid;
       friend class cimom;

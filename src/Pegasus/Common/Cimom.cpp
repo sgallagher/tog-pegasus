@@ -367,7 +367,9 @@ void cimom::_completeAsyncResponse(AsyncRequest *request,
    op->lock();
    haveLock = true;
 
-  if ( op->_flags & ASYNC_OPFLAGS_CALLBACK && ! (op->_flags & ASYNC_OPFLAGS_PSEUDO_CALLBACK) )
+  if ( (op->_flags & ASYNC_OPFLAGS_CALLBACK ||
+	op->_flags & ASYNC_OPFLAGS_SAFE_CALLBACK ) && 
+       (! (op->_flags & ASYNC_OPFLAGS_PSEUDO_CALLBACK)) )
   {
      op->unlock();
      haveLock = false;
@@ -442,7 +444,7 @@ void cimom::_complete_op_node(AsyncOpNode *op, Uint32 state, Uint32 flag, Uint32
       return;
    }
    
-   if ( (flags & ASYNC_OPFLAGS_CALLBACK) && ! (flags & ASYNC_OPFLAGS_PSEUDO_CALLBACK))
+   if ( (flags & ASYNC_OPFLAGS_CALLBACK)  && (! (flags & ASYNC_OPFLAGS_PSEUDO_CALLBACK)))
    {
       // send this node to the response queue
       op->_op_dest = op->_callback_response_q; 
@@ -450,6 +452,12 @@ void cimom::_complete_op_node(AsyncOpNode *op, Uint32 state, Uint32 flag, Uint32
       _global_this->route_async(op);
       return;
    }
+   if((flags & ASYNC_OPFLAGS_SAFE_CALLBACK ) && (! (flags & ASYNC_OPFLAGS_PSEUDO_CALLBACK)))
+   {
+      op->_callback_notify->signal();
+      return;
+   }
+   
    op->_client_sem.signal();
    return;
 }

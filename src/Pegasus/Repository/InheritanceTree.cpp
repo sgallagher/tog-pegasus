@@ -123,6 +123,7 @@ void InheritanceTreeNode::getSubClassNames(
 
     for (InheritanceTreeNode* p = subClasses; p; p = p->sibling)
     {
+       
 	subClassNames.append(p->className);
 
 	if (deepInheritance)
@@ -280,43 +281,43 @@ Boolean InheritanceTree::getSubClassNames(
     Boolean deepInheritance,
     Array<String>& subClassNames) const
 {
-    // -- Case 1: className is empty: get all class names (if deepInheritance)
-    // -- or just root class names (if not deepInheritance).
 
-    if (!className.size())
-    {
-	for (InheritanceTreeRep::Table::Iterator i = _rep->table.start();i;i++)
-	{
-	    if (deepInheritance)
-	    {
-		// Append all classes:
-
-		subClassNames.append(i.key());
-	    }
-	    else if (!i.value()->superClass)
-	    {
-		// Just append root classes:
-
-		subClassNames.append(i.key());
-	    }
-	}
-	return true;
-    }
-
-    // -- Case 2: className non-empty: get names of classes descendent from
-    // -- the given class.
-
-    for (InheritanceTreeRep::Table::Iterator i = _rep->table.start(); i; i++)
-    {
-	if (String::equalNoCase(className, i.key()))
-	{
-	    i.value()->getSubClassNames(subClassNames, deepInheritance);
-	    return true;
-	}
-    }
-
-    // Not found!
-    return false;
+   // -- Case 1: className is empty: get all class names (if deepInheritance)
+   // -- or just root class names (if not deepInheritance).
+   if (!className.size())
+   {
+      for (InheritanceTreeRep::Table::Iterator i = _rep->table.start();i;i++)
+      {
+	 if (deepInheritance)
+	 {
+	    // Append all classes:
+	    
+	    subClassNames.append(i.key());
+	 }
+	 else if (!i.value()->superClass)
+	 {
+	    // Just append root classes:
+	    
+	    subClassNames.append(i.key());
+	 }
+      }
+      return true;
+   }
+   
+   // -- Case 2: className non-empty: get names of classes descendent from
+   // -- the given class.
+   
+   for (InheritanceTreeRep::Table::Iterator i = _rep->table.start(); i; i++)
+   {
+      if (String::equalNoCase(className, i.key()))
+      {
+	 i.value()->getSubClassNames(subClassNames, deepInheritance);
+	 return true;
+      }
+   }
+   
+   // Not found!
+   return false;
 }
 
 Boolean InheritanceTree::isSubClass(

@@ -35,7 +35,6 @@ SOURCES = \
 	ProviderRegistrar.cpp \
 	ProviderName.cpp \
 	ProviderType.cpp \
-	QueryExpressionFactory.cpp \
 	\
 	SafeQueue.cpp \
 	Lockable.cpp \

@@ -38,9 +38,9 @@
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
-static CMPIStatus resultReturnData(CMPIResult* eRes, CMPIValue* data, CMPIType type) {
+static CMPIStatus resultReturnData(CMPIResult* eRes, const CMPIValue* data, CMPIType type) {
    CMPIrc rc;
-   CIMValue v=value2CIMValue(data,type,&rc);
+   CIMValue v=value2CIMValue((CMPIValue*)data,type,&rc);
    if (eRes->ft==CMPI_ResultMethOnStack_Ftab) {
       MethodResultResponseHandler* res=(MethodResultResponseHandler*)eRes->hdl;
       if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0) {
@@ -144,7 +144,7 @@ static CMPIStatus resultReturnObjDone(CMPIResult* eRes) {
    CMReturn(CMPI_RC_OK);
 }
 
-static CMPIStatus resultBadReturnData(CMPIResult* eRes, CMPIValue* data, CMPIType type) {
+static CMPIStatus resultBadReturnData(CMPIResult* eRes, const CMPIValue* data, CMPIType type) {
    CMReturn(CMPI_RC_ERR_NOT_SUPPORTED);
 }
 

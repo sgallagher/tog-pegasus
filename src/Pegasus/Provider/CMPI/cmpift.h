@@ -324,7 +324,7 @@ extern "C" {
       */
       CMPIStatus (*setInstance)
       (CMPIBroker* mb, CMPIContext* ctx,
-       CMPIObjectPath* op, CMPIInstance* inst);
+       CMPIObjectPath* op, CMPIInstance* inst, char ** properties);
 
       /** Delete an existing Instance using <op> as reference.
       @param mb Broker this pointer.
@@ -710,7 +710,7 @@ extern "C" {
       @return Service return status.
       */
       CMPIStatus (*returnData)
-      (CMPIResult* rslt,CMPIValue* value,CMPIType type);
+      (CMPIResult* rslt,const CMPIValue* value,CMPIType type);
 
       /** Return a Instance object.
       @param rslt Result this pointer.

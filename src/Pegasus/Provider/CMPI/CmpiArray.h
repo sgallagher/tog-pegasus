@@ -42,6 +42,9 @@
 #include "CmpiData.h"
 #include "Linkage.h"
 
+class CmpiArray;
+class CmpiInstance;
+
 
 class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiArrayIdx {
    friend class CmpiArray;

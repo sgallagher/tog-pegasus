@@ -36,6 +36,7 @@
 #include "cmpidt.h"
 #include "cmpift.h"
 #include <string.h>
+#include <strings.h>
 
 #ifndef CmpiBoolean
 #define CmpiBoolean CMPIBoolean

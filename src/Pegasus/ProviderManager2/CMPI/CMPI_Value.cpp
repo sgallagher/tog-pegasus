@@ -184,7 +184,7 @@ CIMValue value2CIMValue(CMPIValue* data, CMPIType type, CMPIrc *rc) {
 CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data) {
 
    data->type=t;
-   data->state=CMPI_goodValue;
+   data->state=0;
    data->value.uint64=0;
 
    if (v.isNull()) {
@@ -205,7 +205,7 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data) {
       }
       aData++;
 
-      if (aType & (CMPI_UINT|CMPI_SINT)==CMPI_SINT) {
+      if ((aType & (CMPI_UINT|CMPI_SINT))==CMPI_SINT) {
          switch (aType) {
             case CMPI_sint32: CopyFromArray(Sint32,sint32); break;
             case CMPI_sint16: CopyFromArray(Sint16,sint16); break;
@@ -215,7 +215,7 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data) {
          }
       }
       else if (aType==CMPI_string) CopyFromStringArray(String,string)
-      else if (aType & (CMPI_UINT|CMPI_SINT)==CMPI_UINT) {
+      else if ((aType & (CMPI_UINT|CMPI_SINT))==CMPI_UINT) {
          switch (aType) {
             case CMPI_uint32: CopyFromArray(Uint32,uint32); break;
             case CMPI_uint16: CopyFromArray(Uint16,uint16); break;

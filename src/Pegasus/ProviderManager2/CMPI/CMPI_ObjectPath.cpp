@@ -140,7 +140,7 @@ static CMPIData refGetKey(CMPIObjectPath* eRef, const char *name, CMPIStatus* rc
    CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
    const CIMName eName(name);
    const Array<CIMKeyBinding> &akb=ref->getKeyBindings();
-   CMPIData data={0,0,{0}};
+   CMPIData data={0,CMPI_nullValue|CMPI_notFound,{0}};
    if (rc) CMSetStatus(rc,CMPI_RC_OK);
 
    long i=locateKey(akb,eName);
@@ -156,7 +156,7 @@ static CMPIData refGetKeyAt(CMPIObjectPath* eRef, unsigned pos, CMPIString** nam
           CMPIStatus* rc) {
    CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
    const Array<CIMKeyBinding> &akb=ref->getKeyBindings();
-   CMPIData data={0,0,{0}};
+   CMPIData data={0,CMPI_nullValue|CMPI_notFound,{0}};
    if (rc) CMSetStatus(rc,CMPI_RC_OK);
 
    if (pos>=akb.size()) {

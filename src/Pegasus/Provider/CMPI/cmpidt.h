@@ -325,6 +325,7 @@ extern "C" {
         #define CMPI_goodValue (0)
         #define CMPI_nullValue (1<<8)
         #define CMPI_keyValue  (2<<8)
+        #define CMPI_notFound  (4<<8)
         #define CMPI_badValue  (0x80<<8)
 
    typedef struct _CMPIData {

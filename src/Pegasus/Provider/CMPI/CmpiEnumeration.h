@@ -43,6 +43,7 @@
 #include "Linkage.h"
 
 class CmpiObjectPath;
+class CmpiData;
 
 /** This class acts as a container for holding results from enunmerating
     CmpiBroker services.

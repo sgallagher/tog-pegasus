@@ -53,8 +53,16 @@ PEGASUS_NAMESPACE_BEGIN
 
 extern int _cmpi_trace;
 
-CIMPropertyList *getList(char** l) {
-   return new CIMPropertyList;
+CIMPropertyList getList(char** l) {
+  CIMPropertyList pl;
+  if (l) {
+    Array<CIMName> n;
+    while (*l) {
+      n.append(*l++);
+    }
+    pl.set(n);
+  }
+  return pl;
 }
 
 CIMClass* mbGetClass(CMPIBroker *mb, const CIMObjectPath &cop) {
@@ -94,7 +102,7 @@ static CMPIInstance* mbGetInstance(CMPIBroker *mb, CMPIContext *ctx,
    DDD(cout<<"--- mbGetInstance()"<<endl);
    mb=CM_BROKER;
    CMPIFlags flgs=ctx->ft->getEntry(ctx,CMPIInvocationFlags,NULL).value.uint32;
-   CIMPropertyList *props=getList(properties);
+   CIMPropertyList props=getList(properties);
    CIMObjectPath qop(String::EMPTY,CIMNamespaceName(),
                      CM_ObjectPath(cop)->getClassName(),
 		     CM_ObjectPath(cop)->getKeyBindings());
@@ -108,10 +116,9 @@ static CMPIInstance* mbGetInstance(CMPIBroker *mb, CMPIContext *ctx,
 		  CM_LocalOnly(flgs),
 		  CM_IncludeQualifiers(flgs),
 		  CM_ClassOrigin(flgs),
-		  *props);
+		  props);
       if (ci.getPath().getKeyBindings().size()==0)
 		   ci.setPath(qop);
-      delete props;
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
       return (CMPIInstance*)new CMPI_Object(new CIMInstance(ci));
    }
@@ -119,11 +126,9 @@ static CMPIInstance* mbGetInstance(CMPIBroker *mb, CMPIContext *ctx,
       DDD(cout<<"### exception: mbGetInstance - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
       if (rc) CMSetStatusWithString(rc,(CMPIrc)e.getCode(),
 		   (CMPIString*)string2CMPIString(e.getMessage()));
-      delete props;
       return NULL;
    }
    if (rc) CMSetStatusWithChars(mb,rc,CMPI_RC_ERROR,"Internal error - CMPIBoker.cpp-0");
-   delete props;
    return NULL;
 }
 
@@ -152,10 +157,11 @@ static CMPIObjectPath* mbCreateInstance(CMPIBroker *mb, CMPIContext *ctx,
 }
 
 static CMPIStatus mbSetInstance(CMPIBroker *mb, CMPIContext *ctx,
-		CMPIObjectPath *cop, CMPIInstance *ci) {
+		CMPIObjectPath *cop, CMPIInstance *ci, char ** properties) {
    DDD(cout<<"--- mbSetInstance()"<<endl);
    mb=CM_BROKER;
    CMPIFlags flgs=ctx->ft->getEntry(ctx,CMPIInvocationFlags,NULL).value.uint32;
+   CIMPropertyList props=getList(properties);
 
    AutoMutex mtx(((CMPI_Broker*)mb)->mtx);
    try {
@@ -164,7 +170,7 @@ static CMPIStatus mbSetInstance(CMPIBroker *mb, CMPIContext *ctx,
 		  CM_ObjectPath(cop)->getNameSpace(),
                   *CM_Instance(ci),
 		  CM_IncludeQualifiers(flgs),
-		  CIMPropertyList());
+		  props);
       CMReturn(CMPI_RC_OK);
    }
    catch (CIMException &e) {
@@ -229,7 +235,7 @@ static CMPIEnumeration* mbEnumInstances(CMPIBroker *mb, CMPIContext *ctx,
    mb=CM_BROKER;
 
    CMPIFlags flgs=ctx->ft->getEntry(ctx,CMPIInvocationFlags,NULL).value.uint32;
-   CIMPropertyList *props=getList(properties);
+   CIMPropertyList props=getList(properties);
 
    AutoMutex mtx(((CMPI_Broker*)mb)->mtx);
    try {
@@ -241,20 +247,17 @@ static CMPIEnumeration* mbEnumInstances(CMPIBroker *mb, CMPIContext *ctx,
 		  CM_LocalOnly(flgs),
 		  CM_IncludeQualifiers(flgs),
 		  CM_ClassOrigin(flgs),
-		  *props);
+		  props);
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
-      delete props;
       return new CMPI_InstEnumeration(new Array<CIMInstance>(en));
    }
    catch (CIMException &e) {
       DDD(cout<<"### exception: mbEnumInstances - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
       if (rc) CMSetStatusWithString(rc,(CMPIrc)e.getCode(),
 		   (CMPIString*)string2CMPIString(e.getMessage()));
-      delete props;
       return NULL;
    }
    if (rc) CMSetStatusWithChars(mb,rc,CMPI_RC_ERROR,"Internal error - CMPIBoker.cpp-5");
-   delete props;
    return NULL;
 }
 
@@ -287,7 +290,7 @@ static CMPIEnumeration* mbAssociators(CMPIBroker *mb, CMPIContext *ctx,
    DDD(cout<<"--- mbAssociators()"<<endl);
    mb=CM_BROKER;
    CMPIFlags flgs=ctx->ft->getEntry(ctx,CMPIInvocationFlags,NULL).value.uint32;
-   CIMPropertyList *props=getList(properties);
+   CIMPropertyList props=getList(properties);
    CIMObjectPath qop(String::EMPTY,CIMNamespaceName(),
                      CM_ObjectPath(cop)->getClassName(),
 		     CM_ObjectPath(cop)->getKeyBindings());
@@ -304,20 +307,17 @@ static CMPIEnumeration* mbAssociators(CMPIBroker *mb, CMPIContext *ctx,
 		  resultRole ? String(resultRole) : String::EMPTY,
 		  CM_IncludeQualifiers(flgs),
 		  CM_ClassOrigin(flgs),
-		  *props);
+		  props);
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
-      delete props;
       return new CMPI_ObjEnumeration(new Array<CIMObject>(en));
    }
    catch (CIMException &e) {
       DDD(cout<<"### exception: mbAssociators - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
       if (rc) CMSetStatusWithString(rc,(CMPIrc)e.getCode(),
 		   (CMPIString*)string2CMPIString(e.getMessage()));
-      delete props;
       return NULL;
    }
    if (rc) CMSetStatusWithChars(mb,rc,CMPI_RC_ERROR,"Internal error - CMPIBoker.cpp-7");
-   delete props;
    return NULL;
 }
 
@@ -358,7 +358,7 @@ static CMPIEnumeration* mbReferences(CMPIBroker *mb, CMPIContext *ctx,
    DDD(cout<<"--- mbReferences()"<<endl);
    mb=CM_BROKER;
    CMPIFlags flgs=ctx->ft->getEntry(ctx,CMPIInvocationFlags,NULL).value.uint32;
-   CIMPropertyList *props=getList(properties);
+   CIMPropertyList props=getList(properties);
    CIMObjectPath qop(String::EMPTY,CIMNamespaceName(),
                      CM_ObjectPath(cop)->getClassName(),
 		     CM_ObjectPath(cop)->getKeyBindings());
@@ -373,20 +373,17 @@ static CMPIEnumeration* mbReferences(CMPIBroker *mb, CMPIContext *ctx,
 		  role ? String(role) : String::EMPTY,
 		  CM_IncludeQualifiers(flgs),
 		  CM_ClassOrigin(flgs),
-		  *props);
+		  props);
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
-      delete props;
       return new CMPI_ObjEnumeration(new Array<CIMObject>(en));
    }
    catch (CIMException &e) {
       DDD(cout<<"### exception: mbReferences - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
       if (rc) CMSetStatusWithString(rc,(CMPIrc)e.getCode(),
 		   (CMPIString*)string2CMPIString(e.getMessage()));
-      delete props;
       return NULL;
    }
    if (rc) CMSetStatusWithChars(mb,rc,CMPI_RC_ERROR,"Internal error - CMPIBoker.cpp-10");
-   delete props;
    return NULL;
 }
 

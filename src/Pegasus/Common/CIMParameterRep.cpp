@@ -26,6 +26,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Config.h>
 #include <cstdio>
 #include "CIMParameter.h"
 #include "Indentor.h"

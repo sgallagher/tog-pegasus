@@ -46,6 +46,11 @@ PEGASUS_NAMESPACE_BEGIN
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+static inline _Min(Uint32 x, Uint32 y) 
+{
+    return x < y ? x : y; 
+}
+
 static char* _FindSeparator(const char* data, Uint32 size)
 {
     const char* p = data;
@@ -71,15 +76,141 @@ static char* _FindSeparator(const char* data, Uint32 size)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+// HTTPMessage
+//
+////////////////////////////////////////////////////////////////////////////////
+
+HTTPMessage::HTTPMessage(
+    const Array<Sint8>& message_, 
+    Uint32 returnQueueId_)
+    :
+    Message(HTTP_MESSAGE), 
+    message(message_), 
+    returnQueueId(returnQueueId_)
+{
+
+}
+
+void HTTPMessage::parse(
+    String& firstLine,
+    Array<HTTPHeader>& headers,
+    Sint8*& content,
+    Uint32& contentLength) const
+{
+    firstLine.clear();
+    headers.clear();
+    content = "";
+    contentLength = 0;
+
+    char* data = (char*)message.getData();
+    Uint32 size = message.size();
+    char* line = (char*)data;
+    char* sep;
+    Boolean firstTime = true;
+
+    while ((sep = _FindSeparator(line, size - (line - data))))
+    {
+	// Look for double separator which terminates the header?
+
+	if (line == sep)
+	{
+	    // Establish pointer to content (account for "\n" and "\r\n").
+
+	    content = line + ((*sep == '\r') ? 2 : 1);
+
+	    // Determine length of content (subtract one more to account for
+	    // null-terminator.
+
+	    contentLength = message.size() - (content - data) - 1;
+	    break;
+	}
+
+	Uint32 lineLength = sep - line;
+
+	if (firstTime)
+	    firstLine.assign(line, lineLength);
+	else
+	{
+	    // Find the colon:
+
+	    Sint8* colon = 0;
+
+	    for (Uint32 i = 0; i < lineLength; i++)
+	    {
+		if (line[i] == ':')
+		{
+		    colon = &line[i];
+		    break;
+		}
+	    }
+
+	    // This should always be true:
+
+	    if (colon)
+	    {
+		// Get the name part:
+
+		Sint8* end;
+
+		for (end = colon - 1; end > line && isspace(*end); end--)
+		    ;
+
+		end++;
+
+		String name(line, end - line);
+
+		// Get the value part:
+
+		Sint8* start;
+
+		for (start = colon + 1; start < sep && isspace(*start); start++)
+		    ;
+
+		String value(start, sep - start);
+
+		headers.append(HTTPHeader(name, value));
+	    }
+	}
+
+	line = sep + ((*sep == '\r') ? 2 : 1);
+	firstTime = false;
+    }
+}
+
+void HTTPMessage::print(ostream& os) const
+{
+    Message::print(os);
+
+    String firstLine;
+    Array<HTTPHeader> headers;
+    Sint8* content;
+    Uint32 contentLength;
+    parse(firstLine, headers, content, contentLength);
+
+    cout << firstLine << endl;
+
+    for (Uint32 i = 0; i < headers.size(); i++)
+	cout << headers[i].first << ": " << headers[i].second << endl;
+
+    for (Uint32 i = 0; i < contentLength; i++)
+	cout << content[i];
+
+    cout << endl;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
 // HTTPConnection
 //
 ////////////////////////////////////////////////////////////////////////////////
 
 HTTPConnection::HTTPConnection(
+    Monitor* monitor,
     Sint32 socket, 
     MessageQueue* ownerMessageQueue,
     MessageQueue* outputMessageQueue)
     : 
+    _monitor(monitor),
     _socket(socket), 
     _ownerMessageQueue(ownerMessageQueue),
     _outputMessageQueue(outputMessageQueue),
@@ -96,7 +227,7 @@ HTTPConnection::~HTTPConnection()
 
 void HTTPConnection::handleEnqueue()
 {
-    cout << "HTTPConnection::handleEnqueue()" << endl;
+    // cout << "HTTPConnection::handleEnqueue()" << endl;
 
     Message* message = dequeue();
 
@@ -115,7 +246,32 @@ void HTTPConnection::handleEnqueue()
 	    if (socketMessage->events & SocketMessage::READ)
 		_handleReadEvent();
 
+	    if (socketMessage->events & SocketMessage::WRITE)
+		_handleWriteEvent();
+
 	    break;
+	}
+
+	case HTTP_MESSAGE:
+	{
+	    // Send this message back to the client:
+
+	    HTTPMessage* httpMessage = (HTTPMessage*)message;
+
+	    if (_outgoingBuffer.size() == 0)
+	    {
+		_monitor->unsolicitSocketMessages(_socket);
+
+		_monitor->solicitSocketMessages(_socket,
+		    SocketMessage::READ |
+		    SocketMessage::WRITE |
+		    SocketMessage::EXCEPTION,
+		    getQueueId());
+	    }
+
+	    _outgoingBuffer.append(
+		httpMessage->message.getData(),
+		httpMessage->message.size());
 	}
 
 	default:
@@ -126,12 +282,34 @@ void HTTPConnection::handleEnqueue()
     delete message;
 }
 
+Boolean _IsBodylessMessage(const char* line)
+{
+    const char* METHOD_NAMES[] =
+    {
+	"GET"
+    };
+
+    const Uint32 METHOD_NAMES_SIZE = sizeof(METHOD_NAMES) / sizeof(char*);
+
+    for (Uint32 i = 0; i < METHOD_NAMES_SIZE; i++)
+    {
+	Uint32 n = strlen(METHOD_NAMES[i]);
+
+	if (strncmp(line, METHOD_NAMES[i], n) == 0 && isspace(line[n]))
+	    return true;
+    }
+
+    return false;
+}
+
 void HTTPConnection::_getContentLengthAndContentOffset()
 {
     char* data = (char*)_incomingBuffer.getData();
     Uint32 size = _incomingBuffer.size();
     char* line = (char*)data;
     char* sep;
+    Uint32 lineNum = 0;
+    Boolean bodylessMessage = false;
 
     while ((sep = _FindSeparator(line, size - (line - data))))
     {
@@ -140,13 +318,19 @@ void HTTPConnection::_getContentLengthAndContentOffset()
 
 	// Did we find the double separator which terminates the headers?
 
-	if (*line == '\0')
+	if (line == sep)
 	{
 	    *sep = save;
 	    line = sep + ((save == '\r') ? 2 : 1);
 	    _contentOffset = line - _incomingBuffer.getData();
-	    return;
+	    break;
 	}
+
+	// If this is one of the bodyless methods, then we can assume the
+	// message is complete when the "\r\n\r\n" is encountered.
+
+	if (lineNum == 0 && _IsBodylessMessage(line))
+	    bodylessMessage = true;
 
 	// Look for the content-length if not already found:
 
@@ -164,7 +348,11 @@ void HTTPConnection::_getContentLengthAndContentOffset()
 
 	*sep = save;
 	line = sep + ((save == '\r') ? 2 : 1);
+	lineNum++;
     }
+
+    if (_contentOffset != -1 && bodylessMessage)
+	_contentLength = 0;
 }
 
 void HTTPConnection::_clearIncoming()
@@ -205,16 +393,15 @@ void HTTPConnection::_handleReadEvent()
 
     // -- See if the end of the message was reached (some peers signal end of 
     // -- the message by closing the connection; others use the content length
-    // -- HTTP header).
-
-PEGASUS_OUT(_contentOffset);
-PEGASUS_OUT(_contentLength);
+    // -- HTTP header and then there are those messages which have no bodies
+    // -- at all).
 
     if (bytesRead == 0 || 
 	_contentLength != -1 && 
-	(_incomingBuffer.size() > _contentLength + _contentOffset))
+	(_incomingBuffer.size() >= _contentLength + _contentOffset))
     {
-	HTTPMessage* message = new HTTPMessage(_incomingBuffer);
+	_incomingBuffer.append('\0');
+	HTTPMessage* message = new HTTPMessage(_incomingBuffer, getQueueId());
 	_outputMessageQueue->enqueue(message);
 	_clearIncoming();
 
@@ -223,6 +410,45 @@ PEGASUS_OUT(_contentLength);
 	    _closeConnection();
 	    return;
 	}
+    }
+}
+
+void HTTPConnection::_handleWriteEvent()
+{
+    // cout << "HTTPConnection::_handleWriteEvent()" << endl;
+
+    // Write until the socket queue is full (which will force the socket
+    // into a non-write-enabled state). Next time the socket becomes 
+    // write-enabled, this methid will be called back and the process 
+    // continues.
+
+    const Uint32 CHUNK_SIZE = 16 * 1024;
+
+    while (_outgoingBuffer.size())
+    {
+	Sint32 bytesWritten = Socket::write(
+	    _socket, 
+	    _outgoingBuffer.getData(), 
+	    _Min(CHUNK_SIZE, _outgoingBuffer.size()));
+
+	// PEGASUS_OUT(bytesWritten);
+
+	if (bytesWritten < 0)
+	    break;
+
+	_outgoingBuffer.remove(0, bytesWritten);
+
+	break;
+    }
+
+    if (_outgoingBuffer.size() == 0)
+    {
+	_monitor->unsolicitSocketMessages(_socket);
+
+	_monitor->solicitSocketMessages(_socket,
+	    SocketMessage::READ |
+	    SocketMessage::EXCEPTION,
+	    getQueueId());
     }
 }
 

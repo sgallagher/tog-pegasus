@@ -148,6 +148,9 @@ enum MessageType
     // Connection-oriented messages:
 
     CLOSE_CONNECTION_MESSAGE,
+
+    // HTTP messages:
+
     HTTP_MESSAGE,
 
     NUMBER_OF_MESSAGES

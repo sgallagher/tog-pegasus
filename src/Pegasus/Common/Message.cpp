@@ -41,7 +41,7 @@ Message::~Message()
 
 void Message::print(ostream& os) const
 {
-    os << "Message[" << "type=" << MessageTypeToString(_type) << ", ";
+    os << "===== Message[" << "type=" << MessageTypeToString(_type) << ", ";
     os << "key=" << _key << "]" << endl;
 }
 
@@ -97,7 +97,7 @@ static const char* _MESSAGE_TYPE_STRINGS[] =
     "CIM_INVOKE_METHOD_RESPONSE_MESSAGE",
     "SOCKET_MESSAGE",
     "CLOSE_CONNECTION_MESSAGE",
-    "HTTP_CONNECTION"
+    "HTTP_MESSAGE",
 };
 
 const char* MessageTypeToString(Uint32 messageType)

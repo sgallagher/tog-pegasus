@@ -87,7 +87,7 @@ HTTPAcceptor::~HTTPAcceptor()
 
 void HTTPAcceptor::handleEnqueue()
 {
-    cout << "HTTPAcceptor::handleEnqueue()" << endl;
+    // cout << "HTTPAcceptor::handleEnqueue()" << endl;
 
     Message* message = dequeue();
 
@@ -271,7 +271,7 @@ void HTTPAcceptor::_acceptConnection()
     // Create a new conection and add it to the connection list:
 
     HTTPConnection* connection = new HTTPConnection(
-	socket, this, _outputMessageQueue);
+	_monitor, socket, this, _outputMessageQueue);
 
     // Solicit events on this new connection socket:
 

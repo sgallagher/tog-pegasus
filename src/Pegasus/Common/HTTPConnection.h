@@ -30,11 +30,14 @@
 #ifndef Pegasus_HTTPConnection_h
 #define Pegasus_HTTPConnection_h
 
+#include <iostream>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/MessageQueue.h>
+#include <Pegasus/Common/Pair.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Message.h>
 #include <Pegasus/Common/Array.h>
+#include <Pegasus/Common/Monitor.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -55,16 +58,26 @@ public:
 };
 
 /** This message is sent from a connection to its output queue when
-    a complete HTTP is received.
+    a complete HTTP message is received.
 */
-class HTTPMessage : public Message
+class PEGASUS_COMMON_LINKAGE HTTPMessage : public Message
 {
 public:
 
-    HTTPMessage(const Array<Sint8>& message_) 
-	: Message(HTTP_MESSAGE), message(message_) { }
+    HTTPMessage(const Array<Sint8>& message_, Uint32 returnQueueId_ = 0);
 
     Array<Sint8> message;
+    Uint32 returnQueueId;
+
+    typedef Pair<String, String> HTTPHeader;
+
+    void parse(
+	String& firstLine,
+	Array<HTTPHeader>& headers,
+	Sint8*& content,
+	Uint32& contentLength) const;
+
+    void print(PEGASUS_STD(ostream)& os) const;
 };
 
 /** This class represents an HTTP listener.
@@ -75,6 +88,7 @@ public:
 
     /** Constructor. */
     HTTPConnection(
+	Monitor* monitor,
 	Sint32 socket, 
 	MessageQueue* ownerMessageQueue,
 	MessageQueue* outputMessageQueue);
@@ -100,6 +114,9 @@ private:
 
     void _handleReadEvent();
 
+    void _handleWriteEvent();
+
+    Monitor* _monitor;
     Sint32 _socket;
     MessageQueue* _ownerMessageQueue;
     MessageQueue* _outputMessageQueue;

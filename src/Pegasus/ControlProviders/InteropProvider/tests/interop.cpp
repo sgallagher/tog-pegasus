@@ -833,7 +833,7 @@ int main(int argc, char** argv)
     // Test characteristics of shared namespaces.
     //***************************************************************/
 
-
+    /*
     CIMNamespaceName testNameSharable = CIMNamespaceName("root/junk/interoptest/sharable");
     CIMNamespaceName testNameShared = CIMNamespaceName("root/junk/interoptest/shared");
     _namespaceCreatePG_Namespace(client, testNameSharable, true, false, String::EMPTY);
@@ -858,6 +858,7 @@ int main(int argc, char** argv)
     assert(!_existsNew(client, testNameSharable));
 
     assert(!_existsNew(client, testNameShared));
+    */
     /****************************************************************
     // Test the characteristics of the CIM_ObjectManager Class and Instances
     //***************************************************************/

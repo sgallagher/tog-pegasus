@@ -247,6 +247,6 @@ Boolean TraceFileHandler::isValidFilePath(const char* filePath)
             }
         }
     }
-    return 1;
+    PEGASUS_UNREACHABLE(return 1;)
 }
 PEGASUS_NAMESPACE_END

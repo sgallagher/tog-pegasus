@@ -40,6 +40,7 @@ void _Test01()
     Uint32 size;
     Uint32 freeCount = 0;
 
+    // create 5 entries
     size = 1427;
     index = 0;
     Boolean result = InstanceIndexFile::createEntry(PATH, 
@@ -70,10 +71,12 @@ void _Test01()
 	CIMReference("X.key1=1005,key2=\"Hello World 5\""), index, size);
     assert(result);
 
+    // delete the 3rd entry
     result = InstanceIndexFile::deleteEntry(PATH, 
           CIMReference("X.key2=\"Hello World 3\",key1=1003"), freeCount);
     assert(result);
 
+    // create a new entry
     size = 1428;
     index = 2860;
     result = InstanceIndexFile::createEntry(
@@ -81,14 +84,17 @@ void _Test01()
 	index, size);
     assert(result);
 
+    // delete the newly created entry
     result = InstanceIndexFile::deleteEntry(PATH, 
           CIMReference("X.key2=\"Hello World 3\",key1=1003"), freeCount);
     assert(result);
 
+    // delete the first entry
     result = InstanceIndexFile::deleteEntry(PATH, 
 	CIMReference("X.key1=1001,key2=\"Hello World 1\""), freeCount);
     assert(result);
 
+    // modify the 5th entry
     size = 9999;
     index = 8888;
     result = InstanceIndexFile::modifyEntry(PATH, 
@@ -98,6 +104,8 @@ void _Test01()
 
     //
     // Iterate the entries in the file:
+    //   There should be 7 entries
+    //   The 1st, 3rd, 5th and 6th entries should be marked as 'free'.
     //
 
     {
@@ -115,13 +123,41 @@ void _Test01()
 	assert(indices.size() == sizes.size());
 	assert(sizes.size() == instanceNames.size());
 
-	for (Uint32 i = 0; i < freeFlags.size(); i++)
-	{
-	    cout << freeFlags[i] << ' ';
-	    cout << indices[i] << ' ';
-	    cout << sizes[i] << ' ';
-	    cout << instanceNames[i] << endl;
-	}
+        assert( freeFlags[0] == 1 &&
+                freeFlags[2] == 1 &&
+                freeFlags[4] == 1 &&
+                freeFlags[5] == 1); 
+    }
+
+    //
+    // Now attempt to compact:
+    //
+    assert(InstanceIndexFile::compact(PATH));
+
+    //
+    // Verify the result:
+    //   There should be 3 entries and no 'free' entries
+    //
+    {
+	Array<Uint32> freeFlags;
+	Array<Uint32> indices;
+	Array<Uint32> sizes;
+	Array<CIMReference> instanceNames;
+
+        Boolean flag = InstanceIndexFile::enumerateEntries(
+            PATH, freeFlags, indices, sizes, instanceNames, true);
+
+        assert(flag);
+
+        assert(freeFlags.size() == 3);
+        assert(freeFlags.size() == indices.size());
+        assert(indices.size() == sizes.size());
+        assert(sizes.size() == instanceNames.size());
+
+        for (Uint32 i = 0; i < freeFlags.size(); i++)
+        {
+            assert(freeFlags[i] == 0);
+        }
     }
 }
 
@@ -238,7 +274,7 @@ int main(int argc, char** argv)
 {
     try
     {
-	// _Test01();
+	_Test01();
 	_Test02();
     }
 

@@ -4,6 +4,8 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
+static char * verbose;
+
 void TestGetSubClassNames(
     const InheritanceTree& it,
     const String& className,
@@ -14,7 +16,7 @@ void TestGetSubClassNames(
     it.getSubClassNames(className, deepInheritance, subClassNames);
 
 #if 0
-    for (Uint32 i = 0; i < subClassNames.getSize(); i++)
+    for (Uint32 i = 0; i < subClassNames.size(); i++)
 	cout << subClassNames[i] << endl;
 #endif
 
@@ -27,6 +29,8 @@ void TestGetSubClassNames(
 
 int main()
 {
+    verbose = getenv("PEGASUS_TEST_VERBOSE");
+
     try
     {
 	InheritanceTree it;
@@ -49,7 +53,8 @@ int main()
 	it.insert("A", "");
 	it.check();
 
-	// it.print(cout);
+        if (verbose)
+	    it.print(cout);
 
 	{
 	    Array<String> expected;
@@ -103,7 +108,30 @@ int main()
 	InheritanceTree it;
 	it.insertFromPath("./classes");
 	it.check();
-	// it.print(cout);
+        if (verbose)
+	    it.print(cout);
+    }
+    catch (Exception& e)
+    {
+	cerr << e.getMessage() << endl;
+	exit(1);
+    }
+
+    try
+    {
+        // build an invalid inheritance tree
+	InheritanceTree it;
+        it.insert("D", "B");
+        it.insert("E", "B");
+        it.insert("C", "A");
+        it.insert("F", "C");
+        it.insert("A", "");
+        it.check();
+    }
+    catch (InvalidInheritanceTree& e)
+    {
+        if (verbose)
+	    cout << e.getMessage() << endl;
     }
     catch (Exception& e)
     {

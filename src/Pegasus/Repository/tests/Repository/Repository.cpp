@@ -22,7 +22,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By:  Jenny Yu (jenny_yu@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -79,6 +79,8 @@ void test02()
     CIMRepository r("./repository");
 
     const String NAMESPACE = "aa/bb";
+    const String SUPERCLASS = "SuperClass";
+    const String SUBCLASS = "SubClass";
 
     try
     {
@@ -94,7 +96,7 @@ void test02()
     // Create Class (SuperClass):
     //--------------------------------------------------------------------------
 
-    CIMClass superClass("SuperClass");
+    CIMClass superClass(SUPERCLASS);
 
     superClass
 	.addProperty(CIMProperty("Last", String())
@@ -110,7 +112,7 @@ void test02()
     // Create Class (SubClass):
     //--------------------------------------------------------------------------
 
-    CIMClass subClass("SubClass", "SuperClass");
+    CIMClass subClass(SUBCLASS, SUPERCLASS);
     subClass.addProperty(CIMProperty("Role", String()));
     r.createClass(NAMESPACE, subClass);
 
@@ -118,7 +120,7 @@ void test02()
     // Create Instance (of SubClass):
     //--------------------------------------------------------------------------
 
-    CIMInstance subClassInstance("SubClass");
+    CIMInstance subClassInstance(SUBCLASS);
     subClassInstance.addProperty(CIMProperty("Last", "Smith"));
     subClassInstance.addProperty(CIMProperty("First", "John"));
     subClassInstance.addProperty(CIMProperty("Age", Uint8(101)));
@@ -137,6 +139,43 @@ void test02()
     CIMInstance tmp = r.getInstance(NAMESPACE, instanceName2);
 
     assert(subClassInstance.identical(tmp));
+
+    //--------------------------------------------------------------------------
+    // Miscellaneous tests
+    //--------------------------------------------------------------------------
+    
+    try
+    {
+	r.execQuery("WQL", "myquery");
+    }
+    catch (CIMException& e)
+    {
+        // execQuery operation is not supported yet
+	PEGASUS_ASSERT(e.getCode() == CIM_ERR_NOT_SUPPORTED);
+    }
+
+    try
+    {
+        // delete a non-empty namespace
+	r.deleteNameSpace(NAMESPACE);
+    }
+    catch (NonEmptyNameSpace& e)
+    {
+        // expected exception 
+    }
+
+    String providerName = r.getProviderName();
+    assert (providerName == "repository");
+
+    Array<String> subClassNames;
+    r.getSubClassNames(NAMESPACE, SUPERCLASS, true, subClassNames);
+    assert(subClassNames.size() == 1);
+    assert(subClassNames[0] == SUBCLASS);
+
+    Array<String> superClassNames;
+    r.getSuperClassNames(NAMESPACE, SUBCLASS, superClassNames);
+    assert(superClassNames.size() == 1);
+    assert(superClassNames[0] == SUPERCLASS);
 }
 
 void test03()

@@ -32,6 +32,9 @@
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
+
+static char * verbose;
+
 /** Test of the namespace functions for the repository.
 This test creates a set of namespaces in a local repository
 then enumerates them and compares the original
@@ -75,15 +78,17 @@ void test()
 	assert(arr1 == arr2);
 
         NameSpaceManager nsm("./repository");
-        // nsm.print(cout);
+   
+        if (verbose)
+            nsm.print(cout);
 
 	// Delete the namespaces test. Put in when delete installed
-	//for (Uint32 i = 0; i < arr1.size(); i++)
-	//    r.deleteNameSpace(String(arr1[i]));
+	for (Uint32 i = 0; i < arr1.size(); i++)
+	    r.deleteNameSpace(String(arr1[i]));
 
 	//enumerate the namespaces
-	//Array<String> arr3 = r.enumerateNameSpaces();
-	//assert(arr3.size() == 0);
+	Array<String> arr3 = r.enumerateNameSpaces();
+	assert(arr3.size() == 0);
 
     }
     catch (AlreadyExists&)
@@ -94,6 +99,8 @@ void test()
 
 int main()
 {
+    verbose = getenv("PEGASUS_TEST_VERBOSE");
+
     try 
     {
 	test();

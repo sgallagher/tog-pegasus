@@ -142,6 +142,13 @@ ifeq ($(PEGASUS_PLATFORM),LINUX_ZSERIES_GNU)
   endif
 endif
 
+ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
+  ifdef PEGASUS_HAS_SSL
+    EXTRA_LIBRARIES += -lssl -lcrypto
+  endif
+endif
+
+
 ifeq ($(PEGASUS_PLATFORM),AIX_RS_IBMCXX)
 AIX_LIB_PRIORITY=-20
   ifdef PEGASUS_HAS_SSL

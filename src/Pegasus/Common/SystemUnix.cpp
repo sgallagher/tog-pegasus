@@ -74,6 +74,9 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/InternalException.h>
+#ifdef PEGASUS_ZOS_SECURITY
+#include "DynamicLibraryzOS_inline.h"
+#endif
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -414,8 +417,15 @@ DynamicLibraryHandle System::loadDynamicLibrary(const char* fileName)
     PEG_METHOD_EXIT();
     return DynamicLibraryHandle(dlopen(fileName, RTLD_NOW));
 #elif defined(PEGASUS_OS_ZOS)
+	#if defined(PEGASUS_ZOS_SECURITY)
+		if (!hasProgramControl(fileName))
+		{
+			PEG_METHOD_EXIT();
+			return 0;
+		}
+	#endif
     PEG_METHOD_EXIT();
-    return DynamicLibraryHandle(dllload(fileName));
+	return DynamicLibraryHandle(dllload(fileName));
 #elif defined(PEGASUS_OS_OS400)
     PEG_METHOD_EXIT();
     return DynamicLibraryHandle(OS400_LoadDynamicLibrary(fileName));

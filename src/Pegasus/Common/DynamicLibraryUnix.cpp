@@ -37,6 +37,9 @@
 #include <fcntl.h>
 #include <unistd.cleinc>
 #include "OS400SystemState.h"  // OS400LoadDynamicLibrary, etc
+#elif defined(PEGASUS_ZOS_SECURITY)
+#include <sys/stat.h>
+#include "DynamicLibraryzOS_inline.h"
 #endif
 
 PEGASUS_NAMESPACE_BEGIN
@@ -51,7 +54,16 @@ Boolean DynamicLibrary::load(void)
     #if defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_SOLARIS) || defined(PEGASUS_OS_AIX) || defined(PEGASUS_OS_TRU64)
     _handle = dlopen(cstr, RTLD_NOW);
     #elif defined(PEGASUS_OS_ZOS)
-    _handle = dllload(cstr);
+	#if defined(PEGASUS_ZOS_SECURITY)
+	if (hasProgramControl(cstr))
+	{
+		_handle = dllload(cstr);
+	}
+	else _handle = 0;
+	#else
+		_handle = dllload(cstr);
+	#endif
+
     #elif defined(PEGASUS_OS_OS400)
     _handle = OS400_LoadDynamicLibrary((const char *)cstr);
     #endif

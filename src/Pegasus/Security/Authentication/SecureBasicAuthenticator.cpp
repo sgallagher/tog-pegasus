@@ -42,6 +42,9 @@
 #include "qycmutiltyUtility.H"
 #include "OS400ConvertChar.h"
 #endif
+#ifdef PEGASUS_OS_ZOS
+#include <pwd.h>
+#endif
 
 PEGASUS_USING_STD;
 
@@ -117,7 +120,20 @@ Boolean SecureBasicAuthenticator::authenticate(
     int os400auth =
       ycmVerifyUserAuthorization(user, pw);
     if (os400auth == TRUE) 
-	authenticated = true;
+		authenticated = true;
+	#else
+	#if defined(PEGASUS_OS_ZOS)
+		// use zOS API to do the user name and password verification
+		// note: write possible errors to the tracelog
+		if (__passwd((const char*) userName.getCString(), (const char*) password.getCString(), NULL) == 0) 
+		{
+			authenticated = true;
+		}
+		else
+		{
+			authenticated = false;
+			PEG_TRACE_STRING(TRC_AUTHENTICATION, Tracer::LEVEL4,"Authentication failed.");
+		}
 #else
     //
     // Check if the user is a valid system user
@@ -148,6 +164,7 @@ Boolean SecureBasicAuthenticator::authenticate(
         PEG_METHOD_EXIT();
         throw e;
     }
+#endif	// PEGASUS_OS_ZOS
 #endif
 
     PEG_METHOD_EXIT();

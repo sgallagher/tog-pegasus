@@ -341,30 +341,36 @@ class PEGASUS_COMMON_LINKAGE Thread
       
       //
       //  Gets the Thread object associated with the caller's thread.
-      //  Note: this may return NULL	
+      //  Note: this may return NULL if no Thread object is associated
+      //  with the caller's thread.
       //
       static Thread * getCurrent();  // l10n
 
       //
-      //  Sets the Thread object associated with the caller's thread
+      //  Sets the Thread object associated with the caller's thread.
+      //  Note: the Thread object must be placed on the heap.
       //
       static void setCurrent(Thread * thrd); // l10n	
 
       //
-      //  Gets the AcceptLanguages associated with the caller's
+      //  Gets the AcceptLanguages object associated with the caller's
       //  Thread.
-      //  Note: this may return NULL	
+      //  Note: this may return NULL if no Thread object, or no
+      //  AcceptLanguages object, is associated with the caller's thread.  
       //      
       static AcceptLanguages * getLanguages(); //l10n
       
       //
-      //  Sets the AcceptLanguages associated with the caller's
+      //  Sets the AcceptLanguages object associated with the caller's
       //  Thread.
+      //  Note: a Thread object must have been previously associated with
+      //  the caller's thread. 
+      //  Note: the AcceptLanguages object must be placed on the heap.
       //  
       static void setLanguages(AcceptLanguages *langs); //l10n
       
       //
-      //  Removes the AcceptLanguages associated with the caller's
+      //  Removes the AcceptLanguages object associated with the caller's
       //  Thread.
       //  
       static void clearLanguages(); //l10n      

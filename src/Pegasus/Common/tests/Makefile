@@ -40,8 +40,11 @@ DIRS = \
     DynLib \
     DynLoad \
     Logger \
-    OptionManager \
-    IPC
+    OptionManager
+
+ifeq ($(OS),linux)
+SOURCES += IPC
+endif
 
 XDIRS = \
     ValidateClass \

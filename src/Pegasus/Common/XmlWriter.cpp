@@ -773,8 +773,8 @@ void XmlWriter::appendReturnValueElement(
 
     out << ">\n";
 
-    // Add value. If no value is Null, do not put <VALUE> tags on
-    value.toXml(out, false);
+    // Add value. If value is Null, then this method shouldn't have been called
+    value.toXml(out, true);
     out << "</RETURNVALUE>\n";
 }
 

@@ -899,7 +899,11 @@ void CIMOperationResponseEncoder::encodeInvokeMethodResponse(
 
    // ATTN-RK-P3-20020219: Who's job is it to make sure the return value is
    // not an array?
-   XmlWriter::appendReturnValueElement(body, response->retValue);
+   // Only add the return value if it is not null
+   if (!response->retValue.isNull())
+   {
+      XmlWriter::appendReturnValueElement(body, response->retValue);
+   }
 
    for (Uint32 i=0; i < response->outParameters.size(); i++)
    {

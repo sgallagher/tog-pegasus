@@ -1193,12 +1193,6 @@ CIMInvokeMethodResponseMessage* CIMOperationResponseDecoder::_decodeInvokeMethod
             isParamValue = false;
         }
 
-        if (!gotReturnValue)
-        {
-            throw XmlValidationError(parser.getLine(),
-                "expected ERROR or RETURNVALUE element");
-        }
-
 	return(new CIMInvokeMethodResponseMessage(
 	    messageId,
 	    cimException,

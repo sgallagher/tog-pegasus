@@ -182,6 +182,14 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     Boolean authenticated = false;
     deleteMessage = true;
 
+    // ATTN-RK-P3-20020408: This check probably shouldn't be necessary, but
+    // we're getting an empty message when the client closes the connection
+    if (httpMessage->message.size() == 0)
+    {
+        // The message is empty; just drop it
+        return;
+    }
+
     //
     // get the configured authentication flag
     //

@@ -59,7 +59,7 @@ int main(int argc, char** argv)
 	if( retValue.toString() != GOODREPLY )
 	  {
 	    PEGASUS_STD(cerr) << "Error: bad reply \"" <<
-	      retValue.toString() << PEGASUS_STD(endl);
+	      retValue.toString() << "\"" << PEGASUS_STD(endl);
 	    exit( 1 );
 	  }
 	else

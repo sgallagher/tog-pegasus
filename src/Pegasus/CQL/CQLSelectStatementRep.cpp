@@ -39,20 +39,29 @@
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/CIMProperty.h>
 #include <Pegasus/Common/InternalException.h>
+#include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/CIMStatusCode.h>
 #include "CQLValue.h"
 #include "CQLIdentifier.h"
 #include "CQLChainedIdentifier.h"
 
+// ATTN: TODOs - 
+// spec compliance
+// assertions
+// optimize
+// localized CQL exceptions
+// documentation
+// trace? but this could be used by provider
 
 PEGASUS_NAMESPACE_BEGIN
 
-struct EmbeddedPropertyNode
+struct PropertyNode
 {
   CIMName name;
   Boolean wildcard;
-  EmbeddedPropertyNode * parent;
-  EmbeddedPropertyNode * sibling;
-  EmbeddedPropertyNode * firstChild;
+  PropertyNode * parent;
+  PropertyNode * sibling;
+  PropertyNode * firstChild;
 };
 
 
@@ -104,7 +113,7 @@ void CQLSelectStatementRep::applyProjection(CIMInstance& inCI) throw(Exception)
 {
   // assumes that applyContext had been called.
 
-  EmbeddedPropertyNode* rootNode = new EmbeddedPropertyNode;
+  PropertyNode* rootNode = new PropertyNode;
   Array<CQLIdentifier> fromList = _ctx->getFromList();
   rootNode->name = fromList[0].getName();  // not doing joins
   
@@ -112,14 +121,27 @@ void CQLSelectStatementRep::applyProjection(CIMInstance& inCI) throw(Exception)
   {
     CQLValue val(_selectIdentifiers[i]);
 
-    // ATTN: assuming the CQLValue takes care of class aliasing
-    // ATTN: assumes that the instance's class name is first subId.
-// ATTN: UNCOMMENT when API is available
-CQLChainedIdentifier resolvedId; // = val.getResolvedIdentifier(inCI, *_ctx);
-    Array<CQLIdentifier> ids = resolvedId.getSubIdentifiers();
+    // The CQLValue::getNormalizedIdentifier API does the following:
+    // 1) Checks if the instance can be projected:
+    //    a) the instance and its embedded objects are the right type
+    //       as determined by the class contexts (note that the instance
+    //       can be a subclass of the class context) 
+    //    b) the property referenced by the identifier exists on the instance
+    //       or its embedded object as needed.
+    //    c) if either of the above are not true, an exception is thrown
+    // 2) Returns a CQLChainedIdentifier with each chain element replaced by
+    //    the property name on the instance or its embedded object. All
+    //    the class relationships (scoping, etc) have been resolved to actual
+    //    property names on the instance.
+    //    a) Note that '*' is not replaced.
+    //    b) The API will always prepend the instance's class name
 
-    EmbeddedPropertyNode * curNode = rootNode;
-    EmbeddedPropertyNode * curChild = curNode->firstChild;
+// ATTN: UNCOMMENT when API is available
+    CQLChainedIdentifier normalizedId; // = val.getNormalizedIdentifier(inCI, *_ctx);
+    Array<CQLIdentifier> ids = normalizedId.getSubIdentifiers();
+
+    PropertyNode * curNode = rootNode;
+    PropertyNode * curChild = curNode->firstChild;
 
     for (Uint32 j = 1; j < ids.size(); j++)
     {
@@ -144,7 +166,7 @@ CQLChainedIdentifier resolvedId; // = val.getResolvedIdentifier(inCI, *_ctx);
 
       if (!found)
       {
-	curChild = new EmbeddedPropertyNode;
+	curChild = new PropertyNode;
 	curChild->parent = curNode;
 	curChild->sibling = curNode->firstChild;
 	curChild->name = ids[j].getName();
@@ -159,7 +181,7 @@ CQLChainedIdentifier resolvedId; // = val.getResolvedIdentifier(inCI, *_ctx);
 
   Array<CIMName> requiredProps;
 
-  EmbeddedPropertyNode* projNode = rootNode->firstChild;
+  PropertyNode* projNode = rootNode->firstChild;
   while (projNode != NULL)
   {
     if (!projNode->wildcard && !(projNode->firstChild == NULL))
@@ -175,6 +197,8 @@ CQLChainedIdentifier resolvedId; // = val.getResolvedIdentifier(inCI, *_ctx);
     // in basic, and if so, then it would cause a property type change.  
     // Line 461.  May need to call CQLValue to figure this out.
 
+    // ATTN: Line 636-640 - does this only apply to basic?
+
     if (!projNode->wildcard)
       requiredProps.append(projNode->name);   
  
@@ -188,13 +212,7 @@ CQLChainedIdentifier resolvedId; // = val.getResolvedIdentifier(inCI, *_ctx);
 
 }
 
-// spec compliance
-// assertions
-// optimize
-// Need a func to check well formed identifiers - ie. all emb props are scoped.  Or does
-// applyContext or bison do that?
-
-void CQLSelectStatementRep::applyProjection(EmbeddedPropertyNode* node,
+void CQLSelectStatementRep::applyProjection(PropertyNode* node,
 					    CIMProperty& nodeProp)
 {
   if (node->wildcard)
@@ -210,7 +228,7 @@ void CQLSelectStatementRep::applyProjection(EmbeddedPropertyNode* node,
 
   Array<CIMName> requiredProps;
 
-  EmbeddedPropertyNode * curChild = node->firstChild;
+  PropertyNode * curChild = node->firstChild;
   while (curChild != NULL)
   {
     if (curChild->firstChild != NULL)
@@ -286,6 +304,10 @@ void CQLSelectStatementRep::validateClass(const CIMObjectPath& inClassName) thro
   }
 }
 
+//
+// Validates that all the chained identifiers in the statement meet
+// the rules in the CQL spec vs.the class definitions in the repository
+//
 void CQLSelectStatementRep::validateProperties() throw(Exception)
 {
   // assumes applyContext has been called
@@ -301,61 +323,96 @@ void CQLSelectStatementRep::validateProperties() throw(Exception)
   }
 }
 
+//
+// Validates that the chained identifier meets all the rules in the CQL
+// spec vs.the class definitions in the repository
+//
 void CQLSelectStatementRep::validateProperty(CQLChainedIdentifier& chainId)
 {
-  // assumes that applyContext has been called and all identfiers are well-formed
+  // assumes that applyContext has been called
 
   Array<CQLIdentifier> ids = chainId.getSubIdentifiers();
 
-  // Normalize to prepend the FROM class
-  // see the description of CQLIdentifier::applyContext
+  // Determine the starting class context.
+  // See CQLIdentifier::applyContext for a description
+  // of the form of the identifier after applyContext.
   CIMName prevContext;
   Uint32 startingPos = 0;
   if (ids[0].isScoped())
-  {
+  { 
+    // The first element is scoped, therefore the FROM class
+    // was not prepended.  Get the starting context from the FROM
     Array<CQLIdentifier> fromList = _ctx->getFromList();
     PEGASUS_ASSERT(fromList.size() == 1);   // no joins yet
     prevContext = fromList[0].getName();
   }
   else
   {
+    // First element was not scoped, therefore the FROM class
+    // was prepended.  Use the first element as the starting context.
     prevContext = ids[0].getName();
     startingPos = 1;
   }
   
   for (Uint32 pos = startingPos; pos < ids.size(); pos++)
   {
-    CIMName classContext;
+    // Determine the current class context
+    CIMName curContext;
     if (ids[pos].isScoped())
     {
-      classContext = lookupFromClass(ids[pos].getScope());
-      if (classContext.getString() == String::EMPTY)
+      // The chain element is scoped.  Lookup the scope
+      // name in the FROM list, taking into account
+      // aliases.
+      curContext = lookupFromClass(ids[pos].getScope());
+      if (curContext.getString() == String::EMPTY)
       {
-	classContext = CIMName(ids[pos].getScope());
+	// It was not in the FROM list, just use the scope name.
+	curContext = CIMName(ids[pos].getScope());
       }      
     }
     else
     {
-      PEGASUS_ASSERT(pos == 1);
-      classContext = prevContext;
+      // All embedded properties must be scoped.
+      // ATTN: Is this checked by Bison?
+      PEGASUS_ASSERT(pos == startingPos);
+      curContext = prevContext;
     }
 
-    CIMClass classDef = _ctx->getClass(classContext);
+    // Get the class definition of the current class context
+    CIMClass classDef;
+    try 
+    {
+      classDef = _ctx->getClass(curContext);
+    }
+    catch (CIMException& ce)
+    {
+      if (ce.getCode() == CIM_ERR_NOT_FOUND ||
+	  ce.getCode() == CIM_ERR_INVALID_CLASS)
+      {
+	// ATTN: better to just throw the CIMException rather
+	// than the CQL exception?
+	throw Exception("TEMP_MSG: class context does not exist");
+      }
+    }
+
+    // Determine if the property name at the current position
+    // exists on the current class context.
     if (classDef.findProperty(ids[pos].getName()) == PEG_NOT_FOUND)
     {
       throw Exception("TEMP MSG: prop not on scoped class");
     }
 
-    if (!classContext.equal(prevContext))
+    // Checking class relationship rules in section 5.4.1.
+    if (!curContext.equal(prevContext))
     {
-      if (!isSubClass(classContext, prevContext) &&
-	  !isSubClass(prevContext, classContext))
+      if (!isSubClass(curContext, prevContext) &&
+	  !isSubClass(prevContext, curContext))
       {
 	throw Exception("TEMP MSG: section 5.4.1 violation!");
       }
     }
 
-    prevContext = classContext;
+    prevContext = curContext;
   }
 }
 

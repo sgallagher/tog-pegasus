@@ -44,7 +44,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-struct EmbeddedPropertyNode;
+struct PropertyNode;
 
 /**  
 This class is derived from the SelectStatement base class.  
@@ -263,7 +263,7 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatementRep : public SelectStatementRep
 
   private:
 
-    void applyProjection(EmbeddedPropertyNode* node, CIMProperty& nodeProp);
+    void applyProjection(PropertyNode* node, CIMProperty& nodeProp);
 
     void removeUnneededProperties(CIMInstance& inst, 
 				  Array<CIMName>& requiredProps);

@@ -632,12 +632,12 @@ void LocalizedProvider::invokeMethod(
         }
         else
         {
-            throw CIMMethodNotFoundException(methodName);
+            throw CIMMethodNotFoundException(methodName.getString());
         }
    }
    else
    {
-       throw CIMObjectNotFoundException(objectReference.getClassName());
+       throw CIMObjectNotFoundException(objectReference.getClassName().getString());
    }
 	
    handler.complete();

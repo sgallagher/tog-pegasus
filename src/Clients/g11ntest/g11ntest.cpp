@@ -49,7 +49,7 @@ PEGASUS_USING_STD;
 //#define MYASSERT ASSERTTEMP
 #define MYASSERT PEGASUS_ASSERT
 
-static char* programVersion =  "1.0";
+static const char* programVersion =  "1.0";
 
 // Array of UTF-16 chars to be sent and received to the server.
 // Note: the last 2 elements are a surrogate pair
@@ -93,7 +93,6 @@ static void testEnd(const double elapsedTime)
     cout << "In " << elapsedTime << " Seconds\n\n";
 }
 
-// l10n start
 
 /*
    Tests the UTF support in the repository
@@ -269,8 +268,8 @@ static void TestLocalizedMethods( CIMClient& client, Boolean verboseTest )
 {
   const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/SampleProvider");
   const CIMName CLASSNAME = CIMName ("Sample_LocalizedProviderClass");
-  const CIMName INPARAM1 = CIMName("inStr");
-  const CIMName INPARAM2 = CIMName("inChar16");
+  const String INPARAM1 = "inStr";
+  const String INPARAM2 = "inChar16";
   const CIMName METHOD = CIMName("UTFMethod");
   const CIMObjectPath REFERENCE = CIMObjectPath("Sample_LocalizedProviderClass.Identifier=0");
 

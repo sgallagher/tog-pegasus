@@ -17,7 +17,8 @@ DIRS = \
     Security/UserManager \
     Security/Authentication \
     WQL \
-    Server \
+    Server/ConfigurationManager \
+	Server \
     Handler/CIMxmlIndicationHandler \
     Handler/sendmailIndicationHandler \
     Handler/snmpIndicationHandler \

@@ -2273,5 +2273,4 @@ int main (int argc, char* argv [])
     retCode = command.execute (cout, cerr);
 
     return (retCode);
-    return 0;
 }

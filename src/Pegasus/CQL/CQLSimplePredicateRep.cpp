@@ -39,6 +39,7 @@
 #include <Pegasus/CQL/CQLFactory.h>
 #include <Pegasus/Query/QueryCommon/QueryContext.h>
 #include <Pegasus/Query/QueryCommon/QueryException.h>
+#include <Pegasus/Common/Tracer.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -79,6 +80,7 @@ CQLSimplePredicateRep::CQLSimplePredicateRep(const CQLSimplePredicateRep* rep){
 
 Boolean CQLSimplePredicateRep::evaluate(CIMInstance CI, QueryContext& QueryCtx)
 {
+  PEG_METHOD_ENTER(TRC_CQL, "CQLSimplePredicateRep::evaluate");
   // Resolve the value of the left side
   CQLValue leftVal = _leftSide.resolveValue(CI, QueryCtx);
 
@@ -198,7 +200,7 @@ Boolean CQLSimplePredicateRep::evaluate(CIMInstance CI, QueryContext& QueryCtx)
     // Never get here due to the assert.
     break;
   }
-
+  PEG_METHOD_EXIT();
   return true;  // keep the compiler happy
 }
 
@@ -219,6 +221,7 @@ enum ExpressionOpType CQLSimplePredicateRep::getOperation()const
 
 void CQLSimplePredicateRep::applyContext(QueryContext& queryContext)
 {
+  PEG_METHOD_ENTER(TRC_CQL, "CQLSimplePredicateRep::applyContext");
   CQLIdentifier _id;
 
    _id = _leftSide.getTerms()[0].getFactors()[0].
@@ -316,6 +319,7 @@ void CQLSimplePredicateRep::applyContext(QueryContext& queryContext)
         }
       }
    }
+   PEG_METHOD_EXIT();
 }
 
 String CQLSimplePredicateRep::toString()const

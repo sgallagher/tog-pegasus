@@ -230,11 +230,11 @@ Uint32 System::lookupPort(
     struct servent *serv;
 
     //
-    // Get wbem-local port from /etc/services
+    // Get the port number.
     //
     if (  (serv = getservbyname(serviceName, TCP)) != NULL )
     {
-        localPort = serv->s_port;
+        localPort = ntohs(serv->s_port);
     }
     else
     {

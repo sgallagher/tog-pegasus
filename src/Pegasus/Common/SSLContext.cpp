@@ -302,7 +302,7 @@ int prepareForCallback(int preVerifyOk, X509_STORE_CTX *ctx)
     // This will definitely be fixed in 2.4.  For 2.3.2, it shouldn't matter since we
     // are not using server verification.
 
-#ifndef PEGASUS_USE_232_CLIENT_VERIFICATION
+#ifdef PEGASUS_USE_232_CLIENT_VERIFICATION
     X509_STORE_CTX_set_error(ctx, certInfo.getErrorCode()); 
 #else
     X509_STORE_CTX_set_error(ctx, verifyError);

@@ -19,6 +19,7 @@ LIBRARIES = \
     pegcommon \
     pegrepository \
     pegprovider \
+	pegprovidermanager \
     pegexportserver \
     pegconfig \
     peguser \
@@ -38,10 +39,6 @@ SOURCES = \
     CIMServer.cpp \
     CIMServerState.cpp \
     ServiceCIMOMHandle.cpp \
-    ProviderManager/ProviderManagerService.cpp \
-    ProviderManager/ProviderModule.cpp \
-    ProviderManager/ProviderFacade.cpp \
-    ProviderManager/ProviderBlockedEntry.cpp \
     ConfigurationManager/ConfigurationManagerQueue.cpp \
     ConfigurationManager/PG_RegistrationProvider.cpp \
     IndicationService/IndicationService.cpp

@@ -70,7 +70,7 @@ public:
 			// ATTN: temporary solution to avoid passing component pointers in the
 			// constructor.
 			_providerManager =
-				(ProviderManagerService *)MessageQueue::lookup("Server_ProviderManagerService");
+				(ProviderManagerService *)MessageQueue::lookup("Server::ProviderManagerService");
 		}
 		
 		return(_providerManager);

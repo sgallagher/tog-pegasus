@@ -52,6 +52,8 @@ class CIMExportResponseEncoder;
 class CIMExportRequestDecoder;
 class HTTPAcceptor;
 
+class ProviderManagerService;
+
 class PEGASUS_SERVER_LINKAGE CIMServer
 {
 public:
@@ -85,10 +87,10 @@ public:
     /** Call to gracefully shutdown the server.  The server connection socket
         will be closed to disable new connections from clients.
     */
-    void stopClientConnection(); 
+    void stopClientConnection();
 
     /** Call to gracefully shutdown the server.  It is called when the server
-        has been stopped and is ready to be shutdown.  Next time runForever() 
+        has been stopped and is ready to be shutdown.  Next time runForever()
         is called, the server shuts down.
     */
     void shutdown();
@@ -97,11 +99,11 @@ public:
     */
     Boolean terminated() { return _dieNow; };
 
-    /** Call to resume the sever. 
+    /** Call to resume the sever.
     */
     void resume();
 
-    /** Call to set the CIMServer state.  Also inform the appropriate 
+    /** Call to set the CIMServer state.  Also inform the appropriate
         message queues about the current state of the CIMServer.
     */
     void setState(Uint32 state);
@@ -128,6 +130,8 @@ private:
 
     HTTPAcceptor*   _acceptor;
     CIMServerState* _serverState;
+
+	ProviderManagerService * _providerManager;
 };
 
 PEGASUS_NAMESPACE_END

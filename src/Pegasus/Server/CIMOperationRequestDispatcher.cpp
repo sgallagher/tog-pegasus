@@ -36,7 +36,6 @@
 
 #include "CIMOperationRequestDispatcher.h"
 
-#include <Pegasus/Provider/SimpleResponseHandler.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -53,140 +52,222 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
    Base("CIMOpRequestDispatcher", MessageQueue::getNextQueueId()),
    _repository(repository),
    _cimom(this, server, repository),
-   _providerManager(_cimom),
-   _configurationManager(_cimom), 
+   _configurationManager(_cimom),
    _indicationService(_cimom)
 {
    DDD(cout << _DISPATCHER << endl;)
-      _indicationService.initialize(_cimom);
-   
+
+   _indicationService.initialize(_cimom);
 }
 
-CIMOperationRequestDispatcher::~CIMOperationRequestDispatcher()	
+CIMOperationRequestDispatcher::~CIMOperationRequestDispatcher(void)	
 {
 	_dying = 1;
 }
-
 
 void CIMOperationRequestDispatcher::_handle_async_request(AsyncRequest *req)
 {
    if ( req->getType() == async_messages::ASYNC_LEGACY_OP_START )
    {
       req->op->processing();
-      
-
    }
-   else 
-      Base::_handle_async_request(req);
+
+   Base::_handle_async_request(req);
 }
 
-
-
-// ATTN
-// this needs to return an array of names if it is possible
+// ATTN: this needs to return an array of names if it is possible
 // to have more than one provider per class.
 String CIMOperationRequestDispatcher::_lookupProviderForClass(
 	const String& nameSpace,
 	const String& className)
 {
-	// ATTN: should use the CIM_ElementCapabilities association to find
-	// the CIM_Provider instance from the CIM_Capabilities instance
+	MessageQueue * queue = MessageQueue::lookup("Server::ConfigurationManagerQueue");
 
-	//
-	// get the provider capabilities instances from the configuration manager.
-	//
+	PEGASUS_ASSERT(queue != 0);
 
-	// create request
-	CIMRequestMessage * request = new CIMEnumerateInstancesRequestMessage(
-		"golden snitch",
-		nameSpace,
-		"CIM_ProviderCapabilities",
-		false,
-		false,
-		false,
-		false,
-		Array<String>(),
-		QueueIdStack(_configurationManager.getQueueId(), getQueueId()));
-
-	// save the message key because the lifetime of the message is not known.
-	Uint32 messageKey = request->getKey();
-
-
-//	<< Tue Feb 12 08:29:38 2002 mdd >> example of conversion to meta dispatcher
-// automatically initializes backpointer
-	AsyncLegacyOperationStart *async_req = new AsyncLegacyOperationStart(
-	   get_next_xid(),
-	   0, 
-	   _configurationManager.getQueueId(),
-	   request,
-	   _queueId);
+	Uint32 targetQueueId = queue->getQueueId();
+	Uint32 sourceQueueId = this->getQueueId();
 	
-	// send request
-//	_configurationManager.enqueue(request);
-
-	AsyncReply *async_reply = SendWait(async_req);
+	// get all CIM_ProviderElementCapabilities instances
+	Array<CIMInstance> providerElementCapabilitiesInstances;
 	
-	CIMEnumerateInstancesResponseMessage * response = 
-	   reinterpret_cast<CIMEnumerateInstancesResponseMessage *>  
-	   ((static_cast<AsyncLegacyOperationResult *>(async_reply))->res);
-	
-	delete async_req;
-	delete async_reply;
-	
-
-	// wait for response
-// 	CIMEnumerateInstancesResponseMessage * response =
-// 		(CIMEnumerateInstancesResponseMessage *)_waitForResponse(
-// 		CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE,
-// 		messageKey);
-
-	// ATTN: temporary fix until CIMNamedInstance removed
-	Array<CIMInstance> cimInstances;
-
 	{
+		// create request
+		CIMRequestMessage * request = new CIMEnumerateInstancesRequestMessage(
+			"golden snitch",
+			nameSpace,
+			"CIM_ProviderElementCapabilities",
+			false,
+			false,
+			false,
+			false,
+			Array<String>(),
+			QueueIdStack(targetQueueId, sourceQueueId));
+
+		// save the message key because the lifetime of the message is not known.
+		Uint32 messageKey = request->getKey();
+
+		//	<< Tue Feb 12 08:29:38 2002 mdd >> example of conversion to meta dispatcher
+		// automatically initializes backpointer
+		AsyncLegacyOperationStart * async_req = new AsyncLegacyOperationStart(
+			get_next_xid(),
+			0,
+			targetQueueId,
+			request,
+			sourceQueueId);
+
+		// send request and wait for response
+		AsyncReply * async_reply = SendWait(async_req);
+
+		CIMEnumerateInstancesResponseMessage * response =
+			reinterpret_cast<CIMEnumerateInstancesResponseMessage *>
+				((static_cast<AsyncLegacyOperationResult *>(async_reply))->res);
+
+		delete async_req;
+		delete async_reply;
+
+		// ATTN: temporary fix until CIMNamedInstance is removed
 		for(Uint32 i = 0, n = response->cimNamedInstances.size(); i < n; i++)
 		{
-			cimInstances.append(response->cimNamedInstances[i].getInstance());
+			providerElementCapabilitiesInstances.append(response->cimNamedInstances[i].getInstance());
 		}
 	}
-
-	//
-	// get the provider instances from the configuration manager.
-	//
-
-	// check each instance for the requested class name
-	for(Uint32 i = 0, n = cimInstances.size(); i < n ; i++)
+	
+	for(Uint32 i = 0, n = providerElementCapabilitiesInstances.size(); i < n; i++)
 	{
-		CIMInstance cimInstance(cimInstances[i]);
-
-		// get the ClassName property value from the instance
-		Uint32 pos = cimInstance.findProperty("ClassName");
-
-		// compare the property value with the requested class name
-		if(String::equalNoCase(className, cimInstance.getProperty(pos).getValue().toString()))
+		// get the associated CIM_ProviderCapabilities instance
+		CIMInstance providerCapabilitiesInstance;
+	
 		{
-			// get the ProviderName property value from the instance
-			pos = cimInstance.findProperty("ProviderName");
+			// the object path of the associated instance is in the 'Capabilities' property
+			Uint32 pos = providerElementCapabilitiesInstances[i].findProperty("Capabilities");
+			
+			PEGASUS_ASSERT(pos != PEG_NOT_FOUND);
+			
+			CIMReference cimReference = providerElementCapabilitiesInstances[i].getProperty(pos).getValue().toString();
+			
+			//PEGASUS_STD(cout) << cimReference << PEGASUS_STD(endl);
 
-			String providerName = cimInstance.getProperty(pos).getValue().toString();
+			// create request
+			CIMRequestMessage * request = new CIMGetInstanceRequestMessage(
+				"golden snitch",
+				nameSpace,
+				cimReference,
+				false,
+				false,
+				false,
+				Array<String>(),
+				QueueIdStack(targetQueueId, sourceQueueId));
 
-			if(_providerManager.isProviderBlocked(providerName))
+			// save the message key because the lifetime of the message is not known.
+			Uint32 messageKey = request->getKey();
+
+			//	<< Tue Feb 12 08:29:38 2002 mdd >> example of conversion to meta dispatcher
+			// automatically initializes backpointer
+			AsyncLegacyOperationStart * async_req = new AsyncLegacyOperationStart(
+				get_next_xid(),
+				0,
+				targetQueueId,
+				request,
+				sourceQueueId);
+
+			// send request and wait for response
+			AsyncReply * async_reply = SendWait(async_req);
+
+			CIMGetInstanceResponseMessage * response =
+				reinterpret_cast<CIMGetInstanceResponseMessage *>
+					((static_cast<AsyncLegacyOperationResult *>(async_reply))->res);
+
+			delete async_req;
+			delete async_reply;
+
+			providerCapabilitiesInstance = response->cimInstance;
+		}
+
+		try
+		{
+			// get the ClassName property value from the instance
+			Uint32 pos = providerCapabilitiesInstance.findProperty("ClassName");
+
+			PEGASUS_ASSERT(pos != PEG_NOT_FOUND);
+
+			// compare the property value with the requested class name
+			if(!String::equalNoCase(className, providerCapabilitiesInstance.getProperty(pos).getValue().toString()))
 			{
-				// if the provider is blocked
-				throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, "provider is blocked");
+				// go to the next CIM_ProviderCapabilities instance
+				continue;
 			}
-
-			if(providerName.size() != 0)
-			{
-			   return(providerName);
-			}
-
-			// invalid provider name
-
+		}
+		catch(...)
+		{
+			// instance or property error, use different technique
 			break;
 		}
-	}
+			
+		// get the associated CIM_Provider instance
+		CIMInstance providerInstance;
 
+		{
+			// the object path of the associated instance is in the 'ManagedElement' property
+			Uint32 pos = providerElementCapabilitiesInstances[i].findProperty("ManagedElement");
+			
+			PEGASUS_ASSERT(pos != PEG_NOT_FOUND);
+			
+			CIMReference cimReference = providerElementCapabilitiesInstances[i].getProperty(pos).getValue().toString();
+			
+			//PEGASUS_STD(cout) << cimReference << PEGASUS_STD(endl);
+			
+			// create request
+			CIMRequestMessage * request = new CIMGetInstanceRequestMessage(
+				"golden snitch",
+				nameSpace,
+				cimReference,
+				false,
+				false,
+				false,
+				Array<String>(),
+				QueueIdStack(targetQueueId, sourceQueueId));
+
+			// save the message key because the lifetime of the message is not known.
+			Uint32 messageKey = request->getKey();
+
+			//	<< Tue Feb 12 08:29:38 2002 mdd >> example of conversion to meta dispatcher
+			// automatically initializes backpointer
+			AsyncLegacyOperationStart * async_req = new AsyncLegacyOperationStart(
+				get_next_xid(),
+				0,
+				targetQueueId,
+				request,
+				sourceQueueId);
+
+			// send request and wait for response
+			AsyncReply * async_reply = SendWait(async_req);
+
+			CIMGetInstanceResponseMessage * response =
+				reinterpret_cast<CIMGetInstanceResponseMessage *>
+					((static_cast<AsyncLegacyOperationResult *>(async_reply))->res);
+
+			delete async_req;
+			delete async_reply;
+
+			providerInstance = response->cimInstance;
+		}
+		
+		// extract provider information
+		String providerName = providerInstance.getProperty(providerInstance.findProperty("Name")).getValue().toString();
+		String providerLocation = providerInstance.getProperty(providerInstance.findProperty("Location")).getValue().toString();
+				
+		if((providerName.size() != 0) && (providerLocation.size() != 0))
+		{
+			return(providerName);
+		}
+
+		// provider information error, use different technique
+		break;
+	}
+	
+	return(String::EMPTY);
+	/*
 	// ATTN: still use qualifier to find provider if a provider did not use
 	// PG_RegistrationProvider to register. Will remove in the future
 
@@ -204,45 +285,29 @@ String CIMOperationRequestDispatcher::_lookupProviderForClass(
 	{
 		_repository->read_unlock();
 
-		/*
-		if(e.getCode() == CIM_ERR_NOT_FOUND)
-		{
-			throw CIMException(CIM_ERR_INVALID_CLASS);
-		}
-
-		throw e;
-		*/
-
 		return(String::EMPTY);
 	}
-
-	DDD(cout << _DISPATCHER << "Lookup Provider for " << className << endl;)
 
 	//----------------------------------------------------------------------
 	// Get the provider qualifier:
 	//----------------------------------------------------------------------
 
 	Uint32 pos = cimClass.findQualifier("provider");
-	DDD(cout << _DISPATCHER << "Lookup Qualifier " << pos << endl;)
 
 	if(pos == PEG_NOT_FOUND)
-		return(String::EMPTY);
-
-	CIMQualifier q = cimClass.getQualifier(pos);
-	String providerId;
-
-	q.getValue().get(providerId);
-	DDD(cout << _DISPATCHER << "Provider " << providerId << endl;)
-
-	if(_providerManager.isProviderBlocked(providerId)) // blocked
 	{
-		// if the provider is blocked
-		throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, "provider is blocked");
+		return(String::EMPTY);
 	}
 
+	String providerId;
+	
+	cimClass.getQualifier(pos).getValue().get(providerId);
+
 	return(providerId);
+	*/
 }
 
+/*
 Message * CIMOperationRequestDispatcher::_waitForResponse(
 	const Uint32 messageType,
 	const Uint32 messageKey,
@@ -271,6 +336,7 @@ Message * CIMOperationRequestDispatcher::_waitForResponse(
 
 	return(message);
 }
+*/
 
 
 void CIMOperationRequestDispatcher::_enqueueResponse(
@@ -303,9 +369,10 @@ void CIMOperationRequestDispatcher::handleEnqueue()
 
 	if(!request)
 		return;
-   	switch(request->getType())
+   	
+	switch(request->getType())
 	{
-	   
+	
 	case CIM_GET_CLASS_REQUEST_MESSAGE:
 		handleGetClassRequest((CIMGetClassRequestMessage*)request);
 		break;
@@ -432,10 +499,10 @@ void CIMOperationRequestDispatcher::handleEnqueue()
 			(CIMDisableIndicationSubscriptionRequestMessage*)request);
 		break;
 
-        case CIM_PROCESS_INDICATION_REQUEST_MESSAGE:
-	        handleProcessIndicationRequest(
-                	(CIMProcessIndicationRequestMessage*)request);
-            	break;
+	case CIM_PROCESS_INDICATION_REQUEST_MESSAGE:
+		handleProcessIndicationRequest(
+				(CIMProcessIndicationRequestMessage*)request);
+			break;
 	}
 
 	delete request;
@@ -504,8 +571,8 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 
 	// check the class name for an "internal provider"
 	if(String::equalNoCase(className, "CIM_Provider") ||
-	    String::equalNoCase(className, "CIM_ProviderCapabilities") ||
-	    String::equalNoCase(className, "PG_Provider"))
+	   String::equalNoCase(className, "CIM_ProviderCapabilities") ||
+	   String::equalNoCase(className, "CIM_ProviderElementCapabilities"))
 	{
 	    // send to the configuration manager. it will generate the
 	    // appropriate response message.
@@ -536,8 +603,14 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 
 	if(providerName.size() != 0)
 	{
-		// forward to provider manager
-		_providerManager.enqueue(new CIMGetInstanceRequestMessage(*request));
+		// lookup provider manager
+		MessageQueue * queue = MessageQueue::lookup("Server::ProviderManagerService");
+
+		PEGASUS_ASSERT(queue != 0);
+
+		// forward to provider manager. make a copy becuase the original request is
+		// deleted by this service.
+		queue->enqueue(new CIMGetInstanceRequestMessage(*request));
 
 		return;
 	}
@@ -635,8 +708,8 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
 
 	// check the class name for an "internal provider"
 	if(String::equalNoCase(className, "CIM_Provider") ||
-		String::equalNoCase(className, "CIM_ProviderCapabilities") ||
-		String::equalNoCase(className, "PG_Provider"))
+	   String::equalNoCase(className, "CIM_ProviderCapabilities") ||
+	   String::equalNoCase(className, "CIM_ProviderElementCapabilities"))
 	{
 		// send to the configuration manager. it will generate the
 		// appropriate response message.
@@ -666,8 +739,14 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
 
 	if(providerName.size() != 0)
 	{
-		// forward request to the provider manager
-		_providerManager.enqueue(new CIMDeleteInstanceRequestMessage(*request));
+		// lookup provider manager
+		MessageQueue * queue = MessageQueue::lookup("Server::ProviderManagerService");
+
+		PEGASUS_ASSERT(queue != 0);
+
+		// forward to provider manager. make a copy becuase the original request is
+		// deleted by this service.
+		queue->enqueue(new CIMDeleteInstanceRequestMessage(*request));
 	
 		return;
 	}
@@ -760,8 +839,8 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 
 	// check the class name for an "internal provider"
 	if(String::equalNoCase(className, "CIM_Provider") ||
-		String::equalNoCase(className, "CIM_ProviderCapabilities") ||
-		String::equalNoCase(className, "PG_Provider"))
+	   String::equalNoCase(className, "CIM_ProviderCapabilities") ||
+	   String::equalNoCase(className, "CIM_ProviderElementCapabilities"))
 	{
 	    // send to the configuration manager. it will generate the
 	    // appropriate response message.
@@ -783,7 +862,7 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 	    // Send to the indication service. It will generate the
 	    // appropriate response message.
 	    //
-	    _indicationService.enqueue(request);
+	    _indicationService.enqueue(new CIMCreateInstanceRequestMessage(*request));
 
 	    return;
 	}
@@ -792,8 +871,14 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 
 	if(providerName.size() != 0)
 	{
-		// forward request to the provider manager
-		_providerManager.enqueue(new CIMCreateInstanceRequestMessage(*request));
+		// lookup provider manager
+		MessageQueue * queue = MessageQueue::lookup("Server::ProviderManagerService");
+
+		PEGASUS_ASSERT(queue != 0);
+
+		// forward to provider manager. make a copy becuase the original request is
+		// deleted by this service.
+		queue->enqueue(new CIMCreateInstanceRequestMessage(*request));
 	
 		return;
 	}
@@ -890,8 +975,8 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
 
 	// check the class name for an "internal provider"
 	if(String::equalNoCase(className, "CIM_Provider") ||
-		String::equalNoCase(className, "CIM_ProviderCapabilities") ||
-		String::equalNoCase(className, "PG_Provider"))
+	   String::equalNoCase(className, "CIM_ProviderCapabilities") ||
+	   String::equalNoCase(className, "CIM_ProviderElementCapabilities"))
 	{
 		// send to the configuration manager. it will generate the
 		// appropriate response message.
@@ -922,8 +1007,14 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
 
 	if(providerName.size() != 0)
 	{
-		// forward request to the provider manager
-		_providerManager.enqueue(new CIMModifyInstanceRequestMessage(*request));
+		// lookup provider manager
+		MessageQueue * queue = MessageQueue::lookup("Server::ProviderManagerService");
+
+		PEGASUS_ASSERT(queue != 0);
+
+		// forward to provider manager. make a copy becuase the original request is
+		// deleted by this service.
+		queue->enqueue(new CIMModifyInstanceRequestMessage(*request));
 
 		return;
 	}
@@ -1069,8 +1160,8 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 
 	// check the class name for an "internal provider"
 	if(String::equalNoCase(className, "CIM_Provider") ||
-		String::equalNoCase(className, "CIM_ProviderCapabilities") ||
-		String::equalNoCase(className, "PG_Provider"))
+	   String::equalNoCase(className, "CIM_ProviderCapabilities") ||
+	   String::equalNoCase(className, "CIM_ProviderElementCapabilities"))
 	{
 		// send to the configuration manager. it will generate the
 		// appropriate response message.
@@ -1102,8 +1193,14 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 
 	if(providerName.size() != 0)
 	{
-		// forward request to the provider manager
-		_providerManager.enqueue(new CIMEnumerateInstancesRequestMessage(*request));
+		// lookup provider manager
+		MessageQueue * queue = MessageQueue::lookup("Server::ProviderManagerService");
+
+		PEGASUS_ASSERT(queue != 0);
+
+		// forward to provider manager. make a copy becuase the original request is
+		// deleted by this service.
+		queue->enqueue(new CIMEnumerateInstancesRequestMessage(*request));
 
 		return;
 	}
@@ -1161,8 +1258,8 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 
 	// check the class name for an "internal provider"
 	if(String::equalNoCase(className, "CIM_Provider") ||
-		String::equalNoCase(className, "CIM_ProviderCapabilities") ||
-		String::equalNoCase(className, "PG_Provider"))
+	   String::equalNoCase(className, "CIM_ProviderCapabilities") ||
+	   String::equalNoCase(className, "CIM_ProviderElementCapabilities"))
 	{
 		// send to the configuration manager. it will generate the
 		// appropriate response message.
@@ -1171,31 +1268,37 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 		return;
 	}
 
-        //
-        // check the class name for subscription, filter and handler
-        //
-        if(String::equalNoCase(className, "CIM_IndicationSubscription") ||
-            String::equalNoCase(className, "CIM_IndicationHandler") ||
-            String::equalNoCase(className, "CIM_IndicationHandlerCIMXML") ||
-            String::equalNoCase(className, "CIM_IndicationHandlerSNMP") ||
-            String::equalNoCase(className, "CIM_IndicationFilter"))
-        {
-            //
-            // Send to the indication service. It will generate the
-            // appropriate response message.
-            //
-            _indicationService.enqueue(new CIMEnumerateInstanceNamesRequestMessage(*request));
+	//
+	// check the class name for subscription, filter and handler
+	//
+	if(String::equalNoCase(className, "CIM_IndicationSubscription") ||
+		String::equalNoCase(className, "CIM_IndicationHandler") ||
+		String::equalNoCase(className, "CIM_IndicationHandlerCIMXML") ||
+		String::equalNoCase(className, "CIM_IndicationHandlerSNMP") ||
+		String::equalNoCase(className, "CIM_IndicationFilter"))
+	{
+		//
+		// Send to the indication service. It will generate the
+		// appropriate response message.
+		//
+		_indicationService.enqueue(new CIMEnumerateInstanceNamesRequestMessage(*request));
 
-            return;
-        }
+		return;
+	}
 
 	// check the class name for an "external provider"
 	String providerName = _lookupProviderForClass(request->nameSpace, className);
 
 	if(providerName.size() != 0)
 	{
-		 // forward request to the provider manager
-		_providerManager.enqueue(new CIMEnumerateInstanceNamesRequestMessage(*request));
+		// lookup provider manager
+		MessageQueue * queue = MessageQueue::lookup("Server::ProviderManagerService");
+
+		PEGASUS_ASSERT(queue != 0);
+
+		// forward to provider manager. make a copy becuase the original request is
+		// deleted by this service.
+		queue->enqueue(new CIMEnumerateInstanceNamesRequestMessage(*request));
 
 		return;
 	}
@@ -1250,8 +1353,14 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
 
 	if(providerName.size() != 0)
 	{
-		// forward request to the provider manager
-		_providerManager.enqueue(new CIMAssociatorsRequestMessage(*request));
+		// lookup provider manager
+		MessageQueue * queue = MessageQueue::lookup("Server::ProviderManagerService");
+
+		PEGASUS_ASSERT(queue != 0);
+
+		// forward to provider manager. make a copy becuase the original request is
+		// deleted by this service.
+		queue->enqueue(new CIMAssociatorsRequestMessage(*request));
 
 		return;
 	}
@@ -1313,8 +1422,14 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
 
 	if(providerName.size() != 0)
 	{
-		// forward request to the provider manager
-		_providerManager.enqueue(new CIMAssociatorNamesRequestMessage(*request));
+		// lookup provider manager
+		MessageQueue * queue = MessageQueue::lookup("Server::ProviderManagerService");
+
+		PEGASUS_ASSERT(queue != 0);
+
+		// forward to provider manager. make a copy becuase the original request is
+		// deleted by this service.
+		queue->enqueue(new CIMAssociatorNamesRequestMessage(*request));
 
 		return;
 	}
@@ -1373,8 +1488,14 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
 
 	if(providerName.size() != 0)
 	{
-		// forward request to the provider manager
-		_providerManager.enqueue(new CIMReferencesRequestMessage(*request));
+		// lookup provider manager
+		MessageQueue * queue = MessageQueue::lookup("Server::ProviderManagerService");
+
+		PEGASUS_ASSERT(queue != 0);
+
+		// forward to provider manager. make a copy becuase the original request is
+		// deleted by this service.
+		queue->enqueue(new CIMReferencesRequestMessage(*request));
 
 		return;
 	}
@@ -1434,8 +1555,14 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
 
 	if(providerName.size() != 0)
 	{
-		// forward request to the provider manager
-		_providerManager.enqueue(new CIMReferenceNamesRequestMessage(*request));
+		// lookup provider manager
+		MessageQueue * queue = MessageQueue::lookup("Server::ProviderManagerService");
+
+		PEGASUS_ASSERT(queue != 0);
+
+		// forward to provider manager. make a copy becuase the original request is
+		// deleted by this service.
+		queue->enqueue(new CIMReferenceNamesRequestMessage(*request));
 
 		return;
 	}
@@ -1492,8 +1619,14 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
 
 	if(providerName.size() != 0)
 	{
-		// forward request to the provider manager
-		_providerManager.enqueue(new CIMGetPropertyRequestMessage(*request));
+		// lookup provider manager
+		MessageQueue * queue = MessageQueue::lookup("Server::ProviderManagerService");
+
+		PEGASUS_ASSERT(queue != 0);
+
+		// forward to provider manager. make a copy becuase the original request is
+		// deleted by this service.
+		queue->enqueue(new CIMGetPropertyRequestMessage(*request));
 
 		return;
 	}
@@ -1549,8 +1682,14 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
 
 	if(providerName.size() != 0)
 	{
-		// forward request to the provider manager
-		_providerManager.enqueue(new CIMSetPropertyRequestMessage(*request));
+		// lookup provider manager
+		MessageQueue * queue = MessageQueue::lookup("Server::ProviderManagerService");
+
+		PEGASUS_ASSERT(queue != 0);
+
+		// forward to provider manager. make a copy becuase the original request is
+		// deleted by this service.
+		queue->enqueue(new CIMSetPropertyRequestMessage(*request));
 
 		return;
 	}
@@ -1774,8 +1913,14 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
 
 	if(providerName.size() != 0)
 	{
-		// forward request to the provider manager
-		_providerManager.enqueue(new CIMInvokeMethodRequestMessage(*request));
+		// lookup provider manager
+		MessageQueue * queue = MessageQueue::lookup("Server::ProviderManagerService");
+
+		PEGASUS_ASSERT(queue != 0);
+
+		// forward to provider manager. make a copy becuase the original request is
+		// deleted by this service.
+		queue->enqueue(new CIMInvokeMethodRequestMessage(*request));
 
 		return;
 	}
@@ -1812,8 +1957,14 @@ void CIMOperationRequestDispatcher::handleEnableIndicationSubscriptionRequest(
 	    //
 	    // forward request to the provider manager
 	    //
-	    _providerManager.enqueue(
-		new CIMEnableIndicationSubscriptionRequestMessage(*request));
+		// lookup provider manager
+		MessageQueue * queue = MessageQueue::lookup("Server::ProviderManagerService");
+
+		PEGASUS_ASSERT(queue != 0);
+
+		// forward to provider manager. make a copy becuase the original request is
+		// deleted by this service.
+		queue->enqueue(new CIMEnableIndicationSubscriptionRequestMessage(*request));
 	
 		return;
 	}
@@ -1848,8 +1999,14 @@ void CIMOperationRequestDispatcher::handleModifyIndicationSubscriptionRequest(
 		//
 	    // forward request to the provider manager
 	    //
-	    _providerManager.enqueue(
-		new CIMModifyIndicationSubscriptionRequestMessage(*request));
+		// lookup provider manager
+		MessageQueue * queue = MessageQueue::lookup("Server::ProviderManagerService");
+
+		PEGASUS_ASSERT(queue != 0);
+
+		// forward to provider manager. make a copy becuase the original request is
+		// deleted by this service.
+		queue->enqueue(new CIMModifyIndicationSubscriptionRequestMessage(*request));
 	
 		return;
 	}
@@ -1881,11 +2038,14 @@ void CIMOperationRequestDispatcher::handleDisableIndicationSubscriptionRequest(
 
 	if(providerName.size() != 0)
 	{
-		//
-	    // forward request to the provider manager
-	    //
-	    _providerManager.enqueue(
-		new CIMDisableIndicationSubscriptionRequestMessage(*request));
+		// lookup provider manager
+		MessageQueue * queue = MessageQueue::lookup("Server::ProviderManagerService");
+
+		PEGASUS_ASSERT(queue != 0);
+
+		// forward to provider manager. make a copy becuase the original request is
+		// deleted by this service.
+		queue->enqueue(new CIMDisableIndicationSubscriptionRequestMessage(*request));
 	
 		return;
 	}

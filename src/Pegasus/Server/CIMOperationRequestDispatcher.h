@@ -49,7 +49,6 @@
 #include <Pegasus/Repository/CIMRepository.h>
 
 #include <Pegasus/Server/ServiceCIMOMHandle.h>
-#include <Pegasus/Server/ProviderManager/ProviderManagerService.h>
 #include <Pegasus/Server/ConfigurationManager/ConfigurationManagerQueue.h>
 #include <Pegasus/Server/IndicationService/IndicationService.h>
 
@@ -157,33 +156,30 @@ protected:
 
       String _lookupProviderForClass(
 	 const String& nameSpace, const String& className);
-      
+
       void _enqueueResponse(
 	 CIMRequestMessage* request, CIMResponseMessage* response);
-      
-      Message * _waitForResponse(
+
+	/*
+	  Message * _waitForResponse(
 	 const Uint32 messageType,
 	 const Uint32 messageKey,
 	 const Uint32 timeout = 0xffffffff);
-      
+	*/
+
       CIMRepository * _repository;
-      
+
       ServiceCIMOMHandle _cimom;
-      
-      ProviderManagerService _providerManager;
-      
+
       ConfigurationManagerQueue _configurationManager;
-      
+
       IndicationService _indicationService;
-      
+
       AtomicInt _dying;
-      
-      
-      
-// << Tue Feb 12 08:48:09 2002 mdd >> meta dispatcher integration
-      
+
+	// << Tue Feb 12 08:48:09 2002 mdd >> meta dispatcher integration
       virtual void _handle_async_request(AsyncRequest *req);
-      
+
 };
 
 PEGASUS_NAMESPACE_END

@@ -50,6 +50,7 @@
 #include <Pegasus/ExportServer/CIMExportRequestDecoder.h>
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Security/UserManager/UserManager.h>
+#include <Pegasus/ProviderManager/ProviderManagerService.h>
 #include "CIMServer.h"
 #include "CIMOperationRequestDispatcher.h"
 #include "CIMOperationResponseEncoder.h"
@@ -99,6 +100,7 @@ CIMServer::CIMServer(
     _serverState = new CIMServerState();
 
     // -- Create queue inter-connections:
+	_providerManager = new ProviderManagerService;
 
     _cimOperationRequestDispatcher
 	= new CIMOperationRequestDispatcher(repository, this);

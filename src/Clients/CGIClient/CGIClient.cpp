@@ -860,14 +860,14 @@ static void EnumerateClassNames(const CGIQueryString& qs)
     String nameSpace = GetNameSpaceQueryField(qs);
 
     // Get ClassName:
-    String className;
+    CIMName className;
 
     DDD(cout << "EnumerateClassNames" << endl;)
 
     const char* tmp;
 
     // Get the ClassName field:
-    if ((tmp = qs.findValue("ClassName")))
+    if ((tmp = qs.findValue("ClassName")) && *tmp)
 	className = tmp;
 
     // Get DeepInheritance:
@@ -1841,7 +1841,7 @@ static void ClassInheritance(const CGIQueryString& qs)
     String nameSpace = GetNameSpaceQueryField(qs);
 
     // Get ClassName:
-    String className;
+    CIMName className;
 
     const char* tmp;
 
@@ -1853,7 +1853,7 @@ static void ClassInheritance(const CGIQueryString& qs)
 
 
     // Get the ClassName field:
-    if ((tmp = qs.findValue("ClassName")))
+    if ((tmp = qs.findValue("ClassName")) && *tmp)
 	className = tmp;
 
     // Get DeepInheritance:

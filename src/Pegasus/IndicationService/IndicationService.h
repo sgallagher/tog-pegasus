@@ -468,17 +468,26 @@ private:
         where the subscription indication class matches or is a superclass
         of the supported class, and the properties required to process the
         subscription are all contained in the list of supported properties.
+        If the checkProvider parameter value is True, a subscription is only 
+        included in the list returned if the specified provider accepted the 
+        subscription.  If the checkProvider parameter value is False, the 
+        provider parameter is not used (ignored).
 
         @param   supportedClass       the supported class
         @param   nameSpaces           the list of supported namespaces
         @param   supportedProperties  the list of supported properties
+        @param   checkProvider        indicates whether provider acceptance is
+                                          checked
+        @param   provider             the provider (used if checkProvider True)
 
         @return   list of CIMInstance subscriptions
      */
     Array <CIMInstance> _getMatchingSubscriptions (
         const CIMName & supportedClass,
         const Array <CIMNamespaceName> nameSpaces,
-        const CIMPropertyList & supportedProperties);
+        const CIMPropertyList & supportedProperties,
+        const Boolean checkProvider = FALSE,
+        const CIMInstance & provider = CIMInstance ());
 
     /**
         Retrieves lists of enabled subscription instances in all namespaces

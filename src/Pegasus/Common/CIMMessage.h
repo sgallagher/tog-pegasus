@@ -1022,6 +1022,7 @@ public:
         const CIMNamespaceName & nameSpace_,
         const CIMInstance& indicationInstance_,
         const Array<CIMObjectPath> & subscriptionInstanceNames_,
+        const CIMInstance & provider_,
         QueueIdStack queueIds_,
 		const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
 		const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
@@ -1030,13 +1031,15 @@ public:
 		 contentLanguages_, acceptLanguages_),
         nameSpace (nameSpace_),
         indicationInstance(indicationInstance_),
-        subscriptionInstanceNames(subscriptionInstanceNames_)
+        subscriptionInstanceNames(subscriptionInstanceNames_),
+        provider(provider_)
     {
     }
 
     CIMNamespaceName nameSpace;
     CIMInstance indicationInstance;
     Array<CIMObjectPath> subscriptionInstanceNames;
+    CIMInstance provider;
 };
 
 class CIMConsumeIndicationRequestMessage : public CIMRequestMessage

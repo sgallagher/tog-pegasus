@@ -417,6 +417,7 @@ public:
     EnableIndicationsResponseHandler(
         CIMEnableIndicationsRequestMessage * request,
         CIMEnableIndicationsResponseMessage * response,
+        CIMInstance & provider,
         MessageQueueService * source,
         MessageQueueService * target = 0)
     : OperationResponseHandler(request, response),
@@ -426,6 +427,8 @@ public:
 	_response_copy(*response)
     {
         PEGASUS_ASSERT(_source != 0);
+
+        _provider = provider;
 
         // get indication service
         if(_target == 0)
@@ -504,6 +507,7 @@ public:
             cimInstance.getPath().getNameSpace(),
             cimInstance,
 	    subscriptionInstanceNames,
+            _provider,
             QueueIdStack(_target->getQueueId(), _source->getQueueId()),
             contentLangs);
         request->operationContext = context;

@@ -2676,7 +2676,8 @@ void ProviderManagerService::handleEnableIndicationsRequest(AsyncOpNode *op, con
 
 
     EnableIndicationsResponseHandler *handler = 
-       new EnableIndicationsResponseHandler(request, response, this);
+       new EnableIndicationsResponseHandler(request, response, 
+           request->provider, this);
 
     try
     {

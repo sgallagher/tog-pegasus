@@ -1735,7 +1735,8 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
 #endif
 
             matchedSubscriptions = _getMatchingSubscriptions(
-                indication.getClassName (), nameSpaces, propertyList);
+                indication.getClassName (), nameSpaces, propertyList, 
+                true, request->provider);
 
 #ifdef PEGASUS_INDICATION_PERFINST
             elapsed = stopWatch.getElapsed ();
@@ -3554,7 +3555,9 @@ Array <CIMInstance> IndicationService::_getActiveSubscriptions () const
 Array <CIMInstance> IndicationService::_getMatchingSubscriptions (
     const CIMName & supportedClass,
     const Array <CIMNamespaceName> nameSpaces,
-    const CIMPropertyList & supportedProperties) 
+    const CIMPropertyList & supportedProperties,
+    const Boolean checkProvider,
+    const CIMInstance & provider) 
 {
     Array <CIMInstance> matchingSubscriptions;
     Array <CIMInstance> subscriptions;
@@ -3578,6 +3581,32 @@ Array <CIMInstance> IndicationService::_getMatchingSubscriptions (
             for (Uint32 j = 0; j < subscriptions.size (); j++)
             {
                 Boolean match = true;
+
+                if (checkProvider)
+                {
+                    //
+                    //  Check if the provider who generated this indication 
+                    //  accepted this subscription
+                    //
+                    String activeSubscriptionsKey = 
+                        _generateActiveSubscriptionsKey
+                        (subscriptions [j].getPath ());
+                    ActiveSubscriptionsTableEntry tableValue;
+                    if (_lockedLookupActiveSubscriptionsEntry 
+                        (activeSubscriptionsKey, tableValue))
+                    {
+                        //
+                        //  If provider is not in list, it did not accept the
+                        //  subscription
+                        //
+                        if ((_providerInList (provider, tableValue)) == 
+                            PEG_NOT_FOUND)
+                        {
+                            match = false;
+                            break;
+                        }
+                    }
+                }
 
                 //
                 //  If supported properties is null (all properties)
@@ -3619,6 +3648,7 @@ Array <CIMInstance> IndicationService::_getMatchingSubscriptions (
                     if (propertyList.isNull ())
                     {
                         match = false;
+                        break;
                     }
                     else 
                     {
@@ -3635,6 +3665,7 @@ Array <CIMInstance> IndicationService::_getMatchingSubscriptions (
                                 propertyList[k]))
                             {
                                 match = false;
+                                break;
                             }
                         }
                     }
@@ -4470,8 +4501,13 @@ CIMPropertyList IndicationService::_checkPropertyList
 
     try
     {
+        //
+        //  Get the indication class object from the repository
+        //  Specify localOnly=false because superclass properties are needed
+        //  Specify includeQualifiers=false because qualifiers are not needed
+        //
         indicationClass = _repository->getClass (nameSpaceName, 
-            indicationClassName);
+            indicationClassName, false, false);
     }
     catch (Exception e)
     {

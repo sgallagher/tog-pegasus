@@ -42,6 +42,7 @@ This Program was intended to be a test and demonstration tool for
 Pegasus.
 */
 
+#include <Pegasus/Common/Config.h>
 #include <cassert>
 #include <cstdlib>
 #include <cstdio>

@@ -50,19 +50,31 @@ HTTPAuthenticatorDelegator::HTTPAuthenticatorDelegator(
     _operationMessageQueueId(operationMessageQueueId),
     _exportMessageQueueId(exportMessageQueueId)
 {
+    PEG_METHOD_ENTER(TRC_HTTP,
+        "HTTPAuthenticatorDelegator::HTTPAuthenticatorDelegator");
+
     _authenticationManager = new AuthenticationManager();
+
+    PEG_METHOD_EXIT();
 }
 
 HTTPAuthenticatorDelegator::~HTTPAuthenticatorDelegator()
 {
+    PEG_METHOD_ENTER(TRC_HTTP,
+        "HTTPAuthenticatorDelegator::~HTTPAuthenticatorDelegator");
+
     delete _authenticationManager;
 
+    PEG_METHOD_EXIT();
 }
 
 void HTTPAuthenticatorDelegator::_sendResponse(
     Uint32 queueId,
     Array<Sint8>& message)
 {
+    PEG_METHOD_ENTER(TRC_HTTP,
+        "HTTPAuthenticatorDelegator::_sendResponse");
+
     MessageQueue* queue = MessageQueue::lookup(queueId);
 
     if (queue)
@@ -72,12 +84,17 @@ void HTTPAuthenticatorDelegator::_sendResponse(
 	
         queue->enqueue(httpMessage);
     }
+
+    PEG_METHOD_EXIT();
 }
 
 void HTTPAuthenticatorDelegator::_sendChallenge(
     Uint32 queueId,
     const String& authResponse)
 {
+    PEG_METHOD_ENTER(TRC_HTTP,
+        "HTTPAuthenticatorDelegator::_sendChallenge");
+
     //
     // build unauthorized (401) response message
     //
@@ -86,6 +103,8 @@ void HTTPAuthenticatorDelegator::_sendChallenge(
     XmlWriter::appendUnauthorizedResponseHeader(message, authResponse);
 
     _sendResponse(queueId, message);
+
+    PEG_METHOD_EXIT();
 }
 
 
@@ -93,8 +112,11 @@ void HTTPAuthenticatorDelegator::_sendError(
     Uint32 queueId,
     const String errorMessage)
 {
+    PEG_METHOD_ENTER(TRC_HTTP,
+        "HTTPAuthenticatorDelegator::_sendError");
+
     //
-    // build erro response message
+    // build error response message
     //
 
     Array<Sint8> message;
@@ -104,20 +126,26 @@ void HTTPAuthenticatorDelegator::_sendError(
     //message = XmlWriter::formatErrorResponseHeader(errorMessage);
 
     _sendResponse(queueId, message);
+
+    PEG_METHOD_EXIT();
 }
 
 
 void HTTPAuthenticatorDelegator::handleEnqueue(Message *message)
 {
+    PEG_METHOD_ENTER(TRC_HTTP,
+        "HTTPAuthenticatorDelegator::handleEnqueue");
 
-   
-   if (!message)
+    if (!message)
+    {
+        PEG_METHOD_EXIT();
         return;
+    }
 
-   // Flag indicating whether the message should be deleted after handling.
-   // This should be set to false by handleHTTPMessage when the message is
-   // passed as is to another queue.
-   Boolean deleteMessage = true;
+    // Flag indicating whether the message should be deleted after handling.
+    // This should be set to false by handleHTTPMessage when the message is
+    // passed as is to another queue.
+    Boolean deleteMessage = true;
    
     if (message->getType() == HTTP_MESSAGE)
     {
@@ -128,19 +156,29 @@ void HTTPAuthenticatorDelegator::handleEnqueue(Message *message)
     {
         delete message;
     }
+
+    PEG_METHOD_EXIT();
 }
 
 void HTTPAuthenticatorDelegator::handleEnqueue()
 {
+    PEG_METHOD_ENTER(TRC_HTTP,
+        "HTTPAuthenticatorDelegator::handleEnqueue");
+
     Message* message = dequeue();
     if(message)
        handleEnqueue(message);
+
+    PEG_METHOD_EXIT();
 }
 
 void HTTPAuthenticatorDelegator::handleHTTPMessage(
     HTTPMessage* httpMessage,
     Boolean & deleteMessage)
 {  
+    PEG_METHOD_ENTER(TRC_HTTP,
+        "HTTPAuthenticatorDelegator::handleHTTPMessage");
+
     Boolean authenticated = false;
     deleteMessage = true;
 
@@ -181,12 +219,19 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     HTTPMessage::parseRequestLine(
         startLine, methodName, requestUri, httpVersion);
 
-    //
-    // Process M-POST and POST messages:
-    //
-
-    if (methodName == "M-POST" || methodName == "POST")
+    if (methodName != "M-POST" && methodName != "POST")
     {
+        // Only POST and M-POST are implemented by this server
+        Array<Sint8> message;
+        XmlWriter::appendNotImplementedResponseHeader(message);
+        _sendResponse(queueId, message);
+    }
+    else
+    {
+        //
+        // Process M-POST and POST messages:
+        //
+
 	httpMessage->message.append('\0');
 
         //
@@ -225,6 +270,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                     _sendError(queueId, "Invalid Request");
                 }
 
+                PEG_METHOD_EXIT();
                 return;
             }
         }
@@ -261,6 +307,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                         _sendError(queueId, "Invalid Request");
                     }
 
+                    PEG_METHOD_EXIT();
                     return;
                 }
             }
@@ -330,6 +377,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                 Array<Sint8> message;
                 XmlWriter::appendBadRequestResponseHeader(message);
                 _sendResponse(queueId, message);
+                PEG_METHOD_EXIT();
                 return;
             }
         }
@@ -348,10 +396,16 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             }
         }
     }
+
+    PEG_METHOD_EXIT();
 }
 
 const char* HTTPAuthenticatorDelegator::getQueueName() const
 {
+    PEG_METHOD_ENTER(TRC_HTTP,
+        "HTTPAuthenticatorDelegator::getQueueName");
+
+    PEG_METHOD_EXIT();
     return PEGASUS_SERVICENAME_HTTPAUTHDELEGATOR;
 }
 

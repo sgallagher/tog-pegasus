@@ -65,6 +65,12 @@ static const char HTTP_METHOD_MPOST [] = "M-POST";
 static const char HTTP_METHOD_POST [] = "POST";
 
 /**
+ *  A string representing a bogus HTTP method, to allow testing of CIM server
+ *  handling of unknown HTTP methods.
+ */
+static const char HTTP_METHOD_BOGUS [] = "BOGUS";
+
+/**
  *  A string representing the request URI cimom.
  */
 static const char HTTP_REQUEST_URI_CIMOM [] = "/cimom";

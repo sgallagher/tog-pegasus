@@ -223,112 +223,103 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    HTTPMessage::parseRequestLine(
       startLine, methodName, requestUri, httpVersion);
 
+   // Unsupported methods are caught in the HTTPAuthenticatorDelegator
+   PEGASUS_ASSERT(methodName == "M-POST" || methodName == "POST");
+
    // Process M-POST and POST messages:
 
+   String cimOperation;
+   String cimBatch;
+   Boolean cimBatchFlag;
+   String cimProtocolVersion;
+   String cimMethod;
+   String cimObject;
 
-   if (methodName == "M-POST" || methodName == "POST")
+   // Validate the "CIMOperation" header:
+
+   Boolean operationHeaderFound = HTTPMessage::lookupHeader(
+      headers, "*CIMOperation", cimOperation, true);
+   // If the CIMOperation header was missing, the HTTPAuthenticatorDelegator
+   // would not have passed the message to us.
+   PEGASUS_ASSERT(operationHeaderFound);
+
+   if (!String::equalNoCase(cimOperation, "MethodCall"))
    {
-      String cimOperation;
-      String cimBatch;
-      Boolean cimBatchFlag;
-      String cimProtocolVersion;
-      String cimMethod;
-      String cimObject;
+      // The Specification for CIM Operations over HTTP reads:
+      //     3.3.4. CIMOperation
+      //     If a CIM Server receives CIM Operation request with this
+      //     [CIMOperation] header, but with a missing value or a value
+      //     that is not "MethodCall", then it MUST fail the request with
+      //     status "400 Bad Request". The CIM Server MUST include a
+      //     CIMError header in the response with a value of
+      //     unsupported-operation.
+      sendBadRequestError(queueId, "unsupported-operation");
+      PEG_METHOD_EXIT();
+      return;
+   }
 
-      // Validate the "CIMOperation" header:
+   // Validate the "CIMBatch" header:
 
-      if (!HTTPMessage::lookupHeader(
-	     headers, "*CIMOperation", cimOperation, true))
+   cimBatchFlag = HTTPMessage::lookupHeader(
+       headers, "*CIMBatch", cimBatch, true);
+   if (cimBatchFlag)
+   {
+      // The Specification for CIM Operations over HTTP reads:
+      //     3.3.9. CIMBatch
+      //     If a CIM Server receives CIM Operation Request for which the
+      //     CIMBatch header is present, but the Server does not support
+      //     Multiple Operations, then it MUST fail the request and
+      //     return a status of "501 Not Implemented".
+      sendNotImplementedError(queueId, "multiple-requests-unsupported");
+      PEG_METHOD_EXIT();
+      return;
+   }
+
+   // Save these headers for later checking
+
+   if (!HTTPMessage::lookupHeader(
+       headers, "*CIMProtocolVersion", cimProtocolVersion, true))
+   {
+      // Mandated by the Specification for CIM Operations over HTTP
+      cimProtocolVersion.assign("1.0");
+   }
+
+   if (HTTPMessage::lookupHeader(headers, "*CIMMethod", cimMethod, true))
+   {
+      if (cimMethod == String::EMPTY)
       {
-         // This should never happen.  If the CIMOperation header was missing,
-         // the HTTPAuthenticatorDelegator would not have passed the message
-         // to us.
-         PEGASUS_ASSERT(0);
-      }
-
-      if (!String::equalNoCase(cimOperation, "MethodCall"))
-      {
-         // The Specification for CIM Operations over HTTP reads:
-         //     3.3.4. CIMOperation
-         //     If a CIM Server receives CIM Operation request with this
-         //     [CIMOperation] header, but with a missing value or a value
-         //     that is not "MethodCall", then it MUST fail the request with
-         //     status "400 Bad Request". The CIM Server MUST include a
-         //     CIMError header in the response with a value of
-         //     unsupported-operation.
-         sendBadRequestError(queueId, "unsupported-operation");
-         PEG_METHOD_EXIT();
-	 return;
-      }
-
-      // Validate the "CIMBatch" header:
-
-      cimBatchFlag = HTTPMessage::lookupHeader(
-	     headers, "*CIMBatch", cimBatch, true);
-      if (cimBatchFlag)
-      {
-         // The Specification for CIM Operations over HTTP reads:
-         //     3.3.9. CIMBatch
-         //     If a CIM Server receives CIM Operation Request for which the
-         //     CIMBatch header is present, but the Server does not support
-         //     Multiple Operations, then it MUST fail the request and
-         //     return a status of "501 Not Implemented".
-         sendNotImplementedError(queueId, "multiple-requests-unsupported");
+         // This is not a valid value, and we use EMPTY to mean "absent"
+         sendBadRequestError(queueId, "header-mismatch");
          PEG_METHOD_EXIT();
          return;
       }
-
-      // Save these headers for later checking
-
-      if (!HTTPMessage::lookupHeader(
-	     headers, "*CIMProtocolVersion", cimProtocolVersion, true))
-      {
-         // Mandated by the Specification for CIM Operations over HTTP
-         cimProtocolVersion.assign("1.0");
-      }
-
-      if (HTTPMessage::lookupHeader(headers, "*CIMMethod", cimMethod, true))
-      {
-         if (cimMethod == String::EMPTY)
-         {
-            // This is not a valid value, and we use EMPTY to mean "absent"
-            sendBadRequestError(queueId, "header-mismatch");
-            PEG_METHOD_EXIT();
-	    return;
-         }
-      }
-      if (HTTPMessage::lookupHeader(headers, "*CIMObject", cimObject, true))
-      {
-         if (cimObject == String::EMPTY)
-         {
-            // This is not a valid value, and we use EMPTY to mean "absent"
-            sendBadRequestError(queueId, "header-mismatch");
-            PEG_METHOD_EXIT();
-	    return;
-         }
-      }
-
-      // Zero-terminate the message:
-
-      httpMessage->message.append('\0');
-
-      // Calculate the beginning of the content from the message size and
-      // the content length.  Subtract 1 to take into account the null
-      // character we just added to the end of the message.
-
-      content = (Sint8*) httpMessage->message.getData() +
-	 httpMessage->message.size() - contentLength - 1;
-
-      // If it is a method call, then dispatch it to be handled:
-
-      handleMethodCall(queueId, content, cimProtocolVersion, cimMethod,
-                       cimObject, authType, userName);
    }
-   else
+   if (HTTPMessage::lookupHeader(headers, "*CIMObject", cimObject, true))
    {
-      // ATTN-RK-P2-20020304: Handle methods other than POST and M-POST
-      sendBadRequestError(queueId);
+      if (cimObject == String::EMPTY)
+      {
+         // This is not a valid value, and we use EMPTY to mean "absent"
+         sendBadRequestError(queueId, "header-mismatch");
+         PEG_METHOD_EXIT();
+         return;
+      }
    }
+
+   // Zero-terminate the message:
+
+   httpMessage->message.append('\0');
+
+   // Calculate the beginning of the content from the message size and
+   // the content length.  Subtract 1 to take into account the null
+   // character we just added to the end of the message.
+
+   content = (Sint8*) httpMessage->message.getData() +
+   httpMessage->message.size() - contentLength - 1;
+
+   // If it is a method call, then dispatch it to be handled:
+
+   handleMethodCall(queueId, content, cimProtocolVersion, cimMethod,
+                    cimObject, authType, userName);
     
    PEG_METHOD_EXIT();
 }

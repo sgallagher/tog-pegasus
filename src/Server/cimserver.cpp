@@ -519,6 +519,7 @@ int main(int argc, char** argv)
                     memmove(&argv[i], &argv[i + 1], (argc-i) * sizeof(char*));
                     argc--;   
                 }
+#ifdef PEGASUS_OS_TYPE_WINDOWS
                 else if (strcmp(option, OPTION_INSTALL) == 0)
                 {
                   //
@@ -580,6 +581,7 @@ int main(int argc, char** argv)
                       exit(0);
                   }
                 }
+#endif
                 else
                     i++;
             }

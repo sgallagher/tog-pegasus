@@ -165,16 +165,16 @@ public:
 	 * @param arg9 Formatter::Arg - optional substitution parameter
 	 */
 	MessageLoaderParms( String id, String msg, 
-						Formatter::Arg arg0 = Formatter::Arg(), 
-						Formatter::Arg arg1 = Formatter::Arg(),
-						Formatter::Arg arg2 = Formatter::Arg(),
-						Formatter::Arg arg3 = Formatter::Arg(),
-						Formatter::Arg arg4 = Formatter::Arg(),
-						Formatter::Arg arg5 = Formatter::Arg(),
-						Formatter::Arg arg6 = Formatter::Arg(),
-						Formatter::Arg arg7 = Formatter::Arg(),
-						Formatter::Arg arg8 = Formatter::Arg(),
-						Formatter::Arg arg9 = Formatter::Arg() ){
+						Formatter::Arg anArg0 = Formatter::Arg(), 
+						Formatter::Arg anArg1 = Formatter::Arg(),
+						Formatter::Arg anArg2 = Formatter::Arg(),
+						Formatter::Arg anArg3 = Formatter::Arg(),
+						Formatter::Arg anArg4 = Formatter::Arg(),
+						Formatter::Arg anArg5 = Formatter::Arg(),
+						Formatter::Arg anArg6 = Formatter::Arg(),
+						Formatter::Arg anArg7 = Formatter::Arg(),
+						Formatter::Arg anArg8 = Formatter::Arg(),
+						Formatter::Arg anArg9 = Formatter::Arg() ){
 							
 		msg_id = id;
 		default_msg = msg;
@@ -188,16 +188,16 @@ public:
 		acceptlanguages = AcceptLanguages::EMPTY;
 		contentlanguages = ContentLanguages::EMPTY;
 		msg_src_path = String::EMPTY;
-		this->arg0 = arg0;
-		this->arg1 = arg1;
-		this->arg2 = arg2;
-		this->arg3 = arg3;
-		this->arg4 = arg4;
-		this->arg5 = arg5;
-		this->arg6 = arg6;
-		this->arg7 = arg7;
-		this->arg8 = arg8;
-		this->arg9 = arg9;
+		this->arg0 = anArg0;
+		this->arg1 = anArg1;
+		this->arg2 = anArg2;
+		this->arg3 = anArg3;
+		this->arg4 = anArg4;
+		this->arg5 = anArg5;
+		this->arg6 = anArg6;
+		this->arg7 = anArg7;
+		this->arg8 = anArg8;
+		this->arg9 = anArg9;
 	}	
 	
 	String toString(){

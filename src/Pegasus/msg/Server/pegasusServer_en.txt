@@ -1,0 +1,839 @@
+en:table {
+
+	Common.CIMStatusCode.CIM_ERR_SUCCESS:string {"CIM_ERR_SUCCESS: successful"}
+
+    	Common.CIMStatusCode.CIM_ERR_FAILED:string {"CIM_ERR_FAILED: A general error occurred that is not covered by a more specific "
+    	"error code"}
+
+    	Common.CIMStatusCode.CIM_ERR_ACCESS_DENIED:string {"CIM_ERR_ACCESS_DENIED: Access to a CIM resource was not available to the client"}
+
+    	Common.CIMStatusCode.CIM_ERR_INVALID_NAMESPACE:string {"CIM_ERR_INVALID_NAMESPACE: The target namespace does not exist"}
+
+    	Common.CIMStatusCode.CIM_ERR_INVALID_PARAMETER:string {"CIM_ERR_INVALID_PARAMETER: One or more parameter values passed to the method "
+    	"were invalid"}
+
+    	Common.CIMStatusCode.CIM_ERR_INVALID_CLASS:string {"CIM_ERR_INVALID_CLASS: The specified class does not exist"}
+
+    	Common.CIMStatusCode.CIM_ERR_NOT_FOUND:string {"CIM_ERR_NOT_FOUND: The requested object could not be found"}
+
+    	Common.CIMStatusCode.CIM_ERR_NOT_SUPPORTED:string {"CIM_ERR_NOT_SUPPORTED: The requested operation is not supported"}
+
+    	Common.CIMStatusCode.CIM_ERR_CLASS_HAS_CHILDREN:string {"CIM_ERR_CLASS_HAS_CHILDREN: Operation cannot be carried out on this class since "
+    	"it has subclasses"}
+
+    	Common.CIMStatusCode.CIM_ERR_CLASS_HAS_INSTANCES:string {"CIM_ERR_CLASS_HAS_INSTANCES: Operation cannot be carried out on this class since "
+    	"it has instances"}
+
+    	Common.CIMStatusCode.CIM_ERR_INVALID_SUPERCLASS:string {"CIM_ERR_INVALID_SUPERCLASS: Operation cannot be carried out since the specified "
+    	"superclass does not exist"}
+
+    	Common.CIMStatusCode.CIM_ERR_ALREADY_EXISTS:string {"CIM_ERR_ALREADY_EXISTS: Operation cannot be carried out because an object already "
+    	"exists"}
+
+    	Common.CIMStatusCode.CIM_ERR_NO_SUCH_PROPERTY:string {"CIM_ERR_NO_SUCH_PROPERTY: The specified property does not exist"}
+
+    	Common.CIMStatusCode.CIM_ERR_TYPE_MISMATCH:string {"CIM_ERR_TYPE_MISMATCH: The value supplied is incompatible with the type"}
+
+    	Common.CIMStatusCode.CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED:string {"CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED: The query language is not recognized or "
+    	"supported"}
+
+    	Common.CIMStatusCode.CIM_ERR_INVALID_QUERY:string {"CIM_ERR_INVALID_QUERY: The query is not valid for the specified query language"}
+
+    	Common.CIMStatusCode.CIM_ERR_METHOD_NOT_AVAILABLE:string {"CIM_ERR_METHOD_NOT_AVAILABLE: The extrinsic method could not be executed"}
+
+    	Common.CIMStatusCode.CIM_ERR_METHOD_NOT_FOUND:string {"CIM_ERR_METHOD_NOT_FOUND: The specified extrinsic method does not exist"}
+
+	Common.InternalException.NullPointer:string {"null pointer"};
+
+	Common.InternalException.UndeclaredQualifier:string { "undeclared qualifier:{0}"}
+
+	Common.InternalException.BadQualifierScope:string { "qualifier invalid in this scope: "}
+
+	Common.InternalException.BadQualifierOverride:string { "qualifier not overridable: "}
+
+	Common.InternalException.BadQualifierType:string {"CIMType of qualifier different than its declaration: "}
+
+	Common.InternalException.ClassAlreadyResolved:string {"attempt to resolve a class that is already resolved: "}
+
+	Common.InternalException.ClassNotResolved:string {"class is not yet resolved: "}
+
+	Common.InternalException.InstanceAlreadyResolved:string {"attempted to resolve a instance that is already resolved"}
+
+	Common.InternalException.InstantiatedAbstractClass:string {"attempted to instantiate an abstract class "}
+
+	Common.InternalException.NoSuchProperty:string { "no such property: "}
+
+	Common.InternalException.NoSuchFile:string { "no such file: "}
+
+	Common.InternalException.FileNotReadable:string { "file not readable: "}
+
+	Common.InternalException.CannotRemoveDirectory:string { "cannot remove directory: "}
+
+	Common.InternalException.CannotRemoveFile:string { "cannot remove file: "}
+
+	Common.InternalException.CannotRenameFile:string {"cannot rename file: "}
+
+	Common.InternalException.NoSuchDirectory:string {"no such directory: "}
+
+	Common.InternalException.CannotCreateDirectory:string {"cannot create directory: "}
+
+	Common.InternalException.CannotOpenFile:string { "cannot open file: "}
+
+	Common.InternalException.NotImplemented:string {"not implemented: "}
+
+	Common.InternalException.StackUnderflow:string {"stack underflow"}
+
+	Common.InternalException.StackOverflow:string { "stack overflow"}
+
+	Common.InternalException.QueueUnderflow:string { "queue Underflow"}
+
+	Common.InternalException.BadFormat:string { "bad format passed to Formatter::format()"}
+
+	Common.InternalException.BadlyFormedCGIQueryString:string { "badly formed CGI query string"}
+
+	Common.InternalException.DynamicLoadFailed:string { "load of dynamic library failed: "}
+
+	Common.InternalException.DynamicLookupFailed:string {"lookup of symbol in dynamic library failed: "}
+
+	Common.InternalException.CannotOpenDirectory:string { "cannot open directory: "}
+
+	Common.InternalException.ParseError:string { "parse error: "}
+
+	Common.InternalException.MissingNullTerminator:string { "missing null terminator: "}
+
+	Common.InternalException.MalformedLanguageHeader:string { "malformed language header: "}
+
+	Common.InternalException.InvalidAcceptLanguageHeader:string { "invalid acceptlanguage header: "}
+
+	Common.InternalException.InvalidContentLanguageHeader:string { "invalid contentlanguage header: "}
+
+	Common.InternalException.InvalidAuthHeader:string {"Invalid Authorization header"}
+
+	Common.InternalException.UnauthorizedAccess:string {"Unauthorized access"}
+	
+	Common.Exception.IndexOutOfBoundsException:string {"index out of bounds"}
+	
+	Common.Exception.AlreadyExistsException:string {"already exists:{0}"}
+	
+	Common.Exception.InvalidNameException:string {"invalid CIM name:{0}"}
+	
+	Common.Exception.InvalidNamespaceNameException:string {"invalid CIM namespace name:{0}"}
+	
+	Common.Exception.UninitializedObjectException:string {"uninitialized object"}
+	
+	Common.Exception.TypeMismatchException:string {"type mismatch"}
+	
+	Common.Exception.DynamicCastFailedException:string {"dynamic cast failed"}
+	
+	Common.Exception.InvalidDateTimeFormatException:string {"invalid datetime format"}
+	
+	Common.Exception.MalformedObjectNameException:string {"malformed object name:{0}"}
+	
+	Common.Exception.BindFailedException:string {"Bind failed:{0}"}
+	
+	Common.Exception.InvalidLocatorException:string {"Invalid locator:{0}"}
+	
+	Common.Exception.CannotCreateSocketException:string {"Cannot create socket"}
+	
+	Common.Exception.AlreadyConnectedException:string {"already connected"}
+	
+	Common.Exception.NotConnectedException:string {"not connected"}
+	
+	Common.Exception.ConnectionTimeoutException:string {"connection timed out"}
+	
+	Common.Exception.SSLException:string {"SSL Exception:{0}"}
+	
+	Common.Exception.DateTimeOutOfRangeException:string {"DateTime is out of range :{0}"}
+	
+	Common.XmlParser.BAD_START_TAG:string {"Bad opening element: on line {0}{1}"}
+	
+    	Common.XmlParser.BAD_END_TAG:string {"Bad closing element: on line {0}{1}"}
+    
+    	Common.XmlParser.BAD_ATTRIBUTE_NAME:string {"Bad attribute name: on line {0}{1}"}
+    
+    	Common.XmlParser.EXPECTED_EQUAL_SIGN:string {"Exepected equal sign: on line {0}{1}"}
+    
+    	Common.XmlParser.BAD_ATTRIBUTE_VALUE:string {"Bad attribute value: on line {0}{1}"}
+    
+   	Common.XmlParser.MINUS_MINUS_IN_COMMENT:string {"A \"--\" sequence found within comment: on line {0}{1}"}
+    
+    	Common.XmlParser.UNTERMINATED_COMMENT:string {"Unterminated comment: on line {0}{1}"}
+    
+    	Common.XmlParser.UNTERMINATED_CDATA:string {"Unterminated CDATA block: on line {0}{1}"}
+    
+    	Common.XmlParser.UNTERMINATED_DOCTYPE:string {"Unterminated DOCTYPE: on line {0}{1}"}
+    
+    	Common.XmlParser.TOO_MANY_ATTRIBUTES:string {"Too many attributes: parser only handles 10: on line {0}{1}"}
+    
+    	Common.XmlParser.MALFORMED_REFERENCE:string {"Malformed reference: on line {0}{1}"}
+    
+    	Common.XmlParser.EXPECTED_COMMENT_OR_CDATA:string {"Expected a comment or CDATA following \"<!\" sequence: on line {0}{1}"}
+    
+    	Common.XmlParser.START_END_MISMATCH:string {"Closing element does not match opening element: on line {0}{1}"}
+    
+    	Common.XmlParser.UNCLOSED_TAGS:string {"One or more tags are still open: on line {0}{1}"}
+    
+    	Common.XmlParser.MULTIPLE_ROOTS:string {"More than one root element was encountered: on line {0}{1}"}
+    
+    	Common.XmlParser.VALIDATION_ERROR:string {"Validation error: on line {0}{1}"}
+    
+    	Common.XmlParser.SEMANTIC_ERROR:string {"Semantic error: on line {0}{1}"}
+
+    	Repository.InheritanceTree.INVALID_INHERITANCE_TREE:string {"Invalid inheritance tree: unknown class: {0}"}
+
+	Repository.NameSpaceManager.ATTEMPT_DELETE_NONEMPTY_NAMESPACE:string {"An attempt to delete the non-empty namespace {0} was made."}
+
+	Repository.CIMRepository.COMPACT_FAILED:string {"Failed to compact the file."}
+
+	Repository.CIMRepository.ROLLBACK_FAILED:string {"The rollback of uncommitted changes failed."}
+
+	Repository.CIMRepository.BEGIN_FAILED:string {"The start of the transaction failed."}
+
+	Repository.CIMRepository.FAILED_TO_DELETE_INSTANCE:string {"Failed to delete instance: {0}" }
+
+	Repository.CIMRepository.COMMIT_FAILED:string {"The commit operation failed."}
+
+	Repository.CIMRepository.CLASS_HAS_NO_KEYS:string {"Class {0} has no keys." }
+
+	Repository.CIMRepository.FAILED_TO_REMOVE_FILE:string {"Failed to remove the file in {0}."}
+
+	Repository.CIMRepository.ATTEMPT_TO_MODIFY_KEY_PROPERTY:string {"An attempt to modify a key property was made."}
+
+	Repository.CIMRepository.FAILED_TO_MODIFY_INSTANCE:string {"Failed to modify instance {0}."}
+
+	Repository.CIMRepository.FAILED_TO_LOAD_INSTANCES:string {"Failed to load instances in class {0}."}
+
+	Repository.CIMRepository.FAILED_TO_LOAD_INSTANCE_NAMES:string {"Failed to load instance names in class {0}"}
+
+	Repository.CIMRepository.INTERNAL_ERROR:string {"There was an internal error. {0}"}
+
+	Repository.NameSpaceManager.ATTEMPT_TO_CHANGE_SUPERCLASS:string {"An attempt to change the superclass was made."}
+
+	Security.UserManager.UserExceptions.USER_ALREADY_EXISTS:string {"User already exists, user name: {0}"}
+
+	Security.UserManager.UserExceptions.INVALID_CIM_USER:string {"The specified user is not a valid CIM user, user name: {0}."}
+
+	Security.UserManager.UserExceptions.INVALID_USER_ON_LOCAL_SYSTEM:string {"The specified user is not a valid user on the local system , user name: {0}"}
+
+	Security.UserManager.UserExceptions.PASSWORD_MISMATCH:string {"The specified password does not match user's current password, user name: {0}"}
+
+	Security.UserManager.UserExceptions.INTERNAL_ERROR_PWD_CACHE:string {"There was an internal error while processing the password cache table."}
+
+	Security.UserManager.UserExceptions.USER_NAMESPACE_NOT_AUTHORIZED:string {"The specified user '{0}' and namespace '{0}' are not authorized."}
+
+	Security.UserManager.UserExceptions.INTERNAL_ERROR_AUTH_CACHE:string {"There was an internal error while processing the authorization cache table."}
+
+	Security.UserManager.UserExceptions.AUTH_ENTRY_NOT_FOUND:string {"Authorization entry not found for user '{0}' with the namespace '{1}'."}
+
+	Security.UserManager.UserExceptions.NAMESPACE_DOES_NOT_EXIST:string {"The specified namespace {0} does not exist."}
+
+	Security.UserManager.UserExceptions.CANT_CREATE_USERMANAGER_INSTANCE:string {"Cannot create a UserManager instance. The repository handle passed may be invalid."}
+
+	Security.UserManager.PasswordFile.PWD_FILE_NOT_FOUND:string {"Password file not found : {0}."}
+
+	Security.UserManager.PasswordFile.CREATING_BLANK_PWD_FILE:string {"Creating blank password file."}
+
+	Security.UserManager.PasswordFile.TRYING_TO_BACKUP_FILE:string {"Trying to use the backup file : {0}."}
+
+	Security.UserManager.PasswordFile.CANNOT_USE_BACKUP_FILE:string {"Unable to use the backup file : {0}."}
+
+	Security.UserManager.PasswordFile.RECOVERED_USING_BACKUP_FILE:string {"Recovered using the backup file : {0}."}
+
+	Security.UserManager.PasswordFile.ERROR_OPENING_PWD_FILE:string {"Error opening password file : {0}."}
+
+	Security.UserManager.PasswordFile.ERROR_READING_PWD_ENTRY:string {"Error in reading password entry for : {0}."}
+
+	Security.UserManager.PasswordFile.DUPLICATE_USER:string {"This is a duplicate user: {0}."}
+
+	Security.UserManager.PasswordFile.CANNOT_REMOVE_PWD_FILE:string {"Cannot remove password file : {0}."}
+
+	Security.UserManager.PasswordFile.CANNOT_RENAME_PWD_FILE:string {"Cannot rename password file : {0}."}
+
+	Security.UserManager.PasswordFile.CANNOT_REMOVE_BACKUP_PWD_FILE:string {"Cannot remove backup password file : {0}."}
+
+	Security.UserManager.UserFileHandler.TIMEOUT:string {"Timed out trying to perform requested operation."
+											  "Please re-try the operation again."}
+											  
+	Security.UserManager.UserFileHandler.DEADLOCK:string {"Deak lock encountered trying to perform requested operation."
+											  "Please re-try the operation again."}
+											  
+	Security.UserManager.UserFileHandler.ERROR_UPDATING_USER_INFO:string {"Error updating user information for : {0}."}
+
+	Config.ConfigExceptions.MISSING_CMDLINE_OPTION:string {"Missing command line option argument: {0}"}
+
+	Config.ConfigExceptions.UNRECOGNIZED_CMDLINE_OPTION:string {"Unrecognized command line option. "}
+
+	Config.ConfigExceptions.INVALID_PROPERTY_VALUE:string {"Invalid property value: {0}={1}"}
+
+	Config.ConfigExceptions.DUPLICATE_OPTION:string {"A duplicate option was found: {0}"}
+
+	Config.ConfigExceptions.UNRECOGNIZED_CONFIG_FILE_OPTION:string {"Unrecognized config file option: {0}"}
+
+	Config.ConfigExceptions.MISSING_REQUIRED_OPTION:string {"Missing required option value: {0}"}
+
+	Config.ConfigExceptions.UNRECOGNIZED_CONFIG_PROPERTY:string {"Unrecognized config property: {0}"}
+
+	Config.ConfigExceptions.NONDYNAMIC_CONFIG_PROPERTY:string {"NonDynamic config property: {0}"}
+
+	Config.ConfigExceptions.CONFIG_FILE_SYNTAX_ERR:string {"There was a syntax error in the configuration file: "}
+
+	Config.TracePropertyOwner.UNABLE_TO_WRITE_TRACE_FILE:string {"Unable to write to trace file {0}"}
+
+	ControlProviders.ConfigSettingProvider.ConfigSettingProvider.INVALID_INSTANCE_NAME:string {"Invalid instance name."}
+
+	ControlProviders.ConfigSettingProvider.ConfigSettingProvider.CONFIG_PROPERTY_NOT_FOUND:string {"The {0} configuration property was not found."}
+
+	ControlProviders.ConfigSettingProvider.ConfigSettingProvider.MODIFICATION_OF_ENTIRE_INSTANCE:string {"Modification of entire instance"}
+
+	ControlProviders.ConfigSettingProvider.ConfigSettingProvider.MODIFICATION_NOT_SUPPORTED:string {"Modification of property {0} is not supported."}
+
+	ControlProviders.ConfigSettingProvider.ConfigSettingProvider.UPDATE_CURRENT_VALUE_FAILED:string {"Failed to update the current value."}
+
+	ControlProviders.ConfigSettingProvider.ConfigSettingProvider.UPDATE_PLANNED_VALUE_FAILED:string {"Failed to update the planned value."}
+
+	ControlProviders.ConfigSettingProvider.ConfigSettingProvider.USER_NOT_PRIVILEGED:string {"Must be a privileged user to do this CIM operation."}
+
+	ControlProviders.NamespaceProvider.NamespaceProvider.INVALID_TYPE_FOR_PROPERTY:string {"Invalid type for property: {0}"}
+
+	ControlProviders.NamespaceProvider.NamespaceProvider.INVALID_KEY_PROPERTY:string {"Invalid key property:  "}
+
+	ControlProviders.NamespaceProvider.NamespaceProvider.PARENT_NAMESPACE_DOES_NOT_EXIST:string {"Parent namespace does not exist: {0}"}
+
+	ControlProviders.NamespaceProvider.NamespaceProvider.NOT_SUPPORTED_BY_NAMESPACEPROVIDER:string {"{0} is not supported by Namespace Provider"}
+
+	ControlProviders.NamespaceProvider.NamespaceProvider.ROOT_NAMESPACE_MAY_BE_DELETED:string {"The root namespace may be deleted."}
+
+	ControlProviders.NamespaceProvider.NamespaceProvider.NAMESPACE_DOES_NOT_EXIST:string {"The namespace does not exist: {0}"}
+
+	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.SUPERUSER_PRIVILEGE_REQUIRED_MODIFY_REGISTRATION:string {"You must have superuser privilege to modify the registration."}
+
+	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.CAN_ONLY_MODIFY_ERR:string {"You can only modify {0}, {1}, and {2}."}
+
+	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.SUPERUSER_PRIVILEGE_REQUIRED_REGISTER_PROVIDERS:string {"You must have superuser privilege to register providers."}
+
+	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_REQUIRED_PROPERTY:string {"Missing {0} which is required property in {1} class."}
+
+	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.UNSUPPORTED_VALUE:string {"Unsupported {0} value: {1}"}
+
+	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.SUPERUSER_PRIVILEGE_REQUIRED_UNREGISTER_PROVIDERS:string {"You must have superuser privilege to unregister providers."}
+
+	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.KEY_NOT_FOUND:string {"Key {0} was not found."}
+
+	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.DISABLE_PROVIDER_FAILED:string {"Failed to disable the provider."}
+
+	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.DISABLE_PROVIDER_MODULE_FAILED:string {"Failed to disable the provider module."}
+
+	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.SUPERUSER_PRIVILEGE_REQUIRED_DISABLE_ENABLE_PROVIDERS:string {"You must have superuser privilege to disable or enable providers."}
+
+	Provider.CIMOMHandle.RECURSIVE_USE_CIMOMHANDLE:string {"Recursive Use of CIMOMHandle Attempted"}
+
+	Provider.CIMOMHandle.EMPTY_CIM_RESPONSE:string {"Empty CIM Response"}
+
+	Provider.CIMOMHandle.CAUGHT_EXCEPTION:string {"Exception caught in CIMOMHandle"}
+
+	ProviderManager.ProviderAdapter.CANNOT_LOAD_PROVIDER_ADAPTER:string {"{0} ({1}):Cannot load {2}, error: {3}"}
+
+	ProviderManager.ProviderAdapter.ENTRY_POINT_RETURNED_NULL:string {"{0} ({1}):The entry point returned null."}
+
+	ProviderManager.ProviderAdapter.ADAPTER_NOT:string {"{0} ({1}):The adapter is not a {2}."}
+
+	ProviderManager.ProviderAdapter.MISSING:string {"{0} ({1}):{2} is missing."}
+
+	ProviderManager.ProviderFacade.INVALID_PROVIDER_INTERFACE:string {"Invalid provider interface."}
+
+	ProviderManager.ProviderManagerService.PROVIDER_LOOKUP_FAILED:string {"The provider lookup failed."}
+
+	ProviderManager.ProviderManagerService.PROVIDER_BLOCKED:string {"The provider is blocked."}
+
+	ProviderManager.ProviderManagerService.NOT_IMPLEMENTED:string {"is not implemented."}
+
+	ProviderManager.ProviderManagerService.INTERNAL_ERROR:string {"There was an internal error."}
+
+	ProviderManager.ProviderManagerService.UNKNOWN_ERROR:string {"There was an unknown error."}
+
+	ProviderManager.ProviderManagerService.SET_MODULE_STATUS_FAILED:string {"Failed to set the module status."}
+
+	ProviderManager.ProviderModule.IS_NOT_A:string {"{0} ({1}{2} is not a {3})"}
+
+	ProviderManager.ProviderModule.CANNOT_LOAD_LIBRARY:string {"{0} ({1}:{2}):Cannot load library, error: {3}"}
+
+	ProviderManager.ProviderModule.ENTRY_POINT_NOT_FOUND:string {"{0} ({1}:{2}):The entry point was not found."}
+
+	ProviderManager.ProviderModule.PROVIDER_IS_NOT_A:string {"{0} ({1}:{2}):provider is not a {3}."}
+
+	Clients.cliutils.CommandException.DUPLICATE_OPTION:string {"-{0} is a duplicate option."}
+
+	Clients.cliutils.CommandException.INVALID_ARG:string {"Argument {0} is not valid for option -{1}."}
+
+	Clients.cliutils.CommandException.INVALID_OPTION:string {"Option -{0} is not valid for this command."}
+
+	Clients.cliutils.CommandException.MISSING_OPTION_ARG:string {"Missing argument value for -{0} option."}
+
+	Clients.cliutils.CommandException.MISSING_OPTION:string {"The -{0} option is required."}
+
+	Clients.cliutils.CommandException.UNEXPECTED_ARG:string {"Argument {0} was unexpected."}
+
+	Clients.cliutils.CommandException.UNEXPECTED_OPTION:string {"Option -{0} was unexpected."}
+
+	getoopt.getoopt.CANT_NAME_FLAG:string {"You can't have a flag named '{0}'."}
+
+	getoopt.getoopt.UNKNOWN_FLAG:string {"{0}{1} is an unknown flag."}
+
+	getoopt.getoopt.MISSING_VALUE_FOR_FLAG:string {"Missing required value for flag {0}."}
+
+	Compiler.cmdline.cimmof.cmdline.MENU.PEGASUS_OS_HPUX:string {
+	  
+	  "\nMOF Compiler version {0}\n\n"
+	  "Usage: cimmof [-h] [-w] [-uc] [-aE | -aV | -aEV] [-I path] [-n namespace] [file, ...]\n" 
+	  "    -h           - show this help \n"
+	  "    -w           - suppress warnings \n"
+	  "    -I path      - specify an include path \n"
+	  "    -n namespace - override the default CIMRepository namespace \n"
+	  "  -uc   -- allow update of an existing class definition.\n"
+	  "  -aE   -- allow creation, either through addition or modification, of Experimental classes.\n"
+	  "  -aV   -- allow both Major and Down Revision Schema changes.\n"
+	  "  -aEV  -- allow both Experimental and Version Schema changes.\n"  
+	  "  -h, --help -- show this help.\n" 
+	  "  -E -- syntax check only.\n"
+	  "  -w -- suppress warnings.\n"
+	  "  -uc   -- allow update of an existing class definition.\n"
+	  "  -aE   -- allow creation, either through addition or modification, of Experimental classes.\n"
+	  "  -aV   -- allow both Major and Down Revision Schema changes.\n"
+	  "  -aEV  -- allow both Experimental and Version Schema changes.\n"
+	}
+
+	Compiler.cmdline.cimmof.cmdline.MENU.PEGASUS_OS_OS400:string {
+
+	
+	  "\nMOF Compiler version {0}\n\n"
+	  "Usage: cimmof [-h] [-E] [-w] [-uc] [-aE | -aV | -aEV] [-R repository] [-I path] [-n namespace] [--xml] [--trace] [-q] -ffile\n"
+	  "       cimmof [-h] [-E] [-w] [-uc] [-aE | -aV | -aEV] [-R repository] [-I path] [-n namespace] [--xml] [--trace] [-q] mof_files...\n"
+	  "  -h, --help -- show this help.\n"
+	  "  -E -- syntax check only.\n"
+	  "  -w -- suppress warnings.\n"
+	  "  -uc   -- allow update of an existing class definition.\n"
+	  "  -aE   -- allow creation, either through addition or modification, of Experimental classes.\n"
+	  "  -aV   -- allow both Major and Down Revision Schema changes.\n"
+	  "  -aEV  -- allow both Experimental and Version Schema changes.\n"
+	  "  -q -- suppress all messages except command line usage errors.\n"
+	  "  -Rrepository -- specify the repository path (cimmofl) or hostname:portnumber (cimmof)\n"
+	  "  --CIMRepository=repository -- specify repository path or hostname:portnumber.\n"
+	  "  -Ipath -- specify an include path.\n"
+	  "  -ffile -- specify file containing a list of MOFs to compile.\n"
+	  " --file=file -- specify file containing list of MOFs.\n"
+	  " -npath -- override the default CIMRepository namespace (root/cimv2).\n"
+	  " --namespace=path -- override default CIMRepository namespace (root/cimv2).\n" 
+	  " --xml -- output XML only, to stdout.  Do not update repository.\n"
+	  " --trace or --trace=ttracefile -- trace to file (default to stdout).\n"
+ 
+	}
+
+	Compiler.cmdline.cimmof.cmdline.MENU.STANDARD:string {
+  
+	  "\nMOF Compiler version {0}\n\n"
+	  "Usage: cimmof [-h] [-E] [-w] [-uc] [-aE | -aV | -aEV] [-R repository] [-I path] [-n namespace] [--xml] [--trace] -ffile\n"
+	  "       cimmof [-h] [-E] [-w] [-uc] [-aE | -aV | -aEV] [-R repository] [-I path] [-n namespace] [--xml] [--trace] [mof_files...]\n" 
+	  "  -h, --help -- show this help.\n"
+	  "  -E -- syntax check only.\n"
+	  "  -w -- suppress warnings.\n"
+	  "  -uc   -- allow update of an existing class definition.\n"
+	  "  -aE   -- allow creation, either through addition or modification, of Experimental classes.\n"
+	  "  -aV   -- allow both Major and Down Revision Schema changes.\n"
+	  "  -aEV  -- allow both Experimental and Version Schema changes.\n"
+	  "  -Rrepository -- specify the repository path (cimmofl) or hostname:portnumber (cimmof)\n"
+	  "  --CIMRepository=repository -- specify repository path or hostname:portnumber.\n"
+	  "  -Ipath -- specify an include path.\n" 
+	  "  -ffile -- specify file containing a list of MOFs to compile.\n"
+	  " --file=file -- specify file containing list of MOFs.\n"
+	  " -npath -- override the default CIMRepository namespace (root/cimv2).\n"
+	  " --namespace=path -- override default CIMRepository namespace (root/cimv2).\n" 
+	  " --xml -- output XML only, to stdout.  Do not update repository.\n"
+	  " --trace or --trace=ttracefile -- trace to file (default to stdout).\n"
+ 
+	}
+
+	Compiler.cmdline.cimmof.cmdline.CMDLINE_ERRORS:string {"Command line errors:\n"}
+
+	Compiler.cmdline.cimmof.cmdline.UNKNOWN_VALUE_OPTION:string {"Unknown value specified for option -{0}."}
+
+	Compiler.cmdline.cimmof.cmdline.TOO_MANY_VALUES_OPTION:string {"Too many values specified for option -{0}."}
+
+	Compiler.cmdline.cimmof.cmdline.MUST_SPECIFY_R_OR_HOME:string {"You must specify -R or set PEGASUS_HOME environment variable"}
+
+	Compiler.cmdline.cimmof.cmdline.MUST_SPECIFY_MOF_FILES:string {"You must specify some MOF files to process."}
+
+	Compiler.cmdline.cimmof.main.UNEXPECTED_CONDITION:string {"Unexpected condition: "}
+
+	Compiler.cmdline.cimmof.main.UNEXPECTED_RESULT:string {"Unexpected result from processing command line: {0}"}
+
+	Compiler.cmdline.cimmof.main.COMPILE_TERMINATING:string {"Compilation terminating."}
+
+	Compiler.cmdline.cimmof.main.FAILED_TO_SET:string {"Failed to set {0}."}
+
+	Compiler.cmdline.cimmof.main.ERROR:string {"{0} error: "}
+
+	Compiler.cmdline.cimmof.main.GENERAL_EXCEPTION:string {"Compiler general exception: "}
+
+	Compiler.cmdline.cimmof.main.COMPILE_SUCCESSFUL:string {"Compile completed successfully."}
+
+	Server.CIMOperationResponseEncoder.OUT_OF_MEMORY:string {"A System error has occured. Please retry the CIM Operation at a later time."}
+
+	Server.CIMOperationRequestAuthorizer.NOT_AUTHORIZED:string {"The user is not authorized to run {0} in the namespace {1}."}
+
+	Server.CIMOperationRequestAuthorizer.REMOTE_NOT_ENABLED:string {"Remote privileged user access is not enabled."}
+
+	Server.CIMOperationRequestDecoder.EXPECTED_ELEMENT:string {"A {0} element was expected."}
+
+	Server.CIMOperationRequestDecoder.UNRECOGNIZED_INSTRINSIC_METHOD:string {"The intrinsic method {0} was not recognized."}
+
+	Server.CIMOperationRequestDispatcher.ENUM_REQ_TOO_BROAD:string {"The enumerate request is too broad."}	
+
+ 	Server.CIMOperationRequestDispatcher.PROVIDER_NOT_AVAILABLE:string {"The provider is not available."}
+
+	Server.CIMOperationRequestDispatcher.CIM_ERR_INVALID_PARAMETER:string {"The value {0} is malformed."}
+
+	Server.CIMOperationRequestDispatcher.HANDLE_ENQUEUE:string {"The function {0} can not handle the case {1}."}
+
+	Server.CIMServer.BIND_FAILED:string {"No CIM Server connections are enabled."}
+
+	Server.ProviderMessageFacade.UNKNOWN_ERROR:string{"An unknown error has occured."}
+
+	Server.ProviderMessageFacade.NOT_IMPLEMENTED:string{"The request has not been implemented."}
+
+	Server.ShutdownExceptions.INVALID_TIMEOUT:string {"The operation timeout value is invalid."}
+
+	Server.ShutdownExceptions.UNABLE_TO_RESUME:string {"The CIM server is unable to resume."}
+
+	Server.ShutdownExceptions.TIMEOUT_EXPIRED:string {"The timeout has expired and the server has resumed operation."}
+
+	Server.ShutdownProvider.INPUT_NOT_VALID:string {"The input parameters are not valid."}
+
+	Server.ShutdownService.CIM_PROVIDER_SHUTDOWN:string {"A CIM provider shutdown exception has occurred in {0}."}
+
+	Server.ProviderRegistrationManager.ProviderRegistrationManager.MODULE_NOT_FOUND:string {"The provider module can not be found."}
+
+	Server.ProviderRegistrationManager.ProviderRegistrationManager.PROVIDER_NOT_FOUND:string {"The provider can not be found."}
+
+	Server.ProviderRegistrationManager.ProviderRegistrationManager.CAPABILITY_NOT_REGISTERED:string {"The provider capability has not yet been registered."}
+
+	Server.ProviderRegistrationManager.ProviderRegistrationManager.REPOSITORY_CORRUPTED:string {"The CIM Repository in namespace root/PG_InterOp has been corrupted."}
+
+	Server.ProviderRegistrationManager.ProviderRegistrationManager.MISSING_PROVIDERNAME:string {"Missing the ProviderName which is key in the PG_ProviderCapabilities class."}
+
+	Server.ProviderRegistrationManager.ProviderRegistrationManager.MISSING_MODULENAME:string {"Missing the ProviderModuleName which is key in the PG_ProviderCapabilities class."}
+
+	Server.ProviderRegistrationManager.ProviderRegistrationManager.PG_PROVIDER_MODULE:string {"The PG_ProviderModule class needs to be registered before the PG_Provider class."}
+	
+	 Server.ProviderRegistrationManager.ProviderRegistrationManager.PG_PROVIDER_CLASS:string {"The PG_Provider class needs to be registered before the Provider capabilities class"}
+
+	Server.ProviderRegistrationManager.ProviderRegistrationManager.CAN_NOT_INSERT_ELEMENT:string {"The element can not be inserted into the table."}
+
+	Common.OptionManager.MISSING_CMD_LINE_OPTION:string {"Missing command line option argument: {0}"}
+	
+	Common.OptionManager.INVALID_OPTION_VALUE:string {"Invalid option value: {0}={1}"}
+	
+	Common.OptionManager.DUPLICATE_OPTION:string {"Duplicate option: {0}"}
+	
+	Common.OptionManager.UNRECOGNIZED_CONFIG_FILE_OPTION:string {"Unrecognized config file option: {0}"}
+	
+	Common.OptionManager.MISSING_REQUIRED_OPTION:string {"Missing required option value: {0}"}
+	
+	Common.OptionManager.PARAMETER_NOT_VALID:string {"Parameter not Valid: {0}"}
+	
+    	Common.OptionManager.SYNTAX_ERR_CONFIG_FILE:string {"Syntax error in configuration file: "}
+	
+	Common.CIMClassRep.PROPERTY:string {"property {0}"}
+
+	Common.CIMClassRep.METHOD:string {"method {0}"}
+
+	Common.CIMClassRep.NON_ASSOCIATION_CLASS_CONTAINS_REFERENCE_PROPERTY:string {"Non-assocation class contains reference property"}
+
+	Common.CIMMethodRep.PARAMETER:string {"parameter {0}"}
+
+	Common.CIMObjectRep.PROPERTY:string {"property {0}"}
+
+	Common.CIMQualifierList.QUALIFIER:string {"qualifier {0}"}
+
+	Common.DeclContext.DECLARATION_OF_QUALIFIER:string {"declaration of qualifier {0}"}
+
+	Common.DeclContext.CLASS:string {"class {0}"}
+
+	Common.HTTPAcceptor.ALREADY_BOUND:string {"{0} already bound"}
+
+	Common.HTTPAcceptor.FAILED_CREATE_SOCKET:string {"Failed to create socket"}
+
+	Common.HTTPAcceptor.FAILED_SET_SOCKET_OPTION:string {"Failed to set socket option"}
+
+	Common.HTTPAcceptor.FAILED_BIND_SOCKET:string {"Failed to bind socket"}
+
+	Common.HTTPAcceptor.FAILED_SOLICIT_SOCKET_MESSAGES:string {"Failed to solicit socket messaeges"}
+
+	Common.HTTPConnector.CONNECTION_FAILED_LOCAL_CIM_SERVER:string {"Cannot connect to local CIM server. Connection failed."}
+
+	Common.HTTPConnector.CONNECTION_FAILED_TO:string {"Cannot connect to {0}:{1}. Connection failed."}
+
+	Common.LanguageParser.TOO_MANY_OR_NON_ALPHA_CHARACTERS:string {"{0} contains too many characters or non-alpha characters"}
+
+	Common.LanguageParser.INVALID_QUALITY_VALUE:string {"{0} contains an invalid quality value"}
+
+	Common.LanguageParser.DOES_NOT_CONTAIN_TERMINATING:string {"{0} does not contain terminating ) character"}
+
+	Common.Logger.LOGGING_DISABLED:string {"Logging disabled."}
+
+	Common.MessageQueueService.FORCING_SHUTDOWN:string {"Forcing shutdown of {0}"}
+
+	Common.MessageQueueService.STOPPING_SERVICE:string {"Stopping {0}"}
+
+	Common.MessageQueueService.UNABLE_TO_REGISTER:string {"{0} Unable to register with  {1}"}
+
+	Common.ModuleController.MODULE:string {"module {0}"}
+
+	Common.OperationContext.OBJECT_NOT_FOUND:string {"object not found"}
+
+	Common.OperationContext.OBJECT_ALREADY_EXISTS:string {"object already exists."}
+
+	Common.TraceFileHandler.FAILED_TO_OPEN_FILE:string {"Failed to open file {0}"}
+
+	Common.TraceFileHandlerUnix.FAILED_TO_OPEN_FILE:string {"Failed to open file {0}"}
+
+	Common.TraceFileHandlerUnix.FAILED_TO_RELEASE_WRITE_LOCK:string {"Failed to release write lock on File {0}"}
+
+	Common.TraceFileHandlerUnix.FAILED_TO_OBTAIN_WRITE_LOCK:string {"Failed to obtain write lock on File {0}"}
+
+	Common.TraceFileHandlerWindows.UNABLE_TO_WRITE_TRACE_TO_FILE:string {"Unable to write trace message to File {0}"}
+
+	Common.TraceFileHandlerWindows.INVALID_FILE_HANDLE:string {"Invalid file handle for file {0}"}
+
+	Common.XmlReader.EXPECTED_XML_STYLE:string {"A {0} style declaration was expected."}
+
+	Common.XmlReader.MISSING_ATTRIBUTE:string {"The {0} attribute is missing."}
+
+	Common.XmlReader.MISSING_REQUIRED_ATTRIBUTE:string {"The required {0} attribute is missing."}
+
+	Common.XmlReader.EXPECTED_OPEN:string {"An open of {0} element was expected."}
+
+	Common.XmlReader.EXPECTED_CLOSE:string {"A close of {0} element was expected."}
+
+	Common.XmlReader.EXPECTED_OPENCLOSE:string {"An open or a close of {0} element was expected."}
+
+	Common.XmlReader.EXPECTED_CDATA:string {"The content of {0} was expected."}
+
+	Common.XmlReader.ILLEGAL_VALUE_FOR_ATTRIBUTE:string {"The {0} attribute has an illegal value."}
+
+	Common.XmlReader.INVALID_ATTRIBUTE:string {"The {0} attribute has an invalid value."}
+
+	Common.XmlReader.INVALID_ENCODING:string {"The {0} encoding is invalid."}
+
+	Common.XmlReader.INVALID_VALUE:string {"The {0} value is invalid."}
+
+	Common.XmlReader.VALUE_OUT_OF_RANGE:string {"The {0} value is out of range."}
+
+	Common.XmlReader.MALFORMED_XML:string {"The XML is malformed."}
+
+	Common.XmlReader.EXPECTED_ELEMENT:string {"A {0} element was expected."}
+
+	Common.XmlReader.DUPLICATE:string {"There is a duplicate {0}."}
+
+	Common.XmlReader.ILLEGAL_VALUE:string {"The {0} value is illegal."}
+
+	Common.XmlReader.ARRAY_SIZE_DIFFERENT:string {"The {0} attribute and the size of {1} are different."}
+
+	Common.XmlReader.EXPECTED_CONTENT_ELEMENT:string {"The content of {0} was expected."}
+
+	Common.XmlReader.EXPECTED_NAMESPACE_ELEMENTS:string {"One or more {0} elements within {1} was expected."}
+
+	Common.XmlReader.ILLEGAL_VALUE_FOR_CIMVALUE_ATTRIBUTE:string {"The {0} attribute value is illegal. {1} must be one of {2}, {3} or {4}."}
+
+	Common.XmlReader.EXPECTED_OR_ELEMENT:string {"The element {0} or {1} was expected."}
+
+	Common.XmlReader.EXPECTED_START_TAGS:string {"One of the following start tags was expected: {0}."}
+
+	Common.XmlReader.ARRAY_WITHOUT_ISARRAY:string {"A {0} element was encountered without a {1} attribute."}
+
+	Common.XmlReader.ARRAY_ATTRIBUTE_DIFFERENT:string {"A {0} attribute was used but a {1} element was encountered."}
+
+	Common.XmlReader.INVALID_MISSING_ATTRIBUTE:string {"The {0} attribute is missing or invalid."}
+
+	Common.XmlReader.INVALID_VALUE_FOR_VALUE_ELEMENT:string {"The {0} element has an invalid value. It must be {1} or {2}."}
+
+	src.Server.cimserver_os400.FAILED_TO_START_SERVER:string {"{0} failed to start the {1} server program!!"}
+
+	src.Server.cimserver_os400.CAUGHT_UNKNOWN_EXCEPTION:string {"{0} caught unknown exception\n"}
+
+	src.Server.cimserver_os400.FAILED_TO_END_JOB:string {"{0} FAILED to end the {1} job!!"}
+
+	src.Server.cimserver_windows.HTTP_NOT_ENABLED_SERVER_NOT_STARTING:string {"Neither HTTP nor HTTPS connection is enabled.  CIMServer will not be started."}
+
+	src.Server.cimserver_windows.STARTED_VERSION:string {"Started {0} version {1}."}
+
+	src.Server.cimserver_windows.LISTENING_ON_PORT:string {"Listening on {0} port {1}."}
+
+	src.Server.cimserver.UNABLE_CONNECT_SERVER_MAY_NOT_BE_RUNNING:string {"Unable to connect to CIM Server.  CIM Server may not be running."}
+
+	src.Server.cimserver.SHUTDOWN_FAILED_REPOSITORY_EMPTY:string {"Failed to shutdown server: The repository may be empty."}
+
+	src.Server.cimserver.SHUTDOWN_FAILED:string {"Failed to shutdown server: {0}"}
+
+	src.Server.cimserver.REPOSITORY_EMPTY:string {"The repository may be empty."}
+
+	src.Server.cimserver.TIMEOUT_EXPIRED_SERVER_KILLED:string {"Shutdown timeout expired.  CIM Server process killed."}
+
+	src.Server.cimserver.MISSING_ARGUMENT:string {"Missing argument for option -{0}"}
+
+	src.Server.cimserver.UNSUPPORTED_DEBUG_OPTION:string {"Unsupported debug option, BIND_VERBOSE, enabled."}
+
+	src.Server.cimserver.SUPERVISOR_PRIVALEDGE_TO_RUN_SERVER:string {"You must have superuser privilege to run cimserver."}
+
+	src.Server.cimserver.DUPLICATE_SHUTDOWN_OPTION:string {"Duplicate shutdown option specified."}
+
+	src.Server.cimserver.INSTALLED_NT_SERVICE:string {"\n{0} installed as NT Service"}
+
+	src.Server.cimserver.REMOVED_NT_SERVICE:string {"\n{0} removed as NT Service"}
+
+	src.Server.cimserver.STARTED_NT_SERVICE:string {"\n{0} started as NT Service"}
+
+	src.Server.cimserver.STOPPED_NT_SERVICE:string {"\n{0} stopped as NT Service"}
+
+	src.Server.cimserver.HTTP_NOT_ENABLED_SERVER_NOT_STARTING:string {"Neither HTTP nor HTTPS connection is enabled.  CIMServer will not be started."}
+
+	src.Server.cimserver.SERVER_STOPPED:string {"{0} server stopped."}
+
+	src.Server.cimserver.LOGS_DIRECTORY:string {"Logs Directory = "}
+
+	src.Server.cimserver.ERROR:string {"Error: {0}"}
+
+	src.Server.cimserver.STARTUP_MESSAGE:string {"Built {0} {1}\nStarting..."}
+
+	src.Server.cimserver.SERVER_FAILED_TO_INITIALIZE:string {"CIM Server failed to initialize"}
+
+	src.Server.cimserver.UNABLE_TO_START_SERVER_ALREADY_RUNNING:string {"Unable to start {0}.\n{1} is already running."}
+
+	src.Server.cimserver.LISTENING_ON_PORT:string {"Listening on {0} port {1}."}
+
+	src.Server.cimserver.LISTENING_ON_LOCAL:string {"Listening on local connection socket."}
+
+	src.Server.cimserver.STARTED_VERSION:string {"Started {0} version {1}."}
+
+	src.Server.cimserver.STOPPED:string {"{0} stopped."}
+
+	src.Server.cimserver.MENU.STANDARD:string {
+	" [ [ options ] | [ configProperty=value, ... ] ]\n"
+	"  options\n"
+	"    -v              - displays CIM Server version number\n"
+	"    -h              - prints this help message\n"
+	"    -s              - shuts down CIM Server\n"
+	"{0}"
+	"  configProperty=value\n"
+	"                    - sets CIM Server configuration property\n"
+	"\n"
+	}
+
+	src.Server.cimserver.MENU.WINDOWS:string {
+	" [ [ options ] | [ configProperty=value, ... ] ]\n"
+	"  options\n"
+	"    -v              - displays CIM Server version number\n"
+	"    -h              - prints this help message\n"
+	"    -s              - shuts down CIM Server\n"
+	"{0}"
+	"    -install [name] - installs pegasus as a Windows NT Service\n"
+	"                      [name] is optional and overrides the\n"
+    	"                      default CIM Server Service Name\n"
+    	"    -remove [name]  - removes pegasus as a Windows NT Service\n"
+    	"                      [name] is optional and overrides the\n"
+    	"                      default CIM Server Service Name\n"
+    	"    -start [name]   - starts pegasus as a Windows NT Service\n"
+    	"                      [name] is optional and overrides the\n"
+    	"                      default CIM Server Service Name\n"
+    	"    -stop [name]    - stops pegasus as a Windows NT Service\n"
+    	"                      [name] is optional and overrides the\n"
+    	"                      default CIM Server Service Name\n\n"
+	"  configProperty=value\n"
+	"                    - sets CIM Server configuration property\n"
+	"\n"
+
+	}
+
+	IndicationService.IndicationService._MSG_PROPERTY:string {"The required property {0} is missing."}
+
+	IndicationService.IndicationService._MSG_KEY_PROPERTY:string {"The required key property {0} is missing."}
+
+	IndicationService.IndicationService._MSG_INVALID_VALUE_FOR_PROPERTY:string {"The value {0} is invalid for property {1}."}
+
+	IndicationService.IndicationService._MSG_PROPERTY_PRESENT_BUT_VALUE_NOT:string{"The {0} property is present, but the {1} value is not {2}."}
+
+	IndicationService.IndicationService._MSG_INVALID_CLASSNAME_IN_FROM_PROPERTY:string{"The {0} class name {1} is invalid in the {2} clause of {3} {4} property."}
+
+	IndicationService.IndicationService._MSG_NO_PROVIDERS:string {"There are no providers capable of serving the subscription."}
+
+	IndicationService.IndicationService._MSG_NOT_ACCEPTED:string {"No providers accepted the subscription."}
+
+	IndicationService.IndicationService._MSG_EXPIRED:string {"An expired subscription may not be modified, it has been deleted."}
+
+	IndicationService.IndicationService._MSG_REFERENCED:string {"A Filter or Handler referenced by a subscription may not be deleted."}
+
+	IndicationService.IndicationService._MSG_CLASS_NOT_SERVED:string {"The specified class is not served by the Indication Service."}
+
+	HandlerService.IndicationHandlerService.HANDLER_WITHOUT_DESTINATION:string {"The {0} does not have a destination."}
+
+	HandlerService.IndicationHandlerService.INVALID_DESTINATION:string {"The destination is invalid."}
+
+	HandlerService.IndicationHandlerService.FAILED_TO_LOAD:string {"The {0} failed to load."}
+
+	Handler.snmpIndicationHandler.snmpIndicationHandler.INVALID_VALUE:string {"The {0} value is invalid."}
+
+	Handler.snmpIndicationHandler.snmpIndicationHandler.INVALID_INSTANCE:string {"The {0} instance is invalid."}
+	 
+	Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_INITSUBAGENT_FAILED:string {"The {0} failed to initialize."}
+
+	Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_INVALID:string {"The {0} is invalid."}
+
+	Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_DESTINATION_NOT_FOUND:string {"The trap destination can not be found."}
+
+	Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_TARGETHOSTFORMAT_NOT_SUPPORTED:string {"{0} and {1} are the only supported {2} values."}
+
+	Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_INVALID_OCTET_VALUE:string{"The octet value in the trap destination is invalid."}
+
+	Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_CREATE_OCTET_FAILED:string{"The creation of an empty 4 length {0} failed."}
+
+	Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_INVALID_PROPERTYOID:string{"The {0} value of the {1} property is invalid."}
+
+	Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_INVALID_PROPERTY:string{"The value of the {0} property is invalid."}
+
+	Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_MAKE_FAILED:string{"{0} failed for type {1}."}
+
+	Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_VERSION_NOT_SUPPORTED:string{"{0} and {1} are the only supported {2} values."}
+
+	ExportServer.CIMExportRequestDispatcher.INVALID_REGISTRATION:string {"The {0} registration data is invalid."}
+
+	ExportServer.CIMExportRequestDispatcher.NO_REGISTRATION:string {"There is no {0} registered for this location."}
+
+	ExportServer.CIMExportRequestDecoder.UNRECOGNIZED_EXPORT_METHOD:string {"The export method {0} was not recognized."}
+
+	ExportServer.CIMExportRequestDecoder.EXPECTED_ELEMENT:string {"A {0} element was expected."}
+
+	ExportClient.CIMExportRequestDispatcher.INVALID_REGISTRATION:string {"The {0} registration data is invalid."} // possibly obsolete
+
+	ExportClient.CIMExportRequestDispatcher.NO_REGISTRATION:string {"There is no {0} registered for this location."} // possibly obsolete
+
+	ExportClient.CIMExportResponseDecoder.EXPECTED_ELEMENT:string {"A {0} element was expected."}
+
+	ExportClient.CIMExportResponseDecoder.EXPECTED_ELEMENT_OR:string {"A {0} or a {1} element was expected."}
+
+	ExportClient.CIMExportResponseDecoder.EMPTY_RESPONSE:string {"The HTTP response message was empty."}
+
+	ExportClient.CIMExportResponseDecoder.MALFORMED_RESPONSE:string {"The HTTP response message was malformed."}
+
+	ExportClient.CIMExportResponseDecoder.AUTHENTICATION_FAILED:string {"The authentication failed."}
+
+	ExportClient.CIMExportResponseDecoder.MISSING_CIMOP_HEADER:string {"The {0} HTTP header is missing."}
+
+	ExportClient.CIMExportResponseDecoder.EXPECTED_METHODRESPONSE:string {"The client received a {0} HTTP header value of \"{1}\" when it expected \"{2}\"."}
+
+	ExportClient.CIMExportResponseDecoder.UNSUPPORTED_PROTOCOL:string {"The unsupported protocol version {0} was received, 1.0 was expected."}
+
+	ExportClient.CIMExportResponseDecoder.UNRECOGNIZED_IMETH:string {"The {0} name {1} was not recognized."}
+
+	ExportClient.CIMExportClient.MISMATCHED_RESPONSE_ID:string {"The response message ID {0} does not match the expected response message ID {1}."}
+	ExportClient.CIMExportClient.MISMATCHED_RESPONSE:string {"The response message type is mismatched."}
+
+}

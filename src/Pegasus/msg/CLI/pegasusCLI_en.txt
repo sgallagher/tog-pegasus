@@ -1,0 +1,191 @@
+en:table {
+
+	Clients.CLI.USAGE_STRING:string {"Valid usage of this command: "}
+
+	Clients.CIMConfig.CIMConfigCommand.CIMOM_NOT_RUNNING:string {"CIM server may not be running."}
+
+	Clients.CIMConfig.CIMConfigCommand.FILE_NOT_EXIST:string {"Configuration files does not exist."}
+
+	Clients.CIMConfig.CIMConfigCommand.FILE_NOT_READABLE:string {"Configuration file not readable."}
+
+	Clients.CIMConfig.CIMConfigCommand.FAILED_TO_GET_PROPERTY:string {"Failed to get the config property."}
+
+	Clients.CIMConfig.CIMConfigCommand.FAILED_TO_SET_PROPERTY:string {"Failed to set the config property."}
+
+	Clients.CIMConfig.CIMConfigCommand.FAILED_TO_UNSET_PROPERTY:string {"Failed to unset the config property."}
+
+	Clients.CIMConfig.CIMConfigCommand.FAILED_TO_LIST_PROPERTIES:string {"Failed to list the config properties. "}
+
+	Clients.CIMConfig.CIMConfigCommand.CURRENT_VALUE_PROPERTY:string {"Current value for the property '"}
+
+	Clients.CIMConfig.CIMConfigCommand.PLANNED_VALUE_PROPERTY:string {"Planned value for the property '"}
+
+	Clients.CIMConfig.CIMConfigCommand.DEFAULT_VALUE_PROPERTY:string {"Default value for the property '"}
+
+	Clients.CIMConfig.CIMConfigCommand.CONFIG_SCHEMA_NOT_LOADED:string {"Please restore the internal repository on the CIM Server."}
+
+	Clients.CIMConfig.CIMConfigCommand.PROPERTY_NOT_FOUND:string {"Specified property name was not found."}
+
+	Clients.CIMConfig.CIMConfigCommand.INVALID_PROPERTY_VALUE:string {"Specified property value is not valid."}
+
+	Clients.CIMConfig.CIMConfigCommand.PROPERTY_NOT_MODIFIED:string {"Specified property can not be modified."}
+
+	Clients.CIMConfig.CIMConfigCommand.OPTION_INVALID_CIM_RUNNING:string {"Option -{0} is not valid for this command when CIM server is not running."}
+
+	Clients.CIMConfig.CIMConfigCommand.VALUE_IS:string {"{0} value is {1}."}
+
+	Clients.CIMConfig.CIMConfigCommand.CANNOT_DETERMINE_VALUE_CIM_RUNNING:string {"{0} value can not be determined because the CIM server is not running."}
+
+	Clients.CIMConfig.CIMConfigCommand.VALUE_OF_PROPERTY_IS:string {"{0} value for the property {1} is set to {2} in CIMServer."}
+
+	Clients.CIMConfig.CIMConfigCommand.VALUE_OF_PROPERTY_CANNOT_BE_SET:string {"{0} value for the property {1} can not be set because the CIM server is not running."}
+
+	Clients.CIMConfig.CIMConfigCommand.FAILED_UPDATE_OF_VALUE_IN_FILE:string {"Failed to update the {0} value of the Property {1} in configuration file."}
+
+	Clients.CIMConfig.CIMConfigCommand.PROPERTY_UPDATED_IN_FILE:string {"Property {0} updated in configuration file."}
+
+	Clients.CIMConfig.CIMConfigCommand.PROPERTY_VALUE_ALREADY_SET_TO:string {"The property {0} value is already set to {1}."}
+
+	Clients.CIMConfig.CIMConfigCommand.PROPERTY_SET_TO_DEFAULT:string {"{0} value for the property {1} is set to default value in CIMServer."}
+
+	Clients.CIMConfig.CIMConfigCommand.PROPERTY_UNSET_IN_FILE:string {"Property {0} is unset in the configuration file."}
+
+	Clients.CIMConfig.CIMConfigCommand.PROPERTY_CANNOT_BE_UNSET_CIM_NOT_RUNNING:string {"{0} value for the property {1} can not be unset because the CIM server is not running."}
+
+	Clients.CIMConfig.CIMConfigCommand.PROPERTY_VALUE_ALREADY_UNSET:string {"The property {0} value is already unset."}
+
+	Clients.CIMConfig.CIMConfigCommand.VALUES_CANNNOT_BE_LISTED_CIM_NOT_RUNNING:string {"{0} value of properties can not be listed because the CIM server is not running."}
+
+	Clients.CIMConfig.CIMConfigCommand.NO_PROPERTIES_FOUND_IN_FILE:string {"No configuration properties found in the configuration file."}
+
+	Clients.cimauth.CIMAuthCommand.NOT_PRIVILEGED_USER:string {"You must have superuser privilege to run this command."}
+
+	Clients.cimauth.CIMAuthCommand.CIMOM_NOT_RUNNING:string {"CIM Server may not be running."}
+
+	Clients.cimauth.CIMAuthCommand.FILE_NOT_READABLE:string {"Unable to read the config file."}
+
+	Clients.cimauth.CIMAuthCommand.ADD_AUTH_FAILURE:string {"Failed to add authorizations."}
+
+	Clients.cimauth.CIMAuthCommand.MODIFY_AUTH_FAILURE:string {"Failed to modify authorizations."}
+
+	Clients.cimauth.CIMAuthCommand.REMOVE_AUTH_FAILURE:string {"Failed to remove authorizations."}
+
+	Clients.cimauth.CIMAuthCommand.LIST_AUTH_FAILURE:string {"Failed to list the users. "}
+
+	Clients.cimauth.CIMAuthCommand.ADD_AUTH_SUCCESS:string {"Authorizations added successfully."}
+
+	Clients.cimauth.CIMAuthCommand.MODIFY_AUTH_SUCCESS:string {"Authorizations modified successfully."}
+
+	Clients.cimauth.CIMAuthCommand.REMOVE_AUTH_SUCCESS:string {"Authorizations removed successfully."}
+
+	Clients.cimauth.CIMAuthCommand.NO_AUTHS_FOUND:string {"No user authorizations found for listing."}
+
+	Clients.cimauth.CIMAuthCommand.AUTH_SCHEMA_NOT_LOADED:string {"Please restore the internal repository on the CIM Server."}
+
+	Clients.cimauth.CIMAuthCommand.REQUIRED_ARGS_MISSING:string {"Required arguments missing."}
+
+	Clients.cimauth.CIMAuthCommand.AUTH_ALREADY_EXISTS:string {"Specified user authorizations already exist."}
+
+	Clients.cimauth.CIMAuthCommand.AUTH_NOT_FOUND:string {"Specified user authorizations were not found."}
+
+	Clients.cimprovider.CIMProviderCommand.NOT_PRIVILEGED_USER:string {"Error, you must have superuser privilege to run cimprovider."}
+
+	Clients.cimprovider.CIMProviderCommand.CIMOM_NOT_RUNNING:string {"The CIM server may not be running."}
+
+	Clients.cimprovider.CIMProviderCommand.DELETE_PROVIDER_FAILURE:string {"Failed to delete..."}
+
+	Clients.cimprovider.CIMProviderCommand.START_PROVIDER_FAILURE:string {"Failed to enable provider module."}
+
+	Clients.cimprovider.CIMProviderCommand.STOP_PROVIDER_FAILURE:string {"Failed to disable provider module."}
+
+	Clients.cimprovider.CIMProviderCommand.LIST_PROVIDERS_FAILURE:string {"Failed to list... "}
+
+	Clients.cimprovider.CIMProviderCommand.DELETE_PROVIDER_MODULE_SUCCESS:string {"Provider module deleted successfully."}
+
+	Clients.cimprovider.CIMProviderCommand.DELETE_PROVIDER_SUCCESS:string {"Provider deleted successfully."}
+
+	Clients.cimprovider.CIMProviderCommand.START_PROVIDER_SUCCESS:string {"Provider module enabled successfully."}
+
+	Clients.cimprovider.CIMProviderCommand.STOP_PROVIDER_SUCCESS:string {"Provider module disabled successfully."}
+
+	Clients.cimprovider.CIMProviderCommand.PROVIDER_ALREADY_STOPPED:string {"Provider module already disabled."}
+
+	Clients.cimprovider.CIMProviderCommand.PROVIDER_ALREADY_STARTED:string {"Provider module already enabled."}
+
+	Clients.cimprovider.CIMProviderCommand.CANNOT_START_PROVIDER:string {"Provider module can not be enabled since it is disabling."}
+
+	Clients.cimprovider.CIMProviderCommand.PROVIDER_NOT_REGISTERED:string {"Specified provider was not registered."}
+
+	Clients.cimprovider.CIMProviderCommand.DELETEING_PROVIDER_MODULE:string {"Deleting provider module..."}
+
+	Clients.cimprovider.CIMProviderCommand.DELETEING_PROVIDER:string {"Deleting provider..."}
+
+	Clients.cimprovider.CIMProviderCommand.STARTING_PROVIDER_MODULE:string {"Enabling provider module..."}
+
+	Clients.cimprovider.CIMProviderCommand.STOPING_PROVIDER_MODULE:string {"Disabling provider module..."}
+
+	Clients.cimprovider.CIMProviderCommand.NO_MODULE_REGISTERED:string {"No modules registered for listing."}
+
+	Clients.cimprovider.CIMProviderCommand.ERR_OPTION_NOT_SUPPORTED:string {"-p option was not supported."}
+
+	Clients.cimprovider.CIMProviderCommand.ERR_MODULE_NOT_REGISTERED:string {"Specified provider module was not registered."}
+
+	Clients.cimprovider.CIMProviderCommand.ERR_PROVIDER_NOT_REGISTERED:string {"Specified provider was not registered."}
+
+	Clients.cimprovider.CIMProviderCommand.PG_PROVIDER_SCHEMA_NOT_LOADED:string {"Please make sure that the registration schema is loaded on the CIMOM."}
+
+	Clients.cimprovider.CIMProviderCommand.REQUIRED_ARGS_MISSING:string {"Required arguments missing."}
+
+	Clients.cimprovider.CIMProviderCommand.INVALID_ARGS:string {"Invalid arguments."}
+
+	Clients.cimprovider.CIMProviderCommand.UNEXPECTED_OPTION:string {"Unexpected Option."}
+
+	Clients.cimuser.CIMUserCommand.NOT_PRIVILEGED_USER:string {"You must have superuser privilege to run this command."}
+
+	Clients.cimuser.CIMUserCommand.CIMOM_NOT_RUNNING:string {"CIM Server may not be running."}
+
+	Clients.cimuser.CIMUserCommand.ADD_USER_FAILURE:string {"Failed to add user."}
+
+	Clients.cimuser.CIMUserCommand.REMOVE_USER_FAILURE:string {"Failed to remove user."}
+
+	Clients.cimuser.CIMUserCommand.CHANGE_PASSWORD_FAILURE:string {"Failed to change password."}
+
+	Clients.cimuser.CIMUserCommand.LIST_USERS_FAILURE:string {"Failed to list the users. "}
+
+	Clients.cimuser.CIMUserCommand.ADD_USER_SUCCESS:string {"User added successfully."}
+
+	Clients.cimuser.CIMUserCommand.REMOVE_USER_SUCCESS:string {"User removed successfully."}
+
+	Clients.cimuser.CIMUserCommand.CHANGE_PASSWORD_SUCCESS:string {"Password changed successfully."}
+
+	Clients.cimuser.CIMUserCommand.PASSWORD_BLANK:string {"Password cannot be blank. Please re-enter your password."}
+
+	Clients.cimuser.CIMUserCommand.NO_USERS_FOUND:string {"No users found for listing."}
+
+	Clients.cimuser.CIMUserCommand.AUTH_SCHEMA_NOT_LOADED:string {"Please restore the internal repository on the CIM Server."}
+
+	Clients.cimuser.CIMUserCommand.REQUIRED_ARGS_MISSING:string {"Required arguments missing."}
+
+	Clients.cimuser.CIMUserCommand.INVALID_ARGS:string {"Invalid arguments."}
+
+	Clients.cimuser.CIMUserCommand.USER_ALREADY_EXISTS:string {"Specified user name already exist."}
+
+	Clients.cimuser.CIMUserCommand.USER_NOT_FOUND:string {"Specified user name was not found."}
+
+	Clients.cimuser.CIMUserCommand.USERNAME_REQUIRED:string {"User name is required."}
+
+	Clients.cimuser.CIMUserCommand.PASSWORD_PROMPT:string {"Please enter your password: "}
+
+	Clients.cimuser.CIMUserCommand.OLD_PASSWORD_PROMPT:string {"Please enter your old password: "}
+
+	Clients.cimuser.CIMUserCommand.RE_ENTER_PROMPT:string {"Please re-enter your password: "}
+
+	Clients.cimuser.CIMUserCommand.NEW_PASSWORD_PROMPT:string {"Please enter your new password: "}
+
+	Clients.cimuser.CIMUserCommand.PASSWORD_DOES_NOT_MATCH:string {"Passwords do not match. Please Re-enter."}
+
+	Clients.cimuser.CIMUserCommand.PASSWORD_SAME_ERROR:string {"Error, new and old passwords cannot be same."}
+
+	Clients.cimuser.CIMUserCommand.UNEXPECTED_OPTION:string {"Unexpected Option."}
+
+}

@@ -108,6 +108,9 @@ CIMType WMITypeToCIMType(const CIMTYPE type)
 
       break;
    case CIM_OBJECT:
+       _type = CIMTYPE_OBJECT;
+
+       break;
    case CIM_FLAG_ARRAY:
    case CIM_EMPTY:
    case CIM_ILLEGAL:
@@ -264,6 +267,10 @@ CIMTYPE_ENUMERATION CIMTypeToWMIType(const CIMTYPE type)
 
 	   case CIMTYPE_REFERENCE:
 		  _type = CIM_REFERENCE;
+		  break;
+
+	   case CIMTYPE_OBJECT:
+		  _type = CIM_OBJECT;
 		  break;
 
 	//   case CIMTYPE_OBJECT:

@@ -1261,6 +1261,9 @@ Array<CIMKeyBinding> _inputInstanceKeys(CIMClass &cldef)
         t = CIMKeyBinding::STRING; break;
       case CIMTYPE_REFERENCE:
         t = CIMKeyBinding::REFERENCE; break;
+// From PEP 194: EmbeddedObjects cannot be keys (to be verified with DMTF via CR)
+      case CIMTYPE_OBJECT:
+        break;
       }
       kb.append(CIMKeyBinding(prop.getName(), s, t));
     }

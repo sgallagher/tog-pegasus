@@ -565,14 +565,14 @@ void CIMObjectPath::_parseKeyBindingPairs(
     {
         // Get key part:
 
-        char* key = strtok(p, "=");
-
-        if (!key)
+        char* equalsign = strchr(p, '=');
+        if (!equalsign)
         {
             throw IllformedObjectName(objectName);
         }
 
-        String keyString(key);
+        *equalsign = 0;
+        String keyString(p);
 
         if (!CIMName::legal(keyString))
             throw IllformedObjectName(objectName);
@@ -580,7 +580,7 @@ void CIMObjectPath::_parseKeyBindingPairs(
         // Get the value part:
 
         String valueString;
-        p = p + strlen(key) + 1;
+        p = equalsign + 1;
         KeyBinding::Type type;
 
         if (*p == 'R')

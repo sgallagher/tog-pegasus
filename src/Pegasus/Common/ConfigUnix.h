@@ -31,7 +31,9 @@
 
 #include <cstddef>
 
+#ifndef PEGASUS_OS_TYPE_UNIX
 #define PEGASUS_OS_TYPE_UNIX
+#endif
 #define PEGASUS_EXPORT /* empty */
 #define PEGASUS_IMPORT /* empty */
 #define PEGASUS_IOS_BINARY /* empty */

@@ -20,8 +20,8 @@ LIBRARIES = \
     pegcommon \
     pegrepository \
     pegprovider \
-    pegprovidermanager \
 	pegexportserver \
+    pegprovidermanager \
     pegconfig \
     peguser \
     pegauthentication \
@@ -33,6 +33,11 @@ LIBRARIES = \
     UserAuthProvider \
     ProviderRegistrationProvider\
     NamespaceProvider
+
+ifdef ENABLE_PROVIDER_MANAGER2
+LIBRARIES += \
+	DefaultProviderManager
+endif
 
 PRE_DEPEND_INCLUDES = -I./depends
 

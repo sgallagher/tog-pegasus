@@ -74,7 +74,7 @@ public:
 	 L *ret = static_cast<L *>(Base::next(0));
 	 while(ret != 0)
 	 {
-	    if(ret->operator==(key))
+	    if(ret->operator==((L *)key))
 	       return static_cast<L *>(Base::remove(static_cast<void *>(ret)));
 	    ret = static_cast<L *>(Base::next(static_cast<void *>(ret)));
 	 }
@@ -100,7 +100,7 @@ public:
 	    L *ret = static_cast<L *>(Base::next(0));
 	    while(ret != 0)
 	    {
-	       if(ret->operator==(key))
+	       if(ret->operator==((L *)key))
 		  return ret;
 	       ret = static_cast<L *>(Base::next(static_cast<void *>(ret)));
 	    }
@@ -115,7 +115,7 @@ public:
 	    L *ret = static_cast<L *>(Base::next(0));
 	    while(ret != 0)
 	    {
-	       if(ret->operator==(key))
+	       if(ret->operator==((L *)key))
 		  return ret;
 	       ret = static_cast<L *>(Base::next(static_cast<void *>(ret)));
 	    }
@@ -149,7 +149,7 @@ public:
 	    L *found = static_cast<L *>(Base::next(0));
 	    while(found != 0)
 	    {
-	       if(found->operator==(key) == true)
+	       if(found->operator==((L *)key) == true)
 	       {
 		  ret = true;
 		  break;
@@ -371,7 +371,7 @@ template<class L> class PEGASUS_EXPORT AsyncDQueue: virtual public internal_dq
 	 L *ret = static_cast<L *>(Base::next(0));
 	 while(ret != 0)
 	 {
-	    if(ret->operator==(key))
+	    if(ret->operator==((L *)key))
 	       return static_cast<L *>(Base::remove(static_cast<void *>(ret)));
 	    ret = static_cast<L *>(Base::next(static_cast<void *>(ret)));
 	 }

@@ -2,6 +2,9 @@
 				TO-DO List
 				==========
 
+    -	Be sure that namespaces are limited to be CIM names (as given in
+	Names.h).
+
     -	Remove jdaux.exe from CVS repository.
 
     - 	Finalize the headers (put authors in all the modules).

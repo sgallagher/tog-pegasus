@@ -3,6 +3,7 @@ ROOT=../../../..
 include $(ROOT)/mak/config.mak
 
 DIRS = \
+    Reference \
     Resolve \
     Logger \
     Acceptor \

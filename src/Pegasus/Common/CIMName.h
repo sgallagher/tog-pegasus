@@ -25,10 +25,6 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-/*
- CIMName.h	- This header file defines the name class
-*/
-
 #ifndef Pegasus_Name_h
 #define Pegasus_Name_h
 
@@ -51,7 +47,7 @@ PEGASUS_NAMESPACE_BEGIN
     Notice that the definition of a name is the same as C, C++,
     and Java.
 
-    This class may not be instantiated (since its only constructor is
+    This class cannot be instantiated (since its only constructor is
     private).
 */
 class PEGASUS_COMMON_LINKAGE CIMName
@@ -65,7 +61,6 @@ public:
 	@return Returns true if the given name is legal. Throws
 	NullPointer exception if name argument is null.
     */
-
     static Boolean legal(const Char16* name);
 
     /** CIMMethod legal - Determine if the name string input is legal as
@@ -74,7 +69,6 @@ public:
 	@return Returns true if the given name is legal. Throws
 	NullPointer exception if name argument is null.
     */
-
     static Boolean legal(const String& name)
     {
 	return legal(name.getData());
@@ -84,7 +78,6 @@ public:
 	@return Return true if the two names are equal. CIM names are
 	case insensitive and so it this method.
     */
-
     static Boolean equal(const String& name1, const String& name2);
 
 private:

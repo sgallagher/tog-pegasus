@@ -38,6 +38,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 /** The KeyBinding class associates a key name, value, and type. 
     It is used by the reference class to represent key bindings.
+    See the CIMReference class to see how they are used.
 */
 class PEGASUS_COMMON_LINKAGE KeyBinding
 {
@@ -126,14 +127,14 @@ class XmlWriter;
     is one of property types which an association may contain. Consider the
     following MOF for example:
 
-	<pre>
-	[Association]
-	class MyAssociations
-	{
-	    MyClass ref from;
-	    MyClass ref to;
-	};
-	</pre>
+    <pre>
+    [Association]
+    class MyAssociations
+    {
+	MyClass ref from;
+	MyClass ref to;
+    };
+    </pre>
 
     The value of the from and to properties are internally represented using
     the CIMReference class.
@@ -141,83 +142,83 @@ class XmlWriter;
     CIM references are used to uniquely identify a CIM class or CIM instance
     objects. CIMReference objects contain the following parts:
 
-	<ul>
-	<li>Host - name of host whose repository contains the object</li>
-	<li>NameSpace - the namespace which contains the object</li>
-	<li>ClassName - name of objects class</li>
-	<li>KeyBindings key/value pairs which uniquely identify an instance</li>
-	</ul>
+    <ul>
+    <li>Host - name of host whose repository contains the object</li>
+    <li>NameSpace - the namespace which contains the object</li>
+    <li>ClassName - name of objects class</li>
+    <li>KeyBindings key/value pairs which uniquely identify an instance</li>
+    </ul>
 
     CIM references may also be expressed as simple strings (as opposed to
     being represented by the CIMReference class). This string is known as
     the "Object Name". An object name has the following form:
 
-	<pre>
-	<namespace-path>:<model-path>
-	</pre>
+    <pre>
+    &lt;namespace-path&gt;:&lt;model-path&gt;
+    </pre>
 
     The namespace-path is implementation dependent and has the following form
     in Pegasus:
 
-	<pre>
-	//<hostname>/<namespace>
-	</pre>
+    <pre>
+    //&lt;hostname&gt;>/&ltnamespace&gt;>
+    </pre>
 
     For example, suppose there is a host named "atp" with a CIM Server
     listening on port 9999 which has a CIM repository with a namespace 
     called "root/cimv25". Then the namespace-path is given as:
 
-	<pre>
-	//atp:9999/root/cimv25
-	</pre>
+    <pre>
+    //atp:9999/root/cimv25
+    </pre>
 
     As for the model-path mentioned above, its form is defined by the CIM
     Standard (more is defined by the "XML Mapping Specification v2.0.0"
     specification) as follows:
 
-	<pre>
-	<Qualifyingclass>.<key-1>=<value-1>[,<key-n>=<value-n>]*
-	</pre>
+    <pre>
+    &lt;Qualifyingclass&gt;.&lt;key-1&gt;=&lt;value-1&gt;[,&lt;key-n&gt;=&lt;value-n&gt;]*
+    </pre>
 
     For example:
 
-	<pre>
-	TennisPlayer.first="Patrick",last="Rafter"
-	</pre>
+    <pre>
+    TennisPlayer.first="Patrick",last="Rafter"
+    </pre>
 
     This of course presupposes the existence of a class called "MyClass" that
     has key properties named "first" and "last". For example, here is what
     the MOF might look like:
 
-	<pre>
-	class TennisPlayer : Person
-	{
-	    [key] string first;
-	    [key] string last;
-	};
+    <pre>
+    class TennisPlayer : Person
+    {
+	[key] string first;
+	[key] string last;
+    };
+    </pre>
 
     All keys must be present in the model path.
 
     Now the namespace-type and model-path are combined in the following
     string object name.
 
-	//atp:9999/root/cimv25:TennisPlayer.first="Patrick",last="Rafter"
+    //atp:9999/root/cimv25:TennisPlayer.first="Patrick",last="Rafter"
 
     Now suppose we wish to create a CIMReference from this above string. There
     are two constructors provided: one which takes the above string and the
     other that takes the constituent elements. Here are the signature of the
     two constructors:
 
-	
-	<pre>
-	CIMReference(const String& objectName);
+    <pre>
+    CIMReference(const String& objectName);
 
-	CIMReference(
-	    const String& host,
-	    const String& nameSpace,
-	    const String& className, 
-	    const KeyBindingArray& keyBindings);
-	</pre>
+    CIMReference(
+	const String& host,
+	const String& nameSpace,
+	const String& className, 
+	const KeyBindingArray& keyBindings);
+    </pre>
 
     Following our example, the above object name may be used to initialize
     a CIMReference like this:
@@ -233,12 +234,12 @@ class XmlWriter;
     constructor above correspond elements of the object name in the following
     way:
 
-	<ul>
-	<li>host = "atp:9999"</li>
-	<li>nameSpace = "root/cimv25"</li>
-	<li>className = "TennisPlayer"</li>
-	<li>keyBindings = "first=\"Patrick\",last=\"Rafter\""</li>
-	</ul>
+    <ul>
+    <li>host = "atp:9999"</li>
+    <li>nameSpace = "root/cimv25"</li>
+    <li>className = "TennisPlayer"</li>
+    <li>keyBindings = "first=\"Patrick\",last=\"Rafter\""</li>
+    </ul>
 
     Note that the host and nameSpace argument may be empty since object names
     need not necessarily include a namespace path according to the standard.
@@ -246,38 +247,38 @@ class XmlWriter;
     Of course the key bindings must be built up by appending KeyBinding objects
     to a KeyBindingArray like this:
 
-	<pre>
-	KeyBindingArray keyBindings;
-	keyBindings.append(KeyBinding("first", "Patrick", KeyBinding::STRING));
-	keyBindings.append(KeyBinding("last", "Rafter", KeyBinding::STRING));
-	</pre>
+    <pre>
+    KeyBindingArray keyBindings;
+    keyBindings.append(KeyBinding("first", "Patrick", KeyBinding::STRING));
+    keyBindings.append(KeyBinding("last", "Rafter", KeyBinding::STRING));
+    </pre>
 
     The only key values that are supported are:
 
-	<ul>
-	<li>KeyBinding::BOOLEAN</li>
-	<li>KeyBinding::STRING</li>
-	<li>KeyBinding::NUMERIC</li>
-	</ul>
+    <ul>
+    <li>KeyBinding::BOOLEAN</li>
+    <li>KeyBinding::STRING</li>
+    <li>KeyBinding::NUMERIC</li>
+    </ul>
 
     This limitation is imposed by the "XML Mapping Specification v2.0.0"
     specification. The CIM types are encoded as one of these three in the
     following way:
 
-	<pre>
-	boolean - BOOLEAN (the value must be "true" or "false")
-	uint8 - NUMERIC
-	sint8 - NUMERIC
-	uint16 - NUMERIC
-	sint16 - NUMERIC
-	uint32 - NUMERIC
-	sint32 - NUMERIC
-	uint64 - NUMERIC
-	sint64 - NUMERIC
-	char16 - NUMERIC
-	string - STRING
-	datetime - STRING
-	</pre>
+    <pre>
+    boolean - BOOLEAN (the value must be "true" or "false")
+    uint8 - NUMERIC
+    sint8 - NUMERIC
+    uint16 - NUMERIC
+    sint16 - NUMERIC
+    uint32 - NUMERIC
+    sint32 - NUMERIC
+    uint64 - NUMERIC
+    sint64 - NUMERIC
+    char16 - NUMERIC
+    string - STRING
+    datetime - STRING
+    </pre>
 
     Notice that real32 and real64 are missing. Properties of these types
     cannot be used as keys.
@@ -285,14 +286,18 @@ class XmlWriter;
     Notice that the keys in the object name may appear in any order.
     That is the following object names refer to the same object:
 
-	TennisPlayer.first="Patrick",last="Rafter"
-	TennisPlayer.last="Rafter",first="Patrick"
+    <pre>
+    TennisPlayer.first="Patrick",last="Rafter"
+    TennisPlayer.last="Rafter",first="Patrick"
+    </pre>
 
     And since CIM is not case sensitive, the following refer to the same
     object:
 
-	TennisPlayer.first="Patrick",last="Rafter"
-	tennisplayer.FIRST="Patrick",Last="Rafter"
+    <pre>
+    TennisPlayer.first="Patrick",last="Rafter"
+    tennisplayer.FIRST="Patrick",Last="Rafter"
+    </pre>
 
     Therefore, the CIMReferences::operator==() would return true for the last
     two examples.
@@ -301,7 +306,9 @@ class XmlWriter;
     spaces around delimiters (like '.', '=', and ','). We assume they cannot.
     So the following is an invalid model path:
 
-	TennisPlayer . first = "Patrick", last="Rafter"
+    <pre>
+    TennisPlayer . first = "Patrick", last="Rafter"
+    </pre>
 
     We require that the '.', '=', and ',' have no spaces around them.
 
@@ -309,6 +316,35 @@ class XmlWriter;
     during initialization. This allows the key bindings to be compared
     more easily. This means that when the string is converted back to 
     string (by calling toString()) that the keys may have been rearranged.
+
+    There are two forms an object path can take:
+
+    <pre>
+    &lt;namespace-path&gt;:&lt;model-path&gt;
+    &lt;model-path&gt;
+    </pre>
+
+    In other words, the namespace-path is optional. Here is an example of
+    each:
+
+    <pre>
+    //atp:9999/root/cimv25:TennisPlayer.first="Patrick",last="Rafter"
+    TennisPlayer.first="Patrick",last="Rafter"
+    </pre>
+
+    If it begins with "//" then we assume the namespace-path is present and
+    process it that way.
+
+    It should also be noted that an object path may refer to an instance or
+    a class. Here is an example of each:
+
+    <pre>
+    TennisPlayer.first="Patrick",last="Rafter"
+    TennisPlayer
+    </pre>
+    
+    In the second case--when it refers to a class--the key bindings are 
+    omitted.
 */ 
 class PEGASUS_COMMON_LINKAGE CIMReference 
 {
@@ -357,6 +393,16 @@ public:
 	const String& className, 
 	const KeyBindingArray& keyBindings = KeyBindingArray());
 
+    /** Set the reference from an object path. */
+    void set(const String& objectPath);
+
+    /** Same as set() above except that it is an assignment operator */
+    CIMReference& operator=(const String& objectPath)
+    {
+	set(objectPath);
+	return *this;
+    }
+
     /** Accessor. */
     const String& getHost() const 
     {
@@ -401,6 +447,9 @@ public:
     /** Modifier. */
     void setKeyBindings(const Array<KeyBinding>& keyBindings);
 
+    /** Returns the object path represented by this reference. */
+    String toObjectPath() const;
+
     /** Returns true if this reference is identical to the one given
 	by the x argument.
     */
@@ -413,15 +462,7 @@ public:
 
     /** Prints the XML encoding of this objet.
     */
-    void print(std::ostream &o=std::cout) const;
-
-    static void instanceNameToReference(
-	const String& str,
-	CIMReference& reference);
-
-    static void referenceToInstanceName(
-	const CIMReference& reference,
-	String& instanceName);
+    void print(std::ostream& os = std::cout) const;
 
 private:
 
@@ -444,6 +485,11 @@ private:
 inline Boolean operator==(const CIMReference& x, const CIMReference& y)
 {
     return x.identical(y);
+}
+
+inline Boolean operator!=(const CIMReference& x, const CIMReference& y)
+{
+    return !operator==(x, y);
 }
 
 PEGASUS_NAMESPACE_END

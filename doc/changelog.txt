@@ -18,6 +18,9 @@ TAG: VERSION_1_07
    
 4. KS - 19 Feb 2002 Extended testclient slightly and cleaned up numerous bugs.
 
+5. KS - 19 Feb 2002 - Add workpaper in doc/workpaper defining the Pegasus Qualifiers.
+   Note that this version of the paper still needs work.
+
 -------------------------------------------------------------------
 Version 1.06 working towards 1.1 Started 13 December 2001
 

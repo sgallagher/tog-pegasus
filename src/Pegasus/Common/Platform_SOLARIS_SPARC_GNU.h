@@ -31,11 +31,11 @@
 #ifndef Pegasus_Platform_SOLARIS_SPARC_GNU_h
 #define Pegasus_Platform_SOLARIS_SPARC_GNU_h
 
+#include <limits.h>
+#include <cstdio>
 #include <cstddef>
 
 #define PEGASUS_OS_TYPE_UNIX
-
-#define PEGASUS_OS_SOLARIS
 
 #define PEGASUS_ARCHITECTURE_SPARC
 

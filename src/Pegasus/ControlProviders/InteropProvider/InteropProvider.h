@@ -231,7 +231,7 @@ private:
         const Boolean includeClassOrigin,
         const CIMPropertyList& propertyList);
 
-    CIMInstance _buildInstanceCIMObjectManager(const Boolean includeQualifiers,
+    CIMInstance _getInstanceCIMObjectManager(const Boolean includeQualifiers,
                                            const Boolean includeClassOrigin,
                                            const CIMPropertyList& propertyList);
 
@@ -250,7 +250,8 @@ private:
     Array<CIMInstance> _buildInstancesCommMechanismForManager();
 
 
-    Boolean _getInstanceCIMObjectManager(
+    Boolean _getInstanceFromRepositoryCIMObjectManager(
+                        CIMInstance& rtnInstance,
                         const Boolean includeQualifiers,
                         const Boolean includeClassOrigin,
                         const CIMPropertyList& propertyList);
@@ -267,7 +268,7 @@ private:
        CIMRepository*   _repository;
        CIMClass * _cimNamespaceClass;
        CIMNamespaceName _operationNamespace;
-       CIMInstance instanceOfCIMObjectManager;
+       //CIMInstance instanceOfCIMObjectManager;
 };
 
 PEGASUS_NAMESPACE_END

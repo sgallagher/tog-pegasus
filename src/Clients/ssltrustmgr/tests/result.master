@@ -40,10 +40,27 @@ TestCertClient::Connecting to 127.0.0.1:5989
 Result: CIM_ComputerSystem
 +++++ TestCertClient Terminated Normally
 
+Try to connect with the 3rd certificate issued by the CA, this should succeed
+TestCertClient::Connecting to 127.0.0.1:5989
+Result: CIM_ComputerSystem
++++++ TestCertClient Terminated Normally
+
 Add the CA CRL to the truststore
 CRL added successfully.
 
 Attempt to add the same CA CRL again, this should work since you can overwrite CRLs (a warning is sent to the systemlog)
+CRL added successfully.
+
+Try to connect with the 1st certificate, this should fail with a connection failure
+TestCertClient::Connecting to 127.0.0.1:5989
+Exception: Cannot connect to 127.0.0.1:5989. Connection failed.
+
+Try to connect with the 2nd certificate, this should succeed
+TestCertClient::Connecting to 127.0.0.1:5989
+Result: CIM_ComputerSystem
++++++ TestCertClient Terminated Normally
+
+Add the updated CA CRL to the truststore
 CRL added successfully.
 
 Try to connect with the 1st certificate, this should fail with a connection failure

@@ -36,11 +36,6 @@
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Provider/CIMAssociationProvider.h>
 
-// Debug Tools
-
-//#define CDEBUG(X) PEGASUS_STD(cout) << "SampleFamilyProvider " << X << PEGASUS_STD(endl)
-#define CDEBUG(X)
-//#define CDEBUG(X) Logger::put (Logger::DEBUG_LOG, "SampleFamilyProvider", Logger::INFORMATION, "$0", X)
 
 PEGASUS_USING_PEGASUS;
 
@@ -137,9 +132,10 @@ public:
     
 
 protected:
-    CIMOMHandle _cimom;
-	// save for the class objects that we use
-    CIMClass _referencedClass;
+    CIMOMHandle _cimomHandle;
+
+	// save the class objects that we use
+    CIMClass _personDynamicClass;
     CIMClass _assocClass;
     CIMClass _assocLabeledClass;
 
@@ -156,6 +152,104 @@ protected:
     // Corresponds to the LineageLabeled Class
     Array<CIMObjectPath> _instanceNamesLabeledLineageDynamic;
     Array<CIMInstance> _instancesLabeledLineageDynamic;
-};
 
+    // internal functions
+
+    CIMClass _getClass(const CIMName& className);
+    Boolean _initError;
+
+private:
+
+void _getInstance(
+    const Array<CIMInstance> & instanceArray,    
+	const OperationContext & context,
+	const CIMObjectPath & localReference,
+	const Boolean includeQualifiers,
+	const Boolean includeClassOrigin,
+	const CIMPropertyList & propertyList,
+	InstanceResponseHandler & handler);
+
+void _enumerateInstances(
+    const Array<CIMInstance> & instanceArray,    
+	const OperationContext & context,
+	const CIMObjectPath & classReference,
+	const Boolean includeQualifiers,
+	const Boolean includeClassOrigin,
+	const CIMPropertyList & propertyList,
+	InstanceResponseHandler & handler);
+
+void _deleteInstance(
+    Array<CIMInstance> & instanceArray,
+    Array<CIMObjectPath> & pathArray,
+	const OperationContext & context,
+	const CIMObjectPath & instanceReference,
+	ResponseHandler & handler);
+
+
+void _createInstance(
+    Array<CIMInstance> & instanceArray,
+    Array<CIMObjectPath> & pathArray,
+	const OperationContext & context,
+	const CIMObjectPath & instanceReference,
+	const CIMInstance & instanceObject,
+	ObjectPathResponseHandler & handler);
+
+void _modifyInstance(
+    Array<CIMInstance> & instanceArray,
+	const OperationContext & context,
+	const CIMObjectPath & localReference,
+	const CIMInstance & instanceObject,
+	const Boolean includeQualifiers,
+	const CIMPropertyList & propertyList,
+	ResponseHandler & handler);
+
+void _enumerateInstanceNames(
+    const Array<CIMInstance> & instanceArray,    
+	const OperationContext & context,
+	const CIMObjectPath & classReference,
+	ObjectPathResponseHandler & handler);
+
+void _associators(
+    Array<CIMInstance> & instanceArray,
+    Array<CIMInstance> & resultInstanceArray,
+	const OperationContext & context,
+	const CIMObjectPath & localObjectName,
+	const CIMName & associationClass,
+	const CIMName & resultClass,
+	const String & role,
+	const String & resultRole,
+	const Boolean includeQualifiers,
+	const Boolean includeClassOrigin,
+	const CIMPropertyList & propertyList,
+	ObjectResponseHandler & handler);
+
+void _associatorNames(
+    Array<CIMInstance> & instanceArray,
+	const OperationContext & context,
+	const CIMObjectPath & localObjectName,
+	const CIMName & associationClass,
+	const CIMName & resultClass,
+	const String & role,
+	const String & resultRole,
+	ObjectPathResponseHandler & handler);
+
+void _references(
+    Array<CIMInstance> & instanceArray,
+	const OperationContext & context,
+	const CIMObjectPath & objectName,
+	const CIMName & resultClass,
+	const String & role,
+	const Boolean includeQualifiers,
+	const Boolean includeClassOrigin,
+	const CIMPropertyList & propertyList,
+	ObjectResponseHandler & handler);
+
+void _referenceNames(
+    Array<CIMInstance> & instanceArray,
+	const OperationContext & context,
+	const CIMObjectPath & objectName,
+	const CIMName & resultClass,
+	const String & role,
+	ObjectPathResponseHandler & handler);
+};
 #endif

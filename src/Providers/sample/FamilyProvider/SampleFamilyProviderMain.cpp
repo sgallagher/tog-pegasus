@@ -52,7 +52,6 @@ PEGASUS_USING_PEGASUS;
 
 extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(const String & name)
 {
-    CDEBUG("Create SampleFamilyProvider " << name);
 	if(String::equalNoCase(name, "samplefamilyprovider") ||
 		String::equalNoCase(name, "samplefamilyprovider (PROVIDER)"))
 	{

@@ -1,24 +1,16 @@
-# Test the Family Provider using the script toosl
-# ATTN: Today this makefile is implementation dependent.
-#       It assumes that the repository is a set of directories
-#       that can be removed by removing the directories.
-#       This must be updated to an implementation independent repository
-#       remove function.
+# Test the Family Provider using the script toosls
 
 ROOT = $(PEGASUS_ROOT)
 include $(ROOT)/mak/config.mak
 include $(ROOT)/mak/configschema.mak
+SHH = @
 
-# Loads the sample MOF into a separate namespace.
-# The following variable determine the version of the Schema to
-# be loaded into the Sample Provider namespace.
-# Update the following variable to change the version.
+# sampleprovider\Load puts the sample MOF into a separate namespace.
+# The following variable defines this namespace. Note that
+# originally this Makefile was to do the install but that
+# was moved to sampleprovider/load
 
 SAMPLEPROVIDERNS=root/SampleProvider
-SAMPLEPROVIDERNSDIRECTORY=$(REPOSITORY_ROOT)/root\#SampleProvider
-
-
-
 
 depend:
 
@@ -32,118 +24,147 @@ messages:
 
 poststarttests:
 
-	@$(ECHO) +++++ TST_Person Testing Family provider in  $(SAMPLEPROVIDERNS)
+	@$(ECHO) 1. +++++ Test Classes to be sure all classes are here
 
-	CLI ei "TST_Person" -n "$(SAMPLEPROVIDERNS)" -s -count 13
-	CLI ni "TST_Person" -n "$(SAMPLEPROVIDERNS)" -s -count 13
-	CLI rn "TST_Person" -n "$(SAMPLEPROVIDERNS)" -s -count 4
-	CLI r  "TST_Person" -n "$(SAMPLEPROVIDERNS)" -s -count 4
-	CLI an "TST_Person" -n "$(SAMPLEPROVIDERNS)" -s -count 1
-	CLI a  "TST_Person" -n "$(SAMPLEPROVIDERNS)" -s -count 1
-	CLI rn "TST_Person.name=@Mike@" -n "$(SAMPLEPROVIDERNS)" -s -count 2
-	CLI r  "TST_Person.name=@Mike@" -n "$(SAMPLEPROVIDERNS)" -s -count 2
-	CLI an "TST_Person.name=@Mike@" -n "$(SAMPLEPROVIDERNS)" -s -count 2
-	CLI a  "TST_Person.name=@Mike@" -n "$(SAMPLEPROVIDERNS)" -s -count 2
-
-	@$(ECHO) +++++ TST_Person Testing with  resultClass filters
-    
-	CLI rn "TST_Person" -n "$(SAMPLEPROVIDERNS)" -rc "TST_Lineage" -s -count 1
-	CLI r "TST_Person" -n "$(SAMPLEPROVIDERNS)" -rc "TST_Lineage" -s -count 1
-	CLI rn "TST_Person.name=@Mike@" -n "$(SAMPLEPROVIDERNS)" -rc "TST_Lineage" -s -count 2
-	CLI r  "TST_Person.name=@Mike@" -n "$(SAMPLEPROVIDERNS)" -rc "TST_Lineage" -s -count 2
-
-	@$(ECHO) ++++ TST_Person Testing with assocClass filter
-
-	CLI an "TST_Person" -n "$(SAMPLEPROVIDERNS)" -ac  "TST_Lineage" -s -count 1
-	CLI a "TST_Person" -n "$(SAMPLEPROVIDERNS)" -ac "TST_Lineage" -s -count 1
-	CLI an "TST_Person.name=@Mike@" -n "$(SAMPLEPROVIDERNS)" -ac "TST_Lineage" -s -count 2
-	CLI a  "TST_Person.name=@Mike@" -n "$(SAMPLEPROVIDERNS)" -ac "TST_Lineage" -s -count 2
-
-	@$(ECHO) ++++ TST_Person Testing with role filter alone
-
-	CLI rn "TST_Person" -n "$(SAMPLEPROVIDERNS)" -r parent -s -count 4
-	CLI r "TST_Person" -n "$(SAMPLEPROVIDERNS)" -r parent -s -count 4
-	CLI rn "TST_Person.name=@Mike@" -n "$(SAMPLEPROVIDERNS)" -r parent -s -count 2
-	CLI r  "TST_Person.name=@Mike@" -n "$(SAMPLEPROVIDERNS)" -r parent -s -count 2
+	$(SHH)CLI ec "TST_Person" -n "$(SAMPLEPROVIDERNS)" -s -count 2
+	$(SHH)CLI ec "TST_Person" -n "$(SAMPLEPROVIDERNS)" -s -di -count 3
+	$(SHH)CLI ec "TST_PersonS" -n "$(SAMPLEPROVIDERNS)" -s -count 0
+	$(SHH)CLI ec "TST_PersonDynamic" -n "$(SAMPLEPROVIDERNS)" -s -count 1
+	$(SHH)CLI ec "TST_Lineage" -n "$(SAMPLEPROVIDERNS)" -s -count 0
+	$(SHH)CLI ec "TST_LineageDynamic" -n "$(SAMPLEPROVIDERNS)" -s -count 0
+	@$(ECHO) 2. +++++ Test all enumerate operations on the classes
 	
-	CLI rn "TST_Person" -n "$(SAMPLEPROVIDERNS)" -r child -s -count 4
-	CLI r "TST_Person" -n "$(SAMPLEPROVIDERNS)" -r child -s -count 4
-	CLI rn "TST_Person.name=@Mike@" -n "$(SAMPLEPROVIDERNS)" -r child -s -count 0
-	CLI r  "TST_Person.name=@Mike@" -n "$(SAMPLEPROVIDERNS)" -r child -s -count 0
+	$(SHH)CLI ei "TST_Person" -n "$(SAMPLEPROVIDERNS)" -s -count 13
+	$(SHH)CLI ni "TST_Person" -n "$(SAMPLEPROVIDERNS)" -s -count 13
+	$(SHH)CLI ei "TST_PersonS" -n "$(SAMPLEPROVIDERNS)" -s -count 4
+	$(SHH)CLI ni "TST_PersonS" -n "$(SAMPLEPROVIDERNS)" -s -count 4
+	$(SHH)CLI ei "TST_PersonDynamic" -n "$(SAMPLEPROVIDERNS)" -s -count 5
+	$(SHH)CLI ni "TST_PersonDynamic" -n "$(SAMPLEPROVIDERNS)" -s -count 5
 
-	@$(ECHO) +++++ TEST_Person Test with role and result class
+	$(SHH)CLI ei "TST_PersonDynamicSubclass" -n "$(SAMPLEPROVIDERNS)" -s -count 0
+	$(SHH)CLI ni "TST_PersonDynamicSubClass" -n "$(SAMPLEPROVIDERNS)" -s -count 0
+	
+	$(SHH)CLI ei "TST_Lineage" -n "$(SAMPLEPROVIDERNS)" -s -count 4
+	$(SHH)CLI ni "TST_Lineage" -n "$(SAMPLEPROVIDERNS)" -s -count 4
+	$(SHH)CLI ei "TST_LabeledLineage" -n "$(SAMPLEPROVIDERNS)" -s -count 0
+	$(SHH)CLI ni "TST_LabeledLineage" -n "$(SAMPLEPROVIDERNS)" -s -count 0
 
-	CLI rn "TST_Person" -n "$(SAMPLEPROVIDERNS)" -rc  TST_Lineage -r parent -s -count 1
-	CLI r "TST_Person" -n "$(SAMPLEPROVIDERNS)" -rc  TST_Lineage -r parent -s -count 1
-	CLI rn "TST_Person.name=@Mike@" -n "$(SAMPLEPROVIDERNS)" -rc  "TST_Lineage" -r parent -s -count 2
-	CLI r  "TST_Person.name=@Mike@" -n "$(SAMPLEPROVIDERNS)" -rc  "TST_Lineage" -r parent -s -count 2
+	$(SHH)CLI ei "TST_LineageDynamic" -n "$(SAMPLEPROVIDERNS)" -s -count 6
+	$(SHH)CLI ni "TST_LineageDynamic" -n "$(SAMPLEPROVIDERNS)" -s -count 6
+	
+	$(SHH)CLI ei "TST_LabeledLineageDynamic" -n "$(SAMPLEPROVIDERNS)" -s -count 6
+	$(SHH)CLI ni "TST_LabeledLineageDynamic" -n "$(SAMPLEPROVIDERNS)" -s -count 6
+	
+	@$(ECHO) 3. +++++ TST_Person Testing Family provider in  $(SAMPLEPROVIDERNS)
 
-	@$(ECHO) ++++ TST_Person Test with errors in role and result class
+	$(SHH)CLI ei "TST_Person" -n "$(SAMPLEPROVIDERNS)" -s -count 13
+	$(SHH)CLI ni "TST_Person" -n "$(SAMPLEPROVIDERNS)" -s -count 13
+	$(SHH)CLI rn "TST_Person" -n "$(SAMPLEPROVIDERNS)" -s -count 4
+	$(SHH)CLI r  "TST_Person" -n "$(SAMPLEPROVIDERNS)" -s -count 4
+	$(SHH)CLI an "TST_Person" -n "$(SAMPLEPROVIDERNS)" -s -count 1
+	$(SHH)CLI a  "TST_Person" -n "$(SAMPLEPROVIDERNS)" -s -count 1
+	$(SHH)CLI rn "TST_Person.name=@Mike@" -n "$(SAMPLEPROVIDERNS)" -s -count 2
+	$(SHH)CLI r  "TST_Person.name=@Mike@" -n "$(SAMPLEPROVIDERNS)" -s -count 2
+	$(SHH)CLI an "TST_Person.name=@Mike@" -n "$(SAMPLEPROVIDERNS)" -s -count 2
+	$(SHH)CLI a  "TST_Person.name=@Mike@" -n "$(SAMPLEPROVIDERNS)" -s -count 2
 
-	CLI rn "TST_Person" -n "$(SAMPLEPROVIDERNS)" -rc  "TST_Lineage" -r junk -s -count 0
-	CLI r "TST_Person" -n "$(SAMPLEPROVIDERNS)" -rc  "TST_Lineage" -r junk -s -count 0
-# bypassing the two tests below because they generate error response stopping test.
-# The error is valid, Junk is bad param. Note that repository does not generate same error.
-#TEMPBypass	CLI rn TST_Person.name=@Mike@ -n "$(SAMPLEPROVIDERNS)" -rc  TST_Lineage -r junk -s -count 0
-#TEMPBypass	CLI r  TST_Person.name=@Mike@ -n "$(SAMPLEPROVIDERNS)" -rc  TST_Lineage -r junk -s -count 0
+	@$(ECHO) 4. +++++ TST_Person Testing with  resultClass filters
+    
+	$(SHH)CLI rn "TST_Person" -n "$(SAMPLEPROVIDERNS)" -rc "TST_Lineage" -s -count 1
+	$(SHH)CLI r "TST_Person" -n "$(SAMPLEPROVIDERNS)" -rc "TST_Lineage" -s -count 1
+	$(SHH)CLI rn "TST_Person.name=@Mike@" -n "$(SAMPLEPROVIDERNS)" -rc "TST_Lineage" -s -count 2
+	$(SHH)CLI r  "TST_Person.name=@Mike@" -n "$(SAMPLEPROVIDERNS)" -rc "TST_Lineage" -s -count 2
 
-	CLI rn "TST_Person" -n "$(SAMPLEPROVIDERNS)" -rc  "TST_Lineage" -r junk -s -count 0
-	CLI r "TST_Person" -n "$(SAMPLEPROVIDERNS)" -rc  "TST_Lineage" -r junk -s -count 0
+	@$(ECHO) 5. ++++ TST_Person Testing with assocClass filter
+
+	$(SHH)CLI an "TST_Person" -n "$(SAMPLEPROVIDERNS)" -ac  "TST_Lineage" -s -count 1
+	$(SHH)CLI a "TST_Person" -n "$(SAMPLEPROVIDERNS)" -ac "TST_Lineage" -s -count 1
+	$(SHH)CLI an "TST_Person.name=@Mike@" -n "$(SAMPLEPROVIDERNS)" -ac "TST_Lineage" -s -count 2
+	$(SHH)CLI a  "TST_Person.name=@Mike@" -n "$(SAMPLEPROVIDERNS)" -ac "TST_Lineage" -s -count 2
+
+	@$(ECHO) 6. ++++ TST_Person Testing with role filter alone
+
+	$(SHH)CLI rn "TST_Person" -n "$(SAMPLEPROVIDERNS)" -r parent -s -count 4
+	$(SHH)CLI r "TST_Person" -n "$(SAMPLEPROVIDERNS)" -r parent -s -count 4
+	$(SHH)CLI rn "TST_Person.name=@Mike@" -n "$(SAMPLEPROVIDERNS)" -r parent -s -count 2
+	$(SHH)CLI r  "TST_Person.name=@Mike@" -n "$(SAMPLEPROVIDERNS)" -r parent -s -count 2
+	
+	$(SHH)CLI rn "TST_Person" -n "$(SAMPLEPROVIDERNS)" -r child -s -count 4
+	$(SHH)CLI r "TST_Person" -n "$(SAMPLEPROVIDERNS)" -r child -s -count 4
+	$(SHH)CLI rn "TST_Person.name=@Mike@" -n "$(SAMPLEPROVIDERNS)" -r child -s -count 0
+	$(SHH)CLI r  "TST_Person.name=@Mike@" -n "$(SAMPLEPROVIDERNS)" -r child -s -count 0
+
+	@$(ECHO) 7. +++++ TEST_Person Test with role and result class
+
+	$(SHH)CLI rn "TST_Person" -n "$(SAMPLEPROVIDERNS)" -rc  TST_Lineage -r parent -s -count 1
+	$(SHH)CLI r "TST_Person" -n "$(SAMPLEPROVIDERNS)" -rc  TST_Lineage -r parent -s -count 1
+	$(SHH)CLI rn "TST_Person.name=@Mike@" -n "$(SAMPLEPROVIDERNS)" -rc  "TST_Lineage" -r parent -s -count 2
+	$(SHH)CLI r  "TST_Person.name=@Mike@" -n "$(SAMPLEPROVIDERNS)" -rc  "TST_Lineage" -r parent -s -count 2
+
+	@$(ECHO) 8. ++++ TST_Person Test with errors in role and result class
+
+	$(SHH)CLI rn "TST_Person" -n "$(SAMPLEPROVIDERNS)" -rc  "TST_Lineage" -r junk -s -count 0
+	$(SHH)CLI r "TST_Person" -n "$(SAMPLEPROVIDERNS)" -rc  "TST_Lineage" -r junk -s -count 0
+	$(SHH)CLI rn TST_Person.name=@Mike@ -n "$(SAMPLEPROVIDERNS)" -rc  TST_Lineage -r junk -s -count 0
+	$(SHH)CLI r  TST_Person.name=@Mike@ -n "$(SAMPLEPROVIDERNS)" -rc  TST_Lineage -r junk -s -count 0
+
+	$(SHH)CLI rn "TST_Person" -n "$(SAMPLEPROVIDERNS)" -rc  "TST_Lineage" -r junk -s -count 0
+	$(SHH)CLI r "TST_Person" -n "$(SAMPLEPROVIDERNS)" -rc  "TST_Lineage" -r junk -s -count 0
 # Bypassing following two tests because they generate exception return from provider
 # The error is valid because Provider does exception on bad property.
+#   But we don't know how to handle that in a script with CLI
 #	CLI rn "TST_Person.name=@Mike@" -n "$(SAMPLEPROVIDERNS)" -rc  "TST_Lineage" -r junk -s -count 0
 #	CLI r  "TST_Person.name=@Mike@" -n "$(SAMPLEPROVIDERNS)" -rc  "TST_Lineage" -r junk -s -count 0
 
-	@$(ECHO) add tests for associations with  result class and result role.
+	@$(ECHO) 9. ++++ add tests for associations with  result class and result role.
 
 # The following actually generates a CIMException. Investigate why KS 20030608.
-#	CLI an  "TST_Person.name=@Mike@" -n "$(SAMPLEPROVIDERNS)" -rc  "TST_Lineage" -r -s -count 0
-#	CLI an  "TST_Person.name=@Mike@" -n "$(SAMPLEPROVIDERNS)" -rc  "TST_Lineage" -r junk -s -count 0
+	$(SHH)CLI an  "TST_Person.name=@Mike@" -n "$(SAMPLEPROVIDERNS)" -rc  "TST_Lineage" -r -s -count 0
+	$(SHH)CLI an  "TST_Person.name=@Mike@" -n "$(SAMPLEPROVIDERNS)" -rc  "TST_Lineage" -r junk -s -count 0
 
-	@$(ECHO) +++++ TST_Person with result Class filters but with bad Class
+	@$(ECHO) 10. +++++ TST_Person with result Class filters but with bad Class
 #To Be Done.
 
-	@$(ECHO) +++++ TST_PersonDynamic Family class Operations in  $(SAMPLEPROVIDERNS)
+	@$(ECHO) 11. +++++ TST_PersonDynamic Family class Operations in  $(SAMPLEPROVIDERNS)
 
-	CLI ei "TST_PersonDynamic" -n "$(SAMPLEPROVIDERNS)" -s -count 5
-	CLI ni "TST_PersonDynamic" -n "$(SAMPLEPROVIDERNS)" -s -count 5
-	CLI rn "TST_PersonDynamic" -n "$(SAMPLEPROVIDERNS)" -s -count 5
-	CLI r  "TST_PersonDynamic" -n "$(SAMPLEPROVIDERNS)" -s -count 5
-	CLI an "TST_PersonDynamic" -n "$(SAMPLEPROVIDERNS)" -s -count 2
-	CLI a  "TST_PersonDynamic" -n "$(SAMPLEPROVIDERNS)" -s -count 2
+	$(SHH)CLI ei "TST_PersonDynamic" -n "$(SAMPLEPROVIDERNS)" -s -count 5
+	$(SHH)CLI ni "TST_PersonDynamic" -n "$(SAMPLEPROVIDERNS)" -s -count 5
+	$(SHH)CLI rn "TST_PersonDynamic" -n "$(SAMPLEPROVIDERNS)" -s -count 5
+	$(SHH)CLI r  "TST_PersonDynamic" -n "$(SAMPLEPROVIDERNS)" -s -count 5
+	$(SHH)CLI an "TST_PersonDynamic" -n "$(SAMPLEPROVIDERNS)" -s -count 2
+	$(SHH)CLI a  "TST_PersonDynamic" -n "$(SAMPLEPROVIDERNS)" -s -count 2
 
-	@$(ECHO) +++++ TST_PersonDynamic and Family provider with simple class operations
+	@$(ECHO) 12. +++++ TST_PersonDynamic and Family provider with simple class operations
  
-	CLI rn "TST_PersonDynamic.name=@Father@" -n "$(SAMPLEPROVIDERNS)" -s -count 3
-	CLI r "TST_PersonDynamic.name=@Father@" -n "$(SAMPLEPROVIDERNS)" -s -count 3
-	CLI an "TST_PersonDynamic.name=@Father@" -n "$(SAMPLEPROVIDERNS)" -s -count 3
-	CLI a "TST_PersonDynamic.name=@Father@" -n "$(SAMPLEPROVIDERNS)" -s -count 3
+	$(SHH)CLI rn "TST_PersonDynamic.name=@Father@" -n "$(SAMPLEPROVIDERNS)" -s -count 3
+	$(SHH)CLI r "TST_PersonDynamic.name=@Father@" -n "$(SAMPLEPROVIDERNS)" -s -count 3
+	$(SHH)CLI an "TST_PersonDynamic.name=@Father@" -n "$(SAMPLEPROVIDERNS)" -s -count 3
+	$(SHH)CLI a "TST_PersonDynamic.name=@Father@" -n "$(SAMPLEPROVIDERNS)" -s -count 3
 
 	@$(ECHO) "TST_PersonDynamic with bad object name (lower case)"
 
-	CLI rn "TST_PersonDynamic.name=@father@" -n "$(SAMPLEPROVIDERNS)" -s -count 0
+	$(SHH)CLI rn "TST_PersonDynamic.name=@father@" -n "$(SAMPLEPROVIDERNS)" -s -count 0
 
-	@$(ECHO) Test TST_PersonDynamic classes with  resultClass/AssocClass options
+	@$(ECHO) 13. ++++ Test TST_PersonDynamic classes with  resultClass/AssocClass options
 
-	CLI rn "TST_PersonDynamic" -n "$(SAMPLEPROVIDERNS)" -rc "TST_LineageDynamic" -s -count 1
-	CLI r "TST_PersonDynamic" -n "$(SAMPLEPROVIDERNS)" -rc "TST_LineageDynamic" -s -count 1
-	CLI an "TST_PersonDynamic" -n "$(SAMPLEPROVIDERNS)" -ac "TST_LineageDynamic" -s -count 1
-	CLI a "TST_PersonDynamic" -n "$(SAMPLEPROVIDERNS)" -ac "TST_LineageDynamic" -s -count 1
+	$(SHH)CLI rn "TST_PersonDynamic" -n "$(SAMPLEPROVIDERNS)" -rc "TST_LineageDynamic" -s -count 1
+	$(SHH)CLI r "TST_PersonDynamic" -n "$(SAMPLEPROVIDERNS)" -rc "TST_LineageDynamic" -s -count 1
+	$(SHH)CLI an "TST_PersonDynamic" -n "$(SAMPLEPROVIDERNS)" -ac "TST_LineageDynamic" -s -count 1
+	$(SHH)CLI a "TST_PersonDynamic" -n "$(SAMPLEPROVIDERNS)" -ac "TST_LineageDynamic" -s -count 1
 
-	@$(ECHO) TST_PersonDynamic instances with resultClass/AssociationClass options
+	@$(ECHO) 14. ++++ TST_PersonDynamic instances with resultClass/AssociationClass options
 
-	CLI rn "TST_PersonDynamic.name=@Father@" -n "$(SAMPLEPROVIDERNS)" -rc "TST_LineageDynamic" -s -count 3
-	CLI r "TST_PersonDynamic.name=@Father@" -n "$(SAMPLEPROVIDERNS)" -rc "TST_LineageDynamic" -s -count 3
-	CLI an "TST_PersonDynamic.name=@Father@" -n "$(SAMPLEPROVIDERNS)" -ac "TST_LineageDynamic" -s -count 3
-	CLI a "TST_PersonDynamic.name=@Father@" -n "$(SAMPLEPROVIDERNS)" -ac "TST_LineageDynamic" -s -count 3
-	CLI a "TST_PersonDynamic.name=@Father@" -n "$(SAMPLEPROVIDERNS)" -ac "TST_LineageDynamic" -s -count 3
+	$(SHH)CLI rn "TST_PersonDynamic.name=@Father@" -n "$(SAMPLEPROVIDERNS)" -rc "TST_LineageDynamic" -s -count 3
+	$(SHH)CLI r "TST_PersonDynamic.name=@Father@" -n "$(SAMPLEPROVIDERNS)" -rc "TST_LineageDynamic" -s -count 3
+	$(SHH)CLI an "TST_PersonDynamic.name=@Father@" -n "$(SAMPLEPROVIDERNS)" -ac "TST_LineageDynamic" -s -count 3
+	$(SHH)CLI a "TST_PersonDynamic.name=@Father@" -n "$(SAMPLEPROVIDERNS)" -ac "TST_LineageDynamic" -s -count 3
+	$(SHH)CLI a "TST_PersonDynamic.name=@Father@" -n "$(SAMPLEPROVIDERNS)" -ac "TST_LineageDynamic" -s -count 3
 
-	@$(ECHO) TST_PersonDynamic association with resultClass role option
+	@$(ECHO) 15. ++++ TST_PersonDynamic association with resultClass role option
 
-	CLI an "TST_PersonDynamic" -n "$(SAMPLEPROVIDERNS)" -rc "TST_Lineage" -s -count 0
-	CLI an "TST_PersonDynamic" -n "$(SAMPLEPROVIDERNS)" -rc "TST_PersonDynamic" -s -count 1
-	CLI an "TST_PersonDynamic" -n "$(SAMPLEPROVIDERNS)" -rc "TST_Person" -s -count 2
-
+	$(SHH)CLI an "TST_PersonDynamic" -n "$(SAMPLEPROVIDERNS)" -rc "TST_Lineage" -s -count 0
+	$(SHH)CLI an "TST_PersonDynamic" -n "$(SAMPLEPROVIDERNS)" -rc "TST_PersonDynamic" -s -count 1
+	$(SHH)CLI an "TST_PersonDynamic" -n "$(SAMPLEPROVIDERNS)" -rc "TST_Person" -s -count 2
 
 general:
 

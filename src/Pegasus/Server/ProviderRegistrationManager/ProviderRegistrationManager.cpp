@@ -1774,10 +1774,10 @@ void ProviderRegistrationManager::_initialRegistrationTable()
     }
     catch (CIMException& exception)
     {
-        _repository->write_unlock();
-
         if (exception.getCode() != CIM_ERR_INVALID_NAMESPACE)
         {
+            _repository->write_unlock();
+
             PEG_METHOD_EXIT();
             throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
         }

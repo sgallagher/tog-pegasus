@@ -221,6 +221,24 @@ static void TestAssoc1(CIMClient& client)
     }
 }
 
+static void TestAssoc2(CIMClient& client)
+{
+    CIMReference instanceName = "Person.name=\"Mike\"";
+
+    Array<CIMReference> result = client.associatorNames(
+	NAMESPACE, 
+	instanceName, 
+	"Lineage", 
+	"Person", 
+	"parent", 
+	"child");
+
+    cout << "size: " << result.size() << endl;
+
+    for (Uint32 i = 0; i < result.size(); i++)
+	cout << "result[i]: " << result[i] << endl;
+}
+
 int main(int argc, char** argv)
 {
     try
@@ -229,16 +247,19 @@ int main(int argc, char** argv)
 	CIMClient client(&selector);
 
 	client.connect("localhost:5988");
-	// client.connect("216.218.247.109:5988");
+
+	// To run the following test, first compile "test.mof" into the
+	// repository!
+	TestAssoc1(client);
+	TestAssoc2(client);
+	exit(1);
+
 	// TestGetClass(client);
 	TestQualifierOperations(client);
 	TestClassOperations(client);
 	TestInstanceOperations(client);
 
-	// To run the following test, first compile "test.mof" into the
-	// repository!
 
-	TestAssoc1(client);
     }
     catch(Exception& e)
     {

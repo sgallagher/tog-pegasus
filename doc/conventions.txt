@@ -116,3 +116,6 @@ Development Conventions
 
 33. Tests must clean up the effect they have on the repository.
 
+34. Avoid use of condiational compilation for obscuring platrform
+    differences. Use (or put) routines in appropriate platform files
+    or in the System*.cpp files in Common.

@@ -2951,10 +2951,21 @@ Boolean XmlReader::getObjectPathElement(
     XmlParser& parser, 
     CIMReference& objectPath)
 {
+    XmlEntry entry;
+
+    if (!testStartTag(parser, entry, "OBJECTPATH"))
+	return false;
+
     if (getClassPathElement(parser, objectPath))
+    {
+	expectEndTag(parser, "OBJECTPATH");
 	return true;
+    }
     else if (getInstancePathElement(parser, objectPath))
+    {
+	expectEndTag(parser, "OBJECTPATH");
 	return true;
+    }
     else
     {
 	throw XmlValidationError(parser.getLine(),

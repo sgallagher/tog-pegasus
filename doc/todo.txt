@@ -5,6 +5,8 @@
 *
 *===============================================================================
 
+    -   Remove final const from const methods in non-const CIM element classes.
+
     -   Null vs. empty CIM/HTTP parameters.
 
     -   Resolve constness problems. (get rid or Const classes?)

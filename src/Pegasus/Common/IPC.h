@@ -22,7 +22,7 @@
 //
 // Author: Mike Day (mdday@us.ibm.com)
 //
-// Modified By:
+// Modified By: Markus Mueller
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -39,9 +39,71 @@
 # error "Unsupported platform"
 #endif
 
+
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Exception.h>
 
 PEGASUS_NAMESPACE_BEGIN
+
+
+/////////// -------- IPC Exception Classes -------- ///////////////////////////////
+
+class PEGASUS_EXPORT IPCException
+{
+ public:
+  IPCException(PEGASUS_THREAD_TYPE owner): _owner(owner) { }
+  //  ~IPCException(void);
+  inline PEGASUS_THREAD_TYPE get_owner(void) { return(_owner); }
+ private:
+  IPCException(void);
+  PEGASUS_THREAD_TYPE _owner;  
+
+};
+
+class PEGASUS_EXPORT Deadlock: public IPCException
+{
+ public:
+  Deadlock(PEGASUS_THREAD_TYPE owner) : IPCException(owner) {}
+ private:
+  Deadlock(void);
+};
+
+class PEGASUS_EXPORT AlreadyLocked: public IPCException
+{
+ public: 
+  AlreadyLocked(PEGASUS_THREAD_TYPE owner) : IPCException(owner) {}
+ private:
+  AlreadyLocked(void);
+};
+
+class PEGASUS_EXPORT TimeOut: public IPCException
+{
+ public: 
+  TimeOut(PEGASUS_THREAD_TYPE owner) : IPCException(owner) {}
+ private:
+  TimeOut(void);
+};
+
+class PEGASUS_EXPORT Permission: public IPCException
+{
+ public: 
+  Permission(PEGASUS_THREAD_TYPE owner) : IPCException(owner) {}
+ private:
+  Permission(void);
+} ;
+
+class PEGASUS_EXPORT WaitFailed: public IPCException
+{
+ public: 
+  WaitFailed(PEGASUS_THREAD_TYPE owner) : IPCException(owner) {}
+ private:
+  WaitFailed(void);
+} ;
+
+
+//////////////////// ----- IPC related functions ------- //////////////////////
+
+PEGASUS_THREAD_TYPE pegasus_thread_self(void);
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -51,26 +113,28 @@ class PEGASUS_EXPORT Mutex
  public:
 
   Mutex(void) ;
+  Mutex(int type);
   ~Mutex(void);
 
   // block until gaining the lock - throw a deadlock 
   // exception if process already holds the lock 
-  void lock(void);
+  void lock(PEGASUS_THREAD_TYPE caller) throw(Deadlock, WaitFailed);
   
   // try to gain the lock - lock succeeds immediately if the 
   // mutex is not already locked. throws an exception and returns
   // immediately if the mutex is currently locked. 
-  Boolean try_lock(void);
+  void try_lock(PEGASUS_THREAD_TYPE caller) throw(Deadlock, AlreadyLocked, WaitFailed);
 
   // wait for milliseconds and throw an exception then return if the wait
   // expires without gaining the lock. Otherwise return without throwing an
   // exception. 
-  void timed_lock( Uint32 milliseconds );
+  void timed_lock( Uint32 milliseconds, PEGASUS_THREAD_TYPE caller) throw(Deadlock, TimeOut, WaitFailed);
 
   // unlock the semaphore
-  void unlock(void);
+  void unlock(void) throw(Permission);
 
-  PEGASUS_MUTEX_TYPE * getMutex();
+  inline PEGASUS_MUTEX_TYPE* getMutex() { return(&_mutex.mut); }
+  inline PEGASUS_THREAD_TYPE get_owner() { return(_mutex.owner); }
 
  private:
   
@@ -78,32 +142,128 @@ class PEGASUS_EXPORT Mutex
 
 } ;
 
+
+#ifndef PEGASUS_ATOMIC_INT_NATIVE
+#undef PEGASUS_ATOMIC_TYPE
+typedef struct {
+  Uint32 _value;
+  Mutex  _mutex;
+} PEGASUS_ATOMC_TYPE;
+
+#endif
+
+class AtomicInt
+{
+ public:
+
+    AtomicInt();
+
+    AtomicInt(Uint32 initial);
+
+    ~AtomicInt();
+
+    AtomicInt(const AtomicInt& original ) ; // copy 
+
+    AtomicInt& operator=(const AtomicInt& original ); // assignment
+    AtomicInt& operator=(Uint32 val);
+
+    Uint32  value(void);
+
+    void operator++(void); // prefix
+    inline void operator++(int) { this->operator++(); }  // postfix
+
+    void operator--(void); // prefix
+    inline void operator--(int) { this->operator--(); } // postfix
+
+    Uint32 operator+(const AtomicInt& val);
+    Uint32 operator+(Uint32 val);
+
+    Uint32 operator-(const AtomicInt& val);
+    Uint32 operator-(Uint32 val);
+
+    AtomicInt& operator+=(const AtomicInt& val);
+    AtomicInt& operator+=(Uint32 val);
+
+    AtomicInt& operator-=(const AtomicInt& val);
+    AtomicInt& operator-=(Uint32 val);
+
+    // Mutex * getMutex(); keep this hidden - it will only exist on platforms
+    // without native atomic types 
+
+ private:
+    PEGASUS_ATOMIC_TYPE _rep; //    sig_atomic_t on POSIX systems with glibc
+};
+    
 ///////////////////////////////////////////////////////////////////////////////
 
-#define SEM_READ 1
-#define SEM_WRITE 2
+const Uint32 PEG_SEM_READ = 1 ;
+const Uint32 PEG_SEM_WRITE = 2 ;
 
 class PEGASUS_EXPORT ReadWriteSem
 {
  
  public:
-  ReadWriteSem(Uint32 mode = SEM_WRITE);
+  ReadWriteSem(void);
   ~ReadWriteSem();
 
-  void wait(Uint32 mode);
+  inline void wait_read(PEGASUS_THREAD_TYPE caller) throw(Deadlock, Permission, WaitFailed) 
+  {
+    try { wait(PEG_SEM_READ, caller ); }
+    catch (...) { throw; }
+  }
+  inline void wait_write(PEGASUS_THREAD_TYPE caller) throw(Deadlock, Permission, WaitFailed)
+  {
+    try { wait(PEG_SEM_WRITE, caller); }
+    catch(...) { throw; }
+  }
 
-  Boolean try_wait(Uint32 mode);
+  inline void try_wait_read(PEGASUS_THREAD_TYPE caller) throw(Deadlock, Permission, AlreadyLocked, WaitFailed)
+  {
+    try { try_wait(PEG_SEM_READ, caller); }
+    catch(...) { throw; }
+  }
 
-  void timed_wait(Uint32 mode, int milliseconds);
+  inline void try_wait_write(PEGASUS_THREAD_TYPE caller) throw(Deadlock, Permission, AlreadyLocked, WaitFailed)
+  {
+    try { try_wait(PEG_SEM_WRITE, caller); }
+    catch(...) { throw; }
+  }
 
-  void unlock(Uint32 mode);
+  inline void timed_wait_read(PEGASUS_THREAD_TYPE caller, int milliseconds) throw(Deadlock, Permission, TimeOut, WaitFailed)
+  {
+    try { timed_wait(PEG_SEM_READ, caller, milliseconds); }
+    catch(...) { throw; }
+  }
+
+  inline void timed_wait_write(PEGASUS_THREAD_TYPE caller, int milliseconds) throw(Deadlock, Permission, TimeOut, WaitFailed)
+  {
+    try {timed_wait(PEG_SEM_WRITE, caller, milliseconds); }
+    catch(...) { throw; }
+  }
+
+  inline void unlock_read(PEGASUS_THREAD_TYPE caller) throw(Permission)
+  {
+    try { unlock(PEG_SEM_READ, caller); }
+    catch(...) { throw; }
+  }
+
+  inline void unlock_write(PEGASUS_THREAD_TYPE caller) throw(Permission)
+  {
+    try { unlock(PEG_SEM_WRITE, caller); }
+    catch(...) { throw; }
+  }
   int read_count(void);
   int write_count(void);
 
  private: 
 
+  void wait(Uint32 mode, PEGASUS_THREAD_TYPE caller) throw(Deadlock, Permission, WaitFailed);
+  void try_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller) throw(AlreadyLocked, Deadlock, Permission, WaitFailed);
+  void timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milliseconds) throw(TimeOut, Deadlock, Permission, WaitFailed);
+  void unlock(Uint32 mode, PEGASUS_THREAD_TYPE caller) throw(Permission);
+  AtomicInt _readers;
+  AtomicInt _writers;
   PEGASUS_RWLOCK_HANDLE _rwlock;
-
 } ;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -114,32 +274,32 @@ class PEGASUS_EXPORT Condition
  public:
     
   // create the condition variable
-  Condition() ;
+  Condition()  ;
   ~Condition();
 
   // block until this condition is in a signalled state 
-  void wait(void);
+  void wait(PEGASUS_THREAD_TYPE caller) throw(Deadlock, WaitFailed);
 
   // wait for milliseconds and throw an exception
   // if wait times out without being signaled
-  void time_wait( Uint32 milliseconds );
+  void time_wait( Uint32 milliseconds, PEGASUS_THREAD_TYPE caller ) throw(TimeOut, Deadlock, WaitFailed);
 
   // signal the condition variable
-  void signal(void);
+  void signal(PEGASUS_THREAD_TYPE caller) throw(Deadlock, WaitFailed);
 
   // lock the accompanying Mutex
   // this is useful when synchronizing thread startus
-  Mutex * getMutex(void);
 
+  inline Mutex* getMutex(void) {return(&_cond_mutex) ;}
+  
   // without pthread_mutex_lock/unlock
-  void unlocked_wait(void);
-  void unlocked_timed_wait(int milliseconds);
-  void unlocked_signal(void);
+  void unlocked_wait(PEGASUS_THREAD_TYPE caller)  ;
+  void unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE caller) throw(TimeOut);
+  void unlocked_signal(PEGASUS_THREAD_TYPE caller) ;
 
  private:
-
-  PEGASUS_COND_HANDLE  _condition;
-
+  PEGASUS_THREAD_TYPE _owner;
+  PEGASUS_COND_TYPE _condition;
   Mutex _cond_mutex;
 };
 
@@ -155,16 +315,16 @@ class PEGASUS_EXPORT Semaphore
   ~Semaphore( );
 
   // block until this semaphore is in a signalled state 
-  void wait(void);
+  void wait(void) ;
 
   // wait succeeds immediately if semaphore has a non-zero count, 
   // return immediately and throw and exception if the 
   // count is zero. 
-  Boolean try_wait(void) ;
+  void try_wait(void) throw(WaitFailed);
 
   // wait for milliseconds and throw an exception
   // if wait times out without gaining the semaphore
-  void time_wait( Uint32 milliseconds );
+  void time_wait( Uint32 milliseconds ) throw(TimeOut);
 
 
   // increment the count of the semaphore 
@@ -185,38 +345,8 @@ class PEGASUS_EXPORT Semaphore
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class AtomicInt
-{
- public:
 
-    AtomicInt();
 
-    AtomicInt(Uint32 initial);
-
-    ~AtomicInt();
-
-    Uint32  value();
-
-    void operator++(void);
-
-    void operator--(void);
-
-    Uint32 operator+(AtomicInt val);
-
-    Uint32 operator+(Uint32 val);
-
-    Uint32 operator-(AtomicInt val);
-
-    Uint32 operator-(Uint32 val);
-
-    Mutex * getMutex();
-
- private:
-
-    Uint32 _value;
-    Mutex  _mutex;   
-};
-    
 ///////////////////////////////////////////////////////////////////////////////
 
 
@@ -288,6 +418,8 @@ class PEGASUS_EXPORT SimpleThread
   // will be called last in first out (LIFO)
   void cleanup_push( void (*routine) (void *), void *parm );
   void cleanup_pop(Boolean execute) ;
+
+  PEGASUS_THREAD_TYPE self(void) ;
 
  private:
   SimpleThread();
@@ -403,7 +535,7 @@ class PEGASUS_EXPORT Thread
 
   void push_cleanup_handler(void (*handler)(void *), void *parm) ;
   void pop_cleanup_handler(Boolean execute = true) ;
-
+  PEGASUS_THREAD_TYPE self(void) ;
  private:
   Thread();
 

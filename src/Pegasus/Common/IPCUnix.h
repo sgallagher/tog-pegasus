@@ -37,31 +37,32 @@
 #include <sys/time.h>
 #include <time.h>
 
-#define PEGASUS_MUTEX_TYPE pthread_mutex_t
+typedef pthread_t PEGASUS_THREAD_TYPE;
+typedef pthread_mutex_t PEGASUS_MUTEX_TYPE;
+typedef pthread_cond_t PEGASUS_COND_TYPE;
 
-#define PEGASUS_COND_HANDLE struct \
-{\
-pthread_cond_t cond;\
-pthread_t owner;\
-}
+typedef struct {
+  pthread_cond_t cond;
+  pthread_t owner;
+} PEGASUS_COND_HANDLE;
 
 #define PEGASUS_SEM_HANDLE struct \
 {\
 sem_t sem;\
-pthread_t owner;\
+PEGASUS_THREAD_TYPE owner;\
 }
 
 #define PEGASUS_MUTEX_HANDLE struct \
 {\
 pthread_mutex_t mut;\
 pthread_mutexattr_t mutatt;\
-pthread_t owner;\
+PEGASUS_THREAD_TYPE owner;\
 }
 
 #define PEGASUS_RWLOCK_HANDLE struct \
 {\
 pthread_rwlock_t rwlock;\
-pthread_t owner;\
+PEGASUS_THREAD_TYPE owner;\
 }
 
 #ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
@@ -72,8 +73,18 @@ pthread_t owner;\
 
 #define PEGASUS_THREAD_RETURN void *
 #define PEGASUS_THREAD_CDECL
+
 #define PEGASUS_THREAD_HANDLE struct {\
-pthread_t thid;\
+PEGASUS_THREAD_TYPE thid;\
 pthread_attr_t thatt;\
 }
+
+// linux offers a built-in integer type for atomic access
+// other unix platforms HPUX, AIX, may have different types
+// implementors should use the native type for faster operations
+#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
+typedef sig_atomic_t PEGASUS_ATOMIC_TYPE ;
+#endif
+
+
 

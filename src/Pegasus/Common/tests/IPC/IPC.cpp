@@ -95,15 +95,15 @@ int main()
     for (int i = 0; i < 4;i++)
     {
        parm[i]->th = thr[i];
-       parm[i]->cond_start->getMutex()->lock();
+       parm[i]->cond_start->getMutex()->lock(pegasus_thread_self());
        thr[i]->run();
     }
 
     // Let the thread start and wait for Start Condition to be signaled
     for (int i = 0; i < 4;i++)
     {
-        parm[i]->cond_start->unlocked_wait();
-        parm[i]->cond_start->getMutex()->unlock();
+        parm[i]->cond_start->unlocked_wait( pegasus_thread_self() );
+        parm[i]->cond_start->getMutex()->unlock( );
     }
 
     // all fired up successfully
@@ -115,10 +115,10 @@ int main()
         rn = (int) (4.0*rand()/(RAND_MAX+1.0)); 
         rn2 = (int) (2.0*rand()/(RAND_MAX+1.0)); 
 
-        if (!rn2)
-            parm[rn]->th->suspend();
-        else 
-            parm[rn]->th->resume();
+	//        if (!rn2)
+	//            parm[rn]->th->suspend();
+	//        else 
+	//            parm[rn]->th->resume();
 
         sleep(1);
         cout << "+++++ passed test round " << i << endl; 
@@ -128,12 +128,11 @@ int main()
 
     parm[3]->th->cancel();
     parm[0]->th->cancel();
-
     parm[3]->th->kill(15);
     parm[0]->th->kill(15);
 
     // Enforce that the first dequeuing task receives the cancel message
-    parm[2]->th->suspend();
+    //    parm[2]->th->suspend();
 
     cout << "+++++ passed test round 20" << endl; 
 #endif
@@ -157,7 +156,7 @@ int main()
 
     //cout << "+++++ passed test round 22" << endl; 
 
-    parm[2]->th->resume();
+    //    parm[2]->th->resume();
 
     parm[2]->th->join(&retval);
 
@@ -173,7 +172,9 @@ int main()
 
 void * fibonacci(void * parm)
 {
-    parmdef * Parm = (parmdef *) parm;
+  SimpleThread* my_thread  = (SimpleThread *)parm;
+  
+    parmdef * Parm = (parmdef *)my_thread->get_parm();
     int first = Parm->first;
     int second = Parm->second;
     int count = Parm->count;
@@ -182,7 +183,7 @@ void * fibonacci(void * parm)
     
     //cout << "fibonacci: " << pthread_self() << endl;
 
-    condstart->signal();
+    condstart->signal( my_thread->self());
 
     int zw = 0;
     int add_to_type = 0;
@@ -212,9 +213,10 @@ void * fibonacci(void * parm)
 
 void * deq(void * parm)
 {
+  SimpleThread* my_thread  = (SimpleThread *)parm;
+  
+    parmdef * Parm = (parmdef *)my_thread->get_parm();
     Uint32 type, key;
-
-    parmdef * Parm = (parmdef *) parm;
 
     int first = Parm->first;
     int second = Parm->second;
@@ -224,7 +226,7 @@ void * deq(void * parm)
     
     //cout << "deq: " << pthread_self() << endl;
 
-    condstart->signal();
+    condstart->signal(my_thread->self());
 
     Message * message;
     type = 0;
@@ -241,6 +243,6 @@ void * deq(void * parm)
         if (type == 19)
             assert(key == 10946);
     }
-    cout << "Received Cancel Message, " << pthread_self() << " about to end\n";
+    cout << "Received Cancel Message, " << pegasus_thread_self() << " about to end\n";
     return NULL;
 }

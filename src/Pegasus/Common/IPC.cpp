@@ -22,7 +22,7 @@
 //
 // Author: Markus Mueller (sedgewick_de@yahoo.de)
 //
-// Modified By:
+// Modified By: Mike Day (mdday@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -38,78 +38,140 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-AtomicInt::AtomicInt() : _mutex()
+#ifndef PEGASUS_ATOMIC_INT_NATIVE
+
+AtomicInt::AtomicInt() : _rep._value(0) {_rep._mutex = Mutex(); }
+
+AtomicInt::AtomicInt(Uint32 initial) : _rep._value(initial) { _rep._mutex = Mutex() ; }
+
+AtomicInt::~AtomicInt() { _rep._mutex.unlock(); }
+
+AtomicInt::AtomicInt(const AtomicInt& original)
 {
-    _value = 0;
+  _rep._mutex = Mutex();
+  _rep._value = original.value();
+} 
+
+AtomicInt& AtomicInt::operator=(const AtomicInt& original )
+{
+  // to avoid deadlocks, always be certain to only hold one mutex at a time. 
+  // therefore, get the original value (which will lock and unlock the original's mutex)
+  // and _then_ lock this mutex. This pattern is repeated throughout the class
+  
+  Uint32 temp = original.value();
+  _rep._mutex.lock();
+  _rep._value = temp;
+  _rep._mutex.unlock();
+  return *this;
 }
 
-AtomicInt::AtomicInt(Uint32 initial) : _mutex()
+AtomicInt& AtomicInt::operator=(Uint32 val)
 {
-    _value = initial;
-}
-
-AtomicInt::~AtomicInt()
-{
-    _mutex.unlock();
+  _rep._mutex.lock();
+  _rep._value = val;
+  _rep._mutex.unlock();
+  return *this;
 }
 
 Uint32 AtomicInt::value()
 {
-    _mutex.lock();
-    Uint32 retval = _value;
-    _mutex.unlock();
-    return retval;
+  _rep._mutex.lock();
+  Uint32 retval = _rep._value;
+  _rep._mutex.unlock();
+  return retval;
 }
 
 void AtomicInt::operator++(void)
 {
-    _mutex.lock();
-    _value++;
-    _mutex.unlock();
+    _rep._mutex.lock();
+    _rep._value++;
+    _rep._mutex.unlock();
 }
+
 
 void AtomicInt::operator--(void)
 {
-    _mutex.lock();
-    _value--;
-    _mutex.unlock();
+    _rep._mutex.lock();
+    _rep._value--;
+    _rep._mutex.unlock();
 }
 
-Uint32 AtomicInt::operator+(AtomicInt val)
+Uint32 AtomicInt::operator+(const AtomicInt& val)
 {
-    _mutex.lock();
-    Uint32 retval = _value + val.value();
-    _mutex.unlock();
-    return retval;
+  // never acquire a mutex while holding a mutex 
+  Uint32 retval = val.value(); 
+  _rep._mutex.lock();
+  retval += _rep._value ;
+  _rep._mutex.unlock();
+  return retval;
 }
 
 Uint32 AtomicInt::operator+(Uint32 val)
 {
-    _mutex.lock();
-    Uint32 retval = _value + val;
-    _mutex.unlock();
+    _rep._mutex.lock();
+    Uint32 retval = _rep._value + val;
+    _rep._mutex.unlock();
     return retval;
 }
 
-Uint32 AtomicInt::operator-(AtomicInt val)
+Uint32 AtomicInt::operator-(const AtomicInt& val)
 {
-    _mutex.lock();
-    Uint32 retval = _value - val.value();
-    _mutex.unlock();
-    return retval;
+  // never acquire a mutex while holding a mutex
+  Uint32 retval =  val.value();
+  _mutex.lock();
+  retval += _rep._value;
+  _mutex.unlock();
+  return retval;
 }
 
 Uint32 AtomicInt::operator-(Uint32 val)
 {
-    _mutex.lock();
-    Uint32 retval = _value - val;
-    _mutex.unlock();
+    _rep._mutex.lock();
+    Uint32 retval = _rep._value - val;
+    _rep._mutex.unlock();
     return retval;
 }
 
-Mutex * AtomicInt::getMutex()
+
+AtomicInt& AtomicInt::operator+=(const AtomicInt& val)
 {
-    return &_mutex;
+  // never acquire a mutex while holding a mutex
+  Uint32 temp = val.value();
+  _rep._mutex.lock();
+  _rep._value += temp;
+  _rep._mutex.unlock();
+  return *this;
 }
 
+AtomicInt& operator+=(Uint32 val)
+{
+  _rep._mutex.lock();
+  _rep._value += val;
+  _rep._mutex.unlock();
+  return *this;
+}
+
+AtomicInt& operator-=(const AtomicInt& val)
+{
+  Uint32 temp = val.value();
+  _rep._mutex.lock();
+  _rep._value -= temp;
+  _rep._mutex.unlock();
+  return *this;
+}
+
+AtomicInt& operator-=(Uint32 val)
+{
+  _rep._mutex.lock();
+  _rep._value -= val;
+  _rep._mutex.unlock();
+  return *this;
+}
+
+//Mutex * AtomicInt::getMutex()
+//{
+//    return &_mutex;
+//}
+
+#endif // PEGASUS_ATOMIC_INT_NATIVE
 PEGASUS_NAMESPACE_END

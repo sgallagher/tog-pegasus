@@ -200,12 +200,14 @@ static const CIMName PEGASUS_CLASSNAME_WBEMSLPTEMPLATE             =
 
 static const CIMName PEGASUS_PROPERTYNAME_INDSUB_CREATOR    = 
     CIMName ("Creator");
-
-// l10n    
 static const CIMName PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS = 
     CIMName ("AcceptLanguages"); 
 static const CIMName PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS = 
     CIMName ("ContentLanguages");  
+static const CIMName PEGASUS_PROPERTYNAME_MODULE_USERCONTEXT =
+    CIMName ("UserContext");
+static const CIMName PEGASUS_PROPERTYNAME_MODULE_DESIGNATEDUSER =
+    CIMName ("DesignatedUserContext");
 
 //
 // CIM Namespace Names
@@ -404,6 +406,12 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_CIMQUERYCAPABILITIES  =
 #define CIM_MSE_OPSTATUS_VALUE_OK 2
 #define CIM_MSE_OPSTATUS_VALUE_STOPPING 9
 #define CIM_MSE_OPSTATUS_VALUE_STOPPED 10
+
+// Constants defining UserContext values in a PG_ProviderModule
+#define PG_PROVMODULE_USERCTXT_REQUESTOR 2
+#define PG_PROVMODULE_USERCTXT_DESIGNATED 3
+#define PG_PROVMODULE_USERCTXT_PRIVILEGED 4
+#define PG_PROVMODULE_USERCTXT_CIMSERVER 5
 
 PEGASUS_NAMESPACE_END
 

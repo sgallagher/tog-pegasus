@@ -1860,6 +1860,7 @@ void ProviderRegistrationManager::_initialRegistrationTable()
             instance = cimNamedInstances[i];
             reference = cimNamedInstances[i].getPath ();
             String vendor, version, interfaceType, interfaceVersion, location;
+            Uint16 userContext;
 
             //
             // Name, Version, InterfaceType, InterfaceVersion, and Location
@@ -1872,6 +1873,10 @@ void ProviderRegistrationManager::_initialRegistrationTable()
             Uint32 posInterfaceType = instance.findProperty(_PROPERTY_INTERFACETYPE);
             Uint32 posInterfaceVersion = instance.findProperty(_PROPERTY_INTERFACEVERSION);
             Uint32 posLocation = instance.findProperty(_PROPERTY_LOCATION);
+            Uint32 posUserContext = instance.findProperty(
+                PEGASUS_PROPERTYNAME_MODULE_USERCONTEXT);
+            Uint32 posDesignatedUser = instance.findProperty(
+                PEGASUS_PROPERTYNAME_MODULE_DESIGNATEDUSER);
 
             if (posModuleName != PEG_NOT_FOUND)
             {
@@ -1908,13 +1913,38 @@ void ProviderRegistrationManager::_initialRegistrationTable()
                 instance.getProperty(posLocation).getValue().get(location);
             }
 
+            if (posUserContext != PEG_NOT_FOUND)
+            {
+                instance.getProperty(posUserContext).getValue().get(
+                    userContext);
+            }
+
             if (posModuleName == PEG_NOT_FOUND || providerModuleName.size() == 0 ||
                 posVendor == PEG_NOT_FOUND || vendor.size() == 0 ||
                 posVersion == PEG_NOT_FOUND || version.size() == 0 ||
                 posInterfaceType == PEG_NOT_FOUND || interfaceType.size() == 0 ||
                 posInterfaceVersion == PEG_NOT_FOUND ||
                 interfaceVersion.size() == 0 ||
-                posLocation == PEG_NOT_FOUND || location.size() == 0)
+                posLocation == PEG_NOT_FOUND || location.size() == 0
+#ifdef PEGASUS_DISABLE_PROV_USERCTXT
+                || (posUserContext != PEG_NOT_FOUND)
+#else
+                || (!(
+# ifndef PEGASUS_DISABLE_PROV_USERCTXT_REQUESTOR
+                      (userContext == PG_PROVMODULE_USERCTXT_REQUESTOR) ||
+# endif
+# ifndef PEGASUS_DISABLE_PROV_USERCTXT_DESIGNATED
+                      (userContext == PG_PROVMODULE_USERCTXT_DESIGNATED) ||
+# endif
+# ifndef PEGASUS_DISABLE_PROV_USERCTXT_PRIVILEGED
+                      (userContext == PG_PROVMODULE_USERCTXT_PRIVILEGED) ||
+# endif
+# ifndef PEGASUS_DISABLE_PROV_USERCTXT_CIMSERVER
+                      (userContext == PG_PROVMODULE_USERCTXT_CIMSERVER) ||
+# endif
+                      0))
+#endif
+               )
             {
                 status.append(_MODULE_ERROR);
                 _setStatus(status, instance);

@@ -485,7 +485,8 @@ void ProviderRegistrationProvider::createInstance(
            (ifcTypeString == "C++Default" &&
             ifcVersionString != "2.1.0" &&
             ifcVersionString != "2.2.0" &&
-            ifcVersionString != "2.3.0"))
+            ifcVersionString != "2.3.0" &&
+            ifcVersionString != "2.5.0"))
 	{
 		//l10n 485
 	    //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
@@ -515,6 +516,76 @@ void ProviderRegistrationProvider::createInstance(
 	    instance.addProperty (CIMProperty
 		(_PROPERTY_OPERATIONALSTATUS, _operationalStatus));
 	}
+
+        //
+        // Validate the UserContext property
+        //
+        Uint32 userContextIndex = instanceObject.findProperty(
+            PEGASUS_PROPERTYNAME_MODULE_USERCONTEXT);
+        if (userContextIndex != PEG_NOT_FOUND)
+        {
+#ifdef PEGASUS_DISABLE_PROV_USERCTXT
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
+                "ControlProviders.ProviderRegistrationProvider."
+                    "ProviderRegistrationProvider.USERCONTEXT_UNSUPPORTED",
+                "The UserContext property in the PG_ProviderModule class is "
+                    "not supported."));
+#else
+            Uint16 userContextValue;
+            instanceObject.getProperty(userContextIndex).getValue()
+                .get(userContextValue);
+
+            if (!(
+# ifndef PEGASUS_DISABLE_PROV_USERCTXT_REQUESTOR
+                  (userContextValue == PG_PROVMODULE_USERCTXT_REQUESTOR) ||
+# endif
+# ifndef PEGASUS_DISABLE_PROV_USERCTXT_DESIGNATED
+                  (userContextValue == PG_PROVMODULE_USERCTXT_DESIGNATED) ||
+# endif
+# ifndef PEGASUS_DISABLE_PROV_USERCTXT_PRIVILEGED
+                  (userContextValue == PG_PROVMODULE_USERCTXT_PRIVILEGED) ||
+# endif
+# ifndef PEGASUS_DISABLE_PROV_USERCTXT_CIMSERVER
+                  (userContextValue == PG_PROVMODULE_USERCTXT_CIMSERVER) ||
+# endif
+                  0))
+            {
+                throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED,
+                    MessageLoaderParms(
+                        "ControlProviders.ProviderRegistrationProvider."
+                            "ProviderRegistrationProvider."
+                            "UNSUPPORTED_USERCONTEXT_VALUE",
+                        "Unsupported UserContext value: \"$0\".",
+                        userContextValue));
+            }
+
+            // DesignatedUserContext property is required when UserContext == 3
+            if (userContextValue == PG_PROVMODULE_USERCTXT_DESIGNATED)
+            {
+                Uint32 designatedUserIndex = instanceObject.findProperty(
+                    PEGASUS_PROPERTYNAME_MODULE_DESIGNATEDUSER);
+                if ((designatedUserIndex == PEG_NOT_FOUND) ||
+                    instanceObject.getProperty(designatedUserIndex).getValue()
+                        .isNull())
+                {
+                    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                        MessageLoaderParms(
+                            "ControlProviders.ProviderRegistrationProvider."
+                                "ProviderRegistrationProvider."
+                                "MISSING_DESIGNATEDUSER_IN_PG_PROVIDERMODULE",
+                            "Missing DesignatedUserContext property in "
+                                "PG_ProviderModule instance."));
+                }
+                else
+                {
+                    // Validate that DesignatedUserContext is of String type
+                    String designatedUser;
+                    instanceObject.getProperty(designatedUserIndex).getValue()
+                        .get(designatedUser);
+                }
+            }
+#endif
+        }
     }
     else if (className.equal (PEGASUS_CLASSNAME_PROVIDERCAPABILITIES))
     {

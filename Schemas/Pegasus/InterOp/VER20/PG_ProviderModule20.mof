@@ -26,8 +26,8 @@
 // ==================================================================
 // PG_ProviderModule
 // ==================================================================
-[Version("2.0.0"), Description ( "A ProviderModule contains  "
-     "contains one or more Providers. ") ]
+        [Version("2.5.0"), Description ( "A ProviderModule contains "
+         "one or more Providers. ") ]
 class PG_ProviderModule : CIM_LogicalElement {
       [Key, Override("Name"), Description ("A human-readable name that"
        "uniquely identifies the Provider Module.")]
@@ -42,6 +42,31 @@ class PG_ProviderModule : CIM_LogicalElement {
    string InterfaceVersion;
       [Required, Description ("")]
    string Location;
+
+      [Description (
+        "   Defines the user context in which this provider module must be "
+        "invoked.  The possible values are: \n"
+        "2 = \"Requestor\", the provider is invoked in the context of the "
+        "user requesting an operation. \n"
+        "3 = \"Designated User\", the provider is invoked in the context "
+        "of the user specified by the DesignatedUserContext property. \n"
+        "4 = \"Privileged User\", the provider is invoked with privileged "
+        "authority. \n"
+        "5 = \"CIM Server\", the provider is invoked in the user context "
+        "of the CIM Server itself."),
+       ValueMap { "2", "3", "4", "5" },
+       Values { "Requestor", "Designated User", "Privileged User",
+        "CIM Server" }]
+   uint16 UserContext;
+      [Description(
+        "   A string specifying a user name defining the user context in "
+        "which this provider module must be invoked (regardless of which "
+        "user requests an operation.)  This value MUST be set to a non NULL "
+        "value when UserContext is set to a value of 3 (\"Designated "
+        "User\").  For all other values of UserContext, the "
+        "DesignatedUserContext MUST be NULL.")]
+   string DesignatedUserContext;
+
       [Description ( 
         "   Indicates the current status(es) of the element. "
         "Various health and operational statuses are "

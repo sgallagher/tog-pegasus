@@ -1048,6 +1048,30 @@ en:table {
         */
         ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_DESTINATIONS_TYPE_WHICH_IS_REQUIRED:string {"PGS03027: Missing the required Destinations property in PG_ConsumerCapabilities class."}
 
+        /**
+        * @note  PGS03028:
+        * @version 2.5
+        *   Do not translate the word 'UserContext' since it is the name of a CIM property.
+        *   Do not translate the word 'PG_ProviderModule' since it is the name of a CIM class.
+        */
+        ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.USERCONTEXT_UNSUPPORTED:string {"PGS03028: The UserContext property in the PG_ProviderModule class is not supported."}
+
+        /**
+        * @note  PGS03029:
+        * @version 2.5
+        *   Do not translate the word 'UserContext' since it is the name of a CIM property.
+        *   Substitution {0} is a UserContext value (an unsigned integer property value)
+        */
+        ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.UNSUPPORTED_USERCONTEXT_VALUE:string {"PGS03029: Unsupported UserContext value: \"{0}\"."}
+
+        /**
+        * @note  PGS03030:
+        * @version 2.5
+        *   Do not translate the word 'DesignatedUserContext' since it is the name of a CIM property.
+        *   Do not translate the word 'PG_ProviderModule' since it is the name of a CIM class.
+        */
+        ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_DESIGNATEDUSER_IN_PG_PROVIDERMODULE:string {"PGS03030: Missing DesignatedUserContext property in PG_ProviderModule instance."}
+
 
         // ==========================================================
         // Messages for UserAuthProvider

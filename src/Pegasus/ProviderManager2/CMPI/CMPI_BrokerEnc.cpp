@@ -50,6 +50,12 @@
 #include <Pegasus/WQL/WQLSelectStatement.h>
 #include <Pegasus/WQL/WQLParser.h>
 
+#include <Pegasus/Provider/CIMOMHandleQueryContext.h>
+#include <Pegasus/CQL/CQLSelectStatement.h>
+#include <Pegasus/CQL/CQLParser.h>
+#include <Pegasus/CQL/CQLChainedIdentifier.h>
+#include <Pegasus/Provider/CMPI/cmpi_cql.h>
+
 #include <stdarg.h>
 #include <string.h>
 
@@ -475,45 +481,160 @@ extern "C" {
 
    #endif
 
-   static CMPISelectExp* mbEncNewSelectExp(CMPIBroker* mb, const char *query, const char *lang,
-                     CMPIArray** projection, CMPIStatus* st) {
-      WQLSelectStatement *stmt=new WQLSelectStatement();
-      int exception=1;
+  static CMPISelectExp *mbEncNewSelectExp (CMPIBroker * mb, const char *query,
+                                           const char *lang,
+                                           CMPIArray ** projection,
+                                           CMPIStatus * st)
+  {
+    int exception = 1;
+    int useShortNames = 0;
 
-      if (strcmp(lang,"WQL")!=0) {
-         if (st) CMSetStatus(st,CMPI_RC_ERR_QUERY_LANGUAGE_NOT_SUPPORTED);
-         return NULL;
+    if (strcmp (lang, "WQL") == 0)
+      {
+        WQLSelectStatement *stmt = new WQLSelectStatement ();
+        try
+        {
+          WQLParser::parse (query, *stmt);
+          exception = 0;
+        }
+        catch (const ParseError &)
+        {
+          if (st)
+            CMSetStatus (st, CMPI_RC_ERR_INVALID_QUERY);
+        }
+        catch (const MissingNullTerminator &)
+        {
+          if (st)
+            CMSetStatus (st, CMPI_RC_ERR_INVALID_QUERY);
+        }
+        if (exception)
+          {
+            delete stmt;
+            if (projection)
+              *projection = NULL;
+            return NULL;
+          }
+
+        if (stmt->getAllProperties ())
+          {
+            *projection = NULL;
+          }
+        else
+          {
+            *projection =
+              mbEncNewArray (mb, stmt->getSelectPropertyNameCount (),
+                             CMPI_chars, NULL);
+            for (int i = 0, m = stmt->getSelectPropertyNameCount (); i < m;
+                 i++)
+              {
+                const CIMName & n = stmt->getSelectPropertyName (i);
+                CMSetArrayElementAt (*projection, i,
+                                     (const char *) n.getString ().
+                                     getCString (), CMPI_chars);
+              }
+          }
+        stmt->hasWhereClause ();
+        return (CMPISelectExp *) new CMPI_SelectExp (stmt);
       }
 
-      try {
-         WQLParser::parse(query, *stmt);
-         exception=0;
-      }
-      catch (const ParseError&) {
-         if (st) CMSetStatus(st,CMPI_RC_ERR_INVALID_QUERY);
-      }
-      catch (const MissingNullTerminator&) {
-         if (st) CMSetStatus(st,CMPI_RC_ERR_INVALID_QUERY);
-      }
-      if (exception) {
-         delete stmt;
-         if (projection) *projection=NULL;
-         return NULL;
-      }
+    if ((strcmp (lang, "CIMxCQL") == 0) || (strcmp (lang, "CIM:CQL") == 0))
+      {
+        /* IBMKR: This will have to be removed when the CMPI spec is updated
+           with a clear explanation of what properties array can have as
+           strings. For right now, if useShortNames is set to true, _only_
+           the last chained identifier is used. */
+        if (strcmp (lang, "CIM:CQL") == 0)
+          useShortNames = 1;
+        // Get the namespace.
+        CMPIContext *ctx = CMPI_ThreadContext::getContext ();
+        CMPIStatus rc = { CMPI_RC_OK, NULL };
 
-      if (stmt->getAllProperties()) {
-         *projection=NULL;
+        CMPIData data = ctx->ft->getEntry (ctx, CMPINamespace, &rc);
+        if (rc.rc != CMPI_RC_OK)
+          {
+            if (st)
+              CMSetStatus (st, CMPI_RC_ERR_FAILED);
+            return NULL;
+          }
+
+        // Create the CIMOMHandle wrapper.
+        CIMOMHandle *cm_handle = CM_CIMOM (mb);
+        CIMOMHandleQueryContext
+          qcontext (CIMNamespaceName (CMGetCharPtr (data.value.string)),
+                    *cm_handle);
+
+        String sLang (lang);
+        String sQuery (query);
+
+        CQLSelectStatement *selectStatement =
+          new CQLSelectStatement (sLang, sQuery, qcontext);
+        try
+        {
+          CQLParser::parse (query, *selectStatement);
+          selectStatement->validate ();
+          exception = 0;
+        }
+        catch (...)
+        {
+          if (st)
+            CMSetStatus (st, CMPI_RC_ERR_FAILED);
+        }
+
+        if (exception)
+          {
+            delete selectStatement;
+            if (projection)
+              *projection = NULL;
+            return NULL;
+          }
+        else
+          {
+            Array < CQLChainedIdentifier > select_Array =
+              selectStatement->getSelectChainedIdentifiers ();
+
+            *projection =
+              mbEncNewArray (mb, select_Array.size (), CMPI_string, NULL);
+
+            CQLIdentifier identifier;
+            String name;
+
+            for (Uint32 i = 0; i < select_Array.size (); i++)
+              {
+                if (useShortNames)
+                  {
+                    identifier = select_Array[i].getLastIdentifier ();
+                    name = identifier.getName ().getString ();
+                  }
+                else
+                  {
+                    name = select_Array[i].toString ();
+                  }
+                // Since the array and the CIMName disappear when this function
+                // exits we use CMPI data storage - the CMPI_Object keeps a list of
+                // data and cleans it up when the provider API function is exited.
+                //cerr << "Property: " << name << endl;
+                CMPIString *str_data =
+                  reinterpret_cast < CMPIString * >(new CMPI_Object (name));
+                CMPIValue value;
+                value.string = str_data;
+
+                rc = CMSetArrayElementAt (*projection, i,
+                                          &value, CMPI_string);
+
+                if (rc.rc != CMPI_RC_OK)
+                  {
+                    if (st)
+                      CMSetStatus (st, rc.rc);
+                    return NULL;
+                  }
+              }
+          }
+        return (CMPISelectExp *) new CMPI_SelectExp (selectStatement);
       }
-      else {
-         *projection=mbEncNewArray(mb,stmt->getSelectPropertyNameCount(),CMPI_chars,NULL);
-         for (int i=0,m=stmt->getSelectPropertyNameCount(); i<m; i++) {
-            const CIMName &n=stmt->getSelectPropertyName(i);
-      CMSetArrayElementAt(*projection,i,(const char*)n.getString().getCString(),CMPI_chars);
-         }
-      }
-      stmt->hasWhereClause();
-      return (CMPISelectExp*) new CMPI_SelectExp(stmt);
-   }  
+    if (st)
+      CMSetStatus (st, CMPI_RC_ERR_QUERY_LANGUAGE_NOT_SUPPORTED);
+    return NULL;
+  }
 
    #if defined (CMPI_VER_90)
 

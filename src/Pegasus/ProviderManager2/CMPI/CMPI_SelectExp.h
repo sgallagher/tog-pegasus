@@ -51,6 +51,8 @@ PEGASUS_NAMESPACE_BEGIN
 struct CMPI_SelectExp : CMPISelectExp {
    CMPI_SelectExp(const OperationContext& ct, QueryContext *context, String cond_, String lang_);
    CMPI_SelectExp(WQLSelectStatement*);
+   CMPI_SelectExp(CQLSelectStatement*);
+
    CMPI_Object *next,*prev;
    const char **props;
    Array<CIMObjectPath> classNames;

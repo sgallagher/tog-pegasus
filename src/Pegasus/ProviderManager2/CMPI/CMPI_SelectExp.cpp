@@ -50,281 +50,343 @@
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
-
 #define CALL_SIGN_WQL "WQL"
 #define CALL_SIGN_WQL_SIZE 3
 #define CALL_SIGN_CQL "CIM:CQL"
 #define CALL_SIGN_CQL_SIZE 7
-extern "C" {
+extern "C"
+{
 
-   static CMPIStatus selxRelease(CMPISelectExp* eSx) {
-      CMReturn(CMPI_RC_OK);
-   }
+  static CMPIStatus selxRelease (CMPISelectExp * eSx)
+  {
+    CMReturn (CMPI_RC_OK);
+  }
 
-   static CMPISelectExp* selxClone(CMPISelectExp* eSx, CMPIStatus* rc) {
-         if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_SUPPORTED);
-         return NULL;
-   }
+  static CMPISelectExp *selxClone (CMPISelectExp * eSx, CMPIStatus * rc)
+  {
+    if (rc)
+      CMSetStatus (rc, CMPI_RC_ERR_NOT_SUPPORTED);
+    return NULL;
+  }
 
-	/* Helper functions */
-   static CMPIBoolean _check_WQL(CMPI_SelectExp *sx, CMPIStatus *rc) {
+  /* Helper functions */
+  static CMPIBoolean _check_WQL (CMPI_SelectExp * sx, CMPIStatus * rc)
+  {
 
-	if (sx->wql_stmt == NULL)
-	  {
-	    WQLSelectStatement *stmt = new WQLSelectStatement ();
-	    try
-	    {
-	      WQLParser::parse (sx->cond, *stmt);
-	    }
-	    catch (...)
-	    {
-		  delete stmt;
-	      CMSetStatus (rc, CMPI_RC_ERR_FAILED);
-	      return false;
-	    }
-		/* Only set it for success */
-		sx->wql_stmt = stmt;
-	  }			/* sx->wql_stmt ... */
-	  return true;
-   }
-   static CMPIBoolean _check_CQL(CMPI_SelectExp *sx, CMPIStatus *rc) {
+    if (sx->wql_stmt == NULL)
+      {
+        WQLSelectStatement *stmt = new WQLSelectStatement ();
+        try
+        {
+          WQLParser::parse (sx->cond, *stmt);
+        }
+        catch (...)
+        {
+          delete stmt;
+          CMSetStatus (rc, CMPI_RC_ERR_FAILED);
+          return false;
+        }
+        /* Only set it for success */
+        sx->wql_stmt = stmt;
+      }                         /* sx->wql_stmt ... */
+    return true;
+  }
+  static CMPIBoolean _check_CQL (CMPI_SelectExp * sx, CMPIStatus * rc)
+  {
 
-		if (sx->cql_stmt == NULL)
-	      {
-		/* The constructor should set this to a valid pointer. */
-		if (sx->_context == NULL) {
-			CMSetStatus (rc, CMPI_RC_ERROR_SYSTEM);
-			return false;
-		}
-		CQLSelectStatement *selectStatement =
-		  new CQLSelectStatement (sx->lang, sx->cond, *sx->_context);
-		try
-		{
-		  CQLParser::parse (sx->cond, *selectStatement);
+    if (sx->cql_stmt == NULL)
+      {
+        /* The constructor should set this to a valid pointer. */
+        if (sx->_context == NULL)
+          {
+            CMSetStatus (rc, CMPI_RC_ERROR_SYSTEM);
+            return false;
+          }
+        CQLSelectStatement *selectStatement =
+          new CQLSelectStatement (sx->lang, sx->cond, *sx->_context);
+        try
+        {
+          CQLParser::parse (sx->cond, *selectStatement);
 
-		  selectStatement->validate ();
-		}
-		catch (...)
-		{
-		  delete selectStatement;
-		  CMSetStatus (rc, CMPI_RC_ERR_FAILED);
-		  return false;
-		}
+          selectStatement->validate ();
+        }
+        catch (...)
+        {
+          delete selectStatement;
+          CMSetStatus (rc, CMPI_RC_ERR_FAILED);
+          return false;
+        }
 
-		sx->cql_stmt = selectStatement;
-		}
-	 return true;
-   }
+        sx->cql_stmt = selectStatement;
+      }
+    return true;
+  }
 
-   static CMPIBoolean selxEvaluate(CMPISelectExp* eSx, CMPIInstance* inst, CMPIStatus* rc) {
-      CMPI_SelectExp *sx=(CMPI_SelectExp*)eSx;
-	  if (!inst) {
-		if (rc) CMSetStatus(rc,CMPI_RC_ERR_INVALID_PARAMETER);
-		return false;
-	  }
-	  if (!inst->hdl) {
-		if (rc) CMSetStatus(rc,CMPI_RC_ERR_INVALID_PARAMETER);
-		return false;
-	  }
-	CIMInstance *instance = (CIMInstance *) inst->hdl;
+  static CMPIBoolean selxEvaluate (CMPISelectExp * eSx, CMPIInstance * inst,
+                                   CMPIStatus * rc)
+  {
+    CMPI_SelectExp *sx = (CMPI_SelectExp *) eSx;
+    if (!inst)
+      {
+        if (rc)
+          CMSetStatus (rc, CMPI_RC_ERR_INVALID_PARAMETER);
+        return false;
+      }
+    if (!inst->hdl)
+      {
+        if (rc)
+          CMSetStatus (rc, CMPI_RC_ERR_INVALID_PARAMETER);
+        return false;
+      }
+    CIMInstance *instance = (CIMInstance *) inst->hdl;
 
     /* WQL */
     if (strncmp (sx->lang.getCString (), CALL_SIGN_WQL, CALL_SIGN_WQL_SIZE) ==
-	0)
+        0)
       {
-		if (_check_WQL(sx, rc))
-		{
-			try
-			{
-	  			return sx->wql_stmt->evaluate (*(CIMInstance *) inst->hdl);
-			}
-			catch (...)
-			{
-	  			CMSetStatus (rc, CMPI_RC_ERR_FAILED);
-	  			return false;
-			}
-      	}
-		else
-			return false;
-	}
+        if (_check_WQL (sx, rc))
+          {
+            try
+            {
+              return sx->wql_stmt->evaluate (*(CIMInstance *) inst->hdl);
+            }
+            catch (...)
+            {
+              CMSetStatus (rc, CMPI_RC_ERR_FAILED);
+              return false;
+            }
+          }
+        else
+          return false;
+      }
     /* CIM:CQL */
-#if PEGASUS_CMPI_CQL_PROVIDER
     if (strncmp (sx->lang.getCString (), CALL_SIGN_CQL, CALL_SIGN_CQL_SIZE) ==
-	0)
+        0)
       {
-	   if (_check_CQL(sx, rc)) {	
-	    try
-	    {
-	      return sx->cql_stmt->evaluate (*instance);
-	    }
-	    catch (...)
-	    {
-	      CMSetStatus (rc, CMPI_RC_ERR_FAILED);
-	      return false;
-	    }
-	  }	else
-		return false;	
-     } 
-#endif
+        if (_check_CQL (sx, rc))
+          {
+            try
+            {
+              return sx->cql_stmt->evaluate (*instance);
+            }
+            catch (...)
+            {
+              CMSetStatus (rc, CMPI_RC_ERR_FAILED);
+              return false;
+            }
+          }
+        else
+          return false;
+      }
     /* Tried some other weird query language which we don't support */
-    if (rc) CMSetStatus (rc, CMPI_RC_ERR_NOT_SUPPORTED);
+    if (rc)
+      CMSetStatus (rc, CMPI_RC_ERR_NOT_SUPPORTED);
     return false;
-   }
+  }
 
-   static CMPIBoolean selxEvaluateUsingAccessor(CMPISelectExp* eSx,
-               CMPIAccessor* accessor, void *parm, CMPIStatus* rc) {
-      CMPI_SelectExp *sx=(CMPI_SelectExp*)eSx;
-      if (!accessor) {
-		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
-	    return false;
+  static CMPIBoolean selxEvaluateUsingAccessor (CMPISelectExp * eSx,
+                                                CMPIAccessor * accessor,
+                                                void *parm, CMPIStatus * rc)
+  {
+    CMPI_SelectExp *sx = (CMPI_SelectExp *) eSx;
+    if (!accessor)
+      {
+        if (rc)
+          CMSetStatus (rc, CMPI_RC_ERR_INVALID_PARAMETER);
+        return false;
       }
 
-    if (strncmp (sx->lang.getCString (), CALL_SIGN_WQL, CALL_SIGN_WQL_SIZE) == 0)
-	{
-	 if (_check_WQL(sx, rc)) 
-	  {
-      	CMPI_SelectExpAccessor_WQL ips(accessor,parm);
-      	try {
-	     	if (rc) CMSetStatus(rc,CMPI_RC_OK);
-         	return sx->wql_stmt->evaluateWhereClause(&ips);
-      	}
-      	catch (...) {
-	     if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
-         return false;
-      	}
-	  }
-	 else
-		return false;
-	}
-#if PEGASUS_CMPI_CQL_PROVIDER
-    if (strncmp (sx->lang.getCString (), CALL_SIGN_CQL, CALL_SIGN_CQL_SIZE) == 0)
-	{
-		if (_check_CQL(sx, rc)) 
-		{
-			CMPI_SelectExpAccessor_CQL ips(accessor, parm, sx->cql_stmt,sx->classNames[0]);
-			try {
-				if (rc) CMSetStatus(rc, CMPI_RC_OK);
-				return sx->cql_stmt->evaluate(ips.getInstance());	
-			} catch (...) {
-				if (rc) CMSetStatus(rc, CMPI_RC_ERR_FAILED);
-				return false;
-			}
-		}
-		  else
-			return false;
-	}
-#endif
+    if (strncmp (sx->lang.getCString (), CALL_SIGN_WQL, CALL_SIGN_WQL_SIZE) ==
+        0)
+      {
+        if (_check_WQL (sx, rc))
+          {
+            CMPI_SelectExpAccessor_WQL ips (accessor, parm);
+            try
+            {
+              if (rc)
+                CMSetStatus (rc, CMPI_RC_OK);
+              return sx->wql_stmt->evaluateWhereClause (&ips);
+            }
+            catch (...)
+            {
+              if (rc)
+                CMSetStatus (rc, CMPI_RC_ERR_FAILED);
+              return false;
+            }
+          }
+        else
+          return false;
+      }
+    if (strncmp (sx->lang.getCString (), CALL_SIGN_CQL, CALL_SIGN_CQL_SIZE) ==
+        0)
+      {
+        if (_check_CQL (sx, rc))
+          {
+            CMPI_SelectExpAccessor_CQL ips (accessor, parm, sx->cql_stmt,
+                                            sx->classNames[0]);
+            try
+            {
+              if (rc)
+                CMSetStatus (rc, CMPI_RC_OK);
+              return sx->cql_stmt->evaluate (ips.getInstance ());
+            }
+            catch (...)
+            {
+              if (rc)
+                CMSetStatus (rc, CMPI_RC_ERR_FAILED);
+              return false;
+            }
+          }
+        else
+          return false;
+      }
     return false;
-   }
+  }
 
-   static CMPIString* selxGetString(CMPISelectExp* eSx, CMPIStatus* rc) {
-      CMPI_SelectExp *sx=(CMPI_SelectExp*)eSx;
-	  if (rc) CMSetStatus(rc,CMPI_RC_OK);
-      return string2CMPIString(sx->cond);
-   }
+  static CMPIString *selxGetString (CMPISelectExp * eSx, CMPIStatus * rc)
+  {
+    CMPI_SelectExp *sx = (CMPI_SelectExp *) eSx;
+    if (rc)
+      CMSetStatus (rc, CMPI_RC_OK);
+    return string2CMPIString (sx->cond);
+  }
 
-   static CMPISelectCond* selxGetDOC(CMPISelectExp* eSx, CMPIStatus* rc) {
+  static CMPISelectCond *selxGetDOC (CMPISelectExp * eSx, CMPIStatus * rc)
+  {
 
     CMPI_SelectExp *sx = (CMPI_SelectExp *) eSx;
     CMPISelectCond *sc = NULL;
 
-    if (strncmp (sx->lang.getCString (), CALL_SIGN_WQL, CALL_SIGN_WQL_SIZE) == 0)
+    if (strncmp (sx->lang.getCString (), CALL_SIGN_WQL, CALL_SIGN_WQL_SIZE) ==
+        0)
       {
-		if (sx->wql_dnf == NULL)
-	  	{
-	    	sx->wql_dnf = new CMPI_Wql2Dnf (String (sx->cond), String::EMPTY);
-	    	sx->tableau = sx->wql_dnf->getTableau ();
-	  	}
-		sc = (CMPISelectCond *) new CMPI_SelectCond (sx->tableau, 0);
+        if (sx->wql_dnf == NULL)
+          {
+            sx->wql_dnf = new CMPI_Wql2Dnf (String (sx->cond), String::EMPTY);
+            sx->tableau = sx->wql_dnf->getTableau ();
+          }
+        sc = (CMPISelectCond *) new CMPI_SelectCond (sx->tableau, 0);
       }
-#if PEGASUS_CMPI_CQL_PROVIDER
-    if (strncmp (sx->lang.getCString (), CALL_SIGN_CQL, CALL_SIGN_CQL_SIZE) == 0)
+    if (strncmp (sx->lang.getCString (), CALL_SIGN_CQL, CALL_SIGN_CQL_SIZE) ==
+        0)
       {
-		if (sx->cql_dnf == NULL)
-		{
-			/* The constructor should set this to a valid pointer. */
-			if (sx->_context == NULL) {
-				CMSetStatus (rc, CMPI_RC_ERROR_SYSTEM);
-				return NULL;
-			}
-		
-			CQLSelectStatement selectStatement (sx->lang, sx->cond, sx->_context);
-			CMPI_Cql2Dnf *dnf = NULL;
-			try
-			{
-	  			CQLParser::parse (sx->cond, selectStatement);
-	  			dnf = new CMPI_Cql2Dnf (selectStatement);
-			}
-			catch (Exception & e)
-			{
-	  			if (dnf)
-					delete dnf;
-	  			if (rc) CMSetStatus (rc, CMPI_RC_ERR_FAILED);
-			}
-			sx->cql_dnf = dnf;
-			sx->tableau = sx->cql_dnf->getTableau ();
-		}
-	  	sc = (CMPISelectCond *) new CMPI_SelectCond (sx->tableau, 0);
-	}     
-#endif
+        if (sx->cql_dnf == NULL)
+          {
+            /* The constructor should set this to a valid pointer. */
+            if (sx->_context == NULL)
+              {
+                CMSetStatus (rc, CMPI_RC_ERROR_SYSTEM);
+                return NULL;
+              }
+
+            CQLSelectStatement selectStatement (sx->lang, sx->cond,
+                                                *sx->_context);
+            CMPI_Cql2Dnf *dnf = NULL;
+            try
+            {
+              CQLParser::parse (sx->cond, selectStatement);
+              dnf = new CMPI_Cql2Dnf (selectStatement);
+            }
+            catch (Exception & e)
+            {
+              if (dnf)
+                delete dnf;
+              if (rc)
+                CMSetStatus (rc, CMPI_RC_ERR_FAILED);
+            }
+            sx->cql_dnf = dnf;
+            sx->tableau = sx->cql_dnf->getTableau ();
+          }
+        sc = (CMPISelectCond *) new CMPI_SelectCond (sx->tableau, 0);
+      }
 
     if (sc)
-    {
-		if (rc) CMSetStatus (rc, CMPI_RC_OK);
-	  	CMPI_Object *obj = new CMPI_Object(sc);
-	  	obj->priv = ((CMPI_SelectCond *)sc)->priv;
-	  	return reinterpret_cast<CMPISelectCond *>(obj); 
-    }
+      {
+        if (rc)
+          CMSetStatus (rc, CMPI_RC_OK);
+        CMPI_Object *obj = new CMPI_Object (sc);
+        obj->priv = ((CMPI_SelectCond *) sc)->priv;
+        return reinterpret_cast < CMPISelectCond * >(obj);
+      }
 
-	/* If the sc was null, we just exit */
-    if (rc) CMSetStatus (rc, CMPI_RC_ERR_FAILED);
+    /* If the sc was null, we just exit */
+    if (rc)
+      CMSetStatus (rc, CMPI_RC_ERR_FAILED);
     return NULL;
-   }
-   
-   static CMPISelectCond* selxGetCOD(CMPISelectExp* eSx, CMPIStatus* rc) {
-         if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_SUPPORTED);
-         return NULL;
-   }
-   
+  }
+
+  static CMPISelectCond *selxGetCOD (CMPISelectExp * eSx, CMPIStatus * rc)
+  {
+    if (rc)
+      CMSetStatus (rc, CMPI_RC_ERR_NOT_SUPPORTED);
+    return NULL;
+  }
+
 
 }
 
-static CMPISelectExpFT selx_FT={
-     CMPICurrentVersion,
-     selxRelease,
-     selxClone,
-     selxEvaluate,
-     selxGetString,
-     selxGetDOC,
-     selxGetCOD,
-	 selxEvaluateUsingAccessor
+static CMPISelectExpFT selx_FT = {
+  CMPICurrentVersion,
+  selxRelease,
+  selxClone,
+  selxEvaluate,
+  selxGetString,
+  selxGetDOC,
+  selxGetCOD,
+  selxEvaluateUsingAccessor
 };
 
-CMPISelectExpFT *CMPI_SelectExp_Ftab=&selx_FT;
+CMPISelectExpFT *CMPI_SelectExp_Ftab = &selx_FT;
 
-CMPI_SelectExp::CMPI_SelectExp(const OperationContext& ct, QueryContext *context, String cond_, String lang_)
-  :  ctx(ct),   cond(cond_), lang(lang_), _context(context) {
-   props=NULL;
-   ft=CMPI_SelectExp_Ftab;
-   wql_dnf=NULL;
-   cql_dnf=NULL;
-   wql_stmt=NULL;
-   cql_stmt=NULL;
-   tableau=NULL;
+CMPI_SelectExp::CMPI_SelectExp (const OperationContext & ct,
+                                QueryContext * context, String cond_,
+                                String lang_):
+ctx (ct),
+cond (cond_),
+lang (lang_),
+_context (context)
+{
+  props = NULL;
+  ft = CMPI_SelectExp_Ftab;
+  wql_dnf = NULL;
+  cql_dnf = NULL;
+  wql_stmt = NULL;
+  cql_stmt = NULL;
+  tableau = NULL;
 }
 
-CMPI_SelectExp::CMPI_SelectExp(WQLSelectStatement* st)
-  : ctx(OperationContext()), wql_stmt(st) {
-   CMPI_ThreadContext::addObject((CMPI_Object*)this);
-   hdl=NULL;
-   ft=CMPI_SelectExp_Ftab;
-   props=NULL;
-   wql_dnf=NULL;
-   cql_dnf=NULL;
-   wql_stmt=st;
-   cql_stmt=NULL;
-   tableau=NULL;
-   _context = NULL;
+CMPI_SelectExp::CMPI_SelectExp (WQLSelectStatement * st):ctx (OperationContext ()),
+wql_stmt (st)
+{
+  CMPI_ThreadContext::addObject ((CMPI_Object *) this);
+  hdl = NULL;
+  ft = CMPI_SelectExp_Ftab;
+  props = NULL;
+  wql_dnf = NULL;
+  cql_dnf = NULL;
+  cql_stmt = NULL;
+  tableau = NULL;
+  _context = NULL;
+  cond = st->getQuery ();
+  lang = CALL_SIGN_WQL;
+}
+
+CMPI_SelectExp::CMPI_SelectExp (CQLSelectStatement * st):ctx (OperationContext ()),
+cql_stmt (st)
+{
+  CMPI_ThreadContext::addObject ((CMPI_Object *) this);
+  hdl = NULL;
+  ft = CMPI_SelectExp_Ftab;
+  props = NULL;
+  wql_dnf = NULL;
+  cql_dnf = NULL;
+  wql_stmt = NULL;
+  tableau = NULL;
+  _context = NULL;
+  cond = st->getQuery ();
+  lang = CALL_SIGN_CQL;
+  classNames = st->getClassPathList ();
 }
 
 PEGASUS_NAMESPACE_END

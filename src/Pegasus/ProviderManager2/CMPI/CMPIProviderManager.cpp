@@ -69,6 +69,8 @@
 #include <Pegasus/ProviderManager2/ProviderManagerzOS_inline.h>
 #endif
 
+#include <Pegasus/Provider/CMPI/cmpi_cql.h>
+
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
@@ -1037,7 +1039,10 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
                           CMPIPrincipal,
                           (CMPIValue*)(const char*)container.getUserName().getCString(),
                           CMPI_chars);
-
+		eCtx.ft->addEntry(&eCtx, 
+						  CMPINamespace,
+						  (CMPIValue*)(const char*)request->nameSpace.getString().getCString(),
+						  CMPI_chars);
         if (remote) {
            CString info=pidc.getRemoteInfo().getCString();
            eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
@@ -1800,6 +1805,11 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
                           (CMPIValue*)(const char*)container.getUserName().getCString(),
                           CMPI_chars);
 
+		eCtx.ft->addEntry(&eCtx, 
+						  CMPINamespace,
+						  (CMPIValue*)(const char*)request->nameSpace.getString().getCString(),
+						  CMPI_chars);
+	
         if (remote) {
            CString info=pidc.getRemoteInfo().getCString();
            eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
@@ -1947,6 +1957,10 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
                           (CMPIValue*)(const char*)container.getUserName().getCString(),
                           CMPI_chars);
 
+		eCtx.ft->addEntry(&eCtx, 
+						  CMPINamespace,
+						  (CMPIValue*)(const char*)request->nameSpace.getString().getCString(),
+						  CMPI_chars);
         if (remote) {
            CString info=pidc.getRemoteInfo().getCString();
            eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);

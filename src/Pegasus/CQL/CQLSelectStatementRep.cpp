@@ -208,28 +208,28 @@ void CQLSelectStatementRep::applyProjection(CIMInstance& inCI) throw(Exception)
 
   Array<CIMName> requiredProps;
 
-  PropertyNode* projNode = rootNode->firstChild.get();
-  while (projNode != NULL)
+  PropertyNode* childNode = rootNode->firstChild.get();
+  while (childNode != NULL)
   {
     /*
-    PEGASUS_STD(cout) << "applying to  " << projNode->name.getString() 
+    PEGASUS_STD(cout) << "applying to  " << childNode->name.getString() 
 		      << PEGASUS_STD(endl);
-    if (projNode->wildcard)     
+    if (childNode->wildcard)     
       PEGASUS_STD(cout) << "is wildcard "  << PEGASUS_STD(endl);
     */
 
-    if (!projNode->wildcard && !(projNode->firstChild.get() == NULL))
+    if (childNode->firstChild.get() != NULL)
     {
       /*
-      PEGASUS_STD(cout) << "has first child  " << projNode->firstChild->name.getString()
+      PEGASUS_STD(cout) << "has first child  " << childNode->firstChild->name.getString()
 			<< PEGASUS_STD(endl);
       */
 
-      Uint32 index = inCI.findProperty(projNode->name);
-      CIMProperty projProp = inCI.getProperty(index);
+      Uint32 index = inCI.findProperty(childNode->name);
+      CIMProperty childProp = inCI.getProperty(index);
       inCI.removeProperty(index);
-      applyProjection(projNode, projProp);
-      inCI.addProperty(projProp);
+      applyProjection(childNode, childProp);
+      inCI.addProperty(childProp);
     }
 
     // ATTN: what to do about selecting one element of an array.  Is this allowed
@@ -238,13 +238,13 @@ void CQLSelectStatementRep::applyProjection(CIMInstance& inCI) throw(Exception)
 
     // ATTN: Line 636-640 - does this only apply to basic?
 
-    if (!projNode->wildcard)
-      requiredProps.append(projNode->name);   
+    if (!rootNode->wildcard)
+      requiredProps.append(childNode->name);   
  
-    projNode = projNode->sibling.get();
+    childNode = childNode->sibling.get();
   }
 
-  if (!projNode->wildcard)
+  if (!rootNode->wildcard)
     removeUnneededProperties(inCI, requiredProps);
 }
 
@@ -294,8 +294,8 @@ PEGASUS_STD(cout) << "applying to " << node->name.getString() << PEGASUS_STD(end
     curChild = curChild->sibling.get();
   }
 
-if (!node->wildcard)
-  removeUnneededProperties(nodeInst, requiredProps);
+  if (!node->wildcard)
+    removeUnneededProperties(nodeInst, requiredProps);
 
 // ATTN - UNCOMMENT when emb objs are supported
 //CIMValue newNodeVal(nodeInst);

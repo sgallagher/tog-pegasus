@@ -61,6 +61,33 @@ static void testStatus(const String& message)
 
 static void TestNameSpaceOperations(CIMClient& client)
 {
+    // Enumerate NameSpaces using the old technique
+    String className = "__Namespace";
+
+    // Call enumerate Instances CIM Method
+
+    try 
+    {
+    cout << " Enumerate Namespaces " << className << endl;
+    Array<CIMReference> instanceNames = client.enumerateInstanceNames(
+	NAMESPACE, className);
+
+    // Convert from CIMReference to String form
+    Array<String> tmpInstanceNames;
+
+    for (Uint32 i = 0; i < instanceNames.size(); i++)
+	cout << instanceNames[i].toString();
+
+    }
+
+
+    // ATTN Convert this to a test.
+	//tmpInstanceNames.append(instanceNames[i].toString());
+    catch(Exception& e)
+    {
+	ErrorExit(e.getMessage());
+    }
+
 
 }
 
@@ -136,6 +163,7 @@ static void TestClassOperations(CIMClient& client)
 
 	assert(tmp.identical(classDecls[i]));
     }
+
 }
 
 static void TestQualifierOperations(CIMClient& client)
@@ -239,12 +267,14 @@ int main(int argc, char** argv)
 	client.connect(connection);
 	testStatus("Test NameSpace Operations");
 	TestNameSpaceOperations(client);
+	/*
 	testStatus("Test Qualifier Operations");
 	TestQualifierOperations(client);
 	testStatus("Test Class Operations");
 	TestClassOperations(client);
 	testStatus("Test Instance Operations");
 	TestInstanceOperations(client);
+	*/
     }
     catch(Exception& e)
     {

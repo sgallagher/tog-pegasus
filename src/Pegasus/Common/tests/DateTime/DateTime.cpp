@@ -253,7 +253,7 @@ int main(int argc, char** argv)
             differenceInMicroseconds = CIMDateTime::getDifference (startTime,
                 finishTime);
         }
-        catch(DateTimeOutOfRangeException& e)
+        catch(const DateTimeOutOfRangeException&)
         {
         }
     
@@ -289,7 +289,7 @@ int main(int argc, char** argv)
             differenceInMicroseconds = CIMDateTime::getDifference
                 (startTime,finishTime);
         }
-        catch (DateTimeOutOfRangeException& e)
+        catch (const DateTimeOutOfRangeException&)
         {
             bad = true;
         }
@@ -346,7 +346,7 @@ int main(int argc, char** argv)
             differenceInMicroseconds = CIMDateTime::getDifference
                 (startTime,finishTime);
         }
-        catch (DateTimeOutOfRangeException& e)
+        catch (const DateTimeOutOfRangeException&)
         {
             bad = true;
         }
@@ -382,7 +382,7 @@ int main(int argc, char** argv)
             differenceInMicroseconds = CIMDateTime::getDifference
                 (startTime,finishTime);
         }
-        catch (DateTimeOutOfRangeException& e)
+        catch (const DateTimeOutOfRangeException&)
         {
             bad = true;
         }

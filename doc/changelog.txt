@@ -159,6 +159,9 @@ repository implementation.
     to allow tracing of a specific number of bytes in a given
     string. Also modified the XmlIO trace code to use the new interface. 
     Changed the config file defaults for tracing. 
+
+31. (Jenny Yu - HP) 29 Oct 2001 - Fixed CIMReference constructor to allow
+    commas (,) in the string values of key properties.
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch
               Tagged as version_1_01 on 3 August 2001 (sorry should have been

@@ -54,7 +54,7 @@ static Boolean _GetLine(istream& is, Array<char>& x)
 
     char c;
 
-    while (is.get(c) && c != '\n')
+    while (is.get(c) && c != '\n') 
         x.append(c);
 
     x.append('\0');
@@ -161,7 +161,6 @@ static Boolean _GetNextRecord(
     objectName = end;
 
     return true;
-
 }
 
 //------------------------------------------------------------------------------
@@ -184,11 +183,12 @@ Boolean InstanceIndexFile::lookup(
         return false;
 
     ArrayDestroyer<char> p(realPath.allocateCString());
-    ifstream is(p.getPointer());
+    ifstream is(p.getPointer(), ios::binary);
 
     if (is)
     {
         Uint32 targetHashCode = instanceName.makeHashCode();
+
         Array<char> line;
         Uint32 hashCode;
         const char* objectName;
@@ -251,7 +251,7 @@ Boolean InstanceIndexFile::insert(
 
     ArrayDestroyer<char> p(path.allocateCString(4));
     strcat(p.getPointer(), ".tmp");
-    ofstream os(p.getPointer(), ios::app);
+    ofstream os(p.getPointer(), ios::app | ios::binary);
 
     if (!os)
         return false;
@@ -264,28 +264,31 @@ Boolean InstanceIndexFile::insert(
     if (FileSystem::existsNoCase(path, realPath))
     {
         ArrayDestroyer<char> p(realPath.allocateCString());
-        Array<char> line;
-        Uint32 hashCode;
-        const char* objectName;
-        Uint32 size;
-        Uint32 index;
-        Boolean error;
-        ifstream is(p.getPointer());
- 
+        ifstream is(p.getPointer(), ios::binary);
+
         if (!is)
             return false;
 
-        while (_GetNextRecord(is, line, hashCode, objectName, index, size, error))
-        {
-            _appendEntry(os, objectName, size, index);
-        }
+        //
+        // get the size of the instance file
+        //
+        Uint32 fileSize;
+        if (!FileSystem::getFileSizeNoCase(realPath, fileSize))
+            return false;
+
+        char* data = new char[fileSize];
+        is.clear();
+        is.seekg(0);
+        is.read(data, fileSize);
+
+        if (is.fail())
+            return false;
+
+        os.write(data, fileSize);
+
+        delete [] data;
 
         is.close();
-
-        if (error)
-        {
-            return false;
-        }
     }
 
     //
@@ -339,7 +342,7 @@ Boolean InstanceIndexFile::remove(
 
     ArrayDestroyer<char> p(path.allocateCString(4));
     strcat(p.getPointer(), ".tmp");
-    ofstream os(p.getPointer());
+    ofstream os(p.getPointer(), ios::binary);
 
     if (!os)
     {
@@ -404,7 +407,7 @@ Boolean InstanceIndexFile::modify(
 
     ArrayDestroyer<char> p(realPath.allocateCString(4));
     strcat(p.getPointer(), ".tmp");
-    ofstream os(p.getPointer());
+    ofstream os(p.getPointer(), ios::binary);
 
     if (!os)
     {
@@ -454,7 +457,7 @@ Boolean InstanceIndexFile::appendInstanceNamesTo(
     {
         ArrayDestroyer<char> p(realPath.allocateCString());
 
-        ifstream is(p.getPointer());
+        ifstream is(p.getPointer(), ios::binary);
 
         if (!is)
             return false;
@@ -525,7 +528,7 @@ Boolean InstanceIndexFile::_removeEntry(
     // Open the index file
     //
     ArrayDestroyer<char> q(path.allocateCString());
-    ifstream is(q.getPointer());
+    ifstream is(q.getPointer(), ios::binary);
 
     if (!is)
     {

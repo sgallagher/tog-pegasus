@@ -164,7 +164,7 @@ Boolean InstanceFile::insertInstance(
     if (FileSystem::existsNoCase(path, realPath))
     {
         ArrayDestroyer<char> p(realPath.allocateCString());
-        ifstream is(p.getPointer());
+        ifstream is(p.getPointer(), ios::binary);
 
         if (!is)
         {
@@ -358,7 +358,7 @@ Boolean InstanceFile::_loadData(
     // open the instance file
     //
     ArrayDestroyer<char> p(path.allocateCString());
-    ifstream is(p.getPointer(), ios::in);
+    ifstream is(p.getPointer(), ios::in | ios::binary);
    
     if (!is)
     {
@@ -406,7 +406,7 @@ Boolean InstanceFile::_removeData(
     // Open the instance file 
     //
     ArrayDestroyer<char> q(realPath.allocateCString());
-    ifstream is(q.getPointer(), ios::in);
+    ifstream is(q.getPointer(), ios::in | ios::binary);
 
     if (!is)
     {

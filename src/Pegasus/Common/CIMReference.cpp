@@ -262,8 +262,11 @@ void CIMReference::set(const String& objectName)
 
     // Convert to a C String first:
 
-    char* p = objectName.allocateCString();
+    char* p = objectName.allocateCString(1);
     ArrayDestroyer<char> destroyer(p);
+
+    // null terminate the C String
+    p[objectName.size() + 1]= '\0';
 
     // See if there is a host name (true if it begins with "//"):
     // Host is of the from <hostname>-<port> and begins with "//"
@@ -362,7 +365,7 @@ void CIMReference::set(const String& objectName)
 
     if (!dot)
     {
-	if (!CIMName::legal(p))
+	if (!CIMName::legal(p)) 
 	    throw IllformedObjectName(objectName);
 
 	// ATTN: remove this later: a reference should only be able to hold
@@ -380,20 +383,16 @@ void CIMReference::set(const String& objectName)
 
     // Get the key-value pairs:
 
-    for (p = strtok(p, ","); p; p = strtok(NULL, ","))
+    while (*p)
     {
-	// Split about the equal sign:
+        // Get key part:
 
-	char* equal = strchr(p, '=');
+        char* key = strtok(p, "=");
 
-	if (!equal)
+	if (!key)
 	    throw IllformedObjectName(objectName);
 
-	*equal = '\0';
-
-	// Get key part:
-
-	String keyString(p);
+	String keyString(key);
 
 	if (!CIMName::legal(keyString))
 	    throw IllformedObjectName(objectName);
@@ -401,62 +400,78 @@ void CIMReference::set(const String& objectName)
 	// Get the value part:
 
 	String valueString;
-	char* q = equal + 1;
+        p = p + strlen(key) + 1;
 	KeyBinding::Type type;
 
-	if (*q == '"')
+	if (*p == '"')
 	{
-	    q++;
+	    p++;
 
 	    type = KeyBinding::STRING;
 
-	    while (*q && *q != '"')
+	    while (*p && *p != '"')
 	    {
 		// ATTN: need to handle special characters here:
 
-		if (*q == '\\')
-		    *q++;
+		if (*p == '\\')
+		    *p++;
 
-		valueString.append(*q++);
+		valueString.append(*p++);
 	    }
 
-	    if (*q++ != '"')
+	    if (*p++ != '"')
 		throw IllformedObjectName(objectName);
 
-	    if (*q)
-		throw IllformedObjectName(objectName);
+            p++;
 	}
-	else if (toupper(*q) == 'T' || toupper(*q) == 'F')
+	else if (toupper(*p) == 'T' || toupper(*p) == 'F')
 	{
 	    type = KeyBinding::BOOLEAN;
 
-	    char* r = q;
+            char* r = p;
+            Uint32 n = 0;
 
-	    while (*r)
+	    while (*r && *r != ',')
 	    {
 		*r = toupper(*r);
-		r++;
+                r++;
+                n++;
 	    }
 
-	    if (strcmp(q, "TRUE") != 0 && strcmp(q, "FALSE") != 0)
+	    if (strncmp(p, "TRUE", n) != 0 && strncmp(p, "FALSE", n) != 0)
 		throw IllformedObjectName(objectName);
 
-	    valueString.assign(q);
+	    valueString.assign(p, n);
+
+            p = p + n + 1;
 	}
 	else
 	{
 	    type = KeyBinding::NUMERIC;
 
+            char* r = p;
+            Uint32 n = 0;
+
+	    while (*r && *r != ',')
+	    {
+                r++;
+                n++;
+	    }
+          
+            *r = '\0';
+
 	    Sint64 x;
 
-	    if (!XmlReader::stringToSignedInteger(q, x))
+	    if (!XmlReader::stringToSignedInteger(p, x))
 		throw IllformedObjectName(objectName);
 
-	    valueString.assign(q);
+            valueString.assign(p, n);
+
+            p = p + n + 1;
 	}
 
 	_keyBindings.append(KeyBinding(keyString, valueString, type));
-    }
+    }  
 
     _BubbleSort(_keyBindings);
 }

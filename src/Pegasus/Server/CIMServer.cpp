@@ -232,14 +232,9 @@ void CIMServer::bind(Uint32 port)
 
 void CIMServer::runForever()
 {
-    const char METHOD_NAME[] = "CIMServer::runForever()";
-
-    PEG_FUNC_ENTER(TRC_SERVER, METHOD_NAME);
-
+    //ATTN: Do not add Trace code in this method.
     if(!_dieNow)
 	_monitor->run(100);
-
-    PEG_FUNC_EXIT(TRC_SERVER, METHOD_NAME);
 }
 
 void CIMServer::stopClientConnection()

@@ -316,8 +316,8 @@ Message* CIMExportClient::_doRequest(
             PEGASUS_ASSERT(getCount() == 0);
 
             //
-            //  ATTN-CAKG-20021001: If HTTP response is 501 Not Implemented
-            //  or 510 Not Extended, retry with POST method
+            //  Future:  If M-POST is used and HTTP response is 501 Not
+            //  Implemented or 510 Not Extended, retry with POST method
             //
 
             if (response->getType() == CLIENT_EXCEPTION_MESSAGE)
@@ -325,7 +325,43 @@ Message* CIMExportClient::_doRequest(
                 Exception* clientException =
                     ((ClientExceptionMessage*)response)->clientException;
                 delete response;
+
                 Destroyer<Exception> d(clientException);
+
+                //
+                // Determine and throw the specific class of client exception
+                //
+
+                CIMClientMalformedHTTPException* malformedHTTPException =
+                    dynamic_cast<CIMClientMalformedHTTPException*>(
+                        clientException);
+                if (malformedHTTPException)
+                {
+                    throw *malformedHTTPException;
+                }
+
+                CIMClientHTTPErrorException* httpErrorException =
+                    dynamic_cast<CIMClientHTTPErrorException*>(
+                        clientException);
+                if (httpErrorException)
+                {
+                    throw *httpErrorException;
+                }
+
+                CIMClientXmlException* xmlException =
+                    dynamic_cast<CIMClientXmlException*>(clientException);
+                if (xmlException)
+                {
+                    throw *xmlException;
+                }
+
+                CIMClientResponseException* responseException =
+                    dynamic_cast<CIMClientResponseException*>(clientException);
+                if (responseException)
+                {
+                    throw *responseException;
+                }
+
                 throw *clientException;
             }
             else if (response->getType() == expectedResponseMessageType)

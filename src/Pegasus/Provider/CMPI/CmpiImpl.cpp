@@ -53,6 +53,7 @@
 #include "CmpiCharData.h"
 #include "CmpiBooleanData.h"
 
+
 #ifdef CMPI_STANDALONE
 # define PEGASUS_USING_STD using namespace std
 #else
@@ -556,7 +557,8 @@ CmpiIndicationMI::CmpiIndicationMI(const CmpiBroker &mbp, const CmpiContext& ctx
 
 CMPIStatus CmpiIndicationMI::driveAuthorizeFilter
       (CMPIIndicationMI* mi, CMPIContext* eCtx, CMPIResult* eRslt,
-       CMPISelectExp* eSe, char* ns, CMPIObjectPath* eCop, char* user){
+       CMPISelectExp* eSe, const char* ns, CMPIObjectPath* eCop, 
+       const char* user){
   try {
    const CmpiContext ctx(eCtx);
    CmpiResult rslt(eRslt);
@@ -574,7 +576,7 @@ CMPIStatus CmpiIndicationMI::driveAuthorizeFilter
 
 CMPIStatus CmpiIndicationMI::driveMustPoll
       (CMPIIndicationMI* mi, CMPIContext* eCtx, CMPIResult* eRslt,
-       CMPISelectExp* eSe, char* ns, CMPIObjectPath* eCop){
+       CMPISelectExp* eSe, const char* ns, CMPIObjectPath* eCop){
   try {
    const CmpiContext ctx(eCtx);
    CmpiResult rslt(eRslt);
@@ -592,7 +594,8 @@ CMPIStatus CmpiIndicationMI::driveMustPoll
 
 CMPIStatus CmpiIndicationMI::driveActivateFilter
       (CMPIIndicationMI* mi, CMPIContext* eCtx, CMPIResult* eRslt,
-       CMPISelectExp* eSe, char* ns, CMPIObjectPath* eCop, CMPIBoolean first){
+       CMPISelectExp* eSe, const char* ns, CMPIObjectPath* eCop, 
+       CMPIBoolean first){
    const CmpiContext ctx(eCtx);
   try {
    CmpiResult rslt(eRslt);
@@ -610,7 +613,8 @@ CMPIStatus CmpiIndicationMI::driveActivateFilter
 
 CMPIStatus CmpiIndicationMI::driveDeActivateFilter
       (CMPIIndicationMI* mi, CMPIContext* eCtx, CMPIResult* eRslt,
-       CMPISelectExp* eSe, char* ns, CMPIObjectPath* eCop, CMPIBoolean last){
+       CMPISelectExp* eSe, const char* ns, CMPIObjectPath* eCop, 
+       CMPIBoolean last){
   try {
    const CmpiContext ctx(eCtx);
    CmpiResult rslt(eRslt);
@@ -623,6 +627,32 @@ CMPIStatus CmpiIndicationMI::driveDeActivateFilter
   } catch (CmpiStatus& stat) {
     cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
     return stat.status();
+  }
+}
+
+void CmpiIndicationMI::driveEnableIndications
+      (CMPIIndicationMI* mi)
+{
+  try {
+   CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*> (mi->hdl);
+   CmpiIndicationMI* nmi = dynamic_cast<CmpiIndicationMI*>(cmi);
+   return nmi->enableIndications
+     ();
+  } catch (CmpiStatus& stat) {
+    cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
+  }
+}
+
+void CmpiIndicationMI::driveDisableIndications
+      (CMPIIndicationMI* mi)
+{
+  try {
+   CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*> (mi->hdl);
+   CmpiIndicationMI* nmi = dynamic_cast<CmpiIndicationMI*>(cmi);
+   return nmi->disableIndications
+     ();
+  } catch (CmpiStatus& stat) {
+    cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
   }
 }
 
@@ -659,8 +689,13 @@ CmpiStatus CmpiIndicationMI::deActivateFilter
    return CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);
 }
 
+void CmpiIndicationMI::enableIndications()
+{
+}
 
-
+void CmpiIndicationMI::disableIndications()
+{
+}
 
 
 
@@ -1396,10 +1431,32 @@ CMPIBroker *CmpiBroker::getEnc() const {
    return (CMPIBroker*)enc;
 }
 
-void CmpiBroker::deliverIndication(const CmpiContext& ctx, const char*,
+CmpiContext CmpiBroker::prepareAttachThread(const CmpiContext& ctx)
+{
+  CMPIContext* cctx=
+    getEnc()->bft->prepareAttachThread(getEnc(),ctx.getEnc());
+  return CmpiContext(cctx);
+}
+
+void CmpiBroker::attachThread(const CmpiContext& ctx)
+{
+  CMPIStatus rc=getEnc()->bft->attachThread(getEnc(),ctx.getEnc());
+  if (rc.rc!=CMPI_RC_OK) throw CmpiStatus(rc);
+}
+
+void CmpiBroker::detachThread(const CmpiContext& ctx)
+{
+  CMPIStatus rc=getEnc()->bft->detachThread(getEnc(),ctx.getEnc());
+  if (rc.rc!=CMPI_RC_OK) throw CmpiStatus(rc);
+}
+
+
+void CmpiBroker::deliverIndication(const CmpiContext& ctx, const char* ns,
                                    const CmpiInstance& inst)
 {
-   throw CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);
+  CMPIStatus rc=
+    getEnc()->bft->deliverIndication(getEnc(),ctx.getEnc(),ns,inst.getEnc());
+  if (rc.rc!=CMPI_RC_OK) throw CmpiStatus(rc);
 }
 
      // class 1 services

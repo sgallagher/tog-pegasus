@@ -2192,38 +2192,38 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
            for an indication provider. The initialization routine &lt;pn&gt;Create_IndicationMI
 	   is called when this provider module is loaded by the broker.
 	   This macro is for CMPI providers written in C++ using the Cmpi* classes.
-	 @param cn The C++ class name of this method provider
-	        (a subclass of CmpiMethodMI).
+	 @param cn The C++ class name of this indication provider
+	        (a subclass of CmpiIndicationMI).
 	        This is a character string without quotes.
 	 @param pn The provider name under which this provider is registered.
 	        This is a character string without quotes.
 	 @return The function table of this association provider.
       */
-   CMPIIndicationMI* CMIndicationMIFactor(chars cn, chars pn);
+   CMPIIndicationMI* CMIndicationMIFactory(chars cn, chars pn);
 #else
 
   #if defined(CMPI_VER_86)
-    #define CMIndicationMIFactoryExtensions Indication::driveEnableIndications, \
-       Indication::driveDisableIndications,
+    #define CMIndicationMIFactoryExtensions CmpiIndicationMI::driveEnableIndications, \
+       CmpiIndicationMI::driveDisableIndications,
   #else
     #define CMIndicationMIFactoryExtensions
   #endif
 
 #define CMIndicationMIFactory(cn,pn) \
  CMPI_EXTERN_C \
- CMPIMethodMI* pn##_Create_IndicationMI(CMPIBroker* broker, CMPIContext *ctxp) { \
+ CMPIIndicationMI* pn##_Create_IndicationMI(CMPIBroker* broker, CMPIContext *ctxp) { \
    static CMPIIndicationMIFT indMIFT={ \
     CMPICurrentVersion, \
     CMPICurrentVersion, \
     "indication" #pn, \
-    (CMPIStatus(*)(CMPIPropertyMI*,CMPIContext*))CmpiBaseMI::driveBaseCleanup, \
-    Indication::driveAuthorizeFilter, \
-    Indication::driveMustPoll, \
-    Indication::driveActivateFilter, \
-    Indication::driveDeActivateFilter, \
+    (CMPIStatus(*)(CMPIIndicationMI*,CMPIContext*))CmpiBaseMI::driveBaseCleanup, \
+    CmpiIndicationMI::driveAuthorizeFilter, \
+    CmpiIndicationMI::driveMustPoll, \
+    CmpiIndicationMI::driveActivateFilter, \
+    CmpiIndicationMI::driveDeActivateFilter, \
     CMIndicationMIFactoryExtensions \
    }; \
-   static CMPIPropertyMI mi; \
+   static CMPIIndicationMI mi; \
    fprintf(stderr,"--- _Create_IndicationMI() broker: %p\n",broker); \
    CmpiContext ctx(ctxp); \
    mi.ft=&indMIFT; \

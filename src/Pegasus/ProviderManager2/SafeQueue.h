@@ -33,7 +33,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Queue.h>
 
-#include <Pegasus/ProviderManager/MutexLock.h>
+#include <Pegasus/ProviderManager2/MutexLock.h>
 
 #include <Pegasus/Server/Linkage.h>
 

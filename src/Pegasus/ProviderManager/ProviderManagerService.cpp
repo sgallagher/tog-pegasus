@@ -82,7 +82,7 @@ Pair<String, String> _getProviderRegPair(const CIMInstance& pInstance, const CIM
 
     if(pos == PEG_NOT_FOUND)
     {
-	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Trcer::LEVEL4,
+	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
 	    "Provider name not found.");
 
 	PEG_METHOD_EXIT();

@@ -152,12 +152,19 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 // Lock this object to maintain integrity while we decide
 // exactly what to do next.
 //-----------------------------------------------------------------
-    //   AutoPtr<IPCException> caught;
-    IPCException  caught((PEGASUS_THREAD_TYPE)0);
-    WaitFailed caughtWaitFailed((PEGASUS_THREAD_TYPE)0);
-    TimeOut caughtTimeOut((PEGASUS_THREAD_TYPE)0);
-    TooManyReaders caughtTooManyReaders((PEGASUS_THREAD_TYPE)0);
+    //    AutoPtr<IPCException> caught;
+    //IPCException  caught((PEGASUS_THREAD_TYPE)0);
+    //WaitFailed caughtWaitFailed((PEGASUS_THREAD_TYPE)0);
+    //TimeOut caughtTimeOut((PEGASUS_THREAD_TYPE)0);
+    //TooManyReaders caughtTooManyReaders((PEGASUS_THREAD_TYPE)0);
 
+    PEGASUS_THREAD_TYPE zero;
+    zero = 0;
+    IPCException caught(zero);
+    WaitFailed caughtWaitFailed(zero);
+    TimeOut caughtTimeOut(zero);
+    TooManyReaders caughtTooManyReaders(zero);
+    
    { // cleanup stack frame
       native_cleanup_push(extricate_read_write, this);
       try

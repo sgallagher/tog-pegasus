@@ -16,6 +16,7 @@ FORCE:
 
 world: FORCE
 	@$(MAKE) -f $(ROOT)/Makefile.Release -i cimstop
+	@$(MAKE) -f $(ROOT)/Makefile.Release createProductVersionFile
 	@$(MAKE) -f $(ROOT)/Makefile.Release _world
 
 _world: depend all repository install
@@ -23,6 +24,7 @@ _world: depend all repository install
 
 rebuild: FORCE
 	@$(MAKE) -f $(ROOT)/Makefile.Release -i cimstop
+	@$(MAKE) -f $(ROOT)/Makefile.Release createProductVersionFile
 	@$(MAKE) -f $(ROOT)/Makefile.Release _rebuild
 
 _rebuild: clean depend all repository install

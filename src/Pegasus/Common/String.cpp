@@ -432,6 +432,7 @@ Uint32 String::reverseFind(Char16 c) const
     return PEG_NOT_FOUND;
 }
 
+// ATTN-RK-P3-20020509: Define case-sensitivity for non-English characters
 void String::toLower()
 {
     for (Char16* p = &_rep->c16a[0]; *p; p++)

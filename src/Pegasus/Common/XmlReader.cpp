@@ -439,6 +439,10 @@ CIMName XmlReader::getReferenceClassAttribute(
 
     if (!CIMName::legal(name))
     {
+#ifdef PEGASUS_SNIA_INTEROP_TEST
+    name = "PEGASUS_SUBSTITUED_THIS_FOR_BAD_NAME";
+    return name;
+#endif 
 	char buffer[MESSAGE_SIZE];
 	sprintf(buffer, 
 	    "Illegal value for %s.REFERENCECLASS attribute", elementName);

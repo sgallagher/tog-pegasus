@@ -182,7 +182,7 @@ static jclass providerClassRef;
 jclass JMPIjvm::getGlobalClassRef(JNIEnv *env, const char* name) {
   jclass localRefCls=env->FindClass(name);
 
-  DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::"<<__FUNCTION__<<": localRefCls = "<<PEGASUS_STD(hex)<<(int)localRefCls<<PEGASUS_STD(dec)<<", name = "<<name<<PEGASUS_STD(endl));
+  DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::getGlobalClassRef: localRefCls = "<<PEGASUS_STD(hex)<<(int)localRefCls<<PEGASUS_STD(dec)<<", name = "<<name<<PEGASUS_STD(endl));
 
   if (localRefCls==NULL)
      return JNI_FALSE;
@@ -393,11 +393,11 @@ jobject JMPIjvm::getProvider(JNIEnv *env, String jar, String cln,
    jobject gProv=NULL;
    jclass scls=NULL;
 
-   DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::"<<__FUNCTION__<<": jar = "<<jar<<", cln = "<<cln<<", cn = "<<cn<<", cls = "<<cls<<PEGASUS_STD(endl));
+   DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::getProvider: jar = "<<jar<<", cln = "<<cln<<", cn = "<<cn<<", cls = "<<cls<<PEGASUS_STD(endl));
 
    _objectTable.lookup(cln,gProv);
    _classTable.lookup(cln,scls);
-   DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::"<<__FUNCTION__<<": gProv = "<<PEGASUS_STD(hex)<<(int)gProv<<", scls = "<<(int)scls<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
+   DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::getProvider: gProv = "<<PEGASUS_STD(hex)<<(int)gProv<<", scls = "<<(int)scls<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
 
    if (gProv) {
       *cls=scls;
@@ -422,7 +422,7 @@ jobject JMPIjvm::getProvider(JNIEnv *env, String jar, String cln,
 
    scls=getGlobalClassRef(env,(const char*)cln.getCString());
    if (env->ExceptionCheck()) {
-      DDD(PEGASUS_STD(cerr)<<"--- JMPIjvm::"<<__FUNCTION__<<": Provider "<<cn<<" not found"<<PEGASUS_STD(endl));
+      DDD(PEGASUS_STD(cerr)<<"--- JMPIjvm::getProvider: Provider "<<cn<<" not found"<<PEGASUS_STD(endl));
       DDD(env->ExceptionDescribe());
 
       return NULL;
@@ -431,7 +431,7 @@ jobject JMPIjvm::getProvider(JNIEnv *env, String jar, String cln,
 
    if (scls)
    {
-      DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::"<<__FUNCTION__<<": scls = "<<PEGASUS_STD(hex)<<(int)scls<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
+      DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::getProvider: scls = "<<PEGASUS_STD(hex)<<(int)scls<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
       _classTable.insert(cln,scls);
    }
 
@@ -445,7 +445,7 @@ jobject JMPIjvm::getProvider(JNIEnv *env, String jar, String cln,
 
    if (gProv)
    {
-      DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::"<<__FUNCTION__<<": gProv = "<<PEGASUS_STD(hex)<<(int)gProv<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
+      DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::getProvider: gProv = "<<PEGASUS_STD(hex)<<(int)gProv<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
       _objectTable.insert(cln,gProv);
    }
 
@@ -458,11 +458,11 @@ jobject JMPIjvm::getProvider(JNIEnv *env, const char *cn, jclass *cls)
    jobject gProv=NULL;
    jclass scls=NULL;
 
-   DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::"<<__FUNCTION__<<": cn = "<<cn<<", cls = "<<cls<<PEGASUS_STD(endl));
+   DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::getProvider: cn = "<<cn<<", cls = "<<cls<<PEGASUS_STD(endl));
 
    _objectTable.lookup(cln,gProv);
    _classTable.lookup(cln,scls);
-   DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::"<<__FUNCTION__<<": gProv = "<<PEGASUS_STD(hex)<<(int)gProv<<", scls = "<<(int)scls<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
+   DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::getProvider: gProv = "<<PEGASUS_STD(hex)<<(int)gProv<<", scls = "<<(int)scls<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
 
    if (gProv) {
       *cls=scls;
@@ -471,7 +471,7 @@ jobject JMPIjvm::getProvider(JNIEnv *env, const char *cn, jclass *cls)
 
    scls=getGlobalClassRef(env,cn);
    if (env->ExceptionCheck()) {
-      DDD(PEGASUS_STD(cerr)<<"--- JMPIjvm::"<<__FUNCTION__<<": Provider "<<cn<<" not found"<<PEGASUS_STD(endl));
+      DDD(PEGASUS_STD(cerr)<<"--- JMPIjvm::getProvider: Provider "<<cn<<" not found"<<PEGASUS_STD(endl));
       DDD(env->ExceptionDescribe());
 
       return NULL;
@@ -480,7 +480,7 @@ jobject JMPIjvm::getProvider(JNIEnv *env, const char *cn, jclass *cls)
 
    if (scls)
    {
-      DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::"<<__FUNCTION__<<": scls = "<<PEGASUS_STD(hex)<<(int)scls<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
+      DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::getProvider: scls = "<<PEGASUS_STD(hex)<<(int)scls<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
       _classTable.insert(cln,scls);
    }
 
@@ -494,7 +494,7 @@ jobject JMPIjvm::getProvider(JNIEnv *env, const char *cn, jclass *cls)
 
    if (gProv)
    {
-      DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::"<<__FUNCTION__<<": gProv = "<<PEGASUS_STD(hex)<<(int)gProv<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
+      DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::getProvider: gProv = "<<PEGASUS_STD(hex)<<(int)gProv<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
       _objectTable.insert(cln,gProv);
    }
 
@@ -3429,7 +3429,7 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMClient__1execQuery
 
 /* Note:
 ** This does not work for some reason on the client java code:
-**   DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::"<<__FUNCTION__<<": jEnv = "<<PEGASUS_STD(hex)<<(int)jEnv<<", jThs = "<<(int)jThs<<PEGASUS_STD(dec)<<", jCc = "<<jCc<<", jNs = "<<jNs<<", jCop = "<<jCop<<", jQuery = "<<PEGASUS_STD(hex)<<(int)jQuery<<", jQl = "<<(int)jQl<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
+**   DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::Java_org_pegasus_jmpi_CIMClient__1execQuery: jEnv = "<<PEGASUS_STD(hex)<<(int)jEnv<<", jThs = "<<(int)jThs<<PEGASUS_STD(dec)<<", jCc = "<<jCc<<", jNs = "<<jNs<<", jCop = "<<jCop<<", jQuery = "<<PEGASUS_STD(hex)<<(int)jQuery<<", jQl = "<<(int)jQl<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
 ** What does work is:
 **   printf ("This is a test\n");
 */

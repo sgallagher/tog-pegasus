@@ -1236,15 +1236,10 @@ Message* CIMClientRep::_doRequest(
                       item = perfDataStore->createPerfDataStruct();
                       perfDataStore->handler_prt->handleClientOpPerformanceData(item);
                    }
-                   catch(CIMException& e){
-                    cout << e.getMessage() << endl;
-                   }
-                   catch(Exception& e){
-                    cerr << "Exception : " << e.getMessage() << endl;
-                    exit(1);
-                   }
                    catch(...){
-                      cerr << " Caught General Exception:" << endl;
+                       Exception excep (
+                           "Problem whlie trying to exicute the client statistical callback");
+                       throw excep;
                    }
                   
                 }//end of if statmet that call the callback method

@@ -124,14 +124,12 @@ Boolean ClientPerfDataStore::checkMessageIDandType(String messageID, Uint32 type
 { if(_messID != messageID)
   {
     _errorCondition = true;
-    cerr << " error being set in check method for messageID" << endl;
     return false; 
   }
   
   if (_operationType != Message::convertMessageTypetoCIMOpType(type)) 
   {
     _errorCondition = true;
-    cerr << " error being set in check method for type" << endl;
     return false; 
   }
 

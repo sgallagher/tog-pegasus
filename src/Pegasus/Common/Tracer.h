@@ -192,6 +192,7 @@ private:
 
     static const char   _COMPONENT_SEPARATOR;
     static const Uint32 _NUM_COMPONENTS;
+    static const Uint32 _STRLEN_MAX_UNSIGNED_INT;
     Boolean*            _traceComponentMask;
     Uint32              _traceLevelMask;
     TraceFileHandler*   _traceHandler;

@@ -53,6 +53,8 @@ Version 1.1 - July 2001 Development branch (Work in Progress)
    When authentication framework is defined this component may need to be 
    modified to integrate with the framework.
 
+8. (Sushma Fernandes - HP) Removed the ltoa() function call from Tracer.cpp.
+   Added a constant to define the maximum length of uint32.
 
 ---------------------------------------------------------------------------
 Version 0.99.x (Fixes to version 0.99) in Process

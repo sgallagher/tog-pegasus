@@ -34,27 +34,6 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-// ATTN  mdday@us.ibm.com Wed Aug  1 10:31:51 2001
-/// el-cheapo version of ltoa
-// ltoa is implemented differently from platform to platform
-// Linux does not have it at all.
-// windows implements it as char * _ltoa(long, char *, int); 
-//
-// Because of the static buffer this you should copy the 
-// return value before another thread clobbers it. 
-// If using for temporary values, as in :
-// strlen(ltoa(linenumber)) 
-// it should be safe enough for trace functions. . 
-#ifndef PEGASUS_PLATFORM_HPUX_PARISC_ACC
-static inline char *ltoa(int n) 
-{
-   static char buf [21];
-   sprintf(buf, "%d", n);
-   return(buf);
-}
-
-#endif 
-
 // Set the trace levels
 // These levels will be compared against a trace level mask to determine
 // if a specific trace level is enabled 
@@ -81,6 +60,9 @@ const char Tracer::_COMPONENT_SEPARATOR = ',';
 // Set the number of defined components
 const Uint32 Tracer::_NUM_COMPONENTS = 
     sizeof(TRACE_COMPONENT_LIST)/sizeof(TRACE_COMPONENT_LIST[0]);
+
+// Set the line maximum
+const Uint32 Tracer::_STRLEN_MAX_UNSIGNED_INT = 21;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Tracer constructor
@@ -157,8 +139,10 @@ void Tracer::_trace(
      {
          if (_isTraceEnabled(traceComponent,traceLevel))
          {
-	    message = new char[strlen(fileName)+strlen(ltoa((long)lineNum))+6];
+	    message = new char[ strlen(fileName) + 
+		_STRLEN_MAX_UNSIGNED_INT + 6 ];
             sprintf(message,"[%s:%d]: ",fileName,lineNum);
+
             _trace(traceComponent,message,fmt,argList); 
 	    delete []message;
          }
@@ -181,9 +165,12 @@ void Tracer::_traceEnter(
     if (_isTraceEnabled(traceComponent,LEVEL1))
     {
         va_start(argList,fmt);
-        message = new char[strlen(fileName)+strlen(ltoa((long)lineNum))+6];
+
+	message = new char[ strlen(fileName) + 
+	    _STRLEN_MAX_UNSIGNED_INT + 6 ];
         sprintf(message,"[%s:%d]: ",fileName,lineNum);
         _trace(traceComponent,message,fmt,argList); 
+
         va_end(argList);
         delete []message;
     }
@@ -205,10 +192,13 @@ void Tracer::_traceExit(
     if (_isTraceEnabled(traceComponent,LEVEL1))
     {
         va_start(argList,fmt);
-        message = new char[strlen(fileName)+strlen(ltoa((long)lineNum))+6];
+ 
+	message = new char[ strlen(fileName) + 
+	    _STRLEN_MAX_UNSIGNED_INT + 6 ];
         sprintf(message,"[%s:%d]: ",fileName,lineNum);
         _trace(traceComponent,message,fmt,argList); 
         va_end(argList);
+
         delete []message;
     }
 }
@@ -238,6 +228,7 @@ void Tracer::_trace(
     va_list argList)
 {
     char* msgHeader;
+    Uint32 retCode;
 
     // Get the current system time and prepend to message
     String currentTime = System::getCurrentASCIITime();

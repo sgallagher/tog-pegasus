@@ -23,11 +23,12 @@
 //
 //==============================================================================
 //
-// Author:  Nag Boranna,   Hewlett-Packard Company(nagaraja_boranna@hp.com)
+// Author:  Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //
 // Modified By: Dave Rosckes (rosckes@us.ibm.com)
 //              Jair F. T. dos Santos, Hewlett-Packard Company
 //                  (jair.santos@hp.com)
+//              Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -79,6 +80,11 @@ HTTPAuthenticatorDelegator::~HTTPAuthenticatorDelegator()
     PEG_METHOD_EXIT();
 }
 
+void HTTPAuthenticatorDelegator::enqueue(Message* message) throw(IPCException)
+{
+    handleEnqueue(message);
+}
+
 void HTTPAuthenticatorDelegator::_sendResponse(
     Uint32 queueId,
     Array<Sint8>& message)
@@ -91,8 +97,8 @@ void HTTPAuthenticatorDelegator::_sendResponse(
     if (queue)
     {
         HTTPMessage* httpMessage = new HTTPMessage(message);
-	httpMessage->dest = queue->getQueueId();
-	
+        httpMessage->dest = queue->getQueueId();
+        
         queue->enqueue(httpMessage);
     }
 
@@ -139,23 +145,24 @@ void HTTPAuthenticatorDelegator::_sendChallenge(
     PEG_METHOD_EXIT();
 }
 
-
-void HTTPAuthenticatorDelegator::_sendError(
+void HTTPAuthenticatorDelegator::_sendHttpError(
     Uint32 queueId,
-    const String errorMessage)
+    const String& status,
+    const String& cimError,
+    const String& pegasusError)
 {
     PEG_METHOD_ENTER(TRC_HTTP,
-        "HTTPAuthenticatorDelegator::_sendError");
+        "HTTPAuthenticatorDelegator::_sendHttpError");
 
     //
     // build error response message
     //
 
     Array<Sint8> message;
-    //
-    //ATTN: Need an ErrorResponseHeader() in XmlWriter
-    //
-    //message = XmlWriter::formatErrorResponseHeader(errorMessage);
+    message = XmlWriter::formatHttpErrorRspMessage(
+        status,
+        cimError,
+        pegasusError);
 
     _sendResponse(queueId, message);
 
@@ -219,59 +226,31 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     if (httpMessage->message.size() == 0)
     {
         // The message is empty; just drop it
+        PEG_METHOD_EXIT();
         return;
     }
 
     //
-    // By Jair, modified for Mapper's specific purposes
+    // get the configured authentication flag
     //
+    // WMI MAPPER SPECIFIC: AUTHENTICATION ALWAYS ENABLED:
     Boolean enableAuthentication = true;
+    /* NORMAL METHOD OF LOOKING UP AUTHENTICATION CONFIGURATION:
+    ConfigManager* configManager = ConfigManager::getInstance();
 
+    Boolean enableAuthentication = false;
+
+    if (String::equal(
+        configManager->getCurrentValue("enableAuthentication"), "true"))
+    {
+        enableAuthentication = true;
+    }
+    */
 
     //
     // Save queueId:
     //
     Uint32 queueId = httpMessage->queueId;
-
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-    // This still needs work and is not functional.
-
-    CIMKerberosSecurityAssociation *sa = httpMessage->authInfo->getSecurityAssociation();
-    char* outmessage = NULL;
-    Uint32   outlength = 0;
-    if ( sa )
-    {
-        if (sa->getClientAuthenticated())
-        { 
-            if (sa->unwrap_message((const char*)httpMessage->message.getData(),
-                                    httpMessage->message.size(),
-                                    outmessage,
-                                    outlength))
-            {
-                // build a bad request
-                Array<Sint8> statusMsg;
-                statusMsg = XmlWriter::formatHttpErrorRspMessage(HTTP_STATUS_BADREQUEST);
-                _sendResponse(queueId, statusMsg);
-                PEG_METHOD_EXIT();
-                return;
-            }
-        }
-        else
-        {
-            // set authenticated flag in _authInfo to not authenticated because the
-            // unwrap resulted in an expired token or credential.
-            httpMessage->authInfo->setAuthStatus(AuthenticationInfoRep::CHALLENGE_SENT);
-            // build a 401 response 
-            Array<Sint8> statusMsg;
-            // do we need to add a token here or just restart the negotiate again???
-            // authResponse.append(sa->getServerToken());
-            XmlWriter::appendUnauthorizedResponseHeader(statusMsg, KERBEROS_CHALLENGE_HEADER);
-            _sendResponse(queueId, statusMsg);
-            PEG_METHOD_EXIT();
-            return;
-        }
-    }           
-#endif
 
     //
     // Parse the HTTP message:
@@ -281,7 +260,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     Uint32 contentLength;
 
     httpMessage->parse(startLine, headers, contentLength);
-
+    
     //
     // Parse the request line:
     //
@@ -301,13 +280,11 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         httpMethod = HTTP_METHOD_M_POST;
     }
 
-	if (methodName != "M-POST" && methodName != "POST")
+    if (methodName != "M-POST" && methodName != "POST")
     {
         // Only POST and M-POST are implemented by this server
-        Array<Sint8> message;
-        message = XmlWriter::formatHttpErrorRspMessage(
-            HTTP_STATUS_NOTIMPLEMENTED);
-        _sendResponse(queueId, message);
+        _sendHttpError(queueId,
+                       HTTP_STATUS_NOTIMPLEMENTED);
     }
     else if ((httpMethod == HTTP_METHOD_M_POST) &&
              (httpVersion == "HTTP/1.0"))
@@ -315,70 +292,102 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         //
         //  M-POST method is not valid with version 1.0
         //
-        Array<Sint8> message;
-        message = XmlWriter::formatHttpErrorRspMessage(
-            HTTP_STATUS_BADREQUEST);
-        _sendResponse(queueId, message);
+        _sendHttpError(queueId,
+                       HTTP_STATUS_BADREQUEST);
     }
     else
     {
-		//
+        //
         // Process M-POST and POST messages:
         //
-		Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-			"HTTPAuthenticatorDelegator - M-POST/POST processing start");
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+            "HTTPAuthenticatorDelegator - M-POST/POST processing start");
 
-		httpMessage->message.append('\0');
+        httpMessage->message.append('\0');
 
         //
         // Search for Authorization header:
         //
         String authorization = String::EMPTY;
 
+        //
+        // Do not require authentication for indication delivery 
+        //
+        String cimExport;
+        if (enableAuthentication &&
+            HTTPMessage::lookupHeader(
+                headers, "CIMExport", cimExport, true)) 
+        {
+            enableAuthentication = false;
+        }
+
         if ( HTTPMessage::lookupHeader(
              headers, "PegasusAuthorization", authorization, false) &&
              enableAuthentication
            )
         {
-			//
-            // Do pegasus/local authentication
-            //
-            authenticated = 
-                _authenticationManager->performPegasusAuthentication(
-                    authorization,
-                    httpMessage->authInfo);
-
-			if (!authenticated)
+            try 
             {
-				String authChallenge = String::EMPTY;
-                String authResp = String::EMPTY;
+                //
+                // Do pegasus/local authentication
+                //
+                authenticated = 
+                    _authenticationManager->performPegasusAuthentication(
+                        authorization,
+                        httpMessage->authInfo);
 
-                authResp = _authenticationManager->getPegasusAuthResponseHeader(
-                    authorization,
-                    httpMessage->authInfo);
-
-                if (!String::equal(authResp, String::EMPTY))
+                if (!authenticated)
                 {
-					_sendChallenge(queueId, authResp);
-				}
-                else
-                {
-					_sendError(queueId, "Invalid Request");
-				}
+                    String authChallenge = String::EMPTY;
+                    String authResp = String::EMPTY;
 
-				PEG_METHOD_EXIT();
-                return;
+                    authResp =
+                        _authenticationManager->getPegasusAuthResponseHeader(
+                            authorization,
+                            httpMessage->authInfo);
+
+                    if (!String::equal(authResp, String::EMPTY))
+                    {
+                        _sendChallenge(queueId, authResp);
+                    }
+                    else
+                    {
+                        _sendHttpError(queueId,
+                                       HTTP_STATUS_BADREQUEST,
+                                       String::EMPTY,
+                                       "Authorization header error");
+                    }
+
+                    PEG_METHOD_EXIT();
+                    return;
+                }
             }
-
-			
+            catch (CannotOpenFile &cof)
+            {
+                _sendHttpError(queueId,
+                               HTTP_STATUS_INTERNALSERVERERROR);
+                PEG_METHOD_EXIT();
+                return;
+                
+            }
         }
 
-		if ( HTTPMessage::lookupHeader(
+        if ( HTTPMessage::lookupHeader(
              headers, "Authorization", authorization, false) &&
              enableAuthentication
            )
         {
-			//
+#ifdef PEGASUS_KERBEROS_AUTHENTICATION
+            // The presence of a Security Association indicates that Kerberos
+            // is being used.
+            CIMKerberosSecurityAssociation *sa =
+                httpMessage->authInfo->getSecurityAssociation();
+            if (sa)
+            {
+                sa->setClientSentAuthorization(true);
+            }
+#endif        
+            //
             // Do http authentication if not authenticated already
             //
             if (!authenticated)
@@ -387,17 +396,20 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                     _authenticationManager->performHttpAuthentication(
                         authorization,
                         httpMessage->authInfo);
-				
-				if (!authenticated)
+
+                if (!authenticated)
                 {
                     //ATTN: the number of challenges get sent for a 
                     //      request on a connection can be pre-set.
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
-                    // Kerberos authentication needs access to the AuthenticationInfo
-                    // object for this session in order to set up the reference to the
+                    // Kerberos authentication needs access to the
+                    // AuthenticationInfo object for this session in order
+                    // to set up the reference to the
                     // CIMKerberosSecurityAssociation object for this session.
-					String authResp =   
-                        _authenticationManager->getHttpAuthResponseHeader(httpMessage->authInfo);
+
+                    String authResp =   
+                        _authenticationManager->getHttpAuthResponseHeader(
+                            httpMessage->authInfo);
 #else
                     String authResp =
                         _authenticationManager->getHttpAuthResponseHeader();
@@ -408,34 +420,212 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                     }
                     else
                     {
-                        _sendError(queueId, "Invalid Request");
+                        _sendHttpError(queueId,
+                                       HTTP_STATUS_BADREQUEST,
+                                       String::EMPTY,
+                                       "Authorization header error");
                     }
 
                     PEG_METHOD_EXIT();
                     return;
                 }
+            }  // first not authenticated check
+        }  // "Authorization" header check
+
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
-                else if (String::equalNoCase(httpMessage->authInfo->getAuthType(),
-                                             "Kerberos") &&
-                         httpMessage->authInfo->isAuthenticated() &&
-                         "Client requested mutual authentication")
+        // The presence of a Security Association indicates that Kerberos is
+        // being used.
+        CIMKerberosSecurityAssociation *sa =
+            httpMessage->authInfo->getSecurityAssociation();
+
+        // This will process a request with no content.
+        if (sa && authenticated)
+        {
+            if (sa->getServerToken().size())
+            {
+                // This will handle the scenario where client did not send
+                // data (content) but is authenticated.  After the client
+                // receives the success it should will send the request.
+                // For mutual authentication the client may choose not to
+                // send request data until the context is fully established.
+                // Note:  if mutual authentication wass not requested by the
+                // client then no server token will be available.
+                if (contentLength == 0)
                 {
-					String authResp =    
-                        _authenticationManager->getHttpAuthResponseHeader(httpMessage->authInfo);
+                    String authResp =   
+                        _authenticationManager->getHttpAuthResponseHeader(
+                            httpMessage->authInfo);
                     if (!String::equal(authResp, String::EMPTY))
                     {
-						_sendSuccess(queueId, authResp);
+                        _sendSuccess(queueId, authResp);
                     }
                     else
                     {
-                        /* Should never fall into here.  Add code to add a trace
-                           statement in the event that it does fall into this 
-                           else. */
+                        _sendHttpError(queueId,
+                                       HTTP_STATUS_BADREQUEST,
+                                       String::EMPTY,
+                                       "Authorization header error");
                     }
+
+                    PEG_METHOD_EXIT();
+                    return;
                 }
-#endif
             }
         }
+
+        // This will process a request without an authorization record.
+        if (sa && !authenticated)
+        {
+            // Not authenticated can result from the client not sending an
+            // authorization record due to a previous authentication.  In
+            // this scenario the client was previous authenticated but
+            // chose not to send an authorization record.  The Security
+            // Association maintains state so a request will not be
+            // processed unless the Security association thinks the client
+            // is authenticated.
+
+            // This will handle the scenario where the client was
+            // authenticated in the previous request but choose not to
+            // send an authorization record.
+            if (sa->getClientAuthenticated())
+            {        
+                authenticated = true;
+            }
+        }
+
+        // The following is processing to unwrap (unencrypt) the message
+        // received from the client when using kerberos authentication.
+        // For Kerberos there should always be an "Authorization" record
+        // sent with the request so the authenticated flag in the method
+        // should always be checked to verify that the client is actually
+        // authenticated.  If no "Authoriztion" was sent then the client
+        // can't be authenticated.  The "Authorization" record was
+        // processed above and if the "Authorization" record was
+        // successfully processed then the client is authenticated.
+        if (sa  &&  authenticated)
+        {
+            Uint32 rc;  // return code for the wrap
+            Array<Sint8> final_buffer;
+            final_buffer.clear();
+            Array<Sint8> header_buffer;
+            header_buffer.clear();
+            Array<Sint8> inWrappedMessage;
+            inWrappedMessage.clear();
+            Array<Sint8> outUnwrappedMessage;
+            outUnwrappedMessage.clear();
+
+            // The message needs to be parsed in order to distinguish
+            // between the headers and content. The message was parsed
+            // earlier in this method so we can use the contentLength set
+            // during that parse. When parsing the code breaks out of the
+            // loop as soon as it finds the double separator that
+            // terminates the headers so the headers and content can be
+            // easily separated.
+
+            // IMPORTANT - NOTE NOTE NOTE - IMPORTANT
+            // Need to increase the content size by one because earlier a
+            // NULL terminator was added causing the unwrap to think that the
+            // wrapped message has a bad signature.  Anything that was added
+            // to the content portion must be handled otherwise unwrap will
+            // return an error.  So if additional characters are added in the
+            // future the content size needs to be adjusted.
+            int charsAdded = 1; // increase by the number of chars added to content
+            contentLength = contentLength + charsAdded;
+
+            // Extract the unwrapped headers
+            for (Uint32 i = 0; i < (httpMessage->message.size()-contentLength); i++)
+            {
+                header_buffer.append(httpMessage->message[i]);
+            }
+
+            // Extract the wrapped content
+            // Note: Need to decrease the message size by the number of
+            // characters added to content.  See important note above
+            // regarding content size.
+            for (Uint32 i = (httpMessage->message.size()-contentLength);
+                 i < (httpMessage->message.size()-charsAdded); i++)
+            {
+                inWrappedMessage.append(httpMessage->message[i]);
+            }
+
+            rc = sa->unwrap_message(inWrappedMessage,          
+                                    outUnwrappedMessage);  // ASCII
+
+            if (rc) 
+            {
+                // clear out the outUnwrappedMessage; if unwrapping is required
+                // and it fails we need to send back a bad request.  A message
+                // left in an wrapped state will be a severe failue later.  Reason
+                // for unwrap failing may be due to a problem with the credentials
+                // or context or some other failure may have occurred.
+                outUnwrappedMessage.clear();
+                // build a bad request.  We do not want to risk sending back
+                // data that can't be authenticated.
+                final_buffer = 
+                  XmlWriter::formatHttpErrorRspMessage(HTTP_STATUS_BADREQUEST);
+                //remove the last separater; the authentication record still
+                // needs to be added.
+                final_buffer.remove(final_buffer.size());  // "\n"
+                final_buffer.remove(final_buffer.size());  // "\r"
+
+                // Build the WWW_Authenticate record with token.
+                String authResp =   
+                  _authenticationManager->getHttpAuthResponseHeader(httpMessage->authInfo);
+                // error occurred on wrap so the final_buffer needs to be built
+                // differently
+                final_buffer << authResp;
+                // add double separaters to end
+                final_buffer << "\r\n";
+                final_buffer << "\r\n";
+
+                _sendResponse(queueId, final_buffer);
+                PEG_METHOD_EXIT();
+                return;
+            }
+
+            // If outUnwrappedMessage does not have any content data this
+            // is a result of no data available.  This could be a result
+            // of the client not sending any content data.  This is not
+            // unique to Kerberos so this will not be handled here but it
+            // will be handled when the content is processed. Or, the
+            // client did not wrap message...this is okay.  If the unwrap
+            // resulted in no data when there should have been data then
+            // this should have been caught above when the unwrap returned
+            // a bad return code
+            if (final_buffer.size() == 0)
+            {
+                // if outUnwrappedMessage is empty that indicates client did not
+                // wrap the message.  The original message will be used.
+                if (outUnwrappedMessage.size())
+                {
+                    final_buffer.appendArray(header_buffer);
+                    final_buffer.appendArray(outUnwrappedMessage);
+                    final_buffer.append('\0'); // add back char that was appended earlier
+                    // Note: if additional characters added in future add back here
+                }
+            }
+            else
+            {
+                // The final buffer should not have any data at this point.
+                // If it does end the server because something bad happened.
+                Logger::put(Logger::STANDARD_LOG, System::CIMSERVER,
+                    Logger::TRACE,
+                    "HTTPAuthenticatorDelegator - the final buffer should "
+                        "not have data");
+                PEGASUS_ASSERT(0);
+            }
+
+            // replace the existing httpMessage with the headers and
+            // unwrapped message
+            // If the final buffer has not been set then the original
+            // httpMessage will be used.
+            if (final_buffer.size())
+            {
+                    httpMessage->message.clear();
+                    httpMessage->message = final_buffer;
+            }
+        } // if not kerberos and client not authenticated
+#endif
 
         if ( authenticated || !enableAuthentication )
         {
@@ -447,36 +637,52 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             if (HTTPMessage::lookupHeader(
                 headers, "CIMOperation", cimOperation, true))
             {
-				Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-					"HTTPAuthenticatorDelegator - CIMOperation: $0 ",cimOperation);
+                Logger::put(Logger::STANDARD_LOG, System::CIMSERVER,
+                    Logger::TRACE,
+                    "HTTPAuthenticatorDelegator - CIMOperation: $0 ",
+                    cimOperation);
 
-				MessageQueue* queue =
+                MessageQueue* queue =
                     MessageQueue::lookup(_operationMessageQueueId);
 
                 if (queue)
                 {
-					httpMessage->dest = queue->getQueueId();
-		   
-                    queue->enqueue(httpMessage);
-                    deleteMessage = false;
-				}
+                   httpMessage->dest = queue->getQueueId();
+                   
+                   try
+                     {
+                       queue->enqueue(httpMessage);
+                     }
+                   catch(exception & e)
+                     {
+                       delete httpMessage;
+                       _sendHttpError(queueId,
+                                      HTTP_STATUS_REQUEST_TOO_LARGE);
+                       PEG_METHOD_EXIT();
+                       deleteMessage = false;
+                       return;
+                     }
+                 deleteMessage = false;
+                }
             }
             else if (HTTPMessage::lookupHeader(
                 headers, "CIMExport", cimOperation, true))
             {
-				Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-					"HTTPAuthenticatorDelegator - CIMExport: $0 ",cimOperation);
+                Logger::put(Logger::STANDARD_LOG, System::CIMSERVER,
+                    Logger::TRACE,
+                    "HTTPAuthenticatorDelegator - CIMExport: $0 ",
+                    cimOperation);
 
                 MessageQueue* queue =
                     MessageQueue::lookup(_exportMessageQueueId);
-				
-				if (queue)
-                {
-					httpMessage->dest = queue->getQueueId();
 
-					queue->enqueue(httpMessage);
-					deleteMessage = false;
-				}
+                if (queue)
+                {
+                    httpMessage->dest = queue->getQueueId();
+
+                    queue->enqueue(httpMessage);
+                    deleteMessage = false;
+                }
             }
             else
             {
@@ -504,20 +710,18 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                 // without the CIMError header since this request must not be
                 // processed as a CIM request.
 
-                Array<Sint8> message;
-                message = XmlWriter::formatHttpErrorRspMessage(
-                    HTTP_STATUS_BADREQUEST);
-                _sendResponse(queueId, message);
-				
-				PEG_METHOD_EXIT();
+                _sendHttpError(queueId,
+                               HTTP_STATUS_BADREQUEST);
+                PEG_METHOD_EXIT();
                 return;
-            }
-        }
+            } // bad request
+        } // authenticated and enableAuthentication check
         else
-        {
+        {  // client not authenticated; send challenge
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
             String authResp =    
-                _authenticationManager->getHttpAuthResponseHeader(httpMessage->authInfo);
+                _authenticationManager->getHttpAuthResponseHeader(
+                    httpMessage->authInfo);
 #else
             String authResp =
                 _authenticationManager->getHttpAuthResponseHeader();
@@ -526,19 +730,17 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             if (!String::equal(authResp, String::EMPTY))
             {
                 _sendChallenge(queueId, authResp);
-			}
+            }
             else
             {
-                _sendError(queueId, "Invalid Request");
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-                /* Should never fall into here.  Add code to add a trace
-                   statement in the event that it does fall into this 
-                   else. */
-#endif
+                _sendHttpError(queueId,
+                               HTTP_STATUS_BADREQUEST,
+                               String::EMPTY,
+                               "Authorization header error");
             }
         }
-    }
-	
+    } // M-POST and POST processing
+
     PEG_METHOD_EXIT();
 }
 

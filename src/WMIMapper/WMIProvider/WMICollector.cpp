@@ -247,7 +247,8 @@ bool WMICollector::getInstanceEnum(
 	PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMICollector::getInstanceEnum()");
 
 	HRESULT hr;
-	long lFlags = WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY;
+
+	long lFlags = WBEM_FLAG_FORWARD_ONLY;
 
 	//
 	// CComPtr is a smart pointer, therefore, it doesn't need to be explicitely
@@ -318,7 +319,8 @@ bool WMICollector::getClassEnum(
 {
 
 	HRESULT hr;
-	long lFlags = WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY;
+	
+	long lFlags = WBEM_FLAG_FORWARD_ONLY ;
 	CComBSTR bsSuperClass = NULL;
 
 	CComPtr<IWbemServices> pServices;
@@ -448,8 +450,7 @@ bool WMICollector::getQueryResult(
 	hr = pServices->ExecQuery(
 		bsQueryLanguage,
 		bsQuery,
-		WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY | 
-			WBEM_FLAG_ENSURE_LOCATABLE,
+        WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_ENSURE_LOCATABLE,
 		NULL,
 		&p_inst);
 

@@ -59,6 +59,8 @@ static const String FILE_NAME = "TestProviderManager.dll";
   # endif
 #elif defined (PEGASUS_OS_OS400)
 static const String FILE_NAME = "TestProviderManager";
+#elif defined (PEGASUS_OS_DARWIN)
+static const String FILE_NAME = "libTestProviderManager.dylib";
 #else
 static const String FILE_NAME = "libTestProviderManager.so";
 #endif

@@ -410,6 +410,9 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test4_thread( void* parm )
 	// Simulate a deadlocked thread
 	while( true )
 	{
+                #if defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+			pthread_testcancel();
+		#endif
 		pegasus_sleep( 2000 );
 	}
 	thread->exit_self( (PEGASUS_THREAD_RETURN)52 );

@@ -36,6 +36,15 @@ ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
   TESTS = prestarttests poststarttests
 endif
 
+ifeq ($(PEGASUS_PLATFORM),DARWIN_PPC_GNU)
+CIMSERVER_START_SERVICE = cimserver
+CIMSERVER_STOP_SERVICE = cimserver -s; true
+SLEEP = sleep 5
+MUEXE = mu
+MKDIR = $(MUEXE) mkdirhier
+TESTS = prestarttests poststarttests
+endif
+
 ifeq ($(OS),HPUX)
   CIMSERVER_START_SERVICE = cimserver
   CIMSERVER_STOP_SERVICE = cimserver -s; true

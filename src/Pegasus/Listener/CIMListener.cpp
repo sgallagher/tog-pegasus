@@ -317,6 +317,9 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL CIMListenerService::_listener_routine
   //	svc->init(); bug 1394 
 	while(!svc->terminated())
 	{
+          #if defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+		pthread_testcancel();
+	  #endif
 	  svc->runForever();
 }
 	delete svc;

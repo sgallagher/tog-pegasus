@@ -54,6 +54,11 @@ static const CIMFlavor CIMFLAVOR_ALL = CIMFlavor::OVERRIDABLE +
 */
 int main(int argc, char** argv)
 {
+    #if defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+	static const CIMFlavor CIMFLAVOR_ALL = CIMFlavor::OVERRIDABLE +
+    CIMFlavor::TOSUBCLASS + CIMFlavor::TOINSTANCE + CIMFlavor::TRANSLATABLE +
+    CIMFlavor::DISABLEOVERRIDE + CIMFlavor::RESTRICTED;
+    #endif 
     // get the output display flag.
     Boolean verbose = (getenv("PEGASUS_TEST_VERBOSE")) ? true : false;
 

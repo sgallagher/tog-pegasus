@@ -49,6 +49,11 @@ class reg_table_record
       reg_table_record(const CIMName & class_name, 
 		       const CIMNamespaceName & namespace_name, 
 		       Uint32 type, 
+		       const MessageQueueService * destination_service);
+
+      reg_table_record(const CIMName & class_name, 
+		       const CIMNamespaceName & namespace_name, 
+		       Uint32 type, 
 		       const Array<Uint8> & extended_type, 
 		       Uint32 flags, 
 		       const Array<Uint8> & extended_flags,
@@ -68,6 +73,23 @@ class reg_table_record
       friend class reg_table_rep;
       friend class DynamicRoutingTable;
 };
+
+
+reg_table_record::reg_table_record(
+   const CIMName &_name, 
+   const CIMNamespaceName &_ns, 
+   Uint32 _type, 
+   const MessageQueueService * _svce)
+   : class_name(_name),
+     namespace_name(_ns),
+     type(_type),
+     extended_key(),
+     flags(),
+     extended_flags(),
+     service(const_cast<MessageQueueService *>(_svce))
+{
+
+}
 
 
 reg_table_record::reg_table_record(
@@ -128,10 +150,11 @@ typedef HashTable<String, type_table *, EqualFunc<String>, HashFunc<String> > na
 
 class reg_table_rep : public Sharable
 {
-   public:
+
+   private:
 
       // store a record 
-      void insert(const reg_table_record & rec);
+      void _insert(const reg_table_record & rec);
 
       // retrieve a pointer to the stored record
       const reg_table_record * find(const reg_table_record &rec);
@@ -145,7 +168,7 @@ class reg_table_rep : public Sharable
       void destroy(const reg_table_record & rec);
       void destroy_all(const reg_table_record & rec);
 
-   private:
+
       reg_table_rep(void) ;
       ~reg_table_rep(void) ;
 
@@ -153,10 +176,12 @@ class reg_table_rep : public Sharable
       static const Uint32 REMOVE;
       static const Uint32 MULTIPLE;
       static const Uint32 DESTROY;
-
+      static const Uint32 EXTENDED;
+      
       reg_table_record * _find(const reg_table_record & rec, 
 			       Uint32 flags, 
 			       Array<reg_table_record *> *arr_ptr = 0);
+
       // "wildcard" routines that use iterators
       // ns.isNull() == true means enumerate for all name spaces
       // cls.isNull() == true means enumerate for all classes
@@ -175,10 +200,15 @@ const Uint32 reg_table_rep::FIND =         0x00000001;
 const Uint32 reg_table_rep::REMOVE =       0x00000002;
 const Uint32 reg_table_rep::MULTIPLE =     0x00000004;
 const Uint32 reg_table_rep::DESTROY =      0x00000008;
+const Uint32 reg_table_rep::EXTENDED =     0x00000010;
+
 
 // insert optimized for simplicity, not speed 
-void reg_table_rep::insert(const reg_table_record &rec)
+void reg_table_rep::_insert(const reg_table_record &rec)
 {
+   // ipc synchronization 
+   auto_mutex monitor(&_mutex);
+   
    type_table *tt;
    if(false ==  _table.lookup(rec.namespace_name, tt))
    {
@@ -239,11 +269,15 @@ reg_table_rep::destroy_all(const reg_table_record & rec)
 }
 
 
+
 reg_table_record * 
 reg_table_rep::_find(const reg_table_record &rec, 
 		     Uint32 flags, 
 		     Array<reg_table_record *> *arr_ptr)
 {
+   // ipc synchronization 
+   auto_mutex monitor(&_mutex);
+
    if(flags & MULTIPLE)
    {
       
@@ -264,6 +298,20 @@ reg_table_rep::_find(const reg_table_record &rec,
 	    reg_table_record *record ;
 	    while(true == rt->lookup(rec.class_name.getString(), record))
 	    {
+	       if(flags & EXTENDED)
+	       {
+		  if(rec.extended_key.size() != record->extended_key.size())
+		     continue;
+		  for(Uint32 i = 0; i < rec.extended_key.size(); i++)
+		  {
+		     if(rec.extended_key[i] == record->extended_key[i])
+			;
+		     else
+			continue;
+		  }
+		  
+	       }
+	       
 	       if(flags & REMOVE || flags & DESTROY)
 	       {
 		  rt->remove(rec.class_name.getString());
@@ -282,6 +330,8 @@ reg_table_rep::_find(const reg_table_record &rec,
 }
 
 
+
+// do not call directly - does not lock the reg table mutext !!
 void 
 reg_table_rep::_enumerate(const reg_table_record & rec,
 			  Uint32 flags, 
@@ -366,7 +416,7 @@ DynamicRoutingTable::operator =(const DynamicRoutingTable & table)
 }
 
 const DynamicRoutingTable 
-DynamicRoutingTable::get_routing_table(void)
+DynamicRoutingTable::get_ro_routing_table(void)
 {
    return DynamicRoutingTable(_internal_routing_table);
 }
@@ -375,6 +425,36 @@ DynamicRoutingTable
 DynamicRoutingTable::get_rw_routing_table(void)
 {
    return DynamicRoutingTable(_internal_routing_table);
+}
+
+
+MessageQueueService *
+DynamicRoutingTable::get_routing(const CIMName & classname, 
+				 const CIMNamespaceName & ns, 
+				 Uint32 type) const
+{
+   const reg_table_record rec(classname, ns, type, 0);
+   
+   const reg_table_record *ret = _rep->find(rec);
+   return ret->service;
+}
+
+// get a single service that can route this extended spec. 
+MessageQueueService *
+DynamicRoutingTable::get_routing(const CIMName & classname,
+				 const CIMNamespaceName & ns,
+				 Uint32 type,
+				 const Array<Uint8> & extended_type,
+				 Uint32 flags,
+				 const Array<Uint8> & extended_flags) const 
+{
+   const reg_table_record rec(classname, ns, type, 
+			      extended_type, 
+			      flags, 
+			      extended_flags, 
+			      0);
+   Array<reg_table_record *> set;
+   
 }
 
 

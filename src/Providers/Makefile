@@ -13,7 +13,4 @@ DIRS = \
     sample \
     TestProviders
 
-# ATTN: Comment this out: it was breaking the build:
-# DIRS = generic windows unix
-
 include $(ROOT)/mak/recurse.mak

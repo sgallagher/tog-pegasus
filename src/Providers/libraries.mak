@@ -1,4 +1,0 @@
-LIBRARIES = \
-    pegcommon \
-    pegserver \
-    pegprovider

@@ -1,5 +1,4 @@
 ROOT = ../../../..
-include ../../libraries.mak
 
 DIR = Providers/sample/HelloWorldProvider
 

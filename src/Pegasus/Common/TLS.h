@@ -24,6 +24,7 @@
 // Author: Markus Mueller (sedgewick_de@yahoo.de)
 //
 // Modified By:
+//         Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -36,39 +37,18 @@
 #include <openssl/rand.h>
 #else
 #define SSL_CTX void
-#endif
+#endif // end of PEGASUS_HAS_SSL
+
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Exception.h>
-#include <Pegasus/Common/CertificateInfo.h>
+#include <Pegasus/Common/SSLContext.h>
 
 // REVIEW: Figure out how this works (note to myself)?
 
 
 PEGASUS_NAMESPACE_BEGIN
 
-typedef Boolean (*VERIFY_CERTIFICATE) (CertificateInfo &certInfo);
-
-class PEGASUS_EXPORT SSLContext
-{
-public:
-
-   SSLContext(const String& certPath,
-              VERIFY_CERTIFICATE verifyCert = NULL,
-              const String& randomFile = String::EMPTY,
-              Boolean isCIMClient = false)
-              throw(SSL_Exception);
-
-    ~SSLContext();
-
-    SSL_CTX * getContext();
-
-private:
-
-    SSL_CTX * _SSLContext;
-
-    char * _certPath;
-};
 
 #ifdef PEGASUS_HAS_SSL
 class PEGASUS_EXPORT SSLSocket
@@ -112,9 +92,9 @@ private:
 
 // offer a non ssl dummy class for use in MP_Socket
 
-typedef PEGASUS_EXPORT void * SSLSocket;
+class PEGASUS_EXPORT SSLSocket {};
 
-#endif
+#endif // end of PEGASUS_HAS_SSL
 
 //
 // MP_Socket (Multi-purpose Socket class

@@ -85,7 +85,7 @@ SOURCES = \
     String.cpp \
     System.cpp \
     TimeValue.cpp \
-    CertificateInfo.cpp \
+    SSLContext.cpp \
     TLS.cpp \
     TraceFileHandler.cpp \
     Tracer.cpp \

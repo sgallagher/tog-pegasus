@@ -25,14 +25,17 @@
 //
 // Modified By:
 //         Bapu Patil, Hewlett-Packard Company ( bapu_patil@hp.com )
+//         Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/Socket.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/SSLContextRep.h>
 
 #include "TLS.h"
+
 #define PEGASUS_CERT "/server.pem"
 #define PEGASUS_KEY "/server.pem"
 
@@ -49,257 +52,7 @@
 
 #ifdef PEGASUS_HAS_SSL
 
-//
-// certificate handling routine
-//
-
-VERIFY_CERTIFICATE verify_certificate;
-
-static int cert_verify(SSL_CTX *ctx, char *cert_file, char *key_file)
-{
-
-   if (cert_file != NULL)
-   {
-       if (SSL_CTX_use_certificate_file(ctx,cert_file,SSL_FILETYPE_PEM) <=0)
-       {
-           TLS_DEBUG(cerr << "no certificate found in " << cert_file << endl;)
-           return 0;
-       }
-       if (key_file == NULL) key_file=cert_file;
-       if (SSL_CTX_use_PrivateKey_file(ctx,key_file,SSL_FILETYPE_PEM) <= 0)
-       {
-           TLS_DEBUG(cerr << "no private key found in " << key_file << endl;)
-           return 0;
-       }
-
-       if (!SSL_CTX_check_private_key(ctx)) 
-       {
-           TLS_DEBUG(cerr << "Private and public key do not match\n";)
-           return 0;
-       }
-   }
-   return -1;
-}
-
-static int prepareForCallback(int preverifyOk, X509_STORE_CTX *ctx)
-{
-    PEG_METHOD_ENTER(TRC_SSL, "CertificateManager::prepareForCallback()");
-
-    char   buf[256];
-    X509   *err_cert;
-    int    err; 
-    int    depth;
-    String subjectName;
-    String issuerName;
-    int    verify_depth = 0;
-    int    verify_error = X509_V_OK;
-
-    err_cert = X509_STORE_CTX_get_current_cert(ctx);
-    err = X509_STORE_CTX_get_error(ctx);
-
-    depth = X509_STORE_CTX_get_error_depth(ctx);
-
-    //FUTURE: Not sure what to do with these...?
-    //ssl = X509_STORE_CTX_get_ex_data(ctx, SSL_get_ex_data_X509_STORE_CTX_idx());
-    //mydata = SSL_get_ex_data(ssl, mydata_index);
-
-    X509_NAME_oneline(X509_get_subject_name(err_cert), buf, 256);
-    subjectName = String(buf);
-
-    if (verify_depth >= depth)
-    {
-        preverifyOk = 1;
-        verify_error = X509_V_OK;
-    }
-    else
-    {
-        preverifyOk = 0;
-        verify_error = X509_V_ERR_CERT_CHAIN_TOO_LONG;
-        X509_STORE_CTX_set_error(ctx, verify_error);
-    }
-
-    if (!preverifyOk)
-    {
-        TLS_DEBUG(cerr << "---> verify error: num = " << err << ", " 
-            << X509_verify_cert_error_string(err) << ", " << depth 
-            << ", " << buf <<  endl;)
-    }
-
-    if (!preverifyOk && (err == X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT))
-    {
-        X509_NAME_oneline(X509_get_issuer_name(ctx->current_cert), buf, 256);
-        issuerName = String(buf);
-    }
-    else
-    {
-        X509_NAME_oneline(X509_get_issuer_name(err_cert), buf, 256);
-        issuerName = String(buf);
-    }
-
-    //
-    // Call the verify_certificate() callback
-    //
-    CertificateInfo certInfo(subjectName, issuerName, depth, err);
-
-    if (verify_certificate(certInfo))
-    {
-        preverifyOk = 1;
-    }
-
-    //delete certInfo;
-
-    // ATTN-NB-03-05102002: Overriding the default verification result, may
-    // need to be changed to make it more generic.
-    if (preverifyOk)
-    {
-        X509_STORE_CTX_set_error(ctx, verify_error);
-    }
-
-    TLS_DEBUG(cerr << "verify return: " << preverifyOk << endl;)
-
-    PEG_METHOD_EXIT();
-    return(preverifyOk);
-}
-
 PEGASUS_NAMESPACE_BEGIN
-
-
-//
-// SSL context area
-//
-// For the OSs that don't have /dev/random device file,
-// must enable PEGASUS_SSL_RANDOMFILE flag.
-//
-// CIM clients must specify a SSL random file and also
-// set isCIMClient to true. However, CIMserver does not
-// seem to care the Random seed and /dev/random. 
-//
-//
-SSLContext::SSLContext(const String& certPath,
-                       VERIFY_CERTIFICATE verifyCert,
-                       const String& randomFile,
-                       Boolean isCIMClient)
-    throw(SSL_Exception)
-{
-    TLS_DEBUG(cout << "Entering SSLContext::SSLContext()\n";)
-
-    _certPath = certPath.allocateCString();
-
-    verify_certificate = verifyCert;
-
-    // load SSL library
-    SSL_load_error_strings();
-    SSL_library_init();
-
-#ifdef PEGASUS_SSL_RANDOMFILE
-    
-    //
-    // We will only need SSL Random Seed for CIM Clients
-    // 
-    if (isCIMClient) 
-    {
-       long  seedNumber;
-       /*
-        * Initialise OpenSSL 0.9.5 random number generator.
-        */
-       if ( randomFile != String::EMPTY )
-       {
-          //char* randFilename = randomFile.allocateCString();
-          ArrayDestroyer<char> pRandomFile(randomFile.allocateCString());
-          char* randFilename = pRandomFile.getPointer();
-   
-          TLS_DEBUG( cout << "load Rand file: name=" << randFilename << endl; )
-          int ret = RAND_load_file(randFilename, -1);
-          if ( ret < 0 )
-          {
-            TLS_DEBUG( cerr << " RAND_load_file failed, Status="<< ret << endl;)
-            throw( SSL_Exception("RAND_load_file - failed"));
-          }
-          else
-          {
-            TLS_DEBUG( cerr << " RAND_load_file Status="<< ret << endl;)
-          }
-
-          //
-          // Will do more seeding
-          //
-          srandom((unsigned int)time(NULL)); // Initialize
-          seedNumber = random();
-          RAND_seed((unsigned char *) &seedNumber, sizeof(seedNumber));
-
-          int  seedRet = RAND_status();
-          if ( seedRet == 0 )
-          {
-            TLS_DEBUG( cerr << " Not enough data , Rand Status="<< seedRet << endl;)
-            throw( SSL_Exception("RAND_seed - Not enough seed data "));
-          }
-       }
-       else
-       {
-           throw( SSL_Exception("Random seed file required"));
-       }
- 
-     }
-
-#endif // end of PEGASUS_SSL_RANDOMFILE
-
-
-    // create SSL Context Area
-
-    if (!( _SSLContext = SSL_CTX_new(SSLv23_method()) ))
-        throw( SSL_Exception("Could not get SSL CTX"));
-
-    // set overall SSL Context flags
-
-    SSL_CTX_set_quiet_shutdown(_SSLContext, 1);
-    SSL_CTX_set_mode(_SSLContext, SSL_MODE_AUTO_RETRY);
-    SSL_CTX_set_options(_SSLContext,SSL_OP_ALL);
-
-#ifdef CLIENT_CERTIFY
-   SSL_CTX_set_verify(_SSLContext, SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, 
-       prepareForCallback);
-#else   
-    if (verifyCert != NULL)
-    {
-        SSL_CTX_set_verify(_SSLContext, 
-            SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, prepareForCallback);
-    }
-#endif
-
-    //
-    // check certificate given to me
-    //
-
-    if (!cert_verify(_SSLContext, _certPath, _certPath))
-        throw( SSL_Exception("Could not get certificate and/or private key"));
-
-    TLS_DEBUG(cout << "Leaving SSLContext::SSLContext()\n";)
-}
-
-  
-//
-// Destructor
-//
-
-SSLContext::~SSLContext()
-{
-    TLS_DEBUG(cout << "Entering SSLContext::~SSLContext()\n";)
-
-    free(_certPath);
-    SSL_CTX_free(_SSLContext);
-
-    TLS_DEBUG(cout << "Leaving SSLContext::~SSLContext()\n";)
-}
-
-//
-//
-//
-
-SSL_CTX * SSLContext::getContext()
-{
-    return _SSLContext;
-}
-
 
 //
 // Basic SSL socket
@@ -315,7 +68,7 @@ SSLSocket::SSLSocket(Sint32 socket, SSLContext * sslcontext)
    //
    // create the SSLConnection area
    //
-   if (!( _SSLConnection = SSL_new(_SSLContext->getContext()) ))
+   if (!( _SSLConnection = SSL_new(_SSLContext->_rep->getContext() )))
       throw( SSL_Exception("Could not get SSL Connection Area"));
 
    //
@@ -593,26 +346,12 @@ Sint32 MP_Socket::connect()
     return 0;
 }
 
-
-
 PEGASUS_NAMESPACE_END
-
 
 #else
 
-
 PEGASUS_NAMESPACE_BEGIN
 
-//
-// these definitions are used if ssl is not availabel
-//
-
-SSLContext::SSLContext(const String& certPath,
-                       VERIFY_CERTIFICATE verifyCert,
-                       const String& randomFile,
-                       Boolean isCIMClient) throw(SSL_Exception) {}
-SSLContext::~SSLContext() {}
-SSL_CTX * SSLContext::getContext() { return NULL; }
 
 MP_Socket::MP_Socket(Uint32 socket)
  : _socket(socket), _isSecure(false) {}
@@ -661,4 +400,4 @@ Sint32 MP_Socket::connect() { return 0; }
 
 PEGASUS_NAMESPACE_END
 
-#endif
+#endif // end of PEGASUS_HAS_SSL

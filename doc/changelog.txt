@@ -267,6 +267,12 @@ TAG: Version_1_09.
     each array has its own ArrayRep copy rather than Arrays sharing
     ArrayReps and reference counting.
 
+45. (Nag Boranna - HP) 17 May 2002 - HP-Nag: Moved SSLContext class out of
+    TLS files, created SSLContextRep to hide members from the users of 
+    SSLContext. Also included CertificateInfo in SSLContext files and 
+    removed the CertificateInfo files, so that the client SDK can only
+    need to include SSLContext.h for the client apps to use.
+
 ========================================================================
 
 Version 1.08 working towards 1.1 - Started 27 March 2002

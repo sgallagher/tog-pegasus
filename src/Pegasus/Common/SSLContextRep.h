@@ -21,53 +21,61 @@
 //
 //==============================================================================
 //
-// Author: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+// Author: Nag Boranna, Hewlett-Packard Company ( nagaraja_boranna@hp.com )
 //
 // Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_CertificateInfo_h
-#define Pegasus_CertificateInfo_h
+#ifdef PEGASUS_HAS_SSL
+#include <openssl/err.h>
+#include <openssl/ssl.h>
+#include <openssl/rand.h>
+#else
+#define SSL_CTX void
+#endif
+#include <Pegasus/Common/SSLContext.h>
 
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/String.h>
+#ifndef Pegasus_SSLContextRep_h
+#define Pegasus_SSLContextRep_h
+
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_EXPORT CertificateInfo
+
+class PEGASUS_EXPORT SSLContextRep
 {
 public:
-    CertificateInfo(
-        const String subjectName,
-        const String issuerName,
-        const int errorDepth,
-        const int errorCode);
 
-    ~CertificateInfo();
+    /** Constructor for a SSLContextRep object.
+    @param certPath  certificate file path
+    @param verifyCert  function pointer to a certificate verification
+    call back function.
+    @param randomFile  file path of a random file that is used as a seed
+    for random number generation by OpenSSL.
+    @param isCIMClient  flag indicating that the context is created by
+    the client.
 
-    const String getSubjectName();
+    @exception SSL_Exception  exception indicating failure to create a context.
+    */
+    SSLContextRep(
+        const String& certPath,
+        VERIFY_CERTIFICATE verifyCert = NULL,
+        const String& randomFile = String::EMPTY,
+        Boolean isCIMClient = false) throw(SSL_Exception);
 
-    const String getIssuerName();
+    ~SSLContextRep();
 
-    const int getErrorDepth();
-
-    const int getErrorCode();
-
-    void setResponseCode(const int respCode);
+    SSL_CTX * getContext() const;
 
 private:
-    String _subjectName;
 
-    String _issuerName;
+    SSL_CTX * _SSLContext;
 
-    int    _errorDepth;
-
-    int    _errorCode;
-
-    int    _respCode;
+    char * _certPath;
 };
 
 PEGASUS_NAMESPACE_END
 
-#endif /* Pegasus_CertificateInfo_h */
+#endif /* Pegasus_SSLContextRep_h */
+

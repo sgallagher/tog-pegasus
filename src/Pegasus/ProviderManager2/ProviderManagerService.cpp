@@ -448,8 +448,8 @@ void ProviderManagerService::handleCimRequest(AsyncOpNode * op, const Message * 
 ProviderManager* ProviderManagerService::locateProviderManager(const Message *message,
              String & it)
 {
-    String nameSpace;
-    String className;
+    CIMNamespaceName nameSpace;
+    CIMName className;
 
     const CIMOperationRequestMessage * p =
        dynamic_cast<const CIMOperationRequestMessage *>(message);

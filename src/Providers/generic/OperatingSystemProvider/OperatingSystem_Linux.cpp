@@ -29,7 +29,10 @@
 #include <Pegasus/Common/Config.h>
 #include "OperatingSystem.h"
 
-#include <sstream>
+// mbrasher: changed to use <strstream> since <sstream> does not
+// exist on some linux platforms.
+#include <strstream>
+
 #include <iomanip>
 #include <time.h>
 
@@ -104,26 +107,27 @@ String OperatingSystem::GetOtherTypeDescription(void) const
 
 String OperatingSystem::GetVersion(void) const
 {
-   String Version;
-
-   std::stringstream ss;
+   std::strstream ss;
 
    ss << m_uts.version;
 
-   Version = ss.str().c_str();
+   char* tmp = ss.str();
+   String result(tmp);
+   delete [] tmp;
 
-   return(Version);
+   return result;
 }
+
+// REVIEW: these method names should beging in lower case 
+// (see coding standards).
 
 CIMDateTime OperatingSystem::GetLastBootUpTime(void) const
 {
-   CIMDateTime LastBootUpTime;
-
    time_t boottime = time((time_t)0) - m_si.uptime;
    
    struct tm *lastboottime = localtime(&boottime);
 
-   std::stringstream ss;
+   std::strstream ss;
 
    ss << std::setfill('0');
    ss << std::setw(4) << lastboottime->tm_year + 1900;
@@ -137,20 +141,19 @@ CIMDateTime OperatingSystem::GetLastBootUpTime(void) const
    ss << (lastboottime->tm_gmtoff < 0 ? "-" : "+");
    ss << std::setw(3) << ::abs(lastboottime->tm_gmtoff / 60);
 
-   LastBootUpTime = ss.str().c_str();
-
-   return(LastBootUpTime);
+   char* tmp = ss.str();
+   CIMDateTime lastBootUpTime = tmp;
+   delete [] tmp;
+   return lastBootUpTime;
 }
 
 CIMDateTime OperatingSystem::GetLocalDateTime(void) const
 {
-   CIMDateTime LocalDateTime;
-
    time_t currtime = time((time_t)0);
    
    struct tm *loctime = localtime(&currtime);
 
-   std::stringstream ss;
+   std::strstream ss;
 
    ss << std::setfill('0');
    ss << std::setw(4) << loctime->tm_year + 1900;
@@ -164,15 +167,18 @@ CIMDateTime OperatingSystem::GetLocalDateTime(void) const
    ss << (loctime->tm_gmtoff < 0 ? "-" : "+");
    ss << std::setw(3) << ::abs(loctime->tm_gmtoff / 60);
 
-   LocalDateTime = ss.str().c_str();
-
-   return(LocalDateTime);
+   char* tmp = ss.str();
+   CIMDateTime localDateTime = tmp;
+   delete [] tmp;
+   return localDateTime;
 }
 
 CIMDateTime OperatingSystem::GetInstallDate(void) const
 {
    CIMDateTime InstallDate;
    
+   // REVIEW: all variable names must begin with lower case (see coding
+   // standards).
    return(InstallDate);
 }
 

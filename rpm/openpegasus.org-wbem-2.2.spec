@@ -1,6 +1,6 @@
 #%/////////////////////////////////////////////////////////////////////////////
 #
-# Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
+# Copyright (c) 2001,2002,2003 BMC Software, Hewlett-Packard Company, IBM,
 # The Open Group, Tivoli Systems
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,7 +24,7 @@
 # Author: Warren Otsuka (warren.otsuka@hp.com)
 #
 # Modified By:
-#
+# Konrad Rzeszutek <konradr@us.ibm.com>
 #%/////////////////////////////////////////////////////////////////////////////
 #
 # openpegasus.org-wbem-2.2.spec
@@ -35,13 +35,15 @@
 Summary: WBEM Services for Linux
 Name: pegasus-wbem
 Version: 2.2
-Release: 2
+Release: 3
 Group: Systems Management/Base
 Copyright: Open Group Pegasus Open Source
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}
-Source: ftp://www.opengroup.org/pegasus/pegasus-%{version}.tar.gz
+Source: ftp://www.opengroup.org/pegasus/pegasus-wbem-%{version}-%{release}.tar.gz
 Requires: openssl-devel >= 0.9.6
-Provides: cimserver pegasus-2.2
+Provides: cimserver pegasus-wbem-2.2
+#Patch0: pegasus-wbem-2.2-config.patch
+#Patch1: pegasus-wbem-2.2-initrd.patch
 
 %description
 WBEM Services for Red Hat Linux enables management solutions that deliver
@@ -50,70 +52,136 @@ independent DMTF standard that defines a common information model and
 communication protocol for monitoring and controlling resources from diverse
 sources.
 
+%package devel
+Summary:      The Pegasus source tree
+Group:        Systems Management/Base
+Autoreq: 0
+Requires: pegasus-wbem >= 2.2 openssl-devel >= 0.9.6
+
+%description devel
+This package contains the Pegasus source tree, header files and
+static libraries (if any).
+
+
 %prep
 [ "$RPM_BUILD_ROOT" != "/" ] && [ -d $RPM_BUILD_ROOT ] && rm -rf $RPM_BUILD_ROOT;
+
+%setup
+# Copy the necessary include files
+export PEGASUS_ROOT=$RPM_BUILD_DIR/$RPM_PACKAGE_NAME-$RPM_PACKAGE_VERSION
+export LISTLOC=$RPM_BUILD_DIR/$RPM_PACKAGE_NAME-$RPM_PACKAGE_VERSION
+rm -f $LISTLOC/rpm_pegasus_include_files
+pushd  $PEGASUS_ROOT/src
+list=`find Pegasus -iname '*.h'`
+popd
+for i in $list;do
+    j=`dirname $i`;
+    echo "/usr/include/"$i >> $LISTLOC/rpm_pegasus_include_files
+    mkdir -p $RPM_BUILD_ROOT/usr/include/$j
+    cp $PEGASUS_ROOT/src/$i $RPM_BUILD_ROOT/usr/include/$i
+done;
+
+# Needed for CMPI patch
+ln -s $RPM_BUILD_DIR/$RPM_PACKAGE_NAME-$RPM_PACKAGE_VERSION $RPM_BUILD_DIR/$RPM_PACKAGE_NAME
+
+%patch0 -p1
+%patch1 -p1
+
+%build
+export PEGASUS_ROOT=$RPM_BUILD_DIR/$RPM_PACKAGE_NAME-$RPM_PACKAGE_VERSION
+export PEGASUS_HOME=$RPM_BUILD_ROOT/usr/pegasus
+# Change for different versions
+export PEGASUS_PLATFORM=LINUX_IX86_GNU
+# Modify this when a new version of OpenSSL appears.
+export OPENSSL_HOME=$RPM_BUILD_DIR/openssl/
+export PEGASUS_HAS_SSL=yes
+
+make
 
 %install
 #
 # Make directories
-mkdir -p $RPM_BUILD_ROOT/etc/rc.d/init.d
 mkdir -p $RPM_BUILD_ROOT/var/log/pegasus
 mkdir -p $RPM_BUILD_ROOT/var/cache/pegasus/localauth
 mkdir -p $RPM_BUILD_ROOT/usr/lib/pegasus/providers
 mkdir -p $RPM_BUILD_ROOT/usr/share/man/{man1,man1m}
-mkdir -p $RPM_BUILD_ROOT/etc/pegasus/mof/{InterOp,Internal,ManagedSystem}
+mkdir -p $RPM_BUILD_ROOT/etc/pegasus/mof
+
+
+export PEGASUS_ROOT=$RPM_BUILD_DIR/$RPM_PACKAGE_NAME-$RPM_PACKAGE_VERSION
+export PEGASUS_HOME=$RPM_BUILD_ROOT/usr/pegasus
+#export PEGASUS_PLATFORM=LINUX_IX86_GNU
+
 #
 # Init scripts
-#install -D -m 0755 -o 0 -g 0 $PEGASUS_ROOT/rpm/wbem1.rh7 $RPM_BUILD_ROOT/etc/rc.d/init.d/pegasus-wbem
-install -D -m 0755 -o 0 -g 0 $PEGASUS_ROOT/rpm/wbem1.rh7 $RPM_BUILD_ROOT/usr/sbin/pegasus-wbem
+install -D -m 0755 -o 0 -g 0 $PEGASUS_ROOT/rpm/wbem22.lnx $RPM_BUILD_ROOT/etc/init.d/pegasus-wbem
+
 #
 # Programs
 install -D -m 0544 -o 0 -g 0 $PEGASUS_HOME/bin/cimserver $RPM_BUILD_ROOT/usr/sbin/cimserver
 install -D -m 0544 -o 0 -g 0 $PEGASUS_HOME/bin/cimauth   $RPM_BUILD_ROOT/usr/sbin/cimauth
+install -D -m 0544 -o 0 -g 0 $PEGASUS_HOME/bin/cimuser   $RPM_BUILD_ROOT/usr/sbin/cimuser
 install -D -m 0544 -o 0 -g 0 $PEGASUS_HOME/bin/cimconfig $RPM_BUILD_ROOT/usr/sbin/cimconfig
 install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/bin/cimmof    $RPM_BUILD_ROOT/usr/bin/cimmof
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/bin/cimmofl   $RPM_BUILD_ROOT/usr/bin/cimmofl
 install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/bin/wbemexec  $RPM_BUILD_ROOT/usr/bin/wbemexec
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/bin/CLI       $RPM_BUILD_ROOT/usr/bin/CLI
 install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/bin/osinfo    $RPM_BUILD_ROOT/usr/bin/osinfo
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/bin/ipinfo    $RPM_BUILD_ROOT/usr/bin/ipinfo
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/bin/tomof     $RPM_BUILD_ROOT/usr/bin/tomof
 install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/bin/cimprovider $RPM_BUILD_ROOT/usr/bin/cimprovider
 
-# Libraries
-install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libCIMxmlIndicationHandler.so.1  $RPM_BUILD_ROOT/usr/lib/pegasus/libCIMxmlIndicationHandler.so.1
-install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libComputerSystemProvider.so.1  $RPM_BUILD_ROOT/usr/lib/pegasus/libComputerSystemProvider.so.1
-install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libConfigSettingProvider.so.1  $RPM_BUILD_ROOT/usr/lib/pegasus/libConfigSettingProvider.so.1
-install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libNamespaceProvider.so.1  $RPM_BUILD_ROOT/usr/lib/pegasus/libNamespaceProvider.so.1
-install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libpegCLIClientLib.so.1  $RPM_BUILD_ROOT/usr/lib/pegasus/libpegCLIClientLib.so.1
-install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libOSProvider.so.1  $RPM_BUILD_ROOT/usr/lib/pegasus/libOSProvider.so.1
-install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libpegauthentication.so.1  $RPM_BUILD_ROOT/usr/lib/pegasus/libpegauthentication.so.1
-install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libpegclient.so.1  $RPM_BUILD_ROOT/usr/lib/pegasus/libpegclient.so.1
-install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libpegcliutils.so.1  $RPM_BUILD_ROOT/usr/lib/pegasus/libpegcliutils.so.1
-install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libpegcommon.so.1  $RPM_BUILD_ROOT/usr/lib/pegasus/libpegcommon.so.1
-install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libpegcompiler.so.1  $RPM_BUILD_ROOT/usr/lib/pegasus/libpegcompiler.so.1
-install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libpegconfig.so.1  $RPM_BUILD_ROOT/usr/lib/pegasus/libpegconfig.so.1
-install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libpegexportclient.so.1  $RPM_BUILD_ROOT/usr/lib/pegasus/libpegexportclient.so.1
-install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libpegexportserver.so.1  $RPM_BUILD_ROOT/usr/lib/pegasus/libpegexportserver.so.1
-install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libpeggetoopt.so.1  $RPM_BUILD_ROOT/usr/lib/pegasus/libpeggetoopt.so.1
-install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libpeghandlerservice.so.1  $RPM_BUILD_ROOT/usr/lib/pegasus/libpeghandlerservice.so.1
-install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libpegindicationservice.so.1  $RPM_BUILD_ROOT/usr/lib/pegasus/libpegindicationservice.so.1
-install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libpeglistener.so.1  $RPM_BUILD_ROOT/usr/lib/pegasus/libpeglistener.so.1
-install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libpegprm.so.1  $RPM_BUILD_ROOT/usr/lib/pegasus/libpegprm.so.1
-install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libpegprovidermanager.so.1  $RPM_BUILD_ROOT/usr/lib/pegasus/libpegprovidermanager.so.1
-install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libpegprovider.so.1  $RPM_BUILD_ROOT/usr/lib/pegasus/libpegprovider.so.1
-install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libpegrepository.so.1  $RPM_BUILD_ROOT/usr/lib/pegasus/libpegrepository.so.1
-install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libpegserver.so.1  $RPM_BUILD_ROOT/usr/lib/pegasus/libpegserver.so.1
-install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libpeguser.so.1  $RPM_BUILD_ROOT/usr/lib/pegasus/libpeguser.so.1
-install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libpegwql.so.1  $RPM_BUILD_ROOT/usr/lib/pegasus/libpegwql.so.1
-install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libPG_TestPropertyTypes.so.1  $RPM_BUILD_ROOT/usr/lib/pegasus/libPG_TestPropertyTypes.so.1
-install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libProcessProvider.so.1  $RPM_BUILD_ROOT/usr/lib/pegasus/libProcessProvider.so.1
-install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libProviderRegistrationProvider.so.1  $RPM_BUILD_ROOT/usr/lib/pegasus/libProviderRegistrationProvider.so.1
-install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libRT_IndicationConsumer.so.1  $RPM_BUILD_ROOT/usr/lib/pegasus/libRT_IndicationConsumer.so.1
-install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libRT_IndicationProvider.so.1  $RPM_BUILD_ROOT/usr/lib/pegasus/libRT_IndicationProvider.so.1
-install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libSampleIndicationProvider.so.1  $RPM_BUILD_ROOT/usr/lib/pegasus/libSampleIndicationProvider.so.1
-install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libSampleInstanceProvider.so.1  $RPM_BUILD_ROOT/usr/lib/pegasus/libSampleInstanceProvider.so.1
-install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libSampleMethodProvider.so.1  $RPM_BUILD_ROOT/usr/lib/pegasus/libSampleMethodProvider.so.1
-install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libsendmailIndicationHandler.so.1  $RPM_BUILD_ROOT/usr/lib/pegasus/libsendmailIndicationHandler.so.1
-install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libsnmpIndicationHandler.so.1  $RPM_BUILD_ROOT/usr/lib/pegasus/libsnmpIndicationHandler.so.1
-install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libUserAuthProvider.so.1  $RPM_BUILD_ROOT/usr/lib/pegasus/libUserAuthProvider.so.1
 
+# Libraries
+
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libAlertIndicationProvider.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libAlertIndicationProvider.so.1
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libCIMxmlIndicationHandler.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libCIMxmlIndicationHandler.so.1
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libComputerSystemProvider.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libComputerSystemProvider.so.1
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libConfigSettingProvider.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libConfigSettingProvider.so.1
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libDisplayConsumer.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libDisplayConsumer.so.1
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libDynLib.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libDynLib.so.1
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libIBM_CIMOMStatDataProvider.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libIBM_CIMOMStatDataProvider.so.1
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libIPProviderModule.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libIPProviderModule.so.1
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libNamespaceProvider.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libNamespaceProvider.so.1
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libnsatrap.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libnsatrap.so.1
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libOperatingSystemProvider.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libOperatingSystemProvider.so.1
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libOSProvider.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libOSProvider.so.1
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libpegauthentication.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libpegauthentication.so.1
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libpegCLIClientLib.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libpegCLIClientLib.so.1
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libpegclient.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libpegclient.so.1
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libpegcliutils.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libpegcliutils.so.1
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libpegcommon.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libpegcommon.so.1
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libpegcompiler.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libpegcompiler.so.1
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libpegconfig.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libpegconfig.so.1
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libpegexportclient.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libpegexportclient.so.1
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libpegexportserver.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libpegexportserver.so.1
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libpeggetoopt.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libpeggetoopt.so.1
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libpeghandlerservice.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libpeghandlerservice.so.1
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libpegindicationservice.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libpegindicationservice.so.1
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libpeglistener.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libpeglistener.so.1
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libpegprm.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libpegprm.so.1
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libpegprovidermanager.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libpegprovidermanager.so.1
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libpegprovider.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libpegprovider.so.1
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libpegrepository.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libpegrepository.so.1
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libpegserver.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libpegserver.so.1
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libpeguser.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libpeguser.so.1
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libpegwql.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libpegwql.so.1
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libPG_TestPropertyTypes.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libPG_TestPropertyTypes.so.1
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libProcessIndicationProvider.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libProcessIndicationProvider.so.1
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libProcessorProviderModule.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libProcessorProviderModule.so.1
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libProcessProvider.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libProcessProvider.so.1
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libProviderRegistrationProvider.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libProviderRegistrationProvider.so.1
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libRT_IndicationConsumer.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libRT_IndicationConsumer.so.1
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libRT_IndicationProvider.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libRT_IndicationProvider.so.1
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libSampleFamilyProvider.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libSampleFamilyProvider.so.1
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libSampleIndicationProvider.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libSampleIndicationProvider.so.1
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libSampleInstanceProvider.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libSampleInstanceProvider.so.1
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libSampleMethodProvider.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libSampleMethodProvider.so.1
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libsendmailIndicationHandler.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libsendmailIndicationHandler.so.1
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libSimpleDisplayConsumer.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libSimpleDisplayConsumer.so.1
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libslp.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libslp.so.1
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libsnmpIndicationHandler.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libsnmpIndicationHandler.so.1
+install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libUserAuthProvider.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libUserAuthProvider.so.1
 #
 # CIM schema
 #
@@ -219,9 +287,12 @@ install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/User27_UsersAccess.mof 
 #
 # Pegasus' schema
 #
+# InterOp:
 install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/Pegasus/InterOp/VER20/PG_Events20.mof   $RPM_BUILD_ROOT/etc/pegasus/mof/PG_Events20.mof
 install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/Pegasus/InterOp/VER20/PG_InterOpSchema20.mof   $RPM_BUILD_ROOT/etc/pegasus/mof/InterOpSchema.mof
 install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/Pegasus/InterOp/VER20/PG_ProviderModule20.mof  $RPM_BUILD_ROOT/etc/pegasus/mof/PG_ProviderModule20.mof
+
+# Internal:
 install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/Pegasus/Internal/VER20/PG_Authorization20.mof  $RPM_BUILD_ROOT/etc/pegasus/mof/PG_Authorization20.mof
 install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/Pegasus/Internal/VER20/PG_ConfigSetting20.mof  $RPM_BUILD_ROOT/etc/pegasus/mof/PG_ConfigSetting20.mof
 install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/Pegasus/Internal/VER20/PG_InternalSchema20.mof $RPM_BUILD_ROOT/etc/pegasus/mof/InternalSchema.mof
@@ -240,16 +311,30 @@ install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/Pegasus/ManagedSystem/VER20/P
 install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/Pegasus/ManagedSystem/VER20/PG_UnixProcess20.mof                               $RPM_BUILD_ROOT/etc/pegasus/mof/PG_UnixProcess20.mof
 install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/Pegasus/ManagedSystem/VER20/PG_UnixProcess20R.mof                               $RPM_BUILD_ROOT/etc/pegasus/mof/PG_UnixProcess20R.mof
 
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/Pegasus/ManagedSystem/VER20/IBM_CIMOMStatData.mof   $RPM_BUILD_ROOT/etc/pegasus/mof/IBM_CIMOMStatData.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/Pegasus/ManagedSystem/VER20/IBM_CIMOMStatDataR.mof   $RPM_BUILD_ROOT/etc/pegasus/mof/IBM_CIMOMStatDataR.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/Pegasus/ManagedSystem/VER20/PG_DNSAdminDomain20.mof   $RPM_BUILD_ROOT/etc/pegasus/mof/PG_DNSAdminDomain20.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/Pegasus/ManagedSystem/VER20/PG_DNSAdminDomain20R.mof   $RPM_BUILD_ROOT/etc/pegasus/mof/PG_DNSAdminDomain20R.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/Pegasus/ManagedSystem/VER20/PG_DNSService20.mof   $RPM_BUILD_ROOT/etc/pegasus/mof/PG_DNSService20.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/Pegasus/ManagedSystem/VER20/PG_DNSService20R.mof   $RPM_BUILD_ROOT/etc/pegasus/mof/PG_DNSService20R.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/Pegasus/ManagedSystem/VER20/PG_IP20.mof   $RPM_BUILD_ROOT/etc/pegasus/mof/PG_IP20.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/Pegasus/ManagedSystem/VER20/PG_IP20R.mof   $RPM_BUILD_ROOT/etc/pegasus/mof/PG_IP20R.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/Pegasus/ManagedSystem/VER20/PG_NTPAdminDomain20.mof   $RPM_BUILD_ROOT/etc/pegasus/mof/PG_NTPAdminDomain20.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/Pegasus/ManagedSystem/VER20/PG_NTPAdminDomain20R.mof   $RPM_BUILD_ROOT/etc/pegasus/mof/PG_NTPAdminDomain20R.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/Pegasus/ManagedSystem/VER20/PG_NTPService20.mof   $RPM_BUILD_ROOT/etc/pegasus/mof/PG_NTPService20.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/Pegasus/ManagedSystem/VER20/PG_NTPService20R.mof   $RPM_BUILD_ROOT/etc/pegasus/mof/PG_NTPService20R.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/Pegasus/ManagedSystem/VER20/PG_Processor20.mof   $RPM_BUILD_ROOT/etc/pegasus/mof/PG_Processor20.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/Pegasus/ManagedSystem/VER20/PG_Processor20R.mof   $RPM_BUILD_ROOT/etc/pegasus/mof/PG_Processor20R.mof
 #
 # SSL Files
 #
-install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/ssl.cnf                   $RPM_BUILD_ROOT/var/cache/pegasus/ssl.orig
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/src/Server/ssl.cnf                   $RPM_BUILD_ROOT/var/cache/pegasus/ssl.orig
 
 #
 # cimserver config files
 #
 install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/src/Server/cimserver_current.conf $RPM_BUILD_ROOT/etc/pegasus/cimserver_current.conf
-install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/src/Server/cimserver_planned.conf $RPM_BUILD_ROOT/etc/pegasus/cimserver_planned.conf
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/rpm/cimserver_planned.conf $RPM_BUILD_ROOT/etc/pegasus/cimserver_planned.conf
 
 #
 # WBEM pam authentication
@@ -278,11 +363,22 @@ install -D -m 0444 -o 0 -g 0 $PEGASUS_ROOT/rpm/manLinux/man1m.Z/cimserver.1m $RP
 [ "$RPM_BUILD_ROOT" != "/" ] && [ -d $RPM_BUILD_ROOT ] && rm -rf $RPM_BUILD_ROOT;
 
 %post
-%define INSTALL_LOG /var/log/pegasus/install.log
-echo `date` >%{INSTALL_LOG} 2>&1
+%{fillup_and_insserv -npy pegasus-wbem pegasus-wbem}
+mkdir -p /var/log/pegasus
+export INSTALL_LOG=/var/log/pegasus/install.log
+echo `date` >$INSTALL_LOG 2>&1
 
+isUnited=`grep "UnitedLinux" /etc/issue`
+isSUSE=`grep "SuSE" /etc/issue`
+
+if [ "$isUnited" ] || [ "$isSUSE" ]; then
+	chkconfig --add pegasus-wbem
+else
 # RH dependency
-#/sbin/chkconfig --add pegasus-wbem
+	/sbin/chkconfig --add pegasus-wbem
+	/sbin/chkconfig --level 2345 pegasus-wbem on
+fi
+
 grep "^/usr/lib/pegasus$" /etc/ld.so.conf > /dev/null 2> /dev/null
 [ $? -ne 0 ] && echo "/usr/lib/pegasus" >> /etc/ld.so.conf
 /sbin/ldconfig
@@ -294,7 +390,32 @@ ln -s $RPM_BUILD_ROOT/usr/lib/pegasus/libOSProvider.so.1 $RPM_BUILD_ROOT/usr/lib
 ln -s $RPM_BUILD_ROOT/usr/lib/pegasus/libOSProvider.so.1 $RPM_BUILD_ROOT/usr/lib/pegasus/providers/libOSProvider.so
 ln -s $RPM_BUILD_ROOT/usr/lib/pegasus/libProcessProvider.so.1 $RPM_BUILD_ROOT/usr/lib/pegasus/providers/libProcessProvider.so.1
 ln -s $RPM_BUILD_ROOT/usr/lib/pegasus/libProcessProvider.so.1 $RPM_BUILD_ROOT/usr/lib/pegasus/providers/libProcessProvider.so
+ln -s $RPM_BUILD_ROOT/usr/lib/pegasus/libAlertIndicationProvider.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/providers/libAlertIndicationProvider.so
+ln -s $RPM_BUILD_ROOT/usr/lib/pegasus/libAlertIndicationProvider.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/providers/libAlertIndicationProvider.so.1
+ln -s $RPM_BUILD_ROOT/usr/lib/pegasus/libIBM_CIMOMStatDataProvider.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/providers/libIBM_CIMOMStatDataProvider.so
+ln -s $RPM_BUILD_ROOT/usr/lib/pegasus/libIBM_CIMOMStatDataProvider.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/providers/libIBM_CIMOMStatDataProvider.so.1
+ln -s $RPM_BUILD_ROOT/usr/lib/pegasus/libOperatingSystemProvider.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/providers/libOperatingSystemProvider.so
+ln -s $RPM_BUILD_ROOT/usr/lib/pegasus/libOperatingSystemProvider.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/providers/libOperatingSystemProvider.so.1
+ln -s $RPM_BUILD_ROOT/usr/lib/pegasus/libSampleFamilyProvider.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/providers/libSampleFamilyProvider.so
+ln -s $RPM_BUILD_ROOT/usr/lib/pegasus/libSampleFamilyProvider.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/providers/libSampleFamilyProvider.so.1
+ln -s $RPM_BUILD_ROOT/usr/lib/pegasus/libSampleIndicationProvider.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/providers/libSampleIndicationProvider.so
+ln -s $RPM_BUILD_ROOT/usr/lib/pegasus/libSampleIndicationProvider.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/providers/libSampleIndicationProvider.so.1
+ln -s $RPM_BUILD_ROOT/usr/lib/pegasus/libSampleInstanceProvider.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/providers/libSampleInstanceProvider.so
+ln -s $RPM_BUILD_ROOT/usr/lib/pegasus/libSampleInstanceProvider.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/providers/libSampleInstanceProvider.so.1
+ln -s $RPM_BUILD_ROOT/usr/lib/pegasus/libSampleMethodProvider.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/providers/libSampleMethodProvider.so
+ln -s $RPM_BUILD_ROOT/usr/lib/pegasus/libSampleMethodProvider.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/providers/libSampleMethodProvider.so.1
 
+# Create symbolic links for client libs
+#
+cd /usr/lib/pegasus
+for a in `ls -1 *.so.1 | sed s/\.so\.1/\.so/` 
+do
+ ln -s "$a.1" $a
+done
+# link directories
+
+mkdir -p /var/cache/pegasus/repository
+ln -s /var/cache/pegasus/repository  /etc/pegasus/repository
 #
 #  Set up the openssl certificate
 #
@@ -302,7 +423,7 @@ ln -s $RPM_BUILD_ROOT/usr/lib/pegasus/libProcessProvider.so.1 $RPM_BUILD_ROOT/us
 #  Create big random ssl.rnd file, then 
 #  Generate a self signed node certificate
 #
-
+echo " Generating SSL certificates... "
 CN="Common Name"
 EMAIL="test@email.address"
 HOSTNAME=`uname -n`
@@ -313,16 +434,16 @@ chmod 644 /var/cache/pegasus/ssl.cnf
 chown bin /var/cache/pegasus/ssl.cnf
 chgrp bin /var/cache/pegasus/ssl.cnf
 
-/bin/rpm -qa >/var/cache/pegasus/ssl.rnd 2>>%{INSTALL_LOG}
-/bin/netstat -a >>/var/cache/pegasus/ssl.rnd 2>>%{INSTALL_LOG}
+/bin/rpm -qa >/var/cache/pegasus/ssl.rnd 2>>$INSTALL_LOG
+/bin/netstat -a >>/var/cache/pegasus/ssl.rnd 2>>$INSTALL_LOG
 
 /usr/bin/openssl req -x509 -days 365 -newkey rsa:2048 \
    -rand /var/cache/pegasus/ssl.rnd -nodes -config /var/cache/pegasus/ssl.cnf   \
-   -keyout /var/cache/pegasus/key.pem -out /var/cache/pegasus/cert.pem 2>>%{INSTALL_LOG}
+   -keyout /var/cache/pegasus/key.pem -out /var/cache/pegasus/cert.pem 2>>$INSTALL_LOG
 
 cat /var/cache/pegasus/key.pem /var/cache/pegasus/cert.pem > /var/cache/pegasus/server_2048.pem
 cat /var/cache/pegasus/cert.pem > /var/cache/pegasus/client_2048.pem
-rm /var/cache/pegasus/key.pem /var/cache/pegasus/cert.pem
+rm -f /var/cache/pegasus/key.pem /var/cache/pegasus/cert.pem
 
 if [ -f /var/cache/pegasus/server.pem ] 
 then
@@ -359,124 +480,74 @@ then
       mkdir $REPOSITORY_LOC
   fi
 fi
-#/sbin/service pegasus-wbem start 2>>%{INSTALL_LOG}
-/usr/sbin/cimserver
+
+# Start repository buildup
+if [ "$isUnited" ] || [ "$isSUSE" ]; then
+	/etc/init.d/pegasus-wbem start 2>>$INSTALL_LOG
+else
+	/sbin/service pegasus-wbem start 2>>$INSTALL_LOG
+fi
 sleep 5
 echo " Compiling mof files will take a few minutes."
-echo " Output will be logged to %{INSTALL_LOG}."
-. /usr/sbin/init_repository 2>>%{INSTALL_LOG}
-#/sbin/service pegasus-wbem stop 2>>%{INSTALL_LOG}
-/usr/sbin/cimserver -s
+echo " Output will be logged to $INSTALL_LOG."
+/usr/sbin/init_repository 2>>$INSTALL_LOG
 
-# Create symbolic links for client libs
-#
-cd /usr/lib/pegasus
-ln -s libCIMxmlIndicationHandler.so.1       libCIMxmlIndicationHandler.so
-ln -s libConfigSettingProvider.so.1         libConfigSettingProvider.so
-ln -s libNamespaceProvider.so.1             libNamespaceProvider.so
-ln -s libpegCLIClientLib.so.1               libpegCLIClientLib.so
-ln -s libpegauthentication.so.1             libpegauthentication.so
-ln -s libpegclient.so.1                     libpegclient.so
-ln -s libpegcliutils.so.1                   libpegcliutils.so
-ln -s libpegcommon.so.1                     libpegcommon.so
-ln -s libpegcompiler.so.1                   libpegcompiler.so
-ln -s libpegconfig.so.1                     libpegconfig.so
-ln -s libpegexportclient.so.1               libpegexportclient.so
-ln -s libpegexportserver.so.1               libpegexportserver.so
-ln -s libpeggetoopt.so.1                    libpeggetoopt.so
-ln -s libpeghandlerservice.so.1             libpeghandlerservice.so
-ln -s libpegindicationservice.so.1          libpegindicationservice.so
-ln -s libpeglistener.so.1                   libpeglistener.so
-ln -s libpegprm.so.1                        libpegprm.so
-ln -s libpegprovidermanager.so.1            libpegprovidermanager.so
-ln -s libpegprovider.so.1                   libpegprovider.so
-ln -s libpegrepository.so.1                 libpegrepository.so
-ln -s libpegserver.so.1                     libpegserver.so
-ln -s libpeguser.so.1                       libpeguser.so
-ln -s libpegwql.so.1                        libpegwql.so
-ln -s libPG_TestPropertyTypes.so.1          libPG_TestPropertyTypes.so
-ln -s libProviderRegistrationProvider.so.1  libProviderRegistrationProvider.so
-ln -s libRT_IndicationConsumer.so.1         libRT_IndicationConsumer.so
-ln -s libRT_IndicationProvider.so.1         libRT_IndicationProvider.so
-ln -s libSampleIndicationProvider.so.1      libSampleIndicationProvider.so
-ln -s libSampleInstanceProvider.so.1        libSampleInstanceProvider.so
-ln -s libSampleMethodProvider.so.1          libSampleMethodProvider.so
-ln -s libsendmailIndicationHandler.so.1     libsendmailIndicationHandler.so
-ln -s libsnmpIndicationHandler.so.1         libsnmpIndicationHandler.so
-ln -s libUserAuthProvider.so.1              libUserAuthProvider.so
+if [ "$isUnited" ] || [ "$isSUSE" ]; then
+	/etc/init.d/pegasus-wbem stop 2>>$INSTALL_LOG
+else
+	/sbin/service pegasus-wbem stop 2>>$INSTALL_LOG
+fi
+
+echo " To start Pegasus manually:"
+echo " /etc/init.d/pegasus-wbem start"
+echo " Stop it:"
+echo " /etc/init.d/pegasus-wbem stop"
 
 %preun
-if [ $1 = 0 ]; then
-	# RH dependency
-        /usr/sbin/cimserver -s
-#	/sbin/service pegasus-wbem stop > /dev/null 2> /dev/null; :
-#	/sbin/chkconfig --del pegasus-wbem
+isUnited=`grep "UnitedLinux" /etc/issue`
+isSUSE=`grep "SuSE" /etc/issue`
+
+if [ "$isUnited" ] || [ "$isSUSE" ]; then
+	/etc/init.d/pegasus-wbem stop 
+else
+	/sbin/service pegasus-wbem stop > /dev/null 2> /dev/null; :
 fi
+
+sleep 10
+chkconfig --del pegasus-wbem
 
 %postun
 if [ $1 = 0 ]; then
 	grep -v "/usr/lib/pegasus" /etc/ld.so.conf > /etc/ld.so.conf.new
 	mv -f /etc/ld.so.conf.new /etc/ld.so.conf
 	/sbin/ldconfig
-#	rm -fr /etc/init.d/pegasus-wbem
-	rm -rf /etc/pegasus
+	rm -f /etc/pegasus/repository
 	rm -rf /var/cache/pegasus
-        rm -f /usr/sbin/init_repository
-        rm -rf /usr/lib/pegasus
-        rm -f /etc/pam.d/wbem
+	export LC_ALL=C
+	for file in `find /usr/lib/pegasus`;
+	do
+		ANS=`file $file | grep "broken symbolic link"`
+		if [ "$ANS" != "" ]; then
+			# Found it
+			rm -f $file
+		fi
+	done
+	rm /usr/lib/pegasus/ssl.rnd
+#        rm -f /etc/pam.d/wbem
 fi
 
 %files
-%dir /var/cache/pegasus/localauth
-%dir /var/log/pegasus
-%dir /usr/lib/pegasus/providers
-%attr(-,root,root) /usr/sbin/pegasus-wbem
-%attr(-,root,root) /var/cache/pegasus/ssl.orig
-%attr(-,root,root) /etc/pegasus/cimserver_planned.conf
-%attr(-,root,root) /etc/pegasus/cimserver_current.conf
-%attr(-,root,root) /etc/pam.d/wbem
-%attr(-,root,root) /usr/sbin/cimauth
-%attr(-,root,root) /usr/sbin/cimconfig
-%attr(-,root,root) /usr/bin/cimmof
-%attr(-,root,root) /usr/sbin/cimserver
-%attr(-,root,root) /usr/sbin/init_repository
-%attr(-,root,root) /usr/bin/wbemexec
-%attr(-,root,root) /usr/bin/cimprovider
-%attr(-,root,root) /usr/bin/osinfo
-%attr(-,root,root) /usr/lib/pegasus/libCIMxmlIndicationHandler.so.1
-%attr(-,root,root) /usr/lib/pegasus/libComputerSystemProvider.so.1
-%attr(-,root,root) /usr/lib/pegasus/libConfigSettingProvider.so.1
-%attr(-,root,root) /usr/lib/pegasus/libNamespaceProvider.so.1
-%attr(-,root,root) /usr/lib/pegasus/libOSProvider.so.1
-%attr(-,root,root) /usr/lib/pegasus/libpegauthentication.so.1
-%attr(-,root,root) /usr/lib/pegasus/libpegclient.so.1
-%attr(-,root,root) /usr/lib/pegasus/libpegcliutils.so.1
-%attr(-,root,root) /usr/lib/pegasus/libpegcommon.so.1
-%attr(-,root,root) /usr/lib/pegasus/libpegcompiler.so.1
-%attr(-,root,root) /usr/lib/pegasus/libpegconfig.so.1
-%attr(-,root,root) /usr/lib/pegasus/libpegexportclient.so.1
-%attr(-,root,root) /usr/lib/pegasus/libpegexportserver.so.1
-%attr(-,root,root) /usr/lib/pegasus/libpeggetoopt.so.1
-%attr(-,root,root) /usr/lib/pegasus/libpeghandlerservice.so.1
-%attr(-,root,root) /usr/lib/pegasus/libpegindicationservice.so.1
-%attr(-,root,root) /usr/lib/pegasus/libpeglistener.so.1
-%attr(-,root,root) /usr/lib/pegasus/libpegprm.so.1
-%attr(-,root,root) /usr/lib/pegasus/libpegprovidermanager.so.1
-%attr(-,root,root) /usr/lib/pegasus/libpegprovider.so.1
-%attr(-,root,root) /usr/lib/pegasus/libpegrepository.so.1
-%attr(-,root,root) /usr/lib/pegasus/libpegserver.so.1
-%attr(-,root,root) /usr/lib/pegasus/libpeguser.so.1
-%attr(-,root,root) /usr/lib/pegasus/libpegwql.so.1
-%attr(-,root,root) /usr/lib/pegasus/libProcessProvider.so.1
-%attr(-,root,root) /usr/lib/pegasus/libProviderRegistrationProvider.so.1
-%attr(-,root,root) /usr/lib/pegasus/libRT_IndicationConsumer.so.1
-%attr(-,root,root) /usr/lib/pegasus/libRT_IndicationProvider.so.1
-%attr(-,root,root) /usr/lib/pegasus/libSampleIndicationProvider.so.1
-%attr(-,root,root) /usr/lib/pegasus/libSampleInstanceProvider.so.1
-%attr(-,root,root) /usr/lib/pegasus/libSampleMethodProvider.so.1
-%attr(-,root,root) /usr/lib/pegasus/libsendmailIndicationHandler.so.1
-%attr(-,root,root) /usr/lib/pegasus/libsnmpIndicationHandler.so.1
-%attr(-,root,root) /usr/lib/pegasus/libUserAuthProvider.so.1
+%dir %attr(-,root,root) /var/cache/pegasus/localauth
+%dir %attr(-,root,root) /var/log/pegasus
+%dir %attr(-,root,root) /usr/lib/pegasus/providers
+%attr(-,root,root) /usr/share/man/man1/cimmof.1.gz
+%attr(-,root,root) /usr/share/man/man1/cimprovider.1.gz
+%attr(-,root,root) /usr/share/man/man1/osinfo.1.gz
+%attr(-,root,root) /usr/share/man/man1/wbemexec.1.gz
+%attr(-,root,root) /usr/share/man/man1m/cimauth.1m.gz
+%attr(-,root,root) /usr/share/man/man1m/cimconfig.1m.gz
+%attr(-,root,root) /usr/share/man/man1m/cimprovider.1m.gz
+%attr(-,root,root) /usr/share/man/man1m/cimserver.1m.gz
 %attr(-,root,root) /etc/pegasus/mof/CIM_Core27.mof
 %attr(-,root,root) /etc/pegasus/mof/Core27_Qualifiers.mof
 %attr(-,root,root) /etc/pegasus/mof/Core27_CoreElements.mof
@@ -501,7 +572,7 @@ fi
 %attr(-,root,root) /etc/pegasus/mof/CIM_Database27.mof
 %attr(-,root,root) /etc/pegasus/mof/CIM_Device27.mof
 %attr(-,root,root) /etc/pegasus/mof/CIM_Event27.mof
-%attr(-,root,root) /etc/pegasus/mof/CIM_Interop27.mof 
+%attr(-,root,root) /etc/pegasus/mof/CIM_Interop27.mof
 %attr(-,root,root) /etc/pegasus/mof/CIM_Metrics27.mof
 %attr(-,root,root) /etc/pegasus/mof/CIM_Network27.mof
 %attr(-,root,root) /etc/pegasus/mof/CIM_Physical27.mof
@@ -583,19 +654,98 @@ fi
 %attr(-,root,root) /etc/pegasus/mof/InternalSchema.mof
 %attr(-,root,root) /etc/pegasus/mof/PG_User20.mof
 %attr(-,root,root) /etc/pegasus/mof/PG_ShutdownService20.mof
-%attr(-,root,root) /etc/pegasus/mof/PG_ComputerSystem20.mof
-%attr(-,root,root) /etc/pegasus/mof/PG_ComputerSystem20R.mof
 %attr(-,root,root) /etc/pegasus/mof/PG_OperatingSystem20.mof
 %attr(-,root,root) /etc/pegasus/mof/PG_OperatingSystem20R.mof
+%attr(-,root,root) /etc/pegasus/mof/PG_ComputerSystem20.mof
+%attr(-,root,root) /etc/pegasus/mof/PG_ComputerSystem20R.mof
 %attr(-,root,root) /etc/pegasus/mof/ManagedSystemSchema.mof
 %attr(-,root,root) /etc/pegasus/mof/ManagedSystemSchemaR.mof
 %attr(-,root,root) /etc/pegasus/mof/PG_UnixProcess20.mof
 %attr(-,root,root) /etc/pegasus/mof/PG_UnixProcess20R.mof
-%attr(-,root,root) /usr/share/man/man1/cimmof.1.gz
-%attr(-,root,root) /usr/share/man/man1/cimprovider.1.gz
-%attr(-,root,root) /usr/share/man/man1/osinfo.1.gz
-%attr(-,root,root) /usr/share/man/man1/wbemexec.1.gz
-%attr(-,root,root) /usr/share/man/man1m/cimauth.1m.gz
-%attr(-,root,root) /usr/share/man/man1m/cimconfig.1m.gz
-%attr(-,root,root) /usr/share/man/man1m/cimprovider.1m.gz
-%attr(-,root,root) /usr/share/man/man1m/cimserver.1m.gz
+%attr(-,root,root) /etc/pegasus/mof/IBM_CIMOMStatData.mof
+%attr(-,root,root) /etc/pegasus/mof/IBM_CIMOMStatDataR.mof
+%attr(-,root,root) /etc/pegasus/mof/PG_DNSAdminDomain20.mof
+%attr(-,root,root) /etc/pegasus/mof/PG_DNSAdminDomain20R.mof
+%attr(-,root,root) /etc/pegasus/mof/PG_DNSService20.mof
+%attr(-,root,root) /etc/pegasus/mof/PG_DNSService20R.mof
+%attr(-,root,root) /etc/pegasus/mof/PG_IP20.mof
+%attr(-,root,root) /etc/pegasus/mof/PG_IP20R.mof
+%attr(-,root,root) /etc/pegasus/mof/PG_NTPAdminDomain20.mof
+%attr(-,root,root) /etc/pegasus/mof/PG_NTPAdminDomain20R.mof
+%attr(-,root,root) /etc/pegasus/mof/PG_NTPService20.mof
+%attr(-,root,root) /etc/pegasus/mof/PG_NTPService20R.mof
+%attr(-,root,root) /etc/pegasus/mof/PG_Processor20.mof
+%attr(-,root,root) /etc/pegasus/mof/PG_Processor20R.mof
+%config %attr(-,root,root) /etc/pegasus/cimserver_current.conf
+%config %attr(-,root,root) /etc/pegasus/cimserver_planned.conf
+%config %attr(-,root,root) /etc/init.d/pegasus-wbem
+%config %attr(-,root,root) /etc/pam.d/wbem
+%attr(-,root,root) /var/cache/pegasus/ssl.orig
+%attr(-,root,root) /usr/bin/cimmof
+%attr(-,root,root) /usr/bin/cimmofl
+%attr(-,root,root) /usr/bin/wbemexec
+%attr(-,root,root) /usr/bin/CLI
+%attr(-,root,root) /usr/bin/osinfo
+%attr(-,root,root) /usr/bin/ipinfo
+%attr(-,root,root) /usr/bin/tomof
+%attr(-,root,root) /usr/bin/cimprovider
+%attr(-,root,root) /usr/sbin/cimserver
+%attr(-,root,root) /usr/sbin/cimauth
+%attr(-,root,root) /usr/sbin/cimuser
+%attr(-,root,root) /usr/sbin/cimconfig
+%attr(-,root,root) /usr/sbin/init_repository
+%attr(-,root,root) /usr/lib/pegasus/libAlertIndicationProvider.so.1
+%attr(-,root,root) /usr/lib/pegasus/libCIMxmlIndicationHandler.so.1
+%attr(-,root,root) /usr/lib/pegasus/libComputerSystemProvider.so.1
+%attr(-,root,root) /usr/lib/pegasus/libConfigSettingProvider.so.1
+%attr(-,root,root) /usr/lib/pegasus/libDisplayConsumer.so.1
+%attr(-,root,root) /usr/lib/pegasus/libDynLib.so.1
+%attr(-,root,root) /usr/lib/pegasus/libIBM_CIMOMStatDataProvider.so.1
+%attr(-,root,root) /usr/lib/pegasus/libIPProviderModule.so.1
+%attr(-,root,root) /usr/lib/pegasus/libNamespaceProvider.so.1
+%attr(-,root,root) /usr/lib/pegasus/libnsatrap.so.1
+%attr(-,root,root) /usr/lib/pegasus/libOperatingSystemProvider.so.1
+%attr(-,root,root) /usr/lib/pegasus/libOSProvider.so.1
+%attr(-,root,root) /usr/lib/pegasus/libpegauthentication.so.1
+%attr(-,root,root) /usr/lib/pegasus/libpegCLIClientLib.so.1
+%attr(-,root,root) /usr/lib/pegasus/libpegclient.so.1
+%attr(-,root,root) /usr/lib/pegasus/libpegcliutils.so.1
+%attr(-,root,root) /usr/lib/pegasus/libpegcommon.so.1
+%attr(-,root,root) /usr/lib/pegasus/libpegcompiler.so.1
+%attr(-,root,root) /usr/lib/pegasus/libpegconfig.so.1
+%attr(-,root,root) /usr/lib/pegasus/libpegexportclient.so.1
+%attr(-,root,root) /usr/lib/pegasus/libpegexportserver.so.1
+%attr(-,root,root) /usr/lib/pegasus/libpeggetoopt.so.1
+%attr(-,root,root) /usr/lib/pegasus/libpeghandlerservice.so.1
+%attr(-,root,root) /usr/lib/pegasus/libpegindicationservice.so.1
+%attr(-,root,root) /usr/lib/pegasus/libpeglistener.so.1
+%attr(-,root,root) /usr/lib/pegasus/libpegprm.so.1
+%attr(-,root,root) /usr/lib/pegasus/libpegprovidermanager.so.1
+%attr(-,root,root) /usr/lib/pegasus/libpegprovider.so.1
+%attr(-,root,root) /usr/lib/pegasus/libpegrepository.so.1
+%attr(-,root,root) /usr/lib/pegasus/libpegserver.so.1
+%attr(-,root,root) /usr/lib/pegasus/libpeguser.so.1
+%attr(-,root,root) /usr/lib/pegasus/libpegwql.so.1
+%attr(-,root,root) /usr/lib/pegasus/libPG_TestPropertyTypes.so.1
+%attr(-,root,root) /usr/lib/pegasus/libProcessIndicationProvider.so.1
+%attr(-,root,root) /usr/lib/pegasus/libProcessorProviderModule.so.1
+%attr(-,root,root) /usr/lib/pegasus/libProcessProvider.so.1
+%attr(-,root,root) /usr/lib/pegasus/libProviderRegistrationProvider.so.1
+%attr(-,root,root) /usr/lib/pegasus/libRT_IndicationConsumer.so.1
+%attr(-,root,root) /usr/lib/pegasus/libRT_IndicationProvider.so.1
+%attr(-,root,root) /usr/lib/pegasus/libSampleFamilyProvider.so.1
+%attr(-,root,root) /usr/lib/pegasus/libSampleIndicationProvider.so.1
+%attr(-,root,root) /usr/lib/pegasus/libSampleInstanceProvider.so.1
+%attr(-,root,root) /usr/lib/pegasus/libSampleMethodProvider.so.1
+%attr(-,root,root) /usr/lib/pegasus/libsendmailIndicationHandler.so.1
+%attr(-,root,root) /usr/lib/pegasus/libSimpleDisplayConsumer.so.1
+%attr(-,root,root) /usr/lib/pegasus/libslp.so.1
+%attr(-,root,root) /usr/lib/pegasus/libsnmpIndicationHandler.so.1
+%attr(-,root,root) /usr/lib/pegasus/libUserAuthProvider.so.1
+
+%files devel -f rpm_pegasus_include_files
+
+%defattr(-,root,root,0755)
+%doc doc/*.txt doc/DOCREMARKS doc/HISTORY doc/NOTES doc/*.html doc/*.pdf
+
+

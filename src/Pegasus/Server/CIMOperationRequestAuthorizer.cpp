@@ -159,10 +159,15 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
       return;
    }
 
+   AutoPtr<CIMOperationRequestMessage> 
+         req(dynamic_cast<CIMOperationRequestMessage *>(request));
+
+   PEGASUS_ASSERT(req.get());
+
    //
    // Get the HTTPConnection queue id
    //
-   QueueIdStack qis = ((CIMRequestMessage*)request)->queueIds.copyAndPop();
+   QueueIdStack qis = req->queueIds.copyAndPop();
 
    Uint32 queueId = qis.top();
 
@@ -170,19 +175,11 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
    // Set the client's requested language into this service thread.
    // This will allow functions in this service to return messages
    // in the correct language.
-   CIMMessage * req = dynamic_cast<CIMMessage *>(request);
-   if (req != NULL)
+   if (req->thread_changed())
    {
-	if (req->thread_changed())
-        {
-	   AutoPtr<AcceptLanguages> langs(new AcceptLanguages(((AcceptLanguageListContainer)req->operationContext.get
-		   (AcceptLanguageListContainer:: NAME)).getLanguages()));	
-	   Thread::setLanguages(langs.release());   		
-        }
-   }
-   else
-   {
-   		Thread::clearLanguages();
+       AutoPtr<AcceptLanguages> langs(new AcceptLanguages(((AcceptLanguageListContainer)req->operationContext.get
+	   (AcceptLanguageListContainer:: NAME)).getLanguages()));	
+       Thread::setLanguages(langs.release());   		
    }
 
    //
@@ -206,210 +203,144 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
    CIMNamespaceName nameSpace;
    String cimMethodName = String::EMPTY;
 
-   switch (request->getType())
+   // Set the username and namespace.
+   nameSpace = req->nameSpace;
+   userName = ((IdentityContainer)(req->operationContext.get
+			(IdentityContainer::NAME))).getUserName();
+
+   switch (req->getType())
    {
       case CIM_GET_CLASS_REQUEST_MESSAGE:
-	 userName = ((IdentityContainer)(((CIMGetClassRequestMessage*)request)->operationContext.get
-																	(IdentityContainer:: NAME))).getUserName();
 	 authType = 
-	    ((CIMGetClassRequestMessage*)request)->authType;
-	 nameSpace = ((CIMGetClassRequestMessage*)request)->nameSpace;
+	    ((CIMGetClassRequestMessage*)req.get())->authType;
 	 cimMethodName = "GetClass";
 	 break;
 
       case CIM_GET_INSTANCE_REQUEST_MESSAGE:
-	 userName = ((IdentityContainer)(((CIMGetInstanceRequestMessage*)request)->operationContext.get
-																	(IdentityContainer:: NAME))).getUserName();
 	 authType = 
-	    ((CIMGetInstanceRequestMessage*)request)->authType;
-	 nameSpace = ((CIMGetInstanceRequestMessage*)request)->nameSpace;
+	    ((CIMGetInstanceRequestMessage*)req.get())->authType;
 	 cimMethodName = "GetInstance";
 	 break;
 
       case CIM_DELETE_CLASS_REQUEST_MESSAGE:
-	 userName = ((IdentityContainer)(((CIMDeleteClassRequestMessage*)request)->operationContext.get
-																	(IdentityContainer:: NAME))).getUserName();
 	 authType = 
-	    ((CIMDeleteClassRequestMessage*)request)->authType;
-	 nameSpace = ((CIMDeleteClassRequestMessage*)request)->nameSpace;
+	    ((CIMDeleteClassRequestMessage*)req.get())->authType;
 	 cimMethodName = "DeleteClass";
 	 break;
 
       case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
-	 userName = ((IdentityContainer)(((CIMDeleteInstanceRequestMessage*)request)->operationContext.get
-																	(IdentityContainer:: NAME))).getUserName();
 	 authType = 
-	    ((CIMDeleteInstanceRequestMessage*)request)->authType;
-	 nameSpace = ((CIMDeleteInstanceRequestMessage*)request)->nameSpace;
+	    ((CIMDeleteInstanceRequestMessage*)req.get())->authType;
 	 cimMethodName = "DeleteInstance";
 	 break;
 
       case CIM_CREATE_CLASS_REQUEST_MESSAGE:
-	 userName = ((IdentityContainer)(((CIMCreateClassRequestMessage*)request)->operationContext.get
-																	(IdentityContainer:: NAME))).getUserName();
 	 authType = 
-	    ((CIMCreateClassRequestMessage*)request)->authType;
-	 nameSpace = ((CIMCreateClassRequestMessage*)request)->nameSpace;
+	    ((CIMCreateClassRequestMessage*)req.get())->authType;
 	 cimMethodName = "CreateClass";
 	 break;
 
       case CIM_CREATE_INSTANCE_REQUEST_MESSAGE:
-	 userName = ((IdentityContainer)(((CIMCreateInstanceRequestMessage*)request)->operationContext.get
-																	(IdentityContainer:: NAME))).getUserName();
 	 authType = 
-	    ((CIMCreateInstanceRequestMessage*)request)->authType;
-	 nameSpace = ((CIMCreateInstanceRequestMessage*)request)->nameSpace;
+	    ((CIMCreateInstanceRequestMessage*)req.get())->authType;
 	 cimMethodName = "CreateInstance";
 	 break;
 
       case CIM_MODIFY_CLASS_REQUEST_MESSAGE:
-	 userName = ((IdentityContainer)(((CIMModifyClassRequestMessage*)request)->operationContext.get
-																	(IdentityContainer:: NAME))).getUserName();
 	 authType = 
-	    ((CIMModifyClassRequestMessage*)request)->authType;
-	 nameSpace = ((CIMModifyClassRequestMessage*)request)->nameSpace;
+	    ((CIMModifyClassRequestMessage*)req.get())->authType;
 	 cimMethodName = "ModifyClass";
 	 break;
 
       case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
-	 userName = ((IdentityContainer)(((CIMModifyInstanceRequestMessage*)request)->operationContext.get
-																	(IdentityContainer:: NAME))).getUserName();
 	 authType = 
-	    ((CIMModifyInstanceRequestMessage*)request)->authType;
-	 nameSpace = ((CIMModifyInstanceRequestMessage*)request)->nameSpace;
+	    ((CIMModifyInstanceRequestMessage*)req.get())->authType;
 	 cimMethodName = "ModifyInstance";
 	 break;
 
       case CIM_ENUMERATE_CLASSES_REQUEST_MESSAGE:
-	 userName = ((IdentityContainer)(((CIMEnumerateClassesRequestMessage*)request)->operationContext.get
-																	(IdentityContainer:: NAME))).getUserName();
-	 authType = ((CIMEnumerateClassesRequestMessage*)request)->authType;
-	 nameSpace = ((CIMEnumerateClassesRequestMessage*)request)->nameSpace;
+	 authType = ((CIMEnumerateClassesRequestMessage*)req.get())->authType;
 	 cimMethodName = "EnumerateClasses";
 	 break;
 
       case CIM_ENUMERATE_CLASS_NAMES_REQUEST_MESSAGE:
-	 userName = ((IdentityContainer)(((CIMEnumerateClassNamesRequestMessage*)request)->operationContext.get
-																	(IdentityContainer:: NAME))).getUserName();
 	 authType = 
-	    ((CIMEnumerateClassNamesRequestMessage*)request)->authType;
-	 nameSpace = ((CIMEnumerateClassNamesRequestMessage*)request)->nameSpace;
+	    ((CIMEnumerateClassNamesRequestMessage*)req.get())->authType;
 	 cimMethodName = "EnumerateClassNames";
 	 break;
 
       case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
-	 userName = ((IdentityContainer)(((CIMEnumerateInstancesRequestMessage*)request)->operationContext.get
-																	(IdentityContainer:: NAME))).getUserName();
-	 authType = ((CIMEnumerateInstancesRequestMessage*)request)->authType;
-	 nameSpace = ((CIMEnumerateInstancesRequestMessage*)request)->nameSpace;
+	 authType = ((CIMEnumerateInstancesRequestMessage*)req.get())->authType;
 	 cimMethodName = "EnumerateInstances";
 	 break;
 
       case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE:
-	 userName = ((IdentityContainer)(((CIMEnumerateInstanceNamesRequestMessage*)request)->operationContext.get
-																	(IdentityContainer:: NAME))).getUserName();
-	 authType = ((CIMEnumerateInstanceNamesRequestMessage*)request)->authType;
-	 nameSpace = ((CIMEnumerateInstanceNamesRequestMessage*)request)->nameSpace;
+	 authType = ((CIMEnumerateInstanceNamesRequestMessage*)req.get())->authType;
 	 cimMethodName = "EnumerateInstanceNames";
 	 break;
 
       case CIM_EXEC_QUERY_REQUEST_MESSAGE:
-	 userName = ((IdentityContainer)(((CIMExecQueryRequestMessage*)request)->operationContext.get
-																	(IdentityContainer:: NAME))).getUserName();
-	 authType = ((CIMExecQueryRequestMessage*)request)->authType;
-	 nameSpace = ((CIMExecQueryRequestMessage*)request)->nameSpace;
+	 authType = ((CIMExecQueryRequestMessage*)req.get())->authType;
 	 cimMethodName = "ExecQuery";
 	 break;
 
       case CIM_ASSOCIATORS_REQUEST_MESSAGE:
-	 userName = ((IdentityContainer)(((CIMAssociatorsRequestMessage*)request)->operationContext.get
-																	(IdentityContainer:: NAME))).getUserName();
-	 authType = ((CIMAssociatorsRequestMessage*)request)->authType;
-	 nameSpace = ((CIMAssociatorsRequestMessage*)request)->nameSpace;
+	 authType = ((CIMAssociatorsRequestMessage*)req.get())->authType;
 	 cimMethodName = "Associators";
 	 break;
 
       case CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE:
-	 userName = ((IdentityContainer)(((CIMAssociatorNamesRequestMessage*)request)->operationContext.get
-																	(IdentityContainer:: NAME))).getUserName();
-	 authType = ((CIMAssociatorNamesRequestMessage*)request)->authType;
-	 nameSpace = ((CIMAssociatorNamesRequestMessage*)request)->nameSpace;
+	 authType = ((CIMAssociatorNamesRequestMessage*)req.get())->authType;
 	 cimMethodName = "AssociatorNames";
 	 break;
 
       case CIM_REFERENCES_REQUEST_MESSAGE:
-	 userName = ((IdentityContainer)(((CIMReferencesRequestMessage*)request)->operationContext.get
-																	(IdentityContainer:: NAME))).getUserName();
-	 authType = ((CIMReferencesRequestMessage*)request)->authType;
-	 nameSpace = ((CIMReferencesRequestMessage*)request)->nameSpace;
+	 authType = ((CIMReferencesRequestMessage*)req.get())->authType;
 	 cimMethodName = "References";
 	 break;
 
       case CIM_REFERENCE_NAMES_REQUEST_MESSAGE:
-	 userName = ((IdentityContainer)(((CIMReferenceNamesRequestMessage*)request)->operationContext.get
-																	(IdentityContainer:: NAME))).getUserName();
-	 authType = ((CIMReferenceNamesRequestMessage*)request)->authType;
-	 nameSpace = ((CIMReferenceNamesRequestMessage*)request)->nameSpace;
+	 authType = ((CIMReferenceNamesRequestMessage*)req.get())->authType;
 	 cimMethodName = "ReferenceNames";
 	 break;
 
       case CIM_GET_PROPERTY_REQUEST_MESSAGE:
-	 userName = ((IdentityContainer)(((CIMGetPropertyRequestMessage*)request)->operationContext.get
-																	(IdentityContainer:: NAME))).getUserName();
-	 authType = ((CIMGetPropertyRequestMessage*)request)->authType;
-	 nameSpace = ((CIMGetPropertyRequestMessage*)request)->nameSpace;
+	 authType = ((CIMGetPropertyRequestMessage*)req.get())->authType;
 	 cimMethodName = "GetProperty";
 	 break;
 
       case CIM_SET_PROPERTY_REQUEST_MESSAGE:
-	 userName = ((IdentityContainer)(((CIMSetPropertyRequestMessage*)request)->operationContext.get
-																	(IdentityContainer:: NAME))).getUserName();
-	 authType = ((CIMSetPropertyRequestMessage*)request)->authType;
-	 nameSpace = ((CIMSetPropertyRequestMessage*)request)->nameSpace;
+	 authType = ((CIMSetPropertyRequestMessage*)req.get())->authType;
 	 cimMethodName = "SetProperty";
 	 break;
 
       case CIM_GET_QUALIFIER_REQUEST_MESSAGE:
-	 userName = ((IdentityContainer)(((CIMGetQualifierRequestMessage*)request)->operationContext.get
-																	(IdentityContainer:: NAME))).getUserName();
-	 authType = ((CIMGetQualifierRequestMessage*)request)->authType;
-	 nameSpace = ((CIMGetQualifierRequestMessage*)request)->nameSpace;
+	 authType = ((CIMGetQualifierRequestMessage*)req.get())->authType;
 	 cimMethodName = "GetQualifier";
 	 break;
 
       case CIM_SET_QUALIFIER_REQUEST_MESSAGE:
-	 userName = ((IdentityContainer)(((CIMSetQualifierRequestMessage*)request)->operationContext.get
-																	(IdentityContainer:: NAME))).getUserName();
-	 authType = ((CIMSetQualifierRequestMessage*)request)->authType;
-	 nameSpace = ((CIMSetQualifierRequestMessage*)request)->nameSpace;
+	 authType = ((CIMSetQualifierRequestMessage*)req.get())->authType;
 	 cimMethodName = "SetQualifier";
 	 break;
 
       case CIM_DELETE_QUALIFIER_REQUEST_MESSAGE:
-	 userName = ((IdentityContainer)(((CIMDeleteQualifierRequestMessage*)request)->operationContext.get
-																	(IdentityContainer:: NAME))).getUserName();
-	 authType = ((CIMDeleteQualifierRequestMessage*)request)->authType;
-	 nameSpace = ((CIMDeleteQualifierRequestMessage*)request)->nameSpace;
+	 authType = ((CIMDeleteQualifierRequestMessage*)req.get())->authType;
 	 cimMethodName = "DeleteQualifier";
 	 break;
 
       case CIM_ENUMERATE_QUALIFIERS_REQUEST_MESSAGE:
-	 userName = ((IdentityContainer)(((CIMEnumerateQualifiersRequestMessage*)request)->operationContext.get
-																	(IdentityContainer:: NAME))).getUserName();
-	 authType = ((CIMEnumerateQualifiersRequestMessage*)request)->authType;
-	 nameSpace = ((CIMEnumerateQualifiersRequestMessage*)request)->nameSpace;
+	 authType = ((CIMEnumerateQualifiersRequestMessage*)req.get())->authType;
 	 cimMethodName = "EnumerateQualifiers";
 	 break;
 
       case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
-	 userName = ((IdentityContainer)(((CIMInvokeMethodRequestMessage*)request)->operationContext.get
-																	(IdentityContainer:: NAME))).getUserName();
-	 authType = ((CIMInvokeMethodRequestMessage*)request)->authType;
-	 nameSpace = ((CIMInvokeMethodRequestMessage*)request)->nameSpace;
+	 authType = ((CIMInvokeMethodRequestMessage*)req.get())->authType;
 	 cimMethodName = "InvokeMethod";
 	 break;
 
       default:
+         PEGASUS_ASSERT(0);
 	 break;
    }
 
@@ -467,10 +398,11 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
                        // l10n
                        sendMethodError(
                            queueId,
-                           request->getHttpMethod(),
-                           ((CIMRequestMessage*)request)->messageId,
-                           ((CIMInvokeMethodRequestMessage*)request)->methodName,
-                           PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED, msgLoaderParms));
+                           req->getHttpMethod(),
+                           req->messageId,
+                           ((CIMInvokeMethodRequestMessage*)req.get())->methodName,
+                           PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED, 
+                                                   msgLoaderParms));
                        PEG_METHOD_EXIT();
                        return;
                    }
@@ -479,10 +411,11 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
                        // l10n
                        sendIMethodError(
                            queueId,
-                           request->getHttpMethod(),
-                           ((CIMRequestMessage*)request)->messageId,
+                           req->getHttpMethod(),
+                           req->messageId,
                            cimMethodName,
-                           PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED, msgLoaderParms));
+                           PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED, 
+                                                   msgLoaderParms));
                        PEG_METHOD_EXIT();
                        return;
                    }
@@ -494,8 +427,8 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
    {
        sendIMethodError(
                queueId,
-               request->getHttpMethod(),
-               ((CIMRequestMessage*)request)->messageId,
+               req->getHttpMethod(),
+               req->messageId,
                cimMethodName,
                PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, ise.getMessage()));
        PEG_METHOD_EXIT();
@@ -547,41 +480,28 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
 	      // l10n
 	      sendMethodError(
                   queueId,
-                  request->getHttpMethod(),
-                  ((CIMRequestMessage*)request)->messageId,
-                  ((CIMInvokeMethodRequestMessage*)request)->methodName,
+                  req->getHttpMethod(),
+                  req->messageId,
+                  ((CIMInvokeMethodRequestMessage*)req.get())->methodName,
                   PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED, 
-					MessageLoaderParms(
-					 "Server.CIMOperationRequestAuthorizer.NOT_AUTHORIZED", 
-					 "Not authorized to run $0 in the namespace $1", 
-					   cimMethodName, nameSpace.getString())));
-               // sendMethodError(
-	       // queueId,
-	       // request->getHttpMethod(),
-	       // ((CIMRequestMessage*)request)->messageId,
-	       // ((CIMInvokeMethodRequestMessage*)request)->methodName,
-	       // PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, description));
+			 MessageLoaderParms(
+			 "Server.CIMOperationRequestAuthorizer.NOT_AUTHORIZED", 
+			 "Not authorized to run $0 in the namespace $1", 
+			   cimMethodName, nameSpace.getString())));
             }
             else
             {
 	      // l10n
 	      sendIMethodError(
-			       queueId,
-			       request->getHttpMethod(),
-			       ((CIMRequestMessage*)request)->messageId,
-			       cimMethodName,
-			       PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED, 
-					MessageLoaderParms(
-					 "Server.CIMOperationRequestAuthorizer.NOT_AUTHORIZED", 
-					 "Not authorized to run $0 in the namespace $1", 
-					   cimMethodName, nameSpace.getString())));
-
-	      // sendIMethodError(
-	      //  queueId,
-	      //  request->getHttpMethod(),
-	      //  ((CIMRequestMessage*)request)->messageId,
-	      //  cimMethodName,
-	      //  PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, description));
+		       queueId,
+		       req->getHttpMethod(),
+		       req->messageId,
+		       cimMethodName,
+		       PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED, 
+		       MessageLoaderParms(
+		       "Server.CIMOperationRequestAuthorizer.NOT_AUTHORIZED", 
+		 	"Not authorized to run $0 in the namespace $1", 
+	    		cimMethodName, nameSpace.getString())));
             }
 
             PEG_METHOD_EXIT();
@@ -609,18 +529,12 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
 
          sendMethodError(
             queueId,
-            request->getHttpMethod(),
-            ((CIMRequestMessage*)request)->messageId,
-            ((CIMInvokeMethodRequestMessage*)request)->methodName,
-            PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED, MessageLoaderParms(
-                                 "Server.CIMOperationRequestAuthorizer.REMOTE_NOT_ENABLED", "Remote privileged user access is not enabled.")));
-
-         // sendMethodError(
-	 //  queueId,
-	 //  request->getHttpMethod(),
-	 //  ((CIMRequestMessage*)request)->messageId,
-	 //  ((CIMInvokeMethodRequestMessage*)request)->methodName,
-	 //  PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, "Remote privileged user access is not enabled."));
+            req->getHttpMethod(),
+            req->messageId,
+            ((CIMInvokeMethodRequestMessage*)req.get())->methodName,
+           PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED, MessageLoaderParms(
+                   "Server.CIMOperationRequestAuthorizer.REMOTE_NOT_ENABLED", 
+                   "Remote privileged user access is not enabled.")));
       }
       else
       {
@@ -628,18 +542,12 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
 
          sendIMethodError(
             queueId,
-            request->getHttpMethod(),
-            ((CIMRequestMessage*)request)->messageId,
+            req->getHttpMethod(),
+            req->messageId,
             cimMethodName,
-            PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED, MessageLoaderParms(
-                                 "Server.CIMOperationRequestAuthorizer.REMOTE_NOT_ENABLED", "Remote privileged user access is not enabled.")));
-
-         // sendIMethodError(
-	 // queueId,
-	 //  request->getHttpMethod(),
-	 //  ((CIMRequestMessage*)request)->messageId,
-	 //  cimMethodName,
-	 //  PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, "Remote privileged user access is not enabled."));
+           PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED, MessageLoaderParms(
+              "Server.CIMOperationRequestAuthorizer.REMOTE_NOT_ENABLED", 
+              "Remote privileged user access is not enabled.")));
       }
 
       PEG_METHOD_EXIT();
@@ -650,7 +558,7 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
    //
    // Enqueue the request
    //
-   _outputQueue->enqueue(request);
+   _outputQueue->enqueue(req.release());
 
    PEG_METHOD_EXIT();
 

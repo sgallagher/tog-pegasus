@@ -457,7 +457,7 @@ void CIMExportRequestDecoder::handleMethodRequest(
    XmlEntry entry;
    String messageId;
    const char* cimExportMethodName = "";
-   Message* request;
+   AutoPtr<Message> request;
 
    try
    {
@@ -662,7 +662,7 @@ void CIMExportRequestDecoder::handleMethodRequest(
 
          if (System::strcasecmp(cimExportMethodName, "ExportIndication") == 0)
          {
-            request = decodeExportIndicationRequest(queueId, parser, messageId, requestUri);
+            request.reset(decodeExportIndicationRequest(queueId, parser, messageId, requestUri));
          }
          else
          {
@@ -759,7 +759,7 @@ void CIMExportRequestDecoder::handleMethodRequest(
 	// by the export client, ignore Accept-Language in the export request.
 	// This will cause any export error response message to be sent in the
 	// default language.
-	CIMMessage * cimmsg = dynamic_cast<CIMMessage *>(request);
+	CIMMessage * cimmsg = dynamic_cast<CIMMessage *>(request.get());
 	if (cimmsg != NULL)
 	{
 		cimmsg->operationContext.insert(IdentityContainer(userName));
@@ -772,7 +772,7 @@ void CIMExportRequestDecoder::handleMethodRequest(
 	}
 // l10n end	
 
-   _outputQueue->enqueue(request);
+   _outputQueue->enqueue(request.release());
 }
 
 CIMExportIndicationRequestMessage* CIMExportRequestDecoder::decodeExportIndicationRequest(

@@ -502,7 +502,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
    XmlEntry entry;
    String messageId;
    const char* cimMethodName = "";
-   Message* request;
+   AutoPtr<Message> request;
 
    try
    {
@@ -837,74 +837,74 @@ void CIMOperationRequestDecoder::handleMethodCall(
 	    // Delegate to appropriate method to handle:
 
             if (System::strcasecmp(cimMethodName, "GetClass") == 0)
-               request = decodeGetClassRequest(
-                  queueId, parser, messageId, nameSpace, authType, userName);
+               request.reset(decodeGetClassRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName));
             else if (System::strcasecmp(cimMethodName, "GetInstance") == 0)
-               request = decodeGetInstanceRequest(
-                  queueId, parser, messageId, nameSpace, authType, userName);
+               request.reset(decodeGetInstanceRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName));
             else if (System::strcasecmp(cimMethodName, "EnumerateClassNames") == 0)
-               request = decodeEnumerateClassNamesRequest(
-                  queueId, parser, messageId, nameSpace, authType, userName);
+               request.reset(decodeEnumerateClassNamesRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName));
             else if (System::strcasecmp(cimMethodName, "References") == 0)
-               request = decodeReferencesRequest(
-                  queueId, parser, messageId, nameSpace, authType, userName);
+               request.reset(decodeReferencesRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName));
             else if (System::strcasecmp(cimMethodName, "ReferenceNames") == 0)
-               request = decodeReferenceNamesRequest(
-                  queueId, parser, messageId, nameSpace, authType, userName);
+               request.reset(decodeReferenceNamesRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName));
             else if (System::strcasecmp(cimMethodName, "AssociatorNames") == 0)
-               request = decodeAssociatorNamesRequest(
-                  queueId, parser, messageId, nameSpace, authType, userName);
+               request.reset(decodeAssociatorNamesRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName));
             else if (System::strcasecmp(cimMethodName, "Associators") == 0)
-               request = decodeAssociatorsRequest(
-                  queueId, parser, messageId, nameSpace, authType, userName);
+               request.reset(decodeAssociatorsRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName));
             else if (System::strcasecmp(cimMethodName, "CreateInstance") == 0)
-               request = decodeCreateInstanceRequest(
-                  queueId, parser, messageId, nameSpace, authType, userName);
+               request.reset(decodeCreateInstanceRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName));
             else if (System::strcasecmp(cimMethodName, "EnumerateInstanceNames")==0)
-               request = decodeEnumerateInstanceNamesRequest(
-                  queueId, parser, messageId, nameSpace, authType, userName);
+               request.reset(decodeEnumerateInstanceNamesRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName));
             else if (System::strcasecmp(cimMethodName, "DeleteQualifier") == 0)
-               request = decodeDeleteQualifierRequest(
-                  queueId, parser, messageId, nameSpace, authType, userName);
+               request.reset(decodeDeleteQualifierRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName));
             else if (System::strcasecmp(cimMethodName, "GetQualifier") == 0)
-               request = decodeGetQualifierRequest(
-                  queueId, parser, messageId, nameSpace, authType, userName);
+               request.reset(decodeGetQualifierRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName));
             else if (System::strcasecmp(cimMethodName, "SetQualifier") == 0)
-               request = decodeSetQualifierRequest(
-                  queueId, parser, messageId, nameSpace, authType, userName);
+               request.reset(decodeSetQualifierRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName));
             else if (System::strcasecmp(cimMethodName, "EnumerateQualifiers") == 0)
-               request = decodeEnumerateQualifiersRequest(
-                  queueId, parser, messageId, nameSpace, authType, userName);
+               request.reset(decodeEnumerateQualifiersRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName));
             else if (System::strcasecmp(cimMethodName, "EnumerateClasses") == 0)
-               request = decodeEnumerateClassesRequest(
-                  queueId, parser, messageId, nameSpace, authType, userName);
+               request.reset(decodeEnumerateClassesRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName));
             else if (System::strcasecmp(cimMethodName, "EnumerateInstances") == 0)
-               request = decodeEnumerateInstancesRequest(
-                  queueId, parser, messageId, nameSpace, authType, userName);
+               request.reset(decodeEnumerateInstancesRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName));
             else if (System::strcasecmp(cimMethodName, "CreateClass") == 0)
-               request = decodeCreateClassRequest(
-                  queueId, parser, messageId, nameSpace, authType, userName);
+               request.reset(decodeCreateClassRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName));
             else if (System::strcasecmp(cimMethodName, "ModifyClass") == 0)
-               request = decodeModifyClassRequest(
-                  queueId, parser, messageId, nameSpace, authType, userName);
+               request.reset(decodeModifyClassRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName));
             else if (System::strcasecmp(cimMethodName, "ModifyInstance") == 0)
-               request = decodeModifyInstanceRequest(
-                  queueId, parser, messageId, nameSpace, authType, userName);
+               request.reset(decodeModifyInstanceRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName));
             else if (System::strcasecmp(cimMethodName, "DeleteClass") == 0)
-               request = decodeDeleteClassRequest(
-                  queueId, parser, messageId, nameSpace, authType, userName);
+               request.reset(decodeDeleteClassRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName));
             else if (System::strcasecmp(cimMethodName, "DeleteInstance") == 0)
-               request = decodeDeleteInstanceRequest(
-                  queueId, parser, messageId, nameSpace, authType, userName);
+               request.reset(decodeDeleteInstanceRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName));
             else if (System::strcasecmp(cimMethodName, "GetProperty") == 0)
-               request = decodeGetPropertyRequest(
-                  queueId, parser, messageId, nameSpace, authType, userName);
+               request.reset(decodeGetPropertyRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName));
             else if (System::strcasecmp(cimMethodName, "SetProperty") == 0)
-               request = decodeSetPropertyRequest(
-                  queueId, parser, messageId, nameSpace, authType, userName);
+               request.reset(decodeSetPropertyRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName));
             else if (System::strcasecmp(cimMethodName, "ExecQuery") == 0)
-               request = decodeExecQueryRequest(
-                  queueId, parser, messageId, nameSpace, authType, userName);
+               request.reset(decodeExecQueryRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName));
             else
             {
 	      // l10n
@@ -1131,14 +1131,14 @@ void CIMOperationRequestDecoder::handleMethodCall(
          {
 	    // Delegate to appropriate method to handle:
 
-            request = decodeInvokeMethodRequest(
+            request.reset(decodeInvokeMethodRequest(
                queueId, 
                parser, 
                messageId, 
                reference, 
                cimMethodNameUTF16,   // contains UTF-16 converted from UTF-8
                authType,
-               userName);
+               userName));
          }
          catch (CIMException& e)
          {
@@ -1263,7 +1263,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
 // l10n TODO - might want to move A-L and C-L to Message
 // to make this more maintainable
 	// Add the language headers to the request
-	CIMMessage * cimmsg = dynamic_cast<CIMMessage *>(request);
+	CIMMessage * cimmsg = dynamic_cast<CIMMessage *>(request.get());
 	if (cimmsg != NULL)
 	{
 		cimmsg->operationContext.insert(IdentityContainer(userName));
@@ -1276,7 +1276,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
 	}
 // l10n end	
 
-   _outputQueue->enqueue(request);
+   _outputQueue->enqueue(request.release());
    
    PEG_METHOD_EXIT();
 }

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Exception.cpp,v $
+// Revision 1.8  2001/03/05 04:29:01  mike
+// renamed CimException to CIMException
+//
 // Revision 1.7  2001/02/16 02:06:06  mike
 // Renamed many classes and headers.
 //
@@ -180,7 +183,7 @@ const char CannotOpenDirectory::MSG[] = "cannot open directory: ";
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// CimException
+// CIMException
 //
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -225,13 +228,25 @@ static char* _cimMessages[] =
     "The specified extrinsic method does not exist."
 };
 
-CimException::CimException(CimException::Code code) 
-    : Exception(_cimMessages[Uint32(code)]), _code(code)
+static String _makeCIMExceptionMessage(
+    CIMException::Code code, 
+    const String& extraMessage) 
+{
+    String tmp = _cimMessages[Uint32(code)];
+    tmp.append(": ");
+    tmp.append(extraMessage);
+    return tmp;
+}
+
+CIMException::CIMException(
+    CIMException::Code code, 
+    const String& extraMessage) 
+    : Exception(_makeCIMExceptionMessage(code, extraMessage)), _code(code)
 {
 
 }
 
-const char* CimException::codeToString(CimException::Code code)
+const char* CIMException::codeToString(CIMException::Code code)
 {
     return _cimMessages[Uint32(code)];
 }

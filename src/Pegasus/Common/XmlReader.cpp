@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: XmlReader.cpp,v $
+// Revision 1.5  2001/03/05 04:29:02  mike
+// renamed CimException to CIMException
+//
 // Revision 1.4  2001/02/26 04:33:28  mike
 // Fixed many places where cim names were be compared with operator==(String,String).
 // Changed all of these to use CIMName::equal()
@@ -2673,7 +2676,7 @@ Boolean XmlReader::getBooleanValueElement(
 
 Boolean XmlReader::getErrorElement(
     XmlParser& parser, 
-    CimException::Code& code,
+    CIMException::Code& code,
     const char*& description,
     Boolean required)
 {
@@ -2696,7 +2699,7 @@ Boolean XmlReader::getErrorElement(
 	throw XmlValidationError(
 	    parser.getLine(), "missing ERROR.CODE attribute");
 
-    code = CimException::Code(tmpCode);
+    code = CIMException::Code(tmpCode);
 
     // Get ERROR.DESCRIPTION:
 

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: XmlWriter.cpp,v $
+// Revision 1.8  2001/03/05 04:29:02  mike
+// renamed CimException to CIMException
+//
 // Revision 1.7  2001/02/20 07:25:57  mike
 // Added basic create-instance in repository and in client.
 //
@@ -419,7 +422,7 @@ Array<Sint8>& XmlWriter::formatIParamValueElement(
 //------------------------------------------------------------------------------
 
 Array<Sint8> XmlWriter::formatErrorElement(
-    CimException::Code code,
+    CIMException::Code code,
     const char* description)
 {
     Array<Sint8> out;

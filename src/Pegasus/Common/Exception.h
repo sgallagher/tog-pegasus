@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Exception.h,v $
+// Revision 1.8  2001/03/05 04:29:02  mike
+// renamed CimException to CIMException
+//
 // Revision 1.7  2001/02/21 01:50:30  karl
 // comments
 //
@@ -440,6 +443,7 @@ public:
     NoSuchNameSpace(const String& directoryName)
 	: Exception(MSG + directoryName) { }
 };
+
 /// ATTN:
 class PEGASUS_COMMON_LINKAGE CannotOpenFile : public Exception
 {
@@ -450,6 +454,7 @@ public:
     CannotOpenFile(const String& path)
 	: Exception(MSG + path) { }
 };
+
 /// ATTN:
 class PEGASUS_COMMON_LINKAGE NotImplemented : public Exception
 {
@@ -459,15 +464,15 @@ public:
 
     NotImplemented(const String& method) : Exception(MSG + method) { }
 };
-/* Class CimException - Defines the CIM exceptions that are formally
-defined in the CIM Operations over HTTP specification.
 
-@example
-<PRE>
-	throw CimException(CimException::NOT_SUPPORTED);
-</PRE>
+/*  Class CIMException - Defines the CIM exceptions that are formally
+    defined in the CIM Operations over HTTP specification.
+    @example
+    <PRE>
+	throw CIMException(CIMException::NOT_SUPPORTED);
+    </PRE>
 */
-class PEGASUS_COMMON_LINKAGE CimException : public Exception
+class PEGASUS_COMMON_LINKAGE CIMException : public Exception
 {
 public:
 
@@ -548,9 +553,9 @@ public:
 	METHOD_NOT_FOUND = 17
     };
 
-    CimException(Code code);
+    CIMException(Code code, const String& extraMessage);
 
-    CimException::Code getCode() const { return _code; }
+    CIMException::Code getCode() const { return _code; }
 
     static const char* codeToString(Code code);
 

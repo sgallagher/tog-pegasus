@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: XmlReader.h,v $
+// Revision 1.5  2001/03/05 04:29:02  mike
+// renamed CimException to CIMException
+//
 // Revision 1.4  2001/02/20 07:25:57  mike
 // Added basic create-instance in repository and in client.
 //
@@ -358,7 +361,7 @@ public:
 
     static Boolean getErrorElement(
 	XmlParser& parser, 
-	CimException::Code& code,
+	CIMException::Code& code,
 	const char*& description,
 	Boolean required = false);
 

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: XmlWriter.h,v $
+// Revision 1.8  2001/03/05 04:29:02  mike
+// renamed CimException to CIMException
+//
 // Revision 1.7  2001/02/20 07:25:57  mike
 // Added basic create-instance in repository and in client.
 //
@@ -147,7 +150,7 @@ public:
 	const Array<Sint8>& body);
 
     static Array<Sint8> formatErrorElement(
-	CimException::Code code,
+	CIMException::Code code,
 	const char* description);
 
     static Array<Sint8>& appendBooleanParameter(

@@ -76,7 +76,12 @@ void UserFileHandler::_GetSalt(char *salt)
     System::getCurrentTime( sec, milliSec );
 
     srand( (int) sec );
+#ifdef PEGASUS_PLATFORM_SOLARIS_SPARC
+    Unit32	seed;
+    randNum = rand_r(*seed);
+#else
     randNum = rand();
+#endif
 
     //
     // Make sure the random number generated is between 0-63. 

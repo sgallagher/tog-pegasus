@@ -819,6 +819,61 @@ Boolean _IsBodylessMessage(const char* line)
     //ATTN: Make sure this is the right place to check for HTTP/1.1 and
     //      HTTP/1.0 that is part of the authentication challenge header.
     // ATTN-RK-P2-20020305: How do we make sure we have the complete list?
+
+    // List of request methods which do not have message bodies
+    const char* METHOD_NAMES[] =
+    {
+        "GET",
+        "HEAD"
+    };
+
+    // List of response codes which the client accepts and which should not (normally) have
+    // message bodies.  The RFC is vague regarding which response codes support or require bodies.
+    // These are being reported by class (4xx, 5xx, etc) because the CIM client should be able to handle
+    // any status code, including those not explicitly defined in RFC 2616.  Therefore, listing codes individually
+    // will not work because the client socket will hang on a code not in this list if no content length is specified.
+    // See bugzilla 1586
+    const char* RESPONSE_CODES[] =
+    {
+		"HTTP/1.1 3XX",
+		"HTTP/1.0 3XX",
+        "HTTP/1.1 4XX",
+        "HTTP/1.0 4XX",
+        "HTTP/1.1 5XX",
+        "HTTP/1.0 5XX"
+    };
+
+    // Check for bodyless HTTP request method 
+    const Uint32 METHOD_NAMES_SIZE = sizeof(METHOD_NAMES) / sizeof(char*);
+
+    for (Uint32 i = 0; i < METHOD_NAMES_SIZE; i++)
+    {
+	    Uint32 n = strlen(METHOD_NAMES[i]);
+
+	    if (strncmp(line, METHOD_NAMES[i], n) == 0 && isspace(line[n]))
+	        return true;
+    }
+
+    // Check for bodyless HTTP status code
+    const Uint32 RESPONSE_CODES_SIZE = sizeof(RESPONSE_CODES) / sizeof(char*);
+
+    for (Uint32 i = 0; i < RESPONSE_CODES_SIZE; i++)
+    {
+	    Uint32 n = strlen(RESPONSE_CODES[i]);
+
+	    if (strncmp(line, RESPONSE_CODES[i], n - 2) == 0 && isspace(line[n]))
+                return true;
+            }
+
+    return false;
+}
+
+/*
+Boolean _IsBodylessMessage(const char* line)
+{
+    //ATTN: Make sure this is the right place to check for HTTP/1.1 and
+    //      HTTP/1.0 that is part of the authentication challenge header.
+    // ATTN-RK-P2-20020305: How do we make sure we have the complete list?
     const char* METHOD_NAMES[] =
     {
         "GET",
@@ -847,7 +902,7 @@ Boolean _IsBodylessMessage(const char* line)
     }
 
     return false;
-}
+}*/
 
 void HTTPConnection::_getContentLengthAndContentOffset() throw (Exception)
 {

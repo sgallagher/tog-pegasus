@@ -98,18 +98,18 @@ ArrayRep<T>* PEGASUS_STATIC_CDECL ArrayRep<T>::create(Uint32 size)
 {
     // Calculate capacity (size rounded to the next power of two).
 
-    Uint32 capacity = 8;
+    Uint32 initialCapacity = 8;
 
-    while (capacity < size)
-        capacity <<= 1;
+    while (initialCapacity < size)
+        initialCapacity <<= 1;
 
     // Create object:
 
     ArrayRep<T>* rep =
-        (ArrayRep<T>*)operator new(sizeof(ArrayRep<T>) + sizeof(T) * capacity);
+        (ArrayRep<T>*)operator new(sizeof(ArrayRep<T>) + sizeof(T) * initialCapacity);
 
     rep->size = size;
-    rep->capacity = capacity;
+    rep->capacity = initialCapacity;
 
     return rep;
 }

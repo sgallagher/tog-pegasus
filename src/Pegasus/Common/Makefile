@@ -130,8 +130,9 @@ SOURCES = \
     CommonUTF.cpp
 
 ifeq ($(OS),linux)
+  EXTRA_LIBRARIES += -lcrypt
   ifdef PEGASUS_HAS_SSL
-    EXTRA_LIBRARIES += -L$(OPENSSL_HOME)/lib -lssl -lcrypto -lcrypt
+    EXTRA_LIBRARIES += -L$(OPENSSL_HOME)/lib -lssl -lcrypto
     EXTRA_LINK_ARGUMENTS =  -Xlinker -rpath -Xlinker $(OPENSSL_HOME)/lib
   endif
 endif

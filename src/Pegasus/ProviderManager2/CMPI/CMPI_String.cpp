@@ -42,21 +42,24 @@ PEGASUS_NAMESPACE_BEGIN
 
 CMPI_String* string2CMPIString(const String &s) {
   const CString st=s.getCString();
-  char *cp=strdup((const char*)st);
-  CMPI_Object *obj= new CMPI_Object((void*)cp,CMPI_String_Ftab);
-//  CMPIRefs::localRefs().addRef(obj,CMPIRefs::TypeString);
+  CMPI_Object *obj= new CMPI_Object((const char*)st);
   return (CMPI_String*)obj;
 }
 
 static CMPIStatus stringRelease(CMPIString *eStr) {
-//   cout<<"--- stringRelease()"<<endl;
+   // cout<<"--- cmpi stringRelease()"<<endl;
+   char* str=(char*)eStr->hdl;
+   if (str) {
+      free(str);
+      (reinterpret_cast<CMPI_Object*>(eStr))->unlinkAndDelete();
+   }
    CMReturn(CMPI_RC_OK);
 }
 
 static CMPIString* stringClone(CMPIString *eStr, CMPIStatus* rc) {
    char* str=(char*)eStr->hdl;
    char* newstr=::strdup(str);
-   CMPI_Object* obj=new CMPI_Object(newstr,CMPI_String_Ftab);
+   CMPI_Object* obj=new CMPI_Object(newstr);
    obj->unlink();
    if (rc) CMSetStatus(rc,CMPI_RC_OK);
    return (CMPIString*)obj;

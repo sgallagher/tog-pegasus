@@ -34,7 +34,6 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/HashTable.h>
-#include <Pegasus/ProviderManager2/ProviderRegistrarInitializer.h>
 #include <Pegasus/ProviderManager2/ProviderName.h>
 #include <Pegasus/ProviderManager2/ProviderManager.h>
 

@@ -46,18 +46,11 @@ CMPI_Object::CMPI_Object(CMPI_Object *obj) {
    priv=obj->priv;
 }
 
-CMPI_Object::CMPI_Object(void* obj, void *fTab) {
-   hdl=obj;
-   ftab=fTab;
-   priv=NULL;
-}
-
 CMPI_Object::CMPI_Object(CIMInstance* ci) {
    CMPI_ThreadContext::addObject(this);
    hdl=(void*)ci;
    ftab=CMPI_Instance_Ftab;
    priv=NULL;
-//   cerr<<"--- CMPI_Object::CMPI_Object(CIMInstance *obj)"<<endl;
 }
 
 CMPI_Object::CMPI_Object(CIMObjectPath* cop) {
@@ -105,11 +98,9 @@ CMPI_Object::CMPI_Object(CMPISelectCond *dta) {
 
 CMPI_Object::~CMPI_Object() {
    if (ftab==CMPI_Instance_Ftab) {
-//      cerr<<"--- CMPI_Object::~CMPI_Object()"<<endl;
       char **list=(char**)priv;
       if (priv) {
          while (*list) {
-//	    cerr<<"--- freeing "<<*list<<endl;
             free (*list);
             list++;
          }

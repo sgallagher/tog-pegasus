@@ -51,7 +51,6 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 static CMPIStatus instRelease(CMPIInstance* eInst) {
-//   cout<<"--- instRelease()"<<endl;
    CIMInstance* inst=(CIMInstance*)eInst->hdl;
    if (inst) {
       delete inst;

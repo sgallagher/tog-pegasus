@@ -41,12 +41,6 @@ static CMPIStatus arrayRelease(CMPIArray* eArray) {
 //   cout<<"--- arrayRelease()"<<endl;
    CMPIData *dta=(CMPIData*)eArray->hdl;
    if (dta) {
-      if (dta->type & CMPI_ENC) {
-         for (unsigned int i=1; i<=dta->value.uint32; i++) {
-	//    if (dta[i].state==0)
-	//     ((CMPIString*)dta[i].value.string)->ft->release((CMPIString*)dta[i].value.string);
-	 }
-      }
       delete[] dta;
       ((CMPI_Object*)eArray)->unlinkAndDelete();
    }
@@ -56,7 +50,7 @@ static CMPIStatus arrayRelease(CMPIArray* eArray) {
 static CMPIArray* arrayClone(CMPIArray* eArray, CMPIStatus* rc) {
    CMPIData* dta=(CMPIData*)eArray->hdl;
    CMPIData* nDta=new CMPIData[dta->value.uint32+1];
-   CMPI_Object* obj=new CMPI_Object(nDta,CMPI_Array_Ftab);
+   CMPI_Object* obj=new CMPI_Object(nDta);
    obj->unlink();
    CMPIArray* nArray=(CMPIArray*)obj;
    CMPIStatus rrc={CMPI_RC_OK,NULL};

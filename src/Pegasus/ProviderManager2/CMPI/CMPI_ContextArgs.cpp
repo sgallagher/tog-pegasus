@@ -44,6 +44,11 @@ PEGASUS_NAMESPACE_BEGIN
 // CMPIArgs section
 
 static CMPIStatus argsRelease(CMPIArgs* eArg) {
+   Array<CIMParamValue>* arg=(Array<CIMParamValue>*)eArg->hdl;
+   if (arg) {
+      delete arg;
+      (reinterpret_cast<CMPI_Object*>(eArg))->unlinkAndDelete();
+   }
    CMReturn(CMPI_RC_OK);
 }
 
@@ -58,7 +63,7 @@ static CMPIArgs* argsClone(CMPIArgs* eArg, CMPIStatus* rc) {
       const CIMParamValue &v=(*arg)[i];
       cArg->append(v.clone());
    }
-   CMPI_Object* obj=new CMPI_Object(cArg,CMPI_ObjectPath_Ftab);
+   CMPI_Object* obj=new CMPI_Object(cArg);
    obj->unlink();
    CMPIArgs* neArg=(CMPIArgs*)obj;
    if (rc) CMSetStatus(rc,CMPI_RC_OK);

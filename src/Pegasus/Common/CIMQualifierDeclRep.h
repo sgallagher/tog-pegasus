@@ -103,6 +103,8 @@ public:
 
     void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const;
 
+    void printMof(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const;
+
     Boolean identical(const CIMQualifierDeclRep* x) const;
 
     CIMQualifierDeclRep* clone() const

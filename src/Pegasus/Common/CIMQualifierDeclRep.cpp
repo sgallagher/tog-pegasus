@@ -182,9 +182,17 @@ void CIMQualifierDeclRep::print(PEGASUS_STD(ostream) &os) const
     Array<Sint8> tmp;
     toXml(tmp);
     tmp.append('\0');
-    // ATTN:KS 7 Aug 2001 I think the endl should be removed here.
     os << tmp.getData() << PEGASUS_STD(endl);
 }
+
+void CIMQualifierDeclRep::printMof(PEGASUS_STD(ostream) &os) const
+{
+    Array<Sint8> tmp;
+    toMof(tmp);
+    tmp.append('\0');
+    os << tmp.getData() << PEGASUS_STD(endl);
+}
+
 
 CIMQualifierDeclRep::CIMQualifierDeclRep()
 {

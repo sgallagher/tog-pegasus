@@ -243,7 +243,7 @@ void CIMQualifierList::toMof(Array<Sint8>& out) const
     {
 	// if second or greater, add comma separator
 	if (i > 0)
-	    out << ", ";
+	    out << ", \n";
 	_qualifiers[i].toMof(out);
     }
     

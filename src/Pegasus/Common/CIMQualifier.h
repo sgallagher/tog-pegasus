@@ -227,6 +227,17 @@ public:
 	_rep->toMof(out);
     }
 
+    /**	printMOF - Converts the CIMQualifier object to XML and 
+        sends it to cout.
+
+   */
+    void printMof(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const
+    {
+	_checkRep();
+	_rep->printMof(o);
+    }
+
+
     /**	identical - compares two CIMQualifier objects.
         @return - True if the objects are identical.
    */

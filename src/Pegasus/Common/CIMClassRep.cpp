@@ -441,6 +441,7 @@ void CIMClassRep::toMof(Array<Sint8>& out) const
     out << "\n//    Class " << _reference.getClassName();
     if (_qualifiers.getCount())
 	out << "\n";
+    out << "\n";
     _qualifiers.toMof(out);
 
     // Separate qualifiers from Class Name

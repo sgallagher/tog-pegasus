@@ -55,7 +55,8 @@ localization of text is not currently supported, it is
 recommended that text strings be structured in message
 catalogs to facilitate future localization.</p>
 */
-class CIMOperationFailedException : public CIMException
+class PEGASUS_PROVIDER_LINKAGE CIMOperationFailedException
+    : public CIMException
 {
 public:
     /**
@@ -74,7 +75,8 @@ protected:
 Cause a <tt>CIM_ERR_ACCESS_DENIED</tt> status code to be
 returned to the client.
 */
-class CIMAccessDeniedException : public CIMOperationFailedException
+class PEGASUS_PROVIDER_LINKAGE CIMAccessDeniedException
+    : public CIMOperationFailedException
 {
 public:
     CIMAccessDeniedException(const String & message);
@@ -84,7 +86,8 @@ public:
 Cause a <tt>CIM_ERR_INVALID_PARAMETER</tt> status code to be
 returned to the client.
 */
-class CIMInvalidParameterException : public CIMOperationFailedException
+class PEGASUS_PROVIDER_LINKAGE CIMInvalidParameterException
+    : public CIMOperationFailedException
 {
 public:
     CIMInvalidParameterException(const String & message);
@@ -95,7 +98,8 @@ public:
 Cause a <tt>CIM_ERR_INVALID_CLASS</tt> status code to be
 returned to the client.
 */
-class CIMInvalidClassException : public CIMOperationFailedException
+class PEGASUS_PROVIDER_LINKAGE CIMInvalidClassException
+    : public CIMOperationFailedException
 {
 public:
     CIMInvalidClassException(const String & message);
@@ -106,7 +110,8 @@ public:
 Cause a <tt>CIM_ERR_NOT_FOUND</tt> status code to be
 returned to the client.
 */
-class CIMObjectNotFoundException : public CIMOperationFailedException
+class PEGASUS_PROVIDER_LINKAGE CIMObjectNotFoundException
+    : public CIMOperationFailedException
 {
 public:
     CIMObjectNotFoundException(const String & message);
@@ -116,7 +121,8 @@ public:
 Cause a <tt>CIM_ERR_NOT_SUPPORTED</tt> status code to be
 returned to the client.
 */
-class CIMNotSupportedException : public CIMOperationFailedException
+class PEGASUS_PROVIDER_LINKAGE CIMNotSupportedException
+    : public CIMOperationFailedException
 {
 public:
     CIMNotSupportedException(const String & message);
@@ -126,7 +132,8 @@ public:
 Cause a <tt>CIM_ERR_ALREADY_EXISTS</tt> status code to be
 returned to the client.
 */
-class CIMObjectAlreadyExistsException : public CIMOperationFailedException
+class PEGASUS_PROVIDER_LINKAGE CIMObjectAlreadyExistsException
+    : public CIMOperationFailedException
 {
 public:
     CIMObjectAlreadyExistsException(const String & message);
@@ -136,7 +143,8 @@ public:
 Cause a <tt>CIM_ERR_NO_SUCH_PROPERTY</tt> status code to be
 returned to the client.
 */
-class CIMPropertyNotFoundException : public CIMOperationFailedException
+class PEGASUS_PROVIDER_LINKAGE CIMPropertyNotFoundException
+    : public CIMOperationFailedException
 {
 public:
     CIMPropertyNotFoundException(const String & message);
@@ -148,7 +156,8 @@ public:
 Cause a <tt>CIM_ERR_INVALID_QUERY</tt> status code to be
 returned to the client.
 */
-class CIMInvalidQueryException : public CIMOperationFailedException
+class PEGASUS_PROVIDER_LINKAGE CIMInvalidQueryException
+    : public CIMOperationFailedException
 {
 public:
     CIMInvalidQueryException(const String & message);
@@ -159,7 +168,8 @@ public:
 Cause a <tt>CIM_ERR_METHOD_NOT_FOUND</tt> status code to be
 returned to the client.
 */
-class CIMMethodNotFoundException : public CIMOperationFailedException
+class PEGASUS_PROVIDER_LINKAGE CIMMethodNotFoundException
+    : public CIMOperationFailedException
 {
 public:
     CIMMethodNotFoundException(const String & message);

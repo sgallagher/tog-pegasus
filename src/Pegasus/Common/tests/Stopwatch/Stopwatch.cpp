@@ -29,7 +29,6 @@
 #include <iostream>
 #include <cassert>
 #include <Pegasus/Common/Stopwatch.h>
-#include <Pegasus/Common/Exception.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -45,7 +44,7 @@ int main(int argc, char** argv)
         sw.printElapsed();
 
     double elapsed = sw.getElapsed();
-    ASSERTTEMP(elapsed >= 4.5 && elapsed <= 5.5);
+    assert(elapsed >= 4.5 && elapsed <= 5.5);
 
     cout << argv[0] << " +++++ passed all tests" << endl;
 

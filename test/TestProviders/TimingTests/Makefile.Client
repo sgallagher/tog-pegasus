@@ -1,0 +1,10 @@
+include $(PEGASUS_ROOT)/mak/config.mak
+
+LIBRARIES= pegcommon \
+	   pegclient
+
+PROGRAM = TimingClient
+
+SOURCES = TimingClient.cpp
+LOCAL_DEFINES=-DPEGASUS_DEBUG
+include $(ROOT)/mak/program.mak

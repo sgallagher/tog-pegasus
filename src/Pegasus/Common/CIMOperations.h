@@ -23,6 +23,9 @@
 // Author: Mike Brasher
 //
 // $Log: CIMOperations.h,v $
+// Revision 1.3  2001/03/23 13:14:25  karl
+// fix comments
+//
 // Revision 1.2  2001/02/26 10:13:24  karl
 // documentation changes
 //
@@ -1087,39 +1090,39 @@ public:
     source CIM Object.
 
     @param NameSpace The NameSpace parameter is a string that defines the target
-	namespace \Ref{NAMESPACE}
+    namespace \Ref{NAMESPACE}
 
-    The ObjectName input parameter defines the source CIM Object whose
-    associated names are to be returned. This is either a Class name or Instance
-    name (model path).
+    @param objectName - The ObjectName input parameter defines the source CIM
+    Object whose associated names are to be returned. This is either a Class
+    name or Instance name (model path).
 
-    The AssocClass input parameter, if not NULL, MUST be a valid CIM Association
-    Class name. It acts as a filter on the returned set of names by mandating
-    that each returned name identifies an Object that MUST be associated to the
-    source Object via an Instance of this Class or one of its subclasses.
+    @param  AssocClass - The AssocClass input parameter, if not NULL, MUST be a
+    valid CIM Association Class name. It acts as a filter on the returned set of
+    names by mandating that each returned name identifies an Object that MUST be
+    associated to the source Object via an Instance of this Class or one of its
+    subclasses.
 
-    The ResultClass input parameter, if not NULL, MUST be a valid CIM Class
-    name. It acts as a filter on the returned set of names by mandating that
-    each returned name identifies an Object that MUST be either an Instance of
-    this Class (or one of its subclasses) or be this Class (or one of its
-    subclasses).
+    @param ResultClass - The ResultClass input parameter, if not NULL, MUST be a
+    valid CIM Class name. It acts as a filter on the returned set of names by
+    mandating that each returned name identifies an Object that MUST be either
+    an Instance of this Class (or one of its subclasses) or be this Class (or
+    one of its subclasses).
 
-    The Role input parameter, if not NULL, MUST be a valid CIMProperty name. It
-    acts as a filter on the returned set of names by mandating that each
-    returned name identifies an Object that MUST be associated to the source
-    Object via an Association in which the source Object plays the specified
-    role (i.e. the name of the CIMProperty in the Association Class that refers
-    to
-    the source Object MUST match the value of this parameter).
+    @param Role - The Role input parameter, if not NULL, MUST be a valid
+    CIMProperty name. It acts as a filter on the returned set of names by
+    mandating that each returned name identifies an Object that MUST be
+    associated to the source Object via an Association in which the source
+    Object plays the specified role (i.e. the name of the CIMProperty in the
+    Association Class that refers to the source Object MUST match the value of
+    this parameter).
 
-    The ResultRole input parameter, if not NULL, MUST be a valid CIMProperty
-    name.
-    It acts as a filter on the returned set of names by mandating that each
-    returned name identifies an Object that MUST be associated to the source
-    Object via an Association in which the named returned Object plays the
-    specified role (i.e. the name of the CIMProperty in the Association Class
-    that
-    refers to the returned Object MUST match the value of this parameter).
+    @param ResultRole - The ResultRole input parameter, if not NULL, MUST be a
+    valid CIMProperty name. It acts as a filter on the returned set of names by
+    mandating that each returned name identifies an Object that MUST be
+    associated to the source Object via an Association in which the named
+    returned Object plays the specified role (i.e. the name of the CIMProperty
+    in the Association Class that refers to the returned Object MUST match the
+    value of this parameter).
 
     @return If successful, the method returns zero or more full CIM Class paths
     or Instance paths of Objects meeting the requested criteria. Since it is
@@ -1154,26 +1157,24 @@ public:
     /** The <TT>references</TT> operation enumerates the association
     objects that refer to a particular target CIM Object (Class or Instance).
 
-    @param NameSpace The NameSpace parameter is a string that defines the target
+    @param The NameSpace parameter is a string that defines the target
     namespace \Ref{NAMESPACE}
 
-    @param ObjectName The ObjectName input parameter defines the target CIM
+    @param The ObjectName input parameter defines the target CIM
     Object whose referring Objects are to be returned. This is either a Class
     name or Instance name (model path).
 
-    @param ResultClass The ResultClass input parameter, if not NULL, MUST be a
+    @param The ResultClass input parameter, if not NULL, MUST be a
     valid CIM Class name. It acts as a filter on the returned set of Objects by
     mandating that each returned Object MUST be an Instance of this Class (or
     one of its subclasses), or this Class (or one of its subclasses).
 
-    @param role The Role input parameter, if not NULL, MUST be a valid
-    CIMProperty
+    @param The Role input parameter, if not NULL, MUST be a valid CIMProperty
     name. It acts as a filter on the returned set of Objects by mandating that
     each returned Objects MUST refer to the target Object via a CIMProperty
-    whose
-    name matches the value of this parameter.
+    whose name matches the value of this parameter.
 
-    @param Include Qualifiers If the IncludeQualifiers input parameter is true,
+    @param If the IncludeQualifiers input parameter is true,
     this specifies that all Qualifiers for each Object (including Qualifiers on
     the Object and on any returned Properties) MUST be included as <QUALIFIER>
     elements in the response.  If false no <QUALIFIER> elements are present in
@@ -1239,7 +1240,7 @@ public:
     The <TT>referenceNames</TT> operation is used to enumerate the association
     objects that refer to a particular target CIM Object (Class or Instance).
 
-    @param NameSpace The NameSpace parameter is a string that defines the target
+    @param The NameSpace parameter is a string that defines the target
     namespace \Ref{NAMESPACE}
 
     @param The ObjectName input parameter defines the target CIM Object whose
@@ -1249,17 +1250,16 @@ public:
     @param The ResultClass input parameter, if not NULL, MUST be a valid CIM
     Class name. It acts as a filter on the returned set of Object Names by
     mandating that each returned Object CIMName MUST identify an Instance of
-    this
-    Class (or one of its subclasses), or this Class (or one of its subclasses).
+    this Class (or one of its subclasses), or this Class (or one of its
+    subclasses).
 
     @param The role input parameter, if not NULL, MUST be a valid CIMProperty
-    name.
-    It acts as a filter on the returned set of Object Names by mandating that
-    each returned Object CIMName MUST identify an Object that refers to the
-    target
-    Instance via a CIMProperty whose name matches the value of this parameter.
+    name. It acts as a filter on the returned set of Object Names by mandating
+    that each returned Object CIMName MUST identify an Object that refers to the
+    target Instance via a CIMProperty whose name matches the value of this
+    parameter.
 
-    @return If successful, the method returns the names of zero or more full CIM
+    @return If successful,the method returns the names of zero or more full CIM
     Class paths or Instance paths of Objects meeting the requested criteria.
     Since it is possible for CIM Objects from different hosts or namespaces to
     be associated, each returned path is an absolute path that includes host and
@@ -1293,11 +1293,10 @@ public:
 
     @param The InstanceName input parameter specifies the name of the Instance
     (model path) from which the CIMProperty value is
-    requested.\\Ref{INSTANCENAME}
+    requested. \\Ref{INSTANCENAME}
 
     @param The PropertyName input parameter specifies the name of the
-    CIMProperty
-    whose value is to be returned.
+    CIMProperty whose value is to be returned.
 
     @return If successful, the return value specifies the value of the requested
     CIMProperty. If the value is NULL then no element is returned.
@@ -1533,6 +1532,8 @@ PEGASUS_NAMESPACE_END
 
 
 #endif /* Pegasus_Operations_h */
+
+
 
 
 

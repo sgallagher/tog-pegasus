@@ -172,7 +172,10 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 			//cout << "locale_ICU in fallback = " << locale_ICU << endl;
 			resbundl = ures_open((const char*)resbundl_path_ICU, locale_ICU, &status);
 			msg = extractICUMessage(resbundl,parms);
-			//parms.contentlanguages.append(ContentLanguageElement(String(ures_getLocale(resbundl,&status))));
+			String cl_str (ures_getLocale(resbundl, &status));
+			if(cl_str != "root"){
+				parms.contentlanguages.append(ContentLanguageElement(cl_str));
+			}
 			ures_close(resbundl);
 		}
 		else if(msg.size() == 0){ 			// else if no message, load message from root bundle explicitly

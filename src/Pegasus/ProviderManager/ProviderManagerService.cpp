@@ -1465,11 +1465,11 @@ void ProviderManagerService::handleDeleteSubscriptionRequest(const Message * mes
     _enqueueResponse(handler.getRequest(), handler.getResponse());
 }
 
-void ProviderManagerService::handleEnableIndications(const Message * message)
+void ProviderManagerService::handleEnableIndications(const Message * message) throw()
 {
 }
 
-void ProviderManagerService::handleDisableIndications(const Message * message)
+void ProviderManagerService::handleDisableIndications(const Message * message) throw()
 {
 }
 

@@ -2,7 +2,7 @@
 
 
 // ==================================================================
-// WBEM SLP Template
+// WBEM PG SLP Template
 // ==================================================================
 
 class PG_WBEMSLPTemplate {
@@ -11,9 +11,9 @@ class PG_WBEMSLPTemplate {
    string template_description="This template describes the attributes used for advertising CIM Servers.";
    string template_url_syntax;
    string service_hi_name;
-      [Description ("This string is used as a description of the CIM service "
-      "for human interfaces.This attribute MUST be the "
-      "CIM_ObjectManager.Description property value.")]
+   [Description ("This string is used as a description of the CIM service "
+   "for human interfaces. This attribute MUST be the "
+   "CIM_ObjectManager.Description property value.")]
    string service_hi_description;
    [Key]
    string service_id;
@@ -34,5 +34,4 @@ class PG_WBEMSLPTemplate {
    string FunctionalProfilesSupported;
    string FunctionalProfileDescriptions;
    string RegisteredTemplate;
-   
 };

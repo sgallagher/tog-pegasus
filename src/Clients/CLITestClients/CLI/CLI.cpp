@@ -37,12 +37,93 @@
 #include <Clients/CLITestClients/CLIClientLib/CLIClientLib.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/Stopwatch.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 /////////////////////////////////////////////////////////////////////////
+/** getClassName - gets the classname object
+ * and puts in into the opts.className holder
+ * If rqd, parameter must exist. Otherwise
+ * it subsitutes NULL for the string.
+ * Also puts the arguement in inputObjectName
+ * @param- rqd - true if parameter required
+ * @return True if parameter found.
+*/
+Boolean _getClassNameInput(int argc, char** argv, Options& opts, Boolean rqd)
+{
+    if (argc > 2)
+    {
+        opts.className = CIMName(argv[2]);
+        opts.inputObjectName = argv[2];
+    }
+    else
+    {
+        if (rqd)
+        {
+                cerr << "Class Name Required" << endl;
+                return(false);
+        }
+        else
+        {
+                opts.className = CIMName();
+                opts.inputObjectName = "";
+        }
+    }
+    return(true);
+}
+/** getObjectName - gets the classname object
+ * and puts in into the opts.className holder
+ * If rqd, parameter must exist. Otherwise
+ * it subsitutes NULL for the string.
+ * Also puts the arguement in inputObjectName
+ * @param- rqd - true if parameter required
+ * @return True if parameter found.
+*/
+Boolean _getObjectNameInput(int argc, char** argv, Options& opts, Boolean rqd)
+{
+    if (argc > 2)
+    {
+        opts.objectName = argv[2];
+        opts.inputObjectName = argv[2];
+    }
+    else
+    {
+        if (rqd)
+        {
+                cerr << "Object Name Required" << endl;
+                return(false);
+        }
+        else
+        {
+                opts.objectName = "";
+                opts.inputObjectName = "";
+        }
+    }
+    return(true);
+}
 
+/** _getQualifierNameInput - Gets a single parameter for 
+ * qualifier
+ * @return true if parameter found
+*/
+Boolean _getQualifierNameInput(int argc, char** argv, Options& opts)
+{
+    if (argc > 2)
+    {
+        opts.qualifierName = argv[2];
+        opts.inputObjectName = argv[2];
+    }
+    else
+    {
+        cerr << "Qualifier Name Required" << endl;
+        return(false);
+    }
+    return(true);
+}
+
+///////////////////////////////////////////////////////////////////////
 int main(int argc, char** argv)
 {
 
@@ -119,6 +200,7 @@ int main(int argc, char** argv)
     opts.trace = 0;
     opts.count= -1;
     opts.repeat = 0;
+    opts.time = false;
 
     CheckCommonOptionValues(om, argv, opts);
     
@@ -149,6 +231,23 @@ int main(int argc, char** argv)
             Tracer::setTraceComponents("ALL");  
             Tracer::setTraceLevel(opts.trace); 
     }
+
+    // Find the command and save index in cmdIndex
+    Uint32 cmdIndex = 0;
+    opts.cimCmd.toLower();
+    if (opts.verboseTest)
+        cout << "TEST Command = " << opts.cimCmd << endl;
+
+    // Find the command or the short cut name
+    for( ; cmdIndex < NUM_COMMANDS; cmdIndex++ ) 
+    {
+        if ((opts.cimCmd == CommandTable[cmdIndex].CommandName) || 
+            (opts.cimCmd == CommandTable[cmdIndex].ShortCut))
+            // Break if found
+            break;
+    }
+    Stopwatch totalElapsedExecutionTime;
+    // No try to open the connection to the cim server
     CIMClient client;
     try
     {
@@ -180,131 +279,60 @@ int main(int argc, char** argv)
     }                                                       ;
     if (opts.delay != 0)
     {
+        // This was a test because of some delay caused problems.
         pegasus_sleep(opts.delay * 1000);
     }
+    double totalTime = 0;
+    Uint32 repeatCount = opts.repeat;
+    double maxTime = 0;
+    double minTime = 10000000;
 
     try
     {
-        Uint32 i = 0;
-        opts.cimCmd.toLower();
-        if (opts.verboseTest)
-            cout << "TEST Command = " << opts.cimCmd << endl;
-        
-        // Find the command or the short cut name
-        for( ; i < NUM_COMMANDS; i++ ) 
-        {
-            if ((opts.cimCmd == CommandTable[i].CommandName) || 
-                (opts.cimCmd == CommandTable[i].ShortCut))
-                // Break if found
-                break;
-        }
         // Loop to repeat the command a number of times.
         do
         {
             // or exit with error through default of case logic
-            switch(CommandTable[i].ID_Command)
+            switch(CommandTable[cmdIndex].ID_Command)
                 {
                 case ID_EnumerateInstanceNames :
-                    if (argc > 2)
-                    {
-                        opts.className = CIMName(argv[2]);
-                        opts.inputObjectName = argv[2];
-                    }
-                    else
-                    {
-                        cerr << "Class Name Required" << endl;
+                    if (!_getClassNameInput(argc, argv, opts, true))
                         exit(1);
-                    }
                     enumerateInstanceNames(client, opts);
                     break;
                     
                 case ID_EnumerateAllInstanceNames :
-                    if (argc > 2)
-                    {
-                        opts.className = CIMName(argv[2]);
-                        opts.inputObjectName = argv[2];
-                    }
+                    if (!_getClassNameInput(argc, argv, opts, false))
+                        exit(1);
                     enumerateAllInstanceNames(client, opts);
                     break;
     
                 case ID_EnumerateInstances :
-                    if (argc > 2)
-                    {
-                        opts.className = CIMName(argv[2]);
-                        opts.inputObjectName = argv[2];
-                    }
-                    else
-                    {
-                        cerr << "Class Name Required" << endl;
+                    if (!_getClassNameInput(argc, argv, opts, true))
                         exit(1);
-                    }
                     enumerateInstances(client, opts);
                     break;
                 case ID_GetInstance :
-                    if (argc > 2)
-                    {
-                        opts.objectName = argv[2];
-                        opts.inputObjectName = argv[2];
-                    }
-                    else
-                    {
-                        cerr << "Object Name Required" << endl;
+                    if (!_getObjectNameInput(argc, argv, opts, true))
                         exit(1);
-                    }
                     getInstance(client, opts);
                     break;
                     
                 case ID_EnumerateClassNames :
-                    {
-                        if (argc > 2)
-                        {
-                            opts.classNameString = argv[2];
-                            opts.inputObjectName = argv[2];
-                        }
-                        
-                        if (argc == 2)
-                            opts.classNameString = "";
-                        if (opts.classNameString != "")
-                        {
-                            opts.className = opts.classNameString;
-                            opts.inputObjectName = opts.classNameString;
-                        }
-                        enumerateClassNames(client, opts);
-                    }
-                    
+                    if (!_getClassNameInput(argc, argv, opts, false))
+                        exit(1);
+                    enumerateClassNames(client, opts);
                     break;
     
                 case ID_EnumerateClasses :
-                    {
-                        if (argc > 2)
-                        {
-                            opts.className = argv[2];
-                            opts.inputObjectName = argv[2];
-                        }
-                        
-                        if (argc == 2)
-                            opts.className = "";
-                        if (opts.classNameString != "")
-                        {
-                            opts.className = opts.classNameString;
-                            opts.inputObjectName = opts.classNameString;
-                        }
-                        
-                        enumerateClasses(client, opts);
-                    }
+                    if (!_getClassNameInput(argc, argv, opts, false))
+                        exit(1);
+                    enumerateClasses(client, opts);
                     break;
     
                 case ID_GetClass :
-                    if (argc > 2)
-                    {
-                        opts.className = argv[2];
-                        opts.inputObjectName = argv[2];
-                    }
-                    else
-                    {
-                        cerr << "Class Name Required" << endl;
+                    if (!_getClassNameInput(argc, argv, opts, true))
                         exit(1);
-                    }
                     getClass(client, opts);
                     break;
                     
@@ -312,104 +340,70 @@ int main(int argc, char** argv)
                     cout << " Create Instance Not Implemented" << endl;
                     opts.inputObjectName = argv[2];
                     break;
+
                 case ID_DeleteInstance :
-                    if (argc > 2)
-                    {
-                        opts.objectName = argv[2];
-                        opts.inputObjectName = argv[2];
-                    }
-                    else
-                    {
-                        cerr << "Class Name Required" << endl;
+                    if (!_getObjectNameInput(argc, argv, opts, true))
                         exit(1);
-                    }
                     deleteInstance(client, opts);
                     break;
                     
                 case ID_CreateClass :
                     cerr << "CreateClass not implemented" << endl;
                     break;
+
                 case ID_DeleteClass :
-                    if (argc > 2)
-                    {
-                        opts.className = argv[2];
-                        opts.inputObjectName = argv[2];
-                    }
-                    else
-                    {
-                        cerr << "Class Name Required" << endl;
+                    if (!_getClassNameInput(argc, argv, opts, true))
                         exit(1);
-                    }
                     deleteClass(client, opts);
                     break;
                     
                 case ID_GetProperty :
+                    // ATTN: This one is wrong
+                    if (argc != 4)
                     {
-                        // KS rewrite all this more organized.  The Get
-                        if (argc != 4)
-                        {
-                            cout << "Usage: cli getproperty instancename propertyname" << endl;
-                        }
-                        if (argc > 2)
-                        {
-                            opts.instanceName = argv[2];
-                            opts.inputObjectName = argv[2];
-                        }
-                        if (argc > 3)
-                        {
-                            opts.propertyName = argv[3];
-                        }
-                        getProperty(client, opts);
+                        cout << "Usage: cli getproperty <instancename> <propertyname>" << endl;
                     }
+                    if (argc > 2)
+                    {
+                        opts.instanceName = argv[2];
+                        opts.inputObjectName = argv[2];
+                    }
+                    if (argc > 3)
+                    {
+                        opts.propertyName = argv[3];
+                    }
+                    getProperty(client, opts);
                     break;
                 case ID_SetProperty :
-                    
+                    if (argc != 5)
                     {
-                        if (argc != 5)
-                        {
-                            cout << "Usage: cli setproperty instancename propertyname value " << endl;
-                        }
-                        
-                        setProperty(client, opts);
-                    } 
+                        cout << "Usage: cli setproperty instancename propertyname value " << endl;
+                    }
+                    setProperty(client, opts);
                     break;
+
                 case ID_EnumerateQualifiers :
-                    {
-                        enumerateQualifiers(client, opts);
-                    }
+                    enumerateQualifiers(client, opts);
                     break;
+
+                case ID_SetQualifier :
+                    cerr << "SetQualifer not implemented" << endl;
+                        exit(1);
+                    break;
+
                 case ID_GetQualifier :
-                    {
-                        if (argc > 2)
-                        {
-                            opts.qualifierName = argv[2];
-                            opts.inputObjectName = argv[2];
-                        }
-                        else
-                        {
-                            cerr << "Qualifier Name Required" << endl;
-                            exit(1);
-                        }
-                        getQualifier(client, opts);
-                    }
+                    if (!_getQualifierNameInput(argc, argv, opts))
+                        exit(1);
+                    getQualifier(client, opts);
                     break;
+
                 case ID_DeleteQualifier :
-                    {
-                        if (argc > 2)
-                        {
-                            opts.qualifierName = argv[2];
-                            opts.inputObjectName = argv[2];
-                        }
-                        else
-                        {
-                            cerr << "Qualifier Name Required" << endl;
-                            exit(1);
-                        }
-                        deleteQualifier(client, opts);
-                    }
+                    if (!_getQualifierNameInput(argc, argv, opts))
+                        exit(1);
+                    deleteQualifier(client, opts);
                     break;
                     
-                /* params are
+                /* Reference params are
                     [IN] <objectName> ObjectName, 
                     [IN,OPTIONAL,NULL] <className> ResultClass = NULL, 
                     [IN,OPTIONAL,NULL] string Role = NULL, 
@@ -418,88 +412,85 @@ int main(int argc, char** argv)
                     [IN,OPTIONAL,NULL] string PropertyList [] = NULL 
                 */
                 case ID_References  :
-                            if (argc > 2)
-                            {
-                                opts.objectName = argv[2];
-                                opts.inputObjectName = argv[2];
-                            }
-                            else
-                            {
-                                cerr << "Object Name Required" << endl;
-                                exit(1);
-                            }
-                            references(client, opts);
-                        break;
+                    if (!_getObjectNameInput(argc, argv, opts, true))
+                        exit(1);
+                    references(client, opts);
+                    break;
+
                 case ID_ReferenceNames :
-                        {
-                            if (argc > 2)
-                            {
-                                opts.objectName = argv[2];
-                                opts.inputObjectName = argv[2];
-                            }
-                            referenceNames(client, opts);
-                        }
-                        break;
+                    if (!_getObjectNameInput(argc, argv, opts, true))
+                        exit(1);
+                    referenceNames(client, opts);
+                    break;
+
                 case ID_Associators :
-                        {
-                            if (argc > 2)
-                            {
-                                opts.objectName = argv[2];
-                                opts.inputObjectName = argv[2];
-                            }
-                            associators(client, opts); 
-                        }
-                        break;
+                    if (!_getObjectNameInput(argc, argv, opts, true))
+                        exit(1);
+                    associators(client, opts); 
+                    break;
+
                 case ID_AssociatorNames :
-                        {
-                            if (argc > 2)
-                            {
-                                opts.objectName = argv[2];
-                                opts.inputObjectName = argv[2];
-                            }
-                            associatorNames(client,opts);
-                        }
-                        break;
+                    if (!_getObjectNameInput(argc, argv, opts, true))
+                        exit(1);
+                    associatorNames(client,opts);
+                    break;
+
                 case ID_EnumerateNamespaces :
-                        {
-                            // Note that the following constants are fixed here.  We
-                            // should be getting them from the environment to assure that
-                            // others know that we are using them.
-                            opts.className = "__namespace";
-                            if (argc > 2)
-                            {
-                                opts.nameSpace = argv[2];
-                                opts.inputObjectName = argv[2];
-                            }
-                            else
-                                opts.nameSpace = "root";
-                            enumerateNamespaces_Namespace(client,opts);
-                        }
-                        break;
-                        /*
-                            CIMValue invokeMethod(
-                            	const CIMNamespaceName& nameSpace,
-                            	const CIMObjectPath& instanceName,
-                            	const CIMName& methodName,
-                            	const Array<CIMParamValue>& inParameters,
-                
-                        Array<CIMParamValue>& outParameters
-                        */
+                    // Note that the following constants are fixed here.  We
+                    // should be getting them from the environment to assure that
+                    // others know that we are using them.
+                    opts.className = CIMName("__namespace");
+                    if (argc > 2)
+                    {
+                        opts.nameSpace = argv[2];
+                        opts.inputObjectName = argv[2];
+                    }
+                    else
+                        opts.nameSpace = "root";
+                    enumerateNamespaces_Namespace(client,opts);
+                    break;
+
+                    /*
+                        CIMValue invokeMethod(
+                            const CIMNamespaceName& nameSpace,
+                            const CIMObjectPath& instanceName,
+                            const CIMName& methodName,
+                            const Array<CIMParamValue>& inParameters,
+            
+                    Array<CIMParamValue>& outParameters
+                    */
                 case ID_InvokeMethod :
+                    if (argc < 4)
+                    {
+                        cout << "Usage: InvokeMethod requires object and method names\n."
+                             << "       input parameters are optional through -ip option"
+                             << "       or as additional parameters to this call. For"
+                             << "       additional parameters, enter each parameter as"
+                             << "       name=value without spaces."
+                             << endl; 
+                        exit(1);
+                    }
+                    opts.objectName = argv[2];
+                    opts.inputObjectName = argv[2];
+                    opts.methodName = CIMName(argv[3]);
+                    if (argc >= 4)
+                    {
+                        for (Uint32 i = 4 ; i < argc; i++)
                         {
-                            if (argc > 2)
-                            {
-                                opts.objectName = argv[2];
-                                opts.inputObjectName = argv[2];
-                            }
-                            if (argc > 3)
-                            {
-                                opts.objectName = argv[3];
-                            }
-                            invokeMethod(client, opts);
+                            CIMParamValue pv;
+                            String s = argv[i];
+                            cout << "Method Pram " << argv[i] << " i " << " argc " << argc << endl;
+                            pv = _createMethodParamValue(s);
+                            opts.inParams.append(pv);
                         }
-                        break;
-                        
+                    }
+                    invokeMethod(client, opts);
+                    break;
+
+                case ID_ShowOptions :
+                    showCommands();
+                    break;
+
                 //case ID_Unknown :
                 default:
                     cout << "Invalid Command. Command name must be first parm or --c parameter."
@@ -516,8 +507,27 @@ int main(int argc, char** argv)
                     cout << "Repetitition " << opts.repeat << endl;
                 }
                 opts.repeat--;
+                if (opts.time)
+                {
+                    totalTime += opts.saveElapsedTime;
+                    maxTime = max(maxTime,opts.saveElapsedTime);
+                    minTime = min(minTime, opts.saveElapsedTime);
+                }
             }
-            } while (opts.repeat > 0  );
+        } while (opts.repeat > 0  );
+
+        if (opts.time)
+        {
+            if (repeatCount == 0)
+                cout << "Time " << opts.saveElapsedTime << " Seconds" << endl;
+            else
+            {
+                cout << "Total Time " << totalTime << " for " 
+                    << repeatCount << " operations. Avg.= " << totalTime/repeatCount
+                    << " min= " << minTime << " max= " << maxTime << endl; 
+            }
+        }
+    
     }
     catch(CIMException& e)
     {
@@ -542,5 +552,13 @@ int main(int argc, char** argv)
     {
         pegasus_sleep(opts.delay * 1000);
     }
-    return 0;
+    if (opts.time)
+    {
+        cout << "Total Elapsed Time= " << totalElapsedExecutionTime.getElapsed() << endl;
+    }
+    return(0);
 }
+
+//PEGASUS_NAMESPACE_END
+
+// END_OF_FILE

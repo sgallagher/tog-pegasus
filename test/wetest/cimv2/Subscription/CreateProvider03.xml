@@ -10,10 +10,10 @@
         <IPARAMVALUE NAME="NewInstance">
           <INSTANCE CLASSNAME="PG_Provider">
             <PROPERTY NAME="Name" TYPE="string">
-              <VALUE> MyProcessProvider2 </VALUE>
+              <VALUE> ProcessIndicationProvider2 </VALUE>
             </PROPERTY>
             <PROPERTY NAME="ProviderModuleName" TYPE="string">
-              <VALUE> Module03 </VALUE>
+              <VALUE> ProcessIndicationProviderModule </VALUE>
             </PROPERTY>
           </INSTANCE>
         </IPARAMVALUE>

@@ -276,6 +276,11 @@ private:
         CIMInstance & instance,
         const String & nameSpace);
 
+    void _checkRequiredProperty (
+        CIMInstance & instance,
+        const String & propertyName,
+        const String & message);
+
     /**
         Validates the specified property and its corresponding Other___
         property in the instance.
@@ -305,13 +310,18 @@ private:
         @throw   CIM_ERR_INVALID_PARAMETER  if value of property or Other___ 
                                             property is invalid
      */
-    void _checkProperty (
+    void _checkPropertyWithOther (
         CIMInstance & instance,
         const String & propertyName,
         const String & otherPropertyName,
         const Uint16 defaultValue,
         const Uint16 otherValue,
         const Array <Uint16> & validValues);
+
+    String _checkPropertyWithDefault (
+        CIMInstance & instance,
+        const String & propertyName,
+        const String & defaultValue);
 
     /**
         Determines if the user is authorized to modify the instance, and if the

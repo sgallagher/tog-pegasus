@@ -1419,6 +1419,7 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
 
             if (match)
             {
+
                  // Formatting indication. Removes properties listed in WHERE clause
                  // from indication as they are not required to pass to consumer
 
@@ -1460,7 +1461,7 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
                          }
                      }
                  }
-                  
+
                  handlerNamedInstance = _getHandler
                      (matchedSubscriptions[i]);
 
@@ -2070,9 +2071,6 @@ Boolean IndicationService::_canCreate (
     CIMInstance & instance,
     const String & nameSpace)
 {
-    CIMValue nameSpaceValue;
-    String sourceNameSpace;
-
     const char METHOD_NAME [] = "IndicationService::_canCreate";
 
     PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
@@ -2088,8 +2086,9 @@ Boolean IndicationService::_canCreate (
 
     //
     //  Check all required properties exist
-    //  For a property that has a default value, if it does not exist,
-    //  add property with default value
+    //  For a property that has a default value, if it does not exist or is 
+    //  null, add or set property with default value
+    //  For a property that has a specified set of valid values, validate
     //
     if (instance.getClassName () == PEGASUS_CLASSNAME_INDSUBSCRIPTION)
     {
@@ -2097,34 +2096,23 @@ Boolean IndicationService::_canCreate (
         //  Filter and Handler are key properties for Subscription
         //  No other properties are required
         //
-        if (!instance.existsProperty (_PROPERTY_FILTER))
-        {
-            String exceptionStr = _MSG_MISSING_REQUIRED;
-            exceptionStr.append (_PROPERTY_FILTER);
-            exceptionStr.append (_MSG_KEY_PROPERTY);
-            PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-            throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
-                exceptionStr);
-        }
+        _checkRequiredProperty (instance, _PROPERTY_FILTER, _MSG_KEY_PROPERTY);
+        _checkRequiredProperty (instance, _PROPERTY_HANDLER, _MSG_KEY_PROPERTY);
 
-        if (!instance.existsProperty (_PROPERTY_HANDLER))
-        {
-            String exceptionStr = _MSG_MISSING_REQUIRED;
-            exceptionStr.append (_PROPERTY_HANDLER);
-            exceptionStr.append (_MSG_KEY_PROPERTY);
-            PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-            throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
-                exceptionStr);
-        }
+        //
+        //  Subscription State, Repeat Notificastion Policy, and On Fatal Error
+        //  Policy properties each has a default value, a corresponding 
+        //  Other___ property, and a set of valid values
+        //
+        _checkPropertyWithOther (instance, _PROPERTY_STATE, 
+            _PROPERTY_OTHERSTATE, (Uint16) _STATE_ENABLED, 
+            (Uint16) _STATE_OTHER, _validStates);
 
-        _checkProperty (instance, _PROPERTY_STATE, _PROPERTY_OTHERSTATE, 
-            (Uint16) _STATE_ENABLED, (Uint16) _STATE_OTHER, _validStates);
-
-        _checkProperty (instance, _PROPERTY_REPEATNOTIFICATIONPOLICY,
+        _checkPropertyWithOther (instance, _PROPERTY_REPEATNOTIFICATIONPOLICY,
             _PROPERTY_OTHERREPEATNOTIFICATIONPOLICY, (Uint16) _POLICY_NONE,
             (Uint16) _POLICY_OTHER, _validRepeatPolicies);
 
-        _checkProperty (instance, _PROPERTY_ONFATALERRORPOLICY, 
+        _checkPropertyWithOther (instance, _PROPERTY_ONFATALERRORPOLICY, 
             _PROPERTY_OTHERONFATALERRORPOLICY, (Uint16) _ERRORPOLICY_IGNORE, 
             (Uint16) _ERRORPOLICY_OTHER, _validErrorPolicies);
     } 
@@ -2136,85 +2124,31 @@ Boolean IndicationService::_canCreate (
         //  CreationClassName and Name must exist
         //  If others do not exist, add and set to default
         //
-        if (!instance.existsProperty (_PROPERTY_NAME))
-        {
-            String exceptionStr = _MSG_MISSING_REQUIRED;
-            exceptionStr.append (_PROPERTY_NAME);
-            exceptionStr.append (_MSG_KEY_PROPERTY);
-            PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-            throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
-                exceptionStr);
-        }
+        _checkRequiredProperty (instance, _PROPERTY_NAME, _MSG_KEY_PROPERTY);
+        _checkRequiredProperty (instance, _PROPERTY_CREATIONCLASSNAME, 
+            _MSG_KEY_PROPERTY);
 
-        if (!instance.existsProperty (_PROPERTY_CREATIONCLASSNAME))
-        {
-            String exceptionStr = _MSG_MISSING_REQUIRED;
-            exceptionStr.append (_PROPERTY_CREATIONCLASSNAME);
-            exceptionStr.append (_MSG_KEY_PROPERTY);
-            PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-            throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
-                exceptionStr);
-        }
+        _checkPropertyWithDefault (instance, _PROPERTY_SYSTEMNAME, 
+            System::getFullyQualifiedHostName ());
 
-        if (!instance.existsProperty (_PROPERTY_SYSTEMNAME))
-        {
-            //
-            //  Set System Name 
-            //
-            instance.addProperty (CIMProperty (_PROPERTY_SYSTEMNAME,
-                System::getFullyQualifiedHostName ()));
-        }
-
-        if (!instance.existsProperty (_PROPERTY_SYSTEMCREATIONCLASSNAME))
-        {
-            //
-            //  Set System Creation Class Name 
-            //
-            instance.addProperty (CIMProperty 
-                (_PROPERTY_SYSTEMCREATIONCLASSNAME, 
-                System::getSystemCreationClassName ()));
-        }
+        _checkPropertyWithDefault (instance, _PROPERTY_SYSTEMCREATIONCLASSNAME, 
+            System::getSystemCreationClassName ());
 
         if (instance.getClassName () == PEGASUS_CLASSNAME_INDFILTER)
         {
             //
             //  Query and QueryLanguage properties are required for Filter
             //
-            if (!instance.existsProperty (_PROPERTY_QUERY))
-            {
-                String exceptionStr = _MSG_MISSING_REQUIRED;
-                exceptionStr.append (_PROPERTY_QUERY);
-                exceptionStr.append (_MSG_PROPERTY);
-                PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
-                    exceptionStr);
-            }
-            if (!instance.existsProperty (_PROPERTY_QUERYLANGUAGE))
-            {
-                String exceptionStr = _MSG_MISSING_REQUIRED;
-                exceptionStr.append (_PROPERTY_QUERYLANGUAGE);
-                exceptionStr.append (_MSG_PROPERTY);
-                PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
-                    exceptionStr);
-            }
+            _checkRequiredProperty (instance, _PROPERTY_QUERY, _MSG_PROPERTY);
+            _checkRequiredProperty (instance, _PROPERTY_QUERYLANGUAGE, 
+                _MSG_PROPERTY);
 
             //
             //  Default value for Source Namespace is the namespace of the
             //  Filter registration
             //
-            if (!instance.existsProperty (_PROPERTY_SOURCENAMESPACE))
-            {
-                instance.addProperty (CIMProperty 
-                    (_PROPERTY_SOURCENAMESPACE, nameSpace));
-                sourceNameSpace = nameSpace;
-            }
-            else
-            {
-                nameSpaceValue = instance.getProperty (instance.findProperty 
-                    (_PROPERTY_SOURCENAMESPACE)).getValue ();
-                nameSpaceValue.get (sourceNameSpace);
-            }
+            String sourceNameSpace = _checkPropertyWithDefault (instance, 
+                _PROPERTY_SOURCENAMESPACE, nameSpace);
 
             //
             //  Validate the query and indication class name
@@ -2239,7 +2173,7 @@ Boolean IndicationService::_canCreate (
                  (instance.getClassName () == 
                   PEGASUS_CLASSNAME_INDHANDLER_SNMP))
         {
-            _checkProperty (instance, _PROPERTY_PERSISTENCETYPE,
+            _checkPropertyWithOther (instance, _PROPERTY_PERSISTENCETYPE,
                 _PROPERTY_OTHERPERSISTENCETYPE, (Uint16) _PERSISTENCE_PERMANENT,
                 (Uint16) _PERSISTENCE_OTHER, _validPersistenceTypes);
 
@@ -2249,15 +2183,8 @@ Boolean IndicationService::_canCreate (
                 //  Destination property is required for CIMXML 
                 //  Handler subclass
                 //
-                if (!instance.existsProperty (_PROPERTY_DESTINATION))
-                {
-                    String exceptionStr = _MSG_MISSING_REQUIRED;
-                    exceptionStr.append (_PROPERTY_DESTINATION);
-                    exceptionStr.append (_MSG_PROPERTY);
-                    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                    throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
-                        exceptionStr);
-                }
+                _checkRequiredProperty (instance, _PROPERTY_DESTINATION, 
+                    _MSG_PROPERTY);
             }
 
             if (instance.getClassName () == PEGASUS_CLASSNAME_INDHANDLER_SNMP)
@@ -2266,28 +2193,14 @@ Boolean IndicationService::_canCreate (
                 //  Trap Destination property is required for SNMP 
                 //  Handler subclass
                 //
-                if (!instance.existsProperty (_PROPERTY_TRAPDESTINATION))
-                {
-                    String exceptionStr = _MSG_MISSING_REQUIRED;
-                    exceptionStr.append (_PROPERTY_TRAPDESTINATION);
-                    exceptionStr.append (_MSG_PROPERTY);
-                    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                    throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
-                        exceptionStr);
-                }
+                _checkRequiredProperty (instance, _PROPERTY_TRAPDESTINATION, 
+                    _MSG_PROPERTY);
 
                 //
                 //  SNMP Type property is required for SNMP Handler
                 //
-                if (!instance.existsProperty (_PROPERTY_SNMPTYPE))
-                {
-                    String exceptionStr = _MSG_MISSING_REQUIRED;
-                    exceptionStr.append (_PROPERTY_SNMPTYPE);
-                    exceptionStr.append (_MSG_PROPERTY);
-                    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                    throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
-                        exceptionStr);
-                }
+                _checkRequiredProperty (instance, _PROPERTY_SNMPTYPE, 
+                    _MSG_PROPERTY);
             }
         }
 
@@ -2305,7 +2218,55 @@ Boolean IndicationService::_canCreate (
     return true;
 }
 
-void IndicationService::_checkProperty (
+void IndicationService::_checkRequiredProperty (
+    CIMInstance & instance,
+    const String & propertyName,
+    const String & message)
+{
+    const char METHOD_NAME [] = "IndicationService::_checkRequiredProperty";
+
+    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+
+    Boolean missingProperty = false;
+
+    //
+    //  Required property must exist in instance
+    //
+    if (!instance.existsProperty (propertyName))
+    {
+        missingProperty = true;
+    }
+    else
+    {
+        //
+        //  Get the property
+        //
+        CIMProperty theProperty = instance.getProperty
+            (instance.findProperty (propertyName));
+        CIMValue theValue = theProperty.getValue ();
+
+        //
+        //  Required property must have a non-null value
+        //
+        if (theValue.isNull ())
+        {
+            missingProperty = true;
+        }
+    }
+
+    if (missingProperty)
+    {
+        String exceptionStr = _MSG_MISSING_REQUIRED;
+        exceptionStr.append (propertyName);
+        exceptionStr.append (message);
+        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+        throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER,
+            exceptionStr);
+    }
+    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+}
+
+void IndicationService::_checkPropertyWithOther (
     CIMInstance & instance,
     const String & propertyName,
     const String & otherPropertyName,
@@ -2315,7 +2276,7 @@ void IndicationService::_checkProperty (
 {
     Uint16 result = defaultValue;
 
-    const char METHOD_NAME [] = "IndicationService::_checkProperty";
+    const char METHOD_NAME [] = "IndicationService::_checkPropertyWithOther";
 
     PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
 
@@ -2420,6 +2381,52 @@ void IndicationService::_checkProperty (
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
 }
 
+String IndicationService::_checkPropertyWithDefault (
+    CIMInstance & instance,
+    const String & propertyName,
+    const String & defaultValue)
+{
+    String result = defaultValue;
+
+    const char METHOD_NAME [] = "IndicationService::_checkPropertyWithDefault";
+
+    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+
+    //
+    //  If the property doesn't exist, add it with the default value
+    //
+    if (!instance.existsProperty (propertyName))
+    {
+        instance.addProperty (CIMProperty (propertyName,
+            CIMValue (defaultValue)));
+    }
+    else
+    {
+        //
+        //  Get the property
+        //
+        CIMProperty theProperty = instance.getProperty
+            (instance.findProperty (propertyName));
+        CIMValue theValue = theProperty.getValue ();
+
+        //
+        //  If the value is null, set to the default value
+        //
+        if (theValue.isNull ())
+        {
+            theProperty.setValue (CIMValue (defaultValue));
+        }
+        else
+        {
+            theValue.get (result);
+        }
+    }
+
+    return result;
+
+    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+}
+
 Boolean IndicationService::_canModify (
     const CIMModifyInstanceRequestMessage * request,
     const CIMReference & instanceReference,
@@ -2475,7 +2482,7 @@ Boolean IndicationService::_canModify (
         throw CIMException (CIM_ERR_NOT_SUPPORTED);
     }
 
-    _checkProperty (instance, _PROPERTY_STATE, _PROPERTY_OTHERSTATE,
+    _checkPropertyWithOther (instance, _PROPERTY_STATE, _PROPERTY_OTHERSTATE,
         (Uint16) _STATE_ENABLED, (Uint16) _STATE_OTHER, _validStates);
 
     //
@@ -3103,7 +3110,6 @@ Array <CIMNamedInstance> IndicationService::_getSubscriptions (
     //
     //  Get existing subscriptions in current namespace
     //
-    subscriptions.clear ();
     _repository->read_lock ();
 
     try

@@ -374,6 +374,11 @@ Uint32 String::find(const String& s) const
     Uint32 subStrLen = s.size();
     Uint32 strLen = size();
 
+    if (subStrLen > strLen)
+    {
+        return PEG_NOT_FOUND;
+    }
+
     // loop to find first char match
     Uint32 loc = 0;
     for( ; loc <= (strLen-subStrLen); loc++)

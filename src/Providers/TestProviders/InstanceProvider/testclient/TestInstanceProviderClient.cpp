@@ -29,7 +29,8 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -418,15 +419,14 @@ int main(int argc, char** argv)
 
     CIMClient client;
 
-    client.connectLocal();
-
     try
     {
+        client.connectLocal();
         Test1(client);
         Test2(client);
         Test3(client);
     }
-    catch(CIMException & e)
+    catch(const CIMException & e)
     {
         client.disconnect();
 
@@ -434,7 +434,7 @@ int main(int argc, char** argv)
 
         return(1);
     }
-    catch(Exception & e)
+    catch(const Exception & e)
     {
         client.disconnect();
 

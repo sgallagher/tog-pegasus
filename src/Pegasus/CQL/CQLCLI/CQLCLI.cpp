@@ -464,7 +464,13 @@ Boolean _evaluate(Array<CQLSelectStatement>& _statements,
           if(result) printf("TRUE\n");
           else printf("FALSE\n");
         }
-        catch(Exception e){ cout << "ERROR!" << endl << e.getMessage() << endl << endl;}
+        catch(Exception e)
+        {
+          if (cqlcli_verbose)
+            cout << "ERROR! -- " << _statements[i].toString() << endl << e.getMessage() << endl << endl;
+          else
+            cout << "ERROR!" << endl << e.getMessage() << endl << endl;
+        }
         catch(...){ cout << "Unknown Exception" << endl;}
       }
     }

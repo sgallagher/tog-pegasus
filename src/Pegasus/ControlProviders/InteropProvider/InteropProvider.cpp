@@ -54,7 +54,6 @@
 //      disabled.
 ///////////////////////////////////////////////////////////////////////////////
 
-/* STATUS: In process but running 12 feburary 2004 KS */
 /* TODO: 12 Feb 2004
     Add the association functions
     UUID generation should become a system function since it will be used
@@ -101,8 +100,8 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-//#define CDEBUG(X)
-#define CDEBUG(X) PEGASUS_STD(cout) << "InteropProvider " << X << PEGASUS_STD(endl)
+#define CDEBUG(X)
+//#define CDEBUG(X) PEGASUS_STD(cout) << "InteropProvider " << X << PEGASUS_STD(endl)
 //#define CDEBUG(X) Logger::put (Logger::DEBUG_LOG, "Linux_ProcessorProvider", Logger::INFORMATION, "$0", X)
 //#define CDEBUG(X) {std::stringstream ss; std::string r;ss << X;ss>>r; PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, r)}
  

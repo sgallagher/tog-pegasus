@@ -27,6 +27,14 @@ method is used. Added a new method lookupPort() in System.h to return the system
 configured wbem port number. Modified cimuser, cimauth and cimconfig CLI's to use 
 modified CIMClient connectLocal() interface.
 
+7. (KS- 21 Feb 2002) - Modified Makefile for repository load so located in
+schema directory.  The one in src/pegasus/compiler/load is deprecated and
+will be deleted.
+
+8. KS-21 Feb 2002 - Added new constructor to CIMValue and associated tests
+
+9. RK-20 Feb 2002 - Add Array reference to CIMValue and added tests
+
 -------------------------------------------------------------------
 Version 1.06 working towards 1.1 Started 13 December 2001
 

@@ -5,35 +5,31 @@
 using namespace std;
 using namespace Pegasus;
 
+static char* colors[] = { "red", "green", "blue" };
+static const Uint32 NUM_COLORS = sizeof(colors) / sizeof(colors[0]);
+
+static struct OptionRow options[] =
+{
+    { "host", "", true, Option::STRING, 0, 0, "", "", "h" },
+    { "port", "80", false, Option::WHOLE_NUMBER, 0, 0, "", "", "p" },
+    { "color", "red", false, Option::STRING, colors, NUM_COLORS, "", "", "c" },
+    { "trace", "false", false, Option::BOOLEAN, 0, 0, "", "", "t" },
+};
+
+static const Uint32 NUM_OPTIONS = sizeof(options) / sizeof(options[0]);
+
 void test(int& argc, char** argv)
 {
     OptionManager om;
 
-    om.registerOption(new Option("host", "", true, Option::STRING,
-	Array<String>(), "", "", "host"));
+    om.registerOptions(options, NUM_OPTIONS);
 
-    om.registerOption(new Option("port", "80", false, Option::POSITIVE_INTEGER,
-	Array<String>(), "", "", "port"));
-	
-
-    Array<String> colors;
-    colors.append("red");
-    colors.append("green");
-    colors.append("blue");
-
-    om.registerOption(
-	new Option("color", "", true, Option::STRING, colors, "", "", "color"));
-
-    om.registerOption(new Option("trace", "false", false, Option::BOOLEAN, 
-	Array<String>(), "", "", "trace"));
-
-
-    cout << "=== Default options:" << endl;
-    om.print();
+    // cout << "=== Default options:" << endl;
+    // om.print();
     om.mergeCommandLine(argc, argv);
 
-    cout << "=== Selected options:" << endl;
-    om.print();
+    // cout << "=== Selected options:" << endl;
+    // om.print();
 }
 
 int main()
@@ -45,13 +41,13 @@ int main()
 	char* argv[] = 
 	{
 	    "main",
-	    "-host",
+	    "-h",
 	    "www.opengroup.org",
-	    "-port",
+	    "-p",
 	    "8080",
-	    "-trace",
-	    "-color", 
-	    "red",
+	    "-t",
+	    "-c", 
+	    "blue",
 	    "-one",
 	    "two",
 	    "-three",

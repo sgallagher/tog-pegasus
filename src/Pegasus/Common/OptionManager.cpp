@@ -23,6 +23,9 @@
 // Author: Michael E. Brasher
 //
 // $Log: OptionManager.cpp,v $
+// Revision 1.5  2001/04/14 06:41:17  mike
+// New
+//
 // Revision 1.4  2001/04/14 03:37:16  mike
 // Added new example to test option manager
 //
@@ -38,6 +41,7 @@
 //
 //END_HISTORY
 
+#include <cstdlib>
 #include "OptionManager.h"
 
 PEGASUS_NAMESPACE_BEGIN
@@ -63,16 +67,90 @@ OptionManager::~OptionManager()
 	delete _options[i];
 }
 
-Boolean OptionManager::registerOption(Option* option)
+void OptionManager::registerOption(Option* option)
 {
     if (!option)
-	return false;
+	throw NullPointer();
 
     if (lookupOption(option->getOptionName()))
-	return false;
+	throw DuplicateOption(option->getOptionName());
 
     _options.append(option);
-    return true;
+}
+
+void OptionManager::registerOptions(OptionRow* options, Uint32 numOptions)
+{
+    for (Uint32 i = 0; i < numOptions; i++)
+    {
+	// Get option name:
+
+	if (!options[i].optionName)
+	    throw NullPointer();
+
+	String optionName = options[i].optionName;
+
+	// Get default value:
+
+	String defaultValue;
+
+	if (options[i].defaultValue)
+	    defaultValue = options[i].defaultValue;
+
+	// Get the required flag:
+
+	Boolean required = options[i].required;
+
+	// Get the type:
+
+	Option::Type type = options[i].type;
+
+	// Get the domain:
+
+	Array<String> domain;
+
+	if (options[i].domain)
+	{
+	    Uint32 domainSize = options[i].domainSize;
+
+	    for (Uint32 j = 0; j < domainSize; j++)
+		domain.append(options[i].domain[j]);
+	}
+
+	// Get environmentVariableName:
+
+	String environmentVariableName;
+
+	if (options[i].environmentVariableName)
+	    environmentVariableName = options[i].environmentVariableName;
+
+	// Get configFileVariableName:
+
+	String configFileVariableName;
+
+	if (options[i].configFileVariableName)
+	    configFileVariableName = options[i].configFileVariableName;
+
+	// Get commandLineOptionName:
+
+	String commandLineOptionName;
+
+	if (options[i].commandLineOptionName)
+	    commandLineOptionName = options[i].commandLineOptionName;
+
+	// Add the option:
+
+	Option* option = new Option(
+	    optionName,
+	    defaultValue,
+	    required,
+	    type,
+	    domain,
+	    environmentVariableName,
+	    configFileVariableName,
+	    commandLineOptionName);
+
+	registerOption(option);
+    }
 }
 
 void OptionManager::mergeCommandLine(int& argc, char**& argv)
@@ -110,7 +188,7 @@ void OptionManager::mergeCommandLine(int& argc, char**& argv)
 	    // Validate the value:
 
 	    if (!option->isValid(optionArgument))
-		throw BadCommandLineOption(arg);
+		throw InvalidOptionValue(arg, optionArgument);
 
 	    // Set the value:
 
@@ -209,7 +287,8 @@ Option::Option(
     _commandLineOptionName(commandLineOptionName),
     _foundValue(false)
 {
-
+    if (!isValid(_value))
+	throw InvalidOptionValue(_optionName, _value);
 }
 
 Option::Option(const Option& x) 
@@ -250,7 +329,64 @@ Option& Option::operator=(const Option& x)
 
 Boolean Option::isValid(const String& value) const
 {
-    // ATTN-A: Implement
+    // Check to see that the value is in the domain (if a domain was given)
+
+    Uint32 domainSize = _domain.getSize();
+
+    if (domainSize)
+    {
+	Boolean found = false;
+
+	for (Uint32 i = 0; i < domainSize; i++)
+	{
+	    if (value == _domain[i])
+		found = true;
+	}
+
+	if (!found)
+	    return false;
+    }
+
+    // Check the type:
+
+    switch (_type)
+    {
+	case BOOLEAN:
+	{
+	    if (value == "true" || value == "false")
+		return true;
+	}
+
+	case STRING:
+	    return true;
+
+	case INTEGER:
+	case NATURAL_NUMBER:
+	case WHOLE_NUMBER:
+	{
+	    char* tmp = value.allocateCString();
+	    char* end = 0;
+	    long x = strtol(tmp, &end, 10);
+	    delete [] tmp;
+
+	    if (!end || *end != '\0')
+		return false;
+
+	    switch (_type)
+	    {
+		case INTEGER: 
+		    return true;
+
+		case NATURAL_NUMBER:
+		    return x >= 1;
+
+		case WHOLE_NUMBER:
+		    return x >= 0;
+	    }
+	}
+    }
+
+    // Unreachable!
     return true;
 }
 

@@ -23,6 +23,9 @@
 // Author: Michael E. Brasher
 //
 // $Log: OptionManager.h,v $
+// Revision 1.5  2001/04/14 06:41:17  mike
+// New
+//
 // Revision 1.4  2001/04/14 03:37:16  mike
 // Added new example to test option manager
 //
@@ -49,6 +52,7 @@
 PEGASUS_NAMESPACE_BEGIN
 
 class Option;
+struct OptionRow;
 
 /** The OptionManager class manages a collection of program options. 
 
@@ -105,7 +109,7 @@ class Option;
     <pre>
 	OptionManager om;
 
-	Option* option = new Option("port", "80", false, Option::INTEGER, 
+	Option* option = new Option("port", "80", false, Option::NATURAL_NUMBER,
 	    Array<String>(), "PEGASUS_PORT", "PORT", "p");
 
 	om.registerOption(option);
@@ -196,9 +200,17 @@ public:
 	of the option; the caller must not delete this object.
 
 	@param option - option to be registerd.
-	@return false if an option with same name already registered.
+	@throw NullPointer excpetion is option argument is null.
+	@throw DuplicateOption is option already defined.
     */
-    Boolean registerOption(Option* option);
+    void registerOption(Option* option);
+
+    /** Provides a simple way to register several options at once using
+	a declartive style table. This may also be done programmitically
+	by repeatedly calling registerOption above. See documentation for
+	OptionRow for details on how to use them.
+    */
+    void registerOptions(OptionRow* options, Uint32 numOptions);
 
     /** Merge option values from the command line. Searches the command 
 	line for registered options whose names are given by the
@@ -214,7 +226,7 @@ public:
 
 	&param argc - number of argument on the command line.
 	&param argv - list of command line arguments.
-	&throw BadCommandLineOption when validation fails.
+	&throw InvalidOptionValue when validation fails.
 	&throw MissingCommandLineOptionArgument
     */
     void mergeCommandLine(int& argc, char**& argv);
@@ -275,7 +287,23 @@ class PEGASUS_COMMON_LINKAGE Option
 public:
 
     /** Valid value types. */
-    enum Type { BOOLEAN, INTEGER, POSITIVE_INTEGER, STRING };
+    enum Type 
+    {
+	// (..., -3, -2, -1, 0, 1, 2, 3, ...)
+	INTEGER, 
+
+	// (1, 2, 3, ...)
+	NATURAL_NUMBER, 
+
+	// (0, 1, 2, 3, ...)
+	WHOLE_NUMBER, 
+
+	// "true" or "false"
+	BOOLEAN, 
+
+	// Anything
+	STRING
+    };
 
     // Hack to fix bug in MSVC.
     typedef Array<String> StringArray;
@@ -453,6 +481,59 @@ private:
     Boolean _foundValue;
 };
 
+/** The OptionRow provides a declarative way of defining Option objects.
+    For the declarative programming enthusiast, we provide this structure.
+    It provides a declarative way of defining options for the OptionManager
+    class. Some developers prefer this since it makes all the options visible
+    in a kind of table like structure. Here is an example of how it can be
+    used to define a port number and hostname options. We also show how to
+    register one of these option lists with an OptionManager.
+
+    <pre>
+	static OptionRow options[] =
+	{
+	    { "port", "80", false, Option::NATURAL_NUMBER },
+	    { "hostname", "", true, Option::STRING }
+	};
+
+	...
+
+	OptionManager om;
+	om.registerOptions(options, sizeof(options) / sizeof(options[0]));
+    </pre>
+
+    Recall that static memory areas are initialized with zeros so that the
+    members that are not initialized explicitly in the example above are
+    initialized implicitly with zeros (which the OptionManager used to
+    determine that they are not used).
+
+    It is possible to specify domains as well. For example, suppose we
+    want to define a "color" option that can be in the following set:
+    {"red", "green", "blue"}. Here is how to express that:
+
+    <pre>
+	static const char* colors[] = { "red", "green", "blue" };
+
+	static OptionRow options[] = 
+	{
+	    { "color", "red", false, Option::STRING, colors, 3 }
+	};
+    </pre>
+*/
+struct OptionRow
+{
+    const char* optionName;
+    const char* defaultValue;
+    Boolean required;
+    Option::Type type;
+    char** domain;
+    Uint32 domainSize;
+    const char* environmentVariableName;
+    const char* configFileVariableName;
+    const char* commandLineOptionName;
+};
+
+/** Exception class */
 class MissingCommandLineOptionArgument : public Exception
 {
 public:
@@ -461,12 +542,22 @@ public:
 	: Exception("Missing command line option argument: " + optionName) { }
 };
 
-class BadCommandLineOption : public Exception
+/** Exception class */
+class InvalidOptionValue : public Exception
 {
 public:
 
-    BadCommandLineOption(const String& optionName)
-	: Exception("Bad command line option: " + optionName) { }
+    InvalidOptionValue(const String& name, const String& value)
+	: Exception("Invalid option value: " + name + "=\"" + value + "\"") { }
+};
+
+/** Exception class */
+class DuplicateOption : public Exception
+{
+public:
+
+    DuplicateOption(const String& name)
+	: Exception("Duplicate option: " + name) { }
 };
 
 PEGASUS_NAMESPACE_END

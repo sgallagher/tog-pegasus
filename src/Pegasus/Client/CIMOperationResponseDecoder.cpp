@@ -644,7 +644,7 @@ void CIMOperationResponseDecoder::_handleMethodResponse(char* content,
         }
 
         response = new ClientExceptionMessage(
-            new Exception(x.getMessage()));
+            new CIMClientResponseException(x.getMessage()));
     }
 
 //l10n start

@@ -326,7 +326,7 @@ class PEGASUS_EXPORT Semaphore
       // platorms that allow you to ask the semaphore for 
       // its count 
       int _count; 
-      void _extricate(void);
+//      void _extricate(void);
       friend class Condition;
 };
 
@@ -388,6 +388,7 @@ class AtomicInt
 
    private:
       PEGASUS_ATOMIC_TYPE _rep; //    sig_atomic_t on POSIX systems with glibc
+      PEGASUS_CRIT_TYPE _crit;
 };
     
 

@@ -28,6 +28,7 @@
 
 #include <process.h>  
 #include <winbase.h>
+#include <stdlib.h>
 #include <sys/types.h>
 #include <sys/timeb.h> 
 #include <errno.h>
@@ -57,28 +58,21 @@ typedef struct {
       void * thatt;
 } PEGASUS_THREAD_HANDLE ;
 
+
 //-----------------------------------------------------------------
-/// Conditionals to support native or generic Conditional Semaphore
+/// Conditionals to support native conditional semaphore object
 //-----------------------------------------------------------------
+
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
-#define PEGASUS_CONDITIONAL_NATIVE = 1
 
-typedef HANDLE  PEGASUS_COND_TYPE;
+// windows uses the generic conditional semaphore defined in
+// IPC.ccp
 
-typedef struct {
-    PEGASUS_COND_TYPE  cond;
-    PEGASUS_THREAD_TYPE owner;
-} PEGASUS_COND_HANDLE;
-
-#endif // platform conditional type
+#endif // platform conditional  type
 
 //-----------------------------------------------------------------
 /// Conditionals to support native or generic atomic variables
 //-----------------------------------------------------------------
-
-// linux offers a built-in integer type for atomic access
-// other unix platforms HPUX, AIX, may have different types
-// implementors should use the native type for faster operations
 
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 #define PEGASUS_ATOMIC_INT_NATIVE = 1

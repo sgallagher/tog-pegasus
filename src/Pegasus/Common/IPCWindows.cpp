@@ -44,7 +44,6 @@ struct timezone
       int tz_dsttime;
 };
 
-
 static int gettimeofday(struct timeval *tv, struct timezone *tz)
 {
    return(pegasus_gettimeofday(tv));
@@ -60,7 +59,6 @@ static int pegasus_gettimeofday(struct timeval *tv)
 	tv->tv_usec = ( timebuffer.millitm / 1000 );
 	return(0);
 }	
-
 
 inline void pegasus_yield(void)
 {
@@ -79,39 +77,39 @@ inline void enable_cancel(void)
 }
 
 
+// Windows does not have equivalent functionality with Unix-like
+// operating systems. Be careful using these next two 
+// macros. There is no pop routine in windows. Further, windows
+// does not allow passing parameters to exit functions. !!
+#define native_cleanup_push( func, arg ) atexit(func)
 
-#define native_cleanup_push( func, arg ) \
-
-
-// native cleanup_pop(Boolean execute) ; 
-#define native_cleanup_pop(execute) \
+#define native_cleanup_pop(execute) 
 
 inline void init_crit(PEGASUS_CRIT_TYPE *crit)
 {
-
+   InitializeCriticalSectionAndSpinCount(crit, 1000);
 }
 
 inline void enter_crit(PEGASUS_CRIT_TYPE *crit)
 {
-
+   EnterCriticalSection(crit);
 }
 
 inline void try_crit(PEGASUS_CRIT_TYPE *crit)
 {
-
+   TryEnterCriticalSection(crit); 
 }
 
 inline void exit_crit(PEGASUS_CRIT_TYPE *crit)
 {
-
+   LeaveCriticalSection(crit);
 }
 
 inline void destroy_crit(PEGASUS_CRIT_TYPE *crit)
 {
-
+   DeleteCriticalSection(crit);
 }
    
-
 PEGASUS_THREAD_TYPE pegasus_thread_self(void) 
 { 
    return(GetCurrentThread());
@@ -119,20 +117,19 @@ PEGASUS_THREAD_TYPE pegasus_thread_self(void)
 
 Mutex::Mutex()
 {
-
+   _mutex.mut = CreateMutex(NULL, false, NULL);
+   _mutex.owner = GetCurrentThread();
 }
 
 Mutex::Mutex(int mutex_type)
 {
-
+   _mutex.mut = CreateMutex(NULL, false, NULL);
+   _mutex.owner = GetCurrentThread();
 }
 
 Mutex::~Mutex()
 {
-   while(  get the mutex )
-   {
-      pegasus_yield();
-   }
+   WaitForSingleObject(_mutex.mut, INFINITE);
    CloseHandle(_mutex.mut);
 }
 
@@ -140,14 +137,13 @@ Mutex::~Mutex()
 // exception if process already holds the lock 
 void Mutex::lock(PEGASUS_THREAD_TYPE caller) throw(Deadlock, WaitFailed)
 {
-   int errorcode;
-
-
-
-   else if (errorcode == EDEADLK) 
+   if(_mutex.owner == caller)
       throw( Deadlock( _mutex.owner ) );
-   else 
+
+   DWORD errorcode = WaitForSingleObject(_mutex.mut, INFINITE);
+   if(errorcode == WAIT_FAILED)
       throw( WaitFailed( _mutex.owner) );
+   _mutex.owner = caller;
 }
   
 // try to gain the lock - lock succeeds immediately if the 
@@ -155,14 +151,15 @@ void Mutex::lock(PEGASUS_THREAD_TYPE caller) throw(Deadlock, WaitFailed)
 // immediately if the mutex is currently locked. 
 void Mutex::try_lock(PEGASUS_THREAD_TYPE caller) throw(Deadlock, AlreadyLocked, WaitFailed)
 {
-   int errorcode ;
+   if(_mutex.owner == caller)
+      throw( Deadlock( _mutex.owner ) );
 
-   else if (errorcode == EBUSY) 
+   DWORD errorcode = WaitForSingleObject(_mutex.mut, 0);
+   if (errorcode == WAIT_TIMEOUT) 
       throw(AlreadyLocked(_mutex.owner));
-   else if (errorcode == EDEADLK) 
-      throw(Deadlock(_mutex.owner));
-   else
+   if(errorcode == WAIT_FAILED)
       throw(WaitFailed(_mutex.owner));
+   _mutex.owner = caller;
 }
 
 // wait for milliseconds and throw an exception then return if the wait
@@ -172,8 +169,15 @@ void Mutex::try_lock(PEGASUS_THREAD_TYPE caller) throw(Deadlock, AlreadyLocked, 
 void Mutex::timed_lock( Uint32 milliseconds , PEGASUS_THREAD_TYPE caller) 
    throw(Deadlock, TimeOut, WaitFailed)
 {
+   if(_mutex.owner == caller)
+      throw( Deadlock( _mutex.owner ) );
 
-
+   DWORD errorcode = WaitForSingleObject(_mutex.mut, milliseconds);
+   if (errorcode == WAIT_TIMEOUT) 
+      throw(TimeOut(_mutex.owner));
+   if(errorcode == WAIT_FAILED)
+      throw(WaitFailed(_mutex.owner));
+   _mutex.owner = caller;
 }
 
 // unlock the mutex
@@ -181,103 +185,29 @@ void Mutex::unlock() throw(Permission)
 {
    PEGASUS_THREAD_TYPE m_owner = _mutex.owner;
    _mutex.owner = 0;
-
+   ReleaseMutex(_mutex.mut);
 }
-
-
-//-----------------------------------------------------------------
-// Native implementation of Conditional semaphore object
-//-----------------------------------------------------------------
-
-#ifdef PEGASUS_CONDITIONAL_NATIVE
-
-
-Condition::Condition() 
-{
-
-}
-
-Condition::~Condition()
-{
-
-}
-
-void Condition::signal(PEGASUS_THREAD_TYPE caller) 
-   throw(Deadlock, WaitFailed, Permission) 
-{ 
-
-
-}
-
-
-void Condition::unlocked_signal(PEGASUS_THREAD_TYPE caller) 
-   throw(Permission)
-{
-
-}
-
-
-void Condition::lock_object(PEGASUS_THREAD_TYPE caller)
-   throw(Deadlock, WaitFailed)
-{
-
-}
-
-void Condition::try_lock_object(PEGASUS_THREAD_TYPE caller)
-   throw(Deadlock, AlreadyLocked, WaitFailed)
-{
-
-}
-
-void Condition::wait_lock_object(PEGASUS_THREAD_TYPE caller, int milliseconds)
-   throw(Deadlock, TimeOut, WaitFailed)
-{
-
-}
-
-void Condition::unlock_object(void)
-{
-
-}
-
-
-// block until this semaphore is in a signalled state 
-void Condition::unlocked_wait(PEGASUS_THREAD_TYPE caller) 
-   throw(Permission)
-{
-
-}
-
-// block until this semaphore is in a signalled state 
-void Condition::unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE caller) 
-   throw(TimeOut, Permission)
-{
-
-}
-
-#endif
-//-----------------------------------------------------------------
-// END of native conditional semaphore implementation
-//-----------------------------------------------------------------
 
 Semaphore::Semaphore(Uint32 initial) 
 {
    if(initial > SEM_VALUE_MAX)
       initial = SEM_VALUE_MAX - 1;
-
-   _semaphore.owner = pthread_self();
-
+   _count = initial;
+   _semaphore.owner = GetCurrentThread();
+   _semaphore.sem = CreateSemaphore(NULL, initial, SEM_VALUE_MAX, NULL);
 }
 
 Semaphore::~Semaphore()
 {
-
+   CloseHandle(_semaphore.sem);
 }
 
 // block until this semaphore is in a signalled state
 void Semaphore::wait(void) 
 {
-
+   DWORD errorcode = WaitForSingleObject(_semaphore.sem, INFINITE);
+   if(errorcode != WAIT_FAILED)
+      _count--;
 }
 
 // wait succeeds immediately if semaphore has a non-zero count, 
@@ -285,7 +215,10 @@ void Semaphore::wait(void)
 // count is zero. 
 void Semaphore::try_wait(void) throw(WaitFailed)
 {
-
+   DWORD errorcode = WaitForSingleObject(_semaphore.sem, 0);
+   if(errorcode == WAIT_TIMEOUT || errorcode == WAIT_FAILED)
+      throw(WaitFailed(GetCurrentThread()));
+   _count--;
 }
 
 
@@ -293,22 +226,24 @@ void Semaphore::try_wait(void) throw(WaitFailed)
 // if wait times out without gaining the semaphore
 void Semaphore::time_wait( Uint32 milliseconds ) throw(TimeOut)
 {
-
+   DWORD errorcode = WaitForSingleObject(_semaphore.sem, milliseconds);
+   if (errorcode == WAIT_TIMEOUT || errorcode == WAIT_FAILIED)
+      throw(TimeOut(GetCurrentThread()));
+   count--;
 }
 
 // increment the count of the semaphore 
 void Semaphore::signal()
 {
-
+   _count++;
+   ReleaseSemaphore(_semaphore.sem, 1, NULL);
 }
 
 // return the count of the semaphore
 int Semaphore::count() 
 {
-
-
+   return(_count);
 }
-
 
 
 //-----------------------------------------------------------------
@@ -316,40 +251,91 @@ int Semaphore::count()
 //-----------------------------------------------------------------
 #if defined(PEGASUS_ATOMIC_INT_NATIVE)
 
-AtomicInt::AtomicInt()
+AtomicInt::AtomicInt(): _rep(0) { init_crit(&_crit); }
 
-AtomicInt::AtomicInt( Uint32 initial)
+AtomicInt::AtomicInt( Uint32 initial): _rep(initial) { init_crit(&_crit); }
 
-AtomicInt::~AtomicInt() {}
+AtomicInt::~AtomicInt() { destroy_crit(&_crit); }
 
 AtomicInt::AtomicInt(const AtomicInt& original) 
 {
-
+   _rep = original._rep;
+   init_crit(&_crit);
 }
 
 AtomicInt& AtomicInt::operator=( const AtomicInt& original)
 {
-
+   InterlockedExchange(&_rep, original._rep);
+   return *this;
 }
 
 
-Uint32 AtomicInt::value(void)
+inline Uint32 AtomicInt::value(void)
 {
+   return (Uint32)_rep;
 }
 
-void AtomicInt::operator++(void) { }
-void AtomicInt::operator--(void) { }
+inline void AtomicInt::operator++(void) { InterlockedIncrement(&_rep); }
+inline void AtomicInt::operator--(void) { InterlockedDecrement(&_rep); }
 
-Uint32 AtomicInt::operator+(const AtomicInt& val) { }
-Uint32 AtomicInt::operator+(Uint32 val) {  }
+inline Uint32 AtomicInt::operator+(const AtomicInt& val) 
+{
+   InterlockedExchangeAdd(&_rep, val._rep);
+   return _rep;
+}
+inline Uint32 AtomicInt::operator+(Uint32 val) 
+{  
+   InterlockedExchangeAdd(&_rep, val);
+   return _rep;
+}
 
-Uint32 AtomicInt::operator-(const AtomicInt& val) { }
-Uint32 AtomicInt::operator-(Uint32 val) {  }
+inline Uint32 AtomicInt::operator-(const AtomicInt& val) 
+{ 
+   LONG temp_operand, temp_result;
+   temp_operand = InterlockedExchangeAdd(&(val._rep), 0);
+   temp_result = InterlockedExchangeAdd(&_rep, 0);
+   return(temp_result - temp_operand);
+}
 
-AtomicInt& AtomicInt::operator+=(const AtomicInt& val) {  }
-AtomicInt& AtomicInt::operator+=(Uint32 val) { }
-AtomicInt& AtomicInt::operator-=(const AtomicInt& val) {  }
-AtomicInt& AtomicInt::operator-=(Uint32 val) {  }
+inline Uint32 AtomicInt::operator-(Uint32 val) 
+{  
+   LONG temp_operand, temp_result;
+   temp_operand = InterlockedExchangeAdd( &val, 0);
+   temp_result = InterlockedExchangeAdd(&_rep, 0);
+   return(temp_result - temp_operand);
+}
+
+inline AtomicInt& AtomicInt::operator+=(const AtomicInt& val) 
+{  
+   InterlockedExchangeAdd(&_rep, val._rep);
+   return *this;
+}
+
+inline AtomicInt& AtomicInt::operator+=(Uint32 val) 
+{   
+   InterlockedExchangeAdd(&_rep, val);
+   return *this;
+}
+inline AtomicInt& AtomicInt::operator-=(const AtomicInt& val) 
+{  
+   LONG temp ;
+   InterlockedExchange(&temp, val._rep);
+   enter_crit(&_crit);
+   _rep -= temp;
+   exit_crit(&_crit);
+      
+   return *this;
+}
+inline AtomicInt& AtomicInt::operator-=(Uint32 val) 
+{  
+   LONG temp ;
+   InterlockedExchange(&temp, val._rep);
+   enter_crit(&_crit);
+   _rep -= temp;
+   exit_crit(&_crit);
+   
+   return *this;
+}
 
 #endif // Native Atomic Type 
 

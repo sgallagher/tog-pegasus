@@ -1,33 +1,5 @@
-//%2005////////////////////////////////////////////////////////////////////////
-//
-// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
-// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
-// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
-// IBM Corp.; EMC Corporation, The Open Group.
-// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
-// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
-// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
-// EMC Corporation; VERITAS Software Corporation; The Open Group.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-// 
-// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
-// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
-// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
-// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
-// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//==============================================================================
 
-/*  A Bison parser, made from WQL.y
+/*  A Bison parser, made from wql.y
     by GNU Bison version 1.28  */
 
 #define YYBISON 1  /* Identify Bison output.  */
@@ -61,7 +33,7 @@
 #define	TOK_FROM	276
 #define	TOK_UNEXPECTED_CHAR	277
 
-#line 9 "WQL.y"
+#line 37 "wql.y"
 
 
 #include <Pegasus/Common/Config.h>
@@ -97,12 +69,12 @@ PEGASUS_USING_PEGASUS;
 
 PEGASUS_NAMESPACE_BEGIN
 
-extern AutoPtr<WQLParserState> globalParserState;
+extern WQLParserState* globalParserState;
 
 PEGASUS_NAMESPACE_END
 
 
-#line 58 "WQL.y"
+#line 86 "wql.y"
 typedef union 
 {
    int intValue;
@@ -183,10 +155,10 @@ static const short yyrhs[] = {    29,
 
 #if YYDEBUG != 0
 static const short yyrline[] = { 0,
-   130,   136,   142,   146,   152,   156,   162,   166,   172,   179,
-   185,   190,   195,   201,   205,   209,   214,   223,   227,   233,
-   238,   243,   248,   253,   258,   265,   270,   277,   281,   287,
-   293,   300,   306,   311,   316,   321
+   158,   164,   170,   174,   180,   184,   190,   194,   200,   207,
+   213,   218,   223,   229,   233,   237,   242,   251,   255,   261,
+   266,   271,   276,   281,   286,   293,   298,   305,   309,   315,
+   321,   328,   334,   339,   344,   349
 };
 #endif
 
@@ -810,82 +782,82 @@ yyreduce:
   switch (yyn) {
 
 case 1:
-#line 131 "WQL.y"
+#line 159 "wql.y"
 {
 	WQL_TRACE(("YACC: start\n"));
     ;
     break;}
 case 2:
-#line 137 "WQL.y"
+#line 165 "wql.y"
 {
 
     ;
     break;}
 case 3:
-#line 143 "WQL.y"
+#line 171 "wql.y"
 {
 	globalParserState->statement->setAllProperties(true);
     ;
     break;}
 case 4:
-#line 147 "WQL.y"
+#line 175 "wql.y"
 {
 
     ;
     break;}
 case 5:
-#line 153 "WQL.y"
+#line 181 "wql.y"
 {
 	globalParserState->statement->appendSelectPropertyName(CIMName(yyvsp[0].strValue));
     ;
     break;}
 case 6:
-#line 157 "WQL.y"
+#line 185 "wql.y"
 {
 	globalParserState->statement->appendSelectPropertyName(CIMName(yyvsp[0].strValue));
     ;
     break;}
 case 7:
-#line 163 "WQL.y"
+#line 191 "wql.y"
 {
 
     ;
     break;}
 case 8:
-#line 167 "WQL.y"
+#line 195 "wql.y"
 {
 
     ;
     break;}
 case 9:
-#line 173 "WQL.y"
+#line 201 "wql.y"
 {
 	WQL_TRACE(("YACC: fromClause: TOK_FROM className(%s)\n", yyvsp[0].strValue));
 	globalParserState->statement->setClassName(CIMName(yyvsp[0].strValue));
     ;
     break;}
 case 10:
-#line 180 "WQL.y"
+#line 208 "wql.y"
 {
 
     ;
     break;}
 case 11:
-#line 186 "WQL.y"
+#line 214 "wql.y"
 {
 	WQL_TRACE(("YACC: TOK_OR\n"));
 	globalParserState->statement->appendOperation(WQL_OR);
     ;
     break;}
 case 12:
-#line 191 "WQL.y"
+#line 219 "wql.y"
 {
 	WQL_TRACE(("YACC: TOK_AND\n"));
 	globalParserState->statement->appendOperation(WQL_AND);
     ;
     break;}
 case 13:
-#line 196 "WQL.y"
+#line 224 "wql.y"
 {
 	WQL_TRACE(("YACC: TOK_NOT\n"));
 
@@ -893,127 +865,127 @@ case 13:
     ;
     break;}
 case 14:
-#line 202 "WQL.y"
+#line 230 "wql.y"
 {
 
     ;
     break;}
 case 15:
-#line 206 "WQL.y"
+#line 234 "wql.y"
 {
 
     ;
     break;}
 case 16:
-#line 210 "WQL.y"
+#line 238 "wql.y"
 {
 	WQLOperation op = yyvsp[0].intValue ? WQL_IS_TRUE : WQL_IS_FALSE;
 	globalParserState->statement->appendOperation(op);
     ;
     break;}
 case 17:
-#line 215 "WQL.y"
+#line 243 "wql.y"
 {
 	WQLOperation op = yyvsp[0].intValue ? WQL_IS_NOT_TRUE : WQL_IS_NOT_FALSE;
 	globalParserState->statement->appendOperation(op);
     ;
     break;}
 case 18:
-#line 224 "WQL.y"
+#line 252 "wql.y"
 {
 
     ;
     break;}
 case 19:
-#line 228 "WQL.y"
+#line 256 "wql.y"
 {
 
     ;
     break;}
 case 20:
-#line 234 "WQL.y"
+#line 262 "wql.y"
 {
 	WQL_TRACE(("YACC: TOK_LT\n"));
 	globalParserState->statement->appendOperation(WQL_LT);
     ;
     break;}
 case 21:
-#line 239 "WQL.y"
+#line 267 "wql.y"
 {
 	WQL_TRACE(("YACC: TOK_GT\n"));
 	globalParserState->statement->appendOperation(WQL_GT);
     ;
     break;}
 case 22:
-#line 244 "WQL.y"
+#line 272 "wql.y"
 {
 	WQL_TRACE(("YACC: TOK_LE\n"));
 	globalParserState->statement->appendOperation(WQL_LE);
     ;
     break;}
 case 23:
-#line 249 "WQL.y"
+#line 277 "wql.y"
 {
 	WQL_TRACE(("YACC: TOK_GE\n"));
 	globalParserState->statement->appendOperation(WQL_GE);
     ;
     break;}
 case 24:
-#line 254 "WQL.y"
+#line 282 "wql.y"
 {
 	WQL_TRACE(("YACC: TOK_EQ\n"));
 	globalParserState->statement->appendOperation(WQL_EQ);
     ;
     break;}
 case 25:
-#line 259 "WQL.y"
+#line 287 "wql.y"
 {
 	WQL_TRACE(("YACC: TOK_NE\n"));
 	globalParserState->statement->appendOperation(WQL_NE);
     ;
     break;}
 case 26:
-#line 266 "WQL.y"
+#line 294 "wql.y"
 {
 	WQL_TRACE(("YACC: nullPredicate : comparisonTerm IS NULL\n"));
 	globalParserState->statement->appendOperation(WQL_IS_NULL);
     ;
     break;}
 case 27:
-#line 271 "WQL.y"
+#line 299 "wql.y"
 {
 	WQL_TRACE(("YACC: nullPredicate : comparisonTerm IS NOT NULL\n"));
 	globalParserState->statement->appendOperation(WQL_IS_NOT_NULL);
     ;
     break;}
 case 28:
-#line 278 "WQL.y"
+#line 306 "wql.y"
 {
 	yyval.intValue = 1;
     ;
     break;}
 case 29:
-#line 282 "WQL.y"
+#line 310 "wql.y"
 {
 	yyval.intValue = 0;
     ;
     break;}
 case 30:
-#line 288 "WQL.y"
+#line 316 "wql.y"
 {
 	WQL_TRACE(("YACC: propertyName : TOK_IDENTIFIER(%s)\n", yyvsp[0].strValue));
 	yyval.strValue = yyvsp[0].strValue;
     ;
     break;}
 case 31:
-#line 294 "WQL.y"
+#line 322 "wql.y"
 {
 	WQL_TRACE(("YACC: TOK_IDENTIFIER %s\n", yyvsp[0].strValue));
 	yyval.strValue = yyvsp[0].strValue;
     ;
     break;}
 case 32:
-#line 301 "WQL.y"
+#line 329 "wql.y"
 {
 	globalParserState->statement->appendOperand(
 	    WQLOperand(yyvsp[0].strValue, WQL_PROPERTY_NAME_TAG));
@@ -1021,28 +993,28 @@ case 32:
     ;
     break;}
 case 33:
-#line 307 "WQL.y"
+#line 335 "wql.y"
 {
 	globalParserState->statement->appendOperand(
 	    WQLOperand(yyvsp[0].intValue, WQL_INTEGER_VALUE_TAG));
     ;
     break;}
 case 34:
-#line 312 "WQL.y"
+#line 340 "wql.y"
 {
 	globalParserState->statement->appendOperand(
 	    WQLOperand(yyvsp[0].doubleValue, WQL_DOUBLE_VALUE_TAG));
     ;
     break;}
 case 35:
-#line 317 "WQL.y"
+#line 345 "wql.y"
 {
 	globalParserState->statement->appendOperand(
 	    WQLOperand(yyvsp[0].strValue, WQL_STRING_VALUE_TAG));
     ;
     break;}
 case 36:
-#line 322 "WQL.y"
+#line 350 "wql.y"
 {
 	globalParserState->statement->appendOperand(
 	    WQLOperand(yyvsp[0].intValue != 0, WQL_BOOLEAN_VALUE_TAG));
@@ -1270,5 +1242,5 @@ yyerrhandle:
     }
   return 1;
 }
-#line 327 "WQL.y"
+#line 355 "wql.y"
 

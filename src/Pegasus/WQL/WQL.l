@@ -209,6 +209,12 @@ IDENT_CHAR [A-Za-z_]
     return TOK_GE; 
 }
 
+"<>" { 
+
+    WQL_TRACE(("LEX: %s [TOK_NE]\n", yytext));
+    return TOK_NE; 
+}
+
 ">" { 
 
     WQL_TRACE(("LEX: %s [TOK_GT]\n", yytext));

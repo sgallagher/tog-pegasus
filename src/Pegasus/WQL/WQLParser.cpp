@@ -52,7 +52,7 @@ extern void WQL_restart (FILE *input_file);
 
 PEGASUS_NAMESPACE_BEGIN
 
-AutoPtr<WQLParserState> globalParserState; 
+WQLParserState* globalParserState = 0; 
 static Mutex WQL_mutex;
 
 void WQLParser::parse(
@@ -71,7 +71,7 @@ void WQLParser::parse(
 
     statement.clear();
 
-    globalParserState.reset(new WQLParserState);
+    globalParserState = new WQLParserState;
     globalParserState->error = false;
     globalParserState->text = text;
     globalParserState->textSize = strlen(text) + 1;
@@ -84,13 +84,13 @@ void WQLParser::parse(
     {
 	String errorMessage = globalParserState->errorMessage;
 	cleanup();
-    globalParserState.reset();
+    delete globalParserState;
         PEG_METHOD_EXIT();
 	throw ParseError(errorMessage);
     }
 
     cleanup();
-    globalParserState.reset();
+    delete globalParserState;
     PEG_METHOD_EXIT();
 }
 

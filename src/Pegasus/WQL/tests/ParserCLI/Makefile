@@ -13,13 +13,21 @@ SOURCES = ParserCLI.cpp
 
 include $(ROOT)/mak/program.mak
 
-tests: test1 test2 test3 test4 test5 test6
+# Warning: These tests are based on s specific set of paramaters and their
+# values in ParserCLI. the values of w,x,y,z are preset and the
+# end result must be true.   Thus, for example w is always TRUE
+
+tests: test1 test2 test2a test3 test4 test5 test5a test6
 
 test1:
 	@ ParserCLI "SELECT w,x,y,z FROM ClassName"
 
 test2:
 	@ ParserCLI "SELECT w,x,y,z FROM ClassName WHERE w = TRUE OR w = FALSE"
+
+test2a:
+	@ ParserCLI "SELECT w,x,y,z FROM ClassName WHERE w = TRUE AND w != FALSE"
+	
 
 test3:
 	@ ParserCLI "SELECT w,x,y,z FROM ClassName WHERE w = TRUE AND x >= 10 AND y <= 13.10 AND z = \"Ten\"" 
@@ -30,5 +38,8 @@ test4:
 test5:
 	@ ParserCLI "SELECT * FROM ClassName WHERE NOT NOT NOT x < 5"
 
+test5a:
+	@ ParserCLI "SELECT w,x,y,z FROM ClassName WHERE w <> FALSE"
+	
 test6:
 	@ ParserCLI "SELECT * FROM ClassName WHERE v IS NULL"

@@ -120,7 +120,7 @@ int main(int argc, char** argv)
 	cerr << e.getMessage() << endl;
     }
 
-    cout << "+++++ passed all tests" << endl;
+    cout << argv[0] <<" +++++ passed all tests" << endl;
 
     return 0;
 }

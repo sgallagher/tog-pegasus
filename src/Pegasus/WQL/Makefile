@@ -15,7 +15,7 @@ endif
 LIBRARY = pegwql
 
 LIBRARIES = \
-	pegcommon \
+   pegcommon \
    pegquerycommon
 
 SOURCES = \

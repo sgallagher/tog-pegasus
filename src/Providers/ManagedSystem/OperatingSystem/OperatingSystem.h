@@ -38,6 +38,21 @@ PEGASUS_NAMESPACE_BEGIN
 class OperatingSystem
 {
    public:
+
+      enum OSTYPE {
+           Unknown, Other, MACOS, ATTUNIX, DGUX, DECNT, Digital_Unix, 
+           OpenVMS, HPUX, AIX, MVS, OS400, OS2, JavaVM, MSDOS, WIN3x, 
+           WIN95, WIN98, WINNT, WINCE, NCR3000, NetWare, OSF,
+           DCOS, Reliant_UNIX, SCO_UnixWare, SCO_OpenServer, Sequent, 
+           IRIX, Solaris, SunOS, U6000, ASERIES, TandemNSK, TandemNT, 
+           BS2000, LINUX, Lynx, XENIX, VM_ESA, Interactive_UNIX,
+           BSDUNIX, FreeBSD, NetBSD, GNU_Hurd, OS9, MACH_Kernel, 
+           Inferno, QNX, EPOC, IxWorks, VxWorks, MiNT, BeOS, HP_MPE, 
+           NextStep, PalmPilot, Rhapsody, Windows_2000, Dedicated,
+           OS390, VSE, TPF, Windows_Me
+           };
+
+   public:
       OperatingSystem(void);
       ~OperatingSystem(void);
       Boolean getCSName(String& csName);

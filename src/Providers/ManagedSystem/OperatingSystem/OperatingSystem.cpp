@@ -30,6 +30,8 @@
 
 #if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
 # include "OperatingSystem_HPUX.cpp"
+#elif defined (PEGASUS_OS_TYPE_WINDOWS)
+# include "OperatingSystem_Windows.cpp"
 #else
 # include "OperatingSystem_Stub.cpp"
 #endif

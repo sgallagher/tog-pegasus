@@ -15,6 +15,9 @@ ifeq ($(COMPILER),acc)
   ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
     ifdef PEGASUS_USE_RELEASE_DIRS
       LINK_COMMAND += -Wl,+s -Wl,+b/opt/wbem/lib:/usr/lib
+      ifeq ($(PEGASUS_PLATFORM), HPUX_PARISC_ACC)
+        LINK_COMMAND += -Wl,+cdp,$(PEGASUS_PLATFORM_SDKROOT)/usr/lib:/usr/lib -Wl,+cdp,$(PEGASUS_HOME)/lib:/opt/wbem/lib
+      endif
     else
       LINK_COMMAND += -Wl,+s -Wl,+b$(LIB_DIR):/usr/lib
     endif 

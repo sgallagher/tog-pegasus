@@ -126,6 +126,7 @@ void CMPIProvider::initialize(CIMOMHandle & cimom,
 
         const OperationContext opc;
         CMPI_ContextOnStack eCtx(opc);
+        CMPI_ThreadContext thr(&broker,&eCtx);
 
         if (miVector.genericMode) {
            CString mName=name.getCString();
@@ -237,6 +238,7 @@ void CMPIProvider::_terminate(void)
     const OperationContext opc;
     CMPIStatus rc={CMPI_RC_OK,NULL};
     CMPI_ContextOnStack eCtx(opc);
+    CMPI_ThreadContext thr(&broker,&eCtx);
 
     if (miVector.miTypes & CMPI_MIType_Instance) {
        rc=miVector.instMI->ft->cleanup(miVector.instMI,&eCtx);

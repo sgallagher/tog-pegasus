@@ -109,7 +109,6 @@
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Server/ShutdownService.h>
-#include <Pegasus/Common/Destroyer.h>
 
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
@@ -657,6 +656,7 @@ int main(int argc, char** argv)
     // Get an instance of the Config Manager.
     //
     configManager = ConfigManager::getInstance();
+    configManager->useConfigFiles = true;
 
     //
     // Get options (from command line and from configuration file); this

@@ -99,8 +99,6 @@ public:
             If a socket cannot be created.
         @exception CannotConnectException
             If the socket connection fails.
-        @exception UnexpectedFailureException
-            If any other failure occurs.
         <PRE>
             TBD
         </PRE>
@@ -110,8 +108,7 @@ public:
         const String& userName,
         const String& password
     ) throw(AlreadyConnectedException, InvalidLocatorException,
-            CannotCreateSocketException, CannotConnectException,
-            UnexpectedFailureException)
+            CannotCreateSocketException, CannotConnectException)
     {
         connect(address, NULL, userName, password);
     }
@@ -134,8 +131,6 @@ public:
             If a socket cannot be created.
         @exception CannotConnectException
             If the socket connection fails.
-        @exception UnexpectedFailureException
-            If any other failure occurs.
         <PRE>
             TBD
         </PRE>
@@ -146,8 +141,7 @@ public:
         const String& userName,
         const String& password
     ) throw(AlreadyConnectedException, InvalidLocatorException,
-            CannotCreateSocketException, CannotConnectException,
-            UnexpectedFailureException);
+            CannotCreateSocketException, CannotConnectException);
 
     /** connectLocal - Creates connection to the server for
         Local clients. The connectLocal connects to the CIM server
@@ -159,8 +153,7 @@ public:
     */
     void connectLocal()
         throw(AlreadyConnectedException, InvalidLocatorException,
-              CannotCreateSocketException, CannotConnectException,
-              UnexpectedFailureException);
+              CannotCreateSocketException, CannotConnectException);
 
     /** disconnect - Closes the connection with the server if the connection
         was open, simply returns if the connection was not open. Clients are
@@ -184,7 +177,7 @@ private:
         const String& address,
         SSLContext* sslContext)
       throw(CannotCreateSocketException, CannotConnectException,
-            InvalidLocatorException, UnexpectedFailureException);
+            InvalidLocatorException);
 
     Message* _doRequest(HTTPMessage * request) throw(ConnectionTimeoutException);
 

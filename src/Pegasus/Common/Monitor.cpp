@@ -249,7 +249,7 @@ int  Monitor::solicitSocketMessages(
     int type)
 {
 
-   PEG_METHOD_ENTER(TRC_HTTP, "Monitor::solictSocketMessage");
+   PEG_METHOD_ENTER(TRC_HTTP, "Monitor::solicitSocketMessages");
 
    _MonitorEntry entry(socket, queueId, type);
    entry._status = _MonitorEntry::IDLE;

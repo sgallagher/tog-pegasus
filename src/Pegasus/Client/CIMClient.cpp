@@ -365,11 +365,6 @@ void CIMClientRep::_connect()
         delete _responseDecoder;
         throw e;
     }
-    catch (UnexpectedFailureException& e)
-    {
-        delete _responseDecoder;
-        throw e;
-    }
     
     //
     // Create request encoder:

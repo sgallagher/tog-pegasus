@@ -102,7 +102,7 @@ void WbemExecClient::_connect(
     const String& address,
     SSLContext* sslContext
 ) throw(CannotCreateSocketException, CannotConnectException,
-        InvalidLocatorException, UnexpectedFailureException)
+        InvalidLocatorException)
 {
     //
     // Attempt to establish a connection:
@@ -114,7 +114,7 @@ void WbemExecClient::_connect(
                                                   this);
     //}
     // Could catch CannotCreateSocketException, CannotConnectException,
-    // InvalidLocatorException, or UnexpectedFailureException
+    // or InvalidLocatorException
     //catch (Exception& e)
     //{
     //    throw e;
@@ -130,8 +130,7 @@ void WbemExecClient::connect(
     const String& userName,
     const String& password
 ) throw(AlreadyConnectedException, InvalidLocatorException,
-        CannotCreateSocketException, CannotConnectException,
-        UnexpectedFailureException)
+        CannotCreateSocketException, CannotConnectException)
 {
     //
     // If already connected, bail out!
@@ -169,8 +168,7 @@ void WbemExecClient::connect(
 
 void WbemExecClient::connectLocal()
     throw(AlreadyConnectedException, InvalidLocatorException,
-          CannotCreateSocketException, CannotConnectException,
-          UnexpectedFailureException)
+          CannotCreateSocketException, CannotConnectException)
 {
     //
     // If already connected, bail out!

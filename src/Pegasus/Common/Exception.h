@@ -160,12 +160,6 @@ public:
     CannotConnectException(const String& locator);
 };
 
-class PEGASUS_COMMON_LINKAGE UnexpectedFailureException : public Exception
-{
-public:
-    UnexpectedFailureException();
-};
-
 class PEGASUS_COMMON_LINKAGE AlreadyConnectedException: public Exception
 {
 public:

@@ -123,11 +123,6 @@ CannotConnectException::CannotConnectException(const String& locator)
 {
 }
 
-UnexpectedFailureException::UnexpectedFailureException()
-    : Exception("Unexpected failure")
-{
-}
-
 AlreadyConnectedException::AlreadyConnectedException()
     : Exception("already connected")
 {

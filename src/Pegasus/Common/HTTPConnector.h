@@ -82,7 +82,6 @@ class PEGASUS_COMMON_LINKAGE HTTPConnector : public MessageQueueService
 	  @exception InvalidLocatorException
 	  @exception CannotCreateSocketException
 	  @exception CannotConnectException
-	  @exception UnexpectedFailureException
       */
       inline HTTPConnection* connect(
 	 const String& locator, 
@@ -102,7 +101,6 @@ class PEGASUS_COMMON_LINKAGE HTTPConnector : public MessageQueueService
 	  @exception InvalidLocatorException
 	  @exception CannotCreateSocketException
 	  @exception CannotConnectException
-	  @exception UnexpectedFailureException
       */
       HTTPConnection* connect(
 	 const String& locator, 

@@ -169,25 +169,28 @@ public:
         // Attempt to get the cached class definition used to validate results of this
         // operation. If it does not exist, then this feature is disabled for this
         // operation.
+        CIMClass cimClass;
+
         try
         {
             CachedClassDefinitionContainer container =
                 request->operationContext.get(CachedClassDefinitionContainer::NAME);
 
-            CIMClass cimClass = container.getClass();
+            cimClass = container.getClass();
 
-            _normalizer =
-                ObjectNormalizer(
-                    cimClass,
-                    request->localOnly,
-                    request->includeQualifiers,
-                    request->includeClassOrigin);
         }
         catch(Exception &)
         {
             // Do nothing. Container is missing, which implies normalization is disabled
             // for this operation.
         }
+
+        _normalizer =
+            ObjectNormalizer(
+                cimClass,
+                request->localOnly,
+                request->includeQualifiers,
+                request->includeClassOrigin);
         #endif
     }
 
@@ -244,25 +247,27 @@ public:
         // Attempt to get the cached class definition used to validate results of this
         // operation. If it does not exist, then this feature is disabled for this
         // operation.
+        CIMClass cimClass;
+
         try
         {
             CachedClassDefinitionContainer container =
                 request->operationContext.get(CachedClassDefinitionContainer::NAME);
 
-            CIMClass cimClass = container.getClass();
-
-            _normalizer =
-                ObjectNormalizer(
-                    cimClass,
-                    request->localOnly,
-                    request->includeQualifiers,
-                    request->includeClassOrigin);
+            cimClass = container.getClass();
         }
         catch(Exception &)
         {
             // Do nothing. Container is missing, which implies normalization is disabled
             // for this operation.
         }
+
+        _normalizer =
+            ObjectNormalizer(
+                cimClass,
+                request->localOnly,
+                request->includeQualifiers,
+                request->includeClassOrigin);
         #endif
     }
 
@@ -306,25 +311,27 @@ public:
         // Attempt to get the cached class definition used to validate results of this
         // operation. If it does not exist, then this feature is disabled for this
         // operation.
+        CIMClass cimClass;
+
         try
         {
             CachedClassDefinitionContainer container =
                 request->operationContext.get(CachedClassDefinitionContainer::NAME);
 
-            CIMClass cimClass = container.getClass();
-
-            _normalizer =
-                ObjectNormalizer(
-                    cimClass,
-                    false,
-                    false,
-                    false);
+            cimClass = container.getClass();
         }
         catch(Exception &)
         {
             // Do nothing. Container is missing, which implies normalization is disabled
             // for this operation.
         }
+
+        _normalizer =
+            ObjectNormalizer(
+                cimClass,
+                false,
+                false,
+                false);
         #endif
     }
 

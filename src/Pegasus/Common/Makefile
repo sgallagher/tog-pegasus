@@ -4,7 +4,7 @@ DIR = Pegasus/Common
 
 include $(ROOT)/mak/config.mak
 
-LOCAL_DEFINES = -DPEGASUS_COMMON_INTERNAL -DPEGASUS_INTERNALONLY
+LOCAL_DEFINES = -DPEGASUS_COMMON_INTERNAL -DPEGASUS_INTERNALONLY -DPEGASUS_MEMORY_DEBUG
 
 LIBRARY = pegcommon
 
@@ -83,6 +83,7 @@ SOURCES = \
     StatisticalData.cpp \
     Stopwatch.cpp \
     String.cpp \
+    suballoc.cpp \
     System.cpp \
     TimeValue.cpp \
     CertificateInfo.cpp \

@@ -30,7 +30,7 @@
 #define Pegasus_Platform_LINUX_IX86_GNU_h
 
 #include <Pegasus/Common/ConfigUnix.h>
-
+#define PEGASUS_PLATFORM_LINUX_GENERIC_GNU
 #define PEGASUS_OS_LINUX
 
 #define PEGASUS_ARCHITECTURE_IX86

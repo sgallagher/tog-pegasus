@@ -53,18 +53,18 @@
 // Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
-
-
+ 
+  
 #include <cstdlib>
 #include <cassert>
 #include <Pegasus/Common/Queue.h>
 #include <Pegasus/Common/Stopwatch.h>
-
-PEGASUS_USING_PEGASUS;
+#include <Pegasus/Common/suballoc.h>  
+PEGASUS_USING_PEGASUS; 
 PEGASUS_USING_STD;
 
-static char * verbose;
-
+static char * verbose;   
+ 
 int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE");
@@ -104,10 +104,10 @@ int main(int argc, char** argv)
     
 	Queue<Uint32> q2;
 	Uint32 queueSize = 10000;
-    
+      
 	for (Uint32 i = 0; i < queueSize; i++)
-	    q2.enqueue(i);
-    
+	    q2.enqueue(i); 
+     
 	assert(q2.size() == queueSize);
 	for (Uint32 i = 0; i < queueSize; i++)
 	    q2.dequeue();
@@ -125,7 +125,7 @@ int main(int argc, char** argv)
 		q2.enqueue(i);
 
 	    Stopwatch sw;
-	    Uint32 iterations = 100000;
+	    Uint32 iterations = 10000;
 	    for (Uint32 i = 0; i < iterations; i++)
 		 q3.enqueue(i);
 		 q3.dequeue();

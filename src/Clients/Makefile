@@ -22,7 +22,8 @@ DIRS = \
     cimperf \
     MCCATestClient \
     repupgrade  \
-    repupgrade/SSPModules/SampleSSPModule 
+    repupgrade/SSPModules/SampleSSPModule \
+    repupgrade/tests
 
 ifeq ($(OS),HPUX)
   DIRS += \

@@ -1728,8 +1728,6 @@ void RepositoryUpgrade::_addInstances(void)
                     Uint32                     n = 0;
                     Uint32                     ictr = 0;
 
-                    try
-                    {
                         instances = _oldRepository->enumerateInstances(
                                             oldNamespaces[i],
                                             oldClassNames[ctr],
@@ -1745,80 +1743,74 @@ void RepositoryUpgrade::_addInstances(void)
 #endif
                             for ( ictr=0; ictr<instances.size(); ictr++)
                             {
-                                //
-                                // Check if the instance must be created. 
-                                // If true, use the processed instance. If an 
-                                // SSP Module has chosen to ignore the instance 
-                                // then skip the instance creation.
-                                //
-                                CIMInstance processedInstance = 
+                                try
+                                {
+                                    //
+                                    // Check if the instance must be created. 
+                                    // If true, use the processed instance.  
+                                    // If an SSP Module has chosen to ignore 
+                                    // the instance then skip the 
+                                    // instance creation.
+                                    //
+                                    CIMInstance processedInstance = 
                                                instances[ictr].clone();
 
 #ifdef ENABLE_MODULE_PROCESSING
-                                if (!_invokeModules(instances[ictr], 
-                                          processedInstance))
-                                {
+                                    if (!_invokeModules(instances[ictr], 
+                                              processedInstance))
+                                    {
 #ifdef REPUPGRADE_DEBUG
-                                    cerr << "Ignoring instance creation : " 
-                                      << instances[ictr].getPath().toString() 
-                                      << endl;
+                                        cerr << "Ignoring instance creation : " 
+                                        << instances[ictr].getPath().toString() 
+                                        << endl;
 #endif
-                                    continue;
-                                }
+                                        continue;
+                                    }
 #endif
 
-                                //
-                                // Create the instance.
-                                //
+                                    //
+                                    // Create the instance.
+                                    //
 #ifdef REPUPGRADE_DEBUG
-					cout << "Creating instance" << endl;
+				    cout << "Creating instance" << endl;
 #endif
-                                _newRepository->createInstance(
+                                    _newRepository->createInstance(
                                                          oldNamespaces[i],
                                                          processedInstance);
 #ifdef REPUPGRADE_DEBUG
-					cout << "Instance created" << endl;
+		                    cout << "Instance created" << endl;
 #endif
-                             }
-                         }
-
-                      }
-                      catch (CIMException &ce)
-                      {
-                            if (ce.getCode() == CIM_ERR_ALREADY_EXISTS)
-                            {
-#ifdef REPUPGRADE_DEBUG
-                                cout << 
-                                "Instance already exists." << endl;
-#endif
-                            }
-                            else
-                            {
-                                if (instances.size() > 0)
-                                {
-                                   _logCreateInstanceError(oldNamespaces[i],
-                                                        instances[ictr],
-                                                        (ce.getMessage()+". ")); 
                                 }
-                            }
-                        }
-                        catch (Exception& e)
-                        {
-                            if (instances.size() > 0)
-                            {
-                                _logCreateInstanceError(oldNamespaces[i],
+                                catch (CIMException &ce)
+                                {
+                                    if (ce.getCode() == CIM_ERR_ALREADY_EXISTS)
+                                    {
+#ifdef REPUPGRADE_DEBUG
+                                       cout << 
+                                       "Instance already exists." << endl;
+#endif
+                                    }
+                                    else
+                                    {
+                                        _logCreateInstanceError(
+                                         oldNamespaces[i],
                                                         instances[ictr],
-                                                        (e.getMessage()+". ")); 
-                            }
+                                         (ce.getMessage()+". ")); 
+                                    }
+                                } 
+                                catch (Exception& e)
+                                {
+                                    _logCreateInstanceError(oldNamespaces[i],
+                                                   instances[ictr],
+                                                   (e.getMessage()+". ")); 
                         
-                        }
-                        catch (...)
-                        {
-                            if (instances.size() > 0)
-                            {
-                                _logCreateInstanceError(oldNamespaces[i],
-                                                        instances[ictr],
-                                                        String::EMPTY); 
+                                }
+                                catch (...)
+                                {
+                                    _logCreateInstanceError(oldNamespaces[i],
+                                                    instances[ictr],
+                                                    String::EMPTY); 
+                                }
                             }
                         }
                    } 
@@ -2065,6 +2057,15 @@ void RepositoryUpgrade::_logSetQualifierError(
 DynamicLibrary RepositoryUpgrade::_loadSSPModule(const String& moduleName)
 {
     String fileName;
+
+// 
+// Get the Special Process Module location.
+//
+// ATTN-SF-P3-20050209: Platforms that use a different directory path other than
+//                      $PEGASUS_HOME/lib must add to the code below.
+//                      Also RELEASE_DIRS configurations must be appropriately
+//                      updated.
+//
 
 #if defined (PEGASUS_OS_TYPE_WINDOWS)
     fileName = _pegasusHome + "/bin/" + 

@@ -3,8 +3,8 @@ ROOT = ../../..
 DIR = Pegasus/Server
 
 OBJECT_DIRS = \
-	ProviderManager \
 	ConfigurationManager \
+	ProviderRegistrationManager \
 	IndicationService
 
 include $(ROOT)/mak/config.mak
@@ -39,6 +39,8 @@ SOURCES = \
     CIMServer.cpp \
     CIMServerState.cpp \
     ServiceCIMOMHandle.cpp \
+    ProviderRegistrationManager/ProviderRegistrationTable.cpp \
+    ProviderRegistrationManager/ProviderRegistrationManager.cpp \
     ConfigurationManager/ConfigurationManagerQueue.cpp \
     ConfigurationManager/PG_RegistrationProvider.cpp
 

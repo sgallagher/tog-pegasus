@@ -160,6 +160,12 @@ will be deleted.
 16  (KS) 4 March 2002 - Correct problem with array constants not picking up
     all of the entires in the array. Bugzilla bug # 6.
    
+17. (Yi Zhou - HP) 4 March 2002 - Implemented provider registration manager 
+    to perform efficient lookup of instance provider, method provider, and 
+    indication provider. Also, implemented provider registration instances
+    operations.
+
+    Modified registration provider to use latest provider registration schema.
 
 -------------------------------------------------------------------
 Version 1.06 working towards 1.1 Started 13 December 2001

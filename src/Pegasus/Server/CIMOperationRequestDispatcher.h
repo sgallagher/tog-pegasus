@@ -50,6 +50,7 @@
 
 #include <Pegasus/Server/ServiceCIMOMHandle.h>
 #include <Pegasus/Server/ConfigurationManager/ConfigurationManagerQueue.h>
+#include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -151,6 +152,8 @@ public:
       void handleProcessIndicationRequest(
 	 CIMProcessIndicationRequestMessage* request);
 
+      ProviderRegistrationManager* getProviderRegistrationManager(void);
+
 protected:
 
       String _lookupProviderForClass(
@@ -170,6 +173,8 @@ protected:
       ServiceCIMOMHandle _cimom;
 
       ConfigurationManagerQueue _configurationManager;
+
+      ProviderRegistrationManager _providerRegistrationManager;
 
       AtomicInt _dying;
 

@@ -54,6 +54,7 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
       Base("CIMOpRequestDispatcher", MessageQueue::getNextQueueId()),
       _repository(repository),
       _cimom(this, server, repository),
+      _providerRegistrationManager(repository),
       _configurationManager(_cimom)
 {
    DDD(cout << _DISPATCHER << endl;)
@@ -2552,6 +2553,11 @@ void CIMOperationRequestDispatcher::handleProcessIndicationRequest(
    queue->enqueue(new CIMProcessIndicationRequestMessage(*request));
 
    return;
+}
+
+ProviderRegistrationManager* CIMOperationRequestDispatcher::getProviderRegistrationManager(void)
+{
+    return &_providerRegistrationManager;
 }
 
 /**

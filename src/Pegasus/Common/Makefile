@@ -122,6 +122,9 @@ endif
 ifeq ($(PEGASUS_PLATFORM),AIX_RS_IBMCXX)
 SOURCES += Signal.cpp
 AIX_LIB_PRIORITY=-20
+  ifdef PEGASUS_HAS_SSL
+    EXTRA_LIBRARIES += -L$(OPENSSL_HOME)/lib -lssl 
+  endif
 endif
 
 ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)

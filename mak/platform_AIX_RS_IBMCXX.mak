@@ -25,9 +25,11 @@ FLAGS += -qrtti=dyna
 SYS_LIBS = -ldl 
 
 # SSL support
-FLAGS += -DPEGAUS_HAS_SSL
-SYS_INCLUDES += -I/usr/linux/include
-SYS_LIBS += -L/usr/linux/lib -lssl
+PEGASUS_HAS_SSL = yes
+
+ifdef PEGASUS_HAS_SSL
+OPENSSL_HOME = /usr/linux
+endif
 
 CXX = xlC_r
 

@@ -4,7 +4,7 @@ PEGASUS_ZOS_PROGRAM_OBJECT = yes
 
 LOCAL_DEFINES =
 
-DIR = Providers/ManagedSystem/NTPProvider/tests/NTPTestClient
+DIR = Providers/ManagedSystem/NTPService/tests/NTPTestClient
 
 include $(ROOT)/mak/config.mak
 include $(ROOT)/src/Clients/libraries.mak

@@ -1,6 +1,6 @@
 include $(PEGASUS_ROOT)/mak/config.mak
 
-DIR = Pegasus/Server/tests/ResponseHandler
+DIR = Pegasus/ProviderManager/tests/ResponseHandler
 
 LIBRARIES = \
 	pegcommon \

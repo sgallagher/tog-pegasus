@@ -4,7 +4,7 @@ PEGASUS_ZOS_PROGRAM_OBJECT = yes
 
 LOCAL_DEFINES = -DUSE_CONNECTLOCAL
 
-DIR = Providers/ManagedSystem/DNSService/tests/DNSTestClient
+DIR = Providers/ManagedSystem/DNSService/tests/testclient
 
 include $(ROOT)/mak/config.mak
 include $(ROOT)/src/Clients/libraries.mak

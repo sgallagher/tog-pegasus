@@ -2,7 +2,7 @@ ROOT = $(PEGASUS_ROOT)
 
 PEGASUS_ZOS_PROGRAM_OBJECT = yes
 
-DIR = Clients/ntpinfo
+DIR = Clients/dnsinfo
 include $(ROOT)/mak/config.mak
 include $(ROOT)/src/Clients/libraries.mak
 

@@ -262,6 +262,15 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_USER          =
 #  define PEGASUS_CORE_DIR                  "/var/opt/wbem"
 #  undef PEGASUS_PAM_STANDALONE_PROC_NAME
 #  define PEGASUS_PAM_STANDALONE_PROC_NAME  "/opt/wbem/sbin/cimservera"
+# elif defined(PEGASUS_OS_AIX)
+#  undef PEGASUS_SSLCLIENT_CERTIFICATEFILE
+#  define PEGASUS_SSLCLIENT_CERTIFICATEFILE "/opt/freeware/cimom/pegasus/etc/client.pem"
+#  undef PEGASUS_SSLCLIENT_RANDOMFILE
+#  define PEGASUS_SSLCLIENT_RANDOMFILE      "/opt/freeware/cimom/pegasus/etc/ssl.rnd"
+#  undef PEGASUS_SSLSERVER_RANDOMFILE
+#  define PEGASUS_SSLSERVER_RANDOMFILE      "/opt/freeware/cimom/pegasus/etc/cimserver.rnd"
+#  undef PEGASUS_LOCAL_DOMAIN_SOCKET_PATH
+#  define PEGASUS_LOCAL_DOMAIN_SOCKET_PATH  "/opt/freeware/cimom/pegasus/etc/cimxml.socket"
 # elif defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
 #  undef PEGASUS_SSLCLIENT_CERTIFICATEFILE
 #  define PEGASUS_SSLCLIENT_CERTIFICATEFILE "/etc/pegasus/client.pem"

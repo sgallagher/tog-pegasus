@@ -449,6 +449,12 @@ void CIMClientRep::disconnect()
 }
 
 
+Boolean CIMClientRep::isConnected()
+{
+	return _connected;
+}
+
+
 // l10n start
 AcceptLanguages CIMClientRep::getRequestAcceptLanguages() const
 {

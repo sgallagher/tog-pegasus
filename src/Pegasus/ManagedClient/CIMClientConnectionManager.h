@@ -1,0 +1,60 @@
+//%2004////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2000, 2001, 2002  BMC Software, Hewlett-Packard Development
+// Company, L. P., IBM Corp., The Open Group, Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L. P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+//==============================================================================
+//
+// Author: Marek Szermutzky (MSzermutzky@de.ibm.com) PEP#139 Stage2
+//
+//%/////////////////////////////////////////////////////////////////////////////
+#ifndef Pegasus_CIMClientConnectionManager_h
+#define Pegasus_CIMClientConnectionManager_h
+
+#include <Pegasus/Common/Config.h>		// get platform specific definitions
+#include <Pegasus/Common/String.h>		// for usage of class String out of Pegasus/Common
+#include <Pegasus/Client/CIMClientRep.h>
+
+PEGASUS_NAMESPACE_BEGIN
+
+class CIMClientConnectionManager
+{
+
+public:
+
+	// class constructor
+	CIMClientConnectionManager() { };
+	
+	// virtual class destructor has to be implemented by specific implementation
+	virtual ~CIMClientConnectionManager() { };
+
+	// this function shall return the specified connection (task of specific ClientConnectionManager)
+	// of no connection is found, return NULL
+	virtual CIMClientRep* getConnection(
+								const String& host,
+								const String& port,
+								const CIMNamespaceName& nameSpace) = 0;
+
+};
+
+PEGASUS_NAMESPACE_END
+
+#endif  // Pegasus_CIMClientConnectionManager_h

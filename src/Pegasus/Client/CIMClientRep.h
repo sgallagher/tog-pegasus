@@ -121,6 +121,8 @@ public:
 
     void disconnect();
 
+	Boolean isConnected();
+
     virtual CIMClass getClass(
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
@@ -284,6 +286,8 @@ public:
         const Array<CIMParamValue>& inParameters,
         Array<CIMParamValue>& outParameters
     );
+	// moved for stage2 of PEP#139
+	static Uint32 _acquireIP(const char* hostname);
 
 private:
 
@@ -326,7 +330,6 @@ private:
 	// mszer : Additions Stage1 PEP#139
 
 	void compareObjectPathtoCurrentConnection(CIMObjectPath obj) throw(TypeMismatchException);
-	Uint32 _acquireIP(const char* hostname);
 };
 
 PEGASUS_NAMESPACE_END

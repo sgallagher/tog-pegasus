@@ -23,79 +23,35 @@
 //
 //==============================================================================
 //
-// Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
+// Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:
+// Modified By: Marek Szermutzky (mszermutzky@de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_AssociationTestProvider_h
-#define Pegasus_AssociationTestProvider_h
+#ifndef MCCA_TestAssocProvider_h
+#define MCCA_TestAssocProvider_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Provider/CIMAssociationProvider.h>
+#include <Pegasus/Provider/ProviderException.h>
 
-// Debug Tools
-
-#define CDEBUG(X) PEGASUS_STD(cout) << "MCCA_AssocTestProvider " << X << PEGASUS_STD(endl)
-//#define CDEBUG(X)
-//#define DEBUG(X) Logger::put (Logger::DEBUG_LOG, "Linux_ProcessorProvider", Logger::INFORMATION, "$0", X)
+// Debugging enabling/disabling point
+// #define CDEBUG(X) PEGASUS_STD(cout) << "MCCA_AssocTestProvider " << X << PEGASUS_STD(endl)
+#define CDEBUG(X);
 
 PEGASUS_NAMESPACE_BEGIN
 
-class AssociationTestProvider :
-	public CIMInstanceProvider, public CIMAssociationProvider
+class MCCA_TestAssocProvider : public CIMAssociationProvider
 {
 public:
-	AssociationTestProvider(void);
-	virtual ~AssociationTestProvider(void);
+	MCCA_TestAssocProvider(void);
+	virtual ~MCCA_TestAssocProvider(void);
 
 	// CIMProvider interface
 	virtual void initialize(CIMOMHandle & cimom);
 	virtual void terminate(void);
 
-	// CIMInstanceProvider interfaces
-	virtual void getInstance(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		const Boolean includeQualifiers,
-		const Boolean includeClassOrigin,
-		const CIMPropertyList & propertyList,
-		InstanceResponseHandler & handler);
-
-	virtual void enumerateInstances(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		const Boolean includeQualifiers,
-		const Boolean includeClassOrigin,
-		const CIMPropertyList & propertyList,
-		InstanceResponseHandler & handler);
-
-	virtual void enumerateInstanceNames(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		ObjectPathResponseHandler & handler);
-
-	virtual void modifyInstance(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		const CIMInstance & obj,
-		const Boolean includeQualifiers,
-		const CIMPropertyList & propertyList,
-		ResponseHandler & handler);
-
-	virtual void createInstance(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		const CIMInstance & obj,
-		ObjectPathResponseHandler & handler);
-
-	virtual void deleteInstance(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		ResponseHandler & handler);
-    
 	// CIMAssociationProvider interface
 	virtual void associators(
 		const OperationContext & context,
@@ -134,37 +90,14 @@ public:
 		const CIMName & resultClass,
 		const String & role,
 		ObjectPathResponseHandler & handler);
-    
+
+	CIMNamespaceName nameSpaceA;
+	CIMNamespaceName nameSpaceB;
+	CIMName testClassName;
+	CIMName assocClassName;
 
 protected:
-    struct _classTableItem {
-        CIMName className;
-        CIMClass thisClass;
-        Array<CIMInstance> instances;
-    };
-    Array<_classTableItem> _classTable;
-    CIMOMHandle _cimom;
-	// save for the class objects that we use
-    CIMClass _referencedClass;
-    CIMClass _referencedClassA;
-    CIMClass _assocClass;
-    CIMClass _assocLabeledClass;
 
-    // Built arrays of instances for each type
-    // corresponds to referencedClass
-    Array<CIMObjectPath> _instanceNames;
-	Array<CIMInstance> _instances;
-
-    // Corresponds to Lineage association class
-    Array<CIMObjectPath> _instanceNamesLineageDynamic;
-    Array<CIMInstance> _instancesLineageDynamic;
-    Uint32 _delay;
-    
-    // Corresponds to the LineageLabeled Class
-    Array<CIMObjectPath> _instanceNamesLabeledLineageDynamic;
-    Array<CIMInstance> _instancesLabeledLineageDynamic;
 };
-
 PEGASUS_NAMESPACE_END
-
-#endif
+#endif // end of #ifdef MCCA_TestAssocProvider_h

@@ -1,0 +1,15 @@
+#pragma locale ("en_US")
+
+// ===================================================================
+// 	MCCA_TestClass
+// ===================================================================
+
+[ Description ("Just a test class." )]
+class MCCA_TestClass
+{
+  [key]
+  uint32 theKey;
+  uint32 theData;
+  string theString;
+};
+

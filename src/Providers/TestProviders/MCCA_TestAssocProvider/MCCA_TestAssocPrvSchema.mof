@@ -1,0 +1,7 @@
+[Association]
+class MCCA_TestAssocClass
+{
+	MCCA_TestClass ref from;
+	MCCA_TestClass ref to;
+};
+

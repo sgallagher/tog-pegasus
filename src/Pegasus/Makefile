@@ -25,7 +25,8 @@ DIRS = \
     ControlProviders/ProviderRegistrationProvider \
     ControlProviders/NamespaceProvider \
     HandlerService \
-    IndicationService
+    IndicationService \
+    ManagedClient
 
 ifdef PEGASUS_ENABLE_SLP
 DIRS += \
@@ -54,6 +55,11 @@ endif
 ifdef PEGASUS_USE_PAM_STANDALONE_PROC
 DIRS += \
 	Security/Cimservera
+endif
+
+ifdef PEGASUS_ADVANCED_CIMCLIENT
+DIRS += \
+	ManagedClient
 endif
 	
 DIRS += \

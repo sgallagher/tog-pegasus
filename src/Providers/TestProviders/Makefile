@@ -11,6 +11,7 @@ DIRS = \
        DefaultInstanceProvider \
        ClientProvider \
        AlertIndicationProvider \
-       ProcessIndicationProvider
+       ProcessIndicationProvider \
+       MCCA_TestAssocProvider
 
 include $(ROOT)/mak/recurse.mak

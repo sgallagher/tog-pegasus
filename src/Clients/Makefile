@@ -18,7 +18,8 @@ DIRS = \
     tomof \
     ipinfo \
     g11ntest \
-    benchmarkTest
+    benchmarkTest \
+    MCCATestClient
 
 ifeq ($(OS),HPUX)
   DIRS += \

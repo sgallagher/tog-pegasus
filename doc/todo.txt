@@ -1,48 +1,68 @@
-Urgent
-======
 
-    -   Fix problem with cimserver not running properly when run without
-	options.
+    -   Support for NULL property lists (in interface and protocol).
 
-    -   Put cimserver back in the makefile.
+    -   Rename tests (prepend "Test" to each test).
 
-    -   Resolve whether the backslash should be permitted int namespaces.
+    -   Fix bug with cimserver.exe causing it to fail to start without te
+	"-l" option.
 
-    -   Work on developer's guidlines document.
+    -   Resolve whether the backslash should be permitted in namespaces.
 
-	    No STL (or other third party software).
-	    Indent by three.
-	    Braces on the next line.
-	    Always run regression tests before committing and do cvs -q update.
+    -   Create CIMOMContext (interface to CIMOM used b the provider).
 
-    -   Add CIMOM handle to provider interface.
+    -	Define Encoding module interface.
 
-    -	Fix case sensitivity problems in repository (just add an _Open method
-	that ignores the case of the file).
+    - 	Develop XMLEncodings module.
 
-    -	Add newly implemented repository operations to protocol and to
-	dispatcher.
+    - 	Develop BinaryEncodings module.
 
-    -	Change INVALID_CLASS exceptions to NOT_FOUND (they're wrong in
-	Repository).
+    - 	Develop MOFEncodings module.
 
-    -	Add tracing of output HTTP messages.
+    -	Employ BinaryEncodings module in repository (reduce disk usage).
 
-    -   Need CIMInstance::removeMethod() and CIMInstance::removeProperty().
-    -   Add a exists namespace operation under the repository stuff.  Maybe we
-    need more than this.
+    -   Combine repository instances, classes, and qualifiers  into their
+	respective files (to reduce the number of files).
 
-Topical To-Do List
-==================
+    -	Employ an efficient indexing scheme in repository (B-trees or hashing).
 
-    - 	Sun uses string message-ids. Pegasus uses integer.
-	Sun uses 2000.5.12.... format. Changed Pegasus to
-	use string message-ids. DONE.
+    -	Develop module manager: interface, lookup scheme, and loading scheme.
 
-    -   Some clients send '\n\n' to terminate HTTP headers.
-	We were only accepted '\r\n\r\n'. DONE.
+    -   Package Encodings classes as a module.
 
-    -	Provide way of printing out command line options help from cimserver.
+    -   Finalize repository assocations.
+
+    -   Add association CIM/HTTP operations.
+
+    -   Design association provider infrastructure.
+
+    -	Implement missing CIM protocol operations.
+
+    -   Implement good observer module interface which allows different levels:
+
+	-   Observation of client/CIMMOM connections/disconnection.
+
+	-   Observation of client/CIMOM communication.
+
+	-   Observation of CIMOM/repository communication.
+
+	-   Observation of CIMOM/provider communication.
+
+	-   Observation of CIMOM state transitions.
+
+    -	Pegasus providers for Sun WBEM Services.
+
+    -	Pegasus providers for WMI.
+
+    -	Sun WBEM Services providers for Pegasus.
+
+    -   CIM/HTTP Proxy for WMI.
+
+    -   Web Server/Pegasus Integration (use HTTP protocol capabilities of
+	web server rather than Pegasus).
+
+    -   Add CIMRepository::namespaceExists() method.
+
+    - 	Change HTTP message id's to this format: "YYYY.MM.DD.HH.MM.SS.NNNNN".
 
     - 	GetInstances() and GetClasses() need to use iterators on
 	provider and repository end. Otherwise, all classes or instance
@@ -50,187 +70,63 @@ Topical To-Do List
 
     -   Template bloat reduction.
 
-    -	Use YACC on Linux.
-
     - 	Need a tool to say which features are supported by a compiler.
 
     -   Support unloading of dynamic libraries (presently only load() is
 	supported).
 
--   Instances:
-
-    -	Implement CIMRepository::getProperty()
-
-    -	Implement CIMRepository::setProperty()
-
-    -	Implement CIMRepository::deleteInstance()
-
-    -	Implement CIMRepository::modifyInstance()
-
-    -	Implement CIMRepository::enumerateInstances()
-
-    -	Implement CIMRepository::enumerateInstanceNames()
-
-    -	Handle inheritance in all instance operations.
-
-    -	Double check that all these operations work across protocol.
-
-    -	Check that they have keys during validation.
-
--   Associations:
-
-    -	Implement CIMRepository::referencesOf()
-
-    -	Implement CIMRepository::associatorsOf()
-
-    -	Implement protocol stubs for these operations.
-
--   Exceptions:
-
-    -	Force __FILE__ and __LINE__ argument on every usage of CIMException.
-
     -	Clean up and consolidate exception classes.
 
-    -	Propagate underlying error messages across the CIM protocol.
-
--   References:
-
-    -	Validate arguments to CIMReference compound constructor and modifiers.
-	(namespaces, hosts, classnames, and keybindings)
-
-    -	Be sure that escape sequences are handled inside of object names. For
-	example:
-
-	    X.key1="Hello \"You\""
-
--   Protocol:
-
-    -	Improve protocol tracing to show messages in both directions.
-
-    -	The TCPChannel::writeN() method blocks when the client and server
-	are in the same process. That is because the client cannot read
-	anything as long as writeN() is blocked on a synchronous write.
-
-    -	Figure out how to handle getProperty() return type.
-
-    -	Provide ACE Channel implementation (for porting purposes)?
+    -	Asynchronous socket writes in the CIMOM (need write enabled flags).
 
     -	Handle PARAMETER.REFARRAY in Procotol?
 
-    -	Ignore extraneous XML elements (loosely valid).
+    -	Implemented stream oriented XML parsing.
 
--   Porting:
-
-    -	Replace "std::something" with "STD(something)"
-
-    -	Replace "using namespace std" with "USING_NAMESPACE_PEGASUS"
-
--   Aesthetics/Consistency/Usability:
-
-    -	Change getLength() and getSize() to just size(): "Brevity is the soul
-	of genius and of Lingerie".
+    -	Ignore extraneous XML elements (implement "loose validation" concept).
 
     -	Add methods to get objects by their names, in addition to index. For
 	example:
 
 	    CIMProperty CIMClass::getProperty(const String& name);
 
-    -	Perform walkthrough to expose consistency problems.
-
     -	Distinguish between private and public classes (otherwise, users may
 	come to depend on classes with unstable interfaces).
 
--   Documentation:
+    -	Walk through all code to expose consistency/aesthetic issues.
 
-    -	Suggest newlines after methods.
+    -	Provide ACE Channel implementation (for porting purposes)?
 
-    -	Suggest use of "/** ... */" instead of "///"
-
-    -	Refine header file documentation.
+    -	Expand datatime (setCurrentTime() and comparison and increment 
+	functions).
 
     -	Write Pegasus Architecture Paper.
 
-    -	Integrate DOC++ with make system (put all docs in doc tree):
-
--   Namespaces:
-
-    -	Implement create and destroy namespace (according to the standard).
-
--   Providers
-
-    -	Add CIM-Server handles to provider interface.
-
     -	Implement MOF provider registration scheme (according to the
-    standard).
+	standard).
 
--   WBEM Query Language
+    -	WBEM Query Language and integration.
 
-    -	Find someone to work on standard.
-
-    -	Implement leve-1 parser.
-
--   MOF compiler:
-
-    -	Work with Bob to identify work items.
-
--   Threading
-
-    -	Write thread queuing document (input and output thread queue per
-	provider).
-
-    -	Implement queuing.
-
-    -	Make reference counted objects thread safe (Mutexing and atomic
-	increments).
-
--   Connectors
-
-    -	Work out basic concepts (write paper).
+    -   Threading
 
     -	Package up pegasus in Install Shield application.
 
+    -	Internationalization: Handle UCS2 characters in XML 
+	(parsing and writing).
 
--   Install
-
-    -	Need install mechanism for Unix and Windows.
-
--   Interoperability
-
-    -	Fix reported bugs.
-
--   Internationalization
-
-    -	Handle UCS2 characters in XML (parsing and writing).
-
--   Repository:
-
-    -	Export to MOF.
-
--   Miscellaneous
+    -	Export of repository to MOF.
 
     -   Change CompareNoCase() to String::compareNoCase().
 
-    -	Place configuration startup parameters in Repository (e.g., port).
-
-    -	Integrate logging
-
-    -	Figure out how to handle CIM null values.
-
-    -	Generalize iteration.
+    -	Figure out how to handle CIM NULL values.
 
     -	Figure out how inheritance of keys works.
 
     -	Investiage weak assocations.
 
-    -	Provide conversions between DateTime and time_t.
-
--   Constraint hanlding
-
     -	Enforce constraint qualifiers.
 
     -	Disallow resetting size of fixed length arrays.
-
--   Optimization/Tuning
 
     -	Shrink object sizes.
 
@@ -240,25 +136,9 @@ Topical To-Do List
 
     -	Optimize clear method on arrays (to not release memory).
 
--   Porting
+    -	Provide conversions between DateTime and time_t.
 
     -	Port to Solaris
 
-    -	Port to HPUX
-
-    -	Port to AIX
-
--   Testing
-
-    -	Test case insensitivity of class names and qualifier names.
-
-    -	Run Purify on all sources (port to Sun first).
-
-    -	Run CIM/XML test suite.
-
--   Server
-
-    -	Use Service class in cimserver
-
-    -	Implement Service class on Unix (daemonization from Comer book).
-
+    -   Support multiple providers of the extact same class.
+	DiskController example and LanController.

@@ -40,7 +40,7 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Stopwatch.h>
 #include <Pegasus/Common/Exception.h>
-#ifndef PEGASUS_OS_ZOS
+#if !defined(PEGASUS_OS_ZOS) && ! defined(PEGASUS_OS_HPUX)
 #include <slp/slp.h>
 #endif
 
@@ -879,7 +879,7 @@ int main(int argc, char** argv)
 
     // Expand host to add port if not defined
 
-#ifndef PEGASUS_OS_ZOS
+#if !defined(PEGASUS_OS_ZOS) && ! defined(PEGASUS_OS_HPUX)
     if( useSLP )
     {
       slp_client discovery = slp_client();

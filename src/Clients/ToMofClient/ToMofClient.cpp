@@ -34,7 +34,6 @@
 #include <Pegasus/Common/OptionManager.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Stopwatch.h>
-#include <slp/slp.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;

@@ -1,6 +1,11 @@
 %option never-interactive
 %{
 
+extern int WQLInput(char* buffer, int& numRead, int numRequested);
+
+/* ATTN: works with Flex only */
+#define YY_INPUT(BUF, NREAD, NREQUESTED) WQLInput(BUF, NREAD, NREQUESTED)
+
 #include "WQLYACC.h"
 #include <cstring>
 

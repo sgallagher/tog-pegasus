@@ -1,6 +1,5 @@
 
-/*  A Bison parser, made from wql.y with Bison version GNU Bison version 1.24
-  */
+/* A Bison parser, made from wql.y with Bison version GNU Bison version 1.24 */
 
 #define YYBISON 1  /* Identify Bison output.  */
 

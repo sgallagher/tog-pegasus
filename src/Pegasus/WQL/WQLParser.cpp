@@ -32,11 +32,43 @@
 #include <iostream>
 #include "WQLParser.h"
 
+PEGASUS_USING_STD;
+
+extern int WQL_parse();
+
 PEGASUS_NAMESPACE_BEGIN
 
-WQLParser::WQLParser()
-{
+static Array<Sint8> _text;
+static int _offset;
 
+void WQLParser::parse(const Array<Sint8>& text)
+{
+    _text = text;
+    _offset = 0;
+    WQL_parse();
 }
 
 PEGASUS_NAMESPACE_END
+
+PEGASUS_USING_PEGASUS;
+
+int WQLInput(char* buffer, int& numRead, int numRequested)
+{
+    int remaining = _text.size() - _offset;
+
+    if (remaining == 0)
+    {
+	numRead = 0;
+	return 0;
+    }
+
+    if (remaining < numRequested)
+	numRequested = remaining;
+
+    memcpy(buffer, _text.getData() + _offset, numRequested);
+    _offset += numRequested;
+    numRead = numRequested;
+
+    PEGASUS_OUT(numRead);
+    return numRead;
+}

@@ -410,4 +410,51 @@ Array<CIMReference> HelloWorldProvider::_enumerateInstanceNames(
 	return(handler._objects);
 }
 
+void HelloWorldProvider::enableIndication(
+        const OperationContext & context,
+        const String & nameSpace,
+        const Array<String> & classNames,
+        const String & providerName,
+        const Array<String> & propertyList,
+        const Uint16 repeatNotificationPolicy,
+        const String & otherRepeatNotificationPolicy,
+        const CIMDateTime & repeatNotificationInterval,
+        const CIMDateTime & repeatNotificationGap,
+        const Uint16 repeatNotificationCount,
+        const String & condition,
+        const String & queryLanguage,
+        const CIMInstance & subscription,
+        ResponseHandler<CIMInstance> & handler)
+{
+}
+
+
+void HelloWorldProvider::disableIndication(
+        const OperationContext & context,
+        const String & nameSpace,
+        const Array<String> & classNames,
+        const String & providerName,
+        const CIMInstance & subscription,
+        ResponseHandler<CIMInstance> & handler)
+{
+}
+
+void HelloWorldProvider::modifyIndication(
+        const OperationContext & context,
+        const String & nameSpace,
+        const Array<String> & classNames,
+        const String & providerName,
+        const Array<String> & propertyList,
+        const Uint16 repeatNotificationPolicy,
+        const String & otherRepeatNotificationPolicy,
+        const CIMDateTime & repeatNotificationInterval,
+        const CIMDateTime & repeatNotificationGap,
+        const Uint16 repeatNotificationCount,
+        const String & condition,
+        const String & queryLanguage,
+        const CIMInstance & subscription,
+        ResponseHandler<CIMInstance> & handler)
+{
+}
+
 PEGASUS_NAMESPACE_END

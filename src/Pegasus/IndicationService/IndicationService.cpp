@@ -87,14 +87,48 @@ IndicationService::IndicationService (
          _repository (repository),
          _providerRegManager (providerRegManager)
 {
+    _enableSubscriptionsForNonprivilegedUsers = false;
+
     try
     {
-        //
-        //  Initialize
-        //
+        // Determine the value for the configuration parameter
+        // enableSubscriptionsForNonprivilegedUsers
+        ConfigManager* configManager = ConfigManager::getInstance();
+
+        if (String::equalNoCase(
+            configManager->getCurrentValue("enableAuthentication"), "true"))
+        {
+            _enableSubscriptionsForNonprivilegedUsers = String::equalNoCase(
+                            configManager->getCurrentValue(
+                            "enableSubscriptionsForNonprivilegedUsers"), "true");
+        }
+        else
+        {
+            // Authentication needs to be enabled to perform authorization
+            // tests.
+            _enableSubscriptionsForNonprivilegedUsers = true;
+        }
+     }
+     catch (...)
+     {
+        // If there is an error reading the configuration file then
+        // the value of _enableSubscriptionsForNonprivilegedUsers will
+        // default to false (i.e., the more restrictive security
+        // setting.
+        PEG_TRACE_STRING (TRC_INDICATION_SERVICE, Tracer::LEVEL4, 
+           "Failure attempting to read configuration parameters during initialization.");
+     }
+
+    Tracer::trace (TRC_INDICATION_SERVICE, Tracer::LEVEL4, 
+        "Value of _enableSubscriptionsForNonprivilegedUsers is %d", 
+        _enableSubscriptionsForNonprivilegedUsers);
+
+    try
+    {
+        // Initialize the Indication Service
         _initialize ();
     }
-    catch (Exception e)
+    catch (Exception & e)
     {
         //
         //  ATTN-CAKG-P3-20020425: Log a message
@@ -218,7 +252,6 @@ void IndicationService::handleEnqueue(Message* message)
       case CIM_CREATE_INSTANCE_REQUEST_MESSAGE:
 	 try 
 	 {
-	    
 	    _handleCreateInstanceRequest(message);
 	 }
 	 catch( ... ) 
@@ -556,6 +589,44 @@ void IndicationService::_terminate (void)
     PEG_METHOD_EXIT ();
 }
 
+void IndicationService::_checkNonprivilegedAuthorization(
+    const String & userName)
+{
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+          "IndicationService::_checkNonprivilegedAuthorization");
+
+    Boolean accessDenied = false;
+    try
+    {
+        if (_enableSubscriptionsForNonprivilegedUsers)
+        {
+           return;
+        }
+        else
+        {
+           PEG_TRACE_STRING (TRC_INDICATION_SERVICE, Tracer::LEVEL4, 
+              "_checkNonprivilegedAuthorization - checking whether user is privileged"
+              + userName);
+           if (!System::isPrivilegedUser(userName))
+           {
+               accessDenied = true;
+           }
+        }
+    }
+    catch (...)
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
+    }
+    if (accessDenied)
+    {
+       MessageLoaderParms parms(_MSG_NON_PRIVILEGED_ACCESS_DISABLED_KEY,
+          _MSG_NON_PRIVILEGED_ACCESS_DISABLED, userName);
+       PEG_METHOD_EXIT();
+       throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED, parms);
+    }
+} 
+
 void IndicationService::_handleCreateInstanceRequest (const Message * message)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
@@ -573,6 +644,8 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
 
     try
     {
+        _checkNonprivilegedAuthorization(request->userName);
+
         if (_canCreate (instance, request->nameSpace))
         {
 
@@ -740,6 +813,8 @@ void IndicationService::_handleGetInstanceRequest (const Message* message)
 
     try
     {
+        _checkNonprivilegedAuthorization(request->userName);
+
         //
         //  Get instance from repository
         //
@@ -859,6 +934,8 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
 
     try
     {
+        _checkNonprivilegedAuthorization(request->userName);
+
         enumInstances = _repository->enumerateInstancesForClass
             (request->nameSpace, request->className, 
              request->deepInheritance, request->localOnly, 
@@ -1000,6 +1077,8 @@ void IndicationService::_handleEnumerateInstanceNamesRequest
 
     try
     {
+        _checkNonprivilegedAuthorization(request->userName);
+
         enumInstanceNames = _repository->enumerateInstanceNamesForClass
             (request->nameSpace, request->className, false);
     }
@@ -1057,6 +1136,8 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
     
     try
     {
+        _checkNonprivilegedAuthorization(request->userName);
+
         //
         //  Get the instance name
         //
@@ -1474,6 +1555,8 @@ void IndicationService::_handleDeleteInstanceRequest (const Message* message)
 
     try
     {
+        _checkNonprivilegedAuthorization(request->userName);
+
         //
         //  Check if instance may be deleted -- a filter or handler instance 
         //  referenced by a subscription instance may not be deleted
@@ -7575,5 +7658,11 @@ const char IndicationService::_MSG_NO_PROVIDER [] =
 
 const char IndicationService::_MSG_NO_PROVIDER_KEY [] =
     "IndicationService.IndicationService._MSG_NO_PROVIDER";
+
+const char IndicationService::_MSG_NON_PRIVILEGED_ACCESS_DISABLED [] =
+    "User ($0) is not authorized to perform this operation.";
+
+const char IndicationService::_MSG_NON_PRIVILEGED_ACCESS_DISABLED_KEY [] =
+    "IndicationService.IndicationService._MSG_NON_PRIVILEGED_ACCESS_DISABLED";
 
 PEGASUS_NAMESPACE_END

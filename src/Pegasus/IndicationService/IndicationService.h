@@ -1291,6 +1291,20 @@ private:
         const CIMInstance & instance,
         Uint16 & state) const;
 
+    /**
+        This function peforms an authorization test based on the
+        value of the enableSubscriptionForNonprivilegedUsers.
+
+        @param   userName                String
+
+        @return  True  if authentication is not enabled or the 
+                       user is a privileged system user. 
+                 False if authentication is enabled and the
+                       user is not privileged.
+     */
+    void _checkNonprivilegedAuthorization (
+        const String & userName);
+
     CIMRepository * _repository;
 
     /**
@@ -1312,6 +1326,13 @@ private:
         FUTURE: Integer representing queue ID for accessing Repository Service
      */
     //Uint32 _repository;
+
+    /**
+        Boolean indicating that the CIM Server has been configured to
+        allow non-privileged users read and write access to the
+        Subscription classes.
+     */
+    Boolean _enableSubscriptionsForNonprivilegedUsers;
 
     /**
         Active Subscriptions information table.  Access to this table is
@@ -1708,6 +1729,10 @@ private:
     static const char _MSG_NO_PROVIDER [];
     
     static const char _MSG_NO_PROVIDER_KEY [];
+
+    static const char _MSG_NON_PRIVILEGED_ACCESS_DISABLED [];
+ 
+    static const char _MSG_NON_PRIVILEGED_ACCESS_DISABLED_KEY [];
 };
 
 PEGASUS_NAMESPACE_END

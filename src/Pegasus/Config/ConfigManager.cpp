@@ -149,6 +149,7 @@ static struct OwnerEntry _properties[] =
     {"repositoryDir",       (ConfigPropertyOwner* )ConfigManager::fileSystemOwner},
     {"providerDir",         (ConfigPropertyOwner* )ConfigManager::fileSystemOwner},
     {"enableRemotePrivilegedUserAccess", (ConfigPropertyOwner* )ConfigManager::securityOwner},
+    {"enableSubscriptionsForNonprivilegedUsers", (ConfigPropertyOwner* )ConfigManager::securityOwner},
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(_properties) / sizeof(struct OwnerEntry);

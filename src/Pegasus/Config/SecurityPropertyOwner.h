@@ -223,6 +223,8 @@ private:
 
     struct ConfigProperty*      _trustFilePath;
 
+    struct ConfigProperty*      _enableSubscriptionsForNonprivilegedUsers;
+
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
     struct ConfigProperty*      _kerberosServiceName;
 #endif

@@ -2706,6 +2706,13 @@ CIM server listening on HTTPS port {0}."}
         */
         IndicationService.IndicationService._MSG_NO_PROVIDER:string {"PGS10215: Subscription ({0}) has no provider."}
         
+        /**
+        * @note  PGS10216: 
+        *    Message added after Pegasus 2.3 freeze
+        *    Substitution {0} is a user name (a string)
+        */
+        IndicationService.IndicationService._MSG_NON_PRIVILEGED_ACCESS_DISABLED:string {"PGS10216: User ({0}) is not authorized to perform this operation."}
+        
 
         // ==========================================================
         // Messages for IndicationHandlerService

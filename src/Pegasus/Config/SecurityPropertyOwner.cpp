@@ -78,6 +78,7 @@ static struct ConfigPropertyRow properties[] =
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
     {"kerberosServiceName", "cimom", 0, 0, 0, 1}
 #endif
+    {"enableSubscriptionsForNonprivilegedUsers", "true", 0, 0, 0, 0},
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
@@ -95,6 +96,7 @@ SecurityPropertyOwner::SecurityPropertyOwner()
     _keyFilePath = new ConfigProperty();
     _trustFilePath = new ConfigProperty();
     _enableRemotePrivilegedUserAccess = new ConfigProperty();
+    _enableSubscriptionsForNonprivilegedUsers = new ConfigProperty();
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
         _kerberosServiceName = new ConfigProperty();
 #endif
@@ -112,6 +114,7 @@ SecurityPropertyOwner::~SecurityPropertyOwner()
     delete _keyFilePath;
     delete _trustFilePath;
     delete _enableRemotePrivilegedUserAccess;
+    delete _enableSubscriptionsForNonprivilegedUsers;
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
      delete _kerberosServiceName;
 #endif
@@ -275,6 +278,18 @@ void SecurityPropertyOwner::initialize()
             _enableRemotePrivilegedUserAccess->domainSize = properties[i].domainSize;
             _enableRemotePrivilegedUserAccess->externallyVisible = properties[i].externallyVisible;
         }
+        else if (String::equalNoCase(
+            properties[i].propertyName, "enableSubscriptionsForNonprivilegedUsers"))
+        {
+            _enableSubscriptionsForNonprivilegedUsers->propertyName = properties[i].propertyName;
+            _enableSubscriptionsForNonprivilegedUsers->defaultValue = properties[i].defaultValue;
+            _enableSubscriptionsForNonprivilegedUsers->currentValue = properties[i].defaultValue;
+            _enableSubscriptionsForNonprivilegedUsers->plannedValue = properties[i].defaultValue;
+            _enableSubscriptionsForNonprivilegedUsers->dynamic = properties[i].dynamic;
+            _enableSubscriptionsForNonprivilegedUsers->domain = properties[i].domain;
+            _enableSubscriptionsForNonprivilegedUsers->domainSize = properties[i].domainSize;
+            _enableSubscriptionsForNonprivilegedUsers->externallyVisible = properties[i].externallyVisible;
+        }
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
         else if (String::equalNoCase(properties[i].propertyName, "kerberosServiceName"))
         {
@@ -331,6 +346,11 @@ struct ConfigProperty* SecurityPropertyOwner::_lookupConfigProperty(
                  _enableRemotePrivilegedUserAccess->propertyName, name))
     {
         return _enableRemotePrivilegedUserAccess;
+    }
+    else if (String::equalNoCase(
+                 _enableSubscriptionsForNonprivilegedUsers->propertyName, name))
+    {
+        return _enableSubscriptionsForNonprivilegedUsers;
     }
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
     else if (String::equalNoCase(_kerberosServiceName->propertyName, name))
@@ -617,6 +637,13 @@ Boolean SecurityPropertyOwner::isValid(const String& name, const String& value)
         return true;
     }
     else if (String::equalNoCase(_enableRemotePrivilegedUserAccess->propertyName, name))
+    {
+        if(String::equal(value, "true") || String::equal(value, "false"))
+        {
+            retVal = true;
+        }
+    }
+    else if (String::equalNoCase(_enableSubscriptionsForNonprivilegedUsers->propertyName, name))
     {
         if(String::equal(value, "true") || String::equal(value, "false"))
         {

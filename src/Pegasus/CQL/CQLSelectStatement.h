@@ -135,7 +135,7 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
         /**  The input parameter className is one of the
               classes from the FROM list.
            */
-        const CIMObjectPath& inClassName);
+        const CIMObjectPath& inClassName = CIMObjectPath());
 
     /** Modifier. This method should not be called by the user (only by the
             parser).

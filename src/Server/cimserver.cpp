@@ -73,6 +73,7 @@
 //////////////////////////////////////////////////////////////////////
 
 
+#include <Pegasus/Common/Config.h>
 #include <iostream>
 #include <cassert>
 #include <cstdlib>
@@ -236,6 +237,7 @@ void PrintHelp(const char* arg0)
     usage.append ("    -install    - installs pegasus as a Windows NT Service\n");
     usage.append ("    -remove     - removes pegasus as a Windows NT Service\n");
     usage.append ("    -slp        - registers pegasus as a service with SLP\n\n");
+    usage.append ("    -SSL        - uses SSL\n\n");
 
     usage.append ("  configProperty=value\n");
     usage.append ("    port=nnnn            - sets port number to listen on\n");
@@ -340,6 +342,7 @@ int main(int argc, char** argv)
     String portOption = String::EMPTY;
     String logsDirectory = String::EMPTY;
     Boolean useSLP = false;
+    Boolean useSSL = false;
     Boolean daemonOption = false;
     Boolean shutdownOption = false;
     Boolean forceOption = false;
@@ -638,6 +641,11 @@ int main(int argc, char** argv)
         {
             useSLP =  true;
         }
+
+        if (String::equal(configManager->getCurrentValue("SSL"), "true"))
+        {
+            useSSL =  true;
+        }
     }
     catch (UnrecognizedConfigProperty e)
     {
@@ -654,16 +662,18 @@ int main(int argc, char** argv)
 	 << (pegasusIOTrace ? " Tracing to Display ": " ") 
          << (pegasusIOLog ? " Tracing to Log ": " ")
 	 << (useSLP ? " SLP reg. " : " No SLP ")
+         << (useSSL ? " Use SSL " : " No SSL ")
 	<< endl;
 
     // Put server start message to the logger
     Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
-	"Start $0 $1 port $2 $3 $4",
+	"Start $0 $1 port $2 $3 $4 $5",
 		PEGASUS_NAME, 
 		PEGASUS_VERSION,
 		address,
 		(pegasusIOTrace ? " Tracing": " "),
-		(useSLP ? " SLP on " : " SLP off "));
+		(useSLP ? " SLP on " : " SLP off "),
+                (useSSL ? " Use SSL " : " No SSL "));
 
     // do we need to run as a daemon ?
     if (daemonOption)
@@ -688,7 +698,7 @@ int main(int argc, char** argv)
 #endif
 
 	Monitor monitor;
-	CIMServer server(&monitor, pegasusHome);
+	CIMServer server(&monitor, pegasusHome, useSSL);
 
 	// bind throws an exception of the bind fails
 	cout << "Binding to " << address << endl;

@@ -33,13 +33,20 @@ PEGASUS_PAM_AUTHENTICATION {
 	Build in PAM support, 
 	Enabling PAM will comile PAM support in Pegasus and provide authentication .}
 
-ENABLE_REMOTE_CMPI {
+PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER {
+	Boolean,
+	--enable-cmpi,
+	Build in CMPI support,
+	Enabling CMPI support. This is required to have Remote CMPI support of if you want to use/write CMPI providers.}
+
+PEGASUS_ENABLE_REMOTE_CMPI {
+	PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER,
 	Boolean,
 	--enable-remote-cmpi,
 	Enable Remote CMPI extension,
 Remote CMPI enables providers to be run on remote systems without the need for an extra CIMOM. It uses a special proxying provider to relay requests to a remote location using so-called communication layers. The remote side has to start a CMPIRDaemon process, which accepts remote requests and passes them on to CMPI style providers.  Remote providers are fully binary compatible and need not to be recompiled.  Currently there are two types of remote provider available: out-of-process providers and TCP/IP providers using a separate daemon program.}
 
-ENABLE_JMPI_PROVIDER_MANAGER {
+PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER {
 	Boolean,
 	--enable-jmpi,
 	Enable Java provider support,

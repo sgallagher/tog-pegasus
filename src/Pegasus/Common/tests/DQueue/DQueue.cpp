@@ -189,6 +189,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_sending_thread(void *parm)
 	 cout << endl << "IPC exception sending client msg" << endl;
 	 abort();
       } 
+      pegasus_yield();
    }
    
    while(my_qs->incoming->count() > 0 || my_qs->outgoing->count() > 0)
@@ -244,6 +245,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL server_thread(void *parm)
 	    abort();
 	 } 
       }
+      pegasus_yield();
+      
    }
    my_handle->exit_self((PEGASUS_THREAD_RETURN)1);
    return(0);
@@ -278,6 +281,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_receiving_thread(void *parm)
 	 delete msg;
 	 replies++;
       }
+      pegasus_yield();
    }
    my_handle->exit_self((PEGASUS_THREAD_RETURN)1);
    return(0);

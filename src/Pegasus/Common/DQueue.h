@@ -417,6 +417,10 @@ template<class L> class PEGASUS_COMMON_LINKAGE AsyncDQueue: virtual public inter
       
       inline void lock(PEGASUS_THREAD_TYPE myself) throw(IPCException)
       {
+	 if(_disallow->value() > 0)
+	 {
+	    throw ListClosed();
+	 }
 	 _cond->lock(myself);
       }
       
@@ -599,7 +603,17 @@ template<class L> class PEGASUS_COMMON_LINKAGE AsyncDQueue: virtual public inter
 	 L *ret = _remove_no_lock(key);
 	 while( ret == 0 )
 	 {
+	    if(_disallow->value() > 0)
+	    {
+	       unlock();	    
+	       throw ListClosed();
+	    }
 	    _node->unlocked_wait(pegasus_thread_self());
+	    if(_disallow->value() > 0)
+	    {
+	       unlock();	    
+	       throw ListClosed();
+	    }
 	    ret = _remove_no_lock(key);
 	 }
 	 if(ret != 0)

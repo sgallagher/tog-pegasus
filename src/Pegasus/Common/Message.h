@@ -41,7 +41,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-// REVIEW: could class be renamed to MessageMask (coding standard)?
+// REVIEW: could class be renamed to MessageMask (coding standard)
 
 class PEGASUS_COMMON_LINKAGE message_mask 
 {

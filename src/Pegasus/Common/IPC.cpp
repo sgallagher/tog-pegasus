@@ -576,27 +576,23 @@ Condition::~Condition(void)
 void Condition::signal(PEGASUS_THREAD_TYPE caller)
    throw(IPCException)
 {
-   if(_disallow.value() > 0) 
-      throw ListClosed();
-   lock_object(caller);
-
+   cond_mutex->lock(caller);
+   
    try
    {
       unlocked_signal(caller);
    }
    catch(...)
    {
-      unlock_object();
+      cond_mutex->unlock();
       throw;
    }
-   unlock_object();
+      cond_mutex->unlock();
 }
 
 void Condition::unlocked_signal(PEGASUS_THREAD_TYPE caller)
    throw(IPCException)
 {
-   if(_disallow.value() > 0)
-      return;
       // enforce that the caller owns the conditional lock
    if(_cond_mutex->_mutex.owner != caller)
       throw(Permission((PEGASUS_THREAD_TYPE)caller));

@@ -199,8 +199,7 @@ inline void Mutex::unlock() throw(Permission)
 inline void Condition::signal(PEGASUS_THREAD_TYPE caller) 
    throw(IPCException) 
 { 
-   if(_disallow.value() > 0) 
-      return;
+
    _cond_mutex->lock(caller); 
    pthread_cond_broadcast(&_condition);
    _cond_mutex->unlock(); 
@@ -239,6 +238,11 @@ inline void Condition::wait_lock_object(PEGASUS_THREAD_TYPE caller, int millisec
    if(_disallow.value() > 0) 
       throw ListClosed();
    _cond_mutex->timed_lock(milliseconds, caller);
+   if( _disallow.value() > 0 )
+   {
+      _cond_mutex->unlock();
+      throw ListClosed();
+   }
 }
 
 inline void Condition::unlock_object(void)
@@ -277,9 +281,12 @@ inline void Condition::unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE
    {
       retcode = pthread_cond_timedwait(&_condition, &_cond_mutex->_mutex.mut, (struct timespec *)&now) ;
    } while ( retcode == EINTR ) ;
+
    if(retcode)
       throw(TimeOut(caller));
+
    _cond_mutex->_set_owner(caller);
+   
 }
 
 #endif // native conditional 

@@ -245,9 +245,7 @@ inline AtomicInt& AtomicInt::operator-=(Uint32 val)
 inline void Condition::signal(PEGASUS_THREAD_TYPE caller)
    throw(IPCException)
 {
-   if(_disallow.value() > 0)
-      throw ListClosed();
-   lock_object(caller);
+   _cond_mutex->lock(caller);
    try 
    {
       unlocked_signal(caller);
@@ -257,28 +255,21 @@ inline void Condition::signal(PEGASUS_THREAD_TYPE caller)
       unlock_object();
       throw;
    }
-   unlock_object();
+   _cond_mutex->unlock();
 }
 
 inline void Condition::unlocked_signal(PEGASUS_THREAD_TYPE caller)
    throw(IPCException)
 {
-   if(_disallow.value() > 0)
-      throw ListClosed();
-
    if(_cond_mutex->_mutex.owner != caller)
       throw Permission((PEGASUS_THREAD_TYPE)caller);
    PulseEvent(_condition._event);
 }
 
-
-
-
-
 inline void Condition::lock_object(PEGASUS_THREAD_TYPE caller)
    throw(IPCException)
 {
-   if(_disallow.value() > 0)
+   if(_disallow.value() > 0 ) 
       throw ListClosed();
    _cond_mutex->lock(caller);
 }
@@ -297,13 +288,17 @@ inline void Condition::wait_lock_object(PEGASUS_THREAD_TYPE caller, int millisec
    if(_disallow.value() > 0) 
       throw ListClosed();
    _cond_mutex->timed_lock(milliseconds, caller);
+   if( _disallow.value() > 0 )
+   {
+      _cond_mutex.unlock();
+      throw ListClosed();
+   }
 }
 
 inline void Condition::unlock_object(void)
 {
    _cond_mutex->unlock();
 }
-
 
 inline void Condition::unlocked_wait(PEGASUS_THREAD_TYPE caller)
 {
@@ -327,11 +322,10 @@ inline void Condition::unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE
 				       _condition._event,
 				       milliseconds, 
 				       FALSE);
-   _cond_mutex->lock(caller);
    if(retcode == WAIT_TIMEOUT)
       throw TimeOut(pegasus_thread_self());
-   
-   
+
+   _cond_mutex->lock(caller);
 }
 
 

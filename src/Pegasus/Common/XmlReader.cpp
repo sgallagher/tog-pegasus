@@ -314,12 +314,12 @@ Boolean XmlReader::testStartTagOrEmptyTag(
     const char* tagName)
 {
     if (!parser.next(entry) ||
-	(entry.type != XmlEntry::START_TAG &&
-	entry.type != XmlEntry::EMPTY_TAG) ||
-	strcmp(entry.text, tagName) != 0)
+       (entry.type != XmlEntry::START_TAG &&
+        entry.type != XmlEntry::EMPTY_TAG) ||
+	    strcmp(entry.text, tagName) != 0)
     {
-	parser.putBack(entry);
-	return false;
+	    parser.putBack(entry);
+	    return false;
     }
 
     return true;
@@ -1598,12 +1598,11 @@ CIMValue XmlReader::stringToValue(
             // Convert the non-NULL string to a CIMObject (containing either a
             // CIMInstance or a CIMClass).
                 
-            // First we need to create a new "temporary" XMLParser that is
+            // First we need to create a new "temporary" XmlParser that is
             // just the value of the Embedded Object in String representation.
             char* tmp_buffer = new char[strlen(valueString) + 1];
             strcpy(tmp_buffer, valueString);
             XmlParser tmp_parser(tmp_buffer);
-            delete [] tmp_buffer;
 
             // The next bit of logic constructs a CIMObject from the Embedded Object String.
             // It is similar to the method XmlReader::getValueObjectElement().
@@ -1631,6 +1630,8 @@ CIMValue XmlReader::stringToValue(
                 throw XmlValidationError(lineNumber, mlParms);
 
             }
+            // Ok, now we can delete the storage for the temporary XmlParser.
+            delete [] tmp_buffer;
         }
         return CIMValue(x);
     }
@@ -1700,73 +1701,31 @@ Boolean XmlReader::getValueElement(
 
     XmlEntry entry;
     if (!testStartTagOrEmptyTag(parser, entry, "VALUE"))
-	return false;
+    {
+	    return false;
+    }
 
     Boolean empty = entry.type == XmlEntry::EMPTY_TAG;
 
-    // Since stringToValue() takes a char* as input, we handle CIMTYPE_OBJECT separately.
-    if (type == CIMTYPE_OBJECT)
+    const char* valueString = "";
+
+    if (!empty)
     {
-        CIMObject cimObject;
-
-        if (empty)
-        {
-            cimObject = CIMObject();
-        }
-        else
-        {
-            // Convert the non-empty value to a CIMObject (containing either a
-            // CIMInstance or a CIMClass).
-                
-            // The next bit of logic constructs a CIMObject from the Embedded Object String.
-            // It is similar to the method XmlReader::getValueObjectElement().
-            CIMInstance cimInstance;
-            CIMClass cimClass;
-
-            if (XmlReader::getInstanceElement(parser, cimInstance))
-            {
-                cimObject = CIMObject(cimInstance);
-            }
-            else if (XmlReader::getClassElement(parser, cimClass))
-            {
-                cimObject = CIMObject(cimClass);
-            }
-            else
-            {
-                // l10n
-
-                // throw XmlValidationError(parser.getLine(),
-                //   "Expected INSTANCE or CLASS element");
-
-                MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_INSTANCE_OR_CLASS_ELEMENT",
-                           "Expected INSTANCE or CLASS element"); // change "element" to "embedded object"
-
-                throw XmlValidationError(parser.getLine(), mlParms);
-            }
-            expectEndTag(parser, "VALUE");
-        }
-        value = CIMValue(cimObject);
-    }
-    else
-    {
-        const char* valueString = "";
-
-        if (!empty)
-        {
         if (testContentOrCData(parser, entry))
+        {
             valueString = entry.text;
+        }
 
         expectEndTag(parser, "VALUE");
-        }
-    #ifdef PEGASUS_SNIA_INTEROP_TEST
-        // KS 20021004 - tries to put value in even if empty.
-        // Think this is general problem with empty value
-        // Need to check meaning of (#PCDATA) - Does it allow empty.
-        // Bugzilla tbd
-        if (!empty)
-    #endif
-            value = stringToValue(parser.getLine(), valueString,type);
     }
+#ifdef PEGASUS_SNIA_INTEROP_TEST
+    // KS 20021004 - tries to put value in even if empty.
+    // Think this is general problem with empty value
+    // Need to check meaning of (#PCDATA) - Does it allow empty.
+    // Bugzilla tbd
+    if (!empty)
+#endif
+        value = stringToValue(parser.getLine(), valueString,type);
     
     return true;
 }
@@ -1989,6 +1948,7 @@ Boolean XmlReader::getValueArrayElement(
     // Get VALUE.ARRAY open tag:
 
     XmlEntry entry;
+    Array<const char*> stringArray;
 
     // If no VALUE.ARRAY start tag, return false
     if (!testStartTagOrEmptyTag(parser, entry, "VALUE.ARRAY"))
@@ -1996,81 +1956,28 @@ Boolean XmlReader::getValueArrayElement(
 
     if (entry.type != XmlEntry::EMPTY_TAG)
     {
-        if (type == CIMTYPE_OBJECT)
+        // For each VALUE element:
+
+        while (testStartTagOrEmptyTag(parser, entry, "VALUE"))
         {
-            Array<CIMObject> objectArray;
-
-            // For each VALUE element:
-            while (testStartTagOrEmptyTag(parser, entry, "VALUE"))
+            if (entry.type == XmlEntry::EMPTY_TAG)
             {
-                CIMObject cimObject;
-
-                if (entry.type == XmlEntry::EMPTY_TAG)
-                {
-                    cimObject = CIMObject();
-                }
-                else
-                {
-                    // Convert the non-empty value to a CIMObject (containing either a
-                    // CIMInstance or a CIMClass).
-
-                    // The next bit of logic constructs a CIMObject from the Embedded Object String.
-                    // It is similar to the method XmlReader::getValueObjectElement().
-                    CIMInstance cimInstance;
-                    CIMClass cimClass;
-
-                    if (XmlReader::getInstanceElement(parser, cimInstance))
-                    {
-                        cimObject = CIMObject(cimInstance);
-                    }
-                    else if (XmlReader::getClassElement(parser, cimClass))
-                    {
-                        cimObject = CIMObject(cimClass);
-                    }
-                    else
-                    {
-                        // l10n
-
-                        // throw XmlValidationError(parser.getLine(),
-                        //   "Expected INSTANCE or CLASS element");
-
-                        MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_INSTANCE_OR_CLASS_ELEMENT",
-                                   "Expected INSTANCE or CLASS element"); // change "element" to "embedded object"
-
-                        throw XmlValidationError(parser.getLine(), mlParms);
-                    }
-                    expectEndTag(parser, "VALUE");
-                }
-                objectArray.append(cimObject);
+                stringArray.append("");
+                continue;
             }
-            value = CIMValue(objectArray);
+
+            if (testContentOrCData(parser, entry))
+                stringArray.append(entry.text);
+            else
+                stringArray.append("");
+
+            expectEndTag(parser, "VALUE");
         }
-        else
-        {
-            Array<const char*> stringArray;
 
-            // For each VALUE element:
-            while (testStartTagOrEmptyTag(parser, entry, "VALUE"))
-            {
-                if (entry.type == XmlEntry::EMPTY_TAG)
-                {
-                    stringArray.append("");
-                    continue;
-                }
-
-                if (testContentOrCData(parser, entry))
-                    stringArray.append(entry.text);
-                else
-                    stringArray.append("");
-
-                expectEndTag(parser, "VALUE");
-            }
-            value = stringArrayToValue(parser.getLine(), stringArray, type);
-        }
-        
         expectEndTag(parser, "VALUE.ARRAY");
     }
 
+    value = stringArrayToValue(parser.getLine(), stringArray, type);
     return true;
 }
 
@@ -2391,8 +2298,8 @@ Boolean XmlReader::getPropertyElement(XmlParser& parser, CIMProperty& property)
                 new_property.addQualifier(property.getQualifier(ix));
             }
 
-            value = new_value; // does this leak?
-            property = new_property; // does this leak?
+            value = new_value;
+            property = new_property;
         }
         else
         {
@@ -2570,8 +2477,8 @@ Boolean XmlReader::getPropertyArrayElement(
                 new_property.addQualifier(property.getQualifier(ix));
             }
             
-            value = new_value; // does this leak?
-            property = new_property; // does this leak?
+            value = new_value;
+            property = new_property;
         }
         else
         {

@@ -879,7 +879,8 @@ inline void _xmlWritter_appendValue(Array<char>& out, const CIMObjectPath& x)
 
 inline void _xmlWritter_appendValue(Array<char>& out, const CIMObject& x)
 {
-    out << x.toString();
+    String myStr = x.toString();
+    _xmlWritter_appendValue(out, myStr);
 }
 
 void _xmlWritter_appendValueArray(Array<char>& out, const CIMObjectPath* p, Uint32 size)

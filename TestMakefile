@@ -49,7 +49,7 @@ endif
 
 ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
   CIMSERVER_START_SERVICE = cimserver
-  CIMSERVER_STOP_SERVICE = ps -ef | grep cimserver | grep -v grep | awk '{print "kill -9 "$$2 |"/bin/bash"}'
+  CIMSERVER_STOP_SERVICE = cimserver -s; true
   SLEEP = sleep 5
   MUEXE = mu
   COPYMU = cp -f src/utils/mu/$(MUEXE) $(BIN_DIR)/$(MUEXE)

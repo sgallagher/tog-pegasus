@@ -41,31 +41,28 @@ void InstanceProvider::initialize(CIMOMHandle & cimom)
 {
 	// create default instances
 	CIMInstance instance1("Sample_InstanceProviderClass");
-	CIMObjectPath reference1("Sample_InstanceProviderClass.Identifier=1");
+        instance1.setPath(CIMObjectPath("Sample_InstanceProviderClass.Identifier=1"));
 
 	instance1.addProperty(CIMProperty("Identifier", Uint8(1)));   // key
 	instance1.addProperty(CIMProperty("Message", String("Hello World")));
 
 	_instances.append(instance1);
-	_instanceNames.append(reference1);
 
 	CIMInstance instance2("Sample_InstanceProviderClass");
-	CIMObjectPath reference2("Sample_InstanceProviderClass.Identifier=2");
+        instance2.setPath(CIMObjectPath("Sample_InstanceProviderClass.Identifier=2"));
 
 	instance2.addProperty(CIMProperty("Identifier", Uint8(2)));   // key
 	instance2.addProperty(CIMProperty("Message", String("Yo Planet")));
 
 	_instances.append(instance2);
-	_instanceNames.append(reference2);
 
 	CIMInstance instance3("Sample_InstanceProviderClass");
-	CIMObjectPath reference3("Sample_InstanceProviderClass.Identifier=3");
+        instance3.setPath(CIMObjectPath("Sample_InstanceProviderClass.Identifier=3"));
 
 	instance3.addProperty(CIMProperty("Identifier", Uint8(3)));   // key
 	instance3.addProperty(CIMProperty("Message", String("Hey Earth")));
 
 	_instances.append(instance3);
-	_instanceNames.append(reference3);
 }
 
 void InstanceProvider::terminate(void)
@@ -95,7 +92,7 @@ void InstanceProvider::getInstance(
 	// instance index corresponds to reference index
 	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
 	{
-		if(localReference == _instanceNames[i])
+		if(localReference == _instances[i].getPath())
 		{
 			// deliver requested instance
 			handler.deliver(_instances[i]);
@@ -140,7 +137,7 @@ void InstanceProvider::enumerateInstanceNames(
 	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
 	{
 		// deliver reference
-		handler.deliver(_instanceNames[i]);
+		handler.deliver(_instances[i].getPath());
 	}
 
 	// complete processing the request
@@ -169,8 +166,18 @@ void InstanceProvider::modifyInstance(
 	// instance index corresponds to reference index
 	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
 	{
-		if(localReference == _instanceNames[i])
+		if(localReference == _instances[i].getPath())
 		{
+                       CIMInstance cimInstance = instanceObject.clone();
+
+                       CIMObjectPath instanceName = CIMObjectPath(
+                               String(),
+                               CIMNamespaceName(),
+                               instanceReference.getClassName(),
+                               instanceReference.getKeyBindings());
+
+                        cimInstance.setPath(instanceName);
+
 			// overwrite existing instance
 			_instances[i] = instanceObject;
 			
@@ -197,10 +204,13 @@ void InstanceProvider::createInstance(
 
     // Find the key property
     Uint32 idIndex = instanceObject.findProperty("Identifier");
+
     if (idIndex == PEG_NOT_FOUND)
     {
         throw CIMInvalidParameterException("Missing key value");
     }
+
+    CIMInstance cimInstance = instanceObject.clone();
 
     // Create the new instance name
     CIMValue idValue = instanceObject.getProperty(idIndex).getValue();
@@ -211,11 +221,13 @@ void InstanceProvider::createInstance(
         CIMNamespaceName(),
         instanceObject.getClassName(),
         keys);
+
+    cimInstance.setPath(instanceName);
     
     // Determine whether this instance already exists
-    for(Uint32 i = 0, n = _instanceNames.size(); i < n; i++)
+    for(Uint32 i = 0, n = _instances.size(); i < n; i++)
     {
-        if(instanceName == _instanceNames[i])
+        if(instanceName == _instances[i].getPath())
         {
             throw CIMObjectAlreadyExistsException(instanceName.toString());
         }
@@ -225,8 +237,7 @@ void InstanceProvider::createInstance(
     handler.processing();
 
     // add the new instance to the array
-    _instances.append(instanceObject);
-    _instanceNames.append(instanceName);
+    _instances.append(cimInstance);
 
     // deliver the new instance name
     handler.deliver(instanceName);
@@ -254,16 +265,11 @@ void InstanceProvider::deleteInstance(
 	// instance index corresponds to reference index
 	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
 	{
-		if(localReference == _instanceNames[i])
+		if(localReference == _instances[i].getPath())
 		{
-			// save the instance locally
-			CIMInstance cimInstance(_instances[i]);
-
 			// remove instance from the array
 			_instances.remove(i);
-			_instanceNames.remove(i);
 
-			// exit loop
 			break;
 		}
 	}

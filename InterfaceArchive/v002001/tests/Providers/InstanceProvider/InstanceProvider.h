@@ -86,11 +86,9 @@ public:
 		ResponseHandler & handler);
 
 protected:
-	Array<CIMObjectPath> _instanceNames;
 	Array<CIMInstance> _instances;
 
 };
 
 PEGASUS_NAMESPACE_END
-
 #endif

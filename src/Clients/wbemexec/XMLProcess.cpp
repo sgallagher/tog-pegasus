@@ -28,6 +28,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Config.h>
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/TimeValue.h>
 #include <Pegasus/Common/XmlReader.h>

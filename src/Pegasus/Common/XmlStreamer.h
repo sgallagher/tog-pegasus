@@ -36,7 +36,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class XmlStreamer : public ObjectStreamer {
+class PEGASUS_COMMON_LINKAGE XmlStreamer : public ObjectStreamer {
 
 public:
 

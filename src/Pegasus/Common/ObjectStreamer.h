@@ -35,10 +35,11 @@
 #include "CIMClass.h"
 #include "CIMInstance.h"
 #include "DeclContext.h"
+#include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class ObjectStreamer {
+class PEGASUS_COMMON_LINKAGE ObjectStreamer {
 
 public:
 

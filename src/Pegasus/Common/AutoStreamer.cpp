@@ -42,7 +42,7 @@ AutoStreamer::AutoStreamer(ObjectStreamer *primary, Uint8 marker) {
       _readers[_readerCount++].marker=marker;
    }
    else _defaultReader=primary;
-   _primary=primary;
+   _primary=primary; 
 }
 
 void AutoStreamer::addReader(ObjectStreamer *reader, Uint8 marker) {

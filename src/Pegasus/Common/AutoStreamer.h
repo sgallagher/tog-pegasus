@@ -36,11 +36,12 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class AutoStreamer : public ObjectStreamer {
+class PEGASUS_COMMON_LINKAGE AutoStreamer : public ObjectStreamer {
 
    ObjectStreamer *_primary,*_defaultReader;
    Uint16 _readerCount;
-   struct reader {
+   struct _reader {
+      _reader() { reader=NULL, marker=0; }
       ObjectStreamer *reader;
       Uint8 marker;
    } _readers[8];

@@ -169,7 +169,11 @@ pegasus_internal_identity::~pegasus_internal_identity(void)
 
 const Uint32 pegasus_internal_identity::get_credential(void)
 {
+#ifndef PEGASUS_PLATFORM_LINUX_IA64_GNU
    return reinterpret_cast<Uint32>(get_base_credential());
+#else
+   return reinterpret_cast<Uint64>(get_base_credential());
+#endif
 }
 
 Boolean pegasus_internal_identity::authenticate(void)

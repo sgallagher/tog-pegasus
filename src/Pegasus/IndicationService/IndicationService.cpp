@@ -3357,7 +3357,7 @@ CIMPropertyList IndicationService::_getPropertyList
         //  Return NULL CIMPropertyList
         //
         PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-        return (CIMPropertyList ());
+        return CIMPropertyList ();
     }
     else
     {

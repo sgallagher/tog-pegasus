@@ -26,13 +26,14 @@
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //         Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
-// Modified By:
+// Modified By: Seema Gupta(gseema@in.ibm.com) for PEP135
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "BasicProviderManagerRouter.h"
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/OperationContextInternal.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/ProviderManager2/OperationResponseHandler.h>
@@ -199,7 +200,8 @@ Message* BasicProviderManagerRouter::processMessage(Message * message)
         // Provider information is in CIMIndicationRequestMessage
         CIMIndicationRequestMessage* indReq =
             dynamic_cast<CIMIndicationRequestMessage*>(request);
-        providerModule = indReq->providerModule;
+		ProviderIdContainer pidc = indReq->operationContext.get(ProviderIdContainer::NAME); 
+        providerModule = pidc.getModule(); 
     }
     else if (request->getType() == CIM_ENABLE_MODULE_REQUEST_MESSAGE)
     {

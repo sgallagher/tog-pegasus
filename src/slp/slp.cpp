@@ -1281,9 +1281,6 @@ void slp_client::decode_srvreq(struct sockaddr_in *remote )
 		    if( ! strcasecmp( reg->service_type, service_type ) ) {
 		      // found a match
 		      
-
-
-
 		      url_entry *entry = new url_entry((reg->lifetime - time(NULL) ), 
 						       reg->url ) ;
 		      url_list.insert(entry);

@@ -81,8 +81,6 @@ MessageQueue::MessageQueue(const char * name, Boolean async)
        ;
     q_table_mut.unlock();
 
-// << Wed Dec 19 16:34:26 2001 mdd >>
-    _async = false;
     
     if(_async == true)
     {
@@ -123,29 +121,26 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueue::workThread(void * arg)
 
 	while(true)
 	{
-		if(thread->is_cancelled())
-		{
-			break;
-		}
-		
-		thread->sleep(1);
-		continue;
-	
-		// wait for work
-		queue->_workSemaphore.wait();
-
-		// stop the thread when the message queue has been destroyed.
-		// ATTN: should check the thread cancel flag that is not yet exposed!
-		if(MessageQueue::lookup(queue->_queueId) == 0)
-		{
-			break;
-		}
-		
-		// ensure the queue has a message before dispatching
-		if(queue->_count != 0)
-		{
-			queue->handleEnqueue();
-		}
+	   if(thread->is_cancelled())
+	   {
+	      break;
+	   }
+	   
+	   // wait for work
+	   queue->_workSemaphore.wait();
+	   
+	   // stop the thread when the message queue has been destroyed.
+	   // ATTN: should check the thread cancel flag that is not yet exposed!
+	   if(MessageQueue::lookup(queue->_queueId) == 0)
+	   {
+	      break;
+	   }
+	   
+	   // ensure the queue has a message before dispatching
+	   if(queue->_count != 0)
+	   {
+	      queue->handleEnqueue();
+	   }
 	}
 
 	thread->exit_self(PEGASUS_THREAD_RETURN(0));
@@ -181,11 +176,14 @@ void MessageQueue::enqueue(Message* message) throw(IPCException)
     }
     message->_owner = this;
     _count++;
+    if( _async == true )
+    {
+       _workSemaphore.signal();
+    }
+    
     _mut.unlock();
 
-    if( _async == true )
-       _workSemaphore.signal();
-    else 
+    if(_async == false )
        handleEnqueue();
 }
 

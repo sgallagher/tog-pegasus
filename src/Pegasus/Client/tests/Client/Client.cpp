@@ -250,9 +250,8 @@ int main(int argc, char** argv)
 
 	// To run the following test, first compile "test.mof" into the
 	// repository!
-	TestAssoc1(client);
-	TestAssoc2(client);
-	exit(1);
+	// TestAssoc1(client);
+	// TestAssoc2(client);
 
 	// TestGetClass(client);
 	TestQualifierOperations(client);

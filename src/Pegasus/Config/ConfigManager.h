@@ -59,7 +59,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-struct OwnerEntry;
 struct PropertyTable;
 
 /**
@@ -168,16 +167,6 @@ public:
     static ShutdownPropertyOwner*   shutdownOwner; 
 
     static FileSystemPropertyOwner*   fileSystemOwner; 
-
-    /**
-    Property list
-    */
-    static struct OwnerEntry properties[];
-
-    /**
-    Fixed value list
-    */
-    static struct FixedValueEntry fixedValues[];
 
     /** 
     Construct the singleton instance of the ConfigManager and return a 

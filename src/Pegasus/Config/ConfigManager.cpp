@@ -105,7 +105,7 @@ struct OwnerEntry
     ConfigPropertyOwner* propertyOwner;
 };
 
-struct OwnerEntry ConfigManager::properties[] =
+static struct OwnerEntry _properties[] =
 {
     {"traceLevel",          (ConfigPropertyOwner* )ConfigManager::traceOwner},
     {"traceComponents",     (ConfigPropertyOwner* )ConfigManager::traceOwner},
@@ -136,8 +136,7 @@ struct OwnerEntry ConfigManager::properties[] =
     {"enableRemotePrivilegedUserAccess", (ConfigPropertyOwner* )ConfigManager::securityOwner},
 };
 
-const Uint32 NUM_PROPERTIES = 
-    sizeof(ConfigManager::properties) / sizeof(struct OwnerEntry);
+const Uint32 NUM_PROPERTIES = sizeof(_properties) / sizeof(struct OwnerEntry);
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -160,13 +159,13 @@ struct FixedValueEntry
     const char* fixedValue;
 };
 
-struct FixedValueEntry ConfigManager::fixedValues[] =
+static struct FixedValueEntry _fixedValues[] =
 {
     {"bogus", "MyBogusValue"} // Remove this line if others are added
 };
 
 const Uint32 NUM_FIXED_PROPERTIES = 
-    sizeof(ConfigManager::fixedValues) / sizeof(struct FixedValueEntry);
+    sizeof(_fixedValues) / sizeof(struct FixedValueEntry);
 
 
 /**
@@ -677,7 +676,7 @@ void ConfigManager::_loadConfigProperties()
         String value = String::EMPTY;
 
         if (_configFileHandler->getCurrentValue(
-                properties[i].propertyName, value))
+                _properties[i].propertyName, value))
         {
             //
             // initialize the current value of the property owner
@@ -691,20 +690,20 @@ void ConfigManager::_loadConfigProperties()
                 ConfigPropertyOwner* propertyOwner;
 
                 if (_propertyTable->ownerTable.lookup(
-                    properties[i].propertyName, propertyOwner))
+                    _properties[i].propertyName, propertyOwner))
                 {
                     if (propertyOwner->isValid(
-                        properties[i].propertyName, value))
+                        _properties[i].propertyName, value))
                     {
                         propertyOwner->initCurrentValue(
-                            properties[i].propertyName, value);
+                            _properties[i].propertyName, value);
 
                         propertyOwner->initPlannedValue(
-                            properties[i].propertyName, value);
+                            _properties[i].propertyName, value);
                     }
                     else
                     {
-                        throw InvalidPropertyValue(properties[i].propertyName,
+                        throw InvalidPropertyValue(_properties[i].propertyName,
                                                    value);
                     }
                 }
@@ -794,8 +793,8 @@ void ConfigManager::_initPropertyTable()
     //
     for (Uint32 i = 0; i < NUM_FIXED_PROPERTIES; i++)
     {
-        _propertyTable->fixedValueTable.insert(fixedValues[i].propertyName,
-            fixedValues[i].fixedValue);
+        _propertyTable->fixedValueTable.insert(_fixedValues[i].propertyName,
+            _fixedValues[i].fixedValue);
     }
 
     //
@@ -807,12 +806,12 @@ void ConfigManager::_initPropertyTable()
         const char* fixedValue;
 
         if (!_propertyTable->fixedValueTable.lookup(
-                properties[i].propertyName, fixedValue))
+                _properties[i].propertyName, fixedValue))
         {
-            properties[i].propertyOwner->initialize();
+            _properties[i].propertyOwner->initialize();
 
-            _propertyTable->ownerTable.insert(properties[i].propertyName,
-                properties[i].propertyOwner);
+            _propertyTable->ownerTable.insert(_properties[i].propertyName,
+                _properties[i].propertyOwner);
         }
     }
 }

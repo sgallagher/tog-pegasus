@@ -284,6 +284,7 @@ extern "C" {
         #define CMPI_chars        ((16+7)<<8)
         #define CMPI_dateTime     ((16+8)<<8)
         #define CMPI_ptr          ((16+9)<<8)
+        #define CMPI_charsptr     ((16+10)<<8)
 
         #define CMPI_ARRAY        ((1)<<13)
         #define CMPI_SIMPLEA      (CMPI_ARRAY | CMPI_SIMPLE)
@@ -312,6 +313,7 @@ extern "C" {
         #define CMPI_dateTimeA    (CMPI_ARRAY | CMPI_dateTime)
         #define CMPI_instanceA    (CMPI_ARRAY | CMPI_instance)
         #define CMPI_refA         (CMPI_ARRAY | CMPI_ref)
+        #define CMPI_charsptrA    (CMPI_ARRAY | CMPI_charsptr)
 
 	// the following are CMPIObjectPath key-types synonyms
 	// and are valid only when CMPI_keyValue of CMPIValueState is set

@@ -45,6 +45,10 @@ PEGASUS_NAMESPACE_BEGIN
    for (int i=0; i<aSize; i++) ar##pt[i]=String(((char*)aData[i].value.ct)); \
    v.set(ar##pt); }
 
+#define CopyCharsptrToStringArray(pt,ct) { Array<pt> ar##pt(aSize); \
+   for (int i=0; i<aSize; i++) ar##pt[i]=String((*(char**)aData[i].value.ct)); \
+   v.set(ar##pt); }
+
 #define CopyToEncArray(pt,ct) { Array<pt> ar##pt(aSize); \
    for (int i=0; i<aSize; i++) ar##pt[i]=*((pt*)aData[i].value.ct->hdl); \
    v.set(ar##pt); }
@@ -85,8 +89,9 @@ CIMValue value2CIMValue(CMPIValue* data, CMPIType type, CMPIrc *rc) {
          }
       }
 
-      else if (aType==CMPI_chars)  CopyToStringArray(String,chars)
-      else if (aType==CMPI_string) CopyToStringArray(String,string->hdl)
+      else if (aType==CMPI_chars)       CopyToStringArray(String,chars)
+      else if (aType==CMPI_charsptr)    CopyCharsptrToStringArray(String,chars)
+      else if (aType==CMPI_string)      CopyToStringArray(String,string->hdl)
 
       else if ((aType & (CMPI_UINT|CMPI_SINT))==CMPI_UINT) {
          switch (aType) {
@@ -115,6 +120,10 @@ CIMValue value2CIMValue(CMPIValue* data, CMPIType type, CMPIrc *rc) {
 
    else if (type==CMPI_chars) {
       if (data) v.set(String((char*)data));
+      else return CIMValue(CIMTYPE_STRING,false);
+   }
+   else if (type==CMPI_charsptr) {
+      if (data && *(char**)data) v.set(String(*(char**)data));
       else return CIMValue(CIMTYPE_STRING,false);
    }
 

@@ -38,8 +38,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-Uint32 _socketInterfaceRefCount = 0;
-
 Sint32 TCPChannel::readN(void* ptr, Uint32 size)
 {
     // ATTN-A: need a timeout here!

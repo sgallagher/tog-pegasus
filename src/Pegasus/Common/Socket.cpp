@@ -45,6 +45,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+extern Uint32 _socketInterfaceRefCount = 0;
+
 void Socket::close(Sint32 socket)
 {
 #ifdef PEGASUS_OS_TYPE_WINDOWS
@@ -78,11 +80,29 @@ void Socket::disableBlocking(Sint32 socket)
 #endif
 }
 
-#if 0
-// ATTN: implement this!
-Boolean Socket::getBlocking() const
+void Socket::initializeInterface()
 {
-}
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+    if (_socketInterfaceRefCount == 0)
+    {
+	WSADATA tmp;
+
+	if (WSAStartup(0x202, &tmp) == SOCKET_ERROR)
+	    WSACleanup();
+    }
+
+    _socketInterfaceRefCount++;
 #endif
+}
+
+void Socket::uninitializeInterface()
+{
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+    _socketInterfaceRefCount--;
+
+    if (_socketInterfaceRefCount == 0)
+	WSACleanup();
+#endif
+}
 
 PEGASUS_NAMESPACE_END

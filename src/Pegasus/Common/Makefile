@@ -9,12 +9,13 @@ LOCAL_DEFINES = -DPEGASUS_COMMON_INTERNAL
 LIBRARY = pegcommon
 
 NEW_SOURCES = \
-    Socket.cpp \
     Monitor.cpp \
     HTTPAcceptor.cpp \
     HTTPConnection.cpp
 
 SOURCES = \
+    $(NEW_SOURCES) \
+    Socket.cpp \
     CIMStatusCode.cpp \
     CIMMessage.cpp \
     Message.cpp \
@@ -79,14 +80,14 @@ SOURCES = \
     XmlReader.cpp \
     XmlWriter.cpp \
     CGIQueryString.cpp \
-    MT_MessageQueue.cpp\
-    IPC.cpp\
-	Thread.cpp
-#    DQueue.cpp\
-#    Thread.cpp
-#ifeq ($(OS),linux)
-#SOURCES +=  IPC.cpp DQueue.cpp Thread.cpp
-#endif
+
+##
+## Took these out again. They broke the NT build.
+##
+
+ifeq ($(OS),linux)
+SOURCES +=  IPC.cpp DQueue.cpp Thread.cpp MT_MessageQueue.cpp
+endif
 
 SYS_LIBS = ws2_32.lib advapi32.lib
 

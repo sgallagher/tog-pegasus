@@ -44,6 +44,10 @@ public:
 
     static void disableBlocking(Sint32 socket);
 
+    static void initializeInterface();
+
+    static void uninitializeInterface();
+
 private:
 
     Socket() { }

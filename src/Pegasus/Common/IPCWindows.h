@@ -8,3 +8,5 @@
 #define PEGASUS_THREAD_RETURN void *
 #define PEGASUS_THREAD_CDECL
 #define PEGASUS_THREAD_HANDLE void *
+
+#define PEGASUS_THREAD_TYPE void *

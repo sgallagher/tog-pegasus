@@ -31,20 +31,6 @@
 #include "MessageQueue.h"
 #include "Socket.h"
 
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-# include <winsock.h>
-#else
-# include <cctype>
-# include <unistd.h>
-# include <cstdlib>
-# include <errno.h>
-# include <fcntl.h>
-# include <netdb.h>
-# include <netinet/in.h>
-# include <arpa/inet.h>
-# include <sys/socket.h>
-#endif
-
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN

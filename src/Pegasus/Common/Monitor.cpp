@@ -26,7 +26,10 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "Config.h"
+#include <cstring>
+#include "Monitor.h"
+#include "MessageQueue.h"
+#include "Socket.h"
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
 # define FD_SETSIZE 1024
@@ -41,46 +44,9 @@
 # include <unistd.h>
 #endif
 
-#include <cstring>
-#include "Monitor.h"
-#include "MessageQueue.h"
-
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// Routines for starting and stoping socket interface.
-//
-////////////////////////////////////////////////////////////////////////////////
-
-extern Uint32 _socketInterfaceRefCount;
-
-static void _OpenSocketInterface()
-{
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-    if (_socketInterfaceRefCount == 0)
-    {
-	WSADATA tmp;
-
-	if (WSAStartup(0x202, &tmp) == SOCKET_ERROR)
-	    WSACleanup();
-    }
-
-    _socketInterfaceRefCount++;
-#endif
-}
-
-static void _CloseSocketInterface()
-{
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-    _socketInterfaceRefCount--;
-
-    if (_socketInterfaceRefCount == 0)
-	WSACleanup();
-#endif
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -106,7 +72,7 @@ struct MonitorRep
 
 Monitor::Monitor()
 {
-    _OpenSocketInterface();
+    Socket::initializeInterface();
 
     _rep = new MonitorRep;
     FD_ZERO(&_rep->rd_fd_set);
@@ -119,7 +85,7 @@ Monitor::Monitor()
 
 Monitor::~Monitor()
 {
-    _CloseSocketInterface();
+    Socket::uninitializeInterface();
 }
 
 Boolean Monitor::run(Uint32 milliseconds)

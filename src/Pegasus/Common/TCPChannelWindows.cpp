@@ -27,8 +27,9 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
-#include "TCPChannel.h"
 #include <winsock.h>
+#include "TCPChannel.h"
+#include "Socket.h"
 
 using namespace std;
 
@@ -38,35 +39,6 @@ PEGASUS_NAMESPACE_BEGIN
 
 // ATTN-A: manage lifetime of all these objects. Do a walkthrough!
 // ATTN-B: add methods for getting the remote hostname and port!
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// Routines for starting and stoping WinSock:
-//
-////////////////////////////////////////////////////////////////////////////////
-
-extern Uint32 _socketInterfaceRefCount;
-
-static void _OpenSocketInterface()
-{
-    if (_socketInterfaceRefCount == 0)
-    {
-	WSADATA tmp;
-
-	if (WSAStartup(0x202, &tmp) == SOCKET_ERROR)
-	    WSACleanup();
-    }
-
-    _socketInterfaceRefCount++;
-}
-
-static void _CloseSocketInterface()
-{
-    _socketInterfaceRefCount--;
-
-    if (_socketInterfaceRefCount == 0)
-	WSACleanup();
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -203,12 +175,12 @@ TCPChannelConnector::TCPChannelConnector(
     Selector* selector)
     : ChannelConnector(factory), _selector(selector)
 {
-    _OpenSocketInterface();
+    Socket::initializeInterface();
 }
 
 TCPChannelConnector::~TCPChannelConnector()
 {
-    _CloseSocketInterface();
+    Socket::uninitializeInterface();
 }
 
 
@@ -286,12 +258,12 @@ TCPChannelAcceptor::TCPChannelAcceptor(
     Selector* selector)
     : ChannelAcceptor(factory), _selector(selector), _desc(-1)
 {
-    _OpenSocketInterface();
+    Socket::initializeInterface();
 }
 
 TCPChannelAcceptor::~TCPChannelAcceptor()
 {
-    _CloseSocketInterface();
+    Socket::uninitializeInterface();
 }
 
 Boolean TCPChannelAcceptor::bind(const char* addressStr)

@@ -60,18 +60,18 @@ PEGASUS_NAMESPACE_BEGIN
 static struct ConfigPropertyRow properties[] =
 {
 #ifdef PEGASUS_OS_HPUX
-    {"traceLevel", "1", 1, 0, 0, 0},
-    {"traceComponents", "", 1, 0, 0, 0},
+    {"traceLevel", "1", IS_DYNAMIC, 0, 0, IS_HIDDEN},
+    {"traceComponents", "", IS_DYNAMIC, 0, 0, IS_HIDDEN},
 #else
 #ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
-    {"traceLevel", "1", 1, 0, 0, 0},
-    {"traceComponents", "", 1, 0, 0, 0},
+    {"traceLevel", "1", IS_DYNAMIC, 0, 0, IS_HIDDEN},
+    {"traceComponents", "", IS_DYNAMIC, 0, 0, IS_HIDDEN},
 #else
-    {"traceLevel", "1", 1, 0, 0, 1},
-    {"traceComponents", "", 1, 0, 0, 1},
+    {"traceLevel", "1", IS_DYNAMIC, 0, 0, IS_VISIBLE},
+    {"traceComponents", "", IS_DYNAMIC, 0, 0, IS_VISIBLE},
 #endif
 #endif
-    {"traceFilePath", "cimserver.trc", 1, 0, 0, 1},
+    {"traceFilePath", "cimserver.trc", IS_DYNAMIC, 0, 0, IS_VISIBLE},
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
@@ -457,7 +457,7 @@ Checks to see if the specified property is dynamic or not.
 Boolean TracePropertyOwner::isDynamic(const String& name)
 {
     struct ConfigProperty* configProperty = _lookupConfigProperty(name);
-    return configProperty->dynamic;
+    return (configProperty->dynamic==IS_DYNAMIC);
 }
 
 

@@ -43,20 +43,20 @@
 #elif defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
 #include "DefaultPropertyTableOS400.h"
 #else
-    {"httpPort", "5988", 0, 0, 0, 1},
-    {"httpsPort", "5989", 0, 0, 0, 1},
-    {"enableHttpConnection", "true", 0, 0, 0, 1},
-    {"enableHttpsConnection", "false", 0, 0, 0, 1},
-    {"home", "./", 0, 0, 0, 1},
-    {"daemon", "true", 0, 0, 0, 1},
-    {"slp", "false", 0, 0, 0, 1},
-    {"enableAssociationTraversal", "true", 0, 0, 0, 1},
-    {"enableIndicationService", "true", 0, 0, 0, 1},
-    // Removed because unresolved PEP 66 KS{"maximumEnumerationBreadth", "50", 0, 0, 0},
-    {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, 0, 0, 0, 1},
-    {"sslClientVerificationMode", "disabled", 0, 0, 0, 1},
-    {"forceProviderProcesses", "false", 0, 0, 0, 1},
-    {"maxProviderProcesses", "0", 0, 0, 0, 1}
+    {"httpPort", "5988", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"httpsPort", "5989", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableHttpConnection", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableHttpsConnection", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"home", "./", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"daemon", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"slp", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableAssociationTraversal", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableIndicationService", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    // Removed because unresolved PEP 66 KS{"maximumEnumerationBreadth", "50", IS_STATIC, 0, 0},
+    {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, IS_STATIC, 0, 0, IS_VISIBLE},
+    {"sslClientVerificationMode", "disabled", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"forceProviderProcesses", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"maxProviderProcesses", "0", IS_STATIC, 0, 0, IS_VISIBLE}
 #endif
 
 #endif /* Pegasus_DefaultPropertyTable_h */

@@ -297,7 +297,7 @@ Boolean DefaultPropertyOwner::isDynamic(const String& name)
     {
         if (String::equalNoCase((_configProperties.get())[i].propertyName, name))
         {
-            return ((_configProperties.get())[i].dynamic);
+            return ((_configProperties.get())[i].dynamic == IS_DYNAMIC);
         }
     }
 

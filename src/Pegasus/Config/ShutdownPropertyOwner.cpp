@@ -61,7 +61,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 static struct ConfigPropertyRow properties[] =
 {
-    {"shutdownTimeout", "10", 1, 0, 0, 1},
+    {"shutdownTimeout", "10", IS_DYNAMIC, 0, 0, IS_VISIBLE},
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
@@ -269,7 +269,7 @@ Checks to see if the specified property is dynamic or not.
 Boolean ShutdownPropertyOwner::isDynamic(const String& name)
 {
     struct ConfigProperty* configProperty = _lookupConfigProperty(name);
-    return configProperty->dynamic;
+    return (configProperty->dynamic==IS_DYNAMIC);
 }
 
 

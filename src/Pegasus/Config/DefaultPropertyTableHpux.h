@@ -37,35 +37,35 @@
 #define Pegasus_DefaultPropertyTableHpux_h
 
 #ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
-    {"httpPort", "5988", 0, 0, 0, 1},
-    {"httpsPort", "5989", 0, 0, 0, 1},
-    {"enableHttpConnection", "false", 0, 0, 0, 1},
-    {"enableHttpsConnection", "true", 0, 0, 0, 1},
-    {"home", "./", 0, 0, 0, 1},
-    {"daemon", "true", 0, 0, 0, 1},
-    {"slp", "false", 0, 0, 0, 1},
-    {"enableAssociationTraversal", "false", 0, 0, 0, 1},
-    {"enableIndicationService", "true", 0, 0, 0, 1},
-    // Removed for now because unresolved PEP {"maximumEnumerationBreadth", "50", 0, 0, 0},
-    {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, 0, 0, 0, 1},
-    {"sslClientVerificationMode", "disabled", 0, 0, 0, 1},
-    {"forceProviderProcesses", "false", 0, 0, 0, 1},
-    {"maxProviderProcesses", "0", 0, 0, 0, 1}
+    {"httpPort", "5988", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"httpsPort", "5989", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableHttpConnection", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableHttpsConnection", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"home", "./", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"daemon", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"slp", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableAssociationTraversal", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableIndicationService", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    // Removed for now because unresolved PEP {"maximumEnumerationBreadth", "50", IS_STATIC, 0, 0},
+    {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, IS_STATIC, 0, 0, IS_VISIBLE},
+    {"sslClientVerificationMode", "disabled", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"forceProviderProcesses", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"maxProviderProcesses", "0", IS_STATIC, 0, 0, IS_VISIBLE}
 #else
-    {"httpPort", "5988", 0, 0, 0, 1},
-    {"httpsPort", "5989", 0, 0, 0, 1},
-    {"enableHttpConnection", "true", 0, 0, 0, 1},
-    {"enableHttpsConnection", "false", 0, 0, 0, 1},
-    {"home", "./", 0, 0, 0, 1},
-    {"daemon", "true", 0, 0, 0, 1},
-    {"slp", "false", 0, 0, 0, 1},
-    {"enableAssociationTraversal", "true", 0, 0, 0, 1},
-    {"enableIndicationService", "true", 0, 0, 0, 1},
-    {"maximumEnumerationBreadth", "50", 0, 0, 0, 1},
-    {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, 0, 0, 0, 1},
-    {"sslClientVerificationMode", "disabled", 0, 0, 0, 1},
-    {"forceProviderProcesses", "false", 0, 0, 0, 1},
-    {"maxProviderProcesses", "0", 0, 0, 0, 1}
+    {"httpPort", "5988", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"httpsPort", "5989", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableHttpConnection", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableHttpsConnection", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"home", "./", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"daemon", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"slp", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableAssociationTraversal", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableIndicationService", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"maximumEnumerationBreadth", "50", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, IS_STATIC, 0, 0, IS_VISIBLE},
+    {"sslClientVerificationMode", "disabled", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"forceProviderProcesses", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"maxProviderProcesses", "0", IS_STATIC, 0, 0, IS_VISIBLE}
 #endif
 
 #endif /* Pegasus_DefaultPropertyTableHpux_h */

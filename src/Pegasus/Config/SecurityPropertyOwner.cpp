@@ -60,49 +60,49 @@ PEGASUS_NAMESPACE_BEGIN
 static struct ConfigPropertyRow properties[] =
 {
 #ifdef PEGASUS_OS_OS400
-    {"enableAuthentication", "true", 0, 0, 0, 1},
+    {"enableAuthentication", "true", IS_STATIC, 0, 0, IS_VISIBLE},
 #else
-    {"enableAuthentication", "false", 0, 0, 0, 1},
+    {"enableAuthentication", "false", IS_STATIC, 0, 0, IS_VISIBLE},
 #endif
 #if defined(PEGASUS_OS_OS400) && defined(PEGASUS_KERBEROS_AUTHENTICATION)
-    {"httpAuthType", "Kerberos", 0, 0, 0, 1},
+    {"httpAuthType", "Kerberos", IS_STATIC, 0, 0, IS_VISIBLE},
 #else
-    {"httpAuthType", "Basic", 0, 0, 0, 1},
+    {"httpAuthType", "Basic", IS_STATIC, 0, 0, IS_VISIBLE},
 #endif
-    {"passwordFilePath", "cimserver.passwd", 0, 0, 0, 1},
+    {"passwordFilePath", "cimserver.passwd", IS_STATIC, 0, 0, IS_VISIBLE},
 #ifdef PEGASUS_OS_HPUX
-    {"sslCertificateFilePath", "cert.pem", 0, 0, 0, 1}, 
+    {"sslCertificateFilePath", "cert.pem", IS_STATIC, 0, 0, IS_VISIBLE}, 
 #else
-    {"sslCertificateFilePath", "server.pem", 0, 0, 0, 1}, 
+    {"sslCertificateFilePath", "server.pem", IS_STATIC, 0, 0, IS_VISIBLE}, 
 #endif
-    {"sslKeyFilePath", "file.pem", 0, 0, 0, 1}, 
-    {"sslTrustStore", "", 0, 0, 0, 1}, 
-    {"exportSSLTrustStore", "indication_trust.pem", 0, 0, 0, 1},
-	{"crlStore", "indication_trust.pem", 0, 0, 0, 1},
-    {"sslClientVerificationMode", "disabled", 0, 0, 0, 1},
-	{"sslTrustStoreUserName", "", 0, 0, 0, 1},
+    {"sslKeyFilePath", "file.pem", IS_STATIC, 0, 0, IS_VISIBLE}, 
+    {"sslTrustStore", "", IS_STATIC, 0, 0, IS_VISIBLE}, 
+    {"exportSSLTrustStore", "indication_trust.pem", IS_STATIC, 0, 0, IS_VISIBLE},
+	{"crlStore", "indication_trust.pem", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"sslClientVerificationMode", "disabled", IS_STATIC, 0, 0, IS_VISIBLE},
+	{"sslTrustStoreUserName", "", IS_STATIC, 0, 0, IS_VISIBLE},
 #ifdef PEGASUS_OS_OS400
-    {"enableNamespaceAuthorization", "true", 0, 0, 0, 1},
+    {"enableNamespaceAuthorization", "true", IS_STATIC, 0, 0, IS_VISIBLE},
 #else
-    {"enableNamespaceAuthorization", "false", 0, 0, 0, 1},
+    {"enableNamespaceAuthorization", "false", IS_STATIC, 0, 0, IS_VISIBLE},
 #endif
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
-    {"kerberosServiceName", "cimom", 0, 0, 0, 1},
+    {"kerberosServiceName", "cimom", IS_STATIC, 0, 0, IS_VISIBLE},
 #endif
 #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX)
 # ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
-    {"enableSubscriptionsForNonprivilegedUsers", "false", 0, 0, 0, 1},
+    {"enableSubscriptionsForNonprivilegedUsers", "false", IS_STATIC, 0, 0, IS_VISIBLE},
 # else
-    {"enableSubscriptionsForNonprivilegedUsers", "true", 0, 0, 0, 1},
+    {"enableSubscriptionsForNonprivilegedUsers", "true", IS_STATIC, 0, 0, IS_VISIBLE},
 # endif
 #else
-    {"enableSubscriptionsForNonprivilegedUsers", "true", 0, 0, 0, 0},
+    {"enableSubscriptionsForNonprivilegedUsers", "true", IS_STATIC, 0, 0, IS_HIDDEN},
 #endif
-    {"enableRemotePrivilegedUserAccess", "true", 0, 0, 0, 1},
+    {"enableRemotePrivilegedUserAccess", "true", IS_STATIC, 0, 0, IS_VISIBLE},
 #ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
-    {"authorizedUserGroups", "", 0, 0, 0, 1},
+    {"authorizedUserGroups", "", IS_STATIC, 0, 0, IS_VISIBLE},
 #endif
-    {"enableSSLExportClientVerification", "false", 0, 0, 0, 1}
+    {"enableSSLExportClientVerification", "false", IS_STATIC, 0, 0, IS_VISIBLE}
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
@@ -818,7 +818,7 @@ Checks to see if the specified property is dynamic or not.
 Boolean SecurityPropertyOwner::isDynamic(const String& name)
 {
     struct ConfigProperty* configProperty = _lookupConfigProperty(name);
-    return configProperty->dynamic;
+    return (configProperty->dynamic==IS_DYNAMIC);
 }
 
 

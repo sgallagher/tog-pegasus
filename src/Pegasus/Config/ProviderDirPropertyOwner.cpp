@@ -56,9 +56,9 @@ PEGASUS_NAMESPACE_BEGIN
 static struct ConfigPropertyRow properties[] =
 {
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
-    {"providerDir", "lib;bin", 0, 0, 0, 1},
+    {"providerDir", "lib;bin", IS_STATIC, 0, 0, IS_VISIBLE},
 #else
-    {"providerDir", "lib", 0, 0, 0, 1},
+    {"providerDir", "lib", IS_STATIC, 0, 0, IS_VISIBLE},
 #endif
 };
 
@@ -299,7 +299,7 @@ Checks to see if the specified property is dynamic or not.
 Boolean ProviderDirPropertyOwner::isDynamic(const String& name)
 {
     struct ConfigProperty* configProperty = _lookupConfigProperty(name);
-    return configProperty->dynamic;
+    return (configProperty->dynamic==IS_DYNAMIC);
 }
 
 

@@ -57,8 +57,8 @@ PEGASUS_NAMESPACE_BEGIN
 
 static struct ConfigPropertyRow properties[] =
 {
-    {"repositoryDir", "repository", 0, 0, 0, 1},
-    {"messageDir", "msg", 0, 0, 0, 1},
+    {"repositoryDir", "repository", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"messageDir", "msg", IS_STATIC, 0, 0, IS_VISIBLE},
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
@@ -270,7 +270,7 @@ Checks to see if the specified property is dynamic or not.
 Boolean FileSystemPropertyOwner::isDynamic(const String& name)
 {
     struct ConfigProperty* configProperty = _lookupConfigProperty(name);
-    return configProperty->dynamic;
+    return (configProperty->dynamic==IS_DYNAMIC);
 }
 
 

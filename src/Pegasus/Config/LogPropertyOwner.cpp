@@ -55,11 +55,11 @@ PEGASUS_NAMESPACE_BEGIN
 static struct ConfigPropertyRow properties[] =
 {
 #ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
-    {"logdir", "./logs", 1, 0, 0, 0},
-    {"logLevel", "SEVERE", 1, 0, 0, 0}
+    {"logdir", "./logs", IS_DYNAMIC, 0, 0, IS_HIDDEN},
+    {"logLevel", "SEVERE", IS_DYNAMIC, 0, 0, IS_HIDDEN}
 #else
-    {"logdir", "./logs", 1, 0, 0, 1},
-    {"logLevel", "INFORMATION", 1, 0, 0, 1}
+    {"logdir", "./logs", IS_DYNAMIC, 0, 0, IS_VISIBLE},
+    {"logLevel", "INFORMATION", IS_DYNAMIC, 0, 0, IS_VISIBLE}
 #endif
 };
 
@@ -287,7 +287,7 @@ Checks to see if the specified property is dynamic or not.
 Boolean LogPropertyOwner::isDynamic(const String& name)
 {
     struct ConfigProperty* configProperty = _lookupConfigProperty(name);
-    return configProperty->dynamic;
+    return (configProperty->dynamic == IS_DYNAMIC);
 }
 
 

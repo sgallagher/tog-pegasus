@@ -225,16 +225,28 @@ public:
 */
 ///////////////////////////////////////////////////////////////////////////////
 
+enum ConfigDynamic
+{
+		IS_DYNAMIC = 1,
+		IS_STATIC = 0
+};
+
+enum ConfigVisible
+{
+		IS_VISIBLE =1,
+		IS_HIDDEN = 0
+};
+
 struct ConfigProperty
 {
     String     propertyName;    // Name of a config property
     String     defaultValue;    // Default value of a config property
     String     currentValue;    // Current value of a config property
     String     plannedValue;    // Planned of a config property
-    Boolean    dynamic;            // Dynamic or non dynamic property
+    ConfigDynamic    dynamic;            // Dynamic or non dynamic property
     char**     domain;            // List of valid values of a config property
     Uint32     domainSize;        // Size of the domain
-    Boolean    externallyVisible; // Determines whether a property wants to be
+    ConfigVisible    externallyVisible; // Determines whether a property wants to be
                                   // externally visible or not. 
                                   // If a property chooses not to be externally 
                                   // visible, it is not listed as a configurable 
@@ -260,20 +272,20 @@ struct ConfigPropertyRow
 {
     const char* propertyName;
     const char* defaultValue;
-    int         dynamic;
+    ConfigDynamic         dynamic;
     char**      domain;
     Uint32      domainSize;
-    int         externallyVisible;
+    ConfigVisible         externallyVisible;
 };
 #else
 struct ConfigPropertyRow
 {
     const char* propertyName;
     const char* defaultValue;
-    Boolean     dynamic;
+    ConfigDynamic     dynamic;
     char**      domain;
     Uint32      domainSize;
-    Boolean     externallyVisible;
+    ConfigVisible     externallyVisible;
 };
 #endif
 

@@ -56,14 +56,14 @@ static struct ConfigPropertyRow properties[] =
 {
 #if defined(PEGASUS_OS_LINUX)
 # ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
-    {"repositoryIsDefaultInstanceProvider", "false", 0, 0, 0, 0},
+    {"repositoryIsDefaultInstanceProvider", "false", IS_STATIC, 0, 0, IS_HIDDEN},
 # else
-    {"repositoryIsDefaultInstanceProvider", "true", 0, 0, 0, 1},
+    {"repositoryIsDefaultInstanceProvider", "true", IS_STATIC, 0, 0, IS_VISIBLE},
 # endif
 #else
-    {"repositoryIsDefaultInstanceProvider", "true", 0, 0, 0, 1},
+    {"repositoryIsDefaultInstanceProvider", "true", IS_STATIC, 0, 0, IS_VISIBLE},
 #endif
-    {"enableBinaryRepository", "false", 0, 0, 0, 1}  // PEP 164
+    {"enableBinaryRepository", "false", IS_STATIC, 0, 0, IS_VISIBLE}  // PEP 164
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
@@ -296,7 +296,7 @@ Checks to see if the specified property is dynamic or not.
 Boolean RepositoryPropertyOwner::isDynamic(const String& name)
 {
     struct ConfigProperty* configProperty = _lookupConfigProperty(name);
-    return configProperty->dynamic;
+    return (configProperty->dynamic==IS_DYNAMIC);
 }
 
 

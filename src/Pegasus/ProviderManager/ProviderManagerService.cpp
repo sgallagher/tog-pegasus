@@ -53,7 +53,7 @@
 #include <Pegasus/ProviderManager/ProviderManager.h>
 #include <Pegasus/ProviderManager/Provider.h>
 #include <Pegasus/ProviderManager/OperationResponseHandler.h>
-
+#include <Pegasus/Query/QueryExpression/SubscriptionFilterQueryContainer.h>
 #include <Pegasus/Config/ConfigManager.h>
 
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
@@ -2354,6 +2354,7 @@ void ProviderManagerService::handleCreateSubscriptionRequest(AsyncOpNode *op, co
 	context.insert(request->operationContext.get(SubscriptionInstanceContainer::NAME));
 	context.insert(request->operationContext.get(SubscriptionLanguageListContainer::NAME));
 	context.insert(request->operationContext.get(SubscriptionFilterConditionContainer::NAME)); 
+	context.insert(request->operationContext.get(SubscriptionFilterQueryContainer::NAME));
 	
 	CIMObjectPath subscriptionName = request->subscriptionInstance.getPath();
 	
@@ -2468,6 +2469,7 @@ void ProviderManagerService::handleModifySubscriptionRequest(AsyncOpNode *op, co
 	    context.insert(request->operationContext.get(SubscriptionInstanceContainer::NAME));
 	    context.insert(request->operationContext.get(SubscriptionLanguageListContainer::NAME));
 	    context.insert(request->operationContext.get(SubscriptionFilterConditionContainer::NAME));
+		 context.insert(request->operationContext.get(SubscriptionFilterQueryContainer::NAME));
 
         CIMObjectPath subscriptionName = request->subscriptionInstance.getPath();
 

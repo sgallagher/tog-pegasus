@@ -57,6 +57,7 @@
 
 #include <Pegasus/ProviderManager2/ProviderManagerService.h>
 #include <Pegasus/ProviderManager2/ProviderType.h>
+#include <Pegasus/Query/QueryExpression/SubscriptionFilterQueryContainer.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -1827,6 +1828,7 @@ Message * DefaultProviderManager::handleCreateSubscriptionRequest(const Message 
 	    context.insert(request->operationContext.get(SubscriptionInstanceContainer::NAME));
 	    context.insert(request->operationContext.get(SubscriptionLanguageListContainer::NAME));
 	    context.insert(request->operationContext.get(SubscriptionFilterConditionContainer::NAME));
+		 context.insert(request->operationContext.get(SubscriptionFilterQueryContainer::NAME));
 
         CIMObjectPath subscriptionName = request->subscriptionInstance.getPath();
 
@@ -1957,6 +1959,7 @@ Message * DefaultProviderManager::handleModifySubscriptionRequest( const Message
 	    context.insert(request->operationContext.get(SubscriptionInstanceContainer::NAME));
 	    context.insert(request->operationContext.get(SubscriptionLanguageListContainer::NAME));
 	    context.insert(request->operationContext.get(SubscriptionFilterConditionContainer::NAME));
+		 context.insert(request->operationContext.get(SubscriptionFilterQueryContainer::NAME));
 
         CIMObjectPath subscriptionName = request->subscriptionInstance.getPath();
 

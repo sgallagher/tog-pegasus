@@ -61,6 +61,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 #include <Pegasus/Query/QueryExpression/QueryExpression.h>
+#include <Pegasus/Query/QueryExpression/SubscriptionFilterQueryContainer.h>
 #include <Pegasus/Query/QueryCommon/QueryException.h>
 #include <Pegasus/Repository/RepositoryQueryContext.h>
 
@@ -5243,6 +5244,8 @@ void IndicationService::_sendCreateRequests
             (subscription));
         request->operationContext.insert(SubscriptionFilterConditionContainer
             (condition,queryLanguage));
+		  request->operationContext.insert(SubscriptionFilterQueryContainer
+		      (query,queryLanguage));
         request->operationContext.insert(SubscriptionLanguageListContainer
             (acceptLangs));
         request->operationContext.insert(IdentityContainer(userName));
@@ -5380,7 +5383,8 @@ void IndicationService::_sendModifyRequests
             (subscription));
         request->operationContext.insert(SubscriptionFilterConditionContainer
             (condition,queryLanguage));
-
+		  request->operationContext.insert(SubscriptionFilterQueryContainer
+		      (query,queryLanguage));
         request->operationContext.insert(SubscriptionLanguageListContainer
             (acceptLangs));
         request->operationContext.insert(IdentityContainer(userName));

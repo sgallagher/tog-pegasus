@@ -144,6 +144,15 @@ static const Char16 roundTripChars[] =
 			0x78BC,
 			0xdbc0,
 			0xdc01,
+			0x00};
+
+// Another UTF-16 string used for testing
+// Note: the first 3 chars are taken from section 3.3.2 of the CIM-over-HTTP spec.
+// The next 2 chars are a UTF-16 surrogate pair
+Char16 hangugo[] = {0xD55C, 0xAD6D, 0xC5B4,
+			0xdbc0,
+			0xdc01,
+                    'g','l','o','b','a','l',
 			0x00};	
 
 // Constructor - initializes parameters for the MessageLoader that won't
@@ -351,10 +360,8 @@ void LocalizedProvider::modifyInstance(
 			// Note: the ContentLanguageString property is the only r/w string that
 			// can be tagged with a content language.  So the ContentLangauges
 			// for the instance really only applies to that property.
-			ContentLanguageListContainer cl_container = 
-				(ContentLanguageListContainer)context.get(ContentLanguageListContainer::NAME);
-			ContentLanguages contentLangs = cl_container.getLanguages();
-	
+                    ContentLanguages contentLangs = getRequestContentLanguages(context);
+
 			// Save the language of the ContentLanguageString	
 			_instanceLangs[i] = contentLangs;			
 			
@@ -407,10 +414,8 @@ void LocalizedProvider::createInstance(
 	// Get the language that the client tagged to the instance
 	// Note: the ContentLanguageString property is the only r/w string that
 	// can be tagged with a content language.  So the ContentLanguages
-	// for the instance really only applies to that property.	
-	ContentLanguageListContainer cl_container = 
-		(ContentLanguageListContainer)context.get(ContentLanguageListContainer::NAME);
-	ContentLanguages contentLangs = cl_container.getLanguages();
+	// for the instance really only applies to that property.
+        ContentLanguages contentLangs = getRequestContentLanguages(context);	
 	
 	// Save the language of the ContentLanguageString	
 	_instanceLangs.append(contentLangs);
@@ -543,11 +548,33 @@ void LocalizedProvider::invokeMethod(
     handler.processing();
  
     String utf16String(roundTripChars);
+    String hangugoString(hangugo);
     String expectedString(roundTripChars);
     Char16 expectedChar16 = roundTripChars[1];
 
     String outString(roundTripChars);
     Char16 outChar16 = roundTripChars[2];
+
+    // Compare the AcceptLanguages from the client with the expected lang
+    AcceptLanguages acceptLangs = getRequestAcceptLanguages(context);
+    AcceptLanguages AL_DE;
+    AL_DE.add(AcceptLanguageElement("de", float(0.8))); 
+    if (acceptLangs != AL_DE)
+    {
+        throw CIMOperationFailedException(acceptLangs.toString());
+    }
+
+    // Compare the ContentLanguages from the client with the expected lang
+    ContentLanguages contentLangs = getRequestContentLanguages(context);
+    ContentLanguages CL_DE("de");
+    if (contentLangs != CL_DE)
+    {
+        throw CIMOperationFailedException(contentLangs.toString());
+    }
+
+    // Set the ContentLanguages in the response.  This is just to test
+    // that the language tag is passed to the client.
+    handler.setLanguages(CL_DE);	
 
     if (objectReference.getClassName().equal (CLASSNAME))
     {	
@@ -593,7 +620,7 @@ void LocalizedProvider::invokeMethod(
                 throw CIMException(CIM_ERR_FAILED);
             }
 	}
-        else if (methodName.equal (utf16String))
+        else if (methodName.equal (hangugoString))
         {
             // The method was called that has UTF-16 chars in
             // in the method name.  The purpose of this test
@@ -601,7 +628,7 @@ void LocalizedProvider::invokeMethod(
             // in the CIMMethod HTTP header.
 
             // Return UTF-16 chars in the return string
-            handler.deliver( CIMValue( outString ) );
+            handler.deliver( CIMValue( hangugoString ) );
         }
         else
         {
@@ -714,6 +741,16 @@ AcceptLanguages LocalizedProvider::getRequestAcceptLanguages(
 		(AcceptLanguageListContainer)context.get(AcceptLanguageListContainer::NAME);
 	return al_container.getLanguages();		
 }	
+
+
+ContentLanguages LocalizedProvider::getRequestContentLanguages(
+											const OperationContext & context)
+{
+    // Get the language that the client sent in the request
+    ContentLanguageListContainer cl_container = 
+		(ContentLanguageListContainer)context.get(ContentLanguageListContainer::NAME);
+    return cl_container.getLanguages();
+}
 
 CIMObjectPath LocalizedProvider::buildRefFromInstance(const CIMInstance& instanceObject)
 {

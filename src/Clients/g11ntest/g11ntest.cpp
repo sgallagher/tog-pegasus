@@ -274,11 +274,30 @@ static void TestLocalizedMethods( CIMClient& client, Boolean verboseTest )
   const CIMName METHOD = CIMName("UTFMethod");
   const CIMObjectPath REFERENCE = CIMObjectPath("Sample_LocalizedProviderClass.Identifier=0");
 
+  // Array of UTF-16 chars to be sent and received to the server.
+  // Note: the first 3 chars are taken from section 3.3.2 of the CIM-over-HTTP spec.
+  // The next 2 chars are a UTF-16 surrogate pair
+  Char16 hangugo[] = {0xD55C, 0xAD6D, 0xC5B4,
+			0xdbc0,
+			0xdc01,
+                    'g','l','o','b','a','l',
+			0x00};
+
   try
   {
+     // Before we begin, set the language objects to be sent to the provider
+     AcceptLanguages AL_DE;
+     AL_DE.add(AcceptLanguageElement("de", float(0.8)));
+     ContentLanguages CL_DE("de"); 
+     client.setRequestAcceptLanguages(AL_DE);
+     client.setRequestContentLanguages(CL_DE);
+
      //
      //  TEST 1 - Invoke Method with UTF-16 in input parameters, output parameters
      //  and return value. 
+     //
+     //  This will also check that Accept-Language and Content-Language are
+     //  are sent to and received from a Method Provider.
 
      cout << endl << "METHOD TEST 1: Invoke Method with UTF-16 parameters" << endl;	
 
@@ -326,6 +345,11 @@ static void TestLocalizedMethods( CIMClient& client, Boolean verboseTest )
      paramVal.get( outParam2 );
      MYASSERT (outChar16 == outParam2);
 
+     if (verboseTest)
+        cout << "Checking returned Content-Language = " << CL_DE << endl;
+
+     MYASSERT(CL_DE == client.getResponseContentLanguages());
+
      //
      //  TEST 2 - Invoke method with UTF-16 in the method name.
      //
@@ -334,7 +358,7 @@ static void TestLocalizedMethods( CIMClient& client, Boolean verboseTest )
 
      cout << endl << "METHOD TEST 2: Invoke Method with UTF-16 method name" << endl;
 
-     String methodName(utf16Chars);	
+     String methodName(hangugo);	
 
      if (verboseTest)
         cout << "Invoking the method" << endl;
@@ -348,7 +372,7 @@ static void TestLocalizedMethods( CIMClient& client, Boolean verboseTest )
 
      // Check UTF-16 in the return value just to make sure that the method
      // was called on the provider.
-     String expectedRtnString1(utf16Chars);
+     String expectedRtnString1(hangugo);
      String rtnString1;
 
      if (verboseTest)

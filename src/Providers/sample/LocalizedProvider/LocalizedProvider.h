@@ -228,6 +228,8 @@ private:
 
     AcceptLanguages getRequestAcceptLanguages(const OperationContext & context);
 
+    ContentLanguages getRequestContentLanguages(const OperationContext & context);
+
 	CIMObjectPath buildRefFromInstance(const CIMInstance& instanceObject);
     	
 	ContentLanguages _loadLocalizedProps(AcceptLanguages & acceptLangs,

@@ -33,13 +33,13 @@
 //                 Hewlett-Packard Company (sushma_fernandes@hp.com)
 //            : Yi Zhou Hewlett-Packard Company (yi_zhou@hp.com)
 //		Sean Keenan (sean.keenan@hp.com)
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP # 101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
 #include <cstdlib>
 //#include <dlfcn.h>
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/FileSystem.h>
 #include "HandlerTable.h"

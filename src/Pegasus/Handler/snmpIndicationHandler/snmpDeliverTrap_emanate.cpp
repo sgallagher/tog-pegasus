@@ -35,7 +35,6 @@
 
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/ArrayInternal.h>
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/InternalException.h>
 #include "snmpDeliverTrap_emanate.h"
 

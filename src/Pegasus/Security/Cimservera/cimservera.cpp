@@ -34,7 +34,6 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/System.h>
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/PegasusVersion.h>

@@ -211,7 +211,7 @@ class peg_suballoc;
 #define PEGASUS_STOP_LEAK_CHECK() peg_suballocator::get_instance()->set_leak_mode(false)
 #else
 #define PEGASUS_NEW(a, h) new
-#define PEGASUS_ARRAY_NEW(a, i, h) new (a)[(i)] 
+#define PEGASUS_ARRAY_NEW(a, i, h) new a[(i)] 
 #define PEGASUS_DELETE(a) delete((a))
 #define PEGASUS_ARRAY_DELETE(a) delete [] ((a))
 #define PEGASUS_CHECK_FOR_LEAKS(h) 

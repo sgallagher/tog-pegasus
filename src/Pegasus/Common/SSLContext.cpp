@@ -198,102 +198,99 @@ class SSLCallback
 {
 
 public:
-	static int verificationCallback(int preVerifyOk, X509_STORE_CTX *ctx);
-	static int verificationCRLCallback(int ok, X509_STORE_CTX *ctx, X509_STORE* sslCRLStore);
+    static int verificationCallback(int preVerifyOk, X509_STORE_CTX *ctx);
+    static int verificationCRLCallback(int ok, X509_STORE_CTX *ctx, X509_STORE* sslCRLStore);
 };
 
 //
 // Callback function that is called by the OpenSSL library. This function
 // checks whether the certificate is listed in any of the CRL's
 //
+// return 1 if revoked, 0 otherwise
+//
 int SSLCallback::verificationCRLCallback(int ok, X509_STORE_CTX *ctx, X509_STORE* sslCRLStore)
 {
-	PEG_METHOD_ENTER(TRC_SSL, "SSLCallback::verificationCRLCallback");
+    PEG_METHOD_ENTER(TRC_SSL, "SSLCallback::verificationCRLCallback");
     
-	char buf[1024];
+    char buf[1024];
 
-	//check whether a CRL store was specified
+    //check whether a CRL store was specified
     if (sslCRLStore == NULL)
     {
         PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: CRL store is NULL");
-        return ok;
+        return 0;
     }
 
-	//get the current certificate info
-	X509* currentCert;
-	X509_NAME* issuerName;
-	X509_NAME* subjectName;
-	ASN1_INTEGER* serialNumber;
+    //get the current certificate info
+    X509* currentCert;
+    X509_NAME* issuerName;
+    X509_NAME* subjectName;
+    ASN1_INTEGER* serialNumber;
 
     currentCert = X509_STORE_CTX_get_current_cert(ctx);
-	subjectName = X509_get_subject_name(currentCert);
-	issuerName = X509_get_issuer_name(currentCert);
-	serialNumber = X509_get_serialNumber(currentCert);
+    subjectName = X509_get_subject_name(currentCert);
+    issuerName = X509_get_issuer_name(currentCert);
+    serialNumber = X509_get_serialNumber(currentCert);
 
-	//log certificate information
-	//this is information in the "public" key, so it does no harm to log it
+    //log certificate information
+    //this is information in the "public" key, so it does no harm to log it
     X509_NAME_oneline(issuerName, buf, sizeof(buf));
-	PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "---> SSL: Certificate Data: Issuer/Subject");
-	PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, buf);
-	X509_NAME_oneline(subjectName, buf, sizeof(buf));
-	PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, buf);
+    PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "---> SSL: Certificate Data: Issuer/Subject");
+    PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, buf);
+    X509_NAME_oneline(subjectName, buf, sizeof(buf));
+    PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, buf);
 
-	//initialize the CRL store
-	X509_STORE_CTX crlStoreCtx;
-	if (!X509_STORE_CTX_init(&crlStoreCtx, sslCRLStore, NULL, NULL))
-	{
-		//fail if a CRL store was specified but we cannot open it
-		PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL2, "---> SSL: Error: Could not initialize CRL store context");
-		return 0;
-	}
+    //initialize the CRL store
+    X509_STORE_CTX crlStoreCtx;
+    X509_STORE_CTX_init(&crlStoreCtx, sslCRLStore, NULL, NULL);
 
-	PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "---> SSL: Initialized CRL store");
+    PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "---> SSL: Initialized CRL store");
 
-	//attempt to get a CRL issued by the certificate's issuer
-	X509_OBJECT obj;
-	if (X509_STORE_get_by_subject(&crlStoreCtx, X509_LU_CRL, issuerName, &obj) <= 0)
-	{
-	 	PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: No CRL by that issuer");
-		return ok; 
-	}
-	X509_STORE_CTX_cleanup(&crlStoreCtx);
+    //attempt to get a CRL issued by the certificate's issuer
+    X509_OBJECT obj;
+    if (X509_STORE_get_by_subject(&crlStoreCtx, X509_LU_CRL, issuerName, &obj) <= 0)
+    {
+        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: No CRL by that issuer");
+        return 0; 
+    }
+    X509_STORE_CTX_cleanup(&crlStoreCtx);
 
-	//get CRL
+    //get CRL
     X509_CRL* crl = obj.data.crl;
-	if (crl == NULL)
-	{
-		PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "---> SSL: CRL is null");
-		return ok;
-	} else
-	{
+    if (crl == NULL)
+    {
+        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "---> SSL: CRL is null");
+        return 0;
+    } else
+    {
         PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "---> SSL: Found CRL by that issuer");
-	}
+    }
 
-	//get revoked certificates
+    //get revoked certificates
     STACK_OF(X509_REVOKED)* revokedCerts = NULL;
     revokedCerts = X509_CRL_get_REVOKED(crl);
-	int numRevoked = sk_X509_REVOKED_num(revokedCerts);
-	Tracer::trace(TRC_SSL, Tracer::LEVEL4,"---> SSL: Number of certificates revoked by the issuer %d\n", numRevoked);
+    int numRevoked = sk_X509_REVOKED_num(revokedCerts);
+    Tracer::trace(TRC_SSL, Tracer::LEVEL4,"---> SSL: Number of certificates revoked by the issuer %d\n", numRevoked);
 
-	//check whether the subject's certificate is revoked
-	X509_REVOKED* revokedCert = NULL;
-	for (int i = 0; i < sk_X509_REVOKED_num(revokedCerts); i++)
-	{
-		revokedCert = (X509_REVOKED *)sk_value(X509_CRL_get_REVOKED(crl), i);
+    //check whether the subject's certificate is revoked
+    X509_REVOKED* revokedCert = NULL;
+    for (int i = 0; i < sk_X509_REVOKED_num(revokedCerts); i++)
+    {
+        revokedCert = (X509_REVOKED *)sk_value(X509_CRL_get_REVOKED(crl), i);
 
-		//a matching serial number indicates revocation
-		if (ASN1_INTEGER_cmp(revokedCert->serialNumber, serialNumber) == 0) 
-		{
-			PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL2, "---> SSL: Certificate is revoked");
-			X509_STORE_CTX_set_error(ctx, X509_V_ERR_CERT_REVOKED);
-			return 0;
-		}
-	}
+        //a matching serial number indicates revocation
+        if (ASN1_INTEGER_cmp(revokedCert->serialNumber, serialNumber) == 0) 
+        {
+            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL2, "---> SSL: Certificate is revoked");
+            X509_STORE_CTX_set_error(ctx, X509_V_ERR_CERT_REVOKED);
+            return 1;
+        }
+    }
 
-	PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "---> SSL: Certificate is not revoked at this level");
+    PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "---> SSL: Certificate is not revoked at this level");
 
-	PEG_METHOD_EXIT();
-    return ok;
+    PEG_METHOD_EXIT();
+    return 0;
 }
 
 //
@@ -311,10 +308,10 @@ int SSLCallback::verificationCallback(int preVerifyOk, X509_STORE_CTX *ctx)
     X509   *currentCert;
     SSL    *ssl;
     int    verifyError = X509_V_OK;
-	int    revoked = -1;
+    int    revoked = -1;
    
-	Tracer::trace(TRC_SSL, Tracer::LEVEL4, 
-				  "--->SSL: Preverify Error %d", verifyError);
+    Tracer::trace(TRC_SSL, Tracer::LEVEL4, 
+                  "--->SSL: Preverify Error %d", verifyError);
 
     //
     // get the verification callback info specific to each SSL connection
@@ -329,40 +326,38 @@ int SSLCallback::verificationCallback(int preVerifyOk, X509_STORE_CTX *ctx)
     //
     if (exData->verifyCertificateCallback == NULL)
     {
-		Tracer::trace(TRC_SSL, Tracer::LEVEL4,
-					  "--->SSL: No verification callback specified");
+        Tracer::trace(TRC_SSL, Tracer::LEVEL4,
+                      "--->SSL: No verification callback specified");
 
-		if (exData->_crlStore == NULL) 
-		{
-			PEG_METHOD_EXIT();
-			return (preVerifyOk);
-		} else
-		{
-			revoked = verificationCRLCallback(preVerifyOk,ctx,exData->_crlStore);
-			Tracer::trace(TRC_SSL, Tracer::LEVEL4, "---> SSL: CRL callback returned %d", revoked);
+        if (exData->_crlStore != NULL) 
+        {
+            revoked = verificationCRLCallback(preVerifyOk,ctx,exData->_crlStore);
+            Tracer::trace(TRC_SSL, Tracer::LEVEL4, "---> SSL: CRL callback returned %d", revoked);
 
-			if (revoked == 0) //with the SSL callbacks '0' indicates failure
-			{
-				PEG_METHOD_EXIT();
+            if (revoked) //with the SSL callbacks '0' indicates failure
+            {
+                PEG_METHOD_EXIT();
                 return 0;
-			}
-		}
+            }
+        }
     }
 
     //
-	// Check to see if a CRL path is defined
-	//
-	if (exData->_crlStore) 
-	{
+    // Check to see if a CRL path is defined
+    //
+    if (exData->_crlStore != NULL) 
+    {
         revoked = verificationCRLCallback(preVerifyOk,ctx,exData->_crlStore);
-		Tracer::trace(TRC_SSL, Tracer::LEVEL4, "---> SSL: CRL callback returned %d", revoked);
+        Tracer::trace(TRC_SSL, Tracer::LEVEL4, "---> SSL: CRL callback returned %d", revoked);
 
-		if (revoked == 0) //with the SSL callbacks '0' indicates failure
-		{
-			PEG_METHOD_EXIT();
+        if (revoked) //with the SSL callbacks '0' indicates failure
+        {
+            PEG_METHOD_EXIT();
             return 0;
-		}
-	}
+        }
+    }
+
+    Tracer::trace(TRC_SSL, Tracer::LEVEL4, "---> SSL: CRL callback returned %d", revoked);
 
     //
     // get the current certificate
@@ -413,7 +408,7 @@ int SSLCallback::verificationCallback(int preVerifyOk, X509_STORE_CTX *ctx)
     if (!preVerifyOk)
     {
         Tracer::trace(TRC_SSL, Tracer::LEVEL4, 
-					  "---> SSL: certificate default verification error: %s", (const char*)errorStr.getCString());
+                      "---> SSL: certificate default verification error: %s", (const char*)errorStr.getCString());
     }
 
     //
@@ -429,9 +424,9 @@ int SSLCallback::verificationCallback(int preVerifyOk, X509_STORE_CTX *ctx)
     }
     String issuerName = String(buf);
 
-	//
-	// Create the certificate object
-	//
+    //
+    // Create the certificate object
+    //
     exData->_peerCertificate = new SSLCertificateInfo(subjectName, issuerName, version, serialNumber,
         notBefore, notAfter, depth, errorCode, errorStr, preVerifyOk);
 
@@ -472,10 +467,10 @@ extern "C" int prepareForCallback(int preVerifyOk, X509_STORE_CTX *ctx)
 //
 // Implement OpenSSL locking callback.
 //
-void pegasus_locking_callback( int 		mode, 
-                               int 		type, 
-                               const char* 	file, 
-                               int 		line)
+void pegasus_locking_callback( int      mode, 
+                               int      type, 
+                               const char*  file, 
+                               int      line)
 {
     // Check whether the mode is lock or unlock.
 
@@ -539,7 +534,7 @@ SSLContextRep::SSLContextRep(
                        const String& trustStore,
                        const String& certPath,
                        const String& keyPath,
-					   const String& crlPath,
+                       const String& crlPath,
                        SSLCertificateVerifyFunction* verifyCert,
                        const String& randomFile)
 {
@@ -553,7 +548,7 @@ SSLContextRep::SSLContextRep(
 
     _crlPath = crlPath;
 
-	_crlStore = NULL;
+    _crlStore = NULL;
 
     _certificateVerifyFunction = verifyCert;
 
@@ -619,7 +614,7 @@ SSLContextRep::SSLContextRep(const SSLContextRep& sslContextRep)
     _trustStore = sslContextRep._trustStore;
     _certPath = sslContextRep._certPath;
     _keyPath = sslContextRep._keyPath;
-	_crlPath = sslContextRep._crlPath;
+    _crlPath = sslContextRep._crlPath;
     _verifyPeer = sslContextRep._verifyPeer;
     _certificateVerifyFunction = sslContextRep._certificateVerifyFunction;
     _randomFile = sslContextRep._randomFile;
@@ -692,8 +687,8 @@ void SSLContextRep::_randomInit(const String& randomFile)
             //l10n
             //throw( SSLException("Random seed file required"));
             MessageLoaderParms parms("Common.SSLContext.RANDOM_SEED_FILE_REQUIRED",
-            						 "Random seed file required");
-            throw SSLException(parms);						 
+                                     "Random seed file required");
+            throw SSLException(parms);                       
         }
 
         //
@@ -709,12 +704,12 @@ void SSLContextRep::_randomInit(const String& randomFile)
                     "Not enough seed data in seed file: " + randomFile);
                 PEG_METHOD_EXIT();
                 //l10n
-		// do not put in $0 in default message, but pass in filename for bundle message
+        // do not put in $0 in default message, but pass in filename for bundle message
                 //throw( SSLException("Not enough seed data in random seed file."));
                 MessageLoaderParms parms("Common.SSLContext.NOT_ENOUGH_SEED_DATA_IN_FILE",
-            						     "Not enough seed data in random seed file.",
-            						     randomFile);
-            	throw SSLException(parms);
+                                         "Not enough seed data in random seed file.",
+                                         randomFile);
+                throw SSLException(parms);
             }
         }
         else
@@ -725,8 +720,8 @@ void SSLContextRep::_randomInit(const String& randomFile)
             //l10n
             //throw( SSLException("Seed file '" + randomFile + "' does not exist."));
             MessageLoaderParms parms("Common.SSLContext.SEED_FILE_DOES_NOT_EXIST",
-            						 "Seed file '$0' does not exist.",
-            						 randomFile);
+                                     "Seed file '$0' does not exist.",
+                                     randomFile);
             throw SSLException(parms);
         }
 
@@ -753,12 +748,12 @@ void SSLContextRep::_randomInit(const String& randomFile)
                     seedRet);
                 PEG_METHOD_EXIT();
                 //l10n 485
-		// do not put in $0 in default message, but pass in filename for bundle message
+        // do not put in $0 in default message, but pass in filename for bundle message
                 //throw( SSLException("Not enough seed data in random seed file."));
                 MessageLoaderParms parms("Common.SSLContext.NOT_ENOUGH_SEED_DATA_IN_FILE",
-            						     "Not enough seed data in random seed file.",
-            						     randomFile);
-            	throw SSLException(parms);
+                                         "Not enough seed data in random seed file.",
+                                         randomFile);
+                throw SSLException(parms);
             }
         }
     }
@@ -773,7 +768,7 @@ void SSLContextRep::_randomInit(const String& randomFile)
         //l10n
         //throw( SSLException("Not enough seed data."));
         MessageLoaderParms parms("Common.SSLContext.NOT_ENOUGH_SEED_DATA",
-            					 "Not enough seed data.");
+                                 "Not enough seed data.");
         throw SSLException(parms);
     }
 
@@ -796,16 +791,16 @@ SSL_CTX * SSLContextRep::_makeSSLContext()
         //l10n
         //throw( SSLException("Could not get SSL CTX"));
         MessageLoaderParms parms("Common.SSLContext.COULD_NOT_GET",
-            					 "Could not get SSL CTX");
+                                 "Could not get SSL CTX");
         throw SSLException(parms);
     }
 
 #ifdef PEGASUS_SSL_WEAKENCRYPTION
     if (!(SSL_CTX_set_cipher_list(sslContext, SSL_TXT_EXP40))){
-    	//l10n
+        //l10n
         //throw( SSLException("Could not set the cipher list"));
         MessageLoaderParms parms("Common.SSLContext.COULD_NOT_SET_CIPHER_LIST",
-            					 "Could not set the cipher list");
+                                 "Could not set the cipher list");
         throw SSLException(parms);
     }
 #endif
@@ -929,53 +924,53 @@ SSL_CTX * SSLContextRep::_makeSSLContext()
         }
     }
 
-	if (_crlPath != String::EMPTY) 
-	{
+    if (_crlPath != String::EMPTY) 
+    {
         //need to save this -- can we make it static since there's only one CRL for cimserver?
-		X509_LOOKUP* pLookup;
-		
-		_crlStore = X509_STORE_new();
+        X509_LOOKUP* pLookup;
+        
+        _crlStore = X509_STORE_new();
 
-		//the validity of the crlstore was checked in ConfigManager during server startup
-		if (FileSystem::isDirectory(_crlPath))
+        //the validity of the crlstore was checked in ConfigManager during server startup
+        if (FileSystem::isDirectory(_crlPath))
         {
             Tracer::trace(TRC_SSL, Tracer::LEVEL3,
-						  "---> SSL: CRL store is a directory in %s", (const char*)_crlPath.getCString());
+                          "---> SSL: CRL store is a directory in %s", (const char*)_crlPath.getCString());
 
             if ((pLookup = X509_STORE_add_lookup(_crlStore, X509_LOOKUP_hash_dir())) == NULL)
-			{
-				MessageLoaderParms parms("Common.SSLContext.COULD_NOT_LOAD_CRLS",
-										 "Could not load certificate revocation list.");
-				X509_STORE_free(_crlStore);
+            {
+                MessageLoaderParms parms("Common.SSLContext.COULD_NOT_LOAD_CRLS",
+                                         "Could not load certificate revocation list.");
+                X509_STORE_free(_crlStore);
                 PEG_METHOD_EXIT();
                 throw SSLException(parms);
-			}
+            }
 
             X509_LOOKUP_add_dir(pLookup, (const char*)_crlPath.getCString(), X509_FILETYPE_PEM);
 
             PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, 
                             "---> SSL: Successfully configured CRL directory");
 
-		} else 
-		{
+        } else 
+        {
             Tracer::trace(TRC_SSL, Tracer::LEVEL3,
-						  "---> SSL: CRL store is the file %s", (const char*)_crlPath.getCString());
+                          "---> SSL: CRL store is the file %s", (const char*)_crlPath.getCString());
 
             if ((pLookup = X509_STORE_add_lookup(_crlStore, X509_LOOKUP_file())) == NULL)
-			{
+            {
                 MessageLoaderParms parms("Common.SSLContext.COULD_NOT_LOAD_CRLS",
-										 "Could not load certificate revocation list.");
-				X509_STORE_free(_crlStore);
+                                         "Could not load certificate revocation list.");
+                X509_STORE_free(_crlStore);
                 PEG_METHOD_EXIT();
                 throw SSLException(parms);
-			}
+            }
 
-			X509_LOOKUP_load_file(pLookup, (const char*)_crlPath.getCString(), X509_FILETYPE_PEM);
-	             
-			PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, 
-                            "---> SSL: Successfully configured CRL file");   	
-		}
-	}
+            X509_LOOKUP_load_file(pLookup, (const char*)_crlPath.getCString(), X509_FILETYPE_PEM);
+                 
+            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, 
+                            "---> SSL: Successfully configured CRL file");      
+        }
+    }
 
     Boolean keyLoaded = false;
 
@@ -998,7 +993,7 @@ SSL_CTX * SSLContextRep::_makeSSLContext()
             PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL2,
                 "---> SSL: No server certificate found in " + _certPath);
             MessageLoaderParms parms("Common.SSLContext.COULD_NOT_GET_SERVER_CERTIFICATE",
-            					     "Could not get server certificate.");
+                                     "Could not get server certificate.");
             PEG_METHOD_EXIT();
             throw SSLException(parms);
         }
@@ -1019,9 +1014,9 @@ SSL_CTX * SSLContextRep::_makeSSLContext()
             if (!_verifyPrivateKey(sslContext, _certPath))
             {
                 MessageLoaderParms parms("Common.SSLContext.COULD_NOT_GET_PRIVATE_KEY",
-            					         "Could not get private key.");
+                                         "Could not get private key.");
                 PEG_METHOD_EXIT();
-            	throw SSLException(parms);
+                throw SSLException(parms);
             }
             keyLoaded = true;
         }
@@ -1042,7 +1037,7 @@ SSL_CTX * SSLContextRep::_makeSSLContext()
         if (!_verifyPrivateKey(sslContext, _keyPath))
         {
             MessageLoaderParms parms("Common.SSLContext.COULD_NOT_GET_PRIVATE_KEY",
-            					         "Could not get private key.");
+                                         "Could not get private key.");
             PEG_METHOD_EXIT();
             throw SSLException(parms);
         }
@@ -1192,7 +1187,7 @@ SSLContext::SSLContext(
         const String& trustStore,
         const String& certPath,
         const String& keyPath,
-		const String& crlPath,
+        const String& crlPath,
         SSLCertificateVerifyFunction* verifyCert,
         const String& randomFile)
 {
@@ -1487,7 +1482,7 @@ String SSLCertificateInfo::toString() const
 SSLCallbackInfo::SSLCallbackInfo(SSLCertificateVerifyFunction* verifyCert, X509_STORE* crlStore)
 {
     verifyCertificateCallback = verifyCert;
-	_crlStore = crlStore;
+    _crlStore = crlStore;
     _peerCertificate = NULL;  
 }
 

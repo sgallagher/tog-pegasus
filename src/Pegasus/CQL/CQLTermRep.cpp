@@ -45,7 +45,11 @@ CQLTermRep::CQLTermRep(){}
 
 CQLTermRep::CQLTermRep(const CQLFactor& theFactor)
 {
-   _Factors.append(theFactor);
+  PEG_METHOD_ENTER(TRC_CQL,"CQLTermRep:CQLTermRep()");
+ 
+  _Factors.append(theFactor);
+  
+  PEG_METHOD_EXIT();
 }
 
 CQLTermRep::CQLTermRep(const CQLTermRep& rep){
@@ -92,25 +96,31 @@ CQLValue CQLTermRep::resolveValue(const CIMInstance& CI, const QueryContext& Que
 
 void CQLTermRep::appendOperation(FactorOpType inFactorOpType, CQLFactor inFactor)
 {
-   _FactorOperators.append(inFactorOpType);
-   _Factors.append(inFactor);
+  PEG_METHOD_ENTER(TRC_CQL,"CQLTermRep::appendOperation()");
+
+  _FactorOperators.append(inFactorOpType);
+  _Factors.append(inFactor);
+
+  PEG_METHOD_EXIT();
 }
 
 String CQLTermRep::toString()const
 {
-   String returnStr;
+  PEG_METHOD_ENTER(TRC_CQL,"CQLTermRep::toString()");
 
-   returnStr.append(_Factors[0].toString());
+  String returnStr;
 
-   for(Uint32 i = 0; i < _FactorOperators.size(); ++i)
-   {
+  returnStr.append(_Factors[0].toString());
+  
+  for(Uint32 i = 0; i < _FactorOperators.size(); ++i)
+    {
       returnStr.append(_FactorOperators[i] == 
-            mult ? String(" * ") : divide ? String(" / ") : String(" concat "));
+		       mult ? String(" * ") : divide ? String(" / ") : String(" concat "));
       returnStr.append(_Factors[i+1].toString());
-   }
-
-   return returnStr;
-
+    }
+  
+  PEG_METHOD_EXIT();
+  return returnStr;
 }
 
 Boolean CQLTermRep::isSimple()const
@@ -120,9 +130,15 @@ Boolean CQLTermRep::isSimple()const
 
 Boolean CQLTermRep::isSimpleValue()const
 {
-   if(_Factors.size() == 1) 
+  PEG_METHOD_ENTER(TRC_CQL,"CQLTermRep::isSimpleValue()");
+  if(_Factors.size() == 1) 
+    {
+      PEG_METHOD_EXIT();
       return _Factors[0].isSimpleValue();
-   return false;
+    }   
+  
+  PEG_METHOD_EXIT();
+  return false;
 }
 
 Array<CQLFactor> CQLTermRep::getFactors()const
@@ -138,17 +154,21 @@ Array<FactorOpType> CQLTermRep::getOperators()const
 void CQLTermRep::applyContext(QueryContext& inContext,
                               CQLChainedIdentifier& inCid)
 {
-   for(Uint32 i = 0; i < _Factors.size(); ++i)
-   {
+  PEG_METHOD_ENTER(TRC_CQL,"CQLTermRep::applyContext()");
+
+  for(Uint32 i = 0; i < _Factors.size(); ++i)
+    {
       _Factors[i].applyContext(inContext, inCid);
-   }
+    }
+
+  PEG_METHOD_EXIT();
 }
 
 Boolean CQLTermRep::operator==(const CQLTermRep& rhs)const
 {
   PEG_METHOD_ENTER(TRC_CQL,"CQLTermRep::operator==()");
   
- for(Uint32 i = 0; i < _FactorOperators.size(); ++i)
+  for(Uint32 i = 0; i < _FactorOperators.size(); ++i)
     {
       if(_FactorOperators[i] != rhs._FactorOperators[i])
 	{
@@ -156,7 +176,7 @@ Boolean CQLTermRep::operator==(const CQLTermRep& rhs)const
 	  return false;
 	}
     }
-
+  
   for(Uint32 i = 0; i < _Factors.size(); ++i)
     {
       if(_Factors[i] != rhs._Factors[i])
@@ -165,7 +185,7 @@ Boolean CQLTermRep::operator==(const CQLTermRep& rhs)const
 	  return false;
 	}
     }
- 
+  
   PEG_METHOD_EXIT();
   return true;
 }

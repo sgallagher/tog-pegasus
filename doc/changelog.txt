@@ -131,6 +131,14 @@ TAG: Version_1_09.
 
     The CIM clients that are linked into the Pegasus build have been
     updated to catch CIMClientException instead of CIMException.
+    
+ 20.(KS) 18 Apr 2002 -Incorporated tomof client into the build.  Includes
+    usage and help.
+    This program outputs mof or xml from repository either as a client
+    or direct to the repository.
+ 
+ 21.(KS) 18 Apr 2002 - Changed all FIXME, etc. in compiler to ATTN with
+    priorities.
 
 ========================================================================
 

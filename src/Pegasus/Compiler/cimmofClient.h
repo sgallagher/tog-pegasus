@@ -67,7 +67,7 @@ class PEGASUS_COMPILER_LINKAGE cimmofClient {
   CIMClient *_client;
  public:
   cimmofClient();
-  ~cimmofClient();
+  virtual ~cimmofClient();
   void init(String &location,
 	    compilerCommonDefs::operationType ot);
   virtual void addClass(const String &nameSpace, CIMClass &Class) const;

@@ -72,7 +72,7 @@ class PEGASUS_COMPILER_LINKAGE cimmofRepositoryInterface {
                           REPOSITORY_INTERFACE_CLIENT
   };
   cimmofRepositoryInterface();
-  ~cimmofRepositoryInterface();
+  virtual ~cimmofRepositoryInterface();
   void init(_repositoryType type, String location,
 	    compilerCommonDefs::operationType ot);
   Boolean ok() const { return _repository || _client; }

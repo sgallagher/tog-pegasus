@@ -38,14 +38,14 @@ Boolean DynamicLibrary::load(void)
         CString cstr = _fileName.getCString();
 
         _handle = ::LoadLibrary(cstr);
+
+        if(_handle == 0)
+        {
+            return(false);
+        }
     }
 
-    if(_handle != 0)
-    {
-        return(true);
-    }
-
-    return(false);
+    return(true);
 }
 
 Boolean DynamicLibrary::unload(void)

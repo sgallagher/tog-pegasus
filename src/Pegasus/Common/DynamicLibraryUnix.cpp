@@ -58,14 +58,14 @@ Boolean DynamicLibrary::load(void)
         #elif defined(PEGASUS_OS_OS400)
         _handle = OS400_LoadDynamicLibrary((const char *)cstr);
         #endif
+
+        if(_handle == 0)
+        {
+            return(false);
+        }
     }
 
-    if(_handle != 0)
-    {
-        return(true);
-    }
-
-    return(false);
+    return(true);
 }
 
 Boolean DynamicLibrary::unload(void)

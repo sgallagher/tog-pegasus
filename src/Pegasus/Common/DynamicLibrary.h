@@ -41,34 +41,13 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-/*
-// This is an opaque type which is used to represent dynamic library
-// handles returned by the System::loadDynamicLibrary() method and
-// accepted by the System::loadDynamicProcedure() method.
-typedef struct DynamicLibraryHandle_* DynamicLibraryHandle;
-
-// This is an opaque type which is returned by System::loadDynamicSymbol().
-// Values of this type may be casted to the appropriate target type.
-#if !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && !defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
-typedef struct DynamicSymbolHandle_* DynamicSymbolHandle;
-#else
-extern "C" {typedef int (* DynamicSymbolHandle)(void);}
-#endif
-*/
-
 class PEGASUS_COMMON_LINKAGE DynamicLibrary
 {
 public:
     #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
     typedef HMODULE LIBRARY_HANDLE;
     typedef int LIBRARY_SYMBOL;
-    #elif defined(PEGASUS_OS_AIX)
-    typedef void * LIBRARY_HANDLE;
-    typedef void * LIBRARY_SYMBOL;
-    #elif defined(PEGASUS_OS_LINUX)
-    typedef void * LIBRARY_HANDLE;
-    typedef void * LIBRARY_SYMBOL;
-    #elif defined(PEGASUS_OS_HPUX)
+    #elif defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_AIX) || defined(PEGASUS_OS_HPUX)
     typedef void * LIBRARY_HANDLE;
     typedef void * LIBRARY_SYMBOL;
     #elif defined(PEGASUS_OS_OS400)

@@ -540,6 +540,11 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
 	 PEG_METHOD_EXIT();
 	 return((PEGASUS_THREAD_RETURN)0);
       }
+      catch(...)
+      {
+	 return((PEGASUS_THREAD_RETURN)0);
+      }
+      
    }
 
    // TODO: Why is this needed? Why not just continue?

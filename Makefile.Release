@@ -59,7 +59,15 @@ PEGASUS_LIBRARIES = \
    libpegserver \
    libpeguser \
    libpegwql \
-   libDefaultProviderManager
+   libDefaultProviderManager \
+   libCertificateProvider \
+   libpegqueryexpression \
+   libpegcql \
+   libpegquerycommon \
+   libCIMQueryCapabilitiesProvider \
+   libInteropProvider \
+   libCIMOMStatDataProvider
+
 
 ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
 PEGASUS_LIBRARIES += \

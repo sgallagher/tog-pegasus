@@ -3,9 +3,8 @@ include $(ROOT)/mak/config.mak
 include $(ROOT)/test/config.mak
 
 XMLSCRIPTS = \
-    CreateModule01 CreateProvider01 \
-    CreateModule02 CreateProvider02 \
-    CreateCapability01 CreateCapability02 \
+    CreateModule01 CreateProvider01 CreateCapability01 \
+    CreateModule02 CreateProvider02 CreateCapability02 \
     CreateFilter01 CreateFilter02 CreateFilter03 CreateFilter04 \
     CreateFilter05 CreateFilter06 \
     CreateHandler01 CreateHandler02 CreateHandler03 \
@@ -45,10 +44,11 @@ XMLSCRIPTS = \
 #   GetSubscription01 GetSubscription02 GetSubscription03 \
 #   GetSubscription04 GetSubscription05 GetSubscription06 \
 #   GetSubscription07 GetSubscription08 GetSubscription09 \
-#   CreateModule03 CreateProvider03 \
-#   CreateCapability03 \
-#   ModifyCapability01 ModifyCapability02 \
+#   CreateFilter13 CreateSubscription15 \
+#   DeleteSubscription15 DeleteFilter13 \
 #   CreateFilter11 CreateFilter12 \
+#   CreateModule03 CreateProvider03 CreateCapability03 \
+#   ModifyCapability01 ModifyCapability02 \
 #   DeleteCapability03 DeleteProvider03 DeleteModule03
 
 include $(ROOT)/test/configend.mak

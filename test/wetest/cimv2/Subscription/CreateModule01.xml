@@ -10,7 +10,7 @@
         <IPARAMVALUE NAME="NewInstance">
           <INSTANCE CLASSNAME="PG_ProviderModule">
             <PROPERTY NAME="Name" TYPE="string">
-              <VALUE> Module01 </VALUE>
+              <VALUE> ProcessIndicationProviderModule </VALUE>
             </PROPERTY>
             <PROPERTY NAME="Vendor" TYPE="string">
               <VALUE> Hewlett-Packard Company </VALUE>
@@ -25,7 +25,7 @@
               <VALUE> 2.0 </VALUE>
             </PROPERTY>
             <PROPERTY NAME="Location" TYPE="string"> 
-              <VALUE> /tmp/module01 </VALUE>
+              <VALUE> ProcessIndicationProvider </VALUE>
             </PROPERTY>
           </INSTANCE>
         </IPARAMVALUE>

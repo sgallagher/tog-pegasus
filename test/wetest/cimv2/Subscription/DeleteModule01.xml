@@ -11,7 +11,7 @@
           <INSTANCENAME CLASSNAME="PG_ProviderModule">
             <KEYBINDING NAME="Name">
               <KEYVALUE VALUETYPE="string">
-              Module01
+              ProcessIndicationProviderModule
               </KEYVALUE>
             </KEYBINDING>
           </INSTANCENAME>

@@ -10,13 +10,13 @@
         <IPARAMVALUE NAME="NewInstance">
           <INSTANCE CLASSNAME="PG_ProviderCapabilities">
             <PROPERTY NAME="ProviderModuleName" TYPE="string"> 
-              <VALUE> Module01 </VALUE>
+              <VALUE> ProcessIndicationProviderModule </VALUE>
             </PROPERTY>
             <PROPERTY NAME="ProviderName" TYPE="string"> 
-              <VALUE> MyProcessProvider </VALUE>
+              <VALUE> ProcessIndicationProvider </VALUE>
             </PROPERTY>
             <PROPERTY NAME="CapabilityID" TYPE="string"> 
-              <VALUE> capability01 </VALUE>
+              <VALUE> ProcessIndicationProviderCapability </VALUE>
             </PROPERTY>
             <PROPERTY NAME="ClassName" TYPE="string"> 
               <VALUE> CIM_ProcessIndication </VALUE>

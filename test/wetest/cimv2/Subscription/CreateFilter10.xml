@@ -24,6 +24,9 @@
             <PROPERTY NAME="Query" TYPE="string"> 
               <VALUE> SELECT * FROM CIM_ProcessIndication </VALUE>
             </PROPERTY>
+            <PROPERTY NAME="SourceNamespace" TYPE="string">
+              <VALUE> root/cimv2 </VALUE>
+            </PROPERTY>
           </INSTANCE>
         </IPARAMVALUE>
       </IMETHODCALL>

@@ -7,12 +7,12 @@
 <INSTANCENAME CLASSNAME="PG_Provider">
 <KEYBINDING NAME="Name">
 <KEYVALUE VALUETYPE="string">
-MyAlertProvider
+AlertIndicationProvider
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="ProviderModuleName">
 <KEYVALUE VALUETYPE="string">
-Module02
+AlertIndicationProviderModule
 </KEYVALUE>
 </KEYBINDING>
 </INSTANCENAME>

@@ -391,7 +391,7 @@ public:
 	//PEGASUS_ASSERT(asyncReply != 0);
 	
 	//  Chip - receiver of the request should delete it
-	delete asyncRequest;
+	//delete asyncRequest;
 	// <<< Wed Apr 10 21:05:10 2002 mdd >>>
     }
 

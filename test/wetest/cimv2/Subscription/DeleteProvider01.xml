@@ -11,12 +11,12 @@
           <INSTANCENAME CLASSNAME="PG_Provider">
             <KEYBINDING NAME="Name">
               <KEYVALUE VALUETYPE="string">
-              MyProcessProvider
+              ProcessIndicationProvider
               </KEYVALUE>
             </KEYBINDING>
             <KEYBINDING NAME="ProviderModuleName">
               <KEYVALUE VALUETYPE="string">
-              Module01
+              ProcessIndicationProviderModule
               </KEYVALUE>
             </KEYBINDING>
           </INSTANCENAME>

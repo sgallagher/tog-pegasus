@@ -317,12 +317,21 @@ void IndicationService::_initialize (void)
         for (Uint8 j = 0; j < indicationProviders.size (); j++)
         {
             duplicate = false;
+            String provider1 = indicationProviders [j].provider.getProperty 
+                (indicationProviders [j].provider.findProperty
+                (_PROPERTY_PROVIDERNAME)).getValue ().toString ();
+            String module1 = indicationProviders [j].provider.getProperty 
+                (indicationProviders [j].provider.findProperty
+                (_PROPERTY_PROVIDERMODULENAME)).getValue ().toString ();
             for (Uint8 k = 0; k < startProviders.size () && !duplicate; k++)
             {
-                if ((indicationProviders [j].provider == 
-                     startProviders [k].provider) &&
-                    (indicationProviders [j].providerModule ==
-                     startProviders [k].providerModule))
+                String provider2 = startProviders [k].provider.getProperty 
+                    (startProviders [k].provider.findProperty
+                    (_PROPERTY_PROVIDERNAME)).getValue ().toString ();
+                String module2 = startProviders [k].provider.getProperty 
+                    (startProviders [k].provider.findProperty
+                    (_PROPERTY_PROVIDERMODULENAME)).getValue ().toString ();
+                if ((provider1 == provider2) && (module1 == module2))
                 {
                     duplicate = true;
                 }
@@ -1350,7 +1359,9 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
 
     CIMInstance handler;
     CIMInstance indication = request->indicationInstance;
-    
+//cout << "Indication Service received indication: ";
+//cout << indication.getClassName () << endl;
+
     try
     {
         WQLSimplePropertySource propertySource = _getPropertySourceFromInstance(
@@ -4135,6 +4146,11 @@ void IndicationService::_sendEnableRequestsCallBack(AsyncOpNode *op,
 						    MessageQueue *q, 
 						    void *parm)
 {
+    const char METHOD_NAME [] = 
+        "IndicationService::_sendEnableRequestsCallBack";
+
+    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+
     IndicationService *service = 
       static_cast<IndicationService *>(q);
     struct enableProviderList *epl = 
@@ -4153,7 +4169,7 @@ void IndicationService::_sendEnableRequestsCallBack(AsyncOpNode *op,
    PEGASUS_ASSERT(response != 0);
    if (response->cimException.getCode() == CIM_ERR_SUCCESS)
    {
-      //cout << "Enable accepted" << endl;
+      //cout << "Create accepted: " << response->messageId << endl;
       
       //
       //  Insert entry into subscription table 
@@ -4170,9 +4186,9 @@ void IndicationService::_sendEnableRequestsCallBack(AsyncOpNode *op,
       //  Should a message be logged?
       //
       
-      //cout << "Enable rejected" << endl;
-      //cout << "Error code: " << response->cimException.getCode() << endl;
-      //cout << response->cimException.getMessage() << endl;
+      //cout << "Create rejected: " << response->messageId << endl;
+      //cout << "Error code: " << response->cimException.getCode () << endl;
+      //cout << response->cimException.getMessage () << endl;
    }
    
    //
@@ -4188,7 +4204,8 @@ void IndicationService::_sendEnableRequestsCallBack(AsyncOpNode *op,
    delete asyncReply;
    op->release();
    service->return_op(op);
-   
+
+    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
 }
 
 
@@ -4242,6 +4259,7 @@ Boolean IndicationService::_sendEnableRequests
 		 QueueIdStack (_providerManager, getQueueId ()),
 		 authType,
 		 userName);
+//cout << "Create message ID: " << request->messageId << endl;
 	
         AsyncOpNode* op = this->get_op(); 
 
@@ -4259,6 +4277,7 @@ Boolean IndicationService::_sendEnableRequests
 		  this, 
 		  (void *)epl);
 	
+//cout << "Create sent: " << request->messageId << endl;
 
         // AsyncReply * async_reply = SendWait (async_req);
 
@@ -4777,6 +4796,10 @@ void IndicationService::_sendStartCallBack(AsyncOpNode *op,
 					   MessageQueue *q,
 					   void *parm)
 {
+    const char METHOD_NAME [] = "IndicationService::_sendStartCallBack";
+
+    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+
    IndicationService *service = 
       static_cast<IndicationService *>(q);
    
@@ -4786,8 +4809,25 @@ void IndicationService::_sendStartCallBack(AsyncOpNode *op,
       static_cast<CIMEnableIndicationsRequestMessage *>
       ((static_cast<AsyncLegacyOperationStart *>(asyncRequest))->get_action());
    
-   Message *response =  
-      ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
+   //Message *response =  
+      //((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
+
+   CIMEnableIndicationsResponseMessage * response =
+      reinterpret_cast
+      <CIMEnableIndicationsResponseMessage *>
+      ((static_cast <AsyncLegacyOperationResult *>
+        (asyncReply))->get_result());
+
+    if (response->cimException.getCode () == CIM_ERR_SUCCESS)
+    {
+      //cout << "Enable accepted: " << response->messageId << endl;
+    }
+    else
+    {
+      //cout << "Enable rejected: " << response->messageId << endl;
+      //cout << "Error code: " << response->cimException.getCode () << endl;
+      //cout << response->cimException.getMessage () << endl;
+    }
 
    //
    //  ATTN: Check for return value indicating invalid queue ID
@@ -4801,6 +4841,8 @@ void IndicationService::_sendStartCallBack(AsyncOpNode *op,
    delete asyncReply;
    op->release();
    service->return_op(op);
+
+    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
 }
 
 
@@ -4836,6 +4878,8 @@ void IndicationService::_sendStart (
     //    AsyncReply * async_reply = SendWait (async_req);
     // << Wed Apr 10 12:26:16 2002 mdd >>
 
+//cout << "Enable sent: " << request->messageId << endl;
+
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
 }
 
@@ -4844,6 +4888,12 @@ WQLSimplePropertySource IndicationService::_getPropertySourceFromInstance(
 {
     Boolean booleanValue;
     WQLSimplePropertySource source;
+
+    const char METHOD_NAME [] = 
+        "IndicationService::_getPropertySourceFromInstance";
+
+    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+
 
     for (Uint8 i=0; i < indicationInstance.getPropertyCount(); i++)
     {
@@ -4937,6 +4987,11 @@ WQLSimplePropertySource IndicationService::_getPropertySourceFromInstance(
                     WQL_STRING_VALUE_TAG));
                 break;
 
+            case CIMType::DATETIME :
+                source.addValue (propertyName,
+                    WQLOperand ());
+                break;
+
             case CIMType::NONE :
                 source.addValue(propertyName,
                     WQLOperand());
@@ -4944,6 +4999,7 @@ WQLSimplePropertySource IndicationService::_getPropertySourceFromInstance(
         }
     }
 
+    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
     return source;
 }
 

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CGIClient.cpp,v $
+// Revision 1.16  2001/02/19 21:42:30  karl
+// namespace create
+//
 // Revision 1.15  2001/02/19 01:47:16  mike
 // Renamed names of the form CIMConst to ConstCIM.
 //
@@ -902,8 +905,7 @@ static void PrintInstanceNames(
 
     // PrintHeader("EnumerateClassNames Result");
     //PrintRule();
-    cout << "trace operation Print Instance Names\r\n\r\n";  
-
+ 
     cout << "<table border=1>\n";
     cout << "<tr><th>Instance Names</th><tr>\n";
     // For each name prepare the table entry with an href for
@@ -1137,14 +1139,40 @@ static void CreateNameSpace(const CGIQueryString& qs)
   // Get NameSpace:
     String nameSpace = GetNameSpaceQueryField(qs);
 
-    // Get ClassName:
+    // Get nameSpace Name:
     String nameSpaceName;
     String className;
 
     const char* tmp;
 
-    if ((tmp = qs.findValue("ClassName")))
-	className = tmp;
+    if ((tmp = qs.findValue("NameSpace")))
+	nameSpaceName = tmp;
+
+    cout << "tmp " << tmp;
+
+    // Create the instance
+    CIMInstance newInstance("__Namespace");
+    newInstance.addProperty(CIMProperty("name", nameSpaceName));
+     try
+    {
+	// Time the connection
+	Stopwatch elapsedTime;
+    	cout << "Before call" << endl;
+	CIMClient client;
+	client.connect("localhost", 8888);
+    
+	// Call enumerate Instances CIM Method
+	client.createInstance(nameSpace, newInstance);
+	cout << "after call" << endl;
+    } 
+
+    catch(Exception& e)
+    {
+	ErrorExit(e.getMessage());
+    }
+
+
+
     String message = "CreateNameSpace Under Construction: "; 
     ErrorExit(message);
 
@@ -1167,6 +1195,98 @@ static void DeleteNameSpace(const CGIQueryString& qs)
     ErrorExit(message);
 
 }
+
+static void EnumerateNameSpaces(const CGIQueryString& qs)
+{
+  // Get NameSpace:
+    String nameSpace = GetNameSpaceQueryField(qs);
+
+    // Get ClassName:
+    String nameSpaceName;
+    String className;
+
+    const char* tmp;
+
+    if ((tmp = qs.findValue("ClassName")))
+	className = tmp;
+
+    // Invoke the method:
+
+    try
+    {
+	// Time the connection
+	Stopwatch elapsedTime;
+
+	CIMClient client;
+	client.connect("localhost", 8888);
+
+	// Call enumerate Instances CIM Method
+	Array<CIMReference> instanceNames = client.enumerateInstanceNames(
+	    nameSpace, className);
+
+	// Convert from CIMReference to String form
+	Array<String> tmpInstanceNames;
+        for (Uint32 i = 0; i < instanceNames.getSize(); i++)
+	{
+	    String tmp;
+	    CIMReference::referenceToInstanceName(instanceNames[i], tmp);
+	    tmpInstanceNames.append(tmp);
+	}
+
+	// Print the name array
+	PrintHTMLHead("GetNameSpaces", "Enumerate NameSpaces Result");
+
+	cout << "<table border=1>\n";
+	cout << "<tr><th>Namespaces</th><tr>\n";
+	for (Uint32 i = 0, n = instanceNames.getSize(); i < n; i++)
+	{
+	    cout << "<tr><td>\n";
+	    // Instnance name in form 
+	    // __Namespace.name="namespace"
+	    // Strip off all but the namespace itself
+	    String work = tmpInstanceNames[i];
+	    Uint32 pos = work.find('\"');
+	    if (pos != -1)
+		work = tmpInstanceNames[i].subString((pos+1), -1);
+	    
+	    // remove trailing quote
+	    work.remove((work.getLength() - 1),-1);
+	    // Create href for click to get classnames
+	    String href = "/pegasus/cgi-bin/CGIClient?";
+	    href.append("Operation=EnumerateClassNames&");
+	    href.append("NameSpace=");
+	    href.append(work);
+	    href.append("&");
+    
+	    href.append("InstanceName=&");
+
+    
+	    href.append("DeepInheritance=true");
+
+	    PrintA(href, work);
+
+	    cout << "</tr></td>\n";
+	}
+	// Close the HTML Table
+	cout << "</table>\n";
+	
+	// Close the Page
+	cout << "<p>Click on a namespace to enumerate class Names</p>";
+	cout << "<p>Returned " << instanceNames.getSize() << " Names";
+	cout << " in " << elapsedTime.getElapsed() << " Seconds</p>\n";
+	cout << "</body>\n" << "</html>\n";
+	
+	
+	
+	
+	}
+    catch(Exception& e)
+    {
+	ErrorExit(e.getMessage());
+    }
+
+}
+
 
 
 /** DefineHostParameters - Function to make the changes
@@ -1255,6 +1375,8 @@ int main(int argc, char** argv)
 	    CreateNameSpace(qs);
 	else if (strcmp(operation, "DeleteNameSpace") == 0)
 	    DeleteNameSpace(qs);
+	else if (strcmp(operation, "EnumerateNameSpaces") == 0)
+	    EnumerateNameSpaces(qs);
         else
 	{
 	    String message = "CGIClient - Unknown operation: ";

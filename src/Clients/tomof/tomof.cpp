@@ -37,7 +37,7 @@
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Client/CIMClient.h>
-#include <Pegasus/Common/XMLWriter.h>
+#include <Pegasus/Common/XmlWriter.h>
 #include "clientRepositoryInterface.h"
 
 PEGASUS_USING_PEGASUS;

@@ -31,6 +31,7 @@
 //              Mike Day (mdday@us.ibm.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Arthur Pichlkostner (via Markus: sedgewick_de@yahoo.de)
+//				Willis White (whiwill@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -44,6 +45,7 @@
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/StatisticalData.h>
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/CIMDateTime.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -189,35 +191,39 @@ class PEGASUS_COMMON_LINKAGE Message
 
       void endProvider();
 
-      timeval getStartServerTime() const { return _timeServerStart; }
+      CIMDateTime getStartServerTime() const { return _timeServerStart; }
 
-      void setStartServerTime(timeval timeServerStart)
+      void setStartServerTime(CIMDateTime timeServerStart)
       {
            _timeServerStart = timeServerStart;
       }
 
-      timeval getStartProviderTime() const { return _timeProviderStart; }
+      CIMDateTime getStartProviderTime() const { return _timeProviderStart; }
 
-      void setStartProviderTime(timeval timeProviderStart)
+      void setStartProviderTime(CIMDateTime timeProviderStart)
       {
           _timeProviderStart = timeProviderStart;
       }
 
-      timeval getEndServerTime() const { return _timeServerEnd; }
+      CIMDateTime getEndServerTime() const { return _timeServerEnd; }
 
-      void setEndServerTime (timeval timeServerEnd)
+      void setEndServerTime (CIMDateTime timeServerEnd)
       {
           _timeServerEnd = timeServerEnd;
       }
 
-      timeval getEndProviderTime() const { return _timeProviderEnd; }
+      CIMDateTime getEndProviderTime() const { return _timeProviderEnd; }
 
-      void setEndProviderTime(timeval timeProviderEnd)
+      void setEndProviderTime(CIMDateTime timeProviderEnd)
       {
           _timeProviderEnd = timeProviderEnd;
       }
 
-      Uint32 getTotalTime() { return _totalTime; }
+	  CIMDateTime getProviderTime() { return _providerTime;}
+
+      CIMDateTime getTotalTime() { return _totalTime; }
+
+	  CIMDateTime getServerTime() { return _serverTime; }
 //
 #endif
 
@@ -293,11 +299,13 @@ class PEGASUS_COMMON_LINKAGE Message
       Uint32 _mask;
       HttpMethod _httpMethod;
 // Needed for performance measurement
-      timeval _timeServerStart;
-      timeval _timeServerEnd;
-      timeval _timeProviderStart;
-      timeval _timeProviderEnd;
-      Uint64 _totalTime;
+      CIMDateTime _timeServerStart;
+      CIMDateTime _timeServerEnd;
+      CIMDateTime _timeProviderStart;
+      CIMDateTime _timeProviderEnd;
+	  CIMDateTime _providerTime;
+	  CIMDateTime _serverTime;	
+      CIMDateTime _totalTime;
 //
 
       // << Tue Jul  1 11:02:35 2003 mdd >> pep_88 and helper for i18n and l10n
@@ -469,11 +477,12 @@ enum MessageType
     ASYNC_ASYNC_MODULE_OP_START,
     ASYNC_ASYNC_MODULE_OP_RESULT,
 
+	CIM_INITIALIZE_PROVIDER_REQUEST_MESSAGE,
+    CIM_INITIALIZE_PROVIDER_RESPONSE_MESSAGE,
+
+
     CIM_NOTIFY_PROVIDER_ENABLE_REQUEST_MESSAGE,
     CIM_NOTIFY_PROVIDER_ENABLE_RESPONSE_MESSAGE,
-
-    CIM_INITIALIZE_PROVIDER_REQUEST_MESSAGE,
-    CIM_INITIALIZE_PROVIDER_RESPONSE_MESSAGE,
 
     NUMBER_OF_MESSAGES
 };

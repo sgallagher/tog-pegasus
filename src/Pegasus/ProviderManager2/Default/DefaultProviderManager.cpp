@@ -32,6 +32,7 @@
 //              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //				Seema Gupta (gseema@in.ibm.com) for PEP135
+//				Willis White (whiwill@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -1075,7 +1076,7 @@ Message * DefaultProviderManager::handleAssociatorsRequest(const Message * messa
 		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
 	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 
-        // ATTN KS STAT_GETSTARTTIME;
+        STAT_GETSTARTTIME;
         pm_service_op_lock op_lock(&ph.GetProvider());
 
         ph.GetProvider().associators(
@@ -1183,6 +1184,7 @@ Message * DefaultProviderManager::handleAssociatorNamesRequest(const Message * m
 		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
 	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 
+		STAT_GETSTARTTIME;
         pm_service_op_lock op_lock(&ph.GetProvider());
 
         ph.GetProvider().associatorNames(

@@ -223,43 +223,59 @@ const char* MessageTypeToString(Uint32 messageType)
 #ifdef PEGASUS_HAS_PERFINST
 void Message::startServer()
 {
-    pegasus_gettimeofday(&_timeServerStart);
+    _timeServerStart = CIMDateTime::getCurrentDateTime();
 }
 
 void Message::endServer()
 {
-    pegasus_gettimeofday(&_timeServerEnd);
+	
+	_timeServerEnd = CIMDateTime::getCurrentDateTime();
 
-    //Uint16 statType = (Uint16)((_type>36)?_type-36:_type-1);
-    // CIM_GET_CLASS_RESPONSE_MESSAGE is the first response message
-    Uint16 statType = (Uint16)((_type > CIM_GET_CLASS_RESPONSE_MESSAGE) ?
+    
+    Uint16 statType = (Uint16)((_type >= CIM_GET_CLASS_RESPONSE_MESSAGE) ?
        _type-CIM_GET_CLASS_RESPONSE_MESSAGE:_type-1);
 
-    Uint64 providerTime = (Uint64)
-        ((_timeProviderEnd.tv_sec - _timeProviderStart.tv_sec)*1000000 +
-        (_timeProviderEnd.tv_usec - _timeProviderStart.tv_usec));
+	Uint16 _provTi, _totTi, _servTi;
+	//May need to use intermedate varriables in doc say that _providerTime should be a Timespan
+	try
+    {
+	_provTi = CIMDateTime::getDifference(_timeProviderStart, _timeProviderEnd);
+	}
+	//If there is an error in the provider no time is added to the count
+	catch (InvalidDateTimeFormatException e)
+	{_provTi = 0;}
+	catch (DateTimeOutOfRangeException e)
+	{_provTi = 0;}
 
-    _totalTime = (Uint64)((_timeServerEnd.tv_sec -
-        _timeServerStart.tv_sec)*1000000 +
-        (_timeServerEnd.tv_usec - _timeServerStart.tv_usec));
 
-    Uint64 serverTime =  _totalTime - providerTime;
+	try
+	{
+	_totTi =  CIMDateTime::getDifference(_timeServerStart, _timeServerEnd);
+	}
+	// if there is an error in the CIMOM no time is added to the count
+	catch (InvalidDateTimeFormatException e) {_totTi = 0;}
+	catch (DateTimeOutOfRangeException e) {_totTi =0;}		
+		
+	// totoal time subtract the provider time equall the server time
 
-    StatisticalData::current()->addToValue(serverTime ,
+     _servTi =  _totTi-_provTi;
+
+    StatisticalData::current()->addToValue(_servTi,
         statType, StatisticalData::SERVER );
 
-    StatisticalData::current()->addToValue(providerTime ,
+    StatisticalData::current()->addToValue(_provTi,
         statType, StatisticalData::PROVIDER );
+
 }
 
 void Message::startProvider()
 {
-    pegasus_gettimeofday(&_timeProviderStart);
+    _timeProviderStart = CIMDateTime::getCurrentDateTime();
 }
 
 void Message::endProvider()
 {
-    pegasus_gettimeofday(&_timeProviderEnd);
+    _timeProviderEnd = CIMDateTime::getCurrentDateTime();
 }
 #endif
 

@@ -789,6 +789,62 @@ void monitor_2::run(void)
 
 }
 
+int  monitor_2::solicitSocketMessages(
+    Sint32 socket,
+    Uint32 events,
+    Uint32 queueId,
+    int type)
+{
+
+   PEG_METHOD_ENTER(TRC_HTTP, "Monitor::solicitSocketMessages");
+
+   _entry_mut.lock(pegasus_thread_self());
+
+   for(int index = 0; index < (int)_entries.size(); index++)
+   {
+      try
+      {
+	 if(_entries[index]._status.value() == monitor_2_entry::EMPTY)
+	 {
+	    _entries[index].socket = socket;
+	    //_entries[index].queueId  = queueId;
+	    //_entries[index]._type = type;
+	    _entries[index]._status = _MonitorEntry::IDLE;
+	    _entry_mut.unlock();
+
+	    return index;
+	 }
+      }
+      catch(...)
+      {
+      }
+
+   }
+   _entry_mut.unlock();
+   PEG_METHOD_EXIT();
+   return -1;
+}
+
+
+void monitor_2::unsolicitSocketMessages(Sint32 socket)
+{
+
+    PEG_METHOD_ENTER(TRC_HTTP, "monitor_2::unsolicitSocketMessages");
+    _entry2_mut.lock(pegasus_thread_self());
+
+    for(int index = 0; index < (int)_entries2.size(); index++)
+    {
+       if(_entries2[index].socket == socket)
+       {
+	  _entries2[index]._status = monitor_2_entry::EMPTY; 
+	  _entries2[index].socket = -1;
+	  break;
+       }
+    }
+    _entry2_mut.unlock();
+    PEG_METHOD_EXIT();
+}
+
 void* monitor_2::set_session_dispatch(void (*dp)(monitor_2_entry*))
 {
   void* old = (void *)_session_dispatch;

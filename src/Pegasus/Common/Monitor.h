@@ -276,7 +276,9 @@ public:
 class PEGASUS_COMMON_LINKAGE monitor_2_entry
 {
 public:
- 
+  Sint32 socket;
+  AtomicInt _status;
+
   monitor_2_entry(void);
   monitor_2_entry(pegasus_socket&, monitor_2_entry_type _type, void* accept, void* dispatch);
   monitor_2_entry(const monitor_2_entry&);
@@ -306,6 +308,7 @@ public:
   void set_dispatch(void*);
   
   m2e_rep* _rep;
+	enum entry_status {IDLE, BUSY, DYING, EMPTY};
   
 };
 
@@ -323,6 +326,16 @@ class PEGASUS_COMMON_LINKAGE monitor_2
       void tickle(void);
       void run(void);
       void stop(void);
+      Array<monitor_2_entry> _entries2;
+      Mutex _entry2_mut;
+
+      void unsolicitSocketMessages(Sint32);
+      int solicitSocketMessages(
+          Sint32 socket,
+          Uint32 events,
+          Uint32 queueId,
+          int type);
+   
       
       void* set_session_dispatch( void (*)(monitor_2_entry*));
       void* set_accept_dispatch( void (*)(monitor_2_entry*));
@@ -358,6 +371,8 @@ class PEGASUS_COMMON_LINKAGE monitor_2
       AtomicInt _die;
       fd_set rd_fd_set;  
       AtomicInt _requestCount;
+      Mutex _entry_mut;
+      Array<monitor_2_entry> _entries;
 };
 
 

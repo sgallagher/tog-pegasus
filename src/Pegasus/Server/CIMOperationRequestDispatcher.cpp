@@ -3582,7 +3582,6 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
 #ifdef NEWASSOCREGISTRATION
                 // Insert the resultclass name to limit the provider to this class.
                 requestCopy->assocClass =  providerInfo[i]._className;
-                requestCopy->objectName.setClassName(providerInfo[i]._className);
 #else
                 requestCopy->objectName.setClassName(providerInfo[i]._className);
 
@@ -3855,7 +3854,6 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
 #ifdef NEWASSOCREGISTRATION
                 // Insert the resultclass name to limit the provider to this class.
                 requestCopy->assocClass =  providerInfo[i]._className;
-                requestCopy->objectName.setClassName(providerInfo[i]._className);
 #else
                 requestCopy->objectName.setClassName(providerInfo[i]._className);
 
@@ -4124,7 +4122,6 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
 #ifdef NEWASSOCREGISTRATION
                 // Insert the resultclass name to limit the provider to this class.
                 requestCopy->resultClass =  providerInfo[i]._className;
-                requestCopy->objectName.setClassName(providerInfo[i]._className);
 #else
                 requestCopy->objectName.setClassName(providerInfo[i]._className);
 #endif
@@ -4390,7 +4387,6 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
 #ifdef NEWASSOCREGISTRATION
                 // Insert the resultclass name to limit the provider to this class.
                 requestCopy->resultClass =  providerInfo[i]._className;
-                requestCopy->objectName.setClassName(providerInfo[i]._className);
 #else
                 requestCopy->objectName.setClassName(providerInfo[i]._className);
 #endif

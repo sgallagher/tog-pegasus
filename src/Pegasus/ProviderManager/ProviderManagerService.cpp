@@ -226,6 +226,10 @@ void ProviderManagerService::_lookupProviderForAssocClass(
     Array<String>& providerNames,
     Array<String>& interfaceNames)
 {
+    // Note: This lookup method uses only the namespace from the objectPath
+    // parameter and the assocClassName parameter for input.  The remainder
+    // of the objectPath data and the resultClassName parameter are ignored.
+
     Array<CIMInstance> pInstances;
     Array<CIMInstance> pmInstances;
 
@@ -238,7 +242,7 @@ void ProviderManagerService::_lookupProviderForAssocClass(
 
     // get the provider and provider module instance from the registration manager
     if(_providerRegistrationManager->lookupAssociationProvider(
-        objectPath.getNameSpace(), assocClassName.getString(),
+        objectPath.getNameSpace(), assocClassName,
         // KS Modification for Assoc Reg objectPath.getNameSpace(), objectPath.getClassName(),
         assocClassName, resultClassName,
         pInstances, pmInstances) == false)
@@ -1640,10 +1644,8 @@ void ProviderManagerService::handleReferencesRequest(AsyncOpNode *op, const Mess
         Array<String> third;
 
         _lookupProviderForAssocClass(objectPath,
-        //                             request->associationClass,
-        //                             request->resultClass,
-                                     CIMName(),
-                                     CIMName(),
+                                     request->resultClass,
+                                     request->resultClass,
                                      first, second, third);
 
         for(Uint32 i=0,n=first.size(); i<n; i++)
@@ -1762,9 +1764,8 @@ void ProviderManagerService::handleReferenceNamesRequest(AsyncOpNode *op, const 
         // Get provider based on resultClass which we put into the
         // associationClass position for this call.
         _lookupProviderForAssocClass(objectPath,
-         //                            request->associationClass,
                                        request->resultClass,
-                                       CIMName(),
+                                       request->resultClass,
                                        first, second, third);
 
         for(Uint32 i=0,n=first.size(); i<n; i++)

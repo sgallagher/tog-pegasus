@@ -282,7 +282,7 @@ public:
                 }
             }    
 
-	    char hostName[64];
+	    char hostName[PEGASUS_MAXHOSTNAMELEN];
 	    char dummy2[64];
 	    dummy2[0] = 0;
 

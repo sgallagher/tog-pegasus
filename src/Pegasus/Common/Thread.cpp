@@ -47,6 +47,7 @@
 # error "Unsupported platform"
 #endif
 
+PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 

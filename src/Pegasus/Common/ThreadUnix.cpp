@@ -184,7 +184,7 @@ int sem_timedwait(sem_t *sem,
 
 Thread::Thread( PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *start )(void *),
 		void *parameter, Boolean detached ) : _is_detached(detached), 
-	      _cancel_enabled(false), _cancelled(false),
+	      _cancel_enabled(true), _cancelled(false),
 	      _suspend_count(), _start(start), 
 	      _tsd(), _thread_parm(parameter), _exit_code(0)
 {
@@ -219,11 +219,7 @@ void Thread::test_cancel()
 
 void Thread::thread_switch()
 {
-#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
   sched_yield();
-#else
-  pthread_yield();
-#endif
 }
 
 void Thread::sleep(Uint32 msec)
@@ -251,7 +247,7 @@ void Thread::thread_init(void)
 
 #if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
 #define PEGASUS_THREAD_EXIT_NATIVE 
-inline void Thread::exit_self(void *return_code) { pthread_exit(return_code) ; }
+void Thread::exit_self(void *return_code) { pthread_exit(return_code) ; }
 #endif
 
 // *****----- native cleanup routines -----***** //

@@ -111,9 +111,9 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
       try
       {
 	 if(milliseconds == 0)
-	    _rwlock._internal_lock.lock(pegasus_thread_self()); 
-	 else if(milliseconds == -1)
 	    _rwlock._internal_lock.try_lock(pegasus_thread_self());
+	 else if(milliseconds == -1)
+	    _rwlock._internal_lock.lock(pegasus_thread_self()); 
 	 else
 	    _rwlock._internal_lock.timed_lock(milliseconds, pegasus_thread_self());
       }
@@ -128,9 +128,11 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 //-----------------------------------------------------------------
 // Write Lock Step 1: lock the object and allow all the readers to exit
 //-----------------------------------------------------------------
+
+
 	 if(milliseconds == 0) // fast wait
 	 {
-	    if(_rwlock._rlock.count() > 0)
+	    if(_readers > 0)
 	    {
 	       _rwlock._internal_lock.unlock();
 	       caught = new WaitFailed(pegasus_thread_self());
@@ -139,7 +141,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	 }
 	 else if(milliseconds == -1) // infinite wait
 	 {
-	    while(_rwlock._rlock.count() > 0 )
+	    while(_readers > 0 )
 	       pegasus_yield();
 	 }
 	 else // timed wait 
@@ -147,7 +149,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	    struct timeval start, now;
 	    gettimeofday(&start, NULL);
 	    start.tv_usec += (1000 * milliseconds);
-	    while(_rwlock._rlock.count() > 0)
+	    while(_readers > 0)
 	    {
 	       gettimeofday(&now, NULL);
 	       if((now.tv_usec > start.tv_usec) || now.tv_sec > start.tv_sec )
@@ -273,8 +275,18 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	 }
 	 else if(milliseconds == -1) // infinite wait
 	 {
-	    _rwlock._rlock.wait(); // does not throw an exception
-	 }      else // timed wait
+	    try 
+	    {
+	       _rwlock._rlock.wait(); 
+	    }
+	    catch(IPCException& e)
+	    {
+	       _rwlock._internal_lock.unlock();
+	       caught = &e;
+	       goto throw_from_here;
+	    }
+	 }      
+	 else // timed wait
 	 {
 	    try 
 	    {

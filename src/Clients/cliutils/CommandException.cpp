@@ -101,7 +101,7 @@ DuplicateOptionException::DuplicateOptionException (char duplicateOption) :
     //_rep->message.append (_MESSAGE_DUPLICATE_OPTION2);
     MessageLoaderParms parms("Clients.cliutils.CommandException.DUPLICATE_OPTION",
     					     "duplicate \"-$0\" option",
-    					     duplicateOption);
+    					     String().append(duplicateOption));
 	_rep->message.append(MessageLoader::getMessage(parms));
 }
 
@@ -155,7 +155,7 @@ InvalidOptionArgumentException::InvalidOptionArgumentException
     MessageLoaderParms parms("Clients.cliutils.CommandException.INVALID_ARG",
     						 "argument \"$0\" is not valid for option \"-$1\"",
     						 invalidArgument,
-    						 option);
+    						 String().append(option));
     _rep->message.append(MessageLoader::getMessage(parms));
     					
 
@@ -195,7 +195,7 @@ InvalidOptionException::InvalidOptionException (char invalidOption) :
     //_rep->message.append (_MESSAGE_INVALID_OPTION2);
     MessageLoaderParms parms("Clients.cliutils.CommandException.INVALID_OPTION",
     						 "option \"-$0\" is not valid for this command",
-    						 invalidOption);
+    						 String().append(invalidOption));
     _rep->message.append(MessageLoader::getMessage(parms));						 
 }
 
@@ -235,7 +235,7 @@ MissingOptionArgumentException::MissingOptionArgumentException (char option) :
     //_rep->message.append (_MESSAGE_MISSING_OPTARG2);
     MessageLoaderParms parms("Clients.cliutils.CommandException.MISSING_OPTION_ARG",
     						 "missing argument value for \"-$0\" option",
-    						 option);
+    						 String().append(option));
     _rep->message.append(MessageLoader::getMessage(parms));
 }
 
@@ -274,7 +274,7 @@ MissingOptionException::MissingOptionException (char missingOption) :
     //_rep->message.append (_MESSAGE_MISSING_OPTION2);
     MessageLoaderParms parms("Clients.cliutils.CommandException.MISSING_OPTION",
     						 "the \"-$0\" option is required",
-    						 missingOption);
+    						 String().append(missingOption));
     _rep->message.append(MessageLoader::getMessage(parms));
 }
 
@@ -353,7 +353,7 @@ UnexpectedOptionException::UnexpectedOptionException (char optionValue) :
     //_rep->message.append (_MESSAGE_UNEXPECTED_OPT2);
     MessageLoaderParms parms("Clients.cliutils.CommandException.UNEXPECTED_OPTION",
     						 "option \"-$0\" was unexpected",
-    						 optionValue);
+    						 String().append(optionValue));
     _rep->message.append(MessageLoader::getMessage(parms));
 }
 

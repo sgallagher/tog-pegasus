@@ -42,6 +42,8 @@ class Sample_LocalizedProviderClass : Sample_ProviderClass
 	uint16 generateIndication();
 
 	uint8 getConsumerStatus();
+
+	boolean setDefaultMessageLoading( [IN] boolean newSetting);
 };
 
 // globalization test class for aggregation tests

@@ -102,8 +102,8 @@ public:
 
     virtual void complete()
     {
-	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-		    "OperationResponseHandler: complete()");
+    	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+    		    "OperationResponseHandler: complete()");
 
         if(getObjects().size() == 0)
         {
@@ -131,8 +131,8 @@ public:
 
     virtual void complete()
     {
-	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-		    "OperationResponseHandler: complete()");
+    	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+    		    "OperationResponseHandler: complete()");
 
         static_cast<CIMEnumerateInstancesResponseMessage *>(
             getResponse())->cimNamedInstances = getObjects();
@@ -152,8 +152,8 @@ public:
 
     virtual void complete()
     {
-	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-		    "OperationResponseHandler: complete()");
+    	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+    		    "OperationResponseHandler: complete()");
 
         static_cast<CIMEnumerateInstanceNamesResponseMessage *>(
             getResponse())->instanceNames = getObjects();
@@ -173,8 +173,8 @@ public:
 
     virtual void complete()
     {
-	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-		    "OperationResponseHandler: complete()");
+    	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+    		    "OperationResponseHandler: complete()");
 
         if(getObjects().size() == 0)
         {
@@ -224,8 +224,8 @@ public:
 
     virtual void complete()
     {
-	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-		    "OperationResponseHandler: complete()");
+    	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+    		    "OperationResponseHandler: complete()");
 
         if(getObjects().size() == 0)
         {
@@ -252,6 +252,27 @@ public:
     }
 
 };
+class AssociatorsResponseHandler : public OperationResponseHandler, public SimpleObjectResponseHandler
+{
+public:
+    AssociatorsResponseHandler(
+        CIMAssociatorsRequestMessage * request,
+        CIMAssociatorsResponseMessage * response)
+    : OperationResponseHandler(request, response)
+    {
+    }
+
+    virtual void complete()
+    {
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+                "OperationResponseHandler: complete()");
+
+        static_cast<CIMAssociatorsResponseMessage *>(
+            getResponse())->cimObjects = getObjects();
+    }
+
+};
+
 
 class AssociatorNamesResponseHandler : public OperationResponseHandler, public SimpleObjectPathResponseHandler
 {
@@ -265,8 +286,8 @@ public:
 
     virtual void complete()
     {
-	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-		    "OperationResponseHandler: complete()");
+    	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+    		    "OperationResponseHandler: complete()");
 
         static_cast<CIMAssociatorNamesResponseMessage *>(
             getResponse())->objectNames.appendArray(getObjects());
@@ -286,8 +307,8 @@ public:
 
     virtual void complete()
     {
-	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-		    "OperationResponseHandler: complete()");
+    	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+    		    "OperationResponseHandler: complete()");
 
         static_cast<CIMReferencesResponseMessage *>(
             getResponse())->cimObjects = getObjects();
@@ -307,8 +328,8 @@ public:
 
     virtual void complete()
     {
-	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-		    "OperationResponseHandler: complete()");
+    	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+    		    "OperationResponseHandler: complete()");
 
         static_cast<CIMReferenceNamesResponseMessage *>(
             getResponse())->objectNames.appendArray(getObjects());
@@ -328,8 +349,8 @@ public:
 
     virtual void complete()
     {
-	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-		    "OperationResponseHandler: complete()");
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+            "OperationResponseHandler: complete()");
 
         // ATTN-RK-20020903: Is it legal for the return value to be null?
         //if(getReturnValue().isNull())
@@ -393,8 +414,8 @@ public:
 
     virtual void deliver(const OperationContext & context, const CIMIndication & cimIndication)
     {
-	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-		    "OperationResponseHandler: deliver()");
+    	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+    		    "OperationResponseHandler: deliver()");
         // ATTN: temporarily convert indication to instance
         CIMInstance cimInstance(cimIndication);
 

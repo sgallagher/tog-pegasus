@@ -26,6 +26,7 @@
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
 //              Mike Day, IBM (mdday@us.ibm.com)
+//              Karl Schopmeyer(k.schopmeyer@opengroup.org) - Fix associators.
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -217,9 +218,11 @@ Triad<String, String, String> _getProviderRegPair(
 }
 
 void ProviderManagerService::_lookupProviderForAssocClass(
-    const CIMObjectPath & objectPath, const String& assocClassName,
-    const String& resultClassName,
-    Array<String>& Locations, Array<String>& providerNames,
+    const CIMObjectPath & objectPath, 
+    const CIMName& assocClassName,
+    const CIMName& resultClassName,
+    Array<String>& Locations, 
+    Array<String>& providerNames,
     Array<String>& interfaceNames)
 {
     Array<CIMInstance> pInstances;
@@ -238,7 +241,8 @@ void ProviderManagerService::_lookupProviderForAssocClass(
         pInstances, pmInstances) == false)
     {
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Provider registration not found.");
+            "Provider registration not found for " + objectPath.getNameSpace().getString() +
+            " className " + objectPath.getClassName().getString());
 
         PEG_METHOD_EXIT();
 
@@ -1353,24 +1357,100 @@ void ProviderManagerService::handleAssociatorsRequest(AsyncOpNode *op, const Mes
     PEGASUS_ASSERT(request != 0 && async != 0);
 
     Array<CIMObject> cimObjects;
-
+       
     CIMAssociatorsResponseMessage * response =
-        new CIMAssociatorsResponseMessage(
-        request->messageId,
-        PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
-        request->queueIds.copyAndPop(),
-        cimObjects);
+           new CIMAssociatorsResponseMessage(
+           request->messageId,
+           CIMException(),
+           request->queueIds.copyAndPop(),
+           cimObjects);
 
-    PEGASUS_ASSERT(response != 0);
+       PEGASUS_ASSERT(response != 0);
 
-    // preserve message key
-    response->setKey(request->getKey());
+       // preserve message key
+       response->setKey(request->getKey());
 
-    //
-    //  Set HTTP method in response from request
-    //
-    response->setHttpMethod (request->getHttpMethod ());
+       // create a handler for this request
+       AssociatorsResponseHandler handler(request, response);
 
+       // process the request
+       try
+       {
+           Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+                    "ProviderManagerService::handleAssociatorsRequest - Host name: $0  Name space: $1  Class name: $2",
+                    System::getHostName(),
+                    request->nameSpace.getString(),
+                    request->objectName.getClassName().getString());	
+
+           // make target object path
+           CIMObjectPath objectPath(
+               System::getHostName(),
+               request->nameSpace,
+               request->objectName.getClassName());
+
+           objectPath.setKeyBindings(request->objectName.getKeyBindings());
+
+           // get the provider file name and logical name
+           Array<String> first;
+           Array<String> second;
+           Array<String> third;
+
+           _lookupProviderForAssocClass(objectPath,
+            //                       request->associationClass,
+            //                       request->resultClass,
+                                     CIMName(),
+                                     CIMName(),
+                                        first, second, third);
+
+           for(Uint32 i=0,n=first.size(); i<n; i++)
+           {
+               // get cached or load new provider module
+               Provider provider =
+                  providerManager.getProvider(first[i], second[i], third[i]);
+
+               // convert arguments
+               OperationContext context;
+
+               // add the user name to the context
+               context.insert(IdentityContainer(request->userName));
+
+               // ATTN KS STAT_GETSTARTTIME;
+               pm_service_op_lock op_lock(&provider);
+
+               provider.associators(
+                   context,
+                   objectPath,
+                   request->assocClass,
+                   request->resultClass,
+                   request->role,
+                   request->resultRole,
+                   request->includeQualifiers,
+                   request->includeClassOrigin,
+                   request->propertyList.getPropertyNameArray(),
+                   handler);
+
+               STAT_PMS_PROVIDEREND;
+
+           } // end for loop
+       }
+       catch(CIMException & e)
+       {
+           PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+                "Exception: " + e.getMessage());
+           handler.setStatus(e.getCode(), e.getMessage());
+       }
+       catch(Exception & e)
+       {
+           PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+                "Exception: " + e.getMessage());
+           handler.setStatus(CIM_ERR_FAILED, e.getMessage());
+       }
+       catch(...)
+       {
+           PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+                "Exception: Unknown");
+           handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
+       }
 
     AsyncLegacyOperationResult *async_result =
         new AsyncLegacyOperationResult(
@@ -1441,8 +1521,8 @@ void ProviderManagerService::handleAssociatorNamesRequest(AsyncOpNode *op, const
         _lookupProviderForAssocClass(objectPath,
         //                             request->associationClass,
         //                             request->resultClass,
-                                     String::EMPTY,
-                                     String::EMPTY,
+                                     CIMName(),
+                                     CIMName(),
                                      first, second, third);
 
         for(Uint32 i=0,n=first.size(); i<n; i++)
@@ -1534,9 +1614,9 @@ void ProviderManagerService::handleReferencesRequest(AsyncOpNode *op, const Mess
     {
 	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
 	            "ProviderManagerService::handleReferencesRequest - Host name: $0  Name space: $1  Class name: $2",
-	            System::getHostName(),
-	   	    request->nameSpace.getString(),
- 	            request->objectName.getClassName().getString());	
+                System::getHostName(),
+                request->nameSpace.getString(),
+                request->objectName.getClassName().getString());	
 
         // make target object path
         CIMObjectPath objectPath(
@@ -1554,8 +1634,8 @@ void ProviderManagerService::handleReferencesRequest(AsyncOpNode *op, const Mess
         _lookupProviderForAssocClass(objectPath,
         //                             request->associationClass,
         //                             request->resultClass,
-                                     String::EMPTY,
-                                     String::EMPTY,
+                                     CIMName(),
+                                     CIMName(),
                                      first, second, third);
 
         for(Uint32 i=0,n=first.size(); i<n; i++)
@@ -1673,8 +1753,8 @@ void ProviderManagerService::handleReferenceNamesRequest(AsyncOpNode *op, const 
         _lookupProviderForAssocClass(objectPath,
         //                             request->associationClass,
         //                             request->resultClass,
-                                     String::EMPTY,
-                                     String::EMPTY,
+                                     CIMName(),
+                                     CIMName(),
                                      first, second, third);
 
         for(Uint32 i=0,n=first.size(); i<n; i++)

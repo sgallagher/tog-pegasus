@@ -87,9 +87,11 @@ protected:
 	const CIMName & methodName);
 
     virtual void _lookupProviderForAssocClass(
-        const CIMObjectPath & objectPath, const String& assocClassName,
-        const String& resultClassName,
-        Array<String>& Locations, Array<String>& providerNames,
+        const CIMObjectPath & objectPath,
+        const CIMName& assocClassName,
+        const CIMName& resultClassName,
+        Array<String>& Locations,
+        Array<String>& providerNames,
         Array<String>& interfaceNames);
 
 protected:

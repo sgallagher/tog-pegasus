@@ -359,7 +359,7 @@ void CIMReference::set(const String& objectName)
 
 	    if (!isdigit(*q))
 		throw IllformedObjectName(objectName);
-	    
+	
 	    while (isdigit(*q))
 		q++;
 
@@ -437,7 +437,7 @@ void CIMReference::set(const String& objectName)
 
     if (!dot)
     {
-	if (!CIMName::legal(p)) 
+	if (!CIMName::legal(p))
         {
 	    throw IllformedObjectName(objectName);
         }
@@ -553,7 +553,7 @@ void CIMReference::set(const String& objectName)
                 r++;
                 n++;
 	    }
-          
+
             Boolean isComma = false;
             if (*r)
             {
@@ -585,7 +585,7 @@ void CIMReference::set(const String& objectName)
                 throw IllformedObjectName(objectName);
             }
         }
-    }  
+    }
 
     _BubbleSort(_keyBindings);
 }

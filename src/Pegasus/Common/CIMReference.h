@@ -3,18 +3,18 @@
 // Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to 
-// deal in the Software without restriction, including without limitation the 
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
-// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+//
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
-// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
-// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
-// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
@@ -40,6 +40,8 @@ PEGASUS_NAMESPACE_BEGIN
 
 class CIMReference;
 
+typedef CIMReference CIMObjectPath;
+
 /** The KeyBinding class associates a key name, value, and type.
     It is used by the reference class to represent key bindings.
     See the CIMReference class to see how they are used.
@@ -56,7 +58,7 @@ public:
     /** Copy constructor */
     KeyBinding(const KeyBinding& x);
 
-    /** Construct a KeyBinding with a name, value, and type 
+    /** Construct a KeyBinding with a name, value, and type
         @param name String name for the key for this binding object.
         @param value String value for this key.
         @param type
@@ -71,7 +73,7 @@ public:
     /** Assignment operator */
     KeyBinding& operator=(const KeyBinding& x);
 
-    /** Accessor 
+    /** Accessor
     */
     const String& getName() const
     {
@@ -511,7 +513,7 @@ public:
         CIMReference representing all of the key/value pairs defined in the
 	Reference.
 	@return Array of KeyBinding objects from the CIMReference.
-	ATTN 
+	ATTN
     */
     const Array<KeyBinding>& getKeyBindings() const
     {
@@ -525,7 +527,7 @@ public:
     */
     void setKeyBindings(const Array<KeyBinding>& keyBindings);
 
-    /** Returns the object name represented by this reference. The returned 
+    /** Returns the object name represented by this reference. The returned
 	string is formed from the hostname, namespace, classname
 	and keybindings defined for this CIMReference object.
 	the form of the name is:
@@ -601,7 +603,7 @@ public:
     /** Check whether this reference refers to an class (if not it is an
 	instance).
     */
-    Boolean isClassName() const 
+    Boolean isClassName() const
     {
 	return !isInstanceName();
     }

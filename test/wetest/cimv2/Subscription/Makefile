@@ -27,9 +27,12 @@ XMLSCRIPTS = \
     DeleteSubscription01 DeleteSubscription02 DeleteSubscription03 \
     DeleteSubscription04 DeleteSubscription05 DeleteSubscription06 \
     DeleteSubscription07 DeleteSubscription08 DeleteSubscription09 \
-    DeleteFilter01 DeleteFilter02 DeleteFilter03 DeleteFilter04 \
+    DeleteFilter02 DeleteFilter03 DeleteFilter04 \
     DeleteFilter05 DeleteFilter06 \
-    DeleteHandler01 DeleteHandler02 DeleteHandler03
+    DeleteHandler01 DeleteHandler02 DeleteHandler03 \
+    CreateHandler09 CreateSubscription14 EnumerateSubscriptions03 \
+    DeleteHandler09 EnumerateSubscriptions04 \
+    DeleteFilter01 
 #   CreateFilter07 CreateFilter08 CreateFilter0 CreateFilter10 \
 #   CreateHandler04 CreateHandler05 CreateHandler06 CreateHandler07 \
 #   CreateHandler08 \

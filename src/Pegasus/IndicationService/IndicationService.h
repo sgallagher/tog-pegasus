@@ -380,6 +380,62 @@ private:
         const struct SubscriptionRef& subscriptionRef) const;
 
     /**
+        Determines if specified handler is Transient.
+
+        @param   nameSpace             the name space
+        @param   handler               the handler reference
+
+        @return  True if the Handler is Transient, 
+                 False otherwise
+     */
+    Boolean _isTransient (
+        const String & nameSpace,
+        const CIMReference & handler) const;
+
+    /**
+        Deletes subscriptions referencing the specified handler.
+
+        @param   nameSpace             the name space
+        @param   referenceProperty     the name of the reference property in the
+                                           subscription instance
+        @param   handler               the handler reference
+     */
+    void _deleteReferencingSubscriptions (
+        const String & nameSpace,
+        const String & referenceProperty,
+        const CIMReference & handler);
+
+    /**
+        Determines if specified Subscription has expired
+
+        NOTE: It is assumed that the instance passed to this function is a
+        Subscription instance, and that the Subscription Duration and
+        Start Time properties exist
+
+        @param   instance              the subscription instance
+
+        @return  True if the Subscription has expired, 
+                 False otherwise
+     */
+    Boolean _isExpired (
+        const CIMInstance & instance) const;
+
+    /**
+        Sets the Subscription Time Remaining property
+
+        Calculates time remaining from Subscription Start Time, Subscription 
+        Duration, and current date time
+      
+        NOTE: It is assumed that the instance passed to this function is a
+        Subscription instance, and that the Subscription Duration and
+        Start Time properties exist
+
+        @param   instance              the subscription instance
+     */
+    void _setTimeRemaining (
+        CIMInstance & instance);
+
+    /**
         Gets the parameter values required to enable the subscription request.
         If no indciation providers are found, condition and queryLanguage are 
         set to empty string.
@@ -598,6 +654,30 @@ private:
     static const char   _PROPERTY_OTHERONFATALERRORPOLICY [];
 
     /**
+        The name of the Time Of Last State Change property for Indication 
+        Subscription class
+     */
+    static const char   _PROPERTY_LASTCHANGE [];
+
+    /**
+        The name of the Subscription Start Time property for Indication 
+        Subscription class
+     */
+    static const char   _PROPERTY_STARTTIME [];
+
+    /**
+        The name of the Subscription Duration property for Indication 
+        Subscription class
+     */
+    static const char   _PROPERTY_DURATION [];
+
+    /**
+        The name of the Subscription Time Remaining property for Indication 
+        Subscription class
+     */
+    static const char   _PROPERTY_TIMEREMAINING [];
+
+    /**
         The name of the filter reference property for indication subscription
         class
      */
@@ -716,6 +796,25 @@ private:
     static const char   _PROPERTY_PROVIDER_TYPE [];
 
     //
+    //  Service names
+    //
+
+    /**
+        The string identifying the service name of the Provider Manager Service
+     */
+    static const char _SERVICE_PROVIDERMANAGER [];
+
+    /**
+        The string identifying the service name of the Handler Manager Service
+     */
+    static const char _SERVICE_HANDLERMANAGER [];
+
+    /**
+        The string identifying the service name of the Repository Service
+     */
+    static const char _SERVICE_REPOSITORY [];
+
+    //
     //  Other literal values
     //
 
@@ -734,21 +833,6 @@ private:
         The string representing the asterisk all properties symbol in WQL
      */
     static const char   _QUERY_ALLPROPERTIES [];
-
-    /**
-        The string identifying the service name of the Provider Manager Service
-     */
-    static const char _SERVICE_PROVIDERMANAGER [];
-
-    /**
-        The string identifying the service name of the Repository Service
-     */
-    static const char _SERVICE_REPOSITORY [];
-
-    /**
-        The string identifying the service name of the Handler Manager Service
-     */
-    static const char _SERVICE_HANDLERMANAGER [];
 
     //
     //  Message substrings used in exception messages
@@ -769,8 +853,9 @@ private:
     static const char _MSG_INVALID_CLASSNAME [];
 
     static const char _MSG_IN_FROM [];
-};
 
+    static const char _MSG_EXPIRED [];
+};
 
 PEGASUS_NAMESPACE_END
 

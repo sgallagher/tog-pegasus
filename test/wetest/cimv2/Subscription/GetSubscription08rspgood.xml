@@ -38,16 +38,6 @@ A string defining &quot;Other&quot; values for SubscriptionState. This value MUS
 <VALUE>
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="TimeOfLastStateChange" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="datetime">
-<QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
-<VALUE>
-Date and time of the last state change. This value is based on the notion of local date and time of the Managed System Element running the Indication processing subcomponents.
-</VALUE>
-</QUALIFIER>
-<VALUE>
-00000000000000.000000:000
-</VALUE>
-</PROPERTY>
 <PROPERTY NAME="SubscriptionDuration" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Write" TYPE="boolean" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
@@ -66,21 +56,6 @@ Seconds
 </QUALIFIER>
 <VALUE>
 0
-</VALUE>
-</PROPERTY>
-<PROPERTY NAME="SubscriptionStartTime" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="datetime">
-<QUALIFIER NAME="Write" TYPE="boolean" OVERRIDABLE="false" TOSUBCLASS="false">
-<VALUE>
-FALSE
-</VALUE>
-</QUALIFIER>
-<QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
-<VALUE>
-SubscriptionStartTime is the time the subscription was started. The value of this property is based on the notion of date and time of the Managed System Element running the Indication processing subcomponents.
-</VALUE>
-</QUALIFIER>
-<VALUE>
-00000000000000.000000:000
 </VALUE>
 </PROPERTY>
 <PROPERTY NAME="SubscriptionTimeRemaining" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
@@ -217,6 +192,16 @@ server001.acme.com
 <PROPERTY NAME="OnFatalErrorPolicy" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
 <VALUE>
 2
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="TimeOfLastStateChange" CLASSORIGIN="CIM_IndicationSubscription" TYPE="datetime">
+<VALUE>
+00000000000000.000000:000
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="SubscriptionStartTime" CLASSORIGIN="CIM_IndicationSubscription" TYPE="datetime">
+<VALUE>
+00000000000000.000000:000
 </VALUE>
 </PROPERTY>
 </INSTANCE>

@@ -233,6 +233,10 @@ void shutdownCIMOM(Uint32 timeoutValue)
     //
     String hostStr = System::getHostName();
 
+    // Put server shutdown message to the logger
+    Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
+        "Stopping $0 version $1", PEGASUS_NAME, PEGASUS_VERSION);
+
     //
     // open connection to CIMOM 
     //
@@ -314,19 +318,14 @@ void shutdownCIMOM(Uint32 timeoutValue)
         // CIM Server gets shutdown, if CIM Server is still running at 
         // this time, we will kill the cimserver process.
         //
-
-#if defined(PEGASUS_OS_HPUX)
-
-        // give cimom some time to finish up
+        // give CIM Server some time to finish up
+        //
         System::sleep(1);
-
-        // add code to kill cimom if it is still running
-
-#endif
+        cimserver_kill();
     }
     catch(Exception& e)
     {
-        PEGASUS_STD(cerr) << "Failed to shutdown server: ";
+        PEGASUS_STD(cerr) << "Error occurred while stopping the CIM Server: ";
         PEGASUS_STD(cerr) << e.getMessage() << PEGASUS_STD(endl);
         exit(1);
     }
@@ -752,25 +751,20 @@ int main(int argc, char** argv)
 
 #if defined(PEGASUS_OS_HPUX)
         //
-        // create a file to indicate that the cimserver has started
+        // create a file to indicate that the cimserver has started and
+        // save the process id of the cimserver process in the file
         //
-        fstream fs;
-        ArrayDestroyer<char> p(CIMSERVERSTART_FILE.allocateCString());
-        fs.open(p.getPointer(), ios::in | ios::out);
-        if (!fs)
+
+        // remove the old file if it exists
+        System::removeFile(fname);
+
+        // open the file
+        FILE *pid_file = fopen(fname, "w");
+        if (pid_file)
         {
-            //
-            // failed to create the file, write an entry to the log file
-            // and proceed
-            //
-            //Logger::put(Logger::STANDARD_LOG, "CIMServer", 
-            //    Logger::INFORMATION,
-            //    "Failed to open the $0 file needed by cimserverd.", 
-            //    CIMSERVERSTART_FILE);
-        }
-        else
-        {
-            fs.close();
+            // save the pid in the file
+            fprintf(pid_file, "%ld\n", (long)server_pid);
+            fclose(pid_file);
         }
 #endif
 	cout << "Started. " << endl;
@@ -814,8 +808,8 @@ int main(int argc, char** argv)
 
 #if defined(PEGASUS_OS_HPUX)
         //
-        // close the file at startup time to indicate that the cimserver
-        // has terminated normally.
+        // close the file created at startup time to indicate that the 
+        // cimserver has terminated normally.
         //
         FileSystem::removeFile(CIMSERVERSTART_FILE);
 #endif

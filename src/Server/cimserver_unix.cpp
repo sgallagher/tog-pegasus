@@ -22,21 +22,26 @@
 //
 // Author: Mike Day (mdday@us.ibm.com)
 //
-// Modified By:
+// Modified By:  Jenny Yu (jenny_yu@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/pstat.h>
 #include <fcntl.h>
 #include <unistd.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
+
 void cim_server_service(int argc, char **argv ) { return; }  
 unsigned int cimserver_remove_nt_service(void) { return(0) ; }
 unsigned int cimserver_install_nt_service(String &pegasusHome ) { return(0) ; }
+
+const char *fname = "/etc/wbem/cimserver_start.conf";
+pid_t server_pid;
 
 // daemon_init , RW Stevens, "Advance UNIX Programming"
 
@@ -50,6 +55,47 @@ int cimserver_fork(void)
   
   setsid();
   umask(0);
+
+  // get the pid of the cimserver process
+  server_pid = getpid();
+
+  return(0);
+}
+
+int cimserver_kill(void) 
+{ 
+  FILE *pid_file;
+  pid_t pid = 0;
+  
+  // open the file containing the CIMServer process ID
+  pid_file = fopen(fname, "r");
+  if (!pid_file) 
+  {
+      return (-1);
+  }
+
+  // get the pid from the file
+  fscanf(pid_file, "%ld\n", &pid);
+
+  if (pid == 0)
+  {
+     System::removeFile(fname);
+     return (-1);
+  }
+
+  //
+  // kill the process if it is still alive
+  //
+  struct pst_status pstru;
+
+  if (pstat_getproc(&pstru, sizeof(struct pst_status), (size_t)0, pid) != -1)
+  {
+      kill(pid, SIGKILL);
+  }
+
+  // remove the file
+  System::removeFile(fname);
+  
   return(0);
 }
 

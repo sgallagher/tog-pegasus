@@ -96,4 +96,10 @@ instance of CQL_TestPropertyTypes
 
    PropertyValueMap = 2;
 
-}; 
+};
+
+instance of CIM_ComputerSystem
+{
+   Description = "Computer System";
+   EnabledState = 2;
+};

@@ -161,12 +161,6 @@ public:
 	@return - Position of the qualifier to be used in subsequent
 	operations or PEG_NOT_FOUND if the qualifier is not found.
     */
-    Uint32 findQualifier(const String& name)
-    {
-	_checkRep();
-	return _rep->findQualifier(name);
-    }
-
     Uint32 findQualifier(const String& name) const
     {
 	_checkRep();
@@ -179,12 +173,6 @@ public:
 	@return - Returns True if  the qualifier object exists or false
 	if the qualifier is not found.
     */
-    Boolean existsQualifier(const String& name)
-    {
-	_checkRep();
-	return _rep->existsQualifier(name);
-    }
-
     Boolean existsQualifier(const String& name) const
     {
 	_checkRep();
@@ -229,9 +217,9 @@ public:
 	_rep->removeQualifier(pos);
 	}
 	
-	/**	getQualifierCount - Gets the numbercount of CIMQualifierobjects
+    /** getQualifierCount - Gets the number of CIMQualifier objects
 	defined for this CIMObject.
-	@return	Count of the number of CIMQalifier objects in the
+	@return	Count of the number of CIMQualifier objects in the
 	CIMObject.
 	@exception Throws the OutOfBounds exception if the index
 	is out of bounds
@@ -265,36 +253,24 @@ public:
 	PEG_NOT_FOUND if no property object found with the name defined by the
 	input.
     */
-    Uint32 findProperty(const String& name)
-    {
-	_checkRep();
-	return _rep->findProperty(name);
-    }
-
     Uint32 findProperty(const String& name) const
     {
 	_checkRep();
 	return _rep->findProperty(name);
     }
 
-    /** existsPropery - Determines if a property object with the
+    /** existsProperty - Determines if a property object with the
 	name defined by the input parameter exists in the class.
 	@parm String parameter with the property name.
 	@return True if the property object exists.
     */
-    Boolean existsProperty(const String& name)
+    Boolean existsProperty(const String& name) const
     {
 	_checkRep();
 	return _rep->existsProperty(name);
     }
 
-    Boolean existsProperty(const String& name) const
-    {
-       _checkRep();
-       return _rep->existsProperty(name);
-    }
-
-    /**	getProperty - Gets the CIMproperty object in the CIMObject defined
+    /**	getProperty - Gets the CIMProperty object in the CIMObject defined
 	by the input index parameter.
 	@param Index to the property object in the CIMObject.
     	The index to qualifier objects is zero-origin and continuous
@@ -342,7 +318,7 @@ public:
 	_rep->removeProperty(pos);
     }
 
-    /**	getPropertyCount - Gets the numbercount of CIMProperty
+    /**	getPropertyCount - Gets the number of CIMProperty
 	objects defined for this CIMObject.
 	@return	Count of the number of CIMProperty objects in the
 	CIMObject. Zero indicates that no CIMProperty objects

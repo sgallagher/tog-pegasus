@@ -1,3 +1,4 @@
+
 //%2003////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002  BMC Software, Hewlett-Packard Development
@@ -26,7 +27,7 @@
 // Author: Carol Ann Krug Graves, Hewlett-Packard Company
 //             (carolann_graves@hp.com)
 //
-// Modified By: 
+// Modified By: Seema Gupta (gseema@in.ibm.com) for PEP135
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -164,9 +165,10 @@ int main (int argc, char * argv [])
         PEGASUS_ASSERT (request->propertyList.isNull ());
         PEGASUS_ASSERT (request->authType == String::EMPTY);
         PEGASUS_ASSERT (request->userName == String::EMPTY);
-        PEGASUS_ASSERT (request->contentLanguages == ContentLanguages::EMPTY);
-        PEGASUS_ASSERT (request->acceptLanguages == AcceptLanguages::EMPTY);
-
+        PEGASUS_ASSERT (((ContentLanguageListContainer)request->operationContext.get
+			(ContentLanguageListContainer::NAME)).getLanguages()== ContentLanguages::EMPTY);
+        PEGASUS_ASSERT (((AcceptLanguageListContainer)request->operationContext.get
+			(AcceptLanguageListContainer::NAME)).getLanguages()== AcceptLanguages::EMPTY);
         CIMInstance anInstance;
         AutoPtr <CIMGetInstanceResponseMessage> response
             (new CIMGetInstanceResponseMessage

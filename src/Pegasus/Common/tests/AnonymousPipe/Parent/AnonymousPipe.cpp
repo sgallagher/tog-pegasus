@@ -26,7 +26,7 @@
 // Author: Carol Ann Krug Graves, Hewlett-Packard Company
 //             (carolann_graves@hp.com)
 //
-// Modified By: 
+// Modified By: Seema Gupta (gseema@in.ibm.com) for PEP135
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -290,8 +290,8 @@ int main ()
             PEGASUS_ASSERT (response->messageId == String ("00000002"));
             PEGASUS_ASSERT (response->cimException.getCode () == 
                 CIM_ERR_FAILED);
-            PEGASUS_ASSERT (response->contentLanguages == 
-                ContentLanguages::EMPTY);
+            PEGASUS_ASSERT (((ContentLanguageListContainer)response->operationContext.
+					get(ContentLanguageListContainer::NAME)).getLanguages()==ContentLanguages::EMPTY);
         }
         else
         {

@@ -46,6 +46,14 @@ ThreadPool *MessageQueueService::_thread_pool = 0;
 
 DQueue<MessageQueueService> MessageQueueService::_polling_list(true);
 
+void MessageQueueService::_exit_routine(void)
+{
+   _stop_polling = 1;
+   _polling_sem.signal();
+
+}
+
+
 int MessageQueueService::kill_idle_threads(void)
 {
    static struct timeval now, last;
@@ -74,6 +82,12 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(
    while ( _stop_polling.value()  == 0 ) 
    {
       _polling_sem.wait();
+      if(_stop_polling.value() != 0 )
+      {
+	 list->unlock();
+	 myself->exit_self((PEGASUS_THREAD_RETURN) 1 );
+      }
+      
       list->lock();
       MessageQueueService *service = list->next(0);
       while(service != NULL)
@@ -135,6 +149,8 @@ MessageQueueService::MessageQueueService(const char *name,
       }
       _thread_pool = new ThreadPool(0, "MessageQueueService", 0, 0,
 				    create_time, destroy_time, deadlock_time);  
+      atexit(_exit_routine);
+      
       _polling_thread.run();
    }
    _service_count++;
@@ -178,6 +194,7 @@ MessageQueueService::~MessageQueueService(void)
    }
    _meta_dispatcher_mutex.unlock();
    _polling_list.remove(this);
+   _polling_sem.signal();
 } 
 
 void MessageQueueService::_shutdown_incoming_queue(void)

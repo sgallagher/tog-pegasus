@@ -172,6 +172,8 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
       static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _callback_proc(void *);
       
       static void _sendwait_callback(AsyncOpNode *, MessageQueue *, void *);
+      static void _exit_routine(void);
+      
       AtomicInt _incoming_queue_shutdown;
       Semaphore _callback_ready;
             

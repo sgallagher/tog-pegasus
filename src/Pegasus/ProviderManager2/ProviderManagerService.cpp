@@ -187,8 +187,11 @@ void ProviderManagerService::_handle_async_request(AsyncRequest * request)
     return;
 }
 
+/* The following method shouldn't throw an exception as this runs on its own thread and the exceptions thrown by it
+don't go anywhere and get lost.
+*/
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL
-ProviderManagerService::handleCimOperation(void * arg) throw()
+ProviderManagerService::handleCimOperation(void * arg) 
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "ProviderManagerService::handleCimOperation");

@@ -94,7 +94,7 @@ private:
     //void handleResumeService() thorw();
 
     static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleCimOperation(
-        void * arg) throw();
+        void * arg) ;
 
     void handleCimRequest(AsyncOpNode *op, Message* message);
 

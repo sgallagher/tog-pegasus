@@ -16,6 +16,8 @@ DEFINES = -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM) -DPEGASUS_REMOVE_DEPRECATED
 
 DEFINES += -DPEGASUS_DISABLE_KILLING_HUNG_THREADS
 
+DEFINES += -DPEGASUS_USE_SYSLOGS
+
 #
 ## The following flags need to be set or unset
 ## to compile-in the code required for PAM authentication

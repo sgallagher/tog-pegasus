@@ -183,54 +183,58 @@ ThreadPool::ThreadPool(Sint16 initial_size,
 
 ThreadPool::~ThreadPool(void)
 {
-
-   _pools.remove(this);
-   _dying++;
-   Thread *th = 0;
-   th = _pool.remove_first();
-   while(th != 0)
+   try 
    {
-      Semaphore *sleep_sem = (Semaphore *)th->reference_tsd("sleep sem");
-
-      if(sleep_sem == 0)
+      _pools.remove(this);
+      _dying++;
+      Thread *th = 0;
+      th = _pool.remove_first();
+      while(th != 0)
       {
+	 Semaphore *sleep_sem = (Semaphore *)th->reference_tsd("sleep sem");
+	 
+	 if(sleep_sem == 0)
+	 {
+	    th->dereference_tsd();
+	    throw NullPointer();
+	 }
+	 
+	 sleep_sem->signal();
+	 sleep_sem->signal();
 	 th->dereference_tsd();
-	 throw NullPointer();
+	 // signal the thread's sleep semaphore
+	 th->cancel();
+	 th->join();
+	 th->empty_tsd();
+	 delete th;
+	 th = _pool.remove_first();
       }
 
-      sleep_sem->signal();
-      sleep_sem->signal();
-      th->dereference_tsd();
-      // signal the thread's sleep semaphore
-      th->cancel();
-      th->join();
-      th->empty_tsd();
-      delete th;
-      th = _pool.remove_first();
-   }
-
-   th = _running.remove_first();
-   while(th != 0)
-   {
-      // signal the thread's sleep semaphore
-      th->cancel();
-      th->join();
-      th->empty_tsd();
-      delete th;
       th = _running.remove_first();
-   }
+      while(th != 0)
+      {
+	 // signal the thread's sleep semaphore
+	 th->cancel();
+	 th->join();
+	 th->empty_tsd();
+	 delete th;
+	 th = _running.remove_first();
+      }
 
-   th = _dead.remove_first();
-   while(th != 0)
-   {
-      // signal the thread's sleep semaphore
-      th->cancel();
-      th->join();
-      th->empty_tsd();
-      delete th;
       th = _dead.remove_first();
+      while(th != 0)
+      {
+	 // signal the thread's sleep semaphore
+	 th->cancel();
+	 th->join();
+	 th->empty_tsd();
+	 delete th;
+	 th = _dead.remove_first();
+      }
    }
-
+   catch(...)
+   {
+   }
 }
 
 // make this static to the class
@@ -640,6 +644,8 @@ PEGASUS_THREAD_RETURN ThreadPool::_undertaker( void *parm )
    th->put_tsd("sleep sem", &_sleep_sem_del, sizeof(Semaphore), (void *)sleep_sem);
    
    struct timeval *dldt = (struct timeval *) ::operator new(sizeof(struct timeval));
+   pegasus_gettimeofday(dldt);
+   
    th->put_tsd("deadlock timer", thread_data::default_delete, sizeof(struct timeval), (void *)dldt);
    // thread will enter _loop(void *) and sleep on sleep_sem until we signal it
    th->run();

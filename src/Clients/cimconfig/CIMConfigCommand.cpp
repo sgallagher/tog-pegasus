@@ -36,6 +36,7 @@
 //              Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
 //              Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
 //              Amit K Arora, IBM (amitarora@in.ibm.com) - Bug#2333,#2351
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#1794
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -1766,8 +1767,6 @@ void CIMConfigCommand::_getPropertiesFromCIMServer
 {
     CIMProperty prop;
 
-    try
-    {
         Array<CIMKeyBinding> kbArray;
         CIMKeyBinding        kb;
 
@@ -1803,11 +1802,6 @@ void CIMConfigCommand::_getPropertiesFromCIMServer
         pos = cimInstance.findProperty(DYNAMIC_PROPERTY);
         prop = (CIMProperty)cimInstance.getProperty(pos);
         propValues.append(prop.getValue().toString());
-    }
-    catch (const Exception&)
-    {
-        throw;
-    }
 }
 
 /**
@@ -1823,8 +1817,6 @@ void CIMConfigCommand::_updatePropertyInCIMServer
     ) 
 {
 
-    try
-    {
         Array<CIMKeyBinding> kbArray;
         CIMKeyBinding        kb;
 
@@ -1870,11 +1862,6 @@ void CIMConfigCommand::_updatePropertyInCIMServer
             namedInstance,
             false,
             CIMPropertyList(propertyList));
-    }
-    catch (const Exception&)
-    {
-        throw;
-    }
 }
 
 
@@ -1891,8 +1878,6 @@ void CIMConfigCommand::_listAllPropertiesInCIMServer
 {
     Array<CIMInstance> configNamedInstances;
 
-    try
-    {
         if ( _currentValueSet ||  _plannedValueSet )
         {
             //
@@ -1960,11 +1945,6 @@ void CIMConfigCommand::_listAllPropertiesInCIMServer
             }
  
         }
-    }
-    catch (const Exception&)
-    {
-        throw;
-    }
 }
 
 PEGASUS_NAMESPACE_END

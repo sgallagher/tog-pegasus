@@ -1,5 +1,6 @@
 
 misc:
+	stripcrs *.h *.cpp
 
 strip-license:
 	mu strip //% //= *.h *.cpp

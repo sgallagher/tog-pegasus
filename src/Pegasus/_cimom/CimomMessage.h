@@ -68,8 +68,9 @@ class PEGASUS_CIMOM_LINKAGE CimomRequest : public Message
       CimomRequest(Uint32 type, 
 		   Uint32 key,
 		   QueueIdStack queue_ids = QueueIdStack(MessageQueue::_CIMOM_Q_ID),
+		   Uint32 routing = 0,
 		   Uint32 mask = message_mask::type_cimom | message_mask::type_request)
-	 : Message(type, key, mask), queues(queue_ids) {   }
+	 : Message(type, key, routing, mask), queues(queue_ids) {   }
       
       virtual ~CimomRequest(void);
       QueueIdStack queues;
@@ -82,8 +83,9 @@ class PEGASUS_CIMOM_LINKAGE CimomReply : public Message
 		 Uint32 key, 
 		 Uint32 result_code,
 		 QueueIdStack queue_ids,
+		 Uint32 routing = 0,
 		 Uint32 mask = message_mask::type_cimom | message_mask::type_reply)
-	 : Message(type, key, mask), result(result_code), queues(queue_ids)  {   }
+	 : Message(type, key, routing, mask), result(result_code), queues(queue_ids)  {   }
 
       virtual ~CimomReply(void);
       
@@ -100,8 +102,10 @@ class PEGASUS_CIMOM_LINKAGE ModuleRegister : public CimomRequest
 		     const String & module_name,
 		     Uint32 module_capabilities,
 		     Uint32 module_messages,
-		     Uint32 module_queue)
+		     Uint32 module_queue,
+		     Uint32 routing = 0)
 	 : CimomRequest(MODULE_REGISTER, key, queue_ids, 
+			routing,
 			message_mask::type_cimom | 
 			message_mask::type_request | 
 			message_mask::type_control),
@@ -122,8 +126,10 @@ class PEGASUS_CIMOM_LINKAGE ModuleDeregister : public CimomRequest
    public:
       ModuleDeregister(Uint32 key,
 		       QueueIdStack queue_ids, 
+		       Uint32 routing,
 		       Uint32 module_queue)
-	 : CimomRequest(MODULE_DEREGISTER, key, queue_ids, 
+	 : CimomRequest(MODULE_DEREGISTER, key, queue_ids,
+			routing,
 			message_mask::type_cimom | 
 			message_mask::type_request | 
 			message_mask::type_control),
@@ -141,6 +147,7 @@ class PEGASUS_CIMOM_LINKAGE AsyncDispatch : public CimomRequest
    public:
       AsyncDispatch(Uint32 type,
 		    Uint32 key, 
+		    Uint32 routing,
 		    Uint32 mask,
 		    AsyncOpNode *operation)
 	 :CimomRequest(ASYNC_OP, key, 

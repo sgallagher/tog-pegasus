@@ -76,7 +76,7 @@ void cimom::handleEnqueue(void)
        return;
    // at a gross level, look at the message and decide if it is for the cimom or
    // for another module
-    Uint32 mask = request->getMask();
+    Uint32 mask = request->getMask(); 
     
     if( mask == message_mask::type_legacy)
     {
@@ -135,7 +135,8 @@ void cimom::register_module(ModuleRegister *msg)
    }
    
    CimomReply *reply = new CimomReply(  msg->getType(), msg->getKey(), 
-				       result, msg->queues.copyAndPop() );
+					result, msg->queues.copyAndPop(), 
+					msg->getRouting() );
    _enqueueResponse(msg, reply);
    return;
    
@@ -163,7 +164,8 @@ void cimom::deregister_module(ModuleDeregister *msg)
       delete temp;
       
    CimomReply *reply = new CimomReply ( msg->getType(), msg->getKey(), 
-					result, msg->queues.copyAndPop() );
+					result, msg->queues.copyAndPop(), 
+					msg->getRouting() );
    _enqueueResponse(msg, reply);
    return;
 }

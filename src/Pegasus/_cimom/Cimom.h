@@ -35,6 +35,7 @@
 #include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/DQueue.h>
 #include <Pegasus/Common/Thread.h>
+#include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/AsyncOpNode.h>
 #include <Pegasus/_cimom/CimomMessage.h>
 #include <Pegasus/Server/CIMOperationRequestDispatcher.h>
@@ -51,6 +52,21 @@ class PEGASUS_CIMOM_LINKAGE module_capabilities
       static const Uint32 remote;
       static const Uint32 trusted;
 } ;
+
+class PEGASUS_CIMOM_LINKAGE module_messages
+{
+   public:
+      Uint32 mask;
+      Uint32 type;
+      Boolean operator == (const module_messages & mm) const
+      {
+	 if( (( mm.mask ^ mask ) & 0x000fffff))
+	    if(mm.type == type)
+	       return true;
+	 return false;
+      }
+} ;
+
 
 class PEGASUS_CIMOM_LINKAGE cimom;
 
@@ -75,7 +91,9 @@ class PEGASUS_CIMOM_LINKAGE message_module
    private:
       String _name;
       Uint32 _capabilities;
-      Uint32 _messages;
+      Array<module_messages> _messages;
+      Array<String> _classes;
+      Array<String> _namespaces;
       Uint32 _q_id;
       friend class cimom;
 };

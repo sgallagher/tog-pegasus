@@ -81,7 +81,7 @@ cimmofRepositoryInterface::init(_repositoryType type, String location,
     _client = new cimmofClient();
     try {
       _client->init(location, ot);
-    } catch(Exception &e) {
+    } catch(CIMClientException &e) {
       arglist.append(location);
       arglist.append(e.getMessage());
       cimmofMessages::getMessage(message,
@@ -103,7 +103,15 @@ cimmofRepositoryInterface::addClass(const String &nameSpace, CIMClass &Class)
   if (_repository)
     _repository->addClass(nameSpace, &Class);
   if (_client)
-    _client->addClass(nameSpace, Class);
+    // Convert CIMClientException to Exception so the caller catches it
+    try
+    {
+      _client->addClass(nameSpace, Class);
+    }
+    catch (CIMClientException& e)
+    {
+      throw Exception(e.getMessage());
+    }
 }
 
 void
@@ -113,7 +121,15 @@ cimmofRepositoryInterface::addQualifier(const String &nameSpace,
   if (_repository)
     _repository->addQualifier(nameSpace, &qualifier);
   if (_client)
-    _client->addQualifier(nameSpace, qualifier);
+    // Convert CIMClientException to Exception so the caller catches it
+    try
+    {
+      _client->addQualifier(nameSpace, qualifier);
+    }
+    catch (CIMClientException& e)
+    {
+      throw Exception(e.getMessage());
+    }
 }
 
 void
@@ -123,7 +139,15 @@ cimmofRepositoryInterface::addInstance(const String &nameSpace,
   if (_repository)
     _repository->addInstance(nameSpace, &instance);
   if (_client)
-    _client->addInstance(nameSpace, instance);
+    // Convert CIMClientException to Exception so the caller catches it
+    try
+    {
+      _client->addInstance(nameSpace, instance);
+    }
+    catch (CIMClientException& e)
+    {
+      throw Exception(e.getMessage());
+    }
 }
 
 CIMQualifierDecl
@@ -133,7 +157,15 @@ cimmofRepositoryInterface::getQualifierDecl(const String &nameSpace,
   if (_repository)
     return (_repository->getQualifierDecl(nameSpace, qualifierName));
   else if (_client)
-    return (_client->getQualifierDecl(nameSpace, qualifierName));
+    // Convert CIMClientException to Exception so the caller catches it
+    try
+    {
+      return (_client->getQualifierDecl(nameSpace, qualifierName));
+    }
+    catch (CIMClientException& e)
+    {
+      throw Exception(e.getMessage());
+    }
   else
     return CIMQualifierDecl();
 }
@@ -145,7 +177,15 @@ cimmofRepositoryInterface::getClass(const String &nameSpace,
   if (_repository)
     return (_repository->getClass(nameSpace, className));
   else if (_client)
-    return (_client->getClass(nameSpace, className));
+    // Convert CIMClientException to Exception so the caller catches it
+    try
+    {
+      return (_client->getClass(nameSpace, className));
+    }
+    catch (CIMClientException& e)
+    {
+      throw Exception(e.getMessage());
+    }
   else
     return CIMClass();
 }
@@ -156,5 +196,13 @@ cimmofRepositoryInterface::createNameSpace(const String &nameSpace) const
   if (_repository)
     _repository->createNameSpace(nameSpace);
   else if (_client)
-    _client->createNameSpace(nameSpace);
+    // Convert CIMClientException to Exception so the caller catches it
+    try
+    {
+      _client->createNameSpace(nameSpace);
+    }
+    catch (CIMClientException& e)
+    {
+      throw Exception(e.getMessage());
+    }
 }

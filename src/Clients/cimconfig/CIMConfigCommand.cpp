@@ -692,7 +692,7 @@ Uint32 CIMConfigCommand::execute (
             {
                 CIMStatusCode code = e.getCode();
 
-                if (code == CIM_ERR_NO_SUCH_PROPERTY || 
+                if (code == CIM_ERR_NOT_FOUND || 
                     code == CIM_ERR_FAILED)
                 {
                     outPrintWriter << PROPERTY_NOT_FOUND << endl;
@@ -804,7 +804,7 @@ Uint32 CIMConfigCommand::execute (
 
                     errPrintWriter << e.getMessage() << endl;
                 }
-                else if (code == CIM_ERR_NO_SUCH_PROPERTY)
+                else if (code == CIM_ERR_NOT_FOUND)
                 {
                     outPrintWriter << PROPERTY_NOT_FOUND << endl;
 
@@ -906,7 +906,7 @@ Uint32 CIMConfigCommand::execute (
 
                     errPrintWriter << e.getMessage() << endl;
                 }
-                else if (code == CIM_ERR_NO_SUCH_PROPERTY)
+                else if (code == CIM_ERR_NOT_FOUND)
                 {
                     outPrintWriter << PROPERTY_NOT_FOUND << endl;
 

@@ -3,43 +3,43 @@ Using root/SampleProvider as default namespace.
 Using default class names to test queries. 
 
 =========Evaluate Query==============
-======================================0
+=========     0     =========
 -----Query: SELECT * FROM CQL_EmbeddedSubClass  WHERE CQL_EmbeddedSubClass.EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::EnabledState = 2
 
------Instance: //somesystem.somecountry.somecompany.com/:CQL_EmbeddedSubClass
+-----Instance: //a.b.com/root/SampleProvider:CQL_EmbeddedSubClass
 TRUE
-======================================1
+=========     1     =========
 -----Query: SELECT * FROM CQL_EmbeddedSubClass  WHERE CQL_EmbeddedSubClass.EmbObjBase.CQL_EmbeddedTestElement::TE = CQL_EmbeddedSubClass.EmbObjBase.CQL_EmbeddedTestElement::TE
 
------Instance: //somesystem.somecountry.somecompany.com/:CQL_EmbeddedSubClass
+-----Instance: //a.b.com/root/SampleProvider:CQL_EmbeddedSubClass
 TRUE
-======================================2
+=========     2     =========
 -----Query: SELECT * FROM CQL_EmbeddedSubClass  WHERE CQL_EmbeddedSubClass.EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::EnabledState = CQL_EmbeddedSubClass.EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::EnabledState
 
------Instance: //somesystem.somecountry.somecompany.com/:CQL_EmbeddedSubClass
+-----Instance: //a.b.com/root/SampleProvider:CQL_EmbeddedSubClass
 TRUE
-======================================3
+=========     3     =========
 -----Query: SELECT * FROM CQL_EmbeddedSubClass  WHERE CQL_EmbeddedSubClass.EmbObjBase.CQL_EmbeddedTestElement::someClass = CQL_EmbeddedSubClass.EmbObjBase.CQL_EmbeddedTestElement::someClass
 
------Instance: //somesystem.somecountry.somecompany.com/:CQL_EmbeddedSubClass
+-----Instance: //a.b.com/root/SampleProvider:CQL_EmbeddedSubClass
 TRUE
-======================================4
+=========     4     =========
 -----Query: SELECT * FROM CQL_EmbeddedSubClass  WHERE CQL_EmbeddedSubClass.EmbObjBase.CQL_EmbeddedTestElement::someClass = CQL_EmbeddedSubClass.EmbObjBase.CQL_EmbeddedTestElement::CS
 
------Instance: //somesystem.somecountry.somecompany.com/:CQL_EmbeddedSubClass
+-----Instance: //a.b.com/root/SampleProvider:CQL_EmbeddedSubClass
 FALSE
-======================================5
+=========     5     =========
 -----Query: SELECT * FROM CQL_EmbeddedSubClass  WHERE CQL_EmbeddedSubClass.EmbObjBase = CQL_EmbeddedSubClass.EmbObjBase
 
------Instance: //somesystem.somecountry.somecompany.com/:CQL_EmbeddedSubClass
+-----Instance: //a.b.com/root/SampleProvider:CQL_EmbeddedSubClass
 TRUE
-======================================6
+=========     6     =========
 -----Query: SELECT * FROM CQL_EmbeddedSubClass  WHERE CQL_EmbeddedSubClass.EmbObjBase.CQL_EmbeddedTestElement::someClass.CIM_Process::Caption = CQL_EmbeddedSubClass.EmbObjBase.CQL_EmbeddedTestElement::someClass.CIM_Process::Caption
 
------Instance: //somesystem.somecountry.somecompany.com/:CQL_EmbeddedSubClass
+-----Instance: //a.b.com/root/SampleProvider:CQL_EmbeddedSubClass
 TRUE
-======================================7
+=========     7     =========
 -----Query: SELECT * FROM CQL_EmbeddedSubClass  WHERE CQL_EmbeddedSubClass.EmbObjBase.CQL_EmbeddedTestElement::someClass.CIM_Process::TimeOfLastStateChange = CQL_EmbeddedSubClass.EmbObjBase.CQL_EmbeddedTestElement::someClass.CIM_Process::TimeOfLastStateChange
 
------Instance: //somesystem.somecountry.somecompany.com/:CQL_EmbeddedSubClass
+-----Instance: //a.b.com/root/SampleProvider:CQL_EmbeddedSubClass
 TRUE

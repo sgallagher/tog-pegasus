@@ -1,95 +1,95 @@
 Using root/SampleProvider as default namespace.
 =========Evaluate Query==============
-======================================0
+=========     0     =========
 -----Query: SELECT * FROM CIM_ComputerSystem  WHERE CIM_ComputerSystem.EnabledState#Enabled = 2
 
------Instance: //somesystem.somecountry.somecompany.com/:CIM_ComputerSystem.CreationClassName="",Name=""
+-----Instance: //a.b.com/root/SampleProvider:CIM_ComputerSystem.CreationClassName="",Name=""
 TRUE
-======================================1
+=========     1     =========
 -----Query: SELECT * FROM CIM_ComputerSystem  WHERE 2 = CIM_ComputerSystem.EnabledState#Enabled
 
------Instance: //somesystem.somecountry.somecompany.com/:CIM_ComputerSystem.CreationClassName="",Name=""
+-----Instance: //a.b.com/root/SampleProvider:CIM_ComputerSystem.CreationClassName="",Name=""
 TRUE
-======================================2
+=========     2     =========
 -----Query: SELECT * FROM CIM_ComputerSystem  WHERE CIM_ComputerSystem.EnabledState#Enabled = CIM_ComputerSystem.EnabledState#Disabled
 
------Instance: //somesystem.somecountry.somecompany.com/:CIM_ComputerSystem.CreationClassName="",Name=""
+-----Instance: //a.b.com/root/SampleProvider:CIM_ComputerSystem.CreationClassName="",Name=""
 FALSE
-======================================3
+=========     3     =========
 -----Query: SELECT * FROM CIM_ComputerSystem  WHERE CIM_ComputerSystem.EnabledState#Enabled = EnabledState#Disabled
 
------Instance: //somesystem.somecountry.somecompany.com/:CIM_ComputerSystem.CreationClassName="",Name=""
+-----Instance: //a.b.com/root/SampleProvider:CIM_ComputerSystem.CreationClassName="",Name=""
 FALSE
-======================================4
+=========     4     =========
 -----Query: SELECT * FROM CIM_ComputerSystem  WHERE EnabledState#Enabled = CIM_ComputerSystem.EnabledState#Disabled
 
------Instance: //somesystem.somecountry.somecompany.com/:CIM_ComputerSystem.CreationClassName="",Name=""
+-----Instance: //a.b.com/root/SampleProvider:CIM_ComputerSystem.CreationClassName="",Name=""
 FALSE
-======================================5
+=========     5     =========
 -----Query: SELECT * FROM CIM_ComputerSystem  WHERE CIM_ComputerSystem.EnabledState#Enabled = #Disabled
 
------Instance: //somesystem.somecountry.somecompany.com/:CIM_ComputerSystem.CreationClassName="",Name=""
+-----Instance: //a.b.com/root/SampleProvider:CIM_ComputerSystem.CreationClassName="",Name=""
 FALSE
-======================================6
+=========     6     =========
 -----Query: SELECT * FROM CIM_ComputerSystem  WHERE #Enabled = CIM_ComputerSystem.EnabledState#Disabled
 
------Instance: //somesystem.somecountry.somecompany.com/:CIM_ComputerSystem.CreationClassName="",Name=""
+-----Instance: //a.b.com/root/SampleProvider:CIM_ComputerSystem.CreationClassName="",Name=""
 FALSE
-======================================7
+=========     7     =========
 -----Query: SELECT * FROM CIM_ComputerSystem  WHERE EnabledState#Enabled = #Disabled
 
------Instance: //somesystem.somecountry.somecompany.com/:CIM_ComputerSystem.CreationClassName="",Name=""
+-----Instance: //a.b.com/root/SampleProvider:CIM_ComputerSystem.CreationClassName="",Name=""
 FALSE
-======================================8
+=========     8     =========
 -----Query: SELECT * FROM CIM_ComputerSystem  WHERE #Enabled = EnabledState#Disabled
 
------Instance: //somesystem.somecountry.somecompany.com/:CIM_ComputerSystem.CreationClassName="",Name=""
+-----Instance: //a.b.com/root/SampleProvider:CIM_ComputerSystem.CreationClassName="",Name=""
 FALSE
-======================================9
+=========     9     =========
 -----Query: SELECT * FROM CIM_ComputerSystem  WHERE CIM_LogicalDevice::OperationalStatus#Error = 6
 
------Instance: //somesystem.somecountry.somecompany.com/:CIM_ComputerSystem.CreationClassName="",Name=""
+-----Instance: //a.b.com/root/SampleProvider:CIM_ComputerSystem.CreationClassName="",Name=""
 TRUE
-======================================10
+=========     10     =========
 -----Query: SELECT * FROM CIM_ComputerSystem  WHERE #OK = CIM_LogicalDevice::OperationalStatus#Error
 
------Instance: //somesystem.somecountry.somecompany.com/:CIM_ComputerSystem.CreationClassName="",Name=""
+-----Instance: //a.b.com/root/SampleProvider:CIM_ComputerSystem.CreationClassName="",Name=""
 FALSE
-======================================11
+=========     11     =========
 -----Query: SELECT * FROM CIM_ComputerSystem  WHERE CIM_ComputerSystem.EnabledState#Enabled = CIM_ComputerSystem.EnabledState#Bogus
 
------Instance: //somesystem.somecountry.somecompany.com/:CIM_ComputerSystem.CreationClassName="",Name=""
-SELECT CIM_ComputerSystem.* FROM CIM_ComputerSystem  WHERE 2 = CIM_ComputerSystem.EnabledState#Bogus = ERROR!
+-----Instance: //a.b.com/root/SampleProvider:CIM_ComputerSystem.CreationClassName="",Name=""
+ERROR!
 Provided symbolic constant Bogus is not valid for property EnabledState in class CIM_ComputerSystem.
 
-======================================12
+=========     12     =========
 -----Query: SELECT * FROM CIM_ComputerSystem  WHERE EnabledState.EnabledState#Enabled = 2
 
------Instance: //somesystem.somecountry.somecompany.com/:CIM_ComputerSystem.CreationClassName="",Name=""
-SELECT CIM_ComputerSystem.* FROM CIM_ComputerSystem  WHERE CIM_ComputerSystem.EnabledState.EnabledState#Enabled = 2 = ERROR!
+-----Instance: //a.b.com/root/SampleProvider:CIM_ComputerSystem.CreationClassName="",Name=""
+ERROR!
 The identifier EnabledState#Enabled of CIM_ComputerSystem.EnabledState.EnabledState#Enabled must use the scope operator.
 
-======================================13
+=========     13     =========
 -----Query: SELECT * FROM CIM_ComputerSystem  WHERE CIM_LogicalDevice.OperationalStatus#error = 6
 
------Instance: //somesystem.somecountry.somecompany.com/:CIM_ComputerSystem.CreationClassName="",Name=""
+-----Instance: //a.b.com/root/SampleProvider:CIM_ComputerSystem.CreationClassName="",Name=""
 TRUE
-======================================14
+=========     14     =========
 -----Query: SELECT * FROM CIM_Bogus  WHERE CIM_ComputerSystem.EnabledState#Enabled = 2
 
------Instance: //somesystem.somecountry.somecompany.com/:CIM_ComputerSystem.CreationClassName="",Name=""
-SELECT CIM_Bogus.* FROM CIM_Bogus  WHERE CIM_ComputerSystem.EnabledState#Enabled = 2 = ERROR!
+-----Instance: //a.b.com/root/SampleProvider:CIM_ComputerSystem.CreationClassName="",Name=""
+ERROR!
 The FROM class CIM_Bogus does not exist.
 
-======================================15
+=========     15     =========
 -----Query: SELECT * FROM CIM_ComputerSystem  WHERE #Enabled = #Disabled
 
------Instance: //somesystem.somecountry.somecompany.com/:CIM_ComputerSystem.CreationClassName="",Name=""
-SELECT CIM_ComputerSystem.* FROM CIM_ComputerSystem  WHERE #Enabled = #Disabled = ERROR!
+-----Instance: //a.b.com/root/SampleProvider:CIM_ComputerSystem.CreationClassName="",Name=""
+ERROR!
 The right side of predicate #Enabled = #Disabled must be a simple property name because a symbolic constant exists on the left side.
 
-======================================16
+=========     16     =========
 -----Query: SELECT * FROM CIM_ComputerSystem  WHERE CIM_ComputerSystem.EnabledState = #Enabled
 
------Instance: //somesystem.somecountry.somecompany.com/:CIM_ComputerSystem.CreationClassName="",Name=""
+-----Instance: //a.b.com/root/SampleProvider:CIM_ComputerSystem.CreationClassName="",Name=""
 TRUE

@@ -705,14 +705,12 @@ Boolean SecurityPropertyOwner::isValid(const String& name, const String& value)
     else if (String::equalNoCase(_trustStore->propertyName, name) ||
              String::equalNoCase(_exportSSLTrustStore->propertyName, name))
     {
-	String fileName(value);
+	    String fileName(value);
 
         //
         // Allow the exportSSLTrustStore and sslTrustStore file paths to be empty
         //
-        if ((String::equalNoCase(_exportSSLTrustStore->propertyName, name) || 
-			 String::equalNoCase(_trustStore->propertyName, name)) &&
-            (fileName == String::EMPTY))
+        if (fileName == String::EMPTY)
         {
             return true;
         }

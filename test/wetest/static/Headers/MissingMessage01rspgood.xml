@@ -1,4 +1,4 @@
 HTTP/1.1 400 Bad Request
 CIMError: request-not-valid
-PGErrorDetail: Validation error: on line 5: expected MESSAGE element
+PGErrorDetail: Validation error: on line 3: expected MESSAGE element
 

@@ -36,6 +36,7 @@
 #include <Clients/cliutils/Command.h>
 #include <Clients/cliutils/CommandException.h>
 #include "WbemExecException.h"
+#include "WbemExecClient.h"
 
 #if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
 char * ultostr(unsigned long int ulint, int width)
@@ -108,30 +109,25 @@ private:
 
     /**
         
-        Creates a channel for an HTTP connection.
+        Connect to cimserver.
       
         @param   outPrintWriter     the ostream to which error output should be
                                     written
       
         @return  the Channel created
       
-        @exception  WbemExecException  if an error is encountered in creating
-                                       the connection 
+        @exception Exception        if an error is encountered in creating
+                                    the connection 
       
      */
-    Channel* _getHTTPChannel (ostream& outPrintWriter) 
-        throw (WbemExecException);
+    void _connectToServer( WbemExecClient& client,
+			   ostream& outPrintWriter ) 
+        throw (Exception);
 
-/**
-  
-    Check the HTTP response message for errors.
-  
-    @param   startLine             First header line from an HTTP response
-
-    @return  true = successful response
-
- */
-    Boolean _isHTTPOk( String startLine );
+    void _printContent(
+        ostream& oStream,
+        Array<Sint8>& responseMessage,
+        Uint32 contentOffset);
 
 /**
   
@@ -194,20 +190,7 @@ private:
     --------------------
     HTTP/1.1 200 OK
  
-
-    @param   channel             Connection to cimserver
-
-    @param   handler             Communications processor for channel
- 
-    @param   content             Array <Sint8> containing XML request
-
-    @param   httpHeaders         Array <Sint8> returning the HTTP headers
-
-    @param   clientAuthenticator Authenticator object used to generate
-                                 authentication headers
-
-    @param   useAuthentication   Boolean indicating use of client
-                                 authentication
+    @param   httpResponse        Array <Sint8> containing the reply from cimserver
 
     @param   ostream             the ostream to which output should be written
 
@@ -217,15 +200,10 @@ private:
     @return  false = client response has been received
   
     */
-    Boolean _handleResponse( Channel*               channel,
-                             WbemExecClientHandler* handler,
-                             Array <Sint8>          content,
-                             Array <Sint8>          httpHeaders,
-                             ClientAuthenticator*   clientAuthenticator,
-                             Boolean                useAuthentication,
-			     ostream&               oStream,
-			     ostream&               eStream
-                          );
+    void _handleResponse( Array <Sint8>          httpResponse,
+		          ostream&               oStream,
+			  ostream&               eStream
+                        );
 
     /**
         
@@ -350,6 +328,12 @@ private:
     Boolean _inputFilePathSet;
 
     /**
+        A Boolean indicating whether an SSL connection was specified on the 
+        command line.
+     */
+    Boolean _useSSL;
+
+    /**
         The option character used to specify the hostname.
      */
     static const char   _OPTION_HOSTNAME;
@@ -388,6 +372,11 @@ private:
         The option character used to specify the password.
      */
     static const char   _OPTION_PASSWORD;
+
+    /**
+        The option character used to specify whether SSL should be used.
+     */
+    static const char   _OPTION_SSL;
 
     /**
         Label for the usage string for this command.

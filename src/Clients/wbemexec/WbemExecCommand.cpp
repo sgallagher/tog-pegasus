@@ -39,22 +39,22 @@
 #endif
 
 #include <iostream>
-#include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Constants.h>
+#include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/PegasusVersion.h>
+#include <Pegasus/Common/TLS.h>
 
 #include <Pegasus/getoopt/getoopt.h>
 #include <Clients/cliutils/CommandException.h>
 #include "HttpConstants.h"
-#include "TCPChannel.h"
 #include "XMLProcess.h"
-#include "WbemExecClientHandler.h"
-#include "WbemExecClientHandlerFactory.h"
 #include "WbemExecCommand.h"
+#include "WbemExecClient.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -87,6 +87,11 @@ const char   WbemExecCommand::_OPTION_HTTPVERSION  = 'v';
     The option character used to specify the HTTP method for the request.
  */
 const char   WbemExecCommand::_OPTION_HTTPMETHOD   = 'm';
+
+/**
+    The option character used to specify SSL usage.
+ */
+const char   WbemExecCommand::_OPTION_SSL          = 's';
 
 /**
     The option character used to specify the timeout value.
@@ -136,6 +141,9 @@ static const char PASSWORD_PROMPT []  =
 static const char PASSWORD_BLANK []  = 
                      "Password cannot be blank. Please re-enter your password.";
 
+static const char CERTIFICATE[] = "server.pem";
+static const char RANDOMFILE[]  = "ssl.rnd";
+
 /**
   
     Constructs a WbemExecCommand and initializes instance variables.
@@ -155,7 +163,7 @@ WbemExecCommand::WbemExecCommand ()
 
     _useHTTP11           = true;   
     _useMPost            = true;   
-    _timeout             = CIMClient::DEFAULT_TIMEOUT_MILLISECONDS;
+    _timeout             = WbemExecClient::DEFAULT_TIMEOUT_MILLISECONDS;
     _timeout             = 200000;
     _debugOutput1        = false;
     _debugOutput2        = false;
@@ -165,6 +173,7 @@ WbemExecCommand::WbemExecCommand ()
     _passwordSet         = false;
     _inputFilePath       = String ();
     _inputFilePathSet    = false;
+    _useSSL              = false;
 
     //
     //  Note: debug option is not shown in usage string.
@@ -181,6 +190,8 @@ WbemExecCommand::WbemExecCommand ()
     usage.append (" httpversion ] [ -");
     usage.append (_OPTION_HTTPMETHOD);
     usage.append (" httpmethod ] [ -");
+    usage.append (_OPTION_SSL);
+    usage.append (" SSL ] [ -");
     usage.append (_OPTION_TIMEOUT);
     usage.append (" timeout ] [ -");
     usage.append (_OPTION_USERNAME);
@@ -193,156 +204,125 @@ WbemExecCommand::WbemExecCommand ()
 
 /**
   
-    Creates a channel for an HTTP connection.
+    Connects to cimserver.
   
     @param   outPrintWriter     the ostream to which error output should be
                                 written
   
     @return  the Channel created
   
-    @exception  WbemExecException  if an error is encountered in creating
-                                   the connection
+    @exception       Exception  if an error is encountered in creating
+                               the connection
   
  */
-Channel* WbemExecCommand::_getHTTPChannel (ostream& outPrintWriter) 
-    throw (WbemExecException)
+ void WbemExecCommand::_connectToServer( WbemExecClient& client,
+				         ostream& outPrintWriter ) 
+    throw (Exception)
 {
-    Selector*              selector;
-    ChannelHandlerFactory* factory;
-    TCPChannelConnector*   connector;
-    Channel*               channel               = NULL;
-    String                 addressStr            = String ();
-    char*                  address               = NULL;
-
+    String                 address               = String ();
+    Boolean                connectToLocal        = false;
 
     //
-    //  Create HTTP channel
+    //  Construct host address
     //
-    selector = new Selector ();
-    factory = new WbemExecClientHandlerFactory (selector, outPrintWriter,
-        _debugOutput2);
-    connector = new TCPChannelConnector (factory, selector);
-
+    if (!_hostNameSet)
+      {
+        connectToLocal = true;
+      }
 #ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
     if ((_hostNameSet) || (_portNumberSet))
     {
 #endif
-    addressStr.append (_hostName);
-    addressStr.append (":");
-    addressStr.append (_portNumberStr);
+      address.append (_hostName);
+      address.append (":");
+      address.append (_portNumberStr);
 #ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
     }
 #endif
 
-    address = addressStr.allocateCString ();
+    if( _useSSL )
+      {
 
-    // ATTN-A: need connection timeout here:
-
-    channel = connector->connect (address);
-
-    delete [] address;
-
-    if (!channel) 
-    {
-        WbemExecException e (WbemExecException::CONNECT_FAIL);
-        throw e;
-    }
-
-
-    return (channel);
+	//
+	// Get environment variables:
+	//
+	const char* pegasusHome = getenv("PEGASUS_HOME");
+	
+	String certpath = String::EMPTY;
+	if (pegasusHome)
+	  {
+	    certpath.append(pegasusHome);
+	    certpath.append("/");
+	  }
+	certpath.append(CERTIFICATE);
+	
+	
+#ifdef PEGASUS_SSL_RANDOMFILE
+	
+	String randFile = String::EMPTY;
+	if (pegasusHome)
+	  {
+	    randFile.append(pegasusHome);
+	    randFile.append("/");
+	  }
+	randFile.append(RANDOMFILE);
+	
+	SSLContext * sslcontext = new SSLContext(certpath, randFile, true);
+#else
+	SSLContext * sslcontext = new SSLContext(certpath);
+	
+#endif
+	if( connectToLocal )
+	  {
+	    client.connectLocal( sslcontext );
+	  }
+	else
+	  {
+	    client.connect( address, sslcontext,  _userName, _password );
+	  }
+      }
+    else
+      { 
+	if( connectToLocal )
+	  {
+	    client.connectLocal();
+	  }
+	else
+	  {
+	    client.connect( address, _userName, _password );
+	  }
+      }
 }
+
 /**
-  
-    Check the HTTP response message for errors.
-  
-    @param   startLine             First header line from an HTTP response
-
-    @return  true = successful response
-
+    Prints the response to the specified output stream.
  */
-Boolean WbemExecCommand::_isHTTPOk( String startLine )
+void WbemExecCommand::_printContent(
+    ostream& oStream,
+    Array<Sint8>& responseMessage,
+    Uint32 contentOffset)
 {
-  String httpReturnCode;
-  String httpVersion;
+    //
+    //  Get HTTP header
+    //
+    const char* message = responseMessage.getData ();
 
-  // Response-Line = HTTP-Version SP HTTP-Return Code SP HTTP-Message Text
-
-  // Extract HTTP version
-
-  Uint32 space1 = startLine.find(' ');
-
-  if (space1 == PEGASUS_NOT_FOUND)
-    return false;
-
-  httpVersion = startLine.subString(0, space1);
-  
-  // Extract the HTTP response code
-  
-  Uint32 space2 = startLine.find(space1 + 1, ' ');
-  
-  if (space2 == PEGASUS_NOT_FOUND)
-    return false;
-  
-  Uint32 rcPos = space1 + 1;
-  httpReturnCode = startLine.subString( rcPos, space2 - rcPos );
-
-  if( String::equal( httpReturnCode, "200" ) )
-    {
-      return true;
-    }
-            
-  // This is an error response
-
-  return false;
+    if (contentOffset < responseMessage.size())
+      {
+        //
+        //  Print XML response to the ostream
+        //
+        ((Array <Sint8>&) responseMessage).append ('\0');
+        const char* content = responseMessage.getData () + contentOffset;
+        XmlWriter::indentedPrint (oStream, content, 0);
+      }
 }
 
 /**
   
-    Prompt for password.
+    Process HTTP response message from cimserver
   
-    @param   estream             the ostream to which errors should be written
-
-    @return  String value of the user entered password
-
- */
-String WbemExecCommand::_promptForPassword( ostream&  eStream )
-{
-  //
-  // Password is not set, prompt for the old password once
-  //
-  String pw = String::EMPTY;
-
-  do
-    {
-      pw = System::getPassword( PASSWORD_PROMPT );
-      
-      if ( pw == String::EMPTY || pw == "" )
-	{
-	  eStream << PASSWORD_BLANK << endl;
-	  pw = String::EMPTY;
-	  continue;
-	}
-    }
-  while ( pw == String::EMPTY );
-  return( pw );
-}
-
-/**
-  
-    Check the HTTP response message for authentication challenge or data.
-  
-    @param   channel             Connection to cimserver
-
-    @param   handler             Communications processor for channel
- 
-    @param   content             Array <Sint8> containing XML request
-
-    @param   httpHeaders         Array <Sint8> returning the HTTP headers
-
-    @param   clientAuthenticator Authenticator object used to generate
-                                 authentication headers
-
-    @param   useAuthentication   Boolean indicating use of client authenticaion
+    @param   httpResponse        Array <Sint8> reply from cimserver
 
     @param   ostream             the ostream to which output should be written
 
@@ -352,106 +332,64 @@ String WbemExecCommand::_promptForPassword( ostream&  eStream )
     @return  false = client response has been received
   
  */
-Boolean WbemExecCommand::_handleResponse( Channel*               channel,
-                                          WbemExecClientHandler* handler,
-                                          Array <Sint8>          content,
-                                          Array <Sint8>          httpHeaders,
-                                          ClientAuthenticator*   clientAuthenticator,
-                                          Boolean                useAuthentication,
-                                          ostream&               oStream,
-                                          ostream&               eStream
+void WbemExecCommand::_handleResponse( Array <Sint8>      responseMessage,
+                                          ostream&           oStream,
+                                          ostream&           eStream
                                        )
 {
-    Array <Sint8>                responseMessage;
     String                       startLine;
     Array<HTTPHeader>            headers;
     Uint32                       contentLength;
+    Uint32                       contentOffset       = 0;
     HTTPMessage*                 httpMessage;
     Boolean                      needsAuthentication = false;
 
-    responseMessage = handler->getMessage();
     httpMessage = new HTTPMessage( responseMessage, 0 );
     httpMessage->parse( startLine, headers, contentLength );
-    if( useAuthentication )
+    if( contentLength > 0 )
       {
-	try
-	  {
-	    needsAuthentication = 
-	      clientAuthenticator->checkResponseHeaderForChallenge( headers );
-	  }
-	catch(InvalidAuthHeader& e)
-	  {
-	    // This is an invalid authentication challenge
-	    
-	    oStream << startLine << endl;
-	    oStream.flush();
-	    exit( 1 );
-	  }
-
-	if( needsAuthentication )
-	  {
-	    //
-	    // An authentication header was found.
-	    // Get the original request, send with authentication challenge
-	    // response. 
-	    //
-	    Array <Sint8>  challengeResponse;
-	    char           userNameChars[256];
-
-	    if( _hostNameSet )
-	      {
-		// This a remote request. Username and password are required
-		// for authentication.
-		// Get the username & password if missing
-
-		if( !_userNameSet )
-		  {
-		    _userName = System::getCurrentLoginName();
-		    clientAuthenticator->setUserName( _userName );
-		    _userNameSet = true;
-		  }
-		if( !_passwordSet )
-		  {
-		    _password = _promptForPassword( eStream );
-		    _passwordSet = true;
-		  }
-		if( _password.size() )
-		  {
-		    clientAuthenticator->setPassword( _password );
-		  }
-	      }
-	    challengeResponse << httpHeaders;
-	    
-	    String authHeader = clientAuthenticator->buildRequestAuthHeader();
-	    if (authHeader.size())
-	      {
-		challengeResponse <<  authHeader << HTTP_CRLF;
-	      }
-	    challengeResponse << HTTP_CRLF;
-	    challengeResponse << content;
-	    channel->writeN( challengeResponse.getData(), challengeResponse.size() );
-	    return true;
-	  }
+	contentOffset = responseMessage.size() - contentLength;
       }
-        if( !_isHTTPOk( startLine ) )
+    else
+      {
+        contentOffset = responseMessage.size();
+      }
+
+    String httpVersion;
+    Uint32 statusCode;
+    String reasonPhrase;
+
+    Boolean parsableMessage = HTTPMessage::parseStatusLine(
+        startLine, httpVersion, statusCode, reasonPhrase);
+    if (!parsableMessage || (statusCode != HTTP_STATUSCODE_OK))
+      {
+
+	// Received an HTTP error response
+	// Output the HTTP error message and exit
+	for (Uint32 i = 0; i < contentOffset; i++)
 	  {
-            // Received an HTTP error response
-            // Output the HTTP error message and exit
-	    oStream << startLine << endl;
-	    for (Uint32 i = 0, n = headers.size(); i < n; i++)
-	      {
-		oStream << headers[i].first << ": " << headers[i].second << endl;
-	      }
-	    oStream << endl;
-	    oStream.flush();
-	    handler->printContent();
-	    exit( 1 );
+		oStream << responseMessage[i];
 	  }
-	
-        //
-        // Received a valid response or an error response from the server.
-        //
-        return false;
+	oStream.flush();
+	if( contentLength > 0 )
+	  {
+	    _printContent( oStream, responseMessage, contentOffset );
+	  }
+	exit( 1 );
+      }
+    
+    //
+    // Received a valid HTTP response from the server.
+    //
+    if (_debugOutput2)
+      {
+        for (Uint32 i = 0; i < contentOffset; i++)
+          {
+                oStream << responseMessage[i];
+          }
+        oStream.flush();
+      }
+    _printContent( oStream, responseMessage, contentOffset );
 }
 
 /**
@@ -475,16 +413,15 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
                                     ostream& errPrintWriter) 
     throw (WbemExecException)
 {
-    Channel*                     channel                        = NULL;
-    WbemExecClientHandler*       handler                        = NULL;
     Uint32                       size;
     Array <Sint8>                content;
     Array <Sint8>                contentCopy;
     Array <Sint8>                message;
     Array <Sint8>                httpHeaders;
-    ClientAuthenticator*         clientAuthenticator            = NULL;
-    Boolean                      useAuthentication              = false;
+    Array <Sint8>                httpResponse;
+    WbemExecClient client;
 
+    client.setTimeOut( _timeout );
 
     //
     //  Check for invalid combination of options
@@ -558,7 +495,7 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
             FileSystem::loadFileToMemory (content, _inputFilePath);
             content.append ('\0');
         }
-        catch (CannotOpenFile)
+        catch (CannotOpenFile&)
         {
             WbemExecException e 
                 (WbemExecException::INPUT_FILE_CANNOT_OPEN);
@@ -598,56 +535,28 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
 
     XmlParser parser ((char*) contentCopy.getData ());
 
-    //
-    // Create authenticator for authentication header generation.
-    //
-    clientAuthenticator = new ClientAuthenticator();
-    clientAuthenticator->clearRequest();
-    useAuthentication = true;
-    
-    if( _userName.size() )
-      {
-	clientAuthenticator->setUserName( _userName );
-      }
-    if( _hostNameSet )
-      {
-	
-        if( _password.size() )
-	  {
-            clientAuthenticator->setPassword( _password );
-	  }
-      }
-    else 
-    {
-      // No hostname specified; use local authentication
-      // We don't set password because cimserver will do a
-      // local authentication challenge sequence.
-
-        clientAuthenticator->setAuthType( ClientAuthenticator::LOCAL );
-    }
-
-    //
-    //  Encapsulate XML request in an HTTP request
-    //
     try
     {
+        _connectToServer( client, outPrintWriter );
+
+        //
+        //  Encapsulate XML request in an HTTP request
+        //
         message = XMLProcess::encapsulate( parser, _hostName, 
                                            _useMPost, _useHTTP11,
-                                           clientAuthenticator,
-                                           useAuthentication,
                                            content, httpHeaders );
         if (_debugOutput1)
         {
           outPrintWriter << message.getData () << endl;
         }
     }
-    catch (XmlValidationError xve)
+    catch (XmlValidationError& xve)
     {
         WbemExecException e 
             (WbemExecException::INVALID_XML, xve.getMessage ());
         throw e;
     }
-    catch (XmlSemanticError xse)
+    catch (XmlSemanticError& xse)
     {
         WbemExecException e 
             (WbemExecException::INVALID_XML, xse.getMessage ());
@@ -672,41 +581,12 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
         throw e;
     }
 
-    //
-    //  Get channel and write message to channel
-    //
-    channel = _getHTTPChannel (outPrintWriter);
-    channel->writeN (message.getData (), message.size ());
-    //
-    //  Get handler and wait for response
-    //
-    handler = (WbemExecClientHandler*) channel->getChannelHandler ();
-
-    if (!handler->waitForResponse (_timeout))
-    {
-        WbemExecException e (WbemExecException::TIMED_OUT);
-        throw e;
-    }
+    httpResponse = client.issueRequest( message );
 
     //
     // Process the response message
     //
-    if( _handleResponse( channel, handler, content, httpHeaders,
-                         clientAuthenticator, useAuthentication,
-                         outPrintWriter, errPrintWriter ) == true )
-    {
-      // Wait for final response
-      handler->clear();
-      if (!handler->waitForResponse (_timeout))
-        {
-	  WbemExecException e (WbemExecException::TIMED_OUT);
-	  throw e;
-        }
-      _handleResponse( channel, handler, content, httpHeaders,
-		       clientAuthenticator, false,
-		       outPrintWriter, errPrintWriter );
-    }
-    handler->printContent();
+    _handleResponse( httpResponse, outPrintWriter, errPrintWriter );
 }
 
 /**
@@ -743,6 +623,7 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
     GetOptString.append (getoopt::GETOPT_ARGUMENT_DESIGNATOR);
     GetOptString.append (_OPTION_HTTPMETHOD);
     GetOptString.append (getoopt::GETOPT_ARGUMENT_DESIGNATOR);
+    GetOptString.append (_OPTION_SSL);
     GetOptString.append (_OPTION_TIMEOUT);
     GetOptString.append (getoopt::GETOPT_ARGUMENT_DESIGNATOR);
     GetOptString.append (_OPTION_USERNAME);
@@ -831,7 +712,7 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
                     {
                         getOpts [i].Value (_portNumber);
                     }
-                    catch (IncompatibleTypes it)
+                    catch (IncompatibleTypes& it)
                     {
                         InvalidOptionArgumentException e (_portNumberStr,
                             _OPTION_PORTNUMBER);
@@ -855,6 +736,12 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
                     break;
                 }
     
+                case _OPTION_SSL: 
+                {
+		    _useSSL = true;
+                    break;
+                }
+      
                 case _OPTION_HTTPMETHOD: 
                 {
                     if (getOpts.isSet (_OPTION_HTTPMETHOD) > 1)
@@ -868,7 +755,7 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
                     httpMethod = getOpts [i].Value ();
                     break;
                 }
-    
+  
                 case _OPTION_TIMEOUT: 
                 {
                     if (getOpts.isSet (_OPTION_TIMEOUT) > 1)
@@ -886,7 +773,7 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
                     {
                         getOpts [i].Value (_timeout);
                     }
-                    catch (IncompatibleTypes it)
+                    catch (IncompatibleTypes& it)
                     {
                         InvalidOptionArgumentException e (timeoutStr,
                             _OPTION_TIMEOUT);
@@ -1074,7 +961,7 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
     {
         //
         //  No timeout specified
-        //  Default to CIMClient::DEFAULT_TIMEOUT_MILLISECONDS
+        //  Default to WbemExecClient::DEFAULT_TIMEOUT_MILLISECONDS
         //  Already done in constructor
         //
     } 
@@ -1147,7 +1034,7 @@ int main (int argc, char* argv [])
     {
         command.setCommand (argc, argv);
     } 
-    catch (CommandFormatException cfe) 
+    catch (CommandFormatException& cfe) 
     {
         cerr << WbemExecCommand::COMMAND_NAME << ": " << cfe.getMessage () 
              << endl;

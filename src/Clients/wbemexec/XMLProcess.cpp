@@ -27,7 +27,8 @@
 // Modified By:
 //         Warren Otsuka (warren_otsuka@hp.com)
 //         Sushma Fernandes, Hewlett-Packard Company
-//         (sushma_fernandes@hp.com)
+//             (sushma_fernandes@hp.com)
+//         Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -37,9 +38,7 @@
 #include <Pegasus/Common/XmlReader.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/XmlConstants.h>
-#include <Pegasus/Common/Base64.h>
 #include "HttpConstants.h"
-#include "Handler.h"
 #include "XMLProcess.h"
 
 PEGASUS_NAMESPACE_BEGIN
@@ -58,71 +57,23 @@ PEGASUS_NAMESPACE_BEGIN
     @exception  XmlValidationError  if the XML input is invalid
     @exception  XmlSemanticError    if the XML input contains a semantic error
   
-    @return  an Array <Sint8> containing the representation of the CIM
+    @return  a String containing the representation of the CIM
              object path corresponding to the &lt;LOCALNAMESPACE&gt; element
   
  */
 
-Array <Sint8> XMLProcess::getObjPath (XmlParser& parser)
+String XMLProcess::getObjPath (XmlParser& parser)
     throw (XmlValidationError, XmlSemanticError, XmlException, Exception)
 {
-    XmlEntry                     entry;
     String                       namespaceName;
-    Array <Sint8>                objPath;
-    static Uint32                BUFFERSIZE            = 256;
 
-
-    // 
-    //  LOCALNAMESPACEPATH element
-    // 
-    if (!XmlReader::testStartTag (parser, entry, 
-        XML_ELEMENT_LOCALNAMESPACEPATH))
+    if (!XmlReader::getLocalNameSpacePathElement(parser, namespaceName))
     {
         throw XmlValidationError (parser.getLine (), 
             MISSING_ELEMENT_LOCALNAMESPACEPATH);
     }
 
-    // 
-    //  There must be at least one NAMESPACE subelement
-    // 
-    XmlReader::expectStartTagOrEmptyTag (parser, entry, XML_ELEMENT_NAMESPACE);
-
-    objPath.reserve (BUFFERSIZE);
-
-    // 
-    //  Create object path with name of first NAMESPACE subelement
-    // 
-    namespaceName = XmlReader::getCimNameAttribute (parser.getLine (), 
-        entry, XML_ELEMENT_NAMESPACE);
-
-    objPath << namespaceName;
-
-    XmlReader::testEndTag (parser, XML_ELEMENT_NAMESPACE);
-
-    // 
-    //  Append NAMESPACE_SUBELEMENT_DELIMITER and name for each 
-    //  subsequent NAMESPACE subelement
-    // 
-    while (XmlReader::testStartTagOrEmptyTag (parser, entry, 
-           XML_ELEMENT_NAMESPACE))
-    {
-        objPath << NAMESPACE_SUBELEMENT_DELIMITER;
-
-        // 
-        //  Append name of next NAMESPACE subelement to object path
-        // 
-        namespaceName = XmlReader::getCimNameAttribute (parser.getLine (), 
-            entry, XML_ELEMENT_NAMESPACE);
-
-        objPath << namespaceName;
-
-        XmlReader::testEndTag (parser, XML_ELEMENT_NAMESPACE);
-    }
-
-    XmlReader::expectEndTag (parser, XML_ELEMENT_LOCALNAMESPACEPATH);
-
-
-    return (objPath);
+    return (namespaceName);
 }
 
 /**
@@ -152,10 +103,6 @@ Array <Sint8> XMLProcess::getObjPath (XmlParser& parser)
                                  generated for an M-POST request
     @param   useHTTP11           Boolean indicating that headers should be
                                  generated for an HTTP/1.1 request
-    @param   clientAuthenticator Authenticator object used to generate
-                                 authentication headers
-    @param   useAuthentication   Boolean indicating that an authentication
-                                 header should be added to the request
     @param   content             Array <Sint8> containing XML request
     @param   httpHeaders         Array <Sint8> returning the HTTP headers
   
@@ -172,8 +119,6 @@ Array <Sint8> XMLProcess::encapsulate( XmlParser parser,
                                        String hostName,
                                        Boolean useMPost,
                                        Boolean useHTTP11,
-                                       ClientAuthenticator* clientAuthenticator,
-                                       Boolean useAuthentication,
                                        Array <Sint8>& content,
                                        Array <Sint8>& httpHeaders
                                        )
@@ -188,7 +133,6 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
     String                       protocolVersion;
     String                       className;
     String                       methodName;
-    String                       authString;
     Array<Sint8>                 encoded;
     Array <Sint8>                objPath;
     Array <KeyBinding>           keyBindings;
@@ -196,8 +140,6 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
     Boolean                      multireq              = false;
     Uint32                       i                     = 0;
     static Uint32                BUFFERSIZE            = 1024;
-    Array <Uint8>                authArray;
-    Uint32                       authLen               = 0;
 
     //
     //  xml declaration
@@ -217,62 +159,12 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
         {
             if ((strcmp (p, HTTP_METHOD_MPOST) == 0) || 
                 (strcmp (p, HTTP_METHOD_POST) == 0) ||
+	        //  This is a special request used for testing.
+	        //  It includes the HTTP header.
+	        //  Return the message as is.
                 (strcmp (p, HTTP_METHOD_BOGUS) == 0))
             {
-	      //
-	      //  This is a special request used for testing.
-	      //  It includes the HTTP header.
-	      //  Return the message as is.
-	      //
-
-	      // Split out header and payload for possible auth challenge
-
-	      Uint32 headerLen = 0;
-	      const char *messageChars;
-	      messageChars = content.getData();
-	      const char *start = messageChars;
-	      const char *end   = start + strlen( messageChars );
-	      Uint32 messageLen = strlen( messageChars );
-	      char *term = 
-		Handler::FindTerminator( start, messageLen );
-	      if( ( term ) && ( term > start ) )
-		{
-		  headerLen = term - start;
-		  httpHeaders.clear();
-		  httpHeaders.append( start, headerLen+1 );
-		}
-	      message << httpHeaders;
-
-	      // Strip off headers and terminator chars from payload
-
-	      content.remove( 0, headerLen );
-	      for( const char *searchP = start + headerLen;
-		   searchP < end;
-		   searchP++ )
-		{
-		  if( ( *searchP == '\n' ) ||
-		      ( *searchP == '\r' ) )
-		    {
-		      content.remove( 0 );
-		    }
-		  else
-		    break;
-		}
-
-	      //
-	      // Set the authentication header if authentication required
-	      //
-	      if( useAuthentication )
-		{
-		  String authHeader = clientAuthenticator->buildRequestAuthHeader();
-		  if (authHeader.size())
-		    {
-		      message << authHeader << HTTP_CRLF;
-		    }
-		}
-	      message << HTTP_CRLF;
-	      message << content;
-	      return (message);
+	      return (content);
             }
             else
             {
@@ -332,7 +224,7 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
             //  Construct the object path from the LOCALNAMESPACEPATH 
             //  subelements (NAMESPACE elements)
             //
-            objPath = getObjPath (parser);
+            objPath << getObjPath (parser);
         }
 
         //
@@ -360,7 +252,7 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
                 //  from the LOCALNAMESPACEPATH subelements (NAMESPACE 
                 //  elements)
                 //
-                objPath = getObjPath (parser);
+                objPath << getObjPath (parser);
                 objPath << LOCALNAMESPACEPATH_DELIMITER;
 
                 //
@@ -384,7 +276,7 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
                 //  from the LOCALNAMESPACEPATH subelements (NAMESPACE 
                 //  elements)
                 //
-                objPath = getObjPath (parser);
+                objPath << getObjPath (parser);
                 objPath << LOCALNAMESPACEPATH_DELIMITER;
 
                 //
@@ -529,22 +421,7 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
         }
     }
 
-    //
-    // Save the HTTP headers in case of authentication
-    //
     httpHeaders << message;
-
-    //
-    // Set the authentication header if authentication required
-    //
-    if( useAuthentication )
-    {
-      String authHeader = clientAuthenticator->buildRequestAuthHeader();
-      if (authHeader.size())
-      {
-          message << authHeader << HTTP_CRLF;
-      }
-    }
     message << HTTP_CRLF;
     message << content;
 

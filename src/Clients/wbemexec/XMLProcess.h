@@ -57,7 +57,7 @@ public:
 
     /**
       
-        Constructs an Array <Sint8> containing the representation of the CIM
+        Constructs a String containing the representation of the CIM
         object path corresponding to the &lt;LOCALNAMESPACE&gt; element, in
         accordance with Specification for CIM Operations over HTTP, 
         Version 1.0, Section 3.3.3.  This method should be called only the 
@@ -66,7 +66,7 @@ public:
         @param   parser              parser instance corresponding to the XML
                                      request
       
-        @return  an Array <Sint8> containing the representation of the CIM
+        @return  a String containing the representation of the CIM
                  object path corresponding to the &lt;LOCALNAMESPACE&gt; 
                  element
       
@@ -77,7 +77,7 @@ public:
         @exception  Exception           internal error 
       
      */
-    static Array <Sint8> getObjPath (XmlParser& parser)
+    static String getObjPath (XmlParser& parser)
         throw (XmlValidationError, XmlSemanticError, XmlException, Exception);
 
 
@@ -131,8 +131,6 @@ public:
                                       String hostName,
                                       Boolean useMPost,
                                       Boolean useHTTP11,
-                                      ClientAuthenticator* clientAuthenticator,
-                                      Boolean useAuthentication,
                                       Array <Sint8>& content,
                                       Array <Sint8>& httpHeaders) 
         throw (XmlValidationError, XmlSemanticError, WbemExecException,

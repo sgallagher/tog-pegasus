@@ -175,6 +175,10 @@ TAG: Version_1_09.
 29. (Roger Kumpf - HP) 24 Apr 2002 - Restructured the configuration
     property owners to remove redundant code.
 
+30. (Warren Otsuka - HP) 26 Apr 2002 - Reimplement wbemexec to use a
+    new WbemExecClient interface based on HTTPConnection instead of the
+    obsolete Channel code.  Also add SSL option to wbemexec.
+
 ========================================================================
 
 Version 1.08 working towards 1.1 - Started 27 March 2002

@@ -17,12 +17,7 @@ EXTRA_INCLUDES = $(SYS_INCLUDES)
 PROGRAM = wbemexec
 
 SOURCES = \
-        Channel.cpp \
-        Handler.cpp \
-        Selector.cpp \
-        TCPChannel.cpp \
-        WbemExecClientHandler.cpp \
-        WbemExecClientHandlerFactory.cpp \
+        WbemExecClient.cpp \
         WbemExecException.cpp \
         XMLProcess.cpp \
         WbemExecCommand.cpp

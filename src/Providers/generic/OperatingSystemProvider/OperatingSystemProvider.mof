@@ -1,12 +1,6 @@
-#pragma classflags("forceupdate")
-#pragma namespace("\\\\.\\root\\cimv2")
-
-[dynamic,
-provider("IBMPSG|UMServices|WMIProvider"),
-framework_module("OperatingSystemProvider")]
+[provider("OperatingSystemProvider")]
 class Pegasus_OperatingSystem	: CIM_OperatingSystem
 {
-	
 	string CSCreationClassName;
 	string CSName;
 	string CreationClassName;

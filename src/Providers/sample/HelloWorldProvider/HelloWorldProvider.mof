@@ -1,8 +1,4 @@
-//#pragma namespace("\\\\.\\root\\cimv2")
-
-[dynamic,
-provider("IBMPSG|UMServices|WMIProvider"),
-framework_module("HelloWorldProvider")]
+[provider("HelloWorldProvider")]
 class HelloWorld
 {
    [key,

@@ -1981,7 +1981,24 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
                 if (_subscriptionTable->getSubscriptionEntry
                     (request->subscriptionInstanceNames [i], tableValue))
                 {
-                    matchedSubscriptions.append (tableValue.subscription);
+                    //
+                    //  Check that subscription filter indication class and
+                    //  source namespace match that of generated indication
+                    //
+                    CIMNamespaceName sourceNameSpace;
+                    CIMName indicationClassName;
+                    _subscriptionRepository->getFilterProperties
+                        (tableValue.subscription,
+                        tableValue.subscription.getPath ().getNameSpace (),
+                        filterQuery, sourceNameSpace);
+                    selectStatement = _getSelectStatement (filterQuery);
+                    indicationClassName = _getIndicationClassName
+                        (selectStatement, sourceNameSpace);
+                    if ((sourceNameSpace == request->nameSpace) &&
+                        (indicationClassName == indication.getClassName ()))
+                    {
+                        matchedSubscriptions.append (tableValue.subscription);
+                    }
                 }
             }
 

@@ -632,4 +632,37 @@ Real64 CQLUtilities::stringToReal64(const String &stringNum)
   return x;
 }
 
+String CQLUtilities::formatRealStringExponent(const String &realString)
+{
+  String newString(realString);
+  Uint32 expIndex = PEG_NOT_FOUND;
+  Uint32 index = newString.size() - 1;
+  
+  expIndex = newString.find('E');
+  if (expIndex == PEG_NOT_FOUND)
+    expIndex = newString.find('e');
+
+  if (expIndex == PEG_NOT_FOUND)
+    return newString;  // no exponent symbol, so just return
+
+  // format the exponent
+  index = expIndex + 1;  // start index at next character
+  if (newString[index] == '+')
+    newString.remove(index, 1);  // remove the '+' symbol
+
+  if (newString[index] == '-')
+    index++;   // skip the '-' exponent sign
+
+  while (newString[index] == '0' && index < newString.size())
+  {
+    newString.remove(index, 1);
+  }
+
+  // If only an 'e' is left (only 0's behind it) then strip the 'e'
+  if (index >= newString.size())
+    newString.remove(expIndex, 1);
+
+  return newString;
+}
+
 PEGASUS_NAMESPACE_END

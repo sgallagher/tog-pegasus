@@ -587,8 +587,8 @@ CQLValue CQLFunctionRep::numericToString(const CIMInstance& CI, const QueryConte
   String num(buffer);
   if (valType == CQLValue::Real_type)
   {
-    // Remove the '+' character from the exponent
-    num.remove(num.find('+'), 1);
+    // format the exponent
+    num = CQLUtilities::formatRealStringExponent(num);
   }
   
   PEG_METHOD_EXIT();
@@ -1257,7 +1257,7 @@ CQLValue CQLFunctionRep::microsecondToTimestamp(const CIMInstance& CI, const Que
     if (intVal < 0)
     {
       char negVal[100];
-      sprintf(negVal, "%" PEGASUS_64BIT_CONVERSION_WIDTH "d", intVal);
+      sprintf(negVal, "%Ld", intVal);
       MessageLoaderParms mload(String("CQL.CQLFunctionRep.NEGATIVE_INT_ERROR"),
                                String("Function parameter $0 has a value of $1.  It must be non-negative."),
                                String("1"),
@@ -1311,7 +1311,7 @@ CQLValue CQLFunctionRep::microsecondToInterval(const CIMInstance& CI, const Quer
     if (intVal < 0)
     {
       char negVal[100];
-      sprintf(negVal, "%" PEGASUS_64BIT_CONVERSION_WIDTH "d", intVal);
+      sprintf(negVal, "%Ld", intVal);
       MessageLoaderParms mload(String("CQL.CQLFunctionRep.NEGATIVE_INT_ERROR"),
                                String("Function parameter $0 has a value of $1.  It must be non-negative."),
                                String("1"),

@@ -53,7 +53,15 @@ public:
   static Uint64 stringToUint64(const String &stringNum);
   static Sint64 stringToSint64(const String &stringNum);
   static Real64 stringToReal64(const String &stringNum);
-   
+
+  // This will take a formated string representing a real number and if
+  // it uses scientific notiation, then it will strip off leading 0's
+  // in the exponent.  If the exponent only has 0's, then it will strip
+  // the exponent symbol also.  (ie  "2.56E-00" becomes "2.56"; "2.56E-04"
+  // becomes "2.56E-4".  If there is no exponent, then nothing is changed.
+  // This will also remove a leading '+' sign from the exponent if it is
+  // there.
+  static String formatRealStringExponent(const String &realString);   
 };
 
 PEGASUS_NAMESPACE_END

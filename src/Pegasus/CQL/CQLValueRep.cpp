@@ -981,7 +981,14 @@ String CQLValueRep::toString()const
     {
       returnStr.append("'");
     }
-    returnStr.append(_theValue.toString());
+
+    String temp(_theValue.toString());
+    
+    // If the string is a real string, then strip padding off the exponent
+    if (_valueType == CQLValue::Real_type)
+      temp = CQLUtilities::formatRealStringExponent(temp);
+    
+    returnStr.append(temp);
     
     if (_valueType == CQLValue::String_type)
     {

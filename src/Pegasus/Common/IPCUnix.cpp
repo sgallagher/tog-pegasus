@@ -101,14 +101,8 @@ inline void destroy_crit(PEGASUS_CRIT_TYPE *crit)
    pthread_spin_destroy(crit);
 }
 
-inline void exit_thread(PEGASUS_THREAD_RETURN rc)
-{
-  pthread_exit(rc);
-}
 
-#endif
-   
-#ifndef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+
 //-----------------------------------------------------------------
 /// accurate version of gettimeofday for unix systems
 //  posix glibc implementation does not return microseconds.
@@ -127,14 +121,47 @@ static int pegasus_gettimeofday(struct timeval *tv)
 }
 
 #else
-// ATTN: RK - It seems HP-UX doesn't support the NTP calls; I hope
-// gettimeofday() returns milliseconds...
 
-// If the pegasus_gettimeofday() defined above does not compile, use this
-// version instead
+inline void init_crit(PEGASUS_CRIT_TYPE *crit)
+{
+   pthread_mutexattr_init(&(crit->mutatt));
+   pthread_mutexattr_setspin_np(&(crit->mutatt), PTHREAD_MUTEX_SPINONLY_NP);
+   pthread_mutex_init(&(crit->mut), &(crit->mutatt));
+   crit->owner = 0;
+}
+
+inline void enter_crit(PEGASUS_CRIT_TYPE *crit)
+{
+   pthread_mutex_lock(&(crit->mut));
+}
+
+inline void try_crit(PEGASUS_CRIT_TYPE *crit)
+{
+   pthread_mutex_trylock(&(crit->mut));
+}
+
+inline void exit_crit(PEGASUS_CRIT_TYPE *crit)
+{
+   pthread_mutex_unlock(&(crit->mut));
+}
+
+inline void destroy_crit(PEGASUS_CRIT_TYPE *crit)
+{
+   while( EBUSY == pthread_mutex_destroy(&(crit->mut)))
+   {
+      pegasus_yield();
+   }
+   pthread_mutexattr_destroy(&(crit->mutatt));
+}
+
 static inline int pegasus_gettimeofday(struct timeval *tv) { return(gettimeofday(tv, NULL)); }
-#endif
 
+#endif
+   
+inline void exit_thread(PEGASUS_THREAD_RETURN rc)
+{
+  pthread_exit(rc);
+}
 
 PEGASUS_THREAD_TYPE pegasus_thread_self(void) 
 { 

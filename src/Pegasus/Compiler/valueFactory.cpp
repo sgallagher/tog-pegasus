@@ -22,7 +22,8 @@
 //
 // Author: Bob Blair (bblair@bmc.com)
 //
-// Modified By:
+// Modified By:  Karl Schopmeyer (k.schopmeyer@opengroup.org)
+//                  Correct Null processing and correct calls to nextcsv - Mar 4 2002
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -120,6 +121,8 @@ StoDT(const String &val, CIMDateTime &dt) {
 // This is a parser for a comma-separated value String.  It returns one
 // value per call.  It handles quoted String and depends on the caller to
 // tell it where the end of the String is.
+// Returns value in value and return pointing to character after separator 
+// string
 //-------------------------------------------------------------------------
 static Uint32
 nextcsv(const String &csv, int sep, const Uint32 start,
@@ -130,7 +133,8 @@ nextcsv(const String &csv, int sep, const Uint32 start,
   Uint32 maxend = local_min(csv.size(), end);
   Uint32 idx = start;
   parsestate state = NOTINQUOTE;
-  while (idx < maxend) {
+  // Change KS 4 March 2002. Change from < to <=. Was dropping last char in string.
+  while (idx <= maxend) {
     char idxchar = csv[idx];
     switch (state) {
     case NOTINQUOTE:
@@ -192,100 +196,142 @@ build_array_value(CIMType::Tag type, unsigned int arrayDimension,
   String sval;
   Uint32 start = 0;
   Uint32 strsize = rep.size();
-  Uint32 end = strsize - 1;
- 
+  Uint32 end = strsize;
+
+  /* KS Changed all of the following from whil {...} to do {...} while (start < end);
+  The combination of the testing and nexcsv meant the last entry was not processed.
+  */
   switch (type) {
   case CIMType::BOOLEAN: {
     Array<Boolean> *a = new Array<Boolean>;
-    while (strsize && (start = nextcsv(rep, ',', start, end, sval)) < end ) {
-      if (sval[0] == 'T')
-        a->append(1);
-      else
-        a->append(0);
+    if (strsize != 0){
+        do{
+            start = nextcsv(rep, ',', start, end, sval);
+            if (sval[0] == 'T')
+                a->append(1);
+            else
+                a->append(0);
+        } while (start < end);
     }
     return new CIMValue(*a);
   }
   case CIMType::UINT8: {
     Array<Uint8> *a = new Array<Uint8>;
-    while (strsize && (start = nextcsv(rep, ',', start, end, sval)) < end ) {
-      a->append((Uint8)valueFactory::Stoi(sval));
+    if (strsize != 0){
+        do{
+            start = nextcsv(rep, ',', start, end, sval);
+            a->append((Uint8)valueFactory::Stoi(sval));
+        } while (start < end);
     }
     return new CIMValue(*a);
   }
   case CIMType::SINT8: {
     Array<Sint8> *a = new Array<Sint8>;
-    while (strsize && (start = nextcsv(rep, ',', start, end, sval)) < end ) {
-      a->append((Sint8)valueFactory::Stoi(sval));
+    if (strsize != 0){
+        do{
+            start = nextcsv(rep, ',', start, end, sval);
+            a->append((Sint8)valueFactory::Stoi(sval));
+        } while (start < end);
     }
     return new CIMValue(*a);
   }
   case CIMType::UINT16: {
     Array<Uint16> *a = new Array<Uint16>;
-    while (strsize && (start = nextcsv(rep, ',', start, end, sval)) < end ) {
-      a->append((Uint16)valueFactory::Stoi(sval));
+    if (strsize != 0){
+        do{
+            start = nextcsv(rep, ',', start, end, sval);
+            a->append((Uint16)valueFactory::Stoi(sval));
+        } while (start < end);
     }
     return new CIMValue(*a);
   }
   case CIMType::SINT16: {
     Array<Sint16> *a = new Array<Sint16>;
-    while (strsize && (start = nextcsv(rep, ',', start, end, sval)) < end ) {
-      a->append((Sint16)valueFactory::Stoi(sval));
+    if (strsize != 0){
+        do{
+            start = nextcsv(rep, ',', start, end, sval);
+            a->append((Sint16)valueFactory::Stoi(sval));
+        } while (start < end);
     }
     return new CIMValue(*a);
   }
   case CIMType::UINT32: {
     Array<Uint32> *a = new Array<Uint32>;
-    while (strsize && (start = nextcsv(rep, ',', start, end, sval)) < end ) {
-      a->append((Uint32)valueFactory::Stoi(sval));
+    if (strsize != 0){
+        do{
+            start = nextcsv(rep, ',', start, end, sval);
+            a->append((Uint32)valueFactory::Stoi(sval));
+        } while (start < end);
     }
     return new CIMValue(*a);
   }
   case CIMType::SINT32: {
     Array<Sint32> *a = new Array<Sint32>;
-    while (strsize && (start = nextcsv(rep, ',', start, end, sval)) < end ) {
-      a->append((Sint32)valueFactory::Stoi(sval));
+    if (strsize != 0){
+        do{
+            start = nextcsv(rep, ',', start, end, sval);
+            a->append((Sint32)valueFactory::Stoi(sval));
+        } while (start < end);
     }
     return new CIMValue(*a);
   }
   case CIMType::UINT64: {
     Array<Uint64> *a = new Array<Uint64>;
-    while (strsize && (start = nextcsv(rep, ',', start, end, sval)) < end ) {
-      a->append((Uint64)valueFactory::Stoi(sval));
+    if (strsize != 0){
+        do{
+            start = nextcsv(rep, ',', start, end, sval);
+            a->append((Uint64)valueFactory::Stoi(sval));
+        } while (start < end);
     }
     return new CIMValue(*a);
   }
   case CIMType::SINT64: {
     Array<Sint64> *a = new Array<Sint64>;
-    while (strsize && (start = nextcsv(rep, ',', start, end, sval)) < end ) {
-      a->append((Sint64)valueFactory::Stoi(sval));
+    if (strsize != 0){
+        do{
+            start = nextcsv(rep, ',', start, end, sval);
+            a->append((Sint64)valueFactory::Stoi(sval));
+        } while (start < end);
     }
     return new CIMValue(*a);
   }
   case CIMType::REAL32: {
     Array<Real32> *a = new Array<Real32>;
-    while (strsize && (start = nextcsv(rep, ',', start, end, sval)) < end ) {
-      a->append((Real32)Stof(sval));
+    if (strsize != 0){
+        do{
+            start = nextcsv(rep, ',', start, end, sval);
+        a->append((Real32)Stof(sval));
+        } while (start < end);
     }
     return new CIMValue(*a);
   }
   case CIMType::REAL64: {
     Array<Real64> *a = new Array<Real64>;
-    while (strsize && (start = nextcsv(rep, ',', start, end, sval)) < end ) {
-      a->append((Real64)Stof(sval));
+    if (strsize != 0){
+        do{
+            start = nextcsv(rep, ',', start, end, sval);
+            a->append((Real64)Stof(sval));
+        } while (start < end);
     }
     return new CIMValue(*a);
   }
   case CIMType::CHAR16: {
     Array<Char16> *a = new Array<Char16>;
-    while (strsize && (start = nextcsv(rep, ',', start, end, sval)) < end ) {
-      a->append(sval[0]);
+    if (strsize != 0){
+        do{
+            start = nextcsv(rep, ',', start, end, sval);
+            a->append(sval[0]);
+        } while (start < end);
     }
     return new CIMValue(*a);
   }
   case CIMType::STRING: {
     Array<String> *a = new Array<String>;
-    while (strsize && (start = nextcsv(rep, ',', start, end, sval)) < end ) {
-      a->append(sval);
+    if (strsize != 0){
+        do{
+            start = nextcsv(rep, ',', start, end, sval);
+            a->append(sval);
+         } while (start < end);
     }
     return new CIMValue(*a);
   }
@@ -320,7 +366,6 @@ valueFactory::createValue(CIMType::Tag type, int arrayDimension,
 {
   const String &rep = *repp;
   CIMDateTime dt;
-
   if (arrayDimension == -1) { // this is not an array type
       
       // KS add test for size.  If empty string set type but NULL attribute

@@ -22,7 +22,8 @@
 //
 // Author: Bob Blair (bblair@bmc.com)
 //
-// Modified By:
+// Modified By:  Karl Schopmeyer (k.schopmeyer@opengroup.org) 
+//                  1. add comment line to xml output.  aug 2001
 //
 //%/////////////////////////////////////////////////////////////////////////////
 

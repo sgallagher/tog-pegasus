@@ -59,10 +59,10 @@ functions in this provider including;
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-
-#define CDEBUG(X)
-//#define CDEBUG(X) Logger::put (Logger::DEBUG_LOG, "InteropTest", Logger::INFORMATION, "$0", X)
-//#define CDEBUG(X) PEGASUS_STD(cout) << "InteropTest " << X << PEGASUS_STD(endl)
+// Macro puts out message and then does assert error out.
+#define TERMINATE(X) {PEGASUS_STD(cout) << "TestInterop " << X << PEGASUS_STD(endl); assert(false);}
+//#define CDEBUG(X)
+#define CDEBUG(X) PEGASUS_STD(cout) << "InteropTest " << X << PEGASUS_STD(endl)
 
 
 #include <cstring>
@@ -73,6 +73,8 @@ PEGASUS_USING_STD;
 Creates, deletes, queries namespaces using both the
 __Namespace and CIM_Namespace functions
 */
+char * pgmName;
+char * verbose;
 
 static const CIMNamespaceName __NAMESPACE_NAMESPACE = CIMNamespaceName ("root");
 static const CIMNamespaceName InteropNamespace = CIMNamespaceName("root/PG_Interop");
@@ -96,11 +98,79 @@ static const CIMName CIM_COMMMECHANISMFORMANAGER_CLASSNAME  =
 static const CIMName CIM_NAMESPACEINMANAGER_CLASSNAME  = 
         CIMName ("CIM_NamespaceInManager");
 
-static char * verbose;
+/* Class created to provide cover for all of the tests in this
+    test program.
+*/
+class InteropTest
+{
+public:
+    //InteropTest();
+
+    InteropTest(CIMClient & client);
+
+    ~InteropTest();
+
+    // Methods associated with Namespace testing
+    Array<CIMNamespaceName> _getNamespacesOld();
+    Boolean InteropTest::_deleteOneLevelOfNamespace(const CIMNamespaceName& parent,
+         const String & child);
+    Boolean _deleteNamespaceOld(const String & name);
+    Boolean _validateNamespaces(Array<CIMNamespaceName>& namespaceNames);
+    Array<CIMInstance> _getCIMNamespaceInstances();
+    Array<CIMInstance> _getPGNamespaceInstances();
+    Array<CIMObjectPath> _getCIMNamespaceInstanceNames();
+
+    Array<CIMNamespaceName> _getNamespacesNew();
+    void _showNamespaceInfo(const String& title);
+    Boolean _existsNew(const CIMNamespaceName& name);
+    Boolean _namespaceCreate__Namespace(const CIMNamespaceName& parent,
+        const String& childName);
+    Boolean _namespaceCreateCIM_Namespace(const CIMNamespaceName& name);
+    Boolean _testPGNamespace(const CIMNamespaceName& name,
+        Boolean shared, Boolean updatesAllowed, const String& parent);
+    Boolean _namespaceCreatePG_Namespace(const CIMNamespaceName& name,
+        const Boolean shareable, const Boolean updatesAllowed,
+        const String& parent);
+    Boolean _namespaceDeleteCIM_Namespace(const CIMNamespaceName& name);
+    Boolean testClassExists(const CIMName & className);
+
+    // Methods associated iwth overall testing
+    void testNameSpacesManagement();
+    void testSharedNameSpacesManagement();
+    CIMInstance getInstanceObjMgr();
+    CIMObjectPath getObjMgrPath();
+    void testObjectManagerClass();
+    void setStatisticsState(const Boolean flag);
+    Boolean getStatisticsPropertyState(CIMInstance & objMgrInstance);
+    Boolean getStatisticsState();
+    void showStatisticsState();
+    
+    void testStatisticsEnable();
+    
+    void testCommunicationClass();
+    void testNameSpaceInObjectManagerAssocClass();
+    void testCommMechinManagerAssocClass();
+
+private:
+
+CIMClient _client;
+CIMInstance objectManagerInstance;
+};
+
+
+InteropTest::InteropTest(CIMClient & client)
+    : _client(client)
+{
+}
+
+InteropTest::~InteropTest()
+{
+
+}
 
 /* Get all namespaces and return as an array
 */
-Array<CIMNamespaceName> _getNamespacesOld( CIMClient& client)
+Array<CIMNamespaceName> InteropTest::_getNamespacesOld()
 {
     CIMName className = "__NameSpace";
     Array<CIMNamespaceName> namespaceNames;
@@ -126,7 +196,7 @@ Array<CIMNamespaceName> _getNamespacesOld( CIMClient& client)
             {
                 next = namespaceNames[range];
             }
-            Array<CIMInstance> instances = client.enumerateInstances(next, className);
+            Array<CIMInstance> instances = _client.enumerateInstances(next, className);
             for (Uint32 i = 0 ; i < instances.size(); i++)
             {
                 Uint32 pos;
@@ -163,7 +233,7 @@ Array<CIMNamespaceName> _getNamespacesOld( CIMClient& client)
         try
         {
             CIMQualifierDecl cimQualifierDecl;
-            cimQualifierDecl = client.getQualifier(namespaceNames[i],
+            cimQualifierDecl = _client.getQualifier(namespaceNames[i],
                                            "Association");
 
             returnNamespaceNames.append(namespaceNames[i]);
@@ -177,13 +247,12 @@ Array<CIMNamespaceName> _getNamespacesOld( CIMClient& client)
     return(returnNamespaceNames);
 }
 
-Boolean _deleteOneLevelOfNamespace(CIMClient& client, const CIMNamespaceName& parent, const String & child)
+Boolean InteropTest::_deleteOneLevelOfNamespace(const CIMNamespaceName& parent, const String & child)
 {
-
     try
     {
         CIMObjectPath myReference(String::EMPTY, parent, child);
-        client.deleteInstance(parent, myReference);
+        _client.deleteInstance(parent, myReference);
     }
     catch(Exception& e)
     {
@@ -198,7 +267,7 @@ Boolean _deleteOneLevelOfNamespace(CIMClient& client, const CIMNamespaceName& pa
 /* Delete the namespace defined by the input. This function uses
     the __Namspace tools to do the delete.
 */
-Boolean _deleteNamespaceOld(CIMClient& client, const String & name)
+Boolean InteropTest::_deleteNamespaceOld(const String & name)
 {
 
     Uint32 pos;
@@ -206,14 +275,14 @@ Boolean _deleteNamespaceOld(CIMClient& client, const String & name)
     {
         String parent = name.subString(0, pos);
         String child = name.subString (pos + 1);
-        Boolean rtn = _deleteOneLevelOfNamespace(client, CIMNamespaceName(parent), child);
+        Boolean rtn = _deleteOneLevelOfNamespace(CIMNamespaceName(parent), child);
         if(!rtn)
             return(false);
     }
     return(true);
 }
 
-Boolean _validateNamespaces(CIMClient& client, Array<CIMNamespaceName>& namespaceNames)
+Boolean InteropTest::_validateNamespaces(Array<CIMNamespaceName>& namespaceNames)
 {
     // Validate that these are all namespaces.  This is not a certain
     // Test but we simply check to see if there is an association
@@ -226,7 +295,7 @@ Boolean _validateNamespaces(CIMClient& client, Array<CIMNamespaceName>& namespac
         try
         {
             CIMQualifierDecl cimQualifierDecl;
-            cimQualifierDecl = client.getQualifier(namespaceNames[i],
+            cimQualifierDecl = _client.getQualifier(namespaceNames[i],
                                            "Association");
 
             returnNamespaces.append(namespaceNames[i]);
@@ -295,12 +364,12 @@ Boolean _existsOld(CIMNamespaceName& name)
 
 /* gets the instances for the CIM_Namespace class from host
 */
-Array<CIMInstance> _getCIMNamespaceInstances(CIMClient& client)
+Array<CIMInstance> InteropTest::_getCIMNamespaceInstances()
 {
     Array<CIMInstance> instances;
     try
     {
-        instances = client.enumerateInstances(InteropNamespace,
+        instances = _client.enumerateInstances(InteropNamespace,
                                               CIM_NAMESPACE_CLASSNAME);
     }
     catch(Exception& e)
@@ -312,15 +381,14 @@ Array<CIMInstance> _getCIMNamespaceInstances(CIMClient& client)
     return(instances);
 }
 
-
 /* gets the instances for the CIM_Namespace class from host
 */
-Array<CIMInstance> _getPGNamespaceInstances(CIMClient& client)
+Array<CIMInstance> InteropTest::_getPGNamespaceInstances()
 {
     Array<CIMInstance> instances;
     try
     {
-        instances = client.enumerateInstances(InteropNamespace,
+        instances = _client.enumerateInstances(InteropNamespace,
                                               PG_NAMESPACE_CLASSNAME);
     }
     catch(Exception& e)
@@ -334,12 +402,12 @@ Array<CIMInstance> _getPGNamespaceInstances(CIMClient& client)
 
 /* gets the instancenames for the CIM_Namespace class from host
 */
-Array<CIMObjectPath> _getCIMNamespaceInstanceNames(CIMClient& client)
+Array<CIMObjectPath> InteropTest::_getCIMNamespaceInstanceNames()
 {
     Array<CIMObjectPath> objectNames;
     try
     {
-        objectNames = client.enumerateInstanceNames(InteropNamespace,
+        objectNames = _client.enumerateInstanceNames(InteropNamespace,
                                               CIM_NAMESPACE_CLASSNAME);
     }
     catch(Exception& e)
@@ -405,10 +473,10 @@ String _getKeyValue(const CIMInstance& instance, const CIMName& keyName)
 }
 
 
-Array<CIMNamespaceName> _getNamespacesNew(CIMClient& client)
+Array<CIMNamespaceName> InteropTest::_getNamespacesNew()
 {
     Array<CIMObjectPath> instanceNames;
-    instanceNames = _getCIMNamespaceInstanceNames(client);
+    instanceNames = _getCIMNamespaceInstanceNames();
 
     Array<CIMNamespaceName> rtns;
     for (Uint32 i = 0 ; i < instanceNames.size(); i++)
@@ -433,9 +501,10 @@ Array<CIMNamespaceName> _getNamespacesNew(CIMClient& client)
     not exist, is Null, or is not a string type. The substitute is String::EMPTY
     @return String value found or defaultValue.
 */
-String _getPropertyValue(const CIMInstance& instance, const CIMName& propertyName, const String& defaultValue)
+void _getPropertyValue(const CIMInstance& instance, const CIMName& propertyName,
+    const String& defaultValue, String & returnValue)
 {
-    String output = defaultValue;
+    returnValue = defaultValue;
     Uint32 pos;
     if ((pos = instance.findProperty(propertyName)) != PEG_NOT_FOUND)
     {
@@ -445,16 +514,16 @@ String _getPropertyValue(const CIMInstance& instance, const CIMName& propertyNam
             CIMValue v1  = p1.getValue();
 
             if (!v1.isNull())
-                v1.get(output);
+                v1.get(returnValue);
         }
     }
-    return(output);
 }
 
 // Overload of _getPropertyValue for boolean type
-Boolean _getPropertyValue(const CIMInstance& instance, const CIMName& propertyName, const Boolean defaultValue)
+void _getPropertyValue(const CIMInstance& instance, const CIMName& propertyName,
+    const Boolean defaultValue, Boolean returnValue)
 {
-    Boolean output = defaultValue;
+    returnValue = defaultValue;
     Uint32 pos;
     if ((pos = instance.findProperty(propertyName)) != PEG_NOT_FOUND)
     {
@@ -464,16 +533,15 @@ Boolean _getPropertyValue(const CIMInstance& instance, const CIMName& propertyNa
             CIMValue v1  = p1.getValue();
 
             if (!v1.isNull())
-                v1.get(output);
+                v1.get(returnValue);
         }
     }
-    return(output);
 }
 
-void _showNamespaceInfo(CIMClient& client, const String& title)
+void InteropTest::_showNamespaceInfo(const String& title)
 {
     Array<CIMInstance> instances;
-    instances = _getCIMNamespaceInstances(client);
+    instances = _getCIMNamespaceInstances();
 
     cout << title << " size = " << instances.size() << endl;
     Array<CIMNamespaceName> rtns;
@@ -489,7 +557,10 @@ void _showNamespaceInfo(CIMClient& client, const String& title)
             isSharable = "ERROR: Name Property Not Found";
         else
         {
-            name = _getPropertyValue(instances[i],NAMESPACE_PROPERTYNAME, String("ERROR: No Name Property Value"));
+
+            _getPropertyValue(instances[i],NAMESPACE_PROPERTYNAME,
+                String("ERROR: No Name Property Value"),
+                name);
         }
 
         // if this is a PG_Namespace, get the other characteristics.
@@ -500,8 +571,10 @@ void _showNamespaceInfo(CIMClient& client, const String& title)
                 isSharable = "Property Not Found";
             else
             {
-                isSharable = (_getPropertyValue(instances[i],"IsShareable", false)) ?
-                    "true" : "false";
+                Boolean boolRtn = false;
+                _getPropertyValue(instances[i],"IsShareable", false, boolRtn); 
+                isSharable = boolRtn? "true" : "false";
+
             }
 
             // get the schemUpdatesAllowed property information
@@ -509,15 +582,16 @@ void _showNamespaceInfo(CIMClient& client, const String& title)
                 isSharable = "Property Not Found";
             else
             {
-                updatesAllowed = (_getPropertyValue(instances[i],"SchemaUpdatesAllowed", false)) ?
-                    "true" : "false";
+                Boolean boolRtn = false;
+                _getPropertyValue(instances[i],"SchemaUpdatesAllowed", false, boolRtn);
+                updatesAllowed = boolRtn ?  "true" : "false";
             }
                         // get the schemUpdatesAllowed property information
             if ((instances[i].findProperty("ParentNamespace")) == PEG_NOT_FOUND)
                 isSharable = "Property Not Found";
             else
             {
-                parent = _getPropertyValue(instances[i],"ParentNamespace", String("No parent"));
+                _getPropertyValue(instances[i],"ParentNamespace", String("No parent"), parent);
             }
 
         }
@@ -540,12 +614,12 @@ void _showNamespaceList(const Array<CIMNamespaceName> names, const String& title
 
 // Determine if the named namespace exists in the host.
 // gets all namespaces and compares for this one.
-Boolean _existsNew(CIMClient& client, const CIMNamespaceName& name)
+Boolean InteropTest::_existsNew(const CIMNamespaceName& name)
 {
     //Get all namespace instances
 
     Array<CIMNamespaceName> namespaceNames =
-        _getNamespacesNew(client);
+        _getNamespacesNew();
 
     for(Uint32 i = 0; i < namespaceNames.size(); i++)
     {
@@ -557,7 +631,7 @@ Boolean _existsNew(CIMClient& client, const CIMNamespaceName& name)
     return false;
 }
 
-Boolean _namespaceCreate__Namespace(CIMClient& client, const CIMNamespaceName& parent, const String& childName)
+Boolean InteropTest::_namespaceCreate__Namespace(const CIMNamespaceName& parent, const String& childName)
 {
     CIMObjectPath newInstanceName;
     try
@@ -566,7 +640,7 @@ Boolean _namespaceCreate__Namespace(CIMClient& client, const CIMNamespaceName& p
         CIMInstance newInstance(__NAMESPACE_CLASSNAME);
         newInstance.addProperty(CIMProperty(CIMName (NAMESPACE_PROPERTYNAME),
             childName));
-        newInstanceName = client.createInstance(parent,
+        newInstanceName = _client.createInstance(parent,
                                                  newInstance);
     }
     catch(CIMException& e)
@@ -596,16 +670,16 @@ Boolean _namespaceCreate__Namespace(CIMClient& client, const CIMNamespaceName& p
 
 /** Create a single namespace using CIM_Namespace
 */
-Boolean _namespaceCreateCIM_Namespace(CIMClient& client, const CIMNamespaceName& name)
+Boolean InteropTest::_namespaceCreateCIM_Namespace(const CIMNamespaceName& name)
 {
     // Does this namespace exist.
-    if (_existsNew(client, name))
+    if (_existsNew(name))
         return(false);
 
     //Now build the new namespace name instance.  Note that we need to get the
     // collection of keys that are required. Easy way was to simply
     // use an existing instance and change the name field.
-    Array<CIMInstance> instances = _getCIMNamespaceInstances(client);
+    Array<CIMInstance> instances = _getCIMNamespaceInstances();
 
     if(instances.size() == 0)
     {
@@ -646,7 +720,7 @@ Boolean _namespaceCreateCIM_Namespace(CIMClient& client, const CIMNamespaceName&
     try
     {
            CIMObjectPath path;
-           path = client.createInstance(InteropNamespace, instance);
+           path = _client.createInstance(InteropNamespace, instance);
     }
     catch(Exception& e)
     {
@@ -661,7 +735,7 @@ Boolean _namespaceCreateCIM_Namespace(CIMClient& client, const CIMNamespaceName&
 
 //ATTN: This test is not done and therefore always returns true.
 // 28 Sept 2004. KS.
-Boolean _testPGNamespace( CIMClient& client, const CIMNamespaceName& name,
+Boolean InteropTest::_testPGNamespace(const CIMNamespaceName& name,
     Boolean shared, Boolean updatesAllowed, const String& parent)
 {
     //ATTN: Build the get and test properties.
@@ -680,24 +754,24 @@ Boolean _testPGNamespace( CIMClient& client, const CIMNamespaceName& name,
 
 /** Create a single namespace using CIM_Namespace
 */
-Boolean _namespaceCreatePG_Namespace(CIMClient& client, const CIMNamespaceName& name,
+Boolean InteropTest::_namespaceCreatePG_Namespace(const CIMNamespaceName& name,
     const Boolean shareable, const Boolean updatesAllowed, const String& parent)
 {
     // Does this namespace exist.
-    if (_existsNew(client, name))
+    if (_existsNew(name))
         return(false);
 
     //Now build the new namespace name instance.  Note that we need to get the
     // collection of keys that are required. Easy way was to simply
     // use an existing instance and change the name field.
-    Array<CIMInstance> instances = _getPGNamespaceInstances(client);
+    Array<CIMInstance> instances = _getPGNamespaceInstances();
 
     if(instances.size() == 0)
     {
         return(false);
     }
 
-    CIMClass thisClass = client.getClass(PEGASUS_NAMESPACENAME_INTEROP,
+    CIMClass thisClass = _client.getClass(PEGASUS_NAMESPACENAME_INTEROP,
                                         PG_NAMESPACE_CLASSNAME,
                                         false,true,true);
 
@@ -764,7 +838,7 @@ Boolean _namespaceCreatePG_Namespace(CIMClient& client, const CIMNamespaceName& 
     try
     {
            CIMObjectPath path;
-           path = client.createInstance(InteropNamespace, instance);
+           path = _client.createInstance(InteropNamespace, instance);
     }
     catch(Exception& e)
     {
@@ -777,14 +851,14 @@ Boolean _namespaceCreatePG_Namespace(CIMClient& client, const CIMNamespaceName& 
     return(true);
 }
 
-Boolean _namespaceDeleteCIM_Namespace(CIMClient& client, const CIMNamespaceName& name)
+Boolean InteropTest::_namespaceDeleteCIM_Namespace(const CIMNamespaceName& name)
 {
     // If does not exist, don't try to delete
-    if (!_existsNew(client, name))
+    if (!_existsNew(name))
         return(false);
 
     // Get this instancepath from the whole set.
-    Array<CIMObjectPath> paths = _getCIMNamespaceInstanceNames(client);
+    Array<CIMObjectPath> paths = _getCIMNamespaceInstanceNames();
 
     // find the entry with the correct key
     Boolean found = false;
@@ -808,7 +882,7 @@ Boolean _namespaceDeleteCIM_Namespace(CIMClient& client, const CIMNamespaceName&
     // Delete the namespace
     try
     {
-        client.deleteInstance(InteropNamespace, paths[i]);
+        _client.deleteInstance(InteropNamespace, paths[i]);
 
     }
     catch(Exception& e)
@@ -821,11 +895,11 @@ Boolean _namespaceDeleteCIM_Namespace(CIMClient& client, const CIMNamespaceName&
     return(true);
 }
 
-Boolean testClassExists(CIMClient & client, const CIMName & className)
+Boolean InteropTest::testClassExists(const CIMName & className)
 {
     try
     {
-        CIMClass thisClass = client.getClass(PEGASUS_NAMESPACENAME_INTEROP,
+        CIMClass thisClass = _client.getClass(PEGASUS_NAMESPACENAME_INTEROP,
                                             className,
                                             false,true,true);
         return(true);
@@ -838,244 +912,237 @@ Boolean testClassExists(CIMClient & client, const CIMName & className)
     }
     return(false);
 }
-int main(int argc, char** argv)
+
+
+/* Execute the tests to assure that the namespace manager works and
+   that the results match what is returned from the __Namespace manager
+*/
+void InteropTest::testNameSpacesManagement()
 {
-    verbose = getenv("PEGASUS_TEST_VERBOSE");
-
-    CIMClient client;
-    String host = "localhost";
-    Uint32 portNumber = 5988;
-    String userName = String::EMPTY;
-    String password = String::EMPTY;
     Array<CIMNamespaceName> nameListNew;
-
-    try
-    {
-        client.connect (host, portNumber,
-                        userName, password);
-    }
-    catch(Exception& e)
-    {
-        cerr << "Error: " << e.getMessage() << " Conection term abnormal" << endl;
-        exit(1);
-    }
-
     // Test for required classes to assure that the interop provider and
     // its corresponding classes exist.
-    assert(testClassExists(client, CIM_NAMESPACE_CLASSNAME));
-    assert(testClassExists(client, PG_NAMESPACE_CLASSNAME));
-    assert(testClassExists(client, CIM_OBJECTMANAGER_CLASSNAME));
-    assert(testClassExists(client, CIM_OBJECTMANAGERCOMMUNICATIONMECHANISM_CLASSNAME));
-    assert(testClassExists(client, PG_CIMXMLCOMMUNICATIONMECHANISM_CLASSNAME));
-    assert(testClassExists(client, CIM_COMMMECHANISMFORMANAGER_CLASSNAME));
-
+    assert(testClassExists(CIM_NAMESPACE_CLASSNAME));
+    assert(testClassExists(PG_NAMESPACE_CLASSNAME));
+    assert(testClassExists(CIM_OBJECTMANAGER_CLASSNAME));
+    assert(testClassExists(CIM_OBJECTMANAGERCOMMUNICATIONMECHANISM_CLASSNAME));
+    assert(testClassExists(PG_CIMXMLCOMMUNICATIONMECHANISM_CLASSNAME));
+    assert(testClassExists(CIM_COMMMECHANISMFORMANAGER_CLASSNAME));
+    
     // Test namespace usage with both __namespace and CIM_Namespace.
     // __namespace is called old
     // CIM_Namespace is called new for these tests.
-    Array<CIMNamespaceName> nameListOld = _getNamespacesOld(client);
-
+    Array<CIMNamespaceName> nameListOld = _getNamespacesOld();
+    
     CDEBUG("Got Namespaces with __Namespace. Now Validate");
-    if (!_validateNamespaces(client, nameListOld))
+    if (!_validateNamespaces(nameListOld))
     {
         cout << "Error exit, Invalid namespace returned" << endl;
     }
-
-    nameListNew = _getNamespacesNew(client);
-
+    
+    nameListNew = _getNamespacesNew();
+    
     CDEBUG("Got Namespaces with CIM_Namespace. Now Validate");
-    if (!_validateNamespaces(client, nameListNew))
+    if (!_validateNamespaces(nameListNew))
     {
         cout << "Error exit, Invalid namespace returned" << endl;
     }
-
+    
     if(verbose)
     {
         _showNamespaceList(nameListNew, "From CIM_Namespace");
-
+    
         _showNamespaceList(nameListOld, "From __Namespace");
     }
-
+    
     assert(nameListNew.size() == nameListOld.size());
-
+    
     // Add assertion that they have the same items in the list
-
+    
     // Create a new namespace with new functions
-
+    
     CIMNamespaceName testNameNew = CIMNamespaceName("root/junk/interoptest/newtype");
     CIMNamespaceName testNameOldRoot = CIMNamespaceName("root");
     CIMNamespaceName testNameOldTail = CIMNamespaceName("junk/interoptest/oldtype");
     CIMNamespaceName testNameOldComplete = CIMNamespaceName("root/junk/interoptest/oldtype");
-
+    
     // Create the namespace with the CIM_Namespace class
     // Note that this is an assertion and, in fact, we should probably remove the names.
-
-    assert( ! _existsNew(client, testNameNew));
-
-    assert( ! _existsNew(client, testNameOldComplete));
-
+    
+    assert( ! _existsNew(testNameNew));
+    
+    assert( ! _existsNew(testNameOldComplete));
+    
     CDEBUG("Now Create New Namespace with CIM_Namespace. Namespace name = " << testNameNew.getString() << ".");
-    _namespaceCreateCIM_Namespace(client, CIMNamespaceName(testNameNew));
-
+    _namespaceCreateCIM_Namespace(CIMNamespaceName(testNameNew));
+    
     if (verbose)
     {
         _showNamespaceList(nameListNew, "CIM_Namespace response after add.");
     }
-
+    
     // The following code is temporary KS 2004
     CDEBUG("Test for namespace created. Name = " << testNameNew.getString()); 
-    assert(_existsNew(client, testNameNew));
-
-    assert(_namespaceDeleteCIM_Namespace(client, CIMNamespaceName(testNameNew)));
-
+    assert(_existsNew(testNameNew));
+    
+    assert(_namespaceDeleteCIM_Namespace(CIMNamespaceName(testNameNew)));
+    
     CDEBUG("Test for Namespace existing = " << testNameOldComplete.getString()); 
-    if(_existsNew(client, CIMNamespaceName(testNameOldComplete)))
-       _namespaceDeleteCIM_Namespace(client, CIMNamespaceName(testNameOldComplete));
-
+    if(_existsNew(CIMNamespaceName(testNameOldComplete)))
+       _namespaceDeleteCIM_Namespace(CIMNamespaceName(testNameOldComplete));
+    
     CDEBUG("Test for Namespace NOT existing = " << testNameOldComplete.getString()); 
-    if(_existsNew(client, testNameOldComplete))
+    if(_existsNew(testNameOldComplete))
         cerr << "Problem deleting namespace" << testNameOldComplete.getString() <<endl;
-
+    
     CDEBUG("Creating Old = " << testNameOldTail.getString()); 
-    _namespaceCreate__Namespace(client, CIMNamespaceName(testNameOldRoot), String(testNameOldTail.getString()));
-
-    assert(_existsNew(client, testNameOldComplete));
-
-    assert(_namespaceDeleteCIM_Namespace(client, CIMNamespaceName(testNameOldComplete)));
-
-    assert(!_existsNew(client, testNameOldComplete));
-
+    _namespaceCreate__Namespace(CIMNamespaceName(testNameOldRoot), String(testNameOldTail.getString()));
+    
+    assert(_existsNew(testNameOldComplete));
+    
+    assert(_namespaceDeleteCIM_Namespace(CIMNamespaceName(testNameOldComplete)));
+    
+    assert(!_existsNew(testNameOldComplete));
+    
     if (verbose)
     {
         _showNamespaceList(nameListNew, "Namespaces From CIM_Namespace after add.");
     }
-
-    _namespaceCreate__Namespace(client, CIMNamespaceName(testNameOldRoot), String(testNameOldTail.getString()));
-
+    
+    _namespaceCreate__Namespace(CIMNamespaceName(testNameOldRoot), String(testNameOldTail.getString()));
+    
     // Note that this tries to delete the multiple levels all at the same time.
-
+    
     // ATTN: There is apparently a problem here with the following
     // delete.  Fix this and retest.  For the moment, we substituted
     // Deleting the new way.
-    //_deleteNamespaceOld(client, String(testNameOldComplete.getString()));
-
-    _namespaceDeleteCIM_Namespace(client, testNameOldComplete);
-
+    //_deleteNamespaceOld(String(testNameOldComplete.getString()));
+    
+    _namespaceDeleteCIM_Namespace(testNameOldComplete);
+    
     if (verbose)
     {
         _showNamespaceList(nameListNew, "CIM_Namespace response after add.");
     }
-    assert(!_existsNew(client, testNameOldComplete));
-
-    if(_existsNew(client, CIMNamespaceName(testNameOldComplete)))
-       _namespaceDeleteCIM_Namespace(client, CIMNamespaceName(testNameOldComplete));
-
-    if(_existsNew(client, CIMNamespaceName(testNameOldComplete)))
+    assert(!_existsNew(testNameOldComplete));
+    
+    if(_existsNew(CIMNamespaceName(testNameOldComplete)))
+       _namespaceDeleteCIM_Namespace(CIMNamespaceName(testNameOldComplete));
+    
+    if(_existsNew(CIMNamespaceName(testNameOldComplete)))
         cerr << "Problem deleting namespace" << endl;
-
-
-    // finally test to be sure that we have the same count of namespaces
+    
+    // Finally test to be sure that we have the same count of namespaces
     //as when we started.  Should also check to be sure it is exactly the
     //same set of namespaces.
-
-    Array<CIMNamespaceName> nameListTemp = _getNamespacesNew(client);
-
+    
+    Array<CIMNamespaceName> nameListTemp = _getNamespacesNew();
+    
     assert(nameListTemp.size() == nameListNew.size());
-
+    
     if (verbose)
         cout << "Basic Namespace Tests passed" << endl;
+}
 
-    //****************************************************************
-    // Test characteristics of shared namespaces.
-    //***************************************************************
+//****************************************************************
+// Test characteristics of shared namespaces.
+//***************************************************************
+void InteropTest::testSharedNameSpacesManagement()
+{
     try
     {
-
-    CIMNamespaceName testNameSharable = CIMNamespaceName("root/junk/interoptest/sharable");
-    CIMNamespaceName testNameShared = CIMNamespaceName("root/junk/interoptest/shared");
-
-    // Create a sharable namespace
-    _namespaceCreatePG_Namespace(client, testNameSharable, true, false, String::EMPTY);
-
-    // create a namespace with the previous sharable as parent.
-    _namespaceCreatePG_Namespace(client, testNameShared, false, false, testNameSharable.getString());
-
-    // Confirm that both exist
-    assert(_existsNew(client, testNameSharable));
-
-    assert(_existsNew(client, testNameShared));
-
-    if (verbose)
-    {
-        _showNamespaceInfo(client, "Namespaces with one shared and one sharable created");
+        CIMNamespaceName testNameSharable = CIMNamespaceName("root/junk/interoptest/sharable");
+        CIMNamespaceName testNameShared = CIMNamespaceName("root/junk/interoptest/shared");
+    
+        // Create a sharable namespace
+        _namespaceCreatePG_Namespace(testNameSharable, true, false, String::EMPTY);
+    
+        // create a namespace with the previous sharable as parent.
+        _namespaceCreatePG_Namespace(testNameShared, false, false, testNameSharable.getString());
+    
+        // Confirm that both exist
+        assert(_existsNew(testNameSharable));
+        assert(_existsNew(testNameShared));
+    
+        if (verbose)
+            _showNamespaceInfo("Namespaces with one shared and one sharable created");
+    
+        // Should add test to confirm that these are really shared.
+        // No. Not in this version.
+        assert(_testPGNamespace(testNameSharable, true, false, String::EMPTY));
+        assert(_testPGNamespace(testNameShared, false, false, testNameSharable.getString()));
+    
+        // Now delete the two namespaces
+        _namespaceDeleteCIM_Namespace(testNameSharable);
+        _namespaceDeleteCIM_Namespace(testNameShared);
+    
+        assert(!_existsNew(testNameSharable));
+        assert(!_existsNew(testNameShared));
     }
-
-    // Should add test to confirm that these are really shared.
-    // No. Not in this version.
-    assert(_testPGNamespace(client, testNameSharable, true, false, String::EMPTY));
-    assert(_testPGNamespace(client, testNameShared, false, false, testNameSharable.getString()));
-
-
-    // Now delete the two namespaces
-
-    _namespaceDeleteCIM_Namespace(client, testNameSharable);
-    _namespaceDeleteCIM_Namespace(client, testNameShared);
-
-
-    assert(!_existsNew(client, testNameSharable));
-
-    assert(!_existsNew(client, testNameShared));
-
-    }
-
-    // Catch block for all of the CIM_ObjectManager Tests.
+    // Catch block for all of the shared Namespace tests Tests.
     catch(CIMException& e)
     {
-        cerr << argv[0] << " Shared Namespace test CIMException: " << e.getMessage() << endl;
+        TERMINATE(" Shared Namespace test CIMException: " << e.getMessage());
     }
     catch(Exception& e)
     {
-        cerr << argv[0] << " Shared Namespace test Pegasus Exception: " << e.getMessage()  << endl;
+        TERMINATE(" Shared Namespace test Pegasus Exception: " << e.getMessage());
     }
     catch(...)
     {
-        cerr << argv[0] << " Shared Namespace test Caught General Exception:" << endl;
+        TERMINATE(" Shared Namespace test Caught General Exception:");
     }
-    //****************************************************************
-    // Test the characteristics of the CIM_ObjectManager Class and Instances
-    //****************************************************************
+    if (verbose)
+        cout << "Shared Namespace Tests passed" << endl;
+}
+
+CIMInstance InteropTest::getInstanceObjMgr()
+{
+    CIMClass objectManager = _client.getClass(PEGASUS_NAMESPACENAME_INTEROP,
+                                        CIM_OBJECTMANAGER_CLASSNAME,
+                                        false,false,true);
+    if (verbose)
+    {
+        cout << "Show the object manager Class element" << endl;
+        XmlWriter::printClassElement(objectManager);
+    }
+    Array<CIMInstance> instancesObjMgr = _client.enumerateInstances(
+                                             PEGASUS_NAMESPACENAME_INTEROP,
+                                             CIM_OBJECTMANAGER_CLASSNAME,
+                                             true, false, true,true, CIMPropertyList());
+
+    assert(instancesObjMgr.size() == 1);
+
+    return(instancesObjMgr[0]);
+}
+
+CIMObjectPath InteropTest::getObjMgrPath()
+{
+    CIMInstance instance = getInstanceObjMgr();
+    return(instance.getPath());
+}
+
+//****************************************************************
+// Test the characteristics of the CIM_ObjectManager Class and Instances
+//****************************************************************
+void InteropTest::testObjectManagerClass()
+{
     try
     {
     // Test the CIM_ObjectManager Object
 
-        CIMClass objectManager = client.getClass(PEGASUS_NAMESPACENAME_INTEROP,
-                                            CIM_OBJECTMANAGER_CLASSNAME,
-                                            false,false,true);
-        if (verbose)
-        {
-            cout << "Show the object manager Class element" << endl;
-            XmlWriter::printClassElement(objectManager);
-        }
-        Array<CIMInstance> instancesObjMgr = client.enumerateInstances(
-                                                 PEGASUS_NAMESPACENAME_INTEROP,
-                                                 CIM_OBJECTMANAGER_CLASSNAME,
-                                                 true, false, true,true, CIMPropertyList());
-    
-        assert(instancesObjMgr.size() == 1);
-    
-        CIMInstance instanceObjectManager = instancesObjMgr[0];
-    
+        CIMInstance instanceObjectManager =  getInstanceObjMgr();
+
         if (verbose)
         {
             cout << "Show the object manager instance element" << endl;
             XmlWriter::printInstanceElement(instanceObjectManager);
         }
-
         // Why am I building the path here rather than getting it from the instance?
         CIMObjectPath objectManagerPath = instanceObjectManager.buildPath(CIM_OBJECTMANAGER_CLASSNAME);
     
-
         // test to confirm that both names and instances return same thing.
-        Array<CIMObjectPath> pathsObjMgr = client.enumerateInstanceNames(
+        Array<CIMObjectPath> pathsObjMgr = _client.enumerateInstanceNames(
                                                  PEGASUS_NAMESPACENAME_INTEROP,
                                                  CIM_OBJECTMANAGER_CLASSNAME);
     
@@ -1098,23 +1165,98 @@ int main(int argc, char** argv)
         // Test modification of objectmanager statistics property.
 
         assert (instanceObjectManager.findProperty("gatherstatisticaldata") != PEG_NOT_FOUND);
-
         assert (instanceObjectManager.findProperty("Name") != PEG_NOT_FOUND);
-
         assert (instanceObjectManager.findProperty("ElementName") != PEG_NOT_FOUND);
-
         assert (instanceObjectManager.findProperty("CreationClassName") != PEG_NOT_FOUND);
-
         assert (instanceObjectManager.findProperty("SystemName") != PEG_NOT_FOUND);
-
         assert (instanceObjectManager.findProperty("SystemCreationClassName") != PEG_NOT_FOUND);
+    }
+    // Catch block for all of the CIM_ObjectManager Tests.
+    catch(CIMException& e)
+    {
+        TERMINATE(" CIM_ObjectManager CIMException: " << e.getMessage());
+    }
+    catch(Exception& e)
+    {
+        TERMINATE(" CIM_ObjectManager Pegasus Exception: " << e.getMessage());
+    }
+    catch(...)
+    {
+        TERMINATE(" CIM_ObjectManager Caught General Exception:");
+    }
+    if (verbose)
+        cout << "ObjectManagerClass Tests passed" << endl;
+}
 
+void InteropTest::setStatisticsState(const Boolean flag)
+{
+    CIMInstance instanceObjectManagr = getInstanceObjMgr();
+
+    CIMInstance sendInstance = instanceObjectManagr.clone();
+
+    Uint32 pos;
+    if ((pos = sendInstance.findProperty("gatherstatisticaldata")) != PEG_NOT_FOUND)
+        sendInstance.getProperty(pos).setValue(CIMValue(flag));
+
+    // What is this for?????
+    // We are appending property????
+    Array<CIMName> plA;
+    plA.append(CIMName("gatherstatisticaldata"));
+    CIMPropertyList myPropertyList(plA);
+
+    _client.modifyInstance(PEGASUS_NAMESPACENAME_INTEROP,
+                        sendInstance,
+                        false,
+                        CIMPropertyList());
+}
+
+Boolean InteropTest::getStatisticsPropertyState(CIMInstance & objMgrInstance)
+{
+    Boolean output;
+    Uint32 pos;
+    if ((pos = objMgrInstance.findProperty("gatherstatisticaldata")) != PEG_NOT_FOUND)
+    {
+        CIMConstProperty p1 = objMgrInstance.getProperty(pos);
+        if (p1.getType() == CIMTYPE_BOOLEAN)
+        {
+            CIMValue v1  = p1.getValue();
+            if (!v1.isNull())
+                v1.get(output);
+            else
+                output = false;
+        }
+        else
+            TERMINATE("gatherStatisticaldata Property type problem");
+    }
+    else
+        TERMINATE("gatherStatisticaldata Property Not found");
+    return(output);
+}
+
+Boolean InteropTest::getStatisticsState()
+{
+    CIMInstance objMgrInstance = getInstanceObjMgr();
+    return(getStatisticsPropertyState(objMgrInstance));
+}
+
+void InteropTest::showStatisticsState()
+{
+    cout << "Statistics State = " << (getStatisticsState()? "on" : "off") << endl;
+
+}
+void InteropTest::testStatisticsEnable()
+{
+    try
+    {
+        CIMInstance instanceObjectManager = getInstanceObjMgr();
         CIMInstance sendInstance = instanceObjectManager.clone();
 
         Uint32 pos;
         if ((pos = sendInstance.findProperty("gatherstatisticaldata")) != PEG_NOT_FOUND)
             sendInstance.getProperty(pos).setValue(CIMValue(true));
-
+        else
+            assert(false);
+        CDEBUG("testStats. pos = " << pos);
         Array<CIMName> plA;
         plA.append(CIMName("gatherstatisticaldata"));
         CIMPropertyList myPropertyList(plA);
@@ -1122,20 +1264,26 @@ int main(int argc, char** argv)
         // Don't need this.
         sendInstance.filter(false, false, CIMPropertyList());
 
-        client.modifyInstance(PEGASUS_NAMESPACENAME_INTEROP,
-                            sendInstance,
-                            false,
-                            CIMPropertyList());
+        CDEBUG("testStats. filtered");
+        //??? Error here since we only have the one property in the instance.
+        try
+        {
+             XmlWriter::printInstanceElement(sendInstance);
+            _client.modifyInstance(PEGASUS_NAMESPACENAME_INTEROP,
+                                sendInstance,
+                                false,
+                                CIMPropertyList());
+        }
+        catch(CIMException& e)
+            {
+                cout <<" CIM_ObjectManager Test CIMException: " << e.getMessage() << endl;
+                throw e;
+            }
+        
 
-        // Get instance and confirm property changed.
-        CIMInstance localInstance = client.getInstance(
-                                                 PEGASUS_NAMESPACENAME_INTEROP,
-                                                 objectManagerPath,
-                                                 false);
-    
-        assert(instancesObjMgr.size() == 1);
-    
-        instanceObjectManager = instancesObjMgr[0];
+        CDEBUG("testStats. modified");
+        // Get Object Manager instance and confirm property changed.
+        CIMInstance localInstance = getInstanceObjMgr();
 
         if ((pos = localInstance.findProperty("gatherstatisticaldata")) != PEG_NOT_FOUND)
         {
@@ -1154,72 +1302,77 @@ int main(int argc, char** argv)
 
         // Now we must set it back to false.
 
+        CDEBUG("testStats. second get");
         if ((pos = sendInstance.findProperty("gatherstatisticaldata")) != PEG_NOT_FOUND)
             sendInstance.getProperty(pos).setValue(CIMValue(false));
-        client.modifyInstance(PEGASUS_NAMESPACENAME_INTEROP,
+        else
+            assert(false);
+
+        _client.modifyInstance(PEGASUS_NAMESPACENAME_INTEROP,
                             sendInstance,
                             false,
                             CIMPropertyList());
 
         // Get instance and confirm property changed once again.
-        localInstance = client.getInstance(
-                                                 PEGASUS_NAMESPACENAME_INTEROP,
-                                                 objectManagerPath,
-                                                 false);
-    
-        assert(instancesObjMgr.size() == 1);
-    
-        instanceObjectManager = instancesObjMgr[0];
+        CIMInstance newInstanceObjectManager = getInstanceObjMgr();
 
-        if ((pos = localInstance.findProperty("gatherstatisticaldata")) != PEG_NOT_FOUND)
+        if ((pos = newInstanceObjectManager.findProperty("gatherstatisticaldata")) != PEG_NOT_FOUND)
         {
-            CIMConstProperty p1 = localInstance.getProperty(pos);
+            CIMConstProperty p1 = newInstanceObjectManager.getProperty(pos);
             if (p1.getType() == CIMTYPE_BOOLEAN)
             {
                 CIMValue v1  = p1.getValue();
                 Boolean output;
                 if (!v1.isNull())
                     v1.get(output);
-                assert(!output);
+                else
+                    assert(false);
+                assert(output == false);
             }
         }
         else
             assert(false);
     }
-
     // Catch block for all of the CIM_ObjectManager Tests.
     catch(CIMException& e)
     {
-        cerr << argv[0] << " CIM_ObjectManager CIMException: " << e.getMessage() << endl;
+        TERMINATE(" CIM_ObjectManager Test CIMException: " << e.getMessage());
     }
     catch(Exception& e)
     {
-        cerr << argv[0] << " CIM_ObjectManager Pegasus Exception: " << e.getMessage()  << endl;
+        TERMINATE(" CIM_ObjectManager Test Pegasus Exception: " << e.getMessage());
     }
     catch(...)
     {
-        cerr << argv[0] << " CIM_ObjectManager Caught General Exception:" << endl;
+        TERMINATE(" CIM_ObjectManager Test Caught General Exception:");
     }
+    if (verbose)
+    {
+        cout << "Statistics Enable Tests passed" << endl;
+    }
+}
 
-    //************************************************************
-    //  Tests on the objectmanager communication classes
-    //************************************************************
+
+//************************************************************
+//  Tests on the objectmanager communication classes
+//************************************************************
+void InteropTest::testCommunicationClass()
+{
     try
     {
         // test to confirm that both names and instances return same thing.
-        Array<CIMObjectPath> pathsObjMgr = client.enumerateInstanceNames(
+        Array<CIMObjectPath> pathsObjMgr = _client.enumerateInstanceNames(
                                                  PEGASUS_NAMESPACENAME_INTEROP,
                                                  CIM_OBJECTMANAGER_CLASSNAME);
-    
         assert(pathsObjMgr.size() == 1);
 
         CIMObjectPath objectManagerPath = pathsObjMgr[0];
 
-        Array<CIMInstance> instancesCommMech = client.enumerateInstances(
+        Array<CIMInstance> instancesCommMech = _client.enumerateInstances(
                                                      PEGASUS_NAMESPACENAME_INTEROP,
                                                      CIM_OBJECTMANAGERCOMMUNICATIONMECHANISM_CLASSNAME,
                                                      false, false, false,false, CIMPropertyList());
-    
+        // COMMENT KS - There is no reason for this.  The whole thing should be covered.
         #ifdef PEGASUS_ENABLE_SLP
         assert(instancesCommMech.size() > 0);
         #endif
@@ -1236,8 +1389,41 @@ int main(int argc, char** argv)
             assert (instancesCommMech[i].findProperty("AuthenticationMechanismsSupported") != PEG_NOT_FOUND);
             assert (instancesCommMech[i].findProperty("IPAddress") != PEG_NOT_FOUND);
         }
+    }
+    // Catch block for all of the CIM_ObjectManager Tests.
+    catch(CIMException& e)
+    {
+        TERMINATE(" CIM_ObjectManager Test CIMException: " << e.getMessage());
+    }
+    catch(Exception& e)
+    {
+        cerr << pgmName << " CIM_ObjectManager Test Pegasus Exception: " << e.getMessage()  << endl;
+    }
+    catch(...)
+    {
+        cerr << pgmName << " CIM_ObjectManager Test Caught General Exception:" << endl;
+    }
+    if (verbose)
+        cout << "test Communication Class successful" << endl;
+}
 
-        Array<CIMObjectPath> referenceNames = client.referenceNames(
+//************************************************************
+//  Tests on the NamespaceInObjectManager classes
+//************************************************************
+void InteropTest::testNameSpaceInObjectManagerAssocClass()
+{
+    // KS Not implemented
+}
+
+//************************************************************
+//  Tests on the NamespaceInObjectManager classes
+//************************************************************
+void InteropTest::testCommMechinManagerAssocClass()
+{
+    CIMObjectPath objectManagerPath = getObjMgrPath();
+    try
+    {
+        Array<CIMObjectPath> referenceNames = _client.referenceNames(
                         PEGASUS_NAMESPACENAME_INTEROP,                // namespace
                         objectManagerPath,                            // object manager instance
                         CIM_COMMMECHANISMFORMANAGER_CLASSNAME,        // result class
@@ -1258,19 +1444,120 @@ int main(int argc, char** argv)
     // Catch block for all of the CIM_ObjectManager Tests.
     catch(CIMException& e)
     {
-        cerr << argv[0] << " CIMException: " << e.getMessage() << endl;
+        cerr << " CIMException: " << e.getMessage() << endl;
     }
     catch(Exception& e)
     {
-        cerr << argv[0] << " Pegasus Exception: " << e.getMessage()  << endl;
+        cerr << " Pegasus Exception: " << e.getMessage()  << endl;
     }
     catch(...)
     {
-        cerr << argv[0] << " Caught General Exception:" << endl;
+        cerr << " Caught General Exception:" << endl;
+    }
+}
+/////////////////////////////////////////////////////////////////////////////////////
+//
+//  Main-
+//
+/////////////////////////////////////////////////////////////////////////////////////
+int main(int argc, char** argv)
+{
+    verbose = getenv("PEGASUS_TEST_VERBOSE");
+
+    CIMClient client;
+    pgmName = argv[0];
+    cout << pgmName << endl;
+    if (argc > 1)
+    {
+        String cmd = argv[1];
+        if (cmd == "--help" || cmd == "-help" || cmd == "help")
+        {
+            cout << "Usage: " << pgmName << "\n"
+            << "   or " << pgmName << " parameter where parameter =\n"
+            << "         on - turns on the statistics function. \n"
+            << "         off - turns off the statistics fucntion.\n"
+            << "         status - Shows current status of statistics flag." << endl;
+            exit (0);
+        }
+    }
+    try
+    {
+        client.connectLocal();
+    }
+    catch(Exception& e)
+    {
+        cerr <<" Error: " << e.getMessage() << " Conection terminate abnormal" << endl;
+        exit(1);
+    }
+    try
+    {
+        InteropTest it(client);
+    
+     /* There are three possible commands. 
+        on - Turns on the status monitor
+        off - Turns off the status monitor
+        Status - Shows the state of the status monitor
+    
+        If no command is input, it reports the current statistics.
+        Note that we do not protect against the user requesting statistics
+        if the monitor is off.
+    */
+        if (argc > 1)
+        {
+            String cmd = argv[1];
+            if (cmd == "on")
+            {
+                it.setStatisticsState(true);
+                exit(0);
+            }
+            else if (cmd == "off")
+            {
+                it.setStatisticsState(false);
+                exit(0);
+            }
+            else if (cmd == "status")
+            {
+                it.showStatisticsState();
+                exit(0);
+            }
+            else
+            {
+                cerr << pgmName << ". Error on command line. " 
+                    << " Expected on or off or status. Rcvd "<< cmd << endl;
+                exit(1);
+            }
+        }
+        it.testNameSpacesManagement();
+    
+        it.testSharedNameSpacesManagement();
+    
+        it.testObjectManagerClass();
+    
+        it.testStatisticsEnable();
+    
+        it.testCommunicationClass();
+    
+        it.testNameSpaceInObjectManagerAssocClass();
+    
+        it.testCommMechinManagerAssocClass();
+    
+        client.disconnect();
     }
 
+    // Catch block for all of the CIM_ObjectManager Tests.
+    catch(CIMException& e)
+    {
+        TERMINATE(" Program CIMException: " << e.getMessage());
+    }
+    catch(Exception& e)
+    {
+        TERMINATE(" Program Pegasus Exception: " << e.getMessage());
+    }
+    catch(...)
+    {
+        TERMINATE(" Program Caught General Exception:");
+    }
     cout << argv[0] << " +++++ passed all tests" << endl;
-
-    return 0;
+    exit(0);
 }
 

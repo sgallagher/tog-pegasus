@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -204,6 +204,7 @@ public:
     }
     #endif
 
+protected:
     virtual String getClass(void) const
     {
         return(String("GetInstanceResponseHandler"));
@@ -279,6 +280,7 @@ public:
     }
     #endif
 
+protected:
     virtual String getClass(void) const
     {
         return(String("EnumerateInstancesResponseHandler"));
@@ -341,6 +343,7 @@ public:
     }
     #endif
 
+protected:
     virtual String getClass(void) const
     {
         return(String("EnumerateInstanceNamesResponseHandler"));
@@ -369,12 +372,13 @@ public:
     {
     }
 
+protected:
     virtual String getClass(void) const
     {
         return(String("CreateInstanceResponseHandler"));
     }
 
-#if 0
+    #if 0
     // ATTN: is it an error to not return instance name?
     virtual void validate(void)
     {
@@ -383,7 +387,7 @@ public:
             setStatus(CIM_ERR_NOT_FOUND);
         }
     }
-#endif
+    #endif
 
     virtual void transfer(void)
     {
@@ -407,11 +411,11 @@ public:
     {
     }
 
+protected:
     virtual String getClass(void) const
     {
         return(String("ModifyInstanceResponseHandler"));
     }
-
 };
 
 class DeleteInstanceResponseHandler : public OperationResponseHandler, public SimpleResponseHandler
@@ -424,6 +428,7 @@ public:
     {
     }
 
+protected:
     virtual String getClass(void) const
     {
         return(String("DeleteInstanceResponseHandler"));
@@ -441,6 +446,7 @@ public:
     {
     }
 
+protected:
     virtual String getClass(void) const
     {
         return(String("GetPropertyResponseHandler"));
@@ -478,6 +484,7 @@ public:
     {
     }
 
+protected:
     virtual String getClass(void) const
     {
         return(String("SetPropertyResponseHandler"));
@@ -495,6 +502,7 @@ public:
     {
     }
 
+protected:
     virtual String getClass(void) const
     {
         return(String("ExecQueryResponseHandler"));
@@ -524,6 +532,7 @@ public:
     {
     }
 
+protected:
     virtual String getClass(void) const
     {
         return(String("AssociatorsResponseHandler"));
@@ -548,6 +557,7 @@ public:
     {
     }
 
+protected:
     virtual String getClass(void) const
     {
         return(String("AssociatorNamesResponseHandler"));
@@ -572,6 +582,7 @@ public:
     {
     }
 
+protected:
     virtual String getClass(void) const
     {
         return(String("ReferencesResponseHandler"));
@@ -596,6 +607,7 @@ public:
     {
     }
 
+protected:
     virtual String getClass(void) const
     {
         return(String("ReferenceNamesResponseHandler"));
@@ -620,6 +632,7 @@ public:
     {
     }
 
+protected:
     virtual String getClass(void) const
     {
         return(String("InvokeMethodResponseHandler"));
@@ -655,16 +668,6 @@ public:
         _indicationCallback(indicationCallback)
     {
         _provider = provider;
-    }
-
-    virtual String getClass(void) const
-    {
-        return(String("EnableIndicationsResponseHandler"));
-    }
-
-    virtual Boolean isAsync(void) const
-    {
-        return(false);
     }
 
     virtual void deliver(const CIMIndication & cimIndication)
@@ -756,6 +759,17 @@ public:
         {
             deliver(context, cimIndications[i]);
         }
+    }
+
+protected:
+    virtual String getClass(void) const
+    {
+        return(String("EnableIndicationsResponseHandler"));
+    }
+
+    virtual Boolean isAsync(void) const
+    {
+        return(false);
     }
 
 private:

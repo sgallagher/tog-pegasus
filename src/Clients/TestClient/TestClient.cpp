@@ -608,6 +608,7 @@ static void TestEnumerateInstances( CIMClient& client,
       Boolean includeClassOrigin = false;
       Uint32 testRepeat = 10;
       Uint32 numberInstances;
+
       for (Uint32 i = 0; i < testRepeat; i++)        // repeat the test x time
         {
 	  Array<CIMNamedInstance> cimNInstances = 

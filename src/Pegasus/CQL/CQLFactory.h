@@ -78,20 +78,125 @@ typedef struct CQLObjectPtr {
 
 enum FactoryType { Identifier, ChainedIdentifier, Value, Function, Factor, Term, Expression, SimplePredicate, Predicate };
 
+/**
+   The CQLFactory class enables the user to construct and access complex CQL objects from simple objects without
+   having to call each constructor or each getter in the CQL object tree.  
+
+   Three uses:
+	makeObject - allows the caller to pass in a CQL object and a target object type.  This returns the target type
+		     built from the initial object.
+
+	getObject  - allows caller to pass in a CQL object and target query object type.  This returns the target type 
+		     contained within the CQL object passed in.
+		     
+	setObject  - allows caller to pass in a CQLPredicate, and object to set into the CQlPredicate and its type.
+*/
+
 class PEGASUS_CQL_LINKAGE CQLFactory
 {
   public:
   //CQLFactory();
   ~CQLFactory();
+
+  /**
+      Makes a target type object from a CQLIdentifier
+                                                                                                                                                             
+      @param  - obj.  The CQLIdentifier to make the object from
+      @param  - target. The target type of the object to be constructed.
+      @return - A CQL object of type target cast to a void*.  Caller must then cast to the appropriate type.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
   void* makeObject(CQLIdentifier* obj, FactoryType target);
+
+  /**
+      Makes a target type object from a CQLChainedIdentifier
+                                                                                                                                                             
+      @param  - obj.  The CQLChainedIdentifier to make the object from
+      @param  - target. The target type of the object to be constructed.
+      @return - A CQL object of type target cast to a void*.  Caller must then cast to the appropriate type.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
   void* makeObject(CQLChainedIdentifier* obj, FactoryType target);
+
+  /**
+      Makes a target type object from a CQLValue
+                                                                                                                                                             
+      @param  - obj.  The CQLValue to make the object from
+      @param  - target. The target type of the object to be constructed.
+      @return - A CQL object of type target cast to a void*.  Caller must then cast to the appropriate type.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
   void* makeObject(CQLValue* obj, FactoryType target);
+
+  /**
+      Makes a target type object from a CQLFactor
+                                                                                                                                                             
+      @param  - obj.  The CQLFactor to make the object from
+      @param  - target. The target type of the object to be constructed.
+      @return - A CQL object of type target cast to a void*.  Caller must then cast to the appropriate type.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
   void* makeObject(CQLFactor* obj, FactoryType target);
+
+  /**
+      Makes a target type object from a CQLFunction
+                                                                                                                                                             
+      @param  - obj.  The CQLFunction to make the object from
+      @param  - target. The target type of the object to be constructed.
+      @return - A CQL object of type target cast to a void*.  Caller must then cast to the appropriate type.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
   void* makeObject(CQLFunction* obj, FactoryType target);
+
+  /**
+      Makes a target type object from a CQLTerm
+                                                                                                                                                             
+      @param  - obj.  The CQLTerm to make the object from
+      @param  - target. The target type of the object to be constructed.
+      @return - A CQL object of type target cast to a void*.  Caller must then cast to the appropriate type.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
   void* makeObject(CQLTerm* obj, FactoryType target);
+
+  /**
+      Makes a target type object from a CQLExpression
+                                                                                                                                                             
+      @param  - obj.  The CQLExpression to make the object from
+      @param  - target. The target type of the object to be constructed.
+      @return - A CQL object of type target cast to a void*.  Caller must then cast to the appropriate type.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
   void* makeObject(CQLExpression* obj, FactoryType target);
+
+  /**
+      Makes a target type object from a CQLSimplePredicate
+                                                                                                                                                             
+      @param  - obj.  The CQLSimplePredicate to make the object from
+      @param  - target. The target type of the object to be constructed.
+      @return - A CQL object of type target cast to a void*.  Caller must then cast to the appropriate type.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
   void* makeObject(CQLSimplePredicate* obj, FactoryType target);
   
+  /**
+      Returns an object of targetType contained within CQL object being passed in.
+      This method is a general use method that internally calls one of the specific getObject flavors.
+                                                                                                                                                             
+      @param  - inObject.  The object to extract the target type from.
+      @param  - inObjectType. The target type of the object being passed in.
+      @param  - targetType. The target type of the object to extract from the CQL object passed in.
+      @return - A CQL object of type target cast to a void*.  Caller must then cast to the appropriate type.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
   void* getObject(void* inObject, FactoryType inObjectType, FactoryType targetType);
 
   void* getObject(CQLChainedIdentifier* obj, FactoryType target);
@@ -102,7 +207,29 @@ class PEGASUS_CQL_LINKAGE CQLFactory
   void* getObject(CQLSimplePredicate* obj, FactoryType target);
   void* getObject(CQLPredicate* obj, FactoryType target);
  
+  /**
+      Sets an object of targetType into the CQLPredicate.  
+      The caller may want to replace the CQLValue within the CQLPredicate.  This enables the caller 
+      to do this with one call.
+                                                                                                                                                             
+      @param  - predicate.  The CQLPredicate to set the target type object into.
+      @param  - obj.  The object to set into the CQLPredicate
+      @param  - objType. The type of "obj"
+      @return - None.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
   void setObject(CQLPredicate* predicate, void* obj, FactoryType objType);
+
+
+  /**
+      Frees all memory allocated.	
+
+      @param  - None.
+      @return - None.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
   void cleanup();
 private: 
   void cleanupArray(Array<CQLObjectPtr>& arr, FactoryType type);

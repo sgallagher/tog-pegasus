@@ -33,6 +33,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CQLFactory.h"
+#include <Pegasus/Common/Tracer.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -54,6 +55,7 @@ CQLFactory::~CQLFactory(){
 }
 
 void CQLFactory::cleanup(){
+PEG_METHOD_ENTER(TRC_CQL, "CQLFactory::cleanup");
 	cleanupArray(_makeObjectIdentifiers, Identifier);
 	cleanupArray(_makeObjectChainedIdentifiers, ChainedIdentifier);
 	cleanupArray(_makeObjectValues, Value);
@@ -72,6 +74,7 @@ void CQLFactory::cleanup(){
         cleanupArray(_getObjectExpressions, Expression);
         cleanupArray(_getObjectSimplePredicates, SimplePredicate);
         cleanupArray(_getObjectPredicates, Predicate);
+PEG_METHOD_EXIT();
 }
 void CQLFactory::cleanupArray(Array<CQLObjectPtr>& arr, FactoryType type){
 	for(Uint32 i=0;i < arr.size(); i++){
@@ -111,6 +114,7 @@ void CQLFactory::cleanupArray(Array<CQLObjectPtr>& arr, FactoryType type){
 
 void* CQLFactory::makeObject(CQLIdentifier* obj, FactoryType target){
   //printf("CQLFactory::makeObject(identifier)\n");
+PEG_METHOD_ENTER(TRC_CQL, "CQLFactory::makeObject,CQLIdentifier");
 	_CQLObjectPtr._ptr = new CQLChainedIdentifier(*obj);
         _makeObjectChainedIdentifiers.append(_CQLObjectPtr);
 	switch(target){
@@ -124,9 +128,11 @@ void* CQLFactory::makeObject(CQLIdentifier* obj, FactoryType target){
 		return makeObject((CQLChainedIdentifier*)(_CQLObjectPtr._ptr), target);
 		break;
         }
+PEG_METHOD_EXIT();
 }
 void* CQLFactory::makeObject(CQLChainedIdentifier* obj, FactoryType target){
 //printf("CQLFactory::makeObject(chainedidentifier)\n");
+PEG_METHOD_ENTER(TRC_CQL, "CQLFactory::makeObject,CQLChainedIdentifier");
 	_CQLObjectPtr._ptr = new CQLValue(*obj);
 	CQLValue* _val = (CQLValue*)_CQLObjectPtr._ptr;
         _makeObjectValues.append(_CQLObjectPtr);
@@ -141,10 +147,11 @@ void* CQLFactory::makeObject(CQLChainedIdentifier* obj, FactoryType target){
                 return makeObject((CQLValue*)(_CQLObjectPtr._ptr), target);
                 break;
         }
-
+PEG_METHOD_EXIT();
 }
 void* CQLFactory::makeObject(CQLValue* obj, FactoryType target){
 //printf("CQLFactory::makeObject(value)\n");
+PEG_METHOD_ENTER(TRC_CQL, "CQLFactory::makeObject,CQLValue");
 	_CQLObjectPtr._ptr = new CQLFactor(*obj);
         _makeObjectFactors.append(_CQLObjectPtr);
 	switch(target){
@@ -158,10 +165,11 @@ void* CQLFactory::makeObject(CQLValue* obj, FactoryType target){
                 return makeObject((CQLFactor*)(_CQLObjectPtr._ptr), target);
                 break;
         }
-
+PEG_METHOD_EXIT();
 }
 void* CQLFactory::makeObject(CQLFunction* obj, FactoryType target){
 //printf("CQLFactory::makeObject(function)\n");
+PEG_METHOD_ENTER(TRC_CQL, "CQLFactory::makeObject,CQLFunction");
 	_CQLObjectPtr._ptr = new CQLFactor(*obj);
         _makeObjectFactors.append(_CQLObjectPtr);
         switch(target){
@@ -172,9 +180,11 @@ void* CQLFactory::makeObject(CQLFunction* obj, FactoryType target){
                 return makeObject((CQLFactor*)(_CQLObjectPtr._ptr), target);
                 break;
         }
+PEG_METHOD_EXIT();
 }
 void* CQLFactory::makeObject(CQLFactor* obj, FactoryType target){
 //printf("CQLFactory::makeObject(factor)\n");
+PEG_METHOD_ENTER(TRC_CQL, "CQLFactory::makeObject,CQLFactor");
 	_CQLObjectPtr._ptr = new CQLTerm(*obj);
         _makeObjectTerms.append(_CQLObjectPtr);
 	switch(target){
@@ -188,10 +198,11 @@ void* CQLFactory::makeObject(CQLFactor* obj, FactoryType target){
                 return makeObject((CQLTerm*)(_CQLObjectPtr._ptr), target);
                 break;
         }
-
+PEG_METHOD_EXIT();
 }
 void* CQLFactory::makeObject(CQLTerm* obj, FactoryType target){
 //printf("CQLFactory::makeObject(term)\n");
+PEG_METHOD_ENTER(TRC_CQL, "CQLFactory::makeObject,CQLTerm");
 	_CQLObjectPtr._ptr = new CQLExpression(*obj);
         _makeObjectExpressions.append(_CQLObjectPtr);
 	switch(target){
@@ -205,10 +216,11 @@ void* CQLFactory::makeObject(CQLTerm* obj, FactoryType target){
                 return makeObject((CQLExpression*)(_CQLObjectPtr._ptr), target);
                 break;
         }
-
+PEG_METHOD_EXIT();
 }
 void* CQLFactory::makeObject(CQLExpression* obj, FactoryType target){
 //printf("CQLFactory::makeObject(expression)\n");
+PEG_METHOD_ENTER(TRC_CQL, "CQLFactory::makeObject,CQLExpression");
 	_CQLObjectPtr._ptr = new CQLSimplePredicate(*obj);
 	_makeObjectSimplePredicates.append(_CQLObjectPtr);
 	switch(target){
@@ -222,10 +234,11 @@ void* CQLFactory::makeObject(CQLExpression* obj, FactoryType target){
                 return makeObject((CQLSimplePredicate*)(_CQLObjectPtr._ptr), target);
                 break;
         }
-
+PEG_METHOD_EXIT();
 }
 void* CQLFactory::makeObject(CQLSimplePredicate* obj, FactoryType target){
 //printf("CQLFactory::makeObject(simplepredicate)\n");
+PEG_METHOD_ENTER(TRC_CQL, "CQLFactory::makeObject,CQLSimplePredicate");
 	_CQLObjectPtr._ptr = new CQLPredicate(*obj);
 	_makeObjectPredicates.append(_CQLObjectPtr);
 	switch(target){
@@ -236,9 +249,11 @@ void* CQLFactory::makeObject(CQLSimplePredicate* obj, FactoryType target){
                 return NULL;
                 break;
         }
+PEG_METHOD_EXIT();
 }
 
 void* CQLFactory::getObject(void* inObject, FactoryType inObjectType, FactoryType targetType){
+PEG_METHOD_ENTER(TRC_CQL, "CQLFactory::getObject");
 	switch(inObjectType){
 		case Predicate:
 			return getObject(((CQLPredicate*)inObject),targetType);
@@ -259,6 +274,7 @@ void* CQLFactory::getObject(void* inObject, FactoryType inObjectType, FactoryTyp
 		default:
 			return NULL;
 	}
+PEG_METHOD_EXIT();
 }
 
 void* CQLFactory::getObject(CQLChainedIdentifier* obj, FactoryType target){
@@ -397,6 +413,7 @@ void* CQLFactory::getObject(CQLPredicate* obj, FactoryType target){
 }
 
 void CQLFactory::setObject(CQLPredicate* predicate, void* obj, FactoryType objType){
+PEG_METHOD_ENTER(TRC_CQL, "CQLFactory::setObject");
 	switch(objType){
 	  case SimplePredicate:
 		predicate->_rep->_simplePredicate = *((CQLSimplePredicate*)obj);
@@ -428,5 +445,6 @@ void CQLFactory::setObject(CQLPredicate* predicate, void* obj, FactoryType objTy
 	  default:
 		break;
 	}
+PEG_METHOD_EXIT();
 } 
 PEGASUS_NAMESPACE_END

@@ -2,18 +2,10 @@ ROOT = ..
 
 include $(ROOT)/mak/config.mak
 
-ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
-DIRS =  Pegasus Clients Providers Server
-else
-ifeq ($(OS),HPUX)
-DIRS =  Pegasus Clients Providers Server
-else
 ifdef ($PEGASUS_SLP_CLASSES)
-DIRS = slp Pegasus Clients Providers Server
+DIRS = utils slp Pegasus Clients Providers Server
 else
-DIRS = Pegasus Clients Providers Server
-endif
-endif
+DIRS = utils Pegasus Clients Providers Server
 endif
 
 

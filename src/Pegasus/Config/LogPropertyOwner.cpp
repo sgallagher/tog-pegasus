@@ -140,6 +140,8 @@ void LogPropertyOwner::initialize()
             _logLevel->dynamic = properties[i].dynamic;
             _logLevel->domain = properties[i].domain;
             _logLevel->domainSize = properties[i].domainSize;
+
+	    Logger::setlogLevelMask(_logLevel->currentValue);
         }
     }
 }

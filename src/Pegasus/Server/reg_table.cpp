@@ -247,7 +247,7 @@ reg_table_rep::_insert(const reg_table_record &rec)
    auto_mutex monitor(&_mutex);
    
    type_table *tt;
-   if(false ==  _table.lookup(rec.namespace_name, tt))
+   if(false ==  _table.lookup(rec.namespace_name.getString(), tt))
    {
       type_table *temp = new type_table();
       _table.insert(rec.namespace_name.getString(), temp);
@@ -442,7 +442,7 @@ reg_table_rep::_enumerate(const reg_table_record & rec,
 	       // null class_name is a wildcard
 	       if(false == rec.class_name.isNull())
 	       {
-		  if(rec.class_name != x.value()->class_name)
+		  if(!rec.class_name.equal(x.value()->class_name))
 		     continue;
 	       }
 	       reg_table_record *tmp = x.value();

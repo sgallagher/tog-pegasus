@@ -15,9 +15,6 @@ DIRS = \
     ExportClient \
     Provider \
     Server/ProviderRegistrationManager \
-    ProviderManager2 \
-	ProviderManager2/Default \
-	ProviderManager2/CMPI \
     ExportServer \
     Listener \
     Security/UserManager \
@@ -28,8 +25,23 @@ DIRS = \
     ControlProviders/NamespaceProvider \
     WQL \
     HandlerService \
-    IndicationService \
-    Server \
+    IndicationService
+
+ifdef ENABLE_PROVIDER_MANAGER2
+DIRS += \
+    ProviderManager2 \
+	ProviderManager2/Default \
+	ProviderManager2/CMPI \
+	ProviderManager2/tests \
+	ProviderManager2/Default/tests
+else
+DIRS += \
+	ProviderManager \
+	Providermanager/tests
+endif
+	
+DIRS += \
+	Server \
     Handler/CIMxmlIndicationHandler \
     Handler/sendmailIndicationHandler \
     Handler/snmpIndicationHandler \
@@ -47,8 +59,6 @@ DIRS = \
     ControlProviders/ProviderRegistrationProvider/tests \
     Listener/tests \
     Consumer/tests \
-	ProviderManager2/tests \
-	ProviderManager2/Default/tests \
     msg/Server \
     msg/CLI
 

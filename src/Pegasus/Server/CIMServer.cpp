@@ -58,7 +58,8 @@
 #include <Pegasus/Security/UserManager/UserManager.h>
 #include <Pegasus/HandlerService/IndicationHandlerService.h>
 #include <Pegasus/IndicationService/IndicationService.h>
-#include <Pegasus/ProviderManager2/ProviderManagerService.h>
+#include <Pegasus/ProviderManager/ProviderManagerService.h>
+#include <Pegasus/ProviderManager/ProviderManager.h>
 #include "CIMServer.h"
 #include "CIMOperationRequestDispatcher.h"
 #include "CIMOperationResponseEncoder.h"
@@ -390,7 +391,8 @@ void CIMServer::runForever()
 		  {
 		    MessageQueueService::_check_idle_flag = 1;
 		    MessageQueueService::_polling_sem.signal();
-		    _providerManager->unload_idle_providers();
+		    //_providerManager->unload_idle_providers();
+            ProviderManagerService::getProviderManager()->unload_idle_providers();
 		    _monitor->kill_idle_threads();
 		  }
 		catch(...)

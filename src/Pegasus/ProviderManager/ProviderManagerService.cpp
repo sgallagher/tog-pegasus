@@ -32,6 +32,7 @@
 //		Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Amit K Arora (amita@in.ibm.com) for PEP-101
+//				Seema Gupta (gseema@in.ibm.com) for PEP135
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -40,7 +41,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/CIMMessage.h>
-#include <Pegasus/Common/OperationContext.h>
+#include <Pegasus/Common/OperationContextInternal.h>
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/StatisticalData.h>
@@ -2342,11 +2343,16 @@ void ProviderManagerService::handleCreateSubscriptionRequest(AsyncOpNode *op, co
 
     OperationResponseHandler handler(request, response);
 
+	CIMInstance req_provider, req_providerModule;
+	ProviderIdContainer pidc = (ProviderIdContainer)request->operationContext.get(ProviderIdContainer::NAME);
+	req_provider = pidc.getProvider();
+	req_providerModule = pidc.getModule();
+
     try
     {
 	// get the provider file name and logical name
 	Triad<String, String, String> triad =
-	    _getProviderRegPair(request->provider, request->providerModule);
+	    _getProviderRegPair(req_provider, req_providerModule);
 	
 	// get cached or load new provider module
 	   
@@ -2460,12 +2466,16 @@ void ProviderManagerService::handleModifySubscriptionRequest(AsyncOpNode *op, co
     response->synch_response(request);
 
     OperationResponseHandler handler(request, response);
+	CIMInstance req_provider, req_providerModule;
+	ProviderIdContainer pidc = (ProviderIdContainer)request->operationContext.get(ProviderIdContainer::NAME);
+	req_provider = pidc.getProvider();
+	req_providerModule = pidc.getModule();
 
     try
     {
 	// get the provider file name and logical name
 	Triad<String, String, String> triad =
-	    _getProviderRegPair(request->provider, request->providerModule);
+	    _getProviderRegPair(req_provider, req_providerModule);
 
 	// get cached or load new provider module
         //Provider provider =
@@ -2578,11 +2588,16 @@ void ProviderManagerService::handleDeleteSubscriptionRequest(AsyncOpNode *op, co
 
     OperationResponseHandler handler(request, response);
 
+	CIMInstance req_provider, req_providerModule;
+	ProviderIdContainer pidc = (ProviderIdContainer)request->operationContext.get(ProviderIdContainer::NAME);
+	req_provider = pidc.getProvider();
+	req_providerModule = pidc.getModule();
+
     try
     {
 	// get the provider file name and logical name
 	Triad<String, String, String> triad =
-	    _getProviderRegPair(request->provider, request->providerModule);
+	    _getProviderRegPair(req_provider, req_providerModule);
 
 	// get cached or load new provider module
         //Provider provider =
@@ -2692,16 +2707,20 @@ void ProviderManagerService::handleEnableIndicationsRequest(AsyncOpNode *op, con
 
     response->dest = request->queueIds.top();
 
+	ProviderIdContainer pidc = request->operationContext.get(ProviderIdContainer::NAME);
+	CIMInstance req_provider, req_providerModule;
+	req_provider = pidc.getProvider();
+	req_providerModule = pidc.getModule();
 
     EnableIndicationsResponseHandler *handler = 
        new EnableIndicationsResponseHandler(request, response, 
-           request->provider, this);
+           req_provider, this);
 
     try
     {
        // get the provider file name and logical name
        Triad<String, String, String> triad =
-	  _getProviderRegPair(request->provider, request->providerModule);
+	  _getProviderRegPair(req_provider, req_providerModule);
 	  
        // get cached or load new provider module
         //Provider provider =
@@ -2783,11 +2802,16 @@ void ProviderManagerService::handleDisableIndicationsRequest(AsyncOpNode *op, co
 
     OperationResponseHandler handler(request, response);
 
+	CIMInstance req_provider, req_providerModule;
+	ProviderIdContainer pidc = (ProviderIdContainer)request->operationContext.get(ProviderIdContainer::NAME);
+	req_provider = pidc.getProvider();
+	req_providerModule = pidc.getModule();
+
     try
     {
 	// get the provider file name and logical name
 	Triad<String, String, String> triad =
-	    _getProviderRegPair(request->provider, request->providerModule);
+	    _getProviderRegPair(req_provider, req_providerModule);
 
 	// get cached or load new provider module
         //Provider provider =
@@ -2872,6 +2896,7 @@ void ProviderManagerService::handleDisableModuleRequest(AsyncOpNode *op, const M
     {
         // get provider module name
         String moduleName;
+
         CIMInstance mInstance = request->providerModule;
         Uint32 pos = mInstance.findProperty(CIMName ("Name"));
 

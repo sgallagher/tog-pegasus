@@ -243,7 +243,9 @@ private:
 	
 	void _replaceRBProperty(CIMInstance & instance, String newProp);	
 										
-	ContentLanguages _addContentLanguagesProp(CIMInstance & instance);											
+	ContentLanguages _addContentLanguagesProp(CIMInstance & instance);
+
+        void _setHandlerLanguages(ResponseHandler & handler, ContentLanguages & langs);
 };
 
 PEGASUS_NAMESPACE_END

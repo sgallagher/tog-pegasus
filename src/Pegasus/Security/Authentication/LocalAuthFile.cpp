@@ -167,8 +167,27 @@ String LocalAuthFile::create()
 
     String filePath = String::EMPTY;
 
+	//Check to see whether a domain was specified. If so, strip the domain from the
+	//local auth file name, since the backslash and '@' are invalid filename characters.
+	//Store this in another variable, since we need to keep the domain around for 
+	//the rest of the operations. Bug 3076
+	String fileUserName = _userName;
+	Uint32 index = _userName.find('\\');
+	if (index != PEG_NOT_FOUND) 
+	{
+		fileUserName = _userName.subString(index + 1);
+
+	} else
+	{
+		index = _userName.find('@');
+		if (index != PEG_NOT_FOUND) 
+		{
+			fileUserName = _userName.subString(0, index);
+		}
+	}
+
     filePath.append(_authFilePath);
-    filePath.append(_userName);
+    filePath.append(fileUserName);//_userName);
     filePath.append(extension);
     CString filePathCString = filePath.getCString();
 

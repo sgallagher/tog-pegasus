@@ -702,8 +702,16 @@ void NameSpaceManager::checkModify(
     if (!superClassName.equal (oldSuperClassName))
     {
         PEG_METHOD_EXIT();
-	throw PEGASUS_CIM_EXCEPTION(
-	    CIM_ERR_FAILED, "attempt to change superclass");
+        
+       // l10n	
+	   // throw PEGASUS_CIM_EXCEPTION(
+	   // CIM_ERR_FAILED, "attempt to change superclass");
+
+	   throw PEGASUS_CIM_EXCEPTION_L(
+	    CIM_ERR_FAILED, 
+	    MessageLoaderParms("Repository.NameSpaceManager.ATTEMPT_TO_CHANGE_SUPERCLASS",
+	    "attempt to change superclass"));
+
     }
 
     // -- Disallow modification of class with subclasses:

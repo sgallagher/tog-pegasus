@@ -304,13 +304,9 @@ void ProviderRegistrationProvider::modifyInstance(
     	//l10n
 	//throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
 	    //"Only can modify Namespaces, SupportedProperties, and SupportedMethods.");
-	    String s1 = "Namespaces";
-	    String s2 = "SupportedProperties";
-	    String s3 = "SupportedMethods";
 	    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED, MessageLoaderParms(
 	    		"ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.CAN_ONLY_MODIFY_ERR",
-	    		"Only can modify $0, $1, and $2.",
-	    		s1, s2, s3));
+	    		"Only can modify Namespaces, SupportedProperties, and SupportedMethods."));
     }
 
     Array<CIMName> propertyArray = propertyList.getPropertyNameArray();

@@ -552,6 +552,13 @@ class PEGASUS_COMMON_LINKAGE Condition
       Mutex *_cond_mutex; // the conditional mutex
       friend void extricate_condition(void *);
       
+      // Hide the assignment operator to avoid implicit use of the default
+      // assignment operator.  Do not use this method.
+      Condition& operator=(const Condition& original) {return *this;}
+
+      // Hide the copy constructor to avoid implicit use of the default
+      // copy constructor.  Do not use this method.
+      Condition(const Condition& original) {}
 };
 
 

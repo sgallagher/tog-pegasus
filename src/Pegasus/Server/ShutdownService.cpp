@@ -379,7 +379,7 @@ Boolean ShutdownService::_waitUntilNoMoreRequests()
     Mutex _mutex;
 
     // create a condition 
-    Condition _cond = Condition(_mutex);
+    Condition _cond(_mutex);
 
     //
     // Loop and wait one second until either there is no more requests

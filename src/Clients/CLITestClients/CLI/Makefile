@@ -4,7 +4,11 @@ PROGRAM_NAME = CLI
 
 DIR = Clients/CLITestClients/$(PROGRAM_NAME)
 include $(ROOT)/mak/config.mak
-include ../../libraries.mak
+
+LIBRARIES = \
+    pegCLIClientLib \
+    pegclient \
+    pegcommon
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 

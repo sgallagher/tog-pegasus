@@ -10,7 +10,6 @@ LIBRARIES = \
     pegcliutils \
     pegclient \
     peggetoopt \
-    pegconfig \
     pegcommon
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)

@@ -8,7 +8,6 @@ LIBRARIES = \
     pegcliutils \
     pegclient \
     peggetoopt \
-    pegconfig \
     pegcommon
 
 PROGRAM = cimop

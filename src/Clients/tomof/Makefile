@@ -3,7 +3,13 @@ ROOT = $(PEGASUS_ROOT)
 PROGRAM_NAME = tomof
 DIR = Clients/$(PROGRAM_NAME)
 include $(ROOT)/mak/config.mak
-include ../libraries.mak
+
+LIBRARIES = \
+    pegclient \
+    pegrepository \
+    pegconfig \
+    pegcommon
+
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 

@@ -11,8 +11,6 @@ LIBRARIES = \
     pegcliutils \
     peggetoopt \
     pegclient \
-    pegrepository \
-    pegconfig \
     pegcommon
 
 PROGRAM = nisinfo

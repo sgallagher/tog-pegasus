@@ -10,7 +10,12 @@ ifdef PEGASUS_HAS_SSL
    SYS_INCLUDES += -I$(OPENSSL_HOME)/include
 endif
 
-include ../libraries.mak
+LIBRARIES = \
+    peglistener \
+    pegExportServer \
+    pegconfig \
+    pegclient \
+    pegcommon
 
 PROGRAM = g11ntest
 PROGRAM_ICU = g11ntest -reqlang en -rsplang en

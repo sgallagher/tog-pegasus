@@ -32,6 +32,8 @@
 // Modified By: Heidi Neuman, heidineu@de.ibm.com
 //              Angel Nunez Mencias, anunez@de.ibm.com
 //              Viktor Mihajlovski, mihajlov@de.ibm.com
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -1080,8 +1082,8 @@ CmpiCharData::CmpiCharData(CMPIChar16 d) {
 //--
 //---------------------------------------------------
 
-CmpiInstance::CmpiInstance(const CMPIInstance* enc) {
-   this->enc=(void*)enc;
+CmpiInstance::CmpiInstance(const CMPIInstance* newEnc) {
+   this->enc=(void*)newEnc;
 }
 
 CMPIInstance *CmpiInstance::getEnc() const {
@@ -1584,8 +1586,8 @@ CmpiBoolean CmpiString::equalsIgnoreCase(const CmpiString& str) const {
 //---------------------------------------------------
 
 
-CmpiArgs::CmpiArgs(CMPIArgs* enc) {
-   this->enc=enc;
+CmpiArgs::CmpiArgs(CMPIArgs* newEnc) {
+   this->enc=newEnc;
 }
 
 CmpiArgs::CmpiArgs() {
@@ -1659,8 +1661,8 @@ CmpiObject::CmpiObject()
    : enc(0) {
  }
 
-CmpiObject::CmpiObject(const void* enc) {
-   this->enc=(void*)enc;
+CmpiObject::CmpiObject(const void* newEnc) {
+   this->enc=(void*)newEnc;
 }
 
 CmpiBoolean CmpiObject::isNull() const {
@@ -1695,8 +1697,8 @@ CmpiBoolean CmpiObject::doIsA(CMPIBroker *mb, const char *typeName) const {
 //--
 //---------------------------------------------------
 
-CmpiEnumeration::CmpiEnumeration(CMPIEnumeration* enc) {
-   this->enc=enc;
+CmpiEnumeration::CmpiEnumeration(CMPIEnumeration* newEnc) {
+   this->enc=newEnc;
 }
 
 CMPIEnumeration *CmpiEnumeration::getEnc() const {
@@ -1765,8 +1767,8 @@ CmpiData CmpiContext::getEntry(const char* name) const{
 //---------------------------------------------------
 
 
-CmpiSelectExp::CmpiSelectExp(const CMPISelectExp* enc) {
-   this->enc=(void*)enc;
+CmpiSelectExp::CmpiSelectExp(const CMPISelectExp* newEnc) {
+   this->enc=(void*)newEnc;
 }
 
 CMPISelectExp *CmpiSelectExp::getEnc() const {
@@ -1786,8 +1788,8 @@ CmpiSelectExp::CmpiSelectExp() {
 
    /** Constructor from CMPI type
    */
-CmpiDateTime::CmpiDateTime(const CMPIDateTime* enc) {
-   this->enc=(void*)enc;
+CmpiDateTime::CmpiDateTime(const CMPIDateTime* newEnc) {
+   this->enc=(void*)newEnc;
 }
 
 CmpiDateTime::CmpiDateTime() {

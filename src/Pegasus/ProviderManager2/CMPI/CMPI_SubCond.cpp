@@ -61,7 +61,7 @@ extern "C" {
    CMPIPredicate* sbcGetPredicateAt(CMPISubCond* eSbc, unsigned int index, CMPIStatus* rc) {
       CMPI_SubCond *sbc=(CMPI_SubCond*)eSbc;
       if (index<=sbc->row->size()) {
-         const term_el *term=sbc->row[index].getData();
+         const term_el *term=(sbc->row->getData())+index;
 
          CMPIPredicate *prd=(CMPIPredicate*)new CMPI_Predicate(term);
          if (rc) CMSetStatus(rc,CMPI_RC_OK);

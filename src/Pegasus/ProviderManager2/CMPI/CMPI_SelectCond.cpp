@@ -62,7 +62,7 @@ extern "C" {
    CMPISubCond* scndGetSubCondAt(CMPISelectCond* eSc, unsigned int index, CMPIStatus* rc) {
       CMPI_SelectCond *sc=(CMPI_SelectCond*)eSc;
       if (index<=sc->tableau->size()) {
-         const TableauRow *row=sc->tableau[index].getData();
+         const TableauRow *row=(sc->tableau->getData())+index;
          CMPISubCond *sbc=(CMPISubCond*)new CMPI_SubCond(row);
          if (rc) CMSetStatus(rc,CMPI_RC_OK);
          return sbc;

@@ -100,8 +100,8 @@ void PG_TestPropertyTypes::initialize(CIMOMHandle& cimom)
 	instance1.addProperty(CIMProperty("PropertySint32", Sint32(-3200)));
 	instance1.addProperty(CIMProperty("PropertySint64", Sint64(-6400)));
 	instance1.addProperty(CIMProperty("PropertyBoolean", Boolean(1)));
-	instance1.addProperty(CIMProperty("PropertyReal32", Real32(1.32)));
-	instance1.addProperty(CIMProperty("PropertyReal64", Real64(1.64)));
+	instance1.addProperty(CIMProperty("PropertyReal32", Real32(1.12345670123)));
+	instance1.addProperty(CIMProperty("PropertyReal64", Real64(1.12345678906543210123)));
 	instance1.addProperty(CIMProperty("PropertyDatetime",
 			      CIMDateTime("20010515104354.000000:000")));
 
